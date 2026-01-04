@@ -1,0 +1,116 @@
+﻿{
+  "ASCIIString": {
+    "delimiter": "|",
+    "shiftType": null,
+    "terminator": 0,
+    "characterMap": [
+      null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null,
+      null, null, null, null, null, null, null, null, null, null, null, null, null, "⸓", null, null,
+      ".", "!", "ˎ", "Æ", "←", "˳", "‥", "˲", "[", "]", "*", "►", ",", "+", "-", "/",
+      "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", ":", "·", "(", "▼", ")", "?",
+      "█", "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O",
+      "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z", "-", "'", "<", ">", "#",
+      " ", "a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o",
+      "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z", "¥", "_", "{", "}", "¦",
+      "=", ";", "\"", "Á", "á", "é", "í", "ó", "ú", "â", "ê", "ô", "ã", "õ", "ç", "à",
+      " ", "˅", "Ḇ", "ṵ", "ṯ", "ō", "ṉ", "Ḛ", "ḛ", "ṟ", "˭", "Ĉ", "ā", "ĉ", "ḻ", "É",
+      null, null, null, null, null, null, null, null, null, null, null, null, "Í", "Ó", "Ú", "Â",
+      null, null, null, null, null, null, null, null, null, null, null, null, null, null, "Ê", "Ô",
+      "Ã", "Õ", "Ç", "À", null, null, null, null, null, null, null, null, null, null, null, null,
+      "☼", "○", "◦", "Ḣ", "Ṗ", "Ṡ", "Ṫ", "Ḋ", "Ḟ", "♥", null, null, null, null, null, null,
+      "ꝗ", "Ꝗ", null, null, "Ẋ", "Ẏ", "Ḃ", "Ạ", "⸔", null, null, null, null, null, null, null,
+      "₀", "₁", "₂", "₃", "₄", "₅", "₆", "₇", "₈", "₉", null, null, null, null, null, null
+    ],
+    "commands": {
+      "CUR": { "id": 1, "types": [ "Byte", "Byte" ] },
+      "PRT": { "id": 2, "types": [ "Address" ] },
+      "NHM": { "id": 3, "types": [ "Byte" ] },
+      "PTR": { "id": 4, "types": [ "Address", "Word" ] },
+      "BCD": { "id": 5, "types": [ "Byte", "Word" ] },
+      "RCT": { "id": 6, "types": [ "Byte", "Byte", "Word" ] },
+      "CLR": { "id": 7, "types": [ "Word" ] },
+      "CPY": { "id": 8, "types": [ "Byte", "Word" ] },
+      "STR": { "id": 9, "types": [] },
+      "HP": { "id": 10, "types": [] },
+      "HE": { "id": 11, "types": [] },
+      "ESC": { "id": 12, "types": [ "Binary" ], "delimiter": 255 },
+      "DBL": { "id": 13, "types": [] },
+      "NUM": { "id": 14, "types": [ "Word" ] },
+      "RCC": { "id": 15, "types": [ "Byte", "Byte" ] },
+      "LU": { "id": 16, "types": [ "Byte" ] },
+      "N": { "id": 17, "types": [] }
+    }
+  },
+  "SpriteString": {
+    "delimiter": "~",
+    "shiftType": "wh2",
+    "terminator": 202,
+    "characterMap": [
+      "A", "B", "C", "D", "E", "F", "G", "H", 
+      "I", "J", "K", "L", "M", "N", "O", "!",
+      "P", "Q", "R", "S", "T", "U", "V", "W",
+      "X", "Y", "Z", "/", "?", "-", "(", ")",
+      "a", "b", "c", "d", "e", "f", "g", "h",
+      "i", "j", "k", "l", "m", "n", "o", " ",
+      "p", "q", "r", "s", "t", "u", "v", "w",
+      "x", "y", "z", ",", ".", "'", "\"", "ˮ"
+    ],
+    "commands": {
+      "RET": { "id": 202, "types": [], "halt": true },
+      "N": { "id": 203, "types": [] }
+    }
+  },
+  "WideString": {
+    "delimiter": "`",
+    "shiftType": "h2",
+    "terminator": 202,
+    "greedyTerminator": true,
+    "characterMap": [
+      "Ǫ", "į", "ņ", "ţ", "ę", "ť", "Ĕ", "Ň", "Ĭ", "Ẋ", "Ẍ", "Ĉ", "Č", "?", "'", "▼",
+      "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", ".", ",", "►", "\"", "ˮ", ":",
+      "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "!",
+      "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z", "/", "*", "-", "(", ")",
+      "a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", ";",
+      "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z", "ǁ", " ", "…", "♥", "|",
+      "Ā", "ā", "Ē", "ē", "Ī", "ī", "Ō", "ō", "Ū", "ū", "Ŷ", "ŷ", "ǁ", "ǁ", "ǁ", "ǁ"
+    ],
+    "layers": [
+      {
+        "base": 224,
+        "map": [
+          "à", "á", "â", "ã", "À", "Á", "è", "é", "ê", "Â", "ç", "Õ", "É", "Ê", "Í", "Ú",
+          "ì", "í", "î", "ï", "ò", "ó", "ô", "õ", "ö", "ù", "ú", "û", "Ó", "Ô", "Ç", "Ã"
+        ]
+      }
+    ],
+    "commands": {
+      "END": { "id": 192, "types": [], "halt": true },
+      "DLG": { "id": 193, "types": [ "Byte", "Byte" ] },
+      "TPL": { "id": 194, "types": [ "Byte" ] },
+      "PAL": { "id": 195, "types": [ "Byte" ] },
+      "XXX": { "id": 196, "types": [] },
+      "ADR": { "id": 197, "types": [ "Offset", "Word" ] },
+      "BCD": { "id": 198, "types": [ "Word", "Word" ] },
+      "SIZ": { "id": 199, "types": [ "Byte", "Byte" ] },
+      "CLD": { "id": 200, "types": [] },
+      "PAU": { "id": 201, "types": [ "Byte" ] },
+      "RET": { "id": 202, "types": [], "halt": true },
+      "N": { "id": 203, "types": [] },
+      "SKP": { "id": 204, "types": [ "Byte" ] },
+      "PRT": { "id": 205, "types": [ "Address" ] },
+      "CLR": { "id": 206, "types": [] },
+      "FIN": { "id": 207, "types": [] },
+      "WAI": { "id": 208, "types": [] },
+      "JMP": { "id": 209, "types": [ "Offset" ], "halt": true },
+      "SFX": { "id": 210, "types": [ "Byte" ] },
+      "DEF": { "id": 211, "types": [] },
+      "SEP": { "id": 212, "types": [ "Byte", "Word" ] },
+      "DLY": { "id": 213, "types": [ "Byte" ] },
+      "LU1": { "id": 214, "types": [ "Byte" ] },
+      "LU2": { "id": 215, "types": [ "Byte" ] },
+      "ESC": { "id": 216, "types": [ "Binary" ], "delimiter": 0 },
+      "BOR": { "id": 217, "types": [ "Byte" ] },
+      "NAM": { "id": 218, "types": [ "Byte" ] }
+    }
+  }
+}

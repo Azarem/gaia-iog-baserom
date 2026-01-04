@@ -1,0 +1,49 @@
+﻿?BANK 01
+
+!token		00E6
+
+;This is an example script showing how to create a new item drop table for room clear rewards
+;Open up the reward_table asm file and change a room reward to > 3
+;Those rewards will be mapped to an item drop = ID + 3
+
+--------------------------------------------------
+
+main:
+  BNE $03
+  JML $80DDCA
+  DEC
+  BNE $03
+  JML $80DDDE
+  STA $token
+  COP [A5] ( %drop_actor, #00, #00, #$1000 )
+  LDA $0012, Y
+  ORA #$1000
+  STA $0012, Y
+  COP [E0]
+
+drop_actor:
+  COP [88] ( %table_0EE000 )
+  COP [B7] ( #00 )
+  COP [8D] ( #0C )
+  COP [C8] ( #$E110 )
+  
+  LDA $token
+  INC
+  JSL $83EF97
+  BCS inv_full
+
+  COP [BF] ( &get_message )
+  COP [E0]
+
+inv_full:
+  COP [BF] ( &full_message )
+  COP [E0]
+
+
+
+get_message `[DEF][DLY:1][SFX:0]You found[N][ADR:&itemDictionary,token]! [END]`
+full_message `[DEF][DLY:1]Your inventory is full![END]`
+
+
+00DDAF:
+  JML main

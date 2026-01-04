@@ -1,0 +1,187 @@
+{
+  "h_actor": {
+    "types": ["Byte", "Byte", "Byte"]
+  },
+  "h_thinker": {
+    "types": ["Byte", "Byte"]
+  },
+  "dma_data": {
+    "delimiter": 0,
+    "types": ["Byte", "Byte", "Byte"]
+  },
+  "unk1": {
+    "types": ["Word", "&Code"]
+  },
+  "motion": {
+    "delimiter": 255,
+    "types": ["Byte", "Byte", "Byte", "Byte"]
+  },
+  "map_name": {
+    "delimiter": 0,
+    "types": ["Byte", "&SpriteString"]
+  },
+  "unk5": {
+    "types": ["Byte", "Byte", "Byte", "Byte"]
+  },
+  "unk6": {
+    "delimiter": 65535,
+    "types": ["Byte", "Word"]
+  },
+  "unk7": {
+    "types": ["Byte", "Byte", "Byte", "Byte", "Byte", "Byte", "Byte", "Byte", "Byte", "Byte"]
+  },
+  "unk8": {
+    "types": ["Word", "&unk8"]
+  },
+  "unk9": {
+    "delimiter": 65535,
+    "types": ["Word", "Word", "Word"]
+  },
+  "unk10": {
+    "types": ["Word", "Word"]
+  },
+  "unk11": {
+    "delimiter": 255,
+    "types": ["Byte", "Byte", "Byte", "Byte", "Byte"]
+  },
+  "sprite_set": {
+    "delimiter": 65535,
+    "types": ["Word", "&sprite_group"]
+  },
+  "sprite_group": {
+    "types": ["Byte", "Byte", "Byte", "Byte", "Byte", "Byte", "Byte", "Byte", "Byte", "Byte", "Byte", "Byte", "Byte", "sprite_part"]
+  },
+  "sprite_part": {
+    "types": ["Byte", "Byte", "Byte", "Byte", "Byte", "Word"]
+  },
+  "bundle": {
+    "delimiter": 0,
+    "types": ["Byte", "&Word", "Byte", "Byte", "Byte"]
+  },
+  "unk14": {
+    "types": ["Address", "@Binary"]
+  },
+  "unk15": {
+    "types": ["Byte", "Byte", "Byte", "Byte", "Byte", "Byte", "Byte", "Byte"]
+  },
+  "unk16": {
+    "types": ["WideString", "Binary"]
+  },
+  "unk17": {
+    "types": ["&Binary", "Byte"]
+  },
+  "meta<>": {
+    "discriminator": 0,
+    "delimiter": 0
+  },
+  "ppu": {
+    "parent": "meta<>",
+    "discriminator": 2,
+    "types": ["Byte"]
+  },
+  "bitmap": {
+    "parent": "meta<>",
+    "discriminator": 3,
+    "types": ["Byte", "Byte", "Byte", "@Binary", "Byte"]
+  },
+  "palette": {
+    "parent": "meta<>",
+    "discriminator": 4,
+    "types": ["Byte", "Byte", "Byte", "@Binary"]
+  },
+  "tileset": {
+    "parent": "meta<>",
+    "discriminator": 5,
+    "types": ["Byte", "Byte", "Byte", "Byte", "@Binary"]
+  },
+  "tilemap": {
+    "parent": "meta<>",
+    "discriminator": 6,
+    "types": ["Byte", "@Binary"]
+  },
+  "metaE": {
+    "parent": "meta<>",
+    "discriminator": 14,
+    "types": ["Byte", "Byte", "Byte"]
+  },
+  "spritemap": {
+    "parent": "meta<>",
+    "discriminator": 16,
+    "types": ["Word", "Byte", "@Binary"]
+  },
+  "music": {
+    "parent": "meta<>",
+    "discriminator": 17,
+    "types": ["Byte", "Byte", "@Binary"]
+  },
+  "branch": {
+    "parent": "meta<>",
+    "discriminator": 19,
+    "types": ["Byte", "Byte"]
+  },
+  "label": {
+    "parent": "meta<>",
+    "discriminator": 20,
+    "types": ["Byte"]
+  },
+  "jump": {
+    "parent": "meta<>",
+    "discriminator": 21,
+    "types": ["Byte"]
+  },
+  "meta17": {
+    "parent": "meta<>",
+    "discriminator": 23,
+    "types": ["Byte", "@Binary"]
+  },
+  "mapdef": {
+    "parts": ["id", "meta"],
+    "types": ["Word", "meta<>"]
+  },
+  "enemy": {
+    "discriminator": 6,
+    "delimiter": 255,
+    "types": ["Byte", "Byte", "Byte", "@h_actor", "Byte", "Byte", "Byte"]
+  },
+  "actor": {
+    "parent": "enemy",
+    "discriminator": 0,
+    "types": ["Byte", "Byte", "Byte", "@h_actor"]
+  },
+  "thinker": {
+    "delimiter": 255,
+    "types": ["Byte", "@h_thinker"]
+  },
+  "event_def": {
+    "types": ["enemy", "WideString"]
+  },
+  "warp_def": {
+    "types": ["scene_warp", "stair_warp"]
+  },
+  "scene_warp": {
+    "delimiter": 255,
+    "types": ["Byte", "Byte", "Byte", "Byte", "Byte", "Word", "Word", "Byte", "Word"]
+  },
+  "stair_warp": {
+    "delimiter": 255,
+    "types": ["Byte", "Byte", "Byte", "Byte", "Word", "Word", "Word", "Byte", "Word"]
+  },
+  "const": {
+    "delimiter": 65535,
+    "types": ["Word", "Word"]
+  },
+  "dir_sprite": {
+    "types": ["Byte", "Byte"]
+  },
+  "stats": {
+    "types": ["Byte", "Byte", "Byte", "Byte"]
+  },
+  "sc_ix": {
+    "delimiter": 0,
+    "types": ["Byte", "&sc_data"]
+  },
+  "sc_data": {
+    "delimiter": 255,
+    "types": ["Byte", "Byte", "Byte", "Byte", "Byte", "Byte"]
+  }
+}
