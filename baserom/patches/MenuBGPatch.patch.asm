@@ -23,7 +23,7 @@ func_028C30 {
     INC $3E
     INC $3E
     SEP #$20
-    JSL $%func_0281D1
+    JSL $@func_0281D1
     REP #$20
     STA $00
     XBA 
@@ -41,7 +41,7 @@ func_028C30 {
     SEP #$20
     LDX #$7000
     STX $7A
-    JSL $%func_028270
+    JSL $@func_028270
     LDX #$7000
     STX $3E
     LDA #$7E

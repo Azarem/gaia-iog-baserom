@@ -151,7 +151,7 @@ func_028592 {
     BMI loc_0285B2
     LDX #$7000
     STX $7A
-    JSL $%func_028270
+    JSL $@func_028270
     LDX #$7000
     STX $3E
     LDA #$007E

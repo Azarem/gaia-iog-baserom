@@ -2,6 +2,7 @@
   "compression": "QuintetLZ",
   "sfxLocation": 327680,
   "sfxCount": 60,
+  "memoryMode": "Hi",
   "asmFormats": {
     "Immediate": "#${0:X2}",
     "Absolute": "${0:X4}",

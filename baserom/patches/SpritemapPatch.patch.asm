@@ -31,5 +31,5 @@ func_028BE4 {
     SEP #$20
     LDX #$4000
     STX $7A
-    JSL $%func_028270
+    JSL $@func_028270
 }

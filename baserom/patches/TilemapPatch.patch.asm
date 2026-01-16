@@ -50,7 +50,7 @@ loc_02883D {
     XBA 
     LDA $03
     STA $0699
-    JSL $%func_0281D1
+    JSL $@func_0281D1
     STA $069D
     BRA loc_028894
 }
