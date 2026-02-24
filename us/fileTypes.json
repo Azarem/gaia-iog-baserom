@@ -27,7 +27,7 @@
     },
     "Unknown": {
         "extension": "unk",
-        "type": "Unknown"
+        "type": "Binary"
     },
     "Patch": {
         "extension": "patch.asm",

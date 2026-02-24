@@ -2,7 +2,13 @@
   "compression": "QuintetLZ",
   "sfxLocation": 327680,
   "sfxCount": 60,
+  "sfxType": "Striped",
+  "sfxPack": "Individual",
+  "uncompress": true,
   "memoryMode": "Hi",
+  "cpuMode": "Fast",
+  "chipset": 2,
+  "ramSize": 3,
   "asmFormats": {
     "Immediate": "#${0:X2}",
     "Absolute": "${0:X4}",

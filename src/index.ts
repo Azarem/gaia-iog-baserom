@@ -20,7 +20,7 @@ import addrModes from '../snes/addressingModes.json' with { type: 'json' };
 
 export const db : DbGameRomModule = {
     mnemonics,
-    overrides,
+    overrides: overrides as unknown as Record<string, Record<string, number>>,
     rewrites,
     blocks: blocks as unknown as Record<string, Record<string, Partial<DbBlock>>>,
     copdef: copdef as unknown as Record<string, Partial<CopDef>>,

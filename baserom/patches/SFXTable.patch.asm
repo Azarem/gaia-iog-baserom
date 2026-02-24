@@ -23,16 +23,16 @@ sfx_table:
   code_0290C9:
     ;REP #$20
     LDX #&sfx_table
-    STX $4A
+    STX SAMPLE_PTR
     SEP #$20
     LDA #^sfx_table
-    STA $4C
+    STA SAMPLE_PTR+2
     LDY $32
     LDA [$46], Y
     INY 
     STY $32
-    STA $2A
-    STZ $2B
+    STA SAMPLE_NUM
+    STZ SAMPLE_NUM+1
     BIT #$80
     BEQ loc_0290E8
     JMP $&code_029153
