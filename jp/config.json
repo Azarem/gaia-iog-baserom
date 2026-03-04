@@ -1,0 +1,19 @@
+{
+    "compression": "QuintetLZ",
+    "sfxLocation": 327680,
+    "sfxCount": 60,
+    "sfxType": "Striped",
+    "sfxPack": "Individual",
+    "uncompress": true,
+    "memoryMode": "Hi",
+    "cpuMode": "Fast",
+    "chipset": 2,
+    "ramSize": 3,
+    "entryPoints": [
+      { "location": 65508, "name": "native_mode_cop_008007" },
+      { "location": 65510, "name": "native_mode_irq_00800F" },
+      { "location": 65514, "name": "native_mode_nmi_00800B" },
+      { "location": 65518, "name": "native_mode_irq_00800F" },
+      { "location": 65532, "name": "emulation_mode_reset_008000" }
+    ]
+  }

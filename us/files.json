@@ -1,86 +1,86 @@
 {
     "angel_village": {
         "": {
-            "bmp_0A1836": {"start":661558,"end":667746,"type":"Bitmap","compressed":true},
-            "bmp_0F14D1": {"start":988369,"end":993591,"type":"Bitmap","compressed":true},
-            "bmp_108F07": {"start":1085191,"end":1099105,"type":"Bitmap","compressed":true},
-            "sprite_152B2C": {"start":1387308,"end":1389453,"type":"Spritemap","compressed":true},
-            "set_165344": {"start":1463108,"end":1465020,"type":"Tileset","compressed":true},
-            "sprite_1A0000": {"start":1703936,"end":1705373,"type":"Spritemap","compressed":true},
-            "set_1C0A4F": {"start":1837647,"end":1838517,"type":"Tileset","compressed":true},
-            "palette_1E49F3": {"start":1985011,"end":1985235,"type":"Palette"},
-            "palette_1E4BB3": {"start":1985459,"end":1985683,"type":"Palette"},
-            "palette_1F0180": {"start":2032000,"end":2032192,"type":"Palette"},
-            "palette_1F0240": {"start":2032192,"end":2032384,"type":"Palette"}
+            "gfx_angel_sprites": {"start":661558,"end":667746,"type":"Bitmap","compressed":true},
+            "gfx_tunnel_enemies": {"start":988369,"end":993591,"type":"Bitmap","compressed":true},
+            "gfx_angel": {"start":1085191,"end":1099105,"type":"Bitmap","compressed":true},
+            "spm_tunnel_enemies": {"start":1387308,"end":1389453,"type":"Spritemap","compressed":true},
+            "set_angel": {"start":1463108,"end":1465020,"type":"Tileset","compressed":true},
+            "spm_angel_sprites": {"start":1703936,"end":1705373,"type":"Spritemap","compressed":true},
+            "set_angel_effect": {"start":1837647,"end":1838517,"type":"Tileset","compressed":true},
+            "pal_angel": {"start":1985011,"end":1985235,"type":"Palette"},
+            "pal_angel_interior": {"start":1985459,"end":1985683,"type":"Palette"},
+            "pal_angel_sprites": {"start":2032000,"end":2032192,"type":"Palette"},
+            "pal_tunnel_enemies": {"start":2032192,"end":2032384,"type":"Palette"}
         },
         "angel_annex": {
-            "map_1E1429": {"start":1971241,"end":1971505,"type":"Tilemap","compressed":true},
-            "map_1F34AC": {"start":2045100,"end":2045224,"type":"Tilemap","compressed":true}
+            "map_angel_annex": {"start":1971241,"end":1971505,"type":"Tilemap","compressed":true},
+            "map_angel_annex_effect": {"start":2045100,"end":2045224,"type":"Tilemap","compressed":true}
         },
         "angel_entrance": {
-            "set_1C7B21": {"start":1866529,"end":1867196,"type":"Tileset","compressed":true},
-            "map_1E1320": {"start":1970976,"end":1971241,"type":"Tilemap","compressed":true},
-            "palette_1E4AD3": {"start":1985235,"end":1985459,"type":"Palette"}
+            "set_angel_entrance": {"start":1866529,"end":1867196,"type":"Tileset","compressed":true},
+            "map_angel_entrance": {"start":1970976,"end":1971241,"type":"Tilemap","compressed":true},
+            "pal_angel_entrance": {"start":1985235,"end":1985459,"type":"Palette"}
         },
         "angel_rooms": {
-            "map_1C2BDE": {"start":1846238,"end":1847053,"type":"Tilemap","compressed":true},
-            "map_1E0FF2": {"start":1970162,"end":1970437,"type":"Tilemap","compressed":true}
+            "map_angel_rooms": {"start":1846238,"end":1847053,"type":"Tilemap","compressed":true},
+            "map_angel_rooms_effect": {"start":1970162,"end":1970437,"type":"Tilemap","compressed":true}
         },
         "angel_tunnel_dark": {
-            "palette_17BFDA": {"start":1556442,"end":1556474,"type":"Palette"},
-            "map_1D7A13": {"start":1931795,"end":1932123,"type":"Tilemap","compressed":true},
-            "map_1D7F23": {"start":1933091,"end":1933310,"type":"Tilemap","compressed":true}
+            "pal_tunnel_enemies_dark": {"start":1556442,"end":1556474,"type":"Palette"},
+            "map_tunnel_dark": {"start":1931795,"end":1932123,"type":"Tilemap","compressed":true},
+            "map_tunnel_dark_effect": {"start":1933091,"end":1933310,"type":"Tilemap","compressed":true}
         },
         "angel_tunnel_draco": {
-            "map_1B0E02": {"start":1773058,"end":1774237,"type":"Tilemap","compressed":true}
+            "map_tunnel_draco": {"start":1773058,"end":1774237,"type":"Tilemap","compressed":true}
         },
         "angel_tunnel_entrance": {
-            "map_1A5A37": {"start":1727031,"end":1728288,"type":"Tilemap","compressed":true},
-            "map_1D633F": {"start":1925951,"end":1926351,"type":"Tilemap","compressed":true}
+            "map_tunnel_entrance": {"start":1727031,"end":1728288,"type":"Tilemap","compressed":true},
+            "map_tunnel_entrance_effect": {"start":1925951,"end":1926351,"type":"Tilemap","compressed":true}
         },
         "angel_tunnel_river": {
-            "map_127EC0": {"start":1212096,"end":1212412,"type":"Tilemap","compressed":true},
-            "map_1A7C21": {"start":1735713,"end":1736701,"type":"Tilemap","compressed":true}
+            "map_tunnel_river_effect": {"start":1212096,"end":1212412,"type":"Tilemap","compressed":true},
+            "map_tunnel_river": {"start":1735713,"end":1736701,"type":"Tilemap","compressed":true}
         },
         "angel_tunnel_rooms": {
-            "map_1D6F43": {"start":1929027,"end":1929388,"type":"Tilemap","compressed":true}
+            "map_tunnel_rooms": {"start":1929027,"end":1929388,"type":"Tilemap","compressed":true}
         },
         "angel_tunnel_statue": {
-            "map_1D4BDA": {"start":1919962,"end":1920421,"type":"Tilemap","compressed":true}
+            "map_tunnel_statues": {"start":1919962,"end":1920421,"type":"Tilemap","compressed":true}
         },
         "angel_tunnel_test": {
-            "map_193D25": {"start":1654053,"end":1655584,"type":"Tilemap","compressed":true}
+            "map_tunnel_test": {"start":1654053,"end":1655584,"type":"Tilemap","compressed":true}
         },
         "angel_tunnel_waterfall": {
-            "map_0FBD26": {"start":1031462,"end":1032185,"type":"Tilemap","compressed":true},
-            "map_1E1105": {"start":1970437,"end":1970707,"type":"Tilemap","compressed":true}
+            "map_tunnel_waterfall": {"start":1031462,"end":1032185,"type":"Tilemap","compressed":true},
+            "map_tunnel_waterfall_effect": {"start":1970437,"end":1970707,"type":"Tilemap","compressed":true}
         },
         "angel_tunnel_wind": {
-            "map_1E0000": {"start":1966080,"end":1966394,"type":"Tilemap","compressed":true}
+            "map_tunnel_windy": {"start":1966080,"end":1966394,"type":"Tilemap","compressed":true}
         },
         "angel_village": {
-            "map_17465B": {"start":1525339,"end":1527085,"type":"Tilemap","compressed":true},
-            "map_1C6AD6": {"start":1862358,"end":1863077,"type":"Tilemap","compressed":true}
+            "map_angel_village": {"start":1525339,"end":1527085,"type":"Tilemap","compressed":true},
+            "map_angel_village_effect": {"start":1862358,"end":1863077,"type":"Tilemap","compressed":true}
         },
         "undersea_tunnel": {
-            "map_1D665C": {"start":1926748,"end":1927139,"type":"Tilemap","compressed":true},
-            "map_1F2C59": {"start":2042969,"end":2043110,"type":"Tilemap","compressed":true}
+            "map_angel_tunnel": {"start":1926748,"end":1927139,"type":"Tilemap","compressed":true},
+            "map_angel_tunnel_effect": {"start":2042969,"end":2043110,"type":"Tilemap","compressed":true}
         }
     },
     "angkor_wat": {
         "": {
             "sprite_0C7308": {"start":815880,"end":819200,"type":"Spritemap","compressed":true},
-            "bmp_0E15EA": {"start":923114,"end":928634,"type":"Bitmap","compressed":true},
+            "gfx_0E15EA": {"start":923114,"end":928634,"type":"Bitmap","compressed":true},
             "sprite_14395F": {"start":1325407,"end":1327760,"type":"Spritemap","compressed":true},
             "set_186CAA": {"start":1600682,"end":1602269,"type":"Tileset","compressed":true},
             "set_190C53": {"start":1641555,"end":1643128,"type":"Tileset","compressed":true},
             "set_195A95": {"start":1661589,"end":1663065,"type":"Tileset","compressed":true},
-            "bmp_1980A2": {"start":1671330,"end":1681852,"type":"Bitmap","compressed":true},
+            "gfx_1980A2": {"start":1671330,"end":1681852,"type":"Bitmap","compressed":true},
             "palette_1E5473": {"start":1987699,"end":1987923,"type":"Palette"},
             "palette_1E5553": {"start":1987923,"end":1988147,"type":"Palette"},
             "palette_1E5633": {"start":1988147,"end":1988371,"type":"Palette"},
             "palette_1E5713": {"start":1988371,"end":1988595,"type":"Palette"},
-            "bmp_1F8000": {"start":2064384,"end":2071429,"type":"Bitmap","compressed":true}
+            "gfx_1F8000": {"start":2064384,"end":2071429,"type":"Bitmap","compressed":true}
         },
         "angkor_courtyard": {
             "map_125CE4": {"start":1203428,"end":1206356,"type":"Tilemap","compressed":true},
@@ -107,7 +107,7 @@
             "map_1B7222": {"start":1798690,"end":1799584,"type":"Tilemap","compressed":true}
         },
         "angkor_outer_gate": {
-            "bmp_016A81": {"start":92801,"end":98238,"type":"Bitmap","compressed":true},
+            "gfx_016A81": {"start":92801,"end":98238,"type":"Bitmap","compressed":true},
             "map_160F5B": {"start":1445723,"end":1447685,"type":"Tilemap","compressed":true}
         },
         "angkor_outer_north": {
@@ -132,7 +132,7 @@
             "map_1C4DF4": {"start":1854964,"end":1855735,"type":"Tilemap","compressed":true}
         },
         "future_vision": {
-            "bmp_0E6BAB": {"start":945067,"end":950268,"type":"Bitmap","compressed":true},
+            "gfx_0E6BAB": {"start":945067,"end":950268,"type":"Bitmap","compressed":true},
             "map_130000": {"start":1245184,"end":1248004,"type":"Tilemap","compressed":true},
             "set_1B1733": {"start":1775411,"end":1776570,"type":"Tileset","compressed":true},
             "palette_1E58D3": {"start":1988819,"end":1989043,"type":"Palette"}
@@ -144,249 +144,249 @@
     },
     "babel_tower": {
         "": {
-            "bmp_0DF001": {"start":913409,"end":917387,"type":"Bitmap","compressed":true},
-            "bmp_15C421": {"start":1426465,"end":1438620,"type":"Bitmap","compressed":true},
-            "set_1924D8": {"start":1647832,"end":1649392,"type":"Tileset","compressed":true},
-            "set_1C652A": {"start":1860906,"end":1861639,"type":"Tileset","compressed":true},
-            "set_1D1834": {"start":1906740,"end":1907330,"type":"Tileset","compressed":true},
-            "palette_1E5D33": {"start":1989939,"end":1990163,"type":"Palette"},
-            "palette_1E6513": {"start":1991955,"end":1992179,"type":"Palette"},
-            "map_1F268D": {"start":2041485,"end":2041640,"type":"Tilemap","compressed":true}
+            "gfx_ending_combined": {"start":913409,"end":917387,"type":"Bitmap","compressed":true},
+            "gfx_babel": {"start":1426465,"end":1438620,"type":"Bitmap","compressed":true},
+            "set_babel": {"start":1647832,"end":1649392,"type":"Tileset","compressed":true},
+            "set_babel_darklair": {"start":1860906,"end":1861639,"type":"Tileset","compressed":true},
+            "set_babel_darklair_effect": {"start":1906740,"end":1907330,"type":"Tileset","compressed":true},
+            "pal_babel": {"start":1989939,"end":1990163,"type":"Palette"},
+            "pal_babel_darklair": {"start":1991955,"end":1992179,"type":"Palette"},
+            "map_babel_floors_effect": {"start":2041485,"end":2041640,"type":"Tilemap","compressed":true}
         },
         "babel_entrance": {
-            "map_1F14F9": {"start":2036985,"end":2037174,"type":"Tilemap","compressed":true},
-            "map_1F3E74": {"start":2047604,"end":2047648,"type":"Tilemap","compressed":true}
+            "map_babel_entrance": {"start":2036985,"end":2037174,"type":"Tilemap","compressed":true},
+            "map_babel_entrance_effect": {"start":2047604,"end":2047648,"type":"Tilemap","compressed":true}
         },
         "babel_exterior": {
-            "map_1245EE": {"start":1197550,"end":1200498,"type":"Tilemap","compressed":true}
+            "map_babel_exterior": {"start":1197550,"end":1200498,"type":"Tilemap","compressed":true}
         },
         "babel_light_elevator": {
-            "map_192AF0": {"start":1649392,"end":1650948,"type":"Tilemap","compressed":true},
-            "map_1B791B": {"start":1800475,"end":1801360,"type":"Tilemap","compressed":true}
+            "map_babel_elevator": {"start":1649392,"end":1650948,"type":"Tilemap","compressed":true},
+            "map_babel_elevator_effect": {"start":1800475,"end":1801360,"type":"Tilemap","compressed":true}
         },
         "babel_lower_floors": {
-            "map_19062D": {"start":1639981,"end":1641555,"type":"Tilemap","compressed":true}
+            "map_babel_lower": {"start":1639981,"end":1641555,"type":"Tilemap","compressed":true}
         },
         "babel_middle_floors": {
-            "map_133FD0": {"start":1261520,"end":1264139,"type":"Tilemap","compressed":true}
+            "map_babel_middle": {"start":1261520,"end":1264139,"type":"Tilemap","compressed":true}
         },
         "babel_rooftop": {
-            "set_1C06E0": {"start":1836768,"end":1837647,"type":"Tileset","compressed":true},
-            "map_1E039C": {"start":1967004,"end":1967298,"type":"Tilemap","compressed":true},
-            "map_1E2315": {"start":1975061,"end":1975305,"type":"Tilemap","compressed":true},
-            "palette_1E5E13": {"start":1990163,"end":1990387,"type":"Palette"}
+            "set_babel_rooftop_effect": {"start":1836768,"end":1837647,"type":"Tileset","compressed":true},
+            "map_babel_rooftop": {"start":1967004,"end":1967298,"type":"Tilemap","compressed":true},
+            "map_babel_rooftop_effect": {"start":1975061,"end":1975305,"type":"Tilemap","compressed":true},
+            "pal_babel_rooftop": {"start":1990163,"end":1990387,"type":"Palette"}
         },
         "babel_upper_floors": {
-            "set_193104": {"start":1650948,"end":1652503,"type":"Tileset","compressed":true},
-            "map_1A0B33": {"start":1706803,"end":1708231,"type":"Tilemap","compressed":true}
+            "set_babel_upper": {"start":1650948,"end":1652503,"type":"Tileset","compressed":true},
+            "map_babel_upper": {"start":1706803,"end":1708231,"type":"Tilemap","compressed":true}
         },
         "comet_lair": {
-            "bmp_0D2D78": {"start":863608,"end":869316,"type":"Bitmap","compressed":true},
+            "gfx_0D2D78": {"start":863608,"end":869316,"type":"Bitmap","compressed":true},
             "sprite_1607B0": {"start":1443760,"end":1445723,"type":"Spritemap","compressed":true},
             "set_161705": {"start":1447685,"end":1449639,"type":"Tileset","compressed":true},
-            "map_ec12_main": {"start":1449639,"end":1451584,"type":"Tilemap","compressed":true},
-            "bmp_18AB6D": {"start":1616749,"end":1627422,"type":"Bitmap","compressed":true},
+            "map_ec12": {"start":1449639,"end":1451584,"type":"Tilemap","compressed":true},
+            "gfx_18AB6D": {"start":1616749,"end":1627422,"type":"Bitmap","compressed":true},
             "map_1E1213": {"start":1970707,"end":1970976,"type":"Tilemap","compressed":true},
             "palette_1E6193": {"start":1991059,"end":1991283,"type":"Palette"},
             "palette_1E6273": {"start":1991283,"end":1991507,"type":"Palette"},
             "map_1F2CE6": {"start":2043110,"end":2043251,"type":"Tilemap","compressed":true}
         },
         "dark_castoth_lair": {
-            "map_027FB1": {"start":163761,"end":163834,"type":"Tilemap","compressed":true},
-            "map_1D0C47": {"start":1903687,"end":1904311,"type":"Tilemap","compressed":true},
-            "pal_btF2_castoth": {"start":2035264,"end":2035456,"type":"Palette"}
+            "map_babel_castoth": {"start":163761,"end":163834,"type":"Tilemap","compressed":true},
+            "map_babel_darklair_effect": {"start":1903687,"end":1904311,"type":"Tilemap","compressed":true},
+            "pal_castoth_dark": {"start":2035264,"end":2035456,"type":"Palette"}
         },
         "dark_fanger_lair": {
-            "map_1E0EDE": {"start":1969886,"end":1970162,"type":"Tilemap","compressed":true},
-            "palette_1F1080": {"start":2035840,"end":2036032,"type":"Palette"}
+            "map_babel_sandfanger": {"start":1969886,"end":1970162,"type":"Tilemap","compressed":true},
+            "pal_sandfanger_dark": {"start":2035840,"end":2036032,"type":"Palette"}
         },
         "dark_queen_lair": {
-            "palette_1F1140": {"start":2036032,"end":2036224,"type":"Palette"},
-            "map_1F18A1": {"start":2037921,"end":2038104,"type":"Tilemap","compressed":true}
+            "pal_mummyqueen_dark": {"start":2036032,"end":2036224,"type":"Palette"},
+            "map_babel_mummyqueen": {"start":2037921,"end":2038104,"type":"Tilemap","compressed":true}
         },
         "dark_vampire_lair": {
-            "palette_1F0FC0": {"start":2035648,"end":2035840,"type":"Palette"},
-            "map_1F3C95": {"start":2047125,"end":2047226,"type":"Tilemap","compressed":true}
+            "pal_vampires_dark": {"start":2035648,"end":2035840,"type":"Palette"},
+            "map_babel_vampires": {"start":2047125,"end":2047226,"type":"Tilemap","compressed":true}
         },
         "dark_viper_lair": {
-            "palette_1F0F00": {"start":2035456,"end":2035648,"type":"Palette"},
-            "map_1F2DFE": {"start":2043390,"end":2043528,"type":"Tilemap","compressed":true}
+            "pal_viper_dark": {"start":2035456,"end":2035648,"type":"Palette"},
+            "map_babel_viper": {"start":2043390,"end":2043528,"type":"Tilemap","compressed":true}
         },
         "space_flight": {
-            "bmp_154BE5": {"start":1395685,"end":1397716,"type":"Bitmap","compressed":true},
-            "palette_1E5FD3": {"start":1990611,"end":1990835,"type":"Palette"},
-            "palette_1E60B3": {"start":1990835,"end":1991059,"type":"Palette"},
-            "map_1F2E88": {"start":2043528,"end":2043665,"type":"Tilemap","compressed":true},
-            "sprite_1F32B2": {"start":2044594,"end":2044723,"type":"Spritemap","compressed":true}
+            "gfx_babel_spaceflight_sprites": {"start":1395685,"end":1397716,"type":"Bitmap","compressed":true},
+            "pal_babel_spaceflight": {"start":1990611,"end":1990835,"type":"Palette"},
+            "pal_babel_spaceflight_sprites": {"start":1990835,"end":1991059,"type":"Palette"},
+            "map_babel_spaceflight": {"start":2043528,"end":2043665,"type":"Tilemap","compressed":true},
+            "spm_babel_spaceflight_sprites": {"start":2044594,"end":2044723,"type":"Spritemap","compressed":true}
         }
     },
     "dao": {
         "": {
-            "bmp_020000": {"start":131072,"end":137760,"type":"Bitmap","compressed":true},
-            "bmp_044A39": {"start":281145,"end":287363,"type":"Bitmap","compressed":true},
-            "sprite_1753FD": {"start":1528829,"end":1530571,"type":"Spritemap","compressed":true},
-            "set_1833E7": {"start":1586151,"end":1587786,"type":"Tileset","compressed":true},
-            "palette_1E5A93": {"start":1989267,"end":1989491,"type":"Palette"},
-            "palette_1F09C0": {"start":2034112,"end":2034304,"type":"Palette"}
+            "gfx_dao": {"start":131072,"end":137760,"type":"Bitmap","compressed":true},
+            "gfx_dao_sprites": {"start":281145,"end":287363,"type":"Bitmap","compressed":true},
+            "spm_dao_sprites": {"start":1528829,"end":1530571,"type":"Spritemap","compressed":true},
+            "set_dao_interior": {"start":1586151,"end":1587786,"type":"Tileset","compressed":true},
+            "pal_dao_interior": {"start":1989267,"end":1989491,"type":"Palette"},
+            "pal_dao_sprites": {"start":2034112,"end":2034304,"type":"Palette"}
         },
         "dao": {
-            "map_1B607F": {"start":1794175,"end":1795087,"type":"Tilemap","compressed":true},
-            "set_1B6B24": {"start":1796900,"end":1797796,"type":"Tileset","compressed":true},
-            "palette_1E59B3": {"start":1989043,"end":1989267,"type":"Palette"},
-            "map_1F2F9A": {"start":2043802,"end":2043937,"type":"Tilemap","compressed":true}
+            "map_dao": {"start":1794175,"end":1795087,"type":"Tilemap","compressed":true},
+            "set_dao": {"start":1796900,"end":1797796,"type":"Tileset","compressed":true},
+            "pal_dao": {"start":1989043,"end":1989267,"type":"Palette"},
+            "map_dao_effect": {"start":2043802,"end":2043937,"type":"Tilemap","compressed":true}
         },
         "dao_dorm": {
-            "map_1F1E2F": {"start":2039343,"end":2039518,"type":"Tilemap","compressed":true},
-            "map_1F3B5D": {"start":2046813,"end":2046919,"type":"Tilemap","compressed":true}
+            "map_dao_dorm": {"start":2039343,"end":2039518,"type":"Tilemap","compressed":true},
+            "map_dao_dorm_effect": {"start":2046813,"end":2046919,"type":"Tilemap","compressed":true}
         },
         "dao_hotel": {
-            "map_1F1AC0": {"start":2038464,"end":2038642,"type":"Tilemap","compressed":true},
-            "map_1F386B": {"start":2046059,"end":2046169,"type":"Tilemap","compressed":true}
+            "map_dao_hotel": {"start":2038464,"end":2038642,"type":"Tilemap","compressed":true},
+            "map_dao_hotel_effect": {"start":2046059,"end":2046169,"type":"Tilemap","compressed":true}
         },
         "desert_explorers": {
-            "map_0ED9A6": {"start":973222,"end":973312,"type":"Tilemap","compressed":true},
-            "map_1F3231": {"start":2044465,"end":2044594,"type":"Tilemap","compressed":true}
+            "map_dao_explorers_effect": {"start":973222,"end":973312,"type":"Tilemap","compressed":true},
+            "map_dao_explorers": {"start":2044465,"end":2044594,"type":"Tilemap","compressed":true}
         },
         "indecision_room": {
-            "map_1F24B5": {"start":2041013,"end":2041172,"type":"Tilemap","compressed":true},
-            "map_1F3A1E": {"start":2046494,"end":2046601,"type":"Tilemap","compressed":true}
+            "map_dao_indecision": {"start":2041013,"end":2041172,"type":"Tilemap","compressed":true},
+            "map_dao_indecision_effect": {"start":2046494,"end":2046601,"type":"Tilemap","compressed":true}
         },
         "panic_room": {
-            "map_1F285B": {"start":2041947,"end":2042099,"type":"Tilemap","compressed":true},
-            "map_1F3AF3": {"start":2046707,"end":2046813,"type":"Tilemap","compressed":true}
+            "map_dao_snakes": {"start":2041947,"end":2042099,"type":"Tilemap","compressed":true},
+            "map_dao_snakes_effect": {"start":2046707,"end":2046813,"type":"Tilemap","compressed":true}
         },
         "sweatshop": {
-            "map_1F27C3": {"start":2041795,"end":2041947,"type":"Tilemap","compressed":true},
-            "map_1F3C2F": {"start":2047023,"end":2047125,"type":"Tilemap","compressed":true}
+            "map_dao_sweatshop": {"start":2041795,"end":2041947,"type":"Tilemap","compressed":true},
+            "map_dao_sweatshop_effect": {"start":2047023,"end":2047125,"type":"Tilemap","compressed":true}
         }
     },
     "diamond_mine": {
         "": {
-            "spm_dm3E_enemies": {"start":733118,"end":739115,"type":"Spritemap","compressed":true},
-            "gfx_dm3E_enemies": {"start":810006,"end":815880,"type":"Bitmap","compressed":true},
-            "set_dm3D_main": {"start":1577896,"end":1579556,"type":"Tileset","compressed":true},
-            "pal_dm3D_tiles": {"start":1982323,"end":1982547,"type":"Palette"},
-            "pal_dm3E_enemies": {"start":1997516,"end":1997708,"type":"Palette"},
-            "gfx_dm3D_tiles": {"start":2006011,"end":2013129,"type":"Bitmap","compressed":true}
+            "spm_mine_sprites": {"start":733118,"end":739115,"type":"Spritemap","compressed":true},
+            "gfx_mine_sprites": {"start":810006,"end":815880,"type":"Bitmap","compressed":true},
+            "set_mine": {"start":1577896,"end":1579556,"type":"Tileset","compressed":true},
+            "pal_mine": {"start":1982323,"end":1982547,"type":"Palette"},
+            "pal_mine_sprites": {"start":1997516,"end":1997708,"type":"Palette"},
+            "gfx_mine": {"start":2006011,"end":2013129,"type":"Bitmap","compressed":true}
         },
         "mine_collapsed_tunnel": {
-            "map_dm40_main": {"start":1793232,"end":1794175,"type":"Tilemap","compressed":true}
+            "map_dm40": {"start":1793232,"end":1794175,"type":"Tilemap","compressed":true}
         },
         "mine_elevator": {
-            "map_dm43_main": {"start":1863785,"end":1864490,"type":"Tilemap","compressed":true}
+            "map_dm43": {"start":1863785,"end":1864490,"type":"Tilemap","compressed":true}
         },
         "mine_elevator_passage": {
-            "map_dm42_main": {"start":1861639,"end":1862358,"type":"Tilemap","compressed":true}
+            "map_dm42": {"start":1861639,"end":1862358,"type":"Tilemap","compressed":true}
         },
         "mine_entrance": {
-            "map_dm3E_main": {"start":1789339,"end":1790325,"type":"Tilemap","compressed":true}
+            "map_dm3E": {"start":1789339,"end":1790325,"type":"Tilemap","compressed":true}
         },
         "mine_foyer": {
-            "map_dm44_main": {"start":1080891,"end":1081341,"type":"Tilemap","compressed":true}
+            "map_dm44": {"start":1080891,"end":1081341,"type":"Tilemap","compressed":true}
         },
         "mine_inner": {
-            "map_dm47_main": {"start":1359561,"end":1359872,"type":"Tilemap","compressed":true}
+            "map_dm47": {"start":1359561,"end":1359872,"type":"Tilemap","compressed":true}
         },
         "mine_main": {
-            "map_dm3F_main": {"start":620368,"end":622591,"type":"Tilemap","compressed":true}
+            "map_dm3F": {"start":620368,"end":622591,"type":"Tilemap","compressed":true}
         },
         "mine_morgue": {
-            "map_dm45_main": {"start":1923491,"end":1923909,"type":"Tilemap","compressed":true}
+            "map_dm45": {"start":1923491,"end":1923909,"type":"Tilemap","compressed":true}
         },
         "mine_nest": {
-            "map_dm46_main": {"start":1911343,"end":1911905,"type":"Tilemap","compressed":true}
+            "map_dm46": {"start":1911343,"end":1911905,"type":"Tilemap","compressed":true}
         },
         "mine_promise_passage": {
-            "map_dm3D_main": {"start":1859437,"end":1860172,"type":"Tilemap","compressed":true}
+            "map_dm3D": {"start":1859437,"end":1860172,"type":"Tilemap","compressed":true}
         },
         "mine_zigzag": {
-            "map_dm41_main": {"start":1712429,"end":1713825,"type":"Tilemap","compressed":true}
+            "map_dm41": {"start":1712429,"end":1713825,"type":"Tilemap","compressed":true}
         }
     },
     "edward_castle": {
         "": {
-            "gfx_ec0C_enemies": {"start":874988,"end":880647,"type":"Bitmap","compressed":true},
-            "set_ec0B_prison_main": {"start":1638400,"end":1639981,"type":"Tileset","compressed":true},
-            "gfx_ec0B_tiles": {"start":1956617,"end":1963881,"type":"Bitmap","compressed":true},
-            "pal_ec0C_enemies": {"start":1996172,"end":1996364,"type":"Palette"}
+            "gfx_prison_enemies": {"start":874988,"end":880647,"type":"Bitmap","compressed":true},
+            "set_prison": {"start":1638400,"end":1639981,"type":"Tileset","compressed":true},
+            "gfx_prison": {"start":1956617,"end":1963881,"type":"Bitmap","compressed":true},
+            "pal_prison_enemies": {"start":1996172,"end":1996364,"type":"Palette"}
         },
         "aqueduct_back": {
             "map_ec12_effect": {"start":1865853,"end":1866529,"type":"Tilemap","compressed":true}
         },
         "aqueduct_doorway": {
-            "map_ec11_main": {"start":1924738,"end":1925148,"type":"Tilemap","compressed":true}
+            "map_ec11": {"start":1924738,"end":1925148,"type":"Tilemap","compressed":true}
         },
         "aqueduct_entrance": {
-            "palette_1E3253": {"start":1978963,"end":1979187,"type":"Palette"},
-            "map_ec0C_main": {"start":2037736,"end":2037921,"type":"Tilemap","compressed":true},
-            "spm_ec0C_enemies": {"start":2092359,"end":2097135,"type":"Spritemap","compressed":true}
+            "pal_prison_2": {"start":1978963,"end":1979187,"type":"Palette"},
+            "map_ec0C": {"start":2037736,"end":2037921,"type":"Tilemap","compressed":true},
+            "spm_prison_enemies": {"start":2092359,"end":2097135,"type":"Spritemap","compressed":true}
         },
         "aqueduct_exit": {
-            "map_ec13_main": {"start":2040370,"end":2040533,"type":"Tilemap","compressed":true}
+            "map_ec13": {"start":2040370,"end":2040533,"type":"Tilemap","compressed":true}
         },
         "aqueduct_hall": {
-            "map_ec0F_main": {"start":1841118,"end":1841983,"type":"Tilemap","compressed":true},
+            "map_ec0F": {"start":1841118,"end":1841983,"type":"Tilemap","compressed":true},
             "map_ec0F_effect": {"start":1994996,"end":1995196,"type":"Tilemap","compressed":true}
         },
         "aqueduct_lockway": {
-            "map_ec0E_main": {"start":1728288,"end":1729543,"type":"Tilemap","compressed":true},
+            "map_ec0E": {"start":1728288,"end":1729543,"type":"Tilemap","compressed":true},
             "map_sc0E_effect": {"start":1969324,"end":1969609,"type":"Tilemap","compressed":true}
         },
         "aqueduct_main": {
-            "map_ec0D_main": {"start":1276820,"end":1277933,"type":"Tilemap","compressed":true},
+            "map_ec0D": {"start":1276820,"end":1277933,"type":"Tilemap","compressed":true},
             "map_ec0D_effect": {"start":1932451,"end":1932775,"type":"Tilemap","compressed":true}
         },
         "aqueduct_treasure": {
-            "map_ec10_main": {"start":2046919,"end":2047023,"type":"Tilemap","compressed":true}
+            "map_ec10": {"start":2046919,"end":2047023,"type":"Tilemap","compressed":true}
         },
         "castle_prison": {
             "spm_sc06_castle_actors": {"start":1334777,"end":1337103,"type":"Spritemap","compressed":true},
-            "map_ec0B_main": {"start":1905532,"end":1906137,"type":"Tilemap","compressed":true},
-            "pal_ec0B_tiles": {"start":1978739,"end":1978963,"type":"Palette"},
+            "map_ec0B": {"start":1905532,"end":1906137,"type":"Tilemap","compressed":true},
+            "pal_prison": {"start":1978739,"end":1978963,"type":"Palette"},
             "pal_sc06_castle_actors": {"start":1995596,"end":1995788,"type":"Palette"},
             "map_ec0B_effect": {"start":1995980,"end":1996172,"type":"Tilemap","compressed":true},
             "gfx_sc06_castle_actors": {"start":2085416,"end":2092359,"type":"Bitmap","compressed":true}
         },
         "edward_castle": {
-            "spm_ec0A_characters": {"start":1248004,"end":1250792,"type":"Spritemap","compressed":true},
-            "map_ec0A_main": {"start":1315674,"end":1318140,"type":"Tilemap","compressed":true},
-            "gfx_ec0A_tiles": {"start":1360280,"end":1372569,"type":"Bitmap","compressed":true},
-            "set_ec0A_main": {"start":1512851,"end":1514668,"type":"Tileset","compressed":true},
-            "set_ec0A_effect": {"start":1790325,"end":1791296,"type":"Tileset","compressed":true},
-            "pal_ec0A_tiles": {"start":1978515,"end":1978739,"type":"Palette"},
+            "spm_castle_sprites": {"start":1248004,"end":1250792,"type":"Spritemap","compressed":true},
+            "map_ec0A": {"start":1315674,"end":1318140,"type":"Tilemap","compressed":true},
+            "gfx_castle": {"start":1360280,"end":1372569,"type":"Bitmap","compressed":true},
+            "set_castle": {"start":1512851,"end":1514668,"type":"Tileset","compressed":true},
+            "set_castle_effect": {"start":1790325,"end":1791296,"type":"Tileset","compressed":true},
+            "pal_castle": {"start":1978515,"end":1978739,"type":"Palette"},
             "map_ec0A_effect": {"start":1994390,"end":1994593,"type":"Tilemap","compressed":true},
-            "pal_ec0A_characters": {"start":1995788,"end":1995980,"type":"Palette"},
-            "gfx_ec0A_characters": {"start":2013129,"end":2020188,"type":"Bitmap","compressed":true}
+            "pal_castle_sprites": {"start":1995788,"end":1995980,"type":"Palette"},
+            "gfx_castle_sprites": {"start":2013129,"end":2020188,"type":"Bitmap","compressed":true}
         }
     },
     "ending": {
         "ending_changed_world": {
-            "bmp_16D82C": {"start":1497132,"end":1505807,"type":"Bitmap","compressed":true},
-            "set_1B640F": {"start":1795087,"end":1795994,"type":"Tileset","compressed":true},
-            "set_1D2389": {"start":1909641,"end":1910209,"type":"Tileset","compressed":true},
-            "map_1D70AC": {"start":1929388,"end":1929745,"type":"Tilemap","compressed":true},
-            "palette_1E1C35": {"start":1973301,"end":1973557,"type":"Palette"},
-            "map_1F37FC": {"start":2045948,"end":2046059,"type":"Tilemap","compressed":true}
+            "gfx_ending_world": {"start":1497132,"end":1505807,"type":"Bitmap","compressed":true},
+            "set_ending_world": {"start":1795087,"end":1795994,"type":"Tileset","compressed":true},
+            "set_ending_world_effect": {"start":1909641,"end":1910209,"type":"Tileset","compressed":true},
+            "map_ending_world": {"start":1929388,"end":1929745,"type":"Tilemap","compressed":true},
+            "pal_ending_world": {"start":1973301,"end":1973557,"type":"Palette"},
+            "map_ending_world_effect": {"start":2045948,"end":2046059,"type":"Tilemap","compressed":true}
         },
         "ending_class_dismissed": {
-            "bmp_03638B": {"start":222091,"end":228445,"type":"Bitmap","compressed":true},
-            "sprite_173F7C": {"start":1523580,"end":1525339,"type":"Spritemap","compressed":true},
-            "palette_1E1E35": {"start":1973813,"end":1974069,"type":"Palette"},
-            "palette_1E6433": {"start":1991731,"end":1991955,"type":"Palette"},
-            "map_1F2F11": {"start":2043665,"end":2043802,"type":"Tilemap","compressed":true}
+            "gfx_ending_class_sprites": {"start":222091,"end":228445,"type":"Bitmap","compressed":true},
+            "spm_ending_class_sprites": {"start":1523580,"end":1525339,"type":"Spritemap","compressed":true},
+            "pal_ending_class_sprites": {"start":1973813,"end":1974069,"type":"Palette"},
+            "pal_ending_class": {"start":1991731,"end":1991955,"type":"Palette"},
+            "map_ending_class": {"start":2043665,"end":2043802,"type":"Tilemap","compressed":true}
         },
         "ending_comet": {
-            "bmp_0D16E7": {"start":857831,"end":863608,"type":"Bitmap","compressed":true},
-            "set_157ADC": {"start":1407708,"end":1408999,"type":"Tileset","compressed":true},
-            "map_17FF9E": {"start":1572766,"end":1572857,"type":"Tilemap","compressed":true},
-            "map_1F3021": {"start":2043937,"end":2044072,"type":"Tilemap","compressed":true}
+            "gfx_ending_comet": {"start":857831,"end":863608,"type":"Bitmap","compressed":true},
+            "set_ending_comet": {"start":1407708,"end":1408999,"type":"Tileset","compressed":true},
+            "map_ending_comet_effect": {"start":1572766,"end":1572857,"type":"Tilemap","compressed":true},
+            "map_ending_comet": {"start":2043937,"end":2044072,"type":"Tilemap","compressed":true}
         },
         "ending_credits": {
             "file_002380": {"start":9088,"end":12090,"type":"Unknown","compressed":true},
             "gfx_credits_actors2": {"start":851968,"end":857831,"type":"Bitmap","compressed":true},
-            "bmp_110000": {"start":1114112,"end":1118771,"type":"Bitmap","compressed":true},
+            "gfx_ending_credits": {"start":1114112,"end":1118771,"type":"Bitmap","compressed":true},
             "gfx_credits_actors1": {"start":1123396,"end":1128001,"type":"Bitmap","compressed":true},
-            "sprite_1315E8": {"start":1250792,"end":1253527,"type":"Spritemap","compressed":true},
+            "spm_ending_credits_sprites": {"start":1250792,"end":1253527,"type":"Spritemap","compressed":true},
             "gfx_credits_font": {"start":1385151,"end":1387308,"type":"Bitmap","compressed":true},
             "gfx_credits_actors3": {"start":1561584,"end":1572766,"type":"Bitmap","compressed":true},
             "gfx_credits_scenery": {"start":1605632,"end":1616749,"type":"Bitmap","compressed":true},
@@ -400,425 +400,425 @@
             "palette_1F3333": {"start":2044723,"end":2044851,"type":"Palette"}
         },
         "ending_new_babel": {
-            "bmp_104C8F": {"start":1068175,"end":1072932,"type":"Bitmap","compressed":true},
-            "set_1B3DBE": {"start":1785278,"end":1786317,"type":"Tileset","compressed":true},
-            "palette_1E1735": {"start":1972021,"end":1972277,"type":"Palette"},
-            "map_1E6CF0": {"start":1993968,"end":1994182,"type":"Tilemap","compressed":true}
+            "gfx_ending_newbabel": {"start":1068175,"end":1072932,"type":"Bitmap","compressed":true},
+            "set_ending_newbabel": {"start":1785278,"end":1786317,"type":"Tileset","compressed":true},
+            "pal_ending_newbabel": {"start":1972021,"end":1972277,"type":"Palette"},
+            "map_ending_newbabel": {"start":1993968,"end":1994182,"type":"Tilemap","compressed":true}
         }
     },
     "euro": {
         "": {
-            "bmp_034AB8": {"start":215736,"end":222091,"type":"Bitmap","compressed":true},
-            "bmp_11E73F": {"start":1173311,"end":1179639,"type":"Bitmap","compressed":true},
-            "bmp_13B039": {"start":1290297,"end":1302634,"type":"Bitmap","compressed":true},
-            "set_180D21": {"start":1576225,"end":1577896,"type":"Tileset","compressed":true},
-            "sprite_1859F5": {"start":1595893,"end":1597495,"type":"Spritemap","compressed":true},
-            "palette_1E50F3": {"start":1986803,"end":1987027,"type":"Palette"},
-            "palette_1F06C0": {"start":2033344,"end":2033536,"type":"Palette"},
-            "palette_1F0780": {"start":2033536,"end":2033728,"type":"Palette"},
-            "map_1F172D": {"start":2037549,"end":2037736,"type":"Tilemap","compressed":true},
-            "map_1F35A4": {"start":2045348,"end":2045472,"type":"Tilemap","compressed":true}
+            "gfx_euro_sprites": {"start":215736,"end":222091,"type":"Bitmap","compressed":true},
+            "gfx_euro_geezers_sprites": {"start":1173311,"end":1179639,"type":"Bitmap","compressed":true},
+            "gfx_euro": {"start":1290297,"end":1302634,"type":"Bitmap","compressed":true},
+            "set_house_interior_euro": {"start":1576225,"end":1577896,"type":"Tileset","compressed":true},
+            "spm_euro_geezers_sprites": {"start":1595893,"end":1597495,"type":"Spritemap","compressed":true},
+            "pal_house_interior_euro": {"start":1986803,"end":1987027,"type":"Palette"},
+            "pal_euro_sprites": {"start":2033344,"end":2033536,"type":"Palette"},
+            "pal_euro_geezers_sprites": {"start":2033536,"end":2033728,"type":"Palette"},
+            "map_euro_house": {"start":2037549,"end":2037736,"type":"Tilemap","compressed":true},
+            "map_euro_house_effect": {"start":2045348,"end":2045472,"type":"Tilemap","compressed":true}
         },
         "dark_chapel": {
-            "set_1775A4": {"start":1537444,"end":1539142,"type":"Tileset","compressed":true},
-            "map_1D214D": {"start":1909069,"end":1909641,"type":"Tilemap","compressed":true},
-            "map_1E026F": {"start":1966703,"end":1967004,"type":"Tilemap","compressed":true}
+            "set_euro_chapel": {"start":1537444,"end":1539142,"type":"Tileset","compressed":true},
+            "map_euro_chapel": {"start":1909069,"end":1909641,"type":"Tilemap","compressed":true},
+            "map_euro_chapel_effect": {"start":1966703,"end":1967004,"type":"Tilemap","compressed":true}
         },
         "euro": {
-            "map_125172": {"start":1200498,"end":1203428,"type":"Tilemap","compressed":true},
-            "map_147024": {"start":1339428,"end":1341747,"type":"Tilemap","compressed":true},
-            "set_180698": {"start":1574552,"end":1576225,"type":"Tileset","compressed":true},
-            "sprite_1B289C": {"start":1779868,"end":1780962,"type":"Spritemap","compressed":true},
-            "set_1B356B": {"start":1783147,"end":1784224,"type":"Tileset","compressed":true},
+            "map_euro": {"start":1200498,"end":1203428,"type":"Tilemap","compressed":true},
+            "map_euro_effect": {"start":1339428,"end":1341747,"type":"Tilemap","compressed":true},
+            "set_euro": {"start":1574552,"end":1576225,"type":"Tileset","compressed":true},
+            "spm_euro_sprites": {"start":1779868,"end":1780962,"type":"Spritemap","compressed":true},
+            "set_euro_effect": {"start":1783147,"end":1784224,"type":"Tileset","compressed":true},
             "palette_1E5013": {"start":1986579,"end":1986803,"type":"Palette"}
         },
         "flea_market": {
-            "map_1E070A": {"start":1967882,"end":1968172,"type":"Tilemap","compressed":true},
-            "map_1F143C": {"start":2036796,"end":2036985,"type":"Tilemap","compressed":true}
+            "map_euro_market": {"start":1967882,"end":1968172,"type":"Tilemap","compressed":true},
+            "map_euro_market_effect": {"start":2036796,"end":2036985,"type":"Tilemap","compressed":true}
         },
         "geezer_central": {
-            "map_1F1A0D": {"start":2038285,"end":2038464,"type":"Tilemap","compressed":true},
-            "map_1F3A89": {"start":2046601,"end":2046707,"type":"Tilemap","compressed":true}
+            "map_euro_geezers": {"start":2038285,"end":2038464,"type":"Tilemap","compressed":true},
+            "map_euro_geezers_effect": {"start":2046601,"end":2046707,"type":"Tilemap","compressed":true}
         },
         "guest_room": {
-            "map_1F1F8B": {"start":2039691,"end":2039864,"type":"Tilemap","compressed":true},
-            "map_1F39B2": {"start":2046386,"end":2046494,"type":"Tilemap","compressed":true}
+            "map_euro_guestroom": {"start":2039691,"end":2039864,"type":"Tilemap","compressed":true},
+            "map_euro_guestroom_effect": {"start":2046386,"end":2046494,"type":"Tilemap","compressed":true}
         },
         "rolek_mansion": {
-            "map_1B41CD": {"start":1786317,"end":1787330,"type":"Tilemap","compressed":true},
-            "map_1C75D6": {"start":1865174,"end":1865853,"type":"Tilemap","compressed":true}
+            "map_euro_rolek": {"start":1786317,"end":1787330,"type":"Tilemap","compressed":true},
+            "map_euro_rolek_effect": {"start":1865174,"end":1865853,"type":"Tilemap","compressed":true}
         },
         "rolek_office": {
-            "map_1D7211": {"start":1929745,"end":1930092,"type":"Tilemap","compressed":true},
-            "map_1E2409": {"start":1975305,"end":1975548,"type":"Tilemap","compressed":true}
+            "map_euro_double": {"start":1929745,"end":1930092,"type":"Tilemap","compressed":true},
+            "map_euro_double_effect": {"start":1975305,"end":1975548,"type":"Tilemap","compressed":true}
         }
     },
     "freejia": {
         "": {
-            "gfx_fr32_actors": {"start":25889,"end":32764,"type":"Bitmap","compressed":true},
-            "gfx_fr33_int_extra": {"start":196608,"end":203018,"type":"Bitmap","compressed":true},
-            "gfx_fr33_int_main": {"start":262144,"end":268492,"type":"Bitmap","compressed":true},
-            "set_fr33_int": {"start":1599095,"end":1600682,"type":"Tileset","compressed":true},
-            "spm_fr32_actors": {"start":1963881,"end":1966074,"type":"Spritemap","compressed":true},
-            "pal_fr33_int_dark": {"start":1981651,"end":1981875,"type":"Palette"},
-            "pal_fr36_int_light": {"start":1981875,"end":1982099,"type":"Palette"},
-            "pal_fr32_actors": {"start":1997324,"end":1997516,"type":"Palette"}
+            "gfx_freejia_sprites": {"start":25889,"end":32764,"type":"Bitmap","compressed":true},
+            "gfx_freejia_effect": {"start":196608,"end":203018,"type":"Bitmap","compressed":true},
+            "gfx_house_interior": {"start":262144,"end":268492,"type":"Bitmap","compressed":true},
+            "set_freejia_interior": {"start":1599095,"end":1600682,"type":"Tileset","compressed":true},
+            "spm_freejia_sprites": {"start":1963881,"end":1966074,"type":"Spritemap","compressed":true},
+            "pal_house_interior_dark": {"start":1981651,"end":1981875,"type":"Palette"},
+            "pal_house_interior_light": {"start":1981875,"end":1982099,"type":"Palette"},
+            "pal_freejia_sprites": {"start":1997324,"end":1997516,"type":"Palette"}
         },
         "adequacy_manor": {
-            "map_fr38_main": {"start":1930438,"end":1930782,"type":"Tilemap","compressed":true},
+            "map_fr38": {"start":1930438,"end":1930782,"type":"Tilemap","compressed":true},
             "map_fr38_effect": {"start":1974325,"end":1974573,"type":"Tilemap","compressed":true}
         },
         "adrift": {
-            "map_dc2F_effect": {"start":2036606,"end":2036796,"type":"Tilemap","compressed":true}
+            "map_gs2F_effect": {"start":2036606,"end":2036796,"type":"Tilemap","compressed":true}
         },
         "eriks_captivity": {
-            "map_fr33_main": {"start":2040854,"end":2041013,"type":"Tilemap","compressed":true},
+            "map_fr33": {"start":2040854,"end":2041013,"type":"Tilemap","compressed":true},
             "map_fr33_effect": {"start":2045594,"end":2045715,"type":"Tilemap","compressed":true}
         },
         "freejia": {
-            "gfx_fr32_ext_tiles": {"start":86030,"end":92801,"type":"Bitmap","compressed":true},
-            "map_fr32_main": {"start":1256220,"end":1258876,"type":"Tilemap","compressed":true},
-            "set_fr32_ext_main": {"start":1594284,"end":1595893,"type":"Tileset","compressed":true},
-            "set_fr32_ext_effect": {"start":1976715,"end":1976942,"type":"Tileset","compressed":true},
-            "pal_fr32_ext_tiles": {"start":1981427,"end":1981651,"type":"Palette"},
+            "gfx_freejia": {"start":86030,"end":92801,"type":"Bitmap","compressed":true},
+            "map_fr32": {"start":1256220,"end":1258876,"type":"Tilemap","compressed":true},
+            "set_freejia": {"start":1594284,"end":1595893,"type":"Tileset","compressed":true},
+            "set_freejia_effect": {"start":1976715,"end":1976942,"type":"Tileset","compressed":true},
+            "pal_freejia": {"start":1981427,"end":1981651,"type":"Palette"},
             "map_fr32_effect": {"start":2047448,"end":2047505,"type":"Tilemap","compressed":true}
         },
         "freejia_darkspace": {
             "map_fr34_effect": {"start":917387,"end":917504,"type":"Tilemap","compressed":true},
-            "map_fr34_main": {"start":2042542,"end":2042685,"type":"Tilemap","compressed":true}
+            "map_fr34": {"start":2042542,"end":2042685,"type":"Tilemap","compressed":true}
         },
         "freejia_hotel": {
-            "map_fr39_main": {"start":228445,"end":229361,"type":"Tilemap","compressed":true},
+            "map_fr39": {"start":228445,"end":229361,"type":"Tilemap","compressed":true},
             "map_fr39_effect": {"start":884075,"end":884717,"type":"Tilemap","compressed":true}
         },
         "freejia_labor_camp": {
-            "map_fr35_main": {"start":1974817,"end":1975061,"type":"Tilemap","compressed":true},
+            "map_fr35": {"start":1974817,"end":1975061,"type":"Tilemap","compressed":true},
             "map_fr35_effect": {"start":2037174,"end":2037362,"type":"Tilemap","compressed":true}
         },
         "harborer_house": {
-            "map_fr3A_main": {"start":2039518,"end":2039691,"type":"Tilemap","compressed":true},
+            "map_fr3A": {"start":2039518,"end":2039691,"type":"Tilemap","compressed":true},
             "map_fr3A_effect": {"start":2044976,"end":2045100,"type":"Tilemap","compressed":true}
         },
         "messy_house": {
-            "map_fr3B_main": {"start":1376063,"end":1376256,"type":"Tilemap","compressed":true},
+            "map_fr3B": {"start":1376063,"end":1376256,"type":"Tilemap","compressed":true},
             "map_fr3B_effect": {"start":2044206,"end":2044336,"type":"Tilemap","compressed":true}
         },
         "mothers_house": {
             "map_fr36_effect": {"start":1548050,"end":1548287,"type":"Tilemap","compressed":true},
-            "map_fr36_main": {"start":1930092,"end":1930438,"type":"Tilemap","compressed":true}
+            "map_fr36": {"start":1930092,"end":1930438,"type":"Tilemap","compressed":true}
         },
         "oakton": {
-            "map_dc30_main": {"start":1976023,"end":1976254,"type":"Tilemap","compressed":true},
-            "map_dc30_effect": {"start":2031534,"end":2031612,"type":"Tilemap","compressed":true}
+            "map_fr30": {"start":1976023,"end":1976254,"type":"Tilemap","compressed":true},
+            "map_fr30_effect": {"start":2031534,"end":2031612,"type":"Tilemap","compressed":true}
         },
         "oakton_interior": {
-            "map_dc31_main": {"start":2041330,"end":2041485,"type":"Tilemap","compressed":true}
+            "map_fr31": {"start":2041330,"end":2041485,"type":"Tilemap","compressed":true}
         },
         "slave_market": {
-            "pal_fr3C_int_dark": {"start":1982099,"end":1982323,"type":"Palette"},
-            "map_fr3C_main": {"start":2039168,"end":2039343,"type":"Tilemap","compressed":true}
+            "pal_cave_dark": {"start":1982099,"end":1982323,"type":"Palette"},
+            "map_fr3C": {"start":2039168,"end":2039343,"type":"Tilemap","compressed":true}
         },
         "thorn_tower": {
             "map_fr37_effect": {"start":1146628,"end":1146876,"type":"Tilemap","compressed":true},
-            "map_fr37_main": {"start":1638044,"end":1638400,"type":"Tilemap","compressed":true}
+            "map_fr37": {"start":1638044,"end":1638400,"type":"Tilemap","compressed":true}
         }
     },
     "gold_ship": {
         "": {
-            "bmp_1026CE": {"start":1058510,"end":1063416,"type":"Bitmap","compressed":true},
-            "gfx_gs2B_tiles": {"start":1160476,"end":1173311,"type":"Bitmap","compressed":true},
-            "gfx_gs2C_tiles": {"start":1277952,"end":1290297,"type":"Bitmap","compressed":true},
-            "sprite_1A554C": {"start":1725772,"end":1727031,"type":"Spritemap","compressed":true},
-            "set_1A6407": {"start":1729543,"end":1730790,"type":"Tileset","compressed":true},
-            "set_gs2B_ocean_effect": {"start":1931462,"end":1931795,"type":"Tileset","compressed":true},
-            "map_gs2B_ocean_effect": {"start":1994795,"end":1994996,"type":"Tilemap","compressed":true},
-            "palette_1E794C": {"start":1997132,"end":1997324,"type":"Palette"}
+            "gfx_goldship_sprites": {"start":1058510,"end":1063416,"type":"Bitmap","compressed":true},
+            "gfx_shipwreck": {"start":1160476,"end":1173311,"type":"Bitmap","compressed":true},
+            "gfx_goldship": {"start":1277952,"end":1290297,"type":"Bitmap","compressed":true},
+            "spm_goldship_sprites": {"start":1725772,"end":1727031,"type":"Spritemap","compressed":true},
+            "set_goldship_interior": {"start":1729543,"end":1730790,"type":"Tileset","compressed":true},
+            "set_goldship_effect": {"start":1931462,"end":1931795,"type":"Tileset","compressed":true},
+            "map_goldship_effect": {"start":1994795,"end":1994996,"type":"Tilemap","compressed":true},
+            "pal_goldship_sprites": {"start":1997132,"end":1997324,"type":"Palette"}
         },
         "adrift": {
-            "gfx_dc2F_tiles": {"start":869316,"end":874988,"type":"Bitmap","compressed":true},
-            "map_dc2F_main": {"start":1048509,"end":1048576,"type":"Tilemap","compressed":true},
-            "set_dc2F_main": {"start":1919503,"end":1919962,"type":"Tileset","compressed":true},
-            "pal_dc2F_tiles": {"start":1981203,"end":1981427,"type":"Palette"}
+            "gfx_adrift": {"start":869316,"end":874988,"type":"Bitmap","compressed":true},
+            "map_gs2F": {"start":1048509,"end":1048576,"type":"Tilemap","compressed":true},
+            "set_adrift": {"start":1919503,"end":1919962,"type":"Tileset","compressed":true},
+            "pal_adrift": {"start":1981203,"end":1981427,"type":"Palette"}
         },
         "ship_gold": {
-            "set_gs2C_main": {"start":1646269,"end":1647832,"type":"Tileset","compressed":true},
-            "map_gs2C_main": {"start":1835889,"end":1836768,"type":"Tilemap","compressed":true},
-            "pal_gs2C_tiles_gold": {"start":1980531,"end":1980755,"type":"Palette"}
+            "set_goldship": {"start":1646269,"end":1647832,"type":"Tileset","compressed":true},
+            "map_gs2C": {"start":1835889,"end":1836768,"type":"Tilemap","compressed":true},
+            "pal_goldship": {"start":1980531,"end":1980755,"type":"Palette"}
         },
         "ship_gold_interior": {
-            "map_1C50F7": {"start":1855735,"end":1856482,"type":"Tilemap","compressed":true},
-            "palette_1E3A33": {"start":1980979,"end":1981203,"type":"Palette"}
+            "map_gs2D": {"start":1855735,"end":1856482,"type":"Tilemap","compressed":true},
+            "pal_goldship_interior": {"start":1980979,"end":1981203,"type":"Palette"}
         },
         "ship_wreck": {
-            "set_gs2B_main": {"start":1668891,"end":1670328,"type":"Tileset","compressed":true},
-            "map_gs2B_main": {"start":1842839,"end":1843693,"type":"Tilemap","compressed":true},
-            "pal_gs2B_tiles_dark": {"start":1980307,"end":1980531,"type":"Palette"}
+            "set_shipwreck": {"start":1668891,"end":1670328,"type":"Tileset","compressed":true},
+            "map_gs2B": {"start":1842839,"end":1843693,"type":"Tilemap","compressed":true},
+            "pal_shipwreck": {"start":1980307,"end":1980531,"type":"Palette"}
         },
         "ship_wreck_interior": {
-            "map_1C323C": {"start":1847868,"end":1848682,"type":"Tilemap","compressed":true},
-            "pal_gs2D_tiles_light": {"start":1980755,"end":1980979,"type":"Palette"}
+            "map_gs2D": {"start":1847868,"end":1848682,"type":"Tilemap","compressed":true},
+            "pal_shipwreck_interior": {"start":1980755,"end":1980979,"type":"Palette"}
         }
     },
     "great_wall": {
         "": {
-            "bmp_10136D": {"start":1053549,"end":1058510,"type":"Bitmap","compressed":true},
-            "gfx_gw82_tiles": {"start":1225082,"end":1237719,"type":"Bitmap","compressed":true},
-            "set_gw82_main": {"start":1457363,"end":1459279,"type":"Tileset","compressed":true},
-            "set_166233": {"start":1466931,"end":1468806,"type":"Tileset","compressed":true},
-            "sprite_19F3F7": {"start":1700855,"end":1703899,"type":"Spritemap","compressed":true},
-            "set_gw82_effect": {"start":1848682,"end":1849488,"type":"Tileset","compressed":true},
-            "map_1D67E3": {"start":1927139,"end":1927530,"type":"Tilemap","compressed":true},
-            "pal_gw82_tiles": {"start":1986355,"end":1986579,"type":"Palette"},
-            "map_gw82_effect": {"start":1995196,"end":1995396,"type":"Tilemap","compressed":true},
-            "palette_1F0540": {"start":2032960,"end":2033152,"type":"Palette"}
+            "gfx_greatwall_sprites": {"start":1053549,"end":1058510,"type":"Bitmap","compressed":true},
+            "gfx_greatwall": {"start":1225082,"end":1237719,"type":"Bitmap","compressed":true},
+            "set_greatwall": {"start":1457363,"end":1459279,"type":"Tileset","compressed":true},
+            "set_greatwall_alt": {"start":1466931,"end":1468806,"type":"Tileset","compressed":true},
+            "spm_greatwall_sprites": {"start":1700855,"end":1703899,"type":"Spritemap","compressed":true},
+            "set_greatwall_effect": {"start":1848682,"end":1849488,"type":"Tileset","compressed":true},
+            "map_greatwall_effect_alt": {"start":1927139,"end":1927530,"type":"Tilemap","compressed":true},
+            "pal_greatwall": {"start":1986355,"end":1986579,"type":"Palette"},
+            "map_greatwall_effect": {"start":1995196,"end":1995396,"type":"Tilemap","compressed":true},
+            "pal_greatwall_sprites": {"start":2032960,"end":2033152,"type":"Palette"}
         },
         "sand_fanger_lair": {
-            "bmp_0E5687": {"start":939655,"end":945067,"type":"Bitmap","compressed":true},
-            "sprite_155BBE": {"start":1399742,"end":1401750,"type":"Spritemap","compressed":true},
-            "map_1B5908": {"start":1792264,"end":1793232,"type":"Tilemap","compressed":true},
-            "palette_1F0600": {"start":2033152,"end":2033344,"type":"Palette"},
-            "map_1F33B3": {"start":2044851,"end":2044976,"type":"Tilemap","compressed":true}
+            "gfx_sandfanger": {"start":939655,"end":945067,"type":"Bitmap","compressed":true},
+            "spm_sandfanger": {"start":1399742,"end":1401750,"type":"Spritemap","compressed":true},
+            "map_greatwall_fanger": {"start":1792264,"end":1793232,"type":"Tilemap","compressed":true},
+            "pal_sandfanger": {"start":2033152,"end":2033344,"type":"Palette"},
+            "map_greatwall_fanger_effect": {"start":2044851,"end":2044976,"type":"Tilemap","compressed":true}
         },
         "wall_blind_pit": {
-            "map_1820A0": {"start":1581216,"end":1582869,"type":"Tilemap","compressed":true}
+            "map_greatwall_pit": {"start":1581216,"end":1582869,"type":"Tilemap","compressed":true}
         },
         "wall_dive": {
-            "map_126854": {"start":1206356,"end":1209262,"type":"Tilemap","compressed":true}
+            "map_greatwall_dive": {"start":1206356,"end":1209262,"type":"Tilemap","compressed":true}
         },
         "wall_entrance": {
-            "map_gw82_main": {"start":1549554,"end":1552377,"type":"Tilemap","compressed":true}
+            "map_greatwall_entrance": {"start":1549554,"end":1552377,"type":"Tilemap","compressed":true}
         },
         "wall_inner": {
-            "map_1D3EC4": {"start":1916612,"end":1917114,"type":"Tilemap","compressed":true}
+            "map_greatwall_inner": {"start":1916612,"end":1917114,"type":"Tilemap","compressed":true}
         },
         "wall_rampway": {
-            "map_1409AD": {"start":1313197,"end":1315674,"type":"Tilemap","compressed":true},
-            "map_1F2554": {"start":2041172,"end":2041330,"type":"Tilemap","compressed":true}
+            "map_greatwall_rampway": {"start":1313197,"end":1315674,"type":"Tilemap","compressed":true},
+            "map_greatwall_rampway_effect": {"start":2041172,"end":2041330,"type":"Tilemap","compressed":true}
         },
         "wall_switchback": {
-            "map_1A3172": {"start":1716594,"end":1717973,"type":"Tilemap","compressed":true}
+            "map_greatwall_switchback": {"start":1716594,"end":1717973,"type":"Tilemap","compressed":true}
         },
         "wall_tomb": {
-            "map_1A10C7": {"start":1708231,"end":1709632,"type":"Tilemap","compressed":true}
+            "map_greatwall_tomb": {"start":1708231,"end":1709632,"type":"Tilemap","compressed":true}
         }
     },
     "incan_ruins": {
         "": {
-            "gfx_ir1D_enemy_set1": {"start":144316,"end":150819,"type":"Bitmap","compressed":true},
-            "gfx_ir1F_enemy_set2": {"start":150819,"end":157318,"type":"Bitmap","compressed":true},
-            "gfx_ir1F_int_main": {"start":203018,"end":209377,"type":"Bitmap","compressed":true},
-            "spm_ir1F_enemy_set2": {"start":804132,"end":810006,"type":"Spritemap","compressed":true},
-            "spm_ir1D_enemy_set1": {"start":1378534,"end":1380750,"type":"Spritemap","compressed":true},
-            "set_ir1F_int_main": {"start":1587786,"end":1589417,"type":"Tileset","compressed":true},
-            "pal_ir1F_int_main": {"start":1980083,"end":1980307,"type":"Palette"},
-            "pal_ir1D_enemy_set1": {"start":1996556,"end":1996748,"type":"Palette"},
-            "pal_ir1F_enemy_set2": {"start":1996748,"end":1996940,"type":"Palette"}
+            "gfx_cliff_enemies": {"start":144316,"end":150819,"type":"Bitmap","compressed":true},
+            "gfx_ruins_enemies": {"start":150819,"end":157318,"type":"Bitmap","compressed":true},
+            "gfx_ruins": {"start":203018,"end":209377,"type":"Bitmap","compressed":true},
+            "spm_ruins_enemies": {"start":804132,"end":810006,"type":"Spritemap","compressed":true},
+            "spm_cliff_enemies": {"start":1378534,"end":1380750,"type":"Spritemap","compressed":true},
+            "set_ruins": {"start":1587786,"end":1589417,"type":"Tileset","compressed":true},
+            "pal_ruins": {"start":1980083,"end":1980307,"type":"Palette"},
+            "pal_cliff_enemies": {"start":1996556,"end":1996748,"type":"Palette"},
+            "pal_ruins_enemies": {"start":1996748,"end":1996940,"type":"Palette"}
         },
         "castoth_lair": {
-            "gfx_ir29_castoth": {"start":792372,"end":798253,"type":"Bitmap","compressed":true},
-            "spm_ir29_castoth": {"start":1072932,"end":1077664,"type":"Spritemap","compressed":true},
-            "map_ir29_main": {"start":1967591,"end":1967882,"type":"Tilemap","compressed":true},
-            "pal_ir29_castoth": {"start":1996940,"end":1997132,"type":"Palette"},
+            "gfx_castoth": {"start":792372,"end":798253,"type":"Bitmap","compressed":true},
+            "spm_castoth": {"start":1072932,"end":1077664,"type":"Spritemap","compressed":true},
+            "map_ir29": {"start":1967591,"end":1967882,"type":"Tilemap","compressed":true},
+            "pal_castoth": {"start":1996940,"end":1997132,"type":"Palette"},
             "map_ir29_effect": {"start":2047326,"end":2047389,"type":"Tilemap","compressed":true}
         },
         "ceiling_trap_room": {
-            "map_ir28_main": {"start":1843693,"end":1844544,"type":"Tilemap","compressed":true}
+            "map_ir28": {"start":1843693,"end":1844544,"type":"Tilemap","compressed":true}
         },
         "inca_entryway": {
-            "map_ir25_main": {"start":1864490,"end":1865174,"type":"Tilemap","compressed":true}
+            "map_ir25": {"start":1864490,"end":1865174,"type":"Tilemap","compressed":true}
         },
         "inca_guarded_gap": {
-            "map_ir23_main": {"start":1667453,"end":1668891,"type":"Tilemap","compressed":true}
+            "map_ir23": {"start":1667453,"end":1668891,"type":"Tilemap","compressed":true}
         },
         "inca_plate_room": {
-            "map_ir24_main": {"start":1917602,"end":1918083,"type":"Tilemap","compressed":true},
+            "map_ir24": {"start":1917602,"end":1918083,"type":"Tilemap","compressed":true},
             "map_ir24_effect": {"start":2046169,"end":2046278,"type":"Tilemap","compressed":true}
         },
         "inca_river_detour": {
-            "map_ir22_main": {"start":1582869,"end":1584515,"type":"Tilemap","compressed":true}
+            "map_ir22": {"start":1582869,"end":1584515,"type":"Tilemap","compressed":true}
         },
         "inca_secret_hallway": {
-            "map_ir20_main": {"start":1908496,"end":1909069,"type":"Tilemap","compressed":true}
+            "map_ir20": {"start":1908496,"end":1909069,"type":"Tilemap","compressed":true}
         },
         "inca_side_passage": {
-            "map_ir27_main": {"start":1795994,"end":1796900,"type":"Tilemap","compressed":true}
+            "map_ir27": {"start":1795994,"end":1796900,"type":"Tilemap","compressed":true}
         },
         "inca_treasure_room": {
-            "map_ir26_main": {"start":1857227,"end":1857964,"type":"Tilemap","compressed":true}
+            "map_ir26": {"start":1857227,"end":1857964,"type":"Tilemap","compressed":true}
         },
         "incan_river_crossing": {
-            "map_ir21_main": {"start":1516482,"end":1518265,"type":"Tilemap","compressed":true}
+            "map_ir21": {"start":1516482,"end":1518265,"type":"Tilemap","compressed":true}
         },
         "incan_ruins_entrance": {
             "map_ir1C_main": {"start":1915097,"end":1915604,"type":"Tilemap","compressed":true}
         },
         "larai_cliff": {
-            "map_ir1D_main": {"start":1310720,"end":1313197,"type":"Tilemap","compressed":true},
-            "set_ir1D_ext_main": {"start":1663065,"end":1664540,"type":"Tileset","compressed":true},
-            "gfx_ir1D_ext_main": {"start":1681852,"end":1692262,"type":"Bitmap","compressed":true},
+            "map_ir1D": {"start":1310720,"end":1313197,"type":"Tilemap","compressed":true},
+            "set_cliff": {"start":1663065,"end":1664540,"type":"Tileset","compressed":true},
+            "gfx_cliff": {"start":1681852,"end":1692262,"type":"Bitmap","compressed":true},
             "map_ir1D_effect": {"start":1853420,"end":1854193,"type":"Tilemap","compressed":true},
-            "set_ir1D_ext_effect": {"start":1917114,"end":1917602,"type":"Tileset","compressed":true},
-            "pal_ir1D_ext_main": {"start":1979859,"end":1980083,"type":"Palette"}
+            "set_cliff_effect": {"start":1917114,"end":1917602,"type":"Tileset","compressed":true},
+            "pal_cliff": {"start":1979859,"end":1980083,"type":"Palette"}
         },
         "larai_cliff_back": {
-            "map_ir1E_main": {"start":1112971,"end":1114108,"type":"Tilemap","compressed":true},
+            "map_ir1E": {"start":1112971,"end":1114108,"type":"Tilemap","compressed":true},
             "map_ir1E_effect": {"start":1867196,"end":1867776,"type":"Tilemap","compressed":true}
         },
         "stone_lord_plates": {
-            "map_ir1F_main": {"start":1914586,"end":1915097,"type":"Tilemap","compressed":true}
+            "map_ir1F": {"start":1914586,"end":1915097,"type":"Tilemap","compressed":true}
         }
     },
     "itory": {
         "": {
-            "gfx_it16_int": {"start":18995,"end":25889,"type":"Bitmap","compressed":true},
-            "gfx_it15_effect": {"start":739115,"end":745102,"type":"Bitmap","compressed":true},
-            "spm_it15_characters": {"start":1271816,"end":1274330,"type":"Spritemap","compressed":true},
-            "set_it15_ext_effect": {"start":1658616,"end":1660112,"type":"Tileset","compressed":true},
-            "set_it16_int_main": {"start":1711031,"end":1712429,"type":"Tileset","compressed":true},
-            "pal_it15_characters": {"start":1996364,"end":1996556,"type":"Palette"},
-            "gfx_it15_characters": {"start":2071429,"end":2078424,"type":"Bitmap","compressed":true}
+            "gfx_itory_interior": {"start":18995,"end":25889,"type":"Bitmap","compressed":true},
+            "gfx_itory_effect": {"start":739115,"end":745102,"type":"Bitmap","compressed":true},
+            "spm_itory_sprites": {"start":1271816,"end":1274330,"type":"Spritemap","compressed":true},
+            "set_itory_effect": {"start":1658616,"end":1660112,"type":"Tileset","compressed":true},
+            "set_itory_interior": {"start":1711031,"end":1712429,"type":"Tileset","compressed":true},
+            "pal_itory_sprites": {"start":1996364,"end":1996556,"type":"Palette"},
+            "gfx_itory_sprites": {"start":2071429,"end":2078424,"type":"Bitmap","compressed":true}
         },
         "itory_cave": {
-            "map_it19_main": {"start":1918083,"end":1918560,"type":"Tilemap","compressed":true}
+            "map_it19": {"start":1918083,"end":1918560,"type":"Tilemap","compressed":true}
         },
         "itory_couple_house": {
-            "map_it18_main": {"start":2040533,"end":2040694,"type":"Tilemap","compressed":true},
+            "map_it18": {"start":2040533,"end":2040694,"type":"Tilemap","compressed":true},
             "map_it18_effect": {"start":2047505,"end":2047560,"type":"Tilemap","compressed":true}
         },
         "itory_legend_house": {
-            "pal_it16_int": {"start":1979635,"end":1979859,"type":"Palette"},
-            "map_it16_main": {"start":2036416,"end":2036606,"type":"Tilemap","compressed":true},
-            "map_it16_effect": {"start":2047560,"end":2047604,"type":"Tilemap","compressed":true}
+            "pal_itory_interior": {"start":1979635,"end":1979859,"type":"Palette"},
+            "map_it16": {"start":2036416,"end":2036606,"type":"Tilemap","compressed":true},
+            "map_itory_interior_effect": {"start":2047560,"end":2047604,"type":"Tilemap","compressed":true}
         },
         "itory_village": {
-            "gfx_it15_ext_tiles": {"start":1237719,"end":1245178,"type":"Bitmap","compressed":true},
-            "map_it15_main": {"start":1472551,"end":1474412,"type":"Tilemap","compressed":true},
-            "set_it15_etx_main": {"start":1535743,"end":1537444,"type":"Tileset","compressed":true},
-            "map_it15_effect": {"start":1974573,"end":1974817,"type":"Tilemap","compressed":true},
-            "pal_it15_tiles": {"start":1979411,"end":1979635,"type":"Palette"}
+            "gfx_itory": {"start":1237719,"end":1245178,"type":"Bitmap","compressed":true},
+            "map_it15": {"start":1472551,"end":1474412,"type":"Tilemap","compressed":true},
+            "set_itory": {"start":1535743,"end":1537444,"type":"Tileset","compressed":true},
+            "map_itory_effect": {"start":1974573,"end":1974817,"type":"Tilemap","compressed":true},
+            "pal_itory": {"start":1979411,"end":1979635,"type":"Palette"}
         },
         "lilys_house": {
-            "map_it17_main": {"start":2038993,"end":2039168,"type":"Tilemap","compressed":true}
+            "map_it17": {"start":2038993,"end":2039168,"type":"Tilemap","compressed":true}
         },
         "moon_tribe_camp": {
-            "map_it1A_main": {"start":1924326,"end":1924738,"type":"Tilemap","compressed":true}
+            "map_it1A": {"start":1924326,"end":1924738,"type":"Tilemap","compressed":true}
         },
         "moon_tribe_cave": {
-            "map_it1B_main": {"start":1922210,"end":1922641,"type":"Tilemap","compressed":true}
+            "map_it1B": {"start":1922210,"end":1922641,"type":"Tilemap","compressed":true}
         }
     },
     "mansion": {
         "": {
-            "set_166986": {"start":1468806,"end":1470680,"type":"Tileset","compressed":true},
-            "bmp_18D51E": {"start":1627422,"end":1638044,"type":"Bitmap","compressed":true},
-            "set_1D7DE7": {"start":1932775,"end":1933091,"type":"Tileset","compressed":true},
-            "palette_1E6353": {"start":1991507,"end":1991731,"type":"Palette"}
+            "set_mansion": {"start":1468806,"end":1470680,"type":"Tileset","compressed":true},
+            "gfx_mansion": {"start":1627422,"end":1638044,"type":"Bitmap","compressed":true},
+            "set_mansion_effect": {"start":1932775,"end":1933091,"type":"Tileset","compressed":true},
+            "pal_mansion": {"start":1991507,"end":1991731,"type":"Palette"}
         },
         "mansion": {
-            "map_1731AE": {"start":1520046,"end":1521816,"type":"Tilemap","compressed":true},
-            "pal_sE9_enemies": {"start":2034880,"end":2035072,"type":"Palette"},
-            "map_1F378B": {"start":2045835,"end":2045948,"type":"Tilemap","compressed":true}
+            "map_mansion": {"start":1520046,"end":1521816,"type":"Tilemap","compressed":true},
+            "pal_mine_sprites_alt": {"start":2034880,"end":2035072,"type":"Palette"},
+            "map_mansion_effect": {"start":2045835,"end":2045948,"type":"Tilemap","compressed":true}
         },
         "solid_arm_lair": {
-            "bmp_043191": {"start":274833,"end":281145,"type":"Bitmap","compressed":true},
-            "sprite_0B5E8E": {"start":745102,"end":751065,"type":"Spritemap","compressed":true},
-            "palette_1F0D80": {"start":2035072,"end":2035264,"type":"Palette"},
-            "map_1F2D73": {"start":2043251,"end":2043390,"type":"Tilemap","compressed":true}
+            "gfx_solidarm": {"start":274833,"end":281145,"type":"Bitmap","compressed":true},
+            "spm_solidarm": {"start":745102,"end":751065,"type":"Spritemap","compressed":true},
+            "pal_solidarm": {"start":2035072,"end":2035264,"type":"Palette"},
+            "map_mansion_solidarm": {"start":2043251,"end":2043390,"type":"Tilemap","compressed":true}
         }
     },
     "mountain_temple": {
         "": {
-            "bmp_100000": {"start":1048576,"end":1053549,"type":"Bitmap","compressed":true},
-            "bmp_128000": {"start":1212416,"end":1225082,"type":"Bitmap","compressed":true},
-            "set_160000": {"start":1441792,"end":1443760,"type":"Tileset","compressed":true},
-            "sprite_184D5C": {"start":1592668,"end":1594284,"type":"Spritemap","compressed":true},
-            "set_1D4660": {"start":1918560,"end":1919037,"type":"Tileset","compressed":true},
-            "map_1D696A": {"start":1927530,"end":1927919,"type":"Tilemap","compressed":true},
-            "palette_1E51D3": {"start":1987027,"end":1987251,"type":"Palette"},
-            "palette_1F0840": {"start":2033728,"end":2033920,"type":"Palette"}
+            "gfx_kress_sprites": {"start":1048576,"end":1053549,"type":"Bitmap","compressed":true},
+            "gfx_kress": {"start":1212416,"end":1225082,"type":"Bitmap","compressed":true},
+            "set_kress": {"start":1441792,"end":1443760,"type":"Tileset","compressed":true},
+            "spm_kress_sprites": {"start":1592668,"end":1594284,"type":"Spritemap","compressed":true},
+            "set_kress_effect": {"start":1918560,"end":1919037,"type":"Tileset","compressed":true},
+            "map_kress_effect": {"start":1927530,"end":1927919,"type":"Tilemap","compressed":true},
+            "pal_kress": {"start":1987027,"end":1987251,"type":"Palette"},
+            "pal_kress_sprites": {"start":2033728,"end":2033920,"type":"Palette"}
         },
         "kress_circuit": {
-            "map_170744": {"start":1509188,"end":1511021,"type":"Tilemap","compressed":true}
+            "map_kress_vines": {"start":1509188,"end":1511021,"type":"Tilemap","compressed":true}
         },
         "kress_crossroads": {
-            "map_1C1B3F": {"start":1841983,"end":1842839,"type":"Tilemap","compressed":true}
+            "map_kress_crossroad": {"start":1841983,"end":1842839,"type":"Tilemap","compressed":true}
         },
         "kress_detour": {
-            "map_1C3BAF": {"start":1850287,"end":1851080,"type":"Tilemap","compressed":true}
+            "map_kress_detour": {"start":1850287,"end":1851080,"type":"Tilemap","compressed":true}
         },
         "kress_entrance": {
-            "map_1C6DA5": {"start":1863077,"end":1863785,"type":"Tilemap","compressed":true}
+            "map_kress_entrance": {"start":1863077,"end":1863785,"type":"Tilemap","compressed":true}
         },
         "kress_gauntlet": {
-            "map_180000": {"start":1572864,"end":1574552,"type":"Tilemap","compressed":true}
+            "map_kress_gauntlet": {"start":1572864,"end":1574552,"type":"Tilemap","compressed":true}
         },
         "kress_loop": {
-            "map_1A4168": {"start":1720680,"end":1721966,"type":"Tilemap","compressed":true}
+            "map_kress_loop": {"start":1720680,"end":1721966,"type":"Tilemap","compressed":true}
         },
         "kress_maze": {
-            "map_122ED0": {"start":1191632,"end":1194600,"type":"Tilemap","compressed":true}
+            "map_kress_maze": {"start":1191632,"end":1194600,"type":"Tilemap","compressed":true}
         },
         "kress_mushrooms": {
-            "map_1A26A1": {"start":1713825,"end":1715214,"type":"Tilemap","compressed":true}
+            "map_kress_mushrooms": {"start":1713825,"end":1715214,"type":"Tilemap","compressed":true}
         },
         "kress_summit": {
-            "map_1D2E87": {"start":1912455,"end":1912992,"type":"Tilemap","compressed":true}
+            "map_kress_summit": {"start":1912455,"end":1912992,"type":"Tilemap","compressed":true}
         },
         "kress_twisted": {
-            "map_19661C": {"start":1664540,"end":1666008,"type":"Tilemap","compressed":true}
+            "map_kress_twist": {"start":1664540,"end":1666008,"type":"Tilemap","compressed":true}
         }
     },
     "mu": {
         "": {
-            "bmp_0C2E2D": {"start":798253,"end":804132,"type":"Bitmap","compressed":true},
-            "sprite_113641": {"start":1128001,"end":1132200,"type":"Spritemap","compressed":true},
-            "bmp_118000": {"start":1146880,"end":1160476,"type":"Bitmap","compressed":true},
-            "set_172AB9": {"start":1518265,"end":1520046,"type":"Tileset","compressed":true},
-            "set_174D2D": {"start":1527085,"end":1528829,"type":"Tileset","compressed":true},
-            "palette_1E4913": {"start":1984787,"end":1985011,"type":"Palette"},
-            "palette_1F0000": {"start":2031616,"end":2031808,"type":"Palette"}
+            "gfx_mu_enemies": {"start":798253,"end":804132,"type":"Bitmap","compressed":true},
+            "spm_mu_enemies": {"start":1128001,"end":1132200,"type":"Spritemap","compressed":true},
+            "gfx_mu": {"start":1146880,"end":1160476,"type":"Bitmap","compressed":true},
+            "set_mu": {"start":1518265,"end":1520046,"type":"Tileset","compressed":true},
+            "set_mu_effect": {"start":1527085,"end":1528829,"type":"Tileset","compressed":true},
+            "pal_mu": {"start":1984787,"end":1985011,"type":"Palette"},
+            "pal_mu_enemies": {"start":2031616,"end":2031808,"type":"Palette"}
         },
         "mu_altar_room": {
-            "map_1D6DD9": {"start":1928665,"end":1929027,"type":"Tilemap","compressed":true}
+            "map_mu_altar": {"start":1928665,"end":1929027,"type":"Tilemap","compressed":true}
         },
         "mu_connector": {
-            "map_1D30A0": {"start":1912992,"end":1913527,"type":"Tilemap","compressed":true},
-            "map_1E013A": {"start":1966394,"end":1966703,"type":"Tilemap","compressed":true}
+            "map_mu_connector": {"start":1912992,"end":1913527,"type":"Tilemap","compressed":true},
+            "map_mu_connector_effect_half": {"start":1966394,"end":1966703,"type":"Tilemap","compressed":true}
         },
         "mu_east": {
-            "map_1A059D": {"start":1705373,"end":1706803,"type":"Tilemap","compressed":true},
-            "map_1B75A0": {"start":1799584,"end":1800475,"type":"Tilemap","compressed":true},
-            "map_1D32B7": {"start":1913527,"end":1914057,"type":"Tilemap","compressed":true}
+            "map_mu_east": {"start":1705373,"end":1706803,"type":"Tilemap","compressed":true},
+            "map_mu_east_effect": {"start":1799584,"end":1800475,"type":"Tilemap","compressed":true},
+            "map_mu_east_effect_half": {"start":1913527,"end":1914057,"type":"Tilemap","compressed":true}
         },
         "mu_entrance": {
-            "map_0EDD40": {"start":974144,"end":974844,"type":"Tilemap","compressed":true},
-            "map_1840A9": {"start":1589417,"end":1591044,"type":"Tilemap","compressed":true},
-            "map_1B0963": {"start":1771875,"end":1773058,"type":"Tilemap","compressed":true},
-            "map_1D64CF": {"start":1926351,"end":1926748,"type":"Tilemap","compressed":true}
+            "map_mu_entrance_effect_half": {"start":974144,"end":974844,"type":"Tilemap","compressed":true},
+            "map_mu_entrance": {"start":1589417,"end":1591044,"type":"Tilemap","compressed":true},
+            "map_mu_entrance_effect": {"start":1771875,"end":1773058,"type":"Tilemap","compressed":true},
+            "map_mu_drained_effect": {"start":1926351,"end":1926748,"type":"Tilemap","compressed":true}
         },
         "mu_maze": {
-            "map_1A5060": {"start":1724512,"end":1725772,"type":"Tilemap","compressed":true},
-            "map_1D1A82": {"start":1907330,"end":1907916,"type":"Tilemap","compressed":true}
+            "map_mu_maze": {"start":1724512,"end":1725772,"type":"Tilemap","compressed":true},
+            "map_mu_maze_effect_half": {"start":1907330,"end":1907916,"type":"Tilemap","compressed":true}
         },
         "mu_prayer_room": {
-            "map_1E27BE": {"start":1976254,"end":1976485,"type":"Tilemap","compressed":true}
+            "map_mu_prayer": {"start":1976254,"end":1976485,"type":"Tilemap","compressed":true}
         },
         "mu_south": {
-            "map_177C46": {"start":1539142,"end":1540093,"type":"Tilemap","compressed":true},
-            "map_1954D0": {"start":1660112,"end":1661589,"type":"Tilemap","compressed":true},
-            "map_1D3CCE": {"start":1916110,"end":1916612,"type":"Tilemap","compressed":true}
+            "map_mu_south_effect": {"start":1539142,"end":1540093,"type":"Tilemap","compressed":true},
+            "map_mu_south": {"start":1660112,"end":1661589,"type":"Tilemap","compressed":true},
+            "map_mu_south_effect_half": {"start":1916110,"end":1916612,"type":"Tilemap","compressed":true}
         },
         "mu_vampire_lair": {
-            "bmp_0F658E": {"start":1009038,"end":1014143,"type":"Bitmap","compressed":true},
-            "sprite_120BCD": {"start":1182669,"end":1185683,"type":"Spritemap","compressed":true},
-            "map_1D5B45": {"start":1923909,"end":1924326,"type":"Tilemap","compressed":true},
-            "palette_1F00C0": {"start":2031808,"end":2032000,"type":"Palette"},
-            "map_1F2B3D": {"start":2042685,"end":2042827,"type":"Tilemap","compressed":true}
+            "gfx_vampires": {"start":1009038,"end":1014143,"type":"Bitmap","compressed":true},
+            "spm_vampires": {"start":1182669,"end":1185683,"type":"Spritemap","compressed":true},
+            "map_mu_vampires": {"start":1923909,"end":1924326,"type":"Tilemap","compressed":true},
+            "pal_vampires": {"start":2031808,"end":2032000,"type":"Palette"},
+            "map_mu_vampires_effect": {"start":2042685,"end":2042827,"type":"Tilemap","compressed":true}
         },
         "mu_west": {
-            "map_1A36D5": {"start":1717973,"end":1719331,"type":"Tilemap","compressed":true},
-            "map_1B2456": {"start":1778774,"end":1779868,"type":"Tilemap","compressed":true},
-            "map_1C59AC": {"start":1857964,"end":1858701,"type":"Tilemap","compressed":true}
+            "map_mu_west": {"start":1717973,"end":1719331,"type":"Tilemap","compressed":true},
+            "map_mu_west_effect": {"start":1778774,"end":1779868,"type":"Tilemap","compressed":true},
+            "map_mu_west_effect_half": {"start":1857964,"end":1858701,"type":"Tilemap","compressed":true}
         }
     },
     "music": {
@@ -857,195 +857,195 @@
     },
     "native_village": {
         "": {
-            "sprite_156396": {"start":1401750,"end":1403751,"type":"Spritemap","compressed":true},
-            "bmp_1ED35C": {"start":2020188,"end":2027247,"type":"Bitmap","compressed":true},
-            "palette_1F0900": {"start":2033920,"end":2034112,"type":"Palette"}
+            "spm_village_sprites": {"start":1401750,"end":1403751,"type":"Spritemap","compressed":true},
+            "gfx_village_sprites": {"start":2020188,"end":2027247,"type":"Bitmap","compressed":true},
+            "pal_village_sprites": {"start":2033920,"end":2034112,"type":"Palette"}
         },
         "native_village": {
-            "bmp_0E2B7A": {"start":928634,"end":934150,"type":"Bitmap","compressed":true},
-            "set_1C2F0D": {"start":1847053,"end":1847868,"type":"Tileset","compressed":true},
-            "map_1D3AD4": {"start":1915604,"end":1916110,"type":"Tilemap","compressed":true},
-            "map_1D52EE": {"start":1921774,"end":1922210,"type":"Tilemap","compressed":true},
-            "palette_1E52B3": {"start":1987251,"end":1987475,"type":"Palette"}
+            "gfx_village": {"start":928634,"end":934150,"type":"Bitmap","compressed":true},
+            "set_village": {"start":1847053,"end":1847868,"type":"Tileset","compressed":true},
+            "map_village": {"start":1915604,"end":1916110,"type":"Tilemap","compressed":true},
+            "map_village_effect": {"start":1921774,"end":1922210,"type":"Tilemap","compressed":true},
+            "pal_village": {"start":1987251,"end":1987475,"type":"Palette"}
         },
         "vacant_hut": {
-            "map_1D7B5B": {"start":1932123,"end":1932451,"type":"Tilemap","compressed":true},
-            "map_1E24FC": {"start":1975548,"end":1975791,"type":"Tilemap","compressed":true},
-            "palette_1E5393": {"start":1987475,"end":1987699,"type":"Palette"}
+            "map_village_hut": {"start":1932123,"end":1932451,"type":"Tilemap","compressed":true},
+            "map_village_hut_effect": {"start":1975548,"end":1975791,"type":"Tilemap","compressed":true},
+            "pal_hut_interior_native": {"start":1987475,"end":1987699,"type":"Palette"}
         }
     },
     "nazca": {
         "": {
-            "pal_na49_actors": {"start":1997708,"end":1997900,"type":"Palette"}
+            "pal_nazca_sprites": {"start":1997708,"end":1997900,"type":"Palette"}
         },
         "nazca": {
-            "map_na4B_main": {"start":1801360,"end":1802240,"type":"Tilemap","compressed":true},
-            "pal_na4B_sand": {"start":1982771,"end":1982995,"type":"Palette"},
-            "map_na4B_effect": {"start":2047389,"end":2047448,"type":"Tilemap","compressed":true}
+            "map_nazca": {"start":1801360,"end":1802240,"type":"Tilemap","compressed":true},
+            "pal_cave_nazca": {"start":1982771,"end":1982995,"type":"Palette"},
+            "map_nazca_effect": {"start":2047389,"end":2047448,"type":"Tilemap","compressed":true}
         },
         "neils_cottage": {
-            "spm_na49_actors": {"start":751065,"end":753652,"type":"Spritemap","compressed":true},
-            "set_na49_int_main": {"start":1341747,"end":1343482,"type":"Tileset","compressed":true},
-            "gfx_na49_actors": {"start":1941506,"end":1949087,"type":"Bitmap","compressed":true},
-            "pal_na49_int_tiles": {"start":1982547,"end":1982771,"type":"Palette"},
-            "map_na49_main": {"start":1994593,"end":1994795,"type":"Tilemap","compressed":true},
-            "map_na49_effect": {"start":2044336,"end":2044465,"type":"Tilemap","compressed":true}
+            "spm_nazca_sprites": {"start":751065,"end":753652,"type":"Spritemap","compressed":true},
+            "set_hut_interior": {"start":1341747,"end":1343482,"type":"Tileset","compressed":true},
+            "gfx_nazca_sprites": {"start":1941506,"end":1949087,"type":"Bitmap","compressed":true},
+            "pal_hut_interior": {"start":1982547,"end":1982771,"type":"Palette"},
+            "map_neilscottage": {"start":1994593,"end":1994795,"type":"Tilemap","compressed":true},
+            "map_neilscottage_effect": {"start":2044336,"end":2044465,"type":"Tilemap","compressed":true}
         }
     },
     "prologue": {
         "": {
-            "bmp_153BB1": {"start":1391537,"end":1393616,"type":"Bitmap","compressed":true}
+            "gfx_prologue_prophecy_sprites": {"start":1391537,"end":1393616,"type":"Bitmap","compressed":true}
         },
         "prologue_legends": {
-            "bmp_0A3062": {"start":667746,"end":673911,"type":"Bitmap","compressed":true},
-            "set_1C624C": {"start":1860172,"end":1860906,"type":"Tileset","compressed":true},
-            "map_1D15D9": {"start":1906137,"end":1906740,"type":"Tilemap","compressed":true},
-            "palette_1E1935": {"start":1972533,"end":1972789,"type":"Palette"}
+            "gfx_prologue_legends": {"start":667746,"end":673911,"type":"Bitmap","compressed":true},
+            "set_prologue_legends": {"start":1860172,"end":1860906,"type":"Tileset","compressed":true},
+            "map_prologue_legends": {"start":1906137,"end":1906740,"type":"Tilemap","compressed":true},
+            "pal_prologue_legends": {"start":1972533,"end":1972789,"type":"Palette"}
         },
         "prologue_mishap": {
-            "bmp_1039F8": {"start":1063416,"end":1068175,"type":"Bitmap","compressed":true},
-            "set_1D0767": {"start":1902439,"end":1903063,"type":"Tileset","compressed":true},
-            "palette_1E1B35": {"start":1973045,"end":1973301,"type":"Palette"},
-            "map_1F3946": {"start":2046278,"end":2046386,"type":"Tilemap","compressed":true}
+            "gfx_prologue_mishap": {"start":1063416,"end":1068175,"type":"Bitmap","compressed":true},
+            "set_prologue_mishap": {"start":1902439,"end":1903063,"type":"Tileset","compressed":true},
+            "pal_prologue_mishap": {"start":1973045,"end":1973301,"type":"Palette"},
+            "map_prologue_mishap": {"start":2046278,"end":2046386,"type":"Tilemap","compressed":true}
         },
         "prologue_missing": {
-            "bmp_0FED85": {"start":1043845,"end":1048509,"type":"Bitmap","compressed":true},
-            "bmp_123A68": {"start":1194600,"end":1197550,"type":"Bitmap","compressed":true},
-            "set_1C147C": {"start":1840252,"end":1841118,"type":"Tileset","compressed":true},
-            "set_1CFD96": {"start":1899926,"end":1900542,"type":"Tileset","compressed":true},
-            "palette_1E1A35": {"start":1972789,"end":1973045,"type":"Palette"},
-            "map_1E6DC6": {"start":1994182,"end":1994390,"type":"Tilemap","compressed":true},
-            "map_1E7284": {"start":1995396,"end":1995596,"type":"Tilemap","compressed":true}
+            "gfx_prologue_missing": {"start":1043845,"end":1048509,"type":"Bitmap","compressed":true},
+            "gfx_prologue_missing_effect": {"start":1194600,"end":1197550,"type":"Bitmap","compressed":true},
+            "set_prologue_missing": {"start":1840252,"end":1841118,"type":"Tileset","compressed":true},
+            "set_prologue_missing_effect": {"start":1899926,"end":1900542,"type":"Tileset","compressed":true},
+            "pal_prologue_missing": {"start":1972789,"end":1973045,"type":"Palette"},
+            "map_prologue_missing_effect": {"start":1994182,"end":1994390,"type":"Tilemap","compressed":true},
+            "map_prologue_missing": {"start":1995396,"end":1995596,"type":"Tilemap","compressed":true}
         },
         "prologue_prophecy": {
-            "bmp_0418CC": {"start":268492,"end":274833,"type":"Bitmap","compressed":true},
-            "map_1B3128": {"start":1782056,"end":1783147,"type":"Tilemap","compressed":true},
-            "set_1C3890": {"start":1849488,"end":1850287,"type":"Tileset","compressed":true},
-            "map_1D2C61": {"start":1911905,"end":1912455,"type":"Tilemap","compressed":true},
-            "sprite_1D6AEF": {"start":1927919,"end":1928299,"type":"Spritemap","compressed":true},
-            "palette_1E082C": {"start":1968172,"end":1968460,"type":"Palette"},
-            "palette_1E1835": {"start":1972277,"end":1972533,"type":"Palette"}
+            "gfx_prologue_prophecy": {"start":268492,"end":274833,"type":"Bitmap","compressed":true},
+            "map_prologue_prophecy_2": {"start":1782056,"end":1783147,"type":"Tilemap","compressed":true},
+            "set_prologue_prophecy": {"start":1849488,"end":1850287,"type":"Tileset","compressed":true},
+            "map_prologue_prophecy": {"start":1911905,"end":1912455,"type":"Tilemap","compressed":true},
+            "spm_prologue_prophecy_sprites": {"start":1927919,"end":1928299,"type":"Spritemap","compressed":true},
+            "pal_prologue_prophecy_sprites": {"start":1968172,"end":1968460,"type":"Palette"},
+            "pal_prologue_prophecy": {"start":1972277,"end":1972533,"type":"Palette"}
         }
     },
     "pyramid": {
         "": {
-            "bmp_0B180D": {"start":727053,"end":733118,"type":"Bitmap","compressed":true},
-            "bmp_10C561": {"start":1099105,"end":1112971,"type":"Bitmap","compressed":true},
-            "sprite_11670E": {"start":1140494,"end":1143589,"type":"Spritemap","compressed":true},
-            "set_162640": {"start":1451584,"end":1453515,"type":"Tileset","compressed":true},
-            "set_16444F": {"start":1459279,"end":1461195,"type":"Tileset","compressed":true},
-            "set_1670D8": {"start":1470680,"end":1472551,"type":"Tileset","compressed":true},
-            "set_170000": {"start":1507328,"end":1509188,"type":"Tileset","compressed":true},
-            "palette_1E5B73": {"start":1989491,"end":1989715,"type":"Palette"},
-            "palette_1F0A80": {"start":2034304,"end":2034496,"type":"Palette"}
+            "gfx_pyramid_sprites": {"start":727053,"end":733118,"type":"Bitmap","compressed":true},
+            "gfx_pyramid": {"start":1099105,"end":1112971,"type":"Bitmap","compressed":true},
+            "spm_pyramid_sprites": {"start":1140494,"end":1143589,"type":"Spritemap","compressed":true},
+            "set_pyramid_fluid": {"start":1451584,"end":1453515,"type":"Tileset","compressed":true},
+            "set_pyramid_alt": {"start":1459279,"end":1461195,"type":"Tileset","compressed":true},
+            "set_pyramid_room": {"start":1470680,"end":1472551,"type":"Tileset","compressed":true},
+            "set_pyramid": {"start":1507328,"end":1509188,"type":"Tileset","compressed":true},
+            "pal_pyramid": {"start":1989491,"end":1989715,"type":"Palette"},
+            "pal_pyramid_sprites": {"start":2034304,"end":2034496,"type":"Palette"}
         },
         "heiroglyph_room": {
-            "map_1B45C2": {"start":1787330,"end":1788343,"type":"Tilemap","compressed":true}
+            "map_pyramid_hieroglyphs": {"start":1787330,"end":1788343,"type":"Tilemap","compressed":true}
         },
         "mummy_queen_lair": {
-            "sprite_0331E1": {"start":209377,"end":215736,"type":"Spritemap","compressed":true},
-            "map_0EFDCF": {"start":982479,"end":983033,"type":"Tilemap","compressed":true},
-            "bmp_0F517C": {"start":1003900,"end":1009038,"type":"Bitmap","compressed":true},
-            "set_19189B": {"start":1644699,"end":1646269,"type":"Tileset","compressed":true},
-            "palette_1F0C00": {"start":2034688,"end":2034880,"type":"Palette"}
+            "spm_mummyqueen": {"start":209377,"end":215736,"type":"Spritemap","compressed":true},
+            "map_pyramid_queen": {"start":982479,"end":983033,"type":"Tilemap","compressed":true},
+            "gfx_mummyqueen": {"start":1003900,"end":1009038,"type":"Bitmap","compressed":true},
+            "set_pyramid_queen": {"start":1644699,"end":1646269,"type":"Tileset","compressed":true},
+            "pal_mummyqueen": {"start":2034688,"end":2034880,"type":"Palette"}
         },
         "puzzle_room": {
-            "bmp_0B0000": {"start":720896,"end":727053,"type":"Bitmap","compressed":true},
-            "sprite_170E6D": {"start":1511021,"end":1512851,"type":"Spritemap","compressed":true},
-            "palette_1E5C53": {"start":1989715,"end":1989939,"type":"Palette"},
-            "palette_1F0B40": {"start":2034496,"end":2034688,"type":"Palette"},
-            "map_1F28F3": {"start":2042099,"end":2042251,"type":"Tilemap","compressed":true}
+            "gfx_pyramid_puzzle_sprites": {"start":720896,"end":727053,"type":"Bitmap","compressed":true},
+            "spm_pyramid_puzzle_sprites": {"start":1511021,"end":1512851,"type":"Spritemap","compressed":true},
+            "pal_pyramid_puzzle": {"start":1989715,"end":1989939,"type":"Palette"},
+            "pal_pyramid_puzzle_sprites": {"start":2034496,"end":2034688,"type":"Palette"},
+            "map_pyramid_puzzle": {"start":2042099,"end":2042251,"type":"Tilemap","compressed":true}
         },
         "pyramid_dangerslide_a": {
-            "map_151A33": {"start":1382963,"end":1385151,"type":"Tilemap","compressed":true}
+            "map_pyramid_dangerslide_a": {"start":1382963,"end":1385151,"type":"Tilemap","compressed":true}
         },
         "pyramid_dangerslide_b": {
-            "map_173898": {"start":1521816,"end":1523580,"type":"Tilemap","compressed":true},
-            "map_1C2540": {"start":1844544,"end":1845392,"type":"Tilemap","compressed":true}
+            "map_pyramid_dangerslide_b": {"start":1521816,"end":1523580,"type":"Tilemap","compressed":true},
+            "map_pyramid_dangerslide_b_effect": {"start":1844544,"end":1845392,"type":"Tilemap","compressed":true}
         },
         "pyramid_dangerslide_c": {
-            "map_1C0DB5": {"start":1838517,"end":1839385,"type":"Tilemap","compressed":true},
-            "map_1D483D": {"start":1919037,"end":1919503,"type":"Tilemap","compressed":true}
+            "map_pyramid_dangerslide_c": {"start":1838517,"end":1839385,"type":"Tilemap","compressed":true},
+            "map_pyramid_dangerslide_c_effect": {"start":1919037,"end":1919503,"type":"Tilemap","compressed":true}
         },
         "pyramid_focus_a": {
-            "map_162DCB": {"start":1453515,"end":1455443,"type":"Tilemap","compressed":true}
+            "map_pyramid_focus_a": {"start":1453515,"end":1455443,"type":"Tilemap","compressed":true}
         },
         "pyramid_focus_b": {
-            "map_193717": {"start":1652503,"end":1654053,"type":"Tilemap","compressed":true}
+            "map_pyramid_focus_b": {"start":1652503,"end":1654053,"type":"Tilemap","compressed":true}
         },
         "pyramid_main": {
-            "map_047AC7": {"start":293575,"end":294903,"type":"Tilemap","compressed":true}
+            "map_pyramid_main": {"start":293575,"end":294903,"type":"Tilemap","compressed":true}
         },
         "pyramid_meltdown_a": {
-            "map_164BCB": {"start":1461195,"end":1463108,"type":"Tilemap","compressed":true}
+            "map_pyramid_meltdown_a": {"start":1461195,"end":1463108,"type":"Tilemap","compressed":true}
         },
         "pyramid_meltdown_b": {
-            "map_150000": {"start":1376256,"end":1378534,"type":"Tilemap","compressed":true}
+            "map_pyramid_meltdown_b": {"start":1376256,"end":1378534,"type":"Tilemap","compressed":true}
         },
         "pyramid_ramptastic_a": {
-            "map_181A24": {"start":1579556,"end":1581216,"type":"Tilemap","compressed":true}
+            "map_pyramid_ramptastic_a": {"start":1579556,"end":1581216,"type":"Tilemap","compressed":true}
         },
         "pyramid_ramptastic_b": {
-            "map_194320": {"start":1655584,"end":1657111,"type":"Tilemap","compressed":true}
+            "map_pyramid_ramptastic_b": {"start":1655584,"end":1657111,"type":"Tilemap","compressed":true}
         },
         "pyramid_trickle_a": {
-            "map_1553D4": {"start":1397716,"end":1399742,"type":"Tilemap","compressed":true}
+            "map_pyramid_trickle_a": {"start":1397716,"end":1399742,"type":"Tilemap","compressed":true}
         },
         "pyramid_trickle_b": {
-            "map_156B67": {"start":1403751,"end":1405737,"type":"Tilemap","compressed":true}
+            "map_pyramid_trickle_b": {"start":1403751,"end":1405737,"type":"Tilemap","compressed":true}
         },
         "pyramid_vader_a": {
-            "map_1543D0": {"start":1393616,"end":1395685,"type":"Tilemap","compressed":true},
-            "map_1C2890": {"start":1845392,"end":1846238,"type":"Tilemap","compressed":true}
+            "map_pyramid_vader_a": {"start":1393616,"end":1395685,"type":"Tilemap","compressed":true},
+            "map_pyramid_vader_a_effect": {"start":1845392,"end":1846238,"type":"Tilemap","compressed":true}
         },
         "pyramid_vader_b": {
-            "map_0A789F": {"start":686239,"end":688127,"type":"Tilemap","compressed":true},
-            "map_1A3C23": {"start":1719331,"end":1720680,"type":"Tilemap","compressed":true}
+            "map_pyramid_vader_b": {"start":686239,"end":688127,"type":"Tilemap","compressed":true},
+            "map_pyramid_vader_b_effect": {"start":1719331,"end":1720680,"type":"Tilemap","compressed":true}
         }
     },
     "seaside_palace": {
         "": {
-            "gfx_sp5A_effect_tiles": {"start":287363,"end":293575,"type":"Bitmap","compressed":true},
-            "set_sp5A_main": {"start":1530571,"end":1532305,"type":"Tileset","compressed":true},
-            "set_sp5A_effect": {"start":1670328,"end":1671146,"type":"Tileset","compressed":true},
-            "palette_1E4593": {"start":1983891,"end":1984115,"type":"Palette"},
-            "gfx_sp5A_tiles": {"start":2078424,"end":2085416,"type":"Bitmap","compressed":true}
+            "gfx_palace_effect": {"start":287363,"end":293575,"type":"Bitmap","compressed":true},
+            "set_palace": {"start":1530571,"end":1532305,"type":"Tileset","compressed":true},
+            "set_palace_effect": {"start":1670328,"end":1671146,"type":"Tileset","compressed":true},
+            "pal_palace": {"start":1983891,"end":1984115,"type":"Palette"},
+            "gfx_palace": {"start":2078424,"end":2085416,"type":"Bitmap","compressed":true}
         },
         "palace_coffins": {
-            "map_14269D": {"start":1320605,"end":1323031,"type":"Tilemap","compressed":true},
-            "map_1D27F8": {"start":1910776,"end":1911343,"type":"Tilemap","compressed":true},
-            "palette_1E4673": {"start":1984115,"end":1984339,"type":"Palette"}
+            "map_palace_coffins": {"start":1320605,"end":1323031,"type":"Tilemap","compressed":true},
+            "map_palace_coffins_effect": {"start":1910776,"end":1911343,"type":"Tilemap","compressed":true},
+            "pal_palace_coffins": {"start":1984115,"end":1984339,"type":"Palette"}
         },
         "palace_fountain": {
-            "bmp_011AEA": {"start":72426,"end":79258,"type":"Bitmap","compressed":true},
-            "map_13FE0F": {"start":1310223,"end":1310718,"type":"Tilemap","compressed":true},
-            "set_176852": {"start":1534034,"end":1535743,"type":"Tileset","compressed":true},
-            "map_1D6C6B": {"start":1928299,"end":1928665,"type":"Tilemap","compressed":true},
-            "palette_1E4753": {"start":1984339,"end":1984563,"type":"Palette"}
+            "gfx_palace_fountain": {"start":72426,"end":79258,"type":"Bitmap","compressed":true},
+            "map_fountain": {"start":1310223,"end":1310718,"type":"Tilemap","compressed":true},
+            "set_palace_fountain": {"start":1534034,"end":1535743,"type":"Tileset","compressed":true},
+            "map_fountain_effect": {"start":1928299,"end":1928665,"type":"Tilemap","compressed":true},
+            "pal_palace_fountain": {"start":1984339,"end":1984563,"type":"Palette"}
         },
         "palace_main": {
-            "map_sp5A_main": {"start":1544618,"end":1548050,"type":"Tilemap","compressed":true},
-            "map_sp5A_effect": {"start":1914057,"end":1914586,"type":"Tilemap","compressed":true}
+            "map_palace_main": {"start":1544618,"end":1548050,"type":"Tilemap","compressed":true},
+            "map_palace_effect": {"start":1914057,"end":1914586,"type":"Tilemap","compressed":true}
         },
         "palace_passageway": {
-            "map_1E28A5": {"start":1976485,"end":1976715,"type":"Tilemap","compressed":true},
-            "palette_1E4833": {"start":1984563,"end":1984787,"type":"Palette"}
+            "map_palace_passage": {"start":1976485,"end":1976715,"type":"Tilemap","compressed":true},
+            "pal_palace_mu": {"start":1984563,"end":1984787,"type":"Palette"}
         },
         "palace_rooms": {
-            "map_1D0280": {"start":1901184,"end":1901813,"type":"Tilemap","compressed":true}
+            "map_palace_rooms": {"start":1901184,"end":1901813,"type":"Tilemap","compressed":true}
         }
     },
     "shared": {
         "": {
-            "set_sc02_cave": {"start":1657111,"end":1658616,"type":"Tileset","compressed":true},
+            "set_cave": {"start":1657111,"end":1658616,"type":"Tileset","compressed":true},
             "gfx_overworld_font": {"start":1666008,"end":1667453,"type":"Bitmap","compressed":true},
             "fx_palette_198000": {"start":1671168,"end":1671200,"type":"Palette","upper":true},
             "fx_palette_198020": {"start":1671200,"end":1671232,"type":"Palette","upper":true},
             "fx_palette_198040": {"start":1671232,"end":1671280,"type":"Palette","upper":true},
             "fx_palette_198070": {"start":1671280,"end":1671312,"type":"Palette","upper":true},
             "fx_palette_198090": {"start":1671312,"end":1671330,"type":"Palette","upper":true},
-            "set_sc01_effect_misc": {"start":1730790,"end":1732031,"type":"Tileset","compressed":true},
-            "set_1B6EA4": {"start":1797796,"end":1798690,"type":"Tileset","compressed":true},
+            "set_southcape_effect": {"start":1730790,"end":1732031,"type":"Tileset","compressed":true},
+            "set_palace_mu": {"start":1797796,"end":1798690,"type":"Tileset","compressed":true},
             "abil_sprites_1B8000": {"start":1802240,"end":1818624,"type":"Bitmap","upper":true},
             "shad_sprites_1BC000": {"start":1818624,"end":1835008,"type":"Bitmap","upper":true},
             "free_fx_1C8000": {"start":1867776,"end":1875968,"type":"Bitmap","upper":true},
@@ -1057,126 +1057,126 @@
             "misc_fx_1CD180": {"start":1888640,"end":1889152,"type":"Bitmap","upper":true},
             "misc_fx_1CD380": {"start":1889152,"end":1889664,"type":"Bitmap","upper":true},
             "misc_fx_1CD580": {"start":1889664,"end":1891712,"type":"Bitmap","upper":true},
-            "palette_1E1D35": {"start":1973557,"end":1973813,"type":"Palette"},
-            "palette_1E2C33": {"start":1977395,"end":1977619,"type":"Palette"},
-            "pal_sc02_cave_int": {"start":1977619,"end":1977843,"type":"Palette"},
-            "gfx_sc02_cave_int": {"start":1998848,"end":2006011,"type":"Bitmap","compressed":true}
+            "pal_ending_comet": {"start":1973557,"end":1973813,"type":"Palette"},
+            "pal_southcape": {"start":1977395,"end":1977619,"type":"Palette"},
+            "pal_cave": {"start":1977619,"end":1977843,"type":"Palette"},
+            "gfx_cave": {"start":1998848,"end":2006011,"type":"Bitmap","compressed":true}
         }
     },
     "sky_garden": {
         "": {
-            "gfx_sg4C_enemies": {"start":998754,"end":1003900,"type":"Bitmap","compressed":true},
-            "gfx_sg4C_tiles": {"start":1020133,"end":1031462,"type":"Bitmap","compressed":true},
-            "bmp_1156FE": {"start":1136382,"end":1140494,"type":"Bitmap","compressed":true},
-            "map_sg4E_effect": {"start":1474412,"end":1474558,"type":"Tilemap","compressed":true},
-            "set_sg4C_main": {"start":1777679,"end":1778774,"type":"Tileset","compressed":true},
-            "set_sg4E_main": {"start":1791296,"end":1792264,"type":"Tileset","compressed":true},
-            "set_sg4C_effect": {"start":1907916,"end":1908496,"type":"Tileset","compressed":true},
-            "set_sg4E_effect": {"start":1921329,"end":1921774,"type":"Tileset","compressed":true},
-            "map_sg4C_effect": {"start":1930782,"end":1931123,"type":"Tilemap","compressed":true},
-            "pal_sg4C_tiles": {"start":1982995,"end":1983219,"type":"Palette"},
-            "pal_sg4E_tiles_inv": {"start":1983219,"end":1983443,"type":"Palette"},
-            "pal_sg55_tiles_clouds": {"start":1983443,"end":1983667,"type":"Palette"},
-            "pal_sg4C_enemies": {"start":1997900,"end":1998092,"type":"Palette"},
-            "pal_sg4E_enemies_alt": {"start":1998092,"end":1998284,"type":"Palette"},
-            "spm_sg4C_enemies": {"start":2027247,"end":2031534,"type":"Spritemap","compressed":true},
-            "map_sg55_effect": {"start":2042251,"end":2042397,"type":"Tilemap","compressed":true}
+            "gfx_garden_enemies": {"start":998754,"end":1003900,"type":"Bitmap","compressed":true},
+            "gfx_garden": {"start":1020133,"end":1031462,"type":"Bitmap","compressed":true},
+            "gfx_descent_sprites": {"start":1136382,"end":1140494,"type":"Bitmap","compressed":true},
+            "map_garden_underside_effect": {"start":1474412,"end":1474558,"type":"Tilemap","compressed":true},
+            "set_garden": {"start":1777679,"end":1778774,"type":"Tileset","compressed":true},
+            "set_garden_underside": {"start":1791296,"end":1792264,"type":"Tileset","compressed":true},
+            "set_garden_effect": {"start":1907916,"end":1908496,"type":"Tileset","compressed":true},
+            "set_garden_underside_effect": {"start":1921329,"end":1921774,"type":"Tileset","compressed":true},
+            "map_garden_effect": {"start":1930782,"end":1931123,"type":"Tilemap","compressed":true},
+            "pal_garden": {"start":1982995,"end":1983219,"type":"Palette"},
+            "pal_garden_underside": {"start":1983219,"end":1983443,"type":"Palette"},
+            "pal_garden_clouds": {"start":1983443,"end":1983667,"type":"Palette"},
+            "pal_garden_enemies": {"start":1997900,"end":1998092,"type":"Palette"},
+            "pal_garden_enemies_alt": {"start":1998092,"end":1998284,"type":"Palette"},
+            "spm_garden_enemies": {"start":2027247,"end":2031534,"type":"Spritemap","compressed":true},
+            "map_clouds": {"start":2042251,"end":2042397,"type":"Tilemap","compressed":true}
         },
         "garden_crash": {
-            "map_1D61AE": {"start":1925550,"end":1925951,"type":"Tilemap","compressed":true}
+            "map_sg59": {"start":1925550,"end":1925951,"type":"Tilemap","compressed":true}
         },
         "garden_descent": {
-            "sprite_1C1119": {"start":1839385,"end":1840252,"type":"Spritemap","compressed":true},
-            "palette_1E7E8C": {"start":1998476,"end":1998668,"type":"Palette"}
+            "spm_descent_sprites": {"start":1839385,"end":1840252,"type":"Spritemap","compressed":true},
+            "pal_descent_sprites": {"start":1998476,"end":1998668,"type":"Palette"}
         },
         "garden_east": {
-            "map_sg4D_main": {"start":1505807,"end":1507322,"type":"Tilemap","compressed":true}
+            "map_garden_east": {"start":1505807,"end":1507322,"type":"Tilemap","compressed":true}
         },
         "garden_east_underside": {
-            "map_sg4E_main": {"start":1774237,"end":1775411,"type":"Tilemap","compressed":true}
+            "map_garden_east_underside": {"start":1774237,"end":1775411,"type":"Tilemap","compressed":true}
         },
         "garden_interior": {
-            "palette_1E44B3": {"start":1983667,"end":1983891,"type":"Palette"},
-            "map_1F3CFA": {"start":2047226,"end":2047326,"type":"Tilemap","compressed":true}
+            "pal_palace_garden": {"start":1983667,"end":1983891,"type":"Palette"},
+            "map_sg56": {"start":2047226,"end":2047326,"type":"Tilemap","compressed":true}
         },
         "garden_main": {
-            "map_sg4C_main": {"start":1925148,"end":1925550,"type":"Tilemap","compressed":true}
+            "map_garden_main": {"start":1925148,"end":1925550,"type":"Tilemap","compressed":true}
         },
         "garden_southeast": {
-            "map_sg4F_main": {"start":1584515,"end":1586151,"type":"Tilemap","compressed":true}
+            "map_garden_southeast": {"start":1584515,"end":1586151,"type":"Tilemap","compressed":true}
         },
         "garden_southeast_underside": {
-            "map_sg50_main": {"start":1770684,"end":1771875,"type":"Tilemap","compressed":true}
+            "map_garden_southeast_underside": {"start":1770684,"end":1771875,"type":"Tilemap","compressed":true}
         },
         "garden_southwest": {
-            "map_sg51_main": {"start":1465020,"end":1466931,"type":"Tilemap","compressed":true}
+            "map_garden_southwest": {"start":1465020,"end":1466931,"type":"Tilemap","compressed":true}
         },
         "garden_southwest_underside": {
-            "map_sg52_main": {"start":1603854,"end":1605436,"type":"Tilemap","compressed":true}
+            "map_garden_southwest_underside": {"start":1603854,"end":1605436,"type":"Tilemap","compressed":true}
         },
         "garden_west": {
-            "map_sg53_main": {"start":1602269,"end":1603854,"type":"Tilemap","compressed":true}
+            "map_garden_west": {"start":1602269,"end":1603854,"type":"Tilemap","compressed":true}
         },
         "garden_west_underside": {
-            "map_sg54_main": {"start":1734498,"end":1735713,"type":"Tilemap","compressed":true}
+            "map_garden_west_underside": {"start":1734498,"end":1735713,"type":"Tilemap","compressed":true}
         },
         "viper_lair": {
             "spm_viper": {"start":969435,"end":973222,"type":"Spritemap","compressed":true},
             "gfx_viper": {"start":983040,"end":988369,"type":"Bitmap","compressed":true},
-            "palette_1E7DCC": {"start":1998284,"end":1998476,"type":"Palette"},
-            "map_sg55_main": {"start":2045715,"end":2045835,"type":"Tilemap","compressed":true}
+            "pal_viper": {"start":1998284,"end":1998476,"type":"Palette"},
+            "map_garden_viper": {"start":2045715,"end":2045835,"type":"Tilemap","compressed":true}
         }
     },
     "south_cape": {
         "": {
-            "gfx_sc03_int_main": {"start":79258,"end":86030,"type":"Bitmap","compressed":true},
-            "gfx_sc01_ext_effect": {"start":673911,"end":680075,"type":"Bitmap","compressed":true},
-            "set_sc03_int_main": {"start":1014143,"end":1015808,"type":"Tileset","compressed":true},
-            "palette_1E2DF3": {"start":1977843,"end":1978067,"type":"Palette"},
-            "palette_1E2ED3": {"start":1978067,"end":1978291,"type":"Palette"},
-            "map_sc03_effect": {"start":2040036,"end":2040206,"type":"Tilemap","compressed":true}
+            "gfx_southcape_interior": {"start":79258,"end":86030,"type":"Bitmap","compressed":true},
+            "gfx_southcape_effect": {"start":673911,"end":680075,"type":"Bitmap","compressed":true},
+            "set_southcape_interior": {"start":1014143,"end":1015808,"type":"Tileset","compressed":true},
+            "pal_southcape_interior_2": {"start":1977843,"end":1978067,"type":"Palette"},
+            "pal_southcape_interior": {"start":1978067,"end":1978291,"type":"Palette"},
+            "map_southcape_interior_effect": {"start":2040036,"end":2040206,"type":"Tilemap","compressed":true}
         },
         "chefs_house": {
-            "map_sc07_main": {"start":2044072,"end":2044206,"type":"Tilemap","compressed":true}
+            "map_sc07": {"start":2044072,"end":2044206,"type":"Tilemap","compressed":true}
         },
         "church": {
-            "map_sc08_main": {"start":1977169,"end":1977395,"type":"Tilemap","compressed":true},
+            "map_sc08": {"start":1977169,"end":1977395,"type":"Tilemap","compressed":true},
             "map_sc08_effect": {"start":2040206,"end":2040370,"type":"Tilemap","compressed":true}
         },
         "coastal_cave": {
             "spm_sc02_main_characters": {"start":1266717,"end":1269273,"type":"Spritemap","compressed":true},
             "gfx_sc02_main_characters": {"start":1302634,"end":1310223,"type":"Bitmap","compressed":true},
             "pal_sc02_main_characters": {"start":1605436,"end":1605628,"type":"Palette"},
-            "map_sc02_main": {"start":2039864,"end":2040036,"type":"Tilemap","compressed":true}
+            "map_sc02": {"start":2039864,"end":2040036,"type":"Tilemap","compressed":true}
         },
         "erics_house": {
-            "map_sc04_main": {"start":1904923,"end":1905532,"type":"Tilemap","compressed":true},
+            "map_sc04": {"start":1904923,"end":1905532,"type":"Tilemap","compressed":true},
             "map_sc04_effect": {"start":2038818,"end":2038993,"type":"Tilemap","compressed":true}
         },
         "lances_house": {
-            "map_sc03_main": {"start":1967298,"end":1967591,"type":"Tilemap","compressed":true}
+            "map_sc03": {"start":1967298,"end":1967591,"type":"Tilemap","compressed":true}
         },
         "seths_house": {
-            "map_sc05_main": {"start":2037362,"end":2037549,"type":"Tilemap","compressed":true}
+            "map_sc05": {"start":2037362,"end":2037549,"type":"Tilemap","compressed":true}
         },
         "south_cape": {
-            "gfx_sc01_actors": {"start":12090,"end":18995,"type":"Bitmap","compressed":true},
-            "gfx_sc01_ext_main": {"start":655360,"end":661558,"type":"Bitmap","compressed":true},
-            "set_sc01_ext": {"start":1532305,"end":1534034,"type":"Tileset","compressed":true},
-            "spm_sc01_actors": {"start":1553318,"end":1556442,"type":"Spritemap","compressed":true},
-            "map_sc01_main": {"start":1643128,"end":1644699,"type":"Tilemap","compressed":true},
+            "gfx_southcape_sprites": {"start":12090,"end":18995,"type":"Bitmap","compressed":true},
+            "gfx_southcape": {"start":655360,"end":661558,"type":"Bitmap","compressed":true},
+            "set_southcape": {"start":1532305,"end":1534034,"type":"Tileset","compressed":true},
+            "spm_southcape_sprites": {"start":1553318,"end":1556442,"type":"Spritemap","compressed":true},
+            "map_sc01": {"start":1643128,"end":1644699,"type":"Tilemap","compressed":true},
             "map_sc01_effect": {"start":1904311,"end":1904923,"type":"Tilemap","compressed":true},
-            "pal_sc01_actors": {"start":1971765,"end":1972021,"type":"Palette"}
+            "pal_southcape_sprites": {"start":1971765,"end":1972021,"type":"Palette"}
         },
         "wills_house": {
-            "map_sc06_wills_house_main": {"start":1856482,"end":1857227,"type":"Tilemap","compressed":true},
-            "palette_1E2FB3": {"start":1978291,"end":1978515,"type":"Palette"},
-            "map_sc06_wills_house_effect": {"start":1998668,"end":1998848,"type":"Tilemap","compressed":true}
+            "map_sc06": {"start":1856482,"end":1857227,"type":"Tilemap","compressed":true},
+            "pal_southcape_interior_3": {"start":1978291,"end":1978515,"type":"Palette"},
+            "map_sc06_effect": {"start":1998668,"end":1998848,"type":"Tilemap","compressed":true}
         }
     },
     "system": {
         "": {
-            "bmp_000000": {"start":0,"end":7168,"type":"Bitmap"},
+            "gfx_000000": {"start":0,"end":7168,"type":"Bitmap"},
             "radar_icons_001C00": {"start":7168,"end":7680,"type":"Bitmap"},
             "radar_layout_001E00": {"start":7680,"end":9088,"type":"Unknown"},
             "gfx_fonts": {"start":1132200,"end":1136382,"type":"Bitmap","compressed":true},
@@ -1189,22 +1189,22 @@
             "pal_boot_logos": {"start":2040694,"end":2040854,"type":"Palette"}
         },
         "dark_space": {
-            "gfx_dsE6_tiles": {"start":157318,"end":163761,"type":"Bitmap","compressed":true},
-            "gfx_dsE6_gaia_sprites": {"start":1541149,"end":1544192,"type":"Bitmap","compressed":true},
-            "set_dsE6_main": {"start":1776570,"end":1777679,"type":"Tileset","compressed":true},
-            "map_dsE6_effect": {"start":1903063,"end":1903687,"type":"Tilemap","compressed":true},
-            "spm_dsE6_gaia_sprites": {"start":1910209,"end":1910776,"type":"Spritemap","compressed":true},
-            "set_dsE6_effect": {"start":1920421,"end":1920875,"type":"Tileset","compressed":true},
-            "map_dsE6_main": {"start":1971505,"end":1971765,"type":"Tilemap","compressed":true},
-            "pal_dsE6_gaia_sprites": {"start":1979187,"end":1979411,"type":"Palette"},
-            "palette_1E5EF3": {"start":1990387,"end":1990611,"type":"Palette"}
+            "gfx_darkspace": {"start":157318,"end":163761,"type":"Bitmap","compressed":true},
+            "gfx_darkspace_sprites": {"start":1541149,"end":1544192,"type":"Bitmap","compressed":true},
+            "set_darkspace": {"start":1776570,"end":1777679,"type":"Tileset","compressed":true},
+            "map_darkspace_effect": {"start":1903063,"end":1903687,"type":"Tilemap","compressed":true},
+            "spm_darkspace_sprites": {"start":1910209,"end":1910776,"type":"Spritemap","compressed":true},
+            "set_darkspace_effect": {"start":1920421,"end":1920875,"type":"Tileset","compressed":true},
+            "map_darkspace": {"start":1971505,"end":1971765,"type":"Tilemap","compressed":true},
+            "pal_darkspace_sprites": {"start":1979187,"end":1979411,"type":"Palette"},
+            "pal_darkspace": {"start":1990387,"end":1990611,"type":"Palette"}
         },
         "inventory": {
             "gfx_inventory_sprites": {"start":897023,"end":913409,"type":"Bitmap","compressed":false},
-            "meta17_1454E1": {"start":1332449,"end":1334777,"type":"Meta17","compressed":true},
+            "dmap_inventory_bg": {"start":1332449,"end":1334777,"type":"Meta17","compressed":true},
             "gfx_inventory_bg": {"start":1933312,"end":1941506,"type":"Bitmap","compressed":false},
-            "palette_1E1F35": {"start":1974069,"end":1974325,"type":"Palette"},
-            "palette_1E6A53": {"start":1993299,"end":1993523,"type":"Palette"}
+            "pal_inventory_sprites": {"start":1974069,"end":1974325,"type":"Palette"},
+            "pal_inventory_bg": {"start":1993299,"end":1993523,"type":"Palette"}
         },
         "title_screen": {
             "pal_title": {"start":98238,"end":98302,"type":"Palette"},
@@ -1213,16 +1213,16 @@
             "gfx_title": {"start":1891712,"end":1899926,"type":"Bitmap","compressed":true},
             "spm_title_actors": {"start":1969609,"end":1969886,"type":"Spritemap","compressed":true},
             "pal_title_actors": {"start":2036224,"end":2036416,"type":"Palette"},
-            "map_title_main": {"start":2041640,"end":2041795,"type":"Tilemap","compressed":true}
+            "map_title": {"start":2041640,"end":2041795,"type":"Tilemap","compressed":true}
         },
         "world_map": {
             "gfx_overworld_tiles": {"start":65536,"end":72426,"type":"Bitmap","compressed":true},
             "gfx_overworld_actors": {"start":917504,"end":923114,"type":"Bitmap","compressed":true},
             "map_overworld_main": {"start":1269273,"end":1271816,"type":"Tilemap","compressed":true},
-            "sprite_144BB9": {"start":1330105,"end":1332449,"type":"Spritemap","compressed":true},
+            "spm_overworld_sprites": {"start":1330105,"end":1332449,"type":"Spritemap","compressed":true},
             "set_overworld": {"start":1721966,"end":1723250,"type":"Tileset","compressed":true},
             "pal_overworld_tiles": {"start":1992851,"end":1993075,"type":"Palette"},
-            "palette_1E6973": {"start":1993075,"end":1993299,"type":"Palette"}
+            "pal_overworld_sprites": {"start":1993075,"end":1993299,"type":"Palette"}
         }
     },
     "unused": {
@@ -1232,35 +1232,35 @@
     },
     "watermia": {
         "": {
-            "gfx_wa79_tiles": {"start":137760,"end":144316,"type":"Bitmap","compressed":true},
-            "gfx_wa78_actors": {"start":680075,"end":686239,"type":"Bitmap","compressed":true},
-            "spm_wa78_actors": {"start":1188662,"end":1191632,"type":"Spritemap","compressed":true},
-            "set_1A1640": {"start":1709632,"end":1711031,"type":"Tileset","compressed":true},
-            "palette_1E4E53": {"start":1986131,"end":1986355,"type":"Palette"},
-            "pal_wa78_actors": {"start":2032384,"end":2032576,"type":"Palette"},
-            "map_1F1B72": {"start":2038642,"end":2038818,"type":"Tilemap","compressed":true},
-            "map_1F3528": {"start":2045224,"end":2045348,"type":"Tilemap","compressed":true}
+            "gfx_hut_interior": {"start":137760,"end":144316,"type":"Bitmap","compressed":true},
+            "gfx_watermia_sprites": {"start":680075,"end":686239,"type":"Bitmap","compressed":true},
+            "spm_watermia_sprites": {"start":1188662,"end":1191632,"type":"Spritemap","compressed":true},
+            "set_hut_interior_watermia": {"start":1709632,"end":1711031,"type":"Tileset","compressed":true},
+            "pal_hut_interior_watermia": {"start":1986131,"end":1986355,"type":"Palette"},
+            "pal_watermia_sprites": {"start":2032384,"end":2032576,"type":"Palette"},
+            "map_watermia_interior": {"start":2038642,"end":2038818,"type":"Tilemap","compressed":true},
+            "map_watermia_interior_effect": {"start":2045224,"end":2045348,"type":"Tilemap","compressed":true}
         },
         "gambling_house": {
-            "map_1E25EF": {"start":1975791,"end":1976023,"type":"Tilemap","compressed":true},
-            "map_1F0480": {"start":2032768,"end":2032960,"type":"Tilemap","compressed":true}
+            "map_watermia_gambling": {"start":1975791,"end":1976023,"type":"Tilemap","compressed":true},
+            "map_watermia_gambling_effect": {"start":2032768,"end":2032960,"type":"Tilemap","compressed":true}
         },
         "lances_fathers_house": {
-            "bmp_0E4106": {"start":934150,"end":939655,"type":"Bitmap","compressed":true},
-            "sprite_1A2C0E": {"start":1715214,"end":1716594,"type":"Spritemap","compressed":true},
-            "palette_1F03C0": {"start":2032576,"end":2032768,"type":"Palette"}
+            "gfx_watermia_lances_sprites": {"start":934150,"end":939655,"type":"Bitmap","compressed":true},
+            "spm_watermia_lances_sprites": {"start":1715214,"end":1716594,"type":"Spritemap","compressed":true},
+            "pal_watermia_lances_sprites": {"start":2032576,"end":2032768,"type":"Palette"}
         },
         "lukes_house": {
-            "map_1F1958": {"start":2038104,"end":2038285,"type":"Tilemap","compressed":true},
-            "map_1F3620": {"start":2045472,"end":2045594,"type":"Tilemap","compressed":true}
+            "map_watermia_lukes": {"start":2038104,"end":2038285,"type":"Tilemap","compressed":true},
+            "map_watermia_lukes_effect": {"start":2045472,"end":2045594,"type":"Tilemap","compressed":true}
         },
         "watermia": {
-            "map_15118E": {"start":1380750,"end":1382963,"type":"Tilemap","compressed":true},
-            "set_184704": {"start":1591044,"end":1592668,"type":"Tileset","compressed":true},
-            "map_1C44E4": {"start":1852644,"end":1853420,"type":"Tilemap","compressed":true},
-            "bmp_1DBD9F": {"start":1949087,"end":1956617,"type":"Bitmap","compressed":true},
-            "palette_1E4C93": {"start":1985683,"end":1985907,"type":"Palette"},
-            "palette_1E4D73": {"start":1985907,"end":1986131,"type":"Palette"}
+            "map_watermia": {"start":1380750,"end":1382963,"type":"Tilemap","compressed":true},
+            "set_watermia": {"start":1591044,"end":1592668,"type":"Tileset","compressed":true},
+            "map_watermia_effect": {"start":1852644,"end":1853420,"type":"Tilemap","compressed":true},
+            "gfx_watermia": {"start":1949087,"end":1956617,"type":"Bitmap","compressed":true},
+            "pal_watermia": {"start":1985683,"end":1985907,"type":"Palette"},
+            "pal_watermia_dark": {"start":1985907,"end":1986131,"type":"Palette"}
         }
     }
 }

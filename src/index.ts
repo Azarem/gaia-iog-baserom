@@ -16,6 +16,20 @@ import structs from '../us/structs.json' with { type: 'json' };
 import transforms from '../us/transforms.json' with { type: 'json' };
 import fileTypes from '../us/fileTypes.json' with { type: 'json' };
 
+import configJP from '../jp/config.json' with { type: 'json' };
+import blocksJP from '../jp/blocks.json' with { type: 'json' };
+import copdefJP from '../us/copdef.json' with { type: 'json' };
+import filesJP from '../jp/files.json' with { type: 'json' };
+import groupsJP from '../us/groups.json' with { type: 'json' };
+import labelsJP from '../jp/labels.json' with { type: 'json' };
+import mnemonicsJP from '../us/mnemonics.json' with { type: 'json' };
+import overridesJP from '../jp/overrides.json' with { type: 'json' };
+import rewritesJP from '../jp/rewrites.json' with { type: 'json' };
+import stringsJP from '../us/stringTypes.json' with { type: 'json' };
+import structsJP from '../us/structs.json' with { type: 'json' };
+import transformsJP from '../jp/transforms.json' with { type: 'json' };
+import fileTypesJP from '../us/fileTypes.json' with { type: 'json' };
+
 import addrModes from '../snes/addressingModes.json' with { type: 'json' };
 
 export const db : DbGameRomModule = {
@@ -35,10 +49,35 @@ export const db : DbGameRomModule = {
     fileTypes: fileTypes as unknown as Record<string, Partial<DbFileType>>
 };
 
+export const jp : DbGameRomModule = {
+    mnemonics: mnemonicsJP,
+    overrides: overridesJP as unknown as Record<string, Record<string, number>>,
+    rewrites: rewritesJP,
+    blocks: blocksJP as unknown as Record<string, Record<string, Partial<DbBlock>>>,
+    copdef: copdefJP as unknown as Record<string, Partial<CopDef>>,
+    files: filesJP as unknown as Record<string, Record<string, Record<string, Partial<DbFile>>>>,
+    groups: groupsJP as unknown as Record<string, Partial<DbGroup>>,
+    labels: labelsJP,
+    strings: stringsJP as unknown as Record<string, Partial<DbStringType>>,
+    structs: structsJP as unknown as Record<string, DbStruct>,
+    transforms: transformsJP,
+    config: configJP as unknown as DbConfig,
+    addrModes: addrModes as unknown as Record<string, Partial<DbAddressingMode>>,
+    fileTypes: fileTypesJP as unknown as Record<string, Partial<DbFileType>>
+};
+
 export async function extract(romPath: string, outPath: string) {
     if(!outPath) outPath = './extracted';
 
     var dbRoot = DbRootUtils.fromGameModule(db);
+
+    await DbRootUtils.extractAllContent(dbRoot, romPath, outPath);
+}
+
+export async function extractJP(romPath: string, outPath: string) {
+    if(!outPath) outPath = './extracted';
+
+    var dbRoot = DbRootUtils.fromGameModule(jp);
 
     await DbRootUtils.extractAllContent(dbRoot, romPath, outPath);
 }
@@ -69,6 +108,13 @@ if (isMainModule) {
                     console.log('ROM Path:', args[0]);
                     console.log('Output Path:', args[1] || '../extracted');
                     await extract(args[0], args[1]);
+                    console.log('ROM extraction completed successfully!');
+                    break;
+                case 'extract-jp':
+                    console.log('Starting ROM extraction...');
+                    console.log('ROM Path:', args[0]);
+                    console.log('Output Path:', args[1] || '../extracted');
+                    await extractJP(args[0], args[1]);
                     console.log('ROM extraction completed successfully!');
                     break;
                 case 'rebuild':

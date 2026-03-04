@@ -42,8 +42,8 @@ func_03DFF8 {
     BEQ load_exit
     LDX #$4200
     STX $VMADDL
-    LDX #$&bmp_000000
-    LDA #$^bmp_000000
+    LDX #$&gfx_000000
+    LDA #$^gfx_000000
     LDY #$1C00
     JSL $@func_0283A2
     LDA $player_flags

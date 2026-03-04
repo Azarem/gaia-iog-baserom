@@ -628,7 +628,7 @@ sprite_group_17A483 [
 e_pr8F_prologue4 {
     LDA #$4001
     TSB $09EC
-    COP [50] ( @palette_1E1B35, #00, #00, #20 )
+    COP [50] ( @pal_prologue_mishap, #00, #00, #20 )
     COP [DA] ( #01 )                                  ;this
     COP [A0] ( @code_0BCF8F, #$0020, #$0020, #$2000 )
     LDA #$&spritestring_0BD222

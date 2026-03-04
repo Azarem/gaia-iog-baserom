@@ -43,8 +43,8 @@
   ],
   "btE1_comet_soon": [
     {
-      "key": "COP \\[50\\] \\( @palette_1F00C0, #00, #A0, #50 \\)",
-      "value": "COP [50] ( @palette_1F00C0, #10, #B0, #40 )"
+      "key": "COP \\[50\\] \\( @pal_vampires, #00, #A0, #50 \\)",
+      "value": "COP [50] ( @pal_vampires, #10, #B0, #40 )"
     }
   ],
   "chunk_008000": [

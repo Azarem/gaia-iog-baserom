@@ -40,10 +40,9 @@
         "description": "Boot Logos",
         "assets": [
           {"type":"ppu","meta":{"index":0}},
-          {"type":"music","data":"bgm_no_music","meta":{"id":27,"group":0}},
           {"type":"bitmap","data":"gfx_boot_logos","meta":{"srcOffset":0,"sizeW":16,"dstOffset":16,"isSprite":true}},
-          {"type":"palette","data":"pal_boot_logos","meta":{"srcOffset":0,"sizeW":80,"dstOffset":128}},
-          {"type":"spritemap","data":"spm_boot_logos","meta":{"size":399,"dummy":0}}
+          {"type":"palette","data":"pal_boot_logos","meta":{"srcOffset":0,"sizeW":48,"dstOffset":128}},
+          {"type":"spritemap","data":"spm_boot_logos","meta":{"size":189,"dummy":0}}
         ]
       },
       "title_screen": {
@@ -51,15 +50,15 @@
         "description": "Title Screen",
         "assets": [
           {"type":"ppu","meta":{"index":37}},
-          {"type":"music","data":"bgm_illusion_of_gaia","meta":{"id":31,"group":0}},
+          {"type":"music","data":"bgm_illusion_of_gaia","meta":{"id":20,"group":0}},
           {"type":"bitmap","data":"gfx_title","meta":{"srcOffset":0,"sizeW":32,"dstOffset":0,"isSprite":false}},
-          {"type":"palette","data":"pal_title","meta":{"srcOffset":0,"sizeW":32,"dstOffset":0}},
-          {"type":"tileset","data":"set_title","meta":{"srcOffset":0,"sizeW":32,"dstOffset":0,"layer":1}},
+          {"type":"palette","data":"pal_title","meta":{"srcOffset":0,"sizeW":128,"dstOffset":0}},
+          {"type":"tileset","data":"set_title","meta":{"srcOffset":0,"sizeW":32,"dstOffset":0,"layer":3}},
           {"type":"tilemap","data":"map_title","meta":{"layer":1}},
-          {"type":"palette","data":"pal_southcape_sprites","meta":{"srcOffset":0,"sizeW":128,"dstOffset":128}},
+          {"type":"tilemap","data":"binary_1F761A","meta":{"layer":2}},
           {"type":"bitmap","data":"gfx_title_actors","meta":{"srcOffset":0,"sizeW":16,"dstOffset":16,"isSprite":true}},
           {"type":"palette","data":"pal_title_actors","meta":{"srcOffset":0,"sizeW":96,"dstOffset":160}},
-          {"type":"spritemap","data":"spm_title_actors","meta":{"size":357,"dummy":0}}
+          {"type":"spritemap","data":"spm_title_actors","meta":{"size":596,"dummy":0}}
         ]
       },
       "statue_inventory": {
@@ -69,7 +68,7 @@
           {"type":"ppu","meta":{"index":0}},
           {"type":"music","data":"bgm_no_music","meta":{"id":27,"group":0}},
           {"type":"bitmap","data":"gfx_inventory_sprites","meta":{"srcOffset":16,"sizeW":32,"dstOffset":16,"isSprite":true}},
-          {"type":"palette","data":"pal_inventory_sprites","meta":{"srcOffset":0,"sizeW":128,"dstOffset":128}},
+          {"type":"palette","data":"pal_inventory_sprites","meta":{"srcOffset":0,"sizeW":112,"dstOffset":128}},
           {"type":"jump","meta":{"label":17}}
         ]
       },
@@ -83,7 +82,6 @@
           {"type":"bitmap","data":"gfx_overworld_tiles","meta":{"srcOffset":0,"sizeW":16,"dstOffset":0,"isSprite":false}},
           {"type":"tilemap","data":"map_overworld_main","meta":{"layer":1}},
           {"type":"palette","data":"pal_overworld_tiles","meta":{"srcOffset":0,"sizeW":112,"dstOffset":16}},
-          {"type":"bitmap","data":"gfx_overworld_actors","meta":{"srcOffset":0,"sizeW":16,"dstOffset":0,"isSprite":true}},
           {"type":"bitmap","data":"gfx_overworld_font","meta":{"srcOffset":0,"sizeW":16,"dstOffset":16,"isSprite":true}},
           {"type":"palette","data":"pal_overworld_sprites","meta":{"srcOffset":0,"sizeW":112,"dstOffset":144}},
           {"type":"spritemap","data":"spm_overworld_sprites","meta":{"size":4664,"dummy":0}}
@@ -147,7 +145,7 @@
         "description": "Lance's House",
         "assets": [
           {"type":"ppu","meta":{"index":1}},
-          {"type":"music","data":"bgm_lively_city_by_the_sea","meta":{"id":28,"group":0}},
+          {"type":"music","data":"bgm_lively_city_by_the_sea","meta":{"id":29,"group":0}},
           {"type":"tilemap","data":"map_sc03","meta":{"layer":1}},
           {"type":"tilemap","data":"map_southcape_interior_effect","meta":{"layer":2}},
           {"type":"palette","data":"pal_southcape_interior_2","meta":{"srcOffset":0,"sizeW":112,"dstOffset":16}},
@@ -164,7 +162,7 @@
         "description": "Eric's House",
         "assets": [
           {"type":"ppu","meta":{"index":1}},
-          {"type":"music","data":"bgm_lively_city_by_the_sea","meta":{"id":28,"group":0}},
+          {"type":"music","data":"bgm_lively_city_by_the_sea","meta":{"id":29,"group":0}},
           {"type":"palette","data":"pal_southcape_interior_2","meta":{"srcOffset":0,"sizeW":112,"dstOffset":16}},
           {"type":"tilemap","data":"map_sc04","meta":{"layer":1}},
           {"type":"tilemap","data":"map_sc04_effect","meta":{"layer":2}},
@@ -176,7 +174,7 @@
         "description": "Seth's House",
         "assets": [
           {"type":"ppu","meta":{"index":1}},
-          {"type":"music","data":"bgm_lively_city_by_the_sea","meta":{"id":28,"group":0}},
+          {"type":"music","data":"bgm_lively_city_by_the_sea","meta":{"id":29,"group":0}},
           {"type":"palette","data":"pal_southcape_interior","meta":{"srcOffset":0,"sizeW":112,"dstOffset":16}},
           {"type":"tilemap","data":"map_sc05","meta":{"layer":1}},
           {"type":"tilemap","data":"map_southcape_interior_effect","meta":{"layer":2}},
@@ -188,7 +186,7 @@
         "description": "Will's House",
         "assets": [
           {"type":"ppu","meta":{"index":1}},
-          {"type":"music","data":"bgm_lively_city_by_the_sea","meta":{"id":28,"group":0}},
+          {"type":"music","data":"bgm_lively_city_by_the_sea","meta":{"id":29,"group":0}},
           {"type":"music","data":"bgm_no_music","meta":{"id":27,"group":1}},
           {"type":"palette","data":"pal_southcape_interior_3","meta":{"srcOffset":0,"sizeW":112,"dstOffset":16}},
           {"type":"tilemap","data":"map_sc06","meta":{"layer":1}},
@@ -216,7 +214,7 @@
         "description": "Chef's House",
         "assets": [
           {"type":"ppu","meta":{"index":1}},
-          {"type":"music","data":"bgm_lively_city_by_the_sea","meta":{"id":28,"group":0}},
+          {"type":"music","data":"bgm_lively_city_by_the_sea","meta":{"id":29,"group":0}},
           {"type":"palette","data":"pal_southcape_interior","meta":{"srcOffset":0,"sizeW":112,"dstOffset":16}},
           {"type":"tilemap","data":"map_sc07","meta":{"layer":1}},
           {"type":"tilemap","data":"map_southcape_interior_effect","meta":{"layer":2}},
@@ -228,7 +226,7 @@
         "description": "Church",
         "assets": [
           {"type":"ppu","meta":{"index":1}},
-          {"type":"music","data":"bgm_lively_city_by_the_sea","meta":{"id":28,"group":0}},
+          {"type":"music","data":"bgm_lively_city_by_the_sea","meta":{"id":29,"group":0}},
           {"type":"bitmap","data":"gfx_southcape_interior","meta":{"srcOffset":0,"sizeW":16,"dstOffset":0,"isSprite":false}},
           {"type":"bitmap","data":"gfx_southcape_effect","meta":{"srcOffset":0,"sizeW":16,"dstOffset":16,"isSprite":false}},
           {"type":"palette","data":"pal_southcape_interior_2","meta":{"srcOffset":0,"sizeW":112,"dstOffset":16}},
@@ -478,7 +476,7 @@
         "description": "Moon Tribe - Cave",
         "assets": [
           {"type":"ppu","meta":{"index":5}},
-          {"type":"music","data":"bgm_descent_into_darkness","meta":{"id":6,"group":0}},
+          {"type":"music","data":"bgm_descent_into_darkness","meta":{"id":4,"group":0}},
           {"type":"bitmap","data":"gfx_cave","meta":{"srcOffset":0,"sizeW":16,"dstOffset":0,"isSprite":false}},
           {"type":"palette","data":"pal_cave","meta":{"srcOffset":0,"sizeW":112,"dstOffset":16}},
           {"type":"tileset","data":"set_cave","meta":{"srcOffset":0,"sizeW":32,"dstOffset":0,"layer":1}},
@@ -698,7 +696,7 @@
           {"type":"palette","data":"pal_castoth","meta":{"srcOffset":0,"sizeW":96,"dstOffset":160}},
           {"type":"label","meta":{"id":57}},
           {"type":"bitmap","data":"gfx_castoth","meta":{"srcOffset":0,"sizeW":16,"dstOffset":16,"isSprite":true}},
-          {"type":"spritemap","data":"spm_castoth","meta":{"size":7011,"dummy":0}}
+          {"type":"spritemap","data":"spm_castoth","meta":{"size":6465,"dummy":0}}
         ]
       }
     }
@@ -966,37 +964,37 @@
         "id": 58,
         "description": "Freejia - Harborer's House",
         "assets": [
-          { "type": "ppu", "meta": { "index": 31 } },
-          { "type": "music", "data": "bgm_lively_city", "meta": { "id": 2, "group": 0 } },
-          { "type": "tilemap", "data": "map_fr3A", "meta": { "layer": 1 } },
-          { "type": "tilemap", "data": "map_fr3A_effect", "meta": { "layer": 2 } },
-          { "type": "palette", "data": "pal_house_interior_light", "meta": { "srcOffset": 0, "sizeW": 112, "dstOffset": 16 } },
-          { "type": "jump", "meta": { "label": 28 } }
+          {"type":"ppu","meta":{"index":31}},
+          {"type":"music","data":"bgm_lively_city","meta":{"id":2,"group":0}},
+          {"type":"tilemap","data":"map_fr3A","meta":{"layer":1}},
+          {"type":"tilemap","data":"map_fr3A_effect","meta":{"layer":2}},
+          {"type":"palette","data":"pal_house_interior_light","meta":{"srcOffset":0,"sizeW":112,"dstOffset":16}},
+          {"type":"jump","meta":{"label":28}}
         ]
       },
       "messy_house": {
         "id": 59,
         "description": "Freejia - Messy House",
         "assets": [
-          { "type": "ppu", "meta": { "index": 31 } },
-          { "type": "music", "data": "bgm_lively_city", "meta": { "id": 2, "group": 0 } },
-          { "type": "tilemap", "data": "map_fr3B", "meta": { "layer": 1 } },
-          { "type": "tilemap", "data": "map_fr3B_effect", "meta": { "layer": 2 } },
-          { "type": "palette", "data": "pal_house_interior_light","meta": { "srcOffset": 0, "sizeW": 112, "dstOffset": 16 } },
-          { "type": "jump", "meta": { "label": 28 } }
+          {"type":"ppu","meta":{"index":31}},
+          {"type":"music","data":"bgm_lively_city","meta":{"id":2,"group":0}},
+          {"type":"tilemap","data":"map_fr3B","meta":{"layer":1}},
+          {"type":"tilemap","data":"map_fr3B_effect","meta":{"layer":2}},
+          {"type":"palette","data":"pal_house_interior_light","meta":{"srcOffset":0,"sizeW":112,"dstOffset":16}},
+          {"type":"jump","meta":{"label":28}}
         ]
       },
       "slave_market": {
         "id": 60,
         "description": "Freejia - Slave Market",
         "assets": [
-          { "type": "ppu", "meta": { "index": 5 } },
-          { "type": "music", "data": "bgm_ominous_whispers", "meta": { "id": 4, "group": 0 } },
-          { "type": "bitmap", "data": "gfx_cave", "meta": { "srcOffset": 0, "sizeW": 16, "dstOffset": 0, "isSprite": false } },
-          { "type": "palette", "data": "pal_cave_dark", "meta": { "srcOffset": 0, "sizeW": 112, "dstOffset": 16 } },
-          { "type": "tileset", "data": "set_cave", "meta": { "srcOffset": 0, "sizeW": 32, "dstOffset": 0, "layer": 1 } },
-          { "type": "tilemap", "data": "map_fr3C", "meta": { "layer": 1 } },
-          { "type": "jump", "meta": { "label": 12 } }
+          {"type":"ppu","meta":{"index":5}},
+          {"type":"music","data":"bgm_ominous_whispers","meta":{"id":6,"group":0}},
+          {"type":"bitmap","data":"gfx_cave","meta":{"srcOffset":0,"sizeW":16,"dstOffset":0,"isSprite":false}},
+          {"type":"palette","data":"pal_cave_dark","meta":{"srcOffset":0,"sizeW":112,"dstOffset":16}},
+          {"type":"tileset","data":"set_cave","meta":{"srcOffset":0,"sizeW":32,"dstOffset":0,"layer":1}},
+          {"type":"tilemap","data":"map_fr3C","meta":{"layer":1}},
+          {"type":"jump","meta":{"label":12}}
         ]
       }
     }
@@ -1058,7 +1056,7 @@
         "id": 65,
         "description": "Diamond Mine - Zigzag Passage",
         "assets": [
-          {"type":"ppu","meta":{"index":17}},
+          {"type":"ppu","meta":{"index":0}},
           {"type":"music","data":"bgm_descent_into_darkness","meta":{"id":6,"group":0}},
           {"type":"bitmap","data":"gfx_mine","meta":{"srcOffset":0,"sizeW":16,"dstOffset":0,"isSprite":false}},
           {"type":"bitmap","data":"gfx_mine","meta":{"srcOffset":0,"sizeW":16,"dstOffset":16,"isSprite":false}},
@@ -1337,7 +1335,7 @@
           {"type":"palette","data":"pal_viper","meta":{"srcOffset":0,"sizeW":96,"dstOffset":160}},
           {"type":"label","meta":{"id":58}},
           {"type":"bitmap","data":"gfx_viper","meta":{"srcOffset":0,"sizeW":16,"dstOffset":16,"isSprite":true}},
-          {"type":"spritemap","data":"spm_viper","meta":{"size":5650,"dummy":0}}
+          {"type":"spritemap","data":"spm_viper","meta":{"size":5598,"dummy":0}}
         ]
       },
       "garden_interior": {
@@ -1370,7 +1368,7 @@
           {"type":"label","meta":{"id":56}},
           {"type":"bitmap","data":"gfx_descent_sprites","meta":{"srcOffset":0,"sizeW":16,"dstOffset":16,"isSprite":true}},
           {"type":"palette","data":"pal_descent_sprites","meta":{"srcOffset":0,"sizeW":96,"dstOffset":160}},
-          {"type":"spritemap","data":"spm_descent_sprites","meta":{"size":2035,"dummy":0}}
+          {"type":"spritemap","data":"spm_descent_sprites","meta":{"size":1602,"dummy":0}}
         ]
       },
       "garden_crash": {
@@ -1640,7 +1638,7 @@
           {"type":"palette","data":"pal_vampires","meta":{"srcOffset":0,"sizeW":96,"dstOffset":160}},
           {"type":"label","meta":{"id":59}},
           {"type":"bitmap","data":"gfx_vampires","meta":{"srcOffset":0,"sizeW":16,"dstOffset":16,"isSprite":true}},
-          {"type":"spritemap","data":"spm_vampires","meta":{"size":5238,"dummy":0}}
+          {"type":"spritemap","data":"spm_vampires","meta":{"size":5568,"dummy":0}}
         ]
       }
     }
@@ -2130,7 +2128,7 @@
         "id": 140,
         "description": "Prologue - Prophecy",
         "assets": [
-          {"type":"ppu","meta":{"index":45}},
+          {"type":"ppu","meta":{"index":25}},
           {"type":"tileset","data":"set_prologue_prophecy","meta":{"srcOffset":0,"sizeW":32,"dstOffset":0,"layer":1}},
           {"type":"bitmap","data":"gfx_prologue_prophecy","meta":{"srcOffset":0,"sizeW":16,"dstOffset":0,"isSprite":false}},
           {"type":"palette","data":"pal_prologue_prophecy","meta":{"srcOffset":0,"sizeW":128,"dstOffset":0}},
@@ -2140,9 +2138,8 @@
           {"type":"label","meta":{"id":54}},
           {"type":"tilemap","data":"map_prologue_prophecy_2","meta":{"layer":1}},
           {"type":"label","meta":{"id":55}},
-          {"type":"bitmap","data":"gfx_prologue_prophecy_sprites","meta":{"srcOffset":0,"sizeW":16,"dstOffset":0,"isSprite":true}},
           {"type":"bitmap","data":"gfx_overworld_font","meta":{"srcOffset":0,"sizeW":16,"dstOffset":16,"isSprite":true}},
-          {"type":"palette","data":"pal_prologue_prophecy_sprites","meta":{"srcOffset":0,"sizeW":144,"dstOffset":128}},
+          {"type":"palette","data":"pal_prologue_prophecy_sprites","meta":{"srcOffset":0,"sizeW":128,"dstOffset":128}},
           {"type":"spritemap","data":"spm_prologue_prophecy_sprites","meta":{"size":846,"dummy":0}}
         ]
       },
@@ -2150,7 +2147,7 @@
         "id": 141,
         "description": "Prologue - Legends",
         "assets": [
-          {"type":"ppu","meta":{"index":45}},
+          {"type":"ppu","meta":{"index":25}},
           {"type":"tileset","data":"set_prologue_legends","meta":{"srcOffset":0,"sizeW":32,"dstOffset":0,"layer":1}},
           {"type":"bitmap","data":"gfx_prologue_legends","meta":{"srcOffset":0,"sizeW":16,"dstOffset":0,"isSprite":false}},
           {"type":"palette","data":"pal_prologue_legends","meta":{"srcOffset":0,"sizeW":128,"dstOffset":0}},
@@ -2218,9 +2215,9 @@
         "assets": [
           {"type":"ppu","meta":{"index":37}},
           {"type":"music","data":"bgm_longing_for_the_past","meta":{"id":14,"group":0}},
-          {"type":"bitmap","data":"gfx_ending_comet","meta":{"srcOffset":0,"sizeW":32,"dstOffset":0,"isSprite":false}},
-          {"type":"palette","data":"pal_ending_comet","meta":{"srcOffset":0,"sizeW":128,"dstOffset":0}},
-          {"type":"tileset","data":"set_ending_comet","meta":{"srcOffset":0,"sizeW":32,"dstOffset":0,"layer":3}},
+          {"type":"bitmap","data":"gfx_title","meta":{"srcOffset":0,"sizeW":32,"dstOffset":0,"isSprite":false}},
+          {"type":"palette","data":"pal_title","meta":{"srcOffset":0,"sizeW":128,"dstOffset":0}},
+          {"type":"tileset","data":"set_title","meta":{"srcOffset":0,"sizeW":32,"dstOffset":0,"layer":3}},
           {"type":"tilemap","data":"map_ending_comet","meta":{"layer":1}},
           {"type":"tilemap","data":"map_ending_comet_effect","meta":{"layer":2}},
           {"type":"jump","meta":{"label":34}}
@@ -2231,6 +2228,7 @@
         "description": "Ending - Class Dismissed",
         "assets": [
           {"type":"ppu","meta":{"index":1}},
+          {"type":"bitmap","data":"gfx_ending_combined","meta":{"srcOffset":0,"sizeW":16,"dstOffset":0,"isSprite":false}},
           {"type":"music","data":"bgm_restart","meta":{"id":0,"group":0}},
           {"type":"music","data":"bgm_no_music","meta":{"id":27,"group":0}},
           {"type":"bitmap","data":"gfx_ending_combined","meta":{"srcOffset":0,"sizeW":16,"dstOffset":0,"isSprite":false}},
@@ -2246,9 +2244,10 @@
         "id": 247,
         "description": "Ending - Credits",
         "assets": [
-          {"type":"ppu","meta":{"index":46}},
+          {"type":"ppu","meta":{"index":34}},
           {"type":"music","data":"bgm_no_music","meta":{"id":27,"group":0}},
-          {"type":"bitmap","data":"gfx_credits_font","meta":{"srcOffset":0,"sizeW":32,"dstOffset":0,"isSprite":false}},
+          {"type":"bitmap","data":"gfx_credits_font","meta":{"srcOffset":0,"sizeW":16,"dstOffset":0,"isSprite":false}},
+          {"type":"palette","data":"binary_1F7AA1","meta":{"srcOffset":0,"sizeW":48,"dstOffset":0}},
           {"type":"bitmap","data":"gfx_ending_credits","meta":{"srcOffset":0,"sizeW":16,"dstOffset":0,"isSprite":true}},
           {"type":"spritemap","data":"spm_ending_credits_sprites","meta":{"size":5162,"dummy":0}}
         ]
@@ -3331,7 +3330,7 @@
           {"type":"tilemap","data":"map_babel_exterior","meta":{"layer":1}},
           {"type":"bitmap","data":"gfx_viper","meta":{"srcOffset":0,"sizeW":16,"dstOffset":16,"isSprite":true}},
           {"type":"palette","data":"pal_viper","meta":{"srcOffset":0,"sizeW":96,"dstOffset":160}},
-          {"type":"spritemap","data":"spm_viper","meta":{"size":5650,"dummy":0}}
+          {"type":"spritemap","data":"spm_viper","meta":{"size":5598,"dummy":0}}
         ]
       },
       "babel_upper_floors": {

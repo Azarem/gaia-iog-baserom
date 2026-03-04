@@ -27,6 +27,7 @@
         "clean": "rm -rf dist",
         "publish": "tsdown && npm publish --access public",
         "extract": "ts-node src/index.ts extract",
+        "extract-jp": "ts-node src/index.ts extract-jp",
         "rebuild": "ts-node src/index.ts rebuild"
     },
     "dependencies": {

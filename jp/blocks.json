@@ -1,0 +1,33 @@
+{
+    "system": {
+        "chunk_008000": {
+            "parts": {
+                "emulation_mode_reset_008000": { "start": 32768, "end": 32775, "type": "Code" },
+                "native_mode_cop_008007": { "start": 32775, "end": 32779, "type": "Code" },
+                "native_mode_nmi_00800B": { "start": 32779, "end": 32783, "type": "Code" },
+                "native_mode_irq_00800F": { "start": 32783, "end": 62851, "type": "Code" }
+            }
+        },
+        "parallax_thinker": {
+            "parts": {
+                "h_parallax_thinker": { "start": 47867, "end": 47869, "type": "h_actor" },
+                "e_parallax_thinker": { "start": 47869, "end": 48638, "type": "Code" }
+            }
+        },
+        "parallax_table": {
+            "parts": {
+                "parallax_table": { "start": 117745, "end": 119799, "type": "&Binary" }
+            }
+        },
+        "scene_thinkers": {
+            "parts": {
+                "t_scene_thinkers": { "start": 845218, "end": 846631, "type": "&thinker" }
+            }
+        },
+        "scene_meta": {
+            "parts": {
+                "scene_meta": { "start": 884736, "end": 896977, "type": "mapdef" }
+            }
+        }
+    }
+}
