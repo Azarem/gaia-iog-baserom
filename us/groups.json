@@ -2658,16 +2658,16 @@
         "assets": [
           {"type":"ppu","meta":{"index":44}},
           {"type":"music","data":"bgm_ominous_whispers","meta":{"id":4,"group":0}},
-          {"type":"bitmap","data":"gfx_1980A2","meta":{"srcOffset":0,"sizeW":32,"dstOffset":0,"isSprite":false}},
-          {"type":"palette","data":"palette_1E5473","meta":{"srcOffset":0,"sizeW":112,"dstOffset":16}},
-          {"type":"tileset","data":"set_195A95","meta":{"srcOffset":0,"sizeW":32,"dstOffset":0,"layer":1}},
-          {"type":"tilemap","data":"map_134A0B","meta":{"layer":1}},
-          {"type":"tileset","data":"set_186CAA","meta":{"srcOffset":0,"sizeW":32,"dstOffset":0,"layer":2}},
-          {"type":"tilemap","data":"map_13357C","meta":{"layer":2}},
+          {"type":"bitmap","data":"gfx_angkor_exterior","meta":{"srcOffset":0,"sizeW":32,"dstOffset":0,"isSprite":false}},
+          {"type":"palette","data":"pal_angkor_exterior","meta":{"srcOffset":0,"sizeW":112,"dstOffset":16}},
+          {"type":"tileset","data":"set_angkor_exterior","meta":{"srcOffset":0,"sizeW":32,"dstOffset":0,"layer":1}},
+          {"type":"tilemap","data":"map_angkor_entrance","meta":{"layer":1}},
+          {"type":"tileset","data":"set_angkor_exterior_effect","meta":{"srcOffset":0,"sizeW":32,"dstOffset":0,"layer":2}},
+          {"type":"tilemap","data":"map_angkor_entrance_effect","meta":{"layer":2}},
           {"type":"label","meta":{"id":46}},
-          {"type":"bitmap","data":"gfx_0E15EA","meta":{"srcOffset":0,"sizeW":16,"dstOffset":16,"isSprite":true}},
-          {"type":"palette","data":"palette_1E5553","meta":{"srcOffset":0,"sizeW":112,"dstOffset":144}},
-          {"type":"spritemap","data":"sprite_0C7308","meta":{"size":5333,"dummy":0}}
+          {"type":"bitmap","data":"gfx_angkor_outer_sprites","meta":{"srcOffset":0,"sizeW":16,"dstOffset":16,"isSprite":true}},
+          {"type":"palette","data":"pal_angkor_outer_sprites","meta":{"srcOffset":0,"sizeW":112,"dstOffset":144}},
+          {"type":"spritemap","data":"spm_angkor_outer_sprites","meta":{"size":5333,"dummy":0}}
         ]
       },
       "angkor_outer_gate": {
@@ -2676,14 +2676,14 @@
         "assets": [
           {"type":"ppu","meta":{"index":8}},
           {"type":"music","data":"bgm_unexplored_temple","meta":{"id":11,"group":0}},
-          {"type":"bitmap","data":"gfx_1F8000","meta":{"srcOffset":0,"sizeW":16,"dstOffset":0,"isSprite":false}},
-          {"type":"palette","data":"palette_1E5633","meta":{"srcOffset":0,"sizeW":112,"dstOffset":16}},
-          {"type":"tileset","data":"set_190C53","meta":{"srcOffset":0,"sizeW":32,"dstOffset":0,"layer":1}},
-          {"type":"tilemap","data":"map_160F5B","meta":{"layer":1}},
+          {"type":"bitmap","data":"gfx_angkor_interior","meta":{"srcOffset":0,"sizeW":16,"dstOffset":0,"isSprite":false}},
+          {"type":"palette","data":"pal_angkor_interior","meta":{"srcOffset":0,"sizeW":112,"dstOffset":16}},
+          {"type":"tileset","data":"set_angkor_interior","meta":{"srcOffset":0,"sizeW":32,"dstOffset":0,"layer":1}},
+          {"type":"tilemap","data":"map_angkor_outer_gate","meta":{"layer":1}},
           {"type":"label","meta":{"id":44}},
-          {"type":"bitmap","data":"gfx_016A81","meta":{"srcOffset":0,"sizeW":16,"dstOffset":16,"isSprite":true}},
-          {"type":"palette","data":"palette_1E5713","meta":{"srcOffset":0,"sizeW":112,"dstOffset":144}},
-          {"type":"spritemap","data":"sprite_14395F","meta":{"size":4183,"dummy":0}}
+          {"type":"bitmap","data":"gfx_angkor_interior_sprites","meta":{"srcOffset":0,"sizeW":16,"dstOffset":16,"isSprite":true}},
+          {"type":"palette","data":"pal_angkor_interior_sprites","meta":{"srcOffset":0,"sizeW":112,"dstOffset":144}},
+          {"type":"spritemap","data":"spm_angkor_interior_sprites","meta":{"size":4183,"dummy":0}}
         ]
       },
       "angkor_outer_east": {
@@ -2692,10 +2692,10 @@
         "assets": [
           {"type":"ppu","meta":{"index":8}},
           {"type":"music","data":"bgm_unexplored_temple","meta":{"id":11,"group":0}},
-          {"type":"bitmap","data":"gfx_1F8000","meta":{"srcOffset":0,"sizeW":16,"dstOffset":0,"isSprite":false}},
-          {"type":"palette","data":"palette_1E5633","meta":{"srcOffset":0,"sizeW":112,"dstOffset":16}},
-          {"type":"tileset","data":"set_190C53","meta":{"srcOffset":0,"sizeW":32,"dstOffset":0,"layer":1}},
-          {"type":"tilemap","data":"map_1B7222","meta":{"layer":1}},
+          {"type":"bitmap","data":"gfx_angkor_interior","meta":{"srcOffset":0,"sizeW":16,"dstOffset":0,"isSprite":false}},
+          {"type":"palette","data":"pal_angkor_interior","meta":{"srcOffset":0,"sizeW":112,"dstOffset":16}},
+          {"type":"tileset","data":"set_angkor_interior","meta":{"srcOffset":0,"sizeW":32,"dstOffset":0,"layer":1}},
+          {"type":"tilemap","data":"map_angkor_outer_east","meta":{"layer":1}},
           {"type":"jump","meta":{"label":44}}
         ]
       },
@@ -2705,10 +2705,10 @@
         "assets": [
           {"type":"ppu","meta":{"index":8}},
           {"type":"music","data":"bgm_unexplored_temple","meta":{"id":11,"group":0}},
-          {"type":"bitmap","data":"gfx_1F8000","meta":{"srcOffset":0,"sizeW":16,"dstOffset":0,"isSprite":false}},
-          {"type":"palette","data":"palette_1E5633","meta":{"srcOffset":0,"sizeW":112,"dstOffset":16}},
-          {"type":"tileset","data":"set_190C53","meta":{"srcOffset":0,"sizeW":32,"dstOffset":0,"layer":1}},
-          {"type":"tilemap","data":"map_1A7295","meta":{"layer":1}},
+          {"type":"bitmap","data":"gfx_angkor_interior","meta":{"srcOffset":0,"sizeW":16,"dstOffset":0,"isSprite":false}},
+          {"type":"palette","data":"pal_angkor_interior","meta":{"srcOffset":0,"sizeW":112,"dstOffset":16}},
+          {"type":"tileset","data":"set_angkor_interior","meta":{"srcOffset":0,"sizeW":32,"dstOffset":0,"layer":1}},
+          {"type":"tilemap","data":"map_angkor_outer_north","meta":{"layer":1}},
           {"type":"jump","meta":{"label":44}}
         ]
       },
@@ -2718,10 +2718,10 @@
         "assets": [
           {"type":"ppu","meta":{"index":8}},
           {"type":"music","data":"bgm_unexplored_temple","meta":{"id":11,"group":0}},
-          {"type":"bitmap","data":"gfx_1F8000","meta":{"srcOffset":0,"sizeW":16,"dstOffset":0,"isSprite":false}},
-          {"type":"palette","data":"palette_1E57F3","meta":{"srcOffset":0,"sizeW":112,"dstOffset":16}},
-          {"type":"tileset","data":"set_190C53","meta":{"srcOffset":0,"sizeW":32,"dstOffset":0,"layer":1}},
-          {"type":"tilemap","data":"map_1B39A0","meta":{"layer":1}},
+          {"type":"bitmap","data":"gfx_angkor_interior","meta":{"srcOffset":0,"sizeW":16,"dstOffset":0,"isSprite":false}},
+          {"type":"palette","data":"pal_angkor_snakepit","meta":{"srcOffset":0,"sizeW":112,"dstOffset":16}},
+          {"type":"tileset","data":"set_angkor_interior","meta":{"srcOffset":0,"sizeW":32,"dstOffset":0,"layer":1}},
+          {"type":"tilemap","data":"map_angkor_snakepit","meta":{"layer":1}},
           {"type":"jump","meta":{"label":44}}
         ]
       },
@@ -2731,25 +2731,25 @@
         "assets": [
           {"type":"ppu","meta":{"index":8}},
           {"type":"music","data":"bgm_unexplored_temple","meta":{"id":11,"group":0}},
-          {"type":"bitmap","data":"gfx_1F8000","meta":{"srcOffset":0,"sizeW":16,"dstOffset":0,"isSprite":false}},
-          {"type":"palette","data":"palette_1E5633","meta":{"srcOffset":0,"sizeW":112,"dstOffset":16}},
-          {"type":"tileset","data":"set_190C53","meta":{"srcOffset":0,"sizeW":32,"dstOffset":0,"layer":1}},
-          {"type":"tilemap","data":"map_1C41D9","meta":{"layer":1}},
+          {"type":"bitmap","data":"gfx_angkor_interior","meta":{"srcOffset":0,"sizeW":16,"dstOffset":0,"isSprite":false}},
+          {"type":"palette","data":"pal_angkor_interior","meta":{"srcOffset":0,"sizeW":112,"dstOffset":16}},
+          {"type":"tileset","data":"set_angkor_interior","meta":{"srcOffset":0,"sizeW":32,"dstOffset":0,"layer":1}},
+          {"type":"tilemap","data":"map_angkor_outer_west","meta":{"layer":1}},
           {"type":"jump","meta":{"label":44}}
         ]
       },
-      "angkor_courtyard": {
+      "angkor_outer_courtyard": {
         "id": 182,
-        "description": "Angkor Wat - Courtyard",
+        "description": "Angkor Wat - Outer Courtyard",
         "assets": [
           {"type":"ppu","meta":{"index":44}},
           {"type":"music","data":"bgm_unexplored_temple","meta":{"id":11,"group":0}},
-          {"type":"bitmap","data":"gfx_1980A2","meta":{"srcOffset":0,"sizeW":32,"dstOffset":0,"isSprite":false}},
-          {"type":"palette","data":"palette_1E5473","meta":{"srcOffset":0,"sizeW":112,"dstOffset":16}},
-          {"type":"tileset","data":"set_195A95","meta":{"srcOffset":0,"sizeW":32,"dstOffset":0,"layer":1}},
-          {"type":"tilemap","data":"map_125CE4","meta":{"layer":1}},
-          {"type":"tileset","data":"set_186CAA","meta":{"srcOffset":0,"sizeW":32,"dstOffset":0,"layer":2}},
-          {"type":"tilemap","data":"map_132097","meta":{"layer":2}},
+          {"type":"bitmap","data":"gfx_angkor_exterior","meta":{"srcOffset":0,"sizeW":32,"dstOffset":0,"isSprite":false}},
+          {"type":"palette","data":"pal_angkor_exterior","meta":{"srcOffset":0,"sizeW":112,"dstOffset":16}},
+          {"type":"tileset","data":"set_angkor_exterior","meta":{"srcOffset":0,"sizeW":32,"dstOffset":0,"layer":1}},
+          {"type":"tilemap","data":"map_angkor_outer_courtyard","meta":{"layer":1}},
+          {"type":"tileset","data":"set_angkor_exterior_effect","meta":{"srcOffset":0,"sizeW":32,"dstOffset":0,"layer":2}},
+          {"type":"tilemap","data":"map_angkor_outer_courtyard_effect","meta":{"layer":2}},
           {"type":"jump","meta":{"label":46}}
         ]
       },
@@ -2759,10 +2759,10 @@
         "assets": [
           {"type":"ppu","meta":{"index":8}},
           {"type":"music","data":"bgm_unexplored_temple","meta":{"id":11,"group":0}},
-          {"type":"bitmap","data":"gfx_1F8000","meta":{"srcOffset":0,"sizeW":16,"dstOffset":0,"isSprite":false}},
-          {"type":"palette","data":"palette_1E5633","meta":{"srcOffset":0,"sizeW":112,"dstOffset":16}},
-          {"type":"tileset","data":"set_190C53","meta":{"srcOffset":0,"sizeW":32,"dstOffset":0,"layer":1}},
-          {"type":"tilemap","data":"map_1B0000","meta":{"layer":1}},
+          {"type":"bitmap","data":"gfx_angkor_interior","meta":{"srcOffset":0,"sizeW":16,"dstOffset":0,"isSprite":false}},
+          {"type":"palette","data":"pal_angkor_interior","meta":{"srcOffset":0,"sizeW":112,"dstOffset":16}},
+          {"type":"tileset","data":"set_angkor_interior","meta":{"srcOffset":0,"sizeW":32,"dstOffset":0,"layer":1}},
+          {"type":"tilemap","data":"map_angkor_inner_gate","meta":{"layer":1}},
           {"type":"jump","meta":{"label":44}}
         ]
       },
@@ -2772,10 +2772,10 @@
         "assets": [
           {"type":"ppu","meta":{"index":8}},
           {"type":"music","data":"bgm_unexplored_temple","meta":{"id":11,"group":0}},
-          {"type":"bitmap","data":"gfx_1F8000","meta":{"srcOffset":0,"sizeW":16,"dstOffset":0,"isSprite":false}},
-          {"type":"palette","data":"palette_1E5633","meta":{"srcOffset":0,"sizeW":112,"dstOffset":16}},
-          {"type":"tileset","data":"set_190C53","meta":{"srcOffset":0,"sizeW":32,"dstOffset":0,"layer":1}},
-          {"type":"tilemap","data":"map_1D04F5","meta":{"layer":1}},
+          {"type":"bitmap","data":"gfx_angkor_interior","meta":{"srcOffset":0,"sizeW":16,"dstOffset":0,"isSprite":false}},
+          {"type":"palette","data":"pal_angkor_interior","meta":{"srcOffset":0,"sizeW":112,"dstOffset":16}},
+          {"type":"tileset","data":"set_angkor_interior","meta":{"srcOffset":0,"sizeW":32,"dstOffset":0,"layer":1}},
+          {"type":"tilemap","data":"map_angkor_inner_east","meta":{"layer":1}},
           {"type":"jump","meta":{"label":44}}
         ]
       },
@@ -2785,25 +2785,25 @@
         "assets": [
           {"type":"ppu","meta":{"index":8}},
           {"type":"music","data":"bgm_unexplored_temple","meta":{"id":11,"group":0}},
-          {"type":"bitmap","data":"gfx_1F8000","meta":{"srcOffset":0,"sizeW":16,"dstOffset":0,"isSprite":false}},
-          {"type":"palette","data":"palette_1E5633","meta":{"srcOffset":0,"sizeW":112,"dstOffset":16}},
-          {"type":"tileset","data":"set_190C53","meta":{"srcOffset":0,"sizeW":32,"dstOffset":0,"layer":1}},
-          {"type":"tilemap","data":"map_1D0000","meta":{"layer":1}},
+          {"type":"bitmap","data":"gfx_angkor_interior","meta":{"srcOffset":0,"sizeW":16,"dstOffset":0,"isSprite":false}},
+          {"type":"palette","data":"pal_angkor_interior","meta":{"srcOffset":0,"sizeW":112,"dstOffset":16}},
+          {"type":"tileset","data":"set_angkor_interior","meta":{"srcOffset":0,"sizeW":32,"dstOffset":0,"layer":1}},
+          {"type":"tilemap","data":"map_angkor_inner_west","meta":{"layer":1}},
           {"type":"jump","meta":{"label":44}}
         ]
       },
-      "angkor_inner_path": {
+      "angkor_inner_courtyard": {
         "id": 186,
-        "description": "Angkor Wat - Inner Path",
+        "description": "Angkor Wat - Inner Courtyard",
         "assets": [
           {"type":"ppu","meta":{"index":44}},
           {"type":"music","data":"bgm_unexplored_temple","meta":{"id":11,"group":0}},
-          {"type":"bitmap","data":"gfx_1980A2","meta":{"srcOffset":0,"sizeW":32,"dstOffset":0,"isSprite":false}},
-          {"type":"palette","data":"palette_1E5473","meta":{"srcOffset":0,"sizeW":112,"dstOffset":16}},
-          {"type":"tileset","data":"set_195A95","meta":{"srcOffset":0,"sizeW":32,"dstOffset":0,"layer":1}},
-          {"type":"tilemap","data":"map_14F199","meta":{"layer":1}},
-          {"type":"tileset","data":"set_186CAA","meta":{"srcOffset":0,"sizeW":32,"dstOffset":0,"layer":2}},
-          {"type":"tilemap","data":"map_14B09B","meta":{"layer":2}},
+          {"type":"bitmap","data":"gfx_angkor_exterior","meta":{"srcOffset":0,"sizeW":32,"dstOffset":0,"isSprite":false}},
+          {"type":"palette","data":"pal_angkor_exterior","meta":{"srcOffset":0,"sizeW":112,"dstOffset":16}},
+          {"type":"tileset","data":"set_angkor_exterior","meta":{"srcOffset":0,"sizeW":32,"dstOffset":0,"layer":1}},
+          {"type":"tilemap","data":"map_angkor_inner_courtyard","meta":{"layer":1}},
+          {"type":"tileset","data":"set_angkor_exterior_effect","meta":{"srcOffset":0,"sizeW":32,"dstOffset":0,"layer":2}},
+          {"type":"tilemap","data":"map_angkor_inner_courtyard_effect","meta":{"layer":2}},
           {"type":"jump","meta":{"label":46}}
         ]
       },
@@ -2813,10 +2813,10 @@
         "assets": [
           {"type":"ppu","meta":{"index":8}},
           {"type":"music","data":"bgm_unexplored_temple","meta":{"id":11,"group":0}},
-          {"type":"bitmap","data":"gfx_1F8000","meta":{"srcOffset":0,"sizeW":16,"dstOffset":0,"isSprite":false}},
-          {"type":"palette","data":"palette_1E5633","meta":{"srcOffset":0,"sizeW":112,"dstOffset":16}},
-          {"type":"tileset","data":"set_190C53","meta":{"srcOffset":0,"sizeW":32,"dstOffset":0,"layer":1}},
-          {"type":"tilemap","data":"map_1C0000","meta":{"layer":1}},
+          {"type":"bitmap","data":"gfx_angkor_interior","meta":{"srcOffset":0,"sizeW":16,"dstOffset":0,"isSprite":false}},
+          {"type":"palette","data":"pal_angkor_interior","meta":{"srcOffset":0,"sizeW":112,"dstOffset":16}},
+          {"type":"tileset","data":"set_angkor_interior","meta":{"srcOffset":0,"sizeW":32,"dstOffset":0,"layer":1}},
+          {"type":"tilemap","data":"map_angkor_shrine_main","meta":{"layer":1}},
           {"type":"jump","meta":{"label":44}}
         ]
       },
@@ -2826,10 +2826,10 @@
         "assets": [
           {"type":"ppu","meta":{"index":36}},
           {"type":"music","data":"bgm_unexplored_temple","meta":{"id":11,"group":0}},
-          {"type":"bitmap","data":"gfx_1F8000","meta":{"srcOffset":0,"sizeW":16,"dstOffset":0,"isSprite":false}},
-          {"type":"palette","data":"palette_1E5633","meta":{"srcOffset":0,"sizeW":112,"dstOffset":16}},
-          {"type":"tileset","data":"set_190C53","meta":{"srcOffset":0,"sizeW":32,"dstOffset":0,"layer":1}},
-          {"type":"tilemap","data":"map_1C4AF1","meta":{"layer":1}},
+          {"type":"bitmap","data":"gfx_angkor_interior","meta":{"srcOffset":0,"sizeW":16,"dstOffset":0,"isSprite":false}},
+          {"type":"palette","data":"pal_angkor_interior","meta":{"srcOffset":0,"sizeW":112,"dstOffset":16}},
+          {"type":"tileset","data":"set_angkor_interior","meta":{"srcOffset":0,"sizeW":32,"dstOffset":0,"layer":1}},
+          {"type":"tilemap","data":"map_angkor_shrine_crystal","meta":{"layer":1}},
           {"type":"jump","meta":{"label":44}}
         ]
       },
@@ -2839,10 +2839,10 @@
         "assets": [
           {"type":"ppu","meta":{"index":8}},
           {"type":"music","data":"bgm_unexplored_temple","meta":{"id":11,"group":0}},
-          {"type":"bitmap","data":"gfx_1F8000","meta":{"srcOffset":0,"sizeW":16,"dstOffset":0,"isSprite":false}},
-          {"type":"palette","data":"palette_1E5633","meta":{"srcOffset":0,"sizeW":112,"dstOffset":16}},
-          {"type":"tileset","data":"set_190C53","meta":{"srcOffset":0,"sizeW":32,"dstOffset":0,"layer":1}},
-          {"type":"tilemap","data":"map_1C3EC8","meta":{"layer":1}},
+          {"type":"bitmap","data":"gfx_angkor_interior","meta":{"srcOffset":0,"sizeW":16,"dstOffset":0,"isSprite":false}},
+          {"type":"palette","data":"pal_angkor_interior","meta":{"srcOffset":0,"sizeW":112,"dstOffset":16}},
+          {"type":"tileset","data":"set_angkor_interior","meta":{"srcOffset":0,"sizeW":32,"dstOffset":0,"layer":1}},
+          {"type":"tilemap","data":"map_angkor_shrine_dejavu","meta":{"layer":1}},
           {"type":"jump","meta":{"label":44}}
         ]
       },
@@ -2852,10 +2852,10 @@
         "assets": [
           {"type":"ppu","meta":{"index":8}},
           {"type":"music","data":"bgm_unexplored_temple","meta":{"id":11,"group":0}},
-          {"type":"bitmap","data":"gfx_1F8000","meta":{"srcOffset":0,"sizeW":16,"dstOffset":0,"isSprite":false}},
-          {"type":"palette","data":"palette_1E5633","meta":{"srcOffset":0,"sizeW":112,"dstOffset":16}},
-          {"type":"tileset","data":"set_190C53","meta":{"srcOffset":0,"sizeW":32,"dstOffset":0,"layer":1}},
-          {"type":"tilemap","data":"map_1C4DF4","meta":{"layer":1}},
+          {"type":"bitmap","data":"gfx_angkor_interior","meta":{"srcOffset":0,"sizeW":16,"dstOffset":0,"isSprite":false}},
+          {"type":"palette","data":"pal_angkor_interior","meta":{"srcOffset":0,"sizeW":112,"dstOffset":16}},
+          {"type":"tileset","data":"set_angkor_interior","meta":{"srcOffset":0,"sizeW":32,"dstOffset":0,"layer":1}},
+          {"type":"tilemap","data":"map_angkor_shrine_upper","meta":{"layer":1}},
           {"type":"jump","meta":{"label":44}}
         ]
       },
@@ -2865,10 +2865,10 @@
         "assets": [
           {"type":"ppu","meta":{"index":8}},
           {"type":"music","data":"bgm_ominous_whispers","meta":{"id":4,"group":0}},
-          {"type":"bitmap","data":"gfx_1F8000","meta":{"srcOffset":0,"sizeW":16,"dstOffset":0,"isSprite":false}},
-          {"type":"palette","data":"palette_1E5633","meta":{"srcOffset":0,"sizeW":112,"dstOffset":16}},
-          {"type":"tileset","data":"set_190C53","meta":{"srcOffset":0,"sizeW":32,"dstOffset":0,"layer":1}},
-          {"type":"tilemap","data":"map_1D5651","meta":{"layer":1}},
+          {"type":"bitmap","data":"gfx_angkor_interior","meta":{"srcOffset":0,"sizeW":16,"dstOffset":0,"isSprite":false}},
+          {"type":"palette","data":"pal_angkor_interior","meta":{"srcOffset":0,"sizeW":112,"dstOffset":16}},
+          {"type":"tileset","data":"set_angkor_interior","meta":{"srcOffset":0,"sizeW":32,"dstOffset":0,"layer":1}},
+          {"type":"tilemap","data":"map_angkor_shrine_pinnacle","meta":{"layer":1}},
           {"type":"jump","meta":{"label":45}}
         ]
       },
@@ -2878,10 +2878,10 @@
         "assets": [
           {"type":"ppu","meta":{"index":25}},
           {"type":"music","data":"bgm_deep_sadness","meta":{"id":17,"group":0}},
-          {"type":"tileset","data":"set_1B1733","meta":{"srcOffset":0,"sizeW":32,"dstOffset":0,"layer":1}},
-          {"type":"bitmap","data":"gfx_0E6BAB","meta":{"srcOffset":0,"sizeW":16,"dstOffset":0,"isSprite":false}},
-          {"type":"palette","data":"palette_1E58D3","meta":{"srcOffset":0,"sizeW":112,"dstOffset":16}},
-          {"type":"tilemap","data":"map_130000","meta":{"layer":1}}
+          {"type":"tileset","data":"set_angkor_vision","meta":{"srcOffset":0,"sizeW":32,"dstOffset":0,"layer":1}},
+          {"type":"bitmap","data":"gfx_angkor_vision","meta":{"srcOffset":0,"sizeW":16,"dstOffset":0,"isSprite":false}},
+          {"type":"palette","data":"pal_angkor_vision","meta":{"srcOffset":0,"sizeW":112,"dstOffset":16}},
+          {"type":"tilemap","data":"map_angkor_vision","meta":{"layer":1}}
         ]
       }
     }

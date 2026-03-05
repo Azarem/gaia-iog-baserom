@@ -69,77 +69,77 @@
     },
     "angkor_wat": {
         "": {
-            "sprite_0C7308": {"start":815880,"end":819200,"type":"Spritemap","compressed":true},
-            "gfx_0E15EA": {"start":923114,"end":928634,"type":"Bitmap","compressed":true},
-            "sprite_14395F": {"start":1325407,"end":1327760,"type":"Spritemap","compressed":true},
-            "set_186CAA": {"start":1600682,"end":1602269,"type":"Tileset","compressed":true},
-            "set_190C53": {"start":1641555,"end":1643128,"type":"Tileset","compressed":true},
-            "set_195A95": {"start":1661589,"end":1663065,"type":"Tileset","compressed":true},
-            "gfx_1980A2": {"start":1671330,"end":1681852,"type":"Bitmap","compressed":true},
-            "palette_1E5473": {"start":1987699,"end":1987923,"type":"Palette"},
-            "palette_1E5553": {"start":1987923,"end":1988147,"type":"Palette"},
-            "palette_1E5633": {"start":1988147,"end":1988371,"type":"Palette"},
-            "palette_1E5713": {"start":1988371,"end":1988595,"type":"Palette"},
-            "gfx_1F8000": {"start":2064384,"end":2071429,"type":"Bitmap","compressed":true}
+            "spm_angkor_outer_sprites": {"start":815880,"end":819200,"type":"Spritemap","compressed":true},
+            "gfx_angkor_outer_sprites": {"start":923114,"end":928634,"type":"Bitmap","compressed":true},
+            "spm_angkor_interior_sprites": {"start":1325407,"end":1327760,"type":"Spritemap","compressed":true},
+            "set_angkor_exterior_effect": {"start":1600682,"end":1602269,"type":"Tileset","compressed":true},
+            "set_angkor_interior": {"start":1641555,"end":1643128,"type":"Tileset","compressed":true},
+            "set_angkor_exterior": {"start":1661589,"end":1663065,"type":"Tileset","compressed":true},
+            "gfx_angkor_exterior": {"start":1671330,"end":1681852,"type":"Bitmap","compressed":true},
+            "pal_angkor_exterior": {"start":1987699,"end":1987923,"type":"Palette"},
+            "pal_angkor_outer_sprites": {"start":1987923,"end":1988147,"type":"Palette"},
+            "pal_angkor_interior": {"start":1988147,"end":1988371,"type":"Palette"},
+            "pal_angkor_interior_sprites": {"start":1988371,"end":1988595,"type":"Palette"},
+            "gfx_angkor_interior": {"start":2064384,"end":2071429,"type":"Bitmap","compressed":true}
         },
-        "angkor_courtyard": {
-            "map_125CE4": {"start":1203428,"end":1206356,"type":"Tilemap","compressed":true},
-            "map_132097": {"start":1253527,"end":1256220,"type":"Tilemap","compressed":true}
+        "angkor_outer_courtyard": {
+            "map_angkor_outer_courtyard": {"start":1203428,"end":1206356,"type":"Tilemap","compressed":true},
+            "map_angkor_outer_courtyard_effect": {"start":1253527,"end":1256220,"type":"Tilemap","compressed":true}
         },
         "angkor_entrance": {
-            "map_13357C": {"start":1258876,"end":1261520,"type":"Tilemap","compressed":true},
-            "map_134A0B": {"start":1264139,"end":1266717,"type":"Tilemap","compressed":true}
+            "map_angkor_entrance_effect": {"start":1258876,"end":1261520,"type":"Tilemap","compressed":true},
+            "map_angkor_entrance": {"start":1264139,"end":1266717,"type":"Tilemap","compressed":true}
         },
         "angkor_inner_east": {
-            "map_1D04F5": {"start":1901813,"end":1902439,"type":"Tilemap","compressed":true}
+            "map_angkor_inner_east": {"start":1901813,"end":1902439,"type":"Tilemap","compressed":true}
         },
         "angkor_inner_gate": {
-            "map_1B0000": {"start":1769472,"end":1770684,"type":"Tilemap","compressed":true}
+            "map_angkor_inner_gate": {"start":1769472,"end":1770684,"type":"Tilemap","compressed":true}
         },
-        "angkor_inner_path": {
-            "map_14B09B": {"start":1355931,"end":1359561,"type":"Tilemap","compressed":true},
-            "map_14F199": {"start":1372569,"end":1376063,"type":"Tilemap","compressed":true}
+        "angkor_inner_courtyard": {
+            "map_angkor_inner_courtyard_effect": {"start":1355931,"end":1359561,"type":"Tilemap","compressed":true},
+            "map_angkor_inner_courtyard": {"start":1372569,"end":1376063,"type":"Tilemap","compressed":true}
         },
         "angkor_inner_west": {
-            "map_1D0000": {"start":1900544,"end":1901184,"type":"Tilemap","compressed":true}
+            "map_angkor_inner_west": {"start":1900544,"end":1901184,"type":"Tilemap","compressed":true}
         },
         "angkor_outer_east": {
-            "map_1B7222": {"start":1798690,"end":1799584,"type":"Tilemap","compressed":true}
+            "map_angkor_outer_east": {"start":1798690,"end":1799584,"type":"Tilemap","compressed":true}
         },
         "angkor_outer_gate": {
-            "gfx_016A81": {"start":92801,"end":98238,"type":"Bitmap","compressed":true},
-            "map_160F5B": {"start":1445723,"end":1447685,"type":"Tilemap","compressed":true}
+            "gfx_angkor_interior_sprites": {"start":92801,"end":98238,"type":"Bitmap","compressed":true},
+            "map_angkor_outer_gate": {"start":1445723,"end":1447685,"type":"Tilemap","compressed":true}
         },
         "angkor_outer_north": {
-            "map_1A7295": {"start":1733269,"end":1734498,"type":"Tilemap","compressed":true}
+            "map_angkor_outer_north": {"start":1733269,"end":1734498,"type":"Tilemap","compressed":true}
         },
         "angkor_outer_west": {
-            "map_1C41D9": {"start":1851865,"end":1852644,"type":"Tilemap","compressed":true}
+            "map_angkor_outer_west": {"start":1851865,"end":1852644,"type":"Tilemap","compressed":true}
         },
         "angkor_pinnacle": {
-            "map_1D5651": {"start":1922641,"end":1923068,"type":"Tilemap","compressed":true}
+            "map_angkor_shrine_pinnacle": {"start":1922641,"end":1923068,"type":"Tilemap","compressed":true}
         },
         "angkor_shrine_crystal": {
-            "map_1C4AF1": {"start":1854193,"end":1854964,"type":"Tilemap","compressed":true}
+            "map_angkor_shrine_crystal": {"start":1854193,"end":1854964,"type":"Tilemap","compressed":true}
         },
         "angkor_shrine_dejavu": {
-            "map_1C3EC8": {"start":1851080,"end":1851865,"type":"Tilemap","compressed":true}
+            "map_angkor_shrine_dejavu": {"start":1851080,"end":1851865,"type":"Tilemap","compressed":true}
         },
         "angkor_shrine_main": {
-            "map_1C0000": {"start":1835008,"end":1835889,"type":"Tilemap","compressed":true}
+            "map_angkor_shrine_main": {"start":1835008,"end":1835889,"type":"Tilemap","compressed":true}
         },
         "angkor_shrine_upper": {
-            "map_1C4DF4": {"start":1854964,"end":1855735,"type":"Tilemap","compressed":true}
+            "map_angkor_shrine_upper": {"start":1854964,"end":1855735,"type":"Tilemap","compressed":true}
         },
         "future_vision": {
-            "gfx_0E6BAB": {"start":945067,"end":950268,"type":"Bitmap","compressed":true},
-            "map_130000": {"start":1245184,"end":1248004,"type":"Tilemap","compressed":true},
-            "set_1B1733": {"start":1775411,"end":1776570,"type":"Tileset","compressed":true},
-            "palette_1E58D3": {"start":1988819,"end":1989043,"type":"Palette"}
+            "gfx_angkor_vision": {"start":945067,"end":950268,"type":"Bitmap","compressed":true},
+            "map_angkor_vision": {"start":1245184,"end":1248004,"type":"Tilemap","compressed":true},
+            "set_angkor_vision": {"start":1775411,"end":1776570,"type":"Tileset","compressed":true},
+            "pal_angkor_vision": {"start":1988819,"end":1989043,"type":"Palette"}
         },
         "snake_pit": {
-            "map_1B39A0": {"start":1784224,"end":1785278,"type":"Tilemap","compressed":true},
-            "palette_1E57F3": {"start":1988595,"end":1988819,"type":"Palette"}
+            "map_angkor_snakepit": {"start":1784224,"end":1785278,"type":"Tilemap","compressed":true},
+            "pal_angkor_snakepit": {"start":1988595,"end":1988819,"type":"Palette"}
         }
     },
     "babel_tower": {

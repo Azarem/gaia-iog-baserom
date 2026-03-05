@@ -6083,7 +6083,7 @@
         },
         "awBA_glasses": {
             "movable": true,
-            "scene": "angkor_inner_path",
+            "scene": "angkor_inner_courtyard",
             "parts": {
                 "h_awBA_glasses": { "start": 565116, "end": 565119, "type": "h_actor" },
                 "e_awBA_glasses": { "start": 565119, "end": 565244, "type": "Code" }
@@ -6091,7 +6091,7 @@
         },
         "awB6_bones": {
             "movable": true,
-            "scene": "angkor_courtyard",
+            "scene": "angkor_outer_courtyard",
             "parts": {
                 "h_awB6_bones": { "start": 565244, "end": 565247, "type": "h_actor" },
                 "e_awB6_bones": { "start": 565247, "end": 565854, "type": "Code" }
@@ -6099,7 +6099,7 @@
         },
         "awBA_bones": {
             "movable": true,
-            "scene": "angkor_inner_path",
+            "scene": "angkor_inner_courtyard",
             "parts": {
                 "h_awBA_bones": { "start": 565854, "end": 565857, "type": "h_actor" },
                 "e_awBA_bones": { "start": 565857, "end": 566443, "type": "Code" }

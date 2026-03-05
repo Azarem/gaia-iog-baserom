@@ -999,7 +999,7 @@
     "group": "angkor-wat",
     "index": 182,
     "name": "angkor-courtyard",
-    "description": "Angkor Wat - Courtyard"
+    "description": "Angkor Wat - Outer Courtyard"
   },
   {
     "group": "angkor-wat",
@@ -1023,7 +1023,7 @@
     "group": "angkor-wat",
     "index": 186,
     "name": "angkor-inner-path",
-    "description": "Angkor Wat - Inner Path"
+    "description": "Angkor Wat - Inner Courtyard"
   },
   {
     "group": "angkor-wat",
