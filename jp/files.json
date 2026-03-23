@@ -108,7 +108,7 @@
         },
         "angkor_outer_gate": {
             "gfx_angkor_interior_sprites": {"start":1005191,"end":1010628,"type":"Bitmap","compressed":true},
-            "map_angkor_outer_gate": {"start":1461948,"end":1465868,"type":"Tilemap","compressed":true}
+            "map_angkor_outer_gate": {"start":1461948,"end":1463910,"type":"Tilemap","compressed":true}
         },
         "angkor_outer_north": {
             "map_angkor_outer_north": {"start":1787452,"end":1788681,"type":"Tilemap","compressed":true}
@@ -117,7 +117,7 @@
             "map_angkor_outer_west": {"start":1866457,"end":1867236,"type":"Tilemap","compressed":true}
         },
         "angkor_pinnacle": {
-            "map_angkor_shrine_pinnacle": {"start":1972120,"end":1972970,"type":"Tilemap","compressed":true}
+            "map_angkor_shrine_pinnacle": {"start":1972120,"end":1972547,"type":"Tilemap","compressed":true}
         },
         "angkor_shrine_crystal": {
             "map_angkor_shrine_crystal": {"start":1902093,"end":1902864,"type":"Tilemap","compressed":true}
@@ -144,7 +144,7 @@
     },
     "babel_tower": {
         "": {
-            "gfx_ending_combined": {"start":1268094,"end":1270791,"type":"Bitmap","compressed":true},
+            "gfx_ending_combined": {"start":1179648,"end":1183626,"type":"Bitmap","compressed":true},
             "gfx_babel": {"start":1290289,"end":1302444,"type":"Bitmap","compressed":true},
             "set_babel": {"start":1668764,"end":1670324,"type":"Tileset","compressed":true},
             "set_babel_darklair": {"start":1908806,"end":1909539,"type":"Tileset","compressed":true},
@@ -241,7 +241,7 @@
         },
         "dao_hotel": {
             "map_dao_hotel": {"start":2054211,"end":2054389,"type":"Tilemap","compressed":true},
-            "map_dao_hotel_effect": {"start":2061740,"end":2061960,"type":"Tilemap","compressed":true}
+            "map_dao_hotel_effect": {"start":2061740,"end":2061850,"type":"Tilemap","compressed":true}
         },
         "desert_explorers": {
             "map_dao_explorers_effect": {"start":1441699,"end":1441792,"type":"Tilemap","compressed":true},
@@ -391,13 +391,13 @@
             "gfx_credits_actors3": {"start":1561584,"end":1572206,"type":"Bitmap","compressed":true},
             "gfx_credits_scenery": {"start":1605632,"end":1616154,"type":"Bitmap","compressed":true},
             "spm_credits": {"start":1732031,"end":1733315,"type":"Spritemap","compressed":true},
-            "palette_1E094C": {"start":1968460,"end":1968485,"type":"Palette"},
-            "palette_1E0A6C": {"start":1968748,"end":1968951,"type":"Palette"},
+            "palette_1F6FF5": {"start":2060277,"end":1968485,"type":"Palette"},
+            "palette_1F2060": {"start":2039904,"end":1968951,"type":"Palette"},
             "palette_1E0B8C": {"start":1969036,"end":1969410,"type":"Palette"},
-            "palette_1E65F3": {"start":1992179,"end":1992324,"type":"Palette"},
-            "palette_1E66D3": {"start":1992403,"end":1992548,"type":"Palette"},
-            "palette_1E67B3": {"start":1992627,"end":1992772,"type":"Palette"},
-            "palette_1F3333": {"start":2044723,"end":2044890,"type":"Palette"}
+            "palette_1F2140": {"start":2040128,"end":1992324,"type":"Palette"},
+            "palette_1F2220": {"start":2040352,"end":1992548,"type":"Palette"},
+            "palette_1B4166": {"start":1786214,"end":1992772,"type":"Palette"},
+            "palette_1F7AA1": {"start":2063009,"end":2044890,"type":"Palette"}
         },
         "ending_new_babel": {
             "gfx_ending_newbabel": {"start":1138101,"end":1142644,"type":"Bitmap","compressed":true},
@@ -479,7 +479,7 @@
             "gfx_freejia": {"start":20772,"end":27543,"type":"Bitmap","compressed":true},
             "map_fr32": {"start":1273484,"end":1276140,"type":"Tilemap","compressed":true},
             "set_freejia": {"start":1648169,"end":1649778,"type":"Tileset","compressed":true},
-            "set_freejia_effect": {"start":1991644,"end":1992098,"type":"Tileset","compressed":true},
+            "set_freejia_effect": {"start":1991644,"end":1991871,"type":"Tileset","compressed":true},
             "pal_freejia": {"start":1996356,"end":1996580,"type":"Palette"},
             "map_fr32_effect": {"start":2063287,"end":2063344,"type":"Tilemap","compressed":true}
         },
@@ -546,7 +546,7 @@
             "pal_goldship": {"start":1995460,"end":1995684,"type":"Palette"}
         },
         "ship_gold_interior": {
-            "map_gs2D": {"start":1863285,"end":1864099,"type":"Tilemap","compressed":true},
+            "map_gs2E": {"start":1903635,"end":1904382,"type":"Tilemap","compressed":true},
             "pal_goldship_interior": {"start":1995908,"end":1996132,"type":"Palette"}
         },
         "ship_wreck": {
@@ -694,7 +694,7 @@
             "gfx_itory": {"start":1933312,"end":1940771,"type":"Bitmap","compressed":true},
             "map_it15": {"start":1526322,"end":1528183,"type":"Tilemap","compressed":true},
             "set_itory": {"start":1588526,"end":1590227,"type":"Tileset","compressed":true},
-            "map_itory_effect": {"start":2041248,"end":2041916,"type":"Tilemap","compressed":true},
+            "map_itory_effect": {"start":2041248,"end":2041471,"type":"Tilemap","compressed":true},
             "pal_itory": {"start":1994340,"end":1994564,"type":"Palette"}
         },
         "lilys_house": {
@@ -721,7 +721,7 @@
         },
         "solid_arm_lair": {
             "gfx_solidarm": {"start":674400,"end":680712,"type":"Bitmap","compressed":true},
-            "spm_solidarm": {"start":804651,"end":816554,"type":"Spritemap","compressed":true},
+            "spm_solidarm": {"start":804651,"end":810614,"type":"Spritemap","compressed":true},
             "pal_solidarm": {"start":2050458,"end":2050650,"type":"Palette"},
             "map_mansion_solidarm": {"start":2058675,"end":2058814,"type":"Tilemap","compressed":true}
         }
@@ -823,12 +823,12 @@
     },
     "music": {
         "": {
-            "bgm_threat_of_dark_gaia": {"start":786432,"end":792589,"type":"Music"},
+            "bgm_threat_of_dark_gaia": {"start":810614,"end":816554,"type":"Music"},
             "bgm_unexplored_temple": {"start":1544618,"end":1548046,"type":"Music"},
             "bgm_great_pyramid": {"start":1186862,"end":1190089,"type":"Music"},
             "bgm_illusion_of_gaia": {"start":1133514,"end":1138101,"type":"Music"},
-            "bgm_legendary_sunken_continent": {"start":1199352,"end":1205352,"type":"Music"},
-            "bgm_bittersweet_victory": {"start":1185683,"end":1186862,"type":"Music"},
+            "bgm_legendary_sunken_continent": {"start":1199352,"end":1202373,"type":"Music"},
+            "bgm_bittersweet_victory": {"start":1202373,"end":1205352,"type":"Music"},
             "bgm_guardians": {"start":1256914,"end":1259748,"type":"Music"},
             "bgm_secret_of_nazca": {"start":1326118,"end":1328608,"type":"Music"},
             "bgm_blessing_of_nature": {"start":1338514,"end":1340979,"type":"Music"},
@@ -842,15 +842,15 @@
             "bgm_restart": {"start":1535523,"end":1537337,"type":"Music"},
             "bgm_lively_city": {"start":1557571,"end":1561584,"type":"Music"},
             "bgm_longing_for_the_past": {"start":1651380,"end":1652980,"type":"Music"},
-            "bgm_rebirth": {"start":1692262,"end":1696594,"type":"Music"},
+            "bgm_rebirth": {"start":1680333,"end":1689013,"type":"Music"},
             "bgm_deep_sadness": {"start":1777433,"end":1778695,"type":"Music"},
             "bgm_ominous_whispers": {"start":1838152,"end":1839148,"type":"Music"},
             "bgm_drifting_endlessly": {"start":1906601,"end":1907337,"type":"Music"},
-            "bgm_1D4F6B": {"start":1920875,"end":1921381,"type":"Music"},
-            "bgm_important_item": {"start":1923068,"end":1923160,"type":"Music"},
-            "bgm_melody_of_memories": {"start":1976942,"end":1977285,"type":"Music"},
-            "bgm_lost_incan_melody": {"start":1993523,"end":1993668,"type":"Music"},
-            "bgm_lolas_melody": {"start":1993746,"end":1993892,"type":"Music"},
+            "bgm_1E125C": {"start":1970780,"end":1971234,"type":"Music"},
+            "bgm_important_item": {"start":1972547,"end":1972970,"type":"Music"},
+            "bgm_melody_of_memories": {"start":1991871,"end":1992098,"type":"Music"},
+            "bgm_lost_incan_melody": {"start":2041471,"end":2041694,"type":"Music"},
+            "bgm_lolas_melody": {"start":2041694,"end":2041916,"type":"Music"},
             "bgm_no_music": {"start":2057821,"end":2057966,"type":"Music"},
             "bgm_waterfall": {"start":2058251,"end":2058393,"type":"Music"}
         }
@@ -894,7 +894,7 @@
     },
     "prologue": {
         "": {
-            "gfx_prologue_prophecy_sprites": {"start":1391537,"end":1392661,"type":"Bitmap","compressed":true}
+            "gfx_prologue_prophecy_sprites": {"start":1463910,"end":1465868,"type":"Bitmap","compressed":true}
         },
         "prologue_legends": {
             "gfx_prologue_legends": {"start":680712,"end":686987,"type":"Bitmap","compressed":true},
@@ -1179,7 +1179,12 @@
             "gfx_000000": {"start":0,"end":7168,"type":"Bitmap"},
             "radar_icons_001C00": {"start":7168,"end":7680,"type":"Bitmap"},
             "radar_layout_001E00": {"start":7680,"end":9088,"type":"Unknown"},
-            "gfx_fonts": {"start":1132200,"end":1133514,"type":"Bitmap","compressed":true},
+            "gfx_fonts": {"start":1268094,"end":1270791,"type":"Bitmap","compressed":true},
+            "hiragana_font": {"start":65536,"end":73728,"type":"Bitmap"},
+            "katakana_font": {"start":73728,"end":81920,"type":"Bitmap"},
+            "kanji_font_1": {"start":131072,"end":147456,"type":"Bitmap"},
+            "kanji_font_2": {"start":147456,"end":163840,"type":"Bitmap"},
+            "kanji_font_3": {"start":196608,"end":206848,"type":"Bitmap"},
             "will_sprites_1A8000": {"start":1736704,"end":1753088,"type":"Bitmap","upper":true},
             "free_sprites_1AC000": {"start":1753088,"end":1769472,"type":"Bitmap","upper":true}
         },
@@ -1194,7 +1199,7 @@
             "set_darkspace": {"start":1211290,"end":1212416,"type":"Tileset","compressed":true},
             "map_darkspace_effect": {"start":1918307,"end":1918931,"type":"Tilemap","compressed":true},
             "spm_darkspace_sprites": {"start":1926033,"end":1926600,"type":"Spritemap","compressed":true},
-            "set_darkspace_effect": {"start":1970326,"end":1971234,"type":"Tileset","compressed":true},
+            "set_darkspace_effect": {"start":1970326,"end":1970780,"type":"Tileset","compressed":true},
             "map_darkspace": {"start":1986650,"end":1986910,"type":"Tilemap","compressed":true},
             "pal_darkspace_sprites": {"start":1994116,"end":1994340,"type":"Palette"},
             "pal_darkspace": {"start":2038112,"end":2038336,"type":"Palette"}
@@ -1210,10 +1215,11 @@
             "pal_title": {"start":1988958,"end":1989214,"type":"Palette"},
             "gfx_title_actors": {"start":1443876,"end":1445956,"type":"Bitmap","compressed":true},
             "set_title": {"start":1776168,"end":1777433,"type":"Tileset","compressed":true},
-            "gfx_title": {"start":1671330,"end":1689013,"type":"Bitmap","compressed":true},
+            "gfx_title": {"start":1671330,"end":1680333,"type":"Bitmap","compressed":true},
             "spm_title_actors": {"start":1982658,"end":1982968,"type":"Spritemap","compressed":true},
             "pal_title_actors": {"start":2051610,"end":2051802,"type":"Palette"},
-            "map_title": {"start":2059760,"end":2059890,"type":"Tilemap","compressed":true}
+            "map_title": {"start":2059760,"end":2059890,"type":"Tilemap","compressed":true},
+            "map_title_effect": {"start":2061850,"end":2061960,"type":"Tilemap","compressed":true}
         },
         "world_map": {
             "gfx_overworld_tiles": {"start":81920,"end":88680,"type":"Bitmap","compressed":true},

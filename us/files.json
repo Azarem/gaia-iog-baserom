@@ -546,7 +546,7 @@
             "pal_goldship": {"start":1980531,"end":1980755,"type":"Palette"}
         },
         "ship_gold_interior": {
-            "map_gs2D": {"start":1855735,"end":1856482,"type":"Tilemap","compressed":true},
+            "map_gs2E": {"start":1855735,"end":1856482,"type":"Tilemap","compressed":true},
             "pal_goldship_interior": {"start":1980979,"end":1981203,"type":"Palette"}
         },
         "ship_wreck": {

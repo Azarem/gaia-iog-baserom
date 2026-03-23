@@ -111,13 +111,13 @@ accent_table [
     #F098
     #F198
     #F298
-    #F398
+    #F3BC
     
     #F49E
     #F59E
     #F69E
     #F79E
-    #F89E
+    #F8BC
     
     #F9B5
     #FAB5

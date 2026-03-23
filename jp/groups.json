@@ -55,7 +55,7 @@
           {"type":"palette","data":"pal_title","meta":{"srcOffset":0,"sizeW":128,"dstOffset":0}},
           {"type":"tileset","data":"set_title","meta":{"srcOffset":0,"sizeW":32,"dstOffset":0,"layer":3}},
           {"type":"tilemap","data":"map_title","meta":{"layer":1}},
-          {"type":"tilemap","data":"binary_1F761A","meta":{"layer":2}},
+          {"type":"tilemap","data":"map_title_effect","meta":{"layer":2}},
           {"type":"bitmap","data":"gfx_title_actors","meta":{"srcOffset":0,"sizeW":16,"dstOffset":16,"isSprite":true}},
           {"type":"palette","data":"pal_title_actors","meta":{"srcOffset":0,"sizeW":96,"dstOffset":160}},
           {"type":"spritemap","data":"spm_title_actors","meta":{"size":596,"dummy":0}}
@@ -786,7 +786,7 @@
           {"type":"bitmap","data":"gfx_goldship","meta":{"srcOffset":0,"sizeW":32,"dstOffset":0,"isSprite":false}},
           {"type":"palette","data":"pal_goldship_interior","meta":{"srcOffset":0,"sizeW":112,"dstOffset":16}},
           {"type":"tileset","data":"set_goldship_interior","meta":{"srcOffset":0,"sizeW":32,"dstOffset":0,"layer":1}},
-          {"type":"tilemap","data":"map_gs2D","meta":{"layer":1}},
+          {"type":"tilemap","data":"map_gs2E","meta":{"layer":1}},
           {"type":"tileset","data":"set_goldship_effect","meta":{"srcOffset":0,"sizeW":32,"dstOffset":0,"layer":2}},
           {"type":"tilemap","data":"map_goldship_effect","meta":{"layer":2}},
           {"type":"jump","meta":{"label":63}}
@@ -2138,7 +2138,7 @@
           {"type":"label","meta":{"id":54}},
           {"type":"tilemap","data":"map_prologue_prophecy_2","meta":{"layer":1}},
           {"type":"label","meta":{"id":55}},
-          {"type":"bitmap","data":"gfx_overworld_font","meta":{"srcOffset":0,"sizeW":16,"dstOffset":16,"isSprite":true}},
+          {"type":"bitmap","data":"gfx_prologue_prophecy_sprites","meta":{"srcOffset":0,"sizeW":16,"dstOffset":16,"isSprite":true}},
           {"type":"palette","data":"pal_prologue_prophecy_sprites","meta":{"srcOffset":0,"sizeW":128,"dstOffset":128}},
           {"type":"spritemap","data":"spm_prologue_prophecy_sprites","meta":{"size":846,"dummy":0}}
         ]

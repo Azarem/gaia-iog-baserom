@@ -5,7 +5,54 @@
                 "emulation_mode_reset_008000": { "start": 32768, "end": 32775, "type": "Code" },
                 "native_mode_cop_008007": { "start": 32775, "end": 32779, "type": "Code" },
                 "native_mode_nmi_00800B": { "start": 32779, "end": 32783, "type": "Code" },
-                "native_mode_irq_00800F": { "start": 32783, "end": 62851, "type": "Code" }
+                "native_mode_irq_00800F": { "start": 32783, "end": 34652, "type": "Code" },
+                "code_00875C": { "start": 34652, "end": 62851, "type": "Code" }
+            }
+        },
+        "chunk_028000": {
+            "parts": {
+                "code_028000": { "start": 163840, "end": 176276, "type": "Code" },
+                "code_list_02B094": { "start": 176276, "end": 195821, "type": "&Code" }
+            }
+        },
+        "chunk_038000": {
+            "parts": {
+                "code_038000": { "start": 229376, "end": 255682, "type": "Code" }
+            }
+        },
+        "chunk_058000": {
+            "parts": {
+                "actor_def_058000": { "start": 360448, "end": 393144, "type": "actor_def" }
+            }
+        },
+        "chunk_068000": {
+            "parts": {
+                "actor_def_068000": { "start": 425984, "end": 448608, "type": "actor_def" }
+            }
+        },
+        "chunk_078000": {
+            "parts": {
+                "actor_def_078000": { "start": 491520, "end": 517152, "type": "actor_def" }
+            }
+        },
+        "chunk_088000": {
+            "parts": {
+                "actor_def_088000": { "start": 557056, "end": 587012, "type": "actor_def" }
+            }
+        },
+        "chunk_098000": {
+            "parts": {
+                "actor_def_098000": { "start": 622592, "end": 645328, "type": "actor_def" }
+            }
+        },
+        "chunk_0A8000": {
+            "parts": {
+                "actor_def_0A8000": { "start": 688128, "end": 720263, "type": "actor_def" }
+            }
+        },
+        "chunk_0B8000": {
+            "parts": {
+                "actor_def_0B8000": { "start": 753664, "end": 785008, "type": "actor_def" }
             }
         },
         "parallax_thinker": {
@@ -19,7 +66,14 @@
                 "parallax_table": { "start": 117745, "end": 119799, "type": "&Binary" }
             }
         },
+        "scene_actors": {
+            "order": -1,
+            "parts": {
+                "scene_actors": { "start": 819200, "end": 845218, "type": "&event_def" }
+            }
+        },
         "scene_thinkers": {
+            "order": -1,
             "parts": {
                 "t_scene_thinkers": { "start": 845218, "end": 846631, "type": "&thinker" }
             }
@@ -27,6 +81,688 @@
         "scene_meta": {
             "parts": {
                 "scene_meta": { "start": 884736, "end": 896977, "type": "mapdef" }
+            }
+        }
+    },
+    "south_cape": {
+        "sc01_smoke": { 
+            "movable": true,
+            "scene": "south_cape",
+            "parts": { 
+                "h_sc01_smoke": { "start": 294912, "end": 294916, "type": "actor_def" } 
+            }
+        },
+        "sc01_actor_048004": { 
+            "movable": true,
+            "scene": "south_cape",
+            "parts": { 
+                "h_sc01_actor_048004": { "start": 294916, "end": 295080, "type": "actor_def" } 
+            }
+        },
+        "sc01_girl1": { 
+            "movable": true,
+            "scene": "south_cape",
+            "parts": { 
+                "e_sc01_girl1": { "start": 295080, "end": 295202, "type": "actor_def" } 
+            }
+        },
+        "sc01_girl2": { 
+            "movable": true,
+            "scene": "south_cape",
+            "parts": { 
+                "e_sc01_girl2": { "start": 295202, "end": 295309, "type": "actor_def" } 
+            }
+        },
+        "sc01_girl3": { 
+            "movable": true,
+            "scene": "south_cape",
+            "parts": { 
+                "h_sc01_girl3": { "start": 295309, "end": 295386, "type": "actor_def" } 
+            }
+        },
+        "sc01_salesman": { 
+            "movable": true,
+            "scene": "south_cape",
+            "parts": { 
+                "h_sc01_salesman": { "start": 295386, "end": 295753, "type": "actor_def" } 
+            }
+        },
+        "sc01_fisherman": { 
+            "movable": true,
+            "scene": "south_cape",
+            "parts": { 
+                "h_sc01_fisherman": { "start": 295753, "end": 296023, "type": "actor_def" } 
+            }
+        },
+        "sc01_roof_man": { 
+            "movable": true,
+            "scene": "south_cape",
+            "parts": { 
+                "h_sc01_roof_man": { "start": 296023, "end": 296151, "type": "actor_def" } 
+            }
+        },
+        "sc01_guard": { 
+            "movable": true,
+            "scene": "south_cape",
+            "parts": { 
+                "h_sc01_guard": { "start": 296151, "end": 296443, "type": "actor_def" } 
+            }
+        },
+        "sc01_worried_woman": { 
+            "movable": true,
+            "scene": "south_cape",
+            "parts": { 
+                "h_sc01_worried_woman": { "start": 296443, "end": 296726, "type": "actor_def" } 
+            }
+        },
+        "sc01_startled_woman": { 
+            "movable": true,
+            "scene": "south_cape",
+            "parts": { 
+                "h_sc01_startled_woman": { "start": 296726, "end": 296927, "type": "actor_def" } 
+            }
+        },
+        "sc01_astronomer": { 
+            "movable": true,
+            "scene": "south_cape",
+            "parts": { 
+                "h_sc01_astronomer": { "start": 296927, "end": 297165, "type": "actor_def" } 
+            }
+        },
+        "sc01_sympathetic_woman": { 
+            "movable": true,
+            "scene": "south_cape",
+            "parts": { 
+                "h_sc01_sympathetic_woman": { "start": 297165, "end": 297339, "type": "actor_def" } 
+            }
+        },
+        "sc01_jar_door": { 
+            "movable": true,
+            "scene": "south_cape",
+            "parts": { 
+                "h_sc01_jar_door": { "start": 297339, "end": 297473, "type": "actor_def" } 
+            }
+        },
+        "sc08_priest": { 
+            "movable": true,
+            "scene": "church",
+            "parts": { 
+                "h_sc08_priest": { "start": 297473, "end": 298078, "type": "actor_def" } 
+            }
+        },
+        "sc08_lance": { 
+            "movable": true,
+            "scene": "church",
+            "parts": { 
+                "h_sc08_lance": { "start": 298078, "end": 298143, "type": "actor_def" } 
+            }
+        },
+        "sc08_seth": { 
+            "movable": true,
+            "scene": "church",
+            "parts": { 
+                "h_sc08_seth": { "start": 298143, "end": 298182, "type": "actor_def" } 
+            }
+        },
+        "sc08_erik": { 
+            "movable": true,
+            "scene": "church",
+            "parts": { 
+                "h_sc08_erik": { "start": 298182, "end": 298365, "type": "actor_def" } 
+            }
+        },
+        "sc03_lances_mother": { 
+            "movable": true,
+            "scene": "lances_house",
+            "parts": { 
+                "h_sc03_lances_mother": { "start": 298365, "end": 298610, "type": "actor_def" } 
+            }
+        },
+        "sc04_poverty": { 
+            "movable": true,
+            "scene": "erics_house",
+            "parts": { 
+                "h_sc04_poverty": { "start": 298610, "end": 298710, "type": "actor_def" } 
+            }
+        },
+        "sc04_eriks_father": { 
+            "movable": true,
+            "scene": "erics_house",
+            "parts": { 
+                "h_sc04_eriks_father": { "start": 298710, "end": 298821, "type": "actor_def" } 
+            }
+        },
+        "sc04_eriks_mother": { 
+            "movable": true,
+            "scene": "erics_house",
+            "parts": { 
+                "h_sc04_eriks_mother": { "start": 298821, "end": 298959, "type": "actor_def" } 
+            }
+        },
+        "sc05_seths_mother": { 
+            "movable": true,
+            "scene": "seths_house",
+            "parts": { 
+                "h_sc05_seths_mother": { "start": 298959, "end": 299065, "type": "actor_def" } 
+            }
+        },
+        "sc05_seths_father": { 
+            "movable": true,
+            "scene": "seths_house",
+            "parts": { 
+                "h_sc05_seths_father": { "start": 299065, "end": 299130, "type": "actor_def" } 
+            }
+        },
+        "sc07_chef": { 
+            "movable": true,
+            "scene": "chefs_house",
+            "parts": { 
+                "h_sc07_chef": { "start": 299130, "end": 299201, "type": "actor_def" } 
+            }
+        },
+        "sc01_sprint_man": { 
+            "movable": true,
+            "scene": "south_cape",
+            "parts": { 
+                "h_sc01_sprint_man": { "start": 299201, "end": 299286, "type": "actor_def" } 
+            }
+        },
+        "sc06_bill": { 
+            "movable": true,
+            "scene": "wills_house",
+            "parts": { 
+                "h_sc06_bill": { "start": 299286, "end": 300659, "type": "actor_def" } 
+            }
+        },
+        "sc06_lola": { 
+            "movable": true,
+            "scene": "wills_house",
+            "parts": { 
+                "h_sc06_lola": { "start": 300659, "end": 301962, "type": "actor_def" } 
+            }
+        },
+        "sc06_kara": { 
+            "movable": true,
+            "scene": "wills_house",
+            "parts": { 
+                "h_sc06_kara": { "start": 301962, "end": 302984, "type": "actor_def" } 
+            }
+        },
+        "sc06_hamlet": { 
+            "movable": true,
+            "scene": "wills_house",
+            "parts": { 
+                "h_sc06_hamlet": { "start": 302984, "end": 303346, "type": "actor_def" } 
+            }
+        },
+        "sc06_main_soldier": { 
+            "movable": true,
+            "scene": "wills_house",
+            "parts": { 
+                "h_sc06_main_soldier": { "start": 303346, "end": 303554, "type": "actor_def" } 
+            }
+        },
+        "sc06_actor_04A1C2": { 
+            "movable": true,
+            "scene": "wills_house",
+            "parts": { 
+                "h_sc06_actor_04A1C2": { "start": 303554, "end": 303604, "type": "actor_def" } 
+            }
+        },
+        "sc06_monologue": { 
+            "movable": true,
+            "scene": "wills_house",
+            "parts": { 
+                "h_sc06_monologue": { "start": 303604, "end": 303934, "type": "actor_def" } 
+            }
+        },
+        "sc06_kara_return": { 
+            "movable": true,
+            "scene": "wills_house",
+            "parts": { 
+                "h_sc06_kara_return": { "start": 303934, "end": 305258, "type": "actor_def" },
+                "e_sc06_actor_04AC5A": { "start": 306266, "end": 306365, "type": "Code" }
+            }
+        },
+        "sc06_lily": { 
+            "movable": true,
+            "scene": "wills_house",
+            "parts": { 
+                "h_sc06_lily": { "start": 305258, "end": 306266, "type": "actor_def" } 
+            }
+        },
+        "sc02_card": { 
+            "movable": true,
+            "scene": "coastal_cave",
+            "parts": { 
+                "h_sc02_card": { "start": 306365, "end": 306514, "type": "actor_def" } 
+            }
+        },
+        "sc02_lance": { 
+            "movable": true,
+            "scene": "coastal_cave",
+            "parts": { 
+                "h_sc02_lance": { "start": 306531, "end": 307515, "type": "actor_def" } 
+            }
+        },
+        "sc02_seth": { 
+            "movable": true,
+            "scene": "coastal_cave",
+            "parts": { 
+                "h_sc02_seth": { "start": 307515, "end": 308544, "type": "actor_def" },
+                "e_sc02_actor_04AD52": { "start": 306514, "end": 306531, "type": "Code" } 
+            }
+        },
+        "sc02_erik": { 
+            "movable": true,
+            "scene": "coastal_cave",
+            "parts": { 
+                "h_sc02_erik": { "start": 308544, "end": 309398, "type": "actor_def" } 
+            }
+        },
+        "sc01_house_intro": { 
+            "movable": true,
+            "scene": "south_cape",
+            "parts": { 
+                "h_sc01_house_intro": { "start": 309398, "end": 309837, "type": "actor_def" } 
+            }
+        },
+        "sc02_entry": { 
+            "movable": true,
+            "scene": "coastal_cave",
+            "parts": { 
+                "h_sc02_entry": { "start": 309837, "end": 310096, "type": "actor_def" } 
+            }
+        }
+    },
+    "edward_castle": {
+        "ec0A_torch1": { 
+            "movable": true,
+            "scene": "edward_castle",
+            "parts": { 
+                "h_ec0A_torch1": { "start": 310096, "end": 310138, "type": "actor_def" } 
+            }
+        },
+        "ec0A_torch2": { 
+            "movable": true,
+            "scene": "edward_castle",
+            "parts": { 
+                "h_ec0A_torch2": { "start": 310138, "end": 310180, "type": "actor_def" } 
+            }
+        },
+        "ec0A_left_guard": { 
+            "movable": true,
+            "scene": "edward_castle",
+            "parts": { 
+                "h_ec0A_left_guard": { "start": 310180, "end": 310628, "type": "actor_def" } 
+            }
+        },
+        "ec0A_right_guard": { 
+            "movable": true,
+            "scene": "edward_castle",
+            "parts": { 
+                "h_ec0A_right_guard": { "start": 310628, "end": 310926, "type": "actor_def" } 
+            }
+        },
+        "ec0A_stair_guard": { 
+            "movable": true,
+            "scene": "edward_castle",
+            "parts": { 
+                "h_ec0A_stair_guard": { "start": 310926, "end": 311110, "type": "actor_def" } 
+            }
+        },
+        "ec0A_edward": { 
+            "movable": true,
+            "scene": "edward_castle",
+            "parts": { 
+                "h_ec0A_edward": { "start": 311110, "end": 311534, "type": "actor_def" } 
+            }
+        },
+        "ec0A_actor_04C0EE": { 
+            "movable": true,
+            "scene": "edward_castle",
+            "parts": { 
+                "h_ec0A_actor_04C0EE": { "start": 311534, "end": 311538, "type": "actor_def" } 
+            }
+        },
+        "ec0A_edwina": { 
+            "movable": true,
+            "scene": "edward_castle",
+            "parts": { 
+                "e_ec0A_edwina": { "start": 311538, "end": 311629, "type": "actor_def" } 
+            }
+        },
+        "ec0A_door_guard": { 
+            "movable": true,
+            "scene": "edward_castle",
+            "parts": { 
+                "h_ec0A_door_guard": { "start": 311629, "end": 311699, "type": "actor_def" } 
+            }
+        },
+        "ec0A_throne_guard1": { 
+            "movable": true,
+            "scene": "edward_castle",
+            "parts": { 
+                "h_ec0A_throne_guard1": { "start": 311699, "end": 311821, "type": "actor_def" } 
+            }
+        },
+        "ec0A_throne_guard2": { 
+            "movable": true,
+            "scene": "edward_castle",
+            "parts": { 
+                "h_ec0A_throne_guard2": { "start": 311821, "end": 312080, "type": "actor_def" } 
+            }
+        },
+        "ec0A_bed_maid": { 
+            "movable": true,
+            "scene": "edward_castle",
+            "parts": { 
+                "h_ec0A_bed_maid": { "start": 312080, "end": 312147, "type": "actor_def" } 
+            }
+        },
+        "ec0A_stair_maid": { 
+            "movable": true,
+            "scene": "edward_castle",
+            "parts": { 
+                "h_ec0A_stair_maid": { "start": 312147, "end": 312314, "type": "actor_def" } 
+            }
+        },
+        "ec0A_shy_guard": { 
+            "movable": true,
+            "scene": "edward_castle",
+            "parts": { 
+                "h_ec0A_shy_guard": { "start": 312314, "end": 312362, "type": "actor_def" } 
+            }
+        },
+        "ec0A_caring_maid": { 
+            "movable": true,
+            "scene": "edward_castle",
+            "parts": { 
+                "h_ec0A_caring_maid": { "start": 312362, "end": 312457, "type": "actor_def" } 
+            }
+        },
+        "ec0A_kara_guard": { 
+            "movable": true,
+            "scene": "edward_castle",
+            "parts": { 
+                "h_ec0A_kara_guard": { "start": 312457, "end": 312956, "type": "actor_def" } 
+            }
+        },
+        "ec0A_kara": { 
+            "movable": true,
+            "scene": "edward_castle",
+            "parts": { 
+                "h_ec0A_kara": { "start": 312956, "end": 314293, "type": "actor_def" } 
+            }
+        },
+        "ec0A_barrel_roast": { 
+            "movable": true,
+            "scene": "edward_castle",
+            "parts": { 
+                "h_ec0A_barrel_roast": { "start": 314293, "end": 314493, "type": "actor_def" } 
+            }
+        },
+        "ec0A_prison_guard": { 
+            "movable": true,
+            "scene": "edward_castle",
+            "parts": { 
+                "h_ec0A_prison_guard": { "start": 314493, "end": 314575, "type": "actor_def" } 
+            }
+        },
+        "ec0B_cell": { 
+            "movable": true,
+            "scene": "castle_prison",
+            "parts": { 
+                "h_ec0B_cell": { "start": 314575, "end": 316590, "type": "actor_def" } 
+            }
+        },
+        "ec0B_door": { 
+            "movable": true,
+            "scene": "castle_prison",
+            "parts": { 
+                "h_ec0B_door": { "start": 316590, "end": 316650, "type": "actor_def" } 
+            }
+        },
+        "ec0B_moss": { 
+            "movable": true,
+            "scene": "castle_prison",
+            "parts": { 
+                "h_ec0B_moss": { "start": 316650, "end": 316770, "type": "actor_def" } 
+            }
+        },
+        "ec0B_ball": { 
+            "movable": true,
+            "scene": "castle_prison",
+            "parts": { 
+                "h_ec0B_ball": { "start": 316770, "end": 316836, "type": "actor_def" } 
+            }
+        },
+        "ec0B_guard": { 
+            "movable": true,
+            "scene": "castle_prison",
+            "parts": { 
+                "h_ec0B_guard": { "start": 316836, "end": 316946, "type": "actor_def" } 
+            }
+        },
+        "ec0C_force_hint": { 
+            "movable": true,
+            "scene": "aqueduct_entrance",
+            "parts": { 
+                "h_ec0C_force_hint": { "start": 316946, "end": 317052, "type": "actor_def" } 
+            }
+        },
+        "ec10_dp_hint_spirit": { 
+            "movable": true,
+            "scene": "aqueduct_treasure",
+            "parts": { 
+                "h_ec10_dp_hint_spirit": { "start": 317052, "end": 317203, "type": "actor_def" } 
+            }
+        },
+        "ec11_flower": { 
+            "movable": true,
+            "scene": "aqueduct_doorway",
+            "parts": { 
+                "h_ec11_flower": { "start": 325335, "end": 325410, "type": "actor_def" }
+            }
+        },
+        "ec11_voice": { 
+            "movable": true,
+            "scene": "aqueduct_doorway",
+            "parts": { 
+                "h_ec11_voice": { "start": 325410, "end": 326026, "type": "actor_def" }
+            }
+        },
+        "ec12_actor_04F98A": { 
+            "movable": true,
+            "scene": "aqueduct_back",
+            "parts": { 
+                "h_ec12_actor_04F98A": { "start": 326026, "end": 326108, "type": "actor_def" }
+            }
+        },
+        "ec12_actor_04F9DC": { 
+            "movable": true,
+            "scene": "aqueduct_back",
+            "parts": { 
+                "h_ec12_actor_04F9DC": { "start": 326108, "end": 326145, "type": "actor_def" }
+            }
+        },
+        "ec13_lily": { 
+            "movable": true,
+            "scene": "aqueduct_exit",
+            "parts": { 
+                "h_ec13_lily": { "start": 326145, "end": 326808, "type": "actor_def" }
+            }
+        },
+        "ec_actor_04FCFB": { 
+            "movable": true,
+            "parts": { 
+                "h_ec_actor_04FCFB": { "start": 326907, "end": 327014, "type": "actor_def" }
+            }
+        }
+    },
+    "itory": {
+        "it18_warning_man": { 
+            "movable": true,
+            "scene": "itory_couple_house",
+            "parts": { 
+                "h_it18_warning_man": { "start": 317203, "end": 317310, "type": "actor_def" } 
+            }
+        },
+        "it15_running_man": { 
+            "movable": true,
+            "scene": "itory_village",
+            "parts": { 
+                "h_it15_running_man": { "start": 317310, "end": 317371, "type": "actor_def" } 
+            }
+        },
+        "it18_warning_woman": { 
+            "movable": true,
+            "scene": "itory_couple_house",
+            "parts": { 
+                "h_it18_warning_woman": { "start": 317371, "end": 317436, "type": "actor_def" } 
+            }
+        },
+        "it15_fable_man": { 
+            "movable": true,
+            "scene": "itory_village",
+            "parts": { 
+                "h_it15_fable_man": { "start": 317436, "end": 317513, "type": "actor_def" } 
+            }
+        },
+        "it15_fable_woman": { 
+            "movable": true,
+            "scene": "itory_village",
+            "parts": { 
+                "h_it15_fable_woman": { "start": 317513, "end": 317626, "type": "actor_def" } 
+            }
+        },
+        "it16_song_woman": { 
+            "movable": true,
+            "scene": "itory_legend_house",
+            "parts": { 
+                "h_it16_song_woman": { "start": 317626, "end": 317762, "type": "actor_def" } 
+            }
+        },
+        "it15_friendly_woman": { 
+            "movable": true,
+            "scene": "itory_village",
+            "parts": { 
+                "h_it15_friendly_woman": { "start": 317762, "end": 317827, "type": "actor_def" } 
+            }
+        },
+        "it15_kara": { 
+            "movable": true,
+            "scene": "itory_village",
+            "parts": { 
+                "h_it15_kara": { "start": 317827, "end": 318185, "type": "actor_def" } 
+            }
+        },
+        "it17_kara": { 
+            "movable": true,
+            "scene": "lilys_house",
+            "parts": { 
+                "h_it17_kara": { "start": 318185, "end": 318389, "type": "actor_def" } 
+            }
+        },
+        "it15_lily": { 
+            "movable": true,
+            "scene": "itory_village",
+            "parts": { 
+                "h_it15_lily": { "start": 318389, "end": 319074, "type": "actor_def" } 
+            }
+        },
+        "it17_lily": { 
+            "movable": true,
+            "scene": "lilys_house",
+            "parts": { 
+                "h_it17_lily": { "start": 319074, "end": 319930, "type": "actor_def" } 
+            }
+        },
+        "it15_elder": { 
+            "movable": true,
+            "scene": "itory_village",
+            "parts": { 
+                "h_it15_elder": { "start": 319930, "end": 321347, "type": "actor_def" } 
+            }
+        },
+        "it15_bill": { 
+            "movable": true,
+            "scene": "itory_village",
+            "parts": { 
+                "e_it15_bill": { "start": 321347, "end": 321620, "type": "actor_def" } 
+            }
+        },
+        "it15_lola": { 
+            "movable": true,
+            "scene": "itory_village",
+            "parts": { 
+                "h_it15_lola": { "start": 321620, "end": 322294, "type": "actor_def" } 
+            }
+        },
+        "it19_inca_statue_a": { 
+            "movable": true,
+            "scene": "itory_cave",
+            "parts": { 
+                "h_it19_inca_statue_a": { "start": 322294, "end": 322414, "type": "actor_def" } 
+            }
+        },
+        "it19_actor_04EB6E": { 
+            "movable": true,
+            "scene": "itory_cave",
+            "parts": { 
+                "h_it19_actor_04EB6E": { "start": 322414, "end": 322530, "type": "actor_def" } 
+            }
+        },
+        "it1A_lily": { 
+            "movable": true,
+            "scene": "moon_tribe_camp",
+            "parts": { 
+                "h_it1A_lily": { "start": 322530, "end": 323596, "type": "actor_def" } 
+            }
+        },
+        "it1B_trial": { 
+            "movable": true,
+            "scene": "moon_tribe_cave",
+            "parts": { 
+                "h_it1B_trial": { "start": 323596, "end": 324061, "type": "actor_def" },
+                "code_04F977": { "start": 326007, "end": 326026, "type": "Code" } 
+            }
+        },
+        "it1B_inca_statue_b": { 
+            "movable": true,
+            "scene": "moon_tribe_cave",
+            "parts": { 
+                "h_it1B_inca_statue_b": { "start": 324061, "end": 324191, "type": "actor_def" }
+            }
+        },
+        "it1A_moon_tribe": { 
+            "movable": true,
+            "scene": "moon_tribe_camp",
+            "parts": { 
+                "h_it1A_moon_tribe1": { "start": 324191, "end": 325335, "type": "actor_def" }
+            }
+        }
+    },
+    "incan_ruins": {
+        "ir1D_bones": { 
+            "movable": true,
+            "scene": "larai_cliff",
+            "parts": { 
+                "h_ir1D_bones": { "start": 326808, "end": 326907, "type": "actor_def" }
+            }
+        },
+        "ir25_ceiling_tile": { 
+            "movable": true,
+            "scene": "inca_entryway",
+            "parts": { 
+                "h_ir25_ceiling_tile": { "start": 327014, "end": 327114, "type": "actor_def" }
+            }
+        },
+        "ir25_block_slot": { 
+            "movable": true,
+            "scene": "inca_entryway",
+            "parts": { 
+                "h_ir25_block_slot": { "start": 327114, "end": 327142, "type": "actor_def" }
             }
         }
     }

@@ -141,16 +141,16 @@
   "enemy": {
     "discriminator": 6,
     "delimiter": 255,
-    "types": ["Byte", "Byte", "Byte", "@h_actor", "Byte", "Byte", "Byte"]
+    "types": ["Byte", "Byte", "Byte", "@actor_def", "Byte", "Byte", "Byte"]
   },
   "actor": {
     "parent": "enemy",
     "discriminator": 0,
-    "types": ["Byte", "Byte", "Byte", "@h_actor"]
+    "types": ["Byte", "Byte", "Byte", "@actor_def"]
   },
   "thinker": {
     "delimiter": 255,
-    "types": ["Byte", "@h_thinker"]
+    "types": ["Byte", "@thinker_def"]
   },
   "event_def": {
     "types": ["enemy", "WideString"]
@@ -180,8 +180,7 @@
     "delimiter": 0,
     "types": ["Byte", "&sc_data"]
   },
-  "sc_data": {
-    "delimiter": 255,
-    "types": ["Byte", "Byte", "Byte", "Byte", "Byte", "Byte"]
-  }
+  "sc_data": { "delimiter": 255, "types": ["Byte", "Byte", "Byte", "Byte", "Byte", "Byte"] },
+  "thinker_def": { "types": ["Byte", "Byte", "Code" ] },
+  "actor_def": { "types": ["Byte", "Byte", "Byte", "Code" ] }
 }
