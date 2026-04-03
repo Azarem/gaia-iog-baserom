@@ -32,9 +32,10 @@
         "rebuild": "node src/index.ts rebuild"
     },
     "dependencies": {
-        "@gaialabs/core": "^0.2.5"
+        "@gaialabs/core": "^0.2.6"
     },
     "devDependencies": {
+        "@prisma/adapter-pg": "^7.6.0",
         "@paralleldrive/cuid2": "^2.2.2",
         "@types/node": "^20.19.29",
         "@typescript-eslint/eslint-plugin": "^8.53.0",
@@ -42,7 +43,8 @@
         "eslint": "^9.39.2",
         "tsdown": "^0.20.1",
         "typescript": "^5.9.3",
-        "vitest": "^4.0.17"
+        "vitest": "^4.0.17",
+        "dotenv": "^17.4.0"
     },
     "exports": {
         ".": {

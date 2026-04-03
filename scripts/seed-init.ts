@@ -1,10 +1,14 @@
+import 'dotenv/config';
 import { PrismaClient } from '@gaialabs/core/prisma';
 import { crc32_buffer, readFileAsBinary, crc32_text_utf8, readFileAsText, listDirectory } from '@gaialabs/core';
 import { createId } from '@paralleldrive/cuid2';
 import { db } from '../src/index.ts';
 import type { DirectoryEntry } from '@gaialabs/core';
+import { PrismaPg } from '@prisma/adapter-pg';
 
-const prisma = new PrismaClient();
+const prisma = new PrismaClient({
+  adapter: new PrismaPg({ connectionString: process.env.DATABASE_URL }),
+});
 
 const BR_PATH = './baserom';
 

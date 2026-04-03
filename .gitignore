@@ -3,3 +3,4 @@ dist
 extracted
 rebuilt
 package-lock.json
+.env
