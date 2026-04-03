@@ -32,7 +32,7 @@
         "rebuild": "node src/index.ts rebuild"
     },
     "dependencies": {
-        "@gaialabs/core": "^0.2.7"
+        "@gaialabs/core": "^0.2.8"
     },
     "devDependencies": {
         "@prisma/adapter-pg": "^7.6.0",
