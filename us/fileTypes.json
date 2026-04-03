@@ -1,20 +1,24 @@
 {
     "Bitmap": {
         "extension": "bin",
-        "type": "Bitmap"
+        "type": "Bitmap",
+        "compressed": true
     },
     "Tilemap": {
         "extension": "map",
         "header": 2,
-        "type": "Tilemap"
+        "type": "Tilemap",
+        "compressed": true
     },
     "Tileset": {
         "extension": "set",
-        "type": "Tileset"
+        "type": "Tileset",
+        "compressed": true
     },
     "Spritemap": {
         "extension": "spm",
-        "type": "Spritemap"
+        "type": "Spritemap",
+        "compressed": true
     },
     "Music": {
         "extension": "bgm",
@@ -46,6 +50,7 @@
     "Meta17": {
         "extension": "dmp",
         "header": 4,
-        "type": "Meta17"
+        "type": "Meta17",
+        "compressed": true
     }
 }

@@ -1,6 +1,7 @@
-import { DbBlock, DbFile, DbGroup, DbStringType, DbStruct, DbAddressingMode, CopDef, BlockWriter, DbFileType } from '@gaialabs/core';
-import { readFileAsBinary, DbRootUtils, BlockReader, saveFileAsText, saveFileAsBinary } from '@gaialabs/core';
-import type { DbConfig, DbGameRomModule } from '@gaialabs/core';
+import { DbBlock, DbFile, DbGroup, DbStringType, DbStruct, CopDef, DbFileType } from '@gaialabs/core';
+import { DbRootUtils } from '@gaialabs/core';
+import type { DbAddressingMode, DbConfig, DbGameRomModule } from '@gaialabs/core';
+import { snes } from '@gaialabs/core';
 
 import config from '../us/config.json' with { type: 'json' };
 import blocks from '../us/blocks.json' with { type: 'json' };
@@ -30,8 +31,6 @@ import structsJP from '../us/structs.json' with { type: 'json' };
 import transformsJP from '../jp/transforms.json' with { type: 'json' };
 import fileTypesJP from '../us/fileTypes.json' with { type: 'json' };
 
-import addrModes from '../snes/addressingModes.json' with { type: 'json' };
-
 export const db : DbGameRomModule = {
     mnemonics,
     overrides: overrides as unknown as Record<string, Record<string, number>>,
@@ -40,13 +39,14 @@ export const db : DbGameRomModule = {
     copdef: copdef as unknown as Record<string, Partial<CopDef>>,
     files: files as unknown as Record<string, Record<string, Record<string, Partial<DbFile>>>>,
     groups: groups as unknown as Record<string, Partial<DbGroup>>,
-    labels,
+    labels, //: labels as unknown as Record<string, string>,
     strings: strings as unknown as Record<string, Partial<DbStringType>>,
     structs: structs as unknown as Record<string, DbStruct>,
     transforms,
     config: config as unknown as DbConfig,
-    addrModes: addrModes as unknown as Record<string, Partial<DbAddressingMode>>,
-    fileTypes: fileTypes as unknown as Record<string, Partial<DbFileType>>
+    fileTypes: fileTypes as unknown as Record<string, Partial<DbFileType>>,
+    addrModes: snes.addressingModes as unknown as Record<string, Partial<DbAddressingMode>>,
+    headers: snes.headers
 };
 
 export const jp : DbGameRomModule = {
@@ -57,13 +57,14 @@ export const jp : DbGameRomModule = {
     copdef: copdefJP as unknown as Record<string, Partial<CopDef>>,
     files: filesJP as unknown as Record<string, Record<string, Record<string, Partial<DbFile>>>>,
     groups: groupsJP as unknown as Record<string, Partial<DbGroup>>,
-    labels: labelsJP,
+    labels: labelsJP, // as unknown as Record<number, string>,
     strings: stringsJP as unknown as Record<string, Partial<DbStringType>>,
     structs: structsJP as unknown as Record<string, DbStruct>,
     transforms: transformsJP,
     config: configJP as unknown as DbConfig,
-    addrModes: addrModes as unknown as Record<string, Partial<DbAddressingMode>>,
-    fileTypes: fileTypesJP as unknown as Record<string, Partial<DbFileType>>
+    fileTypes: fileTypesJP as unknown as Record<string, Partial<DbFileType>>,
+    addrModes: snes.addressingModes as unknown as Record<string, Partial<DbAddressingMode>>,
+    headers: snes.headers
 };
 
 export async function extract(romPath: string, outPath: string) {
