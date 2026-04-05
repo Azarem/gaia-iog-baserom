@@ -3,6 +3,10 @@
         "extension": "bin",
         "type": "Bitmap",
         "compressed": true
+    },    
+    "BitmapRaw": {
+        "extension": "raw.bin",
+        "type": "Bitmap"
     },
     "Tilemap": {
         "extension": "map",

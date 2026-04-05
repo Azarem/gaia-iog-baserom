@@ -4,7 +4,7 @@
 !VMADDL                         2116
 
   load_boot_exprite:
-    LDX #$&gfx_boot_exprite+2
+    LDX #$&gfx_boot_exprite
     LDA #$^gfx_boot_exprite
     
   load_continue:

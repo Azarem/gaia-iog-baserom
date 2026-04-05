@@ -76,7 +76,7 @@ export async function extract(romPath: string, outPath: string) {
 }
 
 export async function extractJP(romPath: string, outPath: string) {
-    if(!outPath) outPath = './extracted';
+    if(!outPath) outPath = './extracted-jp';
 
     var dbRoot = DbRootUtils.fromGameModule(jp);
 
@@ -87,6 +87,16 @@ export async function rebuild(inPath: string, outPath: string, baseRomPath: stri
     if(!inPath) inPath = './extracted';
     if(!outPath) outPath = './rebuilt';
     if(!baseRomPath) baseRomPath = './baserom';
+    
+    var dbRoot = DbRootUtils.fromGameModule(db);
+
+    await DbRootUtils.rebuildAllContent(dbRoot, [inPath, baseRomPath], `${outPath}/GaiaLabs.smc`);
+}
+
+export async function rebuildJp(inPath: string, outPath: string, baseRomPath: string) {
+    if(!inPath) inPath = './extracted-jp';
+    if(!outPath) outPath = './rebuilt-jp';
+    if(!baseRomPath) baseRomPath = './baserom-jp';
     
     var dbRoot = DbRootUtils.fromGameModule(db);
 
@@ -120,6 +130,11 @@ if (isMainModule) {
                     break;
                 case 'rebuild':
                     console.log('Starting ROM rebuild...');
+                    await rebuild(args[0], args[1], args[2]);
+                    console.log('ROM rebuild completed successfully!');
+                    break;
+                case 'rebuild-jp':
+                    console.log('Starting JP ROM rebuild...');
                     await rebuild(args[0], args[1], args[2]);
                     console.log('ROM rebuild completed successfully!');
                     break;

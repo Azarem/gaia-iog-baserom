@@ -81,288 +81,288 @@ item_icon_list [
 
 item_icon_nothing {
     PEA #$&pal_item_exprite
-    PEA #$&gfx_item_exprite+202
-    LDX #$&gfx_item_exprite+2
+    PEA #$&gfx_item_exprite+200
+    LDX #$&gfx_item_exprite
     JMP item_icon_next
 }
 
 item_icon_jewel {
     PEA #$&pal_item_exprite
-    PEA #$&gfx_item_exprite+242
-    LDX #$&gfx_item_exprite+42
+    PEA #$&gfx_item_exprite+240
+    LDX #$&gfx_item_exprite+40
     JMP item_icon_next
 }
 
 item_icon_prison_key {
     PEA #$&pal_item_exprite+40
-    PEA #$&gfx_item_exprite+282
-    LDX #$&gfx_item_exprite+82
+    PEA #$&gfx_item_exprite+280
+    LDX #$&gfx_item_exprite+80
     JMP item_icon_next
 }
 
 item_icon_inca_statue_a {
     PEA #$&pal_item_exprite+A0
-    PEA #$&gfx_item_exprite+2C2
-    LDX #$&gfx_item_exprite+C2
+    PEA #$&gfx_item_exprite+2C0
+    LDX #$&gfx_item_exprite+C0
     JMP item_icon_next
 }
 
 item_icon_inca_statue_b {
     PEA #$&pal_item_exprite+A0
-    PEA #$&gfx_item_exprite+302
-    LDX #$&gfx_item_exprite+102
+    PEA #$&gfx_item_exprite+300
+    LDX #$&gfx_item_exprite+100
     JMP item_icon_next
 }
 
 item_icon_inca_melody {
     PEA #$&pal_item_exprite+1C0
-    PEA #$&gfx_item_exprite+342
-    LDX #$&gfx_item_exprite+142
+    PEA #$&gfx_item_exprite+340
+    LDX #$&gfx_item_exprite+140
     JMP item_icon_next
 }
 
 item_icon_lolas_melody {
     PEA #$&pal_item_exprite
-    PEA #$&gfx_item_exprite+342
-    LDX #$&gfx_item_exprite+142
+    PEA #$&gfx_item_exprite+340
+    LDX #$&gfx_item_exprite+140
     JMP item_icon_next
 }
 
 item_icon_wind_melody {
     PEA #$&pal_item_exprite+20
-    PEA #$&gfx_item_exprite+342
-    LDX #$&gfx_item_exprite+142
+    PEA #$&gfx_item_exprite+340
+    LDX #$&gfx_item_exprite+140
     JMP item_icon_next
 }
 
 item_icon_memory_melody {
     PEA #$&pal_item_exprite+C0
-    PEA #$&gfx_item_exprite+342
-    LDX #$&gfx_item_exprite+142
+    PEA #$&gfx_item_exprite+340
+    LDX #$&gfx_item_exprite+140
     JMP item_icon_next
 }
 
 item_icon_herb {
     PEA #$&pal_item_exprite+20
-    PEA #$&gfx_item_exprite+382
-    LDX #$&gfx_item_exprite+182
+    PEA #$&gfx_item_exprite+380
+    LDX #$&gfx_item_exprite+180
     JMP item_icon_next
 }
 
 item_icon_diamond_block {
     PEA #$&pal_item_exprite+80
-    PEA #$&gfx_item_exprite+3C2
-    LDX #$&gfx_item_exprite+1C2
+    PEA #$&gfx_item_exprite+3C0
+    LDX #$&gfx_item_exprite+1C0
     JMP item_icon_next
 }
 
 item_icon_roast {
     PEA #$&pal_item_exprite+E0
-    PEA #$&gfx_item_exprite+602
-    LDX #$&gfx_item_exprite+402
+    PEA #$&gfx_item_exprite+600
+    LDX #$&gfx_item_exprite+400
     JMP item_icon_next
 }
 
 item_icon_mine_key_a {
     PEA #$&pal_item_exprite+A0
-    PEA #$&gfx_item_exprite+642
-    LDX #$&gfx_item_exprite+442
+    PEA #$&gfx_item_exprite+640
+    LDX #$&gfx_item_exprite+440
     JMP item_icon_next
 }
 
 item_icon_mine_key_b {
     PEA #$&pal_item_exprite+A0
-    PEA #$&gfx_item_exprite+682
-    LDX #$&gfx_item_exprite+482
+    PEA #$&gfx_item_exprite+680
+    LDX #$&gfx_item_exprite+480
     JMP item_icon_next
 }
 
 item_icon_crystal {
     PEA #$&pal_item_exprite+60
-    PEA #$&gfx_item_exprite+6C2
-    LDX #$&gfx_item_exprite+4C2
+    PEA #$&gfx_item_exprite+6C0
+    LDX #$&gfx_item_exprite+4C0
     JMP item_icon_next
 }
 
 item_icon_elevator_key {
     PEA #$&pal_item_exprite+100
-    PEA #$&gfx_item_exprite+702
-    LDX #$&gfx_item_exprite+502
+    PEA #$&gfx_item_exprite+700
+    LDX #$&gfx_item_exprite+500
     JMP item_icon_next
 }
 
 item_icon_palace_key {
     PEA #$&pal_item_exprite+80
-    PEA #$&gfx_item_exprite+742
-    LDX #$&gfx_item_exprite+542
+    PEA #$&gfx_item_exprite+740
+    LDX #$&gfx_item_exprite+540
     JMP item_icon_next
 }
 
 item_icon_purification_stone {
     PEA #$&pal_item_exprite+C0
-    PEA #$&gfx_item_exprite+782
-    LDX #$&gfx_item_exprite+582
+    PEA #$&gfx_item_exprite+780
+    LDX #$&gfx_item_exprite+580
     JMP item_icon_next
 }
 
 item_icon_hope_statue {
     PEA #$&pal_item_exprite+40
-    PEA #$&gfx_item_exprite+7C2
-    LDX #$&gfx_item_exprite+5C2
+    PEA #$&gfx_item_exprite+7C0
+    LDX #$&gfx_item_exprite+5C0
     JMP item_icon_next
 }
 
 item_icon_rama_statue {
     PEA #$&pal_item_exprite+60
-    PEA #$&gfx_item_exprite+A02
-    LDX #$&gfx_item_exprite+802
+    PEA #$&gfx_item_exprite+A00
+    LDX #$&gfx_item_exprite+800
     JMP item_icon_next
 }
 
 item_icon_magic_dust {
     PEA #$&pal_item_exprite+120
-    PEA #$&gfx_item_exprite+A42
-    LDX #$&gfx_item_exprite+842
+    PEA #$&gfx_item_exprite+A40
+    LDX #$&gfx_item_exprite+840
     JMP item_icon_next
 }
 
 item_icon_blue_journal {
     PEA #$&pal_item_exprite+140
-    PEA #$&gfx_item_exprite+A82
-    LDX #$&gfx_item_exprite+882
+    PEA #$&gfx_item_exprite+A80
+    LDX #$&gfx_item_exprite+880
     JMP item_icon_next
 }
 
 item_icon_lances_letter {
     PEA #$&pal_item_exprite+160
-    PEA #$&gfx_item_exprite+AC2
-    LDX #$&gfx_item_exprite+8C2
+    PEA #$&gfx_item_exprite+AC0
+    LDX #$&gfx_item_exprite+8C0
     JMP item_icon_next
 }
 
 item_icon_necklace_stones {
     PEA #$&pal_item_exprite+A0
-    PEA #$&gfx_item_exprite+B02
-    LDX #$&gfx_item_exprite+902
+    PEA #$&gfx_item_exprite+B00
+    LDX #$&gfx_item_exprite+900
     JMP item_icon_next
 }
 
 item_icon_will {
     PEA #$&pal_item_exprite+160
-    PEA #$&gfx_item_exprite+B42
-    LDX #$&gfx_item_exprite+942
+    PEA #$&gfx_item_exprite+B40
+    LDX #$&gfx_item_exprite+940
     JMP item_icon_next
 }
 
 item_icon_tearpot {
     PEA #$&pal_item_exprite+80
-    PEA #$&gfx_item_exprite+B82
-    LDX #$&gfx_item_exprite+982
+    PEA #$&gfx_item_exprite+B80
+    LDX #$&gfx_item_exprite+980
     JMP item_icon_next
 }
 
 item_icon_mushroom_drops {
     PEA #$&pal_item_exprite+180
-    PEA #$&gfx_item_exprite+BC2
-    LDX #$&gfx_item_exprite+9C2
+    PEA #$&gfx_item_exprite+BC0
+    LDX #$&gfx_item_exprite+9C0
     JMP item_icon_next
 }
 
 item_icon_gold_bag {
     PEA #$&pal_item_exprite+1A0
-    PEA #$&gfx_item_exprite+E02
-    LDX #$&gfx_item_exprite+C02
+    PEA #$&gfx_item_exprite+E00
+    LDX #$&gfx_item_exprite+C00
     JMP item_icon_next
 }
 
 item_icon_glasses {
     PEA #$&pal_item_exprite+1C0
-    PEA #$&gfx_item_exprite+E42
-    LDX #$&gfx_item_exprite+C42
+    PEA #$&gfx_item_exprite+E40
+    LDX #$&gfx_item_exprite+C40
     JMP item_icon_next
 }
 
 item_icon_gorgon_flower {
     PEA #$&pal_item_exprite+1E0
-    PEA #$&gfx_item_exprite+E82
-    LDX #$&gfx_item_exprite+C82
+    PEA #$&gfx_item_exprite+E80
+    LDX #$&gfx_item_exprite+C80
     JMP item_icon_next
 }
 
 item_icon_hieroglyph_1 {
     PEA #$&pal_item_exprite+120
-    PEA #$&gfx_item_exprite+EC2
-    LDX #$&gfx_item_exprite+CC2
+    PEA #$&gfx_item_exprite+EC0
+    LDX #$&gfx_item_exprite+CC0
     JMP item_icon_next
 }
 
 item_icon_hieroglyph_2 {
     PEA #$&pal_item_exprite+120
-    PEA #$&gfx_item_exprite+F02
-    LDX #$&gfx_item_exprite+D02
+    PEA #$&gfx_item_exprite+F00
+    LDX #$&gfx_item_exprite+D00
     JMP item_icon_next
 }
 
 item_icon_hieroglyph_3 {
     PEA #$&pal_item_exprite+120
-    PEA #$&gfx_item_exprite+F42
-    LDX #$&gfx_item_exprite+D42
+    PEA #$&gfx_item_exprite+F40
+    LDX #$&gfx_item_exprite+D40
     JMP item_icon_next
 }
 
 item_icon_hieroglyph_4 {
     PEA #$&pal_item_exprite+120
-    PEA #$&gfx_item_exprite+F82
-    LDX #$&gfx_item_exprite+D82
+    PEA #$&gfx_item_exprite+F80
+    LDX #$&gfx_item_exprite+D80
     JMP item_icon_next
 }
 
 item_icon_hieroglyph_5 {
     PEA #$&pal_item_exprite+120
-    PEA #$&gfx_item_exprite+FC2
-    LDX #$&gfx_item_exprite+DC2
+    PEA #$&gfx_item_exprite+FC0
+    LDX #$&gfx_item_exprite+DC0
     JMP item_icon_next
 }
 
 item_icon_hieroglyph_6 {
     PEA #$&pal_item_exprite+120
-    PEA #$&gfx_item_exprite+1202
-    LDX #$&gfx_item_exprite+1002
+    PEA #$&gfx_item_exprite+1200
+    LDX #$&gfx_item_exprite+1000
     JMP item_icon_next
 }
 
 item_icon_aura {
     PEA #$&pal_item_exprite+80
-    PEA #$&gfx_item_exprite+1242
-    LDX #$&gfx_item_exprite+1042
+    PEA #$&gfx_item_exprite+1240
+    LDX #$&gfx_item_exprite+1040
     JMP item_icon_next
 }
 
 item_icon_lolas_letter {
     PEA #$&pal_item_exprite+120
-    PEA #$&gfx_item_exprite+1282
-    LDX #$&gfx_item_exprite+1082
+    PEA #$&gfx_item_exprite+1280
+    LDX #$&gfx_item_exprite+1080
     JMP item_icon_next
 }
 
 item_icon_fathers_journal {
     PEA #$&pal_item_exprite2
-    PEA #$&gfx_item_exprite+12C2
-    LDX #$&gfx_item_exprite+10C2
+    PEA #$&gfx_item_exprite+12C0
+    LDX #$&gfx_item_exprite+10C0
     JMP item_icon_next
 }
 
 item_icon_crystal_ring {
     PEA #$&pal_item_exprite2+40
-    PEA #$&gfx_item_exprite+1302
-    LDX #$&gfx_item_exprite+1102
+    PEA #$&gfx_item_exprite+1300
+    LDX #$&gfx_item_exprite+1100
     JMP item_icon_next
 }
 
 item_icon_apple {
     PEA #$&pal_item_exprite2+20
-    PEA #$&gfx_item_exprite+1342
-    LDX #$&gfx_item_exprite+1142
+    PEA #$&gfx_item_exprite+1340
+    LDX #$&gfx_item_exprite+1140
     JMP item_icon_next
 }
 

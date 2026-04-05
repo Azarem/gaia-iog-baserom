@@ -187,10 +187,10 @@ async function createBaseRomFile(baseRomId: string, file: DirectoryEntry) : Prom
   let data: Uint8Array | undefined;
   let isText: boolean = false;
 
-  let type = Object.values(db.fileTypes).find((value) => value.extension === file.extension)?.type;
-  if(!type) return null;
+  let typeEntry = Object.entries(db.fileTypes).find((value) => value[1].extension === file.extension);
+  if(!typeEntry) return null;
 
-  if(type === 'Assembly' || type === 'Patch') {
+  if(typeEntry[1].isBlock || typeEntry[1].isPatch) {
     text = await readFileAsText(file.path);
     crc = crc32_text_utf8(text);
     isText = true;
@@ -206,7 +206,7 @@ async function createBaseRomFile(baseRomId: string, file: DirectoryEntry) : Prom
       id,
       baseRomId,
       name: file.name,
-      type,
+      type: typeEntry[0],
       crc,
       data: data as Uint8Array<ArrayBuffer>,
       text,
