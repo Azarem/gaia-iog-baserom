@@ -42,7 +42,8 @@
         },
         "chunk_098000": {
             "parts": {
-                "actor_def_098000": { "start": 622592, "end": 645328, "type": "actor_def" }
+                "actor_def_098000": { "start": 622592, "end": 634433, "type": "actor_def" },
+                "widestring_09AE41": { "start": 634433, "end": 645328, "type": "WideString" }
             }
         },
         "chunk_0A8000": {

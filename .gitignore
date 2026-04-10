@@ -1,6 +1,7 @@
 node_modules
 dist
 extracted
+extracted-jp
 rebuilt
 package-lock.json
 .env
