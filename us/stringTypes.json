@@ -15,11 +15,11 @@
           "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z", "¥", "_", "{", "}", "¦",
           "=", ";", "\"", "Á", "á", "é", "í", "ó", "ú", "â", "ê", "ô", "ã", "õ", "ç", "à",
           " ", "˅", "Ḇ", "ṵ", "ṯ", "ō", "ṉ", "Ḛ", "ḛ", "ṟ", "˭", "Ĉ", "ā", "ĉ", "ḻ", "É",
-          "ḁ", "ṃ", "ḟ", "ḭ", null, null, null, null, null, null, null, null, "Í", "Ó", "Ú", "Â",
+          null, null, null, null, null, null, null, null, null, null, null, null, "Í", "Ó", "Ú", "Â",
           null, null, null, null, null, null, null, null, null, null, null, null, null, null, "Ê", "Ô",
-          "Ã", "Õ", "Ç", "À", null, null, null, null, null, null, null, null, null, null, null, null,
+          "Ã", "Õ", "Ç", "À", "ḁ", "ṃ", null, null, null, null, null, null, null, null, null, null,
           "☼", "○", "◦", "Ḣ", "Ṗ", "Ṡ", "Ṫ", "Ḋ", "Ḟ", "♥", null, null, null, null, null, null,
-          "ꝗ", "Ꝗ", null, null, "Ẋ", "Ẏ", "Ḃ", "Ạ", "⸔", null, null, null, null, null, null, null,
+          "ꝗ", "Ꝗ", "ḟ", "ḭ", "Ẋ", "Ẏ", "Ḃ", "Ạ", "⸔", null, null, null, null, null, null, null,
           "₀", "₁", "₂", "₃", "₄", "₅", "₆", "₇", "₈", "₉", null, null, null, null, null, null
         ]
       }
