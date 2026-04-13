@@ -111,7 +111,7 @@ diary_ngp_confirm {
     COP [E0]
 }
 
-diary_ngp_str     `[DLG:6,A][SIZ:A,5]Start Journey[N]Erase Trip Diary[N]Copy Trip Diary[N]Change Options[N]New Game Plus`
+diary_ngp_str     `[DLG:6,A][SIZ:A,5]Start Journey[N]Erase Trip Diary[N]Copy Trip Diary[N]Change Options[N]New Game +`
 
 --------------------------------------------------
 ?INCLUDE 'sFA_diary_menu'
