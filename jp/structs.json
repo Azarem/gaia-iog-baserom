@@ -1,0 +1,6 @@
+{
+  "map_name": {
+    "delimiter": 0,
+    "types": ["Byte", "&WideString"]
+  }
+}

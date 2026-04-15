@@ -27,7 +27,7 @@ import mnemonicsJP from '../us/mnemonics.json' with { type: 'json' };
 import overridesJP from '../jp/overrides.json' with { type: 'json' };
 import rewritesJP from '../jp/rewrites.json' with { type: 'json' };
 import stringsJP from '../jp/stringTypes.json' with { type: 'json' };
-import structsJP from '../us/structs.json' with { type: 'json' };
+import structsJP from '../jp/structs.json' with { type: 'json' };
 import transformsJP from '../jp/transforms.json' with { type: 'json' };
 import fileTypesJP from '../us/fileTypes.json' with { type: 'json' };
 
@@ -59,7 +59,7 @@ export const jp : DbGameRomModule = {
     groups: groupsJP as unknown as Record<string, Partial<DbGroup>>,
     labels: labelsJP, // as unknown as Record<number, string>,
     strings: stringsJP as unknown as Record<string, Partial<DbStringType>>,
-    structs: structsJP as unknown as Record<string, DbStruct>,
+    structs: { ...structs, ...structsJP } as unknown as Record<string, DbStruct>,
     transforms: transformsJP,
     config: configJP as unknown as DbConfig,
     fileTypes: fileTypesJP as unknown as Record<string, Partial<DbFileType>>,
@@ -124,7 +124,7 @@ if (isMainModule) {
                 case 'extract-jp':
                     console.log('Starting ROM extraction...');
                     console.log('ROM Path:', args[0]);
-                    console.log('Output Path:', args[1] || '../extracted');
+                    console.log('Output Path:', args[1] || '../extracted-jp');
                     await extractJP(args[0], args[1]);
                     console.log('ROM extraction completed successfully!');
                     break;

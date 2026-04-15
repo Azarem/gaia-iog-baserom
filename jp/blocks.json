@@ -17,7 +17,12 @@
         },
         "chunk_038000": {
             "parts": {
-                "code_038000": { "start": 229376, "end": 255682, "type": "Code" }
+                "code_038000": { "start": 229376, "end": 230350, "type": "Code" },
+                "word_0383CE": { "start": 230350, "end": 230408, "type": "Word" },
+                "code_038408": { "start": 230408, "end": 231080, "type": "Code" },
+                "code_0386A8": { "start": 231080, "end": 231755, "type": "Code" },
+                "widestring_03894B": { "start": 231755, "end": 231777, "type": "WideString" },
+                "code_038961": { "start": 231777, "end": 240319, "type": "Code" }
             }
         },
         "chunk_058000": {
@@ -82,6 +87,30 @@
         "scene_meta": {
             "parts": {
                 "scene_meta": { "start": 884736, "end": 896977, "type": "mapdef" }
+            }
+        },
+        "overworld_routes": {
+            "movable": true,
+            "scene": "world_map",
+            "parts": {
+                "overworld_routes": { "start": 240319, "end": 241436, "type": "&motion" }
+            }
+        },
+        "overworld_names": {
+            "scene": "world_map",
+            "parts": {
+                "overworld_names": { "start": 241436, "end": 241943, "type": "map_name" }
+            }
+        },
+        "overworld_options": {
+            "scene": "world_map",
+            "parts": {
+                "overworld_options": { "start": 241943, "end": 243677, "type": "&Code" }
+            }
+        },
+        "chunk_3B7DD": {
+            "parts": {
+                "code_3B7DD": { "start": 243677, "end": 255682, "type": "Code" }
             }
         }
     },

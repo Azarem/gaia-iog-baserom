@@ -122,6 +122,8 @@
       "DEF": { "id": 211, "types": [] },
       "SEP": { "id": 212, "types": [ "Byte", "Word" ] },
       "DLY": { "id": 213, "types": [ "Byte" ] },
+      "LU1": { "id": 214, "types": [ "Byte" ] },
+      "LU2": { "id": 215, "types": [ "Byte" ] },
       "ESC": { "id": 216, "types": [ "Binary" ], "delimiter": 0 },
       "BOR": { "id": 217, "types": [ "Byte" ] },
       "NAM": { "id": 218, "types": [ "Byte" ] }
@@ -129,6 +131,7 @@
     "dictionaries": {
       "dictionary_01EBA8": {
         "command": 214,
+        "commandName": "LU1",
         "entries": [
           "Attack ",
           "Angel ",
@@ -390,6 +393,7 @@
       },
       "dictionary_01F54D": {
         "command": 215,
+        "commandName": "LU2",
         "entries": [
           "1994 ",
           "Actually, ",
