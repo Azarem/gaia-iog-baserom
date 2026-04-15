@@ -347,6 +347,25 @@ loc_02A12C {
     RTL
 }
 
+loc_02A17E {
+    LDA [$3E], Y
+    CMP #$CA
+    BEQ loc_02A1A7
+    CMP #$E0
+    BCS loc_02A1A2
+    CMP #$C0
+    BCC loc_02A1A2
+    CMP #$CC
+    BNE loc_02A197
+    INY 
+    LDA [$3E], Y
+    INY 
+    CLC 
+    ADC $00
+    STA $00
+    BRA loc_02A17E
+}
+
 --------------------------------------------
 ?INCLUDE 'inventory_menu'
 --------------------------------------------
