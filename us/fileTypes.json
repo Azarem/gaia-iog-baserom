@@ -22,7 +22,9 @@
     "Spritemap": {
         "extension": "spm",
         "type": "Spritemap",
-        "compressed": true
+        "compressed": true,
+        "struct": "&sprite_set",
+        "base": 16384
     },
     "Music": {
         "extension": "bgm",
