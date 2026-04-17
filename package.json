@@ -33,7 +33,7 @@
         "rebuild-jp": "node src/index.ts rebuild-jp"
     },
     "dependencies": {
-        "@gaialabs/core": "^0.2.12"
+        "@gaialabs/core": "^0.2.13"
     },
     "devDependencies": {
         "@prisma/adapter-pg": "^7.6.0",

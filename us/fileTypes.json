@@ -20,7 +20,7 @@
         "compressed": true
     },
     "Spritemap": {
-        "extension": "spm",
+        "extension": "sprite.asm",
         "type": "Spritemap",
         "compressed": true,
         "struct": "&sprite_set",

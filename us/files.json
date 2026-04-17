@@ -390,7 +390,7 @@
             "gfx_credits_font": {"start":1385151,"end":1387308,"type":"Bitmap","compressed":true},
             "gfx_credits_actors3": {"start":1561584,"end":1572766,"type":"Bitmap","compressed":true},
             "gfx_credits_scenery": {"start":1605632,"end":1616749,"type":"Bitmap","compressed":true},
-            "spm_credits": {"start":1732031,"end":1733269,"type":"Spritemap","compressed":true},
+            "spm_credits": {"start":1732031,"end":1733269,"type":"Spritemap","compressed":true,"base":24576},
             "palette_1E094C": {"start":1968460,"end":1968748,"type":"Palette"},
             "palette_1E0A6C": {"start":1968748,"end":1969036,"type":"Palette"},
             "palette_1E0B8C": {"start":1969036,"end":1969324,"type":"Palette"},
