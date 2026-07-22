@@ -190,7 +190,7 @@ async function createBaseRomFile(baseRomId: string, file: DirectoryEntry) : Prom
   let typeEntry = Object.entries(db.fileTypes).find((value) => value[1].extension === file.extension);
   if(!typeEntry) return null;
 
-  if(typeEntry[1].isBlock || typeEntry[1].isPatch) {
+  if(typeEntry[1].isBlock || typeEntry[1].isPatch || typeEntry[1].struct) {
     text = await readFileAsText(file.path);
     crc = crc32_text_utf8(text);
     isText = true;

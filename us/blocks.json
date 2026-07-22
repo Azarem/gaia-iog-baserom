@@ -925,8 +925,8 @@
             "parts": {
                 "h_sFB_actor_0BC8BA": { "start": 772282, "end": 772285, "type": "h_actor" },
                 "e_sFB_actor_0BC8BA": { "start": 772285, "end": 772388, "type": "Code" },
-                "func_0BC896": { "start": 772246, "end": 772280, "order": 1, "type": "Code" },
-                "code_0BC8B8_noref": { "start": 772280, "end": 772282, "order": 1, "type": "Code" }
+                "func_0BC896": { "start": 772246, "end": 772280, "order": 772286, "type": "Code" },
+                "code_0BC8B8_noref": { "start": 772280, "end": 772282, "order": 772287, "type": "Code" }
             }
         },
         "sFC_actor_0BC924": {
@@ -979,13 +979,13 @@
                 "func_0BF261_noref": { "start": 782945, "end": 783014, "type": "Code" },
                 "func_0BF2A6": { "start": 783014, "end": 783348, "type": "Code" },
                 "table_0BF6AD": { "start": 784045, "end": 784051, "type": "&WideString" },
-                "widestring_0BF3F4": { "start": 783348, "end": 783931, "order": 1, "type": "WideString" },
-                "table_0BF63B": { "start": 783931, "end": 783975, "order": 1, "type": "&WideString" },
-                "table_0BF667": { "start": 783975, "end": 783993, "order": 1, "type": "&WideString" },
-                "widestring_0BF679": { "start": 783993, "end": 784036, "order": 1, "type": "WideString" },
-                "widestring_0BF6A4": { "start": 784036, "end": 784045, "order": 1, "type": "WideString" },
-                "widestring_0BF6B3": { "start": 784051, "end": 784089, "order": 1, "type": "WideString" },
-                "table_0BF6D9": { "start": 784089, "end": 784134, "order": 1, "type": "&WideString" }
+                "widestring_0BF3F4": { "start": 783348, "end": 783931, "order": 784046, "type": "WideString" },
+                "table_0BF63B": { "start": 783931, "end": 783975, "order": 784047, "type": "&WideString" },
+                "table_0BF667": { "start": 783975, "end": 783993, "order": 784048, "type": "&WideString" },
+                "widestring_0BF679": { "start": 783993, "end": 784036, "order": 784049, "type": "WideString" },
+                "widestring_0BF6A4": { "start": 784036, "end": 784045, "order": 784050, "type": "WideString" },
+                "widestring_0BF6B3": { "start": 784051, "end": 784089, "order": 784051, "type": "WideString" },
+                "table_0BF6D9": { "start": 784089, "end": 784134, "order": 784052, "type": "&WideString" }
             }
         },
         "inventory_menu": {
@@ -2428,8 +2428,8 @@
             "parts": {
                 "h_gs2B_erik": { "start": 364953, "end": 364956, "type": "h_actor" },
                 "e_gs2B_erik": { "start": 364956, "end": 365652, "type": "Code" },
-                "code_058598": { "start": 361880, "end": 361990, "order": 1, "type": "Code" },
-                "binary_058606": { "start": 361990, "end": 362028, "order": 1, "type": "Binary" }
+                "code_058598": { "start": 361880, "end": 361990, "order": 364957, "type": "Code" },
+                "binary_058606": { "start": 361990, "end": 362028, "order": 364958, "type": "Binary" }
             }
         },
         "gs2A_shira": {
@@ -2747,8 +2747,8 @@
             "parts": {
                 "h_wa78_moving_pad": { "start": 499614, "end": 499617, "type": "h_actor" },
                 "e_wa78_moving_pad": { "start": 499617, "end": 499852, "type": "Code" },
-                "e_actor_079E22": { "start": 499234, "end": 499575, "order": 1, "type": "Code" },
-                "sub_079F77": { "start": 499575, "end": 499614, "order": 1, "type": "Code" }
+                "e_actor_079E22": { "start": 499234, "end": 499575, "order": 499618, "type": "Code" },
+                "sub_079F77": { "start": 499575, "end": 499614, "order": 499619, "type": "Code" }
             }
         },
         "wa78_crazy_man": {
@@ -2837,7 +2837,7 @@
             "parts": {
                 "h_wa7F_lily": { "start": 504280, "end": 504283, "type": "h_actor" },
                 "e_wa7F_lily": { "start": 504283, "end": 504730, "type": "Code" },
-                "func_07B1CD": { "start": 504269, "end": 504280, "order": 1, "type": "Code" }
+                "func_07B1CD": { "start": 504269, "end": 504280, "order": 504284, "type": "Code" }
             }
         },
         "wa7A_lances_father": {
@@ -3085,7 +3085,7 @@
             "parts": {
                 "h_sE7_actor_0CEDC5": { "start": 847301, "end": 847304, "type": "h_actor" },
                 "e_sE7_actor_0CEDC5": { "start": 847304, "end": 847530, "type": "Code" },
-                "func_0CED4C": { "start": 847180, "end": 847301, "order": 1, "type": "Code" }
+                "func_0CED4C": { "start": 847180, "end": 847301, "order": 847305, "type": "Code" }
             }
         },
         "sE8_actor_0CEEAA": {
@@ -3095,13 +3095,13 @@
                 "h_sE8_actor_0CEEAA": { "start": 847530, "end": 847533, "type": "h_actor" },
                 "e_sE8_actor_0CEEAA": { "start": 847533, "end": 848457, "type": "Code" },
                 "sub_0CF249": { "start": 848457, "end": 848486, "type": "Code" },
-                "func_0CEC65": { "start": 846949, "end": 847159, "order": 1, "type": "Code" },
-                "func_0CED37": { "start": 847159, "end": 847166, "order": 1, "type": "Code" },
-                "func_0CED3E": { "start": 847166, "end": 847173, "order": 1, "type": "Code" },
-                "func_0CED45": { "start": 847173, "end": 847180, "order": 1, "type": "Code" },
-                "func_0CF266": { "start": 848486, "end": 849182, "order": 1, "type": "Code" },
-                "func_0CF51E": { "start": 849182, "end": 849391, "order": 1, "type": "Code" },
-                "func_0CF5EF": { "start": 849391, "end": 849439, "order": 1, "type": "Code" }
+                "func_0CEC65": { "start": 846949, "end": 847159, "order": 848458, "type": "Code" },
+                "func_0CED37": { "start": 847159, "end": 847166, "order": 848459, "type": "Code" },
+                "func_0CED3E": { "start": 847166, "end": 847173, "order": 848460, "type": "Code" },
+                "func_0CED45": { "start": 847173, "end": 847180, "order": 848461, "type": "Code" },
+                "func_0CF266": { "start": 848486, "end": 849182, "order": 848462, "type": "Code" },
+                "func_0CF51E": { "start": 849182, "end": 849391, "order": 848463, "type": "Code" },
+                "func_0CF5EF": { "start": 849391, "end": 849439, "order": 848464, "type": "Code" }
             }
         }
     },
@@ -3597,7 +3597,7 @@
             "parts": {
                 "h_av6A_lance": { "start": 441327, "end": 441330, "type": "h_actor" },
                 "e_av6A_lance": { "start": 441330, "end": 442362, "type": "Code" },
-                "av6A_lance_destroy": { "start": 441080, "end": 441082, "order": 1, "type": "Code" }
+                "av6A_lance_destroy": { "start": 441080, "end": 441082, "order": 441331, "type": "Code" }
             }
         },
         "av69_neil": {
@@ -3614,7 +3614,7 @@
             "parts": {
                 "h_av6A_neil": { "start": 442424, "end": 442427, "type": "h_actor" },
                 "e_av6A_neil": { "start": 442427, "end": 442802, "type": "Code" },
-                "av6A_neil_destroy": { "start": 442422, "end": 442424, "order": 1, "type": "Code" }
+                "av6A_neil_destroy": { "start": 442422, "end": 442424, "order": 442428, "type": "Code" }
             }
         },
         "av69_lily": {
@@ -3631,7 +3631,7 @@
             "parts": {
                 "h_av6A_lily": { "start": 443022, "end": 443025, "type": "h_actor" },
                 "e_av6A_lily": { "start": 443025, "end": 443208, "type": "Code" },
-                "av6A_lily_destroy": { "start": 442914, "end": 442916, "order": 1, "type": "Code" }
+                "av6A_lily_destroy": { "start": 442914, "end": 442916, "order": 443026, "type": "Code" }
             }
         },
         "av69_kara": {
@@ -3649,8 +3649,8 @@
             "parts": {
                 "h_av6A_kara": { "start": 443266, "end": 443269, "type": "h_actor" },
                 "e_av6A_kara": { "start": 443269, "end": 443313, "type": "Code" },
-                "av6A_kara_destroy": { "start": 443264, "end": 443266, "order": 1, "type": "Code" },
-                "widestring_06C417": { "start": 443415, "end": 443498, "order": 1, "type": "WideString" }
+                "av6A_kara_destroy": { "start": 443264, "end": 443266, "order": 443270, "type": "Code" },
+                "widestring_06C417": { "start": 443415, "end": 443498, "order": 443271, "type": "WideString" }
             }
         },
         "av69_erik": {
@@ -3667,7 +3667,7 @@
             "parts": {
                 "h_av6A_erik": { "start": 443577, "end": 443580, "type": "h_actor" },
                 "e_av6A_erik": { "start": 443580, "end": 444122, "type": "Code" },
-                "av6A_erik_destroy": { "start": 443575, "end": 443577, "order": 1, "type": "Code" }
+                "av6A_erik_destroy": { "start": 443575, "end": 443577, "order": 443581, "type": "Code" }
             }
         },
         "av6B_ocean_ache": {
@@ -3959,7 +3959,7 @@
             "parts": {
                 "h_sF7_actor_09DFF8": { "start": 647160, "end": 647163, "type": "h_actor" },
                 "e_sF7_actor_09DFF8": { "start": 647163, "end": 647499, "type": "Code" },
-                "e_actor_09DDA7": { "start": 646567, "end": 647160, "order": 1, "type": "Code" }
+                "e_actor_09DDA7": { "start": 646567, "end": 647160, "order": 647164, "type": "Code" }
             }
         },
         "sF7_actor_09E26C": {
@@ -3968,7 +3968,7 @@
             "parts": {
                 "h_sF7_actor_09E26C": { "start": 647788, "end": 647791, "type": "h_actor" },
                 "e_sF7_actor_09E26C": { "start": 647791, "end": 647962, "type": "Code" },
-                "e_actor_09E14B": { "start": 647499, "end": 647788, "order": 1, "type": "Code" }
+                "e_actor_09E14B": { "start": 647499, "end": 647788, "order": 647792, "type": "Code" }
             }
         },
         "sF7_actor_09E3EB": {
@@ -3977,7 +3977,7 @@
             "parts": {
                 "h_sF7_actor_09E3EB": { "start": 648171, "end": 648174, "type": "h_actor" },
                 "e_sF7_actor_09E3EB": { "start": 648174, "end": 648292, "type": "Code" },
-                "e_actor_09E31A": { "start": 647962, "end": 648171, "order": 1, "type": "Code" }
+                "e_actor_09E31A": { "start": 647962, "end": 648171, "order": 648175, "type": "Code" }
             }
         },
         "sF7_actor_09E4DD": {
@@ -3986,7 +3986,7 @@
             "parts": {
                 "h_sF7_actor_09E4DD": { "start": 648413, "end": 648416, "type": "h_actor" },
                 "e_sF7_actor_09E4DD": { "start": 648416, "end": 648504, "type": "Code" },
-                "e_actor_09E464": { "start": 648292, "end": 648413, "order": 1, "type": "Code" }
+                "e_actor_09E464": { "start": 648292, "end": 648413, "order": 648417, "type": "Code" }
             }
         },
         "sF7_actor_09E591": {
@@ -3995,7 +3995,7 @@
             "parts": {
                 "h_sF7_actor_09E591": { "start": 648593, "end": 648596, "type": "h_actor" },
                 "e_sF7_actor_09E591": { "start": 648596, "end": 648670, "type": "Code" },
-                "e_actor_09E538": { "start": 648504, "end": 648593, "order": 1, "type": "Code" }
+                "e_actor_09E538": { "start": 648504, "end": 648593, "order": 648597, "type": "Code" }
             }
         },
         "sF7_actor_09E607": {
@@ -4004,7 +4004,7 @@
             "parts": {
                 "h_sF7_actor_09E607": { "start": 648711, "end": 648714, "type": "h_actor" },
                 "e_sF7_actor_09E607": { "start": 648714, "end": 648751, "type": "Code" },
-                "func_09E5DE": { "start": 648670, "end": 648711, "order": 1, "type": "Code" }
+                "func_09E5DE": { "start": 648670, "end": 648711, "order": 648715, "type": "Code" }
             }
         },
         "misc_actors_09E64B": {
@@ -4232,7 +4232,7 @@
             "parts": {
                 "h_ir1D_monologue": { "start": 643115, "end": 643118, "type": "h_actor" },
                 "e_ir1D_monologue": { "start": 643118, "end": 643317, "type": "Code" },
-                "widestring_05F8F7": { "start": 391415, "end": 391580, "order": 1, "type": "WideString" }
+                "widestring_05F8F7": { "start": 391415, "end": 391580, "order": 643119, "type": "WideString" }
             }
         },
         "ir26_statue": {
@@ -4680,7 +4680,7 @@
                 "e_nvAC_staring_man1": { "start": 560777, "end": 561032, "type": "Code" },
                 "h_nvAC_staring_man2": { "start": 561756, "end": 561759, "type": "h_actor" },
                 "e_nvAC_staring_man2": { "start": 561759, "end": 561826, "type": "Code" },
-                "nvAC_staring_man2_destroy": { "start": 560324, "end": 560326, "order": 1, "type": "Code" }
+                "nvAC_staring_man2_destroy": { "start": 560324, "end": 560326, "order": 561760, "type": "Code" }
             }
         },
         "nvAC_map_kid": {
@@ -4790,7 +4790,7 @@
             "parts": {
                 "h_mtA5_actor_07E843": { "start": 518211, "end": 518214, "type": "h_actor" },
                 "e_mtA5_actor_07E843": { "start": 518214, "end": 518294, "type": "Code" },
-                "f_mtA5_actor_07E843_destroy": { "start": 518209, "end": 518211, "order": 1, "type": "Code" }
+                "f_mtA5_actor_07E843_destroy": { "start": 518209, "end": 518211, "order": 518215, "type": "Code" }
             }
         },
         "mtA5_actor_07E896": {
@@ -4799,7 +4799,7 @@
             "parts": {
                 "h_mtA5_actor_07E896": { "start": 518294, "end": 518297, "type": "h_actor" },
                 "e_mtA5_actor_07E896": { "start": 518297, "end": 518401, "type": "Code" },
-                "f_mtA5_actor_07E896_destroy": { "start": 518209, "end": 518211, "order": 1, "type": "Code" }
+                "f_mtA5_actor_07E896_destroy": { "start": 518209, "end": 518211, "order": 518298, "type": "Code" }
             }
         },
         "mtA1_fire_sprite": {
@@ -5134,8 +5134,8 @@
             "parts": {
                 "h_dc31_kara": { "start": 372613, "end": 372616, "type": "h_actor" },
                 "e_dc31_kara": { "start": 372616, "end": 372766, "type": "Code" },
-                "widestring_05ADAE": { "start": 372142, "end": 372387, "order": 1, "type": "WideString" },
-                "widestring_05AF2F": { "start": 372527, "end": 372613, "order": 1, "type": "WideString" }
+                "widestring_05ADAE": { "start": 372142, "end": 372387, "order": 372617, "type": "WideString" },
+                "widestring_05AF2F": { "start": 372527, "end": 372613, "order": 372618, "type": "WideString" }
             }
         },
         "fr32_actor_05B01E": {
@@ -5416,8 +5416,8 @@
             "parts": {
                 "h_fr39_lily": { "start": 378291, "end": 378294, "type": "h_actor" },
                 "e_fr39_lily": { "start": 378294, "end": 378750, "type": "Code" },
-                "h_fr39_kara": { "start": 377942, "end": 377945, "order": 1, "type": "h_actor" },
-                "e_fr39_kara": { "start": 377945, "end": 378291, "order": 1, "type": "Code" }
+                "h_fr39_kara": { "start": 377942, "end": 377945, "order": 378294, "type": "h_actor" },
+                "e_fr39_kara": { "start": 377945, "end": 378291, "order": 378295, "type": "Code" }
             }
         },
         "fr39_lance": {
@@ -5908,7 +5908,7 @@
                 "func_0AC48F": { "start": 705679, "end": 705798, "type": "Code" },
                 "sub_0AC506": { "start": 705798, "end": 705824, "type": "Code" },
                 "sub_0ADD59": { "start": 712025, "end": 712038, "type": "Code" },
-                "code_0AD9D2": { "start": 711122, "end": 711250, "order": 1, "type": "Code" }
+                "code_0AD9D2": { "start": 711122, "end": 711250, "order": 712026, "type": "Code" }
             }
         },
         "sg4D_dynapede": {
@@ -6567,7 +6567,7 @@
             "parts": {
                 "h_sc02_seth": { "start": 308309, "end": 308312, "type": "h_actor" },
                 "e_sc02_seth": { "start": 308312, "end": 309425, "type": "Code" },
-                "e_sc02_actor_04B051": { "start": 307281, "end": 307298, "order": 1, "type": "Code" }
+                "e_sc02_actor_04B051": { "start": 307281, "end": 307298, "order": 308313, "type": "Code" }
             }
         },
         "sc02_erik": {
@@ -6626,7 +6626,7 @@
             "parts": {
                 "h_dm47_remus": { "start": 381274, "end": 381277, "type": "h_actor" },
                 "e_dm47_remus": { "start": 381277, "end": 381475, "type": "Code" },
-                "dm47_remus_destroy": { "start": 381117, "end": 381119, "order": 1, "type": "Code" }
+                "dm47_remus_destroy": { "start": 381117, "end": 381119, "order": 381278, "type": "Code" }
             }
         },
         "dm47_sam": {
@@ -6635,7 +6635,7 @@
             "parts": {
                 "h_dm47_sam": { "start": 381475, "end": 381478, "type": "h_actor" },
                 "e_dm47_sam": { "start": 381478, "end": 382110, "type": "Code" },
-                "dm47_sam_destroy": { "start": 381117, "end": 381119, "order": 1, "type": "Code" }
+                "dm47_sam_destroy": { "start": 381117, "end": 381119, "order": 381479, "type": "Code" }
             }
         },
         "dm_actor_05D49E": {
@@ -7411,7 +7411,7 @@
             "parts": {
                 "h_eu9A_max": { "start": 517782, "end": 517785, "type": "h_actor" },
                 "e_eu9A_max": { "start": 517785, "end": 517907, "type": "Code" },
-                "eu9A_max_destroy": { "start": 517654, "end": 517656, "order": 1, "type": "Code" }
+                "eu9A_max_destroy": { "start": 517654, "end": 517656, "order": 517786, "type": "Code" }
             }
         },
         "eu9A_rudy": {
@@ -7420,7 +7420,7 @@
             "parts": {
                 "h_eu9A_rudy": { "start": 517907, "end": 517910, "type": "h_actor" },
                 "e_eu9A_rudy": { "start": 517910, "end": 517981, "type": "Code" },
-                "eu9A_rudy_destroy": { "start": 517654, "end": 517656, "order": 1, "type": "Code" }
+                "eu9A_rudy_destroy": { "start": 517654, "end": 517656, "order": 517911, "type": "Code" }
             }
         }
     },
@@ -7472,8 +7472,8 @@
                 "h_pyCD_jackal": { "start": 571422, "end": 571425, "type": "h_actor" },
                 "e_pyCD_jackal": { "start": 571425, "end": 572575, "type": "Code" },
                 "widestring_08BC9F": { "start": 572575, "end": 572720, "type": "WideString" },
-                "func_08B7E8": { "start": 571368, "end": 571396, "order": 1, "type": "Code" },
-                "func_08B804": { "start": 571396, "end": 571422, "order": 1, "type": "Code" }
+                "func_08B7E8": { "start": 571368, "end": 571396, "order": 572576, "type": "Code" },
+                "func_08B804": { "start": 571396, "end": 571422, "order": 572577, "type": "Code" }
             }
         },
         "pyCD_kara": {
@@ -7550,7 +7550,7 @@
             "parts": {
                 "h_pyDA_lithograph2": { "start": 575564, "end": 575567, "type": "h_actor" },
                 "e_pyDA_lithograph2": { "start": 575567, "end": 575732, "type": "Code" },
-                "pyDA_lithograph2_full": { "start": 575429, "end": 575433, "order": 1, "type": "Code" }
+                "pyDA_lithograph2_full": { "start": 575429, "end": 575433, "order": 575568, "type": "Code" }
             }
         },
         "pyDA_lithograph3": {
@@ -7559,7 +7559,7 @@
             "parts": {
                 "h_pyDA_lithograph3": { "start": 575732, "end": 575735, "type": "h_actor" },
                 "e_pyDA_lithograph3": { "start": 575735, "end": 575900, "type": "Code" },
-                "pyDA_lithograph3_full": { "start": 575429, "end": 575433, "order": 1, "type": "Code" }
+                "pyDA_lithograph3_full": { "start": 575429, "end": 575433, "order": 575736, "type": "Code" }
             }
         },
         "pyDA_lithograph4": {
@@ -7568,7 +7568,7 @@
             "parts": {
                 "h_pyDA_lithograph4": { "start": 575900, "end": 575903, "type": "h_actor" },
                 "e_pyDA_lithograph4": { "start": 575903, "end": 576068, "type": "Code" },
-                "pyDA_lithograph4_full": { "start": 575429, "end": 575433, "order": 1, "type": "Code" }
+                "pyDA_lithograph4_full": { "start": 575429, "end": 575433, "order": 575904, "type": "Code" }
             }
         },
         "pyDA_lithograph5": {
@@ -7577,7 +7577,7 @@
             "parts": {
                 "h_pyDA_lithograph5": { "start": 576068, "end": 576071, "type": "h_actor" },
                 "e_pyDA_lithograph5": { "start": 576071, "end": 576236, "type": "Code" },
-                "pyDA_lithograph5_full": { "start": 575429, "end": 575433, "order": 1, "type": "Code" }
+                "pyDA_lithograph5_full": { "start": 575429, "end": 575433, "order": 576072, "type": "Code" }
             }
         },
         "pyDA_lithograph6": {
@@ -7586,7 +7586,7 @@
             "parts": {
                 "h_pyDA_lithograph6": { "start": 576236, "end": 576239, "type": "h_actor" },
                 "e_pyDA_lithograph6": { "start": 576239, "end": 576404, "type": "Code" },
-                "pyDA_lithograph6_full": { "start": 575429, "end": 575433, "order": 1, "type": "Code" }
+                "pyDA_lithograph6_full": { "start": 575429, "end": 575433, "order": 576240, "type": "Code" }
             }
         },
         "pyCD_puzzle": {
@@ -7595,7 +7595,7 @@
             "parts": {
                 "h_pyCD_puzzle": { "start": 576410, "end": 576413, "type": "h_actor" },
                 "e_pyCD_puzzle": { "start": 576413, "end": 576876, "type": "Code" },
-                "binary_08CB94": { "start": 576404, "end": 576410, "order": 1, "type": "Binary" }
+                "binary_08CB94": { "start": 576404, "end": 576410, "order": 576414, "type": "Binary" }
             }
         },
         "pyCC_portal": {

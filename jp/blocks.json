@@ -9,6 +9,99 @@
                 "code_00875C": { "start": 34652, "end": 62851, "type": "Code" }
             }
         },
+        "table_018000": {
+            "parts": {
+                "table_018000": { "start": 98304, "end": 98844, "type": "&unk7" }
+            }
+        },
+        "scene_warps": {
+            "parts": {
+                "scene_warps": { "start": 98844, "end": 108870, "type": "&warp_def" }
+            }
+        },
+        "table_01A946": {
+            "parts": {
+                "table_01A946": { "start": 108870, "end": 109254, "type": "&Binary" }
+            }
+        },
+        "reward_table": {
+            "parts": {
+                "reward_table": { "start": 109254, "end": 109510, "type": "Byte" }
+            }
+        },
+        "dir_sprite_table": {
+            "parts": {
+                "dir_sprite_table": { "start": 109510, "end": 109528, "type": "dir_sprite" }
+            }
+        },
+        "stats_table": {
+            "parts": {
+                "stats_table": { "start": 109528, "end": 109968, "type": "stats" }
+            }
+        },
+        "table_01AD90": {
+            "parts": {
+                "table_01AD90": { "start": 109968, "end": 110702, "type": "&Binary" }
+            }
+        },
+        "table_01B06E": {
+            "parts": {
+                "table_01B06E": { "start": 110702, "end": 115564, "type": "&unk8" }
+            }
+        },
+        "binary_01C36C": {
+            "parts": {
+                "binary_01C36C": { "start": 115564, "end": 115773, "type": "Byte" },
+                "binary_01C43D": { "start": 115773, "end": 115837, "type": "Byte" },
+                "binary_01C47D": { "start": 115837, "end": 116093, "type": "Byte" },
+                "binary_01C57D": { "start": 116093, "end": 116349, "type": "Word" },
+                "binary_01C67D": { "start": 116349, "end": 116605, "type": "Word" },
+                "binary_01C77D": { "start": 116605, "end": 117117, "type": "Word" },
+                "binary_01C97D": { "start": 117117, "end": 117373, "type": "Word" }
+            }
+        },
+        "string_templates": {
+            "parts": {
+                "string_templates": { "start": 117373, "end": 117655, "type": "&WideString" }
+            }
+        },
+        "music_array": {
+            "parts": {
+                "music_array": { "start": 117655, "end": 117745, "type": "@Binary" }
+            }
+        },
+        "parallax_table": {
+            "parts": {
+                "parallax_table": { "start": 117745, "end": 119799, "type": "&Binary" }
+            }
+        },
+        "array_01D3F7": {
+            "parts": {
+                "array_01D3F7": { "start": 119799, "end": 121063, "type": "unk15" }
+            }
+        },
+        "binary_01D8E7": {
+            "parts": {
+                "binary_01D8E7": { "start": 121063, "end": 121127, "type": "Byte" },
+                "binary_01D927": { "start": 121127, "end": 121140, "type": "Byte" },
+                "array_01D934": { "start": 121140, "end": 121242, "type": "unk17" }
+            }
+        },
+        "body_table": {
+            "parts": {
+                "body_table": { "start": 121242, "end": 121296, "type": "unk14" }
+            }
+        },
+        "table_01D9D0": {
+            "parts": {
+                "table_01D9D0": { "start": 121296, "end": 121320, "type": "&Binary" }
+            }
+        },
+        "table_01D9E8": {
+            "parts": {
+                "table_01D9E8": { "start": 121320, "end": 121345, "type": "&Binary" }
+            }
+        },
         "chunk_028000": {
             "parts": {
                 "code_028000": { "start": 163840, "end": 176276, "type": "Code" },
@@ -56,6 +149,11 @@
                 "actor_def_0A8000": { "start": 688128, "end": 720263, "type": "actor_def" }
             }
         },
+        "table_0EE000": {
+            "parts": {
+                "table_0EE000": { "start": 974848, "end": 982479, "type": "&sprite_set" }
+            }
+        },
         "chunk_0B8000": {
             "parts": {
                 "actor_def_0B8000": { "start": 753664, "end": 785008, "type": "actor_def" }
@@ -65,11 +163,6 @@
             "parts": {
                 "h_parallax_thinker": { "start": 47867, "end": 47869, "type": "h_actor" },
                 "e_parallax_thinker": { "start": 47869, "end": 48638, "type": "Code" }
-            }
-        },
-        "parallax_table": {
-            "parts": {
-                "parallax_table": { "start": 117745, "end": 119799, "type": "&Binary" }
             }
         },
         "scene_actors": {
@@ -793,6 +886,90 @@
             "scene": "inca_entryway",
             "parts": { 
                 "h_ir25_block_slot": { "start": 327114, "end": 327142, "type": "actor_def" }
+            }
+        },
+        "ir1F_gold_tile": {
+            "movable": true,
+            "scene": "stone_lord_plates",
+            "parts": {
+                "h_ir1F_gold_tile": { "start": 360448, "end": 360611, "type": "actor_def" }
+            }
+        },
+        "ir1F_actor_09C489": {
+            "movable": true,
+            "scene": "stone_lord_plates",
+            "parts": {
+                "h_ir1F_actor_09C489": { "start": 360611, "end": 360652, "type": "actor_def" }
+            }
+        },
+        "ir1E_actor_09C4B2": {
+            "movable": true,
+            "scene": "larai_cliff_back",
+            "parts": {
+                "h_ir1E_actor_09C4B2": { "start": 360652, "end": 360807, "type": "actor_def" }
+            }
+        },
+        "ir1E_actor_09C54D": {
+            "movable": true,
+            "scene": "larai_cliff_back",
+            "parts": {
+                "h_ir1E_actor_09C54D": { "start": 360807, "end": 360829, "type": "actor_def" }
+            }
+        },
+        "ir1E_actor_09C563": {
+            "movable": true,
+            "scene": "larai_cliff_back",
+            "parts": {
+                "h_ir1E_actor_09C563": { "start": 360829, "end": 360851, "type": "actor_def" }
+            }
+        },
+        "ir1D_wind_melody": {
+            "movable": true,
+            "scene": "larai_cliff",
+            "parts": {
+                "h_ir1D_wind_melody": { "start": 360851, "end": 361072, "type": "actor_def" }
+            }
+        },
+        "ir24_glowing_tile": {
+            "movable": true,
+            "scene": "inca_plate_room",
+            "parts": {
+                "h_ir24_glowing_tile": { "start": 361072, "end": 361131, "type": "actor_def" }
+            }
+        },
+        "ir28_actor_09C6A9": {
+            "movable": true,
+            "scene": "ceiling_trap_room",
+            "parts": {
+                "h_ir28_actor_09C6A9": { "start": 361131, "end": 361370, "type": "actor_def" }
+            }
+        },
+        "ir26_bones": {
+            "movable": true,
+            "scene": "inca_treasure_room",
+            "parts": {
+                "h_ir26_bones": { "start": 361370, "end": 361566, "type": "actor_def" }
+            }
+        },
+        "ir28_bones": {
+            "movable": true,
+            "scene": "ceiling_trap_room",
+            "parts": {
+                "h_ir28_bones": { "start": 361566, "end": 361655, "type": "actor_def" }
+            }
+        },
+        "ir26_journal_bones": {
+            "movable": true,
+            "scene": "inca_treasure_room",
+            "parts": {
+                "h_ir26_journal_bones": { "start": 361655, "end": 361933, "type": "actor_def" }
+            }
+        },
+        "ir1C_lily": {
+            "movable": true,
+            "scene": "incan_ruins_entrance",
+            "parts": {
+                "h_ir1C_lily": { "start": 361933, "end": 363165, "type": "actor_def" }
             }
         }
     }
