@@ -1,7 +1,11 @@
+import { fileURLToPath } from 'url';
+import { dirname, join, resolve } from 'path';
 import { DbBlock, DbFile, DbGroup, DbStringType, DbStruct, CopDef, DbFileType } from '@gaialabs/core';
 import { DbRootUtils } from '@gaialabs/core';
 import type { DbAddressingMode, DbConfig, DbGameRomModule } from '@gaialabs/core';
 import { snes } from '@gaialabs/core';
+
+const __pkgRoot = join(dirname(fileURLToPath(import.meta.url)), '..');
 
 import config from '../us/config.json' with { type: 'json' };
 import blocks from '../us/blocks.json' with { type: 'json' };
@@ -68,6 +72,7 @@ export const jp : DbGameRomModule = {
 };
 
 export async function extract(romPath: string, outPath: string) {
+    if (!romPath) romPath = process.env.ROM_PATH;
     if(!outPath) outPath = './extracted';
 
     var dbRoot = DbRootUtils.fromGameModule(db);
@@ -76,6 +81,7 @@ export async function extract(romPath: string, outPath: string) {
 }
 
 export async function extractJP(romPath: string, outPath: string) {
+    if (!romPath) romPath = process.env.ROM_PATH_JP;
     if(!outPath) outPath = './extracted-jp';
 
     var dbRoot = DbRootUtils.fromGameModule(jp);
@@ -83,24 +89,24 @@ export async function extractJP(romPath: string, outPath: string) {
     await DbRootUtils.extractAllContent(dbRoot, romPath, outPath);
 }
 
-export async function rebuild(inPath: string, outPath: string, baseRomPath: string) {
+export async function rebuild(inPath: string, outPath: string, baseRomPath: string, modulePaths?: string[]) {
     if(!inPath) inPath = './extracted';
     if(!outPath) outPath = './rebuilt';
-    if(!baseRomPath) baseRomPath = './baserom';
+    if(!baseRomPath) baseRomPath = join(__pkgRoot, 'baserom');
     
     var dbRoot = DbRootUtils.fromGameModule(db);
 
-    await DbRootUtils.rebuildAllContent(dbRoot, [inPath, baseRomPath], `${outPath}/GaiaLabs.smc`);
+    await DbRootUtils.rebuildAllContent(dbRoot, [inPath, baseRomPath, ...(modulePaths || [])], `${outPath}/GaiaLabs.smc`);
 }
 
-export async function rebuildJp(inPath: string, outPath: string, baseRomPath: string) {
+export async function rebuildJp(inPath: string, outPath: string, baseRomPath: string, modulePaths?: string[]) {
     if(!inPath) inPath = './extracted-jp';
     if(!outPath) outPath = './rebuilt-jp';
-    if(!baseRomPath) baseRomPath = './baserom-jp';
+    if(!baseRomPath) baseRomPath = join(__pkgRoot, 'baserom-jp');
     
-    var dbRoot = DbRootUtils.fromGameModule(db);
+    var dbRoot = DbRootUtils.fromGameModule(jp);
 
-    await DbRootUtils.rebuildAllContent(dbRoot, [inPath, baseRomPath], `${outPath}/GaiaLabs.smc`);
+    await DbRootUtils.rebuildAllContent(dbRoot, [inPath, baseRomPath, ...(modulePaths || [])], `${outPath}/GaiaLabs.smc`);
 }
 
 // CLI handler - only execute when run directly (not when imported as a module)

@@ -36,9 +36,9 @@ e_epilogue_thinker {
 ------------------------------------------
 
 thinker_0CEA9B [
-  thinker < #74, @h_thinker_00B520 >   ;00
-  thinker < #00, @h_thinker_00BCDF >   ;01
-  thinker < #00, @h_thinker_00BCB3 >   ;02
+  thinker < #74, @thinker_00B520 >   ;00
+  thinker < #00, @thinker_00BCDF >   ;01
+  thinker < #00, @thinker_00BCB3 >   ;02
   thinker < #24, @h_parallax_thinker >   ;03
   thinker < #00, @h_epilogue_thinker >   ;04
 ]

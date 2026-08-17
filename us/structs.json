@@ -180,7 +180,8 @@
     "delimiter": 0,
     "types": ["Byte", "&sc_data"]
   },
-  "sc_data": { "delimiter": 255, "types": ["Byte", "Byte", "Byte", "Byte", "Byte", "Byte"] },
-  "thinker_def": { "types": ["Byte", "Byte", "Code" ] },
-  "actor_def": { "types": ["Byte", "Byte", "Byte", "Code" ] }
+  "sc_data": { "delimiter": 255, "types": [ "Byte", "Byte", "Byte", "Byte", "Byte", "Byte"] },
+  "thinker_def": { "types": [ "Byte", "Byte", "Code" ] },
+  "actor_def": { "types": [ "Byte", "Byte", "Byte", "Code" ] },
+  "unk18": { "types": [ "Byte", "Byte" ] }
 }

@@ -27,13 +27,13 @@
         "clean": "rm -rf dist",
         "clean-install": "rm -rf node_modules && rm -rf package-lock.json && npm install",
         "publish": "tsdown && npm publish --access public",
-        "extract": "node src/index.ts extract",
-        "extract-jp": "node src/index.ts extract-jp",
+        "extract": "rm -rf extracted && node --env-file=.env.local src/index.ts extract",
+        "extract-jp": "rm -rf extracted-jp && node --env-file=.env.local src/index.ts extract-jp",
         "rebuild": "node src/index.ts rebuild",
         "rebuild-jp": "node src/index.ts rebuild-jp"
     },
     "dependencies": {
-        "@gaialabs/core": "0.2.14"
+        "@gaialabs/core": "0.2.20"
     },
     "devDependencies": {
         "@prisma/adapter-pg": "^7.6.0",

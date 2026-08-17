@@ -215,12 +215,12 @@
   ],
   "scene_actors": [
     {
-      "key": "actor < #08, #0C, #03, @h_hidden_red_jewel >",
+      "key": "actor < #08, #0C, #03, @hidden_red_jewel >",
       "value": "$&\r\n    actor < #0C, #2F, #00, @SouthCapeDeliveryman >"
     },
     {
-      "key": "actor < #12, #38, #11, @h_hidden_red_jewel >",
-      "value": "$&\r\n    actor < #14, #23, #07, @h_wa78_men >"
+      "key": "actor < #12, #38, #11, @hidden_red_jewel >",
+      "value": "$&\r\n    actor < #14, #23, #07, @wa78_men >"
     }
   ],
   "scene_meta": [

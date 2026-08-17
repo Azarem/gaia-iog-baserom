@@ -501,7 +501,7 @@ unk7_0181D0 [
 ------------------------------------------------------
 ;Force flying scene  flag 4000
 
-h_sp58_actor_068111 [
+sp58_actor_068111 [
   h_actor < #00, #02, #18 >
     LDA #$4000
     TSB $09EC
@@ -513,7 +513,7 @@ h_sp58_actor_068111 [
 ------------------------------------------------------
 ;Force plane crash scene flag 4000
 
-h_s59_actor_03A0AA [
+s59_actor_03A0AA [
   h_actor < #00, #00, #18 >
     LDA #$4000
     TSB $09EC
@@ -524,7 +524,7 @@ h_s59_actor_03A0AA [
 ------------------------------------------------------
 ;Force babel flying scene flag 4000
 
-h_btDC_plane_jumping [
+btDC_plane_jumping [
   h_actor < #06, #00, #18 >
     LDA #$4000
     TSB $09EC
