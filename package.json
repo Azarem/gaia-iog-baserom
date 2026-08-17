@@ -1,6 +1,6 @@
 {
     "name": "@gaialabs/iog-baserom",
-    "version": "0.1.1",
+    "version": "0.1.2",
     "type": "module",
     "description": "GaiaLabs IOG Base ROM",
     "funding": "https://github.com/sponsors/Azarem",
