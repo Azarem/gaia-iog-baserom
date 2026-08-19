@@ -1,34 +1,35 @@
 ﻿?BANK 02
 
 ?INCLUDE 'chunk_028000'
+?INCLUDE 'scene_meta'
 
 !scene_current                  0644
 
 ----------------------------------------
 
-meta_jump_table:
-  &loc_028D44
-  #$0000
-  &loc_028D83
-  &loc_028D7D
-  &loc_028D7E
-  &loc_028D7D
-  &loc_028D80
-  #$0000
-  #$0000
-  #$0000
-  #$0000
-  #$0000
-  #$0000
-  #$0000
-  &loc_028D81
-  #$0000
-  &loc_028D7E  ;10
-  &loc_028D7F
-  &loc_028D8D
-  &loc_028D82
-  &loc_028D86
-  &loc_028D83
+;meta_jump_table:
+;  &loc_028D44
+;  #$0000
+;  &loc_028D83
+;  &loc_028D7D
+;  &loc_028D7E
+;  &loc_028D7D
+;  &loc_028D80
+;  #$0000
+;  #$0000
+;  #$0000
+;  #$0000
+;  #$0000
+;  #$0000
+;  #$0000
+;  &loc_028D81
+;  #$0000
+;  &loc_028D7E  ;10
+;  &loc_028D7F
+;  &loc_028D8D
+;  &loc_028D82
+;  &loc_028D86
+;  &loc_028D83
 
 
 --------------------------------
@@ -57,34 +58,45 @@ sub_028CF2 {
 }
 
 -----------------------------------------
+;Utilize the new label jump table
 
 func_028D3D {
     JSR $&sub_028CE7
-    PHX
-    PHA 
     REP #$20
-    LDA [$3A]
+    ASL
+    TAX
+    LDA $@label_list, X
     SEC
     SBC $3A
     TAY
     SEP #$20
-    LDA #$00
-    XBA
+    RTS
+
+    ;PHX
+    ;PHA 
+    ;REP #$20
+    ;LDA [$3A]
+    ;SEC
+    ;SBC $3A
+    ;TAY
+    ;SEP #$20
+    ;LDA #$00
+    ;XBA
 
   loc_028D44:
     ;INY 
     ;INY 
 
   loc_028D46:
-    LDA [$3A], Y
-    INY
-    ASL
-    TAX
-    JMP (&meta_jump_table, X)
+    ;LDA [$3A], Y
+    ;INY
+    ;ASL
+    ;TAX
+    ;JMP (&meta_jump_table, X)
 
   loc_028D8D:
-    PLA 
-    PLX
-    RTS 
+    ;PLA 
+    ;PLX
+    ;RTS 
 }
 

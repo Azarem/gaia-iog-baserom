@@ -21,12 +21,13 @@
   "include": [
     "src/**/*",
     "us/**/*.json",
-    "snes/**/*.json"
+    "jp/**/*.json"
   ],
   "exclude": [
     "node_modules",
     "dist",
-    "baserom"
+    "baserom",
+    "scripts"
   ]
 }
 

@@ -53,16 +53,6 @@
       "value": "LDA $$0C\r\n    STA $$02\r\n    $&"
     }
   ],
-  "chunk_028000": [
-    {
-      "key": "const < #\\$003A, #\\$8000 >",
-      "value": "const < #$$003A, #$$&scene_meta >"
-    },
-    {
-      "key": "const < #\\$003C, #\\$008D >",
-      "value": "const < #$$003C, #$$^scene_meta, #00 >"
-    }
-  ],
   "func_09E8E4": [
     {
       "key": "RTS",
@@ -215,6 +205,42 @@
   ],
   "scene_actors": [
     {
+      "key": "`Erik's House `",
+      "value": "`Erik's House`"
+    },
+    {
+      "key": "`Seth's House `",
+      "value": "`Seth's House`"
+    },
+    {
+      "key": "`Will's House `",
+      "value": "`Will's House`"
+    },
+    {
+      "key": "`Edward's Castle `",
+      "value": "`Edward's Castle`"
+    },
+    {
+      "key": "`Edward's Prison `",
+      "value": "`Edward's Prison`"
+    },
+    {
+      "key": "`City of Freejia `",
+      "value": "`City of Freejia`"
+    },
+    {
+      "key": "`Neil's Cottage `",
+      "value": "`Neil's Cottage`"
+    },
+    {
+      "key": "`Nazca Plain `",
+      "value": "`Nazca Plain`"
+    },
+    {
+      "key": "`Shrine `",
+      "value": "`Shrine`"
+    },
+    {
       "key": "actor < #08, #0C, #03, @hidden_red_jewel >",
       "value": "$&\r\n    actor < #0C, #2F, #00, @SouthCapeDeliveryman >"
     },
@@ -241,8 +267,8 @@
       "value": "music < #1F, #00, @bgm_illusion_of_gaia >"
     },
     {
-      "key": "entry_41 \\[\\s+ppu < #00 >",
-      "value": "entry_41 [\r\n  ppu < #11 >"
+      "key": "mapdef_0041 \\[\\s+ppu < #00 >",
+      "value": "mapdef_0041 [\r\n  ppu < #11 >"
     }
   ],
   "thinker_00BBAF": [

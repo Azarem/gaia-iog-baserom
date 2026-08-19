@@ -2482,7 +2482,7 @@
         "itemget_table_01FD24": { "start": 130340, "end": 130924, "type": "&WideString" },
         "scene_actors": { "start": 819200, "end": 845285, "type": "&event_def", "movable": true },
         "scene_thinkers": { "start": 845285, "end": 846683, "type": "&thinker" },
-        "scene_meta": { "start": 884736, "end": 897023, "type": "mapdef", "postProcess": "Lookup(0,1)", "movable": true },
+        "scene_meta": { "start": 884736, "end": 897023, "type": "mapdef", "postProcess": "Lookup(0,1)&&Label(label)", "movable": true },
         "table_0E8000": { "start": 950272, "end": 969435, "type": "&sprite_set" },
         "table_0EDA00": { "start": 973312, "end": 974144, "type": "&sprite_set" },
         "table_0EE000": { "start": 974848, "end": 982479, "type": "&sprite_set" },
