@@ -51,7 +51,6 @@ count_check {
     PHA
     LDA token
     BEQ count_ret
-    ;BRK #$00
     BMI no_msu_fade
 
     ;LDA $0D72
@@ -142,7 +141,6 @@ cop_handler_0A_0087C9 {
 ;Hook for SPC init
 
 func_02908E {
-    ;BRK #$00
     REP #$20
 
     LDA $2002
@@ -182,7 +180,6 @@ func_03D9F6 {
     BEQ loc_03DA00
     
   ;do_check:
-    ;BRK #$00
     PHX
     PHY
     STZ token
@@ -404,7 +401,6 @@ loc_03E1C1 {
 
 func_03E1D6 {
     SEP #$20
-    ;BRK #$00
     LDA msu_flag
     BEQ bgm_load_wait   ;Always skip APU silent since we are always branching to the standard load process
 
@@ -544,8 +540,6 @@ loc_028B88 {
 }
 
 loc_028B91 {
-    ;BRK #$00
-
     LDA $06F2
     BEQ bgm_check               ;Always branch to halt when reset is loading
 

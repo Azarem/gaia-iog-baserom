@@ -1,79 +1,26 @@
 {
-  "h_actor": {
-    "types": ["Byte", "Byte", "Byte"]
-  },
-  "h_thinker": {
-    "types": ["Byte", "Byte"]
-  },
-  "dma_data": {
-    "delimiter": 0,
-    "types": ["Byte", "Byte", "Byte"]
-  },
-  "unk1": {
-    "types": ["Word", "&Code"]
-  },
-  "motion": {
-    "delimiter": 255,
-    "types": ["Byte", "Byte", "Byte", "Byte"]
-  },
-  "map_name": {
-    "delimiter": 0,
-    "types": ["Byte", "&SpriteString"]
-  },
-  "unk5": {
-    "types": ["Byte", "Byte", "Byte", "Byte"]
-  },
-  "unk6": {
-    "delimiter": 65535,
-    "types": ["Byte", "Word"]
-  },
-  "unk7": {
-    "types": ["Byte", "Byte", "Byte", "Byte", "Byte", "Byte", "Byte", "Byte", "Byte", "Byte"]
-  },
-  "unk8": {
-    "types": ["Word", "&unk8"]
-  },
-  "unk9": {
-    "delimiter": 65535,
-    "types": ["Word", "Word", "Word"]
-  },
-  "unk10": {
-    "types": ["Word", "Word"]
-  },
-  "unk11": {
-    "delimiter": 255,
-    "types": ["Byte", "Byte", "Byte", "Byte", "Byte"]
-  },
-  "sprite_set": {
-    "delimiter": 65535,
-    "types": ["Word", "&sprite_group"]
-  },
-  "sprite_group": {
-    "types": ["Byte", "Byte", "Byte", "Byte", "Byte", "Byte", "Byte", "Byte", "Byte", "Byte", "Byte", "Byte", "Byte", "sprite_part"]
-  },
-  "sprite_part": {
-    "types": ["Byte", "Byte", "Byte", "Byte", "Byte", "Word"]
-  },
-  "bundle": {
-    "delimiter": 0,
-    "types": ["Byte", "&Word", "Byte", "Byte", "Byte"]
-  },
-  "unk14": {
-    "types": ["Address", "@Binary"]
-  },
-  "unk15": {
-    "types": ["Byte", "Byte", "Byte", "Byte", "Byte", "Byte", "Byte", "Byte"]
-  },
-  "unk16": {
-    "types": ["WideString", "Binary"]
-  },
-  "unk17": {
-    "types": ["&Binary", "Byte"]
-  },
-  "meta<>": {
-    "discriminator": 0,
-    "delimiter": 0
-  },
+  "h_actor": { "types": [ "Byte", "Byte", "Byte" ] },
+  "h_thinker": { "types": [ "Byte", "Byte" ] },
+  "dma_data": { "types": [ "Byte", "Byte", "Byte" ], "delimiter": 0 },
+  "unk1": { "types": [ "Word", "&Code" ] },
+  "motion": { "types": [ "Byte", "Byte", "Byte", "Byte" ], "delimiter": 255 },
+  "map_name": { "types": [ "Byte", "&SpriteString" ], "delimiter": 0 },
+  "unk5": { "types": [ "Byte", "Byte", "Byte", "Byte" ] },
+  "unk6": { "types": [ "Byte", "Word" ], "delimiter": 65535 },
+  "unk7": { "types": [ "Byte", "Byte", "Byte", "Byte", "Byte", "Byte", "Byte", "Byte", "Byte", "Byte" ] },
+  "unk8": { "types": [ "Word", "&unk8" ] },
+  "unk9": { "types": [ "Word", "Word", "Word" ], "delimiter": 65535 },
+  "unk10": { "types": [ "Word", "Word" ] },
+  "unk11": { "types": [ "Byte", "Byte", "Byte", "Byte", "Byte" ], "delimiter": 255 },
+  "sprite_set": { "types": [ "Word", "&sprite_group" ], "delimiter": 65535 },
+  "sprite_group": { "types": [ "Byte", "Byte", "Byte", "Byte", "Byte", "Byte", "Byte", "Byte", "Byte", "Byte", "Byte", "Byte", "Byte", "sprite_part" ] },
+  "sprite_part": { "types": [ "Byte", "Byte", "Byte", "Byte", "Byte", "Word" ] },
+  "bundle": { "types": [ "Byte", "&Word", "Byte", "Byte", "Byte" ], "delimiter": 0 },
+  "unk14": { "types": [ "Address", "@Binary" ] },
+  "unk15": { "types": [ "Byte", "Byte", "Byte", "Byte", "Byte", "Byte", "Byte", "Byte" ] },
+  "unk16": { "types": [ "WideString", "Binary" ] },
+  "unk17": { "types": [ "&Binary", "Byte" ] },
+  "meta<>": { "discriminator": 0, "delimiter": 0 },
   "ppu": {
     "parent": "meta<>",
     "discriminator": 2,
@@ -134,10 +81,7 @@
     "discriminator": 23,
     "types": ["Byte", "@Binary"]
   },
-  "mapdef": {
-    "parts": ["id", "meta"],
-    "types": ["Word", "meta<>"]
-  },
+  "mapdef": { "types": [ "Word", "meta<>" ] },
   "enemy": {
     "discriminator": 6,
     "delimiter": 255,
@@ -148,39 +92,16 @@
     "discriminator": 0,
     "types": ["Byte", "Byte", "Byte", "@actor_def"]
   },
-  "thinker": {
-    "delimiter": 255,
-    "types": ["Byte", "@thinker_def"]
-  },
-  "event_def": {
-    "types": ["enemy", "WideString"]
-  },
-  "warp_def": {
-    "types": ["scene_warp", "stair_warp"]
-  },
-  "scene_warp": {
-    "delimiter": 255,
-    "types": ["Byte", "Byte", "Byte", "Byte", "Byte", "Word", "Word", "Byte", "Word"]
-  },
-  "stair_warp": {
-    "delimiter": 255,
-    "types": ["Byte", "Byte", "Byte", "Byte", "Word", "Word", "Word", "Byte", "Word"]
-  },
-  "const": {
-    "delimiter": 65535,
-    "types": ["Word", "Word"]
-  },
-  "dir_sprite": {
-    "types": ["Byte", "Byte"]
-  },
-  "stats": {
-    "types": ["Byte", "Byte", "Byte", "Byte"]
-  },
-  "sc_ix": {
-    "delimiter": 0,
-    "types": ["Byte", "&sc_data"]
-  },
-  "sc_data": { "delimiter": 255, "types": [ "Byte", "Byte", "Byte", "Byte", "Byte", "Byte"] },
+  "thinker": { "types": [ "Byte", "@thinker_def" ], "delimiter": 255 },
+  "event_def": { "types": [ "enemy", "WideString" ] },
+  "warp_def": { "types": [ "scene_warp", "stair_warp" ] },
+  "scene_warp": { "types": [ "Byte", "Byte", "Byte", "Byte", "Byte", "Word", "Word", "Byte", "Word" ], "delimiter": 255 },
+  "stair_warp": { "types": [ "Byte", "Byte", "Byte", "Byte", "Word", "Word", "Word", "Byte", "Word" ], "delimiter": 255 },
+  "const": { "types": [ "Word", "Word" ], "delimiter": 65535 },
+  "dir_sprite": { "types": [ "Byte", "Byte" ] },
+  "stats": { "types": [ "Byte", "Byte", "Byte", "Byte" ] },
+  "sc_ix": { "types": [ "Byte", "&sc_data" ], "delimiter": 0 },
+  "sc_data": { "types": [ "Byte", "Byte", "Byte", "Byte", "Byte", "Byte"], "delimiter": 255 },
   "thinker_def": { "types": [ "Byte", "Byte", "Code" ] },
   "actor_def": { "types": [ "Byte", "Byte", "Byte", "Code" ] },
   "unk18": { "types": [ "Byte", "Byte" ] }

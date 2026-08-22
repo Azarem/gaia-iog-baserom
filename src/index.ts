@@ -91,22 +91,22 @@ export async function extractJP(romPath: string, outPath: string) {
 
 export async function rebuild(inPath: string, outPath: string, baseRomPath: string, modulePaths?: string[]) {
     if(!inPath) inPath = './extracted';
-    if(!outPath) outPath = './rebuilt';
+    if(!outPath) outPath = `./rebuilt/${process.env.ROM_NAME ?? 'Illusion of Gaia - Rebuilt'}.smc`;
     if(!baseRomPath) baseRomPath = join(__pkgRoot, 'baserom');
     
     var dbRoot = DbRootUtils.fromGameModule(db);
 
-    await DbRootUtils.rebuildAllContent(dbRoot, [inPath, baseRomPath, ...(modulePaths || [])], `${outPath}/GaiaLabs.smc`);
+    await DbRootUtils.rebuildAllContent(dbRoot, [inPath, baseRomPath, ...(modulePaths || [])], outPath);
 }
 
 export async function rebuildJp(inPath: string, outPath: string, baseRomPath: string, modulePaths?: string[]) {
     if(!inPath) inPath = './extracted-jp';
-    if(!outPath) outPath = './rebuilt-jp';
+    if(!outPath) outPath = `./rebuilt-jp/${process.env.ROM_NAME_JP ?? 'Gaia Gensouki - Rebuilt'}.smc`;
     if(!baseRomPath) baseRomPath = join(__pkgRoot, 'baserom-jp');
     
     var dbRoot = DbRootUtils.fromGameModule(jp);
 
-    await DbRootUtils.rebuildAllContent(dbRoot, [inPath, baseRomPath, ...(modulePaths || [])], `${outPath}/GaiaLabs.smc`);
+    await DbRootUtils.rebuildAllContent(dbRoot, [inPath, baseRomPath, ...(modulePaths || [])], outPath);
 }
 
 // CLI handler - only execute when run directly (not when imported as a module)

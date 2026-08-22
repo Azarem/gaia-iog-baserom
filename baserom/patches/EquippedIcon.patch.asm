@@ -501,35 +501,32 @@ unk7_0181D0 [
 ------------------------------------------------------
 ;Force flying scene  flag 4000
 
-sp58_actor_068111 [
-  h_actor < #00, #02, #18 >
+code_068114- {
     LDA #$4000
     TSB $09EC
     COP [4F] ( $7F0200, #$7800, #$0100 ) ;For some reason there is a situation where the BG3 data isn't refreshed
-]
+}
 
 ------------------------------------------------------
 ?INCLUDE 's59_actor_03A0AA'
 ------------------------------------------------------
 ;Force plane crash scene flag 4000
 
-s59_actor_03A0AA [
-  h_actor < #00, #00, #18 >
+code_03A0AD- {
     LDA #$4000
     TSB $09EC
-]
+}
 
 ------------------------------------------------------
 ?INCLUDE 'btDC_plane_jumping'
 ------------------------------------------------------
 ;Force babel flying scene flag 4000
 
-btDC_plane_jumping [
-  h_actor < #06, #00, #18 >
+code_098149- {
     LDA #$4000
     TSB $09EC
     COP [4F] ( $7F0200, #$7800, #$0100 ) ;For some reason there is a situation where the BG3 data isn't refreshed
-]
+}
 
 ------------------------------------------------------
 ?INCLUDE 'actor_02B7B3'
@@ -625,7 +622,7 @@ sprite_group_17A483 [
 ------------------------------------------------------
 ;Fix for prologue scene 4 to wait before generating sprites
 
-e_pr8F_prologue4 {
+code_0BCE36 {
     LDA #$4001
     TSB $09EC
     COP [50] ( @pal_prologue_mishap, #00, #00, #20 )

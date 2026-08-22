@@ -2480,7 +2480,7 @@
         "dictionary_01EBA8": { "start": 125864, "end": 128333, "type": "&WideString", "movable": true },
         "dictionary_01F54D": { "start": 128333, "end": 130340, "type": "&WideString", "movable": true },
         "itemget_table_01FD24": { "start": 130340, "end": 130924, "type": "&WideString" },
-        "scene_actors": { "start": 819200, "end": 845285, "type": "&event_def", "movable": true },
+        "scene_actors": { "start": 819200, "end": 845285, "type": "&event_def", "postProcess": "Extract(1)", "movable": true, "order": -1 },
         "scene_thinkers": { "start": 845285, "end": 846683, "type": "&thinker" },
         "scene_meta": { "start": 884736, "end": 897023, "type": "mapdef", "postProcess": "Lookup(0,1)&&Label(label)", "movable": true },
         "table_0E8000": { "start": 950272, "end": 969435, "type": "&sprite_set" },
@@ -2504,33 +2504,9 @@
     },
     "sky_garden": {
         "s59_actor_03A0AA": { "start": 237738, "end": 238074, "type": "actor_def", "scene": "garden_crash", "movable": true },
-        "sg4C_spirits": {
-            "movable": true,
-            "scene": "garden_main",
-            "parts": {
-                "h_sg4C_spirit1": { "start": 389974, "end": 389977, "type": "h_actor" },
-                "e_sg4C_spirit1": { "start": 389977, "end": 390062, "type": "Code" },
-                "h_sg4C_spirit2": { "start": 390062, "end": 390065, "type": "h_actor" },
-                "e_sg4C_spirit2": { "start": 390065, "end": 390227, "type": "Code" },
-                "h_sg4C_spirit3": { "start": 390227, "end": 390230, "type": "h_actor" },
-                "e_sg4C_spirit3": { "start": 390230, "end": 390337, "type": "Code" }
-            }
-        },
+        "sg4C_spirits": { "start": 389974, "end": 390337, "type": "actor_def", "scene": "garden_main", "movable": true },
         "sg___hint_spirit": { "start": 390337, "end": 390404, "type": "actor_def", "movable": true },
-        "sg4C_platforms": {
-            "movable": true,
-            "scene": "garden_main",
-            "parts": {
-                "h_sg4C_platform1": { "start": 390404, "end": 390407, "type": "h_actor" },
-                "e_sg4C_platform1": { "start": 390407, "end": 390451, "type": "Code" },
-                "h_sg4C_platform2": { "start": 390451, "end": 390454, "type": "h_actor" },
-                "e_sg4C_platform2": { "start": 390454, "end": 390513, "type": "Code" },
-                "h_sg4C_platform3": { "start": 390513, "end": 390516, "type": "h_actor" },
-                "e_sg4C_platform3": { "start": 390516, "end": 390560, "type": "Code" },
-                "h_sg4C_platform4": { "start": 390560, "end": 390563, "type": "h_actor" },
-                "e_sg4C_platform4": { "start": 390563, "end": 390622, "type": "Code" }
-            }
-        },
+        "sg4C_platforms": { "start": 390404, "end": 390622, "type": "actor_def", "scene": "garden_main", "movable": true },
         "sg52_actor_05F5DE": { "start": 390622, "end": 390741, "type": "actor_def", "scene": "garden_southwest_underside", "movable": true },
         "sg52_actor_05F655": { "start": 390741, "end": 390864, "type": "actor_def", "scene": "garden_southwest_underside", "movable": true },
         "sg52_switch": { "start": 390864, "end": 390985, "type": "actor_def", "scene": "garden_southwest_underside", "movable": true },
@@ -2540,66 +2516,18 @@
         "sp58_missed_flight": { "start": 425984, "end": 426257, "type": "actor_def", "scene": "garden_descent", "movable": true },
         "sp58_actor_068111": { "start": 426257, "end": 426384, "type": "actor_def", "scene": "garden_descent", "movable": true },
         "sp58_red_eye": { "start": 426384, "end": 426880, "type": "actor_def", "scene": "garden_descent", "movable": true },
-        "sp58_monologue": {
-            "movable": true,
-            "scene": "garden_descent",
-            "parts": {
-                "h_sp58_actor_068380": { "start": 426880, "end": 426883, "type": "h_actor" },
-                "e_sp58_actor_068380": { "start": 426883, "end": 426893, "type": "Code" },
-                "h_sp58_monologue": { "start": 426893, "end": 426896, "type": "h_actor" },
-                "e_sp58_monologue": { "start": 426896, "end": 427158, "type": "Code" }
-            }
-        },
+        "sp58_monologue": { "start": 426880, "end": 427158, "type": "actor_def", "scene": "garden_descent", "movable": true },
         "sg4C_actor_0AB496": { "start": 701590, "end": 701616, "type": "actor_def", "movable": true },
-        "sg4D_cyber": {
-            "movable": true,
-            "parts": {
-                "h_sg4D_blue_cyber": { "start": 701616, "end": 701619, "type": "h_actor" },
-                "e_sg4D_blue_cyber": { "start": 701619, "end": 701792, "type": "Code" },
-                "func_0AB560": { "start": 701792, "end": 701916, "type": "Code" },
-                "func_0AB5DC": { "start": 701916, "end": 702052, "type": "Code" },
-                "func_0AB664": { "start": 702052, "end": 702176, "type": "Code" },
-                "func_0AB6E0": { "start": 702176, "end": 702640, "type": "Code" },
-                "h_sg4E_red_cyber": { "start": 702640, "end": 702643, "type": "h_actor" },
-                "e_sg4E_red_cyber": { "start": 702643, "end": 703193, "type": "Code" },
-                "func_0ABAD9": { "start": 703193, "end": 704371, "type": "Code" },
-                "sub_0ABF73": { "start": 704371, "end": 704399, "type": "Code" },
-                "sub_0ABF8F": { "start": 704399, "end": 704454, "type": "Code" },
-                "func_0ABFC6": { "start": 704454, "end": 704766, "type": "Code" },
-                "sub_0ADD1E": { "start": 711966, "end": 711975, "type": "Code" }
-            }
-        },
-        "sg4D_knight_armor": {
-            "movable": true,
-            "parts": {
-                "h_sg4D_knight_armor1": { "start": 704766, "end": 704769, "type": "h_actor" },
-                "e_sg4D_knight_armor1": { "start": 704769, "end": 704848, "type": "Code" },
-                "h_sg4F_knight_armor2": { "start": 704848, "end": 704851, "type": "h_actor" },
-                "e_sg4F_knight_armor2": { "start": 704851, "end": 704996, "type": "Code" },
-                "func_0AC1E4": { "start": 704996, "end": 705436, "type": "Code" },
-                "func_0AC39C": { "start": 705436, "end": 705459, "type": "Code" },
-                "h_sg53_knight_armor3": { "start": 705459, "end": 705462, "type": "h_actor" },
-                "e_sg53_knight_armor3": { "start": 705462, "end": 705545, "type": "Code" },
-                "h_sg53_knight_armor4": { "start": 705545, "end": 705548, "type": "h_actor" },
-                "e_sg53_knight_armor4": { "start": 705548, "end": 705679, "type": "Code" },
-                "func_0AC48F": { "start": 705679, "end": 705798, "type": "Code" },
-                "sub_0AC506": { "start": 705798, "end": 705824, "type": "Code" },
-                "sub_0ADD59": { "start": 712025, "end": 712038, "type": "Code" },
-                "code_0AD9D2": { "start": 711122, "end": 711250, "order": 712026, "type": "Code" }
-            }
-        },
-        "sg4D_dynapede": {
-            "movable": true,
-            "parts": {
-                "h_sg4F_dynapede1": { "start": 705824, "end": 705827, "type": "h_actor" },
-                "e_sg4F_dynapede1": { "start": 705827, "end": 705843, "type": "Code" },
-                "h_sg4D_dynapede2": { "start": 705843, "end": 705846, "type": "h_actor" },
-                "e_sg4D_dynapede2": { "start": 705846, "end": 705880, "type": "Code" },
-                "func_0AC558": { "start": 705880, "end": 706458, "type": "Code" },
-                "binary_0AC79A": { "start": 706458, "end": 706482, "type": "Binary" },
-                "func_0AC7B2": { "start": 706482, "end": 706582, "type": "Code" }
-            }
-        },
+        "sg4D_cyber": { "movable": true, "parts": {
+            "sg4D_blue_cyber": { "start": 701616, "end": 704766, "type": "actor_def" },
+            "sub_0ADD1E": { "start": 711966, "end": 711975, "type": "Code" }
+        } },
+        "sg4D_knight_armor": { "movable": true, "parts": {
+            "sg4D_knight_armor1": { "start": 704766, "end": 705824, "type": "actor_def" },
+            "sub_0ADD59": { "start": 712025, "end": 712038, "type": "Code" },
+            "code_0AD9D2": { "start": 711122, "end": 711250, "order": 712026, "type": "Code" }
+        } },
+        "sg4D_dynapede": { "start": 705824, "end": 706582, "type": "actor_def", "movable": true },
         "sg4E_nitropede": {
             "movable": true,
             "parts": {
@@ -2710,73 +2638,39 @@
     },
     "prologue": {
         "pr8C_proc_03A6BA": { "start": 239290, "end": 239678, "type": "thinker_def", "scene": "prologue_prophecy", "movable": true },
-        "pr_proc_03A83E": {
-            "movable": true,
-            "parts": {
-                "e_pr_proc_03A83E": { "start": 239678, "end": 239750, "type": "Code" },
-                "sub_03A886": { "start": 239750, "end": 239782, "type": "Code" },
-                "sub_03A8A6": { "start": 239782, "end": 239883, "type": "Code" },
-                "sub_03A90B": { "start": 239883, "end": 239922, "type": "Code" },
-                "binary_03A932": { "start": 239922, "end": 239929, "type": "Binary" },
-                "binary_03A939": { "start": 239929, "end": 239936, "type": "Binary" }
-            }
-        },
-        "pr8C_prologue1": {
-            "movable": true,
-            "scene": "prologue_prophecy",
-            "parts": {
-                "h_pr8C_prologue1": { "start": 772610, "end": 772613, "type": "h_actor" },
-                "e_pr8C_prologue1": { "start": 772613, "end": 772942, "type": "Code" },
-                "spritestring_0BD044": { "start": 774212, "end": 774253, "type": "SpriteString" },
-                "spritestring_0BD06D": { "start": 774253, "end": 774322, "type": "SpriteString" }
-            }
-        },
-        "pr8D_prologue2": {
-            "movable": true,
-            "scene": "prologue_legends",
-            "parts": {
-                "h_pr8D_prologue2": { "start": 772942, "end": 772945, "type": "h_actor" },
-                "e_pr8D_prologue2": { "start": 772945, "end": 773414, "type": "Code" },
-                "sub_0BCD26": { "start": 773414, "end": 773451, "type": "Code" },
-                "spritestring_0BD0B2": { "start": 774322, "end": 774602, "type": "SpriteString" }
-            }
-        },
-        "pr8E_prologue3": {
-            "movable": true,
-            "scene": "prologue_missing",
-            "parts": {
-                "h_pr8E_prologue3": { "start": 773451, "end": 773454, "type": "h_actor" },
-                "e_pr8E_prologue3": { "start": 773454, "end": 773634, "type": "Code" },
-                "func_0BCE02_noref": { "start": 773634, "end": 773683, "type": "Code" },
-                "spritestring_0BD1CA": { "start": 774602, "end": 774690, "type": "SpriteString" }
-            }
-        },
-        "pr8F_prologue4": {
-            "movable": true,
-            "scene": "prologue_mishap",
-            "parts": {
-                "h_pr8F_prologue4": { "start": 773683, "end": 773686, "type": "h_actor" },
-                "e_pr8F_prologue4": { "start": 773686, "end": 773753, "type": "Code" },
-                "spritestring_0BD222": { "start": 774690, "end": 774770, "type": "SpriteString" }
-            }
-        },
-        "pr8C_prologue5": {
-            "movable": true,
-            "scene": "prologue_prophecy",
-            "parts": {
-                "h_pr8C_prologue5": { "start": 773753, "end": 773756, "type": "h_actor" },
-                "e_pr8C_prologue5": { "start": 773756, "end": 773970, "type": "Code" },
-                "spritestring_0BD272": { "start": 774770, "end": 774827, "type": "SpriteString" }
-            }
-        },
+        "pr_proc_03A83E": { "movable": true, "parts": {
+            "e_pr_proc_03A83E": { "start": 239678, "end": 239750, "type": "Code" },
+            "sub_03A886": { "start": 239750, "end": 239782, "type": "Code" },
+            "sub_03A8A6": { "start": 239782, "end": 239883, "type": "Code" },
+            "sub_03A90B": { "start": 239883, "end": 239922, "type": "Code" },
+            "binary_03A932": { "start": 239922, "end": 239929, "type": "Binary" },
+            "binary_03A939": { "start": 239929, "end": 239936, "type": "Binary" }
+        } },
+        "pr8C_prologue1": { "scene": "prologue_prophecy", "movable": true, "parts": {
+            "pr8C_prologue1": { "start": 772610, "end": 772942, "type": "actor_def" },
+            "spritestring_0BD044": { "start": 774212, "end": 774322, "type": "SpriteString" }
+        } },
+        "pr8D_prologue2": { "scene": "prologue_legends", "movable": true, "parts": {
+            "pr8D_prologue2": { "start": 772942, "end": 773451, "type": "actor_def" },
+            "spritestring_0BD0B2": { "start": 774322, "end": 774602, "type": "SpriteString" }
+        } },
+        "pr8E_prologue3": { "scene": "prologue_missing", "movable": true, "parts": {
+            "pr8E_prologue3": { "start": 773451, "end": 773683, "type": "actor_def" },
+            "spritestring_0BD1CA": { "start": 774602, "end": 774690, "type": "SpriteString" }
+        } },
+        "pr8F_prologue4": { "scene": "prologue_mishap", "movable": true, "parts": {
+            "pr8F_prologue4": { "start": 773683, "end": 773753, "type": "actor_def" },
+            "spritestring_0BD222": { "start": 774690, "end": 774770, "type": "SpriteString" }
+        } },
+        "pr8C_prologue5": { "scene": "prologue_prophecy", "movable": true, "parts": {
+            "pr8C_prologue5": { "start": 773753, "end": 773970, "type": "actor_def" },
+            "spritestring_0BD272": { "start": 774770, "end": 774827, "type": "SpriteString" }
+        } },
         "pr_actor_0BCF52": { "start": 773970, "end": 774193, "type": "Code", "movable": true },
-        "pr_thinkers": {
-            "movable": true,
-            "parts": {
-                "e_pr_thinker_0BD031": { "start": 774193, "end": 774201, "type": "Code" },
-                "e_pr_thinker_0BD039": { "start": 774201, "end": 774212, "type": "Code" }
-            }
-        }
+        "pr_thinkers": { "movable": true, "parts": {
+            "e_pr_thinker_0BD031": { "start": 774193, "end": 774201, "type": "Code" },
+            "e_pr_thinker_0BD039": { "start": 774201, "end": 774212, "type": "Code" }
+        } }
     },
     "south_cape": {
         "sc01_smoke": { "start": 294912, "end": 294916, "type": "actor_def", "scene": "south_cape", "movable": true },
@@ -2785,15 +2679,7 @@
         "sc01_girl2": { "start": 295220, "end": 295336, "type": "actor_def", "scene": "south_cape", "movable": true },
         "sc01_girl3": { "start": 295336, "end": 295405, "type": "actor_def", "scene": "south_cape", "movable": true },
         "sc01_salesman": { "start": 295405, "end": 295791, "type": "actor_def", "scene": "south_cape", "movable": true },
-        "sc01_fisherman": {
-            "movable": true,
-            "scene": "south_cape",
-            "parts": {
-                "h_sc01_fisherman": { "start": 295791, "end": 295794, "type": "h_actor" },
-                "e_sc01_fisherman": { "start": 295794, "end": 296015, "type": "Code" },
-                "e_sc01_pot": { "start": 296015, "end": 296084, "type": "Code" }
-            }
-        },
+        "sc01_fisherman": { "start": 295791, "end": 296084, "type": "actor_def", "scene": "south_cape", "movable": true },
         "sc01_roof_man": { "start": 296084, "end": 296241, "type": "actor_def", "scene": "south_cape", "movable": true },
         "sc01_guard": { "start": 296241, "end": 296532, "type": "actor_def", "scene": "south_cape", "movable": true },
         "sc01_worried_woman": { "start": 296532, "end": 296802, "type": "actor_def", "scene": "south_cape", "movable": true },
@@ -2820,27 +2706,17 @@
         "sc06_main_soldier": { "start": 303968, "end": 304175, "type": "actor_def", "scene": "wills_house", "movable": true },
         "sc06_actor_04A42F": { "start": 304175, "end": 304225, "type": "actor_def", "scene": "wills_house", "movable": true },
         "sc06_monologue": { "start": 304225, "end": 304559, "type": "actor_def", "scene": "wills_house", "movable": true },
-        "sc06_kara_return": {
-            "movable": true,
-            "scene": "wills_house",
-            "parts": {
-                "h_sc06_kara_return": { "start": 304559, "end": 304562, "type": "h_actor" },
-                "e_sc06_kara_return": { "start": 304562, "end": 305913, "type": "Code" },
-                "e_sc06_actor_04AF48": { "start": 307016, "end": 307122, "type": "Code" }
-            }
-        },
+        "sc06_kara_return": { "scene": "wills_house", "movable": true, "parts": {
+            "sc06_kara_return": { "start": 304559, "end": 305913, "type": "actor_def" },
+            "e_sc06_actor_04AF48": { "start": 307016, "end": 307122, "type": "Code" }
+        } },
         "sc06_lily": { "start": 305913, "end": 307016, "type": "actor_def", "scene": "wills_house", "movable": true },
         "sc02_card": { "start": 307122, "end": 307281, "type": "actor_def", "scene": "coastal_cave", "movable": false },
         "sc02_lance": { "start": 307298, "end": 308309, "type": "actor_def", "scene": "coastal_cave", "movable": true },
-        "sc02_seth": {
-            "movable": true,
-            "scene": "coastal_cave",
-            "parts": {
-                "h_sc02_seth": { "start": 308309, "end": 308312, "type": "h_actor" },
-                "e_sc02_seth": { "start": 308312, "end": 309425, "type": "Code" },
-                "e_sc02_actor_04B051": { "start": 307281, "end": 307298, "order": 308313, "type": "Code" }
-            }
-        },
+        "sc02_seth": { "scene": "coastal_cave", "movable": true, "parts": {
+            "sc02_seth": { "start": 308309, "end": 309425, "type": "actor_def" },
+            "e_sc02_actor_04B051": { "start": 307281, "end": 307298, "order": 308313, "type": "Code" }
+        } },
         "sc02_erik": { "start": 309425, "end": 310373, "type": "actor_def", "scene": "coastal_cave", "movable": true },
         "sc01_house_intro": { "start": 310373, "end": 310840, "type": "actor_def", "scene": "south_cape", "movable": true },
         "sc02_entry": { "start": 310840, "end": 311184, "type": "actor_def", "scene": "coastal_cave", "movable": false }
@@ -2849,24 +2725,14 @@
         "dm3F_switch": { "start": 380960, "end": 381030, "type": "actor_def", "scene": "mine_main", "movable": true },
         "dm3F_actor_05D066": { "start": 381030, "end": 381070, "type": "actor_def", "scene": "mine_main", "movable": false },
         "dm47_imas": { "start": 381070, "end": 381274, "type": "actor_def", "scene": "mine_inner", "movable": true },
-        "dm47_remus": {
-            "movable": true,
-            "scene": "mine_inner",
-            "parts": {
-                "h_dm47_remus": { "start": 381274, "end": 381277, "type": "h_actor" },
-                "e_dm47_remus": { "start": 381277, "end": 381475, "type": "Code" },
-                "dm47_remus_destroy": { "start": 381117, "end": 381119, "order": 381278, "type": "Code" }
-            }
-        },
-        "dm47_sam": {
-            "movable": true,
-            "scene": "mine_inner",
-            "parts": {
-                "h_dm47_sam": { "start": 381475, "end": 381478, "type": "h_actor" },
-                "e_dm47_sam": { "start": 381478, "end": 382110, "type": "Code" },
-                "dm47_sam_destroy": { "start": 381117, "end": 381119, "order": 381479, "type": "Code" }
-            }
-        },
+        "dm47_remus": { "scene": "mine_inner", "movable": true, "parts": {
+            "dm47_remus": { "start": 381274, "end": 381475, "type": "actor_def" },
+            "dm47_remus_destroy": { "start": 381117, "end": 381119, "order": 381278, "type": "Code" }
+        } },
+        "dm47_sam": { "scene": "mine_inner", "movable": true, "parts": {
+            "dm47_sam": { "start": 381475, "end": 382110, "type": "actor_def" },
+            "dm47_sam_destroy": { "start": 381117, "end": 381119, "order": 381479, "type": "Code" }
+        } },
         "dm_actor_05D49E": { "start": 382110, "end": 382127, "type": "Code", "scene": "mine_inner", "movable": true },
         "dm45_key": { "start": 382127, "end": 382248, "type": "actor_def", "scene": "mine_morgue", "movable": true },
         "dm44_cell_door": { "start": 382248, "end": 382494, "type": "actor_def", "scene": "mine_foyer", "movable": true },
@@ -2877,18 +2743,7 @@
         "dm41_actor_05D70A": { "start": 382730, "end": 382774, "type": "actor_def", "scene": "mine_main", "movable": true },
         "dm40_trapped_slave": { "start": 382774, "end": 383130, "type": "actor_def", "scene": "mine_collapsed_tunnel", "movable": true },
         "dm3E_intro": { "start": 391580, "end": 391958, "type": "actor_def", "scene": "mine_entrance", "movable": true },
-        "dm41_actor_0AA4E2": {
-            "movable": true,
-            "scene": "mine_zigzag",
-            "parts": {
-                "h_dm41_actor_0AA4E2": { "start": 697570, "end": 697573, "type": "h_actor" },
-                "e_dm41_actor_0AA4E2": { "start": 697573, "end": 697589, "type": "Code" },
-                "h_dm41_actor_0AA4F5": { "start": 697589, "end": 697592, "type": "h_actor" },
-                "e_dm41_actor_0AA4F5": { "start": 697592, "end": 697612, "type": "Code" },
-                "h_dm41_actor_0AA50C": { "start": 697612, "end": 697615, "type": "h_actor" },
-                "e_dm41_actor_0AA50C": { "start": 697615, "end": 697766, "type": "Code" }
-            }
-        },
+        "dm41_actor_0AA4E2": { "start": 697570, "end": 697766, "type": "actor_def", "scene": "mine_zigzag", "movable": true },
         "dm43_elevator": {
             "movable": true,
             "scene": "mine_elevator",
