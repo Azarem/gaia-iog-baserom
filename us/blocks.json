@@ -1858,7 +1858,7 @@
                 "func_09EC70": { "start": 650352, "end": 650355, "type": "Code" },
                 "code_09EC73": { "start": 650355, "end": 650356, "type": "Code" },
                 "table_09EC74": { "start": 650356, "end": 650431, "type": "&Code" },
-                "widestring_09ECBF": { "start": 650431, "end": 652080, "type": "WideString" },
+                "widestring_09ECBF": { "start": 650431, "end": 652080, "type": "WideString!" },
                 "code_09F4AA": { "start": 652458, "end": 652560, "type": "Code" },
                 "func_09F69F": { "start": 652959, "end": 652966, "type": "Code" }
             }

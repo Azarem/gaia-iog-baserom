@@ -295,7 +295,7 @@ func_0BC896 {
 -----------------------------------------------
 ?INCLUDE 'sF7_credits'
 
-widestring_09F2FA `[PAL:0][DLG:44,1]     Built With GaiaLabs[N][PAL:4]         By Kassiven[N][PAL:0]            Ǫįņţ[N]            ęťĔŇ[END]`
+widestring_09F2FA `[PAL:0][DLG:44,1]     Built With GaiaLabs[N][PAL:4]         By Kassiven[N][PAL:0]            Ǫįņţ[N]            ęťĔŇ[END]`!
 
 -----------------------------------------------
 ;Auto-size and center scene titles
