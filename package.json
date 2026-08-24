@@ -1,6 +1,6 @@
 {
     "name": "@gaialabs/iog-baserom",
-    "version": "0.1.5",
+    "version": "0.1.6",
     "type": "module",
     "description": "GaiaLabs IOG Base ROM",
     "funding": "https://github.com/sponsors/Azarem",
@@ -33,7 +33,7 @@
         "rebuild-jp": "node src/index.ts rebuild-jp"
     },
     "dependencies": {
-        "@gaialabs/core": "0.2.24"
+        "@gaialabs/core": "0.2.25"
     },
     "devDependencies": {
         "@prisma/adapter-pg": "^7.6.0",

@@ -104,5 +104,6 @@
   "sc_data": { "types": [ "Byte", "Byte", "Byte", "Byte", "Byte", "Byte"], "delimiter": 255 },
   "thinker_def": { "types": [ "Byte", "Byte", "Code" ] },
   "actor_def": { "types": [ "Byte", "Byte", "Byte", "Code" ] },
-  "unk18": { "types": [ "Byte", "Byte" ] }
+  "unk18": { "types": [ "Byte", "Byte" ] },
+  "unk19": { "types": [ "Byte", "Byte", "Byte" ], "tail": 1 }
 }

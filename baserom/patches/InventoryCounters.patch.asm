@@ -49,12 +49,12 @@ generate_number_sprites {
     ASL
     ASL
     TAX
-    LDA @binary_02EB86, X
+    LDA @unk10_02EB86, X
     CLC
     ADC #$num_xoffset
     STA $25
 
-    LDA @binary_02EB86+2, X
+    LDA @unk10_02EB86+2, X
     CLC
     ADC #$num_yoffset
     STA $26
@@ -123,7 +123,7 @@ push_number_sprite {
 ?INCLUDE 'system_strings'
 ---------------------------------------------
 
-e_inventory_menu {
+code_02E399 {
     COP [88] ( @inventory_spritemap )
     COP [BD] ( @asciistring_01E869 )
     LDA #$1000
@@ -183,15 +183,11 @@ loc_02EB4D {
 ---------------------------------------------
 ;Cursor positions
 
-binary_02EAB0 [
-  #$004E   ;00
-  #$0030   ;01
-  #$0066   ;02
-  #$0030   ;03
-  #$007E   ;04
-  #$0030   ;05
-  #$0096   ;06
-  #$0030   ;07
+unk10_02EAB0 [
+  unk10 < #$004E, #$0030 >   ;00
+  unk10 < #$0066, #$0030 >   ;01
+  unk10 < #$007E, #$0030 >   ;02
+  unk10 < #$0096, #$0030 >   ;03
 ]
 
 ------------------------------------------------

@@ -370,8 +370,7 @@ loc_02A17E {
 ?INCLUDE 'inventory_menu'
 --------------------------------------------
 ;Force some palette colors for cleaner font
-h_inventory_menu [
-  h_actor < #00, #00, #28 >   ;00
+code_02E399- [
     LDA #$4063
     STA $7F0A06
     LDA #$2180
@@ -379,7 +378,7 @@ h_inventory_menu [
 ]
 
 ;Make flashing cursor show blank when hidden
-sub_02EC46 {
+code_02EC46 {
     LDA #$0001
     TSB $09EC
     LDA #$2060
@@ -389,7 +388,7 @@ sub_02EC46 {
 }
 
 ;Make flashing cursor show blank when hidden
-sub_02ECE8 {
+code_02ECE8 {
     LDA #$0001
     TSB $09EC
     LDA #$2060

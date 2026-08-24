@@ -315,14 +315,10 @@
             "parts": {
                 "func_00E683": { "start": 59011, "end": 59046, "type": "Code" },
                 "func_00E6A6": { "start": 59046, "end": 59607, "type": "Code" },
-                "head_00E94D": { "start": 59725, "end": 59728, "type": "h_actor" },
-                "func_00E950": { "start": 59728, "end": 59787, "type": "Code" },
-                "head_00EA96": { "start": 60054, "end": 60057, "type": "h_actor" },
-                "func_00EA99": { "start": 60057, "end": 60071, "type": "Code" },
-                "head_00EAA7": { "start": 60071, "end": 60074, "type": "h_actor" },
-                "func_00EAAA": { "start": 60074, "end": 60099, "type": "Code" },
-                "head_00EAC3": { "start": 60099, "end": 60102, "type": "h_actor" },
-                "func_00EAC6": { "start": 60102, "end": 60141, "type": "Code" },
+                "actor_00E94D": { "start": 59725, "end": 59787, "type": "actor_def" },
+                "actor_00EA96": { "start": 60054, "end": 60071, "type": "actor_def" },
+                "actor_00EAA7": { "start": 60071, "end": 60099, "type": "actor_def" },
+                "actor_00EAC3": { "start": 60099, "end": 60141, "type": "actor_def" },
                 "func_00EB9B": { "start": 60315, "end": 60399, "type": "Code" },
                 "func_00EBEF": { "start": 60399, "end": 60483, "type": "Code" },
                 "func_00EC43": { "start": 60483, "end": 60567, "type": "Code" },
@@ -767,17 +763,7 @@
         "thinker_00B867": { "start": 47207, "end": 47227, "type": "thinker_def", "scene": "boot_logos", "movable": true },
         "thinker_00BB8E": { "start": 48014, "end": 48045, "type": "thinker_def", "scene": "inventory", "movable": true },
         "thinker_00BBAF": { "start": 48047, "end": 48279, "type": "thinker_def", "scene": "diary_menu", "movable": true },
-        "actor_00CD59": {
-            "movable": true,
-            "scene": "statue_inventory",
-            "parts": {
-                "h_actor_00CD59": { "start": 52569, "end": 52572, "type": "h_actor" },
-                "e_actor_00CD59": { "start": 52572, "end": 52887, "type": "Code" },
-                "binary_00CE97": { "start": 52887, "end": 52911, "type": "Binary" },
-                "func_00CEAF": { "start": 52911, "end": 52991, "type": "Code" },
-                "func_00CEFF": { "start": 52991, "end": 53033, "type": "Code" }
-            }
-        },
+        "actor_00CD59": { "start": 52569, "end": 53033, "type": "actor_def", "scene": "statue_inventory", "movable": true },
         "actor_00CF29": { "start": 53033, "end": 53134, "type": "actor_def", "scene": "inventory", "movable": true },
         "binary_01C384": {
             "parts": {
@@ -799,18 +785,7 @@
                 "array_01D90B": { "start": 121099, "end": 121201, "type": "unk17" }
             }
         },
-        "sFE_actor_03A2F1": {
-            "movable": false,
-            "scene": "world_map",
-            "parts": {
-                "h_sFE_actor_03A2F1": { "start": 238321, "end": 238324, "type": "h_actor" },
-                "e_sFE_actor_03A2F1": { "start": 238324, "end": 238851, "type": "Code" },
-                "table_03A503": { "start": 238851, "end": 238895, "type": "&Binary" },
-                "func_03A52F": { "start": 238895, "end": 239233, "type": "Code" },
-                "sub_03A681": { "start": 239233, "end": 239250, "type": "Code" },
-                "sub_03A692": { "start": 239250, "end": 239290, "type": "Code" }
-            }
-        },
+        "sFE_actor_03A2F1": { "start": 238321, "end": 239290, "type": "actor_def", "scene": "world_map", "movable": false },
         "overworld_routes": { "start": 241015, "end": 242132, "type": "&motion", "scene": "world_map", "movable": true },
         "overworld_names": { "start": 242132, "end": 242689, "type": "map_name", "scene": "world_map" },
         "overworld_options": { "start": 242689, "end": 244449, "type": "&Code", "scene": "world_map" },
@@ -818,8 +793,7 @@
             "movable": true,
             "scene": "dark_space",
             "parts": {
-                "h_sE6_gaia": { "start": 579496, "end": 579499, "type": "h_actor" },
-                "e_sE6_gaia": { "start": 579499, "end": 579562, "type": "Code" },
+                "sE6_gaia": { "start": 579496, "end": 579562, "type": "actor_def" },
                 "func_08D7EA": { "start": 579562, "end": 580506, "type": "Code" },
                 "loc_08DB9A": { "start": 580506, "end": 580875, "type": "Code" },
                 "widestring_08DD0B": { "start": 580875, "end": 581234, "type": "WideString" },
@@ -841,40 +815,24 @@
                 "func_08F3EA": { "start": 586730, "end": 587257, "type": "Code" },
                 "func_08F5F9": { "start": 587257, "end": 587324, "type": "Code" },
                 "func_08F63C": { "start": 587324, "end": 587391, "type": "Code" },
-                "h_actor_08F67F": { "start": 587391, "end": 587394, "type": "h_actor" },
-                "e_actor_08F67F": { "start": 587394, "end": 587475, "type": "Code" },
+                "actor_08F67F": { "start": 587391, "end": 587475, "type": "actor_def" },
                 "sub_08F6D3": { "start": 587475, "end": 587529, "type": "Code" },
                 "e_actor_09A090": { "start": 630928, "end": 630999, "type": "Code" }
             }
         },
         "strings_0BF706": { "start": 784134, "end": 784983, "type": "&unk16", "scene": "diary_menu" },
-        "sFB_actor_0BC8BA": {
-            "movable": true,
-            "scene": "boot_logos",
-            "parts": {
-                "h_sFB_actor_0BC8BA": { "start": 772282, "end": 772285, "type": "h_actor" },
-                "e_sFB_actor_0BC8BA": { "start": 772285, "end": 772388, "type": "Code" },
-                "func_0BC896": { "start": 772246, "end": 772280, "order": 772286, "type": "Code" },
-                "code_0BC8B8_noref": { "start": 772280, "end": 772282, "order": 772287, "type": "Code" }
-            }
-        },
+        "sFB_actor_0BC8BA": { "scene": "boot_logos", "movable": true, "parts": {
+            "sFB_actor_0BC8BA": { "start": 772282, "end": 772388, "type": "actor_def" },
+            "func_0BC896": { "start": 772246, "end": 772280, "order": 772286, "type": "Code" },
+            "code_0BC8B8_noref": { "start": 772280, "end": 772282, "order": 772287, "type": "Code" }
+        } },
         "sFC_actor_0BC924": { "start": 772388, "end": 772526, "type": "actor_def", "scene": "title_screen", "movable": true },
-        "sFC_actor_0BC9AE": {
-            "movable": true,
-            "scene": "title_screen",
-            "parts": {
-                "h_sFC_actor_0BC9AE": { "start": 772526, "end": 772529, "type": "h_actor" },
-                "e_sFC_actor_0BC9AE": { "start": 772529, "end": 772541, "type": "Code" },
-                "h_sFC_actor_0BC9BD": { "start": 772541, "end": 772544, "type": "h_actor" },
-                "e_sFC_actor_0BC9BD": { "start": 772544, "end": 772610, "type": "Code" }
-            }
-        },
+        "sFC_actor_0BC9AE": { "start": 772526, "end": 772610, "type": "actor_def", "scene": "title_screen", "movable": true },
         "sFA_diary_menu": {
             "movable": false,
             "scene": "diary_menu",
             "parts": {
-                "h_sFA_diary_menu": { "start": 778807, "end": 778810, "type": "h_actor" },
-                "e_sFA_diary_menu": { "start": 778810, "end": 778956, "type": "Code" },
+                "sFA_diary_menu": { "start": 778807, "end": 778956, "type": "actor_def" },
                 "func_0BE2CC": { "start": 778956, "end": 779891, "type": "Code" },
                 "sub_0BE673": { "start": 779891, "end": 779962, "type": "Code" },
                 "func_0BE6BA": { "start": 779962, "end": 780352, "type": "Code" },
@@ -909,60 +867,7 @@
                 "table_0BF6D9": { "start": 784089, "end": 784134, "order": 784052, "type": "&WideString" }
             }
         },
-        "inventory_menu": {
-            "movable": false,
-            "scene": "inventory",
-            "parts": {
-                "h_inventory_menu": { "start": 189334, "end": 189337, "type": "h_actor" },
-                "e_inventory_menu": { "start": 189337, "end": 189509, "type": "Code" },
-                "func_02E445": { "start": 189509, "end": 190371, "type": "Code" },
-                "sub_02E7A3": { "start": 190371, "end": 190395, "type": "Code" },
-                "binary_02E7BB": { "start": 190395, "end": 190407, "type": "Word" },
-                "func_02E7C7": { "start": 190407, "end": 190438, "type": "Code" },
-                "func_02E7E6": { "start": 190438, "end": 190455, "type": "Code" },
-                "func_02E7F7": { "start": 190455, "end": 190486, "type": "Code" },
-                "func_02E816": { "start": 190486, "end": 190663, "type": "Code" },
-                "func_02E8C7": { "start": 190663, "end": 190695, "type": "Code" },
-                "func_02E8E7": { "start": 190695, "end": 190710, "type": "Code" },
-                "func_02E8F6": { "start": 190710, "end": 190719, "type": "Code" },
-                "func_02E8FF": { "start": 190719, "end": 190741, "type": "Code" },
-                "func_02E915": { "start": 190741, "end": 190772, "type": "Code" },
-                "func_02E934": { "start": 190772, "end": 190803, "type": "Code" },
-                "func_02E953": { "start": 190803, "end": 190834, "type": "Code" },
-                "sub_02E972": { "start": 190834, "end": 190849, "type": "Code" },
-                "sub_02E981": { "start": 190849, "end": 190870, "type": "Code" },
-                "sub_02E996": { "start": 190870, "end": 190891, "type": "Code" },
-                "sub_02E9AB": { "start": 190891, "end": 190909, "type": "Code" },
-                "sub_02E9BD": { "start": 190909, "end": 190927, "type": "Code" },
-                "sub_02E9CF": { "start": 190927, "end": 190940, "type": "Code" },
-                "sub_02E9DC": { "start": 190940, "end": 190957, "type": "Code" },
-                "sub_02E9ED": { "start": 190957, "end": 190995, "type": "Code" },
-                "sub_02EA13": { "start": 190995, "end": 191029, "type": "Code" },
-                "bitflags_02EA35": { "start": 191029, "end": 191037, "type": "Byte" },
-                "sub_02EA3D": { "start": 191037, "end": 191091, "type": "Code" },
-                "sub_02EA73": { "start": 191091, "end": 191152, "type": "Code" },
-                "binary_02EAB0": { "start": 191152, "end": 191168, "type": "Word" },
-                "sub_02EAC0": { "start": 191168, "end": 191223, "type": "Code" },
-                "sub_02EAF7": { "start": 191223, "end": 191258, "type": "Code" },
-                "sub_02EB1A": { "start": 191258, "end": 191301, "type": "Code" },
-                "sub_02EB45": { "start": 191301, "end": 191344, "type": "Code" },
-                "sub_02EB70": { "start": 191344, "end": 191366, "type": "Code" },
-                "binary_02EB86": { "start": 191366, "end": 191430, "type": "Word" },
-                "sub_02EBC6": { "start": 191430, "end": 191474, "type": "Code" },
-                "sub_02EBF2": { "start": 191474, "end": 191498, "type": "Code" },
-                "sub_02EC0A": { "start": 191498, "end": 191522, "type": "Code" },
-                "sub_02EC22": { "start": 191522, "end": 191533, "type": "Code" },
-                "sub_02EC2D": { "start": 191533, "end": 191558, "type": "Code" },
-                "sub_02EC46": { "start": 191558, "end": 191576, "type": "Code" },
-                "sub_02EC58": { "start": 191576, "end": 191626, "type": "Code" },
-                "sub_02EC8A": { "start": 191626, "end": 191652, "type": "Code" },
-                "sub_02ECA4": { "start": 191652, "end": 191678, "type": "Code" },
-                "sub_02ECBE": { "start": 191678, "end": 191683, "type": "Code" },
-                "sub_02ECC3": { "start": 191683, "end": 191694, "type": "Code" },
-                "sub_02ECCE": { "start": 191694, "end": 191720, "type": "Code" },
-                "sub_02ECE8": { "start": 191720, "end": 191746, "type": "Code" }
-            }
-        }
+        "inventory_menu": { "start": 189334, "end": 191746, "type": "actor_def", "scene": "inventory", "movable": false }
     },
     "actors": {
         "floor_button": { "start": 51707, "end": 51778, "type": "actor_def", "movable": true },
@@ -1000,25 +905,7 @@
         },
         "town_door": { "start": 50675, "end": 50733, "type": "actor_def", "movable": true },
         "large_ramps": { "start": 51555, "end": 51598, "type": "actor_def", "movable": false },
-        "ramps": {
-            "movable": false,
-            "parts": {
-                "h_ramp_east": { "start": 53968, "end": 53971, "type": "h_actor" },
-                "e_ramp_east": { "start": 53971, "end": 54088, "type": "Code" },
-                "h_ramp_west": { "start": 54088, "end": 54091, "type": "h_actor" },
-                "e_ramp_west": { "start": 54091, "end": 54202, "type": "Code" },
-                "h_ramp_north": { "start": 54202, "end": 54205, "type": "h_actor" },
-                "e_ramp_north": { "start": 54205, "end": 54312, "type": "Code" },
-                "h_ramp_south": { "start": 54312, "end": 54315, "type": "h_actor" },
-                "e_ramp_south": { "start": 54315, "end": 54422, "type": "Code" },
-                "sub_00D496": { "start": 54422, "end": 54459, "type": "Code" },
-                "sub_00D4BB": { "start": 54459, "end": 54482, "type": "Code" },
-                "func_00D4D2": { "start": 54482, "end": 54517, "type": "Code" },
-                "func_00D4F5": { "start": 54517, "end": 54552, "type": "Code" },
-                "func_00D518": { "start": 54552, "end": 54608, "type": "Code" },
-                "func_00D550": { "start": 54608, "end": 54666, "type": "Code" }
-            }
-        },
+        "ramps": { "start": 53968, "end": 54666, "type": "actor_def", "movable": false },
         "actor_00DA78": { "start": 55928, "end": 56202, "type": "Code", "movable": true },
         "reward_actors": {
             "movable": true,
@@ -1111,108 +998,13 @@
                 "sub_02BE55": { "start": 179797, "end": 179826, "type": "Code" }
             }
         },
-        "player_character": {
-            "movable": false,
-            "parts": {
-                "h_player_character": { "start": 181132, "end": 181135, "type": "h_actor" },
-                "e_player_character": { "start": 181135, "end": 181319, "type": "Code" },
-                "table_02C447": { "start": 181319, "end": 181375, "type": "&Code" },
-                "func_02C47F": { "start": 181375, "end": 181386, "type": "Code" },
-                "func_02C48A": { "start": 181386, "end": 181391, "type": "Code" },
-                "func_02C48F": { "start": 181391, "end": 181402, "type": "Code" },
-                "func_02C49A": { "start": 181402, "end": 181407, "type": "Code" },
-                "func_02C49F": { "start": 181407, "end": 181418, "type": "Code" },
-                "func_02C4AA": { "start": 181418, "end": 181423, "type": "Code" },
-                "func_02C4AF": { "start": 181423, "end": 181434, "type": "Code" },
-                "func_02C4BA": { "start": 181434, "end": 181469, "type": "Code" },
-                "func_02C4DD": { "start": 181469, "end": 181540, "type": "Code" },
-                "func_02C524": { "start": 181540, "end": 181612, "type": "Code" },
-                "func_02C56C": { "start": 181612, "end": 181685, "type": "Code" },
-                "func_02C5B5": { "start": 181685, "end": 181759, "type": "Code" },
-                "sub_02C5FF": { "start": 181759, "end": 181783, "type": "Code" },
-                "sub_02C617": { "start": 181783, "end": 181790, "type": "Code" },
-                "func_02C61E": { "start": 181790, "end": 181906, "type": "Code" },
-                "func_02C692": { "start": 181906, "end": 181934, "type": "Code" },
-                "sub_02C6AE": { "start": 181934, "end": 181948, "type": "Code" },
-                "sub_02C6BC": { "start": 181948, "end": 181973, "type": "Code" },
-                "func_02C6D5": { "start": 181973, "end": 182010, "type": "Code" },
-                "func_02C6FA": { "start": 182010, "end": 182079, "type": "Code" },
-                "func_02C73F": { "start": 182079, "end": 182097, "type": "Code" },
-                "func_02C751": { "start": 182097, "end": 182110, "type": "Code" },
-                "sub_02C75E": { "start": 182110, "end": 182198, "type": "Code" },
-                "func_02C7B6": { "start": 182198, "end": 182242, "type": "Code" },
-                "func_02C7E2": { "start": 182242, "end": 182285, "type": "Code" },
-                "func_02C80D": { "start": 182285, "end": 182321, "type": "Code" },
-                "func_02C831": { "start": 182321, "end": 182357, "type": "Code" },
-                "func_02C855": { "start": 182357, "end": 182368, "type": "Code" },
-                "func_02C860": { "start": 182368, "end": 182373, "type": "Code" },
-                "func_02C865": { "start": 182373, "end": 182384, "type": "Code" },
-                "func_02C870": { "start": 182384, "end": 182423, "type": "Code" },
-                "func_02C897": { "start": 182423, "end": 182442, "type": "Code" },
-                "func_02C8AA": { "start": 182442, "end": 182461, "type": "Code" },
-                "func_02C8BD": { "start": 182461, "end": 182562, "type": "Code" },
-                "sub_02C922": { "start": 182562, "end": 182587, "type": "Code" },
-                "func_02C93B": { "start": 182587, "end": 182711, "type": "Code" },
-                "func_02C9B7": { "start": 182711, "end": 182725, "type": "Code" },
-                "func_02C9C5": { "start": 182725, "end": 182730, "type": "Code" },
-                "func_02C9CA": { "start": 182730, "end": 182744, "type": "Code" },
-                "func_02C9D8": { "start": 182744, "end": 182809, "type": "Code" },
-                "func_02CA19": { "start": 182809, "end": 182818, "type": "Code" },
-                "func_02CA22": { "start": 182818, "end": 182832, "type": "Code" },
-                "func_02CA30": { "start": 182832, "end": 182846, "type": "Code" },
-                "func_02CA3E": { "start": 182846, "end": 182860, "type": "Code" },
-                "func_02CA4C": { "start": 182860, "end": 182914, "type": "Code" },
-                "func_02CA82": { "start": 182914, "end": 182916, "type": "Code" },
-                "func_02CA84": { "start": 182916, "end": 182938, "type": "Code" },
-                "func_02CA9A": { "start": 182938, "end": 182994, "type": "Code" },
-                "func_02CAD2": { "start": 182994, "end": 183050, "type": "Code" },
-                "func_02CB0A": { "start": 183050, "end": 183052, "type": "Code" },
-                "func_02CB0C": { "start": 183052, "end": 183074, "type": "Code" },
-                "func_02CB22": { "start": 183074, "end": 183130, "type": "Code" },
-                "func_02CB5A": { "start": 183130, "end": 183186, "type": "Code" },
-                "sub_02CB92": { "start": 183186, "end": 183221, "type": "Code" },
-                "func_02CBB5": { "start": 183221, "end": 183257, "type": "Code" },
-                "sub_02CBD9": { "start": 183257, "end": 183295, "type": "Code" },
-                "func_02CBFF": { "start": 183295, "end": 183378, "type": "Code" },
-                "func_02CC52": { "start": 183378, "end": 183461, "type": "Code" },
-                "sub_02CCA5": { "start": 183461, "end": 183490, "type": "Code" },
-                "sub_02CCC2": { "start": 183490, "end": 183514, "type": "Code" },
-                "func_02CCDA": { "start": 183514, "end": 183643, "type": "Code" },
-                "func_02CD5B": { "start": 183643, "end": 183772, "type": "Code" },
-                "func_02CDDC": { "start": 183772, "end": 183898, "type": "Code" },
-                "func_02CE5A": { "start": 183898, "end": 184024, "type": "Code" },
-                "func_02CED8": { "start": 184024, "end": 184046, "type": "Code" },
-                "sub_02CEEE": { "start": 184046, "end": 184079, "type": "Code" },
-                "func_02CF0F": { "start": 184079, "end": 184138, "type": "Code" },
-                "sub_02CF4A": { "start": 184138, "end": 184168, "type": "Code" },
-                "func_02CF68": { "start": 184168, "end": 184194, "type": "Code" },
-                "func_02CF82": { "start": 184194, "end": 184220, "type": "Code" },
-                "func_02CF9C": { "start": 184220, "end": 184246, "type": "Code" },
-                "func_02CFB6": { "start": 184246, "end": 184272, "type": "Code" }
-            }
-        },
+        "player_character": { "start": 181132, "end": 184272, "type": "actor_def", "movable": false },
         "actor_08B577": { "start": 570743, "end": 570770, "type": "actor_def", "movable": true },
         "jeweler_gem": { "start": 577184, "end": 579227, "type": "actor_def", "movable": true },
-        "dark_space": {
-            "movable": true,
-            "parts": {
-                "h_dark_space1": { "start": 579227, "end": 579230, "type": "h_actor" },
-                "e_dark_space1": { "start": 579230, "end": 579241, "type": "Code" },
-                "h_dark_space2": { "start": 579241, "end": 579244, "type": "h_actor" },
-                "e_dark_space2": { "start": 579244, "end": 579496, "type": "Code" }
-            }
-        },
+        "dark_space": { "start": 579227, "end": 579496, "type": "actor_def", "movable": true },
         "actor_08FCFF": { "start": 589055, "end": 589078, "type": "actor_def", "movable": true },
         "actor_0BD2AB": { "start": 774827, "end": 774918, "type": "actor_def", "movable": true },
-        "actor_0BE1C5": {
-            "movable": true,
-            "parts": {
-                "h_actor_0BE1C5": { "start": 778693, "end": 778696, "type": "h_actor" },
-                "e_actor_0BE1C5": { "start": 778696, "end": 778715, "type": "Code" },
-                "func_0BE1DB": { "start": 778715, "end": 778798, "type": "Code" },
-                "sub_0BE22E": { "start": 778798, "end": 778807, "type": "Code" }
-            }
-        },
+        "actor_0BE1C5": { "start": 778693, "end": 778807, "type": "actor_def", "movable": true },
         "debug_man": { "start": 781856, "end": 782712, "type": "actor_def", "movable": true },
         "actor_0BFA57": { "start": 784983, "end": 785012, "type": "actor_def", "movable": true }
     },
@@ -1231,54 +1023,14 @@
         "thinker_00B7EA": { "start": 47082, "end": 47092, "type": "thinker_def", "movable": true },
         "thinker_00B7F4": { "start": 47092, "end": 47102, "type": "thinker_def", "movable": true },
         "thinker_00B7FE": { "start": 47102, "end": 47112, "type": "thinker_def", "movable": true },
-        "parallax_thinker": {
-            "movable": true,
-            "parts": {
-                "h_parallax_thinker": { "start": 47243, "end": 47245, "type": "h_thinker" },
-                "e_parallax_thinker": { "start": 47245, "end": 47299, "type": "Code" },
-                "sub_00B8C3": { "start": 47299, "end": 47316, "type": "Code" },
-                "sub_00B8D4": { "start": 47316, "end": 47643, "type": "Code" },
-                "sub_00BA1B": { "start": 47643, "end": 47712, "type": "Code" },
-                "sub_00BA60": { "start": 47712, "end": 47802, "type": "Code" },
-                "sub_00BABA": { "start": 47802, "end": 47821, "type": "Code" },
-                "sub_00BACD": { "start": 47821, "end": 47903, "type": "Code" },
-                "sub_00BB1F": { "start": 47903, "end": 47971, "type": "Code" },
-                "sub_00BB63": { "start": 47971, "end": 48014, "type": "Code" }
-            }
-        },
+        "parallax_thinker": { "start": 47243, "end": 48014, "type": "thinker_def", "movable": true },
         "thinker_00BCDF": { "start": 48351, "end": 48373, "type": "thinker_def", "movable": true },
         "thinker_00BE18": { "start": 48664, "end": 48697, "type": "thinker_def", "movable": true },
         "thinker_00BE83": { "start": 48771, "end": 48810, "type": "thinker_def", "movable": true },
         "thinker_00BF19": { "start": 48921, "end": 48978, "type": "thinker_def", "movable": true },
-        "thinker_00BF89": {
-            "movable": true,
-            "parts": {
-                "h_thinker_00BF89": { "start": 49033, "end": 49035, "type": "h_thinker" },
-                "e_thinker_00BF89": { "start": 49035, "end": 49077, "type": "Code" },
-                "func_00BFB5": { "start": 49077, "end": 49389, "type": "Code" },
-                "func_00C0ED": { "start": 49389, "end": 49459, "type": "Code" },
-                "sub_00C133": { "start": 49459, "end": 49538, "type": "Code" },
-                "sub_00C182": { "start": 49538, "end": 49578, "type": "Code" }
-            }
-        },
+        "thinker_00BF89": { "start": 49033, "end": 49578, "type": "thinker_def", "movable": true },
         "sFE_proc_03A940": { "start": 239936, "end": 240520, "type": "thinker_def" },
-        "thinkers_05FB16": {
-            "movable": true,
-            "parts": {
-                "h_crF7_thinker_05FB16": { "start": 391958, "end": 391960, "type": "h_thinker" },
-                "func_05FB18": { "start": 391960, "end": 391986, "type": "Code" },
-                "h_thinker_05FB32": { "start": 391986, "end": 391988, "type": "h_thinker" },
-                "e_thinker_05FB32": { "start": 391988, "end": 392025, "type": "Code" },
-                "sub_05FB59": { "start": 392025, "end": 392338, "type": "Code" },
-                "sub_05FC92": { "start": 392338, "end": 392663, "type": "Code" },
-                "sub_05FDD7": { "start": 392663, "end": 392698, "type": "Code" },
-                "sub_05FDFA": { "start": 392698, "end": 392748, "type": "Code" },
-                "sub_05FE2C": { "start": 392748, "end": 392858, "type": "Code" },
-                "sub_05FE9A": { "start": 392858, "end": 392868, "type": "Code" },
-                "sub_05FEA4": { "start": 392868, "end": 392895, "type": "Code" },
-                "sub_05FEBF": { "start": 392895, "end": 392914, "type": "Code" }
-            }
-        }
+        "thinkers_05FB16": { "start": 391958, "end": 392914, "type": "thinker_def", "movable": true }
     },
     "unused": {
         "func_00B528": { "start": 46376, "end": 46515, "type": "Code", "movable": true },
@@ -1295,62 +1047,22 @@
         "func_00F428": { "start": 62504, "end": 62514, "type": "Code", "movable": true },
         "func_03AB88": { "start": 240520, "end": 241015, "type": "Code", "movable": true },
         "sc01_actor_0489EE": { "start": 297454, "end": 297458, "type": "actor_def", "movable": true },
-        "hint_npc": {
-            "movable": true,
-            "parts": {
-                "h_hint_npc1": { "start": 630999, "end": 631002, "type": "h_actor" },
-                "e_hint_npc1": { "start": 631002, "end": 631013, "type": "Code" },
-                "h_hint_npc2": { "start": 631013, "end": 631016, "type": "h_actor" },
-                "e_hint_npc2": { "start": 631016, "end": 631107, "type": "Code" },
-                "func_09A143": { "start": 631107, "end": 631775, "type": "Code" }
-            }
-        },
-        "dark_rewards": {
-            "movable": true,
-            "parts": {
-                "h_dark_rewards1": { "start": 631775, "end": 631778, "type": "h_actor" },
-                "e_dark_rewards1": { "start": 631778, "end": 631789, "type": "Code" },
-                "h_dark_rewards2": { "start": 631789, "end": 631792, "type": "h_actor" },
-                "e_dark_rewards2": { "start": 631792, "end": 633109, "type": "Code" }
-            }
-        },
-        "actor_09AA6E": {
-            "movable": true,
-            "parts": {
-                "h_actor_09AA6E": { "start": 633454, "end": 633457, "type": "h_actor" },
-                "e_actor_09AA6E": { "start": 633457, "end": 634168, "type": "Code" },
-                "func_09AD38": { "start": 634168, "end": 634978, "type": "Code" },
-                "sub_09B062": { "start": 634978, "end": 635012, "type": "Code" },
-                "sub_09B084": { "start": 635012, "end": 635046, "type": "Code" },
-                "func_09B0A6": { "start": 635046, "end": 635186, "type": "Code" },
-                "func_09B132": { "start": 635186, "end": 635448, "type": "Code" },
-                "sub_09B238": { "start": 635448, "end": 635477, "type": "Code" },
-                "sub_09B255": { "start": 635477, "end": 635484, "type": "Code" },
-                "binary_09B25C": { "start": 635484, "end": 635492, "type": "Binary" },
-                "binary_09B264": { "start": 635492, "end": 635500, "type": "Binary" },
-                "binary_09B26C": { "start": 635500, "end": 635508, "type": "Binary" },
-                "sub_09B274": { "start": 635508, "end": 635533, "type": "Code" },
-                "func_09B28D": { "start": 635533, "end": 635576, "type": "Code" },
-                "sub_09B2B8": { "start": 635576, "end": 635597, "type": "Code" },
-                "sub_09B2CD": { "start": 635597, "end": 635662, "type": "Code" },
-                "func_09B30E": { "start": 635662, "end": 635678, "type": "Code" },
-                "func_09B31E": { "start": 635678, "end": 635770, "type": "Code" },
-                "func_09B37A": { "start": 635770, "end": 635882, "type": "Code" },
-                "func_09B3EA": { "start": 635882, "end": 636282, "type": "Code" },
-                "binary_09B57A": { "start": 636282, "end": 636287, "type": "Binary" },
-                "func_09B57F": { "start": 636287, "end": 636302, "type": "Code" },
-                "func_09B58E": { "start": 636302, "end": 636333, "type": "Code" },
-                "func_09B5AD": { "start": 636333, "end": 636472, "type": "Code" },
-                "func_09B638": { "start": 636472, "end": 636582, "type": "Code" },
-                "func_09B6A6": { "start": 636582, "end": 637103, "type": "Code" },
-                "func_09B8AF": { "start": 637103, "end": 637329, "type": "Code" },
-                "func_09B991": { "start": 637329, "end": 637388, "type": "Code" },
-                "sub_09B9CC": { "start": 637388, "end": 637460, "type": "Code" },
-                "sub_09BA14": { "start": 637460, "end": 637496, "type": "Code" },
-                "func_09BA38": { "start": 637496, "end": 637529, "type": "Code" },
-                "sub_09BA59": { "start": 637529, "end": 637568, "type": "Code" }
-            }
-        },
+        "hint_npc": { "movable": true, "parts": {
+            "hint_npc1": { "start": 630999, "end": 631013, "type": "actor_def" },
+            "hint_npc2": { "start": 631013, "end": 631107, "type": "actor_def" },
+            "code_09A143": { "start": 631107, "end": 631775, "type": "Code" }
+        } },
+        "dark_rewards": { "movable": true, "parts": {
+            "dark_rewards1": { "start": 631775, "end": 631789, "type": "actor_def" },
+            "dark_rewards2": { "start": 631789, "end": 633109, "type": "actor_def" }
+        } },
+        "actor_09AA6E": { "movable": true, "parts": {
+            "actor_09AA6E": { "start": 633454, "end": 635484, "type": "actor_def" },
+            "byte_09B25C": { "start": 635484, "end": 635492, "type": "Byte" },
+            "byte_09B264": { "start": 635492, "end": 635500, "type": "Byte" },
+            "byte_09B26C": { "start": 635500, "end": 636282, "type": "Byte" },
+            "byte_09B57A": { "start": 636282, "end": 637568, "type": "Byte" }
+        } },
         "actor_09BA80": { "start": 637568, "end": 637667, "type": "actor_def", "movable": true },
         "actor_09BAE3": { "start": 637667, "end": 637719, "type": "actor_def", "movable": true },
         "kara_09BBB7": { "start": 637879, "end": 638004, "type": "actor_def", "movable": true },
@@ -1371,16 +1083,7 @@
         "ec0A_actor_04C56A": { "start": 312682, "end": 312686, "type": "actor_def", "scene": "edward_castle", "movable": true },
         "ec0A_edwina": { "start": 312686, "end": 312776, "type": "actor_def", "scene": "edward_castle", "movable": true },
         "ec0A_door_guard": { "start": 312776, "end": 312858, "type": "actor_def", "scene": "edward_castle", "movable": true },
-        "ec0A_throne_guards": {
-            "movable": true,
-            "scene": "edward_castle",
-            "parts": {
-                "h_ec0A_throne_guard1": { "start": 312858, "end": 312861, "type": "h_actor" },
-                "e_ec0A_throne_guard1": { "start": 312861, "end": 312991, "type": "Code" },
-                "h_ec0A_throne_guard2": { "start": 312991, "end": 312994, "type": "h_actor" },
-                "e_ec0A_throne_guard2": { "start": 312994, "end": 313262, "type": "Code" }
-            }
-        },
+        "ec0A_throne_guards": { "start": 312858, "end": 313262, "type": "actor_def", "scene": "edward_castle", "movable": true },
         "ec0A_bed_maid": { "start": 313262, "end": 313340, "type": "actor_def", "scene": "edward_castle", "movable": true },
         "ec0A_stair_maid": { "start": 313340, "end": 313520, "type": "actor_def", "scene": "edward_castle", "movable": true },
         "ec0A_shy_guard": { "start": 313520, "end": 313574, "type": "actor_def", "scene": "edward_castle", "movable": true },
@@ -1409,68 +1112,24 @@
         "ec0D_canal_worm": { "start": 688128, "end": 688748, "type": "actor_def", "movable": true },
         "ec0C_ribber": { "start": 688748, "end": 689270, "type": "actor_def", "movable": true },
         "ec12_skull_chaser": { "start": 689270, "end": 689655, "type": "actor_def", "movable": true },
-        "ec0F_king_bat": {
-            "movable": true,
-            "parts": {
-                "h_ec0F_king_bat": { "start": 689655, "end": 689658, "type": "h_actor" },
-                "e_ec0F_king_bat": { "start": 689658, "end": 689769, "type": "Code" },
-                "h_ec0F_sub_bat1": { "start": 689769, "end": 689772, "type": "h_actor" },
-                "e_ec0F_sub_bat1": { "start": 689772, "end": 689818, "type": "Code" },
-                "h_ec0F_sub_bat2": { "start": 689818, "end": 689821, "type": "h_actor" },
-                "e_ec0F_sub_bat2": { "start": 689821, "end": 689867, "type": "Code" },
-                "h_ec0F_sub_bat3": { "start": 689867, "end": 689870, "type": "h_actor" },
-                "e_ec0F_sub_bat3": { "start": 689870, "end": 689919, "type": "Code" },
-                "h_ec0F_sub_bat4": { "start": 689919, "end": 689922, "type": "h_actor" },
-                "e_ec0F_sub_bat4": { "start": 689922, "end": 689971, "type": "Code" },
-                "sub_0A8733": { "start": 689971, "end": 689987, "type": "Code" },
-                "sub_0A8743": { "start": 689987, "end": 690003, "type": "Code" },
-                "func_0A8753": { "start": 690003, "end": 690005, "type": "Code" }
-            }
-        },
+        "ec0F_king_bat": { "start": 689655, "end": 690005, "type": "actor_def", "movable": true },
         "ec0C_bat": { "start": 690005, "end": 690115, "type": "actor_def", "movable": true },
-        "ec0F_spear": {
-            "movable": true,
-            "scene": "aqueduct_hall",
-            "parts": {
-                "h_ec0F_spear1": { "start": 690115, "end": 690118, "type": "h_actor" },
-                "e_ec0F_spear1": { "start": 690118, "end": 690126, "type": "Code" },
-                "h_ec0F_spear2": { "start": 690126, "end": 690129, "type": "h_actor" },
-                "e_ec0F_spear2": { "start": 690129, "end": 690229, "type": "Code" }
-            }
-        },
+        "ec0F_spear": { "start": 690115, "end": 690229, "type": "actor_def", "scene": "aqueduct_hall", "movable": true },
         "ec0E_statue": { "start": 690229, "end": 690326, "type": "actor_def", "scene": "aqueduct_lockway", "movable": true },
         "ec0E_switch": { "start": 690481, "end": 690545, "type": "actor_def", "scene": "aqueduct_lockway", "movable": true },
         "ec0F_rusty_switch": { "start": 690545, "end": 690654, "type": "actor_def", "scene": "aqueduct_hall", "movable": true },
-        "ec0E_barrier": {
-            "movable": true,
-            "scene": "aqueduct_lockway",
-            "parts": {
-                "h_ec0E_barrier1": { "start": 690654, "end": 690657, "type": "h_actor" },
-                "e_ec0E_barrier1": { "start": 690657, "end": 690703, "type": "Code" },
-                "h_ec0E_barrier2": { "start": 690703, "end": 690706, "type": "h_actor" },
-                "e_ec0E_barrier2": { "start": 690706, "end": 690758, "type": "Code" },
-                "h_ec0E_barrier3": { "start": 690758, "end": 690761, "type": "h_actor" },
-                "e_ec0E_barrier3": { "start": 690761, "end": 690813, "type": "Code" },
-                "h_ec0E_barrier4": { "start": 690813, "end": 690816, "type": "h_actor" },
-                "e_ec0E_barrier4": { "start": 690816, "end": 690862, "type": "Code" }
-            }
-        },
+        "ec0E_barrier": { "start": 690654, "end": 690862, "type": "actor_def", "scene": "aqueduct_lockway", "movable": true },
         "ec0E_spiney": { "start": 690862, "end": 690971, "type": "actor_def", "movable": true }
     },
     "gold_ship": {
         "thinker_00B6D2": { "start": 46802, "end": 46821, "type": "thinker_def", "scene": "dream", "movable": true },
         "actor_00C1AA": { "start": 49578, "end": 49631, "type": "actor_def", "scene": "dream", "movable": true },
-        "gs2B_actor_058027": {
-            "movable": true,
-            "scene": "ship_wreck",
-            "parts": {
-                "widestring_058000": { "start": 360448, "end": 360487, "type": "WideString" },
-                "h_gs2B_actor_058027": { "start": 360487, "end": 360490, "type": "h_actor" },
-                "e_gs2B_actor_058027": { "start": 360490, "end": 360624, "type": "Code" },
-                "binary_0580B0": { "start": 360624, "end": 360762, "type": "Binary" },
-                "code_05F859": { "start": 391257, "end": 391360, "type": "Code" }
-            }
-        },
+        "widestring_058000": { "start": 360448, "end": 360487, "type": "WideString", "movable": true },
+        "gs2B_actor_058027": { "scene": "ship_wreck", "movable": true, "parts": {
+            "gs2B_actor_058027": { "start": 360487, "end": 360624, "type": "actor_def" },
+            "unk18_0580B0": { "start": 360624, "end": 360762, "type": "unk18" },
+            "code_05F859": { "start": 391257, "end": 391360, "type": "Code" }
+        } },
         "gs2C_actor_05813A": { "start": 360762, "end": 360815, "type": "actor_def", "scene": "ship_gold", "movable": true },
         "gs2C_actor_05816F": { "start": 360815, "end": 360825, "type": "actor_def", "scene": "ship_gold", "movable": true },
         "gs2C_descent": { "start": 360825, "end": 361039, "type": "actor_def", "scene": "ship_gold", "movable": true },
@@ -1492,27 +1151,14 @@
         "gs2D_lance": { "start": 364480, "end": 364953, "type": "actor_def", "scene": "ship_wreck_interior", "movable": true },
         "gs2B_bones": { "start": 363443, "end": 363523, "type": "actor_def", "scene": "ship_wreck", "movable": true },
         "gs2B_seth": { "start": 366142, "end": 366330, "type": "actor_def", "scene": "ship_wreck", "movable": true },
-        "gs2B_erik": {
-            "movable": true,
-            "scene": "ship_wreck",
-            "parts": {
-                "h_gs2B_erik": { "start": 364953, "end": 364956, "type": "h_actor" },
-                "e_gs2B_erik": { "start": 364956, "end": 365652, "type": "Code" },
-                "code_058598": { "start": 361880, "end": 361990, "order": 364957, "type": "Code" },
-                "binary_058606": { "start": 361990, "end": 362028, "order": 364958, "type": "Binary" }
-            }
-        },
+        "gs2B_erik": { "scene": "ship_wreck",  "movable": true, "parts": {
+            "gs2B_erik": { "start": 364953, "end": 365652, "type": "actor_def" },
+            "code_058598": { "start": 361880, "end": 361990, "order": 364957, "type": "Code" },
+            "unk18_058606": { "start": 361990, "end": 362028, "order": 364958, "type": "unk18" }
+        } },
         "gs2A_shira": { "start": 365652, "end": 366142, "type": "actor_def", "scene": "dream", "movable": false },
-        "dc2F_adrift": {
-            "movable": false,
-            "scene": "adrift",
-            "parts": {
-                "h_dc2F_actor_0596FA": { "start": 366330, "end": 366333, "type": "h_actor" },
-                "e_dc2F_actor_0596FA": { "start": 366333, "end": 366351, "type": "Code" },
-                "h_dc2F_adrift": { "start": 366351, "end": 366354, "type": "h_actor" },
-                "e_dc2F_adrift": { "start": 366354, "end": 371308, "type": "Code" }
-            }
-        }
+        "dc2F_actor_0596FA": { "start": 366330, "end": 366351, "type": "actor_def", "scene": "adrift", "movable": true },
+        "dc2F_adrift": { "start": 366351, "end": 371308, "type": "actor_def", "scene": "adrift", "movable": false }
     },
     "seaside_palace": {
         "thinker_00B71E": { "start": 46878, "end": 46932, "type": "thinker_def", "scene": "palace_fountain", "movable": true },
@@ -1532,19 +1178,7 @@
         "sp5A_voice": { "start": 431413, "end": 431926, "type": "actor_def", "scene": "palace_main", "movable": true },
         "sp5E_passageway": { "start": 431926, "end": 432038, "type": "actor_def", "scene": "palace_passageway", "movable": true },
         "sp5C_slipper": { "start": 713820, "end": 714444, "type": "actor_def", "movable": true },
-        "sp5C_skuddle": {
-            "movable": true,
-            "parts": {
-                "h_sp5C_skuddle": { "start": 714444, "end": 714447, "type": "h_actor" },
-                "e_sp5C_skuddle": { "start": 714447, "end": 714484, "type": "Code" },
-                "h_sp5C_ceiling_skuddle": { "start": 714484, "end": 714487, "type": "h_actor" },
-                "e_sp5C_ceiling_skuddle": { "start": 714487, "end": 714629, "type": "Code" },
-                "func_0AE785": { "start": 714629, "end": 714699, "type": "Code" },
-                "func_0AE7CB": { "start": 714699, "end": 714910, "type": "Code" },
-                "sub_0AE89E": { "start": 714910, "end": 714934, "type": "Code" },
-                "func_0AE8B6": { "start": 714934, "end": 715075, "type": "Code" }
-            }
-        }
+        "sp5C_skuddle": { "start": 714444, "end": 715075, "type": "actor_def", "movable": true }
     },
     "watermia": {
         "thinker_00B754": { "start": 46932, "end": 46977, "type": "thinker_def", "scene": "watermia", "movable": true },
@@ -1564,16 +1198,10 @@
         "wa78_lily_pad": { "start": 498556, "end": 498568, "type": "actor_def", "scene": "watermia", "movable": true },
         "wa78_full_pad": { "start": 498568, "end": 498677, "type": "actor_def", "scene": "watermia", "movable": true },
         "wa78_diary": { "start": 498677, "end": 499234, "type": "actor_def", "scene": "watermia", "movable": true },
-        "wa78_moving_pad": {
-            "movable": true,
-            "scene": "watermia",
-            "parts": {
-                "h_wa78_moving_pad": { "start": 499614, "end": 499617, "type": "h_actor" },
-                "e_wa78_moving_pad": { "start": 499617, "end": 499852, "type": "Code" },
-                "e_actor_079E22": { "start": 499234, "end": 499575, "order": 499618, "type": "Code" },
-                "sub_079F77": { "start": 499575, "end": 499614, "order": 499619, "type": "Code" }
-            }
-        },
+        "wa78_moving_pad": { "scene": "watermia", "movable": true, "parts": {
+            "wa78_moving_pad": { "start": 499614, "end": 499852, "type": "actor_def" },
+            "actor_079E22": { "start": 499234, "end": 499614, "order": 499618, "type": "Code" }
+        } },
         "wa78_crazy_man": { "start": 499852, "end": 499952, "type": "actor_def", "scene": "watermia", "movable": true },
         "wa7B_competitor_left": { "start": 499952, "end": 500038, "type": "actor_def", "scene": "gambling_house", "movable": true },
         "wa7B_competitor_right": { "start": 500038, "end": 500124, "type": "actor_def", "scene": "gambling_house", "movable": true },
@@ -1584,15 +1212,10 @@
         "wa7A_lance": { "start": 502517, "end": 502908, "type": "actor_def", "scene": "lances_fathers_house", "movable": true },
         "wa79_lance": { "start": 502908, "end": 503754, "type": "actor_def", "scene": "lukes_house", "movable": true },
         "wa7F_lance": { "start": 503754, "end": 504269, "type": "actor_def", "scene": "lance_lily_exchange", "movable": true },
-        "wa7F_lily": {
-            "movable": true,
-            "scene": "lance_lily_exchange",
-            "parts": {
-                "h_wa7F_lily": { "start": 504280, "end": 504283, "type": "h_actor" },
-                "e_wa7F_lily": { "start": 504283, "end": 504730, "type": "Code" },
-                "func_07B1CD": { "start": 504269, "end": 504280, "order": 504284, "type": "Code" }
-            }
-        },
+        "wa7F_lily": { "scene": "lance_lily_exchange", "movable": true, "parts": {
+            "wa7F_lily": { "start": 504280, "end": 504730, "type": "actor_def" },
+            "code_07B1CD": { "start": 504269, "end": 504280, "order": 504284, "type": "Code" }
+        } },
         "wa7A_lances_father": { "start": 504730, "end": 505019, "type": "actor_def", "scene": "lances_fathers_house", "movable": true },
         "fireplace_journal": { "start": 505019, "end": 505135, "type": "actor_def", "scene": "lances_fathers_house", "movable": true }
     },
@@ -1604,15 +1227,10 @@
         "thinker_00BF78": { "start": 49016, "end": 49033, "type": "thinker_def", "scene": "dark_castoth_lair", "movable": true },
         "btE3_dao_travel_spirit": { "start": 622592, "end": 622787, "type": "actor_def", "scene": "babel_upper_floors", "movable": true },
         "btDC_plane_jumping": { "start": 622918, "end": 623893, "type": "actor_def", "scene": "babel_flight", "movable": true },
-        "btE3_kara": {
-            "movable": true,
-            "scene": "babel_upper_floors",
-            "parts": {
-                "h_btE3_kara": { "start": 623893, "end": 623896, "type": "h_actor" },
-                "e_btE3_kara": { "start": 623896, "end": 624160, "type": "Code" },
-                "btE3_kara_destroy": { "start": 624351, "end": 624353, "type": "Code" }
-            }
-        },
+        "btE3_kara": { "scene": "babel_upper_floors", "movable": true, "parts": {
+            "btE3_kara": { "start": 623893, "end": 624160, "type": "actor_def" },
+            "btE3_kara_destroy": { "start": 624351, "end": 624353, "type": "Code" }
+        } },
         "btDE_kara_missing": { "start": 624160, "end": 624408, "type": "actor_def", "scene": "babel_entrance", "movable": true },
         "btE0_actor_098718": { "start": 624408, "end": 624456, "type": "actor_def", "scene": "babel_middle_floors", "movable": true },
         "btE0_actor_098748": { "start": 624456, "end": 624504, "type": "actor_def", "scene": "babel_middle_floors", "movable": true },
@@ -1632,31 +1250,14 @@
         "btDF_kara": { "start": 630412, "end": 630928, "type": "actor_def", "scene": "babel_lower_floors", "movable": true },
         "sE7_thinker_0CEB5B": { "start": 846683, "end": 846708, "type": "thinker_def", "scene": "space_flight", "movable": true },
         "sE8_thinker_0CEB74": { "start": 846708, "end": 846949, "type": "thinker_def", "scene": "comet_lair", "movable": false },
-        "sE7_actor_0CEDC5": {
-            "movable": true,
-            "scene": "space_flight",
-            "parts": {
-                "h_sE7_actor_0CEDC5": { "start": 847301, "end": 847304, "type": "h_actor" },
-                "e_sE7_actor_0CEDC5": { "start": 847304, "end": 847530, "type": "Code" },
-                "func_0CED4C": { "start": 847180, "end": 847301, "order": 847305, "type": "Code" }
-            }
-        },
-        "sE8_actor_0CEEAA": {
-            "movable": false,
-            "scene": "comet_lair",
-            "parts": {
-                "h_sE8_actor_0CEEAA": { "start": 847530, "end": 847533, "type": "h_actor" },
-                "e_sE8_actor_0CEEAA": { "start": 847533, "end": 848457, "type": "Code" },
-                "sub_0CF249": { "start": 848457, "end": 848486, "type": "Code" },
-                "func_0CEC65": { "start": 846949, "end": 847159, "order": 848458, "type": "Code" },
-                "func_0CED37": { "start": 847159, "end": 847166, "order": 848459, "type": "Code" },
-                "func_0CED3E": { "start": 847166, "end": 847173, "order": 848460, "type": "Code" },
-                "func_0CED45": { "start": 847173, "end": 847180, "order": 848461, "type": "Code" },
-                "func_0CF266": { "start": 848486, "end": 849182, "order": 848462, "type": "Code" },
-                "func_0CF51E": { "start": 849182, "end": 849391, "order": 848463, "type": "Code" },
-                "func_0CF5EF": { "start": 849391, "end": 849439, "order": 848464, "type": "Code" }
-            }
-        }
+        "sE7_actor_0CEDC5": { "scene": "space_flight", "movable": true, "parts": {
+            "sE7_actor_0CEDC5": { "start": 847301, "end": 847530, "type": "actor_def" },
+            "code_0CED4C": { "start": 847180, "end": 847301, "order": 847305, "type": "Code" }
+        } },
+        "sE8_actor_0CEEAA": { "scene": "comet_lair", "movable": false, "parts": {
+            "sE8_actor_0CEEAA": { "start": 847530, "end": 849439, "type": "actor_def" },
+            "code_0CEC65": { "start": 846949, "end": 847180, "order": 848458, "type": "Code" }
+        } }
     },
     "dao": {
         "thinker_00B7BE": { "start": 47038, "end": 47052, "type": "thinker_def", "scene": "dao", "movable": true },
@@ -1708,22 +1309,7 @@
         "it1A_lily": { "start": 324673, "end": 325781, "type": "actor_def", "scene": "moon_tribe_camp", "movable": true },
         "it1B_trial": { "start": 325781, "end": 326341, "type": "actor_def", "scene": "moon_tribe_cave", "movable": true },
         "it1B_inca_statue_b": { "start": 326341, "end": 326463, "type": "actor_def", "scene": "moon_tribe_cave", "movable": true },
-        "it1A_moon_tribe": {
-            "movable": true,
-            "scene": "moon_tribe_camp",
-            "parts": {
-                "h_it1A_moon_tribe1": { "start": 643317, "end": 643320, "type": "h_actor" },
-                "e_it1A_moon_tribe1": { "start": 643320, "end": 643411, "type": "Code" },
-                "h_it1A_moon_tribe2": { "start": 643411, "end": 643414, "type": "h_actor" },
-                "e_it1A_moon_tribe2": { "start": 643414, "end": 643443, "type": "Code" },
-                "h_it1A_moon_tribe3": { "start": 643443, "end": 643446, "type": "h_actor" },
-                "e_it1A_moon_tribe3": { "start": 643446, "end": 643475, "type": "Code" },
-                "h_it1A_moon_tribe4": { "start": 643475, "end": 643478, "type": "h_actor" },
-                "e_it1A_moon_tribe4": { "start": 643478, "end": 643507, "type": "Code" },
-                "h_it1A_moon_tribe5": { "start": 643507, "end": 643510, "type": "h_actor" },
-                "e_it1A_moon_tribe5": { "start": 643510, "end": 644685, "type": "Code" }
-            }
-        }
+        "it1A_moon_tribe": { "start": 643317, "end": 644685, "type": "actor_def", "scene": "moon_tribe_camp", "movable": true }
     },
     "angel_village": {
         "thinker_00B87B": { "start": 47227, "end": 47243, "type": "thinker_def", "scene": "angel_tunnel_rooms", "movable": true },
@@ -1737,64 +1323,34 @@
         "st68_actor_06B937": { "start": 440631, "end": 440818, "type": "actor_def", "scene": "undersea_tunnel", "movable": true },
         "av69_signs": { "start": 440841, "end": 440965, "type": "actor_def", "scene": "angel_entrance", "movable": true },
         "av69_lance": { "start": 440965, "end": 441327, "type": "actor_def", "scene": "angel_entrance", "movable": true },
-        "av6A_lance": {
-            "movable": true,
-            "scene": "angel_annex",
-            "parts": {
-                "h_av6A_lance": { "start": 441327, "end": 441330, "type": "h_actor" },
-                "e_av6A_lance": { "start": 441330, "end": 442362, "type": "Code" },
-                "av6A_lance_destroy": { "start": 441080, "end": 441082, "order": 441331, "type": "Code" }
-            }
-        },
+        "av6A_lance": { "scene": "angel_annex", "movable": true, "parts": {
+            "av6A_lance": { "start": 441327, "end": 442362, "type": "actor_def" },
+            "av6A_lance_destroy": { "start": 441080, "end": 441082, "order": 441331, "type": "Code" }
+        } },
         "av69_neil": { "start": 442362, "end": 442424, "type": "actor_def", "scene": "angel_entrance", "movable": true },
-        "av6A_neil": {
-            "movable": true,
-            "scene": "angel_annex",
-            "parts": {
-                "h_av6A_neil": { "start": 442424, "end": 442427, "type": "h_actor" },
-                "e_av6A_neil": { "start": 442427, "end": 442802, "type": "Code" },
-                "av6A_neil_destroy": { "start": 442422, "end": 442424, "order": 442428, "type": "Code" }
-            }
-        },
+        "av6A_neil": { "scene": "angel_annex", "movable": true, "parts": {
+            "av6A_neil": { "start": 442424, "end": 442802, "type": "actor_def" },
+            "av6A_neil_destroy": { "start": 442422, "end": 442424, "order": 442428, "type": "Code" }
+        } },
         "av69_lily": { "start": 442802, "end": 443022, "type": "actor_def", "scene": "angel_entrance", "movable": true },
-        "av6A_lily": {
-            "movable": true,
-            "scene": "angel_annex",
-            "parts": {
-                "h_av6A_lily": { "start": 443022, "end": 443025, "type": "h_actor" },
-                "e_av6A_lily": { "start": 443025, "end": 443208, "type": "Code" },
-                "av6A_lily_destroy": { "start": 442914, "end": 442916, "order": 443026, "type": "Code" }
-            }
-        },
-        "av69_kara": {
-            "movable": true,
-            "scene": "angel_entrance",
-            "parts": {
-                "h_av69_kara": { "start": 443208, "end": 443211, "type": "h_actor" },
-                "e_av69_kara": { "start": 443211, "end": 443266, "type": "Code" },
-                "widestring_06C3B1": { "start": 443313, "end": 443415, "type": "WideString" }
-            }
-        },
-        "av6A_kara": {
-            "movable": true,
-            "scene": "angel_annex",
-            "parts": {
-                "h_av6A_kara": { "start": 443266, "end": 443269, "type": "h_actor" },
-                "e_av6A_kara": { "start": 443269, "end": 443313, "type": "Code" },
-                "av6A_kara_destroy": { "start": 443264, "end": 443266, "order": 443270, "type": "Code" },
-                "widestring_06C417": { "start": 443415, "end": 443498, "order": 443271, "type": "WideString" }
-            }
-        },
+        "av6A_lily": { "scene": "angel_annex", "movable": true, "parts": {
+            "av6A_lily": { "start": 443022, "end": 443208, "type": "actor_def" },
+            "av6A_lily_destroy": { "start": 442914, "end": 442916, "order": 443026, "type": "Code" }
+        } },
+        "av69_kara": { "scene": "angel_entrance", "movable": true, "parts": {
+            "av69_kara": { "start": 443208, "end": 443266, "type": "actor_def" },
+            "widestring_06C3B1": { "start": 443313, "end": 443415, "type": "WideString" }
+        } },
+        "av6A_kara": { "scene": "angel_annex", "movable": true, "parts": {
+            "av6A_kara": { "start": 443266, "end": 443313, "type": "actor_def" },
+            "av6A_kara_destroy": { "start": 443264, "end": 443266, "order": 443270, "type": "Code" },
+            "widestring_06C417": { "start": 443415, "end": 443498, "order": 443271, "type": "WideString" }
+        } },
         "av69_erik": { "start": 443498, "end": 443577, "type": "actor_def", "scene": "angel_entrance", "movable": true },
-        "av6A_erik": {
-            "movable": true,
-            "scene": "angel_annex",
-            "parts": {
-                "h_av6A_erik": { "start": 443577, "end": 443580, "type": "h_actor" },
-                "e_av6A_erik": { "start": 443580, "end": 444122, "type": "Code" },
-                "av6A_erik_destroy": { "start": 443575, "end": 443577, "order": 443581, "type": "Code" }
-            }
-        },
+        "av6A_erik": { "scene": "angel_annex", "movable": true, "parts": {
+            "av6A_erik": { "start": 443577, "end": 444122, "type": "actor_def" },
+            "av6A_erik_destroy": { "start": 443575, "end": 443577, "order": 443581, "type": "Code" }
+        } },
         "av6B_ocean_ache": { "start": 444122, "end": 444245, "type": "actor_def", "scene": "angel_village", "movable": true },
         "av6B_villagers1": { "start": 444245, "end": 444944, "type": "actor_def", "scene": "angel_village", "movable": true },
         "av6C_villagers4": { "start": 444944, "end": 445130, "type": "actor_def", "scene": "angel_rooms", "movable": true },
@@ -1804,19 +1360,8 @@
         "av74_ishtar": { "start": 446082, "end": 446541, "type": "actor_def", "scene": "angel_tunnel_rooms", "movable": true },
         "av6C_only_sleeping": { "start": 446541, "end": 446635, "type": "actor_def", "scene": "angel_rooms", "movable": true },
         "av6B_musician": { "start": 446635, "end": 446756, "type": "actor_def", "scene": "angel_village", "movable": true },
-        "av6C_unknown": {
-            "movable": true,
-            "parts": {
-                "h_av6C_unknown1": { "start": 446756, "end": 446759, "type": "h_actor" },
-                "e_av6C_unknown1": { "start": 446759, "end": 446772, "type": "Code" },
-                "h_av6C_unknown2": { "start": 446772, "end": 446775, "type": "h_actor" },
-                "e_av6C_unknown2": { "start": 446775, "end": 446777, "type": "Code" },
-                "h_av6C_unknown3": { "start": 446777, "end": 446780, "type": "h_actor" },
-                "e_av6C_unknown3": { "start": 446780, "end": 446785, "type": "Code" },
-                "h_av6C_unknown4": { "start": 446785, "end": 446788, "type": "h_actor" },
-                "e_av6C_unknown4": { "start": 446788, "end": 446798, "type": "Code" }
-            }
-        },
+        "av6C_harpist": { "start": 446756, "end": 446772, "type": "actor_def", "scene": "angel_rooms", "movable": true },
+        "av6C_portrait": { "start": 446772, "end": 446798, "type": "actor_def", "movable": true },
         "av74_kara": { "start": 446798, "end": 447835, "type": "actor_def", "scene": "angel_tunnel_rooms", "movable": true },
         "av6B_flame": { "start": 447835, "end": 447855, "type": "actor_def", "movable": true },
         "av6D_flame_left": { "start": 447855, "end": 447870, "type": "actor_def", "movable": true },
@@ -1832,92 +1377,48 @@
         "av75_apprentice": { "start": 449616, "end": 449752, "type": "actor_def", "scene": "angel_tunnel_test", "movable": true },
         "av6D_dive_bat": { "start": 716447, "end": 716595, "type": "actor_def", "movable": true },
         "av6D_steelbones": { "start": 715345, "end": 716438, "type": "actor_def", "movable": true },
-        "av6E_draco": {
-            "movable": true,
-            "parts": {
-                "h_av6E_draco": { "start": 716595, "end": 716598, "type": "h_actor" },
-                "e_av6E_draco": { "start": 716598, "end": 716999, "type": "Code" },
-                "sub_0AFD26": { "start": 720166, "end": 720218, "type": "Code" }
-            }
-        },
+        "av6E_draco": { "movable": true, "parts": {
+            "av6E_draco": { "start": 716595, "end": 716999, "type": "actor_def" },
+            "sub_0AFD26": { "start": 720166, "end": 720218, "type": "Code" }
+        } },
         "av70_ramskull": { "start": 716999, "end": 717136, "type": "actor_def", "movable": true }
     },
     "ending": {
         "thinker_00BCB3": { "start": 48307, "end": 48351, "type": "thinker_def", "scene": "ending_comet", "movable": true },
-        "sF7_credits": {
-            "movable": false,
-            "scene": "ending_credits",
-            "parts": {
-                "h_sF7_credits": { "start": 644685, "end": 644688, "type": "h_actor" },
-                "e_sF7_credits": { "start": 644688, "end": 645963, "type": "Code" },
-                "sub_09DB4B": { "start": 645963, "end": 645977, "type": "Code" },
-                "sub_09DB59": { "start": 645977, "end": 645991, "type": "Code" },
-                "code_09E62F": { "start": 648751, "end": 648779, "type": "Code" },
-                "func_09E919": { "start": 649497, "end": 650275, "type": "Code" },
-                "sub_09EC23": { "start": 650275, "end": 650352, "type": "Code" },
-                "func_09EC70": { "start": 650352, "end": 650355, "type": "Code" },
-                "code_09EC73": { "start": 650355, "end": 650356, "type": "Code" },
-                "table_09EC74": { "start": 650356, "end": 650431, "type": "&Code" },
-                "widestring_09ECBF": { "start": 650431, "end": 652080, "type": "WideString!" },
-                "code_09F4AA": { "start": 652458, "end": 652560, "type": "Code" },
-                "func_09F69F": { "start": 652959, "end": 652966, "type": "Code" }
-            }
-        },
+        "sF7_credits": { "scene": "ending_credits", "movable": false, "parts": {
+            "sF7_credits": { "start": 644685, "end": 645991, "type": "actor_def" },
+            "code_09E62F": { "start": 648751, "end": 648779, "type": "Code" },
+            "code_09E919": { "start": 649497, "end": 650356, "type": "Code" },
+            "table_09EC74": { "start": 650356, "end": 650431, "type": "&Code" },
+            "widestring_09ECBF": { "start": 650431, "end": 652080, "type": "WideString!" },
+            "code_09F4AA": { "start": 652458, "end": 652560, "type": "Code" },
+            "func_09F69F": { "start": 652959, "end": 652966, "type": "Code" }
+        } },
         "sF0_class_dismissed": { "start": 645991, "end": 646567, "type": "actor_def", "scene": "ending_class_dismissed", "movable": true },
-        "sF7_actor_09DFF8": {
-            "movable": true,
-            "scene": "ending_credits",
-            "parts": {
-                "h_sF7_actor_09DFF8": { "start": 647160, "end": 647163, "type": "h_actor" },
-                "e_sF7_actor_09DFF8": { "start": 647163, "end": 647499, "type": "Code" },
-                "e_actor_09DDA7": { "start": 646567, "end": 647160, "order": 647164, "type": "Code" }
-            }
-        },
-        "sF7_actor_09E26C": {
-            "movable": true,
-            "scene": "ending_credits",
-            "parts": {
-                "h_sF7_actor_09E26C": { "start": 647788, "end": 647791, "type": "h_actor" },
-                "e_sF7_actor_09E26C": { "start": 647791, "end": 647962, "type": "Code" },
-                "e_actor_09E14B": { "start": 647499, "end": 647788, "order": 647792, "type": "Code" }
-            }
-        },
-        "sF7_actor_09E3EB": {
-            "movable": true,
-            "scene": "ending_credits",
-            "parts": {
-                "h_sF7_actor_09E3EB": { "start": 648171, "end": 648174, "type": "h_actor" },
-                "e_sF7_actor_09E3EB": { "start": 648174, "end": 648292, "type": "Code" },
-                "e_actor_09E31A": { "start": 647962, "end": 648171, "order": 648175, "type": "Code" }
-            }
-        },
-        "sF7_actor_09E4DD": {
-            "movable": true,
-            "scene": "ending_credits",
-            "parts": {
-                "h_sF7_actor_09E4DD": { "start": 648413, "end": 648416, "type": "h_actor" },
-                "e_sF7_actor_09E4DD": { "start": 648416, "end": 648504, "type": "Code" },
-                "e_actor_09E464": { "start": 648292, "end": 648413, "order": 648417, "type": "Code" }
-            }
-        },
-        "sF7_actor_09E591": {
-            "movable": true,
-            "scene": "ending_credits",
-            "parts": {
-                "h_sF7_actor_09E591": { "start": 648593, "end": 648596, "type": "h_actor" },
-                "e_sF7_actor_09E591": { "start": 648596, "end": 648670, "type": "Code" },
-                "e_actor_09E538": { "start": 648504, "end": 648593, "order": 648597, "type": "Code" }
-            }
-        },
-        "sF7_actor_09E607": {
-            "movable": true,
-            "scene": "ending_credits",
-            "parts": {
-                "h_sF7_actor_09E607": { "start": 648711, "end": 648714, "type": "h_actor" },
-                "e_sF7_actor_09E607": { "start": 648714, "end": 648751, "type": "Code" },
-                "func_09E5DE": { "start": 648670, "end": 648711, "order": 648715, "type": "Code" }
-            }
-        },
+        "sF7_actor_09DFF8": { "scene": "ending_credits", "movable": true, "parts": {
+            "sF7_actor_09DFF8": { "start": 647160, "end": 647499, "type": "actor_def" },
+            "e_actor_09DDA7": { "start": 646567, "end": 647160, "order": 647164, "type": "Code" }
+        } },
+        "sF7_actor_09E26C": { "scene": "ending_credits", "movable": true, "parts": {
+            "sF7_actor_09E26C": { "start": 647788, "end": 647962, "type": "actor_def" },
+            "e_actor_09E14B": { "start": 647499, "end": 647788, "order": 647792, "type": "Code" }
+        } },
+        "sF7_actor_09E3EB": { "scene": "ending_credits", "movable": true, "parts": {
+            "sF7_actor_09E3EB": { "start": 648171, "end": 648292, "type": "actor_def" },
+            "e_actor_09E31A": { "start": 647962, "end": 648171, "order": 648175, "type": "Code" }
+        } },
+        "sF7_actor_09E4DD": { "scene": "ending_credits", "movable": true, "parts": {
+            "sF7_actor_09E4DD": { "start": 648413, "end": 648504, "type": "actor_def" },
+            "e_actor_09E464": { "start": 648292, "end": 648413, "order": 648417, "type": "Code" }
+        } },
+        "sF7_actor_09E591": { "scene": "ending_credits", "movable": true, "parts": {
+            "sF7_actor_09E591": { "start": 648593, "end": 648670, "type": "actor_def" },
+            "e_actor_09E538": { "start": 648504, "end": 648593, "order": 648597, "type": "Code" }
+        } },
+        "sF7_actor_09E607": { "scene": "ending_credits", "movable": true, "parts": {
+            "sF7_actor_09E607": { "start": 648711, "end": 648751, "type": "actor_def" },
+            "func_09E5DE": { "start": 648670, "end": 648711, "order": 648715, "type": "Code" }
+        } },
         "misc_actors_09E64B": { "start": 648779, "end": 649444, "type": "Code", "scene": "ending_credits", "movable": true },
         "func_09E8E4": {
             "movable": true,
@@ -1954,15 +1455,10 @@
         "ir1C_lily": { "start": 641535, "end": 642723, "type": "actor_def", "scene": "incan_ruins_entrance", "movable": true },
         "ir1C_kara": { "start": 642723, "end": 642950, "type": "actor_def", "scene": "incan_ruins_entrance", "movable": true },
         "ir29_transform": { "start": 642950, "end": 643115, "type": "actor_def", "scene": "castoth_lair", "movable": true },
-        "ir1D_monologue": {
-            "movable": true,
-            "scene": "larai_cliff",
-            "parts": {
-                "h_ir1D_monologue": { "start": 643115, "end": 643118, "type": "h_actor" },
-                "e_ir1D_monologue": { "start": 643118, "end": 643317, "type": "Code" },
-                "widestring_05F8F7": { "start": 391415, "end": 391580, "order": 643119, "type": "WideString" }
-            }
-        },
+        "ir1D_monologue": { "scene": "larai_cliff", "movable": true, "parts": {
+            "ir1D_monologue": { "start": 643115, "end": 643317, "type": "actor_def" },
+            "widestring_05F8F7": { "start": 391415, "end": 391580, "order": 643119, "type": "WideString" }
+        } },
         "ir26_statue": { "start": 690326, "end": 690398, "type": "actor_def", "scene": "inca_treasure_room", "movable": true },
         "ir20_statue": { "start": 690398, "end": 690481, "type": "actor_def", "scene": "inca_secret_hallway", "movable": true },
         "ir1D_mudpit": { "start": 690971, "end": 691312, "type": "actor_def", "movable": true },
@@ -1970,60 +1466,22 @@
         "ir1B_slugger": { "start": 691639, "end": 691894, "type": "actor_def", "movable": true },
         "ir1D_scuttlebug": { "start": 691894, "end": 692262, "type": "actor_def", "movable": true },
         "ir21_switch": { "start": 692262, "end": 692321, "type": "actor_def", "movable": true },
-        "ir1F_stone_guard": {
-            "movable": true,
-            "parts": {
-                "h_ir1F_stone_guard1": { "start": 692321, "end": 692324, "type": "h_actor" },
-                "e_ir1F_stone_guard1": { "start": 692324, "end": 692326, "type": "Code" },
-                "h_ir1F_stone_guard2": { "start": 692326, "end": 692329, "type": "h_actor" },
-                "e_ir1F_stone_guard2": { "start": 692329, "end": 692331, "type": "Code" },
-                "h_ir1F_stone_guard3": { "start": 692331, "end": 692334, "type": "h_actor" },
-                "e_ir1F_stone_guard3": { "start": 692334, "end": 692336, "type": "Code" },
-                "h_ir1F_stone_guard4": { "start": 692336, "end": 692339, "type": "h_actor" },
-                "e_ir1F_stone_guard4": { "start": 692339, "end": 692387, "type": "Code" },
-                "func_0A90A3_noref": { "start": 692387, "end": 692481, "type": "Code" },
-                "h_ir1F_stone_guard5": { "start": 692481, "end": 692484, "type": "h_actor" },
-                "e_ir1F_stone_guard5": { "start": 692484, "end": 692526, "type": "Code" },
-                "func_0A912E": { "start": 692526, "end": 693000, "type": "Code" },
-                "func_0A9308": { "start": 693000, "end": 693056, "type": "Code" },
-                "func_0A9340": { "start": 693056, "end": 693112, "type": "Code" },
-                "func_0A9378": { "start": 693112, "end": 693168, "type": "Code" },
-                "func_0A93B0": { "start": 693168, "end": 693176, "type": "Code" },
-                "sub_0A93B8": { "start": 693176, "end": 693202, "type": "Code" },
-                "sub_0A93D2": { "start": 693202, "end": 693225, "type": "Code" },
-                "func_0A93E9": { "start": 693225, "end": 693616, "type": "Code" },
-                "sub_0A9570": { "start": 693616, "end": 693629, "type": "Code" },
-                "sub_0A957D": { "start": 693629, "end": 693656, "type": "Code" },
-                "sub_0A9598": { "start": 693656, "end": 693683, "type": "Code" }
-            }
-        },
-        "ir1F_stone_lord": {
-            "movable": true,
-            "parts": {
-                "h_ir1F_stone_lord1": { "start": 693683, "end": 693686, "type": "h_actor" },
-                "e_ir1F_stone_lord1": { "start": 693686, "end": 693688, "type": "Code" },
-                "h_ir1F_stone_lord2": { "start": 693688, "end": 693691, "type": "h_actor" },
-                "e_ir1F_stone_lord2": { "start": 693691, "end": 693693, "type": "Code" },
-                "h_ir1F_stone_lord3": { "start": 693693, "end": 693696, "type": "h_actor" },
-                "e_ir1F_stone_lord3": { "start": 693696, "end": 693698, "type": "Code" },
-                "h_ir1F_stone_lord4": { "start": 693698, "end": 693701, "type": "h_actor" },
-                "e_ir1F_stone_lord4": { "start": 693701, "end": 693749, "type": "Code" },
-                "func_0A95F5_noref": { "start": 693749, "end": 693843, "type": "Code" },
-                "h_ir1F_stone_lord5": { "start": 693843, "end": 693846, "type": "h_actor" },
-                "e_ir1F_stone_lord5": { "start": 693846, "end": 693884, "type": "Code" },
-                "func_0A967C": { "start": 693884, "end": 694254, "type": "Code" }
-            }
-        },
+        "ir1F_stone_guard": { "movable": true, "parts": {
+            "ir1F_stone_guard1": { "start": 692321, "end": 692326, "type": "actor_def" },
+            "ir1F_stone_guard2": { "start": 692326, "end": 692331, "type": "actor_def" },
+            "ir1F_stone_guard3": { "start": 692331, "end": 692336, "type": "actor_def" },
+            "ir1F_stone_guard4": { "start": 692336, "end": 692481, "type": "actor_def" },
+            "ir1F_stone_guard5": { "start": 692481, "end": 693683, "type": "actor_def" }
+        } },
+        "ir1F_stone_lord": { "start": 693683, "end": 694254, "type": "actor_def", "movable": true },
         "ir21_splop": { "start": 694254, "end": 694460, "type": "actor_def", "movable": true },
         "ir21_whirligig": { "start": 694460, "end": 694723, "type": "actor_def", "movable": true },
         "ir21_frozen_whirligig": { "start": 694723, "end": 694743, "type": "actor_def", "movable": true },
         "ir29_castoth": {
             "movable": true,
             "parts": {
-                "h_btF2_neo_castoth": { "start": 694743, "end": 694746, "type": "h_actor" },
-                "e_btF2_neo_castoth": { "start": 694746, "end": 695043, "type": "Code" },
-                "h_ir29_castoth": { "start": 695043, "end": 695046, "type": "h_actor" },
-                "e_ir29_castoth": { "start": 695046, "end": 695234, "type": "Code" },
+                "btF2_neo_castoth": { "start": 694743, "end": 695043, "type": "actor_def" },
+                "ir29_castoth": { "start": 695043, "end": 695234, "type": "actor_def" },
                 "func_0A9BC2": { "start": 695234, "end": 695311, "type": "Code" },
                 "binary_0A9C0F": { "start": 695311, "end": 695319, "type": "Binary" },
                 "func_0A9C17": { "start": 695319, "end": 695326, "type": "Code" },
@@ -2043,16 +1501,7 @@
     "mu": {
         "thinker_00BDCD": { "start": 48589, "end": 48664, "type": "thinker_def", "movable": true },
         "mu61_hint": { "start": 432038, "end": 432290, "type": "actor_def", "scene": "mu_south", "movable": true },
-        "mu62_hope_statue": {
-            "movable": true,
-            "scene": "mu_west",
-            "parts": {
-                "h_mu62_hope_statue1": { "start": 432290, "end": 432293, "type": "h_actor" },
-                "e_mu62_hope_statue1": { "start": 432293, "end": 432461, "type": "Code" },
-                "h_mu62_hope_statue2": { "start": 432461, "end": 432464, "type": "h_actor" },
-                "e_mu62_hope_statue2": { "start": 432464, "end": 432583, "type": "Code" }
-            }
-        },
+        "mu62_hope_statue": { "start": 432290, "end": 432583, "type": "actor_def", "scene": "mu_west", "movable": true },
         "mu63_spirits": { "start": 432583, "end": 433194, "type": "actor_def", "scene": "mu_prayer_room", "movable": true },
         "mu66_altar1": { "start": 433194, "end": 433261, "type": "actor_def", "scene": "mu_altar_room", "movable": true },
         "mu66_altar2": { "start": 433261, "end": 433285, "type": "actor_def", "scene": "mu_altar_room", "movable": true },
@@ -2063,44 +1512,23 @@
         "mu66_rama_spirits": { "start": 433724, "end": 434878, "type": "actor_def", "scene": "mu_altar_room", "movable": true },
         "mu67_erik": { "start": 434878, "end": 435216, "type": "actor_def", "scene": "mu_vampire_lair", "movable": true },
         "mu67_bomb": { "start": 435216, "end": 436037, "type": "actor_def", "scene": "mu_vampire_lair", "movable": true },
-        "mu67_neil_lily": {
-            "movable": true,
-            "scene": "mu_vampire_lair",
-            "parts": {
-                "h_mu67_neil": { "start": 436037, "end": 436040, "type": "h_actor" },
-                "e_mu67_neil": { "start": 436040, "end": 436264, "type": "Code" },
-                "e_mu67_lily": { "start": 436711, "end": 436909, "type": "Code" }
-            }
-        },
+        "mu67_neil_lily": { "scene": "mu_vampire_lair", "movable": true, "parts": {
+            "mu67_neil": { "start": 436037, "end": 436264, "type": "actor_def" },
+            "e_mu67_lily": { "start": 436711, "end": 436909, "type": "Code" }
+        } },
         "mu67_actor_06A828": { "start": 436264, "end": 436294, "type": "actor_def", "scene": "mu_vampire_lair", "movable": true },
         "mu67_kara": { "start": 436294, "end": 436711, "type": "actor_def", "scene": "mu_vampire_lair", "movable": true },
-        "mu5F_cyclops": {
-            "movable": true,
-            "parts": {
-                "h_mu5F_cyclops1": { "start": 712094, "end": 712097, "type": "h_actor" },
-                "e_mu5F_cyclops1": { "start": 712097, "end": 712199, "type": "Code" },
-                "h_mu5F_cyclops2": { "start": 712199, "end": 712202, "type": "h_actor" },
-                "e_mu5F_cyclops2": { "start": 712202, "end": 712250, "type": "Code" },
-                "func_0ADE3A": { "start": 712250, "end": 712469, "type": "Code" },
-                "sub_0ADF15": { "start": 712469, "end": 712489, "type": "Code" },
-                "func_0ADF29": { "start": 712489, "end": 713326, "type": "Code" }
-            }
-        },
+        "mu5F_cyclops": { "start": 712094, "end": 713326, "type": "actor_def", "movable": true },
         "mu5F_flasher": { "start": 713326, "end": 713820, "type": "actor_def", "movable": true },
         "mu60_plasma_chain": { "start": 715075, "end": 715345, "type": "actor_def", "movable": true },
         "mu67_vampires": {
             "movable": true,
             "scene": "mu_vampire_lair",
             "parts": {
-                "h_btF4_neo_male_vampire": { "start": 717136, "end": 717139, "type": "h_actor" },
-                "e_h_btF4_neo_male_vampire": { "start": 717139, "end": 717212, "type": "Code" },
-                "h_btF4_neo_female_vampire": { "start": 717212, "end": 717215, "type": "h_actor" },
-                "e_h_btF4_neo_female_vampire": { "start": 717215, "end": 717303, "type": "Code" },
-                "h_mu67_male_vampire": { "start": 717303, "end": 717306, "type": "h_actor" },
-                "e_mu67_male_vampire": { "start": 717306, "end": 717501, "type": "Code" },
-                "func_0AF2BD": { "start": 717501, "end": 717768, "type": "Code" },
-                "h_mu67_female_vampire": { "start": 717768, "end": 717771, "type": "h_actor" },
-                "e_mu67_female_vampire": { "start": 717771, "end": 717862, "type": "Code" },
+                "btF4_neo_male_vampire": { "start": 717136, "end": 717212, "type": "actor_def" },
+                "btF4_neo_female_vampire": { "start": 717212, "end": 717303, "type": "actor_def" },
+                "mu67_male_vampire": { "start": 717303, "end": 717768, "type": "actor_def" },
+                "mu67_female_vampire": { "start": 717768, "end": 717862, "type": "actor_def" },
                 "func_0AF426": { "start": 717862, "end": 718023, "type": "Code" },
                 "func_0AF4C7": { "start": 718023, "end": 718041, "type": "Code" },
                 "func_0AF4D9": { "start": 718041, "end": 718059, "type": "Code" },
@@ -2127,63 +1555,35 @@
     "native_village": {
         "thinker_00BEF2": { "start": 48882, "end": 48921, "type": "thinker_def", "scene": "native_village", "movable": true },
         "nvAC_bones": { "start": 557056, "end": 557143, "type": "actor_def", "scene": "native_village", "movable": true },
-        "nvAC_kara": {
-            "movable": true,
-            "scene": "native_village",
-            "parts": {
-                "h_nvAC_kara": { "start": 557143, "end": 557146, "type": "h_actor" },
-                "e_nvAC_kara": { "start": 557146, "end": 557477, "type": "Code" },
-                "code_0881BE": { "start": 557502, "end": 558406, "type": "Code" },
-                "widestring_0887C6": { "start": 559046, "end": 559196, "type": "WideString" },
-                "code_088A60": { "start": 559712, "end": 559815, "type": "Code" }
-            }
-        },
+        "nvAC_kara": { "scene": "native_village", "movable": true, "parts": {
+            "nvAC_kara": { "start": 557143, "end": 557477, "type": "actor_def" },
+            "code_0881BE": { "start": 557502, "end": 558406, "type": "Code" },
+            "widestring_0887C6": { "start": 559046, "end": 559196, "type": "WideString" },
+            "code_088A60": { "start": 559712, "end": 559815, "type": "Code" }
+        } },
         "nv_actor_0881A5": { "start": 557477, "end": 557502, "type": "Code", "scene": "native_village", "movable": true },
         "nvAC_erik": { "start": 558406, "end": 558681, "type": "actor_def", "scene": "native_village", "movable": true },
-        "nvAC_hamlet": {
-            "movable": true,
-            "scene": "native_village",
-            "parts": {
-                "h_nvAC_hamlet": { "start": 558681, "end": 558684, "type": "h_actor" },
-                "e_nvAC_hamlet": { "start": 558684, "end": 559046, "type": "Code" },
-                "widestring_08885C": { "start": 559196, "end": 559712, "type": "WideString" }
-            }
-        },
+        "nvAC_hamlet": { "scene": "native_village", "movable": true, "parts": {
+            "nvAC_hamlet": { "start": 558681, "end": 559046, "type": "actor_def" },
+            "widestring_08885C": { "start": 559196, "end": 559712, "type": "WideString" }
+        } },
         "nvAD_kara": { "start": 559815, "end": 560031, "type": "actor_def", "scene": "vacant_hut", "movable": true },
         "nvAD_erik": { "start": 560031, "end": 560142, "type": "actor_def", "scene": "vacant_hut", "movable": true },
         "nvAD_hamlet": { "start": 560142, "end": 560209, "type": "actor_def", "scene": "vacant_hut", "movable": true },
         "nvAC_bonfire": { "start": 560209, "end": 560237, "type": "actor_def", "scene": "native_village", "movable": true },
-        "nvAC_hand_man": {
-            "movable": true,
-            "scene": "native_village",
-            "parts": {
-                "h_nvAC_hand_man1": { "start": 560237, "end": 560240, "type": "h_actor" },
-                "e_nvAC_hand_man1": { "start": 560240, "end": 560491, "type": "Code" },
-                "h_nvAC_hand_man2": { "start": 561736, "end": 561739, "type": "h_actor" },
-                "e_nvAC_hand_man2": { "start": 561739, "end": 561756, "type": "Code" }
-            }
-        },
-        "nvAC_dumpling_man": {
-            "movable": true,
-            "scene": "native_village",
-            "parts": {
-                "h_nvAC_dumpling_man1": { "start": 560491, "end": 560494, "type": "h_actor" },
-                "e_nvAC_dumpling_man1": { "start": 560494, "end": 560774, "type": "Code" },
-                "h_nvAC_dumpling_man2": { "start": 561664, "end": 561667, "type": "h_actor" },
-                "e_nvAC_dumpling_man2": { "start": 561667, "end": 561736, "type": "Code" }
-            }
-        },
-        "nvAC_staring_man": {
-            "movable": true,
-            "scene": "native_village",
-            "parts": {
-                "h_nvAC_staring_man1": { "start": 560774, "end": 560777, "type": "h_actor" },
-                "e_nvAC_staring_man1": { "start": 560777, "end": 561032, "type": "Code" },
-                "h_nvAC_staring_man2": { "start": 561756, "end": 561759, "type": "h_actor" },
-                "e_nvAC_staring_man2": { "start": 561759, "end": 561826, "type": "Code" },
-                "nvAC_staring_man2_destroy": { "start": 560324, "end": 560326, "order": 561760, "type": "Code" }
-            }
-        },
+        "nvAC_hand_man": { "scene": "native_village", "movable": true, "parts": {
+            "nvAC_hand_man1": { "start": 560237, "end": 560491, "type": "actor_def" },
+            "nvAC_hand_man2": { "start": 561736, "end": 561756, "type": "actor_def" }
+        } },
+        "nvAC_dumpling_man": { "scene": "native_village", "movable": true, "parts": {
+            "nvAC_dumpling_man1": { "start": 560491, "end": 560774, "type": "actor_def" },
+            "nvAC_dumpling_man2": { "start": 561664, "end": 561736, "type": "actor_def" }
+        } },
+        "nvAC_staring_man": { "scene": "native_village", "movable": true, "parts": {
+            "nvAC_staring_man1": { "start": 560774, "end": 561032, "type": "actor_def" },
+            "nvAC_staring_man2": { "start": 561756, "end": 561826, "type": "actor_def" },
+            "nvAC_staring_man2_destroy": { "start": 560324, "end": 560326, "order": 561760, "type": "Code" }
+        } },
         "nvAC_map_kid": { "start": 561032, "end": 561290, "type": "actor_def", "scene": "native_village", "movable": true },
         "nvAC_beckon_kid": { "start": 561290, "end": 561664, "type": "actor_def", "scene": "native_village", "movable": true },
         "nvAE_stone_girl1": { "start": 561826, "end": 562022, "type": "actor_def", "scene": "gorgon_hut", "movable": true },
@@ -2197,98 +1597,43 @@
         "actor_00C218": { "start": 49688, "end": 49745, "type": "actor_def", "scene": "kress_maze", "movable": true },
         "actor_00C286": { "start": 49798, "end": 49851, "type": "actor_def", "movable": true },
         "mtA0_intro": { "start": 517981, "end": 518128, "type": "actor_def", "scene": "kress_entrance", "movable": true },
-        "mtA2_actor_07E7F0": {
-            "movable": true,
-            "scene": "kress_crossroads",
-            "parts": {
-                "h_mtA2_actor_07E7F0": { "start": 518128, "end": 518131, "type": "h_actor" },
-                "e_mtA2_actor_07E7F0": { "start": 518131, "end": 518209, "type": "Code" },
-                "f_mtA2_actor_07E7F0_destroy": { "start": 518209, "end": 518211, "type": "Code" }
-            }
-        },
-        "mtA5_actor_07E843": {
-            "movable": true,
-            "scene": "kress_circuit",
-            "parts": {
-                "h_mtA5_actor_07E843": { "start": 518211, "end": 518214, "type": "h_actor" },
-                "e_mtA5_actor_07E843": { "start": 518214, "end": 518294, "type": "Code" },
-                "f_mtA5_actor_07E843_destroy": { "start": 518209, "end": 518211, "order": 518215, "type": "Code" }
-            }
-        },
-        "mtA5_actor_07E896": {
-            "movable": true,
-            "scene": "kress_circuit",
-            "parts": {
-                "h_mtA5_actor_07E896": { "start": 518294, "end": 518297, "type": "h_actor" },
-                "e_mtA5_actor_07E896": { "start": 518297, "end": 518401, "type": "Code" },
-                "f_mtA5_actor_07E896_destroy": { "start": 518209, "end": 518211, "order": 518298, "type": "Code" }
-            }
-        },
-        "mtA1_fire_sprite": {
-            "movable": true,
-            "parts": {
-                "h_mtA1_fire_sprite": { "start": 759867, "end": 759870, "type": "h_actor" },
-                "e_mtA1_fire_sprite": { "start": 759870, "end": 759920, "type": "Code" },
-                "func_0B9870": { "start": 759920, "end": 760170, "type": "Code" },
-                "func_0B996A": { "start": 760170, "end": 760262, "type": "Code" },
-                "func_0B99C6": { "start": 760262, "end": 760495, "type": "Code" },
-                "func_0B9AAF": { "start": 760495, "end": 760730, "type": "Code" },
-                "sub_0B9B9A": { "start": 760730, "end": 760738, "type": "Code" },
-                "sub_0BA5D5": { "start": 763349, "end": 763359, "type": "Code" }
-            }
-        },
-        "mtA0_skulker": {
-            "movable": true,
-            "parts": {
-                "h_mtA0_skulker1": { "start": 760738, "end": 760741, "type": "h_actor" },
-                "e_mtA0_skulker1": { "start": 760741, "end": 760748, "type": "Code" },
-                "h_mtA0_skulker_ns": { "start": 760748, "end": 760751, "type": "h_actor" },
-                "e_mtA0_skulker_ns": { "start": 760751, "end": 760900, "type": "Code" },
-                "h_mtA0_skulker2": { "start": 760900, "end": 760903, "type": "h_actor" },
-                "e_mtA0_skulker2": { "start": 760903, "end": 760910, "type": "Code" },
-                "h_mtA0_skulker_ew": { "start": 760910, "end": 760913, "type": "h_actor" },
-                "e_mtA0_skulker_ew": { "start": 760913, "end": 761064, "type": "Code" },
-                "sub_0B9CE8": { "start": 761064, "end": 761103, "type": "Code" }
-            }
-        },
-        "mtA1_yorrick_ns": {
-            "movable": true,
-            "parts": {
-                "h_mtA1_yorrick_1": { "start": 761103, "end": 761106, "type": "h_actor" },
-                "e_mtA1_yorrick_1": { "start": 761106, "end": 761168, "type": "Code" },
-                "func_0B9D50": { "start": 761168, "end": 761293, "type": "Code" },
-                "h_mtA1_yorrick_2": { "start": 761293, "end": 761296, "type": "h_actor" },
-                "e_mtA1_yorrick_2": { "start": 761296, "end": 761358, "type": "Code" },
-                "func_0B9E0E": { "start": 761358, "end": 761483, "type": "Code" }
-            }
-        },
-        "mtA1_yorrick_ew": {
-            "movable": true,
-            "parts": {
-                "h_mtA1_yorrick_3": { "start": 761483, "end": 761486, "type": "h_actor" },
-                "e_mtA1_yorrick_3": { "start": 761486, "end": 761553, "type": "Code" },
-                "func_0B9ED1": { "start": 761553, "end": 761683, "type": "Code" },
-                "h_mtA1_yorrick_4": { "start": 761683, "end": 761686, "type": "h_actor" },
-                "e_mtA1_yorrick_4": { "start": 761686, "end": 761755, "type": "Code" },
-                "func_0B9F9B": { "start": 761755, "end": 761885, "type": "Code" }
-            }
-        },
-        "mtA0_acid_spider": {
-            "movable": true,
-            "parts": {
-                "h_mtA0_acid_spider1": { "start": 761885, "end": 761888, "type": "h_actor" },
-                "e_mtA0_acid_spider1": { "start": 761888, "end": 761929, "type": "Code" },
-                "h_mtA0_acid_spider2": { "start": 761929, "end": 761932, "type": "h_actor" },
-                "e_mtA0_acid_spider2": { "start": 761932, "end": 761973, "type": "Code" },
-                "h_mtA0_acid_spider3": { "start": 761973, "end": 761976, "type": "h_actor" },
-                "e_mtA0_acid_spider3": { "start": 761976, "end": 762017, "type": "Code" },
-                "h_mtA0_acid_spider4": { "start": 762017, "end": 762020, "type": "h_actor" },
-                "e_mtA0_acid_spider4": { "start": 762020, "end": 762063, "type": "Code" },
-                "h_mtA0_acid_spider5": { "start": 762063, "end": 762066, "type": "h_actor" },
-                "e_mtA0_acid_spider5": { "start": 762066, "end": 763302, "type": "Code" },
-                "sub_0BA5A6": { "start": 763302, "end": 763349, "type": "Code" }
-            }
-        }
+        "mtA2_actor_07E7F0": { "scene": "kress_crossroads", "movable": true, "parts": {
+            "mtA2_actor_07E7F0": { "start": 518128, "end": 518209, "type": "actor_def" },
+            "f_mtA2_actor_07E7F0_destroy": { "start": 518209, "end": 518211, "type": "Code" }
+        } },
+        "mtA5_actor_07E843": { "scene": "kress_circuit", "movable": true, "parts": {
+            "mtA5_actor_07E843": { "start": 518211, "end": 518294, "type": "actor_def" },
+            "f_mtA5_actor_07E843_destroy": { "start": 518209, "end": 518211, "order": 518215, "type": "Code" }
+        } },
+        "mtA5_actor_07E896": { "scene": "kress_circuit", "movable": true, "parts": {
+            "mtA5_actor_07E896": { "start": 518294, "end": 518401, "type": "actor_def" },
+            "f_mtA5_actor_07E896_destroy": { "start": 518209, "end": 518211, "order": 518298, "type": "Code" }
+        } },
+        "mtA1_fire_sprite": { "movable": true, "parts": {
+            "mtA1_fire_sprite": { "start": 759867, "end": 760738, "type": "actor_def" },
+            "sub_0BA5D5": { "start": 763349, "end": 763359, "type": "Code" }
+        } },
+        "mtA0_skulker": { "movable": true, "parts": {
+            "mtA0_skulker1": { "start": 760738, "end": 760748, "type": "actor_def" },
+            "mtA0_skulker_ns": { "start": 760748, "end": 760900, "type": "actor_def" },
+            "mtA0_skulker2": { "start": 760900, "end": 760910, "type": "actor_def" },
+            "mtA0_skulker_ew": { "start": 760910, "end": 761103, "type": "actor_def" }
+        } },
+        "mtA1_yorrick_ns": { "movable": true, "parts": {
+            "mtA1_yorrick_1": { "start": 761103, "end": 761293, "type": "actor_def" },
+            "mtA1_yorrick_2": { "start": 761293, "end": 761483, "type": "actor_def" }
+        } },
+        "mtA1_yorrick_ew": { "movable": true, "parts": {
+            "mtA1_yorrick_3": { "start": 761483, "end": 761683, "type": "actor_def" },
+            "mtA1_yorrick_4": { "start": 761683, "end": 761885, "type": "actor_def" }
+        } },
+        "mtA0_acid_spider": { "movable": true, "parts": {
+            "mtA0_acid_spider1": { "start": 761885, "end": 761929, "type": "actor_def" },
+            "mtA0_acid_spider2": { "start": 761929, "end": 761973, "type": "actor_def" },
+            "mtA0_acid_spider3": { "start": 761973, "end": 762017, "type": "actor_def" },
+            "mtA0_acid_spider4": { "start": 762017, "end": 762063, "type": "actor_def" },
+            "mtA0_acid_spider5": { "start": 762063, "end": 763349, "type": "actor_def" }
+        } }
     },
     "functions": {
         "func_00C397": { "start": 50071, "end": 50200, "type": "Code", "movable": true },
@@ -2367,25 +1712,15 @@
         "actor_00C62D": { "start": 50733, "end": 50791, "type": "actor_def", "scene": "freejia", "movable": true },
         "dc30_dog": { "start": 371308, "end": 371358, "type": "actor_def", "scene": "oakton", "movable": true },
         "dc30_kara": { "start": 371358, "end": 371548, "type": "actor_def", "scene": "oakton", "movable": true },
-        "dc31_rescuer": {
-            "movable": true,
-            "scene": "oakton_interior",
-            "parts": {
-                "h_dc31_rescuer": { "start": 371548, "end": 371551, "type": "h_actor" },
-                "e_dc31_rescuer": { "start": 371551, "end": 372142, "type": "Code" },
-                "widestring_05AEA3": { "start": 372387, "end": 372527, "type": "WideString" }
-            }
-        },
-        "dc31_kara": {
-            "movable": true,
-            "scene": "oakton_interior",
-            "parts": {
-                "h_dc31_kara": { "start": 372613, "end": 372616, "type": "h_actor" },
-                "e_dc31_kara": { "start": 372616, "end": 372766, "type": "Code" },
-                "widestring_05ADAE": { "start": 372142, "end": 372387, "order": 372617, "type": "WideString" },
-                "widestring_05AF2F": { "start": 372527, "end": 372613, "order": 372618, "type": "WideString" }
-            }
-        },
+        "dc31_rescuer": { "scene": "oakton_interior", "movable": true, "parts": {
+            "dc31_rescuer": { "start": 371548, "end": 372142, "type": "actor_def" },
+            "widestring_05AEA3": { "start": 372387, "end": 372527, "type": "WideString" }
+        } },
+        "dc31_kara": { "scene": "oakton_interior", "movable": true, "parts": {
+            "dc31_kara": { "start": 372613, "end": 372766, "type": "actor_def" },
+            "widestring_05ADAE": { "start": 372142, "end": 372387, "order": 372617, "type": "WideString" },
+            "widestring_05AF2F": { "start": 372527, "end": 372613, "order": 372618, "type": "WideString" }
+        } },
         "fr32_actor_05B01E": { "start": 372766, "end": 372816, "type": "actor_def", "scene": "freejia", "movable": true },
         "fr32_kara": { "start": 372816, "end": 373141, "type": "actor_def", "scene": "freejia", "movable": true },
         "fr32_guide": { "start": 373141, "end": 373548, "type": "actor_def", "scene": "freejia", "movable": true },
@@ -2420,25 +1755,12 @@
         "fr35_slave1": { "start": 377717, "end": 377765, "type": "actor_def", "menu": "freejia_labor_camp", "movable": true },
         "fr35_slave2": { "start": 377765, "end": 377848, "type": "actor_def", "menu": "freejia_labor_camp", "movable": true },
         "fr35_slave3": { "start": 377848, "end": 377942, "type": "actor_def", "menu": "freejia_labor_camp", "movable": true },
-        "fr39_lily_kara": {
-            "movable": true,
-            "scene": "freejia_hotel",
-            "parts": {
-                "h_fr39_lily": { "start": 378291, "end": 378294, "type": "h_actor" },
-                "e_fr39_lily": { "start": 378294, "end": 378750, "type": "Code" },
-                "h_fr39_kara": { "start": 377942, "end": 377945, "order": 378294, "type": "h_actor" },
-                "e_fr39_kara": { "start": 377945, "end": 378291, "order": 378295, "type": "Code" }
-            }
-        },
-        "fr39_lance": {
-            "movable": true,
-            "scene": "freejia_hotel",
-            "parts": {
-                "h_fr39_lance": { "start": 378750, "end": 378753, "type": "h_actor" },
-                "e_fr39_lance": { "start": 378753, "end": 379696, "type": "Code" },
-                "code_05CD16": { "start": 380182, "end": 380276, "type": "Code" }
-            }
-        },
+        "fr39_kara": { "start": 377942, "end": 378291, "type": "actor_def", "scene": "freejia_hotel" },
+        "fr39_lily": { "start": 378291, "end": 378750, "type": "actor_def", "scene": "freejia_hotel" },
+        "fr39_lance": { "scene": "freejia_hotel", "movable": true, "parts": {
+            "fr39_lance": { "start": 378750, "end": 379696, "type": "actor_def" },
+            "code_05CD16": { "start": 380182, "end": 380276, "type": "Code" }
+        } },
         "fr39_erik": { "start": 379696, "end": 380182, "type": "actor_def", "scene": "freejia_hotel", "movable": true },
         "fr33_erik": { "start": 380276, "end": 380664, "type": "actor_def", "scene": "eriks_captivity", "movable": true },
         "fr32_actor_05CEF8": { "start": 380664, "end": 380676, "type": "actor_def", "scene": "freejia", "movable": true },
@@ -2481,7 +1803,7 @@
         "dictionary_01F54D": { "start": 128333, "end": 130340, "type": "&WideString", "movable": true },
         "itemget_table_01FD24": { "start": 130340, "end": 130924, "type": "&WideString" },
         "scene_actors": { "start": 819200, "end": 845285, "type": "&event_def", "postProcess": "Extract(1)", "movable": true, "order": -1 },
-        "scene_thinkers": { "start": 845285, "end": 846683, "type": "&thinker" },
+        "scene_thinkers": { "start": 845285, "end": 846683, "type": "&thinker", "order": -1 },
         "scene_meta": { "start": 884736, "end": 897023, "type": "mapdef", "postProcess": "Lookup(0,1)&&Label(label)", "movable": true },
         "table_0E8000": { "start": 950272, "end": 969435, "type": "&sprite_set" },
         "table_0EDA00": { "start": 973312, "end": 974144, "type": "&sprite_set" },
@@ -2528,47 +1850,15 @@
             "code_0AD9D2": { "start": 711122, "end": 711250, "order": 712026, "type": "Code" }
         } },
         "sg4D_dynapede": { "start": 705824, "end": 706582, "type": "actor_def", "movable": true },
-        "sg4E_nitropede": {
-            "movable": true,
-            "parts": {
-                "h_sg4E_nitropede1": { "start": 706582, "end": 706585, "type": "h_actor" },
-                "e_sg4E_nitropede1": { "start": 706585, "end": 706607, "type": "Code" },
-                "h_sg4E_nitropede2": { "start": 706607, "end": 706610, "type": "h_actor" },
-                "e_sg4E_nitropede2": { "start": 706610, "end": 706650, "type": "Code" },
-                "func_0AC85A": { "start": 706650, "end": 707452, "type": "Code" },
-                "sub_0ACB7C": { "start": 707452, "end": 707463, "type": "Code" },
-                "sub_0ACB87": { "start": 707463, "end": 707474, "type": "Code" },
-                "func_0ACB92": { "start": 707474, "end": 707796, "type": "Code" }
-            }
-        },
-        "sg4E_plasma_snake": {
-            "movable": true,
-            "parts": {
-                "h_sg51_plasma_snake1": { "start": 707796, "end": 707799, "type": "h_actor" },
-                "e_sg51_plasma_snake1": { "start": 707799, "end": 707825, "type": "Code" },
-                "h_sg4E_plasma_snake2": { "start": 707825, "end": 707828, "type": "h_actor" },
-                "e_sg4E_plasma_snake2": { "start": 707828, "end": 708148, "type": "Code" }
-            }
-        },
+        "sg4E_nitropede": { "movable": true, "parts": {
+            "sg4E_nitropede1": { "start": 706582, "end": 706607, "type": "actor_def" },
+            "sg4E_nitropede2": { "start": 706607, "end": 707796, "type": "actor_def" }
+        } },
+        "sg4E_plasma_snake": { "start": 707796, "end": 708148, "type": "actor_def", "movable": true },
         "sg55_mystic_statue": { "start": 708148, "end": 708581, "type": "actor_def", "scene": "viper_lair", "movable": true },
         "sg55_falling_tile": { "start": 708581, "end": 708608, "type": "actor_def", "scene": "viper_lair", "movable": true },
         "sg55_actor_0AD000": { "start": 708608, "end": 708821, "type": "Code", "scene": "viper_lair", "movable": true },
-        "sg55_viper": {
-            "movable": true,
-            "scene": "viper_lair",
-            "parts": {
-                "h_btF3_neo_viper": { "start": 708821, "end": 708824, "type": "h_actor" },
-                "e_btF3_neo_viper": { "start": 708824, "end": 708975, "type": "Code" },
-                "h_sg55_viper": { "start": 708975, "end": 708978, "type": "h_actor" },
-                "e_sg55_viper": { "start": 708978, "end": 710682, "type": "Code" },
-                "func_0AD81A": { "start": 710682, "end": 710706, "type": "Code" },
-                "sub_0AD832": { "start": 710706, "end": 710728, "type": "Code" },
-                "func_0AD848": { "start": 710728, "end": 710973, "type": "Code" },
-                "binary_0AD93D": { "start": 710973, "end": 710981, "type": "Binary" },
-                "func_0AD945": { "start": 710981, "end": 711083, "type": "Code" },
-                "sub_0AD9AB": { "start": 711083, "end": 711122, "type": "Code" }
-            }
-        },
+        "sg55_viper": { "start": 708821, "end": 711122, "type": "actor_def", "scene": "viper_lair", "movable": true },
         "sg_actors_0ADA52": { "start": 711250, "end": 711480, "type": "Code", "movable": true }
     },
     "angkor_wat": {
@@ -2587,53 +1877,17 @@
         "awB6_bones": { "start": 565244, "end": 565854, "type": "actor_def", "scene": "angkor_outer_courtyard", "movable": true },
         "awBA_bones": { "start": 565854, "end": 566443, "type": "actor_def", "scene": "angkor_inner_courtyard", "movable": true },
         "awB0_zip_fly": { "start": 765775, "end": 766388, "type": "actor_def", "movable": true },
-        "awB0_shrubber": {
-            "movable": true,
-            "parts": {
-                "h_awB0_shrubber1": { "start": 766388, "end": 766391, "type": "h_actor" },
-                "e_awB0_shrubber1": { "start": 766391, "end": 766423, "type": "Code" },
-                "h_awB0_shrubber2": { "start": 766423, "end": 766426, "type": "h_actor" },
-                "e_awB0_shrubber2": { "start": 766426, "end": 766581, "type": "Code" }
-            }
-        },
+        "awB0_shrubber": { "start": 766388, "end": 766581, "type": "actor_def", "movable": true },
         "awB0_zombie": { "start": 766581, "end": 768023, "type": "actor_def", "movable": true },
-        "awB1_gorgon": {
-            "movable": true,
-            "parts": {
-                "h_awB1_gorgon1": { "start": 768023, "end": 768026, "type": "h_actor" },
-                "e_awB1_gorgon1": { "start": 768026, "end": 768037, "type": "Code" },
-                "h_awB1_gorgon2": { "start": 768037, "end": 768040, "type": "h_actor" },
-                "e_awB1_gorgon2": { "start": 768040, "end": 768167, "type": "Code" },
-                "func_0BB8A7": { "start": 768167, "end": 768838, "type": "Code" },
-                "sub_0BBB46": { "start": 768838, "end": 768860, "type": "Code" }
-            }
-        },
-        "awB1_wall_walker": {
-            "movable": true,
-            "parts": {
-                "h_awB1_wall_walker1": { "start": 768860, "end": 768863, "type": "h_actor" },
-                "e_awB1_wall_walker1": { "start": 768863, "end": 768870, "type": "Code" },
-                "h_awB1_wall_walker2": { "start": 768870, "end": 768873, "type": "h_actor" },
-                "e_awB1_wall_walker2": { "start": 768873, "end": 769409, "type": "Code" },
-                "sub_0BBD81": { "start": 769409, "end": 769421, "type": "Code" },
-                "h_awB1_wall_walker3": { "start": 769979, "end": 769982, "type": "h_actor" },
-                "e_awB1_wall_walker3": { "start": 769982, "end": 770000, "type": "Code" },
-                "h_awB1_wall_walker4": { "start": 770000, "end": 770003, "type": "h_actor" },
-                "e_awB1_wall_walker4": { "start": 770003, "end": 770049, "type": "Code" },
-                "sub_0BC001": { "start": 770049, "end": 770061, "type": "Code" },
-                "func_0BC00D": { "start": 770061, "end": 770070, "type": "Code" },
-                "func_0BC016": { "start": 770070, "end": 770436, "type": "Code" }
-            }
-        },
-        "awB1_goldcap": {
-            "movable": false,
-            "parts": {
-                "h_awB1_goldcap": { "start": 769421, "end": 769424, "type": "h_actor" },
-                "e_awB1_goldcap": { "start": 769424, "end": 769441, "type": "Code" },
-                "func_0BBDA1": { "start": 769441, "end": 769769, "type": "Code" },
-                "func_0BBF8C": { "start": 769932, "end": 769979, "type": "Code" }
-            }
-        },
+        "awB1_gorgon": { "start": 768023, "end": 768860, "type": "actor_def", "movable": true },
+        "awB1_wall_walker": { "movable": true, "parts": {
+            "awB1_wall_walker1": { "start": 768860, "end": 769421, "type": "actor_def" },
+            "awB1_wall_walker3": { "start": 769979, "end": 770436, "type": "actor_def" }
+        } },
+        "awB1_goldcap": { "movable": false, "parts": {
+            "awB1_goldcap": { "start": 769421, "end": 769769, "type": "actor_def" },
+            "code_0BBF8C": { "start": 769932, "end": 769979, "type": "Code" }
+        } },
         "aw_actor_0BBEE9": { "start": 769769, "end": 769932, "type": "Code", "movable": false }
     },
     "prologue": {
@@ -2740,67 +1994,19 @@
         "dm3F_elevator_door": { "start": 382530, "end": 382632, "type": "actor_def", "scene": "mine_main", "movable": true },
         "dm3F_elevator_sign": { "start": 382632, "end": 382707, "type": "actor_def", "scene": "mine_main", "movable": true },
         "dm41_actor_05D6F3": { "start": 382707, "end": 382730, "type": "actor_def", "scene": "mine_main", "movable": true },
-        "dm41_actor_05D70A": { "start": 382730, "end": 382774, "type": "actor_def", "scene": "mine_main", "movable": true },
+        "dm41_actor_05D70A": { "start": 382730, "end": 382774, "type": "actor_def", "scene": "mine_zigzag", "movable": true },
         "dm40_trapped_slave": { "start": 382774, "end": 383130, "type": "actor_def", "scene": "mine_collapsed_tunnel", "movable": true },
         "dm3E_intro": { "start": 391580, "end": 391958, "type": "actor_def", "scene": "mine_entrance", "movable": true },
         "dm41_actor_0AA4E2": { "start": 697570, "end": 697766, "type": "actor_def", "scene": "mine_zigzag", "movable": true },
-        "dm43_elevator": {
-            "movable": true,
-            "scene": "mine_elevator",
-            "parts": {
-                "h_dm43_elevator": { "start": 697766, "end": 697769, "type": "h_actor" },
-                "e_dm43_elevator": { "start": 697769, "end": 697917, "type": "Code" },
-                "sub_0AA63D": { "start": 697917, "end": 697976, "type": "Code" },
-                "h_dm43_elevator_stop_y": { "start": 697976, "end": 697979, "type": "h_actor" },
-                "e_dm43_elevator_stop_y": { "start": 697979, "end": 698009, "type": "Code" },
-                "h_dm43_elevator_stop_x": { "start": 698009, "end": 698012, "type": "h_actor" },
-                "e_dm43_elevator_stop_x": { "start": 698012, "end": 698038, "type": "Code" }
-            }
-        },
-        "dm3F_laborer": {
-            "movable": true,
-            "scene": "mine_main",
-            "parts": {
-                "h_dm3F_laborer": { "start": 698038, "end": 698041, "type": "h_actor" },
-                "e_dm3F_laborer": { "start": 698041, "end": 698112, "type": "Code" },
-                "func_0AA700": { "start": 698112, "end": 698159, "type": "Code" },
-                "binary_0AA72F": { "start": 698159, "end": 698163, "type": "Binary" },
-                "func_0AA733": { "start": 698163, "end": 698192, "type": "Code" },
-                "func_0AA750": { "start": 698192, "end": 698860, "type": "Code" }
-            }
-        },
+        "dm43_elevator": { "start": 697766, "end": 698038, "type": "actor_def", "scene": "mine_elevator", "movable": true },
+        "dm3F_laborer": { "start": 698038, "end": 698860, "type": "actor_def", "scene": "mine_main", "movable": true },
         "dm3D_breakable_wall": { "start": 698860, "end": 698964, "type": "actor_def", "scene": "mine_promise_passage", "movable": true },
-        "dm3D_flayzer": {
-            "movable": true,
-            "parts": {
-                "h_dm3D_flayzer1": { "start": 698964, "end": 698967, "type": "h_actor" },
-                "e_dm3D_flayzer1": { "start": 698967, "end": 699018, "type": "Code" },
-                "h_dm3D_flayzer2": { "start": 699018, "end": 699021, "type": "h_actor" },
-                "e_dm3D_flayzer2": { "start": 699021, "end": 699082, "type": "Code" },
-                "h_dm3D_flayzer3": { "start": 699082, "end": 699085, "type": "h_actor" },
-                "e_dm3D_flayzer3": { "start": 699085, "end": 699346, "type": "Code" },
-                "func_0AABD2": { "start": 699346, "end": 700405, "type": "Code" }
-            }
-        },
+        "dm3D_flayzer": { "start": 698964, "end": 700405, "type": "actor_def", "movable": true },
         "dm3D_grundit": { "start": 700405, "end": 700595, "type": "actor_def", "movable": true },
-        "dm3D_eye_stalker": {
-            "movable": true,
-            "parts": {
-                "h_dm3D_eye_stalker1": { "start": 700595, "end": 700598, "type": "h_actor" },
-                "e_dm3D_eye_stalker1": { "start": 700598, "end": 700632, "type": "Code" },
-                "h_sE9_eye_stalker2": { "start": 700632, "end": 700635, "type": "h_actor" },
-                "e_sE9_eye_stalker2": { "start": 700635, "end": 700675, "type": "Code" },
-                "h_dm3D_eye_stalker3": { "start": 700675, "end": 700678, "type": "h_actor" },
-                "e_dm3D_eye_stalker3": { "start": 700678, "end": 700776, "type": "Code" },
-                "func_0AB168": { "start": 700776, "end": 700997, "type": "Code" },
-                "func_0AB245": { "start": 700997, "end": 701065, "type": "Code" },
-                "func_0AB289": { "start": 701065, "end": 701143, "type": "Code" },
-                "func_0AB2D7": { "start": 701143, "end": 701211, "type": "Code" },
-                "func_0AB31B": { "start": 701211, "end": 701590, "type": "Code" },
-                "sub_0ADD66": { "start": 712038, "end": 712067, "type": "Code" },
-                "sub_0ADD83": { "start": 712067, "end": 712094, "type": "Code" }
-            }
-        },
+        "dm3D_eye_stalker": { "movable": true, "parts": {
+            "dm3D_eye_stalker1": { "start": 700595, "end": 701590, "type": "actor_def" },
+            "code_0ADD66": { "start": 712038, "end": 712094, "type": "Code" }
+        } },
         "dm_func_0ADB6B": {
             "movable": true,
             "parts": {
@@ -2829,15 +2035,7 @@
     },
     "great_wall": {
         "gw82_trail_intro": { "start": 505135, "end": 505246, "type": "actor_def", "scene": "wall_entrance", "movable": true },
-        "gw82_necklace_stone": {
-            "movable": true,
-            "parts": {
-                "h_gw82_necklace_stone": { "start": 505246, "end": 505249, "type": "h_actor" },
-                "e_gw82_necklace_stone": { "start": 505249, "end": 505333, "type": "Code" },
-                "flag_array": { "start": 505333, "end": 505338, "type": "Byte" },
-                "widestring_07B5FA": { "start": 505338, "end": 505463, "type": "WideString" }
-            }
-        },
+        "gw82_necklace_stone": { "start": 505246, "end": 505463, "type": "actor_def", "movable": true },
         "gw83_lily": { "start": 505463, "end": 505715, "type": "actor_def", "scene": "wall_dive", "movable": true },
         "gw8B_lance_lily": {
             "movable": true,
@@ -2856,99 +2054,22 @@
         "gw83_switch": { "start": 507300, "end": 507368, "type": "actor_def", "scene": "wall_dive", "movable": true },
         "gw88_actor_07BDE8": { "start": 507368, "end": 507426, "type": "actor_def", "scene": "wall_tomb", "movable": true },
         "gw85_actor_07E901": { "start": 518401, "end": 518439, "type": "actor_def", "scene": "wall_rampway", "movable": true },
-        "gw8A_sand_fanger": {
-            "movable": true,
-            "scene": "sand_fanger_lair",
-            "parts": {
-                "h_btF5_neo_fanger": { "start": 753664, "end": 753667, "type": "h_actor" },
-                "e_btF5_neo_fanger": { "start": 753667, "end": 753760, "type": "Code" },
-                "func_0B8060": { "start": 753760, "end": 753978, "type": "Code" },
-                "func_0B813A": { "start": 753978, "end": 754012, "type": "Code" },
-                "h_gw8A_sand_fanger": { "start": 754012, "end": 754015, "type": "h_actor" },
-                "e_gw8A_sand_fanger": { "start": 754015, "end": 754214, "type": "Code" },
-                "loc_0B8226": { "start": 754214, "end": 754714, "type": "Code" },
-                "byte_0B841A": { "start": 754714, "end": 754722, "type": "Byte" },
-                "func_0B8422": { "start": 754722, "end": 754879, "type": "Code" },
-                "byte_0B84BF": { "start": 754879, "end": 754887, "type": "Byte" },
-                "func_0B84C7": { "start": 754887, "end": 754993, "type": "Code" },
-                "func_0B8531": { "start": 754993, "end": 755226, "type": "Code" },
-                "func_0B861A": { "start": 755226, "end": 755423, "type": "Code" },
-                "func_0B86DF": { "start": 755423, "end": 755639, "type": "Code" },
-                "func_0B87B7": { "start": 755639, "end": 755924, "type": "Code" },
-                "func_0B88D4_noref": { "start": 755924, "end": 756449, "type": "Code" },
-                "sub_0B8AE1": { "start": 756449, "end": 756470, "type": "Code" },
-                "sub_0B8AF6": { "start": 756470, "end": 756485, "type": "Code" },
-                "sub_0B8B05": { "start": 756485, "end": 756500, "type": "Code" },
-                "sub_0B8B14": { "start": 756500, "end": 756530, "type": "Code" },
-                "sub_0B8B32": { "start": 756530, "end": 756572, "type": "Code" },
-                "sub_0B8B5C": { "start": 756572, "end": 756614, "type": "Code" },
-                "sub_0B8B86": { "start": 756614, "end": 756670, "type": "Code" },
-                "sub_0B8BBE": { "start": 756670, "end": 756683, "type": "Code" },
-                "sub_0B8BCB": { "start": 756683, "end": 756728, "type": "Code" },
-                "sub_0B9CE8": { "start": 761064, "end": 761103, "type": "Code" }
-            }
-        },
+        "gw8A_sand_fanger": { "scene": "sand_fanger_lair", "movable": true, "parts": {
+            "btF5_neo_fanger": { "start": 753664, "end": 756728, "type": "actor_def" },
+            "sub_0B9CE8": { "start": 761064, "end": 761103, "type": "Code" }
+        } },
         "gw88_short_wall_spear": { "start": 756728, "end": 756784, "type": "actor_def", "scene": "wall_tomb", "movable": true },
         "gw82_wall_spear": { "start": 756784, "end": 756848, "type": "actor_def", "movable": true },
         "gw82_fire_bug": { "start": 756848, "end": 757182, "type": "actor_def", "movable": true },
         "gw82_eyesore": { "start": 757182, "end": 757490, "type": "actor_def", "movable": true },
-        "gw82_archer": {
-            "movable": true,
-            "parts": {
-                "h_gw83_stone_archer1": { "start": 757490, "end": 757493, "type": "h_actor" },
-                "e_gw83_stone_archer1": { "start": 757493, "end": 757495, "type": "Code" },
-                "h_gw83_stone_archer2": { "start": 757495, "end": 757498, "type": "h_actor" },
-                "e_gw83_stone_archer2": { "start": 757498, "end": 757502, "type": "Code" },
-                "h_gw83_stone_archer3": { "start": 757502, "end": 757505, "type": "h_actor" },
-                "e_gw83_stone_archer3": { "start": 757505, "end": 757583, "type": "Code" },
-                "h_gw83_stone_archer4": { "start": 757583, "end": 757586, "type": "h_actor" },
-                "e_gw83_stone_archer4": { "start": 757586, "end": 757618, "type": "Code" },
-                "h_gw87_statue_archer": { "start": 757618, "end": 757621, "type": "h_actor" },
-                "e_gw87_statue_archer": { "start": 757621, "end": 758077, "type": "Code" },
-                "sub_0B913D": { "start": 758077, "end": 758089, "type": "Code" },
-                "sub_0B9149": { "start": 758089, "end": 758101, "type": "Code" },
-                "h_gw82_archer1": { "start": 758101, "end": 758104, "type": "h_actor" },
-                "e_gw82_archer1": { "start": 758104, "end": 758117, "type": "Code" },
-                "h_gw82_archer2": { "start": 758117, "end": 758120, "type": "h_actor" },
-                "e_gw82_archer2": { "start": 758120, "end": 758135, "type": "Code" },
-                "h_gw82_archer3": { "start": 758135, "end": 758138, "type": "h_actor" },
-                "e_gw82_archer3": { "start": 758138, "end": 758479, "type": "Code" },
-                "func_0B92CF": { "start": 758479, "end": 758492, "type": "Code" },
-                "func_0B92DC": { "start": 758492, "end": 758505, "type": "Code" },
-                "func_0B92E9": { "start": 758505, "end": 758778, "type": "Code" },
-                "sub_0B93FA": { "start": 758778, "end": 758792, "type": "Code" },
-                "sub_0B9408": { "start": 758792, "end": 758819, "type": "Code" }
-            }
-        },
+        "gw82_archer": { "start": 757490, "end": 758819, "type": "actor_def", "movable": true },
         "gw83_asp": { "start": 758819, "end": 759867, "type": "actor_def", "movable": true }
     },
     "euro": {
         "eu91_intro": { "start": 507426, "end": 507995, "type": "actor_def", "scene": "euro", "movable": true },
         "eu91_merchant_counter": { "start": 507995, "end": 508518, "type": "actor_def", "scene": "euro", "movable": true },
-        "eu91_crate": {
-            "movable": true,
-            "scene": "euro",
-            "parts": {
-                "h_eu91_crate1": { "start": 508518, "end": 508521, "type": "h_actor" },
-                "e_eu91_crate1": { "start": 508521, "end": 508534, "type": "Code" },
-                "h_eu91_crate2": { "start": 508534, "end": 508537, "type": "h_actor" },
-                "e_eu91_crate2": { "start": 508537, "end": 508550, "type": "Code" }
-            }
-        },
-        "eu91_merchants": {
-            "movable": true,
-            "scene": "euro",
-            "parts": {
-                "h_eu91_merchant1": { "start": 508550, "end": 508553, "type": "h_actor" },
-                "e_eu91_merchant1": { "start": 508553, "end": 508597, "type": "Code" },
-                "h_eu91_merchant2": { "start": 508597, "end": 508600, "type": "h_actor" },
-                "e_eu91_merchant2": { "start": 508600, "end": 508789, "type": "Code" },
-                "h_eu91_merchant3": { "start": 508789, "end": 508792, "type": "h_actor" },
-                "e_eu91_merchant3": { "start": 508792, "end": 508857, "type": "Code" },
-                "h_eu91_merchant4": { "start": 508857, "end": 508860, "type": "h_actor" },
-                "e_eu91_merchant4": { "start": 508860, "end": 508930, "type": "Code" }
-            }
-        },
+        "eu91_crate": { "start": 508518, "end": 508550, "type": "actor_def", "scene": "euro", "movable": true },
+        "eu91_merchant": { "start": 508550, "end": 508930, "type": "actor_def", "scene": "euro", "movable": true },
         "eu91_men1": { "start": 508930, "end": 509777, "type": "actor_def", "movable": true },
         "eu91_women1": { "start": 509777, "end": 510250, "type": "actor_def", "movable": true },
         "eu91_men2": { "start": 510250, "end": 510565, "type": "actor_def", "movable": true },
@@ -2977,215 +2098,87 @@
         "eu93_found": { "start": 517387, "end": 517485, "type": "actor_def", "scene": "power_house", "movable": true },
         "eu9D_altar": { "start": 517485, "end": 517636, "type": "actor_def", "scene": "dark_chapel", "movable": true },
         "eu9A_friezer": { "start": 517636, "end": 517782, "type": "actor_def", "scene": "friezers_house", "movable": true },
-        "eu9A_max": {
-            "movable": true,
-            "scene": "friezers_house",
-            "parts": {
-                "h_eu9A_max": { "start": 517782, "end": 517785, "type": "h_actor" },
-                "e_eu9A_max": { "start": 517785, "end": 517907, "type": "Code" },
-                "eu9A_max_destroy": { "start": 517654, "end": 517656, "order": 517786, "type": "Code" }
-            }
-        },
-        "eu9A_rudy": {
-            "movable": true,
-            "scene": "friezers_house",
-            "parts": {
-                "h_eu9A_rudy": { "start": 517907, "end": 517910, "type": "h_actor" },
-                "e_eu9A_rudy": { "start": 517910, "end": 517981, "type": "Code" },
-                "eu9A_rudy_destroy": { "start": 517654, "end": 517656, "order": 517911, "type": "Code" }
-            }
-        }
+        "eu9A_max": { "scene": "friezers_house", "movable": true, "parts": {
+            "eu9A_max": { "start": 517782, "end": 517907, "type": "actor_def" },
+            "eu9A_max_destroy": { "start": 517654, "end": 517656, "order": 517786, "type": "Code" }
+        } },
+        "eu9A_rudy": { "scene": "friezers_house", "movable": true, "parts": {
+            "eu9A_rudy": { "start": 517907, "end": 517981, "type": "actor_def" },
+            "eu9A_rudy_destroy": { "start": 517654, "end": 517656, "order": 517911, "type": "Code" }
+        } }
     },
     "pyramid": {
         "pyD0_actor_08B592": { "start": 570770, "end": 570984, "type": "actor_def", "movable": true },
         "pyCC_actor_08B668": { "start": 570984, "end": 571042, "type": "actor_def", "scene": "pyramid_main", "movable": true },
-        "pyCC_entrance_portal": {
-            "movable": true,
-            "scene": "pyramid_main",
-            "parts": {
-                "h_pyCC_entrance_portal": { "start": 571042, "end": 571045, "type": "h_actor" },
-                "e_pyCC_entrance_portal": { "start": 571045, "end": 571124, "type": "Code" },
-                "widestring_08B70D": { "start": 571149, "end": 571213, "type": "WideString" }
-            }
-        },
+        "pyCC_entrance_portal": { "scene": "pyramid_main", "movable": true, "parts": {
+            "pyCC_entrance_portal": { "start": 571042, "end": 571124, "type": "actor_def" },
+            "widestring_08B70D": { "start": 571149, "end": 571213, "type": "WideString" }
+        } },
         "py_actor_08B6F4": { "start": 571124, "end": 571149, "type": "actor_def", "movable": true },
-        "pyCD_flame_statue": {
-            "movable": true,
-            "scene": "puzzle_room",
-            "parts": {
-                "h_pyCD_flame_statue1": { "start": 571213, "end": 571216, "type": "h_actor" },
-                "e_pyCD_flame_statue1": { "start": 571216, "end": 571293, "type": "Code" },
-                "h_pyCD_flame_statue2": { "start": 571293, "end": 571296, "type": "h_actor" },
-                "e_pyCD_flame_statue2": { "start": 571296, "end": 571368, "type": "Code" }
-            }
-        },
-        "pyCD_jackal": {
-            "movable": true,
-            "scene": "puzzle_room",
-            "parts": {
-                "h_pyCD_jackal": { "start": 571422, "end": 571425, "type": "h_actor" },
-                "e_pyCD_jackal": { "start": 571425, "end": 572575, "type": "Code" },
-                "widestring_08BC9F": { "start": 572575, "end": 572720, "type": "WideString" },
-                "func_08B7E8": { "start": 571368, "end": 571396, "order": 572576, "type": "Code" },
-                "func_08B804": { "start": 571396, "end": 571422, "order": 572577, "type": "Code" }
-            }
-        },
+        "pyCD_flame_statue": { "start": 571213, "end": 571368, "type": "actor_def", "scene": "puzzle_room", "movable": true },
+        "pyCD_jackal": { "scene": "puzzle_room", "movable": true, "parts": {
+            "pyCD_jackal": { "start": 571422, "end": 572720, "type": "actor_def" },
+            "code_08B7E8": { "start": 571368, "end": 571422, "order": 572576, "type": "Code" }
+        } },
         "pyCD_kara": { "start": 572720, "end": 573949, "type": "actor_def", "scene": "puzzle_room", "movable": true },
         "pyCD_explorer": { "start": 573949, "end": 574170, "type": "actor_def", "scene": "puzzle_room", "movable": true },
         "pyD6_actor_08C2DA": { "start": 574170, "end": 574461, "type": "actor_def", "scene": "pyramid_vader_a", "movable": true },
         "pyD6_actor_08C3FD": { "start": 574461, "end": 574698, "type": "actor_def", "scene": "pyramid_vader_a", "movable": true },
-        "pyD7_actor_08C4EA": {
-            "movable": true,
-            "scene": "pyramid_vader_b",
-            "parts": {
-                "h_pyD7_actor_08C4EA": { "start": 574698, "end": 574701, "type": "h_actor" },
-                "e_pyD7_actor_08C4EA": { "start": 574701, "end": 574847, "type": "Code" },
-                "h_pyD7_actor_08C57F": { "start": 574847, "end": 574850, "type": "h_actor" },
-                "e_pyD7_actor_08C57F": { "start": 574850, "end": 574858, "type": "Code" },
-                "sub_08C58A": { "start": 574858, "end": 574922, "type": "Code" }
-            }
-        },
+        "pyD7_actor_08C4EA": { "start": 574698, "end": 574922, "type": "actor_def", "scene": "pyramid_vader_b", "movable": true },
         "pyD9_actor_08C4EA": { "start": 574922, "end": 575210, "type": "actor_def", "scene": "pyramid_dangerslide_b", "movable": true },
         "pyD4_actor_08C6EA": { "start": 575210, "end": 575359, "type": "actor_def", "scene": "pyramid_trickle_a", "movable": true },
         "pyDA_lithograph1": { "start": 575359, "end": 575564, "type": "actor_def", "scene": "heiroglyph_room", "movable": true },
-        "pyDA_lithograph2": {
-            "movable": true,
-            "scene": "heiroglyph_room",
-            "parts": {
-                "h_pyDA_lithograph2": { "start": 575564, "end": 575567, "type": "h_actor" },
-                "e_pyDA_lithograph2": { "start": 575567, "end": 575732, "type": "Code" },
-                "pyDA_lithograph2_full": { "start": 575429, "end": 575433, "order": 575568, "type": "Code" }
-            }
-        },
-        "pyDA_lithograph3": {
-            "movable": true,
-            "scene": "heiroglyph_room",
-            "parts": {
-                "h_pyDA_lithograph3": { "start": 575732, "end": 575735, "type": "h_actor" },
-                "e_pyDA_lithograph3": { "start": 575735, "end": 575900, "type": "Code" },
-                "pyDA_lithograph3_full": { "start": 575429, "end": 575433, "order": 575736, "type": "Code" }
-            }
-        },
-        "pyDA_lithograph4": {
-            "movable": true,
-            "scene": "heiroglyph_room",
-            "parts": {
-                "h_pyDA_lithograph4": { "start": 575900, "end": 575903, "type": "h_actor" },
-                "e_pyDA_lithograph4": { "start": 575903, "end": 576068, "type": "Code" },
-                "pyDA_lithograph4_full": { "start": 575429, "end": 575433, "order": 575904, "type": "Code" }
-            }
-        },
-        "pyDA_lithograph5": {
-            "movable": true,
-            "scene": "heiroglyph_room",
-            "parts": {
-                "h_pyDA_lithograph5": { "start": 576068, "end": 576071, "type": "h_actor" },
-                "e_pyDA_lithograph5": { "start": 576071, "end": 576236, "type": "Code" },
-                "pyDA_lithograph5_full": { "start": 575429, "end": 575433, "order": 576072, "type": "Code" }
-            }
-        },
-        "pyDA_lithograph6": {
-            "movable": true,
-            "scene": "heiroglyph_room",
-            "parts": {
-                "h_pyDA_lithograph6": { "start": 576236, "end": 576239, "type": "h_actor" },
-                "e_pyDA_lithograph6": { "start": 576239, "end": 576404, "type": "Code" },
-                "pyDA_lithograph6_full": { "start": 575429, "end": 575433, "order": 576240, "type": "Code" }
-            }
-        },
-        "pyCD_puzzle": {
-            "movable": true,
-            "scene": "puzzle_room",
-            "parts": {
-                "h_pyCD_puzzle": { "start": 576410, "end": 576413, "type": "h_actor" },
-                "e_pyCD_puzzle": { "start": 576413, "end": 576876, "type": "Code" },
-                "binary_08CB94": { "start": 576404, "end": 576410, "order": 576414, "type": "Binary" }
-            }
-        },
+        "pyDA_lithograph2": { "scene": "heiroglyph_room", "movable": true, "parts": {
+            "pyDA_lithograph2": { "start": 575564, "end": 575732, "type": "actor_def" },
+            "pyDA_lithograph2_full": { "start": 575429, "end": 575433, "order": 575568, "type": "Code" }
+        } },
+        "pyDA_lithograph3": { "scene": "heiroglyph_room", "movable": true, "parts": {
+            "pyDA_lithograph3": { "start": 575732, "end": 575900, "type": "actor_def" },
+            "pyDA_lithograph3_full": { "start": 575429, "end": 575433, "order": 575736, "type": "Code" }
+        } },
+        "pyDA_lithograph4": { "scene": "heiroglyph_room", "movable": true, "parts": {
+            "pyDA_lithograph4": { "start": 575900, "end": 576068, "type": "actor_def" },
+            "pyDA_lithograph4_full": { "start": 575429, "end": 575433, "order": 575904, "type": "Code" }
+        } },
+        "pyDA_lithograph5": { "scene": "heiroglyph_room", "movable": true, "parts": {
+            "pyDA_lithograph5": { "start": 576068, "end": 576236, "type": "actor_def" },
+            "pyDA_lithograph5_full": { "start": 575429, "end": 575433, "order": 576072, "type": "Code" }
+        } },
+        "pyDA_lithograph6": { "scene": "heiroglyph_room", "movable": true, "parts": {
+            "pyDA_lithograph6": { "start": 576236, "end": 576404, "type": "actor_def" },
+            "pyDA_lithograph6_full": { "start": 575429, "end": 575433, "order": 576240, "type": "Code" }
+        } },
+        "pyCD_puzzle": { "scene": "puzzle_room", "movable": true, "parts": {
+            "pyCD_puzzle": { "start": 576410, "end": 576876, "type": "actor_def" },
+            "byte_08CB94": { "start": 576404, "end": 576410, "order": 576414, "type": "Byte" }
+        } },
         "pyCC_portal": { "start": 576876, "end": 577042, "type": "actor_def", "scene": "pyramid_main", "movable": true },
         "pyDD_mystic_statue": { "start": 577042, "end": 577184, "type": "actor_def", "scene": "mummy_queen_lair", "movable": true },
         "func_09BB17": { "start": 637719, "end": 637879, "type": "Code", "movable": true },
         "pyDD_actor_0BA5DF": { "start": 763359, "end": 763418, "type": "actor_def", "scene": "mummy_queen_lair", "movable": true },
-        "pyDD_mummy_queen": {
-            "movable": false,
-            "scene": "mummy_queen_lair",
-            "parts": {
-                "h_btF6_neo_queen": { "start": 763418, "end": 763421, "type": "h_actor" },
-                "e_h_btF6_neo_queen": { "start": 763421, "end": 763574, "type": "Code" },
-                "h_pyDD_mummy_queen": { "start": 763574, "end": 763577, "type": "h_actor" },
-                "e_pyDD_mummy_queen": { "start": 763577, "end": 763970, "type": "Code" },
-                "sub_0BA842": { "start": 763970, "end": 764022, "type": "Code" },
-                "sub_0BA876": { "start": 764022, "end": 764074, "type": "Code" },
-                "func_0BA8AA": { "start": 764074, "end": 764461, "type": "Code" },
-                "sub_0BAA2D": { "start": 764461, "end": 764490, "type": "Code" },
-                "sub_0BAA4A": { "start": 764490, "end": 764515, "type": "Code" },
-                "sub_0BAA63": { "start": 764515, "end": 764586, "type": "Code" },
-                "func_0BAC7D": { "start": 765053, "end": 765103, "type": "Code" },
-                "func_0BACAF": { "start": 765103, "end": 765108, "type": "Code" }
-            }
-        },
+        "pyDD_mummy_queen": { "scene": "mummy_queen_lair", "movable": false, "parts": {
+            "btF6_neo_queen": { "start": 763418, "end": 764586, "type": "actor_def" },
+            "code_0BAC7D": { "start": 765053, "end": 765108, "type": "Code" }
+        } },
         "py_queen_actor_0BAAAA": { "start": 764586, "end": 764851, "type": "Code", "scene": "mummy_queen_lair", "movable": false },
         "py_queen_actor_0BABB3": { "start": 764851, "end": 765053, "type": "Code", "scene": "mummy_queen_lair", "movable": false },
         "binary_0BACB4": { "start": 765108, "end": 765116, "type": "Binary", "scene": "mummy_queen_lair", "movable": false },
         "py_queen_actor_0BACBC": { "start": 765116, "end": 765291, "type": "Code", "scene": "mummy_queen_lair", "movable": false },
         "py_queen_actor_0BAD6B": { "start": 765291, "end": 765374, "type": "Code", "scene": "mummy_queen_lair", "movable": false },
         "pyDD_actor_0BADBE": { "start": 765374, "end": 765383, "type": "actor_def", "scene": "mummy_queen_lair", "movable": true },
-        "pyDD_teleporter": {
-            "movable": true,
-            "scene": "mummy_queen_lair",
-            "parts": {
-                "h_pyDD_teleporter_left": { "start": 765383, "end": 765386, "type": "h_actor" },
-                "e_pyDD_teleporter_left": { "start": 765386, "end": 765388, "type": "Code" },
-                "h_pyDD_teleporter_right": { "start": 765388, "end": 765391, "type": "h_actor" },
-                "e_pyDD_teleporter_right": { "start": 765391, "end": 765775, "type": "Code" }
-            }
-        },
-        "pyD2_haunt": {
-            "movable": true,
-            "parts": {
-                "h_pyD2_haunt1": { "start": 770436, "end": 770439, "type": "h_actor" },
-                "e_pyD2_haunt1": { "start": 770439, "end": 770471, "type": "Code" },
-                "h_pyD5_haunt2": { "start": 770471, "end": 770474, "type": "h_actor" },
-                "e_pyD5_haunt2": { "start": 770474, "end": 770973, "type": "Code" }
-            }
-        },
+        "pyDD_teleporter": { "start": 765383, "end": 765775, "type": "actor_def", "scene": "mummy_queen_lair", "movable": true },
+        "pyD2_haunt": { "start": 770436, "end": 770973, "type": "actor_def", "movable": true },
         "pyCE_tuts": { "start": 770973, "end": 771491, "type": "actor_def", "movable": true },
-        "pyCC_mystic_ball": {
-            "movable": true,
-            "parts": {
-                "h_pyCE_mystic_ball1": { "start": 771491, "end": 771494, "type": "h_actor" },
-                "e_pyCE_mystic_ball1": { "start": 771494, "end": 771542, "type": "Code" },
-                "func_0BC5D6": { "start": 771542, "end": 771580, "type": "Code" },
-                "h_pyCC_mystic_ball2": { "start": 771580, "end": 771583, "type": "h_actor" },
-                "e_pyCC_mystic_ball2": { "start": 771583, "end": 771631, "type": "Code" },
-                "func_0BC62F": { "start": 771631, "end": 771679, "type": "Code" },
-                "h_pyCC_mystic_ball3": { "start": 771679, "end": 771682, "type": "h_actor" },
-                "e_pyCC_mystic_ball3": { "start": 771682, "end": 771992, "type": "Code" }
-            }
-        },
+        "pyCC_mystic_ball": { "start": 771491, "end": 771992, "type": "actor_def", "movable": true },
         "pyCC_blaster": { "start": 771992, "end": 772246, "type": "actor_def", "movable": true }
     },
     "mansion": {
-        "sEA_solid_arm": {
-            "movable": true,
-            "scene": "solid_arm_lair",
-            "parts": {
-                "h_sEA_solid_arm": { "start": 587529, "end": 587532, "type": "h_actor" },
-                "e_sEA_solid_arm": { "start": 587532, "end": 588266, "type": "Code" },
-                "binary_08F9EA": { "start": 588266, "end": 588274, "type": "Binary" },
-                "func_08F9F2": { "start": 588274, "end": 588906, "type": "Code" }
-            }
-        },
+        "sEA_solid_arm": { "start": 587529, "end": 588906, "type": "actor_def", "scene": "solid_arm_lair", "movable": true },
         "sE9_mansion_intro": { "start": 588906, "end": 589055, "type": "actor_def", "scene": "mansion", "movable": true },
-        "btEA_actor_0ADC55": {
-            "movable": true,
-            "scene": "solid_arm_lair",
-            "parts": {
-                "h_btEA_actor_0ADC55": { "start": 711765, "end": 711768, "type": "h_actor" },
-                "e_btEA_actor_0ADC55": { "start": 711768, "end": 711934, "type": "Code" },
-                "sc_ix_0ADCFE": { "start": 711934, "end": 711941, "type": "sc_ix" },
-                "sc_data_0ADD05": { "start": 711941, "end": 711966, "type": "sc_data" }
-            }
-        }
+        "btEA_actor_0ADC55": { "scene": "solid_arm_lair", "movable": true, "parts": {
+            "btEA_actor_0ADC55": { "start": 711765, "end": 711934, "type": "actor_def" },
+            "sc_ix_0ADCFE": { "start": 711934, "end": 711941, "type": "sc_ix" },
+            "sc_data_0ADD05": { "start": 711941, "end": 711966, "type": "sc_data" }
+        } }
     }
 }

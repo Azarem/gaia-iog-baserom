@@ -117,7 +117,7 @@ diary_ngp_str     `[DLG:6,A][SIZ:A,5]Start Journey[N]Erase Trip Diary[N]Copy Tri
 ?INCLUDE 'sFA_diary_menu'
 --------------------------------------------------
 
-e_sFA_diary_menu {
+code_0BE23A {
     LDA #$0000
     STA $7F0A00
     SEP #$20

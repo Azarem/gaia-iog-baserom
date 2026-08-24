@@ -205,7 +205,8 @@
             "parts": {
                 "code_3B7DD": { "start": 243677, "end": 255682, "type": "Code" }
             }
-        }
+        },
+        "palette_bundles": { "start": 1474560, "end": 1497132, "type": "&bundle" }
     },
     "south_cape": {
         "sc01_smoke": { 
