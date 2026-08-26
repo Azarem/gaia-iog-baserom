@@ -3,16 +3,6 @@
 ?INCLUDE 'system_strings'
 ?INCLUDE 'chunk_03BAE1'
 
-!joypad_mask_std                065A
-!joypad_mask_inv                065C
-!player_flags                   09AE
-!W34SEL                         2124
-!WOBJSEL                        2125
-!_TM                            212C
-!_TS                            212D
-!CGWSEL                         2130
-!CGADSUB                        2131
-
 --------------------------------------------------
 
 diary_ngp_option {
@@ -121,7 +111,7 @@ code_0BE23A {
     LDA #$0000
     STA $7F0A00
     SEP #$20
-    STA $_TM
+    STA $TM
     REP #$20
     LDA #$FFFF
     STA $0D92
@@ -142,9 +132,9 @@ code_0BE23A {
     STA $00EE
     SEP #$20
     LDA #$01
-    STA $_TM
+    STA $TM
     LDA #$04
-    STA $_TS
+    STA $TS
     LDA #$82
     STA $CGWSEL
     LDA #$41

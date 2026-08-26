@@ -1,8 +1,8 @@
 {
  "sEA_solid_arm": [
     {
-      "key": "COP \\[DA\\] \\( #\\d7 \\)\\s+COP \\[05\\] \\( #1B \\)\\s+COP \\[DA\\] \\( #B3 \\)",
-      "value": "COP [05] ( #1B )\r\n    COP [DB] ( #$0120 )"
+      "key": "COP \\[WaitByte\\] \\( #\\d7 \\)\\s+COP \\[FadeThenStartMusic\\] \\( #1B \\)\\s+COP \\[WaitByte\\] \\( #B3 \\)",
+      "value": "COP [FadeThenStartMusic] ( #1B )\r\n    COP [WaitWord] ( #$0120 )"
     }
   ],
   "av69_erik": [
@@ -43,8 +43,8 @@
   ],
   "btE1_comet_soon": [
     {
-      "key": "COP \\[50\\] \\( @pal_vampires, #00, #A0, #50 \\)",
-      "value": "COP [50] ( @pal_vampires, #10, #B0, #40 )"
+      "key": "COP \\[CopyPalette\\] \\( @pal_vampires, #00, #A0, #50 \\)",
+      "value": "COP [CopyPalette] ( @pal_vampires, #10, #B0, #40 )"
     }
   ],
   "chunk_008000": [

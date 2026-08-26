@@ -36,7 +36,7 @@ import transformsJP from '../jp/transforms.json' with { type: 'json' };
 import fileTypesJP from '../us/fileTypes.json' with { type: 'json' };
 
 export const db : DbGameRomModule = {
-    mnemonics,
+    mnemonics: { ...snes.vectors, ...mnemonics },
     overrides: overrides as unknown as Record<string, Record<string, number>>,
     rewrites,
     blocks: blocks as unknown as Record<string, Record<string, Partial<DbBlock>>>,
@@ -54,7 +54,7 @@ export const db : DbGameRomModule = {
 };
 
 export const jp : DbGameRomModule = {
-    mnemonics: mnemonicsJP,
+    mnemonics: { ...snes.vectors, ...mnemonicsJP },
     overrides: overridesJP as unknown as Record<string, Record<string, number>>,
     rewrites: rewritesJP,
     blocks: blocksJP as unknown as Record<string, Record<string, Partial<DbBlock>>>,

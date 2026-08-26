@@ -1,16 +1,4 @@
 ﻿
-!player_flags                   09AE
-!inventory_slots                0AB4
-!inventory_equipped_index       0AC4
-!inventory_equipped_type        0AC6
-!VMADDL                         2116
-!CGADD                          2121
-!MDMAEN                         420B
-!DMAP0                          4300
-!A1T0L                          4302
-!DAS0L                          4305
-
-
 ?INCLUDE 'chunk_028000'
 --------------------------------------------
 
