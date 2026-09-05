@@ -20,6 +20,7 @@ import strings from '../us/stringTypes.json' with { type: 'json' };
 import structs from '../us/structs.json' with { type: 'json' };
 import transforms from '../us/transforms.json' with { type: 'json' };
 import fileTypes from '../us/fileTypes.json' with { type: 'json' };
+import names from '../us/names.json' with { type: 'json' };
 
 import configJP from '../jp/config.json' with { type: 'json' };
 import blocksJP from '../jp/blocks.json' with { type: 'json' };
@@ -34,6 +35,7 @@ import stringsJP from '../jp/stringTypes.json' with { type: 'json' };
 import structsJP from '../jp/structs.json' with { type: 'json' };
 import transformsJP from '../jp/transforms.json' with { type: 'json' };
 import fileTypesJP from '../us/fileTypes.json' with { type: 'json' };
+import namesJP from '../jp/names.json' with { type: 'json' };
 
 export const db : DbGameRomModule = {
     mnemonics: { ...snes.vectors, ...mnemonics },
@@ -50,7 +52,8 @@ export const db : DbGameRomModule = {
     config: config as unknown as DbConfig,
     fileTypes: fileTypes as unknown as Record<string, Partial<DbFileType>>,
     addrModes: snes.addressingModes as unknown as Record<string, Partial<DbAddressingMode>>,
-    headers: snes.headers
+    headers: snes.headers,
+    names
 };
 
 export const jp : DbGameRomModule = {
@@ -68,7 +71,8 @@ export const jp : DbGameRomModule = {
     config: configJP as unknown as DbConfig,
     fileTypes: fileTypesJP as unknown as Record<string, Partial<DbFileType>>,
     addrModes: snes.addressingModes as unknown as Record<string, Partial<DbAddressingMode>>,
-    headers: snes.headers
+    headers: snes.headers,
+    names: namesJP
 };
 
 export async function extract(romPath: string, outPath: string) {
