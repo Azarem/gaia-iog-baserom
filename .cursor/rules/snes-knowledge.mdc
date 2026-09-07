@@ -1,0 +1,29 @@
+---
+description: SNES development — use gaia-knowledge corpus via workspace
+alwaysApply: true
+---
+
+# SNES Development Context
+
+When working on assembly, patches, or ROM metadata in this repo:
+
+1. Prefer the **gaia-snes** multi-root workspace (`c:/Work/gaia-snes.code-workspace`) so `gaia-knowledge` is indexed
+2. Read `gaia-knowledge/curated/gaialabs/assembler-syntax.md` before editing `.asm`
+3. IOG-specific docs: `docs/cop-commands-reference.md`, `docs/actor-organization-analysis.md` (also in knowledge corpus after ingest)
+4. Rebuild to validate: `npm run rebuild`
+
+## Label rules
+
+`$&` = same-bank (2 bytes), `$@` = cross-bank (3 bytes). Do not guess.
+
+## Database triad
+
+- `us/blocks.json` — block/part structure (engine auto-discovers unmapped pieces)
+- `us/overrides.json` — per-address register state and type corrections
+- `us/names.json` — human-readable address labels
+
+All three files are needed for the complete picture. See `gaia-knowledge/curated/gaialabs/reference-model.md`.
+
+## 65C816 Reference
+
+- [65C816 Opcodes by Bruce Clark](https://6502.org/tutorials/65c816opcodes.html) — comprehensive opcode tutorial

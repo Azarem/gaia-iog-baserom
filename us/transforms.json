@@ -47,7 +47,13 @@
       "value": "COP [CopyPalette] ( @pal_vampires, #10, #B0, #40 )"
     }
   ],
-  "chunk_008000": [
+  "cop_handlers_actors": [
+    {
+      "key": "(?<!STA \\$02\\s+)LDA \\$0A\\s+STA \\$00\\s+STA \\$02, S",
+      "value": "LDA $$0C\r\n    STA $$02\r\n    $&"
+    }
+  ],
+  "cop_handlers_collision": [
     {
       "key": "(?<!STA \\$02\\s+)LDA \\$0A\\s+STA \\$00\\s+STA \\$02, S",
       "value": "LDA $$0C\r\n    STA $$02\r\n    $&"

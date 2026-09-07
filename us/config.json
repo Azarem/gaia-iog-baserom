@@ -15,9 +15,9 @@
   "gameCode": "JG",
   "gameTitle": "ILLUSION OF GAIA USA",
   "gameVersion": 0,
-  "nativeCop": "native_mode_cop_008007",
-  "nativeBrk": "native_mode_irq_00800F",
-  "nativeNmi": "native_mode_nmi_00800B",
-  "nativeIrq": "native_mode_irq_00800F",
-  "emulationReset": "emulation_mode_reset_008000"
+  "nativeCop": "CopVector",
+  "nativeBrk": "IrqVector",
+  "nativeNmi": "NmiVector",
+  "nativeIrq": "IrqVector",
+  "emulationReset": "ResetVector"
 }
