@@ -1,6 +1,6 @@
 ﻿?BANK 02
 
-?INCLUDE 'chunk_028000'
+?INCLUDE 'scene_script'
 
 -- Patch for bitmap loading which adds support for no compression
 
@@ -16,27 +16,27 @@
 --------------------------------------------
 ;Main bitmap handler
 
-loc_028503 {
+loc_028503! {
     LDA [$3E]
     INC $3E
     INC $3E
     STA $78
     CMP #$0001
-    BMI func_028555
+    BMI CheckInterleavedFlag
     CPX #$066C
     BNE loc_028520
     LDA $06EE
     BIT #$0800
     BEQ loc_028520
-    JMP $&func_0285DB
+    JMP $&DeinterleavePlanarTiles
 }
     
-func_028555 {
+CheckInterleavedFlag! {
     CPX #$066C
-    BNE func_028560
+    BNE DmaTileStripToVram
     LDA $06EE
     BIT #$0800
-    BEQ func_028560
+    BEQ DmaTileStripToVram
     JMP $&code_0285F3
 }
 
@@ -44,7 +44,7 @@ func_028555 {
 ;First pass, copy palette information into VRAM from tileset
 
 
-code_0285F3 {
+code_0285F3! {
     PHY				-- Y will be our read offset
     PHB				-- data bank will be changed
 
@@ -66,11 +66,11 @@ code_0285F3 {
     STZ $0E			-- ??
     LDY #$A000		-- init DPTR with WRAM offset
     STY DPTR
-    JSR sub_02868C	-- this call changes SPTR to reference WRAM tileset palette data
+    JSR BuildAttributeTable	-- this call changes SPTR to reference WRAM tileset palette data
     LDY #$0000		-- init read offset to 0. using Y because of long addressing. setting here because previous call clobbers it
 
   --No change here
-  loc_028608:
+  loc_028608!:
     LDA #$07			-- init sample counter
     STA LOOPNUM
 
@@ -80,7 +80,7 @@ code_0285F3 {
     BNE loc_028616
     INC SPTR+1
     
-  loc_028616:
+  loc_028616!:
     LDA [TPTR1], Y
     STA $00
     LDA [TPTR2], Y
@@ -95,7 +95,7 @@ code_0285F3 {
     LDX #$0007		-- init rotate counter
 
   --No change
-  loc_02862D:
+  loc_02862D!:
     LDA #$00
     ROL $06
     ROL
@@ -112,7 +112,7 @@ code_0285F3 {
     BNE loc_028645
     INC DPTR+1
 
-  loc_028645:
+  loc_028645!:
     DEX
     BPL loc_02862D	-- continue rotate (8 times)
 
@@ -160,7 +160,7 @@ code_0285F3 {
 
 --------------------------------------------------
 
-func_028592 {
+Load4bppPage! {
     LDA [$3E]
     STA $78
     INC $3E
@@ -169,7 +169,7 @@ func_028592 {
     BMI loc_0285B2
     LDX #$7000
     STX $7A
-    JSL $@func_028270
+    JSL $@QuintetLzDecompress
     LDX #$7000
     STX $3E
     LDA #$007E

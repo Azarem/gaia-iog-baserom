@@ -63,7 +63,7 @@ Bank $00 is the **primary system bank** for Illusion of Gaia. It contains the CP
 | `$00C1AA`–`$00EAED` | ~800 bytes | Scene infrastructure actors (camera, flags, speed, ramps) | [actors-infrastructure.md](actors-infrastructure.md) |
 | `$00C2BB`–`$00CF29` | ~1,800 bytes | Player transitions, red jewels, inventory actors | [actors-player-rewards.md](actors-player-rewards.md) |
 | `$00D877`–`$00E4DB` | ~2,400 bytes | Combat knockback, push handlers, follow, effects | [actors-combat-interaction.md](actors-combat-interaction.md) |
-| `$00DB8A`–`$00DFFF` | ~1,150 bytes | Enemy defeat pipeline, VFX, drops, chests | [functions-combat-defeat.md](functions-combat-defeat.md) |
+| `$00DB8A`–`$00DFFF` | ~1,150 bytes | Enemy defeat pipeline, VFX, field reveals, dark gem drops | [functions-combat-defeat.md](functions-combat-defeat.md) |
 | `$00B5B3`–`$00F3B3` | ~500 bytes | Game over sequence, death messages | [functions-game-over.md](functions-game-over.md) |
 | `$00C397`–`$00C98E` | ~600 bytes | Player/party state, NPC AI, escort pathfinding | [functions-player-npc.md](functions-player-npc.md) |
 | `$00C9B8`–`$00F432` | ~450 bytes | Camera drift, debris burst, orbital math | [functions-camera-motion.md](functions-camera-motion.md) |
@@ -117,7 +117,7 @@ Covers `$008000`–`$0082DE`: CPU entry point, interrupt trampolines, system ini
 | `UpdateFrame_Dialogue` | `func_00811E` | `$811E` | ~40 B | Abbreviated frame for dialogue/cutscenes |
 | `UpdateFrame_Render` | `func_00817D` | `$817D` | ~30 B | Lightweight frame for text overlays |
 | `UpdateFrame_Full` | `func_0081BC` | `$81BC` | ~46 B | Full frame with collision (NMI music handshake) |
-| `UpdateHUD` | `func_008206` | `$8206` | ~216 B | BG3 status bar: HP, DEF, STR, gems, XP display |
+| `UpdateHUD` | `func_008206` | `$8206` | ~216 B | BG3 status bar: HP, DEF, STR, gems, enemy health bar |
 | `UpdateFrameCounters` | `sub_0082DE` | `$82DE` | 18 B | Decrement invincibility timer, increment frame counter |
 
 ---
@@ -405,7 +405,7 @@ Covers player transition animations, red jewel rewards, statue inventory, and lo
 
 | Actor | Old Name | Address | Movable | Description |
 |-------|----------|---------|---------|-------------|
-| `red_jewel_reward_handler` | `actor_00C2BB` | `$C2BB` | ✓ | Scene → reward tier → stat increment |
+| `boss_clear_reward_handler` | `actor_00C2BB` | `$C2BB` | ✓ | Boss defeat → catchup uncollected scene clear stat rewards |
 | `player_transition_handlers` | `entry_points_00C418` | `$C418` | **No** | Library: 11 sub-functions for cutscene/warp anims |
 | `statue_inventory_reward` | `actor_00CD59` | `$CD59` | ✓ | Scene $FD: grants statue collectibles |
 | `inventory_statue_slot` | `actor_00CF29` | `$CF29` | ✓ | Scene $FF: displays collected statues |
@@ -447,7 +447,7 @@ Covers combat knockback, stat reward actors, push handlers, smooth follow, and t
 | `e_str_increase` | *(reward_actors)* | `$E06B` | ✓ | +1 STR |
 | `e_def_increase` | *(reward_actors)* | `$E0A6` | ✓ | +1 DEF |
 | `RewardActorVFX` | `func_00E110` | `$E110` | ✓ | Shared VFX: bounce, sound $25, flag $0300 |
-| `push_handler_light` | `actor_00E155` | `$E155` | ✓ | Nudge ±2 px, no solid changes |
+| `collect_handler_gem` | `actor_00E155` | `$E155` | ✓ | Gem collection: nudge toward player ±2 px on button press |
 | `push_handler_solid` | `actor_00E256` | `$E256` | ✓ | Requires ≥32 px offset, clears/sets tiles |
 | `push_handler_forceball` | `actor_00E3BA` | `$E3BA` | ✓ | Uses AddPosition, requires anim $003A–$003D |
 | `smooth_follow_child` | `actor_00E4DB` | `$E4DB` | **No** | Child homing via angle/step math |
@@ -466,11 +466,11 @@ Covers `$00DB8A`–`$00DFFF`: The complete enemy defeat pipeline from death hand
 | Function | Old Name | Address | Movable | Description |
 |----------|----------|---------|---------|-------------|
 | `StandardEnemyDefeatHandler` | `func_00DB8A` | `$DB8A` | **No** | Central death: counters, flash, drops, rewards (~20 callers) |
-| `EnemyRewardChestRouter` | `func_00DD5B` | `$DD5B` | **No** | Routes to chest type 1/2/other |
+| `EnemyGemDropRouter` | `func_00DD5B` | `$DD5B` | **No** | Routes to dark gem type 1/2/weighted |
 | `EnemyStatBonusReward` | `func_00DD87` | `$DD87` | **No** | Scene-indexed HP/STR/DEF spawner |
-| `SpawnItemDropPickup` | `func_00DDF2` | `$DDF2` | ✓ | Animated item drop from enemy flag |
+| `SpawnFieldRevealEffect` | `func_00DDF2` | `$DDF2` | ✓ | Field tile reveal effect (sparkles + event block tile swap) |
 | `EnemyDeathFlash` | `func_00DF15` | `$DF15` | ✓ | Brief white-flash metasprite (20 bytes) |
-| `EnemyRewardChestSystem` | `func_00DF29` | `$DF29` | ✓ | Chest spawner + 7 variant sub-functions |
+| `DarkGemDropSystem` | `func_00DF29` | `$DF29` | ✓ | Dark gem drop spawner + 7 variant handlers |
 | `NullActorScriptStub` | `stub_00DC77` | `$DC77` | **No** | Immediate COP Die (2 bytes — default actor script) |
 | `SpawnAttackTrailEffect` | `func_00DCB4` | `$DCB4` | ✓ | 16-frame hit trail |
 | `SpawnHitSparkSprites` | `func_00DD03` | `$DD03` | ✓ | OAM spark entries for critical hits |

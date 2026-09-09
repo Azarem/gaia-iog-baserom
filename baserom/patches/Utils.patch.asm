@@ -62,7 +62,7 @@ pause_debug_print |[NHM:14][CUR:C0,6]S:[BCD:2,644] X:[BCD:3,9A2] Y:[BCD:3,9A4] C
 ------------------------------------------------------------
 ;Hook for global thinkers
 
-func_03D1C2 {
+func_03D1C2! {
     PHP 
     PHD 
     REP #$20
@@ -84,7 +84,7 @@ func_03D1C2 {
 ;}
 
 
-word_03DF0A [
+word_03DF0A! [
   #$2CCE   ;06
   #$2CCF   ;07
   #$0000   ;08
@@ -146,7 +146,7 @@ word_03DF0A [
 ----------------------------------------------------------
 
 ;Fix for string code 05 BCD processing to include hex chars
-loc_03ED90 {
+loc_03ED90! {
     LDA $0000, Y
     AND #$0F
     CMP #$0A
@@ -197,7 +197,7 @@ loc_03ED90 {
 ------------------------------------------------
 
 ;DMA size
-loc_02B06D {
+loc_02B06D! {
     AND #$DF
     STA $09EC
     LDX #$0080  ;Two lines of tiles
@@ -207,21 +207,21 @@ loc_02B06D {
 ----------------------------------------------
 
 ;VRAM DMA arguments (when copying BG3 layer)
-loc_02B078 {
+loc_02B078! {
     LDX #$7820
     STX $VMADDL
     LDX #$0240
     STX $A1T0L
 }
 
-asciistring_01E7F6 |[CUR:42,0][NHM:8][HP][CUR:5A,0][NHM:14][BCD:1,AD8][CUR:64,0][NUM:AD6]|
+asciistring_01E7F6! |[CUR:42,0][NHM:8][HP][CUR:5A,0][NHM:14][BCD:1,AD8][CUR:64,0][NUM:AD6]|
 
-asciistring_01E818 |[NHM:4][CUR:6A,0][HE]|
+asciistring_01E818! |[NHM:4][CUR:6A,0][HE]|
 
 -------------------------------------------------
 ;Print debug string on radar screen
 
-loc_03808B {
+loc_03808B! {
     LDA $camera_offset_x+1
     AND #$0F
     STA $token
@@ -250,13 +250,13 @@ loc_03808B {
 
 -------------------------------------------------
 ;Prevent unequipped message
-func_0384BF {
+func_0384BF! {
     RTS 
 }
 
 ------------------------------------------------
 ;Hook into global actor code
-run_actors_03CAF5 {
+run_actors_03CAF5! {
     PHP 
     PHD 
     REP #$20
@@ -271,15 +271,15 @@ run_actors_03CAF5 {
 ------------------------------------------------
 ;Disable continue option when saving
 
-code_08DBB1 {
+code_08DBB1! {
     LDA $0D8C
     JSL $@func_03D916
     COP [07] ( #29 )
     LDA #$FFF0
-    TSB $joypad_mask_std
+    TSB $joypadMaskStd
     COP [DA] ( #3B )
     LDA #$FFF0
-    TRB $joypad_mask_std
+    TRB $joypadMaskStd
     ;COP [BF] ( &widestring_08DDFE )
     ;COP [BE] ( #02, #01, &code_list_08DBD4 )
     BRA code_08DBDA
@@ -288,19 +288,22 @@ code_08DBB1 {
 -----------------------------------------------
 ;Disable region protection
 
-func_0BC896 {
+func_0BC896! {
     BRA loc_0BC8EA
 }
 
 -----------------------------------------------
 ?INCLUDE 'sF7_credits'
 
-widestring_09F2FA `[PAL:0][DLG:44,1]     Built With GaiaLabs[N][PAL:4]         By Kassiven[N][PAL:0]            Ǫįņţ[N]            ęťĔŇ[END]`!
+widestring_09F2FA! `[PAL:0][DLG:44,1]     Built With GaiaLabs[N][PAL:4]         By Kassiven[N][PAL:0]            Ǫįņţ[N]            ęťĔŇ[END]`!
+
 
 -----------------------------------------------
+?INCLUDE 'text_measure'
+
 ;Auto-size and center scene titles
 
-loc_02A12C {
+loc_02A12C! {
     PHP 
     PHB 
     
@@ -347,7 +350,7 @@ loc_02A12C {
     RTL
 }
 
-loc_02A17E {
+loc_02A17E! {
     LDA [$3E], Y
     CMP #$CA
     BEQ loc_02A1A7
@@ -370,7 +373,7 @@ loc_02A17E {
 ?INCLUDE 'inventory_menu'
 --------------------------------------------
 ;Force some palette colors for cleaner font
-code_02E399- [
+InventoryMenuInit- [
     LDA #$4063
     STA $7F0A06
     LDA #$2180
@@ -378,7 +381,7 @@ code_02E399- [
 ]
 
 ;Make flashing cursor show blank when hidden
-code_02EC46 {
+YesNoClearCursor! {
     LDA #$0001
     TSB $09EC
     LDA #$2060
@@ -388,7 +391,7 @@ code_02EC46 {
 }
 
 ;Make flashing cursor show blank when hidden
-code_02ECE8 {
+TabClearCursor! {
     LDA #$0001
     TSB $09EC
     LDA #$2060

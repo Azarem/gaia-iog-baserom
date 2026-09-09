@@ -1,0 +1,45 @@
+?INCLUDE 'f_inventory_full'
+?INCLUDE 'table_0EE000'
+
+!displayModeFlags               09EC
+
+---------------------------------------------
+
+awBA_glasses [
+  actor-def < #02, #01, #10, {
+
+  code_089F7F:
+    COP [BranchIfFlagByte] ( #BA, #01, &code_089FB5 )
+    LDA #$0200
+    TSB $12
+    COP [SetMetasprite] ( @table_0EE000 )
+    COP [SetOnInteract] ( &code_089F9D )
+
+  loc_089F93:
+    COP [StageSpriteFrame] ( #02 )
+    COP [AnimOnce]
+    COP [WaitByte] ( #3B )
+    BRA loc_089F93
+} >
+]
+
+code_089F9D {
+    COP [PrintWideString] ( &widestring_089FBB )
+    COP [GiveItem] ( #1C, &code_089FB7 )
+    COP [SetFlagByte] ( #BA )
+    LDA #$0080
+    TSB $displayModeFlags
+    COP [MusicAndText] ( #17, @widestring_089FDC )
+}
+
+code_089FB5 {
+    COP [Die]
+}
+
+code_089FB7 {
+    JML $@f_inventory_full.InventoryFullMessage
+}
+
+widestring_089FBB `[DEF]There's something shiny[N]on the ground.[FIN]`
+
+widestring_089FDC `[CLR][SFX:0][DLY:9]You've found the Black[N]Crystal Glasses![PAU:78][END]`

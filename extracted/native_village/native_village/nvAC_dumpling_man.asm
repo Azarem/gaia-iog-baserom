@@ -1,0 +1,107 @@
+---------------------------------------------
+
+nvAC_dumpling_man1 [
+  actor-def < #1C, #00, #18, {
+
+  code_088D6E:
+    COP [BranchIfFlagByte] ( #AF, #00, &code_088DC2 )
+    LDA #$1000
+    TSB $12
+    COP [SetOnInteract] ( &code_088DC4 )
+
+  loc_088D7D:
+    COP [BranchIfFlagByte] ( #03, #01, &code_088D9D )
+    COP [StageSpriteMoveX] ( #20, #02 )
+    COP [AnimOnce]
+    COP [StageSpriteMoveY] ( #1F, #02 )
+    COP [AnimOnce]
+    COP [StageSpriteMoveX] ( #21, #01 )
+    COP [AnimOnce]
+    COP [StageSpriteMoveY] ( #1E, #01 )
+    COP [AnimOnce]
+    BRA loc_088D7D
+} >
+]
+
+code_088D9D {
+    COP [StageSpriteMoveY] ( #1E, #11 )
+    COP [AnimOnce]
+    COP [StageSpriteMoveX] ( #20, #12 )
+    COP [AnimOnce]
+    COP [StageSpriteFrame] ( #1B )
+    COP [AnimOnce]
+    COP [ExitIfFlagByte] ( #04, #01 )
+    COP [StageSpriteMoveY] ( #1F, #03 )
+    COP [AnimOnce]
+    COP [StageSpriteFrame] ( #1B )
+    COP [AnimOnce]
+    COP [SolidHighHere]
+    COP [SetEntryContinue]
+    RTL 
+}
+
+code_088DC2 {
+    COP [Die]
+}
+
+code_088DC4 {
+    COP [PrintWideString] ( &widestring_088DDE )
+    COP [DialogueOptions] ( #02, #01, &code_list_088DCE )
+}
+
+code_list_088DCE [
+  &code_088DD4   ;00
+  &code_088DD9   ;01
+  &code_088DD4   ;02
+]
+
+code_088DD4 {
+    COP [PrintWideString] ( &widestring_088E72 )
+    RTL 
+}
+
+code_088DD9 {
+    COP [PrintWideString] ( &widestring_088E0F )
+    RTL 
+}
+
+widestring_088DDE `[TPL:E]The man holds out[N]some food...[FIN]Eat some?[N] Yes[N] No`
+
+widestring_088E0F `[CLR]It tastes like dumplings[N]made of insects...[FIN]My heart was filled.[N]It seemed as if we[N]understood each other.[PAL:0][END]`
+
+widestring_088E72 `[CLR]The man looked sad...[PAL:0][END]`
+---------------------------------------------
+
+nvAC_dumpling_man2 [
+  actor-def < #1A, #00, #18, {
+
+  code_089203:
+    COP [BranchIfFlagByte] ( #AF, #00, &code_089246 )
+    COP [SolidHighHere]
+    COP [SetOnInteract] ( &code_088DC4 )
+    COP [ExitIfFlagByte] ( #03, #01 )
+    COP [ClearLowHere]
+    COP [StageSpriteMoveX] ( #21, #11 )
+    COP [AnimOnce]
+    COP [StageSpriteMoveY] ( #1E, #01 )
+    COP [AnimOnce]
+    COP [StageSpriteLoop] ( #1A, #1E )
+    COP [AnimLoop]
+    COP [StageSpriteMoveY] ( #1E, #11 )
+    COP [AnimOnce]
+    COP [StageSpriteFrame] ( #1A )
+    COP [AnimOnce]
+    COP [ExitIfFlagByte] ( #04, #01 )
+    COP [StageSpriteMoveY] ( #1E, #04 )
+    COP [AnimOnce]
+    COP [StageSpriteFrame] ( #1A )
+    COP [AnimOnce]
+    COP [SolidHighHere]
+    COP [SetEntryContinue]
+    RTL 
+} >
+]
+
+code_089246 {
+    COP [Die]
+}

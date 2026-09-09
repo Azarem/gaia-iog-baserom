@@ -2,9 +2,9 @@
 
 **Bank:** `$00` (mirrored at `$80`)  
 **Address range:** `$00C2BB`–`$00CF29` (this document)  
-**Scope:** Red jewel rewards, player transition animation library, statue/inventory system, location-specific interactables, and field reveal collectibles
+**Scope:** Boss clear stat rewards, player transition animation library, statue/inventory system, location-specific interactables, and field reveal collectibles
 
-These actors handle player-facing progression: stat rewards from red jewels, cutscene/warp player animations, statue collectible grants, town doors, pressure plates, overworld map transitions, and animated field pickups.
+These actors handle player-facing progression: boss-triggered catchup stat rewards, cutscene/warp player animations, statue collectible grants, town doors, pressure plates, overworld map transitions, and animated field pickups.
 
 **Related:** [`actors-combat-interaction.md`](actors-combat-interaction.md) (stat reward VFX, push handlers) · [`bank00-upper-analysis.md`](../bank00-upper-analysis.md)
 
@@ -14,7 +14,7 @@ These actors handle player-facing progression: stat rewards from red jewels, cut
 
 | Actor / Block | Old Name | Address | Movable | Scene / Spawn |
 |---------------|----------|---------|---------|---------------|
-| `red_jewel_reward_handler` | `actor_00C2BB` | `$C2BB` | ✓ | 5 scenes |
+| `boss_clear_reward_handler` | `actor_00C2BB` | `$C2BB` | ✓ | 5 scenes |
 | `player_transition_handlers` | `entry_points_00C418` | `$C418`–`$C5E3` | **No** | Library (`$&` refs) |
 | `freejia_street_prop` | `actor_00C62D` | `$C62D` | ✓ | Freejia ($32) |
 | `hidden_red_jewel` | `hidden_red_jewel` | `$C672` | ✓ | 16 scenes |
@@ -27,38 +27,43 @@ These actors handle player-facing progression: stat rewards from red jewels, cut
 
 ---
 
-## Red Jewel Rewards
+## Boss Clear Reward Handler
 
-### red_jewel_reward_handler
+### boss_clear_reward_handler
 
 | Property | Value |
 |----------|-------|
-| **Old Name** | `actor_00C2BB` |
-| **New Name** | `red_jewel_reward_handler` |
-| **Hex Address** | `$00C2BB` (script `$C2BE`, table `$C312`, helper `$C33E`) |
+| **Old Name** | `actor_00C2BB` (formerly `red_jewel_reward_handler`) |
+| **New Name** | `boss_clear_reward_handler` |
+| **Hex Address** | `$00C2BB` (script `$C2BE`, range table `$C312`, helper `$C33E`) |
 | **Decimal Address** | 49851 |
 | **Size** | 220 bytes |
 | **Type** | `actor_def` (priority `#20`) |
-| **ASM File** | `extracted/actors/red_jewel_reward_handler.asm` |
-| **Movable** | Yes (move with `reward_table_01AADE`) |
+| **ASM File** | `extracted/actors/boss_clear_reward_handler.asm` |
+| **Movable** | Yes (move with `enemy_clear_reward_table`) |
 | **Priority** | High — boss reward scenes |
 
 #### Description
 
-Maps `$scene_current` to a reward tier via embedded lookup table `unk5_00C312`, then applies HP/STR/DEF increments from `reward_table_01AADE`. Only activates when `$player_flags` bit `$0020` is set (player in reward-eligible state, typically post-boss). Uses WRAM flag offset `$0100` range to prevent duplicate rewards per scene index.
+After a boss is defeated, this handler retroactively awards all **uncollected** per-scene enemy-clear stat rewards within a range. The embedded range table `boss_reward_range_00C312` maps `$scene_current` to a `<sceneCurrent, sceneMin, sceneMax>` triplet. The helper at `$C33E` then walks `enemy_clear_reward_table` from `sceneMin` to `sceneMax`, granting every reward the player missed.
 
-The helper at `$C33E` walks the reward table byte-by-byte: value `1` → increment `$0ACA` (HP), `2` → increment `$0ADE` (STR), `3` → increment `$0ADC` (DEF). Each tier sets a `$0300` scene flag before applying.
+Only activates when `$player_flags` bit `$0020` is set (boss defeated, reward-eligible state). Uses WRAM flag offset `$0100` range to prevent duplicate boss catchup per scene. Individual scene rewards are tracked via `$0300` flags.
+
+The helper at `$C33E` walks the reward table byte-by-byte: value `1` → increment `$0ACA` (HP), `2` → increment `$0ADE` (STR), `3` → increment `$0ADC` (DEF). Each scene's reward sets a `$0300` flag before applying, so already-collected rewards are skipped.
+
+> ⚠ This actor has **nothing to do with red jewels**. It is a boss-defeat catchup mechanism that ensures the player receives all stat bonuses from scenes they may have cleared (or skipped clearing) between boss milestones.
 
 #### Algorithm
 
 ```
-1. Scan unk5_00C312 for matching $scene_current
-2. TestWramFlag_Offset100 — skip if already rewarded
-3. Require $player_flags bit $0020
-4. Load reward tier from table entry + 1
-5. JSR code_00C33E — apply stat increments via reward_table_01AADE
-6. Update $0B22 (HP display delta)
-7. SetWramFlag_Offset100 — mark scene rewarded
+1. Scan boss_reward_range_00C312 for matching $scene_current
+2. TestWramFlag_Offset100 — skip if boss already rewarded
+3. Require $player_flags bit $0020 (boss defeated)
+4. Load scene range (sceneMin → sceneMax) from table entry
+5. JSR apply_pending_clear_rewards — walk enemy_clear_reward_table[sceneMin..sceneMax]
+   For each scene in range: check $0300 flag, skip if collected, else grant stat and set flag
+6. Update $0B22 (HP recovery delta = playerMaxHp − playerHp)
+7. SetWramFlag_Offset100 — mark boss scene rewarded
 8. SetEntryContinue loop
 ```
 
@@ -66,20 +71,34 @@ The helper at `$C33E` walks the reward table byte-by-byte: value `1` → increme
 
 | Symbol | Role |
 |--------|------|
-| `$scene_current` | Scene index lookup key |
-| `$player_flags` | Bit `$0020` = reward eligible |
+| `$scene_current` | Scene index — boss scene lookup key |
+| `$player_flags` | Bit `$0020` = boss defeated, reward eligible |
 | `$0ACA` | Current HP |
 | `$0ACE` | Base HP (for delta calc) |
 | `$0ADE` | STR stat |
 | `$0ADC` | DEF stat |
 | `$0B22` | HP bar display delta |
-| `$20` | Saved table index |
-| `unk5_00C312` | Scene → reward tier mapping (5 boss scenes + padding) |
-| `reward_table_01AADE` | Tier → stat increment byte stream |
+| `$20` | Saved range table index |
+| `boss_reward_range_00C312` | Boss scene → `<sceneCurrent, sceneMin, sceneMax>` range mapping (5 active + 6 placeholders) |
+| `enemy_clear_reward_table` | Per-scene enemy clear reward table (0=none, 1=HP, 2=STR, 3=DEF) |
+
+#### Range Table (`boss_reward_range_00C312`)
+
+Each entry defines the range of scenes whose rewards are granted on boss defeat:
+
+| # | Scene | Min | Max | Boss Context |
+|---|-------|-----|-----|-------------|
+| 00 | `$29` | `$0C` | `$29` | Castoth |
+| 01 | `$55` | `$3D` | `$55` | Viper |
+| 02 | `$67` | `$5A` | `$67` | Vampire |
+| 03 | `$8A` | `$6D` | `$8A` | Sand Fanger |
+| 04 | `$DD` | `$A0` | `$DD` | Mummy Queen |
+| 05 | `$F8` | `$00` | `$00` | (placeholder) |
+| 06–0A | `$29` | `$00` | `$00` | (placeholder) |
 
 #### Scene Usage
 
-**5** placements — post-boss reward scenes:
+**5** placements — post-boss scenes:
 
 | Scene Context | Slot |
 |---------------|------|
@@ -93,9 +112,10 @@ The helper at `$C33E` walks the reward table byte-by-byte: value `1` → increme
 
 | Direction | Symbol | Notes |
 |-----------|--------|-------|
-| Includes | `reward_table_01AADE` | Must move together |
+| Includes | `enemy_clear_reward_table` | Must move together |
 | Includes | `cop_handlers_script` | Flag/stat COP helpers |
-| Related | `field_reveal_object` | Also reads `reward_table_01AADE` |
+| Related | `field_reveal_object` | Also reads `enemy_clear_reward_table` |
+| Related | `StandardEnemyDefeatHandler` | Reads `enemy_clear_reward_table` per scene for individual drops |
 | Cataloged in | `us/blocks.json` @ 49851 | |
 
 ---
@@ -495,16 +515,16 @@ Common pattern: zero `$0D60`, stage world map choice, then jump to `code_00CAC1`
 
 Animated reveal/collectible spawned at runtime when a hidden field object is discovered. **Not placed in `scene_actors.asm`** — spawned via `SpawnAfterFlags` from boss scripts and field actors.
 
-On spawn: checks `$scene_current` against `reward_table_01AADE` to select HP/STR/DEF/gem sprite variant via `SwitchCase`. If already collected (`TestFlag_0300`), uses alternate frame path. Animates upward reveal (7-frame Y rise with solid check), moves toward player (`MoveToward`), then spawns `push_handler_light` for collection interaction.
+On spawn: checks `$scene_current` against `enemy_clear_reward_table` to select HP/STR/DEF/gem sprite variant via `SwitchCase`. If already collected (`TestFlag_0300`), uses alternate frame path. Animates upward reveal (7-frame Y rise with solid check), moves toward player (`MoveToward`), then spawns `collect_handler_gem` for collection interaction.
 
 #### Algorithm
 
 ```
-1. Select sprite variant from reward_table_01AADE[$scene_current] & 3
+1. Select sprite variant from enemy_clear_reward_table[$scene_current] & 3
 2. Animate Y rise (7 frames, solid-aware)
 3. MoveToward player + StageForceMoveXY
 4. Wait 11 frames
-5. SpawnMarkedAfter push_handler_light (#$2300)
+5. SpawnMarkedAfter collect_handler_gem (#$2300)
 6. Loop anim until $28 < 8, then fade
 ```
 
@@ -516,7 +536,7 @@ On spawn: checks `$scene_current` against `reward_table_01AADE` to select HP/STR
 | `$24` | Saved Y position |
 | `$28` | Fade/anim phase |
 | `$7F0020` | Parent actor link |
-| `reward_table_01AADE` | Scene → reward type index |
+| `enemy_clear_reward_table` | Per-scene enemy clear reward type (0=none, 1=HP, 2=STR, 3=DEF) |
 
 #### Scene Usage
 
@@ -532,8 +552,8 @@ Runtime spawn only — called from:
 
 | Direction | Symbol | Notes |
 |-----------|--------|-------|
-| Spawns | `push_handler_light` | Collection nudge handler |
-| Includes | `push_interaction_handlers`, `reward_table_01AADE` | |
+| Spawns | `collect_handler_gem` | Gem collection interaction handler |
+| Includes | `interaction_handlers`, `enemy_clear_reward_table` | |
 | Cataloged in | `us/blocks.json` @ 55928 | |
 
 ---

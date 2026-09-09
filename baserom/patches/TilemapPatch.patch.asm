@@ -1,6 +1,6 @@
 ﻿?BANK 02
 
-?INCLUDE 'chunk_028000'
+?INCLUDE 'scene_script'
 
 -- Patch for tilemap loading which adds support for no compression
 
@@ -15,15 +15,14 @@
 
 ---------------------------------------------
 
-loc_02883D {
+loc_02883D! {
     REP #$20
     
     LDA [$sptr]
     INC $sptr
     INC $sptr
-    CMP #$0000
-    BEQ func_0288B5
-    BMI func_0288B5
+    CMP #$0001
+    BMI HandleEmptyGeometry
     STA $DCMP_SIZE
     STA $META_SIZE
 
@@ -32,7 +31,7 @@ loc_02883D {
     BIT #$01
     BEQ loc_02888E
     LDX #$0000
-    JSR $&sub_028895
+    JSR $&StoreMapAndDecompress
     LDA $066A
     BIT #$02
     BEQ loc_028894
@@ -44,20 +43,20 @@ loc_02883D {
     STX $42
     LDA #$7E
     STA $44
-    JSR $&sub_028DEA
+    JSR $&DmaRomToWram
     LDA $01
     STA $0695
     XBA 
     LDA $03
     STA $0699
-    JSL $@func_0281D1
+    JSL $@SignedMultiply
     STA $069D
     BRA loc_028894
 }
 
 ---------------------------------------------
 
-sub_028914 {
+WriteMapBounds! {
     REP #$20
     LDA $00
     STA $map_bounds_x, X    -- copy stored width
@@ -67,14 +66,14 @@ sub_028914 {
     STA $069A, X            -- copy stored multiply result (used by 0 index)
     STZ $DST_OFF             -- zero dest offset
 
-    JSR $&sub_028DEA
+    JSR $&DmaRomToWram
     SEP #$20
     RTS
 }
 
 ---------------------------------------------
 
-func_028926 {
+DmaLowVramTileset! {
     REP #$20
     LDA [$sptr]
     INC $sptr

@@ -1,5 +1,5 @@
 ﻿
-?INCLUDE 'chunk_028000'
+?INCLUDE 'scene_script'
 --------------------------------------------
 
 item_icon_generate {
@@ -359,13 +359,13 @@ item_icon_next {
     STY $VMADDL
     LDY #$0040
     LDA #$^gfx_item_exprite
-    JSL $@func_0283A2
+    JSL $@DmaWordToVram
     PLX
     LDY #$4FC0
     STY $VMADDL
     LDY #$0040
     LDA #$^gfx_item_exprite
-    JSL $@func_0283A2
+    JSL $@DmaWordToVram
     
     REP #$20
     LDA #$1000
@@ -410,7 +410,7 @@ item_icon_next {
 --------------------------------------------------
 ;Allow both static sprites and temporary sprites
 
-func_03C78B {
+func_03C78B! {
     LDX #$0000
     TXY 
 
@@ -421,7 +421,7 @@ func_03C78B {
     JSR loc_03C7F0
     LDX #$0000
     
-  loc_03C797:
+  loc_03C797!:
     LDA $7F3100, X
     BPL loc_03C79E
     RTS 
@@ -430,11 +430,11 @@ func_03C78B {
 --------------------------------------------------------
 ;Make system sprite page loading also load item icon
 
-loc_03E04E {
+loc_03E04E! {
     JML item_icon_stub
 }
 
-func_03DECD {
+func_03DECD! {
     LDA $09ED
     BIT #$40
     BEQ loc_03DED5
@@ -447,27 +447,27 @@ func_03DECD {
 --------------------------------------------------------
 
 ;Aura barrier flame
-bundle_16C1BD [
-  bundle < #01, &word_16C1EE, #F1, #0F, #01 >   ;00
-  bundle < #01, &word_16C1FE, #F1, #0F, #01 >   ;01
-  bundle < #01, &word_16C20E, #F1, #0F, #01 >   ;02
-  bundle < #01, &word_16C21E, #F1, #0F, #01 >   ;03
-  bundle < #01, &word_16C22E, #F1, #0F, #01 >   ;04
-  bundle < #01, &word_16C23E, #F1, #0F, #01 >   ;05
-  bundle < #01, &word_16C24E, #F1, #0F, #01 >   ;06
-  bundle < #01, &word_16C25E, #F1, #0F, #01 >   ;07
+palette_bundle_16C1BD! [
+  palette-bundle < #01, &word_16C1EE, #F1, #0F, #01 >   ;00
+  palette-bundle < #01, &word_16C1FE, #F1, #0F, #01 >   ;01
+  palette-bundle < #01, &word_16C20E, #F1, #0F, #01 >   ;02
+  palette-bundle < #01, &word_16C21E, #F1, #0F, #01 >   ;03
+  palette-bundle < #01, &word_16C22E, #F1, #0F, #01 >   ;04
+  palette-bundle < #01, &word_16C23E, #F1, #0F, #01 >   ;05
+  palette-bundle < #01, &word_16C24E, #F1, #0F, #01 >   ;06
+  palette-bundle < #01, &word_16C25E, #F1, #0F, #01 >   ;07
 ]
 
 //Firebird
-bundle_16CE8F [
-  bundle < #01, &word_16CEC0, #98, #0F, #02 >   ;00
-  bundle < #01, &word_16CED0, #98, #0F, #02 >   ;01
-  bundle < #01, &word_16CEE0, #98, #0F, #02 >   ;02
-  bundle < #01, &word_16CEF0, #98, #0F, #02 >   ;03
-  bundle < #01, &word_16CF00, #98, #0F, #02 >   ;04
-  bundle < #01, &word_16CF10, #98, #0F, #02 >   ;05
-  bundle < #01, &word_16CF20, #98, #0F, #02 >   ;06
-  bundle < #01, &word_16CF30, #98, #0F, #02 >   ;07
+palette_bundle_16CE8F! [
+  palette-bundle < #01, &word_16CEC0, #98, #0F, #02 >   ;00
+  palette-bundle < #01, &word_16CED0, #98, #0F, #02 >   ;01
+  palette-bundle < #01, &word_16CEE0, #98, #0F, #02 >   ;02
+  palette-bundle < #01, &word_16CEF0, #98, #0F, #02 >   ;03
+  palette-bundle < #01, &word_16CF00, #98, #0F, #02 >   ;04
+  palette-bundle < #01, &word_16CF10, #98, #0F, #02 >   ;05
+  palette-bundle < #01, &word_16CF20, #98, #0F, #02 >   ;06
+  palette-bundle < #01, &word_16CF30, #98, #0F, #02 >   ;07
 ]
 
 ------------------------------------------------------
@@ -475,12 +475,12 @@ bundle_16CE8F [
 ------------------------------------------------------
 ;Enable engine flag 4000
 
-unk7_01805E [
-  unk7 < #17, #00, #80, #00, #24, #85, #09, #80, #00, #00 >   ;Statue reward scene
+display_preset_01805E! [
+  display-preset < #17, #00, #80, #00, #24, #85, #09, #80, #00, #00 >   ;Statue reward scene
 ]
 
-unk7_0181D0 [
-  unk7 < #17, #00, #80, #03, #E4, #80, #09, #80, #00, #00 >   ;Epilogue scene
+display_preset_0181D0! [
+  display-preset < #17, #00, #80, #03, #E4, #80, #09, #80, #00, #00 >   ;Epilogue scene
 ]
 
 
@@ -521,32 +521,32 @@ code_098149- {
 ------------------------------------------------------
 ;Fix for copied palette during aura barrier
 
-loc_02B9C0 {
+loc_02B9C0! {
     COP [50] ( @fx_palette_198090, #00, #F9, #07 ) ; <-
     COP [8E] ( #06 )
     COP [80] ( #02 )
     COP [89]
-    COP [A5] ( @func_02C322, #00, #00, #$2400 )
+    COP [A5] ( @AuraBarrierPaletteFX, #00, #00, #$2400 )
     TYA 
     STA $7F0012, X
     COP [84] ( #03, #02 )
     COP [8A]
     LDA #$0001
-    TRB $player_flags
-    COP [A5] ( @code_02BA17, #00, #F0, #$2600 )
+    TRB $playerFlags
+    COP [A5] ( @AuraOrbitalSpawner, #00, #F0, #$2600 )
     COP [84] ( #03, #0A )
     COP [8A]
-    JSR $&sub_02C21C
+    JSR $&KillSpawnedProjectile
 }
 
 ;Fix for copied palette during dark friar
-loc_02BB77 {
+loc_02BB77! {
     COP [50] ( @fx_palette_198070, #00, #F0, #10 )
-    COP [3B] ( #4A, @func_00B519 )
+    COP [3B] ( #4A, @PaletteResetAndKillThinker )
     COP [48]
     AND #$0003
     STA $0000
-    COP [D9] ( #$0000, &code_list_02BB93 )
+    COP [D9] ( #$0000, &DarkFriarDirTable )
 }
 
 ------------------------------------------------------
@@ -554,7 +554,7 @@ loc_02BB77 {
 ------------------------------------------------------
 
 ;Fix for copied palette during dark friar
-loc_02EED2 {
+loc_02EED2! {
     DEC 
     BNE loc_02EEF0
     LDX #$4400
@@ -562,19 +562,19 @@ loc_02EED2 {
     LDX #$&misc_fx_1CC000
     LDA #$^misc_fx_1CC000
     LDY #$0480
-    JSL $@func_0283A2
+    JSL $@DmaWordToVram
     COP [50] ( @fx_palette_198070, #00, #F0, #10 )
     RTS 
 }
 
 ;Fix for copied palette during aura barrier
-loc_02EEF0 {
+loc_02EEF0! {
     LDX #$4400
     STX $VMADDL
     LDX #$&misc_fx_1CC480
     LDA #$^misc_fx_1CC480
     LDY #$0600
-    JSL $@func_0283A2
+    JSL $@DmaWordToVram
     COP [50] ( @fx_palette_198090, #00, #F9, #07 )
     RTS 
 }
@@ -585,7 +585,7 @@ loc_02EEF0 {
 ------------------------------------------------------
 ;Fix for sword palette during aura barrier
 
-sprite_group_17A483 [
+sprite_group_17A483! [
   sprite_group < #13, #10, #46, #00, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #0E, [
     sprite_part < #01, #0B, #08, #00, #36, #$0E4E >   ;00
     sprite_part < #01, #0B, #08, #10, #26, #$0E6E >   ;01
@@ -610,7 +610,7 @@ sprite_group_17A483 [
 ------------------------------------------------------
 ;Fix for prologue scene 4 to wait before generating sprites
 
-code_0BCE36 {
+code_0BCE36! {
     LDA #$4001
     TSB $09EC
     COP [50] ( @pal_prologue_mishap, #00, #00, #20 )

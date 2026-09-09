@@ -40,7 +40,7 @@
 |-------|-------|---------|
 | `$00B500`–`$00BFFF` | 49 | Thinkers (palette, HDMA, DMA, screen config) |
 | `$00C100`–`$00CFFF` | 20 | Actors (speed zones, dream, rewards, push) + Functions (NPC AI, camera, menus) |
-| `$00D600`–`$00DFFF` | 14 | Functions (game over, combat defeat, item drops, chest spawning) |
+| `$00D600`–`$00DFFF` | 14 | Functions (game over, combat defeat, field reveals, dark gem drops) |
 | `$00E100`–`$00EAFF` | 12 | Actors (push handlers, smooth follow, visual effects, camera) |
 | `$00F300`–`$00F4FF` | 4 | Functions (player stop, orbital math) |
 
@@ -194,7 +194,7 @@ Invisible tile triggers that modify `$player_speed_ns` or `$player_speed_ew` whe
 
 | Current Name | Address | Suggested Name | Purpose | Movable |
 |--------------|---------|----------------|---------|---------|
-| `actor_00C2BB` | $C2BB | `red_jewel_reward_handler` | Maps `$scene_current` to reward tier; increments HP/STR/DEF | ✓ (with `reward_table_01AADE`) |
+| `actor_00C2BB` | $C2BB | `boss_clear_reward_handler` | On boss defeat, retroactively awards uncollected scene clear stat rewards in a range | ✓ (with `enemy_clear_reward_table`) |
 | `actor_00DA78` | $DA78 | `field_reveal_object` | Animated reveal/collectible; moves toward player; spawns push handler | ✓ (with includes) |
 
 ### 3.5 Player Transition Handlers
@@ -231,7 +231,7 @@ Three variants sharing `$@func_03F0CA` (direction probe) and `chunk_03BAE1`:
 
 | Current Name | Address | Suggested Name | Distinct Behavior | Movable |
 |--------------|---------|----------------|--------------------|---------|
-| `actor_00E155` | $E155 | `push_handler_light` | Nudges linked actor ±2 px; no solid changes | ✓ |
+| `actor_00E155` | $E155 | `collect_handler_gem` | Gem collection: nudges gem toward player ±2 px; no solid changes | ✓ |
 | `actor_00E256` | $E256 | `push_handler_solid` | Requires ≥32 px offset; clears/sets solid tiles | ✓ |
 | `actor_00E3BA` | $E3BA | `push_handler_forceball` | Uses `AddPosition`; requires player anim `$003A`–`$003D` | ✓ |
 
@@ -306,26 +306,26 @@ Three actors forming a camera/scroll effect subsystem:
 | Current Name | Address | Suggested Name | Purpose | Movable | Call Type |
 |--------------|---------|----------------|---------|---------|-----------|
 | `func_00DB8A` | $DB8A | `StandardEnemyDefeatHandler` | Central enemy death: kill counters, flash, drops, rewards | **No** (inbound `$&`) | Pointer / COP `JumpScript` |
-| `func_00DD5B` | $DD5B | `EnemyRewardChestRouter` | Routes reward type 1/2/other to chest variants | **No** (embedded) | Internal JSR |
+| `func_00DD5B` | $DD5B | `EnemyGemDropRouter` | Routes gemDropType 1/2/3+ to dark gem variants | **No** (embedded) | Internal JSR |
 | `func_00DD87` | $DD87 | `EnemyStatBonusReward` | Scene-indexed HP/STR/DEF reward spawner | **No** (embedded) | Internal JSR |
-| `func_00DDF2` | $DDF2 | `SpawnItemDropPickup` | Animated item drop from enemy flag | ✓ | COP `SpawnLastRel` |
+| `func_00DDF2` | $DDF2 | `SpawnFieldRevealEffect` | Field tile reveal effect (sparkle + event block tile swap) | ✓ | COP `SpawnLastRel` |
 | `func_00DF15` | $DF15 | `EnemyDeathFlash` | Brief white-flash metasprite | ✓ | COP `SpawnLastRel` |
-| `func_00DF29` | $DF29 | `EnemyRewardChestSystem` | Treasure chest spawner + 6 variant handlers | ✓ | COP `SpawnLastRel` |
+| `func_00DF29` | $DF29 | `DarkGemDropSystem` | Dark gem drop spawner + 6 variant handlers | ✓ | COP `SpawnLastRel` |
 | `stub_00DC77` | $DC77 | `NullActorScriptStub` | Immediate `COP Die` — default actor script | **No** (inbound `$&`) | Pointer assignment |
 
-**Defeat pipeline flow:** Enemy `OnDeath` → `StandardEnemyDefeatHandler` → `EnemyDeathFlash` + optionally `SpawnItemDropPickup` → `EnemyRewardChestRouter` or `EnemyStatBonusReward` → chest/stat actors
+**Defeat pipeline flow:** Enemy `OnDeath` → `StandardEnemyDefeatHandler` → `EnemyDeathFlash` + optionally `SpawnFieldRevealEffect` (tile reveal) → `EnemyGemDropRouter` or `EnemyStatBonusReward` → dark gem / stat actors
 
 `func_00DF29` contains multiple sub-functions:
 
 | Part | Address | Suggested Name |
 |------|---------|----------------|
-| `func_00DF29` | $DF29 | `SpawnRewardChestType1` |
-| `func_00DF38` | $DF38 | `SpawnRewardChestType1Alt` |
-| `func_00DF52` | $DF52 | `SpawnRewardChestType2` |
-| `func_00DF61` | $DF61 | `SpawnRewardChestType2Alt` |
-| `func_00DF7B` | $DF7B | `SpawnRewardChestWeighted` |
-| `func_00DFC9` | $DFC9 | `SpawnRewardChestHP` |
-| `func_00DFE3` | $DFE3 | `SpawnRewardChestDEF` |
+| `func_00DF29` | $DF29 | `SpawnDarkGemType1` |
+| `func_00DF38` | $DF38 | `code_00DF38` (HP gem: chatPtr $0083) |
+| `func_00DF52` | $DF52 | `code_00DF52` (Type 2 entry) |
+| `func_00DF61` | $DF61 | `code_00DF61` (STR gem: chatPtr $0084) |
+| `func_00DF7B` | $DF7B | `SpawnDarkGemWeighted` |
+| `func_00DFC9` | $DFC9 | `code_00DFC9` (DEF gem: chatPtr $0085) |
+| `func_00DFE3` | $DFE3 | `code_00DFE3` (Special gem: chatPtr $0086) |
 
 ### 4.3 Combat Visual Effects (Group C)
 
@@ -509,12 +509,12 @@ Complete suggested rename table for all auto-named blocks:
 | `actor_00C218` | `speed_zone_ew_fast` | Medium |
 | `actor_00C251` | `speed_zone_ns_fast_unused` | Low (unused) |
 | `actor_00C286` | `speed_zone_ns_slow` | Medium |
-| `actor_00C2BB` | `red_jewel_reward_handler` | **High** |
+| `actor_00C2BB` | `boss_clear_reward_handler` | **High** |
 | `actor_00C62D` | `freejia_street_prop` | Low |
 | `actor_00C667` | `scene_flag_init` | **High** (global infrastructure) |
 | `actor_00D877` | `hit_stagger_controller` | **High** |
 | `actor_00DA78` | `field_reveal_object` | Medium |
-| `actor_00E155` | `push_handler_light` | **High** |
+| `actor_00E155` | `collect_handler_gem` | **High** |
 | `actor_00E256` | `push_handler_solid` | **High** |
 | `actor_00E3BA` | `push_handler_forceball` | Medium |
 | `actor_00E4DB` | `smooth_follow_child` | **High** |
@@ -541,14 +541,14 @@ Complete suggested rename table for all auto-named blocks:
 | `func_00D62F` | `GameOverSequence` | **High** |
 | `func_00D718` | `GameOverCutsceneSprites` | Medium |
 | `func_00DB8A` | `StandardEnemyDefeatHandler` | **High** |
-| `func_00DD5B` | `EnemyRewardChestRouter` | Medium |
+| `func_00DD5B` | `EnemyGemDropRouter` | Medium |
 | `func_00DD87` | `EnemyStatBonusReward` | Medium |
 | `stub_00DC77` | `NullActorScriptStub` | Medium |
 | `func_00DCB4` | `SpawnAttackTrailEffect` | Medium |
 | `func_00DD03` | `SpawnHitSparkSprites` | Medium |
-| `func_00DDF2` | `SpawnItemDropPickup` | **High** |
+| `func_00DDF2` | `SpawnFieldRevealEffect` | **High** |
 | `func_00DF15` | `EnemyDeathFlash` | Medium |
-| `func_00DF29` | `EnemyRewardChestSystem` | **High** |
+| `func_00DF29` | `DarkGemDropSystem` | **High** |
 | `func_00F3B3` | `StopPlayerOnDeathAssign` | Medium |
 | `func_00F3C9` | `ApplyOrbitalOffsetFromRef` | **High** (misplaced) |
 | `func_00F432` | `ApplyOrbitalOffsetXY` | Medium |
@@ -624,10 +624,10 @@ The following scene tags have been verified against `scene_actors.asm` and `scen
 | `inventory_statue_slot` (was `actor_00CF29`) | `inventory` | ✓ | Scene #FF only |
 | `camera_scroll_controller` (was `actor_00EAED`) | *(none — global)* | ✓ | 235 scenes — correctly untagged |
 | `scene_flag_init` (was `actor_00C667`) | *(none — global)* | ✓ | 26+ scenes — correctly untagged |
-| `red_jewel_reward_handler` (was `actor_00C2BB`) | *(none — global)* | ✓ | 5 distinct scenes — correctly untagged |
+| `boss_clear_reward_handler` (was `actor_00C2BB`) | *(none — global)* | ✓ | 5 distinct scenes — correctly untagged |
 | `large_ramp_booster` (`large_ramps`) | *(none)* | ✓ | 2 scenes (#22, #41) — correctly untagged |
 
-**Runtime-only actors** (no scene_actors entries — spawned dynamically): `hit_stagger_controller`, `field_reveal_object`, `push_handler_light/solid/forceball`, `smooth_follow_child`, `effect_subpixel_math`, `reward_actors`. This is expected behavior.
+**Runtime-only actors** (no scene_actors entries — spawned dynamically): `hit_stagger_controller`, `field_reveal_object`, `collect_handler_gem`/`push_handler_solid`/`push_handler_forceball`, `smooth_follow_child`, `effect_subpixel_math`, `reward_actors`. This is expected behavior.
 
 ### 8.3 Duplicate Code
 
@@ -678,16 +678,16 @@ The following code exists between mapped blocks but isn't explicitly defined in 
 
 **Rationale:** All four are identical in structure, differ only in axis/sign. They're all placed in Mountain Temple scenes.
 
-### 9.2 Merge: Push Handlers → `push_interaction_handlers`
+### 9.2 Merge: Interaction Handlers → `interaction_handlers`
 
 **Current:** 3 separate blocks (`actor_00E155`, `actor_00E256`, `actor_00E3BA`)
 **Recommendation:** Merge into one parts block:
 
 ```json
-"push_interaction_handlers": {
+"interaction_handlers": {
     "movable": true,
     "parts": {
-        "push_handler_light": { "start": 57685, "end": 57942, "type": "Code" },
+        "collect_handler_gem": { "start": 57685, "end": 57942, "type": "Code" },
         "push_handler_solid": { "start": 57942, "end": 58298, "type": "Code" },
         "push_handler_forceball": { "start": 58298, "end": 58587, "type": "Code" }
     }
@@ -834,11 +834,11 @@ All 96 block-level key renames applied across the following sections:
 
 | Section | Count | Examples |
 |---------|-------|---------|
-| `actors` | 13 | `red_jewel_reward_handler`, `hit_stagger_controller`, `camera_scroll_controller`, `player_transition_handlers` |
+| `actors` | 13 | `boss_clear_reward_handler`, `hit_stagger_controller`, `camera_scroll_controller`, `player_transition_handlers` |
 | `system` | 2 | `statue_inventory_reward`, `inventory_statue_slot` |
 | `thinkers` | 19 | `ambient_palette_cycler`, `global_ambient_dispatcher`, `sine_hdma_slow_wave` |
 | Scene-tagged thinkers | 18 | `edward_castle_alarm_palette`, `dream_palette_loop`, `palace_fountain_palette` |
-| `functions` | 22 | `ApplyPlayerHitstun`, `StandardEnemyDefeatHandler`, `EnemyRewardChestSystem` |
+| `functions` | 22 | `ApplyPlayerHitstun`, `StandardEnemyDefeatHandler`, `DarkGemDropSystem` |
 | `unused` | 12 | `speed_zone_ns_fast_unused`, `ApplyOrbitalOffsetFromRef`, `AttackTrailShort_unused` |
 | Scene-tagged actors | 4 | `speed_zone_ew_slow`, `speed_zone_ns_slow`, `dream_zoom_controller` |
 | System thinkers | 6 | `boot_logo_palette_enix`, `inventory_dma_setup`, `angel_tunnel_window_dma` |
@@ -933,7 +933,7 @@ This table defines the definitive file boundaries for each extracted file in the
 | `speed_zone_ew_slow.asm` | `speed_zone_ew_slow` | 49631 | 49688 | `actor_def` + player speed mod | Speed zone |
 | `speed_zone_ew_fast.asm` | `speed_zone_ew_fast` | 49688 | 49745 | Same structure | Speed zone |
 | `speed_zone_ns_slow.asm` | `speed_zone_ns_slow` | 49798 | 49851 | Same structure | Speed zone |
-| `red_jewel_reward_handler.asm` | `red_jewel_reward_handler` | 49851 | 50071 | `actor_def` + scene→reward lookup + stat increment | Reward system |
+| `boss_clear_reward_handler.asm` | `boss_clear_reward_handler` | 49851 | 50071 | `actor_def` + boss scene→range lookup + catchup stat grants | Reward system |
 | `scene_flag_init.asm` | `scene_flag_init` | 50791 | 50799 | `actor_def` + clear flag + die (8 bytes) | Infrastructure |
 | `freejia_street_prop.asm` | `freejia_street_prop` | 50733 | 50791 | `actor_def` + solid tile + sound | Scene actor |
 | `player_transition_handlers.asm` | `player_transition_handlers` | 50200 | 50675 | 11 sub-functions (`func_00C418`–`func_00C557`) | Player anim library |
@@ -947,7 +947,7 @@ This table defines the definitive file boundaries for each extracted file in the
 | `hit_stagger_controller.asm` | `hit_stagger_controller` | 55415 | 55928 | 7 parts: `e_actor_00D877`, `func_00D904`, `func_00D9EB`, `sub_00DA13/41/47/66` | Combat system |
 | `field_reveal_object.asm` | `field_reveal_object` | 55928 | 56202 | Single code block — animated reveal + push spawn | Interaction |
 | `reward_actors.asm` | `reward_actors` | 57389 | 57685 | 4 parts: `e_hp/str/def_increase`, `func_00E110` (VFX) | Reward system |
-| `push_handler_light.asm` | `push_handler_light` | 57685 | 57942 | Single code block — light nudge handler | Push system |
+| `collect_handler_gem.asm` | `collect_handler_gem` | 57685 | 57942 | Single code block — gem collection handler | Interaction system |
 | `push_handler_solid.asm` | `push_handler_solid` | 57942 | 58298 | Single code block — solid tile push | Push system |
 | `push_handler_forceball.asm` | `push_handler_forceball` | 58298 | 58587 | Single code block — forceball push | Push system |
 | `smooth_follow_child.asm` | `smooth_follow_child` | 58587 | 58965 | Single code block — child homing actor | Follow system |
@@ -979,9 +979,9 @@ This table defines the definitive file boundaries for each extracted file in the
 | `NullActorScriptStub.asm` | `NullActorScriptStub` | 56439 | 56441 | RTL (2 bytes) | System |
 | `SpawnAttackTrailEffect.asm` | `SpawnAttackTrailEffect` | 56500 | 56579 | Single code block | Combat VFX |
 | `SpawnHitSparkSprites.asm` | `SpawnHitSparkSprites` | 56579 | 56667 | Single code block | Combat VFX |
-| `SpawnItemDropPickup.asm` | `SpawnItemDropPickup` | 56818 | 57109 | Code block + widestring parts | Item drops |
+| `SpawnFieldRevealEffect.asm` | `SpawnFieldRevealEffect` | 56818 | 57109 | Field reveal effect + scatter/flash sub-functions | Tile reveals |
 | `EnemyDeathFlash.asm` | `EnemyDeathFlash` | 57109 | 57129 | Single code block (20 bytes) | Combat VFX |
-| `EnemyRewardChestSystem.asm` | `EnemyRewardChestSystem` | 57129 | 57389 | 7 sub-funcs + `array_00DFFD` | Reward chest |
+| `DarkGemDropSystem.asm` | `DarkGemDropSystem` | 57129 | 57389 | 7 sub-funcs + `gem_drop_threshold_00DFFD` | Dark gem drops |
 | `StopPlayerOnDeathAssign.asm` | `StopPlayerOnDeathAssign` | 62387 | 62409 | Single code block (22 bytes) | Game over |
 | `ApplyOrbitalOffsetXY.asm` | `ApplyOrbitalOffsetXY` | 62514 | 62607 | Single code block | Orbital math |
 
@@ -1012,7 +1012,7 @@ All recommended groupings have been applied to `blocks.json`. Final status:
 | **Palette COP family** | 9 ambient cyclers + 8 one-shot flashes | All use PaletteRestart/Start/Step COP pattern | ✓ Kept individual — spawned independently |
 | **Sine HDMA family** | 11 sine wave thinkers | All use InitSineHdma/TickSineHdma/BindSineHdma | ✓ Kept individual — scene-specific |
 | **Speed zones** | 3 active + 1 unused | Identical structure, Mountain Temple only | ✓ **Merged** → `movement_speed_zones` in `mountain_temple` |
-| **Push handlers** | 3 variants | All include `chunk_03BAE1`, use `$@func_03F0CA` | ✓ **Merged** → `push_interaction_handlers` in `actors` |
+| **Interaction handlers** | 3 variants | All include `chunk_03BAE1`, use `$@func_03F0CA` | ✓ **Merged** → `interaction_handlers` in `actors` |
 | **Effect pipeline** | 3 actors | Sequential processing, same scenes | ✓ **Merged** → `visual_effect_pipeline` in `actors` |
 | **Camera drift** | 3 functions + binary | Ambient camera variants, all use RNG | ✓ **Merged** → `camera_drift` in `functions` |
 | **Game over** | 3 contiguous functions | Death sequence: fade → cutscene → wakeup message | ✓ **Merged** → `game_over_sequence` in `functions` (`movable: false`) |
@@ -1031,7 +1031,7 @@ Six new multi-part blocks created from individual entries:
 | Block Name | Section | Parts | Rationale |
 |-----------|---------|-------|-----------|
 | `movement_speed_zones` | `mountain_temple` | `speed_zone_ew_slow`, `speed_zone_ew_fast`, `speed_zone_ns_slow` | Identical structure, same scene group; removed `kress_maze` scene tag (shared within MT) |
-| `push_interaction_handlers` | `actors` | `push_handler_light`, `push_handler_solid`, `push_handler_forceball` | All share `chunk_03BAE1` + `$@func_03F0CA` convention |
+| `interaction_handlers` | `actors` | `collect_handler_gem`, `push_handler_solid`, `push_handler_forceball` | All share `chunk_03BAE1` + `$@func_03F0CA` convention |
 | `visual_effect_pipeline` | `actors` | `effect_velocity_init`, `effect_subpixel_math`, `effect_position_update` | Sequential processing pipeline, always used together |
 | `camera_drift` | `functions` | `CameraDriftLoopSimple`, `CameraDriftLoopShip`, `func_00CFEF`, `binary_00D068` | Three camera drift variants + shared direction offset data |
 | `game_over_sequence` | `functions` | `GameOverSequence`, `GameOverCutsceneSprites`, `death_message` | Contiguous addresses (54831–55415), thematically linked death flow; `movable: false` due to inbound `$&` refs |

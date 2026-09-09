@@ -1,0 +1,67 @@
+?INCLUDE 'cop_handlers_script'
+?INCLUDE 'f_inventory_full'
+?INCLUDE 'table_0EE000'
+
+---------------------------------------------
+
+gw82_necklace_stone [
+  actor-def < #02, #01, #10, {
+
+  code_07B5A1:
+    LDA #$0200
+    TSB $12
+    LDA $0E
+    STA $24
+    PHX 
+    TAX 
+    LDA $@byte_07B5F5, X
+    AND #$00FF
+    PLX 
+    JSL $@cop_handlers_script.TestFlagRaw
+    BCS loc_07B5EF
+    LDA #$2000
+    STA $0E
+    COP [SetMetasprite] ( @table_0EE000 )
+    COP [SetOnInteract] ( &code_07B5D2 )
+
+  loc_07B5C8:
+    COP [StageSpriteFrame] ( #02 )
+    COP [AnimOnce]
+    COP [WaitByte] ( #3B )
+    BRA loc_07B5C8
+} >
+]
+
+code_07B5D2 {
+    COP [PrintWideString] ( &widestring_07B611 )
+    COP [BranchIfNoItem] ( #17, &code_07B5E0 )
+    COP [GiveItem] ( #17, &code_07B5F1 )
+}
+
+code_07B5E0 {
+    PHX 
+    LDX $24
+    LDA $@byte_07B5F5, X
+    AND #$00FF
+    PLX 
+    JSL $@cop_handlers_script.SetFlagRaw
+
+  loc_07B5EF:
+    COP [Die]
+}
+
+code_07B5F1 {
+    JML $@f_inventory_full.InventoryFullMessage
+}
+
+byte_07B5F5 [
+  #98   ;00
+  #99   ;01
+  #9A   ;02
+  #9B   ;03
+  #9C   ;04
+]
+
+widestring_07B5FA `[TPL:A][TPL:0]A small stone falls.[PAL:0][END]`
+
+widestring_07B611 `[TPL:A][TPL:0]A small stone falls.[FIN]Ha! This is part of the [N]necklace Lance made [N]for Lilly! [FIN]I picked up the stones.[PAL:0][END]`

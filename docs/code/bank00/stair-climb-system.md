@@ -3,8 +3,8 @@
 **Bank:** `$00` (mirrored at `$80`)  
 **Address range:** `$00D088`–`$00D2D2` (core) + `$00D58A`–`$00D5BC` (shared utility)  
 **Size:** ~1,336 bytes, 13 parts  
-**File:** `extracted/system/chunk_00D088.asm`  
-**Block:** `chunk_00D088` in `us/blocks.json` — `movable: false`
+**File:** `extracted/system/engine/stair_climb.asm`  
+**Block:** `stair_climb` in `us/blocks.json` — `movable: false`
 
 Each stair trigger is an invisible `actor_def` at a tile boundary. Every frame it checks player proximity, validates walking state and facing direction, then overwrites the player entry pointer to a climb function and calls `LockPlayerForClimb`.
 
@@ -170,7 +170,7 @@ Register state: enters/exits with 8-bit A (`SEP #$20` / `REP #$20` implicit on r
 
 Resets the player actor to normal walking state after a climb or ramp completes. Sets player entry pointer to `code_02C3C8` (normal player state machine in bank `$02`), zeros velocity/wait counter, adjusts actor flags, and unmasks joypad/player_flags.
 
-**Cross-file sharing:** `ramps.asm` calls this via `JSR $&sub_00D58A` from ramp completion handlers — this is why `chunk_00D088` is `movable: false`.
+**Cross-file sharing:** `ramps.asm` calls this via `JSR $&sub_00D58A` from ramp completion handlers — this is why `stair_climb` is `movable: false`.
 
 #### Algorithm
 
@@ -444,7 +444,7 @@ All triggers are placed as invisible `actor_def` entries in `scene_actors.asm` a
 
 | Property | Value |
 |----------|-------|
-| Block name | `chunk_00D088` |
+| Block name | `stair_climb` |
 | Movable | **false** |
 | Reason | Tight `$&` coupling to `ramps.asm` |
 | Parts in blocks.json | 13 |
@@ -452,4 +452,4 @@ All triggers are placed as invisible `actor_def` entries in `scene_actors.asm` a
 
 ---
 
-*Source: `us/blocks.json`, `us/names.json`, `docs/code/chunk_008000-analysis.md` §chunk_00D088.*
+*Source: `us/blocks.json`, `us/names.json`, `docs/code/chunk_008000-analysis.md` stair_climb.*

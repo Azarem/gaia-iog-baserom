@@ -1,0 +1,51 @@
+?INCLUDE 'func_06B9F2'
+?INCLUDE 'npc_wander_ai'
+
+!currentHp                      7F0026
+
+---------------------------------------------
+
+av6B_villagers2 [
+  actor-def < #0A, #00, #10, {
+
+  code_06CACD:
+    JSL $@func_06B9F2
+    COP [SetOnInteract] ( &code_06CAEC )
+    LDA #$000A
+    STA $currentHp, X
+    JSL $@npc_wander_ai.SyncActorPosFromDP
+
+  loc_06CAE0:
+    JSL $@npc_wander_ai.NpcRandomWanderAI
+    COP [SetEntryExit]
+    COP [SetEntryContinue]
+    COP [AnimOnce]
+    BRA loc_06CAE0
+} >
+]
+
+code_06CAEC {
+    LDA $24
+    STA $0000
+    COP [SwitchCase] ( #$0000, &code_list_06CAF7 )
+}
+
+code_list_06CAF7 [
+  &code_06CAFD   ;00
+  &code_06CB02   ;01
+  &code_06CAFD   ;02
+]
+
+code_06CAFD {
+    COP [PrintWideString] ( &widestring_06CB07 )
+    RTL 
+}
+
+code_06CB02 {
+    COP [PrintWideString] ( &widestring_06CB5E )
+    RTL 
+}
+
+widestring_06CB07 `[TPL:A]We have no emotions...[FIN]I've neither laughed[N]nor cried since the day[N]I was born.[FIN]I just survive...[END]`
+
+widestring_06CB5E `[TPL:A]Once a human woman  [N]named Kara came here. [FIN]Ishtar praised her[N]beauty. Then she went[N]to his studio.[END]`

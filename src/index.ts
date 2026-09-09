@@ -21,6 +21,10 @@ import structs from '../us/structs.json' with { type: 'json' };
 import transforms from '../us/transforms.json' with { type: 'json' };
 import fileTypes from '../us/fileTypes.json' with { type: 'json' };
 import names from '../us/names.json' with { type: 'json' };
+import comments from '../us/comments.json' with { type: 'json' };
+import blockNotes from '../us/blockNotes.json' with { type: 'json' };
+import partNotes from '../us/partNotes.json' with { type: 'json' };
+import types from '../us/types.json' with { type: 'json' };
 
 import configJP from '../jp/config.json' with { type: 'json' };
 import blocksJP from '../jp/blocks.json' with { type: 'json' };
@@ -36,6 +40,9 @@ import structsJP from '../jp/structs.json' with { type: 'json' };
 import transformsJP from '../jp/transforms.json' with { type: 'json' };
 import fileTypesJP from '../us/fileTypes.json' with { type: 'json' };
 import namesJP from '../jp/names.json' with { type: 'json' };
+import commentsJP from '../jp/comments.json' with { type: 'json' };
+import blockNotesJP from '../jp/blockNotes.json' with { type: 'json' };
+import partNotesJP from '../jp/partNotes.json' with { type: 'json' };
 
 export const db : DbGameRomModule = {
     mnemonics: { ...snes.vectors, ...mnemonics },
@@ -53,7 +60,11 @@ export const db : DbGameRomModule = {
     fileTypes: fileTypes as unknown as Record<string, Partial<DbFileType>>,
     addrModes: snes.addressingModes as unknown as Record<string, Partial<DbAddressingMode>>,
     headers: snes.headers,
-    names
+    names,
+    types,
+    comments,
+    blockNotes,
+    partNotes
 };
 
 export const jp : DbGameRomModule = {
@@ -72,7 +83,10 @@ export const jp : DbGameRomModule = {
     fileTypes: fileTypesJP as unknown as Record<string, Partial<DbFileType>>,
     addrModes: snes.addressingModes as unknown as Record<string, Partial<DbAddressingMode>>,
     headers: snes.headers,
-    names: namesJP
+    names: namesJP,
+    comments: commentsJP,
+    blockNotes: blockNotesJP,
+    partNotes: partNotesJP
 };
 
 export async function extract(romPath: string, outPath: string) {
@@ -115,7 +129,7 @@ export async function rebuildJp(inPath: string, outPath: string, baseRomPath: st
 
 // CLI handler - only execute when run directly (not when imported as a module)
 // Check if this module is being run directly
-const isMainModule = process.argv[1]?.includes('index.ts') || process.argv[1]?.includes('index.js');
+const isMainModule = resolve(process.argv[1] || '') === fileURLToPath(import.meta.url);
 
 if (isMainModule) {
     const command = process.argv[2];

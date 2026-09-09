@@ -1,0 +1,54 @@
+?BANK 05
+
+!joypadMaskStd                  065A
+
+---------------------------------------------
+
+fr32_showman [
+  actor-def < #02, #00, #10, {
+
+  code_05BD7E:
+    COP [SolidHighHere]
+    COP [SetOnInteract] ( &code_05BDB6 )
+    COP [ExitIfFlagByte] ( #0F, #01 )
+    LDA #$CFF0
+    TSB $joypadMaskStd
+    COP [StageSpriteLoop] ( #04, #3C )
+    COP [AnimLoop]
+    COP [SpawnMarkedAfter] ( @code_05BDEB, #$1002 )
+    COP [WaitByte] ( #B3 )
+    COP [ClearLowHere]
+    COP [StageSpriteLoopMoveY] ( #06, #02, #03 )
+    COP [AnimLoop]
+    COP [StageSpriteLoopMoveX] ( #08, #04, #04 )
+    COP [AnimLoop]
+    LDA #$CFF0
+    TRB $joypadMaskStd
+    COP [Die]
+} >
+]
+
+code_05BDB6 {
+    COP [PrintWideString] ( &widestring_05BDBE )
+    COP [SetFlagByte] ( #0F )
+    RTL 
+}
+
+widestring_05BDBE `[DEF]No one can put on a[N]show like I can.[N]Have a look![END]`
+
+code_05BDEB {
+    COP [PlaySoundCh1] ( #21 )
+    COP [StageSpriteLoop] ( #32, #3C )
+    COP [AnimLoop]
+    COP [StageSpriteLoop] ( #33, #0F )
+    COP [AnimLoop]
+    COP [StageSpriteFrame] ( #34 )
+    COP [AnimOnce]
+    COP [SetEntryContinue]
+    LDY $04
+    LDA $0014, Y
+    STA $14
+    LDA $0016, Y
+    STA $16
+    RTL 
+}

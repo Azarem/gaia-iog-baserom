@@ -1,13 +1,13 @@
 ﻿?BANK 02
 
-?INCLUDE 'chunk_028000'
+?INCLUDE 'scene_script'
 
 !SPTR		$3E
 !DCMP_SIZE	$78
 
 -----------------------------------------------------
 
-loc_028768 {
+loc_028768! {
     LDA $066A
     BEQ loc_0287BA
     LDA [$3E]
@@ -19,7 +19,7 @@ loc_028768 {
     BMI loc_02878A
     LDX #$7000
     STX $7A
-    JSL $@func_028270
+    JSL $@QuintetLzDecompress
     LDX #$7000
     STX $3E
     LDA #$007E

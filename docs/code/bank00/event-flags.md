@@ -141,7 +141,7 @@ Identical to `TestWramFlag_Offset100` but calls **`SetWramFlag`**. Used when scr
 | Direction | Symbol | Notes |
 |-----------|--------|-------|
 | Calls | `SetWramFlag` | |
-| Used by | `red_jewel_reward_handler.asm` | `JSL $@SetWramFlag_Offset100` |
+| Used by | `boss_clear_reward_handler.asm` | `JSL $@SetWramFlag_Offset100` |
 
 ---
 

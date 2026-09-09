@@ -2,10 +2,10 @@
 
 **Bank:** `$00` (mirrored at `$80`)  
 **Address range:** `$00DB8A`–`$00DFFF`  
-**Source files:** `extracted/functions/StandardEnemyDefeatHandler.asm`, `NullActorScriptStub.asm`, `SpawnAttackTrailEffect.asm`, `SpawnHitSparkSprites.asm`, `SpawnItemDropPickup.asm`, `EnemyDeathFlash.asm`, `EnemyRewardChestSystem.asm`  
+**Source files:** `extracted/functions/StandardEnemyDefeatHandler.asm`, `NullActorScriptStub.asm`, `SpawnAttackTrailEffect.asm`, `SpawnHitSparkSprites.asm`, `SpawnFieldRevealEffect.asm`, `EnemyDeathFlash.asm`, `DarkGemDropSystem.asm`  
 **Block:** `functions` section in `us/blocks.json`
 
-This region implements the complete enemy death resolution pipeline: kill tracking, visual feedback, item drops, treasure chest spawning, and stat bonus rewards. Every standard field enemy routes through `StandardEnemyDefeatHandler` via the `$7F1004` OnDeath callback assigned in `chunk_03BAE1`.
+This region implements the complete enemy death resolution pipeline: kill tracking, visual feedback, field tile reveals, dark point gem drops, and stat bonus rewards. Every standard field enemy routes through `StandardEnemyDefeatHandler` via the `$7F1004` OnDeath callback assigned in `chunk_03BAE1`.
 
 **Related:** [`actors-combat-interaction.md`](actors-combat-interaction.md) (stat reward actors, hit stagger) · [`bank00-upper-analysis.md`](../bank00-upper-analysis.md) §4.2
 
@@ -18,20 +18,20 @@ Enemy OnDeath callback
     └─► StandardEnemyDefeatHandler ($DB8A)
             ├─► Increment kill counters / scene flags
             ├─► EnemyDeathFlash ($DF15)          [COP SpawnLastRel]
-            ├─► SpawnItemDropPickup ($DDF2)     [optional, enemy drop flag]
+            ├─► SpawnFieldRevealEffect ($DDF2)  [optional, event block trigger]
             └─► Reward dispatch:
-                    ├─► EnemyRewardChestRouter ($DD5B) → EnemyRewardChestSystem ($DF29)
+                    ├─► EnemyGemDropRouter ($DD5B) → DarkGemDropSystem ($DF29)
                     └─► EnemyStatBonusReward ($DD87) → e_hp/str/def_increase actors
 ```
 
 | Function | Old Name | Address | Size | Movable | Call Type | Priority |
 |----------|----------|---------|------|---------|-----------|----------|
 | `StandardEnemyDefeatHandler` | `func_00DB8A` | `$DB8A` | 237 B | **No** | `$&` pointer / COP `JumpScript` | **High** |
-| `EnemyRewardChestRouter` | `func_00DD5B` | `$DD5B` | 44 B | **No** | Internal JSR `$&` | Medium |
+| `EnemyGemDropRouter` | `func_00DD5B` | `$DD5B` | 44 B | **No** | Internal JSR `$&` | Medium |
 | `EnemyStatBonusReward` | `func_00DD87` | `$DD87` | 107 B | **No** | Internal JSR `$&` | Medium |
-| `SpawnItemDropPickup` | `func_00DDF2` | `$DDF2` | 291 B | ✓ | COP `SpawnLastRel` | **High** |
+| `SpawnFieldRevealEffect` | `func_00DDF2` | `$DDF2` | 291 B | ✓ | COP `SpawnLastRel` | **High** |
 | `EnemyDeathFlash` | `func_00DF15` | `$DF15` | 20 B | ✓ | COP `SpawnLastRel` | Medium |
-| `EnemyRewardChestSystem` | `func_00DF29`+ | `$DF29`–`$DFFF` | 260 B | ✓ | COP `SpawnLastRel` | **High** |
+| `DarkGemDropSystem` | `func_00DF29`+ | `$DF29`–`$DFFF` | 260 B | ✓ | COP `SpawnLastRel` | **High** |
 | `NullActorScriptStub` | `stub_00DC77` | `$DC77` | 2 B | **No** | `$&` default script | Medium |
 | `SpawnAttackTrailEffect` | `func_00DCB4` | `$DCB4` | 79 B | ✓ | COP `SpawnLastRel` | Medium |
 | `SpawnHitSparkSprites` | `func_00DD03` | `$DD03` | 88 B | ✓ | COP `SpawnLastRel` | Medium |
@@ -61,8 +61,8 @@ The handler performs four coordinated tasks before the enemy actor dies:
 
 1. **Kill accounting** — increments dungeon/scene kill counters stored in WRAM (`$7F0022,X` monster ID → flag tables), updates `$0AF0`–`$0AF8` scene persistence data where applicable
 2. **Death VFX** — spawns `EnemyDeathFlash` at the enemy's `$14`/`$16` position via `COP [SpawnLastRel]`
-3. **Item drops** — if the enemy's drop flag is set, spawns `SpawnItemDropPickup` with the item ID from enemy metadata
-4. **Reward routing** — reads the enemy's reward byte and dispatches to either `EnemyRewardChestRouter` (JSR `$&func_00DD5B`) for chest types 1/2/weighted, or `EnemyStatBonusReward` (JSR `$&func_00DD87`) for HP/STR/DEF bonuses
+3. **Field tile reveal** — if the enemy has a `deathActionIdx` (event block ID) and it hasn't been triggered yet, spawns `SpawnFieldRevealEffect` which animates sparkles at the reveal area then swaps hidden tilemap tiles to their visible destination via `StageBgChangeFromDeathIdx`/`ApplyBgChange`
+4. **Reward routing** — reads the enemy's `gemDropType` byte (field 4 of `enemy-stats`) and dispatches to either `EnemyGemDropRouter` (JSR `$&func_00DD5B`) for dark gem types 1/2/weighted, or `EnemyStatBonusReward` (JSR `$&func_00DD87`) for HP/STR/DEF stat bonuses
 
 Because parts `func_00DD5B` and `func_00DD87` are embedded in the same block file with internal `$&` references, this entire three-part block must remain co-located in bank `$00`.
 
@@ -72,11 +72,11 @@ Because parts `func_00DD5B` and `func_00DD87` are embedded in the same block fil
 1. Read enemy reward type from actor metadata / WRAM fields
 2. SetWramFlag for dungeon kill tracking ($7F0022 monster ID)
 3. COP [SpawnLastRel] @EnemyDeathFlash — white flash at death position
-4. If drop flag set:
-     COP [SpawnLastRel] @SpawnItemDropPickup with item ID
-5. Switch on reward type:
-     Type 1/2/other → JSR $&EnemyRewardChestRouter
-     Stat bonus     → JSR $&EnemyStatBonusReward
+4. If deathActionIdx set (event block trigger):
+     COP [SpawnLastRel] @SpawnFieldRevealEffect with event block ID
+5. Switch on gemDropType (enemy-stats byte 3):
+     Type 1/2/3+ → JSR $&EnemyGemDropRouter (dark gem drop)
+     Type 0      → JSR $&EnemyStatBonusReward (stat bonus only)
 6. COP [Die] — remove enemy actor
 ```
 
@@ -96,19 +96,19 @@ Because parts `func_00DD5B` and `func_00DD87` are embedded in the same block fil
 |-----------|--------|-------|
 | Assigned by | `chunk_03BAE1` | Default enemy OnDeath: `#$&func_00DB8A` |
 | Called from | `hit_stagger_controller` | When enemy has no saved script ptr |
-| Calls | `EnemyRewardChestRouter`, `EnemyStatBonusReward` | Internal JSR `$&` |
-| Spawns | `EnemyDeathFlash`, `SpawnItemDropPickup` | COP `SpawnLastRel` |
+| Calls | `EnemyGemDropRouter`, `EnemyStatBonusReward` | Internal JSR `$&` |
+| Spawns | `EnemyDeathFlash`, `SpawnFieldRevealEffect` | COP `SpawnLastRel` |
 | Cataloged in | `us/blocks.json` | Block `StandardEnemyDefeatHandler` |
 | Cataloged in | `us/names.json` @ 56202 | |
 
 ---
 
-## EnemyRewardChestRouter
+## EnemyGemDropRouter
 
 | Property | Value |
 |----------|-------|
-| **Old Name** | `func_00DD5B` |
-| **New Name** | `EnemyRewardChestRouter` |
+| **Old Name** | `func_00DD5B` (formerly `EnemyRewardChestRouter`) |
+| **New Name** | `EnemyGemDropRouter` |
 | **Hex Address** | `$00DD5B` |
 | **Decimal Address** | 56667 |
 | **End Address** | `$00DD87` (56711) |
@@ -118,19 +118,23 @@ Because parts `func_00DD5B` and `func_00DD87` are embedded in the same block fil
 
 ### Description
 
-Routes enemy reward type bytes to the appropriate treasure chest spawner within `EnemyRewardChestSystem`. Compares the reward type against constants 1, 2, and a default bucket, then issues `COP [SpawnLastRel]` targeting the matching chest variant handler at `$DF29`–`$DFE3`.
+Routes the enemy's `gemDropType` (byte 3 of `enemy-stats`) to the appropriate dark gem spawner within `DarkGemDropSystem`. The `gemDropType` is read from `stats_01ABF0` during the defeat handler and passed via A register. The router decrements and branch-equals to dispatch:
 
-Chest rewards appear as animated treasure chest actors that the player opens for items or stat boosts. This router is the dispatch layer; the actual spawn logic lives in the seven variant functions below.
+- **Type 1** → `SpawnDarkGemType1` (`$DF29`) — fixed dark gem variant A
+- **Type 2** → `code_00DF52` (`$DF52`) — fixed dark gem variant B
+- **Type 3+** → `code_00DF7B` (`$DF7B`) — weighted random selection from `gem-drop-threshold` table
+
+> ⚠ This system was previously misnamed "EnemyRewardChestRouter" — enemies do **not** spawn chests on death. They drop dark point gems (animated collectible gems with stat-boosting properties).
 
 ### Algorithm
 
 ```
-1. LDA reward_type (from caller preset)
-2. CMP #$01 → SpawnRewardChestType1 ($DF29)
-3. CMP #$02 → SpawnRewardChestType2 ($DF52)
-4. Default   → SpawnRewardChestWeighted ($DF7B) or HP/DEF variants
+1. LDA gemDropType (from enemy-stats byte 3, via caller)
+2. DEC; BEQ → SpawnDarkGemType1 ($DF29)   [type 1: fixed gem A]
+3. DEC; BEQ → code_00DF52 ($DF52)          [type 2: fixed gem B]
+4. BRA → code_00DF7B ($DF7B)               [type 3+: random weighted]
 5. COP [SpawnLastRel] @selected_handler
-6. RTS
+6. JMP $&code_00DC13
 ```
 
 ### Cross-References
@@ -138,7 +142,7 @@ Chest rewards appear as animated treasure chest actors that the player opens for
 | Direction | Symbol | Notes |
 |-----------|--------|-------|
 | Caller | `StandardEnemyDefeatHandler` | JSR `$&func_00DD5B` |
-| Targets | `SpawnRewardChestType1`–`SpawnRewardChestDEF` | `$DF29`–`$DFE3` |
+| Targets | `SpawnDarkGemType1`–`code_00DFE3` | `$DF29`–`$DFE3` via `DarkGemDropSystem` |
 | Cataloged in | `us/names.json` @ 56667 | |
 
 ---
@@ -193,47 +197,74 @@ These actors bounce toward the player, play fanfare SFX `$25`, set the scene rew
 
 ---
 
-## SpawnItemDropPickup
+## SpawnFieldRevealEffect
 
 | Property | Value |
 |----------|-------|
-| **Old Name** | `func_00DDF2` |
-| **New Name** | `SpawnItemDropPickup` |
+| **Old Name** | `func_00DDF2` (formerly `SpawnItemDropPickup`) |
+| **New Name** | `SpawnFieldRevealEffect` |
 | **Hex Address** | `$00DDF2` |
 | **Decimal Address** | 56818 |
 | **End Address** | `$00DF15` (57109) |
 | **Size** | 291 bytes |
-| **Type** | Standalone actor spawn script |
-| **ASM File** | `extracted/functions/SpawnItemDropPickup.asm` |
+| **Type** | Field tile reveal effect actor |
+| **ASM File** | `extracted/functions/SpawnFieldRevealEffect.asm` |
 | **Movable** | Yes |
 | **Priority** | **High** |
 
+> ⚠ This actor was previously named `SpawnItemDropPickup` but contains **no item/inventory logic whatsoever**. It is the visual effect that plays when hidden tilemap tiles are revealed after an enemy defeat triggers an event block change.
+
 ### Description
 
-Spawns an animated item pickup actor when an enemy's drop flag is set. The pickup bounces from the enemy death position, displays the item icon via inventory metasprite lookup, and grants the item on player contact. Contains embedded widestring data for the pickup's idle animation loop.
+Spawns an animated sparkle/flash effect at the field tile reveal area, then triggers the actual event block tile swap. When an enemy with a `deathActionIdx` (event block ID) is killed, `StandardEnemyDefeatHandler` spawns this actor, passing the event block ID.
 
-Uses `COP [SpawnLastRel]` invocation pattern — the caller (`StandardEnemyDefeatHandler`) passes the item ID and spawn coordinates. The pickup actor checks inventory capacity before granting; if full, redirects to `InventoryFullMessage` (`$C98E`).
+The actor reads the event block entry from `event_block_table` to determine the reveal area dimensions and destination coordinates. It computes a movement target (the center of the reveal area), animates a sprite moving toward it, spawns flash and scatter sparkle particles, then triggers `StageBgChangeFromDeathIdx` / `ApplyBgChange` to perform the actual tile swap.
+
+### Sub-functions
+
+| Part | Address | Name | Purpose |
+|------|---------|------|---------|
+| Main | `$DDF2` | `SpawnFieldRevealEffect` | Orchestrates reveal animation + tile swap |
+| Scatter | `$DEB8` | `field_reveal_scatter` | Random sparkle particle offset by reveal area dimensions |
+| Flash | `$DF0A` | `field_reveal_flash` | Sound `#$0606` + single flash sprite frame `#25` |
 
 ### Algorithm
 
 ```
-1. Read item ID from spawn parameter / enemy metadata
-2. Stage item metasprite from inventory sprite table
-3. Bounce animation loop toward ground position
-4. Wait for player proximity / collision
-5. Check inventory space (func_03EF97)
-6. If space: grant item, play pickup SFX, COP [Die]
-7. If full: JML InventoryFullMessage
+1. Read deathActionIdx (event block ID) from spawning enemy
+2. Index into event_block_table: entry = event_block_table[deathActionIdx × 8]
+3. Extract width/height (bytes 3/4) and dstX/dstY (bytes 5/6)
+4. Compute reveal area center from dimensions
+5. Animate sprite frame #29 moving toward reveal center
+6. Spawn field_reveal_flash — sound + brief flash VFX
+7. Loop 10×: spawn field_reveal_scatter — random sparkle particles
+   Each particle gets random X/Y offsets scaled to area width/height
+8. COP [StageBgChangeFromDeathIdx] — stage the event block tile swap
+9. COP [ApplyBgChange] — execute the swap (hidden tiles → visible area)
+10. COP [Die]
 ```
+
+### `field_reveal_scatter` ($DEB8)
+
+Generates random particle positions scaled to the reveal area dimensions. Uses `COP [RngByte]` and masks based on the width/height passed via `$20`/`$22`:
+- Width ≥ 4: scatter range `$003F` (large area)
+- Width 2–3: scatter range `$001F` (medium area)
+- Width < 2: scatter range `$000F` (narrow area)
+
+Sign-extends randomly via carry flag to produce both positive and negative offsets.
 
 ### Cross-References
 
 | Direction | Symbol | Notes |
 |-----------|--------|-------|
-| Spawned by | `StandardEnemyDefeatHandler` | `COP [SpawnLastRel]` |
-| Inventory check | `func_03EF97` | Bank `$03` give-item |
-| Full inventory | `InventoryFullMessage` | `$C98E` JML target |
+| Spawned by | `StandardEnemyDefeatHandler` | `COP [SpawnLastRel]` when `deathActionIdx` set |
+| Spawned by | `pyCC_mystic_ball.asm` | Pyramid mystic ball custom death |
+| Spawned by | `awB1_wall_walker.asm` | Angkor wall walker custom death |
+| Spawned by | `func_0AA43F.asm` | Generic enemy death with field reveal |
+| Reads | `event_block_table` | Event block definitions (dimensions + coordinates) |
+| Triggers | `StageBgChangeFromDeathIdx` / `ApplyBgChange` | Actual tile swap COP commands |
 | Cataloged in | `us/names.json` @ 56818 | |
+| Cataloged in | `us/blocks.json` | Block `SpawnFieldRevealEffect` |
 
 ---
 
@@ -275,55 +306,83 @@ Also called directly from some enemy actor scripts (not only through `StandardEn
 
 ---
 
-## EnemyRewardChestSystem
+## DarkGemDropSystem
 
 | Property | Value |
 |----------|-------|
-| **Old Name** | `func_00DF29` (block) |
-| **New Name** | `EnemyRewardChestSystem` |
+| **Old Name** | `func_00DF29` (formerly `EnemyRewardChestSystem`) |
+| **New Name** | `DarkGemDropSystem` |
 | **Hex Address** | `$00DF29`–`$00DFFF` |
 | **Decimal Address** | 57129–57389 |
 | **Size** | 260 bytes (7 handlers + data) |
 | **Type** | Multi-part block |
-| **ASM File** | `extracted/functions/EnemyRewardChestSystem.asm` |
-| **Movable** | Yes (move with `array_00DFFD`) |
+| **ASM File** | `extracted/functions/DarkGemDropSystem.asm` |
+| **Movable** | Yes (move with `gem_drop_threshold_00DFFD`) |
 | **Priority** | **High** |
+
+> ⚠ Previously misnamed `EnemyRewardChestSystem`. Enemies do **not** spawn chests — they drop animated dark point gems that the player collects for stat increases.
 
 ### Description
 
-Treasure chest spawner system with six variant handlers plus a weighted random selection table. Each variant configures chest metasprite, opening animation, and reward contents before spawning via the actor pool. `array_00DFFD` holds weighted probability bytes for the default random chest path.
+Dark gem drop system with six variant handlers plus a weighted random selection table. Each handler:
+1. Sets up a metasprite from `table_0EE000`
+2. Spawns `collect_handler_gem` as a child actor for player pickup interaction
+3. Writes the gem type to `$chatPtr,X` (identifies the stat type on collection)
+4. Animates the gem through two sprite frame stages, then dies
+
+The `$chatPtr` values identify which stat the gem increases when collected:
+- `$0083` → HP gem (sprite frames `#04` / `#09`)
+- `$0084` → STR gem (sprite frames `#05` / `#0A`)
+- `$0085` → DEF gem (sprite frames `#06` / `#0B`)
+- `$0086` → Special gem (sprite frames `#22` / `#35`, rare variant with longer animation)
+
+`gem_drop_threshold_00DFFD` holds weighted probability thresholds for the random selection path.
 
 ### Parts
 
 | Part | Old Name | New Name | Address | Size | Purpose |
 |------|----------|----------|---------|------|---------|
-| Type 1 | `func_00DF29` | `SpawnRewardChestType1` | `$DF29` | 15 B | Standard chest variant A |
-| Type 1 alt | `func_00DF38` | `SpawnRewardChestType1Alt` | `$DF38` | 26 B | Alternate type-1 layout |
-| Type 2 | `func_00DF52` | `SpawnRewardChestType2` | `$DF52` | 15 B | Standard chest variant B |
-| Type 2 alt | `func_00DF61` | `SpawnRewardChestType2Alt` | `$DF61` | 26 B | Alternate type-2 layout |
-| Weighted | `func_00DF7B` | `SpawnRewardChestWeighted` | `$DF7B` | 78 B | RNG selection via `array_00DFFD` |
-| HP | `func_00DFC9` | `SpawnRewardChestHP` | `$DFC9` | 26 B | Chest granting HP bonus |
-| DEF | `func_00DFE3` | `SpawnRewardChestDEF` | `$DFE3` | 26 B | Chest granting DEF bonus |
-| Data | `array_00DFFD` | `array_00DFFD` | `$DFFD` | 48 B | Weight table for random chest |
+| Type 1 entry | `func_00DF29` | `SpawnDarkGemType1` | `$DF29` | 15 B | Fixed gem type A: setup metasprite + spawn collect handler |
+| Type 1 display | `func_00DF38` | `code_00DF38` | `$DF38` | 26 B | chatPtr `$0083` (HP gem), frames `#04`/`#09` |
+| Type 2 entry | `func_00DF52` | `code_00DF52` | `$DF52` | 15 B | Fixed gem type B: setup metasprite + spawn collect handler |
+| Type 2 display | `func_00DF61` | `code_00DF61` | `$DF61` | 26 B | chatPtr `$0084` (STR gem), frames `#05`/`#0A` |
+| Weighted | `func_00DF7B` | `SpawnDarkGemWeighted` | `$DF7B` | 78 B | RNG tier selection → weighted table lookup → PHA/RTS dispatch |
+| DEF gem | `func_00DFC9` | `code_00DFC9` | `$DFC9` | 26 B | chatPtr `$0085` (DEF gem), frames `#06`/`#0B` |
+| Special gem | `func_00DFE3` | `code_00DFE3` | `$DFE3` | 26 B | chatPtr `$0086` (special gem), frames `#22`/`#35` |
+| Data | `array_00DFFD` | `gem_drop_threshold_00DFFD` | `$DFFD` | 48 B | `gem-drop-threshold` weighted probability table (3 tiers × 4 entries) |
 
-### Algorithm (SpawnRewardChestWeighted)
+### Algorithm (SpawnDarkGemWeighted)
 
 ```
-1. JSR random byte
-2. Walk array_00DFFD cumulative weights
-3. Select chest variant index
-4. Configure chest actor: metasprite, item pool, animation
-5. COP [SpawnAfter] or [SpawnLastRel] chest actor
-6. RTS
+1. Setup: SetMetasprite, SetSpritePalette, SpawnMarkedAfter @collect_handler_gem
+2. Compare playerMaxHp to playerHp for tier selection:
+     maxHp/4 ≥ currentHp → tier 2 (strong, offset $20)
+     maxHp/2 ≥ currentHp → tier 1 (medium, offset $10)
+     else                  → tier 0 (weak, offset $00)
+3. COP [RngByte] → random value $00-$FF
+4. Walk gem_drop_threshold_00DFFD[tier_offset]:
+     Compare RNG against each entry's threshold
+     First entry whose threshold > RNG wins
+5. Load handler address from winning entry
+6. DEC; PHA; RTS → dispatch to selected gem display handler
 ```
+
+### Weighted Distribution (gem_drop_threshold_00DFFD)
+
+| Tier | Entry 0 (rare) | Entry 1 | Entry 2 | Entry 3 (common) |
+|------|----------------|---------|---------|-------------------|
+| 0 (weak) | `<$0F, &DFE3>` (6% special) | `<$3C, &DFC9>` (18% DEF) | `<$99, &DF61>` (37% STR) | `<$100, &DF38>` (39% HP) |
+| 1 (medium) | `<$19, &DFC9>` (10% DEF) | `<$4C, &DF38>` (20% HP) | `<$99, &DFE3>` (31% special) | `<$100, &DF61>` (39% STR) |
+| 2 (strong) | `<$0C, &DF61>` (5% STR) | `<$33, &DF38>` (15% HP) | `<$7F, &DFC9>` (31% DEF) | `<$100, &DFE3>` (49% special) |
 
 ### Cross-References
 
 | Direction | Symbol | Notes |
 |-----------|--------|-------|
-| Dispatched by | `EnemyRewardChestRouter` | JSR / SpawnLastRel |
-| Data | `array_00DFFD` | Must move with block |
-| Cataloged in | `us/blocks.json` | Block `EnemyRewardChestSystem` |
+| Dispatched by | `EnemyGemDropRouter` | `COP [SpawnLastRel]` |
+| Child actor | `collect_handler_gem` | Gem collection interaction handler (nudges gem toward player) |
+| Data | `gem_drop_threshold_00DFFD` | Must move with block |
+| Cataloged in | `us/blocks.json` | Block `DarkGemDropSystem` |
 
 ---
 

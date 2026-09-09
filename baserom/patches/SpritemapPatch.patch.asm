@@ -1,12 +1,12 @@
 ﻿?BANK 02
 
-?INCLUDE 'chunk_028000'
+?INCLUDE 'scene_script'
 
 !SPTR		$3E
 
 -----------------------------------------------------
 
-func_028BE4 {
+SceneCmd_LoadSpriteTiles! {
     PHP 
     REP #$20
     ;LDA [$3A], Y
@@ -16,7 +16,7 @@ func_028BE4 {
     INY 
     INY 
     LDX #$003E
-    JSR $&sub_028D8F
+    JSR $&LoadScriptPointer
     LDA [$3E]
     BPL store_size
     
@@ -28,7 +28,7 @@ func_028BE4 {
     STA $0666
 
     LDX #$0684
-    JSR $&sub_028DC1
+    JSR $&CheckSourceCacheHit
     BCC loc_028C19
     REP #$20
     LDA [$3E]
@@ -41,5 +41,5 @@ func_028BE4 {
     SEP #$20
     LDX #$4000
     STX $7A
-    JSL $@func_028270
+    JSL $@QuintetLzDecompress
 }

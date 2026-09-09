@@ -1,0 +1,24 @@
+---------------------------------------------
+
+gw85_long_switch_spear [
+  actor-def < #1C, #00, #02, {
+
+  loc_07BD49:
+    COP [StageSpriteFrame] ( #1F )
+    COP [AnimOnce]
+    COP [SolidHighHere]
+    COP [SolidHighOffset] ( #00, #03 )
+    COP [ExitIfFlagByte] ( #03, #01 )
+    COP [ClearFlagByte] ( #03 )
+    COP [ClearLowHere]
+    COP [ClearLowOffset] ( #00, #03 )
+    LDA #$0100
+    TSB $10
+    COP [StageSpriteFrame] ( #20 )
+    COP [AnimOnce]
+    LDA #$0100
+    TRB $10
+    COP [WaitByte] ( #77 )
+    BRA loc_07BD49
+} >
+]

@@ -97,7 +97,7 @@ diary_ngp_confirm {
 
     COP [26] ( #08, #$0050, #$00A0, #00, #$1200 )
     LDA #$2800
-    TRB $player_flags
+    TRB $playerFlags
     COP [E0]
 }
 
@@ -107,7 +107,7 @@ diary_ngp_str     `[DLG:6,A][SIZ:A,5]Start Journey[N]Erase Trip Diary[N]Copy Tri
 ?INCLUDE 'sFA_diary_menu'
 --------------------------------------------------
 
-code_0BE23A {
+code_0BE23A! {
     LDA #$0000
     STA $7F0A00
     SEP #$20
@@ -147,9 +147,9 @@ code_0BE23A {
     STA $068E
     STA $06C2
     LDA #$3000
-    TSB $joypad_mask_std
+    TSB $joypadMaskStd
     LDA #$2800
-    TSB $player_flags
+    TSB $playerFlags
     JSR $&sub_0BED64
     COP [BD] ( @asciistring_01EADC )
     LDA $20
@@ -162,7 +162,7 @@ code_0BE23A {
 
   diary_menu_continue:
     LDA #$0F00
-    STA $joypad_mask_inv
+    STA $joypadMaskInv
     STZ $18
     COP [C1]
     LDA $0654
@@ -172,7 +172,7 @@ code_0BE23A {
 
 -----------------------------------------------
 
-code_0BE2F6 {
+code_0BE2F6! {
     COP [06] ( #10 )
     LDA $20
     BEQ diary_main_dec_normal
@@ -192,7 +192,7 @@ diary_main_dec_normal {
 
 ------------------------------------------------
 
-func_0BE2CC {
+func_0BE2CC! {
     LDA $20
     BEQ diary_print_normal
     COP [6B] ( &diary_ngp_str )
@@ -204,7 +204,7 @@ func_0BE2CC {
 
 ------------------------------------------------
 
-code_0BE30F {
+code_0BE30F! {
     COP [06] ( #10 )
     LDA $20
     BEQ diary_main_inc_normal
@@ -226,7 +226,7 @@ diary_main_inc_normal {
 
 -----------------------------------------------
 
-code_0BE32B {
+code_0BE32B! {
     COP [06] ( #11 )
     LDA $0656
     ORA $0658
@@ -239,7 +239,7 @@ code_0BE32B {
     COP [D9] ( #$0000, &code_list_0BE34C )
 }
 
-code_list_0BE34C [
+code_list_0BE34C! [
   &code_0BE354   ;00
   &code_0BEA55   ;01
   &func_0BE8A8   ;02
@@ -250,7 +250,7 @@ code_list_0BE34C [
 -----------------------------------------------
 ;Code for loading diary data into temp variables
 
-sub_0BED64 {
+sub_0BED64! {
     PHX 
     LDA #$0000
     STA $0D74
@@ -281,10 +281,10 @@ sub_0BED64 {
     LDA #$0000
     STA $306000
 
-  loc_0BEDA3:
+  loc_0BEDA3!:
     STA $0D8C
 
-  code_0BEDA6:
+  code_0BEDA6!:
     LDA $24
     XBA 
     ASL 
@@ -360,7 +360,7 @@ sub_0BED64 {
     SEC 
 }
 
-loc_0BEE11 {
+loc_0BEE11! {
 }
 
 
@@ -369,10 +369,10 @@ loc_0BEE11 {
 ------------------------------------------------
 ;Enable 5th menu option highlight
 
-loc_00BC45 {
+loc_00BC45! {
     DEC 
     BNE code_extra
-    COP [02] ( @dma_data_00BC8D, #26 )
+    COP [02] ( @dma_channel_00BC8D, #26 )
     RTL 
 }
 
@@ -382,8 +382,8 @@ code_extra {
 }
 
 dma_data_extra [
-  dma_data < #10, #FF, #00 >   ;00
-  dma_data < #7F, #FF, #00 >   ;00
-  dma_data < #0F, #30, #D0 >   ;01
-  dma_data < #60, #FF, #00 >   ;02
+  dma-channel < #10, #FF, #00 >   ;00
+  dma-channel < #7F, #FF, #00 >   ;00
+  dma-channel < #0F, #30, #D0 >   ;01
+  dma-channel < #60, #FF, #00 >   ;02
 ]

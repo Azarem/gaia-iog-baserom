@@ -1,13 +1,13 @@
 ﻿?BANK 00
 
-?INCLUDE 'chunk_008000'
+?INCLUDE 'cop_handlers_collision'
 
 !SPTR		$3E
 !DCMP_SIZE	$78
 
 --------------------------------------------
 
-cop_handler_51_00997B:
+Decompress!:
   PHY 
   PHD 
   LDA [$0A]
@@ -37,7 +37,7 @@ cop51_main:
   STA DCMP_SIZE
   INC SPTR
   INC SPTR
-  JSL $@func_028270
+  JSL $@QuintetLzDecompress
   JSL $@zero_bytes_03D86A
   BRA cop51_end
 

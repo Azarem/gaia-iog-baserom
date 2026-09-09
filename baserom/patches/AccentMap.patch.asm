@@ -5,7 +5,7 @@
 
 ;Characters >= 0xE0 will use the accent table
 
-sub_03E255 {
+sub_03E255! {
     PHP 
     PHD 
     PHX 
@@ -13,7 +13,7 @@ sub_03E255 {
     TCD 
     LDX $0998
 
-  code_03E25F:
+  code_03E25F!:
     SEP #$20
     LDA $0000, Y
     CMP #$E0
@@ -34,7 +34,7 @@ sub_03E255 {
     RTS 
 }
 
-loc_03E27C {
+loc_03E27C! {
     REP #$20
     AND #$00FF
     INY 

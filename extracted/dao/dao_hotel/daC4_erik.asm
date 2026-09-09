@@ -1,0 +1,24 @@
+---------------------------------------------
+
+daC4_erik [
+  actor-def < #0A, #00, #10, {
+
+  code_08A56A:
+    COP [BranchIfFlagByte] ( #D2, #01, &code_08A579 )
+    COP [SolidHighHere]
+    COP [SetOnInteract] ( &code_08A57B )
+    COP [SetEntryContinue]
+    RTL 
+} >
+]
+
+code_08A579 {
+    COP [Die]
+}
+
+code_08A57B {
+    COP [PrintWideString] ( &widestring_08A580 )
+    RTL 
+}
+
+widestring_08A580 `[TPL:A][TPL:3]Erik: [N]I can't go outside in [N]a sandstorm like this.[PAL:0][END]`

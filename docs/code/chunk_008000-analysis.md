@@ -197,7 +197,7 @@ event flags, animation, and memory allocation.
 ### `UpdateHUD` ($008206) — HUD / Status Bar Update
 
 - **ASM label:** `func_008206`
-- **Purpose:** Updates the BG3 status bar overlay showing HP, DEF, STR values. Handles damage flash, gem counter display, and experience point text.
+- **Purpose:** Updates the BG3 status bar overlay showing HP, DEF, STR values. Handles HP recovery animation, gem counter display, and enemy health bar.
 - **Size:** ~216 bytes
 - **Called by:** Main loop (step 19), `UpdateFrame_Render`
 - **Calls:** COP `PlaySoundCh2` (#0D) inline, COP `RunBg3Script` inline (references `asciistring_01E7F6`, `asciistring_01E818`)
@@ -206,14 +206,14 @@ event flags, animation, and memory allocation.
 #### HUD Logic Flow
 
 1. Check `$09ED` bit `$40` — if set, HUD is disabled, return immediately
-2. **Damage flash:** Every 8 frames (when `$0B22 ≠ 0`), increment `$0ACE` toward `$0ACA` and play sound effect #$0D
-3. **Stat comparison:** Compare current DEF/HP/gem values against cached previous values (`$0AD0`/`$0ACC`/`$0ADA`)
+2. **HP recovery:** Every 8 frames (when `$0B22 ≠ 0`), increment playerHp (`$0ACE`) toward playerMaxHp (`$0ACA`) and play sound effect #$0D
+3. **Stat comparison:** Compare current HP/maxHP/gem values against cached previous values (`$0AD0`/`$0ACC`/`$0ADA`)
 4. **Gem hundreds:** Compute `$0AD8 = $0AD6 / 100` for three-digit display
-5. **Experience display:** When `$09EA ≠ 0`, set `$0AE4` timer and run BG3 script for XP text; timer counts down and clears display after `$001E` frames
+5. **Enemy health display:** When `$09EA ≠ 0`, set `$0AE4` timer and run BG3 script for enemy HP bar; timer counts down and clears display after `$001E` frames
 6. **Cache update:** Copy current stat values to previous-value cache
 7. **Restore flags:** Merge saved `$09EC` bit 0 back
 
-- **Variables read:** `$09ED` (HUD disable flag, bit `$40`), `$09EC` (display flags), `$09AF`, `$0036` (frame counter), `$0B22` (damage flash timer), `$0ACE`/`$0ACA` (current/max DEF), `$0AD0`/`$0ACC`/`$0ADA` (previous stat values), `$0AD6` (gem count), `$0AD8` (gem hundreds), `$09EA` (experience pending), `$0AE4` (experience display timer), `$09E4`/`$09E6` (experience values)
+- **Variables read:** `$09ED` (HUD disable flag, bit `$40`), `$09EC` (display flags), `$09AF`, `$0036` (frame counter), `$0B22` (HP recovery timer), `$0ACE`/`$0ACA` (playerHp/playerMaxHp), `$0AD0`/`$0ACC`/`$0ADA` (previous stat values), `$0AD6` (gem count), `$0AD8` (gem hundreds), `$09EA` (enemyHpPending), `$0AE4` (enemy health bar timer), `$09E4`/`$09E6` (enemy HP display values)
 - **Variables written:** `$09EC` (bit `$10` set when display needs refresh)
 
 ### `UpdateFrameCounters` ($0082DE) — Frame Counter Update

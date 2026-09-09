@@ -20,7 +20,7 @@ sfx_table:
 	#@sfx38  #@sfx39  #@sfx3A  #@sfx3B
 
 	
-  code_0290C9:
+  code_0290C9!:
     ;REP #$20
     LDX #&sfx_table
     STX SAMPLE_PTR
@@ -37,7 +37,7 @@ sfx_table:
     BEQ loc_0290E8
     JMP $&code_029153
 	
-  loc_0290F1:
+  loc_0290F1!:
 	LDA  SAMPLE_NUM
 	ASL
 	CLC
@@ -62,11 +62,11 @@ sfx_table:
 	LDA  SPC_CMD
 	BRA  loc_029160
 
-loc_02911D:
+loc_02911D!:
 	LDA  [SAMPLE_PTR], Y
 	INY
 
-loc_02912C:
+loc_02912C!:
 	XBA
 	LDA  [SAMPLE_PTR], Y
 	INY

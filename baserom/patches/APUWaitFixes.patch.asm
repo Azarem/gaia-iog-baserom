@@ -6,11 +6,12 @@
 
 
 -----------------------------------------
-?INCLUDE 'chunk_028000'
+?INCLUDE 'music_actors'
+?INCLUDE 'warps_interaction'
 -----------------------------------------
 
-loc_02A07D {
-    COP [9C] ( @func_02A0E5, #$2000 )
+loc_02A07D! {
+    COP [9C] ( @MusicRenderSync, #$2000 )
     LDA $20
     STA $0020, Y
     LDA $22
@@ -49,8 +50,8 @@ loc_02A07D {
 
 -----------------------------------------
 
-loc_02A813 {
-    COP [9C] ( @func_02A893, #$2000 )
+loc_02A813! {
+    COP [9C] ( @ChestDialogueActor, #$2000 )
     LDA $24
     STA $0024, Y
     LDA $0012, Y
@@ -91,7 +92,7 @@ loc_02A813 {
 ?INCLUDE 'chunk_038000'
 -----------------------------------------
 
-loc_03A029 {
+loc_03A029! {
     LDA $0D73
     AND #$00FF
     BEQ chunk_halt_test3
@@ -124,9 +125,9 @@ loc_03A029 {
 ?INCLUDE 'sc06_lola'
 -----------------------------------------
 
-code_049985 {
+code_049985! {
     LDA #$FFF0
-    TSB $joypad_mask_std
+    TSB $joypadMaskStd
     COP [CC] ( #35 )
     COP [04] ( #19 )
     COP [DA] ( #59 )
@@ -164,11 +165,11 @@ code_049985 {
 ?INCLUDE 'dm47_sam'
 -----------------------------------------
 
-loc_05D24B {
+loc_05D24B! {
     COP [C0] ( &code_05D29E )
     COP [D2] ( #5E, #01 )
     LDA #$FFF0
-    TSB $joypad_mask_std
+    TSB $joypadMaskStd
     COP [04] ( #1E )
     COP [DA] ( #77 )
     
@@ -204,10 +205,10 @@ loc_05D24B {
 ?INCLUDE 'sp5C_stone_coffin'
 -----------------------------------------
 
-code_0691BE {
+code_0691BE! {
     COP [D2] ( #02, #01 )
     LDA #$CFF0
-    TSB $joypad_mask_std
+    TSB $joypadMaskStd
     LDA #$2000
     TRB $10
     COP [88] ( @table_0EE000 )
@@ -240,7 +241,7 @@ code_0691BE {
     STA $16
     LDA #$2000
     TRB $10
-    JSL $@func_02A10A
+    JSL $@IsMusicPlaying
     BCS coffin_halt_jump
     COP [D4] ( #11, &code_069293 )
     COP [BF] ( &widestring_069377 )
@@ -260,7 +261,7 @@ code_0691BE {
 
     COP [C1]
     LDA #$CFF0
-    TSB $joypad_mask_std
+    TSB $joypadMaskStd
     SEP #$20
     LDA $2000
     AND #$10
@@ -271,7 +272,7 @@ code_0691BE {
   coffin_halt_test:
     COP [C1]
     LDA #$CFF0
-    TSB $joypad_mask_std
+    TSB $joypadMaskStd
     SEP #$20
     LDA $APUIO1
     REP #$20
@@ -288,12 +289,12 @@ code_0691BE {
 ?INCLUDE 'sE6_gaia'
 -----------------------------------------
 
-loc_08DCAF {
+loc_08DCAF! {
     COP [D6] ( #24, &code_08DCEC )
     COP [D4] ( #24, &code_08DCF3 )
     COP [BF] ( &widestring_08E66C )
     LDA #$FFF0
-    TSB $joypad_mask_std
+    TSB $joypadMaskStd
     COP [04] ( #18 )
     COP [DA] ( #59 )
     COP [BF] ( &widestring_08E7E7 )
@@ -328,10 +329,10 @@ loc_08DCAF {
 
 ---------------------------------------------
 
-loc_08EAAA {
+loc_08EAAA! {
     COP [CA] ( #08 )
     LDA #$FFF0
-    TSB $joypad_mask_std
+    TSB $joypadMaskStd
     COP [C1]
     COP [8B]
     COP [CB]
@@ -388,9 +389,9 @@ loc_08EAAA {
 
 -----------------------------------------
 
-code_08EF4E {
+code_08EF4E! {
     LDA #$FFF0
-    TSB $joypad_mask_std
+    TSB $joypadMaskStd
     COP [DA] ( #05 )
     COP [D4] ( #24, &code_08EFC9 )
     COP [86] ( #0A, #03, #14 )
@@ -446,9 +447,9 @@ code_08EF4E {
 ?INCLUDE 'ir1D_wind_melody'
 ------------------------------------------
 
-code_09C58D {
+code_09C58D! {
     LDA #$EFF0
-    TSB $joypad_mask_std
+    TSB $joypadMaskStd
     COP [DA] ( #1D )
     COP [04] ( #1B )
     COP [DA] ( #77 )

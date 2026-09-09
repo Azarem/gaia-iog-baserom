@@ -1,7 +1,7 @@
 {
   "GenHdmaSine": { "id": 0, "parts": [] },
-  "QueueHdma": { "id": 1, "parts": [ "@dma_data", "Byte" ] },
-  "QueueDma": { "id": 2, "parts": [ "@dma_data", "Byte" ] },
+  "QueueHdma": { "id": 1, "parts": [ "@dma-channel", "Byte" ] },
+  "QueueDma": { "id": 2, "parts": [ "@dma-channel", "Byte" ] },
   "QueueHdmaChannel": { "id": 3, "parts": [ "Byte", "Word", "Word" ] },
   "StartMusic": { "id": 4, "parts": [ "Byte" ] },
   "FadeThenStartMusic": { "id": 5, "parts": [ "Byte" ] },
@@ -117,7 +117,7 @@
   "StageSpriteLoopMoveX": { "id": 133, "parts": [ "Byte", "Byte", "Byte" ] },
   "StageSpriteLoopMoveY": { "id": 134, "parts": [ "Byte", "Byte", "Byte" ] },
   "StageSpriteLoopMoveXY": { "id": 135, "parts": [ "Byte", "Byte", "Byte", "Byte" ] },
-  "SetMetasprite": { "id": 136, "parts": [ "@&sprite_set" ] },
+  "SetMetasprite": { "id": 136, "parts": [ "@&sprite-set" ] },
   "AnimOnce": { "id": 137, "parts": [] },
   "AnimLoop": { "id": 138, "parts": [] },
   "AnimOneFrame": { "id": 139, "parts": [] },

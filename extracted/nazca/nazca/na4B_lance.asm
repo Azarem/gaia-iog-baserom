@@ -1,0 +1,65 @@
+---------------------------------------------
+
+na4B_lance [
+  actor-def < #03, #00, #10, {
+
+  code_05EEA4:
+    COP [SolidHighHere]
+    COP [ExitIfFlagByte] ( #01, #01 )
+    COP [SetOnInteract] ( &code_05EF23 )
+    COP [ClearLowHere]
+    COP [StageSpriteLoopMoveY] ( #06, #0B, #11 )
+    COP [AnimLoop]
+    COP [StageSpriteLoop] ( #02, #20 )
+    COP [AnimLoop]
+    COP [StageSpriteLoop] ( #05, #20 )
+    COP [AnimLoop]
+    COP [StageSpriteLoopMoveX] ( #09, #06, #11 )
+    COP [AnimLoop]
+    COP [StageSpriteFrame] ( #02 )
+    COP [AnimOnce]
+    COP [SolidHighHere]
+    COP [ExitIfFlagByte] ( #02, #01 )
+    COP [ClearLowHere]
+    COP [SetTilePos] ( #11, #09 )
+    COP [StageSpriteFrame] ( #03 )
+    COP [AnimOnce]
+    COP [SolidHighHere]
+    COP [ExitIfFlagByte] ( #08, #01 )
+    COP [StageSpriteFrame] ( #04 )
+    COP [AnimOnce]
+    COP [ExitIfFlagByte] ( #09, #01 )
+    COP [SetOnInteract] ( &code_05EF28 )
+    COP [ClearLowHere]
+    COP [StageSpriteLoopMoveY] ( #06, #0B, #01 )
+    COP [AnimLoop]
+    COP [StageSpriteLoopMoveX] ( #09, #05, #01 )
+    COP [AnimLoop]
+    COP [StageSpriteLoopMoveY] ( #06, #06, #01 )
+    COP [AnimLoop]
+    COP [StageSpriteMoveX] ( #09, #11 )
+    COP [AnimOnce]
+    COP [StageSpriteFrame] ( #05 )
+    COP [AnimOnce]
+    COP [SolidHighHere]
+    COP [ExitIfFlagByte] ( #0C, #01 )
+    COP [StageSpriteFrame] ( #02 )
+    COP [AnimOnce]
+    COP [SetEntryContinue]
+    RTL 
+} >
+]
+
+code_05EF23 {
+    COP [PrintWideString] ( &widestring_05EF2D )
+    RTL 
+}
+
+code_05EF28 {
+    COP [PrintWideString] ( &widestring_05EF98 )
+    RTL 
+}
+
+widestring_05EF2D `[DEF][TPL:4]Lance: [N]Up until now all I've [N]done is go to school, [N]study, and play. [FIN]Sometimes I wonder if[N]my being here isn't[N]all a dream...[PAL:0][END]`
+
+widestring_05EF98 `[DEF][TPL:4]Lance: We're working on a [N]puzzle that explorers [N]and archeologists have [N]never solved...[PAL:0][END]`

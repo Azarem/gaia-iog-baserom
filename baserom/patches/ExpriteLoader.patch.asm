@@ -11,17 +11,17 @@
     LDY #$4200
     STY $VMADDL
     LDY #$1C00
-    JSL $@func_0283A2
+    JSL $@DmaWordToVram
     PLP
     RTL
 
 ------------------------------------------------
-?INCLUDE 'chunk_028000'
+?INCLUDE 'scene_script'
 ?INCLUDE 'chunk_03BAE1'
 ------------------------------------------------
 ;Load special sprite asset for boot scene
 
-func_03DFF8 {
+func_03DFF8! {
     PHP 
     LDA $scene_current
     CMP #$F7
@@ -45,7 +45,7 @@ func_03DFF8 {
     LDX #$&gfx_000000
     LDA #$^gfx_000000
     LDY #$1C00
-    JSL $@func_0283A2
+    JSL $@DmaWordToVram
     LDA $player_flags
     BIT #$08
     BEQ loc_03E035
@@ -54,7 +54,7 @@ func_03DFF8 {
     LDX #$&misc_fx_1CD580
     LDA #$^misc_fx_1CD580
     LDY #$0800
-    JSL $@func_0283A2
+    JSL $@DmaWordToVram
     BRA loc_03E04E
     
   load_fb_asset:

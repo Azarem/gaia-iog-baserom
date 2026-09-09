@@ -49,12 +49,12 @@ generate_number_sprites {
     ASL
     ASL
     TAX
-    LDA @unk10_02EB86, X
+    LDA @SlotPositionTable, X
     CLC
     ADC #$num_xoffset
     STA $25
 
-    LDA @unk10_02EB86+2, X
+    LDA @SlotPositionTable+2, X
     CLC
     ADC #$num_yoffset
     STA $26
@@ -123,7 +123,7 @@ push_number_sprite {
 ?INCLUDE 'system_strings'
 ---------------------------------------------
 
-code_02E399 {
+InventoryMenuInit! {
     COP [88] ( @inventory_spritemap )
     COP [BD] ( @asciistring_01E869 )
     LDA #$1000
@@ -134,7 +134,7 @@ code_02E399 {
     STA $24
 }
 
-loc_02E63D {
+loc_02E63D! {
     JSR generate_number_sprites
     PHX 
     PHD 
@@ -147,14 +147,14 @@ loc_02E63D {
     JMP $&code_02E544
 }
 
-loc_02E6FC {
+loc_02E6FC! {
     JSR generate_number_sprites
     COP [06] ( #13 )
     JMP $&code_02E66B
 }
 
 ;Enable direct sprites 
-loc_02EB22 {
+loc_02EB22! {
     LDA #$1000
     TSB $06EE
 
@@ -167,7 +167,7 @@ loc_02EB22 {
 }
 
 ;Disable direct sprites for status menu
-loc_02EB4D {
+loc_02EB4D! {
     LDA #$1000
     TRB $06EE
 
@@ -183,11 +183,11 @@ loc_02EB4D {
 ---------------------------------------------
 ;Cursor positions
 
-unk10_02EAB0 [
-  unk10 < #$004E, #$0030 >   ;00
-  unk10 < #$0066, #$0030 >   ;01
-  unk10 < #$007E, #$0030 >   ;02
-  unk10 < #$0096, #$0030 >   ;03
+GridColumnPositions! [
+  screen-pos < #$004E, #$0030 >   ;00
+  screen-pos < #$0066, #$0030 >   ;01
+  screen-pos < #$007E, #$0030 >   ;02
+  screen-pos < #$0096, #$0030 >   ;03
 ]
 
 ------------------------------------------------
@@ -195,7 +195,7 @@ unk10_02EAB0 [
 ------------------------------------------------
 ;H-Mirror on the cursor
 
-sprite_group_108BAA [
+sprite_group_108BAA! [
   sprite_group < #01, #0F, #18, #00, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #01, [
     sprite_part < #01, #00, #00, #00, #08, #$46E5 >
   ] >
@@ -206,7 +206,7 @@ sprite_group_108BAA [
 ------------------------------------------------
 ;Enable static sprites for scene FF with a different address and size
 
-loc_03C7F6 {
+loc_03C7F6! {
     LDA $scene_current
     CMP #$00FF
     BNE direct_sprite_large
@@ -242,7 +242,7 @@ loc_03C7F6 {
 }
 
 
-loc_03C807 {
+loc_03C807! {
     DEC 
     PHB 
     MVN #$00, #$7F
@@ -263,7 +263,7 @@ loc_03C807 {
 
     SEP #$20
 
-  loc_03C821:
+  loc_03C821!:
     DEC $0E
     BMI loc_03C82D
     LDA $01, S
@@ -273,7 +273,7 @@ loc_03C807 {
 }
 
 
-loc_03C82D {
+loc_03C82D! {
     LDA $01, S
     BEQ small_sprite_process
     LDA $@binary_03C841, X

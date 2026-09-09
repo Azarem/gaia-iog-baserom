@@ -11,7 +11,7 @@
         },
         "table_018000": {
             "parts": {
-                "table_018000": { "start": 98304, "end": 98844, "type": "&unk7" }
+                "table_018000": { "start": 98304, "end": 98844, "type": "&display-preset" }
             }
         },
         "scene_warps": {
@@ -31,12 +31,12 @@
         },
         "dir_sprite_table": {
             "parts": {
-                "dir_sprite_table": { "start": 109510, "end": 109528, "type": "dir_sprite" }
+                "dir_sprite_table": { "start": 109510, "end": 109528, "type": "direction-velocity" }
             }
         },
         "stats_table": {
             "parts": {
-                "stats_table": { "start": 109528, "end": 109968, "type": "stats" }
+                "stats_table": { "start": 109528, "end": 109968, "type": "enemy-stats" }
             }
         },
         "table_01AD90": {
@@ -46,7 +46,7 @@
         },
         "table_01B06E": {
             "parts": {
-                "table_01B06E": { "start": 110702, "end": 115564, "type": "&unk8" }
+                "table_01B06E": { "start": 110702, "end": 115564, "type": "&delta-node" }
             }
         },
         "binary_01C36C": {
@@ -77,19 +77,19 @@
         },
         "array_01D3F7": {
             "parts": {
-                "array_01D3F7": { "start": 119799, "end": 121063, "type": "unk15" }
+                "array_01D3F7": { "start": 119799, "end": 121063, "type": "event-block-def" }
             }
         },
         "binary_01D8E7": {
             "parts": {
                 "binary_01D8E7": { "start": 121063, "end": 121127, "type": "Byte" },
                 "binary_01D927": { "start": 121127, "end": 121140, "type": "Byte" },
-                "array_01D934": { "start": 121140, "end": 121242, "type": "unk17" }
+                "array_01D934": { "start": 121140, "end": 121242, "type": "ramp-motion" }
             }
         },
         "body_table": {
             "parts": {
-                "body_table": { "start": 121242, "end": 121296, "type": "unk14" }
+                "body_table": { "start": 121242, "end": 121296, "type": "body-entry" }
             }
         },
         "table_01D9D0": {
@@ -156,37 +156,36 @@
         },
         "chunk_0B8000": {
             "parts": {
-                "actor_def_0B8000": { "start": 753664, "end": 785008, "type": "actor_def" }
+                "actor_def_0B8000": { "start": 753664, "end": 785008, "type": "actor-def" }
             }
         },
         "parallax_thinker": {
             "parts": {
-                "h_parallax_thinker": { "start": 47867, "end": 47869, "type": "h_actor" },
-                "e_parallax_thinker": { "start": 47869, "end": 48638, "type": "Code" }
+                "parallax_thinker": { "start": 47867, "end": 47869, "type": "actor-def" }
             }
         },
         "scene_actors": {
             "order": -1,
             "parts": {
-                "scene_actors": { "start": 819200, "end": 845218, "type": "&event_def" }
+                "scene_actors": { "start": 819200, "end": 845218, "type": "&scene-event" }
             }
         },
         "scene_thinkers": {
             "order": -1,
             "parts": {
-                "t_scene_thinkers": { "start": 845218, "end": 846631, "type": "&thinker" }
+                "t_scene_thinkers": { "start": 845218, "end": 846631, "type": "&thinker-spawn" }
             }
         },
         "scene_meta": {
             "parts": {
-                "scene_meta": { "start": 884736, "end": 896977, "type": "mapdef" }
+                "scene_meta": { "start": 884736, "end": 896977, "type": "scene-meta" }
             }
         },
         "overworld_routes": {
             "movable": true,
             "scene": "world_map",
             "parts": {
-                "overworld_routes": { "start": 240319, "end": 241436, "type": "&motion" }
+                "overworld_routes": { "start": 240319, "end": 241436, "type": "&route-step" }
             }
         },
         "overworld_names": {
@@ -206,7 +205,7 @@
                 "code_3B7DD": { "start": 243677, "end": 255682, "type": "Code" }
             }
         },
-        "palette_bundles": { "start": 1474560, "end": 1497132, "type": "&bundle" }
+        "palette_bundles": { "start": 1474560, "end": 1497132, "type": "&palette-bundle" }
     },
     "south_cape": {
         "sc01_smoke": { 

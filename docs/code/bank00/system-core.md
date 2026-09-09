@@ -258,7 +258,7 @@ The main loop at **`loc_0080B5`** executes 22 ordered steps every frame: frame b
 | 11 | SRAM check | Read `$000100`; if magic byte = `$83`, valid save exists (affects starting scene path) |
 | 12 | `JSL func_03D9F6` | Load initial scene data |
 | 13 | HUD pointer init | Copy addresses from `binary_01C384` (sine/HUD table) into `$09BA`–`$09C4` |
-| 14 | Stat display init | Seed DEF/STR/HP display counters at `$0ACA`–`$0ADE` |
+| 14 | Stat display init | Seed HP/STR/DEF counters at `$0ACA`–`$0ADE` (playerMaxHp=8, playerHp=8, playerStr=1, playerDef=0) |
 | 15 | Title screen | `STA $scene_next` with `$FB` — queue title scene |
 
 #### Main Loop Algorithm (`loc_0080B5`)
@@ -284,7 +284,7 @@ The main loop at **`loc_0080B5`** executes 22 ordered steps every frame: frame b
 | 17 | `func_03E146` | `$03` | **HDMA update** — rebuild HDMA channel table → `$66` |
 | 18 | `func_03D15D` | `$03` | **Map tile updates** — queue metatile VRAM writes |
 | 19 | `func_03C714` | `$03` | **Finalize sprites** — last-minute OAM adjustments |
-| 20 | `UpdateHUD` | `$00` | **HUD update** — BG3 status bar (HP/DEF/STR/gems/XP) |
+| 20 | `UpdateHUD` | `$00` | **HUD update** — BG3 status bar (HP/DEF/STR/gems/enemy HP) |
 | 21 | `func_03E21E` | `$03` | **Deferred DMA** — flush queued non-VBlank DMA |
 | 22 | `func_028191` | `$02` | **End frame** — wait for VBlank/NMI |
 | — | `BRL loc_0080B5` | — | Loop forever |
@@ -301,8 +301,8 @@ The main loop at **`loc_0080B5`** executes 22 ordered steps every frame: frame b
 | `$099F` | 2 | Scene/state helper | Init |
 | `$09BA`–`$09C4` | 11 | HUD sine/pointer table | Write — from `binary_01C384` |
 | `$09C8` / `$09CA` | 4 | HUD related pointers | Init |
-| `$0ACA` / `$0ACE` | 4 | Current/max DEF display | Init / HUD |
-| `$0ADE` / `$0ADC` | 4 | STR / HP display bases | Init / HUD |
+| `$0ACA` / `$0ACE` | 4 | Player max HP / current HP | Init / HUD |
+| `$0ADE` / `$0ADC` | 4 | Player STR / DEF stat values | Init / HUD |
 | `$0B28`–`$0B32` | 11 | Save/warp metadata region | Init context |
 
 #### Cross-References
@@ -494,7 +494,7 @@ Does not call `UpdateHUD`, scene logic, or the full 22-step main loop — it cov
 
 #### Description
 
-Updates the **BG3 status bar overlay** showing HP, DEF, STR, gem count, and experience text. Runs once per main-loop frame (step 20) and from `UpdateFrame_Render`. Early exit if `$09ED` bit `$40` is set (HUD globally disabled — e.g. title screen, some cutscenes).
+Updates the **BG3 status bar overlay** showing HP, DEF, STR, gem count, and enemy health bar. Runs once per main-loop frame (step 20) and from `UpdateFrame_Render`. Early exit if `$09ED` bit `$40` is set (HUD globally disabled — e.g. title screen, some cutscenes).
 
 Handles three distinct visual behaviors:
 
@@ -510,11 +510,11 @@ Gem hundreds digit: `$0AD8 = $0AD6 / 100` for three-digit display.
 |------|--------|--------|
 | 1 | Gate | If `$09ED` & `$40` → `RTL` (HUD disabled) |
 | 2 | Save flags | `PHP`/`PHA` — preserve `$09EC` bit 0 |
-| 3 | Damage flash | If `$0B22 ≠ 0` and frame mod 8: inc `$0ACE`, cap at `$0ACA`, COP sound `#0D` |
-| 4 | Compare stats | `$0ACE` vs `$0AD0`, HP vs `$0ACC`, gems `$0AD6` vs `$0ADA` |
+| 3 | HP recovery | If `$0B22 ≠ 0` and frame mod 8: inc playerHp (`$0ACE`), cap at playerMaxHp (`$0ACA`), COP sound `#0D` |
+| 4 | Compare stats | playerHp (`$0ACE`) vs `$0AD0`, maxHP (`$0ACA`) vs `$0ACC`, gems `$0AD6` vs `$0ADA` |
 | 5 | Gem hundreds | `$0AD8 ← $0AD6 / 100` |
-| 6 | XP timer | If `$09EA`: set `$0AE4 = $001E`; COP `RunBg3Script` for XP strings |
-| 7 | XP countdown | If `$0AE4 > 0`: decrement; at 0 clear XP display |
+| 6 | Enemy health | If `$09EA`: set `$0AE4 = $001E`; COP `RunBg3Script` for enemy HP bar |
+| 7 | Health countdown | If `$0AE4 > 0`: decrement; at 0 clear enemy health display |
 | 8 | Refresh flag | Set `$09EC` bit `$10` if any stat display changed |
 | 9 | Cache update | Copy current stats → `$0AD0`/`$0ACC`/`$0ADA` |
 | 10 | Restore | Merge saved `$09EC` bit 0; `PLA`/`PLP`; `RTL` |
@@ -525,15 +525,15 @@ Gem hundreds digit: `$0AD8 = $0AD6 / 100` for three-digit display.
 |---------|------|-------------|-----|
 | `$0036` | 2 | Frame counter (parity) | R — flash timing |
 | `$09AF` | 2 | HUD state helper | R |
-| `$09E4` / `$09E6` | 4 | Experience values | R |
-| `$09EA` | 2 | Experience pending flag | R |
+| `$09E4` / `$09E6` | 4 | Enemy HP display values | R |
+| `$09EA` | 2 | Enemy HP pending flag | R |
 | `$09EC` | 2 | Display mode flags | R/W — bit `$10` refresh, bit 0 saved |
 | `$09ED` | 1 | HUD disable (bit `$40`) | R |
-| `$0ACA` / `$0ACE` | 4 | Max / current DEF display | R/W |
-| `$0ACC` / `$0AD0` | 4 | Cached previous HP / DEF | R/W |
+| `$0ACA` / `$0ACE` | 4 | Player max HP / current HP | R/W |
+| `$0ACC` / `$0AD0` | 4 | Cached previous max HP / HP | R/W |
 | `$0AD6` / `$0AD8` | 4 | Gem count / hundreds digit | R/W |
 | `$0ADA` | 2 | Cached previous gems | R/W |
-| `$0AE4` | 2 | XP display timer | R/W |
+| `$0AE4` | 2 | Enemy health bar timer | R/W |
 | `$0B22` | 2 | Damage flash timer | R |
 
 #### Cross-References

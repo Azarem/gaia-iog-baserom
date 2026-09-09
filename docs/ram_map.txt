@@ -1,0 +1,335 @@
+Bank $7e
+
+0000-???? Scratch space.
+  
+0036-0037 Frame counter. Increased by 1 every NMI.
+0038-0039 ?
+003A-003D Map header data table address (hardcoded as $8D8000)
+003E-0041 Scratch variable for addresses of assets during map transitions
+0042-0045 Scratch variable for addresses of assets during map transitions
+0046-0049 Address of currently playing music
+  
+004E-0051 Long pointer to next available RAM address for new actors
+0052-0055 Long pointer to next available RAM address for new thinkers
+0056-0057 Base address of first actor in actor list
+0058-0059 Base address of last actor in actor list
+005A-005B Base address of first thinker in thinker list
+005C-005D Base address of last thinker in thinker list
+  
+0066-0067 Bitwise flags: DMA channels which are ready to be queued
+0068-0069 Next available DMA channel's bitwise flag, for COP #$01-02
+006A-006B Next available DMA channel * #$10, i.e. offset for $43xx writes
+  
+0072-007B Scratch variables for graphics decompression
+  
+0080-0082 Base RAM address of CollisionLayer (hardcoded as #$7FC000)
+  
+0096-00A5 Staging memory for map rearrangement
+  
+00B4-00B5 Name of map has been shown and dismissed
+00B6-00CD Mode7 variables for world map movement
+  
+00D8-00D9 Next available manual OAM index
+  
+00E4-00E5 Timer used by end credits sequence
+00E6-00E9 Unused (but modified during end credits sequence)
+  
+00F0-00FF Room-specific memory: Castoth hand states, scratch space for Vamps and credits, maybe other uses
+0100-01FF Stack
+0200-0401 Actor position table for collision detection
+0402-0407 PHB; MVN $xx,$yy; PLB; RTS : rewritable mass memory mover, write banks at $0404 and JSR to here
+0408-040B XX,YY signed displacement added to Player this frame (for wind etc.)
+040C-040D Running-allowed timer: Player runs if they move while this is > 0; set to #$0D by D-pad input
+040E-040F ? (Set every frame, but never used?)
+0410-0421 Pseudo-random bytes; access RNG with COP #$23/24
+0422-0621 OAM Low Table buffer
+0622-0641 OAM High Table buffer
+0642-0643 Index for the next map to load (checks multiple times a second to see if new value is in here which triggers next level load)
+0644-0645 ID of the current map (high byte should always be 0)
+0646-0647 2*ID of the current map
+0648-064B Map transition fade-out type, fade-in type, fade-out time modifier, fade-in time modifier
+064C-064F Player spawn position on new map
+0650-0653 Facing direction, map size, and camera settings for new map
+0654-0655 Working variable for screen settings during map transition
+0656-0657 Joypad bits: ABST on attack frame, others on attack and hold frames
+0658-0659 Working variable for ABST joypad button processing
+065a-065b Bitmask for disabling joypad buttons, e.g. when Will is hurt
+065c-065d Bitmask for disabling joypad buttons, e.g. on item screen
+065e-065f Joypad bits (IOG format), all buttons on attack and hold frames
+0660-0661 Like $065e but in SNES format at start of frame, then converted to IOG
+0662-0663 Direction button held timer for menu screens
+  
+0675-0677 Current map's sprite graphics data source address
+0678-067A Current map's tileset data source address (Layer 1?)
+067B-067D Current map's tileset data source address (Layer 2?)
+067E-0680 Current map's BG1 arrangement data source address
+0681-0683 Current map's BG2 arrangement data source address
+0684-0686 Current map's sprite data (0x10 map header) source address
+0687-0689 Current map's music address
+068A-0691 MapLayerX/EffectLayerX/MapLayerY/EffectLayerY camera position, for rendering engine use
+0692-0699 MapLayerX/EffectLayerX/MapLayerY/EffectLayerY dimensions
+069A-069D MapLayer/EffectLayer total size
+069E-06A1 MapLayer/EffectLayer base RAM addresses, bank $7E, hardcoded $A000 and $C000
+  
+06AE-06BD Hardcoded RAM addresses (bank $7E) of RAM->VRAM mapping and staging tables
+06BE-06C5 MapLayerX/EffectLayerX/MapLayerY/EffectLayerY (?) camera position, editable copy for actors to write
+  
+06D6-06D9 Current camera offset XX,YY
+06DA-06DD Current camera bounds XX,YY
+  
+06EF-06EF Bitwise flags? $08 = "Push Mode-7 data to PPU at top of frame"
+06F0-06F1 Default actor parameter/properties
+06F2-06F3 Current map's music track ID
+06F4-06F5 During map transition, new map's music group
+06F6-06F7 Current map's music group
+06F8-06F9 Small buffer for writing bytes to APU channel 2 (plays sounds)
+06FA-06FB ?
+06FC-06FE OAM1 player data ROM source address, base
+06FF-0714 OAM1 ROM source addresses; copies #$40 bytes from each
+  
+0720-074F BG relative scroll/parallax workspace, e.g. for item screen and Inca clouds.
+  
+0800-08FF VRAM data write list, used e.g. during map rearrangement to change the VRAM tilemap
+0900-0901 ?
+0902-090D Stage for single-tile BG + collision writes
+  
+099E-099F BG3 tilemap drawing: default tile mask
+09A0-09A1 BG3 tilemap drawing: target address
+09A2-09A3 Player's X position (left side of sprite, center height, in pixels)
+09A4-09A5 Player's Y position (left side of sprite, center height, in pixels)
+09A6-09A7 Player's X Position (left side of sprite, center height, in tiles)
+09A8-09A9 Player's Y Position (left side of sprite, center height, in tiles)
+09AA-09AB Current address of Player actor in actor tables
+09AC-09AD ?
+09AE-09AF Player attack and control flags
+           & $0001 Attack button pressed
+           & $0002 Player's body destroys obstacles
+           & $0004 ?
+           & $0008 Attack disabled
+           & $0010 Quake used, freeze world
+           & $0020 Player doesn't die at 0 HP
+           & $0040 ?
+           & $0080 ?
+           & $0100 ?
+           & $0200 Death in progress
+           & $0400 ?
+           & $0800 Special move pattern, e.g. Aura Ball or ladder
+           & $1000 ?
+           & $2000 Action in progress, can't walk
+           & $4000 ?
+           & $8000 Special sprite instead of normal Body
+09B0-09B1 Unused (would have been: tile type that animates player stuck on it, if using cop #$96-8)
+09B2-09B3 Current running speed if running east (positive) or west (negative)
+09B4-09B5 Current running speed if running south (positive) or north (negative)
+  
+09CC-09CF Long-address of player sprite data in previous frame ($7F100C-D,8)
+09D0-09DF Psycho Dash position tracker, for symmetric movement
+09E0-09E1 Current attack damage bonus
+09E2-09E3 Additional ranged attack damage bonus
+09E4-09E5 Working variable for enemy damage processing
+09E6-09E7 Target's current HP
+09E8-09E9 Unused?
+09EA-09EB If set, show enemy health bar for up to 31 more frames?
+09EC-09ED Rendering flags for BG3/HUD/text, almost entirely unknown purposes
+  
+09EE-09EF Direction of player's most recent attack (SNWE = 0123)
+09F0-09F3 Working variables for vampire boss coordinated attack
+09F4-09F5 Actor ID to tether camera to (usually Player, #$1000)
+09F6-09FF Unused?
+
+[Save file: $0a00 - $0bfb]
+0A00-0A1F Game flags $00-$FF
+0A20-0A3F Game flags $100 and up, this section mostly map rearrangement / BG changes
+0A40-0A4F Chest opened flags
+0A50-0A5F More flags; 0-1 are Red Jewels, others are probably unused
+0A60-0A7F Room clear reward obtained flags
+0A80-0A9F Dungeon-level enemy-defeated flags
+0AA0-0AA1 Boss-defeated flags
+0AA2-0AA3 Special ability flags (0x01: Psycho Dash, 0x02: Psycho Slide, 0x04: Spin Dash, 0x10: Dark Friar, 0x20: Aura Barrier, 0x40: Earth Quaker)
+0AA4-0AAD Temp state tracking, e.g. raft progress, Ishtar progress, snake game counter, placed hieroglyph type, active Dark Space type
+0AAE-0AAF Unused?
+0AB0-0AB1 Number of Collected Red Jewels (BCD-FORMAT!)
+0AB2-0AB3 ?
+0AB4-0AC3 Item Menu Slots, item index for every slot
+            $00: Nothing
+            $01: Red Jewel
+            $02: Edward Castle Prison Key
+            $03: Inca Statue A
+            $04: Inca Statue B
+            $05: Inca Melody (unused)
+            $06: Herb
+            $07: Diamond: Shaped Block
+            $08: Wind Melody
+            $09: Lola's Melody
+            $0A: Large Roast
+            $0B: Mine Key A
+            $0C: Mine Key B
+            $0D: Memory Melody
+            $0E: Crystal Ball
+            $0F: Elevator Key
+            $10: Mu Palace Key
+            $11: Purification Stone
+            $12: Statue of Hope
+            $13: Rama Statue
+            $14: Magic Dust
+            $15: Blue Journal (unused)
+            $16: Lance's Letter
+            $17: Necklace Stones
+            $18: Will
+            $19: Teapot
+            $1A: Mushroom Drops
+            $1B: Bag of Gold (unused)
+            $1C: Black glasses
+            $1D: Gorgon Flower
+            $1E: Hieroglyph Plate 1
+            $1F: Hieroglyph Plate 2
+            $20: Hieroglyph Plate 3
+            $21: Hieroglyph Plate 4
+            $22: Hieroglyph Plate 5
+            $23: Hieroglyph Plate 6
+            $24: Aura
+            $25: Lola's Melody
+            $26: Father's Journal
+            $27: Crystal Ring
+            $28: Apple
+0AC4-0AC5 Number of the equipped Item Slot (valid values: 0x00 to 0x0F, or FFFF for none)
+0AC6-0AC7 Type of equipped item
+0AC8-0AC9 Player's special sprite index (e.g. if in Psycho Dash or other stopping actions)
+0ACA-0ACB Max HP
+0ACC-0ACD Max HP (scratch value for rendering?)
+0ACE-0ACF Current HP
+0AD0-0AD1 Current HP (scratch value for rendering?)
+0AD2-0AD3 ?
+0AD4-0AD5 Player's current Body (0x00: Will, 0x01: Freedan, 0x02: Shadow, others: transformations)
+0AD6-0AD7 Number of DP
+0AD8-0AD9 Number of hundreds of DP
+0ADA-0ADB Number of DP (scratch value for rendering?)
+0ADC-0ADD Player DEF
+0ADE-0ADF Player STR
+0AE0-0AE1 Max HP of hit enemy, for drawing health bar
+0AE2-0AE3 Current HP of hit enemy, for drawing health bar
+0AE4-0AE5 Timer until enemy health bar stops being rendered (default #$003c frames)
+0AE6-0AE7 Item screen BG tilemap selector
+0AE8-0AE9 Type of item currently active
+0AEA-0AEB ?
+0AEC-0AED Number of enemies on the current map (hexadecimal)
+0AEE-0AEF Number of enemies on the current map (decimal)
+0AF0-0AF3 Death Warp: Address of eight "COP #$26" parameters for new map after death
+0AF4-0AF7 Death Warp with DP: Address of parameters used if at least 100 DP are available
+0AF8-0AF9 If nonzero, show death message on next screen transition
+0AFA-0AFB Scratch counter for inventory screen
+  
+0B02-0B03 Difficulty level; can't be set in-game; affects a few projectile attacks
+0B04-0B05 Default text speed (delay before each character)
+0B06-0B07 ?
+0B08-0B09 X position of Dark Space in outside map
+0B0A-0B0B X size of Dark Space in outside map
+0B0C-0B0D Y position of Dark Space in outside map
+0B0E-0B0F Y size of Dark Space in outside map
+0B10-0B11 Camera settings for outside map when leaving Dark Space
+0B12-0B13 Map ID outside of current Dark Space
+0B14-0B15 ?
+0B16-0B17 Psycho Dash upgrade level
+0B18-0B19 Psycho Slider upgrade level (does more damage)
+0B1A-0B1B Spin Dash upgrade level (lasts twice as long and does more damage)
+0B1C-0B1D Dark Friar upgrade level (0, 1, 2)
+0B1E-0B1F Aura Barrier upgrade level (creates 4 shields; should do more damage but a bug prevents this)
+0B20-0B21 Earthquaker upgrade level (no in-game effect)
+0B22-0B22 Amount of HP to heal
+0B23-0B23 ?
+0B24-0B25 Active sound style, 0-1
+0B26-0B27 Active control style, 0-1
+0B28-0B33 Hieroglyph types currently set in Pyramid wall, 2 bytes each (#$FFFF = slot empty)
+  
+0BFC-0BFF Unused (placeholder for save file checksum)
+
+0C00-0CB1 Table of on-screen objects that might need rendering or collision detection
+  
+0D52-0D53 Trigger for world map movement, then copied to $0D54
+0D54-0D55 X coordinate of world map movement start point
+0D56-0D57 Y coordinate of world map movement start point
+0D58-0D59 Map movement text box index
+0D5A-0D5B Forced map movement, movement ID
+  
+0D60-0D6B Sprite IDs for world map movement
+0D6C-0D6D Screen size and camera settings for new map after map movement
+0D6E-0D6E World map: preset destination map ID (if any)
+0D6F-0D6F World map: previous map ID
+  
+0D72-0D73 Is music playing? 1 = Yes, 0 = No
+0D74-0D79 Place on map to show as the save point for each save file
+0D7A-0D7F HP to display for each save file
+0D80-0D85 DEF to display for each save file
+0D86-0D8B STR to display for each save file
+0D8C-0D8D Active (currently being played) save file, 0-2
+0D8E-0D8F Control style selected on menu; 0 = Type1, 1 = Type2
+0D90-0D91 Sound style selected on menu; 0 = Stereo, 1 = Mono
+0D92-0D93 Save file selected on menu, 0-2
+0D94-0D95 Save file clicked most recently, 0-2
+0D96-0D97 Empty save file selected for copying over on the menu, 0-2
+0D98-0D99 Main menu option selected, 0-3
+0D9A-0D9F HP,STR,DEF of one save file in BCD format; filled only when drawing the file menu
+0DA0-0DA5 Unused?
+0DA6-0DA7 Controller bit mask for IOG format, R button
+0DA8-0DA9 Controller bit mask for IOG format, L button
+0DAA-0DAB Controller bit mask for IOG format, B button (set by control style)
+0DAC-0DAD Controller bit mask for IOG format, A button (set by control style)
+0DAE-0DAF Controller bit mask for IOG format, Y button (set by control style)
+0DB0-0DB1 Controller bit mask for IOG format, X button
+0DB2-0DB3 Controller bit mask for IOG format, sTart button
+0DB4-0DB5 Controller bit mask for IOG format, Select button
+  
+0DBC-0DBD Number of active actors
+  
+0E00-0EFF Table of available RAM addresses for new actors
+  
+0F00-0FFF Main thinker table, in #$10-byte chunks
+1000-1FBF Main actor table, in #$30-byte chunks
+1FC0-1FFF Unused
+
+2000-27FF MapLayer tilemap RAM->VRAM mapping: maps RAM tiles $00-$FF to eight VRAM bytes
+2800-2FFF EffectLayer tilemap RAM->VRAM mapping
+3000-3021 Table of available RAM addresses for new thinkers
+  
+3100-340F BG tilemap RAM->VRAM staging area
+  
+3490-358F Item screen's backup of $0E00 - $0EFF
+3590-368F Item screen's backup of $3000 - $30FF
+3690-378F Item screen's backup of $0F00 - $0FFF
+3790-388F Item screen's backup of $7F0F00 - $7F0FFF
+3890-389B Item screen's backup of $06BE - $06C9
+389C-38AB Item screen's backup of $004E - $005D
+38AC-38B1 Item screen's backup of $0656 - $065B
+38B2-38B3 ?
+38B4-3AB6 Item screen's backup of $7F0A00 - $7F0C02
+  
+4000-6FFF Decompressed spritesets, sprite data; possibly other map load data too
+7000-9FFF During map load, contains sprite and BG tiles before they are pushed into VRAM. After map load, this memory is free. Some actors put HDMA tables here.
+A000-BFFF MapLayer tilemap; $B000 and above are also the map screen (mode 7) tilemap
+C000-DFFF EffectLayer tilemap and map screen (mode 7) tilemap
+E000-EFFF Map screen (mode 7) tilemap
+  
+
+
+Bank $7f
+
+0000-00FF Tile properties (passable, wall, etc.) of every type of MapLayer tile; used during map load
+0100-01FF Tile properties of every type of EffectLayer tile; used during map load
+0200-09FF BG3 tilemap (pause screen, status bar, etc.)
+0A00-0BFF Palette data
+0C00-0C02 Color data for palette arithmetic (e.g. translucency)
+0C03-0C06 Source address for optional DMA during VBlank ($0C06 is ignored)
+0C07-0C08 Target VRAM word-address for optional DMA during VBlank
+0C09-0C0A DMA transfer size
+  
+0F00-0FFF Additional thinker data, in #$10-byte chunks
+1000-1FBF Additional actor data, in #$30-byte chunks
+1FC0-1FFF Unused
+2000-2FBF Additional actor data, in #$30-byte chunks
+2FC0-2FFF Unused
+  
+3100-???? Manual OAM table, renders sprite tiles without needing an actor
+  
+C000-DFFF CollisionLayer tilemap (base address stored at $7E0080 but hardcoded elsewhere)
+E000-EFFF Item screen's backup of $7E1000 - $7E1FFF
+F000-FFFF Item screen's backup of $7F1000 - $7F1FFF

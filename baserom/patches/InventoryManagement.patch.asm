@@ -125,7 +125,7 @@ inv_check_pages {
 
 ------------------------------------------------
 ;Entry point for gem use (prevent increase, this is done elsewhere)
-func_0384D5 {
+func_0384D5! {
     COP [BF] ( &widestring_038517 )
     JSR $&sub_039FB2
 
@@ -160,7 +160,7 @@ func_0384D5 {
 ---------------------------------------------
 ;Entry point for removing an item from the inventory upon use
 
-sub_039FB2 {
+sub_039FB2! {
     PHX
     LDX $inventory_equipped_index
     JSR inv_remove_stub
@@ -172,7 +172,7 @@ sub_039FB2 {
 --------------------------------------------------
 ;Entry point for adding an item to the inventory
 
-func_03EF97 {
+func_03EF97! {
     PHP 
     SEP #$20
     BIT #$80
@@ -227,7 +227,7 @@ func_03EF97 {
 ---------------------------------------------
 ;Entry point for checking inventory for item
 
-loc_03F0B9 {
+loc_03F0B9! {
     CMP $inventory_slots, Y
     BEQ loc_03F0C7
     INY 
@@ -250,7 +250,7 @@ loc_03F0B9 {
 ---------------------------------------------
 ;Route COP item removal through common process
 
-loc_03F0A0 {
+loc_03F0A0! {
     PHX
     TYX
     JSR inv_remove_stub
@@ -261,7 +261,7 @@ loc_03F0A0 {
 -----------------------------------------
 ;Entry point for giving Jewels to Gem
 
-code_08CF68 {
+code_08CF68! {
     SEP #$20
     LDA #$00
     XBA
@@ -317,8 +317,8 @@ code_08CF68 {
     REP #$20
 }
 
-loc_08CF74 {
+loc_08CF74! {
 }
 
-loc_08CF84 {
+loc_08CF84! {
 }

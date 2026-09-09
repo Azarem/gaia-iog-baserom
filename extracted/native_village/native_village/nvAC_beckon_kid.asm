@@ -1,0 +1,90 @@
+!moveXAlt                       7F0018
+!moveYAlt                       7F001A
+
+---------------------------------------------
+
+nvAC_beckon_kid [
+  actor-def < #24, #00, #18, {
+
+  code_08908D:
+    COP [BranchIfFlagByte] ( #AF, #00, &code_089102 )
+    COP [SetOnInteract] ( &code_089104 )
+    COP [SolidHighHere]
+    COP [BranchIfFlagByte] ( #B2, #01, &code_0890C1 )
+    COP [ExitIfFlagByte] ( #03, #01 )
+    COP [ClearLowHere]
+    COP [StageSpriteMoveX] ( #28, #02 )
+    COP [AnimOnce]
+    COP [StageSpriteFrame] ( #24 )
+    COP [AnimOnce]
+    COP [ExitIfFlagByte] ( #04, #01 )
+    COP [StageSpriteMoveX] ( #28, #03 )
+    COP [AnimOnce]
+    COP [StageSpriteFrame] ( #24 )
+    COP [AnimOnce]
+    COP [SolidHighHere]
+} >
+]
+
+code_0890C1 {
+    COP [ExitIfFlagByte] ( #06, #01 )
+    COP [SetOnInteract] ( #$0000 )
+    LDA #$0800
+    TRB $10
+    COP [ClearLowHere]
+    LDA #$0148
+    STA $moveXAlt, X
+    LDA #$0120
+    STA $moveYAlt, X
+    COP [MoveToward] ( #29, #01 )
+    LDA #$0188
+    STA $moveXAlt, X
+    LDA #$0140
+    STA $moveYAlt, X
+    COP [MoveToward] ( #29, #01 )
+    COP [SolidHighHere]
+    COP [SetOnInteract] ( &code_089121 )
+    LDA #$0200
+    TSB $12
+    COP [SetEntryContinue]
+    RTL 
+}
+
+code_089102 {
+    COP [Die]
+}
+
+code_089104 {
+    COP [PrintWideString] ( &widestring_089126 )
+    COP [DialogueOptions] ( #02, #01, &code_list_08910E )
+}
+
+code_list_08910E [
+  &code_089114   ;00
+  &code_089119   ;01
+  &code_089114   ;02
+]
+
+code_089114 {
+    COP [PrintWideString] ( &widestring_089190 )
+    RTL 
+}
+
+code_089119 {
+    COP [PrintWideString] ( &widestring_089178 )
+    COP [SetFlagByte] ( #06 )
+    RTL 
+}
+
+code_089121 {
+    COP [PrintWideString] ( &widestring_0891A2 )
+    RTL 
+}
+
+widestring_089126 `[TPL:E]He tugs on Will's[N]sleeve, as if he wants[N]to take him somewhere.[FIN]Go with him?[N] Yes[N] No`
+
+widestring_089178 `[CLR]He beckons to him...[PAL:0][END]`
+
+widestring_089190 `[CLR]He looks lonely...[PAL:0][END]`
+
+widestring_0891A2 `[TPL:9][TPL:0]He faces the skeleton[N]with tears in his eyes...[FIN]Is this the skeleton of[N]a relative? A friend?[PAL:0][END]`

@@ -2,7 +2,7 @@
 ?INCLUDE 'chunk_03BAE1'
 
 
-  loc_03CEEC:
+  loc_03CEEC!:
     LDX $0646
     LDA $@scene_actors_extract_table, X
     DEC

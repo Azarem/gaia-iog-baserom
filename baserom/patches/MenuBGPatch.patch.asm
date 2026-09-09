@@ -1,17 +1,17 @@
 ﻿?BANK 02
 
-?INCLUDE 'chunk_028000'
+?INCLUDE 'scene_script'
 
 !SPTR		$3E
 
 -----------------------------------------------------
 
-func_028C30 {
+SceneCmd_LoadCharTiles! {
     PHP 
-    JSR $&sub_028CE7
+    JSR $&ReadScriptByte
     STA $066A
     LDX #$003E
-    JSR $&sub_028D8F
+    JSR $&LoadScriptPointer
     REP #$20
     LDA [$3E]
     STA $00
@@ -23,7 +23,7 @@ func_028C30 {
     INC $3E
     INC $3E
     SEP #$20
-    JSL $@func_0281D1
+    JSL $@SignedMultiply
     REP #$20
     STA $00
     XBA 
@@ -41,7 +41,7 @@ func_028C30 {
     SEP #$20
     LDX #$7000
     STX $7A
-    JSL $@func_028270
+    JSL $@QuintetLzDecompress
     LDX #$7000
     STX $3E
     LDA #$7E
@@ -49,6 +49,6 @@ func_028C30 {
     BRA loc_028C87
 }
 
-loc_028C81 {
+loc_028C81! {
     SEP #$20
 }

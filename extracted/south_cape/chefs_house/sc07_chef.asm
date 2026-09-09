@@ -1,0 +1,19 @@
+---------------------------------------------
+
+sc07_chef [
+  actor-def < #05, #00, #10, {
+
+  code_0491DF:
+    COP [SetOnInteract] ( &code_0491E8 )
+    COP [SolidHighHere]
+    COP [SetEntryContinue]
+    RTL 
+} >
+]
+
+code_0491E8 {
+    COP [PrintWideString] ( &widestring_0491ED )
+    RTL 
+}
+
+widestring_0491ED `[TPL:A]Mmmm, nice smell.[N]There's no stove, so[N]I'm cooking in this pot.[END]`

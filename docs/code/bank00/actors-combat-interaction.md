@@ -19,7 +19,7 @@ These actors are spawned at runtime rather than placed in most scenes. They impl
 | `e_str_increase` | part of `reward_actors` | `$E06B` | ✓ | `StandardEnemyDefeatHandler` |
 | `e_def_increase` | part of `reward_actors` | `$E0A6` | ✓ | `StandardEnemyDefeatHandler` |
 | `RewardActorVFX` | `func_00E110` | `$E110` | ✓ | All reward actors |
-| `push_handler_light` | `actor_00E155` | `$E155` | ✓ | ~12 spawn sites |
+| `collect_handler_gem` | `actor_00E155` | `$E155` | ✓ | ~12 spawn sites |
 | `push_handler_solid` | `actor_00E256` | `$E256` | ✓ | ~11 spawn sites |
 | `push_handler_forceball` | `actor_00E3BA` | `$E3BA` | ✓ | Force ball puzzles |
 | `smooth_follow_child` | `actor_00E4DB` | `$E4DB` | **No** | Boss/projectile scripts |
@@ -218,32 +218,36 @@ All reward actors converge here — the VFX + flag set is identical regardless o
 |-----------|--------|-------|
 | Called by | `e_hp_increase`, `e_str_increase`, `e_def_increase` | `CallScript &RewardActorVFX` |
 | Spawned from | `StandardEnemyDefeatHandler` | Via `EnemyStatBonusReward` |
-| Also spawned from | `EnemyRewardChestSystem` | Chest variant rewards |
+| Also spawned from | `DarkGemDropSystem` | Dark gem variant rewards |
 | Uses | `table_0EE000` | Generic reward metasprite |
 
 ---
 
-## Push / Interaction Handlers
+## Interaction Handlers
 
-Three variants sharing `$@func_03F0CA` (player direction probe) and `chunk_03BAE1`. All use button `$0031` (A) and proximity radius `$0F`. Parent actor index stored in `$04` links the pushed object.
+Three handlers sharing `$@func_03F0CA` (player direction probe) and `chunk_03BAE1`. All use button `$0031` (A) and proximity radius `$0F`. Parent actor index stored in `$04` links the target object.
 
-### push_handler_light
+> ⚠ This block was previously named `push_interaction_handlers`. Renamed to `interaction_handlers` because `collect_handler_gem` is a **collection** handler (not a push), while `push_handler_solid` and `push_handler_forceball` are true push handlers.
+
+### collect_handler_gem
 
 | Property | Value |
 |----------|-------|
-| **Old Name** | `actor_00E155` |
-| **New Name** | `push_handler_light` |
+| **Old Name** | `actor_00E155` (formerly `push_handler_light`) |
+| **New Name** | `collect_handler_gem` |
 | **Hex Address** | `$00E155` (script `$E155`) |
 | **Decimal Address** | 57685 |
 | **Size** | 257 bytes |
-| **ASM File** | `extracted/actors/push_interaction_handlers.asm` |
+| **ASM File** | `extracted/actors/interaction_handlers.asm` |
 | **Movable** | Yes |
 
 #### Description
 
-Lightweight push: nudges linked actor ±2 pixels per frame without modifying solid tiles. Requires player facing the object (`func_03F0CA` direction match). Uses half-distance (`LSR`) from player to object as repeat count stored in `$7F0010`.
+Gem collection interaction handler. When the player is near a dropped dark point gem and presses the action button, this handler nudges the gem toward the player at ±2 pixels per frame. **Not a push handler** — the gem drifts toward the player rather than being pushed away.
 
-No minimum offset threshold — any facing-aligned press nudges. Used for collectible reveals and light objects.
+Spawned as a child actor by both `DarkGemDropSystem` (enemy death gem drops) and `field_reveal_object` (scene-clear collectible gems). The parent gem actor handles the visual sprite and `$chatPtr` stat type; this handler manages only the player interaction physics.
+
+Uses `func_03F0CA` for player facing verification and half-distance (`LSR`) from player to gem as the repeat count stored in `$7F0010`. No minimum offset threshold — any facing-aligned press nudges.
 
 #### Algorithm
 
@@ -254,13 +258,13 @@ No minimum offset threshold — any facing-aligned press nudges. Used for collec
 4. BranchOnPlayerX/Y to select axis
 5. Compute distance >> 1 → repeat count
 6. func_03F0CA: verify player facing
-7. Move linked actor ($04) ±2 px on matched axis
+7. Move linked gem actor ($04) ±2 px toward player on matched axis
 8. Dec repeat count; loop or RestoreSavedPtr
 ```
 
 #### Scene Usage
 
-Spawned at runtime (~12 sites including `field_reveal_object`, `EnemyRewardChestSystem`).
+Spawned at runtime (~12 sites including `field_reveal_object`, `DarkGemDropSystem`).
 
 ---
 
@@ -273,7 +277,7 @@ Spawned at runtime (~12 sites including `field_reveal_object`, `EnemyRewardChest
 | **Hex Address** | `$00E256` (script `$E256`) |
 | **Decimal Address** | 57942 |
 | **Size** | 356 bytes |
-| **ASM File** | `extracted/actors/push_interaction_handlers.asm` |
+| **ASM File** | `extracted/actors/interaction_handlers.asm` |
 | **Movable** | Yes |
 
 #### Description
@@ -320,7 +324,7 @@ Most-used push handler (~11 spawn sites: archers, knight armor, statues, Seth bo
 | **Hex Address** | `$00E3BA` (script `$E3BA`) |
 | **Decimal Address** | 58298 |
 | **Size** | 289 bytes |
-| **ASM File** | `extracted/actors/push_interaction_handlers.asm` |
+| **ASM File** | `extracted/actors/interaction_handlers.asm` |
 | **Movable** | Yes |
 
 #### Description

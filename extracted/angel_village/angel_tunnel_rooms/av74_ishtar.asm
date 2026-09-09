@@ -1,0 +1,76 @@
+---------------------------------------------
+
+av74_ishtar [
+  actor-def < #12, #00, #10, {
+
+  code_06CE85:
+    COP [AddPosition] ( #00, #FC )
+    LDA #$0200
+    TSB $12
+    COP [SpawnAfterRelFlags] ( @code_06CEB8, #$0000, #$FFF0, #$0300 )
+    COP [SetOnInteract] ( &code_06CEDA )
+    COP [BranchIfFlagByte] ( #89, #00, &code_06CEA5 )
+    COP [Die]
+} >
+]
+
+code_06CEA5 {
+    COP [SetEntryContinue]
+    COP [StageSpriteFrame] ( #12 )
+    COP [AnimOnce]
+    RTL 
+}
+
+actor_def_06CEAD [
+  actor-def < #13, #00, #10, {
+
+  code_06CEB0:
+    COP [SolidHighAbs] ( #25, #08 )
+    COP [AddPosition] ( #08, #00 )
+} >
+]
+
+code_06CEB8 {
+    COP [BranchIfFlagByte] ( #89, #00, &code_06CECE )
+    LDA #$1000
+    TSB $10
+    COP [SetOnInteract] ( &code_06CEDF )
+    COP [StageSpriteFrame] ( #15 )
+    COP [AnimOnce]
+    BRA loc_06CED3
+}
+
+code_06CECE {
+    COP [StageSpriteFrame] ( #13 )
+    COP [AnimOnce]
+
+  loc_06CED3:
+    COP [SolidHighAbs] ( #25, #08 )
+    COP [SetEntryContinue]
+    RTL 
+}
+
+code_06CEDA {
+    COP [PrintWideString] ( &widestring_06CEF2 )
+    RTL 
+}
+
+code_06CEDF {
+    COP [BranchIfFlagByte] ( #8B, #01, &code_06CEED )
+    COP [SetFlagByte] ( #8B )
+    COP [PrintWideString] ( &widestring_06CF5E )
+    RTL 
+}
+
+code_06CEED {
+    COP [PrintWideString] ( &widestring_06D039 )
+    RTL 
+}
+
+widestring_06CEF2 `[TPL:A][TPL:3]Ishtar: I wonder if you're[N]here to get Kara. [FIN]Go into this room.[FIN]If you solve all the[N]riddles, I'll give back[N]the girl. [END]`
+
+widestring_06CF5B `[PAL:0][END]`
+
+widestring_06CF5E `[TPL:A][TPL:3]Ishtar:[N]I have been[N]waiting for you.[FIN]Sprinkle magic powder[N]on the painting, and[N]give it a kiss.[FIN]If you care about her [N]deeply, something will [N]happen. You'll see. [FIN]I painted a[N]self-portrait.[FIN]Soon I will become[N]the painting...[FIN]You must take care[N]of her...[PAL:0][END]`
+
+widestring_06D039 `[TPL:A][TPL:3].............[PAL:0][END]`

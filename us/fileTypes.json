@@ -23,7 +23,7 @@
         "extension": "sprite.asm",
         "type": "Spritemap",
         "compressed": true,
-        "struct": "&sprite_set",
+        "struct": "&sprite-set",
         "base": 16384
     },
     "Music": {

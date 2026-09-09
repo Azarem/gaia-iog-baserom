@@ -1,0 +1,55 @@
+?INCLUDE 'py_actor_08B6F4'
+
+!gfxCacheIdxA                   0648
+!gfxCacheIdxB                   064A
+!playerActor                    09AA
+
+---------------------------------------------
+
+pyCC_entrance_portal [
+  actor-def < #1C, #01, #10, {
+
+  code_08B6A5:
+    LDA #$0200
+    TSB $12
+    COP [SetOnInteract] ( &code_08B6B1 )
+    COP [SetEntryContinue]
+    RTL 
+} >
+]
+
+code_08B6B1 {
+    COP [PrintWideString] ( &widestring_08B70D )
+    COP [DialogueOptions] ( #02, #02, &code_list_08B6BB )
+}
+
+code_list_08B6BB [
+  &code_08B6C1   ;00
+  &code_08B6C1   ;01
+  &code_08B6C6   ;02
+]
+
+code_08B6C1 {
+    COP [PrintWideString] ( &widestring_08B74B )
+    RTL 
+}
+
+code_08B6C6 {
+    COP [PrintWideString] ( &widestring_08B74B )
+    LDY $playerActor
+    LDA $0010, Y
+    ORA #$2000
+    STA $0010, Y
+    COP [SpawnAfterFlags] ( @py_actor_08B6F4, #$1800 )
+    LDA #$0303
+    STA $gfxCacheIdxA
+    LDA #$0303
+    STA $gfxCacheIdxB
+    COP [QueueMapChange] ( #CC, #$01F8, #$0130, #03, #$4400 )
+    RTL 
+}
+---------------------------------------------
+
+widestring_08B70D `[TPL:B]The door to the Pyramid[N]appears in the light...[N] Quit[N] Jump in`
+
+widestring_08B74B `[CLD]`

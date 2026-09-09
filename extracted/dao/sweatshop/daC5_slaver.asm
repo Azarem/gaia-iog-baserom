@@ -1,0 +1,23 @@
+---------------------------------------------
+
+daC5_slaver [
+  actor-def < #1D, #00, #10, {
+
+  code_08B3A5:
+    LDA #$0200
+    TSB $12
+    COP [SolidHighHere]
+    COP [SetOnInteract] ( &code_08B3B7 )
+    COP [SetEntryContinue]
+    COP [SetEntryContinue]
+    COP [AnimOnce]
+    RTL 
+} >
+]
+
+code_08B3B7 {
+    COP [PrintWideString] ( &widestring_08B3BC )
+    RTL 
+}
+
+widestring_08B3BC `[TPL:E]These women are[N]weaving carpets.[FIN]This will take almost[N]40 years to weave.[FIN]This woman has worked[N]on it continuously since[N]she was a child.[FIN]Remember, little man.[N]Some are born to[N]misfortune.[END]`

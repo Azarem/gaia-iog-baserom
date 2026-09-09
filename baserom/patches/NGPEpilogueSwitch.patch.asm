@@ -1,9 +1,8 @@
 ﻿
 h_epilogue_thinker [
-  h_thinker < #00, #08 >   ;00
-]
+  thinker_def < #00, #08, {
 
-e_epilogue_thinker {
+  e_epilogue_thinker:
     PHX
     LDA $0D8C
     XBA
@@ -28,18 +27,18 @@ e_epilogue_thinker {
     PLX
     COP [3D]
     RTL
-}
+} > ]
 
 
 ------------------------------------------
 ?INCLUDE 'scene_thinkers'
 ------------------------------------------
 
-thinker_0CEA9B [
-  thinker < #74, @thinker_00B520 >   ;00
-  thinker < #00, @thinker_00BCDF >   ;01
-  thinker < #00, @thinker_00BCB3 >   ;02
-  thinker < #24, @parallax_thinker >   ;03
-  thinker < #00, @h_epilogue_thinker >   ;04
+thinker_spawn_0CEA9B! [
+  thinker-spawn < #74, @ambient_palette_cycler >   ;00
+  thinker-spawn < #00, @ending_comet_dma_setup >   ;01
+  thinker-spawn < #00, @ending_comet_sine_hdma >   ;02
+  thinker-spawn < #24, @parallax_thinker >   ;03
+  thinker-spawn < #00, @h_epilogue_thinker >   ;04
 ]
 

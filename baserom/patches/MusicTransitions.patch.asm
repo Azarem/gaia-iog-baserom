@@ -1,8 +1,9 @@
 ﻿?BANK 03
 
-?INCLUDE 'chunk_008000'
+?INCLUDE 'cop_handlers_actors'
 ?INCLUDE 'chunk_03BAE1'
-?INCLUDE 'chunk_028000'
+?INCLUDE 'scene_script'
+?INCLUDE 'spc_transfer'
 
 !meta_next_id                   $0642
 !meta_current_id                $0644
@@ -93,7 +94,7 @@ count_check {
 
 ---------------------------------------
 
-cop_handler_0A_0087C9 {
+WriteApuIo0! {
     SEP #$20
     LDA msu_flag
     BEQ cop0A_normal           ;Normal process when no MSU
@@ -140,7 +141,7 @@ cop_handler_0A_0087C9 {
 --------------------------------------
 ;Hook for SPC init
 
-func_02908E {
+SpcLoadBuiltinEngine! {
     REP #$20
 
     LDA $2002
@@ -163,18 +164,18 @@ func_02908E {
     STZ msu_flag
     
   init_complete:
-    LDX #$&binary_029210
+    LDX #$&spc_sound_engine
     STX $46
-    LDA #$^binary_029210
+    LDA #$^spc_sound_engine
     STA $48
-    JSR $&sub_02919B
+    JSR $&SpcIplHandshake
     RTL 
 }
 
 --------------------------------------
 ;Hook for checking track changes before screen transition
 
-func_03D9F6 {
+func_03D9F6! {
     LDA $0654
     BMI loc_03DA03
     BEQ loc_03DA00
@@ -222,8 +223,8 @@ func_03D9F6 {
 
 -----------------------------------------------
 
-loc_03DADC {
-    JSL $@func_00811E
+loc_03DADC! {
+    JSL $@UpdateFrameDialogue
     LDA $0DB6
     BEQ loc_03DAF1
     DEX 
@@ -238,7 +239,7 @@ loc_03DADC {
 
 ----------------------------------------------
 
-loc_03DAF2 {
+loc_03DAF2! {
     LDA token
     BEQ immed_skip
     BMI immed_bgm
@@ -253,7 +254,7 @@ loc_03DAF2 {
     STZ token
 
   immed_skip:
-    JSL $@func_00811E
+    JSL $@UpdateFrameDialogue
     STZ $INIDISP
     RTS 
 }
@@ -261,8 +262,8 @@ loc_03DAF2 {
 -------------------------------------------
 ;Mosaic mode 
 
-loc_03DB05 {
-    JSL $@func_00811E
+loc_03DB05! {
+    JSL $@UpdateFrameDialogue
     DEX 
     BPL loc_03DB05
     STA $INIDISP
@@ -284,7 +285,7 @@ loc_03DB05 {
 
 --------------------------------------------
 
-loc_03DB6F {
+loc_03DB6F! {
     LDA $006E
     STA $00
     PHA 
@@ -317,7 +318,7 @@ loc_03DB6F {
 
 -------------------------------------------------
 
-loc_03DBBC {
+loc_03DBBC! {
     INC $006E
     STA $00
     PHA 
@@ -326,7 +327,7 @@ loc_03DBBC {
     STA $6C
     PLA 
     JSR $&sub_03DBF6
-    JSL $@func_00811E
+    JSL $@UpdateFrameDialogue
     LDA $01, S
     DEC 
     STA $01, S
@@ -352,7 +353,7 @@ loc_03DBBC {
 ---------------------------------------------
 ;Hook for fading music via COP 05
 
-func_03E1AA {
+func_03E1AA! {
     SEP #$20
     LDA msu_flag
     BEQ cop_fade_normal     ;Assume normal process when no MSU
@@ -383,7 +384,7 @@ func_03E1AA {
 }
 
 
-loc_03E1C1 {
+loc_03E1C1! {
     SEP #$20
     LDA #$01
     STA $APUIO0
@@ -399,7 +400,7 @@ loc_03E1C1 {
 ---------------------------------------------
 ;Hook for stopping music via COP 04/05
 
-func_03E1D6 {
+func_03E1D6! {
     SEP #$20
     LDA msu_flag
     BEQ bgm_load_wait   ;Always skip APU silent since we are always branching to the standard load process
@@ -424,7 +425,7 @@ func_03E1D6 {
     ;RTL 
 }
 
-loc_03E1EB {
+loc_03E1EB! {
     ;COP [C2]
     ;SEP #$20
     ;LDA #$FF
@@ -441,7 +442,7 @@ loc_03E1EB {
     RTL 
 }
 
-loc_03E208 {
+loc_03E208! {
     COP [DA] ( #01 )
     ;SEP #$20
     ;LDA #$01
@@ -455,7 +456,7 @@ loc_03E208 {
 
 ---------------------------------------------
 
-func_03E21E {
+func_03E21E! {
     LDX $06FA
     BEQ loc_03E254
     BMI loc_03E254
@@ -493,7 +494,7 @@ func_03E21E {
     ;STA $47
     ;STA $0688
     ;JSL $@func_028191
-    ;JSL $@func_02909B
+    ;JSL $@SpcBlockTransfer
     ;JSL $@func_0281A2
     
     ;LDA $06FA
@@ -509,20 +510,20 @@ func_03E21E {
 }
 
 
-loc_03E254 {
+loc_03E254! {
     RTL 
 }
 
 ---------------------------------------------
 ;Hook for music asset loading (from scene_meta)
 
-func_028B6D {
-    JSR $&sub_028CE7
+SpcMusicLoadCmd! {
+    JSR $&ReadScriptByte
     PHA
-    JSR $&sub_028CE7
+    JSR $&ReadScriptByte
     STA $06F4
     LDX #$003E
-    JSR $&sub_028D8F
+    JSR $&LoadScriptPointer
     LDA $06F6
     CMP $06F4
     BEQ loc_028B88
@@ -530,16 +531,16 @@ func_028B6D {
     RTS 
 }
 
-loc_028B88 {
+loc_028B88! {
     PLA
     STA $06F2
     LDX #$0687
-    JSR $&sub_028DC1
+    JSR $&CheckSourceCacheHit
     BCS loc_028B91
     RTS 
 }
 
-loc_028B91 {
+loc_028B91! {
     LDA $06F2
     BEQ bgm_check               ;Always branch to halt when reset is loading
 
@@ -556,15 +557,15 @@ loc_028B91 {
 
   bgm_halt:
     LDA #$01
-    JSL $@func_0281C9
+    JSL $@WaitFrames
     LDA #$F0
     STA $APUIO0
     LDA #$03
-    JSL $@func_0281C9           ;For some reason this is required
+    JSL $@WaitFrames           ;For some reason this is required
     LDA #$FF
     STA $APUIO0
     LDA #$02
-    JSL $@func_0281C9
+    JSL $@WaitFrames
     
   bgm_init:
     LDA $0D72
@@ -583,9 +584,9 @@ loc_028B91 {
     ;STX $0687
     ;LDX $47
     ;STX $0688
-    JSL $@func_02909B
+    JSL $@SpcBlockTransfer
     LDA #$03
-    JSL $@func_0281C9
+    JSL $@WaitFrames
     LDA $06F2
     BEQ $02
     LDA #$01

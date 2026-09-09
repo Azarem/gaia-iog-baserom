@@ -1,27 +1,25 @@
 {
-  "h_actor": { "types": [ "Byte", "Byte", "Byte" ] },
-  "h_thinker": { "types": [ "Byte", "Byte" ] },
-  "dma_data": { "types": [ "Byte", "Byte", "Byte" ], "delimiter": 0 },
-  "unk1": { "types": [ "Word", "&Code" ] },
-  "motion": { "types": [ "Byte", "Byte", "Byte", "Byte" ], "delimiter": 255 },
-  "map_name": { "types": [ "Byte", "&SpriteString" ], "delimiter": 0 },
-  "unk5": { "types": [ "Byte", "Byte", "Byte", "Byte" ] },
-  "unk6": { "types": [ "Byte", "Word" ], "delimiter": 65535 },
-  "unk7": { "types": [ "Byte", "Byte", "Byte", "Byte", "Byte", "Byte", "Byte", "Byte", "Byte", "Byte" ] },
-  "unk8": { "types": [ "Word", "&unk8" ] },
-  "unk9": { "types": [ "Word", "Word", "Word" ], "delimiter": 65535 },
-  "unk10": { "types": [ "Word", "Word" ] },
-  "unk11": { "types": [ "Byte", "Byte", "Byte", "Byte", "Byte" ], "delimiter": 255 },
-  "sprite_set": { "types": [ "Word", "&sprite_group" ], "delimiter": 65535 },
-  "sprite_group": { "types": [ "Byte", "Byte", "Byte", "Byte", "Byte", "Byte", "Byte", "Byte", "Byte", "Byte", "Byte", "Byte", "Byte", "sprite_part" ] },
-  "sprite_part": { "types": [ "Byte", "Byte", "Byte", "Byte", "Byte", "Word" ] },
-  "bundle": { "types": [ "Byte", "&Word", "Byte", "Byte", "Byte" ], "delimiter": 0 },
-  "unk14": { "types": [ "Address", "@Binary" ] },
-  "unk15": { "types": [ "Byte", "Byte", "Byte", "Byte", "Byte", "Byte", "Byte", "Byte" ] },
-  "unk16": { "types": [ "WideString", "Binary" ] },
-  "unk17": { "types": [ "&Binary", "Byte" ] },
+  "dma-channel": { "types": [ "Byte", "Byte", "Byte" ], "delimiter": 0 },
+  "gem-drop-threshold": { "types": [ "Word", "&Code" ] },
+  "route-step": { "types": [ "Byte", "Byte", "Byte", "Byte" ], "delimiter": 255 },
+  "map-label": { "types": [ "Byte", "&SpriteString" ], "delimiter": 0 },
+  "boss-reward-range": { "types": [ "Byte", "Byte", "Byte" ], "tail": 1 },
+  "register-init": { "types": [ "Word", "Byte" ], "delimiter": 65535 },
+  "display-preset": { "types": [ "Byte", "Byte", "Byte", "Byte", "Byte", "Byte", "Byte", "Byte", "Byte", "Byte" ] },
+  "delta-node": { "types": [ "Word", "&delta-node" ] },
+  "spawn-trigger": { "types": [ "Word", "Word", "Word" ], "delimiter": 65535 },
+  "screen-pos": { "types": [ "Word", "Word" ] },
+  "zone-trigger": { "types": [ "Byte", "Byte", "Byte", "Byte", "Byte" ], "delimiter": 255 },
+  "sprite-set": { "types": [ "Word", "&sprite-group" ], "delimiter": 65535 },
+  "sprite-group": { "types": [ "Byte", "Byte", "Byte", "Byte", "Byte", "Byte", "Byte", "Byte", "Byte", "Byte", "Byte", "Byte", "Byte", "sprite-part" ] },
+  "sprite-part": { "types": [ "Byte", "Byte", "Byte", "Byte", "Byte", "Word" ] },
+  "palette-bundle": { "types": [ "Byte", "&Word", "Byte", "Byte", "Byte" ], "delimiter": 0 },
+  "body-entry": { "types": [ "Address", "@Binary" ] },
+  "event-block-def": { "types": [ "Byte", "Byte", "Byte", "Byte", "Byte", "Byte", "Byte", "Byte" ] },
+  "diary-entry": { "types": [ "WideString", "Binary" ] },
+  "ramp-motion": { "types": [ "&Binary", "Byte" ] },
   "meta<>": { "discriminator": 0, "delimiter": 0 },
-  "ppu": {
+  "display-mode": {
     "parent": "meta<>",
     "discriminator": 2,
     "types": ["Byte"]
@@ -46,7 +44,7 @@
     "discriminator": 6,
     "types": ["Byte", "@Binary"]
   },
-  "metaE": {
+  "meta-skip": {
     "parent": "meta<>",
     "discriminator": 14,
     "types": ["Byte", "Byte", "Byte"]
@@ -76,34 +74,34 @@
     "discriminator": 21,
     "types": ["Byte"]
   },
-  "meta17": {
+  "char-tiles": {
     "parent": "meta<>",
     "discriminator": 23,
     "types": ["Byte", "@Binary"]
   },
-  "mapdef": { "types": [ "Word", "meta<>" ] },
-  "enemy": {
+  "scene-meta": { "types": [ "Word", "meta<>" ] },
+  "enemy-spawn": {
     "discriminator": 6,
     "delimiter": 255,
-    "types": ["Byte", "Byte", "Byte", "@actor_def", "Byte", "Byte", "Byte"]
+    "types": ["Byte", "Byte", "Byte", "@actor-def", "Byte", "Byte", "Byte"]
   },
-  "actor": {
-    "parent": "enemy",
+  "actor-spawn": {
+    "parent": "enemy-spawn",
     "discriminator": 0,
-    "types": ["Byte", "Byte", "Byte", "@actor_def"]
+    "types": ["Byte", "Byte", "Byte", "@actor-def"]
   },
-  "thinker": { "types": [ "Byte", "@thinker_def" ], "delimiter": 255 },
-  "event_def": { "types": [ "enemy", "WideString" ] },
-  "warp_def": { "types": [ "scene_warp", "stair_warp" ] },
-  "scene_warp": { "types": [ "Byte", "Byte", "Byte", "Byte", "Byte", "Word", "Word", "Byte", "Word" ], "delimiter": 255 },
-  "stair_warp": { "types": [ "Byte", "Byte", "Byte", "Byte", "Word", "Word", "Word", "Byte", "Word" ], "delimiter": 255 },
-  "const": { "types": [ "Word", "Word" ], "delimiter": 65535 },
-  "dir_sprite": { "types": [ "Byte", "Byte" ] },
-  "stats": { "types": [ "Byte", "Byte", "Byte", "Byte" ] },
-  "sc_ix": { "types": [ "Byte", "&sc_data" ], "delimiter": 0 },
-  "sc_data": { "types": [ "Byte", "Byte", "Byte", "Byte", "Byte", "Byte"], "delimiter": 255 },
-  "thinker_def": { "types": [ "Byte", "Byte", "Code" ] },
-  "actor_def": { "types": [ "Byte", "Byte", "Byte", "Code" ] },
-  "unk18": { "types": [ "Byte", "Byte" ] },
-  "unk19": { "types": [ "Byte", "Byte", "Byte" ], "tail": 1 }
+  "thinker-spawn": { "types": [ "Byte", "@thinker-def" ], "delimiter": 255 },
+  "scene-event": { "types": [ "enemy-spawn", "WideString" ] },
+  "warp-def": { "types": [ "scene-warp", "stair-warp" ] },
+  "scene-warp": { "types": [ "Byte", "Byte", "Byte", "Byte", "Byte", "Word", "Word", "Byte", "Word" ], "delimiter": 255 },
+  "stair-warp": { "types": [ "Byte", "Byte", "Byte", "Byte", "Word", "Word", "Word", "Byte", "Word" ], "delimiter": 255 },
+  "wram-init": { "types": [ "Word", "Word" ], "delimiter": 65535 },
+  "direction-velocity": { "types": [ "Byte", "Byte" ] },
+  "enemy-stats": { "types": [ "Byte", "Byte", "Byte", "Byte" ] },
+  "conveyor-index": { "types": [ "Byte", "&conveyor-zone" ], "delimiter": 0 },
+  "conveyor-zone": { "types": [ "Byte", "Byte", "Byte", "Byte", "Byte", "Byte"], "delimiter": 255 },
+  "thinker-def": { "types": [ "Byte", "Byte", "Code" ] },
+  "actor-def": { "types": [ "Byte", "Byte", "Byte", "Code" ] },
+  "camera-keyframe": { "types": [ "Byte", "Byte" ] },
+  "statue-reward": { "types": [ "Byte", "Byte", "Byte" ], "tail": 1 }
 }

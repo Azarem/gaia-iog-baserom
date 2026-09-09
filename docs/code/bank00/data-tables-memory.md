@@ -42,12 +42,12 @@ Bank `$00` embeds dispatch jump tables, bitmasks, interpolation curves, and co-l
 | `FollowDirectionTable` | `$00EF72` | `code_list_00EF72` | 32 bytes | 16-direction smooth follow sprite handler jump table |
 | `SmoothFollowLookup` | `$00F193` | `binary_00F193` | 544 bytes | Interpolation table for smooth movement deceleration |
 | `binary_00D068` | `$00D068` | `binary_00D068` | 32 bytes | Camera drift direction offset data |
-| `reward_table_01AADE` | *(include)* | `reward_table_01AADE` | Variable | Red jewel reward tier lookup |
+| `enemy_clear_reward_table` | *(include)* | `enemy_clear_reward_table` | Variable | Per-scene enemy clear stat reward table (0=none, 1=HP, 2=STR, 3=DEF) |
 | `table_00C710` | `$00C710` | `table_00C710` | 8 bytes | Player script variant pointer table (4 entries) |
 | `code_list_00C733` | `$00C733` | `code_list_00C733` | 16 bytes | NPC wander direction handler jump table |
 | `code_list_00E8C7` | `$00E8C7` | `code_list_00E8C7` | 16 bytes | Follow fallback direction dispatch (8 entries) |
 | `array_00C943` | `$00C943` | `array_00C943` | Variable | Escort follow path direction deltas |
-| `array_00DFFD` | `$00DFFD` | `array_00DFFD` | Variable | Enemy reward chest spawn parameters |
+| `gem_drop_threshold_00DFFD` | `$00DFFD` | `gem_drop_threshold_00DFFD` | 48 bytes | Dark gem drop weighted probability thresholds (3 tiers × 4 `gem-drop-threshold` entries) |
 | `unk19_00CE97` | `$00CE97` | `unk19_00CE97` | 18 bytes | Statue inventory 6×3-byte slot table |
 
 ### 1.2 COP Dispatch Tables (`$008485`–`$00864D`)
@@ -112,9 +112,9 @@ Player COP script variant pointer table read by `InitPlayerScriptVariant` (`$00C
 
 Ring-buffer direction delta table for `EscortFollowPathTracker` (`$00C806`). Stores 9 XY waypoint pairs for party escort pathfinding (Kara/party follow sequences).
 
-#### `array_00DFFD` — Variable
+#### `gem_drop_threshold_00DFFD` — 48 bytes
 
-Spawn parameter table for `EnemyRewardChestSystem` (`$00DF29`). Six chest variant handlers index weighted reward types, HP/DEF bonus chests, and item-drop routing.
+Weighted probability threshold table for `DarkGemDropSystem` (`$00DF29`). Contains 12 `gem-drop-threshold` entries (3 tiers × 4 entries each). Each entry pairs an RNG threshold with a handler pointer to a dark gem variant. Tier selection is based on `playerMaxHp` vs `playerHp` ratio.
 
 ### 1.6 Include Tables (External ROM Data)
 
@@ -125,7 +125,7 @@ Spawn parameter table for `EnemyRewardChestSystem` (`$00DF29`). Six chest varian
 | `binary_01C384` | `$01` | `SystemInit` HUD pointer init | Sine/cosine pairs → copied to `$09BA`–`$09C4` at boot |
 | `binary_01C455` | `$01` | `BuildSineHdmaTable`, `BuildSineLookupTable`, orbital math | 256-byte sine wave for HDMA displacement and `$7E8900`/`$7E8B00` precompute |
 | `binary_01D8BE` | `$01` | HDMA queue COPs, DMA setup thinkers | Per-channel HDMA register template bytes |
-| `reward_table_01AADE` | `$01` | `red_jewel_reward_handler` | Scene-indexed HP/STR/DEF reward tier bytes |
+| `enemy_clear_reward_table` | `$01` | `boss_clear_reward_handler`, `StandardEnemyDefeatHandler`, `field_reveal_object` | Per-scene enemy clear stat reward bytes (0=none, 1=HP, 2=STR, 3=DEF) |
 
 ### 1.7 Inventory & Statue Tables
 
@@ -170,14 +170,14 @@ All `?INCLUDE` directives observed in bank `$00` system and upper-half code:
 
 | Include | Used By |
 |---------|---------|
-| `player_character` | Stair triggers (`chunk_00D088`), `ramps.asm`, `itory_village_fog` thinker |
+| `player_character` | Stair triggers (`stair_climb`), `ramps.asm`, `itory_village_fog` thinker |
 | `chunk_03BAE1` | Push handlers, `global_ambient_dispatcher`, statue inventory |
 | `cop_handlers_script` | Statue inventory reward actors |
 | `inventory_spritemap` | Inventory statue slot display |
 | `dir_sprite_01ABDE` | Forced walk functions, smooth follow |
 | `table_01A95E` | Forced walk camera pan speed lookup |
 | `smooth_follow` | `smooth_follow_child` actor |
-| `reward_table_01AADE` | Red jewel reward handler |
+| `enemy_clear_reward_table` | Boss clear reward handler, enemy defeat handler, field reveal |
 
 ### 2.2 Hardware Register Aliases
 
@@ -356,14 +356,14 @@ Global variables use direct-page addressing with `D=$0000` (or absolute `$xxxx` 
 | `$09AF` | 2 | HUD helper | `UpdateHUD` |
 | `$09BA`–`$09C4` | 11 | HUD sine/pointer table | `SystemInit` from `binary_01C384` |
 | `$09C8`/`$09CA` | 4 | HUD related pointers | System init |
-| `$09E4`/`$09E6` | 4 | Experience values | HUD XP display |
-| `$09EA` | 2 | Experience pending flag | HUD XP popup trigger |
-| `$0ACE`/`$0ACA` | 4 | Current/max DEF display | HUD damage flash |
-| `$0AD0`/`$0ACC`/`$0ADA` | 6 | Previous stat cache (DEF/HP/gem) | HUD change detection |
+| `$09E4`/`$09E6` | 4 | Enemy HP display values | HUD enemy health bar |
+| `$09EA` | 2 | Enemy HP pending flag | HUD enemy health bar trigger |
+| `$0ACE`/`$0ACA` | 4 | Current/max player HP | HUD HP recovery animation |
+| `$0AD0`/`$0ACC`/`$0ADA` | 6 | Previous stat cache (HP/maxHP/gem) | HUD change detection |
 | `$0AD4` | 2 | Current body index | `SetActorBody`, body swap COPs |
 | `$0AD6`/`$0AD8` | 4 | Gem count / hundreds digit | HUD gem display |
-| `$0ADC`/`$0ADE` | 4 | DEF / STR display bases | HUD, stat reward actors |
-| `$0AE4` | 2 | Experience display timer | HUD (`$001E` frame countdown) |
+| `$0ADC`/`$0ADE` | 4 | Player DEF / STR stat values | HUD, stat reward actors |
+| `$0AE4` | 2 | Enemy health bar timer | HUD (`$001E` frame countdown) |
 | `$0B22` | 2 | Damage flash timer | HUD (every 8 frames) |
 | `$09B0` | 2 | Wall type for player anim | Player wall-gated animation COPs |
 | `$0AFA` | 2 | Inventory highlight state | Statue inventory slot display |
@@ -547,7 +547,7 @@ Bank `$00` code follows consistent stack conventions across interrupt handlers, 
 |-------|-------|---------|
 | `$00B500`–`$00BFFF` | 49 | Thinkers (palette, HDMA, DMA, screen config) |
 | `$00C100`–`$00CFFF` | 20 | Actors (speed zones, dream, rewards, push) + functions (NPC AI, camera, menus) |
-| `$00D600`–`$00DFFF` | 14 | Functions (game over, combat defeat, item drops, chest spawning) |
+| `$00D600`–`$00DFFF` | 14 | Functions (game over, combat defeat, field reveals, dark gem drops) |
 | `$00E100`–`$00EAFF` | 12 | Actors (push handlers, smooth follow, visual effects, camera) |
 | `$00F300`–`$00F4FF` | 4 | Functions (player stop, orbital math) |
 

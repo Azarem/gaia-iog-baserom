@@ -5,42 +5,6 @@
       "value": "COP [FadeThenStartMusic] ( #1B )\r\n    COP [WaitWord] ( #$0120 )"
     }
   ],
-  "av69_erik": [
-    {
-      "key": "av6A_erik_destroy",
-      "value": "av69_erik_destroy"
-    }
-  ],
-  "av69_kara": [
-    {
-      "key": "av6A_kara_destroy",
-      "value": "av69_kara_destroy"
-    }
-  ],
-  "av69_lance": [
-    {
-      "key": "av6A_lance_destroy",
-      "value": "av69_lance_destroy"
-    }
-  ],
-  "av69_lily": [
-    {
-      "key": "av6A_lily_destroy",
-      "value": "av69_lily_destroy"
-    }
-  ],
-  "av69_neil": [
-    {
-      "key": "av6A_neil_destroy",
-      "value": "av69_neil_destroy"
-    }
-  ],
-  "btDE_kara_missing": [
-    {
-      "key": "btE3_kara_destroy",
-      "value": "btDE_kara_missing_destroy"
-    }
-  ],
   "btE1_comet_soon": [
     {
       "key": "COP \\[CopyPalette\\] \\( @pal_vampires, #00, #A0, #50 \\)",
@@ -113,30 +77,6 @@
       "value": "JSL $$@func_09E8E4"
     }
   ],
-  "dm47_imas": [
-    {
-      "key": "dm47_remus_destroy",
-      "value": "dm47_imas_destroy"
-    }
-  ],
-  "dm47_sam": [
-    {
-      "key": "dm47_remus_destroy",
-      "value": "dm47_sam_destroy"
-    }
-  ],
-  "eu9A_friezer": [
-    {
-      "key": "eu9A_max_destroy",
-      "value": "eu9A_friezer_destroy"
-    }
-  ],
-  "eu9A_rudy": [
-    {
-      "key": "eu9A_max_destroy",
-      "value": "eu9A_rudy_destroy"
-    }
-  ],
   "mtA0_skulker": [
     {
       "key": "sub_0B9CE8",
@@ -151,52 +91,54 @@
       "value": "loc2_0B9D0E"
     }
   ],
-  "mtA5_actor_07E843": [
+  "pyDA_lithograph2": [
     {
-      "key": "f_mtA2_actor_07E7F0_destroy",
-      "value": "f_mtA5_actor_07E843_destroy"
-    }
-  ],
-  "mtA5_actor_07E896": [
+      "key": "&widestring_08C88C",
+      "value": "&pyDA_lithograph1.widestring_08C7C9"
+    },
     {
-      "key": "f_mtA2_actor_07E7F0_destroy",
-      "value": "f_mtA5_actor_07E896_destroy"
-    }
-  ],
-  "nvAC_hand_man": [
-    {
-      "key": "nvAC_staring_man2_destroy",
-      "value": "nvAC_hand_man1_destroy"
-    }
-  ],
-  "pyDA_lithograph1": [
-    {
-      "key": "pyDA_lithograph2_full",
-      "value": "pyDA_lithograph1_full"
+      "key": "widestring_08C88C `[^`]*`\r?\n?",
+      "value": ""
     }
   ],
   "pyDA_lithograph3": [
     {
-      "key": "pyDA_lithograph2_full",
-      "value": "pyDA_lithograph3_full"
+      "key": "&widestring_08C934",
+      "value": "&pyDA_lithograph1.widestring_08C7C9"
+    },
+    {
+      "key": "widestring_08C934 `[^`]*`\r?\n?",
+      "value": ""
     }
   ],
   "pyDA_lithograph4": [
     {
-      "key": "pyDA_lithograph2_full",
-      "value": "pyDA_lithograph4_full"
+      "key": "&widestring_08C9DC",
+      "value": "&pyDA_lithograph1.widestring_08C7C9"
+    },
+    {
+      "key": "widestring_08C9DC `[^`]*`\r?\n?",
+      "value": ""
     }
   ],
   "pyDA_lithograph5": [
     {
-      "key": "pyDA_lithograph2_full",
-      "value": "pyDA_lithograph5_full"
+      "key": "&widestring_08CA84",
+      "value": "&pyDA_lithograph1.widestring_08C7C9"
+    },
+    {
+      "key": "widestring_08CA84 `[^`]*`\r?\n?",
+      "value": ""
     }
   ],
   "pyDA_lithograph6": [
     {
-      "key": "pyDA_lithograph2_full",
-      "value": "pyDA_lithograph6_full"
+      "key": "&widestring_08CB2C",
+      "value": "&pyDA_lithograph1.widestring_08C7C9"
+    },
+    {
+      "key": "widestring_08CB2C `[^`]*`\r?\n?",
+      "value": ""
     }
   ],
   "pyDD_teleporter": [
@@ -277,7 +219,7 @@
       "value": "mapdef_0041 [\r\n  ppu < #11 >"
     }
   ],
-  "thinker_00BBAF": [
+  "diary_menu_window_dma": [
     {
       "key": "(dma_data_00BC4C\\s\\[\\s*\\])[\\s]*(dma_data_00BC4D\\s\\[[^\\]]*\\])",
       "value": "$2\r\n\r\n$1"

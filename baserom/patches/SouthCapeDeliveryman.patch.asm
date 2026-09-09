@@ -3,11 +3,9 @@
 
 --------------------------------------------
 
-h_actor < #0A, #00, #10 >
-
---------------------------------------------
-
-skyd_main {
+actor_def < #0A, #00, #10, {
+  
+  skyd_main {
     COP [D0] ( #8D, #00, &skyd_destroy )
     COP [C0] ( &skyd_interact )
     COP [0B]
@@ -41,6 +39,7 @@ skyd_main {
     COP [26] ( #78, #$0160, #$0268, #07, #$4500 )
     RTL 
 }
+} >
 
 skyd_str_intro   `[DEF]I'm the Sky Deliveryman. [N]My tame birds [LU1:EF][LU1:E7][N]you to [LU1:85]towns. [FIN]Do you [LU1:F1]to[N]go to Watermia?[N] Quit[N] Go`
 skyd_str_cancel  `[CLR]OK. In [LU1:D7]case,[N]use [LU1:E6]later.[END]`

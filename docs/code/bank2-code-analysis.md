@@ -2,6 +2,11 @@
 
 > Deep analysis of IOG's bank 02 system code, covering purpose, calling conventions,
 > reference patterns, functional groupings, and proposed file splits.
+>
+> **Status:** ✅ All 206 names from this document are applied in `us/names.json`.
+> Block structure verified in `us/blocks.json` with scene metadata.
+> See [bank2-actors-and-menus.md](bank2-actors-and-menus.md) for the continuation
+> covering actors, player character, inventory, and utility functions (+271 names).
 
 ## 1. Overview
 
@@ -34,7 +39,7 @@ between the two files.
 
 **Include list from chunk_028000.asm header:**
 ```
-?INCLUDE 'array_01D3CE'        — event block definitions
+?INCLUDE 'event_block_table'    — event block definitions (field tile reveal table)
 ?INCLUDE 'binary_01C384'       — binary data (static)
 ?INCLUDE 'chunk_02CFD0'        — player movement engine
 ?INCLUDE 'chunk_03BAE1'        — scene loading orchestrator (bank 3)
@@ -385,7 +390,7 @@ revealing chests, etc.
 | `func_02A1E9` | 55 B | **Iterate all event blocks**: scan flag byte array at `$0A20`, for each set bit call `func_02A363` to look up the block definition, then `func_02A220` to apply it |
 | `func_02A220` | 240 B | **Apply event block**: swap foreground/background tile bytes in map RAM (`$7E:A000` / `$7F:C000`). Handles both layer-0-only and dual-layer (with overlay zero-skip) modes. Loops over columns/rows. |
 | `func_02A310` | 83 B | **Flush VRAM write queue**: drain queued `(VRAM_addr, tile_data)` entries from `$0800`+ stack. Also handles single-tile pair writes at `$0902–$090C`. |
-| `func_02A363` | 69 B | **Event block lookup**: index into `array_01D3CE` by block ID, verify scene match, extract geometry (position, size, layer flag). Returns carry clear if applicable. |
+| `func_02A363` | 69 B | **Event block lookup**: index into `event_block_table` by block ID, verify scene match, extract geometry (src position, size, dst position, layer flag). Returns carry clear if applicable. |
 | `func_02A3A8` | 357 B | **Animated event block**: like `func_02A220` but generates VRAM write queue entries for visible tiles and calls `UpdateFrame_Dialogue` to animate the change. Handles both direct and overlay-layer modes. |
 | `sub_02A50D` | 126 B | Bounds check a tile against camera viewport; if visible, queue 4 VRAM tile writes |
 | `sub_02A58B` | 38 B | Advance column pointer (decrement width counter, move tile indices right) |
@@ -714,7 +719,7 @@ primitives. All other coupling is one-directional or via JSL to shared utilities
 | **`system_init.asm`** | 7 | 8 | ~607 B | Boot-time only. Self-contained. |
 | **`music_actors.asm`** | 8 | 3 | ~219 B | COP-based actors, few deps. |
 | **`text_measure.asm`** | 9 | 3 | ~206 B | Text processing, references dictionaries. |
-| **`event_blocks.asm`** | 10 | 8 | ~1,012 B | Event flag → tile swap system. References `array_01D3CE` and map coord helpers. |
+| **`event_blocks.asm`** | 10 | 8 | ~1,012 B | Event flag → field tile reveal system. References `event_block_table` and map coord helpers. |
 | **`warps_interaction.asm`** | 11 | 12 | ~1,464 B | Warp detection + chest handling. References `scene_warps`, `table_01ADA8`, forced_walk. |
 
 **Remaining in chunk_028000.asm:** Groups 12 + 13 + 14 (~2,172 B) — camera/scrolling + map coords + collision probes. These form a cohesive "spatial engine" that should stay together or be renamed:
