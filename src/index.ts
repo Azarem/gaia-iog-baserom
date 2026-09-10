@@ -1,6 +1,6 @@
 import { fileURLToPath } from 'url';
 import { dirname, join, resolve } from 'path';
-import { DbBlock, DbFile, DbGroup, DbStringType, DbStruct, CopDef, DbFileType } from '@gaialabs/core';
+import { DbBlock, DbFile, DbGroup, DbStringType, DbStruct, CopDef, DbFileType, AsmBlock, saveFileAsText, RomProcessingConstants, crc32_buffer } from '@gaialabs/core';
 import { DbRootUtils } from '@gaialabs/core';
 import type { DbAddressingMode, DbConfig, DbGameRomModule } from '@gaialabs/core';
 import { snes } from '@gaialabs/core';
@@ -114,7 +114,30 @@ export async function rebuild(inPath: string, outPath: string, baseRomPath: stri
     
     var dbRoot = DbRootUtils.fromGameModule(db);
 
-    await DbRootUtils.rebuildAllContent(dbRoot, [inPath, baseRomPath, ...(modulePaths || [])], outPath);
+    const outData = await DbRootUtils.rebuildAllContent(dbRoot, [inPath, baseRomPath, ...(modulePaths || [])], outPath);
+    
+    const artifactPath = './artifacts';
+
+    const fileLayoutArtifact = outData.files.filter((file) => file.size > 0).sort((a, b) => a.location - b.location).map((file) => {
+        return `  "${file.location.toString(16).toUpperCase().padStart(6, '0')}" : "${file.name}"`;
+    });
+
+    const fileLayoutArtifactText = `{${RomProcessingConstants.NEWLINE}${fileLayoutArtifact.join(',' + RomProcessingConstants.NEWLINE)}${RomProcessingConstants.NEWLINE}}`;
+    await saveFileAsText(join(artifactPath, 'file-layout.json'), fileLayoutArtifactText);
+
+    const masterArtifact = Object.entries(outData.masterLookup)
+      .filter((entry) => !entry[0].match(/[!+-]$/))
+      .sort((a, b) => a[1].location - b[1].location)
+      .map((entry) => {
+        return `  "${entry[0]}": "${entry[1].location.toString(16).toUpperCase().padStart(6, '0')}"`;
+    });
+
+    const masterArtifactText = `{${RomProcessingConstants.NEWLINE}${masterArtifact.join(',' + RomProcessingConstants.NEWLINE)}${RomProcessingConstants.NEWLINE}}`;
+    await saveFileAsText(join(artifactPath, 'master-lookup.json'), masterArtifactText);
+
+    const crc = crc32_buffer(outData.romData);
+    const crcText = (crc < 0 ? (crc >>> 0) : crc).toString(16).toUpperCase().padStart(8, '0');
+    await saveFileAsText(join(artifactPath, 'crc.txt'), crcText);
 }
 
 export async function rebuildJp(inPath: string, outPath: string, baseRomPath: string, modulePaths?: string[]) {

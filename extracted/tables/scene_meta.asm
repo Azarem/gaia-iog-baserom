@@ -1,271 +1,271 @@
 ---------------------------------------------
 
 scene-meta_list [
-  &scene-meta_0000   ;00
-  &scene-meta_0001   ;01
-  &scene-meta_0002   ;02
-  &scene-meta_0003   ;03
-  &scene-meta_0004   ;04
-  &scene-meta_0005   ;05
-  &scene-meta_0006   ;06
-  &scene-meta_0007   ;07
-  &scene-meta_0008   ;08
+  &scene_meta_0000   ;00
+  &scene_meta_0001   ;01
+  &scene_meta_0002   ;02
+  &scene_meta_0003   ;03
+  &scene_meta_0004   ;04
+  &scene_meta_0005   ;05
+  &scene_meta_0006   ;06
+  &scene_meta_0007   ;07
+  &scene_meta_0008   ;08
   #$0000   ;09
-  &scene-meta_000A   ;0A
-  &scene-meta_000B   ;0B
-  &scene-meta_000C   ;0C
-  &scene-meta_000D   ;0D
-  &scene-meta_000E   ;0E
-  &scene-meta_000F   ;0F
-  &scene-meta_0010   ;10
-  &scene-meta_0011   ;11
-  &scene-meta_0012   ;12
-  &scene-meta_0013   ;13
-  &scene-meta_0014   ;14
-  &scene-meta_0015   ;15
-  &scene-meta_0016   ;16
-  &scene-meta_0017   ;17
-  &scene-meta_0018   ;18
-  &scene-meta_0019   ;19
-  &scene-meta_001A   ;1A
-  &scene-meta_001B   ;1B
-  &scene-meta_001C   ;1C
-  &scene-meta_001D   ;1D
-  &scene-meta_001E   ;1E
-  &scene-meta_001F   ;1F
-  &scene-meta_0020   ;20
-  &scene-meta_0021   ;21
-  &scene-meta_0022   ;22
-  &scene-meta_0023   ;23
-  &scene-meta_0024   ;24
-  &scene-meta_0025   ;25
-  &scene-meta_0026   ;26
-  &scene-meta_0027   ;27
-  &scene-meta_0028   ;28
-  &scene-meta_0029   ;29
-  &scene-meta_002A   ;2A
-  &scene-meta_002B   ;2B
-  &scene-meta_002C   ;2C
-  &scene-meta_002D   ;2D
-  &scene-meta_002E   ;2E
-  &scene-meta_002F   ;2F
-  &scene-meta_0030   ;30
-  &scene-meta_0031   ;31
-  &scene-meta_0032   ;32
-  &scene-meta_0033   ;33
-  &scene-meta_0034   ;34
-  &scene-meta_0035   ;35
-  &scene-meta_0036   ;36
-  &scene-meta_0037   ;37
-  &scene-meta_0038   ;38
-  &scene-meta_0039   ;39
-  &scene-meta_003A   ;3A
-  &scene-meta_003B   ;3B
-  &scene-meta_003C   ;3C
-  &scene-meta_003D   ;3D
-  &scene-meta_003E   ;3E
-  &scene-meta_003F   ;3F
-  &scene-meta_0040   ;40
-  &scene-meta_0041   ;41
-  &scene-meta_0042   ;42
-  &scene-meta_0043   ;43
-  &scene-meta_0044   ;44
-  &scene-meta_0045   ;45
-  &scene-meta_0046   ;46
-  &scene-meta_0047   ;47
+  &scene_meta_000A   ;0A
+  &scene_meta_000B   ;0B
+  &scene_meta_000C   ;0C
+  &scene_meta_000D   ;0D
+  &scene_meta_000E   ;0E
+  &scene_meta_000F   ;0F
+  &scene_meta_0010   ;10
+  &scene_meta_0011   ;11
+  &scene_meta_0012   ;12
+  &scene_meta_0013   ;13
+  &scene_meta_0014   ;14
+  &scene_meta_0015   ;15
+  &scene_meta_0016   ;16
+  &scene_meta_0017   ;17
+  &scene_meta_0018   ;18
+  &scene_meta_0019   ;19
+  &scene_meta_001A   ;1A
+  &scene_meta_001B   ;1B
+  &scene_meta_001C   ;1C
+  &scene_meta_001D   ;1D
+  &scene_meta_001E   ;1E
+  &scene_meta_001F   ;1F
+  &scene_meta_0020   ;20
+  &scene_meta_0021   ;21
+  &scene_meta_0022   ;22
+  &scene_meta_0023   ;23
+  &scene_meta_0024   ;24
+  &scene_meta_0025   ;25
+  &scene_meta_0026   ;26
+  &scene_meta_0027   ;27
+  &scene_meta_0028   ;28
+  &scene_meta_0029   ;29
+  &scene_meta_002A   ;2A
+  &scene_meta_002B   ;2B
+  &scene_meta_002C   ;2C
+  &scene_meta_002D   ;2D
+  &scene_meta_002E   ;2E
+  &scene_meta_002F   ;2F
+  &scene_meta_0030   ;30
+  &scene_meta_0031   ;31
+  &scene_meta_0032   ;32
+  &scene_meta_0033   ;33
+  &scene_meta_0034   ;34
+  &scene_meta_0035   ;35
+  &scene_meta_0036   ;36
+  &scene_meta_0037   ;37
+  &scene_meta_0038   ;38
+  &scene_meta_0039   ;39
+  &scene_meta_003A   ;3A
+  &scene_meta_003B   ;3B
+  &scene_meta_003C   ;3C
+  &scene_meta_003D   ;3D
+  &scene_meta_003E   ;3E
+  &scene_meta_003F   ;3F
+  &scene_meta_0040   ;40
+  &scene_meta_0041   ;41
+  &scene_meta_0042   ;42
+  &scene_meta_0043   ;43
+  &scene_meta_0044   ;44
+  &scene_meta_0045   ;45
+  &scene_meta_0046   ;46
+  &scene_meta_0047   ;47
   #$0000   ;48
-  &scene-meta_0049   ;49
+  &scene_meta_0049   ;49
   #$0000   ;4A
-  &scene-meta_004B   ;4B
-  &scene-meta_004C   ;4C
-  &scene-meta_004D   ;4D
-  &scene-meta_004E   ;4E
-  &scene-meta_004F   ;4F
-  &scene-meta_0050   ;50
-  &scene-meta_0051   ;51
-  &scene-meta_0052   ;52
-  &scene-meta_0053   ;53
-  &scene-meta_0054   ;54
-  &scene-meta_0055   ;55
-  &scene-meta_0056   ;56
+  &scene_meta_004B   ;4B
+  &scene_meta_004C   ;4C
+  &scene_meta_004D   ;4D
+  &scene_meta_004E   ;4E
+  &scene_meta_004F   ;4F
+  &scene_meta_0050   ;50
+  &scene_meta_0051   ;51
+  &scene_meta_0052   ;52
+  &scene_meta_0053   ;53
+  &scene_meta_0054   ;54
+  &scene_meta_0055   ;55
+  &scene_meta_0056   ;56
   #$0000   ;57
-  &scene-meta_0058   ;58
-  &scene-meta_0059   ;59
-  &scene-meta_005A   ;5A
-  &scene-meta_005B   ;5B
-  &scene-meta_005C   ;5C
-  &scene-meta_005D   ;5D
-  &scene-meta_005E   ;5E
-  &scene-meta_005F   ;5F
-  &scene-meta_0060   ;60
-  &scene-meta_0061   ;61
-  &scene-meta_0062   ;62
-  &scene-meta_0063   ;63
-  &scene-meta_0064   ;64
-  &scene-meta_0065   ;65
-  &scene-meta_0066   ;66
-  &scene-meta_0067   ;67
-  &scene-meta_0068   ;68
-  &scene-meta_0069   ;69
-  &scene-meta_006A   ;6A
-  &scene-meta_006B   ;6B
-  &scene-meta_006C   ;6C
-  &scene-meta_006D   ;6D
-  &scene-meta_006E   ;6E
-  &scene-meta_006F   ;6F
-  &scene-meta_0070   ;70
-  &scene-meta_0071   ;71
-  &scene-meta_0072   ;72
-  &scene-meta_0073   ;73
-  &scene-meta_0074   ;74
-  &scene-meta_0075   ;75
+  &scene_meta_0058   ;58
+  &scene_meta_0059   ;59
+  &scene_meta_005A   ;5A
+  &scene_meta_005B   ;5B
+  &scene_meta_005C   ;5C
+  &scene_meta_005D   ;5D
+  &scene_meta_005E   ;5E
+  &scene_meta_005F   ;5F
+  &scene_meta_0060   ;60
+  &scene_meta_0061   ;61
+  &scene_meta_0062   ;62
+  &scene_meta_0063   ;63
+  &scene_meta_0064   ;64
+  &scene_meta_0065   ;65
+  &scene_meta_0066   ;66
+  &scene_meta_0067   ;67
+  &scene_meta_0068   ;68
+  &scene_meta_0069   ;69
+  &scene_meta_006A   ;6A
+  &scene_meta_006B   ;6B
+  &scene_meta_006C   ;6C
+  &scene_meta_006D   ;6D
+  &scene_meta_006E   ;6E
+  &scene_meta_006F   ;6F
+  &scene_meta_0070   ;70
+  &scene_meta_0071   ;71
+  &scene_meta_0072   ;72
+  &scene_meta_0073   ;73
+  &scene_meta_0074   ;74
+  &scene_meta_0075   ;75
   #$0000   ;76
   #$0000   ;77
-  &scene-meta_0078   ;78
-  &scene-meta_0079   ;79
-  &scene-meta_007A   ;7A
-  &scene-meta_007B   ;7B
-  &scene-meta_007C   ;7C
-  &scene-meta_007D   ;7D
-  &scene-meta_007E   ;7E
-  &scene-meta_007F   ;7F
+  &scene_meta_0078   ;78
+  &scene_meta_0079   ;79
+  &scene_meta_007A   ;7A
+  &scene_meta_007B   ;7B
+  &scene_meta_007C   ;7C
+  &scene_meta_007D   ;7D
+  &scene_meta_007E   ;7E
+  &scene_meta_007F   ;7F
   #$0000   ;80
   #$0000   ;81
-  &scene-meta_0082   ;82
-  &scene-meta_0083   ;83
+  &scene_meta_0082   ;82
+  &scene_meta_0083   ;83
   #$0000   ;84
-  &scene-meta_0085   ;85
-  &scene-meta_0086   ;86
-  &scene-meta_0087   ;87
-  &scene-meta_0088   ;88
-  &scene-meta_0089   ;89
-  &scene-meta_008A   ;8A
-  &scene-meta_008B   ;8B
-  &scene-meta_008C   ;8C
-  &scene-meta_008D   ;8D
-  &scene-meta_008E   ;8E
-  &scene-meta_008F   ;8F
-  &scene-meta_0090   ;90
-  &scene-meta_0091   ;91
-  &scene-meta_0092   ;92
-  &scene-meta_0093   ;93
-  &scene-meta_0094   ;94
-  &scene-meta_0095   ;95
-  &scene-meta_0096   ;96
-  &scene-meta_0097   ;97
-  &scene-meta_0098   ;98
-  &scene-meta_0099   ;99
-  &scene-meta_009A   ;9A
-  &scene-meta_009B   ;9B
-  &scene-meta_009C   ;9C
-  &scene-meta_009D   ;9D
+  &scene_meta_0085   ;85
+  &scene_meta_0086   ;86
+  &scene_meta_0087   ;87
+  &scene_meta_0088   ;88
+  &scene_meta_0089   ;89
+  &scene_meta_008A   ;8A
+  &scene_meta_008B   ;8B
+  &scene_meta_008C   ;8C
+  &scene_meta_008D   ;8D
+  &scene_meta_008E   ;8E
+  &scene_meta_008F   ;8F
+  &scene_meta_0090   ;90
+  &scene_meta_0091   ;91
+  &scene_meta_0092   ;92
+  &scene_meta_0093   ;93
+  &scene_meta_0094   ;94
+  &scene_meta_0095   ;95
+  &scene_meta_0096   ;96
+  &scene_meta_0097   ;97
+  &scene_meta_0098   ;98
+  &scene_meta_0099   ;99
+  &scene_meta_009A   ;9A
+  &scene_meta_009B   ;9B
+  &scene_meta_009C   ;9C
+  &scene_meta_009D   ;9D
   #$0000   ;9E
   #$0000   ;9F
-  &scene-meta_00A0   ;A0
-  &scene-meta_00A1   ;A1
-  &scene-meta_00A2   ;A2
-  &scene-meta_00A3   ;A3
-  &scene-meta_00A4   ;A4
-  &scene-meta_00A5   ;A5
-  &scene-meta_00A6   ;A6
-  &scene-meta_00A7   ;A7
-  &scene-meta_00A8   ;A8
-  &scene-meta_00A9   ;A9
+  &scene_meta_00A0   ;A0
+  &scene_meta_00A1   ;A1
+  &scene_meta_00A2   ;A2
+  &scene_meta_00A3   ;A3
+  &scene_meta_00A4   ;A4
+  &scene_meta_00A5   ;A5
+  &scene_meta_00A6   ;A6
+  &scene_meta_00A7   ;A7
+  &scene_meta_00A8   ;A8
+  &scene_meta_00A9   ;A9
   #$0000   ;AA
   #$0000   ;AB
-  &scene-meta_00AC   ;AC
-  &scene-meta_00AD   ;AD
-  &scene-meta_00AE   ;AE
+  &scene_meta_00AC   ;AC
+  &scene_meta_00AD   ;AD
+  &scene_meta_00AE   ;AE
   #$0000   ;AF
-  &scene-meta_00B0   ;B0
-  &scene-meta_00B1   ;B1
-  &scene-meta_00B2   ;B2
-  &scene-meta_00B3   ;B3
-  &scene-meta_00B4   ;B4
-  &scene-meta_00B5   ;B5
-  &scene-meta_00B6   ;B6
-  &scene-meta_00B7   ;B7
-  &scene-meta_00B8   ;B8
-  &scene-meta_00B9   ;B9
-  &scene-meta_00BA   ;BA
-  &scene-meta_00BB   ;BB
-  &scene-meta_00BC   ;BC
-  &scene-meta_00BD   ;BD
-  &scene-meta_00BE   ;BE
-  &scene-meta_00BF   ;BF
-  &scene-meta_00C0   ;C0
+  &scene_meta_00B0   ;B0
+  &scene_meta_00B1   ;B1
+  &scene_meta_00B2   ;B2
+  &scene_meta_00B3   ;B3
+  &scene_meta_00B4   ;B4
+  &scene_meta_00B5   ;B5
+  &scene_meta_00B6   ;B6
+  &scene_meta_00B7   ;B7
+  &scene_meta_00B8   ;B8
+  &scene_meta_00B9   ;B9
+  &scene_meta_00BA   ;BA
+  &scene_meta_00BB   ;BB
+  &scene_meta_00BC   ;BC
+  &scene_meta_00BD   ;BD
+  &scene_meta_00BE   ;BE
+  &scene_meta_00BF   ;BF
+  &scene_meta_00C0   ;C0
   #$0000   ;C1
   #$0000   ;C2
-  &scene-meta_00C3   ;C3
-  &scene-meta_00C4   ;C4
-  &scene-meta_00C5   ;C5
-  &scene-meta_00C6   ;C6
-  &scene-meta_00C7   ;C7
-  &scene-meta_00C8   ;C8
-  &scene-meta_00C9   ;C9
+  &scene_meta_00C3   ;C3
+  &scene_meta_00C4   ;C4
+  &scene_meta_00C5   ;C5
+  &scene_meta_00C6   ;C6
+  &scene_meta_00C7   ;C7
+  &scene_meta_00C8   ;C8
+  &scene_meta_00C9   ;C9
   #$0000   ;CA
   #$0000   ;CB
-  &scene-meta_00CC   ;CC
-  &scene-meta_00CD   ;CD
-  &scene-meta_00CE   ;CE
-  &scene-meta_00CF   ;CF
-  &scene-meta_00D0   ;D0
-  &scene-meta_00D1   ;D1
-  &scene-meta_00D2   ;D2
-  &scene-meta_00D3   ;D3
-  &scene-meta_00D4   ;D4
-  &scene-meta_00D5   ;D5
-  &scene-meta_00D6   ;D6
-  &scene-meta_00D7   ;D7
-  &scene-meta_00D8   ;D8
-  &scene-meta_00D9   ;D9
-  &scene-meta_00DA   ;DA
-  &scene-meta_00DB   ;DB
-  &scene-meta_00DC   ;DC
-  &scene-meta_00DD   ;DD
-  &scene-meta_00DE   ;DE
-  &scene-meta_00DF   ;DF
-  &scene-meta_00E0   ;E0
-  &scene-meta_00E1   ;E1
-  &scene-meta_00E2   ;E2
-  &scene-meta_00E3   ;E3
-  &scene-meta_00E4   ;E4
-  &scene-meta_00E5   ;E5
-  &scene-meta_00E6   ;E6
-  &scene-meta_00E7   ;E7
-  &scene-meta_00E8   ;E8
-  &scene-meta_00E9   ;E9
-  &scene-meta_00EA   ;EA
+  &scene_meta_00CC   ;CC
+  &scene_meta_00CD   ;CD
+  &scene_meta_00CE   ;CE
+  &scene_meta_00CF   ;CF
+  &scene_meta_00D0   ;D0
+  &scene_meta_00D1   ;D1
+  &scene_meta_00D2   ;D2
+  &scene_meta_00D3   ;D3
+  &scene_meta_00D4   ;D4
+  &scene_meta_00D5   ;D5
+  &scene_meta_00D6   ;D6
+  &scene_meta_00D7   ;D7
+  &scene_meta_00D8   ;D8
+  &scene_meta_00D9   ;D9
+  &scene_meta_00DA   ;DA
+  &scene_meta_00DB   ;DB
+  &scene_meta_00DC   ;DC
+  &scene_meta_00DD   ;DD
+  &scene_meta_00DE   ;DE
+  &scene_meta_00DF   ;DF
+  &scene_meta_00E0   ;E0
+  &scene_meta_00E1   ;E1
+  &scene_meta_00E2   ;E2
+  &scene_meta_00E3   ;E3
+  &scene_meta_00E4   ;E4
+  &scene_meta_00E5   ;E5
+  &scene_meta_00E6   ;E6
+  &scene_meta_00E7   ;E7
+  &scene_meta_00E8   ;E8
+  &scene_meta_00E9   ;E9
+  &scene_meta_00EA   ;EA
   #$0000   ;EB
   #$0000   ;EC
   #$0000   ;ED
   #$0000   ;EE
   #$0000   ;EF
-  &scene-meta_00F0   ;F0
+  &scene_meta_00F0   ;F0
   #$0000   ;F1
-  &scene-meta_00F2   ;F2
-  &scene-meta_00F3   ;F3
-  &scene-meta_00F4   ;F4
-  &scene-meta_00F5   ;F5
-  &scene-meta_00F6   ;F6
-  &scene-meta_00F7   ;F7
+  &scene_meta_00F2   ;F2
+  &scene_meta_00F3   ;F3
+  &scene_meta_00F4   ;F4
+  &scene_meta_00F5   ;F5
+  &scene_meta_00F6   ;F6
+  &scene_meta_00F7   ;F7
   #$0000   ;F8
-  &scene-meta_00F9   ;F9
-  &scene-meta_00FA   ;FA
-  &scene-meta_00FB   ;FB
-  &scene-meta_00FC   ;FC
-  &scene-meta_00FD   ;FD
-  &scene-meta_00FE   ;FE
-  &scene-meta_00FF   ;FF
+  &scene_meta_00F9   ;F9
+  &scene_meta_00FA   ;FA
+  &scene_meta_00FB   ;FB
+  &scene_meta_00FC   ;FC
+  &scene_meta_00FD   ;FD
+  &scene_meta_00FE   ;FE
+  &scene_meta_00FF   ;FF
 ]
 
-scene-meta_0000 [
+scene_meta_0000 [
   display-mode < #00 >   ;00
   bitmap < #00, #20, #00, @gfx_fonts, #02 >   ;01
   palette < #00, #80, #80, @pal_southcape_sprites >   ;02
 ]
 
-scene-meta_0001 [
+scene_meta_0001 [
   display-mode < #03 >   ;00
   music < #1C, #00, @bgm_lively_city_by_the_sea >   ;01
   bitmap < #00, #10, #00, @gfx_southcape, #00 >   ;02
@@ -281,7 +281,7 @@ scene-meta_0001 [
   spritemap < #$17F4, #00, @spm_southcape_sprites >   ;0C
 ]
 
-scene-meta_0002 [
+scene_meta_0002 [
   display-mode < #05 >   ;00
   music < #1C, #00, @bgm_lively_city_by_the_sea >   ;01
   tilemap < #01, @map_sc02 >   ;02
@@ -294,7 +294,7 @@ scene-meta_0002 [
   spritemap < #$1463, #00, @spm_sc02_main_characters >   ;09
 ]
 
-scene-meta_0003 [
+scene_meta_0003 [
   display-mode < #01 >   ;00
   music < #1C, #00, @bgm_lively_city_by_the_sea >   ;01
   tilemap < #01, @map_sc03 >   ;02
@@ -308,7 +308,7 @@ scene-meta_0003 [
   jump < #3E >   ;0A
 ]
 
-scene-meta_0004 [
+scene_meta_0004 [
   display-mode < #01 >   ;00
   music < #1C, #00, @bgm_lively_city_by_the_sea >   ;01
   palette < #00, #70, #10, @pal_southcape_interior_2 >   ;02
@@ -317,7 +317,7 @@ scene-meta_0004 [
   jump < #01 >   ;05
 ]
 
-scene-meta_0005 [
+scene_meta_0005 [
   display-mode < #01 >   ;00
   music < #1C, #00, @bgm_lively_city_by_the_sea >   ;01
   palette < #00, #70, #10, @pal_southcape_interior >   ;02
@@ -326,7 +326,7 @@ scene-meta_0005 [
   jump < #01 >   ;05
 ]
 
-scene-meta_0006 [
+scene_meta_0006 [
   display-mode < #01 >   ;00
   music < #1C, #00, @bgm_lively_city_by_the_sea >   ;01
   music < #1B, #01, @bgm_no_music >   ;02
@@ -351,7 +351,7 @@ scene-meta_0006 [
   tileset < #00, #20, #00, #02, @set_southcape_effect >   ;15
 ]
 
-scene-meta_0007 [
+scene_meta_0007 [
   display-mode < #01 >   ;00
   music < #1C, #00, @bgm_lively_city_by_the_sea >   ;01
   palette < #00, #70, #10, @pal_southcape_interior >   ;02
@@ -360,7 +360,7 @@ scene-meta_0007 [
   jump < #01 >   ;05
 ]
 
-scene-meta_0008 [
+scene_meta_0008 [
   display-mode < #01 >   ;00
   music < #1C, #00, @bgm_lively_city_by_the_sea >   ;01
   bitmap < #00, #10, #00, @gfx_southcape_interior, #00 >   ;02
@@ -373,7 +373,7 @@ scene-meta_0008 [
   jump < #03 >   ;09
 ]
 
-scene-meta_000A [
+scene_meta_000A [
   display-mode < #02 >   ;00
   music < #05, #00, @bgm_royal_anthem >   ;01
   bitmap < #00, #20, #00, @gfx_castle, #00 >   ;02
@@ -387,7 +387,7 @@ scene-meta_000A [
   spritemap < #$12D9, #00, @spm_castle_sprites >   ;0A
 ]
 
-scene-meta_000B [
+scene_meta_000B [
   display-mode < #06 >   ;00
   music < #1B, #00, @bgm_no_music >   ;01
   bitmap < #00, #10, #00, @gfx_prison, #00 >   ;02
@@ -402,7 +402,7 @@ scene-meta_000B [
   spritemap < #$1279, #00, @spm_sc06_castle_actors >   ;0B
 ]
 
-scene-meta_000C [
+scene_meta_000C [
   display-mode < #05 >   ;00
   music < #06, #00, @bgm_descent_into_darkness >   ;01
   tilemap < #01, @map_ec0C >   ;02
@@ -418,7 +418,7 @@ scene-meta_000C [
   tileset < #00, #20, #00, #02, @set_southcape_effect >   ;0C
 ]
 
-scene-meta_000D [
+scene_meta_000D [
   display-mode < #03 >   ;00
   music < #06, #00, @bgm_descent_into_darkness >   ;01
   tilemap < #01, @map_ec0D >   ;02
@@ -426,7 +426,7 @@ scene-meta_000D [
   jump < #02 >   ;04
 ]
 
-scene-meta_000E [
+scene_meta_000E [
   display-mode < #03 >   ;00
   music < #06, #00, @bgm_descent_into_darkness >   ;01
   tilemap < #01, @map_ec0E >   ;02
@@ -434,7 +434,7 @@ scene-meta_000E [
   jump < #02 >   ;04
 ]
 
-scene-meta_000F [
+scene_meta_000F [
   display-mode < #03 >   ;00
   music < #06, #00, @bgm_descent_into_darkness >   ;01
   tilemap < #01, @map_ec0F >   ;02
@@ -442,7 +442,7 @@ scene-meta_000F [
   jump < #02 >   ;04
 ]
 
-scene-meta_0010 [
+scene_meta_0010 [
   display-mode < #05 >   ;00
   music < #06, #00, @bgm_descent_into_darkness >   ;01
   tilemap < #01, @map_ec10 >   ;02
@@ -452,14 +452,14 @@ scene-meta_0010 [
   jump < #30 >   ;06
 ]
 
-scene-meta_0011 [
+scene_meta_0011 [
   display-mode < #0B >   ;00
   music < #06, #00, @bgm_descent_into_darkness >   ;01
   tilemap < #01, @map_ec11 >   ;02
   jump < #02 >   ;03
 ]
 
-scene-meta_0012 [
+scene_meta_0012 [
   display-mode < #03 >   ;00
   music < #06, #00, @bgm_descent_into_darkness >   ;01
   tilemap < #01, @map_ec12 >   ;02
@@ -467,7 +467,7 @@ scene-meta_0012 [
   jump < #02 >   ;04
 ]
 
-scene-meta_0013 [
+scene_meta_0013 [
   display-mode < #08 >   ;00
   music < #06, #00, @bgm_descent_into_darkness >   ;01
   bitmap < #00, #10, #00, @gfx_prison, #00 >   ;02
@@ -480,11 +480,11 @@ scene-meta_0013 [
   jump < #03 >   ;09
 ]
 
-scene-meta_0014 [
+scene_meta_0014 [
   display-mode < #00 >
 ]
 
-scene-meta_0015 [
+scene_meta_0015 [
   display-mode < #04 >   ;00
   music < #03, #00, @bgm_blessing_of_nature >   ;01
   tilemap < #01, @map_it15 >   ;02
@@ -500,7 +500,7 @@ scene-meta_0015 [
   spritemap < #$14DB, #00, @spm_itory_sprites >   ;0C
 ]
 
-scene-meta_0016 [
+scene_meta_0016 [
   display-mode < #01 >   ;00
   music < #03, #00, @bgm_blessing_of_nature >   ;01
   tilemap < #01, @map_it16 >   ;02
@@ -514,7 +514,7 @@ scene-meta_0016 [
   jump < #04 >   ;0A
 ]
 
-scene-meta_0017 [
+scene_meta_0017 [
   display-mode < #01 >   ;00
   music < #03, #00, @bgm_blessing_of_nature >   ;01
   tilemap < #01, @map_it17 >   ;02
@@ -522,7 +522,7 @@ scene-meta_0017 [
   jump < #08 >   ;04
 ]
 
-scene-meta_0018 [
+scene_meta_0018 [
   display-mode < #01 >   ;00
   music < #03, #00, @bgm_blessing_of_nature >   ;01
   tilemap < #01, @map_it18 >   ;02
@@ -530,7 +530,7 @@ scene-meta_0018 [
   jump < #08 >   ;04
 ]
 
-scene-meta_0019 [
+scene_meta_0019 [
   display-mode < #05 >   ;00
   music < #04, #00, @bgm_ominous_whispers >   ;01
   bitmap < #00, #10, #00, @gfx_cave, #00 >   ;02
@@ -540,7 +540,7 @@ scene-meta_0019 [
   jump < #04 >   ;06
 ]
 
-scene-meta_001A [
+scene_meta_001A [
   display-mode < #04 >   ;00
   music < #04, #00, @bgm_ominous_whispers >   ;01
   bitmap < #00, #10, #00, @gfx_itory, #00 >   ;02
@@ -553,7 +553,7 @@ scene-meta_001A [
   jump < #04 >   ;09
 ]
 
-scene-meta_001B [
+scene_meta_001B [
   display-mode < #05 >   ;00
   music < #06, #00, @bgm_descent_into_darkness >   ;01
   bitmap < #00, #10, #00, @gfx_cave, #00 >   ;02
@@ -563,7 +563,7 @@ scene-meta_001B [
   jump < #05 >   ;06
 ]
 
-scene-meta_001C [
+scene_meta_001C [
   display-mode < #04 >   ;00
   music < #04, #00, @bgm_ominous_whispers >   ;01
   bitmap < #00, #10, #00, @gfx_itory, #00 >   ;02
@@ -576,7 +576,7 @@ scene-meta_001C [
   jump < #04 >   ;09
 ]
 
-scene-meta_001D [
+scene_meta_001D [
   display-mode < #0F >   ;00
   music < #07, #00, @bgm_awakening_the_wind >   ;01
   bitmap < #00, #20, #00, @gfx_cliff, #00 >   ;02
@@ -591,7 +591,7 @@ scene-meta_001D [
   spritemap < #$0F2A, #00, @spm_cliff_enemies >   ;0B
 ]
 
-scene-meta_001E [
+scene_meta_001E [
   display-mode < #18 >   ;00
   music < #07, #00, @bgm_awakening_the_wind >   ;01
   bitmap < #00, #20, #00, @gfx_cliff, #00 >   ;02
@@ -603,7 +603,7 @@ scene-meta_001E [
   jump < #05 >   ;08
 ]
 
-scene-meta_001F [
+scene_meta_001F [
   display-mode < #08 >   ;00
   music < #07, #00, @bgm_awakening_the_wind >   ;01
   bitmap < #00, #10, #00, @gfx_ruins, #00 >   ;02
@@ -616,7 +616,7 @@ scene-meta_001F [
   spritemap < #$2336, #00, @spm_ruins_enemies >   ;09
 ]
 
-scene-meta_0020 [
+scene_meta_0020 [
   display-mode < #08 >   ;00
   music < #07, #00, @bgm_awakening_the_wind >   ;01
   bitmap < #00, #10, #00, @gfx_ruins, #00 >   ;02
@@ -626,7 +626,7 @@ scene-meta_0020 [
   jump < #05 >   ;06
 ]
 
-scene-meta_0021 [
+scene_meta_0021 [
   display-mode < #08 >   ;00
   music < #07, #00, @bgm_awakening_the_wind >   ;01
   bitmap < #00, #10, #00, @gfx_ruins, #00 >   ;02
@@ -636,7 +636,7 @@ scene-meta_0021 [
   jump < #06 >   ;06
 ]
 
-scene-meta_0022 [
+scene_meta_0022 [
   display-mode < #08 >   ;00
   music < #07, #00, @bgm_awakening_the_wind >   ;01
   bitmap < #00, #10, #00, @gfx_ruins, #00 >   ;02
@@ -646,7 +646,7 @@ scene-meta_0022 [
   jump < #06 >   ;06
 ]
 
-scene-meta_0023 [
+scene_meta_0023 [
   display-mode < #0A >   ;00
   music < #07, #00, @bgm_awakening_the_wind >   ;01
   bitmap < #00, #10, #00, @gfx_ruins, #00 >   ;02
@@ -659,7 +659,7 @@ scene-meta_0023 [
   jump < #06 >   ;09
 ]
 
-scene-meta_0024 [
+scene_meta_0024 [
   display-mode < #11 >   ;00
   music < #07, #00, @bgm_awakening_the_wind >   ;01
   bitmap < #00, #10, #00, @gfx_ruins, #00 >   ;02
@@ -672,7 +672,7 @@ scene-meta_0024 [
   jump < #06 >   ;09
 ]
 
-scene-meta_0025 [
+scene_meta_0025 [
   display-mode < #08 >   ;00
   music < #07, #00, @bgm_awakening_the_wind >   ;01
   bitmap < #00, #10, #00, @gfx_ruins, #00 >   ;02
@@ -682,7 +682,7 @@ scene-meta_0025 [
   jump < #05 >   ;06
 ]
 
-scene-meta_0026 [
+scene_meta_0026 [
   display-mode < #08 >   ;00
   music < #07, #00, @bgm_awakening_the_wind >   ;01
   bitmap < #00, #10, #00, @gfx_ruins, #00 >   ;02
@@ -692,7 +692,7 @@ scene-meta_0026 [
   jump < #05 >   ;06
 ]
 
-scene-meta_0027 [
+scene_meta_0027 [
   display-mode < #0A >   ;00
   music < #07, #00, @bgm_awakening_the_wind >   ;01
   bitmap < #00, #10, #00, @gfx_ruins, #00 >   ;02
@@ -705,7 +705,7 @@ scene-meta_0027 [
   jump < #05 >   ;09
 ]
 
-scene-meta_0028 [
+scene_meta_0028 [
   display-mode < #08 >   ;00
   music < #07, #00, @bgm_awakening_the_wind >   ;01
   bitmap < #00, #10, #00, @gfx_ruins, #00 >   ;02
@@ -715,7 +715,7 @@ scene-meta_0028 [
   jump < #05 >   ;06
 ]
 
-scene-meta_0029 [
+scene_meta_0029 [
   display-mode < #07 >   ;00
   music < #07, #00, @bgm_awakening_the_wind >   ;01
   bitmap < #00, #10, #00, @gfx_ruins, #00 >   ;02
@@ -731,7 +731,7 @@ scene-meta_0029 [
   spritemap < #$1B63, #00, @spm_castoth >   ;0C
 ]
 
-scene-meta_002A [
+scene_meta_002A [
   display-mode < #01 >   ;00
   music < #11, #00, @bgm_deep_sadness >   ;01
   bitmap < #00, #10, #00, @gfx_southcape_interior, #00 >   ;02
@@ -744,7 +744,7 @@ scene-meta_002A [
   jump < #04 >   ;09
 ]
 
-scene-meta_002B [
+scene_meta_002B [
   display-mode < #0D >   ;00
   music < #04, #00, @bgm_ominous_whispers >   ;01
   music < #06, #01, @bgm_descent_into_darkness >   ;02
@@ -759,7 +759,7 @@ scene-meta_002B [
   jump < #03 >   ;0B
 ]
 
-scene-meta_002C [
+scene_meta_002C [
   display-mode < #0D >   ;00
   music < #04, #00, @bgm_ominous_whispers >   ;01
   music < #06, #01, @bgm_descent_into_darkness >   ;02
@@ -776,7 +776,7 @@ scene-meta_002C [
   spritemap < #$0A91, #00, @spm_goldship_sprites >   ;0D
 ]
 
-scene-meta_002D [
+scene_meta_002D [
   display-mode < #02 >   ;00
   music < #04, #00, @bgm_ominous_whispers >   ;01
   music < #06, #01, @bgm_descent_into_darkness >   ;02
@@ -790,7 +790,7 @@ scene-meta_002D [
   jump < #03 >   ;0A
 ]
 
-scene-meta_002E [
+scene_meta_002E [
   display-mode < #02 >   ;00
   music < #04, #00, @bgm_ominous_whispers >   ;01
   music < #06, #01, @bgm_descent_into_darkness >   ;02
@@ -804,7 +804,7 @@ scene-meta_002E [
   jump < #3F >   ;0A
 ]
 
-scene-meta_002F [
+scene_meta_002F [
   display-mode < #0D >   ;00
   music < #15, #00, @bgm_drifting_endlessly >   ;01
   bitmap < #00, #20, #00, @gfx_adrift, #00 >   ;02
@@ -816,7 +816,7 @@ scene-meta_002F [
   jump < #04 >   ;08
 ]
 
-scene-meta_0030 [
+scene_meta_0030 [
   display-mode < #06 >   ;00
   music < #1B, #00, @bgm_no_music >   ;01
   bitmap < #00, #10, #00, @gfx_southcape, #00 >   ;02
@@ -829,7 +829,7 @@ scene-meta_0030 [
   jump < #04 >   ;09
 ]
 
-scene-meta_0031 [
+scene_meta_0031 [
   display-mode < #01 >   ;00
   music < #1B, #00, @bgm_no_music >   ;01
   palette < #00, #70, #10, @pal_southcape_interior >   ;02
@@ -842,7 +842,7 @@ scene-meta_0031 [
   jump < #0C >   ;09
 ]
 
-scene-meta_0032 [
+scene_meta_0032 [
   display-mode < #0E >   ;00
   music < #02, #00, @bgm_lively_city >   ;01
   bitmap < #00, #10, #00, @gfx_freejia, #00 >   ;02
@@ -858,7 +858,7 @@ scene-meta_0032 [
   spritemap < #$124C, #00, @spm_freejia_sprites >   ;0C
 ]
 
-scene-meta_0033 [
+scene_meta_0033 [
   display-mode < #1F >   ;00
   music < #02, #00, @bgm_lively_city >   ;01
   bitmap < #00, #10, #00, @gfx_house_interior, #00 >   ;02
@@ -871,7 +871,7 @@ scene-meta_0033 [
   jump < #03 >   ;09
 ]
 
-scene-meta_0034 [
+scene_meta_0034 [
   display-mode < #1F >   ;00
   music < #02, #00, @bgm_lively_city >   ;01
   tilemap < #01, @map_fr34 >   ;02
@@ -885,7 +885,7 @@ scene-meta_0034 [
   jump < #0C >   ;0A
 ]
 
-scene-meta_0035 [
+scene_meta_0035 [
   display-mode < #1F >   ;00
   music < #02, #00, @bgm_lively_city >   ;01
   tilemap < #01, @map_fr35 >   ;02
@@ -894,7 +894,7 @@ scene-meta_0035 [
   jump < #1C >   ;05
 ]
 
-scene-meta_0036 [
+scene_meta_0036 [
   display-mode < #1F >   ;00
   music < #02, #00, @bgm_lively_city >   ;01
   tilemap < #01, @map_fr36 >   ;02
@@ -903,7 +903,7 @@ scene-meta_0036 [
   jump < #1C >   ;05
 ]
 
-scene-meta_0037 [
+scene_meta_0037 [
   display-mode < #1F >   ;00
   music < #02, #00, @bgm_lively_city >   ;01
   tilemap < #01, @map_fr37 >   ;02
@@ -912,7 +912,7 @@ scene-meta_0037 [
   jump < #1C >   ;05
 ]
 
-scene-meta_0038 [
+scene_meta_0038 [
   display-mode < #1F >   ;00
   music < #02, #00, @bgm_lively_city >   ;01
   tilemap < #01, @map_fr38 >   ;02
@@ -921,7 +921,7 @@ scene-meta_0038 [
   jump < #1C >   ;05
 ]
 
-scene-meta_0039 [
+scene_meta_0039 [
   display-mode < #1F >   ;00
   music < #02, #00, @bgm_lively_city >   ;01
   bitmap < #00, #10, #00, @gfx_house_interior, #00 >   ;02
@@ -934,7 +934,7 @@ scene-meta_0039 [
   jump < #03 >   ;09
 ]
 
-scene-meta_003A [
+scene_meta_003A [
   display-mode < #1F >   ;00
   music < #02, #00, @bgm_lively_city >   ;01
   tilemap < #01, @map_fr3A >   ;02
@@ -943,7 +943,7 @@ scene-meta_003A [
   jump < #1C >   ;05
 ]
 
-scene-meta_003B [
+scene_meta_003B [
   display-mode < #1F >   ;00
   music < #02, #00, @bgm_lively_city >   ;01
   tilemap < #01, @map_fr3B >   ;02
@@ -952,7 +952,7 @@ scene-meta_003B [
   jump < #1C >   ;05
 ]
 
-scene-meta_003C [
+scene_meta_003C [
   display-mode < #05 >   ;00
   music < #04, #00, @bgm_ominous_whispers >   ;01
   bitmap < #00, #10, #00, @gfx_cave, #00 >   ;02
@@ -962,7 +962,7 @@ scene-meta_003C [
   jump < #0C >   ;06
 ]
 
-scene-meta_003D [
+scene_meta_003D [
   display-mode < #08 >   ;00
   music < #06, #00, @bgm_descent_into_darkness >   ;01
   bitmap < #00, #10, #00, @gfx_mine, #00 >   ;02
@@ -972,7 +972,7 @@ scene-meta_003D [
   jump < #0E >   ;06
 ]
 
-scene-meta_003E [
+scene_meta_003E [
   display-mode < #08 >   ;00
   music < #06, #00, @bgm_descent_into_darkness >   ;01
   tilemap < #01, @map_dm3E >   ;02
@@ -986,21 +986,21 @@ scene-meta_003E [
   spritemap < #$2930, #00, @spm_mine_sprites >   ;0A
 ]
 
-scene-meta_003F [
+scene_meta_003F [
   display-mode < #05 >   ;00
   music < #06, #00, @bgm_descent_into_darkness >   ;01
   tilemap < #01, @map_dm3F >   ;02
   jump < #10 >   ;03
 ]
 
-scene-meta_0040 [
+scene_meta_0040 [
   display-mode < #08 >   ;00
   music < #06, #00, @bgm_descent_into_darkness >   ;01
   tilemap < #01, @map_dm40 >   ;02
   jump < #10 >   ;03
 ]
 
-scene-meta_0041 [
+scene_meta_0041 [
   display-mode < #00 >   ;00
   music < #06, #00, @bgm_descent_into_darkness >   ;01
   bitmap < #00, #10, #00, @gfx_mine, #00 >   ;02
@@ -1012,14 +1012,14 @@ scene-meta_0041 [
   jump < #0E >   ;08
 ]
 
-scene-meta_0042 [
+scene_meta_0042 [
   display-mode < #08 >   ;00
   music < #06, #00, @bgm_descent_into_darkness >   ;01
   tilemap < #01, @map_dm42 >   ;02
   jump < #10 >   ;03
 ]
 
-scene-meta_0043 [
+scene_meta_0043 [
   display-mode < #0A >   ;00
   music < #06, #00, @bgm_descent_into_darkness >   ;01
   bitmap < #00, #10, #00, @gfx_mine, #00 >   ;02
@@ -1031,28 +1031,28 @@ scene-meta_0043 [
   jump < #0E >   ;08
 ]
 
-scene-meta_0044 [
+scene_meta_0044 [
   display-mode < #08 >   ;00
   music < #06, #00, @bgm_descent_into_darkness >   ;01
   tilemap < #01, @map_dm44 >   ;02
   jump < #10 >   ;03
 ]
 
-scene-meta_0045 [
+scene_meta_0045 [
   display-mode < #08 >   ;00
   music < #06, #00, @bgm_descent_into_darkness >   ;01
   tilemap < #01, @map_dm45 >   ;02
   jump < #10 >   ;03
 ]
 
-scene-meta_0046 [
+scene_meta_0046 [
   display-mode < #08 >   ;00
   music < #06, #00, @bgm_descent_into_darkness >   ;01
   tilemap < #01, @map_dm46 >   ;02
   jump < #10 >   ;03
 ]
 
-scene-meta_0047 [
+scene_meta_0047 [
   display-mode < #08 >   ;00
   music < #04, #00, @bgm_ominous_whispers >   ;01
   bitmap < #00, #10, #00, @gfx_mine, #00 >   ;02
@@ -1063,7 +1063,7 @@ scene-meta_0047 [
   jump < #0C >   ;07
 ]
 
-scene-meta_0049 [
+scene_meta_0049 [
   display-mode < #1F >   ;00
   music < #03, #00, @bgm_blessing_of_nature >   ;01
   bitmap < #00, #10, #00, @gfx_hut_interior, #00 >   ;02
@@ -1078,7 +1078,7 @@ scene-meta_0049 [
   spritemap < #$1507, #00, @spm_nazca_sprites >   ;0B
 ]
 
-scene-meta_004B [
+scene_meta_004B [
   display-mode < #13 >   ;00
   music < #04, #00, @bgm_ominous_whispers >   ;01
   bitmap < #00, #10, #00, @gfx_cave, #00 >   ;02
@@ -1090,7 +1090,7 @@ scene-meta_004B [
   jump < #22 >   ;08
 ]
 
-scene-meta_004C [
+scene_meta_004C [
   display-mode < #12 >   ;00
   music < #08, #00, @bgm_secret_of_nazca >   ;01
   bitmap < #00, #20, #00, @gfx_garden, #00 >   ;02
@@ -1105,7 +1105,7 @@ scene-meta_004C [
   spritemap < #$1D54, #00, @spm_garden_enemies >   ;0B
 ]
 
-scene-meta_004D [
+scene_meta_004D [
   display-mode < #12 >   ;00
   music < #08, #00, @bgm_secret_of_nazca >   ;01
   bitmap < #00, #20, #00, @gfx_garden, #00 >   ;02
@@ -1117,7 +1117,7 @@ scene-meta_004D [
   jump < #0D >   ;08
 ]
 
-scene-meta_004E [
+scene_meta_004E [
   display-mode < #10 >   ;00
   music < #08, #00, @bgm_secret_of_nazca >   ;01
   bitmap < #00, #20, #00, @gfx_garden, #00 >   ;02
@@ -1132,7 +1132,7 @@ scene-meta_004E [
   spritemap < #$1D54, #00, @spm_garden_enemies >   ;0B
 ]
 
-scene-meta_004F [
+scene_meta_004F [
   display-mode < #12 >   ;00
   music < #08, #00, @bgm_secret_of_nazca >   ;01
   bitmap < #00, #20, #00, @gfx_garden, #00 >   ;02
@@ -1144,7 +1144,7 @@ scene-meta_004F [
   jump < #0D >   ;08
 ]
 
-scene-meta_0050 [
+scene_meta_0050 [
   display-mode < #10 >   ;00
   music < #08, #00, @bgm_secret_of_nazca >   ;01
   bitmap < #00, #20, #00, @gfx_garden, #00 >   ;02
@@ -1156,7 +1156,7 @@ scene-meta_0050 [
   jump < #0F >   ;08
 ]
 
-scene-meta_0051 [
+scene_meta_0051 [
   display-mode < #12 >   ;00
   music < #08, #00, @bgm_secret_of_nazca >   ;01
   bitmap < #00, #20, #00, @gfx_garden, #00 >   ;02
@@ -1168,7 +1168,7 @@ scene-meta_0051 [
   jump < #0D >   ;08
 ]
 
-scene-meta_0052 [
+scene_meta_0052 [
   display-mode < #10 >   ;00
   music < #08, #00, @bgm_secret_of_nazca >   ;01
   bitmap < #00, #20, #00, @gfx_garden, #00 >   ;02
@@ -1180,7 +1180,7 @@ scene-meta_0052 [
   jump < #0F >   ;08
 ]
 
-scene-meta_0053 [
+scene_meta_0053 [
   display-mode < #12 >   ;00
   music < #08, #00, @bgm_secret_of_nazca >   ;01
   bitmap < #00, #20, #00, @gfx_garden, #00 >   ;02
@@ -1192,7 +1192,7 @@ scene-meta_0053 [
   jump < #0D >   ;08
 ]
 
-scene-meta_0054 [
+scene_meta_0054 [
   display-mode < #12 >   ;00
   music < #08, #00, @bgm_secret_of_nazca >   ;01
   bitmap < #00, #20, #00, @gfx_garden, #00 >   ;02
@@ -1204,7 +1204,7 @@ scene-meta_0054 [
   jump < #0F >   ;08
 ]
 
-scene-meta_0055 [
+scene_meta_0055 [
   display-mode < #17 >   ;00
   music < #08, #00, @bgm_secret_of_nazca >   ;01
   bitmap < #00, #20, #00, @gfx_garden, #00 >   ;02
@@ -1219,7 +1219,7 @@ scene-meta_0055 [
   spritemap < #$1612, #00, @spm_viper >   ;0B
 ]
 
-scene-meta_0056 [
+scene_meta_0056 [
   display-mode < #18 >   ;00
   music < #08, #00, @bgm_secret_of_nazca >   ;01
   bitmap < #00, #10, #00, @gfx_palace, #00 >   ;02
@@ -1232,7 +1232,7 @@ scene-meta_0056 [
   spritemap < #$1D54, #00, @spm_garden_enemies >   ;09
 ]
 
-scene-meta_0058 [
+scene_meta_0058 [
   display-mode < #17 >   ;00
   bitmap < #00, #20, #00, @gfx_garden, #00 >   ;01
   palette < #00, #70, #10, @pal_garden_clouds >   ;02
@@ -1246,7 +1246,7 @@ scene-meta_0058 [
   spritemap < #$07F3, #00, @spm_descent_sprites >   ;0A
 ]
 
-scene-meta_0059 [
+scene_meta_0059 [
   display-mode < #19 >   ;00
   palette < #00, #70, #10, @pal_southcape >   ;01
   tileset < #00, #20, #00, #01, @set_southcape_effect >   ;02
@@ -1255,7 +1255,7 @@ scene-meta_0059 [
   jump < #38 >   ;05
 ]
 
-scene-meta_005A [
+scene_meta_005A [
   display-mode < #15 >   ;00
   music < #04, #00, @bgm_ominous_whispers >   ;01
   bitmap < #00, #10, #00, @gfx_palace, #00 >   ;02
@@ -1271,7 +1271,7 @@ scene-meta_005A [
   spritemap < #$21D0, #00, @spm_prison_enemies >   ;0C
 ]
 
-scene-meta_005B [
+scene_meta_005B [
   display-mode < #15 >   ;00
   music < #04, #00, @bgm_ominous_whispers >   ;01
   bitmap < #00, #10, #00, @gfx_palace, #00 >   ;02
@@ -1284,7 +1284,7 @@ scene-meta_005B [
   jump < #22 >   ;09
 ]
 
-scene-meta_005C [
+scene_meta_005C [
   display-mode < #15 >   ;00
   music < #04, #00, @bgm_ominous_whispers >   ;01
   bitmap < #00, #10, #00, @gfx_palace, #00 >   ;02
@@ -1299,7 +1299,7 @@ scene-meta_005C [
   label_15:   ;0B
 ]
 
-scene-meta_005D [
+scene_meta_005D [
   display-mode < #15 >   ;00
   music < #04, #00, @bgm_ominous_whispers >   ;01
   bitmap < #00, #10, #00, @gfx_palace, #00 >   ;02
@@ -1312,7 +1312,7 @@ scene-meta_005D [
   jump < #18 >   ;09
 ]
 
-scene-meta_005E [
+scene_meta_005E [
   display-mode < #18 >   ;00
   music < #04, #00, @bgm_ominous_whispers >   ;01
   bitmap < #00, #10, #00, @gfx_palace, #00 >   ;02
@@ -1322,7 +1322,7 @@ scene-meta_005E [
   tilemap < #01, @map_palace_passage >   ;06
 ]
 
-scene-meta_005F [
+scene_meta_005F [
   display-mode < #14 >   ;00
   music < #09, #00, @bgm_legendary_sunken_continent >   ;01
   bitmap < #00, #20, #00, @gfx_mu, #00 >   ;02
@@ -1345,7 +1345,7 @@ scene-meta_005F [
   spritemap < #$1C16, #00, @spm_mu_enemies >   ;13
 ]
 
-scene-meta_0060 [
+scene_meta_0060 [
   display-mode < #14 >   ;00
   music < #09, #00, @bgm_legendary_sunken_continent >   ;01
   bitmap < #00, #20, #00, @gfx_mu, #00 >   ;02
@@ -1362,7 +1362,7 @@ scene-meta_0060 [
   jump < #18 >   ;0D
 ]
 
-scene-meta_0061 [
+scene_meta_0061 [
   display-mode < #14 >   ;00
   music < #09, #00, @bgm_legendary_sunken_continent >   ;01
   bitmap < #00, #20, #00, @gfx_mu, #00 >   ;02
@@ -1379,7 +1379,7 @@ scene-meta_0061 [
   jump < #18 >   ;0D
 ]
 
-scene-meta_0062 [
+scene_meta_0062 [
   display-mode < #14 >   ;00
   music < #09, #00, @bgm_legendary_sunken_continent >   ;01
   bitmap < #00, #20, #00, @gfx_mu, #00 >   ;02
@@ -1396,7 +1396,7 @@ scene-meta_0062 [
   jump < #18 >   ;0D
 ]
 
-scene-meta_0063 [
+scene_meta_0063 [
   display-mode < #18 >   ;00
   music < #04, #00, @bgm_ominous_whispers >   ;01
   bitmap < #00, #10, #00, @gfx_palace, #00 >   ;02
@@ -1407,7 +1407,7 @@ scene-meta_0063 [
   jump < #18 >   ;07
 ]
 
-scene-meta_0064 [
+scene_meta_0064 [
   display-mode < #14 >   ;00
   music < #09, #00, @bgm_legendary_sunken_continent >   ;01
   bitmap < #00, #20, #00, @gfx_mu, #00 >   ;02
@@ -1421,7 +1421,7 @@ scene-meta_0064 [
   jump < #18 >   ;0A
 ]
 
-scene-meta_0065 [
+scene_meta_0065 [
   display-mode < #14 >   ;00
   music < #09, #00, @bgm_legendary_sunken_continent >   ;01
   bitmap < #00, #20, #00, @gfx_mu, #00 >   ;02
@@ -1435,7 +1435,7 @@ scene-meta_0065 [
   jump < #18 >   ;0A
 ]
 
-scene-meta_0066 [
+scene_meta_0066 [
   display-mode < #08 >   ;00
   music < #04, #00, @bgm_ominous_whispers >   ;01
   bitmap < #00, #20, #00, @gfx_mu, #00 >   ;02
@@ -1445,7 +1445,7 @@ scene-meta_0066 [
   jump < #18 >   ;06
 ]
 
-scene-meta_0067 [
+scene_meta_0067 [
   display-mode < #14 >   ;00
   music < #04, #00, @bgm_ominous_whispers >   ;01
   bitmap < #00, #20, #00, @gfx_mu, #00 >   ;02
@@ -1461,7 +1461,7 @@ scene-meta_0067 [
   spritemap < #$1476, #00, @spm_vampires >   ;0C
 ]
 
-scene-meta_0068 [
+scene_meta_0068 [
   display-mode < #16 >   ;00
   music < #04, #00, @bgm_ominous_whispers >   ;01
   bitmap < #00, #20, #00, @gfx_angel, #00 >   ;02
@@ -1473,7 +1473,7 @@ scene-meta_0068 [
   jump < #22 >   ;08
 ]
 
-scene-meta_0069 [
+scene_meta_0069 [
   display-mode < #18 >   ;00
   music < #03, #00, @bgm_blessing_of_nature >   ;01
   bitmap < #00, #20, #00, @gfx_angel, #00 >   ;02
@@ -1483,7 +1483,7 @@ scene-meta_0069 [
   jump < #22 >   ;06
 ]
 
-scene-meta_006A [
+scene_meta_006A [
   display-mode < #1C >   ;00
   music < #03, #00, @bgm_blessing_of_nature >   ;01
   bitmap < #00, #20, #00, @gfx_angel, #00 >   ;02
@@ -1495,7 +1495,7 @@ scene-meta_006A [
   jump < #22 >   ;08
 ]
 
-scene-meta_006B [
+scene_meta_006B [
   display-mode < #16 >   ;00
   music < #03, #00, @bgm_blessing_of_nature >   ;01
   bitmap < #00, #20, #00, @gfx_angel, #00 >   ;02
@@ -1510,7 +1510,7 @@ scene-meta_006B [
   spritemap < #$0A43, #00, @spm_angel_sprites >   ;0B
 ]
 
-scene-meta_006C [
+scene_meta_006C [
   display-mode < #1C >   ;00
   music < #03, #00, @bgm_blessing_of_nature >   ;01
   bitmap < #00, #20, #00, @gfx_angel, #00 >   ;02
@@ -1522,7 +1522,7 @@ scene-meta_006C [
   jump < #25 >   ;08
 ]
 
-scene-meta_006D [
+scene_meta_006D [
   display-mode < #16 >   ;00
   music < #06, #00, @bgm_descent_into_darkness >   ;01
   bitmap < #00, #20, #00, @gfx_angel, #00 >   ;02
@@ -1538,7 +1538,7 @@ scene-meta_006D [
   spritemap < #$0F7F, #00, @spm_tunnel_enemies >   ;0C
 ]
 
-scene-meta_006E [
+scene_meta_006E [
   display-mode < #18 >   ;00
   music < #06, #00, @bgm_descent_into_darkness >   ;01
   bitmap < #00, #20, #00, @gfx_angel, #00 >   ;02
@@ -1548,7 +1548,7 @@ scene-meta_006E [
   jump < #1F >   ;06
 ]
 
-scene-meta_006F [
+scene_meta_006F [
   display-mode < #1B >   ;00
   music < #06, #00, @bgm_descent_into_darkness >   ;01
   bitmap < #00, #20, #00, @gfx_angel, #00 >   ;02
@@ -1561,7 +1561,7 @@ scene-meta_006F [
   jump < #20 >   ;09
 ]
 
-scene-meta_0070 [
+scene_meta_0070 [
   display-mode < #16 >   ;00
   music < #06, #00, @bgm_descent_into_darkness >   ;01
   bitmap < #00, #20, #00, @gfx_angel, #00 >   ;02
@@ -1573,7 +1573,7 @@ scene-meta_0070 [
   jump < #1F >   ;08
 ]
 
-scene-meta_0071 [
+scene_meta_0071 [
   display-mode < #18 >   ;00
   music < #06, #00, @bgm_descent_into_darkness >   ;01
   bitmap < #00, #20, #00, @gfx_angel, #00 >   ;02
@@ -1583,7 +1583,7 @@ scene-meta_0071 [
   jump < #1F >   ;06
 ]
 
-scene-meta_0072 [
+scene_meta_0072 [
   display-mode < #18 >   ;00
   music < #06, #00, @bgm_descent_into_darkness >   ;01
   bitmap < #00, #20, #00, @gfx_angel, #00 >   ;02
@@ -1593,7 +1593,7 @@ scene-meta_0072 [
   jump < #1F >   ;06
 ]
 
-scene-meta_0073 [
+scene_meta_0073 [
   display-mode < #16 >   ;00
   music < #1D, #00, @bgm_waterfall >   ;01
   bitmap < #00, #20, #00, @gfx_angel, #00 >   ;02
@@ -1605,7 +1605,7 @@ scene-meta_0073 [
   jump < #1F >   ;08
 ]
 
-scene-meta_0074 [
+scene_meta_0074 [
   display-mode < #18 >   ;00
   music < #04, #00, @bgm_ominous_whispers >   ;01
   bitmap < #00, #20, #00, @gfx_angel, #00 >   ;02
@@ -1615,7 +1615,7 @@ scene-meta_0074 [
   jump < #25 >   ;06
 ]
 
-scene-meta_0075 [
+scene_meta_0075 [
   display-mode < #18 >   ;00
   music < #04, #00, @bgm_ominous_whispers >   ;01
   bitmap < #00, #20, #00, @gfx_angel, #00 >   ;02
@@ -1625,7 +1625,7 @@ scene-meta_0075 [
   jump < #25 >   ;06
 ]
 
-scene-meta_0078 [
+scene_meta_0078 [
   display-mode < #1A >   ;00
   music < #02, #00, @bgm_lively_city >   ;01
   bitmap < #00, #10, #00, @gfx_watermia, #00 >   ;02
@@ -1645,7 +1645,7 @@ scene-meta_0078 [
   spritemap < #$178A, #00, @spm_watermia_sprites >   ;10
 ]
 
-scene-meta_0079 [
+scene_meta_0079 [
   display-mode < #01 >   ;00
   music < #02, #00, @bgm_lively_city >   ;01
   bitmap < #00, #10, #00, @gfx_hut_interior, #00 >   ;02
@@ -1657,7 +1657,7 @@ scene-meta_0079 [
   jump < #22 >   ;08
 ]
 
-scene-meta_007A [
+scene_meta_007A [
   display-mode < #01 >   ;00
   music < #02, #00, @bgm_lively_city >   ;01
   bitmap < #00, #10, #00, @gfx_hut_interior, #00 >   ;02
@@ -1671,7 +1671,7 @@ scene-meta_007A [
   spritemap < #$0A9B, #00, @spm_watermia_lances_sprites >   ;0A
 ]
 
-scene-meta_007B [
+scene_meta_007B [
   display-mode < #01 >   ;00
   music < #06, #00, @bgm_descent_into_darkness >   ;01
   bitmap < #00, #10, #00, @gfx_hut_interior, #00 >   ;02
@@ -1683,7 +1683,7 @@ scene-meta_007B [
   jump < #26 >   ;08
 ]
 
-scene-meta_007C [
+scene_meta_007C [
   display-mode < #01 >   ;00
   music < #02, #00, @bgm_lively_city >   ;01
   bitmap < #00, #10, #00, @gfx_hut_interior, #00 >   ;02
@@ -1695,7 +1695,7 @@ scene-meta_007C [
   jump < #26 >   ;08
 ]
 
-scene-meta_007D [
+scene_meta_007D [
   display-mode < #01 >   ;00
   music < #02, #00, @bgm_lively_city >   ;01
   bitmap < #00, #10, #00, @gfx_hut_interior, #00 >   ;02
@@ -1707,7 +1707,7 @@ scene-meta_007D [
   jump < #26 >   ;08
 ]
 
-scene-meta_007E [
+scene_meta_007E [
   display-mode < #01 >   ;00
   music < #02, #00, @bgm_lively_city >   ;01
   bitmap < #00, #10, #00, @gfx_hut_interior, #00 >   ;02
@@ -1720,7 +1720,7 @@ scene-meta_007E [
   jump < #26 >   ;09
 ]
 
-scene-meta_007F [
+scene_meta_007F [
   display-mode < #1A >   ;00
   music < #15, #00, @bgm_drifting_endlessly >   ;01
   bitmap < #00, #10, #00, @gfx_watermia, #00 >   ;02
@@ -1732,7 +1732,7 @@ scene-meta_007F [
   jump < #22 >   ;08
 ]
 
-scene-meta_0082 [
+scene_meta_0082 [
   display-mode < #1D >   ;00
   music < #0A, #00, @bgm_golden_road >   ;01
   bitmap < #00, #20, #00, @gfx_greatwall, #00 >   ;02
@@ -1747,7 +1747,7 @@ scene-meta_0082 [
   spritemap < #$16FF, #00, @spm_greatwall_sprites >   ;0B
 ]
 
-scene-meta_0083 [
+scene_meta_0083 [
   display-mode < #1D >   ;00
   music < #0A, #00, @bgm_golden_road >   ;01
   bitmap < #00, #20, #00, @gfx_greatwall, #00 >   ;02
@@ -1759,7 +1759,7 @@ scene-meta_0083 [
   jump < #27 >   ;08
 ]
 
-scene-meta_0085 [
+scene_meta_0085 [
   display-mode < #1D >   ;00
   music < #0A, #00, @bgm_golden_road >   ;01
   bitmap < #00, #20, #00, @gfx_greatwall, #00 >   ;02
@@ -1771,7 +1771,7 @@ scene-meta_0085 [
   jump < #27 >   ;08
 ]
 
-scene-meta_0086 [
+scene_meta_0086 [
   display-mode < #1D >   ;00
   music < #0A, #00, @bgm_golden_road >   ;01
   bitmap < #00, #20, #00, @gfx_greatwall, #00 >   ;02
@@ -1783,7 +1783,7 @@ scene-meta_0086 [
   jump < #27 >   ;08
 ]
 
-scene-meta_0087 [
+scene_meta_0087 [
   display-mode < #1D >   ;00
   music < #0A, #00, @bgm_golden_road >   ;01
   bitmap < #00, #20, #00, @gfx_greatwall, #00 >   ;02
@@ -1795,7 +1795,7 @@ scene-meta_0087 [
   jump < #27 >   ;08
 ]
 
-scene-meta_0088 [
+scene_meta_0088 [
   display-mode < #1D >   ;00
   music < #0A, #00, @bgm_golden_road >   ;01
   bitmap < #00, #20, #00, @gfx_greatwall, #00 >   ;02
@@ -1807,7 +1807,7 @@ scene-meta_0088 [
   jump < #27 >   ;08
 ]
 
-scene-meta_0089 [
+scene_meta_0089 [
   display-mode < #08 >   ;00
   bitmap < #00, #10, #00, @gfx_ending_newbabel, #00 >   ;01
   palette < #00, #80, #00, @pal_ending_newbabel >   ;02
@@ -1815,7 +1815,7 @@ scene-meta_0089 [
   tilemap < #01, @map_ending_newbabel >   ;04
 ]
 
-scene-meta_008A [
+scene_meta_008A [
   display-mode < #21 >   ;00
   music < #0A, #00, @bgm_golden_road >   ;01
   bitmap < #00, #20, #00, @gfx_greatwall, #00 >   ;02
@@ -1830,7 +1830,7 @@ scene-meta_008A [
   spritemap < #$0EC0, #00, @spm_sandfanger >   ;0B
 ]
 
-scene-meta_008B [
+scene_meta_008B [
   display-mode < #1D >   ;00
   music < #0A, #00, @bgm_golden_road >   ;01
   bitmap < #00, #20, #00, @gfx_greatwall, #00 >   ;02
@@ -1842,7 +1842,7 @@ scene-meta_008B [
   jump < #22 >   ;08
 ]
 
-scene-meta_008C [
+scene_meta_008C [
   display-mode < #2D >   ;00
   tileset < #00, #20, #00, #01, @set_prologue_prophecy >   ;01
   bitmap < #00, #10, #00, @gfx_prologue_prophecy, #00 >   ;02
@@ -1859,7 +1859,7 @@ scene-meta_008C [
   spritemap < #$034E, #00, @spm_prologue_prophecy_sprites >   ;0D
 ]
 
-scene-meta_008D [
+scene_meta_008D [
   display-mode < #2D >   ;00
   tileset < #00, #20, #00, #01, @set_prologue_legends >   ;01
   bitmap < #00, #10, #00, @gfx_prologue_legends, #00 >   ;02
@@ -1867,7 +1867,7 @@ scene-meta_008D [
   tilemap < #01, @map_prologue_legends >   ;04
 ]
 
-scene-meta_008E [
+scene_meta_008E [
   display-mode < #2A >   ;00
   bitmap < #00, #10, #00, @gfx_prologue_missing, #00 >   ;01
   bitmap < #00, #10, #10, @gfx_prologue_missing_effect, #00 >   ;02
@@ -1879,7 +1879,7 @@ scene-meta_008E [
   jump < #37 >   ;08
 ]
 
-scene-meta_008F [
+scene_meta_008F [
   display-mode < #2B >   ;00
   bitmap < #00, #10, #00, @gfx_prologue_mishap, #00 >   ;01
   palette < #00, #80, #00, @pal_prologue_mishap >   ;02
@@ -1887,7 +1887,7 @@ scene-meta_008F [
   tilemap < #01, @map_prologue_mishap >   ;04
 ]
 
-scene-meta_0090 [
+scene_meta_0090 [
   display-mode < #1D >   ;00
   bitmap < #00, #20, #00, @gfx_ending_world, #00 >   ;01
   palette < #00, #80, #00, @pal_ending_world >   ;02
@@ -1897,7 +1897,7 @@ scene-meta_0090 [
   tilemap < #02, @map_ending_world_effect >   ;06
 ]
 
-scene-meta_0091 [
+scene_meta_0091 [
   display-mode < #1A >   ;00
   music < #02, #00, @bgm_lively_city >   ;01
   bitmap < #00, #20, #00, @gfx_euro, #00 >   ;02
@@ -1911,7 +1911,7 @@ scene-meta_0091 [
   spritemap < #$09C0, #00, @spm_euro_sprites >   ;0A
 ]
 
-scene-meta_0092 [
+scene_meta_0092 [
   display-mode < #1F >   ;00
   music < #02, #00, @bgm_lively_city >   ;01
   bitmap < #00, #10, #00, @gfx_house_interior, #00 >   ;02
@@ -1924,7 +1924,7 @@ scene-meta_0092 [
   spritemap < #$0D07, #00, @spm_euro_geezers_sprites >   ;09
 ]
 
-scene-meta_0093 [
+scene_meta_0093 [
   display-mode < #1F >   ;00
   music < #02, #00, @bgm_lively_city >   ;01
   tilemap < #01, @map_euro_house >   ;02
@@ -1938,7 +1938,7 @@ scene-meta_0093 [
   spritemap < #$09C0, #00, @spm_euro_sprites >   ;0A
 ]
 
-scene-meta_0094 [
+scene_meta_0094 [
   display-mode < #1F >   ;00
   music < #02, #00, @bgm_lively_city >   ;01
   tilemap < #01, @map_euro_double >   ;02
@@ -1946,7 +1946,7 @@ scene-meta_0094 [
   jump < #28 >   ;04
 ]
 
-scene-meta_0095 [
+scene_meta_0095 [
   display-mode < #1F >   ;00
   music < #05, #00, @bgm_royal_anthem >   ;01
   bitmap < #00, #10, #00, @gfx_house_interior, #00 >   ;02
@@ -1959,7 +1959,7 @@ scene-meta_0095 [
   spritemap < #$0D07, #00, @spm_euro_geezers_sprites >   ;09
 ]
 
-scene-meta_0096 [
+scene_meta_0096 [
   display-mode < #1F >   ;00
   music < #05, #00, @bgm_royal_anthem >   ;01
   bitmap < #00, #10, #00, @gfx_house_interior, #00 >   ;02
@@ -1970,7 +1970,7 @@ scene-meta_0096 [
   jump < #22 >   ;07
 ]
 
-scene-meta_0097 [
+scene_meta_0097 [
   display-mode < #1F >   ;00
   music < #02, #00, @bgm_lively_city >   ;01
   tilemap < #01, @map_euro_market >   ;02
@@ -1978,7 +1978,7 @@ scene-meta_0097 [
   jump < #28 >   ;04
 ]
 
-scene-meta_0098 [
+scene_meta_0098 [
   display-mode < #1F >   ;00
   music < #02, #00, @bgm_lively_city >   ;01
   tilemap < #01, @map_euro_geezers >   ;02
@@ -1986,7 +1986,7 @@ scene-meta_0098 [
   jump < #28 >   ;04
 ]
 
-scene-meta_0099 [
+scene_meta_0099 [
   display-mode < #1F >   ;00
   music < #02, #00, @bgm_lively_city >   ;01
   bitmap < #00, #20, #00, @gfx_euro, #00 >   ;02
@@ -1995,7 +1995,7 @@ scene-meta_0099 [
   jump < #28 >   ;05
 ]
 
-scene-meta_009A [
+scene_meta_009A [
   display-mode < #1F >   ;00
   music < #02, #00, @bgm_lively_city >   ;01
   bitmap < #00, #10, #00, @gfx_house_interior, #00 >   ;02
@@ -2006,7 +2006,7 @@ scene-meta_009A [
   jump < #3E >   ;07
 ]
 
-scene-meta_009B [
+scene_meta_009B [
   display-mode < #1F >   ;00
   music < #02, #00, @bgm_lively_city >   ;01
   tilemap < #01, @map_euro_house >   ;02
@@ -2014,7 +2014,7 @@ scene-meta_009B [
   jump < #28 >   ;04
 ]
 
-scene-meta_009C [
+scene_meta_009C [
   display-mode < #1F >   ;00
   music < #02, #00, @bgm_lively_city >   ;01
   tilemap < #01, @map_euro_house >   ;02
@@ -2022,7 +2022,7 @@ scene-meta_009C [
   jump < #28 >   ;04
 ]
 
-scene-meta_009D [
+scene_meta_009D [
   display-mode < #1F >   ;00
   music < #04, #00, @bgm_ominous_whispers >   ;01
   bitmap < #00, #10, #00, @gfx_house_interior, #00 >   ;02
@@ -2035,7 +2035,7 @@ scene-meta_009D [
   spritemap < #$124C, #00, @spm_freejia_sprites >   ;09
 ]
 
-scene-meta_00A0 [
+scene_meta_00A0 [
   display-mode < #20 >   ;00
   music < #06, #00, @bgm_descent_into_darkness >   ;01
   bitmap < #00, #20, #00, @gfx_kress, #00 >   ;02
@@ -2050,7 +2050,7 @@ scene-meta_00A0 [
   spritemap < #$0E70, #00, @spm_kress_sprites >   ;0B
 ]
 
-scene-meta_00A1 [
+scene_meta_00A1 [
   display-mode < #20 >   ;00
   music < #06, #00, @bgm_descent_into_darkness >   ;01
   bitmap < #00, #20, #00, @gfx_kress, #00 >   ;02
@@ -2062,7 +2062,7 @@ scene-meta_00A1 [
   jump < #29 >   ;08
 ]
 
-scene-meta_00A2 [
+scene_meta_00A2 [
   display-mode < #20 >   ;00
   music < #06, #00, @bgm_descent_into_darkness >   ;01
   bitmap < #00, #20, #00, @gfx_kress, #00 >   ;02
@@ -2074,7 +2074,7 @@ scene-meta_00A2 [
   jump < #29 >   ;08
 ]
 
-scene-meta_00A3 [
+scene_meta_00A3 [
   display-mode < #20 >   ;00
   music < #06, #00, @bgm_descent_into_darkness >   ;01
   bitmap < #00, #20, #00, @gfx_kress, #00 >   ;02
@@ -2086,7 +2086,7 @@ scene-meta_00A3 [
   jump < #29 >   ;08
 ]
 
-scene-meta_00A4 [
+scene_meta_00A4 [
   display-mode < #20 >   ;00
   music < #06, #00, @bgm_descent_into_darkness >   ;01
   bitmap < #00, #20, #00, @gfx_kress, #00 >   ;02
@@ -2098,7 +2098,7 @@ scene-meta_00A4 [
   jump < #29 >   ;08
 ]
 
-scene-meta_00A5 [
+scene_meta_00A5 [
   display-mode < #20 >   ;00
   music < #06, #00, @bgm_descent_into_darkness >   ;01
   bitmap < #00, #20, #00, @gfx_kress, #00 >   ;02
@@ -2110,7 +2110,7 @@ scene-meta_00A5 [
   jump < #29 >   ;08
 ]
 
-scene-meta_00A6 [
+scene_meta_00A6 [
   display-mode < #20 >   ;00
   music < #06, #00, @bgm_descent_into_darkness >   ;01
   bitmap < #00, #20, #00, @gfx_kress, #00 >   ;02
@@ -2122,7 +2122,7 @@ scene-meta_00A6 [
   jump < #29 >   ;08
 ]
 
-scene-meta_00A7 [
+scene_meta_00A7 [
   display-mode < #20 >   ;00
   music < #06, #00, @bgm_descent_into_darkness >   ;01
   bitmap < #00, #20, #00, @gfx_kress, #00 >   ;02
@@ -2134,7 +2134,7 @@ scene-meta_00A7 [
   jump < #29 >   ;08
 ]
 
-scene-meta_00A8 [
+scene_meta_00A8 [
   display-mode < #20 >   ;00
   music < #06, #00, @bgm_descent_into_darkness >   ;01
   bitmap < #00, #20, #00, @gfx_kress, #00 >   ;02
@@ -2146,7 +2146,7 @@ scene-meta_00A8 [
   jump < #29 >   ;08
 ]
 
-scene-meta_00A9 [
+scene_meta_00A9 [
   display-mode < #20 >   ;00
   music < #06, #00, @bgm_descent_into_darkness >   ;01
   bitmap < #00, #20, #00, @gfx_kress, #00 >   ;02
@@ -2158,7 +2158,7 @@ scene-meta_00A9 [
   jump < #29 >   ;08
 ]
 
-scene-meta_00AC [
+scene_meta_00AC [
   display-mode < #1A >   ;00
   branch < #B3, #32 >   ;01
   music < #04, #00, @bgm_ominous_whispers >   ;02
@@ -2178,7 +2178,7 @@ scene-meta_00AC [
   spritemap < #$105B, #00, @spm_village_sprites >   ;10
 ]
 
-scene-meta_00AD [
+scene_meta_00AD [
   display-mode < #1F >   ;00
   bitmap < #00, #10, #00, @gfx_hut_interior, #00 >   ;01
   palette < #00, #70, #10, @pal_hut_interior_native >   ;02
@@ -2188,7 +2188,7 @@ scene-meta_00AD [
   jump < #2F >   ;06
 ]
 
-scene-meta_00AE [
+scene_meta_00AE [
   display-mode < #1F >   ;00
   bitmap < #00, #10, #00, @gfx_hut_interior, #00 >   ;01
   palette < #00, #70, #10, @pal_hut_interior_native >   ;02
@@ -2198,7 +2198,7 @@ scene-meta_00AE [
   jump < #2F >   ;06
 ]
 
-scene-meta_00B0 [
+scene_meta_00B0 [
   display-mode < #2C >   ;00
   music < #04, #00, @bgm_ominous_whispers >   ;01
   bitmap < #00, #20, #00, @gfx_angkor_exterior, #00 >   ;02
@@ -2213,7 +2213,7 @@ scene-meta_00B0 [
   spritemap < #$14D5, #00, @spm_angkor_outer_sprites >   ;0B
 ]
 
-scene-meta_00B1 [
+scene_meta_00B1 [
   display-mode < #08 >   ;00
   music < #0B, #00, @bgm_unexplored_temple >   ;01
   bitmap < #00, #10, #00, @gfx_angkor_interior, #00 >   ;02
@@ -2226,7 +2226,7 @@ scene-meta_00B1 [
   spritemap < #$1057, #00, @spm_angkor_interior_sprites >   ;09
 ]
 
-scene-meta_00B2 [
+scene_meta_00B2 [
   display-mode < #08 >   ;00
   music < #0B, #00, @bgm_unexplored_temple >   ;01
   bitmap < #00, #10, #00, @gfx_angkor_interior, #00 >   ;02
@@ -2236,7 +2236,7 @@ scene-meta_00B2 [
   jump < #2C >   ;06
 ]
 
-scene-meta_00B3 [
+scene_meta_00B3 [
   display-mode < #08 >   ;00
   music < #0B, #00, @bgm_unexplored_temple >   ;01
   bitmap < #00, #10, #00, @gfx_angkor_interior, #00 >   ;02
@@ -2246,7 +2246,7 @@ scene-meta_00B3 [
   jump < #2C >   ;06
 ]
 
-scene-meta_00B4 [
+scene_meta_00B4 [
   display-mode < #08 >   ;00
   music < #0B, #00, @bgm_unexplored_temple >   ;01
   bitmap < #00, #10, #00, @gfx_angkor_interior, #00 >   ;02
@@ -2256,7 +2256,7 @@ scene-meta_00B4 [
   jump < #2C >   ;06
 ]
 
-scene-meta_00B5 [
+scene_meta_00B5 [
   display-mode < #08 >   ;00
   music < #0B, #00, @bgm_unexplored_temple >   ;01
   bitmap < #00, #10, #00, @gfx_angkor_interior, #00 >   ;02
@@ -2266,7 +2266,7 @@ scene-meta_00B5 [
   jump < #2C >   ;06
 ]
 
-scene-meta_00B6 [
+scene_meta_00B6 [
   display-mode < #2C >   ;00
   music < #0B, #00, @bgm_unexplored_temple >   ;01
   bitmap < #00, #20, #00, @gfx_angkor_exterior, #00 >   ;02
@@ -2278,7 +2278,7 @@ scene-meta_00B6 [
   jump < #2E >   ;08
 ]
 
-scene-meta_00B7 [
+scene_meta_00B7 [
   display-mode < #08 >   ;00
   music < #0B, #00, @bgm_unexplored_temple >   ;01
   bitmap < #00, #10, #00, @gfx_angkor_interior, #00 >   ;02
@@ -2288,7 +2288,7 @@ scene-meta_00B7 [
   jump < #2C >   ;06
 ]
 
-scene-meta_00B8 [
+scene_meta_00B8 [
   display-mode < #08 >   ;00
   music < #0B, #00, @bgm_unexplored_temple >   ;01
   bitmap < #00, #10, #00, @gfx_angkor_interior, #00 >   ;02
@@ -2298,7 +2298,7 @@ scene-meta_00B8 [
   jump < #2C >   ;06
 ]
 
-scene-meta_00B9 [
+scene_meta_00B9 [
   display-mode < #08 >   ;00
   music < #0B, #00, @bgm_unexplored_temple >   ;01
   bitmap < #00, #10, #00, @gfx_angkor_interior, #00 >   ;02
@@ -2308,7 +2308,7 @@ scene-meta_00B9 [
   jump < #2C >   ;06
 ]
 
-scene-meta_00BA [
+scene_meta_00BA [
   display-mode < #2C >   ;00
   music < #0B, #00, @bgm_unexplored_temple >   ;01
   bitmap < #00, #20, #00, @gfx_angkor_exterior, #00 >   ;02
@@ -2320,7 +2320,7 @@ scene-meta_00BA [
   jump < #2E >   ;08
 ]
 
-scene-meta_00BB [
+scene_meta_00BB [
   display-mode < #08 >   ;00
   music < #0B, #00, @bgm_unexplored_temple >   ;01
   bitmap < #00, #10, #00, @gfx_angkor_interior, #00 >   ;02
@@ -2330,7 +2330,7 @@ scene-meta_00BB [
   jump < #2C >   ;06
 ]
 
-scene-meta_00BC [
+scene_meta_00BC [
   display-mode < #24 >   ;00
   music < #0B, #00, @bgm_unexplored_temple >   ;01
   bitmap < #00, #10, #00, @gfx_angkor_interior, #00 >   ;02
@@ -2340,7 +2340,7 @@ scene-meta_00BC [
   jump < #2C >   ;06
 ]
 
-scene-meta_00BD [
+scene_meta_00BD [
   display-mode < #08 >   ;00
   music < #0B, #00, @bgm_unexplored_temple >   ;01
   bitmap < #00, #10, #00, @gfx_angkor_interior, #00 >   ;02
@@ -2350,7 +2350,7 @@ scene-meta_00BD [
   jump < #2C >   ;06
 ]
 
-scene-meta_00BE [
+scene_meta_00BE [
   display-mode < #08 >   ;00
   music < #0B, #00, @bgm_unexplored_temple >   ;01
   bitmap < #00, #10, #00, @gfx_angkor_interior, #00 >   ;02
@@ -2360,7 +2360,7 @@ scene-meta_00BE [
   jump < #2C >   ;06
 ]
 
-scene-meta_00BF [
+scene_meta_00BF [
   display-mode < #08 >   ;00
   music < #04, #00, @bgm_ominous_whispers >   ;01
   bitmap < #00, #10, #00, @gfx_angkor_interior, #00 >   ;02
@@ -2370,7 +2370,7 @@ scene-meta_00BF [
   jump < #2D >   ;06
 ]
 
-scene-meta_00C0 [
+scene_meta_00C0 [
   display-mode < #19 >   ;00
   music < #11, #00, @bgm_deep_sadness >   ;01
   tileset < #00, #20, #00, #01, @set_angkor_vision >   ;02
@@ -2379,7 +2379,7 @@ scene-meta_00C0 [
   tilemap < #01, @map_angkor_vision >   ;05
 ]
 
-scene-meta_00C3 [
+scene_meta_00C3 [
   display-mode < #23 >   ;00
   music < #02, #00, @bgm_lively_city >   ;01
   bitmap < #00, #10, #10, @gfx_dao, #00 >   ;02
@@ -2394,7 +2394,7 @@ scene-meta_00C3 [
   spritemap < #$0E9E, #00, @spm_dao_sprites >   ;0B
 ]
 
-scene-meta_00C4 [
+scene_meta_00C4 [
   display-mode < #1F >   ;00
   music < #02, #00, @bgm_lively_city >   ;01
   bitmap < #00, #10, #00, @gfx_house_interior, #00 >   ;02
@@ -2406,7 +2406,7 @@ scene-meta_00C4 [
   jump < #22 >   ;08
 ]
 
-scene-meta_00C5 [
+scene_meta_00C5 [
   display-mode < #1F >   ;00
   music < #04, #00, @bgm_ominous_whispers >   ;01
   bitmap < #00, #10, #00, @gfx_house_interior, #00 >   ;02
@@ -2418,7 +2418,7 @@ scene-meta_00C5 [
   jump < #2D >   ;08
 ]
 
-scene-meta_00C6 [
+scene_meta_00C6 [
   display-mode < #1F >   ;00
   music < #02, #00, @bgm_lively_city >   ;01
   bitmap < #00, #10, #00, @gfx_house_interior, #00 >   ;02
@@ -2430,7 +2430,7 @@ scene-meta_00C6 [
   jump < #2D >   ;08
 ]
 
-scene-meta_00C7 [
+scene_meta_00C7 [
   display-mode < #1F >   ;00
   music < #02, #00, @bgm_lively_city >   ;01
   bitmap < #00, #10, #00, @gfx_house_interior, #00 >   ;02
@@ -2442,7 +2442,7 @@ scene-meta_00C7 [
   jump < #2D >   ;08
 ]
 
-scene-meta_00C8 [
+scene_meta_00C8 [
   display-mode < #1F >   ;00
   music < #02, #00, @bgm_lively_city >   ;01
   bitmap < #00, #10, #00, @gfx_house_interior, #00 >   ;02
@@ -2454,7 +2454,7 @@ scene-meta_00C8 [
   jump < #22 >   ;08
 ]
 
-scene-meta_00C9 [
+scene_meta_00C9 [
   display-mode < #1F >   ;00
   music < #02, #00, @bgm_lively_city >   ;01
   bitmap < #00, #10, #00, @gfx_house_interior, #00 >   ;02
@@ -2466,7 +2466,7 @@ scene-meta_00C9 [
   jump < #2D >   ;08
 ]
 
-scene-meta_00CC [
+scene_meta_00CC [
   display-mode < #08 >   ;00
   music < #04, #00, @bgm_ominous_whispers >   ;01
   bitmap < #00, #20, #00, @gfx_pyramid, #00 >   ;02
@@ -2479,7 +2479,7 @@ scene-meta_00CC [
   spritemap < #$13FB, #00, @spm_pyramid_sprites >   ;09
 ]
 
-scene-meta_00CD [
+scene_meta_00CD [
   display-mode < #08 >   ;00
   music < #04, #00, @bgm_ominous_whispers >   ;01
   bitmap < #00, #20, #00, @gfx_pyramid, #00 >   ;02
@@ -2491,7 +2491,7 @@ scene-meta_00CD [
   spritemap < #$0E15, #00, @spm_pyramid_puzzle_sprites >   ;08
 ]
 
-scene-meta_00CE [
+scene_meta_00CE [
   display-mode < #08 >   ;00
   music < #0C, #00, @bgm_great_pyramid >   ;01
   bitmap < #00, #20, #00, @gfx_pyramid, #00 >   ;02
@@ -2501,7 +2501,7 @@ scene-meta_00CE [
   jump < #31 >   ;06
 ]
 
-scene-meta_00CF [
+scene_meta_00CF [
   display-mode < #08 >   ;00
   music < #0C, #00, @bgm_great_pyramid >   ;01
   bitmap < #00, #20, #00, @gfx_pyramid, #00 >   ;02
@@ -2511,7 +2511,7 @@ scene-meta_00CF [
   jump < #31 >   ;06
 ]
 
-scene-meta_00D0 [
+scene_meta_00D0 [
   display-mode < #08 >   ;00
   music < #0C, #00, @bgm_great_pyramid >   ;01
   bitmap < #00, #20, #00, @gfx_pyramid, #00 >   ;02
@@ -2521,7 +2521,7 @@ scene-meta_00D0 [
   jump < #31 >   ;06
 ]
 
-scene-meta_00D1 [
+scene_meta_00D1 [
   display-mode < #08 >   ;00
   music < #0C, #00, @bgm_great_pyramid >   ;01
   bitmap < #00, #20, #00, @gfx_pyramid, #00 >   ;02
@@ -2531,7 +2531,7 @@ scene-meta_00D1 [
   jump < #31 >   ;06
 ]
 
-scene-meta_00D2 [
+scene_meta_00D2 [
   display-mode < #08 >   ;00
   music < #0C, #00, @bgm_great_pyramid >   ;01
   bitmap < #00, #20, #00, @gfx_pyramid, #00 >   ;02
@@ -2541,7 +2541,7 @@ scene-meta_00D2 [
   jump < #31 >   ;06
 ]
 
-scene-meta_00D3 [
+scene_meta_00D3 [
   display-mode < #08 >   ;00
   music < #0C, #00, @bgm_great_pyramid >   ;01
   bitmap < #00, #20, #00, @gfx_pyramid, #00 >   ;02
@@ -2551,7 +2551,7 @@ scene-meta_00D3 [
   jump < #31 >   ;06
 ]
 
-scene-meta_00D4 [
+scene_meta_00D4 [
   display-mode < #08 >   ;00
   music < #0C, #00, @bgm_great_pyramid >   ;01
   bitmap < #00, #20, #00, @gfx_pyramid, #00 >   ;02
@@ -2561,7 +2561,7 @@ scene-meta_00D4 [
   jump < #31 >   ;06
 ]
 
-scene-meta_00D5 [
+scene_meta_00D5 [
   display-mode < #08 >   ;00
   music < #0C, #00, @bgm_great_pyramid >   ;01
   bitmap < #00, #20, #00, @gfx_pyramid, #00 >   ;02
@@ -2571,7 +2571,7 @@ scene-meta_00D5 [
   jump < #31 >   ;06
 ]
 
-scene-meta_00D6 [
+scene_meta_00D6 [
   display-mode < #26 >   ;00
   music < #0C, #00, @bgm_great_pyramid >   ;01
   bitmap < #00, #20, #00, @gfx_pyramid, #00 >   ;02
@@ -2583,7 +2583,7 @@ scene-meta_00D6 [
   jump < #31 >   ;08
 ]
 
-scene-meta_00D7 [
+scene_meta_00D7 [
   display-mode < #28 >   ;00
   music < #0C, #00, @bgm_great_pyramid >   ;01
   bitmap < #00, #20, #00, @gfx_pyramid, #00 >   ;02
@@ -2595,7 +2595,7 @@ scene-meta_00D7 [
   jump < #31 >   ;08
 ]
 
-scene-meta_00D8 [
+scene_meta_00D8 [
   display-mode < #08 >   ;00
   music < #0C, #00, @bgm_great_pyramid >   ;01
   bitmap < #00, #20, #00, @gfx_pyramid, #00 >   ;02
@@ -2605,7 +2605,7 @@ scene-meta_00D8 [
   jump < #31 >   ;06
 ]
 
-scene-meta_00D9 [
+scene_meta_00D9 [
   display-mode < #26 >   ;00
   music < #0C, #00, @bgm_great_pyramid >   ;01
   bitmap < #00, #20, #00, @gfx_pyramid, #00 >   ;02
@@ -2617,7 +2617,7 @@ scene-meta_00D9 [
   jump < #31 >   ;08
 ]
 
-scene-meta_00DA [
+scene_meta_00DA [
   display-mode < #08 >   ;00
   music < #0C, #00, @bgm_great_pyramid >   ;01
   bitmap < #00, #20, #00, @gfx_pyramid, #00 >   ;02
@@ -2627,7 +2627,7 @@ scene-meta_00DA [
   jump < #31 >   ;06
 ]
 
-scene-meta_00DB [
+scene_meta_00DB [
   display-mode < #26 >   ;00
   music < #0C, #00, @bgm_great_pyramid >   ;01
   bitmap < #00, #20, #00, @gfx_pyramid, #00 >   ;02
@@ -2639,7 +2639,7 @@ scene-meta_00DB [
   jump < #31 >   ;08
 ]
 
-scene-meta_00DC [
+scene_meta_00DC [
   display-mode < #17 >   ;00
   music < #02, #00, @bgm_lively_city >   ;01
   bitmap < #00, #20, #00, @gfx_garden, #00 >   ;02
@@ -2651,7 +2651,7 @@ scene-meta_00DC [
   jump < #38 >   ;08
 ]
 
-scene-meta_00DD [
+scene_meta_00DD [
   display-mode < #08 >   ;00
   music < #0F, #00, @bgm_guardians >   ;01
   bitmap < #00, #20, #00, @gfx_pyramid, #00 >   ;02
@@ -2664,7 +2664,7 @@ scene-meta_00DD [
   spritemap < #$2017, #00, @spm_mummyqueen >   ;09
 ]
 
-scene-meta_00DE [
+scene_meta_00DE [
   display-mode < #02 >   ;00
   music < #04, #00, @bgm_ominous_whispers >   ;01
   bitmap < #00, #20, #00, @gfx_babel, #00 >   ;02
@@ -2676,7 +2676,7 @@ scene-meta_00DE [
   jump < #22 >   ;08
 ]
 
-scene-meta_00DF [
+scene_meta_00DF [
   display-mode < #02 >   ;00
   music < #04, #00, @bgm_ominous_whispers >   ;01
   bitmap < #00, #20, #00, @gfx_babel, #00 >   ;02
@@ -2688,7 +2688,7 @@ scene-meta_00DF [
   jump < #22 >   ;08
 ]
 
-scene-meta_00E0 [
+scene_meta_00E0 [
   display-mode < #02 >   ;00
   music < #04, #00, @bgm_ominous_whispers >   ;01
   bitmap < #00, #20, #00, @gfx_babel, #00 >   ;02
@@ -2700,7 +2700,7 @@ scene-meta_00E0 [
   jump < #22 >   ;08
 ]
 
-scene-meta_00E1 [
+scene_meta_00E1 [
   display-mode < #1E >   ;00
   music < #04, #00, @bgm_ominous_whispers >   ;01
   bitmap < #00, #20, #00, @gfx_babel, #00 >   ;02
@@ -2712,7 +2712,7 @@ scene-meta_00E1 [
   jump < #22 >   ;08
 ]
 
-scene-meta_00E2 [
+scene_meta_00E2 [
   display-mode < #08 >   ;00
   music < #04, #00, @bgm_ominous_whispers >   ;01
   bitmap < #00, #20, #00, @gfx_babel, #00 >   ;02
@@ -2724,7 +2724,7 @@ scene-meta_00E2 [
   spritemap < #$1612, #00, @spm_viper >   ;08
 ]
 
-scene-meta_00E3 [
+scene_meta_00E3 [
   display-mode < #02 >   ;00
   music < #04, #00, @bgm_ominous_whispers >   ;01
   bitmap < #00, #20, #00, @gfx_babel, #00 >   ;02
@@ -2736,7 +2736,7 @@ scene-meta_00E3 [
   jump < #22 >   ;08
 ]
 
-scene-meta_00E4 [
+scene_meta_00E4 [
   display-mode < #15 >   ;00
   music < #0E, #00, @bgm_longing_for_the_past >   ;01
   bitmap < #00, #20, #00, @gfx_babel, #00 >   ;02
@@ -2748,7 +2748,7 @@ scene-meta_00E4 [
   jump < #22 >   ;08
 ]
 
-scene-meta_00E5 [
+scene_meta_00E5 [
   display-mode < #25 >   ;00
   music < #0E, #00, @bgm_longing_for_the_past >   ;01
   bitmap < #00, #20, #00, @gfx_ending_comet, #00 >   ;02
@@ -2759,7 +2759,7 @@ scene-meta_00E5 [
   jump < #22 >   ;07
 ]
 
-scene-meta_00E6 [
+scene_meta_00E6 [
   display-mode < #0C >   ;00
   music < #16, #00, @bgm_space_beyond_time >   ;01
   tilemap < #01, @map_darkspace >   ;02
@@ -2775,7 +2775,7 @@ scene-meta_00E6 [
   spritemap < #$0579, #00, @spm_darkspace_sprites >   ;0C
 ]
 
-scene-meta_00E7 [
+scene_meta_00E7 [
   display-mode < #0C >   ;00
   bitmap < #00, #10, #00, @gfx_ending_combined, #00 >   ;01
   palette < #00, #70, #10, @pal_babel_spaceflight >   ;02
@@ -2786,7 +2786,7 @@ scene-meta_00E7 [
   spritemap < #$00E0, #00, @spm_babel_spaceflight_sprites >   ;07
 ]
 
-scene-meta_00E8 [
+scene_meta_00E8 [
   display-mode < #0D >   ;00
   bitmap < #00, #20, #00, @gfx_18AB6D, #00 >   ;01
   palette < #00, #70, #10, @palette_1E6193 >   ;02
@@ -2798,7 +2798,7 @@ scene-meta_00E8 [
   spritemap < #$0D7F, #00, @sprite_1607B0 >   ;08
 ]
 
-scene-meta_00E9 [
+scene_meta_00E9 [
   display-mode < #22 >   ;00
   music < #06, #00, @bgm_descent_into_darkness >   ;01
   bitmap < #00, #20, #00, @gfx_mansion, #00 >   ;02
@@ -2812,7 +2812,7 @@ scene-meta_00E9 [
   spritemap < #$2930, #00, @spm_mine_sprites >   ;0A
 ]
 
-scene-meta_00EA [
+scene_meta_00EA [
   display-mode < #22 >   ;00
   bitmap < #00, #20, #00, @gfx_mansion, #00 >   ;01
   palette < #00, #70, #10, @pal_mansion >   ;02
@@ -2825,7 +2825,7 @@ scene-meta_00EA [
   spritemap < #$1F8D, #00, @spm_solidarm >   ;09
 ]
 
-scene-meta_00F0 [
+scene_meta_00F0 [
   display-mode < #01 >   ;00
   music < #00, #00, @bgm_restart >   ;01
   music < #1B, #00, @bgm_no_music >   ;02
@@ -2838,7 +2838,7 @@ scene-meta_00F0 [
   spritemap < #$0B62, #00, @spm_ending_class_sprites >   ;09
 ]
 
-scene-meta_00F2 [
+scene_meta_00F2 [
   display-mode < #0C >   ;00
   music < #0F, #00, @bgm_guardians >   ;01
   bitmap < #00, #10, #00, @gfx_ending_combined, #00 >   ;02
@@ -2852,7 +2852,7 @@ scene-meta_00F2 [
   jump < #39 >   ;0A
 ]
 
-scene-meta_00F3 [
+scene_meta_00F3 [
   display-mode < #0C >   ;00
   music < #0F, #00, @bgm_guardians >   ;01
   bitmap < #00, #10, #00, @gfx_ending_combined, #00 >   ;02
@@ -2866,7 +2866,7 @@ scene-meta_00F3 [
   jump < #3A >   ;0A
 ]
 
-scene-meta_00F4 [
+scene_meta_00F4 [
   display-mode < #0C >   ;00
   music < #0F, #00, @bgm_guardians >   ;01
   bitmap < #00, #10, #00, @gfx_ending_combined, #00 >   ;02
@@ -2880,7 +2880,7 @@ scene-meta_00F4 [
   jump < #3B >   ;0A
 ]
 
-scene-meta_00F5 [
+scene_meta_00F5 [
   display-mode < #0C >   ;00
   music < #0F, #00, @bgm_guardians >   ;01
   bitmap < #00, #10, #00, @gfx_ending_combined, #00 >   ;02
@@ -2894,7 +2894,7 @@ scene-meta_00F5 [
   jump < #3C >   ;0A
 ]
 
-scene-meta_00F6 [
+scene_meta_00F6 [
   display-mode < #0C >   ;00
   music < #0F, #00, @bgm_guardians >   ;01
   bitmap < #00, #10, #00, @gfx_ending_combined, #00 >   ;02
@@ -2908,7 +2908,7 @@ scene-meta_00F6 [
   jump < #3D >   ;0A
 ]
 
-scene-meta_00F7 [
+scene_meta_00F7 [
   display-mode < #2E >   ;00
   music < #1B, #00, @bgm_no_music >   ;01
   bitmap < #00, #20, #00, @gfx_credits_font, #02 >   ;02
@@ -2916,7 +2916,7 @@ scene-meta_00F7 [
   spritemap < #$142A, #00, @spm_ending_credits_sprites >   ;04
 ]
 
-scene-meta_00F9 [
+scene_meta_00F9 [
   display-mode < #00 >   ;00
   music < #13, #00, @bgm_bittersweet_victory >   ;01
   music < #17, #00, @bgm_1D4F6B >   ;02
@@ -2941,7 +2941,7 @@ scene-meta_00F9 [
   spritemap < #$08FC, #00, @spm_credits >   ;15
 ]
 
-scene-meta_00FA [
+scene_meta_00FA [
   display-mode < #08 >   ;00
   music < #00, #00, @bgm_restart >   ;01
   music < #12, #00, @bgm_beautiful_world >   ;02
@@ -2952,7 +2952,7 @@ scene-meta_00FA [
   palette < #00, #80, #80, @pal_southcape_sprites >   ;07
 ]
 
-scene-meta_00FB [
+scene_meta_00FB [
   display-mode < #00 >   ;00
   music < #1B, #00, @bgm_no_music >   ;01
   bitmap < #00, #10, #10, @gfx_boot_logos, #01 >   ;02
@@ -2960,7 +2960,7 @@ scene-meta_00FB [
   spritemap < #$018F, #00, @spm_boot_logos >   ;04
 ]
 
-scene-meta_00FC [
+scene_meta_00FC [
   display-mode < #25 >   ;00
   music < #1F, #00, @bgm_illusion_of_gaia >   ;01
   bitmap < #00, #20, #00, @gfx_title, #00 >   ;02
@@ -2973,7 +2973,7 @@ scene-meta_00FC [
   spritemap < #$0165, #00, @spm_title_actors >   ;09
 ]
 
-scene-meta_00FD [
+scene_meta_00FD [
   display-mode < #00 >   ;00
   music < #1B, #00, @bgm_no_music >   ;01
   bitmap < #10, #20, #10, @gfx_inventory_sprites, #01 >   ;02
@@ -2981,7 +2981,7 @@ scene-meta_00FD [
   jump < #11 >   ;04
 ]
 
-scene-meta_00FE [
+scene_meta_00FE [
   display-mode < #19 >   ;00
   music < #12, #00, @bgm_beautiful_world >   ;01
   tileset < #00, #20, #00, #01, @set_overworld >   ;02
@@ -2994,7 +2994,7 @@ scene-meta_00FE [
   spritemap < #$1238, #00, @spm_overworld_sprites >   ;09
 ]
 
-scene-meta_00FF [
+scene_meta_00FF [
   display-mode < #00 >   ;00
   bitmap < #00, #20, #00, @gfx_inventory_sprites, #01 >   ;01
   palette < #00, #80, #80, @pal_inventory_sprites >   ;02
