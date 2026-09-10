@@ -1083,13 +1083,7 @@
     },
     "functions": {
         "ApplyPlayerHitstun": { "start": 50071, "end": 50200, "type": "Code", "movable": true },
-        "InitPlayerScriptVariant": {
-            "movable": true,
-            "parts": {
-                "func_00C6E4": { "start": 50916, "end": 50960, "type": "Code" },
-                "table_00C710": { "start": 50960, "end": 50968, "type": "&Code$2" }
-            }
-        },
+        "InitPlayerScriptVariant": { "start": 50916, "end": 50968, "type": "Code", "movable": true },
         "npc_wander_ai": { "start": 50968, "end": 51194, "type": "Code", "movable": true },
         "ToggleActorVisibilityFlag": { "start": 51194, "end": 51206, "type": "Code", "movable": true },
         "EscortFollowPathTracker": { "start": 51206, "end": 51555, "type": "Code", "movable": true },
@@ -1099,9 +1093,8 @@
         "game_over_sequence": { "start": 54831, "end": 55415, "type": "Code", "movable": true },
         "DeathPaletteFadeThinker": { "start": 46515, "end": 46528, "type": "Code", "movable": true },
         "StandardEnemyDefeatHandler": { "movable": true, "parts": {
-            "func_00DB8A": { "start": 56202, "end": 56439, "type": "Code" },
-            "func_00DD5B": { "start": 56667, "end": 56711, "type": "Code" },
-            "func_00DD87": { "start": 56711, "end": 56818, "type": "Code" }
+            "StandardEnemyDefeatHandler": { "start": 56202, "end": 56439, "type": "Code" },
+            "EnemyGemDropRouter": { "start": 56667, "end": 56818, "type": "Code" }
         } },
         "NullActorScriptStub": { "start": 56439, "end": 56441, "type": "Code", "movable": true },
         "SpawnAttackTrailEffect": { "start": 56500, "end": 56579, "type": "Code", "movable": true },

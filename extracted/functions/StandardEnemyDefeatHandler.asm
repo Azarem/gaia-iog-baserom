@@ -17,7 +17,7 @@
 
 ---------------------------------------------
 
-func_00DB8A {
+StandardEnemyDefeatHandler {
     LDA $statsPtr, X
     CMP #$&stats_01ABF0
     BNE loc_00DB96
@@ -73,7 +73,7 @@ code_00DBB6 {
     LDA $0003, Y
     AND #$00FF
     BEQ code_00DC13
-    JMP $&func_00DD5B
+    JMP $&EnemyGemDropRouter
 
   code_00DC13:
     LDA #$2000
@@ -103,7 +103,7 @@ code_00DBB6 {
   loc_00DC54:
     LDA $orbitAngle, X
     BNE loc_00DC5D
-    JMP $&func_00DD87
+    JMP $&EnemyStatBonusReward
 
   loc_00DC5D:
     COP [Die]
@@ -124,7 +124,7 @@ code_00DC5F {
 }
 ---------------------------------------------
 
-func_00DD5B {
+EnemyGemDropRouter {
     DEC 
     BEQ loc_00DD63
     DEC 
@@ -143,9 +143,8 @@ func_00DD5B {
     COP [SpawnLastRel] ( @DarkGemDropSystem.code_00DF7B, #00, #00, #$0420 )
     JMP $&code_00DC13
 }
----------------------------------------------
 
-func_00DD87 {
+EnemyStatBonusReward {
     COP [SetSpritePalette] ( #00 )
     LDY $sceneCurrent
     LDA $&enemy_clear_reward_table, Y

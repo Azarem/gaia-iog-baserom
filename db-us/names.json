@@ -343,6 +343,7 @@
     "50733": "freejia_street_prop",
     "50791": "scene_flag_init",
     "50916": "InitPlayerScriptVariant",
+    "50960": "table_00C710",
     "50968": "SyncActorPosFromDP",
     "50981": "NpcRandomWanderAI",
     "51194": "ToggleActorVisibilityFlag",

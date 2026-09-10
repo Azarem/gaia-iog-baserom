@@ -6,7 +6,7 @@
 
 ---------------------------------------------
 
-func_00C6E4 {
+InitPlayerScriptVariant {
     PHX 
     ASL 
     TAX 
@@ -26,7 +26,6 @@ func_00C6E4 {
     PLX 
     RTL 
 }
----------------------------------------------
 
 table_00C710 [
   &player_character.IdleStandSouth   ;00
