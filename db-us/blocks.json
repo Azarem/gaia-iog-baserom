@@ -105,7 +105,8 @@
             "DmaAdhocVramBlock": { "start": 258512, "end": 258561, "type": "Code" }
         } },
         "dialogue_engine": { "start": 254549, "end": 256610, "type": "Code", "scene": "engine" },
-        "hud_inventory": { "start": 256610, "end": 258250, "type": "Code", "scene": "engine" },
+        "AsciiStringRenderer": { "start": 256610, "end": 257943, "type": "Code", "scene": "engine" },
+        "inventory_mgmt": { "start": 257943, "end": 258250, "type": "Code", "scene": "inventory" },
         "GetPlayerFacingDirection": { "start": 258250, "end": 258512, "type": "Code", "scene": "engine" },
         "boot_logo_palette_enix": { "start": 47167, "end": 47187, "type": "thinker-def", "scene": "boot_logos", "movable": true },
         "boot_logo_palette_quintet": { "start": 47187, "end": 47207, "type": "thinker-def", "scene": "boot_logos", "movable": true },

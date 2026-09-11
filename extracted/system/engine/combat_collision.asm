@@ -78,7 +78,7 @@
 ?INCLUDE 'game_over_sequence'
 ?INCLUDE 'GetPlayerFacingDirection'
 ?INCLUDE 'hit_stagger_controller'
-?INCLUDE 'hud_inventory'
+?INCLUDE 'inventory_mgmt'
 ?INCLUDE 'itemget_table_01FD24'
 ?INCLUDE 'NullActorScriptStub'
 ?INCLUDE 'player_transition_handlers'
@@ -1531,7 +1531,7 @@ InteractionDamage_NPCChat {
     PLB                   ; 16-bit A for item/dialogue data
     REP #$20
     LDA $chatPtr, X
-    JSL $@hud_inventory.GiveItemToPlayer
+    JSL $@inventory_mgmt.GiveItemToPlayer
     BCC loc_03C4F7
     AND #$00FF
     STA $0DB8

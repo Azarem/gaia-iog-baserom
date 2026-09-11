@@ -138,8 +138,8 @@ export async function rebuild(inPath: string, outPath: string, baseRomPath: stri
     await saveFileAsText(join(artifactPath, 'master-lookup.json'), masterArtifactText);
 
     const crc = crc32_buffer(outData.romData);
-    const crcText = (crc < 0 ? (crc >>> 0) : crc).toString(16).toUpperCase().padStart(8, '0');
-    await saveFileAsText(join(artifactPath, 'crc.txt'), crcText);
+    const crcText = JSON.stringify({ checksum: outData.header.checksum, crc }, null, 2);
+    await saveFileAsText(join(artifactPath, 'crc.json'), crcText);
 }
 
 export async function rebuildJp(inPath: string, outPath: string, baseRomPath: string, modulePaths?: string[]) {

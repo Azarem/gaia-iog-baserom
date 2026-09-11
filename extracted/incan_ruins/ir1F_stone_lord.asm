@@ -109,13 +109,15 @@ code_0A961F {
     JMP $&code_0A965F
 }
 
-ir1F_stone_lord5 {
-    BRK #$00
-    BRK #$02
-    LDX $20, Y
+ir1F_stone_lord5 [
+  actor-def < #00, #00, #00, {
+
+  code_0A9656:
+    COP [SetSpritePriority] ( #20 )
     COP [SetSpritePalette] ( #02 )
     COP [WaitWhileOffscreen] ( #0E )
-}
+} >
+]
 
 code_0A965F {
     COP [SetEntryExit]

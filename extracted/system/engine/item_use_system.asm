@@ -4,7 +4,7 @@
 ?INCLUDE 'ApplyOrbitalOffsetFromRef'
 ?INCLUDE 'cop_handlers_actors'
 ?INCLUDE 'hdma_dma_spc'
-?INCLUDE 'hud_inventory'
+?INCLUDE 'inventory_mgmt'
 ?INCLUDE 'music_actors'
 ?INCLUDE 'player_transition_handlers'
 ?INCLUDE 'system_core'
@@ -1311,7 +1311,7 @@ code_039B07 {
     CLC 
     ADC #$001E
     PHY 
-    JSL $@hud_inventory.GiveItemToPlayer
+    JSL $@inventory_mgmt.GiveItemToPlayer
     PLY 
     LDA $0AA6
     STA $0B28, Y

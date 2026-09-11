@@ -1,4 +1,4 @@
-?INCLUDE 'hud_inventory'
+?INCLUDE 'inventory_mgmt'
 
 !joypadMaskStd                  065A
 
@@ -86,7 +86,7 @@ code_08CC09 {
     LDA $0B28
     CLC 
     ADC #$001E
-    JSL $@hud_inventory.GiveItemToPlayer
+    JSL $@inventory_mgmt.GiveItemToPlayer
     BCC loc_08CC2B
     JMP $&code_08CCB7
 
@@ -97,7 +97,7 @@ code_08CC09 {
     LDA $0B2A
     CLC 
     ADC #$001E
-    JSL $@hud_inventory.GiveItemToPlayer
+    JSL $@inventory_mgmt.GiveItemToPlayer
     BCS code_08CCB7
     LDA #$FFFF
     STA $0B2A
@@ -105,7 +105,7 @@ code_08CC09 {
     LDA $0B2C
     CLC 
     ADC #$001E
-    JSL $@hud_inventory.GiveItemToPlayer
+    JSL $@inventory_mgmt.GiveItemToPlayer
     BCS code_08CCB7
     LDA #$FFFF
     STA $0B2C
@@ -113,7 +113,7 @@ code_08CC09 {
     LDA $0B2E
     CLC 
     ADC #$001E
-    JSL $@hud_inventory.GiveItemToPlayer
+    JSL $@inventory_mgmt.GiveItemToPlayer
     BCS code_08CCB7
     LDA #$FFFF
     STA $0B2E
@@ -121,7 +121,7 @@ code_08CC09 {
     LDA $0B30
     CLC 
     ADC #$001E
-    JSL $@hud_inventory.GiveItemToPlayer
+    JSL $@inventory_mgmt.GiveItemToPlayer
     BCS code_08CCB7
     LDA #$FFFF
     STA $0B30
@@ -129,7 +129,7 @@ code_08CC09 {
     LDA $0B32
     CLC 
     ADC #$001E
-    JSL $@hud_inventory.GiveItemToPlayer
+    JSL $@inventory_mgmt.GiveItemToPlayer
     BCS code_08CCB7
     LDA #$FFFF
     STA $0B32

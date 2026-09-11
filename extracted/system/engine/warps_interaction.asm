@@ -6,7 +6,7 @@
 ?INCLUDE 'forced_walk'
 ?INCLUDE 'GetPlayerFacingDirection'
 ?INCLUDE 'hdma_dma_spc'
-?INCLUDE 'hud_inventory'
+?INCLUDE 'inventory_mgmt'
 ?INCLUDE 'itemget_table_01FD24'
 ?INCLUDE 'map_coords'
 ?INCLUDE 'player_transition_handlers'
@@ -235,7 +235,7 @@ HandleChestInteraction {
     LDA $0002, X
     AND #$00FF
     BEQ loc_02A73D
-    JSL $@hud_inventory.GiveItemToPlayer
+    JSL $@inventory_mgmt.GiveItemToPlayer
     BCC loc_02A753
     JSL $@dialogue_display.ShowDialogueFrame
     LDA $01, S

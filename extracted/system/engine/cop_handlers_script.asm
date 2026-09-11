@@ -1,7 +1,8 @@
 ?BANK 00
 
+?INCLUDE 'AsciiStringRenderer'
 ?INCLUDE 'dialogue_engine'
-?INCLUDE 'hud_inventory'
+?INCLUDE 'inventory_mgmt'
 ?INCLUDE 'system_core'
 
 !L_wramFlags                    000A80
@@ -225,7 +226,7 @@ RunBg3Script {
     REP #$20
     LDA #$0000
     TCD 
-    JSL $@hud_inventory.AsciiStringRenderer
+    JSL $@AsciiStringRenderer
     PLB 
     PLA 
     TAX 
@@ -749,7 +750,7 @@ GiveItem {
     LDA [$0A]
     INC $0A
     AND #$00FF
-    JSL $@hud_inventory.GiveItemToPlayer
+    JSL $@inventory_mgmt.GiveItemToPlayer
     BCS loc_00AC1E
     LDA [$0A]
     INC $0A
@@ -771,7 +772,7 @@ RemoveItem {
     LDA [$0A]
     INC $0A
     AND #$00FF
-    JSL $@hud_inventory.RemoveItemFromInventory
+    JSL $@inventory_mgmt.RemoveItemFromInventory
     LDA $0A
     STA $02, S
     RTI 
@@ -782,7 +783,7 @@ BranchIfMissingItem {
     LDA [$0A]
     INC $0A
     AND #$00FF
-    JSL $@hud_inventory.CheckInventoryForItem
+    JSL $@inventory_mgmt.CheckInventoryForItem
     BCC loc_00AC51
     LDA [$0A]
     INC $0A
