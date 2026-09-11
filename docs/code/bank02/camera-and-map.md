@@ -2,6 +2,7 @@
 
 **Bank:** `$02` (FastROM; accessed via `$@` long calls from other banks)  
 **Document scope:** Incremental tilemap scrolling, map coordinate/index helpers, and tile collision probing in the `engine` scene.  
+**ASM sources:** [`camera_tilemap.asm`](../../../extracted/system/engine/camera_tilemap.asm) (block: `camera_tilemap`), [`map_coords.asm`](../../../extracted/system/engine/map_coords.asm) (block: `map_coords`), [`tile_collision.asm`](../../../extracted/system/engine/tile_collision.asm) (block: `tile_collision`)  
 **Last updated:** 2026-09-07
 
 This document covers three ASM compilation units that implement Illusion of Gaia's **field rendering and movement physics substrate**:
@@ -14,7 +15,7 @@ These routines sit above the hardware math layer ([`hardware-and-init.md`](hardw
 
 **Related:** [`scene-engine.md`](scene-engine.md) · [`../bank00/camera-scroll-system.md`](../bank00/camera-scroll-system.md) · [`../bank00/direction-collision.md`](../bank00/direction-collision.md) · [`../bank00/data-tables-memory.md`](../bank00/data-tables-memory.md) · [`../bank2-code-analysis.md`](../bank2-code-analysis.md) · [`../../cop-commands-reference.md`](../../cop-commands-reference.md)
 
----
+
 
 ## Block Layout Overview
 
@@ -36,7 +37,7 @@ $02E396 └─ (inventory_menu continues) ────────────�
 
 > **Note:** `map_coords` and `tile_collision` are **not contiguous** in ROM. Roughly 12 KB of unrelated engine code sits between `$02B20E` and `$02E102`. They link at compile time via `?INCLUDE 'tile_collision'` in `map_coords.asm`.
 
----
+
 
 ## Shared Memory Map
 
@@ -81,7 +82,7 @@ $02E396 └─ (inventory_menu continues) ────────────�
 | `$00`–`$04` | 5 | Map cell index / alignment scratch |
 | `$7FC000`+ | — | Runtime collision overlay (high nibble = dynamic block; low nibble = base tile type) |
 
----
+
 
 ## Scrolling Pipeline
 
@@ -111,7 +112,7 @@ flowchart TD
 
 **Full Refresh (scene load):** `CameraFullRefresh` loops 32 rows with immediate DMA and uploads CGRAM palette.
 
----
+
 
 ## Collision Type Reference
 
@@ -133,7 +134,7 @@ flowchart TD
 
 Dynamic collision (COP `$0B`/`$0C`/`$11` handlers) ORs `$F0` into the high nibble at `$7FC000`. `ReadCollisionNibble` prefers the high nibble when non-zero. See [`direction-collision.md`](../bank00/direction-collision.md).
 
----
+
 
 ## Probe Corner Layout
 
@@ -150,30 +151,27 @@ Player collision uses four corner probes offset from the 16×16 pixel footbox:
 
 Coordinates are in **tile-pixel space** (`$22`/`$26` divided by 4).
 
----
+
 
 ## camera_tilemap.asm
 
-| Property | Value |
-|----------|-------|
-| **Path** | [`extracted/system/engine/camera_tilemap.asm`](../../../extracted/system/engine/camera_tilemap.asm) |
-| **Block** | `camera_tilemap` |
-| **Scene** | `engine` |
-| **Address range** | `$02AB8A`–`$02B0A3` |
-| **Includes** | `hardware_math`, `system_init` |
+| Address | Name | Size | Description |
+|---------|------|------|-------------|
+| `$02AB8A` | CameraFullRefresh | 164 B | CameraFullRefresh performs a complete BG nametable rebuild when a scene loads. |
+| `$02AC2E` | CameraSmoothScroll | 158 B | CameraSmoothScroll is the per-frame camera follow routine called from system_core.asm for both BG1 (X=0) and BG2 (X=2). |
+| `$02ACCC` | UpdateScrollRow | 37 B | UpdateScrollRow is the vertical-scroll dirty-strip trigger. |
+| `$02ACF1` | UpdateScrollColumn | 26 B | UpdateScrollColumn is the horizontal-scroll dirty-strip trigger, symmetric to UpdateScrollRow. |
+| `$02AD0B` | RenderScrollColumn | 130 B | RenderScrollColumn renders one 16-tile vertical column into the WRAM strip buffer when the camera scrolls vertically. |
+| `$02AD8D` | WrapMapIndex | 21 B | WrapMapIndex ensures a 16-bit map buffer index stays within the toroidal map extent. |
+| `$02ADA2` | RenderScrollRow | 335 B | RenderScrollRow is the largest scrolling function (335 bytes). |
+| `$02AEF1` | FillHorizTilemapSeg | 53 B | FillHorizTilemapSeg copies a run of map tile entries from the decompressed map buffer into a WRAM strip buffer using ... |
+| `$02AF26` | FillVertTilemapSeg | 57 B | FillVertTilemapSeg is the vertical-layout counterpart to FillHorizTilemapSeg. |
+| `$02AF5F` | FlushDirtyTilemapStrips | 104 B | FlushDirtyTilemapStrips is the VBlank entry point that uploads all queued tilemap strips from WRAM to VRAM. |
+| `$02AFC7` | DmaHorizontalStrip | 57 B | DmaHorizontalStrip performs two back-to-back 64-byte DMA transfers from the WRAM strip buffer to VRAM. |
+| `$02B000` | DmaVerticalStrip | 56 B | DmaVerticalStrip performs two back-to-back 128-byte DMA transfers in byte mode for column-oriented nametable updates. |
+| `$02B038` | SpriteVramDma | 107 B | SpriteVramDma uploads pending sprite tile patches from WRAM bank $7F to sprite VRAM during VBlank. |
 
 ### CameraFullRefresh
-
-| Property | Value |
-|----------|-------|
-| **Name** | `CameraFullRefresh` |
-| **Address** | `$02AB8A` |
-| **Decimal** | 174986 |
-| **Size** | 164 bytes |
-| **Type** | Code |
-| **ASM file** | [`camera_tilemap.asm`](../../../extracted/system/engine/camera_tilemap.asm) |
-
-**Description**
 
 `CameraFullRefresh` performs a complete BG nametable rebuild when a scene loads. It is invoked from `chunk_03BAE1.asm` after map and tilemap decompression, before the player can move. The routine first clamps the camera target coordinates (`$06BE`/`$06C2`) to the map pixel bounds stored in `$0692`/`$0696`, then copies the clamped values into the current scroll registers `$068A`/`$068E`.
 
@@ -183,7 +181,7 @@ The main loop runs 32 iterations — one per visible tile row. Each iteration ca
 
 On completion, all four dirty-flag words (`$7E3100`, `$7E3288`, `$7E3184`, `$7E330C`) are cleared, and CGRAM palette is uploaded via `system_init.UploadCgramPalette`.
 
-**Algorithm**
+**Algorithm:**
 
 | Step | Action |
 |------|--------|
@@ -195,9 +193,9 @@ On completion, all four dirty-flag words (`$7E3100`, `$7E3288`, `$7E3184`, `$7E3
 | 6 | Advance `$18` by `$0010`; wrap against `$map_bounds_x,X` |
 | 7 | Clear four dirty-flag words; JSL `UploadCgramPalette`; restore and RTL |
 
-**Source**
+**Source:**
 
-```19:97:extracted/system/engine/camera_tilemap.asm
+```19:97:../../../extracted/system/engine/camera_tilemap.asm
 CameraFullRefresh {
     PHP 
     REP #$20
@@ -209,7 +207,7 @@ CameraFullRefresh {
 }
 ```
 
-**Variables**
+**Variables:**
 
 | Location | Direction | Role |
 |----------|-----------|------|
@@ -222,7 +220,7 @@ CameraFullRefresh {
 | `$7E0000,X` | In | Queued VRAM destination address |
 | `$7E3100`–`$7E330C` | Out | Cleared dirty flags |
 
-**Cross-References**
+**Cross-References:**
 
 | Symbol | Relationship |
 |--------|--------------|
@@ -231,20 +229,9 @@ CameraFullRefresh {
 | `system_init.UploadCgramPalette` | JSL after refresh completes |
 | `chunk_03BAE1.asm` | Primary caller on scene load |
 
----
+
 
 ### CameraSmoothScroll
-
-| Property | Value |
-|----------|-------|
-| **Name** | `CameraSmoothScroll` |
-| **Address** | `$02AC2E` |
-| **Decimal** | 175150 |
-| **Size** | 158 bytes |
-| **Type** | Code |
-| **ASM file** | [`camera_tilemap.asm`](../../../extracted/system/engine/camera_tilemap.asm) |
-
-**Description**
 
 `CameraSmoothScroll` is the per-frame camera follow routine called from `system_core.asm` for both BG1 (`X=0`) and BG2 (`X=2`). It smoothly interpolates the current scroll position toward the camera target, producing a lagged follow effect rather than instant snapping.
 
@@ -254,7 +241,7 @@ For the normal path, the X-axis delta is computed as `$06BE − $068A`, then cla
 
 The Y axis follows the identical pattern using `$06C2`, `$068E`, `$06D2`, and `UpdateScrollRow`.
 
-**Algorithm**
+**Algorithm:**
 
 | Step | Action |
 |------|--------|
@@ -265,9 +252,9 @@ The Y axis follows the identical pattern using `$06C2`, `$068E`, `$06D2`, and `U
 | 5 | Compute Y delta; clamp → `$06D2`; update `$068E` |
 | 6 | If tile boundary crossed on Y: `UpdateScrollRow` |
 
-**Source**
+**Source:**
 
-```99:184:extracted/system/engine/camera_tilemap.asm
+```99:184:../../../extracted/system/engine/camera_tilemap.asm
 CameraSmoothScroll {
     PHP 
     REP #$20
@@ -279,7 +266,7 @@ CameraSmoothScroll {
 }
 ```
 
-**Variables**
+**Variables:**
 
 | Location | Direction | Role |
 |----------|-----------|------|
@@ -290,7 +277,7 @@ CameraSmoothScroll {
 | `$06EE` | In | BG2 disable flag (bit `$0400`) |
 | `X` | In | BG layer index (`0`=BG1, `2`=BG2) |
 
-**Cross-References**
+**Cross-References:**
 
 | Symbol | Relationship |
 |--------|--------------|
@@ -298,26 +285,15 @@ CameraSmoothScroll {
 | `UpdateScrollRow` | Called on vertical tile-boundary cross |
 | `system_core.asm` | Caller — twice per frame (BG1 + BG2) |
 
----
+
 
 ### UpdateScrollRow
-
-| Property | Value |
-|----------|-------|
-| **Name** | `UpdateScrollRow` |
-| **Address** | `$02ACCC` |
-| **Decimal** | 175308 |
-| **Size** | 37 bytes |
-| **Type** | Code |
-| **ASM file** | [`camera_tilemap.asm`](../../../extracted/system/engine/camera_tilemap.asm) |
-
-**Description**
 
 `UpdateScrollRow` is the vertical-scroll dirty-strip trigger. When `CameraSmoothScroll` detects that the smoothed Y position crossed a 16-pixel tile boundary, this routine determines which map row needs to be rendered and calls `RenderScrollColumn`.
 
 The current scroll X is copied to `$18` so the column renderer knows the horizontal position. The Y coordinate is adjusted by `$00E0` (scrolling down, +224 px) or `$FFF0` (scrolling up, −16 px) depending on the sign of `$06D2`. The result is stored in `$1C` and wrapped modulo `$map_bounds_y` in a subtract loop before calling `RenderScrollColumn`.
 
-**Algorithm**
+**Algorithm:**
 
 | Step | Action |
 |------|--------|
@@ -326,9 +302,9 @@ The current scroll X is copied to `$18` so the column renderer knows the horizon
 | 3 | Add offset to `$068E,X` → `$1C`; wrap against `$map_bounds_y,X` |
 | 4 | JSR `RenderScrollColumn` |
 
-**Source**
+**Source:**
 
-```186:209:extracted/system/engine/camera_tilemap.asm
+```186:209:../../../extracted/system/engine/camera_tilemap.asm
 UpdateScrollRow {
     LDA $068A, X
     STA $18
@@ -339,7 +315,7 @@ UpdateScrollRow {
 }
 ```
 
-**Variables**
+**Variables:**
 
 | Location | Direction | Role |
 |----------|-----------|------|
@@ -349,33 +325,22 @@ UpdateScrollRow {
 | `$18` / `$1C` | Out | Tile column / row for renderer |
 | `$map_bounds_y,X` | In | Map height for wrap |
 
-**Cross-References**
+**Cross-References:**
 
 | Symbol | Relationship |
 |--------|--------------|
 | `CameraSmoothScroll` | Caller on Y tile-boundary cross |
 | `RenderScrollColumn` | Called to build vertical strip |
 
----
+
 
 ### UpdateScrollColumn
-
-| Property | Value |
-|----------|-------|
-| **Name** | `UpdateScrollColumn` |
-| **Address** | `$02ACF1` |
-| **Decimal** | 175345 |
-| **Size** | 26 bytes |
-| **Type** | Code |
-| **ASM file** | [`camera_tilemap.asm`](../../../extracted/system/engine/camera_tilemap.asm) |
-
-**Description**
 
 `UpdateScrollColumn` is the horizontal-scroll dirty-strip trigger, symmetric to `UpdateScrollRow`. When the camera crosses a 16-pixel column boundary, this routine computes the new column coordinate and invokes `RenderScrollRow`.
 
 The X offset is `$0100` (scrolling right, +256 px in fixed-point) when `$06CE` is non-negative, or `$0000` (no offset, scrolling left) when negative. The offset is added to `$068A` and stored in `$18`. Current scroll Y is copied to `$1C`, then `RenderScrollRow` builds the horizontal strip.
 
-**Algorithm**
+**Algorithm:**
 
 | Step | Action |
 |------|--------|
@@ -384,9 +349,9 @@ The X offset is `$0100` (scrolling right, +256 px in fixed-point) when `$06CE` i
 | 3 | `$1C` ← `$068E,X` |
 | 4 | JSR `RenderScrollRow` |
 
-**Source**
+**Source:**
 
-```211:225:extracted/system/engine/camera_tilemap.asm
+```211:225:../../../extracted/system/engine/camera_tilemap.asm
 UpdateScrollColumn {
     LDA #$0000
     LDY $06CE, X
@@ -395,7 +360,7 @@ UpdateScrollColumn {
 }
 ```
 
-**Variables**
+**Variables:**
 
 | Location | Direction | Role |
 |----------|-----------|------|
@@ -403,27 +368,16 @@ UpdateScrollColumn {
 | `$068A,X` / `$068E,X` | In | Current scroll position |
 | `$18` / `$1C` | Out | Tile column / row for renderer |
 
-**Cross-References**
+**Cross-References:**
 
 | Symbol | Relationship |
 |--------|--------------|
 | `CameraSmoothScroll` | Caller on X tile-boundary cross |
 | `RenderScrollRow` | Called to build horizontal strip |
 
----
+
 
 ### RenderScrollColumn
-
-| Property | Value |
-|----------|-------|
-| **Name** | `RenderScrollColumn` |
-| **Address** | `$02AD0B` |
-| **Decimal** | 175371 |
-| **Size** | 130 bytes |
-| **Type** | Code |
-| **ASM file** | [`camera_tilemap.asm`](../../../extracted/system/engine/camera_tilemap.asm) |
-
-**Description**
 
 `RenderScrollColumn` renders one 16-tile vertical column into the WRAM strip buffer when the camera scrolls vertically. It computes the map buffer index from tile row (`$1C`) and column (`$18`), wraps the index via `WrapMapIndex`, and writes VRAM destination addresses to both BG1 and BG2 strip queue heads.
 
@@ -431,7 +385,7 @@ The VRAM address calculation uses `$06BA` (nametable base) plus the row componen
 
 Two `FillHorizTilemapSeg` calls populate the strip: the first for the primary 16-tile segment, the second after advancing the map index by `$0100` and re-wrapping for the toroidal edge case.
 
-**Algorithm**
+**Algorithm:**
 
 | Step | Action |
 |------|--------|
@@ -442,9 +396,9 @@ Two `FillHorizTilemapSeg` calls populate the strip: the first for the primary 16
 | 5 | `FillHorizTilemapSeg` × 16 tiles; advance index `$0100`; wrap; fill again |
 | 6 | Restore registers |
 
-**Source**
+**Source:**
 
-```227:300:extracted/system/engine/camera_tilemap.asm
+```227:300:../../../extracted/system/engine/camera_tilemap.asm
 RenderScrollColumn {
     PHP 
     PHB 
@@ -455,7 +409,7 @@ RenderScrollColumn {
 }
 ```
 
-**Variables**
+**Variables:**
 
 | Location | Direction | Role |
 |----------|-----------|------|
@@ -467,7 +421,7 @@ RenderScrollColumn {
 | `$04` | In/Out | Map index for fill segment |
 | `$02` | In | Tileset pointer for 8-byte tile records |
 
-**Cross-References**
+**Cross-References:**
 
 | Symbol | Relationship |
 |--------|--------------|
@@ -476,26 +430,15 @@ RenderScrollColumn {
 | `FillHorizTilemapSeg` | Called twice for 16-tile column |
 | `hardware_math.SignedMultiply` | Row × width multiplication |
 
----
+
 
 ### WrapMapIndex
-
-| Property | Value |
-|----------|-------|
-| **Name** | `WrapMapIndex` |
-| **Address** | `$02AD8D` |
-| **Decimal** | 175501 |
-| **Size** | 21 bytes |
-| **Type** | Code |
-| **ASM file** | [`camera_tilemap.asm`](../../../extracted/system/engine/camera_tilemap.asm) |
-
-**Description**
 
 `WrapMapIndex` ensures a 16-bit map buffer index stays within the toroidal map extent. It subtracts the combined map origin and size (`$069E` + `$069A`) from the accumulator. If the result is still non-negative (borrow clear), the index is in range and the routine returns.
 
 If the subtraction underflows (borrow set), the extent is added back and the routine recurses until the index falls within bounds. This handles maps that wrap horizontally, vertically, or both.
 
-**Algorithm**
+**Algorithm:**
 
 | Step | Action |
 |------|--------|
@@ -503,9 +446,9 @@ If the subtraction underflows (borrow set), the extent is added back and the rou
 | 2 | If no borrow: RTS (index valid in A) |
 | 3 | A ← A + `$069E,X`; store in `$04`; Y ← A; goto step 1 |
 
-**Source**
+**Source:**
 
-```302:316:extracted/system/engine/camera_tilemap.asm
+```302:316:../../../extracted/system/engine/camera_tilemap.asm
 WrapMapIndex {
     SEC 
     SBC $069E, X
@@ -520,7 +463,7 @@ WrapMapIndex {
 }
 ```
 
-**Variables**
+**Variables:**
 
 | Location | Direction | Role |
 |----------|-----------|------|
@@ -529,27 +472,16 @@ WrapMapIndex {
 | `$04` | Out | Wrapped index scratch |
 | X | In | BG layer index |
 
-**Cross-References**
+**Cross-References:**
 
 | Symbol | Relationship |
 |--------|--------------|
 | `RenderScrollColumn` | Caller |
 | `RenderScrollRow` | Caller (multiple sites) |
 
----
+
 
 ### RenderScrollRow
-
-| Property | Value |
-|----------|-------|
-| **Name** | `RenderScrollRow` |
-| **Address** | `$02ADA2` |
-| **Decimal** | 175522 |
-| **Size** | 335 bytes |
-| **Type** | Code |
-| **ASM file** | [`camera_tilemap.asm`](../../../extracted/system/engine/camera_tilemap.asm) |
-
-**Description**
 
 `RenderScrollRow` is the largest scrolling function (335 bytes). It renders one 16-tile horizontal row into the WRAM strip buffer when the camera scrolls horizontally. The routine handles map edge wrapping, partial segments at row boundaries, and dual nametable layout for both BG1 and BG2.
 
@@ -559,7 +491,7 @@ VRAM destination addresses are written to the horizontal dirty-queue at `$06B2`.
 
 The row is filled via `FillVertTilemapSeg`, which writes tiles in column-stride layout. When the row crosses a map edge (`$10` nibble offset non-zero), a second partial segment is rendered after re-wrapping the map index. A final single-tile fill handles the trailing edge case when the row nibble is zero but the index high nibble is set.
 
-**Algorithm**
+**Algorithm:**
 
 | Step | Action |
 |------|--------|
@@ -570,9 +502,9 @@ The row is filled via `FillVertTilemapSeg`, which writes tiles in column-stride 
 | 5 | If row_nibble ≠ 0: wrap index at map edge; partial fill for remainder |
 | 6 | Trailing edge: if index nibble zero, optional 1-tile wrap fill |
 
-**Source**
+**Source:**
 
-```318:525:extracted/system/engine/camera_tilemap.asm
+```318:525:../../../extracted/system/engine/camera_tilemap.asm
 RenderScrollRow {
     PHP 
     PHB 
@@ -583,7 +515,7 @@ RenderScrollRow {
 }
 ```
 
-**Variables**
+**Variables:**
 
 | Location | Direction | Role |
 |----------|-----------|------|
@@ -594,7 +526,7 @@ RenderScrollRow {
 | `$1A` / `$1E` / `$08` | Temp | Map width and extent bounds |
 | `$02` | In | Tileset base pointer |
 
-**Cross-References**
+**Cross-References:**
 
 | Symbol | Relationship |
 |--------|--------------|
@@ -603,26 +535,15 @@ RenderScrollRow {
 | `WrapMapIndex` | Index wrap at map edges |
 | `FillVertTilemapSeg` | Primary tile copy helper |
 
----
+
 
 ### FillHorizTilemapSeg
-
-| Property | Value |
-|----------|-------|
-| **Name** | `FillHorizTilemapSeg` |
-| **Address** | `$02AEF1` |
-| **Decimal** | 175857 |
-| **Size** | 53 bytes |
-| **Type** | Code |
-| **ASM file** | [`camera_tilemap.asm`](../../../extracted/system/engine/camera_tilemap.asm) |
-
-**Description**
 
 `FillHorizTilemapSeg` copies a run of map tile entries from the decompressed map buffer into a WRAM strip buffer using horizontal (sequential) layout. The tile count is passed in the accumulator; the map index is in `$04`; the strip write pointer is in `X`.
 
 For each tile, the map byte at `$0000,Y` indexes an 8-byte tile record in the tileset (`$02` base in `$7E` bank). Four words are written to the strip buffer: tile number, attributes, and their BG2 counterparts at offset `$0040` within the strip entry.
 
-**Algorithm**
+**Algorithm:**
 
 | Step | Action |
 |------|--------|
@@ -631,9 +552,9 @@ For each tile, the map byte at `$0000,Y` indexes an 8-byte tile record in the ti
 | 3 | Write 4 words to strip at X (`$0002`, `$0004`, `$0042`, `$0044`) |
 | 4 | X += 4; Y++; decrement count; repeat |
 
-**Source**
+**Source:**
 
-```527:558:extracted/system/engine/camera_tilemap.asm
+```527:558:../../../extracted/system/engine/camera_tilemap.asm
 FillHorizTilemapSeg {
     LDY $04
     STA $0E
@@ -643,7 +564,7 @@ FillHorizTilemapSeg {
 }
 ```
 
-**Variables**
+**Variables:**
 
 | Location | Direction | Role |
 |----------|-----------|------|
@@ -653,32 +574,21 @@ FillHorizTilemapSeg {
 | X | In/Out | Strip buffer write pointer |
 | `$0E` | Temp | Remaining tile count |
 
-**Cross-References**
+**Cross-References:**
 
 | Symbol | Relationship |
 |--------|--------------|
 | `RenderScrollColumn` | Caller (twice per column) |
 
----
+
 
 ### FillVertTilemapSeg
-
-| Property | Value |
-|----------|-------|
-| **Name** | `FillVertTilemapSeg` |
-| **Address** | `$02AF26` |
-| **Decimal** | 175910 |
-| **Size** | 57 bytes |
-| **Type** | Code |
-| **ASM file** | [`camera_tilemap.asm`](../../../extracted/system/engine/camera_tilemap.asm) |
-
-**Description**
 
 `FillVertTilemapSeg` is the vertical-layout counterpart to `FillHorizTilemapSeg`. It copies tiles into a strip buffer where each successive tile advances the map index by `$0010` (one map row) rather than by one byte. This matches the column-stride layout required for vertical DMA strips.
 
 The tile record read and 4-word strip write pattern is identical to the horizontal variant, but the map index Y register is advanced by `$0010` after each tile instead of incrementing by 1.
 
-**Algorithm**
+**Algorithm:**
 
 | Step | Action |
 |------|--------|
@@ -686,9 +596,9 @@ The tile record read and 4-word strip write pattern is identical to the horizont
 | 2 | Loop: read map byte → tileset lookup → write 4 words to strip |
 | 3 | Map index Y += `$0010` (next row); decrement count; repeat |
 
-**Source**
+**Source:**
 
-```560:593:extracted/system/engine/camera_tilemap.asm
+```560:593:../../../extracted/system/engine/camera_tilemap.asm
 FillVertTilemapSeg {
     LDY $04
     STA $0E
@@ -698,7 +608,7 @@ FillVertTilemapSeg {
 }
 ```
 
-**Variables**
+**Variables:**
 
 | Location | Direction | Role |
 |----------|-----------|------|
@@ -707,26 +617,15 @@ FillVertTilemapSeg {
 | `$02` | In | Tileset base |
 | X | In/Out | Strip buffer write pointer |
 
-**Cross-References**
+**Cross-References:**
 
 | Symbol | Relationship |
 |--------|--------------|
 | `RenderScrollRow` | Caller (multiple segments per row) |
 
----
+
 
 ### FlushDirtyTilemapStrips
-
-| Property | Value |
-|----------|-------|
-| **Name** | `FlushDirtyTilemapStrips` |
-| **Address** | `$02AF5F` |
-| **Decimal** | 175967 |
-| **Size** | 104 bytes |
-| **Type** | Code |
-| **ASM file** | [`camera_tilemap.asm`](../../../extracted/system/engine/camera_tilemap.asm) |
-
-**Description**
 
 `FlushDirtyTilemapStrips` is the VBlank entry point that uploads all queued tilemap strips from WRAM to VRAM. Called from the NMI path in `system_core.asm`, it processes four dirty-queue heads: two horizontal (BG1 at `$06B2`, BG2 at `$06B4`) and two vertical (BG1 at `$06B6`, BG2 at `$06B8`).
 
@@ -734,7 +633,7 @@ For horizontal strips, VMAIN is set to `$81` (word increment, `$2118` dest). Eac
 
 After all transfers, the four dirty-flag words at `$7E3100`, `$7E3288`, `$7E3184`, and `$7E330C` are zeroed.
 
-**Algorithm**
+**Algorithm:**
 
 | Step | Action |
 |------|--------|
@@ -746,9 +645,9 @@ After all transfers, the four dirty-flag words at `$7E3100`, `$7E3288`, `$7E3184
 | 6 | Process `$06B8` queue → `DmaVerticalStrip` if addr ≠ 0 |
 | 7 | Clear all four dirty-flag words |
 
-**Source**
+**Source:**
 
-```595:644:extracted/system/engine/camera_tilemap.asm
+```595:644:../../../extracted/system/engine/camera_tilemap.asm
 FlushDirtyTilemapStrips {
     PHP 
     SEP #$20
@@ -758,7 +657,7 @@ FlushDirtyTilemapStrips {
 }
 ```
 
-**Variables**
+**Variables:**
 
 | Location | Direction | Role |
 |----------|-----------|------|
@@ -767,7 +666,7 @@ FlushDirtyTilemapStrips {
 | `$7E3100`–`$7E330C` | Out | Cleared dirty flags |
 | `$VMAIN` / `$DMAP0` | Out | Hardware DMA configuration |
 
-**Cross-References**
+**Cross-References:**
 
 | Symbol | Relationship |
 |--------|--------------|
@@ -775,26 +674,15 @@ FlushDirtyTilemapStrips {
 | `DmaVerticalStrip` | Called for vertical queue entries |
 | `system_core.asm` | VBlank/NMI caller |
 
----
+
 
 ### DmaHorizontalStrip
-
-| Property | Value |
-|----------|-------|
-| **Name** | `DmaHorizontalStrip` |
-| **Address** | `$02AFC7` |
-| **Decimal** | 176071 |
-| **Size** | 57 bytes |
-| **Type** | Code |
-| **ASM file** | [`camera_tilemap.asm`](../../../extracted/system/engine/camera_tilemap.asm) |
-
-**Description**
 
 `DmaHorizontalStrip` performs two back-to-back 64-byte DMA transfers from the WRAM strip buffer to VRAM. Entry requires Y = target VRAM address and X = strip buffer offset. The routine writes `$0040` (64) bytes per transfer in word mode to `$2118`.
 
 The first transfer uses the entry X/Y values directly. After the first transfer completes, X advances by `$0040` and the next queued VRAM address is read from `$7E0000,X` for the second 64-byte block. This covers a full 128-byte horizontal nametable row segment (32 tile words).
 
-**Algorithm**
+**Algorithm:**
 
 | Step | Action |
 |------|--------|
@@ -803,9 +691,9 @@ The first transfer uses the entry X/Y values directly. After the first transfer 
 | 3 | Pop X; X += `$0040`; read next VRAM addr from `$7E0000,X` |
 | 4 | Second 64-byte DMA transfer |
 
-**Source**
+**Source:**
 
-```646:676:extracted/system/engine/camera_tilemap.asm
+```646:676:../../../extracted/system/engine/camera_tilemap.asm
 DmaHorizontalStrip {
     PHP 
     SEP #$20
@@ -815,7 +703,7 @@ DmaHorizontalStrip {
 }
 ```
 
-**Variables**
+**Variables:**
 
 | Location | Direction | Role |
 |----------|-----------|------|
@@ -823,33 +711,22 @@ DmaHorizontalStrip {
 | X | In | WRAM strip buffer offset |
 | `$VMADDL` / `$A1T0L` / `$DAS0L` | Out | SNES DMA channel 0 registers |
 
-**Cross-References**
+**Cross-References:**
 
 | Symbol | Relationship |
 |--------|--------------|
 | `FlushDirtyTilemapStrips` | Primary caller |
 | `CameraFullRefresh` | Direct caller during scene load |
 
----
+
 
 ### DmaVerticalStrip
-
-| Property | Value |
-|----------|-------|
-| **Name** | `DmaVerticalStrip` |
-| **Address** | `$02B000` |
-| **Decimal** | 176128 |
-| **Size** | 56 bytes |
-| **Type** | Code |
-| **ASM file** | [`camera_tilemap.asm`](../../../extracted/system/engine/camera_tilemap.asm) |
-
-**Description**
 
 `DmaVerticalStrip` performs two back-to-back 128-byte DMA transfers in byte mode for column-oriented nametable updates. Like the horizontal variant, it takes Y = VRAM address and X = strip buffer offset on entry.
 
 Each transfer moves `$0080` (128) bytes. The second block reads its VRAM destination from the queue and writes it directly to `$VMADDL` before triggering the second DMA. Two 128-byte blocks cover the full vertical strip (16 tiles × 2 bytes × 4 words per tile entry).
 
-**Algorithm**
+**Algorithm:**
 
 | Step | Action |
 |------|--------|
@@ -857,9 +734,9 @@ Each transfer moves `$0080` (128) bytes. The second block reads its VRAM destina
 | 2 | X += `$0080`; read next VRAM addr → `$VMADDL` |
 | 3 | Second 128-byte DMA |
 
-**Source**
+**Source:**
 
-```678:707:extracted/system/engine/camera_tilemap.asm
+```678:707:../../../extracted/system/engine/camera_tilemap.asm
 DmaVerticalStrip {
     PHP 
     SEP #$20
@@ -869,33 +746,22 @@ DmaVerticalStrip {
 }
 ```
 
-**Variables**
+**Variables:**
 
 | Location | Direction | Role |
 |----------|-----------|------|
 | Y | In | VRAM destination address |
 | X | In | WRAM strip buffer offset |
 
-**Cross-References**
+**Cross-References:**
 
 | Symbol | Relationship |
 |--------|--------------|
 | `FlushDirtyTilemapStrips` | Primary caller |
 
----
+
 
 ### SpriteVramDma
-
-| Property | Value |
-|----------|-------|
-| **Name** | `SpriteVramDma` |
-| **Address** | `$02B038` |
-| **Decimal** | 176184 |
-| **Size** | 107 bytes |
-| **Type** | Code |
-| **ASM file** | [`camera_tilemap.asm`](../../../extracted/system/engine/camera_tilemap.asm) |
-
-**Description**
 
 `SpriteVramDma` uploads pending sprite tile patches from WRAM bank `$7F` to sprite VRAM during VBlank. It is called from `system_core.asm` alongside `FlushDirtyTilemapStrips`.
 
@@ -903,7 +769,7 @@ The routine early-exits if `$09ED` is negative (upload disabled) or if no reques
 
 After selecting source offset (`$0200` or `$0280` in `$7F`) and size, the request flags are cleared via `TRB $09EC`, DMA channel 0 is configured for byte-mode `$2118` writes from `$7F`, and MDMAEN triggers the transfer.
 
-**Algorithm**
+**Algorithm:**
 
 | Step | Action |
 |------|--------|
@@ -913,9 +779,9 @@ After selecting source offset (`$0200` or `$0280` in `$7F`) and size, the reques
 | 4 | Else: 320 B → VRAM `$7840`, source `$7F:$0280` |
 | 5 | TRB `$09EC` with `$31`; configure DMA; trigger |
 
-**Source**
+**Source:**
 
-```709:765:extracted/system/engine/camera_tilemap.asm
+```709:765:../../../extracted/system/engine/camera_tilemap.asm
 SpriteVramDma {
     LDA $09ED
     BPL loc_02B03E
@@ -926,7 +792,7 @@ SpriteVramDma {
 }
 ```
 
-**Variables**
+**Variables:**
 
 | Location | Direction | Role |
 |----------|-----------|------|
@@ -934,45 +800,37 @@ SpriteVramDma {
 | `$09EC` | In/Out | Request flags (cleared after upload) |
 | `$DAS0L` / `$VMADDL` / `$A1T0L` | Out | DMA size, VRAM dest, source addr |
 
-**Cross-References**
+**Cross-References:**
 
 | Symbol | Relationship |
 |--------|--------------|
 | `system_core.asm` | VBlank caller |
 | `FlushDirtyTilemapStrips` | Sibling VBlank upload routine |
 
----
+
 
 ## map_coords.asm
 
-| Property | Value |
-|----------|-------|
-| **Path** | [`extracted/system/engine/map_coords.asm`](../../../extracted/system/engine/map_coords.asm) |
-| **Block** | `map_coords` |
-| **Scene** | `engine` |
-| **Address range** | `$02B0A3`–`$02B20E` |
-| **Includes** | `hardware_math`, `tile_collision` |
-
 Map coordinate helpers serve scrolling (shared `$18`/`$1C`), event/COP scripts, and player movement collision cascades. The `?INCLUDE 'tile_collision'` directive makes this file the bridge between scroll math and collision probing.
 
+| Address | Name | Size | Description |
+|---------|------|------|-------------|
+| `$02B0A3` | TileCoordsToMapIndex | 44 B | TileCoordsToMapIndex converts tile coordinates in $18 (column) and $1C (row) into a 16-bit byte offset into the decom... |
+| `$02B0CF` | PixelToVramAddress | 39 B | PixelToVramAddress converts pixel coordinates in $1A (X) and $1E (Y) to a BG1 nametable VRAM word address. |
+| `$02B0F6` | MapIndexMoveRight | 29 B | MapIndexMoveRight advances a 16-bit packed map index in $02 one cell to the right. |
+| `$02B113` | MapIndexMoveLeft | 31 B | MapIndexMoveLeft is the mirror of MapIndexMoveRight. |
+| `$02B132` | MapIndexMoveDown | 28 B | MapIndexMoveDown advances the map index at $02 one row downward on layer 0. |
+| `$02B14E` | MapIndexMoveDown_L1 | 26 B | MapIndexMoveDown_L1 is identical to MapIndexMoveDown except it uses $0695 (layer 1 map row width) as the page-carry s... |
+| `$02B168` | ProbeRightTiles | 83 B | ProbeRightTiles implements a rightward collision cascade for diagonal movement. |
+| `$02B1BB` | ProbeLeftTiles | 83 B | ProbeLeftTiles is the mirror cascade for leftward diagonal movement. |
+
 ### TileCoordsToMapIndex
-
-| Property | Value |
-|----------|-------|
-| **Name** | `TileCoordsToMapIndex` |
-| **Address** | `$02B0A3` |
-| **Decimal** | 176291 |
-| **Size** | 44 bytes |
-| **Type** | Code |
-| **ASM file** | [`map_coords.asm`](../../../extracted/system/engine/map_coords.asm) |
-
-**Description**
 
 `TileCoordsToMapIndex` converts tile coordinates in `$18` (column) and `$1C` (row) into a 16-bit byte offset into the decompressed map buffer. The row is multiplied by the map width in columns (`$0693`) via `SignedMultiply`; the column nibble (`$18 & $0F`) and row high nibble (`$18 >> 4`) are added to form the final index.
 
 The result is returned in the X register (low byte) with the high byte on the stack. This packed index format is shared across scrolling, collision, and event systems. Event blocks, warps, and COP collision handlers JSL to this routine.
 
-**Algorithm**
+**Algorithm:**
 
 | Step | Action |
 |------|--------|
@@ -981,9 +839,9 @@ The result is returned in the X register (low byte) with the high byte on the st
 | 3 | Add row high nibble `$18 >> 4` to high byte |
 | 4 | Return index in X (PLX restores high byte to X) |
 
-**Source**
+**Source:**
 
-```8:37:extracted/system/engine/map_coords.asm
+```8:37:../../../extracted/system/engine/map_coords.asm
 TileCoordsToMapIndex {
     PHP 
     REP #$20
@@ -994,7 +852,7 @@ TileCoordsToMapIndex {
 }
 ```
 
-**Variables**
+**Variables:**
 
 | Location | Direction | Role |
 |----------|-----------|------|
@@ -1003,7 +861,7 @@ TileCoordsToMapIndex {
 | `$0693,X` | In | Map width in columns |
 | X | Out | 16-bit map byte index |
 
-**Cross-References**
+**Cross-References:**
 
 | Symbol | Relationship |
 |--------|--------------|
@@ -1011,26 +869,15 @@ TileCoordsToMapIndex {
 | `event_blocks.asm` / `warps_interaction.asm` | External JSL callers |
 | `RenderScrollRow` / `RenderScrollColumn` | Share `$18`/`$1C` convention |
 
----
+
 
 ### PixelToVramAddress
-
-| Property | Value |
-|----------|-------|
-| **Name** | `PixelToVramAddress` |
-| **Address** | `$02B0CF` |
-| **Decimal** | 176335 |
-| **Size** | 39 bytes |
-| **Type** | Code |
-| **ASM file** | [`map_coords.asm`](../../../extracted/system/engine/map_coords.asm) |
-
-**Description**
 
 `PixelToVramAddress` converts pixel coordinates in `$1A` (X) and `$1E` (Y) to a BG1 nametable VRAM word address. Both coordinates are aligned to the 8-pixel grid (`& $F8`), then combined into a 32×32 tilemap offset formula.
 
 The X component contributes via `(Y & $F8) × 4 + (X & $F8) >> 3`, plus `$0100` if X bit 8 is set (second nametable column). The final address adds the BG1 base `$1000`. Used for queued dynamic tile writes such as chests and event blocks.
 
-**Algorithm**
+**Algorithm:**
 
 | Step | Action |
 |------|--------|
@@ -1039,9 +886,9 @@ The X component contributes via `(Y & $F8) × 4 + (X & $F8) >> 3`, plus `$0100` 
 | 3 | If `$1A` bit 8: add `$0100` |
 | 4 | Pop Y component; add `$1000`; return in A |
 
-**Source**
+**Source:**
 
-```39:64:extracted/system/engine/map_coords.asm
+```39:64:../../../extracted/system/engine/map_coords.asm
 PixelToVramAddress {
     LDA $1E
     AND #$00F8
@@ -1050,7 +897,7 @@ PixelToVramAddress {
 }
 ```
 
-**Variables**
+**Variables:**
 
 | Location | Direction | Role |
 |----------|-----------|------|
@@ -1058,33 +905,22 @@ PixelToVramAddress {
 | `$1E` | In | Pixel Y |
 | A | Out | VRAM word address (BG1 base `$1000`) |
 
-**Cross-References**
+**Cross-References:**
 
 | Symbol | Relationship |
 |--------|--------------|
 | `event_blocks.asm` | Dynamic tile write caller |
 | `cop_handlers_collision.asm` | COP tile overlay caller |
 
----
+
 
 ### MapIndexMoveRight
-
-| Property | Value |
-|----------|-------|
-| **Name** | `MapIndexMoveRight` |
-| **Address** | `$02B0F6` |
-| **Decimal** | 176374 |
-| **Size** | 29 bytes |
-| **Type** | Code |
-| **ASM file** | [`map_coords.asm`](../../../extracted/system/engine/map_coords.asm) |
-
-**Description**
 
 `MapIndexMoveRight` advances a 16-bit packed map index in `$02` one cell to the right. The low byte column nibble is incremented; if it overflows past `$0F`, the high byte (row) is incremented and `$F0` is added to realign the column nibble to the next row start.
 
 This navigation convention matches the collision overlay layout at `$7FC000` and mirrors `MapCellRight` in `tile_collision.asm`.
 
-**Algorithm**
+**Algorithm:**
 
 | Step | Action |
 |------|--------|
@@ -1092,9 +928,9 @@ This navigation convention matches the collision overlay layout at `$7FC000` and
 | 2 | If column nibble ≠ overflow (`BIT $0F` = 0): return |
 | 3 | Increment high byte; add `$F0` to low byte for row alignment |
 
-**Source**
+**Source:**
 
-```66:89:extracted/system/engine/map_coords.asm
+```66:89:../../../extracted/system/engine/map_coords.asm
 MapIndexMoveRight {
     PHP 
     SEP #$20
@@ -1106,38 +942,27 @@ MapIndexMoveRight {
 }
 ```
 
-**Variables**
+**Variables:**
 
 | Location | Direction | Role |
 |----------|-----------|------|
 | `$02` | In/Out | 16-bit packed map index |
 | X | Out | Updated index (on return) |
 
-**Cross-References**
+**Cross-References:**
 
 | Symbol | Relationship |
 |--------|--------------|
 | `MapCellRight` | Parallel cell navigation in tile_collision |
 | `ProbeRightTiles` | Uses index navigation indirectly via MapCell* |
 
----
+
 
 ### MapIndexMoveLeft
 
-| Property | Value |
-|----------|-------|
-| **Name** | `MapIndexMoveLeft` |
-| **Address** | `$02B113` |
-| **Decimal** | 176403 |
-| **Size** | 31 bytes |
-| **Type** | Code |
-| **ASM file** | [`map_coords.asm`](../../../extracted/system/engine/map_coords.asm) |
-
-**Description**
-
 `MapIndexMoveLeft` is the mirror of `MapIndexMoveRight`. It decrements the column nibble in the packed index at `$02`. When the nibble underflows to `$0F` (past column 0), the high byte row is decremented and `$F0` is subtracted to align to the previous row's last column.
 
-**Algorithm**
+**Algorithm:**
 
 | Step | Action |
 |------|--------|
@@ -1145,9 +970,9 @@ MapIndexMoveRight {
 | 2 | If column nibble ≠ `$0F`: return |
 | 3 | Decrement high byte; subtract `$F0` from low byte |
 
-**Source**
+**Source:**
 
-```91:117:extracted/system/engine/map_coords.asm
+```91:117:../../../extracted/system/engine/map_coords.asm
 MapIndexMoveLeft {
     PHP 
     REP #$20
@@ -1158,36 +983,25 @@ MapIndexMoveLeft {
 }
 ```
 
-**Variables**
+**Variables:**
 
 | Location | Direction | Role |
 |----------|-----------|------|
 | `$02` | In/Out | 16-bit packed map index |
 
-**Cross-References**
+**Cross-References:**
 
 | Symbol | Relationship |
 |--------|--------------|
 | `MapCellLeft` | Parallel in tile_collision |
 
----
+
 
 ### MapIndexMoveDown
 
-| Property | Value |
-|----------|-------|
-| **Name** | `MapIndexMoveDown` |
-| **Address** | `$02B132` |
-| **Decimal** | 176434 |
-| **Size** | 28 bytes |
-| **Type** | Code |
-| **ASM file** | [`map_coords.asm`](../../../extracted/system/engine/map_coords.asm) |
-
-**Description**
-
 `MapIndexMoveDown` advances the map index at `$02` one row downward on layer 0. It adds `$10` to the low byte (next row within the same 16-column page). On carry (crossing a 16-row page boundary), it adds the map width in columns (`$0693`) to the high byte.
 
-**Algorithm**
+**Algorithm:**
 
 | Step | Action |
 |------|--------|
@@ -1195,9 +1009,9 @@ MapIndexMoveLeft {
 | 2 | If no carry: return |
 | 3 | High byte += `$0693` (map row stride) |
 
-**Source**
+**Source:**
 
-```119:141:extracted/system/engine/map_coords.asm
+```119:141:../../../extracted/system/engine/map_coords.asm
 MapIndexMoveDown {
     PHP 
     REP #$20
@@ -1208,47 +1022,36 @@ MapIndexMoveDown {
 }
 ```
 
-**Variables**
+**Variables:**
 
 | Location | Direction | Role |
 |----------|-----------|------|
 | `$02` | In/Out | Map index |
 | `$0693` | In | Layer 0 row width |
 
-**Cross-References**
+**Cross-References:**
 
 | Symbol | Relationship |
 |--------|--------------|
 | `MapCellDown` | Parallel cell navigation |
 | `MapIndexMoveDown_L1` | Layer 1 variant using `$0695` |
 
----
+
 
 ### MapIndexMoveDown_L1
 
-| Property | Value |
-|----------|-------|
-| **Name** | `MapIndexMoveDown_L1` |
-| **Address** | `$02B14E` |
-| **Decimal** | 176462 |
-| **Size** | 26 bytes |
-| **Type** | Code |
-| **ASM file** | [`map_coords.asm`](../../../extracted/system/engine/map_coords.asm) |
-
-**Description**
-
 `MapIndexMoveDown_L1` is identical to `MapIndexMoveDown` except it uses `$0695` (layer 1 map row width) as the page-carry stride instead of `$0693`. Layer 1 maps may have a different column count than layer 0, requiring a separate navigation helper.
 
-**Algorithm**
+**Algorithm:**
 
 | Step | Action |
 |------|--------|
 | 1 | `$02` += `$10` |
 | 2 | If carry: high byte += `$0695` |
 
-**Source**
+**Source:**
 
-```143:164:extracted/system/engine/map_coords.asm
+```143:164:../../../extracted/system/engine/map_coords.asm
 MapIndexMoveDown_L1 {
     PHP 
     LDA $02
@@ -1258,39 +1061,28 @@ MapIndexMoveDown_L1 {
 }
 ```
 
-**Variables**
+**Variables:**
 
 | Location | Direction | Role |
 |----------|-----------|------|
 | `$02` | In/Out | Map index |
 | `$0695` | In | Layer 1 row width |
 
-**Cross-References**
+**Cross-References:**
 
 | Symbol | Relationship |
 |--------|--------------|
 | `MapIndexMoveDown` | Layer 0 counterpart |
 
----
+
 
 ### ProbeRightTiles
-
-| Property | Value |
-|----------|-------|
-| **Name** | `ProbeRightTiles` |
-| **Address** | `$02B168` |
-| **Decimal** | 176488 |
-| **Size** | 83 bytes |
-| **Type** | Code |
-| **ASM file** | [`map_coords.asm`](../../../extracted/system/engine/map_coords.asm) |
-
-**Description**
 
 `ProbeRightTiles` implements a rightward collision cascade for diagonal movement. It is the primary cross-chunk entry from `player_move_diag.asm`. The routine probes multiple tile positions in sequence, looking for passable ramp (`$0A`) or semi-solid (`$05`) tiles that allow sliding around north-facing walls (`$09`).
 
 The cascade begins at the current top-left corner via `ProbeCurrentTL`, then offsets X by +8 pixels and re-probes via `TileProbeMain`. If blocked by a north wall, it checks the cell to the left. It then walks right through adjacent cells and future-position corners (`ProbeFutureTL`, `ProbeFutureBL`), returning carry clear when a ramp path is found.
 
-**Algorithm**
+**Algorithm:**
 
 | Step | Action |
 |------|--------|
@@ -1301,9 +1093,9 @@ The cascade begins at the current top-left corner via `ProbeCurrentTL`, then off
 | 5 | `ProbeFutureTL` / `ProbeFutureBL`; check `$0A`/`$05` |
 | 6 | Default: SEC (blocked) or CLC (ramp found) |
 
-**Source**
+**Source:**
 
-```166:218:extracted/system/engine/map_coords.asm
+```166:218:../../../extracted/system/engine/map_coords.asm
 ProbeRightTiles {
     JSR $&tile_collision.ProbeCurrentTL
     // ... cascade through cells and future probes ...
@@ -1311,7 +1103,7 @@ ProbeRightTiles {
 }
 ```
 
-**Variables**
+**Variables:**
 
 | Location | Direction | Role |
 |----------|-----------|------|
@@ -1319,7 +1111,7 @@ ProbeRightTiles {
 | `$00` | Temp | Map cell index (via TileProbeMain) |
 | A | Out | Collision type from last probe |
 
-**Cross-References**
+**Cross-References:**
 
 | Symbol | Relationship |
 |--------|--------------|
@@ -1329,26 +1121,15 @@ ProbeRightTiles {
 | `ProbeFutureTL` / `ProbeFutureBL` | Destination corner probes |
 | `player_move_diag.asm` | Primary caller |
 
----
+
 
 ### ProbeLeftTiles
-
-| Property | Value |
-|----------|-------|
-| **Name** | `ProbeLeftTiles` |
-| **Address** | `$02B1BB` |
-| **Decimal** | 176571 |
-| **Size** | 83 bytes |
-| **Type** | Code |
-| **ASM file** | [`map_coords.asm`](../../../extracted/system/engine/map_coords.asm) |
-
-**Description**
 
 `ProbeLeftTiles` is the mirror cascade for leftward diagonal movement. It begins at `ProbeCurrentTR`, offsets X by −8 pixels, and walks adjacent cells looking for ramp (`$0A`) or semi-solid (`$05`) passability.
 
 South-facing walls (`$06`) receive special handling: when encountered, the routine checks the cell to the left for semi-solid (`$05`) before continuing the cascade. Future-position probes use `ProbeFutureTR` and `ProbeFutureBR`.
 
-**Algorithm**
+**Algorithm:**
 
 | Step | Action |
 |------|--------|
@@ -1358,9 +1139,9 @@ South-facing walls (`$06`) receive special handling: when encountered, the routi
 | 4 | `MapCellRight` → probe; check `$0A`/`$05` |
 | 5 | `ProbeFutureTR` / `ProbeFutureBR`; check passability |
 
-**Source**
+**Source:**
 
-```220:272:extracted/system/engine/map_coords.asm
+```220:272:../../../extracted/system/engine/map_coords.asm
 ProbeLeftTiles {
     JSR $&tile_collision.ProbeCurrentTR
     // ... leftward cascade ...
@@ -1368,14 +1149,14 @@ ProbeLeftTiles {
 }
 ```
 
-**Variables**
+**Variables:**
 
 | Location | Direction | Role |
 |----------|-----------|------|
 | `$1A` | In/Out | Probe X (adjusted −8) |
 | A | Out | Collision type |
 
-**Cross-References**
+**Cross-References:**
 
 | Symbol | Relationship |
 |--------|--------------|
@@ -1383,38 +1164,43 @@ ProbeLeftTiles {
 | `ProbeCurrentTR` | Initial corner |
 | `player_move_diag.asm` | Primary caller |
 
----
+
 
 ## tile_collision.asm
 
-| Property | Value |
-|----------|-------|
-| **Path** | [`extracted/system/engine/tile_collision.asm`](../../../extracted/system/engine/tile_collision.asm) |
-| **Block** | `tile_collision` |
-| **Scene** | `engine` |
-| **Address range** | `$02E102`–`$02E396` |
-| **Includes** | `chunk_03BAE1` (for `func_03D78A` map cell lookup) |
-
 The most-called subroutines in the player movement system. Every directional handler in `player_move_ns.asm`, `player_move_ew.asm`, and `player_move_diag.asm` depends on `TileProbeMain` and the corner probe helpers.
 
+| Address | Name | Size | Description |
+|---------|------|------|-------------|
+| `$02E102` | CombinedProbe_Unused | 61 B | CombinedProbe_Unused is a dead-code combined probe routine with no callers in the extracted ROM. |
+| `$02E13F` | CheckTileBoundaryXor | 21 B | CheckTileBoundaryXor tests whether the player crossed a 64-pixel (16-tile sub-unit) boundary during movement. |
+| `$02E154` | ClearMovementDeltas | 7 B | ClearMovementDeltas zeroes both movement delta registers $20 (horizontal) and $24 (vertical). |
+| `$02E15B` | SetActorCollisionFlag | 19 B | SetActorCollisionFlag marks the current actor (ID at $000A) as collision-blocked for this frame by ORing $0004 into t... |
+| `$02E16E` | ApplyMovementDeltas | 21 B | ApplyMovementDeltas commits a accepted movement frame by adding deltas to player position and clearing the deltas. |
+| `$02E183` | ProbeCurrentBR | 38 B | ProbeCurrentBR probes the bottom-right corner of the player's 16×16 footbox at the current position. |
+| `$02E1A9` | ProbeCurrentTR | 36 B | ProbeCurrentTR probes the top-right corner at the current position. |
+| `$02E1CD` | ProbeCurrentBL | 36 B | ProbeCurrentBL probes the bottom-left corner. |
+| `$02E1F1` | ProbeCurrentTL | 28 B | ProbeCurrentTL probes the top-left corner — the simplest corner probe with no post-increment boundary check. |
+| `$02E20D` | ProbeFutureTR | 42 B | ProbeFutureTR probes the top-right corner at the future position after applying movement deltas. |
+| `$02E237` | ProbeFutureBR | 38 B | ProbeFutureBR probes the bottom-right corner at the future position. |
+| `$02E263` | ProbeFutureTL | 34 B | ProbeFutureTL probes the top-left corner at the future position. |
+| `$02E285` | ProbeFutureBL | 30 B | ProbeFutureBL probes the bottom-left corner at the future position. |
+| `$02E2AF` | TileProbeMain | 77 B | TileProbeMain is the master tile collision probe — the central lookup invoked by every corner probe and cascade routine. |
+| `$02E2FC` | ReadCollisionNibble | 23 B | ReadCollisionNibble reads the collision type for map cell index X from the runtime overlay at $7FC000. |
+| `$02E313` | MapCellRight | 24 B | MapCellRight advances the map cell index in $00 one cell to the right. |
+| `$02E32B` | MapCellLeft | 24 B | MapCellLeft moves the cell index at $00 one cell left. |
+| `$02E343` | MapCellDown | 26 B | MapCellDown moves the cell index at $00 one row down. |
+| `$02E35D` | MapCellUp | 31 B | MapCellUp moves the cell index at $00 one row up. |
+| `$02E37C` | CheckSubTileAlignX | 13 B | CheckSubTileAlignX tests whether probe X coordinate $1A is aligned to a 16-pixel tile boundary. |
+| `$02E389` | CheckSubTileAlignY | 13 B | CheckSubTileAlignY tests whether probe Y coordinate $1E is aligned to a 16-pixel tile boundary. |
+
 ### CombinedProbe_Unused
-
-| Property | Value |
-|----------|-------|
-| **Name** | `CombinedProbe_Unused` |
-| **Address** | `$02E102` |
-| **Decimal** | 188674 |
-| **Size** | 61 bytes |
-| **Type** | Code |
-| **ASM file** | [`tile_collision.asm`](../../../extracted/system/engine/tile_collision.asm) |
-
-**Description**
 
 `CombinedProbe_Unused` is a dead-code combined probe routine with no callers in the extracted ROM. It computes tile coordinates from the future player position (`$22+$20`, `$26+$24`), calls `TileProbeMain`, and rejects collision types ≥ `$0E`.
 
 If the initial probe finds a non-zero type below `$0E`, it falls through to re-probe the cell to the left via `MapCellLeft` and `ReadCollisionNibble`. Returns carry set on solid block, carry clear on passable. Likely a superseded movement helper retained in ROM.
 
-**Algorithm**
+**Algorithm:**
 
 | Step | Action |
 |------|--------|
@@ -1424,9 +1210,9 @@ If the initial probe finds a non-zero type below `$0E`, it falls through to re-p
 | 4 | `MapCellLeft` → `ReadCollisionNibble`; if ≥ `$0E`: SEC return |
 | 5 | CLC return |
 
-**Source**
+**Source:**
 
-```11:52:extracted/system/engine/tile_collision.asm
+```11:52:../../../extracted/system/engine/tile_collision.asm
 CombinedProbe_Unused {
     CLC 
     ADC $26
@@ -1435,7 +1221,7 @@ CombinedProbe_Unused {
 }
 ```
 
-**Variables**
+**Variables:**
 
 | Location | Direction | Role |
 |----------|-----------|------|
@@ -1444,7 +1230,7 @@ CombinedProbe_Unused {
 | `$1A` / `$1E` | Out | Probe coordinates |
 | A | Out | Collision type |
 
-**Cross-References**
+**Cross-References:**
 
 | Symbol | Relationship |
 |--------|--------------|
@@ -1452,26 +1238,15 @@ CombinedProbe_Unused {
 | `MapCellLeft` | Fallback adjacent probe |
 | *(none)* | No callers — unused |
 
----
+
 
 ### CheckTileBoundaryXor
-
-| Property | Value |
-|----------|-------|
-| **Name** | `CheckTileBoundaryXor` |
-| **Address** | `$02E13F` |
-| **Decimal** | 188735 |
-| **Size** | 21 bytes |
-| **Type** | Code |
-| **ASM file** | [`tile_collision.asm`](../../../extracted/system/engine/tile_collision.asm) |
-
-**Description**
 
 `CheckTileBoundaryXor` tests whether the player crossed a 64-pixel (16-tile sub-unit) boundary during movement. It compares the current tile coordinate (`$22 >> 2`) XOR'd with the future tile coordinate (`($22+$20) >> 2`). If bit `$0010` differs between the two, carry is set indicating a boundary crossing.
 
 Movement handlers use this to trigger sub-tile alignment checks or alternate collision paths when the player moves between major tile grid sections.
 
-**Algorithm**
+**Algorithm:**
 
 | Step | Action |
 |------|--------|
@@ -1480,9 +1255,9 @@ Movement handlers use this to trigger sub-tile alignment checks or alternate col
 | 3 | EOR with stacked current; test bit `$0010` |
 | 4 | Carry = boundary crossed |
 
-**Source**
+**Source:**
 
-```54:69:extracted/system/engine/tile_collision.asm
+```54:69:../../../extracted/system/engine/tile_collision.asm
 CheckTileBoundaryXor {
     LDA $22
     LSR 
@@ -1492,47 +1267,36 @@ CheckTileBoundaryXor {
 }
 ```
 
-**Variables**
+**Variables:**
 
 | Location | Direction | Role |
 |----------|-----------|------|
 | `$22` | In | Player X position |
 | `$20` | In | Horizontal movement delta |
 
-**Cross-References**
+**Cross-References:**
 
 | Symbol | Relationship |
 |--------|--------------|
 | `player_move_*.asm` | Called before corner probes |
 
----
+
 
 ### ClearMovementDeltas
 
-| Property | Value |
-|----------|-------|
-| **Name** | `ClearMovementDeltas` |
-| **Address** | `$02E154` |
-| **Decimal** | 188756 |
-| **Size** | 7 bytes |
-| **Type** | Code |
-| **ASM file** | [`tile_collision.asm`](../../../extracted/system/engine/tile_collision.asm) |
+`ClearMovementDeltas` zeroes both movement delta registers `$20` (horizontal) and `$24` (vertical) when a movement frame is rejected after collision probing. Called from the player movement handlers in `player_move_*.asm` on the rejection path — the counterpart to `ApplyMovementDeltas`, which commits accepted movement.
 
-**Description**
-
-`ClearMovementDeltas` zeroes both movement delta registers `$20` (horizontal) and `$24` (vertical). Called when a movement frame is rejected due to collision, preventing stale deltas from accumulating across blocked frames.
-
-**Algorithm**
+**Algorithm:**
 
 | Step | Action |
 |------|--------|
-| 1 | Enter 16-bit mode |
-| 2 | `$24` ← 0; `$20` ← 0 |
-| 3 | RTS |
+| 1 | `$24` ← 0 (vertical delta) |
+| 2 | `$20` ← 0 (horizontal delta) |
+| 3 | Return |
 
-**Source**
+**Source:**
 
-```71:76:extracted/system/engine/tile_collision.asm
+```74:79:../../../extracted/system/engine/tile_collision.asm
 ClearMovementDeltas {
     REP #$20
     STZ $24
@@ -1541,86 +1305,71 @@ ClearMovementDeltas {
 }
 ```
 
-**Variables**
+**Variables:**
 
 | Location | Direction | Role |
 |----------|-----------|------|
-| `$20` / `$24` | Out | Zeroed movement deltas |
+| `$20` / `$24` | Out | Cleared movement deltas |
 
-**Cross-References**
+**Cross-References:**
 
 | Symbol | Relationship |
 |--------|--------------|
-| `player_move_*.asm` | Called on movement rejection |
+| `ApplyMovementDeltas` | Opposite path on acceptance |
+| `player_move_*.asm` | Caller on collision rejection |
 
----
+
 
 ### SetActorCollisionFlag
 
-| Property | Value |
-|----------|-------|
-| **Name** | `SetActorCollisionFlag` |
-| **Address** | `$02E15B` |
-| **Decimal** | 188763 |
-| **Size** | 19 bytes |
-| **Type** | Code |
-| **ASM file** | [`tile_collision.asm`](../../../extracted/system/engine/tile_collision.asm) |
+`SetActorCollisionFlag` marks the current actor (ID at `$000A`) as collision-blocked for this frame by ORing `$0004` into its actor flags word at `$0010,Y`. Movement handlers call this when a probe fails so downstream systems know the actor did not move this frame.
 
-**Description**
-
-`SetActorCollisionFlag` marks the current actor (ID at `$000A`) as collision-blocked for this frame by ORing `$0004` into the actor's flags word at `$0010,Y`. This prevents NPCs and the player from passing through each other when tile collision alone would allow movement.
-
-**Algorithm**
+**Algorithm:**
 
 | Step | Action |
 |------|--------|
-| 1 | Save P/Y; 16-bit mode |
-| 2 | Y ← actor ID from `$000A` |
-| 3 | `$0010,Y` \|= `$0004` |
-| 4 | Restore and RTS |
+| 1 | Save P; load actor ID from `$000A` into Y |
+| 2 | `$0010,Y` ← `$0010,Y \| $0004` |
+| 3 | Restore and return |
 
-**Source**
+**Source:**
 
-```78:89:extracted/system/engine/tile_collision.asm
+```81:92:../../../extracted/system/engine/tile_collision.asm
 SetActorCollisionFlag {
     PHP 
     REP #$20
-    // ... OR $0004 into actor flags ...
+    PHY 
+    LDY $000A
+    LDA $0010, Y
+    ORA #$0004
+    STA $0010, Y
+    PLY 
+    PLP 
     RTS 
 }
 ```
 
-**Variables**
+**Variables:**
 
 | Location | Direction | Role |
 |----------|-----------|------|
 | `$000A` | In | Current actor ID |
 | `$0010,Y` | Out | Actor flags (bit `$0004` set) |
 
-**Cross-References**
+**Cross-References:**
 
 | Symbol | Relationship |
 |--------|--------------|
-| Actor system | Flags word at `$0010,Y` |
+| `player_move_*.asm` | Caller when movement blocked |
+| `TileProbeMain` | Probe failure triggers this flag |
 
----
+
 
 ### ApplyMovementDeltas
 
-| Property | Value |
-|----------|-------|
-| **Name** | `ApplyMovementDeltas` |
-| **Address** | `$02E16E` |
-| **Decimal** | 188782 |
-| **Size** | 21 bytes |
-| **Type** | Code |
-| **ASM file** | [`tile_collision.asm`](../../../extracted/system/engine/tile_collision.asm) |
-
-**Description**
-
 `ApplyMovementDeltas` commits a accepted movement frame by adding deltas to player position and clearing the deltas. `$22 += $20` and `$26 += $24`, then both delta registers are zeroed. This is the final step after all corner probes pass.
 
-**Algorithm**
+**Algorithm:**
 
 | Step | Action |
 |------|--------|
@@ -1628,9 +1377,9 @@ SetActorCollisionFlag {
 | 2 | `$26` ← `$26 + $24` |
 | 3 | `$20` ← 0; `$24` ← 0 |
 
-**Source**
+**Source:**
 
-```91:104:extracted/system/engine/tile_collision.asm
+```91:104:../../../extracted/system/engine/tile_collision.asm
 ApplyMovementDeltas {
     REP #$20
     LDA $22
@@ -1641,38 +1390,27 @@ ApplyMovementDeltas {
 }
 ```
 
-**Variables**
+**Variables:**
 
 | Location | Direction | Role |
 |----------|-----------|------|
 | `$22` / `$26` | Out | Updated player position |
 | `$20` / `$24` | In/Out | Deltas (consumed) |
 
-**Cross-References**
+**Cross-References:**
 
 | Symbol | Relationship |
 |--------|--------------|
 | `player_move_*.asm` | Called when movement accepted |
 | `ClearMovementDeltas` | Opposite path on rejection |
 
----
+
 
 ### ProbeCurrentBR
 
-| Property | Value |
-|----------|-------|
-| **Name** | `ProbeCurrentBR` |
-| **Address** | `$02E183` |
-| **Decimal** | 188803 |
-| **Size** | 38 bytes |
-| **Type** | Code |
-| **ASM file** | [`tile_collision.asm`](../../../extracted/system/engine/tile_collision.asm) |
-
-**Description**
-
 `ProbeCurrentBR` probes the bottom-right corner of the player's 16×16 footbox at the **current** position. Probe coordinates are `$22/4 + 7` (X) and `$26/4 − 1` (Y) in tile-pixel space. After `TileProbeMain`, both coordinates are incremented by 1 to check the inner-tile boundary; if the increment wraps (BCC fails), carry is set indicating blockage.
 
-**Algorithm**
+**Algorithm:**
 
 | Step | Action |
 |------|--------|
@@ -1681,9 +1419,9 @@ ApplyMovementDeltas {
 | 3 | `$1A++`; `$1E++`; if overflow: SEC return |
 | 4 | CLC return |
 
-**Source**
+**Source:**
 
-```106:133:extracted/system/engine/tile_collision.asm
+```106:133:../../../extracted/system/engine/tile_collision.asm
 ProbeCurrentBR {
     PHP 
     REP #$20
@@ -1692,7 +1430,7 @@ ProbeCurrentBR {
 }
 ```
 
-**Variables**
+**Variables:**
 
 | Location | Direction | Role |
 |----------|-----------|------|
@@ -1700,31 +1438,20 @@ ProbeCurrentBR {
 | `$1A` / `$1E` | Out | Probe coordinates |
 | Carry | Out | Set = blocked |
 
-**Cross-References**
+**Cross-References:**
 
 | Symbol | Relationship |
 |--------|--------------|
 | `TileProbeMain` | Collision lookup |
 | `ProbeFutureBR` | Future-position counterpart |
 
----
+
 
 ### ProbeCurrentTR
 
-| Property | Value |
-|----------|-------|
-| **Name** | `ProbeCurrentTR` |
-| **Address** | `$02E1A9` |
-| **Decimal** | 188841 |
-| **Size** | 36 bytes |
-| **Type** | Code |
-| **ASM file** | [`tile_collision.asm`](../../../extracted/system/engine/tile_collision.asm) |
-
-**Description**
-
 `ProbeCurrentTR` probes the top-right corner at the current position. Coordinates: X = `$22/4 + 7`, Y = `$26/4 − 16`. After probing, X is incremented by 1 for inner-tile boundary check. Used heavily in leftward movement cascades (`ProbeLeftTiles` entry point).
 
-**Algorithm**
+**Algorithm:**
 
 | Step | Action |
 |------|--------|
@@ -1732,9 +1459,9 @@ ProbeCurrentBR {
 | 2 | `TileProbeMain` |
 | 3 | `$1A++`; if overflow: SEC; else CLC |
 
-**Source**
+**Source:**
 
-```135:161:extracted/system/engine/tile_collision.asm
+```135:161:../../../extracted/system/engine/tile_collision.asm
 ProbeCurrentTR {
     PHP 
     REP #$20
@@ -1743,38 +1470,27 @@ ProbeCurrentTR {
 }
 ```
 
-**Variables**
+**Variables:**
 
 | Location | Direction | Role |
 |----------|-----------|------|
 | `$22` / `$26` | In | Current player position |
 | `$1A` / `$1E` | Out | Probe coordinates |
 
-**Cross-References**
+**Cross-References:**
 
 | Symbol | Relationship |
 |--------|--------------|
 | `ProbeLeftTiles` | Entry probe |
 | `ProbeFutureTR` | Future counterpart |
 
----
+
 
 ### ProbeCurrentBL
 
-| Property | Value |
-|----------|-------|
-| **Name** | `ProbeCurrentBL` |
-| **Address** | `$02E1CD` |
-| **Decimal** | 188877 |
-| **Size** | 36 bytes |
-| **Type** | Code |
-| **ASM file** | [`tile_collision.asm`](../../../extracted/system/engine/tile_collision.asm) |
-
-**Description**
-
 `ProbeCurrentBL` probes the bottom-left corner. Coordinates: X = `$22/4 − 8`, Y = `$26/4 − 1`. After probing, Y is incremented for inner-tile boundary validation.
 
-**Algorithm**
+**Algorithm:**
 
 | Step | Action |
 |------|--------|
@@ -1782,9 +1498,9 @@ ProbeCurrentTR {
 | 2 | `TileProbeMain` |
 | 3 | `$1E++`; if overflow: SEC; else CLC |
 
-**Source**
+**Source:**
 
-```163:189:extracted/system/engine/tile_collision.asm
+```163:189:../../../extracted/system/engine/tile_collision.asm
 ProbeCurrentBL {
     PHP 
     REP #$20
@@ -1793,47 +1509,36 @@ ProbeCurrentBL {
 }
 ```
 
-**Variables**
+**Variables:**
 
 | Location | Direction | Role |
 |----------|-----------|------|
 | `$22` / `$26` | In | Current position |
 
-**Cross-References**
+**Cross-References:**
 
 | Symbol | Relationship |
 |--------|--------------|
 | `ProbeFutureBL` | Future counterpart |
 
----
+
 
 ### ProbeCurrentTL
-
-| Property | Value |
-|----------|-------|
-| **Name** | `ProbeCurrentTL` |
-| **Address** | `$02E1F1` |
-| **Decimal** | 188913 |
-| **Size** | 28 bytes |
-| **Type** | Code |
-| **ASM file** | [`tile_collision.asm`](../../../extracted/system/engine/tile_collision.asm) |
-
-**Description**
 
 `ProbeCurrentTL` probes the top-left corner — the simplest corner probe with no post-increment boundary check. Coordinates: X = `$22/4 − 8`, Y = `$26/4 − 16`. Returns carry directly from `TileProbeMain` (set if collision type non-zero).
 
 Entry point for `ProbeRightTiles` diagonal cascade.
 
-**Algorithm**
+**Algorithm:**
 
 | Step | Action |
 |------|--------|
 | 1 | `$1A` ← `$22>>2 − 8`; `$1E` ← `$26>>2 − 16` |
 | 2 | `TileProbeMain`; return carry |
 
-**Source**
+**Source:**
 
-```191:209:extracted/system/engine/tile_collision.asm
+```191:209:../../../extracted/system/engine/tile_collision.asm
 ProbeCurrentTL {
     PHP 
     REP #$20
@@ -1843,39 +1548,28 @@ ProbeCurrentTL {
 }
 ```
 
-**Variables**
+**Variables:**
 
 | Location | Direction | Role |
 |----------|-----------|------|
 | `$22` / `$26` | In | Current position |
 
-**Cross-References**
+**Cross-References:**
 
 | Symbol | Relationship |
 |--------|--------------|
 | `ProbeRightTiles` | Entry probe |
 | `ProbeFutureTL` | Future counterpart |
 
----
+
 
 ### ProbeFutureTR
-
-| Property | Value |
-|----------|-------|
-| **Name** | `ProbeFutureTR` |
-| **Address** | `$02E20D` |
-| **Decimal** | 188941 |
-| **Size** | 42 bytes |
-| **Type** | Code |
-| **ASM file** | [`tile_collision.asm`](../../../extracted/system/engine/tile_collision.asm) |
-
-**Description**
 
 `ProbeFutureTR` probes the top-right corner at the **future** position after applying movement deltas. Base coordinates use `($22+$20)/4 + 7` for X and `($26+$24)/4 − 16` for Y. Post-probe X increment validates inner-tile boundary crossing.
 
 Used in leftward diagonal cascades to predict whether the destination position will be blocked.
 
-**Algorithm**
+**Algorithm:**
 
 | Step | Action |
 |------|--------|
@@ -1883,9 +1577,9 @@ Used in leftward diagonal cascades to predict whether the destination position w
 | 2 | `TileProbeMain` |
 | 3 | `$1A++`; overflow → SEC |
 
-**Source**
+**Source:**
 
-```211:241:extracted/system/engine/tile_collision.asm
+```211:241:../../../extracted/system/engine/tile_collision.asm
 ProbeFutureTR {
     PHP 
     REP #$20
@@ -1894,37 +1588,26 @@ ProbeFutureTR {
 }
 ```
 
-**Variables**
+**Variables:**
 
 | Location | Direction | Role |
 |----------|-----------|------|
 | `$22+$20` / `$26+$24` | In | Future player position |
 
-**Cross-References**
+**Cross-References:**
 
 | Symbol | Relationship |
 |--------|--------------|
 | `ProbeCurrentTR` | Current-position counterpart |
 | `ProbeLeftTiles` | Cascade caller |
 
----
+
 
 ### ProbeFutureBR
 
-| Property | Value |
-|----------|-------|
-| **Name** | `ProbeFutureBR` |
-| **Address** | `$02E237` |
-| **Decimal** | 188983 |
-| **Size** | 38 bytes |
-| **Type** | Code |
-| **ASM file** | [`tile_collision.asm`](../../../extracted/system/engine/tile_collision.asm) |
-
-**Description**
-
 `ProbeFutureBR` probes the bottom-right corner at the future position. Coordinates: X = `($22+$20)/4 + 7`, Y = `($26+$24)/4 − 1`. Both X and Y are incremented post-probe for inner-tile boundary validation.
 
-**Algorithm**
+**Algorithm:**
 
 | Step | Action |
 |------|--------|
@@ -1932,9 +1615,9 @@ ProbeFutureTR {
 | 2 | `TileProbeMain` |
 | 3 | `$1A++`; `$1E++`; overflow → SEC |
 
-**Source**
+**Source:**
 
-```243:274:extracted/system/engine/tile_collision.asm
+```243:274:../../../extracted/system/engine/tile_collision.asm
 ProbeFutureBR {
     PHP 
     REP #$20
@@ -1943,46 +1626,35 @@ ProbeFutureBR {
 }
 ```
 
-**Variables**
+**Variables:**
 
 | Location | Direction | Role |
 |----------|-----------|------|
 | `$20` / `$24` | In | Movement deltas added to position |
 
-**Cross-References**
+**Cross-References:**
 
 | Symbol | Relationship |
 |--------|--------------|
 | `ProbeCurrentBR` | Current-position counterpart |
 | `ProbeLeftTiles` | Cascade caller |
 
----
+
 
 ### ProbeFutureTL
 
-| Property | Value |
-|----------|-------|
-| **Name** | `ProbeFutureTL` |
-| **Address** | `$02E263` |
-| **Decimal** | 189027 |
-| **Size** | 34 bytes |
-| **Type** | Code |
-| **ASM file** | [`tile_collision.asm`](../../../extracted/system/engine/tile_collision.asm) |
-
-**Description**
-
 `ProbeFutureTL` probes the top-left corner at the future position. Coordinates: X = `($22+$20)/4 − 8`, Y = `($26+$24)/4 − 16`. No post-increment check — returns carry directly from `TileProbeMain`.
 
-**Algorithm**
+**Algorithm:**
 
 | Step | Action |
 |------|--------|
 | 1 | Compute future TL coords in `$1A`/`$1E` |
 | 2 | `TileProbeMain`; return |
 
-**Source**
+**Source:**
 
-```276:298:extracted/system/engine/tile_collision.asm
+```276:298:../../../extracted/system/engine/tile_collision.asm
 ProbeFutureTL {
     PHP 
     REP #$20
@@ -1992,37 +1664,26 @@ ProbeFutureTL {
 }
 ```
 
-**Variables**
+**Variables:**
 
 | Location | Direction | Role |
 |----------|-----------|------|
 | `$22+$20` / `$26+$24` | In | Future position |
 
-**Cross-References**
+**Cross-References:**
 
 | Symbol | Relationship |
 |--------|--------------|
 | `ProbeCurrentTL` | Current counterpart |
 | `ProbeRightTiles` | Cascade caller |
 
----
+
 
 ### ProbeFutureBL
 
-| Property | Value |
-|----------|-------|
-| **Name** | `ProbeFutureBL` |
-| **Address** | `$02E285` |
-| **Decimal** | 189061 |
-| **Size** | 30 bytes |
-| **Type** | Code |
-| **ASM file** | [`tile_collision.asm`](../../../extracted/system/engine/tile_collision.asm) |
-
-**Description**
-
 `ProbeFutureBL` probes the bottom-left corner at the future position. Coordinates: X = `($22+$20)/4 − 8`, Y = `($26+$24)/4 − 1`. Post-probe Y increment checks inner-tile boundary.
 
-**Algorithm**
+**Algorithm:**
 
 | Step | Action |
 |------|--------|
@@ -2030,9 +1691,9 @@ ProbeFutureTL {
 | 2 | `TileProbeMain` |
 | 3 | `$1E++`; overflow → SEC |
 
-**Source**
+**Source:**
 
-```300:330:extracted/system/engine/tile_collision.asm
+```300:330:../../../extracted/system/engine/tile_collision.asm
 ProbeFutureBL {
     PHP 
     REP #$20
@@ -2041,33 +1702,22 @@ ProbeFutureBL {
 }
 ```
 
-**Variables**
+**Variables:**
 
 | Location | Direction | Role |
 |----------|-----------|------|
 | `$20` / `$24` | In | Movement deltas |
 
-**Cross-References**
+**Cross-References:**
 
 | Symbol | Relationship |
 |--------|--------------|
 | `ProbeCurrentBL` | Current counterpart |
 | `ProbeRightTiles` | Cascade caller |
 
----
+
 
 ### TileProbeMain
-
-| Property | Value |
-|----------|-------|
-| **Name** | `TileProbeMain` |
-| **Address** | `$02E2AF` |
-| **Decimal** | 189103 |
-| **Size** | 77 bytes |
-| **Type** | Code |
-| **ASM file** | [`tile_collision.asm`](../../../extracted/system/engine/tile_collision.asm) |
-
-**Description**
 
 `TileProbeMain` is the master tile collision probe — the central lookup invoked by every corner probe and cascade routine. It bounds-checks probe coordinates `$1A`/`$1E` against the active camera window (`$camera_offset_x`/`$camera_bounds_x` for X, `$camera_offset_y`/`$06DE` for Y).
 
@@ -2075,7 +1725,7 @@ In bounds: converts pixel coords to tile col/row (`$18`/`$1C` via >> 4), JSLs to
 
 Out of bounds: stores `$4001` in `$00`, returns type `$0F` (solid) with carry set.
 
-**Algorithm**
+**Algorithm:**
 
 | Step | Action |
 |------|--------|
@@ -2086,9 +1736,9 @@ Out of bounds: stores `$4001` in `$00`, returns type `$0F` (solid) with carry se
 | 5 | If A = 0: CLC return; else SEC return |
 | 6 | OOB: `$00` ← `$4001`; A ← `$0F`; SEC return |
 
-**Source**
+**Source:**
 
-```332:382:extracted/system/engine/tile_collision.asm
+```332:382:../../../extracted/system/engine/tile_collision.asm
 TileProbeMain {
     PHP 
     REP #$20
@@ -2097,7 +1747,7 @@ TileProbeMain {
 }
 ```
 
-**Variables**
+**Variables:**
 
 | Location | Direction | Role |
 |----------|-----------|------|
@@ -2107,7 +1757,7 @@ TileProbeMain {
 | A | Out | Collision type nibble |
 | Carry | Out | Clear = passable |
 
-**Cross-References**
+**Cross-References:**
 
 | Symbol | Relationship |
 |--------|--------------|
@@ -2115,26 +1765,15 @@ TileProbeMain {
 | `ReadCollisionNibble` | Collision byte lookup |
 | All `ProbeCurrent*` / `ProbeFuture*` | Callers |
 
----
+
 
 ### ReadCollisionNibble
-
-| Property | Value |
-|----------|-------|
-| **Name** | `ReadCollisionNibble` |
-| **Address** | `$02E2FC` |
-| **Decimal** | 189180 |
-| **Size** | 23 bytes |
-| **Type** | Code |
-| **ASM file** | [`tile_collision.asm`](../../../extracted/system/engine/tile_collision.asm) |
-
-**Description**
 
 `ReadCollisionNibble` reads the collision type for map cell index X from the runtime overlay at `$7FC000`. If X ≥ `$4000`, returns `$0F` (out of bounds / solid).
 
 For valid indices, reads `$7FC000,X`. If the high nibble (bits `$F0`) is non-zero (dynamic overlay from COP handlers), returns the high nibble (shifted right by 4). Otherwise returns the low nibble (base map type). Sets Z/N flags on the result in A.
 
-**Algorithm**
+**Algorithm:**
 
 | Step | Action |
 |------|--------|
@@ -2143,9 +1782,9 @@ For valid indices, reads `$7FC000,X`. If the high nibble (bits `$F0`) is non-zer
 | 3 | If high nibble ≠ 0: A ← high nibble (>> 4) |
 | 4 | Return A with Z/N flags set |
 
-**Source**
+**Source:**
 
-```384:402:extracted/system/engine/tile_collision.asm
+```384:402:../../../extracted/system/engine/tile_collision.asm
 ReadCollisionNibble {
     CPX #$4000
     BCS loc_02E310
@@ -2155,7 +1794,7 @@ ReadCollisionNibble {
 }
 ```
 
-**Variables**
+**Variables:**
 
 | Location | Direction | Role |
 |----------|-----------|------|
@@ -2163,7 +1802,7 @@ ReadCollisionNibble {
 | A | Out | Collision type (`$00`–`$0F`) |
 | `$7FC000,X` | In | Collision overlay byte |
 
-**Cross-References**
+**Cross-References:**
 
 | Symbol | Relationship |
 |--------|--------------|
@@ -2171,26 +1810,15 @@ ReadCollisionNibble {
 | `MapCellRight/Left/Down/Up` | Cascade callers |
 | COP collision handlers | Writers of high nibble overlay |
 
----
+
 
 ### MapCellRight
-
-| Property | Value |
-|----------|-------|
-| **Name** | `MapCellRight` |
-| **Address** | `$02E313` |
-| **Decimal** | 189203 |
-| **Size** | 24 bytes |
-| **Type** | Code |
-| **ASM file** | [`tile_collision.asm`](../../../extracted/system/engine/tile_collision.asm) |
-
-**Description**
 
 `MapCellRight` advances the map cell index in `$00` one cell to the right. Adds `$10` to the low byte; on carry (page boundary), adds map width `$0693` to the high byte. Returns updated index in X.
 
 Operates on the cell index format established by `TileProbeMain` / `func_03D78A`, parallel to `MapIndexMoveRight` in map_coords.
 
-**Algorithm**
+**Algorithm:**
 
 | Step | Action |
 |------|--------|
@@ -2198,9 +1826,9 @@ Operates on the cell index format established by `TileProbeMain` / `func_03D78A`
 | 2 | If no carry: return X |
 | 3 | High byte += `$0693` |
 
-**Source**
+**Source:**
 
-```404:424:extracted/system/engine/tile_collision.asm
+```404:424:../../../extracted/system/engine/tile_collision.asm
 MapCellRight {
     PHP 
     REP #$20
@@ -2210,38 +1838,27 @@ MapCellRight {
 }
 ```
 
-**Variables**
+**Variables:**
 
 | Location | Direction | Role |
 |----------|-----------|------|
 | `$00` | In/Out | Map cell index |
 | `$0693` | In | Map row width |
 
-**Cross-References**
+**Cross-References:**
 
 | Symbol | Relationship |
 |--------|--------------|
 | `MapIndexMoveRight` | Parallel in map_coords |
 | `ProbeRightTiles` / `ProbeLeftTiles` | Cascade callers |
 
----
+
 
 ### MapCellLeft
 
-| Property | Value |
-|----------|-------|
-| **Name** | `MapCellLeft` |
-| **Address** | `$02E32B` |
-| **Decimal** | 189227 |
-| **Size** | 24 bytes |
-| **Type** | Code |
-| **ASM file** | [`tile_collision.asm`](../../../extracted/system/engine/tile_collision.asm) |
-
-**Description**
-
 `MapCellLeft` moves the cell index at `$00` one cell left. Subtracts `$10` from the low byte; on borrow, subtracts `$0693` from the high byte.
 
-**Algorithm**
+**Algorithm:**
 
 | Step | Action |
 |------|--------|
@@ -2249,9 +1866,9 @@ MapCellRight {
 | 2 | If no borrow: return |
 | 3 | High byte −= `$0693` |
 
-**Source**
+**Source:**
 
-```426:446:extracted/system/engine/tile_collision.asm
+```426:446:../../../extracted/system/engine/tile_collision.asm
 MapCellLeft {
     PHP 
     REP #$20
@@ -2261,37 +1878,26 @@ MapCellLeft {
 }
 ```
 
-**Variables**
+**Variables:**
 
 | Location | Direction | Role |
 |----------|-----------|------|
 | `$00` | In/Out | Map cell index |
 
-**Cross-References**
+**Cross-References:**
 
 | Symbol | Relationship |
 |--------|--------------|
 | `MapIndexMoveLeft` | Parallel in map_coords |
 | `CombinedProbe_Unused` | Fallback probe path |
 
----
+
 
 ### MapCellDown
 
-| Property | Value |
-|----------|-------|
-| **Name** | `MapCellDown` |
-| **Address** | `$02E343` |
-| **Decimal** | 189251 |
-| **Size** | 26 bytes |
-| **Type** | Code |
-| **ASM file** | [`tile_collision.asm`](../../../extracted/system/engine/tile_collision.asm) |
-
-**Description**
-
 `MapCellDown` moves the cell index at `$00` one row down. Increments the low byte; if the column nibble wraps (`$0F` → `$00`), increments the high byte and adds `$F0` for row alignment.
 
-**Algorithm**
+**Algorithm:**
 
 | Step | Action |
 |------|--------|
@@ -2299,9 +1905,9 @@ MapCellLeft {
 | 2 | If column nibble ≠ wrap: return |
 | 3 | High byte++; low byte += `$F0` |
 
-**Source**
+**Source:**
 
-```448:470:extracted/system/engine/tile_collision.asm
+```448:470:../../../extracted/system/engine/tile_collision.asm
 MapCellDown {
     PHP 
     REP #$20
@@ -2311,36 +1917,25 @@ MapCellDown {
 }
 ```
 
-**Variables**
+**Variables:**
 
 | Location | Direction | Role |
 |----------|-----------|------|
 | `$00` | In/Out | Map cell index |
 
-**Cross-References**
+**Cross-References:**
 
 | Symbol | Relationship |
 |--------|--------------|
 | `MapIndexMoveDown` | Parallel in map_coords |
 
----
+
 
 ### MapCellUp
 
-| Property | Value |
-|----------|-------|
-| **Name** | `MapCellUp` |
-| **Address** | `$02E35D` |
-| **Decimal** | 189277 |
-| **Size** | 31 bytes |
-| **Type** | Code |
-| **ASM file** | [`tile_collision.asm`](../../../extracted/system/engine/tile_collision.asm) |
-
-**Description**
-
 `MapCellUp` moves the cell index at `$00` one row up. Decrements the low byte; if the column nibble underflows to `$0F`, decrements the high byte and subtracts `$F0`.
 
-**Algorithm**
+**Algorithm:**
 
 | Step | Action |
 |------|--------|
@@ -2348,9 +1943,9 @@ MapCellDown {
 | 2 | If nibble ≠ `$0F`: return |
 | 3 | High byte--; low byte −= `$F0` |
 
-**Source**
+**Source:**
 
-```472:498:extracted/system/engine/tile_collision.asm
+```472:498:../../../extracted/system/engine/tile_collision.asm
 MapCellUp {
     PHP 
     REP #$20
@@ -2360,119 +1955,19 @@ MapCellUp {
 }
 ```
 
-**Variables**
+**Variables:**
 
 | Location | Direction | Role |
 |----------|-----------|------|
 | `$00` | In/Out | Map cell index |
 
-**Cross-References**
+**Cross-References:**
 
 | Symbol | Relationship |
 |--------|--------------|
 | `MapIndexMoveDown` | Inverse navigation |
 
----
 
-### CheckSubTileAlignX
-
-| Property | Value |
-|----------|-------|
-| **Name** | `CheckSubTileAlignX` |
-| **Address** | `$02E37C` |
-| **Decimal** | 189308 |
-| **Size** | 13 bytes |
-| **Type** | Code |
-| **ASM file** | [`tile_collision.asm`](../../../extracted/system/engine/tile_collision.asm) |
-
-**Description**
-
-`CheckSubTileAlignX` tests whether probe X coordinate `$1A` is aligned to a 16-pixel tile boundary. Carry is clear if `$1A & $0F == 0` (aligned); carry set otherwise. Movement handlers use this to gate slope/ramp physics that require tile alignment.
-
-**Algorithm**
-
-| Step | Action |
-|------|--------|
-| 1 | Test `$1A & $0F` |
-| 2 | Zero → CLC (aligned); non-zero → SEC |
-
-**Source**
-
-```500:513:extracted/system/engine/tile_collision.asm
-CheckSubTileAlignX {
-    PHA 
-    LDA $1A
-    BIT #$0F
-    // ... CLC if zero, SEC if not ...
-    RTS 
-}
-```
-
-**Variables**
-
-| Location | Direction | Role |
-|----------|-----------|------|
-| `$1A` | In | Probe X coordinate |
-| Carry | Out | Clear = aligned |
-
-**Cross-References**
-
-| Symbol | Relationship |
-|--------|--------------|
-| `slope_ramp_physics.asm` | Alignment gate |
-| `CheckSubTileAlignY` | Y-axis counterpart |
-
----
-
-### CheckSubTileAlignY
-
-| Property | Value |
-|----------|-------|
-| **Name** | `CheckSubTileAlignY` |
-| **Address** | `$02E389` |
-| **Decimal** | 189321 |
-| **Size** | 13 bytes |
-| **Type** | Code |
-| **ASM file** | [`tile_collision.asm`](../../../extracted/system/engine/tile_collision.asm) |
-
-**Description**
-
-`CheckSubTileAlignY` tests whether probe Y coordinate `$1E` is aligned to a 16-pixel tile boundary. Carry clear if `$1E & $0F == 0`. Mirror of `CheckSubTileAlignX` for the vertical axis.
-
-**Algorithm**
-
-| Step | Action |
-|------|--------|
-| 1 | Test `$1E & $0F` |
-| 2 | Zero → CLC; non-zero → SEC |
-
-**Source**
-
-```515:528:extracted/system/engine/tile_collision.asm
-CheckSubTileAlignY {
-    PHA 
-    LDA $1E
-    BIT #$0F
-    // ... CLC/SEC ...
-    RTS 
-}
-```
-
-**Variables**
-
-| Location | Direction | Role |
-|----------|-----------|------|
-| `$1E` | In | Probe Y coordinate |
-| Carry | Out | Clear = aligned |
-
-**Cross-References**
-
-| Symbol | Relationship |
-|--------|--------------|
-| `CheckSubTileAlignX` | X-axis counterpart |
-| `slope_ramp_physics.asm` | Alignment gate |
-
----
 
 ## Cross-Reference Diagram
 
@@ -2545,37 +2040,4 @@ flowchart LR
 | `map_coords` | Event/COP layer | `TileCoordsToMapIndex` / `PixelToVramAddress` JSL from event code |
 | `tile_collision` | Player movement | Direct JSR from `player_move_ns/ew/diag.asm` |
 
----
 
-## Summary Statistics
-
-| Metric | Value |
-|--------|-------|
-| **Files documented** | 3 |
-| **Blocks** | `camera_tilemap`, `map_coords`, `tile_collision` |
-| **Total parts** | 42 (13 + 8 + 21) |
-| **Total code size** | 2,328 bytes |
-| **Address span (non-contiguous)** | `$02AB8A`–`$02B20E`, `$02E102`–`$02E396` |
-| **Largest function** | `RenderScrollRow` — 335 bytes |
-| **Smallest function** | `ClearMovementDeltas` — 7 bytes |
-| **Unused parts** | `CombinedProbe_Unused` (61 B) |
-| **External JSL dependencies** | `hardware_math.SignedMultiply`, `system_init.UploadCgramPalette`, `chunk_03BAE1.func_03D78A` |
-
-### Size Breakdown by File
-
-| File | Parts | Bytes | Hex Range |
-|------|-------|-------|-----------|
-| `camera_tilemap.asm` | 13 | 1,305 | `$02AB8A`–`$02B0A3` |
-| `map_coords.asm` | 8 | 363 | `$02B0A3`–`$02B20E` |
-| `tile_collision.asm` | 21 | 660 | `$02E102`–`$02E396` |
-
-### Size Breakdown by Subgroup (`tile_collision`)
-
-| Subgroup | Parts | Bytes |
-|----------|-------|-------|
-| State / Finalization | 5 | 129 |
-| Current-Position Probes | 4 | 138 |
-| Future-Position Probes | 4 | 144 |
-| Core Tile Lookup | 2 | 100 |
-| Adjacent Cell Navigation | 6 | 131 |
-| **Subtotal** | **20 active + 1 unused** | **660** |

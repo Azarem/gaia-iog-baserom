@@ -1,4 +1,4 @@
-?INCLUDE 'chunk_03BAE1'
+?INCLUDE 'sprite_composition'
 ?INCLUDE 'table_0EE000'
 
 !joypadMaskStd                  065A
@@ -137,7 +137,7 @@ code_0BAE18 {
     LDA $02
     PHA 
     COP [StagePlayerSprite] ( #00 )
-    JSL $@chunk_03BAE1.func_03CA55
+    JSL $@sprite_composition.UpdateActorAnimation
     STZ $2A
     STZ $08
     PLA

@@ -1,10 +1,14 @@
 ?BANK 00
 
+?INCLUDE 'actor_execution'
 ?INCLUDE 'body_table'
-?INCLUDE 'chunk_03BAE1'
 ?INCLUDE 'cop_handlers_collision'
+?INCLUDE 'dialogue_engine'
 ?INCLUDE 'event_blocks'
+?INCLUDE 'GetPlayerFacingDirection'
+?INCLUDE 'hdma_dma_spc'
 ?INCLUDE 'music_actors'
+?INCLUDE 'sprite_composition'
 ?INCLUDE 'system_core'
 ?INCLUDE 'table_01B086'
 
@@ -51,9 +55,9 @@ StartMusic {
     PHX 
     JSR $&AllocateActorAfter
     TYX 
-    LDA #$&chunk_03BAE1.func_03E1D6
+    LDA #$&hdma_dma_spc.SpcTransferMusicData
     STA $0000, X
-    LDA #$*chunk_03BAE1.func_03E1D6
+    LDA #$*hdma_dma_spc.SpcTransferMusicData
     STA $0002, X
     LDA $0012, X
     ORA #$1000
@@ -76,9 +80,9 @@ FadeThenStartMusic {
     PHX 
     JSR $&AllocateActorAfter
     TYX 
-    LDA #$&chunk_03BAE1.func_03E1AA
+    LDA #$&hdma_dma_spc.SpcCheckMusicReady
     STA $0000, X
-    LDA #$*chunk_03BAE1.func_03E1AA
+    LDA #$*hdma_dma_spc.SpcCheckMusicReady
     STA $0002, X
     LDA $0012, X
     ORA #$1000
@@ -225,7 +229,7 @@ MusicAndText {
     PLB 
     JSL $@system_core.UpdateFrameRender
     REP #$20
-    JSL $@chunk_03BAE1.sub_03E255
+    JSL $@dialogue_engine.WideStringRenderer
     PLA 
     STA $joypadMaskStd
     PLB 
@@ -299,8 +303,8 @@ PaletteStart {
 
   loc_009370:
     STZ $0E
-    JSL $@chunk_03BAE1.func_03E0B0
-    JSL $@chunk_03BAE1.func_03E125
+    JSL $@hdma_dma_spc.LoadPaletteBundle
+    JSL $@hdma_dma_spc.DecompressGfxToVram
     LDA $0A
     STA $00
     PLA 
@@ -319,8 +323,8 @@ PaletteStartLoop {
     INC $0A
     AND #$00FF
     STA $retPtr1, X
-    JSL $@chunk_03BAE1.func_03E0B0
-    JSL $@chunk_03BAE1.func_03E125
+    JSL $@hdma_dma_spc.LoadPaletteBundle
+    JSL $@hdma_dma_spc.DecompressGfxToVram
     LDA $0A
     STA $00
     PLA 
@@ -333,7 +337,7 @@ PaletteStep {
     LDA $spritesetPtr, X
     DEC 
     BNE loc_0093BD
-    JSL $@chunk_03BAE1.func_03E0B0
+    JSL $@hdma_dma_spc.LoadPaletteBundle
     BCC loc_0093C7
     LDA $0A
     STA $02, S
@@ -345,7 +349,7 @@ PaletteStep {
     STA $08
 
   loc_0093C7:
-    JSL $@chunk_03BAE1.func_03E125
+    JSL $@hdma_dma_spc.DecompressGfxToVram
     PLA 
     PLA 
     RTL 
@@ -358,7 +362,7 @@ PaletteStepLoop {
     BNE loc_0093EE
 
   loc_0093D6:
-    JSL $@chunk_03BAE1.func_03E0B0
+    JSL $@hdma_dma_spc.LoadPaletteBundle
     BCC loc_0093F9
     LDA $retPtr1, X
     DEC 
@@ -377,7 +381,7 @@ PaletteStepLoop {
     STA $0008, X
 
   loc_0093F9:
-    JSL $@chunk_03BAE1.func_03E125
+    JSL $@hdma_dma_spc.DecompressGfxToVram
     PLA 
     PLA 
     RTL 
@@ -626,7 +630,7 @@ GetPlayerFacing {
     TYX 
     LDA $0A
     STA $02, S
-    JSL $@chunk_03BAE1.func_03F0CA
+    JSL $@GetPlayerFacingDirection
     RTI 
 }
 
@@ -1066,7 +1070,7 @@ SetMetasprite {
 
 AnimOnce {
     TYX 
-    JSL $@chunk_03BAE1.func_03CA55
+    JSL $@sprite_composition.UpdateActorAnimation
     BCC loc_009FBD
     LDA #$0000
     STA $2C
@@ -1085,7 +1089,7 @@ AnimLoop {
     TYX 
 
   loc_009FC1:
-    JSL $@chunk_03BAE1.func_03CA55
+    JSL $@sprite_composition.UpdateActorAnimation
     BCC loc_009FDB
     LDA $sprTimer, X
     DEC 
@@ -1105,7 +1109,7 @@ AnimLoop {
 
 AnimOneFrame {
     TYX 
-    JSL $@chunk_03BAE1.func_03CA55
+    JSL $@sprite_composition.UpdateActorAnimation
     BCC loc_009FEC
     LDA #$0000
     STA $2C
@@ -1119,7 +1123,7 @@ AnimOneFrame {
 
 WaitForAnimFrame {
     TYX 
-    JSL $@chunk_03BAE1.func_03CA55
+    JSL $@sprite_composition.UpdateActorAnimation
     BCC loc_00A00B
     LDA #$0000
     STA $2C
@@ -1153,7 +1157,7 @@ StageSprAndHitbox {
     INC $0A
     AND #$00FF
     JSR $&ProcessAnimFlag
-    JSL $@chunk_03BAE1.func_03CA55
+    JSL $@sprite_composition.UpdateActorAnimation
     STZ $2A
     LDA $0C
     STA $02
@@ -1279,7 +1283,7 @@ StagePlayerSprXY {
 
 RunPlayerAnim {
     TYX 
-    JSL $@chunk_03BAE1.func_03CA55
+    JSL $@sprite_composition.UpdateActorAnimation
     BCC loc_00A116
     LDA #$0000
     STA $2C
@@ -1364,7 +1368,7 @@ WallAnimHere {
     BNE loc_00A1A4
 
   loc_00A19E:
-    JSL $@chunk_03BAE1.func_03CA55
+    JSL $@sprite_composition.UpdateActorAnimation
     BCC loc_00A1B2
 
   loc_00A1A4:
@@ -1409,7 +1413,7 @@ WallAnimNorth {
     BNE loc_00A1EF
 
   loc_00A1E9:
-    JSL $@chunk_03BAE1.func_03CA55
+    JSL $@sprite_composition.UpdateActorAnimation
     BCC loc_00A1FD
 
   loc_00A1EF:
@@ -1454,7 +1458,7 @@ WallAnimSouth {
     BNE loc_00A23A
 
   loc_00A234:
-    JSL $@chunk_03BAE1.func_03CA55
+    JSL $@sprite_composition.UpdateActorAnimation
     BCC loc_00A248
 
   loc_00A23A:
@@ -2583,7 +2587,7 @@ AllocateSpecialActor {
     PHD 
     LDA #$0000
     TCD 
-    JSL $@chunk_03BAE1.func_03CE8F
+    JSL $@actor_execution.ThinkerPoolAlloc
     BCS loc_00B29D
     LDX $005C
     TXA 

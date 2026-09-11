@@ -1,5 +1,5 @@
 ?INCLUDE 'ApplyPlayerHitstun'
-?INCLUDE 'chunk_03BAE1'
+?INCLUDE 'GetPlayerFacingDirection'
 ?INCLUDE 'interaction_handlers'
 ?INCLUDE 'player_transition_handlers'
 ?INCLUDE 'stats_01ABF0'
@@ -203,7 +203,7 @@ code_0B902D {
     LDA $0028, Y
     CMP #$003A
     BNE code_0B9075
-    JSL $@chunk_03BAE1.func_03F0CA
+    JSL $@GetPlayerFacingDirection
     CMP #$0000
     BNE code_0B9075
     COP [BranchIfSolidOffset] ( #00, #FF, &code_0B9075 )
@@ -228,7 +228,7 @@ code_0B9075 {
     LDA $0028, Y
     CMP #$003B
     BNE code_0B90AE
-    JSL $@chunk_03BAE1.func_03F0CA
+    JSL $@GetPlayerFacingDirection
     CMP #$0001
     BNE code_0B90AE
     COP [BranchIfSolidOffset] ( #00, #01, &code_0B90AE )
@@ -268,7 +268,7 @@ code_0B90BA {
     LDA $0028, Y
     CMP #$003D
     BNE code_0B9102
-    JSL $@chunk_03BAE1.func_03F0CA
+    JSL $@GetPlayerFacingDirection
     CMP #$0003
     BNE code_0B9102
     COP [BranchIfSolidOffset] ( #FF, #00, &code_0B9102 )
@@ -293,7 +293,7 @@ code_0B9102 {
     LDA $0028, Y
     CMP #$003C
     BNE code_0B913B
-    JSL $@chunk_03BAE1.func_03F0CA
+    JSL $@GetPlayerFacingDirection
     CMP #$0002
     BNE code_0B913B
     COP [BranchIfSolidOffset] ( #01, #00, &code_0B913B )

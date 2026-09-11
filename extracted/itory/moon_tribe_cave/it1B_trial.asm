@@ -1,4 +1,4 @@
-?INCLUDE 'chunk_03BAE1'
+?INCLUDE 'oam_digit_compose'
 
 !joypadMaskStd                  065A
 !playerXPos                     09A2
@@ -50,7 +50,7 @@ it1B_trial [
     JSR $&code_04FAB2
     LDA $orbitAngle, X
     STA $0000
-    JSL $@chunk_03BAE1.func_03BAF1
+    JSL $@oam_digit_compose.ComposeDigitSprites
     RTL 
 } >
 ]
@@ -62,7 +62,7 @@ code_04F902 {
     JSR $&code_04FAB2
     LDA $orbitAngle, X
     STA $0000
-    JSL $@chunk_03BAE1.func_03BAF1
+    JSL $@oam_digit_compose.ComposeDigitSprites
     LDA $0AEC
     BEQ loc_04F91E
     COP [PrintWideString] ( &widestring_04FA25 )

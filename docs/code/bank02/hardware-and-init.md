@@ -1,8 +1,8 @@
 # Bank $02 — Hardware Math, VBlank, Decompression & System Init
 
-**Bank:** `$02` (FastROM; accessed via `$@` long calls from other banks)  
-**Address range:** `$028000`–`$0283A2`, `$029DE2`–`$02A040`  
-**ASM files:** `hardware_math.asm`, `vblank_joypad.asm`, `decompress.asm`, `system_init.asm`  
+**Bank:** `$02` (FastROM; accessed via `$@` long calls from other banks)
+**Address range:** `$028000`–`$0283A2`, `$029DE2`–`$02A040`
+**Source:** [`hardware_math.asm`](../../../extracted/system/engine/hardware_math.asm), [`vblank_joypad.asm`](../../../extracted/system/engine/vblank_joypad.asm), [`decompress.asm`](../../../extracted/system/engine/decompress.asm), [`system_init.asm`](../../../extracted/system/engine/system_init.asm)
 **Block:** `hardware_math`, `vblank_joypad`, `decompress`, `system_init` in `us/blocks.json` (scene: `engine`)
 
 This page documents the lowest-level engine infrastructure in bank `$02`: SNES hardware multiply/divide wrappers, the main-thread VBlank synchronization and joypad polling layer, Quintet-LZ decompression, and cold-start WRAM/PPU initialization. These routines are included from [`system_core.asm`](../../../extracted/system/engine/system_core.asm) (bank `$00`) and called throughout gameplay, scene loading, and overlay code.
@@ -38,35 +38,20 @@ $02A040 └─ (music_actors continues) ─────────────�
 
 ## hardware_math.asm
 
-| Property | Value |
-|----------|-------|
-| **Path** | `extracted/system/engine/hardware_math.asm` |
-| **Block** | `hardware_math` |
-| **Scene** | `engine` |
-| **Address range** | `$028000`–`$02803B`, `$0281D1`–`$028270` |
-| **Includes** | None (leaf math unit; interleaved with `vblank_joypad.asm`) |
+| Address | Name | Size | Description |
+|---------|------|------|-------------|
+| `$028000` | MulDivide | 59 B | Performs a **16×8 multiply followed by an 8-bit divide** using the SNES hardware math unit at `$4202`–`$4217`. |
+| `$0281D1` | SignedMultiply | 23 B | Performs an **8×8 signed multiply** via `$WRMPYA`/`$WRMPYB` and returns the **16-bit product** in `A` (low byte in A after `XBA`, then high byte swapped in). |
+| `$0281E8` | UnsignedDivide | 22 B | Performs a **16÷8 unsigned divide** using the hardware divider. |
+| `$0281FE` | SoftDivide_Unused | 73 B | A **software 16÷16 fixed-point division** routine that operates entirely in direct-page scratch at `$00`–`$06`. |
+| `$028247` | IncrementCounter_Unused | 41 B | Increments a **128-bit (16-byte) big-endian counter** stored at WRAM `$040F`–`$041F`. |
 
 ### MulDivide
 
-| Property | Value |
-|----------|-------|
-| **Old name** | `func_028000` |
-| **New name** | `MulDivide` |
-| **Address** | `$028000` |
-| **Decimal address** | 163840 |
-| **Size** | 59 bytes |
-| **Type** | Public subroutine (`RTL`) |
-| **ASM file** | `extracted/system/engine/hardware_math.asm` |
 
-#### Description
+Performs a **16×8 multiply followed by an 8-bit divide** using the SNES hardware math unit at `$4202`–`$4217`. The routine computes `(A × Y) ÷ A_high`, returning the 16-bit quotient in `A`. The low byte of the 16-bit `A` input becomes the 8-bit multiplicand written to `$WRMPYA`; the high byte of `A` (saved on the stack) becomes the 8-bit divisor written to `$WRDIVB` after the 24-bit product is assembled in `$WRDIVL`/`$WRDIVH`. This is the bank `$02` counterpart to the movement math in bank `$00` (`MultiplyThenDivide`), but with a different register layout: callers pass a 16-bit scale factor in `A` and a 16-bit operand in `Y`. The eight `NOP` instructions after writing `$WRDIVB` provide the mandatory pipeline delay before reading `$RDDIVL`. Used for camera scroll delta computation (`ComputeScrollDeltas` in [`camera_scroll.asm`](../../../extracted/system/engine/camera_scroll.asm)), parallax scrolling (`parallax_thinker.asm`), and visual-effect coordinate scaling (`visual_effect_pipeline.asm`).
 
-Performs a **16×8 multiply followed by an 8-bit divide** using the SNES hardware math unit at `$4202`–`$4217`. The routine computes `(A × Y) ÷ A_high`, returning the 16-bit quotient in `A`. The low byte of the 16-bit `A` input becomes the 8-bit multiplicand written to `$WRMPYA`; the high byte of `A` (saved on the stack) becomes the 8-bit divisor written to `$WRDIVB` after the 24-bit product is assembled in `$WRDIVL`/`$WRDIVH`.
-
-This is the bank `$02` counterpart to the movement math in bank `$00` (`MultiplyThenDivide`), but with a different register layout: callers pass a 16-bit scale factor in `A` and a 16-bit operand in `Y`. The eight `NOP` instructions after writing `$WRDIVB` provide the mandatory pipeline delay before reading `$RDDIVL`.
-
-Used for camera scroll delta computation (`ComputeScrollDeltas` in [`camera_scroll.asm`](../../../extracted/system/engine/camera_scroll.asm)), parallax scrolling (`parallax_thinker.asm`), and visual-effect coordinate scaling (`visual_effect_pipeline.asm`).
-
-#### Algorithm
+**Algorithm:**
 
 | Step | Action | Effect |
 |------|--------|--------|
@@ -80,49 +65,49 @@ Used for camera scroll delta computation (`ComputeScrollDeltas` in [`camera_scro
 | 8 | `NOP` × 8 | Divider pipeline delay |
 | 9 | `LDA $RDDIVL` / `RTL` | Return 16-bit quotient |
 
-#### Source
+**Source:**
 
-```17:53:extracted/system/engine/hardware_math.asm
+```17:53:../../../extracted/system/engine/hardware_math.asm
 MulDivide {
     SEP #$20
     STA $WRMPYA
-    XBA 
-    PHA 
+    XBA
+    PHA
     REP #$20
-    TYA 
+    TYA
     SEP #$20
     STA $WRMPYB
-    XBA 
-    NOP 
-    NOP 
-    NOP 
+    XBA
+    NOP
+    NOP
+    NOP
     LDY $RDMPYL
     STA $WRMPYB
     REP #$20
-    TYA 
+    TYA
     SEP #$20
     STA $WRDIVL
-    XBA 
-    CLC 
+    XBA
+    CLC
     ADC $RDMPYL
     STA $WRDIVH
-    PLA 
+    PLA
     STA $WRDIVB
-    NOP 
-    NOP 
-    NOP 
-    NOP 
-    NOP 
-    NOP 
-    NOP 
-    NOP 
+    NOP
+    NOP
+    NOP
+    NOP
+    NOP
+    NOP
+    NOP
+    NOP
     REP #$20
     LDA $RDDIVL
-    RTL 
+    RTL
 }
 ```
 
-#### Variables
+**Variables:**
 
 | Location | Direction | Role |
 |----------|-----------|------|
@@ -135,7 +120,7 @@ MulDivide {
 | `$RDDIVL` | Read | Quotient low word |
 | `A` (output) | Output | 16-bit quotient |
 
-#### Cross-References
+**Cross-References:**
 
 | Symbol | Relationship |
 |--------|--------------|
@@ -144,27 +129,12 @@ MulDivide {
 | `parallax_thinker.asm` | Caller — parallax layer offset |
 | `visual_effect_pipeline.asm` | Caller — effect coordinate scaling |
 
----
-
 ### SignedMultiply
 
-| Property | Value |
-|----------|-------|
-| **Old name** | `func_0281D1` |
-| **New name** | `SignedMultiply` |
-| **Address** | `$0281D1` |
-| **Decimal address** | 164305 |
-| **Size** | 23 bytes |
-| **Type** | Public subroutine (`RTL`) |
-| **ASM file** | `extracted/system/engine/hardware_math.asm` |
 
-#### Description
+Performs an **8×8 signed multiply** via `$WRMPYA`/`$WRMPYB` and returns the **16-bit product** in `A` (low byte in A after `XBA`, then high byte swapped in). Uses long-address aliases `$L_WRMPYA` (`$804202`) and `$L_RDMPYL`/`$L_RDMPYH` for the read path. Four `NOP` instructions provide the multiplier pipeline delay. This is the most frequently called math helper in bank `$02`. Scene-graphics loaders use it to compute VRAM offsets and buffer sizes; map coordinate routines scale tile indices; actor code uses it for orbital offset math. Despite the name, the hardware multiplier treats operands as unsigned 8-bit values — callers are responsible for sign semantics.
 
-Performs an **8×8 signed multiply** via `$WRMPYA`/`$WRMPYB` and returns the **16-bit product** in `A` (low byte in A after `XBA`, then high byte swapped in). Uses long-address aliases `$L_WRMPYA` (`$804202`) and `$L_RDMPYL`/`$L_RDMPYH` for the read path. Four `NOP` instructions provide the multiplier pipeline delay.
-
-This is the most frequently called math helper in bank `$02`. Scene-graphics loaders use it to compute VRAM offsets and buffer sizes; map coordinate routines scale tile indices; actor code uses it for orbital offset math. Despite the name, the hardware multiplier treats operands as unsigned 8-bit values — callers are responsible for sign semantics.
-
-#### Algorithm
+**Algorithm:**
 
 | Step | Action | Effect |
 |------|--------|--------|
@@ -174,25 +144,25 @@ This is the most frequently called math helper in bank `$02`. Scene-graphics loa
 | 4 | Read `$L_RDMPYH` / `$L_RDMPYL` | Assemble 16-bit product |
 | 5 | `RTL` | Return product in A |
 
-#### Source
+**Source:**
 
-```56:68:extracted/system/engine/hardware_math.asm
+```56:68:../../../extracted/system/engine/hardware_math.asm
 SignedMultiply {
     STA $L_WRMPYA
-    XBA 
+    XBA
     STA $L_WRMPYB
-    NOP 
-    NOP 
-    NOP 
-    NOP 
+    NOP
+    NOP
+    NOP
+    NOP
     LDA $L_RDMPYH
-    XBA 
+    XBA
     LDA $L_RDMPYL
-    RTL 
+    RTL
 }
 ```
 
-#### Variables
+**Variables:**
 
 | Location | Direction | Role |
 |----------|-----------|------|
@@ -202,7 +172,7 @@ SignedMultiply {
 | `$L_RDMPYL` / `$L_RDMPYH` | Read | 16-bit product |
 | `A` (output) | Output | 16-bit product |
 
-#### Cross-References
+**Cross-References:**
 
 | Symbol | Relationship |
 |--------|--------------|
@@ -213,27 +183,12 @@ SignedMultiply {
 | `ApplyOrbitalOffsetXY` | Caller — orbital position computation |
 | `cop_handlers_collision.asm` | Caller — collision math |
 
----
-
 ### UnsignedDivide
 
-| Property | Value |
-|----------|-------|
-| **Old name** | `func_0281E8` |
-| **New name** | `UnsignedDivide` |
-| **Address** | `$0281E8` |
-| **Decimal address** | 164328 |
-| **Size** | 22 bytes |
-| **Type** | Public subroutine (`RTL`) |
-| **ASM file** | `extracted/system/engine/hardware_math.asm` |
 
-#### Description
+Performs a **16÷8 unsigned divide** using the hardware divider. The 16-bit dividend is passed in `Y` (written to `$WRDIVL`; caller must preset `$WRDIVH` if needed), and the 8-bit divisor is passed in `A` (written to `$WRDIVB`). Eight `NOP` instructions provide the divider pipeline delay. Returns the 16-bit quotient in `A` (assembled via `$RDMPYL` high / `$RDDIVL` low with `XBA`). Used by smooth-follow logic (`smooth_follow.asm`), COP collision handlers, and actor scripts that need fixed-point scaling without the multiply-first pattern of `MulDivide`.
 
-Performs a **16÷8 unsigned divide** using the hardware divider. The 16-bit dividend is passed in `Y` (written to `$WRDIVL`; caller must preset `$WRDIVH` if needed), and the 8-bit divisor is passed in `A` (written to `$WRDIVB`). Eight `NOP` instructions provide the divider pipeline delay. Returns the 16-bit quotient in `A` (assembled via `$RDMPYL` high / `$RDDIVL` low with `XBA`).
-
-Used by smooth-follow logic (`smooth_follow.asm`), COP collision handlers, and actor scripts that need fixed-point scaling without the multiply-first pattern of `MulDivide`.
-
-#### Algorithm
+**Algorithm:**
 
 | Step | Action | Effect |
 |------|--------|--------|
@@ -243,28 +198,28 @@ Used by smooth-follow logic (`smooth_follow.asm`), COP collision handlers, and a
 | 4 | Read `$RDMPYL` / `$RDDIVL` | Assemble 16-bit quotient |
 | 5 | `RTL` | Return quotient in A |
 
-#### Source
+**Source:**
 
-```70:85:extracted/system/engine/hardware_math.asm
+```70:85:../../../extracted/system/engine/hardware_math.asm
 UnsignedDivide {
     STY $WRDIVL
     STA $WRDIVB
-    NOP 
-    NOP 
-    NOP 
-    NOP 
-    NOP 
-    NOP 
-    NOP 
-    NOP 
+    NOP
+    NOP
+    NOP
+    NOP
+    NOP
+    NOP
+    NOP
+    NOP
     LDA $RDMPYL
-    XBA 
+    XBA
     LDA $RDDIVL
-    RTL 
+    RTL
 }
 ```
 
-#### Variables
+**Variables:**
 
 | Location | Direction | Role |
 |----------|-----------|------|
@@ -274,7 +229,7 @@ UnsignedDivide {
 | `$RDMPYL` / `$RDDIVL` | Read | Quotient bytes |
 | `A` (output) | Output | 16-bit quotient |
 
-#### Cross-References
+**Cross-References:**
 
 | Symbol | Relationship |
 |--------|--------------|
@@ -282,27 +237,12 @@ UnsignedDivide {
 | `cop_handlers_collision.asm` | Caller — collision step computation |
 | `sg55_viper.asm` | Caller — actor script math |
 
----
-
 ### SoftDivide_Unused
 
-| Property | Value |
-|----------|-------|
-| **Old name** | `func_0281FE` |
-| **New name** | `SoftDivide_Unused` |
-| **Address** | `$0281FE` |
-| **Decimal address** | 164350 |
-| **Size** | 73 bytes |
-| **Type** | Unused subroutine (`RTL`) |
-| **ASM file** | `extracted/system/engine/hardware_math.asm` |
 
-#### Description
+A **software 16÷16 fixed-point division** routine that operates entirely in direct-page scratch at `$00`–`$06`. Sets `TCD` to `$0000` so direct-page offsets map to WRAM `$0000`–`$00FF`. Normalizes the dividend via bit-shifting (`loc_028212`), then performs two 16-iteration restore/subtract loops producing quotient bits in `$06` and remainder bits in `$04`. No `JSL`/`JSR` references to this routine exist anywhere in the extracted ROM. It is retained in the binary but unreachable from active code paths. The algorithm resembles a binary long-division implementation for cases where the hardware divider's 8-bit divisor limit is insufficient.
 
-A **software 16÷16 fixed-point division** routine that operates entirely in direct-page scratch at `$00`–`$06`. Sets `TCD` to `$0000` so direct-page offsets map to WRAM `$0000`–`$00FF`. Normalizes the dividend via bit-shifting (`loc_028212`), then performs two 16-iteration restore/subtract loops producing quotient bits in `$06` and remainder bits in `$04`.
-
-No `JSL`/`JSR` references to this routine exist anywhere in the extracted ROM. It is retained in the binary but unreachable from active code paths. The algorithm resembles a binary long-division implementation for cases where the hardware divider's 8-bit divisor limit is insufficient.
-
-#### Algorithm
+**Algorithm:**
 
 | Step | Action | Effect |
 |------|--------|--------|
@@ -312,15 +252,15 @@ No `JSL`/`JSR` references to this routine exist anywhere in the extracted ROM. I
 | 4 | Loop 2 (16 iter) | Second pass → bits in `$04` |
 | 5 | `PLD` / `RTL` | Restore direct page |
 
-#### Source
+**Source:**
 
-```87:149:extracted/system/engine/hardware_math.asm
+```87:149:../../../extracted/system/engine/hardware_math.asm
 SoftDivide_Unused {
-    PHD 
-    PHA 
+    PHD
+    PHA
     LDA #$0000
-    TCD 
-    PLA 
+    TCD
+    PLA
     STZ $00
     STZ $02
     STZ $04
@@ -330,14 +270,14 @@ SoftDivide_Unused {
 
   loc_028212:
     INC $00
-    ASL 
+    ASL
     BPL loc_028212
 
   loc_028217:
     STA $02
-    TYA 
+    TYA
     LDY #$0010
-    CLC 
+    CLC
 
   loc_02821E:
     BCS loc_028224
@@ -346,20 +286,20 @@ SoftDivide_Unused {
 
   loc_028224:
     SBC $02
-    SEC 
+    SEC
 
   loc_028227:
     ROL $06
     DEC $00
     BMI loc_028231
-    ASL 
-    DEY 
+    ASL
+    DEY
     BNE loc_02821E
 
   loc_028231:
-    ASL 
+    ASL
     LDY #$0010
-    CLC 
+    CLC
 
   loc_028236:
     BCS loc_02823C
@@ -368,19 +308,19 @@ SoftDivide_Unused {
 
   loc_02823C:
     SBC $02
-    SEC 
+    SEC
 
   loc_02823F:
     ROL $04
-    ASL 
-    DEY 
+    ASL
+    DEY
     BNE loc_028236
-    PLD 
-    RTL 
+    PLD
+    RTL
 }
 ```
 
-#### Variables
+**Variables:**
 
 | Location | Direction | Role |
 |----------|-----------|------|
@@ -392,33 +332,18 @@ SoftDivide_Unused {
 | `$06` | Output | Primary quotient bits |
 | Direct page | Temp | `TCD #$0000` for the duration of the routine |
 
-#### Cross-References
+**Cross-References:**
 
 | Symbol | Relationship |
 |--------|--------------|
 | *(none)* | No callers — dead code |
 
----
-
 ### IncrementCounter_Unused
 
-| Property | Value |
-|----------|-------|
-| **Old name** | `func_028247` |
-| **New name** | `IncrementCounter_Unused` |
-| **Address** | `$028247` |
-| **Decimal address** | 164423 |
-| **Size** | 41 bytes |
-| **Type** | Unused subroutine (`RTL`) |
-| **ASM file** | `extracted/system/engine/hardware_math.asm` |
 
-#### Description
+Increments a **128-bit (16-byte) big-endian counter** stored at WRAM `$040F`–`$041F`. The first loop (`loc_028254`) propagates carry through bytes `$0410`–`$041F` using `ADC` with `$040F,X` as the base. The second loop (`loc_028263`) performs a simple `INC` cascade from `$040F` upward until a non-zero byte is found or 16 bytes are processed. No references to this routine exist in the extracted codebase. The counter location `$040F` is not associated with any active gameplay system in current documentation.
 
-Increments a **128-bit (16-byte) big-endian counter** stored at WRAM `$040F`–`$041F`. The first loop (`loc_028254`) propagates carry through bytes `$0410`–`$041F` using `ADC` with `$040F,X` as the base. The second loop (`loc_028263`) performs a simple `INC` cascade from `$040F` upward until a non-zero byte is found or 16 bytes are processed.
-
-No references to this routine exist in the extracted codebase. The counter location `$040F` is not associated with any active gameplay system in current documentation.
-
-#### Algorithm
+**Algorithm:**
 
 | Step | Action | Effect |
 |------|--------|--------|
@@ -427,97 +352,75 @@ No references to this routine exist in the extracted codebase. The counter locat
 | 3 | Loop `$040F`+ cascade `INC` | Propagate increment until byte ≠ 0 |
 | 4 | Restore registers / `RTL` | Return |
 
-#### Source
+**Source:**
 
-```151:182:extracted/system/engine/hardware_math.asm
+```151:182:../../../extracted/system/engine/hardware_math.asm
 IncrementCounter_Unused {
-    PHP 
+    PHP
     SEP #$20
-    PHA 
-    PHX 
-    PHY 
+    PHA
+    PHX
+    PHY
     LDX #$000F
     LDA #$00
-    XBA 
-    CLC 
+    XBA
+    CLC
 
   loc_028254:
     LDA $0410, X
     ADC $040F, X
     STA $040F, X
-    DEX 
+    DEX
     BNE loc_028254
     LDX #$0010
 
   loc_028263:
     INC $040F, X
     BNE loc_02826B
-    DEX 
+    DEX
     BNE loc_028263
 
   loc_02826B:
-    PLA 
-    PLY 
-    PLX 
-    PLP 
-    RTL 
+    PLA
+    PLY
+    PLX
+    PLP
+    RTL
 }
 ```
 
-#### Variables
+**Variables:**
 
 | Location | Direction | Role |
 |----------|-----------|------|
 | `$040F`–`$041F` | Read/Write | 128-bit counter (big-endian) |
 | `A`, `X`, `Y` | Saved/restored | Caller registers preserved via stack |
 
-#### Cross-References
+**Cross-References:**
 
 | Symbol | Relationship |
 |--------|--------------|
 | *(none)* | No callers — dead code |
 
----
-
 ## vblank_joypad.asm
 
-| Property | Value |
-|----------|-------|
-| **Path** | `extracted/system/engine/vblank_joypad.asm` |
-| **Block** | `vblank_joypad` |
-| **Scene** | `engine` |
-| **Address range** | `$02803B`–`$0281D1` |
-| **Includes** | None (interleaved with `hardware_math.asm`) |
+| Address | Name | Size | Description |
+|---------|------|------|-------------|
+| `$02803B` | VBlankPartial | 8 B | Lightweight VBlank entry that **skips the NMI wait loop** and jumps directly into the post-VBlank portion of `VBlankWaitAndJoypad` at `loc_028057`. |
+| `$028043` | VBlankWaitAndJoypad | 334 B | The **primary main-thread VBlank synchronization and joypad handler**. |
+| `$028191` | EnableNmiAndJoypad | 17 B | Enables **NMI and auto-joypad polling** by writing `$81` to `$L_NMITIMEN` (`$4200`). |
+| `$0281A2` | EnableNmiOnly | 13 B | Enables **NMI only** (no auto-joypad) by writing `$01` to `$L_NMITIMEN`. |
+| `$0281AF` | ForceBlank | 13 B | Forces the PPU into **forced blank** by writing `$00` to `$L_INIDISP` (`$2100`). |
+| `$0281BC` | EnableDisplay | 13 B | Enables normal PPU display output by writing `$80` to `$L_INIDISP`. |
+| `$0281C9` | WaitFrames | 8 B | Waits **A frames** by calling `VBlankWaitAndJoypad` in a decrement loop. |
 
 ### VBlankPartial
 
-| Property | Value |
-|----------|-------|
-| **Old name** | `func_02803B` |
-| **New name** | `VBlankPartial` |
-| **Address** | `$02803B` |
-| **Decimal address** | 163899 |
-| **Size** | 8 bytes |
-| **Type** | Public subroutine (`RTL`) |
-| **ASM file** | `extracted/system/engine/vblank_joypad.asm` |
+Lightweight VBlank entry that **skips the NMI wait loop** and branches directly into the shared post-VBlank tail of `VBlankWaitAndJoypad` at `loc_028057`. Saves `P` and `A`, then executes Mode 7 upload (if enabled), joypad injection, remapping, and auto-repeat logic without polling `$L_RDNMI`. Used when the caller is already synchronized to VBlank timing and only needs the joypad/Mode 7 side effects.
 
-#### Description
+**Source:**
 
-Lightweight VBlank entry that **skips the NMI wait loop** and jumps directly into the post-VBlank portion of `VBlankWaitAndJoypad` at `loc_028057`. Saves the processor status and 16-bit `A` on the stack (matching the full handler's prologue), then branches to the shared tail that handles Mode 7 register writes, joypad remapping, and auto-repeat logic.
-
-Called from `UpdateFrame_Full` in [`system_core.asm`](../../../extracted/system/engine/system_core.asm) when the NMI handler has already synchronized the frame (`$06FA` music-transition path). The main loop uses the full `VBlankWaitAndJoypad` instead, which polls `$L_RDNMI` until VBlank begins.
-
-#### Algorithm
-
-| Step | Action | Effect |
-|------|--------|--------|
-| 1 | `PHP` / `REP #$20` / `PHA` | Save flags and A |
-| 2 | `SEP #$20` | 8-bit accumulator for MMIO |
-| 3 | `BRA loc_028057` | Skip NMI poll; join shared tail |
-
-#### Source
-
-```17:23:extracted/system/engine/vblank_joypad.asm
+```32:38:../../../extracted/system/engine/vblank_joypad.asm
 VBlankPartial {
     PHP 
     REP #$20
@@ -527,45 +430,12 @@ VBlankPartial {
 }
 ```
 
-#### Variables
-
-| Location | Direction | Role |
-|----------|-----------|------|
-| Stack | Saved | `P` and 16-bit `A` restored by shared tail |
-
-#### Cross-References
-
-| Symbol | Relationship |
-|--------|--------------|
-| `UpdateFrame_Full` | Sole caller — music-transition frame path |
-| `VBlankWaitAndJoypad` | Shared tail at `loc_028057` |
-
----
-
 ### VBlankWaitAndJoypad
 
-| Property | Value |
-|----------|-------|
-| **Old name** | `func_028043` |
-| **New name** | `VBlankWaitAndJoypad` |
-| **Address** | `$028043` |
-| **Decimal address** | 163907 |
-| **Size** | 334 bytes |
-| **Type** | Public subroutine (`RTL`) |
-| **ASM file** | `extracted/system/engine/vblank_joypad.asm` |
 
-#### Description
+The **primary main-thread VBlank synchronization and joypad handler**. Called at the start and end of every main-loop frame in `SystemInit` (`loc_0080B5`), as well as from dialogue/render frame paths and scene-transition code. Performs four major duties: 1. **NMI wait** — Polls `$L_RDNMI` (`$4210`) until bit 7 is set, indicating vertical blank has begun. A dummy read clears the NMI flag before the wait loop. 2. **Mode 7 matrix upload** — When `$06EF` bit `$08` is set, writes the 14-byte Mode 7 parameter block from `$C2`–`$CD` to PPU registers `$211B`–`$2120` (double-written for latch timing). 3. **Joypad injection bypass** — If `$09AC` is non-zero, copies its value to `$0656` (current-frame joypad), clears `$09AC`, and returns early without reading hardware. 4. **Joypad read + remapping + auto-repeat** — Reads raw state from `$0660`, applies per-button remapping masks from `$0DA6`–`$0DB4` based on which buttons are held, stores the filtered result in `$0656`/`$065E`, and implements auto-repeat via `$0658` (held bits), `$0662` (frame counter), and `$joypad_mask_inv` (cleared after 12 frames). The main loop pattern is: `VBlankWaitAndJoypad` → game logic → `EnableNmiOnly` at frame start; `EnableNmiAndJoypad` at frame end. This ensures NMI fires during VBlank while game logic runs with NMI disabled.
 
-The **primary main-thread VBlank synchronization and joypad handler**. Called at the start and end of every main-loop frame in `SystemInit` (`loc_0080B5`), as well as from dialogue/render frame paths and scene-transition code. Performs four major duties:
-
-1. **NMI wait** — Polls `$L_RDNMI` (`$4210`) until bit 7 is set, indicating vertical blank has begun. A dummy read clears the NMI flag before the wait loop.
-2. **Mode 7 matrix upload** — When `$06EF` bit `$08` is set, writes the 14-byte Mode 7 parameter block from `$C2`–`$CD` to PPU registers `$211B`–`$2120` (double-written for latch timing).
-3. **Joypad injection bypass** — If `$09AC` is non-zero, copies its value to `$0656` (current-frame joypad), clears `$09AC`, and returns early without reading hardware.
-4. **Joypad read + remapping + auto-repeat** — Reads raw state from `$0660`, applies per-button remapping masks from `$0DA6`–`$0DB4` based on which buttons are held, stores the filtered result in `$0656`/`$065E`, and implements auto-repeat via `$0658` (held bits), `$0662` (frame counter), and `$joypad_mask_inv` (cleared after 12 frames).
-
-The main loop pattern is: `VBlankWaitAndJoypad` → game logic → `EnableNmiOnly` at frame start; `EnableNmiAndJoypad` at frame end. This ensures NMI fires during VBlank while game logic runs with NMI disabled.
-
-#### Algorithm
+**Algorithm:**
 
 | Step | Action | Effect |
 |------|--------|--------|
@@ -577,13 +447,13 @@ The main loop pattern is: `VBlankWaitAndJoypad` → game logic → `EnableNmiOnl
 | 6 | `$0656` ← filtered state; mask with `$0658`/`joypad_mask_std` | Final joypad output |
 | 7 | Restore stack / `RTL` | Return to caller |
 
-#### Source
+**Source:**
 
-```25:185:extracted/system/engine/vblank_joypad.asm
+```25:185:../../../extracted/system/engine/vblank_joypad.asm
 VBlankWaitAndJoypad {
-    PHP 
+    PHP
     REP #$20
-    PHA 
+    PHA
     SEP #$20
     LDA $L_RDNMI
 
@@ -633,9 +503,9 @@ VBlankWaitAndJoypad {
     BEQ loc_0280B6
     STA $0656
     STZ $09AC
-    PLA 
-    PLP 
-    RTL 
+    PLA
+    PLP
+    RTL
 
   loc_0280B6:
     LDA $0660
@@ -722,7 +592,7 @@ VBlankWaitAndJoypad {
     AND $joypad_mask_inv
     BEQ loc_02817F
     LDA $0662
-    INC 
+    INC
     STA $0662
     CMP #$000C
     BNE loc_028182
@@ -737,13 +607,13 @@ VBlankWaitAndJoypad {
     TRB $0656
     LDA $joypad_mask_std
     TRB $0656
-    PLA 
-    PLP 
-    RTL 
+    PLA
+    PLP
+    RTL
 }
 ```
 
-#### Variables
+**Variables:**
 
 | Location | Direction | Role |
 |----------|-----------|------|
@@ -760,7 +630,7 @@ VBlankWaitAndJoypad {
 | `$0DA6`–`$0DB4` | Read | Per-button remapping masks |
 | `$joypad_mask_std` / `$joypad_mask_inv` | Read | Standard and inverted button masks |
 
-#### Cross-References
+**Cross-References:**
 
 | Symbol | Relationship |
 |--------|--------------|
@@ -774,317 +644,20 @@ VBlankWaitAndJoypad {
 | `VBlankPartial` | Alternate entry — skips NMI wait, shares `loc_028057` tail |
 | `WaitFrames` | Caller — frame delay loop |
 
----
-
-### EnableNmiAndJoypad
-
-| Property | Value |
-|----------|-------|
-| **Old name** | `func_028191` |
-| **New name** | `EnableNmiAndJoypad` |
-| **Address** | `$028191` |
-| **Decimal address** | 164241 |
-| **Size** | 17 bytes |
-| **Type** | Public subroutine (`RTL`) |
-| **ASM file** | `extracted/system/engine/vblank_joypad.asm` |
-
-#### Description
-
-Enables **NMI and auto-joypad polling** by writing `$81` to `$L_NMITIMEN` (`$4200`). The `$80` bit enables NMI; the `$01` bit enables automatic joypad reading during VBlank (hardware fills `$0660`–`$0667`). Clears pending NMI by reading `$L_RDNMI` before enabling.
-
-Called at the **end** of each main-loop frame (after game logic completes) so NMI can fire during the next VBlank. Also used when exiting forced-blank or overlay states to restore normal interrupt behavior.
-
-#### Algorithm
-
-| Step | Action | Effect |
-|------|--------|--------|
-| 1 | Save `P` and `A` | Standard prologue |
-| 2 | Read `$L_RDNMI` | Clear pending NMI |
-| 3 | `LDA #$81` / `STA $L_NMITIMEN` | Enable NMI + joypad auto-read |
-| 4 | Restore / `RTL` | Return |
-
-#### Source
-
-```187:197:extracted/system/engine/vblank_joypad.asm
-EnableNmiAndJoypad {
-    PHP 
-    SEP #$20
-    PHA 
-    LDA $L_RDNMI
-    LDA #$81
-    STA $L_NMITIMEN
-    PLA 
-    PLP 
-    RTL 
-}
-```
-
-#### Variables
-
-| Location | Direction | Role |
-|----------|-----------|------|
-| `$L_RDNMI` | Read | Clear NMI latch |
-| `$L_NMITIMEN` | Write | `$81` = NMI on + joypad auto-read on |
-
-#### Cross-References
-
-| Symbol | Relationship |
-|--------|--------------|
-| `SystemInit` (main loop) | Caller — end of every frame |
-| `UpdateFrame_Dialogue` / `UpdateFrame_Render` | Caller — frame path tail |
-| `chunk_03BAE1.asm` | Caller — scene load transitions |
-| `inventory_overlay.asm` | Caller — restore after inventory close |
-| `spc_transfer.asm` | Caller — restore after SPC upload |
-
----
-
-### EnableNmiOnly
-
-| Property | Value |
-|----------|-------|
-| **Old name** | `func_0281A2` |
-| **New name** | `EnableNmiOnly` |
-| **Address** | `$0281A2` |
-| **Decimal address** | 164258 |
-| **Size** | 13 bytes |
-| **Type** | Public subroutine (`RTL`) |
-| **ASM file** | `extracted/system/engine/vblank_joypad.asm` |
-
-#### Description
-
-Enables **NMI only** (no auto-joypad) by writing `$01` to `$L_NMITIMEN`. Used at the **start** of each main-loop frame immediately after `VBlankWaitAndJoypad`, disabling auto-joypad reads while game logic executes. Also used during forced-blank periods (scene transitions, inventory overlay, SPC uploads) where the display is blanked but NMI must still fire for timing.
-
-#### Algorithm
-
-| Step | Action | Effect |
-|------|--------|--------|
-| 1 | Save `P` and `A` | Standard prologue |
-| 2 | `LDA #$01` / `STA $L_NMITIMEN` | NMI on, joypad auto-read off |
-| 3 | Restore / `RTL` | Return |
-
-#### Source
-
-```199:208:extracted/system/engine/vblank_joypad.asm
-EnableNmiOnly {
-    PHP 
-    SEP #$20
-    PHA 
-    LDA #$01
-    STA $L_NMITIMEN
-    PLA 
-    PLP 
-    RTL 
-}
-```
-
-#### Variables
-
-| Location | Direction | Role |
-|----------|-----------|------|
-| `$L_NMITIMEN` | Write | `$01` = NMI on, joypad auto-read off |
-
-#### Cross-References
-
-| Symbol | Relationship |
-|--------|--------------|
-| `SystemInit` (main loop) | Caller — start of every frame (after VBlank wait) |
-| `UpdateFrame_Full` | Caller — music-transition path |
-| `chunk_03BAE1.asm` | Caller — scene blanking sequences |
-| `inventory_overlay.asm` | Caller — inventory entry/exit |
-| `spc_transfer.asm` | Caller — SPC upload blanking |
-
----
-
-### ForceBlank
-
-| Property | Value |
-|----------|-------|
-| **Old name** | `func_0281AF` |
-| **New name** | `ForceBlank` |
-| **Address** | `$0281AF` |
-| **Decimal address** | 164271 |
-| **Size** | 13 bytes |
-| **Type** | Public subroutine (`RTL`) |
-| **ASM file** | `extracted/system/engine/vblank_joypad.asm` |
-
-#### Description
-
-Forces the PPU into **forced blank** by writing `$00` to `$L_INIDISP` (`$2100`). This disables all screen output immediately, preventing visible artifacts during VRAM/CGRAM uploads or scene transitions. Paired with `EnableDisplay` to restore normal rendering.
-
-#### Algorithm
-
-| Step | Action | Effect |
-|------|--------|--------|
-| 1 | Save `P` and `A` | Standard prologue |
-| 2 | `LDA #$00` / `STA $L_INIDISP` | Force blank (screen off) |
-| 3 | Restore / `RTL` | Return |
-
-#### Source
-
-```210:219:extracted/system/engine/vblank_joypad.asm
-ForceBlank {
-    PHP 
-    SEP #$20
-    PHA 
-    LDA #$00
-    STA $L_INIDISP
-    PLA 
-    PLP 
-    RTL 
-}
-```
-
-#### Variables
-
-| Location | Direction | Role |
-|----------|-----------|------|
-| `$L_INIDISP` | Write | `$00` = forced blank, display off |
-
-#### Cross-References
-
-| Symbol | Relationship |
-|--------|--------------|
-| `chunk_03BAE1.asm` | Caller — scene transition blanking |
-
----
-
-### EnableDisplay
-
-| Property | Value |
-|----------|-------|
-| **Old name** | `func_0281BC` |
-| **New name** | `EnableDisplay` |
-| **Address** | `$0281BC` |
-| **Decimal address** | 164284 |
-| **Size** | 13 bytes |
-| **Type** | Public subroutine (`RTL`) |
-| **ASM file** | `extracted/system/engine/vblank_joypad.asm` |
-
-#### Description
-
-Enables normal PPU display output by writing `$80` to `$L_INIDISP`. The `$80` bit clears forced blank, allowing the PPU to render BG layers, sprites, and the screen border. Called once during cold start in `SystemInit` (after hardware init) and again when exiting blanked states (scene loads, inventory overlay).
-
-#### Algorithm
-
-| Step | Action | Effect |
-|------|--------|--------|
-| 1 | Save `P` and `A` | Standard prologue |
-| 2 | `LDA #$80` / `STA $L_INIDISP` | Clear forced blank |
-| 3 | Restore / `RTL` | Return |
-
-#### Source
-
-```221:230:extracted/system/engine/vblank_joypad.asm
-EnableDisplay {
-    PHP 
-    SEP #$20
-    PHA 
-    LDA #$80
-    STA $L_INIDISP
-    PLA 
-    PLP 
-    RTL 
-}
-```
-
-#### Variables
-
-| Location | Direction | Role |
-|----------|-----------|------|
-| `$L_INIDISP` | Write | `$80` = display enabled (bit 7 set) |
-
-#### Cross-References
-
-| Symbol | Relationship |
-|--------|--------------|
-| `SystemInit` | Caller — cold start, first visible frame |
-| `chunk_03BAE1.asm` | Caller — end of scene load |
-| `inventory_overlay.asm` | Caller — inventory display restore |
-
----
-
-### WaitFrames
-
-| Property | Value |
-|----------|-------|
-| **Old name** | `func_0281C9` |
-| **New name** | `WaitFrames` |
-| **Address** | `$0281C9` |
-| **Decimal address** | 164297 |
-| **Size** | 8 bytes |
-| **Type** | Public subroutine (`RTL`) |
-| **ASM file** | `extracted/system/engine/vblank_joypad.asm` |
-
-#### Description
-
-Waits **A frames** by calling `VBlankWaitAndJoypad` in a decrement loop. On entry, `A` holds the frame count; each iteration waits one VBlank and decrements until zero. Used by SPC700 upload routines in [`spc_transfer.asm`](../../../extracted/system/engine/spc_transfer.asm) to pace data transfer and allow the sound engine time to process each block.
-
-#### Algorithm
-
-| Step | Action | Effect |
-|------|--------|--------|
-| 1 | `JSL VBlankWaitAndJoypad` | Wait one VBlank + joypad poll |
-| 2 | `DEC A` / `BNE WaitFrames` | Loop until A = 0 |
-| 3 | `RTL` | Return |
-
-#### Source
-
-```232:237:extracted/system/engine/vblank_joypad.asm
-WaitFrames {
-    JSL $@VBlankWaitAndJoypad
-    DEC 
-    BNE WaitFrames
-    RTL 
-}
-```
-
-#### Variables
-
-| Location | Direction | Role |
-|----------|-----------|------|
-| `A` (input) | Input | Frame count to wait |
-| `A` (output) | Output | `$00` after loop completes |
-
-#### Cross-References
-
-| Symbol | Relationship |
-|--------|--------------|
-| `spc_transfer.asm` | Caller — SPC upload pacing (5 call sites) |
-| `VBlankWaitAndJoypad` | Callee — one VBlank per iteration |
-
----
-
 ## decompress.asm
 
-| Property | Value |
-|----------|-------|
-| **Path** | `extracted/system/engine/decompress.asm` |
-| **Block** | `decompress` |
-| **Scene** | `engine` |
-| **Address range** | `$028270`–`$0283A2` |
-| **Includes** | None |
+| Address | Name | Size | Description |
+|---------|------|------|-------------|
+| `$028270` | QuintetLzDecompress | 110 B | Main entry point for **Quintet-LZ decompression**, the dictionary-based compression format used for all BG tile, tilemap, and sprite graphics in IOG. |
+| `$0282DE` | LzReadBitField | 93 B | Extracts a **variable-length bit field (1–8 bits)** from the compressed bitstream. |
+| `$02833B` | LzReadBackRef | 103 B | Decodes the **copy length for a back-reference** in the Quintet-LZ stream. |
 
 ### QuintetLzDecompress
 
-| Property | Value |
-|----------|-------|
-| **Old name** | `func_028270` |
-| **New name** | `QuintetLzDecompress` |
-| **Address** | `$028270` |
-| **Decimal address** | 164464 |
-| **Size** | 110 bytes |
-| **Type** | Public subroutine (`RTL`) |
-| **ASM file** | `extracted/system/engine/decompress.asm` |
 
-#### Description
+Main entry point for **Quintet-LZ decompression**, the dictionary-based compression format used for all BG tile, tilemap, and sprite graphics in IOG. Sets `DBR` to `$7E` so output writes target WRAM bank `$7E`. Initializes a 256-byte sliding dictionary at `($74)` filled with `$20` (space character), sets the dictionary write pointer to `$EF`, and resets the bit accumulator at `$72` to `$80`. The decompression loop reads bits from the compressed stream at `[$3E]` (24-bit pointer in `$3E`/`$3F`/bank). When a **literal bit** is set, `LzReadBitField` extracts the next byte, writes it to both the output buffer `($74)` and `$0000,X` (direct-page mirror), and advances the dictionary pointer. When a **reference bit** is clear, `LzReadBitField` reads the dictionary index, `LzReadBackRef` reads the copy length, and a byte-copy loop duplicates from the dictionary ring buffer. Callers must preset: `$78` = output byte count, `$7A` = output write pointer (16-bit WRAM offset), and `$3E`/`$3F`/bank = compressed data source pointer. The scene script engine is the primary caller (10+ sites in [`scene_script.asm`](../../../extracted/system/engine/scene_script.asm)); COP handlers and retranslation patches also invoke it directly.
 
-Main entry point for **Quintet-LZ decompression**, the dictionary-based compression format used for all BG tile, tilemap, and sprite graphics in IOG. Sets `DBR` to `$7E` so output writes target WRAM bank `$7E`. Initializes a 256-byte sliding dictionary at `($74)` filled with `$20` (space character), sets the dictionary write pointer to `$EF`, and resets the bit accumulator at `$72` to `$80`.
-
-The decompression loop reads bits from the compressed stream at `[$3E]` (24-bit pointer in `$3E`/`$3F`/bank). When a **literal bit** is set, `LzReadBitField` extracts the next byte, writes it to both the output buffer `($74)` and `$0000,X` (direct-page mirror), and advances the dictionary pointer. When a **reference bit** is clear, `LzReadBitField` reads the dictionary index, `LzReadBackRef` reads the copy length, and a byte-copy loop duplicates from the dictionary ring buffer.
-
-Callers must preset: `$78` = output byte count, `$7A` = output write pointer (16-bit WRAM offset), and `$3E`/`$3F`/bank = compressed data source pointer. The scene script engine is the primary caller (10+ sites in [`scene_script.asm`](../../../extracted/system/engine/scene_script.asm)); COP handlers and retranslation patches also invoke it directly.
-
-#### Algorithm
+**Algorithm:**
 
 | Step | Action | Effect |
 |------|--------|--------|
@@ -1098,18 +671,18 @@ Callers must preset: `$78` = output byte count, `$7A` = output write pointer (16
 | 7 | Loop until `Y` = 0 (all output bytes written) | Complete decompression |
 | 8 | Restore registers / `RTL` | Return |
 
-#### Source
+**Source:**
 
-```5:81:extracted/system/engine/decompress.asm
+```5:81:../../../extracted/system/engine/decompress.asm
 QuintetLzDecompress {
-    PHP 
-    PHB 
-    PHX 
-    PHY 
+    PHP
+    PHB
+    PHX
+    PHY
     SEP #$20
     LDA #$7E
-    PHA 
-    PLB 
+    PHA
+    PLB
     LDX #$0200
     STX $74
     STX $76
@@ -1129,7 +702,7 @@ QuintetLzDecompress {
   loc_028295:
     LDA [$3E]
     AND $72
-    PHA 
+    PHA
     LSR $72
     BCC loc_0282A6
     ROR $72
@@ -1138,14 +711,14 @@ QuintetLzDecompress {
     INC $3F
 
   loc_0282A6:
-    PLA 
+    PLA
     BEQ loc_0282B9
     JSR $&LzReadBitField
     STA $0000, X
-    INX 
+    INX
     STA ($74)
     INC $74
-    DEY 
+    DEY
     BNE loc_028295
     BRA loc_0282D9
 
@@ -1153,34 +726,34 @@ QuintetLzDecompress {
     JSR $&LzReadBitField
     STA $76
     JSR $&LzReadBackRef
-    INC 
-    INC 
+    INC
+    INC
 
   loc_0282C3:
-    XBA 
+    XBA
     LDA ($76)
     INC $76
     STA ($74)
     INC $74
     STA $0000, X
-    INX 
-    DEY 
+    INX
+    DEY
     BEQ loc_0282D9
-    XBA 
-    DEC 
+    XBA
+    DEC
     BNE loc_0282C3
     BRA loc_028295
 
   loc_0282D9:
-    PLY 
-    PLX 
-    PLB 
-    PLP 
-    RTL 
+    PLY
+    PLX
+    PLB
+    PLP
+    RTL
 }
 ```
 
-#### Variables
+**Variables:**
 
 | Location | Direction | Role |
 |----------|-----------|------|
@@ -1193,7 +766,7 @@ QuintetLzDecompress {
 | `$0000,X` | Write | Secondary output buffer (direct page, bank `$7E`) |
 | `DBR` | Set to `$7E` | Output data bank for indirect writes |
 
-#### Cross-References
+**Cross-References:**
 
 | Symbol | Relationship |
 |--------|--------------|
@@ -1202,27 +775,12 @@ QuintetLzDecompress {
 | `LzReadBitField` | Callee — variable-length bit/byte extraction |
 | `LzReadBackRef` | Callee — back-reference length decode |
 
----
-
 ### LzReadBitField
 
-| Property | Value |
-|----------|-------|
-| **Old name** | `func_0282DE` |
-| **New name** | `LzReadBitField` |
-| **Address** | `$0282DE` |
-| **Decimal address** | 164574 |
-| **Size** | 93 bytes |
-| **Type** | Internal subroutine (`RTS`) |
-| **ASM file** | `extracted/system/engine/decompress.asm` |
 
-#### Description
+Extracts a **variable-length bit field (1–8 bits)** from the compressed bitstream. Uses a cascade of `ASL`/`BMI` tests on the bit accumulator `$72` to determine how many bits remain in the current byte. When `$72` goes negative (bit 7 set before shift), fetches the next source byte from `[$3E]` and reloads the accumulator. The routine switches to 16-bit mode to read a word from the source when 6+ bits are needed, then shifts the result right by the appropriate count (1–7 positions depending on entry point) to isolate the requested field. Returns the extracted value in `A` (8-bit). Called for both literal byte reads (8 bits) and dictionary index reads (8 bits) within the main decompression loop.
 
-Extracts a **variable-length bit field (1–8 bits)** from the compressed bitstream. Uses a cascade of `ASL`/`BMI` tests on the bit accumulator `$72` to determine how many bits remain in the current byte. When `$72` goes negative (bit 7 set before shift), fetches the next source byte from `[$3E]` and reloads the accumulator.
-
-The routine switches to 16-bit mode to read a word from the source when 6+ bits are needed, then shifts the result right by the appropriate count (1–7 positions depending on entry point) to isolate the requested field. Returns the extracted value in `A` (8-bit). Called for both literal byte reads (8 bits) and dictionary index reads (8 bits) within the main decompression loop.
-
-#### Algorithm
+**Algorithm:**
 
 | Step | Action | Effect |
 |------|--------|--------|
@@ -1231,63 +789,63 @@ The routine switches to 16-bit mode to read a word from the source when 6+ bits 
 | 3 | If 6+ bits needed: read word, shift to isolate field | Wide bit extraction |
 | 4 | Advance `$3E`, return value in `A` | Field delivered to caller |
 
-#### Source
+**Source:**
 
-```83:170:extracted/system/engine/decompress.asm
+```83:170:../../../extracted/system/engine/decompress.asm
 LzReadBitField {
     LDA $72
     BMI loc_028325
-    ASL 
+    ASL
     BMI loc_02831E
-    ASL 
+    ASL
     BMI loc_028317
-    ASL 
+    ASL
     BMI loc_028310
-    ASL 
+    ASL
     BMI loc_028309
-    ASL 
+    ASL
     BMI loc_028302
-    ASL 
+    ASL
     BMI loc_0282FB
     REP #$20
     LDA [$3E]
-    XBA 
+    XBA
     BRA loc_02832E
 
   loc_0282FB:
     REP #$20
     LDA [$3E]
-    XBA 
+    XBA
     BRA loc_02832F
 
   loc_028302:
     REP #$20
     LDA [$3E]
-    XBA 
+    XBA
     BRA loc_028330
 
   loc_028309:
     REP #$20
     LDA [$3E]
-    XBA 
+    XBA
     BRA loc_028331
 
   loc_028310:
     REP #$20
     LDA [$3E]
-    XBA 
+    XBA
     BRA loc_028332
 
   loc_028317:
     REP #$20
     LDA [$3E]
-    XBA 
+    XBA
     BRA loc_028333
 
   loc_02831E:
     REP #$20
     LDA [$3E]
-    XBA 
+    XBA
     BRA loc_028334
 
   loc_028325:
@@ -1295,36 +853,36 @@ LzReadBitField {
     REP #$20
     INC $3E
     SEP #$20
-    RTS 
+    RTS
 
   loc_02832E:
-    ASL 
+    ASL
 
   loc_02832F:
-    ASL 
+    ASL
 
   loc_028330:
-    ASL 
+    ASL
 
   loc_028331:
-    ASL 
+    ASL
 
   loc_028332:
-    ASL 
+    ASL
 
   loc_028333:
-    ASL 
+    ASL
 
   loc_028334:
-    ASL 
+    ASL
     INC $3E
-    XBA 
+    XBA
     SEP #$20
-    RTS 
+    RTS
 }
 ```
 
-#### Variables
+**Variables:**
 
 | Location | Direction | Role |
 |----------|-----------|------|
@@ -1332,38 +890,19 @@ LzReadBitField {
 | `$3E` / `$3F` | Read/Write | Compressed stream pointer (advanced on byte fetch) |
 | `A` | Output | Extracted bit field (1–8 bits, zero-extended) |
 
-#### Cross-References
+**Cross-References:**
 
 | Symbol | Relationship |
 |--------|--------------|
 | `QuintetLzDecompress` | Sole caller — literal and index reads |
 | `LzReadBackRef` | Sibling — uses same bitstream state |
 
----
-
 ### LzReadBackRef
 
-| Property | Value |
-|----------|-------|
-| **Old name** | `func_02833B` |
-| **New name** | `LzReadBackRef` |
-| **Address** | `$02833B` |
-| **Decimal address** | 164667 |
-| **Size** | 103 bytes |
-| **Type** | Internal subroutine (`RTS`) |
-| **ASM file** | `extracted/system/engine/decompress.asm` |
 
-#### Description
+Decodes the **copy length for a back-reference** in the Quintet-LZ stream. Examines the current state of the bit accumulator `$72` to determine how many length bits to read. Three paths exist based on the top bits of `$72`: - **`$72` ≥ `$10`:** Shift `$72` right by 4, read length bits inline from the next source byte(s) with variable right-shift. - **`$72` < `$10`, carry clear after first shift:** Reload `$72` to `$80`, read 4-bit length from next byte. - **Other paths:** Set `$72` to `$40`, `$20`, or `$10` and read 16-bit word with 1–3 left shifts to extract a 4-bit length nibble. Returns the length value in `A` (4-bit, 0–15). The caller (`QuintetLzDecompress`) adds 2 to this value (`INC` × 2) to get the actual copy count (minimum match length = 2 bytes).
 
-Decodes the **copy length for a back-reference** in the Quintet-LZ stream. Examines the current state of the bit accumulator `$72` to determine how many length bits to read. Three paths exist based on the top bits of `$72`:
-
-- **`$72` ≥ `$10`:** Shift `$72` right by 4, read length bits inline from the next source byte(s) with variable right-shift.
-- **`$72` < `$10`, carry clear after first shift:** Reload `$72` to `$80`, read 4-bit length from next byte.
-- **Other paths:** Set `$72` to `$40`, `$20`, or `$10` and read 16-bit word with 1–3 left shifts to extract a 4-bit length nibble.
-
-Returns the length value in `A` (4-bit, 0–15). The caller (`QuintetLzDecompress`) adds 2 to this value (`INC` × 2) to get the actual copy count (minimum match length = 2 bytes).
-
-#### Algorithm
+**Algorithm:**
 
 | Step | Action | Effect |
 |------|--------|--------|
@@ -1373,42 +912,42 @@ Returns the length value in `A` (4-bit, 0–15). The caller (`QuintetLzDecompres
 | 3 | Extract 4-bit length nibble | Length 0–15 |
 | 4 | `RTS` with length in `A` | Caller adds 2 for actual count |
 
-#### Source
+**Source:**
 
-```172:250:extracted/system/engine/decompress.asm
+```172:250:../../../extracted/system/engine/decompress.asm
 LzReadBackRef {
     LDA $72
     CMP #$10
     BCC loc_02835D
-    LSR 
-    LSR 
-    LSR 
-    LSR 
+    LSR
+    LSR
+    LSR
+    LSR
     STA $72
-    XBA 
+    XBA
     LDA [$3E]
-    XBA 
+    XBA
     REP #$20
-    LSR 
+    LSR
     BCS loc_028357
-    LSR 
+    LSR
     BCS loc_028357
-    LSR 
+    LSR
     BCS loc_028357
-    LSR 
+    LSR
 
   loc_028357:
     SEP #$20
-    XBA 
+    XBA
     AND #$0F
-    RTS 
+    RTS
 
   loc_02835D:
-    LSR 
+    LSR
     BCS loc_02838E
-    LSR 
+    LSR
     BCS loc_028381
-    LSR 
+    LSR
     BCS loc_028375
     LDA #$80
     STA $72
@@ -1417,15 +956,15 @@ LzReadBackRef {
     INC $3E
     SEP #$20
     AND #$0F
-    RTS 
+    RTS
 
   loc_028375:
     LDA #$40
     STA $72
     REP #$20
     LDA [$3E]
-    XBA 
-    ASL 
+    XBA
+    ASL
     BRA loc_02839A
 
   loc_028381:
@@ -1433,9 +972,9 @@ LzReadBackRef {
     STA $72
     REP #$20
     LDA [$3E]
-    XBA 
-    ASL 
-    ASL 
+    XBA
+    ASL
+    ASL
     BRA loc_02839A
 
   loc_02838E:
@@ -1443,21 +982,21 @@ LzReadBackRef {
     STA $72
     REP #$20
     LDA [$3E]
-    XBA 
-    ASL 
-    ASL 
-    ASL 
+    XBA
+    ASL
+    ASL
+    ASL
 
   loc_02839A:
     INC $3E
     SEP #$20
-    XBA 
+    XBA
     AND #$0F
-    RTS 
+    RTS
 }
 ```
 
-#### Variables
+**Variables:**
 
 | Location | Direction | Role |
 |----------|-----------|------|
@@ -1465,44 +1004,32 @@ LzReadBackRef {
 | `$3E` / `$3F` | Read/Write | Compressed stream pointer |
 | `A` | Output | 4-bit length nibble (0–15; caller adds 2) |
 
-#### Cross-References
+**Cross-References:**
 
 | Symbol | Relationship |
 |--------|--------------|
 | `QuintetLzDecompress` | Sole caller — back-reference length decode |
 | `LzReadBitField` | Sibling — shares `$72` bitstream state |
 
----
-
 ## system_init.asm
 
-| Property | Value |
-|----------|-------|
-| **Path** | `extracted/system/engine/system_init.asm` |
-| **Block** | `system_init` |
-| **Scene** | `engine` |
-| **Address range** | `$029DE2`–`$02A040` |
-| **Includes** | `binary_01C384`, `scene_meta` |
+| Address | Name | Size | Description |
+|---------|------|------|-------------|
+| `$029DE2` | UploadCgramPalette | 59 B | Uploads the **512-byte CGRAM palette** from WRAM `$7F:0A00` to the PPU color generator via DMA channel 0, then writes... |
+| `$029E1D` | UploadOamTable | 39 B | Uploads the **544-byte OAM (sprite) table** from ROM `$00:0422` to PPU OAM via DMA channel 0. |
+| `$029E44` | InitSystemVariables | 65 B | Performs **cold-start WRAM initialization** in two phases. |
+| `$029E85` | system_init_constants | 138 B | A **33-entry initialization table** of `(WRAM address, value)` word pairs used by `InitSystemVariables`. |
+| `$029F0F` | DmaFixedByteFill | 34 B | Performs a **fixed-byte DMA fill** of WRAM using DMA channel 0 in fill mode (`$DMAP0 = $08`). |
+| `$029F31` | InitHardwareRegisters | 29 B | Loads **PPU and system register defaults** from the `ppu_register_init_table` during cold start. |
+| `$029F4E` | cache_slot_indices | 12 B | A **4-entry lookup table** of 32-bit slot indices (`0`, `1`, `2`, `3`) used by the scene graphics VRAM ring-buffer ca... |
+| `$029F5A` | ppu_register_init_table | 230 B | A **76-entry PPU register initialization table** consumed by `InitHardwareRegisters`. |
 
 ### UploadCgramPalette
 
-| Property | Value |
-|----------|-------|
-| **Old name** | `func_029DE2` |
-| **New name** | `UploadCgramPalette` |
-| **Address** | `$029DE2` |
-| **Decimal address** | 171490 |
-| **Size** | 59 bytes |
-| **Type** | Public subroutine (`RTL`) |
-| **ASM file** | `extracted/system/engine/system_init.asm` |
 
-#### Description
+Uploads the **512-byte CGRAM palette** from WRAM `$7F:0A00` to the PPU color generator via DMA channel 0, then writes three **fixed backdrop colors** to `$COLDATA` from `$7F:0C00`–`$7F:0C02`. Configures DMA in word mode (`$DMAP0 = $00`, `$BBAD0 = $22` for `$2122` CGRAM data port), source at `$7F:0A00`, transfer size `$0200` bytes. Called during cold start (via `SystemInit` frame path), scene palette reloads (`camera_tilemap.asm`), and inventory overlay entry (`inventory_overlay.asm`) when the display palette must be refreshed from WRAM.
 
-Uploads the **512-byte CGRAM palette** from WRAM `$7F:0A00` to the PPU color generator via DMA channel 0, then writes three **fixed backdrop colors** to `$COLDATA` from `$7F:0C00`–`$7F:0C02`. Configures DMA in word mode (`$DMAP0 = $00`, `$BBAD0 = $22` for `$2122` CGRAM data port), source at `$7F:0A00`, transfer size `$0200` bytes.
-
-Called during cold start (via `SystemInit` frame path), scene palette reloads (`camera_tilemap.asm`), and inventory overlay entry (`inventory_overlay.asm`) when the display palette must be refreshed from WRAM.
-
-#### Algorithm
+**Algorithm:**
 
 | Step | Action | Effect |
 |------|--------|--------|
@@ -1513,11 +1040,11 @@ Called during cold start (via `SystemInit` frame path), scene palette reloads (`
 | 5 | Write 3 bytes from `$7F:0C00`–`02` to `$COLDATA` | Fixed backdrop colors |
 | 6 | `RTL` | Return |
 
-#### Source
+**Source:**
 
-```20:43:extracted/system/engine/system_init.asm
+```20:43:../../../extracted/system/engine/system_init.asm
 UploadCgramPalette {
-    PHP 
+    PHP
     SEP #$20
     STZ $CGADD
     STZ $DMAP0
@@ -1537,12 +1064,12 @@ UploadCgramPalette {
     STA $COLDATA
     LDA $7F0C02
     STA $COLDATA
-    PLP 
-    RTL 
+    PLP
+    RTL
 }
 ```
 
-#### Variables
+**Variables:**
 
 | Location | Direction | Role |
 |----------|-----------|------|
@@ -1552,7 +1079,7 @@ UploadCgramPalette {
 | `$COLDATA` | Write | Backdrop color register |
 | DMA channel 0 | Config | `$4300`–`$4305`, triggered via `$420B` |
 
-#### Cross-References
+**Cross-References:**
 
 | Symbol | Relationship |
 |--------|--------------|
@@ -1560,27 +1087,12 @@ UploadCgramPalette {
 | `camera_tilemap.asm` | Caller — scene palette reload |
 | `inventory_overlay.asm` | Caller — inventory palette upload |
 
----
-
 ### UploadOamTable
 
-| Property | Value |
-|----------|-------|
-| **Old name** | `func_029E1D` |
-| **New name** | `UploadOamTable` |
-| **Address** | `$029E1D` |
-| **Decimal address** | 171549 |
-| **Size** | 39 bytes |
-| **Type** | Public subroutine (`RTL`) |
-| **ASM file** | `extracted/system/engine/system_init.asm` |
 
-#### Description
+Uploads the **544-byte OAM (sprite) table** from ROM `$00:0422` to PPU OAM via DMA channel 0. Configures DMA in word mode with destination `$2104` (OAM data write port), transfer size `$0220` (544 bytes = 128 sprites × 4 bytes + 32-byte extension). Called from `SystemInit` during the main loop's sprite composition phase to DMA the composed OAM buffer to the PPU each frame.
 
-Uploads the **544-byte OAM (sprite) table** from ROM `$00:0422` to PPU OAM via DMA channel 0. Configures DMA in word mode with destination `$2104` (OAM data write port), transfer size `$0220` (544 bytes = 128 sprites × 4 bytes + 32-byte extension).
-
-Called from `SystemInit` during the main loop's sprite composition phase to DMA the composed OAM buffer to the PPU each frame.
-
-#### Algorithm
+**Algorithm:**
 
 | Step | Action | Effect |
 |------|--------|--------|
@@ -1589,11 +1101,11 @@ Called from `SystemInit` during the main loop's sprite composition phase to DMA 
 | 3 | Source `$00:0422`, size `$0220` | 544-byte OAM table |
 | 4 | Trigger `$MDMAEN` / `RTL` | Execute transfer |
 
-#### Source
+**Source:**
 
-```46:63:extracted/system/engine/system_init.asm
+```46:63:../../../extracted/system/engine/system_init.asm
 UploadOamTable {
-    PHP 
+    PHP
     LDX #$0000
     STX $OAMADDL
     STZ $DMAP0
@@ -1607,12 +1119,12 @@ UploadOamTable {
     STX $DAS0L
     LDA #$01
     STA $MDMAEN
-    PLP 
-    RTL 
+    PLP
+    RTL
 }
 ```
 
-#### Variables
+**Variables:**
 
 | Location | Direction | Role |
 |----------|-----------|------|
@@ -1620,33 +1132,18 @@ UploadOamTable {
 | `$OAMADDL` | Write | OAM address latch |
 | DMA channel 0 | Config | `$4300`–`$4305` |
 
-#### Cross-References
+**Cross-References:**
 
 | Symbol | Relationship |
 |--------|--------------|
 | `SystemInit` | Caller — per-frame OAM DMA in main loop |
 
----
-
 ### InitSystemVariables
 
-| Property | Value |
-|----------|-------|
-| **Old name** | `func_029E44` |
-| **New name** | `InitSystemVariables` |
-| **Address** | `$029E44` |
-| **Decimal address** | 171588 |
-| **Size** | 65 bytes |
-| **Type** | Public subroutine (`RTL`) |
-| **ASM file** | `extracted/system/engine/system_init.asm` |
 
-#### Description
+Performs **cold-start WRAM initialization** in two phases. First, three DMA fixed-byte fills zero large WRAM regions via `DmaFixedByteFill`: `$0000`–`$00FF` (256 bytes), then `$0200`–`$FFFF` twice (65280 bytes each pass, covering the bulk of low WRAM). Second, iterates the `system_init_constants` table, writing each `(address, value)` pair into WRAM until a terminator entry (address with bit 15 set) is encountered. Called once from `SystemInit` immediately after `InitHardwareRegisters` during cold start. Seeds joypad remapping masks, scene pointer defaults, scroll parameters, cache indices, and other global game-state variables.
 
-Performs **cold-start WRAM initialization** in two phases. First, three DMA fixed-byte fills zero large WRAM regions via `DmaFixedByteFill`: `$0000`–`$00FF` (256 bytes), then `$0200`–`$FFFF` twice (65280 bytes each pass, covering the bulk of low WRAM). Second, iterates the `system_init_constants` table, writing each `(address, value)` pair into WRAM until a terminator entry (address with bit 15 set) is encountered.
-
-Called once from `SystemInit` immediately after `InitHardwareRegisters` during cold start. Seeds joypad remapping masks, scene pointer defaults, scroll parameters, cache indices, and other global game-state variables.
-
-#### Algorithm
+**Algorithm:**
 
 | Step | Action | Effect |
 |------|--------|--------|
@@ -1656,11 +1153,11 @@ Called once from `SystemInit` immediately after `InitHardwareRegisters` during c
 | 4 | Stop when address word has bit 15 set (terminator) | End of init table |
 | 5 | `RTL` | Return |
 
-#### Source
+**Source:**
 
-```66:99:extracted/system/engine/system_init.asm
+```66:99:../../../extracted/system/engine/system_init.asm
 InitSystemVariables {
-    PHP 
+    PHP
     REP #$20
     LDA #$0000
     SEP #$20
@@ -1680,22 +1177,22 @@ InitSystemVariables {
   loc_029E6F:
     LDA $@system_init_constants, X
     BMI loc_029E83
-    TAY 
+    TAY
     LDA $@system_init_constants+2, X
     STA $0000, Y
-    INX 
-    INX 
-    INX 
-    INX 
+    INX
+    INX
+    INX
+    INX
     BRA loc_029E6F
 
   loc_029E83:
-    PLP 
-    RTL 
+    PLP
+    RTL
 }
 ```
 
-#### Variables
+**Variables:**
 
 | Location | Direction | Role |
 |----------|-----------|------|
@@ -1704,7 +1201,7 @@ InitSystemVariables {
 | `system_init_constants` | Read | 33-entry init table |
 | `Y` | Temp | Target WRAM address for each constant |
 
-#### Cross-References
+**Cross-References:**
 
 | Symbol | Relationship |
 |--------|--------------|
@@ -1712,27 +1209,12 @@ InitSystemVariables {
 | `DmaFixedByteFill` | Callee — WRAM zero-fill (3 calls) |
 | `system_init_constants` | Data — init value table |
 
----
-
 ### system_init_constants
 
-| Property | Value |
-|----------|-------|
-| **Old name** | `constants_029E85` |
-| **New name** | `system_init_constants` |
-| **Address** | `$029E85` |
-| **Decimal address** | 171653 |
-| **Size** | 138 bytes |
-| **Type** | const |
-| **ASM file** | `extracted/system/engine/system_init.asm` |
 
-#### Description
+A **33-entry initialization table** of `(WRAM address, value)` word pairs used by `InitSystemVariables`. Each entry is 4 bytes: a 16-bit WRAM address followed by a 16-bit initial value. The loop terminates when the address word has bit 15 set (`BMI` on the loaded address). Entries initialize scroll/camera parameters (`$069E`–`$06B8`), scene meta pointers (`$003A`/`$003C` → `scene_meta`), joypad remapping masks (`$0DA6`–`$0DB4`), default joypad state (`$005E`–`$0062`), graphics cache indices (`$0648`/`$064A`), and various gameplay flags (`$0402`, `$0406`, `$0AC4`, `$0B04`, `$0B14`).
 
-A **33-entry initialization table** of `(WRAM address, value)` word pairs used by `InitSystemVariables`. Each entry is 4 bytes: a 16-bit WRAM address followed by a 16-bit initial value. The loop terminates when the address word has bit 15 set (`BMI` on the loaded address).
-
-Entries initialize scroll/camera parameters (`$069E`–`$06B8`), scene meta pointers (`$003A`/`$003C` → `scene_meta`), joypad remapping masks (`$0DA6`–`$0DB4`), default joypad state (`$005E`–`$0062`), graphics cache indices (`$0648`/`$064A`), and various gameplay flags (`$0402`, `$0406`, `$0AC4`, `$0B04`, `$0B14`).
-
-#### Algorithm
+**Algorithm:**
 
 Table is consumed sequentially by `InitSystemVariables`:
 
@@ -1744,9 +1226,9 @@ Table is consumed sequentially by `InitSystemVariables`:
 | 4 | `STA $0000,Y` where Y = address | Write to WRAM |
 | 5 | `X += 4`, repeat | Next entry |
 
-#### Source
+**Source:**
 
-```102:137:extracted/system/engine/system_init.asm
+```102:137:../../../extracted/system/engine/system_init.asm
 system_init_constants [
   const < #$069E, #$A000 >   ;00
   const < #$06A0, #$C000 >   ;01
@@ -1785,7 +1267,7 @@ system_init_constants [
 ]
 ```
 
-#### Variables
+**Variables:**
 
 | Location | Direction | Role |
 |----------|-----------|------|
@@ -1795,7 +1277,7 @@ system_init_constants [
 | `$005E`–`$0062` | Output targets | Joypad state defaults |
 | `$0648` / `$064A` | Output targets | Graphics cache indices |
 
-#### Cross-References
+**Cross-References:**
 
 | Symbol | Relationship |
 |--------|--------------|
@@ -1803,27 +1285,12 @@ system_init_constants [
 | `scene_meta` | Referenced — scene metadata table pointer |
 | `VBlankWaitAndJoypad` | Indirect — uses joypad masks initialized here |
 
----
-
 ### DmaFixedByteFill
 
-| Property | Value |
-|----------|-------|
-| **Old name** | `sub_029F0F` |
-| **New name** | `DmaFixedByteFill` |
-| **Address** | `$029F0F` |
-| **Decimal address** | 171791 |
-| **Size** | 34 bytes |
-| **Type** | Internal subroutine (`RTS`) |
-| **ASM file** | `extracted/system/engine/system_init.asm` |
 
-#### Description
+Performs a **fixed-byte DMA fill** of WRAM using DMA channel 0 in fill mode (`$DMAP0 = $08`). The fill byte comes from a single-byte source at `binary_01C384.binary_01C455` (a zero byte in the shared binary block). The destination is the current `$WMADDL`/`$WMADDH` address; the transfer size is passed in `Y` (16-bit byte count). Called three times by `InitSystemVariables` to zero WRAM regions during cold start. The `$BBAD0 = $80` setting selects fixed-byte mode where the same source byte is repeated for the entire transfer length.
 
-Performs a **fixed-byte DMA fill** of WRAM using DMA channel 0 in fill mode (`$DMAP0 = $08`). The fill byte comes from a single-byte source at `binary_01C384.binary_01C455` (a zero byte in the shared binary block). The destination is the current `$WMADDL`/`$WMADDH` address; the transfer size is passed in `Y` (16-bit byte count).
-
-Called three times by `InitSystemVariables` to zero WRAM regions during cold start. The `$BBAD0 = $80` setting selects fixed-byte mode where the same source byte is repeated for the entire transfer length.
-
-#### Algorithm
+**Algorithm:**
 
 | Step | Action | Effect |
 |------|--------|--------|
@@ -1832,11 +1299,11 @@ Called three times by `InitSystemVariables` to zero WRAM regions during cold sta
 | 3 | Source ← `binary_01C455` (zero byte) | Fill value |
 | 4 | Trigger `$MDMAEN` / `RTS` | Fill WRAM at `$WMADD` |
 
-#### Source
+**Source:**
 
-```140:156:extracted/system/engine/system_init.asm
+```140:156:../../../extracted/system/engine/system_init.asm
 DmaFixedByteFill {
-    PHP 
+    PHP
     SEP #$20
     STY $DAS0L
     LDA #$08
@@ -1849,12 +1316,12 @@ DmaFixedByteFill {
     STX $A1T0L
     LDA #$01
     STA $MDMAEN
-    PLP 
-    RTS 
+    PLP
+    RTS
 }
 ```
 
-#### Variables
+**Variables:**
 
 | Location | Direction | Role |
 |----------|-----------|------|
@@ -1863,33 +1330,18 @@ DmaFixedByteFill {
 | `binary_01C455` | Read | Single-byte fill value (zero) |
 | DMA channel 0 | Config | Fill mode via `$4300`–`$4305` |
 
-#### Cross-References
+**Cross-References:**
 
 | Symbol | Relationship |
 |--------|--------------|
 | `InitSystemVariables` | Sole caller — 3 calls during WRAM zero-fill |
 
----
-
 ### InitHardwareRegisters
 
-| Property | Value |
-|----------|-------|
-| **Old name** | `func_029F31` |
-| **New name** | `InitHardwareRegisters` |
-| **Address** | `$029F31` |
-| **Decimal address** | 171825 |
-| **Size** | 29 bytes |
-| **Type** | Public subroutine (`RTL`) |
-| **ASM file** | `extracted/system/engine/system_init.asm` |
 
-#### Description
+Loads **PPU and system register defaults** from the `ppu_register_init_table` during cold start. Iterates 3-byte entries: a register index byte and a 16-bit value word. Writes each value to the corresponding MMIO register at `$2100+index`. Terminates when the register index byte has bit 7 set (`BMI` test on the loaded index). Called as the first initialization step in `SystemInit`, before WRAM clearing and actor setup. Configures BG mode, screen settings, window masks, DMA enables, and all PPU layer control registers to their power-on gameplay defaults.
 
-Loads **PPU and system register defaults** from the `ppu_register_init_table` during cold start. Iterates 3-byte entries: a register index byte and a 16-bit value word. Writes each value to the corresponding MMIO register at `$2100+index`. Terminates when the register index byte has bit 7 set (`BMI` test on the loaded index).
-
-Called as the first initialization step in `SystemInit`, before WRAM clearing and actor setup. Configures BG mode, screen settings, window masks, DMA enables, and all PPU layer control registers to their power-on gameplay defaults.
-
-#### Algorithm
+**Algorithm:**
 
 | Step | Action | Effect |
 |------|--------|--------|
@@ -1900,119 +1352,68 @@ Called as the first initialization step in `SystemInit`, before WRAM clearing an
 | 5 | `STA $2100+index` | Write to PPU register |
 | 6 | `X += 3`, repeat | Next entry |
 
-#### Source
+**Source:**
 
-```159:179:extracted/system/engine/system_init.asm
+```159:179:../../../extracted/system/engine/system_init.asm
 InitHardwareRegisters {
-    PHP 
+    PHP
     LDX #$0000
 
   loc_029F35:
     REP #$20
     LDA $@ppu_register_init_table, X
     BMI loc_029F4C
-    TAY 
+    TAY
     SEP #$20
     LDA $@ppu_register_init_table+2, X
     STA $0000, Y
-    INX 
-    INX 
-    INX 
+    INX
+    INX
+    INX
     BRA loc_029F35
 
   loc_029F4C:
-    PLP 
-    RTL 
+    PLP
+    RTL
 }
 ```
 
-#### Variables
+**Variables:**
 
 | Location | Direction | Role |
 |----------|-----------|------|
 | `ppu_register_init_table` | Read | 76-entry register init table |
 | `$2100`–`$213F` | Write | PPU MMIO registers (via indexed addressing) |
 
-#### Cross-References
+**Cross-References:**
 
 | Symbol | Relationship |
 |--------|--------------|
 | `SystemInit` | Sole caller — first init step after CPU setup |
 | `ppu_register_init_table` | Data — register default values |
 
----
-
 ### cache_slot_indices
 
-| Property | Value |
-|----------|-------|
-| **Old name** | `binary_029F4E` |
-| **New name** | `cache_slot_indices` |
-| **Address** | `$029F4E` |
-| **Decimal address** | 171854 |
-| **Size** | 12 bytes |
-| **Type** | Binary |
-| **ASM file** | `extracted/system/engine/system_init.asm` |
+A **4-entry lookup table** of 32-bit slot indices (`0`, `1`, `2`, `3`) used by the scene graphics VRAM ring-buffer cache. Indexed by the cache lookup result to map logical cache slots to WRAM ring-buffer segments during tile save/restore (`RestoreVramFromRingBuffer` in [`scene-engine.md`](scene-engine.md)).
 
-#### Description
+**Source:**
 
-A **4-entry lookup table** of 32-bit slot indices (`0`, `1`, `2`, `3`) used by the scene graphics VRAM ring-buffer cache in [`scene_script.asm`](../../../extracted/system/engine/scene_script.asm). Each entry maps a cache slot number to its index for `ComputeRingBufferAddr`, which calculates the WRAM address of a saved VRAM snapshot in the `$7F:4000+` ring buffer (4 slots × `$2000` bytes each).
-
-Initialized as part of the `system_init` data block; not written at runtime.
-
-#### Algorithm
-
-Direct indexed lookup — no runtime algorithm. Consumers load a 32-bit value by slot index × 4.
-
-#### Source
-
-```182:182:extracted/system/engine/system_init.asm
-cache_slot_indices #000000010000020000030000
+```234:234:../../../extracted/system/engine/system_init.asm
+CacheSlotIndices #000000010000020000030000
 ```
-
-#### Variables
-
-| Location | Direction | Role |
-|----------|-----------|------|
-| Entry 0 | Data | Slot index 0 |
-| Entry 1 | Data | Slot index 1 |
-| Entry 2 | Data | Slot index 2 |
-| Entry 3 | Data | Slot index 3 |
-
-#### Cross-References
-
-| Symbol | Relationship |
-|--------|--------------|
-| `ComputeRingBufferAddr` | Consumer — VRAM ring-buffer address calculation |
-| `GraphicsCacheLookup` | Indirect — tile-strip content cache in scene_script |
-
----
 
 ### ppu_register_init_table
 
-| Property | Value |
-|----------|-------|
-| **Old name** | `struct_029F5A` |
-| **New name** | `ppu_register_init_table` |
-| **Address** | `$029F5A` |
-| **Decimal address** | 171866 |
-| **Size** | 230 bytes |
-| **Type** | unk6 |
-| **ASM file** | `extracted/system/engine/system_init.asm` |
 
-#### Description
+A **76-entry PPU register initialization table** consumed by `InitHardwareRegisters`. Each entry is 3 bytes in `unk6` format: a 1-byte register index (offset from `$2100`) and a 2-byte value word. The low byte of the value word typically ends in `$21` (indicating a specific PPU register write pattern); entries with `$42` suffix are 8-bit register writes via the `$0042` type marker. The table configures: `$INIDISP` (forced blank initially), `$OBSEL` (OBJ tile format), all BG scroll/mode/control registers (`$2105`–`$210A`), `$BG1SC`/`$BG2SC` (tilemap base addresses), `$BG12NBA`/`$BG34NBA` (tile base addresses), `$BG1HOFS`/`$BG1VOFS` (scroll offsets), window mask settings, and `$CGWSEL`/`$CGADSUB` (color math). Duplicate entries for `$210D`/`$210E` suggest multi-byte register pairs written sequentially.
 
-A **76-entry PPU register initialization table** consumed by `InitHardwareRegisters`. Each entry is 3 bytes in `unk6` format: a 1-byte register index (offset from `$2100`) and a 2-byte value word. The low byte of the value word typically ends in `$21` (indicating a specific PPU register write pattern); entries with `$42` suffix are 8-bit register writes via the `$0042` type marker.
-
-The table configures: `$INIDISP` (forced blank initially), `$OBSEL` (OBJ tile format), all BG scroll/mode/control registers (`$2105`–`$210A`), `$BG1SC`/`$BG2SC` (tilemap base addresses), `$BG12NBA`/`$BG34NBA` (tile base addresses), `$BG1HOFS`/`$BG1VOFS` (scroll offsets), window mask settings, and `$CGWSEL`/`$CGADSUB` (color math). Duplicate entries for `$210D`/`$210E` suggest multi-byte register pairs written sequentially.
-
-#### Algorithm
+**Algorithm:**
 
 Table is consumed sequentially by `InitHardwareRegisters` — see that routine for the iteration algorithm.
 
-#### Source
+**Source:**
 
-```185:262:extracted/system/engine/system_init.asm
+```185:262:../../../extracted/system/engine/system_init.asm
 ppu_register_init_table [
   unk6 < #0B, #$0042 >   ;00
   unk6 < #0C, #$0042 >   ;01
@@ -2093,7 +1494,7 @@ ppu_register_init_table [
 ]
 ```
 
-#### Variables
+**Variables:**
 
 | Location | Direction | Role |
 |----------|-----------|------|
@@ -2105,23 +1506,12 @@ ppu_register_init_table [
 | `$2123`–`$2125` | Write targets | Window mask settings |
 | `$2130`–`$2133` | Write targets | Color math, screen mode |
 
-#### Cross-References
+**Cross-References:**
 
 | Symbol | Relationship |
 |--------|--------------|
 | `InitHardwareRegisters` | Sole consumer — cold-start PPU setup |
 
----
-
-## Summary Statistics
-
-| File | Parts | Code (bytes) | Data (bytes) | Total |
-|------|-------|-------------|-------------|-------|
-| `hardware_math.asm` | 5 | 218 | 0 | 218 |
-| `vblank_joypad.asm` | 7 | 406 | 0 | 406 |
-| `decompress.asm` | 3 | 306 | 0 | 306 |
-| `system_init.asm` | 8 | 226 | 380 | 606 |
-| **Total** | **23** | **1,156** | **380** | **1,536** |
 
 ### Key Call Chains
 
@@ -2141,8 +1531,6 @@ Scene Load (scene_script)
   └── QuintetLzDecompress ← LzReadBitField, LzReadBackRef
         └── DMA decompressed data to VRAM
 ```
-
----
 
 ## See Also
 

@@ -1,7 +1,7 @@
 ?BANK 09
 
-?INCLUDE 'chunk_03BAE1'
 ?INCLUDE 'ec11_button_voice'
+?INCLUDE 'oam_digit_compose'
 
 !joypadMaskStd                  065A
 !playerXPos                     09A2
@@ -44,7 +44,7 @@ code_09BDCB {
     JSR $&code_09BEFC
     LDA #$0001
     STA $0000
-    JSL $@chunk_03BAE1.func_03BAF1
+    JSL $@oam_digit_compose.ComposeDigitSprites
     COP [LoopNext]
     COP [LoopInit] ( #78 )
     COP [BranchIfFlagByte] ( #03, #01, &code_09BE67 )
@@ -55,7 +55,7 @@ code_09BDCB {
     JSR $&code_09BEFC
     LDA #$0002
     STA $0000
-    JSL $@chunk_03BAE1.func_03BAF1
+    JSL $@oam_digit_compose.ComposeDigitSprites
     COP [LoopNext]
     COP [LoopInit] ( #63 )
     COP [BranchIfFlagByte] ( #03, #01, &code_09BE67 )
@@ -67,7 +67,7 @@ code_09BDCB {
     JSR $&code_09BEFC
     LDA #$0003
     STA $0000
-    JSL $@chunk_03BAE1.func_03BAF1
+    JSL $@oam_digit_compose.ComposeDigitSprites
     COP [LoopNext]
     COP [ClearFlagByte] ( #01 )
     COP [PrintWideString] ( &ec11_button_voice.widestring_09BD58 )

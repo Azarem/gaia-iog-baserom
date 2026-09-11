@@ -1,5 +1,5 @@
-?INCLUDE 'chunk_03BAE1'
 ?INCLUDE 'EscortFollowPathTracker'
+?INCLUDE 'GetPlayerFacingDirection'
 ?INCLUDE 'table_0EE000'
 
 !sceneCurrent                   0644
@@ -43,7 +43,7 @@ code_09865A {
     COP [SpawnAfterFlags] ( @EscortFollowPathTracker, #$2800 )
     PHX 
     TYX 
-    JSL $@chunk_03BAE1.func_03F0CA
+    JSL $@GetPlayerFacingDirection
     EOR #$0001
     INC 
     STA $orbitAngle, X

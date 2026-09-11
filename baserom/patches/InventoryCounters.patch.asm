@@ -276,7 +276,7 @@ loc_03C807! {
 loc_03C82D! {
     LDA $01, S
     BEQ small_sprite_process
-    LDA $@binary_03C841, X
+    LDA $@OamHiTableMasks, X
     STA $00
     BRA small_sprite_continue
 
@@ -284,7 +284,7 @@ loc_03C82D! {
     STZ $00
 
   small_sprite_continue:
-    LDA $@binary_03C841+1, X
+    LDA $@OamHiTableMasks+1, X
     STA $0E
     REP #$20
     PLA

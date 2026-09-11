@@ -1,9 +1,13 @@
-?INCLUDE 'chunk_03BAE1'
+?INCLUDE 'actor_execution'
 ?INCLUDE 'event_blocks'
+?INCLUDE 'hdma_dma_spc'
+?INCLUDE 'scene_lifecycle'
 ?INCLUDE 'scene_script'
+?INCLUDE 'sprite_composition'
 ?INCLUDE 'system_core'
 ?INCLUDE 'system_init'
 ?INCLUDE 'system_strings'
+?INCLUDE 'tile_collision_physics'
 ?INCLUDE 'vblank_joypad'
 ?INCLUDE 'vram_buffer_clear'
 ?INCLUDE 'warps_interaction'
@@ -105,7 +109,7 @@ OpenInventoryScreen {
     LDA #$04
     STA $BG1SC
     STA $bg1ConfigMode
-    JSL $@chunk_03BAE1.func_03DFA0
+    JSL $@scene_lifecycle.LoadScenePalettes
     LDA #$1B
     STA $7F0A04
     LDA #$5B
@@ -129,17 +133,17 @@ OpenInventoryScreen {
     STX $06CC
     STX $00B2
     JSL $@vram_buffer_clear.ClearVramBufferFull
-    JSL $@chunk_03BAE1.func_03CDDC
-    JSL $@chunk_03BAE1.func_03CEA1
-    JSL $@chunk_03BAE1.func_03D7E7
-    JSL $@chunk_03BAE1.zero_bytes_03D86A
-    JSL $@chunk_03BAE1.run_actors_03CAF5
-    JSL $@chunk_03BAE1.run_actors_03CAF5
-    JSL $@chunk_03BAE1.func_03C5FF
+    JSL $@actor_execution.InitActorPool
+    JSL $@actor_execution.SpawnSceneActors
+    JSL $@tile_collision_physics.SpawnSceneThinkers
+    JSL $@tile_collision_physics.ClearActorRenderList
+    JSL $@actor_execution.RunActors_Normal
+    JSL $@actor_execution.RunActors_Normal
+    JSL $@sprite_composition.SortActorsByDepth
     LDA #$FF
     STA $oamComposeBuffer
     STA $7F3101
-    JSL $@chunk_03BAE1.func_03C714
+    JSL $@sprite_composition.ComposeAllSprites
     JSL $@system_core.UpdateFrameDialogue
     JSL $@vblank_joypad.EnableNmiAndJoypad
     JSL $@vblank_joypad.VBlankWaitAndJoypad
@@ -182,14 +186,14 @@ OpenInventoryScreen {
     JSL $@event_blocks.ApplyAllEventBlocks
     JSL $@warps_interaction.PlaceBarrierTiles
     JSR $&RestorePaletteBuffer
-    JSL $@chunk_03BAE1.func_03DFA0
-    JSL $@chunk_03BAE1.func_03DFF8
+    JSL $@scene_lifecycle.LoadScenePalettes
+    JSL $@scene_lifecycle.LoadPlayerGraphics
     JSR $&ReloadAbilityFX
-    JSL $@chunk_03BAE1.zero_bytes_03D86A
+    JSL $@tile_collision_physics.ClearActorRenderList
     JSL $@vram_buffer_clear.ClearVramBufferFull
     LDA #$41
     TSB $displayModeFlags
-    JSL $@chunk_03BAE1.func_03DECD
+    JSL $@scene_lifecycle.LoadHudTilemap
     LDX #$0000
     STX $09CC
     STX $09CE
@@ -200,7 +204,7 @@ OpenInventoryScreen {
     STX $00F8
     COP [RunBg3Script] ( @system_strings.asciistring_01E818 )
     JSR $&DrainActorQueue
-    JSL $@chunk_03BAE1.func_03E146
+    JSL $@hdma_dma_spc.ResetHdmaState
     JSL $@system_core.UpdateFrameRender
     COP [SetFlagByte] ( #FF )
     JSL $@system_core.UpdateFrameRender

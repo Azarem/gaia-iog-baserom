@@ -21,7 +21,9 @@ import structs from '../db-us/structs.json' with { type: 'json' };
 import transforms from '../db-us/transforms.json' with { type: 'json' };
 import fileTypes from '../db-us/fileTypes.json' with { type: 'json' };
 import names from '../db-us/names.json' with { type: 'json' };
-import comments from '../db-us/comments.json' with { type: 'json' };
+import comments0 from '../db-us/comments/comments_bank0.json' with { type: 'json' };
+import comments2 from '../db-us/comments/comments_bank2.json' with { type: 'json' };
+import comments3 from '../db-us/comments/comments_bank3.json' with { type: 'json' };
 import blockNotes from '../db-us/blockNotes.json' with { type: 'json' };
 import partNotes from '../db-us/partNotes.json' with { type: 'json' };
 import types from '../db-us/types.json' with { type: 'json' };
@@ -62,7 +64,7 @@ export const db : DbGameRomModule = {
     headers: snes.headers,
     names,
     types,
-    comments,
+    comments: { ...comments0, ...comments2, ...comments3 },
     blockNotes,
     partNotes
 };

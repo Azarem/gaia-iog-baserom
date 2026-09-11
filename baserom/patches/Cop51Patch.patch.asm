@@ -38,7 +38,7 @@ cop51_main:
   INC SPTR
   INC SPTR
   JSL $@QuintetLzDecompress
-  JSL $@zero_bytes_03D86A
+  JSL $@ClearActorRenderList
   BRA cop51_end
 
 cop51_zero:

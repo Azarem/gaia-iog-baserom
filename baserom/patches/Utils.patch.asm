@@ -62,7 +62,7 @@ pause_debug_print |[NHM:14][CUR:C0,6]S:[BCD:2,644] X:[BCD:3,9A2] Y:[BCD:3,9A4] C
 ------------------------------------------------------------
 ;Hook for global thinkers
 
-func_03D1C2! {
+RunThinkers_TypeD! {
     PHP 
     PHD 
     REP #$20
@@ -84,7 +84,7 @@ func_03D1C2! {
 ;}
 
 
-word_03DF0A! [
+HudTilemapData! [
   #$2CCE   ;06
   #$2CCF   ;07
   #$0000   ;08
@@ -250,13 +250,13 @@ loc_03808B! {
 
 -------------------------------------------------
 ;Prevent unequipped message
-func_0384BF! {
+UseItem_None! {
     RTS 
 }
 
 ------------------------------------------------
 ;Hook into global actor code
-run_actors_03CAF5! {
+RunActors_Normal! {
     PHP 
     PHD 
     REP #$20
@@ -273,7 +273,7 @@ run_actors_03CAF5! {
 
 code_08DBB1! {
     LDA $0D8C
-    JSL $@func_03D916
+    JSL $@SaveGameState_Scene
     COP [07] ( #29 )
     LDA #$FFF0
     TSB $joypadMaskStd
@@ -335,14 +335,14 @@ loc_02A12C! {
     STZ $00B5
     
     REP #$20
-    JSL $@sub_03E255
+    JSL $@WideStringRenderer
     PLB
     PLY
 
     PLA
     PLA
     PLA
-    JSL $@sub_03E255
+    JSL $@WideStringRenderer
 
     PLB
     PLB

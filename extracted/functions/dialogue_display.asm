@@ -1,4 +1,4 @@
-?INCLUDE 'chunk_03BAE1'
+?INCLUDE 'dialogue_engine'
 ?INCLUDE 'system_core'
 
 !joypadMaskStd                  065A
@@ -18,7 +18,7 @@ ShowDialogueFrame {
     PLB 
     JSL $@system_core.UpdateFrameRender
     REP #$20
-    JSL $@chunk_03BAE1.sub_03E255
+    JSL $@dialogue_engine.WideStringRenderer
     PLA 
     STA $joypadMaskStd
     PLB 

@@ -1,4 +1,4 @@
-?INCLUDE 'chunk_03BAE1'
+?INCLUDE 'oam_digit_compose'
 ?INCLUDE 'sE6_gaia'
 
 !joypadMaskStd                  065A
@@ -128,7 +128,7 @@ code_06A69E {
     COP [LoopInit] ( #3C )
     LDA $26
     STA $0000
-    JSL $@chunk_03BAE1.func_03BAF1
+    JSL $@oam_digit_compose.ComposeDigitSprites
     COP [LoopNext]
     COP [BranchIfFlagByte] ( #01, #01, &code_06A6F5 )
     LDA $displayModeFlags
@@ -150,7 +150,7 @@ code_06A69E {
 
   loc_06A6E9:
     STA $0000
-    JSL $@chunk_03BAE1.func_03BAF1
+    JSL $@oam_digit_compose.ComposeDigitSprites
     COP [SetEntryExitNow] ( @code_06A6B1 )
 }
 

@@ -1,6 +1,6 @@
 ?BANK 02
 
-?INCLUDE 'chunk_03BAE1'
+?INCLUDE 'tile_collision_physics'
 
 !mapRowStrideL0                 0693
 !cameraOffsetX                  06D6
@@ -358,7 +358,7 @@ TileProbeMain {
     LSR 
     STA $1C
     PHY 
-    JSL $@chunk_03BAE1.func_03D78A
+    JSL $@tile_collision_physics.CalcTileMapOffset
     STY $00
     TYX 
     PLY 

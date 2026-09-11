@@ -1,6 +1,7 @@
 ?BANK 0B
 
-?INCLUDE 'chunk_03BAE1'
+?INCLUDE 'oam_digit_compose'
+?INCLUDE 'save_system'
 ?INCLUDE 'strings_0BF706'
 ?INCLUDE 'system_strings'
 ?INCLUDE 'vblank_joypad'
@@ -259,7 +260,7 @@ code_0BE3DF {
     STA $0D92
     LDA $0D8C
     STA $306000
-    JSL $@chunk_03BAE1.func_03D954
+    JSL $@save_system.LoadGameState_Scene
     BCS loc_0BE433
     JSR $&sub_0BE673
     LDA $0AB2
@@ -716,7 +717,7 @@ code_0BE7F5 {
     XBA 
     ASL 
     TAX 
-    JSL $@chunk_03BAE1.func_03D9B8
+    JSL $@save_system.ComputeSaveChecksum
     LDA $0018
     STA $3063FC, X
     LDA $001C
@@ -1083,7 +1084,7 @@ code_0BEACD {
     BNE loc_0BEAF0
     COP [PlaySoundCh2] ( #12 )
     LDA $0D92
-    JSL $@chunk_03BAE1.func_03D994
+    JSL $@save_system.ClearSaveSlot
     JMP $&code_0BEA6B
 
   loc_0BEAF0:
@@ -1144,7 +1145,7 @@ code_0BEB61 {
     COP [PlaySoundCh2] ( #13 )
     COP [SetEntryContinue]
     LDA $0D94
-    JSL $@chunk_03BAE1.func_03D994
+    JSL $@save_system.ClearSaveSlot
     COP [WaitByte] ( #1D )
     LDA $1C
     STA $1A
@@ -1472,7 +1473,7 @@ sub_0BED64 {
     XBA 
     ASL 
     TAX 
-    JSL $@chunk_03BAE1.func_03D9B8
+    JSL $@save_system.ComputeSaveChecksum
     LDA $0018
     CMP $3063FC, X
     BNE loc_0BEE11
@@ -1589,7 +1590,7 @@ func_0BF1AA_noref {
     STA $001C
     LDA #$3200
     STA $0002
-    JSL $@chunk_03BAE1.func_03BAE1
+    JSL $@oam_digit_compose.ComposeDigits_Continuation
     RTL 
 }
 ---------------------------------------------

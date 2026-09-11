@@ -1,4 +1,4 @@
-?INCLUDE 'chunk_03BAE1'
+?INCLUDE 'hdma_dma_spc'
 
 !WRMPYA                         4202
 !WRMPYB                         4203
@@ -111,7 +111,7 @@ pr8C_proc_03A6BA [
     ADC #$8D00
     TAY 
     PLA 
-    JSL $@chunk_03BAE1.func_03E173
+    JSL $@hdma_dma_spc.SetupHdmaChannel_Direct
     RTL 
 
   loc_03A76F:
@@ -219,7 +219,7 @@ code_03A784 {
     ADC #$8E00
     TAY 
     PLA 
-    JSL $@chunk_03BAE1.func_03E173
+    JSL $@hdma_dma_spc.SetupHdmaChannel_Direct
     RTL 
 
   loc_03A829:

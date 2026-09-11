@@ -1,6 +1,6 @@
 ?INCLUDE 'binary_01D8BE'
-?INCLUDE 'chunk_03BAE1'
 ?INCLUDE 'hardware_math'
+?INCLUDE 'hdma_dma_spc'
 ?INCLUDE 'parallax_table'
 
 !bg1ScrollH                     068A
@@ -31,7 +31,7 @@ parallax_thinker [
     XBA 
     LDA $0060
     LDY $005E
-    JSL $@chunk_03BAE1.func_03E173
+    JSL $@hdma_dma_spc.SetupHdmaChannel_Direct
     LDA #$01
     STA $0060
     REP #$20

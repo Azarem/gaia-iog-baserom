@@ -1,4 +1,4 @@
-?INCLUDE 'chunk_03BAE1'
+?INCLUDE 'dialogue_engine'
 ?INCLUDE 'system_core'
 
 !worldReadyFlag                 0654
@@ -76,7 +76,7 @@ actor_0BE1C5 [
     SEP #$20
     JSL $@system_core.UpdateFrameRender
     REP #$20
-    JSL $@chunk_03BAE1.sub_03E255
+    JSL $@dialogue_engine.WideStringRenderer
     PLY 
     BRA loc_0BE1EB
 } >

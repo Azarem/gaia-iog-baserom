@@ -1529,7 +1529,7 @@ scene_event_0C935F [
   actor-spawn < #05, #0A, #30, @player_character.PlayerCharacterDef >   ;00
   actor-spawn < #00, #00, #00, @camera_scroll_controller >   ;01
   actor-spawn < #11, #11, #00, @camera_scroll.ScrollCameraTrack >   ;02
-  enemy-spawn < #07, #11, #00, @ir29_castoth, #14, #88, #00 >   ;03
+  enemy-spawn < #07, #11, #00, @ir29_castoth.ir29_castoth, #14, #88, #00 >   ;03
   actor-spawn < #00, #01, #00, @ir29_transform >   ;04
   actor-spawn < #00, #01, #01, @boss_clear_reward_handler >   ;05
 ]
@@ -2207,7 +2207,7 @@ scene_event_0CA43B [
   actor-spawn < #07, #1E, #30, @sg55_falling_tile >   ;14
   actor-spawn < #07, #1F, #30, @sg55_falling_tile >   ;15
   actor-spawn < #07, #20, #30, @sg55_falling_tile >   ;16
-  enemy-spawn < #10, #05, #30, @sg55_viper, #27, #00, #00 >   ;17
+  enemy-spawn < #10, #05, #30, @sg55_viper.sg55_viper, #27, #00, #00 >   ;17
   actor-spawn < #00, #01, #00, @sg55_mystic_statue >   ;18
   actor-spawn < #00, #01, #01, @boss_clear_reward_handler >   ;19
 ]
@@ -2228,7 +2228,7 @@ scene_event_0CA50C [
   actor-spawn < #07, #04, #00, @sp58_monologue.sp58_actor_068380 >   ;06
   actor-spawn < #08, #01, #00, @sp58_monologue.sp58_actor_068380 >   ;07
   actor-spawn < #0A, #02, #00, @sp58_monologue.sp58_actor_068380 >   ;08
-  actor-spawn < #0C, #05, #00, @sp58_monologue >   ;09
+  actor-spawn < #0C, #05, #00, @sp58_monologue.sp58_monologue >   ;09
 ]
 
 scene_event_0CA554 [
@@ -3130,7 +3130,7 @@ scene_event_0CBD1A [
   actor-spawn < #05, #0A, #00, @player_character.PlayerCharacterDef >   ;00
   actor-spawn < #00, #00, #00, @camera_scroll_controller >   ;01
   actor-spawn < #11, #11, #00, @camera_scroll.ScrollCameraVertical >   ;02
-  enemy-spawn < #27, #30, #00, @gw8A_sand_fanger, #36, #00, #6A >   ;03
+  enemy-spawn < #27, #30, #00, @gw8A_sand_fanger.gw8A_sand_fanger, #36, #00, #6A >   ;03
   actor-spawn < #00, #01, #01, @boss_clear_reward_handler >   ;04
 ]
 
@@ -4411,7 +4411,7 @@ scene_event_0CDFBF [
   actor-spawn < #04, #1B, #30, @pyDD_teleporter >   ;04
   actor-spawn < #1B, #0C, #30, @pyDD_actor_0BADBE >   ;05
   actor-spawn < #1B, #1B, #30, @pyDD_teleporter.pyDD_teleporter_right >   ;06
-  enemy-spawn < #0F, #0C, #30, @pyDD_mummy_queen, #50, #00, #00 >   ;07
+  enemy-spawn < #0F, #0C, #30, @pyDD_mummy_queen.pyDD_mummy_queen, #50, #00, #00 >   ;07
   actor-spawn < #00, #01, #01, @pyDD_actor_0BA5DF >   ;08
   actor-spawn < #00, #01, #00, @pyDD_mystic_statue >   ;09
   actor-spawn < #00, #01, #01, @boss_clear_reward_handler >   ;0A

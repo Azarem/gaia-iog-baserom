@@ -5,7 +5,7 @@
 
 ;Characters >= 0xE0 will use the accent table
 
-sub_03E255! {
+WideStringRenderer! {
     PHP 
     PHD 
     PHX 
@@ -13,7 +13,7 @@ sub_03E255! {
     TCD 
     LDX $0998
 
-  code_03E25F!:
+  WideString_CharLoop!:
     SEP #$20
     LDA $0000, Y
     CMP #$E0
@@ -22,12 +22,12 @@ sub_03E255! {
     BCC loc_03E27C
     REP #$20
     INY 
-    PEA $&code_03E25F-1
+    PEA $&WideString_CharLoop-1
     AND #$001F
     ASL 
     PHX 
     TAX 
-    LDA $@wide_cmd_table_03E2C3, X
+    LDA $@WideStringCommandTable, X
     PLX 
     DEC 
     PHA 
@@ -51,20 +51,20 @@ loc_03E27C! {
     INX 
     STX $0998
     LDA $0654
-    BEQ code_03E25F
+    BEQ WideString_CharLoop
     LDA $00
     PHA 
     LDA #$0001
     TSB $09EC
-    JSR $&code_03E7BA
+    JSR $&WaitNFrames_PerChar
     PLA 
     CMP #$00AC
-    BEQ code_03E25F
+    BEQ WideString_CharLoop
     LDA $06F8
     AND #$FF00
     ORA $0996
     STA $06F8
-    BRA code_03E25F
+    BRA WideString_CharLoop
 }
 
 do_accent_table {

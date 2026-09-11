@@ -1,4 +1,4 @@
-?INCLUDE 'chunk_03BAE1'
+?INCLUDE 'GetPlayerFacingDirection'
 
 !playerActor                    09AA
 !orbitAngle                     7F0010
@@ -36,7 +36,7 @@ code_00E172 {
   loc_00E183:
     LSR 
     STA $orbitAngle, X
-    JSL $@chunk_03BAE1.func_03F0CA
+    JSL $@GetPlayerFacingDirection
     CMP #$0000
     BNE loc_00E1AF
     COP [SetEntryContinue]
@@ -59,7 +59,7 @@ code_00E172 {
   loc_00E1B1:
     LSR 
     STA $orbitAngle, X
-    JSL $@chunk_03BAE1.func_03F0CA
+    JSL $@GetPlayerFacingDirection
     CMP #$0001
     BNE loc_00E1DD
     COP [SetEntryContinue]
@@ -97,7 +97,7 @@ code_00E1E9 {
   loc_00E1FA:
     LSR 
     STA $orbitAngle, X
-    JSL $@chunk_03BAE1.func_03F0CA
+    JSL $@GetPlayerFacingDirection
     CMP #$0003
     BNE loc_00E226
     COP [SetEntryContinue]
@@ -120,7 +120,7 @@ code_00E1E9 {
   loc_00E228:
     LSR 
     STA $orbitAngle, X
-    JSL $@chunk_03BAE1.func_03F0CA
+    JSL $@GetPlayerFacingDirection
     CMP #$0002
     BNE loc_00E254
     COP [SetEntryContinue]
@@ -184,7 +184,7 @@ code_00E289 {
   loc_00E29A:
     CMP #$0020
     BCC code_00E2D1
-    JSL $@chunk_03BAE1.func_03F0CA
+    JSL $@GetPlayerFacingDirection
     CMP #$0000
     BNE code_00E2D1
     COP [BranchIfSolidOffset] ( #00, #FF, &code_00E2D1 )
@@ -211,7 +211,7 @@ code_00E2D1 {
   loc_00E2D3:
     CMP #$0020
     BCC code_00E30A
-    JSL $@chunk_03BAE1.func_03F0CA
+    JSL $@GetPlayerFacingDirection
     CMP #$0001
     BNE code_00E30A
     COP [BranchIfSolidOffset] ( #00, #01, &code_00E30A )
@@ -253,7 +253,7 @@ code_00E316 {
   loc_00E327:
     CMP #$0020
     BCC code_00E35E
-    JSL $@chunk_03BAE1.func_03F0CA
+    JSL $@GetPlayerFacingDirection
     CMP #$0003
     BNE code_00E35E
     COP [BranchIfSolidOffset] ( #FF, #00, &code_00E35E )
@@ -280,7 +280,7 @@ code_00E35E {
   loc_00E360:
     CMP #$0020
     BCC code_00E397
-    JSL $@chunk_03BAE1.func_03F0CA
+    JSL $@GetPlayerFacingDirection
     CMP #$0002
     BNE code_00E397
     COP [BranchIfSolidOffset] ( #01, #00, &code_00E397 )
@@ -365,7 +365,7 @@ code_00E3E3 {
     LDA $0028, Y
     CMP #$003A
     BNE code_00E425
-    JSL $@chunk_03BAE1.func_03F0CA
+    JSL $@GetPlayerFacingDirection
     CMP #$0000
     BNE code_00E425
     COP [BranchIfSolidOffset] ( #00, #FF, &code_00E425 )
@@ -388,7 +388,7 @@ code_00E425 {
     LDA $0028, Y
     CMP #$003B
     BNE code_00E458
-    JSL $@chunk_03BAE1.func_03F0CA
+    JSL $@GetPlayerFacingDirection
     CMP #$0001
     BNE code_00E458
     COP [BranchIfSolidOffset] ( #00, #01, &code_00E458 )
@@ -426,7 +426,7 @@ code_00E464 {
     LDA $0028, Y
     CMP #$003D
     BNE code_00E4A6
-    JSL $@chunk_03BAE1.func_03F0CA
+    JSL $@GetPlayerFacingDirection
     CMP #$0003
     BNE code_00E4A6
     COP [BranchIfSolidOffset] ( #FF, #00, &code_00E4A6 )
@@ -449,7 +449,7 @@ code_00E4A6 {
     LDA $0028, Y
     CMP #$003C
     BNE code_00E4D9
-    JSL $@chunk_03BAE1.func_03F0CA
+    JSL $@GetPlayerFacingDirection
     CMP #$0002
     BNE code_00E4D9
     COP [BranchIfSolidOffset] ( #01, #00, &code_00E4D9 )

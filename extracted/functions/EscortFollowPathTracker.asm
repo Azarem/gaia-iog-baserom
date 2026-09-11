@@ -1,4 +1,4 @@
-?INCLUDE 'chunk_03BAE1'
+?INCLUDE 'GetPlayerFacingDirection'
 
 !playerActor                    09AA
 !orbitAngle                     7F0010
@@ -14,7 +14,7 @@ EscortFollowPathTracker {
     BRA loc_00C814
 
   loc_00C810:
-    JSL $@chunk_03BAE1.func_03F0CA
+    JSL $@GetPlayerFacingDirection
 
   loc_00C814:
     ASL 
@@ -142,7 +142,7 @@ EscortFollowPathTracker {
     AND #$003F
     PHX 
     TAX 
-    JSL $@chunk_03BAE1.func_03F0CA
+    JSL $@GetPlayerFacingDirection
     STA $7EDF04, X
     PLX 
     LDA $orbitAngle, X

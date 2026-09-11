@@ -49,7 +49,7 @@ diary_ngp_confirm {
     STA $0D92
     LDA $0D8C
     STA $306000
-    JSL $@func_03D954
+    JSL $@LoadGameState_Scene
     ;BCS code_0BE433
     JSR $&sub_0BE673
     LDA $0AB2
@@ -289,7 +289,7 @@ sub_0BED64! {
     XBA 
     ASL 
     TAX 
-    JSL $@func_03D9B8
+    JSL $@ComputeSaveChecksum
     LDA $0018
     CMP $3063FC, X
     BNE diary_noload

@@ -175,7 +175,7 @@ SpcLoadBuiltinEngine! {
 --------------------------------------
 ;Hook for checking track changes before screen transition
 
-func_03D9F6! {
+ExecuteSceneTransition! {
     LDA $0654
     BMI loc_03DA03
     BEQ loc_03DA00
@@ -218,7 +218,7 @@ func_03D9F6! {
   change_return:
     PLY
     PLX
-    JSR $&sub_03DABB
+    JSR $&ScreenExitTransition
 }
 
 -----------------------------------------------
@@ -289,11 +289,11 @@ loc_03DB6F! {
     LDA $006E
     STA $00
     PHA 
-    JSL $@func_03E146
+    JSL $@ResetHdmaState
     LDA #$FF
     STA $6C
     PLA 
-    JSR $&sub_03DBF6
+    JSR $&ApplyScrollWaveEffect
     INC 
     STA $006E
     LDA $02, S
@@ -322,11 +322,11 @@ loc_03DBBC! {
     INC $006E
     STA $00
     PHA 
-    JSL $@func_03E146
+    JSL $@ResetHdmaState
     LDA #$FF
     STA $6C
     PLA 
-    JSR $&sub_03DBF6
+    JSR $&ApplyScrollWaveEffect
     JSL $@UpdateFrameDialogue
     LDA $01, S
     DEC 
@@ -353,7 +353,7 @@ loc_03DBBC! {
 ---------------------------------------------
 ;Hook for fading music via COP 05
 
-func_03E1AA! {
+SpcCheckMusicReady! {
     SEP #$20
     LDA msu_flag
     BEQ cop_fade_normal     ;Assume normal process when no MSU
@@ -363,7 +363,7 @@ func_03E1AA! {
     STA $24
     COP [C1]
     LDA $24
-    BEQ func_03E1D6
+    BEQ SpcTransferMusicData
     DEC
     SEP #$20
     STA $2006
@@ -393,14 +393,14 @@ loc_03E1C1! {
     SEP #$20
     LDA $APUIO0
     REP #$20
-    BEQ func_03E1D6
+    BEQ SpcTransferMusicData
     RTL 
 }
 
 ---------------------------------------------
 ;Hook for stopping music via COP 04/05
 
-func_03E1D6! {
+SpcTransferMusicData! {
     SEP #$20
     LDA msu_flag
     BEQ bgm_load_wait   ;Always skip APU silent since we are always branching to the standard load process
@@ -456,7 +456,7 @@ loc_03E208! {
 
 ---------------------------------------------
 
-func_03E21E! {
+LoadMusicFromTransitionState! {
     LDX $06FA
     BEQ loc_03E254
     BMI loc_03E254

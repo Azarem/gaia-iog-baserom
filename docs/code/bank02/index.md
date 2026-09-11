@@ -194,10 +194,17 @@ These are included from other compilation units outside bank 02:
 | [scene-engine.md](scene-engine.md) | Scene script interpreter, graphics loading, SPC transfer | 2 | 47 | 6,720 |
 | [game-systems.md](game-systems.md) | Music actors, text measurement, event blocks, warps | 4 | 26 | 2,890 |
 | [camera-and-map.md](camera-and-map.md) | Camera scrolling, map coordinates, tile collision | 3 | 42 | 2,328 |
-| [player-character.md](player-character.md) | Player actor system (5 actors + trails) | 6 | 128 | 7,618 |
+| [player-character.md](player-character.md) | Player state machine, palette FX, move controller | 3 | 100 | 3,681 |
+| [attack-ability-system.md](attack-ability-system.md) | Attack dispatcher, abilities, projectiles, trail followers | 2 | 76 | 3,033 |
+| [slope-ramp-physics.md](slope-ramp-physics.md) | Slope detection, speed curves, deceleration | 1 | 17 | 904 |
 | [player-movement.md](player-movement.md) | Movement physics engine (4 directional files) | 4 | 66 | 4,402 |
-| [inventory-and-utility.md](inventory-and-utility.md) | Inventory menu, overlay, dialogue, VRAM clear | 4 | 78 | 3,318 |
+| [inventory-menu.md](inventory-menu.md) | Inventory menu actor system (4 tabs, 16 slots) | 1 | 69 | 2,412 |
+| [inventory-overlay.md](inventory-overlay.md) | Inventory overlay state sandwich | 1 | 6 | 838 |
+| [utility-functions.md](utility-functions.md) | Dialogue frame display, VRAM buffer clear | 2 | 3 | 68 |
 | **Total** | | **27** | **410** | **28,812** |
+
+> **Note:** Player actor files (128 parts, 7,618 B) are split across three documents:
+> player-character, attack-ability-system, and slope-ramp-physics.
 
 ---
 
@@ -356,7 +363,7 @@ The player character uses a **modular multi-actor design** (see [player-characte
 1. **player_character** — state machine (idle, walk, climb, attack)
 2. **player_move_controller** — physics pipeline (joypad → velocity → collision)
 3. **slope_ramp_physics** — terrain physics (slopes, deceleration curves)
-4. **attack_ability_system** — special abilities (Psycho Dash, Dark Friar, etc.)
+4. **attack_ability_system** — special abilities (see [attack-ability-system.md](attack-ability-system.md))
 5. **dark_space_palette** — visual FX (palette cycling in dark spaces)
 
 Inter-actor communication uses shared WRAM variables rather than direct calls.
@@ -379,7 +386,7 @@ Scene graphics consistently uses (see [scene-engine.md](scene-engine.md)):
 
 ### 9.4 Inventory State Sandwich
 
-The inventory overlay (see [inventory-and-utility.md](inventory-and-utility.md)) saves ~5.5 KB of WRAM
+The inventory overlay (see [inventory-overlay.md](inventory-overlay.md)) saves ~5.5 KB of WRAM
 using MVN block moves before entering the inventory scene, then restores
 byte-for-byte afterward. This allows the inventory to freely use WRAM without
 corrupting the overworld state.
@@ -388,7 +395,7 @@ corrupting the overworld state.
 
 Slope physics and deceleration use 16-entry signed delta tables indexed by a
 wrapping frame counter (`AND #$000F`). Different curve pointers allow per-terrain
-speed profiles (see [player-character.md](player-character.md) Group 17).
+speed profiles (see [slope-ramp-physics.md](slope-ramp-physics.md)).
 
 ---
 

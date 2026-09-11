@@ -21,7 +21,7 @@
 ------------------------------------------------
 ;Load special sprite asset for boot scene
 
-func_03DFF8! {
+LoadPlayerGraphics! {
     PHP 
     LDA $scene_current
     CMP #$F7

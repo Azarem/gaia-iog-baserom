@@ -1,6 +1,7 @@
 ?BANK 02
 
-?INCLUDE 'chunk_03BAE1'
+?INCLUDE 'dialogue_engine'
+?INCLUDE 'hdma_dma_spc'
 ?INCLUDE 'system_core'
 
 !joypadMaskStd                  065A
@@ -16,7 +17,7 @@
 MusicPlaybackActor {
     LDA $musicParentActor
     STA $orbitAngle, X
-    COP [SpawnAfterFlags] ( @chunk_03BAE1.func_03E1D6, #$2000 )
+    COP [SpawnAfterFlags] ( @hdma_dma_spc.SpcTransferMusicData, #$2000 )
     CPY #$1FC0
     BNE loc_02A056
     JMP $&code_02A0DD
@@ -63,7 +64,7 @@ MusicPlaybackActor {
   loc_02A0A9:
     LDA #$FFF0
     TRB $joypadMaskStd
-    COP [SpawnAfterFlags] ( @chunk_03BAE1.func_03E1D6, #$2000 )
+    COP [SpawnAfterFlags] ( @hdma_dma_spc.SpcTransferMusicData, #$2000 )
     CPY #$1FC0
     BEQ code_02A0DD
     PHX 
@@ -105,7 +106,7 @@ MusicRenderSync {
     LDY $20
     JSL $@system_core.UpdateFrameRender
     REP #$20
-    JSL $@chunk_03BAE1.sub_03E255
+    JSL $@dialogue_engine.WideStringRenderer
     PLB 
     PLP 
     COP [Die]

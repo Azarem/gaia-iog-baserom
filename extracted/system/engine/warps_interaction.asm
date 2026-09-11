@@ -1,13 +1,16 @@
 ?BANK 02
 
-?INCLUDE 'chunk_03BAE1'
 ?INCLUDE 'cop_handlers_script'
 ?INCLUDE 'dialogue_display'
 ?INCLUDE 'event_blocks'
 ?INCLUDE 'forced_walk'
+?INCLUDE 'GetPlayerFacingDirection'
+?INCLUDE 'hdma_dma_spc'
+?INCLUDE 'hud_inventory'
 ?INCLUDE 'itemget_table_01FD24'
 ?INCLUDE 'map_coords'
 ?INCLUDE 'player_transition_handlers'
+?INCLUDE 'scene_lifecycle'
 ?INCLUDE 'scene_warps'
 ?INCLUDE 'system_core'
 ?INCLUDE 'table_01ADA8'
@@ -136,7 +139,7 @@ HandleChestInteraction {
     RTS 
 
   loc_02A67B:
-    JSL $@chunk_03BAE1.func_03F0CA
+    JSL $@GetPlayerFacingDirection
     AND #$00FF
     CMP #$0001
     BEQ loc_02A688
@@ -232,7 +235,7 @@ HandleChestInteraction {
     LDA $0002, X
     AND #$00FF
     BEQ loc_02A73D
-    JSL $@chunk_03BAE1.func_03EF97
+    JSL $@hud_inventory.GiveItemToPlayer
     BCC loc_02A753
     JSL $@dialogue_display.ShowDialogueFrame
     LDA $01, S
@@ -306,7 +309,7 @@ HandleChestInteraction {
 ChestOpeningActor {
     LDA $musicParentActor
     STA $orbitAngle, X
-    COP [SpawnAfterFlags] ( @chunk_03BAE1.func_03E1D6, #$2000 )
+    COP [SpawnAfterFlags] ( @hdma_dma_spc.SpcTransferMusicData, #$2000 )
     CPY #$1FC0
     BNE loc_02A7CE
     JMP $&code_02A88B
@@ -371,7 +374,7 @@ ChestOpeningActor {
     JSR $&SetAnimStatePointer
     LDA #$CFF0
     TRB $joypadMaskStd
-    COP [SpawnAfterFlags] ( @chunk_03BAE1.func_03E1D6, #$2000 )
+    COP [SpawnAfterFlags] ( @hdma_dma_spc.SpcTransferMusicData, #$2000 )
     CPY #$1FC0
     BEQ code_02A88B
     PHX 
@@ -741,7 +744,7 @@ code_02AAF2 {
     STY $0652
     LDA $0006, X
     STA $scrollStepTableBase
-    JSL $@chunk_03BAE1.func_03E050
+    JSL $@scene_lifecycle.InitCameraBounds
     JSR $&StartForcedWalk
     REP #$20
     SEC 

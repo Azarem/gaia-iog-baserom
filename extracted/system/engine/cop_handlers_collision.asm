@@ -3,13 +3,16 @@
 ?INCLUDE 'ApplyOrbitalOffsetFromRef'
 ?INCLUDE 'binary_01C384'
 ?INCLUDE 'binary_01D8BE'
-?INCLUDE 'chunk_03BAE1'
 ?INCLUDE 'cop_handlers_actors'
 ?INCLUDE 'cop_handlers_script'
 ?INCLUDE 'decompress'
 ?INCLUDE 'func_0AA3A7'
+?INCLUDE 'GetPlayerFacingDirection'
 ?INCLUDE 'hardware_math'
+?INCLUDE 'hdma_dma_spc'
 ?INCLUDE 'map_coords'
+?INCLUDE 'sprite_composition'
+?INCLUDE 'tile_collision_physics'
 
 !rngState                       040F
 !rngModuloResult                0420
@@ -110,7 +113,7 @@ QueueHdma {
     LDA [$0A]
     INC $0A
     INC $0A
-    JSL $@chunk_03BAE1.func_03E157
+    JSL $@hdma_dma_spc.SetupHdmaChannel_Indirect
     LDA $0A
     STA $02, S
     RTI 
@@ -125,7 +128,7 @@ QueueDma {
     LDA [$0A]
     INC $0A
     INC $0A
-    JSL $@chunk_03BAE1.func_03E173
+    JSL $@hdma_dma_spc.SetupHdmaChannel_Direct
     LDA $0A
     STA $02, S
     RTI 
@@ -865,7 +868,7 @@ MoveToward {
     BPL loc_008D08
 
   loc_008D00:
-    JSL $@chunk_03BAE1.func_03CA55
+    JSL $@sprite_composition.UpdateActorAnimation
     BCS loc_008D00
     LDA $08
 
@@ -1234,7 +1237,7 @@ TickMove {
     REP #$20
 
   loc_008FA5:
-    JSL $@chunk_03BAE1.func_03CA55
+    JSL $@sprite_composition.UpdateActorAnimation
     BCS loc_008FA5
     SEP #$20
     LDA $08
@@ -1766,7 +1769,7 @@ BranchIfDirToPlayerFrom {
 
 BranchOnPlayerFacing {
     TYX 
-    JSL $@chunk_03BAE1.func_03F0CA
+    JSL $@GetPlayerFacingDirection
     BEQ loc_009300
     DEC 
     BEQ loc_009305
@@ -2305,7 +2308,7 @@ Decompress {
     INC $3E
     INC $3E
     JSL $@decompress.QuintetLzDecompress
-    JSL $@chunk_03BAE1.zero_bytes_03D86A
+    JSL $@tile_collision_physics.ClearActorRenderList
     PLD 
     PLX 
     LDA $0A
@@ -2346,7 +2349,7 @@ BranchIfBehindWall {
     PHD 
     LDA #$0000
     TCD 
-    JSL $@chunk_03BAE1.func_03D78A
+    JSL $@tile_collision_physics.CalcTileMapOffset
     CPY #$4000
     BCS loc_009B37
     LDA $000F, X
@@ -2404,7 +2407,7 @@ BranchIfCollisionTypeNe {
     PHD 
     LDA #$0000
     TCD 
-    JSL $@chunk_03BAE1.func_03D78A
+    JSL $@tile_collision_physics.CalcTileMapOffset
     CPY #$4000
     BCS loc_009B7F
     LDA [$80], Y
@@ -2584,7 +2587,7 @@ BindSineHdma {
     LDA [$0A]
     INC $0A
     INC $0A
-    JSL $@chunk_03BAE1.func_03E157
+    JSL $@hdma_dma_spc.SetupHdmaChannel_Indirect
     LDA $0A
     STA $02, S
     RTI 
@@ -3601,7 +3604,7 @@ TileCollisionQuery {
     LSR 
     DEC 
     STA $1C
-    JSL $@chunk_03BAE1.func_03D78A
+    JSL $@tile_collision_physics.CalcTileMapOffset
     CPY #$4000
     BCS loc_00B47C
     LDA [$80], Y

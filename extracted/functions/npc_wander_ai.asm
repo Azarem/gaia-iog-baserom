@@ -1,4 +1,4 @@
-?INCLUDE 'chunk_03BAE1'
+?INCLUDE 'sprite_composition'
 
 !orbitAngle                     7F0010
 !orbitDiameter                  7F0012
@@ -62,7 +62,7 @@ code_00C761 {
   loc_00C76B:
     STA $28
     STZ $2A
-    JSL $@chunk_03BAE1.func_03CA55
+    JSL $@sprite_composition.UpdateActorAnimation
     LDA #$0078
     STA $08
     COP [SolidHighHere]
@@ -127,7 +127,7 @@ code_00C7D2 {
   loc_00C7EF:
     STA $28
     STZ $2A
-    JSL $@chunk_03BAE1.func_03CA55
+    JSL $@sprite_composition.UpdateActorAnimation
     COP [ClearLowHere]
     RTL 
 }

@@ -14,13 +14,17 @@
 
 ?BANK 00
 
+?INCLUDE 'actor_execution'
 ?INCLUDE 'binary_01C384'
 ?INCLUDE 'camera_tilemap'
-?INCLUDE 'chunk_038000'
-?INCLUDE 'chunk_03BAE1'
+?INCLUDE 'combat_collision'
 ?INCLUDE 'cop_dispatch'
 ?INCLUDE 'event_blocks'
+?INCLUDE 'hdma_dma_spc'
+?INCLUDE 'overworld_input_handler'
+?INCLUDE 'scene_lifecycle'
 ?INCLUDE 'spc_transfer'
+?INCLUDE 'sprite_composition'
 ?INCLUDE 'system_init'
 ?INCLUDE 'system_strings'
 ?INCLUDE 'vblank_joypad'
@@ -168,7 +172,7 @@ SystemInit {
   loc_00804C:
     TYA 
     STA $sceneNext        ; Store initial scene ID from warmboot result (Y=0 default)
-    JSL $@chunk_03BAE1.func_03D9F6
+    JSL $@scene_lifecycle.ExecuteSceneTransition
     STZ $worldReadyFlag
     LDA #$20
     STA $sceneStateHelper
@@ -207,30 +211,30 @@ SystemInit {
   loc_0080B5:
     JSL $@vblank_joypad.VBlankWaitAndJoypad ; === Main game loop entry ===
     JSL $@vblank_joypad.EnableNmiOnly
-    JSL $@chunk_03BAE1.func_03D12D
-    JSL $@chunk_03BAE1.func_03D9E8
+    JSL $@actor_execution.RunThinkers_TypeA
+    JSL $@scene_lifecycle.CheckSceneTransition
     JSL $@warps_interaction.CheckWarpAndChest
-    JSL $@chunk_038000.func_038000
+    JSL $@overworld_input_handler.OverworldInputHandler
     JSR $&UpdateFrameCounters
-    JSL $@chunk_03BAE1.run_actors_03CAF5
+    JSL $@actor_execution.RunActors_Normal
     LDX $00D8             ; OAM write index — end-of-sprite-list position
     LDA #$FF
     STA $oamComposeBuffer, X ; $FF sentinels terminate OAM composition buffer
     STA $7F3101, X
-    JSL $@chunk_03BAE1.func_03C5FF
-    JSL $@chunk_03BAE1.func_03BBE4
-    JSL $@chunk_03BAE1.code_03C25E
-    JSL $@chunk_03BAE1.func_03BBB4
-    JSL $@chunk_03BAE1.func_03BB85
+    JSL $@sprite_composition.SortActorsByDepth
+    JSL $@combat_collision.RunCombatCollision
+    JSL $@combat_collision.RunInteractionCollision
+    JSL $@combat_collision.CheckPlayerDeath
+    JSL $@combat_collision.ProcessDodgeCallbacks
     LDX #$0000            ; Scroll camera BG1 (X=0 selects horizontal layer)
     JSL $@camera_tilemap.CameraSmoothScroll
     LDX #$0002            ; Scroll camera BG2 (X=2 selects vertical layer)
     JSL $@camera_tilemap.CameraSmoothScroll
-    JSL $@chunk_03BAE1.func_03E146
-    JSL $@chunk_03BAE1.func_03D15D
-    JSL $@chunk_03BAE1.func_03C714
+    JSL $@hdma_dma_spc.ResetHdmaState
+    JSL $@actor_execution.RunThinkers_TypeB
+    JSL $@sprite_composition.ComposeAllSprites
     JSL $@UpdateHUD
-    JSL $@chunk_03BAE1.func_03E21E
+    JSL $@hdma_dma_spc.LoadMusicFromTransitionState
     JSL $@vblank_joypad.EnableNmiAndJoypad
     BRL loc_0080B5        ; Branch always — infinite main loop
 
@@ -255,25 +259,25 @@ SystemInit {
     LDA #$81
     PHA 
     PLB 
-    JSL $@chunk_03BAE1.func_03CCFF
+    JSL $@actor_execution.RunActors_CutsceneOnly
     LDX $00D8
     LDA #$FF
     STA $oamComposeBuffer, X
     STA $7F3101, X
-    JSL $@chunk_03BAE1.func_03C5FF
+    JSL $@sprite_composition.SortActorsByDepth
     LDX #$0000
     JSL $@camera_tilemap.CameraSmoothScroll
     LDX #$0002
     JSL $@camera_tilemap.CameraSmoothScroll
-    JSL $@chunk_03BAE1.func_03E146
-    JSL $@chunk_03BAE1.func_03D1C2
-    JSL $@chunk_03BAE1.func_03C714
+    JSL $@hdma_dma_spc.ResetHdmaState
+    JSL $@actor_execution.RunThinkers_TypeD
+    JSL $@sprite_composition.ComposeAllSprites
     LDA #$08              ; Clear bit 3 — dialogue rendering complete
     TRB $displayModeFlags
     JSL $@vblank_joypad.EnableNmiAndJoypad
     JSL $@vblank_joypad.VBlankWaitAndJoypad
     JSL $@vblank_joypad.EnableNmiOnly
-    JSL $@chunk_03BAE1.func_03D18D
+    JSL $@actor_execution.RunThinkers_TypeC
     PLD 
     PLY 
     PLX 
@@ -304,15 +308,15 @@ UpdateFrameRender {
     LDA #$81
     PHA 
     PLB 
-    JSL $@chunk_03BAE1.func_03C5FF
-    JSL $@chunk_03BAE1.func_03C714
-    JSL $@chunk_03BAE1.func_03E146
-    JSL $@chunk_03BAE1.func_03D1C2
+    JSL $@sprite_composition.SortActorsByDepth
+    JSL $@sprite_composition.ComposeAllSprites
+    JSL $@hdma_dma_spc.ResetHdmaState
+    JSL $@actor_execution.RunThinkers_TypeD
     JSL $@UpdateHUD
     JSL $@vblank_joypad.EnableNmiAndJoypad
     JSL $@vblank_joypad.VBlankWaitAndJoypad
     JSL $@vblank_joypad.EnableNmiOnly
-    JSL $@chunk_03BAE1.func_03D18D
+    JSL $@actor_execution.RunThinkers_TypeC
     PLD 
     PLY 
     PLX 
@@ -337,20 +341,20 @@ UpdateFrameFull {
     PHA 
     PLB 
     JSL $@vblank_joypad.VBlankPartial
-    JSL $@chunk_03BAE1.func_03D18D
-    JSL $@chunk_03BAE1.func_03CD6E
+    JSL $@actor_execution.RunThinkers_TypeC
+    JSL $@actor_execution.RunActors_OverlayOnly
     LDX $00D8
     LDA #$FF
     STA $oamComposeBuffer, X
     STA $7F3101, X
-    JSL $@chunk_03BAE1.func_03C5FF
+    JSL $@sprite_composition.SortActorsByDepth
     LDX #$0000
     JSL $@camera_tilemap.CameraSmoothScroll
     LDX #$0002
     JSL $@camera_tilemap.CameraSmoothScroll
-    JSL $@chunk_03BAE1.func_03E146
-    JSL $@chunk_03BAE1.func_03D1C2
-    JSL $@chunk_03BAE1.func_03C714
+    JSL $@hdma_dma_spc.ResetHdmaState
+    JSL $@actor_execution.RunThinkers_TypeD
+    JSL $@sprite_composition.ComposeAllSprites
     PLB 
     JSL $@vblank_joypad.EnableNmiAndJoypad
     PLP 
@@ -557,7 +561,7 @@ NmiHandler {
     BNE loc_00834A
     LDA $dmaSkipFlag      ; Secondary DMA skip flag for partial VRAM bypass
     BNE loc_008344
-    JSL $@chunk_03BAE1.func_03F1D0
+    JSL $@hdma_dma_spc.DmaAdhocVramBlock
     JSL $@event_blocks.FlushVramWriteQueue
     JSR $&ExecuteVramDma
     BRA loc_00834E
@@ -567,7 +571,7 @@ NmiHandler {
     BRA loc_00834E
 
   loc_00834A:
-    JSL $@chunk_03BAE1.func_03D881
+    JSL $@hdma_dma_spc.DmaPlayerTilesToVram
 
   loc_00834E:
     LDA $66               ; Re-enable HDMA channels from cached mask (DP $66)

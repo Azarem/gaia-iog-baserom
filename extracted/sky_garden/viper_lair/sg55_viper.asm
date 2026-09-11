@@ -1,9 +1,9 @@
-?INCLUDE 'chunk_03BAE1'
 ?INCLUDE 'cop_handlers_script'
 ?INCLUDE 'func_0AA36E'
 ?INCLUDE 'hardware_math'
 ?INCLUDE 'sE6_gaia'
 ?INCLUDE 'sg55_actor_0AD000'
+?INCLUDE 'sprite_composition'
 ?INCLUDE 'StandardEnemyDefeatHandler'
 ?INCLUDE 'table_0EE000'
 
@@ -636,7 +636,7 @@ code_0AD543 {
     BCS loc_0AD5D2
     STA $28
     STZ $2A
-    JSL $@chunk_03BAE1.func_03CA55
+    JSL $@sprite_composition.UpdateActorAnimation
 
   loc_0AD5D2:
     LDA $7F100C, X

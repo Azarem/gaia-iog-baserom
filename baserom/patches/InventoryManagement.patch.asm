@@ -125,9 +125,9 @@ inv_check_pages {
 
 ------------------------------------------------
 ;Entry point for gem use (prevent increase, this is done elsewhere)
-func_0384D5! {
+UseItem_RedJewel! {
     COP [BF] ( &widestring_038517 )
-    JSR $&sub_039FB2
+    JSR $&RemoveEquippedItem
 
 ;    SED 
 ;    LDA $jewels_collected
@@ -160,7 +160,7 @@ func_0384D5! {
 ---------------------------------------------
 ;Entry point for removing an item from the inventory upon use
 
-sub_039FB2! {
+RemoveEquippedItem! {
     PHX
     LDX $inventory_equipped_index
     JSR inv_remove_stub
@@ -172,7 +172,7 @@ sub_039FB2! {
 --------------------------------------------------
 ;Entry point for adding an item to the inventory
 
-func_03EF97! {
+GiveItemToPlayer! {
     PHP 
     SEP #$20
     BIT #$80
@@ -188,10 +188,10 @@ func_03EF97! {
 
     JSR inv_check_pages
     BCS inv_exit_fail
-    JMP code_03F070+4
+    JMP GiveItem_StoreInSlot+4
 
   inv_exit_fail:
-    JMP code_03F080+1
+    JMP GiveItem_InventoryFull+1
 
   inv_give_jewel:
     LDA $jewel_count
@@ -200,7 +200,7 @@ func_03EF97! {
     JSR inv_check_pages
     INC $jewel_count
     LDA #01
-    JMP code_03F070+4 
+    JMP GiveItem_StoreInSlot+4 
 
   inv_give_herb:
     LDA $herb_count
@@ -210,7 +210,7 @@ func_03EF97! {
     BCS inv_exit_fail
     INC $herb_count
     LDA #06
-    JMP code_03F070+4
+    JMP GiveItem_StoreInSlot+4
   
   inv_give_crystal:
     LDA $crystal_count
@@ -220,7 +220,7 @@ func_03EF97! {
     BCS inv_exit_fail
     INC $crystal_count
     LDA #0E
-    JMP code_03F070+4
+    JMP GiveItem_StoreInSlot+4
 
 }
 

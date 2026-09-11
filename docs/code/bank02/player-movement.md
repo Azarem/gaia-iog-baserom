@@ -4,11 +4,13 @@
 **Document scope:** Tile-collision-driven player movement physics — five ASM compilation units in the `engine` scene that dispatch horizontal, vertical, and diagonal movement each frame.  
 **ROM span:** `$02CFD0`–`$02E0FA` (4,402 bytes), immediately before `tile_collision.asm` at `$02E102`.
 
+**Source:** [`player_move_main.asm`](../../../extracted/system/engine/player_move_main.asm) · [`player_move_ns.asm`](../../../extracted/system/engine/player_move_ns.asm) · [`player_move_ew.asm`](../../../extracted/system/engine/player_move_ew.asm) · [`player_move_diag.asm`](../../../extracted/system/engine/player_move_diag.asm)
+
 This engine runs after input sampling and before actor animation updates. Each field-frame pass reads sub-pixel deltas from WRAM, probes the collision overlay at `$7FC000`, branches on tile type, optionally auto-aligns or snaps to grid boundaries, then commits or zeroes deltas via `tile_collision.ApplyMovementDeltas`.
 
 **Related:** [`camera-and-map.md`](camera-and-map.md) · [`hardware-and-init.md`](hardware-and-init.md) · [`scene-engine.md`](scene-engine.md) · [`../bank00/direction-collision.md`](../bank00/direction-collision.md) · [`../../cop-commands-reference.md`](../../cop-commands-reference.md)
 
----
+
 
 ## Block Layout Overview
 
@@ -24,7 +26,7 @@ $02E102 └─ tile_collision (see camera-and-map.md) ──────┘
 
 > `player_move_main` is split into two ROM segments with `player_move_ns` inserted between them. All five units cross-reference via `?INCLUDE` and `$&` same-bank short calls.
 
----
+
 
 ## Movement Variable Reference
 
@@ -49,32 +51,22 @@ $02E102 └─ tile_collision (see camera-and-map.md) ──────┘
 
 Coordinates use **×4 sub-pixel scale**: `$22`/`$26` are shifted right twice before storing to actor `$0014`/`$0016`.
 
----
+
 
 ## 1. player_move_main.asm
 
-| Property | Value |
-|----------|-------|
-| **Path** | [`extracted/system/engine/player_move_main.asm`](../../../extracted/system/engine/player_move_main.asm) |
-| **Block** | `player_move_main` |
-| **Scene** | `engine` |
-| **Address range** | `$02CFD0`–`$02D038`, `$02D246`–`$02D376` |
-| **Includes** | `player_move_diag`, `player_move_ew`, `player_move_ns`, `tile_collision` |
+| Address | Name | Size | Description |
+|---------|------|------|-------------|
+| `$02CFD0` | PlayerMovementTick | 104 B | Main entry point for per-frame player movement collision. |
+| `$02D246` | ComputeYSnapOffset | 17 B | Computes a negative Y snap offset from probe coordinate $1E and stores it in $02. |
+| `$02D257` | DiagSnapCompute_Unused | 104 B | Dead code — no callers in the extracted ROM. |
+| `$02D2BF` | AutoAlignEW | 124 B | Attempts horizontal auto-alignment when north-south movement is blocked. |
+| `$02D33B` | NudgeToLowerGrid | 25 B | Snaps the coordinate at $00,X toward the lower tile boundary. |
+| `$02D354` | NudgeToUpperGrid | 34 B | Snaps toward the upper tile boundary. |
 
-### Group A: Movement Dispatcher
+#### Group A: Movement Dispatcher
 
 ### PlayerMovementTick
-
-| Property | Value |
-|----------|-------|
-| **Name** | `PlayerMovementTick` |
-| **Address** | `$02CFD0` |
-| **Decimal** | 184272 |
-| **Size** | 104 bytes |
-| **Type** | Code |
-| **ASM file** | `player_move_main.asm` |
-
-**Description**
 
 Main entry point for per-frame player movement collision. Saves processor state and sets direct page to `$0000`. Temporarily clears `$24` (V-delta) and `$AA` (direction flags), pushing the saved V-delta on the stack. Clears actor collision bit `$0004` at `$0010,X`.
 
@@ -82,7 +74,7 @@ The **horizontal pass** runs when `$20` (H-delta) is non-zero: negative values s
 
 The **vertical pass** restores V-delta from the stack. Negative `$24` calls `DispatchSouthMove` unless `$AA` bit `$0800` is set; positive `$24` calls `DispatchEastMove` unless `$AA` bit `$0400` is set. Restores registers and returns via `RTL`.
 
-**Algorithm**
+**Algorithm:**
 
 | Step | Action |
 |------|--------|
@@ -93,9 +85,9 @@ The **vertical pass** restores V-delta from the stack. Negative `$24` calls `Dis
 | 5 | Restore `$24`; if ≠ 0 and direction not suppressed, dispatch south or east |
 | 6 | Restore X/D/P; `RTL` |
 
-**Source**
+**Source:**
 
-```12:72:extracted/system/engine/player_move_main.asm
+```12:72:../../../extracted/system/engine/player_move_main.asm
 PlayerMovementTick {
     PHP 
     PHD 
@@ -105,7 +97,7 @@ PlayerMovementTick {
 }
 ```
 
-**Variables**
+**Variables:**
 
 | Location | Direction | Role |
 |----------|-----------|------|
@@ -118,7 +110,7 @@ PlayerMovementTick {
 | `$0014,X` | W | Actor pixel X |
 | `$0016,X` | W | Actor pixel Y |
 
-**Cross-References**
+**Cross-References:**
 
 | Symbol | Relationship |
 |--------|--------------|
@@ -128,72 +120,36 @@ PlayerMovementTick {
 | `DispatchEastMove` | Called when `$24 > 0` (unless suppressed) |
 | `player_move_controller` (bank `$00`) | Upstream; computes `$20`/`$24` from input |
 
-### Group D: Alignment Helpers
-
 ### ComputeYSnapOffset
 
-| Property | Value |
-|----------|-------|
-| **Name** | `ComputeYSnapOffset` |
-| **Address** | `$02D246` |
-| **Decimal** | 184902 |
-| **Size** | 17 bytes |
-| **Type** | Code |
-| **ASM file** | `player_move_main.asm` |
+Computes a negative Y snap offset from probe coordinate `$1E` and stores it in `$02`. Takes the Y sub-tile fraction (`$1E & $0F`), inverts it to a positive correction, and returns — used by south/north wall corner handlers before fine X adjustment.
 
-**Description**
+**Source:**
 
-Computes a negative Y snap offset from probe coordinate `$1E` and stores it in `$02`. Takes the low nibble of `$1E`, sign-extends to 16 bits, inverts, and increments — yielding the distance from the current sub-tile Y position to the tile's upper boundary. Used by north/south wall handlers before fine X adjustment.
-
-**Algorithm**
-
-| Step | Action |
-|------|--------|
-| 1 | `$02 = ((($1E & $0F) \| $FFF0) ^ $FFFF) + 1` |
-| 2 | `RTS` |
-
-**Source**
-
-```75:84:extracted/system/engine/player_move_main.asm
-ComputeYSnapOffset {
-    REP #$20
-    LDA $1E
-    ...
-    RTS 
-}
+```76:85:../../../extracted/system/engine/player_move_main.asm
 ```
 
-**Variables**
+**Variables:**
 
 | Location | Direction | Role |
 |----------|-----------|------|
-| `$1E` | R | Probe Y (pixel space) |
-| `$02` | W | Computed snap offset |
+| `$1E` | R | Probe Y coordinate (sub-tile fraction) |
+| `$02` | W | Snap offset scratch |
 
-**Cross-References**
+**Cross-References:**
 
 | Symbol | Relationship |
 |--------|--------------|
-| `SouthWallHandler` | Caller |
-| `NorthWallHandler` | Caller |
-| `FineAdjustXEast` / `FineAdjustXWest` | Consumer of `$02` |
+| `SouthWallHandler` | Caller (corner path) |
+| `NorthWallHandler` | Caller (corner path) |
+
+#### Group D: Alignment Helpers
 
 ### DiagSnapCompute_Unused
 
-| Property | Value |
-|----------|-------|
-| **Name** | `DiagSnapCompute_Unused` |
-| **Address** | `$02D257` |
-| **Decimal** | 184919 |
-| **Size** | 104 bytes |
-| **Type** | Code |
-| **ASM file** | `player_move_main.asm` |
-
-**Description**
-
 Dead code — no callers in the extracted ROM. Mirrors the combined X/Y snap offset logic used by active diagonal snap routines. Probes current TL; on wall `$06` or aligned down-cell `$09`, computes a combined offset in `$02` with V-delta parity correction, then adds the Y sub-tile component from `$1E`. Likely a development artifact superseded by `ComputeDiagSnapOffset`.
 
-**Algorithm**
+**Algorithm:**
 
 | Step | Action |
 |------|--------|
@@ -202,9 +158,9 @@ Dead code — no callers in the extracted ROM. Mirrors the combined X/Y snap off
 | 3 | Add Y sub-tile snap: `$02 += negated($1E & $0F)` |
 | 4 | Restore probe coords; `RTS` |
 
-**Source**
+**Source:**
 
-```86:151:extracted/system/engine/player_move_main.asm
+```86:151:../../../extracted/system/engine/player_move_main.asm
 DiagSnapCompute_Unused {
     REP #$20
     LDA $1A
@@ -213,7 +169,7 @@ DiagSnapCompute_Unused {
 }
 ```
 
-**Variables**
+**Variables:**
 
 | Location | Direction | Role |
 |----------|-----------|------|
@@ -222,7 +178,7 @@ DiagSnapCompute_Unused {
 | `$24` | R | V-delta for parity check |
 | `$02` | W | Combined snap offset |
 
-**Cross-References**
+**Cross-References:**
 
 | Symbol | Relationship |
 |--------|--------------|
@@ -231,20 +187,9 @@ DiagSnapCompute_Unused {
 
 ### AutoAlignEW
 
-| Property | Value |
-|----------|-------|
-| **Name** | `AutoAlignEW` |
-| **Address** | `$02D2BF` |
-| **Decimal** | 185023 |
-| **Size** | 124 bytes |
-| **Type** | Code |
-| **ASM file** | `player_move_main.asm` |
-
-**Description**
-
 Attempts horizontal auto-alignment when north-south movement is blocked. Skips if `$AA` bit `$0040` (EW movement active) or dynamic collision high nibble is set at `$7FC000,X`. Computes X approach offset in `$04` from pixel position (`($22 >> 2) - 8) & $0F`. If offset ≥ 6, probes future TR; if passable (type < `$0E`, not `$06`), temporarily subtracts `$20` from X, nudges toward lower grid, restores. If offset < 9, probes future TL similarly with upper-grid nudge. Returns **carry clear** on success (movement continues), **carry set** on failure (snap path).
 
-**Algorithm**
+**Algorithm:**
 
 | Step | Action |
 |------|--------|
@@ -254,9 +199,9 @@ Attempts horizontal auto-alignment when north-south movement is blocked. Skips i
 | 4 | Else if `$04` < 9: probe future TL; if open, nudge X upper |
 | 5 | Return CLC (aligned) or SEC (blocked) |
 
-**Source**
+**Source:**
 
-```153:215:extracted/system/engine/player_move_main.asm
+```153:215:../../../extracted/system/engine/player_move_main.asm
 AutoAlignEW {
     REP #$20
     LDA $AA
@@ -265,7 +210,7 @@ AutoAlignEW {
 }
 ```
 
-**Variables**
+**Variables:**
 
 | Location | Direction | Role |
 |----------|-----------|------|
@@ -274,7 +219,7 @@ AutoAlignEW {
 | `$AA` | R | EW movement guard flag |
 | `$7FC000,X` | R | Dynamic collision overlay |
 
-**Cross-References**
+**Cross-References:**
 
 | Symbol | Relationship |
 |--------|--------------|
@@ -284,20 +229,9 @@ AutoAlignEW {
 
 ### NudgeToLowerGrid
 
-| Property | Value |
-|----------|-------|
-| **Name** | `NudgeToLowerGrid` |
-| **Address** | `$02D33B` |
-| **Decimal** | 185147 |
-| **Size** | 25 bytes |
-| **Type** | Code |
-| **ASM file** | `player_move_main.asm` |
-
-**Description**
-
 Snaps the coordinate at `$00,X` toward the lower tile boundary. Adds +8 sub-pixels; if bit `$0040` toggled (crossed a `$40`-aligned boundary), masks to `$FFC0`.
 
-**Algorithm**
+**Algorithm:**
 
 | Step | Action |
 |------|--------|
@@ -305,9 +239,9 @@ Snaps the coordinate at `$00,X` toward the lower tile boundary. Adds +8 sub-pixe
 | 2 | If boundary crossed: `AND #$FFC0` |
 | 3 | `RTS` |
 
-**Source**
+**Source:**
 
-```217:233:extracted/system/engine/player_move_main.asm
+```217:233:../../../extracted/system/engine/player_move_main.asm
 NudgeToLowerGrid {
     LDA $00, X
     ...
@@ -315,13 +249,13 @@ NudgeToLowerGrid {
 }
 ```
 
-**Variables**
+**Variables:**
 
 | Location | Direction | Role |
 |----------|-----------|------|
 | `$00,X` | R/W | Target coord (`$22` or `$26` via LDX) |
 
-**Cross-References**
+**Cross-References:**
 
 | Symbol | Relationship |
 |--------|--------------|
@@ -330,20 +264,9 @@ NudgeToLowerGrid {
 
 ### NudgeToUpperGrid
 
-| Property | Value |
-|----------|-------|
-| **Name** | `NudgeToUpperGrid` |
-| **Address** | `$02D354` |
-| **Decimal** | 185172 |
-| **Size** | 34 bytes |
-| **Type** | Code |
-| **ASM file** | `player_move_main.asm` |
-
-**Description**
-
 Snaps toward the upper tile boundary. Subtracts 8 sub-pixels; on boundary cross, if sub-tile portion ≠ 0, rounds up to the next `$40` boundary (`AND #$FFC0` + `$40`).
 
-**Algorithm**
+**Algorithm:**
 
 | Step | Action |
 |------|--------|
@@ -351,9 +274,9 @@ Snaps toward the upper tile boundary. Subtracts 8 sub-pixels; on boundary cross,
 | 2 | If boundary crossed and sub-tile ≠ 0: round up to next `$40` |
 | 3 | `RTS` |
 
-**Source**
+**Source:**
 
-```235:255:extracted/system/engine/player_move_main.asm
+```235:255:../../../extracted/system/engine/player_move_main.asm
 NudgeToUpperGrid {
     LDA $00, X
     ...
@@ -361,49 +284,44 @@ NudgeToUpperGrid {
 }
 ```
 
-**Variables**
+**Variables:**
 
 | Location | Direction | Role |
 |----------|-----------|------|
 | `$00,X` | R/W | Target coord (`$22` or `$26` via LDX) |
 
-**Cross-References**
+**Cross-References:**
 
 | Symbol | Relationship |
 |--------|--------------|
 | `AutoAlignEW` | Caller |
 | `AutoAlignNS_East` / `AutoAlignNS_West` / `DiagAutoAlignNS` | Callers |
 
----
+
 
 ## 2. player_move_ns.asm
 
-| Property | Value |
-|----------|-------|
-| **Path** | [`extracted/system/engine/player_move_ns.asm`](../../../extracted/system/engine/player_move_ns.asm) |
-| **Block** | `player_move_ns` |
-| **Scene** | `engine` |
-| **Address range** | `$02D038`–`$02D246` |
-| **Includes** | `player_character`, `player_move_diag`, `player_move_ew`, `player_move_main`, `tile_collision` |
+| Address | Name | Size | Description |
+|---------|------|------|-------------|
+| `$02D038` | DispatchSouthMove | 132 B | Southward movement dispatcher. |
+| `$02D0BC` | SnapYSouthCollision | 24 B | Y-axis snap for southward collision. |
+| `$02D0D4` | SouthInteractTile | 26 B | Handles tile type $02 (ladder/interact) when moving south. |
+| `$02D0EE` | SouthSlopeRight | 52 B | Tile $03 (slope-right) handler for southward movement. |
+| `$02D122` | SouthSlopeLeft | 102 B | Tile $0C (slope-left) south handler with $09C6 slope accumulator. |
+| `$02D188` | SouthWallHandler | 70 B | Tile $06 south wall handler. |
+| `$02D1CE` | SouthWallNudge | 30 B | Future TL $06 nudge variant. |
+| `$02D1EC` | ClearSpeedNS_1 | 6 B | Branch-range stub: STZ player_speed_ns → RTS. |
+| `$02D1F2` | NorthWallHandler | 70 B | Tile $09 north wall handler. |
+| `$02D238` | NorthProbeRedirect | 8 B | Probe right-cell then branch to north-wall slide path at loc_02D208. |
+| `$02D240` | ClearSpeedNS_2 | 6 B | Branch-range stub: STZ player_speed_ns → RTS. |
 
-### Group B: Southward Movement
+#### Group B: Southward Movement
 
 ### DispatchSouthMove
 
-| Property | Value |
-|----------|-------|
-| **Name** | `DispatchSouthMove` |
-| **Address** | `$02D038` |
-| **Decimal** | 184376 |
-| **Size** | 132 bytes |
-| **Type** | Code |
-| **ASM file** | `player_move_ns.asm` |
-
-**Description**
-
 Southward movement dispatcher. Probes current TL for wall `$06`, slope-right `$03`, slope-left `$0C`. Probes current TR for north wall `$09` (redirects to `NorthWallHandler`). Probes future TL for solid types (`$0E+`, `$08`), interact `$02`, south-wall nudge `$06`. Sub-tile and down-cell cascades handle `$09` redirects via `NorthProbeRedirect`. Free path adds `$24` to `$26`. Blocked path sets collision flag, tries `AutoAlignEW`, then snaps Y south or applies partial movement.
 
-**Algorithm**
+**Algorithm:**
 
 | Step | Action |
 |------|--------|
@@ -413,9 +331,9 @@ Southward movement dispatcher. Probes current TL for wall `$06`, slope-right `$0
 | 4 | Sub-tile X check + down-cell cascade for `$09`/`$06` |
 | 5 | Free: `$26 += $24`; Blocked: align → snap or apply |
 
-**Source**
+**Source:**
 
-```14:125:extracted/system/engine/player_move_ns.asm
+```14:125:../../../extracted/system/engine/player_move_ns.asm
 DispatchSouthMove {
     SEP #$20
     JSR $&tile_collision.ProbeCurrentTL
@@ -424,7 +342,7 @@ DispatchSouthMove {
 }
 ```
 
-**Variables**
+**Variables:**
 
 | Location | Direction | Role |
 |----------|-----------|------|
@@ -432,7 +350,7 @@ DispatchSouthMove {
 | `$26` | R/W | Sub-pixel Y |
 | `$09B4` | W | `player_speed_ns` (cleared on snap) |
 
-**Cross-References**
+**Cross-References:**
 
 | Symbol | Relationship |
 |--------|--------------|
@@ -443,20 +361,9 @@ DispatchSouthMove {
 
 ### SnapYSouthCollision
 
-| Property | Value |
-|----------|-------|
-| **Name** | `SnapYSouthCollision` |
-| **Address** | `$02D0BC` |
-| **Decimal** | 184508 |
-| **Size** | 24 bytes |
-| **Type** | Code |
-| **ASM file** | `player_move_ns.asm` |
-
-**Description**
-
 Y-axis snap for southward collision. Clears `player_speed_ns`, aligns `$26` to the next tile row boundary downward: `(($24 + $26) & $FFC0) + $40`, then zeroes `$24`.
 
-**Algorithm**
+**Algorithm:**
 
 | Step | Action |
 |------|--------|
@@ -464,9 +371,9 @@ Y-axis snap for southward collision. Clears `player_speed_ns`, aligns `$26` to t
 | 2 | `$26 = (($24 + $26) & $FFC0) + $40` |
 | 3 | `STZ $24` |
 
-**Source**
+**Source:**
 
-```96:111:extracted/system/engine/player_move_ns.asm
+```96:111:../../../extracted/system/engine/player_move_ns.asm
   SnapYSouthCollision:
     PHP 
     REP #$20
@@ -475,7 +382,7 @@ Y-axis snap for southward collision. Clears `player_speed_ns`, aligns `$26` to t
     RTS 
 ```
 
-**Variables**
+**Variables:**
 
 | Location | Direction | Role |
 |----------|-----------|------|
@@ -483,7 +390,7 @@ Y-axis snap for southward collision. Clears `player_speed_ns`, aligns `$26` to t
 | `$26` | W | Snapped to lower tile boundary |
 | `$09B4` | W | `player_speed_ns` cleared |
 
-**Cross-References**
+**Cross-References:**
 
 | Symbol | Relationship |
 |--------|--------------|
@@ -493,20 +400,9 @@ Y-axis snap for southward collision. Clears `player_speed_ns`, aligns `$26` to t
 
 ### SouthInteractTile
 
-| Property | Value |
-|----------|-------|
-| **Name** | `SouthInteractTile` |
-| **Address** | `$02D0D4` |
-| **Decimal** | 184532 |
-| **Size** | 26 bytes |
-| **Type** | Code |
-| **ASM file** | `player_move_ns.asm` |
-
-**Description**
-
 Handles tile type `$02` (ladder/interact) when moving south. Requires X sub-tile alignment. Redirects actor to `LadderClimbSouth` state, then falls through to blocked-wall handling.
 
-**Algorithm**
+**Algorithm:**
 
 | Step | Action |
 |------|--------|
@@ -514,23 +410,23 @@ Handles tile type `$02` (ladder/interact) when moving south. Requires X sub-tile
 | 2 | Set actor `$0000` → `LadderClimbSouth`; clear `$0008` |
 | 3 | Branch to blocked path |
 
-**Source**
+**Source:**
 
-```113:124:extracted/system/engine/player_move_ns.asm
+```113:124:../../../extracted/system/engine/player_move_ns.asm
   SouthInteractTile:
     JSR $&tile_collision.CheckSubTileAlignX
     ...
     BRA loc_02D0AF
 ```
 
-**Variables**
+**Variables:**
 
 | Location | Direction | Role |
 |----------|-----------|------|
 | `$0000,Y` | W | Actor state pointer |
 | `$0008,Y` | W | Actor sub-state cleared |
 
-**Cross-References**
+**Cross-References:**
 
 | Symbol | Relationship |
 |--------|--------------|
@@ -539,20 +435,9 @@ Handles tile type `$02` (ladder/interact) when moving south. Requires X sub-tile
 
 ### SouthSlopeRight
 
-| Property | Value |
-|----------|-------|
-| **Name** | `SouthSlopeRight` |
-| **Address** | `$02D0EE` |
-| **Decimal** | 184558 |
-| **Size** | 52 bytes |
-| **Type** | Code |
-| **ASM file** | `player_move_ns.asm` |
-
-**Description**
-
 Tile `$03` (slope-right) handler for southward movement. Verifies TR cell is `$03`, checks Y sub-tile alignment and right-cell continuity. Computes Y correction from sub-tile position; if within slope threshold (`< $08`), applies movement freely. Otherwise sets `$09AF` bit `$10` and applies deltas.
 
-**Algorithm**
+**Algorithm:**
 
 | Step | Action |
 |------|--------|
@@ -561,9 +446,9 @@ Tile `$03` (slope-right) handler for southward movement. Verifies TR cell is `$0
 | 3 | Sub-tile distance < `$08` → free move |
 | 4 | Else set slope flag → `ApplyMovementDeltas` |
 
-**Source**
+**Source:**
 
-```127:155:extracted/system/engine/player_move_ns.asm
+```127:155:../../../extracted/system/engine/player_move_ns.asm
 SouthSlopeRight {
     JSR $&tile_collision.ProbeCurrentTR
     ...
@@ -571,14 +456,14 @@ SouthSlopeRight {
 }
 ```
 
-**Variables**
+**Variables:**
 
 | Location | Direction | Role |
 |----------|-----------|------|
 | `$24` / `$26` | R | Sub-tile Y calculation |
 | `$09AF` | W | Slope flag bit `$10` |
 
-**Cross-References**
+**Cross-References:**
 
 | Symbol | Relationship |
 |--------|--------------|
@@ -587,20 +472,9 @@ SouthSlopeRight {
 
 ### SouthSlopeLeft
 
-| Property | Value |
-|----------|-------|
-| **Name** | `SouthSlopeLeft` |
-| **Address** | `$02D122` |
-| **Decimal** | 184610 |
-| **Size** | 102 bytes |
-| **Type** | Code |
-| **ASM file** | `player_move_ns.asm` |
-
-**Description**
-
 Tile `$0C` (slope-left) south handler with **`$09C6` slope accumulator**. When blocked on slope, accumulates V-delta, extracts whole sub-pixel steps (÷16), stores remainder, and adjusts `$24` for partial movement before applying deltas.
 
-**Algorithm**
+**Algorithm:**
 
 | Step | Action |
 |------|--------|
@@ -610,9 +484,9 @@ Tile `$0C` (slope-left) south handler with **`$09C6` slope accumulator**. When b
 | 4 | `$09C6 += $24`; extract steps → `$24`; remainder → `$09C6` |
 | 5 | `ApplyMovementDeltas` |
 
-**Source**
+**Source:**
 
-```157:216:extracted/system/engine/player_move_ns.asm
+```157:216:../../../extracted/system/engine/player_move_ns.asm
 SouthSlopeLeft {
     JSR $&tile_collision.ProbeCurrentTR
     ...
@@ -620,7 +494,7 @@ SouthSlopeLeft {
 }
 ```
 
-**Variables**
+**Variables:**
 
 | Location | Direction | Role |
 |----------|-----------|------|
@@ -628,7 +502,7 @@ SouthSlopeLeft {
 | `$24` | R/W | Adjusted V-delta |
 | `$09AF` | W | Slope flag |
 
-**Cross-References**
+**Cross-References:**
 
 | Symbol | Relationship |
 |--------|--------------|
@@ -637,20 +511,9 @@ SouthSlopeLeft {
 
 ### SouthWallHandler
 
-| Property | Value |
-|----------|-------|
-| **Name** | `SouthWallHandler` |
-| **Address** | `$02D188` |
-| **Decimal** | 184712 |
-| **Size** | 70 bytes |
-| **Type** | Code |
-| **ASM file** | `player_move_ns.asm` |
-
-**Description**
-
 Tile `$06` south wall handler. Double-wall check at BR; slide-down via future TL probe; corner resolution via Y snap + fine X adjust.
 
-**Algorithm**
+**Algorithm:**
 
 | Step | Action |
 |------|--------|
@@ -659,9 +522,9 @@ Tile `$06` south wall handler. Double-wall check at BR; slide-down via future TL
 | 3 | Slide: down/right cells open → X snap |
 | 4 | Corner: `ComputeYSnapOffset` → `FineAdjustXWest` |
 
-**Source**
+**Source:**
 
-```218:257:extracted/system/engine/player_move_ns.asm
+```218:257:../../../extracted/system/engine/player_move_ns.asm
 SouthWallHandler {
     JSR $&tile_collision.ProbeCurrentBR
     ...
@@ -669,14 +532,14 @@ SouthWallHandler {
 }
 ```
 
-**Variables**
+**Variables:**
 
 | Location | Direction | Role |
 |----------|-----------|------|
 | `$24` | W | Cleared on east snap |
 | `$02` | W | Y snap offset |
 
-**Cross-References**
+**Cross-References:**
 
 | Symbol | Relationship |
 |--------|--------------|
@@ -685,29 +548,18 @@ SouthWallHandler {
 
 ### SouthWallNudge
 
-| Property | Value |
-|----------|-------|
-| **Name** | `SouthWallNudge` |
-| **Address** | `$02D1CE` |
-| **Decimal** | 184782 |
-| **Size** | 30 bytes |
-| **Type** | Code |
-| **ASM file** | `player_move_ns.asm` |
-
-**Description**
-
 Future TL `$06` nudge variant. When `$AB.$02` set and X aligned, allows vertical-only movement. Otherwise probes down-cell and joins standard slide cascade.
 
-**Algorithm**
+**Algorithm:**
 
 | Step | Action |
 |------|--------|
 | 1 | If `$AB.$02` + X aligned: V-only move |
 | 2 | Else probe down-cell → join `loc_02D19E` |
 
-**Source**
+**Source:**
 
-```259:280:extracted/system/engine/player_move_ns.asm
+```259:280:../../../extracted/system/engine/player_move_ns.asm
 SouthWallNudge {
     LDA $AB
     ...
@@ -715,68 +567,27 @@ SouthWallNudge {
 }
 ```
 
-**Variables**
+**Variables:**
 
 | Location | Direction | Role |
 |----------|-----------|------|
 | `$AB` | R | Nudge flag bit `$02` |
 | `$24` | W | Cleared for V-only |
 
-**Cross-References**
+**Cross-References:**
 
 | Symbol | Relationship |
 |--------|--------------|
 | `DispatchDiagDownLeft` | Sets `$AB.$02` |
 | `SouthWallHandler` | Shared slide path |
 
-### ClearSpeedNS_1
-
-| Property | Value |
-|----------|-------|
-| **Name** | `ClearSpeedNS_1` |
-| **Address** | `$02D1EC` |
-| **Decimal** | 184812 |
-| **Size** | 6 bytes |
-| **Type** | Code |
-| **ASM file** | `player_move_ns.asm` |
-
-**Description**
-
-Branch-range stub: `STZ player_speed_ns` → `RTS`. Duplicated for 65816 branch reach from `SouthWallHandler` slide cascade.
-
-**Source**
-
-```276:279:extracted/system/engine/player_move_ns.asm
-  ClearSpeedNS_1:
-    REP #$20
-    STZ $player_speed_ns
-    RTS 
-```
-
-**Cross-References**
-
-| Symbol | Relationship |
-|--------|--------------|
-| `SouthWallHandler` | Caller |
-
-### Group C: Northward Movement
+#### Group C: Northward Movement
 
 ### NorthWallHandler
 
-| Property | Value |
-|----------|-------|
-| **Name** | `NorthWallHandler` |
-| **Address** | `$02D1F2` |
-| **Decimal** | 184818 |
-| **Size** | 70 bytes |
-| **Type** | Code |
-| **ASM file** | `player_move_ns.asm` |
-
-**Description**
-
 Tile `$09` north wall handler. Double-wall at BL; slide-up via future TR; corner via Y snap + fine X east adjust.
 
-**Algorithm**
+**Algorithm:**
 
 | Step | Action |
 |------|--------|
@@ -785,9 +596,9 @@ Tile `$09` north wall handler. Double-wall at BL; slide-up via future TR; corner
 | 3 | Slide: up/right open → X snap west/east |
 | 4 | Corner: `ComputeYSnapOffset` → `FineAdjustXEast` |
 
-**Source**
+**Source:**
 
-```282:319:extracted/system/engine/player_move_ns.asm
+```282:319:../../../extracted/system/engine/player_move_ns.asm
 NorthWallHandler {
     JSR $&tile_collision.ProbeCurrentBL
     ...
@@ -795,14 +606,14 @@ NorthWallHandler {
 }
 ```
 
-**Variables**
+**Variables:**
 
 | Location | Direction | Role |
 |----------|-----------|------|
 | `$24` | W | Cleared on east snap |
 | `$02` | W | Y snap offset |
 
-**Cross-References**
+**Cross-References:**
 
 | Symbol | Relationship |
 |--------|--------------|
@@ -811,96 +622,65 @@ NorthWallHandler {
 
 ### NorthProbeRedirect
 
-| Property | Value |
-|----------|-------|
-| **Name** | `NorthProbeRedirect` |
-| **Address** | `$02D238` |
-| **Decimal** | 184888 |
-| **Size** | 8 bytes |
-| **Type** | Code |
-| **ASM file** | `player_move_ns.asm` |
+Probes the right adjacent map cell (`MapCellRight` + `ReadCollisionNibble`), then branches to the north-wall slide path at `loc_02D208`. Called from `DispatchSouthMove` when a down-cell or sub-tile cascade detects tile `$09`.
 
-**Description**
+**Source:**
 
-Probe right-cell then branch to north-wall slide path at `loc_02D208`.
-
-**Source**
-
-```321:324:extracted/system/engine/player_move_ns.asm
-NorthProbeRedirect {
-    JSR $&tile_collision.MapCellRight
-    JSR $&tile_collision.ReadCollisionNibble
-    BRA loc_02D208
-}
+```322:325:../../../extracted/system/engine/player_move_ns.asm
 ```
 
-**Cross-References**
+**Cross-References:**
 
 | Symbol | Relationship |
 |--------|--------------|
-| `NorthWallHandler` | Target at `loc_02D208` |
-| `DispatchSouthMove` | Caller |
-
-### ClearSpeedNS_2
-
-| Property | Value |
-|----------|-------|
-| **Name** | `ClearSpeedNS_2` |
-| **Address** | `$02D240` |
-| **Decimal** | 184896 |
-| **Size** | 6 bytes |
-| **Type** | Code |
-| **ASM file** | `player_move_ns.asm` |
-
-**Description**
-
-Branch-range stub: `STZ player_speed_ns` → `RTS`. Reach stub for `NorthWallHandler` slide cascade.
-
-**Source**
-
-```326:329:extracted/system/engine/player_move_ns.asm
-  ClearSpeedNS_2:
-    REP #$20
-    STZ $player_speed_ns
-    RTS 
-```
-
-**Cross-References**
-
-| Symbol | Relationship |
-|--------|--------------|
-| `NorthWallHandler` | Caller |
-
----
+| `DispatchSouthMove` | Caller (down-cell `$09` cascade) |
+| `NorthWallHandler` | Shared slide path at `loc_02D208` |
 
 ## 3. player_move_ew.asm
 
-| Property | Value |
-|----------|-------|
-| **Path** | [`extracted/system/engine/player_move_ew.asm`](../../../extracted/system/engine/player_move_ew.asm) |
-| **Block** | `player_move_ew` |
-| **Scene** | `engine` |
-| **Address range** | `$02D376`–`$02DB80` |
-| **Includes** | `map_coords`, `player_character`, `player_move_diag`, `player_move_main`, `player_move_ns`, `tile_collision` |
+| Address | Name | Size | Description |
+|---------|------|------|-------------|
+| `$02D376` | DispatchEastMove | 116 B | Eastward movement dispatcher. |
+| `$02D3EA` | EastBlockedWall | 13 B | Sets collision flag, tries AutoAlignNS_East, branches to Y snap on failure. |
+| `$02D3F7` | SnapXEastCollision | 20 B | Y snap for east collision (aligns Y to current tile row). |
+| `$02D40B` | EastInteractTile | 26 B | Tile $02 east: X-aligned redirect to LadderClimbNorth, then blocked path. |
+| `$02D425` | EastStairsTile | 41 B | Tile $08 stairs: verifies down-cell $08, sets stair flag, redirects to ClimbVineEntry, snaps Y. |
+| `$02D44E` | EastSlopeRight | 49 B | Tile $03 east slope: BR continuity, Y threshold $08, slope flag on block. |
+| `$02D47F` | EastSlopeLeft | 91 B | Tile $0C east slope with $09C6 accumulator (positive-direction variant). |
+| `$02D4DA` | EastWallNorthInteract | 74 B | Tile $09 moving east: double-wall, slide-down path, ComputeEastSnapOffset → FineAdjustXWest. |
+| `$02D524` | EastWallNorthProbe | 12 B | Down-cell probe redirect: solid → snap east; else → north slide path. |
+| `$02D530` | ClearSpeedNS_3 | 6 B | Branch-range stub: STZ player_speed_ns → RTS. |
+| `$02D536` | EastWallSouthInteract | 70 B | Tile $06 moving east: TL double-wall, slide-up path, ComputeEastSnapOffset → FineAdjustXEast. |
+| `$02D57C` | EastSlideJumpShim | 2 B | Single BRA to south-wall slide entry — branch-range shim. |
+| `$02D57E` | ClearSpeedNS_4 | 6 B | Branch-range stub: STZ player_speed_ns → RTS. |
+| `$02D584` | AutoAlignNS_East | 117 B | NS auto-align when EW blocked (east). |
+| `$02D5F9` | ComputeEastSnapOffset | 92 B | Computes east snap offset in $02 from BL probe ($09 or down-cell $06) with V-delta parity correction on $1E sub-tile. |
+| `$02D655` | FineAdjustXEast | 69 B | Fine X adjust after east wall snap. |
+| `$02D69A` | FineAdjustXWest | 66 B | Mirror of FineAdjustXEast with inverted distance metric for westward snap correction. |
+| `$02D6DC` | DispatchWestMove | 132 B | Westward dispatcher. |
+| `$02D760` | SnapXWestCollision | 28 B | X snap for west collision. |
+| `$02D77C` | WestLadderTile | 29 B | Tile $07 west: Y-aligned, clears return flags, redirects to ShimmyRightEntry. |
+| `$02D799` | WestWallNorthDiag | 72 B | Tile $09 diagonal going west. |
+| `$02D7E1` | WestWallNorthFlag | 6 B | $09 sub-variant: sets $AB.$04, joins north-diagonal slide path at loc_02D7AB. |
+| `$02D7E7` | ClearSpeedEW_5 | 6 B | Branch-range stub: STZ player_speed_ew → RTS. |
+| `$02D7ED` | WestWallSouthDiag | 80 B | Tile $06 diagonal going west. |
+| `$02D83D` | ClearSpeedEW_6 | 6 B | Branch-range stub: STZ player_speed_ew → RTS. |
+| `$02D843` | WestRampDown | 252 B | Ramp left (down slope). |
+| `$02D93F` | WestRampUp | 57 B | Ramp left (up slope). |
+| `$02D978` | WestRedirectToNorth | 14 B | Ramp fallback: probes future TR for $09 → WestWallNorthDiag or free move. |
+| `$02D986` | EastRampDown | 260 B | Ramp right (down slope). |
+| `$02DA8A` | EastRampUp | 53 B | Ramp right (up slope). |
+| `$02DABF` | EastRedirectToSouth | 14 B | Ramp fallback: future BR $06 → WestWallSouthDiag or free move. |
+| `$02DACD` | AutoAlignNS_West | 85 B | NS auto-align (west variant). |
+| `$02DB22` | ComputeWestSnapOffset | 94 B | West snap offset. |
 
-### Group E: Eastward Movement
+#### Group E: Eastward Movement
 
 ### DispatchEastMove
 
-| Property | Value |
-|----------|-------|
-| **Name** | `DispatchEastMove` |
-| **Address** | `$02D376` |
-| **Decimal** | 185206 |
-| **Size** | 116 bytes |
-| **Type** | Code |
-| **ASM file** | `player_move_ew.asm` |
-
-**Description**
-
 Eastward movement dispatcher. Probes BL for north wall/slopes, BR for south wall, future BL for solids/interact/stairs. Sub-tile and down-cell cascades for south-wall slide. Free path adds `$24` to `$26`.
 
-**Algorithm**
+**Algorithm:**
 
 | Step | Action |
 |------|--------|
@@ -910,9 +690,9 @@ Eastward movement dispatcher. Probes BL for north wall/slopes, BR for south wall
 | 4 | Sub-tile + down-cell cascade |
 | 5 | Free: `$26 += $24`; Blocked: align → snap |
 
-**Source**
+**Source:**
 
-```17:90:extracted/system/engine/player_move_ew.asm
+```17:90:../../../extracted/system/engine/player_move_ew.asm
 DispatchEastMove {
     SEP #$20
     JSR $&tile_collision.ProbeCurrentBL
@@ -921,13 +701,13 @@ DispatchEastMove {
 }
 ```
 
-**Variables**
+**Variables:**
 
 | Location | Direction | Role |
 |----------|-----------|------|
 | `$24` / `$26` | R/W | V-delta / sub-pixel Y |
 
-**Cross-References**
+**Cross-References:**
 
 | Symbol | Relationship |
 |--------|--------------|
@@ -936,69 +716,35 @@ DispatchEastMove {
 
 ### EastBlockedWall
 
-| Property | Value |
-|----------|-------|
-| **Name** | `EastBlockedWall` |
-| **Address** | `$02D3EA` |
-| **Decimal** | 185322 |
-| **Size** | 13 bytes |
-| **Type** | Code |
-| **ASM file** | `player_move_ew.asm` |
+Blocked-path handler for eastward movement. Sets the actor collision flag, attempts `AutoAlignNS_East`, and on failure branches to `SnapXEastCollision`. Shared by multiple east dispatch paths when movement cannot proceed.
 
-**Description**
+**Source:**
 
-Sets collision flag, tries `AutoAlignNS_East`, branches to Y snap on failure.
-
-**Algorithm**
-
-| Step | Action |
-|------|--------|
-| 1 | `SetActorCollisionFlag` → `AutoAlignNS_East` |
-| 2 | SEC → `SnapXEastCollision`; CLC → continue |
-
-**Source**
-
-```92:99:extracted/system/engine/player_move_ew.asm
-EastBlockedWall {
-    JSR $&tile_collision.SetActorCollisionFlag
-    JSR $&AutoAlignNS_East
-    BCS SnapXEastCollision
-    ...
-}
+```94:101:../../../extracted/system/engine/player_move_ew.asm
 ```
 
-**Cross-References**
+**Cross-References:**
 
 | Symbol | Relationship |
 |--------|--------------|
-| `AutoAlignNS_East` | Alignment |
-| `SnapXEastCollision` | Snap fallback |
+| `DispatchEastMove` | Primary caller |
+| `AutoAlignNS_East` | Alignment attempt before snap |
+| `SnapXEastCollision` | Fallback when alignment fails |
 
 ### SnapXEastCollision
 
-| Property | Value |
-|----------|-------|
-| **Name** | `SnapXEastCollision` |
-| **Address** | `$02D3F7` |
-| **Decimal** | 185335 |
-| **Size** | 20 bytes |
-| **Type** | Code |
-| **ASM file** | `player_move_ew.asm` |
-
-**Description**
-
 Y snap for east collision (aligns Y to current tile row). Clears `player_speed_ns`, snaps `$26`, zeroes `$24`.
 
-**Algorithm**
+**Algorithm:**
 
 | Step | Action |
 |------|--------|
 | 1 | `STZ player_speed_ns` |
 | 2 | `$26 = ($24 + $26) & $FFC0`; `STZ $24` |
 
-**Source**
+**Source:**
 
-```101:114:extracted/system/engine/player_move_ew.asm
+```101:114:../../../extracted/system/engine/player_move_ew.asm
 SnapXEastCollision {
     PHP 
     REP #$20
@@ -1008,14 +754,14 @@ SnapXEastCollision {
 }
 ```
 
-**Variables**
+**Variables:**
 
 | Location | Direction | Role |
 |----------|-----------|------|
 | `$24` / `$26` | W | V-delta cleared; Y snapped |
 | `$09B4` | W | Speed cleared |
 
-**Cross-References**
+**Cross-References:**
 
 | Symbol | Relationship |
 |--------|--------------|
@@ -1024,29 +770,18 @@ SnapXEastCollision {
 
 ### EastInteractTile
 
-| Property | Value |
-|----------|-------|
-| **Name** | `EastInteractTile` |
-| **Address** | `$02D40B` |
-| **Decimal** | 185355 |
-| **Size** | 26 bytes |
-| **Type** | Code |
-| **ASM file** | `player_move_ew.asm` |
-
-**Description**
-
 Tile `$02` east: X-aligned redirect to `LadderClimbNorth`, then blocked path.
 
-**Source**
+**Source:**
 
-```116:127:extracted/system/engine/player_move_ew.asm
+```116:127:../../../extracted/system/engine/player_move_ew.asm
   EastInteractTile:
     JSR $&tile_collision.CheckSubTileAlignX
     ...
     BRA EastBlockedWall
 ```
 
-**Cross-References**
+**Cross-References:**
 
 | Symbol | Relationship |
 |--------|--------------|
@@ -1054,20 +789,9 @@ Tile `$02` east: X-aligned redirect to `LadderClimbNorth`, then blocked path.
 
 ### EastStairsTile
 
-| Property | Value |
-|----------|-------|
-| **Name** | `EastStairsTile` |
-| **Address** | `$02D425` |
-| **Decimal** | 185381 |
-| **Size** | 41 bytes |
-| **Type** | Code |
-| **ASM file** | `player_move_ew.asm` |
-
-**Description**
-
 Tile `$08` stairs: verifies down-cell `$08`, sets stair flag, redirects to `ClimbVineEntry`, snaps Y.
 
-**Algorithm**
+**Algorithm:**
 
 | Step | Action |
 |------|--------|
@@ -1075,9 +799,9 @@ Tile `$08` stairs: verifies down-cell `$08`, sets stair flag, redirects to `Clim
 | 2 | `$09AF.$08`; actor → `ClimbVineEntry` |
 | 3 | → `SnapXEastCollision` |
 
-**Source**
+**Source:**
 
-```129:149:extracted/system/engine/player_move_ew.asm
+```129:149:../../../extracted/system/engine/player_move_ew.asm
   EastStairsTile:
     JSR $&tile_collision.CheckSubTileAlignX
     ...
@@ -1085,7 +809,7 @@ Tile `$08` stairs: verifies down-cell `$08`, sets stair flag, redirects to `Clim
 }
 ```
 
-**Cross-References**
+**Cross-References:**
 
 | Symbol | Relationship |
 |--------|--------------|
@@ -1093,22 +817,11 @@ Tile `$08` stairs: verifies down-cell `$08`, sets stair flag, redirects to `Clim
 
 ### EastSlopeRight
 
-| Property | Value |
-|----------|-------|
-| **Name** | `EastSlopeRight` |
-| **Address** | `$02D44E` |
-| **Decimal** | 185422 |
-| **Size** | 49 bytes |
-| **Type** | Code |
-| **ASM file** | `player_move_ew.asm` |
-
-**Description**
-
 Tile `$03` east slope: BR continuity, Y threshold `$08`, slope flag on block.
 
-**Source**
+**Source:**
 
-```151:178:extracted/system/engine/player_move_ew.asm
+```151:178:../../../extracted/system/engine/player_move_ew.asm
 EastSlopeRight {
     JSR $&tile_collision.ProbeCurrentBR
     ...
@@ -1116,7 +829,7 @@ EastSlopeRight {
 }
 ```
 
-**Cross-References**
+**Cross-References:**
 
 | Symbol | Relationship |
 |--------|--------------|
@@ -1124,20 +837,9 @@ EastSlopeRight {
 
 ### EastSlopeLeft
 
-| Property | Value |
-|----------|-------|
-| **Name** | `EastSlopeLeft` |
-| **Address** | `$02D47F` |
-| **Decimal** | 185471 |
-| **Size** | 91 bytes |
-| **Type** | Code |
-| **ASM file** | `player_move_ew.asm` |
-
-**Description**
-
 Tile `$0C` east slope with **`$09C6` accumulator** (positive-direction variant).
 
-**Algorithm**
+**Algorithm:**
 
 | Step | Action |
 |------|--------|
@@ -1145,9 +847,9 @@ Tile `$0C` east slope with **`$09C6` accumulator** (positive-direction variant).
 | 2 | Accumulate `$24` → `$09C6`; extract steps |
 | 3 | `ApplyMovementDeltas` |
 
-**Source**
+**Source:**
 
-```180:234:extracted/system/engine/player_move_ew.asm
+```180:234:../../../extracted/system/engine/player_move_ew.asm
 EastSlopeLeft {
     JSR $&tile_collision.ProbeCurrentBR
     ...
@@ -1155,13 +857,13 @@ EastSlopeLeft {
 }
 ```
 
-**Variables**
+**Variables:**
 
 | Location | Direction | Role |
 |----------|-----------|------|
 | `$09C6` | R/W | Slope accumulator |
 
-**Cross-References**
+**Cross-References:**
 
 | Symbol | Relationship |
 |--------|--------------|
@@ -1169,22 +871,11 @@ EastSlopeLeft {
 
 ### EastWallNorthInteract
 
-| Property | Value |
-|----------|-------|
-| **Name** | `EastWallNorthInteract` |
-| **Address** | `$02D4DA` |
-| **Decimal** | 185562 |
-| **Size** | 74 bytes |
-| **Type** | Code |
-| **ASM file** | `player_move_ew.asm` |
-
-**Description**
-
 Tile `$09` moving east: double-wall, slide-down path, `ComputeEastSnapOffset` → `FineAdjustXWest`.
 
-**Source**
+**Source:**
 
-```236:277:extracted/system/engine/player_move_ew.asm
+```236:277:../../../extracted/system/engine/player_move_ew.asm
 EastWallNorthInteract {
     JSR $&tile_collision.ProbeCurrentTR
     ...
@@ -1192,93 +883,19 @@ EastWallNorthInteract {
 }
 ```
 
-**Cross-References**
+**Cross-References:**
 
 | Symbol | Relationship |
 |--------|--------------|
 | `ComputeEastSnapOffset` / `FineAdjustXWest` | Resolution chain |
 
-### EastWallNorthProbe
-
-| Property | Value |
-|----------|-------|
-| **Name** | `EastWallNorthProbe` |
-| **Address** | `$02D524` |
-| **Decimal** | 185636 |
-| **Size** | 12 bytes |
-| **Type** | Code |
-| **ASM file** | `player_move_ew.asm` |
-
-**Description**
-
-Down-cell probe redirect: solid → snap east; else → north slide path.
-
-**Source**
-
-```279:284:extracted/system/engine/player_move_ew.asm
-EastWallNorthProbe {
-    JSR $&tile_collision.MapCellDown
-    JSR $&tile_collision.ReadCollisionNibble
-    CMP #$0E
-    BCS loc_02D516
-    BRA loc_02D4F0
-}
-```
-
-**Cross-References**
-
-| Symbol | Relationship |
-|--------|--------------|
-| `EastWallNorthInteract` | Slide target |
-
-### ClearSpeedNS_3
-
-| Property | Value |
-|----------|-------|
-| **Name** | `ClearSpeedNS_3` |
-| **Address** | `$02D530` |
-| **Decimal** | 185648 |
-| **Size** | 6 bytes |
-| **Type** | Code |
-| **ASM file** | `player_move_ew.asm` |
-
-**Description**
-
-Branch-range stub: `STZ player_speed_ns` → `RTS`.
-
-**Source**
-
-```286:289:extracted/system/engine/player_move_ew.asm
-  ClearSpeedNS_3:
-    REP #$20
-    STZ $player_speed_ns
-    RTS 
-```
-
-**Cross-References**
-
-| Symbol | Relationship |
-|--------|--------------|
-| `EastWallNorthInteract` | Caller |
-
 ### EastWallSouthInteract
-
-| Property | Value |
-|----------|-------|
-| **Name** | `EastWallSouthInteract` |
-| **Address** | `$02D536` |
-| **Decimal** | 185654 |
-| **Size** | 70 bytes |
-| **Type** | Code |
-| **ASM file** | `player_move_ew.asm` |
-
-**Description**
 
 Tile `$06` moving east: TL double-wall, slide-up path, `ComputeEastSnapOffset` → `FineAdjustXEast`.
 
-**Source**
+**Source:**
 
-```292:329:extracted/system/engine/player_move_ew.asm
+```292:329:../../../extracted/system/engine/player_move_ew.asm
 EastWallSouthInteract {
     JSR $&tile_collision.ProbeCurrentTL
     ...
@@ -1286,86 +903,17 @@ EastWallSouthInteract {
 }
 ```
 
-**Cross-References**
+**Cross-References:**
 
 | Symbol | Relationship |
 |--------|--------------|
 | `FineAdjustXEast` | Corner resolution |
 
-### EastSlideJumpShim
-
-| Property | Value |
-|----------|-------|
-| **Name** | `EastSlideJumpShim` |
-| **Address** | `$02D57C` |
-| **Decimal** | 185724 |
-| **Size** | 2 bytes |
-| **Type** | Code |
-| **ASM file** | `player_move_ew.asm` |
-
-**Description**
-
-Single `BRA` to south-wall slide entry — branch-range shim.
-
-**Source**
-
-```331:332:extracted/system/engine/player_move_ew.asm
-EastSlideJumpShim {
-    BRA loc_02D54C
-```
-
-**Cross-References**
-
-| Symbol | Relationship |
-|--------|--------------|
-| `EastWallSouthInteract` | Target |
-
-### ClearSpeedNS_4
-
-| Property | Value |
-|----------|-------|
-| **Name** | `ClearSpeedNS_4` |
-| **Address** | `$02D57E` |
-| **Decimal** | 185726 |
-| **Size** | 6 bytes |
-| **Type** | Code |
-| **ASM file** | `player_move_ew.asm` |
-
-**Description**
-
-Branch-range stub: `STZ player_speed_ns` → `RTS`.
-
-**Source**
-
-```334:337:extracted/system/engine/player_move_ew.asm
-  ClearSpeedNS_4:
-    REP #$20
-    STZ $player_speed_ns
-    RTS 
-```
-
-**Cross-References**
-
-| Symbol | Relationship |
-|--------|--------------|
-| `EastWallSouthInteract` | Caller |
-
 ### AutoAlignNS_East
-
-| Property | Value |
-|----------|-------|
-| **Name** | `AutoAlignNS_East` |
-| **Address** | `$02D584` |
-| **Decimal** | 185732 |
-| **Size** | 117 bytes |
-| **Type** | Code |
-| **ASM file** | `player_move_ew.asm` |
-
-**Description**
 
 NS auto-align when EW blocked (east). Y-axis mirror of `AutoAlignEW`; nudges `$22` via grid helpers.
 
-**Algorithm**
+**Algorithm:**
 
 | Step | Action |
 |------|--------|
@@ -1374,9 +922,9 @@ NS auto-align when EW blocked (east). Y-axis mirror of `AutoAlignEW`; nudges `$2
 | 3 | Offset < 9: probe future BL → nudge upper |
 | 4 | CLC/SEC return |
 
-**Source**
+**Source:**
 
-```340:399:extracted/system/engine/player_move_ew.asm
+```340:399:../../../extracted/system/engine/player_move_ew.asm
 AutoAlignNS_East {
     REP #$20
     LDA $AA
@@ -1385,7 +933,7 @@ AutoAlignNS_East {
 }
 ```
 
-**Cross-References**
+**Cross-References:**
 
 | Symbol | Relationship |
 |--------|--------------|
@@ -1394,22 +942,11 @@ AutoAlignNS_East {
 
 ### ComputeEastSnapOffset
 
-| Property | Value |
-|----------|-------|
-| **Name** | `ComputeEastSnapOffset` |
-| **Address** | `$02D5F9` |
-| **Decimal** | 185849 |
-| **Size** | 92 bytes |
-| **Type** | Code |
-| **ASM file** | `player_move_ew.asm` |
-
-**Description**
-
 Computes east snap offset in `$02` from BL probe (`$09` or down-cell `$06`) with V-delta parity correction on `$1E` sub-tile.
 
-**Source**
+**Source:**
 
-```401:459:extracted/system/engine/player_move_ew.asm
+```401:459:../../../extracted/system/engine/player_move_ew.asm
 ComputeEastSnapOffset {
     REP #$20
     LDA $1A
@@ -1418,14 +955,14 @@ ComputeEastSnapOffset {
 }
 ```
 
-**Variables**
+**Variables:**
 
 | Location | Direction | Role |
 |----------|-----------|------|
 | `$02` | W | Output offset |
 | `$1E` | R | Probe Y sub-tile |
 
-**Cross-References**
+**Cross-References:**
 
 | Symbol | Relationship |
 |--------|--------------|
@@ -1433,22 +970,11 @@ ComputeEastSnapOffset {
 
 ### FineAdjustXEast
 
-| Property | Value |
-|----------|-------|
-| **Name** | `FineAdjustXEast` |
-| **Address** | `$02D655` |
-| **Decimal** | 185941 |
-| **Size** | 69 bytes |
-| **Type** | Code |
-| **ASM file** | `player_move_ew.asm` |
-
-**Description**
-
 Fine X adjust after east wall snap. If pixel distance + `$02` ≥ `$11`, snaps `$22` to grid-aligned sub-pixel position.
 
-**Source**
+**Source:**
 
-```461:499:extracted/system/engine/player_move_ew.asm
+```461:499:../../../extracted/system/engine/player_move_ew.asm
 FineAdjustXEast {
     LDX $player_actor
     LDA $0014, X
@@ -1457,7 +983,7 @@ FineAdjustXEast {
 }
 ```
 
-**Cross-References**
+**Cross-References:**
 
 | Symbol | Relationship |
 |--------|--------------|
@@ -1465,22 +991,11 @@ FineAdjustXEast {
 
 ### FineAdjustXWest
 
-| Property | Value |
-|----------|-------|
-| **Name** | `FineAdjustXWest` |
-| **Address** | `$02D69A` |
-| **Decimal** | 186010 |
-| **Size** | 66 bytes |
-| **Type** | Code |
-| **ASM file** | `player_move_ew.asm` |
-
-**Description**
-
 Mirror of `FineAdjustXEast` with inverted distance metric for westward snap correction.
 
-**Source**
+**Source:**
 
-```501:534:extracted/system/engine/player_move_ew.asm
+```501:534:../../../extracted/system/engine/player_move_ew.asm
 FineAdjustXWest {
     LDX $player_actor
     LDA $0014, X
@@ -1489,30 +1004,19 @@ FineAdjustXWest {
 }
 ```
 
-**Cross-References**
+**Cross-References:**
 
 | Symbol | Relationship |
 |--------|--------------|
 | `SouthWallHandler` / `EastWallNorthInteract` | Callers |
 
-### Group F: Westward Movement
+#### Group F: Westward Movement
 
 ### DispatchWestMove
 
-| Property | Value |
-|----------|-------|
-| **Name** | `DispatchWestMove` |
-| **Address** | `$02D6DC` |
-| **Decimal** | 186076 |
-| **Size** | 132 bytes |
-| **Type** | Code |
-| **ASM file** | `player_move_ew.asm` |
-
-**Description**
-
 Westward dispatcher. **`ProbeLeftTiles`** first for ramp detection → `WestRampDown`/`EastRampDown`. Standard corner probes for walls, future TR, sub-tile cascades. `$07` ladder; BL `$05`/`$0A` ramp up. Free: `$22 += $20`. Blocked: `AutoAlignNS_West` → snap.
 
-**Algorithm**
+**Algorithm:**
 
 | Step | Action |
 |------|--------|
@@ -1522,9 +1026,9 @@ Westward dispatcher. **`ProbeLeftTiles`** first for ramp detection → `WestRamp
 | 4 | Sub-tile + right-cell cascade |
 | 5 | Free: `$22 += $20`; Blocked: align → snap |
 
-**Source**
+**Source:**
 
-```536:619:extracted/system/engine/player_move_ew.asm
+```536:619:../../../extracted/system/engine/player_move_ew.asm
 DispatchWestMove {
     SEP #$20
     JSR $&map_coords.ProbeLeftTiles
@@ -1533,13 +1037,13 @@ DispatchWestMove {
 }
 ```
 
-**Variables**
+**Variables:**
 
 | Location | Direction | Role |
 |----------|-----------|------|
 | `$20` / `$22` | R/W | H-delta / sub-pixel X |
 
-**Cross-References**
+**Cross-References:**
 
 | Symbol | Relationship |
 |--------|--------------|
@@ -1549,29 +1053,18 @@ DispatchWestMove {
 
 ### SnapXWestCollision
 
-| Property | Value |
-|----------|-------|
-| **Name** | `SnapXWestCollision` |
-| **Address** | `$02D760` |
-| **Decimal** | 186208 |
-| **Size** | 28 bytes |
-| **Type** | Code |
-| **ASM file** | `player_move_ew.asm` |
-
-**Description**
-
 X snap for west collision. Clears `player_speed_ew`, aligns `$22` to previous tile boundary: `(($20 + $22 - $20) & $FFC0) + $20`, zeroes `$20`.
 
-**Algorithm**
+**Algorithm:**
 
 | Step | Action |
 |------|--------|
 | 1 | `STZ player_speed_ew` |
 | 2 | `$22 = (($20+$22-$20) & $FFC0) + $20`; `STZ $20` |
 
-**Source**
+**Source:**
 
-```621:638:extracted/system/engine/player_move_ew.asm
+```621:638:../../../extracted/system/engine/player_move_ew.asm
 SnapXWestCollision {
     PHP 
     REP #$20
@@ -1581,14 +1074,14 @@ SnapXWestCollision {
 }
 ```
 
-**Variables**
+**Variables:**
 
 | Location | Direction | Role |
 |----------|-----------|------|
 | `$20` / `$22` | W | H-delta cleared; X snapped |
 | `$09B2` | W | EW speed cleared |
 
-**Cross-References**
+**Cross-References:**
 
 | Symbol | Relationship |
 |--------|--------------|
@@ -1597,29 +1090,18 @@ SnapXWestCollision {
 
 ### WestLadderTile
 
-| Property | Value |
-|----------|-------|
-| **Name** | `WestLadderTile` |
-| **Address** | `$02D77C` |
-| **Decimal** | 186236 |
-| **Size** | 29 bytes |
-| **Type** | Code |
-| **ASM file** | `player_move_ew.asm` |
-
-**Description**
-
 Tile `$07` west: Y-aligned, clears return flags, redirects to `ShimmyRightEntry`.
 
-**Source**
+**Source:**
 
-```640:652:extracted/system/engine/player_move_ew.asm
+```640:652:../../../extracted/system/engine/player_move_ew.asm
   WestLadderTile:
     JSR $&tile_collision.CheckSubTileAlignY
     ...
     BRA loc_02D753
 ```
 
-**Cross-References**
+**Cross-References:**
 
 | Symbol | Relationship |
 |--------|--------------|
@@ -1628,20 +1110,9 @@ Tile `$07` west: Y-aligned, clears return flags, redirects to `ShimmyRightEntry`
 
 ### WestWallNorthDiag
 
-| Property | Value |
-|----------|-------|
-| **Name** | `WestWallNorthDiag` |
-| **Address** | `$02D799` |
-| **Decimal** | 186265 |
-| **Size** | 72 bytes |
-| **Type** | Code |
-| **ASM file** | `player_move_ew.asm` |
-
-**Description**
-
 Tile `$09` diagonal going west. Sets `$AB.$80`; probes future TR; right/up cell cascade for slide-around. Resolves via `ComputeWestSnapOffset` → `DiagPushRight`.
 
-**Algorithm**
+**Algorithm:**
 
 | Step | Action |
 |------|--------|
@@ -1649,9 +1120,9 @@ Tile `$09` diagonal going west. Sets `$AB.$80`; probes future TR; right/up cell 
 | 2 | Slide: right/up cells open → push right |
 | 3 | Fail: south Y snap + west X snap |
 
-**Source**
+**Source:**
 
-```654:696:extracted/system/engine/player_move_ew.asm
+```654:696:../../../extracted/system/engine/player_move_ew.asm
   WestWallNorthDiag:
     SEP #$20
 }
@@ -1664,91 +1135,20 @@ code_02D79B {
 }
 ```
 
-**Cross-References**
+**Cross-References:**
 
 | Symbol | Relationship |
 |--------|--------------|
 | `ComputeWestSnapOffset` / `DiagPushRight` | Resolution |
 | `WestRedirectToNorth` | Entry redirect |
 
-### WestWallNorthFlag
-
-| Property | Value |
-|----------|-------|
-| **Name** | `WestWallNorthFlag` |
-| **Address** | `$02D7E1` |
-| **Decimal** | 186337 |
-| **Size** | 6 bytes |
-| **Type** | Code |
-| **ASM file** | `player_move_ew.asm` |
-
-**Description**
-
-`$09` sub-variant: sets `$AB.$04`, joins north-diagonal slide path at `loc_02D7AB`.
-
-**Source**
-
-```698:701:extracted/system/engine/player_move_ew.asm
-WestWallNorthFlag {
-    LDA #$04
-    TSB $AB
-    BRA loc_02D7AB
-```
-
-**Cross-References**
-
-| Symbol | Relationship |
-|--------|--------------|
-| `WestWallNorthDiag` | Shared slide path |
-
-### ClearSpeedEW_5
-
-| Property | Value |
-|----------|-------|
-| **Name** | `ClearSpeedEW_5` |
-| **Address** | `$02D7E7` |
-| **Decimal** | 186343 |
-| **Size** | 6 bytes |
-| **Type** | Code |
-| **ASM file** | `player_move_ew.asm` |
-
-**Description**
-
-Branch-range stub: `STZ player_speed_ew` → `RTS`.
-
-**Source**
-
-```703:706:extracted/system/engine/player_move_ew.asm
-  ClearSpeedEW_5:
-    REP #$20
-    STZ $player_speed_ew
-    RTS 
-```
-
-**Cross-References**
-
-| Symbol | Relationship |
-|--------|--------------|
-| `WestWallNorthDiag` | Caller |
-
 ### WestWallSouthDiag
-
-| Property | Value |
-|----------|-------|
-| **Name** | `WestWallSouthDiag` |
-| **Address** | `$02D7ED` |
-| **Decimal** | 186349 |
-| **Size** | 80 bytes |
-| **Type** | Code |
-| **ASM file** | `player_move_ew.asm` |
-
-**Description**
 
 Tile `$06` diagonal going west. Sets `$AB.$80`; probes future BR; left/up cell cascade. Resolves via `ComputeWestSnapOffset` → `DiagPushLeft`.
 
-**Source**
+**Source:**
 
-```709:763:extracted/system/engine/player_move_ew.asm
+```709:763:../../../extracted/system/engine/player_move_ew.asm
 WestWallSouthDiag {
     SEP #$20
 }
@@ -1761,59 +1161,18 @@ code_02D7EF {
 }
 ```
 
-**Cross-References**
+**Cross-References:**
 
 | Symbol | Relationship |
 |--------|--------------|
 | `DiagPushLeft` / `ComputeWestSnapOffset` | Resolution |
 | `EastRedirectToSouth` | Entry redirect |
 
-### ClearSpeedEW_6
-
-| Property | Value |
-|----------|-------|
-| **Name** | `ClearSpeedEW_6` |
-| **Address** | `$02D83D` |
-| **Decimal** | 186429 |
-| **Size** | 6 bytes |
-| **Type** | Code |
-| **ASM file** | `player_move_ew.asm` |
-
-**Description**
-
-Branch-range stub: `STZ player_speed_ew` → `RTS`.
-
-**Source**
-
-```759:762:extracted/system/engine/player_move_ew.asm
-  ClearSpeedEW_6:
-    REP #$20
-    STZ $player_speed_ew
-    RTS 
-```
-
-**Cross-References**
-
-| Symbol | Relationship |
-|--------|--------------|
-| `WestWallSouthDiag` | Caller |
-
 ### WestRampDown
-
-| Property | Value |
-|----------|-------|
-| **Name** | `WestRampDown` |
-| **Address** | `$02D843` |
-| **Decimal** | 186435 |
-| **Size** | 252 bytes |
-| **Type** | Code |
-| **ASM file** | `player_move_ew.asm` |
-
-**Description**
 
 Ramp left (down slope). Multi-probe for tile `$0A`, sub-pixel Y offset from X sub-tile, sets **`$09AE.$1000`**, edge-case boundary snap with collision flag. Largest single west handler.
 
-**Algorithm**
+**Algorithm:**
 
 | Step | Action |
 |------|--------|
@@ -1823,9 +1182,9 @@ Ramp left (down slope). Multi-probe for tile `$0A`, sub-pixel Y offset from X su
 | 4 | Set ramp flag; probe future corners |
 | 5 | Passable → apply; blocked → boundary snap |
 
-**Source**
+**Source:**
 
-```765:894:extracted/system/engine/player_move_ew.asm
+```765:894:../../../extracted/system/engine/player_move_ew.asm
 WestRampDown {
     JSR $&player_move_diag.DiagClearReturnFlags
     JSR $&tile_collision.ProbeCurrentTR
@@ -1834,7 +1193,7 @@ WestRampDown {
 }
 ```
 
-**Variables**
+**Variables:**
 
 | Location | Direction | Role |
 |----------|-----------|------|
@@ -1842,7 +1201,7 @@ WestRampDown {
 | `$26` | W | Y adjusted for ramp |
 | `$09AE` | W | Ramp flag `$1000` |
 
-**Cross-References**
+**Cross-References:**
 
 | Symbol | Relationship |
 |--------|--------------|
@@ -1851,22 +1210,11 @@ WestRampDown {
 
 ### WestRampUp
 
-| Property | Value |
-|----------|-------|
-| **Name** | `WestRampUp` |
-| **Address** | `$02D93F` |
-| **Decimal** | 186687 |
-| **Size** | 57 bytes |
-| **Type** | Code |
-| **ASM file** | `player_move_ew.asm` |
-
-**Description**
-
 Ramp left (up slope). Probes for `$0A`; computes inverted `$24` from X sub-tile; joins ramp-down finalize at `code_02D8CE`.
 
-**Source**
+**Source:**
 
-```908:940:extracted/system/engine/player_move_ew.asm
+```908:940:../../../extracted/system/engine/player_move_ew.asm
 WestRampUp {
     JSR $&player_move_diag.DiagClearReturnFlags
     LDA $1A
@@ -1875,62 +1223,17 @@ WestRampUp {
 }
 ```
 
-**Cross-References**
+**Cross-References:**
 
 | Symbol | Relationship |
 |--------|--------------|
 | `WestRampDown` | Shared finalize path |
 
-### WestRedirectToNorth
-
-| Property | Value |
-|----------|-------|
-| **Name** | `WestRedirectToNorth` |
-| **Address** | `$02D978` |
-| **Decimal** | 186744 |
-| **Size** | 14 bytes |
-| **Type** | Code |
-| **ASM file** | `player_move_ew.asm` |
-
-**Description**
-
-Ramp fallback: probes future TR for `$09` → `WestWallNorthDiag` or free move.
-
-**Source**
-
-```942:950:extracted/system/engine/player_move_ew.asm
-WestRedirectToNorth {
-    JSR $&tile_collision.ProbeFutureTR
-    CMP #$0009
-    BNE loc_02D983
-    JMP $&WestWallNorthDiag
-    ...
-}
-```
-
-**Cross-References**
-
-| Symbol | Relationship |
-|--------|--------------|
-| `WestRampDown` | Caller |
-| `WestWallNorthDiag` | Wall redirect |
-
 ### EastRampDown
-
-| Property | Value |
-|----------|-------|
-| **Name** | `EastRampDown` |
-| **Address** | `$02D986` |
-| **Decimal** | 186758 |
-| **Size** | 260 bytes |
-| **Type** | Code |
-| **ASM file** | `player_move_ew.asm` |
-
-**Description**
 
 Ramp right (down slope). Mirror of `WestRampDown` using tile `$05` probes and inverted Y math.
 
-**Algorithm**
+**Algorithm:**
 
 | Step | Action |
 |------|--------|
@@ -1939,9 +1242,9 @@ Ramp right (down slope). Mirror of `WestRampDown` using tile `$05` probes and in
 | 3 | Ramp flag; future corner probes |
 | 4 | Apply or boundary snap |
 
-**Source**
+**Source:**
 
-```952:1085:extracted/system/engine/player_move_ew.asm
+```952:1085:../../../extracted/system/engine/player_move_ew.asm
 EastRampDown {
     JSR $&player_move_diag.DiagClearReturnFlags
     JSR $&tile_collision.ProbeCurrentBR
@@ -1950,7 +1253,7 @@ EastRampDown {
 }
 ```
 
-**Cross-References**
+**Cross-References:**
 
 | Symbol | Relationship |
 |--------|--------------|
@@ -1959,22 +1262,11 @@ EastRampDown {
 
 ### EastRampUp
 
-| Property | Value |
-|----------|-------|
-| **Name** | `EastRampUp` |
-| **Address** | `$02DA8A` |
-| **Decimal** | 187018 |
-| **Size** | 53 bytes |
-| **Type** | Code |
-| **ASM file** | `player_move_ew.asm` |
-
-**Description**
-
 Ramp right (up slope). Mirror of `WestRampUp` for tile `$05`; joins `code_02DA19` finalize.
 
-**Source**
+**Source:**
 
-```1099:1129:extracted/system/engine/player_move_ew.asm
+```1099:1129:../../../extracted/system/engine/player_move_ew.asm
 EastRampUp {
     JSR $&player_move_diag.DiagClearReturnFlags
     LDA $1A
@@ -1983,61 +1275,17 @@ EastRampUp {
 }
 ```
 
-**Cross-References**
+**Cross-References:**
 
 | Symbol | Relationship |
 |--------|--------------|
 | `EastRampDown` | Shared finalize |
 
-### EastRedirectToSouth
-
-| Property | Value |
-|----------|-------|
-| **Name** | `EastRedirectToSouth` |
-| **Address** | `$02DABF` |
-| **Decimal** | 187071 |
-| **Size** | 14 bytes |
-| **Type** | Code |
-| **ASM file** | `player_move_ew.asm` |
-
-**Description**
-
-Ramp fallback: future BR `$06` → `WestWallSouthDiag` or free move.
-
-**Source**
-
-```1131:1139:extracted/system/engine/player_move_ew.asm
-EastRedirectToSouth {
-    JSR $&tile_collision.ProbeFutureBR
-    CMP #$0006
-    BNE loc_02DACA
-    JMP $&WestWallSouthDiag
-    ...
-}
-```
-
-**Cross-References**
-
-| Symbol | Relationship |
-|--------|--------------|
-| `EastRampDown` | Caller |
-
 ### AutoAlignNS_West
-
-| Property | Value |
-|----------|-------|
-| **Name** | `AutoAlignNS_West` |
-| **Address** | `$02DACD` |
-| **Decimal** | 187085 |
-| **Size** | 85 bytes |
-| **Type** | Code |
-| **ASM file** | `player_move_ew.asm` |
-
-**Description**
 
 NS auto-align (west variant). Checks stack `$06,S` re-entrancy guard; Y sub-tile offset probes future BR/TR; nudges `$26`.
 
-**Algorithm**
+**Algorithm:**
 
 | Step | Action |
 |------|--------|
@@ -2046,9 +1294,9 @@ NS auto-align (west variant). Checks stack `$06,S` re-entrancy guard; Y sub-tile
 | 3 | Nudge `$26` lower/upper grid |
 | 4 | CLC/SEC return |
 
-**Source**
+**Source:**
 
-```1141:1186:extracted/system/engine/player_move_ew.asm
+```1141:1186:../../../extracted/system/engine/player_move_ew.asm
 AutoAlignNS_West {
     PHP 
     REP #$20
@@ -2058,7 +1306,7 @@ AutoAlignNS_West {
 }
 ```
 
-**Cross-References**
+**Cross-References:**
 
 | Symbol | Relationship |
 |--------|--------------|
@@ -2067,22 +1315,11 @@ AutoAlignNS_West {
 
 ### ComputeWestSnapOffset
 
-| Property | Value |
-|----------|-------|
-| **Name** | `ComputeWestSnapOffset` |
-| **Address** | `$02DB22` |
-| **Decimal** | 187170 |
-| **Size** | 94 bytes |
-| **Type** | Code |
-| **ASM file** | `player_move_ew.asm` |
-
-**Description**
-
 West snap offset. Probes current TR; on `$09` or aligned right-cell `$06`, computes `$02` from `$1A` sub-tile with H-delta parity correction.
 
-**Source**
+**Source:**
 
-```1188:1247:extracted/system/engine/player_move_ew.asm
+```1188:1247:../../../extracted/system/engine/player_move_ew.asm
 ComputeWestSnapOffset {
     REP #$20
     STZ $02
@@ -2092,7 +1329,7 @@ ComputeWestSnapOffset {
 }
 ```
 
-**Variables**
+**Variables:**
 
 | Location | Direction | Role |
 |----------|-----------|------|
@@ -2100,43 +1337,43 @@ ComputeWestSnapOffset {
 | `$1A` | R | Probe X sub-tile |
 | `$20` | R | H-delta for parity |
 
-**Cross-References**
+**Cross-References:**
 
 | Symbol | Relationship |
 |--------|--------------|
 | `DiagPushLeft` / `DiagPushRight` | Consumers |
 | `WestWallNorthDiag` / `WestWallSouthDiag` | Callers |
 
----
+
 
 ## 4. player_move_diag.asm
 
-| Property | Value |
-|----------|-------|
-| **Path** | [`extracted/system/engine/player_move_diag.asm`](../../../extracted/system/engine/player_move_diag.asm) |
-| **Block** | `player_move_diag` |
-| **Scene** | `engine` |
-| **Address range** | `$02DB80`–`$02E102` |
-| **Includes** | `map_coords`, `player_character`, `player_move_ew`, `player_move_main`, `player_move_ns`, `tile_collision` |
+| Address | Name | Size | Description |
+|---------|------|------|-------------|
+| `$02DB80` | DispatchDiagDownLeft | 144 B | Down-left dispatcher. |
+| `$02DC10` | SnapXDiagCollision | 28 B | X snap for down-left diagonal. |
+| `$02DC2C` | DiagLadderTile | 29 B | Tile $07 down-left: Y-aligned redirect to ShimmyLeftEntry. |
+| `$02DC49` | DiagWallSouthFromDL | 84 B | Tile $06 from down-left. |
+| `$02DC9D` | DiagWallNorthFromDL | 86 B | Tile $09 from down-left. |
+| `$02DCF3` | DiagRampUpLeft | 271 B | Complex up-left slope ramp. |
+| `$02DE02` | DiagRampEdgeUL | 65 B | Up-left ramp edge case. |
+| `$02DE43` | DiagRedirectToSouth | 14 B | Ramp fallback: future TL $06 → DiagWallSouthFromDL or free move. |
+| `$02DE51` | DiagRampDownRight | 267 B | Mirror of DiagRampUpLeft. |
+| `$02DF5C` | DiagRampEdgeDR | 61 B | Down-right ramp edge case. |
+| `$02DF99` | DiagRedirectToNorth | 14 B | Ramp fallback: future BL $09 → DiagWallNorthFromDL or free move. |
+| `$02DFA7` | DiagAutoAlignNS | 79 B | NS nudge when EW blocked (diagonal). |
+| `$02DFF6` | ComputeDiagSnapOffset | 106 B | EW snap for diagonal. |
+| `$02E060` | DiagPushLeft | 75 B | Left-push realignment after diagonal collision. |
+| `$02E0AB` | DiagPushRight | 79 B | Right-push realignment. |
+| `$02E0FA` | DiagClearReturnFlags | 8 B | Clears stack frame flag $05,S used by ramp handlers before actor state redirect. |
 
-### Group G: Down-Left Diagonal
+#### Group G: Down-Left Diagonal
 
 ### DispatchDiagDownLeft
 
-| Property | Value |
-|----------|-------|
-| **Name** | `DispatchDiagDownLeft` |
-| **Address** | `$02DB80` |
-| **Decimal** | 187264 |
-| **Size** | 144 bytes |
-| **Type** | Code |
-| **ASM file** | `player_move_diag.asm` |
-
-**Description**
-
 Down-left dispatcher. Sets `$AB.$02`. **`ProbeRightTiles`** first for ramp → `DiagRampDownRight`/`DiagRampUpLeft`. Corner probes for walls, future TL, sub-tile cascades. `$07` ladder; TR `$05`/`$0A` ramp edges. Free: `$22 += $20`. Blocked: `DiagAutoAlignNS` → snap.
 
-**Algorithm**
+**Algorithm:**
 
 | Step | Action |
 |------|--------|
@@ -2146,9 +1383,9 @@ Down-left dispatcher. Sets `$AB.$02`. **`ProbeRightTiles`** first for ramp → `
 | 4 | Sub-tile + right-cell cascade |
 | 5 | Free or align → snap |
 
-**Source**
+**Source:**
 
-```16:105:extracted/system/engine/player_move_diag.asm
+```16:105:../../../extracted/system/engine/player_move_diag.asm
 DispatchDiagDownLeft {
     SEP #$20
     LDA #$02
@@ -2158,14 +1395,14 @@ DispatchDiagDownLeft {
 }
 ```
 
-**Variables**
+**Variables:**
 
 | Location | Direction | Role |
 |----------|-----------|------|
 | `$20` / `$22` | R/W | H-delta / sub-pixel X |
 | `$AB` | W | Nudge flag set |
 
-**Cross-References**
+**Cross-References:**
 
 | Symbol | Relationship |
 |--------|--------------|
@@ -2174,29 +1411,18 @@ DispatchDiagDownLeft {
 
 ### SnapXDiagCollision
 
-| Property | Value |
-|----------|-------|
-| **Name** | `SnapXDiagCollision` |
-| **Address** | `$02DC10` |
-| **Decimal** | 187408 |
-| **Size** | 28 bytes |
-| **Type** | Code |
-| **ASM file** | `player_move_diag.asm` |
-
-**Description**
-
 X snap for down-left diagonal. Clears `player_speed_ew`, aligns `$22` to `$60` boundary within tile row (west-diagonal snap formula).
 
-**Algorithm**
+**Algorithm:**
 
 | Step | Action |
 |------|--------|
 | 1 | `STZ player_speed_ew` |
 | 2 | `$22 = (($20+$22-$20) & $FFC0) + $60`; `STZ $20` |
 
-**Source**
+**Source:**
 
-```107:124:extracted/system/engine/player_move_diag.asm
+```107:124:../../../extracted/system/engine/player_move_diag.asm
 SnapXDiagCollision {
     PHP 
     REP #$20
@@ -2206,13 +1432,13 @@ SnapXDiagCollision {
 }
 ```
 
-**Variables**
+**Variables:**
 
 | Location | Direction | Role |
 |----------|-----------|------|
 | `$20` / `$22` | W | H-delta cleared; X snapped |
 
-**Cross-References**
+**Cross-References:**
 
 | Symbol | Relationship |
 |--------|--------------|
@@ -2221,29 +1447,18 @@ SnapXDiagCollision {
 
 ### DiagLadderTile
 
-| Property | Value |
-|----------|-------|
-| **Name** | `DiagLadderTile` |
-| **Address** | `$02DC2C` |
-| **Decimal** | 187436 |
-| **Size** | 29 bytes |
-| **Type** | Code |
-| **ASM file** | `player_move_diag.asm` |
-
-**Description**
-
 Tile `$07` down-left: Y-aligned redirect to `ShimmyLeftEntry`.
 
-**Source**
+**Source:**
 
-```126:138:extracted/system/engine/player_move_diag.asm
+```126:138:../../../extracted/system/engine/player_move_diag.asm
   DiagLadderTile:
     JSR $&tile_collision.CheckSubTileAlignY
     ...
     BRA loc_02DC03
 ```
 
-**Cross-References**
+**Cross-References:**
 
 | Symbol | Relationship |
 |--------|--------------|
@@ -2251,22 +1466,11 @@ Tile `$07` down-left: Y-aligned redirect to `ShimmyLeftEntry`.
 
 ### DiagWallSouthFromDL
 
-| Property | Value |
-|----------|-------|
-| **Name** | `DiagWallSouthFromDL` |
-| **Address** | `$02DC49` |
-| **Decimal** | 187465 |
-| **Size** | 84 bytes |
-| **Type** | Code |
-| **ASM file** | `player_move_diag.asm` |
-
-**Description**
-
 Tile `$06` from down-left. Sets `$AB.$80`; future TL probe; right/down cell cascade. Resolves via `ComputeDiagSnapOffset` → `DiagPushRight`.
 
-**Source**
+**Source:**
 
-```140:193:extracted/system/engine/player_move_diag.asm
+```140:193:../../../extracted/system/engine/player_move_diag.asm
   DiagWallSouthFromDL:
     SEP #$20
 }
@@ -2279,7 +1483,7 @@ code_02DC4B {
 }
 ```
 
-**Cross-References**
+**Cross-References:**
 
 | Symbol | Relationship |
 |--------|--------------|
@@ -2288,22 +1492,11 @@ code_02DC4B {
 
 ### DiagWallNorthFromDL
 
-| Property | Value |
-|----------|-------|
-| **Name** | `DiagWallNorthFromDL` |
-| **Address** | `$02DC9D` |
-| **Decimal** | 187549 |
-| **Size** | 86 bytes |
-| **Type** | Code |
-| **ASM file** | `player_move_diag.asm` |
-
-**Description**
-
 Tile `$09` from down-left. Sets `$AB.$80`; future BL probe; left/down cell cascade. Resolves via `ComputeDiagSnapOffset` → `DiagPushLeft`.
 
-**Source**
+**Source:**
 
-```195:249:extracted/system/engine/player_move_diag.asm
+```195:249:../../../extracted/system/engine/player_move_diag.asm
 DiagWallNorthFromDL {
     SEP #$20
 }
@@ -2316,31 +1509,20 @@ code_02DC9F {
 }
 ```
 
-**Cross-References**
+**Cross-References:**
 
 | Symbol | Relationship |
 |--------|--------------|
 | `DiagPushLeft` / `ComputeDiagSnapOffset` | Resolution |
 | `DiagRedirectToNorth` | Entry redirect |
 
-### Group H: Up-Left / Remaining Diagonals
+#### Group H: Up-Left / Remaining Diagonals
 
 ### DiagRampUpLeft
 
-| Property | Value |
-|----------|-------|
-| **Name** | `DiagRampUpLeft` |
-| **Address** | `$02DCF3` |
-| **Decimal** | 187635 |
-| **Size** | 271 bytes |
-| **Type** | Code |
-| **ASM file** | `player_move_diag.asm` |
-
-**Description**
-
 Complex up-left slope ramp. Multi-probe for tile `$05`; `CheckTileBoundaryXor` gate; sub-pixel Y correction with carry-adjusted `$26`; sets `$1000` ramp flag; boundary collision snap fallback.
 
-**Algorithm**
+**Algorithm:**
 
 | Step | Action |
 |------|--------|
@@ -2349,9 +1531,9 @@ Complex up-left slope ramp. Multi-probe for tile `$05`; `CheckTileBoundaryXor` g
 | 3 | Set ramp flag; probe future TL/BL |
 | 4 | Apply or hard boundary snap |
 
-**Source**
+**Source:**
 
-```251:392:extracted/system/engine/player_move_diag.asm
+```251:392:../../../extracted/system/engine/player_move_diag.asm
 DiagRampUpLeft {
     JSR $&DiagClearReturnFlags
     JSR $&tile_collision.ProbeCurrentTL
@@ -2360,7 +1542,7 @@ DiagRampUpLeft {
 }
 ```
 
-**Variables**
+**Variables:**
 
 | Location | Direction | Role |
 |----------|-----------|------|
@@ -2368,7 +1550,7 @@ DiagRampUpLeft {
 | `$26` | W | Y correction |
 | `$09AE` | W | Ramp flag |
 
-**Cross-References**
+**Cross-References:**
 
 | Symbol | Relationship |
 |--------|--------------|
@@ -2377,22 +1559,11 @@ DiagRampUpLeft {
 
 ### DiagRampEdgeUL
 
-| Property | Value |
-|----------|-------|
-| **Name** | `DiagRampEdgeUL` |
-| **Address** | `$02DE02` |
-| **Decimal** | 187906 |
-| **Size** | 65 bytes |
-| **Type** | Code |
-| **ASM file** | `player_move_diag.asm` |
-
-**Description**
-
 Up-left ramp edge case. Offset probe at `$1A-$09`; tile `$05` boundary check; computes `$24` from X sub-tile for partial ramp entry.
 
-**Source**
+**Source:**
 
-```406:442:extracted/system/engine/player_move_diag.asm
+```406:442:../../../extracted/system/engine/player_move_diag.asm
 DiagRampEdgeUL {
     JSR $&DiagClearReturnFlags
     LDA $1A
@@ -2401,64 +1572,20 @@ DiagRampEdgeUL {
 }
 ```
 
-**Cross-References**
+**Cross-References:**
 
 | Symbol | Relationship |
 |--------|--------------|
 | `DiagRampUpLeft` | Shared finalize |
 | `DispatchDiagDownLeft` | TR `$05` entry |
 
-### DiagRedirectToSouth
-
-| Property | Value |
-|----------|-------|
-| **Name** | `DiagRedirectToSouth` |
-| **Address** | `$02DE43` |
-| **Decimal** | 187971 |
-| **Size** | 14 bytes |
-| **Type** | Code |
-| **ASM file** | `player_move_diag.asm` |
-
-**Description**
-
-Ramp fallback: future TL `$06` → `DiagWallSouthFromDL` or free move.
-
-**Source**
-
-```444:452:extracted/system/engine/player_move_diag.asm
-DiagRedirectToSouth {
-    JSR $&tile_collision.ProbeFutureTL
-    CMP #$0006
-    BNE loc_02DE4E
-    JMP $&DiagWallSouthFromDL
-    ...
-}
-```
-
-**Cross-References**
-
-| Symbol | Relationship |
-|--------|--------------|
-| `DiagRampUpLeft` | Caller |
-
 ### DiagRampDownRight
-
-| Property | Value |
-|----------|-------|
-| **Name** | `DiagRampDownRight` |
-| **Address** | `$02DE51` |
-| **Decimal** | 187985 |
-| **Size** | 267 bytes |
-| **Type** | Code |
-| **ASM file** | `player_move_diag.asm` |
-
-**Description**
 
 Mirror of `DiagRampUpLeft`. Tile `$0A` probes; inverted Y math for down-right diagonal ramp.
 
-**Source**
+**Source:**
 
-```454:593:extracted/system/engine/player_move_diag.asm
+```454:593:../../../extracted/system/engine/player_move_diag.asm
 DiagRampDownRight {
     JSR $&DiagClearReturnFlags
     JSR $&tile_collision.ProbeCurrentBL
@@ -2467,7 +1594,7 @@ DiagRampDownRight {
 }
 ```
 
-**Cross-References**
+**Cross-References:**
 
 | Symbol | Relationship |
 |--------|--------------|
@@ -2475,22 +1602,11 @@ DiagRampDownRight {
 
 ### DiagRampEdgeDR
 
-| Property | Value |
-|----------|-------|
-| **Name** | `DiagRampEdgeDR` |
-| **Address** | `$02DF5C` |
-| **Decimal** | 188252 |
-| **Size** | 61 bytes |
-| **Type** | Code |
-| **ASM file** | `player_move_diag.asm` |
-
-**Description**
-
 Down-right ramp edge case. Mirror of `DiagRampEdgeUL` for tile `$0A`.
 
-**Source**
+**Source:**
 
-```607:641:extracted/system/engine/player_move_diag.asm
+```607:641:../../../extracted/system/engine/player_move_diag.asm
 DiagRampEdgeDR {
     JSR $&DiagClearReturnFlags
     LDA $1A
@@ -2499,64 +1615,20 @@ DiagRampEdgeDR {
 }
 ```
 
-**Cross-References**
+**Cross-References:**
 
 | Symbol | Relationship |
 |--------|--------------|
 | `DiagRampDownRight` | Shared finalize |
 | `DiagRampEdgeUL` | Mirror edge handler |
 
-### DiagRedirectToNorth
-
-| Property | Value |
-|----------|-------|
-| **Name** | `DiagRedirectToNorth` |
-| **Address** | `$02DF99` |
-| **Decimal** | 188313 |
-| **Size** | 14 bytes |
-| **Type** | Code |
-| **ASM file** | `player_move_diag.asm` |
-
-**Description**
-
-Ramp fallback: future BL `$09` → `DiagWallNorthFromDL` or free move.
-
-**Source**
-
-```643:651:extracted/system/engine/player_move_diag.asm
-DiagRedirectToNorth {
-    JSR $&tile_collision.ProbeFutureBL
-    CMP #$0009
-    BNE loc_02DFA4
-    JMP $&DiagWallNorthFromDL
-    ...
-}
-```
-
-**Cross-References**
-
-| Symbol | Relationship |
-|--------|--------------|
-| `DiagRampDownRight` | Caller |
-
-### Group I: Diagonal Auto-Align & Fine Adjust
+#### Group I: Diagonal Auto-Align & Fine Adjust
 
 ### DiagAutoAlignNS
 
-| Property | Value |
-|----------|-------|
-| **Name** | `DiagAutoAlignNS` |
-| **Address** | `$02DFA7` |
-| **Decimal** | 188327 |
-| **Size** | 79 bytes |
-| **Type** | Code |
-| **ASM file** | `player_move_diag.asm` |
-
-**Description**
-
 NS nudge when EW blocked (diagonal). Stack re-entrancy guard; Y sub-tile probes future BL/TL; nudges `$26` via grid helpers.
 
-**Algorithm**
+**Algorithm:**
 
 | Step | Action |
 |------|--------|
@@ -2565,9 +1637,9 @@ NS nudge when EW blocked (diagonal). Stack re-entrancy guard; Y sub-tile probes 
 | 3 | Nudge `$26` lower/upper |
 | 4 | CLC/SEC return |
 
-**Source**
+**Source:**
 
-```653:696:extracted/system/engine/player_move_diag.asm
+```653:696:../../../extracted/system/engine/player_move_diag.asm
 DiagAutoAlignNS {
     PHP 
     REP #$20
@@ -2577,7 +1649,7 @@ DiagAutoAlignNS {
 }
 ```
 
-**Cross-References**
+**Cross-References:**
 
 | Symbol | Relationship |
 |--------|--------------|
@@ -2586,22 +1658,11 @@ DiagAutoAlignNS {
 
 ### ComputeDiagSnapOffset
 
-| Property | Value |
-|----------|-------|
-| **Name** | `ComputeDiagSnapOffset` |
-| **Address** | `$02DFF6` |
-| **Decimal** | 188406 |
-| **Size** | 106 bytes |
-| **Type** | Code |
-| **ASM file** | `player_move_diag.asm` |
-
-**Description**
-
 EW snap for diagonal. Probes current TL; on `$09` or aligned right-cell `$06`, computes inverted X sub-tile offset with H-delta parity into `$02`.
 
-**Source**
+**Source:**
 
-```698:764:extracted/system/engine/player_move_diag.asm
+```698:764:../../../extracted/system/engine/player_move_diag.asm
 ComputeDiagSnapOffset {
     REP #$20
     STZ $02
@@ -2611,7 +1672,7 @@ ComputeDiagSnapOffset {
 }
 ```
 
-**Variables**
+**Variables:**
 
 | Location | Direction | Role |
 |----------|-----------|------|
@@ -2619,7 +1680,7 @@ ComputeDiagSnapOffset {
 | `$1A` | R | Probe X sub-tile |
 | `$20` | R | H-delta parity |
 
-**Cross-References**
+**Cross-References:**
 
 | Symbol | Relationship |
 |--------|--------------|
@@ -2628,20 +1689,9 @@ ComputeDiagSnapOffset {
 
 ### DiagPushLeft
 
-| Property | Value |
-|----------|-------|
-| **Name** | `DiagPushLeft` |
-| **Address** | `$02E060` |
-| **Decimal** | 188512 |
-| **Size** | 75 bytes |
-| **Type** | Code |
-| **ASM file** | `player_move_diag.asm` |
-
-**Description**
-
 Left-push realignment after diagonal collision. Y sub-tile distance + `$02`; may set `$24` for residual vertical slide or clear `$20`/`$AA` flags when stack guard matches.
 
-**Algorithm**
+**Algorithm:**
 
 | Step | Action |
 |------|--------|
@@ -2649,9 +1699,9 @@ Left-push realignment after diagonal collision. Y sub-tile distance + `$02`; may
 | 2 | Check stack `$03,S` vs H-delta magnitude |
 | 3 | Match: clear stack + `$20`; else set `$24` slide |
 
-**Source**
+**Source:**
 
-```766:814:extracted/system/engine/player_move_diag.asm
+```766:814:../../../extracted/system/engine/player_move_diag.asm
 DiagPushLeft {
     LDA $26
     ...
@@ -2659,7 +1709,7 @@ DiagPushLeft {
 }
 ```
 
-**Variables**
+**Variables:**
 
 | Location | Direction | Role |
 |----------|-----------|------|
@@ -2667,7 +1717,7 @@ DiagPushLeft {
 | `$20` / `$AA` | W | Cleared on flag truncate |
 | `$03,S` | R/W | Stack guard byte |
 
-**Cross-References**
+**Cross-References:**
 
 | Symbol | Relationship |
 |--------|--------------|
@@ -2676,22 +1726,11 @@ DiagPushLeft {
 
 ### DiagPushRight
 
-| Property | Value |
-|----------|-------|
-| **Name** | `DiagPushRight` |
-| **Address** | `$02E0AB` |
-| **Decimal** | 188587 |
-| **Size** | 79 bytes |
-| **Type** | Code |
-| **ASM file** | `player_move_diag.asm` |
-
-**Description**
-
 Right-push realignment. Mirror of `DiagPushLeft` with inverted Y distance metric and `$0440` flag truncation on `$AA`.
 
-**Source**
+**Source:**
 
-```816:866:extracted/system/engine/player_move_diag.asm
+```816:866:../../../extracted/system/engine/player_move_diag.asm
 DiagPushRight {
     LDA $26
     ...
@@ -2699,7 +1738,7 @@ DiagPushRight {
 }
 ```
 
-**Cross-References**
+**Cross-References:**
 
 | Symbol | Relationship |
 |--------|--------------|
@@ -2708,38 +1747,20 @@ DiagPushRight {
 
 ### DiagClearReturnFlags
 
-| Property | Value |
-|----------|-------|
-| **Name** | `DiagClearReturnFlags` |
-| **Address** | `$02E0FA` |
-| **Decimal** | 188666 |
-| **Size** | 8 bytes |
-| **Type** | Code |
-| **ASM file** | `player_move_diag.asm` |
+Clears stack frame byte `$05,S` to zero before ramp handlers redirect actor state. Called by diagonal ramp entry/edge paths and west wall diagonal handlers to reset a return-flag slot on the stack.
 
-**Description**
+**Source:**
 
-Clears stack frame flag `$05,S` used by ramp handlers before actor state redirect.
-
-**Source**
-
-```868:873:extracted/system/engine/player_move_diag.asm
-DiagClearReturnFlags {
-    REP #$20
-    LDA #$0000
-    STA $05, S
-    RTS 
-}
+```869:874:../../../extracted/system/engine/player_move_diag.asm
 ```
 
-**Cross-References**
+**Cross-References:**
 
 | Symbol | Relationship |
 |--------|--------------|
-| All ramp handlers | Called at ramp entry |
-| `WestLadderTile` / `DiagLadderTile` | Ladder entry |
-
----
+| `DiagRampUpLeft` / `DiagRampDownRight` | Callers |
+| `DiagRampEdgeUL` / `DiagRampEdgeDR` | Callers |
+| `WestWallNorthDiag` / `WestWallSouthDiag` | Callers (via long call) |
 
 ## Collision Cascade Pattern
 
@@ -2770,7 +1791,7 @@ Nearly every movement handler follows the same multi-stage pipeline:
 
 **Snap collision** routines align the blocked axis to the next tile boundary (`AND #$FFC0` + boundary offset), zero the corresponding delta, and clear `player_speed_*`.
 
----
+
 
 ## Key Patterns
 
@@ -2805,7 +1826,7 @@ South/east handlers use inverted arithmetic compared to north/west variants.
 
 `DiagSnapCompute_Unused` (104 bytes at `$02D257`) has no callers in the extracted ROM.
 
----
+
 
 ## Cross-File Call Graph
 
@@ -2895,64 +1916,10 @@ flowchart TD
 | All dispatchers | `tile_collision.*` | Probe, navigate, finalize |
 | `DispatchWestMove`, `DispatchDiagDownLeft` | `map_coords.ProbeLeft/RightTiles` | Ramp pre-detection |
 
----
 
-## Summary Statistics
-
-| Metric | Value |
-|--------|-------|
-| ROM span | `$02CFD0` – `$02E0FA` (4,402 bytes) |
-| ASM files | 4 movement units (+ `tile_collision` dependency) |
-| Named routines | 66 |
-| Unused code | `DiagSnapCompute_Unused` (104 bytes) |
-| Duplicated stubs | 6 × `ClearSpeed*` (36 bytes) |
-| Ramp handlers | 8 |
-| Slope handlers | 4 + `$09C6` accumulator |
-| Wall interaction handlers | 10 |
-| Auto-align routines | 4 |
-| Snap routines | 4 |
-| Fine-adjust routines | 4 |
-
-### Size Distribution
-
-| File | Parts | Total Size | % of Engine |
-|------|-------|------------|-------------|
-| `player_move_main` | 6 | 408 | 9.3% |
-| `player_move_ns` | 11 | 526 | 11.9% |
-| `player_move_ew` | 33 | 2,058 | 46.8% |
-| `player_move_diag` | 16 | 1,410 | 32.0% |
-| **Grand total** | **66** | **4,402** | **100%** |
-
-### Largest Routines (Top 10)
-
-| Rank | Name | File | Size |
-|------|------|------|------|
-| 1 | `DiagRampUpLeft` | diag | 271 |
-| 2 | `DiagRampDownRight` | diag | 267 |
-| 3 | `EastRampDown` | ew | 260 |
-| 4 | `WestRampDown` | ew | 252 |
-| 5 | `DispatchDiagDownLeft` | diag | 144 |
-| 6 | `DispatchWestMove` | ew | 132 |
-| 7 | `DispatchSouthMove` | ns | 132 |
-| 8 | `AutoAlignEW` | main | 124 |
-| 9 | `AutoAlignNS_East` | ew | 117 |
-| 10 | `DispatchEastMove` | ew | 116 |
-
-### Tick Execution Order
-
-Each frame, `PlayerMovementTick` processes movement in fixed order:
-
-1. **Horizontal pass** — `$20` → diagonal-down-left or west; commit `$22`; clear `$20`.
-2. **Vertical pass** — restored `$24` → south or east (respecting `$AA` suppress flags); commit `$26`.
-
-Horizontal resolves before vertical, which is why EW wall handlers adjust Y while NS handlers adjust X when sliding along walls.
-
----
 
 ## See Also
 
 - [`camera-and-map.md`](camera-and-map.md) — `tile_collision` probe geometry, collision type table, `$7FC000` overlay
 - [`../bank00/direction-collision.md`](../bank00/direction-collision.md) — COP-driven dynamic collision (`$F0` high nibble)
 - [`../bank00/data-tables-memory.md`](../bank00/data-tables-memory.md) — `$09AA`–`$09B6` player state WRAM map
-
-

@@ -410,7 +410,7 @@ item_icon_next {
 --------------------------------------------------
 ;Allow both static sprites and temporary sprites
 
-func_03C78B! {
+RenderComposeBuffer! {
     LDX #$0000
     TXY 
 
@@ -434,7 +434,7 @@ loc_03E04E! {
     JML item_icon_stub
 }
 
-func_03DECD! {
+LoadHudTilemap! {
     LDA $09ED
     BIT #$40
     BEQ loc_03DED5

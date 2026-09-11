@@ -1,6 +1,6 @@
 ?BANK 02
 
-?INCLUDE 'chunk_03BAE1'
+?INCLUDE 'dialogue_engine'
 ?INCLUDE 'dictionary_01EBA8'
 ?INCLUDE 'dictionary_01F54D'
 
@@ -40,7 +40,7 @@ MeasureDialogueWidth {
     PLB 
     LDY #$&dialogue_measure_format
     REP #$20
-    JSL $@chunk_03BAE1.sub_03E255
+    JSL $@dialogue_engine.WideStringRenderer
     PLY 
     PLB 
     SEP #$20
@@ -50,7 +50,7 @@ MeasureDialogueWidth {
     CLC 
     ADC $0998
     STA $0998
-    JSL $@chunk_03BAE1.sub_03E255
+    JSL $@dialogue_engine.WideStringRenderer
     PLB 
     PLP 
     RTL 

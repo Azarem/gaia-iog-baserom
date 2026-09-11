@@ -1,6 +1,7 @@
 ?BANK 00
 
-?INCLUDE 'chunk_03BAE1'
+?INCLUDE 'dialogue_engine'
+?INCLUDE 'hud_inventory'
 ?INCLUDE 'system_core'
 
 !L_wramFlags                    000A80
@@ -224,7 +225,7 @@ RunBg3Script {
     REP #$20
     LDA #$0000
     TCD 
-    JSL $@chunk_03BAE1.func_03EA62
+    JSL $@hud_inventory.AsciiStringRenderer
     PLB 
     PLA 
     TAX 
@@ -271,7 +272,7 @@ DialogueOptions {
     LDA [$0A]
     INC $0A
     INC $0A
-    JSL $@chunk_03BAE1.func_03E849
+    JSL $@dialogue_engine.MenuSelectionHandler
     ASL 
     PHA 
     LDA [$0A]
@@ -327,7 +328,7 @@ PrintWideString {
     INC $0A
     INC $0A
     TAY 
-    JSL $@chunk_03BAE1.sub_03E255
+    JSL $@dialogue_engine.WideStringRenderer
     PLB 
     PLA 
     STA $joypadMaskStd
@@ -363,7 +364,7 @@ PrintWideStringAlt {
     INC $0A
     INC $0A
     TAY 
-    JSL $@chunk_03BAE1.sub_03E255
+    JSL $@dialogue_engine.WideStringRenderer
     PLB 
     PLA 
     STA $joypadMaskStd
@@ -748,7 +749,7 @@ GiveItem {
     LDA [$0A]
     INC $0A
     AND #$00FF
-    JSL $@chunk_03BAE1.func_03EF97
+    JSL $@hud_inventory.GiveItemToPlayer
     BCS loc_00AC1E
     LDA [$0A]
     INC $0A
@@ -770,7 +771,7 @@ RemoveItem {
     LDA [$0A]
     INC $0A
     AND #$00FF
-    JSL $@chunk_03BAE1.func_03F08D
+    JSL $@hud_inventory.RemoveItemFromInventory
     LDA $0A
     STA $02, S
     RTI 
@@ -781,7 +782,7 @@ BranchIfMissingItem {
     LDA [$0A]
     INC $0A
     AND #$00FF
-    JSL $@chunk_03BAE1.func_03F0B3
+    JSL $@hud_inventory.CheckInventoryForItem
     BCC loc_00AC51
     LDA [$0A]
     INC $0A

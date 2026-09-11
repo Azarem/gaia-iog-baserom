@@ -1,7 +1,7 @@
 ?BANK 00
 
-?INCLUDE 'chunk_03BAE1'
 ?INCLUDE 'hardware_math'
+?INCLUDE 'sprite_composition'
 
 !chatPtr                        7F000A
 !animScratch2                   7F000E
@@ -539,7 +539,7 @@ ResolveFollowDirectionAlt {
     TYX 
     TYA 
     TCD 
-    JSL $@chunk_03BAE1.func_03CA55
+    JSL $@sprite_composition.UpdateActorAnimation
     PLA 
     TXY 
     TAX 

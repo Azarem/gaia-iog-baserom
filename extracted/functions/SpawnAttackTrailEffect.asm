@@ -1,4 +1,4 @@
-?INCLUDE 'chunk_03BAE1'
+?INCLUDE 'oam_digit_compose'
 
 ---------------------------------------------
 
@@ -36,7 +36,7 @@ SpawnAttackTrailEffect {
     STA $22
     LDA $28
     STA $0000
-    JSL $@chunk_03BAE1.func_03BAF1
+    JSL $@oam_digit_compose.ComposeDigitSprites
     COP [LoopNext]
     COP [Die]
 }

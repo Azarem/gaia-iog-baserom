@@ -1,7 +1,7 @@
-?INCLUDE 'chunk_03BAE1'
 ?INCLUDE 'cop_handlers_actors'
 ?INCLUDE 'dark_space_palette'
 ?INCLUDE 'player_character'
+?INCLUDE 'save_system'
 ?INCLUDE 'table_0EE000'
 
 !sceneNext                      0642
@@ -509,7 +509,7 @@ code_list_08DBAB [
 
 code_08DBB1 {
     LDA $0D8C
-    JSL $@chunk_03BAE1.func_03D916
+    JSL $@save_system.SaveGameState_Scene
     COP [PlaySoundCh1] ( #29 )
     LDA #$FFF0
     TSB $joypadMaskStd

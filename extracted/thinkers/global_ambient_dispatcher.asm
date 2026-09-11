@@ -1,4 +1,5 @@
-?INCLUDE 'chunk_03BAE1'
+?INCLUDE 'GetPlayerFacingDirection'
+?INCLUDE 'sprite_composition'
 
 !joypadCurrent                  0656
 !joypadHeld                     0658
@@ -65,7 +66,7 @@ code_00BFAE {
 }
 
 code_00BFD4 {
-    JSL $@chunk_03BAE1.func_03F0CA
+    JSL $@GetPlayerFacingDirection
     BCC loc_00BFDC
     PLD 
     RTL 
@@ -202,7 +203,7 @@ code_00BFD4 {
     JSR $&code_00C182
     STA $28
     STZ $2A
-    JSL $@chunk_03BAE1.func_03CA55
+    JSL $@sprite_composition.UpdateActorAnimation
     SEP #$20
     PHK 
     PEA $&code_00C0ED-1

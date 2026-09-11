@@ -1,5 +1,5 @@
 ?INCLUDE 'ApplyOrbitalOffsetFromRef'
-?INCLUDE 'chunk_03BAE1'
+?INCLUDE 'GetPlayerFacingDirection'
 ?INCLUDE 'sE6_gaia'
 ?INCLUDE 'table_0EDA00'
 ?INCLUDE 'table_0EE000'
@@ -24,7 +24,7 @@ btE4_kara [
     COP [SetOnInteract] ( &code_098DEA )
     COP [ExitIfFlagByte] ( #0E, #01 )
     COP [SetOnInteract] ( #$0000 )
-    JSL $@chunk_03BAE1.func_03F0CA
+    JSL $@GetPlayerFacingDirection
     EOR #$0001
     CLC 
     ADC #$001A

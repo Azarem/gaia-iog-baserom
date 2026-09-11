@@ -1,6 +1,6 @@
-?INCLUDE 'chunk_03BAE1'
 ?INCLUDE 'cop_handlers_script'
 ?INCLUDE 'inventory_spritemap'
+?INCLUDE 'sprite_composition'
 ?INCLUDE 'statue_inventory_reward'
 
 !inventoryTabIndex              0AFA
@@ -46,7 +46,7 @@ code_00CF63 {
     STA $28
     STZ $2A
     PLX 
-    JSL $@chunk_03BAE1.func_03CA55
+    JSL $@sprite_composition.UpdateActorAnimation
     LDA #$2000
     TRB $10
     COP [SetEntryContinue]
