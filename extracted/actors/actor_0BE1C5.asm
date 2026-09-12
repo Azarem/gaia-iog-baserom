@@ -1,5 +1,5 @@
-?INCLUDE 'dialogue_engine'
 ?INCLUDE 'system_core'
+?INCLUDE 'WideStringRenderer'
 
 !worldReadyFlag                 0654
 
@@ -76,7 +76,7 @@ actor_0BE1C5 [
     SEP #$20
     JSL $@system_core.UpdateFrameRender
     REP #$20
-    JSL $@dialogue_engine.WideStringRenderer
+    JSL $@WideStringRenderer
     PLY 
     BRA loc_0BE1EB
 } >

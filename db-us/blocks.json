@@ -89,7 +89,7 @@
         "player_move_ew": { "start": 185206, "end": 187264, "type": "Code", "scene": "engine" },
         "player_move_diag": { "start": 187264, "end": 188674, "type": "Code", "scene": "engine" },
         "tile_collision": { "start": 188674, "end": 189334, "type": "Code", "scene": "engine" },
-        "overworld_input_handler": { "start": 229376, "end": 229567, "type": "Code", "scene": "engine" },
+        "OverworldInputHandler": { "start": 229376, "end": 229567, "type": "Code", "scene": "engine" },
         "radar_map_screen": { "start": 229567, "end": 230416, "type": "Code", "scene": "engine" },
         "item_use_system": { "start": 230416, "end": 237738, "type": "Code", "scene": "engine" },
         "oam_digit_compose": { "start": 244449, "end": 244613, "type": "Code", "scene": "engine" },
@@ -104,7 +104,8 @@
             "LoadPaletteBundle": { "start": 254128, "end": 254549, "type": "Code" },
             "DmaAdhocVramBlock": { "start": 258512, "end": 258561, "type": "Code" }
         } },
-        "dialogue_engine": { "start": 254549, "end": 256610, "type": "Code", "scene": "engine" },
+        "WideStringRenderer": { "start": 254549, "end": 256073, "type": "Code", "scene": "engine" },
+        "MenuSelectionHandler": { "start": 256073, "end": 256610, "type": "Code", "scene": "engine" },
         "AsciiStringRenderer": { "start": 256610, "end": 257943, "type": "Code", "scene": "engine" },
         "inventory_mgmt": { "start": 257943, "end": 258250, "type": "Code", "scene": "inventory" },
         "GetPlayerFacingDirection": { "start": 258250, "end": 258512, "type": "Code", "scene": "engine" },

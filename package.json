@@ -1,6 +1,6 @@
 {
     "name": "@gaialabs/iog-baserom",
-    "version": "0.2.1",
+    "version": "0.2.2",
     "type": "module",
     "description": "GaiaLabs IOG Base ROM",
     "funding": "https://github.com/sponsors/Azarem",
@@ -28,12 +28,13 @@
         "clean-install": "rm -rf node_modules && rm -rf package-lock.json && npm install",
         "publish": "tsdown && npm publish --access public",
         "extract": "rm -rf extracted/* && node --env-file=.env.local src/index.ts extract",
+        "extract:lt": "rm -rf extracted/* && node --env-file=.env.local src/index.ts extract --linetracking",
         "extract-jp": "rm -rf extracted-jp && node --env-file=.env.local src/index.ts extract-jp",
         "rebuild": "node src/index.ts rebuild",
         "rebuild-jp": "node src/index.ts rebuild-jp"
     },
     "dependencies": {
-        "@gaialabs/core": "1.0.2"
+        "@gaialabs/core": "1.0.3"
     },
     "devDependencies": {
         "@prisma/adapter-pg": "^7.6.0",

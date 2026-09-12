@@ -1,9 +1,10 @@
 ?BANK 00
 
 ?INCLUDE 'AsciiStringRenderer'
-?INCLUDE 'dialogue_engine'
 ?INCLUDE 'inventory_mgmt'
+?INCLUDE 'MenuSelectionHandler'
 ?INCLUDE 'system_core'
+?INCLUDE 'WideStringRenderer'
 
 !L_wramFlags                    000A80
 !worldReadyFlag                 0654
@@ -273,7 +274,7 @@ DialogueOptions {
     LDA [$0A]
     INC $0A
     INC $0A
-    JSL $@dialogue_engine.MenuSelectionHandler
+    JSL $@MenuSelectionHandler
     ASL 
     PHA 
     LDA [$0A]
@@ -329,7 +330,7 @@ PrintWideString {
     INC $0A
     INC $0A
     TAY 
-    JSL $@dialogue_engine.WideStringRenderer
+    JSL $@WideStringRenderer
     PLB 
     PLA 
     STA $joypadMaskStd
@@ -365,7 +366,7 @@ PrintWideStringAlt {
     INC $0A
     INC $0A
     TAY 
-    JSL $@dialogue_engine.WideStringRenderer
+    JSL $@WideStringRenderer
     PLB 
     PLA 
     STA $joypadMaskStd

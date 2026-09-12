@@ -21,7 +21,7 @@
 ?INCLUDE 'cop_dispatch'
 ?INCLUDE 'event_blocks'
 ?INCLUDE 'hdma_dma_spc'
-?INCLUDE 'overworld_input_handler'
+?INCLUDE 'OverworldInputHandler'
 ?INCLUDE 'scene_lifecycle'
 ?INCLUDE 'spc_transfer'
 ?INCLUDE 'sprite_composition'
@@ -214,7 +214,7 @@ SystemInit {
     JSL $@actor_execution.RunThinkers_TypeA
     JSL $@scene_lifecycle.CheckSceneTransition
     JSL $@warps_interaction.CheckWarpAndChest
-    JSL $@overworld_input_handler.OverworldInputHandler
+    JSL $@OverworldInputHandler
     JSR $&UpdateFrameCounters
     JSL $@actor_execution.RunActors_Normal
     LDX $00D8             ; OAM write index — end-of-sprite-list position

@@ -91,11 +91,13 @@ export const jp : DbGameRomModule = {
     partNotes: partNotesJP
 };
 
-export async function extract(romPath: string, outPath: string) {
+export async function extract(romPath: string, outPath: string, options: Record<string, boolean>) {
     if (!romPath) romPath = process.env.ROM_PATH;
     if(!outPath) outPath = './extracted';
 
     var dbRoot = DbRootUtils.fromGameModule(db);
+
+    if(options.linetracking) dbRoot.config.emitLineTracking = true;
 
     await DbRootUtils.extractAllContent(dbRoot, romPath, outPath);
 }
@@ -160,6 +162,21 @@ if (isMainModule) {
     const command = process.argv[2];
     const args = process.argv.slice(3);
 
+    const flags = [];
+    for(let index = 0; index < args.length; index++) {
+        const arg = args[index];
+        if(arg.startsWith('--')) {
+            flags.push(arg.slice(2).toLowerCase());
+            args.splice(index, 1);
+            index--;
+        }
+    }
+
+    const options = flags.reduce((acc, flag) => {
+        acc[flag] = true;
+        return acc;
+    }, {});
+
     (async () => {
         try {
             switch (command) {
@@ -167,7 +184,7 @@ if (isMainModule) {
                     console.log('Starting ROM extraction...');
                     console.log('ROM Path:', args[0]);
                     console.log('Output Path:', args[1] || '../extracted');
-                    await extract(args[0], args[1]);
+                    await extract(args[0], args[1], options);
                     console.log('ROM extraction completed successfully!');
                     break;
                 case 'extract-jp':

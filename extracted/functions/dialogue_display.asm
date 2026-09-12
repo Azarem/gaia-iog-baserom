@@ -1,5 +1,5 @@
-?INCLUDE 'dialogue_engine'
 ?INCLUDE 'system_core'
+?INCLUDE 'WideStringRenderer'
 
 !joypadMaskStd                  065A
 
@@ -18,7 +18,7 @@ ShowDialogueFrame {
     PLB 
     JSL $@system_core.UpdateFrameRender
     REP #$20
-    JSL $@dialogue_engine.WideStringRenderer
+    JSL $@WideStringRenderer
     PLA 
     STA $joypadMaskStd
     PLB 

@@ -1,8 +1,8 @@
 ?BANK 02
 
-?INCLUDE 'dialogue_engine'
 ?INCLUDE 'dictionary_01EBA8'
 ?INCLUDE 'dictionary_01F54D'
+?INCLUDE 'WideStringRenderer'
 
 !sceneCurrent                   0644
 
@@ -40,7 +40,7 @@ MeasureDialogueWidth {
     PLB 
     LDY #$&dialogue_measure_format
     REP #$20
-    JSL $@dialogue_engine.WideStringRenderer
+    JSL $@WideStringRenderer
     PLY 
     PLB 
     SEP #$20
@@ -50,7 +50,7 @@ MeasureDialogueWidth {
     CLC 
     ADC $0998
     STA $0998
-    JSL $@dialogue_engine.WideStringRenderer
+    JSL $@WideStringRenderer
     PLB 
     PLP 
     RTL 

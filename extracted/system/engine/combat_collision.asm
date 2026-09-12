@@ -122,29 +122,29 @@
 ; This allows actors to react to the player's dodge/attack button press — used by interactive objects and enemy dodge behaviors.
 
 ProcessDodgeCallbacks {
-    PHP                   ; Save processor status — restored at PLP before RTL exit
-    REP #$20              ; 16-bit accumulator for joypad and actor data access
-    LDA $joypadCurrent    ; Load current joypad button state from $0656
-    BIT #$8000            ; Bit 15 ($8000) = B button (attack/dodge input)
-    BEQ loc_03BBB2        ; B button not pressed → skip dodge callback processing entirely
-    LDY #$0000            ; Start at render list index 0 for actor iteration
+    PHP 
+    REP #$20
+    LDA $joypadCurrent
+    BIT #$8000            ; $8000 = B button (attack/dodge input)
+    BEQ loc_03BBB2
+    LDY #$0000
 
   loc_03BB93:
-    LDX $0C00, Y          ; Load actor slot pointer from render list entry $0C00,Y
-    BEQ loc_03BBB2        ; Null pointer = end of render list → exit
-    INY                   ; Advance render list index by 2 (word-sized entries)
+    LDX $0C00, Y
+    BEQ loc_03BBB2
     INY 
-    LDA $0010, X          ; Load actor primary flags ($10) for eligibility check
-    BIT #$D460            ; Mask $D460 = death|orb|COP|overlay|pause — any set means skip
-    BNE loc_03BB93        ; Actor has exclusion flags → try next actor in list
-    LDA $onDodgeCallback, X ; Load onDodgeCallback ($7F1002,X) — custom dodge response handler
-    BEQ loc_03BB93        ; No callback registered → skip to next actor
-    STA $0000, X          ; Overwrite actor entry point ($0000,X) with dodge callback address
-    LDA #$0000            ; Clear the dodge callback to prevent re-triggering next frame
-    STA $onDodgeCallback, X ; Write zero to onDodgeCallback ($7F1002,X)
+    INY 
+    LDA $0010, X
+    BIT #$D460            ; $D460 = death|orb|COP|overlay|pause — skip if any set
+    BNE loc_03BB93
+    LDA $onDodgeCallback, X
+    BEQ loc_03BB93
+    STA $0000, X          ; Overwrite actor entry point with dodge callback; clear to prevent re-trigger
+    LDA #$0000
+    STA $onDodgeCallback, X
 
   loc_03BBB2:
-    PLP                   ; Restore processor flags and return from dodge processing
+    PLP 
     RTL 
 }
 
@@ -154,26 +154,26 @@ ProcessDodgeCallbacks {
 ; Guards: returns immediately if playerFlags bit 5 ($0020) is set (death already processing) or bit 9 ($0200) is set (game over sequence active). If playerHp ($0ACE) is zero and neither guard is set, sets $0200 in playerFlags, overwrites the player actor's entry point to GameOverSequence, and calls StopPlayerOnDeathAssign to halt all movement.
 
 CheckPlayerDeath {
-    PHP                   ; Save processor flags for clean return
-    REP #$20              ; 16-bit accumulator for flag word and HP access
-    LDA $playerFlags      ; Load playerFlags from $09AE for death state checks
-    BIT #$0020            ; Bit 5 ($0020) = death sequence already in progress
-    BNE loc_03BBE2        ; Already dying → skip (prevents double game-over trigger)
-    BIT #$0200            ; Bit 9 ($0200) = game over sequence already active
-    BNE loc_03BBE2        ; Game over active → skip
-    LDA $playerHp         ; Load player HP from $0ACE
-    BNE loc_03BBE2        ; HP nonzero → player is alive, skip death processing
-    LDA #$0200            ; HP is zero — set game over flag $0200 in playerFlags
-    TSB $playerFlags      ; TSB sets bit 9 ($0200) in playerFlags to mark game over
-    LDY $playerActor      ; Load player actor slot address from $09AA
-    LDA #$&game_over_sequence.GameOverSequence ; Load GameOverSequence entry point address (same-bank)
-    STA $0000, Y          ; Overwrite player actor script address ($0000,Y)
-    LDA #$*game_over_sequence.GameOverSequence ; Load GameOverSequence bank byte as 16-bit immediate
-    STA $0002, Y          ; Overwrite player actor bank byte ($0002,Y)
-    JSL $@StopPlayerOnDeathAssign ; JSL StopPlayerOnDeathAssign — halt player movement and animations
+    PHP 
+    REP #$20
+    LDA $playerFlags
+    BIT #$0020            ; $0020 = death sequence already processing
+    BNE loc_03BBE2
+    BIT #$0200            ; $0200 = game over already active
+    BNE loc_03BBE2
+    LDA $playerHp
+    BNE loc_03BBE2
+    LDA #$0200            ; HP zero — set $0200 and assign GameOverSequence to player entry point
+    TSB $playerFlags
+    LDY $playerActor
+    LDA #$&game_over_sequence.GameOverSequence
+    STA $0000, Y
+    LDA #$*game_over_sequence.GameOverSequence
+    STA $0002, Y
+    JSL $@StopPlayerOnDeathAssign
 
   loc_03BBE2:
-    PLP                   ; Restore processor flags and return
+    PLP 
     RTL 
 }
 
@@ -183,15 +183,15 @@ CheckPlayerDeath {
 ; Saves processor state and data bank. Zeroes enemyHpPending ($09EA) to clear any stale HP display request. Loads the player actor slot from $09AA and checks bit 6 ($0040) of the player's flags — if set (orb/special state), jumps directly to CombatCollision_Exit (no combat during orb). Otherwise falls through to CombatCollision_EnemyLoop.
 
 RunCombatCollision {
-    PHP                   ; Save processor flags — restored at CombatCollision_Exit
-    PHB                   ; Save data bank — will be switched per-actor during collision tests
-    REP #$20              ; 16-bit accumulator for all collision math
-    STZ $enemyHpPending   ; Zero enemyHpPending ($09EA) — clear stale HUD HP display request
-    LDX $playerActor      ; Load player actor slot from $09AA into X for indexed access
-    LDA $0010, X          ; Load player primary flags ($0010,X)
-    BIT #$0040            ; Bit 6 ($0040) = orb/special state — disables all combat collision
-    BEQ loc_03BC1B        ; Orb flag clear → proceed to normal combat processing
-    JMP $&CombatCollision_Exit ; Player has orb — skip all combat, jump to exit
+    PHP 
+    PHB 
+    REP #$20
+    STZ $enemyHpPending   ; Clear stale HUD HP display request
+    LDX $playerActor
+    LDA $0010, X
+    BIT #$0040            ; $0040 = orb/special state — disables all combat
+    BEQ loc_03BC1B
+    JMP $&CombatCollision_Exit
 }
 
 ---------------------------------------------
@@ -206,205 +206,205 @@ RunCombatCollision {
 ; The $20 DP flag distinguishes normal mode (exclusion mask $76E0) from friendly/interaction mode ($74E0 + extendedFlags $0010 check). On overlap, calls EnemyHitPlayerHandler.
 
 CombatCollision_EnemyLoop {
-    BIT #$0080            ; Check enemy hittable flag: bit 7 ($0080) of current actor flags
-    BEQ loc_03BC26        ; Not hittable → skip to inner loop at loc_03BC26
-    BIT #$0040            ; Bit 6 ($0040) = orb protection on this actor
-    BNE loc_03BC26        ; Actor has orb → skip (can't hit orb-protected enemies)
-    LDA $0012, Y          ; Load secondary flags ($0012,Y) for damage immunity check
-    BIT #$0010            ; Bit 4 ($0010) in $12 = damage immunity flag
-    BNE loc_03BC26        ; Damage-immune → skip player attack test
-    STX $0E               ; Save current render list index X to DP $0E
-    STY $08               ; Save enemy actor pointer Y to DP $08
-    TYX                   ; Transfer enemy pointer Y→X for long indexed access
-    LDA $iframeCounter, X ; Load iframe counter from $7F0028,X (enemy's invincibility timer)
-    BMI CombatCollision_NextTarget ; Negative iframe = recovery phase → skip attack test, go to NextTarget
-    JSR $&PlayerAttackHitTest ; JSR PlayerAttackHitTest — test player's attack box vs this enemy
-    BRA CombatCollision_NextTarget ; Always branch to NextTarget after attack test
+    BIT #$0080            ; $0080 = hittable flag
+    BEQ loc_03BC26
+    BIT #$0040            ; $0040 = orb protection on this actor
+    BNE loc_03BC26
+    LDA $0012, Y
+    BIT #$0010            ; $0010 in $12 = damage immunity
+    BNE loc_03BC26
+    STX $0E
+    STY $08
+    TYX 
+    LDA $iframeCounter, X
+    BMI CombatCollision_NextTarget ; Negative iframe = recovery phase → skip
+    JSR $&PlayerAttackHitTest
+    BRA CombatCollision_NextTarget
 
   loc_03BC1B:
-    LDX #$0000            ; Initial entry: reset render list index to 0
-    STX $0E               ; Store initial list index 0 to DP $0E
+    LDX #$0000
+    STX $0E
 
   CombatCollision_NextTarget:
-    LDX $0E               ; Reload render list index from DP $0E
-    STZ $20               ; Zero DP $20 — friendly/interaction hit flag (0 = normal combat mode)
-    STZ $24               ; Zero DP $24 — extended interaction flag
+    LDX $0E
+    STZ $20               ; $20 = 0 for normal combat; nonzero = friendly/interaction mode
+    STZ $24
 
   loc_03BC26:
-    LDY $0C00, X          ; Load next actor pointer from render list ($0C00,X)
-    BNE loc_03BC2E        ; Nonzero = valid actor → continue at loc_03BC2E
-    JMP $&CombatCollision_Exit ; End of render list → exit combat collision
+    LDY $0C00, X
+    BNE loc_03BC2E
+    JMP $&CombatCollision_Exit
 
   loc_03BC2E:
-    INX                   ; Advance render list index by 2
     INX 
-    LDA $0010, Y          ; Load target actor's primary flags ($0010,Y)
-    BIT #$0400            ; Bit 10 ($0400) = combat-eligible flag (enemies have this set)
-    BEQ CombatCollision_EnemyLoop ; Not combat-eligible → loop back to CombatCollision_EnemyLoop for Phase 1
-    BIT #$0140            ; Check bits 8|6 ($0140) = dead or orb-protected
-    BNE loc_03BC26        ; Dead/orb → skip AABB test, advance to next actor
-    BIT #$0020            ; Bit 5 ($0020) = friendly/NPC flag
-    BEQ loc_03BC44        ; Not friendly → proceed to AABB setup at loc_03BC44
-    INC $20               ; Friendly actor present — set $20 flag for interaction hit mode
+    INX 
+    LDA $0010, Y
+    BIT #$0400            ; $0400 = combat-eligible (enemies have this)
+    BEQ CombatCollision_EnemyLoop
+    BIT #$0140            ; $0140 = dead or orb-protected
+    BNE loc_03BC26
+    BIT #$0020            ; $0020 = friendly/NPC flag
+    BEQ loc_03BC44
+    INC $20               ; Set $20 for friendly/interaction hit mode
 
   loc_03BC44:
-    STX $0E               ; Save render list index X to DP $0E for inner loop
-    STY $08               ; Save target actor Y to DP $08
-    SEP #$20              ; 8-bit A for data bank switch
-    TYX                   ; Transfer target actor Y→X for long indexed access
-    LDA $7F0008, X        ; Load target actor's sprite bank byte from $7F0008,X
-    PHA                   ; Push bank byte onto stack
-    PLB                   ; Pull into data bank register — now abs addressing reads actor's bank
-    REP #$20              ; Back to 16-bit A for hitbox math
-    LDA $metaspritePtr, X ; Load metasprite pointer from $7F000C,X
-    TAY                   ; TAY — metasprite base pointer in Y for offset reads
-    STA $42               ; Save metasprite pointer to DP $42 for CalcKnockback later
-    LDA $000E, X          ; Load sprite field $000E,X (contains H-mirror flag in high bits)
-    ASL                   ; ASL ×2 — shift H-mirror flag into carry
+    STX $0E
+    STY $08
+    SEP #$20
+    TYX 
+    LDA $7F0008, X
+    PHA 
+    PLB 
+    REP #$20
+    LDA $metaspritePtr, X
+    TAY 
+    STA $42
+    LDA $000E, X
+    ASL                   ; ASL ×2 shifts H-mirror into carry for hitbox flip
     ASL 
-    LDA $0004, Y          ; Load hitbox X offset from metasprite+4 (signed 8-bit)
-    AND #$00FF            ; Mask to low byte
-    BIT #$0080            ; Test sign bit ($0080) for sign extension
-    BEQ loc_03BC6D        ; Positive → no sign extension needed
-    ORA #$FF00            ; Sign-extend: set high byte to $FF for negative offsets
+    LDA $0004, Y          ; Hitbox X offset from metasprite+4; sign-extend signed byte via AND/BIT/ORA
+    AND #$00FF
+    BIT #$0080
+    BEQ loc_03BC6D
+    ORA #$FF00
 
   loc_03BC6D:
-    BCS loc_03BC81        ; Carry set = H-mirrored → use negated hitbox path
-    ADC $0014, X          ; Non-mirrored: X_left = actorX + hitbox_X_offset
-    STA $04               ; Store left edge X to DP $04
-    LDA $0005, Y          ; Load hitbox X width from metasprite+5 (unsigned byte)
-    AND #$00FF            ; Mask to byte (clear high byte)
-    CLC                   ; Clear carry for addition
-    ADC $04               ; X_right = X_left + width
-    STA $06               ; Store right edge X to DP $06
-    BRA loc_03BC9A        ; Skip mirrored path → continue to Y hitbox
+    BCS loc_03BC81
+    ADC $0014, X          ; Non-mirrored: left = actorX + offset; right = left + width
+    STA $04
+    LDA $0005, Y
+    AND #$00FF
+    CLC 
+    ADC $04
+    STA $06
+    BRA loc_03BC9A
 
   loc_03BC81:
-    EOR #$FFFF            ; Mirrored: negate X offset (two's complement)
-    INC                   ; INC completes two's complement negation
-    CLC                   ; Clear carry for addition
-    ADC $0014, X          ; Mirrored X_right = actorX + (−offset) = actorX − offset
-    STA $06               ; Store right edge to DP $06
-    LDA $0005, Y          ; Load width byte
-    AND #$00FF            ; Mask to byte
-    EOR #$FFFF            ; Negate width for mirrored subtraction
-    INC                   ; INC completes negation
-    CLC                   ; Clear carry
-    ADC $06               ; Mirrored X_left = X_right − width
-    STA $04               ; Store left edge to DP $04
+    EOR #$FFFF            ; Mirrored: negate offset; right = actorX − offset; left = right − width
+    INC 
+    CLC 
+    ADC $0014, X
+    STA $06
+    LDA $0005, Y
+    AND #$00FF
+    EOR #$FFFF
+    INC 
+    CLC 
+    ADC $06
+    STA $04
 
   loc_03BC9A:
-    LDA $0006, Y          ; Load hitbox Y offset from metasprite+6 (signed byte)
-    AND #$00FF            ; Mask to byte
-    BIT #$0080            ; Test sign bit for extension
-    BEQ loc_03BCA8        ; Positive → no sign extension
-    ORA #$FF00            ; Sign-extend negative Y offset
+    LDA $0006, Y          ; Y axis: same sign-extend pattern for metasprite+6 offset and +7 height
+    AND #$00FF
+    BIT #$0080
+    BEQ loc_03BCA8
+    ORA #$FF00
 
   loc_03BCA8:
-    CLC                   ; Clear carry for addition
-    ADC $0016, X          ; Y_top = actorY ($0016,X) + hitbox_Y_offset
-    STA $00               ; Store top edge Y to DP $00
-    LDA $0007, Y          ; Load hitbox Y height from metasprite+7 (unsigned byte)
-    AND #$00FF            ; Mask to byte
-    CLC                   ; Clear carry
-    ADC $00               ; Y_bottom = Y_top + height
-    STA $02               ; Store bottom edge Y to DP $02
-    LDX #$0000            ; Reset render list index to 0 for inner loop (test all actors)
+    CLC 
+    ADC $0016, X
+    STA $00
+    LDA $0007, Y
+    AND #$00FF
+    CLC 
+    ADC $00
+    STA $02
+    LDX #$0000            ; Reset inner loop — test all actors against this enemy's box
 
   CombatCollision_InnerLoop:
-    LDY $0C00, X          ; Inner loop: load next actor from render list ($0C00,X)
-    BNE loc_03BCC4        ; Nonzero = valid actor → continue at loc_03BCC4
-    JMP $&CombatCollision_NextTarget ; End of render list → jump back to NextTarget (advance outer loop)
+    LDY $0C00, X
+    BNE loc_03BCC4
+    JMP $&CombatCollision_NextTarget
 
   loc_03BCC4:
-    INX                   ; Advance inner loop index by 2
     INX 
-    LDA $20               ; Check $20 flag: nonzero = friendly/interaction mode
-    BNE loc_03BCD4        ; Friendly mode → use alternate exclusion mask at loc_03BCD4
-    LDA $0010, Y          ; Normal mode: load target actor flags ($0010,Y)
-    BIT #$76E0            ; Exclusion mask $76E0: skip dead/orb/COP/display/overlay/pause actors
-    BEQ loc_03BCEF        ; All exclusion bits clear → test AABB overlap at loc_03BCEF
-    BRA CombatCollision_InnerLoop ; Has exclusion flags → skip this actor, try next
+    INX 
+    LDA $20
+    BNE loc_03BCD4
+    LDA $0010, Y
+    BIT #$76E0            ; $76E0: skip dead/orb/COP/display/overlay/pause
+    BEQ loc_03BCEF
+    BRA CombatCollision_InnerLoop
 
   loc_03BCD4:
-    STZ $24               ; Friendly mode: clear $24 for fresh interaction flag
-    LDA $0010, Y          ; Load target flags for friendly exclusion check
-    BIT #$74E0            ; Mask $74E0: similar to $76E0 but allows bit 9 ($0200) through
-    BNE CombatCollision_InnerLoop ; Has exclusion flags → skip
-    PHX                   ; Save render list index for restore after inner check
-    TYX                   ; Transfer target actor Y→X for extended flag access
-    LDA $extendedFlags, X ; Load extendedFlags ($7F002A,X) for interaction eligibility
-    BIT #$0010            ; Bit 4 ($0010) = has interaction collision enabled
-    BNE loc_03BCEC        ; Interaction enabled → proceed to overlap test (via loc_03BCEC)
-    PLX                   ; Not interaction-eligible → restore X and skip
-    BRA CombatCollision_InnerLoop ; Skip to next actor in inner loop
+    STZ $24
+    LDA $0010, Y
+    BIT #$74E0            ; $74E0: like $76E0 but allows $0200
+    BNE CombatCollision_InnerLoop
+    PHX 
+    TYX 
+    LDA $extendedFlags, X
+    BIT #$0010            ; $0010 in extendedFlags = interaction collision enabled
+    BNE loc_03BCEC
+    PLX 
+    BRA CombatCollision_InnerLoop
 
   loc_03BCEC:
-    PLX                   ; Restore render list index X from stack
-    INC $24               ; Set $24 flag — marks this as an interaction/push collision
+    PLX 
+    INC $24               ; Set $24 — marks as interaction/push collision
 
   loc_03BCEF:
-    LDA $0020, Y          ; Begin AABB overlap test: load target hitbox X1 from $0020,Y (signed byte)
-    AND #$00FF            ; Mask to byte
-    BIT #$0080            ; Test sign bit
-    BEQ loc_03BCFD        ; Positive → no sign extension
-    ORA #$FF00            ; Sign-extend negative X1 offset
+    LDA $0020, Y          ; AABB overlap: signed offsets from $0020–$0023 vs enemy box at $00–$06
+    AND #$00FF
+    BIT #$0080
+    BEQ loc_03BCFD
+    ORA #$FF00
 
   loc_03BCFD:
-    SEC                   ; SEC for subtraction
-    SBC $0014, Y          ; hitbox_right = actorX ($0014,Y) − (−X1) = actorX + X1 (after negate)
-    EOR #$FFFF            ; Negate: EOR + INC = two's complement
-    INC                   ; INC completes negation → result is actorX − X1_offset (right edge)
-    CMP $06               ; Compare right edge vs enemy left ($06): if right < enemy_left, no overlap
-    BCS CombatCollision_InnerLoop ; No X overlap → skip to next actor
-    LDA $0021, Y          ; Load target hitbox X2 from $0021,Y (signed byte → right extent)
-    AND #$00FF            ; Mask to byte
-    BIT #$0080            ; Test sign bit
-    BEQ loc_03BD17        ; Positive → skip sign extension
-    ORA #$FF00            ; Sign-extend negative
+    SEC 
+    SBC $0014, Y
+    EOR #$FFFF
+    INC 
+    CMP $06
+    BCS CombatCollision_InnerLoop
+    LDA $0021, Y
+    AND #$00FF
+    BIT #$0080
+    BEQ loc_03BD17
+    ORA #$FF00
 
   loc_03BD17:
-    CLC                   ; Clear carry for addition
-    ADC $0014, Y          ; target_right = actorX + X2_offset
-    CMP $04               ; Compare target_right vs enemy right ($04): target must reach past $04
-    BCC CombatCollision_InnerLoop ; target_right < enemy_left_edge ($04) → no X overlap
-    LDA $0022, Y          ; Load target hitbox Y1 from $0022,Y (signed byte)
-    AND #$00FF            ; Mask to byte
-    BIT #$0080            ; Test sign bit
-    BEQ loc_03BD2D        ; Positive → skip extension
-    ORA #$FF00            ; Sign-extend negative Y1
+    CLC 
+    ADC $0014, Y
+    CMP $04
+    BCC CombatCollision_InnerLoop
+    LDA $0022, Y
+    AND #$00FF
+    BIT #$0080
+    BEQ loc_03BD2D
+    ORA #$FF00
 
   loc_03BD2D:
-    SEC                   ; SEC for subtraction
-    SBC $0016, Y          ; Y1_edge = actorY − Y1_offset (negated subtraction)
-    EOR #$FFFF            ; Negate result
-    INC                   ; INC completes negation → top edge of target
-    CMP $02               ; Compare top vs enemy bottom ($02): must overlap
-    BCS CombatCollision_InnerLoop ; No Y overlap → skip
-    LDA $0023, Y          ; Load target hitbox Y2 from $0023,Y (bottom extent, signed byte)
-    AND #$00FF            ; Mask to byte
-    BIT #$0080            ; Test sign bit
-    BEQ loc_03BD47        ; Positive → skip extension
-    ORA #$FF00            ; Sign-extend negative Y2
+    SEC 
+    SBC $0016, Y
+    EOR #$FFFF
+    INC 
+    CMP $02
+    BCS CombatCollision_InnerLoop
+    LDA $0023, Y
+    AND #$00FF
+    BIT #$0080
+    BEQ loc_03BD47
+    ORA #$FF00
 
   loc_03BD47:
-    CLC                   ; Clear carry for addition
-    ADC $0016, Y          ; target_bottom = actorY + Y2_offset
-    CMP $00               ; Compare target_bottom vs enemy top ($00)
-    BCS loc_03BD52        ; Overlap on both axes! → proceed to hit handler at loc_03BD52
-    JMP $&CombatCollision_InnerLoop ; target_bottom < enemy_top → no Y overlap, try next
+    CLC 
+    ADC $0016, Y
+    CMP $00
+    BCS loc_03BD52
+    JMP $&CombatCollision_InnerLoop
 
   loc_03BD52:
-    PHX                   ; Save render list index before calling hit handler
-    JSR $&EnemyHitPlayerHandler ; JSR EnemyHitPlayerHandler — process enemy-on-player collision
-    PLX                   ; Restore render list index
-    JMP $&CombatCollision_InnerLoop ; Continue inner loop with next actor
+    PHX 
+    JSR $&EnemyHitPlayerHandler
+    PLX 
+    JMP $&CombatCollision_InnerLoop
 }
 
 CombatCollision_Exit {
-    PLB                   ; Restore data bank saved at RunCombatCollision entry
-    PLP                   ; Restore processor flags
-    RTL                   ; Return from combat collision to caller (RTL)
+    PLB 
+    PLP 
+    RTL 
 }
 
 ---------------------------------------------
@@ -419,242 +419,242 @@ CombatCollision_Exit {
 ; Damage digits are formatted via FormatDamageDigits and spawned as SpawnAttackTrailEffect floating numbers (priority $2F00). Enemy HP is written to the HUD display registers.
 
 PlayerAttackHitTest {
-    SEP #$20              ; 8-bit A to set up data bank for player's sprite bank
-    LDA $7F0008, X        ; Load player's sprite bank byte from $7F0008,X
-    PHA                   ; Push bank byte
-    PLB                   ; Pull into DBR — absolute addressing now reads player's bank
-    REP #$20              ; 16-bit A for hitbox computation
-    LDA $metaspritePtr, X ; Load player metasprite pointer from $7F000C,X
-    TAY                   ; Copy to Y for offset-based reads of metasprite header
-    STA $42               ; Save metasprite pointer to DP $42
-    LDA $0014, X          ; Load player X position ($0014,X)
-    STA $04               ; Store to DP $04 (will become attack box left edge)
-    LDA $0016, X          ; Load player Y position ($0016,X)
-    STA $00               ; Store to DP $00 (will become attack box top edge)
-    LDA $0000, Y          ; Load attack hitbox X offset from metasprite byte 0 (always negative/leftward)
-    ORA #$FF00            ; ORA #$FF00 — sign-extend byte 0 as always-negative offset
-    CLC                   ; CLC for addition
-    ADC $04               ; attack_left = playerX + negative_offset (shifts box left of player)
-    STA $04               ; Store attack box left edge to DP $04
-    LDA $0002, Y          ; Load attack hitbox width from metasprite byte 2 (unsigned)
-    AND #$00FF            ; Mask to byte
-    ASL                   ; ASL ×4 = multiply width by 16 (hitbox units to pixels)
+    SEP #$20
+    LDA $7F0008, X
+    PHA 
+    PLB 
+    REP #$20
+    LDA $metaspritePtr, X
+    TAY 
+    STA $42
+    LDA $0014, X
+    STA $04
+    LDA $0016, X
+    STA $00
+    LDA $0000, Y          ; Attack hitbox: offsets always negative; width/height ×16 via ASL ×4
+    ORA #$FF00
+    CLC 
+    ADC $04
+    STA $04
+    LDA $0002, Y
+    AND #$00FF
     ASL 
     ASL 
     ASL 
-    CLC                   ; CLC for addition
-    ADC $04               ; attack_right = attack_left + (width × 16)
-    STA $06               ; Store right edge to DP $06
-    LDA $0001, Y          ; Load attack hitbox Y offset from metasprite byte 1 (always negative/upward)
-    ORA #$FF00            ; ORA #$FF00 — sign-extend as negative offset
-    CLC                   ; CLC for addition
-    ADC $00               ; attack_top = playerY + negative_offset
-    STA $00               ; Store attack box top edge to DP $00
-    LDA $0003, Y          ; Load attack hitbox height from metasprite byte 3 (unsigned)
-    AND #$00FF            ; Mask to byte
-    ASL                   ; ASL ×4 = multiply height by 16
+    ASL 
+    CLC 
+    ADC $04
+    STA $06
+    LDA $0001, Y
+    ORA #$FF00
+    CLC 
+    ADC $00
+    STA $00
+    LDA $0003, Y
+    AND #$00FF
     ASL 
     ASL 
     ASL 
-    CLC                   ; CLC for addition
-    ADC $00               ; attack_bottom = attack_top + (height × 16)
-    STA $02               ; Store bottom edge to DP $02
-    LDX #$0000            ; Reset render list index to 0 for iteration
+    ASL 
+    CLC 
+    ADC $00
+    STA $02
+    LDX #$0000
 
   code_03BDAF:
-    LDY $0C00, X          ; Load next actor from render list ($0C00,X)
-    BNE loc_03BDB7        ; Nonzero = valid → continue at loc_03BDB7
-    JMP $&PlayerAttackHitTest_End ; End of list → jump to PlayerAttackHitTest_End
+    LDY $0C00, X
+    BNE loc_03BDB7
+    JMP $&PlayerAttackHitTest_End
 
   loc_03BDB7:
-    INX                   ; Advance render list index by 2
     INX 
-    LDA $0010, Y          ; Load target actor flags ($0010,Y)
-    BIT #$36F0            ; Exclusion mask $36F0: skip friendly/dead/orb/COP/display actors
-    BNE code_03BDAF       ; Any exclusion bit set → skip this target
-    LDA $0020, Y          ; Load target hitbox X1 from $0020,Y (signed byte offset from position)
-    AND #$00FF            ; Mask to byte
-    BIT #$0080            ; Test sign bit
+    INX 
+    LDA $0010, Y
+    BIT #$36F0            ; $36F0: skip friendly/dead/orb/COP/display
+    BNE code_03BDAF
+    LDA $0020, Y          ; AABB overlap: same edge-comparison pattern as CombatCollision_InnerLoop
+    AND #$00FF
+    BIT #$0080
     BEQ loc_03BDCF
     ORA #$FF00
 
   loc_03BDCF:
-    SEC                   ; Compute target right edge: SEC then subtract from position (negated)
+    SEC 
     SBC $0014, Y
     EOR #$FFFF
-    INC                   ; Compare right_edge vs player attack_right ($06)
+    INC 
     CMP $06
     BCS code_03BDAF
     LDA $0021, Y
     AND #$00FF
     BIT #$0080
-    BEQ loc_03BDE9        ; Sign-extend negative
+    BEQ loc_03BDE9
     ORA #$FF00
 
   loc_03BDE9:
-    CLC                   ; CLC for addition
-    ADC $0014, Y          ; target_left = actorX + X2_offset
-    CMP $04               ; Compare target_left vs player attack_left ($04)
-    BCC code_03BDAF       ; target_left < attack_left → no X overlap
-    LDA $0022, Y          ; Load target hitbox Y1 from $0022,Y (signed byte)
-    AND #$00FF            ; Mask to byte
-    BIT #$0080            ; Test sign bit
+    CLC 
+    ADC $0014, Y
+    CMP $04
+    BCC code_03BDAF
+    LDA $0022, Y
+    AND #$00FF
+    BIT #$0080
     BEQ loc_03BDFF
     ORA #$FF00
 
   loc_03BDFF:
-    SEC                   ; SEC for subtraction
-    SBC $0016, Y          ; Compute top_edge via negated subtraction
-    EOR #$FFFF            ; Negate result
-    INC                   ; INC → target top_edge
-    CMP $02               ; Compare vs player attack_bottom ($02)
-    BCS code_03BDAF       ; No Y overlap → skip
-    LDA $0023, Y          ; Load target hitbox Y2 from $0023,Y (bottom extent)
-    AND #$00FF            ; Mask to byte
-    BIT #$0080            ; Test sign bit
+    SEC 
+    SBC $0016, Y
+    EOR #$FFFF
+    INC 
+    CMP $02
+    BCS code_03BDAF
+    LDA $0023, Y
+    AND #$00FF
+    BIT #$0080
     BEQ loc_03BE19
     ORA #$FF00
 
   loc_03BE19:
-    CLC                   ; CLC for addition
-    ADC $0016, Y          ; target_bottom = actorY + Y2_offset
-    CMP $00               ; Compare target_bottom vs player attack_top ($00)
-    BCS loc_03BE24        ; Overlap confirmed → process hit at loc_03BE24
-    JMP $&code_03BDAF     ; No overlap → continue checking next actor
+    CLC 
+    ADC $0016, Y
+    CMP $00
+    BCS loc_03BE24
+    JMP $&code_03BDAF
 
   loc_03BE24:
-    TYX                   ; Transfer hit target Y→X for damage processing
-    LDA $08               ; Load saved enemy pointer from DP $08 (the attacking player's context)
-    TAX                   ; TAX — X now points to the player's actor slot for chainDamage access
-    LDA $chainDamage, X   ; Load player's chainDamage ($7F101E,X) — cumulative hit counter
-    LSR                   ; LSR — halve chainDamage for diminishing returns
-    TYX                   ; Transfer hit target back to X for HP update
-    STA $chainDamage, X   ; Store halved chainDamage to enemy's chainDamage field ($7F101E,X)
-    INC                   ; INC — damage = chainDamage/2 + 1 (minimum 1 damage)
-    PHA                   ; Save damage to stack for later use
-    EOR #$FFFF            ; Negate damage for HP subtraction
-    INC                   ; INC completes negation
-    CLC                   ; CLC for addition (adding negative = subtraction)
-    ADC $currentHp, X     ; enemyHP = currentHp ($7F0026,X) − damage
-    BPL loc_03BE42        ; HP still positive → store normally
-    LDA #$0000            ; HP went negative → clamp to 0 (enemy is dead)
+    TYX 
+    LDA $08
+    TAX 
+    LDA $chainDamage, X   ; chainDamage ($7F101E) accumulates across consecutive hits in one attack
+    LSR                   ; damage = chainDamage/2 + 1; halved each hit for diminishing returns
+    TYX 
+    STA $chainDamage, X
+    INC 
+    PHA 
+    EOR #$FFFF
+    INC 
+    CLC 
+    ADC $currentHp, X
+    BPL loc_03BE42
+    LDA #$0000            ; Clamp HP to 0
 
   loc_03BE42:
-    STA $currentHp, X     ; Store updated HP to currentHp ($7F0026,X)
-    STA $0AE2             ; Store HP to work area $0AE2 for HUD display
-    PHX                   ; Save target X for stats lookup
-    LDA $statsPtr, X      ; Load statsPtr ($7F0020,X) — pointer to enemy's stats table
-    TAX                   ; Transfer to X for long indexed read
-    LDA $810000, X        ; Read max HP from stats table byte 0 (long address $81xxxx)
-    STA $0AE0             ; Store max HP to $0AE0 for HUD bar calculation
-    PLX                   ; Restore target actor slot to X
-    TXA                   ; TXA → TCD: set direct page to target actor's slot base
+    STA $currentHp, X
+    STA $0AE2
+    PHX 
+    LDA $statsPtr, X
+    TAX 
+    LDA $810000, X        ; Max HP from stats table byte 0 (long $81xxxx)
+    STA $0AE0
+    PLX 
+    TXA                   ; TCD — set DP to target actor for field-relative access
     TCD 
-    LDA $12               ; Load secondary flags ($12 via DP)
-    BIT #$0020            ; Bit 5 ($0020) = boss/no-damage-display flag
-    BNE loc_03BE76        ; Boss flag set → skip damage number display
-    PLA                   ; JSR FormatDamageDigits — convert to packed BCD for sprite display
+    LDA $12
+    BIT #$0020            ; $0020 in $12 = boss — skip damage display
+    BNE loc_03BE76
+    PLA 
     JSR $&FormatDamageDigits
     BCS loc_03BE77
-    PHA                   ; COP SpawnLastRel: spawn damage number actor at target position
+    PHA 
     COP [SpawnLastRel] ( @SpawnAttackTrailEffect, #00, #00, #$2F00 )
     PLA 
     STA $0028, Y
     BRA loc_03BE77
 
   loc_03BE76:
-    PLA                   ; Boss path: discard damage value from stack
+    PLA 
 
   loc_03BE77:
-    LDA #$0080            ; Set bit 7 ($0080) in target actor's primary flags — iframe state
-    TSB $10               ; Load playerFlags to check for auto-kill mode
+    LDA #$0080            ; $0080 = iframe state
+    TSB $10
     LDA $playerFlags
     BIT #$0010
-    BNE loc_03BE8B        ; Normal mode: check target's secondary flags
-    LDA $12               ; Bit 4 ($0010) in $12 = stagger-immune flag
+    BNE loc_03BE8B
+    LDA $12               ; $0010 in $12 = stagger-immune
     BIT #$0010
     BEQ loc_03BEBE
 
   loc_03BE8B:
-    LDA $0AE2             ; Check if HP reached zero
-    BNE loc_03BEEE        ; HP nonzero → enemy survived, skip to iframe assignment at loc_03BEEE
-    LDA #$0040            ; Set bit 6 ($0040) in flags — mark actor as dead
-    TSB $10               ; Check onDeathCallback ($7F1004,X) for custom death handler
+    LDA $0AE2
+    BNE loc_03BEEE
+    LDA #$0040            ; $0040 = dead; check onDeathCallback ($7F1004) else StandardEnemyDefeatHandler
+    TSB $10
     LDA $onDeathCallback, X
-    BEQ loc_03BEAB        ; Custom death: copy callback address to entry point $00
-    STA $00               ; Load custom death bank byte from $7F1006,X
+    BEQ loc_03BEAB
+    STA $00
     LDA $7F1006, X
-    STA $02               ; Clear DP $08 (frame delay counter)
-    STZ $08               ; Clear velocity X ($2C)
-    STZ $2C               ; Clear velocity Y ($2E)
-    STZ $2E               ; Jump to HUD update at loc_03BF08
+    STA $02
+    STZ $08
+    STZ $2C
+    STZ $2E
     BRA loc_03BF08
 
   loc_03BEAB:
-    LDA #$*StandardEnemyDefeatHandler ; Default death: load StandardEnemyDefeatHandler bank byte
-    STA $02               ; Store bank to $02
-    LDA #$&StandardEnemyDefeatHandler ; Load StandardEnemyDefeatHandler address
-    STA $00               ; Store to entry point $00
-    STZ $08               ; Clear frame delay
-    LDA #$0400            ; Set $0400 flag (standard defeat marker) in primary flags
-    TSB $10               ; TSB $10 sets the standard defeat flag
-    BRA loc_03BF08        ; Jump to HUD update at loc_03BF08
+    LDA #$*StandardEnemyDefeatHandler
+    STA $02
+    LDA #$&StandardEnemyDefeatHandler
+    STA $00
+    STZ $08
+    LDA #$0400            ; $0400 = standard defeat flag
+    TSB $10
+    BRA loc_03BF08
 
   loc_03BEBE:
-    COP [SpawnLastRel] ( @hit_stagger_controller.HitStaggerMain, #00, #00, #$2000 ) ; Spawn HitStaggerMain effect for knockback animation
+    COP [SpawnLastRel] ( @hit_stagger_controller.HitStaggerMain, #00, #00, #$2000 ) ; Spawn HitStaggerMain; copy direction flag; CalcKnockbackDirection
     LDA #$0000
-    STA $002C, Y          ; Zero velocity Y on spawned stagger actor ($002E,Y)
+    STA $002C, Y
     STA $002E, Y
     LDA $extendedFlags, X
     AND #$0020
-    PHX                   ; Copy directional flag to stagger actor's extendedFlags
+    PHX 
     TYX 
     STA $extendedFlags, X
-    PLX                   ; Save direct page
-    PHY                   ; JSR CalcKnockbackDirection — compute knockback cardinal direction
+    PLX 
+    PHY 
     PHD 
     JSR $&CalcKnockbackDirection
     BCC loc_03BEE7
     COP [GetPlayerFacing]
 
   loc_03BEE7:
-    PLD                   ; Restore direct page
+    PLD 
     PLY 
-    STA $0028, Y          ; Restore stagger actor Y
+    STA $0028, Y
     TDC 
-    TAX                   ; TDC → TAX: restore target actor pointer from direct page
+    TAX 
 
   loc_03BEEE:
-    LDA $12               ; Load secondary flags ($12 via DP) for iframe type check
-    BIT #$0001            ; Bit 0 ($0001) = use recovery iframe (negative counter) instead of invincibility
-    BEQ loc_03BEFE        ; Recovery flag set → assign negative iframes at loc_03BEFE
-    LDA #$FFEF            ; Normal: assign 17-frame ($0011) invincibility counter
-    STA $iframeCounter, X ; Store positive iframe counter to $7F0028,X
-    BRA loc_03BF05        ; Skip recovery path
+    LDA $12
+    BIT #$0001            ; $0001 in $12: set = recovery iframe ($FFEF), clear = invincibility ($0011)
+    BEQ loc_03BEFE
+    LDA #$FFEF
+    STA $iframeCounter, X
+    BRA loc_03BF05
 
   loc_03BEFE:
-    LDA #$0011            ; Recovery iframe: assign $FFEF (−17) — counts up toward zero
-    STA $iframeCounter, X ; Store negative iframe counter to $7F0028,X
+    LDA #$0011
+    STA $iframeCounter, X
 
   loc_03BF05:
-    COP [PlaySoundCh1] ( #05 ) ; COP PlaySoundCh1: play hit sound #05 on audio channel 1
+    COP [PlaySoundCh1] ( #05 ) ; Hit sound #05
 
   loc_03BF08:
-    LDA $12               ; Load secondary flags ($12) for boss/no-display check
-    BIT #$0020            ; Bit 5 ($0020) = boss flag — skip HP bar update
-    BNE PlayerAttackHitTest_End ; Boss → skip HUD update, jump to PlayerAttackHitTest_End
-    SEP #$20              ; 8-bit A for byte-sized HUD register writes
-    LDA $0AE0             ; Load max HP from $0AE0 work area
-    STA $enemyHpDisplay   ; Write to enemyHpDisplay ($09E4) for HUD bar rendering
-    STA $enemyHpPending   ; Also write to enemyHpPending ($09EA) to trigger HUD update
-    LDA $0AE2             ; Load current HP from $0AE2
-    STA $09E6             ; Write to HP display counter at $09E6
-    REP #$20              ; 16-bit A restored for clean return
+    LDA $12
+    BIT #$0020
+    BNE PlayerAttackHitTest_End
+    SEP #$20
+    LDA $0AE0             ; Max HP → $09E4/$09EA; current HP → $09E6 for HUD
+    STA $enemyHpDisplay
+    STA $enemyHpPending
+    LDA $0AE2
+    STA $09E6
+    REP #$20
 }
 
 PlayerAttackHitTest_End {
-    LDA #$0000            ; Reset direct page to 0 (clean up from TCD targeting actor slot)
-    TCD                   ; RTS — return to CombatCollision_EnemyLoop caller
+    LDA #$0000            ; Reset DP to 0
+    TCD 
     RTS 
 }
 
@@ -674,208 +674,208 @@ PlayerAttackHitTest_End {
 ; After damage: checks and dispatches onHitCallback ($7F1000,X). Assigns iframes ($0011 or $FFEF). Updates HUD HP display. Finally checks extendedFlags $0050 for collision callback processing — clears $FFAF bits, toggles $6000 in $12, and dispatches onCollideCallback.
 
 EnemyHitPlayerHandler {
-    SEP #$20              ; 8-bit A for data bank switch
-    LDA #$81              ; Load bank $81 for RAM access to extended actor fields
-    PHA                   ; Push $81
-    PLB                   ; Pull into DBR — now absolute addresses read bank $81
-    REP #$20              ; 16-bit A for flag checks and damage computation
-    LDA $24               ; Load $24 flag — nonzero = interaction/push collision from friendly actor
-    BEQ loc_03BF86        ; Zero → combat damage path at loc_03BF86
-    STZ $24               ; Clear $24 flag after reading
-    TYX                   ; Transfer hit actor Y→X for indexed access
-    LDA $scratch1010+6, X ; Load scratch1010+6 ($7F1016,X) — custom interaction handler address
-    BEQ loc_03BF40        ; No custom handler → use default at loc_03BF40
-    STA $0000, X          ; Overwrite actor entry point with custom handler
-    RTS                   ; Return — actor will execute custom handler next frame
+    SEP #$20
+    LDA #$81
+    PHA 
+    PLB 
+    REP #$20
+    LDA $24               ; $24 nonzero = interaction/push path; zero = combat damage
+    BEQ loc_03BF86
+    STZ $24
+    TYX 
+    LDA $scratch1010+6, X ; Custom interaction handler from scratch1010+6 ($7F1016)
+    BEQ loc_03BF40
+    STA $0000, X          ; Overwrite entry point with custom handler
+    RTS 
 
   loc_03BF40:
-    TXA                   ; No custom handler: set up player transition sequence
-    PHD                   ; Save current direct page
-    TCD                   ; Set DP to actor slot base for DP-relative access
-    LDA #$&player_transition_handlers ; Load player_transition_handlers address (same-bank reference)
-    STA $00               ; Store to entry point $00
-    LDA #$*player_transition_handlers ; Load player_transition_handlers bank byte
-    STA $02               ; Store to $02 (bank byte of entry point)
-    LDA #$0040            ; Load $0040 = death/transition flag
-    TSB $10               ; TSB $10 — set transition flag in actor's primary flags
-    PLD                   ; Restore original direct page
-    JSL $@GetPlayerFacingDirection ; JSL GetPlayerFacingDirection — returns facing in low nibble
-    PEA $&EnemyHitPlayer_Epilogue-1 ; Push EnemyHitPlayer_Epilogue−1 as return address for RTS trick
-    BCC loc_03BF5D        ; Carry clear = facing is valid → apply directional velocity
-    RTS                   ; Carry set → RTS returns through PEA'd address to Epilogue
+    TXA 
+    PHD 
+    TCD 
+    LDA #$&player_transition_handlers ; Default: player_transition_handlers with $0040 death/transition flag
+    STA $00
+    LDA #$*player_transition_handlers
+    STA $02
+    LDA #$0040
+    TSB $10
+    PLD 
+    JSL $@GetPlayerFacingDirection
+    PEA $&EnemyHitPlayer_Epilogue-1 ; PEA epilogue−1 for RTS-trick directional knockback dispatch
+    BCC loc_03BF5D
+    RTS 
 
   loc_03BF5D:
-    AND #$000F            ; Mask to low nibble (direction 0–3)
-    BNE loc_03BF69        ; Direction 0 (up/north)? → push player up
-    LDA #$FFFC            ; Knockback velocity = −4 (upward)
-    STA $extVelocityY     ; Store to extVelocityY ($040A)
-    RTS                   ; RTS → returns to EnemyHitPlayer_Epilogue via PEA trick
+    AND #$000F
+    BNE loc_03BF69
+    LDA #$FFFC            ; Knockback velocity ±4 by cardinal direction (0=N, 1=S, 2=E, 3=W)
+    STA $extVelocityY
+    RTS 
 
   loc_03BF69:
-    DEC                   ; DEC — direction 1 (down/south)?
-    BNE loc_03BF73        ; Not 1 → check next direction
-    LDA #$0004            ; Knockback velocity = +4 (downward)
-    STA $extVelocityY     ; Store to extVelocityY ($040A)
-    RTS                   ; RTS → Epilogue
+    DEC 
+    BNE loc_03BF73
+    LDA #$0004
+    STA $extVelocityY
+    RTS 
 
   loc_03BF73:
-    DEC                   ; DEC — direction 2 (right/east)?
-    BNE loc_03BF7D        ; Not 2 → must be direction 3 (left/west)
-    LDA #$0004            ; Knockback velocity = +4 (rightward)
-    STA $extVelocityX     ; Store to extVelocityX ($0408)
-    RTS                   ; RTS → Epilogue
+    DEC 
+    BNE loc_03BF7D
+    LDA #$0004
+    STA $extVelocityX
+    RTS 
 
   loc_03BF7D:
-    LDA #$FFFC            ; Direction 3: knockback velocity = −4 (leftward)
-    STA $extVelocityX     ; Store to extVelocityX ($0408)
-    RTS                   ; RTS → Epilogue
+    LDA #$FFFC
+    STA $extVelocityX
+    RTS 
 }
 
 EnemyHitPlayer_Epilogue {
-    TXY                   ; Transfer enemy actor pointer X→Y for return to caller
-    RTS                   ; RTS — return from EnemyHitPlayer_Epilogue to combat loop
+    TXY 
+    RTS 
 
   loc_03BF86:
-    TYX                   ; Transfer target actor Y→X for damage processing
-    STX $3E               ; Save target pointer to DP $3E for later use in post-collision
-    LDA $0010, X          ; Load target actor flags ($0010,X)
-    BIT #$0010            ; Bit 4 ($0010) = invincible/immune flag
-    BEQ loc_03BF94        ; Not invincible → proceed to normal damage at loc_03BF94
-    JMP $&InvinciblePlayerHit ; Invincible → route to InvinciblePlayerHit handler
+    TYX 
+    STX $3E
+    LDA $0010, X
+    BIT #$0010            ; $0010 = invincible → route to InvinciblePlayerHit
+    BEQ loc_03BF94
+    JMP $&InvinciblePlayerHit
 
   loc_03BF94:
-    STZ $20               ; Zero DP $20 — damage modifier accumulator
-    LDA $08               ; Load saved attacking actor from DP $08
-    CMP #$1000            ; Compare attacker pointer to $1000 (first actor slot / player)
-    BEQ loc_03BFA2        ; Player is attacker → skip weapon bonus at loc_03BFA2
-    LDA $09E2             ; Non-player attacker: load weapon/bonus damage from $09E2
-    STA $20               ; Store bonus to DP $20
+    STZ $20               ; totalStr = playerStr + bonus($09E2) + climbStateData
+    LDA $08
+    CMP #$1000
+    BEQ loc_03BFA2
+    LDA $09E2
+    STA $20
 
   loc_03BFA2:
-    LDA $characterForm    ; Load characterForm ($0AD4): 0=Will, 1=Freedan, 2=Shadow
-    STA $08               ; Save form to DP $08 for later reference
-    LDA $playerStr        ; Load playerStr ($0ADE) — base attack power
-    CLC                   ; Add bonus damage from $20 (weapon modifier)
+    LDA $characterForm
+    STA $08
+    LDA $playerStr
+    CLC 
     ADC $20
-    CLC                   ; Add climbStateData ($09E0) — elevation bonus
+    CLC 
     ADC $climbStateData
-    STA $20               ; Store total strength to DP $20
-    TXA                   ; Transfer target slot address to A
-    TCD                   ; TCD — set direct page to target actor for DP-relative field access
-    LDA $statsPtr, X      ; Load statsPtr ($7F0020,X) — pointer to enemy's stats table
-    TAY                   ; Transfer to Y for indirect stat reads
-    LDA $0000, Y          ; Load max HP from stats[0] (byte, zero-extended)
-    AND #$00FF            ; Mask to byte — stats are packed bytes in 16-bit words
-    STA $0AE0             ; Store max HP to $0AE0 for HUD display
-    LDA $0002, Y          ; Load enemy attack power from stats[2] (byte, zero-extended)
-    AND #$00FF            ; Mask to byte
-    SEC                   ; SEC for subtraction
-    SBC $0020             ; rawDamage = enemyAtk − totalStr (using DP $20 which is $0020 abs)
-    EOR #$FFFF            ; Negate: damage = totalStr − enemyAtk (attacker perspective)
-    INC                   ; INC completes two's complement
-    CMP #$0001            ; Compare vs 1 — minimum damage is always 1
-    BPL loc_03BFD9        ; Damage ≥ 1 → use calculated value
-    LDA #$0001            ; Damage < 1 → floor to minimum of 1
+    STA $20
+    TXA 
+    TCD 
+    LDA $statsPtr, X
+    TAY 
+    LDA $0000, Y
+    AND #$00FF
+    STA $0AE0
+    LDA $0002, Y
+    AND #$00FF
+    SEC 
+    SBC $0020             ; rawDamage = enemyAtk(stats[2]) − totalStr; min 1
+    EOR #$FFFF
+    INC 
+    CMP #$0001
+    BPL loc_03BFD9
+    LDA #$0001
 
   loc_03BFD9:
-    CLC                   ; CLC for addition
-    ADC $0008             ; Add chainDamage from $08 (accumulated consecutive hit bonus)
-    STA $chainDamage, X   ; Store total damage to enemy's chainDamage ($7F101E,X)
-    PHA                   ; Save damage for HP subtraction
-    EOR #$FFFF            ; Negate damage for subtraction from HP
-    INC                   ; INC completes negation
-    CLC                   ; CLC for addition (negative = subtraction)
-    ADC $currentHp, X     ; enemyHP = currentHp − damage
-    BPL loc_03BFF0        ; HP still positive → store normally
-    LDA #$0000            ; HP negative → clamp to 0
+    CLC 
+    ADC $0008             ; netDamage = rawDamage + chainDamage($08)
+    STA $chainDamage, X
+    PHA 
+    EOR #$FFFF
+    INC 
+    CLC 
+    ADC $currentHp, X
+    BPL loc_03BFF0
+    LDA #$0000            ; Clamp HP to 0
 
   loc_03BFF0:
-    STA $currentHp, X     ; Store updated HP to currentHp ($7F0026,X)
-    STA $0AE2             ; Also store to $0AE2 for HUD display
-    LDA $12               ; Check secondary flags ($12) for boss/no-display
-    BIT #$0020            ; Bit 5 ($0020) = boss flag
-    BNE loc_03C01D        ; Boss → skip damage digits
-    PLA                   ; Pull damage from stack
-    JSR $&FormatDamageDigits ; JSR FormatDamageDigits — convert to packed BCD
-    BCS loc_03C01E        ; Carry set = overflow (≥1000) → skip spawn
-    PHA                   ; Save formatted digits
-    COP [SpawnLastRel] ( @SpawnAttackTrailEffect, #00, #00, #$2B00 ) ; COP SpawnLastRel: spawn floating damage number ($2B00 priority)
+    STA $currentHp, X
+    STA $0AE2
+    LDA $12
+    BIT #$0020
+    BNE loc_03C01D
+    PLA 
+    JSR $&FormatDamageDigits
+    BCS loc_03C01E
+    PHA 
+    COP [SpawnLastRel] ( @SpawnAttackTrailEffect, #00, #00, #$2B00 ) ; Spawn damage number at $2B00 priority; set $1000 display flag
     LDA $0012, Y
     ORA #$1000
     STA $0012, Y
-    PLA                   ; Store digit data to damage sprite's animation field ($0028,Y)
+    PLA 
     STA $0028, Y
     BRA loc_03C01E
 
   loc_03C01D:
-    PLA                   ; Boss path: discard damage from stack
+    PLA 
 
   loc_03C01E:
-    LDA #$0080            ; Set $0080 (iframe flag) in target actor flags $10
-    TSB $10               ; Load playerFlags for auto-kill check
+    LDA #$0080            ; $0080 = iframe state
+    TSB $10
     LDA $playerFlags
     BIT #$0010
-    BNE loc_03C032        ; Check target secondary flags for stagger immunity
-    LDA $12               ; Bit 4 ($0010) in $12 = stagger-immune
+    BNE loc_03C032
+    LDA $12
     BIT #$0010
     BEQ loc_03C065
 
   loc_03C032:
-    LDA $0AE2             ; Check if enemy HP reached zero ($0AE2)
-    BNE loc_03C097        ; HP nonzero → survived, skip to onHitCallback at loc_03C097
-    LDA #$0040            ; Set $0040 (death flag) in target actor flags
-    TSB $10               ; Check onDeathCallback ($7F1004,X)
+    LDA $0AE2
+    BNE loc_03C097
+    LDA #$0040            ; $0040 = dead; onDeathCallback or StandardEnemyDefeatHandler
+    TSB $10
     LDA $onDeathCallback, X
-    BEQ loc_03C052        ; Copy custom death callback to entry point $00
-    STA $00               ; Load custom death bank from $7F1006,X
+    BEQ loc_03C052
+    STA $00
     LDA $7F1006, X
-    STA $02               ; Clear frame delay ($08)
-    STZ $08               ; Clear velocity X ($2C)
-    STZ $2C               ; Clear velocity Y ($2E)
-    STZ $2E               ; Jump to HUD update
+    STA $02
+    STZ $08
+    STZ $2C
+    STZ $2E
     BRA loc_03C0C8
 
   loc_03C052:
-    LDA #$*StandardEnemyDefeatHandler ; Default death: load StandardEnemyDefeatHandler bank
-    STA $02               ; Store bank to $02
-    LDA #$&StandardEnemyDefeatHandler ; Load StandardEnemyDefeatHandler address
-    STA $00               ; Store to entry point $00
-    STZ $08               ; Clear frame delay
-    LDA #$0400            ; Set $0400 (standard defeat flag)
-    TSB $10               ; TSB $10
-    BRA loc_03C0C8        ; Jump to HUD update
+    LDA #$*StandardEnemyDefeatHandler
+    STA $02
+    LDA #$&StandardEnemyDefeatHandler
+    STA $00
+    STZ $08
+    LDA #$0400
+    TSB $10
+    BRA loc_03C0C8
 
   loc_03C065:
-    TXA                   ; Set DP to target actor for field-relative access
+    TXA 
     TCD 
-    COP [SpawnLastRel] ( @hit_stagger_controller.HitStaggerMain, #00, #00, #$2000 ) ; COP SpawnLastRel: spawn HitStaggerMain for visual knockback ($2000 priority)
+    COP [SpawnLastRel] ( @hit_stagger_controller.HitStaggerMain, #00, #00, #$2000 ) ; Spawn HitStaggerMain; CalcKnockbackDirection for knockback
     LDA #$0000
-    STA $002C, Y          ; Zero stagger velocity Y ($002E,Y)
+    STA $002C, Y
     STA $002E, Y
     LDA $extendedFlags, X
     AND #$0020
-    PHX                   ; Copy direction flag to stagger actor's extendedFlags
+    PHX 
     TYX 
     STA $extendedFlags, X
-    PLX                   ; Save direct page
-    PHY                   ; JSR CalcKnockbackDirection
+    PLX 
+    PHY 
     PHD 
     JSR $&CalcKnockbackDirection
     BCC loc_03C090
     COP [GetPlayerFacing]
 
   loc_03C090:
-    PLD                   ; Restore direct page
+    PLD 
     PLY 
-    STA $0028, Y          ; Restore stagger actor Y
+    STA $0028, Y
     TDC 
-    TAX                   ; TDC → TAX: restore target pointer from DP
+    TAX 
 
   loc_03C097:
-    LDA $onHitCallback, X ; Load onHitCallback ($7F1000,X) — custom reaction to being hit
-    BEQ loc_03C0AE        ; No callback → skip to iframe assignment at loc_03C0AE
-    STA $00               ; Copy callback to entry point $00
-    LDA #$0000            ; Clear the callback to prevent re-triggering
+    LDA $onHitCallback, X ; Dispatch and clear onHitCallback ($7F1000)
+    BEQ loc_03C0AE
+    STA $00
+    LDA #$0000
     STA $onHitCallback, X
     LDA $02
     AND #$00FF
@@ -883,7 +883,7 @@ EnemyHitPlayer_Epilogue {
     NOP 
 
   loc_03C0AE:
-    LDA $12               ; NOP padding (unused branch target)
+    LDA $12
     BIT #$0001
     BEQ loc_03C0BE
     LDA #$FFEF
@@ -891,39 +891,39 @@ EnemyHitPlayer_Epilogue {
     BRA loc_03C0C5
 
   loc_03C0BE:
-    LDA #$0011            ; Normal iframe: assign $0011 (17 frames) invincibility
-    STA $iframeCounter, X ; Store positive counter to $7F0028,X
+    LDA #$0011
+    STA $iframeCounter, X
 
   loc_03C0C5:
-    COP [PlaySoundCh1] ( #05 ) ; COP PlaySoundCh1: hit sound #05
+    COP [PlaySoundCh1] ( #05 ) ; Hit sound #05
 
   loc_03C0C8:
-    LDA $12               ; Load secondary flags for boss check
-    BIT #$0020            ; Bit 5 ($0020) = boss/no-display flag
-    BNE loc_03C0E2        ; Boss → skip HUD update, jump to post-collision cleanup
-    SEP #$20              ; 8-bit for HUD register writes
-    LDA $0AE0             ; Load max HP from $0AE0
-    STA $enemyHpDisplay   ; Write to enemyHpDisplay ($09E4)
-    STA $enemyHpPending   ; Write to enemyHpPending ($09EA)
-    LDA $0AE2             ; Load current HP from $0AE2
-    STA $09E6             ; Write to display counter $09E6
-    REP #$20              ; 16-bit A for cleanup
+    LDA $12
+    BIT #$0020
+    BNE loc_03C0E2
+    SEP #$20
+    LDA $0AE0             ; Max/current HP → HUD display registers
+    STA $enemyHpDisplay
+    STA $enemyHpPending
+    LDA $0AE2
+    STA $09E6
+    REP #$20
 
   loc_03C0E2:
-    LDA #$0000            ; Reset direct page to 0
-    TCD                   ; TCD restores zero-page
-    LDX $0E               ; Reload render list index from DP $0E
-    LDA $0BFE, X          ; Load previous actor from render list ($0BFE,X = two entries back)
-    TAX                   ; Transfer to X for extended flag access
-    LDA $extendedFlags, X ; Load attacker's extendedFlags ($7F002A,X)
-    BIT #$0050            ; Check bits 6|4 ($0050) — collision callback trigger flags
-    BEQ loc_03C115        ; Neither set → skip callback processing at loc_03C115
-    AND #$FFAF            ; Clear bits 6|4 ($FFAF = ~$0050) from extendedFlags
-    STA $extendedFlags, X ; Store cleared flags
-    LDA $onCollideCallback, X ; Load onCollideCallback ($7F1008,X)
-    BEQ loc_03C10C        ; No callback → skip to flag toggle at loc_03C10C
-    STA $0000, X          ; Overwrite attacker entry point with collide callback
-    LDA #$0000            ; Clear the collide callback to prevent re-trigger
+    LDA #$0000
+    TCD 
+    LDX $0E
+    LDA $0BFE, X          ; $0BFE,X = previous actor in render list (the attacker)
+    TAX 
+    LDA $extendedFlags, X
+    BIT #$0050            ; $0050 in extendedFlags = collision callback trigger
+    BEQ loc_03C115
+    AND #$FFAF            ; Clear $0050, dispatch onCollideCallback, toggle $6000 in $12
+    STA $extendedFlags, X
+    LDA $onCollideCallback, X
+    BEQ loc_03C10C
+    STA $0000, X
+    LDA #$0000
     STA $onCollideCallback, X
 
   loc_03C10C:
@@ -941,17 +941,17 @@ EnemyHitPlayer_Epilogue {
 ; Sets $0080 (iframe) in actor flags, assigns iframe counter $FFEF (recovery), checks onHitCallback for custom response. Plays invincible-hit sound #09 instead of normal damage sound. Then falls through to the enemy post-collision cleanup (loc_03C0E2) which handles extendedFlags $0050 and onCollideCallback processing.
 
 InvinciblePlayerHit {
-    TXA                   ; Set DP to invincible target actor for field access
+    TXA 
     TCD 
-    LDA $10               ; Load primary flags $10 via DP
-    ORA #$0080            ; Set bit 7 ($0080) — iframe state marker
-    STA $10               ; Store updated flags
-    LDA #$FFEF            ; Assign recovery iframe counter $FFEF (−17) — negative = counting up
-    STA $iframeCounter, X ; Store to $7F0028,X
-    LDA $onHitCallback, X ; Load onHitCallback for invincible-hit response
-    BEQ loc_03C13D        ; No callback → skip at loc_03C13D
-    STA $00               ; Copy callback to entry point
-    LDA #$0000            ; Clear callback to prevent re-trigger
+    LDA $10
+    ORA #$0080            ; $0080 = iframe state
+    STA $10
+    LDA #$FFEF            ; $FFEF = recovery iframe (counts up toward zero)
+    STA $iframeCounter, X
+    LDA $onHitCallback, X ; Dispatch and clear onHitCallback if present
+    BEQ loc_03C13D
+    STA $00
+    LDA #$0000
     STA $onHitCallback, X
     LDA $02
     AND #$00FF
@@ -959,7 +959,7 @@ InvinciblePlayerHit {
     NOP 
 
   loc_03C13D:
-    COP [PlaySoundCh1] ( #09 ) ; NOP padding
+    COP [PlaySoundCh1] ( #09 )
     BRA loc_03C0E2
 }
 
@@ -975,178 +975,178 @@ InvinciblePlayerHit {
 ; Then determines direction by comparing axis deltas: |centerX_attacker − centerX_defender| vs |centerY_attacker − centerY_defender|. Returns: 0=south (defender below), 1=north (defender above), 2=west (defender left), 3=east (defender right). Returns carry clear to signal a valid direction.
 
 CalcKnockbackDirection {
-    LDY $000E             ; Load render list index from DP $0E for attacker lookup
+    LDY $000E
     LDX $0BFE, Y
     CPX $playerActor
-    SEC                   ; Attacker is not player → compute hitbox direction
-    BNE loc_03C14F        ; RTS — return with carry set (attacker is player)
+    SEC 
+    BNE loc_03C14F
     RTS 
 
   loc_03C14F:
-    SEP #$20              ; 8-bit A for bank switch
-    LDA $7F0008, X        ; Load attacker's sprite bank from $7F0008,X
-    PHA                   ; Push bank byte
-    PLB                   ; Pull into DBR
-    REP #$20              ; 16-bit A for hitbox math
-    LDA $000E, X          ; Load attacker's sprite field ($000E,X)
-    ASL                   ; ASL ×2 — shift H-mirror into carry
+    SEP #$20
+    LDA $7F0008, X
+    PHA 
+    PLB 
+    REP #$20
+    LDA $000E, X
+    ASL                   ; ASL ×2 shifts H-mirror into carry
     ASL 
-    LDY $0042             ; Load hitbox X offset from metasprite $42 (saved earlier)
-    LDA $0004, Y          ; Mask to byte
-    AND #$00FF            ; Test sign bit
+    LDY $0042
+    LDA $0004, Y
+    AND #$00FF
     BIT #$0080
     BEQ loc_03C16F
     ORA #$FF00
 
   loc_03C16F:
-    BCS loc_03C188        ; Non-mirrored path: add X offset to position
+    BCS loc_03C188
     CLC 
-    ADC $0014, X          ; CLC
+    ADC $0014, X
     STA $0018
-    LDA $0005, Y          ; Load width byte
-    AND #$00FF            ; Mask to byte
-    LSR                   ; LSR — half-width for center calculation
-    CLC                   ; Add half-width to left edge → center X
+    LDA $0005, Y
+    AND #$00FF
+    LSR 
+    CLC 
     ADC $0018
     STA $0018
     BRA loc_03C1A5
 
   loc_03C188:
-    EOR #$FFFF            ; Mirrored: negate X offset
-    INC                   ; INC completes negation
-    CLC                   ; CLC
-    ADC $0014, X          ; Mirrored: actorX + negated_offset
-    STA $0018             ; Store right edge to DP $18
+    EOR #$FFFF
+    INC 
+    CLC 
+    ADC $0014, X
+    STA $0018
     LDA $0005, Y
     AND #$00FF
-    LSR                   ; Negate half-width
+    LSR 
     EOR #$FFFF
-    INC                   ; CLC
-    CLC                   ; Mirrored center = right_edge − half_width
+    INC 
+    CLC 
     ADC $0018
     STA $0018
 
   loc_03C1A5:
-    LDA $0006, Y          ; Load hitbox Y offset from metasprite+6
-    AND #$00FF            ; Mask to byte
-    BIT #$0080            ; Test sign bit
+    LDA $0006, Y
+    AND #$00FF
+    BIT #$0080
     BEQ loc_03C1B3
     ORA #$FF00
 
   loc_03C1B3:
-    CLC                   ; CLC
-    ADC $0016, X          ; centerY_base = actorY + Y_offset
-    STA $001C             ; Store to DP $1C
+    CLC 
+    ADC $0016, X          ; Attacker hitbox center Y
+    STA $001C
     LDA $0007, Y
     AND #$00FF
-    LSR                   ; Add half-height → center Y
+    LSR 
     CLC 
     ADC $001C
-    STA $001C             ; 8-bit A for defender center calc
+    STA $001C
     SEP #$20
-    LDA $21               ; X2 − X1 = width
-    SEC                   ; 16-bit A
+    LDA $21
+    SEC 
     SBC $20
     REP #$20
-    AND #$00FF            ; LSR — half-width
+    AND #$00FF
     LSR 
-    BIT #$0040            ; Not set → skip sign extension
+    BIT #$0040
     BEQ loc_03C1DD
     ORA #$FF80
 
   loc_03C1DD:
-    CLC                   ; CLC
-    ADC $14               ; defender_centerX = defenderX ($14) + half_width
+    CLC 
+    ADC $14               ; Defender center X from hitbox fields ($20–$23)
     STA $001A
-    SEP #$20              ; 8-bit for Y axis
-    LDA $23               ; Load defender hitbox Y2 ($23 via DP)
-    SEC                   ; SEC
-    SBC $22               ; Y2 − Y1 = height
-    REP #$20              ; 16-bit A
-    AND #$00FF            ; Mask to byte
-    LSR                   ; Half-height
-    BIT #$0040            ; Test sign bit of half-height
-    BEQ loc_03C1F8        ; Not set → skip extension
-    ORA #$FF80            ; Sign-extend
+    SEP #$20
+    LDA $23
+    SEC 
+    SBC $22
+    REP #$20
+    AND #$00FF
+    LSR 
+    BIT #$0040
+    BEQ loc_03C1F8
+    ORA #$FF80
 
   loc_03C1F8:
-    CLC                   ; CLC
-    ADC $16               ; defender_centerY = defenderY ($16) + half_height
+    CLC 
+    ADC $16               ; Defender center Y
     STA $001E
-    LDA #$0000            ; Reset direct page to 0 for absolute addressing
-    TCD                   ; TCD restores zero-page
-    LDA $18               ; Load attacker center X from DP $18
-    SEC                   ; SEC for comparison subtraction
-    SBC $1A               ; deltaX = attackerCenterX − defenderCenterX ($1A)
+    LDA #$0000
+    TCD 
+    LDA $18
+    SEC 
+    SBC $1A               ; deltaX = attacker − defender center; deltaY likewise
     BCS loc_03C22A
     EOR #$FFFF
     INC 
-    STA $08               ; INC completes abs(deltaX)
+    STA $08
     LDA $1C
     SEC 
     SBC $1E
     BCS loc_03C222
     EOR #$FFFF
-    INC                   ; Compare |deltaY| vs |deltaX|
+    INC                   ; |deltaY| vs |deltaX| → axis-dominant cardinal direction
     CMP $08
     BCS loc_03C256
     NOP 
-    NOP                   ; Y dominant, attacker above → direction is east/west
+    NOP 
     BRA loc_03C24C
 
   loc_03C222:
-    CMP $08               ; Compare |deltaY| vs |deltaX| (attacker above, defender left)
+    CMP $08
     BCS loc_03C251
     NOP 
-    NOP                   ; NOP padding
+    NOP 
     BRA loc_03C24C
 
   loc_03C22A:
-    STA $08               ; Store |deltaX| to DP $08
-    LDA $1C               ; deltaY = $1C − $1E
+    STA $08
+    LDA $1C
     SEC 
-    SBC $1E               ; Carry clear = attacker above
-    BCS loc_03C23F        ; Negate deltaY
+    SBC $1E
+    BCS loc_03C23F
     EOR #$FFFF
     INC 
     CMP $08
     BCS loc_03C256
     NOP 
-    NOP                   ; X dominant → west direction
+    NOP 
     BRA loc_03C247
 
   loc_03C23F:
-    CMP $08               ; |deltaY| vs |deltaX|
+    CMP $08
     BCS loc_03C251
     NOP 
-    NOP                   ; NOP padding
+    NOP 
     BRA loc_03C247
 
   loc_03C247:
-    CLC                   ; CLC — carry clear = valid direction computed
-    LDA #$0002            ; Return direction 2 (west) in A
-    RTS                   ; RTS
+    CLC 
+    LDA #$0002            ; Direction 2 = west
+    RTS 
 
   loc_03C24C:
-    CLC                   ; CLC — valid direction
-    LDA #$0003            ; Return direction 3 (east) in A
-    RTS                   ; RTS
+    CLC 
+    LDA #$0003            ; Direction 3 = east
+    RTS 
 
   loc_03C251:
-    CLC                   ; CLC — valid direction
-    LDA #$0001            ; Return direction 1 (north) in A
-    RTS                   ; RTS
+    CLC 
+    LDA #$0001            ; Direction 1 = north
+    RTS 
 
   loc_03C256:
-    CLC                   ; CLC — valid direction
-    LDA #$0000            ; Return direction 0 (south) in A
-    RTS                   ; RTS
+    CLC 
+    LDA #$0000            ; Direction 0 = south
+    RTS 
 }
 
 InteractionCollision_Exit {
-    PLB                   ; Restore data bank
-    PLP                   ; Restore processor flags
-    RTL                   ; RTL — exit from interaction collision
+    PLB 
+    PLP 
+    RTL 
 }
 
 ---------------------------------------------
@@ -1161,22 +1161,22 @@ InteractionCollision_Exit {
 ; FriendlyMode: only tests actors with $0020 flag (friendly). Simplified hitbox test without H-mirror path. Single-hit return (first overlap triggers interaction and exits).
 
 RunInteractionCollision {
-    PHP                   ; Save processor status
-    PHB                   ; Save data bank register
-    REP #$20              ; 16-bit A for position math
-    LDY $playerActor      ; Load player Y index from $09AA for position access
-    LDA $0014, Y          ; Load player X position ($0014,Y)
-    SEC                   ; Subtract 4: interaction box left = playerX − 4
+    PHP 
+    PHB 
+    REP #$20
+    LDY $playerActor
+    LDA $0014, Y
+    SEC                   ; Interaction box: X ± 4px, Y from (Y−14) to (Y−4)
     SBC #$0004
     STA $18
     CLC 
     ADC #$0008
-    STA $1A               ; Load player Y position ($0016,Y)
+    STA $1A
     LDA $0016, Y
     SEC 
-    SBC #$0004            ; Store bottom edge to DP $1E
+    SBC #$0004
     STA $1E
-    SEC                   ; Store top edge to DP $1C
+    SEC 
     SBC #$000A
     STA $1C
     LDA $0010, Y
@@ -1187,191 +1187,191 @@ RunInteractionCollision {
     JMP $&InteractionCollision_FriendlyMode
 
   loc_03C293:
-    LDY #$0000            ; Normal mode: initialize render list index Y = 0
-    STY $0E               ; Store index to DP $0E
+    LDY #$0000
+    STY $0E
 
   InteractionCollision_LoopBody:
-    LDY $0E               ; Reload render list index from DP $0E
+    LDY $0E
 
   loc_03C29A:
-    LDX $0C00, Y          ; Load next actor from render list ($0C00,Y)
-    BEQ InteractionCollision_Exit ; Null = end of list → exit interaction collision
-    INY                   ; Advance index by 2
+    LDX $0C00, Y
+    BEQ InteractionCollision_Exit
     INY 
-    LDA $0010, X          ; Load actor flags ($0010,X)
-    BIT #$35C0            ; Exclusion mask $35C0: skip dead/orb/COP/pause/display actors
-    BNE loc_03C29A        ; Any exclusion bit set → try next actor
-    STY $0E               ; Save updated index to DP $0E
-    SEP #$20              ; 8-bit A for bank switch
-    LDA $7F0008, X        ; Load actor's sprite bank from $7F0008,X
-    PHA                   ; Push bank byte
-    PLB                   ; Pull into DBR
-    REP #$20              ; 16-bit A for hitbox math
-    TXY                   ; Transfer actor X→Y for position reads; X will hold metasprite
-    LDA $metaspritePtr, X ; Load metasprite pointer ($7F000C,X → now via bank register)
-    TAX                   ; Transfer to X for offset reads
-    LDA $000E, Y          ; Load sprite field ($000E,Y) for H-mirror flag
-    ASL                   ; ASL ×2 — H-mirror flag into carry
+    INY 
+    LDA $0010, X
+    BIT #$35C0            ; $35C0: skip dead/orb/COP/pause/display
+    BNE loc_03C29A
+    STY $0E
+    SEP #$20
+    LDA $7F0008, X
+    PHA 
+    PLB 
+    REP #$20
+    TXY 
+    LDA $metaspritePtr, X
+    TAX 
+    LDA $000E, Y
     ASL 
-    LDA $0004, X          ; Load hitbox X offset from metasprite+4 (signed byte)
-    AND #$00FF            ; Mask to byte
-    BIT #$0080            ; Test sign bit
+    ASL 
+    LDA $0004, X          ; AABB overlap with H-mirror (same pattern as CombatCollision)
+    AND #$00FF
+    BIT #$0080
     BEQ loc_03C2CE
     ORA #$FF00
 
   loc_03C2CE:
-    BCS loc_03C2E8        ; Carry set = mirrored → negated hitbox path at loc_03C2E8
-    ADC $0014, Y          ; Non-mirrored: actorX ($0014,Y) + X_offset (carry clear from BCS fail)
-    CMP $1A               ; Compare right edge vs player interaction right ($1A)
-    BCS InteractionCollision_LoopBody ; Actor right ≥ player right → no overlap, next actor
-    STA $06               ; Store left edge to DP $06
-    LDA $0005, X          ; Load width from metasprite+5 (unsigned byte)
-    AND #$00FF            ; Mask to byte
-    CLC                   ; CLC
-    ADC $06               ; actor_right = left + width
-    CMP $18               ; Compare actor_right vs player interaction left ($18)
-    BCC InteractionCollision_LoopBody ; actor_right < player_left → no overlap
-    BRA loc_03C307        ; Both X edges overlap → check Y axis
+    BCS loc_03C2E8
+    ADC $0014, Y
+    CMP $1A
+    BCS InteractionCollision_LoopBody
+    STA $06
+    LDA $0005, X
+    AND #$00FF
+    CLC 
+    ADC $06
+    CMP $18
+    BCC InteractionCollision_LoopBody
+    BRA loc_03C307
 
   loc_03C2E8:
-    EOR #$FFFF            ; Mirrored: negate X offset
-    INC                   ; INC completes negation
-    CLC                   ; CLC
-    ADC $0014, Y          ; Mirrored: actorX + (−offset) = actorX − offset
-    CMP $18               ; Compare left vs player left ($18)
-    BCC InteractionCollision_LoopBody ; actor_left < player_left → no overlap
-    STA $06               ; Store right edge to DP $06
-    LDA $0005, X          ; Load width
-    AND #$00FF            ; Mask to byte
-    EOR #$FFFF            ; Negate width
-    INC                   ; INC
-    CLC                   ; CLC
-    ADC $06               ; Mirrored left = right − width
-    CMP $1A               ; Compare mirrored_left vs player right ($1A)
-    BCS InteractionCollision_LoopBody ; mirrored_left ≥ player_right → no overlap
+    EOR #$FFFF
+    INC 
+    CLC 
+    ADC $0014, Y
+    CMP $18
+    BCC InteractionCollision_LoopBody
+    STA $06
+    LDA $0005, X
+    AND #$00FF
+    EOR #$FFFF
+    INC 
+    CLC 
+    ADC $06
+    CMP $1A
+    BCS InteractionCollision_LoopBody
 
   loc_03C307:
-    LDA $0006, X          ; Y axis check: load hitbox Y offset from metasprite+6 (signed byte)
-    AND #$00FF            ; Mask to byte
-    BIT #$0080            ; Test sign bit
+    LDA $0006, X
+    AND #$00FF
+    BIT #$0080
     BEQ loc_03C315
     ORA #$FF00
 
   loc_03C315:
-    CLC                   ; CLC
-    ADC $0016, Y          ; actorY_top = actorY ($0016,Y) + Y_offset
-    CMP $1E               ; Compare top vs player bottom ($1E)
-    BCC loc_03C320        ; actor_top < player_bottom → overlap possible (note: screen Y is inverted)
-    JMP $&InteractionCollision_LoopBody ; actor_top ≥ player_bottom → no overlap, jump to loop
+    CLC 
+    ADC $0016, Y
+    CMP $1E
+    BCC loc_03C320
+    JMP $&InteractionCollision_LoopBody
 
   loc_03C320:
-    STA $02               ; Store Y top to DP $02
-    LDA $0007, X          ; Load height from metasprite+7
-    AND #$00FF            ; Mask to byte
-    CLC                   ; CLC
-    ADC $02               ; actor_bottom = top + height
-    CMP $1C               ; Compare bottom vs player top ($1C)
-    BCS loc_03C332        ; Overlap! → process interaction hit at loc_03C332
-    JMP $&InteractionCollision_LoopBody ; actor_bottom < player_top → no overlap
+    STA $02
+    LDA $0007, X
+    AND #$00FF
+    CLC 
+    ADC $02
+    CMP $1C
+    BCS loc_03C332
+    JMP $&InteractionCollision_LoopBody
 
   loc_03C332:
-    PHX                   ; Save metasprite X for later hitbox center calc
-    TYX                   ; Transfer actor Y→X for extended flag check
-    LDA $extendedFlags, X ; Load extendedFlags ($7F002A,X) for interaction trigger check
-    BIT #$0010            ; Bit 4 ($0010) = has interaction/collision callback
-    BEQ loc_03C35B        ; No interaction flag → skip callback at loc_03C35B
-    LDA $onCollideCallback, X ; Load onCollideCallback ($7F1008,X)
-    BEQ loc_03C348        ; No callback → use default handler at loc_03C348
-    STA $0000, X          ; Overwrite actor entry point with callback address
-    BRA loc_03C354        ; Branch to clear frame counter
+    PHX 
+    TYX 
+    LDA $extendedFlags, X
+    BIT #$0010            ; $0010 in extendedFlags = interaction callback
+    BEQ loc_03C35B
+    LDA $onCollideCallback, X
+    BEQ loc_03C348
+    STA $0000, X          ; Overwrite entry point with onCollideCallback or default smooth_follow_child
+    BRA loc_03C354
 
   loc_03C348:
-    LDA #$*smooth_follow_child.loc_00E4FA ; Default: load smooth_follow_child.loc_00E4FA bank byte
-    STA $0002, X          ; Store to actor bank ($0002,X)
-    LDA #$&smooth_follow_child.loc_00E4FA ; Load smooth_follow_child.loc_00E4FA address
-    STA $0000, X          ; Store to actor entry point ($0000,X)
+    LDA #$*smooth_follow_child.loc_00E4FA
+    STA $0002, X
+    LDA #$&smooth_follow_child.loc_00E4FA
+    STA $0000, X
 
   loc_03C354:
-    LDA #$0000            ; Clear actor frame counter ($0008,X) for immediate execution
-    STA $0008, X          ; Transfer back to Y for ApplyInteractionDamage
+    LDA #$0000
+    STA $0008, X
     TXY 
 
   loc_03C35B:
-    PLX                   ; Restore metasprite X from stack
-    JSR $&ApplyInteractionDamage ; JSR ApplyInteractionDamage — apply damage or chat interaction
+    PLX 
+    JSR $&ApplyInteractionDamage
 
   loc_03C35F:
-    PLB                   ; Restore data bank and processor flags — shared exit point
+    PLB 
     PLP 
     RTL 
 }
 
 InteractionCollision_FriendlyMode {
-    LDY #$0000            ; FriendlyMode: initialize render list index Y = 0
-    STY $0E               ; Store to DP $0E
+    LDY #$0000
+    STY $0E
 
   loc_03C367:
-    LDY $0E               ; Reload index from DP $0E
+    LDY $0E
 
   loc_03C369:
-    LDX $0C00, Y          ; Load next actor from render list ($0C00,Y)
-    BEQ loc_03C35F        ; Null = end → exit at loc_03C35F (shared exit)
-    INY                   ; Advance index by 2
+    LDX $0C00, Y
+    BEQ loc_03C35F
     INY 
-    LDA $0010, X          ; Load actor flags ($0010,X)
-    BIT #$3540            ; Exclusion mask $3540: skip dead/COP/pause/display (but allow $0020 friendly)
-    BNE loc_03C369        ; Any exclusion bit → skip
-    BIT #$0020            ; Bit 5 ($0020) = friendly/NPC flag — REQUIRED for friendly mode
-    BEQ loc_03C369        ; Not friendly → skip this actor
-    STY $0E               ; Save updated index to DP $0E
-    SEP #$20              ; 8-bit for bank switch
-    LDA $7F0008, X        ; Load sprite bank byte
-    PHA                   ; Push and pull into DBR
+    INY 
+    LDA $0010, X
+    BIT #$3540            ; $3540: like $35C0 but allows $0020 (friendly NPC)
+    BNE loc_03C369
+    BIT #$0020            ; $0020 = friendly — REQUIRED in FriendlyMode
+    BEQ loc_03C369
+    STY $0E
+    SEP #$20
+    LDA $7F0008, X
+    PHA 
     PLB 
-    REP #$20              ; 16-bit A
-    TXY                   ; Transfer actor X→Y for position reads
-    LDA $metaspritePtr, X ; Load metasprite pointer
-    TAX                   ; Transfer to X for offset reads
-    LDA $0004, X          ; Load hitbox X offset (simplified — no H-mirror for friendly mode)
-    AND #$00FF            ; Mask to byte
-    BIT #$0080            ; Test sign bit
+    REP #$20
+    TXY 
+    LDA $metaspritePtr, X
+    TAX 
+    LDA $0004, X          ; Simplified AABB: no H-mirror for friendly actors
+    AND #$00FF
+    BIT #$0080
     BEQ loc_03C39D
     ORA #$FF00
 
   loc_03C39D:
-    CLC                   ; CLC
-    ADC $0014, Y          ; left_edge = actorX ($0014,Y) + offset
-    CMP $1A               ; Compare vs player right ($1A)
-    BCS loc_03C367        ; actor_left ≥ player_right → no overlap
-    STA $06               ; Store left to DP $06
-    LDA $0005, X          ; Load width from metasprite+5
-    AND #$00FF            ; Mask to byte
-    CLC                   ; CLC
-    ADC $0014, Y          ; right = actorX + width (note: uses actorX not left; simplified calc)
-    CMP $18               ; Compare right vs player left ($18)
-    BCC loc_03C367        ; right < player_left → no overlap
-    LDA $0006, X          ; Load hitbox Y offset from metasprite+6
-    AND #$00FF            ; Mask to byte
-    BIT #$0080            ; Test sign bit
+    CLC 
+    ADC $0014, Y
+    CMP $1A
+    BCS loc_03C367
+    STA $06
+    LDA $0005, X
+    AND #$00FF
+    CLC 
+    ADC $0014, Y
+    CMP $18
+    BCC loc_03C367
+    LDA $0006, X
+    AND #$00FF
+    BIT #$0080
     BEQ loc_03C3C3
     ORA #$FF00
 
   loc_03C3C3:
-    CLC                   ; CLC
-    ADC $0016, Y          ; top = actorY ($0016,Y) + Y_offset
-    CMP $1E               ; Compare top vs player bottom ($1E)
-    BCS loc_03C367        ; top ≥ player_bottom → no overlap
-    STA $02               ; Store top to DP $02
-    LDA $0007, X          ; Load height from metasprite+7
-    AND #$00FF            ; Mask to byte
-    CLC                   ; CLC
-    ADC $02               ; bottom = top + height
-    CMP $1C               ; Compare bottom vs player top ($1C)
-    BCC loc_03C367        ; bottom < player_top → no overlap
-    JSR $&ApplyInteractionDamage ; Overlap! JSR ApplyInteractionDamage — handle NPC interaction
-    PLB                   ; Restore data bank (friendly mode single-hit exit)
-    PLP                   ; Restore processor flags
-    RTL                   ; RTL — exit after first friendly interaction hit
+    CLC 
+    ADC $0016, Y
+    CMP $1E
+    BCS loc_03C367
+    STA $02
+    LDA $0007, X
+    AND #$00FF
+    CLC 
+    ADC $02
+    CMP $1C
+    BCC loc_03C367
+    JSR $&ApplyInteractionDamage ; Single-hit exit — first overlap triggers and returns
+    PLB 
+    PLP 
+    RTL 
 }
 
 ---------------------------------------------
@@ -1386,133 +1386,133 @@ InteractionCollision_FriendlyMode {
 ; Plays character-form-specific hit sound: Freedan/Shadow = #08, Will = #07.
 
 ApplyInteractionDamage {
-    LDA $0010, Y          ; Load target actor flags ($0010,Y) for NPC check
-    BIT #$0020            ; Bit 5 ($0020) = friendly/NPC actor
-    BEQ loc_03C3EB        ; NPC → route to InteractionDamage_NPCChat
-    JMP $&InteractionDamage_NPCChat ; Combat actor: JMP to hitbox center calc path
+    LDA $0010, Y
+    BIT #$0020            ; $0020 = NPC → InteractionDamage_NPCChat
+    BEQ loc_03C3EB
+    JMP $&InteractionDamage_NPCChat
 
   loc_03C3EB:
-    LDA $000E, Y          ; Load actor sprite field ($000E,Y) for H-mirror
-    ASL                   ; ASL ×2 to get carry = H-mirror flag
+    LDA $000E, Y
+    ASL                   ; Compute interaction hitbox center (with H-mirror)
     ASL 
-    LDA $0004, X          ; Load hitbox X offset from metasprite+4 (signed byte)
-    AND #$00FF            ; Mask to byte
-    BIT #$0080            ; Test sign bit
+    LDA $0004, X
+    AND #$00FF
+    BIT #$0080
     BEQ loc_03C3FE
     ORA #$FF00
 
   loc_03C3FE:
-    BCS loc_03C413        ; Carry set = mirrored → negated path at loc_03C413
-    ADC $0014, Y          ; Non-mirrored: actorX + offset
-    STA $00               ; Store to DP $00 (left edge for center calc)
-    LDA $0005, X          ; Load width from metasprite+5
-    AND #$00FF            ; Mask to byte
-    LSR                   ; LSR — half-width for center
-    CLC                   ; CLC
-    ADC $00               ; center_X = left + half_width
-    STA $00               ; Store center X to DP $00
-    BRA loc_03C42D        ; Branch to Y center calc
+    BCS loc_03C413
+    ADC $0014, Y
+    STA $00
+    LDA $0005, X
+    AND #$00FF
+    LSR 
+    CLC 
+    ADC $00
+    STA $00
+    BRA loc_03C42D
 
   loc_03C413:
-    EOR #$FFFF            ; Mirrored: negate X offset
-    INC                   ; INC
-    CLC                   ; CLC
-    ADC $0014, Y          ; Mirrored: actorX + negated_offset
-    STA $00               ; Store to DP $00
-    LDA $0005, X          ; Load width
-    AND #$00FF            ; Mask to byte
-    LSR                   ; Half-width
-    EOR #$FFFF            ; Negate half-width
-    INC                   ; INC
-    CLC                   ; CLC
-    ADC $00               ; Mirrored center = right − half_width
-    STA $00               ; Store mirrored center X to DP $00
+    EOR #$FFFF
+    INC 
+    CLC 
+    ADC $0014, Y
+    STA $00
+    LDA $0005, X
+    AND #$00FF
+    LSR 
+    EOR #$FFFF
+    INC 
+    CLC 
+    ADC $00
+    STA $00
 
   loc_03C42D:
-    LDA $0006, X          ; Load hitbox Y offset from metasprite+6 (signed byte)
-    AND #$00FF            ; Mask to byte
-    BIT #$0080            ; Test sign bit
+    LDA $0006, X
+    AND #$00FF
+    BIT #$0080
     BEQ loc_03C43B
     ORA #$FF00
 
   loc_03C43B:
-    CLC                   ; CLC
-    ADC $0016, Y          ; actorY ($0016,Y) + Y_offset = top edge
-    STA $02               ; Store to DP $02
-    LDA $0007, X          ; Load height from metasprite+7
-    AND #$00FF            ; Mask to byte
-    LSR                   ; Half-height
-    CLC                   ; CLC
-    ADC $02               ; center_Y = top + half_height
-    STA $02               ; Store center Y to DP $02
-    SEP #$20              ; 8-bit for bank switch to $81
-    LDA #$81              ; Push $81
-    PHA                   ; Pull into DBR for RAM access
+    CLC 
+    ADC $0016, Y
+    STA $02
+    LDA $0007, X
+    AND #$00FF
+    LSR 
+    CLC 
+    ADC $02
+    STA $02
+    SEP #$20
+    LDA #$81
+    PHA 
     PLB 
-    REP #$20              ; 16-bit A for damage math
-    STY $08               ; Save target actor Y to DP $08
-    TYX                   ; Transfer actor Y→X for stats access
-    LDA $statsPtr, X      ; Load statsPtr ($7F0020,X)
-    TAY                   ; Transfer to Y for indirect read
-    LDA $0001, Y          ; Load enemy attack power from stats[1] (byte, zero-extended)
-    AND #$00FF            ; Mask to byte
-    SEC                   ; SEC for subtraction
-    SBC $playerDef        ; rawDamage = enemyAtk − playerDef ($0ADC)
-    BEQ loc_03C46B        ; Zero damage → floor to 1
-    BCS loc_03C46E        ; Positive → use calculated damage
+    REP #$20
+    STY $08
+    TYX 
+    LDA $statsPtr, X
+    TAY 
+    LDA $0001, Y
+    AND #$00FF
+    SEC 
+    SBC $playerDef        ; damage = max(1, enemyAtk(stats[1]) − playerDef)
+    BEQ loc_03C46B
+    BCS loc_03C46E
 
   loc_03C46B:
-    LDA #$0001            ; Minimum damage = 1
+    LDA #$0001
 
   loc_03C46E:
-    EOR #$FFFF            ; Negate damage for HP subtraction
-    INC                   ; INC completes negation
-    CLC                   ; CLC
-    ADC $playerHp         ; playerHp = playerHp ($0ACE) − damage
-    BPL loc_03C47B        ; HP positive → store normally
-    LDA #$0000            ; Clamp to 0
+    EOR #$FFFF
+    INC 
+    CLC 
+    ADC $playerHp
+    BPL loc_03C47B
+    LDA #$0000
 
   loc_03C47B:
-    STA $playerHp         ; Store updated HP to playerHp ($0ACE)
-    LDA $playerActor      ; Load player actor from $09AA
-    TCD                   ; Set DP to player actor for field access
-    TAX                   ; TAX — also in X for indexed ops
-    LDA #$0080            ; Set bit 7 ($0080) = iframe state in player flags
-    TSB $10               ; TSB $10
-    LDA #$003C            ; Assign 60-frame ($003C) iframe counter — longer than combat (17)
-    STA $iframeCounter, X ; Store to $7F0028,X (player iframe counter)
-    LDA $playerFlags      ; Load playerFlags for special state check
-    BIT #$1800            ; Bits 11|12 ($1800) = cutscene or overlay state
-    BNE loc_03C4C2        ; Either set → skip stagger spawn at loc_03C4C2
-    COP [SpawnLastRel] ( @hit_stagger_controller.HitStaggerMain, #00, #00, #$2400 ) ; COP SpawnLastRel: spawn HitStaggerMain ($2400 priority)
+    STA $playerHp
+    LDA $playerActor
+    TCD 
+    TAX 
+    LDA #$0080
+    TSB $10
+    LDA #$003C            ; 60-frame iframe ($003C) — longer than combat's 17
+    STA $iframeCounter, X
+    LDA $playerFlags
+    BIT #$1800
+    BNE loc_03C4C2
+    COP [SpawnLastRel] ( @hit_stagger_controller.HitStaggerMain, #00, #00, #$2400 ) ; Spawn HitStaggerMain; CalcKnockbackFromActorCenters for knockback
     CPY #$1FC0
     BEQ loc_03C4C2
     LDA $extendedFlags, X
     AND #$0020
-    PHX                   ; Switch to stagger actor for flag write
-    TYX                   ; Copy direction flag to stagger
+    PHX 
+    TYX 
     STA $extendedFlags, X
     PLX 
     LDA #$0F00
     TSB $joypadMaskStd
     JSR $&CalcKnockbackFromActorCenters
-    STA $28               ; Zero stagger velocity X
-    STZ $2C               ; Zero stagger velocity Y
+    STA $28
+    STZ $2C
     STZ $2E
 
   loc_03C4C2:
-    LDA $characterForm    ; Load characterForm for sound selection
-    BEQ loc_03C4CC        ; Form 0 (Will) → play sound #07
-    COP [PlaySoundCh2] ( #08 ) ; Non-Will form: COP PlaySoundCh2 sound #08 (Freedan/Shadow hit)
+    LDA $characterForm
+    BEQ loc_03C4CC
+    COP [PlaySoundCh2] ( #08 ) ; Freedan/Shadow hit #08; Will hit #07
     BRA loc_03C4CF
 
   loc_03C4CC:
-    COP [PlaySoundCh2] ( #07 ) ; Will: COP PlaySoundCh2 sound #07
+    COP [PlaySoundCh2] ( #07 )
 
   loc_03C4CF:
-    LDA #$0000            ; Reset direct page to 0
-    TCD                   ; CLC — success return
-    CLC                   ; RTS to caller
+    LDA #$0000
+    TCD 
+    CLC 
     RTS 
 }
 
@@ -1524,11 +1524,11 @@ ApplyInteractionDamage {
 ; If the item was given or chatPtr indicates dialogue: loads the chatPtr value. Values ≥ $81 are treated as dialogue script indices; values < $81 are item IDs shown in a dialogue frame. After interaction, converts the NPC actor to NullActorScriptStub (dead stub) by overwriting its entry point and zeroing the frame counter. Sets $0700 in flags to prevent re-interaction.
 
 InteractionDamage_NPCChat {
-    TYX                   ; Transfer target actor Y→X for bank switch
-    SEP #$20              ; 8-bit for DBR setup
-    LDA #$81              ; Push $81 for bank register
-    PHA                   ; Pull into DBR
-    PLB                   ; 16-bit A for item/dialogue data
+    TYX 
+    SEP #$20
+    LDA #$81
+    PHA 
+    PLB 
     REP #$20
     LDA $chatPtr, X
     JSL $@inventory_mgmt.GiveItemToPlayer
@@ -1537,28 +1537,28 @@ InteractionDamage_NPCChat {
     STA $0DB8
     LDY #$&itemget_table_01FD24.widestring_01FF02
     JSL $@dialogue_display.ShowDialogueFrame
-    SEC                   ; RTS to caller
+    SEC 
     RTS 
 
   loc_03C4F7:
-    LDA $chatPtr, X       ; Load chatPtr again for dialogue path
-    CMP #$0081            ; Compare to $0081 — values ≥ $81 are dialogue script indices
-    BCS loc_03C50A        ; ≥ $81 → skip item display, go to NPC deactivation at loc_03C50A
-    AND #$00FF            ; Mask to byte for item display
-    STA $0DB8             ; Store to $0DB8 as dialogue parameter
-    JSL $@dialogue_display.ShowDialogueFrame ; JSL ShowDialogueFrame — display item/chat dialogue
+    LDA $chatPtr, X
+    CMP #$0081            ; ≥ $81 = dialogue script; < $81 = item ID for display
+    BCS loc_03C50A
+    AND #$00FF
+    STA $0DB8
+    JSL $@dialogue_display.ShowDialogueFrame
 
   loc_03C50A:
-    LDA #$*NullActorScriptStub ; Deactivate NPC: load NullActorScriptStub bank byte
-    STA $0002, X          ; Store to actor bank ($0002,X)
-    LDA #$&NullActorScriptStub ; Load NullActorScriptStub address
-    STA $0000, X          ; Store to actor entry point ($0000,X)
-    STZ $0008, X          ; Clear frame counter ($0008,X)
-    LDA $0010, X          ; Load actor flags ($0010,X)
-    ORA #$0700            ; Set $0700 — disable all interaction and display flags
-    STA $0010, X          ; Store updated flags
-    SEC                   ; SEC = interaction handled, NPC deactivated
-    RTS                   ; RTS
+    LDA #$*NullActorScriptStub ; Deactivate: NullActorScriptStub + $0700 prevents re-interaction
+    STA $0002, X
+    LDA #$&NullActorScriptStub
+    STA $0000, X
+    STZ $0008, X
+    LDA $0010, X
+    ORA #$0700
+    STA $0010, X
+    SEC 
+    RTS 
 }
 
 ---------------------------------------------
@@ -1569,78 +1569,78 @@ InteractionDamage_NPCChat {
 ; Returns direction in A. Used by ApplyInteractionDamage for interaction knockback where precise hitbox geometry is not needed.
 
 CalcKnockbackFromActorCenters {
-    PHY                   ; Save current Y (stagger actor pointer) to stack
-    LDA #$0000            ; Reset DP to 0 for absolute addressing
-    TCD                   ; TCD
-    LDY $08               ; Load target actor from DP $08 into Y
-    LDA $1A               ; Load player interaction box right ($1A)
-    SEC                   ; SEC
-    SBC #$0004            ; Adjust right edge: subtract 4px for tighter center estimate
-    STA $1A               ; Store adjusted right to DP $1A
-    SEC                   ; SEC
-    SBC $00               ; deltaX = adjusted_player_right − target_center_X ($00)
+    PHY 
+    LDA #$0000
+    TCD 
+    LDY $08
+    LDA $1A
+    SEC 
+    SBC #$0004            ; ±4px adjustment from interaction box edges for center estimate
+    STA $1A
+    SEC 
+    SBC $00               ; Compare axis deltas → cardinal direction
     BCS loc_03C55B
     EOR #$FFFF
     INC 
-    STA $04               ; INC
+    STA $04
     LDA $1E
     SEC 
-    SBC #$0004            ; SEC
+    SBC #$0004
     STA $1E
     SEC 
-    SBC $02               ; SEC
+    SBC $02
     BCS loc_03C555
-    EOR #$FFFF            ; Carry clear = player is above target
+    EOR #$FFFF
     INC 
     CMP $04
-    BCC loc_03C578        ; Compare |deltaY| vs |deltaX|
-    BRA loc_03C582        ; |deltaY| < |deltaX| → X-dominant (E/W) at loc_03C578
+    BCC loc_03C578
+    BRA loc_03C582
 
   loc_03C555:
-    CMP $04               ; Y dominant: compare axis deltas (player below)
+    CMP $04
     BCS loc_03C587
     BRA loc_03C578
 
   loc_03C55B:
-    STA $04               ; player left: store |deltaX|
-    LDA $1E               ; Load bottom
-    SEC                   ; SEC
-    SBC #$0004            ; Subtract 4px adjustment
-    SEC                   ; SEC
-    SBC $02               ; deltaY (player left branch)
+    STA $04
+    LDA $1E
+    SEC 
+    SBC #$0004
+    SEC 
+    SBC $02
     BCS loc_03C572
     EOR #$FFFF
     INC 
-    CMP $04               ; INC
+    CMP $04
     BCS loc_03C582
     BRA loc_03C57D
 
   loc_03C572:
-    CMP $04               ; |deltaY| vs |deltaX| (player below, left)
+    CMP $04
     BCC loc_03C57D
     BRA loc_03C587
 
   loc_03C578:
-    LDY #$0002            ; Return direction 2 (west): load Y=2
-    BRA loc_03C58A        ; Branch to return epilogue
+    LDY #$0002            ; Direction 2 = west
+    BRA loc_03C58A
 
   loc_03C57D:
-    LDY #$0003            ; Return direction 3 (east): load Y=3
-    BRA loc_03C58A        ; Branch to return epilogue
+    LDY #$0003            ; Direction 3 = east
+    BRA loc_03C58A
 
   loc_03C582:
-    LDY #$0001            ; Return direction 1 (north): load Y=1
-    BRA loc_03C58A        ; Branch to return epilogue
+    LDY #$0001            ; Direction 1 = north
+    BRA loc_03C58A
 
   loc_03C587:
-    LDY #$0000            ; Return direction 0 (south): load Y=0
+    LDY #$0000            ; Direction 0 = south
 
   loc_03C58A:
-    PLA                   ; Return epilogue: restore stagger actor from stack → X
+    PLA 
     TAX 
-    TCD                   ; Restore DP from X (TCD sets DP to actor base)
-    TYA                   ; Transfer direction Y→A for return value
-    RTS                   ; RTS — return direction in A
+    TCD 
+    TYA 
+    RTS 
 }
 
 ---------------------------------------------
@@ -1655,73 +1655,73 @@ CalcKnockbackFromActorCenters {
 ; The packed format matches what SpawnAttackTrailEffect expects for rendering individual digit sprites as floating damage numbers.
 
 FormatDamageDigits {
-    PHA                   ; Save damage value to stack for processing
-    LDY $0000             ; Load current actor entry point to Y (will restore at end)
-    STZ $0000             ; Zero the digit accumulator at $0000
-    CMP #$03E8            ; Compare damage to 1000 ($03E8)
-    BCS loc_03C5F9        ; ≥1000 → overflow, return carry set at loc_03C5F9
-    CMP #$01F4            ; Compare to 500 ($01F4)
-    BCC loc_03C5AC        ; < 500 → skip 500 subtraction
-    SEC                   ; Subtract 500: remainder in A
+    PHA 
+    LDY $0000
+    STZ $0000
+    CMP #$03E8            ; ≥ 1000 ($03E8) → overflow (carry set)
+    BCS loc_03C5F9
+    CMP #$01F4
+    BCC loc_03C5AC
+    SEC                   ; Hundreds: subtract 500, then loop-subtract 100
     SBC #$01F4
-    PHA                   ; Set hundreds digit = 5
+    PHA 
     LDA #$0005
     STA $0000
     PLA 
 
   loc_03C5AC:
-    CMP #$0064            ; Compare remainder to 100 ($0064)
-    BCC loc_03C5BA        ; < 100 → done with hundreds digit
-    SEC                   ; Subtract 100
+    CMP #$0064
+    BCC loc_03C5BA
+    SEC 
     SBC #$0064
     INC $0000
     BRA loc_03C5AC
 
   loc_03C5BA:
-    PHA                   ; Save tens+ones remainder to stack
-    LDA $0000             ; Load hundreds digit, swap bytes (XBA) for high-byte packing
-    XBA                   ; Mask to keep only high byte (hundreds in bits 15-8)
+    PHA 
+    LDA $0000             ; XBA packs hundreds into high byte
+    XBA 
     AND #$FF00
     STA $0000
     PLA 
-    SEP #$20              ; Compare to 50 ($32)
-    CMP #$32              ; < 50 → skip
-    BCC loc_03C5D6        ; Subtract 50
-    SEC                   ; Save remainder
-    SBC #$32              ; Set tens digit = 5
-    PHA                   ; Store 5 to low byte of accumulator
+    SEP #$20              ; Tens: subtract 50 then loop-subtract 10 (8-bit)
+    CMP #$32
+    BCC loc_03C5D6
+    SEC 
+    SBC #$32
+    PHA 
     LDA #$05
     STA $0000
     PLA 
 
   loc_03C5D6:
-    CMP #$0A              ; Compare to 10 ($0A)
-    BCC loc_03C5E2        ; < 10 → done with tens
-    SEC                   ; Subtract 10
+    CMP #$0A
+    BCC loc_03C5E2
+    SEC 
     SBC #$0A
     INC $0000
     BRA loc_03C5D6
 
   loc_03C5E2:
-    PHA                   ; Save ones digit to stack (remainder = ones)
-    LDA $0000             ; Load tens digit from accumulator
+    PHA 
+    LDA $0000
     ASL 
     ASL 
     ASL 
-    ASL                   ; ORA with ones (still on stack as $01,S) — pack tens|ones into one byte
+    ASL 
     ORA $01, S
-    STA $01, S            ; Write packed byte back to stack
-    PLA                   ; 16-bit A for final result assembly
+    STA $01, S
+    PLA 
     REP #$20
     STA $01, S
-    STY $0000             ; Restore actor entry point Y
-    PLA                   ; CLC — carry clear = success (damage < 1000)
-    CLC                   ; RTS
+    STY $0000
+    PLA                   ; Carry clear = success (packed BCD in A)
+    CLC 
     RTS 
 
   loc_03C5F9:
-    STY $0000             ; Overflow path: restore actor entry point Y
-    PLA                   ; Discard damage value from stack
-    SEC                   ; SEC — carry set = overflow (≥1000)
-    RTS                   ; RTS
+    STY $0000
+    PLA 
+    SEC 
+    RTS 
 }
