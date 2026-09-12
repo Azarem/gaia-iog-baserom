@@ -27,7 +27,7 @@ it1A_moon_tribe [
 ]
 
 code_09D11E {
-    COP [PrintWideString] ( &widestring_09D1FC )
+    COP [PrintDialogString] ( &dialogstring_09D1FC )
     COP [DialogueOptions] ( #03, #01, &code_list_09D128 )
 }
 
@@ -39,7 +39,7 @@ code_list_09D128 [
 ]
 
 code_09D130 {
-    COP [PrintWideString] ( &widestring_09D2D0 )
+    COP [PrintDialogString] ( &dialogstring_09D2D0 )
     COP [WaitByte] ( #27 )
 }
 
@@ -129,17 +129,17 @@ it1A_moon_tribe5 [
 ]
 
 code_09D1D3 {
-    COP [PrintWideString] ( &widestring_09D30F )
+    COP [PrintDialogString] ( &dialogstring_09D30F )
     RTL 
 }
 
 code_09D1D8 {
-    COP [PrintWideString] ( &widestring_09D388 )
+    COP [PrintDialogString] ( &dialogstring_09D388 )
     RTL 
 }
 
 code_09D1DD {
-    COP [PrintWideString] ( &widestring_09D462 )
+    COP [PrintDialogString] ( &dialogstring_09D462 )
     COP [DialogueOptions] ( #02, #01, &code_list_09D1E7 )
 }
 
@@ -150,32 +150,32 @@ code_list_09D1E7 [
 ]
 
 code_09D1ED {
-    COP [PrintWideString] ( &widestring_09D4AD )
+    COP [PrintDialogString] ( &dialogstring_09D4AD )
     RTL 
 }
 
 code_09D1F2 {
-    COP [PrintWideString] ( &widestring_09D4DC )
+    COP [PrintDialogString] ( &dialogstring_09D4DC )
     RTL 
 }
 
 code_09D1F7 {
-    COP [PrintWideString] ( &widestring_09D574 )
+    COP [PrintDialogString] ( &dialogstring_09D574 )
     RTL 
 }
 
-widestring_09D1FC `[DEF]Strange Voice:[N]Good evening....[N]Out for a stroll?[FIN][TPL:0]Will: [N]Who is it? [FIN][PAL:0]Strange Voice:[N]Up, up. This body[N]is lighter than air.[FIN][PAL:4]Will: [N]What are you? [FIN][PAL:0]Strange Voice: Guess who? [N] Cotton candy's relative[N] Bird man[N] Old man's ghost...`
+dialogstring_09D1FC `[DEF]Strange Voice:[N]Good evening....[N]Out for a stroll?[FIN][TPL:0]Will: [N]Who is it? [FIN][PAL:0]Strange Voice:[N]Up, up. This body[N]is lighter than air.[FIN][PAL:4]Will: [N]What are you? [FIN][PAL:0]Strange Voice: Guess who? [N] Cotton candy's relative[N] Bird man[N] Old man's ghost...`
 
-widestring_09D2D0 `[CLR]Strange Voice: Wrong![N]Actually, we are the [N]Moon Tribe, also [N]known as "Shadows.ˮ[END]`
+dialogstring_09D2D0 `[CLR]Strange Voice: Wrong![N]Actually, we are the [N]Moon Tribe, also [N]known as "Shadows.ˮ[END]`
 
-widestring_09D30F `[DEF]Moon Tribe:[N]Wherever there's light,[N]there are shadows.[FIN]We, who were changed by[N]being bathed in the[N]light only once...[FIN]will spend our future in[N]a world without light.[END]`
+dialogstring_09D30F `[DEF]Moon Tribe:[N]Wherever there's light,[N]there are shadows.[FIN]We, who were changed by[N]being bathed in the[N]light only once...[FIN]will spend our future in[N]a world without light.[END]`
 
-widestring_09D388 `[DEF]Moon Tribe: The comet is[N]a vehicle of destruction[N]whose evil light has[N]changed all creatures.[FIN]Moon Tribe:[N]It's a remnant of a[N]weapon from a terrible[N]battle long ago.[FIN][TPL:0]Will: The world [N]will be unbearable? [FIN][PAL:0]Moon Tribe: [N]Yes. You're bright, but [N]you're still immature. [END]`
+dialogstring_09D388 `[DEF]Moon Tribe: The comet is[N]a vehicle of destruction[N]whose evil light has[N]changed all creatures.[FIN]Moon Tribe:[N]It's a remnant of a[N]weapon from a terrible[N]battle long ago.[FIN][TPL:0]Will: The world [N]will be unbearable? [FIN][PAL:0]Moon Tribe: [N]Yes. You're bright, but [N]you're still immature. [END]`
 
-widestring_09D462 `[DEF]Moon Tribe: One of my  [N]party has been kidnapped. [FIN]Know your destination?[N] Yes[N] No`
+dialogstring_09D462 `[DEF]Moon Tribe: One of my  [N]party has been kidnapped. [FIN]Know your destination?[N] Yes[N] No`
 
-widestring_09D4AD `[CLR]Moon Tribe:[N]Maybe someone's chasing[N]you. Ku ku ku .....[END]`
+dialogstring_09D4AD `[CLR]Moon Tribe:[N]Maybe someone's chasing[N]you. Ku ku ku .....[END]`
 
-widestring_09D4DC `[DEF]Moon Tribe: It comes [N]once every 800 years. [N]This is the fourth time.[FIN]The more light that[N]reaches you,[N]the stronger the Dark [N]Power.[FIN]What will be born[N]of the light this time...[END]`
+dialogstring_09D4DC `[DEF]Moon Tribe: It comes [N]once every 800 years. [N]This is the fourth time.[FIN]The more light that[N]reaches you,[N]the stronger the Dark [N]Power.[FIN]What will be born[N]of the light this time...[END]`
 
-widestring_09D574 `[DEF]Moon Tribe:[N]We've transcended time,[N]and have lived long...[FIN]We saw the destruction [N]of the Incan Empire. [FIN]The Incan Statue sleeps [N]in the cave below... [N]If you like, we'll give [N]it to you. [FIN]At any rate, go look[N]in the cave...[N]Ku ku ku...[END]`
+dialogstring_09D574 `[DEF]Moon Tribe:[N]We've transcended time,[N]and have lived long...[FIN]We saw the destruction [N]of the Incan Empire. [FIN]The Incan Statue sleeps [N]in the cave below... [N]If you like, we'll give [N]it to you. [FIN]At any rate, go look[N]in the cave...[N]Ku ku ku...[END]`

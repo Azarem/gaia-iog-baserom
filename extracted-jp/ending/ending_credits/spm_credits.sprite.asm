@@ -2,7 +2,7 @@
 
 ---------------------------------------------
 
-sprite_set_list_000000 [
+spm_credits [
   &sprite_set_0-1FE0   ;00
   &sprite_set_0-1FE0   ;01
   &sprite_set_0-1FE0   ;02

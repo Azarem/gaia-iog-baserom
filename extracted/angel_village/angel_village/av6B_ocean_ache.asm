@@ -38,8 +38,8 @@ code_list_06C707 [
 ]
 
 code_06C70F {
-    COP [PrintWideString] ( &widestring_06C714 )
+    COP [PrintDialogString] ( &dialogstring_06C714 )
     RTL 
 }
 
-widestring_06C714 `[TPL:9]I don't know when we[N]started living here.[FIN]But when I look at the [N]ocean, my heart aches. [END]`
+dialogstring_06C714 `[TPL:9]I don't know when we[N]started living here.[FIN]But when I look at the [N]ocean, my heart aches. [END]`

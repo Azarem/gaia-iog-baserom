@@ -36,15 +36,15 @@ code_04C1F4 {
 }
 
 code_04C1FF {
-    COP [PrintWideString] ( &widestring_04C229 )
+    COP [PrintDialogString] ( &dialogstring_04C229 )
     RTL 
 }
 
 code_04C204 {
     COP [BranchIfFlagByte] ( #D8, #01, &code_04C21F )
-    COP [PrintWideString] ( &widestring_04C271 )
+    COP [PrintDialogString] ( &dialogstring_04C271 )
     COP [GiveItem] ( #01, &code_04C21B )
-    COP [PrintWideString] ( &widestring_04C299 )
+    COP [PrintDialogString] ( &dialogstring_04C299 )
     COP [SetFlagByte] ( #D8 )
     RTL 
 }
@@ -54,21 +54,21 @@ code_04C21B {
 }
 
 code_04C21F {
-    COP [PrintWideString] ( &widestring_04C2C2 )
+    COP [PrintDialogString] ( &dialogstring_04C2C2 )
     RTL 
 }
 
 code_04C224 {
-    COP [PrintWideString] ( &widestring_04C2E9 )
+    COP [PrintDialogString] ( &dialogstring_04C2E9 )
     RTL 
 }
 
-widestring_04C229 `[TPL:B]This is King Edward's[N]castle. Be courteous[N]and know that the King[N]is very strict.[END]`
+dialogstring_04C229 `[TPL:B]This is King Edward's[N]castle. Be courteous[N]and know that the King[N]is very strict.[END]`
 
-widestring_04C271 `[TPL:9]Don't raise your voice.[N]And mind your manners.[FIN]`
+dialogstring_04C271 `[TPL:9]Don't raise your voice.[N]And mind your manners.[FIN]`
 
-widestring_04C299 `In exchange, I will give[N]you one Red Jewel.[END]`
+dialogstring_04C299 `In exchange, I will give[N]you one Red Jewel.[END]`
 
-widestring_04C2C2 `[TPL:9]Don't raise your voice.[N]And mind your manners.[END]`
+dialogstring_04C2C2 `[TPL:9]Don't raise your voice.[N]And mind your manners.[END]`
 
-widestring_04C2E9 `[TPL:8]Zzzzzz...Zzzzzz...[END]`
+dialogstring_04C2E9 `[TPL:8]Zzzzzz...Zzzzzz...[END]`

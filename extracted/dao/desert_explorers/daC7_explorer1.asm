@@ -12,8 +12,8 @@ daC7_explorer1 [
 ]
 
 code_08A99A {
-    COP [PrintWideString] ( &widestring_08A99F )
+    COP [PrintDialogString] ( &dialogstring_08A99F )
     RTL 
 }
 
-widestring_08A99F `[DEF]The Pyramid is made of[N]huge stones. Strange[N]that it doesn't sink[N]into the desert....[END]`
+dialogstring_08A99F `[DEF]The Pyramid is made of[N]huge stones. Strange[N]that it doesn't sink[N]into the desert....[END]`

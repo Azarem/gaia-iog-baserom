@@ -12,8 +12,8 @@ it18_warning_woman [
 ]
 
 code_04DE7C {
-    COP [PrintWideString] ( &widestring_04DE81 )
+    COP [PrintDialogString] ( &dialogstring_04DE81 )
     RTL 
 }
 
-widestring_04DE81 `[TPL:A]The ruins are an ancient[N]tomb. Why can't you[N]leave them alone?[END]`
+dialogstring_04DE81 `[TPL:A]The ruins are an ancient[N]tomb. Why can't you[N]leave them alone?[END]`

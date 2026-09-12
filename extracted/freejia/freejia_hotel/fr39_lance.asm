@@ -18,7 +18,7 @@ fr39_lance [
     COP [SpawnAfterFlags] ( @code_05CD16, #$2800 )
     COP [WaitByte] ( #77 )
     COP [SetSpritePriority] ( #30 )
-    COP [PrintWideString] ( &widestring_05C85E )
+    COP [PrintDialogString] ( &dialogstring_05C85E )
     COP [ClearFlagByte] ( #0F )
     COP [SpawnThinkerParam] ( #1C, @cop_handlers_actors.PaletteResetAndKillThinker )
     COP [SetSpritePriority] ( #20 )
@@ -34,7 +34,7 @@ fr39_lance [
     COP [StageSpriteLoop] ( #02, #28 )
     COP [AnimLoop]
     COP [WaitWord] ( #$012B )
-    COP [PrintWideString] ( &widestring_05CA69 )
+    COP [PrintDialogString] ( &dialogstring_05CA69 )
     COP [SetFlagByte] ( #68 )
     LDA #$CFF0
     TRB $joypadMaskStd
@@ -46,22 +46,22 @@ fr39_lance [
 code_05C7E7 {
     COP [BranchIfFlagByte] ( #68, #01, &code_05C7F5 )
     COP [SetFlagByte] ( #02 )
-    COP [PrintWideString] ( &widestring_05C7FA )
+    COP [PrintDialogString] ( &dialogstring_05C7FA )
     RTL 
 }
 
 code_05C7F5 {
-    COP [PrintWideString] ( &widestring_05CAEC )
+    COP [PrintDialogString] ( &dialogstring_05CAEC )
     RTL 
 }
 
-widestring_05C7FA `[TPL:A][TPL:4]Lance: They say I don't [N]know who I am. [N]Kind of strange.... [FIN]If I don't know who I[N]am, how did I get here?[PAL:0][END]`
+dialogstring_05C7FA `[TPL:A][TPL:4]Lance: They say I don't [N]know who I am. [N]Kind of strange.... [FIN]If I don't know who I[N]am, how did I get here?[PAL:0][END]`
 
-widestring_05C85E `[TPL:B][TPL:4][DLY:2]Lance: [N]What is this place? [FIN][TPL:1]Kara: Somehow I feel [N]a little homesick... [FIN][TPL:3]Erik: [N]I feel like I'm back in [N]the womb.... [FIN][TPL:2]Lilly: Everything[N]that's happened and the[N]people I've met are[N]pouring into my head...[FIN][TPL:4]Lance: I was raised in [N]the town of South Cape. [FIN]When my father [N]didn't come back [N]from an expedition... [FIN]The most important thing [N]in my life was gone. I [N]didn't know what to do. [FIN][TPL:1]Kara: I couldn't [N]stand my father using [N]soldiers to invade [N]other countries. [FIN]It's awful when someone[N]loses their life.[FIN]What had taken years[N]to put together was[N]destroyed in one moment.[FIN][TPL:3]Erik: I wonder if Seth [N]is all right...? [FIN][TPL:2]Lilly: People live on[N]because they forget[N]about unpleasant things.[PAL:0][END]`
+dialogstring_05C85E `[TPL:B][TPL:4][DLY:2]Lance: [N]What is this place? [FIN][TPL:1]Kara: Somehow I feel [N]a little homesick... [FIN][TPL:3]Erik: [N]I feel like I'm back in [N]the womb.... [FIN][TPL:2]Lilly: Everything[N]that's happened and the[N]people I've met are[N]pouring into my head...[FIN][TPL:4]Lance: I was raised in [N]the town of South Cape. [FIN]When my father [N]didn't come back [N]from an expedition... [FIN]The most important thing [N]in my life was gone. I [N]didn't know what to do. [FIN][TPL:1]Kara: I couldn't [N]stand my father using [N]soldiers to invade [N]other countries. [FIN]It's awful when someone[N]loses their life.[FIN]What had taken years[N]to put together was[N]destroyed in one moment.[FIN][TPL:3]Erik: I wonder if Seth [N]is all right...? [FIN][TPL:2]Lilly: People live on[N]because they forget[N]about unpleasant things.[PAL:0][END]`
 
-widestring_05CA69 `[TPL:A][TPL:4]Lance: What? What have I [N]been doing? What's [FIN]happened to everyone? [FIN][TPL:2]Lilly: Lance! [N]Your memory is back! [FIN][TPL:1]Kara: [N]I was worried! [FIN][TPL:3]Erik: I wondered [N]what would happen.[PAL:0][END]`
+dialogstring_05CA69 `[TPL:A][TPL:4]Lance: What? What have I [N]been doing? What's [FIN]happened to everyone? [FIN][TPL:2]Lilly: Lance! [N]Your memory is back! [FIN][TPL:1]Kara: [N]I was worried! [FIN][TPL:3]Erik: I wondered [N]what would happen.[PAL:0][END]`
 
-widestring_05CAEC `[TPL:B][TPL:4]Lance: I guess everyone [N]was worried. I'd take [N]care of someone in the [N]same situation.[PAL:0][END]`
+dialogstring_05CAEC `[TPL:B][TPL:4]Lance: I guess everyone [N]was worried. I'd take [N]care of someone in the [N]same situation.[PAL:0][END]`
 ---------------------------------------------
 
 code_05CD16 {

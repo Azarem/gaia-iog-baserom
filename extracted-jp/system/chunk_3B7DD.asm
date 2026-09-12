@@ -5953,10 +5953,10 @@ code_03DF07 {
     CLC 
     ADC $musicTransitionState
     TAX 
-    LDA $@string_templates.widestring_01CB8C+M, X
+    LDA $@string_templates.dialogstring_01CB8C+M, X
     STA $46
     STA $0687
-    LDA $@string_templates.widestring_01CB8C+M, X
+    LDA $@string_templates.dialogstring_01CB8C+M, X
     STA $47
     STA $0688
     JSL $@chunk_028000.code_0282B6

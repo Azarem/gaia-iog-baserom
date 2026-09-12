@@ -27,7 +27,7 @@ code_048742 {
 }
 
 code_048749 {
-    COP [PrintWideString] ( &widestring_048773 )
+    COP [PrintDialogString] ( &dialogstring_048773 )
     COP [SetOnInteract] ( &code_048769 )
     COP [StageSpriteLoopMoveX] ( #18, #04, #12 )
     COP [AnimLoop]
@@ -39,22 +39,22 @@ code_048749 {
 }
 
 code_048764 {
-    COP [PrintWideString] ( &widestring_048773 )
+    COP [PrintDialogString] ( &dialogstring_048773 )
     RTL 
 }
 
 code_048769 {
-    COP [PrintWideString] ( &widestring_04879F )
+    COP [PrintDialogString] ( &dialogstring_04879F )
     RTL 
 }
 
 code_04876E {
-    COP [PrintWideString] ( &widestring_0487A3 )
+    COP [PrintDialogString] ( &dialogstring_0487A3 )
     RTL 
 }
 
-widestring_048773 `[DEF]きゃあああっ![FIN][::]なんてこと するんだろうねっ![N]この子はっ![N]まったく もう···[END]`
+dialogstring_048773 `[DEF]きゃあああっ![FIN][::]なんてこと するんだろうねっ![N]この子はっ![N]まったく もう···[END]`
 
-widestring_04879F `[DEF][JMP:&sc01_startled_woman.widestring_048773+M]`
+dialogstring_04879F `[DEF][JMP:&sc01_startled_woman.dialogstring_048773+M]`
 
-widestring_0487A3 `[DEF]海風でなびく あんたのかみの毛を[N]見ていると うらやましいよ.[N]あたしなんざ[N]このスカーフの下は···[END]`
+dialogstring_0487A3 `[DEF]海風でなびく あんたのかみの毛を[N]見ていると うらやましいよ.[N]あたしなんざ[N]このスカーフの下は···[END]`

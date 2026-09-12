@@ -24,8 +24,8 @@ code_08AB03 {
 }
 
 code_08AB0C {
-    COP [PrintWideString] ( &widestring_08AB11 )
+    COP [PrintDialogString] ( &dialogstring_08AB11 )
     RTL 
 }
 
-widestring_08AB11 `[DEF]Kiaaa...kiaaa...[END]`
+dialogstring_08AB11 `[DEF]Kiaaa...kiaaa...[END]`

@@ -34,22 +34,22 @@ sc01_girl1 [
 ]
 
 code_0480F0 {
-    COP [PrintWideString] ( &widestring_0480FF )
+    COP [PrintDialogString] ( &dialogstring_0480FF )
     RTL 
 }
 
 code_0480F5 {
-    COP [PrintWideString] ( &widestring_048112 )
+    COP [PrintDialogString] ( &dialogstring_048112 )
     RTL 
 }
 
 code_0480FA {
-    COP [PrintWideString] ( &widestring_048125 )
+    COP [PrintDialogString] ( &dialogstring_048125 )
     RTL 
 }
 
-widestring_0480FF `[DEF][DLY:2]1..2..3..4..5..[END]`
+dialogstring_0480FF `[DEF][DLY:2]1..2..3..4..5..[END]`
 
-widestring_048112 `[DEF][DLY:2]6..7..8..9..10![END]`
+dialogstring_048112 `[DEF][DLY:2]6..7..8..9..10![END]`
 
-widestring_048125 `[DEF]Mmmm. Only me...[END]`
+dialogstring_048125 `[DEF]Mmmm. Only me...[END]`

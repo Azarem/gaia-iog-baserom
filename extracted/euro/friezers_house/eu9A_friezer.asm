@@ -17,8 +17,8 @@ eu9A_friezer_destroy {
 }
 
 code_07E618 {
-    COP [PrintWideString] ( &widestring_07E61D )
+    COP [PrintDialogString] ( &dialogstring_07E61D )
     RTL 
 }
 
-widestring_07E61D `[DEF]Friezer: I am the [N]explorer, Friezer.[FIN]I, too, plan on leaving[N]my name in history[N]as the discoverer [N]of the Tower of Babel.[END]`
+dialogstring_07E61D `[DEF]Friezer: I am the [N]explorer, Friezer.[FIN]I, too, plan on leaving[N]my name in history[N]as the discoverer [N]of the Tower of Babel.[END]`

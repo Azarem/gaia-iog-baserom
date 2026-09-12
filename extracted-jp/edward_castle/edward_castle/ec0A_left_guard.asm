@@ -22,7 +22,7 @@ code_04BBBD {
     COP [StageSpriteLoop] ( #1A, #08 )
     COP [AnimLoop]
     COP [BranchIfFlagByte] ( #3F, #01, &code_04BBE3 )
-    COP [PrintWideString] ( &widestring_04BCC8 )
+    COP [PrintDialogString] ( &dialogstring_04BCC8 )
     COP [SetFlagByte] ( #3F )
     LDA #$CFF0
     TRB $joypadMaskStd
@@ -55,17 +55,17 @@ code_04BC0B {
 }
 
 code_04BC1D {
-    COP [PrintWideString] ( &widestring_04BC27 )
+    COP [PrintDialogString] ( &dialogstring_04BC27 )
     RTL 
 }
 
 code_04BC22 {
-    COP [PrintWideString] ( &widestring_04BC5F )
+    COP [PrintDialogString] ( &dialogstring_04BC5F )
     RTL 
 }
 
-widestring_04BC27 `[TPL:A]ここは エドワード国王の城です.[N]国王と 会見するならば[N]2階へ 上がってください.[END]`
+dialogstring_04BC27 `[TPL:A]ここは エドワード国王の城です.[N]国王と 会見するならば[N]2階へ 上がってください.[END]`
 
-widestring_04BC5F `[TPL:B]あっ. お前はっ![FIN]よく あの ろうやから[N]ぬけ出せたものだな···.[FIN]悪いことは 言わん.[N]この城から 早く にげるんだな.[N]エドワード王に 見つかったら[N]ただごとじゃ すまないぜ.[END]`
+dialogstring_04BC5F `[TPL:B]あっ. お前はっ![FIN]よく あの ろうやから[N]ぬけ出せたものだな···.[FIN]悪いことは 言わん.[N]この城から 早く にげるんだな.[N]エドワード王に 見つかったら[N]ただごとじゃ すまないぜ.[END]`
 
-widestring_04BCC8 `[TPL:A]兵士: ここは エドワード王の城.[N]国王に えっけんに きたのなら[N]名を なのられよ.[FIN][DLG:3,6][SIZ:D,3,0][TPL:0]テムは 門番に[N]エドワード王の手紙を 見せた.[FIN][TPL:A][PAL:0]兵士: 国王の お客樣でしたか.[N]大変 失礼いたしました.[N]どうぞ お入り下さい.[END]`
+dialogstring_04BCC8 `[TPL:A]兵士: ここは エドワード王の城.[N]国王に えっけんに きたのなら[N]名を なのられよ.[FIN][DLG:3,6][SIZ:D,3,0][TPL:0]テムは 門番に[N]エドワード王の手紙を 見せた.[FIN][TPL:A][PAL:0]兵士: 国王の お客樣でしたか.[N]大変 失礼いたしました.[N]どうぞ お入り下さい.[END]`

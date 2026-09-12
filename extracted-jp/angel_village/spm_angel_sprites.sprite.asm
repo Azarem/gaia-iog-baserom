@@ -1,6 +1,6 @@
 ---------------------------------------------
 
-sprite_set_list_000000 [
+spm_angel_sprites [
   &sprite_set_000044   ;00
   &sprite_set_00004A   ;01
   &sprite_set_000050   ;02

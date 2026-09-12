@@ -19,8 +19,8 @@ nvAC_bones [
 ]
 
 code_08801B {
-    COP [PrintWideString] ( &widestring_088020 )
+    COP [PrintDialogString] ( &dialogstring_088020 )
     RTL 
 }
 
-widestring_088020 `[DEF][TPL:0]They're not weathered[N]yet... Only recently[N]bleached white.[PAL:0][END]`
+dialogstring_088020 `[DEF][TPL:0]They're not weathered[N]yet... Only recently[N]bleached white.[PAL:0][END]`

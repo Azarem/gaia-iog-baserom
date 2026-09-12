@@ -33,7 +33,7 @@ code_05F6F8 {
 }
 
 code_05F70E {
-    COP [PrintWideString] ( &widestring_05F71C )
+    COP [PrintDialogString] ( &dialogstring_05F71C )
     COP [SetEntryContinue]
     COP [BranchIfPlayerNear] ( #01, &code_05F71B )
     BRA loc_05F6DA
@@ -43,4 +43,4 @@ code_05F71B {
     RTL 
 }
 
-widestring_05F71C `[DEF]When you step on this[N]tile it makes a sound...[END]`
+dialogstring_05F71C `[DEF]When you step on this[N]tile it makes a sound...[END]`

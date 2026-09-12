@@ -16,8 +16,8 @@ h_ec11_flower [
 ]
 
 code_04F6EF {
-    COP [PrintWideString] ( &widestring_04F6F4 )
+    COP [PrintDialogString] ( &dialogstring_04F6F4 )
     RTL 
 }
 
-widestring_04F6F4 `[DEF]片すみにさく花:[N]笛を ふいてごらん···[N]あのメロディを ふいてごらん···[END]`
+dialogstring_04F6F4 `[DEF]片すみにさく花:[N]笛を ふいてごらん···[N]あのメロディを ふいてごらん···[END]`

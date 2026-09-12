@@ -1,6 +1,6 @@
 ---------------------------------------------
 
-sprite_set_list_000000 [
+spm_solidarm [
   &sprite_set_00003A   ;00
   &sprite_set_000040   ;01
   &sprite_set_000046   ;02

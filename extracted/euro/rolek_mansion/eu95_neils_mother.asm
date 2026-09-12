@@ -32,8 +32,8 @@ code_07E314 {
 }
 
 code_07E316 {
-    COP [PrintWideString] ( &widestring_07E31B )
+    COP [PrintDialogString] ( &dialogstring_07E31B )
     RTL 
 }
 
-widestring_07E31B `[TPL:B]Neil's mother: We've [N]made money and wish [N]to spend our remaining [N]years enjoying life. [FIN]Why don't you[N]succeed us...[END]`
+dialogstring_07E31B `[TPL:B]Neil's mother: We've [N]made money and wish [N]to spend our remaining [N]years enjoying life. [FIN]Why don't you[N]succeed us...[END]`

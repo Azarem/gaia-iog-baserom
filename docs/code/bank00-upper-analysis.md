@@ -967,14 +967,14 @@ This table defines the definitive file boundaries for each extracted file in the
 | `NpcRandomWanderAI.asm` | `NpcRandomWanderAI` | 50981 | 51194 | Code + direction handler blocks | NPC AI |
 | `ToggleActorVisibilityFlag.asm` | `ToggleActorVisibilityFlag` | 51194 | 51206 | Single code block (12 bytes) | NPC AI |
 | `EscortFollowPathTracker.asm` | `EscortFollowPathTracker` | 51206 | 51555 | `func_00C806` + `array_00C943` (direction table) | NPC AI |
-| `InventoryFullMessage.asm` | `f_inventory_full` | 51598 | 51640 | Code + `widestring_00C993` | Inventory utility |
+| `InventoryFullMessage.asm` | `f_inventory_full` | 51598 | 51640 | Code + `dialogstring_00C993` | Inventory utility |
 | `SpawnDebrisBurst.asm` | `SpawnDebrisBurst` | 51640 | 51707 | Single code block | Visual FX |
 | `CameraDriftLoopSimple.asm` | `CameraDriftLoopSimple` | 53134 | 53166 | Single code block | Camera drift |
 | `CameraDriftLoopShip.asm` | `CameraDriftLoopShip` | 53166 | 53231 | Single code block | Camera drift |
 | `CameraDriftPatterned.asm` | `CameraDriftPatterned` | 53231 | 53384 | `func_00CFEF` + `binary_00D068` (direction offsets) | Camera drift |
 | `GameOverSequence.asm` | `GameOverSequence` | 54831 | 55064 | Single code block | Game over |
 | `GameOverCutsceneSprites.asm` | `GameOverCutsceneSprites` | 55064 | 55190 | Single code block | Game over |
-| `DeathWakeupMessage.asm` | `death_message` | 55190 | 55415 | Code + 3 `widestring` parts (Will/Freedan/Shadow) | Death system |
+| `DeathWakeupMessage.asm` | `death_message` | 55190 | 55415 | Code + 3 `dialogstring` parts (Will/Freedan/Shadow) | Death system |
 | `StandardEnemyDefeatHandler.asm` | `StandardEnemyDefeatHandler` | 56202 | 56818 | 3 parts: `func_00DB8A`, `func_00DD5B`, `func_00DD87` | Combat defeat |
 | `NullActorScriptStub.asm` | `NullActorScriptStub` | 56439 | 56441 | RTL (2 bytes) | System |
 | `SpawnAttackTrailEffect.asm` | `SpawnAttackTrailEffect` | 56500 | 56579 | Single code block | Combat VFX |

@@ -22,7 +22,7 @@ code_00C681 {
     JSL $@cop_handlers_script.TestEventFlag_0200
     BCS loc_00C6A5
     COP [GiveItem] ( #01, &code_00C6A1 )
-    COP [PrintWideString] ( &widestring_00C6A6 )
+    COP [PrintDialogString] ( &dialogstring_00C6A6 )
     LDA $0E
     CLC 
     ADC #$0080
@@ -31,12 +31,12 @@ code_00C681 {
 }
 
 code_00C6A1 {
-    COP [PrintWideString] ( &widestring_00C6BF )
+    COP [PrintDialogString] ( &dialogstring_00C6BF )
 
   loc_00C6A5:
     RTL 
 }
 
-widestring_00C6A6 `[DLG:3,11][SIZ:D,3]You found a Red Jewel![END]`
+dialogstring_00C6A6 `[DLG:3,11][SIZ:D,3]You found a Red Jewel![END]`
 
-widestring_00C6BF `[DLG:3,11][SIZ:D,3]You found a Jewel but[N]your inventory is full.[END]`
+dialogstring_00C6BF `[DLG:3,11][SIZ:D,3]You found a Jewel but[N]your inventory is full.[END]`

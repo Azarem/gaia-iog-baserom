@@ -1,5 +1,5 @@
 {
-  "ASCIIString": {
+  "ConsoleString": {
     "delimiter": "|",
     "terminator": 0,
     "layers": [
@@ -74,7 +74,7 @@
       "N": { "id": 203, "types": [] }
     }
   },
-  "WideString": {
+  "DialogString": {
     "delimiter": "`",
     "terminator": 202,
     "greedyTerminator": true,

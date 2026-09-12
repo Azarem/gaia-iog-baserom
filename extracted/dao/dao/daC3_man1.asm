@@ -23,8 +23,8 @@ daC3_man1 [
 ]
 
 code_08A814 {
-    COP [PrintWideString] ( &widestring_08A819 )
+    COP [PrintDialogString] ( &dialogstring_08A819 )
     RTL 
 }
 
-widestring_08A819 `[DEF]This is Dao, the desert[N]village. Children don't[N]come to places like this[N]very often.[END]`
+dialogstring_08A819 `[DEF]This is Dao, the desert[N]village. Children don't[N]come to places like this[N]very often.[END]`

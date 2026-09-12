@@ -42,7 +42,7 @@ code_06AE02 {
     COP [AnimOnce]
     COP [StageSpriteFrame] ( #0D )
     COP [AnimOnce]
-    COP [PrintWideString] ( &widestring_06AE88 )
+    COP [PrintDialogString] ( &dialogstring_06AE88 )
     INC $0AA6
     LDA #$0404
     STA $gfxCacheIdxB
@@ -62,10 +62,10 @@ code_06AE64 {
 }
 
 code_06AE6B {
-    COP [PrintWideString] ( &widestring_06AE70 )
+    COP [PrintDialogString] ( &dialogstring_06AE70 )
     RTL 
 }
 
-widestring_06AE70 `[TPL:A][TPL:3]Erik: [N]Hey, [N]don't look![PAL:0][END]`
+dialogstring_06AE70 `[TPL:A][TPL:3]Erik: [N]Hey, [N]don't look![PAL:0][END]`
 
-widestring_06AE88 `[TPL:A][TPL:0]In this way, another day [N]passed slowly...[PAL:0][END]`
+dialogstring_06AE88 `[TPL:A][TPL:0]In this way, another day [N]passed slowly...[PAL:0][END]`

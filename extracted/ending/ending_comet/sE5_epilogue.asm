@@ -27,16 +27,16 @@ sE5_epilogue [
     STA $cgramPalette
     COP [BranchIfFlagByte] ( #DB, #01, &code_0BD374 )
     COP [WaitByte] ( #B3 )
-    COP [PrintWideString] ( &widestring_0BD558 )
+    COP [PrintDialogString] ( &dialogstring_0BD558 )
     COP [SpawnAfterAbsFlags] ( @code_0BD4DE, #$0088, #$0080, #$1800 )
     COP [WaitByte] ( #77 )
-    COP [PrintWideString] ( &widestring_0BD5A0 )
+    COP [PrintDialogString] ( &dialogstring_0BD5A0 )
     COP [WaitByte] ( #77 )
-    COP [PrintWideString] ( &widestring_0BD70E )
+    COP [PrintDialogString] ( &dialogstring_0BD70E )
     COP [SetFlagByte] ( #02 )
     COP [SpawnAfterAbsFlags] ( @code_0BD539, #$00A0, #$FFF0, #$1800 )
     COP [ExitIfFlagByte] ( #02, #00 )
-    COP [PrintWideString] ( &widestring_0BD740 )
+    COP [PrintDialogString] ( &dialogstring_0BD740 )
     COP [SetFlagByte] ( #DB )
     LDA #$0202
     STA $gfxCacheIdxB
@@ -50,7 +50,7 @@ code_0BD374 {
     COP [SpawnAfterAbsFlags] ( @code_0BD4F7, #$0078, #$0080, #$1800 )
     COP [SpawnAfterAbsFlags] ( @code_0BD4F7, #$0098, #$0080, #$1800 )
     COP [WaitByte] ( #B3 )
-    COP [PrintWideString] ( &widestring_0BD9FA )
+    COP [PrintDialogString] ( &dialogstring_0BD9FA )
     COP [SetFlagByte] ( #03 )
     COP [FadeThenStartMusic] ( #13 )
     COP [ExitIfFlagByte] ( #03, #00 )
@@ -68,18 +68,18 @@ code_0BD374 {
     LDA #$0800
     TSB $playerFlags
     COP [WaitByte] ( #4F )
-    COP [PrintWideString] ( &widestring_0BDC95 )
+    COP [PrintDialogString] ( &dialogstring_0BDC95 )
     COP [SetFlagByte] ( #04 )
     COP [ExitIfFlagByte] ( #04, #00 )
-    COP [PrintWideString] ( &widestring_0BDD34 )
+    COP [PrintDialogString] ( &dialogstring_0BDD34 )
     COP [WaitByte] ( #77 )
-    COP [PrintWideString] ( &widestring_0BDDE5 )
+    COP [PrintDialogString] ( &dialogstring_0BDDE5 )
     COP [StageSpriteMoveX] ( #21, #13 )
     COP [AnimOnce]
     COP [StageSpriteFrame] ( #1D )
     COP [AnimOnce]
     COP [WaitByte] ( #EF )
-    COP [PrintWideString] ( &widestring_0BDE02 )
+    COP [PrintDialogString] ( &dialogstring_0BDE02 )
     COP [SetFlagByte] ( #05 )
     COP [StageSpriteFrame] ( #1B )
     COP [AnimOnce]
@@ -235,20 +235,20 @@ code_0BD539 {
     RTL 
 }
 
-widestring_0BD558 `[DLG:3,4][SIZ:D,3][SFX:0][TPL:13][SFX:0][DLY:6]Kara: [N]What's happened to [N]the comet...? [PAU:78][CLR]That glowing[N]green planet?[PAU:B4][CLD]`
+dialogstring_0BD558 `[DLG:3,4][SIZ:D,3][SFX:0][TPL:13][SFX:0][DLY:6]Kara: [N]What's happened to [N]the comet...? [PAU:78][CLR]That glowing[N]green planet?[PAU:B4][CLD]`
 
-widestring_0BD5A0 `[DLG:3,4][SIZ:D,3][TPL:15][SFX:0][DLY:6]Will's father: [N]The comet's power [N]has disappeared. [PAU:78][CLR]The evil star has flown[N]off to the other side[N]of the universe...[PAU:B4][CLR][TPL:15][SFX:0][DLY:6]Will. [N][PAU:28]Do you know what[N]planet that is, glowing[N]there in the darkness?[PAU:B4][CLR][TPL:12][SFX:0]Will: [N]Our Earth...?[PAU:78][CLR][TPL:15][SFX:0]Will's father: [N]That's right. Our Earth.[N][PAU:78][CLR]Doesn't it look like a[N]desert oasis?[PAU:B4][CLR][TPL:13][SFX:0]Kara: [N]It's never seemed [N]so beautiful.[PAU:B4][CLR]But it looks lonely[N]shining in the dark...[PAU:B4][CLD]`
+dialogstring_0BD5A0 `[DLG:3,4][SIZ:D,3][TPL:15][SFX:0][DLY:6]Will's father: [N]The comet's power [N]has disappeared. [PAU:78][CLR]The evil star has flown[N]off to the other side[N]of the universe...[PAU:B4][CLR][TPL:15][SFX:0][DLY:6]Will. [N][PAU:28]Do you know what[N]planet that is, glowing[N]there in the darkness?[PAU:B4][CLR][TPL:12][SFX:0]Will: [N]Our Earth...?[PAU:78][CLR][TPL:15][SFX:0]Will's father: [N]That's right. Our Earth.[N][PAU:78][CLR]Doesn't it look like a[N]desert oasis?[PAU:B4][CLR][TPL:13][SFX:0]Kara: [N]It's never seemed [N]so beautiful.[PAU:B4][CLR]But it looks lonely[N]shining in the dark...[PAU:B4][CLD]`
 
-widestring_0BD70E `[DLG:3,4][SIZ:D,2][SFX:0][DLY:6][TPL:14][SFX:0]Strange Voice: Yes.[N]The world is awakened.[PAU:B4][CLD]`
+dialogstring_0BD70E `[DLG:3,4][SIZ:D,2][SFX:0][DLY:6][TPL:14][SFX:0]Strange Voice: Yes.[N]The world is awakened.[PAU:B4][CLD]`
 
-widestring_0BD740 `[DLG:3,4][SIZ:D,3][SFX:0][DLY:6][CLR][TPL:12][SFX:0]Will: [N]Mother?![PAU:B4][CLR][TPL:14][SFX:0]Will's mother:[N]The Earth.[N][PAU:3C]A mother with millions [N]of children.[PAU:B4][CLR]I'm sure you think [N]about us sometimes, [N]and Kara often [N]thinks about her parents.[PAU:B4][CLR]The Earth is the same[N]way. She gets lonely if[N]her children forget[N]about her.[PAU:B4][CLR][TPL:15][SFX:0]Will's father: How is it,[N]you two? [N][PAU:3C]Looking at the world[N]you live in from[N]the outside?[PAU:B4][CLR][TPL:13][SFX:0]Kara: [N]It's as if we'd [N]become spirits...[PAU:B4][CLR][TPL:12][SFX:0]Will: I want to show [N]all of our group...[PAU:78][CLR]No, I want to show[N]everyone in the world...[PAU:B4][CLR][TPL:15][SFX:0]Will's father: Someday [N]people will build ships [N]to travel the universe.[PAU:B4][CLR]Then they will see[N]this green Earth with[N]their own eyes.[PAU:B4][CLR]See how lonely the[N]Earth looks, just like[N]the two of you.[PAU:B4][CLR]Will's father: Look [N]carefully at your [N]map of the world.[PAU:B4][CLR][TPL:12][SFX:0]Will:[N]Ah! The map has started[N]to change![PAU:B4][CLD]`
+dialogstring_0BD740 `[DLG:3,4][SIZ:D,3][SFX:0][DLY:6][CLR][TPL:12][SFX:0]Will: [N]Mother?![PAU:B4][CLR][TPL:14][SFX:0]Will's mother:[N]The Earth.[N][PAU:3C]A mother with millions [N]of children.[PAU:B4][CLR]I'm sure you think [N]about us sometimes, [N]and Kara often [N]thinks about her parents.[PAU:B4][CLR]The Earth is the same[N]way. She gets lonely if[N]her children forget[N]about her.[PAU:B4][CLR][TPL:15][SFX:0]Will's father: How is it,[N]you two? [N][PAU:3C]Looking at the world[N]you live in from[N]the outside?[PAU:B4][CLR][TPL:13][SFX:0]Kara: [N]It's as if we'd [N]become spirits...[PAU:B4][CLR][TPL:12][SFX:0]Will: I want to show [N]all of our group...[PAU:78][CLR]No, I want to show[N]everyone in the world...[PAU:B4][CLR][TPL:15][SFX:0]Will's father: Someday [N]people will build ships [N]to travel the universe.[PAU:B4][CLR]Then they will see[N]this green Earth with[N]their own eyes.[PAU:B4][CLR]See how lonely the[N]Earth looks, just like[N]the two of you.[PAU:B4][CLR]Will's father: Look [N]carefully at your [N]map of the world.[PAU:B4][CLR][TPL:12][SFX:0]Will:[N]Ah! The map has started[N]to change![PAU:B4][CLD]`
 
-widestring_0BD9FA `[DLG:3,4][SIZ:D,3][SFX:0][DLY:6][CLR][TPL:12][SFX:0]Will: [N]Why do you two [N]know the future?[PAU:B4][CLR][TPL:15][SFX:0]Will's father: [N]When I lost my body, I [N]started seeing everything.[PAU:B4][CLR]The past. The future. [N]Humanity's progress.[PAU:B4][CLR]Maybe people would[N]call this kind of body[N]a spirit.[PAU:B4][CLR][TPL:14][SFX:0]Will's mother:[N]Now you and Kara can [N]become ordinary [N]children again.[PAU:B4][CLR]Don't be afraid.[PAU:B4][CLR][TPL:13][SFX:0]Kara: When we [N]return to Earth, will [N]we be separated?[PAU:B4][CLR][TPL:15][SFX:0]Will's father: Yes... [N][PAU:28]The world is changing. [N]Humanity and history, [N]have started down a [N]new path.[PAU:B4][CLR]You two thought [N]nothing of it when you [N]met each other in [N]South Cape. [PAU:B4][CLR]But when the Earth[N]needed the Light and[N]Dark Knights, you[N]met again unexpectedly.[PAU:B4][CLR]Let's look at the world[N]before the power of the[N]comet is extinguished.[PAU:B4][CLR][TPL:14][SFX:0]Will's mother: [N]We hope you two [N]have a bright future...[PAU:B4][CLD]`
+dialogstring_0BD9FA `[DLG:3,4][SIZ:D,3][SFX:0][DLY:6][CLR][TPL:12][SFX:0]Will: [N]Why do you two [N]know the future?[PAU:B4][CLR][TPL:15][SFX:0]Will's father: [N]When I lost my body, I [N]started seeing everything.[PAU:B4][CLR]The past. The future. [N]Humanity's progress.[PAU:B4][CLR]Maybe people would[N]call this kind of body[N]a spirit.[PAU:B4][CLR][TPL:14][SFX:0]Will's mother:[N]Now you and Kara can [N]become ordinary [N]children again.[PAU:B4][CLR]Don't be afraid.[PAU:B4][CLR][TPL:13][SFX:0]Kara: When we [N]return to Earth, will [N]we be separated?[PAU:B4][CLR][TPL:15][SFX:0]Will's father: Yes... [N][PAU:28]The world is changing. [N]Humanity and history, [N]have started down a [N]new path.[PAU:B4][CLR]You two thought [N]nothing of it when you [N]met each other in [N]South Cape. [PAU:B4][CLR]But when the Earth[N]needed the Light and[N]Dark Knights, you[N]met again unexpectedly.[PAU:B4][CLR]Let's look at the world[N]before the power of the[N]comet is extinguished.[PAU:B4][CLR][TPL:14][SFX:0]Will's mother: [N]We hope you two [N]have a bright future...[PAU:B4][CLD]`
 
-widestring_0BDC95 `[DLG:3,4][SIZ:D,3][SFX:0][DLY:6][TPL:13][SFX:0]Kara: Will... [N][PAU:28]Come here....[N][PAU:50]Show me your face...[PAU:B4][CLR]I want to burn you[N]into my memory.[PAU:B4][CLR]Your eyes [PAU:1E]Your nose [N][PAU:1E]Your mouth [PAU:28]Your hair [N][PAU:1E]Your voice [N][PAU:28]The warmth of[N]your hand....[PAU:B4][CLD]`
+dialogstring_0BDC95 `[DLG:3,4][SIZ:D,3][SFX:0][DLY:6][TPL:13][SFX:0]Kara: Will... [N][PAU:28]Come here....[N][PAU:50]Show me your face...[PAU:B4][CLR]I want to burn you[N]into my memory.[PAU:B4][CLR]Your eyes [PAU:1E]Your nose [N][PAU:1E]Your mouth [PAU:28]Your hair [N][PAU:1E]Your voice [N][PAU:28]The warmth of[N]your hand....[PAU:B4][CLD]`
 
-widestring_0BDD34 `[DLG:3,4][SIZ:D,3][SFX:0][DLY:6][TPL:12][SFX:0]Will: Don't worry. [N][PAU:3C]I will search you out.[PAU:B4][CLR]No matter how long[N]it takes.[N][PAU:3C]Hundreds of years...[N][PAU:1E]Thousands of years...[N][PAU:1E]I will come to you.[PAU:B4][CLR]So take care...[N][PAU:5A]Close your eyes...[PAU:78][CLD]`
+dialogstring_0BDD34 `[DLG:3,4][SIZ:D,3][SFX:0][DLY:6][TPL:12][SFX:0]Will: Don't worry. [N][PAU:3C]I will search you out.[PAU:B4][CLR]No matter how long[N]it takes.[N][PAU:3C]Hundreds of years...[N][PAU:1E]Thousands of years...[N][PAU:1E]I will come to you.[PAU:B4][CLR]So take care...[N][PAU:5A]Close your eyes...[PAU:78][CLD]`
 
-widestring_0BDDE5 `[DLG:3,4][SIZ:D,3][SFX:0][DLY:6][TPL:13][SFX:0]Kara: [N]Will....[PAU:78][CLD]`
+dialogstring_0BDDE5 `[DLG:3,4][SIZ:D,3][SFX:0][DLY:6][TPL:13][SFX:0]Kara: [N]Will....[PAU:78][CLD]`
 
-widestring_0BDE02 `[DLG:3,4][SIZ:D,3][SFX:0][DLY:6][TPL:12][SFX:0]Will: [N]Let's go. [N]To Earth....[PAU:B4][CLR][TPL:13][SFX:0]Kara: [N]Mmmm....[PAU:B4][CLD]`
+dialogstring_0BDE02 `[DLG:3,4][SIZ:D,3][SFX:0][DLY:6][TPL:12][SFX:0]Will: [N]Let's go. [N]To Earth....[PAU:B4][CLR][TPL:13][SFX:0]Kara: [N]Mmmm....[PAU:B4][CLD]`

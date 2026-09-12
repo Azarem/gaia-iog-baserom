@@ -22,18 +22,18 @@ code_06C2A6 {
 }
 
 code_06C2B3 {
-    COP [PrintWideString] ( &widestring_06C2F8 )
+    COP [PrintDialogString] ( &dialogstring_06C2F8 )
     RTL 
 }
 
 code_06C2B8 {
-    COP [PrintWideString] ( &widestring_06C2BD )
+    COP [PrintDialogString] ( &dialogstring_06C2BD )
     RTL 
 }
 
-widestring_06C2BD `[TPL:A][TPL:2]Lilly: Why do angels [N]live in such a dark [N]place? Feels so gloomy.[PAL:0][END]`
+dialogstring_06C2BD `[TPL:A][TPL:2]Lilly: Why do angels [N]live in such a dark [N]place? Feels so gloomy.[PAL:0][END]`
 
-widestring_06C2F8 `[TPL:A][TPL:2]Lilly: [N]Kara looks a  [N]little strange... [FIN]Has something happened [N]to Kara? My intuition [N]is usually good.[PAL:0][END]`
+dialogstring_06C2F8 `[TPL:A][TPL:2]Lilly: [N]Kara looks a  [N]little strange... [FIN]Has something happened [N]to Kara? My intuition [N]is usually good.[PAL:0][END]`
 ---------------------------------------------
 
 av6A_lily_destroy {

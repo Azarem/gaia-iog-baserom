@@ -12,8 +12,8 @@ it18_warning_man [
 ]
 
 code_04DDC2 {
-    COP [PrintWideString] ( &widestring_04DDC7 )
+    COP [PrintDialogString] ( &dialogstring_04DDC7 )
     RTL 
 }
 
-widestring_04DDC7 `[TPL:A]Many people have[N]come here to gather[N]Incan gold.[FIN]But many who set foot[N]in the Incan ruins have[N]never returned...[END]`
+dialogstring_04DDC7 `[TPL:A]Many people have[N]come here to gather[N]Incan gold.[FIN]But many who set foot[N]in the Incan ruins have[N]never returned...[END]`

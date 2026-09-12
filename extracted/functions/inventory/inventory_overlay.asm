@@ -7,7 +7,7 @@
 ?INCLUDE 'system_core'
 ?INCLUDE 'system_init'
 ?INCLUDE 'system_strings'
-?INCLUDE 'tile_collision_physics'
+?INCLUDE 'thinker_execution'
 ?INCLUDE 'vblank_joypad'
 ?INCLUDE 'vram_buffer_clear'
 ?INCLUDE 'warps_interaction'
@@ -135,8 +135,8 @@ OpenInventoryScreen {
     JSL $@vram_buffer_clear.ClearVramBufferFull
     JSL $@actor_execution.InitActorPool
     JSL $@actor_execution.SpawnSceneActors
-    JSL $@tile_collision_physics.SpawnSceneThinkers
-    JSL $@tile_collision_physics.ClearActorRenderList
+    JSL $@thinker_execution.SpawnSceneThinkers
+    JSL $@sprite_composition.ClearActorRenderList
     JSL $@actor_execution.RunActors_Normal
     JSL $@actor_execution.RunActors_Normal
     JSL $@sprite_composition.SortActorsByDepth
@@ -189,7 +189,7 @@ OpenInventoryScreen {
     JSL $@scene_lifecycle.LoadScenePalettes
     JSL $@scene_lifecycle.LoadPlayerGraphics
     JSR $&ReloadAbilityFX
-    JSL $@tile_collision_physics.ClearActorRenderList
+    JSL $@sprite_composition.ClearActorRenderList
     JSL $@vram_buffer_clear.ClearVramBufferFull
     LDA #$41
     TSB $displayModeFlags
@@ -202,7 +202,7 @@ OpenInventoryScreen {
     STX $joypadMaskInv
     STX $00F4
     STX $00F8
-    COP [RunBg3Script] ( @system_strings.asciistring_01E818 )
+    COP [RunBg3Script] ( @system_strings.consolestring_01E818 )
     JSR $&DrainActorQueue
     JSL $@hdma_dma_spc.ResetHdmaState
     JSL $@system_core.UpdateFrameRender

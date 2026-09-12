@@ -40,11 +40,11 @@ ec0A_throne_guard1 [
 ]
 
 code_04C66A {
-    COP [PrintWideString] ( &widestring_04C66F )
+    COP [PrintDialogString] ( &dialogstring_04C66F )
     RTL 
 }
 
-widestring_04C66F `[DEF]Soldier: If you want to[N]see the King, keep[N]your wits about you.[END]`
+dialogstring_04C66F `[DEF]Soldier: If you want to[N]see the King, keep[N]your wits about you.[END]`
 
 ec0A_throne_guard2 [
   actor-def < #1C, #00, #18, {
@@ -66,7 +66,7 @@ ec0A_throne_guard2 [
     COP [AnimOnce]
     LDA #$0800
     TRB $10
-    COP [PrintWideString] ( &widestring_04C76A )
+    COP [PrintDialogString] ( &dialogstring_04C76A )
     COP [SetFlagByte] ( #0B )
     COP [ExitIfFlagByte] ( #0C, #01 )
     COP [WaitByte] ( #0B )
@@ -129,8 +129,8 @@ code_04C721 {
 }
 
 code_04C765 {
-    COP [PrintWideString] ( &widestring_04C66F )
+    COP [PrintDialogString] ( &dialogstring_04C66F )
     RTL 
 }
 
-widestring_04C76A `[TPL:D][TPL:0]Will: [N]Ma'am! Save me!![FIN][TPL:3]Queen Edwina: [N]Did you say Ma'am??![PAL:0][END]`
+dialogstring_04C76A `[TPL:D][TPL:0]Will: [N]Ma'am! Save me!![FIN][TPL:3]Queen Edwina: [N]Did you say Ma'am??![PAL:0][END]`

@@ -64,7 +64,7 @@ actor_def_058000 [
 
 code_058033 {
     COP [BranchIfFlagByte] ( #0F, #01, &code_058040 )
-    COP [PrintWideString] ( &widestring_058055 )
+    COP [PrintDialogString] ( &dialogstring_058055 )
     COP [SetFlagByte] ( #0F )
 }
 
@@ -84,7 +84,7 @@ code_058053 {
     COP [Die]
 }
 
-widestring_058055 `[DEF]この 黄金のユカを ふむと[N]何か 音がするようだ···[FIN]黄金のユカは 4つ····[N]何か 重りにできるものは[N]ないだろうか···[END]`
+dialogstring_058055 `[DEF]この 黄金のユカを ふむと[N]何か 音がするようだ···[FIN]黄金のユカは 4つ····[N]何か 重りにできるものは[N]ないだろうか···[END]`
 
 h_ir1F_actor_09C489 [
   actor-def < #00, #00, #23, {
@@ -231,7 +231,7 @@ code_0581A7 {
     COP [StartMusic] ( #1B )
     COP [WaitByte] ( #3B )
     COP [PlaySoundCh1] ( #16 )
-    COP [PrintWideString] ( &widestring_0581EF )
+    COP [PrintDialogString] ( &dialogstring_0581EF )
     COP [StartMusic] ( #1A )
     COP [WaitByte] ( #77 )
     COP [SetEntryContinue]
@@ -245,7 +245,7 @@ code_0581A7 {
 
   loc_0581D5:
     COP [GiveItem] ( #08, &code_0581E9 )
-    COP [PrintWideString] ( &widestring_05822A )
+    COP [PrintDialogString] ( &dialogstring_05822A )
     COP [SetFlagByte] ( #32 )
 
   loc_0581E1:
@@ -258,15 +258,15 @@ code_0581E7 {
 }
 
 code_0581E9 {
-    COP [PrintWideString] ( &widestring_058243 )
+    COP [PrintDialogString] ( &dialogstring_058243 )
     BRA loc_0581E1
 }
 
-widestring_0581EF `[TPL:10]谷風が 何かの メロディーを[N]かなでている.[N]まるで インカの石像が[N]歌っているようだ···[END]`
+dialogstring_0581EF `[TPL:10]谷風が 何かの メロディーを[N]かなでている.[N]まるで インカの石像が[N]歌っているようだ···[END]`
 
-widestring_05822A `[DLG:3,11][SIZ:D,3,0]風のメロディーを 覚えた![END]`
+dialogstring_05822A `[DLG:3,11][SIZ:D,3,0]風のメロディーを 覚えた![END]`
 
-widestring_058243 `[DLG:3,11][SIZ:D,3,0]風のメロディーが 聞こえる.[N]だが 持ち物が いっぱいだった.[END]`
+dialogstring_058243 `[DLG:3,11][SIZ:D,3,0]風のメロディーが 聞こえる.[N]だが 持ち物が いっぱいだった.[END]`
 
 h_ir24_glowing_tile [
   actor-def < #00, #00, #23, {
@@ -387,11 +387,11 @@ h_ir26_bones [
 ]
 
 code_0583AB {
-    COP [PrintWideString] ( &widestring_0583B0 )
+    COP [PrintDialogString] ( &dialogstring_0583B0 )
     RTL 
 }
 
-widestring_0583B0 `[DEF][TPL:0]インカの 黄金船を 求めた[N]探険家だろうか···?[FIN]白骨化した その手には お守りの[N]ようなものが にぎられている.[N][PAU:28]中には 紙きれが入っており[N]こんなことが 書かれていた.[FIN][PAL:0][SFX:0]お父さん 死なないでね.  ナナ[N][N]黄金船を見つけたら,[N]クルックを買おうね.  サーバス[END]`
+dialogstring_0583B0 `[DEF][TPL:0]インカの 黄金船を 求めた[N]探険家だろうか···?[FIN]白骨化した その手には お守りの[N]ようなものが にぎられている.[N][PAU:28]中には 紙きれが入っており[N]こんなことが 書かれていた.[FIN][PAL:0][SFX:0]お父さん 死なないでね.  ナナ[N][N]黄金船を見つけたら,[N]クルックを買おうね.  サーバス[END]`
 
 h_ir28_bones [
   actor-def < #2E, #01, #10, {
@@ -407,11 +407,11 @@ h_ir28_bones [
 ]
 
 code_05846F {
-    COP [PrintWideString] ( &widestring_058474 )
+    COP [PrintDialogString] ( &dialogstring_058474 )
     RTL 
 }
 
-widestring_058474 `[DEF][TPL:0]インカの 黄金船を 求めた[N]探険家だろうか···?[FIN]トラップに かかって[N]命を 落としたんだ····[END]`
+dialogstring_058474 `[DEF][TPL:0]インカの 黄金船を 求めた[N]探険家だろうか···?[FIN]トラップに かかって[N]命を 落としたんだ····[END]`
 
 h_ir26_journal_bones [
   actor-def < #2E, #01, #10, {
@@ -427,11 +427,11 @@ h_ir26_journal_bones [
 ]
 
 code_0584C8 {
-    COP [PrintWideString] ( &widestring_0584CD )
+    COP [PrintDialogString] ( &dialogstring_0584CD )
     RTL 
 }
 
-widestring_0584CD `[DEF][TPL:0]遺体は 何か 手帳のようなものを[N]もっているようだ···[FIN][PAL:0][N]  インカについてわかったこと[FIN]インカ地方には 文字が 存在[N]しなかった.[N]そのため 人々は 音で 言い伝えを[N]後世に 残したようである.[FIN]私は インカの谷風が メロディを[N]かなでていることに 気がつき[N]その解読に 成功した.[FIN]┌黄金の しきつめられた部屋にて[N] われを となえよ···┘[N]谷風がかなでるメロディを そこで[N]吹けということだろうか···[END]`
+dialogstring_0584CD `[DEF][TPL:0]遺体は 何か 手帳のようなものを[N]もっているようだ···[FIN][PAL:0][N]  インカについてわかったこと[FIN]インカ地方には 文字が 存在[N]しなかった.[N]そのため 人々は 音で 言い伝えを[N]後世に 残したようである.[FIN]私は インカの谷風が メロディを[N]かなでていることに 気がつき[N]その解読に 成功した.[FIN]┌黄金の しきつめられた部屋にて[N] われを となえよ···┘[N]谷風がかなでるメロディを そこで[N]吹けということだろうか···[END]`
 
 h_ir1C_lily [
   actor-def < #1D, #00, #10, {
@@ -441,7 +441,7 @@ h_ir1C_lily [
     LDA #$CFF0
     TSB $joypadMaskStd
     COP [WaitByte] ( #1D )
-    COP [PrintWideString] ( &widestring_0586B3 )
+    COP [PrintDialogString] ( &dialogstring_0586B3 )
     COP [SolidHighAbs] ( #06, #19 )
     COP [SolidHighAbs] ( #07, #19 )
     LDA #$CFF0
@@ -476,10 +476,10 @@ code_058622 {
     COP [ClearLowAbs] ( #07, #19 )
     COP [ExitIfFlagByte] ( #03, #01 )
     LDA #$0000
-    JSL $@chunk_008000.widestring_00C829
+    JSL $@chunk_008000.dialogstring_00C829
     COP [StageSpriteFrame] ( #1A )
     COP [AnimOnce]
-    COP [PrintWideString] ( &widestring_0588A5 )
+    COP [PrintDialogString] ( &dialogstring_0588A5 )
     COP [SetFlagByte] ( #02 )
     COP [ExitIfFlagByte] ( #02, #00 )
     LDA $16
@@ -493,7 +493,7 @@ code_058622 {
     COP [AnimLoop]
     COP [StageSpriteLoop] ( #1B, #14 )
     COP [AnimLoop]
-    COP [PrintWideString] ( &widestring_0589FB )
+    COP [PrintDialogString] ( &dialogstring_0589FB )
     COP [SetFlagByte] ( #4B )
     LDA #$CFF0
     TRB $joypadMaskStd
@@ -525,17 +525,17 @@ code_05867F {
 }
 
 code_0586AE {
-    COP [PrintWideString] ( &widestring_0589FB )
+    COP [PrintDialogString] ( &dialogstring_0589FB )
     RTL 
 }
 
-widestring_0586B3 `[DLG:3,11][SIZ:D,4,0][TPL:2]リリィ:[N]ここが インカのイセキの入口.[FIN]インカっていっても 広くってね,[N]ここは インカ伝說の ナゾが[N]かくされているって いわれる場所.[FIN]あたしが まだ ちっちゃいころ[N]長老樣から こんな話を[N]聞いたことがあるんだけど···[FIN]かつて インカが しゅうげきを[N]受けたとき 祖国をすてて[N]新天地を 求めようという[N]計画があったらしいの.[FIN]しんりゃく者の目を ぬすんで[N]きょだいな船が 建造され,[N]最も 賁重な 黄金細工とともに[N]インカ人達が 乗りこんだというわ.[FIN]でもね その船が出航したという[N]記録は 残ってないんだって···[FIN]たぶん インカにねむる 黄金船[N]っていうのは その船のことなんで[N]しょうね.[FIN]長老樣は これまで イトリー族[N]以外の人に この言い伝えを[N]話したことが ないはず.[FIN]長老樣は テムに 何をさせようと[N]してるんだろ···[PAL:0][END]`
+dialogstring_0586B3 `[DLG:3,11][SIZ:D,4,0][TPL:2]リリィ:[N]ここが インカのイセキの入口.[FIN]インカっていっても 広くってね,[N]ここは インカ伝說の ナゾが[N]かくされているって いわれる場所.[FIN]あたしが まだ ちっちゃいころ[N]長老樣から こんな話を[N]聞いたことがあるんだけど···[FIN]かつて インカが しゅうげきを[N]受けたとき 祖国をすてて[N]新天地を 求めようという[N]計画があったらしいの.[FIN]しんりゃく者の目を ぬすんで[N]きょだいな船が 建造され,[N]最も 賁重な 黄金細工とともに[N]インカ人達が 乗りこんだというわ.[FIN]でもね その船が出航したという[N]記録は 残ってないんだって···[FIN]たぶん インカにねむる 黄金船[N]っていうのは その船のことなんで[N]しょうね.[FIN]長老樣は これまで イトリー族[N]以外の人に この言い伝えを[N]話したことが ないはず.[FIN]長老樣は テムに 何をさせようと[N]してるんだろ···[PAL:0][END]`
 
-widestring_058886 `[DLG:3,6][SIZ:D,3,0][TPL:2]リリィ:[N]ちょっと どこへ いくのよぉ[END]`
+dialogstring_058886 `[DLG:3,6][SIZ:D,3,0][TPL:2]リリィ:[N]ちょっと どこへ いくのよぉ[END]`
 
-widestring_0588A5 `[DLG:3,6][SIZ:D,3,0][TPL:2]リリィ: なんで あなたが[N]こんな場所に いるのっ![N]あぶないじゃない!![FIN][TPL:1]カレン: ローラおばあさまから[N]この場所を 聞きだして[N]何時間も 待ってたのよっ![FIN]もう おいて いかれたのかと[N]思ったわ. せめて 行き先くらい[N]言ってくれたって いいじゃない![FIN]それに テムは イセキで[N]何かを さがしてるんでしょう?[FIN]テムが がんばってるのに[N]あたしだけ 村で のんびり[N]ごはんなんか 食べてられないわ.[FIN]あたし ここで テムが[N]もどってくるのを 待ってる.[FIN][TPL:2]リリィ: やれやれ.[N]これだもの おじょうさまは···[FIN]わかった. あたしも[N]つきあって ここで 待ってる.[N]それでいいんでしょ?[END]`
+dialogstring_0588A5 `[DLG:3,6][SIZ:D,3,0][TPL:2]リリィ: なんで あなたが[N]こんな場所に いるのっ![N]あぶないじゃない!![FIN][TPL:1]カレン: ローラおばあさまから[N]この場所を 聞きだして[N]何時間も 待ってたのよっ![FIN]もう おいて いかれたのかと[N]思ったわ. せめて 行き先くらい[N]言ってくれたって いいじゃない![FIN]それに テムは イセキで[N]何かを さがしてるんでしょう?[FIN]テムが がんばってるのに[N]あたしだけ 村で のんびり[N]ごはんなんか 食べてられないわ.[FIN]あたし ここで テムが[N]もどってくるのを 待ってる.[FIN][TPL:2]リリィ: やれやれ.[N]これだもの おじょうさまは···[FIN]わかった. あたしも[N]つきあって ここで 待ってる.[N]それでいいんでしょ?[END]`
 
-widestring_0589FB `[DLG:3,6][SIZ:D,3,0][TPL:2]リリィ:[N]テム. 長老樣の言葉を よく[N]思い出してね.[FIN]┌遺跡の地下の ラライのガケにて[N] 神の息のとどかぬところへ[N] インカの神をおさめよ.[FIN] 谷風が その者を黄金船のもとへ[N] 導くであろう.┘っていう言葉,[N]ちゃんと 覚えてる?[PAL:0][END]`
+dialogstring_0589FB `[DLG:3,6][SIZ:D,3,0][TPL:2]リリィ:[N]テム. 長老樣の言葉を よく[N]思い出してね.[FIN]┌遺跡の地下の ラライのガケにて[N] 神の息のとどかぬところへ[N] インカの神をおさめよ.[FIN] 谷風が その者を黄金船のもとへ[N] 導くであろう.┘っていう言葉,[N]ちゃんと 覚えてる?[PAL:0][END]`
 
 actor_def_058A9D [
   actor-def < #12, #00, #10, {
@@ -560,7 +560,7 @@ code_058AB1 {
     COP [AnimOnce]
     COP [StageSpriteFrame] ( #13 )
     COP [AnimOnce]
-    COP [PrintWideString] ( &widestring_058B13 )
+    COP [PrintDialogString] ( &dialogstring_058B13 )
     COP [StartMusic] ( #02 )
     COP [WaitByte] ( #77 )
     COP [SetFlagByte] ( #03 )
@@ -587,13 +587,13 @@ code_058B01 {
 }
 
 code_058B0E {
-    COP [PrintWideString] ( &widestring_058B50 )
+    COP [PrintDialogString] ( &dialogstring_058B50 )
     RTL 
 }
 
-widestring_058B13 `[DLG:3,6][SIZ:D,3,0][TPL:1]カレン: ひどいじゃない?![N]あたしを おいてけぼりにして[N]どこまで 行こうっていうのよっ![PAL:0][END]`
+dialogstring_058B13 `[DLG:3,6][SIZ:D,3,0][TPL:1]カレン: ひどいじゃない?![N]あたしを おいてけぼりにして[N]どこまで 行こうっていうのよっ![PAL:0][END]`
 
-widestring_058B50 `[DLG:3,6][SIZ:D,3,0][TPL:1]カレン: どう?[N]さがしてるものは 見つかった?[N]がんばってね.[PAL:0][END]`
+dialogstring_058B50 `[DLG:3,6][SIZ:D,3,0][TPL:1]カレン: どう?[N]さがしてるものは 見つかった?[N]がんばってね.[PAL:0][END]`
 
 actor_def_058B7F [
   actor-def < #00, #00, #30, {
@@ -616,7 +616,7 @@ actor_def_058B7F [
     LDA #$CFF0
     TSB $joypadMaskStd
     COP [WaitByte] ( #59 )
-    COP [PrintWideString] ( &widestring_058BE2 )
+    COP [PrintDialogString] ( &dialogstring_058BE2 )
     LDA #$CFF0
     TRB $joypadMaskStd
     LDY $decelStepCounter
@@ -642,7 +642,7 @@ code_058BE0 {
     COP [Die]
 }
 
-widestring_058BE2 `[TPL:A]まものの気配が消え[N]テムの変身が 解けてゆく···[END]`
+dialogstring_058BE2 `[TPL:A]まものの気配が消え[N]テムの変身が 解けてゆく···[END]`
 
 actor_def_058C06 [
   actor-def < #00, #00, #2B, {
@@ -856,7 +856,7 @@ code_058DBC {
     COP [SpawnThinker] ( @chunk_008000.code_00B897 )
     COP [WaitByte] ( #BF )
     COP [SetFlagByte] ( #4C )
-    COP [PrintWideString] ( &widestring_058DDE )
+    COP [PrintDialogString] ( &dialogstring_058DDE )
     LDA #$EFF0
     TRB $joypadMaskStd
 }
@@ -865,7 +865,7 @@ code_058DDC {
     COP [Die]
 }
 
-widestring_058DDE `[DLG:3,12][SIZ:D,2,0][TPL:0]テム:[N]これが インカの 黄金船か?![FIN]おやっ?[N]人の気配がする···[PAL:0][END]`
+dialogstring_058DDE `[DLG:3,12][SIZ:D,2,0][TPL:0]テム:[N]これが インカの 黄金船か?![FIN]おやっ?[N]人の気配がする···[PAL:0][END]`
 
 actor_def_058E17 [
   actor-def < #02, #00, #10, {
@@ -879,11 +879,11 @@ actor_def_058E17 [
 ]
 
 code_058E23 {
-    COP [PrintWideString] ( &widestring_058E28 )
+    COP [PrintDialogString] ( &dialogstring_058E28 )
     RTL 
 }
 
-widestring_058E28 `[DEF]王樣っ! よく ご無事でっ![N]これで やっと 大海原へ[N]出航できますよ.[END]`
+dialogstring_058E28 `[DEF]王樣っ! よく ご無事でっ![N]これで やっと 大海原へ[N]出航できますよ.[END]`
 
 actor_def_058E57 [
   actor-def < #04, #00, #10, {
@@ -917,11 +917,11 @@ actor_def_058E57 [
 ]
 
 code_058E9A {
-    COP [PrintWideString] ( &widestring_058E9F )
+    COP [PrintDialogString] ( &dialogstring_058E9F )
     RTL 
 }
 
-widestring_058E9F `[DEF]これが 喜ばずに いられますかっ![N]長い間 王樣を 待ったかいが[N]ありましたよっ![END]`
+dialogstring_058E9F `[DEF]これが 喜ばずに いられますかっ![N]長い間 王樣を 待ったかいが[N]ありましたよっ![END]`
 
 actor_def_058ED0 [
   actor-def < #0D, #00, #10, {
@@ -955,11 +955,11 @@ actor_def_058ED0 [
 ]
 
 code_058F13 {
-    COP [PrintWideString] ( &widestring_058F18 )
+    COP [PrintDialogString] ( &dialogstring_058F18 )
     RTL 
 }
 
-widestring_058F18 `[DEF]おきさき樣は 船室でございます.[N]はやく その元気な お姿を[N]見せてあげて下さいまし.[END]`
+dialogstring_058F18 `[DEF]おきさき樣は 船室でございます.[N]はやく その元気な お姿を[N]見せてあげて下さいまし.[END]`
 
 actor_def_058F4D [
   actor-def < #02, #00, #10, {
@@ -973,11 +973,11 @@ actor_def_058F4D [
 ]
 
 code_058F59 {
-    COP [PrintWideString] ( &widestring_058F5E )
+    COP [PrintDialogString] ( &dialogstring_058F5E )
     RTL 
 }
 
-widestring_058F5E `[DEF]これは 王樣![N]よく ご無事でっ![FIN][::][TPL:0]テム:[N](ボクが 王樣だって???)[PAL:0][END]`
+dialogstring_058F5E `[DEF]これは 王樣![N]よく ご無事でっ![FIN][::][TPL:0]テム:[N](ボクが 王樣だって???)[PAL:0][END]`
 
 actor_def_058F92 [
   actor-def < #12, #00, #10, {
@@ -997,11 +997,11 @@ code_058FA5 {
 }
 
 code_058FAE {
-    COP [PrintWideString] ( &widestring_058FB3 )
+    COP [PrintDialogString] ( &dialogstring_058FB3 )
     RTL 
 }
 
-widestring_058FB3 `[DEF]わーい わーい[N]王樣が もどってきたあっ![FIN][JMP:&chunk_058000.widestring_058F5E+M]`
+dialogstring_058FB3 `[DEF]わーい わーい[N]王樣が もどってきたあっ![FIN][JMP:&chunk_058000.dialogstring_058F5E+M]`
 
 actor_def_058FD3 [
   actor-def < #02, #00, #30, {
@@ -1039,7 +1039,7 @@ actor_def_058FD3 [
     STA $CGADSUB
     REP #$20
     COP [WaitByte] ( #77 )
-    COP [PrintWideString] ( &widestring_059095 )
+    COP [PrintDialogString] ( &dialogstring_059095 )
     LDA #$EFF0
     TRB $joypadMaskStd
 } >
@@ -1057,19 +1057,19 @@ code_059047 {
 
 code_059058 {
     COP [BranchIfFlagByte] ( #4F, #01, &code_059066 )
-    COP [PrintWideString] ( &widestring_05906B )
+    COP [PrintDialogString] ( &dialogstring_05906B )
     COP [SetFlagByte] ( #4F )
     RTL 
 }
 
 code_059066 {
-    COP [PrintWideString] ( &widestring_059095 )
+    COP [PrintDialogString] ( &dialogstring_059095 )
     RTL 
 }
 
-widestring_05906B `[DEF]見張り:[N]王樣 外を ごらんください.[N]船が どうくつを ぬけます![END]`
+dialogstring_05906B `[DEF]見張り:[N]王樣 外を ごらんください.[N]船が どうくつを ぬけます![END]`
 
-widestring_059095 `[DEF]見張り:[N]ずっと 暗ヤミで 生活をしてきた[N]我々にとって この海のかがやきは[N]神の光に 見えますよ.[FIN]世界は こんなにも 美しいのに[N]なぜ しんりゃく者が 生まれ[N]自然を こわしてゆくのでしょうね.[END]`
+dialogstring_059095 `[DEF]見張り:[N]ずっと 暗ヤミで 生活をしてきた[N]我々にとって この海のかがやきは[N]神の光に 見えますよ.[FIN]世界は こんなにも 美しいのに[N]なぜ しんりゃく者が 生まれ[N]自然を こわしてゆくのでしょうね.[END]`
 
 code_05910E {
     COP [SetEntryContinue]
@@ -1191,7 +1191,7 @@ code_0591EE {
     LDA #$CFF0
     TSB $joypadMaskStd
     COP [LoopNext]
-    COP [PrintWideString] ( &widestring_059260 )
+    COP [PrintDialogString] ( &dialogstring_059260 )
     LDY $decelStepCounter
     LDA #$0080
     STA $0002, Y
@@ -1224,20 +1224,20 @@ code_059242 {
 }
 
 code_059256 {
-    COP [PrintWideString] ( &widestring_0592F4 )
+    COP [PrintDialogString] ( &dialogstring_0592F4 )
     RTL 
 }
 
 code_05925B {
-    COP [PrintWideString] ( &widestring_05929B )
+    COP [PrintDialogString] ( &dialogstring_05929B )
     RTL 
 }
 
-widestring_059260 `[DEF][TPL:0]テム:[N]ボクは もうれつな すいまに[N]おそわれ 深い深い 夢の中へと[N]いざなわれていった.[PAL:0][END]`
+dialogstring_059260 `[DEF][TPL:0]テム:[N]ボクは もうれつな すいまに[N]おそわれ 深い深い 夢の中へと[N]いざなわれていった.[PAL:0][END]`
 
-widestring_05929B `[DEF]これは 王樣.[N]船内を 見物なさっているのですね.[FIN]しかし 王樣も おつかれのはず.[N]船をひととおり まわったら[N]このベッドで 少しお休みください.[END]`
+dialogstring_05929B `[DEF]これは 王樣.[N]船内を 見物なさっているのですね.[FIN]しかし 王樣も おつかれのはず.[N]船をひととおり まわったら[N]このベッドで 少しお休みください.[END]`
 
-widestring_0592F4 `[DEF]こんな みすぼらしいベッドで[N]申しわけないんですが[N]どうぞ ゆっくり 休んでください.[END]`
+dialogstring_0592F4 `[DEF]こんな みすぼらしいベッドで[N]申しわけないんですが[N]どうぞ ゆっくり 休んでください.[END]`
 
 actor_def_059325 [
   actor-def < #03, #00, #10, {
@@ -1253,11 +1253,11 @@ actor_def_059325 [
 ]
 
 code_059338 {
-    COP [PrintWideString] ( &widestring_05933D )
+    COP [PrintDialogString] ( &dialogstring_05933D )
     RTL 
 }
 
-widestring_05933D `[TPL:E]暗ヤミにつつまれた どうくつの先に[N]まばゆい光が 見える···[FIN]あの光にみちた 海原へ出航したとき[N]我々は 永遠の自由を 手に入れる[N]のだ.[END]`
+dialogstring_05933D `[TPL:E]暗ヤミにつつまれた どうくつの先に[N]まばゆい光が 見える···[FIN]あの光にみちた 海原へ出航したとき[N]我々は 永遠の自由を 手に入れる[N]のだ.[END]`
 
 actor_def_059399 [
   actor-def < #0C, #00, #10, {
@@ -1271,11 +1271,11 @@ actor_def_059399 [
 ]
 
 code_0593A5 {
-    COP [PrintWideString] ( &widestring_0593AA )
+    COP [PrintDialogString] ( &dialogstring_0593AA )
     RTL 
 }
 
-widestring_0593AA `[TPL:A]おきさき樣は 以前 王樣が[N]おくられたゆびわを 今でも 大切に[N]身につけて いらっしゃいます.[FIN]そうです. しんりゃく者に追われ[N]王樣とおきさき樣が はなればなれに[N]なるときに おくられたゆびわです.[FIN]おきさき樣は 王樣のことを[N]それだけ したっていらっしゃるので[N]しょうね.[END]`
+dialogstring_0593AA `[TPL:A]おきさき樣は 以前 王樣が[N]おくられたゆびわを 今でも 大切に[N]身につけて いらっしゃいます.[FIN]そうです. しんりゃく者に追われ[N]王樣とおきさき樣が はなればなれに[N]なるときに おくられたゆびわです.[FIN]おきさき樣は 王樣のことを[N]それだけ したっていらっしゃるので[N]しょうね.[END]`
 
 actor_def_059448 [
   actor-def < #04, #00, #10, {
@@ -1314,11 +1314,11 @@ code_059459 {
 }
 
 code_05949B {
-    COP [PrintWideString] ( &widestring_0594A0 )
+    COP [PrintDialogString] ( &dialogstring_0594A0 )
     RTL 
 }
 
-widestring_0594A0 `[TPL:A]これは 王樣.[N]ミステリードールは このハコの中で[N]ございます.[FIN]それに そろそろ 出航の準備が[N]ととのったようですよ.[FIN]どうですか?[N]見張り台に のぼってみては?[N]出航の樣子が 見られますよ.[END]`
+dialogstring_0594A0 `[TPL:A]これは 王樣.[N]ミステリードールは このハコの中で[N]ございます.[FIN]それに そろそろ 出航の準備が[N]ととのったようですよ.[FIN]どうですか?[N]見張り台に のぼってみては?[N]出航の樣子が 見られますよ.[END]`
 
 actor_def_059517 [
   actor-def < #15, #00, #10, {
@@ -1332,11 +1332,11 @@ actor_def_059517 [
 ]
 
 code_059523 {
-    COP [PrintWideString] ( &widestring_059528 )
+    COP [PrintDialogString] ( &dialogstring_059528 )
     RTL 
 }
 
-widestring_059528 `[TPL:A]なんで ぼくたちは にげなくちゃ[N]いけないの?[N]インカは ぼくたちの お家なのに.[END]`
+dialogstring_059528 `[TPL:A]なんで ぼくたちは にげなくちゃ[N]いけないの?[N]インカは ぼくたちの お家なのに.[END]`
 
 actor_def_059557 [
   actor-def < #1A, #00, #10, {
@@ -1361,19 +1361,19 @@ code_059572 {
 
 code_059575 {
     COP [BranchIfFlagByte] ( #4E, #01, &code_059583 )
-    COP [PrintWideString] ( &widestring_059588 )
+    COP [PrintDialogString] ( &dialogstring_059588 )
     COP [SetFlagByte] ( #4E )
     RTL 
 }
 
 code_059583 {
-    COP [PrintWideString] ( &widestring_059600 )
+    COP [PrintDialogString] ( &dialogstring_059600 )
     RTL 
 }
 
-widestring_059588 `[TPL:A][TPL:3]インカ女王:[N]よくぞ ご無事で もどって[N]くださいました.[FIN]あなたに 言われたとおり[N]風のミステリードールを[N]今日まで 守り続けてきましたわ.[FIN]あれは あなたが 神から[N]さずかった石像ですものね.[FIN]`
+dialogstring_059588 `[TPL:A][TPL:3]インカ女王:[N]よくぞ ご無事で もどって[N]くださいました.[FIN]あなたに 言われたとおり[N]風のミステリードールを[N]今日まで 守り続けてきましたわ.[FIN]あれは あなたが 神から[N]さずかった石像ですものね.[FIN]`
 
-widestring_059600 `[TPL:A][TPL:3]下の倉庫の たからばこに[N]しまってありますから ご自分の[N]目で たしかめてくださいな.[PAL:0][END]`
+dialogstring_059600 `[TPL:A][TPL:3]下の倉庫の たからばこに[N]しまってありますから ご自分の[N]目で たしかめてくださいな.[PAL:0][END]`
 
 code_059638 {
     COP [SetEntryContinue]
@@ -1413,12 +1413,12 @@ code_059669 {
 }
 
 code_059678 {
-    COP [PrintWideString] ( &widestring_059680 )
+    COP [PrintDialogString] ( &dialogstring_059680 )
     COP [SetFlagByte] ( #02 )
     RTL 
 }
 
-widestring_059680 `[TPL:A][TPL:0]きさきの ミイラが[N]静かに ねむっている.[FIN]その 細くて 長い指には[N]黄金のゆびわが はめられている[N]ようだ···[PAL:0][END]`
+dialogstring_059680 `[TPL:A][TPL:0]きさきの ミイラが[N]静かに ねむっている.[FIN]その 細くて 長い指には[N]黄金のゆびわが はめられている[N]ようだ···[PAL:0][END]`
 
 actor_def_0596C8 [
   actor-def < #02, #00, #10, {
@@ -1438,11 +1438,11 @@ actor_def_0596C8 [
 ]
 
 code_0596E7 {
-    COP [PrintWideString] ( &widestring_0596EC )
+    COP [PrintDialogString] ( &dialogstring_0596EC )
     RTL 
 }
 
-widestring_0596EC `[TPL:A][TPL:0]テム:[N]ここは さっき インカ人が[N]立っていた場所だ···[PAL:0][END]`
+dialogstring_0596EC `[TPL:A][TPL:0]テム:[N]ここは さっき インカ人が[N]立っていた場所だ···[PAL:0][END]`
 
 actor_def_059718 [
   actor-def < #1B, #00, #10, {
@@ -1458,18 +1458,18 @@ actor_def_059718 [
 ]
 
 code_05972C {
-    COP [PrintWideString] ( &widestring_059736 )
+    COP [PrintDialogString] ( &dialogstring_059736 )
     RTL 
 }
 
 code_059731 {
-    COP [PrintWideString] ( &widestring_0597A3 )
+    COP [PrintDialogString] ( &dialogstring_0597A3 )
     RTL 
 }
 
-widestring_059736 `[TPL:A][TPL:1]カレン: もどるはずのない[N]インカ王の帰りを まちつづけて[N]彼らは 死んでいったのよね···[FIN]平和にくらしてた人たちの 生活を[N]こなごなにするなんて ゆるせないよ[N]やっぱり···[PAL:0][END]`
+dialogstring_059736 `[TPL:A][TPL:1]カレン: もどるはずのない[N]インカ王の帰りを まちつづけて[N]彼らは 死んでいったのよね···[FIN]平和にくらしてた人たちの 生活を[N]こなごなにするなんて ゆるせないよ[N]やっぱり···[PAL:0][END]`
 
-widestring_0597A3 `[TPL:B][TPL:1]カレン:[N]な なに···?[PAL:0][END]`
+dialogstring_0597A3 `[TPL:B][TPL:1]カレン:[N]な なに···?[PAL:0][END]`
 
 actor_def_0597B9 [
   actor-def < #23, #00, #18, {
@@ -1492,7 +1492,7 @@ actor_def_0597B9 [
     LDA #$0800
     TRB $10
     COP [WaitByte] ( #1D )
-    COP [PrintWideString] ( &widestring_0598D2 )
+    COP [PrintDialogString] ( &dialogstring_0598D2 )
     COP [WaitByte] ( #3B )
     LDY $decelStepCounter
     LDA #$0082
@@ -1529,7 +1529,7 @@ code_059816 {
     LDA #$0800
     TRB $10
     COP [ExitIfFlagByte] ( #02, #01 )
-    COP [PrintWideString] ( &widestring_059954 )
+    COP [PrintDialogString] ( &dialogstring_059954 )
     COP [StartMusic] ( #1B )
     COP [WaitByte] ( #3B )
     COP [PlaySoundBoth] ( #$1515 )
@@ -1544,7 +1544,7 @@ code_059816 {
     STA $0024, Y
     COP [WaitByte] ( #17 )
     COP [LoopNext]
-    COP [PrintWideString] ( &widestring_059A5A )
+    COP [PrintDialogString] ( &dialogstring_059A5A )
     COP [StartMusic] ( #06 )
     COP [WriteApuIo1] ( #0A )
     COP [WaitByte] ( #77 )
@@ -1569,24 +1569,24 @@ code_059816 {
 }
 
 code_0598C8 {
-    COP [PrintWideString] ( &widestring_0598F1 )
+    COP [PrintDialogString] ( &dialogstring_0598F1 )
     RTL 
 }
 
 code_0598CD {
-    COP [PrintWideString] ( &widestring_059A6D )
+    COP [PrintDialogString] ( &dialogstring_059A6D )
     RTL 
 }
 
-widestring_0598D2 `[TPL:A][TPL:2]リリィ:[N]テム![FIN]テム! 起きて![PAL:0][END]`
+dialogstring_0598D2 `[TPL:A][TPL:2]リリィ:[N]テム![FIN]テム! 起きて![PAL:0][END]`
 
-widestring_0598F1 `[TPL:A][TPL:2]リリィ: テムの帰りが[N]あんまりおそいから 長老樣に[N]うらなってもらったの.[FIN]そしたら 海の上を ー人で[N]さまよっているって言うんだもの.[N]びっくりしたわよ.[PAL:0][END]`
+dialogstring_0598F1 `[TPL:A][TPL:2]リリィ: テムの帰りが[N]あんまりおそいから 長老樣に[N]うらなってもらったの.[FIN]そしたら 海の上を ー人で[N]さまよっているって言うんだもの.[N]びっくりしたわよ.[PAL:0][END]`
 
-widestring_059954 `[TPL:B][TPL:2]リリィ: この船に 積みこまれた[N]賁重な 黄金細工っていうのは[N]きっと その ゆびわのことだよね.[FIN]他の どの黄金細工より[N]かがやいていたんじゃ ないかなあ.[FIN][TPL:1]カレン: 黄金を 見つけて[N]お金もちに なろうとした 人たちは[N]こんな ゆびわのために 命を[N]落としたわけね.[FIN]あたし この ゆびわ もらっとこ.[N]かわいくて なんだか すっごく[N]気にいっちゃった.[FIN][TPL:2]リリィ: あなたには[N]えんりょってものが ないの?![N]のろわれても 知らないからねっ![PAL:0][END]`
+dialogstring_059954 `[TPL:B][TPL:2]リリィ: この船に 積みこまれた[N]賁重な 黄金細工っていうのは[N]きっと その ゆびわのことだよね.[FIN]他の どの黄金細工より[N]かがやいていたんじゃ ないかなあ.[FIN][TPL:1]カレン: 黄金を 見つけて[N]お金もちに なろうとした 人たちは[N]こんな ゆびわのために 命を[N]落としたわけね.[FIN]あたし この ゆびわ もらっとこ.[N]かわいくて なんだか すっごく[N]気にいっちゃった.[FIN][TPL:2]リリィ: あなたには[N]えんりょってものが ないの?![N]のろわれても 知らないからねっ![PAL:0][END]`
 
-widestring_059A5A `[TPL:9][TPL:1]カレン:[N]な なに?[PAL:0][END]`
+dialogstring_059A5A `[TPL:9][TPL:1]カレン:[N]な なに?[PAL:0][END]`
 
-widestring_059A6D `[TPL:A][TPL:2]リリィ:[N]リバイヤサンかも しれないっ![FIN]このあたりの海には 化け物みたいに[N]おっきくて どうもうな魚がいるんだ[N]よっ!![PAL:0][END]`
+dialogstring_059A6D `[TPL:A][TPL:2]リリィ:[N]リバイヤサンかも しれないっ![FIN]このあたりの海には 化け物みたいに[N]おっきくて どうもうな魚がいるんだ[N]よっ!![PAL:0][END]`
 
 actor_def_059AB9 [
   actor-def < #03, #00, #10, {
@@ -1608,14 +1608,14 @@ actor_def_059AB9 [
 code_059AD9 {
     LDA #$EFF0
     TSB $joypadMaskStd
-    COP [PrintWideString] ( &widestring_059C1B )
+    COP [PrintDialogString] ( &dialogstring_059C1B )
     COP [WaitByte] ( #3B )
     COP [PlaySoundBoth] ( #$1515 )
     COP [SpawnAfterFlags] ( @chunk_008000.code_00D108, #$2000 )
     LDA #$FFFF
     STA $0024, Y
     COP [WaitByte] ( #B3 )
-    COP [PrintWideString] ( &widestring_059C31 )
+    COP [PrintDialogString] ( &dialogstring_059C31 )
     COP [SetFlagByte] ( #51 )
     COP [SetOnInteract] ( #$0000 )
     COP [StageSpriteLoopMoveX] ( #08, #04, #02 )
@@ -1630,15 +1630,15 @@ code_059AD9 {
 }
 
 code_059B21 {
-    COP [PrintWideString] ( &widestring_059B26 )
+    COP [PrintDialogString] ( &dialogstring_059B26 )
     RTL 
 }
 
-widestring_059B26 `[TPL:A][TPL:4]ロブ: お前の樣子が 変だから[N]3人で こっそり 後をつけたんだ.[FIN]そしたら 変な村に[N]たどりついてさ···[FIN][TPL:2]リリィ: ちょっとお.[N]あたしの 生まれた場所なんだから[N]変な村なんて 言わないでよっ.[FIN][TPL:4]ロブ:[N]じゅうぶん 変な村じゃねえかっ.[N]目に見えない村なんてよっ.[FIN]テム.[N]おれたちに かくれて 旅に出よう[N]ったって そうは いかないぜ.[FIN]友達だったら 楽しみと 苦労は[N]わかちあわなくっちゃな.[PAL:0][END]`
+dialogstring_059B26 `[TPL:A][TPL:4]ロブ: お前の樣子が 変だから[N]3人で こっそり 後をつけたんだ.[FIN]そしたら 変な村に[N]たどりついてさ···[FIN][TPL:2]リリィ: ちょっとお.[N]あたしの 生まれた場所なんだから[N]変な村なんて 言わないでよっ.[FIN][TPL:4]ロブ:[N]じゅうぶん 変な村じゃねえかっ.[N]目に見えない村なんてよっ.[FIN]テム.[N]おれたちに かくれて 旅に出よう[N]ったって そうは いかないぜ.[FIN]友達だったら 楽しみと 苦労は[N]わかちあわなくっちゃな.[PAL:0][END]`
 
-widestring_059C1B `[TPL:A][TPL:4]ロブ:[N]だいじょうぶかっ?[PAL:0][END]`
+dialogstring_059C1B `[TPL:A][TPL:4]ロブ:[N]だいじょうぶかっ?[PAL:0][END]`
 
-widestring_059C31 `[TPL:8][TPL:5]うわあああああああああああああっ[FIN][TPL:9][TPL:4]ロブ: モリスの悲鳴だっ![N]かんぱんの方から 聞こえたぞっ![PAL:0][END]`
+dialogstring_059C31 `[TPL:8][TPL:5]うわあああああああああああああっ[FIN][TPL:9][TPL:4]ロブ: モリスの悲鳴だっ![N]かんぱんの方から 聞こえたぞっ![PAL:0][END]`
 
 actor_def_059C73 [
   actor-def < #0B, #00, #10, {
@@ -1659,7 +1659,7 @@ code_059C85 {
     COP [AnimOnce]
     COP [ExitIfFlagByte] ( #01, #01 )
     COP [WaitByte] ( #1D )
-    COP [PrintWideString] ( &widestring_059E9E )
+    COP [PrintDialogString] ( &dialogstring_059E9E )
     COP [SetFlagByte] ( #02 )
     COP [PlaySoundBoth] ( #$1515 )
     COP [SpawnAfterFlags] ( @code_05912C, #$2B00 )
@@ -1713,11 +1713,11 @@ code_059CD2 {
 }
 
 code_059D15 {
-    COP [PrintWideString] ( &widestring_059D1A )
+    COP [PrintDialogString] ( &dialogstring_059D1A )
     RTL 
 }
 
-widestring_059D1A `[DEF][TPL:3]エリック:[N]わあっ! びっくりしたっ!![FIN]なんだ テムかあ.[N]もう おどかさないでよっ!![PAL:0][END]`
+dialogstring_059D1A `[DEF][TPL:3]エリック:[N]わあっ! びっくりしたっ!![FIN]なんだ テムかあ.[N]もう おどかさないでよっ!![PAL:0][END]`
 
 code_059D51 {
     LDA #$EFF0
@@ -1726,7 +1726,7 @@ code_059D51 {
     COP [AnimOnce]
     COP [StageSpriteFrame] ( #04 )
     COP [AnimOnce]
-    COP [PrintWideString] ( &widestring_059DD7 )
+    COP [PrintDialogString] ( &dialogstring_059DD7 )
     COP [PlaySoundBoth] ( #$1515 )
     COP [SpawnAfterFlags] ( @chunk_008000.code_00D108, #$2000 )
     LDA #$FFFF
@@ -1774,9 +1774,9 @@ code_059DA5 {
     RTL 
 }
 
-widestring_059DD7 `[TPL:E][TPL:4]ロブ:[N]モリスは どうしたっ?![N]何が あったんだっ!![FIN][TPL:3]エリック:[N]うえぇぇぇぇぇぇぇぇん[N]モリスが モリスが···[FIN]でっかい魚が 船にぶつかってきて[N]ヒック···[FIN]モリスが 海の中に おっこって[N]ヒック···[FIN]うわあぁぁぁぁぁん[N]モリスが 食べられちゃったよう[N]ヒック ヒック···[FIN][TPL:4]ロブ:[N]な 何だってっ?![PAL:0][END]`
+dialogstring_059DD7 `[TPL:E][TPL:4]ロブ:[N]モリスは どうしたっ?![N]何が あったんだっ!![FIN][TPL:3]エリック:[N]うえぇぇぇぇぇぇぇぇん[N]モリスが モリスが···[FIN]でっかい魚が 船にぶつかってきて[N]ヒック···[FIN]モリスが 海の中に おっこって[N]ヒック···[FIN]うわあぁぁぁぁぁん[N]モリスが 食べられちゃったよう[N]ヒック ヒック···[FIN][TPL:4]ロブ:[N]な 何だってっ?![PAL:0][END]`
 
-widestring_059E9E `[TPL:E][TPL:3]エリック: うわああああああん[N]また あの魚だぁっ![N]ボクら 食べられちゃうんだぁっ![FIN][TPL:4]ロブ: 泣いてる ヒマがあったら[N]何かに つかまれっ![N]ふりおとされるなよっ![PAL:0][END]`
+dialogstring_059E9E `[TPL:E][TPL:3]エリック: うわああああああん[N]また あの魚だぁっ![N]ボクら 食べられちゃうんだぁっ![FIN][TPL:4]ロブ: 泣いてる ヒマがあったら[N]何かに つかまれっ![N]ふりおとされるなよっ![PAL:0][END]`
 
 actor_def_059F06 [
   actor-def < #0B, #00, #10, {
@@ -1790,7 +1790,7 @@ actor_def_059F06 [
 ]
 
 code_059F12 {
-    COP [PrintWideString] ( &widestring_059F43 )
+    COP [PrintDialogString] ( &dialogstring_059F43 )
     COP [DialogueOptions] ( #02, #01, &code_list_059F1C )
 }
 
@@ -1801,12 +1801,12 @@ code_list_059F1C [
 ]
 
 code_059F22 {
-    COP [PrintWideString] ( &widestring_05A01E )
+    COP [PrintDialogString] ( &dialogstring_05A01E )
     BRA loc_059F2C
 }
 
 code_059F28 {
-    COP [PrintWideString] ( &widestring_05A046 )
+    COP [PrintDialogString] ( &dialogstring_05A046 )
 
   loc_059F2C:
     LDA #$0404
@@ -1817,11 +1817,11 @@ code_059F28 {
     RTL 
 }
 
-widestring_059F43 `[TPL:A][TPL:0]テム:[N]か かあさんっ!?[FIN][TPL:2][DLY:2]テムの母 シーラ:[N]テム. 空を 見てごらん···[N]ほら すい星が あんなにきれい.[FIN]すい星はね 長い長い 年月をかけて[N]地球に やってきて そして また[N]遠ざかっていくの.[FIN]あの星を 不幸を呼ぶ星っていう人も[N]いれば しあわせの星と 呼ぶ人も[N]いるわ···[FIN]テム. あなたは どっちだと思う?[N] ふこうの星[N] しあわせの星`
+dialogstring_059F43 `[TPL:A][TPL:0]テム:[N]か かあさんっ!?[FIN][TPL:2][DLY:2]テムの母 シーラ:[N]テム. 空を 見てごらん···[N]ほら すい星が あんなにきれい.[FIN]すい星はね 長い長い 年月をかけて[N]地球に やってきて そして また[N]遠ざかっていくの.[FIN]あの星を 不幸を呼ぶ星っていう人も[N]いれば しあわせの星と 呼ぶ人も[N]いるわ···[FIN]テム. あなたは どっちだと思う?[N] ふこうの星[N] しあわせの星`
 
-widestring_05A01E `[CLR]そう···[N]じゃあ ふこうが 訪れないように[N]いのらなくちゃね···[FIN][JMP:&chunk_058000.widestring_05A046+M]`
+dialogstring_05A01E `[CLR]そう···[N]じゃあ ふこうが 訪れないように[N]いのらなくちゃね···[FIN][JMP:&chunk_058000.dialogstring_05A046+M]`
 
-widestring_05A046 `[CLR]そう···[N]じゃあ しあわせが にげないように[N]いのらなくちゃね···[FIN][::]テムや. 私は いつでも[N]あなたのことを 見守っていますよ.[PAL:0][END]`
+dialogstring_05A046 `[CLR]そう···[N]じゃあ しあわせが にげないように[N]いのらなくちゃね···[FIN][::]テムや. 私は いつでも[N]あなたのことを 見守っていますよ.[PAL:0][END]`
 
 actor_def_05A091 [
   actor-def < #14, #00, #10, {
@@ -1841,7 +1841,7 @@ code_05A0A3 {
 
 code_05A0A5 {
     COP [BranchIfFlagByte] ( #E0, #01, &code_05A0BC )
-    COP [PrintWideString] ( &widestring_05A0C1 )
+    COP [PrintDialogString] ( &dialogstring_05A0C1 )
     COP [GiveItem] ( #01, &code_05A0B8 )
     COP [SetFlagByte] ( #E0 )
     RTL 
@@ -1852,13 +1852,13 @@ code_05A0B8 {
 }
 
 code_05A0BC {
-    COP [PrintWideString] ( &widestring_05A116 )
+    COP [PrintDialogString] ( &dialogstring_05A116 )
     RTL 
 }
 
-widestring_05A0C1 `[TPL:F][TPL:5]モリス: さっき[N]船の中で きみょうな 宝石を[N]見つけたんです.[N]これ テムに あげますね.[FIN][PAL:0]テムは 赤い宝石を もらった![PAL:0][END]`
+dialogstring_05A0C1 `[TPL:F][TPL:5]モリス: さっき[N]船の中で きみょうな 宝石を[N]見つけたんです.[N]これ テムに あげますね.[FIN][PAL:0]テムは 赤い宝石を もらった![PAL:0][END]`
 
-widestring_05A116 `[TPL:F][TPL:5]そう言えば テムに 物をあげたのは[N]初めてかも 知れませんよね.[N]大事にしてくださいね.[PAL:0][END]`
+dialogstring_05A116 `[TPL:F][TPL:5]そう言えば テムに 物をあげたのは[N]初めてかも 知れませんよね.[N]大事にしてくださいね.[PAL:0][END]`
 
 actor_def_05A151 [
   actor-def < #00, #00, #28, {
@@ -1905,7 +1905,7 @@ code_05A17D {
 
 code_05A1A0 {
     COP [BranchIfFlagByte] ( #01, #01, &code_05A1C4 )
-    COP [PrintWideString] ( &widestring_05A77A )
+    COP [PrintDialogString] ( &dialogstring_05A77A )
     COP [DialogueOptions] ( #02, #01, &code_list_05A1B0 )
 }
 
@@ -1916,12 +1916,12 @@ code_list_05A1B0 [
 ]
 
 code_05A1B6 {
-    COP [PrintWideString] ( &widestring_05A7CE )
+    COP [PrintDialogString] ( &dialogstring_05A7CE )
     BRA loc_05A1C0
 }
 
 code_05A1BC {
-    COP [PrintWideString] ( &widestring_05A802 )
+    COP [PrintDialogString] ( &dialogstring_05A802 )
 
   loc_05A1C0:
     COP [SetFlagByte] ( #01 )
@@ -1929,7 +1929,7 @@ code_05A1BC {
 }
 
 code_05A1C4 {
-    COP [PrintWideString] ( &widestring_05A88B )
+    COP [PrintDialogString] ( &dialogstring_05A88B )
     COP [SetFlagByte] ( #02 )
     RTL 
 }
@@ -1944,7 +1944,7 @@ code_05A1CC {
     COP [AnimOnce]
     COP [SpawnAfterFlags] ( @code_05A242, #$2800 )
     COP [WaitByte] ( #01 )
-    COP [PrintWideString] ( &widestring_05A705 )
+    COP [PrintDialogString] ( &dialogstring_05A705 )
     COP [SolidHighHere]
     COP [SetOnInteract] ( &code_05A393 )
     COP [ExitIfFlagByte] ( #01, #01 )
@@ -1954,7 +1954,7 @@ code_05A1CC {
   code_05A1FF:
     COP [StageSpriteFrame] ( #14 )
     COP [AnimOnce]
-    COP [PrintWideString] ( &widestring_05A923 )
+    COP [PrintDialogString] ( &dialogstring_05A923 )
     COP [StageSpriteFrame] ( #13 )
     COP [AnimOnce]
     COP [ClearFlagByte] ( #01 )
@@ -1968,7 +1968,7 @@ code_05A1CC {
     RTL 
 
   loc_05A227:
-    COP [PrintWideString] ( &widestring_05A94D )
+    COP [PrintDialogString] ( &dialogstring_05A94D )
     COP [SetFlagByte] ( #4D )
     INC $0AA6
     LDA #$0404
@@ -2103,7 +2103,7 @@ code_05A38C {
 }
 
 code_05A393 {
-    COP [PrintWideString] ( &widestring_05A8FA )
+    COP [PrintDialogString] ( &dialogstring_05A8FA )
     RTL 
 }
 
@@ -2111,7 +2111,7 @@ code_05A398 {
     LDA #$0004
     STA $playerHp
     COP [WaitByte] ( #01 )
-    COP [PrintWideString] ( &widestring_05A718 )
+    COP [PrintDialogString] ( &dialogstring_05A718 )
     COP [SetOnInteract] ( &code_05A3F1 )
     COP [SolidHighHere]
     COP [ExitIfFlagByte] ( #01, #01 )
@@ -2142,24 +2142,24 @@ code_05A3F1 {
     COP [BranchIfFlagByte] ( #03, #01, &code_05A418 )
     COP [BranchIfFlagByte] ( #02, #01, &code_05A410 )
     COP [BranchIfFlagByte] ( #01, #01, &code_05A40B )
-    COP [PrintWideString] ( &widestring_05AA11 )
+    COP [PrintDialogString] ( &dialogstring_05AA11 )
     COP [SetFlagByte] ( #01 )
     RTL 
 }
 
 code_05A40B {
-    COP [PrintWideString] ( &widestring_05AA46 )
+    COP [PrintDialogString] ( &dialogstring_05AA46 )
     RTL 
 }
 
 code_05A410 {
-    COP [PrintWideString] ( &widestring_05AA64 )
+    COP [PrintDialogString] ( &dialogstring_05AA64 )
     COP [SetFlagByte] ( #03 )
     RTL 
 }
 
 code_05A418 {
-    COP [PrintWideString] ( &widestring_05ABE7 )
+    COP [PrintDialogString] ( &dialogstring_05ABE7 )
     COP [ClearFlagByte] ( #4D )
     INC $0AA6
     LDA #$0404
@@ -2181,12 +2181,12 @@ code_05A433 {
 }
 
 code_05A44B {
-    COP [PrintWideString] ( &widestring_05A453 )
+    COP [PrintDialogString] ( &dialogstring_05A453 )
     COP [SetFlagByte] ( #02 )
     RTL 
 }
 
-widestring_05A453 `[TPL:A][PAL:0]つぼの中には[N]手紙が 入っていた···[N]それは こんな 内容だった.[FIN][TPL:5]ぼくらは どれい船にのせられ[N]見知らぬ土地へ 売られていく[N]ところです.[FIN]どなたか この手紙を読んだら[N]助けてください···[N]             サムス[PAL:0][END]`
+dialogstring_05A453 `[TPL:A][PAL:0]つぼの中には[N]手紙が 入っていた···[N]それは こんな 内容だった.[FIN][TPL:5]ぼくらは どれい船にのせられ[N]見知らぬ土地へ 売られていく[N]ところです.[FIN]どなたか この手紙を読んだら[N]助けてください···[N]             サムス[PAL:0][END]`
 
 code_05A4E0 {
     LDA #$0200
@@ -2197,8 +2197,8 @@ code_05A4E0 {
     LDA #$CFF0
     TSB $joypadMaskStd
     COP [WaitByte] ( #01 )
-    COP [PrintWideString] ( &widestring_05A72B )
-    COP [PrintWideString] ( &widestring_05AC43 )
+    COP [PrintDialogString] ( &dialogstring_05A72B )
+    COP [PrintDialogString] ( &dialogstring_05AC43 )
     LDA #$CFF0
     TRB $joypadMaskStd
     COP [SetOnInteract] ( &code_05A54C )
@@ -2213,7 +2213,7 @@ code_05A4E0 {
     COP [ClearFlagByte] ( #01 )
     COP [ExitIfFlagByte] ( #01, #01 )
     COP [WaitByte] ( #B3 )
-    COP [PrintWideString] ( &widestring_05AD7A )
+    COP [PrintDialogString] ( &dialogstring_05AD7A )
     COP [SetFlagWord] ( #$0120 )
     COP [SetFlagByte] ( #52 )
     INC $0AA6
@@ -2227,11 +2227,11 @@ code_05A54C {
     LDA $playerHp
     CMP $playerMaxHp
     BEQ loc_05A559
-    COP [PrintWideString] ( &widestring_05ACA5 )
+    COP [PrintDialogString] ( &dialogstring_05ACA5 )
     RTL 
 
   loc_05A559:
-    COP [PrintWideString] ( &widestring_05ACBD )
+    COP [PrintDialogString] ( &dialogstring_05ACBD )
     COP [SetFlagByte] ( #02 )
     RTL 
 }
@@ -2253,10 +2253,10 @@ code_05A561 {
     COP [StageSpriteFrame] ( #13 )
     COP [AnimOnce]
     COP [WaitByte] ( #01 )
-    COP [PrintWideString] ( &widestring_05A73E )
-    COP [PrintWideString] ( &widestring_05ADCB )
+    COP [PrintDialogString] ( &dialogstring_05A73E )
+    COP [PrintDialogString] ( &dialogstring_05ADCB )
     COP [WaitByte] ( #EF )
-    COP [PrintWideString] ( &widestring_05AEDE )
+    COP [PrintDialogString] ( &dialogstring_05AEDE )
     LDA #$0800
     TSB $10
     COP [StageSprAndHitbox] ( #17 )
@@ -2289,7 +2289,7 @@ code_05A5D7 {
     COP [StageSpriteFrame] ( #12 )
     COP [AnimOnce]
     COP [WaitByte] ( #01 )
-    COP [PrintWideString] ( &widestring_05A752 )
+    COP [PrintDialogString] ( &dialogstring_05A752 )
     COP [SetOnInteract] ( &code_05A64E )
     COP [SolidHighHere]
     COP [ExitIfFlagByte] ( #01, #01 )
@@ -2300,14 +2300,14 @@ code_05A5D7 {
     COP [LoopNext]
     COP [WaitByte] ( #3B )
     COP [StartMusic] ( #06 )
-    COP [PrintWideString] ( &widestring_05AFED )
+    COP [PrintDialogString] ( &dialogstring_05AFED )
     COP [ExitIfFlagByte] ( #02, #01 )
     COP [SetEntryDelayExit] ( @code_05A624, #$04B0 )
 }
 
 code_05A624 {
     COP [FadeThenStartMusic] ( #15 )
-    COP [PrintWideString] ( &widestring_05B079 )
+    COP [PrintDialogString] ( &dialogstring_05B079 )
     COP [SetFlagByte] ( #03 )
     COP [SetOnInteract] ( #$0000 )
     COP [WaitByte] ( #EF )
@@ -2322,13 +2322,13 @@ code_05A624 {
 
 code_05A64E {
     COP [BranchIfFlagByte] ( #01, #01, &code_05A65C )
-    COP [PrintWideString] ( &widestring_05AF17 )
+    COP [PrintDialogString] ( &dialogstring_05AF17 )
     COP [SetFlagByte] ( #01 )
     RTL 
 }
 
 code_05A65C {
-    COP [PrintWideString] ( &widestring_05B030 )
+    COP [PrintDialogString] ( &dialogstring_05B030 )
     COP [SetFlagByte] ( #02 )
     RTL 
 }
@@ -2363,7 +2363,7 @@ code_05A69A {
     COP [StageSpriteFrame] ( #13 )
     COP [AnimOnce]
     COP [WaitByte] ( #01 )
-    COP [PrintWideString] ( &widestring_05A766 )
+    COP [PrintDialogString] ( &dialogstring_05A766 )
     COP [SetOnInteract] ( &code_05A6FD )
     COP [SolidHighHere]
     COP [ExitIfFlagByte] ( #01, #01 )
@@ -2382,7 +2382,7 @@ code_05A69A {
     STA $002A, Y
     COP [StartMusic] ( #06 )
     COP [WaitByte] ( #3B )
-    COP [PrintWideString] ( &widestring_05B2BD )
+    COP [PrintDialogString] ( &dialogstring_05B2BD )
     LDA #$0404
     STA $gfxCacheIdxB
     LDA #$0202
@@ -2393,68 +2393,68 @@ code_05A69A {
 }
 
 code_05A6FD {
-    COP [PrintWideString] ( &widestring_05B14C )
+    COP [PrintDialogString] ( &dialogstring_05B14C )
     COP [SetFlagByte] ( #01 )
     RTL 
 }
 
-widestring_05A705 `[DLG:A,7][SIZ:6,1,0]ひょう流 2日目[END]`
+dialogstring_05A705 `[DLG:A,7][SIZ:6,1,0]ひょう流 2日目[END]`
 
-widestring_05A718 `[DLG:A,7][SIZ:6,1,0]ひょう流 4日目[END]`
+dialogstring_05A718 `[DLG:A,7][SIZ:6,1,0]ひょう流 4日目[END]`
 
-widestring_05A72B `[DLG:A,7][SIZ:6,1,0]ひょう流 7日目[END]`
+dialogstring_05A72B `[DLG:A,7][SIZ:6,1,0]ひょう流 7日目[END]`
 
-widestring_05A73E `[DLG:A,7][SIZ:7,1,0]ひょう流 12日目[END]`
+dialogstring_05A73E `[DLG:A,7][SIZ:7,1,0]ひょう流 12日目[END]`
 
-widestring_05A752 `[DLG:A,7][SIZ:7,1,0]ひょう流 18日目[END]`
+dialogstring_05A752 `[DLG:A,7][SIZ:7,1,0]ひょう流 18日目[END]`
 
-widestring_05A766 `[DLG:A,7][SIZ:7,1,0]ひょう流 21日目[END]`
+dialogstring_05A766 `[DLG:A,7][SIZ:7,1,0]ひょう流 21日目[END]`
 
-widestring_05A77A `[TPL:A][TPL:1]カレン:[N]やっと 気がついたのね.[N]みんなと はぐれちゃった···[FIN]体の具合は だいじょうぶ?[N][PAL:0] うん へっちゃらさ[N] まだ ふらふらするんだ`
+dialogstring_05A77A `[TPL:A][TPL:1]カレン:[N]やっと 気がついたのね.[N]みんなと はぐれちゃった···[FIN]体の具合は だいじょうぶ?[N][PAL:0] うん へっちゃらさ[N] まだ ふらふらするんだ`
 
-widestring_05A7CE `[CLR][TPL:1]カレン: そう.[N]テムって 回復がはやいのね.[N]まるで とかげのしっぽみたい.[FIN][JMP:&chunk_058000.widestring_05A802+M]`
+dialogstring_05A7CE `[CLR][TPL:1]カレン: そう.[N]テムって 回復がはやいのね.[N]まるで とかげのしっぽみたい.[FIN][JMP:&chunk_058000.dialogstring_05A802+M]`
 
-widestring_05A802 `[CLR][TPL:1]カレン: 無理も ないわよね.[N]半日以上 気をうしなって[N]たんだもの.[FIN][::][TPL:A][TPL:1]ひょう流の話は 本で読んだこと[N]あるけど まさか 自分が そうなる[N]なんて 思ってもみなかった···[FIN]災難って とつぜんに[N]おとずれるものなのね.[PAL:0][END]`
+dialogstring_05A802 `[CLR][TPL:1]カレン: 無理も ないわよね.[N]半日以上 気をうしなって[N]たんだもの.[FIN][::][TPL:A][TPL:1]ひょう流の話は 本で読んだこと[N]あるけど まさか 自分が そうなる[N]なんて 思ってもみなかった···[FIN]災難って とつぜんに[N]おとずれるものなのね.[PAL:0][END]`
 
-widestring_05A88B `[TPL:A][TPL:1]カレン:[N]くよくよしたって しかたないわよ.[FIN]先のことは 考えないで[N]ひょう流を 楽しんじゃおっ.[FIN]もう おなか ぺこぺこ.[N]お城の地下から もってきた お肉で[N]お昼ごはんに しましょ.[PAL:0][END]`
+dialogstring_05A88B `[TPL:A][TPL:1]カレン:[N]くよくよしたって しかたないわよ.[FIN]先のことは 考えないで[N]ひょう流を 楽しんじゃおっ.[FIN]もう おなか ぺこぺこ.[N]お城の地下から もってきた お肉で[N]お昼ごはんに しましょ.[PAL:0][END]`
 
-widestring_05A8FA `[TPL:A][TPL:1]カレン: きれい···[N]ー日中見てても あきないな···[PAL:0][END]`
+dialogstring_05A8FA `[TPL:A][TPL:1]カレン: きれい···[N]ー日中見てても あきないな···[PAL:0][END]`
 
-widestring_05A923 `[TPL:A][TPL:1]カレン: 何てことするのよっ![N]魚が かわいそうじゃないっ!![PAL:0][END]`
+dialogstring_05A923 `[TPL:A][TPL:1]カレン: 何てことするのよっ![N]魚が かわいそうじゃないっ!![PAL:0][END]`
 
-widestring_05A94D `[TPL:A][TPL:0]テム:[N]何ごともなく 時間がだけが[N]ゆっくりと 流れていった.[FIN]カレンは ー日中 のんびりと[N]魚を ながめていたが ボクは[N]それじゃ 気がすまなかった.[FIN]イカダの中を うろつきまわり[N]カレンに 何度も 話しかけた.[FIN]ー分が 何時間にも 感じられた.[N]まるで のんびりとした時間の足音が[N]聞こえてくるようだった.[PAL:0][END]`
+dialogstring_05A94D `[TPL:A][TPL:0]テム:[N]何ごともなく 時間がだけが[N]ゆっくりと 流れていった.[FIN]カレンは ー日中 のんびりと[N]魚を ながめていたが ボクは[N]それじゃ 気がすまなかった.[FIN]イカダの中を うろつきまわり[N]カレンに 何度も 話しかけた.[FIN]ー分が 何時間にも 感じられた.[N]まるで のんびりとした時間の足音が[N]聞こえてくるようだった.[PAL:0][END]`
 
-widestring_05AA11 `[TPL:A][TPL:1]カレン:[N]何か 予感がするの···[N]助けが くるのかもしれないわ···[FIN]あらっ?[PAL:0][END]`
+dialogstring_05AA11 `[TPL:A][TPL:1]カレン:[N]何か 予感がするの···[N]助けが くるのかもしれないわ···[FIN]あらっ?[PAL:0][END]`
 
-widestring_05AA46 `[TPL:A][TPL:1]カレン:[N]何か 流れてくるみたいよっ![PAL:0][END]`
+dialogstring_05AA46 `[TPL:A][TPL:1]カレン:[N]何か 流れてくるみたいよっ![PAL:0][END]`
 
-widestring_05AA64 `[TPL:A][TPL:1]カレン:[N]あーあ 予感がしたのにっ.[FIN]助けてくれって 言われたって··[N]こっちが 助けてほしいよねぇ.[FIN]あーあ もう お腹と 背中が[N]くっつきそうよぉ.[FIN][TPL:0]テム: だから あのとき[N]魚を とっておけばよかったんだ.[N]そうすりゃ 今ごろは···[FIN][TPL:1]カレン:[N]あんな かわいい魚 殺せないわ![FIN][TPL:0]テム:[N]じゃ 何にも食べないで ぼくらが[N]死んでもいいって いうのかっ?![FIN][TPL:1]カレン:[N]だいたい 生の魚なんて[N]気持ち悪くて 食べられないわよっ![FIN]それに 魚だっていっしょうけんめい[N]生きてるのよっ![FIN]魚だって 痛いって思うのよっ![N]テムは 魚の気持ちを 考えたこと[N]あるわけっ?![FIN]そんなに 食べたきゃ 勝手に[N]食べればっ![N]あたしは 食べないからねっ!![PAL:0][END]`
+dialogstring_05AA64 `[TPL:A][TPL:1]カレン:[N]あーあ 予感がしたのにっ.[FIN]助けてくれって 言われたって··[N]こっちが 助けてほしいよねぇ.[FIN]あーあ もう お腹と 背中が[N]くっつきそうよぉ.[FIN][TPL:0]テム: だから あのとき[N]魚を とっておけばよかったんだ.[N]そうすりゃ 今ごろは···[FIN][TPL:1]カレン:[N]あんな かわいい魚 殺せないわ![FIN][TPL:0]テム:[N]じゃ 何にも食べないで ぼくらが[N]死んでもいいって いうのかっ?![FIN][TPL:1]カレン:[N]だいたい 生の魚なんて[N]気持ち悪くて 食べられないわよっ![FIN]それに 魚だっていっしょうけんめい[N]生きてるのよっ![FIN]魚だって 痛いって思うのよっ![N]テムは 魚の気持ちを 考えたこと[N]あるわけっ?![FIN]そんなに 食べたきゃ 勝手に[N]食べればっ![N]あたしは 食べないからねっ!![PAL:0][END]`
 
-widestring_05ABE7 `[TPL:A][TPL:1]カレン:[N]··········[FIN][TPL:0]テム:[N]カレンは その日 口をきいて[N]くれなかった···[FIN]まったく おじょう樣には[N]困ったものだ. やれやれ···[PAL:0][END]`
+dialogstring_05ABE7 `[TPL:A][TPL:1]カレン:[N]··········[FIN][TPL:0]テム:[N]カレンは その日 口をきいて[N]くれなかった···[FIN]まったく おじょう樣には[N]困ったものだ. やれやれ···[PAL:0][END]`
 
-widestring_05AC43 `[PAU:1E][TPL:A][TPL:0]テム:[N]ひょう流 ー週間目.[N]再び 魚のむれに 出会った.[FIN]体力も もう げんかいだった.[N]ボクは これ以上 食べなければ[N]死ぬと思った···[END]`
+dialogstring_05AC43 `[PAU:1E][TPL:A][TPL:0]テム:[N]ひょう流 ー週間目.[N]再び 魚のむれに 出会った.[FIN]体力も もう げんかいだった.[N]ボクは これ以上 食べなければ[N]死ぬと思った···[END]`
 
-widestring_05ACA5 `[TPL:A][TPL:1]カレン:[N]··········[PAL:0][END]`
+dialogstring_05ACA5 `[TPL:A][TPL:1]カレン:[N]··········[PAL:0][END]`
 
-widestring_05ACBD `[TPL:A][TPL:1]カレン:[N]··········[FIN]テム···[N]昨日は あんな言いかたして[N]ごめんなさい···[FIN]あたしも お魚 食べてみるわ.[N]死んじゃったら どうしようも[N]ないもんね.[FIN]きらいな食べ物を 食べないなんて[N]いっていられるのは 平和なとき[N]だけなのよね···[FIN][TPL:0]テム:[N]よおし. じゃ 魚をとってやる.[N]とびっきり うまいやつをさ.[PAL:0][END]`
+dialogstring_05ACBD `[TPL:A][TPL:1]カレン:[N]··········[FIN]テム···[N]昨日は あんな言いかたして[N]ごめんなさい···[FIN]あたしも お魚 食べてみるわ.[N]死んじゃったら どうしようも[N]ないもんね.[FIN]きらいな食べ物を 食べないなんて[N]いっていられるのは 平和なとき[N]だけなのよね···[FIN][TPL:0]テム:[N]よおし. じゃ 魚をとってやる.[N]とびっきり うまいやつをさ.[PAL:0][END]`
 
-widestring_05AD7A `[TPL:A][TPL:0]テム:[N]カレンは おいしそうに 魚を[N]食べた.[FIN]ボクの中で カレンが[N]ちょっぴり 気になる存在に[N]なってきたようだ···[PAL:0][END]`
+dialogstring_05AD7A `[TPL:A][TPL:0]テム:[N]カレンは おいしそうに 魚を[N]食べた.[FIN]ボクの中で カレンが[N]ちょっぴり 気になる存在に[N]なってきたようだ···[PAL:0][END]`
 
-widestring_05ADCB `[DLG:3,13][SIZ:D,3,0][TPL:1]カレン:[N]星が きれいね···[FIN]もう ちょっと 背が高かったら[N]手が とどきそうよね.[FIN]きっと リリィや ロブたちも[N]同じ 星空を 見てるんだろうな.[FIN]星と お話できれば[N]みんなのいる場所も きっと[N]わかるのに···[FIN][TPL:1]カレン: あ そうそう 最近[N]気がついたんだけど 白鳥座の近くに[N]星がーつ ふえてるの.[FIN]ほら あの 赤い星.[FIN]ねぇ.[N]あの星に お願いごとしない?[N]きっと かなうような 気がするの.[FIN]テムも ちゃんと 目を閉じて[N]お願いしてね.[END]`
+dialogstring_05ADCB `[DLG:3,13][SIZ:D,3,0][TPL:1]カレン:[N]星が きれいね···[FIN]もう ちょっと 背が高かったら[N]手が とどきそうよね.[FIN]きっと リリィや ロブたちも[N]同じ 星空を 見てるんだろうな.[FIN]星と お話できれば[N]みんなのいる場所も きっと[N]わかるのに···[FIN][TPL:1]カレン: あ そうそう 最近[N]気がついたんだけど 白鳥座の近くに[N]星がーつ ふえてるの.[FIN]ほら あの 赤い星.[FIN]ねぇ.[N]あの星に お願いごとしない?[N]きっと かなうような 気がするの.[FIN]テムも ちゃんと 目を閉じて[N]お願いしてね.[END]`
 
-widestring_05AEDE `[TPL:A][TPL:0]テム: ボクは みんなの無事と[N]父さんのことを いっしょうけんめい[N]いのってみた···[PAL:0][END]`
+dialogstring_05AEDE `[TPL:A][TPL:0]テム: ボクは みんなの無事と[N]父さんのことを いっしょうけんめい[N]いのってみた···[PAL:0][END]`
 
-widestring_05AF17 `[TPL:A][TPL:1]カレン:[N]もう ひょう流してから 3週間[N]近くたつのね.[FIN]テムってば 少し カミの毛が[N]のびたんじゃない?[N]そうね 2ドットくらい(芺)[FIN][TPL:0]テム: そういう カレンもさ,[N]おひめさまって 感じじゃなくなった[N]よな.[FIN]どっかの島の 女の子って[N]言っても わかんないと思うけど.[FIN][TPL:1]カレン:[N]ひっどーい![FIN]な なに···?[N]あの 海にいるの なに···?[PAL:0][END]`
+dialogstring_05AF17 `[TPL:A][TPL:1]カレン:[N]もう ひょう流してから 3週間[N]近くたつのね.[FIN]テムってば 少し カミの毛が[N]のびたんじゃない?[N]そうね 2ドットくらい(芺)[FIN][TPL:0]テム: そういう カレンもさ,[N]おひめさまって 感じじゃなくなった[N]よな.[FIN]どっかの島の 女の子って[N]言っても わかんないと思うけど.[FIN][TPL:1]カレン:[N]ひっどーい![FIN]な なに···?[N]あの 海にいるの なに···?[PAL:0][END]`
 
-widestring_05AFED `[TPL:A][TPL:1]カレン:[N]もしかして サメ···?[FIN]あたしたち 食べられちゃうの[N]かしら···[N]どうしよう·· テム···[PAL:0][END]`
+dialogstring_05AFED `[TPL:A][TPL:1]カレン:[N]もしかして サメ···?[FIN]あたしたち 食べられちゃうの[N]かしら···[N]どうしよう·· テム···[PAL:0][END]`
 
-widestring_05B030 `[TPL:A][TPL:1]カレン:[N]イカダのまわりを ぐるぐるまわる[N]だけで おそってこないわね···[FIN][TPL:0]テム:[N]しばらく 樣子を見てみよう.[END]`
+dialogstring_05B030 `[TPL:A][TPL:1]カレン:[N]イカダのまわりを ぐるぐるまわる[N]だけで おそってこないわね···[FIN][TPL:0]テム:[N]しばらく 樣子を見てみよう.[END]`
 
-widestring_05B079 `[TPL:A][TPL:1]カレン:[N]わかった![N]この子たち お腹がすいてないのよ![FIN]むかし じいやに 教わったの.[N]お腹がすいてないのに 生き物を[N]おそうのは 人間だけだって.[FIN][TPL:0]テム:[N]それなら ボクらのやっていることは[N]人間らしくないんだなあ.[FIN]死にそうになるまで[N]魚を 食べなかったもんね.[FIN][TPL:1]カレン: そうよね.[N]あ いっちゃうみたい.[N]サメさん さよーならぁー···[PAL:0][END]`
+dialogstring_05B079 `[TPL:A][TPL:1]カレン:[N]わかった![N]この子たち お腹がすいてないのよ![FIN]むかし じいやに 教わったの.[N]お腹がすいてないのに 生き物を[N]おそうのは 人間だけだって.[FIN][TPL:0]テム:[N]それなら ボクらのやっていることは[N]人間らしくないんだなあ.[FIN]死にそうになるまで[N]魚を 食べなかったもんね.[FIN][TPL:1]カレン: そうよね.[N]あ いっちゃうみたい.[N]サメさん さよーならぁー···[PAL:0][END]`
 
-widestring_05B14C `[TPL:A][TPL:1]カレン:[N]あたしね. お城にいるときは[N]夕日をみるのが 好きだったの···[FIN]お城のわたりロウカから見る 夕日は[N]すっごく すっごく きれいで···[FIN]でもね.[N]今は きらいになっちゃった.[FIN]夕日がしずむと 暗くて こわい[N]ヤミが やってきて···[FIN]そのまま 二度と 朝日を[N]見られないんじゃないかと思って··[FIN]でも テムが そばにいてくれたから[N]每日 きれいな 朝の光を 見られた[N]のよね.[FIN]テムが 近くに いてくれると,[N]たわいない こんな時間も なんだか[N]楽しく感じるの.[FIN][TPL:0]テム: ボクは そんな カレンに[N]話したいことが あるはずなのに[N]なぜか 言葉が 出てこなかった.[FIN]ボクは だまって うなづくだけ[N]だった···[PAL:0][END]`
+dialogstring_05B14C `[TPL:A][TPL:1]カレン:[N]あたしね. お城にいるときは[N]夕日をみるのが 好きだったの···[FIN]お城のわたりロウカから見る 夕日は[N]すっごく すっごく きれいで···[FIN]でもね.[N]今は きらいになっちゃった.[FIN]夕日がしずむと 暗くて こわい[N]ヤミが やってきて···[FIN]そのまま 二度と 朝日を[N]見られないんじゃないかと思って··[FIN]でも テムが そばにいてくれたから[N]每日 きれいな 朝の光を 見られた[N]のよね.[FIN]テムが 近くに いてくれると,[N]たわいない こんな時間も なんだか[N]楽しく感じるの.[FIN][TPL:0]テム: ボクは そんな カレンに[N]話したいことが あるはずなのに[N]なぜか 言葉が 出てこなかった.[FIN]ボクは だまって うなづくだけ[N]だった···[PAL:0][END]`
 
-widestring_05B2BD `[TPL:A][TPL:0]テム: とつぜん ボクは[N]ひざから がくっと くずれ落ち[N]意識が 遠のいていった···[FIN][TPL:1]カレン:[N]テムっ! テムっ!![N]どうしたのよっ![FIN]しっかりしてよっ![N]あたしを ー人にしないでよおっ!![PAL:0][END]`
+dialogstring_05B2BD `[TPL:A][TPL:0]テム: とつぜん ボクは[N]ひざから がくっと くずれ落ち[N]意識が 遠のいていった···[FIN][TPL:1]カレン:[N]テムっ! テムっ!![N]どうしたのよっ![FIN]しっかりしてよっ![N]あたしを ー人にしないでよおっ!![PAL:0][END]`
 
 actor_def_05B336 [
   actor-def < #48, #00, #10, {
@@ -2475,12 +2475,12 @@ actor_def_05B336 [
 ]
 
 code_05B353 {
-    COP [PrintWideString] ( &widestring_05B35B )
+    COP [PrintDialogString] ( &dialogstring_05B35B )
     COP [SetFlagByte] ( #01 )
     RTL 
 }
 
-widestring_05B35B `[DEF]わん わんっ![END]`
+dialogstring_05B35B `[DEF]わん わんっ![END]`
 
 actor_def_05B364 [
   actor-def < #15, #00, #10, {
@@ -2499,7 +2499,7 @@ code_05B376 {
 }
 
 code_05B378 {
-    COP [PrintWideString] ( &widestring_05B3A3 )
+    COP [PrintDialogString] ( &dialogstring_05B3A3 )
     LDA #$0000
     STA $0D60
     LDA #$0001
@@ -2512,7 +2512,7 @@ code_05B378 {
     RTL 
 }
 
-widestring_05B3A3 `[DEF][TPL:1]カレン: この犬[N]ターボっていう 名前なんですって.[N]かしこそうな犬よね.[FIN]さあ 行きましょう.[N]きっと リリィや ロブ,エリック[N]たちと 会えるわよ.[FIN][TPL:6]こうして 二人は[N]花の都 フリージアへ向かう···[PAL:0][END]`
+dialogstring_05B3A3 `[DEF][TPL:1]カレン: この犬[N]ターボっていう 名前なんですって.[N]かしこそうな犬よね.[FIN]さあ 行きましょう.[N]きっと リリィや ロブ,エリック[N]たちと 会えるわよ.[FIN][TPL:6]こうして 二人は[N]花の都 フリージアへ向かう···[PAL:0][END]`
 
 actor_def_05B428 [
   actor-def < #04, #00, #18, {
@@ -2538,12 +2538,12 @@ actor_def_05B428 [
     COP [StartMusic] ( #1B )
     COP [WaitByte] ( #3B )
     COP [WaitByte] ( #95 )
-    COP [PrintWideString] ( &widestring_05B492 )
+    COP [PrintDialogString] ( &dialogstring_05B492 )
     COP [SetFlagByte] ( #01 )
     COP [ExitIfFlagByte] ( #02, #01 )
     COP [StageSpriteLoop] ( #03, #1E )
     COP [AnimLoop]
-    COP [PrintWideString] ( &widestring_05B757 )
+    COP [PrintDialogString] ( &dialogstring_05B757 )
     COP [SetFlagByte] ( #76 )
     LDA #$CFF0
     TRB $joypadMaskStd
@@ -2556,17 +2556,17 @@ code_05B48A {
 }
 
 code_05B48D {
-    COP [PrintWideString] ( &widestring_05B620 )
+    COP [PrintDialogString] ( &dialogstring_05B620 )
     RTL 
 }
 
-widestring_05B492 `[TPL:A][TPL:6]男の声:[N]もう そろそろ 起こしても[N]だいじょうぶだろう.[FIN]ビタミンCも じゅうぶんとらせたし[N]体のつかれも 回復しているはずだ.[FIN]これは かい血病といってね[N]長期間 ビタミンCをとらないと[N]かかる病気なんだよ.[FIN][TPL:1]カレン:[N]ふうん····[FIN][TPL:6]かの有名な 探険家 コロンブスの[N]ー行だって かかった病気だ.[N]気に することはないさ.[FIN]この病気が もっと ひどくなると[N]血がダメになり ヒフの色が[N]どす黒くなってくる.[FIN]齒ぐきから 血が止まらなくなり,[N]やがて 体が くさって···[FIN][TPL:1]カレン: やめてよっ!![N]そんな こわい話 聞きたくないわっ[FIN][TPL:6]男:[N]はははは.[N]まあ 無事で なによりだ.[FIN][TPL:1]カレン:[N]でも おじさんって 物知りなのね.[N]本当に ありがとう.[FIN]`
+dialogstring_05B492 `[TPL:A][TPL:6]男の声:[N]もう そろそろ 起こしても[N]だいじょうぶだろう.[FIN]ビタミンCも じゅうぶんとらせたし[N]体のつかれも 回復しているはずだ.[FIN]これは かい血病といってね[N]長期間 ビタミンCをとらないと[N]かかる病気なんだよ.[FIN][TPL:1]カレン:[N]ふうん····[FIN][TPL:6]かの有名な 探険家 コロンブスの[N]ー行だって かかった病気だ.[N]気に することはないさ.[FIN]この病気が もっと ひどくなると[N]血がダメになり ヒフの色が[N]どす黒くなってくる.[FIN]齒ぐきから 血が止まらなくなり,[N]やがて 体が くさって···[FIN][TPL:1]カレン: やめてよっ!![N]そんな こわい話 聞きたくないわっ[FIN][TPL:6]男:[N]はははは.[N]まあ 無事で なによりだ.[FIN][TPL:1]カレン:[N]でも おじさんって 物知りなのね.[N]本当に ありがとう.[FIN]`
 
-widestring_05B620 `[TPL:A][TPL:6]礼なら 外にいる 犬に言ってくれ.[N]あいつが 君たちのイカダを発見して[N]私を 海につれだしたんだからな.[PAL:0][END]`
+dialogstring_05B620 `[TPL:A][TPL:6]礼なら 外にいる 犬に言ってくれ.[N]あいつが 君たちのイカダを発見して[N]私を 海につれだしたんだからな.[PAL:0][END]`
 
-widestring_05B666 `[TPL:E][TPL:1]カレン:[N]テム! テムっ!![N]目を覚ましてっ!!![FIN]陸地に 陸地についたのよっ!![N]あたしたち 助かったのよっ!!![FIN][TPL:0]テム:[N]う ううん···[PAL:0][END]`
+dialogstring_05B666 `[TPL:E][TPL:1]カレン:[N]テム! テムっ!![N]目を覚ましてっ!!![FIN]陸地に 陸地についたのよっ!![N]あたしたち 助かったのよっ!!![FIN][TPL:0]テム:[N]う ううん···[PAL:0][END]`
 
-widestring_05B6C5 `[TPL:E][TPL:0]テム: はっ カレン···?[N]ここは いったい···?[FIN][TPL:1]カレン:[N]あたしたちを 助けてくれた[N]親切な おじさんのおうち.[FIN]まったく テムったら ねぞうが[N]悪いんだからっ.[FIN]病人だっていうのに おふとんを[N]`
+dialogstring_05B6C5 `[TPL:E][TPL:0]テム: はっ カレン···?[N]ここは いったい···?[FIN][TPL:1]カレン:[N]あたしたちを 助けてくれた[N]親切な おじさんのおうち.[FIN]まったく テムったら ねぞうが[N]悪いんだからっ.[FIN]病人だっていうのに おふとんを[N]`
 
 code_05B73F {
     RTI 
@@ -2647,7 +2647,7 @@ code_05B73F {
   loc_05B7C2:
     ORA $@gfx_000000+C3, X
 
-  widestring_05B7C6:
+  dialogstring_05B7C6:
     REP #$0A
     REP #$01
     PEI ($40)
@@ -2699,7 +2699,7 @@ code_05B73F {
     COP [StageSpriteFrame] ( #2D )
     COP [AnimOnce]
     COP [SolidHighHere]
-    COP [PrintWideString] ( &widestring_05B666 )
+    COP [PrintDialogString] ( &dialogstring_05B666 )
     LDY $decelStepCounter
     LDA #$0080
     STA $0002, Y
@@ -2709,12 +2709,12 @@ code_05B73F {
     STA $0008, Y
     STA $002A, Y
     LDA #$0000
-    JSL $@chunk_008000.widestring_00C829
+    JSL $@chunk_008000.dialogstring_00C829
     COP [WaitByte] ( #3B )
     LDA #$0002
-    JSL $@chunk_008000.widestring_00C829
+    JSL $@chunk_008000.dialogstring_00C829
     COP [WaitByte] ( #13 )
-    COP [PrintWideString] ( &widestring_05B6C5 )
+    COP [PrintDialogString] ( &dialogstring_05B6C5 )
     COP [SetFlagByte] ( #02 )
 
   loc_05B876:
@@ -2740,7 +2740,7 @@ code_05B898 {
 }
 
 code_05B8A5 {
-    COP [PrintWideString] ( &widestring_05B7C6 )
+    COP [PrintDialogString] ( &dialogstring_05B7C6 )
     COP [SetFlagByte] ( #56 )
     RTL 
 }
@@ -2781,13 +2781,13 @@ actor_def_05B8DF [
     COP [AnimOnce]
     COP [StageSpriteLoop] ( #2B, #1E )
     COP [AnimLoop]
-    COP [PrintWideString] ( &widestring_05B98F )
+    COP [PrintDialogString] ( &dialogstring_05B98F )
     COP [SetFlagByte] ( #02 )
     COP [ExitIfFlagByte] ( #02, #00 )
     COP [StageSpriteFrame] ( #2A )
     COP [AnimOnce]
     COP [WaitByte] ( #1D )
-    COP [PrintWideString] ( &widestring_05B9ED )
+    COP [PrintDialogString] ( &dialogstring_05B9ED )
     COP [SetFlagByte] ( #64 )
     COP [SetFlagByte] ( #03 )
     LDA #$CFF0
@@ -2833,16 +2833,16 @@ code_05B985 {
 }
 
 code_05B987 {
-    COP [PrintWideString] ( &widestring_05BA17 )
+    COP [PrintDialogString] ( &dialogstring_05BA17 )
     COP [SetFlagByte] ( #04 )
     RTL 
 }
 
-widestring_05B98F `[TPL:E][TPL:1]カレン: うわあ すてきっ![N]さすが 花の都って いうだけ[N]あるわよねっ!![FIN]こんな きれいなところに[N]住んでる人たちは きっと 心も[N]きれいなんだろうな···[PAL:0][END]`
+dialogstring_05B98F `[TPL:E][TPL:1]カレン: うわあ すてきっ![N]さすが 花の都って いうだけ[N]あるわよねっ!![FIN]こんな きれいなところに[N]住んでる人たちは きっと 心も[N]きれいなんだろうな···[PAL:0][END]`
 
-widestring_05B9ED `[TPL:E][TPL:1]カレン:[N]テムも それで いいわよねっ.[N]さっ いこいこっ!![PAL:0][END]`
+dialogstring_05B9ED `[TPL:E][TPL:1]カレン:[N]テムも それで いいわよねっ.[N]さっ いこいこっ!![PAL:0][END]`
 
-widestring_05BA17 `[TPL:E][TPL:1]カレン:[N]ここの 宿屋さんが そうだって.[N]さっ はいろっ!![PAL:0][END]`
+dialogstring_05BA17 `[TPL:E][TPL:1]カレン:[N]ここの 宿屋さんが そうだって.[N]さっ はいろっ!![PAL:0][END]`
 
 actor_def_05BA41 [
   actor-def < #02, #00, #10, {
@@ -2858,7 +2858,7 @@ actor_def_05BA41 [
     COP [AnimLoop]
     COP [StageSpriteFrame] ( #02 )
     COP [AnimOnce]
-    COP [PrintWideString] ( &widestring_05BAD1 )
+    COP [PrintDialogString] ( &dialogstring_05BAD1 )
     COP [ClearFlagByte] ( #02 )
     COP [ExitIfFlagByte] ( #03, #01 )
     COP [StageSpriteMoveX] ( #09, #11 )
@@ -2894,20 +2894,20 @@ code_05BAAF {
 }
 
 code_05BAC7 {
-    COP [PrintWideString] ( &widestring_05BB89 )
+    COP [PrintDialogString] ( &dialogstring_05BB89 )
     RTL 
 }
 
 code_05BACC {
-    COP [PrintWideString] ( &widestring_05BB96 )
+    COP [PrintDialogString] ( &dialogstring_05BB96 )
     RTL 
 }
 
-widestring_05BAD1 `[TPL:E]男: こりゃまた ずいぶんと[N]かわいい 旅人さんだこと.[N]今夜の宿は おきまりですか?[FIN][TPL:1]カレン: ううん.[N]決ってないわ. それに あたしたち[N]人を さがしてるの.[FIN][TPL:6]男: それは それは.[N]なら うちの宿を きょ点にして[N]人さがしをしたら どうですか?[FIN][TPL:1]カレン: 決ーまりっ![N]あたし もう くったくたっ!![PAL:0][END]`
+dialogstring_05BAD1 `[TPL:E]男: こりゃまた ずいぶんと[N]かわいい 旅人さんだこと.[N]今夜の宿は おきまりですか?[FIN][TPL:1]カレン: ううん.[N]決ってないわ. それに あたしたち[N]人を さがしてるの.[FIN][TPL:6]男: それは それは.[N]なら うちの宿を きょ点にして[N]人さがしをしたら どうですか?[FIN][TPL:1]カレン: 決ーまりっ![N]あたし もう くったくたっ!![PAL:0][END]`
 
-widestring_05BB89 `[DEF]さあ どうぞ どうぞ.[END]`
+dialogstring_05BB89 `[DEF]さあ どうぞ どうぞ.[END]`
 
-widestring_05BB96 `[DEF]最近 この町には 旅人が すっかり[N]よりつかなくなって···[N]商売 あがったりですよ.[END]`
+dialogstring_05BB96 `[DEF]最近 この町には 旅人が すっかり[N]よりつかなくなって···[N]商売 あがったりですよ.[END]`
 
 code_05BBCA {
     COP [SetMetasprite] ( @sprite_set_list_0EDA00 )
@@ -3029,19 +3029,19 @@ code_05BC56 {
 }
 
 code_05BCB9 {
-    COP [PrintWideString] ( &widestring_05BDD5 )
+    COP [PrintDialogString] ( &dialogstring_05BDD5 )
     COP [SetEntryContinue]
     RTL 
 }
 
 code_05BCC0 {
     COP [BranchIfFlagByte] ( #66, #01, &code_05BCCB )
-    COP [PrintWideString] ( &widestring_05BCE3 )
+    COP [PrintDialogString] ( &dialogstring_05BCE3 )
     RTL 
 }
 
 code_05BCCB {
-    COP [PrintWideString] ( &widestring_05BCFB )
+    COP [PrintDialogString] ( &dialogstring_05BCFB )
     COP [SetFlagByte] ( #67 )
     COP [SolidHighAbs] ( #08, #0E )
     COP [SolidHighAbs] ( #08, #0F )
@@ -3050,11 +3050,11 @@ code_05BCCB {
     RTL 
 }
 
-widestring_05BCE3 `[DEF]男の声:[N]命がおしければ かえんな!![END]`
+dialogstring_05BCE3 `[DEF]男の声:[N]命がおしければ かえんな!![END]`
 
-widestring_05BCFB `[DEF]男の声:[N]命がおしければ かえんな!![FIN][TPL:0]テム:[N]そこに エリックっていう 男の子が[N]いませんか?[FIN][PAL:0]男の声:[N]そんな 名前は聞いたこともないな.[N]何を しょうこに そんなことを[N]言うんだね?[FIN][TPL:3]テムっ? その声は テムだねっ?[N]たすけ···· [PAL:0]ボコッ[FIN]男の声: しっ···[N]ぼうずっ 静かにしないかっ···[FIN][TPL:0]テム:[N](しかたない ドアをやぶろう··)[N][PAL:0][END]`
+dialogstring_05BCFB `[DEF]男の声:[N]命がおしければ かえんな!![FIN][TPL:0]テム:[N]そこに エリックっていう 男の子が[N]いませんか?[FIN][PAL:0]男の声:[N]そんな 名前は聞いたこともないな.[N]何を しょうこに そんなことを[N]言うんだね?[FIN][TPL:3]テムっ? その声は テムだねっ?[N]たすけ···· [PAL:0]ボコッ[FIN]男の声: しっ···[N]ぼうずっ 静かにしないかっ···[FIN][TPL:0]テム:[N](しかたない ドアをやぶろう··)[N][PAL:0][END]`
 
-widestring_05BDD5 `[DEF][TPL:0]テム:[N]今は エリックを 助けなくちゃ··[PAL:0][END]`
+dialogstring_05BDD5 `[DEF][TPL:0]テム:[N]今は エリックを 助けなくちゃ··[PAL:0][END]`
 
 actor_def_05BDF6 [
   actor-def < #02, #00, #10, {
@@ -3069,13 +3069,13 @@ actor_def_05BDF6 [
 ]
 
 code_05BE08 {
-    COP [PrintWideString] ( &widestring_05BE15 )
+    COP [PrintDialogString] ( &dialogstring_05BE15 )
     COP [PlaySoundBoth] ( #$0505 )
-    COP [PrintWideString] ( &widestring_05BE62 )
+    COP [PrintDialogString] ( &dialogstring_05BE62 )
     RTL 
 }
 
-widestring_05BE15 `[DEF]びっくりした···[N]屋根から 人が ふってくるとはね.[FIN]身のちぢむような ダイビングを[N]見せてくれた `
+dialogstring_05BE15 `[DEF]びっくりした···[N]屋根から 人が ふってくるとはね.[FIN]身のちぢむような ダイビングを[N]見せてくれた `
 
 loc_05BE50 {
     AND $@gfx_angel+117A, X
@@ -3130,11 +3130,11 @@ code_05BEBE {
 }
 
 code_05BEC5 {
-    COP [PrintWideString] ( &widestring_05BECA )
+    COP [PrintDialogString] ( &dialogstring_05BECA )
     RTL 
 }
 
-widestring_05BECA `[DEF]女の子: 宿屋で[N]住みこみで はたらいていた男の子が[N]ドレイ商人に つかまったみたいよ.[END]`
+dialogstring_05BECA `[DEF]女の子: 宿屋で[N]住みこみで はたらいていた男の子が[N]ドレイ商人に つかまったみたいよ.[END]`
 
 actor_def_05BF03 [
   actor-def < #1A, #00, #10, {
@@ -3149,7 +3149,7 @@ actor_def_05BF03 [
 
 code_05BF0F {
     COP [BranchIfFlagByte] ( #E1, #01, &code_05BF26 )
-    COP [PrintWideString] ( &widestring_05BF2B )
+    COP [PrintDialogString] ( &dialogstring_05BF2B )
     COP [GiveItem] ( #01, &code_05BF22 )
     COP [SetFlagByte] ( #E1 )
     RTL 
@@ -3160,13 +3160,13 @@ code_05BF22 {
 }
 
 code_05BF26 {
-    COP [PrintWideString] ( &widestring_05BFB9 )
+    COP [PrintDialogString] ( &dialogstring_05BFB9 )
     RTL 
 }
 
-widestring_05BF2B `[DEF]ほっ ほっ ほっ.[N]よく ここが わかったのぅ.[FIN]どうでもいいと 思っているものが[N]実は 大切なものだったりする···[N]世の中 そういう ものじゃよ.[FIN]これは オマケじゃ.[N]とって おきなされ.[FIN]老人は テムの 持ち物の中に[N]そっと 何かをいれた![END]`
+dialogstring_05BF2B `[DEF]ほっ ほっ ほっ.[N]よく ここが わかったのぅ.[FIN]どうでもいいと 思っているものが[N]実は 大切なものだったりする···[N]世の中 そういう ものじゃよ.[FIN]これは オマケじゃ.[N]とって おきなされ.[FIN]老人は テムの 持ち物の中に[N]そっと 何かをいれた![END]`
 
-widestring_05BFB9 `[DEF]ほっ ほっ ほっ.[END]`
+dialogstring_05BFB9 `[DEF]ほっ ほっ ほっ.[END]`
 
 actor_def_05BFC4 [
   actor-def < #04, #00, #10, {
@@ -3190,18 +3190,18 @@ code_05BFE1 {
     LDA $playerWallType
     CMP $14
     BCS loc_05BFED
-    COP [PrintWideString] ( &widestring_05BFF5 )
+    COP [PrintDialogString] ( &dialogstring_05BFF5 )
     RTL 
 
   loc_05BFED:
-    COP [PrintWideString] ( &widestring_05C015 )
+    COP [PrintDialogString] ( &dialogstring_05C015 )
     COP [SetFlagByte] ( #01 )
     RTL 
 }
 
-widestring_05BFF5 `[DEF]ここは 子供のくるところじゃない.[N]帰った 帰った.[END]`
+dialogstring_05BFF5 `[DEF]ここは 子供のくるところじゃない.[N]帰った 帰った.[END]`
 
-widestring_05C015 `[DEF]この ガキんちょはっ![N]どこから 入りこんだんだっ?![N]さあ 帰れ 帰れっ!![END]`
+dialogstring_05C015 `[DEF]この ガキんちょはっ![N]どこから 入りこんだんだっ?![N]さあ 帰れ 帰れっ!![END]`
 
 actor_def_05C043 [
   actor-def < #1D, #00, #10, {
@@ -3226,11 +3226,11 @@ code_05C066 {
 }
 
 code_05C068 {
-    COP [PrintWideString] ( &widestring_05C06D )
+    COP [PrintDialogString] ( &dialogstring_05C06D )
     RTL 
 }
 
-widestring_05C06D `[DEF]まったく どこへ いきやがった··[END]`
+dialogstring_05C06D `[DEF]まったく どこへ いきやがった··[END]`
 
 actor_def_05C080 [
   actor-def < #1C, #00, #10, {
@@ -3258,7 +3258,7 @@ code_05C0AC {
 }
 
 code_05C0AE {
-    COP [PrintWideString] ( &widestring_05C0FB )
+    COP [PrintDialogString] ( &dialogstring_05C0FB )
     COP [DialogueOptions] ( #02, #02, &code_list_05C0B8 )
 }
 
@@ -3269,12 +3269,12 @@ code_list_05C0B8 [
 ]
 
 code_05C0BE {
-    COP [PrintWideString] ( &widestring_05C129 )
+    COP [PrintDialogString] ( &dialogstring_05C129 )
     RTL 
 }
 
 code_05C0C3 {
-    COP [PrintWideString] ( &widestring_05C140 )
+    COP [PrintDialogString] ( &dialogstring_05C140 )
     COP [DialogueOptions] ( #02, #02, &code_list_05C0CD )
 }
 
@@ -3285,19 +3285,19 @@ code_list_05C0CD [
 ]
 
 code_05C0D3 {
-    COP [PrintWideString] ( &widestring_05C1EB )
+    COP [PrintDialogString] ( &dialogstring_05C1EB )
     RTL 
 }
 
 code_05C0D8 {
     COP [BranchIfFlagByte] ( #59, #01, &code_05C0E3 )
-    COP [PrintWideString] ( &widestring_05C1CA )
+    COP [PrintDialogString] ( &dialogstring_05C1CA )
     RTL 
 }
 
 code_05C0E3 {
     COP [GiveItem] ( #01, &code_05C0F6 )
-    COP [PrintWideString] ( &widestring_05C178 )
+    COP [PrintDialogString] ( &dialogstring_05C178 )
     COP [SetFlagByte] ( #5A )
     LDA #$EFF0
     TSB $joypadMaskStd
@@ -3305,23 +3305,23 @@ code_05C0E3 {
 }
 
 code_05C0F6 {
-    COP [PrintWideString] ( &widestring_05C20E )
+    COP [PrintDialogString] ( &dialogstring_05C20E )
     RTL 
 }
 
-widestring_05C0FB `[DEF]ドレイがー人 にげだしたんだ.[N]どこかで 見かけなかったか?[N] はい[N] いいえ`
+dialogstring_05C0FB `[DEF]ドレイがー人 にげだしたんだ.[N]どこかで 見かけなかったか?[N] はい[N] いいえ`
 
-widestring_05C129 `[CLR]そうか.[N]見つけたら 知らせてくれよ.[END]`
+dialogstring_05C129 `[CLR]そうか.[N]見つけたら 知らせてくれよ.[END]`
 
-widestring_05C140 `[CLR]なんと! その場所を教えてくれたら[N]赤い宝石をやろう.[N] 場所を教える[N] 芺ってごまかす`
+dialogstring_05C140 `[CLR]なんと! その場所を教えてくれたら[N]赤い宝石をやろう.[N] 場所を教える[N] 芺ってごまかす`
 
-widestring_05C178 `[CLR]テムは ドレイの[N]かくれている家を 教えた.[FIN]男:[N]ありがとうよ.[N]これは お礼だ. とっといてくれ.[FIN]テムは 赤い宝石を もらった.[END]`
+dialogstring_05C178 `[CLR]テムは ドレイの[N]かくれている家を 教えた.[FIN]男:[N]ありがとうよ.[N]これは お礼だ. とっといてくれ.[FIN]テムは 赤い宝石を もらった.[END]`
 
-widestring_05C1CA `[CLR]しかし テムは[N]ドレイのかくれ場所を 知らない.[FIN]`
+dialogstring_05C1CA `[CLR]しかし テムは[N]ドレイのかくれ場所を 知らない.[FIN]`
 
-widestring_05C1EB `[CLR]男:[N]こらっ. ぼうずっ.[N]大人を からかうんじゃないっ!![END]`
+dialogstring_05C1EB `[CLR]男:[N]こらっ. ぼうずっ.[N]大人を からかうんじゃないっ!![END]`
 
-widestring_05C20E `[CLR]男:[N]おっと 持ち物が いっぱいなのか?[N]それでは しょうがない···[END]`
+dialogstring_05C20E `[CLR]男:[N]おっと 持ち物が いっぱいなのか?[N]それでは しょうがない···[END]`
 
 actor_def_05C236 [
   actor-def < #13, #00, #10, {
@@ -3335,11 +3335,11 @@ actor_def_05C236 [
 ]
 
 code_05C242 {
-    COP [PrintWideString] ( &widestring_05C247 )
+    COP [PrintDialogString] ( &dialogstring_05C247 )
     RTL 
 }
 
-widestring_05C247 `[DEF]フリージアっていうのは[N]町のしょうちょうに なっている花.[N]すてきな かおりでしょ.[END]`
+dialogstring_05C247 `[DEF]フリージアっていうのは[N]町のしょうちょうに なっている花.[N]すてきな かおりでしょ.[END]`
 
 actor_def_05C277 [
   actor-def < #02, #00, #10, {
@@ -3353,11 +3353,11 @@ actor_def_05C277 [
 ]
 
 code_05C283 {
-    COP [PrintWideString] ( &widestring_05C288 )
+    COP [PrintDialogString] ( &dialogstring_05C288 )
     RTL 
 }
 
-widestring_05C288 `[TPL:A]まったく 2階のやつらときたら··[N]かたみがせまいよ··· オレは.[END]`
+dialogstring_05C288 `[TPL:A]まったく 2階のやつらときたら··[N]かたみがせまいよ··· オレは.[END]`
 
 actor_def_05C2B0 [
   actor-def < #0D, #00, #10, {
@@ -3385,11 +3385,11 @@ actor_def_05C2B0 [
 ]
 
 code_05C2E0 {
-    COP [PrintWideString] ( &widestring_05C2E5 )
+    COP [PrintDialogString] ( &dialogstring_05C2E5 )
     RTL 
 }
 
-widestring_05C2E5 `[DEF]彼の 目に入ったゴミを[N]とって あげていたのよ.[N]ほほほほほほほほ.[END]`
+dialogstring_05C2E5 `[DEF]彼の 目に入ったゴミを[N]とって あげていたのよ.[N]ほほほほほほほほ.[END]`
 
 actor_def_05C30E [
   actor-def < #04, #00, #10, {
@@ -3417,11 +3417,11 @@ actor_def_05C30E [
 ]
 
 code_05C33E {
-    COP [PrintWideString] ( &widestring_05C343 )
+    COP [PrintDialogString] ( &dialogstring_05C343 )
     RTL 
 }
 
-widestring_05C343 `[DEF]か 彼女に ゴミに入った目を[N]とってもらってたのさ···[N]はははははははは.[END]`
+dialogstring_05C343 `[DEF]か 彼女に ゴミに入った目を[N]とってもらってたのさ···[N]はははははははは.[END]`
 
 actor_def_05C371 [
   actor-def < #0C, #00, #10, {
@@ -3443,11 +3443,11 @@ actor_def_05C371 [
 ]
 
 code_05C394 {
-    COP [PrintWideString] ( &widestring_05C399 )
+    COP [PrintDialogString] ( &dialogstring_05C399 )
     RTL 
 }
 
-widestring_05C399 `[TPL:A]母親って ほんと 気苦労が[N]たえないものよ.[FIN]悪い人に連れていかれたんじゃないか[N]どこかで ケガしてるんじゃないか[N]とかね···[FIN]あたしの お母さんも 同じように[N]苦労を してきたんだろうな.[END]`
+dialogstring_05C399 `[TPL:A]母親って ほんと 気苦労が[N]たえないものよ.[FIN]悪い人に連れていかれたんじゃないか[N]どこかで ケガしてるんじゃないか[N]とかね···[FIN]あたしの お母さんも 同じように[N]苦労を してきたんだろうな.[END]`
 
 actor_def_05C40A [
   actor-def < #02, #00, #10, {
@@ -3461,11 +3461,11 @@ actor_def_05C40A [
 ]
 
 code_05C416 {
-    COP [PrintWideString] ( &widestring_05C41B )
+    COP [PrintDialogString] ( &dialogstring_05C41B )
     RTL 
 }
 
-widestring_05C41B `[TPL:A]别に どろぼうが 入ったわけじゃ[N]ないんだよ.[FIN]こんなふうに 少しは ちらかって[N]いた方が 落ち着くと思わないか?[END]`
+dialogstring_05C41B `[TPL:A]别に どろぼうが 入ったわけじゃ[N]ないんだよ.[FIN]こんなふうに 少しは ちらかって[N]いた方が 落ち着くと思わないか?[END]`
 
 actor_def_05C45E [
   actor-def < #02, #00, #10, {
@@ -3484,11 +3484,11 @@ code_05C470 {
 }
 
 code_05C472 {
-    COP [PrintWideString] ( &widestring_05C477 )
+    COP [PrintDialogString] ( &dialogstring_05C477 )
     RTL 
 }
 
-widestring_05C477 `[TPL:A]見つかったものは しかたがないな.[N]ここにいるのは 昨日 にげだした[N]ドレイだよ.[FIN]ドレイ商人たちに このことを[N]話すがいい.[N]かくごの上で やったことさ.[END]`
+dialogstring_05C477 `[TPL:A]見つかったものは しかたがないな.[N]ここにいるのは 昨日 にげだした[N]ドレイだよ.[FIN]ドレイ商人たちに このことを[N]話すがいい.[N]かくごの上で やったことさ.[END]`
 
 actor_def_05C4D3 [
   actor-def < #0A, #00, #10, {
@@ -3502,11 +3502,11 @@ actor_def_05C4D3 [
 ]
 
 code_05C4DF {
-    COP [PrintWideString] ( &widestring_05C4E4 )
+    COP [PrintDialogString] ( &dialogstring_05C4E4 )
     RTL 
 }
 
-widestring_05C4E4 `[TPL:A]悪いことは 言わない.[N]裹通りには いかないほうが[N]身のためだよ.[FIN]美しいバラには トゲがあるように[N]美しい町には 裹の顔があるものさ.[END]`
+dialogstring_05C4E4 `[TPL:A]悪いことは 言わない.[N]裹通りには いかないほうが[N]身のためだよ.[FIN]美しいバラには トゲがあるように[N]美しい町には 裹の顔があるものさ.[END]`
 
 actor_def_05C539 [
   actor-def < #02, #00, #10, {
@@ -3533,12 +3533,12 @@ actor_def_05C539 [
 ]
 
 code_05C574 {
-    COP [PrintWideString] ( &widestring_05C57C )
+    COP [PrintDialogString] ( &dialogstring_05C57C )
     COP [SetFlagByte] ( #0F )
     RTL 
 }
 
-widestring_05C57C `[DEF]火を使った 芸を 得意とする者で[N]おれの 右に出るヤツは いない.[N]いいか みてろよっ![END]`
+dialogstring_05C57C `[DEF]火を使った 芸を 得意とする者で[N]おれの 右に出るヤツは いない.[N]いいか みてろよっ![END]`
 
 code_05C5B4 {
     COP [PlaySoundCh1] ( #21 )
@@ -3571,11 +3571,11 @@ actor_def_05C5D7 [
 ]
 
 code_05C5E8 {
-    COP [PrintWideString] ( &widestring_05C5ED )
+    COP [PrintDialogString] ( &dialogstring_05C5ED )
     RTL 
 }
 
-widestring_05C5ED `[DEF]ういー·· ひっく···[N]まじめに 生きるのも人生.[N]飲んで芺って生きるのも 人生さね.[END]`
+dialogstring_05C5ED `[DEF]ういー·· ひっく···[N]まじめに 生きるのも人生.[N]飲んで芺って生きるのも 人生さね.[END]`
 
 actor_def_05C625 [
   actor-def < #35, #00, #10, {
@@ -3591,11 +3591,11 @@ actor_def_05C625 [
 ]
 
 code_05C636 {
-    COP [PrintWideString] ( &widestring_05C63B )
+    COP [PrintDialogString] ( &dialogstring_05C63B )
     RTL 
 }
 
-widestring_05C63B `[DEF]もうじき きょうふの大王が 天から[N]降りてくるんだと···[N]そして 人類は 死に絕えるんだと.[FIN]だれが 予言したのか 知らないが[N]ウソっぱちも いいところだぜ.[N]バカバカしくって 飲まなきゃ[N]やってらんねえや. ヒック.[END]`
+dialogstring_05C63B `[DEF]もうじき きょうふの大王が 天から[N]降りてくるんだと···[N]そして 人類は 死に絕えるんだと.[FIN]だれが 予言したのか 知らないが[N]ウソっぱちも いいところだぜ.[N]バカバカしくって 飲まなきゃ[N]やってらんねえや. ヒック.[END]`
 
 actor_def_05C6BD [
   actor-def < #28, #00, #10, {
@@ -3616,11 +3616,11 @@ code_05C6D4 {
 }
 
 code_05C6D6 {
-    COP [PrintWideString] ( &widestring_05C6DB )
+    COP [PrintDialogString] ( &dialogstring_05C6DB )
     RTL 
 }
 
-widestring_05C6DB `[DEF][TPL:5]ぼくは イムス.[N]遠くはなれた大陸から 船で[N]この町へ つれてこられました.[FIN]ぼくらは しゅりょう民族.[N]おなかがすくと カリをして[N]生活してたんです.[FIN]このところ 動物たちが つぎつぎと[N]原因不明の病気で バタバタと[N]死んでいって···[PAL:0][END]`
+dialogstring_05C6DB `[DEF][TPL:5]ぼくは イムス.[N]遠くはなれた大陸から 船で[N]この町へ つれてこられました.[FIN]ぼくらは しゅりょう民族.[N]おなかがすくと カリをして[N]生活してたんです.[FIN]このところ 動物たちが つぎつぎと[N]原因不明の病気で バタバタと[N]死んでいって···[PAL:0][END]`
 
 actor_def_05C770 [
   actor-def < #28, #00, #10, {
@@ -3648,18 +3648,18 @@ code_05C787 {
 }
 
 code_05C79A {
-    COP [PrintWideString] ( &widestring_05C7A4 )
+    COP [PrintDialogString] ( &dialogstring_05C7A4 )
     RTL 
 }
 
 code_05C79F {
-    COP [PrintWideString] ( &widestring_05C826 )
+    COP [PrintDialogString] ( &dialogstring_05C826 )
     RTL 
 }
 
-widestring_05C7A4 `[DEF][TPL:5]ぼくは レムス.[N]動物がいなくなり ぼくらは[N]食べ物が なくなったんだ.[FIN]そして 生きるために しかたなく[N]ドレイに なったというわけさ.[FIN]ぼくらは いったい どんな人に[N]買われて どんなところに[N]連れていかれんだろう···[PAL:0][END]`
+dialogstring_05C7A4 `[DEF][TPL:5]ぼくは レムス.[N]動物がいなくなり ぼくらは[N]食べ物が なくなったんだ.[FIN]そして 生きるために しかたなく[N]ドレイに なったというわけさ.[FIN]ぼくらは いったい どんな人に[N]買われて どんなところに[N]連れていかれんだろう···[PAL:0][END]`
 
-widestring_05C826 `[DEF]神よ·· どうして あなたは[N]身分というものを 作ったのですか?[END]`
+dialogstring_05C826 `[DEF]神よ·· どうして あなたは[N]身分というものを 作ったのですか?[END]`
 
 actor_def_05C84C [
   actor-def < #28, #00, #10, {
@@ -3680,12 +3680,12 @@ code_05C863 {
 }
 
 code_05C865 {
-    COP [PrintWideString] ( &widestring_05C86D )
+    COP [PrintDialogString] ( &dialogstring_05C86D )
     COP [SetFlagByte] ( #66 )
     RTL 
 }
 
-widestring_05C86D `[DEF][TPL:5]ぼくは サムス.[FIN]夕べ 宿屋で はたらいている[N]エリックという男の子が ぼくらを[N]助けにきてくれたんです.[FIN]でも ドレイ商人たちに見つかって[N]連れていかてちゃった···[FIN]たぶん 町の裹通りの はじっこの[N]家に とじこめられているはず.[N]どうか 助けてあげてください.[PAL:0][END]`
+dialogstring_05C86D `[DEF][TPL:5]ぼくは サムス.[FIN]夕べ 宿屋で はたらいている[N]エリックという男の子が ぼくらを[N]助けにきてくれたんです.[FIN]でも ドレイ商人たちに見つかって[N]連れていかてちゃった···[FIN]たぶん 町の裹通りの はじっこの[N]家に とじこめられているはず.[N]どうか 助けてあげてください.[PAL:0][END]`
 
 actor_def_05C90D [
   actor-def < #1A, #00, #10, {
@@ -3706,7 +3706,7 @@ actor_def_05C90D [
 ]
 
 code_05C92C {
-    COP [PrintWideString] ( &widestring_05C949 )
+    COP [PrintDialogString] ( &dialogstring_05C949 )
     COP [DialogueOptions] ( #02, #02, &code_list_05C936 )
 }
 
@@ -3717,21 +3717,21 @@ code_list_05C936 [
 ]
 
 code_05C93C {
-    COP [PrintWideString] ( &widestring_05C9D2 )
+    COP [PrintDialogString] ( &dialogstring_05C9D2 )
     RTL 
 }
 
 code_05C941 {
-    COP [PrintWideString] ( &widestring_05C9A1 )
+    COP [PrintDialogString] ( &dialogstring_05C9A1 )
     COP [SetFlagByte] ( #01 )
     RTL 
 }
 
-widestring_05C949 `[TPL:B]こら ぼうずっ![N]ここは 子供のくるところじゃない![N]さあ かえった かえった!![FIN]それとも あんたも ドレイを[N]買いにきたって いうのかい?[N] はい[N] いいえ`
+dialogstring_05C949 `[TPL:B]こら ぼうずっ![N]ここは 子供のくるところじゃない![N]さあ かえった かえった!![FIN]それとも あんたも ドレイを[N]買いにきたって いうのかい?[N] はい[N] いいえ`
 
-widestring_05C9A1 `[CLR]その どきょうが 気に入った![N]本当に 買うのかどうかは 知らんが[N]見ていきな.[END]`
+dialogstring_05C9A1 `[CLR]その どきょうが 気に入った![N]本当に 買うのかどうかは 知らんが[N]見ていきな.[END]`
 
-widestring_05C9D2 `[CLR]さあ かえった かえった!![END]`
+dialogstring_05C9D2 `[CLR]さあ かえった かえった!![END]`
 
 actor_def_05C9E2 [
   actor-def < #03, #00, #10, {
@@ -3745,11 +3745,11 @@ actor_def_05C9E2 [
 ]
 
 code_05C9EE {
-    COP [PrintWideString] ( &widestring_05C9F3 )
+    COP [PrintDialogString] ( &dialogstring_05C9F3 )
     RTL 
 }
 
-widestring_05C9F3 `[TPL:A]自分が 彼らの 立場になったらと[N]思うと ぞっとするよ.[FIN]でも 今の オレは 人の気持ちを[N]考えるより 自分が 生きることで[N]せいいっぱいなんだ.[END]`
+dialogstring_05C9F3 `[TPL:A]自分が 彼らの 立場になったらと[N]思うと ぞっとするよ.[FIN]でも 今の オレは 人の気持ちを[N]考えるより 自分が 生きることで[N]せいいっぱいなんだ.[END]`
 
 actor_def_05CA4F [
   actor-def < #04, #00, #10, {
@@ -3763,11 +3763,11 @@ actor_def_05CA4F [
 ]
 
 code_05CA5B {
-    COP [PrintWideString] ( &widestring_05CA60 )
+    COP [PrintDialogString] ( &dialogstring_05CA60 )
     RTL 
 }
 
-widestring_05CA60 `[TPL:E]このドレイたちは ちょうど[N]君と 同い年くらいだよね.[FIN]おぼえておくんだな.[N]世界には 同い年でも こういう[N]生活をしてる人が いるってことを.[END]`
+dialogstring_05CA60 `[TPL:E]このドレイたちは ちょうど[N]君と 同い年くらいだよね.[FIN]おぼえておくんだな.[N]世界には 同い年でも こういう[N]生活をしてる人が いるってことを.[END]`
 
 actor_def_05CAB7 [
   actor-def < #27, #00, #10, {
@@ -3788,12 +3788,12 @@ code_05CACE {
 }
 
 code_05CAD0 {
-    COP [PrintWideString] ( &widestring_05CAD8 )
+    COP [PrintDialogString] ( &dialogstring_05CAD8 )
     COP [SetFlagByte] ( #59 )
     RTL 
 }
 
-widestring_05CAD8 `[TPL:A]おねがいです![N]見のがして下さいっ!![FIN]わたしは どうなってもいいが[N]この人に めいわくが[N]かかります···[END]`
+dialogstring_05CAD8 `[TPL:A]おねがいです![N]見のがして下さいっ!![FIN]わたしは どうなってもいいが[N]この人に めいわくが[N]かかります···[END]`
 
 actor_def_05CB14 [
   actor-def < #27, #00, #10, {
@@ -3809,11 +3809,11 @@ actor_def_05CB14 [
 ]
 
 code_05CB25 {
-    COP [PrintWideString] ( &widestring_05CB2A )
+    COP [PrintDialogString] ( &dialogstring_05CB2A )
     RTL 
 }
 
-widestring_05CB2A `[TPL:9]私たち これから 売りに[N]出されるところ···[END]`
+dialogstring_05CB2A `[TPL:9]私たち これから 売りに[N]出されるところ···[END]`
 
 actor_def_05CB47 [
   actor-def < #27, #00, #10, {
@@ -3829,11 +3829,11 @@ actor_def_05CB47 [
 ]
 
 code_05CB58 {
-    COP [PrintWideString] ( &widestring_05CB5D )
+    COP [PrintDialogString] ( &dialogstring_05CB5D )
     RTL 
 }
 
-widestring_05CB5D `[TPL:B]私 物ごとを 考えないように[N]しました.[N]考えれば 考えるほど むなしく[N]なるだけです···[END]`
+dialogstring_05CB5D `[TPL:B]私 物ごとを 考えないように[N]しました.[N]考えれば 考えるほど むなしく[N]なるだけです···[END]`
 
 actor_def_05CB93 [
   actor-def < #27, #00, #10, {
@@ -3849,11 +3849,11 @@ actor_def_05CB93 [
 ]
 
 code_05CBA4 {
-    COP [PrintWideString] ( &widestring_05CBA9 )
+    COP [PrintDialogString] ( &dialogstring_05CBA9 )
     RTL 
 }
 
-widestring_05CBA9 `[TPL:A]私は 神を 信じません.[N]もし 神がいるなら 世の中に[N]身分など 存在しないはず···[END]`
+dialogstring_05CBA9 `[TPL:A]私は 神を 信じません.[N]もし 神がいるなら 世の中に[N]身分など 存在しないはず···[END]`
 
 actor_def_05CBE1 [
   actor-def < #1B, #00, #10, {
@@ -3872,7 +3872,7 @@ actor_def_05CBE1 [
     COP [StageSpriteFrame] ( #1B )
     COP [AnimOnce]
     COP [SetFlagByte] ( #58 )
-    COP [PrintWideString] ( &widestring_05CC58 )
+    COP [PrintDialogString] ( &dialogstring_05CC58 )
     COP [StageSpriteLoopMoveX] ( #21, #04, #01 )
     COP [AnimLoop]
     LDA #$CFF0
@@ -3901,20 +3901,20 @@ code_05CC42 {
 
 code_05CC48 {
     COP [BranchIfFlagByte] ( #68, #01, &code_05CC53 )
-    COP [PrintWideString] ( &widestring_05CCEB )
+    COP [PrintDialogString] ( &dialogstring_05CCEB )
     RTL 
 }
 
 code_05CC53 {
-    COP [PrintWideString] ( &widestring_05CD17 )
+    COP [PrintDialogString] ( &dialogstring_05CD17 )
     RTL 
 }
 
-widestring_05CC58 `[TPL:A][TPL:1]カレン:[N]リリィ? リリィなのっ?![FIN][TPL:2]リリィ: 心配したよおっ![N]ひと月近くも はなればなれだったん[N]だもんね!![FIN]この宿屋で 住みこみで 働かせて[N]もらってたんだよ.[FIN][TPL:A][TPL:2]右のおくの部屋に ロブがいるから[N]行ってあげてよ···[PAL:0][END]`
+dialogstring_05CC58 `[TPL:A][TPL:1]カレン:[N]リリィ? リリィなのっ?![FIN][TPL:2]リリィ: 心配したよおっ![N]ひと月近くも はなればなれだったん[N]だもんね!![FIN]この宿屋で 住みこみで 働かせて[N]もらってたんだよ.[FIN][TPL:A][TPL:2]右のおくの部屋に ロブがいるから[N]行ってあげてよ···[PAL:0][END]`
 
-widestring_05CCEB `[TPL:A][TPL:1]カレン:[N]せっかく 無事に会えたっていうのに[N]こんなのって···[PAL:0][END]`
+dialogstring_05CCEB `[TPL:A][TPL:1]カレン:[N]せっかく 無事に会えたっていうのに[N]こんなのって···[PAL:0][END]`
 
-widestring_05CD17 `[TPL:A][TPL:1]カレン:[N]なんだか なみだが出てきちゃった.[PAL:0][END]`
+dialogstring_05CD17 `[TPL:A][TPL:1]カレン:[N]なんだか なみだが出てきちゃった.[PAL:0][END]`
 
 actor_def_05CD37 [
   actor-def < #22, #00, #10, {
@@ -3933,7 +3933,7 @@ actor_def_05CD37 [
     COP [StageSpriteLoop] ( #22, #1E )
     COP [AnimLoop]
     COP [SolidHighHere]
-    COP [PrintWideString] ( &widestring_05CDD8 )
+    COP [PrintDialogString] ( &dialogstring_05CDD8 )
     COP [SetFlagByte] ( #01 )
     COP [SetOnInteract] ( &code_05CDB8 )
     LDA #$0800
@@ -3950,7 +3950,7 @@ actor_def_05CD37 [
     COP [SetEntryExit]
     COP [StageSpriteLoop] ( #22, #1E )
     COP [AnimLoop]
-    COP [PrintWideString] ( &widestring_05CE01 )
+    COP [PrintDialogString] ( &dialogstring_05CE01 )
     LDA #$CFF0
     TRB $joypadMaskStd
 
@@ -3970,36 +3970,36 @@ code_05CDAD {
 }
 
 code_05CDB8 {
-    COP [PrintWideString] ( &widestring_05CCC3 )
+    COP [PrintDialogString] ( &dialogstring_05CCC3 )
     RTL 
 }
 
 code_05CDBD {
     COP [BranchIfFlagByte] ( #68, #01, &code_05CDD3 )
     COP [BranchIfFlagByte] ( #65, #01, &code_05CDCE )
-    COP [PrintWideString] ( &widestring_05CE84 )
+    COP [PrintDialogString] ( &dialogstring_05CE84 )
     RTL 
 }
 
 code_05CDCE {
-    COP [PrintWideString] ( &widestring_05CE57 )
+    COP [PrintDialogString] ( &dialogstring_05CE57 )
     RTL 
 }
 
 code_05CDD3 {
-    COP [PrintWideString] ( &widestring_05CEC1 )
+    COP [PrintDialogString] ( &dialogstring_05CEC1 )
     RTL 
 }
 
-widestring_05CDD8 `[TPL:A][TPL:2]リリィ:[N]いらっしゃいま···[FIN]テムに カレン···?![PAL:0][END]`
+dialogstring_05CDD8 `[TPL:A][TPL:2]リリィ:[N]いらっしゃいま···[FIN]テムに カレン···?![PAL:0][END]`
 
-widestring_05CE01 `[TPL:A][TPL:2]リリィ:[N]ロブは インカ船からにげだすときに[N]頭をうって そのまま···[FIN]お医者さんに みてもらったら[N]ー時的な きおくそうしつだって.[FIN]`
+dialogstring_05CE01 `[TPL:A][TPL:2]リリィ:[N]ロブは インカ船からにげだすときに[N]頭をうって そのまま···[FIN]お医者さんに みてもらったら[N]ー時的な きおくそうしつだって.[FIN]`
 
-widestring_05CE57 `[TPL:A][TPL:2]とりあえず[N]ロブが よくなるまでは[N]この町にいようと 思うんだけど.[PAL:0][END]`
+dialogstring_05CE57 `[TPL:A][TPL:2]とりあえず[N]ロブが よくなるまでは[N]この町にいようと 思うんだけど.[PAL:0][END]`
 
-widestring_05CE84 `[TPL:A][TPL:2]リリィ: それとね.[N]エリックのすがたが 夕べから[N]見えないんだよ.[FIN]どうしちゃったのかな···[PAL:0][END]`
+dialogstring_05CE84 `[TPL:A][TPL:2]リリィ: それとね.[N]エリックのすがたが 夕べから[N]見えないんだよ.[FIN]どうしちゃったのかな···[PAL:0][END]`
 
-widestring_05CEC1 `[TPL:A][TPL:2]リリィ:[N]旅をすると ほんと いろんな[N]けいけんするね···[PAL:0][END]`
+dialogstring_05CEC1 `[TPL:A][TPL:2]リリィ:[N]旅をすると ほんと いろんな[N]けいけんするね···[PAL:0][END]`
 
 actor_def_05CEE9 [
   actor-def < #02, #00, #10, {
@@ -4014,7 +4014,7 @@ actor_def_05CEE9 [
     COP [SpawnAfterFlags] ( @code_05D426, #$2800 )
     COP [WaitByte] ( #77 )
     COP [SetSpritePriority] ( #30 )
-    COP [PrintWideString] ( &widestring_05CFB8 )
+    COP [PrintDialogString] ( &dialogstring_05CFB8 )
     COP [ClearFlagByte] ( #0F )
     COP [SpawnThinkerParam] ( #1C, @chunk_008000.code_00B5C4 )
     COP [SetSpritePriority] ( #20 )
@@ -4029,7 +4029,7 @@ actor_def_05CEE9 [
     COP [AnimLoop]
     COP [StageSpriteLoop] ( #02, #28 )
     COP [AnimLoop]
-    COP [PrintWideString] ( &widestring_05D19D )
+    COP [PrintDialogString] ( &dialogstring_05D19D )
     COP [SetFlagByte] ( #68 )
     LDA #$CFF0
     TRB $joypadMaskStd
@@ -4041,22 +4041,22 @@ actor_def_05CEE9 [
 code_05CF4E {
     COP [BranchIfFlagByte] ( #68, #01, &code_05CF5C )
     COP [SetFlagByte] ( #02 )
-    COP [PrintWideString] ( &widestring_05CF61 )
+    COP [PrintDialogString] ( &dialogstring_05CF61 )
     RTL 
 }
 
 code_05CF5C {
-    COP [PrintWideString] ( &widestring_05D223 )
+    COP [PrintDialogString] ( &dialogstring_05D223 )
     RTL 
 }
 
-widestring_05CF61 `[TPL:A][TPL:4]ロブ:[N]自分が だれだか わからないって[N]なんだか 不思議だよ···[FIN]オレが だれだか わからないのに[N]オレは なんで ここにいるんだろ.[PAL:0][END]`
+dialogstring_05CF61 `[TPL:A][TPL:4]ロブ:[N]自分が だれだか わからないって[N]なんだか 不思議だよ···[FIN]オレが だれだか わからないのに[N]オレは なんで ここにいるんだろ.[PAL:0][END]`
 
-widestring_05CFB8 `[TPL:A][TPL:4]ロブ:[N]ここは どこなんだろう···[FIN][TPL:1]カレン:[N]なんだか とっても なつかしい[N]感じがするわ···[FIN][TPL:3]エリック:[N]まるで お母さんの おなかの中に[N]いるような感じ···[FIN][TPL:2]リリィ: 生まれてから 今までに[N]起こったことや 出会った人たちが[N]つぎつぎと 頭にうかんでくる···[FIN][TPL:4]ロブ:[N]おれは サウスケープの町で育った[FIN]そして おやじは 探険にいったまま[N]もどってこなかったんだっけ···[FIN]自分の中で いちばん 大きい存在が[N]なくなって どうしていいか[N]わからなかったなあ···[FIN][TPL:1]カレン: あたしは お父さまが[N]他の国へ 兵隊を使って[N]せめていくのが たまらなかった.[FIN]人が 死ぬのって 大変なことよね.[FIN]何年もかけて つみあげてきたもの[N]が いっしゅんで なくなっちゃうん[N]だもの.[FIN][TPL:3]エリック:[N]モリスも やっぱり 死んじゃった[N]のかな···?[FIN][TPL:2]リリィ:[N]人って いやなことを忘れられるから[N]生きていけるんだよね···[PAL:0][END]`
+dialogstring_05CFB8 `[TPL:A][TPL:4]ロブ:[N]ここは どこなんだろう···[FIN][TPL:1]カレン:[N]なんだか とっても なつかしい[N]感じがするわ···[FIN][TPL:3]エリック:[N]まるで お母さんの おなかの中に[N]いるような感じ···[FIN][TPL:2]リリィ: 生まれてから 今までに[N]起こったことや 出会った人たちが[N]つぎつぎと 頭にうかんでくる···[FIN][TPL:4]ロブ:[N]おれは サウスケープの町で育った[FIN]そして おやじは 探険にいったまま[N]もどってこなかったんだっけ···[FIN]自分の中で いちばん 大きい存在が[N]なくなって どうしていいか[N]わからなかったなあ···[FIN][TPL:1]カレン: あたしは お父さまが[N]他の国へ 兵隊を使って[N]せめていくのが たまらなかった.[FIN]人が 死ぬのって 大変なことよね.[FIN]何年もかけて つみあげてきたもの[N]が いっしゅんで なくなっちゃうん[N]だもの.[FIN][TPL:3]エリック:[N]モリスも やっぱり 死んじゃった[N]のかな···?[FIN][TPL:2]リリィ:[N]人って いやなことを忘れられるから[N]生きていけるんだよね···[PAL:0][END]`
 
-widestring_05D19D `[TPL:A][TPL:4]ロブ: あれ?[N]おれ 今まで 何してたんだろう.[FIN]それに みんな どうしたんだ?[FIN][TPL:2]リリィ:[N]ロブ! きおくが もどったんだっ![FIN][TPL:1]カレン:[N]もう! 心配したんだからあ!![FIN][TPL:3]エリック:[N]どうなることかと思ったようっ.[PAL:0][END]`
+dialogstring_05D19D `[TPL:A][TPL:4]ロブ: あれ?[N]おれ 今まで 何してたんだろう.[FIN]それに みんな どうしたんだ?[FIN][TPL:2]リリィ:[N]ロブ! きおくが もどったんだっ![FIN][TPL:1]カレン:[N]もう! 心配したんだからあ!![FIN][TPL:3]エリック:[N]どうなることかと思ったようっ.[PAL:0][END]`
 
-widestring_05D223 `[TPL:B][TPL:4]ロブ:[N]みんなに 心配かけちゃったな.[N]でも 今度 だれかが 同じ立場に[N]なったら かんびょうするからさ.[PAL:0][END]`
+dialogstring_05D223 `[TPL:B][TPL:4]ロブ:[N]みんなに 心配かけちゃったな.[N]でも 今度 だれかが 同じ立場に[N]なったら かんびょうするからさ.[PAL:0][END]`
 
 actor_def_05D268 [
   actor-def < #0C, #00, #10, {
@@ -4081,12 +4081,12 @@ code_05D27A {
 
 code_05D283 {
     COP [BranchIfFlagByte] ( #68, #01, &code_05D28E )
-    COP [PrintWideString] ( &widestring_05D2CB )
+    COP [PrintDialogString] ( &dialogstring_05D2CB )
     RTL 
 }
 
 code_05D28E {
-    COP [PrintWideString] ( &widestring_05D31E )
+    COP [PrintDialogString] ( &dialogstring_05D31E )
     LDA #$0000
     STA $0D60
     LDA #$0001
@@ -4105,9 +4105,9 @@ code_05D28E {
     RTL 
 }
 
-widestring_05D2CB `[TPL:A][TPL:3]エリック: テムたちと[N]無事に再会できたっていうのに[N]うれしなみだも 出てこないや.[FIN]ぼくの なみだってば[N]かれちゃったのかなぁ···[PAL:0][END]`
+dialogstring_05D2CB `[TPL:A][TPL:3]エリック: テムたちと[N]無事に再会できたっていうのに[N]うれしなみだも 出てこないや.[FIN]ぼくの なみだってば[N]かれちゃったのかなぁ···[PAL:0][END]`
 
-widestring_05D31E `[TPL:A][TPL:3]エリック: あのさ.[N]近くの森に かわり者の 発明家が[N]いるらしいんだけど 行ってみない?[FIN]ニールっていう 名前の人らしいん[N]だけど···[FIN][TPL:0]テム:[N]ニールだって?!!![FIN]それ 行方不明になっている ボクの[N]いとこと 同じ名前じゃないかっ!![FIN]いとこのニールも 発明家で[N]大空を鳥のようにまう エアプレイン[N]っていう のり物まで発明したんだ.[FIN][PAL:0]そして テムたちー行は 森の中の[N]発明家の家へ 向かうのであった.[END]`
+dialogstring_05D31E `[TPL:A][TPL:3]エリック: あのさ.[N]近くの森に かわり者の 発明家が[N]いるらしいんだけど 行ってみない?[FIN]ニールっていう 名前の人らしいん[N]だけど···[FIN][TPL:0]テム:[N]ニールだって?!!![FIN]それ 行方不明になっている ボクの[N]いとこと 同じ名前じゃないかっ!![FIN]いとこのニールも 発明家で[N]大空を鳥のようにまう エアプレイン[N]っていう のり物まで発明したんだ.[FIN][PAL:0]そして テムたちー行は 森の中の[N]発明家の家へ 向かうのであった.[END]`
 
 code_05D426 {
     COP [SpawnAfterFlags] ( @code_05D440, #$0B01 )
@@ -4181,7 +4181,7 @@ code_05D4B3 {
 }
 
 code_05D4B5 {
-    COP [PrintWideString] ( &widestring_05D4CC )
+    COP [PrintDialogString] ( &dialogstring_05D4CC )
     COP [SetFlagByte] ( #57 )
     COP [SetFlagByte] ( #58 )
     COP [SetFlagByte] ( #64 )
@@ -4191,7 +4191,7 @@ code_05D4B5 {
     RTL 
 }
 
-widestring_05D4CC `[TPL:E][TPL:3]エリック:[N]まさか テムが 助けにきてくれる[N]なんてっ!![FIN]しかし ドアをやぶって 入ってくる[N]とは 思わなかったよ.[FIN]さっきの男は びっくりして[N]にげちゃった.[FIN]ボクね 収容所に しのびこんで[N]ドレイの3人兄弟を 助けようと[N]したんだ.[FIN]そしたら 見つかっちゃって[N]こんなことに なっちゃって···[FIN]ドレイたちは みんな[N]ダイヤモンド鉱山で 働かされて[N]いるみたい.[FIN]場所を 教えるから[N]助けにいってあげてよ.[FIN]テムは 鉱山の場所を 聞いた![N][PAL:0][END]`
+dialogstring_05D4CC `[TPL:E][TPL:3]エリック:[N]まさか テムが 助けにきてくれる[N]なんてっ!![FIN]しかし ドアをやぶって 入ってくる[N]とは 思わなかったよ.[FIN]さっきの男は びっくりして[N]にげちゃった.[FIN]ボクね 収容所に しのびこんで[N]ドレイの3人兄弟を 助けようと[N]したんだ.[FIN]そしたら 見つかっちゃって[N]こんなことに なっちゃって···[FIN]ドレイたちは みんな[N]ダイヤモンド鉱山で 働かされて[N]いるみたい.[FIN]場所を 教えるから[N]助けにいってあげてよ.[FIN]テムは 鉱山の場所を 聞いた![N][PAL:0][END]`
 
 actor_def_05D5DA [
   actor-def < #22, #02, #10, {
@@ -4244,7 +4244,7 @@ code_05D613 {
     COP [BranchIfFlagByte] ( #53, #01, &code_05D625 )
     COP [GiveItem] ( #06, &code_05D626 )
     COP [SetFlagByte] ( #53 )
-    COP [PrintWideString] ( &widestring_05D62B )
+    COP [PrintDialogString] ( &dialogstring_05D62B )
 }
 
 code_05D625 {
@@ -4252,13 +4252,13 @@ code_05D625 {
 }
 
 code_05D626 {
-    COP [PrintWideString] ( &widestring_05D639 )
+    COP [PrintDialogString] ( &dialogstring_05D639 )
     RTL 
 }
 
-widestring_05D62B `[DEF]藥草を 見つけた![END]`
+dialogstring_05D62B `[DEF]藥草を 見つけた![END]`
 
-widestring_05D639 `[DEF]藥草を 見つけた![N]しかし 持ち物がいっぱいだった.[END]`
+dialogstring_05D639 `[DEF]藥草を 見つけた![N]しかし 持ち物がいっぱいだった.[END]`
 
 actor_def_05D65A [
   actor-def < #25, #00, #10, {
@@ -4276,7 +4276,7 @@ actor_def_05D65A [
 code_05D66B {
     COP [BranchIfFlagByte] ( #54, #01, &code_05D67B )
     COP [SetFlagByte] ( #54 )
-    COP [PrintWideString] ( &widestring_05D67C )
+    COP [PrintDialogString] ( &dialogstring_05D67C )
     INC $playerMaxHp
 }
 
@@ -4284,7 +4284,7 @@ code_05D67B {
     RTL 
 }
 
-widestring_05D67C `[DEF]HP(体力)の宝石を 見つけた![END]`
+dialogstring_05D67C `[DEF]HP(体力)の宝石を 見つけた![END]`
 
 actor_def_05D693 [
   actor-def < #01, #00, #18, {
@@ -4319,11 +4319,11 @@ code_05D6B6 {
 }
 
 code_05D6CF {
-    COP [PrintWideString] ( &widestring_05D6D4 )
+    COP [PrintDialogString] ( &dialogstring_05D6D4 )
     RTL 
 }
 
-widestring_05D6D4 `[DEF]テム:[N]うちがわから カギがかかっている[N]ようだな···[END]`
+dialogstring_05D6D4 `[DEF]テム:[N]うちがわから カギがかかっている[N]ようだな···[END]`
 
 actor_def_05D6F6 [
   actor-def < #0F, #01, #01, {
@@ -4414,18 +4414,18 @@ code_05D793 {
 }
 
 code_05D795 {
-    COP [PrintWideString] ( &widestring_05D79F )
+    COP [PrintDialogString] ( &dialogstring_05D79F )
     RTL 
 }
 
 code_05D79A {
-    COP [PrintWideString] ( &widestring_05D7BF )
+    COP [PrintDialogString] ( &dialogstring_05D7BF )
     RTL 
 }
 
-widestring_05D79F `[DEF][TPL:5]イムス:[N]どうか くさりを 切って下さいっ![PAL:0][END]`
+dialogstring_05D79F `[DEF][TPL:5]イムス:[N]どうか くさりを 切って下さいっ![PAL:0][END]`
 
-widestring_05D7BF `[DEF][TPL:5]イムス: ありがとう.[N]ぼくらの こきょうでは 生き物が[N]みな おかしく なってきて[N]いるんです.[FIN]石に 変わってしまう人や[N]原因不明の 病気で死ぬ人も[N]後を たちません···[PAL:0][END]`
+dialogstring_05D7BF `[DEF][TPL:5]イムス: ありがとう.[N]ぼくらの こきょうでは 生き物が[N]みな おかしく なってきて[N]いるんです.[FIN]石に 変わってしまう人や[N]原因不明の 病気で死ぬ人も[N]後を たちません···[PAL:0][END]`
 
 actor_def_05D82D [
   actor-def < #28, #00, #10, {
@@ -4452,18 +4452,18 @@ actor_def_05D82D [
 ]
 
 code_05D85C {
-    COP [PrintWideString] ( &widestring_05D866 )
+    COP [PrintDialogString] ( &dialogstring_05D866 )
     RTL 
 }
 
 code_05D861 {
-    COP [PrintWideString] ( &widestring_05D885 )
+    COP [PrintDialogString] ( &dialogstring_05D885 )
     RTL 
 }
 
-widestring_05D866 `[DEF][TPL:5]レムス[N]どうか くさりを 切って下さいっ![PAL:0][END]`
+dialogstring_05D866 `[DEF][TPL:5]レムス[N]どうか くさりを 切って下さいっ![PAL:0][END]`
 
-widestring_05D885 `[DEF][TPL:5]レムス: ありがとう.[N]ぼくらの こきょうの村は[N]海をこえた はるか 遠くの場所.[FIN]もし おとずれることが あったら[N]村人たちの 力になってあげて[N]ください.[PAL:0][END]`
+dialogstring_05D885 `[DEF][TPL:5]レムス: ありがとう.[N]ぼくらの こきょうの村は[N]海をこえた はるか 遠くの場所.[FIN]もし おとずれることが あったら[N]村人たちの 力になってあげて[N]ください.[PAL:0][END]`
 
 actor_def_05D8E4 [
   actor-def < #28, #00, #10, {
@@ -4500,7 +4500,7 @@ actor_def_05D8E4 [
 
   loc_05D932:
     COP [BranchIfNoItem] ( #08, &code_05D947 )
-    COP [PrintWideString] ( &widestring_05DABD )
+    COP [PrintDialogString] ( &dialogstring_05DABD )
     COP [RemoveItem] ( #02 )
     LDA #$FFF0
     TRB $joypadMaskStd
@@ -4510,7 +4510,7 @@ actor_def_05D8E4 [
 ]
 
 code_05D947 {
-    COP [PrintWideString] ( &widestring_05DA3B )
+    COP [PrintDialogString] ( &dialogstring_05DA3B )
     COP [RemoveItem] ( #02 )
     COP [RemoveItem] ( #08 )
     LDA #$FFF0
@@ -4520,13 +4520,13 @@ code_05D947 {
 }
 
 code_05D95A {
-    COP [PrintWideString] ( &widestring_05D981 )
+    COP [PrintDialogString] ( &dialogstring_05D981 )
     RTL 
 }
 
 code_05D95F {
     COP [BranchIfFlagByte] ( #5E, #01, &code_05D97C )
-    COP [PrintWideString] ( &widestring_05D9A0 )
+    COP [PrintDialogString] ( &dialogstring_05D9A0 )
     COP [BranchIfFlagByte] ( #5E, #01, &code_05D977 )
     COP [GiveItem] ( #0D, &code_05D978 )
     COP [SetFlagByte] ( #5E )
@@ -4541,19 +4541,19 @@ code_05D978 {
 }
 
 code_05D97C {
-    COP [PrintWideString] ( &widestring_05DB34 )
+    COP [PrintDialogString] ( &dialogstring_05DB34 )
     RTL 
 }
 
-widestring_05D981 `[DEF][TPL:5]サムス[N]どうか くさりを 切って下さいっ![PAL:0][END]`
+dialogstring_05D981 `[DEF][TPL:5]サムス[N]どうか くさりを 切って下さいっ![PAL:0][END]`
 
-widestring_05D9A0 `[DEF][TPL:5]サムス[N]ありがとう.[FIN]エリックくんから 聞きましたが[N]あなたたちの仲間が きおくそうしつ[N]になっているそうですね.[FIN]ぼくらの部族に伝わる むかしを[N]思い出す歌が あります.[N]この歌を 聞かせてあげて下さい.[FIN]サムスは 不思議なメロディを[N]口ずさんだ.[PAL:0][END]`
+dialogstring_05D9A0 `[DEF][TPL:5]サムス[N]ありがとう.[FIN]エリックくんから 聞きましたが[N]あなたたちの仲間が きおくそうしつ[N]になっているそうですね.[FIN]ぼくらの部族に伝わる むかしを[N]思い出す歌が あります.[N]この歌を 聞かせてあげて下さい.[FIN]サムスは 不思議なメロディを[N]口ずさんだ.[PAL:0][END]`
 
-widestring_05DA3B `[DEF]思い出のメロディを おぼえた![FIN][TPL:5]サムス:[N]ひとつ お願いがあるんですが···[FIN]あなたと 出会えた 思い出に[N]ろうごくのカギと 風のメロディを[N]いただいて いいですよね.[FIN]きっと 今後 使うことは[N]ないはずですから.[END]`
+dialogstring_05DA3B `[DEF]思い出のメロディを おぼえた![FIN][TPL:5]サムス:[N]ひとつ お願いがあるんですが···[FIN]あなたと 出会えた 思い出に[N]ろうごくのカギと 風のメロディを[N]いただいて いいですよね.[FIN]きっと 今後 使うことは[N]ないはずですから.[END]`
 
-widestring_05DABD `[DEF]思い出のメロディを おぼえた![FIN][TPL:5]サムス:[N]ひとつ お願いがあるんですが···[FIN]あなたと 出会えた 思い出に[N]ろうごくのカギを いただいて[N]いいですよね.[FIN]きっと 今後 使うことは[N]ないはずですから.[END]`
+dialogstring_05DABD `[DEF]思い出のメロディを おぼえた![FIN][TPL:5]サムス:[N]ひとつ お願いがあるんですが···[FIN]あなたと 出会えた 思い出に[N]ろうごくのカギを いただいて[N]いいですよね.[FIN]きっと 今後 使うことは[N]ないはずですから.[END]`
 
-widestring_05DB34 `[DEF][TPL:5]あなたのことは ー生忘れませんよ.[PAL:0][END]`
+dialogstring_05DB34 `[DEF][TPL:5]あなたのことは ー生忘れませんよ.[PAL:0][END]`
 
 code_05DB4E {
     LDA #$0030
@@ -4588,7 +4588,7 @@ code_05DB80 {
     COP [SetFlagByte] ( #5D )
     LDA #$0080
     TSB $09FA
-    COP [MusicAndText] ( #17, @widestring_05DB9B )
+    COP [MusicAndText] ( #17, @dialogstring_05DB9B )
 }
 
 code_05DB94 {
@@ -4596,13 +4596,13 @@ code_05DB94 {
 }
 
 code_05DB96 {
-    COP [PrintWideString] ( &widestring_05DBB4 )
+    COP [PrintDialogString] ( &dialogstring_05DBB4 )
     RTL 
 }
 
-widestring_05DB9B `[DEF][SFX:0][DLY:9]鉱山のカギを 見つけた![PAU:FF][END]`
+dialogstring_05DB9B `[DEF][SFX:0][DLY:9]鉱山のカギを 見つけた![PAU:FF][END]`
 
-widestring_05DBB4 `[DEF]鉱山のカギを 見つけた![N]しかし 持ち物が いっぱいだった.[END]`
+dialogstring_05DBB4 `[DEF]鉱山のカギを 見つけた![N]しかし 持ち物が いっぱいだった.[END]`
 
 actor_def_05DBDB [
   actor-def < #35, #01, #30, {
@@ -4632,17 +4632,17 @@ code_05DC05 {
   loc_05DC0A:
     COP [BranchIfFlagByte] ( #5B, #01, &code_05DC1B )
     COP [BranchIfFlagByte] ( #5C, #01, &code_05DC1B )
-    COP [PrintWideString] ( &widestring_05DC46 )
+    COP [PrintDialogString] ( &dialogstring_05DC46 )
     RTL 
 }
 
 code_05DC1B {
-    COP [PrintWideString] ( &widestring_05DC5D )
+    COP [PrintDialogString] ( &dialogstring_05DC5D )
     RTL 
 }
 
 code_05DC20 {
-    COP [PrintWideString] ( &widestring_05DC83 )
+    COP [PrintDialogString] ( &dialogstring_05DC83 )
     COP [DialogueOptions] ( #02, #02, &code_list_05DC2A )
 }
 
@@ -4653,12 +4653,12 @@ code_list_05DC2A [
 ]
 
 code_05DC30 {
-    COP [PrintWideString] ( &widestring_05DCB5 )
+    COP [PrintDialogString] ( &dialogstring_05DCB5 )
     RTL 
 }
 
 code_05DC35 {
-    COP [PrintWideString] ( &widestring_05DCB7 )
+    COP [PrintDialogString] ( &dialogstring_05DCB7 )
     COP [RemoveItem] ( #0B )
     COP [RemoveItem] ( #0C )
     COP [SetFlagByte] ( #5B )
@@ -4666,15 +4666,15 @@ code_05DC35 {
     RTL 
 }
 
-widestring_05DC46 `[DEF]カギ穴が 二つ ついているようだ.[END]`
+dialogstring_05DC46 `[DEF]カギ穴が 二つ ついているようだ.[END]`
 
-widestring_05DC5D `[DEF]カギを 二つとも 開けないと[N]とびらは 開きそうにないな···[END]`
+dialogstring_05DC5D `[DEF]カギを 二つとも 開けないと[N]とびらは 開きそうにないな···[END]`
 
-widestring_05DC83 `[DEF]カギは 二つとも もっている···[N]カギ穴に さしこんでみますか?[N] はい[N] いいえ`
+dialogstring_05DC83 `[DEF]カギは 二つとも もっている···[N]カギ穴に さしこんでみますか?[N] はい[N] いいえ`
 
-widestring_05DCB5 `[CLD]`
+dialogstring_05DCB5 `[CLD]`
 
-widestring_05DCB7 `[CLR]カギが 不気味な音をたてて[N]まわった.[END]`
+dialogstring_05DCB7 `[CLR]カギが 不気味な音をたてて[N]まわった.[END]`
 
 actor_def_05DCD2 [
   actor-def < #24, #00, #20, {
@@ -4712,20 +4712,20 @@ actor_def_05DCF6 [
 
 code_05DD15 {
     COP [BranchIfEquipped] ( #0F, &code_05DD1F )
-    COP [PrintWideString] ( &widestring_05DD2A )
+    COP [PrintDialogString] ( &dialogstring_05DD2A )
     RTL 
 }
 
 code_05DD1F {
     COP [SetFlagByte] ( #69 )
     COP [RemoveItem] ( #0F )
-    COP [PrintWideString] ( &widestring_05DD49 )
+    COP [PrintDialogString] ( &dialogstring_05DD49 )
     RTL 
 }
 
-widestring_05DD2A `[DEF]このとびらには カギ穴が ひとつ[N]ついているようだ.[END]`
+dialogstring_05DD2A `[DEF]このとびらには カギ穴が ひとつ[N]ついているようだ.[END]`
 
-widestring_05DD49 `[DEF]リフトのり場のカギを 使った![END]`
+dialogstring_05DD49 `[DEF]リフトのり場のカギを 使った![END]`
 
 actor_def_05DD60 [
   actor-def < #36, #01, #10, {
@@ -4741,11 +4741,11 @@ actor_def_05DD60 [
 ]
 
 code_05DD71 {
-    COP [PrintWideString] ( &widestring_05DD76 )
+    COP [PrintDialogString] ( &dialogstring_05DD76 )
     RTL 
 }
 
-widestring_05DD76 `[DEF](リフトのり場 入り口)[N]リフトには そこの とびらより[N]向かうこと.[END]`
+dialogstring_05DD76 `[DEF](リフトのり場 入り口)[N]リフトには そこの とびらより[N]向かうこと.[END]`
 
 actor_def_05DDA3 [
   actor-def < #30, #00, #00, {
@@ -4813,7 +4813,7 @@ code_05DE17 {
     RTL 
 
   loc_05DE28:
-    COP [SpawnAfterFlags] ( @chunk_008000.widestring_00CB00, #$3000 )
+    COP [SpawnAfterFlags] ( @chunk_008000.dialogstring_00CB00, #$3000 )
 }
 
 code_05DE2F {
@@ -4849,7 +4849,7 @@ code_05DE64 {
     LDA #$EFF0
     TSB $joypadMaskStd
     COP [WaitByte] ( #77 )
-    COP [PrintWideString] ( &widestring_05DEAF )
+    COP [PrintDialogString] ( &dialogstring_05DEAF )
     LDA #$EFF0
     TRB $joypadMaskStd
     LDA #$0080
@@ -4861,7 +4861,7 @@ code_05DE64 {
     COP [Die]
 }
 
-widestring_05DEAF `[DEF]ありがとう ございます.[N]落ばんで 生きうめになって[N]いたんです···[FIN]もうちょっと おそかったら[N]どうなっていたことか···[FIN]私からの ほんの 気持ちを[N]プレゼントさせてください.[N]後で 宝石商さんの ところへ[N]赤い宝石を3つ送っておきますね.[END]`
+dialogstring_05DEAF `[DEF]ありがとう ございます.[N]落ばんで 生きうめになって[N]いたんです···[FIN]もうちょっと おそかったら[N]どうなっていたことか···[FIN]私からの ほんの 気持ちを[N]プレゼントさせてください.[N]後で 宝石商さんの ところへ[N]赤い宝石を3つ送っておきますね.[END]`
 
 actor_def_05DF3B [
   actor-def < #13, #00, #10, {
@@ -4882,7 +4882,7 @@ actor_def_05DF3B [
     COP [PlaySoundBoth] ( #$0505 )
     COP [WaitByte] ( #13 )
     COP [LoopNext]
-    COP [PrintWideString] ( &widestring_05E025 )
+    COP [PrintDialogString] ( &dialogstring_05E025 )
     COP [PlaySoundBoth] ( #$0E0E )
     COP [WaitByte] ( #1D )
     LDY $decelStepCounter
@@ -4905,13 +4905,13 @@ actor_def_05DF3B [
     COP [AnimLoop]
     COP [StageSpriteLoop] ( #12, #3C )
     COP [AnimLoop]
-    COP [PrintWideString] ( &widestring_05E070 )
+    COP [PrintDialogString] ( &dialogstring_05E070 )
     COP [SetFlagByte] ( #02 )
     COP [ExitIfFlagByte] ( #02, #00 )
-    COP [PrintWideString] ( &widestring_05E0BD )
+    COP [PrintDialogString] ( &dialogstring_05E0BD )
     COP [SetFlagByte] ( #03 )
     COP [ExitIfFlagByte] ( #03, #00 )
-    COP [PrintWideString] ( &widestring_05E166 )
+    COP [PrintDialogString] ( &dialogstring_05E166 )
     LDA #$0000
     STA $0AA6
     COP [SetFlagByte] ( #05 )
@@ -4945,26 +4945,26 @@ code_05E010 {
     LDA $0AA6
     CMP #$000F
     BEQ loc_05E01D
-    COP [PrintWideString] ( &widestring_05E1B3 )
+    COP [PrintDialogString] ( &dialogstring_05E1B3 )
     RTL 
 
   loc_05E01D:
-    COP [PrintWideString] ( &widestring_05E22A )
+    COP [PrintDialogString] ( &dialogstring_05E22A )
     COP [SetFlagByte] ( #06 )
     RTL 
 }
 
-widestring_05E025 `[PAU:1E][TPL:A][TPL:6]ニール:[N]開いてるから かってに[N]はいんなっ.[FIN][TPL:0]テム:[N]ニール. ぼくだよ.[N]サウスケープの町の テムだよ.[END]`
+dialogstring_05E025 `[PAU:1E][TPL:A][TPL:6]ニール:[N]開いてるから かってに[N]はいんなっ.[FIN][TPL:0]テム:[N]ニール. ぼくだよ.[N]サウスケープの町の テムだよ.[END]`
 
-widestring_05E070 `[TPL:A][TPL:6]ニール:[N]おおっ! テムじゃないかっ!![N]ずいぶん たくましく なったな.[FIN]それに ずいぶん ぞろぞろいるけど[N]テムの友達かい?[END]`
+dialogstring_05E070 `[TPL:A][TPL:6]ニール:[N]おおっ! テムじゃないかっ!![N]ずいぶん たくましく なったな.[FIN]それに ずいぶん ぞろぞろいるけど[N]テムの友達かい?[END]`
 
-widestring_05E0BD `[TPL:A][TPL:6]ニール: おいおい.[N]二人とも ずいぶん はっきり 物を[N]言う おじょうさんだね.[FIN]ずっと 発明に ぼっとうしていると[N]身なりにかまわなくなっちまうのさ.[FIN]でも 人に きらわれるほど[N]ひどい においじゃないと[N]思うけどなあ.[FIN]この くつ下だって[N]はきはじめてから まだ ーか月しか[N]たってないんだぜ.[END]`
+dialogstring_05E0BD `[TPL:A][TPL:6]ニール: おいおい.[N]二人とも ずいぶん はっきり 物を[N]言う おじょうさんだね.[FIN]ずっと 発明に ぼっとうしていると[N]身なりにかまわなくなっちまうのさ.[FIN]でも 人に きらわれるほど[N]ひどい においじゃないと[N]思うけどなあ.[FIN]この くつ下だって[N]はきはじめてから まだ ーか月しか[N]たってないんだぜ.[END]`
 
-widestring_05E166 `[TPL:A][TPL:6]ニール:[N]だからっ くつ下の話は もう[N]いいんだよっ.[FIN]まあ とにかく くつろいでくれ.[N]テムの友達だもんな.[N]かんげいするよ.[END]`
+dialogstring_05E166 `[TPL:A][TPL:6]ニール:[N]だからっ くつ下の話は もう[N]いいんだよっ.[FIN]まあ とにかく くつろいでくれ.[N]テムの友達だもんな.[N]かんげいするよ.[END]`
 
-widestring_05E1B3 `[TPL:A][TPL:6]ニール:[N]この前 テムに会ってから 2年[N]くらいたつのかな?[FIN]あれから ずいぶん いろんな[N]発明をしたよ. [FIN]この部屋には ぼくの自信作の[N]発明品が 4つばかり置かれている.[N]さがしてごらん.[END]`
+dialogstring_05E1B3 `[TPL:A][TPL:6]ニール:[N]この前 テムに会ってから 2年[N]くらいたつのかな?[FIN]あれから ずいぶん いろんな[N]発明をしたよ. [FIN]この部屋には ぼくの自信作の[N]発明品が 4つばかり置かれている.[N]さがしてごらん.[END]`
 
-widestring_05E22A `[TPL:A][TPL:6]それで ぼくに 何か 用があって[N]来たんだろ? 話してごらん.[FIN][TPL:0]テムは これまでの できごとや[N]行方不明の 父親の声を聞いたこと,[FIN]世界中の イセキをめぐって[N]ミステリードールを探していることを[N]ニールに 話した.[FIN][TPL:6]ニール:[N]ほほお.[N]なかなか おもしろい話だなあ.[FIN]ぼくも イセキには ちょっとばかり[N]きょうみが あってね.[FIN]今 テムが 話してくれた イセキは[N]世界中に ちらばっているけど[N]不思議な 共通点が あるんだ.[FIN]世界地図の上で 今のイセキ同士を[N]線でむすぶと なんと きょだいな[N]白鳥座の形に なるんだよ.[END]`
+dialogstring_05E22A `[TPL:A][TPL:6]それで ぼくに 何か 用があって[N]来たんだろ? 話してごらん.[FIN][TPL:0]テムは これまでの できごとや[N]行方不明の 父親の声を聞いたこと,[FIN]世界中の イセキをめぐって[N]ミステリードールを探していることを[N]ニールに 話した.[FIN][TPL:6]ニール:[N]ほほお.[N]なかなか おもしろい話だなあ.[FIN]ぼくも イセキには ちょっとばかり[N]きょうみが あってね.[FIN]今 テムが 話してくれた イセキは[N]世界中に ちらばっているけど[N]不思議な 共通点が あるんだ.[FIN]世界地図の上で 今のイセキ同士を[N]線でむすぶと なんと きょだいな[N]白鳥座の形に なるんだよ.[END]`
 
 code_05E373 {
     COP [SetEntryContinue]
@@ -4979,11 +4979,11 @@ code_05E373 {
 }
 
 code_05E385 {
-    COP [PrintWideString] ( &widestring_05E38A )
+    COP [PrintDialogString] ( &dialogstring_05E38A )
     RTL 
 }
 
-widestring_05E38A `[TPL:A][TPL:6]ニール: テム どこへ行くんだ?[N]せっかく きたんだし もっと[N]ゆっくり していけよ.[PAL:0][END]`
+dialogstring_05E38A `[TPL:A][TPL:6]ニール: テム どこへ行くんだ?[N]せっかく きたんだし もっと[N]ゆっくり していけよ.[PAL:0][END]`
 
 actor_def_05E3C1 [
   actor-def < #23, #00, #10, {
@@ -5000,10 +5000,10 @@ actor_def_05E3C1 [
     COP [AnimOnce]
     COP [ClearFlagByte] ( #01 )
     COP [ExitIfFlagByte] ( #02, #01 )
-    COP [PrintWideString] ( &widestring_05E445 )
+    COP [PrintDialogString] ( &dialogstring_05E445 )
     COP [StageSpriteFrame] ( #25 )
     COP [AnimOnce]
-    COP [PrintWideString] ( &widestring_05E464 )
+    COP [PrintDialogString] ( &dialogstring_05E464 )
     COP [ClearFlagByte] ( #02 )
     COP [ExitIfFlagByte] ( #05, #01 )
     COP [SetSpritePriority] ( #30 )
@@ -5019,7 +5019,7 @@ actor_def_05E3C1 [
     COP [StageSpriteFrame] ( #25 )
     COP [AnimOnce]
     COP [SolidHighHere]
-    COP [PrintWideString] ( &widestring_05E4CD )
+    COP [PrintDialogString] ( &dialogstring_05E4CD )
 
   loc_05E424:
     COP [DialogueOptions] ( #02, #01, &code_list_05E42A )
@@ -5033,33 +5033,33 @@ code_list_05E42A [
 ]
 
 code_05E430 {
-    COP [PrintWideString] ( &widestring_05E5F9 )
+    COP [PrintDialogString] ( &dialogstring_05E5F9 )
     BRA loc_05E424
 }
 
 code_05E436 {
-    COP [PrintWideString] ( &widestring_05E627 )
+    COP [PrintDialogString] ( &dialogstring_05E627 )
     COP [SetFlagByte] ( #08 )
     COP [SetEntryContinue]
     RTL 
 }
 
 code_05E440 {
-    COP [PrintWideString] ( &widestring_05E640 )
+    COP [PrintDialogString] ( &dialogstring_05E640 )
     RTL 
 }
 
-widestring_05E445 `[TPL:A][TPL:1]カレン:[N]この人 なんだか くさああい···[FIN]`
+dialogstring_05E445 `[TPL:A][TPL:1]カレン:[N]この人 なんだか くさああい···[FIN]`
 
-widestring_05E464 `[TPL:A][CLR][TPL:2]リリィ: なんてこと言うのっ![N]そおいうことは もっと 言い方って[N]いうものがあるでしょっ!![FIN]この部屋は 鼻が ねじまがるくらい[N]素敵なかおりが ただよってますねぇ[N]とかさぁ.[END]`
+dialogstring_05E464 `[TPL:A][CLR][TPL:2]リリィ: なんてこと言うのっ![N]そおいうことは もっと 言い方って[N]いうものがあるでしょっ!![FIN]この部屋は 鼻が ねじまがるくらい[N]素敵なかおりが ただよってますねぇ[N]とかさぁ.[END]`
 
-widestring_05E4CD `[TPL:A][TPL:2]リリィ: そういえばさあ[N]近ごろ 白鳥座の下の方に 赤い星がーつ ふえてるんだよ···[FIN][TPL:6]ニール:[N]そのとおりっ![N]よく 知ってるね!![FIN]白鳥座の 赤い星の出現といい,[N]テムの イセキの話といい,[FIN]いろんな要素が 有機的に結びつき[N]すぎている···[FIN]ぐう然のいっちなのか だれかの[N]たくらみなのかは わからないが[N]何かが起ころうとしてるのは事実だ.[FIN]そして 都合のいいことに ここから[N]東へ ー週間ほど歩いたところに[N]ナスカの地上絵のさばくがあるんだ.[FIN][::]行ってみるかい?[N] はい[N] いいえ`
+dialogstring_05E4CD `[TPL:A][TPL:2]リリィ: そういえばさあ[N]近ごろ 白鳥座の下の方に 赤い星がーつ ふえてるんだよ···[FIN][TPL:6]ニール:[N]そのとおりっ![N]よく 知ってるね!![FIN]白鳥座の 赤い星の出現といい,[N]テムの イセキの話といい,[FIN]いろんな要素が 有機的に結びつき[N]すぎている···[FIN]ぐう然のいっちなのか だれかの[N]たくらみなのかは わからないが[N]何かが起ころうとしてるのは事実だ.[FIN]そして 都合のいいことに ここから[N]東へ ー週間ほど歩いたところに[N]ナスカの地上絵のさばくがあるんだ.[FIN][::]行ってみるかい?[N] はい[N] いいえ`
 
-widestring_05E5F9 `[CLR][TPL:6]ニール:[N]そう 言わないでくれよ.[N]実は ぼくの方が いきたいんだよ[FIN][JMP:&chunk_058000.widestring_05E4CD+M]`
+dialogstring_05E5F9 `[CLR][TPL:6]ニール:[N]そう 言わないでくれよ.[N]実は ぼくの方が いきたいんだよ[FIN][JMP:&chunk_058000.dialogstring_05E4CD+M]`
 
-widestring_05E627 `[CLR][TPL:6]ニール:[N]よしっ! 決まりだな.[PAL:0][END]`
+dialogstring_05E627 `[CLR][TPL:6]ニール:[N]よしっ! 決まりだな.[PAL:0][END]`
 
-widestring_05E640 `[TPL:A][TPL:2]リリィ:[N]テムのいとこじゃ 悪口いえないけど[N]これが 発明家ねえ···[PAL:0][END]`
+dialogstring_05E640 `[TPL:A][TPL:2]リリィ:[N]テムのいとこじゃ 悪口いえないけど[N]これが 発明家ねえ···[PAL:0][END]`
 
 actor_def_05E673 [
   actor-def < #1B, #00, #10, {
@@ -5077,7 +5077,7 @@ actor_def_05E673 [
     COP [AnimLoop]
     COP [StageSpriteLoop] ( #1A, #14 )
     COP [AnimLoop]
-    COP [PrintWideString] ( &widestring_05E6E1 )
+    COP [PrintDialogString] ( &dialogstring_05E6E1 )
     COP [ClearFlagByte] ( #03 )
     COP [ExitIfFlagByte] ( #05, #01 )
     COP [SetSpritePriority] ( #30 )
@@ -5095,7 +5095,7 @@ actor_def_05E673 [
     COP [StageSpriteFrame] ( #1B )
     COP [AnimOnce]
     COP [SolidHighHere]
-    COP [PrintWideString] ( &widestring_05E71B )
+    COP [PrintDialogString] ( &dialogstring_05E71B )
     COP [SetFlagByte] ( #07 )
     COP [SetEntryContinue]
     RTL 
@@ -5103,13 +5103,13 @@ actor_def_05E673 [
 ]
 
 code_05E6DC {
-    COP [PrintWideString] ( &widestring_05E6E1 )
+    COP [PrintDialogString] ( &dialogstring_05E6E1 )
     RTL 
 }
 
-widestring_05E6E1 `[TPL:A][TPL:1]カレン:[N]この人たちってば 信じらんないっ![FIN]もう 同じ空気を 吸ってるのも[N]やだわっ!![END]`
+dialogstring_05E6E1 `[TPL:A][TPL:1]カレン:[N]この人たちってば 信じらんないっ![FIN]もう 同じ空気を 吸ってるのも[N]やだわっ!![END]`
 
-widestring_05E71B `[TPL:A][TPL:1]カレン:[N]白鳥座ですって?![FIN][TPL:6]ニール: そう. それに テムの[N]おやじさんが 行方不明になったって[N]いう バベルの塔はさ,[FIN]その きょだいな白鳥の ちょうど[N]中心に 位置することになるんだ.[END]`
+dialogstring_05E71B `[TPL:A][TPL:1]カレン:[N]白鳥座ですって?![FIN][TPL:6]ニール: そう. それに テムの[N]おやじさんが 行方不明になったって[N]いう バベルの塔はさ,[FIN]その きょだいな白鳥の ちょうど[N]中心に 位置することになるんだ.[END]`
 
 actor_def_05E797 [
   actor-def < #03, #00, #10, {
@@ -5127,7 +5127,7 @@ actor_def_05E797 [
     COP [AnimLoop]
     COP [StageSpriteLoop] ( #02, #1E )
     COP [AnimLoop]
-    COP [PrintWideString] ( &widestring_05E843 )
+    COP [PrintDialogString] ( &dialogstring_05E843 )
     COP [SetFlagByte] ( #04 )
     COP [ExitIfFlagByte] ( #05, #01 )
     COP [StageSpriteLoopMoveY] ( #07, #02, #12 )
@@ -5144,7 +5144,7 @@ actor_def_05E797 [
     COP [AnimLoop]
     COP [StageSpriteFrame] ( #05 )
     COP [AnimOnce]
-    COP [PrintWideString] ( &widestring_05E86F )
+    COP [PrintDialogString] ( &dialogstring_05E86F )
     COP [SetFlagByte] ( #6D )
     LDA #$0000
     STA $0D60
@@ -5168,13 +5168,13 @@ actor_def_05E797 [
 ]
 
 code_05E83E {
-    COP [PrintWideString] ( &widestring_05E843 )
+    COP [PrintDialogString] ( &dialogstring_05E843 )
     RTL 
 }
 
-widestring_05E843 `[TPL:A][TPL:4]ロブ:[N]オレ 3週間っていう きろくが[N]あるけど 負けてるなあ.[END]`
+dialogstring_05E843 `[TPL:A][TPL:4]ロブ:[N]オレ 3週間っていう きろくが[N]あるけど 負けてるなあ.[END]`
 
-widestring_05E86F `[TPL:A][TPL:4]ロブ: おれたちも 行くぜっ![N]テムばっかりに 楽しい思いは[N]させられないさ.[FIN][PAL:0]ー行は ナスカのさばくへと[N]向かうのであった···[END]`
+dialogstring_05E86F `[TPL:A][TPL:4]ロブ: おれたちも 行くぜっ![N]テムばっかりに 楽しい思いは[N]させられないさ.[FIN][PAL:0]ー行は ナスカのさばくへと[N]向かうのであった···[END]`
 
 actor_def_05E8C3 [
   actor-def < #0B, #00, #10, {
@@ -5201,11 +5201,11 @@ actor_def_05E8C3 [
 ]
 
 code_05E8F7 {
-    COP [PrintWideString] ( &widestring_05E8FC )
+    COP [PrintDialogString] ( &dialogstring_05E8FC )
     RTL 
 }
 
-widestring_05E8FC `[TPL:A][TPL:3]エリック:[N]この発明品を モリスが見たら[N]よろこぶだろうなぁ···[END]`
+dialogstring_05E8FC `[TPL:A][TPL:3]エリック:[N]この発明品を モリスが見たら[N]よろこぶだろうなぁ···[END]`
 
 actor_def_05E92A [
   actor-def < #00, #00, #30, {
@@ -5221,14 +5221,14 @@ actor_def_05E92A [
 ]
 
 code_05E93E {
-    COP [PrintWideString] ( &widestring_05E94C )
+    COP [PrintDialogString] ( &dialogstring_05E94C )
     LDA $0AA6
     ORA #$0001
     STA $0AA6
     RTL 
 }
 
-widestring_05E94C `[TPL:A][TPL:6]ニール:[N]それは さんそボンベ.[N]中には 空気が入っているのさ.[FIN]それをつければ 水の中でも[N]息が できるんだけど 空気が[N]1分くらいしか もたないんだ.[FIN]空気を 圧縮できれば[N]長時間 もぐれるんだろうけど[N]その方法が 思いつかないんだよ.[PAL:0][END]`
+dialogstring_05E94C `[TPL:A][TPL:6]ニール:[N]それは さんそボンベ.[N]中には 空気が入っているのさ.[FIN]それをつければ 水の中でも[N]息が できるんだけど 空気が[N]1分くらいしか もたないんだ.[FIN]空気を 圧縮できれば[N]長時間 もぐれるんだろうけど[N]その方法が 思いつかないんだよ.[PAL:0][END]`
 
 actor_def_05E9E3 [
   actor-def < #00, #00, #30, {
@@ -5245,14 +5245,14 @@ actor_def_05E9E3 [
 ]
 
 code_05E9FB {
-    COP [PrintWideString] ( &widestring_05EA09 )
+    COP [PrintDialogString] ( &dialogstring_05EA09 )
     LDA $0AA6
     ORA #$0002
     STA $0AA6
     RTL 
 }
 
-widestring_05EA09 `[TPL:A][TPL:6]ニール:[N]それは エアプレインのつばさ.[FIN]鳥のように 空を飛びたいっていう[N]人類の夢を かなえてくれる 素敵な[N]機械の ー部だよ.[FIN]本体は あまりに 大きいうえに[N]飛び立つには かっ走路がいるんで[N]今は さばくに かくしてある.[PAL:0][END]`
+dialogstring_05EA09 `[TPL:A][TPL:6]ニール:[N]それは エアプレインのつばさ.[FIN]鳥のように 空を飛びたいっていう[N]人類の夢を かなえてくれる 素敵な[N]機械の ー部だよ.[FIN]本体は あまりに 大きいうえに[N]飛び立つには かっ走路がいるんで[N]今は さばくに かくしてある.[PAL:0][END]`
 
 actor_def_05EA9A [
   actor-def < #00, #00, #30, {
@@ -5268,14 +5268,14 @@ actor_def_05EA9A [
 ]
 
 code_05EAAE {
-    COP [PrintWideString] ( &widestring_05EABC )
+    COP [PrintDialogString] ( &dialogstring_05EABC )
     LDA $0AA6
     ORA #$0004
     STA $0AA6
     RTL 
 }
 
-widestring_05EABC `[TPL:A][TPL:6]それは ぼうえんきょう.[N]天空の星が 手にとるように[N]見えるんだ.[PAL:0][END]`
+dialogstring_05EABC `[TPL:A][TPL:6]それは ぼうえんきょう.[N]天空の星が 手にとるように[N]見えるんだ.[PAL:0][END]`
 
 actor_def_05EAE9 [
   actor-def < #00, #00, #30, {
@@ -5291,14 +5291,14 @@ actor_def_05EAE9 [
 ]
 
 code_05EAFD {
-    COP [PrintWideString] ( &widestring_05EB0B )
+    COP [PrintDialogString] ( &dialogstring_05EB0B )
     LDA $0AA6
     ORA #$0008
     STA $0AA6
     RTL 
 }
 
-widestring_05EB0B `[TPL:A][TPL:6]それは カメラ. 景色を[N]そっくりそのまま 印画紙に[N]燒きつけることができる機械さ.[FIN]欠点は 写すのに[N]30分近く かかることなんだ.[FIN]景色は 動かないからいいけど[N]人を 写す場合は 30分もの間[N]まばたきも しちゃいけない.[FIN]この機械を作ったときは おかげで[N]目が ウサギのように 真っ赤に[N]なってしまったよ.[PAL:0][END]`
+dialogstring_05EB0B `[TPL:A][TPL:6]それは カメラ. 景色を[N]そっくりそのまま 印画紙に[N]燒きつけることができる機械さ.[FIN]欠点は 写すのに[N]30分近く かかることなんだ.[FIN]景色は 動かないからいいけど[N]人を 写す場合は 30分もの間[N]まばたきも しちゃいけない.[FIN]この機械を作ったときは おかげで[N]目が ウサギのように 真っ赤に[N]なってしまったよ.[PAL:0][END]`
 
 actor_def_05EBCE [
   actor-def < #00, #00, #30, {
@@ -5321,12 +5321,12 @@ actor_def_05EBCE [
     STA $orbitAngle, X
     COP [WaitByte] ( #1F )
     COP [LoopNext]
-    COP [PrintWideString] ( &widestring_05ECC2 )
+    COP [PrintDialogString] ( &dialogstring_05ECC2 )
     COP [SetFlagByte] ( #0C )
     COP [WaitByte] ( #3B )
     COP [SpawnAfterFlags] ( @code_05ED20, #$0300 )
     COP [WaitByte] ( #3B )
-    COP [PrintWideString] ( &widestring_05ECEF )
+    COP [PrintDialogString] ( &dialogstring_05ECEF )
     LDA #$0404
     STA $gfxCacheIdxB
     COP [QueueMapChange] ( #4C, #$0168, #$0040, #83, #$2200 )
@@ -5337,23 +5337,23 @@ actor_def_05EBCE [
 
 code_05EC34 {
     COP [BranchIfFlagByte] ( #0B, #00, &code_05EC42 )
-    COP [PrintWideString] ( &widestring_05EC47 )
+    COP [PrintDialogString] ( &dialogstring_05EC47 )
     COP [SetFlagByte] ( #0F )
     RTL 
 }
 
 code_05EC42 {
-    COP [PrintWideString] ( &widestring_05EC95 )
+    COP [PrintDialogString] ( &dialogstring_05EC95 )
     RTL 
 }
 
-widestring_05EC47 `[DEF][TPL:0]砂のなかに 何か タイルのような[N]ものが うまっている···[FIN]テムのフエが ふれたとたん 何か[N]ごうおんが とどろきはじめた![PAL:0][END]`
+dialogstring_05EC47 `[DEF][TPL:0]砂のなかに 何か タイルのような[N]ものが うまっている···[FIN]テムのフエが ふれたとたん 何か[N]ごうおんが とどろきはじめた![PAL:0][END]`
 
-widestring_05EC95 `[DEF][TPL:6]ニール:[N]テムっ! まだ調べるな![N]何が あるかわからないぞっ!![PAL:0][END]`
+dialogstring_05EC95 `[DEF][TPL:6]ニール:[N]テムっ! まだ調べるな![N]何が あるかわからないぞっ!![PAL:0][END]`
 
-widestring_05ECC2 `[DEF][TPL:3]エリック:[N]わあっ! 上から何かでっかいものが[N]おりてくるようっ!!![PAL:0][END]`
+dialogstring_05ECC2 `[DEF][TPL:3]エリック:[N]わあっ! 上から何かでっかいものが[N]おりてくるようっ!!![PAL:0][END]`
 
-widestring_05ECEF `[TPL:E][TPL:1]カレン:[N]きゃあっ! テムっ!![N]テムーーーーーーーーーーっ!!![PAL:0][PAU:28][CLD]`
+dialogstring_05ECEF `[TPL:E][TPL:1]カレン:[N]きゃあっ! テムっ!![N]テムーーーーーーーーーーっ!!![PAL:0][PAU:28][CLD]`
 
 code_05ED20 {
     LDY $decelStepCounter
@@ -5406,11 +5406,11 @@ code_05ED4A {
 }
 
 code_05ED86 {
-    COP [PrintWideString] ( &widestring_05ED8B )
+    COP [PrintDialogString] ( &dialogstring_05ED8B )
     RTL 
 }
 
-widestring_05ED8B `[DEF][TPL:0]テム:[N]ナスカ平原は 広いらしいし あまり[N]遠くへ 行かないほうがいいな···[PAL:0][END]`
+dialogstring_05ED8B `[DEF][TPL:0]テム:[N]ナスカ平原は 広いらしいし あまり[N]遠くへ 行かないほうがいいな···[PAL:0][END]`
 
 actor_def_05EDC1 [
   actor-def < #12, #00, #10, {
@@ -5420,7 +5420,7 @@ actor_def_05EDC1 [
     LDA #$CFF0
     TSB $joypadMaskStd
     COP [WaitByte] ( #1D )
-    COP [PrintWideString] ( &widestring_05EE77 )
+    COP [PrintDialogString] ( &dialogstring_05EE77 )
     COP [SetFlagByte] ( #01 )
     LDA #$CFF0
     TRB $joypadMaskStd
@@ -5460,21 +5460,21 @@ actor_def_05EDC1 [
 ]
 
 code_05EE3E {
-    COP [PrintWideString] ( &widestring_05EF5A )
+    COP [PrintDialogString] ( &dialogstring_05EF5A )
     RTL 
 }
 
 code_05EE43 {
-    COP [PrintWideString] ( &widestring_05EF8A )
+    COP [PrintDialogString] ( &dialogstring_05EF8A )
     COP [SetFlagByte] ( #03 )
     RTL 
 }
 
 code_05EE4B {
-    COP [PrintWideString] ( &widestring_05F0C5 )
+    COP [PrintDialogString] ( &dialogstring_05F0C5 )
 
   loc_05EE4F:
-    COP [PrintWideString] ( &widestring_05F100 )
+    COP [PrintDialogString] ( &dialogstring_05F100 )
     COP [DialogueOptions] ( #04, #00, &code_list_05EE59 )
 }
 
@@ -5487,38 +5487,38 @@ code_list_05EE59 [
 ]
 
 code_05EE63 {
-    COP [PrintWideString] ( &widestring_05F15A )
+    COP [PrintDialogString] ( &dialogstring_05F15A )
     BRA loc_05EE4F
 }
 
 code_05EE69 {
-    COP [PrintWideString] ( &widestring_05F183 )
+    COP [PrintDialogString] ( &dialogstring_05F183 )
     COP [SetFlagByte] ( #09 )
     COP [RestoreSavedPtr]
 }
 
 code_05EE72 {
-    COP [PrintWideString] ( &widestring_05F1CF )
+    COP [PrintDialogString] ( &dialogstring_05F1CF )
     RTL 
 }
 
-widestring_05EE77 `[DEF][TPL:6]ニール:[N]遠い道のりだったけど みんな[N]よく がんばったな.[FIN]ここが ナスカの地上絵の中で[N]最も有名な コンドルの絵だよ.[N]聞いたことくらいは あるだろう?[FIN]古代人たちは いったい 何のために[N]こんなものを えがいたのか 今だに[N]わかってないんだ.[FIN]まあ 何にせよ ここへくるたび[N]スケールの でかさには あっとう[N]されるよ.[FIN]まずは みんなも 自分の足で歩いて[N]見てくるといいさ.[PAL:0][END]`
+dialogstring_05EE77 `[DEF][TPL:6]ニール:[N]遠い道のりだったけど みんな[N]よく がんばったな.[FIN]ここが ナスカの地上絵の中で[N]最も有名な コンドルの絵だよ.[N]聞いたことくらいは あるだろう?[FIN]古代人たちは いったい 何のために[N]こんなものを えがいたのか 今だに[N]わかってないんだ.[FIN]まあ 何にせよ ここへくるたび[N]スケールの でかさには あっとう[N]されるよ.[FIN]まずは みんなも 自分の足で歩いて[N]見てくるといいさ.[PAL:0][END]`
 
-widestring_05EF5A `[DEF][TPL:6]ニール:[N]はっはっは.[N]そうあせらず みんなと いっしょに[N]見物しておいで.[PAL:0][END]`
+dialogstring_05EF5A `[DEF][TPL:6]ニール:[N]はっはっは.[N]そうあせらず みんなと いっしょに[N]見物しておいで.[PAL:0][END]`
 
-widestring_05EF8A `[DEF][TPL:6]ニール:[N]さーて みんな もどったところで[N]本題に入ろう.[FIN]テムの言う ミステリードールは[N]この平原の どこかにあるって[N]わけだろ?[FIN][CLD][PAU:28][DEF][TPL:3]エリック:[N]さっき 地上絵を 見てたとき[N]思ったんだけど,[FIN]この コンドルの絵って なんとなく[N]白鳥の形に 見えないかなあ?[FIN][CLD][PAU:14][DEF][TPL:6]ニール:[N]なるほどっ![N]それは 気づかなかったっ!![FIN]われわれは あの星の ならびを[N]白鳥にたとえているけど[N]ナスカの 古代人たちにとっては[N]コンドルだったのかもしれない···[END]`
+dialogstring_05EF8A `[DEF][TPL:6]ニール:[N]さーて みんな もどったところで[N]本題に入ろう.[FIN]テムの言う ミステリードールは[N]この平原の どこかにあるって[N]わけだろ?[FIN][CLD][PAU:28][DEF][TPL:3]エリック:[N]さっき 地上絵を 見てたとき[N]思ったんだけど,[FIN]この コンドルの絵って なんとなく[N]白鳥の形に 見えないかなあ?[FIN][CLD][PAU:14][DEF][TPL:6]ニール:[N]なるほどっ![N]それは 気づかなかったっ!![FIN]われわれは あの星の ならびを[N]白鳥にたとえているけど[N]ナスカの 古代人たちにとっては[N]コンドルだったのかもしれない···[END]`
 
-widestring_05F09D `[DEF][TPL:6]ニール:[N]さーて みんな もどったところで[N]本題に入ろう.[FIN]`
+dialogstring_05F09D `[DEF][TPL:6]ニール:[N]さーて みんな もどったところで[N]本題に入ろう.[FIN]`
 
-widestring_05F0C5 `[DEF][TPL:6]ニール: なるほどっ![N]白鳥座の星の数は 9コ.[N]石の数も たしかに 9コだ···[FIN]`
+dialogstring_05F0C5 `[DEF][TPL:6]ニール: なるほどっ![N]白鳥座の星の数は 9コ.[N]石の数も たしかに 9コだ···[FIN]`
 
-widestring_05F100 `[CLR][TPL:0]すると 最近 見え始めたっていう[N]赤い星の 場所は···?[FIN] コンドルの頭[N] コンドルの右足[N] コンドルの左足[N] コンドルのしっぽ`
+dialogstring_05F100 `[CLR][TPL:0]すると 最近 見え始めたっていう[N]赤い星の 場所は···?[FIN] コンドルの頭[N] コンドルの右足[N] コンドルの左足[N] コンドルのしっぽ`
 
-widestring_05F15A `[CLR][TPL:0]テム: いや まてよ.[N]白鳥座の 下の方だったはずだ···[FIN]`
+dialogstring_05F15A `[CLR][TPL:0]テム: いや まてよ.[N]白鳥座の 下の方だったはずだ···[FIN]`
 
-widestring_05F183 `[CLR][TPL:0]テム: そうだっ![N]ちょうど 左足の 関節のあたりだ![FIN][TPL:6]ニール:[N]よしっ![N]その 左足の部分を 調べてみよう![PAL:0][END]`
+dialogstring_05F183 `[CLR][TPL:0]テム: そうだっ![N]ちょうど 左足の 関節のあたりだ![FIN][TPL:6]ニール:[N]よしっ![N]その 左足の部分を 調べてみよう![PAL:0][END]`
 
-widestring_05F1CF `[DEF][TPL:6]ニール:[N]たまには こういうのもいいな.[N]発明してるときみたいに ドキドキ[N]するよ.[PAL:0][END]`
+dialogstring_05F1CF `[DEF][TPL:6]ニール:[N]たまには こういうのもいいな.[N]発明してるときみたいに ドキドキ[N]するよ.[PAL:0][END]`
 
 actor_def_05F205 [
   actor-def < #1B, #00, #10, {
@@ -5590,34 +5590,34 @@ actor_def_05F205 [
 ]
 
 code_05F2C0 {
-    COP [PrintWideString] ( &widestring_05F2DA )
+    COP [PrintDialogString] ( &dialogstring_05F2DA )
     RTL 
 }
 
 code_05F2C5 {
-    COP [PrintWideString] ( &widestring_05F321 )
+    COP [PrintDialogString] ( &dialogstring_05F321 )
     COP [SetFlagByte] ( #05 )
     RTL 
 }
 
 code_05F2CD {
-    COP [PrintWideString] ( &widestring_05F375 )
+    COP [PrintDialogString] ( &dialogstring_05F375 )
     COP [SetFlagByte] ( #06 )
     RTL 
 }
 
 code_05F2D5 {
-    COP [PrintWideString] ( &widestring_05F3D1 )
+    COP [PrintDialogString] ( &dialogstring_05F3D1 )
     RTL 
 }
 
-widestring_05F2DA `[DEF][TPL:1]カレン:[N]こんな風に 自然のキャンバスの上に[N]思いっきり おっきい絵を かいたら[N]気持ちいいんだろうなあ.[PAL:0][END]`
+dialogstring_05F2DA `[DEF][TPL:1]カレン:[N]こんな風に 自然のキャンバスの上に[N]思いっきり おっきい絵を かいたら[N]気持ちいいんだろうなあ.[PAL:0][END]`
 
-widestring_05F321 `[DEF][TPL:1]カレン:[N]なんだか こうしてみると 運動会の[N]白線みたい.[FIN]案外 古代ナスカ人たちは[N]ここで 100M走を やっていたり[N]してね.[END]`
+dialogstring_05F321 `[DEF][TPL:1]カレン:[N]なんだか こうしてみると 運動会の[N]白線みたい.[FIN]案外 古代ナスカ人たちは[N]ここで 100M走を やっていたり[N]してね.[END]`
 
-widestring_05F375 `[DEF][TPL:1]カレン:[N]ここが ちょうど コンドルのお腹の[N]あたりよね.[N]ほったら 卵でも 出てこないかな.[FIN]じょ じょうだんよ(芺)[N]本気にして さがしまわらないでよ.[END]`
+dialogstring_05F375 `[DEF][TPL:1]カレン:[N]ここが ちょうど コンドルのお腹の[N]あたりよね.[N]ほったら 卵でも 出てこないかな.[FIN]じょ じょうだんよ(芺)[N]本気にして さがしまわらないでよ.[END]`
 
-widestring_05F3D1 `[DEF][TPL:1]カレン:[N]こんなに ドキドキするようなことを[N]たいけんできるなんて···[PAL:0][END]`
+dialogstring_05F3D1 `[DEF][TPL:1]カレン:[N]こんなに ドキドキするようなことを[N]たいけんできるなんて···[PAL:0][END]`
 
 actor_def_05F3FF [
   actor-def < #03, #00, #10, {
@@ -5670,18 +5670,18 @@ actor_def_05F3FF [
 ]
 
 code_05F481 {
-    COP [PrintWideString] ( &widestring_05F48B )
+    COP [PrintDialogString] ( &dialogstring_05F48B )
     RTL 
 }
 
 code_05F486 {
-    COP [PrintWideString] ( &widestring_05F4F0 )
+    COP [PrintDialogString] ( &dialogstring_05F4F0 )
     RTL 
 }
 
-widestring_05F48B `[DEF][TPL:4]ロブ:[N]おれ こないだまで 每日 学校へ[N]かよって 勉強したり あそんだり[N]してたんだよな.[FIN]自分が ここにいることは[N]夢なんじゃないかって 思うことが[N]あるよ···[PAL:0][END]`
+dialogstring_05F48B `[DEF][TPL:4]ロブ:[N]おれ こないだまで 每日 学校へ[N]かよって 勉強したり あそんだり[N]してたんだよな.[FIN]自分が ここにいることは[N]夢なんじゃないかって 思うことが[N]あるよ···[PAL:0][END]`
 
-widestring_05F4F0 `[DEF][TPL:4]ロブ:[N]今まで 探険家や 考古学者たちが[N]とけなかったナゾを おれたちが[N]今 あかそうとしてるんだよな··[PAL:0][END]`
+dialogstring_05F4F0 `[DEF][TPL:4]ロブ:[N]今まで 探険家や 考古学者たちが[N]とけなかったナゾを おれたちが[N]今 あかそうとしてるんだよな··[PAL:0][END]`
 
 actor_def_05F538 [
   actor-def < #23, #00, #10, {
@@ -5710,19 +5710,19 @@ actor_def_05F538 [
     LDA #$CFF0
     TSB $joypadMaskStd
     COP [WaitByte] ( #27 )
-    COP [PrintWideString] ( &widestring_05F67B )
+    COP [PrintDialogString] ( &dialogstring_05F67B )
     COP [ClearLowHere]
     COP [StageSpriteMoveX] ( #28, #02 )
     COP [AnimOnce]
     COP [SetFlagByte] ( #08 )
     LDA #$0002
-    JSL $@chunk_008000.widestring_00C829
+    JSL $@chunk_008000.dialogstring_00C829
     COP [StageSpriteMoveX] ( #28, #02 )
     COP [AnimOnce]
     COP [StageSpriteFrame] ( #24 )
     COP [AnimOnce]
     COP [SolidHighHere]
-    COP [PrintWideString] ( &widestring_05F6A1 )
+    COP [PrintDialogString] ( &dialogstring_05F6A1 )
     COP [SetFlagByte] ( #0A )
     COP [ExitIfFlagByte] ( #09, #01 )
     COP [SetOnInteract] ( &code_05F612 )
@@ -5758,30 +5758,30 @@ actor_def_05F538 [
 ]
 
 code_05F605 {
-    COP [PrintWideString] ( &widestring_05F617 )
+    COP [PrintDialogString] ( &dialogstring_05F617 )
     RTL 
 }
 
 code_05F60A {
-    COP [PrintWideString] ( &widestring_05F647 )
+    COP [PrintDialogString] ( &dialogstring_05F647 )
     COP [SetFlagByte] ( #07 )
     RTL 
 }
 
 code_05F612 {
-    COP [PrintWideString] ( &widestring_05F6E5 )
+    COP [PrintDialogString] ( &dialogstring_05F6E5 )
     RTL 
 }
 
-widestring_05F617 `[DEF][TPL:2]リリィ:[N]すごいよねえ. 古代の人って.[N]どうやって 書いたんだろ···[PAL:0][END]`
+dialogstring_05F617 `[DEF][TPL:2]リリィ:[N]すごいよねえ. 古代の人って.[N]どうやって 書いたんだろ···[PAL:0][END]`
 
-widestring_05F647 `[DEF][TPL:2]リリィ: この ところどころに[N]ころがっている石って なんだか[N]不自然じゃない?[PAL:0][END]`
+dialogstring_05F647 `[DEF][TPL:2]リリィ: この ところどころに[N]ころがっている石って なんだか[N]不自然じゃない?[PAL:0][END]`
 
-widestring_05F67B `[DEF][TPL:2]リリィ:[N]あーーーーーーーーーーっ!![N]わかったっ!!!!![END]`
+dialogstring_05F67B `[DEF][TPL:2]リリィ:[N]あーーーーーーーーーーっ!![N]わかったっ!!!!![END]`
 
-widestring_05F6A1 `[PAU:28][DEF][TPL:2]見て 見てっ![N]この地面にある 石の場所っ!![FIN]これって ぜったい[N]白鳥座の 星の位置だよお![PAL:0][END]`
+dialogstring_05F6A1 `[PAU:28][DEF][TPL:2]見て 見てっ![N]この地面にある 石の場所っ!![FIN]これって ぜったい[N]白鳥座の 星の位置だよお![PAL:0][END]`
 
-widestring_05F6E5 `[DEF][TPL:2]リリィ:[N]星座の中に ナゾが かくされてる[N]なんて なんだかロマンチックだね.[PAL:0][END]`
+dialogstring_05F6E5 `[DEF][TPL:2]リリィ:[N]星座の中に ナゾが かくされてる[N]なんて なんだかロマンチックだね.[PAL:0][END]`
 
 actor_def_05F71B [
   actor-def < #0B, #00, #10, {
@@ -5828,25 +5828,25 @@ actor_def_05F71B [
 ]
 
 code_05F78B {
-    COP [PrintWideString] ( &widestring_05F79A )
+    COP [PrintDialogString] ( &dialogstring_05F79A )
     RTL 
 }
 
 code_05F790 {
-    COP [PrintWideString] ( &widestring_05F7C4 )
+    COP [PrintDialogString] ( &dialogstring_05F7C4 )
     RTL 
 }
 
 code_05F795 {
-    COP [PrintWideString] ( &widestring_05F7EE )
+    COP [PrintDialogString] ( &dialogstring_05F7EE )
     RTL 
 }
 
-widestring_05F79A `[DEF][TPL:3]エリック:[N]なんだか こわいや···[N]ニールのそばに いよっと.[PAL:0][END]`
+dialogstring_05F79A `[DEF][TPL:3]エリック:[N]なんだか こわいや···[N]ニールのそばに いよっと.[PAL:0][END]`
 
-widestring_05F7C4 `[DEF][TPL:3]エリック:[N]何が おこるんだろう···[N]ワクワクしちゃうなあ.[PAL:0][END]`
+dialogstring_05F7C4 `[DEF][TPL:3]エリック:[N]何が おこるんだろう···[N]ワクワクしちゃうなあ.[PAL:0][END]`
 
-widestring_05F7EE `[DEF][TPL:3]エリック:[N]何が おこるんだろう···[N]ワクワクしちゃうなあ.[PAL:0][END]`
+dialogstring_05F7EE `[DEF][TPL:3]エリック:[N]何が おこるんだろう···[N]ワクワクしちゃうなあ.[PAL:0][END]`
 
 actor_def_05F818 [
   actor-def < #32, #00, #30, {
@@ -5874,7 +5874,7 @@ code_05F83C {
     LDA #$FFF0
     TSB $joypadMaskStd
     COP [WaitByte] ( #13 )
-    COP [PrintWideString] ( &widestring_05F872 )
+    COP [PrintDialogString] ( &dialogstring_05F872 )
     LDA #$FFF0
     TRB $joypadMaskStd
     COP [SetFlagByte] ( #02 )
@@ -5887,7 +5887,7 @@ code_05F83C {
     COP [Die]
 }
 
-widestring_05F872 `[DEF]クッククククク····[END]`
+dialogstring_05F872 `[DEF]クッククククク····[END]`
 
 actor_def_05F881 [
   actor-def < #3C, #00, #10, {
@@ -5905,11 +5905,11 @@ actor_def_05F881 [
 ]
 
 code_05F897 {
-    COP [PrintWideString] ( &widestring_05F89C )
+    COP [PrintDialogString] ( &dialogstring_05F89C )
     RTL 
 }
 
-widestring_05F89C `[DEF]月の種族:[N]また 会ったわね. クッククク.[N]こんなところまで うろうろと[N]元気な ぼうやだこと.[END]`
+dialogstring_05F89C `[DEF]月の種族:[N]また 会ったわね. クッククク.[N]こんなところまで うろうろと[N]元気な ぼうやだこと.[END]`
 
 actor_def_05F8D7 [
   actor-def < #3C, #00, #10, {
@@ -5927,11 +5927,11 @@ actor_def_05F8D7 [
 ]
 
 code_05F8ED {
-    COP [PrintWideString] ( &widestring_05F8F2 )
+    COP [PrintDialogString] ( &dialogstring_05F8F2 )
     RTL 
 }
 
-widestring_05F8F2 `[DEF]月の種族:[N]この空中庭園は あたしたちの[N]のりもの.[FIN]4つの地域に 安置される 4つの[N]クリスタルボール.[N]時計まわりに めぐって 手に入れる[N]ことね. クッククク···[END]`
+dialogstring_05F8F2 `[DEF]月の種族:[N]この空中庭園は あたしたちの[N]のりもの.[FIN]4つの地域に 安置される 4つの[N]クリスタルボール.[N]時計まわりに めぐって 手に入れる[N]ことね. クッククク···[END]`
 
 actor_def_05F95C [
   actor-def < #3C, #00, #10, {
@@ -5949,17 +5949,17 @@ actor_def_05F95C [
 ]
 
 code_05F972 {
-    COP [PrintWideString] ( &widestring_05F977 )
+    COP [PrintDialogString] ( &dialogstring_05F977 )
     RTL 
 }
 
-widestring_05F977 `[DEF]月の種族:[N]空中庭園の 裹と表.[N]ガケから とびおりれば そこは[N]もう さかさまの世界···[END]`
+dialogstring_05F977 `[DEF]月の種族:[N]空中庭園の 裹と表.[N]ガケから とびおりれば そこは[N]もう さかさまの世界···[END]`
 
-widestring_05F9B4 `いが┌[A9]がぐご(ぐ[END]`
+dialogstring_05F9B4 `いが┌[A9]がぐご(ぐ[END]`
 
-widestring_05F9BE `[RET]`
+dialogstring_05F9BE `[RET]`
 
-widestring_05F9BF `[F9]ぐぢぐ[DLG:2,80]いぐ[89]ぅぐ[BF][PRT][F9]ぅ[DEF]月の種族:[N]クリスタルバードが 3度 鳴き声を[N]あげるとき 戦いをいどんだら?[END]`
+dialogstring_05F9BF `[F9]ぐぢぐ[DLG:2,80]いぐ[89]ぅぐ[BF][PRT][F9]ぅ[DEF]月の種族:[N]クリスタルバードが 3度 鳴き声を[N]あげるとき 戦いをいどんだら?[END]`
 
 actor_def_05FA01 [
   actor-def < #35, #01, #03, {
@@ -6205,7 +6205,7 @@ code_05FBE7 {
 }
 
 code_05FBFD {
-    COP [PrintWideString] ( &widestring_05FC0B )
+    COP [PrintDialogString] ( &dialogstring_05FC0B )
     COP [SetEntryContinue]
     COP [BranchIfPlayerNear] ( #01, &code_05FC0A )
     BRA loc_05FBC9
@@ -6215,7 +6215,7 @@ code_05FC0A {
     RTL 
 }
 
-widestring_05FC0B `[DEF]このタイルを ふむと[N]何か音がするようだ···[END]`
+dialogstring_05FC0B `[DEF]このタイルを ふむと[N]何か音がするようだ···[END]`
 
 actor_def_05FC28 [
   actor-def < #00, #00, #20, {
@@ -6346,7 +6346,7 @@ actor_def_05FC4A [
     ORA ($54, X)
     BRK #$E8
     ORA ($70, X)
-    COP [SetAnimScratch] ( @chunk_038000.widestring_0387F9+M )
+    COP [SetAnimScratch] ( @chunk_038000.dialogstring_0387F9+M )
     BNE loc_05FD2D
     MVN #$00, #$08
 
@@ -6444,7 +6444,7 @@ actor_def_05FDD6 [
     LDA #$CFF0
     TSB $joypadMaskStd
     COP [WaitByte] ( #1D )
-    COP [PrintWideString] ( &widestring_05FDF7 )
+    COP [PrintDialogString] ( &dialogstring_05FDF7 )
     LDA #$CFF0
     TRB $joypadMaskStd
 } >
@@ -6454,7 +6454,7 @@ code_05FDF5 {
     COP [Die]
 }
 
-widestring_05FDF7 `[TPL:E][TPL:0]テム:[N]インカの ラライのガケには[N]すさまじい風が ふきあれていた.[FIN]これが 長老の言っていた 神の息[N]なのだろうか···[FIN]このガケのどこかに 風のない場所が[N]ひっそりと ねむっているのだろう.[N]ボクは 胸の高なりを 感じた.[PAL:0][END]`
+dialogstring_05FDF7 `[TPL:E][TPL:0]テム:[N]インカの ラライのガケには[N]すさまじい風が ふきあれていた.[FIN]これが 長老の言っていた 神の息[N]なのだろうか···[FIN]このガケのどこかに 風のない場所が[N]ひっそりと ねむっているのだろう.[N]ボクは 胸の高なりを 感じた.[PAL:0][END]`
 
 actor_def_05FE87 [
   actor-def < #00, #00, #30, {
@@ -6477,18 +6477,18 @@ actor_def_05FE87 [
     COP [BranchIfFlagByte] ( #6A, #01, &code_05FE9D )
     COP [SetFlagByte] ( #6A )
     COP [WaitByte] ( #1D )
-    COP [PrintWideString] ( &widestring_05FEC9 )
+    COP [PrintDialogString] ( &dialogstring_05FEC9 )
     BRA code_05FE9D
 
   loc_05FEB7:
     COP [BranchIfFlagByte] ( #6B, #01, &code_05FE9D )
     COP [SetFlagByte] ( #6B )
     COP [WaitByte] ( #1D )
-    COP [PrintWideString] ( &widestring_05FF2D )
+    COP [PrintDialogString] ( &dialogstring_05FF2D )
     BRA code_05FE9D
 } >
 ]
 
-widestring_05FEC9 `[TPL:A][TPL:0]テム:[N]鉱山の中は 不気味なまでに[N]静まりかえっている.[FIN]どうくつの おくの方から ときおり[N]聞こえる ドレイたちの 悲鳴に[N]背筋が 寒くなった···[PAL:0][END]`
+dialogstring_05FEC9 `[TPL:A][TPL:0]テム:[N]鉱山の中は 不気味なまでに[N]静まりかえっている.[FIN]どうくつの おくの方から ときおり[N]聞こえる ドレイたちの 悲鳴に[N]背筋が 寒くなった···[PAL:0][END]`
 
-widestring_05FF2D `[TPL:E][TPL:0]テム:[N]ナスカの上空には 不思議な庭園が[N]うかんでいた···[FIN]地上では ニールたちが 右往左往[N]しているのが米つぶのように見える.[FIN]ナスカの地上絵は この空中庭園の[N]ための 飛行場だったのだろうか?[PAL:0][END]`
+dialogstring_05FF2D `[TPL:E][TPL:0]テム:[N]ナスカの上空には 不思議な庭園が[N]うかんでいた···[FIN]地上では ニールたちが 右往左往[N]しているのが米つぶのように見える.[FIN]ナスカの地上絵は この空中庭園の[N]ための 飛行場だったのだろうか?[PAL:0][END]`

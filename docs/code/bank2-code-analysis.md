@@ -377,7 +377,7 @@ dictionary-compressed tokens) for dialogue box sizing.
 | Part | Size | Description |
 |------|------|-------------|
 | `func_02A11B` | 78 B | Compare target scene to current; if different, count text width and add to `$0998` for scroll offset calculation. Opens dialogue box via `sub_03E255`. |
-| `asciistring_02A169` | 9 B | Format string: `[DLG:7,7][SIZ:A,1][SFX:0]` |
+| `consolestring_02A169` | 9 B | Format string: `[DLG:7,7][SIZ:A,1][SFX:0]` |
 | `sub_02A172` | 119 B | **Text width counter**: walks text stream byte-by-byte. Handles control codes ($C0+ range), dictionary lookups ($D6 → `dictionary_01EBA8`, $D7 → `dictionary_01F54D`), counts visible characters into `$00`. |
 
 ### Group 10: Event Block System ($02A1E9–$02A5B1)

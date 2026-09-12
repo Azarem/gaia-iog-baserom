@@ -1,6 +1,6 @@
 ---------------------------------------------
 
-overworld_routes [
+world_map_routes [
   &route_step_03ADC3   ;00
   &route_step_03ADC3   ;01
   &route_step_03ADD8   ;02

@@ -22,7 +22,7 @@ code_07CBA9 {
     COP [AnimOnce]
     COP [StageSpriteFrame] ( #02 )
     COP [AnimOnce]
-    COP [PrintWideString] ( &widestring_07CC0A )
+    COP [PrintDialogString] ( &dialogstring_07CC0A )
     COP [SpawnAfterFlags] ( @code_07CBD3, #$2000 )
     COP [StageSpriteMoveY] ( #06, #01 )
     COP [AnimOnce]
@@ -41,10 +41,10 @@ code_07CBD3 {
 }
 
 code_07CBDE {
-    COP [PrintWideString] ( &widestring_07CBE3 )
+    COP [PrintDialogString] ( &dialogstring_07CBE3 )
     RTL 
 }
 
-widestring_07CBE3 `[TPL:A]Clerk: Going home?[N]Thank you very much.[END]`
+dialogstring_07CBE3 `[TPL:A]Clerk: Going home?[N]Thank you very much.[END]`
 
-widestring_07CC0A `[TPL:A]Clerk: This is the[N]exit. Please use the[N]entrance![END]`
+dialogstring_07CC0A `[TPL:A]Clerk: This is the[N]exit. Please use the[N]entrance![END]`

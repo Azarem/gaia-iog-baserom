@@ -257,6 +257,8 @@
 ?INCLUDE 'fr3C_sam'
 ?INCLUDE 'fr3C_slaver'
 ?INCLUDE 'freejia_street_prop'
+?INCLUDE 'future_vision_cutscene'
+?INCLUDE 'garden_crash_cutscene'
 ?INCLUDE 'gs2A_shira'
 ?INCLUDE 'gs2B_actor_058027'
 ?INCLUDE 'gs2B_bones'
@@ -455,10 +457,8 @@
 ?INCLUDE 'pyDD_mystic_statue'
 ?INCLUDE 'pyDD_teleporter'
 ?INCLUDE 'ramps'
-?INCLUDE 's59_actor_03A0AA'
 ?INCLUDE 's89_new_babel'
 ?INCLUDE 's90_changed_world'
-?INCLUDE 'sC0_actor_03A1FA'
 ?INCLUDE 'sc01_actor_048004'
 ?INCLUDE 'sc01_astronomer'
 ?INCLUDE 'sc01_fisherman'
@@ -519,7 +519,6 @@
 ?INCLUDE 'sFB_actor_0BC8BA'
 ?INCLUDE 'sFC_actor_0BC924'
 ?INCLUDE 'sFC_actor_0BC9AE'
-?INCLUDE 'sFE_actor_03A2F1'
 ?INCLUDE 'sg4C_actor_0AB496'
 ?INCLUDE 'sg4C_platforms'
 ?INCLUDE 'sg4C_spirits'
@@ -597,6 +596,7 @@
 ?INCLUDE 'wa7D_glass_opponent'
 ?INCLUDE 'wa7F_lance'
 ?INCLUDE 'wa7F_lily'
+?INCLUDE 'WorldMapController'
 
 ---------------------------------------------
 
@@ -2232,7 +2232,7 @@ scene_event_0CA50C [
 ]
 
 scene_event_0CA554 [
-  actor-spawn < #05, #03, #00, @s59_actor_03A0AA >
+  actor-spawn < #05, #03, #00, @garden_crash_cutscene.GardenCrashCutscene >
 ]
 
 scene_event_0CA55D [
@@ -3964,7 +3964,7 @@ scene_event_0CD392 [
 ]
 
 scene_event_0CD3A9 [
-  actor-spawn < #00, #01, #00, @sC0_actor_03A1FA >
+  actor-spawn < #00, #01, #00, @future_vision_cutscene.FutureVisionCutscene >
 ]
 
 scene_event_0CD3B2 [
@@ -4686,7 +4686,7 @@ scene_event_0CE57D [
 ]
 
 scene_event_0CE5A9 [
-  actor-spawn < #00, #01, #00, @sFE_actor_03A2F1 >
+  actor-spawn < #00, #01, #00, @WorldMapController >
 ]
 
 scene_event_0CE5B2 [

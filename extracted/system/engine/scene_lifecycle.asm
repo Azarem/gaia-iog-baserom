@@ -40,13 +40,13 @@
 ?INCLUDE 'actor_execution'
 ?INCLUDE 'binary_01C384'
 ?INCLUDE 'camera_tilemap'
+?INCLUDE 'DisplaySceneTitle'
 ?INCLUDE 'event_blocks'
 ?INCLUDE 'hdma_dma_spc'
 ?INCLUDE 'scene_script'
 ?INCLUDE 'sprite_composition'
 ?INCLUDE 'system_core'
-?INCLUDE 'text_measure'
-?INCLUDE 'tile_collision_physics'
+?INCLUDE 'thinker_execution'
 ?INCLUDE 'vblank_joypad'
 ?INCLUDE 'vram_buffer_clear'
 ?INCLUDE 'warps_interaction'
@@ -751,7 +751,7 @@ ScreenEnterTransition {
 ; 5. PlaceBarrierTiles — write barrier collision tiles to map
 ; 6. InitActorPool — reset actor/thinker pools
 ; 7. SpawnSceneActors — instantiate actors from scene definition table
-; 8. MeasureDialogueWidth — pre-compute dialogue layout metrics
+; 8. DisplaySceneTitle — display centered area name overlay if entering a new scene
 ; 9. SpawnSceneThinkers — instantiate thinkers from scene definition table
 ; 
 ; === PHASE 3: PREPARE RENDERING ===
@@ -852,19 +852,19 @@ ClearSceneState {
     STX $joypadMaskStd
     STX $joypadCurrent
     STX $joypadRaw
-    JSL $@actor_execution.InitActorPool ; Init actor pool, spawn actors, measure dialogue, spawn thinkers
+    JSL $@actor_execution.InitActorPool ; Init actor pool, spawn actors, display scene title, spawn thinkers
     JSL $@actor_execution.SpawnSceneActors
-    JSL $@text_measure.MeasureDialogueWidth
-    JSL $@tile_collision_physics.SpawnSceneThinkers
+    JSL $@DisplaySceneTitle
+    JSL $@thinker_execution.SpawnSceneThinkers
     JSL $@LoadScenePalettes ; Load palettes, load player graphics
     JSL $@LoadPlayerGraphics
-    JSL $@tile_collision_physics.ClearActorRenderList ; Clear render list, init warp table
+    JSL $@sprite_composition.ClearActorRenderList ; Clear render list, init warp table
     JSL $@warps_interaction.InitWarpTable
     JSL $@actor_execution.RunActors_Normal ; Two actor ticks to settle initial positions
     JSL $@actor_execution.RunActors_Normal
     JSL $@hdma_dma_spc.ResetHdmaState ; ResetHdma, run type-A and type-B thinkers, ResetHdma
-    JSL $@actor_execution.RunThinkers_TypeA
-    JSL $@actor_execution.RunThinkers_TypeB
+    JSL $@thinker_execution.RunThinkers_TypeA
+    JSL $@thinker_execution.RunThinkers_TypeB
     JSL $@hdma_dma_spc.ResetHdmaState
     STZ $HDMAEN           ; Disable HDMA before sprite composition
     COP [SetFlagByte] ( #FF ) ; COP SetFlagByte $FF — mark all actors for compose

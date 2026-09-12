@@ -154,7 +154,7 @@ code_0AF259 {
     COP [TickMove]
     COP [BranchIfFlagByte] ( #87, #01, &code_0AF27E )
     COP [SetFlagByte] ( #87 )
-    COP [PrintWideString] ( &widestring_0AFB45 )
+    COP [PrintDialogString] ( &dialogstring_0AFB45 )
 }
 
 code_0AF27E {
@@ -1228,7 +1228,7 @@ func_0AFA59 {
     LDA $sceneCurrent
     CMP #$0067
     BNE loc_0AFA81
-    COP [PrintWideString] ( &widestring_0AFCA0 )
+    COP [PrintDialogString] ( &dialogstring_0AFCA0 )
     BRA loc_0AFA81
 
   loc_0AFA72:
@@ -1260,7 +1260,7 @@ code_0AFAA0 {
     LDA $sceneCurrent
     CMP #$0067
     BNE loc_0AFAC8
-    COP [PrintWideString] ( &widestring_0AFCE4 )
+    COP [PrintDialogString] ( &dialogstring_0AFCE4 )
     BRA loc_0AFAC8
 
   loc_0AFAB9:
@@ -1330,8 +1330,8 @@ sub_0AFB28 {
 }
 ---------------------------------------------
 
-widestring_0AFB45 `[DEF][TPL:2]Vampire: [N]You've found the  [N]Mystic Statue! [FIN]I thought that guy who [N]came to the palace was [N]strange....We were [N]right to let him go. [FIN][TPL:1]Vampiress: [N]What are you saying? [N]You were drooling [N]when he was here! [FIN]You're always like that [N]when young ones come! [N]All you ever think about [N]is food! [FIN][TPL:2]Vampire: [N]So do you!! [FIN]Wait. This is not the[N]time or place for[N]an argument.[FIN]First, let's get that [N]Mystic Statue!  [N]Get ready!!![PAL:0][END]`
+dialogstring_0AFB45 `[DEF][TPL:2]Vampire: [N]You've found the  [N]Mystic Statue! [FIN]I thought that guy who [N]came to the palace was [N]strange....We were [N]right to let him go. [FIN][TPL:1]Vampiress: [N]What are you saying? [N]You were drooling [N]when he was here! [FIN]You're always like that [N]when young ones come! [N]All you ever think about [N]is food! [FIN][TPL:2]Vampire: [N]So do you!! [FIN]Wait. This is not the[N]time or place for[N]an argument.[FIN]First, let's get that [N]Mystic Statue!  [N]Get ready!!![PAL:0][END]`
 
-widestring_0AFCA0 `[DLG:3,11][SIZ:D,4][TPL:1]Vampiress: [N]I'm glad he's gone. [N]It's your turn next!! [N]Get ready![PAL:0][END]`
+dialogstring_0AFCA0 `[DLG:3,11][SIZ:D,4][TPL:1]Vampiress: [N]I'm glad he's gone. [N]It's your turn next!! [N]Get ready![PAL:0][END]`
 
-widestring_0AFCE4 `[DLG:3,11][SIZ:D,4][TPL:2]Vampire: You! [N]You did that to my wife! [N]I'll never forgive you!![PAL:0][END]`
+dialogstring_0AFCE4 `[DLG:3,11][SIZ:D,4][TPL:2]Vampire: You! [N]You did that to my wife! [N]I'll never forgive you!![PAL:0][END]`

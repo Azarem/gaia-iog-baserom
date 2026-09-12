@@ -76,7 +76,7 @@
         } },
         "system_init": { "start": 171490, "end": 172096, "type": "Code", "scene": "engine" },
         "music_actors": { "start": 172096, "end": 172315, "type": "Code", "scene": "engine" },
-        "text_measure": { "start": 172315, "end": 172521, "type": "Code", "scene": "engine" },
+        "DisplaySceneTitle": { "start": 172315, "end": 172521, "type": "Code", "scene": "engine" },
         "event_blocks": { "start": 172521, "end": 173533, "type": "Code", "scene": "engine" },
         "warps_interaction": { "start": 173533, "end": 174986, "type": "Code", "scene": "engine" },
         "camera_tilemap": { "start": 174986, "end": 176291, "type": "Code", "scene": "engine" },
@@ -89,14 +89,21 @@
         "player_move_ew": { "start": 185206, "end": 187264, "type": "Code", "scene": "engine" },
         "player_move_diag": { "start": 187264, "end": 188674, "type": "Code", "scene": "engine" },
         "tile_collision": { "start": 188674, "end": 189334, "type": "Code", "scene": "engine" },
-        "OverworldInputHandler": { "start": 229376, "end": 229567, "type": "Code", "scene": "engine" },
+        "GlobalInputHandler": { "start": 229376, "end": 229567, "type": "Code", "scene": "engine" },
         "radar_map_screen": { "start": 229567, "end": 230416, "type": "Code", "scene": "engine" },
         "item_use_system": { "start": 230416, "end": 237738, "type": "Code", "scene": "engine" },
         "oam_digit_compose": { "start": 244449, "end": 244613, "type": "Code", "scene": "engine" },
         "combat_collision": { "start": 244613, "end": 247295, "type": "Code", "scene": "engine" },
-        "sprite_composition": { "start": 247295, "end": 248565, "type": "Code", "scene": "engine" },
-        "actor_execution": { "start": 248565, "end": 250357, "type": "Code", "scene": "engine" },
-        "tile_collision_physics": { "start": 250357, "end": 252033, "type": "Code", "scene": "engine" },
+        "sprite_composition": { "scene": "engine", "parts": {
+            "ClearActorRenderList": { "start": 252010, "end": 252033, "type": "Code" },
+            "SortActorsByDepth": { "start": 247295, "end": 248565, "type": "Code", "order": 252011 }
+        } },
+        "actor_execution": { "start": 248565, "end": 250157, "type": "Code", "scene": "engine" },
+        "thinker_execution": { "scene": "engine", "parts": {
+            "SpawnSceneThinkers": { "start": 251879, "end": 252010, "type": "Code" },
+            "RunThinkers_TypeA": { "start": 250157, "end": 250357, "type": "Code", "order": 251880 }
+        } },
+        "tile_collision_physics": { "start": 250357, "end": 251879, "type": "Code", "scene": "engine" },
         "scene_lifecycle": { "start": 252392, "end": 254128, "type": "Code", "scene": "engine" },
         "save_system": { "start": 252182, "end": 252392, "type": "Code", "scene": "engine" },
         "hdma_dma_spc": { "scene": "engine", "parts": {
@@ -104,9 +111,9 @@
             "LoadPaletteBundle": { "start": 254128, "end": 254549, "type": "Code" },
             "DmaAdhocVramBlock": { "start": 258512, "end": 258561, "type": "Code" }
         } },
-        "WideStringRenderer": { "start": 254549, "end": 256073, "type": "Code", "scene": "engine" },
+        "DialogStringRenderer": { "start": 254549, "end": 256073, "type": "Code", "scene": "engine" },
         "MenuSelectionHandler": { "start": 256073, "end": 256610, "type": "Code", "scene": "engine" },
-        "AsciiStringRenderer": { "start": 256610, "end": 257943, "type": "Code", "scene": "engine" },
+        "ConsoleStringRenderer": { "start": 256610, "end": 257943, "type": "Code", "scene": "engine" },
         "inventory_mgmt": { "start": 257943, "end": 258250, "type": "Code", "scene": "inventory" },
         "GetPlayerFacingDirection": { "start": 258250, "end": 258512, "type": "Code", "scene": "engine" },
         "boot_logo_palette_enix": { "start": 47167, "end": 47187, "type": "thinker-def", "scene": "boot_logos", "movable": true },
@@ -136,10 +143,11 @@
                 "array_01D90B": { "start": 121099, "end": 121201, "type": "ramp-motion" }
             }
         },
-        "sFE_actor_03A2F1": { "start": 238321, "end": 239290, "type": "actor-def", "scene": "world_map", "movable": false },
-        "overworld_routes": { "start": 241015, "end": 242132, "type": "&route-step", "scene": "world_map", "movable": true },
-        "overworld_names": { "start": 242132, "end": 242689, "type": "map-label", "scene": "world_map" },
-        "overworld_options": { "start": 242689, "end": 244449, "type": "&Code", "scene": "world_map" },
+        "WorldMapController": { "start": 238321, "end": 239290, "type": "actor-def", "scene": "world_map" },
+        "HdmaWindowEffect": { "start": 239678, "end": 239936, "type": "Code", "scene": "world_map", "movable": true },
+        "world_map_routes": { "start": 241015, "end": 242132, "type": "&route-step", "scene": "world_map", "movable": true },
+        "world_map_names": { "start": 242132, "end": 242689, "type": "map-label", "scene": "world_map" },
+        "world_map_options": { "start": 242689, "end": 244449, "type": "&Code", "scene": "world_map" },
         "sE6_gaia": {
             "movable": true,
             "scene": "dark_space",
@@ -147,15 +155,15 @@
                 "sE6_gaia": { "start": 579496, "end": 579562, "type": "actor-def" },
                 "func_08D7EA": { "start": 579562, "end": 580506, "type": "Code" },
                 "loc_08DB9A": { "start": 580506, "end": 580875, "type": "Code" },
-                "widestring_08DD0B": { "start": 580875, "end": 581234, "type": "WideString" },
+                "dialogstring_08DD0B": { "start": 580875, "end": 581234, "type": "DialogString" },
                 "binary_08DE72": { "start": 581234, "end": 581270, "type": "Binary" },
-                "widestring_08DE96": { "start": 581270, "end": 584148, "type": "WideString" },
+                "dialogstring_08DE96": { "start": 581270, "end": 584148, "type": "DialogString" },
                 "func_08E9D4": { "start": 584148, "end": 584495, "type": "Code" },
                 "sub_08EB2F": { "start": 584495, "end": 584538, "type": "Code" },
                 "binary_08EB5A": { "start": 584538, "end": 584552, "type": "Binary" },
-                "widestring_08EB68": { "start": 584552, "end": 584591, "type": "WideString" },
-                "table_08EB8F": { "start": 584591, "end": 584659, "type": "&WideString" },
-                "table_08EBD3": { "start": 584659, "end": 585522, "type": "&WideString" },
+                "dialogstring_08EB68": { "start": 584552, "end": 584591, "type": "DialogString" },
+                "table_08EB8F": { "start": 584591, "end": 584659, "type": "&DialogString" },
+                "table_08EBD3": { "start": 584659, "end": 585522, "type": "&DialogString" },
                 "func_08EF32": { "start": 585522, "end": 586293, "type": "Code" },
                 "func_08F235": { "start": 586293, "end": 586350, "type": "Code" },
                 "func_08F26E": { "start": 586350, "end": 586403, "type": "Code" },
@@ -207,14 +215,14 @@
                 "func_0BF260_noref": { "start": 782944, "end": 782945, "type": "Code" },
                 "func_0BF261_noref": { "start": 782945, "end": 783014, "type": "Code" },
                 "func_0BF2A6": { "start": 783014, "end": 783348, "type": "Code" },
-                "table_0BF6AD": { "start": 784045, "end": 784051, "type": "&WideString" },
-                "widestring_0BF3F4": { "start": 783348, "end": 783931, "order": 784046, "type": "WideString" },
-                "table_0BF63B": { "start": 783931, "end": 783975, "order": 784047, "type": "&WideString" },
-                "table_0BF667": { "start": 783975, "end": 783993, "order": 784048, "type": "&WideString" },
-                "widestring_0BF679": { "start": 783993, "end": 784036, "order": 784049, "type": "WideString" },
-                "widestring_0BF6A4": { "start": 784036, "end": 784045, "order": 784050, "type": "WideString" },
-                "widestring_0BF6B3": { "start": 784051, "end": 784089, "order": 784051, "type": "WideString" },
-                "table_0BF6D9": { "start": 784089, "end": 784134, "order": 784052, "type": "&WideString" }
+                "table_0BF6AD": { "start": 784045, "end": 784051, "type": "&DialogString" },
+                "dialogstring_0BF3F4": { "start": 783348, "end": 783931, "order": 784046, "type": "DialogString" },
+                "table_0BF63B": { "start": 783931, "end": 783975, "order": 784047, "type": "&DialogString" },
+                "table_0BF667": { "start": 783975, "end": 783993, "order": 784048, "type": "&DialogString" },
+                "dialogstring_0BF679": { "start": 783993, "end": 784036, "order": 784049, "type": "DialogString" },
+                "dialogstring_0BF6A4": { "start": 784036, "end": 784045, "order": 784050, "type": "DialogString" },
+                "dialogstring_0BF6B3": { "start": 784051, "end": 784089, "order": 784051, "type": "DialogString" },
+                "table_0BF6D9": { "start": 784089, "end": 784134, "order": 784052, "type": "&DialogString" }
             }
         },
         "inventory_menu": { "start": 189334, "end": 191746, "type": "actor-def", "scene": "inventory", "movable": false }
@@ -278,7 +286,7 @@
         "parallax_thinker": { "start": 47243, "end": 48014, "type": "thinker-def", "movable": true },
         "sine_hdma_slow_wave": { "start": 48664, "end": 48697, "type": "thinker-def", "movable": true },
         "global_ambient_dispatcher": { "start": 49033, "end": 49578, "type": "thinker-def", "movable": true },
-        "sFE_proc_03A940": { "start": 239936, "end": 240520, "type": "thinker-def" },
+        "mode7_perspective": { "start": 239936, "end": 240520, "type": "thinker-def" },
         "thinkers_05FB16": { "start": 391958, "end": 392914, "type": "thinker-def", "movable": true }
     },
     "unused": {
@@ -294,7 +302,7 @@
         "AttackTrailShort_unused": { "start": 56441, "end": 56500, "type": "Code", "movable": true },
         "InitSmoothFollowChase_unused": { "start": 58965, "end": 59011, "type": "Code", "movable": true },
         "CopyRefActorPos_unused": { "start": 62504, "end": 62514, "type": "Code", "movable": true },
-        "func_03AB88": { "start": 240520, "end": 241015, "type": "Code", "movable": true },
+        "mode7_perspective_unused": { "start": 240520, "end": 241015, "type": "Code", "movable": true },
         "sc01_actor_0489EE": { "start": 297454, "end": 297458, "type": "actor-def", "movable": true },
         "hint_npc": { "movable": true, "parts": {
             "hint_npc1": { "start": 630999, "end": 631013, "type": "actor-def" },
@@ -373,7 +381,7 @@
     "gold_ship": {
         "dream_palette_loop": { "start": 46802, "end": 46821, "type": "thinker-def", "scene": "dream", "movable": true },
         "dream_zoom_controller": { "start": 49578, "end": 49631, "type": "actor-def", "scene": "dream", "movable": true },
-        "widestring_058000": { "start": 360448, "end": 360487, "type": "WideString", "movable": true },
+        "dialogstring_058000": { "start": 360448, "end": 360487, "type": "DialogString", "movable": true },
         "gs2B_actor_058027": { "scene": "ship_wreck", "movable": true, "parts": {
             "gs2B_actor_058027": { "start": 360487, "end": 360624, "type": "actor-def" },
             "unk18_0580B0": { "start": 360624, "end": 360762, "type": "camera-keyframe" },
@@ -590,12 +598,12 @@
         } },
         "av69_kara": { "scene": "angel_entrance", "movable": true, "parts": {
             "av69_kara": { "start": 443208, "end": 443266, "type": "actor-def" },
-            "widestring_06C3B1": { "start": 443313, "end": 443415, "type": "WideString" }
+            "dialogstring_06C3B1": { "start": 443313, "end": 443415, "type": "DialogString" }
         } },
         "av6A_kara": { "scene": "angel_annex", "movable": true, "parts": {
             "av6A_kara": { "start": 443266, "end": 443313, "type": "actor-def" },
             "av6A_kara_destroy": { "start": 443264, "end": 443266, "order": 443270, "type": "Code" },
-            "widestring_06C417": { "start": 443415, "end": 443498, "order": 443271, "type": "WideString" }
+            "dialogstring_06C417": { "start": 443415, "end": 443498, "order": 443271, "type": "DialogString" }
         } },
         "av69_erik": { "start": 443498, "end": 443577, "type": "actor-def", "scene": "angel_entrance", "movable": true },
         "av6A_erik": { "scene": "angel_annex", "movable": true, "parts": {
@@ -642,7 +650,7 @@
             "code_09E62F": { "start": 648751, "end": 648779, "type": "Code" },
             "code_09E919": { "start": 649497, "end": 650356, "type": "Code" },
             "table_09EC74": { "start": 650356, "end": 650431, "type": "&Code" },
-            "widestring_09ECBF": { "start": 650431, "end": 652080, "type": "WideString!" },
+            "dialogstring_09ECBF": { "start": 650431, "end": 652080, "type": "DialogString!" },
             "code_09F4AA": { "start": 652458, "end": 652560, "type": "Code" },
             "func_09F69F": { "start": 652959, "end": 652966, "type": "Code" }
         } },
@@ -709,7 +717,7 @@
         "ir29_transform": { "start": 642950, "end": 643115, "type": "actor-def", "scene": "castoth_lair", "movable": true },
         "ir1D_monologue": { "scene": "larai_cliff", "movable": true, "parts": {
             "ir1D_monologue": { "start": 643115, "end": 643317, "type": "actor-def" },
-            "widestring_05F8F7": { "start": 391415, "end": 391580, "order": 643119, "type": "WideString" }
+            "dialogstring_05F8F7": { "start": 391415, "end": 391580, "order": 643119, "type": "DialogString" }
         } },
         "ir26_statue": { "start": 690326, "end": 690398, "type": "actor-def", "scene": "inca_treasure_room", "movable": true },
         "ir20_statue": { "start": 690398, "end": 690481, "type": "actor-def", "scene": "inca_secret_hallway", "movable": true },
@@ -800,7 +808,7 @@
                 "binary_0AFA51": { "start": 719441, "end": 719449, "type": "Binary" },
                 "func_0AFA59": { "start": 719449, "end": 719656, "type": "Code" },
                 "sub_0AFB28": { "start": 719656, "end": 719685, "type": "Code" },
-                "widestring_0AFB45": { "start": 719685, "end": 720166, "type": "WideString" }
+                "dialogstring_0AFB45": { "start": 719685, "end": 720166, "type": "DialogString" }
             }
         }
     },
@@ -810,14 +818,14 @@
         "nvAC_kara": { "scene": "native_village", "movable": true, "parts": {
             "nvAC_kara": { "start": 557143, "end": 557477, "type": "actor-def" },
             "code_0881BE": { "start": 557502, "end": 558406, "type": "Code" },
-            "widestring_0887C6": { "start": 559046, "end": 559196, "type": "WideString" },
+            "dialogstring_0887C6": { "start": 559046, "end": 559196, "type": "DialogString" },
             "code_088A60": { "start": 559712, "end": 559815, "type": "Code" }
         } },
         "nv_actor_0881A5": { "start": 557477, "end": 557502, "type": "Code", "scene": "native_village", "movable": true },
         "nvAC_erik": { "start": 558406, "end": 558681, "type": "actor-def", "scene": "native_village", "movable": true },
         "nvAC_hamlet": { "scene": "native_village", "movable": true, "parts": {
             "nvAC_hamlet": { "start": 558681, "end": 559046, "type": "actor-def" },
-            "widestring_08885C": { "start": 559196, "end": 559712, "type": "WideString" }
+            "dialogstring_08885C": { "start": 559196, "end": 559712, "type": "DialogString" }
         } },
         "nvAD_kara": { "start": 559815, "end": 560031, "type": "actor-def", "scene": "vacant_hut", "movable": true },
         "nvAD_erik": { "start": 560031, "end": 560142, "type": "actor-def", "scene": "vacant_hut", "movable": true },
@@ -933,12 +941,12 @@
         "dc30_kara": { "start": 371358, "end": 371548, "type": "actor-def", "scene": "oakton", "movable": true },
         "dc31_rescuer": { "scene": "oakton_interior", "movable": true, "parts": {
             "dc31_rescuer": { "start": 371548, "end": 372142, "type": "actor-def" },
-            "widestring_05AEA3": { "start": 372387, "end": 372527, "type": "WideString" }
+            "dialogstring_05AEA3": { "start": 372387, "end": 372527, "type": "DialogString" }
         } },
         "dc31_kara": { "scene": "oakton_interior", "movable": true, "parts": {
             "dc31_kara": { "start": 372613, "end": 372766, "type": "actor-def" },
-            "widestring_05ADAE": { "start": 372142, "end": 372387, "order": 372617, "type": "WideString" },
-            "widestring_05AF2F": { "start": 372527, "end": 372613, "order": 372618, "type": "WideString" }
+            "dialogstring_05ADAE": { "start": 372142, "end": 372387, "order": 372617, "type": "DialogString" },
+            "dialogstring_05AF2F": { "start": 372527, "end": 372613, "order": 372618, "type": "DialogString" }
         } },
         "fr32_actor_05B01E": { "start": 372766, "end": 372816, "type": "actor-def", "scene": "freejia", "movable": true },
         "fr32_kara": { "start": 372816, "end": 373141, "type": "actor-def", "scene": "freejia", "movable": true },
@@ -998,29 +1006,29 @@
         "stats_01ABF0": { "start": 109552, "end": 109992, "type": "enemy-stats" },
         "table_01ADA8": { "start": 109992, "end": 110726, "type": "&Binary" },
         "table_01B086": { "start": 110726, "end": 115588, "type": "&delta-node" },
-        "templates_01CA95": { "start": 117397, "end": 117670, "type": "&WideString" },
+        "templates_01CA95": { "start": 117397, "end": 117670, "type": "&DialogString" },
         "parallax_table": { "start": 117760, "end": 119758, "type": "&Binary" },
         "body_table": { "start": 121201, "end": 121255, "type": "body-entry" },
         "table_01D9A7": { "start": 121255, "end": 121279, "type": "&Binary" },
         "table_01D9BF": { "start": 121279, "end": 121304, "type": "&Binary" },
         "system_strings": {
             "parts": {
-                "asciistring_01D9D8": { "start": 121304, "end": 121535, "type": "ASCIIString" },
-                "itemname_table_01DABF": { "start": 121535, "end": 122398, "type": "&ASCIIString" },
-                "itemmenu_table_01DE1E": { "start": 122398, "end": 123178, "type": "&ASCIIString" },
+                "consolestring_01D9D8": { "start": 121304, "end": 121535, "type": "ConsoleString" },
+                "itemname_table_01DABF": { "start": 121535, "end": 122398, "type": "&ConsoleString" },
+                "itemmenu_table_01DE1E": { "start": 122398, "end": 123178, "type": "&ConsoleString" },
                 "binary_01E12A": { "start": 123178, "end": 123186, "type": "Binary" },
-                "itemdesc_table_01E132": { "start": 123186, "end": 124396, "type": "&ASCIIString" },
-                "abilmenu_table_01E5EC": { "start": 124396, "end": 124509, "type": "&ASCIIString" },
-                "abilname_table_01E65D": { "start": 124509, "end": 124636, "type": "&ASCIIString" },
-                "abildesc_table_01E6DC": { "start": 124636, "end": 124878, "type": "&ASCIIString" },
-                "charname_table_01E7CE": { "start": 124878, "end": 125260, "type": "&ASCIIString" },
-                "table_01E94C": { "start": 125260, "end": 125711, "type": "&ASCIIString" }
+                "itemdesc_table_01E132": { "start": 123186, "end": 124396, "type": "&ConsoleString" },
+                "abilmenu_table_01E5EC": { "start": 124396, "end": 124509, "type": "&ConsoleString" },
+                "abilname_table_01E65D": { "start": 124509, "end": 124636, "type": "&ConsoleString" },
+                "abildesc_table_01E6DC": { "start": 124636, "end": 124878, "type": "&ConsoleString" },
+                "charname_table_01E7CE": { "start": 124878, "end": 125260, "type": "&ConsoleString" },
+                "table_01E94C": { "start": 125260, "end": 125711, "type": "&ConsoleString" }
             }
         },
-        "itemcomp_table_01EB0F": { "start": 125711, "end": 125864, "type": "&ASCIIString", "movable": true },
-        "dictionary_01EBA8": { "start": 125864, "end": 128333, "type": "&WideString", "movable": true },
-        "dictionary_01F54D": { "start": 128333, "end": 130340, "type": "&WideString", "movable": true },
-        "itemget_table_01FD24": { "start": 130340, "end": 130924, "type": "&WideString" },
+        "itemcomp_table_01EB0F": { "start": 125711, "end": 125864, "type": "&ConsoleString", "movable": true },
+        "dictionary_01EBA8": { "start": 125864, "end": 128333, "type": "&DialogString", "movable": true },
+        "dictionary_01F54D": { "start": 128333, "end": 130340, "type": "&DialogString", "movable": true },
+        "itemget_table_01FD24": { "start": 130340, "end": 130924, "type": "&DialogString" },
         "scene_actors": { "start": 819200, "end": 845285, "type": "&scene-event", "postProcess": "Extract(1)", "movable": true, "order": -1 },
         "scene_thinkers": { "start": 845285, "end": 846683, "type": "&thinker-spawn", "order": -1 },
         "scene_meta": { "start": 884736, "end": 897023, "type": "scene-meta", "postProcess": "Lookup(0,1)&&Label(label)", "movable": true },
@@ -1044,7 +1052,7 @@
         "table_17D000": { "start": 1560576, "end": 1561584, "type": "&sprite-set" }
     },
     "sky_garden": {
-        "s59_actor_03A0AA": { "start": 237738, "end": 238074, "type": "actor-def", "scene": "garden_crash", "movable": true },
+        "garden_crash_cutscene": { "start": 237738, "end": 238074, "type": "actor-def", "scene": "garden_crash", "movable": true },
         "sg4C_spirits": { "start": 389974, "end": 390337, "type": "actor-def", "scene": "garden_main", "movable": true },
         "sg___hint_spirit": { "start": 390337, "end": 390404, "type": "actor-def", "movable": true },
         "sg4C_platforms": { "start": 390404, "end": 390622, "type": "actor-def", "scene": "garden_main", "movable": true },
@@ -1081,7 +1089,7 @@
         "sg_actors_0ADA52": { "start": 711250, "end": 711480, "type": "Code", "movable": true }
     },
     "angkor_wat": {
-        "sC0_actor_03A1FA": { "start": 238074, "end": 238321, "type": "actor-def", "scene": "future_vision", "movable": true },
+        "future_vision_cutscene": { "start": 238074, "end": 238321, "type": "actor-def", "scene": "future_vision", "movable": true },
         "awB4_actor_0897CB": { "start": 563147, "end": 563168, "type": "actor-def", "scene": "snake_pit", "movable": true },
         "awB0_intro": { "start": 563168, "end": 563294, "type": "actor-def", "scene": "angkor_entrance", "movable": true },
         "awBD_actor_08985E": { "start": 563294, "end": 563400, "type": "actor-def", "movable": true },
@@ -1110,15 +1118,7 @@
         "aw_actor_0BBEE9": { "start": 769769, "end": 769932, "type": "Code", "movable": false }
     },
     "prologue": {
-        "pr8C_proc_03A6BA": { "start": 239290, "end": 239678, "type": "thinker-def", "scene": "prologue_prophecy", "movable": true },
-        "pr_proc_03A83E": { "movable": true, "parts": {
-            "e_pr_proc_03A83E": { "start": 239678, "end": 239750, "type": "Code" },
-            "sub_03A886": { "start": 239750, "end": 239782, "type": "Code" },
-            "sub_03A8A6": { "start": 239782, "end": 239883, "type": "Code" },
-            "sub_03A90B": { "start": 239883, "end": 239922, "type": "Code" },
-            "binary_03A932": { "start": 239922, "end": 239929, "type": "Binary" },
-            "binary_03A939": { "start": 239929, "end": 239936, "type": "Binary" }
-        } },
+        "IrisCircleEffect": { "start": 239290, "end": 239678, "type": "thinker-def", "scene": "prologue_prophecy", "movable": true },
         "pr8C_prologue1": { "scene": "prologue_prophecy", "movable": true, "parts": {
             "pr8C_prologue1": { "start": 772610, "end": 772942, "type": "actor-def" },
             "spritestring_0BD044": { "start": 774212, "end": 774322, "type": "SpriteString" }
@@ -1261,7 +1261,7 @@
             "scene": "wall_inner",
             "parts": {
                 "gw8B_lance": { "start": 505715, "end": 505892, "type": "actor-def" },
-                "widestring_07B824": { "start": 505892, "end": 506557, "type": "WideString" },
+                "dialogstring_07B824": { "start": 505892, "end": 506557, "type": "DialogString" },
                 "e_gw8B_lily": { "start": 506557, "end": 507112, "type": "Code" }
             }
         },
@@ -1330,7 +1330,7 @@
         "pyCC_actor_08B668": { "start": 570984, "end": 571042, "type": "actor-def", "scene": "pyramid_main", "movable": true },
         "pyCC_entrance_portal": { "scene": "pyramid_main", "movable": true, "parts": {
             "pyCC_entrance_portal": { "start": 571042, "end": 571124, "type": "actor-def" },
-            "widestring_08B70D": { "start": 571149, "end": 571213, "type": "WideString" }
+            "dialogstring_08B70D": { "start": 571149, "end": 571213, "type": "DialogString" }
         } },
         "py_actor_08B6F4": { "start": 571124, "end": 571149, "type": "actor-def", "movable": true },
         "pyCD_flame_statue": { "start": 571213, "end": 571368, "type": "actor-def", "scene": "puzzle_room", "movable": true },

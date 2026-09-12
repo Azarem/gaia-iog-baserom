@@ -41,7 +41,7 @@ mu63_spirits [
     COP [WaitByte] ( #77 )
     COP [SpawnAfterAbsFlags] ( @code_069BDA, #$00B0, #$00C8, #$1800 )
     COP [WaitByte] ( #77 )
-    COP [PrintWideString] ( &widestring_069BAA )
+    COP [PrintDialogString] ( &dialogstring_069BAA )
     COP [PlaySoundBoth] ( #$2525 )
     COP [WaitByte] ( #3B )
     COP [SetFlagByte] ( #02 )
@@ -97,7 +97,7 @@ code_069AC1 {
     COP [WaitByte] ( #77 )
     COP [SpawnAfterAbsFlags] ( @code_069BDA, #$01B0, #$00C8, #$1800 )
     COP [WaitByte] ( #77 )
-    COP [PrintWideString] ( &widestring_069BAA )
+    COP [PrintDialogString] ( &dialogstring_069BAA )
     COP [PlaySoundBoth] ( #$2525 )
     COP [WaitByte] ( #3B )
     COP [SetFlagByte] ( #02 )
@@ -115,7 +115,7 @@ code_069B9D {
     COP [Die]
 }
 
-widestring_069BAA `[TPL:A]The Sun god...[N]Rama...[FIN]The ocean holds[N]a power...[END]`
+dialogstring_069BAA `[TPL:A]The Sun god...[N]Rama...[FIN]The ocean holds[N]a power...[END]`
 
 code_069BDA {
     COP [SetSpritePriority] ( #30 )

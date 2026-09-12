@@ -18,8 +18,8 @@ h_ec10_dp_hint_spirit [
 ]
 
 code_04D69A {
-    COP [PrintWideString] ( &widestring_04D69F )
+    COP [PrintDialogString] ( &dialogstring_04D69F )
     RTL 
 }
 
-widestring_04D69F `[DEF]敵をたおしたときに あらわれる[N]銀色にきらめく ヤミの玉.[FIN]これを 100コ 集めれば[N]いのちのもとが ーつふえる···[FIN]たとえ 敵にやられても[N]遠くはなれた場所まで もどることは[N]なくなるのだ···[END]`
+dialogstring_04D69F `[DEF]敵をたおしたときに あらわれる[N]銀色にきらめく ヤミの玉.[FIN]これを 100コ 集めれば[N]いのちのもとが ーつふえる···[FIN]たとえ 敵にやられても[N]遠くはなれた場所まで もどることは[N]なくなるのだ···[END]`

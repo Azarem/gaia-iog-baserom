@@ -40,7 +40,7 @@ code_06B51F {
     LDA #$CFF0
     TSB $joypadMaskStd
     COP [WaitByte] ( #1D )
-    COP [PrintWideString] ( &widestring_06B606 )
+    COP [PrintDialogString] ( &dialogstring_06B606 )
     COP [StageSpriteLoopMoveX] ( #28, #02, #12 )
     COP [AnimLoop]
     COP [StageSpriteLoop] ( #24, #28 )
@@ -49,11 +49,11 @@ code_06B51F {
     COP [AnimLoop]
     COP [StageSpriteLoop] ( #24, #1E )
     COP [AnimLoop]
-    COP [PrintWideString] ( &widestring_06B661 )
+    COP [PrintDialogString] ( &dialogstring_06B661 )
     LDA #$0003
     JSL $@InitPlayerScriptVariant
     COP [SetEntryExit]
-    COP [PrintWideString] ( &widestring_06B67B )
+    COP [PrintDialogString] ( &dialogstring_06B67B )
     INC $0AA6
     LDA #$0404
     STA $gfxCacheIdxB
@@ -69,14 +69,14 @@ code_06B571 {
 }
 
 code_06B578 {
-    COP [PrintWideString] ( &widestring_06B57D )
+    COP [PrintDialogString] ( &dialogstring_06B57D )
     RTL 
 }
 
-widestring_06B57D `[TPL:B][TPL:2]Lilly:[N]People are strange...[FIN]I am afraid the longer [N]we travel in this tunnel, [N]the easier it will be to [N]forget why we are here. [FIN]Maybe all ancient [N]people were that way.[PAL:0][END]`
+dialogstring_06B57D `[TPL:B][TPL:2]Lilly:[N]People are strange...[FIN]I am afraid the longer [N]we travel in this tunnel, [N]the easier it will be to [N]forget why we are here. [FIN]Maybe all ancient [N]people were that way.[PAL:0][END]`
 
-widestring_06B606 `[TPL:A][TPL:0]Eighth day in the [N]tunnel.[FIN]Unable to sleep. [N]I stared at an  [N]underground river.....[PAL:0][END]`
+dialogstring_06B606 `[TPL:A][TPL:0]Eighth day in the [N]tunnel.[FIN]Unable to sleep. [N]I stared at an  [N]underground river.....[PAL:0][END]`
 
-widestring_06B661 `[TPL:A][TPL:2]Lilly:[N]Can't sleep?[PAL:0][END]`
+dialogstring_06B661 `[TPL:A][TPL:2]Lilly:[N]Can't sleep?[PAL:0][END]`
 
-widestring_06B67B `[PAU:1E][TPL:B][TPL:0]Will: No. [N]I'm looking for more [N]mushrooms, just kidding. [FIN][TPL:2]Lilly: Will. [N]You've changed during [N]this journey. [FIN]Somehow you've [N]grown up. [FIN][TPL:0]Will: [N]I don't understand it [N]myself, but.... [FIN]I can use some strange[N]power, and my body has[N]changed to the body[N]of a warrior.[FIN]The change seems to [N]have started when my [N]father went to the [N]Tower of Babel. [FIN]I'm just starting to[N]understand that power.[FIN]Why did you join this[N]dangerous expedition?[FIN][TPL:2]Lilly: At first it was [N]just for fun. But now [N]it's a secret. Heh heh. [FIN]We will walk all day [N]again tomorrow... [N]Let's get some sleep...[PAL:0][END]`
+dialogstring_06B67B `[PAU:1E][TPL:B][TPL:0]Will: No. [N]I'm looking for more [N]mushrooms, just kidding. [FIN][TPL:2]Lilly: Will. [N]You've changed during [N]this journey. [FIN]Somehow you've [N]grown up. [FIN][TPL:0]Will: [N]I don't understand it [N]myself, but.... [FIN]I can use some strange[N]power, and my body has[N]changed to the body[N]of a warrior.[FIN]The change seems to [N]have started when my [N]father went to the [N]Tower of Babel. [FIN]I'm just starting to[N]understand that power.[FIN]Why did you join this[N]dangerous expedition?[FIN][TPL:2]Lilly: At first it was [N]just for fun. But now [N]it's a secret. Heh heh. [FIN]We will walk all day [N]again tomorrow... [N]Let's get some sleep...[PAL:0][END]`

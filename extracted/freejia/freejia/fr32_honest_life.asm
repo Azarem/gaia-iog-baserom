@@ -14,8 +14,8 @@ fr32_honest_life [
 ]
 
 code_05BE1F {
-    COP [PrintWideString] ( &widestring_05BE24 )
+    COP [PrintDialogString] ( &dialogstring_05BE24 )
     RTL 
 }
 
-widestring_05BE24 `[DEF]A life lived[N]honestly. A life[N]of fun and laughter.[END]`
+dialogstring_05BE24 `[DEF]A life lived[N]honestly. A life[N]of fun and laughter.[END]`

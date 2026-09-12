@@ -14,8 +14,8 @@ ir28_bones [
 ]
 
 code_09C8AE {
-    COP [PrintWideString] ( &widestring_09C8B3 )
+    COP [PrintDialogString] ( &dialogstring_09C8B3 )
     RTL 
 }
 
-widestring_09C8B3 `[DEF][TPL:0]An explorer who sought [N]the Incan Gold Ship...? [FIN]He lost his life in [N]a trap... [END]`
+dialogstring_09C8B3 `[DEF][TPL:0]An explorer who sought [N]the Incan Gold Ship...? [FIN]He lost his life in [N]a trap... [END]`

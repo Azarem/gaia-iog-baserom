@@ -18,7 +18,7 @@ sE9_mansion_intro [
     LDA #$EFF0
     TSB $joypadMaskStd
     COP [WaitByte] ( #1D )
-    COP [PrintWideString] ( &widestring_08FCBE )
+    COP [PrintDialogString] ( &dialogstring_08FCBE )
     LDA #$EFF0
     TRB $joypadMaskStd
 } >
@@ -43,4 +43,4 @@ code_08FCA6 {
     COP [Die]
 }
 
-widestring_08FCBE `[TPL:A][TPL:0]When I awoke, I was [N]standing in the entrance[N]to a strange mansion.[PAL:0][END]`
+dialogstring_08FCBE `[TPL:A][TPL:0]When I awoke, I was [N]standing in the entrance[N]to a strange mansion.[PAL:0][END]`

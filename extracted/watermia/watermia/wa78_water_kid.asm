@@ -35,8 +35,8 @@ code_list_0784C8 [
 ]
 
 code_0784CA {
-    COP [PrintWideString] ( &widestring_0784CF )
+    COP [PrintDialogString] ( &dialogstring_0784CF )
     RTL 
 }
 
-widestring_0784CF `[DEF][SFX:10]Child:[N]We drink this water,[N]cook with it,[N]wash with it.[END]`
+dialogstring_0784CF `[DEF][SFX:10]Child:[N]We drink this water,[N]cook with it,[N]wash with it.[END]`

@@ -21,7 +21,7 @@ ec13_lily [
     LDA #$CFF0
     TSB $joypadMaskStd
     COP [WaitByte] ( #1D )
-    COP [PrintWideString] ( &widestring_09C06C )
+    COP [PrintDialogString] ( &dialogstring_09C06C )
     LDA #$CFF0
     TRB $joypadMaskStd
     LDY $playerActor
@@ -45,10 +45,10 @@ code_09BFE1 {
     COP [SetFlagByte] ( #3A )
     LDA #$CFF0
     TSB $joypadMaskStd
-    COP [PrintWideString] ( &widestring_09C0A8 )
+    COP [PrintDialogString] ( &dialogstring_09C0A8 )
     COP [PlaySoundBoth] ( #$1616 )
     COP [WaitByte] ( #EF )
-    COP [PrintWideString] ( &widestring_09C226 )
+    COP [PrintDialogString] ( &dialogstring_09C226 )
     COP [WaitByte] ( #3B )
     COP [StageSpriteLoop] ( #24, #04 )
     COP [AnimLoop]
@@ -77,7 +77,7 @@ code_09C037 {
     LDA #$CFF0
     TSB $joypadMaskStd
     COP [WaitByte] ( #1D )
-    COP [PrintWideString] ( &widestring_09C06C )
+    COP [PrintDialogString] ( &dialogstring_09C06C )
     LDA #$CFF0
     TRB $joypadMaskStd
     LDY $playerActor
@@ -94,8 +94,8 @@ code_09C037 {
     COP [Die]
 }
 
-widestring_09C06C `[TPL:B]When the enemies are [N]destroyed,[N]Will can return to[N]his original shape...[END]`
+dialogstring_09C06C `[TPL:B]When the enemies are [N]destroyed,[N]Will can return to[N]his original shape...[END]`
 
-widestring_09C0A8 `[DEF][TPL:2]Girl: I saw you!![N]But I'm surprised![N]You can change[N]your shape like me![FIN]I'm Lilly. An Itory [N]girl protected by [N]the Flower Spirit. [FIN]How... How do you know[N]a melody you could only[N]have heard from us?[FIN][TPL:0]Will: I learned it [N]from Grandma Lola. [N]She hummed it whenever [N]she was upset. [FIN][TPL:2]Lilly: I have had [N]some of her pie. It [N]tastes rather unusual,[N]doesn't it? [FIN][TPL:0]Will: You know  [N]my grandmother?! [FIN][TPL:2]Lilly: Actually,[N]she asked me to[N]rescue you![PAL:0][END]`
+dialogstring_09C0A8 `[DEF][TPL:2]Girl: I saw you!![N]But I'm surprised![N]You can change[N]your shape like me![FIN]I'm Lilly. An Itory [N]girl protected by [N]the Flower Spirit. [FIN]How... How do you know[N]a melody you could only[N]have heard from us?[FIN][TPL:0]Will: I learned it [N]from Grandma Lola. [N]She hummed it whenever [N]she was upset. [FIN][TPL:2]Lilly: I have had [N]some of her pie. It [N]tastes rather unusual,[N]doesn't it? [FIN][TPL:0]Will: You know  [N]my grandmother?! [FIN][TPL:2]Lilly: Actually,[N]she asked me to[N]rescue you![PAL:0][END]`
 
-widestring_09C226 `[DEF][TPL:2]Lilly:[N]The Elder is calling...[N]I have to go.[FIN]Lilly: [N]We'll meet again! [N]Goodbye, Will![PAL:0][END]`
+dialogstring_09C226 `[DEF][TPL:2]Lilly:[N]The Elder is calling...[N]I have to go.[FIN]Lilly: [N]We'll meet again! [N]Goodbye, Will![PAL:0][END]`

@@ -56,11 +56,11 @@ code_04AD08 {
 }
 
 code_04AD0B {
-    COP [PrintWideString] ( &widestring_04AD1A )
+    COP [PrintDialogString] ( &dialogstring_04AD1A )
     COP [SetFlagByte] ( #08 )
     LDA #$CFF0
     TSB $joypadMaskStd
     COP [Die]
 }
 
-widestring_04AD1A `[DLG:3,6][SIZ:D,3,0]テムは カードを 拾いあげた.[FIN]それは まぎれもなく[N]ダイヤのエースだった!![END]`
+dialogstring_04AD1A `[DLG:3,6][SIZ:D,3,0]テムは カードを 拾いあげた.[FIN]それは まぎれもなく[N]ダイヤのエースだった!![END]`

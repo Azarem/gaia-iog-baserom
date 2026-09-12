@@ -28,7 +28,7 @@ code_04A47B {
     LDA #$0000
     STA $cgramPalette
     COP [WaitByte] ( #77 )
-    COP [PrintWideString] ( &widestring_04A4CC )
+    COP [PrintDialogString] ( &dialogstring_04A4CC )
     COP [SetFlagByte] ( #1C )
     LDA #$0404
     STA $gfxCacheIdxB
@@ -44,7 +44,7 @@ code_04A4B4 {
     TSB $joypadMaskStd
     COP [WaitByte] ( #3B )
     COP [SetFlagByte] ( #1D )
-    COP [PrintWideString] ( &widestring_04A582 )
+    COP [PrintDialogString] ( &dialogstring_04A582 )
     LDA #$CFF0
     TRB $joypadMaskStd
 }
@@ -53,6 +53,6 @@ code_04A4CA {
     COP [Die]
 }
 
-widestring_04A4CC `[DLG:3,B][SIZ:D,3][TPL:0]Will: We sat down to[N]a feast of snail pie...[N]with whipped cream![FIN]I only got one piece,[N]but Grandpa Bill ate[N]half the pie.[FIN]That night Will dreamed[N]that Kara and he took a[N]trip around the world...[PAL:0][END]`
+dialogstring_04A4CC `[DLG:3,B][SIZ:D,3][TPL:0]Will: We sat down to[N]a feast of snail pie...[N]with whipped cream![FIN]I only got one piece,[N]but Grandpa Bill ate[N]half the pie.[FIN]That night Will dreamed[N]that Kara and he took a[N]trip around the world...[PAL:0][END]`
 
-widestring_04A582 `[DLG:3,11][SIZ:D,3]And the next morning[N]something began to[N]happen...[END]`
+dialogstring_04A582 `[DLG:3,11][SIZ:D,3]And the next morning[N]something began to[N]happen...[END]`

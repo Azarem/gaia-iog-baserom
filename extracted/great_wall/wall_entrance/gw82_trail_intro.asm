@@ -11,7 +11,7 @@ gw82_trail_intro [
     LDA #$CFF0
     TSB $joypadMaskStd
     COP [WaitByte] ( #1D )
-    COP [PrintWideString] ( &widestring_07B550 )
+    COP [PrintDialogString] ( &dialogstring_07B550 )
     LDA #$CFF0
     TRB $joypadMaskStd
 } >
@@ -21,4 +21,4 @@ code_07B54E {
     COP [Die]
 }
 
-widestring_07B550 `[TPL:9][TPL:0]I followed Lance's trail [N]to the Great Wall. [FIN]A corridor stretched[N]to the distant horizon.[END]`
+dialogstring_07B550 `[TPL:9][TPL:0]I followed Lance's trail [N]to the Great Wall. [FIN]A corridor stretched[N]to the distant horizon.[END]`

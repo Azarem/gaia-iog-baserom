@@ -13,8 +13,8 @@ ec0A_caring_maid [
 ]
 
 code_04C8F6 {
-    COP [PrintWideString] ( &widestring_04C8FB )
+    COP [PrintDialogString] ( &dialogstring_04C8FB )
     RTL 
 }
 
-widestring_04C8FB `[TPL:B]Well, he's[N]shy...[FIN]I'm glad that somewhere[N]in the world there is[N]someone who is[N]thinking of me.[END]`
+dialogstring_04C8FB `[TPL:B]Well, he's[N]shy...[FIN]I'm glad that somewhere[N]in the world there is[N]someone who is[N]thinking of me.[END]`

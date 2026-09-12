@@ -27,18 +27,18 @@ dm47_remus [
 ]
 
 code_05D189 {
-    COP [PrintWideString] ( &widestring_05D193 )
+    COP [PrintDialogString] ( &dialogstring_05D193 )
     RTL 
 }
 
 code_05D18E {
-    COP [PrintWideString] ( &widestring_05D1AE )
+    COP [PrintDialogString] ( &dialogstring_05D1AE )
     RTL 
 }
 
-widestring_05D193 `[DEF][TPL:5]Remus:[N]Cut the chain![PAL:0][END]`
+dialogstring_05D193 `[DEF][TPL:5]Remus:[N]Cut the chain![PAL:0][END]`
 
-widestring_05D1AE `[DEF][TPL:5]Remus: Thank you. Our [N]home village is far  [N]across the ocean. [FIN]If you could go there,[N]help the villagers to[N]regain their strength.[PAL:0][END]`
+dialogstring_05D1AE `[DEF][TPL:5]Remus: Thank you. Our [N]home village is far  [N]across the ocean. [FIN]If you could go there,[N]help the villagers to[N]regain their strength.[PAL:0][END]`
 ---------------------------------------------
 
 dm47_remus_destroy {

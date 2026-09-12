@@ -25,7 +25,7 @@ code_09BDCB {
     LDA #$CFF0
     TSB $joypadMaskStd
     COP [WaitByte] ( #1D )
-    COP [PrintWideString] ( &widestring_09BE70 )
+    COP [PrintDialogString] ( &dialogstring_09BE70 )
     COP [StartMusic] ( #1B )
     COP [WaitByte] ( #3B )
     LDA #$CFF0
@@ -70,7 +70,7 @@ code_09BDCB {
     JSL $@oam_digit_compose.ComposeDigitSprites
     COP [LoopNext]
     COP [ClearFlagByte] ( #01 )
-    COP [PrintWideString] ( &ec11_button_voice.widestring_09BD58 )
+    COP [PrintDialogString] ( &ec11_button_voice.dialogstring_09BD58 )
 }
 
 code_09BE67 {
@@ -83,7 +83,7 @@ code_09BE6D {
     RTL 
 }
 
-widestring_09BE70 `[TPL:B][TPL:2][::]Strange Voice: The door [N]won't open unless you [N]push this switch on [N]the count of three. [FIN]When I shout, push [N]the switch. [FIN]I'll count 1, 2, 3.[N]Don't make a mistake.[END]`
+dialogstring_09BE70 `[TPL:B][TPL:2][::]Strange Voice: The door [N]won't open unless you [N]push this switch on [N]the count of three. [FIN]When I shout, push [N]the switch. [FIN]I'll count 1, 2, 3.[N]Don't make a mistake.[END]`
 
 code_09BEFC {
     LDA $playerXPos

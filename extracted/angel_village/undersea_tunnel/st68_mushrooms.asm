@@ -26,7 +26,7 @@ code_06B855 {
 }
 
 code_06B863 {
-    COP [PrintWideString] ( &widestring_06B86E )
+    COP [PrintDialogString] ( &dialogstring_06B86E )
     COP [ClearLowHere]
     COP [SetFlagByte] ( #02 )
 }
@@ -35,4 +35,4 @@ code_06B86C {
     COP [Die]
 }
 
-widestring_06B86E `[TPL:A][TPL:0]These mushrooms grow all[N]over in the tunnel.[N]It's our only food.[FIN]Yesterday baked[N]mushroom.[FIN]The day before,[N]boiled mushroom.[FIN]Before that, raw.[N]Awfully tasteless...[FIN]We can't ask too much. [N]I'll do it to live. [N]We have to eat...[PAL:0][END]`
+dialogstring_06B86E `[TPL:A][TPL:0]These mushrooms grow all[N]over in the tunnel.[N]It's our only food.[FIN]Yesterday baked[N]mushroom.[FIN]The day before,[N]boiled mushroom.[FIN]Before that, raw.[N]Awfully tasteless...[FIN]We can't ask too much. [N]I'll do it to live. [N]We have to eat...[PAL:0][END]`

@@ -12,8 +12,8 @@ sc01_sprint_man [
 ]
 
 code_049238 {
-    COP [PrintWideString] ( &widestring_04923D )
+    COP [PrintDialogString] ( &dialogstring_04923D )
     RTL 
 }
 
-widestring_04923D `[DEF]You look like a fast[N]runner. To run, push the[N]Control Pad twice.[END]`
+dialogstring_04923D `[DEF]You look like a fast[N]runner. To run, push the[N]Control Pad twice.[END]`

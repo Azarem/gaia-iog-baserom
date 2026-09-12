@@ -31,7 +31,7 @@ code_088EC0 {
 }
 
 code_088EC2 {
-    COP [PrintWideString] ( &widestring_088EDC )
+    COP [PrintDialogString] ( &dialogstring_088EDC )
     COP [DialogueOptions] ( #02, #01, &code_list_088ECC )
 }
 
@@ -42,20 +42,20 @@ code_list_088ECC [
 ]
 
 code_088ED2 {
-    COP [PrintWideString] ( &widestring_088F71 )
+    COP [PrintDialogString] ( &dialogstring_088F71 )
     RTL 
 }
 
 code_088ED7 {
-    COP [PrintWideString] ( &widestring_088F15 )
+    COP [PrintDialogString] ( &dialogstring_088F15 )
     RTL 
 }
 
-widestring_088EDC `[TPL:E]The man looks deeply [N]into Will's eyes. [FIN]Stare back?[N] Yes[N] No`
+dialogstring_088EDC `[TPL:E]The man looks deeply [N]into Will's eyes. [FIN]Stare back?[N] Yes[N] No`
 
-widestring_088F15 `[CLR]The man seems to look [N]right into your heart... [FIN]We don't understand each[N]other's language, but[N]a seed has sprouted...[PAL:0][END]`
+dialogstring_088F15 `[CLR]The man seems to look [N]right into your heart... [FIN]We don't understand each[N]other's language, but[N]a seed has sprouted...[PAL:0][END]`
 
-widestring_088F71 `[CLR]The man looked lonely...[PAL:0][END]`
+dialogstring_088F71 `[CLR]The man looked lonely...[PAL:0][END]`
 ---------------------------------------------
 
 nvAC_staring_man2 [

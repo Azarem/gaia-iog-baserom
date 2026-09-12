@@ -17,11 +17,11 @@ na49_wings [
 ]
 
 code_05E40B {
-    COP [PrintWideString] ( &widestring_05E419 )
+    COP [PrintDialogString] ( &dialogstring_05E419 )
     LDA $0AA6
     ORA #$0002
     STA $0AA6
     RTL 
 }
 
-widestring_05E419 `[TPL:B][TPL:6]Neil: Those are [N]airplane wings. [FIN]It's part of a machine[N]that will fulfill man's[N]dream of flying in the[N]air like a bird.[FIN]The body's too big, and[N]you need a runway to[N]take off, so it's[N]hidden in the desert.[PAL:0][END]`
+dialogstring_05E419 `[TPL:B][TPL:6]Neil: Those are [N]airplane wings. [FIN]It's part of a machine[N]that will fulfill man's[N]dream of flying in the[N]air like a bird.[FIN]The body's too big, and[N]you need a runway to[N]take off, so it's[N]hidden in the desert.[PAL:0][END]`

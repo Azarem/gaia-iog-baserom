@@ -50,7 +50,7 @@ references between them:
 
 | Current Part | Proposed Name |
 |-------------|---------------|
-| `func_038000` | `OverworldInputHandler` |
+| `func_038000` | `GlobalInputHandler` |
 
 **Cross-references OUT:**
 - `JSR` to `RadarScreenSetup` (Split B)
@@ -83,7 +83,7 @@ the entry contract clear.
 - `JSL` to external: `VBlankWait`, `ClearVramBuffer`, `TestEventFlag`, `TestFlag`
 
 **Cross-references IN:**
-- `JSR` from `OverworldInputHandler` (Split A only — 2 calls)
+- `JSR` from `GlobalInputHandler` (Split A only — 2 calls)
 
 **Rationale:** The radar system is completely self-contained. No item handlers
 or utilities reference it. Only the input handler calls into it. This is the
@@ -109,7 +109,7 @@ utilities.
 - `JSL` to `chunk_03BAE1`: `func_03E1D6` (music actor), `func_03EF97` (plate exchange)
 
 **Cross-references IN:**
-- `JMP` from `OverworldInputHandler` (Split A only — 1 call)
+- `JMP` from `GlobalInputHandler` (Split A only — 1 call)
 
 **Rationale:** The item handlers form a tightly coupled web: the dispatch
 table points to all 41 handlers, the flute controller dispatches to 3
@@ -121,13 +121,13 @@ would create dozens of cross-references with no benefit.
 
 ```
                   ┌──────────────────────────┐
-                  │  system_core (external)   │
+                  │  system_core (external)  │
                   └──────────┬───────────────┘
                              │ JSL (1 call)
                              ▼
               ┌─────────────────────────────────┐
-              │  Split A: overworld_input_handler│
-              │  (OverworldInputHandler)         │
+              │ Split A: overworld_input_handler│
+              │  (GlobalInputHandler)           │
               └──┬──────────────────┬───────────┘
          JSR (2) │                  │ JMP (1)
                  ▼                  ▼
@@ -149,7 +149,7 @@ would create dozens of cross-references with no benefit.
 
 | Address | Current Name | Proposed Name |
 |---------|-------------|---------------|
-| `$038000` | `func_038000` | `OverworldInputHandler` |
+| `$038000` | `func_038000` | `GlobalInputHandler` |
 
 ### Radar Map Screen (Split B)
 
@@ -270,8 +270,8 @@ Nearly every placement/key item follows the same structure:
 ```
 1. LDA $sceneCurrent / CMP #$xxxx / BNE fail
 2. COP [BranchIfPlayerInAbsTiles] (x1, y1, x2, y2, &success)
-3. fail: COP [PrintWideString] (&fail_msg) / RTS
-4. success: COP [PrintWideString] (&ok_msg) / COP [RemoveItem] / COP [SetFlagByte] / RTS
+3. fail: COP [PrintDialogString] (&fail_msg) / RTS
+4. success: COP [PrintDialogString] (&ok_msg) / COP [RemoveItem] / COP [SetFlagByte] / RTS
 ```
 
 This could potentially be refactored into a generic handler with a data

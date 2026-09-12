@@ -22,8 +22,8 @@ code_04906E {
 }
 
 code_049076 {
-    COP [PrintWideString] ( &widestring_04907B )
+    COP [PrintDialogString] ( &dialogstring_04907B )
     RTL 
 }
 
-widestring_04907B `[DEF]Erik's mother: Don't[N]worry, I'm not on fire.[N]It's just a treatment[N]for my sore body.[FIN]Cleaning this big house[N]all day makes my[N]brain ache...[END]`
+dialogstring_04907B `[DEF]Erik's mother: Don't[N]worry, I'm not on fire.[N]It's just a treatment[N]for my sore body.[FIN]Cleaning this big house[N]all day makes my[N]brain ache...[END]`

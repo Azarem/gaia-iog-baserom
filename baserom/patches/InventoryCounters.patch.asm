@@ -125,7 +125,7 @@ push_number_sprite {
 
 InventoryMenuInit! {
     COP [88] ( @inventory_spritemap )
-    COP [BD] ( @asciistring_01E869 )
+    COP [BD] ( @consolestring_01E869 )
     LDA #$1000
     TSB $06EE
     JSR generate_number_sprites

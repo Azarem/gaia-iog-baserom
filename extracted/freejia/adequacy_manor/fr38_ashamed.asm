@@ -12,8 +12,8 @@ fr38_ashamed [
 ]
 
 code_05BA5D {
-    COP [PrintWideString] ( &widestring_05BA62 )
+    COP [PrintDialogString] ( &dialogstring_05BA62 )
     RTL 
 }
 
-widestring_05BA62 `[TPL:A]The upstairs is a mess...[N]I'm ashamed...[END]`
+dialogstring_05BA62 `[TPL:A]The upstairs is a mess...[N]I'm ashamed...[END]`

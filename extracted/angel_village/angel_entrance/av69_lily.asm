@@ -16,12 +16,12 @@ av69_lily [
     COP [AnimOnce]
     COP [StageSpriteFrame] ( #22 )
     COP [AnimOnce]
-    COP [PrintWideString] ( &widestring_06C224 )
+    COP [PrintDialogString] ( &dialogstring_06C224 )
     COP [SetFlagByte] ( #02 )
     COP [ExitIfFlagByte] ( #03, #01 )
     COP [StageSpriteFrame] ( #24 )
     COP [AnimOnce]
-    COP [PrintWideString] ( &widestring_06C23C )
+    COP [PrintDialogString] ( &dialogstring_06C23C )
     COP [SetFlagByte] ( #04 )
     COP [LoopInit] ( #02 )
     COP [StageSpriteLoop] ( #24, #04 )
@@ -47,6 +47,6 @@ av69_lily_destroy {
     COP [Die]
 }
 
-widestring_06C224 `[TPL:A][TPL:2]Lilly: [N]Will, let's go. [END]`
+dialogstring_06C224 `[TPL:A][TPL:2]Lilly: [N]Will, let's go. [END]`
 
-widestring_06C23C `[TPL:A][TPL:2]Lilly: Why are[N]you so grouchy...[FIN][TPL:4]Lance: [N]Maybe she's just tired. [N]Let her be for now.[PAL:0][END]`
+dialogstring_06C23C `[TPL:A][TPL:2]Lilly: Why are[N]you so grouchy...[FIN][TPL:4]Lance: [N]Maybe she's just tired. [N]Let her be for now.[PAL:0][END]`

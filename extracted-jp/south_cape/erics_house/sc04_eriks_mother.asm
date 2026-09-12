@@ -22,8 +22,8 @@ code_048F61 {
 }
 
 code_048F69 {
-    COP [PrintWideString] ( &widestring_048F6E )
+    COP [PrintDialogString] ( &dialogstring_048F6E )
     RTL 
 }
 
-widestring_048F6E `[DEF]エリックの母:[N]别に せなかに 火がついている[N]わけじゃないんだよ(芺)[N]これは おきゅうっていうのさ.[FIN]大きな家だと そうじをするだけで[N]かたがこって しょうがないよ···[END]`
+dialogstring_048F6E `[DEF]エリックの母:[N]别に せなかに 火がついている[N]わけじゃないんだよ(芺)[N]これは おきゅうっていうのさ.[FIN]大きな家だと そうじをするだけで[N]かたがこって しょうがないよ···[END]`

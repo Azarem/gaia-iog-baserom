@@ -28,7 +28,7 @@ code_05B87E {
 }
 
 code_05B880 {
-    COP [PrintWideString] ( &widestring_05B8CD )
+    COP [PrintDialogString] ( &dialogstring_05B8CD )
     COP [DialogueOptions] ( #02, #02, &code_list_05B88A )
 }
 
@@ -39,12 +39,12 @@ code_list_05B88A [
 ]
 
 code_05B890 {
-    COP [PrintWideString] ( &widestring_05B8F1 )
+    COP [PrintDialogString] ( &dialogstring_05B8F1 )
     RTL 
 }
 
 code_05B895 {
-    COP [PrintWideString] ( &widestring_05B90C )
+    COP [PrintDialogString] ( &dialogstring_05B90C )
     COP [DialogueOptions] ( #02, #02, &code_list_05B89F )
 }
 
@@ -55,19 +55,19 @@ code_list_05B89F [
 ]
 
 code_05B8A5 {
-    COP [PrintWideString] ( &widestring_05B9AF+M )
+    COP [PrintDialogString] ( &dialogstring_05B9AF+M )
     RTL 
 }
 
 code_05B8AA {
     COP [BranchIfFlagByte] ( #59, #01, &code_05B8B5 )
-    COP [PrintWideString] ( &widestring_05B9AF )
+    COP [PrintDialogString] ( &dialogstring_05B9AF )
     RTL 
 }
 
 code_05B8B5 {
     COP [GiveItem] ( #01, &code_05B8C8 )
-    COP [PrintWideString] ( &widestring_05B94D )
+    COP [PrintDialogString] ( &dialogstring_05B94D )
     COP [SetFlagByte] ( #5A )
     LDA #$EFF0
     TSB $joypadMaskStd
@@ -75,18 +75,18 @@ code_05B8B5 {
 }
 
 code_05B8C8 {
-    COP [PrintWideString] ( &widestring_05B9EE )
+    COP [PrintDialogString] ( &dialogstring_05B9EE )
     RTL 
 }
 
-widestring_05B8CD `[DEF]A laborer escaped.[N]Have you seen him?[N] Yes[N] No`
+dialogstring_05B8CD `[DEF]A laborer escaped.[N]Have you seen him?[N] Yes[N] No`
 
-widestring_05B8F1 `[CLR]Hmm.[N]Tell me if you see him.[END]`
+dialogstring_05B8F1 `[CLR]Hmm.[N]Tell me if you see him.[END]`
 
-widestring_05B90C `[CLR]Tell me where and I'll[N]give you this Red Jewel.[N] Tell location.[N] Laugh and lie.`
+dialogstring_05B90C `[CLR]Tell me where and I'll[N]give you this Red Jewel.[N] Tell location.[N] Laugh and lie.`
 
-widestring_05B94D `[CLR]Will tells where the [N]laborer is hiding. [FIN]Man: Thank you.[N]Here's a present.[N]Please accept it.[FIN]Will gets a Red Jewel. [END]`
+dialogstring_05B94D `[CLR]Will tells where the [N]laborer is hiding. [FIN]Man: Thank you.[N]Here's a present.[N]Please accept it.[FIN]Will gets a Red Jewel. [END]`
 
-widestring_05B9AF `[CLR]But Will doesn't know [N]where the laborer is. [FIN][::][CLR]Man:[N]Hey! Don't play[N]jokes on an adult!![END]`
+dialogstring_05B9AF `[CLR]But Will doesn't know [N]where the laborer is. [FIN][::][CLR]Man:[N]Hey! Don't play[N]jokes on an adult!![END]`
 
-widestring_05B9EE `[CLR]Man:[N]Is your inventory full?[N]Too bad...[END]`
+dialogstring_05B9EE `[CLR]Man:[N]Is your inventory full?[N]Too bad...[END]`

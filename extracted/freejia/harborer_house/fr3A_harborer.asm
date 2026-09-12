@@ -17,8 +17,8 @@ code_05BC68 {
 }
 
 code_05BC6A {
-    COP [PrintWideString] ( &widestring_05BC6F )
+    COP [PrintDialogString] ( &dialogstring_05BC6F )
     RTL 
 }
 
-widestring_05BC6F `[TPL:A]There was nothing he[N]could do about being[N]found.[FIN]He's the laborer[N]who ran away yesterday.[FIN]I should tell the labor[N]traders.[FIN]I was prepared[N]for the worst[N]when I did it.[END]`
+dialogstring_05BC6F `[TPL:A]There was nothing he[N]could do about being[N]found.[FIN]He's the laborer[N]who ran away yesterday.[FIN]I should tell the labor[N]traders.[FIN]I was prepared[N]for the worst[N]when I did it.[END]`

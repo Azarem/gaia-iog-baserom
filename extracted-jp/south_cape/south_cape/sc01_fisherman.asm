@@ -59,25 +59,25 @@ h_sc01_fisherman [
 ]
 
 code_0483C1 {
-    COP [PrintWideString] ( &widestring_0483D0 )
+    COP [PrintDialogString] ( &dialogstring_0483D0 )
     RTL 
 }
 
 code_0483C6 {
-    COP [PrintWideString] ( &widestring_0483E4 )
+    COP [PrintDialogString] ( &dialogstring_0483E4 )
     RTL 
 }
 
 code_0483CB {
-    COP [PrintWideString] ( &widestring_048400 )
+    COP [PrintDialogString] ( &dialogstring_048400 )
     RTL 
 }
 
-widestring_0483D0 `[DEF]けっ.[N]ちっとも つれやしねえ···[END]`
+dialogstring_0483D0 `[DEF]けっ.[N]ちっとも つれやしねえ···[END]`
 
-widestring_0483E4 `[DEF]場所を 変えても[N]ちっとも つれやしねえ···[END]`
+dialogstring_0483E4 `[DEF]場所を 変えても[N]ちっとも つれやしねえ···[END]`
 
-widestring_048400 `[DEF]変なツボを つり上げちまったい.[END]`
+dialogstring_048400 `[DEF]変なツボを つり上げちまったい.[END]`
 
 code_048416 {
     LDA #$0200
@@ -93,7 +93,7 @@ code_048416 {
 code_048429 {
     COP [BranchIfFlagByte] ( #D7, #01, &code_04843B )
     COP [GiveItem] ( #01, &code_04843C )
-    COP [PrintWideString] ( &widestring_048440 )
+    COP [PrintDialogString] ( &dialogstring_048440 )
     COP [SetFlagByte] ( #D7 )
 }
 
@@ -105,4 +105,4 @@ code_04843C {
     JML $@chunk_008000.code_00C7E3
 }
 
-widestring_048440 `[DLG:3,11][SIZ:D,3,0]赤い宝石を 見つけた![END]`
+dialogstring_048440 `[DLG:3,11][SIZ:D,3,0]赤い宝石を 見つけた![END]`

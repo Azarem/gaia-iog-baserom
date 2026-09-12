@@ -20,8 +20,8 @@ wa7B_competitor_left [
 ]
 
 code_07A12D {
-    COP [PrintWideString] ( &widestring_07A132 )
+    COP [PrintDialogString] ( &dialogstring_07A132 )
     RTL 
 }
 
-widestring_07A132 `[TPL:A]You can still do it!![END]`
+dialogstring_07A132 `[TPL:A]You can still do it!![END]`

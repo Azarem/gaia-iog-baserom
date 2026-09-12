@@ -17,7 +17,7 @@ eu97_clerk2 [
     COP [AnimOnce]
     COP [StageSpriteFrame] ( #2C )
     COP [AnimOnce]
-    COP [PrintWideString] ( &widestring_07CC88 )
+    COP [PrintDialogString] ( &dialogstring_07CC88 )
     LDA #$CFF0
     TRB $joypadMaskStd
     COP [SpawnAfterFlags] ( @EscortFollowPathTracker, #$2000 )
@@ -44,4 +44,4 @@ code_07CC86 {
     COP [Die]
 }
 
-widestring_07CC88 `[TPL:A]Clerk: [N]Aren't you Neil, [N]from this village?! [FIN]Rolek manages this[N]store, too.[FIN]I understand.[N]Please take whatever[N]you like.[END]`
+dialogstring_07CC88 `[TPL:A]Clerk: [N]Aren't you Neil, [N]from this village?! [FIN]Rolek manages this[N]store, too.[FIN]I understand.[N]Please take whatever[N]you like.[END]`

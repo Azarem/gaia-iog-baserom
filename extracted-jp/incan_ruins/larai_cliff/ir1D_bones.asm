@@ -14,8 +14,8 @@ h_ir1D_bones [
 ]
 
 code_04FCA9 {
-    COP [PrintWideString] ( &widestring_04FCAE )
+    COP [PrintDialogString] ( &dialogstring_04FCAE )
     RTL 
 }
 
-widestring_04FCAE `[DEF][TPL:0]遺体の 近くの 地面に[N]何か かかれているようだ···[FIN][PAL:0]あの 黄金像さえ 動かせれば[N]先へ 進むことができたのに···[END]`
+dialogstring_04FCAE `[DEF][TPL:0]遺体の 近くの 地面に[N]何か かかれているようだ···[FIN][PAL:0]あの 黄金像さえ 動かせれば[N]先へ 進むことができたのに···[END]`

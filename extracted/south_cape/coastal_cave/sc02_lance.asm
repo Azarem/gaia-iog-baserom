@@ -60,21 +60,21 @@ sc02_lance [
     COP [AnimOnce]
     COP [StageSpriteFrame] ( #02 )
     COP [AnimOnce]
-    COP [PrintWideString] ( &widestring_04B2F0 )
+    COP [PrintDialogString] ( &dialogstring_04B2F0 )
     COP [SetOnInteract] ( &code_04B1C3 )
     LDA #$CFF0
     TRB $joypadMaskStd
     COP [ExitIfFlagByte] ( #08, #01 )
     COP [SetOnInteract] ( #$0000 )
-    COP [PrintWideString] ( &widestring_04B328 )
+    COP [PrintDialogString] ( &dialogstring_04B328 )
     COP [CallScript] ( &code_04B16A )
     COP [ExitIfFlagByte] ( #0A, #01 )
     COP [StageSpriteFrame] ( #02 )
     COP [AnimOnce]
-    COP [PrintWideString] ( &widestring_04B344 )
+    COP [PrintDialogString] ( &dialogstring_04B344 )
     COP [StageSpriteLoop] ( #05, #1E )
     COP [AnimLoop]
-    COP [PrintWideString] ( &widestring_04B386 )
+    COP [PrintDialogString] ( &dialogstring_04B386 )
     COP [SetFlagByte] ( #0B )
     COP [ClearFlagByte] ( #04 )
     LDA #$CFF0
@@ -117,67 +117,67 @@ code_04B16A {
 
 code_04B18E {
     COP [SetFlagByte] ( #01 )
-    COP [PrintWideString] ( &widestring_04B1CB )
+    COP [PrintDialogString] ( &dialogstring_04B1CB )
     RTL 
 }
 
 code_04B196 {
-    COP [PrintWideString] ( &widestring_04B210 )
+    COP [PrintDialogString] ( &dialogstring_04B210 )
     RTL 
 }
 
 code_04B19B {
-    COP [PrintWideString] ( &widestring_04B23F )
+    COP [PrintDialogString] ( &dialogstring_04B23F )
     RTL 
 }
 
 code_04B1A0 {
     COP [BranchIfFlagByte] ( #25, #01, &code_04B1B6 )
     COP [BranchIfFlagByte] ( #1C, #01, &code_04B1B1 )
-    COP [PrintWideString] ( &widestring_04B3AD )
+    COP [PrintDialogString] ( &dialogstring_04B3AD )
     RTL 
 }
 
 code_04B1B1 {
-    COP [PrintWideString] ( &widestring_04B3DF )
+    COP [PrintDialogString] ( &dialogstring_04B3DF )
     RTL 
 }
 
 code_04B1B6 {
-    COP [PrintWideString] ( &widestring_04B40D )
+    COP [PrintDialogString] ( &dialogstring_04B40D )
     RTL 
 }
 
 code_04B1BB {
-    COP [PrintWideString] ( &widestring_04B27E )
+    COP [PrintDialogString] ( &dialogstring_04B27E )
     COP [SetFlagByte] ( #07 )
     RTL 
 }
 
 code_04B1C3 {
-    COP [PrintWideString] ( &widestring_04B2F0 )
+    COP [PrintDialogString] ( &dialogstring_04B2F0 )
     COP [SetFlagByte] ( #07 )
     RTL 
 }
 
-widestring_04B1CB `[TPL:A][TPL:4]Lance: [N]What is it, Will?[N]It's late.[FIN]I'm playing cards[N]with Seth.[N]Wait a minute.[PAL:0][END]`
+dialogstring_04B1CB `[TPL:A][TPL:4]Lance: [N]What is it, Will?[N]It's late.[FIN]I'm playing cards[N]with Seth.[N]Wait a minute.[PAL:0][END]`
 
-widestring_04B210 `[TPL:A][TPL:4]Lance: [N]Will, get over here and[N]sit next to Erik.[PAL:0][END]`
+dialogstring_04B210 `[TPL:A][TPL:4]Lance: [N]Will, get over here and[N]sit next to Erik.[PAL:0][END]`
 
-widestring_04B23F `[TPL:A][TPL:4]Lance: Draw it to you[N]by spinning the Flute[N]around like a baton.[PAL:0][END]`
+dialogstring_04B23F `[TPL:A][TPL:4]Lance: Draw it to you[N]by spinning the Flute[N]around like a baton.[PAL:0][END]`
 
-widestring_04B27E `[TPL:B][TPL:4]Lance: [N]Next. Pick a[N]card, any card.[FIN]I'll put four cards face[N]down. Pick the one[N]you think is the[N]Ace of Diamonds.[PAL:0][END]`
+dialogstring_04B27E `[TPL:B][TPL:4]Lance: [N]Next. Pick a[N]card, any card.[FIN]I'll put four cards face[N]down. Pick the one[N]you think is the[N]Ace of Diamonds.[PAL:0][END]`
 
-widestring_04B2F0 `[TPL:A][TPL:4]Lance: Pick the one[N]you think is the[N]Ace of Diamonds.[PAL:0][END]`
+dialogstring_04B2F0 `[TPL:A][TPL:4]Lance: Pick the one[N]you think is the[N]Ace of Diamonds.[PAL:0][END]`
 
-widestring_04B328 `[TPL:A][TPL:4]Lance: [N]Ahhh! Right!![PAL:0][END]`
+dialogstring_04B328 `[TPL:A][TPL:4]Lance: [N]Ahhh! Right!![PAL:0][END]`
 
-widestring_04B344 `[TPL:A][TPL:4]Lance: What Seth says[N]is too complicated for[N]me to understand.[PAL:0][END]`
+dialogstring_04B344 `[TPL:A][TPL:4]Lance: What Seth says[N]is too complicated for[N]me to understand.[PAL:0][END]`
 
-widestring_04B386 `[TPL:A][TPL:4]Lance: [N]Seth. Let's play[N]one more game.[PAL:0][END]`
+dialogstring_04B386 `[TPL:A][TPL:4]Lance: [N]Seth. Let's play[N]one more game.[PAL:0][END]`
 
-widestring_04B3AD `[TPL:A][TPL:4]Lance: One more[N]game with Seth[N]and I'm going home.[PAL:0][END]`
+dialogstring_04B3AD `[TPL:A][TPL:4]Lance: One more[N]game with Seth[N]and I'm going home.[PAL:0][END]`
 
-widestring_04B3DF `[TPL:A][TPL:4]Lance: It's a day off[N]from school.[N]Let's have some fun.[PAL:0][END]`
+dialogstring_04B3DF `[TPL:A][TPL:4]Lance: It's a day off[N]from school.[N]Let's have some fun.[PAL:0][END]`
 
-widestring_04B40D `[TPL:A][TPL:4]Lance: What happened,[N]Will?[N]You look so gloomy.[FIN]Something you can't[N]tell us about?[PAL:0][END]`
+dialogstring_04B40D `[TPL:A][TPL:4]Lance: What happened,[N]Will?[N]You look so gloomy.[FIN]Something you can't[N]tell us about?[PAL:0][END]`

@@ -29,7 +29,7 @@ h_ec0A_throne_guard2 [
     COP [AnimOnce]
     LDA #$0800
     TRB $10
-    COP [PrintWideString] ( &widestring_04C2D8 )
+    COP [PrintDialogString] ( &dialogstring_04C2D8 )
     COP [SetFlagByte] ( #0B )
     COP [ExitIfFlagByte] ( #0C, #01 )
     COP [WaitByte] ( #0B )
@@ -92,8 +92,8 @@ code_04C28F {
 }
 
 code_04C2D3 {
-    COP [PrintWideString] ( &ec0A_throne_guard1.widestring_04C1E8 )
+    COP [PrintDialogString] ( &ec0A_throne_guard1.dialogstring_04C1E8 )
     RTL 
 }
 
-widestring_04C2D8 `[TPL:D][TPL:0]テム:[N]おばさん! たすけてっ![FIN][TPL:3]エドワード王后:[N]オバサンですってっ?!!![PAL:0][END]`
+dialogstring_04C2D8 `[TPL:D][TPL:0]テム:[N]おばさん! たすけてっ![FIN][TPL:3]エドワード王后:[N]オバサンですってっ?!!![PAL:0][END]`

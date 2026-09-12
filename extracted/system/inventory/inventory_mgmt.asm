@@ -151,7 +151,7 @@ GiveItem_StoreInSlot {
     STA $inventorySlots, Y
     STA $0DB8
     STZ $0DB9
-    LDY #$&itemget_table_01FD24.widestring_01FF1F
+    LDY #$&itemget_table_01FD24.dialogstring_01FF1F
 }
 
 GiveItem_Success {
@@ -164,7 +164,7 @@ GiveItem_InventoryFull {
     PLA 
     STA $0DB8
     STZ $0DB9
-    LDY #$&itemget_table_01FD24.widestring_01FF02
+    LDY #$&itemget_table_01FD24.dialogstring_01FF02
     PLP 
     SEC 
     RTL 

@@ -50,7 +50,7 @@ code_04B4BD {
     LDA #$0000
     JSL $@InitPlayerScriptVariant
     COP [SetEntryExit]
-    COP [PrintWideString] ( &widestring_04B652 )
+    COP [PrintDialogString] ( &dialogstring_04B652 )
     LDA #$CFF0
     TRB $joypadMaskStd
     COP [SetFlagByte] ( #05 )
@@ -72,7 +72,7 @@ code_04B4BD {
 
   loc_04B504:
     COP [WaitByte] ( #1F )
-    COP [PrintWideString] ( &widestring_04B75D )
+    COP [PrintDialogString] ( &dialogstring_04B75D )
     COP [SetFlagByte] ( #06 )
     COP [CallScript] ( &code_04B55F )
     COP [SetOnInteract] ( &code_04B5B1 )
@@ -84,7 +84,7 @@ code_04B4BD {
     COP [AnimOnce]
     COP [StageSpriteFrame] ( #12 )
     COP [AnimOnce]
-    COP [PrintWideString] ( &widestring_04B7DE )
+    COP [PrintDialogString] ( &dialogstring_04B7DE )
     COP [SetFlagByte] ( #0A )
     LDA #$0800
     TSB $10
@@ -136,51 +136,51 @@ code_04B58F {
 }
 
 code_04B592 {
-    COP [PrintWideString] ( &widestring_04B5B6 )
+    COP [PrintDialogString] ( &dialogstring_04B5B6 )
     RTL 
 }
 
 code_04B597 {
-    COP [PrintWideString] ( &widestring_04B612 )
+    COP [PrintDialogString] ( &dialogstring_04B612 )
     RTL 
 }
 
 code_04B59C {
     COP [BranchIfFlagByte] ( #25, #01, &code_04B5A7 )
-    COP [PrintWideString] ( &widestring_04B5B6 )
+    COP [PrintDialogString] ( &dialogstring_04B5B6 )
     RTL 
 }
 
 code_04B5A7 {
-    COP [PrintWideString] ( &widestring_04B5ED )
+    COP [PrintDialogString] ( &dialogstring_04B5ED )
     RTL 
 }
 
 code_04B5AC {
-    COP [PrintWideString] ( &widestring_04B72B )
+    COP [PrintDialogString] ( &dialogstring_04B72B )
     RTL 
 }
 
 code_04B5B1 {
-    COP [PrintWideString] ( &widestring_04B77C )
+    COP [PrintDialogString] ( &dialogstring_04B77C )
     RTL 
 }
 
-widestring_04B5B6 `[TPL:A][TPL:5]Seth:[N]Ah ha ha. I'm going[N]to win again for sure.[PAL:0][END]`
+dialogstring_04B5B6 `[TPL:A][TPL:5]Seth:[N]Ah ha ha. I'm going[N]to win again for sure.[PAL:0][END]`
 
-widestring_04B5ED `[TPL:A][TPL:5]Seth:[N]Why do I keep losing...?[PAL:0][END]`
+dialogstring_04B5ED `[TPL:A][TPL:5]Seth:[N]Why do I keep losing...?[PAL:0][END]`
 
-widestring_04B612 `[TPL:A][TPL:5]Seth: I'm not[N]interested in girls. I[N]like adventures better.[PAL:0][END]`
+dialogstring_04B612 `[TPL:A][TPL:5]Seth: I'm not[N]interested in girls. I[N]like adventures better.[PAL:0][END]`
 
-widestring_04B652 `[TPL:A][TPL:5]Seth:[N]Everyone's here.[N]What should we do today?[FIN][TPL:3]Erik: [N]I want to see Will's[N]mysterious power.[FIN]You haven't seen it? [N]He can move things [N]without touching them.[FIN][TPL:4]Lance: He moved [N]the statue that's in the[N]corner of the cave.[FIN]Will. [N]Show me again.[PAL:0][END]`
+dialogstring_04B652 `[TPL:A][TPL:5]Seth:[N]Everyone's here.[N]What should we do today?[FIN][TPL:3]Erik: [N]I want to see Will's[N]mysterious power.[FIN]You haven't seen it? [N]He can move things [N]without touching them.[FIN][TPL:4]Lance: He moved [N]the statue that's in the[N]corner of the cave.[FIN]Will. [N]Show me again.[PAL:0][END]`
 
-widestring_04B72B `[TPL:A][TPL:5]Seth: [N]Face the statue and[N]push the L/R Buttons.[PAL:0][END]`
+dialogstring_04B72B `[TPL:A][TPL:5]Seth: [N]Face the statue and[N]push the L/R Buttons.[PAL:0][END]`
 
-widestring_04B75D `[TPL:A][TPL:4]Lance: Oh![N]It moved!![PAL:0][PAU:28][CLD]`
+dialogstring_04B75D `[TPL:A][TPL:4]Lance: Oh![N]It moved!![PAL:0][PAU:28][CLD]`
 
-widestring_04B77C `[TPL:A][TPL:5]Seth: No matter how[N]many times I see it,[N]I'm still amazed.[FIN]But why can you move the[N]statue when you can't[N]move anything else...?[PAL:0][END]`
+dialogstring_04B77C `[TPL:A][TPL:5]Seth: No matter how[N]many times I see it,[N]I'm still amazed.[FIN]But why can you move the[N]statue when you can't[N]move anything else...?[PAL:0][END]`
 
-widestring_04B7DE `[TPL:A][TPL:5]Seth: Yeah, it must be[N]some kind of psychic[N]power thing.[FIN]If I didn't know better,[N]I'd think it was magic.[FIN]Most people have[N]five senses... [N]sight, [FIN]hearing, [FIN]taste, [FIN]smell, [FIN]and touch. [FIN]I think Will's psychic[N]power is some kind[N]of sixth sense.[PAL:0][END]`
+dialogstring_04B7DE `[TPL:A][TPL:5]Seth: Yeah, it must be[N]some kind of psychic[N]power thing.[FIN]If I didn't know better,[N]I'd think it was magic.[FIN]Most people have[N]five senses... [N]sight, [FIN]hearing, [FIN]taste, [FIN]smell, [FIN]and touch. [FIN]I think Will's psychic[N]power is some kind[N]of sixth sense.[PAL:0][END]`
 ---------------------------------------------
 
 e_sc02_actor_04B051 {

@@ -30,7 +30,7 @@ code_04988C {
     COP [ExitIfFlagByte] ( #03, #01 )
     COP [StageSpriteLoop] ( #0D, #1E )
     COP [AnimLoop]
-    COP [PrintWideString] ( &widestring_049A3F )
+    COP [PrintDialogString] ( &dialogstring_049A3F )
     COP [SetFlagByte] ( #04 )
     COP [ExitIfFlagByte] ( #05, #01 )
     COP [WaitByte] ( #0B )
@@ -85,7 +85,7 @@ code_049934 {
     COP [SolidHighHere]
     COP [SetOnInteract] ( &code_0499C5 )
     COP [ExitIfFlagByte] ( #0B, #01 )
-    COP [PrintWideString] ( &widestring_049B82 )
+    COP [PrintDialogString] ( &dialogstring_049B82 )
     COP [SetFlagByte] ( #3E )
     LDA #$CFF0
     TRB $joypadMaskStd
@@ -122,7 +122,7 @@ code_049985 {
     COP [SetFlagByte] ( #35 )
     COP [StartMusic] ( #19 )
     COP [WaitByte] ( #59 )
-    COP [PrintWideString] ( &widestring_049D29 )
+    COP [PrintDialogString] ( &dialogstring_049D29 )
     COP [SetEntryContinue]
     SEP #$20
     LDA $APUIO1
@@ -149,17 +149,17 @@ code_0499B9 {
 }
 
 code_0499BB {
-    COP [PrintWideString] ( &widestring_0499F1 )
+    COP [PrintDialogString] ( &dialogstring_0499F1 )
     RTL 
 }
 
 code_0499C0 {
-    COP [PrintWideString] ( &widestring_049ABB )
+    COP [PrintDialogString] ( &dialogstring_049ABB )
     RTL 
 }
 
 code_0499C5 {
-    COP [PrintWideString] ( &widestring_049B18 )
+    COP [PrintDialogString] ( &dialogstring_049B18 )
     LDA #$CFF0
     TSB $joypadMaskStd
     COP [SetFlagByte] ( #0A )
@@ -167,19 +167,19 @@ code_0499C5 {
 }
 
 code_0499D3 {
-    COP [PrintWideString] ( &widestring_049B82+M )
+    COP [PrintDialogString] ( &dialogstring_049B82+M )
     RTL 
 }
 
 code_0499D8 {
     COP [BranchIfFlagByte] ( #35, #01, &code_0499E8 )
-    COP [PrintWideString] ( &widestring_049BE5 )
+    COP [PrintDialogString] ( &dialogstring_049BE5 )
     COP [GiveItem] ( #09, &code_0499ED )
     RTL 
 }
 
 code_0499E8 {
-    COP [PrintWideString] ( &widestring_049D94 )
+    COP [PrintDialogString] ( &dialogstring_049D94 )
     RTL 
 }
 
@@ -187,18 +187,18 @@ code_0499ED {
     JML $@f_inventory_full.InventoryFullMessage
 }
 
-widestring_0499F1 `[DEF][TPL:3]Lola: Welcome home,[N]Will. Dinner isn't ready[N]yet. Go outside and[N]play for a while.[PAL:0][END]`
+dialogstring_0499F1 `[DEF][TPL:3]Lola: Welcome home,[N]Will. Dinner isn't ready[N]yet. Go outside and[N]play for a while.[PAL:0][END]`
 
-widestring_049A3F `[TPL:A][TPL:3]Lola:  Ah ha ha.[N]Oh, you!! Bringing up[N]a thing like that![FIN]Will, you shouldn't be[N]surprised to hear that.[FIN]The girl who was singing[N]with me a minute ago...[PAL:0][END]`
+dialogstring_049A3F `[TPL:A][TPL:3]Lola:  Ah ha ha.[N]Oh, you!! Bringing up[N]a thing like that![FIN]Will, you shouldn't be[N]surprised to hear that.[FIN]The girl who was singing[N]with me a minute ago...[PAL:0][END]`
 
-widestring_049ABB `[TPL:B][TPL:3]Lola: Welcome home,[N]Will. When I sing opera,[N]I lose track of[N]the time...[FIN]Dinner's not ready yet.[PAL:0][END]`
+dialogstring_049ABB `[TPL:B][TPL:3]Lola: Welcome home,[N]Will. When I sing opera,[N]I lose track of[N]the time...[FIN]Dinner's not ready yet.[PAL:0][END]`
 
-widestring_049B18 `[TPL:A][TPL:3]Lola: Edward Castle...[N]There's a big viaduct[N]under the castle.[FIN]Your grandfather designed[N]it.[FIN][TPL:0]Will: [N]What! Really?[PAL:0][END]`
+dialogstring_049B18 `[TPL:A][TPL:3]Lola: Edward Castle...[N]There's a big viaduct[N]under the castle.[FIN]Your grandfather designed[N]it.[FIN][TPL:0]Will: [N]What! Really?[PAL:0][END]`
 
-widestring_049B82 `[PAU:40][::][TPL:A][TPL:3]Lola:[N]Enough serious talk.[N]Let's eat dinner.[FIN]I've made a delicious[N]pie. Let's sit at the[N]table upstairs.[PAL:0][END]`
+dialogstring_049B82 `[PAU:40][::][TPL:A][TPL:3]Lola:[N]Enough serious talk.[N]Let's eat dinner.[FIN]I've made a delicious[N]pie. Let's sit at the[N]table upstairs.[PAL:0][END]`
 
-widestring_049BE5 `[TPL:B][TPL:3]Lola: [N]Good morning, Will.[N]A letter has come for[N]you from King Edward.[FIN][PAL:0][DLG:3,6][SIZ:D,4]This is what is written[N]in the letter.[FIN][TPL:B][TPL:4]Bring the Crystal Ring[N]from Olman's things[N]to Edward Castle.[N]           King Edward[FIN][TPL:3]Lola: I've been in a[N]bad mood ever since I[N]saw this letter.[FIN]Oh, Will. I'll teach[N]you a spell. When I'm[N]upset, humming this tune[N]makes me feel better.[FIN]Lola hummed a strange[N]melody.[PAL:0][END]`
+dialogstring_049BE5 `[TPL:B][TPL:3]Lola: [N]Good morning, Will.[N]A letter has come for[N]you from King Edward.[FIN][PAL:0][DLG:3,6][SIZ:D,4]This is what is written[N]in the letter.[FIN][TPL:B][TPL:4]Bring the Crystal Ring[N]from Olman's things[N]to Edward Castle.[N]           King Edward[FIN][TPL:3]Lola: I've been in a[N]bad mood ever since I[N]saw this letter.[FIN]Oh, Will. I'll teach[N]you a spell. When I'm[N]upset, humming this tune[N]makes me feel better.[FIN]Lola hummed a strange[N]melody.[PAL:0][END]`
 
-widestring_049D29 `[TPL:A][TPL:0][SFX:0][DLY:5]That's pretty.[N][PAU:78][CLR]Even though Will had[N]never heard it before,[N]it seemed oddly familiar.[PAU:F0][CLR][PAL:0]You've learned[N]Lola's melody![PAU:FF][CLD]`
+dialogstring_049D29 `[TPL:A][TPL:0][SFX:0][DLY:5]That's pretty.[N][PAU:78][CLR]Even though Will had[N]never heard it before,[N]it seemed oddly familiar.[PAU:F0][CLR][PAL:0]You've learned[N]Lola's melody![PAU:FF][CLD]`
 
-widestring_049D94 `[TPL:B][TPL:3]Lola:[N]Be careful.[PAL:0][END]`
+dialogstring_049D94 `[TPL:B][TPL:3]Lola:[N]Be careful.[PAL:0][END]`

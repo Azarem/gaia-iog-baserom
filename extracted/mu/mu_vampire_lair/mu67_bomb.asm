@@ -74,7 +74,7 @@ mu67_bomb [
     COP [AddPosition] ( #F8, #00 )
     COP [ClearLowHere]
     COP [ClearLowOffset] ( #01, #00 )
-    COP [PrintWideString] ( &widestring_06A57F )
+    COP [PrintDialogString] ( &dialogstring_06A57F )
     COP [SetFlagByte] ( #03 )
     COP [StageBgChange] ( #93 )
     COP [ApplyBgChange]
@@ -85,7 +85,7 @@ mu67_bomb [
 ]
 
 code_06A4C9 {
-    COP [PrintWideString] ( &widestring_06A4E9 )
+    COP [PrintDialogString] ( &dialogstring_06A4E9 )
     COP [DialogueOptions] ( #02, #01, &code_list_06A4D3 )
 }
 
@@ -96,24 +96,24 @@ code_list_06A4D3 [
 ]
 
 code_06A4D9 {
-    COP [PrintWideString] ( &widestring_06A54E )
+    COP [PrintDialogString] ( &dialogstring_06A54E )
     COP [SetFlagByte] ( #01 )
     RTL 
 }
 
 code_06A4E1 {
-    COP [PrintWideString] ( &widestring_06A566 )
+    COP [PrintDialogString] ( &dialogstring_06A566 )
     COP [SetFlagByte] ( #01 )
     RTL 
 }
 
-widestring_06A4E9 `[TPL:E][TPL:0]There's a red wire and[N]a blue wire sticking[N]out of the bomb...[FIN]Cut which one?[N] Red one[N] Blue one`
+dialogstring_06A4E9 `[TPL:E][TPL:0]There's a red wire and[N]a blue wire sticking[N]out of the bomb...[FIN]Cut which one?[N] Red one[N] Blue one`
 
-widestring_06A54E `[CLR]The red wire is cut![PAL:0][END]`
+dialogstring_06A54E `[CLR]The red wire is cut![PAL:0][END]`
 
-widestring_06A566 `[CLR]The blue wire is cut![PAL:0][END]`
+dialogstring_06A566 `[CLR]The blue wire is cut![PAL:0][END]`
 
-widestring_06A57F `[PAU:28][TPL:A][TPL:0]Will: The bomb [N]has been defused... [FIN][TPL:3]Erik: [N]Saved... [FIN][TPL:2]Lilly speaks from[N]his pocket.[FIN]Lilly: Sorry, Will... [N]There was nothing [N]I could do... [FIN]My legs gave out from[N]fear. I couldn't move or[N]make a sound.[FIN]Up to now I thought I[N]was strong, but in a[N]crisis...[FIN]..............[N]Sorry for staying in[N]your pocket for so long.[PAL:0][END]`
+dialogstring_06A57F `[PAU:28][TPL:A][TPL:0]Will: The bomb [N]has been defused... [FIN][TPL:3]Erik: [N]Saved... [FIN][TPL:2]Lilly speaks from[N]his pocket.[FIN]Lilly: Sorry, Will... [N]There was nothing [N]I could do... [FIN]My legs gave out from[N]fear. I couldn't move or[N]make a sound.[FIN]Up to now I thought I[N]was strong, but in a[N]crisis...[FIN]..............[N]Sorry for staying in[N]your pocket for so long.[PAL:0][END]`
 
 code_06A69E {
     COP [ExitIfFlagByte] ( #02, #01 )
@@ -172,9 +172,9 @@ code_06A6F7 {
     RTL 
 
   loc_06A712:
-    COP [PrintWideString] ( &widestring_06A719 )
+    COP [PrintDialogString] ( &dialogstring_06A719 )
     COP [SetEntryContinue]
     RTL 
 }
 
-widestring_06A719 `[DEF][TPL:0]...........[FIN]It was a dud.[N]I'm saved...[PAL:0][END]`
+dialogstring_06A719 `[DEF][TPL:0]...........[FIN]It was a dud.[N]I'm saved...[PAL:0][END]`

@@ -13,7 +13,7 @@ mu66_actor_069C85 [
     LDA #$CFF0
     TSB $joypadMaskStd
     COP [WaitByte] ( #1D )
-    COP [PrintWideString] ( &widestring_069CB7 )
+    COP [PrintDialogString] ( &dialogstring_069CB7 )
     LDA #$CFF0
     TRB $joypadMaskStd
 } >
@@ -30,4 +30,4 @@ code_069CAF {
     COP [Die]
 }
 
-widestring_069CB7 `[TPL:B][TPL:0]This looks like an [N]ancient burial ground [N]for the people of Mu. [N][PAL:0][END]`
+dialogstring_069CB7 `[TPL:B][TPL:0]This looks like an [N]ancient burial ground [N]for the people of Mu. [N][PAL:0][END]`

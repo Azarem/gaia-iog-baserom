@@ -21,15 +21,15 @@ code_04FADF {
     COP [SetFlagByte] ( #48 )
     LDA #$0080
     TSB $displayModeFlags
-    COP [MusicAndText] ( #17, @widestring_04FAF9 )
+    COP [MusicAndText] ( #17, @dialogstring_04FAF9 )
     RTL 
 }
 
 code_04FAF4 {
-    COP [PrintWideString] ( &widestring_04FB16 )
+    COP [PrintDialogString] ( &dialogstring_04FB16 )
     RTL 
 }
 
-widestring_04FAF9 `[DLG:3,6][SIZ:D,3][SFX:0][DLY:9]You've got[N]Incan Statue B![PAU:FF][END]`
+dialogstring_04FAF9 `[DLG:3,6][SIZ:D,3][SFX:0][DLY:9]You've got[N]Incan Statue B![PAU:FF][END]`
 
-widestring_04FB16 `[DLG:3,6][SIZ:D,3]You've found Incan [N]Statue B! But your [N]inventory is full! [END]`
+dialogstring_04FB16 `[DLG:3,6][SIZ:D,3]You've found Incan [N]Statue B! But your [N]inventory is full! [END]`

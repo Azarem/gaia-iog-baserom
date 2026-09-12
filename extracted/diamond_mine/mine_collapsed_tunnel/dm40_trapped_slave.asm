@@ -89,7 +89,7 @@ code_05D7CB {
     TSB $joypadMaskStd
     COP [WaitByte] ( #77 )
     COP [ClearFlagByte] ( #00 )
-    COP [PrintWideString] ( &widestring_05D819 )
+    COP [PrintDialogString] ( &dialogstring_05D819 )
     LDA #$EFF0
     TRB $joypadMaskStd
     LDA #$0080
@@ -101,4 +101,4 @@ code_05D7CB {
     COP [Die]
 }
 
-widestring_05D819 `[DEF]Thank you.[N]I was buried in[N]the cave-in...[FIN]What would happen if[N]we took longer...[FIN]We want to give you a[N]present. I'm sending 3[N]Red Jewels to[N]the Jeweler.[END]`
+dialogstring_05D819 `[DEF]Thank you.[N]I was buried in[N]the cave-in...[FIN]What would happen if[N]we took longer...[FIN]We want to give you a[N]present. I'm sending 3[N]Red Jewels to[N]the Jeweler.[END]`

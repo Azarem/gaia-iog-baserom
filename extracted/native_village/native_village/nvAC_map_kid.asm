@@ -31,7 +31,7 @@ code_088FC2 {
 }
 
 code_088FC4 {
-    COP [PrintWideString] ( &widestring_088FE1 )
+    COP [PrintDialogString] ( &dialogstring_088FE1 )
     COP [DialogueOptions] ( #02, #01, &code_list_088FCE )
 }
 
@@ -42,18 +42,18 @@ code_list_088FCE [
 ]
 
 code_088FD4 {
-    COP [PrintWideString] ( &widestring_089078 )
+    COP [PrintDialogString] ( &dialogstring_089078 )
     RTL 
 }
 
 code_088FD9 {
-    COP [PrintWideString] ( &widestring_08901E )
+    COP [PrintDialogString] ( &dialogstring_08901E )
     COP [SetFlagByte] ( #B1 )
     RTL 
 }
 
-widestring_088FE1 `[TPL:E]The boy points to[N]the northeast...[FIN]Show him the map?[N] Yes[N] No`
+dialogstring_088FE1 `[TPL:E]The boy points to[N]the northeast...[FIN]Show him the map?[N] Yes[N] No`
 
-widestring_08901E `[CLR]He drew a picture of the[N]temple on the map![FIN]I think he's saying[N]he wants to go to[N]the temple...[PAL:0][END]`
+dialogstring_08901E `[CLR]He drew a picture of the[N]temple on the map![FIN]I think he's saying[N]he wants to go to[N]the temple...[PAL:0][END]`
 
-widestring_089078 `[CLR]He looks lonely...[PAL:0][END]`
+dialogstring_089078 `[CLR]He looks lonely...[PAL:0][END]`

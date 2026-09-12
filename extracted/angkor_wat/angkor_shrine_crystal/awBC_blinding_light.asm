@@ -14,7 +14,7 @@ awBC_blinding_light [
     LDA #$CFF0
     TSB $joypadMaskStd
     COP [WaitByte] ( #1D )
-    COP [PrintWideString] ( &widestring_089A65 )
+    COP [PrintDialogString] ( &dialogstring_089A65 )
     LDA #$CFF0
     TRB $joypadMaskStd
 } >
@@ -47,4 +47,4 @@ code_089A64 {
     RTL 
 }
 
-widestring_089A65 `[DEF][TPL:0]Setting one foot inside,[N]the floating crystal[N]started to glow![PAL:0][END]`
+dialogstring_089A65 `[DEF][TPL:0]Setting one foot inside,[N]the floating crystal[N]started to glow![PAL:0][END]`

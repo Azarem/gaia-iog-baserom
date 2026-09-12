@@ -19,7 +19,7 @@ ir1C_lily [
     LDA #$CFF0
     TSB $joypadMaskStd
     COP [WaitByte] ( #1D )
-    COP [PrintWideString] ( &widestring_09CAE5 )
+    COP [PrintDialogString] ( &dialogstring_09CAE5 )
     COP [SolidHighAbs] ( #06, #19 )
     COP [SolidHighAbs] ( #07, #19 )
     LDA #$CFF0
@@ -57,7 +57,7 @@ code_09CA54 {
     JSL $@InitPlayerScriptVariant
     COP [StageSpriteFrame] ( #1A )
     COP [AnimOnce]
-    COP [PrintWideString] ( &widestring_09CCD0 )
+    COP [PrintDialogString] ( &dialogstring_09CCD0 )
     COP [SetFlagByte] ( #02 )
     COP [ExitIfFlagByte] ( #02, #00 )
     LDA $16
@@ -71,7 +71,7 @@ code_09CA54 {
     COP [AnimLoop]
     COP [StageSpriteLoop] ( #1B, #14 )
     COP [AnimLoop]
-    COP [PrintWideString] ( &widestring_09CE01 )
+    COP [PrintDialogString] ( &dialogstring_09CE01 )
     COP [SetFlagByte] ( #4B )
     LDA #$CFF0
     TRB $joypadMaskStd
@@ -103,14 +103,14 @@ code_09CAB1 {
 }
 
 code_09CAE0 {
-    COP [PrintWideString] ( &widestring_09CE01 )
+    COP [PrintDialogString] ( &dialogstring_09CE01 )
     RTL 
 }
 
-widestring_09CAE5 `[DLG:3,11][SIZ:D,4][TPL:2]Lilly: Here's the[N]entrance to the ruins.[FIN]They say that this is [N]where the puzzle of the [N]Incan legend is hidden. [FIN]I heard this story from[N]the Elder when[N]I was a child...[FIN]After being invaded, the[N]Incas decided to leave[N]their native land to[N]find a new world.[FIN]They secretly built[N]a huge ship and filled[N]it with priceless[N]gold artifacts.[FIN]But there's no record of[N]the ship leaving...[FIN]That's probably the Incan [N]Gold Ship in the story. [FIN]I don't think the Elder[N]has ever told that story[N]to any outsider.[FIN]I wonder what he wants[N]you to do...[PAL:0][END]`
+dialogstring_09CAE5 `[DLG:3,11][SIZ:D,4][TPL:2]Lilly: Here's the[N]entrance to the ruins.[FIN]They say that this is [N]where the puzzle of the [N]Incan legend is hidden. [FIN]I heard this story from[N]the Elder when[N]I was a child...[FIN]After being invaded, the[N]Incas decided to leave[N]their native land to[N]find a new world.[FIN]They secretly built[N]a huge ship and filled[N]it with priceless[N]gold artifacts.[FIN]But there's no record of[N]the ship leaving...[FIN]That's probably the Incan [N]Gold Ship in the story. [FIN]I don't think the Elder[N]has ever told that story[N]to any outsider.[FIN]I wonder what he wants[N]you to do...[PAL:0][END]`
 
-widestring_09CCB3 `[DLG:3,6][SIZ:D,3][TPL:2]Lilly:[N]Come here a moment.[END]`
+dialogstring_09CCB3 `[DLG:3,6][SIZ:D,3][TPL:2]Lilly:[N]Come here a moment.[END]`
 
-widestring_09CCD0 `[DLG:3,6][SIZ:D,3][TPL:2]Lilly: Why are you in a[N]place like this![N]It's dangerous![FIN][TPL:1]Kara: Lola told me [N]about this place. I've [N]been waiting! [FIN]I thought you'd left[N]me. You should tell me[N]where you're going!![FIN]What is Will looking [N]for in the ruins? [FIN]I can't just wait around [N]and eat while Will is [N]working so hard. [FIN]I'm waiting here for [N]Will to return. [FIN][TPL:2]Lilly: Well, a princess[N]wouldn't understand...[FIN]I'll wait for [N]you here. OK? [END]`
+dialogstring_09CCD0 `[DLG:3,6][SIZ:D,3][TPL:2]Lilly: Why are you in a[N]place like this![N]It's dangerous![FIN][TPL:1]Kara: Lola told me [N]about this place. I've [N]been waiting! [FIN]I thought you'd left[N]me. You should tell me[N]where you're going!![FIN]What is Will looking [N]for in the ruins? [FIN]I can't just wait around [N]and eat while Will is [N]working so hard. [FIN]I'm waiting here for [N]Will to return. [FIN][TPL:2]Lilly: Well, a princess[N]wouldn't understand...[FIN]I'll wait for [N]you here. OK? [END]`
 
-widestring_09CE01 `[DLG:3,6][SIZ:D,4][TPL:2]Lilly: [N]Will. I remember what [N]the Elder said. [FIN]"Put the statue on the [N]Larai Cliff below the [N]ruins, where the spirits'[N]breath cannot reach. [FIN]The valley wind will [N]lead you to the [N]Gold Shipˮ.  [PAL:0][END]`
+dialogstring_09CE01 `[DLG:3,6][SIZ:D,4][TPL:2]Lilly: [N]Will. I remember what [N]the Elder said. [FIN]"Put the statue on the [N]Larai Cliff below the [N]ruins, where the spirits'[N]breath cannot reach. [FIN]The valley wind will [N]lead you to the [N]Gold Shipˮ.  [PAL:0][END]`

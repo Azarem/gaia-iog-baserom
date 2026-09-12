@@ -13,9 +13,9 @@ h_ec0B_door [
 ]
 
 code_04D4C0 {
-    COP [PrintWideString] ( &widestring_04D4C9 )
+    COP [PrintDialogString] ( &dialogstring_04D4C9 )
     COP [SetFlagByte] ( #02 )
     COP [Die]
 }
 
-widestring_04D4C9 `[DLG:3,12][SIZ:D,3,0][TPL:0]テム:[N]カギが かかっている···[PAL:0][END]`
+dialogstring_04D4C9 `[DLG:3,12][SIZ:D,3,0][TPL:0]テム:[N]カギが かかっている···[PAL:0][END]`

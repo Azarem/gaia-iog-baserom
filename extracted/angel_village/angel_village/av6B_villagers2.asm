@@ -37,15 +37,15 @@ code_list_06CAF7 [
 ]
 
 code_06CAFD {
-    COP [PrintWideString] ( &widestring_06CB07 )
+    COP [PrintDialogString] ( &dialogstring_06CB07 )
     RTL 
 }
 
 code_06CB02 {
-    COP [PrintWideString] ( &widestring_06CB5E )
+    COP [PrintDialogString] ( &dialogstring_06CB5E )
     RTL 
 }
 
-widestring_06CB07 `[TPL:A]We have no emotions...[FIN]I've neither laughed[N]nor cried since the day[N]I was born.[FIN]I just survive...[END]`
+dialogstring_06CB07 `[TPL:A]We have no emotions...[FIN]I've neither laughed[N]nor cried since the day[N]I was born.[FIN]I just survive...[END]`
 
-widestring_06CB5E `[TPL:A]Once a human woman  [N]named Kara came here. [FIN]Ishtar praised her[N]beauty. Then she went[N]to his studio.[END]`
+dialogstring_06CB5E `[TPL:A]Once a human woman  [N]named Kara came here. [FIN]Ishtar praised her[N]beauty. Then she went[N]to his studio.[END]`

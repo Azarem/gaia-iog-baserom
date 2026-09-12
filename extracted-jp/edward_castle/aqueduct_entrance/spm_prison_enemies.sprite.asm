@@ -1,6 +1,6 @@
 ---------------------------------------------
 
-sprite_set_list_000000 [
+spm_prison_enemies [
   &sprite_set_000080   ;00
   &sprite_set_000086   ;01
   &sprite_set_00008C   ;02

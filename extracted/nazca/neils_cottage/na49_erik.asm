@@ -25,8 +25,8 @@ na49_erik [
 ]
 
 code_05E2C9 {
-    COP [PrintWideString] ( &widestring_05E2CE )
+    COP [PrintDialogString] ( &dialogstring_05E2CE )
     RTL 
 }
 
-widestring_05E2CE `[TPL:A][TPL:3]Erik: Seth will be [N]pleased when he [N]sees this invention...[END]`
+dialogstring_05E2CE `[TPL:A][TPL:3]Erik: Seth will be [N]pleased when he [N]sees this invention...[END]`

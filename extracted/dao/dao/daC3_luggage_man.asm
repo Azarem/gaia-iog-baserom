@@ -20,12 +20,12 @@ daC3_luggage_man [
 
 code_08B167 {
     COP [BranchIfFlagByte] ( #B8, #00, &code_08B172 )
-    COP [PrintWideString] ( &widestring_08B1CD )
+    COP [PrintDialogString] ( &dialogstring_08B1CD )
     RTL 
 }
 
 code_08B172 {
-    COP [PrintWideString] ( &widestring_08B1EF )
+    COP [PrintDialogString] ( &dialogstring_08B1EF )
     COP [DialogueOptions] ( #02, #02, &code_list_08B17C )
 }
 
@@ -36,12 +36,12 @@ code_list_08B17C [
 ]
 
 code_08B182 {
-    COP [PrintWideString] ( &widestring_08B27F )
+    COP [PrintDialogString] ( &dialogstring_08B27F )
     RTL 
 }
 
 code_08B187 {
-    COP [PrintWideString] ( &widestring_08B21A )
+    COP [PrintDialogString] ( &dialogstring_08B21A )
     SEP #$20
     STZ $0000
     LDY #$0000
@@ -65,25 +65,25 @@ code_08B187 {
     COP [SetFlagByte] ( #B8 )
     LDA #$0080
     TSB $displayModeFlags
-    COP [MusicAndText] ( #17, @widestring_08B25A )
+    COP [MusicAndText] ( #17, @dialogstring_08B25A )
 }
 
 code_08B1C7 {
     RTL 
 
   loc_08B1C8:
-    COP [PrintWideString] ( &widestring_08B2B2 )
+    COP [PrintDialogString] ( &dialogstring_08B2B2 )
     RTL 
 }
 
-widestring_08B1CD `[DEF]This is a hotel for[N]travelling merchants.[END]`
+dialogstring_08B1CD `[DEF]This is a hotel for[N]travelling merchants.[END]`
 
-widestring_08B1EF `[DEF]Would you happen to [N]be Will? [N] Yes [N] No `
+dialogstring_08B1EF `[DEF]Would you happen to [N]be Will? [N] Yes [N] No `
 
-widestring_08B21A `[CLR]Good! A letter and some[N]luggage have arrived[N]from someone named[N]Bill and Lola.[FIN]`
+dialogstring_08B21A `[CLR]Good! A letter and some[N]luggage have arrived[N]from someone named[N]Bill and Lola.[FIN]`
 
-widestring_08B25A `[CLR][SFX:0][DLY:9]You get a letter and [N]your father's journal![PAU:78][END]`
+dialogstring_08B25A `[CLR][SFX:0][DLY:9]You get a letter and [N]your father's journal![PAU:78][END]`
 
-widestring_08B27F `[CLR]Hmmm. I hope he [N]arrives soon. [N]Very distressing... [END]`
+dialogstring_08B27F `[CLR]Hmmm. I hope he [N]arrives soon. [N]Very distressing... [END]`
 
-widestring_08B2B2 `[DEF][CLR]Somehow, your inventory [N]is full. Reduce your [N]possessions somewhere. [END]`
+dialogstring_08B2B2 `[DEF][CLR]Somehow, your inventory [N]is full. Reduce your [N]possessions somewhere. [END]`

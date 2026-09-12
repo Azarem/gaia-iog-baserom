@@ -14,8 +14,8 @@ dm3F_elevator_sign [
 ]
 
 code_05D6B9 {
-    COP [PrintWideString] ( &widestring_05D6BE )
+    COP [PrintDialogString] ( &dialogstring_05D6BE )
     RTL 
 }
 
-widestring_05D6BE `[DEF](Elevator Entrance)[N]Use that door to[N]get to the elevator.[END]`
+dialogstring_05D6BE `[DEF](Elevator Entrance)[N]Use that door to[N]get to the elevator.[END]`

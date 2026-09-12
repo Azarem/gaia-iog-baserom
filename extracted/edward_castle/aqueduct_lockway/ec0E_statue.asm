@@ -21,8 +21,8 @@ code_0A8847 {
 }
 
 code_0A8853 {
-    COP [PrintWideString] ( &widestring_0A8858 )
+    COP [PrintDialogString] ( &dialogstring_0A8858 )
     RTL 
 }
 
-widestring_0A8858 `[DLG:3,11][SIZ:D,4][TPL:0]This has the same shape[N]as the statue from the[N]seaside cave...[PAL:0][END]`
+dialogstring_0A8858 `[DLG:3,11][SIZ:D,4][TPL:0]This has the same shape[N]as the statue from the[N]seaside cave...[PAL:0][END]`

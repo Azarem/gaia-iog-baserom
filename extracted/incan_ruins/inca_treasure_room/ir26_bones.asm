@@ -14,8 +14,8 @@ ir26_bones [
 ]
 
 code_09C7A9 {
-    COP [PrintWideString] ( &widestring_09C7AE )
+    COP [PrintDialogString] ( &dialogstring_09C7AE )
     RTL 
 }
 
-widestring_09C7AE `[DEF][TPL:0]An explorer who sought [N]the Incan Gold Ship...? [FIN]In the skeleton's hand[N]is some kind of charm.[FIN][PAU:28]Inside it is a scrap of[N]paper with this[N]written on it.[FIN][PAL:0][SFX:0]Father, please come [N]back alive. [N]               Nana  [FIN]When you find the Gold [N]Ship, buy a Kruk.[N]                 Sabas [END]`
+dialogstring_09C7AE `[DEF][TPL:0]An explorer who sought [N]the Incan Gold Ship...? [FIN]In the skeleton's hand[N]is some kind of charm.[FIN][PAU:28]Inside it is a scrap of[N]paper with this[N]written on it.[FIN][PAL:0][SFX:0]Father, please come [N]back alive. [N]               Nana  [FIN]When you find the Gold [N]Ship, buy a Kruk.[N]                 Sabas [END]`

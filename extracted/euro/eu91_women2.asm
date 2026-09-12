@@ -39,29 +39,29 @@ code_list_07CA92 [
 ]
 
 code_07CA9C {
-    COP [PrintWideString] ( &widestring_07CAB0 )
+    COP [PrintDialogString] ( &dialogstring_07CAB0 )
     RTL 
 }
 
 code_07CAA1 {
-    COP [PrintWideString] ( &widestring_07CAE0 )
+    COP [PrintDialogString] ( &dialogstring_07CAE0 )
     RTL 
 }
 
 code_07CAA6 {
-    COP [PrintWideString] ( &widestring_07CB09 )
+    COP [PrintDialogString] ( &dialogstring_07CB09 )
     RTL 
 }
 
 code_07CAAB {
-    COP [PrintWideString] ( &widestring_07CB60 )
+    COP [PrintDialogString] ( &dialogstring_07CB60 )
     RTL 
 }
 
-widestring_07CAB0 `[DEF]There are many back[N]alleys between the[N]houses in town.[END]`
+dialogstring_07CAB0 `[DEF]There are many back[N]alleys between the[N]houses in town.[END]`
 
-widestring_07CAE0 `[DEF]There are [N]many people confined [N]under the shrine. [END]`
+dialogstring_07CAE0 `[DEF]There are [N]many people confined [N]under the shrine. [END]`
 
-widestring_07CB09 `[DEF]Luggage is piled up in[N]the company next door.[FIN]Sometimes you hear[N]groans from the luggage[N]they're moving. Odd...[END]`
+dialogstring_07CB09 `[DEF]Luggage is piled up in[N]the company next door.[FIN]Sometimes you hear[N]groans from the luggage[N]they're moving. Odd...[END]`
 
-widestring_07CB60 `[DEF]I saw that. There are [N]many people confined [N]under the school. [END]`
+dialogstring_07CB60 `[DEF]I saw that. There are [N]many people confined [N]under the school. [END]`

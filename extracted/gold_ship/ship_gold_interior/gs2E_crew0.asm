@@ -14,8 +14,8 @@ gs2E_crew0 [
 ]
 
 code_05879F {
-    COP [PrintWideString] ( &widestring_0587A4 )
+    COP [PrintDialogString] ( &dialogstring_0587A4 )
     RTL 
 }
 
-widestring_0587A4 `[TPL:E]Through the darkness, a [N]bright light is visible [N]in front of the cave... [FIN]As the ship set sail,[N]that light represented the[N]freedom we had just won.[END]`
+dialogstring_0587A4 `[TPL:E]Through the darkness, a [N]bright light is visible [N]in front of the cave... [FIN]As the ship set sail,[N]that light represented the[N]freedom we had just won.[END]`

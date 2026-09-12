@@ -12,8 +12,8 @@ h_sc05_seths_mother [
 ]
 
 code_048FDB {
-    COP [PrintWideString] ( &widestring_048FE0 )
+    COP [PrintDialogString] ( &dialogstring_048FE0 )
     RTL 
 }
 
-widestring_048FE0 `[TPL:B]モリスの母:[N]じょうだんじゃないわよっ![N]あの男っ![FIN]息子の モリスがいるから[N]がまんしてるけど[N]そうじゃなかったら あたしは[N]とっくに 别れてるわよっ![END]`
+dialogstring_048FE0 `[TPL:B]モリスの母:[N]じょうだんじゃないわよっ![N]あの男っ![FIN]息子の モリスがいるから[N]がまんしてるけど[N]そうじゃなかったら あたしは[N]とっくに 别れてるわよっ![END]`

@@ -27,7 +27,7 @@ code_048A12 {
     LDA #$CFF0
     TRB $joypadMaskStd
     COP [CollPriorityClearMax]
-    COP [PrintWideString] ( &widestring_048A48 )
+    COP [PrintDialogString] ( &dialogstring_048A48 )
     COP [LoopInit] ( #10 )
     LDA #$2000
     TSB $10
@@ -42,4 +42,4 @@ code_048A46 {
     COP [Die]
 }
 
-widestring_048A48 `[TPL:10][TPL:0]No sooner was the door[N]to Seth's house opened[N]than a jar came flying[N]out![END]`
+dialogstring_048A48 `[TPL:10][TPL:0]No sooner was the door[N]to Seth's house opened[N]than a jar came flying[N]out![END]`

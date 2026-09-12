@@ -14,15 +14,15 @@ gs2D_kara [
 ]
 
 code_058C17 {
-    COP [PrintWideString] ( &widestring_058C21 )
+    COP [PrintDialogString] ( &dialogstring_058C21 )
     RTL 
 }
 
 code_058C1C {
-    COP [PrintWideString] ( &widestring_058C8F )
+    COP [PrintDialogString] ( &dialogstring_058C8F )
     RTL 
 }
 
-widestring_058C21 `[TPL:A][TPL:1]Kara: They perished [N]waiting for the [N]King's return... [FIN]I can't stand anything[N]that disrupts people's[N]peaceful lives....[PAL:0][END]`
+dialogstring_058C21 `[TPL:A][TPL:1]Kara: They perished [N]waiting for the [N]King's return... [FIN]I can't stand anything[N]that disrupts people's[N]peaceful lives....[PAL:0][END]`
 
-widestring_058C8F `[TPL:B][TPL:1]Kara: [N]What . . . ?[PAL:0][END]`
+dialogstring_058C8F `[TPL:B][TPL:1]Kara: [N]What . . . ?[PAL:0][END]`

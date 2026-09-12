@@ -101,8 +101,8 @@ sFA_diary_menu [
     TSB $joypadMaskStd
     LDA #$2800
     TSB $playerFlags
-    COP [RunBg3Script] ( @system_strings.asciistring_01EADC )
-    COP [PrintWideStringAlt] ( &widestring_0BF3F4 )
+    COP [RunBg3Script] ( @system_strings.consolestring_01EADC )
+    COP [PrintDialogStringAlt] ( &dialogstring_0BF3F4 )
     JSR $&sub_0BED64
     LDA #$0F00
     STA $joypadMaskInv
@@ -119,7 +119,7 @@ sFA_diary_menu [
 ---------------------------------------------
 
 func_0BE2CC {
-    COP [PrintWideStringAlt] ( &widestring_0BF3F4 )
+    COP [PrintDialogStringAlt] ( &dialogstring_0BF3F4 )
 
   loc_0BE2D0:
     LDA #$FFFF
@@ -128,7 +128,7 @@ func_0BE2CC {
     STA $0D98
 
   code_0BE2DC:
-    COP [RunBg3Script] ( @system_strings.asciistring_01EADC )
+    COP [RunBg3Script] ( @system_strings.consolestring_01EADC )
     COP [SetEntryContinue]
     COP [BranchIfButton] ( #$0800, &code_0BE2F6 )
     COP [BranchIfButton] ( #$0400, &code_0BE30F )
@@ -189,9 +189,9 @@ code_list_0BE34C [
 
 code_0BE354 {
     JSR $&sub_0BEBF9
-    COP [PrintWideStringAlt] ( &widestring_0BF437 )
+    COP [PrintDialogStringAlt] ( &dialogstring_0BF437 )
     COP [CallScript] ( &code_0BEB8B )
-    COP [RunBg3Script] ( @system_strings.asciistring_01EADC )
+    COP [RunBg3Script] ( @system_strings.consolestring_01EADC )
     LDA $0D8C
     AND #$0003
     STA $0D92
@@ -288,10 +288,10 @@ code_0BE3DF {
     STA $0D8E
     STA $0D90
     JSR $&sub_0BEBF9
-    COP [PrintWideStringAlt] ( &widestring_0BF5AD )
-    COP [PrintWideStringAlt] ( &widestring_0BF625 )
-    COP [PrintWideStringAlt] ( &widestring_0BF630 )
-    COP [RunBg3Script] ( @system_strings.asciistring_01EADC )
+    COP [PrintDialogStringAlt] ( &dialogstring_0BF5AD )
+    COP [PrintDialogStringAlt] ( &dialogstring_0BF625 )
+    COP [PrintDialogStringAlt] ( &dialogstring_0BF630 )
+    COP [RunBg3Script] ( @system_strings.consolestring_01EADC )
     LDA #$0000
     STA $0D98
 
@@ -328,8 +328,8 @@ code_0BE498 {
     INC 
     AND #$0001
     STA $0D90
-    COP [PrintWideStringAlt] ( &widestring_0BF625 )
-    COP [RunBg3Script] ( @system_strings.asciistring_01EADC )
+    COP [PrintDialogStringAlt] ( &dialogstring_0BF625 )
+    COP [RunBg3Script] ( @system_strings.consolestring_01EADC )
     LDA #$0380
     TSB $joypadHeld
     JMP $&code_0BE462
@@ -342,8 +342,8 @@ code_0BE498 {
     INC 
     AND #$0001
     STA $0D8E
-    COP [PrintWideStringAlt] ( &widestring_0BF630 )
-    COP [RunBg3Script] ( @system_strings.asciistring_01EADC )
+    COP [PrintDialogStringAlt] ( &dialogstring_0BF630 )
+    COP [RunBg3Script] ( @system_strings.consolestring_01EADC )
     LDA #$0380
     TSB $joypadHeld
     JMP $&code_0BE462
@@ -567,9 +567,9 @@ sub_0BE673 {
 
 func_0BE6BA {
     JSR $&sub_0BEBF9
-    COP [PrintWideStringAlt] ( &widestring_0BF476 )
+    COP [PrintDialogStringAlt] ( &dialogstring_0BF476 )
     COP [CallScript] ( &code_0BEB8B )
-    COP [RunBg3Script] ( @system_strings.asciistring_01EADC )
+    COP [RunBg3Script] ( @system_strings.consolestring_01EADC )
     LDA #$0000
     STA $0D92
 
@@ -611,10 +611,10 @@ code_0BE6FD {
     LDA #$FFFF
     STA $0D92
     JSR $&sub_0BEBF9
-    COP [PrintWideStringAlt] ( &widestring_0BF538 )
-    COP [PrintWideStringAlt] ( &widestring_0BF625 )
-    COP [PrintWideStringAlt] ( &widestring_0BF630 )
-    COP [RunBg3Script] ( @system_strings.asciistring_01EADC )
+    COP [PrintDialogStringAlt] ( &dialogstring_0BF538 )
+    COP [PrintDialogStringAlt] ( &dialogstring_0BF625 )
+    COP [PrintDialogStringAlt] ( &dialogstring_0BF630 )
+    COP [RunBg3Script] ( @system_strings.consolestring_01EADC )
     LDA #$0000
     STA $0D98
 
@@ -678,8 +678,8 @@ code_0BE7A5 {
     INC 
     AND #$0001
     STA $0D90
-    COP [PrintWideStringAlt] ( &widestring_0BF625 )
-    COP [RunBg3Script] ( @system_strings.asciistring_01EADC )
+    COP [PrintDialogStringAlt] ( &dialogstring_0BF625 )
+    COP [RunBg3Script] ( @system_strings.consolestring_01EADC )
     LDA #$0380
     TSB $joypadHeld
     JMP $&code_0BE740
@@ -692,8 +692,8 @@ code_0BE7A5 {
     INC 
     AND #$0001
     STA $0D8E
-    COP [PrintWideStringAlt] ( &widestring_0BF630 )
-    COP [RunBg3Script] ( @system_strings.asciistring_01EADC )
+    COP [PrintDialogStringAlt] ( &dialogstring_0BF630 )
+    COP [RunBg3Script] ( @system_strings.consolestring_01EADC )
     LDA #$0380
     TSB $joypadHeld
     JMP $&code_0BE740
@@ -724,9 +724,9 @@ code_0BE7F5 {
     STA $3063FE, X
     PLX 
     JSR $&sub_0BEBF9
-    COP [PrintWideStringAlt] ( &widestring_0BF476 )
+    COP [PrintDialogStringAlt] ( &dialogstring_0BF476 )
     COP [CallScript] ( &code_0BEB8B )
-    COP [RunBg3Script] ( @system_strings.asciistring_01EADC )
+    COP [RunBg3Script] ( @system_strings.consolestring_01EADC )
     LDA $0D94
     STA $0D92
     JMP $&code_0BE6D0
@@ -809,11 +809,11 @@ func_0BE8A8 {
     LDA #$0002
     STA $0D98
     STZ $00EE
-    COP [PrintWideStringAlt] ( &widestring_0BF679 )
+    COP [PrintDialogStringAlt] ( &dialogstring_0BF679 )
     LDA #$0001
     STA $00EE
     JSR $&sub_0BEBF9
-    COP [PrintWideStringAlt] ( &widestring_0BF3F4 )
+    COP [PrintDialogStringAlt] ( &dialogstring_0BF3F4 )
     JMP $&code_0BE2DC
 
   loc_0BE8D4:
@@ -822,9 +822,9 @@ func_0BE8A8 {
     STA $0D92
 
   code_0BE8DD:
-    COP [PrintWideStringAlt] ( &widestring_0BF48C )
+    COP [PrintDialogStringAlt] ( &dialogstring_0BF48C )
     COP [CallScript] ( &code_0BEB8B )
-    COP [RunBg3Script] ( @system_strings.asciistring_01EADC )
+    COP [RunBg3Script] ( @system_strings.consolestring_01EADC )
     COP [SetEntryExit]
     COP [BranchIfButton] ( #$0800, &code_0BE905 )
     COP [BranchIfButton] ( #$0400, &code_0BE91E )
@@ -1017,9 +1017,9 @@ code_0BEA55 {
     JSR $&sub_0BEBF9
 
   code_0BEA58:
-    COP [PrintWideStringAlt] ( &widestring_0BF4A7 )
+    COP [PrintDialogStringAlt] ( &dialogstring_0BF4A7 )
     COP [CallScript] ( &code_0BEB8B )
-    COP [RunBg3Script] ( @system_strings.asciistring_01EADC )
+    COP [RunBg3Script] ( @system_strings.consolestring_01EADC )
     LDA #$0000
     STA $0D92
 
@@ -1093,8 +1093,8 @@ code_0BEACD {
     LDA #$FFFF
     STA $0D92
     JSR $&sub_0BEBF9
-    COP [PrintWideStringAlt] ( &widestring_0BF6B3 )
-    COP [RunBg3Script] ( @system_strings.asciistring_01EADC )
+    COP [PrintDialogStringAlt] ( &dialogstring_0BF6B3 )
+    COP [RunBg3Script] ( @system_strings.consolestring_01EADC )
     LDA $0D94
     ASL 
     TAY 
@@ -1113,8 +1113,8 @@ code_0BEACD {
     JSR $&sub_0BF1DB
     PLY 
     STA $0D9C
-    COP [PrintWideStringAlt] ( &widestring_0BF6A4 )
-    COP [RunBg3Script] ( @system_strings.asciistring_01EADC )
+    COP [PrintDialogStringAlt] ( &dialogstring_0BF6A4 )
+    COP [RunBg3Script] ( @system_strings.consolestring_01EADC )
     LDA #$4000
     STA $remapB
     STZ $remapY
@@ -1167,7 +1167,7 @@ code_0BEB8B {
     LDA $0D86
     JSR $&sub_0BF1DB
     STA $0D9C
-    COP [PrintWideStringAlt] ( &widestring_0BF4C3 )
+    COP [PrintDialogStringAlt] ( &dialogstring_0BF4C3 )
 
   loc_0BEBAF:
     LDA $0D76
@@ -1181,7 +1181,7 @@ code_0BEB8B {
     LDA $0D88
     JSR $&sub_0BF1DB
     STA $0D9C
-    COP [PrintWideStringAlt] ( &widestring_0BF4EA )
+    COP [PrintDialogStringAlt] ( &dialogstring_0BF4EA )
 
   loc_0BEBD3:
     LDA $0D78
@@ -1195,7 +1195,7 @@ code_0BEB8B {
     LDA $0D8A
     JSR $&sub_0BF1DB
     STA $0D9C
-    COP [PrintWideStringAlt] ( &widestring_0BF511 )
+    COP [PrintDialogStringAlt] ( &dialogstring_0BF511 )
 
   loc_0BEBF7:
     COP [RestoreSavedPtr]
@@ -1886,74 +1886,74 @@ func_0BF2A6 {
 ---------------------------------------------
 
 table_0BF6AD [
-  &widestring_0BF4C3+M   ;00
-  &widestring_0BF4EA+M   ;01
-  &widestring_0BF511+M   ;02
+  &dialogstring_0BF4C3+M   ;00
+  &dialogstring_0BF4EA+M   ;01
+  &dialogstring_0BF511+M   ;02
 ]
 ---------------------------------------------
 
-widestring_0BF3F4 `[DLG:6,A][SIZ:A,4]Start Journey[N]Erase Trip Diary[N]Copy Trip Diary[N]Change Snd/Buttons`
+dialogstring_0BF3F4 `[DLG:6,A][SIZ:A,4]Start Journey[N]Erase Trip Diary[N]Copy Trip Diary[N]Change Snd/Buttons`
 
-widestring_0BF437 `[DLG:2,8][SIZ:E,7]Which Diary?[N][::] Diary1 [ADR:&strings_0BF706,D74][N][N] Diary2 [ADR:&strings_0BF706,D76][N][N] Diary3 [ADR:&strings_0BF706,D78]`
+dialogstring_0BF437 `[DLG:2,8][SIZ:E,7]Which Diary?[N][::] Diary1 [ADR:&strings_0BF706,D74][N][N] Diary2 [ADR:&strings_0BF706,D76][N][N] Diary3 [ADR:&strings_0BF706,D78]`
 
-widestring_0BF476 `[DLG:2,8][SIZ:E,7]Change Snd/Button[N][JMP:&sFA_diary_menu.widestring_0BF437+M]`
+dialogstring_0BF476 `[DLG:2,8][SIZ:E,7]Change Snd/Button[N][JMP:&sFA_diary_menu.dialogstring_0BF437+M]`
 
-widestring_0BF48C `[DLG:2,8][SIZ:E,7]Move which Diary?[N][JMP:&sFA_diary_menu.widestring_0BF437+M]`
+dialogstring_0BF48C `[DLG:2,8][SIZ:E,7]Move which Diary?[N][JMP:&sFA_diary_menu.dialogstring_0BF437+M]`
 
-widestring_0BF4A7 `[DLG:2,8][SIZ:E,7]Erase which Diary?[N][JMP:&sFA_diary_menu.widestring_0BF437+M]`
+dialogstring_0BF4A7 `[DLG:2,8][SIZ:E,7]Erase which Diary?[N][JMP:&sFA_diary_menu.dialogstring_0BF437+M]`
 
-widestring_0BF4C3 `[DLG:2,C][::][SKP:2]HP[SKP:1][BCD:2,D9A][SKP:2]STR[SKP:1][BCD:2,D9C][SKP:2]DEF[SKP:1][BCD:2,D9E]`
+dialogstring_0BF4C3 `[DLG:2,C][::][SKP:2]HP[SKP:1][BCD:2,D9A][SKP:2]STR[SKP:1][BCD:2,D9C][SKP:2]DEF[SKP:1][BCD:2,D9E]`
 
-widestring_0BF4EA `[DLG:2,10][::][SKP:2]HP[SKP:1][BCD:2,D9A][SKP:2]STR[SKP:1][BCD:2,D9C][SKP:2]DEF[SKP:1][BCD:2,D9E]`
+dialogstring_0BF4EA `[DLG:2,10][::][SKP:2]HP[SKP:1][BCD:2,D9A][SKP:2]STR[SKP:1][BCD:2,D9C][SKP:2]DEF[SKP:1][BCD:2,D9E]`
 
-widestring_0BF511 `[DLG:2,14][::][SKP:2]HP[SKP:1][BCD:2,D9A][SKP:2]STR[SKP:1][BCD:2,D9C][SKP:2]DEF[SKP:1][BCD:2,D9E]`
+dialogstring_0BF511 `[DLG:2,14][::][SKP:2]HP[SKP:1][BCD:2,D9A][SKP:2]STR[SKP:1][BCD:2,D9C][SKP:2]DEF[SKP:1][BCD:2,D9E]`
 
-widestring_0BF538 `[DLG:6,8][SIZ:A,8][SKP:2]Change Snd/Buttons[N]End Changes[N]Sound[N]Button Type[N][SKP:5]   :Attack/Talk[N][SKP:5]   :Item/Cancel[N][SKP:5]   :Item palette[N][SKP:5]   :Not used`
+dialogstring_0BF538 `[DLG:6,8][SIZ:A,8][SKP:2]Change Snd/Buttons[N]End Changes[N]Sound[N]Button Type[N][SKP:5]   :Attack/Talk[N][SKP:5]   :Item/Cancel[N][SKP:5]   :Item palette[N][SKP:5]   :Not used`
 
-widestring_0BF5AD `[DLG:6,8][SIZ:A,8]Arrangement  OK?[N]Start Journey[N]Sound[N]Button Type[N][SKP:5]   :Attack/Talk[N][SKP:5]   :Item/Cancel[N][SKP:5]   :Item palette[N][SKP:5]   :Not used`
+dialogstring_0BF5AD `[DLG:6,8][SIZ:A,8]Arrangement  OK?[N]Start Journey[N]Sound[N]Button Type[N][SKP:5]   :Attack/Talk[N][SKP:5]   :Item/Cancel[N][SKP:5]   :Item palette[N][SKP:5]   :Not used`
 
-widestring_0BF625 `[DLG:D,C][SFX:0][ADR:&sFA_diary_menu.table_0BF667,D90]`
+dialogstring_0BF625 `[DLG:D,C][SFX:0][ADR:&sFA_diary_menu.table_0BF667,D90]`
 
-widestring_0BF630 `[DLG:11,E][SFX:0][ADR:&sFA_diary_menu.table_0BF63B,D8E]`
+dialogstring_0BF630 `[DLG:11,E][SFX:0][ADR:&sFA_diary_menu.table_0BF63B,D8E]`
 ---------------------------------------------
 
 table_0BF63B [
-  &widestring_0BF63F   ;00
-  &widestring_0BF653   ;01
+  &dialogstring_0BF63F   ;00
+  &dialogstring_0BF653   ;01
 ]
 
-widestring_0BF63F `1[DLG:8,10]A[DLG:8,12]B[DLG:8,14]SEL[DLG:8,16]Y`
+dialogstring_0BF63F `1[DLG:8,10]A[DLG:8,12]B[DLG:8,14]SEL[DLG:8,16]Y`
 
-widestring_0BF653 `2[DLG:8,10]B[DLG:8,12]Y[DLG:8,14]SEL[DLG:8,16]A`
+dialogstring_0BF653 `2[DLG:8,10]B[DLG:8,12]Y[DLG:8,14]SEL[DLG:8,16]A`
 ---------------------------------------------
 
 table_0BF667 [
-  &widestring_0BF66B   ;00
-  &widestring_0BF672   ;01
+  &dialogstring_0BF66B   ;00
+  &dialogstring_0BF672   ;01
 ]
 
-widestring_0BF66B `Stereo`
+dialogstring_0BF66B `Stereo`
 
-widestring_0BF672 `Mono  `
+dialogstring_0BF672 `Mono  `
 ---------------------------------------------
 
-widestring_0BF679 `[DLG:4,15][SIZ:C,2][DLY:FF]Diary not empty[N]Erase and select[FIN][CLD]`
+dialogstring_0BF679 `[DLG:4,15][SIZ:C,2][DLY:FF]Diary not empty[N]Erase and select[FIN][CLD]`
 ---------------------------------------------
 
-widestring_0BF6A4 `[DLG:4,A][ADR:&sFA_diary_menu.table_0BF6AD,D94]`
+dialogstring_0BF6A4 `[DLG:4,A][ADR:&sFA_diary_menu.table_0BF6AD,D94]`
 ---------------------------------------------
 
-widestring_0BF6B3 `[DLG:4,8][SIZ:D,5][ADR:&sFA_diary_menu.table_0BF6D9,D94][N][N]Erase diary? [N] No [N] Yes `
+dialogstring_0BF6B3 `[DLG:4,8][SIZ:D,5][ADR:&sFA_diary_menu.table_0BF6D9,D94][N][N]Erase diary? [N] No [N] Yes `
 ---------------------------------------------
 
 table_0BF6D9 [
-  &widestring_0BF6DF   ;00
-  &widestring_0BF6EC   ;01
-  &widestring_0BF6F9   ;02
+  &dialogstring_0BF6DF   ;00
+  &dialogstring_0BF6EC   ;01
+  &dialogstring_0BF6F9   ;02
 ]
 
-widestring_0BF6DF `Diary1 [ADR:&strings_0BF706,D74]`
+dialogstring_0BF6DF `Diary1 [ADR:&strings_0BF706,D74]`
 
-widestring_0BF6EC `Diary2 [ADR:&strings_0BF706,D76]`
+dialogstring_0BF6EC `Diary2 [ADR:&strings_0BF706,D76]`
 
-widestring_0BF6F9 `Diary3 [ADR:&strings_0BF706,D78]`
+dialogstring_0BF6F9 `Diary3 [ADR:&strings_0BF706,D78]`

@@ -16,11 +16,11 @@ na49_telescope [
 ]
 
 code_05E4EB {
-    COP [PrintWideString] ( &widestring_05E4F9 )
+    COP [PrintDialogString] ( &dialogstring_05E4F9 )
     LDA $0AA6
     ORA #$0004
     STA $0AA6
     RTL 
 }
 
-widestring_05E4F9 `[TPL:A][TPL:6]That's a telescope.[N]You can see stars as if[N]they were in your hand.[PAL:0][END]`
+dialogstring_05E4F9 `[TPL:A][TPL:6]That's a telescope.[N]You can see stars as if[N]they were in your hand.[PAL:0][END]`

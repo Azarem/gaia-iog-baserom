@@ -27,7 +27,7 @@ code_04899B {
     LDA #$CFF0
     TRB $joypadMaskStd
     COP [CollPriorityClearMax]
-    COP [PrintWideString] ( &widestring_0489D1 )
+    COP [PrintDialogString] ( &dialogstring_0489D1 )
     COP [LoopInit] ( #10 )
     LDA #$2000
     TSB $10
@@ -42,4 +42,4 @@ code_0489CF {
     COP [Die]
 }
 
-widestring_0489D1 `[TPL:10][TPL:0]モリスの家の ドアを[N]開けたとたん 中から ツボが[N]飛んできたっ![END]`
+dialogstring_0489D1 `[TPL:10][TPL:0]モリスの家の ドアを[N]開けたとたん 中から ツボが[N]飛んできたっ![END]`

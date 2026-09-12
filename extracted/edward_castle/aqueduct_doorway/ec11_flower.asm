@@ -16,8 +16,8 @@ ec11_flower [
 ]
 
 code_09BC4C {
-    COP [PrintWideString] ( &widestring_09BC51 )
+    COP [PrintDialogString] ( &dialogstring_09BC51 )
     RTL 
 }
 
-widestring_09BC51 `[DEF]Flower in the corner:[N]Try playing the Flute...[N]Play the melody...[END]`
+dialogstring_09BC51 `[DEF]Flower in the corner:[N]Try playing the Flute...[N]Play the melody...[END]`

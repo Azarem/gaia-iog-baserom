@@ -31,22 +31,22 @@ code_04BEBA {
 
 code_04BEC6 {
     COP [BranchIfFlagByte] ( #19, #01, &code_04BED1 )
-    COP [PrintWideString] ( &widestring_04BEDB )
+    COP [PrintDialogString] ( &dialogstring_04BEDB )
     RTL 
 }
 
 code_04BED1 {
-    COP [PrintWideString] ( &widestring_04BF0D )
+    COP [PrintDialogString] ( &dialogstring_04BF0D )
     RTL 
 }
 
 code_04BED6 {
-    COP [PrintWideString] ( &widestring_04BF3A )
+    COP [PrintDialogString] ( &dialogstring_04BF3A )
     RTL 
 }
 
-widestring_04BEDB `[DEF]エドワード国王は 朝食を[N]とられているところだ.[N]今しばらくしてから くるがよい.[END]`
+dialogstring_04BEDB `[DEF]エドワード国王は 朝食を[N]とられているところだ.[N]今しばらくしてから くるがよい.[END]`
 
-widestring_04BF0D `[DEF]この先は えっけん室.[N]国王に会見するなら この階段を[N]登るがよい.[END]`
+dialogstring_04BF0D `[DEF]この先は えっけん室.[N]国王に会見するなら この階段を[N]登るがよい.[END]`
 
-widestring_04BF3A `[DEF]うつら うつら···[END]`
+dialogstring_04BF3A `[DEF]うつら うつら···[END]`

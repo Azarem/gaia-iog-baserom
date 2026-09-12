@@ -39,13 +39,13 @@ code_06A757 {
     COP [StageSpriteFrame] ( #13 )
     COP [AnimOnce]
     COP [WaitByte] ( #45 )
-    COP [PrintWideString] ( &widestring_06A7C7 )
+    COP [PrintDialogString] ( &dialogstring_06A7C7 )
     COP [SpawnAfterFlags] ( @e_mu67_lily, #$1002 )
     COP [SetEntryContinue]
     RTL 
 }
 
-widestring_06A7C7 `[TPL:A][TPL:6]Neil: [N]Will! Are you OK?! [FIN][TPL:4]Lance: Will! [N]I don't see Lilly. [N]Has something happened? [FIN][TPL:2]Lilly:[N]I'm here.[PAL:0][END]`
+dialogstring_06A7C7 `[TPL:A][TPL:6]Neil: [N]Will! Are you OK?! [FIN][TPL:4]Lance: Will! [N]I don't see Lilly. [N]Has something happened? [FIN][TPL:2]Lilly:[N]I'm here.[PAL:0][END]`
 ---------------------------------------------
 
 e_mu67_lily {
@@ -76,15 +76,15 @@ e_mu67_lily {
     COP [StageSpriteLoop] ( #22, #04 )
     COP [AnimLoop]
     COP [WaitByte] ( #3B )
-    COP [PrintWideString] ( &widestring_06AA4C )
+    COP [PrintDialogString] ( &dialogstring_06AA4C )
     COP [SetFlagByte] ( #05 )
     COP [WaitByte] ( #3B )
-    COP [PrintWideString] ( &widestring_06AA89 )
+    COP [PrintDialogString] ( &dialogstring_06AA89 )
     COP [SetFlagByte] ( #06 )
     COP [SetEntryContinue]
     RTL 
 }
 
-widestring_06AA4C `[TPL:A][TPL:2]Lilly: Sorry I worried [N]you. Will was protecting [N]me, so I was OK.[PAL:0][END]`
+dialogstring_06AA4C `[TPL:A][TPL:2]Lilly: Sorry I worried [N]you. Will was protecting [N]me, so I was OK.[PAL:0][END]`
 
-widestring_06AA89 `[TPL:A][TPL:6]Neil: Well, Will [N]seems to have really [N]grown up.[PAL:0][END]`
+dialogstring_06AA89 `[TPL:A][TPL:6]Neil: Well, Will [N]seems to have really [N]grown up.[PAL:0][END]`

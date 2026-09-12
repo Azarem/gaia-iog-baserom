@@ -36,12 +36,12 @@ code_07D9C4 {
 }
 
 code_07D9C6 {
-    COP [PrintWideString] ( &widestring_07DA00 )
+    COP [PrintDialogString] ( &dialogstring_07DA00 )
     RTL 
 }
 
 code_07D9CB {
-    COP [PrintWideString] ( &widestring_07DA3D )
+    COP [PrintDialogString] ( &dialogstring_07DA3D )
     LDA #$0000
     STA $0D60
     LDA #$0001
@@ -57,6 +57,6 @@ code_07D9CB {
     RTL 
 }
 
-widestring_07DA00 `[TPL:B][TPL:1]Kara: What a big house! [N]The townspeople [N]seem to be richer [N]than the King...[PAL:0][END]`
+dialogstring_07DA00 `[TPL:B][TPL:1]Kara: What a big house! [N]The townspeople [N]seem to be richer [N]than the King...[PAL:0][END]`
 
-widestring_07DA3D `[TPL:A][TPL:1]Kara: To the west of [N]here are the ruins of [N]Ankor Wat. [FIN]That is where the[N]laborer's home is[N]located.[FIN]Let's go![PAL:0][END]`
+dialogstring_07DA3D `[TPL:A][TPL:1]Kara: To the west of [N]here are the ruins of [N]Ankor Wat. [FIN]That is where the[N]laborer's home is[N]located.[FIN]Let's go![PAL:0][END]`

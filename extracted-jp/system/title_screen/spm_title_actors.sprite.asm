@@ -1,6 +1,6 @@
 ---------------------------------------------
 
-sprite_set_list_000000 [
+spm_title_actors [
   &sprite_set_000008   ;00
   &sprite_set_000022   ;01
   &sprite_set_00003C   ;02

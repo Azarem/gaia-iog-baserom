@@ -39,7 +39,7 @@ code_08B853 {
     COP [SolidHighAbs] ( #08, #0C )
     COP [SolidHighAbs] ( #09, #09 )
     COP [SolidHighAbs] ( #09, #0A )
-    COP [PrintWideString] ( &widestring_08BA11 )
+    COP [PrintDialogString] ( &dialogstring_08BA11 )
     LDA #$EFF0
     TRB $joypadMaskStd
     COP [SetEntryContinue]
@@ -49,7 +49,7 @@ code_08B853 {
 }
 
 code_08B88E {
-    COP [PrintWideString] ( &widestring_08BA36 )
+    COP [PrintDialogString] ( &dialogstring_08BA36 )
     RTL 
 }
 
@@ -61,7 +61,7 @@ code_08B893 {
     COP [ClearLowAbs] ( #09, #0A )
     COP [SolidHighAbs] ( #05, #09 )
     COP [SolidHighAbs] ( #05, #0A )
-    COP [PrintWideString] ( &widestring_08BA5A )
+    COP [PrintDialogString] ( &dialogstring_08BA5A )
     LDA #$CFF0
     TSB $joypadMaskStd
     LDA #$2000
@@ -77,9 +77,9 @@ code_08B893 {
     COP [StageSpriteFrame] ( #0C )
     COP [AnimOnce]
     COP [WaitByte] ( #1D )
-    COP [PrintWideString] ( &widestring_08BA7D )
+    COP [PrintDialogString] ( &dialogstring_08BA7D )
     COP [WaitByte] ( #3B )
-    COP [PrintWideString] ( &widestring_08BC55 )
+    COP [PrintDialogString] ( &dialogstring_08BC55 )
     LDA $characterForm
     BEQ loc_08B921
     CMP #$0001
@@ -126,7 +126,7 @@ code_08B950 {
 }
 
 code_08B951 {
-    COP [PrintWideString] ( &widestring_08BCBC )
+    COP [PrintDialogString] ( &dialogstring_08BCBC )
     RTL 
 }
 
@@ -195,29 +195,29 @@ code_08B9EC {
 }
 
 code_08BA04 {
-    COP [PrintWideString] ( &widestring_08BCF2 )
+    COP [PrintDialogString] ( &dialogstring_08BCF2 )
     COP [WaitByte] ( #EF )
-    COP [PrintWideString] ( &widestring_08BD16 )
+    COP [PrintDialogString] ( &dialogstring_08BD16 )
     COP [Die]
 }
 
-widestring_08BA11 `[TPL:9][TPL:4][DLY:0]Walk to the left[N]without a sound!![PAL:0][END]`
+dialogstring_08BA11 `[TPL:9][TPL:4][DLY:0]Walk to the left[N]without a sound!![PAL:0][END]`
 
-widestring_08BA36 `[TPL:9][TPL:4]It says to walk to[N]the left!![PAL:0][END]`
+dialogstring_08BA36 `[TPL:9][TPL:4]It says to walk to[N]the left!![PAL:0][END]`
 
-widestring_08BA5A `[TPL:9][TPL:4]There, that's good.[N]Don't move!![PAL:0][END]`
+dialogstring_08BA5A `[TPL:9][TPL:4]There, that's good.[N]Don't move!![PAL:0][END]`
 
-widestring_08BA7D `[TPL:A][TPL:4][DLY:0]Jackal: [N]I know the whole [N]story of your adventure. [FIN]I heard about an[N]ancient bio-technology[N]using a comet's light. [FIN]I didn't know it was you.[FIN]With the power to change[N]body shape, you could[N]get anything.[FIN]People would bow [N]at your feet.[FIN]It's only natural that[N]King Edward would [N]trick you into this...[FIN][TPL:1]Kara: [N]My father!!? [FIN][TPL:4]Jackal: [N]Yes! After all, that's [N]the way kings are. [FIN]He would do anything to[N]get the power.[FIN]He might even be more [N]evil than a mercenary [N]like me. Heh heh. [FIN][TPL:1]Kara: [N]Stop it! [FIN][TPL:4]Jackal: [N]Either way, if I make [N]money, it's fine. [FIN]Come with me to[N]Edward Castle.[PAL:0][END]`
+dialogstring_08BA7D `[TPL:A][TPL:4][DLY:0]Jackal: [N]I know the whole [N]story of your adventure. [FIN]I heard about an[N]ancient bio-technology[N]using a comet's light. [FIN]I didn't know it was you.[FIN]With the power to change[N]body shape, you could[N]get anything.[FIN]People would bow [N]at your feet.[FIN]It's only natural that[N]King Edward would [N]trick you into this...[FIN][TPL:1]Kara: [N]My father!!? [FIN][TPL:4]Jackal: [N]Yes! After all, that's [N]the way kings are. [FIN]He would do anything to[N]get the power.[FIN]He might even be more [N]evil than a mercenary [N]like me. Heh heh. [FIN][TPL:1]Kara: [N]Stop it! [FIN][TPL:4]Jackal: [N]Either way, if I make [N]money, it's fine. [FIN]Come with me to[N]Edward Castle.[PAL:0][END]`
 
-widestring_08BC55 `[TPL:A][TPL:0]A voice whispers [N]in Will's head... [FIN][DLY:0]Will... Play the [N]Flute....Will....[PAL:0][END]`
+dialogstring_08BC55 `[TPL:A][TPL:0]A voice whispers [N]in Will's head... [FIN][DLY:0]Will... Play the [N]Flute....Will....[PAL:0][END]`
 
-widestring_08BC9F `[TPL:A][TPL:4]Jackal: [N]Give up...? [N][PAL:0][END]`
+dialogstring_08BC9F `[TPL:A][TPL:4]Jackal: [N]Give up...? [N][PAL:0][END]`
 
-widestring_08BCBC `[TPL:A][TPL:4]Jackal: [N]If you come any closer, [N]I'll use this knife...[PAL:0][END]`
+dialogstring_08BCBC `[TPL:A][TPL:4]Jackal: [N]If you come any closer, [N]I'll use this knife...[PAL:0][END]`
 
-widestring_08BCF2 `[TPL:9][TPL:4][DLY:0]Jackal: [N]Wa-a-a-a-ah!!!![PAU:3C][PAL:0][CLD]`
+dialogstring_08BCF2 `[TPL:9][TPL:4][DLY:0]Jackal: [N]Wa-a-a-a-ah!!!![PAU:3C][PAL:0][CLD]`
 
-widestring_08BD16 `[TPL:8][TPL:4][DLY:4]Kara...Kara...[PAU:78][PAL:0][CLD]`
+dialogstring_08BD16 `[TPL:8][TPL:4][DLY:4]Kara...Kara...[PAU:78][PAL:0][CLD]`
 ---------------------------------------------
 
 code_08B7E8 {

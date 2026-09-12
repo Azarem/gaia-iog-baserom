@@ -14,11 +14,11 @@ mu61_hint [
 
 code_0697C0 {
     COP [SetFlagByte] ( #7A )
-    COP [PrintWideString] ( &widestring_0697C9 )
+    COP [PrintDialogString] ( &dialogstring_0697C9 )
 }
 
 code_0697C7 {
     COP [Die]
 }
 
-widestring_0697C9 `[DEF][TPL:2]Lilly speaks from[N]his pocket.[FIN][TPL:2]Lilly: Will. [N]I've been thinking... [FIN]It appears as if [N]the treasure chest is [N]in the exact spot where [FIN]the line of vision [N]between both the [N]statues cross. [FIN]I wonder if this is [N]suppose to mean [N]something? Maybe not?[PAL:0][END]`
+dialogstring_0697C9 `[DEF][TPL:2]Lilly speaks from[N]his pocket.[FIN][TPL:2]Lilly: Will. [N]I've been thinking... [FIN]It appears as if [N]the treasure chest is [N]in the exact spot where [FIN]the line of vision [N]between both the [N]statues cross. [FIN]I wonder if this is [N]suppose to mean [N]something? Maybe not?[PAL:0][END]`

@@ -19,7 +19,7 @@ ec0A_barrel_roast [
 ]
 
 code_04D0F3 {
-    COP [PrintWideString] ( &widestring_04D114 )
+    COP [PrintDialogString] ( &dialogstring_04D114 )
     COP [SetEntryContinue]
     RTL 
 }
@@ -32,7 +32,7 @@ code_04D0FF {
     COP [SetFlagByte] ( #46 )
     LDA #$0080
     TSB $displayModeFlags
-    COP [MusicAndText] ( #17, @widestring_04D141 )
+    COP [MusicAndText] ( #17, @dialogstring_04D141 )
     COP [Die]
 }
 
@@ -40,6 +40,6 @@ code_04D110 {
     JML $@f_inventory_full.InventoryFullMessage
 }
 
-widestring_04D114 `[TPL:A][TPL:1]Kara: [N]I think someone put food[N]in one of these barrels.[PAL:0][END]`
+dialogstring_04D114 `[TPL:A][TPL:1]Kara: [N]I think someone put food[N]in one of these barrels.[PAL:0][END]`
 
-widestring_04D141 `[DEF][SFX:0][DLY:9]You've found a large,[N]yummy roast leg of yak![PAU:FF][FIN][DLY:1][TPL:1]Kara: [N]Everything's ready![N]Let's go before the[N]soldiers find us![PAL:0][END]`
+dialogstring_04D141 `[DEF][SFX:0][DLY:9]You've found a large,[N]yummy roast leg of yak![PAU:FF][FIN][DLY:1][TPL:1]Kara: [N]Everything's ready![N]Let's go before the[N]soldiers find us![PAL:0][END]`

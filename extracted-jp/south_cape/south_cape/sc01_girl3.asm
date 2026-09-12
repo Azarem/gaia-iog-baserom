@@ -24,8 +24,8 @@ h_sc01_girl3 [
 ]
 
 code_0481B6 {
-    COP [PrintWideString] ( &widestring_0481BB )
+    COP [PrintDialogString] ( &dialogstring_0481BB )
     RTL 
 }
 
-widestring_0481BB `[DEF]あたしたちって いつから[N]この遊び やってるんだろう··[END]`
+dialogstring_0481BB `[DEF]あたしたちって いつから[N]この遊び やってるんだろう··[END]`

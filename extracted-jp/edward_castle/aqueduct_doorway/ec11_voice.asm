@@ -78,7 +78,7 @@ code_04F796 {
     COP [BranchIfFlagByte] ( #01, #01, &code_04F7D0 )
     COP [StageSpriteFrame] ( #11 )
     COP [AnimOnce]
-    COP [PrintWideString] ( &widestring_04F7EF )
+    COP [PrintDialogString] ( &dialogstring_04F7EF )
     COP [SetFlagByte] ( #03 )
     BRA loc_04F7C1
 }
@@ -103,15 +103,15 @@ code_04F7D0 {
     COP [ApplyBgChange]
     COP [SetFlagWord] ( #$0113 )
     COP [PlaySoundBoth] ( #$0F0F )
-    COP [PrintWideString] ( &widestring_04F819 )
+    COP [PrintDialogString] ( &dialogstring_04F819 )
     COP [PlaySoundCh1] ( #16 )
     COP [SetEntryContinue]
     RTL 
 }
 
-widestring_04F7EF `[DEF][TPL:2]ちょっとぉ![N]同時に おさなきゃ ダメだって[N]言ったでしょ![FIN][JMP:&ec11_voice.widestring_04F8FC+M]`
+dialogstring_04F7EF `[DEF][TPL:2]ちょっとぉ![N]同時に おさなきゃ ダメだって[N]言ったでしょ![FIN][JMP:&ec11_voice.dialogstring_04F8FC+M]`
 
-widestring_04F819 `[PAU:1E][DEF][TPL:2]やったぁ![N]トビラが 開いたわよっ![FIN]さあ 先へ 行って![END]`
+dialogstring_04F819 `[PAU:1E][DEF][TPL:2]やったぁ![N]トビラが 開いたわよっ![FIN]さあ 先へ 行って![END]`
 
 actor_def_04F841 [
   actor-def < #00, #00, #23, {
@@ -129,7 +129,7 @@ code_04F857 {
     LDA #$CFF0
     TSB $joypadMaskStd
     COP [WaitByte] ( #1D )
-    COP [PrintWideString] ( &widestring_04F8FC )
+    COP [PrintDialogString] ( &dialogstring_04F8FC )
     COP [StartMusic] ( #1B )
     COP [WaitByte] ( #3B )
     LDA #$CFF0
@@ -145,7 +145,7 @@ code_04F857 {
     COP [PlaySoundCh1] ( #10 )
     COP [LoopInit] ( #3C )
     COP [BranchIfFlagByte] ( #03, #01, &code_04F8F3 )
-    JSR $&it1B_trial.code_04F977
+    JSR $&code_04F977
     LDA #$0001
     STA $0000
     JSL $@chunk_3B7DD.code_03B7ED
@@ -156,7 +156,7 @@ code_04F857 {
     COP [PlaySoundCh1] ( #10 )
     COP [LoopInit] ( #3C )
     COP [BranchIfFlagByte] ( #03, #01, &code_04F8F3 )
-    JSR $&it1B_trial.code_04F977
+    JSR $&code_04F977
     LDA #$0002
     STA $0000
     JSL $@chunk_3B7DD.code_03B7ED
@@ -168,13 +168,13 @@ code_04F857 {
     COP [PlaySoundCh1] ( #11 )
     COP [LoopInit] ( #28 )
     COP [BranchIfFlagByte] ( #02, #00, &code_04F8F9 )
-    JSR $&it1B_trial.code_04F977
+    JSR $&code_04F977
     LDA #$0003
     STA $0000
     JSL $@chunk_3B7DD.code_03B7ED
     COP [LoopNext]
     COP [ClearFlagByte] ( #01 )
-    COP [PrintWideString] ( &widestring_04F7EF )
+    COP [PrintDialogString] ( &dialogstring_04F7EF )
 }
 
 code_04F8F3 {
@@ -187,7 +187,7 @@ code_04F8F9 {
     RTL 
 }
 
-widestring_04F8FC `[TPL:A][TPL:2][::]不思議な声:[N]このスイッチはね 2つ 同時に[N]おさないと トビラが開かないの.[FIN]あたしが かけ声をかけるから[N]それにあわせて スイッチを[N]おしてね.[FIN]1 2 3の タイミングだからね.[N]まちがえないでね.[END]`
+dialogstring_04F8FC `[TPL:A][TPL:2][::]不思議な声:[N]このスイッチはね 2つ 同時に[N]おさないと トビラが開かないの.[FIN]あたしが かけ声をかけるから[N]それにあわせて スイッチを[N]おしてね.[FIN]1 2 3の タイミングだからね.[N]まちがえないでね.[END]`
 
 code_04F977 {
     LDA $playerWallType

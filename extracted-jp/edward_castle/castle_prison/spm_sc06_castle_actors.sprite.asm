@@ -1,6 +1,6 @@
 ---------------------------------------------
 
-sprite_set_list_000000 [
+spm_sc06_castle_actors [
   &sprite_set_000056   ;00
   &sprite_set_00005C   ;01
   &sprite_set_000062   ;02

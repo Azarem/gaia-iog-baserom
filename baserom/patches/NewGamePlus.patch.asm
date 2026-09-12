@@ -7,9 +7,9 @@
 
 diary_ngp_option {
     JSR $&sub_0BEBF9
-    COP [6B] ( &widestring_0BF437 )
+    COP [6B] ( &dialogstring_0BF437 )
     COP [C8] ( &code_0BEB8B )
-    COP [BD] ( @asciistring_01EADC )
+    COP [BD] ( @consolestring_01EADC )
     LDA $0D8C
     AND #$0003
     STA $0D92
@@ -151,14 +151,14 @@ code_0BE23A! {
     LDA #$2800
     TSB $playerFlags
     JSR $&sub_0BED64
-    COP [BD] ( @asciistring_01EADC )
+    COP [BD] ( @consolestring_01EADC )
     LDA $20
     BEQ diary_menu_normal
     COP [6B] ( &diary_ngp_str )
     BRA diary_menu_continue
 
   diary_menu_normal:
-    COP [6B] ( &widestring_0BF3F4 )
+    COP [6B] ( &dialogstring_0BF3F4 )
 
   diary_menu_continue:
     LDA #$0F00
@@ -199,7 +199,7 @@ func_0BE2CC! {
     BRA loc_0BE2D0
 
   diary_print_normal:
-    COP [6B] ( &widestring_0BF3F4 )
+    COP [6B] ( &dialogstring_0BF3F4 )
 }
 
 ------------------------------------------------

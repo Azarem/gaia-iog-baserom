@@ -12,8 +12,8 @@ daC3_freedom_man [
 ]
 
 code_08AB2F {
-    COP [PrintWideString] ( &widestring_08AB34 )
+    COP [PrintDialogString] ( &dialogstring_08AB34 )
     RTL 
 }
 
-widestring_08AB34 `[DEF]A freedom movement [N]has started recently. [FIN]The president of Rolek [N]started the labor trade [N]freedom movement. [END]`
+dialogstring_08AB34 `[DEF]A freedom movement [N]has started recently. [FIN]The president of Rolek [N]started the labor trade [N]freedom movement. [END]`

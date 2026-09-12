@@ -79,7 +79,7 @@ code_0886BF {
     TRB $10
     COP [StartMusic] ( #11 )
     COP [WaitByte] ( #EF )
-    COP [PrintWideString] ( &widestring_08885C )
+    COP [PrintDialogString] ( &dialogstring_08885C )
     COP [WaitByte] ( #3B )
     COP [SpawnAfterFlags] ( @code_088755, #$1002 )
     COP [SetOnInteract] ( &code_088750 )
@@ -98,7 +98,7 @@ code_08873E {
 }
 
 code_088750 {
-    COP [PrintWideString] ( &widestring_0888AD )
+    COP [PrintDialogString] ( &dialogstring_0888AD )
     RTL 
 }
 
@@ -144,14 +144,14 @@ code_08879C {
 
 code_0887BA {
     COP [WaitByte] ( #59 )
-    COP [PrintWideString] ( &widestring_08890E )
+    COP [PrintDialogString] ( &dialogstring_08890E )
     COP [SetFlagByte] ( #05 )
     COP [Die]
 }
 ---------------------------------------------
 
-widestring_08885C `[TPL:A][TPL:3]Erik: Poor Hamlet... [N]To eat or not to eat...?[FIN][TPL:1]Kara: [N]Hamlet...! [N](Sob).....[PAL:0][END]`
+dialogstring_08885C `[TPL:A][TPL:3]Erik: Poor Hamlet... [N]To eat or not to eat...?[FIN][TPL:1]Kara: [N]Hamlet...! [N](Sob).....[PAL:0][END]`
 
-widestring_0888AD `[TPL:A][TPL:0]Sniff sniff.[FIN]I'll never hear that [N]snort again... [FIN]The air is filled with[N]the aroma of roasting[N]Hamlet.[PAL:0][END]`
+dialogstring_0888AD `[TPL:A][TPL:0]Sniff sniff.[FIN]I'll never hear that [N]snort again... [FIN]The air is filled with[N]the aroma of roasting[N]Hamlet.[PAL:0][END]`
 
-widestring_08890E `[TPL:A][TPL:0]A familiar voice echoed[N]in their heads.[FIN][TPL:2][DLY:0]Listen, everyone. It was[N]Hamlet's wish to be [N]food for these people. [FIN]One baby pig could save[N]many villagers.[FIN][TPL:0]Will: [N]Mother...? [FIN][TPL:2]Will... and everyone [N]in this place... [FIN]Darkness is approaching[N]the world. [FIN]You must combine your [N]strength to save [N]the planet.[FIN]So, Will, find the [N]Mystic Statues and go[N]to the Tower of Babel...[PAL:0][END]`
+dialogstring_08890E `[TPL:A][TPL:0]A familiar voice echoed[N]in their heads.[FIN][TPL:2][DLY:0]Listen, everyone. It was[N]Hamlet's wish to be [N]food for these people. [FIN]One baby pig could save[N]many villagers.[FIN][TPL:0]Will: [N]Mother...? [FIN][TPL:2]Will... and everyone [N]in this place... [FIN]Darkness is approaching[N]the world. [FIN]You must combine your [N]strength to save [N]the planet.[FIN]So, Will, find the [N]Mystic Statues and go[N]to the Tower of Babel...[PAL:0][END]`

@@ -16,7 +16,7 @@ pyDD_mystic_statue [
     LDA #$FFF0
     TSB $joypadMaskStd
     COP [WaitByte] ( #3B )
-    COP [PrintWideString] ( &widestring_08CE60 )
+    COP [PrintDialogString] ( &dialogstring_08CE60 )
     LDA #$0004
     STA $0AAC
     LDA #$00CD
@@ -36,4 +36,4 @@ pyDD_mystic_statue [
 } >
 ]
 
-widestring_08CE60 `[DEF][TPL:0]Defeating the spirit[N]of the Pyramid,[N]he obtained[N]a Mystic Statue!![PAL:0][END]`
+dialogstring_08CE60 `[DEF][TPL:0]Defeating the spirit[N]of the Pyramid,[N]he obtained[N]a Mystic Statue!![PAL:0][END]`

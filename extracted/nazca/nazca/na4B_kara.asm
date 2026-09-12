@@ -70,31 +70,31 @@ na4B_kara [
 ]
 
 code_05ED46 {
-    COP [PrintWideString] ( &widestring_05ED60 )
+    COP [PrintDialogString] ( &dialogstring_05ED60 )
     RTL 
 }
 
 code_05ED4B {
-    COP [PrintWideString] ( &widestring_05EDA1 )
+    COP [PrintDialogString] ( &dialogstring_05EDA1 )
     COP [SetFlagByte] ( #05 )
     RTL 
 }
 
 code_05ED53 {
-    COP [PrintWideString] ( &widestring_05EE15 )
+    COP [PrintDialogString] ( &dialogstring_05EE15 )
     COP [SetFlagByte] ( #06 )
     RTL 
 }
 
 code_05ED5B {
-    COP [PrintWideString] ( &widestring_05EE7C )
+    COP [PrintDialogString] ( &dialogstring_05EE7C )
     RTL 
 }
 
-widestring_05ED60 `[DEF][TPL:1]Kara: It must [N]be great to paint [N]such a huge painting on [N]a natural canvas.[PAL:0][END]`
+dialogstring_05ED60 `[DEF][TPL:1]Kara: It must [N]be great to paint [N]such a huge painting on [N]a natural canvas.[PAL:0][END]`
 
-widestring_05EDA1 `[DEF][TPL:1]Kara: When you look at [N]it this way, it's like [N]the white lines at an [N]athletic event. [FIN]Maybe the ancient Nazca[N]people ran the 100 yard[N]dash here.[END]`
+dialogstring_05EDA1 `[DEF][TPL:1]Kara: When you look at [N]it this way, it's like [N]the white lines at an [N]athletic event. [FIN]Maybe the ancient Nazca[N]people ran the 100 yard[N]dash here.[END]`
 
-widestring_05EE15 `[DEF][TPL:1]Kara: This is the [N]Condor's stomach. If [N]you dig here, you [N]might find eggs. [FIN]It's a joke (laughs).[N]Don't be so serious.[END]`
+dialogstring_05EE15 `[DEF][TPL:1]Kara: This is the [N]Condor's stomach. If [N]you dig here, you [N]might find eggs. [FIN]It's a joke (laughs).[N]Don't be so serious.[END]`
 
-widestring_05EE7C `[DEF][TPL:1]Kara: [N]What an exciting [N]experience...[PAL:0][END]`
+dialogstring_05EE7C `[DEF][TPL:1]Kara: [N]What an exciting [N]experience...[PAL:0][END]`

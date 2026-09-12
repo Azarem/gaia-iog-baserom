@@ -1,6 +1,6 @@
 ---------------------------------------------
 
-sprite_set_list_000000 [
+spm_babel_spaceflight_sprites [
   &sprite_set_000008   ;00
   &sprite_set_00000E   ;01
   &sprite_set_000014   ;02

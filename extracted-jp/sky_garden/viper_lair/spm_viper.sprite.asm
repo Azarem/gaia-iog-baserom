@@ -1,6 +1,6 @@
 ---------------------------------------------
 
-sprite_set_list_000000 [
+spm_viper [
   &sprite_set_000050   ;00
   &sprite_set_00006A   ;01
   &sprite_set_00007C   ;02

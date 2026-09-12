@@ -16,8 +16,8 @@ daC3_kruk1 [
 ]
 
 code_08AC0C {
-    COP [PrintWideString] ( &widestring_08AC11 )
+    COP [PrintDialogString] ( &dialogstring_08AC11 )
     RTL 
 }
 
-widestring_08AC11 `[DEF]Kiaaa...Kiaaa...[END]`
+dialogstring_08AC11 `[DEF]Kiaaa...Kiaaa...[END]`

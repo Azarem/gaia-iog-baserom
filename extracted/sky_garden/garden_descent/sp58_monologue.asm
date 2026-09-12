@@ -48,7 +48,7 @@ sp58_monologue [
 code_0683C2 {
     COP [WaitByte] ( #EF )
     COP [WaitByte] ( #EF )
-    COP [PrintWideString] ( &widestring_0683EB )
+    COP [PrintDialogString] ( &dialogstring_0683EB )
     COP [WaitByte] ( #77 )
     LDA #$0404
     STA $gfxCacheIdxB
@@ -60,4 +60,4 @@ code_0683C2 {
     RTL 
 }
 
-widestring_0683EB `[TPL:B][TPL:0]Will: We got out of [N]the airplane in the [N]nick of time... [FIN]Neil's a good inventor, [N]but it seems there's [N]always something missing [N]in his inventions..... [FIN]I guess nobody's [N]perfect, including [N]Neil.[PAL:0][END]`
+dialogstring_0683EB `[TPL:B][TPL:0]Will: We got out of [N]the airplane in the [N]nick of time... [FIN]Neil's a good inventor, [N]but it seems there's [N]always something missing [N]in his inventions..... [FIN]I guess nobody's [N]perfect, including [N]Neil.[PAL:0][END]`

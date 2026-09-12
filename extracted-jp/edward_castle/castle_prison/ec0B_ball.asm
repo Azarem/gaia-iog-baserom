@@ -13,9 +13,9 @@ h_ec0B_ball [
 ]
 
 code_04D571 {
-    COP [PrintWideString] ( &widestring_04D57A )
+    COP [PrintDialogString] ( &dialogstring_04D57A )
     COP [SetFlagByte] ( #04 )
     COP [Die]
 }
 
-widestring_04D57A `[TPL:E][TPL:0]テム: この鉄球には だれかが[N]つながれていたんだろうな···[PAL:0][END]`
+dialogstring_04D57A `[TPL:E][TPL:0]テム: この鉄球には だれかが[N]つながれていたんだろうな···[PAL:0][END]`

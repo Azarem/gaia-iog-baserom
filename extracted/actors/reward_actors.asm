@@ -30,11 +30,11 @@ e_hp_increase {
     SEC 
     SBC $playerHp
     STA $damageFlashTimer
-    COP [PrintWideString] ( &widestring_00E058 )
+    COP [PrintDialogString] ( &dialogstring_00E058 )
     COP [Die]
 }
 
-widestring_00E058 `[DEF][DLY:1][SFX:0]Your HP (Power) [N]has increased! [END]`
+dialogstring_00E058 `[DEF][DLY:1][SFX:0]Your HP (Power) [N]has increased! [END]`
 
 e_str_increase {
     COP [SetMetasprite] ( @table_0EE000 )
@@ -49,11 +49,11 @@ e_str_increase {
 
   loc_00E096:
     STA $playerStr
-    COP [PrintWideString] ( &widestring_00E09F )
+    COP [PrintDialogString] ( &dialogstring_00E09F )
     COP [Die]
 }
 
-widestring_00E09F `[DEF][DLY:1][SFX:0]Your STR (Strength) [N]has increased! [END]`
+dialogstring_00E09F `[DEF][DLY:1][SFX:0]Your STR (Strength) [N]has increased! [END]`
 
 e_def_increase {
     COP [SetMetasprite] ( @table_0EE000 )
@@ -68,11 +68,11 @@ e_def_increase {
 
   loc_00E0E1:
     STA $playerDef
-    COP [PrintWideString] ( &widestring_00E0EA )
+    COP [PrintDialogString] ( &dialogstring_00E0EA )
     COP [Die]
 }
 
-widestring_00E0EA `[DEF][DLY:1][SFX:0]Your DEF (Defense) [N]has increased! [END]`
+dialogstring_00E0EA `[DEF][DLY:1][SFX:0]Your DEF (Defense) [N]has increased! [END]`
 
 RewardActorVFX {
     LDA #$6000

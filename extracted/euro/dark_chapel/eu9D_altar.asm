@@ -30,7 +30,7 @@ code_07E58C {
 }
 
 code_07E5A1 {
-    COP [PrintWideString] ( &widestring_07E5BE )
+    COP [PrintDialogString] ( &dialogstring_07E5BE )
     COP [DialogueOptions] ( #02, #01, &code_list_07E5AB )
 }
 
@@ -41,16 +41,16 @@ code_list_07E5AB [
 ]
 
 code_07E5B1 {
-    COP [PrintWideString] ( &widestring_07E602 )
+    COP [PrintDialogString] ( &dialogstring_07E602 )
     RTL 
 }
 
 code_07E5B6 {
-    COP [PrintWideString] ( &widestring_07E602 )
+    COP [PrintDialogString] ( &dialogstring_07E602 )
     COP [SetFlagByte] ( #01 )
     RTL 
 }
 
-widestring_07E5BE `[DEF][TPL:0]Will: What? [N]The wind is blowing from [N]behind the statue... [FIN]Look?[N] Yes[N] No`
+dialogstring_07E5BE `[DEF][TPL:0]Will: What? [N]The wind is blowing from [N]behind the statue... [FIN]Look?[N] Yes[N] No`
 
-widestring_07E602 `[CLD]`
+dialogstring_07E602 `[CLD]`

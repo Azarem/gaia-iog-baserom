@@ -1,6 +1,6 @@
 ---------------------------------------------
 
-sprite_set_list_000000 [
+spm_ending_credits_sprites [
   &sprite_set_00006A   ;00
   &sprite_set_00007C   ;01
   &sprite_set_00008E   ;02

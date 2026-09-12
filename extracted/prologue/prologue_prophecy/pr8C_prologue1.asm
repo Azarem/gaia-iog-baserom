@@ -1,6 +1,6 @@
+?INCLUDE 'mode7_perspective'
 ?INCLUDE 'pr_actor_0BCF52'
 ?INCLUDE 'pr_thinkers'
-?INCLUDE 'sFE_proc_03A940'
 
 !gfxCacheIdxB                   064A
 !cameraTargetX                  06BE
@@ -29,7 +29,7 @@ pr8C_prologue1 [
     SEP #$20
     STZ $M7SEL
     REP #$20
-    COP [SpawnThinker] ( @sFE_proc_03A940.code_03A985 )
+    COP [SpawnThinker] ( @mode7_perspective.Mode7PerspectiveUpdate )
     TXA 
     TYX 
     TAY 

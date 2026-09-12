@@ -214,7 +214,7 @@ Pre-computes **horizontal dialogue scroll offset** when the player enters a scen
 | Address | Name | Size | Description |
 |---------|------|------|-------------|
 | `$02A11B` | MeasureDialogueWidth | 78 B | MeasureDialogueWidth runs during scene entry initialization when the destination scene's dialogue differs from the sc... |
-| `$02A169` | dialogue_measure_format | 9 B | dialogue_measure_format is a fixed AsciiString template passed to sub_03E255 during dialogue width measurement. |
+| `$02A169` | dialogue_measure_format | 9 B | dialogue_measure_format is a fixed ConsoleString template passed to sub_03E255 during dialogue width measurement. |
 | `$02A172` | CountTextGlyphs | 119 B | CountTextGlyphs walks a text byte stream starting at [$3E],Y and returns the total visible glyph count in $00. |
 
 ### MeasureDialogueWidth
@@ -273,7 +273,7 @@ MeasureDialogueWidth {
 
 ### dialogue_measure_format
 
-Fixed **`AsciiString` template** passed to `sub_03E255` during dialogue width measurement. Opens a minimal sizing dialogue frame (`[DLG:7,7][SIZ:A,1][SFX:0]`) so glyph counting runs against the same layout engine used in gameplay, without displaying scene text.
+Fixed **`ConsoleString` template** passed to `sub_03E255` during dialogue width measurement. Opens a minimal sizing dialogue frame (`[DLG:7,7][SIZ:A,1][SFX:0]`) so glyph counting runs against the same layout engine used in gameplay, without displaying scene text.
 
 **Source:**
 

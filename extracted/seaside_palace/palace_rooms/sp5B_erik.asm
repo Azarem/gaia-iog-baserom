@@ -30,8 +30,8 @@ code_0688AF {
 }
 
 code_0688B1 {
-    COP [PrintWideString] ( &widestring_0688B6 )
+    COP [PrintDialogString] ( &dialogstring_0688B6 )
     RTL 
 }
 
-widestring_0688B6 `[TPL:A][TPL:3]Erik: What is this [N]place? Dark and lonely. [N]Mother, save me...[PAL:0][END]`
+dialogstring_0688B6 `[TPL:A][TPL:3]Erik: What is this [N]place? Dark and lonely. [N]Mother, save me...[PAL:0][END]`

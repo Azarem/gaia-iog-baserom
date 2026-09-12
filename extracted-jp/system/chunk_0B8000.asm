@@ -133,7 +133,7 @@ code_0B8060 {
     LDA #$FFF0
     TSB $joypadMaskStd
     COP [WaitByte] ( #3B )
-    COP [PrintWideString] ( &widestring_0B80B5 )
+    COP [PrintDialogString] ( &dialogstring_0B80B5 )
     LDA #$0003
     STA $0AAC
     LDA #$008A
@@ -150,7 +150,7 @@ code_0B8060 {
     COP [Die]
 }
 
-widestring_0B80B5 `[DEF][TPL:0]サンドファンガーを たおすと[N]しかばねから ミステリードールが[N]見つかった!![PAL:0][END]`
+dialogstring_0B80B5 `[DEF][TPL:0]サンドファンガーを たおすと[N]しかばねから ミステリードールが[N]見つかった!![PAL:0][END]`
 
 code_0B80E7 {
     COP [SetEntryContinue]
@@ -11432,14 +11432,14 @@ code_0BD9D9 {
     TSB $02
     COP [WaitByte] ( #3B )
     COP [WriteApuIo0] ( #00 )
-    COP [PrintWideString] ( &widestring_0BDA02 )
+    COP [PrintDialogString] ( &dialogstring_0BDA02 )
     COP [StartMusic] ( #04 )
     COP [WaitByte] ( #3B )
     COP [BranchIfButton] ( #$0080, &code_0BD9E1 )
     RTL 
 }
 
-widestring_0BDA02 `[DLG:3,6][SIZ:D,3,0][TPL:1]カレン: ひどいじゃない?![N]あたしを おいてけぼりにして[N]どこまで 行こうっていうのよっ![PAL:0][END]`
+dialogstring_0BDA02 `[DLG:3,6][SIZ:D,3,0][TPL:1]カレン: ひどいじゃない?![N]あたしを おいてけぼりにして[N]どこまで 行こうっていうのよっ![PAL:0][END]`
 
 actor_def_0BDA3F [
   actor-def < #00, #00, #28, {
@@ -11481,7 +11481,7 @@ actor_def_0BDA3F [
     LDA #$2800
     TSB $09BC
     COP [RunBg3Script] ( @01E780 )
-    COP [PrintWideString] ( &widestring_0BDB45 )
+    COP [PrintDialogString] ( &dialogstring_0BDB45 )
     JSR $&code_0BEA6C
     LDA #$0F00
     STA $065C
@@ -11495,7 +11495,7 @@ actor_def_0BDA3F [
     BRA loc_0BDAC1
 
   code_0BDABD:
-    COP [PrintWideStringAlt] ( &widestring_0BDB45 )
+    COP [PrintDialogStringAlt] ( &dialogstring_0BDB45 )
 
   loc_0BDAC1:
     LDA #$FFFF
@@ -11564,11 +11564,11 @@ code_list_0BDB3D [
   &code_0BDE2C   ;03
 ]
 
-widestring_0BDB45 `[DLG:6,A][SIZ:A,4,0]旅を始める[N]旅の記録を消す[N]旅の記録をうつす[N]サウンド/ボタンの変こう`
+dialogstring_0BDB45 `[DLG:6,A][SIZ:A,4,0]旅を始める[N]旅の記録を消す[N]旅の記録をうつす[N]サウンド/ボタンの変こう`
 
 code_0BDB7C {
     JSR $&code_0BE8BC
-    COP [PrintWideString] ( &widestring_0BDD33 )
+    COP [PrintDialogString] ( &dialogstring_0BDD33 )
     COP [CallScript] ( &code_0BE556 )
     COP [RunBg3Script] ( @01E780 )
     JSR $&code_0BE8E4
@@ -11662,9 +11662,9 @@ code_0BDBFA {
     STA $0D8E
     STA $0D90
     JSR $&code_0BE8BC
-    COP [PrintWideString] ( &widestring_0BE074 )
-    COP [PrintWideString] ( &widestring_0BE0DD )
-    COP [PrintWideString] ( &widestring_0BE0E8 )
+    COP [PrintDialogString] ( &dialogstring_0BE074 )
+    COP [PrintDialogString] ( &dialogstring_0BE0DD )
+    COP [PrintDialogString] ( &dialogstring_0BE0E8 )
     COP [RunBg3Script] ( @01E780 )
     JSR $&code_0BE8E4
     LDA #$0000
@@ -11701,7 +11701,7 @@ code_0BDCB6 {
     INC 
     AND #$0001
     STA $0D90
-    COP [PrintWideString] ( &widestring_0BE0DD )
+    COP [PrintDialogString] ( &dialogstring_0BE0DD )
     COP [RunBg3Script] ( @01E780 )
     JMP $&code_0BDC80
 
@@ -11713,7 +11713,7 @@ code_0BDCB6 {
     INC 
     AND #$0001
     STA $0D8E
-    COP [PrintWideString] ( &widestring_0BE0E8 )
+    COP [PrintDialogString] ( &dialogstring_0BE0E8 )
     COP [RunBg3Script] ( @01E780 )
     JMP $&code_0BDC80
 
@@ -11742,13 +11742,13 @@ code_0BDCFA {
     COP [Die]
 }
 
-widestring_0BDD33 `[DLG:2,8][SIZ:E,7,0]どの記録にしますか?[N] 旅の記録1 [ADR:&chunk_0B8000.loc_0BE5C4,D74][N][N] 旅の記録2 [ADR:&chunk_0B8000.loc_0BE5C4,D76][N][N] 旅の記録3 [ADR:&chunk_0B8000.loc_0BE5C4,D78]`
+dialogstring_0BDD33 `[DLG:2,8][SIZ:E,7,0]どの記録にしますか?[N] 旅の記録1 [ADR:&chunk_0B8000.loc_0BE5C4,D74][N][N] 旅の記録2 [ADR:&chunk_0B8000.loc_0BE5C4,D76][N][N] 旅の記録3 [ADR:&chunk_0B8000.loc_0BE5C4,D78]`
 
-widestring_0BDD79 `[DLG:2,C][SKP:2]HP[SKP:1][BCD:2,D9A][SKP:2]STR[SKP:1][BCD:2,D9C][SKP:2]DEF[SKP:1][BCD:2,D9E]`
+dialogstring_0BDD79 `[DLG:2,C][SKP:2]HP[SKP:1][BCD:2,D9A][SKP:2]STR[SKP:1][BCD:2,D9C][SKP:2]DEF[SKP:1][BCD:2,D9E]`
 
-widestring_0BDDA0 `[DLG:2,10][SKP:2]HP[SKP:1][BCD:2,D9A][SKP:2]STR[SKP:1][BCD:2,D9C][SKP:2]DEF[SKP:1][BCD:2,D9E]`
+dialogstring_0BDDA0 `[DLG:2,10][SKP:2]HP[SKP:1][BCD:2,D9A][SKP:2]STR[SKP:1][BCD:2,D9C][SKP:2]DEF[SKP:1][BCD:2,D9E]`
 
-widestring_0BDDC7 `[DLG:2,14][SKP:2]HP[SKP:1][BCD:2,D9A][SKP:2]STR[SKP:1][BCD:2,D9C][SKP:2]DEF[SKP:1][BCD:2,D9E]`
+dialogstring_0BDDC7 `[DLG:2,14][SKP:2]HP[SKP:1][BCD:2,D9A][SKP:2]STR[SKP:1][BCD:2,D9C][SKP:2]DEF[SKP:1][BCD:2,D9E]`
 
 code_0BDDEE {
     LDA $0B24
@@ -11786,7 +11786,7 @@ code_0BDDEE {
 
 code_0BDE2C {
     JSR $&code_0BE8BC
-    COP [PrintWideString] ( &widestring_0BE12D )
+    COP [PrintDialogString] ( &dialogstring_0BE12D )
     COP [CallScript] ( &code_0BE556 )
     COP [RunBg3Script] ( @01E780 )
     JSR $&code_0BE8E4
@@ -11831,9 +11831,9 @@ code_0BDE72 {
     LDA #$FFFF
     STA $0D92
     JSR $&code_0BE8BC
-    COP [PrintWideString] ( &widestring_0BE007 )
-    COP [PrintWideString] ( &widestring_0BE0DD )
-    COP [PrintWideString] ( &widestring_0BE0E8 )
+    COP [PrintDialogString] ( &dialogstring_0BE007 )
+    COP [PrintDialogString] ( &dialogstring_0BE0DD )
+    COP [PrintDialogString] ( &dialogstring_0BE0E8 )
     COP [RunBg3Script] ( @01E780 )
     JSR $&code_0BE8E4
     LDA #$0000
@@ -11899,7 +11899,7 @@ code_0BDF1D {
     INC 
     AND #$0001
     STA $0D90
-    COP [PrintWideString] ( &widestring_0BE0DD )
+    COP [PrintDialogString] ( &dialogstring_0BE0DD )
     COP [RunBg3Script] ( @01E780 )
     JMP $&code_0BDEB8
 
@@ -11911,7 +11911,7 @@ code_0BDF1D {
     INC 
     AND #$0001
     STA $0D8E
-    COP [PrintWideString] ( &widestring_0BE0E8 )
+    COP [PrintDialogString] ( &dialogstring_0BE0E8 )
     COP [RunBg3Script] ( @01E780 )
     JMP $&code_0BDEB8
 
@@ -11941,7 +11941,7 @@ code_0BDF61 {
     STA $3063FE, X
     PLX 
     JSR $&code_0BE8BC
-    COP [PrintWideString] ( &widestring_0BE12D )
+    COP [PrintDialogString] ( &dialogstring_0BE12D )
     COP [CallScript] ( &code_0BE556 )
     COP [RunBg3Script] ( @01E780 )
     JSR $&code_0BE8E4
@@ -12007,23 +12007,23 @@ code_0BE000 {
     RTS 
 }
 
-widestring_0BE007 `[DLG:6,8][SIZ:A,8,0][SKP:2]サウンド/ボタンの変こう[N]変こうおわり[N]サウンド[N]ボタン タイプ[N][SKP:5] こうげき/会話[N][SKP:5] アイテム/キャンセル[N][SKP:5] アイテムパレット[N][SKP:5] 使用しません`
+dialogstring_0BE007 `[DLG:6,8][SIZ:A,8,0][SKP:2]サウンド/ボタンの変こう[N]変こうおわり[N]サウンド[N]ボタン タイプ[N][SKP:5] こうげき/会話[N][SKP:5] アイテム/キャンセル[N][SKP:5] アイテムパレット[N][SKP:5] 使用しません`
 
-widestring_0BE074 `[DLG:6,8][SIZ:A,8,0]このせっていで いいですか[N]旅をはじめる[N]サウンド[N]ボタン タイプ[N][SKP:5] こうげき/会話[N][SKP:5] アイテム/キャンセル[N][SKP:5] アイテムパレット[N][SKP:5] 使用しません`
+dialogstring_0BE074 `[DLG:6,8][SIZ:A,8,0]このせっていで いいですか[N]旅をはじめる[N]サウンド[N]ボタン タイプ[N][SKP:5] こうげき/会話[N][SKP:5] アイテム/キャンセル[N][SKP:5] アイテムパレット[N][SKP:5] 使用しません`
 
-widestring_0BE0DD `[DLG:D,C][SFX:0][ADR:&chunk_0B8000.widestring_0BE11B,D90]`
+dialogstring_0BE0DD `[DLG:D,C][SFX:0][ADR:&chunk_0B8000.dialogstring_0BE11B,D90]`
 
-widestring_0BE0E8 `[DLG:11,E][SFX:0][ADR:&chunk_0B8000.widestring_0BE0F3,D8E]`
+dialogstring_0BE0E8 `[DLG:11,E][SFX:0][ADR:&chunk_0B8000.dialogstring_0BE0F3,D8E]`
 
-widestring_0BE0F3 `[F7][E0]ぞ[E1]1[DLG:8,10]A[DLG:8,12]B[DLG:8,14]X[DLG:8,16]Y`
+dialogstring_0BE0F3 `[F7][E0]ぞ[E1]1[DLG:8,10]A[DLG:8,12]B[DLG:8,14]X[DLG:8,16]Y`
 
-widestring_0BE109 `2[DLG:8,10]B[DLG:8,12]Y[DLG:8,14]X[DLG:8,16]A`
+dialogstring_0BE109 `2[DLG:8,10]B[DLG:8,12]Y[DLG:8,14]X[DLG:8,16]A`
 
-widestring_0BE11B `.[E1]F[E1]ステレオ`
+dialogstring_0BE11B `.[E1]F[E1]ステレオ`
 
-widestring_0BE126 `モノラル`
+dialogstring_0BE126 `モノラル`
 
-widestring_0BE12D `[DLG:2,8][SIZ:E,7,0]どのサウンド/ボタンを変こうしますか[N] 旅の記録1 [ADR:&chunk_0B8000.loc_0BE5C4,D74][N][N] 旅の記録2 [ADR:&chunk_0B8000.loc_0BE5C4,D76][N][N] 旅の記録3 [ADR:&chunk_0B8000.loc_0BE5C4,D78]`
+dialogstring_0BE12D `[DLG:2,8][SIZ:E,7,0]どのサウンド/ボタンを変こうしますか[N] 旅の記録1 [ADR:&chunk_0B8000.loc_0BE5C4,D74][N][N] 旅の記録2 [ADR:&chunk_0B8000.loc_0BE5C4,D76][N][N] 旅の記録3 [ADR:&chunk_0B8000.loc_0BE5C4,D78]`
 
 code_0BE17C {
     LDA $0D74
@@ -12034,7 +12034,7 @@ code_0BE17C {
     BEQ loc_0BE19D
     LDA #$0002
     STA $0D98
-    COP [PrintWideString] ( &widestring_0BE363 )
+    COP [PrintDialogString] ( &dialogstring_0BE363 )
     COP [RunBg3Script] ( @01E780 )
     JMP $&code_0BDACD
 
@@ -12044,7 +12044,7 @@ code_0BE17C {
     STA $0D92
 
   code_0BE1A6:
-    COP [PrintWideString] ( &widestring_0BE31B )
+    COP [PrintDialogString] ( &dialogstring_0BE31B )
     COP [CallScript] ( &code_0BE556 )
     COP [RunBg3Script] ( @01E780 )
     JSR $&code_0BE8E4
@@ -12234,17 +12234,17 @@ code_0BE2BD {
     JMP $&code_0BE1A6
 }
 
-widestring_0BE31B `[DLG:2,8][SIZ:E,7,0]どの記録をうつしますか?[N] 旅の記録1 [ADR:&chunk_0B8000.loc_0BE5C4,D74][N][N] 旅の記録2 [ADR:&chunk_0B8000.loc_0BE5C4,D76][N][N] 旅の記録3 [ADR:&chunk_0B8000.loc_0BE5C4,D78]`
+dialogstring_0BE31B `[DLG:2,8][SIZ:E,7,0]どの記録をうつしますか?[N] 旅の記録1 [ADR:&chunk_0B8000.loc_0BE5C4,D74][N][N] 旅の記録2 [ADR:&chunk_0B8000.loc_0BE5C4,D76][N][N] 旅の記録3 [ADR:&chunk_0B8000.loc_0BE5C4,D78]`
 
-widestring_0BE363 `[ZZZ][DLG:4,15][SIZ:C,2,0][DLY:0]旅の記録が空いていません.[N]記録を消してから選んでください.[FIN][CLD][RET]`
+dialogstring_0BE363 `[ZZZ][DLG:4,15][SIZ:C,2,0][DLY:0]旅の記録が空いていません.[N]記録を消してから選んでください.[FIN][CLD][RET]`
 
-widestring_0BE396 ``
+dialogstring_0BE396 ``
 
 code_0BE397 {
     JSR $&code_0BE8BC
 
   code_0BE39A:
-    COP [PrintWideString] ( &widestring_0BE510 )
+    COP [PrintDialogString] ( &dialogstring_0BE510 )
     COP [CallScript] ( &code_0BE556 )
     COP [RunBg3Script] ( @01E780 )
     JSR $&code_0BE8E4
@@ -12321,7 +12321,7 @@ code_0BE412 {
     LDA #$FFFF
     STA $0D92
     JSR $&code_0BE8BC
-    COP [PrintWideString] ( &widestring_0BE4B8 )
+    COP [PrintDialogString] ( &dialogstring_0BE4B8 )
     COP [RunBg3Script] ( @01E780 )
     LDA $0D94
     ASL 
@@ -12341,7 +12341,7 @@ code_0BE412 {
     JSR $&code_0BED8D
     PLY 
     STA $0D9C
-    COP [PrintWideString] ( &widestring_0BE4A9 )
+    COP [PrintDialogString] ( &dialogstring_0BE4A9 )
     COP [RunBg3Script] ( @01E780 )
     JSR $&code_0BE8E4
     COP [DialogueOptions] ( #02, #03, &code_list_0BE485 )
@@ -12367,21 +12367,21 @@ code_0BE48B {
     JMP $&code_0BE39A
 }
 
-widestring_0BE4A9 `[DLG:4,8][ADR:&chunk_0B8000.widestring_0BE4B2,D94]`
+dialogstring_0BE4A9 `[DLG:4,8][ADR:&chunk_0B8000.dialogstring_0BE4B2,D94]`
 
-widestring_0BE4B2 `9[DD][A3][DD][RET]`
+dialogstring_0BE4B2 `9[DD][A3][DD][RET]`
 
-widestring_0BE4B7 `[DD]`
+dialogstring_0BE4B7 `[DD]`
 
-widestring_0BE4B8 `[DLG:4,6][SIZ:D,5,0][ADR:&chunk_0B8000.widestring_0BE4DD,D94][N][N]の記録を消しますか?[N] いいえ[N] はい`
+dialogstring_0BE4B8 `[DLG:4,6][SIZ:D,5,0][ADR:&chunk_0B8000.dialogstring_0BE4DD,D94][N][N]の記録を消しますか?[N] いいえ[N] はい`
 
-widestring_0BE4DD `[E3][E4][F2][E4]ぎ[E5]旅の記録1 [ADR:&chunk_0B8000.loc_0BE5C4,D74]`
+dialogstring_0BE4DD `[E3][E4][F2][E4]ぎ[E5]旅の記録1 [ADR:&chunk_0B8000.loc_0BE5C4,D74]`
 
-widestring_0BE4F2 `旅の記録2 [ADR:&chunk_0B8000.loc_0BE5C4,D76]`
+dialogstring_0BE4F2 `旅の記録2 [ADR:&chunk_0B8000.loc_0BE5C4,D76]`
 
-widestring_0BE501 `旅の記録3 [ADR:&chunk_0B8000.loc_0BE5C4,D78]`
+dialogstring_0BE501 `旅の記録3 [ADR:&chunk_0B8000.loc_0BE5C4,D78]`
 
-widestring_0BE510 `[DLG:2,8][SIZ:E,7,0]どの記録を 消しますか?[N]旅の記録1 [ADR:&chunk_0B8000.loc_0BE5C4,D74][N][N]旅の記録2 [ADR:&chunk_0B8000.loc_0BE5C4,D76][N][N]旅の記録3 [ADR:&chunk_0B8000.loc_0BE5C4,D78]`
+dialogstring_0BE510 `[DLG:2,8][SIZ:E,7,0]どの記録を 消しますか?[N]旅の記録1 [ADR:&chunk_0B8000.loc_0BE5C4,D74][N][N]旅の記録2 [ADR:&chunk_0B8000.loc_0BE5C4,D76][N][N]旅の記録3 [ADR:&chunk_0B8000.loc_0BE5C4,D78]`
 
 code_0BE556 {
     LDA $0D74
@@ -12395,7 +12395,7 @@ code_0BE556 {
     LDA $0D86
     JSR $&code_0BED8D
     STA $0D9C
-    COP [PrintWideString] ( &widestring_0BDD79 )
+    COP [PrintDialogString] ( &dialogstring_0BDD79 )
 
   loc_0BE57A:
     LDA $0D76
@@ -12409,7 +12409,7 @@ code_0BE556 {
     LDA $0D88
     JSR $&code_0BED8D
     STA $0D9C
-    COP [PrintWideString] ( &widestring_0BDDA0 )
+    COP [PrintDialogString] ( &dialogstring_0BDDA0 )
 
   loc_0BE59E:
     LDA $0D78
@@ -12423,7 +12423,7 @@ code_0BE556 {
     LDA $0D8A
     JSR $&code_0BED8D
     STA $0D9C
-    COP [PrintWideString] ( &widestring_0BDDC7 )
+    COP [PrintDialogString] ( &dialogstring_0BDDC7 )
 
   loc_0BE5C2:
     COP [RestoreSavedPtr]
@@ -13213,7 +13213,7 @@ code_0BEB34 {
     STA $playerDef
     LDA #$00FF
     STA $abilityBitmask
-    COP [PrintWideString] ( &widestring_0BEC14 )
+    COP [PrintDialogString] ( &dialogstring_0BEC14 )
     COP [DialogueOptions] ( #04, #00, &code_list_0BEB56 )
 }
 
@@ -13226,7 +13226,7 @@ code_list_0BEB56 [
 ]
 
 code_0BEB60 {
-    COP [PrintWideString] ( &widestring_0BEC7A )
+    COP [PrintDialogString] ( &dialogstring_0BEC7A )
     COP [DialogueOptions] ( #04, #00, &code_list_0BEB6A )
 }
 
@@ -13239,7 +13239,7 @@ code_list_0BEB6A [
 ]
 
 code_0BEB74 {
-    COP [PrintWideString] ( &widestring_0BECA0 )
+    COP [PrintDialogString] ( &dialogstring_0BECA0 )
     COP [DialogueOptions] ( #04, #00, &code_list_0BEB7E )
 }
 
@@ -13252,75 +13252,75 @@ code_list_0BEB7E [
 ]
 
 code_0BEB88 {
-    COP [PrintWideString] ( &widestring_0BECCE )
+    COP [PrintDialogString] ( &dialogstring_0BECCE )
     RTL 
 }
 
 code_0BEB8D {
-    COP [PrintWideString] ( &widestring_0BECF8 )
+    COP [PrintDialogString] ( &dialogstring_0BECF8 )
     COP [QueueMapChange] ( #82, #$0020, #$0090, #07, #$1400 )
     RTL 
 }
 
 code_0BEB9C {
-    COP [PrintWideString] ( &widestring_0BECF8 )
+    COP [PrintDialogString] ( &dialogstring_0BECF8 )
     COP [QueueMapChange] ( #78, #$0250, #$0370, #03, #$4500 )
     RTL 
 }
 
 code_0BEBAB {
-    COP [PrintWideString] ( &widestring_0BECF8 )
+    COP [PrintDialogString] ( &dialogstring_0BECF8 )
     COP [QueueMapChange] ( #69, #$02A0, #$00C0, #00, #$1300 )
     RTL 
 }
 
 code_0BEBBA {
-    COP [PrintWideString] ( &widestring_0BECF8 )
+    COP [PrintDialogString] ( &dialogstring_0BECF8 )
     COP [QueueMapChange] ( #15, #$02D8, #$02B0, #00, #$3500 )
     RTL 
 }
 
 code_0BEBC9 {
-    COP [PrintWideString] ( &widestring_0BECF8 )
+    COP [PrintDialogString] ( &dialogstring_0BECF8 )
     COP [QueueMapChange] ( #49, #$0050, #$00D0, #00, #$1100 )
     RTL 
 }
 
 code_0BEBD8 {
-    COP [PrintWideString] ( &widestring_0BECF8 )
+    COP [PrintDialogString] ( &dialogstring_0BECF8 )
     COP [QueueMapChange] ( #0F, #$0078, #$05D0, #00, #$6100 )
     RTL 
 }
 
 code_0BEBE7 {
-    COP [PrintWideString] ( &widestring_0BECF8 )
+    COP [PrintDialogString] ( &dialogstring_0BECF8 )
     COP [QueueMapChange] ( #91, #$0370, #$0430, #03, #$5400 )
     RTL 
 }
 
 code_0BEBF6 {
-    COP [PrintWideString] ( &widestring_0BECF8 )
+    COP [PrintDialogString] ( &dialogstring_0BECF8 )
     COP [QueueMapChange] ( #AC, #$01C0, #$01D0, #07, #$2200 )
     RTL 
 }
 
 code_0BEC05 {
-    COP [PrintWideString] ( &widestring_0BECF8 )
+    COP [PrintDialogString] ( &dialogstring_0BECF8 )
     COP [QueueMapChange] ( #C3, #$0010, #$00E8, #07, #$2300 )
     RTL 
 }
 
-widestring_0BEC14 `[DEF]はあーい! ぼくは デバッグマン![N]シナリオ上で まだ行けないところへ[N]君を つれてってあげようっ!![FIN] その他  [N] 万里の長城[N] だ天使の町[N] 水上都市 `
+dialogstring_0BEC14 `[DEF]はあーい! ぼくは デバッグマン![N]シナリオ上で まだ行けないところへ[N]君を つれてってあげようっ!![FIN] その他  [N] 万里の長城[N] だ天使の町[N] 水上都市 `
 
-widestring_0BEC7A `[CLR] その他[N] イトリー村[N] ニールの小屋[N] 城の地下`
+dialogstring_0BEC7A `[CLR] その他[N] イトリー村[N] ニールの小屋[N] 城の地下`
 
-widestring_0BECA0 `[CLR] やめる[N] 大都市エウロ[N] 原住民の村落[N] ドレイ商人の町`
+dialogstring_0BECA0 `[CLR] やめる[N] 大都市エウロ[N] 原住民の村落[N] ドレイ商人の町`
 
-widestring_0BECCE `[CLR]そうかい.[N]シナリオどおりに 進むなら ぼくは[N]むしして つづけてくれっ![END]`
+dialogstring_0BECCE `[CLR]そうかい.[N]シナリオどおりに 進むなら ぼくは[N]むしして つづけてくれっ![END]`
 
-widestring_0BECF8 `[CLR]OK! わかった!![N]ただし フラグが めちゃめちゃに[N]なるから 注意が必要だぜっ![END]`
+dialogstring_0BECF8 `[CLR]OK! わかった!![N]ただし フラグが めちゃめちゃに[N]なるから 注意が必要だぜっ![END]`
 
-widestring_0BED2A `[AD][E0]がM[E2]が[8D][E2]が[AD][E2]がぺ[E0]が[AD][E0]が[89]かが[F0]([AC][B8]ぞ[B9]┌がそぜが[99]┌が[A9]かがづ[E2]がぅ[9C][DE]がぅ[EE][DE]がぅ[AD][E0]が[89]が送ぎぅ[AD][DE]が [8D][ED][8D]がが[AD][8A]じぼぁ┌が[8D]ぼが[AD][8E]じぼぁゅが[8D]ぺが[A9]がR[8D]ぐがB[DD][B7][83]ぅ`
+dialogstring_0BED2A `[AD][E0]がM[E2]が[8D][E2]が[AD][E2]がぺ[E0]が[AD][E0]が[89]かが[F0]([AC][B8]ぞ[B9]┌がそぜが[99]┌が[A9]かがづ[E2]がぅ[9C][DE]がぅ[EE][DE]がぅ[AD][E0]が[89]が送ぎぅ[AD][DE]が [8D][ED][8D]がが[AD][8A]じぼぁ┌が[8D]ぼが[AD][8E]じぼぁゅが[8D]ぺが[A9]がR[8D]ぐがB[DD][B7][83]ぅ`
 
 code_0BED8D {
     PHA 

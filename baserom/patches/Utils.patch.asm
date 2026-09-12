@@ -214,9 +214,9 @@ loc_02B078! {
     STX $A1T0L
 }
 
-asciistring_01E7F6! |[CUR:42,0][NHM:8][HP][CUR:5A,0][NHM:14][BCD:1,AD8][CUR:64,0][NUM:AD6]|
+consolestring_01E7F6! |[CUR:42,0][NHM:8][HP][CUR:5A,0][NHM:14][BCD:1,AD8][CUR:64,0][NUM:AD6]|
 
-asciistring_01E818! |[NHM:4][CUR:6A,0][HE]|
+consolestring_01E818! |[NHM:4][CUR:6A,0][HE]|
 
 -------------------------------------------------
 ;Print debug string on radar screen
@@ -280,7 +280,7 @@ code_08DBB1! {
     COP [DA] ( #3B )
     LDA #$FFF0
     TRB $joypadMaskStd
-    ;COP [BF] ( &widestring_08DDFE )
+    ;COP [BF] ( &dialogstring_08DDFE )
     ;COP [BE] ( #02, #01, &code_list_08DBD4 )
     BRA code_08DBDA
 }
@@ -295,7 +295,7 @@ func_0BC896! {
 -----------------------------------------------
 ?INCLUDE 'sF7_credits'
 
-widestring_09F2FA! `[PAL:0][DLG:44,1]     Built With GaiaLabs[N][PAL:4]         By Kassiven[N][PAL:0]            Ǫįņţ[N]            ęťĔŇ[END]`!
+dialogstring_09F2FA! `[PAL:0][DLG:44,1]     Built With GaiaLabs[N][PAL:4]         By Kassiven[N][PAL:0]            Ǫįņţ[N]            ęťĔŇ[END]`!
 
 
 -----------------------------------------------
@@ -335,14 +335,14 @@ loc_02A12C! {
     STZ $00B5
     
     REP #$20
-    JSL $@WideStringRenderer
+    JSL $@DialogStringRenderer
     PLB
     PLY
 
     PLA
     PLA
     PLA
-    JSL $@WideStringRenderer
+    JSL $@DialogStringRenderer
 
     PLB
     PLB

@@ -12,8 +12,8 @@ h_it15_friendly_woman [
 ]
 
 code_04D94E {
-    COP [PrintWideString] ( &widestring_04D953 )
+    COP [PrintDialogString] ( &dialogstring_04D953 )
     RTL 
 }
 
-widestring_04D953 `[DEF]この村には リリィと 同い年[N]くらいの子が いないのよ.[N]なかよくしてやってね.[END]`
+dialogstring_04D953 `[DEF]この村には リリィと 同い年[N]くらいの子が いないのよ.[N]なかよくしてやってね.[END]`

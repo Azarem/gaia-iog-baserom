@@ -1,6 +1,6 @@
 ---------------------------------------------
 
-sprite_set_list_000000 [
+spm_mu_enemies [
   &sprite_set_000062   ;00
   &sprite_set_000068   ;01
   &sprite_set_000082   ;02

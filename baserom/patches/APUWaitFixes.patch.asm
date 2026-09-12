@@ -131,7 +131,7 @@ code_049985! {
     COP [CC] ( #35 )
     COP [04] ( #19 )
     COP [DA] ( #59 )
-    COP [BF] ( &widestring_049D29 )
+    COP [BF] ( &dialogstring_049D29 )
 
     LDA $0D73
     AND #$00FF
@@ -244,10 +244,10 @@ code_0691BE! {
     JSL $@IsMusicPlaying
     BCS coffin_halt_jump
     COP [D4] ( #11, &code_069293 )
-    COP [BF] ( &widestring_069377 )
+    COP [BF] ( &dialogstring_069377 )
     LDA #$0080
     TSB $09EC
-    COP [19] ( #17, @widestring_06939E )
+    COP [19] ( #17, @dialogstring_06939E )
     COP [DA] ( #03 )
     
     LDA $0D73
@@ -292,12 +292,12 @@ code_0691BE! {
 loc_08DCAF! {
     COP [D6] ( #24, &code_08DCEC )
     COP [D4] ( #24, &code_08DCF3 )
-    COP [BF] ( &widestring_08E66C )
+    COP [BF] ( &dialogstring_08E66C )
     LDA #$FFF0
     TSB $joypadMaskStd
     COP [04] ( #18 )
     COP [DA] ( #59 )
-    COP [BF] ( &widestring_08E7E7 )
+    COP [BF] ( &dialogstring_08E7E7 )
     
     LDA $0D73
     AND #$00FF
@@ -357,7 +357,7 @@ loc_08EAAA! {
     TRB $10
     COP [04] ( #18 )
     COP [DA] ( #59 )
-    COP [BF] ( &widestring_08EB68 )
+    COP [BF] ( &dialogstring_08EB68 )
 
     LDA $0D73
     AND #$00FF
@@ -412,7 +412,7 @@ code_08EF4E! {
     TRB $10
     LDA #$0080
     TSB $09EC
-    COP [19] ( #17, @widestring_08EFEF )
+    COP [19] ( #17, @dialogstring_08EFEF )
     COP [DA] ( #03 )
     
     LDA $0D73
@@ -454,7 +454,7 @@ code_09C58D! {
     COP [04] ( #1B )
     COP [DA] ( #77 )
     COP [07] ( #16 )
-    COP [BF] ( &widestring_09C5D5 )
+    COP [BF] ( &dialogstring_09C5D5 )
     COP [04] ( #1A )
     COP [DA] ( #77 )
     

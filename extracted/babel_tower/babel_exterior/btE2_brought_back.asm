@@ -65,12 +65,12 @@ btE2_brought_back [
 ]
 
 code_09985E {
-    COP [PrintWideString] ( &widestring_099866 )
+    COP [PrintDialogString] ( &dialogstring_099866 )
     COP [SetFlagByte] ( #01 )
     RTL 
 }
 
-widestring_099866 `[DEF]You were brought back to [N]save Earth. I'll take [N]you to the top floor.[END]`
+dialogstring_099866 `[DEF]You were brought back to [N]save Earth. I'll take [N]you to the top floor.[END]`
 
 code_099899 {
     COP [SetEntryContinue]

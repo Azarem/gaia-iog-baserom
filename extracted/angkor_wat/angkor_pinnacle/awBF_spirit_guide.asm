@@ -36,7 +36,7 @@ code_089AD4 {
     LDA #$FFF0
     TSB $joypadMaskStd
     COP [WaitByte] ( #1D )
-    COP [PrintWideString] ( &widestring_089C5B )
+    COP [PrintDialogString] ( &dialogstring_089C5B )
     SEP #$20
     LDA #$15
     STA $CGADSUB
@@ -49,13 +49,13 @@ code_089AD4 {
     COP [ClearLowAbs] ( #10, #0A )
     COP [SpawnThinker] ( @oneshot_palette_flash_19.code_00B7D8 )
     COP [WaitByte] ( #EF )
-    COP [PrintWideString] ( &widestring_089E2E )
+    COP [PrintDialogString] ( &dialogstring_089E2E )
     COP [GiveItem] ( #1D, &code_089B27 )
 
   loc_089B10:
     LDA #$0080
     TSB $displayModeFlags
-    COP [MusicAndText] ( #17, @widestring_089EE0 )
+    COP [MusicAndText] ( #17, @dialogstring_089EE0 )
     COP [SetFlagByte] ( #BE )
 
   code_089B1F:
@@ -73,7 +73,7 @@ code_089B31 {
     LDA #$FFF0
     TSB $joypadMaskStd
     COP [WaitByte] ( #1D )
-    COP [PrintWideString] ( &widestring_089EAB )
+    COP [PrintDialogString] ( &dialogstring_089EAB )
     COP [RemoveItem] ( #01 )
     SED 
     LDA $jewelsCollected
@@ -89,7 +89,7 @@ code_089B54 {
     LDA #$FFF0
     TSB $joypadMaskStd
     COP [WaitByte] ( #1D )
-    COP [PrintWideString] ( &widestring_089EFC )
+    COP [PrintDialogString] ( &dialogstring_089EFC )
     COP [RemoveItem] ( #06 )
     COP [GiveItem] ( #1D, &code_089B1F )
     BRA loc_089B10
@@ -100,7 +100,7 @@ code_089B6B {
 }
 
 code_089B6D {
-    COP [PrintWideString] ( &widestring_089B8B )
+    COP [PrintDialogString] ( &dialogstring_089B8B )
     COP [SetFlagByte] ( #BD )
     LDA #$0004
     STA $gfxCacheIdxB
@@ -110,14 +110,14 @@ code_089B6D {
     RTL 
 }
 
-widestring_089B8B `[DEF][TPL:2]Will.. I've been waiting [N]for you to come for [N]thousands of years... [FIN][TPL:0]Will: [N]What?! Who are you... [FIN][TPL:2]I am dreaming. Time has [N]passed since the dream [N]began, and my body [N]became what you see. [FIN]I'm going to show you[N]a strange image.[N]Close your eyes.[END]`
+dialogstring_089B8B `[DEF][TPL:2]Will.. I've been waiting [N]for you to come for [N]thousands of years... [FIN][TPL:0]Will: [N]What?! Who are you... [FIN][TPL:2]I am dreaming. Time has [N]passed since the dream [N]began, and my body [N]became what you see. [FIN]I'm going to show you[N]a strange image.[N]Close your eyes.[END]`
 
-widestring_089C5B `[DEF][TPL:0]Will: [N]Huh? What was that? [FIN][TPL:2]That is the new world...[FIN][TPL:0]Will: [N]That world is all [N]grey... [FIN]This world has blue [N]water, green mountains, [N]brown earth all over. [FIN][TPL:2]You will usher in[N]that world...[FIN][TPL:0]Will: Me? Such a [N]strange world?! [FIN][TPL:2]Tall trees replaced [N]by buildings, rivers [N]replaced by roads... [FIN]No matter what kind of[N]world people have, if[N]they think they're[N]happy, they'll be happy.[FIN]Go to the village and[N]restore those turned[N]to stone to their[N]original condition.[FIN]Release those who have[N]been turned grey back[N]to their natural state.[PAL:0][END]`
+dialogstring_089C5B `[DEF][TPL:0]Will: [N]Huh? What was that? [FIN][TPL:2]That is the new world...[FIN][TPL:0]Will: [N]That world is all [N]grey... [FIN]This world has blue [N]water, green mountains, [N]brown earth all over. [FIN][TPL:2]You will usher in[N]that world...[FIN][TPL:0]Will: Me? Such a [N]strange world?! [FIN][TPL:2]Tall trees replaced [N]by buildings, rivers [N]replaced by roads... [FIN]No matter what kind of[N]world people have, if[N]they think they're[N]happy, they'll be happy.[FIN]Go to the village and[N]restore those turned[N]to stone to their[N]original condition.[FIN]Release those who have[N]been turned grey back[N]to their natural state.[PAL:0][END]`
 
-widestring_089E2E `[TPL:B][TPL:0]When the blinding [N]light stopped, I stood [N]quietly, as if nothing [N]had happened. [FIN]Then I found the Gorgon [N]flower held tightly [N]within my hand...[PAL:0][END]`
+dialogstring_089E2E `[TPL:B][TPL:0]When the blinding [N]light stopped, I stood [N]quietly, as if nothing [N]had happened. [FIN]Then I found the Gorgon [N]flower held tightly [N]within my hand...[PAL:0][END]`
 
-widestring_089EAB `[TPL:A]A strange voice says...[N]Let me take care of one[N]of your Red Jewels...[END]`
+dialogstring_089EAB `[TPL:A]A strange voice says...[N]Let me take care of one[N]of your Red Jewels...[END]`
 
-widestring_089EE0 `[TPL:A][SFX:0][DLY:9]You have the[N]Gorgon Flower![PAU:78][END]`
+dialogstring_089EE0 `[TPL:A][SFX:0][DLY:9]You have the[N]Gorgon Flower![PAU:78][END]`
 
-widestring_089EFC `[TPL:A]A strange voice says...[N]Let me take care of one[N]of your herbs...[END]`
+dialogstring_089EFC `[TPL:A]A strange voice says...[N]Let me take care of one[N]of your herbs...[END]`

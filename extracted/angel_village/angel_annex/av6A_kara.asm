@@ -21,7 +21,7 @@ av6A_kara [
 ]
 
 code_06C3AC {
-    COP [PrintWideString] ( &widestring_06C417 )
+    COP [PrintDialogString] ( &dialogstring_06C417 )
     RTL 
 }
 ---------------------------------------------
@@ -31,4 +31,4 @@ av6A_kara_destroy {
 }
 ---------------------------------------------
 
-widestring_06C417 `[TPL:A][TPL:1]Kara: In the Floating [N]City, many houses [N]are built on rafts. [FIN]Kind of romantic.[N]I like it.[PAL:0][END]`
+dialogstring_06C417 `[TPL:A][TPL:1]Kara: In the Floating [N]City, many houses [N]are built on rafts. [FIN]Kind of romantic.[N]I like it.[PAL:0][END]`

@@ -39,15 +39,15 @@ code_list_06CBDE [
 ]
 
 code_06CBE4 {
-    COP [PrintWideString] ( &widestring_06CBEE )
+    COP [PrintDialogString] ( &dialogstring_06CBEE )
     RTL 
 }
 
 code_06CBE9 {
-    COP [PrintWideString] ( &widestring_06CC22 )
+    COP [PrintDialogString] ( &dialogstring_06CC22 )
     RTL 
 }
 
-widestring_06CBEE `[TPL:A]It's been said that [N]we are the form into [N]which humans evolve. [END]`
+dialogstring_06CBEE `[TPL:A]It's been said that [N]we are the form into [N]which humans evolve. [END]`
 
-widestring_06CC22 `[TPL:B]I'll show you the way to[N]the studio. Remember it.[FIN]Go with the wind. [FIN]If you look at which [N]way the torch flame [N]bends,[N]you'll understand.[FIN]Down the dark street,[N]through where the wind[N]blows, to where you can[N]hear the waterfall.[FIN]Then look for the place[N]where the sound of the[N]waterfall is loud.[FIN]Ishtar's studio is[N]in front. Be careful.[END]`
+dialogstring_06CC22 `[TPL:B]I'll show you the way to[N]the studio. Remember it.[FIN]Go with the wind. [FIN]If you look at which [N]way the torch flame [N]bends,[N]you'll understand.[FIN]Down the dark street,[N]through where the wind[N]blows, to where you can[N]hear the waterfall.[FIN]Then look for the place[N]where the sound of the[N]waterfall is loud.[FIN]Ishtar's studio is[N]in front. Be careful.[END]`

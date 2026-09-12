@@ -20,8 +20,8 @@ gs2B_bones [
 ]
 
 code_058BD2 {
-    COP [PrintWideString] ( &widestring_058BD7 )
+    COP [PrintDialogString] ( &dialogstring_058BD7 )
     RTL 
 }
 
-widestring_058BD7 `[TPL:A][TPL:0]Will: [N]This is where the Inca [N]were standing...[PAL:0][END]`
+dialogstring_058BD7 `[TPL:A][TPL:0]Will: [N]This is where the Inca [N]were standing...[PAL:0][END]`

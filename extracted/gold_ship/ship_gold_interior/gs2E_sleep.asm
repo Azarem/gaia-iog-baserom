@@ -36,7 +36,7 @@ code_05865A {
     LDA #$CFF0
     TSB $joypadMaskStd
     COP [LoopNext]
-    COP [PrintWideString] ( &widestring_0586CC )
+    COP [PrintDialogString] ( &dialogstring_0586CC )
     LDY $playerActor
     LDA #$*player_transition_handlers.code_00C45E
     STA $0002, Y
@@ -69,17 +69,17 @@ code_0586AE {
 }
 
 code_0586C2 {
-    COP [PrintWideString] ( &widestring_058759 )
+    COP [PrintDialogString] ( &dialogstring_058759 )
     RTL 
 }
 
 code_0586C7 {
-    COP [PrintWideString] ( &widestring_05870A )
+    COP [PrintDialogString] ( &dialogstring_05870A )
     RTL 
 }
 
-widestring_0586CC `[DEF][TPL:0]Will: I fell into a [N]deep sleep, and was [N]pulled inside a dream.[PAL:0][END]`
+dialogstring_0586CC `[DEF][TPL:0]Will: I fell into a [N]deep sleep, and was [N]pulled inside a dream.[PAL:0][END]`
 
-widestring_05870A `[DEF]Oh, King.[N]Looking around the ship?[FIN]But I expect you're[N]tired. Look around,[N]then rest in this bed.[END]`
+dialogstring_05870A `[DEF]Oh, King.[N]Looking around the ship?[FIN]But I expect you're[N]tired. Look around,[N]then rest in this bed.[END]`
 
-widestring_058759 `[DEF]I'm sorry that it's so[N]shabby, but please try[N]to get some rest.[END]`
+dialogstring_058759 `[DEF]I'm sorry that it's so[N]shabby, but please try[N]to get some rest.[END]`

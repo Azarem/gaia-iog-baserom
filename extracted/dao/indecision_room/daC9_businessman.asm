@@ -23,8 +23,8 @@ daC9_businessman [
 ]
 
 code_08A919 {
-    COP [PrintWideString] ( &widestring_08A91E )
+    COP [PrintDialogString] ( &dialogstring_08A91E )
     RTL 
 }
 
-widestring_08A91E `[DEF]You've come all the way[N]to this town to[N]buy labor...[FIN]I can't make up my mind[N]if I should do business[N]with you. You can't [N]put a price on people...[END]`
+dialogstring_08A91E `[DEF]You've come all the way[N]to this town to[N]buy labor...[FIN]I can't make up my mind[N]if I should do business[N]with you. You can't [N]put a price on people...[END]`

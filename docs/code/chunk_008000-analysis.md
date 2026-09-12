@@ -200,7 +200,7 @@ event flags, animation, and memory allocation.
 - **Purpose:** Updates the BG3 status bar overlay showing HP, DEF, STR values. Handles HP recovery animation, gem counter display, and enemy health bar.
 - **Size:** ~216 bytes
 - **Called by:** Main loop (step 19), `UpdateFrame_Render`
-- **Calls:** COP `PlaySoundCh2` (#0D) inline, COP `RunBg3Script` inline (references `asciistring_01E7F6`, `asciistring_01E818`)
+- **Calls:** COP `PlaySoundCh2` (#0D) inline, COP `RunBg3Script` inline (references `consolestring_01E7F6`, `consolestring_01E818`)
 - **Stack:** `PHP`, `PHA` (flag save for `$09EC` bit 0)
 
 #### HUD Logic Flow

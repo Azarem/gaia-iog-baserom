@@ -18,7 +18,7 @@ na49_lance [
     COP [AnimLoop]
     COP [StageSpriteLoop] ( #02, #1E )
     COP [AnimLoop]
-    COP [PrintWideString] ( &widestring_05E1EE )
+    COP [PrintDialogString] ( &dialogstring_05E1EE )
     COP [SetFlagByte] ( #04 )
     COP [ExitIfFlagByte] ( #05, #01 )
     COP [StageSpriteLoopMoveY] ( #07, #02, #12 )
@@ -35,7 +35,7 @@ na49_lance [
     COP [AnimLoop]
     COP [StageSpriteFrame] ( #05 )
     COP [AnimOnce]
-    COP [PrintWideString] ( &widestring_05E227 )
+    COP [PrintDialogString] ( &dialogstring_05E227 )
     COP [SetFlagByte] ( #6D )
     LDA #$0000
     STA $0D60
@@ -59,10 +59,10 @@ na49_lance [
 ]
 
 code_05E1E9 {
-    COP [PrintWideString] ( &widestring_05E1EE )
+    COP [PrintDialogString] ( &dialogstring_05E1EE )
     RTL 
 }
 
-widestring_05E1EE `[TPL:A][TPL:4]Lance: I've only had mine [N]on for three weeks.[N]I guess I lose![END]`
+dialogstring_05E1EE `[TPL:A][TPL:4]Lance: I've only had mine [N]on for three weeks.[N]I guess I lose![END]`
 
-widestring_05E227 `[TPL:A][TPL:4]Lance: We're going, too![FIN]We don't want Will to be[N]the only one having [N]a good time. [FIN][PAL:0]The group went to the [N]Nazca Desert...[END]`
+dialogstring_05E227 `[TPL:A][TPL:4]Lance: We're going, too![FIN]We don't want Will to be[N]the only one having [N]a good time. [FIN][PAL:0]The group went to the [N]Nazca Desert...[END]`

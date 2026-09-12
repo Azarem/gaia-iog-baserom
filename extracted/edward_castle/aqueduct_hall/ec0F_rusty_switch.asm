@@ -19,7 +19,7 @@ ec0F_rusty_switch [
 ]
 
 code_0A898F {
-    COP [PrintWideString] ( &widestring_0A89BF )
+    COP [PrintDialogString] ( &dialogstring_0A89BF )
     COP [SetEntryContinue]
     COP [BranchIfPlayerNear] ( #01, &code_0A899C )
     BRA loc_0A8979
@@ -46,4 +46,4 @@ code_0A89BC {
     RTL 
 }
 
-widestring_0A89BF `[TPL:E][TPL:0]It won't go in![N]Maybe it's rusty...[PAL:0][END]`
+dialogstring_0A89BF `[TPL:E][TPL:0]It won't go in![N]Maybe it's rusty...[PAL:0][END]`

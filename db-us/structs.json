@@ -16,7 +16,7 @@
   "palette-bundle": { "types": [ "Byte", "&Word", "Byte", "Byte", "Byte" ], "delimiter": 0 },
   "body-entry": { "types": [ "Address", "@Binary" ] },
   "event-block-def": { "types": [ "Byte", "Byte", "Byte", "Byte", "Byte", "Byte", "Byte", "Byte" ] },
-  "diary-entry": { "types": [ "WideString", "Binary" ] },
+  "diary-entry": { "types": [ "DialogString", "Binary" ] },
   "ramp-motion": { "types": [ "&Binary", "Byte" ] },
   "meta<>": { "discriminator": 0, "delimiter": 0 },
   "display-mode": {
@@ -91,7 +91,7 @@
     "types": ["Byte", "Byte", "Byte", "@actor-def"]
   },
   "thinker-spawn": { "types": [ "Byte", "@thinker-def" ], "delimiter": 255 },
-  "scene-event": { "types": [ "enemy-spawn", "WideString" ] },
+  "scene-event": { "types": [ "enemy-spawn", "DialogString" ] },
   "warp-def": { "types": [ "scene-warp", "stair-warp" ] },
   "scene-warp": { "types": [ "Byte", "Byte", "Byte", "Byte", "Byte", "Word", "Word", "Byte", "Word" ], "delimiter": 255 },
   "stair-warp": { "types": [ "Byte", "Byte", "Byte", "Byte", "Word", "Word", "Word", "Byte", "Word" ], "delimiter": 255 },

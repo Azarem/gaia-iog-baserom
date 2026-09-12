@@ -24,8 +24,8 @@ sc01_girl3 [
 ]
 
 code_0481D1 {
-    COP [PrintWideString] ( &widestring_0481D6 )
+    COP [PrintDialogString] ( &dialogstring_0481D6 )
     RTL 
 }
 
-widestring_0481D6 `[DEF]How long have we been [N]playing this?[END]`
+dialogstring_0481D6 `[DEF]How long have we been [N]playing this?[END]`

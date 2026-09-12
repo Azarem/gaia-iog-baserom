@@ -31,8 +31,8 @@ code_048140 {
 }
 
 code_048154 {
-    COP [PrintWideString] ( &widestring_048159 )
+    COP [PrintDialogString] ( &dialogstring_048159 )
     RTL 
 }
 
-widestring_048159 `[DEF]しかし 不思議よね.[N]この遊びって なんで だるまさんが[N]ころんだって 言うのかしら···[END]`
+dialogstring_048159 `[DEF]しかし 不思議よね.[N]この遊びって なんで だるまさんが[N]ころんだって 言うのかしら···[END]`

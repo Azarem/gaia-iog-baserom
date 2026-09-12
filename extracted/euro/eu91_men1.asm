@@ -45,85 +45,85 @@ code_list_07C432 [
 ]
 
 code_07C444 {
-    COP [PrintWideString] ( &widestring_07C480 )
+    COP [PrintDialogString] ( &dialogstring_07C480 )
     RTL 
 }
 
 code_07C449 {
-    COP [PrintWideString] ( &widestring_07C4AA )
+    COP [PrintDialogString] ( &dialogstring_07C4AA )
     RTL 
 }
 
 code_07C44E {
-    COP [PrintWideString] ( &widestring_07C4D0 )
+    COP [PrintDialogString] ( &dialogstring_07C4D0 )
     RTL 
 }
 
 code_07C453 {
-    COP [PrintWideString] ( &widestring_07C509 )
+    COP [PrintDialogString] ( &dialogstring_07C509 )
     RTL 
 }
 
 code_07C458 {
-    COP [PrintWideString] ( &widestring_07C56C )
+    COP [PrintDialogString] ( &dialogstring_07C56C )
     RTL 
 }
 
 code_07C45D {
-    COP [PrintWideString] ( &widestring_07C5AB )
+    COP [PrintDialogString] ( &dialogstring_07C5AB )
     RTL 
 }
 
 code_07C462 {
-    COP [PrintWideString] ( &widestring_07C60A )
+    COP [PrintDialogString] ( &dialogstring_07C60A )
     RTL 
 }
 
 code_07C467 {
-    COP [PrintWideString] ( &widestring_07C63F )
+    COP [PrintDialogString] ( &dialogstring_07C63F )
     RTL 
 }
 
 code_07C46C {
-    COP [PrintWideString] ( &widestring_07C6FE )
+    COP [PrintDialogString] ( &dialogstring_07C6FE )
     RTL 
 }
 
 code_07C471 {
-    COP [PrintWideString] ( &widestring_07C74B )
+    COP [PrintDialogString] ( &dialogstring_07C74B )
     RTL 
 }
 
 code_07C476 {
-    COP [PrintWideString] ( &widestring_07C74D )
+    COP [PrintDialogString] ( &dialogstring_07C74D )
     RTL 
 }
 
 code_07C47B {
-    COP [PrintWideString] ( &widestring_07C74F )
+    COP [PrintDialogString] ( &dialogstring_07C74F )
     RTL 
 }
 
-widestring_07C480 `[DEF]This is Euro. It's a[N]crowded merchant town.[END]`
+dialogstring_07C480 `[DEF]This is Euro. It's a[N]crowded merchant town.[END]`
 
-widestring_07C4AA `[DEF]Villagers live here.[N]Outsiders can't enter.[END]`
+dialogstring_07C4AA `[DEF]Villagers live here.[N]Outsiders can't enter.[END]`
 
-widestring_07C4D0 `[DEF]This is the marketplace.[N]You can find anything[N]you want here.[END]`
+dialogstring_07C4D0 `[DEF]This is the marketplace.[N]You can find anything[N]you want here.[END]`
 
-widestring_07C509 `[DEF]The town prospers thanks[N]to the Rolek company.[FIN]There are lots of bad[N]rumors, but I think[N]the company is great.[END]`
+dialogstring_07C509 `[DEF]The town prospers thanks[N]to the Rolek company.[FIN]There are lots of bad[N]rumors, but I think[N]the company is great.[END]`
 
-widestring_07C56C `[DEF]This is the shrine. The [N]president of the [N]company and his [N]wife come here often.[END]`
+dialogstring_07C56C `[DEF]This is the shrine. The [N]president of the [N]company and his [N]wife come here often.[END]`
 
-widestring_07C5AB `[DEF]This is the Rolek[N]corporate office.[FIN]Almost everything you [N]buy in the town comes [N]through the company.[END]`
+dialogstring_07C5AB `[DEF]This is the Rolek[N]corporate office.[FIN]Almost everything you [N]buy in the town comes [N]through the company.[END]`
 
-widestring_07C60A `[DEF]Man: Yes, the company[N]handles almost anything[N]you can imagine.[END]`
+dialogstring_07C60A `[DEF]Man: Yes, the company[N]handles almost anything[N]you can imagine.[END]`
 
-widestring_07C63F `[DEF]My brother and I once[N]went to Mt.Kress and[N]got lost at the temple.[FIN]Big mushrooms and[N]plants grow in circles[N]like a maze.[FIN]Water from the mushrooms[N]drips onto broken stems.[N]New growth sprouts up,[N]forming a path.[END]`
+dialogstring_07C63F `[DEF]My brother and I once[N]went to Mt.Kress and[N]got lost at the temple.[FIN]Big mushrooms and[N]plants grow in circles[N]like a maze.[FIN]Water from the mushrooms[N]drips onto broken stems.[N]New growth sprouts up,[N]forming a path.[END]`
 
-widestring_07C6FE `[DEF]The drops from the[N]mushrooms are all around[N]the temple grounds...[FIN]Ah, you're growing up[N]quickly.[END]`
+dialogstring_07C6FE `[DEF]The drops from the[N]mushrooms are all around[N]the temple grounds...[FIN]Ah, you're growing up[N]quickly.[END]`
 
-widestring_07C74B `[DEF][END]`
+dialogstring_07C74B `[DEF][END]`
 
-widestring_07C74D `[DEF][END]`
+dialogstring_07C74D `[DEF][END]`
 
-widestring_07C74F `[DEF][END]`
+dialogstring_07C74F `[DEF][END]`

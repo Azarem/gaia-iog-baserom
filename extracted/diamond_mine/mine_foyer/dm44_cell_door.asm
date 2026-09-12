@@ -28,17 +28,17 @@ code_05D552 {
   loc_05D557:
     COP [BranchIfFlagByte] ( #5B, #01, &code_05D568 )
     COP [BranchIfFlagByte] ( #5C, #01, &code_05D568 )
-    COP [PrintWideString] ( &widestring_05D593 )
+    COP [PrintDialogString] ( &dialogstring_05D593 )
     RTL 
 }
 
 code_05D568 {
-    COP [PrintWideString] ( &widestring_05D5AC )
+    COP [PrintDialogString] ( &dialogstring_05D5AC )
     RTL 
 }
 
 code_05D56D {
-    COP [PrintWideString] ( &widestring_05D5D1 )
+    COP [PrintDialogString] ( &dialogstring_05D5D1 )
     COP [DialogueOptions] ( #02, #02, &code_list_05D577 )
 }
 
@@ -49,12 +49,12 @@ code_list_05D577 [
 ]
 
 code_05D57D {
-    COP [PrintWideString] ( &widestring_05D5FD )
+    COP [PrintDialogString] ( &dialogstring_05D5FD )
     RTL 
 }
 
 code_05D582 {
-    COP [PrintWideString] ( &widestring_05D5FF )
+    COP [PrintDialogString] ( &dialogstring_05D5FF )
     COP [RemoveItem] ( #0B )
     COP [RemoveItem] ( #0C )
     COP [SetFlagByte] ( #5B )
@@ -62,12 +62,12 @@ code_05D582 {
     RTL 
 }
 
-widestring_05D593 `[DEF]There are two keyholes.[END]`
+dialogstring_05D593 `[DEF]There are two keyholes.[END]`
 
-widestring_05D5AC `[DEF]Without both keys, [N]the door won't open...[END]`
+dialogstring_05D5AC `[DEF]Without both keys, [N]the door won't open...[END]`
 
-widestring_05D5D1 `[DEF]I have both keys...[N]Put in the keys?[N] Yes[N] No`
+dialogstring_05D5D1 `[DEF]I have both keys...[N]Put in the keys?[N] Yes[N] No`
 
-widestring_05D5FD `[CLD]`
+dialogstring_05D5FD `[CLD]`
 
-widestring_05D5FF `[CLR]The key turns with[N]a strange sound.[END]`
+dialogstring_05D5FF `[CLR]The key turns with[N]a strange sound.[END]`

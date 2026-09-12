@@ -11,14 +11,14 @@ av69_lance [
     LDA #$CFF0
     TSB $joypadMaskStd
     COP [WaitByte] ( #1D )
-    COP [PrintWideString] ( &widestring_06BAFA )
+    COP [PrintDialogString] ( &dialogstring_06BAFA )
     COP [StageSpriteLoopMoveY] ( #07, #02, #02 )
     COP [AnimLoop]
     COP [StageSpriteMoveX] ( #08, #12 )
     COP [AnimOnce]
     COP [StageSpriteFrame] ( #03 )
     COP [AnimOnce]
-    COP [PrintWideString] ( &widestring_06BB50 )
+    COP [PrintDialogString] ( &dialogstring_06BB50 )
     COP [SetFlagByte] ( #01 )
     COP [StageSpriteLoop] ( #05, #1E )
     COP [AnimLoop]
@@ -47,6 +47,6 @@ av69_lance_destroy {
     COP [Die]
 }
 
-widestring_06BAFA `[TPL:B][TPL:6]Neil: We're here [N]at last. We've walked[N]through the tunnel for[N]almost a month... [FIN][TPL:4]Lance: [N]Look! A sign![PAL:0][END]`
+dialogstring_06BAFA `[TPL:B][TPL:6]Neil: We're here [N]at last. We've walked[N]through the tunnel for[N]almost a month... [FIN][TPL:4]Lance: [N]Look! A sign![PAL:0][END]`
 
-widestring_06BB50 `[TPL:A][TPL:4]Lance: What? [N]Angel Tribe? Travellers, [N]please use this room?[FIN][TPL:6]Neil: Angels living [N]in a place like this? [FIN][TPL:6]Neil: They say angels [N]don't like meeting [N]with people. [FIN]First we can rest in[N]that room...[PAL:0][END]`
+dialogstring_06BB50 `[TPL:A][TPL:4]Lance: What? [N]Angel Tribe? Travellers, [N]please use this room?[FIN][TPL:6]Neil: Angels living [N]in a place like this? [FIN][TPL:6]Neil: They say angels [N]don't like meeting [N]with people. [FIN]First we can rest in[N]that room...[PAL:0][END]`

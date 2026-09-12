@@ -15,13 +15,13 @@ fr32_kara [
     COP [AnimOnce]
     COP [StageSpriteLoop] ( #2B, #1E )
     COP [AnimLoop]
-    COP [PrintWideString] ( &widestring_05B100 )
+    COP [PrintDialogString] ( &dialogstring_05B100 )
     COP [SetFlagByte] ( #02 )
     COP [ExitIfFlagByte] ( #02, #00 )
     COP [StageSpriteFrame] ( #2A )
     COP [AnimOnce]
     COP [WaitByte] ( #1D )
-    COP [PrintWideString] ( &widestring_05B14B )
+    COP [PrintDialogString] ( &dialogstring_05B14B )
     COP [SetFlagByte] ( #64 )
     COP [SetFlagByte] ( #03 )
     LDA #$CFF0
@@ -67,13 +67,13 @@ code_05B0F6 {
 }
 
 code_05B0F8 {
-    COP [PrintWideString] ( &widestring_05B16F )
+    COP [PrintDialogString] ( &dialogstring_05B16F )
     COP [SetFlagByte] ( #04 )
     RTL 
 }
 
-widestring_05B100 `[TPL:E][TPL:1]Kara: Oh, it's nice!! [N]What a great [N]city!!! [FIN]People who live in such [N]a pretty place must [N]have beautiful hearts...[PAL:0][END]`
+dialogstring_05B100 `[TPL:E][TPL:1]Kara: Oh, it's nice!! [N]What a great [N]city!!! [FIN]People who live in such [N]a pretty place must [N]have beautiful hearts...[PAL:0][END]`
 
-widestring_05B14B `[TPL:E][TPL:1]Kara: [N]Don't you like it, Will!! [N]Let's go!![PAL:0][END]`
+dialogstring_05B14B `[TPL:E][TPL:1]Kara: [N]Don't you like it, Will!! [N]Let's go!![PAL:0][END]`
 
-widestring_05B16F `[TPL:E][TPL:1]Kara: [N]This is the hotel! [N]Let's go in![PAL:0][END]`
+dialogstring_05B16F `[TPL:E][TPL:1]Kara: [N]This is the hotel! [N]Let's go in![PAL:0][END]`

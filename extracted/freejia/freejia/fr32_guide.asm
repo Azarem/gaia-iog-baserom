@@ -17,7 +17,7 @@ fr32_guide [
     COP [AnimLoop]
     COP [StageSpriteFrame] ( #02 )
     COP [AnimOnce]
-    COP [PrintWideString] ( &widestring_05B225 )
+    COP [PrintDialogString] ( &dialogstring_05B225 )
     COP [ClearFlagByte] ( #02 )
     COP [ExitIfFlagByte] ( #03, #01 )
     COP [StageSpriteMoveX] ( #09, #11 )
@@ -53,20 +53,20 @@ code_05B203 {
 }
 
 code_05B21B {
-    COP [PrintWideString] ( &widestring_05B2D3 )
+    COP [PrintDialogString] ( &dialogstring_05B2D3 )
     RTL 
 }
 
 code_05B220 {
-    COP [PrintWideString] ( &widestring_05B2DC )
+    COP [PrintDialogString] ( &dialogstring_05B2DC )
     RTL 
 }
 
-widestring_05B225 `[TPL:E]Man: What a cute couple.[N]Have you decided where[N]you're staying tonight?[FIN][TPL:1]Kara: No. [N]Not yet. We're looking [N]for someone. [FIN][TPL:6]Man: Well, well.[N]Why not base your[N]search here?[FIN][TPL:1]Kara: It's settled! [N]I'm exhausted!![PAL:0][END]`
+dialogstring_05B225 `[TPL:E]Man: What a cute couple.[N]Have you decided where[N]you're staying tonight?[FIN][TPL:1]Kara: No. [N]Not yet. We're looking [N]for someone. [FIN][TPL:6]Man: Well, well.[N]Why not base your[N]search here?[FIN][TPL:1]Kara: It's settled! [N]I'm exhausted!![PAL:0][END]`
 
-widestring_05B2D3 `[DEF]Well, come in.[END]`
+dialogstring_05B2D3 `[DEF]Well, come in.[END]`
 
-widestring_05B2DC `[DEF]Recently tourists have[N]avoided this town...[N]Business is terrible.[END]`
+dialogstring_05B2DC `[DEF]Recently tourists have[N]avoided this town...[N]Business is terrible.[END]`
 
 code_05B315 {
     COP [SetMetasprite] ( @table_0EDA00 )

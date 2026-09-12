@@ -36,15 +36,15 @@ code_04BDA6 {
 }
 
 code_04BDB1 {
-    COP [PrintWideString] ( &widestring_04BDDB )
+    COP [PrintDialogString] ( &dialogstring_04BDDB )
     RTL 
 }
 
 code_04BDB6 {
     COP [BranchIfFlagByte] ( #D8, #01, &code_04BDD1 )
-    COP [PrintWideString] ( &widestring_04BE21 )
+    COP [PrintDialogString] ( &dialogstring_04BE21 )
     COP [GiveItem] ( #01, &code_04BDCD )
-    COP [PrintWideString] ( &widestring_04BE45 )
+    COP [PrintDialogString] ( &dialogstring_04BE45 )
     COP [SetFlagByte] ( #D8 )
     RTL 
 }
@@ -54,21 +54,21 @@ code_04BDCD {
 }
 
 code_04BDD1 {
-    COP [PrintWideString] ( &widestring_04BE64 )
+    COP [PrintDialogString] ( &dialogstring_04BE64 )
     RTL 
 }
 
 code_04BDD6 {
-    COP [PrintWideString] ( &widestring_04BE87 )
+    COP [PrintDialogString] ( &dialogstring_04BE87 )
     RTL 
 }
 
-widestring_04BDDB `[TPL:B]ここは エドワード国王の城.[N]くれぐれも そそうのないようにな.[N]それでなくても 国王は きびしい[N]お方 なんだから.[END]`
+dialogstring_04BDDB `[TPL:B]ここは エドワード国王の城.[N]くれぐれも そそうのないようにな.[N]それでなくても 国王は きびしい[N]お方 なんだから.[END]`
 
-widestring_04BE21 `[TPL:9]しっ. 声をたてるなよ.[N]さぼっているのが バレるだろっ.[FIN]`
+dialogstring_04BE21 `[TPL:9]しっ. 声をたてるなよ.[N]さぼっているのが バレるだろっ.[FIN]`
 
-widestring_04BE45 `そのかわり 君には 赤い宝石を[N]ーつ あげるから.[END]`
+dialogstring_04BE45 `そのかわり 君には 赤い宝石を[N]ーつ あげるから.[END]`
 
-widestring_04BE64 `[TPL:9]しっ. 声をたてるなよ.[N]さぼっているのが バレるだろっ.[END]`
+dialogstring_04BE64 `[TPL:9]しっ. 声をたてるなよ.[N]さぼっているのが バレるだろっ.[END]`
 
-widestring_04BE87 `[TPL:8]すぅすぅ[END]`
+dialogstring_04BE87 `[TPL:8]すぅすぅ[END]`

@@ -28,7 +28,7 @@ code_0980E6 {
 }
 
 code_0980E8 {
-    COP [PrintWideString] ( &widestring_09811E )
+    COP [PrintDialogString] ( &dialogstring_09811E )
     COP [DialogueOptions] ( #02, #01, &code_list_0980F2 )
 }
 
@@ -39,12 +39,12 @@ code_list_0980F2 [
 ]
 
 code_0980F8 {
-    COP [PrintWideString] ( &widestring_098144 )
+    COP [PrintDialogString] ( &dialogstring_098144 )
     RTL 
 }
 
 code_0980FD {
-    COP [PrintWideString] ( &widestring_098144 )
+    COP [PrintDialogString] ( &dialogstring_098144 )
     STZ $066D
     STZ $0670
     LDA #$0404
@@ -55,6 +55,6 @@ code_0980FD {
     RTL 
 }
 
-widestring_09811E `[TPL:A]Go to Tower of Babel?[N] Quit[N] Return`
+dialogstring_09811E `[TPL:A]Go to Tower of Babel?[N] Quit[N] Return`
 
-widestring_098144 `[CLD]`
+dialogstring_098144 `[CLD]`

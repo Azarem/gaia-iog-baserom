@@ -16,8 +16,8 @@ daC5_slaver [
 ]
 
 code_08B3B7 {
-    COP [PrintWideString] ( &widestring_08B3BC )
+    COP [PrintDialogString] ( &dialogstring_08B3BC )
     RTL 
 }
 
-widestring_08B3BC `[TPL:E]These women are[N]weaving carpets.[FIN]This will take almost[N]40 years to weave.[FIN]This woman has worked[N]on it continuously since[N]she was a child.[FIN]Remember, little man.[N]Some are born to[N]misfortune.[END]`
+dialogstring_08B3BC `[TPL:E]These women are[N]weaving carpets.[FIN]This will take almost[N]40 years to weave.[FIN]This woman has worked[N]on it continuously since[N]she was a child.[FIN]Remember, little man.[N]Some are born to[N]misfortune.[END]`

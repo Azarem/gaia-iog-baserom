@@ -23,8 +23,8 @@ sc04_poverty [
 ]
 
 code_048F98 {
-    COP [PrintWideString] ( &widestring_048F9D )
+    COP [PrintDialogString] ( &dialogstring_048F9D )
     RTL 
 }
 
-widestring_048F9D `[DEF]It's the little things[N]in life that make you[N]rich or poor.[FIN]Well, heard any good[N]stories?[END]`
+dialogstring_048F9D `[DEF]It's the little things[N]in life that make you[N]rich or poor.[FIN]Well, heard any good[N]stories?[END]`

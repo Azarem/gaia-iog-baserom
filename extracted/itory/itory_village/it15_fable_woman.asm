@@ -14,8 +14,8 @@ it15_fable_woman [
 ]
 
 code_04DF1D {
-    COP [PrintWideString] ( &widestring_04DF22 )
+    COP [PrintDialogString] ( &dialogstring_04DF22 )
     RTL 
 }
 
-widestring_04DF22 `[DEF]Then, all around the[N]world, disease and[N]famine began to[N]increase...[FIN]This planet had always[N]been peaceful.[END]`
+dialogstring_04DF22 `[DEF]Then, all around the[N]world, disease and[N]famine began to[N]increase...[FIN]This planet had always[N]been peaceful.[END]`

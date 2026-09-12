@@ -39,12 +39,12 @@ code_list_07C781 [
 ]
 
 code_07C787 {
-    COP [PrintWideString] ( &widestring_07C7BA )
+    COP [PrintDialogString] ( &dialogstring_07C7BA )
     RTL 
 }
 
 code_07C78C {
-    COP [PrintWideString] ( &widestring_07C836 )
+    COP [PrintDialogString] ( &dialogstring_07C836 )
     COP [DialogueOptions] ( #02, #02, &code_list_07C796 )
 }
 
@@ -55,47 +55,47 @@ code_list_07C796 [
 ]
 
 code_07C79C {
-    COP [PrintWideString] ( &widestring_07C8D5 )
+    COP [PrintDialogString] ( &dialogstring_07C8D5 )
     RTL 
 }
 
 code_07C7A1 {
-    COP [PrintWideString] ( &widestring_07C860 )
+    COP [PrintDialogString] ( &dialogstring_07C860 )
     RTL 
 }
 
 code_07C7A6 {
-    COP [PrintWideString] ( &widestring_07C8EC )
+    COP [PrintDialogString] ( &dialogstring_07C8EC )
     RTL 
 }
 
 code_07C7AB {
-    COP [PrintWideString] ( &widestring_07C924 )
+    COP [PrintDialogString] ( &dialogstring_07C924 )
     RTL 
 }
 
 code_07C7B0 {
-    COP [PrintWideString] ( &widestring_07C926 )
+    COP [PrintDialogString] ( &dialogstring_07C926 )
     RTL 
 }
 
 code_07C7B5 {
-    COP [PrintWideString] ( &widestring_07C928 )
+    COP [PrintDialogString] ( &dialogstring_07C928 )
     RTL 
 }
 
-widestring_07C7BA `[DEF]This is where the [N]world-famous, Rofsky,[N]and the violinist, [N]Erasquez, live. [FIN]They are always arguing.[N]Geniuses can be[N]so peculiar.[END]`
+dialogstring_07C7BA `[DEF]This is where the [N]world-famous, Rofsky,[N]and the violinist, [N]Erasquez, live. [FIN]They are always arguing.[N]Geniuses can be[N]so peculiar.[END]`
 
-widestring_07C836 `[DEF]Believe in fortune-[N]telling? [N] Yes [N] No `
+dialogstring_07C836 `[DEF]Believe in fortune-[N]telling? [N] Yes [N] No `
 
-widestring_07C860 `[CLR]Mmmm.[N]The future looks dark[N]and uncertain.[FIN]A huge comet will enter[N]Earth's orbit. Mankind[N]will become extinct.[FIN]There will be nothing[N]but despair!![END]`
+dialogstring_07C860 `[CLR]Mmmm.[N]The future looks dark[N]and uncertain.[FIN]A huge comet will enter[N]Earth's orbit. Mankind[N]will become extinct.[FIN]There will be nothing[N]but despair!![END]`
 
-widestring_07C8D5 `[CLR]Oh. [N]That's too bad. [END]`
+dialogstring_07C8D5 `[CLR]Oh. [N]That's too bad. [END]`
 
-widestring_07C8EC `[DEF][SFX:10]I hear there are people[N]in this town who can[N]increase your strength.[END]`
+dialogstring_07C8EC `[DEF][SFX:10]I hear there are people[N]in this town who can[N]increase your strength.[END]`
 
-widestring_07C924 `[DEF][END]`
+dialogstring_07C924 `[DEF][END]`
 
-widestring_07C926 `[DEF][END]`
+dialogstring_07C926 `[DEF][END]`
 
-widestring_07C928 `[DEF][END]`
+dialogstring_07C928 `[DEF][END]`

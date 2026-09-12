@@ -32,13 +32,13 @@ code_089392 {
 }
 
 code_08939E {
-    COP [PrintWideString] ( &widestring_0893BF )
+    COP [PrintDialogString] ( &dialogstring_0893BF )
     RTL 
 }
 
 code_0893A3 {
     COP [BranchIfFlagByte] ( #E6, #01, &code_0893BA )
-    COP [PrintWideString] ( &widestring_08942A )
+    COP [PrintDialogString] ( &dialogstring_08942A )
     COP [GiveItem] ( #01, &code_0893B6 )
     COP [SetFlagByte] ( #E6 )
     RTL 
@@ -49,14 +49,14 @@ code_0893B6 {
 }
 
 code_0893BA {
-    COP [PrintWideString] ( &widestring_089415 )
+    COP [PrintDialogString] ( &dialogstring_089415 )
     RTL 
 }
 
-widestring_0893BF `[DEF]The statue of the girl[N]stands silently.[END]`
+dialogstring_0893BF `[DEF]The statue of the girl[N]stands silently.[END]`
 
-widestring_0893DE `[DEF]Somehow the statue has[N]become a human girl![FIN]A tear comes to[N]the girl's eyes...[END]`
+dialogstring_0893DE `[DEF]Somehow the statue has[N]become a human girl![FIN]A tear comes to[N]the girl's eyes...[END]`
 
-widestring_089415 `[DEF]You don't understand...[END]`
+dialogstring_089415 `[DEF]You don't understand...[END]`
 
-widestring_08942A `[DEF]The girl silently offers[N]a Red Jewel[N]as a reward...[FIN]Will gets a Red Jewel! [END]`
+dialogstring_08942A `[DEF]The girl silently offers[N]a Red Jewel[N]as a reward...[FIN]Will gets a Red Jewel! [END]`

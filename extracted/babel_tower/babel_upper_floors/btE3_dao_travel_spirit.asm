@@ -23,7 +23,7 @@ btE3_dao_travel_spirit [
 ]
 
 code_09801D {
-    COP [PrintWideString] ( &widestring_098053 )
+    COP [PrintDialogString] ( &dialogstring_098053 )
     COP [DialogueOptions] ( #02, #02, &code_list_098027 )
 }
 
@@ -34,12 +34,12 @@ code_list_098027 [
 ]
 
 code_09802D {
-    COP [PrintWideString] ( &widestring_0980C1 )
+    COP [PrintDialogString] ( &dialogstring_0980C1 )
     RTL 
 }
 
 code_098032 {
-    COP [PrintWideString] ( &widestring_0980C1 )
+    COP [PrintDialogString] ( &dialogstring_0980C1 )
     STZ $066D
     STZ $0670
     LDA #$0404
@@ -50,6 +50,6 @@ code_098032 {
     RTL 
 }
 
-widestring_098053 `[TPL:B]If you proceed, you[N]will not be able to[N]turn back...[FIN]If you want to go to [N]Dao, I'll transport you. [N] Quit [N] Return to Dao village `
+dialogstring_098053 `[TPL:B]If you proceed, you[N]will not be able to[N]turn back...[FIN]If you want to go to [N]Dao, I'll transport you. [N] Quit [N] Return to Dao village `
 
-widestring_0980C1 `[CLD]`
+dialogstring_0980C1 `[CLD]`

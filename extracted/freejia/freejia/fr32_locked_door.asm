@@ -37,8 +37,8 @@ code_05CFDF {
 }
 
 code_05CFF8 {
-    COP [PrintWideString] ( &widestring_05CFFD )
+    COP [PrintDialogString] ( &dialogstring_05CFFD )
     RTL 
 }
 
-widestring_05CFFD `[DEF]Will: [N]It's locked from [N]the inside... [END]`
+dialogstring_05CFFD `[DEF]Will: [N]It's locked from [N]the inside... [END]`

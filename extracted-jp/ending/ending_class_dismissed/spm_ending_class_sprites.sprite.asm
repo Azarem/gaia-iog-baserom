@@ -1,6 +1,6 @@
 ---------------------------------------------
 
-sprite_set_list_000000 [
+spm_ending_class_sprites [
   &sprite_set_000014   ;00
   &sprite_set_000026   ;01
   &sprite_set_000038   ;02

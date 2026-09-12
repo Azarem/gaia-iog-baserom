@@ -49,7 +49,7 @@ sp5C_key_coffin [
     STA $16
     LDA #$2000
     TRB $10
-    COP [PrintWideString] ( &widestring_069167 )
+    COP [PrintDialogString] ( &dialogstring_069167 )
     COP [StageSpriteLoop] ( #33, #04 )
     COP [AnimLoop]
     LDY $playerActor
@@ -73,18 +73,18 @@ code_069092 {
 
 code_069094 {
     COP [BranchIfFlagByte] ( #6F, #01, &code_06909F )
-    COP [PrintWideString] ( &widestring_0690A7 )
+    COP [PrintDialogString] ( &dialogstring_0690A7 )
     RTL 
 }
 
 code_06909F {
-    COP [PrintWideString] ( &widestring_0690CF )
+    COP [PrintDialogString] ( &dialogstring_0690CF )
     COP [SetFlagByte] ( #01 )
     RTL 
 }
 
-widestring_0690A7 `[DEF][TPL:0]Will: The coffins are [N]lined up...[PAL:0][END]`
+dialogstring_0690A7 `[DEF][TPL:0]Will: The coffins are [N]lined up...[PAL:0][END]`
 
-widestring_0690CF `[DEF][TPL:0]Will: [N]I can't seem to open [N]the lid... [FIN][TPL:2]Lilly speaks from[N]his pocket.[FIN][TPL:2]Lilly: Wait a minute.[N]Isn't there a hole in[N]the coffin?[FIN]I could get in through [N]the hole. I better [N]have a look.[PAL:0][END]`
+dialogstring_0690CF `[DEF][TPL:0]Will: [N]I can't seem to open [N]the lid... [FIN][TPL:2]Lilly speaks from[N]his pocket.[FIN][TPL:2]Lilly: Wait a minute.[N]Isn't there a hole in[N]the coffin?[FIN]I could get in through [N]the hole. I better [N]have a look.[PAL:0][END]`
 
-widestring_069167 `[DEF][TPL:2]Lilly: Strange...[N]There's a key fastened[N]inside this coffin. No[N]wonder it didn't open.[PAL:0][END]`
+dialogstring_069167 `[DEF][TPL:2]Lilly: Strange...[N]There's a key fastened[N]inside this coffin. No[N]wonder it didn't open.[PAL:0][END]`

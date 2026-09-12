@@ -1,12 +1,12 @@
 ; ASCII string renderer — bytecode-driven HUD/UI text and widget system (256610–257943, Bank 03).
 ; 
-; Implements a complete rendering engine for non-dialogue text output: inventory screens, status displays, HP bars, equipment icons, and bordered UI boxes. Separate from the wide-string dialogue renderer (WideStringRenderer at 254549) — this system uses a simpler 8-bit character set where bytes >= $12 are literal tile indices written directly to the VRAM staging buffer, and bytes $00–$11 are command opcodes dispatched through an 18-entry command table.
+; Implements a complete rendering engine for non-dialogue text output: inventory screens, status displays, HP bars, equipment icons, and bordered UI boxes. Separate from the wide-string dialogue renderer (DialogStringRenderer at 254549) — this system uses a simpler 8-bit character set where bytes >= $12 are literal tile indices written directly to the VRAM staging buffer, and bytes $00–$11 are command opcodes dispatched through an 18-entry command table.
 ; 
 ; === RENDERING ARCHITECTURE ===
 ; 
-; Entry point: AsciiStringRenderer, called via JSL. Y = string data pointer, X = VRAM buffer write position (byte offset into $7F0200). Each character writes a 16-bit VRAM tilemap word: low byte = tile index, high byte = palette/priority from sceneStateHelper ($099F).
+; Entry point: ConsoleStringRenderer, called via JSL. Y = string data pointer, X = VRAM buffer write position (byte offset into $7F0200). Each character writes a 16-bit VRAM tilemap word: low byte = tile index, high byte = palette/priority from sceneStateHelper ($099F).
 ; 
-; The command dispatch uses JSR ($addr,X) — indirect indexed JSR through AsciiStringCommandTable. Commands may recursively call AsciiStringRenderer (InsertRemoteString, IndirectString, InsertItemName) and update X via the stack ($03,S or $05,S depending on stack depth).
+; The command dispatch uses JSR ($addr,X) — indirect indexed JSR through ConsoleStringCommandTable. Commands may recursively call ConsoleStringRenderer (InsertRemoteString, IndirectString, InsertItemName) and update X via the stack ($03,S or $05,S depending on stack depth).
 ; 
 ; === COMMAND TABLE ($00–$11) ===
 ; 
@@ -64,11 +64,11 @@
 ; 
 ; Called via JSL with Y = string data pointer, X = VRAM buffer byte offset into $7F0200. Saves processor state and data bank (restored by AsciiCmd_End). Processes the bytecode stream in a loop:
 ; - Bytes >= $12: literal tile characters — written to VRAM buffer as a 16-bit tilemap word (low byte = tile index, high byte = palette from sceneStateHelper $099F)
-; - Bytes $00–$11: command opcodes — dispatched via indexed indirect JSR through AsciiStringCommandTable
+; - Bytes $00–$11: command opcodes — dispatched via indexed indirect JSR through ConsoleStringCommandTable
 ; 
 ; The X register (VRAM write position) is preserved across command calls via PHX/PLX in the main loop. Commands update X through the stack ($03,S) to reflect cursor advancement.
 
-AsciiStringRenderer {
+ConsoleStringRenderer {
     PHP 
     PHB 
 
@@ -83,7 +83,7 @@ AsciiStringRenderer {
     AND #$00FF
     ASL 
     TAX 
-    JSR ($&AsciiStringCommandTable, X) ; Dispatch via indexed indirect JSR through AsciiStringCommandTable
+    JSR ($&ConsoleStringCommandTable, X) ; Dispatch via indexed indirect JSR through ConsoleStringCommandTable
     PLX 
     BRA loc_03EA64
 
@@ -102,7 +102,7 @@ AsciiStringRenderer {
 ; 
 ; Indexed by command byte (0–$11), each entry is a 16-bit JSR target. Commands are dispatched via JSR ($addr,X) indirect indexed through this table. Entries cover text positioning, string insertion, number formatting, HP bars, equipment icons, and UI box drawing.
 
-AsciiStringCommandTable [
+ConsoleStringCommandTable [
   &AsciiCmd_End   ;00
   &AsciiCmd_SetVramAddr   ;01
   &AsciiCmd_InsertRemoteString   ;02
@@ -142,7 +142,7 @@ AsciiCmd_AdvanceRow2 {
 ---------------------------------------------
 ; Insert an item name string by item index.
 ; 
-; 1-byte operand: item index. Multiplies by 2 (ASL) for word table offset, switches data bank to itemcomp_table_01EB0F's bank, looks up the item name string pointer, and recursively calls AsciiStringRenderer to render the name. Updates the VRAM cursor through the stack on return.
+; 1-byte operand: item index. Multiplies by 2 (ASL) for word table offset, switches data bank to itemcomp_table_01EB0F's bank, looks up the item name string pointer, and recursively calls ConsoleStringRenderer to render the name. Updates the VRAM cursor through the stack on return.
 
 AsciiCmd_InsertItemName {
     PHY 
@@ -161,7 +161,7 @@ AsciiCmd_InsertItemName {
     PLY 
     LDA $&itemcomp_table_01EB0F, Y ; Look up item name string from itemcomp_table_01EB0F
     TAY 
-    JSL $@AsciiStringRenderer ; Recursively render item name string via JSL
+    JSL $@ConsoleStringRenderer ; Recursively render item name string via JSL
     TXA 
     STA $06, S
     PLB 
@@ -452,7 +452,7 @@ AsciiCmd_DrawEnemyHpBar {
 ---------------------------------------------
 ; Terminate the ASCII string renderer and return to the caller.
 ; 
-; Pops saved X (VRAM position), data bank, and processor status that were pushed by AsciiStringRenderer's entry (PHP/PHB), then returns via RTL. This is the only way to cleanly exit the rendering loop.
+; Pops saved X (VRAM position), data bank, and processor status that were pushed by ConsoleStringRenderer's entry (PHP/PHB), then returns via RTL. This is the only way to cleanly exit the rendering loop.
 
 AsciiCmd_End {
     PLA 
@@ -590,7 +590,7 @@ AsciiCmd_SetVramAddr {
 ---------------------------------------------
 ; Recursively render a string from another bank.
 ; 
-; 3-byte operand: 2-byte address + 1-byte bank. Saves the current VRAM position from the stack, pushes the bank byte via PHB/PLB to set the data bank register, then calls AsciiStringRenderer recursively via JSL with the new string address in Y. After return, restores the original bank and advances Y past the 3-byte operand.
+; 3-byte operand: 2-byte address + 1-byte bank. Saves the current VRAM position from the stack, pushes the bank byte via PHB/PLB to set the data bank register, then calls ConsoleStringRenderer recursively via JSL with the new string address in Y. After return, restores the original bank and advances Y past the 3-byte operand.
 
 AsciiCmd_InsertRemoteString {
     LDA $03, S
@@ -605,7 +605,7 @@ AsciiCmd_InsertRemoteString {
     PLB 
     REP #$20
     PLY 
-    JSL $@AsciiStringRenderer ; Recursive JSL — render string from remote bank
+    JSL $@ConsoleStringRenderer ; Recursive JSL — render string from remote bank
     PLB 
     PLY 
     INY 
@@ -635,7 +635,7 @@ AsciiCmd_SetPalette {
 ---------------------------------------------
 ; Render a string selected by an indirect index lookup.
 ; 
-; 5-byte operand: 2-byte base address + 1-byte bank + 2-byte index pointer. Reads the index value from the index pointer address, multiplies by 2 for word offset, adds to the base address, reads the string pointer from that table entry, switches data bank, and recursively calls AsciiStringRenderer.
+; 5-byte operand: 2-byte base address + 1-byte bank + 2-byte index pointer. Reads the index value from the index pointer address, multiplies by 2 for word offset, adds to the base address, reads the string pointer from that table entry, switches data bank, and recursively calls ConsoleStringRenderer.
 ; 
 ; Used for dynamic string selection — e.g., selecting text based on a game variable that indexes into a string pointer table.
 
@@ -662,7 +662,7 @@ AsciiCmd_IndirectString {
     TAY 
     LDA $06, S
     TAX 
-    JSL $@AsciiStringRenderer ; Recursive JSL — render the looked-up indexed string
+    JSL $@ConsoleStringRenderer ; Recursive JSL — render the looked-up indexed string
     PLB 
     PLA 
     CLC 

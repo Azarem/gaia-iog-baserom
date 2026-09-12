@@ -12,8 +12,8 @@ h_it15_running_man [
 ]
 
 code_04D78A {
-    COP [PrintWideString] ( &widestring_04D78F )
+    COP [PrintDialogString] ( &dialogstring_04D78F )
     RTL 
 }
 
-widestring_04D78F `[DEF]そこの坂を かけおりて[N]そのまま 走っていってごらん.[N]きっと びっくりするよ.[END]`
+dialogstring_04D78F `[DEF]そこの坂を かけおりて[N]そのまま 走っていってごらん.[N]きっと びっくりするよ.[END]`

@@ -12,8 +12,8 @@ gs2E_crew1 [
 ]
 
 code_058839 {
-    COP [PrintWideString] ( &widestring_05883E )
+    COP [PrintDialogString] ( &dialogstring_05883E )
     RTL 
 }
 
-widestring_05883E `[TPL:A]The Queen is still[N]wearing the ring she[N]got from the King.[FIN]That's right.[FIN]It's the ring he gave her[N]when they were separated[N]by the invaders.[FIN]Since then, she has [N]thought of nothing [N]but him. [END]`
+dialogstring_05883E `[TPL:A]The Queen is still[N]wearing the ring she[N]got from the King.[FIN]That's right.[FIN]It's the ring he gave her[N]when they were separated[N]by the invaders.[FIN]Since then, she has [N]thought of nothing [N]but him. [END]`

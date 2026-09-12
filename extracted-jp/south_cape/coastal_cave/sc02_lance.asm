@@ -60,21 +60,21 @@ h_sc02_lance [
     COP [AnimOnce]
     COP [StageSpriteFrame] ( #02 )
     COP [AnimOnce]
-    COP [PrintWideString] ( &widestring_04AFE7 )
+    COP [PrintDialogString] ( &dialogstring_04AFE7 )
     COP [SetOnInteract] ( &code_04AEC4 )
     LDA #$CFF0
     TRB $joypadMaskStd
     COP [ExitIfFlagByte] ( #08, #01 )
     COP [SetOnInteract] ( #$0000 )
-    COP [PrintWideString] ( &widestring_04B014 )
+    COP [PrintDialogString] ( &dialogstring_04B014 )
     COP [CallScript] ( &code_04AE6B )
     COP [ExitIfFlagByte] ( #0A, #01 )
     COP [StageSpriteFrame] ( #02 )
     COP [AnimOnce]
-    COP [PrintWideString] ( &widestring_04B02E )
+    COP [PrintDialogString] ( &dialogstring_04B02E )
     COP [StageSpriteLoop] ( #05, #1E )
     COP [AnimLoop]
-    COP [PrintWideString] ( &widestring_04B066 )
+    COP [PrintDialogString] ( &dialogstring_04B066 )
     COP [SetFlagByte] ( #0B )
     COP [ClearFlagByte] ( #04 )
     LDA #$CFF0
@@ -117,67 +117,67 @@ code_04AE6B {
 
 code_04AE8F {
     COP [SetFlagByte] ( #01 )
-    COP [PrintWideString] ( &widestring_04AECC )
+    COP [PrintDialogString] ( &dialogstring_04AECC )
     RTL 
 }
 
 code_04AE97 {
-    COP [PrintWideString] ( &widestring_04AF1E )
+    COP [PrintDialogString] ( &dialogstring_04AF1E )
     RTL 
 }
 
 code_04AE9C {
-    COP [PrintWideString] ( &widestring_04AF52 )
+    COP [PrintDialogString] ( &dialogstring_04AF52 )
     RTL 
 }
 
 code_04AEA1 {
     COP [BranchIfFlagByte] ( #25, #01, &code_04AEB7 )
     COP [BranchIfFlagByte] ( #1C, #01, &code_04AEB2 )
-    COP [PrintWideString] ( &widestring_04B096 )
+    COP [PrintDialogString] ( &dialogstring_04B096 )
     RTL 
 }
 
 code_04AEB2 {
-    COP [PrintWideString] ( &widestring_04B0C5 )
+    COP [PrintDialogString] ( &dialogstring_04B0C5 )
     RTL 
 }
 
 code_04AEB7 {
-    COP [PrintWideString] ( &widestring_04B0FC )
+    COP [PrintDialogString] ( &dialogstring_04B0FC )
     RTL 
 }
 
 code_04AEBC {
-    COP [PrintWideString] ( &widestring_04AF80 )
+    COP [PrintDialogString] ( &dialogstring_04AF80 )
     COP [SetFlagByte] ( #07 )
     RTL 
 }
 
 code_04AEC4 {
-    COP [PrintWideString] ( &widestring_04AFE7 )
+    COP [PrintDialogString] ( &dialogstring_04AFE7 )
     COP [SetFlagByte] ( #07 )
     RTL 
 }
 
-widestring_04AECC `[TPL:A][TPL:4]ロブ:[N]なんだよ テム.[N]おそかったじゃんかっ.[FIN]今 モリスと ブラックジャックの[N]勝負をしてるんだ.[N]ちょっと 待ってくれ.[PAL:0][END]`
+dialogstring_04AECC `[TPL:A][TPL:4]ロブ:[N]なんだよ テム.[N]おそかったじゃんかっ.[FIN]今 モリスと ブラックジャックの[N]勝負をしてるんだ.[N]ちょっと 待ってくれ.[PAL:0][END]`
 
-widestring_04AF1E `[TPL:A][TPL:4]ロブ:[N]テムも,そんなところに いないで[N]エリックの となりの席に行けよ.[PAL:0][END]`
+dialogstring_04AF1E `[TPL:A][TPL:4]ロブ:[N]テムも,そんなところに いないで[N]エリックの となりの席に行けよ.[PAL:0][END]`
 
-widestring_04AF52 `[TPL:A][TPL:4]ロブ:[N]たしか 笛を バトンみたいに[N]まわして ひきよせるんだよな.[PAL:0][END]`
+dialogstring_04AF52 `[TPL:A][TPL:4]ロブ:[N]たしか 笛を バトンみたいに[N]まわして ひきよせるんだよな.[PAL:0][END]`
 
-widestring_04AF80 `[TPL:A][TPL:4]ロブ:[N]よし. 今度は トランプ当てを[N]やってもらおうぜ.[FIN]オレが 4枚のカードを 裹返しに[N]おくから ダイヤのエースだと[N]思うものを 拾いあげてくれ.[PAL:0][END]`
+dialogstring_04AF80 `[TPL:A][TPL:4]ロブ:[N]よし. 今度は トランプ当てを[N]やってもらおうぜ.[FIN]オレが 4枚のカードを 裹返しに[N]おくから ダイヤのエースだと[N]思うものを 拾いあげてくれ.[PAL:0][END]`
 
-widestring_04AFE7 `[TPL:A][TPL:4]ロブ:[N]さあ. ダイヤのエースだと[N]思うものを 拾ってくれ.[PAL:0][END]`
+dialogstring_04AFE7 `[TPL:A][TPL:4]ロブ:[N]さあ. ダイヤのエースだと[N]思うものを 拾ってくれ.[PAL:0][END]`
 
-widestring_04B014 `[TPL:A][TPL:4]ロブ:[N]おおっ. あたったあっ!![PAL:0][END]`
+dialogstring_04B014 `[TPL:A][TPL:4]ロブ:[N]おおっ. あたったあっ!![PAL:0][END]`
 
-widestring_04B02E `[TPL:A][TPL:4]ロブ: 学者モリスの言うことは[N]むずかしくて オレには よく[N]わかんねーや.[PAL:0][END]`
+dialogstring_04B02E `[TPL:A][TPL:4]ロブ: 学者モリスの言うことは[N]むずかしくて オレには よく[N]わかんねーや.[PAL:0][END]`
 
-widestring_04B066 `[TPL:A][TPL:4]ロブ:[N]モリス. カード出したついでに[N]もう ひと勝負しようぜ.[PAL:0][END]`
+dialogstring_04B066 `[TPL:A][TPL:4]ロブ:[N]モリス. カード出したついでに[N]もう ひと勝負しようぜ.[PAL:0][END]`
 
-widestring_04B096 `[TPL:A][TPL:4]ロブ:[N]おれは モリスと もうひと勝負[N]したら 帰ることにするよ.[PAL:0][END]`
+dialogstring_04B096 `[TPL:A][TPL:4]ロブ:[N]おれは モリスと もうひと勝負[N]したら 帰ることにするよ.[PAL:0][END]`
 
-widestring_04B0C5 `[TPL:A][TPL:4]ロブ:[N]今日は 教会の勉強も 休みだし··[N]何か 面白いことねえかなあ.[PAL:0][END]`
+dialogstring_04B0C5 `[TPL:A][TPL:4]ロブ:[N]今日は 教会の勉強も 休みだし··[N]何か 面白いことねえかなあ.[PAL:0][END]`
 
-widestring_04B0FC `[TPL:A][TPL:4]ロブ:[N]どうしたんだ? テム.[N]うかない顔して.[FIN]何か おれたちに言えない[N]なやみでも あるのか?[PAL:0][END]`
+dialogstring_04B0FC `[TPL:A][TPL:4]ロブ:[N]どうしたんだ? テム.[N]うかない顔して.[FIN]何か おれたちに言えない[N]なやみでも あるのか?[PAL:0][END]`

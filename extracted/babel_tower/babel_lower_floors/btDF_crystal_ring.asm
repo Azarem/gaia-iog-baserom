@@ -91,7 +91,7 @@ code_0999CC {
     COP [AnimLoop]
     LDA #$0800
     TRB $10
-    COP [PrintWideString] ( &widestring_099A70 )
+    COP [PrintDialogString] ( &dialogstring_099A70 )
     LDA #$0800
     TSB $10
     LDA #$CFF0
@@ -106,13 +106,13 @@ code_0999CC {
 code_099A49 {
     LDA #$0800
     TRB $10
-    COP [PrintWideString] ( &widestring_099A91 )
+    COP [PrintDialogString] ( &dialogstring_099A91 )
     LDA #$0800
     TSB $10
     COP [GiveItem] ( #27, &code_099A6B )
     LDA #$0080
     TSB $displayModeFlags
-    COP [MusicAndText] ( #17, @widestring_099AE4 )
+    COP [MusicAndText] ( #17, @dialogstring_099AE4 )
     COP [Die]
 
   loc_099A6A:
@@ -120,14 +120,14 @@ code_099A49 {
 }
 
 code_099A6B {
-    COP [PrintWideString] ( &widestring_099AFE )
+    COP [PrintDialogString] ( &dialogstring_099AFE )
     RTL 
 }
 
-widestring_099A70 `[TPL:A][TPL:0]Something seemed to[N]fall from the Flute...[PAL:0][END]`
+dialogstring_099A70 `[TPL:A][TPL:0]Something seemed to[N]fall from the Flute...[PAL:0][END]`
 
-widestring_099A91 `[TPL:A][TPL:0]It's King Edward's[N]Crystal Ring!![FIN]I thought it was a[N]decoration, but it had[N]been hidden there...[PAL:0][FIN]`
+dialogstring_099A91 `[TPL:A][TPL:0]It's King Edward's[N]Crystal Ring!![FIN]I thought it was a[N]decoration, but it had[N]been hidden there...[PAL:0][FIN]`
 
-widestring_099AE4 `[TPL:A][SFX:0][DLY:9]You have the[N]Crystal Ring![PAU:78][END]`
+dialogstring_099AE4 `[TPL:A][SFX:0][DLY:9]You have the[N]Crystal Ring![PAU:78][END]`
 
-widestring_099AFE `[CLR][TPL:0]But your inventory[N]is full![PAL:0][END]`
+dialogstring_099AFE `[CLR][TPL:0]But your inventory[N]is full![PAL:0][END]`

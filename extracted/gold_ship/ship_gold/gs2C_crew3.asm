@@ -32,8 +32,8 @@ gs2C_crew3 [
 ]
 
 code_058348 {
-    COP [PrintWideString] ( &widestring_05834D )
+    COP [PrintDialogString] ( &dialogstring_05834D )
     RTL 
 }
 
-widestring_05834D `[DEF]The Queen is in her [N]stateroom. Please show [N]her that you're OK. [END]`
+dialogstring_05834D `[DEF]The Queen is in her [N]stateroom. Please show [N]her that you're OK. [END]`

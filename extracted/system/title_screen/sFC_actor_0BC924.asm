@@ -25,9 +25,9 @@ sFC_actor_0BC924 [
     LDA #$0804
     STA $gfxCacheIdxB
     COP [WaitByte] ( #B3 )
-    COP [RunBg3Script] ( @system_strings.asciistring_01DA5E )
+    COP [RunBg3Script] ( @system_strings.consolestring_01DA5E )
     COP [WaitByte] ( #77 )
-    COP [RunBg3Script] ( @system_strings.asciistring_01DA47 )
+    COP [RunBg3Script] ( @system_strings.consolestring_01DA47 )
     COP [WaitWord] ( #$09D3 )
     COP [SetFlagByte] ( #F4 )
     LDA #$0804

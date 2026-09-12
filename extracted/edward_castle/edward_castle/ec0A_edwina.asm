@@ -16,8 +16,8 @@ ec0A_edwina [
 ]
 
 code_04C588 {
-    COP [PrintWideString] ( &widestring_04C58D )
+    COP [PrintDialogString] ( &dialogstring_04C58D )
     RTL 
 }
 
-widestring_04C58D `[DEF][TPL:3]Queen Edwina:[N]The King sent you the[N]letter. Talk to him.[PAL:0][END]`
+dialogstring_04C58D `[DEF][TPL:3]Queen Edwina:[N]The King sent you the[N]letter. Talk to him.[PAL:0][END]`

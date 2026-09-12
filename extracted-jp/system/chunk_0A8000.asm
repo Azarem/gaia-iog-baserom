@@ -1075,11 +1075,11 @@ code_0A8868 {
 }
 
 code_0A8874 {
-    COP [PrintWideString] ( &widestring_0A8879 )
+    COP [PrintDialogString] ( &dialogstring_0A8879 )
     RTL 
 }
 
-widestring_0A8879 `[DLG:3,11][SIZ:D,4,1][TPL:0]これは 海岸のどうくつにあった[N]石像と 同じ形だ···[PAL:0][END]`
+dialogstring_0A8879 `[DLG:3,11][SIZ:D,4,1][TPL:0]これは 海岸のどうくつにあった[N]石像と 同じ形だ···[PAL:0][END]`
 
 actor_def_0A88A6 [
   actor-def < #1E, #00, #01, {
@@ -1212,7 +1212,7 @@ actor_def_0A8981 [
 ]
 
 code_0A899F {
-    COP [PrintWideString] ( &widestring_0A89CF )
+    COP [PrintDialogString] ( &dialogstring_0A89CF )
     COP [SetEntryContinue]
     COP [BranchIfPlayerNear] ( #01, &code_0A89AC )
     BRA loc_0A8989
@@ -1239,7 +1239,7 @@ code_0A89CC {
     RTL 
 }
 
-widestring_0A89CF `[TPL:E][TPL:0]かたくて おしこめないっ![N]さびついているようだな···[PAL:0][END]`
+dialogstring_0A89CF `[TPL:E][TPL:0]かたくて おしこめないっ![N]さびついているようだな···[PAL:0][END]`
 
 actor_def_0A89F2 [
   actor-def < #3C, #10, #00, {
@@ -4850,7 +4850,7 @@ code_0AA5B3 {
     LDA #$0003
 
   loc_0AA5B6:
-    JSL $@chunk_008000.widestring_00C829
+    JSL $@chunk_008000.dialogstring_00C829
     RTS 
 }
 
@@ -5012,7 +5012,7 @@ code_list_0AA68B [
 ]
 
 code_0AA6CF {
-    COP [PrintWideString] ( &widestring_0AA860 )
+    COP [PrintDialogString] ( &dialogstring_0AA860 )
     RTL 
 }
 
@@ -5344,7 +5344,7 @@ code_0AA8FD {
     RTL 
 
   loc_0AA90E:
-    COP [SpawnAfterFlags] ( @chunk_008000.widestring_00CB00, #$2000 )
+    COP [SpawnAfterFlags] ( @chunk_008000.dialogstring_00CB00, #$2000 )
     COP [StageBgChange] ( #33 )
     COP [ApplyBgChange]
     COP [SetFlagWord] ( #$0133 )
@@ -9621,7 +9621,7 @@ actor_def_0ACD00 [
     LDA #$FFF0
     TSB $joypadMaskStd
     COP [WaitByte] ( #3B )
-    COP [PrintWideString] ( &widestring_0ACDDA )
+    COP [PrintDialogString] ( &dialogstring_0ACDDA )
     LDA #$0001
     STA $0AAC
     LDA #$0055
@@ -9666,7 +9666,7 @@ code_0ACD4D {
 
   loc_0ACD95:
     COP [WaitByte] ( #3B )
-    COP [PrintWideString] ( &widestring_0ACE09 )
+    COP [PrintDialogString] ( &dialogstring_0ACE09 )
     COP [LoopInit] ( #30 )
     LDA $cameraBoundsY
     INC 
@@ -9692,9 +9692,9 @@ code_0ACD4D {
     RTL 
 }
 
-widestring_0ACDDA `[DEF][TPL:0]きょだいな鳥を たおすと[N]しかばねから ミステリードールが[N]見つかった!![PAL:0][END]`
+dialogstring_0ACDDA `[DEF][TPL:0]きょだいな鳥を たおすと[N]しかばねから ミステリードールが[N]見つかった!![PAL:0][END]`
 
-widestring_0ACE09 `[DEF][TPL:0]プロペラ音と ともに 拡声器から[N]ニールのさけび声が ひびく![FIN][TPL:6]ニール:[N]テムーっ![N]地上が 近いぞーっ!!!!![FIN]エアプレインで 受けとめるから[N]そこから 飛びおりるんだっ!![PAL:0][END]`
+dialogstring_0ACE09 `[DEF][TPL:0]プロペラ音と ともに 拡声器から[N]ニールのさけび声が ひびく![FIN][TPL:6]ニール:[N]テムーっ![N]地上が 近いぞーっ!!!!![FIN]エアプレインで 受けとめるから[N]そこから 飛びおりるんだっ!![PAL:0][END]`
 
 actor_def_0ACE80 [
   actor-def < #0A, #01, #03, {
@@ -14194,7 +14194,7 @@ code_0AF0E6 {
     COP [TickMove]
     COP [BranchIfFlagByte] ( #87, #01, &code_0AF10B )
     COP [SetFlagByte] ( #87 )
-    COP [PrintWideString] ( &widestring_0AFA53 )
+    COP [PrintDialogString] ( &dialogstring_0AFA53 )
 }
 
 code_0AF10B {
@@ -15335,7 +15335,7 @@ code_0AFA10 {
     LDA $sceneCurrent
     CMP #$0067
     BNE code_0AFA2B
-    COP [PrintWideString] ( &widestring_0AFBC0 )
+    COP [PrintDialogString] ( &dialogstring_0AFBC0 )
     BRA loc_0AFA45
 
   code_0AFA2B:
@@ -15356,13 +15356,13 @@ code_0AFA10 {
     COP [Die]
 }
 
-widestring_0AFA53 `[DEF][TPL:2]キュウケツキ男:[N]よく ミステリードールを[N]見つけ出してくれた![FIN]変なヤツが きゅうでんにやってきた[N]と 思っていたが···[N]ふっ.[N]およがせておいて 正解だったよ.[FIN][TPL:1]キュウケツキ女:[N]なによ.[N]あんたは えものが やってきたとか[N]よだれを たらしてたくせにっ![FIN]ちょっと 若い子が くれば[N]これだものっ![N]あんたは 食べることしか 考えて[N]ないのっ?[FIN][TPL:2]キュウケツキ男:[N]そういう お前だって!![FIN]まあ まて.[N]今は ふうふげんかを してる場合[N]じゃない.[FIN]まずは その ミステリードールを[N]いただくとしよう.[N]そこの お前! かくごしろっ!!![PAL:0][END]`
+dialogstring_0AFA53 `[DEF][TPL:2]キュウケツキ男:[N]よく ミステリードールを[N]見つけ出してくれた![FIN]変なヤツが きゅうでんにやってきた[N]と 思っていたが···[N]ふっ.[N]およがせておいて 正解だったよ.[FIN][TPL:1]キュウケツキ女:[N]なによ.[N]あんたは えものが やってきたとか[N]よだれを たらしてたくせにっ![FIN]ちょっと 若い子が くれば[N]これだものっ![N]あんたは 食べることしか 考えて[N]ないのっ?[FIN][TPL:2]キュウケツキ男:[N]そういう お前だって!![FIN]まあ まて.[N]今は ふうふげんかを してる場合[N]じゃない.[FIN]まずは その ミステリードールを[N]いただくとしよう.[N]そこの お前! かくごしろっ!!![PAL:0][END]`
 
-widestring_0AFB8C `[DLG:3,11][SIZ:D,4,0][TPL:2]キュウケツキ男:[N]きさまっ! よくも わが妻をっ!![N]ゆるさんっ!!!![PAL:0][END]`
+dialogstring_0AFB8C `[DLG:3,11][SIZ:D,4,0][TPL:2]キュウケツキ男:[N]きさまっ! よくも わが妻をっ!![N]ゆるさんっ!!!![PAL:0][END]`
 
-widestring_0AFBC0 `[DLG:3,11][SIZ:D,4,0][TPL:1]キュウケツキ女: ふんっ.[N]あんな男 死んで せいせいしたわっ[N]さあ 次は お前の番っ!![N]かくご おしっ!![PAL:0][END]`
+dialogstring_0AFBC0 `[DLG:3,11][SIZ:D,4,0][TPL:1]キュウケツキ女: ふんっ.[N]あんな男 死んで せいせいしたわっ[N]さあ 次は お前の番っ!![N]かくご おしっ!![PAL:0][END]`
 
-widestring_0AFC0B `わ[F8]がPがががB`
+dialogstring_0AFC0B `わ[F8]がPがががB`
 
 code_0AFC13 {
     COP [SetFlagByte] ( #0F )
@@ -15373,7 +15373,7 @@ code_0AFC13 {
     LDA $sceneCurrent
     CMP #$0067
     BNE loc_0AFC2E
-    COP [PrintWideString] ( &widestring_0AFB8C )
+    COP [PrintDialogString] ( &dialogstring_0AFB8C )
     BRA loc_0AFC48
 
   loc_0AFC2E:

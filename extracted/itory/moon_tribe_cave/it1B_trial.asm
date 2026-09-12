@@ -16,7 +16,7 @@ it1B_trial [
     LDA #$CFF0
     TSB $joypadMaskStd
     COP [WaitByte] ( #1D )
-    COP [PrintWideString] ( &widestring_04F941 )
+    COP [PrintDialogString] ( &dialogstring_04F941 )
     LDA #$CFF0
     TRB $joypadMaskStd
     LDA #$2200
@@ -65,7 +65,7 @@ code_04F902 {
     JSL $@oam_digit_compose.ComposeDigitSprites
     LDA $0AEC
     BEQ loc_04F91E
-    COP [PrintWideString] ( &widestring_04FA25 )
+    COP [PrintDialogString] ( &dialogstring_04FA25 )
     COP [SetEntryContinue]
     RTL 
 
@@ -73,7 +73,7 @@ code_04F902 {
     LDA #$FFF0
     TSB $joypadMaskStd
     COP [WaitByte] ( #1D )
-    COP [PrintWideString] ( &widestring_04FA65 )
+    COP [PrintDialogString] ( &dialogstring_04FA65 )
     LDA #$FFF0
     TRB $joypadMaskStd
     COP [PlaySoundBoth] ( #$0F0F )
@@ -84,11 +84,11 @@ code_04F902 {
     RTL 
 }
 
-widestring_04F941 `[DLG:3,6][SIZ:D,4]Moon Tribe: This[N]is the final shape[N]of those touched[N]by the comet's light.[FIN]They are horrible[N]creatures whose hearts [N]are filled with [N]hatred and destruction.[FIN]If you can destroy them [N]within 20 seconds, I'll [N]give you the Incan [N]Statue. Ku ku ku... [END]`
+dialogstring_04F941 `[DLG:3,6][SIZ:D,4]Moon Tribe: This[N]is the final shape[N]of those touched[N]by the comet's light.[FIN]They are horrible[N]creatures whose hearts [N]are filled with [N]hatred and destruction.[FIN]If you can destroy them [N]within 20 seconds, I'll [N]give you the Incan [N]Statue. Ku ku ku... [END]`
 
-widestring_04FA25 `[DLG:3,11][SIZ:D,4]Moon Tribe: [N]In that case, I can't [N]give you the statue. [N]Ku ku ku... [END]`
+dialogstring_04FA25 `[DLG:3,11][SIZ:D,4]Moon Tribe: [N]In that case, I can't [N]give you the statue. [N]Ku ku ku... [END]`
 
-widestring_04FA65 `[DLG:3,11][SIZ:D,3]Moon Tribe:[N]Hey, hey! Good boy![N]Ku ku ku...[FIN]Then I'll give you [N]the Incan Statue. [END]`
+dialogstring_04FA65 `[DLG:3,11][SIZ:D,3]Moon Tribe:[N]Hey, hey! Good boy![N]Ku ku ku...[FIN]Then I'll give you [N]the Incan Statue. [END]`
 
 code_04FAB2 {
     LDA $playerXPos

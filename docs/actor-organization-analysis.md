@@ -95,7 +95,7 @@ Single `actor_def` but contains an entire sub-system: Gaia actor, cutscene funcs
 
 **Action:** Split into:
 - `sE6_gaia.asm` — actor + directly `$&`-linked cutscene driver
-- `sE6_gaia_dialogue.asm` — strings/tables (already partially typed as `&WideString` in blocks)
+- `sE6_gaia_dialogue.asm` — strings/tables (already partially typed as `&DialogString` in blocks)
 - `actor_08F67F.asm` — separate actor file
 - `e_actor_09A090.asm` — relocate to `unused/` or `system/` (hint NPC related code lives nearby in ROM)
 

@@ -13,9 +13,9 @@ h_ec0B_moss [
 ]
 
 code_04D4F9 {
-    COP [PrintWideString] ( &widestring_04D502 )
+    COP [PrintDialogString] ( &dialogstring_04D502 )
     COP [SetFlagByte] ( #03 )
     COP [Die]
 }
 
-widestring_04D502 `[TPL:E][TPL:0]テム: このコケは 数え切れない[N]ほどの しゅうじんたちを[N]見てきたんだろうな···[FIN]彼らも このコケを[N]心のささえにして[N]くらしていたのかもしれない···[PAL:0][END]`
+dialogstring_04D502 `[TPL:E][TPL:0]テム: このコケは 数え切れない[N]ほどの しゅうじんたちを[N]見てきたんだろうな···[FIN]彼らも このコケを[N]心のささえにして[N]くらしていたのかもしれない···[PAL:0][END]`

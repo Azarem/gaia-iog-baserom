@@ -2,7 +2,7 @@
 
 ---------------------------------------------
 
-overworld_names [
+world_map_names [
   map-label < #01, &spritestring_03B244 >   ;00
   map-label < #06, &spritestring_03B24F >   ;01
   map-label < #0A, &spritestring_03B25A >   ;02

@@ -12,8 +12,8 @@ gs2C_crew1 [
 ]
 
 code_05825B {
-    COP [PrintWideString] ( &widestring_058260 )
+    COP [PrintDialogString] ( &dialogstring_058260 )
     RTL 
 }
 
-widestring_058260 `[DEF]King! You're safe![N]Now we can set sail.[END]`
+dialogstring_058260 `[DEF]King! You're safe![N]Now we can set sail.[END]`

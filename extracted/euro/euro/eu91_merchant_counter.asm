@@ -54,13 +54,13 @@ code_07C0A6 {
 
 code_07C0A7 {
     COP [BranchIfNoItem] ( #28, &code_07C0B6 )
-    COP [PrintWideString] ( &widestring_07C0F3 )
+    COP [PrintDialogString] ( &dialogstring_07C0F3 )
     COP [GiveItem] ( #28, &code_07C0BB )
     RTL 
 }
 
 code_07C0B6 {
-    COP [PrintWideString] ( &widestring_07C0DD )
+    COP [PrintDialogString] ( &dialogstring_07C0DD )
     RTL 
 }
 
@@ -69,47 +69,47 @@ code_07C0BB {
 }
 
 code_07C0BF {
-    COP [PrintWideString] ( &widestring_07C12A )
+    COP [PrintDialogString] ( &dialogstring_07C12A )
     RTL 
 }
 
 code_07C0C4 {
-    COP [PrintWideString] ( &widestring_07C142 )
+    COP [PrintDialogString] ( &dialogstring_07C142 )
     RTL 
 }
 
 code_07C0C9 {
-    COP [PrintWideString] ( &widestring_07C160 )
+    COP [PrintDialogString] ( &dialogstring_07C160 )
     RTL 
 }
 
 code_07C0CE {
-    COP [PrintWideString] ( &widestring_07C182 )
+    COP [PrintDialogString] ( &dialogstring_07C182 )
     RTL 
 }
 
 code_07C0D3 {
-    COP [PrintWideString] ( &widestring_07C1B6 )
+    COP [PrintDialogString] ( &dialogstring_07C1B6 )
     RTL 
 }
 
 code_07C0D8 {
-    COP [PrintWideString] ( &widestring_07C1DC )
+    COP [PrintDialogString] ( &dialogstring_07C1DC )
     RTL 
 }
 
-widestring_07C0DD `[DEF]How about a sweet apple?[END]`
+dialogstring_07C0DD `[DEF]How about a sweet apple?[END]`
 
-widestring_07C0F3 `[DEF]I see that you want[N]it. I'll give you one.[FIN]Will got the apple![END]`
+dialogstring_07C0F3 `[DEF]I see that you want[N]it. I'll give you one.[FIN]Will got the apple![END]`
 
-widestring_07C12A `[DEF]This is a green apple.[END]`
+dialogstring_07C12A `[DEF]This is a green apple.[END]`
 
-widestring_07C142 `[DEF]Our fruit is soft[N]and tasty.[END]`
+dialogstring_07C142 `[DEF]Our fruit is soft[N]and tasty.[END]`
 
-widestring_07C160 `[DEF]Heh heh.[N]You're probably too[N]young for this.[END]`
+dialogstring_07C160 `[DEF]Heh heh.[N]You're probably too[N]young for this.[END]`
 
-widestring_07C182 `[DEF]This is the fish shop.[N]We can buy fresh[N]fish from Watermia.[END]`
+dialogstring_07C182 `[DEF]This is the fish shop.[N]We can buy fresh[N]fish from Watermia.[END]`
 
-widestring_07C1B6 `[DEF]This is corn meal,[N]for making bread.[END]`
+dialogstring_07C1B6 `[DEF]This is corn meal,[N]for making bread.[END]`
 
-widestring_07C1DC `[DEF]This is a teapot.[N]We call it a "Tear Potˮ.[FIN]Once we were caught[N]up in a war.[FIN]After the women sent[N]their husbands to war,[N]they saved their tears[N]in these pots.[END]`
+dialogstring_07C1DC `[DEF]This is a teapot.[N]We call it a "Tear Potˮ.[FIN]Once we were caught[N]up in a war.[FIN]After the women sent[N]their husbands to war,[N]they saved their tears[N]in these pots.[END]`

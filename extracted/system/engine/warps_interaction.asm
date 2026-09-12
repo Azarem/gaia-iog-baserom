@@ -218,7 +218,7 @@ HandleChestInteraction {
 
   loc_02A700:
     REP #$20
-    LDY #$&itemget_table_01FD24.widestring_01FF48
+    LDY #$&itemget_table_01FD24.dialogstring_01FF48
     JSL $@dialogue_display.ShowDialogueFrame
     RTS 
 
@@ -246,7 +246,7 @@ HandleChestInteraction {
     BRA loc_02A7B0
 
   loc_02A73D:
-    LDY #$&itemget_table_01FD24.widestring_01FF36
+    LDY #$&itemget_table_01FD24.dialogstring_01FF36
     JSL $@dialogue_display.ShowDialogueFrame
     LDA $01, S
     TAX 
@@ -269,7 +269,7 @@ HandleChestInteraction {
     STA $sfxQueueCh2
     REP #$20
     PLX 
-    LDY #$&itemget_table_01FD24.widestring_01FF2D
+    LDY #$&itemget_table_01FD24.dialogstring_01FF2D
     JSL $@dialogue_display.ShowDialogueFrame
     BRA loc_02A7A1
 

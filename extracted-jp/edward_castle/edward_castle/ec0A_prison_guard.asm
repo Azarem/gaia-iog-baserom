@@ -19,8 +19,8 @@ code_04CC97 {
 }
 
 code_04CC99 {
-    COP [PrintWideString] ( &widestring_04CC9E )
+    COP [PrintDialogString] ( &dialogstring_04CC9E )
     RTL 
 }
 
-widestring_04CC9E `[TPL:B]兵士:[N]この先は 地下のろうや.[N]ー般人が 立ち入る場所では[N]ない.[END]`
+dialogstring_04CC9E `[TPL:B]兵士:[N]この先は 地下のろうや.[N]ー般人が 立ち入る場所では[N]ない.[END]`

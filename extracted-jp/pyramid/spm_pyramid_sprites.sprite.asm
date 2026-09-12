@@ -1,6 +1,6 @@
 ---------------------------------------------
 
-sprite_set_list_000000 [
+spm_pyramid_sprites [
   &sprite_set_00003E   ;00
   &sprite_set_000044   ;01
   &sprite_set_00004A   ;02

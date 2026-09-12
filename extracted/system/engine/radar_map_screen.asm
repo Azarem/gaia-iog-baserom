@@ -1,6 +1,6 @@
 ; Radar map screen overlay — world map minimap display (229567–230416, Bank 03).
 ; 
-; Renders the in-game radar/map overlay accessible from the overworld. Displays a tile-based minimap of the current area centered on the player position, with scene transition markers, friendly actors (blue dots), and enemy actors (red dots) plotted as icons.
+; Renders the in-game radar/map overlay accessible from within combat areas. Displays a tile-based minimap of the current area centered on the player position, with scene transition markers, friendly actors (blue dots), and enemy actors (red dots) plotted as icons.
 ; 
 ; === RENDERING PIPELINE (RadarScreenSetup) ===
 ; 
@@ -57,7 +57,7 @@
 ; 
 ; Converts viewport bounds from tile to pixel coordinates (×16) for actor plotting, then calls RadarPlotActors. Displays the actor count from $0AEE at $7F0608–$7F060E.
 ; 
-; Checks enemy clear reward eligibility: tests flag $0300 for the current scene via TestFlag_0300, then looks up enemy_clear_reward_table. If a reward exists, draws a 4×4 chest icon (flipped variants of tiles $2E1–$2E3) and reward counter tiles ($32E8–$32EB) into the VRAM buffer, then runs a BG3 script (system_strings.asciistring_01EAD1) for the radar text overlay.
+; Checks enemy clear reward eligibility: tests flag $0300 for the current scene via TestFlag_0300, then looks up enemy_clear_reward_table. If a reward exists, draws a 4×4 chest icon (flipped variants of tiles $2E1–$2E3) and reward counter tiles ($32E8–$32EB) into the VRAM buffer, then runs a BG3 script (system_strings.consolestring_01EAD1) for the radar text overlay.
 ; 
 ; Sets displayModeFlags bit 0 to enable the radar display.
 
@@ -215,7 +215,7 @@ RadarScreenSetup {
     INC 
     STA $7F048A
     LDX #$0000
-    COP [RunBg3Script] ( @system_strings.asciistring_01EAD1 ) ; Display radar label text via BG3 script
+    COP [RunBg3Script] ( @system_strings.consolestring_01EAD1 ) ; Display radar label text via BG3 script
 
   loc_038248:
     LDA #$32E5            ; Radar display legend tile at $7F0626

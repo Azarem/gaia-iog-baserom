@@ -16,8 +16,8 @@ wa78_kruk [
 ]
 
 code_079AEA {
-    COP [PrintWideString] ( &widestring_079AEF )
+    COP [PrintDialogString] ( &dialogstring_079AEF )
     RTL 
 }
 
-widestring_079AEF `[DEF]Kyaah!!... kyaah!!...[END]`
+dialogstring_079AEF `[DEF]Kyaah!!... kyaah!!...[END]`

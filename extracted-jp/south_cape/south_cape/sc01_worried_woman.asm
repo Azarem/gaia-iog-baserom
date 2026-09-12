@@ -80,8 +80,8 @@ code_04861B {
 }
 
 code_0486C0 {
-    COP [PrintWideString] ( &widestring_0486C5 )
+    COP [PrintDialogString] ( &dialogstring_0486C5 )
     RTL 
 }
 
-widestring_0486C5 `[DEF]最近 変な 商人が 多くて[N]困っちゃう.[FIN]まものが あらわれるようになって[N]みんな 困ってるっていうのに[N]それを 商売にするんだからね··[END]`
+dialogstring_0486C5 `[DEF]最近 変な 商人が 多くて[N]困っちゃう.[FIN]まものが あらわれるようになって[N]みんな 困ってるっていうのに[N]それを 商売にするんだからね··[END]`

@@ -13,7 +13,7 @@ it17_kara [
     COP [AnimLoop]
     COP [StageSpriteFrame] ( #13 )
     COP [AnimOnce]
-    COP [PrintWideString] ( &widestring_04E223 )
+    COP [PrintDialogString] ( &dialogstring_04E223 )
     COP [SetFlagByte] ( #02 )
     COP [ExitIfFlagByte] ( #02, #00 )
     COP [StageSpriteMoveX] ( #19, #01 )
@@ -29,10 +29,10 @@ code_04E1EF {
 }
 
 code_04E1F1 {
-    COP [PrintWideString] ( &widestring_04E1F6 )
+    COP [PrintDialogString] ( &dialogstring_04E1F6 )
     RTL 
 }
 
-widestring_04E1F6 `[TPL:A][TPL:1]Kara: It's a  [N]great village. The [N]breeze is refreshing.[PAL:0][END]`
+dialogstring_04E1F6 `[TPL:A][TPL:1]Kara: It's a  [N]great village. The [N]breeze is refreshing.[PAL:0][END]`
 
-widestring_04E223 `[TPL:A][TPL:1]Kara: I'm going, too! [N]I want to see [N]the Moon Tribe. [FIN]Since I escaped the[N]confinement of the[N]castle, [FIN]I want to[N]see and hear everything.[PAL:0][END]`
+dialogstring_04E223 `[TPL:A][TPL:1]Kara: I'm going, too! [N]I want to see [N]the Moon Tribe. [FIN]Since I escaped the[N]confinement of the[N]castle, [FIN]I want to[N]see and hear everything.[PAL:0][END]`

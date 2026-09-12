@@ -27,7 +27,7 @@ code_04A118 {
     COP [AnimOnce]
     COP [StageSpriteFrame] ( #1D )
     COP [AnimOnce]
-    COP [PrintWideString] ( &widestring_04A14D )
+    COP [PrintDialogString] ( &dialogstring_04A14D )
     COP [SetFlagByte] ( #07 )
     COP [ExitIfFlagByte] ( #08, #01 )
     COP [StageSpriteMoveX] ( #21, #11 )
@@ -42,4 +42,4 @@ code_04A14B {
     COP [Die]
 }
 
-widestring_04A14D `[TPL:A]兵士:[N]おひめさま. さがしましたよっ![FIN][TPL:1]カレン:[N]あんた達なんか 知らないわよっ.[N]出てってよっ![FIN][PAL:0][SFX:10]兵士: 何を おっしゃいます.[N]ここで 連れて 帰らなかったら[N]私の 首がとびますっ.[END]`
+dialogstring_04A14D `[TPL:A]兵士:[N]おひめさま. さがしましたよっ![FIN][TPL:1]カレン:[N]あんた達なんか 知らないわよっ.[N]出てってよっ![FIN][PAL:0][SFX:10]兵士: 何を おっしゃいます.[N]ここで 連れて 帰らなかったら[N]私の 首がとびますっ.[END]`

@@ -40,8 +40,8 @@ code_0588F6 {
 }
 
 code_05893B {
-    COP [PrintWideString] ( &widestring_058940 )
+    COP [PrintDialogString] ( &dialogstring_058940 )
     RTL 
 }
 
-widestring_058940 `[TPL:A]The Mystic Statue is [N]in this box. [FIN]Preparations are being[N]made to set sail.[FIN]Well? Are you going to [N]the crow's nest? You can[N]watch the ship set sail.[END]`
+dialogstring_058940 `[TPL:A]The Mystic Statue is [N]in this box. [FIN]Preparations are being[N]made to set sail.[FIN]Well? Are you going to [N]the crow's nest? You can[N]watch the ship set sail.[END]`

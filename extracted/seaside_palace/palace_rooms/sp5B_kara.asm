@@ -30,8 +30,8 @@ code_068657 {
 }
 
 code_068659 {
-    COP [PrintWideString] ( &widestring_06865E )
+    COP [PrintDialogString] ( &dialogstring_06865E )
     RTL 
 }
 
-widestring_06865E `[TPL:A][TPL:1]Kara: [N]Will...Where... [N]Where is it...??[PAL:0][END]`
+dialogstring_06865E `[TPL:A][TPL:1]Kara: [N]Will...Where... [N]Where is it...??[PAL:0][END]`

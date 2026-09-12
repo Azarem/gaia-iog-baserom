@@ -43,7 +43,7 @@ sF0_class_dismissed [
 code_09DBF3 {
     COP [LoopNext]
     COP [WaitWord] ( #$003B )
-    COP [PrintWideString] ( &widestring_09DD10 )
+    COP [PrintDialogString] ( &dialogstring_09DD10 )
     COP [WaitWord] ( #$003B )
     COP [StartMusic] ( #02 )
     COP [WaitWord] ( #$0077 )
@@ -198,4 +198,4 @@ code_09DCF4 {
     RTL 
 }
 
-widestring_09DD10 `[DLG:0,17][SIZ:F,3][DLY:5]         Class is over.[N][PAU:B4][CLR]       Please be careful[N]      crossing the street.[N][PAU:F0][CLR]      We have had a lot of[N]    traffic accidents lately.[N][PAU:68][CLD]`
+dialogstring_09DD10 `[DLG:0,17][SIZ:F,3][DLY:5]         Class is over.[N][PAU:B4][CLR]       Please be careful[N]      crossing the street.[N][PAU:F0][CLR]      We have had a lot of[N]    traffic accidents lately.[N][PAU:68][CLD]`

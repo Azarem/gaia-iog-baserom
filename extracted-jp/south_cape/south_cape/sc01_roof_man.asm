@@ -23,8 +23,8 @@ h_sc01_roof_man [
 ]
 
 code_048475 {
-    COP [PrintWideString] ( &widestring_04847A )
+    COP [PrintDialogString] ( &dialogstring_04847A )
     RTL 
 }
 
-widestring_04847A `[DEF]こらっ テムっ.[N]あれほど ここへ 上っちゃ[N]いけないと···[FIN]お前は いろんなところから[N]飛び降りるクセが あるからなぁ.[N]心配で しかたないよ.[N]トホホ.[END]`
+dialogstring_04847A `[DEF]こらっ テムっ.[N]あれほど ここへ 上っちゃ[N]いけないと···[FIN]お前は いろんなところから[N]飛び降りるクセが あるからなぁ.[N]心配で しかたないよ.[N]トホホ.[END]`

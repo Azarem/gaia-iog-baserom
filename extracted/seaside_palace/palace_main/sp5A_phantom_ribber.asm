@@ -58,8 +58,8 @@ code_068A14 {
 }
 
 code_068A16 {
-    COP [PrintWideString] ( &widestring_068A1B )
+    COP [PrintDialogString] ( &dialogstring_068A1B )
     RTL 
 }
 
-widestring_068A1B `[TPL:A][TPL:0]Will: That's odd. [N]Even if I touch it [N]no damage occurs...[PAL:0][END]`
+dialogstring_068A1B `[TPL:A][TPL:0]Will: That's odd. [N]Even if I touch it [N]no damage occurs...[PAL:0][END]`

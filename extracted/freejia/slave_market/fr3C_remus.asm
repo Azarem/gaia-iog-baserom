@@ -26,15 +26,15 @@ code_05BFC1 {
 }
 
 code_05BFD4 {
-    COP [PrintWideString] ( &widestring_05BFDE )
+    COP [PrintDialogString] ( &dialogstring_05BFDE )
     RTL 
 }
 
 code_05BFD9 {
-    COP [PrintWideString] ( &widestring_05C059 )
+    COP [PrintDialogString] ( &dialogstring_05C059 )
     RTL 
 }
 
-widestring_05BFDE `[DEF][TPL:5]I am Remus. Our game[N]disappeared and we had[N]nothing to eat.[FIN]We had no choice but[N]to become laborers.[FIN]We didn't know where we [N]would be taken or what [N]would happen...[PAL:0][END]`
+dialogstring_05BFDE `[DEF][TPL:5]I am Remus. Our game[N]disappeared and we had[N]nothing to eat.[FIN]We had no choice but[N]to become laborers.[FIN]We didn't know where we [N]would be taken or what [N]would happen...[PAL:0][END]`
 
-widestring_05C059 `[DEF]How can things like[N]this happen?[END]`
+dialogstring_05C059 `[DEF]How can things like[N]this happen?[END]`

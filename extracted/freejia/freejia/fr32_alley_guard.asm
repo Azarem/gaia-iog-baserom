@@ -25,15 +25,15 @@ code_05B7B6 {
     LDA $playerXPos
     CMP $14
     BCS loc_05B7C2
-    COP [PrintWideString] ( &widestring_05B7CA )
+    COP [PrintDialogString] ( &dialogstring_05B7CA )
     RTL 
 
   loc_05B7C2:
-    COP [PrintWideString] ( &widestring_05B7E6 )
+    COP [PrintDialogString] ( &dialogstring_05B7E6 )
     COP [SetFlagByte] ( #01 )
     RTL 
 }
 
-widestring_05B7CA `[DEF]Children don't come[N]here. Go home.[END]`
+dialogstring_05B7CA `[DEF]Children don't come[N]here. Go home.[END]`
 
-widestring_05B7E6 `[DEF]This kid! Where did [N]you come from?! [N]Go home! Go home!! [END]`
+dialogstring_05B7E6 `[DEF]This kid! Where did [N]you come from?! [N]Go home! Go home!! [END]`

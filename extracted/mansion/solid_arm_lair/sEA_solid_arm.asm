@@ -42,7 +42,7 @@ sEA_solid_arm [
     COP [FadeThenStartMusic] ( #1B )
     COP [WaitWord] ( #$0120 )
     COP [SetFlagByte] ( #E8 )
-    COP [PrintWideString] ( &widestring_08FA31 )
+    COP [PrintDialogString] ( &dialogstring_08FA31 )
 } >
 ]
 
@@ -335,7 +335,7 @@ code_08F9F2 {
     TSB $joypadMaskStd
     COP [FadeThenStartMusic] ( #1B )
     COP [WaitWord] ( #$0120 )
-    COP [PrintWideString] ( &widestring_08FBC8 )
+    COP [PrintDialogString] ( &dialogstring_08FBC8 )
     LDA #$0202
     STA $gfxCacheIdxA
     LDA #$0404
@@ -344,6 +344,6 @@ code_08F9F2 {
     COP [Die]
 }
 
-widestring_08FA31 `[DEF]Welcome to my home.[FIN]The Jeweler Gem is a[N]temporary form. The[N]true form is called[N]Solid Arm.[FIN]Long ago the Blazer [N]came down from the sky, [N]and I was put to sleep [N]for a long, long time... [FIN]My power is contained in[N]Red Jewels scattered[N]around the world[FIN]I've tried many things[N]to bring about my[N]own resurrection.[FIN]It is I who manipulated[N]the labor trade.[FIN]I tried using forced[N]labor to find them,[N]but it didn't restore[N]my power fast enough.[FIN]I'm sorry, but I will[N]have to defeat you too![END]`
+dialogstring_08FA31 `[DEF]Welcome to my home.[FIN]The Jeweler Gem is a[N]temporary form. The[N]true form is called[N]Solid Arm.[FIN]Long ago the Blazer [N]came down from the sky, [N]and I was put to sleep [N]for a long, long time... [FIN]My power is contained in[N]Red Jewels scattered[N]around the world[FIN]I've tried many things[N]to bring about my[N]own resurrection.[FIN]It is I who manipulated[N]the labor trade.[FIN]I tried using forced[N]labor to find them,[N]but it didn't restore[N]my power fast enough.[FIN]I'm sorry, but I will[N]have to defeat you too![END]`
 
-widestring_08FBC8 `[DEF]A quiet voice is heard.[FIN][DLY:4]I was defeated again...[FIN]Blazer was strong, [N]but you are stronger... [FIN]Danger approaches[N]this planet. You should[N]hurry to the[N]Tower of Babel...[END]`
+dialogstring_08FBC8 `[DEF]A quiet voice is heard.[FIN][DLY:4]I was defeated again...[FIN]Blazer was strong, [N]but you are stronger... [FIN]Danger approaches[N]this planet. You should[N]hurry to the[N]Tower of Babel...[END]`

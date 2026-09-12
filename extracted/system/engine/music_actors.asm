@@ -1,8 +1,8 @@
 ?BANK 02
 
+?INCLUDE 'DialogStringRenderer'
 ?INCLUDE 'hdma_dma_spc'
 ?INCLUDE 'system_core'
-?INCLUDE 'WideStringRenderer'
 
 !joypadMaskStd                  065A
 !musicParentActor               06F2
@@ -106,7 +106,7 @@ MusicRenderSync {
     LDY $20
     JSL $@system_core.UpdateFrameRender
     REP #$20
-    JSL $@WideStringRenderer
+    JSL $@DialogStringRenderer
     PLB 
     PLP 
     COP [Die]

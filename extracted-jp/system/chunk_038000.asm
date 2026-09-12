@@ -663,14 +663,14 @@ code_list_038431 [
 ]
 
 code_0384B1 {
-    COP [PrintWideString] ( &widestring_0384B6 )
+    COP [PrintDialogString] ( &dialogstring_0384B6 )
     RTS 
 }
 
-widestring_0384B6 `[DEF][DLY:0]持ち物を そうびしていない··[END]`
+dialogstring_0384B6 `[DEF][DLY:0]持ち物を そうびしていない··[END]`
 
 code_0384CB {
-    COP [PrintWideString] ( &widestring_03850D )
+    COP [PrintDialogString] ( &dialogstring_03850D )
     JSR $&code_039CC7
     SED 
     LDA $jewelsCollected
@@ -699,7 +699,7 @@ code_0384CB {
     RTS 
 }
 
-widestring_03850D `[DEF]赤い宝石を かかげた![FIN]赤い宝石は 宝石商ジェムのところへ[N]ーすじの光となって 飛んでいった![END]`
+dialogstring_03850D `[DEF]赤い宝石を かかげた![FIN]赤い宝石は 宝石商ジェムのところへ[N]ーすじの光となって 飛んでいった![END]`
 
 code_03854C {
     COP [SpawnMarkedAfter] ( @code_03855C, #$1002 )
@@ -757,7 +757,7 @@ code_0385A8 {
 
 code_0385C2 {
     COP [BranchIfFlagByte] ( #24, #01, &code_0385FB )
-    COP [PrintWideString] ( &widestring_038605 )
+    COP [PrintDialogString] ( &dialogstring_038605 )
     COP [StageBgChange] ( #06 )
     COP [ApplyBgChange]
     COP [SetFlagWord] ( #$0106 )
@@ -770,7 +770,7 @@ code_0385C2 {
 
 code_0385E5 {
     COP [BranchIfFlagByte] ( #42, #01, &code_0385FB )
-    COP [PrintWideString] ( &widestring_038605 )
+    COP [PrintDialogString] ( &dialogstring_038605 )
     COP [SetFlagByte] ( #42 )
     COP [PlaySoundBoth] ( #$0E0E )
     COP [ClearHighAbs] ( #09, #17 )
@@ -778,19 +778,19 @@ code_0385E5 {
 }
 
 code_0385FB {
-    COP [PrintWideString] ( &widestring_038651 )
+    COP [PrintDialogString] ( &dialogstring_038651 )
     RTS 
 
   loc_038600:
-    COP [PrintWideString] ( &widestring_038632 )
+    COP [PrintDialogString] ( &dialogstring_038632 )
     RTS 
 }
 
-widestring_038605 `[DEF]ろうごくのカギを さしこむと[N]にぶい音とともに 鉄のとびらが[N]開いていった.[END]`
+dialogstring_038605 `[DEF]ろうごくのカギを さしこむと[N]にぶい音とともに 鉄のとびらが[N]開いていった.[END]`
 
-widestring_038632 `[DEF]そこには ろうごくのカギを使う[N]カギ穴がない.[END]`
+dialogstring_038632 `[DEF]そこには ろうごくのカギを使う[N]カギ穴がない.[END]`
 
-widestring_038651 `[DEF]とびらは すでに 開いていた.[END]`
+dialogstring_038651 `[DEF]とびらは すでに 開いていた.[END]`
 
 code_038663 {
     LDA $sceneCurrent
@@ -810,13 +810,13 @@ code_038663 {
     BNE loc_0386B5
 
   loc_038685:
-    COP [PrintWideString] ( &widestring_038690 )
+    COP [PrintDialogString] ( &dialogstring_038690 )
     COP [RemoveItem] ( #03 )
     COP [SetFlagByte] ( #30 )
     RTS 
 }
 
-widestring_038690 `[DEF]さいだんに インカの像Aを[N]ささげた.[END]`
+dialogstring_038690 `[DEF]さいだんに インカの像Aを[N]ささげた.[END]`
 ---------------------------------------------
 
 code_0386A8 {
@@ -835,25 +835,25 @@ code_0386A8 {
 
   loc_0386C2:
     COP [BranchIfFlagByte] ( #44, #00, &code_0386CD )
-    COP [PrintWideString] ( &widestring_0386D2 )
+    COP [PrintDialogString] ( &dialogstring_0386D2 )
     RTS 
 }
 
 code_0386CD {
-    COP [PrintWideString] ( &widestring_0386F6 )
+    COP [PrintDialogString] ( &dialogstring_0386F6 )
     RTS 
 }
 
-widestring_0386D2 `[DEF]神の息が 届かないところに[N]ささげるとか 言っていたな···[END]`
+dialogstring_0386D2 `[DEF]神の息が 届かないところに[N]ささげるとか 言っていたな···[END]`
 
-widestring_0386F6 `[DEF]この像に インカの秘密が[N]かくされて いるのだろうか··?[END]`
+dialogstring_0386F6 `[DEF]この像に インカの秘密が[N]かくされて いるのだろうか··?[END]`
 
 loc_03871A {
-    COP [PrintWideString] ( &widestring_03871F )
+    COP [PrintDialogString] ( &dialogstring_03871F )
     RTS 
 }
 
-widestring_03871F `[DEF]さいだんの形と 像の形が[N]合わないようだ.[END]`
+dialogstring_03871F `[DEF]さいだんの形と 像の形が[N]合わないようだ.[END]`
 
 code_03873A {
     LDA $sceneCurrent
@@ -873,15 +873,15 @@ code_03873A {
     BNE loc_03878C
 
   loc_03875C:
-    COP [PrintWideString] ( &widestring_038767 )
+    COP [PrintDialogString] ( &dialogstring_038767 )
     COP [RemoveItem] ( #04 )
     COP [SetFlagByte] ( #31 )
     RTS 
 }
 
-widestring_038767 `[DEF]さいだんに インカの像Bを[N]ささげた.[END]`
+dialogstring_038767 `[DEF]さいだんに インカの像Bを[N]ささげた.[END]`
 
-widestring_03877F `[AD][B6]ぞ[PAU:12]が[F0]ざ[PAU:13]が[CLR]で`
+dialogstring_03877F `[AD][B6]ぞ[PAU:12]が[F0]ざ[PAU:13]が[CLR]で`
 
 loc_03878C {
     LDA $playerSpeedNs
@@ -892,36 +892,36 @@ loc_03878C {
 
   loc_038799:
     COP [BranchIfFlagByte] ( #44, #00, &code_0386CD )
-    COP [PrintWideString] ( &widestring_0386D2 )
+    COP [PrintDialogString] ( &dialogstring_0386D2 )
     RTS 
 
   loc_0387A4:
-    COP [PrintWideString] ( &widestring_03871F )
+    COP [PrintDialogString] ( &dialogstring_03871F )
     RTS 
 }
 
 code_0387A9 {
-    COP [PrintWideString] ( &widestring_0387C2 )
+    COP [PrintDialogString] ( &dialogstring_0387C2 )
     LDA $sceneCurrent
     CMP #$0018
     BNE loc_0387BD
     COP [SetFlagByte] ( #2E )
-    COP [PrintWideString] ( &widestring_0387E6 )
+    COP [PrintDialogString] ( &dialogstring_0387E6 )
     RTS 
 
   loc_0387BD:
-    COP [PrintWideString] ( &widestring_0387F9 )
+    COP [PrintDialogString] ( &dialogstring_0387F9 )
     RTS 
 }
 
-widestring_0387C2 `[DEF]テムは インカのメロディーを[N]静かに ふきはじめた.[FIN]`
+dialogstring_0387C2 `[DEF]テムは インカのメロディーを[N]静かに ふきはじめた.[FIN]`
 
-widestring_0387E6 `村長の 表情が 変わった![END]`
+dialogstring_0387E6 `村長の 表情が 変わった![END]`
 
-widestring_0387F9 `しかし 何も おこらなかった.[END]`
+dialogstring_0387F9 `しかし 何も おこらなかった.[END]`
 
 code_03880A {
-    COP [PrintWideString] ( &widestring_038831 )
+    COP [PrintDialogString] ( &dialogstring_038831 )
     COP [DialogueOptions] ( #02, #01, &code_list_038814 )
 }
 
@@ -932,7 +932,7 @@ code_list_038814 [
 ]
 
 code_03881A {
-    COP [PrintWideString] ( &widestring_03885B )
+    COP [PrintDialogString] ( &dialogstring_03885B )
     LDA $playerMaxHp
     SEC 
     SBC $playerHp
@@ -942,15 +942,15 @@ code_03881A {
 }
 
 code_03882C {
-    COP [PrintWideString] ( &widestring_038849 )
+    COP [PrintDialogString] ( &dialogstring_038849 )
     RTS 
 }
 
-widestring_038831 `[DEF]藥草を 食べますか?[N] はい[N] いいえ`
+dialogstring_038831 `[DEF]藥草を 食べますか?[N] はい[N] いいえ`
 
-widestring_038849 `[CLR]藥草を 食べるのをやめた.[END]`
+dialogstring_038849 `[CLR]藥草を 食べるのをやめた.[END]`
 
-widestring_03885B `[CLR]藥草を 口にいれると[N]失われた力がよみがえってきた.[END]`
+dialogstring_03885B `[CLR]藥草を 口にいれると[N]失われた力がよみがえってきた.[END]`
 
 code_03887C {
     LDA $sceneCurrent
@@ -970,20 +970,20 @@ code_03887C {
     BNE loc_03889E
 
   loc_03889E:
-    COP [PrintWideString] ( &widestring_0388A3 )
+    COP [PrintDialogString] ( &dialogstring_0388A3 )
     RTS 
 }
 
-widestring_0388A3 `[DEF]このあたりには ひし型のブロックを[N]はめこむ穴が 見あたらないようだ.[END]`
+dialogstring_0388A3 `[DEF]このあたりには ひし型のブロックを[N]はめこむ穴が 見あたらないようだ.[END]`
 
 loc_0388CD {
-    COP [PrintWideString] ( &widestring_0388D8 )
+    COP [PrintDialogString] ( &dialogstring_0388D8 )
     COP [RemoveItem] ( #07 )
     COP [SetFlagByte] ( #2F )
     RTS 
 }
 
-widestring_0388D8 `[DEF]タイルに ひし型のブロックを[N]はめこんだ![END]`
+dialogstring_0388D8 `[DEF]タイルに ひし型のブロックを[N]はめこんだ![END]`
 
 code_0388F4 {
     LDA $characterForm
@@ -999,7 +999,7 @@ code_0388F4 {
     COP [BranchIfFlagByte] ( #01, #01, &code_03893C )
     LDA #$0080
     TSB $09FA
-    COP [PrintWideString] ( &widestring_038976 )
+    COP [PrintDialogString] ( &dialogstring_038976 )
     PHX 
     LDX #$0000
     COP [SpawnLastRel] ( @code_039CDF, #00, #00, #$2000 )
@@ -1015,45 +1015,45 @@ code_0388F4 {
 }
 
 code_03893C {
-    COP [PrintWideString] ( &widestring_0389B9 )
+    COP [PrintDialogString] ( &dialogstring_0389B9 )
     RTS 
 
   loc_038941:
-    COP [PrintWideString] ( &widestring_038A71 )
+    COP [PrintDialogString] ( &dialogstring_038A71 )
     RTS 
 }
 
 code_038946 {
-    COP [PrintWideString] ( &widestring_038A81 )
+    COP [PrintDialogString] ( &dialogstring_038A81 )
     RTS 
 }
 ---------------------------------------------
 
-widestring_03894B `[DEF]笛を 吹きますか?[N] はい[N] いいえ`
+dialogstring_03894B `[DEF]笛を 吹きますか?[N] はい[N] いいえ`
 ---------------------------------------------
 
 code_038961 {
     COP [SetFlagByte] ( #01 )
-    COP [PrintWideString] ( &widestring_038990 )
+    COP [PrintDialogString] ( &dialogstring_038990 )
     COP [SpawnThinkerParam] ( #2F, @chunk_008000.code_00B5CD )
     COP [RestoreSavedPtr]
 
   loc_038970:
-    COP [PrintWideString] ( &widestring_0389E4 )
+    COP [PrintDialogString] ( &dialogstring_0389E4 )
     COP [RestoreSavedPtr]
 }
 
-widestring_038976 `[DEF]風のメロディーを[N]静かに ふきはじめた.[END]`
+dialogstring_038976 `[DEF]風のメロディーを[N]静かに ふきはじめた.[END]`
 
-widestring_038990 `[DEF][CLR]笛の音が あたりに こだまし[N]黄金のブロックが 光りはじめた![END]`
+dialogstring_038990 `[DEF][CLR]笛の音が あたりに こだまし[N]黄金のブロックが 光りはじめた![END]`
 
-widestring_0389B9 `[DEF]風のメロディーを[N]静かに ふきはじめた.[FIN]しかし 何も おこらなかった.[END]`
+dialogstring_0389B9 `[DEF]風のメロディーを[N]静かに ふきはじめた.[FIN]しかし 何も おこらなかった.[END]`
 
-widestring_0389E4 `[DEF][CLR]メロディが 体に しみわたり[N]不思議な言葉が 頭にうかんでくる.[FIN]ユカー面に 黄金のしきつめられた[N]部屋にて われを となえ[N]かがやける場所にて しばしの間[N]めいそうせよ.[FIN]その者にこそ 自由の海原への道が[N]開かれる···[END]`
+dialogstring_0389E4 `[DEF][CLR]メロディが 体に しみわたり[N]不思議な言葉が 頭にうかんでくる.[FIN]ユカー面に 黄金のしきつめられた[N]部屋にて われを となえ[N]かがやける場所にて しばしの間[N]めいそうせよ.[FIN]その者にこそ 自由の海原への道が[N]開かれる···[END]`
 
-widestring_038A71 `[DEF][CLR]笛を もっていない···[END]`
+dialogstring_038A71 `[DEF][CLR]笛を もっていない···[END]`
 
-widestring_038A81 `[CLR]笛を 吹くのをやめた.[END]`
+dialogstring_038A81 `[CLR]笛を 吹くのをやめた.[END]`
 
 code_038A90 {
     LDA $characterForm
@@ -1090,7 +1090,7 @@ code_038A90 {
   loc_038AD8:
     LDA #$0080
     TSB $09FA
-    COP [PrintWideString] ( &widestring_038B51 )
+    COP [PrintDialogString] ( &dialogstring_038B51 )
     PHX 
     LDX #$0000
     COP [SpawnLastRel] ( @code_039CDF, #00, #00, #$2000 )
@@ -1106,11 +1106,11 @@ code_038A90 {
 }
 
 code_038B06 {
-    COP [PrintWideString] ( &widestring_038B99 )
+    COP [PrintDialogString] ( &dialogstring_038B99 )
     RTS 
 
   loc_038B0B:
-    COP [PrintWideString] ( &widestring_038E06 )
+    COP [PrintDialogString] ( &dialogstring_038E06 )
     RTS 
 }
 
@@ -1127,13 +1127,13 @@ code_038B10 {
   loc_038B24:
     COP [BranchIfFlagByte] ( #40, #01, &code_038B43 )
     COP [SetFlagByte] ( #40 )
-    COP [PrintWideString] ( &widestring_038B75 )
+    COP [PrintDialogString] ( &dialogstring_038B75 )
     COP [RestoreSavedPtr]
 
   loc_038B33:
     COP [BranchIfFlagWord] ( #$0113, #01, &code_038B4B )
     COP [SetFlagByte] ( #02 )
-    COP [PrintWideString] ( &widestring_038BD0 )
+    COP [PrintDialogString] ( &dialogstring_038BD0 )
     COP [RestoreSavedPtr]
 }
 
@@ -1144,19 +1144,19 @@ code_038B43 {
 }
 
 code_038B4B {
-    COP [PrintWideString] ( &widestring_038BBD )
+    COP [PrintDialogString] ( &dialogstring_038BBD )
     COP [RestoreSavedPtr]
 }
 
-widestring_038B51 `[DEF]ローラから 教わった[N]メロディーを 静かにふきはじめた.[END]`
+dialogstring_038B51 `[DEF]ローラから 教わった[N]メロディーを 静かにふきはじめた.[END]`
 
-widestring_038B75 `[DEF][CLR]メロディーは 風にのって[N]草原中に ひろがっていった.[END]`
+dialogstring_038B75 `[DEF][CLR]メロディーは 風にのって[N]草原中に ひろがっていった.[END]`
 
-widestring_038B99 `[DEF]ローラから 教わった[N]メロディーを 静かにふきはじめた.[FIN]`
+dialogstring_038B99 `[DEF]ローラから 教わった[N]メロディーを 静かにふきはじめた.[FIN]`
 
-widestring_038BBD `[DEF][CLR]しかし 何も おこらなかった.[END]`
+dialogstring_038BBD `[DEF][CLR]しかし 何も おこらなかった.[END]`
 
-widestring_038BD0 `[DEF][CLR]すると どこからともなく[N]声が 聞こえてきた···[FIN][TPL:2]不思議な声:[N]右側にある スイッチの前へ[N]いってちょうだい.[PAL:0][END]`
+dialogstring_038BD0 `[DEF][CLR]すると どこからともなく[N]声が 聞こえてきた···[FIN][TPL:2]不思議な声:[N]右側にある スイッチの前へ[N]いってちょうだい.[PAL:0][END]`
 
 code_038C1A {
     LDA $sceneCurrent
@@ -1164,74 +1164,74 @@ code_038C1A {
     BNE code_038C33
     COP [BranchIfFlagByte] ( #02, #00, &code_038C33 )
     COP [RemoveItem] ( #0A )
-    COP [PrintWideString] ( &widestring_038C8B )
+    COP [PrintDialogString] ( &dialogstring_038C8B )
     COP [SetFlagByte] ( #03 )
     RTS 
 }
 
 code_038C33 {
-    COP [PrintWideString] ( &widestring_038C38 )
+    COP [PrintDialogString] ( &dialogstring_038C38 )
     RTS 
 }
 
-widestring_038C38 `[DEF]骨つきの くんせい肉を[N]ちょっぴり かじってみた.[FIN]それは 今まで 食べたことの[N]ないような 不思議な味がした.[N]いったい 何の肉だろう···[END]`
+dialogstring_038C38 `[DEF]骨つきの くんせい肉を[N]ちょっぴり かじってみた.[FIN]それは 今まで 食べたことの[N]ないような 不思議な味がした.[N]いったい 何の肉だろう···[END]`
 
-widestring_038C8B `[DEF]ぼくらは 骨つきの肉に[N]かぶりついた.[FIN]今まで 食べたどんな 食べ物より[N]おいしく感じた.[END]`
+dialogstring_038C8B `[DEF]ぼくらは 骨つきの肉に[N]かぶりついた.[FIN]今まで 食べたどんな 食べ物より[N]おいしく感じた.[END]`
 
 code_038CC1 {
-    COP [PrintWideString] ( &widestring_038CE5 )
+    COP [PrintDialogString] ( &dialogstring_038CE5 )
     LDA $sceneCurrent
     CMP #$0044
     BNE loc_038CD5
     COP [BranchIfPlayerInAbsTiles] ( #0F, #16, #11, #19, &code_038CDA )
 
   loc_038CD5:
-    COP [PrintWideString] ( &widestring_038D00 )
+    COP [PrintDialogString] ( &dialogstring_038D00 )
     RTS 
 }
 
 code_038CDA {
-    COP [PrintWideString] ( &widestring_038D14 )
+    COP [PrintDialogString] ( &dialogstring_038D14 )
     COP [RemoveItem] ( #0B )
     COP [SetFlagByte] ( #5B )
     RTS 
 }
 
-widestring_038CE5 `[DEF]こうざんのカギを 使ってみる[N]ことにした.[FIN]`
+dialogstring_038CE5 `[DEF]こうざんのカギを 使ってみる[N]ことにした.[FIN]`
 
-widestring_038D00 `しかし そこには カギ穴がない![END]`
+dialogstring_038D00 `しかし そこには カギ穴がない![END]`
 
-widestring_038D14 `カギが 不気味な音をたてて[N]まわった.[END]`
+dialogstring_038D14 `カギが 不気味な音をたてて[N]まわった.[END]`
 
 code_038D2E {
-    COP [PrintWideString] ( &widestring_038D52 )
+    COP [PrintDialogString] ( &dialogstring_038D52 )
     LDA $sceneCurrent
     CMP #$0044
     BNE loc_038D42
     COP [BranchIfPlayerInAbsTiles] ( #0F, #16, #11, #19, &code_038D47 )
 
   loc_038D42:
-    COP [PrintWideString] ( &widestring_038D6D )
+    COP [PrintDialogString] ( &dialogstring_038D6D )
     RTS 
 }
 
 code_038D47 {
-    COP [PrintWideString] ( &widestring_038D81 )
+    COP [PrintDialogString] ( &dialogstring_038D81 )
     COP [RemoveItem] ( #0C )
     COP [SetFlagByte] ( #5C )
     RTS 
 }
 
-widestring_038D52 `[DEF]こうざんのカギを 使ってみる[N]ことにした.[FIN]`
+dialogstring_038D52 `[DEF]こうざんのカギを 使ってみる[N]ことにした.[FIN]`
 
-widestring_038D6D `しかし そこには カギ穴がない![END]`
+dialogstring_038D6D `しかし そこには カギ穴がない![END]`
 
-widestring_038D81 `カギが 不気味な音をたてて[N]まわった.[END]`
+dialogstring_038D81 `カギが 不気味な音をたてて[N]まわった.[END]`
 
 code_038D9B {
     LDA $characterForm
     BEQ loc_038DA5
-    COP [PrintWideString] ( &widestring_038E06 )
+    COP [PrintDialogString] ( &dialogstring_038E06 )
     RTS 
 
   loc_038DA5:
@@ -1249,7 +1249,7 @@ code_038D9B {
 code_038DBF {
     LDA #$0080
     TSB $09FA
-    COP [PrintWideString] ( &widestring_038E49 )
+    COP [PrintDialogString] ( &dialogstring_038E49 )
     PHX 
     LDX #$0000
     COP [SpawnLastRel] ( @code_039CDF, #00, #00, #$2000 )
@@ -1274,15 +1274,15 @@ code_038DF3 {
 }
 
 code_038E01 {
-    COP [PrintWideString] ( &widestring_038E15 )
+    COP [PrintDialogString] ( &dialogstring_038E15 )
     RTS 
 }
 
-widestring_038E06 `[DEF]笛を もっていない···[END]`
+dialogstring_038E06 `[DEF]笛を もっていない···[END]`
 
-widestring_038E15 `[DEF]テムは 思い出のメロディを[N]静かに ふきはじめた.[FIN]しかし 何もおこらなかった···[END]`
+dialogstring_038E15 `[DEF]テムは 思い出のメロディを[N]静かに ふきはじめた.[FIN]しかし 何もおこらなかった···[END]`
 
-widestring_038E49 `[DEF][CLR]テムは 思い出のメロディを[N]静かに ふきはじめた.[END]`
+dialogstring_038E49 `[DEF][CLR]テムは 思い出のメロディを[N]静かに ふきはじめた.[END]`
 
 code_038E6C {
     LDA $sceneCurrent
@@ -1294,7 +1294,7 @@ code_038E6C {
     COP [BranchIfPlayerInAbsTiles] ( #08, #0E, #0B, #11, &code_038EBA )
 
   loc_038E94:
-    COP [PrintWideString] ( &widestring_038ED0 )
+    COP [PrintDialogString] ( &dialogstring_038ED0 )
     RTS 
 }
 
@@ -1321,80 +1321,80 @@ code_038EBA {
     COP [SetFlagByte] ( #63 )
 
   loc_038EC3:
-    COP [PrintWideString] ( &widestring_038EF2 )
+    COP [PrintDialogString] ( &dialogstring_038EF2 )
     JSR $&code_039CC7
     RTS 
 }
 
 code_038ECB {
-    COP [PrintWideString] ( &widestring_038F0A )
+    COP [PrintDialogString] ( &dialogstring_038F0A )
     RTS 
 }
 
-widestring_038ED0 `[DEF]クリスタルボールを かかげたが[N]何も おこらなかった···[END]`
+dialogstring_038ED0 `[DEF]クリスタルボールを かかげたが[N]何も おこらなかった···[END]`
 
-widestring_038EF2 `[DEF]クリスタルボールを 穴に[N]はめこんだ![END]`
+dialogstring_038EF2 `[DEF]クリスタルボールを 穴に[N]はめこんだ![END]`
 
-widestring_038F0A `[DEF]クリスタルボールは すでに 穴に[N]はめこまれている![END]`
+dialogstring_038F0A `[DEF]クリスタルボールは すでに 穴に[N]はめこまれている![END]`
 
 code_038F29 {
-    COP [PrintWideString] ( &widestring_038F4D )
+    COP [PrintDialogString] ( &dialogstring_038F4D )
     LDA $sceneCurrent
     CMP #$003F
     BNE loc_038F3D
     COP [BranchIfPlayerInAbsTiles] ( #18, #34, #1A, #37, &code_038F42 )
 
   loc_038F3D:
-    COP [PrintWideString] ( &widestring_038F6D )
+    COP [PrintDialogString] ( &dialogstring_038F6D )
     RTS 
 }
 
 code_038F42 {
-    COP [PrintWideString] ( &widestring_038F81 )
+    COP [PrintDialogString] ( &dialogstring_038F81 )
     COP [RemoveItem] ( #0F )
     COP [SetFlagByte] ( #69 )
     RTS 
 }
 
-widestring_038F4D `[DEF]リフトのり場のカギを 使ってみる[N]ことにした.[FIN]`
+dialogstring_038F4D `[DEF]リフトのり場のカギを 使ってみる[N]ことにした.[FIN]`
 
-widestring_038F6D `しかし そこには カギ穴がない![END]`
+dialogstring_038F6D `しかし そこには カギ穴がない![END]`
 
-widestring_038F81 `カギが 不気味な音をたてて[N]まわった.[END]`
+dialogstring_038F81 `カギが 不気味な音をたてて[N]まわった.[END]`
 
 code_038F9B {
-    COP [PrintWideString] ( &widestring_038FD0 )
+    COP [PrintDialogString] ( &dialogstring_038FD0 )
     LDA $sceneCurrent
     CMP #$005A
     BNE code_038FAF
     COP [BranchIfPlayerInAbsTiles] ( #08, #07, #0A, #08, &code_038FB4 )
 
   code_038FAF:
-    COP [PrintWideString] ( &widestring_038FEC )
+    COP [PrintDialogString] ( &dialogstring_038FEC )
     RTS 
 }
 
 code_038FB4 {
     COP [BranchIfFlagWord] ( #$0138, #01, &code_038FAF )
-    COP [PrintWideString] ( &widestring_039000 )
+    COP [PrintDialogString] ( &dialogstring_039000 )
     COP [RemoveItem] ( #10 )
     COP [StageBgChange] ( #38 )
     COP [ApplyBgChange]
     COP [SetFlagWord] ( #$0138 )
-    COP [PrintWideString] ( &widestring_03901A )
+    COP [PrintDialogString] ( &dialogstring_03901A )
     RTS 
 }
 
-widestring_038FD0 `[DEF]きゅうでんのカギを 使ってみる[N]ことにした.[FIN]`
+dialogstring_038FD0 `[DEF]きゅうでんのカギを 使ってみる[N]ことにした.[FIN]`
 
-widestring_038FEC `しかし そこには カギ穴がない![END]`
+dialogstring_038FEC `しかし そこには カギ穴がない![END]`
 
-widestring_039000 `カギが 不気味な音をたてて[N]まわった.`
+dialogstring_039000 `カギが 不気味な音をたてて[N]まわった.`
 
-widestring_03901A `[CLR][TPL:0]ポケットのリリィが[N]話しかけてきた.[FIN][TPL:2]この先に まぼろしの大陸 ムーが[N]広がっているんだね.[PAL:0][END]`
+dialogstring_03901A `[CLR][TPL:0]ポケットのリリィが[N]話しかけてきた.[FIN][TPL:2]この先に まぼろしの大陸 ムーが[N]広がっているんだね.[PAL:0][END]`
 
 code_03905B {
-    COP [PrintWideString] ( &widestring_039081 )
+    COP [PrintDialogString] ( &dialogstring_039081 )
     LDA $sceneCurrent
     CMP #$005D
     BNE loc_03907C
@@ -1404,23 +1404,23 @@ code_03905B {
 
 code_039071 {
     COP [RemoveItem] ( #11 )
-    COP [PrintWideString] ( &widestring_0390A2 )
+    COP [PrintDialogString] ( &dialogstring_0390A2 )
     COP [SetFlagByte] ( #0E )
     RTS 
 
   loc_03907C:
-    COP [PrintWideString] ( &widestring_039091 )
+    COP [PrintDialogString] ( &dialogstring_039091 )
     RTS 
 }
 
-widestring_039081 `[DEF]じょうか石を かかげた![FIN]`
+dialogstring_039081 `[DEF]じょうか石を かかげた![FIN]`
 
-widestring_039091 `しかし 何も おこらなかった![END]`
+dialogstring_039091 `しかし 何も おこらなかった![END]`
 
-widestring_0390A2 `石は しだいに かがやきをまし[N]泉の中へと 消えていった···[END]`
+dialogstring_0390A2 `石は しだいに かがやきをまし[N]泉の中へと 消えていった···[END]`
 
 code_0390C6 {
-    COP [PrintWideString] ( &widestring_03910B )
+    COP [PrintDialogString] ( &dialogstring_03910B )
     LDA $sceneCurrent
     CMP #$0063
     BNE code_039106
@@ -1432,7 +1432,7 @@ code_0390C6 {
 code_0390E4 {
     COP [BranchIfFlagByte] ( #7E, #01, &code_039106 )
     JSR $&code_039CC7
-    COP [PrintWideString] ( &widestring_03912E )
+    COP [PrintDialogString] ( &dialogstring_03912E )
     COP [SetFlagByte] ( #7E )
     RTS 
 }
@@ -1440,24 +1440,24 @@ code_0390E4 {
 code_0390F5 {
     COP [BranchIfFlagByte] ( #7B, #01, &code_039106 )
     JSR $&code_039CC7
-    COP [PrintWideString] ( &widestring_03912E )
+    COP [PrintDialogString] ( &dialogstring_03912E )
     COP [SetFlagByte] ( #7B )
     RTS 
 }
 
 code_039106 {
-    COP [PrintWideString] ( &widestring_03911D )
+    COP [PrintDialogString] ( &dialogstring_03911D )
     RTS 
 }
 
-widestring_03910B `[DEF]いのりの石像を ささげた![FIN]`
+dialogstring_03910B `[DEF]いのりの石像を ささげた![FIN]`
 
-widestring_03911D `しかし 何も おこらなかった![END]`
+dialogstring_03911D `しかし 何も おこらなかった![END]`
 
-widestring_03912E `どこからか 低く 不気味な声が[N]きこえてきた···[END]`
+dialogstring_03912E `どこからか 低く 不気味な声が[N]きこえてきた···[END]`
 
 code_03914D {
-    COP [PrintWideString] ( &widestring_039192 )
+    COP [PrintDialogString] ( &dialogstring_039192 )
     LDA $sceneCurrent
     CMP #$0066
     BNE code_03918D
@@ -1469,7 +1469,7 @@ code_03914D {
 code_03916B {
     COP [BranchIfFlagByte] ( #80, #01, &code_03918D )
     JSR $&code_039CC7
-    COP [PrintWideString] ( &widestring_0391BA )
+    COP [PrintDialogString] ( &dialogstring_0391BA )
     COP [SetFlagByte] ( #80 )
     RTS 
 }
@@ -1477,49 +1477,49 @@ code_03916B {
 code_03917C {
     COP [BranchIfFlagByte] ( #81, #01, &code_03918D )
     JSR $&code_039CC7
-    COP [PrintWideString] ( &widestring_0391BA )
+    COP [PrintDialogString] ( &dialogstring_0391BA )
     COP [SetFlagByte] ( #81 )
     RTS 
 }
 
 code_03918D {
-    COP [PrintWideString] ( &widestring_0391A9 )
+    COP [PrintDialogString] ( &dialogstring_0391A9 )
     RTS 
 }
 
-widestring_039192 `[DEF]ラ·ムーの石像を ささげた![FIN]`
+dialogstring_039192 `[DEF]ラ·ムーの石像を ささげた![FIN]`
 
-widestring_0391A9 `しかし 何も おこらなかった![END]`
+dialogstring_0391A9 `しかし 何も おこらなかった![END]`
 
-widestring_0391BA `[CLD]`
+dialogstring_0391BA `[CLD]`
 
 code_0391BC {
-    COP [PrintWideString] ( &widestring_0391E0 )
+    COP [PrintDialogString] ( &dialogstring_0391E0 )
     LDA $sceneCurrent
     CMP #$0074
     BNE loc_0391D0
     COP [BranchIfPlayerInAbsTiles] ( #07, #08, #09, #0A, &code_0391D5 )
 
   loc_0391D0:
-    COP [PrintWideString] ( &widestring_0391F8 )
+    COP [PrintDialogString] ( &dialogstring_0391F8 )
     RTS 
 }
 
 code_0391D5 {
-    COP [PrintWideString] ( &widestring_039209 )
+    COP [PrintDialogString] ( &dialogstring_039209 )
     COP [RemoveItem] ( #14 )
     COP [SetFlagByte] ( #01 )
     RTS 
 }
 
-widestring_0391E0 `[DEF]まほうのこなを 使ってみる[N]ことにした.[FIN]`
+dialogstring_0391E0 `[DEF]まほうのこなを 使ってみる[N]ことにした.[FIN]`
 
-widestring_0391F8 `しかし 何も おこらなかった![END]`
+dialogstring_0391F8 `しかし 何も おこらなかった![END]`
 
-widestring_039209 `カレンの 絵に まほうのこなを[N]ふりかけた![END]`
+dialogstring_039209 `カレンの 絵に まほうのこなを[N]ふりかけた![END]`
 
 code_039223 {
-    COP [PrintWideString] ( &widestring_039249 )
+    COP [PrintDialogString] ( &dialogstring_039249 )
     COP [DialogueOptions] ( #03, #01, &code_list_03922D )
 }
 
@@ -1531,84 +1531,84 @@ code_list_03922D [
 ]
 
 code_039235 {
-    COP [PrintWideString] ( &widestring_0392A7 )
+    COP [PrintDialogString] ( &dialogstring_0392A7 )
     RTS 
 }
 
 code_03923A {
-    COP [PrintWideString] ( &widestring_0392B8 )
+    COP [PrintDialogString] ( &dialogstring_0392B8 )
     RTS 
 }
 
 code_03923F {
-    COP [PrintWideString] ( &widestring_0392C6 )
+    COP [PrintDialogString] ( &dialogstring_0392C6 )
     RTS 
 }
 
 code_039244 {
-    COP [PrintWideString] ( &widestring_0392D6 )
+    COP [PrintDialogString] ( &dialogstring_0392D6 )
     RTS 
 }
 
-widestring_039249 `[DEF]ロブの父親の 手帳を そっと[N]開いてみた.[FIN][DLY:0]どのページを 読みますか?[N] バベルの塔について[N] ミステリードールについて[N] 万里の長城について`
+dialogstring_039249 `[DEF]ロブの父親の 手帳を そっと[N]開いてみた.[FIN][DLY:0]どのページを 読みますか?[N] バベルの塔について[N] ミステリードールについて[N] 万里の長城について`
 
-widestring_0392A7 `[DEF]手帳を そっと 閉じた.[END]`
+dialogstring_0392A7 `[DEF]手帳を そっと 閉じた.[END]`
 
-widestring_0392B8 `[DEF]バベルの塔は···[END]`
+dialogstring_0392B8 `[DEF]バベルの塔は···[END]`
 
-widestring_0392C6 `[DEF]ミステリードールは···[END]`
+dialogstring_0392C6 `[DEF]ミステリードールは···[END]`
 
-widestring_0392D6 `[DEF]万里の長城は···[END]`
+dialogstring_0392D6 `[DEF]万里の長城は···[END]`
 
 code_0392E5 {
     COP [SetFlagByte] ( #8E )
-    COP [PrintWideString] ( &widestring_0392ED )
+    COP [PrintDialogString] ( &dialogstring_0392ED )
     RTS 
 }
 
-widestring_0392ED `[DEF]ロブの手紙を 開いた.[FIN][TPL:4]ロブ:[N]おれは ちょっと 万里の長城まで[N]行ってくる.[FIN]みんなには ないしょのつもりだった[N]けど テムにだけは 伝えておこうと[N]思う···[FIN]テムの荷物の中に この手紙を[N]入れとくけど 気づいてくれたかな.[N]テムは にぶいからな.[FIN]町の人の話から おやじの病気を[N]直す方法が わかったんだ···[N]万里の長城に その藥があるらしい.[FIN]道のりは 長いけど マラソンでも[N]するつもりで 行ってくるよ.[N]心配しないでくれ.[FIN]追しん:[N]あ そうそう···[N]リリィに ふられちまったよ.[PAL:0][END]`
+dialogstring_0392ED `[DEF]ロブの手紙を 開いた.[FIN][TPL:4]ロブ:[N]おれは ちょっと 万里の長城まで[N]行ってくる.[FIN]みんなには ないしょのつもりだった[N]けど テムにだけは 伝えておこうと[N]思う···[FIN]テムの荷物の中に この手紙を[N]入れとくけど 気づいてくれたかな.[N]テムは にぶいからな.[FIN]町の人の話から おやじの病気を[N]直す方法が わかったんだ···[N]万里の長城に その藥があるらしい.[FIN]道のりは 長いけど マラソンでも[N]するつもりで 行ってくるよ.[N]心配しないでくれ.[FIN]追しん:[N]あ そうそう···[N]リリィに ふられちまったよ.[PAL:0][END]`
 
 code_03941D {
-    COP [PrintWideString] ( &widestring_039422 )
+    COP [PrintDialogString] ( &dialogstring_039422 )
     RTS 
 }
 
-widestring_039422 `[DEF]ロブが リリィのために 作っていた[N]ネックレスだ···[END]`
+dialogstring_039422 `[DEF]ロブが リリィのために 作っていた[N]ネックレスだ···[END]`
 
 code_039446 {
-    COP [PrintWideString] ( &widestring_03944B )
+    COP [PrintDialogString] ( &dialogstring_03944B )
     RTS 
 }
 
-widestring_03944B `[DEF]遺書を そっと開いてみた.[FIN][N]      対戦者の人へ     [FIN]私が死んでも 悲しまないでほしい.[N]そして 落ちこまないでほしい.[FIN]私は ロシアングラスで 死なずとも[N]近いうちに 天にめされる 運命で[N]あったのだ.[FIN]半年前に 不治の病と診断された時[N]死ぬまでに 人がー生働いて得る金を[N]手に入れようと思った.[FIN]私の死後 妻と まだ見ぬ子に[N]苦労はさせまいと 思ったからだ.[FIN]しかし 私が得た金は[N]他人を不幸にして 手に入れたもの.[N]こんなことは 今回で 終わりに[N]しようと思う···[FIN]もし この勝負で 私が負けたなら[N]財産のー部を 勇気ある あなたに[N]分けあたえたい.[FIN]私の愛馬 クルック 4頭を どうか[N]かわいがって やって下さい.[END]`
+dialogstring_03944B `[DEF]遺書を そっと開いてみた.[FIN][N]      対戦者の人へ     [FIN]私が死んでも 悲しまないでほしい.[N]そして 落ちこまないでほしい.[FIN]私は ロシアングラスで 死なずとも[N]近いうちに 天にめされる 運命で[N]あったのだ.[FIN]半年前に 不治の病と診断された時[N]死ぬまでに 人がー生働いて得る金を[N]手に入れようと思った.[FIN]私の死後 妻と まだ見ぬ子に[N]苦労はさせまいと 思ったからだ.[FIN]しかし 私が得た金は[N]他人を不幸にして 手に入れたもの.[N]こんなことは 今回で 終わりに[N]しようと思う···[FIN]もし この勝負で 私が負けたなら[N]財産のー部を 勇気ある あなたに[N]分けあたえたい.[FIN]私の愛馬 クルック 4頭を どうか[N]かわいがって やって下さい.[END]`
 
 code_0395D9 {
-    COP [PrintWideString] ( &widestring_0395FD )
+    COP [PrintDialogString] ( &dialogstring_0395FD )
     LDA $sceneCurrent
     CMP #$0095
     BNE loc_0395ED
     COP [BranchIfPlayerInAbsTiles] ( #28, #09, #2D, #0D, &code_0395F2 )
 
   loc_0395ED:
-    COP [PrintWideString] ( &widestring_039617 )
+    COP [PrintDialogString] ( &dialogstring_039617 )
     RTS 
 }
 
 code_0395F2 {
-    COP [PrintWideString] ( &widestring_039628 )
+    COP [PrintDialogString] ( &dialogstring_039628 )
     COP [RemoveItem] ( #19 )
     COP [SetFlagByte] ( #A8 )
     RTS 
 }
 
-widestring_0395FD `[DEF]ティアポットを 使ってみる[N]ことにした.[FIN]`
+dialogstring_0395FD `[DEF]ティアポットを 使ってみる[N]ことにした.[FIN]`
 
-widestring_039617 `しかし 何も おこらなかった![END]`
+dialogstring_039617 `しかし 何も おこらなかった![END]`
 
-widestring_039628 `神のなみだが あたりに[N]ふりそそいだ![END]`
+dialogstring_039628 `神のなみだが あたりに[N]ふりそそいだ![END]`
 
 code_03963D {
-    COP [PrintWideString] ( &widestring_039690 )
+    COP [PrintDialogString] ( &dialogstring_039690 )
     LDA $sceneCurrent
     CMP #$00A2
     BEQ loc_039653
@@ -1616,7 +1616,7 @@ code_03963D {
     BEQ loc_039668
 
   loc_03964E:
-    COP [PrintWideString] ( &widestring_0396AB )
+    COP [PrintDialogString] ( &dialogstring_0396AB )
     RTS 
 
   loc_039653:
@@ -1625,7 +1625,7 @@ code_03963D {
 }
 
 code_03965D {
-    COP [PrintWideString] ( &widestring_0396BC )
+    COP [PrintDialogString] ( &dialogstring_0396BC )
     JSR $&code_039CC7
     COP [SetFlagByte] ( #01 )
     RTS 
@@ -1637,38 +1637,38 @@ code_03965D {
 }
 
 code_03967A {
-    COP [PrintWideString] ( &widestring_0396BC )
+    COP [PrintDialogString] ( &dialogstring_0396BC )
     JSR $&code_039CC7
     COP [SetFlagByte] ( #01 )
     RTS 
 }
 
 code_039685 {
-    COP [PrintWideString] ( &widestring_0396BC )
+    COP [PrintDialogString] ( &dialogstring_0396BC )
     JSR $&code_039CC7
     COP [SetFlagByte] ( #02 )
     RTS 
 }
 
-widestring_039690 `[DEF]キノコのしずくを 使ってみる[N]ことにした.[FIN]`
+dialogstring_039690 `[DEF]キノコのしずくを 使ってみる[N]ことにした.[FIN]`
 
-widestring_0396AB `しかし 何も おこらなかった![END]`
+dialogstring_0396AB `しかし 何も おこらなかった![END]`
 
-widestring_0396BC `クキの とぎれた場所に[N]キノコの しずくを そそいだ![END]`
+dialogstring_0396BC `クキの とぎれた場所に[N]キノコの しずくを そそいだ![END]`
 
 code_0396DE {
-    COP [PrintWideString] ( &widestring_0396E3 )
+    COP [PrintDialogString] ( &dialogstring_0396E3 )
     RTS 
 }
 
-widestring_0396E3 `[DEF]ロシアングラスの賞金でもらった[N]きんかだ.[END]`
+dialogstring_0396E3 `[DEF]ロシアングラスの賞金でもらった[N]きんかだ.[END]`
 
 code_0396FE {
-    COP [PrintWideString] ( &widestring_039703 )
+    COP [PrintDialogString] ( &dialogstring_039703 )
     RTS 
 }
 
-widestring_039703 `[DEF]黒い すいしょうで 作られた[N]めがねだ.[N]これなら かなりの光も しゃだん[N]できそうだな···.[END]`
+dialogstring_039703 `[DEF]黒い すいしょうで 作られた[N]めがねだ.[N]これなら かなりの光も しゃだん[N]できそうだな···.[END]`
 
 code_039738 {
     LDA $sceneCurrent
@@ -1679,28 +1679,28 @@ code_039738 {
     COP [BranchIfPlayerInAbsTiles] ( #0A, #06, #0B, #08, &code_03977B )
 
   code_039758:
-    COP [PrintWideString] ( &widestring_0397A0 )
+    COP [PrintDialogString] ( &dialogstring_0397A0 )
     RTS 
 }
 
 code_03975D {
     COP [BranchIfFlagByte] ( #BF, #01, &code_039758 )
     COP [SetFlagByte] ( #BF )
-    COP [PrintWideString] ( &widestring_0397C5 )
+    COP [PrintDialogString] ( &dialogstring_0397C5 )
     BRA loc_03978A
 }
 
 code_03976C {
     COP [BranchIfFlagByte] ( #C0, #01, &code_039758 )
     COP [SetFlagByte] ( #C0 )
-    COP [PrintWideString] ( &widestring_0397C5 )
+    COP [PrintDialogString] ( &dialogstring_0397C5 )
     BRA loc_03978A
 }
 
 code_03977B {
     COP [BranchIfFlagByte] ( #C1, #01, &code_039758 )
     COP [SetFlagByte] ( #C1 )
-    COP [PrintWideString] ( &widestring_0397C5 )
+    COP [PrintDialogString] ( &dialogstring_0397C5 )
     BRA loc_03978A
 
   loc_03978A:
@@ -1714,25 +1714,25 @@ code_03979F {
     RTS 
 }
 
-widestring_0397A0 `[DEF]ゴーゴンの花を ながめた···[N]しかし 何も おこらなかった![END]`
+dialogstring_0397A0 `[DEF]ゴーゴンの花を ながめた···[N]しかし 何も おこらなかった![END]`
 
-widestring_0397C5 `[DEF]ゴーゴンの花びらを ー枚[N]石像の口に 入れた![END]`
+dialogstring_0397C5 `[DEF]ゴーゴンの花びらを ー枚[N]石像の口に 入れた![END]`
 
 code_0397E7 {
     LDA $sceneCurrent
     CMP #$00CD
     BEQ loc_0397F9
-    COP [PrintWideString] ( &widestring_0399A9 )
+    COP [PrintDialogString] ( &dialogstring_0399A9 )
     RTS 
 }
 
 code_0397F4 {
-    COP [PrintWideString] ( &widestring_039985 )
+    COP [PrintDialogString] ( &dialogstring_039985 )
     RTS 
 
   loc_0397F9:
     COP [BranchIfFlagByte] ( #0F, #01, &code_0397F4 )
-    COP [PrintWideString] ( &widestring_0398E2 )
+    COP [PrintDialogString] ( &dialogstring_0398E2 )
     COP [DialogueOptions] ( #63, #01, &code_list_039809 )
 }
 
@@ -1747,7 +1747,7 @@ code_list_039809 [
 ]
 
 code_039817 {
-    COP [PrintWideString] ( &widestring_0399A7 )
+    COP [PrintDialogString] ( &dialogstring_0399A7 )
     RTS 
 }
 
@@ -1818,13 +1818,13 @@ code_039844 {
     PLY 
     LDA $0AA6
     STA $0B28, Y
-    COP [PrintWideString] ( &widestring_039952 )
+    COP [PrintDialogString] ( &dialogstring_039952 )
     RTS 
 
   loc_0398A2:
     LDA $0AA6
     STA $0B28, Y
-    COP [PrintWideString] ( &widestring_03996B )
+    COP [PrintDialogString] ( &dialogstring_03996B )
     RTS 
 }
 
@@ -1873,17 +1873,17 @@ code_0398DD {
     COP [Die]
 }
 
-widestring_0398E2 `[DEF][TPL:0][DLY:0]タイルが はまりそうな くぼみが[N]6つ ならんでいる.[FIN]どこに はめますか?[N] 左から1番目  左から4番目[N] 左から2番目  左から5番目[N] 左から3番目  左から6番目`
+dialogstring_0398E2 `[DEF][TPL:0][DLY:0]タイルが はまりそうな くぼみが[N]6つ ならんでいる.[FIN]どこに はめますか?[N] 左から1番目  左から4番目[N] 左から2番目  左から5番目[N] 左から3番目  左から6番目`
 
-widestring_039952 `[CLR][TPL:0]ヒエログリフ板を こうかんした![PAL:0][END]`
+dialogstring_039952 `[CLR][TPL:0]ヒエログリフ板を こうかんした![PAL:0][END]`
 
-widestring_03996B `[CLR][TPL:0]ヒエログリフ板を くぼみにはめた![PAL:0][END]`
+dialogstring_03996B `[CLR][TPL:0]ヒエログリフ板を くぼみにはめた![PAL:0][END]`
 
-widestring_039985 `[DEF][TPL:0]今は タイルを はめている[N]場合じゃない···[PAL:0][END]`
+dialogstring_039985 `[DEF][TPL:0]今は タイルを はめている[N]場合じゃない···[PAL:0][END]`
 
-widestring_0399A7 `[CLD]`
+dialogstring_0399A7 `[CLD]`
 
-widestring_0399A9 `[DEF]ヒエログリフ板を はめこむ場所が[N]ない···[PAL:0][END]`
+dialogstring_0399A9 `[DEF]ヒエログリフ板を はめこむ場所が[N]ない···[PAL:0][END]`
 
 code_0399C8 {
     LDA $slopeCurvePtrB
@@ -1902,44 +1902,44 @@ code_0399C8 {
     RTS 
 
   loc_0399ED:
-    COP [PrintWideString] ( &widestring_0399F2 )
+    COP [PrintDialogString] ( &dialogstring_0399F2 )
 
   loc_0399F1:
     RTS 
 }
 
-widestring_0399F2 `[DEF]オーラの玉を かかげたが[N]何も おこらなかった···[END]`
+dialogstring_0399F2 `[DEF]オーラの玉を かかげたが[N]何も おこらなかった···[END]`
 
 code_039A12 {
-    COP [PrintWideString] ( &widestring_039A17 )
+    COP [PrintDialogString] ( &dialogstring_039A17 )
     RTS 
 }
 
-widestring_039A17 `[DEF][TPL:3]元気で やっていますか?[N]ニールから 連らくを受け ダオに[N]いるらしい とのことなので[N]手紙を 出してみました.[FIN]わけは だいたい 聞きましたよ.[N]お前が ひとまわり 成長して[N]帰ってくるのを おじいさんと[N]楽しみにしています.[FIN]そうそう.[N]お前の父 オールマンの荷物を[N]調べていたら ピラミッドのことが[N]書かれた手帳が でてきたの.[FIN]何かの 役にたつかも しれないので[N]いっしょに 送ることにします.[N]では くれぐれも 体に気をつけて.[N]          ビル/ローラ[PAL:0][END]`
+dialogstring_039A17 `[DEF][TPL:3]元気で やっていますか?[N]ニールから 連らくを受け ダオに[N]いるらしい とのことなので[N]手紙を 出してみました.[FIN]わけは だいたい 聞きましたよ.[N]お前が ひとまわり 成長して[N]帰ってくるのを おじいさんと[N]楽しみにしています.[FIN]そうそう.[N]お前の父 オールマンの荷物を[N]調べていたら ピラミッドのことが[N]書かれた手帳が でてきたの.[FIN]何かの 役にたつかも しれないので[N]いっしょに 送ることにします.[N]では くれぐれも 体に気をつけて.[N]          ビル/ローラ[PAL:0][END]`
 
 code_039B2D {
-    COP [PrintWideString] ( &widestring_039B32 )
+    COP [PrintDialogString] ( &dialogstring_039B32 )
     RTS 
 }
 
-widestring_039B32 `[DEF]私は 古代文字 ヒエログリフの[N]解読に ついに 成功した.[N]これは おそらく 世界で 初めての[N]ことであろう.[FIN]この もくしろくによれば[N]ピラミッドには 人類の歷史の[N]とてつもない なぞをとくカギが[N]かくされていることになるのだ.[FIN]     ΓΔΘΛΨΩ     [N]この ヒエログリフは 冒頭のー文で[N]┌太陽神が 地平線よりのぼる┘[N]という 意味をもつ.[FIN]私は ピラミッドへ 足を運び[N]これと 同じ文字板を 発見した.[N]そして···[FIN]ページは ここで やぶられている.[END]`
+dialogstring_039B32 `[DEF]私は 古代文字 ヒエログリフの[N]解読に ついに 成功した.[N]これは おそらく 世界で 初めての[N]ことであろう.[FIN]この もくしろくによれば[N]ピラミッドには 人類の歷史の[N]とてつもない なぞをとくカギが[N]かくされていることになるのだ.[FIN]     ΓΔΘΛΨΩ     [N]この ヒエログリフは 冒頭のー文で[N]┌太陽神が 地平線よりのぼる┘[N]という 意味をもつ.[FIN]私は ピラミッドへ 足を運び[N]これと 同じ文字板を 発見した.[N]そして···[FIN]ページは ここで やぶられている.[END]`
 
 code_039C55 {
-    COP [PrintWideString] ( &widestring_039C5A )
+    COP [PrintDialogString] ( &dialogstring_039C5A )
     RTS 
 }
 
-widestring_039C5A `[DEF]これこそ エドワード国王が[N]さがしていた すいしょうの指輪だ.[END]`
+dialogstring_039C5A `[DEF]これこそ エドワード国王が[N]さがしていた すいしょうの指輪だ.[END]`
 
 code_039C81 {
-    COP [PrintWideString] ( &widestring_039C8F )
+    COP [PrintDialogString] ( &dialogstring_039C8F )
     COP [RemoveItem] ( #28 )
     LDA #$0001
     STA $damageFlashTimer
     RTS 
 }
 
-widestring_039C8F `[DEF]真っ赤なリンゴを ほおばると[N]気持ちが ちょっぴり 安らいだ.[N]おいしい リンゴだった.[END]`
+dialogstring_039C8F `[DEF]真っ赤なリンゴを ほおばると[N]気持ちが ちょっぴり 安らいだ.[N]おいしい リンゴだった.[END]`
 
 code_039CC6 {
     RTS 

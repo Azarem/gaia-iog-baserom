@@ -23,14 +23,14 @@ av69_signs [
 code_06BA28 {
     LDA $24
     BNE loc_06BA31
-    COP [PrintWideString] ( &widestring_06BA36 )
+    COP [PrintDialogString] ( &dialogstring_06BA36 )
     RTL 
 
   loc_06BA31:
-    COP [PrintWideString] ( &widestring_06BA6B )
+    COP [PrintDialogString] ( &dialogstring_06BA6B )
     RTL 
 }
 
-widestring_06BA36 `[DEF]       Travellers[N]Please use this room.[N][N]       Angel Tribe[END]`
+dialogstring_06BA36 `[DEF]       Travellers[N]Please use this room.[N][N]       Angel Tribe[END]`
 
-widestring_06BA6B `[DEF][N] Angel Village Entrance[END]`
+dialogstring_06BA6B `[DEF][N] Angel Village Entrance[END]`

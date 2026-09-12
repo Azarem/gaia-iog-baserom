@@ -1,10 +1,10 @@
 ?BANK 00
 
-?INCLUDE 'AsciiStringRenderer'
+?INCLUDE 'ConsoleStringRenderer'
+?INCLUDE 'DialogStringRenderer'
 ?INCLUDE 'inventory_mgmt'
 ?INCLUDE 'MenuSelectionHandler'
 ?INCLUDE 'system_core'
-?INCLUDE 'WideStringRenderer'
 
 !L_wramFlags                    000A80
 !worldReadyFlag                 0654
@@ -227,7 +227,7 @@ RunBg3Script {
     REP #$20
     LDA #$0000
     TCD 
-    JSL $@AsciiStringRenderer
+    JSL $@ConsoleStringRenderer
     PLB 
     PLA 
     TAX 
@@ -297,7 +297,7 @@ DialogueOptions {
     RTI 
 }
 
-PrintWideString {
+PrintDialogString {
     TYX 
     LDA #$2000
     TSB $displayModeFlags
@@ -330,7 +330,7 @@ PrintWideString {
     INC $0A
     INC $0A
     TAY 
-    JSL $@WideStringRenderer
+    JSL $@DialogStringRenderer
     PLB 
     PLA 
     STA $joypadMaskStd
@@ -346,7 +346,7 @@ PrintWideString {
     RTI 
 }
 
-PrintWideStringAlt {
+PrintDialogStringAlt {
     TYX 
     LDA $10
     AND #$0800
@@ -366,7 +366,7 @@ PrintWideStringAlt {
     INC $0A
     INC $0A
     TAY 
-    JSL $@WideStringRenderer
+    JSL $@DialogStringRenderer
     PLB 
     PLA 
     STA $joypadMaskStd

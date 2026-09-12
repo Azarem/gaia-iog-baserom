@@ -31,22 +31,22 @@ code_04C32A {
 
 code_04C336 {
     COP [BranchIfFlagByte] ( #19, #01, &code_04C341 )
-    COP [PrintWideString] ( &widestring_04C34B )
+    COP [PrintDialogString] ( &dialogstring_04C34B )
     RTL 
 }
 
 code_04C341 {
-    COP [PrintWideString] ( &widestring_04C379 )
+    COP [PrintDialogString] ( &dialogstring_04C379 )
     RTL 
 }
 
 code_04C346 {
-    COP [PrintWideString] ( &widestring_04C3B4 )
+    COP [PrintDialogString] ( &dialogstring_04C3B4 )
     RTL 
 }
 
-widestring_04C34B `[DEF]King Edward is having[N]breakfast. Wait a while,[N]then enter.[END]`
+dialogstring_04C34B `[DEF]King Edward is having[N]breakfast. Wait a while,[N]then enter.[END]`
 
-widestring_04C379 `[DEF]The interview room is[N]before you. Climb the[N]stairs to meet the king.[END]`
+dialogstring_04C379 `[DEF]The interview room is[N]before you. Climb the[N]stairs to meet the king.[END]`
 
-widestring_04C3B4 `[DEF]Zzzzzz...Zzzzzz...[END]`
+dialogstring_04C3B4 `[DEF]Zzzzzz...Zzzzzz...[END]`

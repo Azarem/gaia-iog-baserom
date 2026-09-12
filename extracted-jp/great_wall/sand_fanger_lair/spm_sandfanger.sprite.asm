@@ -1,6 +1,6 @@
 ---------------------------------------------
 
-sprite_set_list_000000 [
+spm_sandfanger [
   &sprite_set_00004C   ;00
   &sprite_set_000052   ;01
   &sprite_set_000058   ;02

@@ -12,8 +12,8 @@ sc07_chef [
 ]
 
 code_0491E8 {
-    COP [PrintWideString] ( &widestring_0491ED )
+    COP [PrintDialogString] ( &dialogstring_0491ED )
     RTL 
 }
 
-widestring_0491ED `[TPL:A]Mmmm, nice smell.[N]There's no stove, so[N]I'm cooking in this pot.[END]`
+dialogstring_0491ED `[TPL:A]Mmmm, nice smell.[N]There's no stove, so[N]I'm cooking in this pot.[END]`

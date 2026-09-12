@@ -28,7 +28,7 @@ code_05F313 {
     LDA #$FFF0
     TSB $joypadMaskStd
     COP [WaitByte] ( #13 )
-    COP [PrintWideString] ( &widestring_05F349 )
+    COP [PrintDialogString] ( &dialogstring_05F349 )
     LDA #$FFF0
     TRB $joypadMaskStd
     COP [SetFlagByte] ( #02 )
@@ -41,4 +41,4 @@ code_05F313 {
     COP [Die]
 }
 
-widestring_05F349 `[DEF]Ku ku ku...[END]`
+dialogstring_05F349 `[DEF]Ku ku ku...[END]`

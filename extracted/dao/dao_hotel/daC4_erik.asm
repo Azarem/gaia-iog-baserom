@@ -17,8 +17,8 @@ code_08A579 {
 }
 
 code_08A57B {
-    COP [PrintWideString] ( &widestring_08A580 )
+    COP [PrintDialogString] ( &dialogstring_08A580 )
     RTL 
 }
 
-widestring_08A580 `[TPL:A][TPL:3]Erik: [N]I can't go outside in [N]a sandstorm like this.[PAL:0][END]`
+dialogstring_08A580 `[TPL:A][TPL:3]Erik: [N]I can't go outside in [N]a sandstorm like this.[PAL:0][END]`

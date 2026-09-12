@@ -26,7 +26,7 @@ eu95_neils_father [
     COP [AnimLoop]
     COP [StageSpriteLoop] ( #2F, #06 )
     COP [AnimLoop]
-    COP [PrintWideString] ( &widestring_07E259 )
+    COP [PrintDialogString] ( &dialogstring_07E259 )
     LDA #$0268
     STA $moveXAlt, X
     LDA #$0060
@@ -44,10 +44,10 @@ code_07E21A {
 }
 
 code_07E21C {
-    COP [PrintWideString] ( &widestring_07E221 )
+    COP [PrintDialogString] ( &dialogstring_07E221 )
     RTL 
 }
 
-widestring_07E221 `[TPL:A]Neil's father: You can't [N]go wrong by taking over [N]the Rolek Company.[END]`
+dialogstring_07E221 `[TPL:A]Neil's father: You can't [N]go wrong by taking over [N]the Rolek Company.[END]`
 
-widestring_07E259 `[TPL:B]Moon Tribe: Ku ku ku...[N]Soon this world will be[N]wrapped in darkness.[FIN]The previous owner of [N]this body is now a [N]skeleton sleeping [N]under the shrine. [END]`
+dialogstring_07E259 `[TPL:B]Moon Tribe: Ku ku ku...[N]Soon this world will be[N]wrapped in darkness.[FIN]The previous owner of [N]this body is now a [N]skeleton sleeping [N]under the shrine. [END]`

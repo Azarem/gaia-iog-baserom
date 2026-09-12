@@ -20,7 +20,7 @@ ec0C_force_hint [
     LDA #$CFF0
     TSB $joypadMaskStd
     COP [WaitByte] ( #27 )
-    COP [PrintWideString] ( &widestring_04DCBD )
+    COP [PrintDialogString] ( &dialogstring_04DCBD )
     LDA #$CFF0
     TRB $joypadMaskStd
 
@@ -29,4 +29,4 @@ ec0C_force_hint [
 } >
 ]
 
-widestring_04DCBD `[DEF][TPL:0][DLY:0]Will:[N]When you defeat all of[N]the enemies around you,[N]a Jewel will appear.[PAL:0][END]`
+dialogstring_04DCBD `[DEF][TPL:0][DLY:0]Will:[N]When you defeat all of[N]the enemies around you,[N]a Jewel will appear.[PAL:0][END]`

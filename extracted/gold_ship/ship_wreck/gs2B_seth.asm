@@ -20,7 +20,7 @@ code_059650 {
 
 code_059652 {
     COP [BranchIfFlagByte] ( #E0, #01, &code_059669 )
-    COP [PrintWideString] ( &widestring_05966E )
+    COP [PrintDialogString] ( &dialogstring_05966E )
     COP [GiveItem] ( #01, &code_059665 )
     COP [SetFlagByte] ( #E0 )
     RTL 
@@ -31,10 +31,10 @@ code_059665 {
 }
 
 code_059669 {
-    COP [PrintWideString] ( &widestring_0596C1 )
+    COP [PrintDialogString] ( &dialogstring_0596C1 )
     RTL 
 }
 
-widestring_05966E `[TPL:F][TPL:5]Seth: I found [N]a strange jewel [N]on board the ship. [N]I'll give it to you. [FIN][PAL:0]Will gets a Red Jewel![PAL:0][END]`
+dialogstring_05966E `[TPL:F][TPL:5]Seth: I found [N]a strange jewel [N]on board the ship. [N]I'll give it to you. [FIN][PAL:0]Will gets a Red Jewel![PAL:0][END]`
 
-widestring_0596C1 `[TPL:F][TPL:5]It's the first time I've[N]ever given you anything.[N]Take care of it.[PAL:0][END]`
+dialogstring_0596C1 `[TPL:F][TPL:5]It's the first time I've[N]ever given you anything.[N]Take care of it.[PAL:0][END]`

@@ -1,6 +1,6 @@
 ---------------------------------------------
 
-sprite_set_list_000000 [
+spm_garden_enemies [
   &sprite_set_00007C   ;00
   &sprite_set_000082   ;01
   &sprite_set_000088   ;02

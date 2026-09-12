@@ -45,7 +45,7 @@ nvAC_hand_man1_destroy {
 }
 
 code_088CC6 {
-    COP [PrintWideString] ( &widestring_088CE0 )
+    COP [PrintDialogString] ( &dialogstring_088CE0 )
     COP [DialogueOptions] ( #02, #01, &code_list_088CD0 )
 }
 
@@ -56,20 +56,20 @@ code_list_088CD0 [
 ]
 
 code_088CD6 {
-    COP [PrintWideString] ( &widestring_088D54 )
+    COP [PrintDialogString] ( &dialogstring_088D54 )
     RTL 
 }
 
 code_088CDB {
-    COP [PrintWideString] ( &widestring_088D1F )
+    COP [PrintDialogString] ( &dialogstring_088D1F )
     RTL 
 }
 
-widestring_088CE0 `[TPL:E]The man timidly held[N]out his hand...[FIN]Take his hand?[N] Yes[N] No`
+dialogstring_088CE0 `[TPL:E]The man timidly held[N]out his hand...[FIN]Take his hand?[N] Yes[N] No`
 
-widestring_088D1F `[CLR]We don't understand each[N]other's language, but[N]I think we agree...[PAL:0][END]`
+dialogstring_088D1F `[CLR]We don't understand each[N]other's language, but[N]I think we agree...[PAL:0][END]`
 
-widestring_088D54 `[CLR]The man looks lonely...[PAL:0][END]`
+dialogstring_088D54 `[CLR]The man looks lonely...[PAL:0][END]`
 ---------------------------------------------
 
 nvAC_hand_man2 [

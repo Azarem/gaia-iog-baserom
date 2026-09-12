@@ -19,15 +19,15 @@ code_04F1F7 {
     COP [SetFlagByte] ( #48 )
     LDA #$0080
     TSB $09FA
-    COP [MusicAndText] ( #17, @widestring_04F211 )
+    COP [MusicAndText] ( #17, @dialogstring_04F211 )
     RTL 
 }
 
 code_04F20C {
-    COP [PrintWideString] ( &widestring_04F232 )
+    COP [PrintDialogString] ( &dialogstring_04F232 )
     RTL 
 }
 
-widestring_04F211 `[DLG:3,6][SIZ:D,3,0][SFX:0][DLY:9]インカの像Bを 手に入れた.[PAU:FF][END]`
+dialogstring_04F211 `[DLG:3,6][SIZ:D,3,0][SFX:0][DLY:9]インカの像Bを 手に入れた.[PAU:FF][END]`
 
-widestring_04F232 `[DLG:3,6][SIZ:D,3,0]インカの像Bを 見つけた![N]しかし 持ち物が いっぱいだった.[END]`
+dialogstring_04F232 `[DLG:3,6][SIZ:D,3,0]インカの像Bを 見つけた![N]しかし 持ち物が いっぱいだった.[END]`

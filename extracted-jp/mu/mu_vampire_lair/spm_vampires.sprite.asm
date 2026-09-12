@@ -1,6 +1,6 @@
 ---------------------------------------------
 
-sprite_set_list_000000 [
+spm_vampires [
   &sprite_set_000056   ;00
   &sprite_set_00005C   ;01
   &sprite_set_00006A   ;02

@@ -1,6 +1,6 @@
 ---------------------------------------------
 
-sprite_set_list_000000 [
+spm_prologue_prophecy_sprites [
   &sprite_set_00001A   ;00
   &sprite_set_000020   ;01
   &sprite_set_000026   ;02

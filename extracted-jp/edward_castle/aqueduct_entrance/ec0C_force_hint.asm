@@ -20,7 +20,7 @@ h_ec0C_force_hint [
     LDA #$CFF0
     TSB $joypadMaskStd
     COP [WaitByte] ( #27 )
-    COP [PrintWideString] ( &widestring_04D63D )
+    COP [PrintDialogString] ( &dialogstring_04D63D )
     LDA #$CFF0
     TRB $joypadMaskStd
 
@@ -29,4 +29,4 @@ h_ec0C_force_hint [
 } >
 ]
 
-widestring_04D63D `[DEF][TPL:0]テム: そうか···[N]自分のいる地域の敵を 全部たおすと[N]この宝石が あらわれるんだな···[PAL:0][END]`
+dialogstring_04D63D `[DEF][TPL:0]テム: そうか···[N]自分のいる地域の敵を 全部たおすと[N]この宝石が あらわれるんだな···[PAL:0][END]`

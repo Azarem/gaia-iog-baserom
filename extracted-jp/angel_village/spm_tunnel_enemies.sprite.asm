@@ -1,6 +1,6 @@
 ---------------------------------------------
 
-sprite_set_list_000000 [
+spm_tunnel_enemies [
   &sprite_set_00003C   ;00
   &sprite_set_000042   ;01
   &sprite_set_000048   ;02

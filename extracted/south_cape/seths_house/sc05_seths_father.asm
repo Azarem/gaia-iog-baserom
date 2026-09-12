@@ -12,8 +12,8 @@ sc05_seths_father [
 ]
 
 code_04918E {
-    COP [PrintWideString] ( &widestring_049193 )
+    COP [PrintDialogString] ( &dialogstring_049193 )
     RTL 
 }
 
-widestring_049193 `[TPL:B]Seth's father:[N]What's wrong with[N]having a little fun with[N]my hard-earned money!![END]`
+dialogstring_049193 `[TPL:B]Seth's father:[N]What's wrong with[N]having a little fun with[N]my hard-earned money!![END]`

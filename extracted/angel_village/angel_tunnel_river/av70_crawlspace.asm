@@ -41,8 +41,8 @@ code_06D65E {
     RTL 
 
   loc_06D667:
-    COP [PrintWideString] ( &widestring_06D66C )
+    COP [PrintDialogString] ( &dialogstring_06D66C )
     RTL 
 }
 
-widestring_06D66C `[TPL:A][TPL:0]The entrance is[N]too small![PAL:0][END]`
+dialogstring_06D66C `[TPL:A][TPL:0]The entrance is[N]too small![PAL:0][END]`

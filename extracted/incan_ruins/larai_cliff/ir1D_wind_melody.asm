@@ -21,7 +21,7 @@ code_09C58D {
     COP [StartMusic] ( #1B )
     COP [WaitByte] ( #77 )
     COP [PlaySoundCh1] ( #16 )
-    COP [PrintWideString] ( &widestring_09C5D5 )
+    COP [PrintDialogString] ( &dialogstring_09C5D5 )
     COP [StartMusic] ( #1A )
     COP [WaitByte] ( #77 )
     COP [SetEntryContinue]
@@ -35,7 +35,7 @@ code_09C58D {
 
   loc_09C5BB:
     COP [GiveItem] ( #08, &code_09C5CF )
-    COP [PrintWideString] ( &widestring_09C614 )
+    COP [PrintDialogString] ( &dialogstring_09C614 )
     COP [SetFlagByte] ( #32 )
 
   loc_09C5C7:
@@ -48,12 +48,12 @@ code_09C5CD {
 }
 
 code_09C5CF {
-    COP [PrintWideString] ( &widestring_09C637 )
+    COP [PrintDialogString] ( &dialogstring_09C637 )
     BRA loc_09C5C7
 }
 
-widestring_09C5D5 `[TPL:10]The wind in the valley[N]plays a melody.[N]The statue seems to[N]be singing...[END]`
+dialogstring_09C5D5 `[TPL:10]The wind in the valley[N]plays a melody.[N]The statue seems to[N]be singing...[END]`
 
-widestring_09C614 `[DLG:3,11][SIZ:D,3]You've learned the[N]Melody of the Wind![END]`
+dialogstring_09C614 `[DLG:3,11][SIZ:D,3]You've learned the[N]Melody of the Wind![END]`
 
-widestring_09C637 `[DLG:3,11][SIZ:D,3]You can hear the Melody [N]of the Wind. But your [N]inventory is full. [END]`
+dialogstring_09C637 `[DLG:3,11][SIZ:D,3]You can hear the Melody [N]of the Wind. But your [N]inventory is full. [END]`

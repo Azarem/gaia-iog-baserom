@@ -31,8 +31,8 @@ code_08C250 {
 }
 
 code_08C254 {
-    COP [PrintWideString] ( &widestring_08C259 )
+    COP [PrintDialogString] ( &dialogstring_08C259 )
     RTL 
 }
 
-widestring_08C259 `[DEF]Explorer: There are[N]traps scattered around[N]to prevent entry.[FIN]There's a booby trap in[N]this room that responds[N]to sound.....So[N]don't make any noise...[END]`
+dialogstring_08C259 `[DEF]Explorer: There are[N]traps scattered around[N]to prevent entry.[FIN]There's a booby trap in[N]this room that responds[N]to sound.....So[N]don't make any noise...[END]`

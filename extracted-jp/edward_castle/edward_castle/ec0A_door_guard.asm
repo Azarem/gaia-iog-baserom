@@ -12,8 +12,8 @@ h_ec0A_door_guard [
 ]
 
 code_04C159 {
-    COP [PrintWideString] ( &widestring_04C15E )
+    COP [PrintDialogString] ( &dialogstring_04C15E )
     RTL 
 }
 
-widestring_04C15E `[DEF]兵士:[N]テムさん ですね.[N]お待ちしておりました.[N]さあ エドワード国王のところへ.[END]`
+dialogstring_04C15E `[DEF]兵士:[N]テムさん ですね.[N]お待ちしておりました.[N]さあ エドワード国王のところへ.[END]`

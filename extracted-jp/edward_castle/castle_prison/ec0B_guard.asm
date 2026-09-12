@@ -37,8 +37,8 @@ code_04D5DA {
 }
 
 code_04D5E4 {
-    COP [PrintWideString] ( &widestring_04D5E9 )
+    COP [PrintDialogString] ( &dialogstring_04D5E9 )
     RTL 
 }
 
-widestring_04D5E9 `[TPL:E]私は 人の 手助けは受けん.[N]自分の力で 出てみせる···[END]`
+dialogstring_04D5E9 `[TPL:E]私は 人の 手助けは受けん.[N]自分の力で 出てみせる···[END]`

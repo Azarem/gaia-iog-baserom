@@ -369,119 +369,119 @@ code_09E9D2 {
 
   loc_09E9D8:
     COP [HaltIfCounterGte] ( #$01F4 )
-    LDA #$&widestring_09ECBF
+    LDA #$&dialogstring_09ECBF
     STA $26
     COP [CallScript] ( &code_09EB64 )
     COP [WaitByte] ( #4A )
-    LDA #$&widestring_09ECE7
+    LDA #$&dialogstring_09ECE7
     STA $26
     COP [CallScript] ( &code_09EB64 )
     COP [WaitByte] ( #4A )
-    LDA #$&widestring_09ED10
+    LDA #$&dialogstring_09ED10
     STA $26
     COP [CallScript] ( &code_09EB64 )
     COP [WaitByte] ( #4A )
-    LDA #$&widestring_09ED3C
+    LDA #$&dialogstring_09ED3C
     STA $26
     COP [CallScript] ( &code_09EB64 )
     COP [WaitByte] ( #4A )
-    LDA #$&widestring_09ED68
+    LDA #$&dialogstring_09ED68
     STA $26
     COP [CallScript] ( &code_09EB64 )
     COP [WaitByte] ( #4A )
-    LDA #$&widestring_09ED96
+    LDA #$&dialogstring_09ED96
     STA $26
     COP [CallScript] ( &code_09EB64 )
     COP [WaitByte] ( #4A )
-    LDA #$&widestring_09EDC3
+    LDA #$&dialogstring_09EDC3
     STA $26
     COP [CallScript] ( &code_09EB64 )
     COP [WaitByte] ( #4A )
-    LDA #$&widestring_09EDF1
+    LDA #$&dialogstring_09EDF1
     STA $26
     COP [CallScript] ( &code_09EB64 )
     COP [WaitByte] ( #4A )
-    LDA #$&widestring_09EE2D
+    LDA #$&dialogstring_09EE2D
     STA $26
     COP [CallScript] ( &code_09EB64 )
     COP [WaitByte] ( #4A )
-    LDA #$&widestring_09EE7D
+    LDA #$&dialogstring_09EE7D
     STA $26
     COP [CallScript] ( &code_09EB64 )
     COP [WaitByte] ( #4A )
-    LDA #$&widestring_09EEAA
+    LDA #$&dialogstring_09EEAA
     STA $26
     COP [CallScript] ( &code_09EB64 )
     COP [WaitByte] ( #4A )
-    LDA #$&widestring_09EEF7
+    LDA #$&dialogstring_09EEF7
     STA $26
     COP [CallScript] ( &code_09EB64 )
     COP [WaitByte] ( #4A )
-    LDA #$&widestring_09EF22
+    LDA #$&dialogstring_09EF22
     STA $26
     COP [CallScript] ( &code_09EB64 )
     COP [WaitByte] ( #4A )
-    LDA #$&widestring_09EF75
+    LDA #$&dialogstring_09EF75
     STA $26
     COP [CallScript] ( &code_09EB64 )
     COP [WaitByte] ( #4A )
-    LDA #$&widestring_09EFB1
+    LDA #$&dialogstring_09EFB1
     STA $26
     COP [CallScript] ( &code_09EB64 )
     COP [WaitByte] ( #4A )
-    LDA #$&widestring_09EFFB
+    LDA #$&dialogstring_09EFFB
     STA $26
     COP [CallScript] ( &code_09EB64 )
     COP [WaitByte] ( #4A )
-    LDA #$&widestring_09F038
+    LDA #$&dialogstring_09F038
     STA $26
     COP [CallScript] ( &code_09EB64 )
     COP [WaitByte] ( #4A )
-    LDA #$&widestring_09F073
+    LDA #$&dialogstring_09F073
     STA $26
     COP [CallScript] ( &code_09EB64 )
     COP [WaitByte] ( #4A )
-    LDA #$&widestring_09F0B2
+    LDA #$&dialogstring_09F0B2
     STA $26
     COP [CallScript] ( &code_09EB64 )
     COP [WaitByte] ( #4A )
-    LDA #$&widestring_09F0F2
+    LDA #$&dialogstring_09F0F2
     STA $26
     COP [CallScript] ( &code_09EB64 )
     COP [WaitByte] ( #4A )
-    LDA #$&widestring_09F12C
+    LDA #$&dialogstring_09F12C
     STA $26
     COP [CallScript] ( &code_09EB64 )
     COP [WaitByte] ( #4A )
-    LDA #$&widestring_09F18A
+    LDA #$&dialogstring_09F18A
     STA $26
     COP [CallScript] ( &code_09EB64 )
     COP [WaitByte] ( #4A )
-    LDA #$&widestring_09F1C8
+    LDA #$&dialogstring_09F1C8
     STA $26
     COP [CallScript] ( &code_09EB64 )
     COP [WaitByte] ( #4A )
-    LDA #$&widestring_09F1F2
+    LDA #$&dialogstring_09F1F2
     STA $26
     COP [CallScript] ( &code_09EB64 )
     COP [WaitByte] ( #4A )
-    LDA #$&widestring_09F220
+    LDA #$&dialogstring_09F220
     STA $26
     COP [CallScript] ( &code_09EB64 )
     COP [WaitByte] ( #4A )
-    LDA #$&widestring_09F248
+    LDA #$&dialogstring_09F248
     STA $26
     COP [CallScript] ( &code_09EB64 )
     COP [WaitByte] ( #4A )
-    LDA #$&widestring_09F273
+    LDA #$&dialogstring_09F273
     STA $26
     COP [CallScript] ( &code_09EB64 )
     COP [WaitByte] ( #4A )
-    LDA #$&widestring_09F2A9
+    LDA #$&dialogstring_09F2A9
     STA $26
     COP [CallScript] ( &code_09EB64 )
     COP [WaitByte] ( #4A )
-    LDA #$&widestring_09F2FA
+    LDA #$&dialogstring_09F2FA
     STA $26
     COP [CallScript] ( &code_09EB64 )
     COP [WaitByte] ( #4A )
@@ -489,7 +489,7 @@ code_09E9D2 {
     LDA #$79
     STA $BG3SC
     REP #$20
-    LDY #$&widestring_09F315
+    LDY #$&dialogstring_09F315
     JSR $&code_09EC23
     COP [AdhocVramDma] ( $7F0200, #$7800, #$0800 )
     SEP #$20
@@ -589,7 +589,7 @@ code_09EC23 {
     PHX 
     PHB 
     SEP #$20
-    LDA #$^widestring_09ECBF
+    LDA #$^dialogstring_09ECBF
     PHA 
     PLB 
     REP #$20
@@ -685,65 +685,65 @@ code_09ECB1 {
 }
 ---------------------------------------------
 
-widestring_09ECBF `[PAL:0][DLG:4C,1]The Illusion of GAIA[N][N]       STAFF[END]`!
+dialogstring_09ECBF `[PAL:0][DLG:4C,1]The Illusion of GAIA[N][N]       STAFF[END]`!
 
-widestring_09ECE7 `[PAL:0][DLG:4C,1]  Original Story[N][N][PAL:C]   MARIKO OHARA[END]`!
+dialogstring_09ECE7 `[PAL:0][DLG:4C,1]  Original Story[N][N][PAL:C]   MARIKO OHARA[END]`!
 
-widestring_09ED10 `[PAL:0][DLG:4C,1] Character Designer[N][N][PAL:C]     MOTO HAGIO[END]`!
+dialogstring_09ED10 `[PAL:0][DLG:4C,1] Character Designer[N][N][PAL:C]     MOTO HAGIO[END]`!
 
-widestring_09ED3C `[PAL:0][DLG:4C,1]   Game Designer[N][N][PAL:8]TOMOYOSHI MIYAZAKI[END]`!
+dialogstring_09ED3C `[PAL:0][DLG:4C,1]   Game Designer[N][N][PAL:8]TOMOYOSHI MIYAZAKI[END]`!
 
-widestring_09ED68 `[PAL:0][DLG:4C,1]  Program Director[N][N][PAL:8]  MASAYA HASHIMOTO[END]`!
+dialogstring_09ED68 `[PAL:0][DLG:4C,1]  Program Director[N][N][PAL:8]  MASAYA HASHIMOTO[END]`!
 
-widestring_09ED96 `[PAL:0][DLG:4C,1]  Main Programmer[N][N][PAL:8]  AKIRA KITANOHARA[END]`!
+dialogstring_09ED96 `[PAL:0][DLG:4C,1]  Main Programmer[N][N][PAL:8]  AKIRA KITANOHARA[END]`!
 
-widestring_09EDC3 `[PAL:0][DLG:4C,1]Background Designer[N][N][PAL:8]   HISASHI YOKOTA[END]`!
+dialogstring_09EDC3 `[PAL:0][DLG:4C,1]Background Designer[N][N][PAL:8]   HISASHI YOKOTA[END]`!
 
-widestring_09EDF1 `[PAL:0][DLG:4C,1]  Object Designer[N][PAL:8]   JUNICHI ISHIDA[N]   HITOSHI ARIGA[END]`!
+dialogstring_09EDF1 `[PAL:0][DLG:4C,1]  Object Designer[N][PAL:8]   JUNICHI ISHIDA[N]   HITOSHI ARIGA[END]`!
 
-widestring_09EE2D `[PAL:0][DLG:4C,1]  Graphic Designer[N][PAL:C]    NAOKO SUZUKI[N][PAL:8]   TAKAHIRO OHURA[N]    KOUJI YOKOTA[END]`!
+dialogstring_09EE2D `[PAL:0][DLG:4C,1]  Graphic Designer[N][PAL:C]    NAOKO SUZUKI[N][PAL:8]   TAKAHIRO OHURA[N]    KOUJI YOKOTA[END]`!
 
-widestring_09EE7D `[PAL:0][DLG:4A,1]   Sound Composer[N][N][PAL:8] YASUHIRO KAWASAKI[END]`!
+dialogstring_09EE7D `[PAL:0][DLG:4A,1]   Sound Composer[N][N][PAL:8] YASUHIRO KAWASAKI[END]`!
 
-widestring_09EEAA `[PAL:0][DLG:4C,1]  English Text by[N][PAL:8]   Scott Pelland[N]     Tim Rooney[N]  Robert L.Jerauld[END]`!
+dialogstring_09EEAA `[PAL:0][DLG:4C,1]  English Text by[N][PAL:8]   Scott Pelland[N]     Tim Rooney[N]  Robert L.Jerauld[END]`!
 
-widestring_09EEF7 `[PAL:0][DLG:4C,1] Title Coordinator[N][N][PAL:C]    Mary Cocoma[END]`!
+dialogstring_09EEF7 `[PAL:0][DLG:4C,1] Title Coordinator[N][N][PAL:C]    Mary Cocoma[END]`!
 
-widestring_09EF22 `[PAL:0][DLG:4C,1]   Quintet Staff[N][PAL:8]T.HASHIMOTO  S.KITA[N]K.SUGAYA     T.TURU[N][PAL:C]   R.TAKEBAYASHI[END]`!
+dialogstring_09EF22 `[PAL:0][DLG:4C,1]   Quintet Staff[N][PAL:8]T.HASHIMOTO  S.KITA[N]K.SUGAYA     T.TURU[N][PAL:C]   R.TAKEBAYASHI[END]`!
 
-widestring_09EF75 `[PAL:0][DLG:4C,1]   Quintet Staff[N][PAL:C]M.TSURUNO Y.SASHIDA[N]    M.KOBAYASHI[END]`!
+dialogstring_09EF75 `[PAL:0][DLG:4C,1]   Quintet Staff[N][PAL:C]M.TSURUNO Y.SASHIDA[N]    M.KOBAYASHI[END]`!
 
-widestring_09EFB1 `[PAL:0][DLG:4C,1]     ENIX Staff[N][PAL:8]   YUKINOBU CHIDA[N]    KEIJI HONDA[N]   YASUYUKI SONE[END]`!
+dialogstring_09EFB1 `[PAL:0][DLG:4C,1]     ENIX Staff[N][PAL:8]   YUKINOBU CHIDA[N]    KEIJI HONDA[N]   YASUYUKI SONE[END]`!
 
-widestring_09EFFB `[PAL:0][DLG:4C,1]   Art Direction[N][N][PAL:8]  HIDEKI YAMAMOTO[N]  TAKASHI OOTSUKA[END]`!
+dialogstring_09EFFB `[PAL:0][DLG:4C,1]   Art Direction[N][N][PAL:8]  HIDEKI YAMAMOTO[N]  TAKASHI OOTSUKA[END]`!
 
-widestring_09F038 `[PAL:0][DLG:4C,1] Technical Support[N][N][PAL:8]   SADAO YAHAGI[N]   KENJIRO KANO[END]`!
+dialogstring_09F038 `[PAL:0][DLG:4C,1] Technical Support[N][N][PAL:8]   SADAO YAHAGI[N]   KENJIRO KANO[END]`!
 
-widestring_09F073 `[PAL:0][DLG:4C,1] Enix America Staff[N][N][PAL:8]    TSUNEO MORITA[N]     Paul Bowler[END]`!
+dialogstring_09F073 `[PAL:0][DLG:4C,1] Enix America Staff[N][N][PAL:8]    TSUNEO MORITA[N]     Paul Bowler[END]`!
 
-widestring_09F0B2 `[PAL:0][DLG:4C,1] Enix America Staff[N][N][PAL:8]    Paul Handelman[N]     Jake Kazdal[END]`!
+dialogstring_09F0B2 `[PAL:0][DLG:4C,1] Enix America Staff[N][N][PAL:8]    Paul Handelman[N]     Jake Kazdal[END]`!
 
-widestring_09F0F2 `[PAL:0][DLG:4C,1] Special Thanks to[N][N][PAL:8]     Dan Owsen[N]    Hiro Yamada[END]`!
+dialogstring_09F0F2 `[PAL:0][DLG:4C,1] Special Thanks to[N][N][PAL:8]     Dan Owsen[N]    Hiro Yamada[END]`!
 
-widestring_09F12C `[PAL:0][DLG:4A,1]  Special Thanks to[N][PAL:8]H.KURODA   A.SHIGENO[N]K.KUWABARA [PAL:C]M.SUMITA[N][PAL:8]Y.SASAKI   N.SUGINAKA[END]`!
+dialogstring_09F12C `[PAL:0][DLG:4A,1]  Special Thanks to[N][PAL:8]H.KURODA   A.SHIGENO[N]K.KUWABARA [PAL:C]M.SUMITA[N][PAL:8]Y.SASAKI   N.SUGINAKA[END]`!
 
-widestring_09F18A `[PAL:0][DLG:4C,1] Special Thanks to[N][PAL:8]M.KAKIZAWA   A.ARAI[N][PAL:C]K.WAKABAYASHI[END]`!
+dialogstring_09F18A `[PAL:0][DLG:4C,1] Special Thanks to[N][PAL:8]M.KAKIZAWA   A.ARAI[N][PAL:C]K.WAKABAYASHI[END]`!
 
-widestring_09F1C8 `[PAL:0][DLG:4C,1]      Director[N][N][PAL:8]  MASAYA HASHIMOTO[END]`!
+dialogstring_09F1C8 `[PAL:0][DLG:4C,1]      Director[N][N][PAL:8]  MASAYA HASHIMOTO[END]`!
 
-widestring_09F1F2 `[PAL:0][DLG:4C,1] Assistant Producer[N][N][PAL:8]  KAZUNORI TAKADO[END]`!
+dialogstring_09F1F2 `[PAL:0][DLG:4C,1] Assistant Producer[N][N][PAL:8]  KAZUNORI TAKADO[END]`!
 
-widestring_09F220 `[PAL:0][DLG:4C,1]      Producer[N][N][PAL:8]   SHINJI FUTAMI[END]`!
+dialogstring_09F220 `[PAL:0][DLG:4C,1]      Producer[N][N][PAL:8]   SHINJI FUTAMI[END]`!
 
-widestring_09F248 `[PAL:0][DLG:4C,1]     Publisher[N][N][PAL:8] YASUHIRO FUKUSHIMA[END]`!
+dialogstring_09F248 `[PAL:0][DLG:4C,1]     Publisher[N][N][PAL:8] YASUHIRO FUKUSHIMA[END]`!
 
-widestring_09F273 `[PAL:0][DLG:4C,1]     Copyright[N][N][PAL:8]    1994 ENIX[N]    1994 QUINTET[END]`!
+dialogstring_09F273 `[PAL:0][DLG:4C,1]     Copyright[N][N][PAL:8]    1994 ENIX[N]    1994 QUINTET[END]`!
 
-widestring_09F2A9 `[PAL:0][DLG:4A,1]     Copyright[N][PAL:C]1994 MARIKO OHARA[N]1994 MOTO HAGIO[N][PAL:8]1994 YASUHIRO KAWASAKI[END]`!
+dialogstring_09F2A9 `[PAL:0][DLG:4A,1]     Copyright[N][PAL:C]1994 MARIKO OHARA[N]1994 MOTO HAGIO[N][PAL:8]1994 YASUHIRO KAWASAKI[END]`!
 
-widestring_09F2FA `[PAL:0][DLG:4A,2] Licensed to NINTENDO[END]`!
+dialogstring_09F2FA `[PAL:0][DLG:4A,2] Licensed to NINTENDO[END]`!
 
-widestring_09F315 `[PAL:0][DLG:4C,3]Thank you for playing[END]`!
+dialogstring_09F315 `[PAL:0][DLG:4C,3]Thank you for playing[END]`!
 ---------------------------------------------
 
 code_09F4AA {

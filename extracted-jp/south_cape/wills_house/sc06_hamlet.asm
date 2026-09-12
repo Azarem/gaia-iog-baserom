@@ -17,7 +17,7 @@ h_sc06_hamlet [
     COP [AnimLoop]
     COP [StageSpriteFrame] ( #23 )
     COP [AnimOnce]
-    COP [PrintWideString] ( &widestring_04A0B2 )
+    COP [PrintDialogString] ( &dialogstring_04A0B2 )
     LDA #$CFF0
     TRB $joypadMaskStd
     COP [SolidHighHere]
@@ -117,10 +117,10 @@ code_04A09A {
 }
 
 code_04A0AD {
-    COP [PrintWideString] ( &widestring_04A0E5 )
+    COP [PrintDialogString] ( &dialogstring_04A0E5 )
     RTL 
 }
 
-widestring_04A0B2 `[TPL:9][TPL:0]ブタが 部屋の中をあらしているっ![FIN]しかし なんで ぼくの家に[N]ブタが···[END]`
+dialogstring_04A0B2 `[TPL:9][TPL:0]ブタが 部屋の中をあらしているっ![FIN]しかし なんで ぼくの家に[N]ブタが···[END]`
 
-widestring_04A0E5 `[TPL:8]ブヒ ブヒッ[END]`
+dialogstring_04A0E5 `[TPL:8]ブヒ ブヒッ[END]`

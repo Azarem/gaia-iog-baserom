@@ -30,19 +30,19 @@ code_0892CE {
 }
 
 code_0892DA {
-    COP [PrintWideString] ( &widestring_0892E4 )
+    COP [PrintDialogString] ( &dialogstring_0892E4 )
     RTL 
 }
 
 code_0892DF {
-    COP [PrintWideString] ( &widestring_089351 )
+    COP [PrintDialogString] ( &dialogstring_089351 )
     RTL 
 }
 
-widestring_0892E4 `[DEF]The statue of a girl [N]stands silently.[END]`
+dialogstring_0892E4 `[DEF]The statue of a girl [N]stands silently.[END]`
 
-widestring_0892FF `The statue of a girl [N]stands silently. [END]`
+dialogstring_0892FF `The statue of a girl [N]stands silently. [END]`
 
-widestring_08931A `[DEF]Somehow the statue has[N]become a human girl![FIN]A tear comes to[N]the girl's eyes...[END]`
+dialogstring_08931A `[DEF]Somehow the statue has[N]become a human girl![FIN]A tear comes to[N]the girl's eyes...[END]`
 
-widestring_089351 `[DEF]You don't understand...[END]`
+dialogstring_089351 `[DEF]You don't understand...[END]`

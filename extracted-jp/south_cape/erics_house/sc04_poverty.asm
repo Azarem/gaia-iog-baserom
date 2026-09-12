@@ -23,8 +23,8 @@ h_sc04_poverty [
 ]
 
 code_048E90 {
-    COP [PrintWideString] ( &widestring_048E95 )
+    COP [PrintDialogString] ( &dialogstring_048E95 )
     RTL 
 }
 
-widestring_048E95 `[DEF]世の中 ちょっとしたことで[N]お金持ちにも貧ぼうにもなるのね.[N]あーあ 何か いい話が[N]ころがってないかなぁ.[END]`
+dialogstring_048E95 `[DEF]世の中 ちょっとしたことで[N]お金持ちにも貧ぼうにもなるのね.[N]あーあ 何か いい話が[N]ころがってないかなぁ.[END]`

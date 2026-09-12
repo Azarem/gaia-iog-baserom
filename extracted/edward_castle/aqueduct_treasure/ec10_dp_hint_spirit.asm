@@ -20,8 +20,8 @@ ec10_dp_hint_spirit [
 ]
 
 code_04DD1B {
-    COP [PrintWideString] ( &widestring_04DD20 )
+    COP [PrintDialogString] ( &dialogstring_04DD20 )
     RTL 
 }
 
-widestring_04DD20 `[DEF]When you defeat the[N]enemies, a shiny silver[N]Dark Gem will appear.[FIN]If you collect 100 of[N]these, you gain[N]one life...[FIN]Even if you're defeated,[N]you won't have to go[N]back very far...[END]`
+dialogstring_04DD20 `[DEF]When you defeat the[N]enemies, a shiny silver[N]Dark Gem will appear.[FIN]If you collect 100 of[N]these, you gain[N]one life...[FIN]Even if you're defeated,[N]you won't have to go[N]back very far...[END]`

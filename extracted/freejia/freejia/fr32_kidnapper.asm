@@ -71,19 +71,19 @@ code_05B3A1 {
 }
 
 code_05B404 {
-    COP [PrintWideString] ( &widestring_05B55F )
+    COP [PrintDialogString] ( &dialogstring_05B55F )
     COP [SetEntryContinue]
     RTL 
 }
 
 code_05B40B {
     COP [BranchIfFlagByte] ( #66, #01, &code_05B416 )
-    COP [PrintWideString] ( &widestring_05B42E )
+    COP [PrintDialogString] ( &dialogstring_05B42E )
     RTL 
 }
 
 code_05B416 {
-    COP [PrintWideString] ( &widestring_05B45E )
+    COP [PrintDialogString] ( &dialogstring_05B45E )
     COP [SetFlagByte] ( #67 )
     COP [SolidHighAbs] ( #08, #0E )
     COP [SolidHighAbs] ( #08, #0F )
@@ -92,8 +92,8 @@ code_05B416 {
     RTL 
 }
 
-widestring_05B42E `[DEF]Man's voice: If you[N]don't want to lose[N]your lives, go home!![END]`
+dialogstring_05B42E `[DEF]Man's voice: If you[N]don't want to lose[N]your lives, go home!![END]`
 
-widestring_05B45E `[DEF]Man's voice: If you[N]don't want to lose[N]your lives, go home!![FIN][TPL:0]Will: [N]Is a man called [N]Erik there? [FIN][PAL:0]Man's voice:[N]I've never heard of[N]such a name. Why[N]do you ask?[FIN][TPL:3]Will? Is that Will's [N]voice? Save me... [PAL:0][PAU:B4]Bonk![FIN]Man's voice: Shhhh...[N]Hey, boy, be quiet...![FIN][TPL:0]Will: (I'll break [N]down the door..) [N][PAL:0][END]`
+dialogstring_05B45E `[DEF]Man's voice: If you[N]don't want to lose[N]your lives, go home!![FIN][TPL:0]Will: [N]Is a man called [N]Erik there? [FIN][PAL:0]Man's voice:[N]I've never heard of[N]such a name. Why[N]do you ask?[FIN][TPL:3]Will? Is that Will's [N]voice? Save me... [PAL:0][PAU:B4]Bonk![FIN]Man's voice: Shhhh...[N]Hey, boy, be quiet...![FIN][TPL:0]Will: (I'll break [N]down the door..) [N][PAL:0][END]`
 
-widestring_05B55F `[DEF][TPL:0]Will: [N]If I don't save Erik...[PAL:0][END]`
+dialogstring_05B55F `[DEF][TPL:0]Will: [N]If I don't save Erik...[PAL:0][END]`

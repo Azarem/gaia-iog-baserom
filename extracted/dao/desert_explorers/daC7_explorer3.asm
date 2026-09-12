@@ -12,8 +12,8 @@ daC7_explorer3 [
 ]
 
 code_08AAA7 {
-    COP [PrintWideString] ( &widestring_08AAAC )
+    COP [PrintDialogString] ( &dialogstring_08AAAC )
     RTL 
 }
 
-widestring_08AAAC `[DEF]We're explorers. I hear[N]there's a treasure[N]inside the Pyramid...[END]`
+dialogstring_08AAAC `[DEF]We're explorers. I hear[N]there's a treasure[N]inside the Pyramid...[END]`

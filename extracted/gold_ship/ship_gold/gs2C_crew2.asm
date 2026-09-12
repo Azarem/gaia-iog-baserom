@@ -32,8 +32,8 @@ gs2C_crew2 [
 ]
 
 code_0582C7 {
-    COP [PrintWideString] ( &widestring_0582CC )
+    COP [PrintDialogString] ( &dialogstring_0582CC )
     RTL 
 }
 
-widestring_0582CC `[DEF]It's a happy occasion![N]We have waited for you[N]for such a long time![END]`
+dialogstring_0582CC `[DEF]It's a happy occasion![N]We have waited for you[N]for such a long time![END]`

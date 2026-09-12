@@ -1,6 +1,6 @@
 ---------------------------------------------
 
-sprite_set_list_000000 [
+spm_dao_sprites [
   &sprite_set_00004E   ;00
   &sprite_set_000054   ;01
   &sprite_set_00005A   ;02

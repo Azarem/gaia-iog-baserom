@@ -17,8 +17,8 @@ code_048C6D {
 }
 
 code_048C72 {
-    COP [PrintWideString] ( &widestring_048C77 )
+    COP [PrintDialogString] ( &dialogstring_048C77 )
     RTL 
 }
 
-widestring_048C77 `[TPL:B][TPL:4]ロブ:[N]じゃ 今日も いつもの[N]海岸のどうくつでなっ![PAL:0][END]`
+dialogstring_048C77 `[TPL:B][TPL:4]ロブ:[N]じゃ 今日も いつもの[N]海岸のどうくつでなっ![PAL:0][END]`

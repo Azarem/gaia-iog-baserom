@@ -27,7 +27,7 @@ code_04878E {
 }
 
 code_048795 {
-    COP [PrintWideString] ( &widestring_0487BF )
+    COP [PrintDialogString] ( &dialogstring_0487BF )
     COP [SetOnInteract] ( &code_0487B5 )
     COP [StageSpriteLoopMoveX] ( #18, #04, #12 )
     COP [AnimLoop]
@@ -39,22 +39,22 @@ code_048795 {
 }
 
 code_0487B0 {
-    COP [PrintWideString] ( &widestring_0487BF )
+    COP [PrintDialogString] ( &dialogstring_0487BF )
     RTL 
 }
 
 code_0487B5 {
-    COP [PrintWideString] ( &widestring_0487F1 )
+    COP [PrintDialogString] ( &dialogstring_0487F1 )
     RTL 
 }
 
 code_0487BA {
-    COP [PrintWideString] ( &widestring_0487F5 )
+    COP [PrintDialogString] ( &dialogstring_0487F5 )
     RTL 
 }
 
-widestring_0487BF `[DEF]Oh, no![FIN][::]What are you doing![N]This child![N]Honestly...[END]`
+dialogstring_0487BF `[DEF]Oh, no![FIN][::]What are you doing![N]This child![N]Honestly...[END]`
 
-widestring_0487F1 `[DEF][JMP:&sc01_startled_woman.widestring_0487BF+M]`
+dialogstring_0487F1 `[DEF][JMP:&sc01_startled_woman.dialogstring_0487BF+M]`
 
-widestring_0487F5 `[DEF]I envy you when I see [N]the sea breeze blowing [N]your hair like that... [FIN]Not like mine,[N]under this scarf.... [END]`
+dialogstring_0487F5 `[DEF]I envy you when I see [N]the sea breeze blowing [N]your hair like that... [FIN]Not like mine,[N]under this scarf.... [END]`

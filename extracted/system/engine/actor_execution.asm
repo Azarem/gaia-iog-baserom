@@ -1,4 +1,4 @@
-; Actor and thinker execution loop system (248565–250357, Bank 03).
+; Actor execution loop system (248565–250157, Bank 03).
 ; 
 ; Contains the complete actor update pipeline — five distinct execution contexts that the main game loop calls to process active actors each frame, plus actor/thinker pool initialization and scene actor spawning infrastructure.
 ; 
@@ -24,29 +24,25 @@
 ; 
 ; Positive values count down (invincibility frames). Negative values count up toward zero (recovery/stagger). When zero, bit 7 ($0080) of $10 is cleared. The player actor (CPX $playerActor) is exempt from the next-actor skip — always gets full processing.
 ; 
-; === ACTOR POOL (InitActorPool, 249308) ===
+; === ACTOR/THINKER POOL (InitActorPool, 249308) ===
 ; 
-; Actor pool: base $0E00, 84 slots of $30 bytes, free list at $4E/$50. Data regions: $1000–$1FBF (primary), $7F1000 (callbacks), $7F2000 (extended). Thinker pool: base $7E3000, 16 slots of $10 bytes, free list at $52/$54. Data at $0F00, $7F0E00, $7F3000. Scene $FF uses simplified clear (skips $7F2000/$7F3000).
+; Initializes both pools. Actor pool: base $0E00, 84 slots of $30 bytes, free list at $4E/$50. Data regions: $1000–$1FBF (primary), $7F1000 (callbacks), $7F2000 (extended). Thinker pool: base $7E3000, 16 slots of $10 bytes, free list at $52/$54. Data at $0F00, $7F0E00, $7F3000. Scene $FF uses simplified clear (skips $7F2000/$7F3000).
+; 
+; ThinkerPoolAlloc reads the next free thinker slot via indirect long [$52], returns it in Y with carry clear, or returns carry set if the pool is exhausted. Called by SpawnSceneThinkers (thinker_execution) and COP handlers (SpawnThinker/SpawnThinkerParam).
 ; 
 ; === SCENE SPAWNING (SpawnSceneActors, 249505) ===
 ; 
 ; Reads scene_actors table to spawn actors. Each actor: allocate slot via ActorPoolAllocator, link into doubly-linked list ($04/$06), call InitActorFromSceneData to parse the binary record.
+; 
+; === DEFEATED ENEMY HANDLING (AdvanceSceneDataAndFree, 249588) ===
+; 
+; Called when CheckEnemyDefeatedFlag determines an actor was already killed. Advances the scene data pointer past the remaining record bytes, then either continues the spawn loop (if more actors follow) or returns the allocated slot to the free list, unlinks it from the actor chain, and decrements activeActorCount.
 ; 
 ; === ACTOR RECORD FORMAT (InitActorFromSceneData, 249627) ===
 ; 
 ; Variable-length record: byte 0-1 = X/Y tile (×16→pixels), byte 2 = type flags (bit 0 = addressing mode), bytes 3-4 = code pointer, byte 5 = bank, byte 6 = stats index, byte 7 = enemy number, byte 8 = death action. Player actors (bit 15 of $10) get special init: load character form body table, set spriteset, compute camera centering.
 ; 
 ; Enemies with nonzero enemyNum are checked against WRAM defeat flags (CheckEnemyDefeatedFlag). Already-defeated actors are freed via AdvanceSceneDataAndFree and their event block tiles are swapped.
-; 
-; === THINKER TYPES (250157–250357) ===
-; 
-; Four thinker execution filters on $7F000E,X (animScratch2):
-; - TypeA: bit 2 CLEAR (general-purpose thinkers)
-; - TypeB: bit 2 SET (deferred/secondary thinkers)
-; - TypeC: bit 11 SET and bit 2 CLEAR (cutscene overlay thinkers)
-; - TypeD: bits 11 AND 2 both SET (cutscene deferred thinkers)
-; 
-; All use the same COP dispatch pattern, traversing the thinker list ($5A → $06).
 ---------------------------------------------
 
 ?BANK 03
@@ -79,7 +75,6 @@
 !activeActorCount               0DBC
 !thinkerPoolAddrs               7E3000
 !spritesetPtr                   7F0006
-!animScratch2                   7F000E
 !statsPtr                       7F0020
 !enemyNum                       7F0022
 !deathActionIdx                 7F0024
@@ -109,75 +104,75 @@
 ; The COP dispatch pattern (PHK/PEA/SEP/LDA/PHA/REP/LDA/DEC/PHA/RTL) constructs a 3-byte target address and 3-byte return address on the stack. RTL pops and jumps to the target; when the actor script returns via RTL, execution resumes at the PostTick handler.
 
 RunActors_Normal {
-    PHP                   ; Save processor status and direct page — restored at exit (loc_03CB90)
+    PHP 
     PHD 
-    REP #$20              ; 16-bit accumulator for all flag checks and actor data access
-    LDA $playerFlags      ; Load player flags to check for input lock, pause, and display filter states
-    BIT #$0008            ; Bit 3 ($0008) = input lock flag; suppress B button when set
+    REP #$20
+    LDA $playerFlags
+    BIT #$0008            ; Bit 3 ($0008) = input lock; suppress B button ($8000) when set
     BEQ loc_03CB07
-    LDA #$8000            ; Clear bit 15 ($8000) of joypad state — prevent attack input during input lock
+    LDA #$8000
     TRB $joypadCurrent
 
   loc_03CB07:
-    BIT #$0010            ; Bit 4 ($0010) = game paused; redirect to PauseFiltered processing
+    BIT #$0010            ; Bit 4 ($0010) = game paused → PauseFiltered
     BEQ loc_03CB0F
     JMP $&RunActors_PauseFiltered
 
   loc_03CB0F:
-    LDA $displayModeFlags ; Check display mode flags for rendering-only state
-    BIT #$0080            ; Bit 7 ($0080) = display filter active; redirect to DisplayFiltered processing
+    LDA $displayModeFlags
+    BIT #$0080            ; Bit 7 ($0080) = display filter → DisplayFiltered
     BEQ loc_03CB1A
     JMP $&RunActors_DisplayFiltered
 
   loc_03CB1A:
-    LDA $56               ; Load first actor pointer from linked list head ($56)
-    BEQ loc_03CB90        ; No actors in list → skip directly to exit
+    LDA $56
+    BEQ loc_03CB90
 
   loc_03CB1E:
-    TCD                   ; Set direct page to actor slot address for DP-relative field access
-    TAX                   ; Also set X to actor slot for absolute,X indexed access to extended fields
-    LDA $10               ; Load actor primary flags word ($10 = status/control register)
-    BIT #$2000            ; Bit 13 ($2000) = actor is executing a COP script
-    BEQ loc_03CB3D        ; Not in COP script → skip to iframe check
-    DEC $08               ; Decrement COP script frame delay counter ($08)
-    BPL RunActors_CopScriptPostTick ; Timer still positive → skip COP dispatch, jump to CopScriptPostTick
-    STZ $08               ; Timer expired — reset to zero and prepare COP script dispatch
-    PHK                   ; Push current bank (K) as return bank for RTL trick
-    PEA $&RunActors_CopScriptPostTick-1 ; Push CopScriptPostTick-1 as return address (RTL adds 1)
-    SEP #$20              ; Switch to 8-bit A to push bank byte of actor script address
-    LDA $02               ; Load actor script bank byte from DP $02
+    TCD 
+    TAX 
+    LDA $10
+    BIT #$2000            ; Bit 13 ($2000) = COP script mode active
+    BEQ loc_03CB3D
+    DEC $08
+    BPL RunActors_CopScriptPostTick
+    STZ $08
+    PHK                   ; RTL dispatch: push return to CopScriptPostTick, then actor script at $02:$00
+    PEA $&RunActors_CopScriptPostTick-1
+    SEP #$20
+    LDA $02
     PHA 
-    REP #$20              ; Back to 16-bit A for script address push
-    LDA $00               ; Load actor script entry point address from DP $00
-    DEC                   ; Subtract 1 — RTL will add 1 to the popped address
+    REP #$20
+    LDA $00
+    DEC                   ; DEC: RTL adds 1 to popped address
     PHA 
-    RTL                   ; RTL: pop 3-byte address from stack and jump to actor's COP script
+    RTL 
 
   loc_03CB3D:
-    BIT #$0080            ; Bit 7 ($0080) = actor has active invincibility/iframe state
-    BEQ loc_03CB62        ; No iframe state → skip to COP dispatch
-    LDA $iframeCounter, X ; Load iframe counter from extended actor data ($7F0028,X)
-    BEQ loc_03CB5D        ; Counter is zero → clear iframe flag (bit 7 of $10)
-    BMI loc_03CB56        ; Counter negative → recovery phase, incrementing toward zero
-    DEC                   ; Counter positive → decrement invincibility frames
-    STA $iframeCounter, X ; Write decremented counter back to extended data
-    CPX $playerActor      ; Check if this is the player actor ($09AA)
-    BEQ loc_03CB62        ; Player actor always gets full COP dispatch regardless of iframes
-    BRA loc_03CB8C        ; Non-player actor during iframes: skip COP dispatch, jump to next actor
+    BIT #$0080            ; Iframe state ($0080): positive → count down, negative → count up toward zero
+    BEQ loc_03CB62
+    LDA $iframeCounter, X
+    BEQ loc_03CB5D
+    BMI loc_03CB56
+    DEC 
+    STA $iframeCounter, X
+    CPX $playerActor      ; Player actor always gets full COP dispatch despite iframes
+    BEQ loc_03CB62
+    BRA loc_03CB8C
 
   loc_03CB56:
-    INC                   ; Recovery phase: increment negative counter toward zero
+    INC                   ; Recovery: INC negative counter toward zero
     STA $iframeCounter, X
     BNE loc_03CB62
 
   loc_03CB5D:
-    LDA #$0080            ; Counter reached zero — clear iframe state
-    TRB $10               ; Clear bit 7 ($0080) from primary flags to end iframe state
+    LDA #$0080            ; Counter reached zero — clear iframe flag
+    TRB $10
 
   loc_03CB62:
-    DEC $08               ; Decrement frame delay counter for standard (non-COP) actors
-    BPL RunActors_PostTick ; Timer still positive → skip directly to PostTick
-    STZ $08               ; Timer expired — reset and dispatch to actor's script via RTL trick
+    DEC $08
+    BPL RunActors_PostTick
+    STZ $08
     PHK 
     PEA $&RunActors_PostTick-1
     SEP #$20
@@ -198,23 +193,23 @@ RunActors_Normal {
 ; After movement, reads $06 (next actor link). If nonzero, loops back to process the next actor. If zero (end of list), restores DP/flags via PLD/PLP/RTL.
 
 RunActors_PostTick {
-    LDA $10               ; Post-tick: clear transient flags and apply per-frame movement
-    AND #$FFFB            ; Clear bit 2 ($0004) — collision contact flag reset each frame
+    LDA $10
+    AND #$FFFB            ; Clear bit 2 ($0004) — per-frame collision contact reset
     STA $10
-    BIT #$0008            ; Bit 3 ($0008) = grounded flag; determines collision mode
-    BEQ loc_03CB89        ; Not grounded → use simple ApplyMovement (no tile collision)
-    JSR $&tile_collision_physics.ApplyMovementWithCollision ; Grounded: full tile collision-aware movement via ApplyMovementWithCollision
+    BIT #$0008            ; Bit 3 ($0008) = grounded: collision-aware vs simple movement
+    BEQ loc_03CB89
+    JSR $&tile_collision_physics.ApplyMovementWithCollision
     BRA loc_03CB8C
 
   loc_03CB89:
-    JSR $&tile_collision_physics.ApplyMovement ; Airborne path: simple position delta application via ApplyMovement
+    JSR $&tile_collision_physics.ApplyMovement
 
   loc_03CB8C:
-    LDA $06               ; Load next actor link from DP $06 (linked list forward pointer)
-    BNE loc_03CB1E        ; Nonzero = more actors in list → loop back to process next
+    LDA $06
+    BNE loc_03CB1E
 
   loc_03CB90:
-    PLD                   ; All actors processed — restore DP and processor flags, exit
+    PLD 
     PLP 
     RTL 
 }
@@ -225,13 +220,13 @@ RunActors_PostTick {
 ; Checks if the actor is still in COP mode (bit 13 $2000). If cleared (script completed this frame), falls through to normal PostTick. If still in COP mode, checks secondary flags ($12) bit 3 ($0008) — this flag requests collision movement even during COP execution. If set, performs PostTick; if clear, skips directly to the next actor.
 
 RunActors_CopScriptPostTick {
-    LDA $10               ; Post-tick for actors returning from COP script execution
-    BIT #$2000            ; Check if actor is still in COP mode (bit 13 $2000)
-    BEQ RunActors_PostTick ; COP mode ended → normal PostTick path
-    LDA $12               ; Still in COP mode — check secondary flags for movement request
-    BIT #$0008            ; Bit 3 ($0008) of $12 = COP script requested collision movement
-    BEQ loc_03CB8C        ; No collision request → skip to next actor (no movement this frame)
-    BRA RunActors_PostTick ; Has collision request → perform normal PostTick movement
+    LDA $10
+    BIT #$2000
+    BEQ RunActors_PostTick
+    LDA $12
+    BIT #$0008            ; Bit 3 of $12: COP movement request — collision movement during COP mode
+    BEQ loc_03CB8C
+    BRA RunActors_PostTick
 }
 
 ---------------------------------------------
@@ -242,20 +237,20 @@ RunActors_CopScriptPostTick {
 ; Otherwise identical lifecycle to RunActors_Normal: iframe management, COP script dispatch, collision/simple movement selection.
 
 RunActors_DisplayFiltered {
-    LDA $56               ; Display-filtered execution: only process actors with display-active flag
-    BNE loc_03CBAA        ; Check actor list head — empty list jumps to exit
+    LDA $56
+    BNE loc_03CBAA
     JMP $&RunActors_DisplayFiltered_Exit
 
   loc_03CBAA:
     TCD 
     TAX 
-    LDA $10               ; Load primary flags for display-active check
-    BIT #$1000            ; Bit 12 ($1000) in primary = actor renders during display filter
-    BNE loc_03CBBC        ; Primary display flag set → process this actor
-    LDA $12               ; Check secondary flags ($12) for display-active
-    BIT #$1000            ; Bit 12 ($1000) in secondary also qualifies actor for processing
-    BEQ loc_03CC26        ; Neither flag set → skip to next actor (no processing during display filter)
-    LDA $10               ; Reload primary flags for COP mode check
+    LDA $10
+    BIT #$1000            ; Bit 12 ($1000) in $10 = display-active actor
+    BNE loc_03CBBC
+    LDA $12
+    BIT #$1000            ; Bit 12 ($1000) in $12 also qualifies
+    BEQ loc_03CC26
+    LDA $10               ; Reload $10 after display check (AND destroyed original)
 
   loc_03CBBC:
     BIT #$2000
@@ -312,7 +307,7 @@ RunActors_DisplayFiltered {
 }
 
 RunActors_DisplayFiltered_PostTick {
-    LDA $10               ; Display-filtered PostTick: same movement logic as normal PostTick
+    LDA $10
     AND #$FFFB
     STA $10
     BIT #$0008
@@ -329,13 +324,13 @@ RunActors_DisplayFiltered_PostTick {
 }
 
 RunActors_DisplayFiltered_Exit {
-    PLD                   ; Display-filtered exit: restore DP and processor flags
+    PLD 
     PLP 
     RTL 
 }
 
 RunActors_DisplayFiltered_CopPostTick {
-    LDA $10               ; Display-filtered COP PostTick: check COP continuation and movement request
+    LDA $10
     BIT #$2000
     BEQ RunActors_DisplayFiltered_PostTick
     LDA $12
@@ -356,25 +351,25 @@ RunActors_DisplayFiltered_CopPostTick {
 ; Pause-immune actors get full COP dispatch and collision movement, allowing cutscene actors, UI elements, and certain effects to continue running during pause.
 
 RunActors_PauseFiltered {
-    LDA $56               ; Pause-filtered execution: only process pause-immune actors
+    LDA $56
     BNE RunActors_PauseFiltered_Body
     JMP $&RunActors_PauseFiltered_Exit
 
   RunActors_PauseFiltered_Body:
-    TCD                   ; Per-actor loop body: set DP/X to actor slot
+    TCD 
     TAX 
-    LDA $12               ; Load secondary flags ($12) for pause-immunity check
-    BIT #$1004            ; Bits 12|2 ($1004) = secondary pause-immunity flags
-    BNE loc_03CC54        ; Secondary immunity → process this actor
-    LDA $10               ; Fall through: check primary flags for pause immunity
-    BIT #$1400            ; Bits 12|10 ($1400) = primary pause-immunity flags
-    BEQ loc_03CCCD        ; No immunity → skip to iframe-only processing (no COP dispatch)
+    LDA $12
+    BIT #$1004            ; $1004 in $12: secondary pause-immunity (bits 12|2)
+    BNE loc_03CC54
+    LDA $10
+    BIT #$1400            ; $1400 in $10: primary pause-immunity (bits 12|10)
+    BEQ loc_03CCCD        ; No immunity → iframe-only processing (no COP dispatch)
 
   loc_03CC54:
-    BIT #$2000            ; Pause-immune actor: check for COP script mode
-    BEQ loc_03CC72        ; Not in COP mode → skip to iframe check
-    DEC $08               ; Decrement COP timer during pause-filtered mode
-    BMI loc_03CC60        ; Timer positive → jump directly to CopPostTick
+    BIT #$2000
+    BEQ loc_03CC72
+    DEC $08
+    BMI loc_03CC60        ; Timer expired (negative) → dispatch COP script
     JMP $&RunActors_PauseFiltered_CopPostTick
 
   loc_03CC60:
@@ -428,7 +423,7 @@ RunActors_PauseFiltered {
 }
 
 RunActors_PauseFiltered_PostTick {
-    LDA $10               ; Pause-filtered PostTick: same collision/simple movement choice
+    LDA $10
     AND #$FFFB
     STA $10
     BIT #$0008
@@ -441,20 +436,20 @@ RunActors_PauseFiltered_PostTick {
     BRA loc_03CCC3
 
   loc_03CCC3:
-    LDA $06               ; Load next actor link; exit if zero, loop if nonzero
+    LDA $06
     BEQ RunActors_PauseFiltered_Exit
     JMP $&RunActors_PauseFiltered_Body
 }
 
 RunActors_PauseFiltered_Exit {
-    PLD                   ; Pause-filtered exit: restore DP and processor flags
+    PLD 
     PLP 
     RTL 
 
   loc_03CCCD:
-    BIT #$0080            ; Iframe-only processing for non-immune paused actors (no COP dispatch)
-    BEQ loc_03CCC3        ; No iframe state → skip directly to next actor link
-    LDA $iframeCounter, X ; Load iframe counter for paused actor
+    BIT #$0080            ; Iframe-only tail for non-immune paused actors
+    BEQ loc_03CCC3
+    LDA $iframeCounter, X
     BEQ loc_03CCE8
     BMI loc_03CCE1
     DEC 
@@ -473,7 +468,7 @@ RunActors_PauseFiltered_Exit {
 }
 
 RunActors_PauseFiltered_CopPostTick {
-    LDA $10               ; Pause-filtered COP PostTick: check continuation and movement request
+    LDA $10
     BIT #$2000
     BEQ RunActors_PauseFiltered_PostTick
     LDA $12
@@ -490,10 +485,10 @@ RunActors_PauseFiltered_CopPostTick {
 ; No iframe management is performed in this mode.
 
 RunActors_CutsceneOnly {
-    PHP                   ; Cutscene-only execution: save state, process only cutscene-flagged actors
+    PHP 
     PHD 
     REP #$20
-    LDA $56               ; Load actor list head ($56); empty → skip to exit
+    LDA $56
     BEQ loc_03CD5B
 
   loc_03CD07:
@@ -502,9 +497,9 @@ RunActors_CutsceneOnly {
     LDA $10               ; Clear bit 2 ($0004) — collision flag cleared for all cutscene actors
     AND #$FFFB
     STA $10
-    BIT #$0800            ; Bit 11 ($0800) = cutscene-active flag; skip actors without it
-    BEQ loc_03CD57        ; Not cutscene-active → skip to next actor link
-    LDA $10               ; Reload $10 for COP mode check (AND destroyed bit 2 above)
+    BIT #$0800            ; Bit 11 ($0800) = cutscene-active; skip actors without it
+    BEQ loc_03CD57
+    LDA $10               ; Reload $10 (AND destroyed bit 2 above)
     BIT #$2000
     BEQ loc_03CD32
     DEC $08
@@ -538,27 +533,27 @@ RunActors_CutsceneOnly {
 }
 
 RunActors_CutsceneOnly_PostTick {
-    LDA $10               ; Cutscene PostTick: collision-aware or simple movement
+    LDA $10
     BIT #$0008
     BEQ loc_03CD54
     JSR $&tile_collision_physics.ApplyMovementWithCollision
     BRA loc_03CD57
 
   loc_03CD54:
-    JSR $&tile_collision_physics.ApplyMovement ; Airborne: simple ApplyMovement
+    JSR $&tile_collision_physics.ApplyMovement
 
   loc_03CD57:
-    LDA $06               ; Load next actor link; loop or exit
+    LDA $06
     BNE loc_03CD07
 
   loc_03CD5B:
-    PLD                   ; Cutscene exit: restore DP and processor flags
+    PLD 
     PLP 
     RTL 
 }
 
 RunActors_CutsceneOnly_CopPostTick {
-    LDA $10               ; Cutscene COP PostTick: check continuation and movement request
+    LDA $10
     BIT #$2000
     BEQ RunActors_CutsceneOnly_PostTick
     LDA $12
@@ -575,29 +570,29 @@ RunActors_CutsceneOnly_CopPostTick {
 ; Otherwise, only processes actors with bit 12 ($1000) set in secondary flags ($12). Unlike other modes, the PostTick always uses simple ApplyMovement (no tile collision check), since overlay actors typically don't interact with terrain.
 
 RunActors_OverlayOnly {
-    PHP                   ; Overlay-only execution: save state, check display filter first
+    PHP 
     PHD 
     REP #$20
-    LDA $displayModeFlags ; Check display mode flags — display filter takes precedence
-    BIT #$0080            ; Bit 7 ($0080) set → redirect entirely to RunActors_DisplayFiltered
+    LDA $displayModeFlags
+    BIT #$0080            ; Bit 7 ($0080): display filter takes precedence over overlay
     BEQ loc_03CD7D
     JMP $&RunActors_DisplayFiltered
 
   loc_03CD7D:
-    LDA $56               ; Load actor list head; empty → skip to exit
+    LDA $56
     BEQ loc_03CDC9
 
   loc_03CD81:
     TCD 
     TAX 
-    LDA $12               ; Check secondary flags ($12) for overlay-active bit
-    BIT #$1000            ; Bit 12 ($1000) in secondary = overlay-active actor
-    BEQ loc_03CDC5        ; Not overlay-active → skip to next actor link
-    LDA $10               ; Clear bit 2, then check COP mode
+    LDA $12
+    BIT #$1000            ; Bit 12 ($1000) in $12 = overlay-active actor
+    BEQ loc_03CDC5
+    LDA $10
     AND #$FFFB
     STA $10
     BIT #$2000
-    BEQ loc_03CDAC        ; Not in COP mode → standard frame delay dispatch
+    BEQ loc_03CDAC
     DEC $08
     BPL loc_03CDC5
     STZ $08
@@ -629,20 +624,20 @@ RunActors_OverlayOnly {
 }
 
 RunActors_OverlayOnly_PostTick {
-    JSR $&tile_collision_physics.ApplyMovement ; Overlay PostTick: always uses simple ApplyMovement (no collision for overlays)
+    JSR $&tile_collision_physics.ApplyMovement ; Overlay: always simple ApplyMovement (no collision)
 
   loc_03CDC5:
-    LDA $06               ; Load next actor link; loop back if more actors
+    LDA $06
     BNE loc_03CD81
 
   loc_03CDC9:
-    PLD                   ; Overlay exit: restore DP and processor flags
+    PLD 
     PLP 
     RTL 
 }
 
 RunActors_OverlayOnly_CopPostTick {
-    LDA $10               ; Overlay COP PostTick: check continuation and movement request
+    LDA $10
     BIT #$2000
     BEQ RunActors_OverlayOnly_PostTick
     LDA $12
@@ -670,43 +665,43 @@ RunActors_OverlayOnly_CopPostTick {
 ; Scene $FF (title screen) uses a simplified clear path that skips the $7F2000 actor range and the $7F3000 thinker range, preserving state needed for the title sequence.
 
 InitActorPool {
-    PHP                   ; === Initialize actor and thinker memory pools ===
-    REP #$20              ; 16-bit accumulator for pool setup
-    LDX #$0E00            ; Actor free list base address: $0E00 in WRAM
-    STX $4E               ; Store pool base to free list head pointer ($4E)
-    LDA #$0000            ; Zero the pool occupancy counter ($50)
+    PHP 
+    REP #$20
+    LDX #$0E00            ; Actor free list base at $0E00; head pointer → $4E, count → $50
+    STX $4E
+    LDA #$0000
     STA $50
-    LDA #$1000            ; First actor data slot starts at $1000
-    LDX #$0000            ; Begin building free list from index 0
+    LDA #$1000            ; First actor slot at $1000; $30 bytes per slot
+    LDX #$0000
 
   loc_03CDEF:
-    STA $0E00, X          ; Write slot address to free list entry; each slot is $0030 bytes
+    STA $0E00, X          ; Build free list: ascending slot addresses ($30-byte stride)
     INX 
     INX 
     CLC 
     ADC #$0030
-    CPX #$00A8            ; 84 actor slots total ($00A8 / 2 entries, $30-byte stride each)
+    CPX #$00A8            ; 84 actor slots ($00A8 / 2 entries)
     BMI loc_03CDEF
-    LDA #$FFFF            ; $FFFF sentinel marks end of actor free list
+    LDA #$FFFF            ; $FFFF sentinel terminates free list
     STA $0E00, X
-    LDA $sceneCurrent     ; Check current scene for special initialization path
-    CMP #$00FF            ; Scene $FF (title screen) uses simplified memory clear
+    LDA $sceneCurrent
+    CMP #$00FF            ; Scene $FF: simplified clear — skip $7F2000 extended region
     BEQ loc_03CE23
     LDX #$0000
     TXA 
 
   loc_03CE0F:
-    STA $1000, X          ; Zero actor data: $1000 primary, $7F1000 callbacks, $7F2000 extended
+    STA $1000, X          ; Zero three actor regions: $1000 primary, $7F1000 callbacks, $7F2000 extended
     STA $onHitCallback, X
     STA $7F2000, X
     INX 
     INX 
     CPX #$0FC0
-    BNE loc_03CE0F        ; Loop until all $0FC0 bytes cleared across three regions
-    BRA loc_03CE35        ; Normal scenes: skip to thinker pool init
+    BNE loc_03CE0F
+    BRA loc_03CE35        ; Normal path: continue to thinker pool init
 
   loc_03CE23:
-    LDX #$0000            ; Scene $FF: simplified clear skips $7F2000 extended region
+    LDX #$0000
     TXA 
 
   loc_03CE27:
@@ -718,31 +713,31 @@ InitActorPool {
     BNE loc_03CE27
 
   loc_03CE35:
-    LDX #$3000            ; Thinker pool pointer: $7E:3000 (long address in $52/$54)
+    LDX #$3000            ; Thinker free list: long pointer $7E:3000 → $52/$54
     STX $52
     LDA #$007E
     STA $54
-    LDA #$0F00            ; First thinker slot at $0F00; $10 bytes per slot
+    LDA #$0F00            ; First thinker at $0F00; $10 bytes per slot, 16 slots
     LDX #$0000
 
   loc_03CE45:
-    STA $thinkerPoolAddrs, X ; Write thinker slot address to free list at $7E3000,X
+    STA $thinkerPoolAddrs, X
     INX 
     INX 
     CLC 
     ADC #$0010
-    CPX #$0020            ; 16 thinker slots total ($0020 / 2 entries)
+    CPX #$0020
     BMI loc_03CE45
-    LDA #$FFFF            ; $FFFF sentinel marks end of thinker free list
+    LDA #$FFFF            ; $FFFF sentinel terminates thinker free list
     STA $thinkerPoolAddrs, X
-    LDA $sceneCurrent     ; Check for scene $FF simplified thinker clear
+    LDA $sceneCurrent
     CMP #$00FF
     BEQ loc_03CE7B
     LDX #$0000
     TXA 
 
   loc_03CE67:
-    STA $0F00, X          ; Zero thinker data: $0F00, $7F0E00, and $7F3000 regions
+    STA $0F00, X          ; Zero three thinker regions: $0F00, $7F0E00, $7F3000
     STA $7F0E00, X
     STA $7F3000, X
     INX 
@@ -753,7 +748,7 @@ InitActorPool {
     RTL 
 
   loc_03CE7B:
-    LDX #$0000            ; Scene $FF simplified thinker clear: skip $7F3000 region
+    LDX #$0000            ; Scene $FF: skip $7F3000 thinker region
     TXA 
 
   loc_03CE7F:
@@ -775,18 +770,18 @@ InitActorPool {
 ; Called by SpawnThinker and SpawnThinkerParam COP handlers.
 
 ThinkerPoolAlloc {
-    LDA [$52]             ; === Allocate one thinker slot from free pool ===
-    BMI loc_03CE9F        ; Read next free slot address via indirect long [$52]
-    TAY                   ; Negative ($FFFF sentinel) → pool exhausted
-    LDA #$0000            ; Transfer allocated slot address to Y for caller
+    LDA [$52]             ; Read next free slot via indirect long [$52]
+    BMI loc_03CE9F        ; $FFFF sentinel → pool exhausted, return carry set
+    TAY                   ; Y = allocated slot address for caller
+    LDA #$0000
     STA [$52]             ; Zero consumed entry to prevent double-allocation
-    INC $52               ; Advance pool pointer by 2 to next free entry
+    INC $52               ; Advance pool pointer by 2 to next entry
     INC $52
     CLC                   ; CLC = allocation success
     RTL 
 
   loc_03CE9F:
-    SEC                   ; SEC = pool exhausted, no slot available
+    SEC                   ; SEC = pool exhausted
     RTL 
 }
 
@@ -804,70 +799,81 @@ ThinkerPoolAlloc {
 ; After all actors are spawned, sets playerActorDp ($09F4) to $1000 (first actor slot).
 
 SpawnSceneActors {
-    PHP                   ; === Spawn all actors from current scene's definition table ===
+    PHP 
     REP #$20
-    STZ $0056             ; Zero first actor pointer ($56) and last actor pointer ($58)
+    STZ $0056             ; Clear actor list head ($56) and tail ($58)
     STZ $0058
-    LDA #$*scene_actors   ; Load bank byte of scene_actors table
+    LDA #$*scene_actors   ; Build long pointer [$3E]: scene_actors bank → $40
     STA $40
-    LDX $0646             ; Store to $40 for long pointer construction with $3E
-    LDA $@scene_actors, X ; Load scene index from $0646 for table lookup
-    STA $3E               ; Read scene-specific actor list pointer from long table
-    BEQ loc_03CEEC        ; Null pointer = no actors defined for this scene
-    LDA [$3E]             ; Read first byte of actor data (type byte)
+    LDX $0646
+    LDA $@scene_actors, X ; Scene-indexed actor list pointer → $3E
+    STA $3E
+    BEQ loc_03CEEC        ; Null pointer = no actors for this scene
+    LDA [$3E]
     AND #$00FF
     CMP #$00FF            ; $FF = end-of-actor-list marker
     BEQ loc_03CEEC
-    JSL $@cop_handlers_actors.ActorPoolAllocator ; Allocate first actor slot via ActorPoolAllocator
-    STY $0056             ; Store as linked list head ($56 = first actor)
+    JSL $@cop_handlers_actors.ActorPoolAllocator ; Allocate first actor slot
+    STY $0056             ; Store as linked list head ($56)
     BRA loc_03CEE3
 
   loc_03CECD:
-    LDA [$3E]             ; Actor list loop: read next actor type byte
+    LDA [$3E]             ; Read next actor type byte
     AND #$00FF
     CMP #$00FF
-    BEQ loc_03CEE9        ; $FF = end of list → store tail pointer
-    JSL $@cop_handlers_actors.ActorPoolAllocator ; Allocate next actor slot
+    BEQ loc_03CEE9        ; $FF = end of list
+    JSL $@cop_handlers_actors.ActorPoolAllocator
     TYA 
-    STA $0006, X          ; Link new actor's $06 (next) to previous actor
+    STA $0006, X          ; Link: new.$06 = previous, previous.$04 = new
     TXA 
-    STA $0004, Y          ; Link previous actor's $04 (prev) to new allocation
+    STA $0004, Y
 
   loc_03CEE3:
     TYX 
-    JSR $&InitActorFromSceneData ; Parse binary record into allocated actor slot
-    BCC loc_03CECD        ; Carry clear = success; carry set = enemy defeated, slot freed internally
+    JSR $&InitActorFromSceneData ; Parse binary record into allocated slot
+    BCC loc_03CECD        ; Carry clear = success; carry set = enemy defeated, slot freed
 
   loc_03CEE9:
     STX $0058
 
   loc_03CEEC:
-    LDA #$1000            ; Set playerActorDp ($09F4) to $1000 — first actor slot base
+    LDA #$1000            ; Set playerActorDp ($09F4) to $1000 — first actor slot
     STA $playerActorDp
     PLP 
     RTL 
 }
 
+---------------------------------------------
+; Skip a defeated enemy during scene actor spawning and return its slot to the pool.
+; 
+; Called from InitActorFromSceneData when CheckEnemyDefeatedFlag returns carry set (enemy already permanently killed). Y holds the stream offset into the current actor record.
+; 
+; Two outcomes based on whether more actors remain:
+; 
+; 1. More actors follow (next byte ≠ $FF): Advances the scene data pointer $3E past the remaining record bytes (Y + 1 + $3E → $3E). Branches directly to InitActorFromSceneData to process the next actor record in the same spawn loop iteration.
+; 
+; 2. End of actor list (next byte = $FF): Returns the allocated slot to the actor free list by decrementing $4E twice (backing up the free list pointer by one word) and writing the slot address (TXA) via STA [$4E]. Decrements activeActorCount ($0DBC). Unlinks the slot from the actor chain by zeroing the previous actor's next pointer ($0006,Y = 0). Sets X to the previous actor (TYX) and returns with carry set to signal SpawnSceneActors that this actor was skipped.
+
 AdvanceSceneDataAndFree {
-    TYA 
+    TYA                   ; Advance $3E past the defeated enemy's remaining record bytes
     INC 
     CLC 
     ADC $3E
     STA $3E
-    LDA [$3E]
+    LDA [$3E]             ; Read next byte from scene data stream
     AND #$00FF
-    CMP #$00FF
-    BNE InitActorFromSceneData
+    CMP #$00FF            ; Check for $FF end-of-actor-list marker
+    BNE InitActorFromSceneData ; More actors follow → continue spawn loop at InitActorFromSceneData
+    DEC $4E               ; End of list: back up free list pointer $4E by one word (2 bytes)
     DEC $4E
-    DEC $4E
-    TXA 
+    TXA                   ; Return freed slot address to the free list
     STA [$4E]
-    DEC $activeActorCount
-    LDY $0004, X
-    LDA #$0000
+    DEC $activeActorCount ; Decrement active actor count ($0DBC)
+    LDY $0004, X          ; Read previous actor link from $0004,X (prev pointer)
+    LDA #$0000            ; Zero the previous actor's next pointer ($0006,Y) — unlink freed slot
     STA $0006, Y
-    TYX 
-    SEC 
+    TYX                   ; Set X to previous actor for caller (SpawnSceneActors loop)
+    SEC                   ; SEC = signal defeated actor was skipped
     RTS 
 }
 
@@ -894,178 +900,178 @@ AdvanceSceneDataAndFree {
 ; Normal path: Sets default spriteset ($4000 bank $7E), calls UpdateActorAnimation, adds 8px X offset, then resolves stats table if present (index × 4 + base → statsPtr, first byte → currentHp).
 
 InitActorFromSceneData {
-    LDY #$0000            ; === Parse binary actor record from scene data stream ===
-    LDA [$3E], Y          ; Read actor X tile coordinate (byte 0 of record)
-    INY 
-    AND #$00FF
-    ASL                   ; ×16 (ASL ×4): convert tile position to pixel X coordinate
-    ASL 
-    ASL 
-    ASL 
-    STA $0014, X          ; Store pixel X to actor position field $0014,X
-    LDA [$3E], Y          ; Read actor Y tile coordinate (byte 1)
+    LDY #$0000
+    LDA [$3E], Y          ; Byte 0: X tile coordinate (×16 → pixel X)
     INY 
     AND #$00FF
     ASL 
     ASL 
     ASL 
     ASL 
-    STA $0016, X          ; Store pixel Y to $0016,X
-    LDA [$3E], Y          ; Read type/flags byte (byte 2)
+    STA $0014, X
+    LDA [$3E], Y          ; Byte 1: Y tile coordinate (×16 → pixel Y)
     INY 
-    BIT #$0001            ; Bit 0 selects sprite addressing mode: 0=swap, 1=direct
+    AND #$00FF
+    ASL 
+    ASL 
+    ASL 
+    ASL 
+    STA $0016, X
+    LDA [$3E], Y          ; Byte 2: type/flags — bit 0 selects sprite addressing mode
+    INY 
+    BIT #$0001
     BNE loc_03CF4C
-    AND #$00F6            ; Swap mode: mask $F6, XBA to swap hi/lo bytes, OR with base sprite $06F0
+    AND #$00F6            ; Mode 0: mask $F6, XBA swap, OR base sprite $06F0
     XBA 
     ORA $06F0
-    STA $000E, X          ; Store composed sprite/flags value to actor field $000E,X
+    STA $000E, X
     BRA loc_03CF53
 
   loc_03CF4C:
-    AND #$00FF            ; Direct mode: mask $FF, shift right, store to $000E,X
+    AND #$00FF            ; Mode 1: mask $FF, LSR
     LSR 
     STA $000E, X
 
   loc_03CF53:
-    LDA [$3E], Y          ; Read actor code pointer (bytes 3-4, 16-bit word)
+    LDA [$3E], Y          ; Bytes 3-4: code pointer → $42
     INY 
     INY 
-    STA $42               ; Store code pointer to work area $42
-    LDA [$3E], Y          ; Read bank byte (byte 5)
-    INY 
-    AND #$00FF
-    STA $44               ; Store bank to work area $44
-    LDA [$3E], Y          ; Read stats table index (byte 6); zero = no combat stats
+    STA $42
+    LDA [$3E], Y          ; Byte 5: bank → $44
     INY 
     AND #$00FF
-    STA $statsPtr, X      ; Store stats index to $7F0020,X (statsPtr extended field)
-    BEQ loc_03CFA5        ; Zero stats → skip all enemy-specific initialization
-    LDA [$3E], Y          ; Read enemy number (byte 7) for defeat flag tracking
+    STA $44
+    LDA [$3E], Y          ; Byte 6: stats index; zero = no combat stats
     INY 
     AND #$00FF
-    STA $enemyNum, X      ; Store enemy number to $7F0022,X (enemyNum extended field)
-    BEQ loc_03CF81        ; Enemy number zero → skip defeat check (non-enemy actor with stats)
-    JSR $&CheckEnemyDefeatedFlag ; Check WRAM defeat flags — has this enemy already been killed?
+    STA $statsPtr, X
+    BEQ loc_03CFA5        ; Zero stats → skip enemy-specific init
+    LDA [$3E], Y          ; Byte 7: enemy number for defeat tracking
+    INY 
+    AND #$00FF
+    STA $enemyNum, X
+    BEQ loc_03CF81        ; Enemy zero → skip defeat check
+    JSR $&CheckEnemyDefeatedFlag ; Check WRAM defeat flags — already killed?
     BCC loc_03CF81
-    JMP $&AdvanceSceneDataAndFree ; Already defeated → free slot and advance scene data stream
+    JMP $&AdvanceSceneDataAndFree ; Defeated → free slot, advance scene data
 
   loc_03CF81:
-    LDA $extendedFlags, X ; Set bit 8 ($0100) in extendedFlags — marks as stat-bearing enemy
+    LDA $extendedFlags, X ; Set $0100 in extendedFlags — stat-bearing enemy
     ORA #$0100
     STA $extendedFlags, X
-    LDA [$3E], Y          ; Read death action index (byte 8)
+    LDA [$3E], Y          ; Byte 8: death action index
     INY 
     AND #$00FF
-    STA $deathActionIdx, X ; Store to $7F0024,X (deathActionIdx extended field)
-    INC $0AEC             ; Increment live enemy count ($0AEC binary counter)
-    SED                   ; SED: switch to BCD arithmetic for display-ready counter
-    LDA $0AEE             ; Load BCD enemy total from $0AEE
+    STA $deathActionIdx, X
+    INC $0AEC             ; Increment binary enemy count ($0AEC)
+    SED                   ; BCD increment: SED, add 1 to $0AEE, CLD
+    LDA $0AEE
     CLC 
-    ADC #$0001            ; Add 1 in BCD mode for accurate decimal display
+    ADC #$0001
     STA $0AEE
-    CLD                   ; CLD: return to binary arithmetic
+    CLD 
 
   loc_03CFA5:
-    TYA                   ; Advance scene data pointer past consumed record bytes
+    TYA                   ; Advance scene data pointer past consumed record
     CLC 
     ADC $3E
     STA $3E
-    LDY #$0000            ; Begin parsing actor code header (pointed to by $42:$44)
-    LDA [$42], Y          ; Read initial animation state / sprite index (byte 0)
+    LDY #$0000
+    LDA [$42], Y          ; Code header byte 0: initial animation state → $0028,X
     INY 
     AND #$00FF
-    STA $0028, X          ; Store to actor animation field $0028,X
-    LDA [$42], Y          ; Read initial flags word (bytes 1-2 of code header)
+    STA $0028, X
+    LDA [$42], Y          ; Code header bytes 1-2: initial flags
     INY 
     INY 
-    ORA #$4000            ; OR with $4000 — actor starts with visibility flag set
-    STA $0010, X          ; Store to primary flags field $0010,X
-    TYA                   ; Compute code entry point: code header base + header size offset
+    ORA #$4000            ; OR $4000: actor starts visible
+    STA $0010, X
+    TYA                   ; Code entry point = header base + header size
     CLC 
     ADC $42
-    STA $0000, X          ; Store entry point address to actor field $0000,X
+    STA $0000, X
     LDA $44
-    STA $0002, X          ; Store bank byte from $44 to actor field $0002,X
-    PHD                   ; Save outer direct page for restore after nested TCD
+    STA $0002, X
+    PHD 
     TXA 
     TCD 
-    LDA $10               ; Set DP to actor slot base for field-relative access (DP $10, $14, etc.)
-    BMI loc_03D00F        ; Bit 15 of $10 = player actor flag
-    LDA #$4000            ; === Normal actor init: set spriteset, animation, and stats ===
-    STA $spritesetPtr, X  ; Default spriteset pointer = $4000
+    LDA $10               ; Bit 15 of $10 = player actor → special init path
+    BMI loc_03D00F
+    LDA #$4000
+    STA $spritesetPtr, X  ; Default spriteset $4000, bank $7E (WRAM sprite tiles)
     LDA #$007E
-    STA $7F0008, X        ; Spriteset bank byte = $7E (WRAM mirror for sprite tiles)
-    JSL $@sprite_composition.UpdateActorAnimation ; Initialize actor animation via sprite_composition.UpdateActorAnimation
-    LDA $14               ; Add 8px centering offset to X position
+    STA $7F0008, X
+    JSL $@sprite_composition.UpdateActorAnimation
+    LDA $14               ; Add 8px X centering offset
     CLC 
     ADC #$0008
     STA $14
-    STZ $08               ; Zero the frame delay counter ($08) for immediate execution
-    PLD                   ; Restore original direct page
-    LDA $statsPtr, X      ; Check if actor has stats (statsPtr nonzero)
+    STZ $08               ; Zero frame delay ($08) for immediate execution
+    PLD 
+    LDA $statsPtr, X      ; Stats nonzero → resolve stats table address
     BNE loc_03CFF8
-    RTS                   ; No stats → return immediately (non-enemy actor successfully initialized)
+    RTS 
 
   loc_03CFF8:
-    ASL                   ; Compute stats table address: index × 4 + stats_01ABF0 base
+    ASL                   ; Stats address: index × 4 + stats_01ABF0 base → statsPtr
     ASL 
     CLC 
     ADC #$&stats_01ABF0
-    STA $statsPtr, X      ; Store computed address to statsPtr ($7F0020,X)
+    STA $statsPtr, X
     TAY 
-    LDA $0000, Y          ; Read base HP value (byte 0 of stats entry)
+    LDA $0000, Y          ; First byte of stats entry → currentHp
     AND #$00FF
-    STA $currentHp, X     ; Store to currentHp ($7F0026,X)
+    STA $currentHp, X
     CLC 
-    RTS                   ; CLC = actor initialized successfully
+    RTS 
 
   loc_03D00F:
-    LDA #$0088            ; === Player actor init: form-specific spriteset, camera, position ===
-    TRB $playerFlags      ; Clear bits 7|3 ($0088) from playerFlags — unflag freeze + dead
-    LDA $0E               ; Read type field $0E for special player state flags
+    LDA #$0088
+    TRB $playerFlags      ; Clear playerFlags $0088 (freeze | dead)
+    LDA $0E
     BIT #$0600            ; Bits 9|10 ($0600) = scene-defined player state overrides
     BEQ loc_03D03B
-    PHA                   ; Save original type field to stack for individual bit testing
+    PHA 
     AND #$F9FF
     STA $0E
     LDA $01, S
-    BIT #$0200            ; Bit 9 ($0200) = set input lock on spawn
+    BIT #$0200            ; Bit 9 ($0200) → set input lock ($0008 in playerFlags)
     BEQ loc_03D02F
-    LDA #$0008            ; Set input lock bit 3 ($0008) in playerFlags
+    LDA #$0008
     TSB $playerFlags
 
   loc_03D02F:
-    PLA                   ; PLA — recover original type field for next test
-    BIT #$0400            ; Bit 10 ($0400) = set freeze state on spawn
+    PLA 
+    BIT #$0400            ; Bit 10 ($0400) → set freeze ($0080 in playerFlags)
     BEQ loc_03D03B
     LDA #$0080
-    TSB $playerFlags      ; Set freeze bit 7 ($0080) in playerFlags
+    TSB $playerFlags
 
   loc_03D03B:
-    LDA $0650             ; Look up initial facing direction from $0650 scene data
+    LDA $0650             ; Facing direction from $0650 → direction sprite table → $28
     AND #$00FF
     ASL 
-    TAY                   ; Index direction sprite table for initial body pose
+    TAY 
     LDA $&dir_sprite_01ABDE, Y
     AND #$00FF
     STA $28
-    LDA $characterForm    ; Load characterForm (0=Will, 1=Freedan, 2=Shadow) for body table
-    ASL                   ; Compute body table index: form × 6 (ASL ×2 + ADC form ×2)
+    LDA $characterForm    ; Body table index = characterForm × 6
+    ASL 
     ASL 
     CLC 
     ADC $characterForm
     CLC 
     ADC $characterForm
     TAY 
-    LDA $&body_table, Y   ; Read spriteset pointer from character form body table
-    STA $spritesetPtr, X  ; Store spriteset pointer for sprite composition system
+    LDA $&body_table, Y   ; Spriteset pointer from body table → spritesetPtr
+    STA $spritesetPtr, X
     LDA $&body_table+2, Y
     AND #$00FF
     STA $7F0008, X
-    LDA $064C             ; Check for spawn position override at $064C/$064E
+    LDA $064C             ; Check spawn position override ($064C/$064E)
     ORA $064E
-    BEQ loc_03D092        ; No override → use standard tile-based position
-    LDA $064C             ; Apply position override with centering offsets (+8 X, +16 Y)
+    BEQ loc_03D092
+    LDA $064C             ; Override: +8 X centering, +16 Y centering
     CLC 
     ADC #$0008
     STA $14
@@ -1073,55 +1079,55 @@ InitActorFromSceneData {
     CLC 
     ADC #$0010
     STA $16
-    STZ $064C             ; Clear override values after consumption to prevent re-use
+    STZ $064C             ; Clear override values after use
     STZ $064E
-    JSL $@sprite_composition.UpdateActorAnimation ; Update actor animation with overridden position
+    JSL $@sprite_composition.UpdateActorAnimation
     STZ $08
     BRA loc_03D09A
 
   loc_03D092:
-    LDA $14               ; Standard position: add 8px X centering offset
+    LDA $14
     CLC 
     ADC #$0008
     STA $14
 
   loc_03D09A:
-    LDA $14               ; Store final X to playerXPos ($09A2)
+    LDA $14               ; Final X → playerXPos; LSR ×4 → playerXTile
     STA $playerXPos
-    LSR                   ; Convert pixel X to tile X (÷16 via LSR ×4)
     LSR 
     LSR 
     LSR 
-    STA $playerXTile      ; Store to playerXTile ($09A6)
-    LDA $14               ; Reload X for camera target: playerX − $80 (half screen width)
+    LSR 
+    STA $playerXTile
+    LDA $14               ; Camera X = playerX − $80 (half screen), clamped to 0
     SEC 
     SBC #$0080
-    BPL loc_03D0B1        ; Clamp to 0 minimum — camera cannot scroll past left edge
+    BPL loc_03D0B1
     LDA #$0000
 
   loc_03D0B1:
-    STA $cameraTargetX    ; Set both cameraTargetX and bg1ScrollH to initial position
+    STA $cameraTargetX    ; Initialize both cameraTargetX and bg1ScrollH
     STA $bg1ScrollH
-    LDA $16               ; Process Y axis: subtract $10 (16px) from raw Y for player hotspot
+    LDA $16               ; Pixel Y − $10 → playerYPos; LSR ×4 → playerYTile
     SEC 
     SBC #$0010
-    STA $playerYPos       ; Store to playerYPos ($09A4)
+    STA $playerYPos
     LSR 
     LSR 
     LSR 
     LSR 
-    STA $playerYTile      ; Store to playerYTile ($09A8)
-    LDA $16               ; Compute camera Y: playerY − $80 (half screen height)
+    STA $playerYTile
+    LDA $16               ; Camera Y = playerY − $80 (half screen), clamped to 0
     SEC 
     SBC #$0080
-    BPL loc_03D0D2        ; Clamp to 0 minimum
+    BPL loc_03D0D2
     LDA #$0000
 
   loc_03D0D2:
-    STA $cameraTargetY    ; Set both cameraTargetY and bg2ScrollH to initial Y position
+    STA $cameraTargetY    ; Initialize both cameraTargetY and bg2ScrollH
     STA $bg2ScrollH
     PLD 
-    CLC                   ; CLC = player actor initialized successfully
+    CLC 
     RTS 
 }
 
@@ -1135,49 +1141,49 @@ InitActorFromSceneData {
 ; If the bit is clear (enemy alive): returns carry clear.
 
 CheckEnemyDefeatedFlag {
-    PHY                   ; === Check WRAM defeat flag for enemy number in A ===
+    PHY 
     PHX 
-    STA $0000             ; Save enemy number to $0000 work area for bit manipulation
-    LSR                   ; ÷8 (LSR ×3) → byte index Y in the WRAM flag array
+    STA $0000             ; Store enemy number to $0000; LSR ×3 → byte index Y
+    LSR 
     LSR 
     LSR 
     TAY 
     LDA #$0000
-    SEP #$20              ; Switch to 8-bit for flag byte operations
-    LDA $0000             ; Reload enemy number in 8-bit for bit index extraction
-    AND #$07              ; AND #$07: isolate bit position within byte (0-7)
+    SEP #$20
+    LDA $0000
+    AND #$07              ; AND #$07 → bit position; look up mask from BitMaskTable_Wram
     TAX 
-    LDA $@BitMaskTable_Wram, X ; Look up bitmask from BitMaskTable_Wram ($01/$02/$04/$08/$10/$20/$40/$80)
-    AND $wramFlags, Y     ; AND with WRAM flag byte at $0A80,Y — test if enemy's bit is set
-    BNE loc_03D0FE        ; Nonzero = enemy already permanently defeated
-    CLC                   ; Not defeated: CLC (carry clear = enemy is alive)
+    LDA $@BitMaskTable_Wram, X
+    AND $wramFlags, Y     ; AND wramFlags,Y — test if enemy's defeat bit is set
+    BNE loc_03D0FE
+    CLC 
     REP #$20
     PLX 
     PLY 
     RTS 
 
   loc_03D0FE:
-    REP #$20              ; Defeated path: check for associated event block tile swap
-    LDA $03, S            ; Load saved Y offset from stack to read event block index from scene data
+    REP #$20              ; Defeated: check for associated event block tile swap
+    LDA $03, S            ; Read event block index from scene data at saved Y offset
     TAY 
     LDA [$3E], Y
-    AND #$00FF            ; Read event block index byte at offset Y in scene data stream
-    BEQ loc_03D121        ; Zero event block index = no tile swap needed
+    AND #$00FF
+    BEQ loc_03D121        ; Zero index = no tile swap
     NOP 
-    JSL $@event_blocks.LookupEventBlock ; Look up event block definition via event_blocks.LookupEventBlock
-    BCS loc_03D121        ; Carry set = event block not found; skip swap
-    LDY $3E               ; Save $3E/$40 around event block swap to preserve scene data pointer
+    JSL $@event_blocks.LookupEventBlock ; Look up event block; if found, swap tiles (save/restore $3E/$40)
+    BCS loc_03D121
+    LDY $3E
     PHY 
     LDY $40
     PHY 
-    JSL $@event_blocks.SwapEventBlockTiles ; Swap event block tiles for the defeated enemy's map area
+    JSL $@event_blocks.SwapEventBlockTiles
     PLY 
     STY $40
     PLY 
     STY $3E
 
   loc_03D121:
-    SEC                   ; SEC = enemy was defeated (carry set tells caller to skip spawning)
+    SEC                   ; SEC = defeated (caller skips spawning)
     PLX 
     PLY 
     RTS 
@@ -1193,180 +1199,3 @@ BitMaskTable_Wram [
   #40   ;06
   #80   ;07
 ]
-
----------------------------------------------
-; Execute thinkers with animScratch2 ($7F000E,X) bit 2 ($0004) CLEAR.
-; 
-; Processes general-purpose thinkers that should run during normal gameplay. Iterates the thinker linked list from $5A. For each thinker: checks the flag — if bit 2 is set, skips to next. Otherwise performs standard COP dispatch (frame timer check → script call → next link).
-; 
-; TypeA thinkers typically handle ambient effects, palette cycling, background animations, and other non-deferred tasks.
-
-RunThinkers_TypeA {
-    PHP                   ; === TypeA thinker execution: bit 2 CLEAR (general-purpose) ===
-    PHD 
-    REP #$20
-    LDA $5A               ; Load thinker linked list head from $5A
-    BEQ loc_03D15A        ; Empty thinker list → skip to exit
-
-  loc_03D135:
-    TCD 
-    TAX 
-    LDA $animScratch2, X  ; Read animScratch2 ($7F000E,X) — thinker type flag register
-    BIT #$0004            ; Bit 2 ($0004) = thinker type B flag
-    BNE RunThinkers_TypeA_Next ; Bit set → skip (TypeA only processes bit-2-clear thinkers)
-    DEC $08               ; Decrement frame delay counter for COP dispatch
-    BPL RunThinkers_TypeA_Next
-    STZ $08
-    PHK 
-    PEA $&RunThinkers_TypeA_Next-1
-    SEP #$20
-    LDA $02
-    PHA 
-    REP #$20
-    LDA $00
-    DEC 
-    PHA 
-    RTL 
-}
-
-RunThinkers_TypeA_Next {
-    LDA $06               ; Load next thinker link from DP $06; loop if nonzero
-    BNE loc_03D135
-
-  loc_03D15A:
-    PLD                   ; All thinkers processed — restore state and exit
-    PLP 
-    RTL 
-}
-
----------------------------------------------
-; Execute thinkers with animScratch2 ($7F000E,X) bit 2 ($0004) SET.
-; 
-; Processes deferred/secondary thinkers. Complementary to TypeA — only runs thinkers that TypeA skips. The bit 2 flag acts as a phase selector: TypeA runs first (bit clear), then TypeB runs afterward (bit set), allowing ordered execution of thinker groups within a single frame.
-
-RunThinkers_TypeB {
-    PHP                   ; === TypeB thinker execution: bit 2 SET (deferred/secondary) ===
-    PHD 
-    REP #$20
-    LDA $5A
-    BEQ loc_03D18A
-
-  loc_03D165:
-    TCD 
-    TAX 
-    LDA $animScratch2, X
-    BIT #$0004            ; Bit 2 ($0004) = thinker type B flag
-    BEQ RunThinkers_TypeB_Next ; Bit clear → skip (TypeB only processes bit-2-set thinkers)
-    DEC $08
-    BPL RunThinkers_TypeB_Next
-    STZ $08
-    PHK 
-    PEA $&RunThinkers_TypeB_Next-1
-    SEP #$20
-    LDA $02
-    PHA 
-    REP #$20
-    LDA $00
-    DEC 
-    PHA 
-    RTL 
-}
-
-RunThinkers_TypeB_Next {
-    LDA $06
-    BNE loc_03D165
-
-  loc_03D18A:
-    PLD 
-    PLP 
-    RTL 
-}
-
----------------------------------------------
-; Execute thinkers with animScratch2 bit 11 ($0800) SET and bit 2 ($0004) CLEAR.
-; 
-; Processes cutscene/overlay thinkers that are in the primary (non-deferred) phase. Requires bit 11 to be set (cutscene-active) and bit 2 to be clear (not deferred). Used during cutscene playback to run overlay effects like palette transitions or HDMA animations.
-
-RunThinkers_TypeC {
-    PHP                   ; === TypeC thinker execution: bit 11 SET and bit 2 CLEAR ===
-    PHD 
-    REP #$20
-    LDA $5A
-    BEQ loc_03D1BF
-
-  loc_03D195:
-    TCD 
-    TAX 
-    LDA $animScratch2, X
-    BIT #$0800            ; Bit 11 ($0800) = cutscene/overlay thinker flag
-    BEQ RunThinkers_TypeC_Next ; Bit 11 clear → skip (TypeC requires bit 11)
-    BIT #$0004            ; Check bit 2 ($0004) — must be clear for TypeC
-    BNE RunThinkers_TypeC_Next ; Bit 2 set → skip (TypeC excludes type-B thinkers)
-    DEC $08
-    BPL RunThinkers_TypeC_Next
-    STZ $08
-    PHK 
-    PEA $&RunThinkers_TypeC_Next-1
-    SEP #$20
-    LDA $02
-    PHA 
-    REP #$20
-    LDA $00
-    DEC 
-    PHA 
-    RTL 
-}
-
-RunThinkers_TypeC_Next {
-    LDA $06
-    BNE loc_03D195
-
-  loc_03D1BF:
-    PLD 
-    PLP 
-    RTL 
-}
-
----------------------------------------------
-; Execute thinkers with BOTH animScratch2 bits 11 ($0800) AND 2 ($0004) SET.
-; 
-; Processes cutscene thinkers in the deferred phase. Uses AND #$0804 / CMP #$0804 to verify both bits are set simultaneously. Complementary to TypeC — runs after TypeC to handle deferred cutscene effects.
-
-RunThinkers_TypeD {
-    PHP                   ; === TypeD thinker execution: bits 11 AND 2 both SET ===
-    PHD 
-    REP #$20
-    LDA $5A
-    BEQ loc_03D1F2
-
-  loc_03D1CA:
-    TCD 
-    TAX 
-    LDA $animScratch2, X
-    AND #$0804            ; AND #$0804: isolate both type flags simultaneously
-    CMP #$0804            ; CMP #$0804: verify both bits are set (AND result must equal mask)
-    BNE RunThinkers_TypeD_Next ; Not both set → skip this thinker
-    DEC $08
-    BPL RunThinkers_TypeD_Next
-    STZ $08
-    PHK 
-    PEA $&RunThinkers_TypeD_Next-1
-    SEP #$20
-    LDA $02
-    PHA 
-    REP #$20
-    LDA $00
-    DEC 
-    PHA 
-    RTL 
-}
-
-RunThinkers_TypeD_Next {
-    LDA $06
-    BNE loc_03D1CA
-
-  loc_03D1F2:
-    PLD 
-    PLP 
-    RTL 
-}

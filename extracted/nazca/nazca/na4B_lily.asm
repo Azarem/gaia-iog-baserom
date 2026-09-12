@@ -31,7 +31,7 @@ na4B_lily [
     LDA #$CFF0
     TSB $joypadMaskStd
     COP [WaitByte] ( #27 )
-    COP [PrintWideString] ( &widestring_05F148 )
+    COP [PrintDialogString] ( &dialogstring_05F148 )
     COP [ClearLowHere]
     COP [StageSpriteMoveX] ( #28, #02 )
     COP [AnimOnce]
@@ -43,7 +43,7 @@ na4B_lily [
     COP [StageSpriteFrame] ( #24 )
     COP [AnimOnce]
     COP [SolidHighHere]
-    COP [PrintWideString] ( &widestring_05F160 )
+    COP [PrintDialogString] ( &dialogstring_05F160 )
     COP [SetFlagByte] ( #0A )
     COP [ExitIfFlagByte] ( #09, #01 )
     COP [SetOnInteract] ( &code_05F0C3 )
@@ -79,27 +79,27 @@ na4B_lily [
 ]
 
 code_05F0B6 {
-    COP [PrintWideString] ( &widestring_05F0C8 )
+    COP [PrintDialogString] ( &dialogstring_05F0C8 )
     RTL 
 }
 
 code_05F0BB {
-    COP [PrintWideString] ( &widestring_05F0FE )
+    COP [PrintDialogString] ( &dialogstring_05F0FE )
     COP [SetFlagByte] ( #07 )
     RTL 
 }
 
 code_05F0C3 {
-    COP [PrintWideString] ( &widestring_05F1C3 )
+    COP [PrintDialogString] ( &dialogstring_05F1C3 )
     RTL 
 }
 
-widestring_05F0C8 `[DEF][TPL:2]Lilly: The ancients were[N]amazing. I wonder why[N]they made this...[PAL:0][END]`
+dialogstring_05F0C8 `[DEF][TPL:2]Lilly: The ancients were[N]amazing. I wonder why[N]they made this...[PAL:0][END]`
 
-widestring_05F0FE `[DEF][TPL:2]Lilly: Doesn't there[N]seem to be a pattern in[N]the way the rocks are[N]scattered around?[PAL:0][END]`
+dialogstring_05F0FE `[DEF][TPL:2]Lilly: Doesn't there[N]seem to be a pattern in[N]the way the rocks are[N]scattered around?[PAL:0][END]`
 
-widestring_05F148 `[DEF][TPL:2]Lilly: Aaaah![N]I've got it!!![END]`
+dialogstring_05F148 `[DEF][TPL:2]Lilly: Aaaah![N]I've got it!!![END]`
 
-widestring_05F160 `[PAU:28][DEF][TPL:2][DLY:0]Look! Look where the[N]rocks are on the ground![FIN]They're positioned like[N]the stars in the[N]constellation of Cygnus![PAL:0][END]`
+dialogstring_05F160 `[PAU:28][DEF][TPL:2][DLY:0]Look! Look where the[N]rocks are on the ground![FIN]They're positioned like[N]the stars in the[N]constellation of Cygnus![PAL:0][END]`
 
-widestring_05F1C3 `[DEF][TPL:2]Lilly: A riddle[N]in a constellation.[N]Kind of romantic.[PAL:0][END]`
+dialogstring_05F1C3 `[DEF][TPL:2]Lilly: A riddle[N]in a constellation.[N]Kind of romantic.[PAL:0][END]`

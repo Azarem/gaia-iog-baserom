@@ -1,6 +1,10 @@
-; Sprite composition, depth sorting, and OAM table construction (247295–248565, Bank 03).
+; Sprite composition, depth sorting, OAM table construction, and render list management (247295–248565 + 252010–252033, Bank 03).
 ; 
-; Implements the complete pipeline for converting actor metasprite definitions into the hardware OAM table each frame. The system processes the actor linked list in three stages: depth sorting, metasprite decomposition, and OAM table packing.
+; Implements the complete pipeline for converting actor metasprite definitions into the hardware OAM table each frame. The system processes the actor linked list in four stages: render list clearing, depth sorting, metasprite decomposition, and OAM table packing.
+; 
+; === RENDER LIST CLEARING (ClearActorRenderList, 252010) ===
+; 
+; ClearActorRenderList zeroes the 512-byte depth-sort bucket array at $0200–$03FE and writes a $FFFF end sentinel at $0400, preparing it for the next frame's SortActorsByDepth pass. Called from the main game loop before actor processing begins.
 ; 
 ; === DEPTH SORTING (SortActorsByDepth) ===
 ; 
@@ -66,6 +70,29 @@
 !iframeCounter                  7F0028
 !oamComposeBuffer               7F3100
 
+---------------------------------------------
+
+; Clear the depth-sort bucket array at $0200 in preparation for the next frame.
+; 
+; Zeroes 512 bytes ($0200–$03FE, 256 words) and writes $FFFF as an end sentinel at $0400. This array is used by SortActorsByDepth as bucket storage for the Y-position depth sort.
+
+ClearActorRenderList {
+    PHP                   ; Zero 512 bytes ($0200–$03FE) of depth-sort bucket array
+    REP #$20
+    LDX #$0000
+    TXA 
+
+  loc_03D871:
+    STA $deathFlag, X
+    INX 
+    INX 
+    CPX #$0200
+    BNE loc_03D871
+    DEC                   ; Write $FFFF end sentinel at $0400
+    STA $deathFlag, X
+    PLP 
+    RTL 
+}
 ---------------------------------------------
 
 ; Depth-sort all on-screen actors into the render list at $0C00 using bucket sort.

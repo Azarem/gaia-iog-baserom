@@ -14,8 +14,8 @@ eu91_book [
 ]
 
 code_07E4CE {
-    COP [PrintWideString] ( &widestring_07E4D3 )
+    COP [PrintDialogString] ( &dialogstring_07E4D3 )
     RTL 
 }
 
-widestring_07E4D3 `[DEF]This is the book that [N]Rofsky wrote about [N]the future of mankind. [END]`
+dialogstring_07E4D3 `[DEF]This is the book that [N]Rofsky wrote about [N]the future of mankind. [END]`

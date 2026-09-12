@@ -1,6 +1,6 @@
 ---------------------------------------------
 
-sprite_set_list_000000 [
+spm_descent_sprites [
   &sprite_set_00000E   ;00
   &sprite_set_000018   ;01
   &sprite_set_00002A   ;02

@@ -16,8 +16,8 @@ daC3_slaver [
 ]
 
 code_08B302 {
-    COP [PrintWideString] ( &widestring_08B307 )
+    COP [PrintDialogString] ( &dialogstring_08B307 )
     RTL 
 }
 
-widestring_08B307 `[DEF]Hey, hey.[N]This isn't a show!![N]Get out of here![END]`
+dialogstring_08B307 `[DEF]Hey, hey.[N]This isn't a show!![N]Get out of here![END]`

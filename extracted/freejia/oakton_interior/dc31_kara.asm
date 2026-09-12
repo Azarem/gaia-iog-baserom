@@ -21,7 +21,7 @@ dc31_kara [
     COP [StageSpriteFrame] ( #2D )
     COP [AnimOnce]
     COP [SolidHighHere]
-    COP [PrintWideString] ( &widestring_05ADAE )
+    COP [PrintDialogString] ( &dialogstring_05ADAE )
     LDY $playerActor
     LDA #$*player_transition_handlers.code_00C46D
     STA $0002, Y
@@ -36,7 +36,7 @@ dc31_kara [
     LDA #$0002
     JSL $@InitPlayerScriptVariant
     COP [WaitByte] ( #13 )
-    COP [PrintWideString] ( &widestring_05AE00 )
+    COP [PrintDialogString] ( &dialogstring_05AE00 )
     COP [SetFlagByte] ( #02 )
 
   loc_05AFE7:
@@ -66,15 +66,15 @@ code_05B009 {
 }
 
 code_05B016 {
-    COP [PrintWideString] ( &widestring_05AF2F )
+    COP [PrintDialogString] ( &dialogstring_05AF2F )
     COP [SetFlagByte] ( #56 )
     RTL 
 }
 ---------------------------------------------
 
-widestring_05ADAE `[TPL:E][TPL:1]Kara: [N]Will! Will!! [N]Wake up! ! ! [FIN]We've reached land!![N]We're saved!!![FIN][TPL:0]Will: [N]Uhhh...[PAL:0][END]`
+dialogstring_05ADAE `[TPL:E][TPL:1]Kara: [N]Will! Will!! [N]Wake up! ! ! [FIN]We've reached land!![N]We're saved!!![FIN][TPL:0]Will: [N]Uhhh...[PAL:0][END]`
 
-widestring_05AE00 `[TPL:E][TPL:0]Will: Kara...? [N]Where am I...? [FIN][TPL:1]Kara: [N]We're at the home of the [N]kind man who saved us. [FIN]You've been tossing[N]in your sleep.[FIN]I kept putting the[N]blankets on you, but[N]you threw them off.[PAL:0][END]`
+dialogstring_05AE00 `[TPL:E][TPL:0]Will: Kara...? [N]Where am I...? [FIN][TPL:1]Kara: [N]We're at the home of the [N]kind man who saved us. [FIN]You've been tossing[N]in your sleep.[FIN]I kept putting the[N]blankets on you, but[N]you threw them off.[PAL:0][END]`
 ---------------------------------------------
 
-widestring_05AF2F `[TPL:A][TPL:1]Kara: At any rate, [N]let's go to Freejia. [FIN]I'm going to thank the[N]dog. Come back[N]when you're ready.[PAL:0][END]`
+dialogstring_05AF2F `[TPL:A][TPL:1]Kara: At any rate, [N]let's go to Freejia. [FIN]I'm going to thank the[N]dog. Come back[N]when you're ready.[PAL:0][END]`

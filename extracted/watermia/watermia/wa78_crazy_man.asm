@@ -16,8 +16,8 @@ wa78_crazy_man [
 ]
 
 code_07A0A2 {
-    COP [PrintWideString] ( &widestring_07A0A7 )
+    COP [PrintDialogString] ( &dialogstring_07A0A7 )
     RTL 
 }
 
-widestring_07A0A7 `[DEF]A crazy old man came [N]here two years ago. He [N]just talked on about [N]the Tower of Babel. [END]`
+dialogstring_07A0A7 `[DEF]A crazy old man came [N]here two years ago. He [N]just talked on about [N]the Tower of Babel. [END]`

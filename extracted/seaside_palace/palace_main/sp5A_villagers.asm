@@ -62,52 +62,52 @@ code_list_068A9B [
 ]
 
 code_068AB7 {
-    COP [PrintWideString] ( &widestring_068B22 )
+    COP [PrintDialogString] ( &dialogstring_068B22 )
     RTL 
 }
 
 code_068ABC {
-    COP [PrintWideString] ( &widestring_068BB6 )
+    COP [PrintDialogString] ( &dialogstring_068BB6 )
     RTL 
 }
 
 code_068AC1 {
-    COP [PrintWideString] ( &widestring_068C33 )
+    COP [PrintDialogString] ( &dialogstring_068C33 )
     RTL 
 }
 
 code_068AC6 {
-    COP [PrintWideString] ( &widestring_068CBD )
+    COP [PrintDialogString] ( &dialogstring_068CBD )
     RTL 
 }
 
 code_068ACB {
-    COP [PrintWideString] ( &widestring_068CF6 )
+    COP [PrintDialogString] ( &dialogstring_068CF6 )
     RTL 
 }
 
 code_068AD0 {
-    COP [PrintWideString] ( &widestring_068D29 )
+    COP [PrintDialogString] ( &dialogstring_068D29 )
     RTL 
 }
 
 code_068AD5 {
-    COP [PrintWideString] ( &widestring_068D7A )
+    COP [PrintDialogString] ( &dialogstring_068D7A )
     RTL 
 }
 
 code_068ADA {
-    COP [PrintWideString] ( &widestring_068DD0 )
+    COP [PrintDialogString] ( &dialogstring_068DD0 )
     RTL 
 }
 
 code_068ADF {
-    COP [PrintWideString] ( &widestring_068E20 )
+    COP [PrintDialogString] ( &dialogstring_068E20 )
     RTL 
 }
 
 code_068AE4 {
-    COP [PrintWideString] ( &widestring_068E67 )
+    COP [PrintDialogString] ( &dialogstring_068E67 )
     RTL 
 }
 
@@ -117,63 +117,63 @@ code_068AE9 {
     BCS loc_068B0D
     COP [GiveItem] ( #10, &code_068B0E )
     COP [SetFlagByte] ( #85 )
-    COP [PrintWideString] ( &widestring_068EA9 )
+    COP [PrintDialogString] ( &dialogstring_068EA9 )
     LDA #$0080
     TSB $displayModeFlags
-    COP [MusicAndText] ( #17, @widestring_068ED4 )
+    COP [MusicAndText] ( #17, @dialogstring_068ED4 )
 
   loc_068B0D:
     RTL 
 }
 
 code_068B0E {
-    COP [PrintWideString] ( &widestring_068F02 )
+    COP [PrintDialogString] ( &dialogstring_068F02 )
     RTL 
 }
 
 code_068B13 {
-    COP [PrintWideString] ( &widestring_068F53 )
+    COP [PrintDialogString] ( &dialogstring_068F53 )
     RTL 
 }
 
 code_068B18 {
-    COP [PrintWideString] ( &widestring_068F89 )
+    COP [PrintDialogString] ( &dialogstring_068F89 )
     RTL 
 }
 
 code_068B1D {
-    COP [PrintWideString] ( &widestring_068FC0 )
+    COP [PrintDialogString] ( &dialogstring_068FC0 )
     RTL 
 }
 
-widestring_068B22 `[DEF]Saved!![N]Thank you!![FIN]I was brought to this [N]palace from Freejia and [N]changed to a demon... [FIN][TPL:2]Lilly speaks from[N]his pocket.[FIN]What?! All the demons[N]we saw before were[N]human beings...?[PAL:0][END]`
+dialogstring_068B22 `[DEF]Saved!![N]Thank you!![FIN]I was brought to this [N]palace from Freejia and [N]changed to a demon... [FIN][TPL:2]Lilly speaks from[N]his pocket.[FIN]What?! All the demons[N]we saw before were[N]human beings...?[PAL:0][END]`
 
-widestring_068BB6 `[DEF]I know now what[N]it feels like to be [N]close to death. [N]Death is terrifying! [FIN]I wonder if the [N]animals we eat feel the [N]same way I felt right [N]before death. [END]`
+dialogstring_068BB6 `[DEF]I know now what[N]it feels like to be [N]close to death. [N]Death is terrifying! [FIN]I wonder if the [N]animals we eat feel the [N]same way I felt right [N]before death. [END]`
 
-widestring_068C33 `[DEF]We were labor traders,[N]arrested for the crime[N]of buying and selling[N]human beings...[FIN]But the party officials[N]sold us to a vampire![N]I can't believe it...[END]`
+dialogstring_068C33 `[DEF]We were labor traders,[N]arrested for the crime[N]of buying and selling[N]human beings...[FIN]But the party officials[N]sold us to a vampire![N]I can't believe it...[END]`
 
-widestring_068CBD `[DEF]Well, well. This is the[N]result of being tempted[N]by a beautiful woman...[END]`
+dialogstring_068CBD `[DEF]Well, well. This is the[N]result of being tempted[N]by a beautiful woman...[END]`
 
-widestring_068CF6 `[DEF]A nice guy asked me,[N]so I followed him...[N]I don't trust men![END]`
+dialogstring_068CF6 `[DEF]A nice guy asked me,[N]so I followed him...[N]I don't trust men![END]`
 
-widestring_068D29 `[DEF]The man sleeping in[N]this coffin is surely a[N]vampire. They're[N]plotting something...[END]`
+dialogstring_068D29 `[DEF]The man sleeping in[N]this coffin is surely a[N]vampire. They're[N]plotting something...[END]`
 
-widestring_068D7A `[DEF]A vampire couple lives [N]in the coffins. [FIN]They bring people here,[N]turn them into demons,[N]and use them for labor.[END]`
+dialogstring_068D7A `[DEF]A vampire couple lives [N]in the coffins. [FIN]They bring people here,[N]turn them into demons,[N]and use them for labor.[END]`
 
-widestring_068DD0 `[DEF]This palace is connected[N]to the land of Mu.[N]The vampires are looking[N]for something there...[END]`
+dialogstring_068DD0 `[DEF]This palace is connected[N]to the land of Mu.[N]The vampires are looking[N]for something there...[END]`
 
-widestring_068E20 `[DEF]We were almost changed [N]into demons. I'm afraid of[N]what might have happened [N]if you had come later... [END]`
+dialogstring_068E20 `[DEF]We were almost changed [N]into demons. I'm afraid of[N]what might have happened [N]if you had come later... [END]`
 
-widestring_068E67 `[DEF]I overheard the vampires[N]say something like [N]the Mystic Statue can [N]be found in Mu. [END]`
+dialogstring_068E67 `[DEF]I overheard the vampires[N]say something like [N]the Mystic Statue can [N]be found in Mu. [END]`
 
-widestring_068EA9 `[DEF]I stole a key from the[N]vampire woman.[N]Here, take it.[FIN]`
+dialogstring_068EA9 `[DEF]I stole a key from the[N]vampire woman.[N]Here, take it.[FIN]`
 
-widestring_068ED4 `[CLR][SFX:0][DLY:9]You received the key to [N]the Seaside Palace![PAU:78][END]`
+dialogstring_068ED4 `[CLR][SFX:0][DLY:9]You received the key to [N]the Seaside Palace![PAU:78][END]`
 
-widestring_068F02 `[DEF]I stole a key from the[N]vampire woman. I'd like[N]to give it to you, but[N]your inventory's full...[END]`
+dialogstring_068F02 `[DEF]I stole a key from the[N]vampire woman. I'd like[N]to give it to you, but[N]your inventory's full...[END]`
 
-widestring_068F53 `[DEF]On the top floor of the[N]palace is a passageway[N]leading to Mu.[END]`
+dialogstring_068F53 `[DEF]On the top floor of the[N]palace is a passageway[N]leading to Mu.[END]`
 
-widestring_068F89 `[DEF]What will we do now,[N]deserted in the middle[N]of the ocean...[END]`
+dialogstring_068F89 `[DEF]What will we do now,[N]deserted in the middle[N]of the ocean...[END]`
 
-widestring_068FC0 `[DEF]Maybe we could seize[N]the palace and live[N]there together...[END]`
+dialogstring_068FC0 `[DEF]Maybe we could seize[N]the palace and live[N]there together...[END]`

@@ -59,25 +59,25 @@ sc01_fisherman [
 ]
 
 code_0483E7 {
-    COP [PrintWideString] ( &widestring_0483F6 )
+    COP [PrintDialogString] ( &dialogstring_0483F6 )
     RTL 
 }
 
 code_0483EC {
-    COP [PrintWideString] ( &widestring_04840F )
+    COP [PrintDialogString] ( &dialogstring_04840F )
     RTL 
 }
 
 code_0483F1 {
-    COP [PrintWideString] ( &widestring_048436 )
+    COP [PrintDialogString] ( &dialogstring_048436 )
     RTL 
 }
 
-widestring_0483F6 `[DEF]Gosh.[N]I can't pull it up...[END]`
+dialogstring_0483F6 `[DEF]Gosh.[N]I can't pull it up...[END]`
 
-widestring_04840F `[DEF]Even if I move to[N]another place[N]I can't pull it up...[END]`
+dialogstring_04840F `[DEF]Even if I move to[N]another place[N]I can't pull it up...[END]`
 
-widestring_048436 `[DEF]He lifted the[N]strange teapot.[END]`
+dialogstring_048436 `[DEF]He lifted the[N]strange teapot.[END]`
 
 e_sc01_pot {
     LDA #$0200
@@ -93,7 +93,7 @@ e_sc01_pot {
 code_048462 {
     COP [BranchIfFlagByte] ( #D7, #01, &code_048474 )
     COP [GiveItem] ( #01, &code_048475 )
-    COP [PrintWideString] ( &widestring_048479 )
+    COP [PrintDialogString] ( &dialogstring_048479 )
     COP [SetFlagByte] ( #D7 )
 }
 
@@ -105,4 +105,4 @@ code_048475 {
     JML $@hidden_red_jewel.code_00C6A1
 }
 
-widestring_048479 `[DLG:3,11][SIZ:D,3]You've found[N]a Red Jewel![END]`
+dialogstring_048479 `[DLG:3,11][SIZ:D,3]You've found[N]a Red Jewel![END]`

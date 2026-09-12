@@ -15,7 +15,7 @@ eu95_ann [
 
 code_07DF10 {
     COP [BranchIfFlagByte] ( #D6, #01, &code_07DF33 )
-    COP [PrintWideString] ( &widestring_07DF7A )
+    COP [PrintDialogString] ( &dialogstring_07DF7A )
     COP [DialogueOptions] ( #02, #02, &code_list_07DF20 )
 }
 
@@ -26,20 +26,20 @@ code_list_07DF20 [
 ]
 
 code_07DF26 {
-    COP [PrintWideString] ( &widestring_07E092 )
+    COP [PrintDialogString] ( &dialogstring_07E092 )
     COP [SetFlagByte] ( #D6 )
     RTL 
 }
 
 code_07DF2E {
-    COP [PrintWideString] ( &widestring_07E03D )
+    COP [PrintDialogString] ( &dialogstring_07E03D )
     RTL 
 }
 
 code_07DF33 {
     COP [BranchIfFlagByte] ( #E5, #01, &code_07DF75 )
     COP [BranchIfNoItem] ( #28, &code_07DF43 )
-    COP [PrintWideString] ( &widestring_07E0DE )
+    COP [PrintDialogString] ( &dialogstring_07E0DE )
     RTL 
 }
 
@@ -47,7 +47,7 @@ code_07DF43 {
     COP [BranchIfFlagByte] ( #E3, #00, &code_07DF63 )
     COP [BranchIfFlagByte] ( #E4, #00, &code_07DF68 )
     COP [RemoveItem] ( #28 )
-    COP [PrintWideString] ( &widestring_07E10A )
+    COP [PrintDialogString] ( &dialogstring_07E10A )
     COP [GiveItem] ( #01, &code_07DF5F )
     COP [SetFlagByte] ( #E5 )
     RTL 
@@ -68,25 +68,25 @@ code_07DF68 {
 
   loc_07DF6D:
     COP [RemoveItem] ( #28 )
-    COP [PrintWideString] ( &widestring_07E0E5 )
+    COP [PrintDialogString] ( &dialogstring_07E0E5 )
     RTL 
 }
 
 code_07DF75 {
-    COP [PrintWideString] ( &widestring_07E19D )
+    COP [PrintDialogString] ( &dialogstring_07E19D )
     RTL 
 }
 
-widestring_07DF7A `[TPL:B][TPL:1]Ann: A few days ago, a [N]man wearing a cloak [N]came around. [FIN]He asked if anyone named[N]Kara had come to town. [FIN]I shrank with fear when [N]I saw his cold eyes. [FIN]Should I tell Kara [N]about it? [N] If you must! [N] No, please don't! `
+dialogstring_07DF7A `[TPL:B][TPL:1]Ann: A few days ago, a [N]man wearing a cloak [N]came around. [FIN]He asked if anyone named[N]Kara had come to town. [FIN]I shrank with fear when [N]I saw his cold eyes. [FIN]Should I tell Kara [N]about it? [N] If you must! [N] No, please don't! `
 
-widestring_07E03D `[CLR]I don't like that Kara. [N]She acts like some kind [N]of princess. [FIN]You shouldn't be so[N]cruel, talking that way.[PAL:0][END]`
+dialogstring_07E03D `[CLR]I don't like that Kara. [N]She acts like some kind [N]of princess. [FIN]You shouldn't be so[N]cruel, talking that way.[PAL:0][END]`
 
-widestring_07E092 `[CLR]Heh heh.[N]I've found a weakness.[FIN][::]Aah.[N]I want an apple. Let's[N]go to the marketplace![PAL:0][END]`
+dialogstring_07E092 `[CLR]Heh heh.[N]I've found a weakness.[FIN][::]Aah.[N]I want an apple. Let's[N]go to the marketplace![PAL:0][END]`
 
-widestring_07E0DE `[TPL:B][TPL:1][JMP:&eu95_ann.widestring_07E092+M]`
+dialogstring_07E0DE `[TPL:B][TPL:1][JMP:&eu95_ann.dialogstring_07E092+M]`
 
-widestring_07E0E5 `[TPL:B][TPL:1]Ann: Thanks.[N]I can't eat any more.[PAL:0][END]`
+dialogstring_07E0E5 `[TPL:B][TPL:1]Ann: Thanks.[N]I can't eat any more.[PAL:0][END]`
 
-widestring_07E10A `[TPL:B][TPL:1]Ann:[N]Why are you always going[N]to the market and coming[N]back with apples..?[FIN]For Kara...? [N]Or...? [FIN]Good. As a present I'll[N]give you this jewel.[FIN][PAL:0]Will gets a Red Jewel![END]`
+dialogstring_07E10A `[TPL:B][TPL:1]Ann:[N]Why are you always going[N]to the market and coming[N]back with apples..?[FIN]For Kara...? [N]Or...? [FIN]Good. As a present I'll[N]give you this jewel.[FIN][PAL:0]Will gets a Red Jewel![END]`
 
-widestring_07E19D `[TPL:B][TPL:1]Ann: I'll take [N]care of Kara...[PAL:0][END]`
+dialogstring_07E19D `[TPL:B][TPL:1]Ann: I'll take [N]care of Kara...[PAL:0][END]`

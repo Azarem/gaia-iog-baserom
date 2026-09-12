@@ -1,6 +1,6 @@
 ---------------------------------------------
 
-sprite_set_list_000000 [
+spm_ruins_enemies [
   &sprite_set_000066   ;00
   &sprite_set_00006C   ;01
   &sprite_set_000072   ;02

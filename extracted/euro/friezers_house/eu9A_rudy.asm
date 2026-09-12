@@ -13,11 +13,11 @@ eu9A_rudy [
 ]
 
 code_07E725 {
-    COP [PrintWideString] ( &widestring_07E72A )
+    COP [PrintDialogString] ( &dialogstring_07E72A )
     RTL 
 }
 
-widestring_07E72A `[DEF]Rudy: The ruins are a[N]great place. They just[N]take my breath away.[END]`
+dialogstring_07E72A `[DEF]Rudy: The ruins are a[N]great place. They just[N]take my breath away.[END]`
 ---------------------------------------------
 
 eu9A_rudy_destroy {

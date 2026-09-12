@@ -12,7 +12,7 @@ awB0_intro [
     LDA #$CFF0
     TSB $joypadMaskStd
     COP [WaitByte] ( #1D )
-    COP [PrintWideString] ( &widestring_089807 )
+    COP [PrintDialogString] ( &dialogstring_089807 )
     LDA #$CFF0
     TRB $joypadMaskStd
 } >
@@ -22,4 +22,4 @@ code_089805 {
     COP [Die]
 }
 
-widestring_089807 `[TPL:B][TPL:0]Through the jungle, [N]three days journey [N]from the native village, [N]there is a huge temple.[PAL:0][END]`
+dialogstring_089807 `[TPL:B][TPL:0]Through the jungle, [N]three days journey [N]from the native village, [N]there is a huge temple.[PAL:0][END]`

@@ -12,8 +12,8 @@ gs2C_crew4 [
 ]
 
 code_05838F {
-    COP [PrintWideString] ( &widestring_058394 )
+    COP [PrintDialogString] ( &dialogstring_058394 )
     RTL 
 }
 
-widestring_058394 `[DEF]It's the King![N]You're safe![FIN][::][TPL:0]Will: [N](I'm the King???)[PAL:0][END]`
+dialogstring_058394 `[DEF]It's the King![N]You're safe![FIN][::][TPL:0]Will: [N](I'm the King???)[PAL:0][END]`

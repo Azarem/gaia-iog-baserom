@@ -15,8 +15,8 @@ h_ec0A_shy_guard [
 ]
 
 code_04C40F {
-    COP [PrintWideString] ( &widestring_04C414 )
+    COP [PrintDialogString] ( &dialogstring_04C414 )
     RTL 
 }
 
-widestring_04C414 `[TPL:B][TPL:7]ぼ ぼくは 君のことが···[PAL:0][END]`
+dialogstring_04C414 `[TPL:B][TPL:7]ぼ ぼくは 君のことが···[PAL:0][END]`

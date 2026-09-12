@@ -500,7 +500,7 @@ Handles three distinct visual behaviors:
 
 1. **Damage flash** — when `$0B22 ≠ 0`, every 8 frames (`$0036` AND `$07`) animates DEF display `$0ACE` toward max `$0ACA` and plays sound effect via inline COP `PlaySoundCh2 #0D`.
 2. **Stat change detection** — compares live stats against cached previous values; triggers BG3 script refresh when DEF/HP/gems change.
-3. **Experience popup** — when `$09EA ≠ 0`, starts `$0AE4` countdown (`$001E` frames) and runs COP `RunBg3Script` referencing `asciistring_01E7F6` / `asciistring_01E818`.
+3. **Experience popup** — when `$09EA ≠ 0`, starts `$0AE4` countdown (`$001E` frames) and runs COP `RunBg3Script` referencing `consolestring_01E7F6` / `consolestring_01E818`.
 
 Gem hundreds digit: `$0AD8 = $0AD6 / 100` for three-digit display.
 
@@ -543,7 +543,7 @@ Gem hundreds digit: `$0AD8 = $0AD6 / 100` for three-digit display.
 | Called by | `SystemInit` main loop step 20 | Every normal frame |
 | Called by | `UpdateFrame_Render` | Overlay frames |
 | Inline COP | `PlaySoundCh2 #0D` | Damage tick sound |
-| Inline COP | `RunBg3Script` | `asciistring_01E7F6`, `asciistring_01E818` |
+| Inline COP | `RunBg3Script` | `consolestring_01E7F6`, `consolestring_01E818` |
 | Data | `system_strings` include | HUD ASCII templates |
 | Cataloged in | `us/names.json` @ 33286 | |
 

@@ -46,7 +46,7 @@ gs2C_crow_crew [
     STA $CGADSUB
     REP #$20
     COP [WaitByte] ( #77 )
-    COP [PrintWideString] ( &widestring_0584FB )
+    COP [PrintDialogString] ( &dialogstring_0584FB )
     LDA #$EFF0
     TRB $joypadMaskStd
 } >
@@ -64,19 +64,19 @@ code_058498 {
 
 code_0584A9 {
     COP [BranchIfFlagByte] ( #4F, #01, &code_0584B7 )
-    COP [PrintWideString] ( &widestring_0584BC )
+    COP [PrintDialogString] ( &dialogstring_0584BC )
     COP [SetFlagByte] ( #4F )
     RTL 
 }
 
 code_0584B7 {
-    COP [PrintWideString] ( &widestring_0584FB )
+    COP [PrintDialogString] ( &dialogstring_0584FB )
     RTL 
 }
 
-widestring_0584BC `[DEF]Guard: Oh short King,[N]look there. The ship is[N]coming out of the cave![END]`
+dialogstring_0584BC `[DEF]Guard: Oh short King,[N]look there. The ship is[N]coming out of the cave![END]`
 
-widestring_0584FB `[DEF]Guard: After living in [N]darkness for so long, [N]the brightness is like [N]a new beginning. [FIN]How can invaders come[N]to destroy a world as[N]beautiful as this?[END]`
+dialogstring_0584FB `[DEF]Guard: After living in [N]darkness for so long, [N]the brightness is like [N]a new beginning. [FIN]How can invaders come[N]to destroy a world as[N]beautiful as this?[END]`
 
 code_05857A {
     COP [SetEntryContinue]

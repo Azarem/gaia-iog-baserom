@@ -37,8 +37,8 @@ code_04DC4F {
 }
 
 code_04DC59 {
-    COP [PrintWideString] ( &widestring_04DC5E )
+    COP [PrintDialogString] ( &dialogstring_04DC5E )
     RTL 
 }
 
-widestring_04DC5E `[TPL:E]I don't need anyone's[N]help... I can[N]get out by myself...[END]`
+dialogstring_04DC5E `[TPL:E]I don't need anyone's[N]help... I can[N]get out by myself...[END]`

@@ -1,6 +1,6 @@
 ---------------------------------------------
 
-sprite_set_list_000000 [
+spm_greatwall_sprites [
   &sprite_set_000042   ;00
   &sprite_set_000054   ;01
   &sprite_set_000066   ;02

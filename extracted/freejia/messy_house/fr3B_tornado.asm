@@ -12,8 +12,8 @@ fr3B_tornado [
 ]
 
 code_05BBFB {
-    COP [PrintWideString] ( &widestring_05BC00 )
+    COP [PrintDialogString] ( &dialogstring_05BC00 )
     RTL 
 }
 
-widestring_05BC00 `[TPL:A]It's not like a tornado [N]came through here. [FIN]Maybe you'd be more[N]comfortable in a place[N]not quite so neat?[END]`
+dialogstring_05BC00 `[TPL:A]It's not like a tornado [N]came through here. [FIN]Maybe you'd be more[N]comfortable in a place[N]not quite so neat?[END]`

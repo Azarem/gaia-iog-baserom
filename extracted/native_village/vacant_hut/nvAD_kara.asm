@@ -19,7 +19,7 @@ nvAD_kara [
     LDA #$CFF0
     TSB $joypadMaskStd
     COP [WaitByte] ( #1D )
-    COP [PrintWideString] ( &widestring_088B32 )
+    COP [PrintDialogString] ( &dialogstring_088B32 )
     LDA #$CFF0
     TRB $joypadMaskStd
     COP [SetFlagByte] ( #AE )
@@ -44,13 +44,13 @@ code_088B18 {
 
 code_088B1A {
     COP [SetFlagByte] ( #B0 )
-    COP [PrintWideString] ( &widestring_088B8B )
+    COP [PrintDialogString] ( &dialogstring_088B8B )
     LDA #$0404
     STA $gfxCacheIdxB
     COP [QueueMapChange] ( #AC, #$00B0, #$00A0, #00, #$2200 )
     RTL 
 }
 
-widestring_088B32 `[TPL:A][TPL:1]Kara: [N]No one here... The [N]village looks abandoned. [FIN][TPL:3]Erik: [N]That's good. We can [N]rest if we want.[PAL:0][END]`
+dialogstring_088B32 `[TPL:A][TPL:1]Kara: [N]No one here... The [N]village looks abandoned. [FIN][TPL:3]Erik: [N]That's good. We can [N]rest if we want.[PAL:0][END]`
 
-widestring_088B8B `[TPL:A][TPL:1]Kara: [N]Let's rest today.[PAL:0][END]`
+dialogstring_088B8B `[TPL:A][TPL:1]Kara: [N]Let's rest today.[PAL:0][END]`

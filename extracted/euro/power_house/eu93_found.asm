@@ -16,7 +16,7 @@ eu93_found [
 code_07E517 {
     COP [BranchIfFlagByte] ( #A6, #01, &code_07E52C )
     COP [SetFlagByte] ( #A6 )
-    COP [PrintWideString] ( &widestring_07E531 )
+    COP [PrintDialogString] ( &dialogstring_07E531 )
     LDA $playerStr
     INC 
     STA $playerStr
@@ -24,10 +24,10 @@ code_07E517 {
 }
 
 code_07E52C {
-    COP [PrintWideString] ( &widestring_07E566 )
+    COP [PrintDialogString] ( &dialogstring_07E566 )
     RTL 
 }
 
-widestring_07E531 `[DEF]You found it here. I[N]understand your wishes.[N]I'll give you the power[N]at once.[END]`
+dialogstring_07E531 `[DEF]You found it here. I[N]understand your wishes.[N]I'll give you the power[N]at once.[END]`
 
-widestring_07E566 `[DEF]Well, go.[END]`
+dialogstring_07E566 `[DEF]Well, go.[END]`

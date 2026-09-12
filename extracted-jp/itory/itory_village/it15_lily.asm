@@ -25,7 +25,7 @@ code_04DBCB {
     LDA #$CFF0
     TSB $joypadMaskStd
     COP [WaitByte] ( #1D )
-    COP [PrintWideString] ( &widestring_04DCE7 )
+    COP [PrintDialogString] ( &dialogstring_04DCE7 )
     LDA #$6000
     TRB $joypadMaskStd
     LDA #$1000
@@ -74,7 +74,7 @@ code_04DBF8 {
     COP [SpawnThinker] ( @chunk_008000.code_00B883 )
     COP [WaitByte] ( #9D )
     COP [WaitByte] ( #59 )
-    COP [PrintWideString] ( &widestring_04DD7F )
+    COP [PrintDialogString] ( &dialogstring_04DD7F )
     COP [SetFlagByte] ( #02 )
     COP [ExitIfFlagByte] ( #03, #01 )
     LDA #$EFF0
@@ -109,10 +109,10 @@ code_04DCAA {
     TRB $10
     COP [ExitIfFlagByte] ( #04, #01 )
     LDA #$0001
-    JSL $@chunk_008000.widestring_00C829
+    JSL $@chunk_008000.dialogstring_00C829
     COP [StageSpriteFrame] ( #1A )
     COP [AnimOnce]
-    COP [PrintWideString] ( &widestring_04DE03 )
+    COP [PrintDialogString] ( &dialogstring_04DE03 )
     LDA #$0800
     TSB $10
     COP [StageSpriteLoopMoveY] ( #1F, #02, #12 )
@@ -127,14 +127,14 @@ code_04DCDE {
 }
 
 code_04DCE0 {
-    COP [PrintWideString] ( &widestring_04DD52 )
+    COP [PrintDialogString] ( &dialogstring_04DD52 )
     JMP $&code_04DBE9
 }
 
-widestring_04DCE7 `[TPL:E][TPL:2]リリィ: ここが あたしの村.[N]っていっても 家も 何にもなくて[N]びっくりしたでしょ?[FIN]テム. エドワード城の地下で[N]あたしを 呼んだときのメロディを[N]ふいてみてくれる?[PAL:0][END]`
+dialogstring_04DCE7 `[TPL:E][TPL:2]リリィ: ここが あたしの村.[N]っていっても 家も 何にもなくて[N]びっくりしたでしょ?[FIN]テム. エドワード城の地下で[N]あたしを 呼んだときのメロディを[N]ふいてみてくれる?[PAL:0][END]`
 
-widestring_04DD52 `[TPL:E][TPL:2]リリィ:[N]テム. どこにいくの?[N]ここで メロディをふいてよっ.[PAL:0][END]`
+dialogstring_04DD52 `[TPL:E][TPL:2]リリィ:[N]テム. どこにいくの?[N]ここで メロディをふいてよっ.[PAL:0][END]`
 
-widestring_04DD7F `[TPL:E][TPL:2]リリィ:[N]おどろいた?[FIN]このイトリー村には 結界があって[N]ふつうの人には 見えないの.[FIN]しかし おじょうさまにも[N]困ったものよねぇ···[FIN]山道じゃ 足が痛いだの[N]のどがかわいた だのって[N]耳が おかしくなりそうだったわ.[PAL:0][END]`
+dialogstring_04DD7F `[TPL:E][TPL:2]リリィ:[N]おどろいた?[FIN]このイトリー村には 結界があって[N]ふつうの人には 見えないの.[FIN]しかし おじょうさまにも[N]困ったものよねぇ···[FIN]山道じゃ 足が痛いだの[N]のどがかわいた だのって[N]耳が おかしくなりそうだったわ.[PAL:0][END]`
 
-widestring_04DE03 `[TPL:E][TPL:2]リリィ: だってさあ[N]勝手についてくるんだもん.[FIN]テム. この家が あたしの家なの.[N]村を 見物したければしてもいいけど[N]あとで ここへ もどってきてね.[PAL:0][END]`
+dialogstring_04DE03 `[TPL:E][TPL:2]リリィ: だってさあ[N]勝手についてくるんだもん.[FIN]テム. この家が あたしの家なの.[N]村を 見物したければしてもいいけど[N]あとで ここへ もどってきてね.[PAL:0][END]`

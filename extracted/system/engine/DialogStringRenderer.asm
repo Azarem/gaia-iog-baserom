@@ -4,7 +4,7 @@
 ; 
 ; === WIDE STRING RENDERER (254549) ===
 ; 
-; Entry point: WideStringRenderer, called via JSL from COP script handlers and other engine systems.
+; Entry point: DialogStringRenderer, called via JSL from COP script handlers and other engine systems.
 ; 
 ; The renderer maintains state in work RAM:
 ; - $0998: Current VRAM buffer write cursor (X index into $7F0200)
@@ -82,13 +82,13 @@
 ; 
 ; Entry: JSL with Y = string data pointer, X = VRAM buffer cursor (saved to $0998). Sets DP = 0 for zero-page scratch access.
 ; 
-; The character loop (WideString_CharLoop) reads one byte at a time from [Y]. Bytes < $C0 are treated as tile indices: masked to 8 bits, OR'd with palette bits ($0986) and priority ($2100), then written to both $7F0200,X (top tile row) and $7F0240,X (bottom row, +$10 offset). The cursor X advances by 2 per character.
+; The character loop (DialogString_CharLoop) reads one byte at a time from [Y]. Bytes < $C0 are treated as tile indices: masked to 8 bits, OR'd with palette bits ($0986) and priority ($2100), then written to both $7F0200,X (top tile row) and $7F0240,X (bottom row, +$10 offset). The cursor X advances by 2 per character.
 ; 
-; Bytes ≥ $C0 are command opcodes: masked to 5 bits (AND #$001F), doubled as a word index, looked up in WideStringCommandTable, and dispatched via an RTS trick (PEA loop_addr−1, push cmd_addr−1, RTS).
+; Bytes ≥ $C0 are command opcodes: masked to 5 bits (AND #$001F), doubled as a word index, looked up in DialogStringCommandTable, and dispatched via an RTS trick (PEA loop_addr−1, push cmd_addr−1, RTS).
 ; 
 ; After each visible character: if worldReadyFlag is set, calls WaitNFrames_PerChar for the typing delay, checks for the ellipsis tile ($AC) to suppress sound, and queues the per-character SFX ($0996) to sfxQueueCh1.
 
-WideStringRenderer {
+DialogStringRenderer {
     PHP 
     PHD 
     PHX 
@@ -96,19 +96,19 @@ WideStringRenderer {
     TCD                   ; DP = 0 for scratch variables at $00–$FF
     LDX $0998
 
-  WideString_CharLoop:
+  DialogString_CharLoop:
     SEP #$20
     LDA $0000, Y
     CMP #$C0              ; < $C0 = printable tile character; ≥ $C0 = command opcode
     BCC loc_03E27C
     REP #$20
     INY 
-    PEA $&WideString_CharLoop-1 ; RTS dispatch: push loop return addr − 1, then push command addr − 1
+    PEA $&DialogString_CharLoop-1 ; RTS dispatch: push loop return addr − 1, then push command addr − 1
     AND #$001F            ; Mask to 5-bit command index ($C0–$D8 → 0–24), double for word table
     ASL 
     PHX 
     TAX 
-    LDA $@WideStringCommandTable, X
+    LDA $@DialogStringCommandTable, X
     PLX 
     DEC                   ; DEC for RTS trick — RTS adds 1 back to reach correct handler
     PHA 
@@ -130,7 +130,7 @@ WideStringRenderer {
     INX 
     STX $0998
     LDA $worldReadyFlag   ; worldReadyFlag not set → skip typing delay and sound
-    BEQ WideString_CharLoop
+    BEQ DialogString_CharLoop
     LDA $00
     PHA 
     LDA #$0001            ; TSB displayModeFlags triggers VRAM DMA on next VBlank
@@ -138,15 +138,15 @@ WideStringRenderer {
     JSR $&WaitNFrames_PerChar
     PLA 
     CMP #$00AC            ; Ellipsis tile ($AC) suppresses per-character click sound
-    BEQ WideString_CharLoop
+    BEQ DialogString_CharLoop
     LDA $sfxQueueCh1      ; Merge SFX: clear queue low byte, OR in per-character sound ($0996)
     AND #$FF00
     ORA $0996
     STA $sfxQueueCh1
-    BRA WideString_CharLoop
+    BRA DialogString_CharLoop
 }
 
-WideStringCommandTable [
+DialogStringCommandTable [
   &WideCmd_EndAndWait   ;00
   &WideCmd_SetPosition   ;01
   &WideCmd_InsertTemplate   ;02
@@ -231,7 +231,7 @@ WideCmd_SetPosition {
 ---------------------------------------------
 ; Recursively render a template string from the templates_01CA95 table.
 ; 
-; Reads a 1-byte operand (template index), multiplies by 2 for the word-sized pointer table, switches DBR to the template bank, and calls WideStringRenderer recursively via JSL. Restores the VRAM cursor, string pointer, bank, and processor state on return.
+; Reads a 1-byte operand (template index), multiplies by 2 for the word-sized pointer table, switches DBR to the template bank, and calls DialogStringRenderer recursively via JSL. Restores the VRAM cursor, string pointer, bank, and processor state on return.
 
 WideCmd_InsertTemplate {
     PHP 
@@ -249,7 +249,7 @@ WideCmd_InsertTemplate {
     LDA $&templates_01CA95, Y
     TAY 
     STX $0998
-    JSL $@WideStringRenderer ; Recursive JSL WideStringRenderer to render template string
+    JSL $@DialogStringRenderer ; Recursive JSL DialogStringRenderer to render template string
     LDX $0998
     PLY 
     INY 
@@ -285,7 +285,7 @@ WideCmd_InfiniteLoop {
 ---------------------------------------------
 ; Render a string selected from an indirect pointer table.
 ; 
-; Reads a 4-byte operand: bytes 0-1 = base pointer offset, bytes 2-3 = table address. Computes the string pointer as: table[base[table_addr]] + base_offset. Then recursively renders via JSL WideStringRenderer.
+; Reads a 4-byte operand: bytes 0-1 = base pointer offset, bytes 2-3 = table address. Computes the string pointer as: table[base[table_addr]] + base_offset. Then recursively renders via JSL DialogStringRenderer.
 
 WideCmd_IndirectString {
     PHY 
@@ -299,7 +299,7 @@ WideCmd_IndirectString {
     LDA $0000, X
     TAY 
     LDX $0998
-    JSL $@WideStringRenderer ; Recursive JSL WideStringRenderer for resolved string
+    JSL $@DialogStringRenderer ; Recursive JSL DialogStringRenderer for resolved string
     LDX $0998
     PLY 
     INY 
@@ -744,12 +744,12 @@ WideCmd_InsertRemoteString {
     PHA 
     SEP #$20
     LDA $0002, Y
-    PHA                   ; Set DBR to remote bank, then JSL WideStringRenderer recursively
+    PHA                   ; Set DBR to remote bank, then JSL DialogStringRenderer recursively
     PLB 
     REP #$20
     PLY 
     STX $0998
-    JSL $@WideStringRenderer
+    JSL $@DialogStringRenderer
     LDX $0998
     PLB 
     PLY 
@@ -933,7 +933,7 @@ WideCmd_SetFrameDelay {
 ---------------------------------------------
 ; Insert a word from dictionary A (dictionary_01EBA8).
 ; 
-; Reads a 1-byte index, doubles it for the word pointer table, switches DBR to the dictionary bank, reads the string pointer, and recursively renders via JSL WideStringRenderer. Used for common words to save space in dialogue scripts.
+; Reads a 1-byte index, doubles it for the word pointer table, switches DBR to the dictionary bank, reads the string pointer, and recursively renders via JSL DialogStringRenderer. Used for common words to save space in dialogue scripts.
 
 WideCmd_DictionaryA {
     PHP 
@@ -951,7 +951,7 @@ WideCmd_DictionaryA {
     LDA $&dictionary_01EBA8, Y
     TAY 
     STX $0998
-    JSL $@WideStringRenderer
+    JSL $@DialogStringRenderer
     LDX $0998
     PLY 
     INY 
@@ -981,7 +981,7 @@ WideCmd_DictionaryB {
     LDA $&dictionary_01F54D, Y
     TAY 
     STX $0998
-    JSL $@WideStringRenderer
+    JSL $@DialogStringRenderer
     LDX $0998
     PLY 
     INY 

@@ -25,7 +25,7 @@ InventoryMenuDef [
 
   InventoryMenuInit:
     COP [SetMetasprite] ( @inventory_spritemap )
-    COP [RunBg3Script] ( @system_strings.asciistring_01E869 )
+    COP [RunBg3Script] ( @system_strings.consolestring_01E869 )
     STZ $inventoryTabIndex
     LDA #$000F
     STA $24
@@ -62,8 +62,8 @@ InventoryMenuDef [
     TSB $10
 
   InventoryMainLoop:
-    COP [RunBg3Script] ( @system_strings.asciistring_01E90B )
-    COP [RunBg3Script] ( @system_strings.asciistring_01E8E9 )
+    COP [RunBg3Script] ( @system_strings.consolestring_01E90B )
+    COP [RunBg3Script] ( @system_strings.consolestring_01E8E9 )
     STZ $1C
     LDA #$FFFF
     STA $18
@@ -109,9 +109,9 @@ TabActionDispatch [
 UseItemTab {
     LDA #$0004
     STA $bg1ConfigMode
-    COP [RunBg3Script] ( @system_strings.asciistring_01E90B )
-    COP [RunBg3Script] ( @system_strings.asciistring_01EA02 )
-    COP [RunBg3Script] ( @system_strings.asciistring_01E975 )
+    COP [RunBg3Script] ( @system_strings.consolestring_01E90B )
+    COP [RunBg3Script] ( @system_strings.consolestring_01EA02 )
+    COP [RunBg3Script] ( @system_strings.consolestring_01E975 )
     STZ $inventoryEquippedIndex
     JSR $&ShowEquipCursor
     LDA $1A
@@ -120,12 +120,12 @@ UseItemTab {
 
   code_02E47F:
     JSR $&PositionEquipCursor
-    COP [RunBg3Script] ( @system_strings.asciistring_01E912 )
+    COP [RunBg3Script] ( @system_strings.consolestring_01E912 )
     LDY $1A
     LDA $inventorySlots, Y
     AND #$00FF
     STA $itemAbilityIndex
-    COP [RunBg3Script] ( @system_strings.asciistring_01E9D0 )
+    COP [RunBg3Script] ( @system_strings.consolestring_01E9D0 )
     COP [SetEntryExit]
     COP [BranchIfButton] ( #$C040, &UseItemConfirm )
     COP [BranchIfButton] ( #$0800, &UseItemCursorUp )
@@ -210,9 +210,9 @@ ArrangeItemsTab {
 
   code_02E544:
     STZ $1C
-    COP [RunBg3Script] ( @system_strings.asciistring_01E90B )
-    COP [RunBg3Script] ( @system_strings.asciistring_01EA14 )
-    COP [RunBg3Script] ( @system_strings.asciistring_01E98C )
+    COP [RunBg3Script] ( @system_strings.consolestring_01E90B )
+    COP [RunBg3Script] ( @system_strings.consolestring_01EA14 )
+    COP [RunBg3Script] ( @system_strings.consolestring_01E98C )
 
   code_02E555:
     JSR $&PositionGridCursor
@@ -238,9 +238,9 @@ ArrangePickTarget {
     STA $2E
     COP [SpawnAfterFlags] ( @SelectionCursorActor, #$0802 )
     STY $20
-    COP [RunBg3Script] ( @system_strings.asciistring_01E90B )
-    COP [RunBg3Script] ( @system_strings.asciistring_01EA14 )
-    COP [RunBg3Script] ( @system_strings.asciistring_01E9A6 )
+    COP [RunBg3Script] ( @system_strings.consolestring_01E90B )
+    COP [RunBg3Script] ( @system_strings.consolestring_01EA14 )
+    COP [RunBg3Script] ( @system_strings.consolestring_01E9A6 )
 
   code_02E5AC:
     JSR $&PositionGridCursor
@@ -338,9 +338,9 @@ DiscardItemTab {
 
   code_02E66B:
     STZ $1C
-    COP [RunBg3Script] ( @system_strings.asciistring_01E90B )
-    COP [RunBg3Script] ( @system_strings.asciistring_01EA27 )
-    COP [RunBg3Script] ( @system_strings.asciistring_01E9B7 )
+    COP [RunBg3Script] ( @system_strings.consolestring_01E90B )
+    COP [RunBg3Script] ( @system_strings.consolestring_01EA27 )
+    COP [RunBg3Script] ( @system_strings.consolestring_01E9B7 )
 
   code_02E67C:
     JSR $&PositionGridCursor
@@ -366,8 +366,8 @@ code_02E6AA {
     STA $itemAbilityIndex
     JSR $&CheckItemDiscardable
     BCS loc_02E705
-    COP [RunBg3Script] ( @system_strings.asciistring_01E912 )
-    COP [RunBg3Script] ( @system_strings.asciistring_01E9E2 )
+    COP [RunBg3Script] ( @system_strings.consolestring_01E912 )
+    COP [RunBg3Script] ( @system_strings.consolestring_01E9E2 )
     STZ $28
     COP [SetEntryExit]
     JSR $&YesNoPromptLoop
@@ -414,15 +414,15 @@ DiscardCancelTab {
 StatusViewTab {
     LDA #$0000
     STA $bg1ConfigMode
-    COP [RunBg3Script] ( @system_strings.asciistring_01E90B )
-    COP [RunBg3Script] ( @system_strings.asciistring_01EA39 )
+    COP [RunBg3Script] ( @system_strings.consolestring_01E90B )
+    COP [RunBg3Script] ( @system_strings.consolestring_01EA39 )
     COP [SpawnAfterFlags] ( @SelectionCursorActor, #$0802 )
     STY $20
     STZ $22
 
   loc_02E734:
     JSR $&StatusPositionCursor
-    COP [RunBg3Script] ( @system_strings.asciistring_01E912 )
+    COP [RunBg3Script] ( @system_strings.consolestring_01E912 )
     LDA $characterForm
     STA $0004
     LDA $22
@@ -430,7 +430,7 @@ StatusViewTab {
     BCC loc_02E753
     LDA $22
     JSR $&ComputeAbilityIndex
-    COP [RunBg3Script] ( @system_strings.asciistring_01EAB4 )
+    COP [RunBg3Script] ( @system_strings.consolestring_01EAB4 )
 
   loc_02E753:
     COP [SetEntryExit]
@@ -502,9 +502,9 @@ TabHoverUse {
     JSR $&HideAllItemSlots
     JSR $&ShowEquipCursor
     JSR $&HideStatusActors
-    COP [RunBg3Script] ( @system_strings.asciistring_01E8E2 )
-    COP [RunBg3Script] ( @system_strings.asciistring_01E912 )
-    COP [RunBg3Script] ( @system_strings.asciistring_01E919 )
+    COP [RunBg3Script] ( @system_strings.consolestring_01E8E2 )
+    COP [RunBg3Script] ( @system_strings.consolestring_01E912 )
+    COP [RunBg3Script] ( @system_strings.consolestring_01E919 )
     LDA #$0004
     STA $bg1ConfigMode
     RTL 
@@ -513,8 +513,8 @@ TabHoverUse {
 TabHoverArrange {
     JSR $&HideAllItemSlots
     JSR $&ShowEquipCursor
-    COP [RunBg3Script] ( @system_strings.asciistring_01E912 )
-    COP [RunBg3Script] ( @system_strings.asciistring_01E954 )
+    COP [RunBg3Script] ( @system_strings.consolestring_01E912 )
+    COP [RunBg3Script] ( @system_strings.consolestring_01E954 )
     RTL 
 }
 
@@ -522,9 +522,9 @@ TabHoverDiscard {
     JSR $&HideAllItemSlots
     JSR $&ShowEquipCursor
     JSR $&HideStatusActors
-    COP [RunBg3Script] ( @system_strings.asciistring_01E912 )
-    COP [RunBg3Script] ( @system_strings.asciistring_01E8E2 )
-    COP [RunBg3Script] ( @system_strings.asciistring_01E962 )
+    COP [RunBg3Script] ( @system_strings.consolestring_01E912 )
+    COP [RunBg3Script] ( @system_strings.consolestring_01E8E2 )
+    COP [RunBg3Script] ( @system_strings.consolestring_01E962 )
     LDA #$0004
     STA $bg1ConfigMode
     RTL 
@@ -533,9 +533,9 @@ TabHoverDiscard {
 TabHoverStatus {
     JSR $&ShowAllItemSlots
     JSR $&HideEquipCursor
-    COP [RunBg3Script] ( @system_strings.asciistring_01E912 )
-    COP [RunBg3Script] ( @system_strings.asciistring_01E870 )
-    COP [RunBg3Script] ( @system_strings.asciistring_01EA70 )
+    COP [RunBg3Script] ( @system_strings.consolestring_01E912 )
+    COP [RunBg3Script] ( @system_strings.consolestring_01E870 )
+    COP [RunBg3Script] ( @system_strings.consolestring_01EA70 )
     LDA #$0000
     STA $bg1ConfigMode
     LDA $moveXAlt, X
@@ -562,7 +562,7 @@ TabHoverStatus {
     STA $0010, Y
     LDA #$0000
     JSR $&ComputeAbilityIndex
-    COP [RunBg3Script] ( @system_strings.asciistring_01EA49 )
+    COP [RunBg3Script] ( @system_strings.consolestring_01EA49 )
 
   loc_02E876:
     LDY $0002
@@ -577,7 +577,7 @@ TabHoverStatus {
     STA $0010, Y
     LDA #$0001
     JSR $&ComputeAbilityIndex
-    COP [RunBg3Script] ( @system_strings.asciistring_01EA56 )
+    COP [RunBg3Script] ( @system_strings.consolestring_01EA56 )
 
   loc_02E89E:
     LDY $0002
@@ -592,7 +592,7 @@ TabHoverStatus {
     STA $0010, Y
     LDA #$0002
     JSR $&ComputeAbilityIndex
-    COP [RunBg3Script] ( @system_strings.asciistring_01EA63 )
+    COP [RunBg3Script] ( @system_strings.consolestring_01EA63 )
 
   loc_02E8C6:
     RTL 

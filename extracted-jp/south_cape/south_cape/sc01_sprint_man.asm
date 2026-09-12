@@ -12,8 +12,8 @@ h_sc01_sprint_man [
 ]
 
 code_0490CD {
-    COP [PrintWideString] ( &widestring_0490D2 )
+    COP [PrintDialogString] ( &dialogstring_0490D2 )
     RTL 
 }
 
-widestring_0490D2 `[DEF]なかなか 速そうな 足をしてるな.[N]走るときは 進行方向の ボタンを[N]グッ グーッと 2回 おすんだぜ.[END]`
+dialogstring_0490D2 `[DEF]なかなか 速そうな 足をしてるな.[N]走るときは 進行方向の ボタンを[N]グッ グーッと 2回 おすんだぜ.[END]`

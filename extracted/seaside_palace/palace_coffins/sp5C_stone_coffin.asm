@@ -57,10 +57,10 @@ sp5C_stone_coffin [
     JSL $@music_actors.IsMusicPlaying
     BCS loc_069297
     COP [GiveItem] ( #11, &code_069293 )
-    COP [PrintWideString] ( &widestring_069377 )
+    COP [PrintDialogString] ( &dialogstring_069377 )
     LDA #$0080
     TSB $displayModeFlags
-    COP [MusicAndText] ( #17, @widestring_06939E )
+    COP [MusicAndText] ( #17, @dialogstring_06939E )
     COP [WaitByte] ( #03 )
     COP [SetEntryContinue]
     LDA #$CFF0
@@ -100,7 +100,7 @@ code_069291 {
 }
 
 code_069293 {
-    COP [PrintWideString] ( &widestring_0693B7 )
+    COP [PrintDialogString] ( &dialogstring_0693B7 )
 
   loc_069297:
     COP [ClearFlagWord] ( #$013B )
@@ -125,22 +125,22 @@ code_069293 {
 
 code_0692CF {
     COP [BranchIfFlagByte] ( #6F, #01, &code_0692DA )
-    COP [PrintWideString] ( &widestring_0692E2 )
+    COP [PrintDialogString] ( &dialogstring_0692E2 )
     RTL 
 }
 
 code_0692DA {
-    COP [PrintWideString] ( &widestring_06930A )
+    COP [PrintDialogString] ( &dialogstring_06930A )
     COP [SetFlagByte] ( #02 )
     RTL 
 }
 
-widestring_0692E2 `[DEF][TPL:0]Will: The coffins are [N]lined up...[PAL:0][END]`
+dialogstring_0692E2 `[DEF][TPL:0]Will: The coffins are [N]lined up...[PAL:0][END]`
 
-widestring_06930A `[DEF][TPL:2]Lilly speaks from[N]his pocket.[FIN][TPL:2]Lilly:[N]Isn't there a hole in[N]the coffin?[FIN]I could get in through [N]the hole. I better [N]have a look.[PAL:0][END]`
+dialogstring_06930A `[DEF][TPL:2]Lilly speaks from[N]his pocket.[FIN][TPL:2]Lilly:[N]Isn't there a hole in[N]the coffin?[FIN]I could get in through [N]the hole. I better [N]have a look.[PAL:0][END]`
 
-widestring_069377 `[DEF][TPL:2]Lilly:[N]I found a strange stone[N]inside this coffin.[PAL:0][FIN]`
+dialogstring_069377 `[DEF][TPL:2]Lilly:[N]I found a strange stone[N]inside this coffin.[PAL:0][FIN]`
 
-widestring_06939E `[CLR][SFX:0][DLY:9]You've found the [N]Purification Stone![PAU:78][END]`
+dialogstring_06939E `[CLR][SFX:0][DLY:9]You've found the [N]Purification Stone![PAU:78][END]`
 
-widestring_0693B7 `[DEF][TPL:2]Lilly:[N]I found a strange stone[N]inside this coffin.[FIN]But your inventory[N]is full...[PAL:0][END]`
+dialogstring_0693B7 `[DEF][TPL:2]Lilly:[N]I found a strange stone[N]inside this coffin.[FIN]But your inventory[N]is full...[PAL:0][END]`

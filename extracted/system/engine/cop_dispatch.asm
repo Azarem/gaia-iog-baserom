@@ -130,7 +130,7 @@ cop_dispatch_table [
   &cop_handlers_collision.BranchIfOffCamera   ;68
   &cop_handlers_collision.HaltIfMaxFrames   ;69
   &cop_handlers_actors.SetLinkedEntryPtr   ;6A
-  &cop_handlers_script.PrintWideStringAlt   ;6B
+  &cop_handlers_script.PrintDialogStringAlt   ;6B
   &cop_handlers_collision.InitSpiral   ;6C
   &cop_handlers_collision.SpiralStep   ;6D
   #$0000   ;6E
@@ -214,7 +214,7 @@ cop_dispatch_table [
   &cop_handlers_actors.NudgePosition   ;BC
   &cop_handlers_script.RunBg3Script   ;BD
   &cop_handlers_script.DialogueOptions   ;BE
-  &cop_handlers_script.PrintWideString   ;BF
+  &cop_handlers_script.PrintDialogString   ;BF
   &cop_handlers_script.SetInteractHandler   ;C0
   &cop_handlers_script.SetEntryHere   ;C1
   &cop_handlers_script.SetEntryHereAndYield   ;C2

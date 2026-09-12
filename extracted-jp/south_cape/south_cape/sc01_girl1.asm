@@ -34,22 +34,22 @@ e_sc01_girl1 [
 ]
 
 code_0480F0 {
-    COP [PrintWideString] ( &widestring_0480FF )
+    COP [PrintDialogString] ( &dialogstring_0480FF )
     RTL 
 }
 
 code_0480F5 {
-    COP [PrintWideString] ( &widestring_04810A )
+    COP [PrintDialogString] ( &dialogstring_04810A )
     RTL 
 }
 
 code_0480FA {
-    COP [PrintWideString] ( &widestring_048112 )
+    COP [PrintDialogString] ( &dialogstring_048112 )
     RTL 
 }
 
-widestring_0480FF `[DEF]だるまさんが···[END]`
+dialogstring_0480FF `[DEF]だるまさんが···[END]`
 
-widestring_04810A `[DEF]ころんだっ![END]`
+dialogstring_04810A `[DEF]ころんだっ![END]`
 
-widestring_048112 `[DEF]ちぇっ あたしばっかり···[END]`
+dialogstring_048112 `[DEF]ちぇっ あたしばっかり···[END]`

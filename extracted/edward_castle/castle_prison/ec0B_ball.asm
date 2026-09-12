@@ -13,9 +13,9 @@ ec0B_ball [
 ]
 
 code_04DBE8 {
-    COP [PrintWideString] ( &widestring_04DBF1 )
+    COP [PrintDialogString] ( &dialogstring_04DBF1 )
     COP [SetFlagByte] ( #04 )
     COP [Die]
 }
 
-widestring_04DBF1 `[TPL:E][TPL:0]Will: Someone was [N]chained to this ball...[PAL:0][END]`
+dialogstring_04DBF1 `[TPL:E][TPL:0]Will: Someone was [N]chained to this ball...[PAL:0][END]`

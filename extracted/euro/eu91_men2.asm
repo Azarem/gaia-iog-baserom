@@ -39,22 +39,22 @@ code_list_07C957 [
 ]
 
 code_07C961 {
-    COP [PrintWideString] ( &widestring_07C970 )
+    COP [PrintDialogString] ( &dialogstring_07C970 )
     RTL 
 }
 
 code_07C966 {
-    COP [PrintWideString] ( &widestring_07C9DB )
+    COP [PrintDialogString] ( &dialogstring_07C9DB )
     RTL 
 }
 
 code_07C96B {
-    COP [PrintWideString] ( &widestring_07C9FF )
+    COP [PrintDialogString] ( &dialogstring_07C9FF )
     RTL 
 }
 
-widestring_07C970 `[DEF]The other day, a man [N]called the Jackal[N]was asking questions. [FIN]He had the look of [N]evil. I think [N]he was chasing someone.[END]`
+dialogstring_07C970 `[DEF]The other day, a man [N]called the Jackal[N]was asking questions. [FIN]He had the look of [N]evil. I think [N]he was chasing someone.[END]`
 
-widestring_07C9DB `[DEF]The president of Rolek[N]lives in this mansion.[END]`
+dialogstring_07C9DB `[DEF]The president of Rolek[N]lives in this mansion.[END]`
 
-widestring_07C9FF `[DEF]The town has changed.[N]Rolek's sudden growth[N]has brought many[N]merchants to the town.[FIN]There is something[N]behind the success.[END]`
+dialogstring_07C9FF `[DEF]The town has changed.[N]Rolek's sudden growth[N]has brought many[N]merchants to the town.[FIN]There is something[N]behind the success.[END]`

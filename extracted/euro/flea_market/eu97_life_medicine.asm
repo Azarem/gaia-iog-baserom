@@ -17,7 +17,7 @@ eu97_life_medicine [
 
 code_07CD0A {
     COP [BranchIfFlagByte] ( #F0, #01, &code_07CD34 )
-    COP [PrintWideString] ( &widestring_07CD39 )
+    COP [PrintDialogString] ( &dialogstring_07CD39 )
     COP [DialogueOptions] ( #02, #02, &code_list_07CD1A )
 }
 
@@ -28,7 +28,7 @@ code_list_07CD1A [
 ]
 
 code_07CD20 {
-    COP [PrintWideString] ( &widestring_07CD9B )
+    COP [PrintDialogString] ( &dialogstring_07CD9B )
     RTL 
 }
 
@@ -36,22 +36,22 @@ code_07CD25 {
     COP [SetFlagByte] ( #F0 )
     INC $playerMaxHp
     INC $playerHp
-    COP [PrintWideString] ( &widestring_07CD64 )
+    COP [PrintDialogString] ( &dialogstring_07CD64 )
     COP [Die]
 }
 
 code_07CD34 {
-    COP [PrintWideString] ( &widestring_07CDB3 )
+    COP [PrintDialogString] ( &dialogstring_07CDB3 )
     RTL 
 }
 
-widestring_07CD39 `[DEF]This is Life Medicine.[N]Try some?[N] Yes[N] No`
+dialogstring_07CD39 `[DEF]This is Life Medicine.[N]Try some?[N] Yes[N] No`
 
-widestring_07CD64 `[CLR][TPL:0]That taste makes my[N]mouth pucker.[FIN]Your power is increased![END]`
+dialogstring_07CD64 `[CLR][TPL:0]That taste makes my[N]mouth pucker.[FIN]Your power is increased![END]`
 
-widestring_07CD9B `[CLR]Really....[N]Don't you like it?[END]`
+dialogstring_07CD9B `[CLR]Really....[N]Don't you like it?[END]`
 
-widestring_07CDB3 `[DEF]I'm sorry...[N]One to a customer.[END]`
+dialogstring_07CDB3 `[DEF]I'm sorry...[N]One to a customer.[END]`
 
 code_07CDD4 {
     COP [StageSpriteFrame] ( #26 )

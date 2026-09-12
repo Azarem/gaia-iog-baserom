@@ -196,46 +196,46 @@ code_list_07D3A5 [
 ]
 
 code_07D3B1 {
-    COP [PrintWideString] ( &widestring_07D3CF )
+    COP [PrintDialogString] ( &dialogstring_07D3CF )
     RTL 
 }
 
 code_07D3B6 {
-    COP [PrintWideString] ( &widestring_07D3F6 )
+    COP [PrintDialogString] ( &dialogstring_07D3F6 )
     RTL 
 }
 
 code_07D3BB {
-    COP [PrintWideString] ( &widestring_07D423 )
+    COP [PrintDialogString] ( &dialogstring_07D423 )
     RTL 
 }
 
 code_07D3C0 {
-    COP [PrintWideString] ( &widestring_07D43E )
+    COP [PrintDialogString] ( &dialogstring_07D43E )
     RTL 
 }
 
 code_07D3C5 {
-    COP [PrintWideString] ( &widestring_07D479 )
+    COP [PrintDialogString] ( &dialogstring_07D479 )
     RTL 
 }
 
 code_07D3CA {
-    COP [PrintWideString] ( &widestring_07D4A9 )
+    COP [PrintDialogString] ( &dialogstring_07D4A9 )
     RTL 
 }
 
-widestring_07D3CF `[DEF]You can buy the best[N]goods in this shop.[END]`
+dialogstring_07D3CF `[DEF]You can buy the best[N]goods in this shop.[END]`
 
-widestring_07D3F6 `[DEF]I saw the line and [N]wondered why people [N]were lining up...[END]`
+dialogstring_07D3F6 `[DEF]I saw the line and [N]wondered why people [N]were lining up...[END]`
 
-widestring_07D423 `[DEF]We are always waiting[N]in line.[END]`
+dialogstring_07D423 `[DEF]We are always waiting[N]in line.[END]`
 
-widestring_07D43E `[DEF]In times of trouble, [N]people are grateful for [N]whatever they can get.[END]`
+dialogstring_07D43E `[DEF]In times of trouble, [N]people are grateful for [N]whatever they can get.[END]`
 
-widestring_07D479 `[DEF]I saw the line and[N]wondered why people[N]were lining up...[END]`
+dialogstring_07D479 `[DEF]I saw the line and[N]wondered why people[N]were lining up...[END]`
 
-widestring_07D4A9 `[DEF]You can buy Life[N]Medicine in this shop.[FIN]I don't know if it[N]helps, but everyone[N]wants a long life.[END]`
+dialogstring_07D4A9 `[DEF]You can buy Life[N]Medicine in this shop.[FIN]I don't know if it[N]helps, but everyone[N]wants a long life.[END]`
 
 code_07D4FF {
     LDA #$0005

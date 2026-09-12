@@ -60,22 +60,22 @@ code_list_078542 [
 ]
 
 code_07855A {
-    COP [PrintWideString] ( &widestring_0785C9 )
+    COP [PrintDialogString] ( &dialogstring_0785C9 )
     RTL 
 }
 
 code_07855F {
-    COP [PrintWideString] ( &widestring_078607 )
+    COP [PrintDialogString] ( &dialogstring_078607 )
     RTL 
 }
 
 code_078564 {
-    COP [PrintWideString] ( &widestring_078674 )
+    COP [PrintDialogString] ( &dialogstring_078674 )
     RTL 
 }
 
 code_078569 {
-    COP [PrintWideString] ( &widestring_0786C1 )
+    COP [PrintDialogString] ( &dialogstring_0786C1 )
     COP [DialogueOptions] ( #02, #02, &code_list_078573 )
 }
 
@@ -86,12 +86,12 @@ code_list_078573 [
 ]
 
 code_078579 {
-    COP [PrintWideString] ( &widestring_078724 )
+    COP [PrintDialogString] ( &dialogstring_078724 )
     RTL 
 }
 
 code_07857E {
-    COP [PrintWideString] ( &widestring_078741 )
+    COP [PrintDialogString] ( &dialogstring_078741 )
     LDA #$000D
     STA $0D60
     LDA #$0404
@@ -102,69 +102,69 @@ code_07857E {
 }
 
 code_0785A1 {
-    COP [PrintWideString] ( &widestring_07876E )
+    COP [PrintDialogString] ( &dialogstring_07876E )
     RTL 
 }
 
 code_0785A6 {
-    COP [PrintWideString] ( &widestring_07879B )
+    COP [PrintDialogString] ( &dialogstring_07879B )
     RTL 
 }
 
 code_0785AB {
-    COP [PrintWideString] ( &widestring_0787DA )
+    COP [PrintDialogString] ( &dialogstring_0787DA )
     RTL 
 }
 
 code_0785B0 {
-    COP [PrintWideString] ( &widestring_07881B )
+    COP [PrintDialogString] ( &dialogstring_07881B )
     RTL 
 }
 
 code_0785B5 {
-    COP [PrintWideString] ( &widestring_078881 )
+    COP [PrintDialogString] ( &dialogstring_078881 )
     RTL 
 }
 
 code_0785BA {
-    COP [PrintWideString] ( &widestring_0788DE )
+    COP [PrintDialogString] ( &dialogstring_0788DE )
     RTL 
 }
 
 code_0785BF {
-    COP [PrintWideString] ( &widestring_0788E0 )
+    COP [PrintDialogString] ( &dialogstring_0788E0 )
     RTL 
 }
 
 code_0785C4 {
-    COP [PrintWideString] ( &widestring_078960 )
+    COP [PrintDialogString] ( &dialogstring_078960 )
     RTL 
 }
 
-widestring_0785C9 `[DEF][SFX:10]Man: This is[N]Watermia. The houses are[N]built on rafts. We like[N]to move around.[END]`
+dialogstring_0785C9 `[DEF][SFX:10]Man: This is[N]Watermia. The houses are[N]built on rafts. We like[N]to move around.[END]`
 
-widestring_078607 `[DEF][SFX:10]Man:[N]This animal is called[N]a Kruk.[FIN]It's good for crossing[N]the desert. It can live[N]without food or water[N]for a long time.[END]`
+dialogstring_078607 `[DEF][SFX:10]Man:[N]This animal is called[N]a Kruk.[FIN]It's good for crossing[N]the desert. It can live[N]without food or water[N]for a long time.[END]`
 
-widestring_078674 `[DEF][SFX:10]Man: This is a gambling[N]house. A child would[N]have to be very poor to[N]come to this place.[END]`
+dialogstring_078674 `[DEF][SFX:10]Man: This is a gambling[N]house. A child would[N]have to be very poor to[N]come to this place.[END]`
 
-widestring_0786C1 `[DEF]I'm the Sky Deliveryman. [N]My tame birds will take [N]you to distant towns. [FIN]Do you want to[N]go to South Cape?[N] Quit[N] Go`
+dialogstring_0786C1 `[DEF]I'm the Sky Deliveryman. [N]My tame birds will take [N]you to distant towns. [FIN]Do you want to[N]go to South Cape?[N] Quit[N] Go`
 
-widestring_078724 `[CLR]OK. In that case,[N]use them later.[END]`
+dialogstring_078724 `[CLR]OK. In that case,[N]use them later.[END]`
 
-widestring_078741 `[CLR]Come here, birds.[N]We're taking this person[N]to South Cape![END]`
+dialogstring_078741 `[CLR]Come here, birds.[N]We're taking this person[N]to South Cape![END]`
 
-widestring_07876E `[DEF]This leaf is full.[N]Find another if you[N]want to ride.[END]`
+dialogstring_07876E `[DEF]This leaf is full.[N]Find another if you[N]want to ride.[END]`
 
-widestring_07879B `[DEF][SFX:10]Luke:[N]Take care of my house.[N]Make yourself at home[N]while I'm gone.[END]`
+dialogstring_07879B `[DEF][SFX:10]Luke:[N]Take care of my house.[N]Make yourself at home[N]while I'm gone.[END]`
 
-widestring_0787DA `[DEF]If you need a lot of[N]money, go to the raft[N]at the outside of[N]this building.[END]`
+dialogstring_0787DA `[DEF]If you need a lot of[N]money, go to the raft[N]at the outside of[N]this building.[END]`
 
-widestring_07881B `[DEF][SFX:10]Betting small money[N]won't make you[N]big money.[FIN]Of course, if you want[N]to risk your life, you[N]can make a fortune.[END]`
+dialogstring_07881B `[DEF][SFX:10]Betting small money[N]won't make you[N]big money.[FIN]Of course, if you want[N]to risk your life, you[N]can make a fortune.[END]`
 
-widestring_078881 `[DEF]Life is like a gamble.[N]Make one mistake,[N]and you're[N]on the road to ruin.[FIN]People do that[N]unconsciously.[END]`
+dialogstring_078881 `[DEF]Life is like a gamble.[N]Make one mistake,[N]and you're[N]on the road to ruin.[FIN]People do that[N]unconsciously.[END]`
 
-widestring_0788DE `[DEF][END]`
+dialogstring_0788DE `[DEF][END]`
 
-widestring_0788E0 `[DEF]There's an old man in[N]the town who's a little[N]bit crazy.[FIN]He was with the explorer, [N]Olman, on his[N]expedition to the[N]Tower of Babel. [END]`
+dialogstring_0788E0 `[DEF]There's an old man in[N]the town who's a little[N]bit crazy.[FIN]He was with the explorer, [N]Olman, on his[N]expedition to the[N]Tower of Babel. [END]`
 
-widestring_078960 `[DEF][END]`
+dialogstring_078960 `[DEF][END]`

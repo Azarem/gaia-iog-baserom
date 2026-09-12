@@ -1,6 +1,6 @@
 ---------------------------------------------
 
-sprite_set_list_000000 [
+spm_kress_sprites [
   &sprite_set_000042   ;00
   &sprite_set_000050   ;01
   &sprite_set_000062   ;02

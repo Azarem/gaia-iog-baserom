@@ -111,14 +111,14 @@ code_06D82A {
     RTL 
 
   loc_06D834:
-    COP [PrintWideString] ( &widestring_06D83E )
+    COP [PrintDialogString] ( &dialogstring_06D83E )
     RTL 
 
   loc_06D839:
-    COP [PrintWideString] ( &widestring_06D87B )
+    COP [PrintDialogString] ( &dialogstring_06D87B )
     RTL 
 }
 
-widestring_06D83E `[TPL:A]Istar's voice resounds.[FIN]Don't hurry.[N]Open the doors in order[N]from the left.[END]`
+dialogstring_06D83E `[TPL:A]Istar's voice resounds.[FIN]Don't hurry.[N]Open the doors in order[N]from the left.[END]`
 
-widestring_06D87B `[TPL:A]Istar's voice resounds.[FIN]That door is already[N]open. There's no[N]need to open it.[END]`
+dialogstring_06D87B `[TPL:A]Istar's voice resounds.[FIN]That door is already[N]open. There's no[N]need to open it.[END]`

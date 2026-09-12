@@ -41,8 +41,8 @@ sc01_sympathetic_woman [
 ]
 
 code_048999 {
-    COP [PrintWideString] ( &widestring_04899E )
+    COP [PrintDialogString] ( &dialogstring_04899E )
     RTL 
 }
 
-widestring_04899E `[DEF]I feel sorry[N]for Seth.[FIN]I understand why.  [N]He hates to see[N]his parents fighting[N]every day.[END]`
+dialogstring_04899E `[DEF]I feel sorry[N]for Seth.[FIN]I understand why.  [N]He hates to see[N]his parents fighting[N]every day.[END]`

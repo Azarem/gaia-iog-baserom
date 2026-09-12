@@ -19,7 +19,7 @@ h_ec13_lily [
     LDA #$CFF0
     TSB $joypadMaskStd
     COP [WaitByte] ( #1D )
-    COP [PrintWideString] ( &widestring_04FADD )
+    COP [PrintDialogString] ( &dialogstring_04FADD )
     LDA #$CFF0
     TRB $joypadMaskStd
     LDY $decelStepCounter
@@ -43,10 +43,10 @@ code_04FA52 {
     COP [SetFlagByte] ( #3A )
     LDA #$CFF0
     TSB $joypadMaskStd
-    COP [PrintWideString] ( &widestring_04FB00 )
+    COP [PrintDialogString] ( &dialogstring_04FB00 )
     COP [PlaySoundBoth] ( #$1616 )
     COP [WaitByte] ( #EF )
-    COP [PrintWideString] ( &widestring_04FC46 )
+    COP [PrintDialogString] ( &dialogstring_04FC46 )
     COP [WaitByte] ( #3B )
     COP [StageSpriteLoop] ( #24, #04 )
     COP [AnimLoop]
@@ -75,7 +75,7 @@ code_04FAA8 {
     LDA #$CFF0
     TSB $joypadMaskStd
     COP [WaitByte] ( #1D )
-    COP [PrintWideString] ( &widestring_04FADD )
+    COP [PrintDialogString] ( &dialogstring_04FADD )
     LDA #$CFF0
     TRB $joypadMaskStd
     LDY $decelStepCounter
@@ -92,8 +92,8 @@ code_04FAA8 {
     COP [Die]
 }
 
-widestring_04FADD `[TPL:A]敵の気配が消え[N]テムの変身が 解けてゆく···[END]`
+dialogstring_04FADD `[TPL:A]敵の気配が消え[N]テムの変身が 解けてゆく···[END]`
 
-widestring_04FB00 `[DEF][TPL:2]少女: 見ーちゃった![N]しかし おっどろいた![N]あたしみたいに 変身できる人が[N]いるんだね.[FIN]あたしは リリィ.[N]花の精に 守られてくらす[N]イトリー族の 女の子.[FIN]ところで あなた···[N]私たちにしか聞こえない[N]メロディーを どうしてしってるの?[FIN][TPL:0]テム:[N]ローラおばあちゃんから[N]教わったんだよ.[N]本当に困ったときに ふけって.[FIN][TPL:2]リリィ: ローラおばあちゃんには[N]とんでもない味のパイを[N]ごちそうになった.[FIN][TPL:0]テム:[N]おばあちゃんを 知ってるの!?[FIN][TPL:2]リリィ: ウフフ···[N]じつは ローラにたのまれて[N]あなたを たすけにきたんだもん![PAL:0][END]`
+dialogstring_04FB00 `[DEF][TPL:2]少女: 見ーちゃった![N]しかし おっどろいた![N]あたしみたいに 変身できる人が[N]いるんだね.[FIN]あたしは リリィ.[N]花の精に 守られてくらす[N]イトリー族の 女の子.[FIN]ところで あなた···[N]私たちにしか聞こえない[N]メロディーを どうしてしってるの?[FIN][TPL:0]テム:[N]ローラおばあちゃんから[N]教わったんだよ.[N]本当に困ったときに ふけって.[FIN][TPL:2]リリィ: ローラおばあちゃんには[N]とんでもない味のパイを[N]ごちそうになった.[FIN][TPL:0]テム:[N]おばあちゃんを 知ってるの!?[FIN][TPL:2]リリィ: ウフフ···[N]じつは ローラにたのまれて[N]あなたを たすけにきたんだもん![PAL:0][END]`
 
-widestring_04FC46 `[DEF][TPL:2]リリィ:[N]あっ. 長老さまが呼んでる···[N]あたし 行かなくちゃ.[FIN]リリィ:[N]あとで きっとまた 会えるわ.[N]じゃあネ,テム![PAL:0][END]`
+dialogstring_04FC46 `[DEF][TPL:2]リリィ:[N]あっ. 長老さまが呼んでる···[N]あたし 行かなくちゃ.[FIN]リリィ:[N]あとで きっとまた 会えるわ.[N]じゃあネ,テム![PAL:0][END]`

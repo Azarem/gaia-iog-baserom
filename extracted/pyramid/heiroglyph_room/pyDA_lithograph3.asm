@@ -27,12 +27,12 @@ code_08C90E {
 
 code_08C915 {
     COP [BranchIfFlagByte] ( #C4, #01, &code_08C933 )
-    COP [PrintWideString] ( &pyDA_lithograph1.widestring_08C7C9 )
+    COP [PrintDialogString] ( &pyDA_lithograph1.dialogstring_08C7C9 )
     COP [GiveItem] ( #20, &pyDA_lithograph1.pyDA_lithograph_full )
     COP [SetFlagByte] ( #C4 )
     LDA #$0080
     TSB $displayModeFlags
-    COP [MusicAndText] ( #17, @pyDA_lithograph1.widestring_08C831 )
+    COP [MusicAndText] ( #17, @pyDA_lithograph1.dialogstring_08C831 )
 }
 
 code_08C933 {

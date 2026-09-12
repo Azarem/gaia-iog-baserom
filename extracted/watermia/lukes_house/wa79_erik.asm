@@ -36,22 +36,22 @@ code_07A459 {
 }
 
 code_07A466 {
-    COP [PrintWideString] ( &widestring_07A475 )
+    COP [PrintDialogString] ( &dialogstring_07A475 )
     RTL 
 }
 
 code_07A46B {
-    COP [PrintWideString] ( &widestring_07A4C8 )
+    COP [PrintDialogString] ( &dialogstring_07A4C8 )
     RTL 
 }
 
 code_07A470 {
-    COP [PrintWideString] ( &widestring_07A506 )
+    COP [PrintDialogString] ( &dialogstring_07A506 )
     RTL 
 }
 
-widestring_07A475 `[TPL:A][TPL:3]Erik: Heh heh. I've [N]found something good. [FIN]Go outside and look [N]behind the house. I feel [N]a little guilty, but ...[END]`
+dialogstring_07A475 `[TPL:A][TPL:3]Erik: Heh heh. I've [N]found something good. [FIN]Go outside and look [N]behind the house. I feel [N]a little guilty, but ...[END]`
 
-widestring_07A4C8 `[TPL:A][TPL:3]Erik: There is a full[N]moon tonight. The [N]village seems different.[PAL:0][END]`
+dialogstring_07A4C8 `[TPL:A][TPL:3]Erik: There is a full[N]moon tonight. The [N]village seems different.[PAL:0][END]`
 
-widestring_07A506 `[TPL:A][TPL:3]Erik: I wish Lance [N]and Lilly were coming,[N]too...[PAL:0][END]`
+dialogstring_07A506 `[TPL:A][TPL:3]Erik: I wish Lance [N]and Lilly were coming,[N]too...[PAL:0][END]`

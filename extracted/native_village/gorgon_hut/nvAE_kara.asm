@@ -23,7 +23,7 @@ nvAE_kara [
     COP [AnimOnce]
     COP [SolidHighHere]
     COP [WaitByte] ( #3B )
-    COP [PrintWideString] ( &widestring_0895C9 )
+    COP [PrintDialogString] ( &dialogstring_0895C9 )
     COP [SetFlagByte] ( #CF )
     LDA #$CFF0
     TRB $joypadMaskStd
@@ -50,7 +50,7 @@ code_08956E {
 }
 
 code_089585 {
-    COP [PrintWideString] ( &widestring_08963C )
+    COP [PrintDialogString] ( &dialogstring_08963C )
     COP [DialogueOptions] ( #02, #02, &code_list_08958F )
 }
 
@@ -61,12 +61,12 @@ code_list_08958F [
 ]
 
 code_089595 {
-    COP [PrintWideString] ( &widestring_0896F9 )
+    COP [PrintDialogString] ( &dialogstring_0896F9 )
     RTL 
 }
 
 code_08959A {
-    COP [PrintWideString] ( &widestring_08971E )
+    COP [PrintDialogString] ( &dialogstring_08971E )
     LDA #$0000
     STA $0D60
     LDA #$0001
@@ -80,10 +80,10 @@ code_08959A {
     RTL 
 }
 
-widestring_0895C9 `[DEF][TPL:1]Kara:[N]I used sign language to[N]talk to the villagers.[FIN]The animals have[N]returned to the forest.[N]They no longer prey[N]on each other.[PAL:0][END]`
+dialogstring_0895C9 `[DEF][TPL:1]Kara:[N]I used sign language to[N]talk to the villagers.[FIN]The animals have[N]returned to the forest.[N]They no longer prey[N]on each other.[PAL:0][END]`
 
-widestring_08963C `[DEF][TPL:1]Labor traders came [N]from a town in [N]the northwest. They [N]took many villagers. [FIN]I can't believe they [N]would take advantage [N]of people stricken [N]with famine! [FIN]Travel to the labor [N]trader's village? [N] Yes, let's go! [N] Wait a while. `
+dialogstring_08963C `[DEF][TPL:1]Labor traders came [N]from a town in [N]the northwest. They [N]took many villagers. [FIN]I can't believe they [N]would take advantage [N]of people stricken [N]with famine! [FIN]Travel to the labor [N]trader's village? [N] Yes, let's go! [N] Wait a while. `
 
-widestring_0896F9 `[CLR][TPL:1]Then make preparations[N]and come back.[PAL:0][END]`
+dialogstring_0896F9 `[CLR][TPL:1]Then make preparations[N]and come back.[PAL:0][END]`
 
-widestring_08971E `[CLR][TPL:1]Let's get going![PAL:0][END]`
+dialogstring_08971E `[CLR][TPL:1]Let's get going![PAL:0][END]`

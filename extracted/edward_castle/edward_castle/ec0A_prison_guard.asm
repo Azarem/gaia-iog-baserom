@@ -19,8 +19,8 @@ code_04D1B7 {
 }
 
 code_04D1B9 {
-    COP [PrintWideString] ( &widestring_04D1BE )
+    COP [PrintDialogString] ( &dialogstring_04D1BE )
     RTL 
 }
 
-widestring_04D1BE `[TPL:B]Soldier:[N]This is the underground[N]prison. Innocent people[N]can't enter.[END]`
+dialogstring_04D1BE `[TPL:B]Soldier:[N]This is the underground[N]prison. Innocent people[N]can't enter.[END]`

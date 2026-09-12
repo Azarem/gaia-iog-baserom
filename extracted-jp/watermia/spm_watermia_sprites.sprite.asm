@@ -1,6 +1,6 @@
 ---------------------------------------------
 
-sprite_set_list_000000 [
+spm_watermia_sprites [
   &sprite_set_000074   ;00
   &sprite_set_00007A   ;01
   &sprite_set_000080   ;02

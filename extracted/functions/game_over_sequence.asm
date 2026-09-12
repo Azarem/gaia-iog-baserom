@@ -174,17 +174,17 @@ code_00D772 {
     COP [WaitByte] ( #02 )
     LDA $characterForm
     BNE loc_00D7AD
-    COP [PrintWideString] ( &widestring_00D7C2 )
+    COP [PrintDialogString] ( &dialogstring_00D7C2 )
     BRA loc_00D7BA
 
   loc_00D7AD:
     DEC 
     BNE loc_00D7B6
-    COP [PrintWideString] ( &widestring_00D818 )
+    COP [PrintDialogString] ( &dialogstring_00D818 )
     BRA loc_00D7BA
 
   loc_00D7B6:
-    COP [PrintWideString] ( &widestring_00D848 )
+    COP [PrintDialogString] ( &dialogstring_00D848 )
 
   loc_00D7BA:
     LDA #$CFF0
@@ -192,8 +192,8 @@ code_00D772 {
     COP [Die]
 }
 
-widestring_00D7C2 `[DEF]Will: I am sometimes [N]aware of having fallen [N]in a place I know. Must [N]have been a nightmare. [END]`
+dialogstring_00D7C2 `[DEF]Will: I am sometimes [N]aware of having fallen [N]in a place I know. Must [N]have been a nightmare. [END]`
 
-widestring_00D818 `[DEF]Freedan: When I think[N]about it, that place[N]seemed familiar...[END]`
+dialogstring_00D818 `[DEF]Freedan: When I think[N]about it, that place[N]seemed familiar...[END]`
 
-widestring_00D848 `[DEF]Shadow: When I think[N]about it, that place[N]seemed familiar...[END]`
+dialogstring_00D848 `[DEF]Shadow: When I think[N]about it, that place[N]seemed familiar...[END]`

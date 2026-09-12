@@ -41,43 +41,43 @@ code_list_099B65 [
 ]
 
 code_099B71 {
-    COP [PrintWideString] ( &widestring_099B8F )
+    COP [PrintDialogString] ( &dialogstring_099B8F )
     RTL 
 }
 
 code_099B76 {
-    COP [PrintWideString] ( &widestring_099C1E )
+    COP [PrintDialogString] ( &dialogstring_099C1E )
     RTL 
 }
 
 code_099B7B {
-    COP [PrintWideString] ( &widestring_099C95 )
+    COP [PrintDialogString] ( &dialogstring_099C95 )
     RTL 
 }
 
 code_099B80 {
-    COP [PrintWideString] ( &widestring_099D16 )
+    COP [PrintDialogString] ( &dialogstring_099D16 )
     RTL 
 }
 
 code_099B85 {
-    COP [PrintWideString] ( &widestring_099DE5 )
+    COP [PrintDialogString] ( &dialogstring_099DE5 )
     RTL 
 }
 
 code_099B8A {
-    COP [PrintWideString] ( &widestring_099E34 )
+    COP [PrintDialogString] ( &dialogstring_099E34 )
     RTL 
 }
 
-widestring_099B8F `[TPL:B]The light released[N]from the comet has a[N]profound effect on the[N]growth of living things.[FIN]When the star nears[N]Earth's orbit, all[N]living things experience[N]a dramatic evolution...[END]`
+dialogstring_099B8F `[TPL:B]The light released[N]from the comet has a[N]profound effect on the[N]growth of living things.[FIN]When the star nears[N]Earth's orbit, all[N]living things experience[N]a dramatic evolution...[END]`
 
-widestring_099C1E `[TPL:B]The passage of time is[N]different inside the[N]Tower of Babel... [N]Time races by...[FIN]You're not normal human[N]beings, because[N]you can live here...[END]`
+dialogstring_099C1E `[TPL:B]The passage of time is[N]different inside the[N]Tower of Babel... [N]Time races by...[FIN]You're not normal human[N]beings, because[N]you can live here...[END]`
 
-widestring_099C95 `[TPL:A]The evolution of living[N]things took a long time.[FIN]From insects to fish,[N]from reptiles to mammals,[N]then humans were born.[FIN]And so human beings[N]have evolved.[END]`
+dialogstring_099C95 `[TPL:A]The evolution of living[N]things took a long time.[FIN]From insects to fish,[N]from reptiles to mammals,[N]then humans were born.[FIN]And so human beings[N]have evolved.[END]`
 
-widestring_099D16 `[TPL:A]From ancient times [N]comets have been called [N]the spirits of stars,[FIN]but also the demon [N]of stars. [FIN]The one now nearing [N]the Earth is a demon [N]of stars... [FIN]The comet is the highest[N]form of consciousness.[FIN]The Earth will evolve [N]beyond imagination...[END]`
+dialogstring_099D16 `[TPL:A]From ancient times [N]comets have been called [N]the spirits of stars,[FIN]but also the demon [N]of stars. [FIN]The one now nearing [N]the Earth is a demon [N]of stars... [FIN]The comet is the highest[N]form of consciousness.[FIN]The Earth will evolve [N]beyond imagination...[END]`
 
-widestring_099DE5 `[TPL:B]In that room are demons[N]evolved by the light.[N]You must put them to[N]sleep before you go up.[END]`
+dialogstring_099DE5 `[TPL:B]In that room are demons[N]evolved by the light.[N]You must put them to[N]sleep before you go up.[END]`
 
-widestring_099E34 `[TPL:B]The Earth took a wrong[N]turn on its path[N]of evolution...[FIN]Your battle will change[N]the fate of humanity.[END]`
+dialogstring_099E34 `[TPL:B]The Earth took a wrong[N]turn on its path[N]of evolution...[FIN]Your battle will change[N]the fate of humanity.[END]`

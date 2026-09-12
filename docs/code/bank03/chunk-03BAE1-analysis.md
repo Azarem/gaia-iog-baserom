@@ -270,10 +270,10 @@ expansion, dictionary lookup, number formatting, and button-wait logic.
 
 | Address | Current Name | Proposed Name | Role |
 |---------|-------------|---------------|------|
-| `$03E255` | `sub_03E255` | `WideStringRenderer` | **Core entry.** Parses a wide-string byte stream: <$C0 = literal tile, ≥$C0 = command. Writes tiles to $7F0200 VRAM buffer with row stride |
-| `$03E2C3` | `wide_cmd_table_03E2C3` | `WideStringCommandTable` | Jump table for 25 wide-string commands ($C0–$D8) |
+| `$03E255` | `sub_03E255` | `DialogStringRenderer` | **Core entry.** Parses a wide-string byte stream: <$C0 = literal tile, ≥$C0 = command. Writes tiles to $7F0200 VRAM buffer with row stride |
+| `$03E2C3` | `wide_cmd_table_03E2C3` | `DialogStringCommandTable` | Jump table for 25 wide-string commands ($C0–$D8) |
 | `$03E2F5` | `cmd_c0_03E2F5` | `WideCmd_EndAndWait` | $C0: Clears input lock, waits for button, saves cursor position |
-| `$03E307` | `code_03E307` | `WideCmd_Return` | $CA / exit: Restores stack and returns from `WideStringRenderer` |
+| `$03E307` | `code_03E307` | `WideCmd_Return` | $CA / exit: Restores stack and returns from `DialogStringRenderer` |
 | `$03E30F` | `cmd_c1_03E30F` | `WideCmd_SetPosition` | $C1: Sets text cursor row/column from 2-byte argument |
 | `$03E335` | `cmd_c2_03E335` | `WideCmd_InsertTemplate` | $C2: Inserts a template string by index from `templates_01CA95` |
 | `$03E35B` | `cmd_c3_03E35B` | `WideCmd_SetPalette` | $C3: Sets tile palette bits for subsequent characters |
@@ -327,8 +327,8 @@ player facing-direction lookup table.
 
 | Address | Current Name | Proposed Name | Role |
 |---------|-------------|---------------|------|
-| `$03EA62` | `func_03EA62` | `AsciiStringRenderer` | Renders an ASCII-like string command stream to the VRAM tile buffer. Supports 18 commands ($00–$11) |
-| `$03EA8C` | `asciistring_cmd_table_03EA8C` | `AsciiStringCommandTable` | Jump table for 18 ASCII-string commands |
+| `$03EA62` | `func_03EA62` | `ConsoleStringRenderer` | Renders an ASCII-like string command stream to the VRAM tile buffer. Supports 18 commands ($00–$11) |
+| `$03EA8C` | `consolestring_cmd_table_03EA8C` | `ConsoleStringCommandTable` | Jump table for 18 ASCII-string commands |
 | `$03EAB0` | `cmd_11_03EAB0` | `AsciiCmd_AdvanceRow2` | Advances VRAM pointer by 2 rows ($80 bytes) |
 | `$03EABD` | `cmd_10_03EABD` | `AsciiCmd_InsertItemName` | Inserts an item name from `itemcomp_table_01EB0F` |
 | `$03EAE2` | `cmd_0F_03EAE2` | `AsciiCmd_ClearRect` | Clears a rectangular region of the VRAM tile buffer |
@@ -392,8 +392,8 @@ The goal is to divide this 8,518-line file into self-contained units that:
 | 4 | `actor_execution.asm` | E | ~900 | 27 | `RunActors_Normal`, `InitActorPool`, `SpawnSceneActors`, `RunThinkers_*` |
 | 5 | `tile_collision.asm` | F | ~650 | 26 | `ApplyMovement`, `ApplyMovementWithCollision`, `CalcTileMapOffset` |
 | 6 | `scene_lifecycle.asm` | G | ~1,100 | 22 | `ExecuteSceneTransition`, `ClearSceneState`, `SaveGameState`, `LoadGameState` |
-| 7 | `dialogue_engine.asm` | H + I | ~1,400 | 44 | `WideStringRenderer`, `MenuSelectionHandler`, `LoadPaletteBundle`, `SpcTransferMusicData` |
-| 8 | `hud_inventory.asm` | J | ~750 | 18 | `AsciiStringRenderer`, `GiveItemToPlayer`, `GetPlayerFacingFromAnim` |
+| 7 | `dialogue_engine.asm` | H + I | ~1,400 | 44 | `DialogStringRenderer`, `MenuSelectionHandler`, `LoadPaletteBundle`, `SpcTransferMusicData` |
+| 8 | `hud_inventory.asm` | J | ~750 | 18 | `ConsoleStringRenderer`, `GiveItemToPlayer`, `GetPlayerFacingFromAnim` |
 
 ### Cross-Reference Analysis Between Proposed Splits
 
@@ -438,7 +438,7 @@ The goal is to divide this 8,518-line file into self-contained units that:
 | 6 (scene) → 7 (dialogue) | 2 JSL | `ClearSceneState` → `ResetHdmaState`; `ScreenExitTransition` → `ResetHdmaState` |
 | 6 (scene) → 6 (self) | many | Scene init calls other scene functions |
 | 7 (dialogue) → 7 (self) | many | Wide-string commands call each other heavily |
-| 8 (hud) → 7 (dialogue) | 3 JSL | `AsciiStringRenderer` → `WideStringRenderer` (for inline rendering) |
+| 8 (hud) → 7 (dialogue) | 3 JSL | `ConsoleStringRenderer` → `DialogStringRenderer` (for inline rendering) |
 
 **Total cross-split calls: ~25** (down from ~200+ internal calls in the monolithic file).
 The heaviest coupling is `scene_lifecycle` → `actor_execution` (6 calls), which is
@@ -656,8 +656,8 @@ both zeroed-out SRAM and bit-flipped corruption.
 | `$03E1AA` | `func_03E1AA` | `SpcCheckMusicReady` |
 | `$03E1D6` | `func_03E1D6` | `SpcTransferMusicData` |
 | `$03E21E` | `func_03E21E` | `LoadMusicFromTransitionState` |
-| `$03E255` | `sub_03E255` | `WideStringRenderer` |
-| `$03E2C3` | `wide_cmd_table_03E2C3` | `WideStringCommandTable` |
+| `$03E255` | `sub_03E255` | `DialogStringRenderer` |
+| `$03E2C3` | `wide_cmd_table_03E2C3` | `DialogStringCommandTable` |
 | `$03E2F5` | `cmd_c0_03E2F5` | `WideCmd_EndAndWait` |
 | `$03E307` | `code_03E307` | `WideCmd_Return` |
 | `$03E30F` | `cmd_c1_03E30F` | `WideCmd_SetPosition` |
@@ -703,8 +703,8 @@ both zeroed-out SRAM and bit-flipped corruption.
 
 | Address | Current Name | Proposed Name |
 |---------|-------------|---------------|
-| `$03EA62` | `func_03EA62` | `AsciiStringRenderer` |
-| `$03EA8C` | `asciistring_cmd_table_03EA8C` | `AsciiStringCommandTable` |
+| `$03EA62` | `func_03EA62` | `ConsoleStringRenderer` |
+| `$03EA8C` | `consolestring_cmd_table_03EA8C` | `ConsoleStringCommandTable` |
 | `$03EAB0` | `cmd_11_03EAB0` | `AsciiCmd_AdvanceRow2` |
 | `$03EABD` | `cmd_10_03EABD` | `AsciiCmd_InsertItemName` |
 | `$03EAE2` | `cmd_0F_03EAE2` | `AsciiCmd_ClearRect` |

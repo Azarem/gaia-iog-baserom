@@ -63,8 +63,8 @@ code_0885C5 {
 }
 
 code_0885D7 {
-    COP [PrintWideString] ( &widestring_0885DC )
+    COP [PrintDialogString] ( &dialogstring_0885DC )
     RTL 
 }
 
-widestring_0885DC `[TPL:E][TPL:3]Erik: This tribe is so [N]small. They have lost [N]so many to starvation. [FIN]Brothers, sisters... [N]husbands, wives... [N]How do they cope?[PAL:0][END]`
+dialogstring_0885DC `[TPL:E][TPL:3]Erik: This tribe is so [N]small. They have lost [N]so many to starvation. [FIN]Brothers, sisters... [N]husbands, wives... [N]How do they cope?[PAL:0][END]`

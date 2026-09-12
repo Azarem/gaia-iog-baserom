@@ -80,26 +80,26 @@ code_069F1F {
     CMP #$00FE
     BEQ loc_069F3D
     COP [BranchIfFlagByte] ( #01, #01, &code_069F38 )
-    COP [PrintWideString] ( &widestring_069F45 )
+    COP [PrintDialogString] ( &dialogstring_069F45 )
     COP [SetFlagByte] ( #01 )
     RTL 
 }
 
 code_069F38 {
-    COP [PrintWideString] ( &widestring_069FBE )
+    COP [PrintDialogString] ( &dialogstring_069FBE )
     RTL 
 
   loc_069F3D:
-    COP [PrintWideString] ( &widestring_069FE3 )
+    COP [PrintDialogString] ( &dialogstring_069FE3 )
     COP [SetFlagByte] ( #0F )
     RTL 
 }
 
-widestring_069F45 `[DEF]I am Rama, King of Mu.[N]My body passed on[N]long ago, but my[N]spirit lives on.[FIN]If you look closely, [N]You can probably see [N]wandering spirits. [END]`
+dialogstring_069F45 `[DEF]I am Rama, King of Mu.[N]My body passed on[N]long ago, but my[N]spirit lives on.[FIN]If you look closely, [N]You can probably see [N]wandering spirits. [END]`
 
-widestring_069FBE `[DEF]Hear the words of[N]spirits awakened.[END]`
+dialogstring_069FBE `[DEF]Hear the words of[N]spirits awakened.[END]`
 
-widestring_069FE3 `[DEF]The underwater tunnel[N]dug by man is inside.[FIN]Please take this [N]Mystic Statue. [END]`
+dialogstring_069FE3 `[DEF]The underwater tunnel[N]dug by man is inside.[FIN]Please take this [N]Mystic Statue. [END]`
 
 code_06A01E {
     LDA #$0200
@@ -146,49 +146,49 @@ code_list_06A06A [
 ]
 
 code_06A076 {
-    COP [PrintWideString] ( &widestring_06A0A6 )
+    COP [PrintDialogString] ( &dialogstring_06A0A6 )
     COP [SetFlagByte] ( #02 )
     RTL 
 }
 
 code_06A07E {
-    COP [PrintWideString] ( &widestring_06A0EC )
+    COP [PrintDialogString] ( &dialogstring_06A0EC )
     COP [SetFlagByte] ( #03 )
     RTL 
 }
 
 code_06A086 {
-    COP [PrintWideString] ( &widestring_06A154 )
+    COP [PrintDialogString] ( &dialogstring_06A154 )
     COP [SetFlagByte] ( #04 )
     RTL 
 }
 
 code_06A08E {
-    COP [PrintWideString] ( &widestring_06A19E )
+    COP [PrintDialogString] ( &dialogstring_06A19E )
     COP [SetFlagByte] ( #05 )
     RTL 
 }
 
 code_06A096 {
-    COP [PrintWideString] ( &widestring_06A1C9 )
+    COP [PrintDialogString] ( &dialogstring_06A1C9 )
     COP [SetFlagByte] ( #06 )
     RTL 
 }
 
 code_06A09E {
-    COP [PrintWideString] ( &widestring_06A26D )
+    COP [PrintDialogString] ( &dialogstring_06A26D )
     COP [SetFlagByte] ( #07 )
     RTL 
 }
 
-widestring_06A0A6 `[DEF]Once a single ray of [N]light came from the sky. [N]People thought it was [N]the light of the spirits.[END]`
+dialogstring_06A0A6 `[DEF]Once a single ray of [N]light came from the sky. [N]People thought it was [N]the light of the spirits.[END]`
 
-widestring_06A0EC `[DEF]One year after that our[N]bodies began to change.[FIN]One got very thin,[N]one turned to stone,[N]one's body melted[N]like water...[END]`
+dialogstring_06A0EC `[DEF]One year after that our[N]bodies began to change.[FIN]One got very thin,[N]one turned to stone,[N]one's body melted[N]like water...[END]`
 
-widestring_06A154 `[DEF]Family and friends [N]turned to monsters [N]before our eyes. We [N]fought back the tears...[END]`
+dialogstring_06A154 `[DEF]Family and friends [N]turned to monsters [N]before our eyes. We [N]fought back the tears...[END]`
 
-widestring_06A19E `[DEF]Many saw no point in [N]living if this thing [N]continued...[END]`
+dialogstring_06A19E `[DEF]Many saw no point in [N]living if this thing [N]continued...[END]`
 
-widestring_06A1C9 `[DEF]Some couldn't take it, [N]and thought we should [N]flee from here. [FIN]But Mu is an island. We[N]didn't know if we'd find[N]another place to live...[FIN]There were no materials[N]for a boat. It would[N]sink if made of stone...[END]`
+dialogstring_06A1C9 `[DEF]Some couldn't take it, [N]and thought we should [N]flee from here. [FIN]But Mu is an island. We[N]didn't know if we'd find[N]another place to live...[FIN]There were no materials[N]for a boat. It would[N]sink if made of stone...[END]`
 
-widestring_06A26D `[DEF]They started building an[N]undersea tunnel. They[N]dug on, not knowing how[N]long it would take...[END]`
+dialogstring_06A26D `[DEF]They started building an[N]undersea tunnel. They[N]dug on, not knowing how[N]long it would take...[END]`

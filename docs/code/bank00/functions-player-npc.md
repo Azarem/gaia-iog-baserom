@@ -359,14 +359,14 @@ The direction delta table `array_00C943` maps movement direction indices to X/Y 
 
 ### Description
 
-Prints the message *"Your inventory is full. You can't carry more."* when a scene script or item pickup attempts to grant an item but the inventory has no free slots. Pure text utility with no `?INCLUDE` dependencies — a self-contained `PrintWideString` call followed by `RTL`.
+Prints the message *"Your inventory is full. You can't carry more."* when a scene script or item pickup attempts to grant an item but the inventory has no free slots. Pure text utility with no `?INCLUDE` dependencies — a self-contained `PrintDialogString` call followed by `RTL`.
 
 Jumped to via JML from 10+ scene scripts (shop purchases, NPC gifts, hidden item reveals).
 
 ### Algorithm
 
 ```
-1. COP [PrintWideString] widestring_00C993
+1. COP [PrintDialogString] dialogstring_00C993
 2. RTL
 ```
 
@@ -376,7 +376,7 @@ Jumped to via JML from 10+ scene scripts (shop purchases, NPC gifts, hidden item
 |-----------|--------|-------|
 | JML from | 10+ scene scripts | Shop/gift/item scenes |
 | JML from | Various scene scripts | Item grant overflow |
-| Embedded string | `widestring_00C993` | Full inventory message text |
+| Embedded string | `dialogstring_00C993` | Full inventory message text |
 | Cataloged in | `us/blocks.json` | Block `f_inventory_full` |
 | Cataloged in | `us/names.json` @ 51598 | |
 

@@ -28,15 +28,15 @@ code_04EF9E {
 }
 
 code_04EFA4 {
-    COP [PrintWideString] ( &widestring_04EFAE )
+    COP [PrintDialogString] ( &dialogstring_04EFAE )
     RTL 
 }
 
 code_04EFA9 {
-    COP [PrintWideString] ( &widestring_04EFDF )
+    COP [PrintDialogString] ( &dialogstring_04EFDF )
     RTL 
 }
 
-widestring_04EFAE `[DEF][TPL:4]Bill:[N]Meet with the Elder.[N]He knows something.[PAL:0][END]`
+dialogstring_04EFAE `[DEF][TPL:4]Bill:[N]Meet with the Elder.[N]He knows something.[PAL:0][END]`
 
-widestring_04EFDF `[DEF][TPL:4]Bill: How is the [N]Elder? [FIN]When you fought the [N]demon at Edward Castle, [N]did you find a shiny [N]silver stone? [FIN]There's a strange power[N]in that stone.[FIN]Even if defeated by an[N]enemy, if you have[N]100 of them, you[N]will live again.[PAL:0][END]`
+dialogstring_04EFDF `[DEF][TPL:4]Bill: How is the [N]Elder? [FIN]When you fought the [N]demon at Edward Castle, [N]did you find a shiny [N]silver stone? [FIN]There's a strange power[N]in that stone.[FIN]Even if defeated by an[N]enemy, if you have[N]100 of them, you[N]will live again.[PAL:0][END]`

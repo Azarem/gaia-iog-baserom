@@ -26,8 +26,8 @@ fr38_boyfriend [
 ]
 
 code_05BB17 {
-    COP [PrintWideString] ( &widestring_05BB1C )
+    COP [PrintDialogString] ( &dialogstring_05BB1C )
     RTL 
 }
 
-widestring_05BB1C `[DEF]She, uh, was just [N]helping me... [N]Ha ha ha. [END]`
+dialogstring_05BB1C `[DEF]She, uh, was just [N]helping me... [N]Ha ha ha. [END]`

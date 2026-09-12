@@ -16,8 +16,8 @@ sg___hint_spirit [
 ]
 
 code_05F4D7 {
-    COP [PrintWideString] ( &widestring_05F4DC )
+    COP [PrintDialogString] ( &dialogstring_05F4DC )
     RTL 
 }
 
-widestring_05F4DC `[DEF]Moon Tribe: [N]Attack when the Crystal [N]Bird cries. [END]`
+dialogstring_05F4DC `[DEF]Moon Tribe: [N]Attack when the Crystal [N]Bird cries. [END]`

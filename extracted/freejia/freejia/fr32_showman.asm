@@ -29,12 +29,12 @@ fr32_showman [
 ]
 
 code_05BDB6 {
-    COP [PrintWideString] ( &widestring_05BDBE )
+    COP [PrintDialogString] ( &dialogstring_05BDBE )
     COP [SetFlagByte] ( #0F )
     RTL 
 }
 
-widestring_05BDBE `[DEF]No one can put on a[N]show like I can.[N]Have a look![END]`
+dialogstring_05BDBE `[DEF]No one can put on a[N]show like I can.[N]Have a look![END]`
 
 code_05BDEB {
     COP [PlaySoundCh1] ( #21 )

@@ -21,15 +21,15 @@ code_09BBCE {
 
   code_09BBD6:
     COP [WriteApuIo0] ( #00 )
-    COP [PrintWideString] ( &widestring_09BBF7 )
+    COP [PrintDialogString] ( &dialogstring_09BBF7 )
     COP [StartMusic] ( #02 )
     COP [WaitByte] ( #3B )
     COP [WriteApuIo0] ( #00 )
-    COP [PrintWideString] ( &widestring_09BBF7 )
+    COP [PrintDialogString] ( &dialogstring_09BBF7 )
     COP [StartMusic] ( #04 )
     COP [WaitByte] ( #3B )
     COP [BranchIfButton] ( #$0080, &code_09BBD6 )
     RTL 
 }
 
-widestring_09BBF7 `[DLG:3,6][SIZ:D,3][TPL:1]Kara: It's terrible! [N]Leave me alone! How [N]far will you go?![PAL:0][END]`
+dialogstring_09BBF7 `[DLG:3,6][SIZ:D,3][TPL:1]Kara: It's terrible! [N]Leave me alone! How [N]far will you go?![PAL:0][END]`

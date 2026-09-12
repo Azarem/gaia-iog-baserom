@@ -10946,7 +10946,7 @@ code_00C7C3 {
     JSL $@code_00B537
     BCS loc_00C7E7
     COP [GiveItem] ( #01, &code_00C7E3 )
-    COP [PrintWideString] ( &widestring_00C7E8 )
+    COP [PrintDialogString] ( &dialogstring_00C7E8 )
     LDA $0E
     CLC 
     ADC #$0080
@@ -10955,27 +10955,27 @@ code_00C7C3 {
 }
 
 code_00C7E3 {
-    COP [PrintWideString] ( &widestring_00C7FF )
+    COP [PrintDialogString] ( &dialogstring_00C7FF )
 
   loc_00C7E7:
     RTL 
 }
 
-widestring_00C7E8 `[DLG:3,11][SIZ:D,3,0]赤い宝石を 見つけた![END]`
+dialogstring_00C7E8 `[DLG:3,11][SIZ:D,3,0]赤い宝石を 見つけた![END]`
 
-widestring_00C7FF `[DLG:3,11][SIZ:D,3,0]赤い宝石を 見つけたが[N]持ち物が いっぱいのようだ···[END]`
+dialogstring_00C7FF `[DLG:3,11][SIZ:D,3,0]赤い宝石を 見つけたが[N]持ち物が いっぱいのようだ···[END]`
 
-widestring_00C829 `[NAM:A][AA][BF]ひ[CLD]断[B8]ぞ[9D]がが[E2] [A9]卵ぐが[TPL:20][9E]ぜが[9E]Lが[9E]Nが[A9]がが[9F]Lが:[9F]Nが:[FA]ぅ[WAI][CLR][E2][CLR][F2][CLR]ぐ[FIN][A5]ば[9F]┌が:[A5]ぶ[9F](が:ぅぐCIずが[8D]ががぐ[DLY:0]が5[CLD][92][CLD][88][CLD][9C][CLD][A6][CLD][DD][CLD][END]`
+dialogstring_00C829 `[NAM:A][AA][BF]ひ[CLD]断[B8]ぞ[9D]がが[E2] [A9]卵ぐが[TPL:20][9E]ぜが[9E]Lが[9E]Nが[A9]がが[9F]Lが:[9F]Nが:[FA]ぅ[WAI][CLR][E2][CLR][F2][CLR]ぐ[FIN][A5]ば[9F]┌が:[A5]ぶ[9F](が:ぅぐCIずが[8D]ががぐ[DLY:0]が5[CLD][92][CLD][88][CLD][9C][CLD][A6][CLD][DD][CLD][END]`
 
-widestring_00C883 `[CLD][FA][CLD]べ[PAU:BF]Fが:ぼぁがが声[BF]Fが:ぼぁぎが話[BF]Fが:ぼぁぐが必[BF]Fが:ぼぁげが私[85]HれJBら[SIZ:83,A9,78]が[85]ぜぐぢぅ[BF](が:ぼぁPが[ADR:&chunk_008000.code_00900A+C,2BC]ぶ[88][CLD]ぐ[AB]┘[BF]Fが:ぼぁごが陸[BF](が:X[E9]Pが[ADR:&chunk_008000.loc_00B013+3,2A9]び[92][CLD]ぐ[AB]([BF]Fが:ぼぁざが上[BF]┌が:X[E9]Pが[ADR:&chunk_008000.loc_00B013+1,296]べ[9C][CLD]ぐ[AA]([BF]Fが:ぼぁじが中[BF]┌が:ぼぁPが[ADR:&chunk_008000.code_00900A+A,283]ぼ[A6][CLD]ぐ[AA]┘[BF]Fが:ぼぁずが私[85]HれJBら[SIZ:83,2,C]ぅ[A4]D[B9]┌がそが [99]┌がぅ[NAM:BF]┌が:[F0]げZ空B[8B][E5][83]だだだ[AA][A4]ご[B9]ばが[8D]がが[B9]ぶが[8D]ぐが[BF][8C][RET]`
+dialogstring_00C883 `[CLD][FA][CLD]べ[PAU:BF]Fが:ぼぁがが声[BF]Fが:ぼぁぎが話[BF]Fが:ぼぁぐが必[BF]Fが:ぼぁげが私[85]HれJBら[SIZ:83,A9,78]が[85]ぜぐぢぅ[BF](が:ぼぁPが[ADR:&chunk_008000.code_00900A+C,2BC]ぶ[88][CLD]ぐ[AB]┘[BF]Fが:ぼぁごが陸[BF](が:X[E9]Pが[ADR:&chunk_008000.loc_00B013+3,2A9]び[92][CLD]ぐ[AB]([BF]Fが:ぼぁざが上[BF]┌が:X[E9]Pが[ADR:&chunk_008000.loc_00B013+1,296]べ[9C][CLD]ぐ[AA]([BF]Fが:ぼぁじが中[BF]┌が:ぼぁPが[ADR:&chunk_008000.code_00900A+A,283]ぼ[A6][CLD]ぐ[AA]┘[BF]Fが:ぼぁずが私[85]HれJBら[SIZ:83,2,C]ぅ[A4]D[B9]┌がそが [99]┌がぅ[NAM:BF]┌が:[F0]げZ空B[8B][E5][83]だだだ[AA][A4]ご[B9]ばが[8D]がが[B9]ぶが[8D]ぐが[BF][8C][RET]`
 
-widestring_00C96E `対ぺが[A0]がが[BF][88][RET]`
+dialogstring_00C96E `対ぺが[A0]がが[BF][88][RET]`
 
-widestring_00C978 `戦ぉがが[8D]がが[8D]ぼが[BF][8A][RET]`
+dialogstring_00C978 `戦ぉがが[8D]がが[8D]ぼが[BF][8A][RET]`
 
-widestring_00C986 `戦ぉぐが[8D]ぐが[8D]ぴが[8A][BB][A8][AD]ぼが[9F]が[DF]·[AD]ぴが[9F]ぐ[DF]·[AD]ぺが[9F]ご[DF]·[8A][BB][A8][98]ぼぁぜが[A8][END]`
+dialogstring_00C986 `戦ぉぐが[8D]ぐが[8D]ぴが[8A][BB][A8][AD]ぼが[9F]が[DF]·[AD]ぴが[9F]ぐ[DF]·[AD]ぺが[9F]ご[DF]·[8A][BB][A8][98]ぼぁぜが[A8][END]`
 
-widestring_00C9B3 `せが[CLR][BE][FA][AC][B8]ぞ[B9]ばが[85]ば[B9]ぶが[85]ぶ[AD]ぺが[85]ど[A9]がが[9F]┌が:ぐ[TPL:AC][B8]ぞ[B9]ばが[ADR:&chunk_008000.code_00D009+B,B907]ぶが[ADR:&chunk_008000.loc_00F010+6,DA58][A4]ご[BF]┌が:Iおが[AA][BF]が[DF]·[99]ばが[BF]ぐ[DF]·[99]ぶが[AC][B8]ぞ[B9]ばが[85]ば[9F]が[DF]·[B9]ぶが[85]ぶ[9F]ぐ[DF]·[BF]ご[DF]·[FA][ADR:&chunk_008000.loc_00EFFF+F,854E]どぼぁごがせ[BF](が:ぼるぎ[83]ぎん[A4]ご[99]Hが[A9]がが[99]Jが[99]ぜが心[BF]┌が:Iおが[NAM:AA][BF]ご[DF]·[FA]せ[BF](が:ぼるぎ[83]ぎん[A4]ご[99]Hが[A9]がが[99]Jが[99]ぜが[A9][FF][FF][85]どぅ[BF]┌が:Iおが[NAM:AA]B[8B][E5][83][9F]ご[DF]·[FA][BF]┌が:ぼぁぜが[9F]┌が:ぅがが[FE][FF]ぎがががががぐがががががぐがががげががが[FE][FF]ががぐががが`
+dialogstring_00C9B3 `せが[CLR][BE][FA][AC][B8]ぞ[B9]ばが[85]ば[B9]ぶが[85]ぶ[AD]ぺが[85]ど[A9]がが[9F]┌が:ぐ[TPL:AC][B8]ぞ[B9]ばが[ADR:&chunk_008000.code_00D009+B,B907]ぶが[ADR:&chunk_008000.loc_00F010+6,DA58][A4]ご[BF]┌が:Iおが[AA][BF]が[DF]·[99]ばが[BF]ぐ[DF]·[99]ぶが[AC][B8]ぞ[B9]ばが[85]ば[9F]が[DF]·[B9]ぶが[85]ぶ[9F]ぐ[DF]·[BF]ご[DF]·[FA][ADR:&chunk_008000.loc_00EFFF+F,854E]どぼぁごがせ[BF](が:ぼるぎ[83]ぎん[A4]ご[99]Hが[A9]がが[99]Jが[99]ぜが心[BF]┌が:Iおが[NAM:AA][BF]ご[DF]·[FA]せ[BF](が:ぼるぎ[83]ぎん[A4]ご[99]Hが[A9]がが[99]Jが[99]ぜが[A9][FF][FF][85]どぅ[BF]┌が:Iおが[NAM:AA]B[8B][E5][83][9F]ご[DF]·[FA][BF]┌が:ぼぁぜが[9F]┌が:ぅがが[FE][FF]ぎがががががぐがががががぐがががげががが[FE][FF]ががぐががが`
 
 actor_def_00CAA8 [
   actor-def < #00, #00, #20, {
@@ -11013,15 +11013,15 @@ code_00CAD2 {
 }
 
 code_00CAD3 {
-    COP [PrintWideString] ( &widestring_00CAD8 )
+    COP [PrintDialogString] ( &dialogstring_00CAD8 )
     RTL 
 }
 
-widestring_00CAD8 `[DEF][CLR][TPL:0]だが もちものが いっぱいで[N]これ以上 持つことができない![PAL:0][END]`
+dialogstring_00CAD8 `[DEF][CLR][TPL:0]だが もちものが いっぱいで[N]これ以上 持つことができない![PAL:0][END]`
 
-widestring_00CB00 `ぐ[RET]`
+dialogstring_00CB00 `ぐ[RET]`
 
-widestring_00CB02 `ぜぐ[NAM:3]ぐ[9C]┘[ZZZ]手げぐ[ZZZ]ぐ[E0]ぐ[88]が[E0][8E]ぐ[B7]がぐ[B6]PぐCI.がX[E9]┌がぼろば[85]ばぐCI.がX[E9]┌がぼろぶ[85]ぶぐぜ??ぐ旅ぐ[89]ぐ[E0]`
+dialogstring_00CB02 `ぜぐ[NAM:3]ぐ[9C]┘[ZZZ]手げぐ[ZZZ]ぐ[E0]ぐ[88]が[E0][8E]ぐ[B7]がぐ[B6]PぐCI.がX[E9]┌がぼろば[85]ばぐCI.がX[E9]┌がぼろぶ[85]ぶぐぜ??ぐ旅ぐ[89]ぐ[E0]`
 
 actor_def_00CB43 [
   actor-def < #00, #00, #01, {
@@ -12853,17 +12853,17 @@ code_00D8B8 {
     COP [WaitByte] ( #02 )
     LDA $characterForm
     BNE loc_00D8F3
-    COP [PrintWideString] ( &widestring_00D908 )
+    COP [PrintDialogString] ( &dialogstring_00D908 )
     BRA loc_00D900
 
   loc_00D8F3:
     DEC 
     BNE loc_00D8FC
-    COP [PrintWideString] ( &widestring_00D945 )
+    COP [PrintDialogString] ( &dialogstring_00D945 )
     BRA loc_00D900
 
   loc_00D8FC:
-    COP [PrintWideString] ( &widestring_00D96E )
+    COP [PrintDialogString] ( &dialogstring_00D96E )
 
   loc_00D900:
     LDA #$CFF0
@@ -12871,11 +12871,11 @@ code_00D8B8 {
     COP [Die]
 }
 
-widestring_00D908 `[DEF]テム:[N]気がつくと ぼくは 見覚えのある[N]場所に たおれていた.[N]悪い夢を 見ていたのだろうか··[END]`
+dialogstring_00D908 `[DEF]テム:[N]気がつくと ぼくは 見覚えのある[N]場所に たおれていた.[N]悪い夢を 見ていたのだろうか··[END]`
 
-widestring_00D945 `[DEF]フリーダン:[N]気がつくと そこは 見覚えのある[N]場所だった···[END]`
+dialogstring_00D945 `[DEF]フリーダン:[N]気がつくと そこは 見覚えのある[N]場所だった···[END]`
 
-widestring_00D96E `[DEF]シャドウ:[N]気がつくと そこは 見覚えのある[N]場所だった···[END]`
+dialogstring_00D96E `[DEF]シャドウ:[N]気がつくと そこは 見覚えのある[N]場所だった···[END]`
 
 code_00D996 {
     LDA $extendedFlags, X
@@ -13897,11 +13897,11 @@ code_00E14C {
     SEC 
     SBC $playerHp
     STA $damageFlashTimer
-    COP [PrintWideString] ( &widestring_00E177 )
+    COP [PrintDialogString] ( &dialogstring_00E177 )
     COP [Die]
 }
 
-widestring_00E177 `[DEF][DLY:1][SFX:0]HP(体力)が 上がった![END]`
+dialogstring_00E177 `[DEF][DLY:1][SFX:0]HP(体力)が 上がった![END]`
 
 code_00E18D {
     COP [SetMetasprite] ( @table_0EE000 )
@@ -13916,11 +13916,11 @@ code_00E18D {
 
   loc_00E1A8:
     STA $playerStr
-    COP [PrintWideString] ( &widestring_00E1B1 )
+    COP [PrintDialogString] ( &dialogstring_00E1B1 )
     COP [Die]
 }
 
-widestring_00E1B1 `[DEF][DLY:1][SFX:0]STR(力の強さ)が 上がった![END]`
+dialogstring_00E1B1 `[DEF][DLY:1][SFX:0]STR(力の強さ)が 上がった![END]`
 
 code_00E1CA {
     COP [SetMetasprite] ( @table_0EE000 )
@@ -13935,11 +13935,11 @@ code_00E1CA {
 
   loc_00E1E5:
     STA $playerDef
-    COP [PrintWideString] ( &widestring_00E1EE )
+    COP [PrintDialogString] ( &dialogstring_00E1EE )
     COP [Die]
 }
 
-widestring_00E1EE `[DEF][DLY:1][SFX:0]DEF(守りの強さ)が上がった![END]`
+dialogstring_00E1EE `[DEF][DLY:1][SFX:0]DEF(守りの強さ)が上がった![END]`
 
 code_00E207 {
     LDA #$6000

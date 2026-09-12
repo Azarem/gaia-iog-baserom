@@ -69,13 +69,13 @@ code_0681F0 {
 
 code_06821C {
     COP [WaitWord] ( #$012B )
-    COP [PrintWideString] ( &widestring_068230 )
+    COP [PrintDialogString] ( &dialogstring_068230 )
     COP [SetFlagByte] ( #01 )
     COP [WaitByte] ( #3B )
-    COP [PrintWideString] ( &widestring_06834A )
+    COP [PrintDialogString] ( &dialogstring_06834A )
     COP [Die]
 }
 
-widestring_068230 `[TPL:A][TPL:6]Neil: [N]That was a close one! [FIN][TPL:1]Kara: [N]Sob...sob... [FIN][TPL:3]Erik: [N]Sniff...sniff... [FIN][TPL:4]Lance: Don't cry. [N]Will's been saved. [FIN][TPL:2]Lilly: Neil, you were [N]great. This invention [N]saved Will's life! [FIN][TPL:6]Neil: Ha ha. [N]Don't flatter me. [FIN]We should try and [N]locate the next ruins. [FIN]I expect the shape of[N]Cygnus is the same as[N]the shape of Mu.[END]`
+dialogstring_068230 `[TPL:A][TPL:6]Neil: [N]That was a close one! [FIN][TPL:1]Kara: [N]Sob...sob... [FIN][TPL:3]Erik: [N]Sniff...sniff... [FIN][TPL:4]Lance: Don't cry. [N]Will's been saved. [FIN][TPL:2]Lilly: Neil, you were [N]great. This invention [N]saved Will's life! [FIN][TPL:6]Neil: Ha ha. [N]Don't flatter me. [FIN]We should try and [N]locate the next ruins. [FIN]I expect the shape of[N]Cygnus is the same as[N]the shape of Mu.[END]`
 
-widestring_06834A `[TPL:A][TPL:6]Neil: [N]Well, to the ocean! [FIN]Mu lies somewhere[N]in this ocean.[END]`
+dialogstring_06834A `[TPL:A][TPL:6]Neil: [N]Well, to the ocean! [FIN]Mu lies somewhere[N]in this ocean.[END]`

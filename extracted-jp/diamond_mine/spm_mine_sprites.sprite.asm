@@ -1,6 +1,6 @@
 ---------------------------------------------
 
-sprite_set_list_000000 [
+spm_mine_sprites [
   &sprite_set_00006E   ;00
   &sprite_set_000074   ;01
   &sprite_set_00007A   ;02

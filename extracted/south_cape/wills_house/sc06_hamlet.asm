@@ -17,7 +17,7 @@ sc06_hamlet [
     COP [AnimLoop]
     COP [StageSpriteFrame] ( #23 )
     COP [AnimOnce]
-    COP [PrintWideString] ( &widestring_04A311 )
+    COP [PrintDialogString] ( &dialogstring_04A311 )
     LDA #$CFF0
     TRB $joypadMaskStd
     COP [SolidHighHere]
@@ -119,10 +119,10 @@ code_04A2F9 {
 }
 
 code_04A30C {
-    COP [PrintWideString] ( &widestring_04A356 )
+    COP [PrintDialogString] ( &dialogstring_04A356 )
     RTL 
 }
 
-widestring_04A311 `[TPL:9][TPL:0]The pig's wrecking[N]the room![FIN]But why is there[N]a pig in my house?[END]`
+dialogstring_04A311 `[TPL:9][TPL:0]The pig's wrecking[N]the room![FIN]But why is there[N]a pig in my house?[END]`
 
-widestring_04A356 `[TPL:8]Oink  oink[END]`
+dialogstring_04A356 `[TPL:8]Oink  oink[END]`

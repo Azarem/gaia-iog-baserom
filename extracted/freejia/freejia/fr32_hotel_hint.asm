@@ -20,8 +20,8 @@ code_05B67C {
 }
 
 code_05B683 {
-    COP [PrintWideString] ( &widestring_05B688 )
+    COP [PrintDialogString] ( &dialogstring_05B688 )
     RTL 
 }
 
-widestring_05B688 `[DEF]Woman: A man working[N]at the hotel was caught[N]by a labor trader.[END]`
+dialogstring_05B688 `[DEF]Woman: A man working[N]at the hotel was caught[N]by a labor trader.[END]`

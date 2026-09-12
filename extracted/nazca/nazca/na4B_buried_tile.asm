@@ -29,12 +29,12 @@ na4B_buried_tile [
     STA $orbitAngle, X
     COP [WaitByte] ( #1F )
     COP [LoopNext]
-    COP [PrintWideString] ( &widestring_05E753 )
+    COP [PrintDialogString] ( &dialogstring_05E753 )
     COP [SetFlagByte] ( #0C )
     COP [WaitByte] ( #3B )
     COP [SpawnAfterFlags] ( @code_05E7A6, #$0300 )
     COP [WaitByte] ( #3B )
-    COP [PrintWideString] ( &widestring_05E774 )
+    COP [PrintDialogString] ( &dialogstring_05E774 )
     LDA #$0404
     STA $gfxCacheIdxB
     COP [QueueMapChange] ( #4C, #$0168, #$0040, #83, #$2200 )
@@ -45,23 +45,23 @@ na4B_buried_tile [
 
 code_05E6AD {
     COP [BranchIfFlagByte] ( #0B, #00, &code_05E6BB )
-    COP [PrintWideString] ( &widestring_05E6C0 )
+    COP [PrintDialogString] ( &dialogstring_05E6C0 )
     COP [SetFlagByte] ( #0F )
     RTL 
 }
 
 code_05E6BB {
-    COP [PrintWideString] ( &widestring_05E721 )
+    COP [PrintDialogString] ( &dialogstring_05E721 )
     RTL 
 }
 
-widestring_05E6C0 `[DEF][TPL:0][DLY:0]There's a tile buried[N]in the sand...[FIN]When Will's Flute [N]touched it, there [N]was a rumbling sound![PAL:0][END]`
+dialogstring_05E6C0 `[DEF][TPL:0][DLY:0]There's a tile buried[N]in the sand...[FIN]When Will's Flute [N]touched it, there [N]was a rumbling sound![PAL:0][END]`
 
-widestring_05E721 `[DEF][TPL:6]Neil: Will! Don't [N]look yet! You don't [N]know what's in there!![PAL:0][END]`
+dialogstring_05E721 `[DEF][TPL:6]Neil: Will! Don't [N]look yet! You don't [N]know what's in there!![PAL:0][END]`
 
-widestring_05E753 `[DEF][TPL:3][DLY:0]Erik: [N]Hey! Something huge [N]is coming down!![PAL:0][END]`
+dialogstring_05E753 `[DEF][TPL:3][DLY:0]Erik: [N]Hey! Something huge [N]is coming down!![PAL:0][END]`
 
-widestring_05E774 `[TPL:E][TPL:1][DLY:0]Kara: [N]Will! Will! [N]Wi-i-i-i-i-i-l-l-l-l! [PAL:0][PAU:28][CLD]`
+dialogstring_05E774 `[TPL:E][TPL:1][DLY:0]Kara: [N]Will! Will! [N]Wi-i-i-i-i-i-l-l-l-l! [PAL:0][PAU:28][CLD]`
 
 code_05E7A6 {
     LDY $playerActor
@@ -114,8 +114,8 @@ code_05E7D0 {
 }
 
 code_05E80C {
-    COP [PrintWideString] ( &widestring_05E811 )
+    COP [PrintDialogString] ( &dialogstring_05E811 )
     RTL 
 }
 
-widestring_05E811 `[DEF][TPL:0]Will: [N]Nazca is huge, so [N]don't go too far....[PAL:0][END]`
+dialogstring_05E811 `[DEF][TPL:0]Will: [N]Nazca is huge, so [N]don't go too far....[PAL:0][END]`

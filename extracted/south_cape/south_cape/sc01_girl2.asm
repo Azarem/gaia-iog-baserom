@@ -31,8 +31,8 @@ code_048152 {
 }
 
 code_048166 {
-    COP [PrintWideString] ( &widestring_04816B )
+    COP [PrintDialogString] ( &dialogstring_04816B )
     RTL 
 }
 
-widestring_04816B `[DEF]It's strange. This [N]game is like[N]"Red Light, [N]Green Lightˮ....[END]`
+dialogstring_04816B `[DEF]It's strange. This [N]game is like[N]"Red Light, [N]Green Lightˮ....[END]`

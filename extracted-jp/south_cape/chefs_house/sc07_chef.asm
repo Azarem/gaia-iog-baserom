@@ -12,8 +12,8 @@ h_sc07_chef [
 ]
 
 code_049086 {
-    COP [PrintWideString] ( &widestring_04908B )
+    COP [PrintDialogString] ( &dialogstring_04908B )
     RTL 
 }
 
-widestring_04908B `[TPL:A]うーん いいにおいだ.[N]家には カマドがないから こうして[N]ツボで 料理をするのさ.[END]`
+dialogstring_04908B `[TPL:A]うーん いいにおいだ.[N]家には カマドがないから こうして[N]ツボで 料理をするのさ.[END]`

@@ -126,7 +126,7 @@ inv_check_pages {
 ------------------------------------------------
 ;Entry point for gem use (prevent increase, this is done elsewhere)
 UseItem_RedJewel! {
-    COP [BF] ( &widestring_038517 )
+    COP [BF] ( &dialogstring_038517 )
     JSR $&RemoveEquippedItem
 
 ;    SED 

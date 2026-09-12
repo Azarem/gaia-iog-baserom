@@ -9,7 +9,7 @@
 
 ## 1. Overview
 
-When the player presses **Y** on the overworld, the `OverworldInputHandler`
+When the player presses **Y** on the overworld, the `GlobalInputHandler`
 jumps to the item dispatcher, which reads the currently equipped item slot,
 extracts the item type ID (6-bit, 0–63), and dispatches through a 64-entry
 jump table to the appropriate item handler.
@@ -34,7 +34,7 @@ A common epilogue routine (`ItemUseEpilogue`) handles post-use frame updates.
 |----------|-------|
 | Address | `$038410`–`$03842E` |
 | Size | 31 bytes |
-| Entry | `JMP` from `OverworldInputHandler` (Y button) |
+| Entry | `JMP` from `GlobalInputHandler` (Y button) |
 | Exit | Falls through to handler → `RTS` → `ItemUseEpilogue` |
 
 **Behavior:**
@@ -181,7 +181,7 @@ A and B can only go in the *correct* pedestal).
 - **Inca Statues A & B** (`func_038691`–`func_0387F3`): Scene $1E (Gold Ship
   interior). Statue A goes at Y=$12–13/X=$37–38, Statue B at Y=$15–16/
   X=$26–27. If you try the wrong position, you get "The shape doesn't match."
-  Both share `code_038705` ("Is the Inca secret hidden?") and `widestring_03870A`
+  Both share `code_038705` ("Is the Inca secret hidden?") and `dialogstring_03870A`
   (spirits' breath hint). After flag $44 is set, the hint text changes.
 
 - **Crystal Ball** (`func_038FF3`): Scene $4C has 4 holes for crystal balls,
@@ -354,7 +354,7 @@ Several handlers share common "failure" strings:
 ## 7. Call Graph
 
 ```
-OverworldInputHandler (Y button)
+GlobalInputHandler (Y button)
   └─ JMP ItemUseDispatch
        ├─ PEA ItemUseEpilogue-1  (stacked return)
        ├─ JMP (ItemHandlerJumpTable, X)

@@ -27,7 +27,7 @@ btDE_olman [
     COP [SpawnAfterRelFlags] ( @code_0988DA, #$0000, #$FFE0, #$1800 )
     COP [StartMusic] ( #0E )
     COP [WaitByte] ( #B3 )
-    COP [PrintWideString] ( &widestring_0989A2 )
+    COP [PrintDialogString] ( &dialogstring_0989A2 )
     COP [FadeThenStartMusic] ( #1B )
     COP [WaitWord] ( #$012B )
     COP [SetEntryContinue]
@@ -67,7 +67,7 @@ code_098891 {
     LDA #$EFF0
     TSB $joypadMaskStd
     COP [WaitByte] ( #1D )
-    COP [PrintWideString] ( &widestring_098CAA )
+    COP [PrintDialogString] ( &dialogstring_098CAA )
     LDA #$0003
     STA $gfxCacheIdxA
     LDA #$0404
@@ -78,7 +78,7 @@ code_098891 {
 }
 
 code_0988D2 {
-    COP [PrintWideString] ( &widestring_098903 )
+    COP [PrintDialogString] ( &dialogstring_098903 )
     COP [SetFlagByte] ( #01 )
     RTL 
 }
@@ -104,8 +104,8 @@ code_0988F3 {
     RTL 
 }
 
-widestring_098903 `[TPL:9][TPL:0][SFX:0]One worn-out body is[N]quietly laid down...[FIN]In his head, a familiar [N]voice speaks. [FIN][TPL:4][SFX:10][DLY:2]Will. It's me, [N]Olman, your father. [FIN]My body has decayed, but[N]I live on like this...[PAL:0][END]`
+dialogstring_098903 `[TPL:9][TPL:0][SFX:0]One worn-out body is[N]quietly laid down...[FIN]In his head, a familiar [N]voice speaks. [FIN][TPL:4][SFX:10][DLY:2]Will. It's me, [N]Olman, your father. [FIN]My body has decayed, but[N]I live on like this...[PAL:0][END]`
 
-widestring_0989A2 `[TPL:B][TPL:0][DLY:1]Will: Father![N]Why are you in that[N]form!!![FIN][TPL:4][DLY:2]There's a strange room[N]in the Tower of Babel,[N]filled with the light[N]of the comet.[FIN]Time goes so fast there[N]that people evolve[N]very quickly...[FIN][TPL:0][DLY:1]Will: [N]Why are Kara and I [N]able to live?! [FIN][TPL:4][DLY:2]Will's father: [N]Because you two are [N]evolved humans. [FIN][TPL:1][DLY:1]Kara: [N]Us...? [FIN][TPL:4][DLY:2]Will's father: Long ago [N]there existed biological [N]technology using the [N]light of the comet. [FIN]People freely used the[N]power to make[N]plants and animals.[FIN]For example, they made [N]the camel. It can go [N]for long periods [N]without food or water. [FIN]When people realized the[N]power could be used as[N]a weapon,[N]demons were developed.[FIN]The world was on the[N]brink of ruin...[FIN]At that time, the Knights [N]of Darkness and Light [N]were developed to decide [N]the fate of humanity. [FIN]They are your ancestors.[FIN]The six Mystic Statues[N]were made by the[N]Knights.[FIN]The last Mystic Statue [N]is entrusted to you. [END]`
+dialogstring_0989A2 `[TPL:B][TPL:0][DLY:1]Will: Father![N]Why are you in that[N]form!!![FIN][TPL:4][DLY:2]There's a strange room[N]in the Tower of Babel,[N]filled with the light[N]of the comet.[FIN]Time goes so fast there[N]that people evolve[N]very quickly...[FIN][TPL:0][DLY:1]Will: [N]Why are Kara and I [N]able to live?! [FIN][TPL:4][DLY:2]Will's father: [N]Because you two are [N]evolved humans. [FIN][TPL:1][DLY:1]Kara: [N]Us...? [FIN][TPL:4][DLY:2]Will's father: Long ago [N]there existed biological [N]technology using the [N]light of the comet. [FIN]People freely used the[N]power to make[N]plants and animals.[FIN]For example, they made [N]the camel. It can go [N]for long periods [N]without food or water. [FIN]When people realized the[N]power could be used as[N]a weapon,[N]demons were developed.[FIN]The world was on the[N]brink of ruin...[FIN]At that time, the Knights [N]of Darkness and Light [N]were developed to decide [N]the fate of humanity. [FIN]They are your ancestors.[FIN]The six Mystic Statues[N]were made by the[N]Knights.[FIN]The last Mystic Statue [N]is entrusted to you. [END]`
 
-widestring_098CAA `[TPL:B][TPL:4][DLY:2]Soon the comet will [N]be very close.[FIN][PAU:1E]By then, the two of you [N]must go to the roof [N]of the tower. [N][PAU:28][DLY:4]Close your eyes....[END]`
+dialogstring_098CAA `[TPL:B][TPL:4][DLY:2]Soon the comet will [N]be very close.[FIN][PAU:1E]By then, the two of you [N]must go to the roof [N]of the tower. [N][PAU:28][DLY:4]Close your eyes....[END]`

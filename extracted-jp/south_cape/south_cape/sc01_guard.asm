@@ -55,23 +55,23 @@ code_048541 {
 }
 
 code_04854A {
-    COP [PrintWideString] ( &widestring_04855C )
+    COP [PrintDialogString] ( &dialogstring_04855C )
     RTL 
 }
 
 code_04854F {
-    COP [PrintWideString] ( &widestring_0485BC )
+    COP [PrintDialogString] ( &dialogstring_0485BC )
     COP [SetFlagByte] ( #27 )
     RTL 
 }
 
 code_048557 {
-    COP [PrintWideString] ( &widestring_0485F1 )
+    COP [PrintDialogString] ( &dialogstring_0485F1 )
     RTL 
 }
 
-widestring_04855C `[DEF]こらこら. 近ごろ 町の外には[N]化物が うろついているんだぜ.[FIN]教会の 神父さまから 注意を[N]受けてないのかい?[N]むやみに 町の外へでちゃ[N]ダメだってこと.[END]`
+dialogstring_04855C `[DEF]こらこら. 近ごろ 町の外には[N]化物が うろついているんだぜ.[FIN]教会の 神父さまから 注意を[N]受けてないのかい?[N]むやみに 町の外へでちゃ[N]ダメだってこと.[END]`
 
-widestring_0485BC `[DEF]えっ? エドワード国王に[N]呼び出されて 城へ行くって?[N]じゃ 気をつけていくんだよ.[END]`
+dialogstring_0485BC `[DEF]えっ? エドワード国王に[N]呼び出されて 城へ行くって?[N]じゃ 気をつけていくんだよ.[END]`
 
-widestring_0485F1 `[DEF]気をつけてな.[END]`
+dialogstring_0485F1 `[DEF]気をつけてな.[END]`

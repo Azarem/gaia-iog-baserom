@@ -16,8 +16,8 @@ e_ec0A_edwina [
 ]
 
 code_04C10C {
-    COP [PrintWideString] ( &widestring_04C111 )
+    COP [PrintDialogString] ( &dialogstring_04C111 )
     RTL 
 }
 
-widestring_04C111 `[DEF][TPL:3]エドワード王后:[N]あなたに手紙を送ったのは 国王よ.[N]あの人に 話しかけてちょうだい.[PAL:0][END]`
+dialogstring_04C111 `[DEF][TPL:3]エドワード王后:[N]あなたに手紙を送ったのは 国王よ.[N]あの人に 話しかけてちょうだい.[PAL:0][END]`

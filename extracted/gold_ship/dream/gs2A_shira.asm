@@ -33,7 +33,7 @@ gs2A_shira [
 
 code_059484 {
     COP [SetFlagByte] ( #0E )
-    COP [PrintWideString] ( &widestring_0594B8 )
+    COP [PrintDialogString] ( &dialogstring_0594B8 )
     COP [DialogueOptions] ( #02, #01, &code_list_059491 )
 }
 
@@ -44,12 +44,12 @@ code_list_059491 [
 ]
 
 code_059497 {
-    COP [PrintWideString] ( &widestring_0595B4 )
+    COP [PrintDialogString] ( &dialogstring_0595B4 )
     BRA loc_0594A1
 }
 
 code_05949D {
-    COP [PrintWideString] ( &widestring_0595E6 )
+    COP [PrintDialogString] ( &dialogstring_0595E6 )
 
   loc_0594A1:
     LDA #$0404
@@ -60,11 +60,11 @@ code_05949D {
     RTL 
 }
 
-widestring_0594B8 `[PAU:50][TPL:A][TPL:0]Will: [N]Mother?! [FIN][TPL:2]Will's Mother, Shira: [N]Look in the sky. The [N]comet is so beautiful. [FIN]After years and years[N]the comet approaches[N]Earth, then recedes.[FIN]Some say it's an [N]unlucky star. Some [N]say it's a lucky star... [FIN]Will. What do you think? [N] Unlucky star [N] Lucky star `
+dialogstring_0594B8 `[PAU:50][TPL:A][TPL:0]Will: [N]Mother?! [FIN][TPL:2]Will's Mother, Shira: [N]Look in the sky. The [N]comet is so beautiful. [FIN]After years and years[N]the comet approaches[N]Earth, then recedes.[FIN]Some say it's an [N]unlucky star. Some [N]say it's a lucky star... [FIN]Will. What do you think? [N] Unlucky star [N] Lucky star `
 
-widestring_0595B4 `[CLR]All right...[N]Then hope that the bad[N]luck doesn't come....[FIN][JMP:&gs2A_shira.widestring_0595E6+M]`
+dialogstring_0595B4 `[CLR]All right...[N]Then hope that the bad[N]luck doesn't come....[FIN][JMP:&gs2A_shira.dialogstring_0595E6+M]`
 
-widestring_0595E6 `[CLR]All right...[N]Then hope that happiness[N]doesn't slip away....[FIN][::]Will. I am always [N]watching over you.[PAL:0][END]`
+dialogstring_0595E6 `[CLR]All right...[N]Then hope that happiness[N]doesn't slip away....[FIN][::]Will. I am always [N]watching over you.[PAL:0][END]`
 
 code_059637 {
     LDA #$7000

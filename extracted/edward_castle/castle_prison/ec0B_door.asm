@@ -13,9 +13,9 @@ ec0B_door [
 ]
 
 code_04DB24 {
-    COP [PrintWideString] ( &widestring_04DB2D )
+    COP [PrintDialogString] ( &dialogstring_04DB2D )
     COP [SetFlagByte] ( #02 )
     COP [Die]
 }
 
-widestring_04DB2D `[DLG:3,12][SIZ:D,3][TPL:0]Will: [N]It's locked...[PAL:0][END]`
+dialogstring_04DB2D `[DLG:3,12][SIZ:D,3][TPL:0]Will: [N]It's locked...[PAL:0][END]`

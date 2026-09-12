@@ -44,28 +44,28 @@ code_list_06C788 [
 ]
 
 code_06C794 {
-    COP [PrintWideString] ( &widestring_06C799 )
+    COP [PrintDialogString] ( &dialogstring_06C799 )
     RTL 
 }
 
-widestring_06C799 `[TPL:B]This is the Angel [N]Village. If our bodies [N]are exposed to the sun [N]for long, we'll perish. [END]`
+dialogstring_06C799 `[TPL:B]This is the Angel [N]Village. If our bodies [N]are exposed to the sun [N]for long, we'll perish. [END]`
 
 code_06C7EA {
-    COP [PrintWideString] ( &widestring_06C7EF )
+    COP [PrintDialogString] ( &dialogstring_06C7EF )
     RTL 
 }
 
-widestring_06C7EF `[TPL:B]This is the Angel [N]Village. If our bodies [N]are exposed to the sun [N]for long, we'll perish. [END]`
+dialogstring_06C7EF `[TPL:B]This is the Angel [N]Village. If our bodies [N]are exposed to the sun [N]for long, we'll perish. [END]`
 
 code_06C840 {
-    COP [PrintWideString] ( &widestring_06C845 )
+    COP [PrintDialogString] ( &dialogstring_06C845 )
     RTL 
 }
 
-widestring_06C845 `[TPL:B]This is the Angel [N]Village. If our bodies [N]are exposed to the sun [N]for long, we'll perish. [END]`
+dialogstring_06C845 `[TPL:B]This is the Angel [N]Village. If our bodies [N]are exposed to the sun [N]for long, we'll perish. [END]`
 
 code_06C896 {
-    COP [PrintWideString] ( &widestring_06C8B0 )
+    COP [PrintDialogString] ( &dialogstring_06C8B0 )
     COP [DialogueOptions] ( #02, #02, &code_list_06C8A0 )
 }
 
@@ -76,31 +76,31 @@ code_list_06C8A0 [
 ]
 
 code_06C8A6 {
-    COP [PrintWideString] ( &widestring_06C8DC )
+    COP [PrintDialogString] ( &dialogstring_06C8DC )
     RTL 
 }
 
 code_06C8AB {
-    COP [PrintWideString] ( &widestring_06C8F7 )
+    COP [PrintDialogString] ( &dialogstring_06C8F7 )
     RTL 
 }
 
-widestring_06C8B0 `[DEF]Do you know [N]the painter, Ishtar? [N] Yes [N] No `
+dialogstring_06C8B0 `[DEF]Do you know [N]the painter, Ishtar? [N] Yes [N] No `
 
-widestring_06C8DC `[CLR]You should speak [N]with everyone. [END]`
+dialogstring_06C8DC `[CLR]You should speak [N]with everyone. [END]`
 
-widestring_06C8F7 `[CLR]Ishtar's studio is[N]on the other side[N]of this door.[FIN]But in front, creatures [N]with hate in their [N]hearts are waiting. [FIN]If you must go, you[N]can open the door.[END]`
+dialogstring_06C8F7 `[CLR]Ishtar's studio is[N]on the other side[N]of this door.[FIN]But in front, creatures [N]with hate in their [N]hearts are waiting. [FIN]If you must go, you[N]can open the door.[END]`
 
 code_06C97C {
-    COP [PrintWideString] ( &widestring_06C981 )
+    COP [PrintDialogString] ( &dialogstring_06C981 )
     RTL 
 }
 
-widestring_06C981 `[TPL:A]I am a sculptor. I plan[N]to make 1000 statues [N]in my lifetime...[END]`
+dialogstring_06C981 `[TPL:A]I am a sculptor. I plan[N]to make 1000 statues [N]in my lifetime...[END]`
 
 code_06C9BA {
-    COP [PrintWideString] ( &widestring_06C9BF )
+    COP [PrintDialogString] ( &dialogstring_06C9BF )
     RTL 
 }
 
-widestring_06C9BF `[TPL:B]This is the Angel [N]Village. If our bodies [N]are exposed to the sun [N]for long, we'll perish. [END]`
+dialogstring_06C9BF `[TPL:B]This is the Angel [N]Village. If our bodies [N]are exposed to the sun [N]for long, we'll perish. [END]`

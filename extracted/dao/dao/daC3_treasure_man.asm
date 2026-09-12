@@ -16,8 +16,8 @@ daC3_treasure_man [
 ]
 
 code_08B349 {
-    COP [PrintWideString] ( &widestring_08B34E )
+    COP [PrintDialogString] ( &dialogstring_08B34E )
     RTL 
 }
 
-widestring_08B34E `[DEF]There's a huge pyramid[N]near here.[FIN]Many explorers have come[N]for the treasure, but[N]no one's found it yet.[END]`
+dialogstring_08B34E `[DEF]There's a huge pyramid[N]near here.[FIN]Many explorers have come[N]for the treasure, but[N]no one's found it yet.[END]`

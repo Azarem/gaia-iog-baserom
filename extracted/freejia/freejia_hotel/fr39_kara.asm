@@ -22,7 +22,7 @@ fr39_kara [
     COP [StageSpriteFrame] ( #1B )
     COP [AnimOnce]
     COP [SetFlagByte] ( #58 )
-    COP [PrintWideString] ( &widestring_05C4CD )
+    COP [PrintDialogString] ( &dialogstring_05C4CD )
     COP [StageSpriteLoopMoveX] ( #21, #04, #01 )
     COP [AnimLoop]
     LDA #$CFF0
@@ -51,17 +51,17 @@ code_05C4B7 {
 
 code_05C4BD {
     COP [BranchIfFlagByte] ( #68, #01, &code_05C4C8 )
-    COP [PrintWideString] ( &widestring_05C571 )
+    COP [PrintDialogString] ( &dialogstring_05C571 )
     RTL 
 }
 
 code_05C4C8 {
-    COP [PrintWideString] ( &widestring_05C597 )
+    COP [PrintDialogString] ( &dialogstring_05C597 )
     RTL 
 }
 
-widestring_05C4CD `[TPL:A][TPL:1]Kara: [N]Lilly?[N]Is it Lilly?! [FIN][TPL:2]Lilly: I was worried![N]It's been almost a month[N]since we separated![FIN]I've been working and[N]living in this hotel.[FIN][TPL:A][TPL:2]Lance is in the room[N]on the right,[N]go in there...[PAL:0][END]`
+dialogstring_05C4CD `[TPL:A][TPL:1]Kara: [N]Lilly?[N]Is it Lilly?! [FIN][TPL:2]Lilly: I was worried![N]It's been almost a month[N]since we separated![FIN]I've been working and[N]living in this hotel.[FIN][TPL:A][TPL:2]Lance is in the room[N]on the right,[N]go in there...[PAL:0][END]`
 
-widestring_05C571 `[TPL:A][TPL:1]Kara: [N]I am glad everyone [N]is safe, but...[PAL:0][END]`
+dialogstring_05C571 `[TPL:A][TPL:1]Kara: [N]I am glad everyone [N]is safe, but...[PAL:0][END]`
 
-widestring_05C597 `[TPL:A][TPL:1]Kara: What's wrong? [N]You're crying.[PAL:0][END]`
+dialogstring_05C597 `[TPL:A][TPL:1]Kara: What's wrong? [N]You're crying.[PAL:0][END]`

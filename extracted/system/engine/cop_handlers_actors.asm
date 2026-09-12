@@ -3,6 +3,7 @@
 ?INCLUDE 'actor_execution'
 ?INCLUDE 'body_table'
 ?INCLUDE 'cop_handlers_collision'
+?INCLUDE 'DialogStringRenderer'
 ?INCLUDE 'event_blocks'
 ?INCLUDE 'GetPlayerFacingDirection'
 ?INCLUDE 'hdma_dma_spc'
@@ -10,7 +11,6 @@
 ?INCLUDE 'sprite_composition'
 ?INCLUDE 'system_core'
 ?INCLUDE 'table_01B086'
-?INCLUDE 'WideStringRenderer'
 
 !sceneCurrent                   0644
 !joypadCurrent                  0656
@@ -229,7 +229,7 @@ MusicAndText {
     PLB 
     JSL $@system_core.UpdateFrameRender
     REP #$20
-    JSL $@WideStringRenderer
+    JSL $@DialogStringRenderer
     PLA 
     STA $joypadMaskStd
     PLB 

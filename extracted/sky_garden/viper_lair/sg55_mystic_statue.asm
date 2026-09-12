@@ -26,7 +26,7 @@ sg55_mystic_statue [
     LDA #$FFF0
     TSB $joypadMaskStd
     COP [WaitByte] ( #3B )
-    COP [PrintWideString] ( &widestring_0ACF0E )
+    COP [PrintDialogString] ( &dialogstring_0ACF0E )
     LDA #$0001
     STA $0AAC
     LDA #$0055
@@ -71,7 +71,7 @@ code_0ACE81 {
 
   loc_0ACEC9:
     COP [WaitByte] ( #3B )
-    COP [PrintWideString] ( &widestring_0ACF4A )
+    COP [PrintDialogString] ( &dialogstring_0ACF4A )
     COP [LoopInit] ( #30 )
     LDA $cameraBoundsY
     INC 
@@ -97,6 +97,6 @@ code_0ACE81 {
     RTL 
 }
 
-widestring_0ACF0E `[DEF][TPL:0]You have defeated the, [N]huge demon! [N]Look! A Mystic Statue!![PAL:0][END]`
+dialogstring_0ACF0E `[DEF][TPL:0]You have defeated the, [N]huge demon! [N]Look! A Mystic Statue!![PAL:0][END]`
 
-widestring_0ACF4A `[DEF][TPL:0]A strange noise fills [N]the air around you. [N]From out of nowhere,[N]you hear Neil's voice![FIN][TPL:6]Neil: [N]Will! You're falling [N]to the ground!!!! [FIN]Grab the airplane, and[N]we'll fly out of here![PAL:0][END]`
+dialogstring_0ACF4A `[DEF][TPL:0]A strange noise fills [N]the air around you. [N]From out of nowhere,[N]you hear Neil's voice![FIN][TPL:6]Neil: [N]Will! You're falling [N]to the ground!!!! [FIN]Grab the airplane, and[N]we'll fly out of here![PAL:0][END]`

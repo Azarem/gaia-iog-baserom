@@ -18,17 +18,17 @@ dm3F_elevator_door [
 
 code_05D661 {
     COP [BranchIfEquipped] ( #0F, &code_05D66B )
-    COP [PrintWideString] ( &widestring_05D676 )
+    COP [PrintDialogString] ( &dialogstring_05D676 )
     RTL 
 }
 
 code_05D66B {
     COP [SetFlagByte] ( #69 )
     COP [RemoveItem] ( #0F )
-    COP [PrintWideString] ( &widestring_05D696 )
+    COP [PrintDialogString] ( &dialogstring_05D696 )
     RTL 
 }
 
-widestring_05D676 `[DEF]There's one keyhole[N]in this door.[END]`
+dialogstring_05D676 `[DEF]There's one keyhole[N]in this door.[END]`
 
-widestring_05D696 `[DEF]You used the[N]elevator key![END]`
+dialogstring_05D696 `[DEF]You used the[N]elevator key![END]`

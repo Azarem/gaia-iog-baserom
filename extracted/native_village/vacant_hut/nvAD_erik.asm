@@ -28,8 +28,8 @@ code_088BD1 {
 }
 
 code_088BD3 {
-    COP [PrintWideString] ( &widestring_088BD8 )
+    COP [PrintDialogString] ( &dialogstring_088BD8 )
     RTL 
 }
 
-widestring_088BD8 `[TPL:A][TPL:3]Erik: I'm exhausted. [N]I feel like sleeping [N]for days.[PAL:0][END]`
+dialogstring_088BD8 `[TPL:A][TPL:3]Erik: I'm exhausted. [N]I feel like sleeping [N]for days.[PAL:0][END]`

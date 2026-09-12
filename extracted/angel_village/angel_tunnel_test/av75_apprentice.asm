@@ -43,8 +43,8 @@ code_06DC5D {
 }
 
 code_06DC92 {
-    COP [PrintWideString] ( &widestring_06DC97 )
+    COP [PrintDialogString] ( &dialogstring_06DC97 )
     RTL 
 }
 
-widestring_06DC97 `[TPL:B]Ishtar's apprentice:[N]When you solve the[N]puzzle of the room[N]you may pass.[END]`
+dialogstring_06DC97 `[TPL:B]Ishtar's apprentice:[N]When you solve the[N]puzzle of the room[N]you may pass.[END]`

@@ -20,8 +20,8 @@ fr36_mother [
 ]
 
 code_05BB6A {
-    COP [PrintWideString] ( &widestring_05BB6F )
+    COP [PrintDialogString] ( &dialogstring_05BB6F )
     RTL 
 }
 
-widestring_05BB6F `[TPL:A]Mothers are always[N]worrying about things.[FIN]I was afraid you'd been[N]kidnapped by someone, or[N]had been wounded...[FIN]My mother suffered[N]like that.[END]`
+dialogstring_05BB6F `[TPL:A]Mothers are always[N]worrying about things.[FIN]I was afraid you'd been[N]kidnapped by someone, or[N]had been wounded...[FIN]My mother suffered[N]like that.[END]`

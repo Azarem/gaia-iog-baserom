@@ -30,7 +30,7 @@ code_099EA2 {
     TSB $joypadMaskStd
     COP [StartMusic] ( #1B )
     COP [WaitByte] ( #3B )
-    COP [PrintWideString] ( &widestring_099F1B )
+    COP [PrintDialogString] ( &dialogstring_099F1B )
     LDA #$0003
     JSL $@InitPlayerScriptVariant
     COP [SetTilePos] ( #75, #09 )
@@ -40,7 +40,7 @@ code_099EA2 {
     COP [AnimOnce]
     COP [StageSpriteFrame] ( #1C )
     COP [AnimOnce]
-    COP [PrintWideString] ( &widestring_099F2A )
+    COP [PrintDialogString] ( &dialogstring_099F2A )
     LDY $playerActor
     LDA $0014, Y
     CLC 
@@ -71,6 +71,6 @@ code_099EA2 {
     RTL 
 }
 
-widestring_099F1B `[TPL:A][TPL:1]Wait....[PAL:0][END]`
+dialogstring_099F1B `[TPL:A][TPL:1]Wait....[PAL:0][END]`
 
-widestring_099F2A `[TPL:B][TPL:0][DLY:0]Will: [N]Kara!!!? [FIN][TPL:1]Kara: I'm sorry. [N]I just feel that, if [N]we part now, we'll [N]never meet again... [FIN][TPL:0]Will: [N]But Kara, why have you [N]come here? [FIN]You can't come here[N]unless you have the[N]Crystal Ring...[FIN][TPL:1]Kara: Could that [N]be the ring... [N]Didn't you find it [N]in the Incan Gold Ship? [FIN][TPL:0]This Crystal Ring is[N]dark blue...[FIN]The ring you have is[N]light blue...[FIN]A light one[N]and a dark one...[FIN]Will: I understand.. [N]No matter what happens, [N]don't leave me.[PAL:0][END]`
+dialogstring_099F2A `[TPL:B][TPL:0][DLY:0]Will: [N]Kara!!!? [FIN][TPL:1]Kara: I'm sorry. [N]I just feel that, if [N]we part now, we'll [N]never meet again... [FIN][TPL:0]Will: [N]But Kara, why have you [N]come here? [FIN]You can't come here[N]unless you have the[N]Crystal Ring...[FIN][TPL:1]Kara: Could that [N]be the ring... [N]Didn't you find it [N]in the Incan Gold Ship? [FIN][TPL:0]This Crystal Ring is[N]dark blue...[FIN]The ring you have is[N]light blue...[FIN]A light one[N]and a dark one...[FIN]Will: I understand.. [N]No matter what happens, [N]don't leave me.[PAL:0][END]`

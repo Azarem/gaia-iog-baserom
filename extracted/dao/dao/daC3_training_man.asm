@@ -43,8 +43,8 @@ code_08ADF3 {
 }
 
 code_08AE09 {
-    COP [PrintWideString] ( &widestring_08AE0E )
+    COP [PrintDialogString] ( &dialogstring_08AE0E )
     RTL 
 }
 
-widestring_08AE0E `[DEF]Have you ever played[N]Snake Panic? I'm still[N]in training for it.[END]`
+dialogstring_08AE0E `[DEF]Have you ever played[N]Snake Panic? I'm still[N]in training for it.[END]`

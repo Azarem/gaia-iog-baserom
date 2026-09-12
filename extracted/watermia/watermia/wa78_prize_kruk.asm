@@ -22,8 +22,8 @@ code_079B29 {
 }
 
 code_079B2B {
-    COP [PrintWideString] ( &widestring_079B30 )
+    COP [PrintDialogString] ( &dialogstring_079B30 )
     RTL 
 }
 
-widestring_079B30 `[DEF][TPL:0]These are the Kruks I [N]was given. I have to [N]let everyone know.[PAL:0][END]`
+dialogstring_079B30 `[DEF][TPL:0]These are the Kruks I [N]was given. I have to [N]let everyone know.[PAL:0][END]`

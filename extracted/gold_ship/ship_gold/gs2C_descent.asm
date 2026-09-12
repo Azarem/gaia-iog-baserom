@@ -57,7 +57,7 @@ code_0581DD {
     COP [SpawnThinker] ( @oneshot_palette_flash_1C.code_00B7EC )
     COP [WaitByte] ( #BF )
     COP [SetFlagByte] ( #4C )
-    COP [PrintWideString] ( &widestring_0581FF )
+    COP [PrintDialogString] ( &dialogstring_0581FF )
     LDA #$EFF0
     TRB $joypadMaskStd
 }
@@ -66,4 +66,4 @@ code_0581FD {
     COP [Die]
 }
 
-widestring_0581FF `[DLG:3,12][SIZ:D,2][TPL:0]Will: This is the [N]Incan Gold Ship?! [FIN]What?! I feel like[N]someone's there...[PAL:0][END]`
+dialogstring_0581FF `[DLG:3,12][SIZ:D,2][TPL:0]Will: This is the [N]Incan Gold Ship?! [FIN]What?! I feel like[N]someone's there...[PAL:0][END]`

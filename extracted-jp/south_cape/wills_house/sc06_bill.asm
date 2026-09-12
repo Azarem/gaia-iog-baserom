@@ -30,7 +30,7 @@ code_049140 {
     COP [WaitByte] ( #1D )
     COP [StartMusic] ( #1B )
     COP [WaitByte] ( #59 )
-    COP [PrintWideString] ( &widestring_0493A6 )
+    COP [PrintDialogString] ( &dialogstring_0493A6 )
     COP [StartMusic] ( #06 )
     COP [WriteApuIo1] ( #0A )
     COP [WaitByte] ( #59 )
@@ -43,7 +43,7 @@ code_049140 {
     COP [AnimLoop]
     COP [StageSpriteLoop] ( #02, #10 )
     COP [AnimLoop]
-    COP [PrintWideString] ( &widestring_0493DA )
+    COP [PrintDialogString] ( &dialogstring_0493DA )
     COP [SetOnInteract] ( #$0000 )
     LDA #$CFF0
     TRB $joypadMaskStd
@@ -83,12 +83,12 @@ code_0491DE {
     COP [SolidHighHere]
     COP [SetOnInteract] ( &code_0492A8 )
     COP [ExitIfFlagByte] ( #0A, #01 )
-    COP [PrintWideString] ( &widestring_049428 )
+    COP [PrintDialogString] ( &dialogstring_049428 )
     COP [StageSpriteMoveX] ( #08, #12 )
     COP [AnimOnce]
     COP [StageSpriteFrame] ( #04 )
     COP [AnimOnce]
-    COP [PrintWideString] ( &widestring_04944D )
+    COP [PrintDialogString] ( &dialogstring_04944D )
     COP [StageSpriteMoveX] ( #09, #11 )
     COP [AnimOnce]
     COP [StageSpriteFrame] ( #02 )
@@ -152,12 +152,12 @@ code_049283 {
 }
 
 code_049285 {
-    COP [PrintWideString] ( &widestring_0492B2 )
+    COP [PrintDialogString] ( &dialogstring_0492B2 )
     RTL 
 }
 
 code_04928A {
-    COP [PrintWideString] ( &widestring_049326 )
+    COP [PrintDialogString] ( &dialogstring_049326 )
     COP [SetFlagByte] ( #03 )
     LDA #$CFF0
     TSB $joypadMaskStd
@@ -166,41 +166,41 @@ code_04928A {
 
 code_049298 {
     COP [BranchIfFlagByte] ( #35, #01, &code_0492A3 )
-    COP [PrintWideString] ( &widestring_049637 )
+    COP [PrintDialogString] ( &dialogstring_049637 )
     RTL 
 }
 
 code_0492A3 {
-    COP [PrintWideString] ( &widestring_04959E )
+    COP [PrintDialogString] ( &dialogstring_04959E )
     RTL 
 }
 
 code_0492A8 {
-    COP [PrintWideString] ( &widestring_0493F8 )
+    COP [PrintDialogString] ( &dialogstring_0493F8 )
     RTL 
 }
 
 code_0492AD {
-    COP [PrintWideString] ( &widestring_0494CB )
+    COP [PrintDialogString] ( &dialogstring_0494CB )
     RTL 
 }
 
-widestring_0492B2 `[TPL:B][TPL:4]ビル:[N]おお おかえり. こんな時間に[N]帰ってくるところをみると[N]また 残されたんじゃな.[FIN]わっはっは. 結構.結構.[N]男の子は 勉強ができんでも[N]活発なほうが たのもしい[N]もんじゃて.[PAL:0][END]`
+dialogstring_0492B2 `[TPL:B][TPL:4]ビル:[N]おお おかえり. こんな時間に[N]帰ってくるところをみると[N]また 残されたんじゃな.[FIN]わっはっは. 結構.結構.[N]男の子は 勉強ができんでも[N]活発なほうが たのもしい[N]もんじゃて.[PAL:0][END]`
 
-widestring_049326 `[TPL:B][TPL:4]ビル:[N]いやはや.[N]久びさに 大声で歌ったわい.[FIN]ローラばあさんは むかし 酒場の[N]歌ひめを やっとったんじゃ.[FIN]わしは ばあさんの 美しい声と心に[N]ほれて プロポーズ したんじゃよ.[N]ふぁっ ふぁっ ふぁっ.[PAL:0][END]`
+dialogstring_049326 `[TPL:B][TPL:4]ビル:[N]いやはや.[N]久びさに 大声で歌ったわい.[FIN]ローラばあさんは むかし 酒場の[N]歌ひめを やっとったんじゃ.[FIN]わしは ばあさんの 美しい声と心に[N]ほれて プロポーズ したんじゃよ.[N]ふぁっ ふぁっ ふぁっ.[PAL:0][END]`
 
-widestring_0493A6 `[TPL:8][TPL:1][DLY:0]いやーーーーーーーーーっ!!![FIN][PAL:0][DLY:1][SFX:10]ー階から 悲鳴が ひびきわたった![END]`
+dialogstring_0493A6 `[TPL:8][TPL:1][DLY:0]いやーーーーーーーーーっ!!![FIN][PAL:0][DLY:1][SFX:10]ー階から 悲鳴が ひびきわたった![END]`
 
-widestring_0493DA `[TPL:9][TPL:4]ビル:[N]さっきの子の 悲鳴じゃっ!![PAL:0][END]`
+dialogstring_0493DA `[TPL:9][TPL:4]ビル:[N]さっきの子の 悲鳴じゃっ!![PAL:0][END]`
 
-widestring_0493F8 `[TPL:A][TPL:4]ビル: まったく じょうだんの[N]好きな娘じゃよ.[N]ふぁっ ふぁっ ふぁっ.[PAL:0][END]`
+dialogstring_0493F8 `[TPL:A][TPL:4]ビル: まったく じょうだんの[N]好きな娘じゃよ.[N]ふぁっ ふぁっ ふぁっ.[PAL:0][END]`
 
-widestring_049428 `[PAU:1E][TPL:A][TPL:4]ビル: わしは[N]むかし 建築家じゃったからな.[PAL:0][END]`
+dialogstring_049428 `[PAU:1E][TPL:A][TPL:4]ビル: わしは[N]むかし 建築家じゃったからな.[PAL:0][END]`
 
-widestring_04944D `[TPL:A][TPL:4]あの城の 地下には[N]ろうやがあってな.[FIN]しゅうじんが かんたんに[N]ぬけ出せないよう 複雑なしくみに[N]なって おるのじゃよ.[FIN]しかし わしの作った ろうやで[N]日々 人が さばかれていくのは[N]複雑な心境じゃな···[PAL:0][END]`
+dialogstring_04944D `[TPL:A][TPL:4]あの城の 地下には[N]ろうやがあってな.[FIN]しゅうじんが かんたんに[N]ぬけ出せないよう 複雑なしくみに[N]なって おるのじゃよ.[FIN]しかし わしの作った ろうやで[N]日々 人が さばかれていくのは[N]複雑な心境じゃな···[PAL:0][END]`
 
-widestring_0494CB `[TPL:A][TPL:4]ビル: なあ テム.[N]近ごろ ローラばあさんの料理って[N]おかしなものばかりだと 思わんか?[FIN]夕べは ミソごはん.[N]その前は サシミのカレーあえじゃ.[N]食べるほうは たまらんわい···[FIN]人は 年老いて[N]どうにもならん問題が 身のまわりに[N]あると ボケ始めると言うが,[FIN]ばあさんは 何か わしらに言えない[N]なやみを かかえとるんじゃ[N]なかろうか···[PAL:0][END]`
+dialogstring_0494CB `[TPL:A][TPL:4]ビル: なあ テム.[N]近ごろ ローラばあさんの料理って[N]おかしなものばかりだと 思わんか?[FIN]夕べは ミソごはん.[N]その前は サシミのカレーあえじゃ.[N]食べるほうは たまらんわい···[FIN]人は 年老いて[N]どうにもならん問題が 身のまわりに[N]あると ボケ始めると言うが,[FIN]ばあさんは 何か わしらに言えない[N]なやみを かかえとるんじゃ[N]なかろうか···[PAL:0][END]`
 
-widestring_04959E `[TPL:B][TPL:4]ビル:[N]水しょうの指輪···[N]うーむ 聞いたことも ないな.[FIN]お前の父 オールマンの 残した[N]荷物にも そんなものは[N]なかったし···[FIN]とにかく エドワード城へ[N]行ってみたら どうじゃ?[N]昨日の おひめ樣にも会えるしの.[N]ふぁっ ふぁっ ふぁっ.[PAL:0][END]`
+dialogstring_04959E `[TPL:B][TPL:4]ビル:[N]水しょうの指輪···[N]うーむ 聞いたことも ないな.[FIN]お前の父 オールマンの 残した[N]荷物にも そんなものは[N]なかったし···[FIN]とにかく エドワード城へ[N]行ってみたら どうじゃ?[N]昨日の おひめ樣にも会えるしの.[N]ふぁっ ふぁっ ふぁっ.[PAL:0][END]`
 
-widestring_049637 `[TPL:A][TPL:4]ビル: おはよう.[N]今朝も ローラばあさんの パイを[N]食べさせられたよ··· トホホ[PAL:0][END]`
+dialogstring_049637 `[TPL:A][TPL:4]ビル: おはよう.[N]今朝も ローラばあさんの パイを[N]食べさせられたよ··· トホホ[PAL:0][END]`

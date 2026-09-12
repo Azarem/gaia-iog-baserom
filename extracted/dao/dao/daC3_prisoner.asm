@@ -40,8 +40,8 @@ code_08AC85 {
 }
 
 code_08AC8D {
-    COP [PrintWideString] ( &widestring_08AC92 )
+    COP [PrintDialogString] ( &dialogstring_08AC92 )
     RTL 
 }
 
-widestring_08AC92 `[DEF][TPL:0]I guess he didn't [N]understand what I said. [N]His eyes were [N]expressive...[PAL:0][END]`
+dialogstring_08AC92 `[DEF][TPL:0]I guess he didn't [N]understand what I said. [N]His eyes were [N]expressive...[PAL:0][END]`

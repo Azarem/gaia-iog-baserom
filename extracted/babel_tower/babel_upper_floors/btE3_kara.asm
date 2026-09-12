@@ -24,7 +24,7 @@ code_098529 {
     COP [AnimOnce]
     COP [StageSpriteFrame] ( #1C )
     COP [AnimOnce]
-    COP [PrintWideString] ( &widestring_098577 )
+    COP [PrintDialogString] ( &dialogstring_098577 )
     LDA #$CFF0
     TRB $joypadMaskStd
     COP [SpawnAfterFlags] ( @EscortFollowPathTracker, #$2000 )
@@ -49,7 +49,7 @@ code_098529 {
     RTL 
 }
 
-widestring_098577 `[TPL:A][TPL:0]Will: [N]Kara! [N]Where did you go?! [FIN][TPL:1]Kara: There was talk [N]that the vampire [N]woman had come... [FIN]They say that her body [N]is eternal... [FIN]They say that once the[N]comet is gone,[FIN]she'll be able to[N]rest in peace.[END]`
+dialogstring_098577 `[TPL:A][TPL:0]Will: [N]Kara! [N]Where did you go?! [FIN][TPL:1]Kara: There was talk [N]that the vampire [N]woman had come... [FIN]They say that her body [N]is eternal... [FIN]They say that once the[N]comet is gone,[FIN]she'll be able to[N]rest in peace.[END]`
 ---------------------------------------------
 
 btE3_kara_destroy {

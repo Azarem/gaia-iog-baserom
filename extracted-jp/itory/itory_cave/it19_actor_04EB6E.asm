@@ -53,7 +53,7 @@ code_04EBA1 {
     COP [SetEntryExitNow] ( @code_04EBA1 )
 
   loc_04EBCC:
-    COP [SpawnAfterAbsFlags] ( @chunk_008000.widestring_00CB00, #$0098, #$0060, #$2000 )
+    COP [SpawnAfterAbsFlags] ( @chunk_008000.dialogstring_00CB00, #$0098, #$0060, #$2000 )
     COP [StageBgChange] ( #1A )
     COP [ApplyBgChange]
     COP [SetFlagWord] ( #$011A )

@@ -20,7 +20,7 @@ na49_kara [
     COP [AnimLoop]
     COP [StageSpriteLoop] ( #1A, #14 )
     COP [AnimLoop]
-    COP [PrintWideString] ( &widestring_05E086 )
+    COP [PrintDialogString] ( &dialogstring_05E086 )
     COP [ClearFlagByte] ( #03 )
     COP [ExitIfFlagByte] ( #05, #01 )
     COP [SetSpritePriority] ( #30 )
@@ -38,7 +38,7 @@ na49_kara [
     COP [StageSpriteFrame] ( #1B )
     COP [AnimOnce]
     COP [SolidHighHere]
-    COP [PrintWideString] ( &widestring_05E0C1 )
+    COP [PrintDialogString] ( &dialogstring_05E0C1 )
     COP [SetFlagByte] ( #07 )
     COP [SetEntryContinue]
     RTL 
@@ -46,10 +46,10 @@ na49_kara [
 ]
 
 code_05E081 {
-    COP [PrintWideString] ( &widestring_05E086 )
+    COP [PrintDialogString] ( &dialogstring_05E086 )
     RTL 
 }
 
-widestring_05E086 `[TPL:A][TPL:1]Kara: [N]I can't believe it! [FIN]I don't want to breathe[N]the same air as him![END]`
+dialogstring_05E086 `[TPL:A][TPL:1]Kara: [N]I can't believe it! [FIN]I don't want to breathe[N]the same air as him![END]`
 
-widestring_05E0C1 `[TPL:A][TPL:1]Kara: [N]Cygnus?! [FIN][TPL:6]Neil: That's the [N]Tower of Babel, where [N]Will's father got lost. [FIN]It's in the middle of[N]the ground painting of[N]the big white bird.[END]`
+dialogstring_05E0C1 `[TPL:A][TPL:1]Kara: [N]Cygnus?! [FIN][TPL:6]Neil: That's the [N]Tower of Babel, where [N]Will's father got lost. [FIN]It's in the middle of[N]the ground painting of[N]the big white bird.[END]`

@@ -17,8 +17,8 @@ code_048D30 {
 }
 
 code_048D35 {
-    COP [PrintWideString] ( &widestring_048D3A )
+    COP [PrintDialogString] ( &dialogstring_048D3A )
     RTL 
 }
 
-widestring_048D3A `[TPL:B][TPL:4]Lance:[N]Like always, the cave[N]at the seashore![PAL:0][END]`
+dialogstring_048D3A `[TPL:B][TPL:4]Lance:[N]Like always, the cave[N]at the seashore![PAL:0][END]`

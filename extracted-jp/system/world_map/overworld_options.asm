@@ -49,7 +49,7 @@ code_03B165 {
 }
 
 code_03B167 {
-    COP [PrintWideString] ( &widestring_03B179 )
+    COP [PrintDialogString] ( &dialogstring_03B179 )
     COP [DialogueOptions] ( #02, #01, &code_list_03B173 )
 
   loc_03B171:
@@ -62,10 +62,10 @@ code_list_03B173 [
   &code_03B661   ;02
 ]
 
-widestring_03B179 `[TPL:11][SFX:0] やめる[N] エドワード城`
+dialogstring_03B179 `[TPL:11][SFX:0] やめる[N] エドワード城`
 
 code_03B18D {
-    COP [PrintWideString] ( &widestring_03B19F )
+    COP [PrintDialogString] ( &dialogstring_03B19F )
     COP [DialogueOptions] ( #02, #01, &code_list_03B199 )
 
   loc_03B197:
@@ -78,12 +78,12 @@ code_list_03B199 [
   &code_03B671   ;02
 ]
 
-widestring_03B19F `[TPL:11][SFX:0] やめる[N] イトリー族の村`
+dialogstring_03B19F `[TPL:11][SFX:0] やめる[N] イトリー族の村`
 
-widestring_03B1B5 ``
+dialogstring_03B1B5 ``
 
 code_03B1B6 {
-    COP [PrintWideString] ( &widestring_03B1C8 )
+    COP [PrintDialogString] ( &dialogstring_03B1C8 )
     COP [DialogueOptions] ( #02, #01, &code_list_03B1C2 )
 
   loc_03B1C0:
@@ -96,10 +96,10 @@ code_list_03B1C2 [
   &code_03B651   ;02
 ]
 
-widestring_03B1C8 `[TPL:11][SFX:0] やめる[N] サウスケープ`
+dialogstring_03B1C8 `[TPL:11][SFX:0] やめる[N] サウスケープ`
 
 code_03B1DB {
-    COP [PrintWideString] ( &widestring_03B1ED )
+    COP [PrintDialogString] ( &dialogstring_03B1ED )
     COP [DialogueOptions] ( #02, #01, &code_list_03B1E7 )
 
   loc_03B1E5:
@@ -112,10 +112,10 @@ code_list_03B1E7 [
   &code_03B681   ;02
 ]
 
-widestring_03B1ED `[TPL:11][SFX:0] やめる[N] サウスケープ`
+dialogstring_03B1ED `[TPL:11][SFX:0] やめる[N] サウスケープ`
 
 code_03B200 {
-    COP [PrintWideString] ( &widestring_03B212 )
+    COP [PrintDialogString] ( &dialogstring_03B212 )
     COP [DialogueOptions] ( #02, #01, &code_list_03B20C )
 
   loc_03B20A:
@@ -128,12 +128,12 @@ code_list_03B20C [
   &code_03B691   ;02
 ]
 
-widestring_03B212 `[TPL:11][SFX:0] やめる[N] イトリー族の村`
+dialogstring_03B212 `[TPL:11][SFX:0] やめる[N] イトリー族の村`
 
-widestring_03B228 ``
+dialogstring_03B228 ``
 
 code_03B229 {
-    COP [PrintWideString] ( &widestring_03B23B )
+    COP [PrintDialogString] ( &dialogstring_03B23B )
     COP [DialogueOptions] ( #02, #01, &code_list_03B235 )
 
   loc_03B233:
@@ -146,12 +146,12 @@ code_list_03B235 [
   &code_03B6A1   ;02
 ]
 
-widestring_03B23B `[TPL:11][SFX:0] やめる[N] インカのイセキ`
+dialogstring_03B23B `[TPL:11][SFX:0] やめる[N] インカのイセキ`
 
-widestring_03B251 ``
+dialogstring_03B251 ``
 
 code_03B252 {
-    COP [PrintWideString] ( &widestring_03B264 )
+    COP [PrintDialogString] ( &dialogstring_03B264 )
     COP [DialogueOptions] ( #02, #01, &code_list_03B25E )
 
   loc_03B25C:
@@ -164,10 +164,10 @@ code_list_03B25E [
   &code_03B6B1   ;02
 ]
 
-widestring_03B264 `[TPL:11][SFX:0] やめる[N] ダイヤモンド鉱山`
+dialogstring_03B264 `[TPL:11][SFX:0] やめる[N] ダイヤモンド鉱山`
 
 code_03B27B {
-    COP [PrintWideString] ( &widestring_03B28D )
+    COP [PrintDialogString] ( &dialogstring_03B28D )
     COP [DialogueOptions] ( #02, #01, &code_list_03B287 )
 
   loc_03B285:
@@ -180,10 +180,10 @@ code_list_03B287 [
   &code_03B6C1   ;02
 ]
 
-widestring_03B28D `[TPL:11][SFX:0] やめる[N] 花の都フリージア`
+dialogstring_03B28D `[TPL:11][SFX:0] やめる[N] 花の都フリージア`
 
 code_03B2A4 {
-    COP [PrintWideString] ( &widestring_03B2B4 )
+    COP [PrintDialogString] ( &dialogstring_03B2B4 )
     COP [DialogueOptions] ( #01, #01, &code_list_03B2B0 )
 
   loc_03B2AE:
@@ -195,10 +195,10 @@ code_list_03B2B0 [
   &code_03B6C5   ;01
 ]
 
-widestring_03B2B4 `[TPL:11][SFX:0] やめる`
+dialogstring_03B2B4 `[TPL:11][SFX:0] やめる`
 
 code_03B2BD {
-    COP [PrintWideString] ( &widestring_03B2CF )
+    COP [PrintDialogString] ( &dialogstring_03B2CF )
     COP [DialogueOptions] ( #02, #01, &code_list_03B2C9 )
 
   loc_03B2C7:
@@ -211,10 +211,10 @@ code_list_03B2C9 [
   &code_03B6D1   ;02
 ]
 
-widestring_03B2CF `[TPL:11][SFX:0] やめる[N] 水上都市ウォ-タミア`
+dialogstring_03B2CF `[TPL:11][SFX:0] やめる[N] 水上都市ウォ-タミア`
 
 code_03B2EA {
-    COP [PrintWideString] ( &widestring_03B2FC )
+    COP [PrintDialogString] ( &dialogstring_03B2FC )
     COP [DialogueOptions] ( #02, #01, &code_list_03B2F6 )
 
   loc_03B2F4:
@@ -227,10 +227,10 @@ code_list_03B2F6 [
   &code_03B6E1   ;02
 ]
 
-widestring_03B2FC `[TPL:11][SFX:0] やめる[N] だ天使の町`
+dialogstring_03B2FC `[TPL:11][SFX:0] やめる[N] だ天使の町`
 
 code_03B30F {
-    COP [PrintWideString] ( &widestring_03B323 )
+    COP [PrintDialogString] ( &dialogstring_03B323 )
     COP [DialogueOptions] ( #32, #01, &code_list_03B31B )
 
   loc_03B319:
@@ -244,10 +244,10 @@ code_list_03B31B [
   &code_03B6E1   ;03
 ]
 
-widestring_03B323 `[TPL:11][SFX:0] やめる     だ天使の町[N] 万里の長城`
+dialogstring_03B323 `[TPL:11][SFX:0] やめる     だ天使の町[N] 万里の長城`
 
 code_03B344 {
-    COP [PrintWideString] ( &widestring_03B356 )
+    COP [PrintDialogString] ( &dialogstring_03B356 )
     COP [DialogueOptions] ( #02, #01, &code_list_03B350 )
 
   loc_03B34E:
@@ -260,10 +260,10 @@ code_list_03B350 [
   &code_03B701   ;02
 ]
 
-widestring_03B356 `[TPL:11][SFX:0] やめる[N] ウォ-タミア`
+dialogstring_03B356 `[TPL:11][SFX:0] やめる[N] ウォ-タミア`
 
 code_03B369 {
-    COP [PrintWideString] ( &widestring_03B37F )
+    COP [PrintDialogString] ( &dialogstring_03B37F )
     COP [DialogueOptions] ( #42, #01, &code_list_03B375 )
 
   loc_03B373:
@@ -278,10 +278,10 @@ code_list_03B375 [
   &code_03B711   ;04
 ]
 
-widestring_03B37F `[TPL:11][SFX:0] やめる     だ天使の町[N] 万里の長城   大都市エウロ`
+dialogstring_03B37F `[TPL:11][SFX:0] やめる     だ天使の町[N] 万里の長城   大都市エウロ`
 
 code_03B3AE {
-    COP [PrintWideString] ( &widestring_03B3C0 )
+    COP [PrintDialogString] ( &dialogstring_03B3C0 )
     COP [DialogueOptions] ( #02, #01, &code_list_03B3BA )
 
   loc_03B3B8:
@@ -294,10 +294,10 @@ code_list_03B3BA [
   &code_03B727   ;02
 ]
 
-widestring_03B3C0 `[TPL:11][SFX:0] やめる[N] ウォ-タミア`
+dialogstring_03B3C0 `[TPL:11][SFX:0] やめる[N] ウォ-タミア`
 
 code_03B3D3 {
-    COP [PrintWideString] ( &widestring_03B3E7 )
+    COP [PrintDialogString] ( &dialogstring_03B3E7 )
     COP [DialogueOptions] ( #32, #01, &code_list_03B3DF )
 
   loc_03B3DD:
@@ -311,10 +311,10 @@ code_list_03B3DF [
   &code_03B73D   ;03
 ]
 
-widestring_03B3E7 `[TPL:11][SFX:0] やめる     山の聖域[N] ウォ-タミア`
+dialogstring_03B3E7 `[TPL:11][SFX:0] やめる     山の聖域[N] ウォ-タミア`
 
 code_03B406 {
-    COP [PrintWideString] ( &widestring_03B418 )
+    COP [PrintDialogString] ( &dialogstring_03B418 )
     COP [DialogueOptions] ( #02, #01, &code_list_03B412 )
 
   loc_03B410:
@@ -327,10 +327,10 @@ code_list_03B412 [
   &code_03B74D   ;02
 ]
 
-widestring_03B418 `[TPL:11][SFX:0] やめる[N] 大都市エウロ`
+dialogstring_03B418 `[TPL:11][SFX:0] やめる[N] 大都市エウロ`
 
 code_03B42E {
-    COP [PrintWideString] ( &widestring_03B440 )
+    COP [PrintDialogString] ( &dialogstring_03B440 )
     COP [DialogueOptions] ( #02, #01, &code_list_03B43A )
 
   loc_03B438:
@@ -343,10 +343,10 @@ code_list_03B43A [
   &code_03B76D   ;02
 ]
 
-widestring_03B440 `[TPL:11][SFX:0] やめる[N] 大都市エウロ`
+dialogstring_03B440 `[TPL:11][SFX:0] やめる[N] 大都市エウロ`
 
 code_03B456 {
-    COP [PrintWideString] ( &widestring_03B46A )
+    COP [PrintDialogString] ( &dialogstring_03B46A )
     COP [DialogueOptions] ( #32, #01, &code_list_03B462 )
 
   loc_03B460:
@@ -360,10 +360,10 @@ code_list_03B462 [
   &code_03B77D   ;03
 ]
 
-widestring_03B46A `[TPL:11][SFX:0] やめる     アンコールワット[N] 大都市エウロ`
+dialogstring_03B46A `[TPL:11][SFX:0] やめる     アンコールワット[N] 大都市エウロ`
 
 code_03B48F {
-    COP [PrintWideString] ( &widestring_03B4A1 )
+    COP [PrintDialogString] ( &dialogstring_03B4A1 )
     COP [DialogueOptions] ( #02, #01, &code_list_03B49B )
 
   loc_03B499:
@@ -376,10 +376,10 @@ code_list_03B49B [
   &code_03B78D   ;02
 ]
 
-widestring_03B4A1 `[TPL:11][SFX:0] やめる[N] 原住民の村落`
+dialogstring_03B4A1 `[TPL:11][SFX:0] やめる[N] 原住民の村落`
 
 code_03B4B7 {
-    COP [PrintWideString] ( &widestring_03B2B4 )
+    COP [PrintDialogString] ( &dialogstring_03B2B4 )
     COP [DialogueOptions] ( #01, #01, &code_list_03B4C3 )
 
   loc_03B4C1:
@@ -392,7 +392,7 @@ code_list_03B4C3 [
 ]
 
 code_03B4C7 {
-    COP [PrintWideString] ( &widestring_03B4D9 )
+    COP [PrintDialogString] ( &dialogstring_03B4D9 )
     COP [DialogueOptions] ( #02, #01, &code_list_03B4D3 )
 
   loc_03B4D1:
@@ -405,10 +405,10 @@ code_list_03B4D3 [
   &code_03B79D   ;02
 ]
 
-widestring_03B4D9 `[TPL:11][SFX:0] やめる[N] 原住民の村落`
+dialogstring_03B4D9 `[TPL:11][SFX:0] やめる[N] 原住民の村落`
 
 code_03B4EF {
-    COP [PrintWideString] ( &widestring_03B503 )
+    COP [PrintDialogString] ( &dialogstring_03B503 )
     COP [DialogueOptions] ( #32, #01, &code_list_03B4FB )
 
   loc_03B4F9:
@@ -422,10 +422,10 @@ code_list_03B4FB [
   &code_03B7AD   ;03
 ]
 
-widestring_03B503 `[TPL:11][SFX:0] やめる     ピラミッド[N] 原住民の村落`
+dialogstring_03B503 `[TPL:11][SFX:0] やめる     ピラミッド[N] 原住民の村落`
 
 code_03B525 {
-    COP [PrintWideString] ( &widestring_03B537 )
+    COP [PrintDialogString] ( &dialogstring_03B537 )
     COP [DialogueOptions] ( #02, #01, &code_list_03B531 )
 
   loc_03B52F:
@@ -438,10 +438,10 @@ code_list_03B531 [
   &code_03B7CD   ;02
 ]
 
-widestring_03B537 `[TPL:11][SFX:0] やめる[N] さばくの町ダオ`
+dialogstring_03B537 `[TPL:11][SFX:0] やめる[N] さばくの町ダオ`
 
 code_03B54C {
-    COP [PrintWideString] ( &widestring_03B562 )
+    COP [PrintDialogString] ( &dialogstring_03B562 )
     COP [DialogueOptions] ( #42, #01, &code_list_03B558 )
 
   loc_03B556:
@@ -456,10 +456,10 @@ code_list_03B558 [
   &code_03B7BD   ;04
 ]
 
-widestring_03B562 `[TPL:11][SFX:0] やめる     アンコールワット[N] 大都市エウロ  さばくの町ダオ`
+dialogstring_03B562 `[TPL:11][SFX:0] やめる     アンコールワット[N] 大都市エウロ  さばくの町ダオ`
 
 code_03B593 {
-    COP [PrintWideString] ( &widestring_03B5A9 )
+    COP [PrintDialogString] ( &dialogstring_03B5A9 )
     COP [DialogueOptions] ( #42, #01, &code_list_03B59F )
 
   loc_03B59D:
@@ -474,10 +474,10 @@ code_list_03B59F [
   &code_03B75D   ;04
 ]
 
-widestring_03B5A9 `[TPL:11][SFX:0] やめる     山の聖域[N] ウォ-タミア  原住民の村落`
+dialogstring_03B5A9 `[TPL:11][SFX:0] やめる     山の聖域[N] ウォ-タミア  原住民の村落`
 
 code_03B5D5 {
-    COP [PrintWideString] ( &widestring_03B2B4 )
+    COP [PrintDialogString] ( &dialogstring_03B2B4 )
     COP [DialogueOptions] ( #01, #01, &code_list_03B5E1 )
 
   loc_03B5DF:
@@ -490,57 +490,57 @@ code_list_03B5E1 [
 ]
 
 code_03B5E5 {
-    COP [PrintWideString] ( &widestring_03B62A )
+    COP [PrintDialogString] ( &dialogstring_03B62A )
     COP [RestoreSavedPtr]
 }
 
 code_03B5EB {
-    COP [PrintWideString] ( &widestring_03B62D )
+    COP [PrintDialogString] ( &dialogstring_03B62D )
     COP [RestoreSavedPtr]
 }
 
 code_03B5F1 {
-    COP [PrintWideString] ( &widestring_03B630 )
+    COP [PrintDialogString] ( &dialogstring_03B630 )
     COP [RestoreSavedPtr]
 }
 
 code_03B5F7 {
-    COP [PrintWideString] ( &widestring_03B633 )
+    COP [PrintDialogString] ( &dialogstring_03B633 )
     COP [RestoreSavedPtr]
 }
 
 code_03B5FD {
-    COP [PrintWideString] ( &widestring_03B636 )
+    COP [PrintDialogString] ( &dialogstring_03B636 )
     COP [RestoreSavedPtr]
 }
 
 code_03B603 {
-    COP [PrintWideString] ( &widestring_03B639 )
+    COP [PrintDialogString] ( &dialogstring_03B639 )
     COP [RestoreSavedPtr]
 }
 
 code_03B609 {
-    COP [PrintWideString] ( &widestring_03B63C )
+    COP [PrintDialogString] ( &dialogstring_03B63C )
     COP [RestoreSavedPtr]
 }
 
 code_03B60F {
-    COP [PrintWideString] ( &widestring_03B63F )
+    COP [PrintDialogString] ( &dialogstring_03B63F )
     COP [RestoreSavedPtr]
 }
 
 code_03B615 {
-    COP [PrintWideString] ( &widestring_03B642 )
+    COP [PrintDialogString] ( &dialogstring_03B642 )
     COP [RestoreSavedPtr]
 }
 
 code_03B61B {
-    COP [PrintWideString] ( &widestring_03B645 )
+    COP [PrintDialogString] ( &dialogstring_03B645 )
     COP [RestoreSavedPtr]
 }
 
 code_03B621 {
-    COP [PrintWideString] ( &widestring_03B648 )
+    COP [PrintDialogString] ( &dialogstring_03B648 )
     COP [RestoreSavedPtr]
 
   loc_03B627:

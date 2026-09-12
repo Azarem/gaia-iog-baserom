@@ -48,29 +48,29 @@ code_list_08B4A7 [
 ]
 
 code_08B4AF {
-    COP [PrintWideString] ( &widestring_08B4C3 )
+    COP [PrintDialogString] ( &dialogstring_08B4C3 )
     RTL 
 }
 
 code_08B4B4 {
-    COP [PrintWideString] ( &widestring_08B4F0 )
+    COP [PrintDialogString] ( &dialogstring_08B4F0 )
     RTL 
 }
 
 code_08B4B9 {
-    COP [PrintWideString] ( &widestring_08B51D )
+    COP [PrintDialogString] ( &dialogstring_08B51D )
     RTL 
 }
 
 code_08B4BE {
-    COP [PrintWideString] ( &widestring_08B54A )
+    COP [PrintDialogString] ( &dialogstring_08B54A )
     RTL 
 }
 
-widestring_08B4C3 `[TPL:E][TPL:0]She didn't understand. [N]She just kept working.[PAL:0][END]`
+dialogstring_08B4C3 `[TPL:E][TPL:0]She didn't understand. [N]She just kept working.[PAL:0][END]`
 
-widestring_08B4F0 `[TPL:E][TPL:0]She didn't understand. [N]She just kept working.[PAL:0][END]`
+dialogstring_08B4F0 `[TPL:E][TPL:0]She didn't understand. [N]She just kept working.[PAL:0][END]`
 
-widestring_08B51D `[TPL:E][TPL:0]She didn't understand. [N]She just kept working.[PAL:0][END]`
+dialogstring_08B51D `[TPL:E][TPL:0]She didn't understand. [N]She just kept working.[PAL:0][END]`
 
-widestring_08B54A `[TPL:E][TPL:0]She didn't understand. [N]She just kept working.[PAL:0][END]`
+dialogstring_08B54A `[TPL:E][TPL:0]She didn't understand. [N]She just kept working.[PAL:0][END]`

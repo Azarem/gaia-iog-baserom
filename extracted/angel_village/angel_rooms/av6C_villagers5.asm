@@ -39,22 +39,22 @@ code_list_06CD85 [
 ]
 
 code_06CD8B {
-    COP [PrintWideString] ( &widestring_06CD9A )
+    COP [PrintDialogString] ( &dialogstring_06CD9A )
     RTL 
 }
 
 code_06CD90 {
-    COP [PrintWideString] ( &widestring_06CDD4 )
+    COP [PrintDialogString] ( &dialogstring_06CDD4 )
     RTL 
 }
 
 code_06CD95 {
-    COP [PrintWideString] ( &widestring_06CE56 )
+    COP [PrintDialogString] ( &dialogstring_06CE56 )
     RTL 
 }
 
-widestring_06CD9A `[TPL:A]I dance to remember [N]what it feels like to be [N]human. But... [END]`
+dialogstring_06CD9A `[TPL:A]I dance to remember [N]what it feels like to be [N]human. But... [END]`
 
-widestring_06CDD4 `[TPL:B]We are expressionless,[N]but Ishtar painted us[N]with faces overflowing[N]with human kindness.[FIN]After that, people [N]wanting to be painted [N]flocked here. [END]`
+dialogstring_06CDD4 `[TPL:B]We are expressionless,[N]but Ishtar painted us[N]with faces overflowing[N]with human kindness.[FIN]After that, people [N]wanting to be painted [N]flocked here. [END]`
 
-widestring_06CE56 `[TPL:A]I used to dance with the [N]person in that picture. [END]`
+dialogstring_06CE56 `[TPL:A]I used to dance with the [N]person in that picture. [END]`

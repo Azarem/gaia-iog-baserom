@@ -98,15 +98,15 @@ code_09A479 {
     LDA $abilityBitmask
     ORA #$0001
     STA $abilityBitmask
-    COP [PrintWideString] ( &widestring_09A498 )
+    COP [PrintDialogString] ( &dialogstring_09A498 )
     JMP $&code_09A473
 
   loc_09A491:
-    COP [PrintWideString] ( &widestring_09A498+M )
+    COP [PrintDialogString] ( &dialogstring_09A498+M )
     JMP $&code_09A473
 }
 
-widestring_09A498 `[DEF]You receive the [N]Psycho Crusher!! [FIN][::][DEF]You can smash obstacles[N]by ramming them.[N]Use the Attack Button[N]to save energy...[END]`
+dialogstring_09A498 `[DEF]You receive the [N]Psycho Crusher!! [FIN][::][DEF]You can smash obstacles[N]by ramming them.[N]Use the Attack Button[N]to save energy...[END]`
 
 code_09A506 {
     LDA $abilityBitmask
@@ -115,15 +115,15 @@ code_09A506 {
     LDA $abilityBitmask
     ORA #$0010
     STA $abilityBitmask
-    COP [PrintWideString] ( &widestring_09A525 )
+    COP [PrintDialogString] ( &dialogstring_09A525 )
     JMP $&code_09A473
 
   loc_09A51E:
-    COP [PrintWideString] ( &widestring_09A525+M )
+    COP [PrintDialogString] ( &dialogstring_09A525+M )
     JMP $&code_09A473
 }
 
-widestring_09A525 `[DEF]You receive the [N]Psycho Flier! [FIN][::][DEF]You can scorch enemies [N]with its flame. [N]Use the Attack Button [N]to save energy... [END]`
+dialogstring_09A525 `[DEF]You receive the [N]Psycho Flier! [FIN][::][DEF]You can scorch enemies [N]with its flame. [N]Use the Attack Button [N]to save energy... [END]`
 
 code_09A584 {
     LDA $abilityBitmask
@@ -132,15 +132,15 @@ code_09A584 {
     LDA $abilityBitmask
     ORA #$0002
     STA $abilityBitmask
-    COP [PrintWideString] ( &widestring_09A5A3 )
+    COP [PrintDialogString] ( &dialogstring_09A5A3 )
     JMP $&code_09A473
 
   loc_09A59C:
-    COP [PrintWideString] ( &widestring_09A5A3+M )
+    COP [PrintDialogString] ( &dialogstring_09A5A3+M )
     JMP $&code_09A473
 }
 
-widestring_09A5A3 `[DEF]You receive the [N]Psycho Slider! [FIN][::][DEF]Now you can use the[N]Sliding Attack, and[N]pass through small[N]passageways.[FIN]When you're running,[N]push the Attack Button.[END]`
+dialogstring_09A5A3 `[DEF]You receive the [N]Psycho Slider! [FIN][::][DEF]Now you can use the[N]Sliding Attack, and[N]pass through small[N]passageways.[FIN]When you're running,[N]push the Attack Button.[END]`
 
 code_09A628 {
     LDA $abilityBitmask
@@ -149,15 +149,15 @@ code_09A628 {
     LDA $abilityBitmask
     ORA #$0004
     STA $abilityBitmask
-    COP [PrintWideString] ( &widestring_09A647 )
+    COP [PrintDialogString] ( &dialogstring_09A647 )
     JMP $&code_09A473
 
   loc_09A640:
-    COP [PrintWideString] ( &widestring_09A647+M )
+    COP [PrintDialogString] ( &dialogstring_09A647+M )
     JMP $&code_09A473
 }
 
-widestring_09A647 `[DEF]You receive the [N]Spin Dasher! [FIN][::][DEF]Send enemies flying by[N]spinning your body[N]rapidly.[FIN]Climb hills by using the[N]recoil. For more power,[N]use the Attack and[N]LR Buttons...[END]`
+dialogstring_09A647 `[DEF]You receive the [N]Spin Dasher! [FIN][::][DEF]Send enemies flying by[N]spinning your body[N]rapidly.[FIN]Climb hills by using the[N]recoil. For more power,[N]use the Attack and[N]LR Buttons...[END]`
 
 code_09A6DE {
     LDA $abilityBitmask
@@ -166,15 +166,15 @@ code_09A6DE {
     LDA $abilityBitmask
     ORA #$0040
     STA $abilityBitmask
-    COP [PrintWideString] ( &widestring_09A6FD )
+    COP [PrintDialogString] ( &dialogstring_09A6FD )
     JMP $&code_09A473
 
   loc_09A6F6:
-    COP [PrintWideString] ( &widestring_09A6FD+M )
+    COP [PrintDialogString] ( &dialogstring_09A6FD+M )
     JMP $&code_09A473
 }
 
-widestring_09A6FD `[DEF]You receive the [N]Earthquaker! [FIN][::][DEF]The Earthquaker[N]causes earthquakes.[FIN]Stops enemies for a long[N]time. Push the Attack[N]button while jumping...[END]`
+dialogstring_09A6FD `[DEF]You receive the [N]Earthquaker! [FIN][::][DEF]The Earthquaker[N]causes earthquakes.[FIN]Stops enemies for a long[N]time. Push the Attack[N]button while jumping...[END]`
 
 code_09A77F {
     LDA $abilityBitmask
@@ -183,40 +183,40 @@ code_09A77F {
     LDA $abilityBitmask
     ORA #$0020
     STA $abilityBitmask
-    COP [PrintWideString] ( &widestring_09A79E )
+    COP [PrintDialogString] ( &dialogstring_09A79E )
     JMP $&code_09A473
 
   loc_09A797:
-    COP [PrintWideString] ( &widestring_09A79E+M )
+    COP [PrintDialogString] ( &dialogstring_09A79E+M )
     JMP $&code_09A473
 }
 
-widestring_09A79E `[DEF]You receive the [N]Aura Barrier! [FIN][::][DEF]It puts a protective[N]barrier around you.[FIN]Use the Attack Button[N]power and push the LR[N]Buttons alternately.[END]`
+dialogstring_09A79E `[DEF]You receive the [N]Aura Barrier! [FIN][::][DEF]It puts a protective[N]barrier around you.[FIN]Use the Attack Button[N]power and push the LR[N]Buttons alternately.[END]`
 
 code_09A81B {
     COP [BranchIfNoItem] ( #24, &code_09A82C )
     COP [GiveItem] ( #24, &code_09A833 )
-    COP [PrintWideString] ( &widestring_09A83A )
+    COP [PrintDialogString] ( &dialogstring_09A83A )
     JMP $&code_09A473
 }
 
 code_09A82C {
-    COP [PrintWideString] ( &widestring_09A83A+M )
+    COP [PrintDialogString] ( &dialogstring_09A83A+M )
     JMP $&code_09A473
 }
 
 code_09A833 {
-    COP [PrintWideString] ( &widestring_09A88F )
+    COP [PrintDialogString] ( &dialogstring_09A88F )
     JMP $&code_09A473
 }
 
-widestring_09A83A `[DEF]You need the Aura...[FIN][::][DEF]Shadow's body has no [N]mass. When he holds up[N]this Ball, his body [N]becomes like water. [END]`
+dialogstring_09A83A `[DEF]You need the Aura...[FIN][::][DEF]Shadow's body has no [N]mass. When he holds up[N]this Ball, his body [N]becomes like water. [END]`
 
-widestring_09A88F `[PAU:1E][DEF]Your inventory is full.[N]Store items somewhere[N]and come back.[END]`
+dialogstring_09A88F `[PAU:1E][DEF]Your inventory is full.[N]Store items somewhere[N]and come back.[END]`
 
 code_09A8C1 {
-    COP [PrintWideString] ( &widestring_09A8C6 )
+    COP [PrintDialogString] ( &dialogstring_09A8C6 )
     RTL 
 }
 
-widestring_09A8C6 `[DEF]The Spider spins a web [N]from stalk to stalk. If [N]you don't have a web, [N]you can fly... [END]`
+dialogstring_09A8C6 `[DEF]The Spider spins a web [N]from stalk to stalk. If [N]you don't have a web, [N]you can fly... [END]`

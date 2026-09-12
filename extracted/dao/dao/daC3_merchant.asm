@@ -15,8 +15,8 @@ daC3_merchant [
 ]
 
 code_08A8B2 {
-    COP [PrintWideString] ( &widestring_08A8B7 )
+    COP [PrintDialogString] ( &dialogstring_08A8B7 )
     RTL 
 }
 
-widestring_08A8B7 `[DEF]Merchant:[N]I have fine goods for[N]sale today. You've never[N]seen carpets this nice.[END]`
+dialogstring_08A8B7 `[DEF]Merchant:[N]I have fine goods for[N]sale today. You've never[N]seen carpets this nice.[END]`

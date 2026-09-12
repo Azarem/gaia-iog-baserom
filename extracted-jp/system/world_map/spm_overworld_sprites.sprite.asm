@@ -1,6 +1,6 @@
 ---------------------------------------------
 
-sprite_set_list_000000 [
+spm_overworld_sprites [
   &sprite_set_00001C   ;00
   &sprite_set_00002E   ;01
   &sprite_set_000040   ;02

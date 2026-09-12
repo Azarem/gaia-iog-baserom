@@ -27,7 +27,7 @@ code_04D9A4 {
     COP [ExitIfFlagByte] ( #02, #01 )
     COP [StageSpriteFrame] ( #15 )
     COP [AnimOnce]
-    COP [PrintWideString] ( &widestring_04DA3D )
+    COP [PrintDialogString] ( &dialogstring_04DA3D )
     COP [SetFlagByte] ( #03 )
     LDA #$0800
     TSB $10
@@ -56,7 +56,7 @@ code_04D9A4 {
     LDA #$0800
     TRB $10
     COP [ExitIfFlagByte] ( #05, #01 )
-    COP [PrintWideString] ( &widestring_04DA9D )
+    COP [PrintDialogString] ( &dialogstring_04DA9D )
     COP [StageSpriteLoopMoveY] ( #17, #04, #02 )
     COP [AnimLoop]
     LDA #$CFF0
@@ -76,12 +76,12 @@ code_04DA2B {
 }
 
 code_04DA38 {
-    COP [PrintWideString] ( &widestring_04DAC0 )
+    COP [PrintDialogString] ( &dialogstring_04DAC0 )
     RTL 
 }
 
-widestring_04DA3D `[TPL:E][TPL:1]カレン:[N]しょうがないでしょ.[N]本当に 足が痛かったんだから.[FIN][TPL:2]リリィ: まあ いいわ.[N]とにかく ついてきてちょうだい.[N]あたしの家に 案内するから.[PAL:0][END]`
+dialogstring_04DA3D `[TPL:E][TPL:1]カレン:[N]しょうがないでしょ.[N]本当に 足が痛かったんだから.[FIN][TPL:2]リリィ: まあ いいわ.[N]とにかく ついてきてちょうだい.[N]あたしの家に 案内するから.[PAL:0][END]`
 
-widestring_04DA9D `[TPL:E][TPL:1]カレン: リリィまってよ.[N]あたしも 行くわ.[PAL:0][END]`
+dialogstring_04DA9D `[TPL:E][TPL:1]カレン: リリィまってよ.[N]あたしも 行くわ.[PAL:0][END]`
 
-widestring_04DAC0 `[TPL:E][TPL:1]カレン: ふんっ. なによっ.[N]どうせ あたしはじゃまものよっ![PAL:0][END]`
+dialogstring_04DAC0 `[TPL:E][TPL:1]カレン: ふんっ. なによっ.[N]どうせ あたしはじゃまものよっ![PAL:0][END]`

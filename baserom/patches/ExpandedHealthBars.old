@@ -188,7 +188,7 @@ code_08DB14 {
     LDA $0ACE
     CMP $0ACA
     BEQ code_08DB37
-    COP [BF] ( &widestring_08DE4D )
+    COP [BF] ( &dialogstring_08DE4D )
     LDA #$FFF0
     TSB $joypad_mask_std
     LDA $0ACA

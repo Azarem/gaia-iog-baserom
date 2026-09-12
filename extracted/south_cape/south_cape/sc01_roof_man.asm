@@ -23,8 +23,8 @@ sc01_roof_man [
 ]
 
 code_0484B2 {
-    COP [PrintWideString] ( &widestring_0484B7 )
+    COP [PrintDialogString] ( &dialogstring_0484B7 )
     RTL 
 }
 
-widestring_0484B7 `[DEF]Hey, Will. How many[N]times have I told you[N]not to come up here...[FIN]You have a habit of[N]jumping down from[N]places. Well, I guess[N]I can't really stop you.[END]`
+dialogstring_0484B7 `[DEF]Hey, Will. How many[N]times have I told you[N]not to come up here...[FIN]You have a habit of[N]jumping down from[N]places. Well, I guess[N]I can't really stop you.[END]`

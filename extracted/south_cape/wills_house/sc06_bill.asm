@@ -30,7 +30,7 @@ code_0492A3 {
     COP [WaitByte] ( #1D )
     COP [StartMusic] ( #1B )
     COP [WaitByte] ( #59 )
-    COP [PrintWideString] ( &widestring_04953E )
+    COP [PrintDialogString] ( &dialogstring_04953E )
     COP [StartMusic] ( #06 )
     COP [WriteApuIo1] ( #0A )
     COP [WaitByte] ( #59 )
@@ -43,7 +43,7 @@ code_0492A3 {
     COP [AnimLoop]
     COP [StageSpriteLoop] ( #02, #10 )
     COP [AnimLoop]
-    COP [PrintWideString] ( &widestring_04956D )
+    COP [PrintDialogString] ( &dialogstring_04956D )
     COP [SetOnInteract] ( #$0000 )
     LDA #$CFF0
     TRB $joypadMaskStd
@@ -86,12 +86,12 @@ code_049349 {
     COP [SolidHighHere]
     COP [SetOnInteract] ( &code_049413 )
     COP [ExitIfFlagByte] ( #0A, #01 )
-    COP [PrintWideString] ( &widestring_0495C9 )
+    COP [PrintDialogString] ( &dialogstring_0495C9 )
     COP [StageSpriteMoveX] ( #08, #12 )
     COP [AnimOnce]
     COP [StageSpriteFrame] ( #04 )
     COP [AnimOnce]
-    COP [PrintWideString] ( &widestring_0495EB )
+    COP [PrintDialogString] ( &dialogstring_0495EB )
     COP [StageSpriteMoveX] ( #09, #11 )
     COP [AnimOnce]
     COP [StageSpriteFrame] ( #02 )
@@ -155,12 +155,12 @@ code_0493EE {
 }
 
 code_0493F0 {
-    COP [PrintWideString] ( &widestring_04941D )
+    COP [PrintDialogString] ( &dialogstring_04941D )
     RTL 
 }
 
 code_0493F5 {
-    COP [PrintWideString] ( &widestring_0494B1 )
+    COP [PrintDialogString] ( &dialogstring_0494B1 )
     COP [SetFlagByte] ( #03 )
     LDA #$CFF0
     TSB $joypadMaskStd
@@ -169,41 +169,41 @@ code_0493F5 {
 
 code_049403 {
     COP [BranchIfFlagByte] ( #35, #01, &code_04940E )
-    COP [PrintWideString] ( &widestring_049828 )
+    COP [PrintDialogString] ( &dialogstring_049828 )
     RTL 
 }
 
 code_04940E {
-    COP [PrintWideString] ( &widestring_04977F )
+    COP [PrintDialogString] ( &dialogstring_04977F )
     RTL 
 }
 
 code_049413 {
-    COP [PrintWideString] ( &widestring_04958A )
+    COP [PrintDialogString] ( &dialogstring_04958A )
     RTL 
 }
 
 code_049418 {
-    COP [PrintWideString] ( &widestring_049685 )
+    COP [PrintDialogString] ( &dialogstring_049685 )
     RTL 
 }
 
-widestring_04941D `[TPL:B][TPL:4]Bill: Coming home[N]at this hour probably[N]means you had to stay[N]after school again.[FIN]Ha ha. Excellent! Even[N]if a boy can't study,[N]he should show a[N]little initiative.[PAL:0][END]`
+dialogstring_04941D `[TPL:B][TPL:4]Bill: Coming home[N]at this hour probably[N]means you had to stay[N]after school again.[FIN]Ha ha. Excellent! Even[N]if a boy can't study,[N]he should show a[N]little initiative.[PAL:0][END]`
 
-widestring_0494B1 `[TPL:B][TPL:4]Bill: [N]Oh, my! I haven't sung [N]like this in a long time.[FIN]Your grandmother Lola[N]used to be a singer.[FIN]I fell in love with her[N]voice. That's why I[N]married her.[PAL:0][END]`
+dialogstring_0494B1 `[TPL:B][TPL:4]Bill: [N]Oh, my! I haven't sung [N]like this in a long time.[FIN]Your grandmother Lola[N]used to be a singer.[FIN]I fell in love with her[N]voice. That's why I[N]married her.[PAL:0][END]`
 
-widestring_04953E `[TPL:8][TPL:1][DLY:0]No-o-o-o-o!!![FIN][PAL:0][SFX:10]A scream from downstairs![END]`
+dialogstring_04953E `[TPL:8][TPL:1][DLY:0]No-o-o-o-o!!![FIN][PAL:0][SFX:10]A scream from downstairs![END]`
 
-widestring_04956D `[TPL:9][TPL:4]Bill: It's that[N]girl screaming!![PAL:0][END]`
+dialogstring_04956D `[TPL:9][TPL:4]Bill: It's that[N]girl screaming!![PAL:0][END]`
 
-widestring_04958A `[TPL:A][TPL:4]Bill: So, that girl[N]likes to play practical[N]jokes. Heh heh heh.[PAL:0][END]`
+dialogstring_04958A `[TPL:A][TPL:4]Bill: So, that girl[N]likes to play practical[N]jokes. Heh heh heh.[PAL:0][END]`
 
-widestring_0495C9 `[PAU:1E][TPL:A][TPL:4]Bill: I used to be[N]an architect.[PAL:0][END]`
+dialogstring_0495C9 `[PAU:1E][TPL:A][TPL:4]Bill: I used to be[N]an architect.[PAL:0][END]`
 
-widestring_0495EB `[TPL:B][TPL:4]There's a prison[N]under the castle.[FIN]It's built like a maze[N]to keep the prisoners[N]from escaping.[FIN]I feel bad that I built[N]a prison where people[N]disappear and are never[N]heard from again.[PAL:0][END]`
+dialogstring_0495EB `[TPL:B][TPL:4]There's a prison[N]under the castle.[FIN]It's built like a maze[N]to keep the prisoners[N]from escaping.[FIN]I feel bad that I built[N]a prison where people[N]disappear and are never[N]heard from again.[PAL:0][END]`
 
-widestring_049685 `[TPL:B][TPL:4]Bill: Will, do you think[N]Lola's meals have been a[N]little strange lately?[FIN]Last night, licorice and[N]rice. Before that, mouse[N]fritters.[N]I can't stand it anymore![FIN]Sometimes old people,[N]if they're surrounded by[N]problems, get a little[N]forgetful. [FIN]Maybe there's something[N]bothering her that she[N]can't talk about...[PAL:0][END]`
+dialogstring_049685 `[TPL:B][TPL:4]Bill: Will, do you think[N]Lola's meals have been a[N]little strange lately?[FIN]Last night, licorice and[N]rice. Before that, mouse[N]fritters.[N]I can't stand it anymore![FIN]Sometimes old people,[N]if they're surrounded by[N]problems, get a little[N]forgetful. [FIN]Maybe there's something[N]bothering her that she[N]can't talk about...[PAL:0][END]`
 
-widestring_04977F `[TPL:B][TPL:4]Bill:[N]A crystal ring...?[N]Never heard of it.[FIN]There was nothing[N]like that in the luggage[N]your father, Olman,[N]left behind.[FIN]Maybe we could go to[N]Edward Castle. We could[N]see the princess.[N]Heh heh.[PAL:0][END]`
+dialogstring_04977F `[TPL:B][TPL:4]Bill:[N]A crystal ring...?[N]Never heard of it.[FIN]There was nothing[N]like that in the luggage[N]your father, Olman,[N]left behind.[FIN]Maybe we could go to[N]Edward Castle. We could[N]see the princess.[N]Heh heh.[PAL:0][END]`
 
-widestring_049828 `[TPL:A][TPL:4]Bill: I had more snail[N]pie for breakfast.[N]I left you a slice.[PAL:0][END]`
+dialogstring_049828 `[TPL:A][TPL:4]Bill: I had more snail[N]pie for breakfast.[N]I left you a slice.[PAL:0][END]`

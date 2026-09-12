@@ -37,9 +37,9 @@ code_06D5E3 {
 }
 
 code_06D5E5 {
-    COP [PrintWideString] ( &widestring_06D5ED )
+    COP [PrintDialogString] ( &dialogstring_06D5ED )
     COP [SetFlagByte] ( #01 )
     RTL 
 }
 
-widestring_06D5ED `[TPL:9][TPL:0]The wind blows through[N]a crack in the wall.[FIN]I found a hidden pass![PAL:0][END]`
+dialogstring_06D5ED `[TPL:9][TPL:0]The wind blows through[N]a crack in the wall.[FIN]I found a hidden pass![PAL:0][END]`

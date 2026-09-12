@@ -18,7 +18,7 @@ sc02_erik [
     TSB $joypadMaskStd
     COP [StartMusic] ( #1B )
     COP [WaitByte] ( #59 )
-    COP [PrintWideString] ( &widestring_04B9AF )
+    COP [PrintDialogString] ( &dialogstring_04B9AF )
     COP [StageSpriteLoopMoveY] ( #0F, #03, #02 )
     COP [AnimLoop]
     COP [StageSpriteFrame] ( #0B )
@@ -26,13 +26,13 @@ sc02_erik [
     COP [WaitByte] ( #3B )
     LDA #$CFF0
     TRB $joypadMaskStd
-    COP [PrintWideString] ( &widestring_04B9F2 )
+    COP [PrintDialogString] ( &dialogstring_04B9F2 )
     LDA #$CFF0
     TSB $joypadMaskStd
     COP [SetFlagByte] ( #03 )
     COP [WaitByte] ( #B3 )
     COP [ClearFlagByte] ( #03 )
-    COP [PrintWideString] ( &widestring_04BA55 )
+    COP [PrintDialogString] ( &dialogstring_04BA55 )
     COP [StartMusic] ( #1C )
     COP [WaitByte] ( #77 )
     LDA #$CFF0
@@ -53,7 +53,7 @@ sc02_erik [
     COP [SetOnInteract] ( &code_04B99F )
     COP [ExitIfFlagByte] ( #08, #01 )
     COP [CallScript] ( &code_04B971 )
-    COP [PrintWideString] ( &widestring_04BC16 )
+    COP [PrintDialogString] ( &dialogstring_04BC16 )
     COP [SetFlagByte] ( #09 )
 } >
 ]
@@ -89,38 +89,38 @@ code_04B971 {
 }
 
 code_04B995 {
-    COP [PrintWideString] ( &widestring_04BB59 )
+    COP [PrintDialogString] ( &dialogstring_04BB59 )
     RTL 
 }
 
 code_04B99A {
-    COP [PrintWideString] ( &widestring_04BB89 )
+    COP [PrintDialogString] ( &dialogstring_04BB89 )
     RTL 
 }
 
 code_04B99F {
     COP [BranchIfFlagByte] ( #21, #01, &code_04B9AA )
-    COP [PrintWideString] ( &widestring_04BBB6 )
+    COP [PrintDialogString] ( &dialogstring_04BBB6 )
     RTL 
 }
 
 code_04B9AA {
-    COP [PrintWideString] ( &widestring_04BBDA )
+    COP [PrintDialogString] ( &dialogstring_04BBDA )
     RTL 
 }
 
-widestring_04B9AF `[DLG:3,6][SIZ:D,3][DLY:0]Suddenly Erik rushed in[N]with a desperate look[N]on his face.[PAU:3C][CLD]`
+dialogstring_04B9AF `[DLG:3,6][SIZ:D,3][DLY:0]Suddenly Erik rushed in[N]with a desperate look[N]on his face.[PAU:3C][CLD]`
 
-widestring_04B9F2 `[TPL:A][TPL:3]Erik: Ah! [N]News! Big news![FIN]The Princess of Edward [N]Castle has run away![FIN]They say she came to[N]South Cape![PAL:0][END]`
+dialogstring_04B9F2 `[TPL:A][TPL:3]Erik: Ah! [N]News! Big news![FIN]The Princess of Edward [N]Castle has run away![FIN]They say she came to[N]South Cape![PAL:0][END]`
 
-widestring_04BA55 `[TPL:B][TPL:4]Lance: That's all? [FIN]You came in such a hurry[N]that I thought something[N]really big had happened![FIN]The princess is probably[N]that spoiled girl, Kara..[N]The one you like[N]so much![FIN][TPL:3]Erik: LIAR![N]Maybe the soldiers[N]will come here[N]looking for her![FIN]The soldiers from[N]Edward Castle look so[N]cool. I want a steel[N]helmet, too.[PAL:0][END]`
+dialogstring_04BA55 `[TPL:B][TPL:4]Lance: That's all? [FIN]You came in such a hurry[N]that I thought something[N]really big had happened![FIN]The princess is probably[N]that spoiled girl, Kara..[N]The one you like[N]so much![FIN][TPL:3]Erik: LIAR![N]Maybe the soldiers[N]will come here[N]looking for her![FIN]The soldiers from[N]Edward Castle look so[N]cool. I want a steel[N]helmet, too.[PAL:0][END]`
 
-widestring_04BB59 `[TPL:A][TPL:3]Erik: [N]And I thought everyone[N]would be surprised...[PAL:0][END]`
+dialogstring_04BB59 `[TPL:A][TPL:3]Erik: [N]And I thought everyone[N]would be surprised...[PAL:0][END]`
 
-widestring_04BB89 `[TPL:A][TPL:3]Erik: [N]Last time you moved[N]the statue a long way.[PAL:0][END]`
+dialogstring_04BB89 `[TPL:A][TPL:3]Erik: [N]Last time you moved[N]the statue a long way.[PAL:0][END]`
 
-widestring_04BBB6 `[TPL:A][TPL:3]Erik: [N]If I could only[N]do that...[PAL:0][END]`
+dialogstring_04BBB6 `[TPL:A][TPL:3]Erik: [N]If I could only[N]do that...[PAL:0][END]`
 
-widestring_04BBDA `[TPL:A][TPL:3]Erik: What's the matter?[N]You're not acting like[N]the same old Will.[PAL:0][END]`
+dialogstring_04BBDA `[TPL:A][TPL:3]Erik: What's the matter?[N]You're not acting like[N]the same old Will.[PAL:0][END]`
 
-widestring_04BC16 `[TPL:A][TPL:3]Erik: [N]I'm speechless...[FIN]Hey, Seth.[N]This is some type of[N]psychic power, right?[PAL:0][END]`
+dialogstring_04BC16 `[TPL:A][TPL:3]Erik: [N]I'm speechless...[FIN]Hey, Seth.[N]This is some type of[N]psychic power, right?[PAL:0][END]`

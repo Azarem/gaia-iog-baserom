@@ -61,8 +61,8 @@ sc01_astronomer [
 ]
 
 code_0488F6 {
-    COP [PrintWideString] ( &widestring_0488FB )
+    COP [PrintDialogString] ( &dialogstring_0488FB )
     RTL 
 }
 
-widestring_0488FB `[DEF]My astronomer friend[N]said something very[N]strange: a star is[N]approaching the Earth.[END]`
+dialogstring_0488FB `[DEF]My astronomer friend[N]said something very[N]strange: a star is[N]approaching the Earth.[END]`

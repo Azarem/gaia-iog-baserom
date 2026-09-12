@@ -27,7 +27,7 @@ code_05D4D0 {
     COP [SetFlagByte] ( #5D )
     LDA #$0080
     TSB $displayModeFlags
-    COP [MusicAndText] ( #17, @widestring_05D4EB )
+    COP [MusicAndText] ( #17, @dialogstring_05D4EB )
 }
 
 code_05D4E4 {
@@ -35,10 +35,10 @@ code_05D4E4 {
 }
 
 code_05D4E6 {
-    COP [PrintWideString] ( &widestring_05D506 )
+    COP [PrintDialogString] ( &dialogstring_05D506 )
     RTL 
 }
 
-widestring_05D4EB `[DEF][SFX:0][DLY:9]You found the Mine Key![PAU:FF][END]`
+dialogstring_05D4EB `[DEF][SFX:0][DLY:9]You found the Mine Key![PAU:FF][END]`
 
-widestring_05D506 `[DEF]You found the Mine Key![N]Your inventory is full![END]`
+dialogstring_05D506 `[DEF]You found the Mine Key![N]Your inventory is full![END]`

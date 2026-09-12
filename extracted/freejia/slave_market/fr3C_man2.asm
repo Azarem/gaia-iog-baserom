@@ -12,8 +12,8 @@ fr3C_man2 [
 ]
 
 code_05C2B9 {
-    COP [PrintWideString] ( &widestring_05C2BE )
+    COP [PrintDialogString] ( &dialogstring_05C2BE )
     RTL 
 }
 
-widestring_05C2BE `[TPL:E]These laborers are the[N]same age as you.[FIN]Remember.There are[N]people everywhere[N]who live this way.[END]`
+dialogstring_05C2BE `[TPL:E]These laborers are the[N]same age as you.[FIN]Remember.There are[N]people everywhere[N]who live this way.[END]`

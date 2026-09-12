@@ -51,15 +51,15 @@ na4B_lance [
 ]
 
 code_05EF23 {
-    COP [PrintWideString] ( &widestring_05EF2D )
+    COP [PrintDialogString] ( &dialogstring_05EF2D )
     RTL 
 }
 
 code_05EF28 {
-    COP [PrintWideString] ( &widestring_05EF98 )
+    COP [PrintDialogString] ( &dialogstring_05EF98 )
     RTL 
 }
 
-widestring_05EF2D `[DEF][TPL:4]Lance: [N]Up until now all I've [N]done is go to school, [N]study, and play. [FIN]Sometimes I wonder if[N]my being here isn't[N]all a dream...[PAL:0][END]`
+dialogstring_05EF2D `[DEF][TPL:4]Lance: [N]Up until now all I've [N]done is go to school, [N]study, and play. [FIN]Sometimes I wonder if[N]my being here isn't[N]all a dream...[PAL:0][END]`
 
-widestring_05EF98 `[DEF][TPL:4]Lance: We're working on a [N]puzzle that explorers [N]and archeologists have [N]never solved...[PAL:0][END]`
+dialogstring_05EF98 `[DEF][TPL:4]Lance: We're working on a [N]puzzle that explorers [N]and archeologists have [N]never solved...[PAL:0][END]`

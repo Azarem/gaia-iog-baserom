@@ -79,15 +79,15 @@ sc01_salesman [
 ]
 
 code_0482CD {
-    COP [PrintWideString] ( &widestring_0482D7 )
+    COP [PrintDialogString] ( &dialogstring_0482D7 )
     RTL 
 }
 
 code_0482D2 {
-    COP [PrintWideString] ( &widestring_04835C )
+    COP [PrintDialogString] ( &dialogstring_04835C )
     RTL 
 }
 
-widestring_0482D7 `[DEF]Salesman: I travel[N]around to people's[N]houses selling weapons[N]used to fight demons.[FIN]We may live in troubled[N]times, but I won't sell[N]a weapon to a child.[END]`
+dialogstring_0482D7 `[DEF]Salesman: I travel[N]around to people's[N]houses selling weapons[N]used to fight demons.[FIN]We may live in troubled[N]times, but I won't sell[N]a weapon to a child.[END]`
 
-widestring_04835C `[DEF]Salesman:[N]Hmmm...[END]`
+dialogstring_04835C `[DEF]Salesman:[N]Hmmm...[END]`

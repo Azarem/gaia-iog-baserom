@@ -16,8 +16,8 @@ av6B_musician [
 ]
 
 code_06D0C1 {
-    COP [PrintWideString] ( &widestring_06D0C6 )
+    COP [PrintDialogString] ( &dialogstring_06D0C6 )
     RTL 
 }
 
-widestring_06D0C6 `[TPL:A]Woman Playing Harp:[N]Music is the best[N]medicine for the soul.[FIN]The right song will cure[N]any disease.[END]`
+dialogstring_06D0C6 `[TPL:A]Woman Playing Harp:[N]Music is the best[N]medicine for the soul.[FIN]The right song will cure[N]any disease.[END]`

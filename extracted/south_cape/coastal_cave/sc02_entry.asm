@@ -14,7 +14,7 @@ sc02_entry [
     LDA #$CFF0
     TSB $joypadMaskStd
     COP [WaitByte] ( #1D )
-    COP [PrintWideString] ( &widestring_04BE87 )
+    COP [PrintDialogString] ( &dialogstring_04BE87 )
     LDA #$CFF0
     TRB $joypadMaskStd
 } >
@@ -39,10 +39,10 @@ code_04BE73 {
 }
 
 code_04BE7E {
-    COP [PrintWideString] ( &widestring_04BF35 )
+    COP [PrintDialogString] ( &dialogstring_04BF35 )
     COP [SetEntryExitNow] ( @code_04BE57 )
 }
 
-widestring_04BE87 `[DLG:3,6][SIZ:D,4][TPL:0]It was natural for the[N]four friends to call [N]this seaside cave their[N]second home.[FIN]Usually, when lessons[N]were done at the school,[FIN]they gathered there to[N]talk and play games[N]until sundown.[PAL:0][END]`
+dialogstring_04BE87 `[DLG:3,6][SIZ:D,4][TPL:0]It was natural for the[N]four friends to call [N]this seaside cave their[N]second home.[FIN]Usually, when lessons[N]were done at the school,[FIN]they gathered there to[N]talk and play games[N]until sundown.[PAL:0][END]`
 
-widestring_04BF35 `[TPL:A][TPL:4]Lance: [N]What, Will? [N]Going home already?[FIN]It's not dinner time [N]yet. Let's play a little[N]while longer.[PAL:0][END]`
+dialogstring_04BF35 `[TPL:A][TPL:4]Lance: [N]What, Will? [N]Going home already?[FIN]It's not dinner time [N]yet. Let's play a little[N]while longer.[PAL:0][END]`

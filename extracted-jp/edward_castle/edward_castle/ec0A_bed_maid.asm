@@ -12,8 +12,8 @@ h_ec0A_bed_maid [
 ]
 
 code_04C31C {
-    COP [PrintWideString] ( &widestring_04C321 )
+    COP [PrintDialogString] ( &dialogstring_04C321 )
     RTL 
 }
 
-widestring_04C321 `[DEF]近ごろ 殺し屋が やとわれたの.[N]国王は いったい 何を[N]考えているのかしら···[END]`
+dialogstring_04C321 `[DEF]近ごろ 殺し屋が やとわれたの.[N]国王は いったい 何を[N]考えているのかしら···[END]`

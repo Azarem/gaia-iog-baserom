@@ -26,8 +26,8 @@ fr38_girlfriend [
 ]
 
 code_05BABD {
-    COP [PrintWideString] ( &widestring_05BAC2 )
+    COP [PrintDialogString] ( &dialogstring_05BAC2 )
     RTL 
 }
 
-widestring_05BAC2 `[DEF]He had something [N]in his eye... [N]Ha ha ha. [END]`
+dialogstring_05BAC2 `[DEF]He had something [N]in his eye... [N]Ha ha ha. [END]`

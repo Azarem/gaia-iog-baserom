@@ -45,7 +45,7 @@ code_088DC2 {
 }
 
 code_088DC4 {
-    COP [PrintWideString] ( &widestring_088DDE )
+    COP [PrintDialogString] ( &dialogstring_088DDE )
     COP [DialogueOptions] ( #02, #01, &code_list_088DCE )
 }
 
@@ -56,20 +56,20 @@ code_list_088DCE [
 ]
 
 code_088DD4 {
-    COP [PrintWideString] ( &widestring_088E72 )
+    COP [PrintDialogString] ( &dialogstring_088E72 )
     RTL 
 }
 
 code_088DD9 {
-    COP [PrintWideString] ( &widestring_088E0F )
+    COP [PrintDialogString] ( &dialogstring_088E0F )
     RTL 
 }
 
-widestring_088DDE `[TPL:E]The man holds out[N]some food...[FIN]Eat some?[N] Yes[N] No`
+dialogstring_088DDE `[TPL:E]The man holds out[N]some food...[FIN]Eat some?[N] Yes[N] No`
 
-widestring_088E0F `[CLR]It tastes like dumplings[N]made of insects...[FIN]My heart was filled.[N]It seemed as if we[N]understood each other.[PAL:0][END]`
+dialogstring_088E0F `[CLR]It tastes like dumplings[N]made of insects...[FIN]My heart was filled.[N]It seemed as if we[N]understood each other.[PAL:0][END]`
 
-widestring_088E72 `[CLR]The man looked sad...[PAL:0][END]`
+dialogstring_088E72 `[CLR]The man looked sad...[PAL:0][END]`
 ---------------------------------------------
 
 nvAC_dumpling_man2 [

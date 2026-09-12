@@ -27,7 +27,7 @@ code_05CDA3 {
 }
 
 code_05CDA5 {
-    COP [PrintWideString] ( &widestring_05CDBC )
+    COP [PrintDialogString] ( &dialogstring_05CDBC )
     COP [SetFlagByte] ( #57 )
     COP [SetFlagByte] ( #58 )
     COP [SetFlagByte] ( #64 )
@@ -37,4 +37,4 @@ code_05CDA5 {
     RTL 
 }
 
-widestring_05CDBC `[TPL:E][TPL:3]Erik: [N]Impossible! You've come [N]to rescue me!! [FIN]I didn't think you could [N]break down the door! [FIN]The man ran away, [N]scared. [FIN]I tried to sneak into the[N]camp to rescue three[N]laborer brothers.[FIN]I was discovered, and[N]now I'm like this...[FIN]The laborers were[N]forced to work in[N]the diamond mine.[FIN]I'll tell you where. [N]Please save them! [FIN]Will learns the[N]location of the mine![N][PAL:0][END]`
+dialogstring_05CDBC `[TPL:E][TPL:3]Erik: [N]Impossible! You've come [N]to rescue me!! [FIN]I didn't think you could [N]break down the door! [FIN]The man ran away, [N]scared. [FIN]I tried to sneak into the[N]camp to rescue three[N]laborer brothers.[FIN]I was discovered, and[N]now I'm like this...[FIN]The laborers were[N]forced to work in[N]the diamond mine.[FIN]I'll tell you where. [N]Please save them! [FIN]Will learns the[N]location of the mine![N][PAL:0][END]`

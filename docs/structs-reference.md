@@ -219,7 +219,7 @@ Scene spawn-table entry for enemy actors with extra combat parameters. Distingui
 
 **Layout:** `[Byte, Byte, Byte, @actor-def, Byte, Byte, Byte]`  
 **Discriminator:** Non-zero `statsIndex` (schema typetag `6` in `structs.json`; not a runtime flags nibble value)  
-**Delimiter:** `255` (`$FF` byte terminates actor list, followed by map name `WideString` + `$CA`)
+**Delimiter:** `255` (`$FF` byte terminates actor list, followed by map name `DialogString` + `$CA`)
 
 ---
 
@@ -255,10 +255,10 @@ Composite scene event definition: actor/enemy spawn list + map name text. Data C
 | Field | Type        | Name    | Description                                                                                         |
 | ----- | ----------- | ------- | --------------------------------------------------------------------------------------------------- |
 | 0     | enemy-spawn | spawns  | `$FF`-terminated list of `actor-spawn`/`enemy-spawn` entries (6 or 9 bytes each, based on stats)    |
-| 1     | WideString  | mapName | Map/location name text (variable-width encoded, terminated by `$CA`). May be empty for unnamed maps |
+| 1     | DialogString  | mapName | Map/location name text (variable-width encoded, terminated by `$CA`). May be empty for unnamed maps |
 
 
-**Layout:** `[enemy-spawn, WideString]`
+**Layout:** `[enemy-spawn, DialogString]`
 
 **Usage:** Top-level scene actor table. Every scene maps to one `scene-event` entry. In extracted ASM, the spawn list and name text are split into sibling labels: `scene_event_XXXXX` (spawns) and `scene_event_XXXXX_value` (map name). Empty events exist for scenes with no actors.
 
@@ -655,13 +655,13 @@ Singly-linked list node for per-frame signed movement deltas. The core animation
 
 
 **Layout:** `[Byte, Byte, Byte, Byte]`  
-**Delimiter:** Consumer checks `deltaXIdx == $FF` (end of route) and `deltaXIdx == $FE` (branch: load new route pointer from following word). No explicit `$FF` terminator bytes appear in the extracted `overworld_routes.asm`; routes are a contiguous byte stream with the pointer table defining start offsets.
+**Delimiter:** Consumer checks `deltaXIdx == $FF` (end of route) and `deltaXIdx == $FE` (branch: load new route pointer from following word). No explicit `$FF` terminator bytes appear in the extracted `world_map_routes.asm`; routes are a contiguous byte stream with the pointer table defining start offsets.
 
 **Usage:** Overworld map route animations. When the player selects a destination, the engine reads a `route-step` sequence to animate the camera/sprite along the path.
 
-**Files:** `overworld_routes.asm` (251 entries across ~38 routes)
+**Files:** `world_map_routes.asm` (251 entries across ~38 routes)
 
-**blocks.json:** `overworld_routes` (241015–242132, typed `&route-step`)
+**blocks.json:** `world_map_routes` (241015–242132, typed `&route-step`)
 
 ---
 
@@ -1224,11 +1224,11 @@ Diary menu warp destination: location name + warp coordinates.
 
 | Field | Type       | Name     | Description                                                  |
 | ----- | ---------- | -------- | ------------------------------------------------------------ |
-| 0     | WideString | name     | Location name text (variable-width encoded, `$CA`-delimited) |
+| 0     | DialogString | name     | Location name text (variable-width encoded, `$CA`-delimited) |
 | 1     | Binary     | warpData | Packed warp word: scene ID + X/Y coordinates                 |
 
 
-**Layout:** `[WideString, Binary]`
+**Layout:** `[DialogString, Binary]`
 
 **Usage:** 256 index entries → ~25 unique diary records. Each contains display name and packed warp coordinates for gameplay resume.
 
@@ -1258,9 +1258,9 @@ Overworld location name entry: scene ID key + pointer to sprite-rendered name st
 
 **Usage:** On the overworld map, the engine searches this table by current map ID and renders the matching sprite string.
 
-**Files:** `overworld_names.asm` (37 entries)
+**Files:** `world_map_names.asm` (37 entries)
 
-**blocks.json:** `overworld_names` (242132–242689, typed `map-label`)
+**blocks.json:** `world_map_names` (242132–242689, typed `map-label`)
 
 ---
 

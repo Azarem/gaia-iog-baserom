@@ -12,8 +12,8 @@ daC3_sandy [
 ]
 
 code_08A86B {
-    COP [PrintWideString] ( &widestring_08A870 )
+    COP [PrintDialogString] ( &dialogstring_08A870 )
     RTL 
 }
 
-widestring_08A870 `[DEF]I got sand in my eyes. [N]It started to sting... [END]`
+dialogstring_08A870 `[DEF]I got sand in my eyes. [N]It started to sting... [END]`

@@ -29,7 +29,7 @@ returns immediately.
 
 ### 2.1 `func_038000` — Overworld Input Handler
 
-**Proposed name:** `OverworldInputHandler`
+**Proposed name:** `GlobalInputHandler`
 
 | Property | Value |
 |----------|-------|
@@ -80,7 +80,7 @@ returns immediately.
 |----------|-------|
 | Address | `$0380BF`–`$038258` |
 | Size | 410 bytes |
-| Entry | `JSR` from `OverworldInputHandler` (Start button path) |
+| Entry | `JSR` from `GlobalInputHandler` (Start button path) |
 | Exit | `RTS` |
 
 **Behavior:**
@@ -274,7 +274,7 @@ color phases of the animation.
 
 ```
 system_core (main loop)
-  └─ JSL OverworldInputHandler
+  └─ JSL GlobalInputHandler
        ├─ [Start] ─── JSR RadarScreenSetup
        │                ├─ JSR RadarPlotSceneMarkers
        │                │    └─ JSL TestEventFlag_0200 (external)
@@ -298,7 +298,7 @@ system_core (main loop)
 
 | Current Name | Proposed Name | Role |
 |-------------|---------------|------|
-| `func_038000` | `OverworldInputHandler` | Main input gate (Start/L/Y) |
+| `func_038000` | `GlobalInputHandler` | Main input gate (Start/L/Y) |
 | `sub_0380BF` | `RadarScreenSetup` | Load radar graphics, plot all markers |
 | `sub_038259` | `RadarBorderAnimate` | Cycle radar border tiles per frame |
 | `sub_03827C` | `RadarPlotSceneMarkers` | Plot event-table diamond markers |
@@ -326,5 +326,5 @@ system_core (main loop)
 | `enemy_clear_reward_table` | `enemy_clear_reward_table.asm` | Per-scene reward data |
 | `radar_icons_001C00` | Data file | Radar icon tileset |
 | `radar_layout_001E00` | Data file | Radar tilemap template |
-| `system_strings.asciistring_01EAC6` | `system_strings.asm` | BG3 status bar script |
-| `system_strings.asciistring_01EAD1` | `system_strings.asm` | BG3 reward counter script |
+| `system_strings.consolestring_01EAC6` | `system_strings.asm` | BG3 status bar script |
+| `system_strings.consolestring_01EAD1` | `system_strings.asm` | BG3 reward counter script |

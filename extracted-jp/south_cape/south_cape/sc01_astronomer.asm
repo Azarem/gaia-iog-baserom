@@ -61,8 +61,8 @@ h_sc01_astronomer [
 ]
 
 code_048886 {
-    COP [PrintWideString] ( &widestring_04888B )
+    COP [PrintDialogString] ( &dialogstring_04888B )
     RTL 
 }
 
-widestring_04888B `[DEF]知り合いの 天文学者が[N]変なことを いうんだよ.[N]この地球に向かって[N]近づいている星が あるとかってね.[END]`
+dialogstring_04888B `[DEF]知り合いの 天文学者が[N]変なことを いうんだよ.[N]この地球に向かって[N]近づいている星が あるとかってね.[END]`

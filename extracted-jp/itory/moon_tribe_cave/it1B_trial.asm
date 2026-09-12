@@ -16,7 +16,7 @@ h_it1B_trial [
     LDA #$CFF0
     TSB $joypadMaskStd
     COP [WaitByte] ( #1D )
-    COP [PrintWideString] ( &widestring_04F0B8 )
+    COP [PrintDialogString] ( &dialogstring_04F0B8 )
     LDA #$CFF0
     TRB $joypadMaskStd
     LDA #$2200
@@ -65,7 +65,7 @@ code_04F079 {
     JSL $@chunk_3B7DD.code_03B7ED
     LDA $0AEC
     BEQ loc_04F095
-    COP [PrintWideString] ( &widestring_04F157 )
+    COP [PrintDialogString] ( &dialogstring_04F157 )
     COP [SetEntryContinue]
     RTL 
 
@@ -73,7 +73,7 @@ code_04F079 {
     LDA #$FFF0
     TSB $joypadMaskStd
     COP [WaitByte] ( #1D )
-    COP [PrintWideString] ( &widestring_04F192 )
+    COP [PrintDialogString] ( &dialogstring_04F192 )
     LDA #$FFF0
     TRB $joypadMaskStd
     COP [PlaySoundBoth] ( #$0F0F )
@@ -84,11 +84,11 @@ code_04F079 {
     RTL 
 }
 
-widestring_04F0B8 `[DLG:3,6][SIZ:D,4,0]月の種族:[N]ここにいるのは すい星の光を[N]あびた 生物の なれの果て.[FIN]もはや にくしみと はかいの心しか[N]もたない 悲しい 生物.[FIN]この化け物たちを 40秒以内に[N]消し去ることが できたなら[N]インカの神像を さしあげましょう.[N]クックククククク···[END]`
+dialogstring_04F0B8 `[DLG:3,6][SIZ:D,4,0]月の種族:[N]ここにいるのは すい星の光を[N]あびた 生物の なれの果て.[FIN]もはや にくしみと はかいの心しか[N]もたない 悲しい 生物.[FIN]この化け物たちを 40秒以内に[N]消し去ることが できたなら[N]インカの神像を さしあげましょう.[N]クックククククク···[END]`
 
-widestring_04F157 `[DLG:3,11][SIZ:D,4,0]月の種族:[N]それでは インカの神像は[N]さしあげられませんね.[N]クックククククク···[END]`
+dialogstring_04F157 `[DLG:3,11][SIZ:D,4,0]月の種族:[N]それでは インカの神像は[N]さしあげられませんね.[N]クックククククク···[END]`
 
-widestring_04F192 `[DLG:3,11][SIZ:D,3,0]月の種族:[N]おやおや りっぱな ぼうやだこと.[N]クックククククク···[FIN]それでは インカの神像を[N]さしあげましょう.[END]`
+dialogstring_04F192 `[DLG:3,11][SIZ:D,3,0]月の種族:[N]おやおや りっぱな ぼうやだこと.[N]クックククククク···[FIN]それでは インカの神像を[N]さしあげましょう.[END]`
 ---------------------------------------------
 
 code_04F977 {

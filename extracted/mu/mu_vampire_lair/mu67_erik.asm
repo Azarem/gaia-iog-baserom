@@ -32,7 +32,7 @@ code_06A2EF {
     COP [WaitByte] ( #17 )
     COP [StartMusic] ( #1B )
     COP [WaitByte] ( #3B )
-    COP [PrintWideString] ( &widestring_06A36B )
+    COP [PrintDialogString] ( &dialogstring_06A36B )
     COP [SetFlagByte] ( #86 )
 }
 
@@ -66,7 +66,7 @@ code_06A305 {
 
 code_06A34F {
     COP [BranchIfFlagByte] ( #01, #01, &code_06A35A )
-    COP [PrintWideString] ( &widestring_06A38D )
+    COP [PrintDialogString] ( &dialogstring_06A38D )
     RTL 
 }
 
@@ -74,18 +74,18 @@ code_06A35A {
     LDA $24
     CMP #$FFFF
     BEQ loc_06A366
-    COP [PrintWideString] ( &widestring_06A3E6 )
+    COP [PrintDialogString] ( &dialogstring_06A3E6 )
     RTL 
 
   loc_06A366:
-    COP [PrintWideString] ( &widestring_06A3B8 )
+    COP [PrintDialogString] ( &dialogstring_06A3B8 )
     RTL 
 }
 
-widestring_06A36B `[DEF][TPL:3]Erik: [N]Heeeeelp!! [N]Someone save me! ![PAL:0][END]`
+dialogstring_06A36B `[DEF][TPL:3]Erik: [N]Heeeeelp!! [N]Someone save me! ![PAL:0][END]`
 
-widestring_06A38D `[DEF][TPL:3]First, defuse the bomb![N]Hurry! Hurry![PAL:0][END]`
+dialogstring_06A38D `[DEF][TPL:3]First, defuse the bomb![N]Hurry! Hurry![PAL:0][END]`
 
-widestring_06A3B8 `[DEF][TPL:3]Erik: [N]Don't tell anyone that [N]Will's in disguise.[PAL:0][END]`
+dialogstring_06A3B8 `[DEF][TPL:3]Erik: [N]Don't tell anyone that [N]Will's in disguise.[PAL:0][END]`
 
-widestring_06A3E6 `[DEF][TPL:3]Erik: [N]Once again Will has [N]saved me...[PAL:0][END]`
+dialogstring_06A3E6 `[DEF][TPL:3]Erik: [N]Once again Will has [N]saved me...[PAL:0][END]`

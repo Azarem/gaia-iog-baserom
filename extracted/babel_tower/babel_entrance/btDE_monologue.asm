@@ -23,7 +23,7 @@ btDE_monologue [
     LDA #$CFF0
     TSB $joypadMaskStd
     COP [WaitByte] ( #3B )
-    COP [PrintWideString] ( &widestring_099914 )
+    COP [PrintDialogString] ( &dialogstring_099914 )
     LDA #$CFF0
     TRB $joypadMaskStd
 } >
@@ -46,7 +46,7 @@ code_0998F5 {
     LDA #$0001
     JSL $@InitPlayerScriptVariant
     COP [SetFlagByte] ( #D3 )
-    COP [PrintWideString] ( &widestring_099952 )
+    COP [PrintDialogString] ( &dialogstring_099952 )
     LDA #$CFF0
     TRB $joypadMaskStd
 }
@@ -55,6 +55,6 @@ code_099912 {
     COP [Die]
 }
 
-widestring_099914 `[TPL:A][TPL:0]The Tower of Babel was[N]deathly quiet. Time[N]stood still...[END]`
+dialogstring_099914 `[TPL:A][TPL:0]The Tower of Babel was[N]deathly quiet. Time[N]stood still...[END]`
 
-widestring_099952 `[TPL:9][TPL:0]The Flute I had was[N]discovered here.[END]`
+dialogstring_099952 `[TPL:9][TPL:0]The Flute I had was[N]discovered here.[END]`

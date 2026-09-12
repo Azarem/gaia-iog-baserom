@@ -41,10 +41,10 @@ h_sc01_sympathetic_woman [
 ]
 
 code_04892C {
-    COP [PrintWideString] ( &widestring_048931 )
+    COP [PrintDialogString] ( &dialogstring_048931 )
     RTL 
 }
 
-widestring_048931 `[DEF]あたしゃ モリスが かわいそうで[N]しかたがないよ.[FIN]每日 あんな 夫婦げんかを[N]みせられてちゃ 子供も[N]たまんないよね.[END]`
+dialogstring_048931 `[DEF]あたしゃ モリスが かわいそうで[N]しかたがないよ.[FIN]每日 あんな 夫婦げんかを[N]みせられてちゃ 子供も[N]たまんないよね.[END]`
 
-widestring_048977 `ざが┌ぅ`
+dialogstring_048977 `ざが┌ぅ`

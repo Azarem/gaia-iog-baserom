@@ -1,6 +1,6 @@
 ---------------------------------------------
 
-sprite_set_list_000000 [
+spm_mummyqueen [
   &sprite_set_00002C   ;00
   &sprite_set_00003A   ;01
   &sprite_set_000048   ;02

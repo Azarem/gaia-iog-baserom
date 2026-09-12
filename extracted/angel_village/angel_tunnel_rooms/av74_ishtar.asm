@@ -51,26 +51,26 @@ code_06CECE {
 }
 
 code_06CEDA {
-    COP [PrintWideString] ( &widestring_06CEF2 )
+    COP [PrintDialogString] ( &dialogstring_06CEF2 )
     RTL 
 }
 
 code_06CEDF {
     COP [BranchIfFlagByte] ( #8B, #01, &code_06CEED )
     COP [SetFlagByte] ( #8B )
-    COP [PrintWideString] ( &widestring_06CF5E )
+    COP [PrintDialogString] ( &dialogstring_06CF5E )
     RTL 
 }
 
 code_06CEED {
-    COP [PrintWideString] ( &widestring_06D039 )
+    COP [PrintDialogString] ( &dialogstring_06D039 )
     RTL 
 }
 
-widestring_06CEF2 `[TPL:A][TPL:3]Ishtar: I wonder if you're[N]here to get Kara. [FIN]Go into this room.[FIN]If you solve all the[N]riddles, I'll give back[N]the girl. [END]`
+dialogstring_06CEF2 `[TPL:A][TPL:3]Ishtar: I wonder if you're[N]here to get Kara. [FIN]Go into this room.[FIN]If you solve all the[N]riddles, I'll give back[N]the girl. [END]`
 
-widestring_06CF5B `[PAL:0][END]`
+dialogstring_06CF5B `[PAL:0][END]`
 
-widestring_06CF5E `[TPL:A][TPL:3]Ishtar:[N]I have been[N]waiting for you.[FIN]Sprinkle magic powder[N]on the painting, and[N]give it a kiss.[FIN]If you care about her [N]deeply, something will [N]happen. You'll see. [FIN]I painted a[N]self-portrait.[FIN]Soon I will become[N]the painting...[FIN]You must take care[N]of her...[PAL:0][END]`
+dialogstring_06CF5E `[TPL:A][TPL:3]Ishtar:[N]I have been[N]waiting for you.[FIN]Sprinkle magic powder[N]on the painting, and[N]give it a kiss.[FIN]If you care about her [N]deeply, something will [N]happen. You'll see. [FIN]I painted a[N]self-portrait.[FIN]Soon I will become[N]the painting...[FIN]You must take care[N]of her...[PAL:0][END]`
 
-widestring_06D039 `[TPL:A][TPL:3].............[PAL:0][END]`
+dialogstring_06D039 `[TPL:A][TPL:3].............[PAL:0][END]`

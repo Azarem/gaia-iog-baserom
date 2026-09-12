@@ -63,19 +63,19 @@ code_0981A3 {
 }
 
 code_0981E5 {
-    COP [PrintWideString] ( &widestring_0981F4 )
+    COP [PrintDialogString] ( &dialogstring_0981F4 )
     COP [SetFlagByte] ( #01 )
     COP [Die]
 }
 
 code_0981EE {
-    COP [PrintWideString] ( &widestring_0984B1 )
+    COP [PrintDialogString] ( &dialogstring_0984B1 )
     COP [Die]
 }
 
-widestring_0981F4 `[TPL:A][TPL:6][DLY:0]Neil: We'll be there [N]soon, Will.[FIN]Say hello to [N]your father for me. [FIN][TPL:0]Will: Thanks. [N]I know you will make [N]a great president. [FIN][TPL:3]Erik: Aaah. [N]I guess I won't see you [N]for a long time. [FIN]When you've finished[N]your business, hurry[N]back to South Cape.[FIN][TPL:0]Will: Thank you. I'm [N]glad we all made the [N]trip together. [FIN][TPL:3]Erik: [N]On this trip, everyone [N]found something. [FIN]Lance met Lilly and [N]found his lost father. [FIN]Neil decided to [N]take over his [N]parents' company. [FIN]Kara started to really [N]live, and saw a world [N]outside the castle. [FIN]I'm going to excuse [N]myself.[FIN]Finally, I can go [N]to the bathroom by [N]myself at night! [FIN][TPL:6]Neil: [N]Ha ha ha. Just like Erik. [FIN]Kara hasn't said [N]anything for a while. [FIN]I won't see Will for a [N]long time. I'll say [N]goodbye to him. [FIN][TPL:1]Kara: [N][DLY:4]Hmmm. Right...[FIN][TPL:6][DLY:1]Neil: [N]We've reached the [N]Tower of Babel. [FIN]OK, Will. [N]Is your parachute ready? [N]Let's go.[PAL:0][END]`
+dialogstring_0981F4 `[TPL:A][TPL:6][DLY:0]Neil: We'll be there [N]soon, Will.[FIN]Say hello to [N]your father for me. [FIN][TPL:0]Will: Thanks. [N]I know you will make [N]a great president. [FIN][TPL:3]Erik: Aaah. [N]I guess I won't see you [N]for a long time. [FIN]When you've finished[N]your business, hurry[N]back to South Cape.[FIN][TPL:0]Will: Thank you. I'm [N]glad we all made the [N]trip together. [FIN][TPL:3]Erik: [N]On this trip, everyone [N]found something. [FIN]Lance met Lilly and [N]found his lost father. [FIN]Neil decided to [N]take over his [N]parents' company. [FIN]Kara started to really [N]live, and saw a world [N]outside the castle. [FIN]I'm going to excuse [N]myself.[FIN]Finally, I can go [N]to the bathroom by [N]myself at night! [FIN][TPL:6]Neil: [N]Ha ha ha. Just like Erik. [FIN]Kara hasn't said [N]anything for a while. [FIN]I won't see Will for a [N]long time. I'll say [N]goodbye to him. [FIN][TPL:1]Kara: [N][DLY:4]Hmmm. Right...[FIN][TPL:6][DLY:1]Neil: [N]We've reached the [N]Tower of Babel. [FIN]OK, Will. [N]Is your parachute ready? [N]Let's go.[PAL:0][END]`
 
-widestring_0984B1 `[TPL:A][TPL:0][DLY:2]I jumped out over the[N]Tower of Babel.[FIN]I hadn't been there [N]in a year and a half...[PAU:B4][PAL:0][CLD]`
+dialogstring_0984B1 `[TPL:A][TPL:0][DLY:2]I jumped out over the[N]Tower of Babel.[FIN]I hadn't been there [N]in a year and a half...[PAU:B4][PAL:0][CLD]`
 
 code_098505 {
     COP [StageSpriteMoveXY] ( #05, #13, #11 )

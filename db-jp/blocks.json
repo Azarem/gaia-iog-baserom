@@ -62,7 +62,7 @@
         },
         "string_templates": {
             "parts": {
-                "string_templates": { "start": 117373, "end": 117655, "type": "&WideString" }
+                "string_templates": { "start": 117373, "end": 117655, "type": "&DialogString" }
             }
         },
         "music_array": {
@@ -114,7 +114,7 @@
                 "word_0383CE": { "start": 230350, "end": 230408, "type": "Word" },
                 "code_038408": { "start": 230408, "end": 231080, "type": "Code" },
                 "code_0386A8": { "start": 231080, "end": 231755, "type": "Code" },
-                "widestring_03894B": { "start": 231755, "end": 231777, "type": "WideString" },
+                "dialogstring_03894B": { "start": 231755, "end": 231777, "type": "DialogString" },
                 "code_038961": { "start": 231777, "end": 240319, "type": "Code" }
             }
         },
@@ -141,7 +141,7 @@
         "chunk_098000": {
             "parts": {
                 "actor_def_098000": { "start": 622592, "end": 634433, "type": "actor_def" },
-                "widestring_09AE41": { "start": 634433, "end": 645328, "type": "WideString" }
+                "dialogstring_09AE41": { "start": 634433, "end": 645328, "type": "DialogString" }
             }
         },
         "chunk_0A8000": {

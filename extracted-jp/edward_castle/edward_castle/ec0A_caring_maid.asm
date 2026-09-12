@@ -13,8 +13,8 @@ h_ec0A_caring_maid [
 ]
 
 code_04C43A {
-    COP [PrintWideString] ( &widestring_04C43F )
+    COP [PrintDialogString] ( &dialogstring_04C43F )
     RTL 
 }
 
-widestring_04C43F `[TPL:B]まあ この人ったら[N]てれちゃって···[FIN]でも 世界中のどこかには 必ず[N]自分を 思ってくれている人が[N]いるものなのね···.[END]`
+dialogstring_04C43F `[TPL:B]まあ この人ったら[N]てれちゃって···[FIN]でも 世界中のどこかには 必ず[N]自分を 思ってくれている人が[N]いるものなのね···.[END]`

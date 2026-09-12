@@ -1,6 +1,6 @@
 ---------------------------------------------
 
-sprite_set_list_000000 [
+spm_itory_sprites [
   &sprite_set_000092   ;00
   &sprite_set_000098   ;01
   &sprite_set_00009E   ;02

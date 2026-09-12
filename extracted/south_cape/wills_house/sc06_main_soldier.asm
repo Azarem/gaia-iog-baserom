@@ -27,7 +27,7 @@ code_04A386 {
     COP [AnimOnce]
     COP [StageSpriteFrame] ( #1D )
     COP [AnimOnce]
-    COP [PrintWideString] ( &widestring_04A3BB )
+    COP [PrintDialogString] ( &dialogstring_04A3BB )
     COP [SetFlagByte] ( #07 )
     COP [ExitIfFlagByte] ( #08, #01 )
     COP [StageSpriteMoveX] ( #21, #11 )
@@ -42,4 +42,4 @@ code_04A3B9 {
     COP [Die]
 }
 
-widestring_04A3BB `[TPL:B]Soldier: Princess! I've[N]been looking for you![FIN][TPL:1]Kara: [N]I don't know you.[N]Be gone![FIN][PAL:0][SFX:10]Soldier: What are you [N]saying? If I don't take [N]you home,[N]I'll lose my head? [END]`
+dialogstring_04A3BB `[TPL:B]Soldier: Princess! I've[N]been looking for you![FIN][TPL:1]Kara: [N]I don't know you.[N]Be gone![FIN][PAL:0][SFX:10]Soldier: What are you [N]saying? If I don't take [N]you home,[N]I'll lose my head? [END]`

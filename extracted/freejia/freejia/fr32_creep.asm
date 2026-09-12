@@ -15,7 +15,7 @@ fr32_creep [
 
 code_05B6CC {
     COP [BranchIfFlagByte] ( #E1, #01, &code_05B6E3 )
-    COP [PrintWideString] ( &widestring_05B6E8 )
+    COP [PrintDialogString] ( &dialogstring_05B6E8 )
     COP [GiveItem] ( #01, &code_05B6DF )
     COP [SetFlagByte] ( #E1 )
     RTL 
@@ -26,10 +26,10 @@ code_05B6DF {
 }
 
 code_05B6E3 {
-    COP [PrintWideString] ( &widestring_05B78C )
+    COP [PrintDialogString] ( &dialogstring_05B78C )
     RTL 
 }
 
-widestring_05B6E8 `[DEF]Ha ha ha. You[N]understand this place.[FIN]Sometimes what you think[N]is unimportant is the[N]most important thing.[N]Life is like that.[FIN]This is a gift.[N]Please take it.[FIN]The old man secretly put[N]something in Will's[N]bags![END]`
+dialogstring_05B6E8 `[DEF]Ha ha ha. You[N]understand this place.[FIN]Sometimes what you think[N]is unimportant is the[N]most important thing.[N]Life is like that.[FIN]This is a gift.[N]Please take it.[FIN]The old man secretly put[N]something in Will's[N]bags![END]`
 
-widestring_05B78C `[DEF]Ha  ha  ha.[END]`
+dialogstring_05B78C `[DEF]Ha  ha  ha.[END]`

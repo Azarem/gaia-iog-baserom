@@ -17,7 +17,7 @@ code_05CF31 {
     COP [BranchIfFlagByte] ( #53, #01, &code_05CF43 )
     COP [GiveItem] ( #06, &code_05CF44 )
     COP [SetFlagByte] ( #53 )
-    COP [PrintWideString] ( &widestring_05CF49 )
+    COP [PrintDialogString] ( &dialogstring_05CF49 )
 }
 
 code_05CF43 {
@@ -25,10 +25,10 @@ code_05CF43 {
 }
 
 code_05CF44 {
-    COP [PrintWideString] ( &widestring_05CF5B )
+    COP [PrintDialogString] ( &dialogstring_05CF5B )
     RTL 
 }
 
-widestring_05CF49 `[DEF]You found the herbs![END]`
+dialogstring_05CF49 `[DEF]You found the herbs![END]`
 
-widestring_05CF5B `[DEF]You found the herbs, but[N]your inventory's full![END]`
+dialogstring_05CF5B `[DEF]You found the herbs, but[N]your inventory's full![END]`

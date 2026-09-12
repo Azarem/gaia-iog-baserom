@@ -2,7 +2,7 @@
 
 ---------------------------------------------
 
-overworld_options [
+world_map_options [
   &code_03B44F   ;00
   &code_03B451   ;01
   &code_03B47D   ;02
@@ -49,7 +49,7 @@ code_03B44F {
 }
 
 code_03B451 {
-    COP [PrintWideString] ( &widestring_03B463 )
+    COP [PrintDialogString] ( &dialogstring_03B463 )
     COP [DialogueOptions] ( #02, #01, &code_list_03B45D )
 
   loc_03B45B:
@@ -62,10 +62,10 @@ code_list_03B45D [
   &code_03B965   ;02
 ]
 
-widestring_03B463 `[TPL:11][SFX:0] Quit [N] Edward's Castle `
+dialogstring_03B463 `[TPL:11][SFX:0] Quit [N] Edward's Castle `
 
 code_03B47D {
-    COP [PrintWideString] ( &widestring_03B48F )
+    COP [PrintDialogString] ( &dialogstring_03B48F )
     COP [DialogueOptions] ( #02, #01, &code_list_03B489 )
 
   loc_03B487:
@@ -78,10 +78,10 @@ code_list_03B489 [
   &code_03B975   ;02
 ]
 
-widestring_03B48F `[TPL:11][SFX:0] Quit [N] Itory Village `
+dialogstring_03B48F `[TPL:11][SFX:0] Quit [N] Itory Village `
 
 code_03B4A8 {
-    COP [PrintWideString] ( &widestring_03B4BA )
+    COP [PrintDialogString] ( &dialogstring_03B4BA )
     COP [DialogueOptions] ( #02, #01, &code_list_03B4B4 )
 
   loc_03B4B2:
@@ -94,10 +94,10 @@ code_list_03B4B4 [
   &code_03B955   ;02
 ]
 
-widestring_03B4BA `[TPL:11][SFX:0] Quit[N] South Cape`
+dialogstring_03B4BA `[TPL:11][SFX:0] Quit[N] South Cape`
 
 code_03B4CC {
-    COP [PrintWideString] ( &widestring_03B4DE )
+    COP [PrintDialogString] ( &dialogstring_03B4DE )
     COP [DialogueOptions] ( #02, #01, &code_list_03B4D8 )
 
   loc_03B4D6:
@@ -110,10 +110,10 @@ code_list_03B4D8 [
   &code_03B985   ;02
 ]
 
-widestring_03B4DE `[TPL:11][SFX:0] Quit[N] South Cape`
+dialogstring_03B4DE `[TPL:11][SFX:0] Quit[N] South Cape`
 
 code_03B4F0 {
-    COP [PrintWideString] ( &widestring_03B502 )
+    COP [PrintDialogString] ( &dialogstring_03B502 )
     COP [DialogueOptions] ( #02, #01, &code_list_03B4FC )
 
   loc_03B4FA:
@@ -126,10 +126,10 @@ code_list_03B4FC [
   &code_03B995   ;02
 ]
 
-widestring_03B502 `[TPL:11][SFX:0] Quit [N] Itory Village `
+dialogstring_03B502 `[TPL:11][SFX:0] Quit [N] Itory Village `
 
 code_03B51A {
-    COP [PrintWideString] ( &widestring_03B52C )
+    COP [PrintDialogString] ( &dialogstring_03B52C )
     COP [DialogueOptions] ( #02, #01, &code_list_03B526 )
 
   loc_03B524:
@@ -142,10 +142,10 @@ code_list_03B526 [
   &code_03B9A5   ;02
 ]
 
-widestring_03B52C `[TPL:11][SFX:0] Quit[N] Inca Ruins`
+dialogstring_03B52C `[TPL:11][SFX:0] Quit[N] Inca Ruins`
 
 code_03B53F {
-    COP [PrintWideString] ( &widestring_03B551 )
+    COP [PrintDialogString] ( &dialogstring_03B551 )
     COP [DialogueOptions] ( #02, #01, &code_list_03B54B )
 
   loc_03B549:
@@ -158,10 +158,10 @@ code_list_03B54B [
   &code_03B9B5   ;02
 ]
 
-widestring_03B551 `[TPL:11][SFX:0] Quit[N] Diamond Mine`
+dialogstring_03B551 `[TPL:11][SFX:0] Quit[N] Diamond Mine`
 
 code_03B563 {
-    COP [PrintWideString] ( &widestring_03B575 )
+    COP [PrintDialogString] ( &dialogstring_03B575 )
     COP [DialogueOptions] ( #02, #01, &code_list_03B56F )
 
   loc_03B56D:
@@ -174,10 +174,10 @@ code_list_03B56F [
   &code_03B9C5   ;02
 ]
 
-widestring_03B575 `[TPL:11][SFX:0] Quit [N] Freejia `
+dialogstring_03B575 `[TPL:11][SFX:0] Quit [N] Freejia `
 
 code_03B587 {
-    COP [PrintWideString] ( &widestring_03B597 )
+    COP [PrintDialogString] ( &dialogstring_03B597 )
     COP [DialogueOptions] ( #01, #01, &code_list_03B593 )
 
   loc_03B591:
@@ -189,10 +189,10 @@ code_list_03B593 [
   &code_03B9C9   ;01
 ]
 
-widestring_03B597 `[TPL:11][SFX:0] Quit`
+dialogstring_03B597 `[TPL:11][SFX:0] Quit`
 
 code_03B5A1 {
-    COP [PrintWideString] ( &widestring_03B5B3 )
+    COP [PrintDialogString] ( &dialogstring_03B5B3 )
     COP [DialogueOptions] ( #02, #01, &code_list_03B5AD )
 
   loc_03B5AB:
@@ -205,10 +205,10 @@ code_list_03B5AD [
   &code_03B9D5   ;02
 ]
 
-widestring_03B5B3 `[TPL:11][SFX:0] Quit[N] Watermia`
+dialogstring_03B5B3 `[TPL:11][SFX:0] Quit[N] Watermia`
 
 code_03B5C7 {
-    COP [PrintWideString] ( &widestring_03B5D9 )
+    COP [PrintDialogString] ( &dialogstring_03B5D9 )
     COP [DialogueOptions] ( #02, #01, &code_list_03B5D3 )
 
   loc_03B5D1:
@@ -221,10 +221,10 @@ code_list_03B5D3 [
   &code_03B9E5   ;02
 ]
 
-widestring_03B5D9 `[TPL:11][SFX:0] Quit[N] Angel Village`
+dialogstring_03B5D9 `[TPL:11][SFX:0] Quit[N] Angel Village`
 
 code_03B5F2 {
-    COP [PrintWideString] ( &widestring_03B606 )
+    COP [PrintDialogString] ( &dialogstring_03B606 )
     COP [DialogueOptions] ( #32, #01, &code_list_03B5FE )
 
   loc_03B5FC:
@@ -238,10 +238,10 @@ code_list_03B5FE [
   &code_03B9E5   ;03
 ]
 
-widestring_03B606 `[TPL:11][SFX:0] Quit        Angel Village[N] Great Wall`
+dialogstring_03B606 `[TPL:11][SFX:0] Quit        Angel Village[N] Great Wall`
 
 code_03B62A {
-    COP [PrintWideString] ( &widestring_03B63C )
+    COP [PrintDialogString] ( &dialogstring_03B63C )
     COP [DialogueOptions] ( #02, #01, &code_list_03B636 )
 
   loc_03B634:
@@ -254,10 +254,10 @@ code_list_03B636 [
   &code_03BA05   ;02
 ]
 
-widestring_03B63C `[TPL:11][SFX:0] Quit[N] Watermia`
+dialogstring_03B63C `[TPL:11][SFX:0] Quit[N] Watermia`
 
 code_03B650 {
-    COP [PrintWideString] ( &widestring_03B666 )
+    COP [PrintDialogString] ( &dialogstring_03B666 )
     COP [DialogueOptions] ( #42, #01, &code_list_03B65C )
 
   loc_03B65A:
@@ -272,10 +272,10 @@ code_list_03B65C [
   &code_03BA15   ;04
 ]
 
-widestring_03B666 `[TPL:11][SFX:0] Quit        Angel Village [N] Great Wall  Euro city `
+dialogstring_03B666 `[TPL:11][SFX:0] Quit        Angel Village [N] Great Wall  Euro city `
 
 code_03B697 {
-    COP [PrintWideString] ( &widestring_03B6A9 )
+    COP [PrintDialogString] ( &dialogstring_03B6A9 )
     COP [DialogueOptions] ( #02, #01, &code_list_03B6A3 )
 
   loc_03B6A1:
@@ -288,10 +288,10 @@ code_list_03B6A3 [
   &code_03BA2B   ;02
 ]
 
-widestring_03B6A9 `[TPL:11][SFX:0] Quit[N] Watermia`
+dialogstring_03B6A9 `[TPL:11][SFX:0] Quit[N] Watermia`
 
 code_03B6BD {
-    COP [PrintWideString] ( &widestring_03B6D1 )
+    COP [PrintDialogString] ( &dialogstring_03B6D1 )
     COP [DialogueOptions] ( #32, #01, &code_list_03B6C9 )
 
   loc_03B6C7:
@@ -305,10 +305,10 @@ code_list_03B6C9 [
   &code_03BA41   ;03
 ]
 
-widestring_03B6D1 `[TPL:11][SFX:0] Quit        Mt.Temple[N] Watermia`
+dialogstring_03B6D1 `[TPL:11][SFX:0] Quit        Mt.Temple[N] Watermia`
 
 code_03B6F3 {
-    COP [PrintWideString] ( &widestring_03B705 )
+    COP [PrintDialogString] ( &dialogstring_03B705 )
     COP [DialogueOptions] ( #02, #01, &code_list_03B6FF )
 
   loc_03B6FD:
@@ -321,10 +321,10 @@ code_list_03B6FF [
   &code_03BA51   ;02
 ]
 
-widestring_03B705 `[TPL:11][SFX:0] Quit [N] Euro city `
+dialogstring_03B705 `[TPL:11][SFX:0] Quit [N] Euro city `
 
 code_03B719 {
-    COP [PrintWideString] ( &widestring_03B72B )
+    COP [PrintDialogString] ( &dialogstring_03B72B )
     COP [DialogueOptions] ( #02, #01, &code_list_03B725 )
 
   loc_03B723:
@@ -337,10 +337,10 @@ code_list_03B725 [
   &code_03BA71   ;02
 ]
 
-widestring_03B72B `[TPL:11][SFX:0] Quit [N] Euro city `
+dialogstring_03B72B `[TPL:11][SFX:0] Quit [N] Euro city `
 
 code_03B73F {
-    COP [PrintWideString] ( &widestring_03B753 )
+    COP [PrintDialogString] ( &dialogstring_03B753 )
     COP [DialogueOptions] ( #32, #01, &code_list_03B74B )
 
   loc_03B749:
@@ -354,10 +354,10 @@ code_list_03B74B [
   &code_03BA81   ;03
 ]
 
-widestring_03B753 `[TPL:11][SFX:0] Quit        Ankor Wat [N] Euro city `
+dialogstring_03B753 `[TPL:11][SFX:0] Quit        Ankor Wat [N] Euro city `
 
 code_03B778 {
-    COP [PrintWideString] ( &widestring_03B78A )
+    COP [PrintDialogString] ( &dialogstring_03B78A )
     COP [DialogueOptions] ( #02, #01, &code_list_03B784 )
 
   loc_03B782:
@@ -370,10 +370,10 @@ code_list_03B784 [
   &code_03BA91   ;02
 ]
 
-widestring_03B78A `[TPL:11][SFX:0] Quit [N] Natives' Village `
+dialogstring_03B78A `[TPL:11][SFX:0] Quit [N] Natives' Village `
 
 code_03B7A5 {
-    COP [PrintWideString] ( &widestring_03B597 )
+    COP [PrintDialogString] ( &dialogstring_03B597 )
     COP [DialogueOptions] ( #01, #01, &code_list_03B7B1 )
 
   loc_03B7AF:
@@ -386,7 +386,7 @@ code_list_03B7B1 [
 ]
 
 code_03B7B5 {
-    COP [PrintWideString] ( &widestring_03B7C7 )
+    COP [PrintDialogString] ( &dialogstring_03B7C7 )
     COP [DialogueOptions] ( #02, #01, &code_list_03B7C1 )
 
   loc_03B7BF:
@@ -399,10 +399,10 @@ code_list_03B7C1 [
   &code_03BAA1   ;02
 ]
 
-widestring_03B7C7 `[TPL:11][SFX:0] Quit [N] Natives' Village `
+dialogstring_03B7C7 `[TPL:11][SFX:0] Quit [N] Natives' Village `
 
 code_03B7E2 {
-    COP [PrintWideString] ( &widestring_03B7F6 )
+    COP [PrintDialogString] ( &dialogstring_03B7F6 )
     COP [DialogueOptions] ( #32, #01, &code_list_03B7EE )
 
   loc_03B7EC:
@@ -416,10 +416,10 @@ code_list_03B7EE [
   &code_03BAB1   ;03
 ]
 
-widestring_03B7F6 `[TPL:11][SFX:0] Quit        Pyramid [N] Natives' Village `
+dialogstring_03B7F6 `[TPL:11][SFX:0] Quit        Pyramid [N] Natives' Village `
 
 code_03B81A {
-    COP [PrintWideString] ( &widestring_03B82C )
+    COP [PrintDialogString] ( &dialogstring_03B82C )
     COP [DialogueOptions] ( #02, #01, &code_list_03B826 )
 
   loc_03B824:
@@ -432,10 +432,10 @@ code_list_03B826 [
   &code_03BAD1   ;02
 ]
 
-widestring_03B82C `[TPL:11][SFX:0] Quit[N] Dao Village`
+dialogstring_03B82C `[TPL:11][SFX:0] Quit[N] Dao Village`
 
 code_03B843 {
-    COP [PrintWideString] ( &widestring_03B859 )
+    COP [PrintDialogString] ( &dialogstring_03B859 )
     COP [DialogueOptions] ( #42, #01, &code_list_03B84F )
 
   loc_03B84D:
@@ -450,10 +450,10 @@ code_list_03B84F [
   &code_03BAC1   ;04
 ]
 
-widestring_03B859 `[TPL:11][SFX:0] Quit        Ankor Wat [N] Euro city   Dao Village `
+dialogstring_03B859 `[TPL:11][SFX:0] Quit        Ankor Wat [N] Euro city   Dao Village `
 
 code_03B88C {
-    COP [PrintWideString] ( &widestring_03B8A2 )
+    COP [PrintDialogString] ( &dialogstring_03B8A2 )
     COP [DialogueOptions] ( #42, #01, &code_list_03B898 )
 
   loc_03B896:
@@ -468,10 +468,10 @@ code_list_03B898 [
   &code_03BA61   ;04
 ]
 
-widestring_03B8A2 `[TPL:11][SFX:0] Quit        Mt.Temple [N] Watermia    Natives' Vil.`
+dialogstring_03B8A2 `[TPL:11][SFX:0] Quit        Mt.Temple [N] Watermia    Natives' Vil.`
 
 code_03B8D6 {
-    COP [PrintWideString] ( &widestring_03B597 )
+    COP [PrintDialogString] ( &dialogstring_03B597 )
     COP [DialogueOptions] ( #01, #01, &code_list_03B8E2 )
 
   loc_03B8E0:
@@ -484,57 +484,57 @@ code_list_03B8E2 [
 ]
 
 code_03B8E6 {
-    COP [PrintWideString] ( &widestring_03B92B )
+    COP [PrintDialogString] ( &dialogstring_03B92B )
     COP [RestoreSavedPtr]
 }
 
 code_03B8EC {
-    COP [PrintWideString] ( &widestring_03B92E )
+    COP [PrintDialogString] ( &dialogstring_03B92E )
     COP [RestoreSavedPtr]
 }
 
 code_03B8F2 {
-    COP [PrintWideString] ( &widestring_03B931 )
+    COP [PrintDialogString] ( &dialogstring_03B931 )
     COP [RestoreSavedPtr]
 }
 
 code_03B8F8 {
-    COP [PrintWideString] ( &widestring_03B934 )
+    COP [PrintDialogString] ( &dialogstring_03B934 )
     COP [RestoreSavedPtr]
 }
 
 code_03B8FE {
-    COP [PrintWideString] ( &widestring_03B937 )
+    COP [PrintDialogString] ( &dialogstring_03B937 )
     COP [RestoreSavedPtr]
 }
 
 code_03B904 {
-    COP [PrintWideString] ( &widestring_03B93A )
+    COP [PrintDialogString] ( &dialogstring_03B93A )
     COP [RestoreSavedPtr]
 }
 
 code_03B90A {
-    COP [PrintWideString] ( &widestring_03B93D )
+    COP [PrintDialogString] ( &dialogstring_03B93D )
     COP [RestoreSavedPtr]
 }
 
 code_03B910 {
-    COP [PrintWideString] ( &widestring_03B940 )
+    COP [PrintDialogString] ( &dialogstring_03B940 )
     COP [RestoreSavedPtr]
 }
 
 code_03B916 {
-    COP [PrintWideString] ( &widestring_03B943 )
+    COP [PrintDialogString] ( &dialogstring_03B943 )
     COP [RestoreSavedPtr]
 }
 
 code_03B91C {
-    COP [PrintWideString] ( &widestring_03B946 )
+    COP [PrintDialogString] ( &dialogstring_03B946 )
     COP [RestoreSavedPtr]
 }
 
 code_03B922 {
-    COP [PrintWideString] ( &widestring_03B949 )
+    COP [PrintDialogString] ( &dialogstring_03B949 )
     COP [RestoreSavedPtr]
 
   loc_03B928:
@@ -542,27 +542,27 @@ code_03B922 {
     DEX 
 }
 
-widestring_03B92B `[TPL:11]`
+dialogstring_03B92B `[TPL:11]`
 
-widestring_03B92E `[TPL:11]`
+dialogstring_03B92E `[TPL:11]`
 
-widestring_03B931 `[TPL:11]`
+dialogstring_03B931 `[TPL:11]`
 
-widestring_03B934 `[TPL:11]`
+dialogstring_03B934 `[TPL:11]`
 
-widestring_03B937 `[TPL:11]`
+dialogstring_03B937 `[TPL:11]`
 
-widestring_03B93A `[TPL:11]`
+dialogstring_03B93A `[TPL:11]`
 
-widestring_03B93D `[TPL:11]`
+dialogstring_03B93D `[TPL:11]`
 
-widestring_03B940 `[TPL:11]`
+dialogstring_03B940 `[TPL:11]`
 
-widestring_03B943 `[TPL:11]`
+dialogstring_03B943 `[TPL:11]`
 
-widestring_03B946 `[TPL:11]`
+dialogstring_03B946 `[TPL:11]`
 
-widestring_03B949 `[TPL:11]Nothing!![END]`
+dialogstring_03B949 `[TPL:11]Nothing!![END]`
 
 code_03B955 {
     COP [StageWorldMapMoveIds] ( #00, #02 )

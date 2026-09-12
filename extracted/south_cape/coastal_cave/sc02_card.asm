@@ -58,11 +58,11 @@ code_04AFFD {
 }
 
 code_04B000 {
-    COP [PrintWideString] ( &widestring_04B00F )
+    COP [PrintDialogString] ( &dialogstring_04B00F )
     COP [SetFlagByte] ( #08 )
     LDA #$CFF0
     TSB $joypadMaskStd
     COP [Die]
 }
 
-widestring_04B00F `[DLG:3,6][SIZ:D,3]Will picks up a card.[FIN]It is the Ace of[N]Diamonds, of course![END]`
+dialogstring_04B00F `[DLG:3,6][SIZ:D,3]Will picks up a card.[FIN]It is the Ace of[N]Diamonds, of course![END]`

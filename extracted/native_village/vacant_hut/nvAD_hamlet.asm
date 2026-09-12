@@ -28,8 +28,8 @@ code_088C40 {
 }
 
 code_088C42 {
-    COP [PrintWideString] ( &widestring_088C47 )
+    COP [PrintDialogString] ( &dialogstring_088C47 )
     RTL 
 }
 
-widestring_088C47 `[TPL:8]Oink oink.[END]`
+dialogstring_088C47 `[TPL:8]Oink oink.[END]`

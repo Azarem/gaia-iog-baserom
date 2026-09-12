@@ -68,7 +68,7 @@ pyCD_puzzle [
     LDA #$CFF0
     TSB $joypadMaskStd
     COP [WaitByte] ( #3B )
-    COP [PrintWideString] ( &widestring_08CD0B )
+    COP [PrintDialogString] ( &dialogstring_08CD0B )
     LDA #$CFF0
     TRB $joypadMaskStd
 } >
@@ -82,7 +82,7 @@ code_08CC09 {
     LDA #$EFF0
     TSB $joypadMaskStd
     COP [WaitByte] ( #1D )
-    COP [PrintWideString] ( &widestring_08CCC4 )
+    COP [PrintDialogString] ( &dialogstring_08CCC4 )
     LDA $0B28
     CLC 
     ADC #$001E
@@ -140,17 +140,17 @@ code_08CC09 {
 }
 
 code_08CCB7 {
-    COP [PrintWideString] ( &widestring_08CD37 )
+    COP [PrintDialogString] ( &dialogstring_08CD37 )
     LDA #$EFF0
     TRB $joypadMaskStd
     JMP $&code_08CBC2
 }
 
-widestring_08CCC4 `[DEF]Nothing happened...[N]Maybe they're arranged[N]wrong. Try it again[N]from the beginning.[END]`
+dialogstring_08CCC4 `[DEF]Nothing happened...[N]Maybe they're arranged[N]wrong. Try it again[N]from the beginning.[END]`
 
-widestring_08CD0B `[DEF][TPL:0]There was a sound from[N]over the entrance![PAL:0][END]`
+dialogstring_08CD0B `[DEF][TPL:0]There was a sound from[N]over the entrance![PAL:0][END]`
 
-widestring_08CD37 `[DEF][CLR]Oh, no! Your inventory[N]is full, you can't take[N]all of it![END]`
+dialogstring_08CD37 `[DEF][CLR]Oh, no! Your inventory[N]is full, you can't take[N]all of it![END]`
 ---------------------------------------------
 
 byte_08CB94 [

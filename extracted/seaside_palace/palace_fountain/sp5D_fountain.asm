@@ -26,7 +26,7 @@ code_069412 {
     LDA #$CFF0
     TSB $joypadMaskStd
     COP [WaitByte] ( #1D )
-    COP [PrintWideString] ( &widestring_0694AA )
+    COP [PrintDialogString] ( &dialogstring_0694AA )
     LDA #$CFF0
     TRB $joypadMaskStd
     COP [ExitIfFlagByte] ( #0E, #01 )
@@ -76,7 +76,7 @@ code_0694A8 {
     COP [Die]
 }
 
-widestring_0694AA `[DEF][TPL:2]Lilly: What!! It's a [N]strange fountain... [FIN]Could there be a[N]connection between this[N]and the rock...?[PAL:0][END]`
+dialogstring_0694AA `[DEF][TPL:2]Lilly: What!! It's a [N]strange fountain... [FIN]Could there be a[N]connection between this[N]and the rock...?[PAL:0][END]`
 
 code_069502 {
     LDA $0036

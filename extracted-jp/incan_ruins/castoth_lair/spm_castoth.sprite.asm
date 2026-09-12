@@ -1,6 +1,6 @@
 ---------------------------------------------
 
-sprite_set_list_000000 [
+spm_castoth [
   &sprite_set_000052   ;00
   &sprite_set_000058   ;01
   &sprite_set_00005E   ;02

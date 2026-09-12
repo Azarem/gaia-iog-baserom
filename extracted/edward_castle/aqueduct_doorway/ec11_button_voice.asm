@@ -41,7 +41,7 @@ code_09BCFF {
     COP [BranchIfFlagByte] ( #01, #01, &code_09BD39 )
     COP [StageSpriteFrame] ( #11 )
     COP [AnimOnce]
-    COP [PrintWideString] ( &widestring_09BD58 )
+    COP [PrintDialogString] ( &dialogstring_09BD58 )
     COP [SetFlagByte] ( #03 )
     BRA loc_09BD2A
 }
@@ -66,12 +66,12 @@ code_09BD39 {
     COP [ApplyBgChange]
     COP [SetFlagWord] ( #$0113 )
     COP [PlaySoundBoth] ( #$0F0F )
-    COP [PrintWideString] ( &widestring_09BD92 )
+    COP [PrintDialogString] ( &dialogstring_09BD92 )
     COP [PlaySoundCh1] ( #16 )
     COP [SetEntryContinue]
     RTL 
 }
 
-widestring_09BD58 `[DEF][TPL:2]Wait! I told you,[N]you have to push them[N]at the same time![FIN][JMP:&ec11_countdown.widestring_09BE70+M]`
+dialogstring_09BD58 `[DEF][TPL:2]Wait! I told you,[N]you have to push them[N]at the same time![FIN][JMP:&ec11_countdown.dialogstring_09BE70+M]`
 
-widestring_09BD92 `[PAU:1E][DEF][TPL:2]Stop![N]The door is open!![FIN]Go in!![END]`
+dialogstring_09BD92 `[PAU:1E][DEF][TPL:2]Stop![N]The door is open!![FIN]Go in!![END]`

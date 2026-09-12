@@ -18,7 +18,7 @@
 
 ?BANK 03
 
-?INCLUDE 'WideStringRenderer'
+?INCLUDE 'DialogStringRenderer'
 
 !joypadCurrent                  0656
 !joypadHeld                     0658
@@ -53,7 +53,7 @@ MenuSelectionHandler {
 
   MenuSelection_PollLoop:
     JSR $&DrawMenuCursor
-    JSR $&WideStringRenderer.WaitOneFrame
+    JSR $&DialogStringRenderer.WaitOneFrame
     LDA $joypadCurrent
     BIT #$CF80            ; $CF80 mask = any navigation or action button
     BEQ MenuSelection_PollLoop
@@ -102,7 +102,7 @@ MenuSelectionHandler {
 
   loc_03E8B3:
     PHA 
-    JSR $&WideStringRenderer.WaitOneFrame
+    JSR $&DialogStringRenderer.WaitOneFrame
     PLA 
     STZ $0994             ; Clean up: zero blink counter, clear saved cursor tiles ($0990/$0992)
     STZ $0990

@@ -95,7 +95,7 @@ code_0B8060 {
     LDA #$FFF0
     TSB $joypadMaskStd
     COP [WaitByte] ( #3B )
-    COP [PrintWideString] ( &widestring_0B80B5 )
+    COP [PrintDialogString] ( &dialogstring_0B80B5 )
     LDA #$0003
     STA $0AAC
     LDA #$008A
@@ -112,7 +112,7 @@ code_0B8060 {
     COP [Die]
 }
 
-widestring_0B80B5 `[DEF][TPL:0]You've defeated the [N]Sand Fanger!  [N]Look! A Mystic Statue![PAL:0][END]`
+dialogstring_0B80B5 `[DEF][TPL:0]You've defeated the [N]Sand Fanger!  [N]Look! A Mystic Statue![PAL:0][END]`
 
 code_0B80F0 {
     COP [SetEntryContinue]

@@ -14,8 +14,8 @@ ir1D_bones [
 ]
 
 code_09C280 {
-    COP [PrintWideString] ( &widestring_09C285 )
+    COP [PrintDialogString] ( &dialogstring_09C285 )
     RTL 
 }
 
-widestring_09C285 `[DEF][TPL:0]There's something on the[N]ground there...[FIN][PAL:0]If I can move that gold [N]statue, I can pass... [END]`
+dialogstring_09C285 `[DEF][TPL:0]There's something on the[N]ground there...[FIN][PAL:0]If I can move that gold [N]statue, I can pass... [END]`

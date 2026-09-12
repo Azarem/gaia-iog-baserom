@@ -14,8 +14,8 @@ fr35_slave1 [
 ]
 
 code_05C386 {
-    COP [PrintWideString] ( &widestring_05C38B )
+    COP [PrintDialogString] ( &dialogstring_05C38B )
     RTL 
 }
 
-widestring_05C38B `[TPL:9]Soon we will be sent [N]away...[END]`
+dialogstring_05C38B `[TPL:9]Soon we will be sent [N]away...[END]`

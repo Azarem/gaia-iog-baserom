@@ -32,7 +32,7 @@ code_06C4D7 {
     COP [StageSpriteFrame] ( #0D )
     COP [AnimOnce]
     COP [SolidHighHere]
-    COP [PrintWideString] ( &widestring_06C568 )
+    COP [PrintDialogString] ( &dialogstring_06C568 )
     COP [SetFlagByte] ( #A9 )
     LDA #$CFF0
     TRB $joypadMaskStd
@@ -51,20 +51,20 @@ code_06C513 {
 }
 
 code_06C525 {
-    COP [PrintWideString] ( &widestring_06C6A0 )
+    COP [PrintDialogString] ( &dialogstring_06C6A0 )
     RTL 
 }
 
 code_06C52A {
-    COP [PrintWideString] ( &widestring_06C52F )
+    COP [PrintDialogString] ( &dialogstring_06C52F )
     RTL 
 }
 
-widestring_06C52F `[TPL:A][TPL:3]Erik: The sun is really [N]bright. I never [N]noticed that before.[PAL:0][END]`
+dialogstring_06C52F `[TPL:A][TPL:3]Erik: The sun is really [N]bright. I never [N]noticed that before.[PAL:0][END]`
 
-widestring_06C568 `[TPL:A][TPL:6][SFX:1A]Neil: [N]Kara! I was worried! [FIN][TPL:2][SFX:19]Lilly:[N]Why are you always[N]running around alone?![FIN]Didn't you think about[N]the rest of us?[FIN][TPL:1][SFX:1B]Kara: [N]Will already yelled [N]at me about that. [FIN]My apologies to [N]everyone! [FIN][TPL:6][SFX:1A]Neil: She understands [N]now. We should [N]forgive her. [FIN]I think the Floating[N]City is about three days[N]south of here.[FIN]I think we should go[N]there right away. Tell[N]me when you're ready.[PAL:0][END]`
+dialogstring_06C568 `[TPL:A][TPL:6][SFX:1A]Neil: [N]Kara! I was worried! [FIN][TPL:2][SFX:19]Lilly:[N]Why are you always[N]running around alone?![FIN]Didn't you think about[N]the rest of us?[FIN][TPL:1][SFX:1B]Kara: [N]Will already yelled [N]at me about that. [FIN]My apologies to [N]everyone! [FIN][TPL:6][SFX:1A]Neil: She understands [N]now. We should [N]forgive her. [FIN]I think the Floating[N]City is about three days[N]south of here.[FIN]I think we should go[N]there right away. Tell[N]me when you're ready.[PAL:0][END]`
 
-widestring_06C6A0 `[TPL:A][TPL:3]Erik: I think I saw [N]a Red Jewel [N]in the Angel Village.[PAL:0][END]`
+dialogstring_06C6A0 `[TPL:A][TPL:3]Erik: I think I saw [N]a Red Jewel [N]in the Angel Village.[PAL:0][END]`
 ---------------------------------------------
 
 av6A_erik_destroy {

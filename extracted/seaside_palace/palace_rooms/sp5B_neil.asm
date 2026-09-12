@@ -30,8 +30,8 @@ code_068985 {
 }
 
 code_068987 {
-    COP [PrintWideString] ( &widestring_06898C )
+    COP [PrintDialogString] ( &dialogstring_06898C )
     RTL 
 }
 
-widestring_06898C `[TPL:A][TPL:6]Neil: [N]Uhhhn. Uhhhn.[PAL:0][END]`
+dialogstring_06898C `[TPL:A][TPL:6]Neil: [N]Uhhhn. Uhhhn.[PAL:0][END]`

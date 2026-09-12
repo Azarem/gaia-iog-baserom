@@ -45,7 +45,7 @@ wa78_intro [
     LDA #$0800
     TRB $10
     COP [WaitByte] ( #1D )
-    COP [PrintWideString] ( &widestring_078139 )
+    COP [PrintDialogString] ( &dialogstring_078139 )
     COP [WaitByte] ( #3B )
     LDA #$0404
     STA $gfxCacheIdxB
@@ -78,10 +78,10 @@ code_078090 {
 
 code_0780AD {
     COP [WaitByte] ( #1D )
-    COP [PrintWideString] ( &widestring_0780B6 )
+    COP [PrintDialogString] ( &dialogstring_0780B6 )
     COP [Die]
 }
 
-widestring_0780B6 `[DEF][TPL:0][SFX:10][DLY:3]We went to the Water[N]City, Watermia.[PAU:78][N]A beautiful town with[N]houses built on rafts.[PAU:78][CLR]The townspeople have[N]kindly put us up at[N]the house of young Luke.[PAU:B4][PAL:0][CLD]`
+dialogstring_0780B6 `[DEF][TPL:0][SFX:10][DLY:3]We went to the Water[N]City, Watermia.[PAU:78][N]A beautiful town with[N]houses built on rafts.[PAU:78][CLR]The townspeople have[N]kindly put us up at[N]the house of young Luke.[PAU:B4][PAL:0][CLD]`
 
-widestring_078139 `[DEF][CLR][TPL:0][SFX:10][DLY:0]This is Luke's house.[N]He is a loveable[N]young fisherman.[FIN]I am going out on[N]a long fishing voyage.[N]You can use my house[N]while I'm gone.[PAL:0][END]`
+dialogstring_078139 `[DEF][CLR][TPL:0][SFX:10][DLY:0]This is Luke's house.[N]He is a loveable[N]young fisherman.[FIN]I am going out on[N]a long fishing voyage.[N]You can use my house[N]while I'm gone.[PAL:0][END]`

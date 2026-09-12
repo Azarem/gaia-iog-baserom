@@ -12,8 +12,8 @@ h_sc05_seths_father [
 ]
 
 code_049045 {
-    COP [PrintWideString] ( &widestring_04904A )
+    COP [PrintDialogString] ( &dialogstring_04904A )
     RTL 
 }
 
-widestring_04904A `[TPL:B]モリスの父:[N]けっ.[N]おれが かせいだ金で[N]酒を飲んで 何が悪いってんだ![END]`
+dialogstring_04904A `[TPL:B]モリスの父:[N]けっ.[N]おれが かせいだ金で[N]酒を飲んで 何が悪いってんだ![END]`

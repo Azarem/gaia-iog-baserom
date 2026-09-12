@@ -35,17 +35,17 @@ h_sc06_lily [
     COP [StageSpriteFrame] ( #25 )
     COP [AnimOnce]
     LDA #$0002
-    JSL $@chunk_008000.widestring_00C829
+    JSL $@chunk_008000.dialogstring_00C829
     COP [SetEntryExit]
-    COP [PrintWideString] ( &widestring_04A97D )
+    COP [PrintDialogString] ( &dialogstring_04A97D )
     COP [SetFlagByte] ( #02 )
     COP [ExitIfFlagByte] ( #02, #00 )
     COP [StageSpriteLoop] ( #22, #28 )
     COP [AnimLoop]
-    COP [PrintWideString] ( &widestring_04A9B1 )
+    COP [PrintDialogString] ( &dialogstring_04A9B1 )
     COP [StageSpriteLoop] ( #25, #28 )
     COP [AnimLoop]
-    COP [PrintWideString] ( &widestring_04A9E3 )
+    COP [PrintDialogString] ( &dialogstring_04A9E3 )
     COP [SolidHighHere]
     COP [SetOnInteract] ( &code_04A94D )
     LDA #$FFF0
@@ -78,10 +78,10 @@ code_04A906 {
     COP [ExitIfFlagByte] ( #02, #01 )
     COP [StageSpriteMoveX] ( #29, #13 )
     COP [AnimOnce]
-    COP [PrintWideString] ( &widestring_04ABF8 )
+    COP [PrintDialogString] ( &dialogstring_04ABF8 )
     COP [ClearFlagByte] ( #02 )
     COP [ExitIfFlagByte] ( #03, #01 )
-    COP [PrintWideString] ( &widestring_04AC1C )
+    COP [PrintDialogString] ( &dialogstring_04AC1C )
     COP [ClearFlagByte] ( #03 )
     COP [SetEntryContinue]
     RTL 
@@ -92,18 +92,18 @@ code_04A94B {
 }
 
 code_04A94D {
-    COP [PrintWideString] ( &widestring_04AAC6 )
+    COP [PrintDialogString] ( &dialogstring_04AAC6 )
     COP [SetFlagByte] ( #04 )
     RTL 
 }
 
 code_04A955 {
-    COP [PrintWideString] ( &widestring_04AB12 )
+    COP [PrintDialogString] ( &dialogstring_04AB12 )
     RTL 
 }
 
 code_04A95A {
-    COP [PrintWideString] ( &widestring_04AB41 )
+    COP [PrintDialogString] ( &dialogstring_04AB41 )
     COP [DialogueOptions] ( #02, #02, &code_list_04A964 )
 }
 
@@ -114,34 +114,34 @@ code_list_04A964 [
 ]
 
 code_04A96A {
-    COP [PrintWideString] ( &widestring_04AB6B )
+    COP [PrintDialogString] ( &dialogstring_04AB6B )
     RTL 
 }
 
 code_04A96F {
     LDA #$EFF0
     TSB $joypadMaskStd
-    COP [PrintWideString] ( &widestring_04AB9C )
+    COP [PrintDialogString] ( &dialogstring_04AB9C )
     COP [SetFlagByte] ( #04 )
     RTL 
 }
 
-widestring_04A97D `[TPL:E][TPL:2]リリィ:[N]ご安心あれ,おふたりさん.[FIN][TPL:0]テム:[N]あ. 君は さっきの···[PAL:0][END]`
+dialogstring_04A97D `[TPL:E][TPL:2]リリィ:[N]ご安心あれ,おふたりさん.[FIN][TPL:0]テム:[N]あ. 君は さっきの···[PAL:0][END]`
 
-widestring_04A9B1 `[TPL:E][TPL:2]リリィ: イトリー族の村.[FIN][TPL:1]カレン:[N]そんな村,きいたこともないわ![END]`
+dialogstring_04A9B1 `[TPL:E][TPL:2]リリィ: イトリー族の村.[FIN][TPL:1]カレン:[N]そんな村,きいたこともないわ![END]`
 
-widestring_04A9E3 `[TPL:E][TPL:2]リリィ: 当然よ. あたしの村には[N]結界がはってあって ふつうの[N]人間には 見えやしないもんねっ.[FIN]リリィ:[N]さあ 行こっ. テム![FIN][TPL:0]テム: うん![FIN][TPL:1]カレン:[N]あたしも ついて行く![FIN][TPL:2]リリィ:[N]おひめさまには キケンだよっ.[FIN][TPL:1]カレン: 絕対に ついて行くもん![N]これで あたし ほんとに[N]自由になれるのねっ!![FIN][TPL:2]リリィ:[N]これだもの おじょうさまったら.[PAL:0][END]`
+dialogstring_04A9E3 `[TPL:E][TPL:2]リリィ: 当然よ. あたしの村には[N]結界がはってあって ふつうの[N]人間には 見えやしないもんねっ.[FIN]リリィ:[N]さあ 行こっ. テム![FIN][TPL:0]テム: うん![FIN][TPL:1]カレン:[N]あたしも ついて行く![FIN][TPL:2]リリィ:[N]おひめさまには キケンだよっ.[FIN][TPL:1]カレン: 絕対に ついて行くもん![N]これで あたし ほんとに[N]自由になれるのねっ!![FIN][TPL:2]リリィ:[N]これだもの おじょうさまったら.[PAL:0][END]`
 
-widestring_04AAC6 `[TPL:E][TPL:2]リリィ:[N]あたしの村へ 行くまえに[N]町のみんなに 会ってきたら?[FIN]しばらく ここへは もどって[N]こられないかも しれないわよ.[PAL:0][END]`
+dialogstring_04AAC6 `[TPL:E][TPL:2]リリィ:[N]あたしの村へ 行くまえに[N]町のみんなに 会ってきたら?[FIN]しばらく ここへは もどって[N]こられないかも しれないわよ.[PAL:0][END]`
 
-widestring_04AB12 `[TPL:E][TPL:2]リリィ: えっ? もういいの?[N]ちょっとは 町のようすを[N]ながめてきたら?[PAL:0][END]`
+dialogstring_04AB12 `[TPL:E][TPL:2]リリィ: えっ? もういいの?[N]ちょっとは 町のようすを[N]ながめてきたら?[PAL:0][END]`
 
-widestring_04AB41 `[TPL:B][TPL:2]リリィ:[N]旅立つ 決心は できたわけね?[N][PAL:0] はい[N] いいえ`
+dialogstring_04AB41 `[TPL:B][TPL:2]リリィ:[N]旅立つ 決心は できたわけね?[N][PAL:0] はい[N] いいえ`
 
-widestring_04AB6B `[CLR][TPL:2]リリィ:[N]そうね.[N]じゃ 旅立つ 心がまえができたら[N]ここへ もどってきて.[PAL:0][END]`
+dialogstring_04AB6B `[CLR][TPL:2]リリィ:[N]そうね.[N]じゃ 旅立つ 心がまえができたら[N]ここへ もどってきて.[PAL:0][END]`
 
-widestring_04AB9C `[CLR][TPL:1]カレン:[N]この先 何か すてきなことが[N]待っているような 気がする.[FIN][TPL:2]リリィ:[N]いいえ これからが[N]苦労の連続だわ きっと···.[N]ふうぅっ···.[END]`
+dialogstring_04AB9C `[CLR][TPL:1]カレン:[N]この先 何か すてきなことが[N]待っているような 気がする.[FIN][TPL:2]リリィ:[N]いいえ これからが[N]苦労の連続だわ きっと···.[N]ふうぅっ···.[END]`
 
-widestring_04ABF8 `[TPL:A][TPL:2]リリィ:[N]そっちこそ[N]お城の外へ 出たことがあるの?[END]`
+dialogstring_04ABF8 `[TPL:A][TPL:2]リリィ:[N]そっちこそ[N]お城の外へ 出たことがあるの?[END]`
 
-widestring_04AC1C `[TPL:A][TPL:2]リリィ:[N]なんですって,世間知らずっ![FIN]リリィ:[N]テムは あたしの おともだち.[N]わかったわね?[END]`
+dialogstring_04AC1C `[TPL:A][TPL:2]リリィ:[N]なんですって,世間知らずっ![FIN]リリィ:[N]テムは あたしの おともだち.[N]わかったわね?[END]`

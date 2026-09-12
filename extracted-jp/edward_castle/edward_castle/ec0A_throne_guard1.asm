@@ -33,8 +33,8 @@ h_ec0A_throne_guard1 [
 ]
 
 code_04C1E3 {
-    COP [PrintWideString] ( &widestring_04C1E8 )
+    COP [PrintDialogString] ( &dialogstring_04C1E8 )
     RTL 
 }
 
-widestring_04C1E8 `[DEF]兵士:[N]会見ならば うろうろせずに[N]国王に 話しかけよ.[END]`
+dialogstring_04C1E8 `[DEF]兵士:[N]会見ならば うろうろせずに[N]国王に 話しかけよ.[END]`

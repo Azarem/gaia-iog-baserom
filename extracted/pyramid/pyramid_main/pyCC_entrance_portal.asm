@@ -19,7 +19,7 @@ pyCC_entrance_portal [
 ]
 
 code_08B6B1 {
-    COP [PrintWideString] ( &widestring_08B70D )
+    COP [PrintDialogString] ( &dialogstring_08B70D )
     COP [DialogueOptions] ( #02, #02, &code_list_08B6BB )
 }
 
@@ -30,12 +30,12 @@ code_list_08B6BB [
 ]
 
 code_08B6C1 {
-    COP [PrintWideString] ( &widestring_08B74B )
+    COP [PrintDialogString] ( &dialogstring_08B74B )
     RTL 
 }
 
 code_08B6C6 {
-    COP [PrintWideString] ( &widestring_08B74B )
+    COP [PrintDialogString] ( &dialogstring_08B74B )
     LDY $playerActor
     LDA $0010, Y
     ORA #$2000
@@ -50,6 +50,6 @@ code_08B6C6 {
 }
 ---------------------------------------------
 
-widestring_08B70D `[TPL:B]The door to the Pyramid[N]appears in the light...[N] Quit[N] Jump in`
+dialogstring_08B70D `[TPL:B]The door to the Pyramid[N]appears in the light...[N] Quit[N] Jump in`
 
-widestring_08B74B `[CLD]`
+dialogstring_08B74B `[CLD]`

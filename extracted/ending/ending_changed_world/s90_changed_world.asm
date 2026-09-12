@@ -56,7 +56,7 @@ s90_changed_world [
     COP [PaletteStart] ( #78 )
     COP [PaletteStep]
     COP [WaitByte] ( #B3 )
-    COP [PrintWideString] ( &widestring_0BDED4 )
+    COP [PrintDialogString] ( &dialogstring_0BDED4 )
     COP [WaitByte] ( #B3 )
     LDA #$0404
     STA $gfxCacheIdxB
@@ -66,4 +66,4 @@ s90_changed_world [
 } >
 ]
 
-widestring_0BDED4 `[DLG:3,13][SIZ:D,3][SFX:0][TPL:0][SFX:0][DLY:6]Will: [N]Somehow the land [N]has taken on [N]a strange shape.[PAU:B4][CLR][TPL:4][SFX:0]Will's father: [N]That's the new world.[PAU:B4][CLR][TPL:1][SFX:0]Kara: [N]New world?[PAU:B4][CLR][TPL:4][SFX:0]Will's father: The path [N]of evolution, changed [N]by the comet, has [N]continued until now.[PAU:B4][CLR]The Earth, too,[N]has a life.[N][PAU:3C]It, too, has evolved and[N]changed its shape.[PAU:B4][CLR]Now that the comet has[N]no influence on the[N]world, it's returned to[N]its original condition.[PAU:B4][CLD]`
+dialogstring_0BDED4 `[DLG:3,13][SIZ:D,3][SFX:0][TPL:0][SFX:0][DLY:6]Will: [N]Somehow the land [N]has taken on [N]a strange shape.[PAU:B4][CLR][TPL:4][SFX:0]Will's father: [N]That's the new world.[PAU:B4][CLR][TPL:1][SFX:0]Kara: [N]New world?[PAU:B4][CLR][TPL:4][SFX:0]Will's father: The path [N]of evolution, changed [N]by the comet, has [N]continued until now.[PAU:B4][CLR]The Earth, too,[N]has a life.[N][PAU:3C]It, too, has evolved and[N]changed its shape.[PAU:B4][CLR]Now that the comet has[N]no influence on the[N]world, it's returned to[N]its original condition.[PAU:B4][CLD]`

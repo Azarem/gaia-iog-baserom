@@ -35,7 +35,7 @@ code_06C065 {
 }
 
 code_06C077 {
-    COP [PrintWideString] ( &widestring_06C10D )
+    COP [PrintDialogString] ( &dialogstring_06C10D )
     COP [DialogueOptions] ( #02, #01, &code_list_06C081 )
 }
 
@@ -46,12 +46,12 @@ code_list_06C081 [
 ]
 
 code_06C087 {
-    COP [PrintWideString] ( &widestring_06C136 )
+    COP [PrintDialogString] ( &dialogstring_06C136 )
     RTL 
 }
 
 code_06C08C {
-    COP [PrintWideString] ( &widestring_06C15C )
+    COP [PrintDialogString] ( &dialogstring_06C15C )
     LDA #$0000
     STA $0D60
     LDA #$0001
@@ -72,17 +72,17 @@ code_06C08C {
 }
 
 code_06C0CD {
-    COP [PrintWideString] ( &widestring_06C0D2 )
+    COP [PrintDialogString] ( &dialogstring_06C0D2 )
     RTL 
 }
 
-widestring_06C0D2 `[TPL:A][TPL:6]Neil: I think the Angels [N]are descendants of the [N]Mu people.[PAL:0][END]`
+dialogstring_06C0D2 `[TPL:A][TPL:6]Neil: I think the Angels [N]are descendants of the [N]Mu people.[PAL:0][END]`
 
-widestring_06C10D `[TPL:A][TPL:6]Neil: Can we go now? [N] Yes [N] Wait a minute `
+dialogstring_06C10D `[TPL:A][TPL:6]Neil: Can we go now? [N] Yes [N] Wait a minute `
 
-widestring_06C136 `[CLR]Neil: [N]There's no hurry. [N]Take your time.[PAL:0][END]`
+dialogstring_06C136 `[CLR]Neil: [N]There's no hurry. [N]Take your time.[PAL:0][END]`
 
-widestring_06C15C `[CLR]Neil: [N]I think it's very hot [N]in the Floating City. [FIN]Everyone be careful not[N]to get heat stroke.[PAL:0][END]`
+dialogstring_06C15C `[CLR]Neil: [N]I think it's very hot [N]in the Floating City. [FIN]Everyone be careful not[N]to get heat stroke.[PAL:0][END]`
 ---------------------------------------------
 
 av6A_neil_destroy {

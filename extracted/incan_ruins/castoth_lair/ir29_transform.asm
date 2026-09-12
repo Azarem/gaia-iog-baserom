@@ -30,7 +30,7 @@ ir29_transform [
     LDA #$CFF0
     TSB $joypadMaskStd
     COP [WaitByte] ( #59 )
-    COP [PrintWideString] ( &widestring_09CFED )
+    COP [PrintDialogString] ( &dialogstring_09CFED )
     LDA #$CFF0
     TRB $joypadMaskStd
     LDY $playerActor
@@ -56,4 +56,4 @@ code_09CFEB {
     COP [Die]
 }
 
-widestring_09CFED `[TPL:A]After the demon [N]disappears, Will returns[N]to his original shape...[END]`
+dialogstring_09CFED `[TPL:A]After the demon [N]disappears, Will returns[N]to his original shape...[END]`

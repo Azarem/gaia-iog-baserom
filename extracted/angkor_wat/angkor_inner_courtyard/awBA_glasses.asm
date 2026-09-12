@@ -24,12 +24,12 @@ awBA_glasses [
 ]
 
 code_089F9D {
-    COP [PrintWideString] ( &widestring_089FBB )
+    COP [PrintDialogString] ( &dialogstring_089FBB )
     COP [GiveItem] ( #1C, &code_089FB7 )
     COP [SetFlagByte] ( #BA )
     LDA #$0080
     TSB $displayModeFlags
-    COP [MusicAndText] ( #17, @widestring_089FDC )
+    COP [MusicAndText] ( #17, @dialogstring_089FDC )
 }
 
 code_089FB5 {
@@ -40,6 +40,6 @@ code_089FB7 {
     JML $@f_inventory_full.InventoryFullMessage
 }
 
-widestring_089FBB `[DEF]There's something shiny[N]on the ground.[FIN]`
+dialogstring_089FBB `[DEF]There's something shiny[N]on the ground.[FIN]`
 
-widestring_089FDC `[CLR][SFX:0][DLY:9]You've found the Black[N]Crystal Glasses![PAU:78][END]`
+dialogstring_089FDC `[CLR][SFX:0][DLY:9]You've found the Black[N]Crystal Glasses![PAU:78][END]`

@@ -123,7 +123,7 @@ JMP ($&cop_dispatch_table, X)    ; X = opcode × 2
 | `$14` | BranchIfSolidOffset | `$30` | BranchIfDirToPlayerFrom | `$4C` | DrawMetatileHere | `$68` | BranchIfOffCamera |
 | `$15` | BranchIfSolidNorth | `$31` | BranchOnPlayerFacing | `$4D` | WorldMapStream3 | `$69` | HaltIfMaxFrames |
 | `$16` | BranchIfSolidSouth | `$32` | StageBgChange | `$4E` | WorldMapStream4 | `$6A` | SetLinkedEntryPtr |
-| `$17` | BranchIfSolidWest | `$33` | ApplyBgChange | `$4F` | AdhocVramDma | `$6B` | PrintWideStringAlt |
+| `$17` | BranchIfSolidWest | `$33` | ApplyBgChange | `$4F` | AdhocVramDma | `$6B` | PrintDialogStringAlt |
 | `$18` | BranchIfSolidEast | `$34` | StageBgChangeFromDeathIdx | `$50` | CopyPalette | `$6C` | InitSpiral |
 | `$19` | MusicAndText | `$35` | CardinalToPlayer | `$51` | Decompress | `$6D` | SpiralStep |
 | `$1A` | BranchIfTypeHere | `$36` | PaletteRestart | `$52` | StageMove | | |
@@ -168,7 +168,7 @@ JMP ($&cop_dispatch_table, X)    ; X = opcode × 2
 | `$9C` | SpawnAfterFlags | `$BC` | NudgePosition | `$DC` | CameraPanDown | | |
 | `$9D` | SpawnAfterOffset | `$BD` | RunBg3Script | `$DD` | CameraPanUp | | |
 | `$9E` | SpawnAfterOffsetFlags | `$BE` | DialogueOptions | `$DE` | CameraPanRight | | |
-| `$9F` | SpawnAfterAbs | `$BF` | PrintWideString | `$DF` | CameraPanLeft | | |
+| `$9F` | SpawnAfterAbs | `$BF` | PrintDialogString | `$DF` | CameraPanLeft | | |
 
 Full per-opcode parameter documentation: [`cop-commands-reference.md`](../../cop-commands-reference.md).
 

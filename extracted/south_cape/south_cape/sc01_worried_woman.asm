@@ -80,8 +80,8 @@ code_048674 {
 }
 
 code_048719 {
-    COP [PrintWideString] ( &widestring_04871E )
+    COP [PrintDialogString] ( &dialogstring_04871E )
     RTL 
 }
 
-widestring_04871E `[DEF]I'm worried. There's[N]been a lot of strange[N]merchants lately[N]doing business...[END]`
+dialogstring_04871E `[DEF]I'm worried. There's[N]been a lot of strange[N]merchants lately[N]doing business...[END]`

@@ -17,7 +17,7 @@ h_ec0A_barrel_roast [
 ]
 
 code_04CBD5 {
-    COP [PrintWideString] ( &widestring_04CBF6 )
+    COP [PrintDialogString] ( &dialogstring_04CBF6 )
     COP [SetEntryContinue]
     RTL 
 }
@@ -30,7 +30,7 @@ code_04CBE1 {
     COP [SetFlagByte] ( #46 )
     LDA #$0080
     TSB $09FA
-    COP [MusicAndText] ( #17, @widestring_04CC24 )
+    COP [MusicAndText] ( #17, @dialogstring_04CC24 )
     COP [Die]
 }
 
@@ -38,6 +38,6 @@ code_04CBF2 {
     JML $@chunk_008000.code_00CAD3
 }
 
-widestring_04CBF6 `[TPL:A][TPL:1]カレン:[N]たしか このあたりの タルに[N]食べ物が 入っているの.[PAL:0][END]`
+dialogstring_04CBF6 `[TPL:A][TPL:1]カレン:[N]たしか このあたりの タルに[N]食べ物が 入っているの.[PAL:0][END]`
 
-widestring_04CC24 `[DEF][SFX:0][DLY:9]骨つきのくんせい肉を 手に入れた![PAU:FF][FIN][DLY:1][TPL:1]カレン:[N]これで 準備 オッケー![N]さあ 兵隊さんに 見つからない[N]うちに いきましょ![PAL:0][END]`
+dialogstring_04CC24 `[DEF][SFX:0][DLY:9]骨つきのくんせい肉を 手に入れた![PAU:FF][FIN][DLY:1][TPL:1]カレン:[N]これで 準備 オッケー![N]さあ 兵隊さんに 見つからない[N]うちに いきましょ![PAL:0][END]`

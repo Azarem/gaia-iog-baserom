@@ -20,10 +20,10 @@ code_0583D9 {
 }
 
 code_0583E2 {
-    COP [PrintWideString] ( &widestring_0583E7 )
+    COP [PrintDialogString] ( &dialogstring_0583E7 )
     RTL 
 }
 
-widestring_0583E7 `[DEF]Look, look! [N]The King has returned! [FIN]And he's much shorter![END]`
+dialogstring_0583E7 `[DEF]Look, look! [N]The King has returned! [FIN]And he's much shorter![END]`
 
-widestring_058421 `[JMP:&gs2C_crew4.widestring_058394+M]`
+dialogstring_058421 `[JMP:&gs2C_crew4.dialogstring_058394+M]`

@@ -1,6 +1,6 @@
 ---------------------------------------------
 
-sprite_set_list_000000 [
+spm_darkspace_sprites [
   &sprite_set_000016   ;00
   &sprite_set_000028   ;01
   &sprite_set_00003A   ;02

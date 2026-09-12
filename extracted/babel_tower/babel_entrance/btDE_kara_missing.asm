@@ -27,7 +27,7 @@ btDE_kara_missing [
     LDA #$CFF0
     TSB $joypadMaskStd
     COP [WaitByte] ( #1D )
-    COP [PrintWideString] ( &widestring_0986E1 )
+    COP [PrintDialogString] ( &dialogstring_0986E1 )
     LDA #$CFF0
     TRB $joypadMaskStd
     COP [Die]
@@ -98,7 +98,7 @@ btDE_kara_missing_destroy {
     COP [Die]
 }
 
-widestring_0986E1 `[TPL:A][TPL:0]Kara's not here... [N]Where did she go...?[PAL:0][END]`
+dialogstring_0986E1 `[TPL:A][TPL:0]Kara's not here... [N]Where did she go...?[PAL:0][END]`
 
 code_09870C {
     COP [SetMetasprite] ( @table_0EE000 )

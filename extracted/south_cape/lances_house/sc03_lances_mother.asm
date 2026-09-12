@@ -54,8 +54,8 @@ sc03_lances_mother [
 ]
 
 code_048F14 {
-    COP [PrintWideString] ( &widestring_048F19 )
+    COP [PrintDialogString] ( &dialogstring_048F19 )
     RTL 
 }
 
-widestring_048F19 `[DEF]Lance's mother: Your[N]father has been lost at[N]the Tower of Babel[N]for a year now...[FIN]It seems like[N]only yesterday...[END]`
+dialogstring_048F19 `[DEF]Lance's mother: Your[N]father has been lost at[N]the Tower of Babel[N]for a year now...[FIN]It seems like[N]only yesterday...[END]`

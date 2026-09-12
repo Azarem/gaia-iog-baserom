@@ -22,15 +22,15 @@ wa7F_lance [
     COP [StageSpriteFrame] ( #02 )
     COP [AnimOnce]
     COP [WaitByte] ( #1D )
-    COP [PrintWideString] ( &widestring_07B0A2 )
+    COP [PrintDialogString] ( &dialogstring_07B0A2 )
     COP [WaitByte] ( #1D )
     COP [StageSpriteFrame] ( #05 )
     COP [AnimOnce]
     COP [StartMusic] ( #1B )
     COP [WaitByte] ( #3B )
-    COP [PrintWideString] ( &widestring_07B0E1 )
+    COP [PrintDialogString] ( &dialogstring_07B0E1 )
     COP [WaitByte] ( #EF )
-    COP [PrintWideString] ( &widestring_07B108 )
+    COP [PrintDialogString] ( &dialogstring_07B108 )
     COP [WaitByte] ( #77 )
     COP [SetFlagByte] ( #04 )
     COP [ExitIfFlagByte] ( #05, #01 )
@@ -64,13 +64,13 @@ wa7F_lance [
 ]
 
 code_07B077 {
-    COP [PrintWideString] ( &widestring_07B158 )
+    COP [PrintDialogString] ( &dialogstring_07B158 )
     COP [Die]
 }
 
 code_07B07D {
     COP [WaitByte] ( #77 )
-    COP [PrintWideString] ( &widestring_07B174 )
+    COP [PrintDialogString] ( &dialogstring_07B174 )
     COP [WaitByte] ( #3B )
     COP [SetFlagByte] ( #91 )
     LDA #$0404
@@ -81,15 +81,15 @@ code_07B07D {
     COP [Die]
 }
 
-widestring_07B0A2 `[DEF][TPL:4]Lance: Yes, the words are [N]harder to say than [N]a tongue twister. [END]`
+dialogstring_07B0A2 `[DEF][TPL:4]Lance: Yes, the words are [N]harder to say than [N]a tongue twister. [END]`
 
-widestring_07B0E1 `[DEF][TPL:4][DLY:2]Lance: [N]Lilly... [N][PAU:1E]I love you...[END]`
+dialogstring_07B0E1 `[DEF][TPL:4][DLY:2]Lance: [N]Lilly... [N][PAU:1E]I love you...[END]`
 
-widestring_07B108 `[DEF][TPL:4][DLY:2]Lance: [N]You don't have to [N]answer right away... [FIN]But, [PAU:1E]I wanted to [N]tell you how I feel...[PAL:0][END]`
+dialogstring_07B108 `[DEF][TPL:4][DLY:2]Lance: [N]You don't have to [N]answer right away... [FIN]But, [PAU:1E]I wanted to [N]tell you how I feel...[PAL:0][END]`
 
-widestring_07B158 `[TPL:A][TPL:4]Lance: [N]Lilly! Wait![PAU:3C][CLD]`
+dialogstring_07B158 `[TPL:A][TPL:4]Lance: [N]Lilly! Wait![PAU:3C][CLD]`
 
-widestring_07B174 `[TPL:A][TPL:0]Will: [N]We had no idea [N]what had happened. [FIN]That day, Lilly didn't [N]come back to her room.[PAL:0][END]`
+dialogstring_07B174 `[TPL:A][TPL:0]Will: [N]We had no idea [N]what had happened. [FIN]That day, Lilly didn't [N]come back to her room.[PAL:0][END]`
 
 code_07B1C2 {
     COP [StageSpriteFrame] ( #3A )

@@ -14,8 +14,8 @@ av6C_only_sleeping [
 ]
 
 code_06D05E {
-    COP [PrintWideString] ( &widestring_06D063 )
+    COP [PrintDialogString] ( &dialogstring_06D063 )
     RTL 
 }
 
-widestring_06D063 `[TPL:A][TPL:0]Will: She appears to be [N]sleeping. It's like the [N]spirit's drawn out...[PAL:0][END]`
+dialogstring_06D063 `[TPL:A][TPL:0]Will: She appears to be [N]sleeping. It's like the [N]spirit's drawn out...[PAL:0][END]`

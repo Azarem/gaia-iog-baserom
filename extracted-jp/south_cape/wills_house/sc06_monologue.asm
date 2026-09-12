@@ -28,7 +28,7 @@ code_04A20E {
     LDA #$0000
     STA $cgramPalette
     COP [WaitByte] ( #77 )
-    COP [PrintWideString] ( &widestring_04A25F )
+    COP [PrintDialogString] ( &dialogstring_04A25F )
     COP [SetFlagByte] ( #1C )
     LDA #$0404
     STA $gfxCacheIdxB
@@ -44,7 +44,7 @@ code_04A247 {
     TSB $joypadMaskStd
     COP [WaitByte] ( #3B )
     COP [SetFlagByte] ( #1D )
-    COP [PrintWideString] ( &widestring_04A310 )
+    COP [PrintDialogString] ( &dialogstring_04A310 )
     LDA #$CFF0
     TRB $joypadMaskStd
 }
@@ -53,6 +53,6 @@ code_04A25D {
     COP [Die]
 }
 
-widestring_04A25F `[DLG:3,B][SIZ:D,3,0][TPL:0]テム: 結局 夕ごはんは[N]ホイップクリームの たっぷりのった[N]ミートパイだった···[FIN]ボクは ー切れしか食べなかったけど[N]ビルおじいちゃんは がんばって[N]三切れも 食べていた.[FIN]そして その夜 ボクは 夢を見た.[N]カレンと いっしょに[N]世界中を 旅している夢だった··[PAL:0][END]`
+dialogstring_04A25F `[DLG:3,B][SIZ:D,3,0][TPL:0]テム: 結局 夕ごはんは[N]ホイップクリームの たっぷりのった[N]ミートパイだった···[FIN]ボクは ー切れしか食べなかったけど[N]ビルおじいちゃんは がんばって[N]三切れも 食べていた.[FIN]そして その夜 ボクは 夢を見た.[N]カレンと いっしょに[N]世界中を 旅している夢だった··[PAL:0][END]`
 
-widestring_04A310 `[DLG:3,11][SIZ:D,3,0]そして よく朝.[N]たいへんな 出来事が 起ころうと[N]していた···[END]`
+dialogstring_04A310 `[DLG:3,11][SIZ:D,3,0]そして よく朝.[N]たいへんな 出来事が 起ころうと[N]していた···[END]`

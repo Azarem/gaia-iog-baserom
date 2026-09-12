@@ -1,6 +1,6 @@
 ---------------------------------------------
 
-sprite_set_list_000000 [
+spm_cliff_enemies [
   &sprite_set_00005E   ;00
   &sprite_set_000064   ;01
   &sprite_set_00006A   ;02

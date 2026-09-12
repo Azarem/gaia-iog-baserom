@@ -27,7 +27,7 @@ code_04E08B {
     COP [ExitIfFlagByte] ( #02, #01 )
     COP [StageSpriteFrame] ( #15 )
     COP [AnimOnce]
-    COP [PrintWideString] ( &widestring_04E124 )
+    COP [PrintDialogString] ( &dialogstring_04E124 )
     COP [SetFlagByte] ( #03 )
     LDA #$0800
     TSB $10
@@ -56,7 +56,7 @@ code_04E08B {
     LDA #$0800
     TRB $10
     COP [ExitIfFlagByte] ( #05, #01 )
-    COP [PrintWideString] ( &widestring_04E175 )
+    COP [PrintDialogString] ( &dialogstring_04E175 )
     COP [StageSpriteLoopMoveY] ( #17, #04, #02 )
     COP [AnimLoop]
     LDA #$CFF0
@@ -76,12 +76,12 @@ code_04E112 {
 }
 
 code_04E11F {
-    COP [PrintWideString] ( &widestring_04E196 )
+    COP [PrintDialogString] ( &dialogstring_04E196 )
     RTL 
 }
 
-widestring_04E124 `[TPL:E][TPL:1]Kara: [N]I can't help it. [N]My feet hurt. [FIN][TPL:2]Lilly: Oh, OK.[N]Well, come with me.[N]I'll show you my house.[PAL:0][END]`
+dialogstring_04E124 `[TPL:E][TPL:1]Kara: [N]I can't help it. [N]My feet hurt. [FIN][TPL:2]Lilly: Oh, OK.[N]Well, come with me.[N]I'll show you my house.[PAL:0][END]`
 
-widestring_04E175 `[TPL:E][TPL:1]Kara: Lilly, wait. [N]I'll go, too.[PAL:0][END]`
+dialogstring_04E175 `[TPL:E][TPL:1]Kara: Lilly, wait. [N]I'll go, too.[PAL:0][END]`
 
-widestring_04E196 `[TPL:E][TPL:1]Kara: I know you [N]don't need me.....[PAL:0][END]`
+dialogstring_04E196 `[TPL:E][TPL:1]Kara: I know you [N]don't need me.....[PAL:0][END]`

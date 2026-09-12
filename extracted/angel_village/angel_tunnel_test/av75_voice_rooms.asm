@@ -30,7 +30,7 @@ av75_voice_rooms [
     LDA #$CFF0
     TSB $joypadMaskStd
     COP [WaitByte] ( #1D )
-    COP [PrintWideString] ( &widestring_06DA14 )
+    COP [PrintDialogString] ( &dialogstring_06DA14 )
     LDA #$CFF0
     TRB $joypadMaskStd
     COP [SetEntryContinue]
@@ -40,7 +40,7 @@ av75_voice_rooms [
     LDA #$CFF0
     TSB $joypadMaskStd
     COP [WaitByte] ( #1D )
-    COP [PrintWideString] ( &widestring_06DA6B )
+    COP [PrintDialogString] ( &dialogstring_06DA6B )
     COP [WaitByte] ( #1D )
     COP [SpawnAfterFlags] ( @code_06DBF3, #$1002 )
     LDA $playerXPos
@@ -88,12 +88,12 @@ code_06D95E {
     BCC loc_06D980
     CMP #$0090
     BCS loc_06D980
-    COP [PrintWideString] ( &widestring_06DAF0 )
+    COP [PrintDialogString] ( &dialogstring_06DAF0 )
     INC $0AA6
     JMP $&code_06DA0C
 
   loc_06D980:
-    COP [PrintWideString] ( &widestring_06DAA0 )
+    COP [PrintDialogString] ( &dialogstring_06DAA0 )
     DEC $0AA6
     JMP $&code_06DA0C
 }
@@ -109,12 +109,12 @@ code_06D98A {
     BCC loc_06D9AB
     CMP #$00C0
     BCS loc_06D9AB
-    COP [PrintWideString] ( &widestring_06DB2C )
+    COP [PrintDialogString] ( &dialogstring_06DB2C )
     INC $0AA6
     BRA code_06DA0C
 
   loc_06D9AB:
-    COP [PrintWideString] ( &widestring_06DAA0 )
+    COP [PrintDialogString] ( &dialogstring_06DAA0 )
     DEC $0AA6
     BRA code_06DA0C
 }
@@ -130,12 +130,12 @@ code_06D9B4 {
     BCC loc_06D9D5
     CMP #$0090
     BCS loc_06D9D5
-    COP [PrintWideString] ( &widestring_06DB4F )
+    COP [PrintDialogString] ( &dialogstring_06DB4F )
     INC $0AA6
     BRA code_06DA0C
 
   loc_06D9D5:
-    COP [PrintWideString] ( &widestring_06DAA0 )
+    COP [PrintDialogString] ( &dialogstring_06DAA0 )
     DEC $0AA6
     BRA code_06DA0C
 }
@@ -151,13 +151,13 @@ code_06D9DE {
     BCC loc_06DA03
     CMP #$00C0
     BCS loc_06DA03
-    COP [PrintWideString] ( &widestring_06DB9F )
+    COP [PrintDialogString] ( &dialogstring_06DB9F )
     COP [SetFlagByte] ( #89 )
     COP [SetFlagWord] ( #$0151 )
     BRA code_06DA0C
 
   loc_06DA03:
-    COP [PrintWideString] ( &widestring_06DAA0 )
+    COP [PrintDialogString] ( &dialogstring_06DAA0 )
     DEC $0AA6
     BRA code_06DA0C
 }
@@ -168,19 +168,19 @@ code_06DA0C {
     COP [Die]
 }
 
-widestring_06DA14 `[TPL:9]Istar's voice resounds.[FIN]Learn well the condition[N]of that room.[FIN]When you've learned it, [N]leave the room. [END]`
+dialogstring_06DA14 `[TPL:9]Istar's voice resounds.[FIN]Learn well the condition[N]of that room.[FIN]When you've learned it, [N]leave the room. [END]`
 
-widestring_06DA6B `[TPL:9]Istar's voice resounds.[FIN]Show how it's different[N]from the room before.[END]`
+dialogstring_06DA6B `[TPL:9]Istar's voice resounds.[FIN]Show how it's different[N]from the room before.[END]`
 
-widestring_06DAA0 `[TPL:A]How are your powers[N]of observation?[FIN]Now your trip will[N]get more difficult![FIN]Try again!![END]`
+dialogstring_06DAA0 `[TPL:A]How are your powers[N]of observation?[FIN]Now your trip will[N]get more difficult![FIN]Try again!![END]`
 
-widestring_06DAF0 `[TPL:A]Right answer![N]The jar has[N]changed color![FIN]Good.[N]Go on to the next room.[END]`
+dialogstring_06DAF0 `[TPL:A]Right answer![N]The jar has[N]changed color![FIN]Good.[N]Go on to the next room.[END]`
 
-widestring_06DB2C `[TPL:A]Right answer![FIN]Good. Go on[N]to the next room.[END]`
+dialogstring_06DB2C `[TPL:A]Right answer![FIN]Good. Go on[N]to the next room.[END]`
 
-widestring_06DB4F `[TPL:A]Right answer![N]How have the contents of[N]the Jewel Box changed?[FIN]Good. Go on[N]to the next room.[END]`
+dialogstring_06DB4F `[TPL:A]Right answer![N]How have the contents of[N]the Jewel Box changed?[FIN]Good. Go on[N]to the next room.[END]`
 
-widestring_06DB9F `[TPL:A]Right answer![N]The wind blew your[N]hair around.[FIN]You have passed my[N]test well.[N]You may return.[END]`
+dialogstring_06DB9F `[TPL:A]Right answer![N]The wind blew your[N]hair around.[FIN]You have passed my[N]test well.[N]You may return.[END]`
 
 code_06DBF3 {
     COP [SetSpritePriority] ( #30 )

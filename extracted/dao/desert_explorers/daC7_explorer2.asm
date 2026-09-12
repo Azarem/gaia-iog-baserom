@@ -12,8 +12,8 @@ daC7_explorer2 [
 ]
 
 code_08A9E9 {
-    COP [PrintWideString] ( &widestring_08A9EE )
+    COP [PrintDialogString] ( &dialogstring_08A9EE )
     RTL 
 }
 
-widestring_08A9EE `[DEF]There's a strange legend[N]around here.[FIN]"The Pyramid is not for[N] the living. Only those[N] who've transcended the[N] body may enter.ˮ[FIN]These are the words...[N]The Pyramid is a big[N]tomb. The living can't[N]go in? Hmmm...[END]`
+dialogstring_08A9EE `[DEF]There's a strange legend[N]around here.[FIN]"The Pyramid is not for[N] the living. Only those[N] who've transcended the[N] body may enter.ˮ[FIN]These are the words...[N]The Pyramid is a big[N]tomb. The living can't[N]go in? Hmmm...[END]`

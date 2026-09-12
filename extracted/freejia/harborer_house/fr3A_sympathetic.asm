@@ -19,9 +19,9 @@ code_05C325 {
 }
 
 code_05C327 {
-    COP [PrintWideString] ( &widestring_05C32F )
+    COP [PrintDialogString] ( &dialogstring_05C32F )
     COP [SetFlagByte] ( #59 )
     RTL 
 }
 
-widestring_05C32F `[TPL:A]Please! [N]Don't tell! [FIN]I don't care about myself,[N]I just don't want to get [N]him in trouble...[END]`
+dialogstring_05C32F `[TPL:A]Please! [N]Don't tell! [FIN]I don't care about myself,[N]I just don't want to get [N]him in trouble...[END]`

@@ -54,8 +54,8 @@ h_sc03_lances_mother [
 ]
 
 code_048E0D {
-    COP [PrintWideString] ( &widestring_048E12 )
+    COP [PrintDialogString] ( &dialogstring_048E12 )
     RTL 
 }
 
-widestring_048E12 `[DEF]ロブの母:[N]あなたのお父さんと うちの人が[N]バベルの塔で 行方不明になってから[N]もう 1年が たつんだねえ.[FIN]なんだか つい 昨日のような[N]気がするよ···[END]`
+dialogstring_048E12 `[DEF]ロブの母:[N]あなたのお父さんと うちの人が[N]バベルの塔で 行方不明になってから[N]もう 1年が たつんだねえ.[FIN]なんだか つい 昨日のような[N]気がするよ···[END]`

@@ -18,7 +18,7 @@ h_sc02_erik [
     TSB $joypadMaskStd
     COP [StartMusic] ( #1B )
     COP [WaitByte] ( #59 )
-    COP [PrintWideString] ( &widestring_04B63E )
+    COP [PrintDialogString] ( &dialogstring_04B63E )
     COP [StageSpriteLoopMoveY] ( #0F, #03, #02 )
     COP [AnimLoop]
     COP [StageSpriteFrame] ( #0B )
@@ -26,13 +26,13 @@ h_sc02_erik [
     COP [WaitByte] ( #3B )
     LDA #$CFF0
     TRB $joypadMaskStd
-    COP [PrintWideString] ( &widestring_04B667 )
+    COP [PrintDialogString] ( &dialogstring_04B667 )
     LDA #$CFF0
     TSB $joypadMaskStd
     COP [SetFlagByte] ( #03 )
     COP [WaitByte] ( #B3 )
     COP [ClearFlagByte] ( #03 )
-    COP [PrintWideString] ( &widestring_04B6CB )
+    COP [PrintDialogString] ( &dialogstring_04B6CB )
     COP [StartMusic] ( #1C )
     COP [WaitByte] ( #77 )
     LDA #$CFF0
@@ -53,7 +53,7 @@ h_sc02_erik [
     COP [SetOnInteract] ( &code_04B62E )
     COP [ExitIfFlagByte] ( #08, #01 )
     COP [CallScript] ( &code_04B600 )
-    COP [PrintWideString] ( &widestring_04B84E )
+    COP [PrintDialogString] ( &dialogstring_04B84E )
     COP [SetFlagByte] ( #09 )
 } >
 ]
@@ -89,38 +89,38 @@ code_04B600 {
 }
 
 code_04B624 {
-    COP [PrintWideString] ( &widestring_04B7A4 )
+    COP [PrintDialogString] ( &dialogstring_04B7A4 )
     RTL 
 }
 
 code_04B629 {
-    COP [PrintWideString] ( &widestring_04B7CD )
+    COP [PrintDialogString] ( &dialogstring_04B7CD )
     RTL 
 }
 
 code_04B62E {
     COP [BranchIfFlagByte] ( #21, #01, &code_04B639 )
-    COP [PrintWideString] ( &widestring_04B7FC )
+    COP [PrintDialogString] ( &dialogstring_04B7FC )
     RTL 
 }
 
 code_04B639 {
-    COP [PrintWideString] ( &widestring_04B826 )
+    COP [PrintDialogString] ( &dialogstring_04B826 )
     RTL 
 }
 
-widestring_04B63E `[DLG:3,6][SIZ:D,3,0]とつぜん 血相をかえた[N]エリックが とびこんできた![PAU:28][CLD]`
+dialogstring_04B63E `[DLG:3,6][SIZ:D,3,0]とつぜん 血相をかえた[N]エリックが とびこんできた![PAU:28][CLD]`
 
-widestring_04B667 `[TPL:A][TPL:3]エリック: はぁ はぁ···[N]ニュースっ! 大ニュースだあっ![FIN]エドワード城の 王女が[N]行方不明に なったんだってっ![N]なんでも この町へきたらしいよ![PAL:0][END]`
+dialogstring_04B667 `[TPL:A][TPL:3]エリック: はぁ はぁ···[N]ニュースっ! 大ニュースだあっ![FIN]エドワード城の 王女が[N]行方不明に なったんだってっ![N]なんでも この町へきたらしいよ![PAL:0][END]`
 
-widestring_04B6CB `[TPL:B][TPL:4]ロブ: なんだよ.[N]そんなに あわてて 飛びこんで[N]くるから もっと すごいことが[N]起こったのかと 思ったぜ.[FIN]それに 王女って あの[N]わがまま娘の カレンだろ.[N]あんなヤツの どこがいいんだっ?[FIN][TPL:3]エリック:[N]そりゃそうだけど[N]王女をさがすために この町へ[N]兵士たちが やってくるよ.[FIN]エドワード城の 兵士って[N]かっこいいじゃない?[N]ぼくは それが 見たいだけだい.[PAL:0][END]`
+dialogstring_04B6CB `[TPL:B][TPL:4]ロブ: なんだよ.[N]そんなに あわてて 飛びこんで[N]くるから もっと すごいことが[N]起こったのかと 思ったぜ.[FIN]それに 王女って あの[N]わがまま娘の カレンだろ.[N]あんなヤツの どこがいいんだっ?[FIN][TPL:3]エリック:[N]そりゃそうだけど[N]王女をさがすために この町へ[N]兵士たちが やってくるよ.[FIN]エドワード城の 兵士って[N]かっこいいじゃない?[N]ぼくは それが 見たいだけだい.[PAL:0][END]`
 
-widestring_04B7A4 `[TPL:A][TPL:3]エリック:[N]ちぇっ. みんなびっくりするかと[N]思ったのに···[PAL:0][END]`
+dialogstring_04B7A4 `[TPL:A][TPL:3]エリック:[N]ちぇっ. みんなびっくりするかと[N]思ったのに···[PAL:0][END]`
 
-widestring_04B7CD `[TPL:A][TPL:3]エリック:[N]こないだは はなれたところから[N]石像を 動かしたんだよね.[PAL:0][END]`
+dialogstring_04B7CD `[TPL:A][TPL:3]エリック:[N]こないだは はなれたところから[N]石像を 動かしたんだよね.[PAL:0][END]`
 
-widestring_04B7FC `[TPL:A][TPL:3]エリック:[N]いいなあ. ぼくも そんな力が[N]使えたらなあ···[PAL:0][END]`
+dialogstring_04B7FC `[TPL:A][TPL:3]エリック:[N]いいなあ. ぼくも そんな力が[N]使えたらなあ···[PAL:0][END]`
 
-widestring_04B826 `[TPL:A][TPL:3]エリック:[N]どうしたの?[N]何か いつものテムとちがうよ.[PAL:0][END]`
+dialogstring_04B826 `[TPL:A][TPL:3]エリック:[N]どうしたの?[N]何か いつものテムとちがうよ.[PAL:0][END]`
 
-widestring_04B84E `[TPL:A][TPL:3]エリック:[N]ふぅ. 言葉も出ないよ···[FIN]ねぇ. モリス.[N]こういうのを チョウノウリョクって[N]言うんでしょ?[PAL:0][END]`
+dialogstring_04B84E `[TPL:A][TPL:3]エリック:[N]ふぅ. 言葉も出ないよ···[FIN]ねぇ. モリス.[N]こういうのを チョウノウリョクって[N]言うんでしょ?[PAL:0][END]`

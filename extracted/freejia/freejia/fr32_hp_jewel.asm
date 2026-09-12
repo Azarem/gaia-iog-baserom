@@ -18,7 +18,7 @@ fr32_hp_jewel [
 code_05CF96 {
     COP [BranchIfFlagByte] ( #54, #01, &code_05CFA6 )
     COP [SetFlagByte] ( #54 )
-    COP [PrintWideString] ( &widestring_05CFA7 )
+    COP [PrintDialogString] ( &dialogstring_05CFA7 )
     INC $playerMaxHp
 }
 
@@ -26,4 +26,4 @@ code_05CFA6 {
     RTL 
 }
 
-widestring_05CFA7 `[DEF]You found the HP jewel![END]`
+dialogstring_05CFA7 `[DEF]You found the HP jewel![END]`

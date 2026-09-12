@@ -14,8 +14,8 @@ it15_fable_man [
 ]
 
 code_04DEC4 {
-    COP [PrintWideString] ( &widestring_04DEC9 )
+    COP [PrintDialogString] ( &dialogstring_04DEC9 )
     RTL 
 }
 
-widestring_04DEC9 `[DEF]It's said that a messenger[N]appeared here when the[N]ancient world was about[N]to be destroyed.[END]`
+dialogstring_04DEC9 `[DEF]It's said that a messenger[N]appeared here when the[N]ancient world was about[N]to be destroyed.[END]`

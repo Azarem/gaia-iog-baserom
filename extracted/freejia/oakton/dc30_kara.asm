@@ -19,7 +19,7 @@ code_05AAB0 {
 }
 
 code_05AAB2 {
-    COP [PrintWideString] ( &widestring_05AADD )
+    COP [PrintDialogString] ( &dialogstring_05AADD )
     LDA #$0000
     STA $0D60
     LDA #$0001
@@ -32,4 +32,4 @@ code_05AAB2 {
     RTL 
 }
 
-widestring_05AADD `[DEF][TPL:1]Kara: This dog's [N]name is Turbo. [N]Isn't he cute? [FIN]Well, let's go. Maybe [N]we'll see Lilly, Lance, [N]and Erik. [FIN][TPL:6]So they went to [N]Freejia....[PAL:0][END]`
+dialogstring_05AADD `[DEF][TPL:1]Kara: This dog's [N]name is Turbo. [N]Isn't he cute? [FIN]Well, let's go. Maybe [N]we'll see Lilly, Lance, [N]and Erik. [FIN][TPL:6]So they went to [N]Freejia....[PAL:0][END]`

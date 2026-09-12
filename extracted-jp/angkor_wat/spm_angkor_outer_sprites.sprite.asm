@@ -1,6 +1,6 @@
 ---------------------------------------------
 
-sprite_set_list_000000 [
+spm_angkor_outer_sprites [
   &sprite_set_00005A   ;00
   &sprite_set_000068   ;01
   &sprite_set_000076   ;02

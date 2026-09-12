@@ -23,7 +23,7 @@ fr39_lily [
     COP [StageSpriteLoop] ( #22, #1E )
     COP [AnimLoop]
     COP [SolidHighHere]
-    COP [PrintWideString] ( &widestring_05C654 )
+    COP [PrintDialogString] ( &dialogstring_05C654 )
     COP [SetFlagByte] ( #01 )
     COP [SetOnInteract] ( &code_05C634 )
     LDA #$0800
@@ -40,7 +40,7 @@ fr39_lily [
     COP [SetEntryExit]
     COP [StageSpriteLoop] ( #22, #1E )
     COP [AnimLoop]
-    COP [PrintWideString] ( &widestring_05C67C )
+    COP [PrintDialogString] ( &dialogstring_05C67C )
     LDA #$CFF0
     TRB $joypadMaskStd
 
@@ -60,31 +60,31 @@ code_05C629 {
 }
 
 code_05C634 {
-    COP [PrintWideString] ( &fr39_kara.widestring_05C4CD+M )
+    COP [PrintDialogString] ( &fr39_kara.dialogstring_05C4CD+M )
     RTL 
 }
 
 code_05C639 {
     COP [BranchIfFlagByte] ( #68, #01, &code_05C64F )
     COP [BranchIfFlagByte] ( #65, #01, &code_05C64A )
-    COP [PrintWideString] ( &widestring_05C70B )
+    COP [PrintDialogString] ( &dialogstring_05C70B )
     RTL 
 }
 
 code_05C64A {
-    COP [PrintWideString] ( &widestring_05C67C+M )
+    COP [PrintDialogString] ( &dialogstring_05C67C+M )
     RTL 
 }
 
 code_05C64F {
-    COP [PrintWideString] ( &widestring_05C74D )
+    COP [PrintDialogString] ( &dialogstring_05C74D )
     RTL 
 }
 
-widestring_05C654 `[TPL:A][TPL:2]Lilly:[N]Come in...[FIN]Will and Kara...?![PAL:0][END]`
+dialogstring_05C654 `[TPL:A][TPL:2]Lilly:[N]Come in...[FIN]Will and Kara...?![PAL:0][END]`
 
-widestring_05C67C `[TPL:A][TPL:2]Lilly: Lance hit his [N]head escaping from [N]the Incan ship... [FIN]The doctor said that he[N]has temporary amnesia.[FIN][::][TPL:A][TPL:2]Meanwhile, I think [N]Lance should stay here [N]until he recovers.[PAL:0][END]`
+dialogstring_05C67C `[TPL:A][TPL:2]Lilly: Lance hit his [N]head escaping from [N]the Incan ship... [FIN]The doctor said that he[N]has temporary amnesia.[FIN][::][TPL:A][TPL:2]Meanwhile, I think [N]Lance should stay here [N]until he recovers.[PAL:0][END]`
 
-widestring_05C70B `[TPL:A][TPL:2]Lilly: Also, I haven't [N]seen Erik since [N]last night. [FIN]I wonder what's happened?[PAL:0][END]`
+dialogstring_05C70B `[TPL:A][TPL:2]Lilly: Also, I haven't [N]seen Erik since [N]last night. [FIN]I wonder what's happened?[PAL:0][END]`
 
-widestring_05C74D `[TPL:A][TPL:2]Lilly:[N]I've experienced much[N]in my travels...[PAL:0][END]`
+dialogstring_05C74D `[TPL:A][TPL:2]Lilly:[N]I've experienced much[N]in my travels...[PAL:0][END]`

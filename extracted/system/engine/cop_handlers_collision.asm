@@ -2308,7 +2308,7 @@ Decompress {
     INC $3E
     INC $3E
     JSL $@decompress.QuintetLzDecompress
-    JSL $@tile_collision_physics.ClearActorRenderList
+    JSL $@sprite_composition.ClearActorRenderList
     PLD 
     PLX 
     LDA $0A

@@ -34,8 +34,8 @@ code_089771 {
 }
 
 code_089773 {
-    COP [PrintWideString] ( &widestring_089778 )
+    COP [PrintDialogString] ( &dialogstring_089778 )
     RTL 
 }
 
-widestring_089778 `[DEF][TPL:3]Erik: The traders [N]knew there was no food [N]here, and led [N]the children away. [FIN]A terrible story.[PAL:0][END]`
+dialogstring_089778 `[DEF][TPL:3]Erik: The traders [N]knew there was no food [N]here, and led [N]the children away. [FIN]A terrible story.[PAL:0][END]`

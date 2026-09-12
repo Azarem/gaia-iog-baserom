@@ -55,23 +55,23 @@ code_04859B {
 }
 
 code_0485A4 {
-    COP [PrintWideString] ( &widestring_0485B6 )
+    COP [PrintDialogString] ( &dialogstring_0485B6 )
     RTL 
 }
 
 code_0485A9 {
-    COP [PrintWideString] ( &widestring_048612 )
+    COP [PrintDialogString] ( &dialogstring_048612 )
     COP [SetFlagByte] ( #27 )
     RTL 
 }
 
 code_0485B1 {
-    COP [PrintWideString] ( &widestring_048647 )
+    COP [PrintDialogString] ( &dialogstring_048647 )
     RTL 
 }
 
-widestring_0485B6 `[DEF]Hold it! Many demons [N]are prowling around [N]outside the town. [FIN]Didn't your teacher warn[N]you not to leave town[N]without your parents?[END]`
+dialogstring_0485B6 `[DEF]Hold it! Many demons [N]are prowling around [N]outside the town. [FIN]Didn't your teacher warn[N]you not to leave town[N]without your parents?[END]`
 
-widestring_048612 `[DEF]King Edward has summoned[N]you to the castle?[N]Well, just be careful.[END]`
+dialogstring_048612 `[DEF]King Edward has summoned[N]you to the castle?[N]Well, just be careful.[END]`
 
-widestring_048647 `[DEF]Be careful.[END]`
+dialogstring_048647 `[DEF]Be careful.[END]`

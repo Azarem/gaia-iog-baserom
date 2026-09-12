@@ -13,9 +13,9 @@ ec0B_moss [
 ]
 
 code_04DB59 {
-    COP [PrintWideString] ( &widestring_04DB62 )
+    COP [PrintDialogString] ( &dialogstring_04DB62 )
     COP [SetFlagByte] ( #03 )
     COP [Die]
 }
 
-widestring_04DB62 `[TPL:E][TPL:0]Will: This moss has seen[N]thousands of prisoners [N]come and go... [FIN]Those prisoners must [N]have been encouraged [N]by any sign of life....[PAL:0][END]`
+dialogstring_04DB62 `[TPL:E][TPL:0]Will: This moss has seen[N]thousands of prisoners [N]come and go... [FIN]Those prisoners must [N]have been encouraged [N]by any sign of life....[PAL:0][END]`

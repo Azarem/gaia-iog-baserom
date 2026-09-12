@@ -19,9 +19,9 @@ code_05C08A {
 }
 
 code_05C08C {
-    COP [PrintWideString] ( &widestring_05C094 )
+    COP [PrintDialogString] ( &dialogstring_05C094 )
     COP [SetFlagByte] ( #66 )
     RTL 
 }
 
-widestring_05C094 `[DEF][TPL:5]I am Sam. [FIN]We were rescued last [N]night by a man named [N]Erik who was working [N]at the hotel. [FIN]But we were caught by[N]the labor traders...[FIN]He's being held in a[N]house on the corner of[N]a back street in town.[N]Please save him.[PAL:0][END]`
+dialogstring_05C094 `[DEF][TPL:5]I am Sam. [FIN]We were rescued last [N]night by a man named [N]Erik who was working [N]at the hotel. [FIN]But we were caught by[N]the labor traders...[FIN]He's being held in a[N]house on the corner of[N]a back street in town.[N]Please save him.[PAL:0][END]`

@@ -60,7 +60,7 @@ pyCD_kara [
     COP [StageSpriteFrame] ( #04 )
     COP [AnimOnce]
     COP [WaitByte] ( #3B )
-    COP [PrintWideString] ( &widestring_08BE66 )
+    COP [PrintDialogString] ( &dialogstring_08BE66 )
     COP [WaitByte] ( #3B )
     LDA #$0068
     STA $moveXAlt, X
@@ -71,7 +71,7 @@ pyCD_kara [
     COP [AnimOnce]
     COP [SolidHighHere]
     COP [WaitByte] ( #3B )
-    COP [PrintWideString] ( &widestring_08BEA9 )
+    COP [PrintDialogString] ( &dialogstring_08BEA9 )
     COP [StageSpriteFrame] ( #05 )
     COP [AnimOnce]
     LDA #$CFF0
@@ -102,11 +102,11 @@ code_08BE0F {
     COP [AnimOnce]
     COP [StartMusic] ( #1B )
     COP [WaitByte] ( #3B )
-    COP [PrintWideString] ( &widestring_08BFC7 )
+    COP [PrintDialogString] ( &dialogstring_08BFC7 )
     COP [WaitByte] ( #3B )
     COP [StageSpriteFrame] ( #03 )
     COP [AnimOnce]
-    COP [PrintWideString] ( &widestring_08C127 )
+    COP [PrintDialogString] ( &dialogstring_08C127 )
     COP [SetFlagByte] ( #D0 )
     LDA #$0404
     STA $gfxCacheIdxB
@@ -116,16 +116,16 @@ code_08BE0F {
 }
 
 code_08BE61 {
-    COP [PrintWideString] ( &widestring_08BF8F )
+    COP [PrintDialogString] ( &dialogstring_08BF8F )
     RTL 
 }
 
-widestring_08BE66 `[TPL:9][TPL:1][DLY:2]Kara: [N]Will... [FIN]Why must everyone[N]hate each other...?[FIN]I...[N][PAU:3C]I...[PAL:0][END]`
+dialogstring_08BE66 `[TPL:9][TPL:1][DLY:2]Kara: [N]Will... [FIN]Why must everyone[N]hate each other...?[FIN]I...[N][PAU:3C]I...[PAL:0][END]`
 
-widestring_08BEA9 `[TPL:A][TPL:1][DLY:0]Kara: [N]I'm sorry... [N]I got upset... [FIN]You are doing your [N]best to save the world.[FIN]At first I just wanted[N]to find my father...[FIN]But somehow it got[N]to be a trial.....[FIN]But me.[N]I don't regret coming[N]on this journey...[FIN]Let's go and [N]find the fifth [N]Mystic Statue...[PAL:0][END]`
+dialogstring_08BEA9 `[TPL:A][TPL:1][DLY:0]Kara: [N]I'm sorry... [N]I got upset... [FIN]You are doing your [N]best to save the world.[FIN]At first I just wanted[N]to find my father...[FIN]But somehow it got[N]to be a trial.....[FIN]But me.[N]I don't regret coming[N]on this journey...[FIN]Let's go and [N]find the fifth [N]Mystic Statue...[PAL:0][END]`
 
-widestring_08BF8F `[TPL:B][TPL:1]Kara:[N]The melody you played[N]became the Jackal's[N]dirge.[PAL:0][END]`
+dialogstring_08BF8F `[TPL:B][TPL:1]Kara:[N]The melody you played[N]became the Jackal's[N]dirge.[PAL:0][END]`
 
-widestring_08BFC7 `[TPL:A]I heard a voice from the[N]Flute! [FIN]The same voice I[N]heard in the prison[N]at Edward Castle...[FIN][TPL:4][DLY:1]Flute: [N]Will. You've done well to [N]have come this far. [FIN][TPL:0]Will: [N]Father?! [FIN][TPL:4]Flute:[N]I'm at the Tower now.[FIN]Bring the five Mystic [N]Statues to the Tower. [FIN]The statues you've [N]collected hold the key [N]to the fate of humanity. [FIN]Will..Hurry...The comet[N]is approaching. [FIN][PAL:0][SFX:0]The voice of the Flute[N]quiets and disappears.[PAL:0][END]`
+dialogstring_08BFC7 `[TPL:A]I heard a voice from the[N]Flute! [FIN]The same voice I[N]heard in the prison[N]at Edward Castle...[FIN][TPL:4][DLY:1]Flute: [N]Will. You've done well to [N]have come this far. [FIN][TPL:0]Will: [N]Father?! [FIN][TPL:4]Flute:[N]I'm at the Tower now.[FIN]Bring the five Mystic [N]Statues to the Tower. [FIN]The statues you've [N]collected hold the key [N]to the fate of humanity. [FIN]Will..Hurry...The comet[N]is approaching. [FIN][PAL:0][SFX:0]The voice of the Flute[N]quiets and disappears.[PAL:0][END]`
 
-widestring_08C127 `[TPL:B][TPL:1]Kara: It seems [N]something terrible has [N]happened that [N]we don't know about... [FIN][TPL:0]Will: What to do... [N]I was told to go to the [N]Tower of Babel, but [N]that little island... [FIN][TPL:1]Kara: [N]I hear Neil has built [N]another airplane. [FIN]It seems he's flying to [N]the desert town. Let's [N]go back there.[PAL:0][END]`
+dialogstring_08C127 `[TPL:B][TPL:1]Kara: It seems [N]something terrible has [N]happened that [N]we don't know about... [FIN][TPL:0]Will: What to do... [N]I was told to go to the [N]Tower of Babel, but [N]that little island... [FIN][TPL:1]Kara: [N]I hear Neil has built [N]another airplane. [FIN]It seems he's flying to [N]the desert town. Let's [N]go back there.[PAL:0][END]`

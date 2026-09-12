@@ -12,8 +12,8 @@ it15_running_man [
 ]
 
 code_04DE2D {
-    COP [PrintWideString] ( &widestring_04DE32 )
+    COP [PrintDialogString] ( &dialogstring_04DE32 )
     RTL 
 }
 
-widestring_04DE32 `[DEF]Try running down that[N]hill, and keep running.[N]You'll be surprised.[END]`
+dialogstring_04DE32 `[DEF]Try running down that[N]hill, and keep running.[N]You'll be surprised.[END]`

@@ -12,13 +12,13 @@ daC3_jackal_girl [
 ]
 
 code_08ACD1 {
-    COP [PrintWideString] ( &widestring_08ACE0 )
+    COP [PrintDialogString] ( &dialogstring_08ACE0 )
     COP [WriteApuIo0] ( #7F )
-    COP [PrintWideString] ( &widestring_08AD0C )
+    COP [PrintDialogString] ( &dialogstring_08AD0C )
     COP [WriteApuIo0] ( #01 )
     RTL 
 }
 
-widestring_08ACE0 `[DEF]The girl silently offers[N]one sheet of paper.[FIN]`
+dialogstring_08ACE0 `[DEF]The girl silently offers[N]one sheet of paper.[FIN]`
 
-widestring_08AD0C `[CLR][DLY:4]There was a picture [N]of a jackal! [FIN][DLY:0][TPL:0]A shiver ran down my [N]spine. It was a warning [N]from the Jackal, who had[N]been stalking us....[PAL:0][END]`
+dialogstring_08AD0C `[CLR][DLY:4]There was a picture [N]of a jackal! [FIN][DLY:0][TPL:0]A shiver ran down my [N]spine. It was a warning [N]from the Jackal, who had[N]been stalking us....[PAL:0][END]`

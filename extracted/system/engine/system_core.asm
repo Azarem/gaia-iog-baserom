@@ -20,13 +20,14 @@
 ?INCLUDE 'combat_collision'
 ?INCLUDE 'cop_dispatch'
 ?INCLUDE 'event_blocks'
+?INCLUDE 'GlobalInputHandler'
 ?INCLUDE 'hdma_dma_spc'
-?INCLUDE 'OverworldInputHandler'
 ?INCLUDE 'scene_lifecycle'
 ?INCLUDE 'spc_transfer'
 ?INCLUDE 'sprite_composition'
 ?INCLUDE 'system_init'
 ?INCLUDE 'system_strings'
+?INCLUDE 'thinker_execution'
 ?INCLUDE 'vblank_joypad'
 ?INCLUDE 'warps_interaction'
 
@@ -211,10 +212,10 @@ SystemInit {
   loc_0080B5:
     JSL $@vblank_joypad.VBlankWaitAndJoypad ; === Main game loop entry ===
     JSL $@vblank_joypad.EnableNmiOnly
-    JSL $@actor_execution.RunThinkers_TypeA
+    JSL $@thinker_execution.RunThinkers_TypeA
     JSL $@scene_lifecycle.CheckSceneTransition
     JSL $@warps_interaction.CheckWarpAndChest
-    JSL $@OverworldInputHandler
+    JSL $@GlobalInputHandler
     JSR $&UpdateFrameCounters
     JSL $@actor_execution.RunActors_Normal
     LDX $00D8             ; OAM write index — end-of-sprite-list position
@@ -231,7 +232,7 @@ SystemInit {
     LDX #$0002            ; Scroll camera BG2 (X=2 selects vertical layer)
     JSL $@camera_tilemap.CameraSmoothScroll
     JSL $@hdma_dma_spc.ResetHdmaState
-    JSL $@actor_execution.RunThinkers_TypeB
+    JSL $@thinker_execution.RunThinkers_TypeB
     JSL $@sprite_composition.ComposeAllSprites
     JSL $@UpdateHUD
     JSL $@hdma_dma_spc.LoadMusicFromTransitionState
@@ -270,14 +271,14 @@ SystemInit {
     LDX #$0002
     JSL $@camera_tilemap.CameraSmoothScroll
     JSL $@hdma_dma_spc.ResetHdmaState
-    JSL $@actor_execution.RunThinkers_TypeD
+    JSL $@thinker_execution.RunThinkers_TypeD
     JSL $@sprite_composition.ComposeAllSprites
     LDA #$08              ; Clear bit 3 — dialogue rendering complete
     TRB $displayModeFlags
     JSL $@vblank_joypad.EnableNmiAndJoypad
     JSL $@vblank_joypad.VBlankWaitAndJoypad
     JSL $@vblank_joypad.EnableNmiOnly
-    JSL $@actor_execution.RunThinkers_TypeC
+    JSL $@thinker_execution.RunThinkers_TypeC
     PLD 
     PLY 
     PLX 
@@ -311,12 +312,12 @@ UpdateFrameRender {
     JSL $@sprite_composition.SortActorsByDepth
     JSL $@sprite_composition.ComposeAllSprites
     JSL $@hdma_dma_spc.ResetHdmaState
-    JSL $@actor_execution.RunThinkers_TypeD
+    JSL $@thinker_execution.RunThinkers_TypeD
     JSL $@UpdateHUD
     JSL $@vblank_joypad.EnableNmiAndJoypad
     JSL $@vblank_joypad.VBlankWaitAndJoypad
     JSL $@vblank_joypad.EnableNmiOnly
-    JSL $@actor_execution.RunThinkers_TypeC
+    JSL $@thinker_execution.RunThinkers_TypeC
     PLD 
     PLY 
     PLX 
@@ -341,7 +342,7 @@ UpdateFrameFull {
     PHA 
     PLB 
     JSL $@vblank_joypad.VBlankPartial
-    JSL $@actor_execution.RunThinkers_TypeC
+    JSL $@thinker_execution.RunThinkers_TypeC
     JSL $@actor_execution.RunActors_OverlayOnly
     LDX $00D8
     LDA #$FF
@@ -353,7 +354,7 @@ UpdateFrameFull {
     LDX #$0002
     JSL $@camera_tilemap.CameraSmoothScroll
     JSL $@hdma_dma_spc.ResetHdmaState
-    JSL $@actor_execution.RunThinkers_TypeD
+    JSL $@thinker_execution.RunThinkers_TypeD
     JSL $@sprite_composition.ComposeAllSprites
     PLB 
     JSL $@vblank_joypad.EnableNmiAndJoypad
@@ -441,7 +442,7 @@ UpdateHUD {
     BRA loc_008269
 
   loc_008274:
-    COP [RunBg3Script] ( @system_strings.asciistring_01E7F6 ) ; Redraw gem/stat counters via BG3 script
+    COP [RunBg3Script] ( @system_strings.consolestring_01E7F6 ) ; Redraw gem/stat counters via BG3 script
 
   loc_008279:
     REP #$20
@@ -449,7 +450,7 @@ UpdateHUD {
     BEQ loc_008299
     LDA #$0019            ; XP display timer = 25 frames when XP first awarded
     STA $enemyHealthTimer
-    COP [RunBg3Script] ( @system_strings.asciistring_01E818 )
+    COP [RunBg3Script] ( @system_strings.consolestring_01E818 )
     LDA #$0010
     TSB $displayModeFlags
     LDA #$003C            ; XP hold timer = 60 frames after award display
@@ -465,7 +466,7 @@ UpdateHUD {
     STA $enemyHealthTimer
     STZ $09E6             ; Clear pending XP accumulator after display period expires
     STZ $enemyHpDisplay
-    COP [RunBg3Script] ( @system_strings.asciistring_01E818 )
+    COP [RunBg3Script] ( @system_strings.consolestring_01E818 )
     LDA #$0010
     TSB $displayModeFlags
     STZ $enemyHealthTimer

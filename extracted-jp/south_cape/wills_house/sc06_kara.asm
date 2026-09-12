@@ -20,9 +20,9 @@ h_sc06_kara [
     COP [AnimOnce]
     COP [StageSpriteFrame] ( #15 )
     COP [AnimOnce]
-    COP [PrintWideString] ( &widestring_049C92 )
+    COP [PrintDialogString] ( &dialogstring_049C92 )
     LDA #$0002
-    JSL $@chunk_008000.widestring_00C829
+    JSL $@chunk_008000.dialogstring_00C829
     COP [StageSpriteMoveX] ( #19, #11 )
     COP [AnimOnce]
     COP [StageSpriteMoveY] ( #17, #12 )
@@ -32,21 +32,21 @@ h_sc06_kara [
     COP [StageSpriteLoop] ( #12, #3C )
     COP [AnimLoop]
     LDA #$0001
-    JSL $@chunk_008000.widestring_00C829
+    JSL $@chunk_008000.dialogstring_00C829
     COP [SetEntryExit]
-    COP [PrintWideString] ( &widestring_049CE6 )
+    COP [PrintDialogString] ( &dialogstring_049CE6 )
     COP [SetFlagByte] ( #02 )
     COP [StageSpriteLoopMoveX] ( #19, #03, #11 )
     COP [AnimLoop]
     COP [StageSpriteFrame] ( #13 )
     COP [AnimOnce]
     LDA #$0003
-    JSL $@chunk_008000.widestring_00C829
+    JSL $@chunk_008000.dialogstring_00C829
     COP [SetEntryExit]
-    COP [PrintWideString] ( &widestring_049D33 )
+    COP [PrintDialogString] ( &dialogstring_049D33 )
     COP [StageSpriteLoop] ( #14, #10 )
     COP [AnimLoop]
-    COP [PrintWideString] ( &widestring_049D74 )
+    COP [PrintDialogString] ( &dialogstring_049D74 )
     COP [StageSpriteLoop] ( #13, #18 )
     COP [AnimLoop]
     COP [StageSpriteLoop] ( #14, #18 )
@@ -56,7 +56,7 @@ h_sc06_kara [
     COP [StageSpriteLoop] ( #14, #1E )
     COP [AnimLoop]
     COP [SolidHighHere]
-    COP [PrintWideString] ( &widestring_049DF6 )
+    COP [PrintDialogString] ( &dialogstring_049DF6 )
     LDA #$CFF0
     TRB $joypadMaskStd
     COP [SetFlagByte] ( #3D )
@@ -71,7 +71,7 @@ h_sc06_kara [
     COP [ExitIfFlagByte] ( #07, #01 )
     COP [StageSpriteLoop] ( #15, #1E )
     COP [AnimLoop]
-    COP [PrintWideString] ( &widestring_049E86 )
+    COP [PrintDialogString] ( &dialogstring_049E86 )
     COP [SetFlagByte] ( #08 )
     COP [WaitByte] ( #1F )
     COP [StageSpriteLoopMoveX] ( #15, #E0, #12 )
@@ -79,7 +79,7 @@ h_sc06_kara [
     COP [StageSpriteLoopMoveY] ( #13, #A0, #11 )
     COP [AnimLoop]
     COP [SetFlagByte] ( #09 )
-    COP [PrintWideString] ( &widestring_049F16 )
+    COP [PrintDialogString] ( &dialogstring_049F16 )
     COP [StageSpriteLoopMoveY] ( #16, #04, #11 )
     COP [AnimLoop]
     COP [SetFlagByte] ( #1B )
@@ -99,22 +99,22 @@ code_049C80 {
 }
 
 code_049C8D {
-    COP [PrintWideString] ( &widestring_049E81 )
+    COP [PrintDialogString] ( &dialogstring_049E81 )
     RTL 
 }
 
-widestring_049C92 `[TPL:A][TPL:1]カレン:[N]あらあら ペギーちゃん.[N]知らない人を いじめちゃダメよ.[FIN]あなた,ここの家の子?[FIN][TPL:0]テム:[N]むっ··· そうだけど?[PAL:0][END]`
+dialogstring_049C92 `[TPL:A][TPL:1]カレン:[N]あらあら ペギーちゃん.[N]知らない人を いじめちゃダメよ.[FIN]あなた,ここの家の子?[FIN][TPL:0]テム:[N]むっ··· そうだけど?[PAL:0][END]`
 
-widestring_049CE6 `[TPL:9][TPL:1]カレン:[N]なんだか さえない身なりね.[FIN][TPL:0]テム:[N]わるかったな![FIN][TPL:1]カレン: お父さまは?[N]お母さまは? いないのね.[PAL:0][END]`
+dialogstring_049CE6 `[TPL:9][TPL:1]カレン:[N]なんだか さえない身なりね.[FIN][TPL:0]テム:[N]わるかったな![FIN][TPL:1]カレン: お父さまは?[N]お母さまは? いないのね.[PAL:0][END]`
 
-widestring_049D33 `[DLG:3,13][SIZ:D,2,0][TPL:1]カレン:[N]この絵が ご両親?[FIN][TPL:0]テム: そうだよ.[N]父さんは 探険に 行って···[PAL:0][END]`
+dialogstring_049D33 `[DLG:3,13][SIZ:D,2,0][TPL:1]カレン:[N]この絵が ご両親?[FIN][TPL:0]テム: そうだよ.[N]父さんは 探険に 行って···[PAL:0][END]`
 
-widestring_049D74 `[TPL:A][TPL:1]カレン: 知ってるわよ.[N]オールマン探険隊でしょ,[N]そうなんしたのよね.[FIN][TPL:0]テム:[N]いつか きっと 帰ってくるさ.[FIN][TPL:1]カレン:[N]おこったの?[N]···ちがうわね.[FIN]悲しませたのね,あたしったら··[N]ごめんなさい···[PAL:0][END]`
+dialogstring_049D74 `[TPL:A][TPL:1]カレン: 知ってるわよ.[N]オールマン探険隊でしょ,[N]そうなんしたのよね.[FIN][TPL:0]テム:[N]いつか きっと 帰ってくるさ.[FIN][TPL:1]カレン:[N]おこったの?[N]···ちがうわね.[FIN]悲しませたのね,あたしったら··[N]ごめんなさい···[PAL:0][END]`
 
-widestring_049DF6 `[TPL:A][TPL:1]カレン:[N]ところで この家,[N]ピアノも ないのね.[FIN][TPL:0]テム: ないよっ,そんなもの![N]でも,ローラおばあちゃんは[N]ものすごく歌が うまいんだぞ.[FIN][::][TPL:1]カレン:[N]歌なら 今 2階で歌ってるわよ.[N]二人とも声が大きいのなんの.[PAL:0][END]`
+dialogstring_049DF6 `[TPL:A][TPL:1]カレン:[N]ところで この家,[N]ピアノも ないのね.[FIN][TPL:0]テム: ないよっ,そんなもの![N]でも,ローラおばあちゃんは[N]ものすごく歌が うまいんだぞ.[FIN][::][TPL:1]カレン:[N]歌なら 今 2階で歌ってるわよ.[N]二人とも声が大きいのなんの.[PAL:0][END]`
 
-widestring_049E81 `[TPL:A][JMP:&sc06_kara.widestring_049DF6+M]`
+dialogstring_049E81 `[TPL:A][JMP:&sc06_kara.dialogstring_049DF6+M]`
 
-widestring_049E86 `[TPL:A][TPL:7]カレン: 人ちがいでしょっ.[N]あたしは 花売り娘のボボンゴって[N]いうのよ.[FIN][PAL:0]兵士: おひめさま![N]そんな [TPL:7]真っ赤な[PAL:0]ウソに[N]だまされると 思ってるんですかっ.[FIN]これは 国王の ご命皮なのです.[N]力づくでも 連れて帰りますよ![END]`
+dialogstring_049E86 `[TPL:A][TPL:7]カレン: 人ちがいでしょっ.[N]あたしは 花売り娘のボボンゴって[N]いうのよ.[FIN][PAL:0]兵士: おひめさま![N]そんな [TPL:7]真っ赤な[PAL:0]ウソに[N]だまされると 思ってるんですかっ.[FIN]これは 国王の ご命皮なのです.[N]力づくでも 連れて帰りますよ![END]`
 
-widestring_049F16 `[TPL:B][TPL:1]カレン:[N]ウソついて ごめんね.[N]あたしは エドワード城の カレン.[FIN]テムって 言ったかしら?[N]あなたとは 初めて会うっていう[N]気がしないのよね.[N]なんだか いいお友達になれそう.[PAL:0][END]`
+dialogstring_049F16 `[TPL:B][TPL:1]カレン:[N]ウソついて ごめんね.[N]あたしは エドワード城の カレン.[FIN]テムって 言ったかしら?[N]あなたとは 初めて会うっていう[N]気がしないのよね.[N]なんだか いいお友達になれそう.[PAL:0][END]`

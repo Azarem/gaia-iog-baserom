@@ -33,7 +33,7 @@ gw82_necklace_stone [
 ]
 
 code_07B5D2 {
-    COP [PrintWideString] ( &widestring_07B611 )
+    COP [PrintDialogString] ( &dialogstring_07B611 )
     COP [BranchIfNoItem] ( #17, &code_07B5E0 )
     COP [GiveItem] ( #17, &code_07B5F1 )
 }
@@ -62,6 +62,6 @@ byte_07B5F5 [
   #9C   ;04
 ]
 
-widestring_07B5FA `[TPL:A][TPL:0]A small stone falls.[PAL:0][END]`
+dialogstring_07B5FA `[TPL:A][TPL:0]A small stone falls.[PAL:0][END]`
 
-widestring_07B611 `[TPL:A][TPL:0]A small stone falls.[FIN]Ha! This is part of the [N]necklace Lance made [N]for Lilly! [FIN]I picked up the stones.[PAL:0][END]`
+dialogstring_07B611 `[TPL:A][TPL:0]A small stone falls.[FIN]Ha! This is part of the [N]necklace Lance made [N]for Lilly! [FIN]I picked up the stones.[PAL:0][END]`

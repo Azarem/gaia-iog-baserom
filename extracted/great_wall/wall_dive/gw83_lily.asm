@@ -27,7 +27,7 @@ code_07B68B {
     TRB $10
     LDA #$EFF0
     TSB $joypadMaskStd
-    COP [PrintWideString] ( &widestring_07B6FF )
+    COP [PrintDialogString] ( &dialogstring_07B6FF )
     COP [SetMetasprite] ( @table_0EE000 )
     COP [StageSpriteLoopMoveX] ( #33, #04, #03 )
     COP [AnimLoop]
@@ -39,7 +39,7 @@ code_07B68B {
     COP [AnimOnce]
     COP [StageSpriteLoop] ( #33, #04 )
     COP [AnimLoop]
-    COP [PrintWideString] ( &widestring_07B709 )
+    COP [PrintDialogString] ( &dialogstring_07B709 )
     LDY $playerActor
     LDA $0014, Y
     STA $moveXAlt, X
@@ -51,7 +51,7 @@ code_07B68B {
     LDA #$2000
     TSB $10
     COP [WaitByte] ( #1D )
-    COP [PrintWideString] ( &widestring_07B731 )
+    COP [PrintDialogString] ( &dialogstring_07B731 )
     LDA #$EFF0
     TRB $joypadMaskStd
     LDA #$0080
@@ -62,8 +62,8 @@ code_07B6FD {
     COP [Die]
 }
 
-widestring_07B6FF `[TPL:C][TPL:2]Wait![END]`
+dialogstring_07B6FF `[TPL:C][TPL:2]Wait![END]`
 
-widestring_07B709 `[TPL:D][TPL:2]Lilly: [N]Are you looking for Lance?[FIN]I'll go with you![END]`
+dialogstring_07B709 `[TPL:D][TPL:2]Lilly: [N]Are you looking for Lance?[FIN]I'll go with you![END]`
 
-widestring_07B731 `[TPL:E][TPL:2]Lilly: Ha ha. It's been [N]a long time since I [N]borrowed Will's pocket. [FIN]Well, let's go.[END]`
+dialogstring_07B731 `[TPL:E][TPL:2]Lilly: Ha ha. It's been [N]a long time since I [N]borrowed Will's pocket. [FIN]Well, let's go.[END]`

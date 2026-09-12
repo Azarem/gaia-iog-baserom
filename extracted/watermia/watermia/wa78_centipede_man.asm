@@ -36,15 +36,15 @@ code_list_0782AF [
 ]
 
 code_0782B3 {
-    COP [PrintWideString] ( &widestring_0782BD )
+    COP [PrintDialogString] ( &dialogstring_0782BD )
     RTL 
 }
 
 code_0782B8 {
-    COP [PrintWideString] ( &widestring_078371 )
+    COP [PrintDialogString] ( &dialogstring_078371 )
     RTL 
 }
 
-widestring_0782BD `[DEF][SFX:10]Man: I heard that a[N]huge centipede called a[N]Sand Fanger lives in[N]the Great Wall of China.[FIN]They say fluid from it's [N]body can cure anything. [FIN]Chinese medicine has[N]many strange things,[N]but drinking an insect's[N]bodily fluids...[END]`
+dialogstring_0782BD `[DEF][SFX:10]Man: I heard that a[N]huge centipede called a[N]Sand Fanger lives in[N]the Great Wall of China.[FIN]They say fluid from it's [N]body can cure anything. [FIN]Chinese medicine has[N]many strange things,[N]but drinking an insect's[N]bodily fluids...[END]`
 
-widestring_078371 `[DEF][SFX:10]On full moon nights they [N]play Russian Glass, [N]the most dangerous [N]game you can play. [FIN]But you're still young.[N]I don't think you'd[N]throw away your life.[END]`
+dialogstring_078371 `[DEF][SFX:10]On full moon nights they [N]play Russian Glass, [N]the most dangerous [N]game you can play. [FIN]But you're still young.[N]I don't think you'd[N]throw away your life.[END]`

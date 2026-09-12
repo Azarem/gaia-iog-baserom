@@ -30,7 +30,7 @@ code_08CD93 {
 }
 
 code_08CD95 {
-    COP [PrintWideString] ( &widestring_08CDDA )
+    COP [PrintDialogString] ( &dialogstring_08CDDA )
     COP [DialogueOptions] ( #02, #02, &code_list_08CD9F )
 }
 
@@ -41,12 +41,12 @@ code_list_08CD9F [
 ]
 
 code_08CDA5 {
-    COP [PrintWideString] ( &widestring_08CE10 )
+    COP [PrintDialogString] ( &dialogstring_08CE10 )
     RTL 
 }
 
 code_08CDAA {
-    COP [PrintWideString] ( &widestring_08CE10 )
+    COP [PrintDialogString] ( &dialogstring_08CE10 )
     LDY $playerActor
     LDA $0010, Y
     ORA #$2000
@@ -61,6 +61,6 @@ code_08CDAA {
     RTL 
 }
 
-widestring_08CDDA `[DEF]The mummified queen of[N]the Pyramid appears.[N] Quit[N] Jump in`
+dialogstring_08CDDA `[DEF]The mummified queen of[N]the Pyramid appears.[N] Quit[N] Jump in`
 
-widestring_08CE10 `[CLD]`
+dialogstring_08CE10 `[CLD]`

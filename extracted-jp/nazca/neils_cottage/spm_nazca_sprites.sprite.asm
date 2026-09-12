@@ -1,6 +1,6 @@
 ---------------------------------------------
 
-sprite_set_list_000000 [
+spm_nazca_sprites [
   &sprite_set_000078   ;00
   &sprite_set_00007E   ;01
   &sprite_set_000084   ;02

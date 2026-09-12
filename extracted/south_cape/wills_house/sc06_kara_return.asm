@@ -20,15 +20,15 @@ sc06_kara_return [
     STA $0014, Y
     COP [SpawnAfterFlags] ( @e_sc06_actor_04AF48, #$2000 )
     COP [WaitByte] ( #3B )
-    COP [PrintWideString] ( &widestring_04A746 )
+    COP [PrintDialogString] ( &dialogstring_04A746 )
     COP [StageSpriteLoop] ( #1D, #1E )
     COP [AnimLoop]
-    COP [PrintWideString] ( &widestring_04A766 )
+    COP [PrintDialogString] ( &dialogstring_04A766 )
     COP [StageSpriteMoveY] ( #1F, #12 )
     COP [AnimOnce]
     COP [StageSpriteFrame] ( #1B )
     COP [AnimOnce]
-    COP [PrintWideString] ( &widestring_04A7A8 )
+    COP [PrintDialogString] ( &dialogstring_04A7A8 )
     LDA #$CFF0
     TRB $joypadMaskStd
     COP [StageSpriteMoveX] ( #20, #02 )
@@ -59,7 +59,7 @@ sc06_kara_return [
     COP [StageSpriteFrame] ( #1B )
     COP [AnimOnce]
     COP [SolidHighHere]
-    COP [PrintWideString] ( &widestring_04A7E1 )
+    COP [PrintDialogString] ( &dialogstring_04A7E1 )
     COP [SetOnInteract] ( &code_04A736 )
     COP [ExitIfFlagByte] ( #01, #01 )
     COP [ExitIfFlagByte] ( #02, #01 )
@@ -71,7 +71,7 @@ sc06_kara_return [
     COP [StageSpriteFrame] ( #1C )
     COP [AnimOnce]
     COP [SolidHighHere]
-    COP [PrintWideString] ( &widestring_04A945 )
+    COP [PrintDialogString] ( &dialogstring_04A945 )
     COP [ClearFlagByte] ( #02 )
     COP [SetFlagByte] ( #25 )
     COP [ClearFlagWord] ( #$0119 )
@@ -97,12 +97,12 @@ code_04A695 {
     COP [AnimOnce]
     COP [StageSpriteMoveX] ( #20, #12 )
     COP [AnimOnce]
-    COP [PrintWideString] ( &widestring_04A9F8 )
+    COP [PrintDialogString] ( &dialogstring_04A9F8 )
     COP [SetFlagByte] ( #02 )
     COP [ExitIfFlagByte] ( #02, #00 )
     COP [StageSpriteMoveX] ( #20, #14 )
     COP [AnimOnce]
-    COP [PrintWideString] ( &widestring_04AA0D )
+    COP [PrintDialogString] ( &dialogstring_04AA0D )
     COP [SetFlagByte] ( #03 )
     COP [ExitIfFlagByte] ( #03, #00 )
     COP [StageSpriteMoveY] ( #1F, #12 )
@@ -114,7 +114,7 @@ code_04A695 {
     COP [SetFlagByte] ( #26 )
     LDA #$CFF0
     TRB $joypadMaskStd
-    COP [PrintWideString] ( &widestring_04AA20 )
+    COP [PrintDialogString] ( &dialogstring_04AA20 )
     COP [DialogueOptions] ( #02, #00, &code_list_04A6F7 )
 }
 
@@ -125,12 +125,12 @@ code_list_04A6F7 [
 ]
 
 code_04A6FD {
-    COP [PrintWideString] ( &widestring_04AA7D )
+    COP [PrintDialogString] ( &dialogstring_04AA7D )
     BRA loc_04A707
 }
 
 code_04A703 {
-    COP [PrintWideString] ( &widestring_04AAAD )
+    COP [PrintDialogString] ( &dialogstring_04AAAD )
 
   loc_04A707:
     LDA #$0000
@@ -152,40 +152,40 @@ code_04A734 {
 }
 
 code_04A736 {
-    COP [PrintWideString] ( &widestring_04A81F )
+    COP [PrintDialogString] ( &dialogstring_04A81F )
     COP [SetFlagByte] ( #01 )
     RTL 
 }
 
 code_04A73E {
-    COP [PrintWideString] ( &widestring_04A9D7 )
+    COP [PrintDialogString] ( &dialogstring_04A9D7 )
     COP [SetFlagByte] ( #01 )
     RTL 
 }
 
-widestring_04A746 `[TPL:A][TPL:0]Will: What![N]What's happened...[PAL:0][END]`
+dialogstring_04A746 `[TPL:A][TPL:0]Will: What![N]What's happened...[PAL:0][END]`
 
-widestring_04A766 `[TPL:A][TPL:1]Kara: It's awful! Who[N]would do such a thing...[FIN][TPL:0]Will: [N]My Grandparents?![PAL:0][END]`
+dialogstring_04A766 `[TPL:A][TPL:1]Kara: It's awful! Who[N]would do such a thing...[FIN][TPL:0]Will: [N]My Grandparents?![PAL:0][END]`
 
-widestring_04A7A8 `[DLG:3,6][SIZ:D,3][TPL:1]Kara: [N]Grandpa Bill![FIN][TPL:0]Will: [N]Grandma Lola![FIN][TPL:1]Kara: [N]I'll look upstairs![PAL:0][END]`
+dialogstring_04A7A8 `[DLG:3,6][SIZ:D,3][TPL:1]Kara: [N]Grandpa Bill![FIN][TPL:0]Will: [N]Grandma Lola![FIN][TPL:1]Kara: [N]I'll look upstairs![PAL:0][END]`
 
-widestring_04A7E1 `[TPL:E][TPL:1]Kara: Ooooh!!! Will!! [N]Come here! Quick![N]It's terrible, terrible![PAL:0][END]`
+dialogstring_04A7E1 `[TPL:E][TPL:1]Kara: Ooooh!!! Will!! [N]Come here! Quick![N]It's terrible, terrible![PAL:0][END]`
 
-widestring_04A81F `[TPL:E][TPL:0]Will: What happened?![FIN][TPL:1]Kara: Look at the wall![FIN]This mark, a jackal...[N]The Jackal's here![FIN][TPL:0]Will: [N]Jackal...?[FIN][TPL:1]Kara: He's the[N]hunter hired by[N]my mother!![FIN]An evil man who will[N]stop at nothing![FIN]Once he starts after you,[N]there's no stopping him.[FIN]He has no regard[N]for human life![FIN][TPL:0]Will: My Grandpa[N]and Grandma....[PAL:0][END]`
+dialogstring_04A81F `[TPL:E][TPL:0]Will: What happened?![FIN][TPL:1]Kara: Look at the wall![FIN]This mark, a jackal...[N]The Jackal's here![FIN][TPL:0]Will: [N]Jackal...?[FIN][TPL:1]Kara: He's the[N]hunter hired by[N]my mother!![FIN]An evil man who will[N]stop at nothing![FIN]Once he starts after you,[N]there's no stopping him.[FIN]He has no regard[N]for human life![FIN][TPL:0]Will: My Grandpa[N]and Grandma....[PAL:0][END]`
 
-widestring_04A945 `[TPL:E][TPL:1]Kara: [N]Who are you?![FIN][TPL:2]Lilly: [N]I'm Will's friend.[FIN][TPL:0]Will: Lilly, do you know[N]anything about this?[FIN][TPL:2]Lilly: It's OK.[N]Your Grandpa and[N]Grandma are safe.[FIN]They're in my village.[FIN][TPL:1]Kara: Your village?[PAL:0][END]`
+dialogstring_04A945 `[TPL:E][TPL:1]Kara: [N]Who are you?![FIN][TPL:2]Lilly: [N]I'm Will's friend.[FIN][TPL:0]Will: Lilly, do you know[N]anything about this?[FIN][TPL:2]Lilly: It's OK.[N]Your Grandpa and[N]Grandma are safe.[FIN]They're in my village.[FIN][TPL:1]Kara: Your village?[PAL:0][END]`
 
-widestring_04A9D7 `[TPL:E][TPL:1]I think something good[N]is going to happen.[PAL:0][END]`
+dialogstring_04A9D7 `[TPL:E][TPL:1]I think something good[N]is going to happen.[PAL:0][END]`
 
-widestring_04A9F8 `[TPL:A][TPL:1]Kara: [N]You're nitpicking.[END]`
+dialogstring_04A9F8 `[TPL:A][TPL:1]Kara: [N]You're nitpicking.[END]`
 
-widestring_04AA0D `[TPL:A][TPL:1]Kara: [N]Crazy girl![END]`
+dialogstring_04AA0D `[TPL:A][TPL:1]Kara: [N]Crazy girl![END]`
 
-widestring_04AA20 `[TPL:B][TPL:1]Kara: Hey, Will, [N]aren't you my friend,[N]too!?[FIN][PAL:0] Yes, of course.[N] I, umm,  I'm going [N] to the village.`
+dialogstring_04AA20 `[TPL:B][TPL:1]Kara: Hey, Will, [N]aren't you my friend,[N]too!?[FIN][PAL:0] Yes, of course.[N] I, umm,  I'm going [N] to the village.`
 
-widestring_04AA7D `[CLR][TPL:1]Kara: [N]I'm glad, Will. Let's[N]go hand in hand.[FIN][JMP:&sc06_kara_return.widestring_04AAAD+M]`
+dialogstring_04AA7D `[CLR][TPL:1]Kara: [N]I'm glad, Will. Let's[N]go hand in hand.[FIN][JMP:&sc06_kara_return.dialogstring_04AAAD+M]`
 
-widestring_04AAAD `[TPL:2][CLR]Lilly:[N]I'm going with you.[N]Let's go.[FIN][::][SFX:10][PAL:0]Together,[N]the three set off for[N]Lilly's village.[END]`
+dialogstring_04AAAD `[TPL:2][CLR]Lilly:[N]I'm going with you.[N]Let's go.[FIN][::][SFX:10][PAL:0]Together,[N]the three set off for[N]Lilly's village.[END]`
 ---------------------------------------------
 
 e_sc06_actor_04AF48 {
@@ -205,7 +205,7 @@ code_04AF61 {
 }
 
 code_04AF6C {
-    COP [PrintWideString] ( &widestring_04AF7F )
+    COP [PrintDialogString] ( &dialogstring_04AF7F )
     COP [SetEntryExitNow] ( @code_04AF50 )
 }
 
@@ -215,4 +215,4 @@ code_04AF75 {
     COP [Die]
 }
 
-widestring_04AF7F `[TPL:A][TPL:0]Will: [N](I suspect there's a[N] clue in the house...)[PAL:0][END]`
+dialogstring_04AF7F `[TPL:A][TPL:0]Will: [N](I suspect there's a[N] clue in the house...)[PAL:0][END]`

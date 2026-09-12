@@ -67,60 +67,60 @@ code_09A143 {
 }
 
 code_09A149 {
-    COP [PrintWideString] ( &widestring_09A179 )
+    COP [PrintDialogString] ( &dialogstring_09A179 )
     BRA code_09A143
 }
 
 code_09A14F {
-    COP [PrintWideString] ( &widestring_09A17B )
+    COP [PrintDialogString] ( &dialogstring_09A17B )
     BRA code_09A143
 }
 
 code_09A155 {
-    COP [PrintWideString] ( &widestring_09A1F0 )
+    COP [PrintDialogString] ( &dialogstring_09A1F0 )
     BRA code_09A143
 }
 
 code_09A15B {
-    COP [PrintWideString] ( &widestring_09A240 )
+    COP [PrintDialogString] ( &dialogstring_09A240 )
     BRA code_09A143
 }
 
 code_09A161 {
-    COP [PrintWideString] ( &widestring_09A28A )
+    COP [PrintDialogString] ( &dialogstring_09A28A )
     BRA code_09A143
 }
 
 code_09A167 {
-    COP [PrintWideString] ( &widestring_09A2CB )
+    COP [PrintDialogString] ( &dialogstring_09A2CB )
     BRA code_09A143
 }
 
 code_09A16D {
-    COP [PrintWideString] ( &widestring_09A319 )
+    COP [PrintDialogString] ( &dialogstring_09A319 )
     BRA code_09A143
 }
 
 code_09A173 {
-    COP [PrintWideString] ( &widestring_09A355 )
+    COP [PrintDialogString] ( &dialogstring_09A355 )
     BRA code_09A143
 }
 
-widestring_09A179 `[DEF][END]`
+dialogstring_09A179 `[DEF][END]`
 
-widestring_09A17B `[DEF]Defeat the enemies[N]in a certain area to get[N]an increase in attack [N]power and a jewel.[FIN]You must defeat all of[N]the demons...[END]`
+dialogstring_09A17B `[DEF]Defeat the enemies[N]in a certain area to get[N]an increase in attack [N]power and a jewel.[FIN]You must defeat all of[N]the demons...[END]`
 
-widestring_09A1F0 `[DEF]Jewels will appear if [N]you defeat an enemy. [N]If you can't reach them [N]use the Flute's power. [END]`
+dialogstring_09A1F0 `[DEF]Jewels will appear if [N]you defeat an enemy. [N]If you can't reach them [N]use the Flute's power. [END]`
 
-widestring_09A240 `[DEF]You need DP to use the[N]Dark Power...[FIN]Your DP increases as you[N]collect Dark Jewels...[END]`
+dialogstring_09A240 `[DEF]You need DP to use the[N]Dark Power...[FIN]Your DP increases as you[N]collect Dark Jewels...[END]`
 
-widestring_09A28A `[DEF]You need to jump to[N]continue, but you must[N]stop once in a while...[END]`
+dialogstring_09A28A `[DEF]You need to jump to[N]continue, but you must[N]stop once in a while...[END]`
 
-widestring_09A2CB `[DEF]There are many cracks in [N]the Pyramid. He who [N]looks down on the block [N]floor will sink...[END]`
+dialogstring_09A2CB `[DEF]There are many cracks in [N]the Pyramid. He who [N]looks down on the block [N]floor will sink...[END]`
 
-widestring_09A319 `[DEF]This is a fight to the[N]finish. Act before you[N]are acted upon...[END]`
+dialogstring_09A319 `[DEF]This is a fight to the[N]finish. Act before you[N]are acted upon...[END]`
 
-widestring_09A355 `[DEF]The stalks are connected[N]by the power of the[N]water droplets...[END]`
+dialogstring_09A355 `[DEF]The stalks are connected[N]by the power of the[N]water droplets...[END]`
 
 code_09A38D {
     COP [StageSprAndHitbox] ( #05 )

@@ -12,8 +12,8 @@ gs2E_crew3 [
 ]
 
 code_0589D6 {
-    COP [PrintWideString] ( &widestring_0589DB )
+    COP [PrintDialogString] ( &dialogstring_0589DB )
     RTL 
 }
 
-widestring_0589DB `[TPL:A]Why must[N]we flee? It is[N]our home.[END]`
+dialogstring_0589DB `[TPL:A]Why must[N]we flee? It is[N]our home.[END]`

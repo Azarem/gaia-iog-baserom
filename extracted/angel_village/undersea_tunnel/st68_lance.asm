@@ -47,8 +47,8 @@ code_06AEF2 {
 }
 
 code_06AEFE {
-    COP [PrintWideString] ( &widestring_06AF03 )
+    COP [PrintDialogString] ( &dialogstring_06AF03 )
     RTL 
 }
 
-widestring_06AF03 `[TPL:A][TPL:4]Lance: [N]I wonder how far this [N]tunnel goes...[PAL:0][END]`
+dialogstring_06AF03 `[TPL:A][TPL:4]Lance: [N]I wonder how far this [N]tunnel goes...[PAL:0][END]`

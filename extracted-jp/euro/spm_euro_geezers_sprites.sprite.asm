@@ -1,6 +1,6 @@
 ---------------------------------------------
 
-sprite_set_list_000000 [
+spm_euro_geezers_sprites [
   &sprite_set_000060   ;00
   &sprite_set_000066   ;01
   &sprite_set_00006C   ;02

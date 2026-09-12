@@ -13,12 +13,12 @@ fr32_slap [
 ]
 
 code_05B58E {
-    COP [PrintWideString] ( &widestring_05B59B )
+    COP [PrintDialogString] ( &dialogstring_05B59B )
     COP [PlaySoundBoth] ( #$0505 )
-    COP [PrintWideString] ( &widestring_05B60C )
+    COP [PrintDialogString] ( &dialogstring_05B60C )
     RTL 
 }
 
-widestring_05B59B `[DEF]I was startled....[N]Someone dropped[N]from the ceiling.[FIN]Thanks for showing [N]me that impressive  [N]dive. I will give [N]you something. [FIN]`
+dialogstring_05B59B `[DEF]I was startled....[N]Someone dropped[N]from the ceiling.[FIN]Thanks for showing [N]me that impressive  [N]dive. I will give [N]you something. [FIN]`
 
-widestring_05B60C `[CLR][TPL:7]"Slap!!!!!!ˮ[FIN][PAL:0]Kids! If you do [N]something this dangerous [N]again, you'll be in [N]big trouble!!! [END]`
+dialogstring_05B60C `[CLR][TPL:7]"Slap!!!!!!ˮ[FIN][PAL:0]Kids! If you do [N]something this dangerous [N]again, you'll be in [N]big trouble!!! [END]`

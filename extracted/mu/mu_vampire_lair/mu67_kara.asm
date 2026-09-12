@@ -21,7 +21,7 @@ mu67_kara [
     COP [WaitByte] ( #3B )
     COP [StageSpriteLoop] ( #1B, #1E )
     COP [AnimLoop]
-    COP [PrintWideString] ( &widestring_06A894 )
+    COP [PrintDialogString] ( &dialogstring_06A894 )
     LDA #$0000
     STA $0AA6
     LDA #$0404
@@ -32,4 +32,4 @@ mu67_kara [
 } >
 ]
 
-widestring_06A894 `[TPL:B][TPL:1]Kara: [N]It doesn't matter! [FIN]Let's think about how[N]to leave Mu![FIN][TPL:2]Lilly: That's good. We[N]heard some things from[N]someone called Rama.[FIN][TPL:0]Will told everyone about [N]Mu and the people [N]who had come through [N]the underwater tunnel... [FIN][TPL:1]Kara: [N]It's such a sad story... [FIN]separated from those [N]with whom they lived.[FIN]Others remaining under[N]water... [FIN][TPL:6]Neil: If we go through [N]the tunnel, maybe we[N]can reach the mainland.[FIN][TPL:4]Lance: Good idea! [N]Let's get out of here!![PAL:0][END]`
+dialogstring_06A894 `[TPL:B][TPL:1]Kara: [N]It doesn't matter! [FIN]Let's think about how[N]to leave Mu![FIN][TPL:2]Lilly: That's good. We[N]heard some things from[N]someone called Rama.[FIN][TPL:0]Will told everyone about [N]Mu and the people [N]who had come through [N]the underwater tunnel... [FIN][TPL:1]Kara: [N]It's such a sad story... [FIN]separated from those [N]with whom they lived.[FIN]Others remaining under[N]water... [FIN][TPL:6]Neil: If we go through [N]the tunnel, maybe we[N]can reach the mainland.[FIN][TPL:4]Lance: Good idea! [N]Let's get out of here!![PAL:0][END]`

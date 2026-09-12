@@ -1,6 +1,6 @@
 ---------------------------------------------
 
-sprite_set_list_000000 [
+spm_pyramid_puzzle_sprites [
   &sprite_set_000040   ;00
   &sprite_set_000046   ;01
   &sprite_set_00004C   ;02

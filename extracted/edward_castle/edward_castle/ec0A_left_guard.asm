@@ -22,7 +22,7 @@ code_04BFFD {
     COP [StageSpriteLoop] ( #1A, #08 )
     COP [AnimLoop]
     COP [BranchIfFlagByte] ( #3F, #01, &code_04C023 )
-    COP [PrintWideString] ( &widestring_04C115 )
+    COP [PrintDialogString] ( &dialogstring_04C115 )
     COP [SetFlagByte] ( #3F )
     LDA #$CFF0
     TRB $joypadMaskStd
@@ -55,17 +55,17 @@ code_04C04B {
 }
 
 code_04C05D {
-    COP [PrintWideString] ( &widestring_04C067 )
+    COP [PrintDialogString] ( &dialogstring_04C067 )
     RTL 
 }
 
 code_04C062 {
-    COP [PrintWideString] ( &widestring_04C0AF )
+    COP [PrintDialogString] ( &dialogstring_04C0AF )
     RTL 
 }
 
-widestring_04C067 `[TPL:A]This is King Edward's[N]castle.[FIN]Go to the second[N]floor if you want to[N]meet King Edward.[END]`
+dialogstring_04C067 `[TPL:A]This is King Edward's[N]castle.[FIN]Go to the second[N]floor if you want to[N]meet King Edward.[END]`
 
-widestring_04C0AF `[TPL:B]Ah! It's you![FIN]You've escaped[N]from the prison...[FIN]Trust what I say. Run[N]from this castle. It'd[N]be terrible if King[N]Edward found you here.[END]`
+dialogstring_04C0AF `[TPL:B]Ah! It's you![FIN]You've escaped[N]from the prison...[FIN]Trust what I say. Run[N]from this castle. It'd[N]be terrible if King[N]Edward found you here.[END]`
 
-widestring_04C115 `[TPL:A]Soldier: This is King[N]Edward's castle. I must[N]report this intrusion.[FIN][DLG:3,6][SIZ:D,3][TPL:0]Will shows the letter[N]to the guard.[FIN][TPL:A][PAL:0]Soldier: A guest of the[N]King? I'm sorry, you[N]may pass.[END]`
+dialogstring_04C115 `[TPL:A]Soldier: This is King[N]Edward's castle. I must[N]report this intrusion.[FIN][DLG:3,6][SIZ:D,3][TPL:0]Will shows the letter[N]to the guard.[FIN][TPL:A][PAL:0]Soldier: A guest of the[N]King? I'm sorry, you[N]may pass.[END]`

@@ -25,7 +25,7 @@ code_09CEB7 {
     COP [AnimOnce]
     COP [StageSpriteFrame] ( #13 )
     COP [AnimOnce]
-    COP [PrintWideString] ( &widestring_09CF19 )
+    COP [PrintDialogString] ( &dialogstring_09CF19 )
     COP [StartMusic] ( #02 )
     COP [WaitByte] ( #77 )
     COP [SetFlagByte] ( #03 )
@@ -52,10 +52,10 @@ code_09CF07 {
 }
 
 code_09CF14 {
-    COP [PrintWideString] ( &widestring_09CF59 )
+    COP [PrintDialogString] ( &dialogstring_09CF59 )
     RTL 
 }
 
-widestring_09CF19 `[DLG:3,6][SIZ:D,3][TPL:1]Kara: You're so mean!! [N]Leaving me behind! How [N]could you do that![PAL:0][END]`
+dialogstring_09CF19 `[DLG:3,6][SIZ:D,3][TPL:1]Kara: You're so mean!! [N]Leaving me behind! How [N]could you do that![PAL:0][END]`
 
-widestring_09CF59 `[DLG:3,6][SIZ:D,3][TPL:1]Kara: Well? Did you [N]find what you were [N]looking for?[PAL:0][END]`
+dialogstring_09CF59 `[DLG:3,6][SIZ:D,3][TPL:1]Kara: Well? Did you [N]find what you were [N]looking for?[PAL:0][END]`

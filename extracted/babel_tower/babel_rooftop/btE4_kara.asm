@@ -60,7 +60,7 @@ btE4_kara [
     RTL 
 
   loc_098DA2:
-    COP [PrintWideString] ( &widestring_098EB8 )
+    COP [PrintDialogString] ( &dialogstring_098EB8 )
     COP [SetFlagByte] ( #0A )
     LDA #$CFF0
     TSB $joypadMaskStd
@@ -87,21 +87,21 @@ btE4_kara [
 
 code_098DEA {
     COP [BranchIfFlagByte] ( #0F, #01, &code_098DF5 )
-    COP [PrintWideString] ( &widestring_098DFD )
+    COP [PrintDialogString] ( &dialogstring_098DFD )
     RTL 
 }
 
 code_098DF5 {
-    COP [PrintWideString] ( &widestring_098E17 )
+    COP [PrintDialogString] ( &dialogstring_098E17 )
     COP [SetFlagByte] ( #0E )
     RTL 
 }
 
-widestring_098DFD `[DEF][TPL:1]Kara: [N].................[PAL:0][END]`
+dialogstring_098DFD `[DEF][TPL:1]Kara: [N].................[PAL:0][END]`
 
-widestring_098E17 `[DEF][TPL:0][DLY:0]When Will and Kara [N]joined and became one [N]with the Light Knight, a [N]great power was born... [FIN]The Knights were brought [N]forth. The Dark Knight's [N]ultimate power, the [N]Firebird, was released![PAL:0][END]`
+dialogstring_098E17 `[DEF][TPL:0][DLY:0]When Will and Kara [N]joined and became one [N]with the Light Knight, a [N]great power was born... [FIN]The Knights were brought [N]forth. The Dark Knight's [N]ultimate power, the [N]Firebird, was released![PAL:0][END]`
 
-widestring_098EB8 `[TPL:D][TPL:4][DLY:0]Your battle will change[N]the fate of humanity.[FIN]Now you must go[N]to the comet!![PAL:0][END]`
+dialogstring_098EB8 `[TPL:D][TPL:4][DLY:0]Your battle will change[N]the fate of humanity.[FIN]Now you must go[N]to the comet!![PAL:0][END]`
 
 code_098F01 {
     LDA #$0000

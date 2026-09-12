@@ -75,7 +75,7 @@ byte_0AA72F [
 ]
 
 code_0AA733 {
-    COP [PrintWideString] ( &widestring_0AA791 )
+    COP [PrintDialogString] ( &dialogstring_0AA791 )
     RTL 
 }
 
@@ -99,55 +99,55 @@ code_0AA750 {
 }
 
 code_0AA751 {
-    COP [PrintWideString] ( &widestring_0AA7B4 )
+    COP [PrintDialogString] ( &dialogstring_0AA7B4 )
     COP [GiveItem] ( #0C, &code_0AA767 )
     LDA #$0080
     TSB $displayModeFlags
-    COP [MusicAndText] ( #17, @widestring_0AA7EF )
+    COP [MusicAndText] ( #17, @dialogstring_0AA7EF )
     RTL 
 }
 
 code_0AA767 {
     LDA #$&loc_0AA6F9
     STA $00
-    COP [PrintWideString] ( &widestring_0AA9C5 )
+    COP [PrintDialogString] ( &dialogstring_0AA9C5 )
     RTL 
 }
 
 code_0AA771 {
-    COP [PrintWideString] ( &widestring_0AA811 )
+    COP [PrintDialogString] ( &dialogstring_0AA811 )
     COP [GiveItem] ( #0F, &code_0AA767 )
     LDA #$0080
     TSB $displayModeFlags
-    COP [MusicAndText] ( #17, @widestring_0AA85C )
+    COP [MusicAndText] ( #17, @dialogstring_0AA85C )
     RTL 
 }
 
 code_0AA787 {
-    COP [PrintWideString] ( &widestring_0AA874 )
+    COP [PrintDialogString] ( &dialogstring_0AA874 )
     RTL 
 }
 
 code_0AA78C {
-    COP [PrintWideString] ( &widestring_0AA97D )
+    COP [PrintDialogString] ( &dialogstring_0AA97D )
     RTL 
 }
 
-widestring_0AA791 `[DEF]Laborer:[N]I beg you![N]Cut this chain!![END]`
+dialogstring_0AA791 `[DEF]Laborer:[N]I beg you![N]Cut this chain!![END]`
 
-widestring_0AA7B4 `[DEF]Laborer:[N]Thank you! I won't[N]forget what you've done![FIN]Take this key.[FIN]`
+dialogstring_0AA7B4 `[DEF]Laborer:[N]Thank you! I won't[N]forget what you've done![FIN]Take this key.[FIN]`
 
-widestring_0AA7EF `[CLR][SFX:0][DLY:9]You have the[N]key to the mine![PAU:FF][END]`
+dialogstring_0AA7EF `[CLR][SFX:0][DLY:9]You have the[N]key to the mine![PAU:FF][END]`
 
-widestring_0AA811 `[DEF]There are people who are[N]forced to work deep in[N]the Diamond Mine.[FIN]Please use this key[N]to save them.[FIN]`
+dialogstring_0AA811 `[DEF]There are people who are[N]forced to work deep in[N]the Diamond Mine.[FIN]Please use this key[N]to save them.[FIN]`
 
-widestring_0AA85C `[CLR][SFX:0][DLY:9]You've got the[N]elevator key![PAU:FF][END]`
+dialogstring_0AA85C `[CLR][SFX:0][DLY:9]You've got the[N]elevator key![PAU:FF][END]`
 
-widestring_0AA874 `[DEF]Thank you for saving me.[N]As a reward, I'll tell[N]you something.[FIN]This mine has a secret[N]room. Its entrance[N]blends into the wall.[FIN]But you can find it by[N]watching for wind[N]blowing through cracks[N]in the wall.[FIN]Of course, it would blow [N]fine hair like yours [N]around. Then you'll [N]understand. [END]`
+dialogstring_0AA874 `[DEF]Thank you for saving me.[N]As a reward, I'll tell[N]you something.[FIN]This mine has a secret[N]room. Its entrance[N]blends into the wall.[FIN]But you can find it by[N]watching for wind[N]blowing through cracks[N]in the wall.[FIN]Of course, it would blow [N]fine hair like yours [N]around. Then you'll [N]understand. [END]`
 
-widestring_0AA97D `[DEF]There are eight[N]laborers including me[N]forced to work in the[N]mine. [FIN]Please save us. [END]`
+dialogstring_0AA97D `[DEF]There are eight[N]laborers including me[N]forced to work in the[N]mine. [FIN]Please save us. [END]`
 
-widestring_0AA9C5 `[DEF][CLR]But your inventory[N]is full![END]`
+dialogstring_0AA9C5 `[DEF][CLR]But your inventory[N]is full![END]`
 
 code_0AA9E0 {
     JSL $@func_0AA3FD

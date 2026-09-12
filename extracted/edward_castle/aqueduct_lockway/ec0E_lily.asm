@@ -96,7 +96,7 @@ code_09A977 {
     COP [SetEntryExitNow] ( @code_09A93A )
 
   loc_09A986:
-    COP [PrintWideString] ( &widestring_09AA1B )
+    COP [PrintDialogString] ( &dialogstring_09AA1B )
     LDA #$0060
     STA $moveXAlt, X
     LDA #$0030
@@ -150,10 +150,10 @@ code_09A9A1 {
 code_09A9F5 {
     LDA #$00FF
     STA $currentHp, X
-    COP [PrintWideString] ( &widestring_09AA02 )
+    COP [PrintDialogString] ( &dialogstring_09AA02 )
     BRA loc_09A9CE
 }
 
-widestring_09AA02 `[DEF][TPL:2]Hey! What are you doing!![PAL:0][END]`
+dialogstring_09AA02 `[DEF][TPL:2]Hey! What are you doing!![PAL:0][END]`
 
-widestring_09AA1B `[DEF][TPL:2]Come here, or the[N]demon will get you![PAL:0][END]`
+dialogstring_09AA1B `[DEF][TPL:2]Come here, or the[N]demon will get you![PAL:0][END]`

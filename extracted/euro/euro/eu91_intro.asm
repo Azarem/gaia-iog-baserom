@@ -46,7 +46,7 @@ eu91_intro [
     LDA #$0800
     TRB $10
     COP [WaitByte] ( #1D )
-    COP [PrintWideString] ( &widestring_07C011 )
+    COP [PrintDialogString] ( &dialogstring_07C011 )
     COP [WaitByte] ( #3B )
     LDA #$0404
     STA $gfxCacheIdxB
@@ -79,10 +79,10 @@ code_07BEB4 {
 
 code_07BED1 {
     COP [WaitByte] ( #1D )
-    COP [PrintWideString] ( &widestring_07BEDA )
+    COP [PrintDialogString] ( &dialogstring_07BEDA )
     COP [Die]
 }
 
-widestring_07BEDA `[DEF][TPL:0][SFX:10][DLY:2]We crossed the desert[N]and finally arrived in[N]the village of Euro.[PAU:78][CLR]Euro was a bustling[N]city, larger than[N]I had imagined.[PAU:B4][CLR]Neil's parents lived [N]there, and ran a [N]company called Rolek.[PAU:78][CLR]Neil hadn't been there [N]for three years.[N]His parents welcomed[N]him home.[PAU:78][CLR]They set off fireworks. [N]There were dancers. [N]It looked like a [N]festival had started.[PAU:B4][PAL:0][CLD]`
+dialogstring_07BEDA `[DEF][TPL:0][SFX:10][DLY:2]We crossed the desert[N]and finally arrived in[N]the village of Euro.[PAU:78][CLR]Euro was a bustling[N]city, larger than[N]I had imagined.[PAU:B4][CLR]Neil's parents lived [N]there, and ran a [N]company called Rolek.[PAU:78][CLR]Neil hadn't been there [N]for three years.[N]His parents welcomed[N]him home.[PAU:78][CLR]They set off fireworks. [N]There were dancers. [N]It looked like a [N]festival had started.[PAU:B4][PAL:0][CLD]`
 
-widestring_07C011 `[DEF][TPL:0][SFX:10][DLY:2]This is the house [N]where Neil's parents [N]live. We were shown [N]to the guest room.[PAL:0][END]`
+dialogstring_07C011 `[DEF][TPL:0][SFX:10][DLY:2]This is the house [N]where Neil's parents [N]live. We were shown [N]to the guest room.[PAL:0][END]`

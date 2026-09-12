@@ -35,7 +35,7 @@ sp58_missed_flight [
 
 code_068042 {
     COP [WaitByte] ( #1D )
-    COP [PrintWideString] ( &widestring_06805C )
+    COP [PrintDialogString] ( &dialogstring_06805C )
     COP [SetEntryContinue]
     LDY $04
     LDA $0014, Y
@@ -49,4 +49,4 @@ code_068042 {
     RTL 
 }
 
-widestring_06805C `[TPL:A][TPL:6]Neil: [N]Shoot!! [N]I dropped a contact!! [FIN][TPL:1]Kara: You what!!! [N]Idiot! Will is [N]doomed for sure now! [FIN][TPL:4]Lance: Neil! It's still [N]a little ways to the [N]ground. Try again! [FIN][TPL:6]Neil: [N]Okay! [N]I'll get him this time!![PAL:0][END]`
+dialogstring_06805C `[TPL:A][TPL:6]Neil: [N]Shoot!! [N]I dropped a contact!! [FIN][TPL:1]Kara: You what!!! [N]Idiot! Will is [N]doomed for sure now! [FIN][TPL:4]Lance: Neil! It's still [N]a little ways to the [N]ground. Try again! [FIN][TPL:6]Neil: [N]Okay! [N]I'll get him this time!![PAL:0][END]`

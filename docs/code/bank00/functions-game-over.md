@@ -251,7 +251,7 @@ Uses `COP [SpawnAfter]` to create the child sprites relative to the player's pos
 
 ### Description
 
-Post-death wake-up monologue displayed after the player respawns at the save point. Branches on `$0AD4` (current character/form index) to select character-specific text from three embedded widestring parts:
+Post-death wake-up monologue displayed after the player respawns at the save point. Branches on `$0AD4` (current character/form index) to select character-specific text from three embedded dialogstring parts:
 
 | `$0AD4` | Character | Text Theme |
 |---------|-----------|------------|
@@ -259,15 +259,15 @@ Post-death wake-up monologue displayed after the player respawns at the save poi
 | `1` | Freedan | Freedan's warrior perspective |
 | `2` | Shadow | Shadow's cryptic commentary |
 
-Spawned from `player_character.asm` via `COP [SpawnAfterFlags]` after the cutscene sprites complete. Uses `COP [SwitchCase]` on `$0AD4` to dispatch to the correct widestring, then `COP [PrintWideString]` for display. After the message, restores normal player control and clears death flags.
+Spawned from `player_character.asm` via `COP [SpawnAfterFlags]` after the cutscene sprites complete. Uses `COP [SwitchCase]` on `$0AD4` to dispatch to the correct dialogstring, then `COP [PrintDialogString]` for display. After the message, restores normal player control and clears death flags.
 
 ### Algorithm
 
 ```
 1. COP [SwitchCase] $0AD4:
-     0 → PrintWideString widestring_will
-     1 → PrintWideString widestring_freedan
-     2 → PrintWideString widestring_shadow
+     0 → PrintDialogString dialogstring_will
+     1 → PrintDialogString dialogstring_freedan
+     2 → PrintDialogString dialogstring_shadow
 2. Wait for text advance (button press)
 3. Clear $10 bit $0200 (death flag)
 4. RestoreSavedPtr → normal player script
@@ -282,7 +282,7 @@ Spawned from `player_character.asm` via `COP [SpawnAfterFlags]` after the cutsce
 | `$0AD4` | Current body index (0=Will, 1=Freedan, 2=Shadow) |
 | `$10` bit `$0200` | Death flag (cleared on wake-up) |
 | `$joypad_mask_std` | Restored after message |
-| Embedded widestrings | 3 character-specific death monologues |
+| Embedded dialogstrings | 3 character-specific death monologues |
 
 ### Cross-References
 

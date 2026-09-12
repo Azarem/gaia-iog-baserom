@@ -12,8 +12,8 @@ sc04_eriks_father [
 ]
 
 code_048FEA {
-    COP [PrintWideString] ( &widestring_048FEF )
+    COP [PrintDialogString] ( &dialogstring_048FEF )
     RTL 
 }
 
-widestring_048FEF `[DEF]Erik's father:[N]Everyone is jealous[N]of this big house...[FIN]It's nothing.[N]We moved to this town[N]before anyone else.[END]`
+dialogstring_048FEF `[DEF]Erik's father:[N]Everyone is jealous[N]of this big house...[FIN]It's nothing.[N]We moved to this town[N]before anyone else.[END]`

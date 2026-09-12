@@ -19,7 +19,7 @@ fr3C_slaver [
 ]
 
 code_05C173 {
-    COP [PrintWideString] ( &widestring_05C190 )
+    COP [PrintDialogString] ( &dialogstring_05C190 )
     COP [DialogueOptions] ( #02, #02, &code_list_05C17D )
 }
 
@@ -30,18 +30,18 @@ code_list_05C17D [
 ]
 
 code_05C183 {
-    COP [PrintWideString] ( &widestring_05C21F )
+    COP [PrintDialogString] ( &dialogstring_05C21F )
     RTL 
 }
 
 code_05C188 {
-    COP [PrintWideString] ( &widestring_05C1E2 )
+    COP [PrintDialogString] ( &dialogstring_05C1E2 )
     COP [SetFlagByte] ( #01 )
     RTL 
 }
 
-widestring_05C190 `[TPL:B]Hey, boy![N]Kids can't come here![N]Go home! Go home![FIN]Or did you come to [N]get a laborer? [N] Yes [N] No `
+dialogstring_05C190 `[TPL:B]Hey, boy![N]Kids can't come here![N]Go home! Go home![FIN]Or did you come to [N]get a laborer? [N] Yes [N] No `
 
-widestring_05C1E2 `[CLR]I like your courage! [N]I don't know what [N]you'd do here, but have [N]a look around. [END]`
+dialogstring_05C1E2 `[CLR]I like your courage! [N]I don't know what [N]you'd do here, but have [N]a look around. [END]`
 
-widestring_05C21F `[CLR]Go home! Go home![END]`
+dialogstring_05C21F `[CLR]Go home! Go home![END]`

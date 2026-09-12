@@ -23,8 +23,8 @@ code_05B839 {
 }
 
 code_05B83B {
-    COP [PrintWideString] ( &widestring_05B840 )
+    COP [PrintDialogString] ( &dialogstring_05B840 )
     RTL 
 }
 
-widestring_05B840 `[DEF]Where'd he go...[END]`
+dialogstring_05B840 `[DEF]Where'd he go...[END]`

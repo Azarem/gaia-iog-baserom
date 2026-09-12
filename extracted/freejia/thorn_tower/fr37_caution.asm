@@ -12,8 +12,8 @@ fr37_caution [
 ]
 
 code_05BD0B {
-    COP [PrintWideString] ( &widestring_05BD10 )
+    COP [PrintDialogString] ( &dialogstring_05BD10 )
     RTL 
 }
 
-widestring_05BD10 `[TPL:A]Listen to me carefully. [N]You'd better not go [N]on the back streets. [FIN]Just as a rose has[N]thorns, a pretty town[N]has another side.[END]`
+dialogstring_05BD10 `[TPL:A]Listen to me carefully. [N]You'd better not go [N]on the back streets. [FIN]Just as a rose has[N]thorns, a pretty town[N]has another side.[END]`

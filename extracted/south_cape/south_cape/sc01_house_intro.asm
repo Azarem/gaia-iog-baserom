@@ -25,7 +25,7 @@ code_04BC9B {
 code_04BCA7 {
     COP [BranchIfFlagByte] ( #12, #01, &code_04BCB4 )
     COP [SetFlagByte] ( #12 )
-    COP [PrintWideString] ( &widestring_04BD1B )
+    COP [PrintDialogString] ( &dialogstring_04BD1B )
 }
 
 code_04BCB4 {
@@ -41,7 +41,7 @@ code_04BCBF {
 code_04BCCA {
     COP [BranchIfFlagByte] ( #12, #01, &code_04BCD7 )
     COP [SetFlagByte] ( #12 )
-    COP [PrintWideString] ( &widestring_04BD1B )
+    COP [PrintDialogString] ( &dialogstring_04BD1B )
 }
 
 code_04BCD7 {
@@ -51,7 +51,7 @@ code_04BCD7 {
 code_04BCD8 {
     COP [BranchIfFlagByte] ( #13, #01, &code_04BCE5 )
     COP [SetFlagByte] ( #13 )
-    COP [PrintWideString] ( &widestring_04BD5F )
+    COP [PrintDialogString] ( &dialogstring_04BD5F )
 }
 
 code_04BCE5 {
@@ -61,7 +61,7 @@ code_04BCE5 {
 code_04BCE6 {
     COP [BranchIfFlagByte] ( #14, #01, &code_04BCF3 )
     COP [SetFlagByte] ( #14 )
-    COP [PrintWideString] ( &widestring_04BD9B )
+    COP [PrintDialogString] ( &dialogstring_04BD9B )
 }
 
 code_04BCF3 {
@@ -75,7 +75,7 @@ code_04BCF4 {
     LDA #$CFF0
     TSB $joypadMaskStd
     COP [WaitByte] ( #1D )
-    COP [PrintWideString] ( &widestring_04BE05 )
+    COP [PrintDialogString] ( &dialogstring_04BE05 )
     LDA #$CFF0
     TRB $joypadMaskStd
 }
@@ -84,10 +84,10 @@ code_04BD16 {
     COP [SetEntryExitNow] ( @code_04BC68 )
 }
 
-widestring_04BD1B `[TPL:10][TPL:0]This is my house.[N]The pie that [N]Grandma Lola is making[N]smells really great.[PAL:0][END]`
+dialogstring_04BD1B `[TPL:10][TPL:0]This is my house.[N]The pie that [N]Grandma Lola is making[N]smells really great.[PAL:0][END]`
 
-widestring_04BD5F `[TPL:10][TPL:0]This is Lance's house.[N]He lives here with his[N]frail mother.[PAL:0][END]`
+dialogstring_04BD5F `[TPL:10][TPL:0]This is Lance's house.[N]He lives here with his[N]frail mother.[PAL:0][END]`
 
-widestring_04BD9B `[TPL:10][TPL:0]My friend Erik [N]lives here.[FIN]This is the biggest[N]house in South Cape.[N]Will envied people born[N]to rich families...[PAL:0][END]`
+dialogstring_04BD9B `[TPL:10][TPL:0]My friend Erik [N]lives here.[FIN]This is the biggest[N]house in South Cape.[N]Will envied people born[N]to rich families...[PAL:0][END]`
 
-widestring_04BE05 `[TPL:10][TPL:0]It was already [N]dark by the time Will [N]left the cave.[PAL:0][END]`
+dialogstring_04BE05 `[TPL:10][TPL:0]It was already [N]dark by the time Will [N]left the cave.[PAL:0][END]`

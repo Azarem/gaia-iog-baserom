@@ -14,8 +14,8 @@ fr32_doomsday [
 ]
 
 code_05BE66 {
-    COP [PrintWideString] ( &widestring_05BE6B )
+    COP [PrintDialogString] ( &dialogstring_05BE6B )
     RTL 
 }
 
-widestring_05BE6B `[DEF]Soon a great power will [N]come from above... Then [N]mankind will die out. [FIN]I don't know who made[N]the prediction, but it's[N]all a lie! I do this[N]to forget.[END]`
+dialogstring_05BE6B `[DEF]Soon a great power will [N]come from above... Then [N]mankind will die out. [FIN]I don't know who made[N]the prediction, but it's[N]all a lie! I do this[N]to forget.[END]`

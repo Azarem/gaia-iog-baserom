@@ -12,8 +12,8 @@ fr32_fragrance [
 ]
 
 code_05BA18 {
-    COP [PrintWideString] ( &widestring_05BA1D )
+    COP [PrintDialogString] ( &dialogstring_05BA1D )
     RTL 
 }
 
-widestring_05BA1D `[DEF]The Freejia is the city[N]flower. Smells good,[N]doesn't it?[END]`
+dialogstring_05BA1D `[DEF]The Freejia is the city[N]flower. Smells good,[N]doesn't it?[END]`

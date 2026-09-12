@@ -41,7 +41,7 @@ code_08AE99 {
 }
 
 code_08AEA4 {
-    COP [PrintWideString] ( &widestring_08AED4 )
+    COP [PrintDialogString] ( &dialogstring_08AED4 )
     COP [DialogueOptions] ( #02, #02, &code_list_08AEAE )
 }
 
@@ -52,12 +52,12 @@ code_list_08AEAE [
 ]
 
 code_08AEB4 {
-    COP [PrintWideString] ( &widestring_08AEF7 )
+    COP [PrintDialogString] ( &dialogstring_08AEF7 )
     RTL 
 }
 
 code_08AEB9 {
-    COP [PrintWideString] ( &widestring_08AF16 )
+    COP [PrintDialogString] ( &dialogstring_08AF16 )
     COP [SetFlagByte] ( #01 )
     STZ $0AAC
     LDA #$0008
@@ -66,22 +66,22 @@ code_08AEB9 {
 }
 
 code_08AECA {
-    COP [PrintWideString] ( &widestring_08AF94 )
+    COP [PrintDialogString] ( &dialogstring_08AF94 )
     RTL 
 }
 
 code_08AECF {
-    COP [PrintWideString] ( &widestring_08B0B3 )
+    COP [PrintDialogString] ( &dialogstring_08B0B3 )
     RTL 
 }
 
-widestring_08AED4 `[DEF]Play the game[N]with the snakes?[N] Yes[N] No`
+dialogstring_08AED4 `[DEF]Play the game[N]with the snakes?[N] Yes[N] No`
 
-widestring_08AEF7 `[CLR]Too bad. Come back if[N]you change your mind.[END]`
+dialogstring_08AEF7 `[CLR]Too bad. Come back if[N]you change your mind.[END]`
 
-widestring_08AF16 `[CLR]The rules are simple. [N]Hit as many snakes as [N]you can in one minute. [FIN]Hit whatever pot[N]you like! That's the[N]start of the game!![END]`
+dialogstring_08AF16 `[CLR]The rules are simple. [N]Hit as many snakes as [N]you can in one minute. [FIN]Hit whatever pot[N]you like! That's the[N]start of the game!![END]`
 
-widestring_08AF94 `[DEF]Hey, hey. There's[N]plenty of them.[END]`
+dialogstring_08AF94 `[DEF]Hey, hey. There's[N]plenty of them.[END]`
 
 code_08AFB4 {
     COP [ExitIfFlagByte] ( #02, #01 )
@@ -122,7 +122,7 @@ code_08AFB4 {
 }
 
 code_08AFFB {
-    COP [PrintWideString] ( &widestring_08B025 )
+    COP [PrintDialogString] ( &dialogstring_08B025 )
 
   loc_08AFFF:
     COP [ClearFlagByte] ( #01 )
@@ -134,7 +134,7 @@ code_08AFFB {
 
   loc_08B010:
     COP [SetFlagByte] ( #E7 )
-    COP [PrintWideString] ( &widestring_08B052 )
+    COP [PrintDialogString] ( &dialogstring_08B052 )
     SED 
     LDA $jewelsCollected
     CLC 
@@ -144,11 +144,11 @@ code_08AFFB {
     BRA loc_08AFFF
 }
 
-widestring_08B025 `[TPL:A][DLY:2]OK! Stop![N]You've hit [BCD:3,AAC] snakes.[N]Try again![END]`
+dialogstring_08B025 `[TPL:A][DLY:2]OK! Stop![N]You've hit [BCD:3,AAC] snakes.[N]Try again![END]`
 
-widestring_08B052 `[TPL:A][DLY:2]Wow [BCD:3,AAC] snakes. Very[N]good![FIN]For your prize, I'll give [N]you two Red Jewels. [FIN]I'll send them to[N]the Jeweler.[END]`
+dialogstring_08B052 `[TPL:A][DLY:2]Wow [BCD:3,AAC] snakes. Very[N]good![FIN]For your prize, I'll give [N]you two Red Jewels. [FIN]I'll send them to[N]the Jeweler.[END]`
 
-widestring_08B0B3 `[TPL:A]You've hit [BCD:3,AAC] snakes.[N]Try again![END]`
+dialogstring_08B0B3 `[TPL:A]You've hit [BCD:3,AAC] snakes.[N]Try again![END]`
 
 code_08B0D4 {
     LDA #$&stats_01ABF0

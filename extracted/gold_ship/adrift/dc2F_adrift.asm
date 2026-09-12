@@ -52,7 +52,7 @@ code_059726 {
 
 code_059749 {
     COP [BranchIfFlagByte] ( #01, #01, &code_05976D )
-    COP [PrintWideString] ( &widestring_059D42 )
+    COP [PrintDialogString] ( &dialogstring_059D42 )
     COP [DialogueOptions] ( #02, #01, &code_list_059759 )
 }
 
@@ -63,12 +63,12 @@ code_list_059759 [
 ]
 
 code_05975F {
-    COP [PrintWideString] ( &widestring_059D91 )
+    COP [PrintDialogString] ( &dialogstring_059D91 )
     BRA loc_059769
 }
 
 code_059765 {
-    COP [PrintWideString] ( &widestring_059DCD )
+    COP [PrintDialogString] ( &dialogstring_059DCD )
 
   loc_059769:
     COP [SetFlagByte] ( #01 )
@@ -76,7 +76,7 @@ code_059765 {
 }
 
 code_05976D {
-    COP [PrintWideString] ( &widestring_059E6F )
+    COP [PrintDialogString] ( &dialogstring_059E6F )
     COP [SetFlagByte] ( #02 )
     RTL 
 }
@@ -91,7 +91,7 @@ code_059775 {
     COP [AnimOnce]
     COP [SpawnAfterFlags] ( @code_0597EB, #$2800 )
     COP [WaitByte] ( #01 )
-    COP [PrintWideString] ( &widestring_059CEB )
+    COP [PrintDialogString] ( &dialogstring_059CEB )
     COP [SolidHighHere]
     COP [SetOnInteract] ( &code_05993C )
     COP [ExitIfFlagByte] ( #01, #01 )
@@ -101,7 +101,7 @@ code_059775 {
   code_0597A8:
     COP [StageSpriteFrame] ( #14 )
     COP [AnimOnce]
-    COP [PrintWideString] ( &widestring_059F2E )
+    COP [PrintDialogString] ( &dialogstring_059F2E )
     COP [StageSpriteFrame] ( #13 )
     COP [AnimOnce]
     COP [ClearFlagByte] ( #01 )
@@ -115,7 +115,7 @@ code_059775 {
     RTL 
 
   loc_0597D0:
-    COP [PrintWideString] ( &widestring_059F5A )
+    COP [PrintDialogString] ( &dialogstring_059F5A )
     COP [SetFlagByte] ( #4D )
     INC $0AA6
     LDA #$0404
@@ -250,7 +250,7 @@ code_059935 {
 }
 
 code_05993C {
-    COP [PrintWideString] ( &widestring_059EE3 )
+    COP [PrintDialogString] ( &dialogstring_059EE3 )
     RTL 
 }
 
@@ -258,7 +258,7 @@ code_059941 {
     LDA #$0004
     STA $playerHp
     COP [WaitByte] ( #01 )
-    COP [PrintWideString] ( &widestring_059CF9 )
+    COP [PrintDialogString] ( &dialogstring_059CF9 )
     COP [SetOnInteract] ( &code_05999A )
     COP [SolidHighHere]
     COP [ExitIfFlagByte] ( #01, #01 )
@@ -289,24 +289,24 @@ code_05999A {
     COP [BranchIfFlagByte] ( #03, #01, &code_0599C1 )
     COP [BranchIfFlagByte] ( #02, #01, &code_0599B9 )
     COP [BranchIfFlagByte] ( #01, #01, &code_0599B4 )
-    COP [PrintWideString] ( &widestring_05A03C )
+    COP [PrintDialogString] ( &dialogstring_05A03C )
     COP [SetFlagByte] ( #01 )
     RTL 
 }
 
 code_0599B4 {
-    COP [PrintWideString] ( &widestring_05A074 )
+    COP [PrintDialogString] ( &dialogstring_05A074 )
     RTL 
 }
 
 code_0599B9 {
-    COP [PrintWideString] ( &widestring_05A091 )
+    COP [PrintDialogString] ( &dialogstring_05A091 )
     COP [SetFlagByte] ( #03 )
     RTL 
 }
 
 code_0599C1 {
-    COP [PrintWideString] ( &widestring_05A232 )
+    COP [PrintDialogString] ( &dialogstring_05A232 )
     COP [ClearFlagByte] ( #4D )
     INC $0AA6
     LDA #$0404
@@ -328,12 +328,12 @@ code_0599DC {
 }
 
 code_0599F4 {
-    COP [PrintWideString] ( &widestring_0599FC )
+    COP [PrintDialogString] ( &dialogstring_0599FC )
     COP [SetFlagByte] ( #02 )
     RTL 
 }
 
-widestring_0599FC `[TPL:A][PAL:0]There was a letter[N]in the jar...[N]The contents read ... [FIN][TPL:5]We are on a ship on our [N]way to be sold as forced [N]labor in an unknown land.[FIN]If anyone reads this, [N]please save us... [N]                   Sam [PAL:0][END]`
+dialogstring_0599FC `[TPL:A][PAL:0]There was a letter[N]in the jar...[N]The contents read ... [FIN][TPL:5]We are on a ship on our [N]way to be sold as forced [N]labor in an unknown land.[FIN]If anyone reads this, [N]please save us... [N]                   Sam [PAL:0][END]`
 
 code_059ABA {
     LDA #$0200
@@ -344,8 +344,8 @@ code_059ABA {
     LDA #$CFF0
     TSB $joypadMaskStd
     COP [WaitByte] ( #01 )
-    COP [PrintWideString] ( &widestring_059D07 )
-    COP [PrintWideString] ( &widestring_05A291 )
+    COP [PrintDialogString] ( &dialogstring_059D07 )
+    COP [PrintDialogString] ( &dialogstring_05A291 )
     LDA #$CFF0
     TRB $joypadMaskStd
     COP [SetOnInteract] ( &code_059B26 )
@@ -360,7 +360,7 @@ code_059ABA {
     COP [ClearFlagByte] ( #01 )
     COP [ExitIfFlagByte] ( #01, #01 )
     COP [WaitByte] ( #B3 )
-    COP [PrintWideString] ( &widestring_05A405 )
+    COP [PrintDialogString] ( &dialogstring_05A405 )
     COP [SetFlagWord] ( #$0120 )
     COP [SetFlagByte] ( #52 )
     INC $0AA6
@@ -374,11 +374,11 @@ code_059B26 {
     LDA $playerHp
     CMP $playerMaxHp
     BEQ loc_059B33
-    COP [PrintWideString] ( &widestring_05A319 )
+    COP [PrintDialogString] ( &dialogstring_05A319 )
     RTL 
 
   loc_059B33:
-    COP [PrintWideString] ( &widestring_05A332 )
+    COP [PrintDialogString] ( &dialogstring_05A332 )
     COP [SetFlagByte] ( #02 )
     RTL 
 }
@@ -402,10 +402,10 @@ code_059B3B {
     COP [StageSpriteFrame] ( #13 )
     COP [AnimOnce]
     COP [WaitByte] ( #01 )
-    COP [PrintWideString] ( &widestring_059D15 )
-    COP [PrintWideString] ( &widestring_05A467 )
+    COP [PrintDialogString] ( &dialogstring_059D15 )
+    COP [PrintDialogString] ( &dialogstring_05A467 )
     COP [WaitByte] ( #EF )
-    COP [PrintWideString] ( &widestring_05A5AB )
+    COP [PrintDialogString] ( &dialogstring_05A5AB )
     LDA #$0800
     TSB $10
     COP [StageSprAndHitbox] ( #17 )
@@ -438,7 +438,7 @@ code_059BB7 {
     COP [StageSpriteFrame] ( #12 )
     COP [AnimOnce]
     COP [WaitByte] ( #01 )
-    COP [PrintWideString] ( &widestring_059D24 )
+    COP [PrintDialogString] ( &dialogstring_059D24 )
     COP [SetOnInteract] ( &code_059C2E )
     COP [SolidHighHere]
     COP [ExitIfFlagByte] ( #01, #01 )
@@ -449,14 +449,14 @@ code_059BB7 {
     COP [LoopNext]
     COP [WaitByte] ( #3B )
     COP [StartMusic] ( #06 )
-    COP [PrintWideString] ( &widestring_05A6EA )
+    COP [PrintDialogString] ( &dialogstring_05A6EA )
     COP [ExitIfFlagByte] ( #02, #01 )
     COP [SetEntryDelayExit] ( @code_059C04, #$04B0 )
 }
 
 code_059C04 {
     COP [FadeThenStartMusic] ( #15 )
-    COP [PrintWideString] ( &widestring_05A770 )
+    COP [PrintDialogString] ( &dialogstring_05A770 )
     COP [SetFlagByte] ( #03 )
     COP [SetOnInteract] ( #$0000 )
     COP [WaitByte] ( #EF )
@@ -471,13 +471,13 @@ code_059C04 {
 
 code_059C2E {
     COP [BranchIfFlagByte] ( #01, #01, &code_059C3C )
-    COP [PrintWideString] ( &widestring_05A5E3 )
+    COP [PrintDialogString] ( &dialogstring_05A5E3 )
     COP [SetFlagByte] ( #01 )
     RTL 
 }
 
 code_059C3C {
-    COP [PrintWideString] ( &widestring_05A723 )
+    COP [PrintDialogString] ( &dialogstring_05A723 )
     COP [SetFlagByte] ( #02 )
     RTL 
 }
@@ -514,7 +514,7 @@ code_059C7A {
     COP [StageSpriteFrame] ( #13 )
     COP [AnimOnce]
     COP [WaitByte] ( #01 )
-    COP [PrintWideString] ( &widestring_059D33 )
+    COP [PrintDialogString] ( &dialogstring_059D33 )
     COP [SetOnInteract] ( &code_059CE3 )
     COP [SolidHighHere]
     COP [ExitIfFlagByte] ( #01, #01 )
@@ -533,7 +533,7 @@ code_059C7A {
     STA $002A, Y
     COP [StartMusic] ( #06 )
     COP [WaitByte] ( #3B )
-    COP [PrintWideString] ( &widestring_05A9F9 )
+    COP [PrintDialogString] ( &dialogstring_05A9F9 )
     LDA #$0404
     STA $gfxCacheIdxB
     LDA #$0202
@@ -544,65 +544,65 @@ code_059C7A {
 }
 
 code_059CE3 {
-    COP [PrintWideString] ( &widestring_05A853 )
+    COP [PrintDialogString] ( &dialogstring_05A853 )
     COP [SetFlagByte] ( #01 )
     RTL 
 }
 
-widestring_059CEB `[DLG:8,7][SIZ:8,1]Drifting, Day 2[END]`
+dialogstring_059CEB `[DLG:8,7][SIZ:8,1]Drifting, Day 2[END]`
 
-widestring_059CF9 `[DLG:8,7][SIZ:8,1]Drifting, Day 4[END]`
+dialogstring_059CF9 `[DLG:8,7][SIZ:8,1]Drifting, Day 4[END]`
 
-widestring_059D07 `[DLG:8,7][SIZ:8,1]Drifting, Day 7[END]`
+dialogstring_059D07 `[DLG:8,7][SIZ:8,1]Drifting, Day 7[END]`
 
-widestring_059D15 `[DLG:8,7][SIZ:8,1]Drifting, Day 12[END]`
+dialogstring_059D15 `[DLG:8,7][SIZ:8,1]Drifting, Day 12[END]`
 
-widestring_059D24 `[DLG:8,7][SIZ:8,1]Drifting, Day 18[END]`
+dialogstring_059D24 `[DLG:8,7][SIZ:8,1]Drifting, Day 18[END]`
 
-widestring_059D33 `[DLG:8,7][SIZ:8,1]Drifting, Day 21[END]`
+dialogstring_059D33 `[DLG:8,7][SIZ:8,1]Drifting, Day 21[END]`
 
-widestring_059D42 `[TPL:A][TPL:1]Kara: [N]You've just come to??? [N]I've lost everyone... [FIN]Are you OK?[N][PAL:0] Yes, I'm OK.[N] I'm still unsteady.`
+dialogstring_059D42 `[TPL:A][TPL:1]Kara: [N]You've just come to??? [N]I've lost everyone... [FIN]Are you OK?[N][PAL:0] Yes, I'm OK.[N] I'm still unsteady.`
 
-widestring_059D91 `[CLR][TPL:1]Kara: Hmmm. [N]You recover quickly. [N]Like a lizard's tail. [FIN][JMP:&dc2F_adrift.widestring_059DCD+M]`
+dialogstring_059D91 `[CLR][TPL:1]Kara: Hmmm. [N]You recover quickly. [N]Like a lizard's tail. [FIN][JMP:&dc2F_adrift.dialogstring_059DCD+M]`
 
-widestring_059DCD `[CLR][TPL:1]Kara: Of course, you [N]were unconscious for [N]more than half a day. [FIN][::][TPL:B][TPL:1]I've read about being[N]adrift, but I never[N]thought it would[N]happen to me...[FIN]Disasters sometimes[N]happen suddenly.[PAL:0][END]`
+dialogstring_059DCD `[CLR][TPL:1]Kara: Of course, you [N]were unconscious for [N]more than half a day. [FIN][::][TPL:B][TPL:1]I've read about being[N]adrift, but I never[N]thought it would[N]happen to me...[FIN]Disasters sometimes[N]happen suddenly.[PAL:0][END]`
 
-widestring_059E6F `[TPL:A][TPL:1]Kara: [N]Don't be upset. [FIN]Don't think about the [N]future. Let's just enjoy [N]drifting. [FIN]I'm starved. I'll have[N]the meat I brought[N]from the castle.[PAL:0][END]`
+dialogstring_059E6F `[TPL:A][TPL:1]Kara: [N]Don't be upset. [FIN]Don't think about the [N]future. Let's just enjoy [N]drifting. [FIN]I'm starved. I'll have[N]the meat I brought[N]from the castle.[PAL:0][END]`
 
-widestring_059EE3 `[TPL:B][TPL:1]Kara: Beautiful.... [N]Even after seeing it [N]all day, I still never [N]get tired of it.[PAL:0][END]`
+dialogstring_059EE3 `[TPL:B][TPL:1]Kara: Beautiful.... [N]Even after seeing it [N]all day, I still never [N]get tired of it.[PAL:0][END]`
 
-widestring_059F2E `[TPL:A][TPL:1]Kara: What are you [N]doing!! The poor fish!!![PAL:0][END]`
+dialogstring_059F2E `[TPL:A][TPL:1]Kara: What are you [N]doing!! The poor fish!!![PAL:0][END]`
 
-widestring_059F5A `[TPL:A][TPL:0][DLY:0]Will: Time passed [N]slowly, with nothing [N]to break the monotony. [FIN]Kara just stared at [N]the fish all day. [N]Will couldn't stand it. [FIN]He walked around on [N]the raft and talked to [N]Kara many times. [FIN]A minute seemed like [N]forever. But he could [N]hear the march of time.[PAL:0][END]`
+dialogstring_059F5A `[TPL:A][TPL:0][DLY:0]Will: Time passed [N]slowly, with nothing [N]to break the monotony. [FIN]Kara just stared at [N]the fish all day. [N]Will couldn't stand it. [FIN]He walked around on [N]the raft and talked to [N]Kara many times. [FIN]A minute seemed like [N]forever. But he could [N]hear the march of time.[PAL:0][END]`
 
-widestring_05A03C `[TPL:A][TPL:1]Kara: [N]I have a premonition... [N]Help is coming... [FIN]What?[PAL:0][END]`
+dialogstring_05A03C `[TPL:A][TPL:1]Kara: [N]I have a premonition... [N]Help is coming... [FIN]What?[PAL:0][END]`
 
-widestring_05A074 `[TPL:A][TPL:1]Kara: Something [N]is drifting here![PAL:0][END]`
+dialogstring_05A074 `[TPL:A][TPL:1]Kara: Something [N]is drifting here![PAL:0][END]`
 
-widestring_05A091 `[TPL:A][TPL:1]Kara: [N]My premonition! [FIN]You said you wanted to[N]be saved... but it's me[N]who needs to be saved.[FIN]Oh! I am so[N]starved.[FIN][TPL:0]Will: You should have [N]caught that fish. [N]If you had........ [FIN][TPL:1]Kara: I can't hurt [N]such a pretty fish! [FIN][TPL:0]Will: [N]Are you saying it's [N]better to starve?! [FIN][TPL:1]Kara: [N]Raw fish gives me the [N]creeps! I can't eat it! [FIN]Besides, the fish is[N]fighting to stay alive![FIN]Fish feel pain! Have[N]you ever thought of[N]how the fish feels?![FIN]If you want to eat it,[N]go ahead!! I'm not[N]going to eat it!!![PAL:0][END]`
+dialogstring_05A091 `[TPL:A][TPL:1]Kara: [N]My premonition! [FIN]You said you wanted to[N]be saved... but it's me[N]who needs to be saved.[FIN]Oh! I am so[N]starved.[FIN][TPL:0]Will: You should have [N]caught that fish. [N]If you had........ [FIN][TPL:1]Kara: I can't hurt [N]such a pretty fish! [FIN][TPL:0]Will: [N]Are you saying it's [N]better to starve?! [FIN][TPL:1]Kara: [N]Raw fish gives me the [N]creeps! I can't eat it! [FIN]Besides, the fish is[N]fighting to stay alive![FIN]Fish feel pain! Have[N]you ever thought of[N]how the fish feels?![FIN]If you want to eat it,[N]go ahead!! I'm not[N]going to eat it!!![PAL:0][END]`
 
-widestring_05A232 `[TPL:A][TPL:1]Kara: [N]................ [FIN][TPL:0][DLY:0]Will: Kara didn't [N]say anything all day.[FIN]A typical princess...[N]She's such a bother...[PAL:0][END]`
+dialogstring_05A232 `[TPL:A][TPL:1]Kara: [N]................ [FIN][TPL:0][DLY:0]Will: Kara didn't [N]say anything all day.[FIN]A typical princess...[N]She's such a bother...[PAL:0][END]`
 
-widestring_05A291 `[PAU:1E][TPL:A][TPL:0]Will: Drifting. [N]First week. [N]A school of fish.... [FIN]He reached the end [N]of his rope.[FIN]If he didn't[N]eat more, he thought[N]he would starve...[END]`
+dialogstring_05A291 `[PAU:1E][TPL:A][TPL:0]Will: Drifting. [N]First week. [N]A school of fish.... [FIN]He reached the end [N]of his rope.[FIN]If he didn't[N]eat more, he thought[N]he would starve...[END]`
 
-widestring_05A319 `[TPL:A][TPL:1]Kara: [N]...............[PAL:0][END]`
+dialogstring_05A319 `[TPL:A][TPL:1]Kara: [N]...............[PAL:0][END]`
 
-widestring_05A332 `[TPL:A][TPL:1][DLY:0]Kara: [N]............... [FIN]Will... [N]Sorry I talked to you [N]that way yesterday.... [FIN]I'll try to eat the fish.[N]I can't do anything[N]if I starve.[FIN]Only in peace time can[N]you refuse food you[N]don't like...[FIN][TPL:0]Will: [N]Let's catch a fish. [N]A good one.[PAL:0][END]`
+dialogstring_05A332 `[TPL:A][TPL:1][DLY:0]Kara: [N]............... [FIN]Will... [N]Sorry I talked to you [N]that way yesterday.... [FIN]I'll try to eat the fish.[N]I can't do anything[N]if I starve.[FIN]Only in peace time can[N]you refuse food you[N]don't like...[FIN][TPL:0]Will: [N]Let's catch a fish. [N]A good one.[PAL:0][END]`
 
-widestring_05A405 `[TPL:A][TPL:0][DLY:0]Will: [N]Happily Kara ate some [N]fish. [FIN]Will found that he was [N]starting to develop [N]feelings for Kara...[PAL:0][END]`
+dialogstring_05A405 `[TPL:A][TPL:0][DLY:0]Will: [N]Happily Kara ate some [N]fish. [FIN]Will found that he was [N]starting to develop [N]feelings for Kara...[PAL:0][END]`
 
-widestring_05A467 `[DLG:3,13][SIZ:D,3][TPL:1]Kara: The stars [N]are beautiful... [FIN]If I were taller[N]I could reach them.[FIN]Surely Lilly and Lance are[N]looking at the same [N]star-studded sky... [FIN]If I could talk to the[N]stars I could find out [N]where everyone is...[FIN][TPL:1]Kara: There seems to be [N]one extra star near the [N]constellation of Cygnus[FIN]Yes, that red star.[FIN]Shall we make a wish[N]upon that star? I have a[N]feeling it'll come true.[FIN]Will, you close your [N]eyes, too. [END]`
+dialogstring_05A467 `[DLG:3,13][SIZ:D,3][TPL:1]Kara: The stars [N]are beautiful... [FIN]If I were taller[N]I could reach them.[FIN]Surely Lilly and Lance are[N]looking at the same [N]star-studded sky... [FIN]If I could talk to the[N]stars I could find out [N]where everyone is...[FIN][TPL:1]Kara: There seems to be [N]one extra star near the [N]constellation of Cygnus[FIN]Yes, that red star.[FIN]Shall we make a wish[N]upon that star? I have a[N]feeling it'll come true.[FIN]Will, you close your [N]eyes, too. [END]`
 
-widestring_05A5AB `[TPL:A][TPL:0][DLY:0]Will: I hope for  [N]everyone's safety, and [N]for my father...[PAL:0][END]`
+dialogstring_05A5AB `[TPL:A][TPL:0][DLY:0]Will: I hope for  [N]everyone's safety, and [N]for my father...[PAL:0][END]`
 
-widestring_05A5E3 `[TPL:B][TPL:1]Kara: [N]We've been adrift for [N]almost three weeks now. [FIN]Hasn't your hair gotten[N]a little long?[N]Just a little (Laughs).[FIN][TPL:0]Will: Kara doesn't [N]act like a spoiled [N]princess now. [FIN]If you told someone she[N]was one of the island[N]girls, no one would[N]doubt it.[FIN][TPL:1]Kara: [N]It's terrible!! [FIN]What is that...?[N]There in the water...?[PAL:0][END]`
+dialogstring_05A5E3 `[TPL:B][TPL:1]Kara: [N]We've been adrift for [N]almost three weeks now. [FIN]Hasn't your hair gotten[N]a little long?[N]Just a little (Laughs).[FIN][TPL:0]Will: Kara doesn't [N]act like a spoiled [N]princess now. [FIN]If you told someone she[N]was one of the island[N]girls, no one would[N]doubt it.[FIN][TPL:1]Kara: [N]It's terrible!! [FIN]What is that...?[N]There in the water...?[PAL:0][END]`
 
-widestring_05A6EA `[TPL:A][TPL:1]Kara: [N]Maybe a shark...? [FIN]We could be eaten.... [N]What should we do?...[PAL:0][END]`
+dialogstring_05A6EA `[TPL:A][TPL:1]Kara: [N]Maybe a shark...? [FIN]We could be eaten.... [N]What should we do?...[PAL:0][END]`
 
-widestring_05A723 `[TPL:A][TPL:1]Kara: They're circling [N]our raft, but they're [N]not attacking... [FIN][TPL:0]Will: [N]Let's think about this... [END]`
+dialogstring_05A723 `[TPL:A][TPL:1]Kara: They're circling [N]our raft, but they're [N]not attacking... [FIN][TPL:0]Will: [N]Let's think about this... [END]`
 
-widestring_05A770 `[TPL:B][TPL:1]Kara: [N]I've got it! [N]They're not hungry!! [FIN]My grandpa told me that[N]only humans attack[N]living things when[N]they're not hungry.[FIN][TPL:0]Will: Then what we're [N]doing is not usual [N]human behavior. [FIN]We didn't eat fish [N]until we were starving.[FIN][TPL:1]Kara: That's right. [N]They're going. [N]Good-bye, sharks...[PAL:0][END]`
+dialogstring_05A770 `[TPL:B][TPL:1]Kara: [N]I've got it! [N]They're not hungry!! [FIN]My grandpa told me that[N]only humans attack[N]living things when[N]they're not hungry.[FIN][TPL:0]Will: Then what we're [N]doing is not usual [N]human behavior. [FIN]We didn't eat fish [N]until we were starving.[FIN][TPL:1]Kara: That's right. [N]They're going. [N]Good-bye, sharks...[PAL:0][END]`
 
-widestring_05A853 `[TPL:B][TPL:1]Kara: When I was in the [N]castle I loved watching [N]the sun set... [FIN]The sunset was so [N]beautiful from the [N]corridor of the[N]castle...[FIN]But now I've come[N]to hate it.[FIN]After the sun has set, [N]the darkness comes... [FIN]I thought I'd never see[N]the sunrise again....[FIN]But since you're with [N]me, I see a beautiful [N]sunrise every morning. [FIN]With you by my side,[N]I can even enjoy[N]times like these.[FIN][TPL:0]Will: I've wanted to say [N]the same things to you, [N]but somehow the words [N]just wouldn't come out. [FIN]I just nodded,[N]saying nothing...[PAL:0][END]`
+dialogstring_05A853 `[TPL:B][TPL:1]Kara: When I was in the [N]castle I loved watching [N]the sun set... [FIN]The sunset was so [N]beautiful from the [N]corridor of the[N]castle...[FIN]But now I've come[N]to hate it.[FIN]After the sun has set, [N]the darkness comes... [FIN]I thought I'd never see[N]the sunrise again....[FIN]But since you're with [N]me, I see a beautiful [N]sunrise every morning. [FIN]With you by my side,[N]I can even enjoy[N]times like these.[FIN][TPL:0]Will: I've wanted to say [N]the same things to you, [N]but somehow the words [N]just wouldn't come out. [FIN]I just nodded,[N]saying nothing...[PAL:0][END]`
 
-widestring_05A9F9 `[TPL:A][TPL:0]Will: Suddenly Will[N]fell over,[N]unconscious... [FIN][TPL:1][DLY:0]Kara: [N]Will! Will!! [N]What's wrong!! [FIN]Wake up!! Don't[N]leave me here alone![PAL:0][END]`
+dialogstring_05A9F9 `[TPL:A][TPL:0]Will: Suddenly Will[N]fell over,[N]unconscious... [FIN][TPL:1][DLY:0]Kara: [N]Will! Will!! [N]What's wrong!! [FIN]Wake up!! Don't[N]leave me here alone![PAL:0][END]`

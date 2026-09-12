@@ -19,8 +19,8 @@ code_05BEFD {
 }
 
 code_05BEFF {
-    COP [PrintWideString] ( &widestring_05BF04 )
+    COP [PrintDialogString] ( &dialogstring_05BF04 )
     RTL 
 }
 
-widestring_05BF04 `[DEF][TPL:5]I am Imas. I was[N]brought here by boat[N]from far-off Asia.[FIN]We are a hunting tribe.[N]When we're hungry[N]we hunt for food.[FIN]All of the animals here[N]have fallen victim[N]to an unknown disease...[PAL:0][END]`
+dialogstring_05BF04 `[DEF][TPL:5]I am Imas. I was[N]brought here by boat[N]from far-off Asia.[FIN]We are a hunting tribe.[N]When we're hungry[N]we hunt for food.[FIN]All of the animals here[N]have fallen victim[N]to an unknown disease...[PAL:0][END]`

@@ -25,8 +25,10 @@
 ?INCLUDE 'global_ambient_dispatcher'
 ?INCLUDE 'incan_ruins_transform_palette'
 ?INCLUDE 'inventory_dma_setup'
+?INCLUDE 'IrisCircleEffect'
 ?INCLUDE 'itory_village_fog'
 ?INCLUDE 'larai_cliff_scroll_wave'
+?INCLUDE 'mode7_perspective'
 ?INCLUDE 'mu_tint_and_wave'
 ?INCLUDE 'native_village_sine_hdma'
 ?INCLUDE 'oneshot_coldata_green_tint'
@@ -36,10 +38,8 @@
 ?INCLUDE 'palace_scroll_brightness'
 ?INCLUDE 'palette_parent_child'
 ?INCLUDE 'parallax_thinker'
-?INCLUDE 'pr8C_proc_03A6BA'
 ?INCLUDE 'sE7_thinker_0CEB5B'
 ?INCLUDE 'sE8_thinker_0CEB74'
-?INCLUDE 'sFE_proc_03A940'
 ?INCLUDE 'sine_hdma_dual_channel'
 ?INCLUDE 'sine_hdma_ending_wave'
 ?INCLUDE 'sine_hdma_slow_wave'
@@ -696,7 +696,7 @@ thinker_spawn_0CEB1D [
 ]
 
 thinker_spawn_0CEB2A [
-  thinker-spawn < #00, @pr8C_proc_03A6BA >
+  thinker-spawn < #00, @IrisCircleEffect >
 ]
 
 thinker_spawn_0CEB2F [
@@ -709,8 +709,8 @@ thinker_spawn_0CEB30 [
 ]
 
 thinker_spawn_0CEB3D [
-  thinker-spawn < #00, @sFE_proc_03A940 >   ;00
-  thinker-spawn < #00, @pr8C_proc_03A6BA >   ;01
+  thinker-spawn < #00, @mode7_perspective.Mode7PerspectiveInit >   ;00
+  thinker-spawn < #00, @IrisCircleEffect >   ;01
 ]
 
 thinker_spawn_0CEB46 [

@@ -28,9 +28,9 @@ code_058B38 {
 }
 
 code_058B47 {
-    COP [PrintWideString] ( &widestring_058B4F )
+    COP [PrintDialogString] ( &dialogstring_058B4F )
     COP [SetFlagByte] ( #02 )
     RTL 
 }
 
-widestring_058B4F `[TPL:A][TPL:0]The Queen's mummy[N]sleeps silently.[FIN]There's a gold ring [N]on her long, slender, [N]bony finger...[PAL:0][END]`
+dialogstring_058B4F `[TPL:A][TPL:0]The Queen's mummy[N]sleeps silently.[FIN]There's a gold ring [N]on her long, slender, [N]bony finger...[PAL:0][END]`

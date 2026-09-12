@@ -96,12 +96,12 @@ code_099641 {
 }
 
 code_099746 {
-    COP [PrintWideString] ( &widestring_09974E )
+    COP [PrintDialogString] ( &dialogstring_09974E )
     COP [SetFlagByte] ( #02 )
     RTL 
 }
 
-widestring_09974E `[DEF]The comet will soon be[N]entering Earth's orbit.[N]We must go to the top of[N]the Tower of Babel...[END]`
+dialogstring_09974E `[DEF]The comet will soon be[N]entering Earth's orbit.[N]We must go to the top of[N]the Tower of Babel...[END]`
 
 code_09979D {
     COP [SetEntryContinue]

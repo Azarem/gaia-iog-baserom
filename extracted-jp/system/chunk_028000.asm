@@ -4311,7 +4311,7 @@ code_029AE6 {
     LSR $4838
     EOR $0E
     EOR #$464B
-    EOR $@chunk_088000.widestring_08DDD2+M, X
+    EOR $@chunk_088000.dialogstring_08DDD2+M, X
     ADC $09
     PEA $&code_028C0A-1
     ASL 

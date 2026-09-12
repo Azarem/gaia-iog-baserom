@@ -84,7 +84,7 @@ Safe COP state (same as actor entrancy):
 | `Address` / `@Code` | 3 | Far pointer (word + bank) |
 | `&Code` | 2 | Near script address (current bank) |
 | `&&Code` | 2 | Pointer to a word table of `&Code`s |
-| `@WideString` / `&WideString` | 3 / 2 | Text pointer (far or near) |
+| `@DialogString` / `&DialogString` | 3 / 2 | Text pointer (far or near) |
 | `@dma_data` | 3 | DMA source far pointer |
 | `@&sprite_set` | 3 | Metasprite / spriteset far pointer |
 
@@ -266,7 +266,7 @@ code_list_0AE4D7 [
 
 #### `$19` — `MusicAndText`
 - **Handler:** `cop_handler_19_0087DD`
-- **Params:** `Byte MusicId`, `@WideString Text`
+- **Params:** `Byte MusicId`, `@DialogString Text`
 - **Does:** Start music and show text (combined `$04` + `$BF`-like path).
 - **How:** Prefer spawn thinker `func_02A040` with music/text fields; if no slot, run wide-string interpreter inline (`sub_03E255`) with joypad masked.
 
@@ -663,15 +663,15 @@ COP [65] ( #$00D4, #$03A4, #00, #23 )
 COP [26] ( #78, #$0160, #$0268, #07, #$4500 )
 ```
 
-`$67` is what `overworld_options.asm` uses when picking a destination while already viewing the map.
+`$67` is what `world_map_options.asm` uses when picking a destination while already viewing the map.
 
 ---
 
 ### 3.15 Text alt / spiral (`$6B`–`$6D`)
 
-#### `$6B` — `PrintWideStringAlt`
+#### `$6B` — `PrintDialogStringAlt`
 - **Handler:** `cop_handler_6B_00A958`
-- **Params:** `&WideString`
+- **Params:** `&DialogString`
 - **Does:** Text without full screen-refresh path of `$BF` (`sub_03E255`, masks `$10` bit `$0800`).
 
 #### `$6C` — `InitSpiral`
@@ -860,9 +860,9 @@ After spawn, scripts often write extra fields through `Y` (`STA $0026, Y` for a 
 - **Does:** Run a BG3 command stream via `func_03EA62` (ASCII overlays, not wide dialogue).
 - **Usage:** Title “PUSH START BUTTON”, credits, inventory HUD labels (`sFC_actor_0BC924`, `inventory_menu.asm`). Distinct from `$BF`.
 
-#### `$BF` — `PrintWideString`
+#### `$BF` — `PrintDialogString`
 - **Handler:** `cop_handler_BF_00A8FB`
-- **Params:** `&WideString` (near ptr to tagged dialogue)
+- **Params:** `&DialogString` (near ptr to tagged dialogue)
 - **Does:** Print a dialogue box (`sub_03E255`); masks joypad; frame-syncs. Continues after the string finishes (no choice menu).
 - **Usage:** Every NPC line. Often followed by `$BE` when the text ends with a question.
 
@@ -1001,11 +1001,11 @@ Slots start at `$AB4`; equipped index in `$AC4`. `func_03EF97` handles both norm
 code_04FADF {
     COP [D4] ( #04, &code_04FAF4 )  ; fail → inventory-full text
     COP [CC] ( #48 )                ; success → set story flag
-    COP [19] ( #17, @widestring_… ) ; jingle + text
+    COP [19] ( #17, @dialogstring_… ) ; jingle + text
     RTL
 }
 code_04FAF4 {
-    COP [BF] ( &widestring_full )
+    COP [BF] ( &dialogstring_full )
     RTL
 }
 ```
@@ -1167,7 +1167,7 @@ Every valid COP opcode, its canonical name, handler SNES address, and parameter 
 | `$16` | `BranchIfSolidSouth` | `$008A4D` | `&Code` |
 | `$17` | `BranchIfSolidWest` | `$008A78` | `&Code` |
 | `$18` | `BranchIfSolidEast` | `$008AA3` | `&Code` |
-| `$19` | `MusicAndText` | `$0087DD` | `Byte MusicId`, `@WideString Text` |
+| `$19` | `MusicAndText` | `$0087DD` | `Byte MusicId`, `@DialogString Text` |
 | `$1A` | `BranchIfTypeHere` | `$008ACE` | `Byte Type`, `&Code` |
 | `$1B` | `BranchIfTypeNorth` | `$008B01` | `Byte Type`, `&Code` |
 | `$1C` | `BranchIfTypeSouth` | `$008B38` | `Byte Type`, `&Code` |
@@ -1249,7 +1249,7 @@ Every valid COP opcode, its canonical name, handler SNES address, and parameter 
 | `$68` | `BranchIfOffCamera` | `$009DBD` | `&Code` |
 | `$69` | `HaltIfMaxFrames` | `$009DEA` | `Word Min` |
 | `$6A` | `SetLinkedEntryPtr` | `$009E06` | `&Code` |
-| `$6B` | `PrintWideStringAlt` | `$00A958` | `&WideString` |
+| `$6B` | `PrintDialogStringAlt` | `$00A958` | `&DialogString` |
 | `$6C` | `InitSpiral` | `$00A992` | `Byte Angle`, `Byte Diameter` |
 | `$6D` | `SpiralStep` | `$00A9AE` | `Byte DiameterSpeed`, `Byte AngleSpeed` |
 | | | | |
@@ -1316,7 +1316,7 @@ Every valid COP opcode, its canonical name, handler SNES address, and parameter 
 | `$BC` | `NudgePosition` | `$00A839` | `Byte dX`, `Byte dY` |
 | `$BD` | `RunBg3Script` | `$00A867` | `Address Script` |
 | `$BE` | `DialogueOptions` | `$00A894` | `Byte OptCounts`, `Byte SkipLines`, `&&Code` |
-| `$BF` | `PrintWideString` | `$00A8FB` | `&WideString` |
+| `$BF` | `PrintDialogString` | `$00A8FB` | `&DialogString` |
 | `$C0` | `SetInteractHandler` | `$00A9EB` | `&Code` |
 | `$C1` | `SetEntryHere` | `$00A9FB` | — |
 | `$C2` | `SetEntryHereAndYield` | `$00AA07` | — |

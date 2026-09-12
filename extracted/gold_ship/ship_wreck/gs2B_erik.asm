@@ -30,7 +30,7 @@ code_0591AB {
     COP [AnimOnce]
     COP [ExitIfFlagByte] ( #01, #01 )
     COP [WaitByte] ( #1D )
-    COP [PrintWideString] ( &widestring_0593DA )
+    COP [PrintDialogString] ( &dialogstring_0593DA )
     COP [SetFlagByte] ( #02 )
     COP [PlaySoundBoth] ( #$1515 )
     COP [SpawnAfterFlags] ( @code_058598, #$2B00 )
@@ -84,11 +84,11 @@ code_0591F8 {
 }
 
 code_05923B {
-    COP [PrintWideString] ( &widestring_059240 )
+    COP [PrintDialogString] ( &dialogstring_059240 )
     RTL 
 }
 
-widestring_059240 `[DEF][TPL:3]Erik: [N]I was surprised!! [FIN]Oh, it's you, Will. [N]Don't scare me!![PAL:0][END]`
+dialogstring_059240 `[DEF][TPL:3]Erik: [N]I was surprised!! [FIN]Oh, it's you, Will. [N]Don't scare me!![PAL:0][END]`
 
 code_05927E {
     LDA #$EFF0
@@ -97,7 +97,7 @@ code_05927E {
     COP [AnimOnce]
     COP [StageSpriteFrame] ( #04 )
     COP [AnimOnce]
-    COP [PrintWideString] ( &widestring_0592FF )
+    COP [PrintDialogString] ( &dialogstring_0592FF )
     COP [PlaySoundBoth] ( #$1515 )
     COP [SpawnAfterFlags] ( @camera_drift.CameraDriftLoopShip, #$2000 )
     LDA #$FFFF
@@ -143,9 +143,9 @@ code_0592CD {
     RTL 
 }
 
-widestring_0592FF `[TPL:E][TPL:4]Lance: [N]What happened to Seth? [N]Something happened! [FIN][TPL:3][DLY:0]Erik: [N]Eeeeeeeh!!! [N]It's Seth!!... [FIN]A huge, enormous, giant [N]fish ran into the ship![N]Sob... [FIN]Seth fell in the [N]water! Sob... [FIN]He was swallowed!  [N]Gulp...Sob... [FIN][TPL:4]Lance: [N]What was that?[PAL:0][END]`
+dialogstring_0592FF `[TPL:E][TPL:4]Lance: [N]What happened to Seth? [N]Something happened! [FIN][TPL:3][DLY:0]Erik: [N]Eeeeeeeh!!! [N]It's Seth!!... [FIN]A huge, enormous, giant [N]fish ran into the ship![N]Sob... [FIN]Seth fell in the [N]water! Sob... [FIN]He was swallowed!  [N]Gulp...Sob... [FIN][TPL:4]Lance: [N]What was that?[PAL:0][END]`
 
-widestring_0593DA `[TPL:E][TPL:3]Erik: Aaaggh! It's that [N]fish again! We'll [N]all be dessert!! [FIN][TPL:4]Lance: Stop crying, and [N]grab this, or  you'll [N]fall overboard!![PAL:0][END]`
+dialogstring_0593DA `[TPL:E][TPL:3]Erik: Aaaggh! It's that [N]fish again! We'll [N]all be dessert!! [FIN][TPL:4]Lance: Stop crying, and [N]grab this, or  you'll [N]fall overboard!![PAL:0][END]`
 ---------------------------------------------
 
 code_058598 {

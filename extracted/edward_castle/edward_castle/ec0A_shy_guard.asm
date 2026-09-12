@@ -15,8 +15,8 @@ ec0A_shy_guard [
 ]
 
 code_04C8C5 {
-    COP [PrintWideString] ( &widestring_04C8CA )
+    COP [PrintDialogString] ( &dialogstring_04C8CA )
     RTL 
 }
 
-widestring_04C8CA `[TPL:B][TPL:7]I... I love... you...[PAL:0][END]`
+dialogstring_04C8CA `[TPL:B][TPL:7]I... I love... you...[PAL:0][END]`

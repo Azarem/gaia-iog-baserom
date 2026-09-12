@@ -38,15 +38,15 @@ code_list_06CA4E [
 ]
 
 code_06CA52 {
-    COP [PrintWideString] ( &widestring_06CA5C )
+    COP [PrintDialogString] ( &dialogstring_06CA5C )
     RTL 
 }
 
 code_06CA57 {
-    COP [PrintWideString] ( &widestring_06CA71 )
+    COP [PrintDialogString] ( &dialogstring_06CA71 )
     RTL 
 }
 
-widestring_06CA5C `[TPL:A]People here love[N]to dance.[END]`
+dialogstring_06CA5C `[TPL:A]People here love[N]to dance.[END]`
 
-widestring_06CA71 `[TPL:A]The picture on that wall[N]was painted by Ishtar.[FIN]But the model in the [N]painting was lost. [END]`
+dialogstring_06CA71 `[TPL:A]The picture on that wall[N]was painted by Ishtar.[FIN]But the model in the [N]painting was lost. [END]`

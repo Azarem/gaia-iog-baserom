@@ -12,8 +12,8 @@ ec0A_door_guard [
 ]
 
 code_04C5D4 {
-    COP [PrintWideString] ( &widestring_04C5D9 )
+    COP [PrintDialogString] ( &dialogstring_04C5D9 )
     RTL 
 }
 
-widestring_04C5D9 `[DEF]Soldier: So you are [N]Will.[FIN]Sorry to have kept[N]you waiting. Let's go[N]see King Edward.[END]`
+dialogstring_04C5D9 `[DEF]Soldier: So you are [N]Will.[FIN]Sorry to have kept[N]you waiting. Let's go[N]see King Edward.[END]`

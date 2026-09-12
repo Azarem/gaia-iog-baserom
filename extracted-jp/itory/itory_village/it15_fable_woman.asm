@@ -14,8 +14,8 @@ h_it15_fable_woman [
 ]
 
 code_04D85A {
-    COP [PrintWideString] ( &widestring_04D85F )
+    COP [PrintDialogString] ( &dialogstring_04D85F )
     RTL 
 }
 
-widestring_04D85F `[DEF]このところ 世界中の町で[N]原因不明の 病気にかかる人や[N]行方不明者が 增えているみたい··[FIN]この星が いつまでも 平和で[N]ありますように.[END]`
+dialogstring_04D85F `[DEF]このところ 世界中の町で[N]原因不明の 病気にかかる人や[N]行方不明者が 增えているみたい··[FIN]この星が いつまでも 平和で[N]ありますように.[END]`

@@ -12,8 +12,8 @@ fr3C_man1 [
 ]
 
 code_05C23A {
-    COP [PrintWideString] ( &widestring_05C23F )
+    COP [PrintDialogString] ( &dialogstring_05C23F )
     RTL 
 }
 
-widestring_05C23F `[TPL:B]When I think of myself[N]in your position,[N]I shudder.[FIN]I've no time to worry[N]about what people think,[N]it's hard enough just [N]taking care of myself.[END]`
+dialogstring_05C23F `[TPL:B]When I think of myself[N]in your position,[N]I shudder.[FIN]I've no time to worry[N]about what people think,[N]it's hard enough just [N]taking care of myself.[END]`

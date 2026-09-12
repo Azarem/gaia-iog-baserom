@@ -55,7 +55,7 @@ code_089102 {
 }
 
 code_089104 {
-    COP [PrintWideString] ( &widestring_089126 )
+    COP [PrintDialogString] ( &dialogstring_089126 )
     COP [DialogueOptions] ( #02, #01, &code_list_08910E )
 }
 
@@ -66,25 +66,25 @@ code_list_08910E [
 ]
 
 code_089114 {
-    COP [PrintWideString] ( &widestring_089190 )
+    COP [PrintDialogString] ( &dialogstring_089190 )
     RTL 
 }
 
 code_089119 {
-    COP [PrintWideString] ( &widestring_089178 )
+    COP [PrintDialogString] ( &dialogstring_089178 )
     COP [SetFlagByte] ( #06 )
     RTL 
 }
 
 code_089121 {
-    COP [PrintWideString] ( &widestring_0891A2 )
+    COP [PrintDialogString] ( &dialogstring_0891A2 )
     RTL 
 }
 
-widestring_089126 `[TPL:E]He tugs on Will's[N]sleeve, as if he wants[N]to take him somewhere.[FIN]Go with him?[N] Yes[N] No`
+dialogstring_089126 `[TPL:E]He tugs on Will's[N]sleeve, as if he wants[N]to take him somewhere.[FIN]Go with him?[N] Yes[N] No`
 
-widestring_089178 `[CLR]He beckons to him...[PAL:0][END]`
+dialogstring_089178 `[CLR]He beckons to him...[PAL:0][END]`
 
-widestring_089190 `[CLR]He looks lonely...[PAL:0][END]`
+dialogstring_089190 `[CLR]He looks lonely...[PAL:0][END]`
 
-widestring_0891A2 `[TPL:9][TPL:0]He faces the skeleton[N]with tears in his eyes...[FIN]Is this the skeleton of[N]a relative? A friend?[PAL:0][END]`
+dialogstring_0891A2 `[TPL:9][TPL:0]He faces the skeleton[N]with tears in his eyes...[FIN]Is this the skeleton of[N]a relative? A friend?[PAL:0][END]`

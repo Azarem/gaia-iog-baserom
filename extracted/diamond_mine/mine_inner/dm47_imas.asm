@@ -31,15 +31,15 @@ dm47_imas_destroy {
 }
 
 code_05D0BF {
-    COP [PrintWideString] ( &widestring_05D0C9 )
+    COP [PrintDialogString] ( &dialogstring_05D0C9 )
     RTL 
 }
 
 code_05D0C4 {
-    COP [PrintWideString] ( &widestring_05D0E3 )
+    COP [PrintDialogString] ( &dialogstring_05D0E3 )
     RTL 
 }
 
-widestring_05D0C9 `[DEF][TPL:5]Imas:[N]Cut the chain![PAL:0][END]`
+dialogstring_05D0C9 `[DEF][TPL:5]Imas:[N]Cut the chain![PAL:0][END]`
 
-widestring_05D0E3 `[DEF][TPL:5]Imas: Thank you. [N]All living things in our [N]home country have [N]grown strange. [FIN]People have turned to [N]stone. Some are sick [N]with unknown diseases...[PAL:0][END]`
+dialogstring_05D0E3 `[DEF][TPL:5]Imas: Thank you. [N]All living things in our [N]home country have [N]grown strange. [FIN]People have turned to [N]stone. Some are sick [N]with unknown diseases...[PAL:0][END]`

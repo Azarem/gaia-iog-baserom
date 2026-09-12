@@ -12,8 +12,8 @@ ec0A_bed_maid [
 ]
 
 code_04C7BA {
-    COP [PrintWideString] ( &widestring_04C7BF )
+    COP [PrintDialogString] ( &dialogstring_04C7BF )
     RTL 
 }
 
-widestring_04C7BF `[DEF]Recently, a hunter was[N]hired.[N]I wonder what the King[N]is thinking...[END]`
+dialogstring_04C7BF `[DEF]Recently, a hunter was[N]hired.[N]I wonder what the King[N]is thinking...[END]`

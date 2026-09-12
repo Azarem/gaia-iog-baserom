@@ -20,7 +20,7 @@ h_it1A_lily [
     COP [StageSpriteFrame] ( #1C )
     COP [AnimOnce]
     COP [WaitByte] ( #1D )
-    COP [PrintWideString] ( &widestring_04ECDD )
+    COP [PrintDialogString] ( &dialogstring_04ECDD )
     LDA #$CFF0
     TRB $joypadMaskStd
     LDA #$1000
@@ -52,7 +52,7 @@ code_04EC4D {
     LDA #$0000
     STA $2A
     COP [SetEntryExit]
-    COP [PrintWideString] ( &widestring_04ED09 )
+    COP [PrintDialogString] ( &dialogstring_04ED09 )
     COP [SetOnInteract] ( &code_04EC8C )
     COP [SetEntryContinue]
     RTL 
@@ -79,19 +79,19 @@ code_04EC8A {
 }
 
 code_04EC8C {
-    COP [PrintWideString] ( &widestring_04ED09 )
+    COP [PrintDialogString] ( &dialogstring_04ED09 )
     RTL 
 }
 
 code_04EC91 {
     COP [BranchIfNoItem] ( #04, &code_04EC9B )
-    COP [PrintWideString] ( &widestring_04ED2A )
+    COP [PrintDialogString] ( &dialogstring_04ED2A )
     RTL 
 }
 
 code_04EC9B {
     COP [SetFlagByte] ( #4A )
-    COP [PrintWideString] ( &widestring_04ED77 )
+    COP [PrintDialogString] ( &dialogstring_04ED77 )
     COP [DialogueOptions] ( #02, #02, &code_list_04ECA8 )
 }
 
@@ -102,11 +102,11 @@ code_list_04ECA8 [
 ]
 
 code_04ECAE {
-    COP [PrintWideString] ( &widestring_04EDD8 )
+    COP [PrintDialogString] ( &dialogstring_04EDD8 )
 }
 
 code_04ECB2 {
-    COP [PrintWideString] ( &widestring_04EE12 )
+    COP [PrintDialogString] ( &dialogstring_04EE12 )
     LDA #$0000
     STA $0D60
     LDA #$0002
@@ -119,17 +119,17 @@ code_04ECB2 {
     RTL 
 }
 
-widestring_04ECDD `[DLG:3,6][SIZ:D,3,0][TPL:2]リリィ:[N]さあ 着いたわ.[N]ここが 月の種族のすみかよ.[END]`
+dialogstring_04ECDD `[DLG:3,6][SIZ:D,3,0][TPL:2]リリィ:[N]さあ 着いたわ.[N]ここが 月の種族のすみかよ.[END]`
 
-widestring_04ED09 `[DLG:3,6][SIZ:D,3,0][TPL:2]リリィ:[N]じゃ あたし ここでまってるね.[END]`
+dialogstring_04ED09 `[DLG:3,6][SIZ:D,3,0][TPL:2]リリィ:[N]じゃ あたし ここでまってるね.[END]`
 
-widestring_04ED2A `[DLG:3,6][SIZ:D,3,0][TPL:2]リリィ:[N]どうだった?[FIN]·····.[N]その顔は ダメだったみたいね.[FIN]気をおとさないで もうー回[N]がんばっておいでよ.[END]`
+dialogstring_04ED2A `[DLG:3,6][SIZ:D,3,0][TPL:2]リリィ:[N]どうだった?[FIN]·····.[N]その顔は ダメだったみたいね.[FIN]気をおとさないで もうー回[N]がんばっておいでよ.[END]`
 
-widestring_04ED77 `[DLG:3,6][SIZ:D,4,0][TPL:2]リリィ:[N]あっ その 像はっ![N]テムってば すごい すごおぉい![FIN]これで 像が2つそろったわけね.[N]インカのイセキへ 行くつもり?[N][PAL:0] はい[N] いいえ`
+dialogstring_04ED77 `[DLG:3,6][SIZ:D,4,0][TPL:2]リリィ:[N]あっ その 像はっ![N]テムってば すごい すごおぉい![FIN]これで 像が2つそろったわけね.[N]インカのイセキへ 行くつもり?[N][PAL:0] はい[N] いいえ`
 
-widestring_04EDD8 `[CLR][TPL:2]リリィ:[N]うそ. あたし わかるもん.[N]言葉で そういっても[N]テムは 行くつもりなんでしょ.[FIN]`
+dialogstring_04EDD8 `[CLR][TPL:2]リリィ:[N]うそ. あたし わかるもん.[N]言葉で そういっても[N]テムは 行くつもりなんでしょ.[FIN]`
 
-widestring_04EE12 `[CLR][TPL:0]テム:[N]うん.[N]とうさんに 呼ばれたんだ···[FIN]すい星の光をあびた 化物たちと[N]戦うのは ちょっと こわいけど,[N]でも とうさんが 生きてるなら[N]危険をおかしてでも 会いたいんだ.[FIN]この気持ちは 両親を なくして[N]みなきゃ わからないさ···[FIN][TPL:2]リリィ:[N]やっぱり 男の子ねぇ···[FIN]わかったわ.[N]じゃ イセキへ 向かいましょ.[FIN][PAL:0][SFX:10]二人は インカのイセキへ[N]向かうのであった.[END]`
+dialogstring_04EE12 `[CLR][TPL:0]テム:[N]うん.[N]とうさんに 呼ばれたんだ···[FIN]すい星の光をあびた 化物たちと[N]戦うのは ちょっと こわいけど,[N]でも とうさんが 生きてるなら[N]危険をおかしてでも 会いたいんだ.[FIN]この気持ちは 両親を なくして[N]みなきゃ わからないさ···[FIN][TPL:2]リリィ:[N]やっぱり 男の子ねぇ···[FIN]わかったわ.[N]じゃ イセキへ 向かいましょ.[FIN][PAL:0][SFX:10]二人は インカのイセキへ[N]向かうのであった.[END]`
 
 code_04EEF4 {
     COP [SolidHighAbs] ( #15, #1C )
@@ -149,12 +149,12 @@ code_04EF0D {
 
 code_04EF18 {
     COP [BranchIfFlagByte] ( #49, #01, &code_04EF27 )
-    COP [PrintWideString] ( &widestring_04EF3A )
+    COP [PrintDialogString] ( &dialogstring_04EF3A )
     COP [SetEntryExitNow] ( @code_04EEFC )
 }
 
 code_04EF27 {
-    COP [PrintWideString] ( &widestring_04EF73 )
+    COP [PrintDialogString] ( &dialogstring_04EF73 )
     COP [SetEntryExitNow] ( @code_04EEFC )
 }
 
@@ -164,9 +164,9 @@ code_04EF30 {
     COP [Die]
 }
 
-widestring_04EF3A `[DLG:3,6][SIZ:D,3,0][TPL:2]リリィ: ちょっとぉ![N]目的があって ここへきたんでしょ?[N]いきなり 帰らないでよ.[END]`
+dialogstring_04EF3A `[DLG:3,6][SIZ:D,3,0][TPL:2]リリィ: ちょっとぉ![N]目的があって ここへきたんでしょ?[N]いきなり 帰らないでよ.[END]`
 
-widestring_04EF73 `[DLG:3,6][SIZ:D,3,0][TPL:0]テム:[N](インカの像を 手に入れなきゃ[N] かえれないな···)[PAL:0][END]`
+dialogstring_04EF73 `[DLG:3,6][SIZ:D,3,0][TPL:0]テム:[N](インカの像を 手に入れなきゃ[N] かえれないな···)[PAL:0][END]`
 
 code_04EFA5 {
     COP [SolidHighAbs] ( #0C, #18 )
@@ -185,7 +185,7 @@ code_04EFBA {
 
 code_04EFC5 {
     COP [BranchIfFlagByte] ( #2A, #01, &code_04EFD4 )
-    COP [PrintWideString] ( &widestring_04EFDD )
+    COP [PrintDialogString] ( &dialogstring_04EFDD )
     COP [SetEntryExitNow] ( @code_04EFAF )
 }
 
@@ -195,4 +195,4 @@ code_04EFD4 {
     COP [Die]
 }
 
-widestring_04EFDD `[DLG:3,6][SIZ:D,3,0][TPL:2]リリィ:[N]うろうろするのは 月の種族と[N]話してからにしましょ.[END]`
+dialogstring_04EFDD `[DLG:3,6][SIZ:D,3,0][TPL:2]リリィ:[N]うろうろするのは 月の種族と[N]話してからにしましょ.[END]`

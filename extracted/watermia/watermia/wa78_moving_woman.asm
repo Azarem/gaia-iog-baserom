@@ -36,15 +36,15 @@ code_list_07841A [
 
 code_07841C {
     COP [BranchIfFlagByte] ( #96, #01, &code_078427 )
-    COP [PrintWideString] ( &widestring_07842C )
+    COP [PrintDialogString] ( &dialogstring_07842C )
     RTL 
 }
 
 code_078427 {
-    COP [PrintWideString] ( &widestring_07846A )
+    COP [PrintDialogString] ( &dialogstring_07846A )
     RTL 
 }
 
-widestring_07842C `[DEF][SFX:10]Woman: This is[N]Watermia. The houses are[N]built on rafts. We like[N]to move around.[END]`
+dialogstring_07842C `[DEF][SFX:10]Woman: This is[N]Watermia. The houses are[N]built on rafts. We like[N]to move around.[END]`
 
-widestring_07846A `[DEF][SFX:10]Woman:[N]A woman in pink[N]chanted over[N]that lotus leaf.[END]`
+dialogstring_07846A `[DEF][SFX:10]Woman:[N]A woman in pink[N]chanted over[N]that lotus leaf.[END]`

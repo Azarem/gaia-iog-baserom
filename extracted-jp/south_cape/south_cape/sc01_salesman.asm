@@ -79,15 +79,15 @@ h_sc01_salesman [
 ]
 
 code_0482BA {
-    COP [PrintWideString] ( &widestring_0482C4 )
+    COP [PrintDialogString] ( &dialogstring_0482C4 )
     RTL 
 }
 
 code_0482BF {
-    COP [PrintWideString] ( &widestring_048338 )
+    COP [PrintDialogString] ( &dialogstring_048338 )
     RTL 
 }
 
-widestring_0482C4 `[DEF]セ-ルスマン:[N]おじさんは みんなの家をまわって[N]まものと 戦うための 武器を[N]売っているんだよ.[FIN]最近は ぶっそうな世の中だからね.[N]でも 子供の君に 武器を[N]売るわけには いかないもんなぁ.[END]`
+dialogstring_0482C4 `[DEF]セ-ルスマン:[N]おじさんは みんなの家をまわって[N]まものと 戦うための 武器を[N]売っているんだよ.[FIN]最近は ぶっそうな世の中だからね.[N]でも 子供の君に 武器を[N]売るわけには いかないもんなぁ.[END]`
 
-widestring_048338 `[DEF]セ-ルスマン:[N]ふっ···[END]`
+dialogstring_048338 `[DEF]セ-ルスマン:[N]ふっ···[END]`

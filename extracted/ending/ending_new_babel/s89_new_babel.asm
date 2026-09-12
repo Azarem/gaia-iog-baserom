@@ -27,7 +27,7 @@ s89_new_babel [
     STA $CGADSUB
     REP #$20
     COP [WaitWord] ( #$00EF )
-    COP [PrintWideString] ( &widestring_0BE075 )
+    COP [PrintDialogString] ( &dialogstring_0BE075 )
     COP [WaitWord] ( #$01DF )
     COP [FadeThenStartMusic] ( #14 )
     COP [WaitByte] ( #B3 )
@@ -39,4 +39,4 @@ s89_new_babel [
 } >
 ]
 
-widestring_0BE075 `[DEF][SFX:0][DLY:8]The Earth's look had[N]changed, but, glowing[N]in the sky, it was[N]as beautiful as ever.[PAU:B4][CLR]Buildings replaced the [N]forests, rivers became [N]roads, but the villages [N]held only smiling faces.[PAU:B4][CLR]But the Earth was[N]the only one[N]that looked sad.[PAU:B4][CLR]Tomorrow morning [N]Kara and I will start [N]our new lives.[PAU:B4][CLR]The Tower of Babel[N]stands tall, as if it[N]knows the whole future[N]of the Earth...[PAU:F0][CLD]`
+dialogstring_0BE075 `[DEF][SFX:0][DLY:8]The Earth's look had[N]changed, but, glowing[N]in the sky, it was[N]as beautiful as ever.[PAU:B4][CLR]Buildings replaced the [N]forests, rivers became [N]roads, but the villages [N]held only smiling faces.[PAU:B4][CLR]But the Earth was[N]the only one[N]that looked sad.[PAU:B4][CLR]Tomorrow morning [N]Kara and I will start [N]our new lives.[PAU:B4][CLR]The Tower of Babel[N]stands tall, as if it[N]knows the whole future[N]of the Earth...[PAU:F0][CLD]`

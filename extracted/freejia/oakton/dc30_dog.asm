@@ -19,9 +19,9 @@ dc30_dog [
 ]
 
 code_05AA89 {
-    COP [PrintWideString] ( &widestring_05AA91 )
+    COP [PrintDialogString] ( &dialogstring_05AA91 )
     COP [SetFlagByte] ( #01 )
     RTL 
 }
 
-widestring_05AA91 `[DEF]Woof woof!![END]`
+dialogstring_05AA91 `[DEF]Woof woof!![END]`

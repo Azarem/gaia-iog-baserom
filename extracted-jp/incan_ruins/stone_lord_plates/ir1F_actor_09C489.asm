@@ -6,12 +6,12 @@ h_ir1F_actor_09C489 [
   actor-def < #00, #00, #23, {
 
   code_0580A6:
-    COP [BranchIfFlagByte] ( #3C, #01, &chunk_058000.code_0580CA )
+    COP [BranchIfFlagByte] ( #3C, #01, &code_0580CA )
     COP [SetEntryContinue]
     LDA $eventFlags
     AND #$001E
     CMP #$001E
-    BEQ chunk_058000.loc_0580BA
+    BEQ loc_0580BA
     RTL 
 
   loc_0580BA:

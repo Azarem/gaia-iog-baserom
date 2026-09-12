@@ -77,81 +77,81 @@ code_list_07C2EA [
 ]
 
 code_07C300 {
-    COP [PrintWideString] ( &widestring_07C337 )
+    COP [PrintDialogString] ( &dialogstring_07C337 )
     RTL 
 }
 
 code_07C305 {
-    COP [PrintWideString] ( &widestring_07C361 )
+    COP [PrintDialogString] ( &dialogstring_07C361 )
     RTL 
 }
 
 code_07C30A {
-    COP [PrintWideString] ( &widestring_07C363 )
+    COP [PrintDialogString] ( &dialogstring_07C363 )
     RTL 
 }
 
 code_07C30F {
-    COP [PrintWideString] ( &widestring_07C365 )
+    COP [PrintDialogString] ( &dialogstring_07C365 )
     RTL 
 }
 
 code_07C314 {
-    COP [PrintWideString] ( &widestring_07C367 )
+    COP [PrintDialogString] ( &dialogstring_07C367 )
     RTL 
 }
 
 code_07C319 {
-    COP [PrintWideString] ( &widestring_07C369 )
+    COP [PrintDialogString] ( &dialogstring_07C369 )
     RTL 
 }
 
 code_07C31E {
-    COP [PrintWideString] ( &widestring_07C36B )
+    COP [PrintDialogString] ( &dialogstring_07C36B )
     RTL 
 }
 
 code_07C323 {
-    COP [PrintWideString] ( &widestring_07C36D )
+    COP [PrintDialogString] ( &dialogstring_07C36D )
     RTL 
 }
 
 code_07C328 {
-    COP [PrintWideString] ( &widestring_07C36F )
+    COP [PrintDialogString] ( &dialogstring_07C36F )
     RTL 
 }
 
 code_07C32D {
-    COP [PrintWideString] ( &widestring_07C371 )
+    COP [PrintDialogString] ( &dialogstring_07C371 )
     RTL 
 }
 
 code_07C332 {
-    COP [PrintWideString] ( &widestring_07C373 )
+    COP [PrintDialogString] ( &dialogstring_07C373 )
     RTL 
 }
 
-widestring_07C337 `[DEF]Hey! Don't ever go[N]over there.[N]Cross over to[N]the other side![END]`
+dialogstring_07C337 `[DEF]Hey! Don't ever go[N]over there.[N]Cross over to[N]the other side![END]`
 
-widestring_07C361 `[DEF][END]`
+dialogstring_07C361 `[DEF][END]`
 
-widestring_07C363 `[DEF][END]`
+dialogstring_07C363 `[DEF][END]`
 
-widestring_07C365 `[DEF][END]`
+dialogstring_07C365 `[DEF][END]`
 
-widestring_07C367 `[DEF][END]`
+dialogstring_07C367 `[DEF][END]`
 
-widestring_07C369 `[DEF][END]`
+dialogstring_07C369 `[DEF][END]`
 
-widestring_07C36B `[DEF][END]`
+dialogstring_07C36B `[DEF][END]`
 
-widestring_07C36D `[DEF][END]`
+dialogstring_07C36D `[DEF][END]`
 
-widestring_07C36F `[DEF][END]`
+dialogstring_07C36F `[DEF][END]`
 
-widestring_07C371 `[DEF][END]`
+dialogstring_07C371 `[DEF][END]`
 
-widestring_07C373 `[DEF][END]`
+dialogstring_07C373 `[DEF][END]`
 
 eu91_merchant3 [
   actor-def < #1A, #00, #10, {
@@ -169,11 +169,11 @@ eu91_merchant3 [
 ]
 
 code_07C38A {
-    COP [PrintWideString] ( &widestring_07C38F )
+    COP [PrintDialogString] ( &dialogstring_07C38F )
     RTL 
 }
 
-widestring_07C38F `[DEF]Hey! Don't ever go[N]over there.[N]Cross over to[N]the other side![END]`
+dialogstring_07C38F `[DEF]Hey! Don't ever go[N]over there.[N]Cross over to[N]the other side![END]`
 
 eu91_merchant4 [
   actor-def < #17, #00, #10, {
@@ -191,8 +191,8 @@ eu91_merchant4 [
 ]
 
 code_07C3CF {
-    COP [PrintWideString] ( &widestring_07C3D4 )
+    COP [PrintDialogString] ( &dialogstring_07C3D4 )
     RTL 
 }
 
-widestring_07C3D4 `[DEF]Thanks to customers like [N]this, we can survive.[END]`
+dialogstring_07C3D4 `[DEF]Thanks to customers like [N]this, we can survive.[END]`

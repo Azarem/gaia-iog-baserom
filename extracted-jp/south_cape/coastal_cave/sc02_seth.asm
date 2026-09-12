@@ -57,9 +57,9 @@ code_04B1A3 {
     LDA #$CFF0
     TSB $joypadMaskStd
     LDA #$0000
-    JSL $@chunk_008000.widestring_00C829
+    JSL $@chunk_008000.dialogstring_00C829
     COP [SetEntryExit]
-    COP [PrintWideString] ( &widestring_04B317 )
+    COP [PrintDialogString] ( &dialogstring_04B317 )
     LDA #$CFF0
     TRB $joypadMaskStd
     COP [SetFlagByte] ( #05 )
@@ -81,7 +81,7 @@ code_04B1A3 {
 
   loc_04B1EA:
     COP [WaitByte] ( #1F )
-    COP [PrintWideString] ( &widestring_04B3FF )
+    COP [PrintDialogString] ( &dialogstring_04B3FF )
     COP [SetFlagByte] ( #06 )
     COP [CallScript] ( &code_04B245 )
     COP [SetOnInteract] ( &code_04B297 )
@@ -93,7 +93,7 @@ code_04B1A3 {
     COP [AnimOnce]
     COP [StageSpriteFrame] ( #12 )
     COP [AnimOnce]
-    COP [PrintWideString] ( &widestring_04B46A )
+    COP [PrintDialogString] ( &dialogstring_04B46A )
     COP [SetFlagByte] ( #0A )
     LDA #$0800
     TSB $10
@@ -145,48 +145,48 @@ code_04B275 {
 }
 
 code_04B278 {
-    COP [PrintWideString] ( &widestring_04B29C )
+    COP [PrintDialogString] ( &dialogstring_04B29C )
     RTL 
 }
 
 code_04B27D {
-    COP [PrintWideString] ( &widestring_04B2DE )
+    COP [PrintDialogString] ( &dialogstring_04B2DE )
     RTL 
 }
 
 code_04B282 {
     COP [BranchIfFlagByte] ( #25, #01, &code_04B28D )
-    COP [PrintWideString] ( &widestring_04B29C )
+    COP [PrintDialogString] ( &dialogstring_04B29C )
     RTL 
 }
 
 code_04B28D {
-    COP [PrintWideString] ( &widestring_04B2C2 )
+    COP [PrintDialogString] ( &dialogstring_04B2C2 )
     RTL 
 }
 
 code_04B292 {
-    COP [PrintWideString] ( &widestring_04B3D4 )
+    COP [PrintDialogString] ( &dialogstring_04B3D4 )
     RTL 
 }
 
 code_04B297 {
-    COP [PrintWideString] ( &widestring_04B41F )
+    COP [PrintDialogString] ( &dialogstring_04B41F )
     RTL 
 }
 
-widestring_04B29C `[TPL:A][TPL:5]モリス:[N]あははっ.[N]また ぼくの勝ちに決ってますよ.[PAL:0][END]`
+dialogstring_04B29C `[TPL:A][TPL:5]モリス:[N]あははっ.[N]また ぼくの勝ちに決ってますよ.[PAL:0][END]`
 
-widestring_04B2C2 `[TPL:A][TPL:5]モリス:[N]なんでこうも 負けが···[PAL:0][END]`
+dialogstring_04B2C2 `[TPL:A][TPL:5]モリス:[N]なんでこうも 負けが···[PAL:0][END]`
 
-widestring_04B2DE `[TPL:A][TPL:5]モリス: ぼくは 女性には[N]きょうみありませんね.[N]本を読んでた方が 楽しいですよ.[PAL:0][END]`
+dialogstring_04B2DE `[TPL:A][TPL:5]モリス: ぼくは 女性には[N]きょうみありませんね.[N]本を読んでた方が 楽しいですよ.[PAL:0][END]`
 
-widestring_04B317 `[TPL:A][TPL:5]モリス:[N]さて みんな そろったし[N]今日は 何をしましょうか?[FIN][TPL:3]エリック:[N]ぼくは テムの ふしぎな力が[N]見たいなあ.[FIN]ほら いつか 見せてくれた[N]じゃない? 手をつかわないで[N]物を うごかすやつ.[FIN][TPL:4]ロブ: たしか[N]このどうくつの すみっこにある[N]石像を 動かしたんだよな.[FIN]テム.[N]もうー回見せてくれよっ.[PAL:0][END]`
+dialogstring_04B317 `[TPL:A][TPL:5]モリス:[N]さて みんな そろったし[N]今日は 何をしましょうか?[FIN][TPL:3]エリック:[N]ぼくは テムの ふしぎな力が[N]見たいなあ.[FIN]ほら いつか 見せてくれた[N]じゃない? 手をつかわないで[N]物を うごかすやつ.[FIN][TPL:4]ロブ: たしか[N]このどうくつの すみっこにある[N]石像を 動かしたんだよな.[FIN]テム.[N]もうー回見せてくれよっ.[PAL:0][END]`
 
-widestring_04B3D4 `[TPL:A][TPL:5]モリス:[N]石像の方をむいて LRボタンを[N]おすんですよね.[PAL:0][END]`
+dialogstring_04B3D4 `[TPL:A][TPL:5]モリス:[N]石像の方をむいて LRボタンを[N]おすんですよね.[PAL:0][END]`
 
-widestring_04B3FF `[TPL:A][TPL:4]ロブ:[N]おおっ![N]うごいたああああっ!![PAL:0][PAU:28][CLD]`
+dialogstring_04B3FF `[TPL:A][TPL:4]ロブ:[N]おおっ![N]うごいたああああっ!![PAL:0][PAU:28][CLD]`
 
-widestring_04B41F `[TPL:A][TPL:5]モリス:[N]何回見ても すごいですねっ.[FIN]しかし 机とかは 動かないのに[N]なんで その石像だけは[N]動くんでしょう···[PAL:0][END]`
+dialogstring_04B41F `[TPL:A][TPL:5]モリス:[N]何回見ても すごいですねっ.[FIN]しかし 机とかは 動かないのに[N]なんで その石像だけは[N]動くんでしょう···[PAL:0][END]`
 
-widestring_04B46A `[TPL:A][TPL:5]モリス:[N]チョウノウリョクって[N]いうのはですね,[FIN]言葉のとおり 人間の能力を[N]越えた力···[FIN]人間の感覚っていうのは[N]見て感じること,[FIN]聞いて感じること,[FIN]味わって感じること,[FIN]においをかいで感じること,[FIN]さわって感じること,[N]の5つだって 言われています.[FIN]チョウノウリョクっていうのは[N]6番目の力 なんじゃないかと[N]ぼくは 思っているんですけどね.[PAL:0][END]`
+dialogstring_04B46A `[TPL:A][TPL:5]モリス:[N]チョウノウリョクって[N]いうのはですね,[FIN]言葉のとおり 人間の能力を[N]越えた力···[FIN]人間の感覚っていうのは[N]見て感じること,[FIN]聞いて感じること,[FIN]味わって感じること,[FIN]においをかいで感じること,[FIN]さわって感じること,[N]の5つだって 言われています.[FIN]チョウノウリョクっていうのは[N]6番目の力 なんじゃないかと[N]ぼくは 思っているんですけどね.[PAL:0][END]`

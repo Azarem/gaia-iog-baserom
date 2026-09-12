@@ -18,11 +18,11 @@ wa7B_competitor_right [
 ]
 
 code_07A183 {
-    COP [PrintWideString] ( &widestring_07A188 )
+    COP [PrintDialogString] ( &dialogstring_07A188 )
     RTL 
 }
 
-widestring_07A188 `[TPL:A]Uhnn...[END]`
+dialogstring_07A188 `[TPL:A]Uhnn...[END]`
 
 code_07A192 {
     COP [StageSpriteFrame] ( #23 )

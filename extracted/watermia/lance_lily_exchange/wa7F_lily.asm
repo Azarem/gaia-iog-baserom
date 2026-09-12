@@ -15,11 +15,11 @@ wa7F_lily [
     ORA #$2000
     STA $0010, Y
     COP [WaitByte] ( #1D )
-    COP [PrintWideString] ( &widestring_07B277 )
+    COP [PrintDialogString] ( &dialogstring_07B277 )
     COP [WaitByte] ( #1D )
     COP [SetFlagByte] ( #01 )
     COP [WaitByte] ( #27 )
-    COP [PrintWideString] ( &widestring_07B2E4 )
+    COP [PrintDialogString] ( &dialogstring_07B2E4 )
     COP [StageSpriteMoveX] ( #28, #14 )
     COP [AnimOnce]
     COP [StageSpriteFrame] ( #24 )
@@ -29,7 +29,7 @@ wa7F_lily [
     COP [SpawnAfterRelFlags] ( @code_07B1CD, #$FFF7, #$FFF5, #$1002 )
     COP [StageSpriteLoop] ( #39, #1E )
     COP [AnimLoop]
-    COP [PrintWideString] ( &widestring_07B329 )
+    COP [PrintDialogString] ( &dialogstring_07B329 )
     COP [SetFlagByte] ( #03 )
     COP [ExitIfFlagByte] ( #04, #01 )
     LDA #$0800
@@ -57,11 +57,11 @@ wa7F_lily [
 } >
 ]
 
-widestring_07B277 `[DEF][TPL:2]Lilly: What?[FIN]You're not yourself.[N]Relax.[FIN][TPL:4]Lance: [N]You're right. I'm [N]not myself right now. [FIN]This is your birthday[N]present. I hope you[N]like it.[PAL:0][END]`
+dialogstring_07B277 `[DEF][TPL:2]Lilly: What?[FIN]You're not yourself.[N]Relax.[FIN][TPL:4]Lance: [N]You're right. I'm [N]not myself right now. [FIN]This is your birthday[N]present. I hope you[N]like it.[PAL:0][END]`
 
-widestring_07B2E4 `[DEF][TPL:2]Lilly: [N]Oh, Lance! A bouquet [N]of roses! [FIN]Rose buds. They'll[N]open up into roses.[END]`
+dialogstring_07B2E4 `[DEF][TPL:2]Lilly: [N]Oh, Lance! A bouquet [N]of roses! [FIN]Rose buds. They'll[N]open up into roses.[END]`
 
-widestring_07B329 `[DEF][TPL:2]Lilly:[N]They smell wonderful...[FIN]Thank you.[N]They're beautiful...[FIN][TPL:4]Lance: I have another [N]present. Something I [N]want to tell you... [FIN][TPL:2]Lilly:[N]What?[END]`
+dialogstring_07B329 `[DEF][TPL:2]Lilly:[N]They smell wonderful...[FIN]Thank you.[N]They're beautiful...[FIN][TPL:4]Lance: I have another [N]present. Something I [N]want to tell you... [FIN][TPL:2]Lilly:[N]What?[END]`
 ---------------------------------------------
 
 code_07B1CD {

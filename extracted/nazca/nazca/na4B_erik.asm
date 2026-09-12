@@ -45,22 +45,22 @@ na4B_erik [
 ]
 
 code_05F269 {
-    COP [PrintWideString] ( &widestring_05F278 )
+    COP [PrintDialogString] ( &dialogstring_05F278 )
     RTL 
 }
 
 code_05F26E {
-    COP [PrintWideString] ( &widestring_05F29F )
+    COP [PrintDialogString] ( &dialogstring_05F29F )
     RTL 
 }
 
 code_05F273 {
-    COP [PrintWideString] ( &widestring_05F2C7 )
+    COP [PrintDialogString] ( &dialogstring_05F2C7 )
     RTL 
 }
 
-widestring_05F278 `[DEF][TPL:3]Erik: [N]It's scary... I'll stay [N]with Neil.[PAL:0][END]`
+dialogstring_05F278 `[DEF][TPL:3]Erik: [N]It's scary... I'll stay [N]with Neil.[PAL:0][END]`
 
-widestring_05F29F `[DEF][TPL:3]Erik: [N]What's going to [N]happen? It's exciting![PAL:0][END]`
+dialogstring_05F29F `[DEF][TPL:3]Erik: [N]What's going to [N]happen? It's exciting![PAL:0][END]`
 
-widestring_05F2C7 `[DEF][TPL:3]Erik:[N]What's going to[N]happen... It's exciting![PAL:0][END]`
+dialogstring_05F2C7 `[DEF][TPL:3]Erik:[N]What's going to[N]happen... It's exciting![PAL:0][END]`
