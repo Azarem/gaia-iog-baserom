@@ -26,8 +26,7 @@ hardware-I/O (DMA/HDMA/SPC) + save infrastructure.
 | **Categories** | 8 |
 | **Primary caller** | `system_core` main game loop (external, bank `$02`) |
 
-> The remainder of the bank (`$03F201`–`$03FFFF`) holds scene-specific and
-> unrelated data outside the scope of this reference.
+> The remainder of the bank (`$03F201`–`$03FFFF`) holds filler/null data (0xFF)
 
 ---
 
