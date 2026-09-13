@@ -1,10 +1,6 @@
-# Category 7 — Text Rendering & Menus
+# Text Rendering & Menus
 
-> The two independent text engines (wide-string dialogue and ASCII HUD/console)
-> and the dialogue-choice menu cursor.
->
-> Part of Bank `$03` — see the [bank index](index.md). All addresses are
-> hexadecimal (bank byte `$03`).
+*Part of the [Bank $03 Documentation Suite](index.md)*
 
 ## Parts in this category
 
@@ -24,6 +20,38 @@ status, HP bars, equipment icons, and bordered boxes. `MenuSelectionHandler` sit
 between them, providing a reusable cursor for in-dialogue choice menus (it
 `?INCLUDE`s `DialogStringRenderer`). All three are entered via `JSL` from COP
 handlers and other engine systems.
+
+**Related:** [field-input-and-items.md](field-input-and-items.md) (item handlers trigger dialogue rendering) · [radar-and-world-map.md](radar-and-world-map.md) (radar shares VRAM staging buffer $7F0200) · [scene-and-hardware.md](scene-and-hardware.md) (DMA transfers for VRAM flush)
+
+```mermaid
+flowchart TD
+    subgraph DialogEngine["DialogStringRenderer (wide-string)"]
+        WideEntry["JSL DialogStringRenderer"]
+        WideLoop["Character loop"]
+        WideChar["Tile < $C0:\nrender 16x16 glyph"]
+        WideCmd["Byte >= $C0:\n25 command opcodes"]
+        WideEntry --> WideLoop
+        WideLoop --> WideChar
+        WideLoop --> WideCmd
+    end
+
+    subgraph ConsoleEngine["ConsoleStringRenderer (ASCII)"]
+        AsciiEntry["JSL ConsoleStringRenderer"]
+        AsciiLoop["Character loop"]
+        AsciiChar["Byte >= $12:\nrender 8x8 tile"]
+        AsciiCmd["Byte $00-$11:\n18 command opcodes"]
+        AsciiEntry --> AsciiLoop
+        AsciiLoop --> AsciiChar
+        AsciiLoop --> AsciiCmd
+    end
+
+    subgraph SharedVRAM["Shared VRAM Staging"]
+        Buffer["$7F0200 tilemap buffer"]
+    end
+
+    DialogEngine --> SharedVRAM
+    ConsoleEngine --> SharedVRAM
+```
 
 ---
 
@@ -52,10 +80,10 @@ character tile is written to two VRAM buffer rows (`$7F0200,X` top,
 | `$007E` | frame delay between characters (text speed) |
 | `$0B04` | saved frame delay (restored on box open/close) |
 
-The command dispatch uses an `RTS` trick: `PEA` the loop return (`code_03E25F−1`),
+The command dispatch uses an `RTS` trick: `PEA` the loop return (`DialogString_CharLoop−1`),
 push command-table entry − 1, `RTS` to it; commands `RTS` back to the char loop.
 
-### Command table (`$03E2…`, 25 commands `$00`–`$18`)
+### Command table (`DialogStringCommandTable` at `$03E2C3`, 25 commands `$00`–`$18`)
 
 | Op | Command | Summary |
 |----|---------|---------|
@@ -74,7 +102,7 @@ push command-table entry − 1, `RTS` to it; commands `RTS` back to the char loo
 | `$CC` | AdvanceCursor | forward N tiles (1B) |
 | `$CD` | InsertRemoteString | string from another bank (3B: addr low, addr high, bank) |
 | `$CE` | ClearBox | clear box interior + reset cursor to saved origin |
-| `$CF` | WaitForButton | wait for A/B/Start, suppress held flags (`$0F00`) |
+| `$CF` | WaitForButton | wait for A/B, suppress held flags (`$C080` TSB into joypadHeld) |
 | `$D0` | WaitForAnyInput | wait for any joypad input (no filtering) |
 | `$D1` | JumpToAddress | set Y = new string address (2B operand, same bank) |
 | `$D2` | SetSfx | set per-character sound effect ID (1B → `$0996`) |
@@ -92,7 +120,7 @@ push command-table entry − 1, `RTS` to it; commands `RTS` back to the char loo
 | `$03E255` | `DialogStringRenderer` | entry (`JSL`): save state, DP=0, enter char loop |
 | `$03E25F` | `DialogString_CharLoop` | main bytecode loop: read byte, dispatch char or command |
 | `$03E2C3` | `DialogStringCommandTable` | 25-entry word table (`$C0`–`$D8` → handler addresses) |
-| `$03E2F5` | `WideCmd_EndAndWait` | wait input, clear box, restore delay |
+| `$03E2F5` | `WideCmd_EndAndWait` | wait input, clear box, restore delay; TRB `$0F00` from joypadHeld |
 | `$03E307` | `WideCmd_Return` | PLP/RTL — exit renderer |
 | `$03E30F` | `WideCmd_SetPosition` | set column/row from 2B operand |
 | `$03E335` | `WideCmd_InsertTemplate` | recursive render from `templates_01CA95` |
@@ -112,7 +140,7 @@ push command-table entry − 1, `RTS` to it; commands `RTS` back to the char loo
 | `$03E61E` | `WideCmd_AdvanceCursor` | forward N tiles (1B count) |
 | `$03E636` | `WideCmd_InsertRemoteString` | string from another bank (3B: addr + bank) |
 | `$03E656` | `WideCmd_ClearBox` | clear box interior, reset cursor |
-| `$03E6A4` | `WideCmd_WaitForButton` | wait for A/B/Start, suppress held flags |
+| `$03E6A4` | `WideCmd_WaitForButton` | wait for A/B (mask `$C080`), TSB `$C080` into joypadHeld |
 | `$03E6D2` | `WideCmd_WaitForAnyInput` | wait for any joypad input |
 | `$03E6E7` | `WideCmd_JumpToAddress` | set Y = new address (2B) |
 | `$03E6EC` | `WideCmd_SetSfx` | per-char SFX (1B → `$0996`) |
@@ -183,10 +211,10 @@ selection; SP+5 = starting row offset. Sets DP = 0, resets the blink counter
 
 ### Subroutines
 
-- `DrawMenuCursor` (`$03E…`) — 16-frame blink between highlight tiles
+- `DrawMenuCursor` (`$03E983`) — 16-frame blink between highlight tiles
   (`$212C`/`$213C`) and dim tile (`$21AC`); saves/restores the tile under the
   cursor via `$0990`/`$0992`.
-- `ReadMenuSelection` (`$03E…`) — restores original tiles, converts cursor
+- `ReadMenuSelection` (`$03EA2A`) — restores original tiles, converts cursor
   position to OAM sprite data at `$090E`/`$0910`.
 
 ### Key routines
@@ -267,7 +295,7 @@ position (byte offset into `$7F0200`). Each character writes a 16-bit tilemap wo
 | `$05` | PrintBcdNumber | 1B+2B | packed BCD, right-to-left |
 | `$06` | DrawBox | 1B w+1B h+2B pos | bordered rectangle |
 | `$07` | ClearColumn | 2B | clear a column region |
-| `$08` | FillTile | 1B+2B | repeat a tile N times |
+| `$08` | FillTile | 1B+2B | 1B count + 2B tile source address; load tile, repeat N times |
 | `$09` | PrintEquipIcons | var (term `$80+`) | 2×2 equipment metatiles |
 | `$0A` | DrawPlayerHpBar | — | player HP segments |
 | `$0B` | DrawEnemyHpBar | — | enemy HP bar |
@@ -307,7 +335,7 @@ segments (`$02`, `(maxHP−HP)/2`, tile `$20FF`).
 | `$03ED6F` | `AsciiCmd_PrintBcdNumber` | packed BCD right-to-left (1B digits + 2B addr) |
 | `$03EDE3` | `AsciiCmd_DrawBox` | bordered rectangle (1B w + 1B h + 2B pos) |
 | `$03EEA5` | `AsciiCmd_ClearColumn` | clear a column region (2B) |
-| `$03EEF5` | `AsciiCmd_FillTile` | repeat a tile N times (1B tile + 2B count) |
+| `$03EEF5` | `AsciiCmd_FillTile` | load tile from 2B address, repeat 1B count times |
 | `$03EF1F` | `AsciiCmd_PrintRawBytes` | raw tile bytes until `$FF` terminator |
 | `$03EF3E` | `AsciiCmd_PrintEquipIcons` | 2×2 equipment metatiles (variable, `$80+` terminator) |
 
@@ -402,3 +430,12 @@ routine for frame timing. It operates within a dialogue box created by the
 dialogue renderer, reading and writing cursor tiles in the box's VRAM region.
 The menu returns control to the dialogue script that spawned it, passing the
 selection result via the A register.
+
+---
+
+## See Also
+
+- [field-input-and-items.md](field-input-and-items.md) — item handlers embed inline dialogue strings via COP commands
+- [radar-and-world-map.md](radar-and-world-map.md) — radar uses BG3 console scripts; shares VRAM buffer region
+- [scene-and-hardware.md](scene-and-hardware.md) — `LoadHudTilemap` and DMA pipeline for VRAM flush
+- [Bank $03 index](index.md) — bank-wide memory map, WRAM reference

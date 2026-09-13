@@ -1,3 +1,7 @@
+> **DEPRECATED** — This document has been superseded by the
+> [Bank $03 v2 documentation](../code_v2/bank03/field-input-and-items.md).
+> Do not update this file; see the v2 suite for current information.
+
 # Item Use System — Dispatcher, Handlers & Utilities
 
 > Analysis of `chunk_038000.asm` §2 — the item use dispatcher, all 41

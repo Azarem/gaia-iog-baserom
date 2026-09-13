@@ -1,10 +1,6 @@
-# Category 8 — Scene Lifecycle, DMA/HDMA/SPC & Save
+# Scene Lifecycle, Hardware & Save
 
-> Scene transition orchestration, the shared hardware-transfer + audio utility
-> block, and SRAM save/load with dual-checksum validation.
->
-> Part of Bank `$03` — see the [bank index](index.md). All addresses are
-> hexadecimal (bank byte `$03`).
+*Part of the [Bank $03 Documentation Suite](index.md)*
 
 ## Parts in this category
 
@@ -29,6 +25,27 @@ the game's event flags to SRAM with integrity checking. `scene_lifecycle` is
 physically interleaved with these utility blocks in ROM (they straddle its range),
 reflecting how tightly it depends on them.
 
+```mermaid
+flowchart TD
+    Check["CheckSceneTransition\n(sceneNext != 0?)"]
+    Exit["ScreenExitTransition\n(fade/mosaic/wave effect)"]
+    DisableNMI["Disable NMI\nClear world-ready flag"]
+    Resolve["Resolve target scene\n($0D52 special or sceneNext)"]
+    Clear["ClearSceneState\n(comprehensive reset)"]
+    Script["SceneScriptMain\n(parse scene definition)"]
+    Camera["InitCameraBounds"]
+    Events["ApplyAllEventBlocks"]
+    Spawn["SpawnSceneActors\nSpawnSceneThinkers"]
+    Load["LoadScenePalettes\nLoadPlayerGraphics"]
+    Enter["ScreenEnterTransition\n(fade/mosaic/wave effect)"]
+
+    Check -->|"sceneNext set"| Exit
+    Exit --> DisableNMI --> Resolve --> Clear
+    Clear --> Script --> Camera --> Events --> Spawn --> Load --> Enter
+```
+
+**Related:** [actor-thinker-runtime.md](actor-thinker-runtime.md) (ClearSceneState initializes actor/thinker pools) · [sprite-rendering.md](sprite-rendering.md) (DmaPlayerTilesToVram for player graphics) · [text-and-menus.md](text-and-menus.md) (LoadHudTilemap uses ConsoleStringRenderer)
+
 ---
 
 ## scene_lifecycle — `$03D9E8`–`$03E0B0`
@@ -50,8 +67,9 @@ Source: [scene_lifecycle.asm](../../../extracted/system/engine/scene_lifecycle.a
 
 ### Visual transitions
 
-`ScreenExitTransition`/`ScreenEnterTransition` support 4–5 effect types selected by
-`gfxCacheIdxA` (`$0648`) and `$0649`:
+`ScreenExitTransition` and `ScreenEnterTransition` support 4–5 effect types,
+but they dispatch on **separate registers**: exit reads `gfxCacheIdxA` (`$0648`);
+enter reads `$0649`.
 
 | Type | Effect |
 |------|--------|
@@ -144,9 +162,10 @@ tilemap/music/display config), `InitCameraBounds`, `ApplyAllEventBlocks`,
 ### Special-scene `$0D52` path
 
 When `$0D52`/`$0D53` is nonzero, `ExecuteSceneTransition` treats it as a special
-transition: archives `$0D52` → `$0D54`, `$0652` → `$0D6C`, records source/current
-scene IDs in `$0D6E`/`$0D6F`, and sets the scene to `$FE` (world map). This is
-the mechanism by which the world-map controller receives its state block.
+transition: archives `$0D52` → `$0D54`, `$0652` → `$0D6C`, records
+`sceneNext` → `$0D6E` (destination) and `sceneCurrent` → `$0D6F` (source), and
+sets the scene to `$FE` (world map). This is the mechanism by which the
+world-map controller receives its state block.
 
 ### Press-start handling
 
@@ -352,3 +371,14 @@ one block because the assembler's code analysis discovered them as a single
 linked unit through shared cross-references. In practice, they serve three
 independent purposes and are called from different contexts (NMI handler, scene
 setup, deferred VRAM writes).
+
+---
+
+## See Also
+
+- [actor-thinker-runtime.md](actor-thinker-runtime.md) — `InitActorPool`, `SpawnSceneActors`, `SpawnSceneThinkers` called from `ClearSceneState`
+- [sprite-rendering.md](sprite-rendering.md) — `DmaPlayerTilesToVram` handles player tile DMA during scene load and per-frame
+- [text-and-menus.md](text-and-menus.md) — `LoadHudTilemap` stages HUD tiles during scene setup
+- [radar-and-world-map.md](radar-and-world-map.md) — world map scene $FE uses special transition path via $0D52
+- [mode7-and-cutscenes.md](mode7-and-cutscenes.md) — Mode 7 setup registers configured during ClearSceneState
+- [Bank $03 index](index.md) — bank-wide memory map, WRAM reference, design patterns

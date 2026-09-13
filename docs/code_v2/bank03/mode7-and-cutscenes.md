@@ -1,11 +1,10 @@
-# Category 3 — Mode 7 Perspective & Cutscenes
+# Mode 7 & Cutscenes
 
 > The Mode 7 rotation/scaling engine and the HDMA iris generator, plus the two
 > scene-specific cutscene actors that drive them. Includes one confirmed-dead
 > alternate Mode 7 implementation.
->
-> Part of Bank `$03` — see the [bank index](index.md). All addresses are
-> hexadecimal (bank byte `$03`).
+
+*Part of the [Bank $03 Documentation Suite](index.md)*
 
 ## Parts in this category
 
@@ -32,6 +31,8 @@ gradient (spotlight/iris). Two scene actors —
 (Angkor Wat vision) — set up the PPU for Mode 7 color math, spawn the perspective
 thinker, and choreograph their sequences frame-by-frame.
 `mode7_perspective_unused` is an earlier, unreferenced variant kept for reference.
+
+**Related:** [radar-and-world-map.md](radar-and-world-map.md) (HdmaWindowEffect comparison; world map scene uses Mode 7) · [actor-thinker-runtime.md](actor-thinker-runtime.md) (thinker spawn/execution) · [scene-and-hardware.md](scene-and-hardware.md) (Mode 7 register setup, scene transitions)
 
 ---
 
@@ -450,12 +451,24 @@ tint.
 
 | Scene | Thinker spawned |
 |-------|-----------------|
-| `$59` (garden_crash) | `Mode7PerspectiveUpdate` |
-| `$C0` (future_vision) | `Mode7PerspectiveUpdate` + `oneshot_palette_flash_19` |
-| `$FE` (world_map) | `IrisCircleEffect` (via world map controller) |
-| `$8C` (prologue_prophecy) | `IrisCircleEffect` (scene thinker) |
-| `$FE` (world_map) | `HdmaWindowEffect` (separate from iris) |
+| `$59` (garden_crash) | `Mode7PerspectiveUpdate` (cutscene actor) |
+| `$C0` (future_vision) | `Mode7PerspectiveUpdate` + `oneshot_palette_flash_19` (cutscene actor) |
+| `$8C` (prologue_prophecy) | `IrisCircleEffect` (scene thinker `thinker_spawn_0CEB2A`); `Mode7PerspectiveUpdate` (prologue actors) |
+| `$FE` (world_map) | `Mode7PerspectiveInit` + `IrisCircleEffect` (scene thinker `thinker_spawn_0CEB3D`) |
+| `$FE` (world_map travel) | `HdmaWindowEffect` (WorldMapController during travel) |
 
-`mode7_perspective` is always spawned by cutscene actors (not scene thinker tables).
-`IrisCircleEffect` may be spawned either by scene thinker tables or by controllers
-like the world map.
+`Mode7PerspectiveInit`/`Mode7PerspectiveUpdate` are spawned by cutscene actors in
+scenes `$59` and `$C0`, by prologue actors in scene `$8C`, and by the scene thinker
+table (`thinker_spawn_0CEB3D`) in world map scene `$FE`. `IrisCircleEffect` is
+spawned by scene thinker tables in scenes `$8C` and `$FE` (`thinker_spawn_0CEB2A`
+and `thinker_spawn_0CEB3D` respectively). WorldMapController spawns
+`HdmaWindowEffect` during route travel, not `IrisCircleEffect`.
+
+---
+
+## See Also
+
+- [radar-and-world-map.md](radar-and-world-map.md) — world map scene $FE uses both Mode 7 perspective and IrisCircleEffect thinkers
+- [actor-thinker-runtime.md](actor-thinker-runtime.md) — thinker execution pipeline, `SpawnSceneThinkers` spawns Mode 7 / iris thinkers
+- [scene-and-hardware.md](scene-and-hardware.md) — `ClearSceneState` configures Mode 7 registers; HDMA channel management
+- [Bank $03 index](index.md) — bank-wide memory map, WRAM reference, design patterns

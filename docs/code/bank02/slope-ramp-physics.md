@@ -60,34 +60,13 @@ Main entry. Checks freeze + orb flags on the player actor (`$0010,X` bit `$00C0`
 - If stopped but on-slope (`$1000`): probe adjacent cells for ramp exit
 - Otherwise run `SlopeFlatDecelerate`
 
-
-**Cross-References:**
-
-| Symbol | Relationship |
-|--------|-------------|
-| `slope_ramp_physics` block | Parent compilation unit |
-
 ### SlopeFlatDecelerate
 
 Flat ground: check EW → `DecelerateEW`. If `$1000` → clear. Check NS → `DecelerateNS`.
 
-
-**Cross-References:**
-
-| Symbol | Relationship |
-|--------|-------------|
-| `slope_ramp_physics` block | Parent compilation unit |
-
 ### SlopeTileDispatch
 
-16-entry lookup table by collision type.
-
-
-**Cross-References:**
-
-| Symbol | Relationship |
-|--------|-------------|
-| `slope_ramp_physics` block | Parent compilation unit |
+16-entry word table indexed by collision nibble × 2, used as a jump dispatch after `TileProbeMain` reads the tile under the player's feet. Only four entries are populated: `$03` → south-descending slope handler, `$05` → west-descending ramp, `$0A` → east-descending ramp, and `$0C` → north-descending slope handler; all other types (floor, ladder, walls, solids) are zero and fall through to flat-ground exit. Non-zero entries use the RTS dispatch trick (address − 1 stored, `DEC`/`PHA`/`RTS`) to branch directly into the matching curve-application handler.
 
 #### Curve Application
 
@@ -95,58 +74,23 @@ Flat ground: check EW → `DecelerateEW`. If `$1000` → clear. Check NS → `De
 
 Read decel curve at `$09BA` indexed by `$09B6 & $0F`. Negate, add to `player_speed_ew`.
 
-
-**Cross-References:**
-
-| Symbol | Relationship |
-|--------|-------------|
-| `slope_ramp_physics` block | Parent compilation unit |
-
 ### ApplySlopeCurvePosEW
 
-Positive addition to EW speed.
-
-
-**Cross-References:**
-
-| Symbol | Relationship |
-|--------|-------------|
-| `slope_ramp_physics` block | Parent compilation unit |
+Applies the current slope curve's acceleration to the player's east-west speed while standing on an **east-descending ramp tile** (`$0A`). Each frame, `slopeStepCounter & $0F` indexes a 16-bit delta from the WRAM table at `slopeCurvePtrA` (`$09BA`), which is added directly to `player_speed_ew` to produce gradual acceleration downhill (eastward). When speed reaches zero the `$1000` stopped-on-slope flag is set and the step counter resets; otherwise the counter increments for the next frame's curve sample.
 
 ### ApplySlopeCurvePosNS
 
-Add to `player_speed_ns` from `$09BC`.
-
-
-**Cross-References:**
-
-| Symbol | Relationship |
-|--------|-------------|
-| `slope_ramp_physics` block | Parent compilation unit |
+Applies the NS-axis slope curve to `player_speed_ns` while the player stands on a **south-descending slope tile** (`$03`). The curve value is read from the WRAM table at `slopeCurvePtrB` (`$09BC`), indexed by `slopeStepCounter & $0F`, and added directly to produce gradual southward acceleration. Speed-zero sets the `$1000` stopped-on-slope flag; nonzero speed advances the step counter for the next frame.
 
 ### ApplySlopeCurveNegNS
 
-Negated addition to NS speed.
-
-
-**Cross-References:**
-
-| Symbol | Relationship |
-|--------|-------------|
-| `slope_ramp_physics` block | Parent compilation unit |
+Applies the NS-axis slope curve in the **negative direction** while the player stands on a **north-descending slope tile** (`$0C`). The table value from `slopeCurvePtrB` is two's-complement negated before addition to `player_speed_ns`, producing gradual northward acceleration (deceleration of southward speed). The sign flip distinguishes uphill-north terrain from the positive `$03` handler — both share the same curve table but apply opposite signs.
 
 #### Speed Clamping
 
 ### ClampSpeeds
 
-Clamp `player_speed_ew` to ±`$09C8` and `player_speed_ns` to ±`$09CA`.
-
-
-**Cross-References:**
-
-| Symbol | Relationship |
-|--------|-------------|
-| `slope_ramp_physics` block | Parent compilation unit |
+Limits both axis speeds after every slope curve application and on flat exit, preventing runaway acceleration down long ramps. Each axis compares `|speed|` against its configured maximum (`maxSpeedEw` at `$09C8`, `maxSpeedNs` at `$09CA`); speeds at or above the max are clamped to ±(`max` − 1), where the −1 prevents oscillation at the boundary. Called from all four slope type handlers and `SlopeFlatExit` before restoring registers.
 
 #### Flat Deceleration
 
@@ -154,23 +98,9 @@ Clamp `player_speed_ew` to ±`$09C8` and `player_speed_ns` to ±`$09CA`.
 
 Flat-ground EW deceleration. Skips if on-slope flag (`$1000`) is set. If absolute speed < 3, zeros `player_speed_ew`. Otherwise, reads deceleration delta from curve table at `$09C2` (indexed by `$09B8 & $0F`), negates it, and subtracts from speed. Handles both positive (eastward) and negative (westward) speed separately.
 
-
-**Cross-References:**
-
-| Symbol | Relationship |
-|--------|-------------|
-| `slope_ramp_physics` block | Parent compilation unit |
-
 ### DecelerateNS
 
-Mirror of `DecelerateEW` for NS axis.
-
-
-**Cross-References:**
-
-| Symbol | Relationship |
-|--------|-------------|
-| `slope_ramp_physics` block | Parent compilation unit |
+Flat-ground north-south deceleration, structurally identical to `DecelerateEW` but operating on `player_speed_ns` with the south (`$0400`) and north (`$0800`) D-pad bits. Skips entirely when the `$1000` stopped-on-slope flag is set (player resting on a ramp without pushing off). Speeds below 3 are zeroed instantly; otherwise a deceleration step is read from `decelCurvePtr` via `ReadDecelerationStepNS` and subtracted, with extra braking when the player holds the opposite direction and suppression when holding the same direction as current motion.
 
 
 ## See Also

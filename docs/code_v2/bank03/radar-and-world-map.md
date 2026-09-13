@@ -1,11 +1,10 @@
-# Category 2 — Radar & World Map
+# Radar & World Map
 
 > The two navigation surfaces of bank `$03`: the in-area radar/minimap overlay,
 > and the overworld travel map (`scene $FE`) with its route bytecode, area-name
 > table, per-destination option handlers, and travel iris effect.
->
-> Part of Bank `$03` — see the [bank index](index.md). All addresses are
-> hexadecimal (bank byte `$03`).
+
+*Part of the [Bank $03 Documentation Suite](index.md)*
 
 ## Parts in this category
 
@@ -29,6 +28,8 @@ display, and table-driven route travel between locations. Travel is described by
 `world_map_routes` bytecode, area names come from `world_map_names`, destination
 setup is dispatched through `world_map_options`, and the visual iris/spotlight
 transition during travel is produced by the `HdmaWindowEffect` thinker.
+
+**Related:** [field-input-and-items.md](field-input-and-items.md) (Start button entry point) · [mode7-and-cutscenes.md](mode7-and-cutscenes.md) (IrisCircleEffect / HDMA iris comparison) · [scene-and-hardware.md](scene-and-hardware.md) (scene transitions during travel)
 
 ---
 
@@ -105,7 +106,7 @@ bytes (32 words). The base layout is block-copied from `radar_layout_001E00`
 | `$2AE7` | 2 | friendly actor dot (blue) |
 | `$280D` | 0 | enemy actor dot (red) |
 | `$34F0`+ | 3 | BCD digit base (digit value OR'd in) |
-| `$2EE1`–`$EEE3` | varies | chest icon (4×4 flipped tiles) |
+| `$2EE1`–`$2EE3` | varies | chest icon (4×4 flipped tiles) |
 | `$32E8`–`$32EB` | 3 | reward counter digits |
 
 **Viewport math:** Player tile position (`playerXTile`/`playerYTile`) is aligned
@@ -137,13 +138,15 @@ scene entry on arrival.
 
 | Address | Purpose |
 |---------|---------|
+| `$0D52`/`$0D53` | special-transition trigger bytes, checked by `CheckSceneTransition`/`ExecuteSceneTransition` |
 | `$0D54`/`$0D56` | initial player X/Y on the map |
 | `$0D58` | destination/route selection ID (0 = none) |
 | `$0D5A` | route active flag / route ID for playback |
 | `$0D5C` | route subroutine return pointer |
 | `$0D60`–`$0D6A` | companion array (6 words) |
-| `$0D6C` | deferred scene auxiliary data |
-| `$0D6E`/`$0D6F` | deferred scene ID (low) + area flags (high) |
+| `$0D6C` | deferred `$0652` auxiliary data |
+| `$0D6E` | deferred destination scene ID (captured from `sceneNext` by `DeferSceneTransition`) |
+| `$0D6F` | source scene ID (set by `scene_lifecycle` to `sceneCurrent` on special transition entry) |
 
 `ClearWorldMapState` zeroes `$0D52`–`$0D6D` (14 words) on cleanup.
 
@@ -154,7 +157,8 @@ scene entry on arrival.
 2. `ArrivalAndTravelSetup`: position player at (`$0D54`,`$0D56`), center camera
    (X−`$80`, Y−`$70`), play a 44-frame gravity drop.
 3. If destination set (`$0D58` ≠ 0): spawn `HdmaWindowEffect`, dispatch through
-   `world_map_options`; `DeferSceneTransition` captures pending `sceneNext`.
+   `world_map_options`; register `DeferSceneTransition` via `SetSavedPtr` (runs
+   after option dispatch, before route animation) to capture pending `sceneNext`.
 4. If no destination: land, spawn location-name actor (`pr_actor_0BCF52`),
    look up name via `LookupMapName`, play a 93-frame ascent.
 5. Companion dots: scan `$0D60` array, pick formation from
@@ -168,7 +172,7 @@ scene entry on arrival.
 | Address | Label | Role |
 |---------|-------|------|
 | `$03A2F1` | `WorldMapController` | `actor-def` entry: form reset, palette thinkers, child spawn |
-| `$03A341` | `DeferSceneTransition` | post-route callback: capture pending `sceneNext` / `$0652`, clear them |
+| `$03A341` | `DeferSceneTransition` | `SetSavedPtr` callback: capture `sceneNext` → `$0D6E` and `$0652` → `$0D6C` after option dispatch, before route animation |
 | `$03A35E` | `ArrivalAndTravelSetup` | position/camera/gravity, companion spawn, route launch |
 | `$03A469` | `CompanionDotMovement` | per-companion dot positioning from formation tables |
 | `$03A503` | `companion_position_tables` | 6-entry formation offset data per companion count |
@@ -198,11 +202,13 @@ dots. The controller scans the `$0D60` array (6 words) to count active companion
 ### Deferred-scene flow
 
 When a destination is set (`$0D58 ≠ 0`), `WorldMapController` spawns
-`HdmaWindowEffect`, dispatches through `world_map_options`, then calls
-`SetSavedPtr → DeferSceneTransition`. When the route bytecode completes,
-`RouteEndHandler` triggers the deferred transition captured by `DeferSceneTransition`:
-`sceneNext` is restored from `$0D6C`/`$0D6E`/`$0D6F`, and the normal
-`CheckSceneTransition` pipeline takes over.
+`HdmaWindowEffect`, dispatches through `world_map_options`, then registers
+`DeferSceneTransition` via `SetSavedPtr`. That callback runs after option dispatch
+and before route animation, capturing the destination scene from `sceneNext` into
+`$0D6E` and `$0652` into `$0D6C`. When the route bytecode completes,
+`RouteEndHandler` (or `SkipToSceneTransition`) restores the deferred transition:
+`$0D6E` → `sceneNext` and `$0D6C` → `$0652`; `$0D6F` is not written back to
+`sceneNext`. The normal `CheckSceneTransition` pipeline then takes over.
 
 ---
 
@@ -358,7 +364,8 @@ Each handler is a small `&Code` block that sets up the route and deferred scene
 parameters for its destination:
 
 1. Writes the route ID to `$0D5A` (selects a route from `world_map_routes`)
-2. Configures the deferred scene ID and flags in `$0D6C`–`$0D6F`
+2. Sets the destination scene via `sceneNext` (captured into `$0D6E` by
+   `DeferSceneTransition` after dispatch)
 3. Sets graphics cache indices (`gfxCacheIdxA`/`B`) for the destination's
    enter/exit transition
 4. Some handlers set additional game state (music, event flags, palette)
@@ -366,14 +373,17 @@ parameters for its destination:
 The option index is extracted from `$0D58` by `WorldMapController` (5-bit mask),
 then used as a word index into the `&Code` table at the start of
 `world_map_options`. After the handler completes, `DeferSceneTransition` captures
-the pending `sceneNext`, and `RouteAnimationEngine` begins route playback.
+the pending `sceneNext` into `$0D6E` and `$0652` into `$0D6C`, then
+`RouteAnimationEngine` begins route playback.
 
 ### Notes
 
 The relationship between options, routes, and scenes is:
 - `$0D58` (destination ID) → selects an option handler from `world_map_options`
 - The option handler writes a route ID → `$0D5A` → selects from `world_map_routes`
-- The option handler also writes the final scene ID → `$0D6E`/`$0D6F`
+- The option handler sets the destination scene via `sceneNext`; `DeferSceneTransition`
+  captures it → `$0D6E`. `$0D6F` (source scene ID) is set by `scene_lifecycle` on
+  special-scene entry, not by option handlers
 - Route playback animates the player along the path
 - On completion, `RouteEndHandler` triggers the deferred transition to the target scene
 
@@ -381,11 +391,12 @@ The relationship between options, routes, and scenes is:
 
 ## Category-wide notes
 
-**World-map WRAM `$0D52`–`$0D6F`:** This 30-byte state block is exclusively owned
+**World-map WRAM `$0D52`–`$0D6F`:** This 30-byte state block is primarily owned
 by the world-map system. It is zeroed by `ClearWorldMapState` on cleanup and
 persists across the map scene's lifetime. The block stores arrival position,
 destination ID, route playback state, companion formation, and the deferred scene
-transition target. No other system reads or writes these addresses.
+transition target. However, `scene_lifecycle.asm` also writes `$0D54`, `$0D6C`,
+`$0D6E`, and `$0D6F` during the special-scene (`$FE`) transition entry path.
 
 **Iris effect sharing:** `IrisCircleEffect` (Category 3) is used in both the
 prologue prophecy scene (`$8C`) and the world map (`$FE`), while
@@ -400,3 +411,13 @@ current area's tilemap data, actor list, and scene markers. The world map is a
 full scene (`$FE`) with its own actor, thinkers, and route system. The radar never
 activates on the world-map scene (Start on the world map is consumed by the
 controller's joypad mask `$FFF0`).
+
+---
+
+## See Also
+
+- [field-input-and-items.md](field-input-and-items.md) — `GlobalInputHandler` Start button opens radar; item handlers reference inventory
+- [mode7-and-cutscenes.md](mode7-and-cutscenes.md) — `IrisCircleEffect` vs `HdmaWindowEffect` comparison; shared HDMA windowing concepts
+- [scene-and-hardware.md](scene-and-hardware.md) — `ClearSceneState` initializes scene $FE; transition effects used by world map
+- [actor-thinker-runtime.md](actor-thinker-runtime.md) — `WorldMapController` is an actor; `HdmaWindowEffect` is a thinker
+- [Bank $03 index](index.md) — bank-wide memory map, WRAM reference, design patterns

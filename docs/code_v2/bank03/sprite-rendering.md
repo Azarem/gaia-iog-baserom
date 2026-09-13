@@ -1,10 +1,6 @@
-# Category 6 — Sprite Composition & OAM
+# Sprite Composition & OAM
 
-> The actor-to-OAM rendering pipeline (render-list build, depth sort, metasprite
-> decomposition, OAM packing) plus the floating damage-digit sprite composer.
->
-> Part of Bank `$03` — see the [bank index](index.md). All addresses are
-> hexadecimal (bank byte `$03`).
+*Part of the [Bank $03 Documentation Suite](index.md)*
 
 ## Parts in this category
 
@@ -26,6 +22,18 @@ actor's metasprite and pack the results (plus any pre-composed sprites) into OAM
 `oam_digit_compose` is a producer that feeds the pre-composed sprite buffer:
 combat converts packed-BCD damage numbers into digit sprites there, and
 `ComposeAllSprites` later merges them into OAM alongside the actors.
+
+**Related:** [movement-and-collision.md](movement-and-collision.md) (FormatDamageDigits feeds compose buffer) · [actor-thinker-runtime.md](actor-thinker-runtime.md) (actor linked list is the render source) · [scene-and-hardware.md](scene-and-hardware.md) (DmaPlayerTilesToVram for player sprite cache)
+
+```mermaid
+flowchart TD
+    Clear["Stage 1: ClearActorRenderList\nZero bucket array $0200-$03FE"]
+    Sort["Stage 2: SortActorsByDepth\nBucket sort by screen Y\n→ final list at $0C00"]
+    Compose["Stage 3: ComposeAllSprites\n1. RenderComposeBuffer ($7F3100)\n2. DecomposeActorMetasprites\n3. DecomposePlayerSprites"]
+    Pack["Stage 4: OAM Table Packing\n128 entries at $0422-$0621\n+ hi-table (size/X bit 8)"]
+
+    Clear --> Sort --> Compose --> Pack
+```
 
 ---
 
@@ -61,12 +69,13 @@ the sorted list at `$0C00`.
 ### Stage 3 — composition (`ComposeAllSprites`)
 
 Entry from the main loop after actor execution. Pre-fills all 128 OAM entries with
-off-screen `$E080`, then processes two sources:
-1. Compose buffer at `$7F3100` (pre-composed: damage digits, VFX).
-2. Sorted actor list at `$0C00` (metasprite decomposition).
-
-Dispatches to `DecomposeActorMetasprites` (generic) or `DecomposePlayerSprites`
-(player, bit 15 of `$10`).
+off-screen `$E080`, then processes in order:
+1. `RenderComposeBuffer` — reads pre-composed entries at `$7F3100` up to the
+   cursor at `$00D8`.
+2. `STZ $00D8` — clears the compose-buffer write cursor for the next frame.
+3. Sorted actor list at `$0C00` — metasprite decomposition via
+   `DecomposeActorMetasprites` (generic) or `DecomposePlayerSprites` (player,
+   bit 15 of `$10`).
 
 ### OAM table layout
 
@@ -239,9 +248,10 @@ entries. The write cursor at `$00D8` tracks the next free position. Known produc
 | `SpawnAttackTrailEffect` | combat VFX | weapon trail particles |
 | COP visual effect handlers | various | screen-flash, explosion, etc. |
 
-`ComposeAllSprites` clears `$00D8` before processing actors, then
-`RenderComposeBuffer` reads all entries from `$7F3100` up to the cursor position
-and converts them to OAM entries before the actor metasprite loop begins.
+`ComposeAllSprites` calls `RenderComposeBuffer` first, reading all entries from
+`$7F3100` up to the current `$00D8` cursor position and converting them to OAM
+entries. It then clears `$00D8` (`STZ $00D8`) before the actor metasprite loop
+begins.
 
 ### `$0C00` sorted list and `$0200`–`$0400` bucket array lifetimes
 
@@ -254,3 +264,12 @@ The bucket array at `$0200` overlaps with the `deathFlag` region — this is saf
 because the bucket clear (`ClearActorRenderList`) happens before actor processing,
 and the bucket data is fully consumed before any other system touches `$0200`.
 The sorted list at `$0C00` persists until the next frame's clear.
+
+---
+
+## See Also
+
+- [movement-and-collision.md](movement-and-collision.md) — `FormatDamageDigits` produces packed BCD consumed by `ComposeDigitSprites`
+- [actor-thinker-runtime.md](actor-thinker-runtime.md) — actor linked list ($56 head) is the source for depth sorting
+- [scene-and-hardware.md](scene-and-hardware.md) — `DmaPlayerTilesToVram` transfers player tiles; `ClearSceneState` resets sprite state
+- [Bank $03 index](index.md) — bank-wide memory map, OAM layout reference

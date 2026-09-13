@@ -332,7 +332,7 @@ Tile `$0C` (slope-left) south handler with **`$09C6` slope accumulator**. When b
 
 ### SouthWallHandler
 
-Tile `$06` south wall handler. Double-wall check at BR; slide-down via future TL probe; corner resolution via Y snap + fine X adjust.
+Handles northward movement into a south-facing wall tile (`$06`) at the player's top-left corner. When the player is not fully boxed in (bottom-right is not also `$06`), the routine looks for a gap below the wall lip: if cells down and to the right are walkable, the player **slides west** along the wall by computing a Y snap offset and calling `FineAdjustXWest`. If no gap exists, it first tries a diagonal X snap (`SnapXDiagCollision`) and re-probes; a still-blocked path zeroes vertical delta and hard-snaps Y southward instead.
 
 **Algorithm:**
 
@@ -363,7 +363,7 @@ Future TL `$06` nudge variant. When `$AB.$02` set and X aligned, allows vertical
 
 ### NorthWallHandler
 
-Tile `$09` north wall handler. Double-wall at BL; slide-up via future TR; corner via Y snap + fine X east adjust.
+Handles northward movement when a north-facing wall tile (`$09`) sits at the player's top-right corner. A matching `$09` at bottom-left means the player is sandwiched between north walls and movement is cancelled entirely. Otherwise the routine probes for open space above the wall (cells up and to the right); when a gap exists the player **slides east** along the north wall via `ComputeYSnapOffset` and `FineAdjustXEast`. Misaligned approaches fall back to `SnapXEastCollision`, and persistent blockage zeroes `$24` and snaps Y to the south tile boundary.
 
 **Algorithm:**
 
@@ -442,11 +442,11 @@ Southward movement dispatcher for positive `$24` (downward on screen). Probes BL
 
 ### SouthStairsTile
 
-Tile `$08` vine: verifies down-cell `$08`, sets `$09AF` bit `$08`, redirects to `ClimbVineEntry`, snaps Y.
+Triggered when southward movement reaches a vine/stairs tile (`$08`) at the destination bottom-left corner. If the player is not X-aligned on the tile, the handler verifies that the cell directly below is also `$08` (continuous vine column); otherwise the step is treated as a normal wall block. On success it sets `$09AF` bit `$08` (stair/vine flag), switches the player actor state to `ClimbVineEntry`, and snaps Y to the 64px grid before applying movement — handing control to the climb animation state machine.
 
 ### SouthSlopeRight
 
-Tile `$03` south slope: BR continuity, Y threshold `$08`, slope flag on block.
+Handles southward entry onto a right-descending slope tile (`$03`) at the bottom-left corner. Both bottom corners must read `$03`, and the player must either be Y-aligned with a matching `$03` tile to the left or sit in the upper half of the tile (sub-tile Y offset `< $08`); otherwise the step is blocked as a wall collision. When the player is in the lower half without left-side continuity, `$09AF` bit `$10` (slope snap flag) is set so fractional slope physics can take over on the next frame.
 
 **Cross-References:**
 
@@ -456,7 +456,7 @@ Tile `$03` south slope: BR continuity, Y threshold `$08`, slope flag on block.
 
 ### SouthSlopeLeft
 
-Tile `$0C` south slope with **`$09C6` accumulator** (positive-direction variant).
+Handles southward movement on a left-descending slope tile (`$0C`), mirroring `SouthSlopeRight`'s corner and sub-tile checks but using the **`$09C6` fractional accumulator** for smooth descent. When the player enters the lower tile half, incoming V-delta (`$24`) is added to `$09C6`; whole sub-pixel steps (÷16) are extracted and applied as actual movement while the remainder stays in the accumulator across frames. This spreads steep downward motion across multiple frames instead of snapping the player to the slope surface in one step.
 
 **Algorithm:**
 
@@ -480,7 +480,7 @@ Tile `$0C` south slope with **`$09C6` accumulator** (positive-direction variant)
 
 ### SouthWallNorthInteract
 
-Tile `$09` moving south: double-wall at TR, slide-down via future BL, corner via `ComputeSouthSnapOffset` → `FineAdjustXWest`.
+Handles southward movement when the player stands on a north-facing wall tile (`$09`) at the bottom-left corner — the mirror of `NorthWallHandler` but for downward motion instead of upward. If top-right is also `$09` the player is fully walled and all deltas are cleared. When sub-tile Y is aligned with a continuing `$09` wall ahead, the routine probes for a gap below the wall lip; an open gap triggers **westward wall-slide** via `ComputeSouthSnapOffset` → `FineAdjustXWest`, while a closed gap tries diagonal X snap first and may fall back to hard Y snap south.
 
 **Cross-References:**
 
@@ -491,7 +491,7 @@ Tile `$09` moving south: double-wall at TR, slide-down via future BL, corner via
 
 ### SouthWallSouthInteract
 
-Tile `$06` moving south: TL double-wall, slide-up path, `ComputeSouthSnapOffset` → `FineAdjustXEast`.
+Handles southward movement when a south-facing wall tile (`$06`) is at the bottom-right corner. Enclosure between `$06` at both top-left and bottom-right stops all movement; otherwise the handler probes the future bottom-right cell for a continuing south wall with Y sub-tile alignment. When a gap exists above the wall lip (cells up and left are walkable), the player **slides east** along the south wall through `ComputeSouthSnapOffset` → `FineAdjustXEast`. Misaligned paths snap X eastward first (`SnapXEastCollision`); if still blocked, vertical delta is zeroed and Y snaps north to the tile ceiling.
 
 **Cross-References:**
 
@@ -524,7 +524,7 @@ X auto-align when south movement is blocked. Mirror of `AutoAlignEW` but probes 
 
 ### ComputeSouthSnapOffset
 
-Computes south snap offset in `$02` from BL probe (`$09` or aligned down-cell `$06`) with V-delta parity correction on `$1E` sub-tile.
+Computes the sub-pixel **snap correction** stored in `$02` for southward wall-sliding. When the current bottom-left is a north wall (`$09`) or a south wall (`$06`) with X right-half alignment, the routine predicts whether this frame's V-delta will cross a 16px sub-tile Y boundary and adds `$10` to `$02` if so. The final offset combines that boundary-crossing term with the probe Y sub-tile position (`$1E & $0F`), giving `FineAdjustXEast`/`FineAdjustXWest` the distance needed to align the player flush against the wall edge.
 
 **Variables:**
 
@@ -553,7 +553,7 @@ Fine X adjust after south wall snap (east edge). If pixel distance + `$02` ≥ `
 
 ### FineAdjustXWest
 
-Mirror of `FineAdjustXEast` with inverted distance metric for westward snap correction.
+Precision X correction after a north-wall slide during southward movement — the west-edge counterpart to `FineAdjustXEast`. Instead of measuring distance from the east edge of the tile, it inverts the sub-tile X offset (distance from the **west** edge) and adds the snap correction from `$02`. If the combined distance is under 17 sub-pixels, movement applies without grid snap; otherwise `$22` is rewritten to snap the player to the previous tile column's west boundary, preventing the sprite from visually clipping through the wall corner.
 
 **Cross-References:**
 
@@ -655,7 +655,7 @@ Y auto-align when east movement is blocked. Stack re-entrancy guard via `$06,S`;
 
 ### ComputeEastSnapOffset
 
-Computes east snap offset in `$02` from TR probe (`$09` or aligned east-cell `$06`) with EW-delta parity correction on `$1A` sub-tile.
+Computes the sub-pixel **snap correction** in `$02` for eastward wall-sliding, analogous to `ComputeSouthSnapOffset` but operating on the X axis. When the current top-right is a north wall (`$09`) or a south wall (`$06`) with Y right-half alignment, it checks whether this frame's H-delta (`$20`) will cross a 16px sub-tile X boundary and adds `$10` to `$02` on crossing. The probe X sub-tile (`$1A & $0F`) is then added to produce the total offset consumed by `DiagPushLeft`/`DiagPushRight` after east-movement wall collisions.
 
 **Variables:**
 
@@ -880,7 +880,7 @@ Up-left ramp edge case. Offset probe at `$1A-$09`; tile `$05` boundary check; co
 
 ### DiagRampDownRight
 
-Mirror of `DiagRampUpLeft`. Tile `$0A` probes; inverted Y math for down-right diagonal ramp.
+Descends an **east-facing ramp tile** (`$0A`) during down-right diagonal movement — the `$0A` counterpart to `DiagRampUpLeft`'s west-facing `$05` handler. A multi-probe search checks the current bottom-left, cell above, future top-left, and cell below for `$0A`; when found, `CheckTileBoundaryXor` gates whether fractional Y displacement is computed from the X sub-tile position (proportional descent) or a full-tile `$26 += $20` step applies. Sets `$09AE` bit `$1000` (ramp flag) and runs a post-slope wall check at future corners, falling back to single-axis Y snap or dual-wall corner snap if blocked.
 
 **Cross-References:**
 
@@ -890,7 +890,7 @@ Mirror of `DiagRampUpLeft`. Tile `$0A` probes; inverted Y math for down-right di
 
 ### DiagRampEdgeDR
 
-Down-right ramp edge case. Mirror of `DiagRampEdgeUL` for tile `$0A`.
+Handles the **partial-entry edge case** for east-facing ramp tiles (`$0A`) during diagonal movement — entered when the current top-right reads `$0A` at the tile boundary rather than a full ramp cell. Probes at Y−9px to confirm the ramp surface; if `CheckTileBoundaryXor` shows no X sub-column crossing, it delegates to the full-tile ramp path (`code_02DEE4`). Otherwise it computes a proportional Y offset from X velocity, stores it as residual V-delta in `$24`, and joins the shared post-ramp wall-check finalize at `code_02DEEB`.
 
 **Cross-References:**
 
@@ -969,7 +969,7 @@ Left-push realignment after diagonal collision. Y sub-tile distance + `$02`; may
 
 ### DiagPushRight
 
-Right-push realignment. Mirror of `DiagPushLeft` with inverted Y distance metric and `$0440` flag truncation on `$AA`.
+Applies **rightward push realignment** after a diagonal collision against a north wall — the positive-X counterpart to `DiagPushLeft`. It derives a push distance from the inverted Y sub-tile position plus the snap offset in `$02`; if the total exceeds 16 sub-pixels, the excess becomes a positive V-delta in `$24` (residual vertical slide along the wall). When the push would overshoot past the caller's return threshold (comparing `|$20|` against the stack guard at `$03,S`), it zeroes H-delta and clears `$AA` bits `$0440` (north-wall collision flags) instead of applying the slide.
 
 **Cross-References:**
 

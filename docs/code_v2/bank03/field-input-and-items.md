@@ -1,18 +1,19 @@
-# Category 1 — Field Input, Items & Inventory
+# Field Input, Items & Inventory
 
-> The player-facing interaction layer of bank `$03`: the top-level field button
-> gate, the Y-button item-use dispatcher and its 41 handlers, inventory slot
-> management, and the player-facing-direction helper.
->
-> Part of Bank `$03` — see the [bank index](index.md). All addresses are
-> hexadecimal (bank byte `$03`).
+*Part of the [Bank $03 Documentation Suite](index.md)*
+
+> The player-facing interaction layer: the top-level field button gate, the
+> Y-button item-use dispatcher and its 41 handlers, inventory slot management,
+> and the player-facing-direction helper.
+
+**Related:** [radar-and-world-map.md](radar-and-world-map.md) (Start button opens radar) · [text-and-menus.md](text-and-menus.md) (item handlers use dialogue rendering) · [movement-and-collision.md](movement-and-collision.md) (facing direction used by collision)
 
 ## Parts in this category
 
 | Part | Range | Source |
 |------|-------|--------|
 | GlobalInputHandler | `$038000`–`$0380BF` | [GlobalInputHandler.asm](../../../extracted/system/engine/GlobalInputHandler.asm) |
-| item_use_system | `$038410`–`$03A0AA` | [item_use_system.asm](../../../extracted/system/engine/item_use_system.asm) |
+| item_use_system | `$038410`–`$03A0AA` | [item_use_system.asm](../../../extracted/system/inventory/item_use_system.asm) |
 | inventory_mgmt | `$03EF97`–`$03F0CA` | [inventory_mgmt.asm](../../../extracted/system/inventory/inventory_mgmt.asm) |
 | GetPlayerFacingDirection | `$03F0CA`–`$03F1D0` | [GetPlayerFacingDirection.asm](../../../extracted/system/engine/GetPlayerFacingDirection.asm) |
 
@@ -21,12 +22,48 @@
 This category covers what happens when the player presses a UI button on the
 field. `GlobalInputHandler` is the single entry point called once per frame by the
 `system_core` main loop; it gates on game state, then routes **Start** to the
-radar/map overlay ([Category 2](radar-and-world-map.md)), **Select** to the
+radar/map overlay ([radar-and-world-map.md](radar-and-world-map.md)), **Select** to the
 inventory screen, and **Y** to `item_use_system`. The item system reads the
 equipped slot, dispatches through a 64-entry table to one of 41 item handlers, and
 runs a shared epilogue. `inventory_mgmt` provides the slot bookkeeping that item
 handlers use to give/remove items, and `GetPlayerFacingDirection` is a small
 orientation helper for interaction logic.
+
+```mermaid
+flowchart TD
+    Entry["GlobalInputHandler\n(per-frame from system_core)"]
+    G1{"sceneNext != 0?"}
+    G2{"game over?"}
+    G3{"melody playing?"}
+    GStart{"Start pressed?"}
+    G4{"running/ability?"}
+    GSelect{"Select pressed?"}
+    GY{"Y pressed?"}
+    Lock{"input-lock\nbit 3?"}
+    Radar["RadarScreenSetup\n(hold-to-view minimap)"]
+    Pause["PAUSE overlay\n(dimmed BG3 text)"]
+    Inventory["OpenInventoryScreen"]
+    ItemUse["ItemUseDispatch\n(64-entry jump table)"]
+    Exit["return to system_core"]
+
+    Entry --> G1
+    G1 -->|yes| Exit
+    G1 -->|no| G2
+    G2 -->|yes| Exit
+    G2 -->|no| G3
+    G3 -->|yes| Exit
+    G3 -->|no| GStart
+    GStart -->|yes| Lock
+    Lock -->|clear| Radar
+    Lock -->|set| Pause
+    GStart -->|no| G4
+    G4 -->|yes| Exit
+    G4 -->|no| GSelect
+    GSelect -->|yes| Inventory
+    GSelect -->|no| GY
+    GY -->|yes| ItemUse
+    GY -->|no| Exit
+```
 
 ---
 
@@ -37,14 +74,16 @@ Source: [GlobalInputHandler.asm](../../../extracted/system/engine/GlobalInputHan
 ### Purpose
 
 Per-frame UI input dispatcher, called from `system_core` between warp/chest checks
-and actor execution. Five guard conditions suppress all UI input before dispatch:
+and actor execution. Five guard conditions gate button dispatch:
 
 1. `sceneNext` nonzero — a scene transition is pending.
 2. `playerFlags` bit 9 (`$0200`) — game-over sequence active.
 3. `IsMusicPlaying` returns carry set — a melody item is playing (SPC transfer).
-4. `playerFlags` bits 13|11 (`$2800`) — running or ability active (blocks Select
-   and Y but **not** Start).
-5. No recognized button pressed.
+4. Start (`$1000`) is checked here — if pressed, branches directly to map/radar
+   path, bypassing the remaining guards.
+5. `playerFlags` bits 13|11 (`$2800`) — running or ability active; blocks **Select
+   and Y only** (Start already dispatched above).
+6. No recognized button pressed.
 
 Button dispatch: **Start** (`$1000`) → map/radar (normal radar overlay, or a
 dimmed `PAUSE` text overlay when the input-lock flag `$0008` is set); **Select**
@@ -107,7 +146,7 @@ directly to `system_core`.
 
 ## item_use_system — `$038410`–`$03A0AA`
 
-Source: [item_use_system.asm](../../../extracted/system/engine/item_use_system.asm)
+Source: [item_use_system.asm](../../../extracted/system/inventory/item_use_system.asm)
 
 ### Purpose
 
@@ -131,8 +170,8 @@ suppresses Start re-entry.
    Hope, Rama Statue, Magic Powder, Teapot; Smoked Meat, Mushroom Water, Gorgon
    Flower.)
 3. **Melody items** — Wind, Lola's, Memory melodies share
-   `FluteMusicActorController` (melody index `$20` = 0/1/2). Requires Will
-   (form 0).
+   `FluteMusicActorController` (melody index 0/1/2 stored in actor field
+   offset `$0020`). Requires Will (form 0).
 4. **Dialogue-option items** — Herb (yes/no heal), Journal (3 topics), Hieroglyph
    Plates (6-slot swap puzzle).
 
@@ -162,7 +201,7 @@ suppresses Start re-entry.
 
 | Address | Meaning |
 |---------|---------|
-| `$0AA6` | current hieroglyph plate ID (item − `$1E`) / garden-crash game flag |
+| `$0AA6` | current hieroglyph plate ID (item − `$1E`) |
 | `$0AAC` | hieroglyph slot selection (0–5) |
 | `$0AB0` | `jewelsCollected` — BCD jewel counter (SED/CLD arithmetic) |
 | `$0AB4` | `inventorySlots` — 16 item bytes (shared with inventory_mgmt) |
@@ -187,7 +226,7 @@ Items `$00`–`$28` point to individual handlers; `$29`–`$3F` all point to
 | `$02` | `UseItem_PrisonKey` | `$0385C2` | scene-key | Edward's Prison scene gate |
 | `$03` | `UseItem_IncaStatueA` | `$038691` | scene-key | Inca Ruins statue A placement |
 | `$04` | `UseItem_IncaStatueB` | `$0387A7` | scene-key | Inca Ruins statue B placement |
-| `$05` | `UseItem_IncanMelody` | `$03881D` | melody | Incan melody via `FluteMusicActorController` |
+| `$05` | `UseItem_IncanMelody` | `$03881D` | scene-key | scene-gated Incan melody; sets flag `#2E`, no `FluteMusicActorController` |
 | `$06` | `UseItem_Herb` | `$03888A` | dialogue | yes/no heal (restores HP to max) |
 | `$07` | `UseItem_DiamondBlock` | `$038917` | scene-key | Diamond Mine block placement |
 | `$08` | `UseItem_WindFlute` | `$03899A` | melody | Wind melody (index 0); requires Will form |
@@ -249,7 +288,8 @@ Items `$00`–`$28` point to individual handlers; `$29`–`$3F` all point to
 (`$03842E`) onto the stack before dispatching through the jump table. Each handler
 ends in `RTS`, which pops this address and jumps to `ItemUseEpilogue` (`$03842F`).
 The epilogue calls `UpdateFrameDialogue` (one frame of UI processing), re-suppresses
-Start (`$4000` via TSB), then `PLP` / `RTL` returns to `system_core`. The `−1` on
+Y (`$4000` via TSB to prevent Y re-trigger during item use), then `PLP` / `RTL`
+returns to `system_core`. The `−1` on
 the `PEA` is necessary because `RTS` adds 1 to the popped address.
 
 **String-data embedding:** Many handlers embed inline dialogue strings directly
@@ -262,8 +302,10 @@ with execution resuming after the embedded data.
 multi-phase actor: (1) masks joypad to suppress UI, (2) spawns SPC music transfer
 actors, (3) holds a static player pose, (4) polls `IsMusicPlaying` until the melody
 finishes, (5) dispatches via `SwitchCase` to the melody-specific effect handler
-(`_Effect`), then (6) restores the previous BGM. Each melody handler sets the
-melody index via `LDA #$20` with bits selecting 0/1/2.
+(`_Effect`), then (6) restores the previous BGM. Each melody handler stores the
+melody index (0, 1, or 2) into actor field offset `$0020` via `STA $0020,Y`.
+Note: `UseItem_IncanMelody` ($05) does **not** use this system — it is a
+scene-gated flag-set handler with no music actor.
 
 **Hieroglyph plate puzzle:** Items `$1E`–`$23` share a single handler
 `UseItem_HieroglyphPlate` (`$039AA0`). The plate ID is computed as `item − $1E`.
@@ -355,14 +397,14 @@ Resolves the player actor's current facing direction. Reads the player's
 animation/direction field (`$0028,X`) indexed into `FacingDirectionLookup`. Returns
 **carry clear** for the four cardinal directions (result `< $04`), **carry set**
 otherwise. Preserves the caller's X via `TXY`/`TYX`. `GetPlayerFacing_AltEntry`
-provides an alternate entry that pulls its return context off the stack.
+restores the saved X register (via `PLY`) and joins the normal lookup path.
 
 ### Key routines
 
 | Address | Label | Role |
 |---------|-------|------|
 | `$03F0CA` | `GetPlayerFacingDirection` | main entry: save X via TXY, load player actor, check visibility |
-| `$03F0EE` | `GetPlayerFacing_AltEntry` | alternate entry: `PLY` (discard return), branch to direction lookup |
+| `$03F0EE` | `GetPlayerFacing_AltEntry` | alternate entry: `PLY` restores saved X, branches to direction lookup |
 | `$03F11F` | `FacingDirectionLookup` | 88-byte table mapping animation frame → direction (0–3 cardinal, 4+ = non-cardinal) |
 | `$03F177` | `FacingFormOffsetTable` | 4-entry word table: per-form offsets into form-specific facing data |
 | `$03F17F` | `FacingData_Will` | 27 bytes — Will's frame→direction map (4 directions × poses + extras) |
@@ -387,9 +429,9 @@ provides an alternate entry that pulls its return context off the stack.
 
 ### Notes
 
-**BMI player-hidden branch:** The main entry reads `playerFlags` and checks the
-sign bit (`BMI` at `$03F0D4`). If negative (bit 15 set = player actor hidden), the
-code enters the alternate form-aware path at `$03F0F1` instead of the simple
+**BMI transformed-form branch:** The main entry reads `playerFlags` and checks the
+sign bit (`BMI` at `$03F0D4`). If negative (bit 15 set = **transformed form**), the
+code enters the form-aware path at `$03F0F1` instead of the simple
 lookup. This path reads `$0AC8` (form index), subtracts 4, and if the result is
 negative, falls through to `GetPlayerFacing_AltEntry`. Otherwise it uses
 `FacingFormOffsetTable` to compute a form-specific offset, adding the player's
@@ -423,11 +465,15 @@ has a meaningful per-pose direction mapping, reflecting his wider animation vari
 **Input-consume convention:** All button handlers use `LDA #$mask` / `TSB $joypadHeld`
 to mark the triggering button as consumed. This prevents the button press from
 being re-recognized on subsequent frames while the button remains physically held.
-Additionally, `ItemUseDispatch` suppresses Start (`$4000` → `joypadHeld`) to prevent
-the map/radar from opening during item-use processing.
+Additionally, `ItemUseEpilogue` suppresses Y (`$4000` → `joypadHeld`) to prevent
+the Y button from re-triggering during item-use processing.
 
-**Handler address verification:** All 41 handler addresses in the dispatch table above
-have been verified against the current `names.json` and cross-checked against the
-extracted source `item_use_system.asm`. The jump table at `$03843F` is a contiguous
-64-entry word array with entries `$29`–`$3F` all pointing to `UseItem_Unused` at
-`$039FB1`.
+---
+
+## See Also
+
+- [radar-and-world-map.md](radar-and-world-map.md) — Start button destination; `RadarScreenSetup` called from `GlobalInputHandler`
+- [text-and-menus.md](text-and-menus.md) — `DialogStringRenderer` / `ConsoleStringRenderer` used by item handlers and inventory UI
+- [movement-and-collision.md](movement-and-collision.md) — `GetPlayerFacingDirection` used by knockback and interaction collision
+- [scene-and-hardware.md](scene-and-hardware.md) — scene transitions triggered by item-use `QueueMapChange`
+- [Bank $03 index](index.md) — bank-wide memory map, WRAM reference, design patterns

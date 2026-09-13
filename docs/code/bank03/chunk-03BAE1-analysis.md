@@ -1,3 +1,7 @@
+> **DEPRECATED** — This document has been superseded by the
+> [Bank $03 v2 documentation](../code_v2/bank03/index.md).
+> Do not update this file; see the v2 suite for current information.
+
 # Bank 03 — `chunk_03BAE1` Deep Analysis
 
 > Complete reference for the engine's core runtime systems in IOG's ROM bank `$03`.

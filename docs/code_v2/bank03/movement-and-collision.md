@@ -1,10 +1,11 @@
-# Category 5 — Movement, Physics & Combat Collision
+# Movement & Combat Collision
+
+*Part of the [Bank $03 Documentation Suite](index.md)*
 
 > Tile-based actor movement (with and without collision) and the actor-vs-actor
 > combat/interaction collision + damage system.
 >
-> Part of Bank `$03` — see the [bank index](index.md). All addresses are
-> hexadecimal (bank byte `$03`).
+> All addresses are hexadecimal (bank byte `$03`).
 
 ## Parts in this category
 
@@ -22,6 +23,31 @@ from the actor post-tick to move actors while respecting walls and floors.
 tests (player↔enemy) and NPC/object interaction tests, plus damage math,
 knockback, and death handling. Together they turn per-actor movement intentions
 and attack states into world interactions each frame.
+
+**Related:** [actor-thinker-runtime.md](actor-thinker-runtime.md) (actor execution calls PostTick movement) · [sprite-rendering.md](sprite-rendering.md) (damage digits → OAM compose buffer) · [field-input-and-items.md](field-input-and-items.md) (GetPlayerFacingDirection used by knockback)
+
+```mermaid
+flowchart LR
+    Entry["PostTick\n(from actor loop)"]
+    XDelta["Read X delta\n(override or scratch)"]
+    XMove["TileCollision_MoveLeft\nor MoveRight"]
+    XResult{"blocked?"}
+    XSnap["Snap to\ntile boundary"]
+    XPass["Apply X\nmovement"]
+    YDelta["Read Y delta"]
+    YMove["TileCollision_MoveUp\nor MoveDown"]
+    YResult{"blocked?"}
+    YSnap["Snap to\ntile boundary"]
+    YPass["Apply Y\nmovement"]
+    Done["Movement\ncomplete"]
+
+    Entry --> XDelta --> XMove --> XResult
+    XResult -->|yes| XSnap --> YDelta
+    XResult -->|no| XPass --> YDelta
+    YDelta --> YMove --> YResult
+    YResult -->|yes| YSnap --> Done
+    YResult -->|no| YPass --> Done
+```
 
 ---
 
@@ -47,8 +73,10 @@ bit 13 (`$2000`) flips Y.
 1. Read delta (override or scratch).
 2. Negate per direction flags.
 3. `PEA` a post-collision handler as the return address.
-4. `JMP` to `MoveLeft`/`MoveRight` or `MoveUp`/`MoveDown` by delta sign.
-5. `MoveXxx` checks tiles along the leading hitbox edge.
+4. `JMP` to `TileCollision_MoveLeft`/`TileCollision_MoveRight` or
+   `TileCollision_MoveUp`/`TileCollision_MoveDown` by delta sign.
+5. `TileCollision_MoveLeft`/`TileCollision_MoveRight`/`TileCollision_MoveUp`/
+   `TileCollision_MoveDown` checks tiles along the leading hitbox edge.
 6. Return carry set (blocked → snapped to tile boundary) or clear (passed).
 7. Post-collision handler applies residual movement, clears scratch.
 
@@ -83,7 +111,7 @@ column, with `mapRowStrideL0` (`$0693`) controlling metatile page stride.
 | `$03D1F5` | `ApplyMovement` | simple delta application — no collision (airborne/overlay actors) |
 | `$03D276` | `ApplyMovementWithCollision` | full tile-collision pipeline (grounded actors) |
 | `$03D2B9` | `CollisionX_PostMove` | post-collision X: apply residual movement, clear scratch |
-| `$03D337` | `CollisionY_Setup` | Y-axis setup: direction check, bounce logic, `PEA` return, branch to MoveUp/Down |
+| `$03D337` | `CollisionY_Setup` | Y-axis setup: direction check, bounce logic, `PEA` return, branch to `TileCollision_MoveUp`/`TileCollision_MoveDown` |
 | `$03D39C` | `TileCollision_MoveLeft` | scan tiles along left hitbox edge downward |
 | `$03D41F` | `TileCollision_MoveRight` | scan tiles along right hitbox edge downward |
 | `$03D4AD` | `TileTypeJumpTable_Horizontal` | 16-entry horizontal tile type dispatch |
@@ -144,11 +172,12 @@ through these special formations.
 
 ### Bounce mechanism (`CollisionY_Setup`)
 
-Before dispatching to `MoveUp`/`MoveDown`, `CollisionY_Setup` checks two
-conditions: `$10` bit 2 (solid-contact from the X pass) AND `extendedFlags` bit 6
-(`$0040` = bounce enabled). If both set, the Y direction bits in `$12` are flipped
-via `EOR $6000` (toggling bits 13 and 14), reversing vertical movement. This
-creates bouncing behavior for projectiles that hit walls.
+Before dispatching to `TileCollision_MoveUp`/`TileCollision_MoveDown`,
+`CollisionY_Setup` checks two conditions: `$10` bit 2 (solid-contact from the X
+pass) AND `extendedFlags` bit 6 (`$0040` = bounce enabled). If both set, the Y
+direction bits in `$12` are flipped via `EOR $6000` (toggling bits 13 and 14),
+reversing vertical movement. This creates bouncing behavior for projectiles that
+hit walls.
 
 ### Cross-references
 
@@ -199,10 +228,12 @@ source — only on-screen actors are tested.
 - **Phase 1** (outer): for each enemy, check player-attacking eligibility
   (`$0080` hittable AND `$0040` not orb-protected AND `$12`&`$0010` not
   damage-immune); if eligible, `PlayerAttackHitTest`.
-- **Phase 2** (inner, `code_03BCBC`): test all actors against the current enemy's
-  hitbox for enemy-hits-player. AABB overlap on hitbox fields (`$20`–`$23`). Two
-  paths by the `$20` flag: normal (`$76E0` exclusion mask) or friendly (`$74E0`
-  mask + `extendedFlags` `$0010` check).
+- **Phase 2** (inner, `CombatCollision_InnerLoop`): builds the current enemy's
+  AABB from metasprite header `$0004`–`$0007`, then tests all actors against it
+  for enemy-hits-player overlap using victim slot fields `$0020`–`$0023`. Two
+  paths based on zero-page scratch flag `$20` (set nonzero in outer loop for
+  friendly actors via `$10` bit 5 / `$0020`): normal (`$76E0` exclusion) or
+  friendly (`$74E0` mask + `extendedFlags` `$0010` check).
 
 ### Hitbox format (metasprite header `$0004`–`$0007`)
 
@@ -212,12 +243,15 @@ flag, flipping hitbox X (BCS path negates offsets).
 
 ### Damage formulas
 
-- Player attacks enemy (`PlayerAttackHitTest`): `damage = chainDamage/2 + 1`;
-  `enemyHP = max(0, enemyHP − damage)`; `chainDamage` at `$7F101E,X` accumulates
-  across consecutive hits.
+- Player attacks enemy (`PlayerAttackHitTest`): `damage = (chainDamage >> 1) + 1`;
+  `chainDamage` is halved and written back (`LSR` then `STA $chainDamage,X`).
+  With no external preload, consecutive hits stay at base damage.
+  `enemyHP = max(0, enemyHP − damage)`.
 - Enemy attacks player (`EnemyHitPlayerHandler`):
-  `totalStr = playerStr + previousDamage($09E2) + climbStateData`;
-  `rawDamage = max(1, enemyAtk − totalStr)`.
+  `totalStr = playerStr + previousDamage($09E2) + climbStateData` — `previousDamage`
+  is skipped when ZP `$08 == $1000`;
+  `rawDamage = max(1, enemyAtk − totalStr)`;
+  `netDamage = rawDamage + victim slot $0008`.
 
 ### Key routines
 
@@ -255,27 +289,30 @@ These multi-bit masks are used to quickly exclude actors from collision tests:
 | `$74E0` | `CombatCollision_InnerLoop` (friendly) | 14,13,12,10,7,6,5 | like `$76E0` but allows `$0200` (game-over actors still interact) |
 | `$36F0` | `PlayerAttackHitTest` | 13,12,10,9,7,6,5,4 | skip: friendly, dead, orb, COP, display |
 | `$D460` | `ProcessDodgeCallbacks` | 15,14,12,10,6 | skip: player, dead, COP, overlay, orb |
+| `$35C0` | `InteractionCollision_LoopBody` | 13,12,10,8,7,6 | skip: friendly, dead, orb, COP, display |
 | `$2040` | `RunInteractionCollision` | 13,6 | skip: COP mode + orb |
 | `$0280` | `RunInteractionCollision` | 9,7 | route flag: if set, use friendly-mode test |
-| `$35C0` | *(referenced in header)* | 13,12,10,8,7,6 | extended skip for dodge targets |
 
 ### Chain-damage system
 
-`chainDamage` (`$7F101E,X`) accumulates across consecutive hits within the same
-attack sequence:
+`chainDamage` (`$7F101E,X`) tracks diminishing returns within the same attack
+sequence:
 
-1. On each `PlayerAttackHitTest` hit: `damage = chainDamage/2 + 1`.
-2. `enemyHP = max(0, enemyHP − damage)`.
-3. `chainDamage` is incremented, so subsequent hits in a rapid chain deal
-   increasing base damage.
+1. On each `PlayerAttackHitTest` hit: `damage = (chainDamage >> 1) + 1`.
+2. `chainDamage` is halved and written back (`LSR` then `STA $chainDamage,X`).
+3. With no external preload into `$7F101E`, consecutive hits in the same sequence
+   stay at base damage (`chainDamage` starts at 0 → damage = 1 each hit).
 4. Chain resets when the attack sequence ends (iframe or new attack).
 
-This rewards rapid multi-hit attacks (e.g., Shadow's rapid slashes).
+External preloading of `chainDamage` (via COP or scripts) can seed higher
+first-hit damage; each subsequent hit still halves the stored value before the
+next calculation.
 
 ### Climb-state data source
 
 `EnemyHitPlayerHandler` damage formula:
 `totalStr = playerStr($0ADE) + previousDamage($09E2) + climbStateData($09E0)`.
+`previousDamage` at `$09E2` is omitted from `totalStr` when ZP `$08 == $1000`.
 `climbStateData` at `$09E0` adds a context-dependent defense bonus — when the
 player is climbing or in an elevated position, this value is nonzero, providing
 passive damage reduction.
@@ -284,12 +321,13 @@ passive damage reduction.
 
 When `RunInteractionCollision` detects `$0280` in the candidate's flags, it enters
 `InteractionCollision_FriendlyMode` (`$03C362`). This path only tests actors with
-`$0020` set (friendly/NPC flag). The hitbox test is simplified — no H-mirror
-adjustment. On overlap, `ApplyInteractionDamage` routes to
-`InteractionDamage_NPCChat` which attempts `GiveItemToPlayer` with `chatPtr`.
-If inventory is full, shows the overflow message. Otherwise shows dialogue and
-converts the actor to `NullActorScriptStub` (sets `$0700` flags to prevent
-re-interaction within the same screen visit).
+`$10` bit 5 (`$0020`) set (friendly/NPC flag). Hitbox data comes from the
+metasprite header (`$0004`–`$0007`) — no H-mirror adjustment. On overlap,
+`ApplyInteractionDamage` routes to `InteractionDamage_NPCChat` which attempts
+`GiveItemToPlayer` with `chatPtr`. If inventory is full, shows the overflow
+message. Otherwise shows dialogue and converts the actor to `NullActorScriptStub`
+(sets `$0700` in primary flags `$10` via `ORA #$0700` on `$0010,X` — bits 10+11 —
+to prevent re-interaction within the same screen visit).
 
 ### Cross-references
 
@@ -318,13 +356,15 @@ header, but at different offsets for different purposes:
 | Offset | Used by | Fields |
 |--------|---------|--------|
 | `$0000`–`$0003` | `tile_collision_physics` | tile collision box: `$00`=X offset, `$01`=Y offset, `$02`=X width (tiles), `$03`=Y height (tiles) |
-| `$0004`–`$0007` | `combat_collision` (enemy AABB) | combat hitbox: `$04`=X offset, `$05`=X width, `$06`=Y offset, `$07`=Y height |
-| `$0020`–`$0023` | `combat_collision` (inner loop) | interaction/contact hitbox: `$20`=X offset, `$21`=X size, `$22`=Y offset, `$23`=Y size |
+| `$0004`–`$0007` | `combat_collision` (enemy AABB, interaction/friendly hitbox) | combat/interaction hitbox: `$04`=X offset, `$05`=X width, `$06`=Y offset, `$07`=Y height |
+| `$0020`–`$0023` | `combat_collision` (inner loop victim AABB) | per-slot contact hitbox for enemy→player overlap tests in `CombatCollision_InnerLoop` |
 
 The tile collision hitbox (`$0000`) measures in tiles (multiplied by the scan loop
 count). The combat hitbox (`$0004`) measures in pixels with signed offsets
-(sign-extended from 8 bits). The interaction hitbox (`$0020`) is stored per-actor
-in the slot (set during actor initialization), not in the metasprite header.
+(sign-extended from 8 bits). Interaction collision (both normal and friendly mode)
+reads hitbox data from the metasprite header (`$0004`–`$0007`), not from actor
+slot fields `$0020`–`$0023`. The inner-loop victim fields `$0020`–`$0023` are used
+only for enemy→player contact overlap in phase 2.
 
 **Render-list iteration:** Both combat and interaction collision iterate the **actor
 render list** at `$0C00` (word entries of actor slot addresses). Only actors that
@@ -333,3 +373,13 @@ off-screen actors are never tested — this is an important performance optimiza
 The combat outer loop (`CombatCollision_EnemyLoop`) and the interaction loop
 (`InteractionCollision_LoopBody`) share the same list but use different flag masks
 to filter candidates.
+
+---
+
+## See Also
+
+- [actor-thinker-runtime.md](actor-thinker-runtime.md) — actor execution PostTick dispatches to `ApplyMovement` / `ApplyMovementWithCollision`
+- [sprite-rendering.md](sprite-rendering.md) — `FormatDamageDigits` → `ComposeDigitSprites` → OAM compose buffer
+- [field-input-and-items.md](field-input-and-items.md) — `GetPlayerFacingDirection` used by `CalcKnockbackDirection` fallback
+- [scene-and-hardware.md](scene-and-hardware.md) — combat death triggers scene transitions
+- [Bank $03 index](index.md) — bank-wide memory map, collision type reference, design patterns

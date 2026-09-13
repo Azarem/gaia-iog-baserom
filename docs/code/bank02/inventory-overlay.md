@@ -54,9 +54,9 @@ flowchart TD
 |---------|------|-------------|
 | `$02ED02` | OpenInventoryScreen | Master inventory orchestrator (JSL entry). Implements the state sandwich: save gameplay, switch to scene `$FF`, run inventory UI loop, restore everything on exit. |
 | `$02EECC` | ReloadAbilityFX | Post-close ability graphics reload. DMAs Dark Friar or Aura FX tiles and palette based on active ability `$00EA`. |
-| `$02EF0B` | DrainActorQueue | Walks actor linked list from `$5A` and zeroes frame counter `$0008` on each actor. |
-| `$02EF1D` | SaveGameState | Snapshots gameplay WRAM, joypad state, camera, and palette buffer before inventory opens. |
-| `$02EFB2` | RestoreGameState | Inverse of SaveGameState: restores all MVN backup regions, joypad, actor count, DP vars, and camera. |
+| `$02EF0B` | DrainActorQueue | Clears the pending actor execution queue left over from the inventory scene. Walks the linked list at `$5A`, zeroing each actor's frame counter so stale inventory actors cannot run after gameplay WRAM is restored. Prevents ghost script ticks from corrupting the overworld on the first frame back. |
+| `$02EF1D` | SaveGameState | Snapshots the entire live game before the inventory scene takes over ~5.5 KB of WRAM. Backs up joypad state, camera scroll, the actor table, palette buffer, and hardware-shadow pages to scratch at `$7E:3490`+ because scene `$FF` reuses those same addresses for its own actors and tilemaps. Without this copy, opening inventory would permanently destroy overworld state. |
+| `$02EFB2` | RestoreGameState | Reverses `SaveGameState` after the player closes inventory with B/Y/X. Copies all MVN backup regions back to live WRAM, restores joypad masks and camera positions, and reloads the actor count so the overworld resumes exactly where it was paused — same enemies, same scroll, same held inputs. |
 | `$02F035` | RestorePaletteBuffer | Copies saved palette from `$7E:38B4` back to `$7F:0A00` after scene script may have overwritten it. |
 
 ---
@@ -117,7 +117,7 @@ Post-close ability graphics reload. DMAs Dark Friar or Aura FX tiles and palette
 
 ### SaveGameState
 
-Snapshots ~5.5 KB of gameplay WRAM, joypad state, camera, and palette buffer before inventory opens.
+Snapshots the entire live game before the inventory scene takes over ~5.5 KB of WRAM. Backs up joypad state, camera scroll, the actor table, palette buffer, and hardware-shadow pages to scratch at `$7E:3490`+ because scene `$FF` reuses those same addresses for its own actors and tilemaps. Without this copy, opening inventory would permanently destroy overworld state. Joypad input is zeroed during the transition so no stray button presses leak into the menu open sequence.
 
 **Algorithm:**
 1. Save joypad `$0656`/`$0658`/`065A` (zero live copies)
@@ -142,7 +142,7 @@ Snapshots ~5.5 KB of gameplay WRAM, joypad state, camera, and palette buffer bef
 
 ### RestoreGameState
 
-Inverse of SaveGameState: restores all MVN backup regions, joypad, actor count, DP vars, and camera.
+Reverses `SaveGameState` after the player closes inventory with B/Y/X. Copies all MVN backup regions back to live WRAM, restores joypad masks and camera positions, and reloads the actor count so the overworld resumes exactly where it was paused — same enemies, same scroll, same held inputs. Runs while the screen is blanked, before the original scene graphics and HUD are reloaded on top.
 
 **Algorithm:**
 1. Restore joypad from `$7E:38AC`/`38AE`/`38B0`
@@ -165,7 +165,7 @@ Inverse of SaveGameState: restores all MVN backup regions, joypad, actor count, 
 
 ### DrainActorQueue
 
-Walks actor linked list from `$5A` and zeroes frame counter `$0008` on each actor.
+Clears the pending actor execution queue left over from the inventory scene. The engine maintains a linked list of actors scheduled to run on the next frame at direct-page `$5A`; inventory actors may still be queued when the overlay closes. This routine walks that chain and zeroes each actor's frame counter (`$08`), preventing stale inventory script ticks from firing after gameplay WRAM is restored. Called just before HDMA reset and the final render frames so the player returns to a clean overworld update loop.
 
 **Algorithm:**
 1. Load list head from `$5A`; exit if zero

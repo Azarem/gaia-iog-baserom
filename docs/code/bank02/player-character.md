@@ -171,19 +171,23 @@ Manages Shadow's palette shimmer effect. Only active when `$0AD4 == 2`.
 
 ### ShadowShimmerInit
 
-Check `$0AD4==2` (Shadow), else die. Spawn palette marker.
+SpawnLastRel companion spawned by `PlayerCharacterDef`. Verifies `$0AD4 == 2` (Shadow form) and immediately `COP [Die]`s if the player is Will or Freedan. On success, spawns a child palette actor via `SpawnMarkedAfter` pointed at `ShadowShimmerCycleA` (palette bundle `#23`) and falls through into `ShadowShimmerIdle`. This actor exists solely to drive Shadow's distinctive shimmer FX and never runs for other character forms.
+
 
 ### ShadowShimmerIdle
 
-Wait: monitor player speed. If moves → active.
+Standing shimmer state, re-entered each frame with `COP [SetEntryContinue]`. Overwrites the child actor's function pointer to `ShadowShimmerCycleA` and resets its frame counter so palette `#23` cycles softly while Shadow is still. Each tick calls `ShadowShimmerGuard`, then ORs `$player_speed_ew | $player_speed_ns` — any nonzero speed (or flag byte `#00 == $01`) transitions to `ShadowShimmerActive`. When the player stops moving, Shadow keeps the idle glow rather than the brighter movement palette.
+
 
 ### ShadowShimmerActive
 
-Active: palette `#24` cycling while moving.
+Movement shimmer state entered when Shadow starts walking or running. Redirects the child palette actor to `ShadowShimmerCycleB` (palette bundle `#24`) for a brighter, faster cycling effect synchronized with motion. Each frame runs `ShadowShimmerGuard`, then checks whether both speed axes are zero; if so and flag byte `#00 == $00`, returns to `ShadowShimmerIdle`. The idle/active split is the core visual feedback distinguishing Shadow's stationary vs. moving appearance.
+
 
 ### ShadowShimmerGuard
 
-Validate `$0AD4==2`, check `$0040` flag. If invalid, `PLA`; `COP [Die]`.
+Per-frame guard subroutine invoked from both idle and active shimmer states. If `$0AD4 != 2` (player transformed away from Shadow), pops the caller's return address and `COP [Die]`s — the shimmer actor self-destructs. If the player actor flag `$0040` is set (cutscene lock, menu, or similar palette freeze), pops return, points the child at `ShadowShimmerNop` (a no-op yield loop), and exits — cycling pauses without killing the actor. Otherwise returns normally so the caller continues its idle/active palette logic.
+
 
 ## player_move_controller.asm
 
@@ -253,12 +257,6 @@ Converts joypad state (`$0657`) to 2D velocity. 8 directions: pure cardinal = ±
 | `$player_flags` | R/W | Shared player state bitmask |
 | `$player_actor` | R | Player WRAM slot index |
 
-
-**Cross-References:**
-
-| Symbol | Relationship |
-|--------|-------------|
-| `player_move_controller` block | Parent compilation unit |
 ---
 
 ## player_character.asm
@@ -404,12 +402,6 @@ Main idle state. Clears joypad mask/flags. Clears `$2800` from `$player_flags`. 
 | `$player_actor` | R | Player WRAM slot index |
 
 
-**Cross-References:**
-
-| Symbol | Relationship |
-|--------|-------------|
-| `player_character` block | Parent compilation unit |
-
 ### PlayerIdleDispatchTable
 
 28-entry table (7 per facing × 4 directions). Selected by combining facing (`$24`) with joypad/action button state.
@@ -422,12 +414,6 @@ Main idle state. Clears joypad mask/flags. Clears `$2800` from `$player_flags`. 
 | `$player_flags` | R/W | Shared player state bitmask |
 | `$player_actor` | R | Player WRAM slot index |
 
-
-**Cross-References:**
-
-| Symbol | Relationship |
-|--------|-------------|
-| `player_character` block | Parent compilation unit |
 
 #### Standing Idle Animations
 
@@ -457,15 +443,9 @@ Walking south, sprite `#08`. Auto-walk timer, L/R attack check.
 | `$player_actor` | R | Player WRAM slot index |
 
 
-**Cross-References:**
-
-| Symbol | Relationship |
-|--------|-------------|
-| `player_character` block | Parent compilation unit |
-
 ### WalkNorth
 
-North, sprite `#09`.
+Entered when `PlayerIdleDispatchTable` detects D-pad up (or a northward direction change during walk). On first entry from a different facing (`$24 == 1`), initializes `$player_speed_ns = -3`, clears slope/decel counters, clears the invincibility timer, and seeds a 13-frame auto-walk guarantee via `SetAutoWalkTimer`. Stages walk animation sprite set `#09` (north-facing) and loops `AnimOneFrame` each COP tick. Each frame checks whether up was released (`BranchIfNoButton #$0800` → `WalkRestoreSaved` / idle), calls `CheckAttackWhileWalking` for B-button or zero-speed aborts, and offers L/R shoulder (`#$0030`) transition to `RunNorth`. Actual displacement comes from the `PlayerMoveController` companion, which merges joypad velocity or `$player_speed_* × 4` with external knockback and delegates collision to `PlayerMovementTick`.
 
 
 **Variables:**
@@ -475,16 +455,10 @@ North, sprite `#09`.
 | `$player_flags` | R/W | Shared player state bitmask |
 | `$player_actor` | R | Player WRAM slot index |
 
-
-**Cross-References:**
-
-| Symbol | Relationship |
-|--------|-------------|
-| `player_character` block | Parent compilation unit |
 
 ### WalkWest
 
-West, sprite `#0A`.
+West-facing walk state — same loop structure as `WalkNorth` but keyed on left D-pad (`#$0200`) and sprite `#0A`. First entry from facing west (`$24 == 2`) sets `$player_speed_ew = -3` and resets slope/decel state before staging the animation. Per-frame: auto-walk timer refresh, attack interrupt via `CheckAttackWhileWalking`, and L/R run promotion to `RunWest`. Releasing left returns through `WalkRestoreSaved` to `PlayerIdleEntry`; movement physics are handled externally by `PlayerMoveController`.
 
 
 **Variables:**
@@ -494,16 +468,10 @@ West, sprite `#0A`.
 | `$player_flags` | R/W | Shared player state bitmask |
 | `$player_actor` | R | Player WRAM slot index |
 
-
-**Cross-References:**
-
-| Symbol | Relationship |
-|--------|-------------|
-| `player_character` block | Parent compilation unit |
 
 ### WalkEast
 
-East, sprite `#0B`.
+East-facing walk state — mirror of `WalkWest` for right D-pad (`#$0100`) and sprite `#0B`. First entry from facing east (`$24 == 3`) seeds `$player_speed_ew = +3` plus the standard slope/decel reset and 13-frame auto-walk timer. Each COP frame advances the walk animation, monitors for direction release, attack button, or L/R shoulder run transition to `RunEast`. Position integration and tile collision remain in `PlayerMoveController` → `PlayerMovementTick`, not in this state handler.
 
 
 **Variables:**
@@ -513,12 +481,6 @@ East, sprite `#0B`.
 | `$player_flags` | R/W | Shared player state bitmask |
 | `$player_actor` | R | Player WRAM slot index |
 
-
-**Cross-References:**
-
-| Symbol | Relationship |
-|--------|-------------|
-| `player_character` block | Parent compilation unit |
 
 ### ClimbVineEntry
 
@@ -533,15 +495,9 @@ Vine climbing: clear `$0008`, set `$0200`. Block joypad `$4000`. Sprites `#18`�
 | `$player_actor` | R | Player WRAM slot index |
 
 
-**Cross-References:**
-
-| Symbol | Relationship |
-|--------|-------------|
-| `player_character` block | Parent compilation unit |
-
 ### ClimbDropAttack
 
-Freedan's drop-attack from vine: sprite `#06`, hitbox `#00`, force-move Y+7.
+Freedan's Earthquaker vine drop-attack, entered when `CheckClimbAttack` sees `$0AD4 == 1`, ability bitmask bit `$0040` set, and B button during the climb loop. Pops the climb return address, sets body sprite `#06` with hitbox `#00`, and repeatedly applies `StageForceMoveY #07` until the player's Y coordinate aligns to a 16-pixel boundary with solid ground below (`BranchIfSolidType`). On landing, control transfers to `ClimbDropLand`, which spawns terrain and camera shake actors before a 39-frame recovery animation.
 
 
 **Variables:**
@@ -551,12 +507,6 @@ Freedan's drop-attack from vine: sprite `#06`, hitbox `#00`, force-move Y+7.
 | `$player_flags` | R/W | Shared player state bitmask |
 | `$player_actor` | R | Player WRAM slot index |
 
-
-**Cross-References:**
-
-| Symbol | Relationship |
-|--------|-------------|
-| `player_character` block | Parent compilation unit |
 
 ### ClimbDropLand
 
@@ -571,17 +521,11 @@ Drop landing: anim table 2, camera shake spawn. Wait 39 frames.
 | `$player_actor` | R | Player WRAM slot index |
 
 
-**Cross-References:**
-
-| Symbol | Relationship |
-|--------|-------------|
-| `player_character` block | Parent compilation unit |
-
 #### Landing Effects
 
 ### CameraShakeFrame
 
-Random camera offset ±1 to `$06BE`/`$06C2` each frame.
+Per-frame camera jitter helper called by `CameraShakeActor` (spawned on Freedan vine drop landing). Uses `COP [RngByte]` to apply independent random ±1 offsets to `$06BE` (camera X) and `$06C2` (camera Y) each frame. When `$layerPriorityFlag` bit `$0200` is active, saves the original camera position to actor WRAM `$7F100C/E` on first call and restores from those slots on subsequent frames so layered scenes do not permanently drift. Runs until the shake actor's frame counter expires, then the actor dies.
 
 
 **Variables:**
@@ -591,34 +535,32 @@ Random camera offset ±1 to `$06BE`/`$06C2` each frame.
 | `$player_flags` | R/W | Shared player state bitmask |
 | `$player_actor` | R | Player WRAM slot index |
 
-
-**Cross-References:**
-
-| Symbol | Relationship |
-|--------|-------------|
-| `player_character` block | Parent compilation unit |
 
 #### Ladder Climbing
 
 ### LadderClimbSouth
 
-South-facing ladder.
+South-facing ladder entry reached via tile-collision redirect on ladder tile `$02` during movement. Clears actor flags, sets climb mode (`$0100` on actor, `$0800` on `$player_flags`), and masks joypad to up/down only (`$CFF0` on `$0658`). Plays the south mount animation (`StagePlayerMoveXY` sprite `#26`), then immediately branches to `LadderMoveUp`, `LadderMoveDown`, or `LadderIdleNorth` depending on held direction. While climb flags are set, `PlayerMoveController` zeros external velocity and skips its normal pipeline — ladder states drive position directly via force-move COP commands.
+
 
 ### LadderClimbNorth
 
-North-facing.
+North-facing ladder entry with the same flag and joypad masking as `LadderClimbSouth`, but uses mount sprite `#28` and inverted direction priority (down checked before up). After the entry animation completes, branches to `LadderMoveDown`, `LadderMoveUp`, or falls through to `LadderIdleSouth` if no direction is held. Sets `$0A00` on `$player_flags` so the movement companion defers to ladder force-move logic.
+
 
 ### LadderMoveDown
 
-Move down: sprite `#2D`, force-move Y+29.
+Active ladder descent entered from ladder entry or resumed from `LadderIdleSouth` when down is pressed. Stages climbing sprite `#2D` and applies `StageForceMoveY #1D` (~29 pixels) per step. At each 16-pixel Y boundary, probes the tile below with `BranchIfSolidTypeSouth` — open space triggers `LadderLandBottom`; solid tile continues the descent loop gated by animation events (`$2A`). Releasing down returns to `LadderIdleSouth` without leaving the ladder state machine.
+
 
 ### LadderMoveUp
 
-Move up: sprite `#2C`, force-move Y−30.
+Active ladder ascent with sprite `#2C` and upward force-move `#1E` (~30 pixels per step). Probes north at 16-pixel Y boundaries via `BranchIfSolidTypeNorth` — reaching open space above calls `LadderReachTop`. Animation events (`$2A`) pace step timing; releasing up returns to `LadderIdleNorth`. Like descent, position is applied through COP force-move rather than the joypad velocity pipeline.
+
 
 ### ShimmyRightLoop
 
-Main right loop.
+Main east-wall shimmy loop after `ShimmyRightEntry` confirms tile `$07` wall contact. Stages sprite `#33` and crawls rightward with repeated `StageForceMoveX #51` steps. At 16-pixel X boundaries, probes for corner transitions (`ShimmyTopCorner`), optional up/down direction changes (`ShimmyRightUpCheck` / `ShimmyRightDownCheck`), and continued east-wall solidity — losing the wall jumps to `ShimmyDetachRight`. Releasing right (`BranchIfNoButton #$0101`) also detaches. The `ShimmyRightAnimLoop` sub-loop handles per-frame `AnimOneFrame` and button polling between force-move steps.
 
 
 **Variables:**
@@ -628,16 +570,10 @@ Main right loop.
 | `$player_flags` | R/W | Shared player state bitmask |
 | `$player_actor` | R | Player WRAM slot index |
 
-
-**Cross-References:**
-
-| Symbol | Relationship |
-|--------|-------------|
-| `player_character` block | Parent compilation unit |
 
 ### ShimmyLeftLoop
 
-Main left loop.
+West-wall counterpart to `ShimmyRightLoop`. Uses sprite `#32` with `StageForceMoveX #52` for leftward crawling along tile `$07` walls. Boundary checks mirror the right loop but probe west via `BranchIfSolidTypeWest`; corner and up/down transitions use `ShimmyLeftUpCheck` / `ShimmyLeftDownCheck`. Detaches via `ShimmyDetachLeft` when the wall ends or left is released (`#$0201`).
 
 
 **Variables:**
@@ -647,12 +583,6 @@ Main left loop.
 | `$player_flags` | R/W | Shared player state bitmask |
 | `$player_actor` | R | Player WRAM slot index |
 
-
-**Cross-References:**
-
-| Symbol | Relationship |
-|--------|-------------|
-| `player_character` block | Parent compilation unit |
 
 #### Run & Attack-from-Walk
 
@@ -671,12 +601,6 @@ EW walking with full state machine. Sprite `#0F` (right) / `#0E` (left).
 | `$player_actor` | R | Player WRAM slot index |
 
 
-**Cross-References:**
-
-| Symbol | Relationship |
-|--------|-------------|
-| `player_character` block | Parent compilation unit |
-
 ### MovingNorthSouth
 
 NS walking. Sprite `#0D` (north) / `#0C` (south).
@@ -690,17 +614,11 @@ NS walking. Sprite `#0D` (north) / `#0C` (south).
 | `$player_actor` | R | Player WRAM slot index |
 
 
-**Cross-References:**
-
-| Symbol | Relationship |
-|--------|-------------|
-| `player_character` block | Parent compilation unit |
-
 #### Running Attack Check
 
 ### CheckRunAttack
 
-Conditions: not hitstun, Will only, has ability `$0002`, not slope.
+Will-only running attack eligibility gate, called from `MovingEastWest` / `MovingNorthSouth` during inertial movement. Requires all of: actor flag `$0080` clear (not frozen), `$0AD4 == 0` (Will form), ability bitmask bit `$0002` set (Psycho Dash learned), `$player_flags` bit `$1000` clear (not already in walk-attack), and B button (`#$8000`) held. If every condition passes, branches to `RunAttackSpeedCheck` to verify sufficient axis speed before launching the dash attack. Returns immediately on any failed check, allowing normal attack or run transitions to proceed.
 
 
 **Variables:**
@@ -710,12 +628,6 @@ Conditions: not hitstun, Will only, has ability `$0002`, not slope.
 | `$player_flags` | R/W | Shared player state bitmask |
 | `$player_actor` | R | Player WRAM slot index |
 
-
-**Cross-References:**
-
-| Symbol | Relationship |
-|--------|-------------|
-| `player_character` block | Parent compilation unit |
 
 ### RunAttackSpeedCheck
 
@@ -730,15 +642,9 @@ Checks if the player is moving fast enough for a running attack. Takes absolute 
 | `$player_actor` | R | Player WRAM slot index |
 
 
-**Cross-References:**
-
-| Symbol | Relationship |
-|--------|-------------|
-| `player_character` block | Parent compilation unit |
-
 ### RunAttackNS
 
-NS running attack with anim table 1.
+Will's north-south Psycho Dash, entered when `RunAttackSpeedCheck` finds absolute `$player_speed_ns` ≥ 3. Loads ability animation table A entry 1 and sets body sprite `#04`. Positive NS speed: south dash using sprites `#0C` → `#0D` (Y force-move loop) → `#0E` finish, zeroing NS speed. Negative speed: north path via `SetForceNE` with sprites `#0F` → `#10` → `#11`. Both paths call `RunAttackFlagSetup` (sets actor `$0200`, consumes attack input, sets `$0802` on `$player_flags`), run the dash distance through `AnimLoop`, then `RunAttackCleanup` and `RestoreSavedPtr` back to idle.
 
 
 **Variables:**
@@ -748,16 +654,10 @@ NS running attack with anim table 1.
 | `$player_flags` | R/W | Shared player state bitmask |
 | `$player_actor` | R | Player WRAM slot index |
 
-
-**Cross-References:**
-
-| Symbol | Relationship |
-|--------|-------------|
-| `player_character` block | Parent compilation unit |
 
 ### RunAttackEW
 
-EW running attack.
+Horizontal Psycho Dash — same structure as `RunAttackNS` but routed on `$player_speed_ew` sign after absolute speed ≥ 3 threshold. West (negative): `SetForceSW`, sprites `#12` → `#13` X-loop → `#14`. East (positive): `#15` → `#16` → `#17`. Zeros EW speed on entry, applies `RunAttackFlagSetup` / `RunAttackCleanup` bookends, and restores saved pointer when the dash animation completes. This is Will's signature running attack and requires the Psycho Dash ability bit in `$0AA2`.
 
 
 **Variables:**
@@ -767,18 +667,12 @@ EW running attack.
 | `$player_flags` | R/W | Shared player state bitmask |
 | `$player_actor` | R | Player WRAM slot index |
 
-
-**Cross-References:**
-
-| Symbol | Relationship |
-|--------|-------------|
-| `player_character` block | Parent compilation unit |
 
 #### Attack State Handlers
 
 ### AttackSouth
 
-South attack. Freedan wall-slash variant.
+South-facing melee attack entered from idle dispatch, walk abort, or inertial movement when B is pressed facing south. Calls `AttackInit` (joypad mask, SFX), injects south D-pad into `$0658`, then stages sprite `#36` — Freedan (form 1) near a south wall uses the thrust variant `#48` via `BranchIfSolidSouth` / diagonal offset probe. Scene `$00E8` (Dark Gaia) additionally spawns `ProjectileSouth`. The per-frame loop advances animation frames; Will (form 0) can redirect mid-swing with perpendicular D-pad (`AttackRedirect`) or chain into `RangedAttackSouth` by holding south again. B re-press at animation end restarts the combo; otherwise `AttackFinish` clears held directions and returns to idle.
 
 
 **Variables:**
@@ -788,16 +682,10 @@ South attack. Freedan wall-slash variant.
 | `$player_flags` | R/W | Shared player state bitmask |
 | `$player_actor` | R | Player WRAM slot index |
 
-
-**Cross-References:**
-
-| Symbol | Relationship |
-|--------|-------------|
-| `player_character` block | Parent compilation unit |
 
 ### AttackNorth
 
-North.
+North-facing melee — same attack system as `AttackSouth` but injects up D-pad (`#$0800`), uses sprites `#37` / Freedan wall-push `#49`, and spawns `ProjectileNorth` on scene `$00E8`. Will can redirect with perpendicular D-pad (`#$0700`) or chain `RangedAttackNorth`; Freedan/Shadow get redirect only. Combo restart and `AttackFinish` idle return behave identically to the south handler.
 
 
 **Variables:**
@@ -807,16 +695,10 @@ North.
 | `$player_flags` | R/W | Shared player state bitmask |
 | `$player_actor` | R | Player WRAM slot index |
 
-
-**Cross-References:**
-
-| Symbol | Relationship |
-|--------|-------------|
-| `player_character` block | Parent compilation unit |
 
 ### AttackWest
 
-West.
+West-facing melee attack using sprites `#38` (normal) or `#42` (wall-push, Will and Freedan only — Shadow skips the wall probe). Injects left D-pad (`#$0200`) after `AttackInit`. Will's mid-attack redirect mask is `#$0D00`; same-axis hold chains into `RangedAttackWest`. Scene `$00E8` spawns `ProjectileWest`. Axis-specific joypad merge and sprite IDs differ; animation loop, combo re-press, and finish logic match `AttackSouth`.
 
 
 **Variables:**
@@ -826,16 +708,10 @@ West.
 | `$player_flags` | R/W | Shared player state bitmask |
 | `$player_actor` | R | Player WRAM slot index |
 
-
-**Cross-References:**
-
-| Symbol | Relationship |
-|--------|-------------|
-| `player_character` block | Parent compilation unit |
 
 ### AttackEast
 
-East.
+East-facing melee attack — mirror of `AttackWest` with right D-pad (`#$0100`), sprites `#39` / wall-push `#43`, redirect mask `#$0E00`, and `RangedAttackEast` / `ProjectileEast` chain. Non-Shadow forms check east-wall adjacency for the push variant; Shadow always uses the standard sprite. Shared `AttackInit` entry, per-frame `AnimOneFrame` loop, and `AttackFinish` return match the other directional handlers.
 
 
 **Variables:**
@@ -846,15 +722,10 @@ East.
 | `$player_actor` | R | Player WRAM slot index |
 
 
-**Cross-References:**
-
-| Symbol | Relationship |
-|--------|-------------|
-| `player_character` block | Parent compilation unit |
-
 ### AttackInit
 
-Masks joypad, plays sound.
+Shared initialization called via JSR at the start of every directional melee attack. Strips directional bits from `$0657` into `$0658` (keeping only D-pad in the held mask), ORs in the attack button (`#$8000`), and clears actor visibility flag `$0100`. Plays form-specific attack SFX on channel 2: Will (`$0AD4 == 0`) uses sound `#01` (lighter swing), Freedan and Shadow use `#02` (heavier). Each `Attack*` handler then injects its facing direction into `$0658` and stages direction-specific sprites before entering the animation loop.
+
 
 ## Cross-File Call Graph
 

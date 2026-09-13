@@ -1,11 +1,10 @@
-# Category 4 — Actor & Thinker Runtime
+# Actor & Thinker Runtime
 
 > The heart of the per-frame simulation: the actor update loop and its five
 > execution contexts, the actor/thinker memory pools, scene actor/thinker
 > spawning, and the thinker scheduler.
->
-> Part of Bank `$03` — see the [bank index](index.md). All addresses are
-> hexadecimal (bank byte `$03`).
+
+*Part of the [Bank $03 Documentation Suite](index.md)*
 
 ## Parts in this category
 
@@ -27,6 +26,29 @@ lighter script objects for ambient/visual effects (palette cycling, background
 animation, HDMA effects) that run alongside actors but have no collision. Both use
 the same COP-script dispatch mechanism and the same frame-timer semantics; they
 differ in pool size, per-slot layout, and which loop invokes them.
+
+**Related:** [movement-and-collision.md](movement-and-collision.md) (PostTick movement/collision) · [sprite-rendering.md](sprite-rendering.md) (render list and OAM pipeline) · [scene-and-hardware.md](scene-and-hardware.md) (ClearSceneState pool initialization, actor spawning)
+
+```mermaid
+flowchart TD
+    GameLoop["Main Game Loop"]
+    ChkPause{"playerFlags\nbit 4?"}
+    ChkDisplay{"displayModeFlags\nbit 7?"}
+    Normal["RunActors_Normal"]
+    Pause["RunActors_PauseFiltered\n($12 bits 12|2 or $10 bits 12|10)"]
+    Display["RunActors_DisplayFiltered\n($10/$12 bit 12)"]
+    Cutscene["RunActors_CutsceneOnly\n($10 bit 11)"]
+    Overlay["RunActors_OverlayOnly\n($12 bit 12)"]
+
+    GameLoop --> Normal
+    Normal --> ChkPause
+    ChkPause -->|set| Pause
+    ChkPause -->|clear| ChkDisplay
+    ChkDisplay -->|set| Display
+    ChkDisplay -->|clear| Normal
+    GameLoop -->|"cutscene active"| Cutscene
+    GameLoop -->|"overlay active"| Overlay
+```
 
 `actor_execution` owns the actor update loop (five state-selected contexts), the
 shared pool initialization (`InitActorPool`, which sets up **both** the actor and
@@ -50,7 +72,7 @@ Five actor-processing modes selected by game-state flags:
 | `RunActors_DisplayFiltered` | `displayModeFlags` bit 7 | actors with bit 12 (`$1000`) in `$10`/`$12` |
 | `RunActors_PauseFiltered` | `playerFlags` bit 4 | actors with `$12`&`$1004` or `$10`&`$1400`; iframe-only tail for others |
 | `RunActors_CutsceneOnly` | cutscene playback | actors with `$10` bit 11 (`$0800`); clears bit 2 each frame |
-| `RunActors_OverlayOnly` | overlay rendering | actors with `$12` bit 12 (`$1000`); always simple `ApplyMovement` |
+| `RunActors_OverlayOnly` | overlay rendering | if `displayModeFlags` bit 7 (`$0080`) set, redirects to `RunActors_DisplayFiltered`; otherwise actors with `$12` bit 12 (`$1000`); always simple `ApplyMovement` |
 
 ### COP script dispatch
 
@@ -95,28 +117,13 @@ block tiles swapped.
 | Address | Label | Role |
 |---------|-------|------|
 | `$03CAF5` | `RunActors_Normal` | standard gameplay tick — guard checks → dispatch → PostTick |
-| `$03CB78` | `RunActors_PostTick` | post-dispatch: clear contact flag, choose collision/simple movement, follow `$06` link |
-| `$03CB93` | `RunActors_CopScriptPostTick` | COP return: if still in COP mode and `$12` bit 3 set, do PostTick; otherwise skip to next actor |
 | `$03CBA3` | `RunActors_DisplayFiltered` | `displayModeFlags` bit 7 — only actors with `$1000` in `$10`/`$12` |
-| `$03CC12` | `RunActors_DisplayFiltered_PostTick` | display-filtered post-tick (same collision/movement choice) |
-| `$03CC2D` | `RunActors_DisplayFiltered_CopPostTick` | COP return variant for display-filtered |
 | `$03CC3D` | `RunActors_PauseFiltered` | `playerFlags` bit 4 — actors with `$1004`/`$1400`; iframe tail for others |
-| `$03CC44` | `RunActors_PauseFiltered_Body` | inner processing for pause-filtered actors |
-| `$03CCAD` | `RunActors_PauseFiltered_PostTick` | post-tick for pause-filtered |
-| `$03CCEF` | `RunActors_PauseFiltered_CopPostTick` | COP return variant for pause-filtered |
 | `$03CCFF` | `RunActors_CutsceneOnly` | actors with `$10` bit 11 (`$0800`); clears bit 2 each frame |
-| `$03CD48` | `RunActors_CutsceneOnly_PostTick` | post-tick for cutscene actors |
-| `$03CD5E` | `RunActors_CutsceneOnly_CopPostTick` | COP return variant for cutscene |
-| `$03CD6E` | `RunActors_OverlayOnly` | `$12` bit 12 (`$1000`); always simple `ApplyMovement` (no collision) |
-| `$03CDC2` | `RunActors_OverlayOnly_PostTick` | post-tick for overlay (always `ApplyMovement`) |
-| `$03CDCC` | `RunActors_OverlayOnly_CopPostTick` | COP return variant for overlay |
+| `$03CD6E` | `RunActors_OverlayOnly` | display-filter redirect if `$0080` set; else `$12` bit 12 actors; always simple `ApplyMovement` |
 | `$03CDDC` | `InitActorPool` | initialize both actor (84 slots) and thinker (16 slots) pools |
 | `$03CE8F` | `ThinkerPoolAlloc` | allocate next free thinker slot → Y (CLC) or exhausted (SEC) |
 | `$03CEA1` | `SpawnSceneActors` | read `scene_actors` table, allocate/link/parse per actor |
-| `$03CEF4` | `AdvanceSceneDataAndFree` | skip record bytes + free slot for already-defeated enemies |
-| `$03CF1B` | `InitActorFromSceneData` | parse variable-length actor record into slot fields |
-| `$03D0DB` | `CheckEnemyDefeatedFlag` | test WRAM defeat flags for an enemy number |
-| `$03D125` | `BitMaskTable_Wram` | 8-entry bit-mask lookup used by `CheckEnemyDefeatedFlag` |
 
 ### Actor slot layout (`$30` bytes per slot)
 
@@ -176,13 +183,12 @@ also serves as the Direct Page during execution.
 | 1 | `$0002` | depth sort: always behind |
 | 2 | `$0004` | solid-contact (set by tile collision, cleared each frame by PostTick) |
 | 3 | `$0008` | grounded — use `ApplyMovementWithCollision` instead of simple `ApplyMovement` |
-| 4 | `$0010` | *(reserved / pause-filter related)* |
 | 6 | `$0040` | orb / special state — suppresses combat collision |
 | 7 | `$0080` | iframe active (set when `iframeCounter` is nonzero) |
 | 9 | `$0200` | game-over flag (player only) |
-| 10 | `$0400` | combat-eligible / standard defeat |
+| 10 | `$0400` | combat-eligible / standard defeat; pause-filter pass (with bit 12) |
 | 11 | `$0800` | cutscene-active — processed by `RunActors_CutsceneOnly` |
-| 12 | `$1000` | display-active / overlay-active |
+| 12 | `$1000` | display-active / overlay-active; pause-filter pass (with bit 10) |
 | 13 | `$2000` | COP script mode active — dispatch via indirect RTL call |
 | 15 | `$8000` | player actor identifier |
 
@@ -201,6 +207,8 @@ also serves as the Direct Page during execution.
 - **In:** `system_core` main loop (external) — selects one execution context per
   game-state combination (`Normal` → branches to `PauseFiltered` or
   `DisplayFiltered`; `CutsceneOnly` and `OverlayOnly` are separate call sites).
+  `RunActors_OverlayOnly` checks `displayModeFlags` bit 7 first and redirects to
+  `RunActors_DisplayFiltered` when set.
 - **Out:** `tile_collision_physics.ApplyMovement` / `ApplyMovementWithCollision`
   (PostTick), `thinker_execution.ThinkerPoolAlloc` (shared allocator),
   `event_blocks.ApplyAllEventBlocks` (tile swap for defeated enemies),
@@ -251,7 +259,7 @@ The thinker list is rooted at `$005A` (head) / `$005C` (tail).
 Reads `scene_thinkers[$0646]`. If the pointer is zero or bit 7 (`$0080`) is set in
 the first data byte, the scene has no thinkers. For each record (terminated by
 `$FF`): allocate a slot, link into the list, call `InitThinkerFromSceneData`. That
-parser reads type → `$7F0002,X`, code pointer → `$42`, bank → `$44`, dereferences
+parser reads type → `$7F0002,X` (animScratch+2), code pointer → `$42`, bank → `$44`, dereferences
 the code pointer's first word into animScratch2 (filter flags), then stores
 entry point (`code + 2`) and bank to `$0000`/`$0002`.
 
@@ -276,15 +284,11 @@ thinker's entry. Each `_Next` follows the `$06` link or exits when the list ends
 | Address | Label | Role |
 |---------|-------|------|
 | `$03D12D` | `RunThinkers_TypeA` | general thinkers: bit 2 CLEAR |
-| `$03D156` | `RunThinkers_TypeA_Next` | follow `$06` link or exit |
 | `$03D15D` | `RunThinkers_TypeB` | deferred thinkers: bit 2 SET |
-| `$03D186` | `RunThinkers_TypeB_Next` | follow link or exit |
 | `$03D18D` | `RunThinkers_TypeC` | cutscene primary: bit 11 SET, bit 2 CLEAR |
-| `$03D1BB` | `RunThinkers_TypeC_Next` | follow link or exit |
 | `$03D1C2` | `RunThinkers_TypeD` | cutscene deferred: bits 11 AND 2 SET |
-| `$03D1EE` | `RunThinkers_TypeD_Next` | follow link or exit |
 | `$03D7E7` | `SpawnSceneThinkers` | read scene thinker list, allocate + link + parse |
-| `$03D831` | `InitThinkerFromSceneData` | parse thinker record: type → scratch, code → entry, filter flags from first word |
+| `$03D831` | `InitThinkerFromSceneData` | parse thinker record: type → animScratch+2, code → entry, filter flags from first word |
 
 ### Game-loop call order
 
@@ -307,7 +311,7 @@ variable-length thinker definition list. `SpawnSceneThinkers` reads this list:
   has no active thinkers.
 - Each record is terminated by an `$FF` byte (end of list).
 - Per record: `InitThinkerFromSceneData` reads:
-  1. Type byte → `$7F0002,X` (animScratch)
+  1. Type byte → `$7F0002,X` (animScratch+2)
   2. Code pointer (word) → `$42`
   3. Bank byte → `$44`
   4. Dereferences the code pointer's first word → `$7F000E,X` (animScratch2 =
@@ -367,3 +371,13 @@ resumes at PostTick (or `_Next` for thinkers).
 | Movement | PostTick applies collision/simple | none — thinkers have no movement |
 | Sprite rendering | yes (metasprite decomposition) | no |
 | Execution filters | 5 contexts (state flags) | 4 type filters (animScratch2 bits) |
+
+---
+
+## See Also
+
+- [movement-and-collision.md](movement-and-collision.md) — `ApplyMovement` / `ApplyMovementWithCollision` called from PostTick
+- [sprite-rendering.md](sprite-rendering.md) — `SortActorsByDepth` processes the actor linked list into a render list
+- [scene-and-hardware.md](scene-and-hardware.md) — `ClearSceneState` calls `InitActorPool` and `SpawnSceneActors`
+- [mode7-and-cutscenes.md](mode7-and-cutscenes.md) — cutscene actors and Mode 7 thinkers use actor/thinker runtime
+- [Bank $03 index](index.md) — bank-wide memory map, WRAM reference, design patterns

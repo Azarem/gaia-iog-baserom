@@ -61,7 +61,7 @@ $02F06A └─ ClearVramBufferPartial / Full ───────────�
 | `$02E399` | InventoryMenuInit | One-time menu bootstrap. Assigns spritemap, draws BG3 backdrop text, spawns 16 linked `InventorySlotActor` instances ... |
 | `$02E40C` | InventoryMainLoop | Tab-bar main loop running each actor frame. Refreshes BG3 header/footer, polls tab input, dispatches hover previews o... |
 | `$02E43D` | TabHoverDispatch | Four word pointers for tab hover preview handlers, indexed by `$0AFA`. |
-| `$02E445` | TabConfirmDispatch | Plays tab-enter sound and dispatches the confirmed tab action via `TabActionDispatch`. |
+| `$02E445` | TabConfirmDispatch | Called when the player presses A on a tab in the tab bar. Plays the tab-enter sound effect, then hands off to the confirmed tab handler — opening the Use grid for equipping, the Arrange swap flow, the Discard confirmation flow, or the Status ability viewer depending on which of the four tabs was highlighted. |
 | `$02E456` | TabActionDispatch | Four word pointers for confirmed tab action handlers. |
 | `$02E45E` | UseItemTab | Equip-item tab. Configures BG scroll mode, draws USE header, shows equip cursor on the 4×4 grid, displays item descri... |
 | `$02E4B8` | UseItemCursorUp | Equip cursor up: subtract 4 with `$0F` wrap (one grid row). |
@@ -80,16 +80,16 @@ $02F06A └─ ClearVramBufferPartial / Full ───────────�
 | `$02E768` | StatusCursorUp | Decrement ability row; wrap 0 → 2. |
 | `$02E77D` | StatusCursorDown | Increment ability row; wrap 3 → 0. |
 | `$02E795` | StatusConfirmExit | Exit status tab back to tab bar. |
-| `$02E7A3` | StatusPositionCursor | Positions selection cursor at Y coordinate for ability row `$22` using `StatusCursorPositions` table. |
+| `$02E7A3` | StatusPositionCursor | Called when the player moves the cursor between ability rows on the Status tab. Reads the selected row index from `$22`, looks up the Y pixel position in the `StatusCursorPositions` table (fixed X = `$98`, Y = `$48`/`$60`/`$78`), and repositions the blinking selection cursor sprite. This creates the visible cursor movement between the three character-form ability tiers (Will, Freedan, Shadow). |
 | `$02E7BB` | StatusCursorPositions | Three XY coordinate pairs for status ability rows at X=`$98`, Y=`$48`/`$60`/`$78`. |
-| `$02E7C7` | TabHoverUse | Use tab hover preview: list mode (hide slot icons), show equip cursor, hide status actors, draw item list + description. |
-| `$02E7E6` | TabHoverArrange | Arrange tab hover: hide slots, show equip cursor, draw grid layout preview. |
-| `$02E7F7` | TabHoverDiscard | Discard tab hover: same visibility as Use tab — list mode with equip cursor visible. |
-| `$02E816` | TabHoverStatus | Status tab hover: show all 16 slot icons, hide equip cursor, display equipped item and unlocked ability rows with tie... |
+| `$02E7C7` | TabHoverUse | Hover preview for the Use tab while the player moves Up/Down through the four tab labels. Keeps the 4×4 item grid visible, shows the equip cursor on the currently equipped slot, hides the status-panel portraits, and redraws BG3 with the Use-tab header plus item-description area. Switches BG1 to the items background so the player sees what the equip screen will look like before pressing A. |
+| `$02E7E6` | TabHoverArrange | Hover preview for the Arrange tab. Keeps the 4×4 item grid and equip cursor visible while redrawing BG3 with the Arrange header and swap instructions. Gives the player a read-only glimpse of the grid-reorder screen before they commit to picking source and target slots. |
+| `$02E7F7` | TabHoverDiscard | Hover preview for the Discard tab. Matches the Use tab layout — 4×4 grid with equip cursor, status portraits hidden — but redraws BG3 with Discard-specific header text and warning copy. Lets the player preview the discard screen's look and BG1 items background before entering the Yes/No confirmation flow. |
+| `$02E816` | TabHoverStatus | Hover preview for the Status tab. Hides the 4×4 grid icons and equip cursor, switches BG1 to the status background, and shows the equipped-item icon plus the three character-form ability portrait rows. For each unlocked ability, unhides the row actor and draws its name on BG3 — giving a static summary of Will/Freedan/Shadow abilities before the player enters the interactive row cursor. |
 | `$02E8C7` | InventorySlotActor | Item slot sprite actor. Increments spawn counter, computes grid position, shows/hides based on item type in `$28`. |
 | `$02E8E7` | EquipCursorActor | Equipped-item highlight cursor. Hidden if no item equipped (`inventory_equipped_index` negative); otherwise falls thr... |
-| `$02E8F1` | SelectionCursorActor | Generic blinking selection cursor used by Arrange, Discard, and Status tabs. |
-| `$02E8FF` | EquippedItemDisplay | Fixed-position icon showing currently equipped item type at ($28, $78). |
+| `$02E8F1` | SelectionCursorActor | The blinking arrow sprite (metasprite #40) that marks the player's current selection on the Arrange, Discard, and Status tabs. Animates every frame until a parent script sets `$2A` to force a refresh — for example after the cursor moves to a new grid slot or ability row. Visually distinct from the equip cursor, which only highlights the worn item on the Use tab. |
+| `$02E8FF` | EquippedItemDisplay | Static sprite actor pinned at screen position ($28, $78) on the left side of the Status tab layout. Displays the icon for `inventory_equipped_type` — the item currently worn by the player — so the status screen shows both ability tiers and what is equipped. Hidden whenever Use/Arrange/Discard tabs are hovered or active, since those views use the grid equip cursor instead. |
 | `$02E915` | StatusCharRow3 | Third ability tier row actor at ($98, $48). Sprite index = `$0AD4 × 3 + $44`. |
 | `$02E934` | StatusCharRow2 | Second ability tier row at ($98, $60). Sprite index = `$0AD4 × 3 + $45`. |
 | `$02E953` | StatusCharRow1 | First ability tier row at ($98, $78). Sprite index = `$0AD4 × 3 + $46`. |
@@ -106,26 +106,26 @@ $02F06A └─ ClearVramBufferPartial / Full ───────────�
 | `$02EA3D` | PositionGridCursor | Computes XY for grid selection cursor. Uses `$22` (or `$2E` for second cursor in arrange) and `GridColumnPositions`. |
 | `$02EA73` | PositionEquipCursor | Positions equip cursor on grid using `$1A`. If index negative, hides cursor instead. |
 | `$02EAB0` | GridColumnPositions | Four column base coordinates for 4×4 grid cursors at Y=`$30`, X=`$5C`/`$74`/`$8C`/`A4`. |
-| `$02EAC0` | HideStatusActors | Hides equipped-item display and all three status row actors by setting flag bit `$2000`. |
-| `$02EAF7` | ShowEquipCursor | Shows equip cursor if an item is equipped (index ≥ 0). |
+| `$02EAC0` | HideStatusActors | Removes the status-panel sprites from view when the player hovers or enters Use, Arrange, or Discard tabs. Walks the equipped-item display actor and the three linked ability-row actors, setting the hidden flag on each so only the 4×4 grid and equip cursor remain visible. Called to prevent the status portraits from overlapping the item-management layout. |
+| `$02EAF7` | ShowEquipCursor | Makes the equip cursor visible on the 4×4 grid when an item is currently worn. If `inventory_equipped_index` is `$FFFF` (nothing equipped), delegates to `HideEquipCursor` instead. Called when entering Use tab or hovering tabs that show the grid, so the player always sees which slot holds the equipped item. |
 | `$02EB0B` | HideEquipCursor | Hides equip cursor actor via flag bit `$2000`. |
 | `$02EB1A` | HideAllItemSlots | Switches to list mode: hides all 16 slot icon sprites. Guarded — only runs when menu flag `$1000` is clear. |
 | `$02EB45` | ShowAllItemSlots | Switches to grid mode: shows all 16 slot icons. Guarded — only when `$1000` is set. |
-| `$02EB70` | ComputeSlotPosition | Computes spawn XY for slot actor using `($0AFA − 1) × 4` index into SlotPositionTable. |
+| `$02EB70` | ComputeSlotPosition | Places each of the 16 item slot icons on the 4×4 grid during menu init. Uses the spawn counter in `$0AFA` (decremented to 0-based) to index `SlotPositionTable`, which stores precomputed X/Y pairs for columns `$5C`/`$74`/`$8C`/`A4` and rows Y = `$31`/`$41`/`$51`/`$61`. Writes the result to the spawning slot actor so icons appear in the correct grid cell. |
 | `$02EB86` | SlotPositionTable | 16 XY pairs for item slot positions on 4×4 grid. Columns `$5C/$74/$8C/$A4`, rows Y=`$31/$41/$51/$61`. |
 | `$02EBC6` | YesNoPromptLoop | Yes/No dialog input loop with blinking cursor. Returns carry set on confirm. |
 | `$02EBF2` | YesNoSelectUp | Toggle Yes/No selection up (toward Yes). |
 | `$02EC0A` | YesNoSelectDown | Toggle Yes/No selection down (toward No). |
 | `$02EC22` | YesNoConfirm | Confirms Yes/No choice. Returns carry set. |
-| `$02EC2D` | YesNoDrawCursor | Draws Yes/No highlight cursor tile `$202B` in VRAM buffer at offset derived from `$28`. |
+| `$02EC2D` | YesNoDrawCursor | Renders the blinking highlight arrow on the Discard tab's Yes/No confirmation prompt. Clears any previous highlight, then writes tile `$202B` to the BG3 tilemap buffer at the offset for the current selection (`$28` = 0 for Yes, 1 for No). The tile is uploaded on the next VRAM flush, so the player sees which answer is highlighted before confirming discard. |
 | `$02EC46` | YesNoClearCursor | Clears Yes/No cursor tiles and sets VRAM flush flag. |
 | `$02EC58` | TabSelectionLoop | Main tab bar input loop with blinking cursor. Confirm enters tab; Cancel closes inventory. |
 | `$02EC8A` | TabSelectUp | Previous tab (wrap 0 → 3). |
 | `$02ECA4` | TabSelectDown | Next tab (wrap 3 → 0). |
 | `$02ECBE` | TabCancel | `COP [SetFlagByte] (#00)` — signals overlay exit loop. Returns carry clear. |
 | `$02ECC3` | TabConfirm | Confirms tab selection. Returns carry set to InventoryMainLoop. |
-| `$02ECCE` | TabDrawCursor | Draws tab highlight cursor tile at VRAM buffer offset `$0584 + ($0AFA × $100)`. |
-| `$02ECE8` | TabClearCursor | Clears all four tab cursor positions in VRAM buffer. |
+| `$02ECCE` | TabDrawCursor | Renders the blinking arrow beneath the currently selected tab label (Use, Arrange, Discard, or Status). Clears all four tab cursor slots first, then writes tile `$202B` to the BG3 buffer at the column offset for `$0AFA`. Called every 16 frames during tab-bar navigation and immediately after Up/Down tab changes, giving the player a visible indicator of which tab will open on A. |
+| `$02ECE8` | TabClearCursor | Erases the tab highlight arrow during the blink-off phase of tab-bar navigation. Writes blank tile `$2040` to all four tab cursor positions in the BG3 tilemap buffer and sets the VRAM flush flag so the highlight disappears for half the blink cycle. Paired with `TabDrawCursor` to produce the 16-frame on/off blink on the tab bar. |
 
 ---
 
@@ -193,7 +193,7 @@ Tab-bar main loop running each actor frame. Refreshes BG3 header/footer, polls t
 
 ### TabConfirmDispatch
 
-Plays tab-enter sound and dispatches the confirmed tab action via `TabActionDispatch`.
+Called when the player presses A on a tab in the tab bar. Plays the tab-enter sound effect, then hands off to the confirmed tab handler — opening the Use grid for equipping, the Arrange swap flow, the Discard confirmation flow, or the Status ability viewer depending on which of the four tabs was highlighted.
 
 **Algorithm:**
 1. Sound `#0D`
@@ -404,7 +404,7 @@ Character ability status viewer. Sets BG mode 0, draws status header, spawns cur
 
 ### StatusPositionCursor
 
-Positions selection cursor at Y coordinate for ability row `$22` using `StatusCursorPositions` table.
+Called when the player moves the cursor between ability rows on the Status tab. Reads the selected row index from `$22`, looks up the Y pixel position in the `StatusCursorPositions` table (fixed X = `$98`, Y = `$48`/`$60`/`$78`), and repositions the blinking selection cursor sprite. This creates the visible cursor movement between the three character-form ability tiers (Will, Freedan, Shadow).
 
 **Algorithm:**
 1. `$22 × 4` → index into table
@@ -426,7 +426,7 @@ Positions selection cursor at Y coordinate for ability row `$22` using `StatusCu
 
 ### TabHoverUse
 
-Use tab hover preview: list mode (hide slot icons), show equip cursor, hide status actors, draw item list + description.
+Hover preview for the Use tab while the player moves Up/Down through the four tab labels. Keeps the 4×4 item grid visible, shows the equip cursor on the currently equipped slot, hides the status-panel portraits, and redraws BG3 with the Use-tab header plus item-description area. Switches BG1 to the items background so the player sees what the equip screen will look like before pressing A.
 
 **Algorithm:**
 1. HideAllItemSlots
@@ -449,7 +449,7 @@ Use tab hover preview: list mode (hide slot icons), show equip cursor, hide stat
 
 ### TabHoverArrange
 
-Arrange tab hover: hide slots, show equip cursor, draw grid layout preview.
+Hover preview for the Arrange tab. Keeps the 4×4 item grid and equip cursor visible while redrawing BG3 with the Arrange header and swap instructions. Gives the player a read-only glimpse of the grid-reorder screen before they commit to picking source and target slots.
 
 **Algorithm:**
 1. HideAllItemSlots
@@ -471,7 +471,7 @@ Arrange tab hover: hide slots, show equip cursor, draw grid layout preview.
 
 ### TabHoverDiscard
 
-Discard tab hover: same visibility as Use tab — list mode with equip cursor visible.
+Hover preview for the Discard tab. Matches the Use tab layout — 4×4 grid with equip cursor, status portraits hidden — but redraws BG3 with Discard-specific header text and warning copy. Lets the player preview the discard screen's look and BG1 items background before entering the Yes/No confirmation flow.
 
 **Algorithm:**
 1. HideAllItemSlots
@@ -493,7 +493,7 @@ Discard tab hover: same visibility as Use tab — list mode with equip cursor vi
 
 ### TabHoverStatus
 
-Status tab hover: show all 16 slot icons, hide equip cursor, display equipped item and unlocked ability rows with tier descriptions.
+Hover preview for the Status tab. Hides the 4×4 grid icons and equip cursor, switches BG1 to the status background, and shows the equipped-item icon plus the three character-form ability portrait rows. For each unlocked ability, unhides the row actor and draws its name on BG3 — giving a static summary of Will/Freedan/Shadow abilities before the player enters the interactive row cursor.
 
 **Algorithm:**
 1. ShowAllItemSlots
@@ -566,7 +566,7 @@ Equipped-item highlight cursor. Hidden if no item equipped (`inventory_equipped_
 
 ### SelectionCursorActor
 
-Generic blinking selection cursor used by Arrange, Discard, and Status tabs.
+The blinking arrow sprite (metasprite #40) that marks the player's current selection on the Arrange, Discard, and Status tabs. Animates every frame until a parent script sets `$2A` to force a refresh — for example after the cursor moves to a new grid slot or ability row. Visually distinct from the equip cursor, which only highlights the worn item on the Use tab.
 
 **Algorithm:**
 1. Stage sprite `#40`, set entry/exit
@@ -588,7 +588,7 @@ Generic blinking selection cursor used by Arrange, Discard, and Status tabs.
 
 ### EquippedItemDisplay
 
-Fixed-position icon showing currently equipped item type at ($28, $78).
+Static sprite actor pinned at screen position ($28, $78) on the left side of the Status tab layout. Displays the icon for `inventory_equipped_type` — the item currently worn by the player — so the status screen shows both ability tiers and what is equipped. Hidden whenever Use/Arrange/Discard tabs are hovered or active, since those views use the grid equip cursor instead.
 
 **Algorithm:**
 1. Position ($28, $78)
@@ -764,7 +764,7 @@ Positions equip cursor on grid using `$1A`. If index negative, hides cursor inst
 
 ### HideStatusActors
 
-Hides equipped-item display and all three status row actors by setting flag bit `$2000`.
+Removes the status-panel sprites from view when the player hovers or enters Use, Arrange, or Discard tabs. Walks the equipped-item display actor and the three linked ability-row actors, setting the hidden flag on each so only the 4×4 grid and equip cursor remain visible. Called to prevent the status portraits from overlapping the item-management layout.
 
 **Algorithm:**
 1. Walk chain from `$7F0018,X` and `$7F001A,X`
@@ -784,7 +784,7 @@ Hides equipped-item display and all three status row actors by setting flag bit 
 
 ### ShowEquipCursor
 
-Shows equip cursor if an item is equipped (index ≥ 0).
+Makes the equip cursor visible on the 4×4 grid when an item is currently worn. If `inventory_equipped_index` is `$FFFF` (nothing equipped), delegates to `HideEquipCursor` instead. Called when entering Use tab or hovering tabs that show the grid, so the player always sees which slot holds the equipped item.
 
 **Algorithm:**
 1. If inventory_equipped_index negative → HideEquipCursor
@@ -847,7 +847,7 @@ Switches to grid mode: shows all 16 slot icons. Guarded — only when `$1000` is
 
 ### ComputeSlotPosition
 
-Computes spawn XY for slot actor using `($0AFA − 1) × 4` index into SlotPositionTable.
+Places each of the 16 item slot icons on the 4×4 grid during menu init. Uses the spawn counter in `$0AFA` (decremented to 0-based) to index `SlotPositionTable`, which stores precomputed X/Y pairs for columns `$5C`/`$74`/`$8C`/`A4` and rows Y = `$31`/`$41`/`$51`/`$61`. Writes the result to the spawning slot actor so icons appear in the correct grid cell.
 
 **Algorithm:**
 1. DEC `$0AFA`, ×4 → table index
@@ -891,7 +891,7 @@ Yes/No dialog input loop with blinking cursor. Returns carry set on confirm.
 
 ### YesNoDrawCursor
 
-Draws Yes/No highlight cursor tile `$202B` in VRAM buffer at offset derived from `$28`.
+Renders the blinking highlight arrow on the Discard tab's Yes/No confirmation prompt. Clears any previous highlight, then writes tile `$202B` to the BG3 tilemap buffer at the offset for the current selection (`$28` = 0 for Yes, 1 for No). The tile is uploaded on the next VRAM flush, so the player sees which answer is highlighted before confirming discard.
 
 **Algorithm:**
 1. Clear old cursor
@@ -935,7 +935,7 @@ Main tab bar input loop with blinking cursor. Confirm enters tab; Cancel closes 
 
 ### TabDrawCursor
 
-Draws tab highlight cursor tile at VRAM buffer offset `$0584 + ($0AFA × $100)`.
+Renders the blinking arrow beneath the currently selected tab label (Use, Arrange, Discard, or Status). Clears all four tab cursor slots first, then writes tile `$202B` to the BG3 buffer at the column offset for `$0AFA`. Called every 16 frames during tab-bar navigation and immediately after Up/Down tab changes, giving the player a visible indicator of which tab will open on A.
 
 **Algorithm:**
 1. Clear all tab cursors
@@ -955,7 +955,7 @@ Draws tab highlight cursor tile at VRAM buffer offset `$0584 + ($0AFA × $100)`.
 
 ### TabClearCursor
 
-Clears all four tab cursor positions in VRAM buffer.
+Erases the tab highlight arrow during the blink-off phase of tab-bar navigation. Writes blank tile `$2040` to all four tab cursor positions in the BG3 tilemap buffer and sets the VRAM flush flag so the highlight disappears for half the blink cycle. Paired with `TabDrawCursor` to produce the 16-frame on/off blink on the tab bar.
 
 **Algorithm:**
 1. Set VRAM flush flag
