@@ -1,75 +1,12 @@
 ?BANK 02
 
-?INCLUDE 'scene_script'
 ?INCLUDE 'vblank_joypad'
 
 !worldReadyFlag                 0654
-!musicParentActor               06F2
-!musicRoomGroup                 06F6
 !APUIO0                         2140
 !APUIO1                         2141
 !APUIO2                         2142
 
----------------------------------------------
-
-SpcMusicLoadCmd {
-    JSR $&scene_script.ReadScriptByte
-    STA $musicParentActor
-    JSR $&scene_script.ReadScriptByte
-    STA $06F4
-    LDX #$003E
-    JSR $&scene_script.LoadScriptPointer
-    LDA $musicRoomGroup
-    CMP $06F4
-    BEQ loc_028B88
-    RTS 
-
-  loc_028B88:
-    LDX #$0687
-    JSR $&scene_script.CheckSourceCacheHit
-    BCS loc_028B91
-    RTS 
-
-  loc_028B91:
-    LDA #$1A
-    JSL $@vblank_joypad.WaitFrames
-    LDA $0D72
-    BEQ loc_028BA7
-    LDA #$F2
-    STA $APUIO0
-    LDA #$20
-    JSL $@vblank_joypad.WaitFrames
-
-  loc_028BA7:
-    LDA #$F0
-    STA $APUIO0
-
-  loc_028BAC:
-    LDA $APUIO0
-    BNE loc_028BAC
-    LDA #$02
-    JSL $@vblank_joypad.WaitFrames
-    LDA #$FF
-    STA $APUIO0
-    LDA #$02
-    JSL $@vblank_joypad.WaitFrames
-    LDX $3E
-    STX $46
-    LDX $40
-    STX $48
-    JSL $@SpcBlockTransfer
-    LDA #$01
-    STA $0D72
-    LDA #$03
-    JSL $@vblank_joypad.WaitFrames
-    LDA $musicParentActor
-    BEQ loc_028BE0
-    LDA #$01
-
-  loc_028BE0:
-    STA $APUIO0
-    RTS 
-}
 ---------------------------------------------
 
 SpcLoadBuiltinEngine {

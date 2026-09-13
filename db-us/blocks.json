@@ -65,15 +65,10 @@
             "SignedMultiply": { "start": 164305, "end": 164464, "type": "Code" }
         } },
         "vblank_joypad": { "start": 163899, "end": 164305, "type": "Code", "scene": "engine" },
-        "decompress": { "start": 164464, "end": 164770, "type": "Code", "scene": "engine" },
-        "scene_script": { "scene": "engine", "parts": {
-            "DmaWordToVram": { "start": 164770, "end": 166765, "type": "Code" },
-            "SceneCmd_LoadSpriteTiles": { "start": 166884, "end": 168078, "type": "Code" }
-        } },
-        "spc_transfer": { "scene": "engine", "parts": {
-            "SpcMusicLoadCmd": { "start": 166765, "end": 166884, "type": "Code" },
-            "SpcLoadBuiltinEngine": { "start": 168078, "end": 171490, "type": "Code" }
-        } },
+        "QuintetLzDecompress": { "start": 164464, "end": 164770, "type": "Code", "scene": "engine" },
+        "DmaWordToVram": { "start": 164770, "end": 164795, "type": "Code", "scene": "engine" },
+        "scene_script": { "start": 164795, "end": 168078, "type": "Code", "scene": "engine" },
+        "spc_transfer": { "start": 168078, "end": 171490, "type": "Code", "scene": "engine" },
         "system_init": { "start": 171490, "end": 172096, "type": "Code", "scene": "engine" },
         "music_actors": { "start": 172096, "end": 172315, "type": "Code", "scene": "engine" },
         "DisplaySceneTitle": { "start": 172315, "end": 172521, "type": "Code", "scene": "engine" },

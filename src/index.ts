@@ -1,5 +1,6 @@
 import { fileURLToPath } from 'url';
 import { dirname, join, resolve } from 'path';
+import { existsSync, readdirSync, readFileSync } from 'fs';
 import { DbBlock, DbFile, DbGroup, DbStringType, DbStruct, CopDef, DbFileType, AsmBlock, saveFileAsText, RomProcessingConstants, crc32_buffer } from '@gaialabs/core';
 import { DbRootUtils } from '@gaialabs/core';
 import type { DbAddressingMode, DbConfig, DbGameRomModule } from '@gaialabs/core';
@@ -21,12 +22,32 @@ import structs from '../db-us/structs.json' with { type: 'json' };
 import transforms from '../db-us/transforms.json' with { type: 'json' };
 import fileTypes from '../db-us/fileTypes.json' with { type: 'json' };
 import names from '../db-us/names.json' with { type: 'json' };
-import comments0 from '../db-us/comments/comments_bank0.json' with { type: 'json' };
-import comments2 from '../db-us/comments/comments_bank2.json' with { type: 'json' };
-import comments3 from '../db-us/comments/comments_bank3.json' with { type: 'json' };
-import blockNotes from '../db-us/blockNotes.json' with { type: 'json' };
-import partNotes from '../db-us/partNotes.json' with { type: 'json' };
 import types from '../db-us/types.json' with { type: 'json' };
+
+function loadNotesDir(subdir: string): Record<string, string> {
+    const dir = join(__pkgRoot, 'notes', subdir);
+    if (!existsSync(dir)) return {};
+
+    const merged: Record<string, string> = {};
+    for (const file of readdirSync(dir)) {
+        if (!file.endsWith('.json')) continue;
+        const data = JSON.parse(readFileSync(join(dir, file), 'utf-8'));
+        Object.assign(merged, data);
+    }
+    return merged;
+}
+
+function loadLocalNotes(): { comments: Record<string, string>; blockNotes: Record<string, string>; partNotes: Record<string, string> } {
+    const notesDir = join(__pkgRoot, 'notes');
+    if (!existsSync(notesDir)) {
+        return { comments: {}, blockNotes: {}, partNotes: {} };
+    }
+    return {
+        comments: loadNotesDir('comments'),
+        blockNotes: loadNotesDir('blockNotes'),
+        partNotes: loadNotesDir('partNotes')
+    };
+}
 
 import configJP from '../db-jp/config.json' with { type: 'json' };
 import blocksJP from '../db-jp/blocks.json' with { type: 'json' };
@@ -42,9 +63,8 @@ import structsJP from '../db-jp/structs.json' with { type: 'json' };
 import transformsJP from '../db-jp/transforms.json' with { type: 'json' };
 import fileTypesJP from '../db-us/fileTypes.json' with { type: 'json' };
 import namesJP from '../db-jp/names.json' with { type: 'json' };
-import commentsJP from '../db-jp/comments.json' with { type: 'json' };
-import blockNotesJP from '../db-jp/blockNotes.json' with { type: 'json' };
-import partNotesJP from '../db-jp/partNotes.json' with { type: 'json' };
+
+const localNotes = loadLocalNotes();
 
 export const db : DbGameRomModule = {
     mnemonics: { ...snes.vectors, ...mnemonics },
@@ -64,9 +84,9 @@ export const db : DbGameRomModule = {
     headers: snes.headers,
     names,
     types,
-    comments: { ...comments0, ...comments2, ...comments3 },
-    blockNotes,
-    partNotes
+    comments: localNotes.comments,
+    blockNotes: localNotes.blockNotes,
+    partNotes: localNotes.partNotes
 };
 
 export const jp : DbGameRomModule = {
@@ -85,10 +105,7 @@ export const jp : DbGameRomModule = {
     fileTypes: fileTypesJP as unknown as Record<string, Partial<DbFileType>>,
     addrModes: snes.addressingModes as unknown as Record<string, Partial<DbAddressingMode>>,
     headers: snes.headers,
-    names: namesJP,
-    comments: commentsJP,
-    blockNotes: blockNotesJP,
-    partNotes: partNotesJP
+    names: namesJP
 };
 
 export async function extract(romPath: string, outPath: string, options: Record<string, boolean>) {

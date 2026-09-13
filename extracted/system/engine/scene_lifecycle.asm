@@ -41,6 +41,7 @@
 ?INCLUDE 'binary_01C384'
 ?INCLUDE 'camera_tilemap'
 ?INCLUDE 'DisplaySceneTitle'
+?INCLUDE 'DmaWordToVram'
 ?INCLUDE 'event_blocks'
 ?INCLUDE 'hdma_dma_spc'
 ?INCLUDE 'scene_script'
@@ -1126,7 +1127,7 @@ LoadPlayerGraphics {
     LDX #$&gfx_000000
     LDA #$^gfx_000000
     LDY #$1C00
-    JSL $@scene_script.DmaWordToVram
+    JSL $@DmaWordToVram
     LDA $playerFlags      ; playerFlags bit 3 — ability form?
     BIT #$08
     BEQ loc_03E035
@@ -1135,7 +1136,7 @@ LoadPlayerGraphics {
     LDX #$&misc_fx_1CD580
     LDA #$^misc_fx_1CD580
     LDY #$0800
-    JSL $@scene_script.DmaWordToVram
+    JSL $@DmaWordToVram
     PLP 
     RTL 
 
@@ -1148,7 +1149,7 @@ LoadPlayerGraphics {
     LDX #$&misc_fx_1CCA80
     LDA #$^misc_fx_1CCA80
     LDY #$0600
-    JSL $@scene_script.DmaWordToVram
+    JSL $@DmaWordToVram
 
   loc_03E04E:
     PLP 

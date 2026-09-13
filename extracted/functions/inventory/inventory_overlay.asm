@@ -1,4 +1,5 @@
 ?INCLUDE 'actor_execution'
+?INCLUDE 'DmaWordToVram'
 ?INCLUDE 'event_blocks'
 ?INCLUDE 'hdma_dma_spc'
 ?INCLUDE 'scene_lifecycle'
@@ -227,7 +228,7 @@ ReloadAbilityFX {
     LDX #$&misc_fx_1CC000
     LDA #$^misc_fx_1CC000
     LDY #$0480
-    JSL $@scene_script.DmaWordToVram
+    JSL $@DmaWordToVram
     COP [CopyPalette] ( @fx_palette_198070, #00, #A0, #10 )
     RTS 
 
@@ -237,7 +238,7 @@ ReloadAbilityFX {
     LDX #$&misc_fx_1CC480
     LDA #$^misc_fx_1CC480
     LDY #$0600
-    JSL $@scene_script.DmaWordToVram
+    JSL $@DmaWordToVram
     COP [CopyPalette] ( @fx_palette_198090, #00, #A9, #07 )
     RTS 
 }

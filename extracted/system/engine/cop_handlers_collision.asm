@@ -5,12 +5,12 @@
 ?INCLUDE 'binary_01D8BE'
 ?INCLUDE 'cop_handlers_actors'
 ?INCLUDE 'cop_handlers_script'
-?INCLUDE 'decompress'
 ?INCLUDE 'func_0AA3A7'
 ?INCLUDE 'GetPlayerFacingDirection'
 ?INCLUDE 'hardware_math'
 ?INCLUDE 'hdma_dma_spc'
 ?INCLUDE 'map_coords'
+?INCLUDE 'QuintetLzDecompress'
 ?INCLUDE 'sprite_composition'
 ?INCLUDE 'tile_collision_physics'
 
@@ -2307,7 +2307,7 @@ Decompress {
     STA $78
     INC $3E
     INC $3E
-    JSL $@decompress.QuintetLzDecompress
+    JSL $@QuintetLzDecompress
     JSL $@sprite_composition.ClearActorRenderList
     PLD 
     PLX 
