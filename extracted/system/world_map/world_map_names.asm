@@ -1,3 +1,18 @@
+; World map location names — label lookup table for map positions (242132–242689, Bank 03).
+; 
+; Pure data block mapping world map location IDs to display name strings.
+; 
+; === DATA FORMAT ===
+; 
+; Top-level table (world_map_names): Array of `map-label` entries, each containing:
+;   - Location ID byte (matches WorldMapController position index)
+;   - Pointer to a sprite string (the location name rendered as OAM sprites)
+; 
+; 37 named locations covering the full game world: South Cape, Edward's Castle, Itory Village, Moon Tribe Camp, Inca Ruins, Diamond Coast, Freejia, Diamond Mine, Neil's Cottage, Nazca Painting, Mu, Seaside Cave, Angel Village, Watermia, Great Wall, City of Euro, Mt. Temple, Natives' Village, Ankor Wat, Desert Village Dao, Pyramid, Over Babel, Tower of Babel.
+; 
+; Some locations share the same string (e.g., multiple entries for 'Desert Village Dao', 'City of Euro'). Strings are sprite-rendered text (spritestring format) for overlay on the Mode 7 world map.
+---------------------------------------------
+
 ?BANK 03
 
 ---------------------------------------------

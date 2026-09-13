@@ -76,17 +76,25 @@
         "warps_interaction": { "start": 173533, "end": 174986, "type": "Code", "scene": "engine" },
         "camera_tilemap": { "start": 174986, "end": 176291, "type": "Code", "scene": "engine" },
         "map_coords": { "start": 176291, "end": 176654, "type": "Code", "scene": "engine" },
-        "player_move_main": { "scene": "engine", "parts": {
+        "player_move_main": { "scene": "player", "parts": {
             "PlayerMovementTick": { "start": 184272, "end": 184376, "type": "Code" },
             "ComputeYSnapOffset": { "start": 184902, "end": 185206, "type": "Code" }
         } },
-        "player_move_ns": { "start": 184376, "end": 184902, "type": "Code", "scene": "engine" },
-        "player_move_ew": { "start": 185206, "end": 187264, "type": "Code", "scene": "engine" },
-        "player_move_diag": { "start": 187264, "end": 188674, "type": "Code", "scene": "engine" },
+        "player_move_ns": { "start": 184376, "end": 184902, "type": "Code", "scene": "player" },
+        "player_move_south": { "start": 185206, "end": 186076, "type": "Code", "scene": "player" },
+        "player_move_east": { "scene": "player", "parts": {
+            "DispatchEastMove": { "start": 186076, "end": 186435, "type": "Code" },
+            "AutoAlignNS_East": { "start": 187085, "end": 187264, "type": "Code" }
+        } },
+        "player_move_ramps": { "start": 186435, "end": 187085, "type": "Code", "scene": "player" },
+        "player_move_diag": { "start": 187264, "end": 188674, "type": "Code", "scene": "player" },
         "tile_collision": { "start": 188674, "end": 189334, "type": "Code", "scene": "engine" },
+        "inventory_overlay": { "start": 191746, "end": 192584, "type": "Code", "scene": "inventory", "movable": true },
+        "ShowDialogueFrame": { "start": 192584, "end": 192618, "type": "Code", "scene": "functions", "movable": true },
+        "vram_buffer_clear": { "start": 192618, "end": 192652, "type": "Code", "scene": "functions", "movable": true },
         "GlobalInputHandler": { "start": 229376, "end": 229567, "type": "Code", "scene": "engine" },
         "radar_map_screen": { "start": 229567, "end": 230416, "type": "Code", "scene": "engine" },
-        "item_use_system": { "start": 230416, "end": 237738, "type": "Code", "scene": "engine" },
+        "item_use_system": { "start": 230416, "end": 237738, "type": "Code", "scene": "inventory" },
         "oam_digit_compose": { "start": 244449, "end": 244613, "type": "Code", "scene": "engine" },
         "combat_collision": { "start": 244613, "end": 247295, "type": "Code", "scene": "engine" },
         "sprite_composition": { "scene": "engine", "parts": {
@@ -246,7 +254,7 @@
             "effect_position_update": { "start": 59884, "end": 60054, "type": "actor-def" }
         } },
         "camera_scroll_controller": { "start": 60141, "end": 60315, "type": "actor-def", "movable": true },
-        "dark_space_palette": { "start": 176654, "end": 176798, "type": "Code", "scene": "player", "movable": true },
+        "shadow_shimmer": { "start": 176654, "end": 176798, "type": "Code", "scene": "player", "movable": true },
         "player_move_controller": { "start": 176798, "end": 177195, "type": "Code", "scene": "player", "movable": true },
         "slope_ramp_physics": { "start": 177195, "end": 178099, "type": "Code", "scene": "player", "movable": false },
         "attack_ability_system": { "scene": "player", "movable": false, "parts": {
@@ -919,9 +927,6 @@
         "StopPlayerOnDeathAssign": { "start": 62387, "end": 62409, "type": "Code", "movable": true },
         "ApplyOrbitalOffsetFromRef": { "start": 62409, "end": 62504, "type": "Code", "movable": true },
         "ApplyOrbitalOffsetXY": { "start": 62514, "end": 62607, "type": "Code", "movable": true },
-        "dialogue_display": { "start": 192584, "end": 192618, "type": "Code", "movable": true },
-        "vram_buffer_clear": { "start": 192618, "end": 192652, "type": "Code", "movable": true },
-        "inventory_overlay": { "start": 191746, "end": 192584, "type": "Code", "scene": "inventory", "movable": true },
         "func_06B9F2": { "start": 440818, "end": 440841, "type": "Code", "movable": true },
         "func_0AA36E": { "start": 697198, "end": 697211, "type": "Code", "movable": true },
         "func_0AA3A7": { "start": 697255, "end": 697341, "type": "Code", "movable": true },

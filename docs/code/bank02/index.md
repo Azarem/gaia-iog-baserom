@@ -62,7 +62,7 @@ $02AB8A ├───────────────────────
 $02B0A3 ├───────────────────────────────────────────────────┤
         │ map_coords             [TileCoordsToMapIndex]      │ 363 B
 $02B20E ├═══════════════════════════════════════════════════┤
-        │ dark_space_palette     [DarkSpacePaletteInit]      │ 144 B
+        │ shadow_shimmer     [ShadowShimmerInit]      │ 144 B
 $02B29E ├───────────────────────────────────────────────────┤
         │ player_move_controller [PlayerMoveController]      │ 397 B
 $02B42B ├───────────────────────────────────────────────────┤
@@ -152,7 +152,7 @@ The player's modular actor system:
 
 ```
 player_character.asm (?BANK 02)
-  ├─ dark_space_palette.asm
+  ├─ shadow_shimmer.asm
   ├─ player_move_controller.asm
   │   └─ player_move_main.asm   (ref only)
   ├─ slope_ramp_physics.asm
@@ -317,7 +317,7 @@ player_character (player actor spawn chain)
   ├─ COP [SpawnBefore] → AttackSystemEntry               ← attack_ability_system
   ├─ COP [SpawnAfter]  → PlayerMoveController            ← player_move_controller
   ├─ COP [SpawnAfter]  → SlopePhysicsEntry               ← slope_ramp_physics
-  └─ COP [SpawnLastRel]→ DarkSpacePaletteInit            ← dark_space_palette
+  └─ COP [SpawnLastRel]→ ShadowShimmerInit            ← shadow_shimmer
 
 PlayerMoveController
   └─ JSL → PlayerMovementTick                             ← player_move_main
@@ -364,7 +364,7 @@ The player character uses a **modular multi-actor design** (see [player-characte
 2. **player_move_controller** — physics pipeline (joypad → velocity → collision)
 3. **slope_ramp_physics** — terrain physics (slopes, deceleration curves)
 4. **attack_ability_system** — special abilities (see [attack-ability-system.md](attack-ability-system.md))
-5. **dark_space_palette** — visual FX (palette cycling in dark spaces)
+5. **shadow_shimmer** — visual FX (Shadow palette shimmer)
 
 Inter-actor communication uses shared WRAM variables rather than direct calls.
 
@@ -430,7 +430,7 @@ Bank 02 blocks are organized under three top-level categories:
 
 | Block Key | Scene | Range | Type | Parts |
 |-----------|-------|-------|------|-------|
-| `dark_space_palette` | `player` | `$02B20E`–`$02B29E` | Code | 5 |
+| `shadow_shimmer` | `player` | `$02B20E`–`$02B29E` | Code | 5 |
 | `player_move_controller` | `player` | `$02B29E`–`$02B42B` | Code | 1 |
 | `slope_ramp_physics` | `player` | `$02B42B`–`$02B7B3` | Code | 1 |
 | `attack_ability_system` | `player` | `$02B7B3`–`$02C38C` | Code | 2 |
@@ -505,7 +505,7 @@ All bank 02 ASM files and their filesystem locations:
 | File | Block | Lines |
 |------|-------|-------|
 | `player_character.asm` | `player_character` | — |
-| `dark_space_palette.asm` | `dark_space_palette` | — |
+| `shadow_shimmer.asm` | `shadow_shimmer` | — |
 | `player_move_controller.asm` | `player_move_controller` | — |
 | `slope_ramp_physics.asm` | `slope_ramp_physics` | — |
 | `attack_ability_system.asm` | `attack_ability_system` | — |

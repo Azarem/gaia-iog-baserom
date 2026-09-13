@@ -346,7 +346,7 @@ Source: [future_vision_cutscene.asm](../../../extracted/angkor_wat/future_vision
 
 ### Purpose
 
-Plays a prophetic Mode 7 vision of Angkor Wat's future. Shares the garden-crash
+Plays a prophetic Mode 7 vision of Earth's future. Shares the garden-crash
 Mode 7 setup (identical PPU config + `Mode7PerspectiveUpdate` spawn with `$0804`),
 but drives a different camera choreography via `FutureVisionController`.
 

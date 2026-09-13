@@ -29,7 +29,7 @@ $02AB8A ┌─ CameraFullRefresh ───────────────�
 $02B0A3 ├─ TileCoordsToMapIndex ───────────────────────┤
         │  PixelToVramAddress / MapIndexMove*          │  map_coords
         │  ProbeRightTiles / ProbeLeftTiles            │
-$02B20E ├─ (dark_space_palette, player_move, …) ───────┤  ← other blocks
+$02B20E ├─ (shadow_shimmer, player_move, …) ────────────┤  ← other blocks
         │                                              │
 $02E102 ├─ CombinedProbe_Unused … CheckSubTileAlignY  │  tile_collision
 $02E396 └─ (inventory_menu continues) ────────────────┘

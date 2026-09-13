@@ -1,3 +1,26 @@
+; World map destination options — COP script entries for travel menu choices (242689–244449, Bank 03).
+; 
+; Pure COP script data block containing the dialogue menus shown when the player selects a destination on the world map. Each entry displays a 'Quit / [Destination]' dialogue using COP commands and handles the resulting map change.
+; 
+; === STRUCTURE ===
+; 
+; Top-level pointer table (world_map_options): 39 entries ($00–$26), each pointing to a COP script block.
+; 
+; Each script follows a pattern:
+; 1. PrintDialogString — shows the destination choice dialogue (e.g., 'Quit / South Cape')
+; 2. DialogueOptions — presents 2–5 menu choices with a pointer to the result handler table
+; 3. RestoreSavedPtr — cleanup on cancel
+; 
+; Result handlers use:
+; - StageWorldMapMoveIds — sets up the route animation IDs for travel
+; - QueueMapChange — queues the actual scene transition (map ID, spawn position, camera, flags)
+; - RestoreSavedPtr — final cleanup
+; 
+; The entries at the end ($1E–$26) are simplified: they just display a template string '[TPL:11]' (likely a blank or default template) and return. Entry $26 (code_03B922) has a trailing REP/DEX sequence that appears to be dead code or a padding artifact.
+; 
+; Destination menus grow progressively throughout the game, offering more travel options as locations are unlocked (e.g., Euro adds Ankor Wat, Watermia adds Mt. Temple, etc.).
+---------------------------------------------
+
 ?BANK 03
 
 ---------------------------------------------

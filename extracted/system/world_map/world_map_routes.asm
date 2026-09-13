@@ -1,3 +1,20 @@
+; World map travel routes — movement step sequences for inter-location travel animations (241015–242132, Bank 03).
+; 
+; Pure data block containing 38 route definitions used by the WorldMapController to animate the player's airship/walking path between locations on the world map.
+; 
+; === DATA FORMAT ===
+; 
+; Top-level pointer table (world_map_routes): 38 entries ($00–$25), each pointing to a route step array.
+; 
+; Each route step is a 4-byte record: `route-step < flags, direction, ?, distance >`
+;   - Byte 0 (flags): High nibble = animation modifier, low nibble = speed/curve modifier
+;   - Byte 1 (direction): $00 = continue, $01 = turn left, $02 = turn right, $11 = sharp left, $12 = sharp right
+;   - Byte 2: Additional movement parameter (usually $00, $01, or $02)
+;   - Byte 3 (distance): Pixel distance to travel for this step ($10–$FF)
+; 
+; Routes are traversed sequentially; the WorldMapController reads steps until the array ends, moving the player icon along the defined path with direction changes and distance segments.
+---------------------------------------------
+
 ---------------------------------------------
 
 world_map_routes [

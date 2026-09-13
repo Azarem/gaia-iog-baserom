@@ -110,7 +110,7 @@ SlopePhysicsEntry {
     JMP $&SlopeFlatExit   ; Not $06 or $09 → flat ground exit
 
   loc_02B483:
-    JSR $&tile_collision.MapCellRight ; Transition tile: check RIGHT adjacent cell for slope types $05 or $0A
+    JSR $&tile_collision.MapCellDown ; Transition tile: check RIGHT adjacent cell for slope types $05 or $0A
     SEP #$20
     JSR $&tile_collision.ReadCollisionNibble
     REP #$20
@@ -125,7 +125,7 @@ SlopePhysicsEntry {
     JMP $&SlopeType0AHandler
 
   loc_02B4A0:
-    JSR $&tile_collision.MapCellLeft ; Right cell not a slope → check LEFT adjacent cell for $05 or $0A
+    JSR $&tile_collision.MapCellUp ; Right cell not a slope → check LEFT adjacent cell for $05 or $0A
     SEP #$20
     JSR $&tile_collision.ReadCollisionNibble
     REP #$20
@@ -166,7 +166,7 @@ SlopePhysicsEntry {
     TAX 
     LDA $@SlopeTileDispatch, X
     BNE loc_02B535        ; Found slope → dispatch to handler
-    JSR $&tile_collision.MapCellDown ; Probe 2: cell below player
+    JSR $&tile_collision.MapCellRight ; Probe 2: cell below player
     SEP #$20
     JSR $&tile_collision.ReadCollisionNibble
     REP #$20
@@ -175,7 +175,7 @@ SlopePhysicsEntry {
     TAX 
     LDA $@SlopeTileDispatch, X
     BNE loc_02B535
-    JSR $&tile_collision.MapCellRight ; Probe 3: cell to the right of player
+    JSR $&tile_collision.MapCellDown ; Probe 3: cell to the right of player
     STX $00
     SEP #$20
     JSR $&tile_collision.ReadCollisionNibble
@@ -185,7 +185,7 @@ SlopePhysicsEntry {
     TAX 
     LDA $@SlopeTileDispatch, X
     BNE loc_02B535
-    JSR $&tile_collision.MapCellDown ; Probe 4: cell below-right (diagonal)
+    JSR $&tile_collision.MapCellRight ; Probe 4: cell below-right (diagonal)
     SEP #$20
     JSR $&tile_collision.ReadCollisionNibble
     REP #$20

@@ -1,6 +1,6 @@
 ; Main player character actor definition and movement state machine (181132–184272).
 ; 
-; This is the largest player actor file — the actor-def that instantiates the player and contains the complete movement FSM, traversal systems (climbing, ladders, shimmy), combat (melee, run attack, ranged), and related helpers. The actor-def's init code spawns four companion actors: attack_ability_system (charged attacks), player_move_controller (per-frame physics), slope_ramp_physics (slope tile handling), and dark_space_palette (Shadow's palette cycling).
+; This is the largest player actor file — the actor-def that instantiates the player and contains the complete movement FSM, traversal systems (climbing, ladders, shimmy), combat (melee, run attack, ranged), and related helpers. The actor-def's init code spawns four companion actors: attack_ability_system (charged attacks), player_move_controller (per-frame physics), slope_ramp_physics (slope tile handling), and shadow_shimmer (Shadow's palette shimmer).
 ; 
 ; === LOGICAL SECTIONS (recommended split boundaries) ===
 ; 
@@ -40,10 +40,10 @@
 ?BANK 02
 
 ?INCLUDE 'attack_ability_system'
-?INCLUDE 'dark_space_palette'
 ?INCLUDE 'game_over_sequence'
 ?INCLUDE 'hardware_math'
 ?INCLUDE 'player_move_controller'
+?INCLUDE 'shadow_shimmer'
 ?INCLUDE 'slope_ramp_physics'
 ?INCLUDE 'table_17D000'
 
@@ -76,9 +76,9 @@
 ; 2. Stores the current actor slot as playerActor ($09AA)
 ; 3. Sets the free101C marker to signal the player actor is active
 ; 4. Checks the game-over wakeup flag ($0AF8) — spawns DeathWakeupMessage if set
-; 5. Spawns four companion actors: attack_ability_system (SpawnBefore), player_move_controller and slope_ramp_physics (SpawnAfter), dark_space_palette (SpawnLastRel)
+; 5. Spawns four companion actors: attack_ability_system (SpawnBefore), player_move_controller and slope_ramp_physics (SpawnAfter), shadow_shimmer (SpawnLastRel)
 ; 
-; These companions handle combat, physics, slope detection, and Shadow's palette cycling respectively. The player character actor itself handles only the movement state machine.
+; These companions handle combat, physics, slope detection, and Shadow's palette shimmer respectively. The player character actor itself handles only the movement state machine.
 
 PlayerCharacterDef [
   actor-def < #00, #08, #85, {
@@ -100,7 +100,7 @@ PlayerCharacterDef [
     COP [SpawnBefore] ( @attack_ability_system.AttackSystemEntry ) ; Spawn attack_ability_system.AttackSystemEntry as SpawnBefore companion (runs before player each frame)
     COP [SpawnAfter] ( @player_move_controller.PlayerMoveController ) ; Spawn player_move_controller as SpawnAfter companion (physics/collision processing)
     COP [SpawnAfter] ( @slope_ramp_physics.SlopePhysicsEntry ) ; Spawn slope_ramp_physics as SpawnAfter companion (slope tile handling)
-    COP [SpawnLastRel] ( @dark_space_palette.DarkSpacePaletteInit, #00, #00, #$2800 ) ; Spawn dark_space_palette as SpawnLastRel companion (Shadow palette cycling, dies if not form 2)
+    COP [SpawnLastRel] ( @shadow_shimmer.ShadowShimmerInit, #00, #00, #$2800 ) ; Spawn shadow_shimmer as SpawnLastRel companion (Shadow palette shimmer, dies if not form 2)
 } >
 ]
 

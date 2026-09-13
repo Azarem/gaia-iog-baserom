@@ -74,7 +74,6 @@
 
 ?BANK 03
 
-?INCLUDE 'dialogue_display'
 ?INCLUDE 'game_over_sequence'
 ?INCLUDE 'GetPlayerFacingDirection'
 ?INCLUDE 'hit_stagger_controller'
@@ -82,6 +81,7 @@
 ?INCLUDE 'itemget_table_01FD24'
 ?INCLUDE 'NullActorScriptStub'
 ?INCLUDE 'player_transition_handlers'
+?INCLUDE 'ShowDialogueFrame'
 ?INCLUDE 'smooth_follow_child'
 ?INCLUDE 'SpawnAttackTrailEffect'
 ?INCLUDE 'StandardEnemyDefeatHandler'
@@ -1536,7 +1536,7 @@ InteractionDamage_NPCChat {
     AND #$00FF
     STA $0DB8
     LDY #$&itemget_table_01FD24.dialogstring_01FF02
-    JSL $@dialogue_display.ShowDialogueFrame
+    JSL $@ShowDialogueFrame
     SEC 
     RTS 
 
@@ -1546,7 +1546,7 @@ InteractionDamage_NPCChat {
     BCS loc_03C50A
     AND #$00FF
     STA $0DB8
-    JSL $@dialogue_display.ShowDialogueFrame
+    JSL $@ShowDialogueFrame
 
   loc_03C50A:
     LDA #$*NullActorScriptStub ; Deactivate: NullActorScriptStub + $0700 prevents re-interaction

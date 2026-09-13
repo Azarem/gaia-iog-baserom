@@ -14,7 +14,7 @@ The attack companion actor runs **before** the movement controller via `SpawnBef
 |---------|------|-------------------|-------------------|
 | `0` | Will | `WillAttackDispatch` | Basic attack, Psycho Dash, Psycho Slider, running attack |
 | `1` | Freedan | `FreedanAttackDispatch` | Basic attack, Dark Friar, Aura Barrier, vine drop-attack |
-| `2` | Shadow | `FreedanAttackDispatch` + `dark_space_palette` | Same as Freedan + Dark Space palette cycling |
+| `2` | Shadow | `FreedanAttackDispatch` + `shadow_shimmer` | Same as Freedan + Shadow palette shimmer |
 
 | `$0AA2` Bit | Hex | Character | Ability |
 |-------------|-----|-----------|---------|

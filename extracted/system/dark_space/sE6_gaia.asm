@@ -1,7 +1,7 @@
 ?INCLUDE 'cop_handlers_actors'
-?INCLUDE 'dark_space_palette'
 ?INCLUDE 'player_character'
 ?INCLUDE 'save_system'
+?INCLUDE 'shadow_shimmer'
 ?INCLUDE 'table_0EE000'
 
 !sceneNext                      0642
@@ -1503,7 +1503,7 @@ func_08F5F9 {
     COP [AnimOnce]
     COP [StageSpriteFrame] ( #0F )
     COP [AnimOnce]
-    COP [SpawnLastRel] ( @dark_space_palette.DarkSpacePaletteInit, #00, #00, #$2800 )
+    COP [SpawnLastRel] ( @shadow_shimmer.ShadowShimmerInit, #00, #00, #$2800 )
     LDA #$0002
     STA $characterForm
     COP [StageSpriteFrame] ( #10 )
@@ -1529,7 +1529,7 @@ func_08F63C {
     COP [AnimOnce]
     COP [StageSpriteFrame] ( #0F )
     COP [AnimOnce]
-    COP [SpawnLastRel] ( @dark_space_palette.DarkSpacePaletteInit, #00, #00, #$2800 )
+    COP [SpawnLastRel] ( @shadow_shimmer.ShadowShimmerInit, #00, #00, #$2800 )
     LDA #$0002
     STA $characterForm
     COP [StageSpriteFrame] ( #10 )

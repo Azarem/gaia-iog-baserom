@@ -14,7 +14,7 @@
 | Range | Hex | File(s) | Category | Status |
 |-------|-----|---------|----------|--------|
 | 163840–176652 | $028000–$02B20C | `chunk_028000.asm` | System engine | ✅ Previously analyzed |
-| **176654–176798** | **$02B20E–$02B29E** | **`actor_02B20E.asm`** | **Dark space palette actor** | 🆕 This document |
+| **176654–176798** | **$02B20E–$02B29E** | **`actor_02B20E.asm`** | **Shadow shimmer actor** | 🆕 This document |
 | **176798–177195** | **$02B29E–$02B42B** | **`actor_02B29E.asm`** | **Player movement controller** | 🆕 This document |
 | **177195–178099** | **$02B42B–$02B7B3** | **`actor_02B42B.asm`** | **Slope/ramp physics controller** | 🆕 This document |
 | **178099–179702** | **$02B7B3–$02BDF6** | **`actor_02B7B3.asm`** | **Player attack/ability system** | 🆕 This document |
@@ -40,7 +40,7 @@ unit rooted at `player_character.asm`:
 
 ```
 player_character.asm
-  ?INCLUDE 'actor_02B20E'      — dark space palette cycling
+  ?INCLUDE 'actor_02B20E'      — shadow shimmer cycling
   ?INCLUDE 'actor_02B29E'      — player movement controller
   ?INCLUDE 'actor_02B42B'      — slope/ramp physics controller
   ?INCLUDE 'actor_02B7B3'      — attack/ability system
@@ -81,7 +81,7 @@ player_character (actor_def @ $02C38C)
   ├─ SpawnBefore → e_actor_02B7B3   [Attack/Ability System]
   ├─ SpawnAfter  → actor_02B29E     [Movement Controller]
   ├─ SpawnAfter  → e_actor_02B42B   [Slope/Ramp Physics]
-  └─ SpawnLastRel → e_actor_02B20E  [Dark Space Palette FX]
+  └─ SpawnLastRel → e_actor_02B20E  [Shadow Shimmer FX]
 ```
 
 All five actors share the player's actor slot context via `$player_actor` and
@@ -116,7 +116,7 @@ communicate through:
 
 ## 4. Functional Group Analysis — Actor Blocks
 
-### Group 15: Dark Space Palette Cycling ($02B20E–$02B29E)
+### Group 15: Shadow Shimmer Cycling ($02B20E–$02B29E)
 
 **File:** `extracted/actors/actor_02B20E.asm`
 **Purpose:** Manages palette cycling effects when the player stands in a Dark Space
@@ -124,13 +124,13 @@ area. Only active when `$0AD4 == 2` (Shadow form).
 
 | Old Name | New Name | Hex | Size | Type | Description |
 |----------|----------|-----|------|------|-------------|
-| `e_actor_02B20E` | `DarkSpacePaletteInit` | $02B20E | 51 B | Code | Entry point. Checks `$0AD4 == 2` (Shadow form), otherwise dies. Spawns palette marker, enters idle state. |
-| `code_02B21F` | `DarkSpacePaletteIdle` | $02B21F | 34 B | Code | Wait state: monitors `player_speed_ew \| player_speed_ns`. If player moves, branch to active. Checks flag byte for state toggle. |
-| `code_02B241` | `DarkSpacePaletteActive` | $02B241 | 35 B | Code | Active state: palette #24 cycling while player moves. If player stops, checks flag to return to idle. |
-| `sub_02B264` | `DarkSpaceCheckValidity` | $02B264 | 41 B | Code | Validates that `$0AD4` still == 2 and player isn't flagged $0040 (leaving dark space). If invalid, aborts actor via `PLA; COP [Die]`. |
-| `func_02B28D` | `DarkSpacePaletteCycleA` | $02B28D | 7 B | Code | Infinite palette #23 cycle loop (idle glow). |
-| `func_02B294` | `DarkSpacePaletteCycleB` | $02B294 | 7 B | Code | Infinite palette #24 cycle loop (active glow). |
-| `func_02B29B` | `DarkSpacePaletteNop` | $02B29B | 3 B | Code | No-op entry: `COP [SetEntryContinue]; RTL`. Used as "dead" state. |
+| `e_actor_02B20E` | `ShadowShimmerInit` | $02B20E | 51 B | Code | Entry point. Checks `$0AD4 == 2` (Shadow form), otherwise dies. Spawns palette marker, enters idle state. |
+| `code_02B21F` | `ShadowShimmerIdle` | $02B21F | 34 B | Code | Wait state: monitors `player_speed_ew \| player_speed_ns`. If player moves, branch to active. Checks flag byte for state toggle. |
+| `code_02B241` | `ShadowShimmerActive` | $02B241 | 35 B | Code | Active state: palette #24 cycling while player moves. If player stops, checks flag to return to idle. |
+| `sub_02B264` | `ShadowShimmerGuard` | $02B264 | 41 B | Code | Validates that `$0AD4` still == 2 and player isn't flagged $0040 (form changed or locked). If invalid, aborts actor via `PLA; COP [Die]`. |
+| `func_02B28D` | `ShadowShimmerCycleA` | $02B28D | 7 B | Code | Infinite palette #23 cycle loop (idle glow). |
+| `func_02B294` | `ShadowShimmerCycleB` | $02B294 | 7 B | Code | Infinite palette #24 cycle loop (active glow). |
+| `func_02B29B` | `ShadowShimmerNop` | $02B29B | 3 B | Code | No-op entry: `COP [SetEntryContinue]; RTL`. Used as "dead" state. |
 
 **Pattern:** Two-state palette toggle. Idle = palette #23 (dim glow), Active =
 palette #24 (bright glow). Transitions are driven by player movement velocity.
@@ -774,7 +774,7 @@ func_02ED02.asm (inventory overlay)
 
 | Group | Block | Bytes | % of New Analysis |
 |-------|-------|-------|-------------------|
-| 15: Dark Space Palette | actor_02B20E | 144 | 0.9% |
+| 15: Shadow Shimmer | actor_02B20E | 144 | 0.9% |
 | 16: Movement Controller | actor_02B29E | 397 | 2.5% |
 | 17: Slope/Ramp Physics | actor_02B42B | 904 | 5.6% |
 | 18: Attack/Ability System | actor_02B7B3 + actor_02BDF6 | 3,033 | 18.9% |
@@ -886,7 +886,7 @@ Key entry points (subset — full list is in `us/names.json`):
 
 | Address | Hex | Applied Name | Group |
 |---------|-----|-------------|-------|
-| 176654 | $02B20E | `DarkSpacePaletteInit` | 15: Dark Space Palette |
+| 176654 | $02B20E | `ShadowShimmerInit` | 15: Shadow Shimmer |
 | 176798 | $02B29E | `PlayerMoveController` | 16: Movement Controller |
 | 177094 | $02B3C6 | `JoypadToVelocity` | 16: Movement Controller |
 | 177195 | $02B42B | `SlopePhysicsEntry` | 17: Slope Physics |
@@ -914,7 +914,7 @@ The following blocks in `us/blocks.json` have been renamed and given scene metad
 
 | Old Block Key | New Block Key | Scene | Notes |
 |---------------|---------------|-------|-------|
-| `actor_02B20E` | `dark_space_palette` | `player` | 5 parts renamed to descriptive names |
+| `actor_02B20E` | `shadow_shimmer` | `player` | 5 parts renamed to descriptive names |
 | `actor_02B29E` | `player_move_controller` | `player` | Flat part (single Code block) |
 | `actor_02B42B` | `slope_ramp_physics` | `player` | Flat part |
 | `actor_02B7B3` | `attack_ability_system` | `player` | 2 parts: `AttackSystemEntry`, `attack_abilities_ext` |
@@ -931,7 +931,7 @@ All block boundaries in bank 2 are contiguous with no gaps or overlaps:
 
 ```
 $028000 ─────────── System Engine (Groups 1–14) ───────── $02B20E
-$02B20E ─ dark_space_palette (5 parts) ────────────────── $02B29E
+$02B20E ─ shadow_shimmer (5 parts) ────────────────── $02B29E
 $02B29E ─ player_move_controller ──────────────────────── $02B42B
 $02B42B ─ slope_ramp_physics ──────────────────────────── $02B7B3
 $02B7B3 ─ attack_ability_system [part 1: AttackSysEntry]─ $02BDF6

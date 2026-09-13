@@ -6,14 +6,14 @@
 
 **Document scope:** The five-actor player character architecture in ROM bank `$02`, spanning `$02B20E`–`$02CFD0`.
 
-**Source:** [`player_character.asm`](../../../extracted/actors/player/player_character.asm) · [`dark_space_palette.asm`](../../../extracted/actors/player/dark_space_palette.asm) · [`player_move_controller.asm`](../../../extracted/actors/player/player_move_controller.asm)
+**Source:** [`player_character.asm`](../../../extracted/actors/player/player_character.asm) · [`shadow_shimmer.asm`](../../../extracted/actors/player/shadow_shimmer.asm) · [`player_move_controller.asm`](../../../extracted/actors/player/player_move_controller.asm)
 
 Illusion of Gaia's playable character is not a single monolithic actor. Instead, **`player_character.asm`** defines the master state machine while four companion actors run in parallel each frame — handling movement physics, terrain slopes, special abilities, and Shadow-form palette effects. All five communicate through shared WRAM variables rather than direct cross-calls.
 
 | # | File | Block | Range | Size |
 |---|------|-------|-------|------|
 | 1 | [`player_character.asm`](../../../extracted/actors/player/player_character.asm) | `player_character` | `$02C38C`–`$02CFD0` | 3,140 B |
-| 2 | [`dark_space_palette.asm`](../../../extracted/actors/player/dark_space_palette.asm) | `dark_space_palette` | `$02B20E`–`$02B29E` | 144 B |
+| 2 | [`shadow_shimmer.asm`](../../../extracted/actors/player/shadow_shimmer.asm) | `shadow_shimmer` | `$02B20E`–`$02B29E` | 144 B |
 | 3 | [`player_move_controller.asm`](../../../extracted/actors/player/player_move_controller.asm) | `player_move_controller` | `$02B29E`–`$02B42B` | 397 B |
 | 4 | [`slope_ramp_physics.asm`](../../../extracted/actors/player/slope_ramp_physics.asm) | `slope_ramp_physics` | `$02B42B`–`$02B7B3` | 904 B |
 | 5 | [`attack_ability_system.asm`](../../../extracted/actors/player/attack_ability_system.asm) | `attack_ability_system` | `$02B7B3`–`$02BDF6` + `$02BE72`–`$02C38C` | 2,909 B |
@@ -31,7 +31,7 @@ flowchart TB
     ATK["attack_ability_system<br/>Charge & abilities<br/>$02B7B3"]
     MOV["player_move_controller<br/>Joypad → velocity<br/>$02B29E"]
     SLP["slope_ramp_physics<br/>Slopes & decel<br/>$02B42B"]
-    DSP["dark_space_palette<br/>Shadow FX<br/>$02B20E"]
+    DSP["shadow_shimmer<br/>Shadow FX<br/>$02B20E"]
     PC -->|"SpawnBefore"| ATK
     PC -->|"SpawnAfter"| MOV
     PC -->|"SpawnAfter"| SLP
@@ -56,7 +56,7 @@ player_character.asm
     ?INCLUDE 'table_0EE000'    — guided projectile spritemap
     ?INCLUDE 'table_178000'    — Dark Friar FX spritemap
     ?INCLUDE 'table_179000'    — Aura projectile spritemap
-  ?INCLUDE 'dark_space_palette'
+  ?INCLUDE 'shadow_shimmer'
   ?INCLUDE 'game_over_sequence'
   ?INCLUDE 'hardware_math'
   ?INCLUDE 'player_move_controller'
@@ -105,7 +105,7 @@ player_character.asm
 |---------|------|-------------------|-------------------|
 | `0` | Will | `WillAttackDispatch` | Basic attack, Psycho Dash, Psycho Slider, running attack |
 | `1` | Freedan | `FreedanAttackDispatch` | Basic attack, Dark Friar, Aura Barrier, vine drop-attack |
-| `2` | Shadow | `FreedanAttackDispatch` + `dark_space_palette` | Same as Freedan + Dark Space palette cycling |
+| `2` | Shadow | `FreedanAttackDispatch` + `shadow_shimmer` | Same as Freedan + Shadow palette shimmer |
 
 | `$0AA2` Bit | Hex | Character | Ability |
 |-------------|-----|-----------|---------|
@@ -120,27 +120,27 @@ player_character.asm
 
 ---
 
-## dark_space_palette.asm
+## shadow_shimmer.asm
 
-Manages palette cycling when Shadow form stands in Dark Space. Only active when `$0AD4 == 2`.
+Manages Shadow's palette shimmer effect. Only active when `$0AD4 == 2`.
 
 | Address | Name | Size | Description |
 |---------|------|------|-------------|
-| `$02B20E` | DarkSpacePaletteInit | 51 B | Check `$0AD4==2` (Shadow), else die. Spawn palette marker. |
-| `$02B21F` | DarkSpacePaletteIdle | 34 B | Wait: monitor player speed. If moves → active. |
-| `$02B241` | DarkSpacePaletteActive | 35 B | Active: palette `#24` cycling while moving. |
-| `$02B264` | DarkSpaceCheckValidity | 41 B | Validate `$0AD4==2`, check `$0040` flag. If invalid, `PLA`; `COP [Die]`. |
-| `$02B28D` | DarkSpacePaletteCycleA | 7 B | Infinite palette `#23` cycle (idle glow). |
-| `$02B294` | DarkSpacePaletteCycleB | 7 B | Infinite palette `#24` cycle (active glow). |
-| `$02B29B` | DarkSpacePaletteNop | 3 B | No-op: `COP [SetEntryContinue]`; `RTL`. |
+| `$02B20E` | ShadowShimmerInit | 51 B | Check `$0AD4==2` (Shadow), else die. Spawn palette marker. |
+| `$02B21F` | ShadowShimmerIdle | 34 B | Wait: monitor player speed. If moves → active. |
+| `$02B241` | ShadowShimmerActive | 35 B | Active: palette `#24` cycling while moving. |
+| `$02B264` | ShadowShimmerGuard | 41 B | Validate `$0AD4==2`, check `$0040` flag. If invalid, `PLA`; `COP [Die]`. |
+| `$02B28D` | ShadowShimmerCycleA | 7 B | Infinite palette `#23` cycle (idle glow). |
+| `$02B294` | ShadowShimmerCycleB | 7 B | Infinite palette `#24` cycle (active glow). |
+| `$02B29B` | ShadowShimmerNop | 3 B | No-op: `COP [SetEntryContinue]`; `RTL`. |
 
-### DarkSpacePaletteInit
+### ShadowShimmerInit
 
 Check `$0AD4==2` (Shadow), else die. Spawn palette marker.
 
 **Source:**
 
-```7:15:../../../extracted/actors/player/dark_space_palette.asm
+```7:15:../../../extracted/actors/player/shadow_shimmer.asm
 ```
 
 **Variables:**
@@ -156,15 +156,15 @@ Check `$0AD4==2` (Shadow), else die. Spawn palette marker.
 
 | Symbol | Relationship |
 |--------|-------------|
-| `dark_space_palette` block | Parent compilation unit |
+| `shadow_shimmer` block | Parent compilation unit |
 
-### DarkSpacePaletteIdle
+### ShadowShimmerIdle
 
 Wait: monitor player speed. If moves → active.
 
 **Source:**
 
-```16:30:../../../extracted/actors/player/dark_space_palette.asm
+```16:30:../../../extracted/actors/player/shadow_shimmer.asm
 ```
 
 **Variables:**
@@ -179,15 +179,15 @@ Wait: monitor player speed. If moves → active.
 
 | Symbol | Relationship |
 |--------|-------------|
-| `dark_space_palette` block | Parent compilation unit |
+| `shadow_shimmer` block | Parent compilation unit |
 
-### DarkSpacePaletteActive
+### ShadowShimmerActive
 
 Active: palette `#24` cycling while moving.
 
 **Source:**
 
-```31:48:../../../extracted/actors/player/dark_space_palette.asm
+```31:48:../../../extracted/actors/player/shadow_shimmer.asm
 ```
 
 **Variables:**
@@ -202,15 +202,15 @@ Active: palette `#24` cycling while moving.
 
 | Symbol | Relationship |
 |--------|-------------|
-| `dark_space_palette` block | Parent compilation unit |
+| `shadow_shimmer` block | Parent compilation unit |
 
-### DarkSpaceCheckValidity
+### ShadowShimmerGuard
 
 Validate `$0AD4==2`, check `$0040` flag. If invalid, `PLA`; `COP [Die]`.
 
 **Source:**
 
-```49:73:../../../extracted/actors/player/dark_space_palette.asm
+```49:73:../../../extracted/actors/player/shadow_shimmer.asm
 ```
 
 **Variables:**
@@ -225,53 +225,53 @@ Validate `$0AD4==2`, check `$0040` flag. If invalid, `PLA`; `COP [Die]`.
 
 | Symbol | Relationship |
 |--------|-------------|
-| `dark_space_palette` block | Parent compilation unit |
+| `shadow_shimmer` block | Parent compilation unit |
 
-### DarkSpacePaletteCycleA
+### ShadowShimmerCycleA
 
-Infinite palette `#23` cycle (idle glow). Each frame runs `COP [PaletteStart]` / `COP [PaletteStep]` and branches to itself — spawned as the Dark Space companion actor's initial entry when Shadow form is active.
+Infinite palette `#23` cycle (idle glow). Each frame runs `COP [PaletteStart]` / `COP [PaletteStep]` and branches to itself — spawned as the shadow shimmer companion actor's initial entry when Shadow form is active.
 
 **Source:**
 
-```75:78:../../../extracted/actors/player/dark_space_palette.asm
+```75:78:../../../extracted/actors/player/shadow_shimmer.asm
 ```
 
 **Cross-References:**
 
 | Symbol | Relationship |
 |--------|-------------|
-| `DarkSpacePaletteInit` | Spawns this entry via `SpawnMarkedAfter` |
-| `DarkSpacePaletteIdle` | Redirects actor entry here when idle |
+| `ShadowShimmerInit` | Spawns this entry via `SpawnMarkedAfter` |
+| `ShadowShimmerIdle` | Redirects actor entry here when idle |
 
-### DarkSpacePaletteCycleB
+### ShadowShimmerCycleB
 
-Infinite palette `#24` cycle (active glow). Same loop structure as CycleA but uses palette slot `#24` — selected when the player is moving in Dark Space.
+Infinite palette `#24` cycle (active glow). Same loop structure as CycleA but uses palette slot `#24` — selected when Shadow is moving.
 
 **Source:**
 
-```80:83:../../../extracted/actors/player/dark_space_palette.asm
+```80:83:../../../extracted/actors/player/shadow_shimmer.asm
 ```
 
 **Cross-References:**
 
 | Symbol | Relationship |
 |--------|-------------|
-| `DarkSpacePaletteActive` | Redirects actor entry here when moving |
+| `ShadowShimmerActive` | Redirects actor entry here when moving |
 
-### DarkSpacePaletteNop
+### ShadowShimmerNop
 
-No-op termination entry. Spawned by `DarkSpaceCheckValidity` when the player actor's `$0010` bit `$0040` is set mid-cycle; sets `COP [SetEntryContinue]` and returns without further palette animation.
+No-op termination entry. Spawned by `ShadowShimmerGuard` when the player actor's `$0010` bit `$0040` is set mid-cycle; sets `COP [SetEntryContinue]` and returns without further palette animation.
 
 **Source:**
 
-```85:87:../../../extracted/actors/player/dark_space_palette.asm
+```85:87:../../../extracted/actors/player/shadow_shimmer.asm
 ```
 
 **Cross-References:**
 
 | Symbol | Relationship |
 |--------|-------------|
-| `DarkSpaceCheckValidity` | Spawns this entry on invalid mid-cycle state |
+| `ShadowShimmerGuard` | Spawns this entry on invalid mid-cycle state |
 
 ---
 
@@ -483,7 +483,7 @@ Actor definition header (type `$00`, priority `$08`, flags `$85`). Init: sets `$
 | `AttackSystemEntry` | `SpawnBefore` companion |
 | `PlayerMoveController` | `SpawnAfter` companion |
 | `SlopePhysicsEntry` | `SpawnAfter` companion |
-| `DarkSpacePaletteInit` | `SpawnLastRel` companion |
+| `ShadowShimmerInit` | `SpawnLastRel` companion |
 
 #### Subgroup 19B — Idle State Machine
 
@@ -1354,7 +1354,7 @@ player_character.asm (PlayerCharacterDef @ $02C38C)
   ├─ COP SpawnBefore  → attack_ability_system.AttackSystemEntry
   ├─ COP SpawnAfter   → player_move_controller.PlayerMoveController
   ├─ COP SpawnAfter   → slope_ramp_physics.SlopePhysicsEntry
-  ├─ COP SpawnLastRel → dark_space_palette.DarkSpacePaletteInit
+  ├─ COP SpawnLastRel → shadow_shimmer.ShadowShimmerInit
   ├─ JMP MovingEastWest / MovingNorthSouth
   ├─ JSR LoadAbilityAnimTableA/B
   └─ JSL PlayerMovementTick ($02CFD0)
@@ -1373,7 +1373,7 @@ slope_ramp_physics.asm
   ├─ JSR TileProbeMain / ReadCollisionNibble
   └─ JSR ClampSpeeds / DecelerateEW / DecelerateNS / ApplySlopeCurve*
 
-dark_space_palette.asm
+shadow_shimmer.asm
   └─ reads player_speed_ew | player_speed_ns
 ```
 

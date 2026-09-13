@@ -335,7 +335,7 @@ Two bitfield arrays provide the primary persistence mechanism for game state.
 | `$0ACC` | 2 | `cachedPrevMaxHp` | Previous max HP value for HUD change detection | `UpdateHUD` |
 | `$0ACE` | 2 | `playerHp` | Player's current HP (decreases from damage, recovers toward max) | `UpdateHUD` |
 | `$0AD0` | 2 | `cachedPrevHp` | Previous HP value for HUD change detection | `UpdateHUD` |
-| `$0AD4` | 2 | `characterForm` | Current character form: 0 = Will, 1 = Freedan, 2 = Shadow | `SetActorBody`, body swap COPs, `dark_space_palette` |
+| `$0AD4` | 2 | `characterForm` | Current character form: 0 = Will, 1 = Freedan, 2 = Shadow | `SetActorBody`, body swap COPs, `shadow_shimmer` |
 | `$0AD6` | 2 | `gemCount` | Current gem count | HUD gem display |
 | `$0AD8` | 2 | `gemHundredsDigit` | Gem count ÷ 100 for three-digit display | `UpdateHUD` |
 | `$0ADA` | 2 | `cachedPrevGems` | Previous gem count for change detection | `UpdateHUD` |
