@@ -20,14 +20,16 @@
 ; 
 ; MapIndexMoveDown_L1: Same as MapIndexMoveDown but uses mapRowStrideL1 for the layer 1 effect tilemap stride.
 ; 
-; === SLOPE TILE PROBES ===
+; === SLOPE TILE PROBES (player-movement-specific) ===
 ; 
-; ProbeRightTiles and ProbeLeftTiles are used by the slope/ramp physics system. They probe collision tiles at an 8-pixel offset in the specified direction, checking for slope types $05 (west-facing) and $0A (east-facing). The probing sequence checks:
+; ProbeRightTiles and ProbeLeftTiles are used exclusively by the player movement system (slope_ramp_physics and player_move_east/diag). They probe collision tiles at an 8-pixel offset in the specified direction, checking for slope types $05 (west-facing) and $0A (east-facing). The probing sequence checks:
 ; 1. Current tile at the probe position (TileProbeMain)
 ; 2. Adjacent cells (MapCellLeft/Right + ReadCollisionNibble)
 ; 3. Future tiles (ProbeFutureTL/BL or ProbeFutureTR/BR)
 ; 
 ; Return carry clear if a slope tile of the matching type is found (indicating the player should receive slope acceleration), or fall through with carry set (no slope).
+; 
+; Note: These slope probes are physically interleaved with the coordinate conversion routines and share their implementation (TileProbeMain, MapCell* from tile_collision). They remain in this engine-scoped block rather than system/player because splitting them would break physical contiguity with the coordinate utilities they depend on.
 ---------------------------------------------
 
 ?BANK 02

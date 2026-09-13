@@ -178,7 +178,7 @@ ExecuteSceneTransition {
   loc_03DA03:
     STZ $66
     JSL $@vblank_joypad.EnableNmiOnly ; Enable NMI-only, then enable display
-    JSL $@vblank_joypad.EnableDisplay
+    JSL $@vblank_joypad.EnterForcedBlank
     LDA #$00
     XBA 
     LDA $0D52             ; Check $0D52/$0D53 — special vs normal transition path
@@ -218,7 +218,7 @@ ExecuteSceneTransition {
     JSL $@system_core.UpdateHUD ; UpdateHUD for new scene
     JSL $@vblank_joypad.VBlankWaitAndJoypad
     JSL $@vblank_joypad.EnableNmiAndJoypad
-    JSL $@vblank_joypad.ForceBlank ; Force blank before enter transition
+    JSL $@vblank_joypad.ScreenBlackout ; Force blank before enter transition
     LDA $worldReadyFlag   ; Check if world was previously ready
     BNE loc_03DA81
     JSR $&ScreenEnterTransition ; Run enter transition, set worldReadyFlag=$0F0F

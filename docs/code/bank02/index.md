@@ -22,8 +22,8 @@ Bank `$02` is the game's primary **gameplay code bank**, containing:
 | **Mapped code/data** | `$028000`–`$02F08C` (~28,812 bytes) |
 | **Free space** | `$02F08C`–`$02FFFF` (~3,956 bytes) |
 | **Named addresses** | 477 |
-| **ASM files** | 21 |
-| **blocks.json blocks** | 25 |
+| **ASM files** | 29 |
+| **blocks.json blocks** | 29 |
 | **Compilation units** | 3 (system_core, player_character, inventory_menu) |
 
 ---
@@ -38,7 +38,7 @@ $02803B ├───────────────────────
 $0281D1 ├───────────────────────────────────────────────────┤
         │ hardware_math          [SignedMultiply + extras]   │ 159 B
 $028270 ├───────────────────────────────────────────────────┤
-        │ decompress             [QuintetLzDecompress]       │ 306 B
+        │ QuintetLzDecompress     [QuintetLzDecompress]       │ 306 B
 $0283A2 ├───────────────────────────────────────────────────┤
         │ scene_script (part 1)  [SceneScriptMain + cmds]   │ 1,995 B
 $028B6D ├ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─┤
@@ -52,7 +52,7 @@ $029DE2 ├───────────────────────
 $02A040 ├───────────────────────────────────────────────────┤
         │ music_actors           [MusicPlaybackActor]        │ 219 B
 $02A11B ├───────────────────────────────────────────────────┤
-        │ text_measure           [MeasureDialogueWidth]      │ 206 B
+        │ DisplaySceneTitle      [DisplaySceneTitle]          │ 206 B
 $02A1E9 ├───────────────────────────────────────────────────┤
         │ event_blocks           [ApplyAllEventBlocks]       │ 1,012 B
 $02A5DD ├───────────────────────────────────────────────────┤
@@ -70,9 +70,9 @@ $02B42B ├───────────────────────
 $02B7B3 ├───────────────────────────────────────────────────┤
         │ attack_ability_system  [AttackSystemEntry] (pt 1)  │ 1,603 B
 $02BDF6 ├ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─┤
-        │ attack_trail_followers [TrailFollowerSprA]         │ 120 B
-$02BE72 ├ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─┤
-        │ attack_ability_system  [ComputeParentOffset] (pt 2)│ 1,306 B
+        │ attack_ability_system  [TrailFollowerSprA] (pt 2)  │ 170 B
+$02BEA0 ├ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─┤
+        │ attack_ability_system  [PsychoDashMain] (pt 3)     │ 1,260 B
 $02C38C ├───────────────────────────────────────────────────┤
         │ player_character       [PlayerCharacterDef]        │ 3,140 B
 $02CFD0 ├═══════════════════════════════════════════════════┤
@@ -82,7 +82,7 @@ $02D038 ├───────────────────────
 $02D246 ├───────────────────────────────────────────────────┤
         │ player_move_main (pt2) [ComputeYSnapOffset]        │ 304 B
 $02D376 ├───────────────────────────────────────────────────┤
-        │ player_move_ew         [DispatchEastMove]          │ 2,052 B
+        │ player_move_east       [DispatchEastMove]          │ 2,052 B
 $02DB80 ├───────────────────────────────────────────────────┤
         │ player_move_diag       [DispatchDiagDownLeft]      │ 1,410 B
 $02E102 ├───────────────────────────────────────────────────┤
@@ -92,7 +92,7 @@ $02E396 ├═══════════════════════
 $02ED02 ├───────────────────────────────────────────────────┤
         │ inventory_overlay      [OpenInventoryScreen]       │ 838 B
 $02F048 ├───────────────────────────────────────────────────┤
-        │ dialogue_display       [ShowDialogueFrame]         │  34 B
+        │ ShowDialogueFrame      [ShowDialogueFrame]         │  34 B
 $02F06A ├───────────────────────────────────────────────────┤
         │ vram_buffer_clear      [ClearVramBufferPartial]    │  34 B
 $02F08C ├───────────────────────────────────────────────────┤
@@ -125,24 +125,19 @@ The main game loop and all core system infrastructure. Root file is in bank `$00
 but includes bank `$02` files via `?INCLUDE`:
 
 ```
-system_core.asm (?BANK 00)
+system_core.asm (?BANK 00, extracted/system/engine/)
   ├─ hardware_math.asm          (?BANK 02)
   ├─ vblank_joypad.asm          (?BANK 02)
-  ├─ decompress.asm             (?BANK 02)
+  ├─ QuintetLzDecompress.asm    (?BANK 02)
   ├─ scene_script.asm           (?BANK 02)
-  │   └─ spc_transfer.asm       (?BANK 02)
+  ├─ spc_transfer.asm           (?BANK 02)
   ├─ system_init.asm            (?BANK 02)
-  ├─ event_blocks.asm           (?BANK 02)
-  ├─ camera_tilemap.asm         (?BANK 02)
   ├─ music_actors.asm           (?BANK 02)
-  ├─ text_measure.asm           (?BANK 02)
+  ├─ DisplaySceneTitle.asm      (?BANK 02)
+  ├─ event_blocks.asm           (?BANK 02)
   ├─ warps_interaction.asm      (?BANK 02)
+  ├─ camera_tilemap.asm         (?BANK 02)
   ├─ map_coords.asm             (?BANK 02)
-  │   └─ tile_collision.asm     (?BANK 02)
-  ├─ player_move_main.asm       (?BANK 02)
-  │   ├─ player_move_ns.asm     (?BANK 02)
-  │   ├─ player_move_ew.asm     (?BANK 02)
-  │   └─ player_move_diag.asm   (?BANK 02)
   └─ ... (bank 00/03 files)
 ```
 
@@ -151,14 +146,19 @@ system_core.asm (?BANK 00)
 The player's modular actor system:
 
 ```
-player_character.asm (?BANK 02)
+player_character.asm (?BANK 02, extracted/actors/player/)
   ├─ shadow_shimmer.asm
   ├─ player_move_controller.asm
-  │   └─ player_move_main.asm   (ref only)
+  │   └─ player_move_main.asm   (extracted/system/player/)
+  │       ├─ player_move_ns.asm
+  │       ├─ player_move_south.asm
+  │       ├─ player_move_east.asm
+  │       ├─ player_move_ramps.asm
+  │       ├─ player_move_diag.asm
+  │       └─ tile_collision.asm
   ├─ slope_ramp_physics.asm
   │   └─ tile_collision.asm     (ref only)
   ├─ attack_ability_system.asm
-  │   └─ attack_trail_followers.asm
   ├─ game_over_sequence.asm
   └─ table_17D000.asm           (spritemap data)
 ```
@@ -180,31 +180,87 @@ These are included from other compilation units outside bank 02:
 
 | File | Block | Included From |
 |------|-------|---------------|
+| `DmaWordToVram.asm` | — | `inventory_overlay`, scene graphics paths |
 | `inventory_overlay.asm` | `inventory_overlay` | Various system files |
-| `dialogue_display.asm` | `dialogue_display` | `warps_interaction`, others |
+| `ShowDialogueFrame.asm` | `ShowDialogueFrame` | `warps_interaction`, others |
 | `vram_buffer_clear.asm` | `vram_buffer_clear` | `inventory_overlay` |
 
 ---
 
 ## 4. Document Suite
 
-| Document | Coverage | Files | Parts | Bytes |
-|----------|----------|-------|-------|-------|
-| [hardware-and-init.md](hardware-and-init.md) | Hardware math, VBlank, decompression, system init | 4 | 23 | 1,536 |
-| [scene-engine.md](scene-engine.md) | Scene script interpreter, graphics loading, SPC transfer | 2 | 47 | 6,720 |
-| [game-systems.md](game-systems.md) | Music actors, text measurement, event blocks, warps | 4 | 26 | 2,890 |
-| [camera-and-map.md](camera-and-map.md) | Camera scrolling, map coordinates, tile collision | 3 | 42 | 2,328 |
-| [player-character.md](player-character.md) | Player state machine, palette FX, move controller | 3 | 100 | 3,681 |
-| [attack-ability-system.md](attack-ability-system.md) | Attack dispatcher, abilities, projectiles, trail followers | 2 | 76 | 3,033 |
-| [slope-ramp-physics.md](slope-ramp-physics.md) | Slope detection, speed curves, deceleration | 1 | 17 | 904 |
-| [player-movement.md](player-movement.md) | Movement physics engine (4 directional files) | 4 | 66 | 4,402 |
-| [inventory-menu.md](inventory-menu.md) | Inventory menu actor system (4 tabs, 16 slots) | 1 | 69 | 2,412 |
-| [inventory-overlay.md](inventory-overlay.md) | Inventory overlay state sandwich | 1 | 6 | 838 |
-| [utility-functions.md](utility-functions.md) | Dialogue frame display, VRAM buffer clear | 2 | 3 | 68 |
-| **Total** | | **27** | **410** | **28,812** |
+| Document | Coverage |
+|----------|----------|
+| [hardware-and-init.md](hardware-and-init.md) | Hardware math, VBlank sync, LZ decompression, system init |
+| [scene-script.md](scene-script.md) | Scene bytecode interpreter, 11 commands, cache-and-diff, DmaWordToVram |
+| [spc-transfer.md](spc-transfer.md) | SPC700 music upload protocol |
+| [game-systems.md](game-systems.md) | Music actors, DisplaySceneTitle, event blocks, warps |
+| [camera-scrolling.md](camera-scrolling.md) | Camera tilemap scroll, dirty-strip DMA |
+| [map-coordinates.md](map-coordinates.md) | Tile coordinate helpers, map index conversion |
+| [tile-collision.md](tile-collision.md) | Tile probe system, collision types |
+| [player-character.md](player-character.md) | Five-actor player architecture, state machine |
+| [player-movement.md](player-movement.md) | Six movement files, collision cascade |
+| [attack-ability-system.md](attack-ability-system.md) | Will/Freedan attack abilities, trail followers |
+| [slope-ramp-physics.md](slope-ramp-physics.md) | Terrain slope companion actor |
+| [inventory-menu.md](inventory-menu.md) | COP-scripted inventory UI |
+| [inventory-overlay.md](inventory-overlay.md) | State sandwich open/close lifecycle |
+| [utility-functions.md](utility-functions.md) | ShowDialogueFrame, VRAM buffer clear |
 
-> **Note:** Player actor files (128 parts, 7,618 B) are split across three documents:
+> **Note:** Player actor files are split across three documents:
 > player-character, attack-ability-system, and slope-ramp-physics.
+
+### Document Relationship Map
+
+```mermaid
+graph TB
+    indexHub["index.md"]
+
+    subgraph engineGroup["System Engine"]
+        hwInit["hardware-and-init"]
+        sceneScript["scene-script"]
+        spcTransfer["spc-transfer"]
+        gameSystems["game-systems"]
+        cameraScroll["camera-scrolling"]
+        utilityFns["utility-functions"]
+    end
+
+    subgraph moveGroup["Movement & Collision"]
+        playerChar["player-character"]
+        attackAbility["attack-ability-system"]
+        slopeRamp["slope-ramp-physics"]
+        playerMove["player-movement"]
+        tileCollision["tile-collision"]
+        mapCoords["map-coordinates"]
+    end
+
+    subgraph invGroup["Inventory"]
+        invOverlay["inventory-overlay"]
+        invMenu["inventory-menu"]
+    end
+
+    indexHub --> engineGroup
+    indexHub --> moveGroup
+    indexHub --> invGroup
+
+    sceneScript --> spcTransfer
+    sceneScript --> hwInit
+    sceneScript --> cameraScroll
+    gameSystems --> sceneScript
+    gameSystems --> cameraScroll
+
+    playerChar --> playerMove
+    playerChar --> attackAbility
+    playerChar --> slopeRamp
+    playerMove --> tileCollision
+    playerMove --> mapCoords
+    slopeRamp --> tileCollision
+    tileCollision --> mapCoords
+
+    invOverlay --> invMenu
+    invOverlay --> sceneScript
+    invOverlay --> gameSystems
+    invOverlay --> hwInit
+```
 
 ---
 
@@ -322,7 +378,7 @@ player_character (player actor spawn chain)
 PlayerMoveController
   └─ JSL → PlayerMovementTick                             ← player_move_main
            ├─ JSR → DispatchSouthMove / NorthWallHandler  ← player_move_ns
-           ├─ JSR → DispatchEastMove / DispatchWestMove   ← player_move_ew
+           ├─ JSR → DispatchEastMove / DispatchWestMove   ← player_move_east
            ├─ JSR → DispatchDiagDownLeft / DiagRamp*      ← player_move_diag
            └─ JSR → TileProbeMain, ReadCollisionNibble    ← tile_collision
 
@@ -379,7 +435,7 @@ Nearly every movement handler follows this pattern (see [player-movement.md](pla
 
 ### 9.3 Cache-and-Diff Graphics Loading
 
-Scene graphics consistently uses (see [scene-engine.md](scene-engine.md)):
+Scene graphics consistently uses (see [scene-script.md](scene-script.md)):
 1. `CheckSourceCacheHit` — check if source pointer changed since last load
 2. If changed: decompress (`QuintetLzDecompress`), then DMA
 3. If unchanged: skip (cached)
@@ -409,21 +465,20 @@ Bank 02 blocks are organized under three top-level categories:
 |-----------|-------|-------|------|-------|
 | `hardware_math` | `engine` | `$028000`–`$028270` | Code | 2 |
 | `vblank_joypad` | `engine` | `$02803B`–`$0281D1` | Code | 1 |
-| `decompress` | `engine` | `$028270`–`$0283A2` | Code | 1 |
+| `QuintetLzDecompress` | `engine` | `$028270`–`$0283A2` | Code | 1 |
 | `scene_script` | `engine` | `$0283A2`–`$02908E` | Code | 2 |
 | `spc_transfer` | `engine` | `$028B6D`–`$029DE2` | Code/Binary | 5 |
 | `system_init` | `engine` | `$029DE2`–`$02A040` | Code/data | 8 |
 | `music_actors` | `engine` | `$02A040`–`$02A11B` | Code | 1 |
-| `text_measure` | `engine` | `$02A11B`–`$02A1E9` | Code | 1 |
+| `DisplaySceneTitle` | `engine` | `$02A11B`–`$02A1E9` | Code | 1 |
 | `event_blocks` | `engine` | `$02A1E9`–`$02A5DD` | Code | 1 |
 | `warps_interaction` | `engine` | `$02A5DD`–`$02AB8A` | Code | 1 |
 | `camera_tilemap` | `engine` | `$02AB8A`–`$02B0A3` | Code | 1 |
 | `map_coords` | `engine` | `$02B0A3`–`$02B20E` | Code | 1 |
 | `player_move_main` | `engine` | `$02CFD0`–`$02D376` | Code | 2 |
 | `player_move_ns` | `engine` | `$02D038`–`$02D246` | Code | 1 |
-| `player_move_ew` | `engine` | `$02D376`–`$02DB80` | Code | 1 |
+| `player_move_east` | `engine` | `$02D376`–`$02DB80` | Code | 1 |
 | `player_move_diag` | `engine` | `$02DB80`–`$02E102` | Code | 1 |
-| `tile_collision` | `engine` | `$02E102`–`$02E396` | Code | 1 |
 | `inventory_menu` | `inventory` | `$02E396`–`$02ED02` | actor_def | 1 |
 
 ### Actors (`actors.*`)
@@ -433,101 +488,59 @@ Bank 02 blocks are organized under three top-level categories:
 | `shadow_shimmer` | `player` | `$02B20E`–`$02B29E` | Code | 5 |
 | `player_move_controller` | `player` | `$02B29E`–`$02B42B` | Code | 1 |
 | `slope_ramp_physics` | `player` | `$02B42B`–`$02B7B3` | Code | 1 |
-| `attack_ability_system` | `player` | `$02B7B3`–`$02C38C` | Code | 2 |
-| `attack_trail_followers` | `player` | `$02BDF6`–`$02BE72` | Code | 1 |
+| `attack_ability_system` | `player` | `$02B7B3`–`$02C38C` | Code | 3 |
 | `player_character` | `player` | `$02C38C`–`$02CFD0` | actor_def | 1 |
+| `tile_collision` | `player` | `$02E102`–`$02E396` | Code | 1 |
 
 ### Functions (`functions.*`)
 
 | Block Key | Scene | Range | Type | Parts |
 |-----------|-------|-------|------|-------|
 | `inventory_overlay` | `inventory` | `$02ED02`–`$02F048` | Code | 1 |
-| `dialogue_display` | — | `$02F048`–`$02F06A` | Code | 1 |
+| `ShowDialogueFrame` | `functions` | `$02F048`–`$02F06A` | Code | 1 |
 | `vram_buffer_clear` | — | `$02F06A`–`$02F08C` | Code | 1 |
 
 ---
 
-## 11. Size Distribution
+## 11. Source Files Reference
 
-### By Document/Category
+All 29 bank 02 ASM files in ROM address order:
 
-| Category | Bytes | % of Mapped |
-|----------|-------|-------------|
-| Scene Engine (script + graphics + SPC) | 6,720 | 23.3% |
-| Player Actors (character + attacks + FX) | 7,618 | 26.4% |
-| Movement Physics (4 direction files + collision) | 5,062 | 17.6% |
-| Inventory + Overlay + Utility | 3,318 | 11.5% |
-| Camera + Map + Collision Probes | 2,328 | 8.1% |
-| Game Systems (music, text, events, warps) | 2,890 | 10.0% |
-| System Core (math, vblank, decompress, init) | 1,536 | 5.3% |
-
-### Largest Individual Blocks
-
-| Block | Bytes | Primary Content |
-|-------|-------|-----------------|
-| `spc_transfer` | 3,531 | SPC700 binary + transfer protocol |
-| `player_character` | 3,140 | Player state machine (90 named parts) |
-| `attack_ability_system` | 2,909 | Attack/ability code (76 named parts) |
-| `scene_script` | 2,669 | Scene interpreter + all graphics commands |
-| `inventory_menu` | 2,412 | Full inventory menu UI (69 named parts) |
-| `player_move_ew` | 2,052 | East/West movement + slopes/ramps |
-
----
-
-## 12. Source Files Reference
-
-All bank 02 ASM files and their filesystem locations:
-
-### System Engine (`extracted/system/engine/`)
-
-| File | Block | Lines |
-|------|-------|-------|
-| `hardware_math.asm` | `hardware_math` | — |
-| `vblank_joypad.asm` | `vblank_joypad` | — |
-| `decompress.asm` | `decompress` | — |
-| `scene_script.asm` | `scene_script` | — |
-| `spc_transfer.asm` | `spc_transfer` | — |
-| `system_init.asm` | `system_init` | — |
-| `music_actors.asm` | `music_actors` | — |
-| `text_measure.asm` | `text_measure` | — |
-| `event_blocks.asm` | `event_blocks` | — |
-| `warps_interaction.asm` | `warps_interaction` | — |
-| `camera_tilemap.asm` | `camera_tilemap` | — |
-| `map_coords.asm` | `map_coords` | — |
-| `player_move_main.asm` | `player_move_main` | — |
-| `player_move_ns.asm` | `player_move_ns` | — |
-| `player_move_ew.asm` | `player_move_ew` | — |
-| `player_move_diag.asm` | `player_move_diag` | — |
-| `tile_collision.asm` | `tile_collision` | — |
-
-### Player Actors (`extracted/actors/player/`)
-
-| File | Block | Lines |
-|------|-------|-------|
-| `player_character.asm` | `player_character` | — |
-| `shadow_shimmer.asm` | `shadow_shimmer` | — |
-| `player_move_controller.asm` | `player_move_controller` | — |
-| `slope_ramp_physics.asm` | `slope_ramp_physics` | — |
-| `attack_ability_system.asm` | `attack_ability_system` | — |
-| `attack_trail_followers.asm` | `attack_trail_followers` | — |
-
-### Inventory (`extracted/system/inventory/`)
-
-| File | Block | Lines |
-|------|-------|-------|
-| `inventory_menu.asm` | `inventory_menu` | — |
-
-### Standalone Functions (`extracted/functions/`)
-
-| File | Block | Lines |
-|------|-------|-------|
-| `inventory/inventory_overlay.asm` | `inventory_overlay` | — |
-| `dialogue_display.asm` | `dialogue_display` | — |
-| `vram_buffer_clear.asm` | `vram_buffer_clear` | — |
+| File | Directory | Block |
+|------|-----------|-------|
+| `hardware_math.asm` | `extracted/system/engine/` | `hardware_math` |
+| `vblank_joypad.asm` | `extracted/system/engine/` | `vblank_joypad` |
+| `QuintetLzDecompress.asm` | `extracted/system/engine/` | `QuintetLzDecompress` |
+| `DmaWordToVram.asm` | `extracted/system/engine/` | — |
+| `scene_script.asm` | `extracted/system/engine/` | `scene_script` |
+| `spc_transfer.asm` | `extracted/system/engine/` | `spc_transfer` |
+| `system_init.asm` | `extracted/system/engine/` | `system_init` |
+| `music_actors.asm` | `extracted/system/engine/` | `music_actors` |
+| `DisplaySceneTitle.asm` | `extracted/system/engine/` | `DisplaySceneTitle` |
+| `event_blocks.asm` | `extracted/system/engine/` | `event_blocks` |
+| `warps_interaction.asm` | `extracted/system/engine/` | `warps_interaction` |
+| `camera_tilemap.asm` | `extracted/system/engine/` | `camera_tilemap` |
+| `map_coords.asm` | `extracted/system/engine/` | `map_coords` |
+| `shadow_shimmer.asm` | `extracted/actors/player/` | `shadow_shimmer` |
+| `player_move_controller.asm` | `extracted/actors/player/` | `player_move_controller` |
+| `slope_ramp_physics.asm` | `extracted/actors/player/` | `slope_ramp_physics` |
+| `attack_ability_system.asm` | `extracted/actors/player/` | `attack_ability_system` |
+| `player_character.asm` | `extracted/actors/player/` | `player_character` |
+| `player_move_main.asm` | `extracted/system/player/` | `player_move_main` |
+| `player_move_ns.asm` | `extracted/system/player/` | `player_move_ns` |
+| `player_move_south.asm` | `extracted/system/player/` | — |
+| `player_move_east.asm` | `extracted/system/player/` | `player_move_east` |
+| `player_move_ramps.asm` | `extracted/system/player/` | — |
+| `player_move_diag.asm` | `extracted/system/player/` | `player_move_diag` |
+| `tile_collision.asm` | `extracted/system/player/` | `tile_collision` |
+| `inventory_menu.asm` | `extracted/system/inventory/` | `inventory_menu` |
+| `inventory_overlay.asm` | `extracted/system/inventory/` | `inventory_overlay` |
+| `ShowDialogueFrame.asm` | `extracted/system/functions/` | `ShowDialogueFrame` |
+| `vram_buffer_clear.asm` | `extracted/system/functions/` | `vram_buffer_clear` |
 
 ---
 
-## 13. Related Resources
+## 12. Related Resources
 
 - **[COP Commands Reference](../../docs/cop-commands-reference.md)** — full list of COP opcodes used in actor code
 - **[Actor Organization](../../docs/actor-organization-analysis.md)** — how actors are structured across the ROM

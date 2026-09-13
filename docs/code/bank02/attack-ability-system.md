@@ -1,31 +1,40 @@
 # Attack & Ability System
 
-> Special attacks, abilities, and projectile actors for Will, Freedan, and Shadow
+*Part of the [Bank $02 Documentation Suite](index.md)*
 
-**Source:** [`attack_ability_system.asm`](../../../extracted/actors/player/attack_ability_system.asm) · [`attack_trail_followers.asm`](../../../extracted/actors/player/attack_trail_followers.asm)
+> Special attacks, abilities, and projectile actors for Will and Freedan
+
+**Source:** [`attack_ability_system.asm`](../../../extracted/actors/player/attack_ability_system.asm)
 
 ---
 
 ## Overview
 
-The attack companion actor runs **before** the movement controller via `SpawnBefore`. It reads `$0AD4` (character form) and `$0AA2` (ability bitmask) to dispatch Will vs Freedan/Shadow attacks, charge timing (28 vs 40 frames), and special abilities. It hijacks the player actor function pointer via `SetPlayerActorFunc` during ability execution.
+The attack system is a **companion actor** that runs **before** the movement controller (`SpawnBefore`). Each frame `AttackSystemEntry` checks whether the player is alive and movement is allowed; if `characterForm` (`$0AD4`) is **≥ 2** (Shadow and other late forms), the routine returns immediately — those forms **cannot attack through this code path**. For Will (`0`) or Freedan (`1`), an attack-button press enters `WillAttackDispatch`, which branches to `FreedanAttackDispatch` when form = 1. During any special ability, the player actor function pointer is hijacked via `SetPlayerActorFunc` until `AttackCleanup` restores idle.
 
-| `$0AD4` | Form | Attack Dispatcher | Primary Abilities |
-|---------|------|-------------------|-------------------|
-| `0` | Will | `WillAttackDispatch` | Basic attack, Psycho Dash, Psycho Slider, running attack |
-| `1` | Freedan | `FreedanAttackDispatch` | Basic attack, Dark Friar, Aura Barrier, vine drop-attack |
-| `2` | Shadow | `FreedanAttackDispatch` + `shadow_shimmer` | Same as Freedan + Shadow palette shimmer |
+```
+AttackSystemEntry
+  └─ form ≥ 2 → RTL (no attack)
+  └─ form 0 → WillAttackDispatch
+  └─ form 1 → FreedanAttackDispatch
+       │
+       ├─ Tap / short hold → basic attack (if $0AA2 bit 0 or 6)
+       └─ Charge hold → extended charge → release or L/R selects special
+            Will:   release → Psycho Dash    |  L/R → Psycho Slider
+            Freedan: release → Dark Friar     |  L/R → Aura Barrier
+```
 
-| `$0AA2` Bit | Hex | Character | Ability |
-|-------------|-----|-----------|---------|
-| 0 | `$0001` | All | Basic attack |
-| 1 | `$0002` | Will | Running attack (Psycho Dash prerequisite) |
-| 2 | `$0004` | Will | Psycho Slider |
-| 4 | `$0010` | Freedan | Dark Friar |
-| 5 | `$0020` | Freedan | Aura Barrier |
-| 6 | `$0040` | Freedan/Shadow | Earthquaker (vine drop-attack) |
+| `$0AD4` | Form | Attack path | Special abilities (charge release / L·R) |
+|---------|------|-------------|-------------------------------------------|
+| `0` | Will | `WillAttackDispatch` | Psycho Dash / Psycho Slider |
+| `1` | Freedan | `FreedanAttackDispatch` | Dark Friar / Aura Barrier |
+| `2+` | Shadow | *(immediate RTL)* | — |
 
-**Charge timing:** Will abilities charge **28 frames**; Freedan/Shadow charge **40 frames**. L/R shoulder buttons during charge select alternate abilities (Slider vs Dash; Aura vs Dark Friar).
+Ability availability is gated by `$0AA2`: Will needs bit 0 (`$0001`) for basic attack and bit 2 (`$0004`) for Slider; Freedan needs bit 6 (`$0040`) for basic attack, bit 4 (`$0010`) for Dark Friar, and bit 5 (`$0020`) for Aura Barrier.
+
+**Two-phase charge model:** Both characters share a **40-frame initial hold** (`LoopInit #28`). Only after that threshold does the extended-charge window open — **120 frames** (`$0078`) for Will, **100 frames** (`$0064`) for Freedan. During extended charge, L/R shoulder input selects the alternate special; releasing the attack button fires the default special (Dash or Dark Friar). Validation helpers (`ValidateAttackReady`, `CheckAttackChargeable`) block charging during hitstun, death, or mid-combo.
+
+**Trail followers:** Psycho Dash and Dark Friar spawn companion trail actors that lag behind the parent projectile. Each follower maintains a **3-slot position FIFO** (`TrailPositionCascade`): each frame the parent's `$14`/`$16` shifts through slot 0 → slot 1 → slot 2, and the follower renders at the oldest slot — producing a smooth motion trail without re-simulating physics. Parent offset helpers (`ComputeParentOffset` / `ApplyParentOffset`) keep fragments and trails aligned when the player moves during an ability.
 
 **Related:** [`player-character.md`](player-character.md) · [`../../cop-commands-reference.md`](../../cop-commands-reference.md)
 
@@ -35,82 +44,91 @@ The attack companion actor runs **before** the movement controller via `SpawnBef
 
 Attack/ability companion actor — runs **before** movement controller via `SpawnBefore`.
 
-| Address | Name | Size | Description |
-|---------|------|------|-------------|
-| `$02B7B3` | AttackSystemEntry | 42 B | Entry. Check dead → die. Each frame check `$2A00` → skip. Check `$0AD4 < 2` → listen for attack (`$8001`). |
-| `$02B7DE` | WillAttackDispatch | 109 B | Will's attack. Check `$0AA2` bits `$01`+`$04`. Charge 28 frames. L/R → Slider, else → Dash. |
-| `$02B855` | LaunchPsychoDash | 12 B | Validate facing, set func to `PsychoDashMain`. |
-| `$02B861` | LaunchPsychoSlider | 12 B | Set func to `PsychoSliderMain`. |
-| `$02B86D` | FreedanAttackDispatch | 150 B | Freedan/Shadow attack. Check `$0AA2` bits `$10`+`$40`. Charge 40 frames. Dark Friar / Aura / Spin Dash. |
-| `$02B8D6` | LaunchDarkFriar | 17 B | Set `$00EA=1`, func to `DarkFriarMain`. |
-| `$02B8E7` | LaunchAuraBarrier | 26 B | Require stopped. Set `$00EA=2`, func to `AuraBarrierMain`. |
-| `$02B901` | AttackCleanup | 37 B | Kill spawned FX, play palette effect, return to idle. |
-| `$02B926` | SetPlayerActorFunc | 13 B | Write func pointer A to player actor slot. |
-| `$02B933` | ValidateAttackReady | 22 B | Check `$3A00` and facing < 4. |
-| `$02B946` | ValidateAttackContinue | 9 B | Check `$2B00`. |
-| `$02B94F` | SavePlayerPosition | 14 B | Copy position to `$14`/`$16`. |
-| `$02B95D` | CheckAttackChargeable | 32 B | Check hitstun, death, mid-combo. |
-| `$02B97F` | AuraBarrierMain | 125 B | Set `$0200`+`$0800`. Spawn VRAM DMA. Load FX palette. Spawn rotating children. |
-| `$02B9FC` | AuraBarrierEnd | 16 B | Clear `$0200`. Restore state. |
-| `$02BA0C` | AuraVramDmaLoader | 11 B | DMA `misc_fx_1CC480` to VRAM `$4400`. |
-| `$02BA17` | AuraOrbitalSpawner | 150 B | Spawn 2–4 orbital children. Manage orbit rotation. |
-| `$02BABD` | UpdateOrbitalPositions | 65 B | Iterate orbital children, compute position. |
-| `$02BAFE` | AuraProjectileChild | 43 B | Individual orbiting sprite. 3-frame animation. |
-| `$02BB29` | AuraProjectileShrink | 18 B | Shrink animation. |
-| `$02BB3B` | DarkFriarMain | 88 B | Set `$2000`. Spawn VRAM DMA. Palette thinker `#4A`. 4-directional dispatch. |
-| `$02BB93` | DarkFriarDirTable | 8 B | Switch table: S/N/W/E. |
-| `$02BB9B` | DarkFriarSouth | 25 B | Spawn at (−2, +26), sprite `#36`. |
-| `$02BBB4` | DarkFriarNorth | 25 B | Spawn at (0, −64), sprite `#37`. |
-| `$02BBCD` | DarkFriarWest | 25 B | Spawn at (−52, −22), sprite `#38`. |
-| `$02BBE6` | DarkFriarEast | 17 B | Spawn at (+52, −22), sprite `#39`. |
-| `$02BBFD` | DarkFriarFinish | 5 B | Wait 7 frames, restore. |
-| `$02BC02` | DarkFriarVramDma | 11 B | DMA `misc_fx_1CC000` to VRAM `$4400`. |
-| `$02BC0D` | DarkFriarProjectile | 26 B | Main projectile sprite, `table_178000`. Wait 7 frames. |
-| `$02BC27` | DarkFriarTrailSouthInit | 5 B | Set `$2000` in `$12` (south). |
-| `$02BC2C` | DarkFriarTrailSouth | 72 B | South trail with collision if upgraded. |
-| `$02BC74` | DarkFriarTrailWestInit | 5 B | Set `$4000` in `$12` (west). |
-| `$02BC79` | DarkFriarTrailEastWest | 72 B | EW trail with X-axis movement. |
-| `$02BCC1` | DarkFriarBounceLoop | 52 B | Bounce animation. If fully upgraded, allows redirect. |
-| `$02BCEE` | DarkFriarDisableCollide | 4 B | Clear collision callback. |
-| `$02BCF2` | DarkFriarOnHit | 26 B | Spawn 4 fragments at 0°/64°/128°/192°. |
-| `$02BD0C` | DarkFriarFragment1 | 5 B | Angle `$40`. |
-| `$02BD11` | DarkFriarFragment2 | 5 B | Angle `$80`. |
-| `$02BD16` | DarkFriarFragment3 | 3 B | Angle `$C0`. |
-| `$02BD19` | DarkFriarFragmentInit | 87 B | Set angle, load anim, spawn trails, enable hitbox. |
-| `$02BDC9` | DarkFriarFragmentLoop | 43 B | Fragment animation with wall-hit velocity. |
-| `$02BE72` | ComputeParentOffset | 23 B | Store offset from parent actor to current position. |
-| `$02BE89` | ApplyParentOffset | 23 B | Add stored offset back to parent position. |
-| `$02BEA0` | PsychoDashMain | 9 B | Load anim table 0, disable status, 4-directional dispatch. |
-| `$02BEB7` | PsychoDashDirTable | 8 B | Switch S/N/W/E. |
-| `$02BEBF` | PsychoDashSouth | 16 B | Spawn trail, sprite `#04`, move Y +54. |
-| `$02BECF` | PsychoDashNorth | 19 B | Set force NE, sprite `#04`, move Y −54. |
-| `$02BEE2` | PsychoDashWest | 19 B | Set force both, sprite `#04`, move X −54. |
-| `$02BEF5` | PsychoDashEast | 14 B | Sprite `#04`, move X +54. |
-| `$02BF09` | PsychoDashTrailSouth | 104 B | Record 8 Y-position deltas, replay in reverse. |
-| `$02BF71` | PsychoDashTrailNorth | 104 B | Inverted Y deltas. |
-| `$02BFD9` | PsychoDashTrailWest | 104 B | X-axis deltas. |
-| `$02C041` | PsychoDashTrailEast | 104 B | Inverted X deltas. |
-| `$02C0A9` | PsychoSliderMain | 211 B | Set `$2002`, spawn guided projectile. Charge loop, L/R direction. |
-| `$02C17C` | PsychoSliderRelease | 29 B | Clear `$2800`. Check `$0B1A`: return 12 or 24 frames. |
-| `$02C199` | PsychoSliderLaunch | 37 B | Set sprite timer, anim set 1. Check joypad for direction. |
-| `$02C1BE` | PsychoSliderDirEW | 18 B | Horizontal launch. |
-| `$02C1D0` | PsychoSliderDirNS | 20 B | Vertical launch. |
-| `$02C1E4` | PsychoSliderAbort | 7 B | Clear `$0200`, restore. |
-| `$02C1EB` | PsychoSliderChargeTick | 49 B | Per-frame: alternate L/R shoulder check. |
-| `$02C21C` | KillSpawnedProjectile | 19 B | Read stored actor ID, `COP [MarkDeath]`. |
-| `$02C232` | GuidedProjectileActor | 214 B | Sprite priority `#30`, joypad-directed. 4 directions with hitbox. |
-| `$02C288` | ProjectileMoveRight | 32 B | Right: sprite `#3D`. |
-| `$02C2A8` | ProjectileMoveLeft | 32 B | Left: `#3C`. |
-| `$02C2C8` | ProjectileMoveUp | 32 B | Up: `#3B`. |
-| `$02C2E8` | ProjectileMoveDown | 32 B | Down: `#3A`. |
-| `$02C308` | WillAttackPaletteFX | 13 B | Loop palettes `#2A` then `#2B`. |
-| `$02C315` | FreedanAttackPaletteFX | 13 B | Loop `#4B` then `#2C`. |
-| `$02C322` | AuraBarrierPaletteFX | 7 B | Loop `#5B` infinite. |
-| `$02C329` | RecomputeProjectilePos | 21 B | Add stored offsets to player position. |
-| `$02C33E` | LoadAbilityAnimTableA | 39 B | Read `table_01D9A7` by index. |
-| `$02C365` | LoadAbilityAnimTableB | 39 B | Read `table_01D9BF` by index. |
+| Address | Name | Description |
+|---------|------|-------------|
+| `$02B7B3` | AttackSystemEntry | Entry. Check dead → die. Each frame check `$2A00` → skip. Check `$0AD4 < 2` → listen for attack (`$8001`). |
+| `$02B7DE` | WillAttackDispatch | Will's attack. Check `$0AA2` bits `$0005` (0+2). 40-frame hold, 120-frame charge. L/R → Slider, release → Dash. |
+| `$02B855` | LaunchPsychoDash | Validate facing, set func to `PsychoDashMain`. |
+| `$02B861` | LaunchPsychoSlider | Set func to `PsychoSliderMain`. |
+| `$02B86D` | FreedanAttackDispatch | Freedan attack. Check `$0AA2` bits `$0050` (4+6). 40-frame hold, 100-frame charge. Release → Dark Friar; L/R → Aura Barrier. |
+| `$02B8D6` | LaunchDarkFriar | Set `$00EA=1`, func to `DarkFriarMain`. |
+| `$02B8E7` | LaunchAuraBarrier | Require stopped. Set `$00EA=2`, func to `AuraBarrierMain`. |
+| `$02B901` | AttackCleanup | Kill spawned FX, play palette effect, return to idle. |
+| `$02B926` | SetPlayerActorFunc | Write func pointer A to player actor slot. |
+| `$02B933` | ValidateAttackReady | Check `$3A00` and facing < 4. |
+| `$02B946` | ValidateAttackContinue | Check `$2B00`. |
+| `$02B94F` | SavePlayerPosition | Copy position to `$14`/`$16`. |
+| `$02B95D` | CheckAttackChargeable | Check hitstun, death, mid-combo. |
+| `$02B97F` | AuraBarrierMain | Set `$0200`+`$0800`. Spawn VRAM DMA. Load FX palette. Spawn rotating children. |
+| `$02B9FC` | AuraBarrierEnd | Clear `$0200`. Restore state. |
+| `$02BA0C` | AuraVramDmaLoader | DMA `misc_fx_1CC480` to VRAM `$4400`. |
+| `$02BA17` | AuraOrbitalSpawner | Spawn 2–4 orbital children. Manage orbit rotation. |
+| `$02BABD` | UpdateOrbitalPositions | Iterate orbital children, compute position. |
+| `$02BAFE` | AuraProjectileChild | Individual orbiting sprite. 3-frame animation. |
+| `$02BB29` | AuraProjectileShrink | Shrink animation. |
+| `$02BB3B` | DarkFriarMain | Set `$2000`. Spawn VRAM DMA. Palette thinker `#4A`. 4-directional dispatch. |
+| `$02BB93` | DarkFriarDirTable | Switch table: S/N/W/E. |
+| `$02BB9B` | DarkFriarSouth | Spawn at (−2, +26), sprite `#36`. |
+| `$02BBB4` | DarkFriarNorth | Spawn at (0, −64), sprite `#37`. |
+| `$02BBCD` | DarkFriarWest | Spawn at (−52, −22), sprite `#38`. |
+| `$02BBE6` | DarkFriarEast | Spawn at (+52, −22), sprite `#39`. |
+| `$02BBFD` | DarkFriarFinish | Wait 7 frames, restore. |
+| `$02BC02` | DarkFriarVramDma | DMA `misc_fx_1CC000` to VRAM `$4400`. |
+| `$02BC0D` | DarkFriarProjectile | Main projectile sprite, `table_178000`. Wait 7 frames. |
+| `$02BC27` | DarkFriarTrailSouthInit | Set `$2000` in `$12` (south). |
+| `$02BC2C` | DarkFriarTrailSouth | South trail with collision if upgraded. |
+| `$02BC74` | DarkFriarTrailWestInit | Set `$4000` in `$12` (west). |
+| `$02BC79` | DarkFriarTrailEastWest | EW trail with X-axis movement. |
+| `$02BCC1` | DarkFriarBounceLoop | Bounce animation. If fully upgraded, allows redirect. |
+| `$02BCEE` | DarkFriarDisableCollide | Clear collision callback. |
+| `$02BCF2` | DarkFriarOnHit | Spawn 4 fragments at 0°/64°/128°/192°. |
+| `$02BD0C` | DarkFriarFragment1 | Angle `$40`. |
+| `$02BD11` | DarkFriarFragment2 | Angle `$80`. |
+| `$02BD16` | DarkFriarFragment3 | Angle `$C0`. |
+| `$02BD19` | DarkFriarFragmentInit | Set angle, load anim, spawn trails, enable hitbox. |
+| `$02BDC9` | DarkFriarFragmentLoop | Fragment animation with wall-hit velocity. |
+| `$02BE72` | ComputeParentOffset | Store offset from parent actor to current position. |
+| `$02BE89` | ApplyParentOffset | Add stored offset back to parent position. |
+| `$02BEA0` | PsychoDashMain | Load anim table 0, disable status, 4-directional dispatch. |
+| `$02BEB7` | PsychoDashDirTable | Switch S/N/W/E. |
+| `$02BEBF` | PsychoDashSouth | Spawn trail, sprite `#04`, move Y +54. |
+| `$02BECF` | PsychoDashNorth | Set force NE, sprite `#04`, move Y −54. |
+| `$02BEE2` | PsychoDashWest | Set force both, sprite `#04`, move X −54. |
+| `$02BEF5` | PsychoDashEast | Sprite `#04`, move X +54. |
+| `$02BF09` | PsychoDashTrailSouth | Record 8 Y-position deltas, replay in reverse. |
+| `$02BF71` | PsychoDashTrailNorth | Inverted Y deltas. |
+| `$02BFD9` | PsychoDashTrailWest | X-axis deltas. |
+| `$02C041` | PsychoDashTrailEast | Inverted X deltas. |
+| `$02C0A9` | PsychoSliderMain | Set `$2002`, spawn guided projectile. Charge loop, L/R direction. |
+| `$02C17C` | PsychoSliderRelease | Clear `$2800`. Check `$0B1A`: return 12 or 24 frames. |
+| `$02C199` | PsychoSliderLaunch | Set sprite timer, anim set 1. Check joypad for direction. |
+| `$02C1BE` | PsychoSliderDirEW | Horizontal launch. |
+| `$02C1D0` | PsychoSliderDirNS | Vertical launch. |
+| `$02C1E4` | PsychoSliderAbort | Clear `$0200`, restore. |
+| `$02C1EB` | PsychoSliderChargeTick | Per-frame: alternate L/R shoulder check. |
+| `$02C21C` | KillSpawnedProjectile | Read stored actor ID, `COP [MarkDeath]`. |
+| `$02C232` | GuidedProjectileActor | Sprite priority `#30`, joypad-directed. 4 directions with hitbox. |
+| `$02C288` | ProjectileMoveRight | Right: sprite `#3D`. |
+| `$02C2A8` | ProjectileMoveLeft | Left: `#3C`. |
+| `$02C2C8` | ProjectileMoveUp | Up: `#3B`. |
+| `$02C2E8` | ProjectileMoveDown | Down: `#3A`. |
+| `$02C308` | WillAttackPaletteFX | Loop palettes `#2A` then `#2B`. |
+| `$02C315` | FreedanAttackPaletteFX | Loop `#4B` then `#2C`. |
+| `$02C322` | AuraBarrierPaletteFX | Loop `#5B` infinite. |
+| `$02C329` | RecomputeProjectilePos | Add stored offsets to player position. |
+| `$02C33E` | LoadAbilityAnimTableA | Read `table_01D9A7` by index. |
+| `$02C365` | LoadAbilityAnimTableB | Read `table_01D9BF` by index. |
 
-#### Subgroup 18A — Attack Dispatcher
+### Shared WRAM Variables
+
+Most routines in this file read and write the player actor slot and shared state bitmask:
+
+| Location | Direction | Role |
+|----------|-----------|------|
+| `$player_flags` | R/W | Shared player state bitmask |
+| `$player_actor` | R | Player WRAM slot index |
+
+#### Attack Dispatch & Entry
 
 ### AttackSystemEntry
 
@@ -120,20 +138,8 @@ Entry. Check dead → die. Each frame check `$2A00` → skip. Check `$0AD4 < 2` 
 - Die if player dead (`$0008` in flags)
 - Clear attack lock bit, set continue
 - Skip if movement blocked (`$2A00`)
-- If Freedan/Shadow (`$0AD4 >= 2`): return (handled elsewhere)
-- Else listen for attack button → `WillAttackDispatch`
-
-**Source:**
-
-```23:48:../../../extracted/actors/player/attack_ability_system.asm
-```
-
-**Variables:**
-
-| Location | Direction | Role |
-|----------|-----------|------|
-| `$player_flags` | R/W | Shared player state bitmask |
-| `$player_actor` | R | Player WRAM slot index |
+- If `characterForm >= 2`: return (Shadow and other forms cannot attack here)
+- Else listen for attack button → `WillAttackDispatch` (form 1 jumps to `FreedanAttackDispatch`)
 
 
 **Cross-References:**
@@ -141,24 +147,12 @@ Entry. Check dead → die. Each frame check `$2A00` → skip. Check `$0AD4 < 2` 
 | Symbol | Relationship |
 |--------|-------------|
 | `WillAttackDispatch` | Will form attack path |
-| `FreedanAttackDispatch` | Freedan/Shadow attack path |
+| `FreedanAttackDispatch` | Freedan attack path (form 1 only) |
 | `SetPlayerActorFunc` | Hijacks player actor function pointer |
 
 ### WillAttackDispatch
 
-Will's attack. Check `$0AA2` bits `$01`+`$04`. Charge 28 frames. L/R → Slider, else → Dash.
-
-**Source:**
-
-```49:101:../../../extracted/actors/player/attack_ability_system.asm
-```
-
-**Variables:**
-
-| Location | Direction | Role |
-|----------|-----------|------|
-| `$player_flags` | R/W | Shared player state bitmask |
-| `$player_actor` | R | Player WRAM slot index |
+Will's attack. Check `$0AA2` bits `$0005` (basic attack or Psycho Slider). 40-frame hold (`#28`), then 120-frame extended charge (`$0078`). L/R → Slider, release → Dash.
 
 
 **Cross-References:**
@@ -169,19 +163,7 @@ Will's attack. Check `$0AA2` bits `$01`+`$04`. Charge 28 frames. L/R → Slider,
 
 ### FreedanAttackDispatch
 
-Freedan/Shadow attack. Check `$0AA2` bits `$10`+`$40`. Charge 40 frames. Dark Friar / Aura / Spin Dash.
-
-**Source:**
-
-```116:159:../../../extracted/actors/player/attack_ability_system.asm
-```
-
-**Variables:**
-
-| Location | Direction | Role |
-|----------|-----------|------|
-| `$player_flags` | R/W | Shared player state bitmask |
-| `$player_actor` | R | Player WRAM slot index |
+Freedan attack. Check `$0AA2` bits `$0050` (Dark Friar or basic attack). 40-frame hold (`#28`), then 100-frame extended charge (`$0064`). Release → Dark Friar; L/R → Aura Barrier.
 
 
 **Cross-References:**
@@ -194,18 +176,6 @@ Freedan/Shadow attack. Check `$0AA2` bits `$10`+`$40`. Charge 40 frames. Dark Fr
 
 Kill spawned FX, play palette effect, return to idle.
 
-**Source:**
-
-```184:207:../../../extracted/actors/player/attack_ability_system.asm
-```
-
-**Variables:**
-
-| Location | Direction | Role |
-|----------|-----------|------|
-| `$player_flags` | R/W | Shared player state bitmask |
-| `$player_actor` | R | Player WRAM slot index |
-
 
 **Cross-References:**
 
@@ -213,23 +183,11 @@ Kill spawned FX, play palette effect, return to idle.
 |--------|-------------|
 | `attack_ability_system` block | Parent compilation unit |
 
-#### Subgroup 18B — Helpers
+#### Attack Validation Helpers
 
 ### ValidateAttackReady
 
 Check `$3A00` and facing < 4.
-
-**Source:**
-
-```216:229:../../../extracted/actors/player/attack_ability_system.asm
-```
-
-**Variables:**
-
-| Location | Direction | Role |
-|----------|-----------|------|
-| `$player_flags` | R/W | Shared player state bitmask |
-| `$player_actor` | R | Player WRAM slot index |
 
 
 **Cross-References:**
@@ -242,18 +200,6 @@ Check `$3A00` and facing < 4.
 
 Check hitstun, death, mid-combo.
 
-**Source:**
-
-```246:270:../../../extracted/actors/player/attack_ability_system.asm
-```
-
-**Variables:**
-
-| Location | Direction | Role |
-|----------|-----------|------|
-| `$player_flags` | R/W | Shared player state bitmask |
-| `$player_actor` | R | Player WRAM slot index |
-
 
 **Cross-References:**
 
@@ -261,23 +207,11 @@ Check hitstun, death, mid-combo.
 |--------|-------------|
 | `attack_ability_system` block | Parent compilation unit |
 
-#### Subgroup 18C — Aura Barrier
+#### Aura Barrier Orbitals
 
 ### AuraBarrierMain
 
 Set `$0200`+`$0800`. Spawn VRAM DMA. Load FX palette. Spawn rotating children.
-
-**Source:**
-
-```271:317:../../../extracted/actors/player/attack_ability_system.asm
-```
-
-**Variables:**
-
-| Location | Direction | Role |
-|----------|-----------|------|
-| `$player_flags` | R/W | Shared player state bitmask |
-| `$player_actor` | R | Player WRAM slot index |
 
 
 **Cross-References:**
@@ -290,18 +224,6 @@ Set `$0200`+`$0800`. Spawn VRAM DMA. Load FX palette. Spawn rotating children.
 
 Spawn 2–4 orbital children. Manage orbit rotation.
 
-**Source:**
-
-```334:405:../../../extracted/actors/player/attack_ability_system.asm
-```
-
-**Variables:**
-
-| Location | Direction | Role |
-|----------|-----------|------|
-| `$player_flags` | R/W | Shared player state bitmask |
-| `$player_actor` | R | Player WRAM slot index |
-
 
 **Cross-References:**
 
@@ -312,18 +234,6 @@ Spawn 2–4 orbital children. Manage orbit rotation.
 ### UpdateOrbitalPositions
 
 Iterate orbital children, compute position.
-
-**Source:**
-
-```406:440:../../../extracted/actors/player/attack_ability_system.asm
-```
-
-**Variables:**
-
-| Location | Direction | Role |
-|----------|-----------|------|
-| `$player_flags` | R/W | Shared player state bitmask |
-| `$player_actor` | R | Player WRAM slot index |
 
 
 **Cross-References:**
@@ -336,18 +246,6 @@ Iterate orbital children, compute position.
 
 Individual orbiting sprite. 3-frame animation.
 
-**Source:**
-
-```441:462:../../../extracted/actors/player/attack_ability_system.asm
-```
-
-**Variables:**
-
-| Location | Direction | Role |
-|----------|-----------|------|
-| `$player_flags` | R/W | Shared player state bitmask |
-| `$player_actor` | R | Player WRAM slot index |
-
 
 **Cross-References:**
 
@@ -355,23 +253,11 @@ Individual orbiting sprite. 3-frame animation.
 |--------|-------------|
 | `attack_ability_system` block | Parent compilation unit |
 
-#### Subgroup 18D — Dark Friar
+#### Dark Friar Chain
 
 ### DarkFriarMain
 
 Set `$2000`. Spawn VRAM DMA. Palette thinker `#4A`. 4-directional dispatch.
-
-**Source:**
-
-```474:509:../../../extracted/actors/player/attack_ability_system.asm
-```
-
-**Variables:**
-
-| Location | Direction | Role |
-|----------|-----------|------|
-| `$player_flags` | R/W | Shared player state bitmask |
-| `$player_actor` | R | Player WRAM slot index |
 
 
 **Cross-References:**
@@ -384,18 +270,6 @@ Set `$2000`. Spawn VRAM DMA. Palette thinker `#4A`. 4-directional dispatch.
 
 Main projectile sprite, `table_178000`. Wait 7 frames.
 
-**Source:**
-
-```558:569:../../../extracted/actors/player/attack_ability_system.asm
-```
-
-**Variables:**
-
-| Location | Direction | Role |
-|----------|-----------|------|
-| `$player_flags` | R/W | Shared player state bitmask |
-| `$player_actor` | R | Player WRAM slot index |
-
 
 **Cross-References:**
 
@@ -406,18 +280,6 @@ Main projectile sprite, `table_178000`. Wait 7 frames.
 ### DarkFriarTrailSouth
 
 South trail with collision if upgraded.
-
-**Source:**
-
-```575:604:../../../extracted/actors/player/attack_ability_system.asm
-```
-
-**Variables:**
-
-| Location | Direction | Role |
-|----------|-----------|------|
-| `$player_flags` | R/W | Shared player state bitmask |
-| `$player_actor` | R | Player WRAM slot index |
 
 
 **Cross-References:**
@@ -430,18 +292,6 @@ South trail with collision if upgraded.
 
 EW trail with X-axis movement.
 
-**Source:**
-
-```610:638:../../../extracted/actors/player/attack_ability_system.asm
-```
-
-**Variables:**
-
-| Location | Direction | Role |
-|----------|-----------|------|
-| `$player_flags` | R/W | Shared player state bitmask |
-| `$player_actor` | R | Player WRAM slot index |
-
 
 **Cross-References:**
 
@@ -449,23 +299,11 @@ EW trail with X-axis movement.
 |--------|-------------|
 | `attack_ability_system` block | Parent compilation unit |
 
-#### Subgroup 18E — Dark Friar Bounce
+#### Dark Friar Bounce & Fragments
 
 ### DarkFriarBounceLoop
 
 Bounce animation. If fully upgraded, allows redirect.
-
-**Source:**
-
-```639:668:../../../extracted/actors/player/attack_ability_system.asm
-```
-
-**Variables:**
-
-| Location | Direction | Role |
-|----------|-----------|------|
-| `$player_flags` | R/W | Shared player state bitmask |
-| `$player_actor` | R | Player WRAM slot index |
 
 
 **Cross-References:**
@@ -478,18 +316,6 @@ Bounce animation. If fully upgraded, allows redirect.
 
 Spawn 4 fragments at 0°/64°/128°/192°.
 
-**Source:**
-
-```673:680:../../../extracted/actors/player/attack_ability_system.asm
-```
-
-**Variables:**
-
-| Location | Direction | Role |
-|----------|-----------|------|
-| `$player_flags` | R/W | Shared player state bitmask |
-| `$player_actor` | R | Player WRAM slot index |
-
 
 **Cross-References:**
 
@@ -500,18 +326,6 @@ Spawn 4 fragments at 0°/64°/128°/192°.
 ### DarkFriarFragmentInit
 
 Set angle, load anim, spawn trails, enable hitbox.
-
-**Source:**
-
-```694:766:../../../extracted/actors/player/attack_ability_system.asm
-```
-
-**Variables:**
-
-| Location | Direction | Role |
-|----------|-----------|------|
-| `$player_flags` | R/W | Shared player state bitmask |
-| `$player_actor` | R | Player WRAM slot index |
 
 
 **Cross-References:**
@@ -524,18 +338,6 @@ Set angle, load anim, spawn trails, enable hitbox.
 
 Fragment animation with wall-hit velocity.
 
-**Source:**
-
-```767:774:../../../extracted/actors/player/attack_ability_system.asm
-```
-
-**Variables:**
-
-| Location | Direction | Role |
-|----------|-----------|------|
-| `$player_flags` | R/W | Shared player state bitmask |
-| `$player_actor` | R | Player WRAM slot index |
-
 
 **Cross-References:**
 
@@ -543,23 +345,11 @@ Fragment animation with wall-hit velocity.
 |--------|-------------|
 | `attack_ability_system` block | Parent compilation unit |
 
-#### Subgroup 18F — Parent Offset Helpers
+#### Parent Offset Helpers
 
 ### ComputeParentOffset
 
 Store offset from parent actor to current position.
-
-**Source:**
-
-```795:807:../../../extracted/actors/player/attack_ability_system.asm
-```
-
-**Variables:**
-
-| Location | Direction | Role |
-|----------|-----------|------|
-| `$player_flags` | R/W | Shared player state bitmask |
-| `$player_actor` | R | Player WRAM slot index |
 
 
 **Cross-References:**
@@ -572,18 +362,6 @@ Store offset from parent actor to current position.
 
 Add stored offset back to parent position.
 
-**Source:**
-
-```808:820:../../../extracted/actors/player/attack_ability_system.asm
-```
-
-**Variables:**
-
-| Location | Direction | Role |
-|----------|-----------|------|
-| `$player_flags` | R/W | Shared player state bitmask |
-| `$player_actor` | R | Player WRAM slot index |
-
 
 **Cross-References:**
 
@@ -591,23 +369,11 @@ Add stored offset back to parent position.
 |--------|-------------|
 | `attack_ability_system` block | Parent compilation unit |
 
-#### Subgroup 18G — Psycho Dash
+#### Psycho Dash Trails
 
 ### PsychoDashTrailSouth
 
 Record 8 Y-position deltas, replay in reverse.
-
-**Source:**
-
-```875:923:../../../extracted/actors/player/attack_ability_system.asm
-```
-
-**Variables:**
-
-| Location | Direction | Role |
-|----------|-----------|------|
-| `$player_flags` | R/W | Shared player state bitmask |
-| `$player_actor` | R | Player WRAM slot index |
 
 
 **Cross-References:**
@@ -620,18 +386,6 @@ Record 8 Y-position deltas, replay in reverse.
 
 Inverted Y deltas.
 
-**Source:**
-
-```924:972:../../../extracted/actors/player/attack_ability_system.asm
-```
-
-**Variables:**
-
-| Location | Direction | Role |
-|----------|-----------|------|
-| `$player_flags` | R/W | Shared player state bitmask |
-| `$player_actor` | R | Player WRAM slot index |
-
 
 **Cross-References:**
 
@@ -642,18 +396,6 @@ Inverted Y deltas.
 ### PsychoDashTrailWest
 
 X-axis deltas.
-
-**Source:**
-
-```973:1021:../../../extracted/actors/player/attack_ability_system.asm
-```
-
-**Variables:**
-
-| Location | Direction | Role |
-|----------|-----------|------|
-| `$player_flags` | R/W | Shared player state bitmask |
-| `$player_actor` | R | Player WRAM slot index |
 
 
 **Cross-References:**
@@ -666,18 +408,6 @@ X-axis deltas.
 
 Inverted X deltas.
 
-**Source:**
-
-```1022:1069:../../../extracted/actors/player/attack_ability_system.asm
-```
-
-**Variables:**
-
-| Location | Direction | Role |
-|----------|-----------|------|
-| `$player_flags` | R/W | Shared player state bitmask |
-| `$player_actor` | R | Player WRAM slot index |
-
 
 **Cross-References:**
 
@@ -685,23 +415,11 @@ Inverted X deltas.
 |--------|-------------|
 | `attack_ability_system` block | Parent compilation unit |
 
-#### Subgroup 18H — Psycho Slider
+#### Psycho Slider
 
 ### PsychoSliderMain
 
 Set `$2002`, spawn guided projectile. Charge loop, L/R direction.
-
-**Source:**
-
-```1070:1165:../../../extracted/actors/player/attack_ability_system.asm
-```
-
-**Variables:**
-
-| Location | Direction | Role |
-|----------|-----------|------|
-| `$player_flags` | R/W | Shared player state bitmask |
-| `$player_actor` | R | Player WRAM slot index |
 
 
 **Cross-References:**
@@ -714,18 +432,6 @@ Set `$2002`, spawn guided projectile. Charge loop, L/R direction.
 
 Clear `$2800`. Check `$0B1A`: return 12 or 24 frames.
 
-**Source:**
-
-```1166:1181:../../../extracted/actors/player/attack_ability_system.asm
-```
-
-**Variables:**
-
-| Location | Direction | Role |
-|----------|-----------|------|
-| `$player_flags` | R/W | Shared player state bitmask |
-| `$player_actor` | R | Player WRAM slot index |
-
 
 **Cross-References:**
 
@@ -736,18 +442,6 @@ Clear `$2800`. Check `$0B1A`: return 12 or 24 frames.
 ### PsychoSliderLaunch
 
 Set sprite timer, anim set 1. Check joypad for direction.
-
-**Source:**
-
-```1182:1197:../../../extracted/actors/player/attack_ability_system.asm
-```
-
-**Variables:**
-
-| Location | Direction | Role |
-|----------|-----------|------|
-| `$player_flags` | R/W | Shared player state bitmask |
-| `$player_actor` | R | Player WRAM slot index |
 
 
 **Cross-References:**
@@ -760,10 +454,6 @@ Set sprite timer, anim set 1. Check joypad for direction.
 
 Vertical launch.
 
-**Source:**
-
-```1210:1224:../../../extracted/actors/player/attack_ability_system.asm
-```
 
 **Cross-References:**
 
@@ -775,18 +465,6 @@ Vertical launch.
 
 Per-frame: alternate L/R shoulder check.
 
-**Source:**
-
-```1231:1259:../../../extracted/actors/player/attack_ability_system.asm
-```
-
-**Variables:**
-
-| Location | Direction | Role |
-|----------|-----------|------|
-| `$player_flags` | R/W | Shared player state bitmask |
-| `$player_actor` | R | Player WRAM slot index |
-
 
 **Cross-References:**
 
@@ -794,24 +472,12 @@ Per-frame: alternate L/R shoulder check.
 |--------|-------------|
 | `attack_ability_system` block | Parent compilation unit |
 
-#### Subgroup 18I — Guided Projectile & Palette FX
+#### Guided Projectile & Palette FX
 
 ### GuidedProjectileActor
 
 Sprite priority `#30`, joypad-directed. 4 directions with hitbox.
 
-**Source:**
-
-```1277:1312:../../../extracted/actors/player/attack_ability_system.asm
-```
-
-**Variables:**
-
-| Location | Direction | Role |
-|----------|-----------|------|
-| `$player_flags` | R/W | Shared player state bitmask |
-| `$player_actor` | R | Player WRAM slot index |
-
 
 **Cross-References:**
 
@@ -819,23 +485,9 @@ Sprite priority `#30`, joypad-directed. 4 directions with hitbox.
 |--------|-------------|
 | `attack_ability_system` block | Parent compilation unit |
 
-#### Subgroup 18I — Guided Projectile & Palette FX
-
 ### RecomputeProjectilePos
 
 Add stored offsets to player position.
-
-**Source:**
-
-```1415:1426:../../../extracted/actors/player/attack_ability_system.asm
-```
-
-**Variables:**
-
-| Location | Direction | Role |
-|----------|-----------|------|
-| `$player_flags` | R/W | Shared player state bitmask |
-| `$player_actor` | R | Player WRAM slot index |
 
 
 **Cross-References:**
@@ -848,18 +500,6 @@ Add stored offsets to player position.
 
 Read `table_01D9A7` by index.
 
-**Source:**
-
-```1427:1450:../../../extracted/actors/player/attack_ability_system.asm
-```
-
-**Variables:**
-
-| Location | Direction | Role |
-|----------|-----------|------|
-| `$player_flags` | R/W | Shared player state bitmask |
-| `$player_actor` | R | Player WRAM slot index |
-
 
 **Cross-References:**
 
@@ -871,18 +511,6 @@ Read `table_01D9A7` by index.
 
 Read `table_01D9BF` by index.
 
-**Source:**
-
-```1451:1471:../../../extracted/actors/player/attack_ability_system.asm
-```
-
-**Variables:**
-
-| Location | Direction | Role |
-|----------|-----------|------|
-| `$player_flags` | R/W | Shared player state bitmask |
-| `$player_actor` | R | Player WRAM slot index |
-
 
 **Cross-References:**
 
@@ -892,50 +520,34 @@ Read `table_01D9BF` by index.
 
 ---
 
-## attack_trail_followers.asm
+#### Attack Trail Followers
 
-Trail sprite actors for Psycho Dash, Dark Friar, and other ability FX.
+Dark Friar fragment trail follower actors and the 3-stage position FIFO, at ROM `$02BDF6`–`$02BE72` in [`attack_ability_system.asm`](../../../extracted/actors/player/attack_ability_system.asm).
 
-| Address | Name | Size | Description |
-|---------|------|------|-------------|
-| `$02BDF6` | TrailFollowerSprA | 5 B | Trail sprite with hitbox `#05`. |
-| `$02BDFB` | TrailFollowerSprB | 33 B | Trail sprite with hitbox `#06`. Init position queue, enter follow loop. |
-| `$02BE1A` | TrailPositionCascade | 59 B | 3-frame position queue cascade: current→slot0→slot1→slot2→render. |
-| `$02BE55` | TrailPositionInit | 29 B | Initialize 3 position queue slots to current `$14`/`$16`. |
-
-#### Subgroup 18F — Trail Followers
+| Address | Name | Description |
+|---------|------|-------------|
+| `$02BDF6` | TrailFollowerSprA | Trail sprite with hitbox `#05`. |
+| `$02BDFB` | TrailFollowerSprB | Trail sprite with hitbox `#06`. Init position queue, enter follow loop. |
+| `$02BE1A` | TrailPositionCascade | 3-frame position queue cascade: current→slot0→slot1→slot2→render. |
+| `$02BE55` | TrailPositionInit | Initialize 3 position queue slots to current `$14`/`$16`. |
+| `$02BE72` | ComputeParentOffset | Store offset from parent actor to current position. |
+| `$02BE89` | ApplyParentOffset | Add stored offset back to parent position. |
 
 ### TrailFollowerSprB
 
 Trail sprite with hitbox `#06`. Init position queue, enter follow loop.
-
-**Source:**
-
-```8:30:../../../extracted/actors/player/attack_trail_followers.asm
-```
-
-**Variables:**
-
-| Location | Direction | Role |
-|----------|-----------|------|
-| `$player_flags` | R/W | Shared player state bitmask |
-| `$player_actor` | R | Player WRAM slot index |
 
 
 **Cross-References:**
 
 | Symbol | Relationship |
 |--------|-------------|
-| `attack_trail_followers` block | Parent compilation unit |
+| `attack_ability_system` block | Parent compilation unit |
 
 ### TrailPositionCascade
 
 3-frame position queue cascade: current→slot0→slot1→slot2→render.
 
-**Source:**
-
-```31:50:../../../extracted/actors/player/attack_trail_followers.asm
-```
 
 **Variables:**
 
@@ -950,34 +562,22 @@ Trail sprite with hitbox `#06`. Init position queue, enter follow loop.
 
 | Symbol | Relationship |
 |--------|-------------|
-| `attack_trail_followers` block | Parent compilation unit |
+| `attack_ability_system` block | Parent compilation unit |
 
 ### TrailPositionInit
 
 Initialize 3 position queue slots to current `$14`/`$16`.
-
-**Source:**
-
-```51:61:../../../extracted/actors/player/attack_trail_followers.asm
-```
-
-**Variables:**
-
-| Location | Direction | Role |
-|----------|-----------|------|
-| `$player_flags` | R/W | Shared player state bitmask |
-| `$player_actor` | R | Player WRAM slot index |
 
 
 **Cross-References:**
 
 | Symbol | Relationship |
 |--------|-------------|
-| `attack_trail_followers` block | Parent compilation unit |
+| `attack_ability_system` block | Parent compilation unit |
 
 ## See Also
 
-- [`../bank2-code-analysis.md`](../bank2-code-analysis.md) — `PlayerMovementTick` (`$02CFD0`), tile collision (`$02E102`)
-- [`camera-and-map.md`](camera-and-map.md) — tile probing for slopes and shimmy
+- [`player-movement.md`](player-movement.md) — `PlayerMovementTick` (`$02CFD0`), tile collision (`$02E102`)
+- [`tile-collision.md`](tile-collision.md) — tile probing for slopes and shimmy
 - [`../../cop-commands-reference.md`](../../cop-commands-reference.md) — COP command semantics
 - [`../../actor-organization-analysis.md`](../../actor-organization-analysis.md) — global actor linked list

@@ -135,7 +135,7 @@ OpenInventoryScreen {
     PHP                   ; OpenInventoryScreen — inventory overlay entry; saves P and enters 8-bit mode
     SEP #$20
     JSL $@vblank_joypad.EnableNmiOnly
-    JSL $@vblank_joypad.EnableDisplay ; EnableDisplay — unblank PPU so inventory setup can DMA tiles/CGRAM
+    JSL $@vblank_joypad.EnterForcedBlank ; EnterForcedBlank — halt PPU so inventory setup can DMA tiles/CGRAM
     STZ $HDMAEN           ; Disable HDMA during inventory scene (no scroll/window effects)
     JSR $&SaveGameState   ; SaveGameState — snapshot live WRAM before overlay mutates game state
     REP #$20              ; Push overlay stack: effectDeltaX, displayModeFlags, eventFlags, sceneCurrent
@@ -234,7 +234,7 @@ OpenInventoryScreen {
     STZ $BG3VOFS          ; Close path — zero BG3 vertical scroll before teardown
     STZ $BG3VOFS
     JSL $@vblank_joypad.EnableNmiOnly ; Re-enable NMI-only before RestoreGameState
-    JSL $@vblank_joypad.EnableDisplay ; EnableDisplay for scene-reload and HUD restore phase
+    JSL $@vblank_joypad.EnterForcedBlank ; EnterForcedBlank for scene-reload and HUD restore phase
     STZ $HDMAEN           ; Disable HDMA again before copying backup WRAM
     JSR $&RestoreGameState ; RestoreGameState — copy all backup WRAM regions back to live
     LDX $cameraTargetX    ; cameraTargetX → bg1ScrollH

@@ -39,8 +39,8 @@
 ; === UTILITY ROUTINES ===
 ; EnableNmiAndJoypad: $81 → NMITIMEN (NMI + auto-read).
 ; EnableNmiOnly: $01 → NMITIMEN (NMI only).
-; ForceBlank: $00 → INIDISP (brightness 0, forced blank off — screen dark but PPU active).
-; EnableDisplay: $80 → INIDISP (forced blank on — VRAM/OAM/CGRAM accessible).
+; ScreenBlackout: $00 → INIDISP (forced blank OFF, brightness 0 — screen appears black but PPU remains active; does NOT set the SNES forced blank bit).
+; EnterForcedBlank: $80 → INIDISP (forced blank ON — PPU halted, VRAM/OAM/CGRAM accessible for DMA transfers).
 ; WaitFrames: loop VBlankWaitAndJoypad for A frames.
 ---------------------------------------------
 
@@ -299,7 +299,7 @@ EnableNmiOnly {
 ; 
 ; Clears bit 7 (forced blank off) and sets brightness to $0. The screen appears completely black but the PPU continues processing internally. Used to darken the display while keeping the PPU active.
 
-ForceBlank {
+ScreenBlackout {
     PHP 
     SEP #$20
     PHA 
@@ -311,11 +311,11 @@ ForceBlank {
 }
 
 ---------------------------------------------
-; Set INIDISP ($2100) to $80 — enable forced blank for VRAM access.
+; Set INIDISP ($2100) to $80 — enter forced blank for VRAM access.
 ; 
-; Sets bit 7 (forced blank on) with brightness 0. The PPU stops rendering, making VRAM, OAM, and CGRAM freely accessible for DMA transfers. Despite the name, this enters the hardware blank state — typically called before bulk VRAM operations.
+; Sets bit 7 (forced blank on) with brightness 0. The PPU stops rendering, making VRAM, OAM, and CGRAM freely accessible for DMA transfers. Called before bulk VRAM operations.
 
-EnableDisplay {
+EnterForcedBlank {
     PHP 
     SEP #$20
     PHA 

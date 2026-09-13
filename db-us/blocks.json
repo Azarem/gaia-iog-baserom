@@ -88,7 +88,7 @@
         } },
         "player_move_ramps": { "start": 186435, "end": 187085, "type": "Code", "scene": "player" },
         "player_move_diag": { "start": 187264, "end": 188674, "type": "Code", "scene": "player" },
-        "tile_collision": { "start": 188674, "end": 189334, "type": "Code", "scene": "engine" },
+        "tile_collision": { "start": 188674, "end": 189334, "type": "Code", "scene": "player" },
         "inventory_overlay": { "start": 191746, "end": 192584, "type": "Code", "scene": "inventory", "movable": true },
         "ShowDialogueFrame": { "start": 192584, "end": 192618, "type": "Code", "scene": "functions", "movable": true },
         "vram_buffer_clear": { "start": 192618, "end": 192652, "type": "Code", "scene": "functions", "movable": true },
@@ -257,11 +257,7 @@
         "shadow_shimmer": { "start": 176654, "end": 176798, "type": "Code", "scene": "player", "movable": true },
         "player_move_controller": { "start": 176798, "end": 177195, "type": "Code", "scene": "player", "movable": true },
         "slope_ramp_physics": { "start": 177195, "end": 178099, "type": "Code", "scene": "player", "movable": false },
-        "attack_ability_system": { "scene": "player", "movable": false, "parts": {
-            "AttackSystemEntry": { "start": 178099, "end": 179702, "type": "Code" },
-            "ComputeParentOffset": { "start": 179826, "end": 181132, "type": "Code" }
-        } },
-        "attack_trail_followers": { "start": 179702, "end": 179826, "type": "Code", "scene": "player", "movable": true },
+        "attack_ability_system": { "start": 178099, "end": 181132, "type": "Code", "scene": "player", "movable": false },
         "player_character": { "start": 181132, "end": 184272, "type": "actor-def", "scene": "player", "movable": false },
         "actor_08B577": { "start": 570743, "end": 570770, "type": "actor-def", "movable": true },
         "jeweler_gem": { "start": 577184, "end": 579227, "type": "actor-def", "movable": true },

@@ -161,7 +161,7 @@ SystemInit {
     JSL $@system_init.InitHardwareRegisters
     JSL $@system_init.InitSystemVariables
     JSL $@spc_transfer.SpcLoadBuiltinEngine
-    JSL $@vblank_joypad.EnableDisplay
+    JSL $@vblank_joypad.EnterForcedBlank
     SEC 
     ROR $worldReadyFlag   ; Bit 7 = world-ready flag; permits scene loading
     LDA $000100           ; Check warmboot signature byte at $000100

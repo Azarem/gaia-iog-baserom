@@ -1,16 +1,18 @@
 # Utility Functions
 
+*Part of the [Bank $02 Documentation Suite](index.md)*
+
 > Small helper functions: dialogue display and VRAM buffer operations
 
-**Source:** [`dialogue_display.asm`](../../../extracted/functions/dialogue_display.asm) · [`vram_buffer_clear.asm`](../../../extracted/functions/vram_buffer_clear.asm)
+**Source:** [`ShowDialogueFrame.asm`](../../../extracted/system/functions/ShowDialogueFrame.asm) · [`vram_buffer_clear.asm`](../../../extracted/system/functions/vram_buffer_clear.asm)
 
 ---
 
-## dialogue_display.asm
+## ShowDialogueFrame.asm
 
-| Address | Name | Size | Description |
-|---------|------|------|-------------|
-| `$02F048` | ShowDialogueFrame | 34 B | Single dialogue render frame. Saves joypad mask, sets DBR=`$81`, calls render pipeline, restores mask. Used by invent... |
+| Address | Name | Description |
+|---------|------|-------------|
+| `$02F048` | ShowDialogueFrame | Single dialogue render frame. Saves joypad mask, sets DBR=`$81`, calls render pipeline, restores mask. Used by invent... |
 
 ---
 
@@ -21,14 +23,10 @@ Single dialogue render frame. Saves joypad mask, sets DBR=`$81`, calls render pi
 **Algorithm:**
 1. Save + zero joypad_mask_std
 2. DBR ← `$81`
-3. JSL UpdateFrame_Render
-4. JSL sub_03E255 (dialogue box draw)
+3. JSL UpdateFrameRender
+4. JSL DialogStringRenderer (dialogue box draw)
 5. Restore joypad mask
 
-**Source:**
-
-```7:27:../../../extracted/functions/dialogue_display.asm
-```
 
 **Variables:**
 | Location | Direction | Role |
@@ -38,8 +36,8 @@ Single dialogue render frame. Saves joypad mask, sets DBR=`$81`, calls render pi
 **Cross-References:**
 | Symbol | Relationship |
 |--------|--------------|
-| `OpenInventoryScreen` | Via UpdateFrame_Dialogue |
-| `UpdateFrame_Render` | Bank system_core |
+| `OpenInventoryScreen` | Via UpdateFrameDialogue |
+| `UpdateFrameRender` | Bank system_core |
 
 ---
 
@@ -48,10 +46,10 @@ Single dialogue render frame. Saves joypad mask, sets DBR=`$81`, calls render pi
 
 Both routines zero-word-fill the BG tilemap staging area at `$7F:0200`–`$7F:0800`.
 
-| Address | Name | Size | Description |
-|---------|------|------|-------------|
-| `$02F06A` | ClearVramBufferPartial | 12 B | Partial VRAM buffer clear: zeros `$7F:0340`–`$7F:0800` (offset `$0140` from base). Preserves first 320 bytes. |
-| `$02F076` | ClearVramBufferFull | 22 B | Full VRAM buffer clear: zeros entire `$7F:0200`–`$7F:0800` (2048 bytes). Called on inventory open and close. |
+| Address | Name | Description |
+|---------|------|-------------|
+| `$02F06A` | ClearVramBufferPartial | Partial VRAM buffer clear: zeros `$7F:0340`–`$7F:0800` (offset `$0140` from base). Preserves first 320 bytes. |
+| `$02F076` | ClearVramBufferFull | Full VRAM buffer clear: zeros entire `$7F:0200`–`$7F:0800` (2048 bytes). Called on inventory open and close. |
 
 ---
 
@@ -63,10 +61,6 @@ Full VRAM buffer clear: zeros entire `$7F:0200`–`$7F:0800` (2048 bytes). Calle
 1. LDX `#$0000`
 2. Shared zero loop to `$0800`
 
-**Source:**
-
-```12:28:../../../extracted/functions/vram_buffer_clear.asm
-```
 
 **Variables:**
 | Location | Direction | Role |
@@ -78,3 +72,13 @@ Full VRAM buffer clear: zeros entire `$7F:0200`–`$7F:0800` (2048 bytes). Calle
 |--------|--------------|
 | `OpenInventoryScreen` | JSL on open/close |
 | `TabDrawCursor` | Writes into buffer |
+
+---
+
+## See Also
+
+| Document | Relationship |
+|----------|-------------|
+| [scene-script.md](scene-script.md) | `DialogStringRenderer`, `UpdateFrameRender` render pipeline |
+| [inventory-overlay.md](inventory-overlay.md) | `ShowDialogueFrame` caller during inventory loop |
+| [inventory-menu.md](inventory-menu.md) | Inventory context where dialogue frames are drawn |

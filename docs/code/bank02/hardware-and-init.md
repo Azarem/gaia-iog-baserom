@@ -1,13 +1,15 @@
 # Bank $02 — Hardware Math, VBlank, Decompression & System Init
 
+*Part of the [Bank $02 Documentation Suite](index.md)*
+
 **Bank:** `$02` (FastROM; accessed via `$@` long calls from other banks)
 **Address range:** `$028000`–`$0283A2`, `$029DE2`–`$02A040`
-**Source:** [`hardware_math.asm`](../../../extracted/system/engine/hardware_math.asm), [`vblank_joypad.asm`](../../../extracted/system/engine/vblank_joypad.asm), [`decompress.asm`](../../../extracted/system/engine/decompress.asm), [`system_init.asm`](../../../extracted/system/engine/system_init.asm)
-**Block:** `hardware_math`, `vblank_joypad`, `decompress`, `system_init` in `us/blocks.json` (scene: `engine`)
+**Source:** [`hardware_math.asm`](../../../extracted/system/engine/hardware_math.asm), [`vblank_joypad.asm`](../../../extracted/system/engine/vblank_joypad.asm), [`QuintetLzDecompress.asm`](../../../extracted/system/engine/QuintetLzDecompress.asm), [`system_init.asm`](../../../extracted/system/engine/system_init.asm)
+**Block:** `hardware_math`, `vblank_joypad`, `QuintetLzDecompress`, `system_init` in `us/blocks.json` (scene: `engine`)
 
 This page documents the lowest-level engine infrastructure in bank `$02`: SNES hardware multiply/divide wrappers, the main-thread VBlank synchronization and joypad polling layer, Quintet-LZ decompression, and cold-start WRAM/PPU initialization. These routines are included from [`system_core.asm`](../../../extracted/system/engine/system_core.asm) (bank `$00`) and called throughout gameplay, scene loading, and overlay code.
 
-**Related:** [`../bank00/system-core.md`](../bank00/system-core.md) (main loop that calls VBlank/joypad routines) · [`../bank00/nmi-handler.md`](../bank00/nmi-handler.md) (NMI-side PPU/DMA) · [`scene-engine.md`](scene-engine.md) (primary `QuintetLzDecompress` consumer) · [`../bank00/utility-math-movement.md`](../bank00/utility-math-movement.md) (bank `$00` movement math helpers)
+**Related:** [`../bank00/system-core.md`](../bank00/system-core.md) (main loop that calls VBlank/joypad routines) · [`../bank00/nmi-handler.md`](../bank00/nmi-handler.md) (NMI-side PPU/DMA) · [`scene-script.md`](scene-script.md) (primary `QuintetLzDecompress` consumer) · [`../bank00/utility-math-movement.md`](../bank00/utility-math-movement.md) (bank `$00` movement math helpers)
 
 ---
 
@@ -38,13 +40,13 @@ $02A040 └─ (music_actors continues) ─────────────�
 
 ## hardware_math.asm
 
-| Address | Name | Size | Description |
-|---------|------|------|-------------|
-| `$028000` | MulDivide | 59 B | Performs a **16×8 multiply followed by an 8-bit divide** using the SNES hardware math unit at `$4202`–`$4217`. |
-| `$0281D1` | SignedMultiply | 23 B | Performs an **8×8 signed multiply** via `$WRMPYA`/`$WRMPYB` and returns the **16-bit product** in `A` (low byte in A after `XBA`, then high byte swapped in). |
-| `$0281E8` | UnsignedDivide | 22 B | Performs a **16÷8 unsigned divide** using the hardware divider. |
-| `$0281FE` | SoftDivide_Unused | 73 B | A **software 16÷16 fixed-point division** routine that operates entirely in direct-page scratch at `$00`–`$06`. |
-| `$028247` | IncrementCounter_Unused | 41 B | Increments a **128-bit (16-byte) big-endian counter** stored at WRAM `$040F`–`$041F`. |
+| Address | Name | Description |
+|---------|------|-------------|
+| `$028000` | MulDivide | Performs a **16×8 multiply followed by an 8-bit divide** using the SNES hardware math unit at `$4202`–`$4217`. |
+| `$0281D1` | SignedMultiply | Performs an **8×8 signed multiply** via `$WRMPYA`/`$WRMPYB` and returns the **16-bit product** in `A` (low byte in A after `XBA`, then high byte swapped in). |
+| `$0281E8` | UnsignedDivide | Performs a **16÷8 unsigned divide** using the hardware divider. |
+| `$0281FE` | SoftDivide_Unused | A **software 16÷16 fixed-point division** routine that operates entirely in direct-page scratch at `$00`–`$06`. |
+| `$028247` | IncrementCounter_Unused | Increments a **128-bit (16-byte) big-endian counter** stored at WRAM `$040F`–`$041F`. |
 
 ### MulDivide
 
@@ -128,114 +130,6 @@ MulDivide {
 | `ScrollCameraVertical` | Caller — vertical scroll scaling |
 | `parallax_thinker.asm` | Caller — parallax layer offset |
 | `visual_effect_pipeline.asm` | Caller — effect coordinate scaling |
-
-### SignedMultiply
-
-
-Performs an **8×8 signed multiply** via `$WRMPYA`/`$WRMPYB` and returns the **16-bit product** in `A` (low byte in A after `XBA`, then high byte swapped in). Uses long-address aliases `$L_WRMPYA` (`$804202`) and `$L_RDMPYL`/`$L_RDMPYH` for the read path. Four `NOP` instructions provide the multiplier pipeline delay. This is the most frequently called math helper in bank `$02`. Scene-graphics loaders use it to compute VRAM offsets and buffer sizes; map coordinate routines scale tile indices; actor code uses it for orbital offset math. Despite the name, the hardware multiplier treats operands as unsigned 8-bit values — callers are responsible for sign semantics.
-
-**Algorithm:**
-
-| Step | Action | Effect |
-|------|--------|--------|
-| 1 | `STA $L_WRMPYA` | Multiplicand A (8-bit) |
-| 2 | `XBA` / `STA $L_WRMPYB` | Multiplicand B (8-bit) |
-| 3 | `NOP` × 4 | Multiplier pipeline delay |
-| 4 | Read `$L_RDMPYH` / `$L_RDMPYL` | Assemble 16-bit product |
-| 5 | `RTL` | Return product in A |
-
-**Source:**
-
-```56:68:../../../extracted/system/engine/hardware_math.asm
-SignedMultiply {
-    STA $L_WRMPYA
-    XBA
-    STA $L_WRMPYB
-    NOP
-    NOP
-    NOP
-    NOP
-    LDA $L_RDMPYH
-    XBA
-    LDA $L_RDMPYL
-    RTL
-}
-```
-
-**Variables:**
-
-| Location | Direction | Role |
-|----------|-----------|------|
-| `A` (input) | Input | 8-bit multiplicand (low byte used) |
-| `B` (via XBA) | Input | 8-bit multiplicand |
-| `$L_WRMPYA` / `$L_WRMPYB` | Write | Hardware multiplier operands |
-| `$L_RDMPYL` / `$L_RDMPYH` | Read | 16-bit product |
-| `A` (output) | Output | 16-bit product |
-
-**Cross-References:**
-
-| Symbol | Relationship |
-|--------|--------------|
-| `scene_script.asm` | Caller — VRAM offset/size calculations (10+ call sites) |
-| `camera_tilemap.asm` | Caller — tile strip addressing |
-| `map_coords.asm` | Caller — map index scaling |
-| `player_character.asm` | Caller — player offset math |
-| `ApplyOrbitalOffsetXY` | Caller — orbital position computation |
-| `cop_handlers_collision.asm` | Caller — collision math |
-
-### UnsignedDivide
-
-
-Performs a **16÷8 unsigned divide** using the hardware divider. The 16-bit dividend is passed in `Y` (written to `$WRDIVL`; caller must preset `$WRDIVH` if needed), and the 8-bit divisor is passed in `A` (written to `$WRDIVB`). Eight `NOP` instructions provide the divider pipeline delay. Returns the 16-bit quotient in `A` (assembled via `$RDMPYL` high / `$RDDIVL` low with `XBA`). Used by smooth-follow logic (`smooth_follow.asm`), COP collision handlers, and actor scripts that need fixed-point scaling without the multiply-first pattern of `MulDivide`.
-
-**Algorithm:**
-
-| Step | Action | Effect |
-|------|--------|--------|
-| 1 | `STY $WRDIVL` | Dividend low word |
-| 2 | `STA $WRDIVB` | 8-bit divisor |
-| 3 | `NOP` × 8 | Divider pipeline delay |
-| 4 | Read `$RDMPYL` / `$RDDIVL` | Assemble 16-bit quotient |
-| 5 | `RTL` | Return quotient in A |
-
-**Source:**
-
-```70:85:../../../extracted/system/engine/hardware_math.asm
-UnsignedDivide {
-    STY $WRDIVL
-    STA $WRDIVB
-    NOP
-    NOP
-    NOP
-    NOP
-    NOP
-    NOP
-    NOP
-    NOP
-    LDA $RDMPYL
-    XBA
-    LDA $RDDIVL
-    RTL
-}
-```
-
-**Variables:**
-
-| Location | Direction | Role |
-|----------|-----------|------|
-| `Y` (input) | Input | Dividend low word → `$WRDIVL` |
-| `A` (input) | Input | 8-bit divisor → `$WRDIVB` |
-| `$WRDIVH` | Input (preset) | Dividend high byte (caller responsibility) |
-| `$RDMPYL` / `$RDDIVL` | Read | Quotient bytes |
-| `A` (output) | Output | 16-bit quotient |
-
-**Cross-References:**
-
-| Symbol | Relationship |
-|--------|--------------|
-| `smooth_follow.asm` | Caller — follow distance scaling |
-| `cop_handlers_collision.asm` | Caller — collision step computation |
-| `sg55_viper.asm` | Caller — actor script math |
 
 ### SoftDivide_Unused
 
@@ -404,31 +298,15 @@ IncrementCounter_Unused {
 
 ## vblank_joypad.asm
 
-| Address | Name | Size | Description |
-|---------|------|------|-------------|
-| `$02803B` | VBlankPartial | 8 B | Lightweight VBlank entry that **skips the NMI wait loop** and jumps directly into the post-VBlank portion of `VBlankWaitAndJoypad` at `loc_028057`. |
-| `$028043` | VBlankWaitAndJoypad | 334 B | The **primary main-thread VBlank synchronization and joypad handler**. |
-| `$028191` | EnableNmiAndJoypad | 17 B | Enables **NMI and auto-joypad polling** by writing `$81` to `$L_NMITIMEN` (`$4200`). |
-| `$0281A2` | EnableNmiOnly | 13 B | Enables **NMI only** (no auto-joypad) by writing `$01` to `$L_NMITIMEN`. |
-| `$0281AF` | ForceBlank | 13 B | Forces the PPU into **forced blank** by writing `$00` to `$L_INIDISP` (`$2100`). |
-| `$0281BC` | EnableDisplay | 13 B | Enables normal PPU display output by writing `$80` to `$L_INIDISP`. |
-| `$0281C9` | WaitFrames | 8 B | Waits **A frames** by calling `VBlankWaitAndJoypad` in a decrement loop. |
-
-### VBlankPartial
-
-Lightweight VBlank entry that **skips the NMI wait loop** and branches directly into the shared post-VBlank tail of `VBlankWaitAndJoypad` at `loc_028057`. Saves `P` and `A`, then executes Mode 7 upload (if enabled), joypad injection, remapping, and auto-repeat logic without polling `$L_RDNMI`. Used when the caller is already synchronized to VBlank timing and only needs the joypad/Mode 7 side effects.
-
-**Source:**
-
-```32:38:../../../extracted/system/engine/vblank_joypad.asm
-VBlankPartial {
-    PHP 
-    REP #$20
-    PHA 
-    SEP #$20
-    BRA loc_028057
-}
-```
+| Address | Name | Description |
+|---------|------|-------------|
+| `$02803B` | VBlankPartial | Lightweight VBlank entry that **skips the NMI wait loop** and jumps directly into the post-VBlank portion of `VBlankWaitAndJoypad` at `loc_028057`. |
+| `$028043` | VBlankWaitAndJoypad | The **primary main-thread VBlank synchronization and joypad handler**. |
+| `$028191` | EnableNmiAndJoypad | Enables **NMI and auto-joypad polling** by writing `$81` to `$L_NMITIMEN` (`$4200`). |
+| `$0281A2` | EnableNmiOnly | Enables **NMI only** (no auto-joypad) by writing `$01` to `$L_NMITIMEN`. |
+| `$0281AF` | ScreenBlackout | Releases forced blank but sets brightness to zero — screen appears black but PPU remains active. Writes `$00` to `$L_INIDISP` (`$2100`). |
+| `$0281BC` | EnterForcedBlank | Enables SNES forced blank — PPU halted, VRAM/OAM/CGRAM accessible for DMA transfers. Writes `$80` to `$L_INIDISP`. |
+| `$0281C9` | WaitFrames | Waits **A frames** by calling `VBlankWaitAndJoypad` in a decrement loop. |
 
 ### VBlankWaitAndJoypad
 
@@ -646,11 +524,11 @@ VBlankWaitAndJoypad {
 
 ## decompress.asm
 
-| Address | Name | Size | Description |
-|---------|------|------|-------------|
-| `$028270` | QuintetLzDecompress | 110 B | Main entry point for **Quintet-LZ decompression**, the dictionary-based compression format used for all BG tile, tilemap, and sprite graphics in IOG. |
-| `$0282DE` | LzReadBitField | 93 B | Extracts a **variable-length bit field (1–8 bits)** from the compressed bitstream. |
-| `$02833B` | LzReadBackRef | 103 B | Decodes the **copy length for a back-reference** in the Quintet-LZ stream. |
+| Address | Name | Description |
+|---------|------|-------------|
+| `$028270` | QuintetLzDecompress | Main entry point for **Quintet-LZ decompression**, the dictionary-based compression format used for all BG tile, tilemap, and sprite graphics in IOG. |
+| `$0282DE` | LzReadBitField | Extracts a **variable-length bit field (1–8 bits)** from the compressed bitstream. |
+| `$02833B` | LzReadBackRef | Decodes the **copy length for a back-reference** in the Quintet-LZ stream. |
 
 ### QuintetLzDecompress
 
@@ -1013,16 +891,16 @@ LzReadBackRef {
 
 ## system_init.asm
 
-| Address | Name | Size | Description |
-|---------|------|------|-------------|
-| `$029DE2` | UploadCgramPalette | 59 B | Uploads the **512-byte CGRAM palette** from WRAM `$7F:0A00` to the PPU color generator via DMA channel 0, then writes... |
-| `$029E1D` | UploadOamTable | 39 B | Uploads the **544-byte OAM (sprite) table** from ROM `$00:0422` to PPU OAM via DMA channel 0. |
-| `$029E44` | InitSystemVariables | 65 B | Performs **cold-start WRAM initialization** in two phases. |
-| `$029E85` | system_init_constants | 138 B | A **33-entry initialization table** of `(WRAM address, value)` word pairs used by `InitSystemVariables`. |
-| `$029F0F` | DmaFixedByteFill | 34 B | Performs a **fixed-byte DMA fill** of WRAM using DMA channel 0 in fill mode (`$DMAP0 = $08`). |
-| `$029F31` | InitHardwareRegisters | 29 B | Loads **PPU and system register defaults** from the `ppu_register_init_table` during cold start. |
-| `$029F4E` | cache_slot_indices | 12 B | A **4-entry lookup table** of 32-bit slot indices (`0`, `1`, `2`, `3`) used by the scene graphics VRAM ring-buffer ca... |
-| `$029F5A` | ppu_register_init_table | 230 B | A **76-entry PPU register initialization table** consumed by `InitHardwareRegisters`. |
+| Address | Name | Description |
+|---------|------|-------------|
+| `$029DE2` | UploadCgramPalette | Uploads the **512-byte CGRAM palette** from WRAM `$7F:0A00` to the PPU color generator via DMA channel 0, then writes... |
+| `$029E1D` | UploadOamTable | Uploads the **544-byte OAM (sprite) table** from ROM `$00:0422` to PPU OAM via DMA channel 0. |
+| `$029E44` | InitSystemVariables | Performs **cold-start WRAM initialization** in two phases. |
+| `$029E85` | system_init_constants | A **33-entry initialization table** of `(WRAM address, value)` word pairs used by `InitSystemVariables`. |
+| `$029F0F` | DmaFixedByteFill | Performs a **fixed-byte DMA fill** of WRAM using DMA channel 0 in fill mode (`$DMAP0 = $08`). |
+| `$029F31` | InitHardwareRegisters | Loads **PPU and system register defaults** from the `ppu_register_init_table` during cold start. |
+| `$029F4E` | cache_slot_indices | A **4-entry lookup table** of 32-bit slot indices (`0`, `1`, `2`, `3`) used by the scene graphics VRAM ring-buffer ca... |
+| `$029F5A` | ppu_register_init_table | A **76-entry PPU register initialization table** consumed by `InitHardwareRegisters`. |
 
 ### UploadCgramPalette
 
@@ -1392,16 +1270,6 @@ InitHardwareRegisters {
 | `SystemInit` | Sole caller — first init step after CPU setup |
 | `ppu_register_init_table` | Data — register default values |
 
-### cache_slot_indices
-
-A **4-entry lookup table** of 32-bit slot indices (`0`, `1`, `2`, `3`) used by the scene graphics VRAM ring-buffer cache. Indexed by the cache lookup result to map logical cache slots to WRAM ring-buffer segments during tile save/restore (`RestoreVramFromRingBuffer` in [`scene-engine.md`](scene-engine.md)).
-
-**Source:**
-
-```234:234:../../../extracted/system/engine/system_init.asm
-CacheSlotIndices #000000010000020000030000
-```
-
 ### ppu_register_init_table
 
 
@@ -1519,7 +1387,7 @@ ppu_register_init_table [
 Cold Start (SystemInit)
   ├── InitHardwareRegisters ← ppu_register_init_table
   ├── InitSystemVariables ← system_init_constants, DmaFixedByteFill
-  ├── EnableDisplay
+  ├── EnterForcedBlank
   └── Main loop:
         ├── VBlankWaitAndJoypad → EnableNmiOnly
         ├── … game logic …
@@ -1539,8 +1407,8 @@ Scene Load (scene_script)
 | [../bank00/system-core.md](../bank00/system-core.md) | Main loop, frame variants, cold-start sequence |
 | [../bank00/nmi-handler.md](../bank00/nmi-handler.md) | NMI-side PPU/DMA (complements VBlank wait here) |
 | [../bank00/utility-math-movement.md](../bank00/utility-math-movement.md) | Bank `$00` movement math (parallel to `MulDivide`) |
-| [scene-engine.md](scene-engine.md) | Primary consumer of `QuintetLzDecompress` and `SignedMultiply` |
-| [camera-and-map.md](camera-and-map.md) | Consumer of `MulDivide`, `UploadCgramPalette` |
+| [scene-script.md](scene-script.md) | Primary consumer of `QuintetLzDecompress` and `SignedMultiply` |
+| [camera-scrolling.md](camera-scrolling.md) | Consumer of `MulDivide`, `UploadCgramPalette` |
 | [game-systems.md](game-systems.md) | Frame update paths using VBlank/joypad routines |
-| [inventory-and-utility.md](inventory-and-utility.md) | Inventory overlay NMI/display sync |
+| [inventory-overlay.md](inventory-overlay.md) | Inventory overlay NMI/display sync |
 | [index.md](index.md) | Full bank `$02` memory map and document suite |

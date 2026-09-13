@@ -1,6 +1,6 @@
-; Tile collision primitives — probe, navigation, alignment, and movement utilities used by all player movement dispatchers (188674–189334, Bank 02).
+; Tile collision primitives — probe, navigation, alignment, and movement utilities used by all player movement dispatchers (188674–189334, Bank 02). Outputs to system/player/ alongside its callers.
 ; 
-; This is the shared utility layer for the player movement system. Every movement dispatcher (DispatchNorthMove, DispatchSouthMove, DispatchEastMove, and their diagonal/ramp variants) calls into these routines for tile probing, collision reading, map cell navigation, and movement application.
+; This is the shared utility layer for the player movement system. Every movement dispatcher (DispatchNorthMove, DispatchSouthMove, DispatchEastMove, and their diagonal/ramp variants) calls into these routines for tile probing, collision reading, map cell navigation, and movement application. No other system references these routines — they exist exclusively as the probe/navigation foundation for the player_move_* blocks.
 ; 
 ; === HITBOX PROBING ===
 ; 

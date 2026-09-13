@@ -1,8 +1,10 @@
 # Inventory Overlay — `inventory_overlay.asm`
 
+*Part of the [Bank $02 Documentation Suite](index.md)*
+
 > Overlay state sandwich — saves/restores WRAM around inventory screen
 
-**Source:** [`inventory_overlay.asm`](../../../extracted/functions/inventory/inventory_overlay.asm)
+**Source:** [`inventory_overlay.asm`](../../../extracted/system/inventory/inventory_overlay.asm)
 
 ---
 
@@ -10,35 +12,52 @@
 
 `OpenInventoryScreen` is the JSL entry point called from gameplay when the player opens inventory. It implements a **state sandwich** — save everything, run an isolated scene, restore everything.
 
+```mermaid
+flowchart TD
+    OPEN["OpenInventoryScreen"] --> SAVE["SaveGameState<br/>WRAM, joypad, camera, palette"]
+    SAVE --> SCENE["scene_current ← $FF"]
+    SCENE --> Script["SceneScriptNoMusic<br/>(no BGM reload)"]
+    Script --> Init["InitActorPool + SpawnSceneActors"]
+    Init --> LOOP["Main inventory loop<br/>UpdateFrameDialogue + bg1ConfigMode → BG1SC"]
+    LOOP --> EXIT{"Tab Cancel?<br/>flag byte #00 set"}
+    EXIT -->|No| LOOP
+    EXIT -->|Yes| RESTORE["RestoreGameState + RestorePaletteBuffer"]
+    RESTORE --> ReloadScene["SceneScriptNoMusic<br/>+ ApplyAllEventBlocks"]
+    ReloadScene --> RELOAD["ReloadAbilityFX<br/>+ DrainActorQueue"]
+    RELOAD --> HUD["LoadHudTilemap<br/>+ RunBg3Script"]
+    HUD --> Render["UpdateFrameRender ×2"]
+    Render --> DONE["Return to gameplay"]
+```
+
 ### State Preservation Map
 
-| Saved Region | Size | Source → Temp Location |
-|---|---|---|
-| Joypad state | 6 B | `$0656` / `$0658` → `$7E:38AC` / `$7E:38AE` |
-| Joypad mask | 2 B | `$065A` → `$7E:38B0` |
-| Joypad repeat timer | 2 B | `$0DBC` ↔ `$0DBE` (swap) |
-| Direct-page vars | 16 B | `$004E`–`$005D` → `$7E:389C` |
-| Camera positions | 12 B | `$06BE`–`$06C9` → `$7E:3890` |
-| WRAM `$00:0E00` | 256 B | → `$7E:3490` |
-| WRAM `$7E:3000` | 256 B | self-swap MVN |
-| WRAM `$00:1000` | 4 KB | → `$7F:E000` |
-| WRAM `$7F:1000` | 4 KB | self-swap MVN |
-| WRAM `$00:0F00` | 256 B | → `$7E:3690` |
-| WRAM `$7F:0F00` | 256 B | self-swap MVN |
-| Palette buffer | 515 B | `$7F:0A00` → `$7E:38B4` |
+| Saved Region | Source → Backup Location |
+|---|---|
+| Joypad state | `$0656` / `$0658` → `$7E:38AC` / `$7E:38AE` |
+| Joypad mask | `$065A` → `$7E:38B0` |
+| Active actor count | `$0DBC` → `$0DBE` |
+| Direct-page vars | `$004E`–`$005D` → `$7E:389C` |
+| Camera positions | `$06BE`–`$06C9` → `$7E:3890` |
+| WRAM `$00:0E00` | → `$7E:3490` |
+| WRAM `$7E:3000` | → `$7E:3590` |
+| WRAM `$00:1000` | → `$7F:E000` |
+| WRAM `$7F:1000` | → `$7F:F000` |
+| WRAM `$00:0F00` | → `$7E:3690` |
+| WRAM `$7F:0F00` | → `$7E:3790` |
+| Palette buffer | `$7F:0A00` → `$7E:38B4` |
 
 ---
 
 ## Memory Map
 
-| Address | Name | Size | Description |
-|---------|------|------|-------------|
-| `$02ED02` | OpenInventoryScreen | 389 B | Master inventory orchestrator (JSL entry). Implements the state sandwich: save gameplay, switch to scene `$FF`, run i... |
-| `$02EECC` | ReloadAbilityFX | 63 B | Post-close ability graphics reload. DMAs Dark Friar or Aura FX tiles and palette based on active ability `$00EA`. |
-| `$02EF0B` | DrainActorQueue | 15 B | Walks actor linked list from `$5A` and zeroes frame counter `$0008` on each actor. |
-| `$02EF1D` | SaveGameState | 149 B | Snapshots ~5.5 KB of gameplay WRAM, joypad state, camera, and palette buffer before inventory opens. |
-| `$02EFB2` | RestoreGameState | 131 B | Inverse of SaveGameState: restores all six MVN regions, joypad, repeat timer, DP vars, and camera. |
-| `$02F035` | RestorePaletteBuffer | 19 B | Copies 515 bytes of saved palette from `$7E:38B4` back to `$7F:0A00` after scene script may have overwritten it. |
+| Address | Name | Description |
+|---------|------|-------------|
+| `$02ED02` | OpenInventoryScreen | Master inventory orchestrator (JSL entry). Implements the state sandwich: save gameplay, switch to scene `$FF`, run inventory UI loop, restore everything on exit. |
+| `$02EECC` | ReloadAbilityFX | Post-close ability graphics reload. DMAs Dark Friar or Aura FX tiles and palette based on active ability `$00EA`. |
+| `$02EF0B` | DrainActorQueue | Walks actor linked list from `$5A` and zeroes frame counter `$0008` on each actor. |
+| `$02EF1D` | SaveGameState | Snapshots gameplay WRAM, joypad state, camera, and palette buffer before inventory opens. |
+| `$02EFB2` | RestoreGameState | Inverse of SaveGameState: restores all MVN backup regions, joypad, actor count, DP vars, and camera. |
+| `$02F035` | RestorePaletteBuffer | Copies saved palette from `$7E:38B4` back to `$7F:0A00` after scene script may have overwritten it. |
 
 ---
 
@@ -53,22 +72,18 @@ Master inventory orchestrator (JSL entry). Implements the state sandwich: save g
 4. scene_current ← `$FF`; SceneScriptNoMusic
 5. Upload palette, zero camera, ClearVramBufferFull
 6. Run actor init chain (chunk_03BAE1)
-7. Loop UpdateFrame_Dialogue until `$0AE6` flag set
+7. Loop `UpdateFrameDialogue`; copy `bg1ConfigMode` (`$0AE6`) → `BG1SC` each frame until flag byte `#00` is set (`BranchIfFlagByte` / `SetFlagByte #00` from inventory_menu on TabCancel or exit)
 8. RestoreGameState, reload scene, event blocks, palette
 9. ReloadAbilityFX, ClearVramBufferFull, map refresh
-10. DrainActorQueue; exit flag `$FF`
+10. DrainActorQueue; `SetFlagByte #FF` before final render frames
 
-**Source:**
-
-```34:190:../../../extracted/functions/inventory/inventory_overlay.asm
-```
 
 **Variables:**
 | Location | Direction | Role |
 |----------|-----------|------|
 | `$0644` | RW | scene_current |
 | `$065C` | W | joypad_mask_inv |
-| `$0AE6` | RW | Exit/tab flag |
+| `$0AE6` | RW | bg1ConfigMode — BG1 tilemap base per tab (copied to BG1SC each frame) |
 | `$065A` | RW | joypad_mask_std |
 
 **Cross-References:**
@@ -76,7 +91,7 @@ Master inventory orchestrator (JSL entry). Implements the state sandwich: save g
 |--------|--------------|
 | `SaveGameState` | JSR |
 | `RestoreGameState` | JSR |
-| `ShowDialogueFrame` | Via UpdateFrame_Dialogue |
+| `ShowDialogueFrame` | Via UpdateFrameDialogue |
 | `ClearVramBufferFull` | JSL |
 
 ### ReloadAbilityFX
@@ -88,10 +103,6 @@ Post-close ability graphics reload. DMAs Dark Friar or Aura FX tiles and palette
 2. If 1 (Dark Friar): DMA misc_fx_1CC000 → VRAM `$4400`, copy palette
 3. If 2 (Aura): DMA misc_fx_1CC480, alternate palette
 
-**Source:**
-
-```192:218:../../../extracted/functions/inventory/inventory_overlay.asm
-```
 
 **Variables:**
 | Location | Direction | Role |
@@ -110,15 +121,11 @@ Snapshots ~5.5 KB of gameplay WRAM, joypad state, camera, and palette buffer bef
 
 **Algorithm:**
 1. Save joypad `$0656`/`$0658`/`065A` (zero live copies)
-2. Swap repeat timer `$0DBC`↔`$0DBE`
+2. Backup active actor count `$0DBC` → `$0DBE`
 3. Copy DP vars `$4E–$5D`, camera `$06BE–$06C9`
-4. MVN six WRAM regions to scratch (see state map)
+4. MVN seven WRAM regions to backup scratch (see state map)
 5. Copy palette `$7F:0A00` → `$7E:38B4`
 
-**Source:**
-
-```239:299:../../../extracted/functions/inventory/inventory_overlay.asm
-```
 
 **Variables:**
 | Location | Direction | Role |
@@ -135,18 +142,14 @@ Snapshots ~5.5 KB of gameplay WRAM, joypad state, camera, and palette buffer bef
 
 ### RestoreGameState
 
-Inverse of SaveGameState: restores all six MVN regions, joypad, repeat timer, DP vars, and camera.
+Inverse of SaveGameState: restores all MVN backup regions, joypad, actor count, DP vars, and camera.
 
 **Algorithm:**
 1. Restore joypad from `$7E:38AC`/`38AE`/`38B0`
-2. Swap repeat timer back
+2. Restore active actor count from `$0DBE` → `$0DBC`
 3. Restore DP + camera
-4. Inverse MVN for all six regions
+4. Reverse MVN copies from backup scratch to live WRAM (see state map)
 
-**Source:**
-
-```301:355:../../../extracted/functions/inventory/inventory_overlay.asm
-```
 
 **Variables:**
 | Location | Direction | Role |
@@ -169,10 +172,6 @@ Walks actor linked list from `$5A` and zeroes frame counter `$0008` on each acto
 2. Walk `$0006` chain via TCD
 3. STZ `$0008` on each actor until list end
 
-**Source:**
-
-```241:258:../../../extracted/functions/inventory/inventory_overlay.asm
-```
 
 **Variables:**
 | Location | Direction | Role |
@@ -205,18 +204,30 @@ OpenInventoryScreen
   │     Run actor init (chunk_03BAE1 helpers)
   │
   ├─3─ RUN ──────────────────────────────────────────────
-  │     Loop: UpdateFrame_Dialogue until $0AE6 ≠ 0
-  │       (TabCancel sets flag via COP SetFlagByte #00)
+  │     Loop: UpdateFrameDialogue + bg1ConfigMode → BG1SC
+  │       until flag byte #00 ≠ 0
+  │       (inventory_menu TabCancel/exit via SetFlagByte #00)
   │
   ├─4─ RESTORE ──────────────────────────────────────────
   │     RestoreGameState + RestorePaletteBuffer
   │     Pop scene ID → re-run SceneScriptNoMusic
   │     ApplyAllEventBlocks + PlaceBarrierTiles
   │     ReloadAbilityFX, ClearVramBufferFull, map refresh
-  │     DrainActorQueue, exit flag $FF
+  │     DrainActorQueue, SetFlagByte #FF
   │
   └─5─ RETURN ───────────────────────────────────────────
         RTL to gameplay caller
 ```
 
 This ensures the inventory scene can freely reconfigure PPU registers, BG modes, and `$7F:1000+` script space without corrupting overworld state.
+
+---
+
+## See Also
+
+| Document | Relationship |
+|----------|-------------|
+| [inventory-menu.md](inventory-menu.md) | Menu actor wrapped by the overlay loop |
+| [hardware-and-init.md](hardware-and-init.md) | VBlank wait and `system_init` routines used during display sync |
+| [game-systems.md](game-systems.md) | Event blocks reapplied on inventory close |
+| [scene-script.md](scene-script.md) | `SceneScriptNoMusic` used during inventory scene load |

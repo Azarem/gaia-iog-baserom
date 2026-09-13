@@ -1,3 +1,7 @@
+> **Deprecated:** This document is superseded by the [Bank $02 documentation suite](bank02/index.md). See the index for current coverage of all bank $02 systems.
+
+---
+
 # Bank 2 Continuation — Actors, Player Character, Inventory & Utility Functions
 
 > Continuation of bank 02 analysis covering the **unanalyzed** portions:
