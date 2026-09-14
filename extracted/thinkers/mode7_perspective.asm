@@ -45,7 +45,7 @@
 
 ?BANK 03
 
-?INCLUDE 'binary_01C384'
+?INCLUDE 'math_lookup_tables'
 
 !scrollOverrideH                06C6
 !scrollOverrideV                06CA
@@ -152,10 +152,10 @@ Mode7PerspectiveUpdate {
     TAY 
     LDX #$0000
     PEA $&QueueMode7HdmaTables-1 ; Push QueueMode7HdmaTables−1 as RTS-trick return address
-    LDA $&binary_01C384.binary_01C695, Y ; Look up cosine value from binary_01C695 table
+    LDA $&math_lookup_tables.cosine_table_16bit, Y ; Look up cosine value from binary_01C695 table
     BMI loc_03A9F9        ; Negative cosine → quadrant 3 or 4
     STA $18               ; $18 = |cos| (positive cosine)
-    LDA $&binary_01C384.binary_01C595, Y ; Look up sine value from binary_01C595 table
+    LDA $&math_lookup_tables.sine_table_16bit, Y ; Look up sine value from binary_01C595 table
     BMI loc_03A9F0        ; Negative sine → quadrant 2 (+cos, −sin)
     STA $1C               ; $1C = |sin| (positive sine)
     JMP $&Mode7Quadrant_PosCosPosSin ; Quadrant 1: +cos, +sin → Mode7Quadrant_PosCosPosSin
@@ -170,7 +170,7 @@ Mode7PerspectiveUpdate {
     EOR #$FFFF            ; Negate cosine for quadrants 3/4
     INC 
     STA $18
-    LDA $&binary_01C384.binary_01C595, Y ; Re-read sine for negative cosine quadrants
+    LDA $&math_lookup_tables.sine_table_16bit, Y ; Re-read sine for negative cosine quadrants
     BMI loc_03AA09
     STA $1C
     JMP $&Mode7Quadrant_NegCosPosSin ; Quadrant 3: −cos, +sin → Mode7Quadrant_NegCosPosSin

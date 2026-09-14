@@ -1,4 +1,4 @@
-?INCLUDE 'stats_01ABF0'
+?INCLUDE 'enemy_stats_table'
 ?INCLUDE 'table_0EE000'
 
 !characterForm                  0AD4
@@ -18,7 +18,7 @@ ec12_actor_09BF0F [
 
   loc_09BF1C:
     COP [AddPosition] ( #02, #00 )
-    LDA #$&stats_01ABF0+118
+    LDA #$&enemy_stats_table+118
     STA $statsPtr, X
     LDA #$0031
     TSB $12

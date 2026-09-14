@@ -1,8 +1,13 @@
+; Reusable dialog box templates. 22 entries containing screen-effect presets (Dark Space transforms), dialog box size configs, and special prompts. Expanded inline by the $C2 InsertTemplate dialog control code.
+---------------------------------------------
+
 ?BANK 01
 
 ---------------------------------------------
 
-templates_01CA95 [
+; 22 reusable dialog box templates ($00–$15) invoked by the $C2 InsertTemplate control code. Templates $00–$07: screen-effect presets with [SEP] palette shifts and [SFX] sound triggers for Dark Space transformations. Templates $08–$11: dialog box size presets with [DLG] position and [SIZ] line-count configuration. Template $12: 'Where do you go?' world map prompt. Templates $13–$15: silent screen-effect variants. Referenced by DialogStringRenderer.asm InsertTemplate handler.
+
+dialog_template_table [
   &dialogstring_01CAC1   ;00
   &dialogstring_01CACE   ;01
   &dialogstring_01CADB   ;02

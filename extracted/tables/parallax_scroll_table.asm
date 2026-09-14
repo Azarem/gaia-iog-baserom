@@ -1,8 +1,13 @@
+; Per-scene parallax/HDMA scroll layer configurations. 37 entries defining multi-region scroll effects for outdoor and special areas. Many entries are $FFFF terminators (no parallax). Programmed into HDMA channels by the parallax thinker.
+---------------------------------------------
+
 ?BANK 01
 
 ---------------------------------------------
 
-parallax_table [
+; Per-scene parallax scrolling configurations — 37 entries ($00–$24). Each entry defines HDMA table parameters for multi-layer scroll effects. Header bytes specify BG mode, scroll region boundaries, and flags. Per-region entries configure register, scroll_speed_x, scroll_speed_y. Many entries are 2-byte $FFFF terminators (no parallax). Complex entries define multi-region effects for outdoor areas (layered clouds, ocean, underwater). Referenced by parallax_thinker.asm which programs HDMA channels accordingly.
+
+parallax_scroll_table [
   &binary_01CC4A   ;00
   &binary_01CC89   ;01
   &binary_01CD0D   ;02

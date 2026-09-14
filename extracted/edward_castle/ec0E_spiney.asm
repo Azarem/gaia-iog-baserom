@@ -1,4 +1,4 @@
-?INCLUDE 'stats_01ABF0'
+?INCLUDE 'enemy_stats_table'
 
 !statsPtr                       7F0020
 
@@ -8,7 +8,7 @@ ec0E_spiney [
   actor-def < #3C, #10, #00, {
 
   code_0A8AB1:
-    LDA #$&stats_01ABF0+20
+    LDA #$&enemy_stats_table+20
     STA $statsPtr, X
     LDA $0E
     PHA 

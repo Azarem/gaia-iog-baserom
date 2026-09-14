@@ -1,6 +1,11 @@
+; Event-triggered tile copy definitions. 158 entries of 8-byte event-block-def structs specifying rectangular tile regions to copy/modify when event flags change. Used for doors, barriers, and puzzle state visual changes.
+---------------------------------------------
+
 ?BANK 01
 
 ---------------------------------------------
+
+; 158 entries of 8-byte event-block-def structs defining event-triggered tile copy operations. Fields: scene ID, source X/Y tile, width, height, dest X/Y tile, layer flag. Used for doors opening/closing, barriers appearing/disappearing, puzzle state changes. LookupEventBlock validates scene ID before execution; tile rectangles are copied between source and destination coordinates. Indexed by event_index × 8.
 
 event_block_table [
   event-block-def < #02, #07, #08, #02, #02, #07, #0B, #00 >   ;00

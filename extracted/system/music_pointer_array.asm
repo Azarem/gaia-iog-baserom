@@ -1,8 +1,13 @@
+; Scene music → SPC data ROM location mapping. 30 entries of 3-byte long pointers to compressed BGM track data. Used by the SPC transfer system for music loading.
+---------------------------------------------
+
 ?BANK 01
 
 ---------------------------------------------
 
-music_array_01CBA6 [
+; Maps scene music IDs to SPC music data ROM locations. 30 entries of 3-byte long pointers (address_lo, address_hi, bank). Covers all 30 BGM tracks: lively_city, blessing_of_nature, ominous_whispers, royal_anthem, etc. Referenced by hdma_dma_spc.asm — the SPC transfer system uses musicTransitionState × 3 as the index to load music data address and bank for DMA transfer.
+
+music_pointer_array [
   @bgm_lively_city   ;00
   @bgm_lively_city   ;01
   @bgm_blessing_of_nature   ;02

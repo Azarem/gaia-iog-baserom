@@ -1,5 +1,5 @@
-?INCLUDE 'binary_01C384'
 ?INCLUDE 'hardware_math'
+?INCLUDE 'math_lookup_tables'
 
 !orbitAngle                     7F0010
 !orbitDiameter                  7F0012
@@ -12,7 +12,7 @@ ApplyOrbitalOffsetXY {
     TAY 
     SEP #$20
     CLC 
-    LDA $&binary_01C384.binary_01C455, Y
+    LDA $&math_lookup_tables.sine_table_8bit, Y
     BPL loc_00F446
     EOR #$FF
     INC 
@@ -38,7 +38,7 @@ ApplyOrbitalOffsetXY {
     CLC 
     LDA $7F0011, X
     TAY 
-    LDA $&binary_01C384.binary_01C495, Y
+    LDA $&math_lookup_tables.signed_sine_table, Y
     BPL loc_00F474
     EOR #$FF
     INC 

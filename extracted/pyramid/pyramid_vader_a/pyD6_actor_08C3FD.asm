@@ -1,4 +1,4 @@
-?INCLUDE 'stats_01ABF0'
+?INCLUDE 'enemy_stats_table'
 ?INCLUDE 'table_0EE000'
 
 !statsPtr                       7F0020
@@ -24,7 +24,7 @@ pyD6_actor_08C3FD [
     COP [ClearHighAbs] ( #37, #4C )
     COP [ClearHighAbs] ( #38, #4C )
     COP [ClearHighAbs] ( #39, #4C )
-    LDA #$&stats_01ABF0+118
+    LDA #$&enemy_stats_table+118
     STA $statsPtr, X
     COP [SetMetasprite] ( @table_0EE000 )
     COP [StageSpriteFrame] ( #0F )

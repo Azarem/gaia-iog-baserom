@@ -1,8 +1,13 @@
+; Item acquisition dialog messages. Maps item IDs to the dialog strings displayed when the player obtains each item. Covers stat increases, key items, inventory-full messages, and defaults.
+---------------------------------------------
+
 ?BANK 01
 
 ---------------------------------------------
 
-itemget_table_01FD24 [
+; Maps item IDs to acquisition dialog strings ('Will got a Red Jewel!', 'HP increased by 1!', etc.). Includes formulaic stat-increase strings, unique key item messages, shared Mystic Statue strings, inventory-full messages, and 'nothing found' defaults. Referenced by inventory_mgmt.asm and combat_collision.asm.
+
+item_get_dialog_table [
   &dialogstring_01FDA4   ;00
   &dialogstring_01FDA7   ;01
   &dialogstring_01FDBB   ;02
@@ -133,11 +138,11 @@ dialogstring_01FEEE `Mystic Statue `
 
 dialogstring_01FEF8 `Mystic Statue `
 
-dialogstring_01FF02 `[DEF][DLY:1][ADR:&itemget_table_01FD24,DB8][N]Your inventory's full![END]`
+dialogstring_01FF02 `[DEF][DLY:1][ADR:&item_get_dialog_table,DB8][N]Your inventory's full![END]`
 
-dialogstring_01FF1F `[DEF][DLY:5][SFX:0][ADR:&itemget_table_01FD24,DB8][PAU:FF][CLD]`
+dialogstring_01FF1F `[DEF][DLY:5][SFX:0][ADR:&item_get_dialog_table,DB8][PAU:FF][CLD]`
 
-dialogstring_01FF2D `[DEF][DLY:1][ADR:&itemget_table_01FD24,DB8][END]`
+dialogstring_01FF2D `[DEF][DLY:1][ADR:&item_get_dialog_table,DB8][END]`
 
 dialogstring_01FF36 `[DEF][DLY:1][SFX:0]It is empty![END]`
 

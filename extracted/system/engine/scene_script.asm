@@ -78,11 +78,11 @@
 ?BANK 02
 
 ?INCLUDE 'cop_handlers_script'
+?INCLUDE 'display_preset_table'
 ?INCLUDE 'hardware_math'
 ?INCLUDE 'QuintetLzDecompress'
 ?INCLUDE 'spc_transfer'
 ?INCLUDE 'system_init'
-?INCLUDE 'table_018000'
 ?INCLUDE 'vblank_joypad'
 
 !sceneCurrent                   0644
@@ -1134,25 +1134,25 @@ SceneCmd_ConfigDisplay {
     AND #$00FF
     ASL                   ; Double index for word-sized table_018000 pointer entries
     TAX 
-    LDA $@table_018000, X ; Read pointer from table_018000, convert to local offset
+    LDA $@display_preset_table, X ; Read pointer from table_018000, convert to local offset
     SEC 
-    SBC #$&table_018000
+    SBC #$&display_preset_table
     TAX 
     SEP #$20
-    LDA $@table_018000, X ; Apply entry bytes 0-1: TM (main screen layers) + TMW (window mask)
+    LDA $@display_preset_table, X ; Apply entry bytes 0-1: TM (main screen layers) + TMW (window mask)
     STA $TM
     STA $TMW
-    LDA $@table_018000+1, X ; Apply bytes 2-3: TS (sub screen) + TSW (window mask)
+    LDA $@display_preset_table+1, X ; Apply bytes 2-3: TS (sub screen) + TSW (window mask)
     STA $TS
     STA $TSW
-    LDA $@table_018000+2, X ; Apply byte 4: CGWSEL (color math window selection)
+    LDA $@display_preset_table+2, X ; Apply byte 4: CGWSEL (color math window selection)
     STA $CGWSEL
-    LDA $@table_018000+3, X ; Apply byte 5: CGADSUB (color add/subtract config)
+    LDA $@display_preset_table+3, X ; Apply byte 5: CGADSUB (color add/subtract config)
     STA $CGADSUB
-    LDA $@table_018000+4, X ; Apply byte 6: extract bits 4-5 for $06F1 (layer priority tracking)
+    LDA $@display_preset_table+4, X ; Apply byte 6: extract bits 4-5 for $06F1 (layer priority tracking)
     AND #$30
     STA $06F1
-    LDA $@table_018000+4, X ; Parse bitfield via ROR cascade: bit 0 → BG tilemap $06A2 (layer 0 size flag)
+    LDA $@display_preset_table+4, X ; Parse bitfield via ROR cascade: bit 0 → BG tilemap $06A2 (layer 0 size flag)
     STZ $06A3
     STZ $06A5
     LDY #$2000
@@ -1199,7 +1199,7 @@ SceneCmd_ConfigDisplay {
   loc_028AFA:
     STA $06A8
     SEP #$20
-    LDA $@table_018000+5, X ; Apply byte 7: layerPriorityFlag (BG layer ordering and tilemap base config)
+    LDA $@display_preset_table+5, X ; Apply byte 7: layerPriorityFlag (BG layer ordering and tilemap base config)
     STA $layerPriorityFlag
     BMI loc_028B22        ; Bit 7 of layerPriorityFlag: swap BG1SC/BG2SC base addresses
     LDA $layerPriorityFlag
@@ -1231,9 +1231,9 @@ SceneCmd_ConfigDisplay {
     STA $BG2SC
 
   loc_028B3A:
-    LDA $@table_018000+6, X ; Apply byte 8: BGMODE register (background mode 0-7 + tile size bits)
+    LDA $@display_preset_table+6, X ; Apply byte 8: BGMODE register (background mode 0-7 + tile size bits)
     STA $BGMODE
-    LDA $@table_018000+7, X ; Apply byte 9: scroll mode + sprite priority flags
+    LDA $@display_preset_table+7, X ; Apply byte 9: scroll mode + sprite priority flags
     PHA 
     AND #$1F              ; Extract low 5 bits as scrollModeFlags
     STA $scrollModeFlags
@@ -1250,8 +1250,8 @@ SceneCmd_ConfigDisplay {
     TSB $09ED
 
   loc_028B5F:
-    LDA $@table_018000+8, X
-    LDA $@table_018000+9, X
+    LDA $@display_preset_table+8, X
+    LDA $@display_preset_table+9, X
     PLY 
     RTS 
 }

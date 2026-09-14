@@ -38,12 +38,12 @@
 ?BANK 03
 
 ?INCLUDE 'actor_execution'
-?INCLUDE 'binary_01C384'
 ?INCLUDE 'camera_tilemap'
 ?INCLUDE 'DisplaySceneTitle'
 ?INCLUDE 'DmaWordToVram'
 ?INCLUDE 'event_blocks'
 ?INCLUDE 'hdma_dma_spc'
+?INCLUDE 'math_lookup_tables'
 ?INCLUDE 'scene_script'
 ?INCLUDE 'sprite_composition'
 ?INCLUDE 'system_core'
@@ -541,7 +541,7 @@ ComputeSineScrollTable {
     CLC 
 
   loc_03DC4C:
-    LDA $&binary_01C384.binary_01C455, Y ; Load signed sine sample from lookup table
+    LDA $&math_lookup_tables.sine_table_8bit, Y ; Load signed sine sample from lookup table
     BPL loc_03DC52
     SEC                   ; Negative sine → set carry for sign-extend path
 

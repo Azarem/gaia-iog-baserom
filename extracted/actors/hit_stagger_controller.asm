@@ -1,6 +1,6 @@
+?INCLUDE 'movement_delta_table'
 ?INCLUDE 'player_character'
 ?INCLUDE 'StandardEnemyDefeatHandler'
-?INCLUDE 'table_01B086'
 
 !joypadMaskStd                  065A
 !playerActor                    09AA
@@ -301,7 +301,7 @@ code_00DA47 {
 }
 
 code_00DA66 {
-    LDA $&table_01B086, Y
+    LDA $&movement_delta_table, Y
     BCS loc_00DA73
     STA $2C
     LDA #$0001

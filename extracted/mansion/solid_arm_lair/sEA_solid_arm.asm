@@ -1,5 +1,5 @@
+?INCLUDE 'enemy_stats_table'
 ?INCLUDE 'smooth_follow'
-?INCLUDE 'stats_01ABF0'
 
 !gfxCacheIdxA                   0648
 !gfxCacheIdxB                   064A
@@ -146,13 +146,13 @@ code_08F852 {
     COP [PlaySoundCh1] ( #02 )
     LDA #$0010
     TSB $10
-    LDA #$&stats_01ABF0+180
+    LDA #$&enemy_stats_table+180
     STA $statsPtr, X
     COP [StageSpriteFrame] ( #09 )
     COP [AnimOnce]
     COP [StageSpriteFrame] ( #0A )
     COP [AnimOnce]
-    LDA #$&stats_01ABF0+17C
+    LDA #$&enemy_stats_table+17C
     STA $statsPtr, X
     LDA #$0010
     TRB $10
@@ -163,13 +163,13 @@ code_08F87A {
     COP [PlaySoundCh1] ( #02 )
     LDA #$0010
     TSB $10
-    LDA #$&stats_01ABF0+180
+    LDA #$&enemy_stats_table+180
     STA $statsPtr, X
     COP [StageSpriteFrame] ( #0B )
     COP [AnimOnce]
     COP [StageSpriteFrame] ( #0C )
     COP [AnimOnce]
-    LDA #$&stats_01ABF0+17C
+    LDA #$&enemy_stats_table+17C
     STA $statsPtr, X
     LDA #$0010
     TRB $10

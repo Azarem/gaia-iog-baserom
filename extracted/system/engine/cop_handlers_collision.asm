@@ -1,15 +1,15 @@
 ?BANK 00
 
 ?INCLUDE 'ApplyOrbitalOffsetFromRef'
-?INCLUDE 'binary_01C384'
-?INCLUDE 'binary_01D8BE'
 ?INCLUDE 'cop_handlers_actors'
 ?INCLUDE 'cop_handlers_script'
 ?INCLUDE 'func_0AA3A7'
 ?INCLUDE 'GetPlayerFacingDirection'
 ?INCLUDE 'hardware_math'
 ?INCLUDE 'hdma_dma_spc'
+?INCLUDE 'hdma_ramp_tables'
 ?INCLUDE 'map_coords'
+?INCLUDE 'math_lookup_tables'
 ?INCLUDE 'QuintetLzDecompress'
 ?INCLUDE 'sprite_composition'
 ?INCLUDE 'tile_collision_physics'
@@ -164,7 +164,7 @@ QueueHdmaChannel {
     XBA 
     PHA 
     TAX 
-    LDA $&binary_01D8BE, X
+    LDA $&hdma_ramp_tables.hdma_channel_config, X
     LDX $0000
     ORA #$40
     STA $DMAP0, X
@@ -3024,7 +3024,7 @@ BuildSineHdmaTable {
 
   loc_00AE4D:
     SEP #$20
-    LDA $@binary_01C384.binary_01C455, X
+    LDA $@math_lookup_tables.sine_table_8bit, X
     STA $L_WRMPYB
     BPL loc_00AE8F
     NOP 
@@ -3116,7 +3116,7 @@ BuildSineLookupTable {
     TXY 
 
   loc_00AEE7:
-    LDA $&binary_01C384.binary_01C455, Y
+    LDA $&math_lookup_tables.sine_table_8bit, Y
     STA $WRMPYB
     BPL loc_00AF1C
     NOP 

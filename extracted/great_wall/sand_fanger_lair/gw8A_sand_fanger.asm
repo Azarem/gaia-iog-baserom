@@ -1,14 +1,14 @@
 ?INCLUDE 'ApplyOrbitalOffsetXY'
-?INCLUDE 'binary_01C384'
 ?INCLUDE 'cop_handlers_script'
+?INCLUDE 'enemy_stats_table'
 ?INCLUDE 'EnemyDeathFlash'
 ?INCLUDE 'func_0AA36E'
 ?INCLUDE 'func_0AA43F'
 ?INCLUDE 'hardware_math'
+?INCLUDE 'math_lookup_tables'
 ?INCLUDE 'player_transition_handlers'
 ?INCLUDE 'sE6_gaia'
 ?INCLUDE 'smooth_follow_child'
-?INCLUDE 'stats_01ABF0'
 ?INCLUDE 'table_0EE000'
 
 !gfxCacheIdxA                   0648
@@ -1183,9 +1183,9 @@ code_0B88DB {
     COP [StageSprAndHitbox] ( #10 )
     COP [CallScript] ( &code_0B89D7 )
     COP [PlaySoundCh1] ( #1D )
-    LDA #$&stats_01ABF0+DC
+    LDA #$&enemy_stats_table+DC
     STA $statsPtr, X
-    LDA $@stats_01ABF0+DC
+    LDA $@enemy_stats_table+DC
     AND #$00FF
     STA $currentHp, X
     COP [PlaySoundCh1] ( #28 )
@@ -1582,7 +1582,7 @@ sub_0B9CE8 {
     TAY 
     SEP #$20
     CLC 
-    LDA $&binary_01C384.binary_01C455, Y
+    LDA $&math_lookup_tables.sine_table_8bit, Y
     BPL loc_0B9CF9
     EOR #$FF
     INC 

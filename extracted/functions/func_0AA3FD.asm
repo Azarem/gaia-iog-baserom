@@ -1,4 +1,4 @@
-?INCLUDE 'stats_01ABF0'
+?INCLUDE 'enemy_stats_table'
 
 !statsPtr                       7F0020
 !currentHp                      7F0026
@@ -12,7 +12,7 @@ func_0AA3FD {
     LDA $extendedFlags, X
     ORA #$0080
     STA $extendedFlags, X
-    LDA #$&stats_01ABF0
+    LDA #$&enemy_stats_table
     STA $statsPtr, X
     LDA #$0001
     STA $currentHp, X

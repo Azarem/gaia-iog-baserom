@@ -1,6 +1,6 @@
+?INCLUDE 'enemy_stats_table'
 ?INCLUDE 'EnemyDeathFlash'
 ?INCLUDE 'func_0AA41C'
-?INCLUDE 'stats_01ABF0'
 
 !playerXPos                     09A2
 !playerYPos                     09A4
@@ -18,7 +18,7 @@ awB0_zombie [
   code_0BB278:
     LDA #$0020
     TSB $12
-    LDA $&stats_01ABF0+120
+    LDA $&enemy_stats_table+120
     AND #$00FF
     STA $orbitAngle, X
     BRA loc_0BB2A8
@@ -384,9 +384,9 @@ code_0BB558 {
 }
 
 code_0BB5C4 {
-    LDA #$&stats_01ABF0+11C
+    LDA #$&enemy_stats_table+11C
     STA $statsPtr, X
-    LDA $&stats_01ABF0+11C
+    LDA $&enemy_stats_table+11C
     AND #$00FF
     STA $currentHp, X
     LDA #$0020
@@ -535,7 +535,7 @@ code_0BB6DC {
     LDA $orbitAngle, X
     PLX 
     STA $currentHp, X
-    LDA #$&stats_01ABF0+120
+    LDA #$&enemy_stats_table+120
     STA $statsPtr, X
     LDA #$FFD8
     STA $7F100E, X
@@ -596,7 +596,7 @@ code_0BB74F {
     LDA $orbitAngle, X
     PLX 
     STA $currentHp, X
-    LDA #$&stats_01ABF0+120
+    LDA #$&enemy_stats_table+120
     STA $statsPtr, X
     LDA #$0000
     STA $7F100C, X

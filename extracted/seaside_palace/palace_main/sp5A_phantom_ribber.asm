@@ -1,4 +1,4 @@
-?INCLUDE 'stats_01ABF0'
+?INCLUDE 'enemy_stats_table'
 ?INCLUDE 'ToggleActorVisibilityFlag'
 
 !statsPtr                       7F0020
@@ -13,7 +13,7 @@ sp5A_phantom_ribber [
     COP [BranchIfFlagByte] ( #70, #01, &code_068A14 )
     LDA #$00FF
     STA $currentHp, X
-    LDA #$&stats_01ABF0+44
+    LDA #$&enemy_stats_table+44
     STA $statsPtr, X
     LDA #$0020
     TSB $12

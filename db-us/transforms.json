@@ -230,7 +230,7 @@
     { "key": "\\| Will \\|", "value": "| Will|"},
     { "key": "(?<=consolestring_01EADC \\|[^|]*) (?=[^|]*\\|)", "value": "█"}
   ],
-  "itemcomp_table_01EB0F": [
+  "item_component_table": [
     { "key": "█", "value": " "}
   ]
 }

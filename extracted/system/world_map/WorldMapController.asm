@@ -41,8 +41,8 @@
 ?INCLUDE 'cop_handlers_actors'
 ?INCLUDE 'cop_handlers_script'
 ?INCLUDE 'HdmaWindowEffect'
+?INCLUDE 'movement_delta_table'
 ?INCLUDE 'pr_actor_0BCF52'
-?INCLUDE 'table_01B086'
 ?INCLUDE 'world_map_names'
 ?INCLUDE 'world_map_options'
 ?INCLUDE 'world_map_routes'
@@ -438,21 +438,21 @@ RouteAnimationEngine {
   loc_03A558:
     ASL                   ; Step type × 2 → index into table_01B086 for X delta source
     TAY 
-    LDA $&table_01B086, Y
+    LDA $&movement_delta_table, Y
     STA $18
     LDA [$2C]             ; Read Y movement table index (byte 2)
     AND #$00FF
     INC $2C
     ASL 
     TAY 
-    LDA $&table_01B086, Y ; Look up Y delta source pointer from table_01B086
+    LDA $&movement_delta_table, Y ; Look up Y delta source pointer from table_01B086
     STA $1A
     LDA [$2C]             ; Read Z movement table index (byte 3)
     AND #$00FF
     INC $2C
     ASL 
     TAY 
-    LDA $&table_01B086, Y ; Look up Z delta source pointer from table_01B086
+    LDA $&movement_delta_table, Y ; Look up Z delta source pointer from table_01B086
     STA $1C
     LDA [$2C]             ; Read frame count (byte 4) → $24
     AND #$00FF

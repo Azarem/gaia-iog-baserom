@@ -51,7 +51,7 @@
 
 ?BANK 03
 
-?INCLUDE 'itemcomp_table_01EB0F'
+?INCLUDE 'item_component_table'
 
 !sceneStateHelper               099F
 !enemyHpDisplay                 09E4
@@ -154,12 +154,12 @@ AsciiCmd_InsertItemName {
     ASL 
     PHA 
     SEP #$20
-    LDA #$^itemcomp_table_01EB0F
+    LDA #$^item_component_table
     PHA 
     PLB 
     REP #$20
     PLY 
-    LDA $&itemcomp_table_01EB0F, Y ; Look up item name string from itemcomp_table_01EB0F
+    LDA $&item_component_table, Y ; Look up item name string from itemcomp_table_01EB0F
     TAY 
     JSL $@ConsoleStringRenderer ; Recursively render item name string via JSL
     TXA 

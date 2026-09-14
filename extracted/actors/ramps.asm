@@ -1,6 +1,6 @@
 ?BANK 00
 
-?INCLUDE 'binary_01D8BE'
+?INCLUDE 'hdma_ramp_tables'
 ?INCLUDE 'stair_climb'
 
 !joypadMaskStd                  065A
@@ -443,12 +443,12 @@ func_00D5C0 {
     CLC 
     ADC $statsPtr, X
     TAX 
-    LDA $@binary_01D8BE.array_01D90B+2, X
+    LDA $@hdma_ramp_tables.ramp_motion_curves+2, X
     AND #$00FF
     TAY 
-    LDA $@binary_01D8BE.array_01D90B, X
+    LDA $@hdma_ramp_tables.ramp_motion_curves, X
     SEC 
-    SBC #$&binary_01D8BE.array_01D90B
+    SBC #$&hdma_ramp_tables.ramp_motion_curves
     PLX 
     STA $orbitAngle, X
     TYA 
@@ -464,7 +464,7 @@ func_00D5C0 {
     ADC $2A
     INC $2A
     TAX 
-    LDA $@binary_01D8BE.array_01D90B, X
+    LDA $@hdma_ramp_tables.ramp_motion_curves, X
     AND #$00FF
     BIT #$0080
     BEQ loc_00D60B

@@ -49,11 +49,11 @@
 
 ?INCLUDE 'body_table'
 ?INCLUDE 'cop_handlers_actors'
-?INCLUDE 'dir_sprite_01ABDE'
+?INCLUDE 'direction_velocity_table'
+?INCLUDE 'enemy_stats_table'
 ?INCLUDE 'event_blocks'
 ?INCLUDE 'scene_actors'
 ?INCLUDE 'sprite_composition'
-?INCLUDE 'stats_01ABF0'
 ?INCLUDE 'tile_collision_physics'
 
 !sceneCurrent                   0644
@@ -1016,7 +1016,7 @@ InitActorFromSceneData {
     ASL                   ; Stats address: index × 4 + stats_01ABF0 base → statsPtr
     ASL 
     CLC 
-    ADC #$&stats_01ABF0
+    ADC #$&enemy_stats_table
     STA $statsPtr, X
     TAY 
     LDA $0000, Y          ; First byte of stats entry → currentHp
@@ -1052,7 +1052,7 @@ InitActorFromSceneData {
     AND #$00FF
     ASL 
     TAY 
-    LDA $&dir_sprite_01ABDE, Y
+    LDA $&direction_velocity_table, Y
     AND #$00FF
     STA $28
     LDA $characterForm    ; Body table index = characterForm × 6

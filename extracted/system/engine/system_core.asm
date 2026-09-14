@@ -15,13 +15,13 @@
 ?BANK 00
 
 ?INCLUDE 'actor_execution'
-?INCLUDE 'binary_01C384'
 ?INCLUDE 'camera_tilemap'
 ?INCLUDE 'combat_collision'
 ?INCLUDE 'cop_dispatch'
 ?INCLUDE 'event_blocks'
 ?INCLUDE 'GlobalInputHandler'
 ?INCLUDE 'hdma_dma_spc'
+?INCLUDE 'math_lookup_tables'
 ?INCLUDE 'scene_lifecycle'
 ?INCLUDE 'spc_transfer'
 ?INCLUDE 'sprite_composition'
@@ -188,10 +188,10 @@ SystemInit {
     STA $playerStr
     LDA #$0000
     STA $playerDef
-    LDA #$&binary_01C384  ; Default slope acceleration curve pointer
+    LDA #$&math_lookup_tables.scene_flag_table ; Default slope acceleration curve pointer
     STA $slopeCurvePtrA
     STA $slopeCurvePtrB
-    LDA #$&binary_01C384+20 ; Default slope deceleration curve pointer (+$14 offset)
+    LDA #$&math_lookup_tables.scene_flag_table+20 ; Default slope deceleration curve pointer (+$14 offset)
     STA $09C0
     STA $09BE
     STA $09C4

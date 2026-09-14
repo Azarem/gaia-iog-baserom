@@ -58,7 +58,7 @@ func_0BC896 {
     COP [CopyPalette] ( @pal_ending_comet, #00, #00, #08 )
     LDA #$0000
     STA $cgramPalette
-    COP [RunBg3Script] ( @system_strings.consolestring_01D9D8 )
+    COP [RunBg3Script] ( @system_strings.boot_screen_strings )
     SEP #$20
     LDA #$04
     STA $TM

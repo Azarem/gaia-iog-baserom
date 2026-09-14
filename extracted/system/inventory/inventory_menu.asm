@@ -1020,7 +1020,7 @@ CheckItemDiscardable {
     AND #$07
     TAX 
     LDA $@BitMaskTable, X ; AND bit against non-discardable item bitfield
-    AND $&system_strings.binary_01E12A, Y
+    AND $&system_strings.item_table_separator, Y
     SEC                   ; Carry set = protected/quest item (not discardable)
     BNE loc_02EA31
     CLC 

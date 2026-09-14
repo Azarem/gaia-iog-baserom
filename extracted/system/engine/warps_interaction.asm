@@ -76,14 +76,14 @@
 ?INCLUDE 'GetPlayerFacingDirection'
 ?INCLUDE 'hdma_dma_spc'
 ?INCLUDE 'inventory_mgmt'
-?INCLUDE 'itemget_table_01FD24'
+?INCLUDE 'item_get_dialog_table'
 ?INCLUDE 'map_coords'
 ?INCLUDE 'player_transition_handlers'
+?INCLUDE 'scene_barrier_chest_table'
 ?INCLUDE 'scene_lifecycle'
 ?INCLUDE 'scene_warps'
 ?INCLUDE 'ShowDialogueFrame'
 ?INCLUDE 'system_core'
-?INCLUDE 'table_01ADA8'
 
 !sceneNext                      0642
 !sceneCurrent                   0644
@@ -155,7 +155,7 @@ PlaceBarrierTiles {
     PHP 
     REP #$20
     LDY $0646             ; Scene index $0646 → table_01ADA8 pointer for barrier/chest entries
-    LDX $&table_01ADA8, Y ; Load 4-byte entry base for current scene barrier list
+    LDX $&scene_barrier_chest_table, Y ; Load 4-byte entry base for current scene barrier list
 
   loc_02A5F9:
     LDA $0000, X          ; Entry byte 0 bit 7 ($0080) = end-of-table sentinel
@@ -307,7 +307,7 @@ HandleChestInteraction {
 
   loc_02A6E4:
     LDY $0646             ; Walk scene chest table — compare entry X/Y to computed origin
-    LDX $&table_01ADA8, Y
+    LDX $&scene_barrier_chest_table, Y
 
   loc_02A6EA:
     LDA $0000, X          ; Negative entry byte 0 = table end → default empty-chest dialogue
@@ -327,7 +327,7 @@ HandleChestInteraction {
 
   loc_02A700:
     REP #$20
-    LDY #$&itemget_table_01FD24.dialogstring_01FF48 ; No table match — ShowDialogueFrame dialogstring_01FF48
+    LDY #$&item_get_dialog_table.dialogstring_01FF48 ; No table match — ShowDialogueFrame dialogstring_01FF48
     JSL $@ShowDialogueFrame
     RTS 
 
@@ -355,7 +355,7 @@ HandleChestInteraction {
     BRA loc_02A7B0
 
   loc_02A73D:
-    LDY #$&itemget_table_01FD24.dialogstring_01FF36 ; Flag-only chest — ShowDialogueFrame dialogstring_01FF36
+    LDY #$&item_get_dialog_table.dialogstring_01FF36 ; Flag-only chest — ShowDialogueFrame dialogstring_01FF36
     JSL $@ShowDialogueFrame
     LDA $01, S
     TAX 
@@ -378,7 +378,7 @@ HandleChestInteraction {
     STA $sfxQueueCh2
     REP #$20
     PLX 
-    LDY #$&itemget_table_01FD24.dialogstring_01FF2D ; ShowDialogueFrame dialogstring_01FF2D — item acquired message
+    LDY #$&item_get_dialog_table.dialogstring_01FF2D ; ShowDialogueFrame dialogstring_01FF2D — item acquired message
     JSL $@ShowDialogueFrame
     BRA loc_02A7A1
 

@@ -1,4 +1,4 @@
-?INCLUDE 'stats_01ABF0'
+?INCLUDE 'enemy_stats_table'
 ?INCLUDE 'table_0EE000'
 
 !statsPtr                       7F0020
@@ -27,7 +27,7 @@ pyD6_actor_08C2DA [
     LDY #$1060
     LDA #$FE00
     STA $0026, Y
-    LDA #$&stats_01ABF0+118
+    LDA #$&enemy_stats_table+118
     STA $statsPtr, X
     COP [SetMetasprite] ( @table_0EE000 )
     COP [StageSpriteFrame] ( #0F )

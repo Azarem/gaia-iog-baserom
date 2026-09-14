@@ -7,10 +7,10 @@
 ?INCLUDE 'event_blocks'
 ?INCLUDE 'GetPlayerFacingDirection'
 ?INCLUDE 'hdma_dma_spc'
+?INCLUDE 'movement_delta_table'
 ?INCLUDE 'music_actors'
 ?INCLUDE 'sprite_composition'
 ?INCLUDE 'system_core'
-?INCLUDE 'table_01B086'
 
 !sceneCurrent                   0644
 !joypadCurrent                  0656
@@ -2428,7 +2428,7 @@ SetActorBody {
 AnimFrameLookup {
     ASL 
     TAY 
-    LDA $&table_01B086, Y
+    LDA $&movement_delta_table, Y
     RTS 
 }
 

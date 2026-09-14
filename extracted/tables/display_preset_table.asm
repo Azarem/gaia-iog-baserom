@@ -1,8 +1,13 @@
+; Scene display/graphics mode presets. 47 entries of 10-byte display-preset structs configuring PPU register values (BG mode, tilemap bases, screen designation, color math, scroll config). Selected by scene metadata during scene loading.
+---------------------------------------------
+
 ?BANK 01
 
 ---------------------------------------------
 
-table_018000 [
+; Index table of 47 display preset configurations ($00–$2E). Each 10-byte display-preset struct defines PPU register values for a scene's graphics mode: BG mode/tile size, tilemap bases, screen designation, color math/window masks, scroll config, and special flags. The scene loader selects a preset index from scene metadata and configures all PPU registers accordingly. Every playable area in the game references one of these presets.
+
+display_preset_table [
   &display_preset_01805E   ;00
   &display_preset_018068   ;01
   &display_preset_018072   ;02

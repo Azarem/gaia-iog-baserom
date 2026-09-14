@@ -1,5 +1,5 @@
+?INCLUDE 'enemy_stats_table'
 ?INCLUDE 'SpawnDebrisBurst'
-?INCLUDE 'stats_01ABF0'
 ?INCLUDE 'table_0EE000'
 
 !joypadMaskStd                  065A
@@ -21,7 +21,7 @@ dm40_trapped_slave [
     COP [SetMetasprite] ( @table_0EE000 )
     COP [StageSpriteFrame] ( #00 )
     COP [AnimOnce]
-    LDA #$&stats_01ABF0+118
+    LDA #$&enemy_stats_table+118
     STA $statsPtr, X
     LDA #$0031
     TSB $12

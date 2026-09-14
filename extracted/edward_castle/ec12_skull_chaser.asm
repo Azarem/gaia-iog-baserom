@@ -1,4 +1,4 @@
-?INCLUDE 'stats_01ABF0'
+?INCLUDE 'enemy_stats_table'
 ?INCLUDE 'table_0EE000'
 
 !orbitAngle                     7F0010
@@ -129,9 +129,9 @@ code_0A8563 {
     COP [SetSpritePalette] ( #00 )
     COP [SetSpritePriority] ( #30 )
     COP [SetDeathCallback] ( $000000 )
-    LDA #$&stats_01ABF0+44
+    LDA #$&enemy_stats_table+44
     STA $statsPtr, X
-    LDA $@stats_01ABF0+44
+    LDA $@enemy_stats_table+44
     AND #$00FF
     STA $currentHp, X
     LDA #$0340

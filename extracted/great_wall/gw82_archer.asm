@@ -1,8 +1,8 @@
 ?INCLUDE 'ApplyPlayerHitstun'
+?INCLUDE 'enemy_stats_table'
 ?INCLUDE 'GetPlayerFacingDirection'
 ?INCLUDE 'interaction_handlers'
 ?INCLUDE 'player_transition_handlers'
-?INCLUDE 'stats_01ABF0'
 
 !extVelocityX                   0408
 !joypadMaskStd                  065A
@@ -150,9 +150,9 @@ code_0B8FDD {
     TSB $10
     LDA #$0020
     TRB $12
-    LDA #$&stats_01ABF0+CC
+    LDA #$&enemy_stats_table+CC
     STA $statsPtr, X
-    LDA $&stats_01ABF0+CC
+    LDA $&enemy_stats_table+CC
     AND #$00FF
     STA $currentHp, X
     JMP $&code_0B8F15

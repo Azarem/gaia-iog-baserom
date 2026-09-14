@@ -1,12 +1,12 @@
 ?BANK 0C
 
+?INCLUDE 'enemy_stats_table'
 ?INCLUDE 'func_0AA36E'
 ?INCLUDE 'oneshot_palette_flash_18'
 ?INCLUDE 'oneshot_palette_flash_19'
 ?INCLUDE 'player_character'
 ?INCLUDE 'sE8_thinker_0CEB74'
 ?INCLUDE 'smooth_follow'
-?INCLUDE 'stats_01ABF0'
 ?INCLUDE 'table_0EE000'
 
 !gfxCacheIdxB                   064A
@@ -163,9 +163,9 @@ code_0CEF88 {
     STA $0000, Y
     COP [SpawnThinker] ( @oneshot_palette_flash_18.code_00B7CE )
     COP [WaitByte] ( #77 )
-    LDA #$&stats_01ABF0+154
+    LDA #$&enemy_stats_table+154
     STA $statsPtr, X
-    LDA $&stats_01ABF0+154
+    LDA $&enemy_stats_table+154
     AND #$00FF
     STA $currentHp, X
     LDA #$0301
@@ -432,9 +432,9 @@ code_0CF249 {
 }
 
 code_0CF266 {
-    LDA #$&stats_01ABF0+160
+    LDA #$&enemy_stats_table+160
     STA $statsPtr, X
-    LDA $&stats_01ABF0+160
+    LDA $&enemy_stats_table+160
     AND #$00FF
     STA $currentHp, X
     LDA #$0080
@@ -544,9 +544,9 @@ code_0CF353 {
     TSB $12
     LDA #$0100
     TRB $10
-    LDA #$&stats_01ABF0+158
+    LDA #$&enemy_stats_table+158
     STA $statsPtr, X
-    LDA $&stats_01ABF0+158
+    LDA $&enemy_stats_table+158
     AND #$00FF
     STA $currentHp, X
     COP [StageSpriteFrame] ( #0B )
@@ -644,9 +644,9 @@ code_0CF429 {
     COP [AnimLoop]
     COP [StageSpriteFrame] ( #12 )
     COP [AnimOnce]
-    LDA #$&stats_01ABF0+15C
+    LDA #$&enemy_stats_table+15C
     STA $statsPtr, X
-    LDA $&stats_01ABF0+15C
+    LDA $&enemy_stats_table+15C
     AND #$00FF
     STA $currentHp, X
     COP [PlaySoundCh1] ( #1D )

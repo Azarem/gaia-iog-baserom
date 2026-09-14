@@ -1,15 +1,22 @@
+; All game UI text organized into 10 sub-tables: boot screen strings, item names, item menu text, item descriptions, ability menu/names/descriptions, character names, and miscellaneous UI strings. The core text data for menus, inventory, and status screens.
+---------------------------------------------
+
 ?BANK 01
 
 ---------------------------------------------
 
-consolestring_01D9D8 |[NHM:4][CUR:18,2]WARNING![DBL][DBL][NHM:0][CUR:0,3] This game pak is not designed[DBL] for your SUPER FAMICOM or[DBL] Super NES.[DBL][DBL][CUR:DC,4]ENIX CORPORATION|
+; 3 fixed ConsoleString entries displayed at boot: region lockout warning ('This game pak is not designed for your SUPER FAMICOM...'), 'PUSH START BUTTON', and copyright notice ('© 1994 QUINTET/ENIX, MARIKO OHARA/MOTO HAGIO, YASUHIRO KAWASAKI, LICENSED TO NINTENDO').
+
+boot_screen_strings |[NHM:4][CUR:18,2]WARNING![DBL][DBL][NHM:0][CUR:0,3] This game pak is not designed[DBL] for your SUPER FAMICOM or[DBL] Super NES.[DBL][DBL][CUR:DC,4]ENIX CORPORATION|
 
 consolestring_01DA47 |[NHM:4][CUR:D0,4]PUSH START BUTTON|
 
 consolestring_01DA5E |[NHM:0][CUR:C8,5](C) 1994  QUINTET⸓ENIX[CUR:8,6]MARIKO OHARA⸓MOTO HAGIO[CUR:4E,6]YASUHIRO KAWASAKI[CUR:8C,6]LICENSED TO NINTENDO|
 ---------------------------------------------
 
-itemname_table_01DABF [
+; Pointer table of 64 item display names used in inventory screens and item acquisition dialogs. Entries include: Red Jewel, Herb, Incan Statue A/B, Crystal Ball, Wind Melody, Lola's Melody, Mine Key A/B, Memory Melody, Elevator Key, Palace Key, Purify Stone, Rama Statue, Magic Dust, Black Glasses, Gorgon Flower, Hieroglyphs, Aura, Crystal Ring, etc. Blank entries ($2A–$38) are unused slots. Entries $39–$3F are 'Mystic Statue' variants.
+
+item_name_table [
   &consolestring_01DB3F   ;00
   &consolestring_01DB40   ;01
   &consolestring_01DB4B   ;02
@@ -205,7 +212,9 @@ consolestring_01DE0A |Mystic [LU:C]|
 consolestring_01DE14 |Mystic [LU:C]|
 ---------------------------------------------
 
-itemmenu_table_01DE1E [
+; Pointer table of 64 item menu descriptions — longer text shown when hovering over items in the inventory menu. Each entry provides a one-line functional description of the item's purpose.
+
+item_menu_table [
   &consolestring_01DE9E   ;00
   &consolestring_01DE9F   ;01
   &consolestring_01DEAA   ;02
@@ -401,10 +410,14 @@ consolestring_01E11C |[LU:5]Doll|
 consolestring_01E123 |[LU:5]Doll|
 ---------------------------------------------
 
-binary_01E12A #BCFFFFFEDF000000
+; 8-byte binary separator between the item menu table and item description table. Padding/alignment data.
+
+item_table_separator #BCFFFFFEDF000000
 ---------------------------------------------
 
-itemdesc_table_01E132 [
+; Pointer table of detailed item help text strings displayed on the item selection screen. Provides multi-line descriptions of each item's function and lore.
+
+item_description_table [
   &consolestring_01E184   ;00
   &consolestring_01E18C   ;01
   &consolestring_01E1A6   ;02
@@ -531,7 +544,9 @@ consolestring_01E5BC |[DBL]Ring hidden[DBL]in Flute.|
 consolestring_01E5D3 |[DBL]Apple from[DBL]Euro Market.|
 ---------------------------------------------
 
-abilmenu_table_01E5EC [
+; Pointer table of ability menu display entries for the ability tab in the inventory screen.
+
+ability_menu_table [
   &consolestring_01DB3F   ;00
   &consolestring_01E604   ;01
   &consolestring_01E60B   ;02
@@ -569,7 +584,9 @@ consolestring_01E64B |DARKCOREK|
 consolestring_01E655 |BLACK4K|
 ---------------------------------------------
 
-abilname_table_01E65D [
+; Pointer table of ability short names: Psycho Dash, Psycho Slider, Spin Dash (Will); Dark Friar, Aura Barrier, Earthquaker (Freedan).
+
+ability_name_table [
   &consolestring_01DB3F   ;00
   &consolestring_01E675   ;01
   &consolestring_01E67F   ;02
@@ -607,7 +624,9 @@ consolestring_01E6CA |DARKCOREK|
 consolestring_01E6D4 |BLACK4K|
 ---------------------------------------------
 
-abildesc_table_01E6DC [
+; Pointer table of ability description text providing detailed explanations of each ability's effect and usage.
+
+ability_description_table [
   &consolestring_01E184   ;00
   &consolestring_01E6F6   ;01
   &consolestring_01E718   ;02
@@ -648,7 +667,9 @@ consolestring_01E7C8 |[LU:2]1 |
 consolestring_01E7CD ||
 ---------------------------------------------
 
-charname_table_01E7CE [
+; Pointer table of character display names: Will, Kara, Lance, Erik, Seth, and other story characters. Used in dialog and status screens.
+
+character_name_table [
   &consolestring_01E7D6   ;00
   &consolestring_01E7DD   ;01
   &consolestring_01E7E6   ;02
@@ -681,7 +702,7 @@ consolestring_01E85C |[CUR:9E,1][ESC:0][CUR:DE,1][ESC:0]|
 
 consolestring_01E869 |[CUR:0,0][RCC:1F,4]|
 
-consolestring_01E870 |[CUR:46,1][NHM:14]STYLE[NHM:0][PTR:@system_strings.charname_table_01E7CE,AD4][NHM:14][CUR:C6,1]HP[CUR:6,2]DP[CUR:46,2]STR[CUR:86,2]DEF[CUR:CE,1][NHM:0][NUM:ACE]⸓[NUM:ACA][CUR:E,2][NUM:AD6][CUR:4E,2][NUM:ADE][CUR:8E,2][NUM:ADC][CUR:14,2][NUM:AD8][NHM:14][CUR:14,2]S[NHM:0][CUR:6,3]Items[CUR:8C,3][PTR:@system_strings.itemname_table_01DABF,AC6][CUR:64,1][LU:2]Power|
+consolestring_01E870 |[CUR:46,1][NHM:14]STYLE[NHM:0][PTR:@system_strings.character_name_table,AD4][NHM:14][CUR:C6,1]HP[CUR:6,2]DP[CUR:46,2]STR[CUR:86,2]DEF[CUR:CE,1][NHM:0][NUM:ACE]⸓[NUM:ACA][CUR:E,2][NUM:AD6][CUR:4E,2][NUM:ADE][CUR:8E,2][NUM:ADC][CUR:14,2][NUM:AD8][NHM:14][CUR:14,2]S[NHM:0][CUR:6,3]Items[CUR:8C,3][PTR:@system_strings.item_name_table,AC6][CUR:64,1][LU:2]Power|
 
 consolestring_01E8E2 |[CUR:4,1][RCC:1C,B]|
 
@@ -691,10 +712,12 @@ consolestring_01E90B |[CUR:44,5][RCC:1C,7]|
 
 consolestring_01E912 |[CUR:56,5][RCC:13,7]|
 
-consolestring_01E919 |[NHM:0][CUR:96,5]Equipped.[DBL]Equipment[DBL][NHM:14][PTR:@system_strings.table_01E94C,B26][NHM:0] button to use.|
+consolestring_01E919 |[NHM:0][CUR:96,5]Equipped.[DBL]Equipment[DBL][NHM:14][PTR:@system_strings.misc_ui_strings,B26][NHM:0] button to use.|
 ---------------------------------------------
 
-table_01E94C [
+; Pointer table of miscellaneous UI strings: status labels, menu headers, save/load prompts, game over text, and other system messages.
+
+misc_ui_strings [
   &consolestring_01E950   ;00
   &consolestring_01E952   ;01
 ]
@@ -715,9 +738,9 @@ consolestring_01E9A6 |[NHM:0][CUR:96,5][LU:B]2nd item.|
 
 consolestring_01E9B7 |[NHM:0][CUR:96,5]Discard which[DBL]item?|
 
-consolestring_01E9D0 |[NHM:0][CUR:96,5][PTR:@system_strings.itemmenu_table_01DE1E,AE8][PTR:@system_strings.itemdesc_table_01E132,AE8]|
+consolestring_01E9D0 |[NHM:0][CUR:96,5][PTR:@system_strings.item_menu_table,AE8][PTR:@system_strings.item_description_table,AE8]|
 
-consolestring_01E9E2 |[NHM:0][CUR:96,5][PTR:@system_strings.itemmenu_table_01DE1E,AE8][DBL]Discard?[DBL]  No[DBL]  Yes|
+consolestring_01E9E2 |[NHM:0][CUR:96,5][PTR:@system_strings.item_menu_table,AE8][DBL]Discard?[DBL]  No[DBL]  Yes|
 
 consolestring_01EA02 |[NHM:0][CUR:84,5]Gather[DBL]Items|
 
@@ -727,15 +750,15 @@ consolestring_01EA27 |[NHM:0][CUR:84,5]Discard[DBL]Item|
 
 consolestring_01EA39 |[NHM:0][CUR:84,5]Dark[DBL]Power|
 
-consolestring_01EA49 |[NHM:0][CUR:28,2]:[PTR:@system_strings.abilname_table_01E65D,AE8]|
+consolestring_01EA49 |[NHM:0][CUR:28,2]:[PTR:@system_strings.ability_name_table,AE8]|
 
-consolestring_01EA56 |[NHM:0][CUR:E8,2]:[PTR:@system_strings.abilname_table_01E65D,AE8]|
+consolestring_01EA56 |[NHM:0][CUR:E8,2]:[PTR:@system_strings.ability_name_table,AE8]|
 
-consolestring_01EA63 |[NHM:0][CUR:A8,3]:[PTR:@system_strings.abilname_table_01E65D,AE8]|
+consolestring_01EA63 |[NHM:0][CUR:A8,3]:[PTR:@system_strings.ability_name_table,AE8]|
 
-consolestring_01EA70 |[NHM:0][CUR:96,5][PTR:@system_strings.charname_table_01E7CE,AD4]'s cond. [DBL]Use Attack Button [DBL]for explanation of[DBL][LU:2]Power.|
+consolestring_01EA70 |[NHM:0][CUR:96,5][PTR:@system_strings.character_name_table,AD4]'s cond. [DBL]Use Attack Button [DBL]for explanation of[DBL][LU:2]Power.|
 
-consolestring_01EAB4 |[NHM:0][CUR:96,5][PTR:@system_strings.abilmenu_table_01E5EC,AE8][PTR:@system_strings.abildesc_table_01E6DC,AE8]|
+consolestring_01EAB4 |[NHM:0][CUR:96,5][PTR:@system_strings.ability_menu_table,AE8][PTR:@system_strings.ability_description_table,AE8]|
 
 consolestring_01EAC6 |[CUR:1A,3][NHM:14]PAUSE|
 

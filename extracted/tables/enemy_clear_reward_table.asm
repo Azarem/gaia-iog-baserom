@@ -1,6 +1,11 @@
+; Per-scene enemy clear reward tier mapping (256 bytes, one per scene). Values 0–3 determine stat boost tier when all enemies in a Dark Space room are defeated.
+---------------------------------------------
+
 ?BANK 01
 
 ---------------------------------------------
+
+; Maps each scene ID ($00–$FF) to its enemy-clear reward tier: $00 = no reward, $01–$03 = reward tiers (minor/medium/major stat boosts or items). When all enemies in a Dark Space room are defeated, this table determines what reward the player receives. Central to IOG's stat progression. Referenced by StandardEnemyDefeatHandler (on last enemy kill), field_reveal_object (reveals reward), and radar_map_screen (draws chest icons for rewarded scenes).
 
 enemy_clear_reward_table [
   #00   ;00

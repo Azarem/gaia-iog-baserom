@@ -1,9 +1,9 @@
 ?INCLUDE 'cop_handlers_actors'
 ?INCLUDE 'cop_handlers_script'
+?INCLUDE 'enemy_stats_table'
 ?INCLUDE 'func_0AA36E'
 ?INCLUDE 'sE6_gaia'
 ?INCLUDE 'StandardEnemyDefeatHandler'
-?INCLUDE 'stats_01ABF0'
 ?INCLUDE 'table_0EE000'
 
 !sceneCurrent                   0644
@@ -454,12 +454,12 @@ code_0AF551 {
     LDA $sceneCurrent
     CMP #$0067
     BNE loc_0AF562
-    LDA #$&stats_01ABF0+C4
+    LDA #$&enemy_stats_table+C4
     STA $statsPtr, X
     BRA loc_0AF569
 
   loc_0AF562:
-    LDA #$&stats_01ABF0+1A4
+    LDA #$&enemy_stats_table+1A4
     STA $statsPtr, X
 
   loc_0AF569:

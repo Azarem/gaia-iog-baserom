@@ -1,4 +1,4 @@
-?INCLUDE 'stats_01ABF0'
+?INCLUDE 'enemy_stats_table'
 
 !statsPtr                       7F0020
 
@@ -8,7 +8,7 @@ mu64_switch_spikes [
   actor-def < #2A, #01, #03, {
 
   code_069D22:
-    LDA #$&stats_01ABF0
+    LDA #$&enemy_stats_table
     STA $statsPtr, X
 
   loc_069D29:

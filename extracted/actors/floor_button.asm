@@ -1,5 +1,5 @@
 ?INCLUDE 'cop_handlers_script'
-?INCLUDE 'stats_01ABF0'
+?INCLUDE 'enemy_stats_table'
 ?INCLUDE 'table_0EE000'
 
 !statsPtr                       7F0020
@@ -15,7 +15,7 @@ floor_button [
     STA $24
     LDA #$2000
     STA $0E
-    LDA #$&stats_01ABF0+118
+    LDA #$&enemy_stats_table+118
     STA $statsPtr, X
     COP [SetMetasprite] ( @table_0EE000 )
     COP [StageSpriteFrame] ( #0F )

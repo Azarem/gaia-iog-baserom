@@ -31,8 +31,8 @@
 
 ?INCLUDE 'cop_handlers_script'
 ?INCLUDE 'enemy_clear_reward_table'
+?INCLUDE 'scene_barrier_chest_table'
 ?INCLUDE 'system_strings'
-?INCLUDE 'table_01ADA8'
 ?INCLUDE 'vblank_joypad'
 ?INCLUDE 'vram_buffer_clear'
 
@@ -272,39 +272,39 @@ RadarPlotSceneMarkers {
     PHX 
     STZ $0002             ; Initialize BCD marker counter to zero
     LDX $0646             ; Load current scene's marker table pointer from $0646
-    LDA $@table_01ADA8, X
+    LDA $@scene_barrier_chest_table, X
     SEC 
-    SBC #$&table_01ADA8   ; Convert scene table pointer to byte index into table_01ADA8
+    SBC #$&scene_barrier_chest_table ; Convert scene table pointer to byte index into table_01ADA8
     TAX 
     SEP #$20              ; 8-bit mode for byte-level table entry access
 
   loc_03828E:
-    LDA $@table_01ADA8, X
+    LDA $@scene_barrier_chest_table, X
     BMI loc_03830A        ; Bit 7 set = end-of-table sentinel
-    LDA $@table_01ADA8+3, X
+    LDA $@scene_barrier_chest_table+3, X
     REP #$20
     AND #$007F            ; Mask to 7-bit event flag ID
     JSL $@cop_handlers_script.TestEventFlag_0200
     SEP #$20
     BCS loc_038304        ; Event flag set = visited marker, skip plotting
-    LDA $@table_01ADA8, X
+    LDA $@scene_barrier_chest_table, X
     CMP $0018
     BMI loc_0382F9
     CMP $001A
     BCS loc_0382F9
-    LDA $@table_01ADA8+1, X
+    LDA $@scene_barrier_chest_table+1, X
     CMP $001C
     BMI loc_0382F9
     CMP $001E
     BCS loc_0382F9
-    LDA $@table_01ADA8, X
+    LDA $@scene_barrier_chest_table, X
     SEC 
     SBC $0018
     LSR 
     AND #$FE              ; Word-align X offset for 2-byte VRAM tilemap entries
     STA $0000
     STZ $0001
-    LDA $@table_01ADA8+1, X
+    LDA $@scene_barrier_chest_table+1, X
     SEC 
     SBC $001C
     REP #$20

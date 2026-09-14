@@ -1,9 +1,9 @@
 ?INCLUDE 'ApplyOrbitalOffsetFromRef'
-?INCLUDE 'binary_01C384'
+?INCLUDE 'enemy_stats_table'
 ?INCLUDE 'func_0AA36E'
 ?INCLUDE 'func_0AA41C'
 ?INCLUDE 'hardware_math'
-?INCLUDE 'stats_01ABF0'
+?INCLUDE 'math_lookup_tables'
 ?INCLUDE 'table_0EE000'
 
 !gfxCacheIdxB                   064A
@@ -221,9 +221,9 @@ code_09ABF5 {
 
 code_09AC55 {
     COP [SetDeathCallback] ( @code_09B1D5 )
-    LDA #$&stats_01ABF0+15C
+    LDA #$&enemy_stats_table+15C
     STA $statsPtr, X
-    LDA $&stats_01ABF0+15C
+    LDA $&enemy_stats_table+15C
     AND #$00FF
     STA $currentHp, X
     COP [SetSpritePriority] ( #30 )
@@ -333,9 +333,9 @@ code_09AD3F {
     COP [AnimOnce]
     LDA #$0210
     TRB $10
-    LDA #$&stats_01ABF0+158
+    LDA #$&enemy_stats_table+158
     STA $statsPtr, X
-    LDA $&stats_01ABF0+158
+    LDA $&enemy_stats_table+158
     AND #$00FF
     STA $currentHp, X
 
@@ -1940,9 +1940,9 @@ code_09BA14 {
     LDA $extendedFlags, X
     ORA #$0080
     STA $extendedFlags, X
-    LDA #$&stats_01ABF0+154
+    LDA #$&enemy_stats_table+154
     STA $statsPtr, X
-    LDA $&stats_01ABF0+154
+    LDA $&enemy_stats_table+154
     AND #$00FF
     STA $currentHp, X
     STZ $26
@@ -1966,7 +1966,7 @@ code_09BA59 {
     TAY 
     SEP #$20
     CLC 
-    LDA $&binary_01C384.binary_01C455, Y
+    LDA $&math_lookup_tables.sine_table_8bit, Y
     BPL loc_09BA6A
     EOR #$FF
     INC 

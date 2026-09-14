@@ -21,7 +21,7 @@
 ; Likely superseded by mode7_perspective during development due to the missing divisor normalization and simpler per-scanline table format.
 ---------------------------------------------
 
-?INCLUDE 'binary_01C384'
+?INCLUDE 'math_lookup_tables'
 
 !WRDIVL                         4204
 !WRDIVB                         4206
@@ -89,10 +89,10 @@ Mode7PerspectiveAlt {
     TAY 
     LDX #$01C0            ; Start from X=$01C0 — fill data regions from high to low (reverse of active version)
     PEA $&QueueMode7HdmaAlt-1 ; Push QueueMode7HdmaAlt−1 as RTS-trick return
-    LDA $&binary_01C384.binary_01C695, Y ; Cosine lookup from binary_01C695 table
+    LDA $&math_lookup_tables.cosine_table_16bit, Y ; Cosine lookup from binary_01C695 table
     BMI loc_03AC1F
     STA $18
-    LDA $&binary_01C384.binary_01C595, Y ; Sine lookup from binary_01C595 table
+    LDA $&math_lookup_tables.sine_table_16bit, Y ; Sine lookup from binary_01C595 table
     BMI loc_03AC16
     STA $1C
     JMP $&Mode7AltQ1_PosCosPosSin ; Quadrant 1: +cos, +sin
@@ -107,7 +107,7 @@ Mode7PerspectiveAlt {
     EOR #$FFFF
     INC 
     STA $18
-    LDA $&binary_01C384.binary_01C595, Y
+    LDA $&math_lookup_tables.sine_table_16bit, Y
     BMI loc_03AC2F
     STA $1C
     JMP $&Mode7AltQ3_NegCosPosSin ; Quadrant 3: −cos, +sin

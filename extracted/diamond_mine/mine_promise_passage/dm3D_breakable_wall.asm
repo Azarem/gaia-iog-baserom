@@ -1,5 +1,5 @@
+?INCLUDE 'enemy_stats_table'
 ?INCLUDE 'SpawnDebrisBurst'
-?INCLUDE 'stats_01ABF0'
 ?INCLUDE 'table_0EE000'
 
 !playerFlags                    09AE
@@ -17,7 +17,7 @@ dm3D_breakable_wall [
     COP [SetMetasprite] ( @table_0EE000 )
     COP [StageSpriteFrame] ( #00 )
     COP [AnimOnce]
-    LDA #$&stats_01ABF0
+    LDA #$&enemy_stats_table
     STA $statsPtr, X
     LDA #$0031
     TSB $12

@@ -1,5 +1,5 @@
-?INCLUDE 'binary_01C384'
 ?INCLUDE 'hardware_math'
+?INCLUDE 'math_lookup_tables'
 
 !orbitAngle                     7F0010
 !orbitDiameter                  7F0012
@@ -201,7 +201,7 @@ sub2_0B9CE8 {
     TAY 
     SEP #$20
     CLC 
-    LDA $&binary_01C384.binary_01C455, Y
+    LDA $&math_lookup_tables.sine_table_8bit, Y
     BPL loc2_0B9CF9
     EOR #$FF
     INC 

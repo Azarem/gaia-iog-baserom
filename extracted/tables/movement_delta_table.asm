@@ -1,8 +1,13 @@
+; Pre-computed movement delta curves. 85 pointers to delta-node linked lists encoding velocity curves (acceleration ramps, arcs, linear motion). Used by world map travel, forced walk, hit stagger, and camera systems. Largest table in bank 1 (~5 KB).
+---------------------------------------------
+
 ?BANK 01
 
 ---------------------------------------------
 
-table_01B086 [
+; Largest table in bank 1 (~5 KB). Contains 85 pointers ($00–$54) to pre-computed movement delta sequences as delta-node linked lists. Each delta-node: { Word value, &delta-node next }. Value = signed 16-bit per-frame movement delta. Self-referencing next = hold constant. Simple entries ($00–$11) are single constants; complex entries ($12+) trace velocity curves (acceleration ramps, arcs, deceleration). Used by WorldMapController (travel animation), forced_walk/hit_stagger (knockback), and camera scrolling.
+
+movement_delta_table [
   &delta_node_01B130   ;00
   &delta_node_01B134   ;01
   &delta_node_01B138   ;02

@@ -1,8 +1,7 @@
 ?BANK 02
 
+?INCLUDE 'dialog_dictionaries'
 ?INCLUDE 'DialogStringRenderer'
-?INCLUDE 'dictionary_01EBA8'
-?INCLUDE 'dictionary_01F54D'
 
 !sceneCurrent                   0644
 
@@ -132,7 +131,7 @@ CountTitleGlyphs {
     INY                   ; DictionaryA: read 1-byte word index from stream
     PHB 
     PHY 
-    LDA #$^dictionary_01EBA8 ; Switch DBR to dictionary bank for pointer table access
+    LDA #$^dialog_dictionaries.dialog_dictionary_a ; Switch DBR to dictionary bank for pointer table access
     PHA 
     PLB 
     REP #$20
@@ -140,14 +139,14 @@ CountTitleGlyphs {
     AND #$00FF
     ASL 
     CLC 
-    ADC #$&dictionary_01EBA8 ; Add dictionary_01EBA8 base → word pointer address
+    ADC #$&dialog_dictionaries.dialog_dictionary_a ; Add dictionary_01EBA8 base → word pointer address
     BRA loc_02A1D1        ; Jump to shared dictionary word counting loop
 
   loc_02A1BE:
     INY                   ; DictionaryB: same lookup pattern using dictionary_01F54D
     PHB 
     PHY 
-    LDA #$^dictionary_01F54D
+    LDA #$^dialog_dictionaries.dialog_dictionary_b
     PHA 
     PLB 
     REP #$20
@@ -155,7 +154,7 @@ CountTitleGlyphs {
     AND #$00FF
     ASL 
     CLC 
-    ADC #$&dictionary_01F54D
+    ADC #$&dialog_dictionaries.dialog_dictionary_b
 
   loc_02A1D1:
     TAY                   ; Resolve word pointer → Y = start of expanded word characters

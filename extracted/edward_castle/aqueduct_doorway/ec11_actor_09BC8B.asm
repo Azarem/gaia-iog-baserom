@@ -1,4 +1,4 @@
-?INCLUDE 'stats_01ABF0'
+?INCLUDE 'enemy_stats_table'
 ?INCLUDE 'table_0EE000'
 
 !statsPtr                       7F0020
@@ -10,7 +10,7 @@ ec11_actor_09BC8B [
   actor-def < #0F, #01, #01, {
 
   code_09BC8E:
-    LDA #$&stats_01ABF0+118
+    LDA #$&enemy_stats_table+118
     STA $statsPtr, X
     LDA #$0031
     TSB $12

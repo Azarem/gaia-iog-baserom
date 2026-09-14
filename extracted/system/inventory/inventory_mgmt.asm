@@ -25,7 +25,7 @@
 
 ?BANK 03
 
-?INCLUDE 'itemget_table_01FD24'
+?INCLUDE 'item_get_dialog_table'
 ?INCLUDE 'SpawnHitSparkSprites'
 
 !displayModeFlags               09EC
@@ -195,7 +195,7 @@ GiveItem_StoreInSlot {
     STA $inventorySlots, Y
     STA $0DB8             ; Copy item ID to $0DB8 for dialogue display
     STZ $0DB9
-    LDY #$&itemget_table_01FD24.dialogstring_01FF1F ; Y → itemget success dialogue string (dialogstring_01FF1F)
+    LDY #$&item_get_dialog_table.dialogstring_01FF1F ; Y → itemget success dialogue string (dialogstring_01FF1F)
 }
 
 ---------------------------------------------
@@ -214,7 +214,7 @@ GiveItem_InventoryFull {
     PLA                   ; GiveItem_InventoryFull — pop item ID to $0DB8 for display
     STA $0DB8
     STZ $0DB9
-    LDY #$&itemget_table_01FD24.dialogstring_01FF02 ; Y → inventory full dialogue string (dialogstring_01FF02)
+    LDY #$&item_get_dialog_table.dialogstring_01FF02 ; Y → inventory full dialogue string (dialogstring_01FF02)
     PLP 
     SEC                   ; SEC, RTL — carry set signals inventory full to caller
     RTL 

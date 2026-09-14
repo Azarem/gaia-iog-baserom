@@ -1,6 +1,6 @@
+?INCLUDE 'enemy_stats_table'
 ?INCLUDE 'interaction_handlers'
 ?INCLUDE 'StandardEnemyDefeatHandler'
-?INCLUDE 'stats_01ABF0'
 
 !playerFlags                    09AE
 !statsPtr                       7F0020
@@ -12,7 +12,7 @@ sg51_statue [
   actor-def < #3D, #00, #01, {
 
   code_05F8C3:
-    LDA #$&stats_01ABF0
+    LDA #$&enemy_stats_table
     STA $statsPtr, X
     LDA #$0031
     TSB $12

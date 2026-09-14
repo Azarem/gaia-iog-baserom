@@ -1,6 +1,6 @@
+?INCLUDE 'enemy_stats_table'
 ?INCLUDE 'interaction_handlers'
 ?INCLUDE 'StandardEnemyDefeatHandler'
-?INCLUDE 'stats_01ABF0'
 
 !playerFlags                    09AE
 !statsPtr                       7F0020
@@ -13,7 +13,7 @@ ir20_statue [
 
   code_0A88E1:
     COP [BranchIfFlagByte] ( #B9, #01, &code_0A892F )
-    LDA #$&stats_01ABF0
+    LDA #$&enemy_stats_table
     STA $statsPtr, X
     LDA #$1111
     STA $20

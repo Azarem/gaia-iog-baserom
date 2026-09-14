@@ -1,4 +1,4 @@
-?INCLUDE 'binary_01C384'
+?INCLUDE 'math_lookup_tables'
 
 !chatPtr                        7F000A
 !orbitAngle                     7F0010
@@ -111,7 +111,7 @@ code_0A995D {
     SEP #$20
     LDA #$00
     XBA 
-    LDA $&binary_01C384.binary_01C455, X
+    LDA $&math_lookup_tables.sine_table_8bit, X
     BPL loc_0A9985
     XBA 
     DEC 
@@ -131,7 +131,7 @@ code_0A995D {
     SEP #$20
     LDA #$00
     XBA 
-    LDA $&binary_01C384.binary_01C495, X
+    LDA $&math_lookup_tables.signed_sine_table, X
     BPL loc_0A99A0
     XBA 
     DEC 

@@ -1,11 +1,11 @@
 ?INCLUDE 'ApplyOrbitalOffsetFromRef'
 ?INCLUDE 'camera_drift'
 ?INCLUDE 'cop_handlers_script'
+?INCLUDE 'enemy_stats_table'
 ?INCLUDE 'func_0AA36E'
 ?INCLUDE 'player_transition_handlers'
 ?INCLUDE 'sE6_gaia'
 ?INCLUDE 'StandardEnemyDefeatHandler'
-?INCLUDE 'stats_01ABF0'
 ?INCLUDE 'table_0EE000'
 
 !rngModuloResult                0420
@@ -94,9 +94,9 @@ code_0A9A76 {
     COP [SetSpritePriority] ( #30 )
 
   loc_0A9A84:
-    LDA #$&stats_01ABF0+190
+    LDA #$&enemy_stats_table+190
     STA $statsPtr, X
-    LDA $@stats_01ABF0+190
+    LDA $@enemy_stats_table+190
     AND #$00FF
     STA $currentHp, X
     STA $orbitAngle, X
@@ -926,9 +926,9 @@ code_0AA177 {
     COP [SetSpritePriority] ( #20 )
 
   loc_0AA185:
-    LDA #$&stats_01ABF0+190
+    LDA #$&enemy_stats_table+190
     STA $statsPtr, X
-    LDA $@stats_01ABF0+190
+    LDA $@enemy_stats_table+190
     AND #$00FF
     STA $currentHp, X
     STA $orbitAngle, X

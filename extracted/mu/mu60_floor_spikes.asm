@@ -1,4 +1,4 @@
-?INCLUDE 'stats_01ABF0'
+?INCLUDE 'enemy_stats_table'
 
 !statsPtr                       7F0020
 
@@ -9,7 +9,7 @@ mu60_floor_spikes [
 
   code_069CEC:
     COP [BranchIfSolid] ( &code_069D1D )
-    LDA #$&stats_01ABF0
+    LDA #$&enemy_stats_table
     STA $statsPtr, X
 
   loc_069CF7:

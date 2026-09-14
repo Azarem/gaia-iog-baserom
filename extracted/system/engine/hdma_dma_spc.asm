@@ -25,8 +25,8 @@
 
 ?BANK 03
 
-?INCLUDE 'binary_01D8BE'
-?INCLUDE 'music_array_01CBA6'
+?INCLUDE 'hdma_ramp_tables'
+?INCLUDE 'music_pointer_array'
 ?INCLUDE 'palette_bundles'
 ?INCLUDE 'spc_transfer'
 ?INCLUDE 'vblank_joypad'
@@ -308,7 +308,7 @@ SetupHdmaChannel_Indirect {
     XBA 
     PHA 
     TAX 
-    LDA $&binary_01D8BE, X ; Look up DMA transfer mode from binary_01D8BE register table
+    LDA $&hdma_ramp_tables.hdma_channel_config, X ; Look up DMA transfer mode from binary_01D8BE register table
     LDX $006A
     ORA #$40              ; Set indirect mode flag ($40) in DMAP register
     STA $DMAP0, X
@@ -337,7 +337,7 @@ SetupHdmaChannel_Direct {
     XBA 
     PHA 
     TAX 
-    LDA $&binary_01D8BE, X
+    LDA $&hdma_ramp_tables.hdma_channel_config, X
     LDX $006A
     STA $DMAP0, X         ; Direct mode: write transfer mode without indirect flag
 
@@ -463,10 +463,10 @@ LoadMusicFromTransitionState {
     CLC 
     ADC $musicTransitionState
     TAX 
-    LDA $@music_array_01CBA6-3, X ; Load music data address + bank from music_array table
+    LDA $@music_pointer_array-3, X ; Load music data address + bank from music_array table
     STA $46
     STA $0687
-    LDA $@music_array_01CBA6-2, X
+    LDA $@music_pointer_array-2, X
     STA $47
     STA $0688
     JSL $@vblank_joypad.EnableNmiAndJoypad

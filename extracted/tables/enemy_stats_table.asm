@@ -1,8 +1,13 @@
+; Master enemy stat table. 110 entries of 4-byte HP/ATK/DEF/Type structs indexed by enemy type ID. Core data for the combat damage system.
+---------------------------------------------
+
 ?BANK 01
 
 ---------------------------------------------
 
-stats_01ABF0 [
+; Master enemy stat table — 110 entries of 4-byte enemy-stats structs indexed by enemy type ID. Fields: HP (0=$00 non-combat, $7F/$FF = boss-tier), ATK (attack power), DEF ($7F = immune to normal damage), Type (0–3, affects damage calculations). Boss actors often reference specific offsets directly. The combat system reads these values for all damage calculations.
+
+enemy_stats_table [
   enemy-stats < #00, #00, #00, #00 >   ;00
   enemy-stats < #06, #02, #00, #02 >   ;01
   enemy-stats < #05, #01, #00, #01 >   ;02

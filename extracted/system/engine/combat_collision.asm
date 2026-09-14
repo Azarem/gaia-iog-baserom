@@ -78,7 +78,7 @@
 ?INCLUDE 'GetPlayerFacingDirection'
 ?INCLUDE 'hit_stagger_controller'
 ?INCLUDE 'inventory_mgmt'
-?INCLUDE 'itemget_table_01FD24'
+?INCLUDE 'item_get_dialog_table'
 ?INCLUDE 'NullActorScriptStub'
 ?INCLUDE 'player_transition_handlers'
 ?INCLUDE 'ShowDialogueFrame'
@@ -1535,7 +1535,7 @@ InteractionDamage_NPCChat {
     BCC loc_03C4F7
     AND #$00FF
     STA $0DB8
-    LDY #$&itemget_table_01FD24.dialogstring_01FF02
+    LDY #$&item_get_dialog_table.dialogstring_01FF02
     JSL $@ShowDialogueFrame
     SEC 
     RTS 

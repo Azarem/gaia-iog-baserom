@@ -1,0 +1,4 @@
+%bsnes-hd widescreen config for Illusion of Gaia
+%Place this file next to the ROM with the same base name (e.g. IOG.bso + IOG.smc)
+%384x224 (16:9 at 1:1 pixel ratio): 64 extra pixels per side
+w1s1W64S2b1B1c0o1l1

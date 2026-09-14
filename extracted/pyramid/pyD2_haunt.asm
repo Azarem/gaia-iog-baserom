@@ -1,5 +1,5 @@
+?INCLUDE 'enemy_stats_table'
 ?INCLUDE 'StandardEnemyDefeatHandler'
-?INCLUDE 'stats_01ABF0'
 
 !playerXPos                     09A2
 !playerYPos                     09A4
@@ -200,9 +200,9 @@ code_0BC2C2 {
 
 code_0BC2E4 {
     COP [OrActorFlags] ( #$0090 )
-    LDA #$&stats_01ABF0+134
+    LDA #$&enemy_stats_table+134
     STA $statsPtr, X
-    LDA $&stats_01ABF0+134
+    LDA $&enemy_stats_table+134
     AND #$00FF
     STA $currentHp, X
     LDA $14

@@ -63,10 +63,9 @@
 
 ?BANK 03
 
-?INCLUDE 'dictionary_01EBA8'
-?INCLUDE 'dictionary_01F54D'
+?INCLUDE 'dialog_dictionaries'
+?INCLUDE 'dialog_template_table'
 ?INCLUDE 'system_core'
-?INCLUDE 'templates_01CA95'
 
 !sceneCurrent                   0644
 !worldReadyFlag                 0654
@@ -242,11 +241,11 @@ WideCmd_InsertTemplate {
     ASL 
     TAY 
     SEP #$20
-    LDA #$^templates_01CA95 ; Switch DBR to template bank for absolute reads
+    LDA #$^dialog_template_table ; Switch DBR to template bank for absolute reads
     PHA 
     PLB 
     REP #$20
-    LDA $&templates_01CA95, Y
+    LDA $&dialog_template_table, Y
     TAY 
     STX $0998
     JSL $@DialogStringRenderer ; Recursive JSL DialogStringRenderer to render template string
@@ -944,11 +943,11 @@ WideCmd_DictionaryA {
     ASL 
     TAY 
     SEP #$20
-    LDA #$^dictionary_01EBA8 ; Switch DBR to dictionary bank, read string pointer, JSL recursive render
+    LDA #$^dialog_dictionaries.dialog_dictionary_a ; Switch DBR to dictionary bank, read string pointer, JSL recursive render
     PHA 
     PLB 
     REP #$20
-    LDA $&dictionary_01EBA8, Y
+    LDA $&dialog_dictionaries.dialog_dictionary_a, Y
     TAY 
     STX $0998
     JSL $@DialogStringRenderer
@@ -974,11 +973,11 @@ WideCmd_DictionaryB {
     ASL 
     TAY 
     SEP #$20
-    LDA #$^dictionary_01F54D
+    LDA #$^dialog_dictionaries.dialog_dictionary_b
     PHA 
     PLB 
     REP #$20
-    LDA $&dictionary_01F54D, Y
+    LDA $&dialog_dictionaries.dialog_dictionary_b, Y
     TAY 
     STX $0998
     JSL $@DialogStringRenderer

@@ -12,7 +12,7 @@
 
 ?BANK 02
 
-?INCLUDE 'binary_01C384'
+?INCLUDE 'math_lookup_tables'
 ?INCLUDE 'scene_meta'
 
 !OAMADDL                        2102
@@ -189,9 +189,9 @@ DmaFixedByteFill {
     STA $DMAP0
     LDA #$80              ; B-bus $80 = WRAM data port ($2180)
     STA $BBAD0
-    LDA #$^binary_01C384.binary_01C455 ; Source: known zero byte in ROM (binary_01C384)
+    LDA #$^math_lookup_tables.sine_table_8bit ; Source: known zero byte in ROM (binary_01C384)
     STA $A1B0
-    LDX #$&binary_01C384.binary_01C455
+    LDX #$&math_lookup_tables.sine_table_8bit
     STX $A1T0L
     LDA #$01
     STA $MDMAEN

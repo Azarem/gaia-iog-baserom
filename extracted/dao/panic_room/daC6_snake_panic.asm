@@ -1,4 +1,4 @@
-?INCLUDE 'stats_01ABF0'
+?INCLUDE 'enemy_stats_table'
 
 !playerFlags                    09AE
 !jewelsCollected                0AB0
@@ -151,7 +151,7 @@ dialogstring_08B052 `[TPL:A][DLY:2]Wow [BCD:3,AAC] snakes. Very[N]good![FIN]For 
 dialogstring_08B0B3 `[TPL:A]You've hit [BCD:3,AAC] snakes.[N]Try again![END]`
 
 code_08B0D4 {
-    LDA #$&stats_01ABF0
+    LDA #$&enemy_stats_table
     STA $statsPtr, X
     LDA #$0031
     TSB $12

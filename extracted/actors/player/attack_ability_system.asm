@@ -53,11 +53,10 @@
 
 ?BANK 02
 
+?INCLUDE 'ability_anim_tables'
 ?INCLUDE 'ApplyOrbitalOffsetFromRef'
 ?INCLUDE 'cop_handlers_actors'
 ?INCLUDE 'player_character'
-?INCLUDE 'table_01D9A7'
-?INCLUDE 'table_01D9BF'
 ?INCLUDE 'table_0EE000'
 ?INCLUDE 'table_178000'
 ?INCLUDE 'table_179000'
@@ -1600,11 +1599,11 @@ LoadAbilityAnimTableA {
     PHX                   ; Index into table_01D9A7 by A (doubled for word entries) — Will ability animation config
     ASL 
     TAX 
-    LDA $@table_01D9A7, X
+    LDA $@ability_anim_tables.will_ability_anim_table, X
     SEC 
-    SBC #$&table_01D9A7
+    SBC #$&ability_anim_tables.will_ability_anim_table
     TAX 
-    LDA $@table_01D9A7+2, X
+    LDA $@ability_anim_tables.will_ability_anim_table+2, X
     TAY 
     LDA $0000, Y
     PHA 
@@ -1613,7 +1612,7 @@ LoadAbilityAnimTableA {
     ADC $01, S
     TAX 
     PLA 
-    LDA $@table_01D9A7+4, X
+    LDA $@ability_anim_tables.will_ability_anim_table+4, X
     AND #$00FF
     STA $climbStateData   ; Store configuration byte in climbStateData ($09E0) for engine sprite system
     PLX 
@@ -1624,11 +1623,11 @@ LoadAbilityAnimTableB {
     PHX                   ; Index into table_01D9BF by A — Freedan ability animation config
     ASL 
     TAX 
-    LDA $@table_01D9BF, X
+    LDA $@ability_anim_tables.freedan_ability_anim_table, X
     SEC 
-    SBC #$&table_01D9BF
+    SBC #$&ability_anim_tables.freedan_ability_anim_table
     TAX 
-    LDA $@table_01D9BF+2, X
+    LDA $@ability_anim_tables.freedan_ability_anim_table+2, X
     TAY 
     LDA $0000, Y
     PHA 
@@ -1637,7 +1636,7 @@ LoadAbilityAnimTableB {
     ADC $01, S
     TAX 
     PLA 
-    LDA $@table_01D9BF+4, X
+    LDA $@ability_anim_tables.freedan_ability_anim_table+4, X
     AND #$00FF
     STA $09E2
     PLX 

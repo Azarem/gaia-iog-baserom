@@ -1,6 +1,6 @@
+?INCLUDE 'enemy_stats_table'
 ?INCLUDE 'interaction_handlers'
 ?INCLUDE 'StandardEnemyDefeatHandler'
-?INCLUDE 'stats_01ABF0'
 
 !playerFlags                    09AE
 !statsPtr                       7F0020
@@ -12,7 +12,7 @@ ir26_statue [
   actor-def < #1E, #00, #01, {
 
   code_0A8899:
-    LDA #$&stats_01ABF0
+    LDA #$&enemy_stats_table
     STA $statsPtr, X
     LDA #$1111
     STA $20

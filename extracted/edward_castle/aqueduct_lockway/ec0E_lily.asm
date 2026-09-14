@@ -1,5 +1,5 @@
 ?INCLUDE 'ApplyOrbitalOffsetFromRef'
-?INCLUDE 'stats_01ABF0'
+?INCLUDE 'enemy_stats_table'
 ?INCLUDE 'table_0EE000'
 
 !orbitAngle                     7F0010
@@ -112,9 +112,9 @@ code_09A99F {
 code_09A9A1 {
     LDA #$0030
     TSB $12
-    LDA #$&stats_01ABF0+190
+    LDA #$&enemy_stats_table+190
     STA $statsPtr, X
-    LDA $@stats_01ABF0+190
+    LDA $@enemy_stats_table+190
     AND #$00FF
     STA $currentHp, X
     COP [SetMetasprite] ( @table_0EE000 )

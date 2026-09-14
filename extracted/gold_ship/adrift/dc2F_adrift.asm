@@ -1,7 +1,7 @@
 ?BANK 05
 
+?INCLUDE 'enemy_stats_table'
 ?INCLUDE 'player_transition_handlers'
-?INCLUDE 'stats_01ABF0'
 
 !gfxCacheIdxA                   0648
 !gfxCacheIdxB                   064A
@@ -142,7 +142,7 @@ code_059805 {
     LDA #$1039
     TSB $12
     COP [SetSpritePriority] ( #20 )
-    LDA #$&stats_01ABF0+4
+    LDA #$&enemy_stats_table+4
     STA $statsPtr, X
     LDA #$00FF
     STA $currentHp, X

@@ -1,6 +1,11 @@
+; Master warp definition table for all scenes. Pointer table indexed by scene ID, each pointing to variable-length warp-def lists containing door/entrance warps and staircase warps with trigger rectangles, destinations, and facing. Largest table in bank 1 (~10 KB).
+---------------------------------------------
+
 ?BANK 01
 
 ---------------------------------------------
+
+; Master warp definition table — one of the largest structures in bank 1 (10 KB). Indexed by scene ID, each entry points to a variable-length list of warp-def entries containing two sub-structures: scene-warp (door/entrance warps with trigger rectangle, destination scene, destination coords, facing) and stair-warp (staircase warps with climb-animation offsets). Both sub-types use $FF as list terminator. The warps_interaction system checks player position against these rectangles each frame to trigger scene transitions.
 
 scene_warps [
   &warp_def_018432   ;00

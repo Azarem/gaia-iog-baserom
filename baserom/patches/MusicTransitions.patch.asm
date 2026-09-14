@@ -473,10 +473,10 @@ LoadMusicFromTransitionState! {
     ;AND #$00FF
     ;BEQ immed_load_continue
     
-    LDA $@music_array_01CBA6-3, X
+    LDA $@music_pointer_array-3, X
     STA $3E
     STA $0687
-    LDA $@music_array_01CBA6-2, X
+    LDA $@music_pointer_array-2, X
     STA $3F
     STA $0688
 
@@ -487,10 +487,10 @@ LoadMusicFromTransitionState! {
     JML @loc_028B91
 
   ;immed_load_continue:
-    ;LDA $@music_array_01CBA6-3, X
+    ;LDA $@music_pointer_array-3, X
     ;STA $46
     ;STA $0687
-    ;LDA $@music_array_01CBA6-2, X
+    ;LDA $@music_pointer_array-2, X
     ;STA $47
     ;STA $0688
     ;JSL $@func_028191

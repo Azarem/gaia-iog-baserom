@@ -1,8 +1,13 @@
+; Forced-walk animation frame sequences for cutscene character movement. 16 direction-indexed pointers to byte-pair streams (frame + step delta). Used exclusively by the forced_walk system.
+---------------------------------------------
+
 ?BANK 01
 
 ---------------------------------------------
 
-table_01A95E [
+; Table of 16 pointers ($00–$0F) to forced-walk animation frame sequences. Each sequence is a stream of paired bytes (sprite frame index + movement step delta), terminated by $00,$00. Used during cutscene character movement to define step patterns — selecting walking animation frames and controlling movement speed per tick. Referenced exclusively by forced_walk.asm, indexed by direction.
+
+forced_walk_sequence_table [
   &binary_01A97E   ;00
   &binary_01A992   ;01
   &binary_01A9AE   ;02

@@ -1,4 +1,4 @@
-?INCLUDE 'stats_01ABF0'
+?INCLUDE 'enemy_stats_table'
 
 !playerActor                    09AA
 !metaspritePtr                  7F000C
@@ -15,7 +15,7 @@ mu60_plasma_chain [
 
   code_0AE946:
     COP [BranchIfSolid] ( &code_0AE970 )
-    LDA #$&stats_01ABF0
+    LDA #$&enemy_stats_table
     STA $statsPtr, X
     COP [SpawnAfterFlags] ( @code_0AE972, #$0200 )
     COP [SpawnAfterFlags] ( @code_0AEA0D, #$0200 )

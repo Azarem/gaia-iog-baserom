@@ -1,7 +1,7 @@
-?INCLUDE 'binary_01D8BE'
 ?INCLUDE 'hardware_math'
 ?INCLUDE 'hdma_dma_spc'
-?INCLUDE 'parallax_table'
+?INCLUDE 'hdma_ramp_tables'
+?INCLUDE 'parallax_scroll_table'
 
 !bg1ScrollH                     068A
 !bg1ScrollV                     068C
@@ -64,7 +64,7 @@ code_00B8D4 {
     LDA $animScratch+2, X
     ASL 
     TAX 
-    LDA $&parallax_table, X
+    LDA $&parallax_scroll_table, X
     TAX 
     LDA $0003, X
     BIT #$0040
@@ -356,10 +356,10 @@ code_00BA60 {
 code_00BABA {
     LDA $02
     TAY 
-    LDA $&binary_01D8BE, Y
+    LDA $&hdma_ramp_tables.hdma_channel_config, Y
     AND #$0007
     TAY 
-    LDA $&binary_01D8BE.binary_01D8FE, Y
+    LDA $&hdma_ramp_tables.parallax_speed_config, Y
     AND #$00FF
     STA $04
     RTS 

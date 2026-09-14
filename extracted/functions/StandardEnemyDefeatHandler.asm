@@ -1,10 +1,10 @@
 ?INCLUDE 'cop_handlers_script'
 ?INCLUDE 'DarkGemDropSystem'
 ?INCLUDE 'enemy_clear_reward_table'
+?INCLUDE 'enemy_stats_table'
 ?INCLUDE 'EnemyDeathFlash'
 ?INCLUDE 'reward_actors'
 ?INCLUDE 'SpawnFieldRevealEffect'
-?INCLUDE 'stats_01ABF0'
 
 !sceneCurrent                   0644
 !displayModeFlags               09EC
@@ -19,7 +19,7 @@
 
 StandardEnemyDefeatHandler {
     LDA $statsPtr, X
-    CMP #$&stats_01ABF0
+    CMP #$&enemy_stats_table
     BNE loc_00DB96
     JMP $&code_00DBB6
 
@@ -52,7 +52,7 @@ code_00DBB6 {
     STA $0012, Y
     COP [WaitByte] ( #02 )
     LDA $statsPtr, X
-    CMP #$&stats_01ABF0
+    CMP #$&enemy_stats_table
     BNE loc_00DBE9
     JMP $&code_00DC5F
 

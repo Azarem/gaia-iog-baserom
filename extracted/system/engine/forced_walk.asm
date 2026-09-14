@@ -1,8 +1,8 @@
 ?BANK 00
 
-?INCLUDE 'dir_sprite_01ABDE'
-?INCLUDE 'table_01A95E'
-?INCLUDE 'table_01B086'
+?INCLUDE 'direction_velocity_table'
+?INCLUDE 'forced_walk_sequence_table'
+?INCLUDE 'movement_delta_table'
 
 !joypadCurrent                  0656
 !joypadMaskStd                  065A
@@ -31,7 +31,7 @@ ForcedWalkSouth {
     AND #$00FF
     ASL 
     TAX 
-    LDA $&table_01A95E, X
+    LDA $&forced_walk_sequence_table, X
     STA $scrollStepTableBase
     STZ $2A
     TDC 
@@ -68,7 +68,7 @@ ForcedWalkSouth {
     AND #$00FF
     ASL 
     TAX 
-    LDA $&table_01A95E, X
+    LDA $&forced_walk_sequence_table, X
     STA $scrollStepTableBase
     STZ $2A
     TDC 
@@ -105,7 +105,7 @@ ForcedWalkSouth {
     AND #$00FF
     ASL 
     TAX 
-    LDA $&table_01A95E, X
+    LDA $&forced_walk_sequence_table, X
     STA $scrollStepTableBase
     STZ $2A
     TDC 
@@ -142,7 +142,7 @@ ForcedWalkSouth {
     AND #$00FF
     ASL 
     TAX 
-    LDA $&table_01A95E, X
+    LDA $&forced_walk_sequence_table, X
     STA $scrollStepTableBase
     STZ $2A
     TDC 
@@ -169,13 +169,13 @@ ReadDirSprite_YVelocity {
     AND #$00FF
     ASL 
     TAY 
-    LDA $&dir_sprite_01ABDE, Y
+    LDA $&direction_velocity_table, Y
     STA $0000
     XBA 
     AND #$00FF
     ASL 
     TAY 
-    LDA $&table_01B086, Y
+    LDA $&movement_delta_table, Y
     STA $2E
     RTS 
 }
@@ -187,13 +187,13 @@ ReadDirSprite_XVelocity {
     AND #$00FF
     ASL 
     TAY 
-    LDA $&dir_sprite_01ABDE, Y
+    LDA $&direction_velocity_table, Y
     STA $0000
     XBA 
     AND #$00FF
     ASL 
     TAY 
-    LDA $&table_01B086, Y
+    LDA $&movement_delta_table, Y
     STA $2C
     RTS 
 }

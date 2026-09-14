@@ -126,24 +126,24 @@
         "diary_menu_window_dma": { "start": 48047, "end": 48279, "type": "thinker-def", "scene": "diary_menu", "movable": true },
         "statue_inventory_reward": { "start": 52569, "end": 53033, "type": "actor-def", "scene": "statue_inventory", "movable": true },
         "inventory_statue_slot": { "start": 53033, "end": 53134, "type": "actor-def", "scene": "inventory", "movable": true },
-        "binary_01C384": {
+        "math_lookup_tables": {
             "parts": {
-                "binary_01C384": { "start": 115588, "end": 115797, "type": "Byte" },
-                "binary_01C455": { "start": 115797, "end": 115861, "type": "Byte" },
-                "binary_01C495": { "start": 115861, "end": 116117, "type": "Byte" },
-                "binary_01C595": { "start": 116117, "end": 116373, "type": "Word" },
-                "binary_01C695": { "start": 116373, "end": 116629, "type": "Word" },
-                "binary_01C795": { "start": 116629, "end": 117141, "type": "Word" },
-                "binary_01C995": { "start": 117141, "end": 117397, "type": "Word" }
+                "scene_flag_table": { "start": 115588, "end": 115797, "type": "Byte" },
+                "sine_table_8bit": { "start": 115797, "end": 115861, "type": "Byte" },
+                "signed_sine_table": { "start": 115861, "end": 116117, "type": "Byte" },
+                "sine_table_16bit": { "start": 116117, "end": 116373, "type": "Word" },
+                "cosine_table_16bit": { "start": 116373, "end": 116629, "type": "Word" },
+                "signed_sine_table_16bit": { "start": 116629, "end": 117141, "type": "Word" },
+                "sine_table_16bit_quarter": { "start": 117141, "end": 117397, "type": "Word" }
             }
         },
-        "music_array_01CBA6": { "start": 117670, "end": 117760, "type": "@Binary" },
+        "music_pointer_array": { "start": 117670, "end": 117760, "type": "@Binary" },
         "event_block_table": { "start": 119758, "end": 121022, "type": "event-block-def" },
-        "binary_01D8BE": {
+        "hdma_ramp_tables": {
             "parts": {
-                "binary_01D8BE": { "start": 121022, "end": 121086, "type": "Byte" },
-                "binary_01D8FE": { "start": 121086, "end": 121099, "type": "Byte" },
-                "array_01D90B": { "start": 121099, "end": 121201, "type": "ramp-motion" }
+                "hdma_channel_config": { "start": 121022, "end": 121086, "type": "Byte" },
+                "parallax_speed_config": { "start": 121086, "end": 121099, "type": "Byte" },
+                "ramp_motion_curves": { "start": 121099, "end": 121201, "type": "ramp-motion" }
             }
         },
         "WorldMapController": { "start": 238321, "end": 239290, "type": "actor-def", "scene": "world_map" },
@@ -994,37 +994,46 @@
         "fr32_locked_door": { "start": 380860, "end": 380960, "type": "actor-def", "scene": "freejia", "movable": true }
     },
     "tables": {
-        "table_018000": { "start": 98304, "end": 98868, "type": "&display-preset" },
+        "display_preset_table": { "start": 98304, "end": 98868, "type": "&display-preset" },
         "scene_warps": { "start": 98868, "end": 108894, "type": "&warp-def" },
-        "table_01A95E": { "start": 108894, "end": 109278, "type": "&Binary" },
+        "forced_walk_sequence_table": { "start": 108894, "end": 109278, "type": "&Binary" },
         "enemy_clear_reward_table": { "start": 109278, "end": 109534, "type": "Byte" },
-        "dir_sprite_01ABDE": { "start": 109534, "end": 109552, "type": "direction-velocity" },
-        "stats_01ABF0": { "start": 109552, "end": 109992, "type": "enemy-stats" },
-        "table_01ADA8": { "start": 109992, "end": 110726, "type": "&Binary" },
-        "table_01B086": { "start": 110726, "end": 115588, "type": "&delta-node" },
-        "templates_01CA95": { "start": 117397, "end": 117670, "type": "&DialogString" },
-        "parallax_table": { "start": 117760, "end": 119758, "type": "&Binary" },
+        "direction_velocity_table": { "start": 109534, "end": 109552, "type": "direction-velocity" },
+        "enemy_stats_table": { "start": 109552, "end": 109992, "type": "enemy-stats" },
+        "scene_barrier_chest_table": { "start": 109992, "end": 110726, "type": "&Binary" },
+        "movement_delta_table": { "start": 110726, "end": 115588, "type": "&delta-node" },
+        "dialog_template_table": { "start": 117397, "end": 117670, "type": "&DialogString" },
+        "parallax_scroll_table": { "start": 117760, "end": 119758, "type": "&Binary" },
         "body_table": { "start": 121201, "end": 121255, "type": "body-entry" },
-        "table_01D9A7": { "start": 121255, "end": 121279, "type": "&Binary" },
-        "table_01D9BF": { "start": 121279, "end": 121304, "type": "&Binary" },
-        "system_strings": {
+        "ability_anim_tables": {
             "parts": {
-                "consolestring_01D9D8": { "start": 121304, "end": 121535, "type": "ConsoleString" },
-                "itemname_table_01DABF": { "start": 121535, "end": 122398, "type": "&ConsoleString" },
-                "itemmenu_table_01DE1E": { "start": 122398, "end": 123178, "type": "&ConsoleString" },
-                "binary_01E12A": { "start": 123178, "end": 123186, "type": "Binary" },
-                "itemdesc_table_01E132": { "start": 123186, "end": 124396, "type": "&ConsoleString" },
-                "abilmenu_table_01E5EC": { "start": 124396, "end": 124509, "type": "&ConsoleString" },
-                "abilname_table_01E65D": { "start": 124509, "end": 124636, "type": "&ConsoleString" },
-                "abildesc_table_01E6DC": { "start": 124636, "end": 124878, "type": "&ConsoleString" },
-                "charname_table_01E7CE": { "start": 124878, "end": 125260, "type": "&ConsoleString" },
-                "table_01E94C": { "start": 125260, "end": 125711, "type": "&ConsoleString" }
+                "will_ability_anim_table": { "start": 121255, "end": 121279, "type": "&Binary" },
+                "freedan_ability_anim_table": { "start": 121279, "end": 121304, "type": "&Binary" }
             }
         },
-        "itemcomp_table_01EB0F": { "start": 125711, "end": 125864, "type": "&ConsoleString", "movable": true },
-        "dictionary_01EBA8": { "start": 125864, "end": 128333, "type": "&DialogString", "movable": true },
-        "dictionary_01F54D": { "start": 128333, "end": 130340, "type": "&DialogString", "movable": true },
-        "itemget_table_01FD24": { "start": 130340, "end": 130924, "type": "&DialogString" },
+        "system_strings": {
+            "parts": {
+                "boot_screen_strings": { "start": 121304, "end": 121535, "type": "ConsoleString" },
+                "item_name_table": { "start": 121535, "end": 122398, "type": "&ConsoleString" },
+                "item_menu_table": { "start": 122398, "end": 123178, "type": "&ConsoleString" },
+                "item_table_separator": { "start": 123178, "end": 123186, "type": "Binary" },
+                "item_description_table": { "start": 123186, "end": 124396, "type": "&ConsoleString" },
+                "ability_menu_table": { "start": 124396, "end": 124509, "type": "&ConsoleString" },
+                "ability_name_table": { "start": 124509, "end": 124636, "type": "&ConsoleString" },
+                "ability_description_table": { "start": 124636, "end": 124878, "type": "&ConsoleString" },
+                "character_name_table": { "start": 124878, "end": 125260, "type": "&ConsoleString" },
+                "misc_ui_strings": { "start": 125260, "end": 125711, "type": "&ConsoleString" }
+            }
+        },
+        "item_component_table": { "start": 125711, "end": 125864, "type": "&ConsoleString", "movable": true },
+        "dialog_dictionaries": {
+            "movable": true,
+            "parts": {
+                "dialog_dictionary_a": { "start": 125864, "end": 128333, "type": "&DialogString" },
+                "dialog_dictionary_b": { "start": 128333, "end": 130340, "type": "&DialogString" }
+            }
+        },
+        "item_get_dialog_table": { "start": 130340, "end": 130924, "type": "&DialogString" },
         "scene_actors": { "start": 819200, "end": 845285, "type": "&scene-event", "postProcess": "Extract(1)", "movable": true, "order": -1 },
         "scene_thinkers": { "start": 845285, "end": 846683, "type": "&thinker-spawn", "order": -1 },
         "scene_meta": { "start": 884736, "end": 897023, "type": "scene-meta", "postProcess": "Lookup(0,1)&&Label(label)", "movable": true },

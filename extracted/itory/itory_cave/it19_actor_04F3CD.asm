@@ -1,5 +1,5 @@
+?INCLUDE 'enemy_stats_table'
 ?INCLUDE 'SpawnDebrisBurst'
-?INCLUDE 'stats_01ABF0'
 ?INCLUDE 'table_0EE000'
 
 !playerFlags                    09AE
@@ -14,7 +14,7 @@ it19_actor_04F3CD [
   code_04F3D0:
     COP [BranchIfFlagWord] ( #$011A, #01, &code_04F3FE )
     COP [SpawnAfterFlags] ( @code_04F400, #$2000 )
-    LDA #$&stats_01ABF0
+    LDA #$&enemy_stats_table
     STA $statsPtr, X
     LDA #$00FF
     STA $currentHp, X
