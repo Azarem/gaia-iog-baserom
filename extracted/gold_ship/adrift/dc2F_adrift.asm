@@ -563,7 +563,7 @@ dialogstring_059D33 `[DLG:8,7][SIZ:8,1]Drifting, Day 21[END]`
 
 dialogstring_059D42 `[TPL:A][TPL:1]Kara: [N]You've just come to??? [N]I've lost everyone... [FIN]Are you OK?[N][PAL:0] Yes, I'm OK.[N] I'm still unsteady.`
 
-dialogstring_059D91 `[CLR][TPL:1]Kara: Hmmm. [N]You recover quickly. [N]Like a lizard's tail. [FIN][JMP:&dc2F_adrift.dialogstring_059DCD+M]`
+dialogstring_059D91 `[CLR][TPL:1]Kara: Hmmm. [N]You recover quickly. [N]Like a lizard's tail. [FIN][JMP:&dialogstring_059DCD+M]`
 
 dialogstring_059DCD `[CLR][TPL:1]Kara: Of course, you [N]were unconscious for [N]more than half a day. [FIN][::][TPL:B][TPL:1]I've read about being[N]adrift, but I never[N]thought it would[N]happen to me...[FIN]Disasters sometimes[N]happen suddenly.[PAL:0][END]`
 

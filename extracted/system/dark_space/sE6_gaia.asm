@@ -764,39 +764,39 @@ dialogstring_08DE96 `[DEF][CLR]I am Gaia, the source of[N]all life. I'll give yo
 
 dialogstring_08DEC6 `[DEF][CLR]Hint Test[FIN]`
 
-dialogstring_08DED3 `[PRT:@sE6_gaia.dialogstring_08DE96]When you defeat all the [N]enemies in an area, you [N]will get a jewel that [N]increases your abilities.[FIN]Push the Start Button[N]to see the locations of[N]your enemies.[FIN]Find the demons [N]and defeat them. [FIN]`
+dialogstring_08DED3 `[PRT:@dialogstring_08DE96]When you defeat all the [N]enemies in an area, you [N]will get a jewel that [N]increases your abilities.[FIN]Push the Start Button[N]to see the locations of[N]your enemies.[FIN]Find the demons [N]and defeat them. [FIN]`
 
-dialogstring_08DF80 `[PRT:@sE6_gaia.dialogstring_08DE96]Will's power - the [N]Psycho Dash. It can [N]destroy obstacles. [FIN]Always be alert. If you[N]find a suspicious place,[N]try to destroy it.[FIN]`
+dialogstring_08DF80 `[PRT:@dialogstring_08DE96]Will's power - the [N]Psycho Dash. It can [N]destroy obstacles. [FIN]Always be alert. If you[N]find a suspicious place,[N]try to destroy it.[FIN]`
 
-dialogstring_08DFEE `[PRT:@sE6_gaia.dialogstring_08DE96]Then you will fight[N]a huge enemy.[FIN]When he suffers damage, [N]rays of light will shoot [N]from his head. [FIN]If you suffer damage[N]hide behind him.[FIN]`
+dialogstring_08DFEE `[PRT:@dialogstring_08DE96]Then you will fight[N]a huge enemy.[FIN]When he suffers damage, [N]rays of light will shoot [N]from his head. [FIN]If you suffer damage[N]hide behind him.[FIN]`
 
-dialogstring_08E066 `[PRT:@sE6_gaia.dialogstring_08DE96]The door to the Gold[N]Ship is in a place paved[N]with gold tiles.[FIN]Listen to the melody [N]of the Incan spirit. [FIN]`
+dialogstring_08E066 `[PRT:@dialogstring_08DE96]The door to the Gold[N]Ship is in a place paved[N]with gold tiles.[FIN]Listen to the melody [N]of the Incan spirit. [FIN]`
 
-dialogstring_08E0C7 `[PRT:@sE6_gaia.dialogstring_08DE96]To defeat an enemy you[N]can't touch, think about[N]what happened under[N]Edward Castle.[FIN]`
+dialogstring_08E0C7 `[PRT:@dialogstring_08DE96]To defeat an enemy you[N]can't touch, think about[N]what happened under[N]Edward Castle.[FIN]`
 
-dialogstring_08E109 `[PRT:@sE6_gaia.dialogstring_08DE96]The wall where the wind[N]blows...it's easy to[N]break through where[N]the stones are cracked.[FIN]If you can't find it, [N]listen for the only place [N]where the sound is[N]different. [FIN]`
+dialogstring_08E109 `[PRT:@dialogstring_08DE96]The wall where the wind[N]blows...it's easy to[N]break through where[N]the stones are cracked.[FIN]If you can't find it, [N]listen for the only place [N]where the sound is[N]different. [FIN]`
 
-dialogstring_08E19C `[PRT:@sE6_gaia.dialogstring_08DE96]The keys are on a grate[N]in the floor of the[N]mine. Find the laborer[N]who has them.[FIN]`
+dialogstring_08E19C `[PRT:@dialogstring_08DE96]The keys are on a grate[N]in the floor of the[N]mine. Find the laborer[N]who has them.[FIN]`
 
-dialogstring_08E1EE `[PRT:@sE6_gaia.dialogstring_08DE96]Freedan's power - The[N]Dark Friar can defeat[N]enemies in places a[N]sword can't reach.[FIN]When you've defeated[N]all the enemies[N]the road will open up.[FIN]`
+dialogstring_08E1EE `[PRT:@dialogstring_08DE96]Freedan's power - The[N]Dark Friar can defeat[N]enemies in places a[N]sword can't reach.[FIN]When you've defeated[N]all the enemies[N]the road will open up.[FIN]`
 
-dialogstring_08E261 `[PRT:@sE6_gaia.dialogstring_08DE96]Take away the obstacle[N]in front, and the back[N]appears. Remove the[N]blocking pillar.[FIN]`
+dialogstring_08E261 `[PRT:@dialogstring_08DE96]Take away the obstacle[N]in front, and the back[N]appears. Remove the[N]blocking pillar.[FIN]`
 
-dialogstring_08E2B9 `[PRT:@sE6_gaia.dialogstring_08DE96]The switch on the floor [N]cannot be activated [N]by your weight. [FIN]`
+dialogstring_08E2B9 `[PRT:@dialogstring_08DE96]The switch on the floor [N]cannot be activated [N]by your weight. [FIN]`
 
-dialogstring_08E2F8 `[PRT:@sE6_gaia.dialogstring_08DE96]When you started this [N]journey,  Mu began [N]to rise from the sea. [FIN]Sea water still covers [N]land in many places [N]on the continent. [FIN]When the water is gone [N]you will discover [N]the location of [N]Rama, King of Mu. [FIN]`
+dialogstring_08E2F8 `[PRT:@dialogstring_08DE96]When you started this [N]journey,  Mu began [N]to rise from the sea. [FIN]Sea water still covers [N]land in many places [N]on the continent. [FIN]When the water is gone [N]you will discover [N]the location of [N]Rama, King of Mu. [FIN]`
 
-dialogstring_08E3A7 `[PRT:@sE6_gaia.dialogstring_08DE96]Will's power is the [N]Psycho Slider. Pass [N]through narrow corridors [N]using this power. [FIN]Be careful not to[N]overlook the cracks[N]in the cliff.[FIN]`
+dialogstring_08E3A7 `[PRT:@dialogstring_08DE96]Will's power is the [N]Psycho Slider. Pass [N]through narrow corridors [N]using this power. [FIN]Be careful not to[N]overlook the cracks[N]in the cliff.[FIN]`
 
-dialogstring_08E428 `[PRT:@sE6_gaia.dialogstring_08DE96]Will's power is the [N]Spin Dash. Use this to [N]climb hills and jump. [FIN]There are many hills at[N]the Great Wall of China.[N]Try everything.[FIN]`
+dialogstring_08E428 `[PRT:@dialogstring_08DE96]Will's power is the [N]Spin Dash. Use this to [N]climb hills and jump. [FIN]There are many hills at[N]the Great Wall of China.[N]Try everything.[FIN]`
 
-dialogstring_08E4A4 `[PRT:@sE6_gaia.dialogstring_08DE96]Freedan's power is [N]the Aura Barrier. It [N]puts a layer of Aura [N]around his body. [FIN]Enemies at the mountain [N]temple are strong.If [N]you use this power, your [N]battles will be easier. [FIN]`
+dialogstring_08E4A4 `[PRT:@dialogstring_08DE96]Freedan's power is [N]the Aura Barrier. It [N]puts a layer of Aura [N]around his body. [FIN]Enemies at the mountain [N]temple are strong.If [N]you use this power, your [N]battles will be easier. [FIN]`
 
-dialogstring_08E540 `[PRT:@sE6_gaia.dialogstring_08DE96]Freedan's Power is the [N]Earthquaker.[FIN]When he uses it,[N]his enemy can't move[N]for a long time.[FIN]`
+dialogstring_08E540 `[PRT:@dialogstring_08DE96]Freedan's Power is the [N]Earthquaker.[FIN]When he uses it,[N]his enemy can't move[N]for a long time.[FIN]`
 
 dialogstring_08E58B `[DEF][CLR]This is the temple at[N]Ankor Wat.[FIN]It stands quietly in [N]the jungle and hides [N]its form when people [N]come near... [FIN]On this top floor you[N]will understand why you[N]made the journey.[FIN]`
 
-dialogstring_08E615 `[PRT:@sE6_gaia.dialogstring_08DE96]The Pyramid is divided [N]into six blocks. [FIN]Use the Dark Power [N]previously obtained, in[N]each area. [FIN]`
+dialogstring_08E615 `[PRT:@dialogstring_08DE96]The Pyramid is divided [N]into six blocks. [FIN]Use the Dark Power [N]previously obtained, in[N]each area. [FIN]`
 
 dialogstring_08E66C `[DEF][CLR]I am Gaia, the source of[N]life. The Dark Power has[N]become strong in the[N]temple at Ankor Wat.[FIN]If you stand before the [N]right-hand statue, you [N]can change into Shadow, [N]the ultimate warrior.  [FIN]Then I think I will[N]grant you one item.[FIN]`
 
@@ -808,7 +808,7 @@ dialogstring_08E800 `[DEF][CLR]I am Gaia, the source of[N]life. I think I'll giv
 
 dialogstring_08E853 `[DEF][CLR]The comet draws near.[N]The time for your last[N]battle approaches.[FIN]This is the last time I[N]will talk to you like[N]this in this place.[FIN]With your rejuvenated [N]power, defeat the comet,[N]Dark Gaia and become [N]the Dark Knight. [FIN]Shadow's greatest power,[N]the Firebird, will arise[N]when you're one with [N]the Light Knight.[FIN]Only you can restore the [N]Earth to its original [N]condition. I'm putting [N]all my faith in you... [FIN]`
 
-dialogstring_08E98A `[PRT:@sE6_gaia.dialogstring_08DE96]Your shape is only[N]temporary. Try standing[N]in front of the statue[N]next to you.[FIN]`
+dialogstring_08E98A `[PRT:@dialogstring_08DE96]Your shape is only[N]temporary. Try standing[N]in front of the statue[N]next to you.[FIN]`
 ---------------------------------------------
 
 func_08E9D4 {
@@ -1005,9 +1005,9 @@ sub_08EB2F {
 binary_08EB5A #1501620286044210A720B8400000
 ---------------------------------------------
 
-dialogstring_08EB68 `[DEF][DLY:9][ADR:&sE6_gaia.table_08EB8F,AAC][N]can now be used![PAU:78][FIN]`
+dialogstring_08EB68 `[DEF][DLY:9][ADR:&table_08EB8F,AAC][N]can now be used![PAU:78][FIN]`
 
-dialogstring_08EB85 `[DEF][CLR][DLY:2][ADR:&sE6_gaia.table_08EBD3,AAC][END]`
+dialogstring_08EB85 `[DEF][CLR][DLY:2][ADR:&table_08EBD3,AAC][END]`
 ---------------------------------------------
 
 table_08EB8F [

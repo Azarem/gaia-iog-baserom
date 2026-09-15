@@ -83,7 +83,7 @@ dialogstring_07E03D `[CLR]I don't like that Kara. [N]She acts like some kind [N]
 
 dialogstring_07E092 `[CLR]Heh heh.[N]I've found a weakness.[FIN][::]Aah.[N]I want an apple. Let's[N]go to the marketplace![PAL:0][END]`
 
-dialogstring_07E0DE `[TPL:B][TPL:1][JMP:&eu95_ann.dialogstring_07E092+M]`
+dialogstring_07E0DE `[TPL:B][TPL:1][JMP:&dialogstring_07E092+M]`
 
 dialogstring_07E0E5 `[TPL:B][TPL:1]Ann: Thanks.[N]I can't eat any more.[PAL:0][END]`
 

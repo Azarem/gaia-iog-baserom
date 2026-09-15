@@ -145,8 +145,8 @@ dialogstring_04ED19 `[DEF][CLR][TPL:4]Elder: Good. I will [N]entrust you with th
 
 dialogstring_04EDF4 `[DEF][TPL:4]Elder: [N]Oooh, that's the [N]Incan Statue!![N]Good job! [FIN]I wonder if you were [N]put on this earth to [N]solve the Incan[N]riddle... [FIN]I'll tell you a legend[N]handed down by our[N]people.[FIN][::]Put the statue on the[N]Larai Cliff below the[N]ruins, where the spirits'[N]breath cannot reach. [FIN]The winds in the valley[N]will lead you to[N]the Gold Ship.[FIN]Understand?[N][PAL:0] Yes[N] No`
 
-dialogstring_04EF1C `[DEF][CLR][TPL:4][JMP:&it15_elder.dialogstring_04EDF4+M]`
+dialogstring_04EF1C `[DEF][CLR][TPL:4][JMP:&dialogstring_04EDF4+M]`
 
 dialogstring_04EF23 `[CLR][TPL:4]Elder: [N]It's said that the Moon [N]Tribe has one more. [FIN]Have Lilly guide you [N]there. Be careful.[PAL:0][END]`
 
-dialogstring_04EF6F `[DEF][CLR][JMP:&it15_elder.dialogstring_04EF23]`
+dialogstring_04EF6F `[DEF][CLR][JMP:&dialogstring_04EF23]`

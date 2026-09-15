@@ -89,13 +89,13 @@ diary_menu_window_dma [
 } >
 ]
 
-dma_channel_00BC4C [
-]
-
 dma_channel_00BC4D [
   dma-channel < #4F, #FF, #00 >   ;00
   dma-channel < #1F, #10, #F0 >   ;01
   dma-channel < #60, #FF, #00 >   ;02
+]
+
+dma_channel_00BC4C [
 ]
 
 dma_channel_00BC57 [

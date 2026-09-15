@@ -276,34 +276,34 @@ expansion, dictionary lookup, number formatting, and button-wait logic.
 |---------|-------------|---------------|------|
 | `$03E255` | `sub_03E255` | `DialogStringRenderer` | **Core entry.** Parses a wide-string byte stream: <$C0 = literal tile, ≥$C0 = command. Writes tiles to $7F0200 VRAM buffer with row stride |
 | `$03E2C3` | `wide_cmd_table_03E2C3` | `DialogStringCommandTable` | Jump table for 25 wide-string commands ($C0–$D8) |
-| `$03E2F5` | `cmd_c0_03E2F5` | `WideCmd_EndAndWait` | $C0: Clears input lock, waits for button, saves cursor position |
-| `$03E307` | `code_03E307` | `WideCmd_Return` | $CA / exit: Restores stack and returns from `DialogStringRenderer` |
-| `$03E30F` | `cmd_c1_03E30F` | `WideCmd_SetPosition` | $C1: Sets text cursor row/column from 2-byte argument |
-| `$03E335` | `cmd_c2_03E335` | `WideCmd_InsertTemplate` | $C2: Inserts a template string by index from `templates_01CA95` |
-| `$03E35B` | `cmd_c3_03E35B` | `WideCmd_SetPalette` | $C3: Sets tile palette bits for subsequent characters |
-| `$03E36B` | `cmd_c4_03E36B` | `WideCmd_InfiniteLoop` | $C4: Infinite loop (halt/debug) |
-| `$03E36F` | `cmd_c5_03E36F` | `WideCmd_IndirectString` | $C5: Indirect string lookup — reads pointer-to-pointer and recursively renders |
-| `$03E393` | `cmd_c6_03E393` | `WideCmd_PrintNumber` | $C6: Formats and prints a multi-digit number (with leading-zero suppression) |
-| `$03E43F` | `cmd_c7_03E43F` | `WideCmd_OpenDialogueBox` | $C7: Opens a dialogue box — creates border tiles, initializes position/size state |
+| `$03E2F5` | `cmd_c0_03E2F5` | `DialogCmd_EndAndWait` | $C0: Clears input lock, waits for button, saves cursor position |
+| `$03E307` | `code_03E307` | `DialogCmd_Return` | $CA / exit: Restores stack and returns from `DialogStringRenderer` |
+| `$03E30F` | `cmd_c1_03E30F` | `DialogCmd_SetPosition` | $C1: Sets text cursor row/column from 2-byte argument |
+| `$03E335` | `cmd_c2_03E335` | `DialogCmd_InsertTemplate` | $C2: Inserts a template string by index from `templates_01CA95` |
+| `$03E35B` | `cmd_c3_03E35B` | `DialogCmd_SetPalette` | $C3: Sets tile palette bits for subsequent characters |
+| `$03E36B` | `cmd_c4_03E36B` | `DialogCmd_InfiniteLoop` | $C4: Infinite loop (halt/debug) |
+| `$03E36F` | `cmd_c5_03E36F` | `DialogCmd_IndirectString` | $C5: Indirect string lookup — reads pointer-to-pointer and recursively renders |
+| `$03E393` | `cmd_c6_03E393` | `DialogCmd_PrintNumber` | $C6: Formats and prints a multi-digit number (with leading-zero suppression) |
+| `$03E43F` | `cmd_c7_03E43F` | `DialogCmd_OpenDialogueBox` | $C7: Opens a dialogue box — creates border tiles, initializes position/size state |
 | `$03E4CE` | `dlg_borders_03E4CE` | `DialogueBorderTiles` | 16-byte border tile pattern data |
 | `$03E4DE` | `sub_03E4DE` | `DrawDialogueBorderRow` | Draws one horizontal border row (corner + fill + corner) |
 | `$03E505` | `sub_03E505` | `DrawDialogueBodyRows` | Draws the dialogue box interior rows (left border + space + right border) plus optional bottom row |
-| `$03E579` | `cmd_c8_03E579` | `WideCmd_ClearDialogueBox` | $C8: Clears the interior of the dialogue box, resets cursor |
-| `$03E5EB` | `cmd_c9_03E5EB` | `WideCmd_WaitFrames` | $C9: Waits N frames before continuing text |
-| `$03E5F8` | `cmd_cb_03E5F8` | `WideCmd_NewLine` | $CB: Advances to next line; scrolls dialogue if at bottom |
-| `$03E61E` | `cmd_cc_03E61E` | `WideCmd_AdvanceCursor` | $CC: Advances cursor by N columns |
-| `$03E636` | `cmd_cd_03E636` | `WideCmd_InsertRemoteString` | $CD: Inserts a string from another bank (3-byte pointer) |
-| `$03E656` | `cmd_ce_03E656` | `WideCmd_ClearBox` | $CE: Clears the dialogue box interior (fills with space tiles) |
-| `$03E6A4` | `cmd_cf_03E6A4` | `WideCmd_WaitForButton` | $CF: Waits for any button press with flashing cursor indicator |
-| `$03E6D2` | `cmd_d0_03E6D2` | `WideCmd_WaitForAnyInput` | $D0: Waits for any joypad input (including d-pad) |
-| `$03E6E7` | `cmd_d1_03E6E7` | `WideCmd_JumpToAddress` | $D1: Sets string pointer to absolute address |
-| `$03E6EC` | `cmd_d2_03E6EC` | `WideCmd_SetSfx` | $D2: Sets the sound effect played per character |
-| `$03E6F7` | `cmd_d3_03E6F7` | `WideCmd_OpenDefaultBox` | $D3: Opens a standard-sized dialogue box (13×4 at row 3, col 17) |
-| `$03E721` | `cmd_d4_03E721` | `WideCmd_SetPaletteColor` | $D4: Writes a color to CGRAM buffer directly |
-| `$03E736` | `cmd_d5_03E736` | `WideCmd_SetFrameDelay` | $D5: Sets the per-character frame delay counter |
-| `$03E743` | `cmd_d6_03E743` | `WideCmd_DictionaryA` | $D6: Inserts word from dictionary A (`dictionary_01EBA8`) |
-| `$03E769` | `cmd_d7_03E769` | `WideCmd_DictionaryB` | $D7: Inserts word from dictionary B (`dictionary_01F54D`) |
-| `$03E78F` | `cmd_d8_03E78F` | `WideCmd_PrintRawTiles` | $D8: Prints raw tile bytes until a zero terminator |
+| `$03E579` | `cmd_c8_03E579` | `DialogCmd_ClearDialogueBox` | $C8: Clears the interior of the dialogue box, resets cursor |
+| `$03E5EB` | `cmd_c9_03E5EB` | `DialogCmd_WaitFrames` | $C9: Waits N frames before continuing text |
+| `$03E5F8` | `cmd_cb_03E5F8` | `DialogCmd_NewLine` | $CB: Advances to next line; scrolls dialogue if at bottom |
+| `$03E61E` | `cmd_cc_03E61E` | `DialogCmd_AdvanceCursor` | $CC: Advances cursor by N columns |
+| `$03E636` | `cmd_cd_03E636` | `DialogCmd_InsertRemoteString` | $CD: Inserts a string from another bank (3-byte pointer) |
+| `$03E656` | `cmd_ce_03E656` | `DialogCmd_ClearBox` | $CE: Clears the dialogue box interior (fills with space tiles) |
+| `$03E6A4` | `cmd_cf_03E6A4` | `DialogCmd_WaitForButton` | $CF: Waits for any button press with flashing cursor indicator |
+| `$03E6D2` | `cmd_d0_03E6D2` | `DialogCmd_WaitForAnyInput` | $D0: Waits for any joypad input (including d-pad) |
+| `$03E6E7` | `cmd_d1_03E6E7` | `DialogCmd_JumpToAddress` | $D1: Sets string pointer to absolute address |
+| `$03E6EC` | `cmd_d2_03E6EC` | `DialogCmd_SetSfx` | $D2: Sets the sound effect played per character |
+| `$03E6F7` | `cmd_d3_03E6F7` | `DialogCmd_OpenDefaultBox` | $D3: Opens a standard-sized dialogue box (13×4 at row 3, col 17) |
+| `$03E721` | `cmd_d4_03E721` | `DialogCmd_SetPaletteColor` | $D4: Writes a color to CGRAM buffer directly |
+| `$03E736` | `cmd_d5_03E736` | `DialogCmd_SetFrameDelay` | $D5: Sets the per-character frame delay counter |
+| `$03E743` | `cmd_d6_03E743` | `DialogCmd_DictionaryA` | $D6: Inserts word from dictionary A (`dictionary_01EBA8`) |
+| `$03E769` | `cmd_d7_03E769` | `DialogCmd_DictionaryB` | $D7: Inserts word from dictionary B (`dictionary_01F54D`) |
+| `$03E78F` | `cmd_d8_03E78F` | `DialogCmd_PrintRawTiles` | $D8: Prints raw tile bytes until a zero terminator |
 | `$03E7B2` | `sub_03E7B2` | `WaitOneFrame` | Waits one frame (calls `UpdateFrameDialogue`) |
 | `$03E7B5` | `code_03E7B5` | `WaitNFrames_Entry` | Waits N frames where N is parameter |
 | `$03E7BA` | `code_03E7BA` | `WaitNFrames_PerChar` | Waits `$007E` frames (per-character delay); skips if `worldReadyFlag` is 0 |
@@ -662,35 +662,35 @@ both zeroed-out SRAM and bit-flipped corruption.
 | `$03E21E` | `func_03E21E` | `LoadMusicFromTransitionState` |
 | `$03E255` | `sub_03E255` | `DialogStringRenderer` |
 | `$03E2C3` | `wide_cmd_table_03E2C3` | `DialogStringCommandTable` |
-| `$03E2F5` | `cmd_c0_03E2F5` | `WideCmd_EndAndWait` |
-| `$03E307` | `code_03E307` | `WideCmd_Return` |
-| `$03E30F` | `cmd_c1_03E30F` | `WideCmd_SetPosition` |
-| `$03E335` | `cmd_c2_03E335` | `WideCmd_InsertTemplate` |
-| `$03E35B` | `cmd_c3_03E35B` | `WideCmd_SetPalette` |
-| `$03E36B` | `cmd_c4_03E36B` | `WideCmd_InfiniteLoop` |
-| `$03E36F` | `cmd_c5_03E36F` | `WideCmd_IndirectString` |
-| `$03E393` | `cmd_c6_03E393` | `WideCmd_PrintNumber` |
+| `$03E2F5` | `cmd_c0_03E2F5` | `DialogCmd_EndAndWait` |
+| `$03E307` | `code_03E307` | `DialogCmd_Return` |
+| `$03E30F` | `cmd_c1_03E30F` | `DialogCmd_SetPosition` |
+| `$03E335` | `cmd_c2_03E335` | `DialogCmd_InsertTemplate` |
+| `$03E35B` | `cmd_c3_03E35B` | `DialogCmd_SetPalette` |
+| `$03E36B` | `cmd_c4_03E36B` | `DialogCmd_InfiniteLoop` |
+| `$03E36F` | `cmd_c5_03E36F` | `DialogCmd_IndirectString` |
+| `$03E393` | `cmd_c6_03E393` | `DialogCmd_PrintNumber` |
 | `$03E42F` | `binary_03E42F` | `HexDigitTileTable` |
-| `$03E43F` | `cmd_c7_03E43F` | `WideCmd_OpenDialogueBox` |
+| `$03E43F` | `cmd_c7_03E43F` | `DialogCmd_OpenDialogueBox` |
 | `$03E4CE` | `dlg_borders_03E4CE` | `DialogueBorderTiles` |
 | `$03E4DE` | `sub_03E4DE` | `DrawDialogueBorderRow` |
 | `$03E505` | `sub_03E505` | `DrawDialogueBodyRows` |
-| `$03E579` | `cmd_c8_03E579` | `WideCmd_ClearDialogueBox` |
-| `$03E5EB` | `cmd_c9_03E5EB` | `WideCmd_WaitFrames` |
-| `$03E5F8` | `cmd_cb_03E5F8` | `WideCmd_NewLine` |
-| `$03E61E` | `cmd_cc_03E61E` | `WideCmd_AdvanceCursor` |
-| `$03E636` | `cmd_cd_03E636` | `WideCmd_InsertRemoteString` |
-| `$03E656` | `cmd_ce_03E656` | `WideCmd_ClearBox` |
-| `$03E6A4` | `cmd_cf_03E6A4` | `WideCmd_WaitForButton` |
-| `$03E6D2` | `cmd_d0_03E6D2` | `WideCmd_WaitForAnyInput` |
-| `$03E6E7` | `cmd_d1_03E6E7` | `WideCmd_JumpToAddress` |
-| `$03E6EC` | `cmd_d2_03E6EC` | `WideCmd_SetSfx` |
-| `$03E6F7` | `cmd_d3_03E6F7` | `WideCmd_OpenDefaultBox` |
-| `$03E721` | `cmd_d4_03E721` | `WideCmd_SetPaletteColor` |
-| `$03E736` | `cmd_d5_03E736` | `WideCmd_SetFrameDelay` |
-| `$03E743` | `cmd_d6_03E743` | `WideCmd_DictionaryA` |
-| `$03E769` | `cmd_d7_03E769` | `WideCmd_DictionaryB` |
-| `$03E78F` | `cmd_d8_03E78F` | `WideCmd_PrintRawTiles` |
+| `$03E579` | `cmd_c8_03E579` | `DialogCmd_ClearDialogueBox` |
+| `$03E5EB` | `cmd_c9_03E5EB` | `DialogCmd_WaitFrames` |
+| `$03E5F8` | `cmd_cb_03E5F8` | `DialogCmd_NewLine` |
+| `$03E61E` | `cmd_cc_03E61E` | `DialogCmd_AdvanceCursor` |
+| `$03E636` | `cmd_cd_03E636` | `DialogCmd_InsertRemoteString` |
+| `$03E656` | `cmd_ce_03E656` | `DialogCmd_ClearBox` |
+| `$03E6A4` | `cmd_cf_03E6A4` | `DialogCmd_WaitForButton` |
+| `$03E6D2` | `cmd_d0_03E6D2` | `DialogCmd_WaitForAnyInput` |
+| `$03E6E7` | `cmd_d1_03E6E7` | `DialogCmd_JumpToAddress` |
+| `$03E6EC` | `cmd_d2_03E6EC` | `DialogCmd_SetSfx` |
+| `$03E6F7` | `cmd_d3_03E6F7` | `DialogCmd_OpenDefaultBox` |
+| `$03E721` | `cmd_d4_03E721` | `DialogCmd_SetPaletteColor` |
+| `$03E736` | `cmd_d5_03E736` | `DialogCmd_SetFrameDelay` |
+| `$03E743` | `cmd_d6_03E743` | `DialogCmd_DictionaryA` |
+| `$03E769` | `cmd_d7_03E769` | `DialogCmd_DictionaryB` |
+| `$03E78F` | `cmd_d8_03E78F` | `DialogCmd_PrintRawTiles` |
 | `$03E7B2` | `sub_03E7B2` | `WaitOneFrame` |
 | `$03E7B5` | `code_03E7B5` | `WaitNFrames_Entry` |
 | `$03E7BA` | `code_03E7BA` | `WaitNFrames_PerChar` |

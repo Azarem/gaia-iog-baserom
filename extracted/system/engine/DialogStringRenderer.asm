@@ -2,7 +2,7 @@
 ; 
 ; Implements the complete text rendering pipeline for IOG's dialogue system. The engine processes a bytecode-driven wide-string format where characters below $C0 are tile indices rendered directly to a VRAM staging buffer, and bytes $C0–$FF are command opcodes dispatched through a 25-entry command table.
 ; 
-; === WIDE STRING RENDERER (254549) ===
+; === DIALOG STRING RENDERER (254549) ===
 ; 
 ; Entry point: DialogStringRenderer, called via JSL from COP script handlers and other engine systems.
 ; 
@@ -52,7 +52,7 @@
 ; 
 ; === DIALOGUE BOX RENDERING ===
 ; 
-; WideCmd_OpenDialogueBox (255039) and WideCmd_OpenDefaultBox (255735) construct the box frame:
+; DialogCmd_OpenDialogueBox (255039) and DialogCmd_OpenDefaultBox (255735) construct the box frame:
 ; 1. Set border tile pointer to DialogueBorderTiles (8 tiles: corners + edges)
 ; 2. DrawDialogueBorderRow renders top/bottom borders
 ; 3. DrawDialogueBodyRows fills interior rows with blank tiles ($2040) and side borders
@@ -146,39 +146,39 @@ DialogStringRenderer {
 }
 
 DialogStringCommandTable [
-  &WideCmd_EndAndWait   ;00
-  &WideCmd_SetPosition   ;01
-  &WideCmd_InsertTemplate   ;02
-  &WideCmd_SetPalette   ;03
-  &WideCmd_InfiniteLoop   ;04
-  &WideCmd_IndirectString   ;05
-  &WideCmd_PrintNumber   ;06
-  &WideCmd_OpenDialogueBox   ;07
-  &WideCmd_ClearDialogueBox   ;08
-  &WideCmd_WaitFrames   ;09
-  &WideCmd_Return   ;0A
-  &WideCmd_NewLine   ;0B
-  &WideCmd_AdvanceCursor   ;0C
-  &WideCmd_InsertRemoteString   ;0D
-  &WideCmd_ClearBox   ;0E
-  &WideCmd_WaitForButton   ;0F
-  &WideCmd_WaitForAnyInput   ;10
-  &WideCmd_JumpToAddress   ;11
-  &WideCmd_SetSfx   ;12
-  &WideCmd_OpenDefaultBox   ;13
-  &WideCmd_SetPaletteColor   ;14
-  &WideCmd_SetFrameDelay   ;15
-  &WideCmd_DictionaryA   ;16
-  &WideCmd_DictionaryB   ;17
-  &WideCmd_PrintRawTiles   ;18
+  &DialogCmd_EndAndWait   ;00
+  &DialogCmd_SetPosition   ;01
+  &DialogCmd_InsertTemplate   ;02
+  &DialogCmd_SetPalette   ;03
+  &DialogCmd_InfiniteLoop   ;04
+  &DialogCmd_IndirectString   ;05
+  &DialogCmd_PrintNumber   ;06
+  &DialogCmd_OpenDialogueBox   ;07
+  &DialogCmd_ClearDialogueBox   ;08
+  &DialogCmd_WaitFrames   ;09
+  &DialogCmd_Return   ;0A
+  &DialogCmd_NewLine   ;0B
+  &DialogCmd_AdvanceCursor   ;0C
+  &DialogCmd_InsertRemoteString   ;0D
+  &DialogCmd_ClearBox   ;0E
+  &DialogCmd_WaitForButton   ;0F
+  &DialogCmd_WaitForAnyInput   ;10
+  &DialogCmd_JumpToAddress   ;11
+  &DialogCmd_SetSfx   ;12
+  &DialogCmd_OpenDefaultBox   ;13
+  &DialogCmd_SetPaletteColor   ;14
+  &DialogCmd_SetFrameDelay   ;15
+  &DialogCmd_DictionaryA   ;16
+  &DialogCmd_DictionaryB   ;17
+  &DialogCmd_PrintRawTiles   ;18
 ]
 
 ---------------------------------------------
 ; End-of-dialogue command: waits for any input, clears the dialogue box, suppresses attack/start held flags ($0F00), and restores the saved frame delay from $0B04 to $007E.
 
-WideCmd_EndAndWait {
-    JSR $&WideCmd_WaitForAnyInput
-    JSR $&WideCmd_ClearDialogueBox
+DialogCmd_EndAndWait {
+    JSR $&DialogCmd_WaitForAnyInput
+    JSR $&DialogCmd_ClearDialogueBox
     LDA #$0F00            ; Clear $0F00 — release attack/start button suppression from joypadHeld
     TRB $joypadHeld
     LDA $0B04             ; Restore frame delay from saved value ($0B04 → $007E)
@@ -188,7 +188,7 @@ WideCmd_EndAndWait {
 ---------------------------------------------
 ; Exit the wide-string renderer. Saves the VRAM cursor back to $0998, pops the return address and saved registers (X, X, DP, P), then RTL returns to the caller. The double PLX discards the PEA'd loop return address from the command dispatch stack frame.
 
-WideCmd_Return {
+DialogCmd_Return {
     STX $0998
     PLX                   ; Pop PEA'd loop return address — unwinding renderer stack frame
     PLX 
@@ -202,7 +202,7 @@ WideCmd_Return {
 ; 
 ; Reads a 2-byte operand: low byte = column → $097A, high byte = row → $097C. Computes the VRAM buffer offset as: (row >> 2) + column + column = row×32×2 + column×2, matching the $7F0200 tilemap layout. Updates both X register and $0998.
 
-WideCmd_SetPosition {
+DialogCmd_SetPosition {
     PHY 
     LDA $0000, Y          ; 2-byte operand: low = column, high = row
     PHA 
@@ -232,7 +232,7 @@ WideCmd_SetPosition {
 ; 
 ; Reads a 1-byte operand (template index), multiplies by 2 for the word-sized pointer table, switches DBR to the template bank, and calls DialogStringRenderer recursively via JSL. Restores the VRAM cursor, string pointer, bank, and processor state on return.
 
-WideCmd_InsertTemplate {
+DialogCmd_InsertTemplate {
     PHP 
     PHB 
     PHY 
@@ -262,7 +262,7 @@ WideCmd_InsertTemplate {
 ; 
 ; Reads a 1-byte palette index, swaps bytes (XBA) and shifts left 2 (ASL ×2) to position palette bits in the VRAM tile word format (bits 12-10). Stores to $0986 which is OR'd into every tile written by the character loop.
 
-WideCmd_SetPalette {
+DialogCmd_SetPalette {
     PHY 
     LDA $0000, Y
     AND #$00FF
@@ -275,10 +275,10 @@ WideCmd_SetPalette {
     RTS 
 }
 
-WideCmd_InfiniteLoop {
+DialogCmd_InfiniteLoop {
     NOP 
     NOP 
-    BRA WideCmd_InfiniteLoop ; BRA self — halts the dialogue engine
+    BRA DialogCmd_InfiniteLoop ; BRA self — halts the dialogue engine
 }
 
 ---------------------------------------------
@@ -286,7 +286,7 @@ WideCmd_InfiniteLoop {
 ; 
 ; Reads a 4-byte operand: bytes 0-1 = base pointer offset, bytes 2-3 = table address. Computes the string pointer as: table[base[table_addr]] + base_offset. Then recursively renders via JSL DialogStringRenderer.
 
-WideCmd_IndirectString {
+DialogCmd_IndirectString {
     PHY 
     STX $0998
     LDX $0002, Y          ; 4-byte operand: bytes 0-1 = base offset, bytes 2-3 = table address
@@ -315,7 +315,7 @@ WideCmd_IndirectString {
 ; 
 ; The algorithm divides the number into 4-pixel-wide digit groups, extracts each nibble by repeated LSR ×4, looks up the tile in HexDigitTileTable, and writes it to the VRAM buffer. Leading zeros are suppressed (skipped until the first nonzero digit or last position). Each digit triggers WaitNFrames_PerChar for the typing effect.
 
-WideCmd_PrintNumber {
+DialogCmd_PrintNumber {
     PHY 
     LDA #$0000            ; Allocate 6-word stack frame for loop state
     PHA 
@@ -431,7 +431,7 @@ HexDigitTileTable #20212223242526272829404142434445
 ; 
 ; Reads 2-byte operand: byte 0 = width (columns), byte 1 = height (rows). Stores dimensions to $0982/$0984. Falls through to OpenDialogueBox_Body which constructs the box frame using DialogueBorderTiles, fills the interior via DrawDialogueBodyRows, and triggers a display update. Skips the WaitOneFrame at the end for scene $FA (title screen).
 
-WideCmd_OpenDialogueBox {
+DialogCmd_OpenDialogueBox {
     LDA $0000, Y          ; 2-byte operand: byte 0 = width (columns), byte 1 = height (rows)
     AND #$00FF
     STA $0982
@@ -620,7 +620,7 @@ DrawDialogueBodyRows {
 ; 
 ; Resets the VRAM cursor to the box origin ($099A). Zeroes all tiles within the box boundaries (width+1 × height+1 doubled). Restores the default dialogue palette: writes $675D (white), $10F2 (shadow), $0000 (transparent) to CGRAM palette offset $22. Triggers display update, resets cursor and line counter ($099C).
 
-WideCmd_ClearDialogueBox {
+DialogCmd_ClearDialogueBox {
     PHY 
     PHB 
     LDA $099A             ; Reset VRAM cursor to box origin $099A
@@ -678,7 +678,7 @@ WideCmd_ClearDialogueBox {
     RTS 
 }
 
-WideCmd_WaitFrames {
+DialogCmd_WaitFrames {
     PHY 
     LDA $0000, Y          ; 1-byte frame count operand → WaitNFrames_Entry
     AND #$00FF
@@ -693,7 +693,7 @@ WideCmd_WaitFrames {
 ; 
 ; Increments the line counter ($099C). If it equals the box height ($0984), scrolls the dialogue up twice (with WaitOneFrame between each scroll) to make room. Computes the new VRAM cursor position: base ($099A) + line × 32 tiles. Updates both X and $0998.
 
-WideCmd_NewLine {
+DialogCmd_NewLine {
     LDA $099C
     INC 
     CMP $0984             ; At box bottom (line = height): scroll up twice with frame pauses for smooth animation
@@ -715,7 +715,7 @@ WideCmd_NewLine {
     RTS 
 }
 
-WideCmd_AdvanceCursor {
+DialogCmd_AdvanceCursor {
     PHY 
     LDA $0000, Y
     AND #$00FF
@@ -736,7 +736,7 @@ WideCmd_AdvanceCursor {
     RTS 
 }
 
-WideCmd_InsertRemoteString {
+DialogCmd_InsertRemoteString {
     PHY 
     PHB 
     LDA $0000, Y          ; 3-byte operand: bytes 0-1 = address, byte 2 = bank
@@ -763,7 +763,7 @@ WideCmd_InsertRemoteString {
 ; 
 ; Fills the interior region with blank tiles ($2040) in both tile rows ($7F0200 and $7F0240). Uses dimensions ($0982−1 × $0984−1) with doubled row stride ($0080 per row = 64 tiles × 2 bytes for both top and bottom tile halves). Resets cursor to box origin and line counter to 0.
 
-WideCmd_ClearBox {
+DialogCmd_ClearBox {
     LDA $0998
     LDA $0982             ; Clear interior only: (width×2 − 1) × (height − 1), excluding borders
     ASL 
@@ -809,9 +809,9 @@ WideCmd_ClearBox {
 ---------------------------------------------
 ; Wait for the player to press A, B, or Start with a blinking cursor indicator.
 ; 
-; Sets $C080 in joypadHeld to suppress auto-repeat. Loops calling WaitOneFrame until $C080 is detected in joypadCurrent. During the wait, draws a blinking cursor via DrawDialogueCursor (carry set = animate). On button press, clears the cursor (carry clear) and calls WideCmd_ClearBox to prepare for the next page.
+; Sets $C080 in joypadHeld to suppress auto-repeat. Loops calling WaitOneFrame until $C080 is detected in joypadCurrent. During the wait, draws a blinking cursor via DrawDialogueCursor (carry set = animate). On button press, clears the cursor (carry clear) and calls DialogCmd_ClearBox to prepare for the next page.
 
-WideCmd_WaitForButton {
+DialogCmd_WaitForButton {
     LDA #$C080            ; Suppress A/B/Start auto-repeat ($C080 in joypadHeld)
     TSB $joypadHeld
 
@@ -832,7 +832,7 @@ WideCmd_WaitForButton {
     JSR $&DrawDialogueCursor
     LDA #$0001
     TSB $displayModeFlags
-    JSR $&WideCmd_ClearBox
+    JSR $&DialogCmd_ClearBox
     RTS 
 }
 
@@ -841,7 +841,7 @@ WideCmd_WaitForButton {
 ; 
 ; Sets $CFF0 in joypadHeld to suppress all auto-repeat. Loops calling WaitOneFrame until any button in $CFFF is pressed. Stores the pressed button to joypadHeld and returns.
 
-WideCmd_WaitForAnyInput {
+DialogCmd_WaitForAnyInput {
     LDA #$CFF0            ; Suppress all button auto-repeat ($CFF0)
     TSB $joypadHeld
 
@@ -854,13 +854,13 @@ WideCmd_WaitForAnyInput {
     RTS 
 }
 
-WideCmd_JumpToAddress {
+DialogCmd_JumpToAddress {
     LDA $0000, Y          ; 2-byte operand → set Y to new string address
     TAY 
     RTS 
 }
 
-WideCmd_SetSfx {
+DialogCmd_SetSfx {
     LDA $0000, Y
     INY 
     AND #$00FF
@@ -871,9 +871,9 @@ WideCmd_SetSfx {
 ---------------------------------------------
 ; Open the standard dialogue box used for most NPC conversations.
 ; 
-; Hardcoded dimensions: 13 columns × 4 rows, positioned at column 3, row 17 (bottom of screen). Computes the VRAM buffer offset and jumps to OpenDialogueBox_Body to share the box construction logic with WideCmd_OpenDialogueBox.
+; Hardcoded dimensions: 13 columns × 4 rows, positioned at column 3, row 17 (bottom of screen). Computes the VRAM buffer offset and jumps to OpenDialogueBox_Body to share the box construction logic with DialogCmd_OpenDialogueBox.
 
-WideCmd_OpenDefaultBox {
+DialogCmd_OpenDefaultBox {
     LDA #$000D            ; Hardcoded default box: 13 columns × 4 rows at position (3, 17)
     STA $0982
     LDA #$0004
@@ -899,7 +899,7 @@ WideCmd_OpenDefaultBox {
 ; 
 ; Reads 3-byte operand: byte 0 = palette index (×2 for word offset), bytes 1-2 = 15-bit BGR color value. Writes to $7F0A00 + index×2. Used for dialogue-specific color effects.
 
-WideCmd_SetPaletteColor {
+DialogCmd_SetPaletteColor {
     PHX 
     LDA $0000, Y          ; 3-byte operand: palette index (×2 for word offset), then 15-bit BGR color
     AND #$00FF
@@ -919,7 +919,7 @@ WideCmd_SetPaletteColor {
 ; 
 ; Reads a 1-byte operand, adds 2 (INC INC), masks to byte, and stores to $007E. The +2 bias means operand 0 = 2-frame delay, operand 1 = 3-frame delay, etc. A value of 0 in $007E (from the BEQ check in WaitNFrames_PerChar) causes instant rendering.
 
-WideCmd_SetFrameDelay {
+DialogCmd_SetFrameDelay {
     LDA $0000, Y
     INY 
     INC                   ; +2 bias: operand 0 → 2-frame delay, 1 → 3-frame, etc.
@@ -934,7 +934,7 @@ WideCmd_SetFrameDelay {
 ; 
 ; Reads a 1-byte index, doubles it for the word pointer table, switches DBR to the dictionary bank, reads the string pointer, and recursively renders via JSL DialogStringRenderer. Used for common words to save space in dialogue scripts.
 
-WideCmd_DictionaryA {
+DialogCmd_DictionaryA {
     PHP 
     PHB 
     PHY 
@@ -964,7 +964,7 @@ WideCmd_DictionaryA {
 ; 
 ; Identical to DictionaryA but reads from the second dictionary table. Two dictionaries allow more than 256 common words while keeping operands to 1 byte each.
 
-WideCmd_DictionaryB {
+DialogCmd_DictionaryB {
     PHP 
     PHB 
     PHY 
@@ -994,7 +994,7 @@ WideCmd_DictionaryB {
 ; 
 ; Reads bytes from the string stream one at a time. Each nonzero byte is OR'd with palette and priority bits and written to both VRAM buffer rows. Zero byte terminates. Used for rendering pre-composed tile sequences (icons, special characters).
 
-WideCmd_PrintRawTiles {
+DialogCmd_PrintRawTiles {
     LDA $0000, Y          ; Read byte → compose tile → write both rows; loop until zero terminator
     INY 
     AND #$00FF
@@ -1007,7 +1007,7 @@ WideCmd_PrintRawTiles {
     STA $7F0240, X
     INX 
     INX 
-    BRA WideCmd_PrintRawTiles
+    BRA DialogCmd_PrintRawTiles
 
   loc_03E7AE:
     STX $0998
@@ -1067,7 +1067,7 @@ WaitNFrames_Loop {
 ---------------------------------------------
 ; Scroll all dialogue box content up by one line.
 ; 
-; Copies each row from $7F0240 (bottom tile row) to $7F0200 (top tile row) across the full box width. Repeats for (height × 2 − 1) rows. Triggers display update when complete. Called twice (with WaitOneFrame between) by WideCmd_NewLine for smooth visual scrolling.
+; Copies each row from $7F0240 (bottom tile row) to $7F0200 (top tile row) across the full box width. Repeats for (height × 2 − 1) rows. Triggers display update when complete. Called twice (with WaitOneFrame between) by DialogCmd_NewLine for smooth visual scrolling.
 
 ScrollDialogueUp {
     LDA $099A

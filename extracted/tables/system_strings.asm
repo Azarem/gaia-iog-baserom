@@ -702,7 +702,7 @@ consolestring_01E85C |[CUR:9E,1][ESC:0][CUR:DE,1][ESC:0]|
 
 consolestring_01E869 |[CUR:0,0][RCC:1F,4]|
 
-consolestring_01E870 |[CUR:46,1][NHM:14]STYLE[NHM:0][PTR:@system_strings.character_name_table,AD4][NHM:14][CUR:C6,1]HP[CUR:6,2]DP[CUR:46,2]STR[CUR:86,2]DEF[CUR:CE,1][NHM:0][NUM:ACE]⸓[NUM:ACA][CUR:E,2][NUM:AD6][CUR:4E,2][NUM:ADE][CUR:8E,2][NUM:ADC][CUR:14,2][NUM:AD8][NHM:14][CUR:14,2]S[NHM:0][CUR:6,3]Items[CUR:8C,3][PTR:@system_strings.item_name_table,AC6][CUR:64,1][LU:2]Power|
+consolestring_01E870 |[CUR:46,1][NHM:14]STYLE[NHM:0][PTR:@character_name_table,AD4][NHM:14][CUR:C6,1]HP[CUR:6,2]DP[CUR:46,2]STR[CUR:86,2]DEF[CUR:CE,1][NHM:0][NUM:ACE]⸓[NUM:ACA][CUR:E,2][NUM:AD6][CUR:4E,2][NUM:ADE][CUR:8E,2][NUM:ADC][CUR:14,2][NUM:AD8][NHM:14][CUR:14,2]S[NHM:0][CUR:6,3]Items[CUR:8C,3][PTR:@item_name_table,AC6][CUR:64,1][LU:2]Power|
 
 consolestring_01E8E2 |[CUR:4,1][RCC:1C,B]|
 
@@ -712,7 +712,7 @@ consolestring_01E90B |[CUR:44,5][RCC:1C,7]|
 
 consolestring_01E912 |[CUR:56,5][RCC:13,7]|
 
-consolestring_01E919 |[NHM:0][CUR:96,5]Equipped.[DBL]Equipment[DBL][NHM:14][PTR:@system_strings.misc_ui_strings,B26][NHM:0] button to use.|
+consolestring_01E919 |[NHM:0][CUR:96,5]Equipped.[DBL]Equipment[DBL][NHM:14][PTR:@misc_ui_strings,B26][NHM:0] button to use.|
 ---------------------------------------------
 
 ; Pointer table of miscellaneous UI strings: status labels, menu headers, save/load prompts, game over text, and other system messages.
@@ -738,9 +738,9 @@ consolestring_01E9A6 |[NHM:0][CUR:96,5][LU:B]2nd item.|
 
 consolestring_01E9B7 |[NHM:0][CUR:96,5]Discard which[DBL]item?|
 
-consolestring_01E9D0 |[NHM:0][CUR:96,5][PTR:@system_strings.item_menu_table,AE8][PTR:@system_strings.item_description_table,AE8]|
+consolestring_01E9D0 |[NHM:0][CUR:96,5][PTR:@item_menu_table,AE8][PTR:@item_description_table,AE8]|
 
-consolestring_01E9E2 |[NHM:0][CUR:96,5][PTR:@system_strings.item_menu_table,AE8][DBL]Discard?[DBL]  No[DBL]  Yes|
+consolestring_01E9E2 |[NHM:0][CUR:96,5][PTR:@item_menu_table,AE8][DBL]Discard?[DBL]  No[DBL]  Yes|
 
 consolestring_01EA02 |[NHM:0][CUR:84,5]Gather[DBL]Items|
 
@@ -750,15 +750,15 @@ consolestring_01EA27 |[NHM:0][CUR:84,5]Discard[DBL]Item|
 
 consolestring_01EA39 |[NHM:0][CUR:84,5]Dark[DBL]Power|
 
-consolestring_01EA49 |[NHM:0][CUR:28,2]:[PTR:@system_strings.ability_name_table,AE8]|
+consolestring_01EA49 |[NHM:0][CUR:28,2]:[PTR:@ability_name_table,AE8]|
 
-consolestring_01EA56 |[NHM:0][CUR:E8,2]:[PTR:@system_strings.ability_name_table,AE8]|
+consolestring_01EA56 |[NHM:0][CUR:E8,2]:[PTR:@ability_name_table,AE8]|
 
-consolestring_01EA63 |[NHM:0][CUR:A8,3]:[PTR:@system_strings.ability_name_table,AE8]|
+consolestring_01EA63 |[NHM:0][CUR:A8,3]:[PTR:@ability_name_table,AE8]|
 
-consolestring_01EA70 |[NHM:0][CUR:96,5][PTR:@system_strings.character_name_table,AD4]'s cond. [DBL]Use Attack Button [DBL]for explanation of[DBL][LU:2]Power.|
+consolestring_01EA70 |[NHM:0][CUR:96,5][PTR:@character_name_table,AD4]'s cond. [DBL]Use Attack Button [DBL]for explanation of[DBL][LU:2]Power.|
 
-consolestring_01EAB4 |[NHM:0][CUR:96,5][PTR:@system_strings.ability_menu_table,AE8][PTR:@system_strings.ability_description_table,AE8]|
+consolestring_01EAB4 |[NHM:0][CUR:96,5][PTR:@ability_menu_table,AE8][PTR:@ability_description_table,AE8]|
 
 consolestring_01EAC6 |[CUR:1A,3][NHM:14]PAUSE|
 

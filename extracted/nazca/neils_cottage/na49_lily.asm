@@ -72,7 +72,7 @@ dialogstring_05DDDF `[TPL:A][CLR][TPL:2]Lilly: What are you[N]saying! You should
 
 dialogstring_05DE46 `[TPL:B][TPL:2]Lilly: There's a new[N]red star below the[N]constellation of Cygnus.[FIN][TPL:6]Neil: [N]That's right! [N]You know a lot! ! [FIN]The red star in Cygnus, [N]Will's interest in ruins.[FIN]Different elements are[N]bound together[N]organically...[FIN]I don't know if it's[N]by coincidence or by[N]design, but something[N]is going to happen.[FIN]Fortunately, the Nazca [N]ground paintings are [N]a week's walk east [N]of here. [FIN][::]Go?[N] Yes[N] No`
 
-dialogstring_05DF9F `[CLR][TPL:6]Neil: [N]Don't say that. [N]Actually, I want to go. [FIN][JMP:&na49_lily.dialogstring_05DE46+M]`
+dialogstring_05DF9F `[CLR][TPL:6]Neil: [N]Don't say that. [N]Actually, I want to go. [FIN][JMP:&dialogstring_05DE46+M]`
 
 dialogstring_05DFC3 `[CLR][TPL:6]Neil: [N]Good! It's settled![PAL:0][END]`
 

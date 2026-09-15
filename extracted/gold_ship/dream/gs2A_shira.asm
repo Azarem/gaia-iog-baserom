@@ -62,7 +62,7 @@ code_05949D {
 
 dialogstring_0594B8 `[PAU:50][TPL:A][TPL:0]Will: [N]Mother?! [FIN][TPL:2]Will's Mother, Shira: [N]Look in the sky. The [N]comet is so beautiful. [FIN]After years and years[N]the comet approaches[N]Earth, then recedes.[FIN]Some say it's an [N]unlucky star. Some [N]say it's a lucky star... [FIN]Will. What do you think? [N] Unlucky star [N] Lucky star `
 
-dialogstring_0595B4 `[CLR]All right...[N]Then hope that the bad[N]luck doesn't come....[FIN][JMP:&gs2A_shira.dialogstring_0595E6+M]`
+dialogstring_0595B4 `[CLR]All right...[N]Then hope that the bad[N]luck doesn't come....[FIN][JMP:&dialogstring_0595E6+M]`
 
 dialogstring_0595E6 `[CLR]All right...[N]Then hope that happiness[N]doesn't slip away....[FIN][::]Will. I am always [N]watching over you.[PAL:0][END]`
 

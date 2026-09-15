@@ -183,7 +183,7 @@ dialogstring_04AA0D `[TPL:A][TPL:1]Kara: [N]Crazy girl![END]`
 
 dialogstring_04AA20 `[TPL:B][TPL:1]Kara: Hey, Will, [N]aren't you my friend,[N]too!?[FIN][PAL:0] Yes, of course.[N] I, umm,  I'm going [N] to the village.`
 
-dialogstring_04AA7D `[CLR][TPL:1]Kara: [N]I'm glad, Will. Let's[N]go hand in hand.[FIN][JMP:&sc06_kara_return.dialogstring_04AAAD+M]`
+dialogstring_04AA7D `[CLR][TPL:1]Kara: [N]I'm glad, Will. Let's[N]go hand in hand.[FIN][JMP:&dialogstring_04AAAD+M]`
 
 dialogstring_04AAAD `[TPL:2][CLR]Lilly:[N]I'm going with you.[N]Let's go.[FIN][::][SFX:10][PAL:0]Together,[N]the three set off for[N]Lilly's village.[END]`
 ---------------------------------------------

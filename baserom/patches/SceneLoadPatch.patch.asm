@@ -38,7 +38,7 @@ SkipScriptCommands! {
     REP #$20
     ASL
     TAX
-    LDA $@label_list, X
+    LDA $@meta_label_list, X
     SEC
     SBC $3A
     TAY

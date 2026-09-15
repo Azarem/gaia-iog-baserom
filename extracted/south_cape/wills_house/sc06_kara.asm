@@ -113,7 +113,7 @@ dialogstring_049FBC `[TPL:A][TPL:1]Kara: I know. Olman,[N]the explorer. They say
 
 dialogstring_04A04C `[TPL:A][TPL:1]Kara: [N]Anyway, is there a[N]piano here?[FIN][TPL:0]Will: No, there isn't![N]But Grandma Lola is a[N]great singer.[FIN][::][TPL:1]Kara: They're singing[N]upstairs now. They[N]have such loud voices!![PAL:0][END]`
 
-dialogstring_04A0D2 `[TPL:A][JMP:&sc06_kara.dialogstring_04A04C+M]`
+dialogstring_04A0D2 `[TPL:A][JMP:&dialogstring_04A04C+M]`
 
 dialogstring_04A0D7 `[TPL:A][TPL:1]Kara:[N]What do I care if you[N]lose your head?[FIN][PAL:0]Soldier: Princess![FIN]Do you think I have[N]nothing better to do[N]than chase you down?[FIN]I must take you home.[N]It's the King's orders![END]`
 

@@ -904,8 +904,7 @@ scene_event_0C8221 [
   actor-spawn < #00, #01, #00, @sc01_house_intro >   ;20
   actor-spawn < #0E, #06, #01, @dark_space.dark_space2 >   ;21
   actor-spawn < #00, #01, #00, @overworld_exit >   ;22
-  actor-spawn < #08, #0C, #03, @hidden_red_jewel >
-  actor-spawn < #0C, #2F, #00, @SouthCapeDeliveryman >   ;23
+  actor-spawn < #08, #0C, #03, @hidden_red_jewel >   ;23
 ]
 
 scene_event_0C8325 [
@@ -2837,8 +2836,7 @@ scene_event_0CB41F [
   actor-spawn < #30, #28, #00, @wa78_flower >   ;2B
   actor-spawn < #0F, #16, #00, @wa78_flower >   ;2C
   actor-spawn < #35, #0B, #00, @wa78_diary >   ;2D
-  actor-spawn < #12, #38, #11, @hidden_red_jewel >
-  actor-spawn < #14, #23, #07, @wa78_men >   ;2E
+  actor-spawn < #12, #38, #11, @hidden_red_jewel >   ;2E
 ]
 
 scene_event_0CB572 [

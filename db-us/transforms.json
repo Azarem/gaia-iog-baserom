@@ -187,14 +187,6 @@
     {
       "key": "`Shrine `",
       "value": "`Shrine`"
-    },
-    {
-      "key": "actor-spawn < #08, #0C, #03, @hidden_red_jewel >",
-      "value": "$&\r\n  actor-spawn < #0C, #2F, #00, @SouthCapeDeliveryman >"
-    },
-    {
-      "key": "actor-spawn < #12, #38, #11, @hidden_red_jewel >",
-      "value": "$&\r\n  actor-spawn < #14, #23, #07, @wa78_men >"
     }
   ],
   "scene_meta": [
@@ -215,13 +207,13 @@
       "value": "music < #1F, #00, @bgm_illusion_of_gaia >"
     },
     {
-      "key": "mapdef_0041 \\[\\s+ppu < #00 >",
-      "value": "mapdef_0041 [\r\n  ppu < #11 >"
+      "key": "scene_meta_0041 \\[\\s+display-mode < #00 >",
+      "value": "scene_meta_0041 [\r\n  display-mode < #11 >"
     }
   ],
   "diary_menu_window_dma": [
     {
-      "key": "(dma_data_00BC4C\\s\\[\\s*\\])[\\s]*(dma_data_00BC4D\\s\\[[^\\]]*\\])",
+      "key": "(dma_channel_00BC4C\\s\\[\\s*\\])[\\s]*(dma_channel_00BC4D\\s\\[[^\\]]*\\])",
       "value": "$2\r\n\r\n$1"
     }
   ],

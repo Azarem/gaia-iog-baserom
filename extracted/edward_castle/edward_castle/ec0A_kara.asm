@@ -136,7 +136,7 @@ dialogstring_04CCE4 `[TPL:A][TPL:1]Kara: [N]Terrible![N]It's terrible![FIN]Again
 
 dialogstring_04CDC0 `[PAU:28][TPL:A][TPL:1]Kara:  I feel scared.[N]My father and mother[N]seem to have changed.[FIN]Please save me![N]Take me out of here![N]Please...[FIN][SFX:10][PAL:0]Soldier: Princess...[FIN][::][TPL:1]Kara: [N]Please come back, Will.[PAL:0][END]`
 
-dialogstring_04CE45 `[TPL:A][JMP:&ec0A_kara.dialogstring_04CDC0+M]`
+dialogstring_04CE45 `[TPL:A][JMP:&dialogstring_04CDC0+M]`
 
 dialogstring_04CE4A `[TPL:B][TPL:1]Kara: [N]Of course, you've come![N]Thank you.[FIN]Was the guard asleep[N]outside? His nickname is[N]"Old Snorehead.ˮ[N]Sleeping again.[FIN][TPL:0]Will: Your little[N]pig has come....[FIN][TPL:1]Kara: His name is [N]Hamlet. Cute, isn't he?[FIN][TPL:1]Kara: He's very smart.[N]He has some kind of[N]strange pig power...[FIN]Please, take me out of[N]here![PAL:0][END]`
 

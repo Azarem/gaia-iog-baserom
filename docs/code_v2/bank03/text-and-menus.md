@@ -120,36 +120,36 @@ push command-table entry − 1, `RTS` to it; commands `RTS` back to the char loo
 | `$03E255` | `DialogStringRenderer` | entry (`JSL`): save state, DP=0, enter char loop |
 | `$03E25F` | `DialogString_CharLoop` | main bytecode loop: read byte, dispatch char or command |
 | `$03E2C3` | `DialogStringCommandTable` | 25-entry word table (`$C0`–`$D8` → handler addresses) |
-| `$03E2F5` | `WideCmd_EndAndWait` | wait input, clear box, restore delay; TRB `$0F00` from joypadHeld |
-| `$03E307` | `WideCmd_Return` | PLP/RTL — exit renderer |
-| `$03E30F` | `WideCmd_SetPosition` | set column/row from 2B operand |
-| `$03E335` | `WideCmd_InsertTemplate` | recursive render from `templates_01CA95` |
-| `$03E35B` | `WideCmd_SetPalette` | set palette bits (`$0986`) from 1B |
-| `$03E36B` | `WideCmd_InfiniteLoop` | halt: `BRA` to self |
-| `$03E36F` | `WideCmd_IndirectString` | pointer from indirect table (4B) |
-| `$03E393` | `WideCmd_PrintNumber` | format multi-digit number (4B: addr, digit count) |
+| `$03E2F5` | `DialogCmd_EndAndWait` | wait input, clear box, restore delay; TRB `$0F00` from joypadHeld |
+| `$03E307` | `DialogCmd_Return` | PLP/RTL — exit renderer |
+| `$03E30F` | `DialogCmd_SetPosition` | set column/row from 2B operand |
+| `$03E335` | `DialogCmd_InsertTemplate` | recursive render from `templates_01CA95` |
+| `$03E35B` | `DialogCmd_SetPalette` | set palette bits (`$0986`) from 1B |
+| `$03E36B` | `DialogCmd_InfiniteLoop` | halt: `BRA` to self |
+| `$03E36F` | `DialogCmd_IndirectString` | pointer from indirect table (4B) |
+| `$03E393` | `DialogCmd_PrintNumber` | format multi-digit number (4B: addr, digit count) |
 | `$03E42F` | `HexDigitTileTable` | tile lookup for hex digit rendering |
-| `$03E43F` | `WideCmd_OpenDialogueBox` | open sized box (2B: width, height) |
+| `$03E43F` | `DialogCmd_OpenDialogueBox` | open sized box (2B: width, height) |
 | `$03E453` | `OpenDialogueBox_Body` | box construction: border + body rows |
 | `$03E4CE` | `DialogueBorderTiles` | 8 tile words: 4 corners + 4 edges |
 | `$03E4DE` | `DrawDialogueBorderRow` | render top/bottom border row |
 | `$03E505` | `DrawDialogueBodyRows` | fill interior rows with blank + side borders |
-| `$03E579` | `WideCmd_ClearDialogueBox` | clear interior + reset palette + wait |
-| `$03E5EB` | `WideCmd_WaitFrames` | pause N frames (1B count) |
-| `$03E5F8` | `WideCmd_NewLine` | advance line; scroll via `ScrollDialogueUp` if at bottom |
-| `$03E61E` | `WideCmd_AdvanceCursor` | forward N tiles (1B count) |
-| `$03E636` | `WideCmd_InsertRemoteString` | string from another bank (3B: addr + bank) |
-| `$03E656` | `WideCmd_ClearBox` | clear box interior, reset cursor |
-| `$03E6A4` | `WideCmd_WaitForButton` | wait for A/B (mask `$C080`), TSB `$C080` into joypadHeld |
-| `$03E6D2` | `WideCmd_WaitForAnyInput` | wait for any joypad input |
-| `$03E6E7` | `WideCmd_JumpToAddress` | set Y = new address (2B) |
-| `$03E6EC` | `WideCmd_SetSfx` | per-char SFX (1B → `$0996`) |
-| `$03E6F7` | `WideCmd_OpenDefaultBox` | open 13×4 box at (3,17) |
-| `$03E721` | `WideCmd_SetPaletteColor` | CGRAM write (1B index + 2B color) |
-| `$03E736` | `WideCmd_SetFrameDelay` | text speed (1B + 2 → `$007E`) |
-| `$03E743` | `WideCmd_DictionaryA` | dictionary A lookup (1B index) |
-| `$03E769` | `WideCmd_DictionaryB` | dictionary B lookup (1B index) |
-| `$03E78F` | `WideCmd_PrintRawTiles` | raw tiles until `$00` terminator |
+| `$03E579` | `DialogCmd_ClearDialogueBox` | clear interior + reset palette + wait |
+| `$03E5EB` | `DialogCmd_WaitFrames` | pause N frames (1B count) |
+| `$03E5F8` | `DialogCmd_NewLine` | advance line; scroll via `ScrollDialogueUp` if at bottom |
+| `$03E61E` | `DialogCmd_AdvanceCursor` | forward N tiles (1B count) |
+| `$03E636` | `DialogCmd_InsertRemoteString` | string from another bank (3B: addr + bank) |
+| `$03E656` | `DialogCmd_ClearBox` | clear box interior, reset cursor |
+| `$03E6A4` | `DialogCmd_WaitForButton` | wait for A/B (mask `$C080`), TSB `$C080` into joypadHeld |
+| `$03E6D2` | `DialogCmd_WaitForAnyInput` | wait for any joypad input |
+| `$03E6E7` | `DialogCmd_JumpToAddress` | set Y = new address (2B) |
+| `$03E6EC` | `DialogCmd_SetSfx` | per-char SFX (1B → `$0996`) |
+| `$03E6F7` | `DialogCmd_OpenDefaultBox` | open 13×4 box at (3,17) |
+| `$03E721` | `DialogCmd_SetPaletteColor` | CGRAM write (1B index + 2B color) |
+| `$03E736` | `DialogCmd_SetFrameDelay` | text speed (1B + 2 → `$007E`) |
+| `$03E743` | `DialogCmd_DictionaryA` | dictionary A lookup (1B index) |
+| `$03E769` | `DialogCmd_DictionaryB` | dictionary B lookup (1B index) |
+| `$03E78F` | `DialogCmd_PrintRawTiles` | raw tiles until `$00` terminator |
 | `$03E7B2` | `WaitOneFrame` | single-frame wait (called by menu + dialogue) |
 | `$03E7B5` | `WaitNFrames_Entry` | frame delay entry for typing speed |
 | `$03E7BA` | `WaitNFrames_PerChar` | per-character delay loop |
@@ -167,7 +167,7 @@ push command-table entry − 1, `RTS` to it; commands `RTS` back to the char loo
 
 ### Box mechanics
 
-**Opening:** `WideCmd_OpenDialogueBox` computes the VRAM buffer position from
+**Opening:** `DialogCmd_OpenDialogueBox` computes the VRAM buffer position from
 column/row: `base = (row × 32 + column) × 2` (row via `XBA + LSR + LSR`). Saves
 the origin to `$097E`/`$0980`. `DialogueBorderTiles` provides 8 tile words (4
 corners + 4 edges). `DrawDialogueBorderRow` renders horizontal borders (top/
@@ -175,7 +175,7 @@ bottom), `DrawDialogueBodyRows` fills interior rows with blank tile `$2040` and
 side borders. An optional prompt row is added when `worldReadyFlag` is set and
 `$00EE` is zero.
 
-**Scrolling:** When `WideCmd_NewLine` advances past the last visible line,
+**Scrolling:** When `DialogCmd_NewLine` advances past the last visible line,
 `ScrollDialogueUp` (`$03E7D6`) copies each line's VRAM data up by one row (40
 bytes per row), then clears the bottom line with blanks. The line counter
 `$099C` is decremented to reflect the shift.

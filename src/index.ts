@@ -108,13 +108,13 @@ export const jp : DbGameRomModule = {
     names: namesJP
 };
 
-export async function extract(romPath: string, outPath: string, options: Record<string, boolean>) {
+export async function extract(romPath: string, outPath: string, options?: string[]) {
     if (!romPath) romPath = process.env.ROM_PATH;
     if(!outPath) outPath = './extracted';
 
     var dbRoot = DbRootUtils.fromGameModule(db);
 
-    if(options.linetracking) dbRoot.config.emitLineTracking = true;
+    if(options?.includes('linetracking')) dbRoot.config.emitLineTracking = true;
 
     await DbRootUtils.extractAllContent(dbRoot, romPath, outPath);
 }
@@ -128,7 +128,7 @@ export async function extractJP(romPath: string, outPath: string) {
     await DbRootUtils.extractAllContent(dbRoot, romPath, outPath);
 }
 
-export async function rebuild(inPath: string, outPath: string, baseRomPath: string, modulePaths?: string[]) {
+export async function rebuild(inPath: string, outPath: string, baseRomPath: string, modulePaths?: string[], options?: string[]) {
     if(!inPath) inPath = './extracted';
     if(!outPath) outPath = `./rebuilt/${process.env.ROM_NAME ?? 'Illusion of Gaia - Rebuilt'}.smc`;
     if(!baseRomPath) baseRomPath = join(__pkgRoot, 'baserom');
@@ -137,28 +137,33 @@ export async function rebuild(inPath: string, outPath: string, baseRomPath: stri
 
     const outData = await DbRootUtils.rebuildAllContent(dbRoot, [inPath, baseRomPath, ...(modulePaths || [])], outPath);
     
-    const artifactPath = './artifacts';
+    if(options?.includes('artifacts')) {
+        console.log('Generating artifacts...');
+        const artifactPath = './artifacts';
+        let totalSize = 0;
 
-    const fileLayoutArtifact = outData.files.filter((file) => file.size > 0).sort((a, b) => a.location - b.location).map((file) => {
-        return `  "${file.location.toString(16).toUpperCase().padStart(6, '0')}" : "${file.name}"`;
-    });
+        const fileLayoutArtifact = outData.files.filter((file) => file.size > 0).sort((a, b) => a.location - b.location).map((file) => {
+            totalSize += file.size;
+            return `  "${file.location.toString(16).toUpperCase().padStart(6, '0')}" : "${file.name}"`;
+        });
 
-    const fileLayoutArtifactText = `{${RomProcessingConstants.NEWLINE}${fileLayoutArtifact.join(',' + RomProcessingConstants.NEWLINE)}${RomProcessingConstants.NEWLINE}}`;
-    await saveFileAsText(join(artifactPath, 'file-layout.json'), fileLayoutArtifactText);
+        const fileLayoutArtifactText = `{${RomProcessingConstants.NEWLINE}${fileLayoutArtifact.join(',' + RomProcessingConstants.NEWLINE)}${RomProcessingConstants.NEWLINE}}`;
+        await saveFileAsText(join(artifactPath, 'file-layout.json'), fileLayoutArtifactText);
 
-    const masterArtifact = Object.entries(outData.masterLookup)
-      .filter((entry) => !entry[0].match(/[!+-]$/))
-      .sort((a, b) => a[1].location - b[1].location)
-      .map((entry) => {
-        return `  "${entry[0]}": "${entry[1].location.toString(16).toUpperCase().padStart(6, '0')}"`;
-    });
+        const masterArtifact = Object.entries(outData.masterLookup)
+        .filter((entry) => !entry[0].match(/[!+-]$/))
+        .sort((a, b) => a[1].location - b[1].location)
+        .map((entry) => {
+            return `  "${entry[0]}": "${entry[1].location.toString(16).toUpperCase().padStart(6, '0')}"`;
+        });
 
-    const masterArtifactText = `{${RomProcessingConstants.NEWLINE}${masterArtifact.join(',' + RomProcessingConstants.NEWLINE)}${RomProcessingConstants.NEWLINE}}`;
-    await saveFileAsText(join(artifactPath, 'master-lookup.json'), masterArtifactText);
+        const masterArtifactText = `{${RomProcessingConstants.NEWLINE}${masterArtifact.join(',' + RomProcessingConstants.NEWLINE)}${RomProcessingConstants.NEWLINE}}`;
+        await saveFileAsText(join(artifactPath, 'master-lookup.json'), masterArtifactText);
 
-    const crc = crc32_buffer(outData.romData);
-    const crcText = JSON.stringify({ checksum: outData.header.checksum, crc }, null, 2);
-    await saveFileAsText(join(artifactPath, 'crc.json'), crcText);
+        const crc = crc32_buffer(outData.romData);
+        const crcText = JSON.stringify({ checksum: outData.header.checksum, crc, totalSize }, null, 2);
+        await saveFileAsText(join(artifactPath, 'crc.json'), crcText);
+    }
 }
 
 export async function rebuildJp(inPath: string, outPath: string, baseRomPath: string, modulePaths?: string[]) {
@@ -189,10 +194,10 @@ if (isMainModule) {
         }
     }
 
-    const options = flags.reduce((acc, flag) => {
-        acc[flag] = true;
-        return acc;
-    }, {});
+    // const options = flags.reduce((acc, flag) => {
+    //     acc[flag] = true;
+    //     return acc;
+    // }, {});
 
     (async () => {
         try {
@@ -201,7 +206,7 @@ if (isMainModule) {
                     console.log('Starting ROM extraction...');
                     console.log('ROM Path:', args[0]);
                     console.log('Output Path:', args[1] || '../extracted');
-                    await extract(args[0], args[1], options);
+                    await extract(args[0], args[1], flags);
                     console.log('ROM extraction completed successfully!');
                     break;
                 case 'extract-jp':
@@ -213,7 +218,7 @@ if (isMainModule) {
                     break;
                 case 'rebuild':
                     console.log('Starting ROM rebuild...');
-                    await rebuild(args[0], args[1], args[2]);
+                    await rebuild(args[0], args[1], args[2], undefined, flags);
                     console.log('ROM rebuild completed successfully!');
                     break;
                 case 'rebuild-jp':

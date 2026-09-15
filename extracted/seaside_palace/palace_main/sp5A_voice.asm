@@ -53,11 +53,11 @@ code_0695A1 {
     RTL 
 }
 
-dialogstring_0695AF `[TPL:A][TPL:0][PRT:@sp5A_voice.dialogstring_069705][PAL:0]Strange Voice: [N]This is the Palace of [N]Vampires... [FIN]The fountain in [N]this palace produces [N]demons continuously... [END]`
+dialogstring_0695AF `[TPL:A][TPL:0][PRT:@dialogstring_069705][PAL:0]Strange Voice: [N]This is the Palace of [N]Vampires... [FIN]The fountain in [N]this palace produces [N]demons continuously... [END]`
 
-dialogstring_069612 `[TPL:A][TPL:0][PRT:@sp5A_voice.dialogstring_069705][PAL:0]Strange Voice: In the [N]basement of the castle [N]is a strange fountain. [FIN]The stone is there...[N]Hurry! Hurry![END]`
+dialogstring_069612 `[TPL:A][TPL:0][PRT:@dialogstring_069705][PAL:0]Strange Voice: In the [N]basement of the castle [N]is a strange fountain. [FIN]The stone is there...[N]Hurry! Hurry![END]`
 
-dialogstring_069672 `[TPL:A][TPL:0][PRT:@sp5A_voice.dialogstring_069705][PAL:0]Strange Voice: The[N]Purification Stone...[N]in the castle...[END]`
+dialogstring_069672 `[TPL:A][TPL:0][PRT:@dialogstring_069705][PAL:0]Strange Voice: The[N]Purification Stone...[N]in the castle...[END]`
 
 dialogstring_0696A5 `[TPL:A][TPL:0]Will: What? A sign of [N]life from the [N]right-hand room...[PAL:0][END]`
 

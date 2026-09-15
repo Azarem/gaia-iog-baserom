@@ -1036,7 +1036,7 @@
         "item_get_dialog_table": { "start": 130340, "end": 130924, "type": "&DialogString" },
         "scene_actors": { "start": 819200, "end": 845285, "type": "&scene-event", "postProcess": "Extract(1)", "movable": true, "order": -1 },
         "scene_thinkers": { "start": 845285, "end": 846683, "type": "&thinker-spawn", "order": -1 },
-        "scene_meta": { "start": 884736, "end": 897023, "type": "scene-meta", "postProcess": "Lookup(0,1)&&Label(label)", "movable": true },
+        "scene_meta": { "start": 884736, "end": 897023, "type": "scene-meta", "postProcess": "Lookup(0,1)&&Label(label,meta_label)", "movable": true },
         "table_0E8000": { "start": 950272, "end": 969435, "type": "&sprite-set" },
         "table_0EDA00": { "start": 973312, "end": 974144, "type": "&sprite-set" },
         "table_0EE000": { "start": 974848, "end": 982479, "type": "&sprite-set" },

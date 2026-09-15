@@ -1896,11 +1896,11 @@ dialogstring_0BF3F4 `[DLG:6,A][SIZ:A,4]Start Journey[N]Erase Trip Diary[N]Copy T
 
 dialogstring_0BF437 `[DLG:2,8][SIZ:E,7]Which Diary?[N][::] Diary1 [ADR:&strings_0BF706,D74][N][N] Diary2 [ADR:&strings_0BF706,D76][N][N] Diary3 [ADR:&strings_0BF706,D78]`
 
-dialogstring_0BF476 `[DLG:2,8][SIZ:E,7]Change Snd/Button[N][JMP:&sFA_diary_menu.dialogstring_0BF437+M]`
+dialogstring_0BF476 `[DLG:2,8][SIZ:E,7]Change Snd/Button[N][JMP:&dialogstring_0BF437+M]`
 
-dialogstring_0BF48C `[DLG:2,8][SIZ:E,7]Move which Diary?[N][JMP:&sFA_diary_menu.dialogstring_0BF437+M]`
+dialogstring_0BF48C `[DLG:2,8][SIZ:E,7]Move which Diary?[N][JMP:&dialogstring_0BF437+M]`
 
-dialogstring_0BF4A7 `[DLG:2,8][SIZ:E,7]Erase which Diary?[N][JMP:&sFA_diary_menu.dialogstring_0BF437+M]`
+dialogstring_0BF4A7 `[DLG:2,8][SIZ:E,7]Erase which Diary?[N][JMP:&dialogstring_0BF437+M]`
 
 dialogstring_0BF4C3 `[DLG:2,C][::][SKP:2]HP[SKP:1][BCD:2,D9A][SKP:2]STR[SKP:1][BCD:2,D9C][SKP:2]DEF[SKP:1][BCD:2,D9E]`
 
@@ -1912,9 +1912,9 @@ dialogstring_0BF538 `[DLG:6,8][SIZ:A,8][SKP:2]Change Snd/Buttons[N]End Changes[N
 
 dialogstring_0BF5AD `[DLG:6,8][SIZ:A,8]Arrangement  OK?[N]Start Journey[N]Sound[N]Button Type[N][SKP:5]   :Attack/Talk[N][SKP:5]   :Item/Cancel[N][SKP:5]   :Item palette[N][SKP:5]   :Not used`
 
-dialogstring_0BF625 `[DLG:D,C][SFX:0][ADR:&sFA_diary_menu.table_0BF667,D90]`
+dialogstring_0BF625 `[DLG:D,C][SFX:0][ADR:&table_0BF667,D90]`
 
-dialogstring_0BF630 `[DLG:11,E][SFX:0][ADR:&sFA_diary_menu.table_0BF63B,D8E]`
+dialogstring_0BF630 `[DLG:11,E][SFX:0][ADR:&table_0BF63B,D8E]`
 ---------------------------------------------
 
 table_0BF63B [
@@ -1940,10 +1940,10 @@ dialogstring_0BF672 `Mono  `
 dialogstring_0BF679 `[DLG:4,15][SIZ:C,2][DLY:FF]Diary not empty[N]Erase and select[FIN][CLD]`
 ---------------------------------------------
 
-dialogstring_0BF6A4 `[DLG:4,A][ADR:&sFA_diary_menu.table_0BF6AD,D94]`
+dialogstring_0BF6A4 `[DLG:4,A][ADR:&table_0BF6AD,D94]`
 ---------------------------------------------
 
-dialogstring_0BF6B3 `[DLG:4,8][SIZ:D,5][ADR:&sFA_diary_menu.table_0BF6D9,D94][N][N]Erase diary? [N] No [N] Yes `
+dialogstring_0BF6B3 `[DLG:4,8][SIZ:D,5][ADR:&table_0BF6D9,D94][N][N]Erase diary? [N] No [N] Yes `
 ---------------------------------------------
 
 table_0BF6D9 [

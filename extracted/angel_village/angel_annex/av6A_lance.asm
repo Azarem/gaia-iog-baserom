@@ -83,11 +83,11 @@ dialogstring_06BD1A `[CLR][TPL:0]Will: I didn't think  [N]I'd ever hear you [N]s
 
 dialogstring_06BD4A `[CLR][TPL:0]Will: But you've spent [N]a lot of time together. [N]It seems only natural. [FIN][CLR][TPL:4]Lance: Soon it will be [N]Lilly's 15th birthday. [FIN]I want to give her a[N]present and tell her[N]how I feel.[FIN]What would[N]you give her?[FIN] A bouquet of flowers[N] A pretty necklace[N] A sweet kiss`
 
-dialogstring_06BE1F `[CLR][TPL:0]Will: [N]Any woman would like a [N]bouquet of flowers. [FIN][TPL:4]Lance: I know. I'll send [N]a bouquet of rose buds [N]to show my love. [FIN][JMP:&av6A_lance.dialogstring_06BF7C]`
+dialogstring_06BE1F `[CLR][TPL:0]Will: [N]Any woman would like a [N]bouquet of flowers. [FIN][TPL:4]Lance: I know. I'll send [N]a bouquet of rose buds [N]to show my love. [FIN][JMP:&dialogstring_06BF7C]`
 
-dialogstring_06BE85 `[CLR][TPL:0]Will: Of course, [N]something she'd wear [N]would be nice. [FIN]When she sees it, she'll [N]think of you. [FIN][TPL:4]Lance: Of course. [N]I'll find stones and [N]make a necklace. [FIN][JMP:&av6A_lance.dialogstring_06BF7C]`
+dialogstring_06BE85 `[CLR][TPL:0]Will: Of course, [N]something she'd wear [N]would be nice. [FIN]When she sees it, she'll [N]think of you. [FIN][TPL:4]Lance: Of course. [N]I'll find stones and [N]make a necklace. [FIN][JMP:&dialogstring_06BF7C]`
 
-dialogstring_06BF0A `[CLR][TPL:0]Will: [N]That's the only thing [N]she'd like, right? [FIN][TPL:4]Lance: It might be too [N]sudden, but if you think [N]it's OK, I'll try it. [FIN][JMP:&av6A_lance.dialogstring_06BF7C]`
+dialogstring_06BF0A `[CLR][TPL:0]Will: [N]That's the only thing [N]she'd like, right? [FIN][TPL:4]Lance: It might be too [N]sudden, but if you think [N]it's OK, I'll try it. [FIN][JMP:&dialogstring_06BF7C]`
 
 dialogstring_06BF7C `[TPL:A][TPL:4]Lance: Thanks for [N]the advice. [FIN]I'll think about it.[N]It's good to[N]have friends.[PAL:0][END]`
 

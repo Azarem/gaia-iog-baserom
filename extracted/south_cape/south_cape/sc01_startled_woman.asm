@@ -55,6 +55,6 @@ code_0487BA {
 
 dialogstring_0487BF `[DEF]Oh, no![FIN][::]What are you doing![N]This child![N]Honestly...[END]`
 
-dialogstring_0487F1 `[DEF][JMP:&sc01_startled_woman.dialogstring_0487BF+M]`
+dialogstring_0487F1 `[DEF][JMP:&dialogstring_0487BF+M]`
 
 dialogstring_0487F5 `[DEF]I envy you when I see [N]the sea breeze blowing [N]your hair like that... [FIN]Not like mine,[N]under this scarf.... [END]`

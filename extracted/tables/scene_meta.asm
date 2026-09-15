@@ -275,7 +275,7 @@ scene_meta_0001 [
   tileset < #00, #20, #00, #02, @set_southcape_effect >   ;06
   tilemap < #01, @map_sc01 >   ;07
   tilemap < #02, @map_sc01_effect >   ;08
-  label_3E:   ;09
+  meta_label_3E:   ;09
   bitmap < #00, #10, #10, @gfx_southcape_sprites, #01 >   ;0A
   palette < #20, #80, #A0, @pal_southcape_sprites >   ;0B
   spritemap < #$17F4, #00, @spm_southcape_sprites >   ;0C
@@ -288,7 +288,7 @@ scene_meta_0002 [
   bitmap < #00, #10, #00, @gfx_cave, #00 >   ;03
   palette < #00, #70, #10, @pal_cave >   ;04
   tileset < #00, #20, #00, #01, @set_cave >   ;05
-  label_03:   ;06
+  meta_label_03:   ;06
   bitmap < #00, #10, #10, @gfx_sc02_main_characters, #01 >   ;07
   palette < #00, #60, #A0, @pal_sc02_main_characters >   ;08
   spritemap < #$1463, #00, @spm_sc02_main_characters >   ;09
@@ -300,7 +300,7 @@ scene_meta_0003 [
   tilemap < #01, @map_sc03 >   ;02
   tilemap < #02, @map_southcape_interior_effect >   ;03
   palette < #00, #70, #10, @pal_southcape_interior_2 >   ;04
-  label_01:   ;05
+  meta_label_01:   ;05
   bitmap < #00, #10, #00, @gfx_southcape_interior, #00 >   ;06
   bitmap < #00, #10, #10, @gfx_southcape_effect, #00 >   ;07
   tileset < #00, #20, #00, #01, @set_southcape_interior >   ;08
@@ -335,16 +335,16 @@ scene_meta_0006 [
   tilemap < #02, @map_sc06_effect >   ;05
   branch < #4C, #01 >   ;06
   branch < #21, #23 >   ;07
-  label_07:   ;08
+  meta_label_07:   ;08
   bitmap < #00, #10, #10, @gfx_sc06_castle_actors, #01 >   ;09
   palette < #00, #60, #A0, @pal_sc06_castle_actors >   ;0A
   spritemap < #$1279, #00, @spm_sc06_castle_actors >   ;0B
   jump < #24 >   ;0C
-  label_23:   ;0D
+  meta_label_23:   ;0D
   bitmap < #00, #10, #10, @gfx_sc02_main_characters, #01 >   ;0E
   palette < #00, #60, #A0, @pal_sc02_main_characters >   ;0F
   spritemap < #$1463, #00, @spm_sc02_main_characters >   ;10
-  label_24:   ;11
+  meta_label_24:   ;11
   bitmap < #00, #10, #00, @gfx_southcape_interior, #00 >   ;12
   bitmap < #00, #10, #10, @gfx_southcape_effect, #00 >   ;13
   tileset < #00, #20, #00, #01, @set_southcape_interior >   ;14
@@ -406,11 +406,11 @@ scene_meta_000C [
   display-mode < #05 >   ;00
   music < #06, #00, @bgm_descent_into_darkness >   ;01
   tilemap < #01, @map_ec0C >   ;02
-  label_02:   ;03
+  meta_label_02:   ;03
   bitmap < #00, #10, #10, @gfx_prison_enemies, #01 >   ;04
   palette < #00, #60, #A0, @pal_prison_enemies >   ;05
   spritemap < #$21D0, #00, @spm_prison_enemies >   ;06
-  label_30:   ;07
+  meta_label_30:   ;07
   bitmap < #00, #10, #00, @gfx_prison, #00 >   ;08
   bitmap < #00, #10, #10, @gfx_southcape_effect, #00 >   ;09
   palette < #00, #70, #10, @pal_prison_2 >   ;0A
@@ -494,7 +494,7 @@ scene_meta_0015 [
   palette < #00, #70, #10, @pal_itory >   ;06
   tileset < #00, #20, #00, #01, @set_itory >   ;07
   tileset < #00, #20, #00, #02, @set_itory_effect >   ;08
-  label_04:   ;09
+  meta_label_04:   ;09
   bitmap < #00, #10, #10, @gfx_itory_sprites, #01 >   ;0A
   palette < #00, #60, #A0, @pal_itory_sprites >   ;0B
   spritemap < #$14DB, #00, @spm_itory_sprites >   ;0C
@@ -505,7 +505,7 @@ scene_meta_0016 [
   music < #03, #00, @bgm_blessing_of_nature >   ;01
   tilemap < #01, @map_it16 >   ;02
   tilemap < #02, @map_itory_interior_effect >   ;03
-  label_08:   ;04
+  meta_label_08:   ;04
   bitmap < #00, #10, #00, @gfx_itory_interior, #00 >   ;05
   bitmap < #00, #10, #10, @gfx_itory_effect, #00 >   ;06
   palette < #00, #70, #10, @pal_itory_interior >   ;07
@@ -585,7 +585,7 @@ scene_meta_001D [
   tilemap < #01, @map_ir1D >   ;05
   tileset < #00, #20, #00, #02, @set_cliff_effect >   ;06
   tilemap < #02, @map_ir1D_effect >   ;07
-  label_05:   ;08
+  meta_label_05:   ;08
   bitmap < #00, #10, #10, @gfx_cliff_enemies, #01 >   ;09
   palette < #00, #60, #A0, @pal_cliff_enemies >   ;0A
   spritemap < #$0F2A, #00, @spm_cliff_enemies >   ;0B
@@ -610,7 +610,7 @@ scene_meta_001F [
   palette < #00, #70, #10, @pal_ruins >   ;03
   tileset < #00, #20, #00, #01, @set_ruins >   ;04
   tilemap < #01, @map_ir1F >   ;05
-  label_06:   ;06
+  meta_label_06:   ;06
   bitmap < #00, #10, #10, @gfx_ruins_enemies, #01 >   ;07
   palette < #00, #60, #A0, @pal_ruins_enemies >   ;08
   spritemap < #$2336, #00, @spm_ruins_enemies >   ;09
@@ -726,7 +726,7 @@ scene_meta_0029 [
   tilemap < #01, @map_ir29 >   ;07
   tilemap < #02, @map_ir29_effect >   ;08
   palette < #00, #60, #A0, @pal_castoth >   ;09
-  label_39:   ;0A
+  meta_label_39:   ;0A
   bitmap < #00, #10, #10, @gfx_castoth, #01 >   ;0B
   spritemap < #$1B63, #00, @spm_castoth >   ;0C
 ]
@@ -749,7 +749,7 @@ scene_meta_002B [
   music < #04, #00, @bgm_ominous_whispers >   ;01
   music < #06, #01, @bgm_descent_into_darkness >   ;02
   music < #03, #02, @bgm_blessing_of_nature >   ;03
-  label_0B:   ;04
+  meta_label_0B:   ;04
   bitmap < #00, #20, #00, @gfx_shipwreck, #00 >   ;05
   palette < #00, #70, #10, @pal_shipwreck >   ;06
   tileset < #00, #20, #00, #01, @set_shipwreck >   ;07
@@ -770,7 +770,7 @@ scene_meta_002C [
   tilemap < #01, @map_gs2C >   ;07
   tileset < #00, #20, #00, #02, @set_goldship_effect >   ;08
   tilemap < #02, @map_goldship_effect >   ;09
-  label_3F:   ;0A
+  meta_label_3F:   ;0A
   bitmap < #00, #10, #10, @gfx_goldship_sprites, #01 >   ;0B
   palette < #00, #60, #A0, @pal_goldship_sprites >   ;0C
   spritemap < #$0A91, #00, @spm_goldship_sprites >   ;0D
@@ -852,7 +852,7 @@ scene_meta_0032 [
   tilemap < #01, @map_fr32 >   ;06
   tileset < #00, #20, #00, #02, @set_freejia_effect >   ;07
   tilemap < #02, @map_fr32_effect >   ;08
-  label_0C:   ;09
+  meta_label_0C:   ;09
   bitmap < #00, #10, #10, @gfx_freejia_sprites, #01 >   ;0A
   palette < #00, #60, #A0, @pal_freejia_sprites >   ;0B
   spritemap < #$124C, #00, @spm_freejia_sprites >   ;0C
@@ -877,7 +877,7 @@ scene_meta_0034 [
   tilemap < #01, @map_fr34 >   ;02
   tilemap < #02, @map_fr34_effect >   ;03
   palette < #00, #70, #10, @pal_house_interior_dark >   ;04
-  label_1C:   ;05
+  meta_label_1C:   ;05
   bitmap < #00, #10, #00, @gfx_house_interior, #00 >   ;06
   bitmap < #00, #10, #10, @gfx_freejia_effect, #00 >   ;07
   tileset < #00, #20, #00, #01, @set_freejia_interior >   ;08
@@ -976,11 +976,11 @@ scene_meta_003E [
   display-mode < #08 >   ;00
   music < #06, #00, @bgm_descent_into_darkness >   ;01
   tilemap < #01, @map_dm3E >   ;02
-  label_10:   ;03
+  meta_label_10:   ;03
   bitmap < #00, #10, #00, @gfx_mine, #00 >   ;04
   palette < #00, #70, #10, @pal_mine >   ;05
   tileset < #00, #20, #00, #01, @set_mine >   ;06
-  label_0E:   ;07
+  meta_label_0E:   ;07
   bitmap < #00, #10, #10, @gfx_mine_sprites, #01 >   ;08
   palette < #00, #60, #A0, @pal_mine_sprites >   ;09
   spritemap < #$2930, #00, @spm_mine_sprites >   ;0A
@@ -1001,7 +1001,7 @@ scene_meta_0040 [
 ]
 
 scene_meta_0041 [
-  display-mode < #00 >   ;00
+  display-mode < #11 >   ;00
   music < #06, #00, @bgm_descent_into_darkness >   ;01
   bitmap < #00, #10, #00, @gfx_mine, #00 >   ;02
   bitmap < #00, #10, #10, @gfx_mine, #00 >   ;03
@@ -1072,7 +1072,7 @@ scene_meta_0049 [
   tileset < #00, #20, #00, #03, @set_hut_interior >   ;05
   tilemap < #01, @map_neilscottage >   ;06
   tilemap < #02, @map_neilscottage_effect >   ;07
-  label_22:   ;08
+  meta_label_22:   ;08
   bitmap < #00, #10, #10, @gfx_nazca_sprites, #01 >   ;09
   palette < #00, #60, #A0, @pal_nazca_sprites >   ;0A
   spritemap < #$1507, #00, @spm_nazca_sprites >   ;0B
@@ -1099,7 +1099,7 @@ scene_meta_004C [
   tilemap < #01, @map_garden_main >   ;05
   tileset < #00, #20, #00, #02, @set_garden_effect >   ;06
   tilemap < #02, @map_garden_effect >   ;07
-  label_0D:   ;08
+  meta_label_0D:   ;08
   bitmap < #00, #10, #10, @gfx_garden_enemies, #01 >   ;09
   palette < #00, #60, #A0, @pal_garden_enemies >   ;0A
   spritemap < #$1D54, #00, @spm_garden_enemies >   ;0B
@@ -1126,7 +1126,7 @@ scene_meta_004E [
   tilemap < #01, @map_garden_east_underside >   ;05
   tileset < #00, #20, #00, #02, @set_garden_underside_effect >   ;06
   tilemap < #02, @map_garden_underside_effect >   ;07
-  label_0F:   ;08
+  meta_label_0F:   ;08
   bitmap < #00, #10, #10, @gfx_garden_enemies, #01 >   ;09
   palette < #00, #60, #A0, @pal_garden_enemies_alt >   ;0A
   spritemap < #$1D54, #00, @spm_garden_enemies >   ;0B
@@ -1214,7 +1214,7 @@ scene_meta_0055 [
   tileset < #00, #20, #00, #02, @set_garden_underside_effect >   ;06
   tilemap < #02, @map_clouds >   ;07
   palette < #00, #60, #A0, @pal_viper >   ;08
-  label_3A:   ;09
+  meta_label_3A:   ;09
   bitmap < #00, #10, #10, @gfx_viper, #01 >   ;0A
   spritemap < #$1612, #00, @spm_viper >   ;0B
 ]
@@ -1240,7 +1240,7 @@ scene_meta_0058 [
   tilemap < #01, @map_clouds >   ;04
   tileset < #00, #20, #00, #02, @set_garden_underside_effect >   ;05
   tilemap < #02, @map_clouds >   ;06
-  label_38:   ;07
+  meta_label_38:   ;07
   bitmap < #00, #10, #10, @gfx_descent_sprites, #01 >   ;08
   palette < #00, #60, #A0, @pal_descent_sprites >   ;09
   spritemap < #$07F3, #00, @spm_descent_sprites >   ;0A
@@ -1296,7 +1296,7 @@ scene_meta_005C [
   tilemap < #02, @map_palace_coffins_effect >   ;08
   branch < #70, #0C >   ;09
   jump < #18 >   ;0A
-  label_15:   ;0B
+  meta_label_15:   ;0B
 ]
 
 scene_meta_005D [
@@ -1334,12 +1334,12 @@ scene_meta_005F [
   branch < #7B, #16 >   ;08
   tilemap < #02, @map_mu_entrance_effect >   ;09
   jump < #18 >   ;0A
-  label_16:   ;0B
+  meta_label_16:   ;0B
   tilemap < #02, @map_mu_entrance_effect_half >   ;0C
   jump < #18 >   ;0D
-  label_17:   ;0E
+  meta_label_17:   ;0E
   tilemap < #02, @map_mu_drained_effect >   ;0F
-  label_18:   ;10
+  meta_label_18:   ;10
   bitmap < #00, #10, #10, @gfx_mu_enemies, #01 >   ;11
   palette < #00, #60, #A0, @pal_mu_enemies >   ;12
   spritemap < #$1C16, #00, @spm_mu_enemies >   ;13
@@ -1357,7 +1357,7 @@ scene_meta_0060 [
   branch < #7B, #19 >   ;08
   tilemap < #02, @map_mu_east_effect >   ;09
   jump < #18 >   ;0A
-  label_19:   ;0B
+  meta_label_19:   ;0B
   tilemap < #02, @map_mu_east_effect_half >   ;0C
   jump < #18 >   ;0D
 ]
@@ -1374,7 +1374,7 @@ scene_meta_0061 [
   branch < #7B, #1A >   ;08
   tilemap < #02, @map_mu_south_effect >   ;09
   jump < #18 >   ;0A
-  label_1A:   ;0B
+  meta_label_1A:   ;0B
   tilemap < #02, @map_mu_south_effect_half >   ;0C
   jump < #18 >   ;0D
 ]
@@ -1391,7 +1391,7 @@ scene_meta_0062 [
   branch < #7B, #1B >   ;08
   tilemap < #02, @map_mu_west_effect >   ;09
   jump < #18 >   ;0A
-  label_1B:   ;0B
+  meta_label_1B:   ;0B
   tilemap < #02, @map_mu_west_effect_half >   ;0C
   jump < #18 >   ;0D
 ]
@@ -1416,7 +1416,7 @@ scene_meta_0064 [
   tilemap < #01, @map_mu_connector >   ;05
   tileset < #00, #20, #00, #02, @set_mu_effect >   ;06
   branch < #7E, #17 >   ;07
-  label_1D:   ;08
+  meta_label_1D:   ;08
   tilemap < #02, @map_mu_connector_effect_half >   ;09
   jump < #18 >   ;0A
 ]
@@ -1430,7 +1430,7 @@ scene_meta_0065 [
   tilemap < #01, @map_mu_maze >   ;05
   tileset < #00, #20, #00, #02, @set_mu_effect >   ;06
   branch < #7E, #17 >   ;07
-  label_1E:   ;08
+  meta_label_1E:   ;08
   tilemap < #02, @map_mu_maze_effect_half >   ;09
   jump < #18 >   ;0A
 ]
@@ -1456,7 +1456,7 @@ scene_meta_0067 [
   tilemap < #02, @map_mu_vampires_effect >   ;07
   branch < #88, #22 >   ;08
   palette < #00, #60, #A0, @pal_vampires >   ;09
-  label_3B:   ;0A
+  meta_label_3B:   ;0A
   bitmap < #00, #10, #10, @gfx_vampires, #01 >   ;0B
   spritemap < #$1476, #00, @spm_vampires >   ;0C
 ]
@@ -1504,7 +1504,7 @@ scene_meta_006B [
   tilemap < #01, @map_angel_village >   ;05
   tileset < #00, #20, #00, #02, @set_angel_effect >   ;06
   tilemap < #02, @map_angel_village_effect >   ;07
-  label_25:   ;08
+  meta_label_25:   ;08
   bitmap < #00, #10, #10, @gfx_angel_sprites, #01 >   ;09
   palette < #00, #60, #A0, @pal_angel_sprites >   ;0A
   spritemap < #$0A43, #00, @spm_angel_sprites >   ;0B
@@ -1531,9 +1531,9 @@ scene_meta_006D [
   tilemap < #01, @map_tunnel_entrance >   ;05
   tileset < #00, #20, #00, #02, @set_angel_effect >   ;06
   tilemap < #02, @map_tunnel_entrance_effect >   ;07
-  label_1F:   ;08
+  meta_label_1F:   ;08
   palette < #00, #60, #A0, @pal_tunnel_enemies >   ;09
-  label_20:   ;0A
+  meta_label_20:   ;0A
   bitmap < #00, #10, #10, @gfx_tunnel_enemies, #01 >   ;0B
   spritemap < #$0F7F, #00, @spm_tunnel_enemies >   ;0C
 ]
@@ -1632,14 +1632,14 @@ scene_meta_0078 [
   branch < #96, #2A >   ;03
   palette < #00, #70, #10, @pal_watermia >   ;04
   jump < #2B >   ;05
-  label_2A:   ;06
+  meta_label_2A:   ;06
   palette < #00, #70, #10, @pal_watermia_dark >   ;07
-  label_2B:   ;08
+  meta_label_2B:   ;08
   tileset < #00, #20, #00, #03, @set_watermia >   ;09
   tilemap < #01, @map_watermia >   ;0A
   bitmap < #00, #10, #10, @gfx_watermia, #00 >   ;0B
   tilemap < #02, @map_watermia_effect >   ;0C
-  label_26:   ;0D
+  meta_label_26:   ;0D
   bitmap < #00, #10, #10, @gfx_watermia_sprites, #01 >   ;0E
   palette < #00, #60, #A0, @pal_watermia_sprites >   ;0F
   spritemap < #$178A, #00, @spm_watermia_sprites >   ;10
@@ -1741,7 +1741,7 @@ scene_meta_0082 [
   tilemap < #01, @map_greatwall_entrance >   ;05
   tileset < #00, #20, #00, #02, @set_greatwall_effect >   ;06
   tilemap < #02, @map_greatwall_effect >   ;07
-  label_27:   ;08
+  meta_label_27:   ;08
   bitmap < #00, #10, #10, @gfx_greatwall_sprites, #01 >   ;09
   palette < #00, #60, #A0, @pal_greatwall_sprites >   ;0A
   spritemap < #$16FF, #00, @spm_greatwall_sprites >   ;0B
@@ -1825,7 +1825,7 @@ scene_meta_008A [
   tileset < #00, #20, #00, #02, @set_greatwall_effect >   ;06
   tilemap < #02, @map_greatwall_fanger_effect >   ;07
   palette < #00, #60, #A0, @pal_sandfanger >   ;08
-  label_3C:   ;09
+  meta_label_3C:   ;09
   bitmap < #00, #10, #10, @gfx_sandfanger, #01 >   ;0A
   spritemap < #$0EC0, #00, @spm_sandfanger >   ;0B
 ]
@@ -1850,9 +1850,9 @@ scene_meta_008C [
   branch < #F4, #36 >   ;04
   tilemap < #01, @map_prologue_prophecy >   ;05
   jump < #37 >   ;06
-  label_36:   ;07
+  meta_label_36:   ;07
   tilemap < #01, @map_prologue_prophecy_2 >   ;08
-  label_37:   ;09
+  meta_label_37:   ;09
   bitmap < #00, #10, #00, @gfx_prologue_prophecy_sprites, #01 >   ;0A
   bitmap < #00, #10, #10, @gfx_overworld_font, #01 >   ;0B
   palette < #00, #90, #80, @pal_prologue_prophecy_sprites >   ;0C
@@ -1929,7 +1929,7 @@ scene_meta_0093 [
   music < #02, #00, @bgm_lively_city >   ;01
   tilemap < #01, @map_euro_house >   ;02
   tilemap < #02, @map_euro_house_effect >   ;03
-  label_28:   ;04
+  meta_label_28:   ;04
   bitmap < #00, #10, #00, @gfx_house_interior, #00 >   ;05
   palette < #00, #70, #10, @pal_house_interior_euro >   ;06
   tileset < #00, #20, #00, #03, @set_house_interior_euro >   ;07
@@ -2044,7 +2044,7 @@ scene_meta_00A0 [
   tilemap < #01, @map_kress_entrance >   ;05
   tileset < #00, #20, #00, #02, @set_kress_effect >   ;06
   tilemap < #02, @map_kress_effect >   ;07
-  label_29:   ;08
+  meta_label_29:   ;08
   bitmap < #00, #10, #10, @gfx_kress_sprites, #01 >   ;09
   palette < #00, #60, #A0, @pal_kress_sprites >   ;0A
   spritemap < #$0E70, #00, @spm_kress_sprites >   ;0B
@@ -2163,16 +2163,16 @@ scene_meta_00AC [
   branch < #B3, #32 >   ;01
   music < #04, #00, @bgm_ominous_whispers >   ;02
   jump < #33 >   ;03
-  label_32:   ;04
+  meta_label_32:   ;04
   music < #03, #00, @bgm_blessing_of_nature >   ;05
-  label_33:   ;06
+  meta_label_33:   ;06
   bitmap < #00, #10, #00, @gfx_village, #00 >   ;07
   bitmap < #00, #10, #10, @gfx_village, #00 >   ;08
   palette < #00, #70, #10, @pal_village >   ;09
   tileset < #00, #20, #00, #03, @set_village >   ;0A
   tilemap < #01, @map_village >   ;0B
   tilemap < #02, @map_village_effect >   ;0C
-  label_2F:   ;0D
+  meta_label_2F:   ;0D
   bitmap < #00, #10, #10, @gfx_village_sprites, #01 >   ;0E
   palette < #00, #60, #A0, @pal_village_sprites >   ;0F
   spritemap < #$105B, #00, @spm_village_sprites >   ;10
@@ -2207,7 +2207,7 @@ scene_meta_00B0 [
   tilemap < #01, @map_angkor_entrance >   ;05
   tileset < #00, #20, #00, #02, @set_angkor_exterior_effect >   ;06
   tilemap < #02, @map_angkor_entrance_effect >   ;07
-  label_2E:   ;08
+  meta_label_2E:   ;08
   bitmap < #00, #10, #10, @gfx_angkor_outer_sprites, #01 >   ;09
   palette < #00, #70, #90, @pal_angkor_outer_sprites >   ;0A
   spritemap < #$14D5, #00, @spm_angkor_outer_sprites >   ;0B
@@ -2220,7 +2220,7 @@ scene_meta_00B1 [
   palette < #00, #70, #10, @pal_angkor_interior >   ;03
   tileset < #00, #20, #00, #01, @set_angkor_interior >   ;04
   tilemap < #01, @map_angkor_outer_gate >   ;05
-  label_2C:   ;06
+  meta_label_2C:   ;06
   bitmap < #00, #10, #10, @gfx_angkor_interior_sprites, #01 >   ;07
   palette < #00, #70, #90, @pal_angkor_interior_sprites >   ;08
   spritemap < #$1057, #00, @spm_angkor_interior_sprites >   ;09
@@ -2388,7 +2388,7 @@ scene_meta_00C3 [
   tileset < #00, #20, #00, #02, @set_dao >   ;05
   tilemap < #01, @map_dao >   ;06
   tilemap < #02, @map_dao_effect >   ;07
-  label_2D:   ;08
+  meta_label_2D:   ;08
   bitmap < #00, #10, #10, @gfx_dao_sprites, #01 >   ;09
   palette < #00, #60, #90, @pal_dao_sprites >   ;0A
   spritemap < #$0E9E, #00, @spm_dao_sprites >   ;0B
@@ -2473,7 +2473,7 @@ scene_meta_00CC [
   palette < #00, #70, #10, @pal_pyramid >   ;03
   tileset < #00, #20, #00, #01, @set_pyramid_fluid >   ;04
   tilemap < #01, @map_pyramid_main >   ;05
-  label_31:   ;06
+  meta_label_31:   ;06
   bitmap < #00, #10, #10, @gfx_pyramid_sprites, #01 >   ;07
   palette < #00, #60, #90, @pal_pyramid_sprites >   ;08
   spritemap < #$13FB, #00, @spm_pyramid_sprites >   ;09
@@ -2659,7 +2659,7 @@ scene_meta_00DD [
   tileset < #00, #20, #00, #01, @set_pyramid_queen >   ;04
   tilemap < #01, @map_pyramid_queen >   ;05
   palette < #00, #60, #A0, @pal_mummyqueen >   ;06
-  label_3D:   ;07
+  meta_label_3D:   ;07
   bitmap < #00, #10, #10, @gfx_mummyqueen, #01 >   ;08
   spritemap < #$2017, #00, @spm_mummyqueen >   ;09
 ]
@@ -2763,7 +2763,7 @@ scene_meta_00E6 [
   display-mode < #0C >   ;00
   music < #16, #00, @bgm_space_beyond_time >   ;01
   tilemap < #01, @map_darkspace >   ;02
-  label_09:   ;03
+  meta_label_09:   ;03
   bitmap < #00, #10, #00, @gfx_darkspace, #00 >   ;04
   bitmap < #00, #10, #10, @gfx_darkspace, #00 >   ;05
   palette < #00, #70, #10, @pal_darkspace >   ;06
@@ -2998,76 +2998,76 @@ scene_meta_00FF [
   display-mode < #00 >   ;00
   bitmap < #00, #20, #00, @gfx_inventory_sprites, #01 >   ;01
   palette < #00, #80, #80, @pal_inventory_sprites >   ;02
-  label_11:   ;03
+  meta_label_11:   ;03
   palette < #00, #70, #10, @pal_inventory_bg >   ;04
   bitmap < #00, #10, #00, @gfx_inventory_bg, #00 >   ;05
   char-tiles < #80, @dmap_inventory_bg >   ;06
 ]
 ---------------------------------------------
 
-label_list [
+meta_label_list [
   #$0000   ;00
-  &label_01   ;01
-  &label_02   ;02
-  &label_03   ;03
-  &label_04   ;04
-  &label_05   ;05
-  &label_06   ;06
-  &label_07   ;07
-  &label_08   ;08
-  &label_09   ;09
+  &meta_label_01   ;01
+  &meta_label_02   ;02
+  &meta_label_03   ;03
+  &meta_label_04   ;04
+  &meta_label_05   ;05
+  &meta_label_06   ;06
+  &meta_label_07   ;07
+  &meta_label_08   ;08
+  &meta_label_09   ;09
   #$0000   ;0A
-  &label_0B   ;0B
-  &label_0C   ;0C
-  &label_0D   ;0D
-  &label_0E   ;0E
-  &label_0F   ;0F
-  &label_10   ;10
-  &label_11   ;11
+  &meta_label_0B   ;0B
+  &meta_label_0C   ;0C
+  &meta_label_0D   ;0D
+  &meta_label_0E   ;0E
+  &meta_label_0F   ;0F
+  &meta_label_10   ;10
+  &meta_label_11   ;11
   #$0000   ;12
   #$0000   ;13
   #$0000   ;14
-  &label_15   ;15
-  &label_16   ;16
-  &label_17   ;17
-  &label_18   ;18
-  &label_19   ;19
-  &label_1A   ;1A
-  &label_1B   ;1B
-  &label_1C   ;1C
-  &label_1D   ;1D
-  &label_1E   ;1E
-  &label_1F   ;1F
-  &label_20   ;20
+  &meta_label_15   ;15
+  &meta_label_16   ;16
+  &meta_label_17   ;17
+  &meta_label_18   ;18
+  &meta_label_19   ;19
+  &meta_label_1A   ;1A
+  &meta_label_1B   ;1B
+  &meta_label_1C   ;1C
+  &meta_label_1D   ;1D
+  &meta_label_1E   ;1E
+  &meta_label_1F   ;1F
+  &meta_label_20   ;20
   #$0000   ;21
-  &label_22   ;22
-  &label_23   ;23
-  &label_24   ;24
-  &label_25   ;25
-  &label_26   ;26
-  &label_27   ;27
-  &label_28   ;28
-  &label_29   ;29
-  &label_2A   ;2A
-  &label_2B   ;2B
-  &label_2C   ;2C
-  &label_2D   ;2D
-  &label_2E   ;2E
-  &label_2F   ;2F
-  &label_30   ;30
-  &label_31   ;31
-  &label_32   ;32
-  &label_33   ;33
+  &meta_label_22   ;22
+  &meta_label_23   ;23
+  &meta_label_24   ;24
+  &meta_label_25   ;25
+  &meta_label_26   ;26
+  &meta_label_27   ;27
+  &meta_label_28   ;28
+  &meta_label_29   ;29
+  &meta_label_2A   ;2A
+  &meta_label_2B   ;2B
+  &meta_label_2C   ;2C
+  &meta_label_2D   ;2D
+  &meta_label_2E   ;2E
+  &meta_label_2F   ;2F
+  &meta_label_30   ;30
+  &meta_label_31   ;31
+  &meta_label_32   ;32
+  &meta_label_33   ;33
   #$0000   ;34
   #$0000   ;35
-  &label_36   ;36
-  &label_37   ;37
-  &label_38   ;38
-  &label_39   ;39
-  &label_3A   ;3A
-  &label_3B   ;3B
-  &label_3C   ;3C
-  &label_3D   ;3D
-  &label_3E   ;3E
-  &label_3F   ;3F
+  &meta_label_36   ;36
+  &meta_label_37   ;37
+  &meta_label_38   ;38
+  &meta_label_39   ;39
+  &meta_label_3A   ;3A
+  &meta_label_3B   ;3B
+  &meta_label_3C   ;3C
+  &meta_label_3D   ;3D
+  &meta_label_3E   ;3E
+  &meta_label_3F   ;3F
 ]

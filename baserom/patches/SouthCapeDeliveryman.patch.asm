@@ -44,3 +44,7 @@ actor_def < #0A, #00, #10, {
 skyd_str_intro   `[DEF]I'm the Sky Deliveryman. [N]My tame birds [LU1:EF][LU1:E7][N]you to [LU1:85]towns. [FIN]Do you [LU1:F1]to[N]go to Watermia?[N] Quit[N] Go`
 skyd_str_cancel  `[CLR]OK. In [LU1:D7]case,[N]use [LU1:E6]later.[END]`
 skyd_str_confirm `[CLR][LU1:9]here, birds.[N][LU2:3F]taking [LU1:D6]person[N]to Watermia![END]`
+
+----------------------------------------
+
+scene_event_0C8221+: actor-spawn < #0C, #2F, #00, @SouthCapeDeliveryman >
