@@ -10,5 +10,7 @@ export default defineConfig({
   treeshake: true,
   minify: false,
   target: 'es2022',
-  external: ['fs', 'path', '@gaialabs/core'],
+  deps: {
+    neverBundle: ['fs', 'path', '@gaialabs/core'],
+  }
 }); 
