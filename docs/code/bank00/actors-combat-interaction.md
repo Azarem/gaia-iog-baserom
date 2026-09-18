@@ -2,6 +2,7 @@
 
 **Bank:** `$00` (mirrored at `$80`)  
 **Address range:** `$00D877`–`$00E4DB` (this document)  
+**Source files:** `extracted/actors/hit_stagger_controller.asm`, `extracted/actors/reward_actors.asm`, `extracted/actors/interaction_handlers.asm`, `extracted/actors/smooth_follow_child.asm`, `extracted/actors/visual_effect_pipeline.asm`, `extracted/functions/ApplyPlayerHitstun.asm`, `extracted/functions/StandardEnemyDefeatHandler.asm`, `extracted/tables/scene_actors.asm`  
 **Scope:** Hit stagger/knockback, stat reward actors, push interaction handlers, smooth follow homing, and the visual effect scroll pipeline
 
 These actors are spawned at runtime rather than placed in most scenes. They implement combat feedback, object pushing, homing projectiles, and the camera scroll integration chain.
@@ -12,20 +13,20 @@ These actors are spawned at runtime rather than placed in most scenes. They impl
 
 ## Overview
 
-| Actor / Block | Old Name | Address | Movable | Invocation |
-|---------------|----------|---------|---------|------------|
-| `hit_stagger_controller` | `actor_00D877` | `$D877`–`$DA66` | ✓ (parts block) | `ApplyPlayerHitstun`, enemy hit |
-| `e_hp_increase` | part of `reward_actors` | `$E02D` | ✓ | `StandardEnemyDefeatHandler` |
-| `e_str_increase` | part of `reward_actors` | `$E06B` | ✓ | `StandardEnemyDefeatHandler` |
-| `e_def_increase` | part of `reward_actors` | `$E0A6` | ✓ | `StandardEnemyDefeatHandler` |
-| `RewardActorVFX` | `func_00E110` | `$E110` | ✓ | All reward actors |
-| `collect_handler_gem` | `actor_00E155` | `$E155` | ✓ | ~12 spawn sites |
-| `push_handler_solid` | `actor_00E256` | `$E256` | ✓ | ~11 spawn sites |
-| `push_handler_forceball` | `actor_00E3BA` | `$E3BA` | ✓ | Force ball puzzles |
-| `smooth_follow_child` | `actor_00E4DB` | `$E4DB` | **No** | Boss/projectile scripts |
-| `effect_velocity_init` | `actor_00E8D7` | `$E8D7` | ✓ | 22+ scene slots |
-| `effect_subpixel_math` | `actor_00E98B` | `$E98B` | ✓ | Paired with pipeline |
-| `effect_position_update` | `actor_00E9EC` | `$E9EC` | ✓ | Paired with pipeline |
+| Actor / Block | Address | Movable | Invocation |
+|---------------|---------|---------|------------|
+| `hit_stagger_controller` | `$D877`–`$DA66` | ✓ (parts block) | `ApplyPlayerHitstun`, enemy hit |
+| `e_hp_increase` | `$E02D` | ✓ | `StandardEnemyDefeatHandler` |
+| `e_str_increase` | `$E07B` | ✓ | `StandardEnemyDefeatHandler` |
+| `e_def_increase` | `$E0C6` | ✓ | `StandardEnemyDefeatHandler` |
+| `RewardActorVFX` | `$E110` | ✓ | All reward actors |
+| `collect_handler_gem` | `$E155` | ✓ | ~12 spawn sites |
+| `push_handler_solid` | `$E256` | ✓ | ~11 spawn sites |
+| `push_handler_forceball` | `$E3BA` | ✓ | Force ball puzzles |
+| `smooth_follow_child` | `$E4DB` | **No** | Boss/projectile scripts |
+| `effect_velocity_init` | `$E8D7` | ✓ | 22+ scene slots |
+| `effect_subpixel_math` | `$E98B` | ✓ | Paired with pipeline |
+| `effect_position_update` | `$E9EC` | ✓ | Paired with pipeline |
 
 **Pipeline order:** `camera_scroll_controller` → `effect_velocity_init` → `effect_position_update` → `effect_subpixel_math`
 
@@ -35,35 +36,25 @@ These actors are spawned at runtime rather than placed in most scenes. They impl
 
 ### hit_stagger_controller
 
-| Property | Value |
-|----------|-------|
-| **Old Name** | `actor_00D877` |
-| **New Name** | `hit_stagger_controller` |
-| **Hex Address** | `$00D877`–`$00DA66` |
-| **Decimal Address** | 55415–55928 |
-| **Size** | 513 bytes (7 parts) |
-| **Type** | Multi-part block |
-| **ASM File** | `extracted/actors/hit_stagger_controller.asm` |
-| **Movable** | Yes (as parts block) |
-| **Priority** | High — combat-critical |
+**Address:** `$D877`–`$DA66` · **Size:** 513 bytes (7 parts)
 
 #### Description
 
-Spawned when the player or an enemy takes a hit. Applies directional knockback, manages stun timer, and on completion either restores the target's AI script or returns the player to normal control (`code_02C3C8`). Spawned by `ApplyPlayerHitstun` (`$C397`) via `SpawnLastRel @HitStaggerMain` with flags `$2400`.
+Spawned when the player or an enemy takes a hit. Applies directional knockback, manages stun timer, and on completion either restores the target's AI script or returns the player to normal control (`PlayerIdleEntry`). Spawned by `ApplyPlayerHitstun` (`$C397`) via `SpawnLastRel @HitStaggerMain` with flags `$2400`.
 
 The block spans 7 linked parts with internal `$&` references. Entry point `HitStaggerMain` reads knockback direction from a 3-deep stack (`PEA` chain), selects animation via `table_01B086`, and delegates to `HitStaggerDirection` for the movement loop.
 
 #### Parts
 
-| Part | Address | Old Name | New Name (ASM) | Role |
-|------|---------|----------|----------------|------|
-| Entry | `$D877` | `e_actor_00D877` | `HitStaggerMain` | Init: copy victim pos, read direction stack, start knockback |
-| Loop | `$D904` | `func_00D904` | `HitStaggerDirection` | 16-frame position sync loop; collision probe via `sub_00DA13` |
-| Return | `$D9EB` | `func_00D9EB` | `HitStaggerReturnAI` | Restore player AI or `$FFF4` stun timer; clear joypad mask |
-| Probe | `$DA13` | `sub_00DA13` | `sub_00DA13` | Distance threshold check ($30/$20/$40 based on `$7F101C`) |
-| Flag | `$DA41` | `sub_00DA41` | `sub_00DA41` | Carry set/clear from compare result |
-| Dir | `$DA47` | `sub_00DA47` | `sub_00DA47` | Map direction index → `table_01B086` offset |
-| Apply | `$DA66` | `sub_00DA66` | `sub_00DA66` | Write `$2C`/`$2E` velocity; set axis flag `$26` |
+| Part | Address | Name (ASM) | Role |
+|------|---------|------------|------|
+| Entry | `$D877` | `HitStaggerMain` | Init: copy victim pos, read direction stack, start knockback |
+| Loop | `$D904` | `HitStaggerDirection` | 16-frame position sync loop; collision probe via `sub_00DA13` |
+| Return | `$D9EB` | `HitStaggerReturnAI` | Restore player AI or `$FFF4` stun timer; clear joypad mask |
+| Probe | `$DA13` | `sub_00DA13` | Distance threshold check ($30/$20/$40 based on `$7F101C`) |
+| Flag | `$DA41` | `sub_00DA41` | Carry set/clear from compare result |
+| Dir | `$DA47` | `sub_00DA47` | Map direction index → `table_01B086` offset |
+| Apply | `$DA66` | `sub_00DA66` | Write `$2C`/`$2E` velocity; set axis flag `$26` |
 
 #### Algorithm (HitStaggerMain)
 
@@ -110,7 +101,7 @@ Never scene-placed. Spawned at runtime from:
 | Caller | Context |
 |--------|---------|
 | `ApplyPlayerHitstun` | Player damage (~12 enemy types) |
-| `chunk_03BAE1` | Engine hit dispatch |
+| `ComposeDigits_Continuation` | Engine hit dispatch |
 | Enemy attack scripts | Via hit callback chain |
 
 #### Cross-References
@@ -118,7 +109,7 @@ Never scene-placed. Spawned at runtime from:
 | Direction | Symbol | Notes |
 |-----------|--------|-------|
 | Spawned by | `ApplyPlayerHitstun` (`$C397`) | `SpawnLastRel @HitStaggerMain` |
-| Returns to | `code_02C3C8` | Player normal AI (bank `$02`) |
+| Returns to | `PlayerIdleEntry` | Player normal AI (bank `$02`) |
 | Falls through to | `StandardEnemyDefeatHandler` | When enemy has no saved script |
 | Includes | `player_character`, `StandardEnemyDefeatHandler`, `table_01B086` | |
 
@@ -126,18 +117,11 @@ Never scene-placed. Spawned at runtime from:
 
 ## Stat Reward Actors
 
-Spawned from `StandardEnemyDefeatHandler` (`func_00DB8A`) via `COP [SpawnLastRel]` after combat victories. Never placed directly in `scene_actors.asm`. All three stat actors call shared `RewardActorVFX` before printing their message and dying.
+Spawned from `StandardEnemyDefeatHandler` via `COP [SpawnLastRel]` after combat victories. Never placed directly in `scene_actors.asm`. All three stat actors call shared `RewardActorVFX` before printing their message and dying.
 
 ### e_hp_increase
 
-| Property | Value |
-|----------|-------|
-| **Old Name** | part of `reward_actors` |
-| **New Name** | `e_hp_increase` |
-| **Hex Address** | `$00E02D` |
-| **Decimal Address** | 57389 |
-| **Size** | 78 bytes |
-| **ASM File** | `extracted/actors/reward_actors.asm` |
+**Address:** `$E02D` · **Size:** 78 bytes
 
 #### Description
 
@@ -155,14 +139,7 @@ Increments `$0ACA` (HP) by 1, clamping at `$0255` (597 decimal — max HP cap). 
 
 ### e_str_increase
 
-| Property | Value |
-|----------|-------|
-| **Old Name** | part of `reward_actors` |
-| **New Name** | `e_str_increase` |
-| **Hex Address** | `$00E06B` |
-| **Decimal Address** | 57467 |
-| **Size** | 75 bytes |
-| **ASM File** | `extracted/actors/reward_actors.asm` |
+**Address:** `$E07B` · **Size:** 75 bytes
 
 #### Description
 
@@ -172,14 +149,7 @@ Increments `$0ADE` (STR) by 1 with `$0255` overflow clamp. Hitbox stage `#0D`. P
 
 ### e_def_increase
 
-| Property | Value |
-|----------|-------|
-| **Old Name** | part of `reward_actors` |
-| **New Name** | `e_def_increase` |
-| **Hex Address** | `$00E0A6` |
-| **Decimal Address** | 57542 |
-| **Size** | 74 bytes |
-| **ASM File** | `extracted/actors/reward_actors.asm` |
+**Address:** `$E0C6` · **Size:** 74 bytes
 
 #### Description
 
@@ -189,14 +159,7 @@ Increments `$0ADC` (DEF) by 1 with `$0255` overflow clamp. Hitbox stage `#0E`. P
 
 ### RewardActorVFX
 
-| Property | Value |
-|----------|-------|
-| **Old Name** | `func_00E110` |
-| **New Name** | `RewardActorVFX` |
-| **Hex Address** | `$00E110` |
-| **Decimal Address** | 57616 |
-| **Size** | 69 bytes |
-| **ASM File** | `extracted/actors/reward_actors.asm` |
+**Address:** `$E110` · **Size:** 69 bytes
 
 #### Description
 
@@ -225,21 +188,13 @@ All reward actors converge here — the VFX + flag set is identical regardless o
 
 ## Interaction Handlers
 
-Three handlers sharing `$@func_03F0CA` (player direction probe) and `chunk_03BAE1`. All use button `$0031` (A) and proximity radius `$0F`. Parent actor index stored in `$04` links the target object.
+Three handlers sharing `$@GetPlayerFacingDirection` (player direction probe) and `ComposeDigits_Continuation`. All use button `$0031` (A) and proximity radius `$0F`. Parent actor index stored in `$04` links the target object.
 
 > ⚠ This block was previously named `push_interaction_handlers`. Renamed to `interaction_handlers` because `collect_handler_gem` is a **collection** handler (not a push), while `push_handler_solid` and `push_handler_forceball` are true push handlers.
 
 ### collect_handler_gem
 
-| Property | Value |
-|----------|-------|
-| **Old Name** | `actor_00E155` (formerly `push_handler_light`) |
-| **New Name** | `collect_handler_gem` |
-| **Hex Address** | `$00E155` (script `$E155`) |
-| **Decimal Address** | 57685 |
-| **Size** | 257 bytes |
-| **ASM File** | `extracted/actors/interaction_handlers.asm` |
-| **Movable** | Yes |
+**Address:** `$E155` · **Size:** 257 bytes
 
 #### Description
 
@@ -247,7 +202,7 @@ Gem collection interaction handler. When the player is near a dropped dark point
 
 Spawned as a child actor by both `DarkGemDropSystem` (enemy death gem drops) and `field_reveal_object` (scene-clear collectible gems). The parent gem actor handles the visual sprite and `$chatPtr` stat type; this handler manages only the player interaction physics.
 
-Uses `func_03F0CA` for player facing verification and half-distance (`LSR`) from player to gem as the repeat count stored in `$7F0010`. No minimum offset threshold — any facing-aligned press nudges.
+Uses `GetPlayerFacingDirection` for player facing verification and half-distance (`LSR`) from player to gem as the repeat count stored in `$7F0010`. No minimum offset threshold — any facing-aligned press nudges.
 
 #### Algorithm
 
@@ -257,7 +212,7 @@ Uses `func_03F0CA` for player facing verification and half-distance (`LSR`) from
 3. BranchIfPlayerNear ($0F)
 4. BranchOnPlayerX/Y to select axis
 5. Compute distance >> 1 → repeat count
-6. func_03F0CA: verify player facing
+6. GetPlayerFacingDirection: verify player facing
 7. Move linked gem actor ($04) ±2 px toward player on matched axis
 8. Dec repeat count; loop or RestoreSavedPtr
 ```
@@ -270,15 +225,7 @@ Spawned at runtime (~12 sites including `field_reveal_object`, `DarkGemDropSyste
 
 ### push_handler_solid
 
-| Property | Value |
-|----------|-------|
-| **Old Name** | `actor_00E256` |
-| **New Name** | `push_handler_solid` |
-| **Hex Address** | `$00E256` (script `$E256`) |
-| **Decimal Address** | 57942 |
-| **Size** | 356 bytes |
-| **ASM File** | `extracted/actors/interaction_handlers.asm` |
-| **Movable** | Yes |
+**Address:** `$E256` · **Size:** 356 bytes
 
 #### Description
 
@@ -317,15 +264,7 @@ Most-used push handler (~11 spawn sites: archers, knight armor, statues, Seth bo
 
 ### push_handler_forceball
 
-| Property | Value |
-|----------|-------|
-| **Old Name** | `actor_00E3BA` |
-| **New Name** | `push_handler_forceball` |
-| **Hex Address** | `$00E3BA` (script `$E3BA`) |
-| **Decimal Address** | 58298 |
-| **Size** | 289 bytes |
-| **ASM File** | `extracted/actors/interaction_handlers.asm` |
-| **Movable** | Yes |
+**Address:** `$E3BA` · **Size:** 289 bytes
 
 #### Description
 
@@ -346,8 +285,8 @@ Force ball puzzle push handler. Requires player animation `$0028` in range `$003
 
 | Direction | Symbol | Notes |
 |-----------|--------|-------|
-| Shared | `func_03F0CA` | Player facing probe (bank `$03`) |
-| Shared | `chunk_03BAE1` | Engine interaction helpers |
+| Shared | `GetPlayerFacingDirection` | Player facing probe (bank `$03`) |
+| Shared | `ComposeDigits_Continuation` | Engine interaction helpers |
 
 ---
 
@@ -355,15 +294,7 @@ Force ball puzzle push handler. Requires player animation `$0028` in range `$003
 
 ### smooth_follow_child
 
-| Property | Value |
-|----------|-------|
-| **Old Name** | `actor_00E4DB` |
-| **New Name** | `smooth_follow_child` |
-| **Hex Address** | `$00E4DB` (entry `$E4DB`, child `$E4FC`, helpers `$E5C1`–`$E644`) |
-| **Decimal Address** | 58587 |
-| **Size** | 378 bytes |
-| **ASM File** | `extracted/actors/smooth_follow_child.asm` |
-| **Movable** | **No** (`$&` refs to `smooth_follow` system) |
+**Address:** `$E4DB`–`$E644` · **Size:** 378 bytes · **Movable:** No (`$&` refs to `smooth_follow` system)
 
 #### Description
 
@@ -418,7 +349,7 @@ Runtime spawn from boss/projectile scripts:
 | Direction | Symbol | Notes |
 |-----------|--------|-------|
 | Includes | `smooth_follow` | `ComputeFollowAngle`, `ComputeFollowStep` |
-| Included by | `chunk_03BAE1` | Engine-level access |
+| Included by | `ComposeDigits_Continuation` | Engine-level access |
 | Pointer refs | `$&smooth_follow_child-1` | Direct `$&` addressing |
 
 ---
@@ -444,16 +375,7 @@ effect_subpixel_math
 
 ### effect_velocity_init
 
-| Property | Value |
-|----------|-------|
-| **Old Name** | `actor_00E8D7` |
-| **New Name** | `effect_velocity_init` |
-| **Hex Address** | `$00E8D7` (script `$E8DA`) |
-| **Decimal Address** | 59607 |
-| **Size** | 118 bytes |
-| **Type** | `actor_def` (priority `#2C`) |
-| **ASM File** | `extracted/actors/visual_effect_pipeline.asm` |
-| **Movable** | Yes |
+**Address:** `$E8D7` · **Size:** 118 bytes
 
 #### Description
 
@@ -480,16 +402,7 @@ Sets `$06C8` with `$8000` OR — the high bit marks sub-pixel overflow pending i
 
 ### effect_subpixel_math
 
-| Property | Value |
-|----------|-------|
-| **Old Name** | `actor_00E98B` |
-| **New Name** | `effect_subpixel_math` |
-| **Decimal Address** | 59787 |
-| **Hex Address** | `$00E98B` (entry `$E98B`, X-path `$E9CA`) |
-| **Size** | 97 bytes |
-| **Type** | `Code` (not actor_def — called each frame) |
-| **ASM File** | `extracted/actors/visual_effect_pipeline.asm` |
-| **Movable** | Yes |
+**Address:** `$E98B` · **Size:** 97 bytes
 
 #### Description
 
@@ -516,16 +429,7 @@ Multiply/divide helper for sub-pixel scroll values. Uses `$@MulDivide` from `har
 
 ### effect_position_update
 
-| Property | Value |
-|----------|-------|
-| **Old Name** | `actor_00E9EC` |
-| **New Name** | `effect_position_update` |
-| **Hex Address** | `$00E9EC` (script `$E9EF`) |
-| **Decimal Address** | 59884 |
-| **Size** | 170 bytes |
-| **Type** | `actor_def` (priority `#2C`) |
-| **ASM File** | `extracted/actors/visual_effect_pipeline.asm` |
-| **Movable** | Yes |
+**Address:** `$E9EC` · **Size:** 170 bytes
 
 #### Description
 
@@ -558,8 +462,8 @@ Paired with `effect_velocity_init` in the same 22+ scenes.
 |-----------|--------|-------|
 | Fed by | `camera_scroll_controller` | `$06E4`/`$06E6` deltas |
 | Followed by | `effect_subpixel_math` | Sub-pixel refinement |
-| Block | `visual_effect_pipeline` | Grouped in `us/blocks.json` |
+| Block | `visual_effect_pipeline` | Grouped with velocity init + subpixel math |
 
 ---
 
-*Source: `extracted/actors/*.asm`, `extracted/functions/ApplyPlayerHitstun.asm`, `extracted/functions/StandardEnemyDefeatHandler.asm`, `us/blocks.json`, `extracted/tables/scene_actors.asm`.*
+*Source: `extracted/actors/*.asm`, `extracted/functions/ApplyPlayerHitstun.asm`, `extracted/functions/StandardEnemyDefeatHandler.asm`, `extracted/tables/scene_actors.asm`.*

@@ -2,7 +2,8 @@
 
 **Bank:** `$00` (mirrored at `$80`)  
 **Address range:** `$00C1AA`–`$00EAED` (this document)  
-**Scope:** Global camera/scene actors, movement speed zones, dream sequence controller, and large ramp boosters
+**Scope:** Global camera/scene actors, movement speed zones, dream sequence controller, and large ramp boosters  
+**Sources:** `extracted/actors/*.asm`, `extracted/mountain_temple/movement_speed_zones.asm`, `extracted/tables/scene_actors.asm`
 
 These actors form the invisible infrastructure present on nearly every field scene. Most run every frame without COP-heavy scripting; they coordinate camera scroll, scene flag initialization, player speed modifiers, and ramp acceleration.
 
@@ -12,16 +13,16 @@ These actors form the invisible infrastructure present on nearly every field sce
 
 ## Overview
 
-| Actor | Old Name | Address | Size | Movable | Scene Placements |
-|-------|----------|---------|------|---------|------------------|
-| `dream_zoom_controller` | `actor_00C1AA` | `$C1AA` | 54 B | ✓ | 1 (scene $2A) |
-| `speed_zone_ew_slow` | `actor_00C1DF` | `$C1DF` | 57 B | ✓ | 9 (Mountain Temple) |
-| `speed_zone_ew_fast` | `actor_00C218` | `$C218` | 57 B | ✓ | 3 (Kress Maze) |
-| `speed_zone_ns_fast_unused` | `actor_00C251` | `$C251` | 53 B | ✓ | **0** (dead code) |
-| `speed_zone_ns_slow` | `actor_00C286` | `$C286` | 53 B | ✓ | 4 (Mountain Temple) |
-| `large_ramp_booster` | `large_ramps` | `$C963` | 43 B | **No** | 3 (Incan Ruins, Diamond Mine) |
-| `scene_flag_init` | `actor_00C667` | `$C667` | 8 B | ✓ | 26 |
-| `camera_scroll_controller` | `actor_00EAED` | `$EAED` | 174 B | ✓ | 220+ |
+| Actor | Address | Size | Movable | Scene Placements |
+|-------|---------|------|---------|------------------|
+| `dream_zoom_controller` | `$C1AA` | 54 B | ✓ | 1 (scene $2A) |
+| `speed_zone_ew_slow` | `$C1DF` | 57 B | ✓ | 9 (Mountain Temple) |
+| `speed_zone_ew_fast` | `$C218` | 57 B | ✓ | 3 (Kress Maze) |
+| `speed_zone_ns_fast_unused` | `$C251` | 53 B | ✓ | **0** (dead code) |
+| `speed_zone_ns_slow` | `$C286` | 53 B | ✓ | 4 (Mountain Temple) |
+| `large_ramp_booster` | `$C963` | 43 B | **No** | 3 (Incan Ruins, Diamond Mine) |
+| `scene_flag_init` | `$C667` | 8 B | ✓ | 26 |
+| `camera_scroll_controller` | `$EAED` | 174 B | ✓ | 220+ |
 
 ---
 
@@ -29,16 +30,7 @@ These actors form the invisible infrastructure present on nearly every field sce
 
 ### camera_scroll_controller
 
-| Property | Value |
-|----------|-------|
-| **Old Name** | `actor_00EAED` |
-| **New Name** | `camera_scroll_controller` |
-| **Hex Address** | `$00EAED` (entry `$EAED`, script `$EAF0`) |
-| **Decimal Address** | 60141 |
-| **Size** | 174 bytes (`$EAED`–`$EB9B`) |
-| **Type** | `actor_def` (priority `#2C`) |
-| **ASM File** | `extracted/actors/camera_scroll_controller.asm` |
-| **Movable** | Yes |
+**Address:** `$00EAED` · **Size:** 174 bytes
 
 #### Description
 
@@ -88,23 +80,12 @@ Present at slot `#01` in virtually every overworld, dungeon, and town field scen
 |-----------|--------|-------|
 | Feeds | `effect_velocity_init` | Consumes `$06E4`/`$06E6` |
 | Paired with | `ScrollCameraTrack`, `ScrollCameraVertical` | Slot `#02` camera actors in boss/special scenes |
-| Cataloged in | `us/blocks.json` @ 60141 | Block `camera_scroll_controller` |
-| Cataloged in | `us/names.json` @ 60141 | |
 
 ---
 
 ### scene_flag_init
 
-| Property | Value |
-|----------|-------|
-| **Old Name** | `actor_00C667` |
-| **New Name** | `scene_flag_init` |
-| **Hex Address** | `$00C667` (script `$C66A`) |
-| **Decimal Address** | 50791 |
-| **Size** | 8 bytes |
-| **Type** | `actor_def` (priority `#10`) |
-| **ASM File** | `extracted/actors/scene_flag_init.asm` |
-| **Movable** | Yes |
+**Address:** `$00C667` · **Size:** 8 bytes
 
 #### Description
 
@@ -130,7 +111,6 @@ None directly — operates through the COP flag system (WRAM flag byte `#00`).
 | Direction | Symbol | Notes |
 |-----------|--------|-------|
 | Related | Event flag system | See [`event-flags.md`](event-flags.md) |
-| Cataloged in | `us/blocks.json` @ 50791 | |
 
 ---
 
@@ -140,16 +120,7 @@ Four invisible 16×16 pixel trigger boxes that modify `$player_speed_ew` or `$pl
 
 ### speed_zone_ew_slow
 
-| Property | Value |
-|----------|-------|
-| **Old Name** | `actor_00C1DF` |
-| **New Name** | `speed_zone_ew_slow` |
-| **Hex Address** | `$00C1DF` (script `$C1E2`) |
-| **Decimal Address** | 49631 |
-| **Size** | 57 bytes |
-| **Type** | `actor_def` (priority `#20`) |
-| **ASM File** | `extracted/mountain_temple/movement_speed_zones.asm` |
-| **Movable** | Yes |
+**Address:** `$00C1DF` · **Size:** 57 bytes
 
 #### Description
 
@@ -179,23 +150,14 @@ When the player is within a 16×16 box centered on this actor's tile, sets east-
 
 | Direction | Symbol | Notes |
 |-----------|--------|-------|
-| Block | `movement_speed_zones` | Grouped in `us/blocks.json` |
+| Block | `movement_speed_zones` | Grouped with other speed zone actors |
 | Distinct from | `ramps.asm` | Directional tile ramp system |
 
 ---
 
 ### speed_zone_ew_fast
 
-| Property | Value |
-|----------|-------|
-| **Old Name** | `actor_00C218` |
-| **New Name** | `speed_zone_ew_fast` |
-| **Hex Address** | `$00C218` (script `$C21B`) |
-| **Decimal Address** | 49688 |
-| **Size** | 57 bytes |
-| **Type** | `actor_def` (priority `#20`) |
-| **ASM File** | `extracted/mountain_temple/movement_speed_zones.asm` |
-| **Movable** | Yes |
+**Address:** `$00C218` · **Size:** 57 bytes
 
 #### Description
 
@@ -213,16 +175,7 @@ Same as `speed_zone_ew_slow`; writes `#$0007` instead of `$FFF9`.
 
 ### speed_zone_ns_slow
 
-| Property | Value |
-|----------|-------|
-| **Old Name** | `actor_00C286` |
-| **New Name** | `speed_zone_ns_slow` |
-| **Hex Address** | `$00C286` (script `$C289`) |
-| **Decimal Address** | 49798 |
-| **Size** | 53 bytes |
-| **Type** | `actor_def` (priority `#20`) |
-| **ASM File** | `extracted/mountain_temple/movement_speed_zones.asm` |
-| **Movable** | Yes |
+**Address:** `$00C286` · **Size:** 53 bytes
 
 #### Description
 
@@ -244,16 +197,7 @@ North-south variant. Uses a tighter Y proximity threshold (`$0004` instead of `$
 
 ### speed_zone_ns_fast_unused
 
-| Property | Value |
-|----------|-------|
-| **Old Name** | `actor_00C251` |
-| **New Name** | `speed_zone_ns_fast_unused` |
-| **Hex Address** | `$00C251` (script `$C254`) |
-| **Decimal Address** | 49745 |
-| **Size** | 53 bytes |
-| **Type** | `actor_def` (priority `#20`) |
-| **ASM File** | `extracted/unused/speed_zone_ns_fast_unused.asm` |
-| **Movable** | Yes (but should remain in `unused/`) |
+**Address:** `$00C251` · **Size:** 53 bytes
 
 #### Description
 
@@ -275,16 +219,7 @@ Byte-identical logic pattern to `speed_zone_ns_slow` but writes `$player_speed_n
 
 ### dream_zoom_controller
 
-| Property | Value |
-|----------|-------|
-| **Old Name** | `actor_00C1AA` |
-| **New Name** | `dream_zoom_controller` |
-| **Hex Address** | `$00C1AA` (script `$C1AD`) |
-| **Decimal Address** | 49578 |
-| **Size** | 54 bytes |
-| **Type** | `actor_def` (priority `#28`, scene tag `dream`) |
-| **ASM File** | `extracted/gold_ship/dream/dream_zoom_controller.asm` |
-| **Movable** | Yes |
+**Address:** `$00C1AA` · **Size:** 54 bytes
 
 #### Description
 
@@ -319,7 +254,6 @@ Gold Ship dream sequence (scene `$2A` / 42): drives a scroll/zoom countdown from
 | Direction | Symbol | Notes |
 |-----------|--------|-------|
 | Paired with | `dream_palette_loop` thinker | Same dream scene palette cycling |
-| Cataloged in | `us/blocks.json` | Scene tag `"dream"` |
 
 ---
 
@@ -327,22 +261,15 @@ Gold Ship dream sequence (scene `$2A` / 42): drives a scroll/zoom countdown from
 
 ### large_ramp_booster
 
-| Property | Value |
-|----------|-------|
-| **Old Name** | `large_ramps` |
-| **New Name** | `large_ramp_booster` |
-| **Hex Address** | `$00C963` (script `$C966`, helper `$C977`) |
-| **Decimal Address** | 51555 |
-| **Size** | 43 bytes (actor) + 33 bytes (embedded code) |
-| **Type** | `actor_def` (priority `#20`) |
-| **ASM File** | `extracted/actors/large_ramps.asm` |
-| **Movable** | **No** |
+**Address:** `$00C963` · **Size:** 43 bytes (actor) + 33 bytes (embedded code)
 
 #### Description
 
 Accelerates player speed by ±1 when the player is within 2-tile proximity on an active ramp tile. Requires non-zero `$player_speed_ew` or `$player_speed_ns` (player must already be moving). Uses `BranchIfPlayerNear` with radius `#02` then `#03` in a loop: if E-W speed is negative, decrements; if positive, increments. Repeats while player remains near.
 
 Pure 65C816 for the speed adjustment path; minimal COP (`SetEntryContinue`, `BranchIfPlayerNear`). **Distinct from** the `ramps.asm` directional ramp system (`ramp_east` at `$D310`) which handles tile-based slope physics.
+
+**Not movable.**
 
 #### Algorithm
 
@@ -376,8 +303,7 @@ Pure 65C816 for the speed adjustment path; minimal COP (`SetEntryContinue`, `Bra
 | Direction | Symbol | Notes |
 |-----------|--------|-------|
 | Distinct from | `ramps` block (`ramp_east`) | Tile-slope system at `$D310` |
-| Cataloged in | `us/blocks.json` @ 51555 | `"movable": false` |
 
 ---
 
-*Source: `extracted/actors/*.asm`, `extracted/mountain_temple/movement_speed_zones.asm`, `us/blocks.json`, `us/names.json`, `extracted/tables/scene_actors.asm`.*
+*Source: `extracted/actors/*.asm`, `extracted/mountain_temple/movement_speed_zones.asm`, `extracted/tables/scene_actors.asm`.*

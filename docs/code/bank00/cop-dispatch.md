@@ -131,7 +131,7 @@ JMP ($&cop_dispatch_table, X)    ; X = opcode × 2
 
 ### Invalid Gap ($6E–$7F)
 
-18 consecutive `#$0000` words. These opcodes are listed as phantom entries in `us/copdef.json` but have no handlers. Dispatching any of them performs `JMP ($0000)` — an immediate crash.
+18 consecutive `#$0000` words. These opcodes are listed as phantom entries in `db-us/copdef.json` but have no handlers. Dispatching any of them performs `JMP ($0000)` — an immediate crash.
 
 ### Extended Table ($80–$E2)
 
@@ -166,7 +166,7 @@ JMP ($&cop_dispatch_table, X)    ; X = opcode × 2
 | `$9A` | SpawnBeforeFlags | `$BA` | ClearHMirror | `$DA` | WaitByte | | |
 | `$9B` | SpawnAfter | `$BB` | SetHMirror | `$DB` | WaitWord | | |
 | `$9C` | SpawnAfterFlags | `$BC` | NudgePosition | `$DC` | CameraPanDown | | |
-| `$9D` | SpawnAfterOffset | `$BD` | RunBg3Script | `$DD` | CameraPanUp | | |
+| `$9D` | SpawnAfterOffset | `$BD` | RunBg3Script | `$DC` | CameraPanDown | | |
 | `$9E` | SpawnAfterOffsetFlags | `$BE` | DialogueOptions | `$DE` | CameraPanRight | | |
 | `$9F` | SpawnAfterAbs | `$BF` | PrintDialogString | `$DF` | CameraPanLeft | | |
 
@@ -176,13 +176,7 @@ Full per-opcode parameter documentation: [`cop-commands-reference.md`](../../cop
 
 ### wram_fill_constant
 
-| Property | Value |
-|----------|-------|
-| **Old name** | `byte_00846C` |
-| **New name** | `wram_fill_constant` |
-| **Address** | `$00846C` |
-| **Size** | 1 byte |
-| **Value** | `$E0` |
+**Address:** `$846C` · **Size:** 1 byte · **Value:** `$E0`
 
 #### Description
 
@@ -198,13 +192,7 @@ A single data byte holding the fill value `$E0`. Referenced exclusively by the u
 
 ### CopDispatch
 
-| Property | Value |
-|----------|-------|
-| **Old name** | `CopDispatch` |
-| **New name** | `CopDispatch` |
-| **Address** | `$00846D` |
-| **Size** | 24 bytes |
-| **Type** | Code (interrupt dispatch) |
+**Address:** `$846D` · **Size:** 24 bytes
 
 #### Description
 
@@ -263,19 +251,13 @@ CopDispatch {
 | `CopVector` ($008404) | `JML $@CopDispatch` — hardware entry |
 | `cop_dispatch_table` ($008485) | Indirect jump target |
 | All COP handlers | Callees via jump table |
-| `run_actors_03CAF5` (Bank $03) | Top-level actor executor that triggers COP entrancy |
+| `RunActors_Normal` (Bank $03) | Top-level actor executor that triggers COP entrancy |
 
 ---
 
 ### cop_dispatch_table
 
-| Property | Value |
-|----------|-------|
-| **Old name** | `code_list_008485` |
-| **New name** | `cop_dispatch_table` |
-| **Address** | `$008485`–`$00864A` |
-| **Size** | 454 bytes (227 words) |
-| **Type** | Code reference table |
+**Address:** `$8485`–`$864A` · **Size:** 454 bytes (227 words)
 
 #### Description
 
@@ -303,19 +285,13 @@ Invalid entries contain `#$0000`, causing a jump to `$0000` if dispatched.
 |--------|--------------|
 | `CopDispatch` | Indexer — `JMP ($&cop_dispatch_table, X)` |
 | 209 handler routines | Targets across `cop_handlers_collision.asm`, `cop_handlers_actors.asm`, `cop_handlers_script.asm` |
-| `us/copdef.json` | Declarative opcode metadata (names, operand types) |
+| `db-us/copdef.json` | Declarative opcode metadata (names, operand types) |
 
 ---
 
 ### cop_table_sentinel
 
-| Property | Value |
-|----------|-------|
-| **Old name** | `byte_00864B` / `cop_table_sentinel` |
-| **New name** | `cop_table_sentinel` |
-| **Address** | `$00864B` |
-| **Size** | 3 bytes |
-| **Raw bytes** | `$EA $80 $FD` (NOP; BRA −2) |
+**Address:** `$864B` · **Size:** 3 bytes · **Raw bytes:** `$EA $80 $FD` (NOP; BRA −2)
 
 #### Description
 
@@ -366,3 +342,5 @@ This is padding/guard code, not a callable handler.
 - [`cop-commands-reference.md`](../../cop-commands-reference.md) — Full handler catalog with operands
 - [`utility-math-movement.md`](utility-math-movement.md) — Movement helpers called by `$22`/`$52`/`$53`
 - [`utility-tiles-animation.md`](utility-tiles-animation.md) — Tile/animation helpers called by `$4B`–`4E`, `$80`–`92`
+
+*Source: [`extracted/system/engine/cop_dispatch.asm`](../../../extracted/system/engine/cop_dispatch.asm), [`extracted/system/engine/system_core.asm`](../../../extracted/system/engine/system_core.asm)*

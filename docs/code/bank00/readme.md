@@ -8,9 +8,7 @@
 
 Bank $00 is the **primary system bank** for Illusion of Gaia. It contains the CPU reset vector, the NMI/VBlank handler, the COP bytecode dispatch engine, the main game loop, and the entire core utility library. The upper half houses thinkers (background processes for palette/HDMA effects), scene infrastructure actors, combat mechanics, NPC AI, and specialized systems like stair climbing and camera scrolling.
 
-> **COP handler documentation** lives in [`cop-commands-reference.md`](../../cop-commands-reference.md) and `us/copdef.json`. This index covers the system architecture, utility subroutines, actors, thinkers, and functions.
-
-> **Database triad:** Block structure in `us/blocks.json`, register overrides in `us/overrides.json`, labels in `us/names.json` (721 entries for bank $00).
+> **COP handler documentation** lives in [`cop-commands-reference.md`](../../cop-commands-reference.md) and `db-us/copdef.json`. This index covers the system architecture, utility subroutines, actors, thinkers, and functions.
 
 ---
 
@@ -106,19 +104,19 @@ Bank $00 is the **primary system bank** for Illusion of Gaia. It contains the CP
 
 Covers `$008000`–`$0082DE`: CPU entry point, interrupt trampolines, system initialization, main game loop (22 steps/frame), and alternate frame update paths.
 
-| Function | Old Name | Address | Size | Description |
-|----------|----------|---------|------|-------------|
-| `ResetVector` | `emulation_mode_reset_008000` | `$8000` | 7 B | CPU reset — switch to native 65816 mode, JML SystemInit |
-| `CopVector` | `native_mode_cop_008007` | `$8007` | 4 B | COP interrupt trampoline → CopDispatch |
-| `NmiVector` | `native_mode_nmi_00800B` | `$800B` | 4 B | NMI interrupt trampoline → NmiHandler |
-| `IrqVector` | `native_mode_irq_00800F` | `$800F` | 4 B | IRQ interrupt trampoline → IrqHandler |
-| `IrqHandler` | `native_mode_irq_handler_008013` | `$8013` | 1 B | IRQ stub — RTI only (game doesn't use IRQ) |
-| `SystemInit` | `emulation_mode_reset_handler_008014` | `$8014` | ~266 B | One-time init + eternal main loop at `$80B5` |
-| `UpdateFrame_Dialogue` | `func_00811E` | `$811E` | ~40 B | Abbreviated frame for dialogue/cutscenes |
-| `UpdateFrame_Render` | `func_00817D` | `$817D` | ~30 B | Lightweight frame for text overlays |
-| `UpdateFrame_Full` | `func_0081BC` | `$81BC` | ~46 B | Full frame with collision (NMI music handshake) |
-| `UpdateHUD` | `func_008206` | `$8206` | ~216 B | BG3 status bar: HP, DEF, STR, gems, enemy health bar |
-| `UpdateFrameCounters` | `sub_0082DE` | `$82DE` | 18 B | Decrement invincibility timer, increment frame counter |
+| Function | Address | Size | Description |
+| ---------- | --------- | ------ | ------------- |
+| `ResetVector` | `$8000` | 7 B | CPU reset — switch to native 65816 mode, JML SystemInit |
+| `CopVector` | `$8007` | 4 B | COP interrupt trampoline → CopDispatch |
+| `NmiVector` | `$800B` | 4 B | NMI interrupt trampoline → NmiHandler |
+| `IrqVector` | `$800F` | 4 B | IRQ interrupt trampoline → IrqHandler |
+| `IrqHandler` | `$8013` | 1 B | IRQ stub — RTI only (game doesn't use IRQ) |
+| `SystemInit` | `$8014` | ~266 B | One-time init + eternal main loop at `$80B5` |
+| `UpdateFrameDialogue` | `$811E` | ~40 B | Abbreviated frame for dialogue/cutscenes |
+| `UpdateFrameRender` | `$817D` | ~30 B | Lightweight frame for text overlays |
+| `UpdateFrameFull` | `$81BC` | ~46 B | Full frame with collision (NMI music handshake) |
+| `UpdateHUD` | `$8206` | ~216 B | BG3 status bar: HP, DEF, STR, gems, enemy health bar |
+| `UpdateFrameCounters` | `$82DE` | 18 B | Decrement invincibility timer, increment frame counter |
 
 ---
 
@@ -128,13 +126,13 @@ Covers `$008000`–`$0082DE`: CPU entry point, interrupt trampolines, system ini
 
 Covers `$0082F8`–`$00843F`: VBlank interrupt handler, BG scroll register upload, VRAM DMA execution.
 
-| Function | Old Name | Address | Size | Description |
-|----------|----------|---------|------|-------------|
-| `NmiHandler` | `native_mode_nmi_handler_0082F8` | `$82F8` | ~144 B | 19-step VBlank: PPU writes, DMA, OAM, CGRAM, input, APU |
-| `UploadScrollRegisters` | `sub_008387` | `$8387` | ~80 B | BG1–BG2 scroll register upload (normal + locked modes) |
-| `WriteBgScroll` | `sub_0083D4` | `$83D4` | ~46 B | Write H+V scroll for one BG layer with override logic |
-| `ExecuteVramDma` | `sub_008411` | `$8411` | ~26 B | Single VRAM DMA transfer from DP parameters |
-| `FillWramBlock` | `sub_008438_noref` | `$8438` | ~32 B | UNREFERENCED — DMA fill of 512 bytes (debug/cut) |
+| Function | Address | Size | Description |
+| ---------- | --------- | ------ | ------------- |
+| `NmiHandler` | `$82F8` | ~144 B | 19-step VBlank: PPU writes, DMA, OAM, CGRAM, input, APU |
+| `UploadScrollRegisters` | `$8387` | ~80 B | BG1–BG2 scroll register upload (normal + locked modes) |
+| `WriteBgScroll` | `$83D4` | ~46 B | Write H+V scroll for one BG layer with override logic |
+| `ExecuteVramDma` | `$8411` | ~26 B | Single VRAM DMA transfer from DP parameters |
+| `FillWramBlock` | `$8438` | ~32 B | UNREFERENCED — DMA fill of 512 bytes (debug/cut) |
 
 ---
 
@@ -144,12 +142,12 @@ Covers `$0082F8`–`$00843F`: VBlank interrupt handler, BG scroll register uploa
 
 Covers `$00846C`–`$00864B`: The central COP bytecode interpreter that drives all actor and thinker scripts.
 
-| Function | Old Name | Address | Size | Description |
-|----------|----------|---------|------|-------------|
-| `CopDispatch` | `CopDispatch` | `$846D` | 24 B | Central 24-byte dispatch engine for 172 COP opcodes |
-| `cop_dispatch_table` | `code_list_008485` | `$8485` | 220 B | Primary jump table ($00–$6D, 110 entries) |
-| *(extended table)* | — | `$8585` | 198 B | Extended table ($80–$E2, 99 entries) |
-| `cop_table_sentinel` | `byte_00864B` | `$864B` | 3 B | Sentinel bytes: `$EA $80 $FD` |
+| Function | Address | Size | Description |
+| ---------- | --------- | ------ | ------------- |
+| `CopDispatch` | `$846D` | 24 B | Central 24-byte dispatch engine for 172 COP opcodes |
+| `cop_dispatch_table` | `$8485` | 220 B | Primary jump table ($00–$6D, 110 entries) |
+| *(extended table)* | `$8585` | 198 B | Extended table ($80–$E2, 99 entries) |
+| `cop_table_sentinel` | `$864B` | 3 B | Sentinel bytes: `$EA $80 $FD` |
 
 ---
 
@@ -159,14 +157,14 @@ Covers `$00846C`–`$00864B`: The central COP bytecode interpreter that drives a
 
 Covers `$008D25`–`$008FDC`: Hardware multiply/divide wrappers and actor smooth-movement initialization.
 
-| Function | Old Name | Address | Size | Description |
-|----------|----------|---------|------|-------------|
-| `ReadMultiplyResult` | `sub_008D25` | `$8D25` | 4 B | NOP delay + read RDMPYL into Y |
-| `ReadDivideResult` | `sub_008D2A` | `$8D2A` | 8 B | 5× NOP pipeline delay + read RDDIVL |
-| `MultiplyThenDivide` | `sub_008D33` | `$8D33` | 24 B | Combined 8×8 multiply → 16/8 divide |
-| `InitSmoothMovement` | `sub_008D4D` | `$8D4D` | ~90 B | Init actor smooth-movement from script params |
-| `HalveMovementDistance` | `sub_008EF1` | `$8EF1` | ~16 B | Halve X/Y movement distances via LSR |
-| `MovementVelocityCompute` | `sub_008FDC` | `$8FDC` | ~24 B | Velocity calculation for COP $53 (TickMove) |
+| Function | Address | Size | Description |
+| ---------- | --------- | ------ | ------------- |
+| `ReadMultiplyResult` | `$8D25` | 4 B | NOP delay + read RDMPYL into Y |
+| `ReadDivideResult` | `$8D2A` | 8 B | 5× NOP pipeline delay + read RDDIVL |
+| `MultiplyThenDivide` | `$8D33` | 24 B | Combined 8×8 multiply → 16/8 divide |
+| `InitSmoothMovement` | `$8D4D` | ~90 B | Init actor smooth-movement from script params |
+| `HalveMovementDistance` | `$8EF1` | ~16 B | Halve X/Y movement distances via LSR |
+| `MovementVelocityCompute` | `$8FDC` | ~24 B | Velocity calculation for COP $53 (TickMove) |
 
 ---
 
@@ -176,17 +174,17 @@ Covers `$008D25`–`$008FDC`: Hardware multiply/divide wrappers and actor smooth
 
 Covers `$0097EF`–`$00AF8F`: Tile/map parsing, tile data resolution, animation flag processing, sprite body setup, and sine HDMA table builders.
 
-| Function | Old Name | Address | Size | Description |
-|----------|----------|---------|------|-------------|
-| `ParseMapEntry` | `sub_0097EF` | `$97EF` | ~40 B | Parse 3-byte map entry, sign-extend, scale ×16 |
-| `ResolveTileData` | `sub_009829` | `$9829` | ~128 B | Resolve tile graphics + metadata from parsed coords |
-| `TileQueryGate` | `sub_0098A9` | `$98A9` | ~16 B | Gate: retry COP if tile query pending ($0902 ≠ 0) |
-| `ProcessAnimFlag` | `sub_009F5F` | `$9F5F` | ~32 B | Process anim/visibility flag byte (3 modes) |
-| `AnimFrameLookup` | `sub_00B157` | `$B157` | 8 B | Animation frame table lookup → duration/speed |
-| `BuildSineHdmaTable` | `sub_00ADCF` | `$ADCF` | ~150 B | Build HDMA displacement from sine table (double-buffered) |
-| `BuildSineLookupTable` | `sub_00AEB8` | `$AEB8` | ~100 B | Precompute 512-byte sine tables at $7E8900/$7E8B00 |
-| `SetActorBody` | `sub_00AF6D` | `$AF6D` | ~24 B | Set actor body/sprite from $0AD4 into body_table |
-| `ParseSignedTileOffset` | `sub_00AF8F` | `$AF8F` | ~40 B | Read signed tile offset bytes, scale, add to position |
+| Function | Address | Size | Description |
+| ---------- | --------- | ------ | ------------- |
+| `ParseMapEntry` | `$97EF` | ~40 B | Parse 3-byte map entry, sign-extend, scale ×16 |
+| `ResolveTileData` | `$9829` | ~128 B | Resolve tile graphics + metadata from parsed coords |
+| `TileQueryGate` | `$98A9` | ~16 B | Gate: retry COP if tile query pending ($0902 ≠ 0) |
+| `ProcessAnimFlag` | `$9F5F` | ~32 B | Process anim/visibility flag byte (3 modes) |
+| `AnimFrameLookup` | `$B157` | 8 B | Animation frame table lookup → duration/speed |
+| `BuildSineHdmaTable` | `$ADCF` | ~150 B | Build HDMA displacement from sine table (double-buffered) |
+| `BuildSineLookupTable` | `$AEB8` | ~100 B | Precompute 512-byte sine tables at $7E8900/$7E8B00 |
+| `SetActorBody` | `$AF6D` | ~24 B | Set actor body/sprite from $0AD4 into body_table |
+| `ParseSignedTileOffset` | `$AF8F` | ~40 B | Read signed tile offset bytes, scale, add to position |
 
 ---
 
@@ -196,15 +194,15 @@ Covers `$0097EF`–`$00AF8F`: Tile/map parsing, tile data resolution, animation 
 
 Covers `$00AFCE`–`$00B43B` + `$00B29F`–`$00B3EF`: 8-way direction computation, tile collision queries, and collision map rectangle operations.
 
-| Function | Old Name | Address | Size | Description |
-|----------|----------|---------|------|-------------|
-| `ComputeDirectionToPlayer` | `sub_00AFCE` | `$AFCE` | ~144 B | 8-way octant direction (0=N → 7=NW) with Chebyshev distance |
-| `TileCollisionQuery` | `sub_00B43B` | `$B43B` | ~60 B | Tile property lookup at coords; returns $000F if blocked |
-| `MarkCollisionRect` | `sub_00B29F` | `$B29F` | ~80 B | ORA $F0 into collision map rectangle under actor |
-| `ClearCollisionRect` | `sub_00B345` | `$B345` | ~100 B | AND $0F / full zero collision map rectangle |
-| `ClearCollisionRectFull` | `code_00B3EF` | `$B3EF` | ~50 B | Full collision byte clear (writes $00) |
-| `AdvanceMapY` | `sub_00B32B` | `$B32B` | ~16 B | Advance map Y with page wrap using $0693 stride |
-| `CameraScrollStepLookup` | `sub_00B136` | `$B136` | ~24 B | Index camera scroll step table at $06E0 |
+| Function | Address | Size | Description |
+| ---------- | --------- | ------ | ------------- |
+| `ComputeDirectionToPlayer` | `$AFCE` | ~144 B | 8-way octant direction (0=N → 7=NW) with Chebyshev distance |
+| `TileCollisionQuery` | `$B43B` | ~60 B | Tile property lookup at coords; returns $000F if blocked |
+| `MarkCollisionRect` | `$B29F` | ~80 B | ORA $F0 into collision map rectangle under actor |
+| `ClearCollisionRect` | `$B345` | ~100 B | AND $0F / full zero collision map rectangle |
+| `ClearCollisionRectFull` | `$B3EF` | ~50 B | Full collision byte clear (writes $00) |
+| `AdvanceMapY` | `$B32B` | ~16 B | Advance map Y with page wrap using $0693 stride |
+| `CameraScrollStepLookup` | `$B136` | ~24 B | Index camera scroll step table at $06E0 |
 
 ---
 
@@ -216,37 +214,37 @@ Covers `$00B05E`–`$00B4F6`: Bitfield-based flag operations for game progress t
 
 ### WRAM Flag Array ($0A80 — 32 bytes)
 
-| Function | Old Name | Address | Description |
-|----------|----------|---------|-------------|
-| `SetWramFlag` | `sub_00B074` | `$B074` | ORA $0A80,Y with bitmask |
-| `TestWramFlag` | `sub_00B095` | `$B095` | AND $0A80,Y — carry set if bit clear |
-| `SetWramFlag_Offset100` | `func_00B069` | `$B069` | Add $0100 to index → SetWramFlag |
-| `TestWramFlag_Offset100` | `func_00B05E` | `$B05E` | Add $0100 to index → TestWramFlag |
-| `ClearAllWramFlags` | `func_00B4CC` | `$B4CC` | Zero $0A80–$0A9E (16 words) |
+| Function | Address | Description |
+| ---------- | --------- | ------------- |
+| `SetWramFlag` | `$B074` | ORA $0A80,Y with bitmask |
+| `TestWramFlag` | `$B095` | AND $0A80,Y — carry set if bit clear |
+| `SetWramFlag_Offset100` | `$B069` | Add $0100 to index → SetWramFlag |
+| `TestWramFlag_Offset100` | `$B05E` | Add $0100 to index → TestWramFlag |
+| `ClearAllWramFlags` | `$B4CC` | Zero $0A80–$0A9E (16 words) |
 
 ### Event Flag Array ($0A00 — 256 bytes)
 
-| Function | Old Name | Address | Description |
-|----------|----------|---------|-------------|
-| `SetEventFlag` | `sub_00B0B7` | `$B0B7` | ORA $0A00,Y with bitmask |
-| `ClearEventFlag` | `sub_00B0D8` | `$B0D8` | AND $0A00,Y with inverted bitmask |
-| `TestEventFlag` | `sub_00B0FB` | `$B0FB` | AND $0A00,Y — carry set if bit clear |
+| Function | Address | Description |
+| ---------- | --------- | ------------- |
+| `SetEventFlag` | `$B0B7` | ORA $0A00,Y with bitmask |
+| `ClearEventFlag` | `$B0D8` | AND $0A00,Y with inverted bitmask |
+| `TestEventFlag` | `$B0FB` | AND $0A00,Y — carry set if bit clear |
 
 ### Far-Call Flag Wrappers
 
-| Function | Old Name | Address | Offset | Operation |
-|----------|----------|---------|--------|-----------|
-| `SetEventFlag_0200` | `func_00B481` | `$B481` | +$0200 | Set |
-| `TestEventFlag_0200` | `func_00B489` | `$B489` | +$0200 | Test |
-| `TestFlag_0300` | `func_00B496` | `$B496` | +$0300 | Test |
-| `SetFlag_0300` | `func_00B4A1` | `$B4A1` | +$0300 | Set |
-| `TestFlag_0510` | `func_00B4AC` | `$B4AC` | +$0510 | Test |
-| `TestFlagRaw` | `func_00B4B7` | `$B4B7` | Direct | Test |
-| `SetFlagRaw` | `func_00B4BE` | `$B4BE` | Direct | Set |
-| `ClearFlagRaw` | `func_00B4C5` | `$B4C5` | Direct | Clear |
-| `SetFlag_0100` | `func_00B4E0` | `$B4E0` | +$0100 | Set |
-| `ClearFlag_0100` | `func_00B4EB_noref` | `$B4EB` | +$0100 | Clear *(unreferenced)* |
-| `TestFlag_0100` | `func_00B4F6` | `$B4F6` | +$0100 | Test |
+| Function | Address | Offset | Operation |
+| ---------- | --------- | -------- | ----------- |
+| `SetEventFlag_0200` | `$B481` | +$0200 | Set |
+| `TestEventFlag_0200` | `$B489` | +$0200 | Test |
+| `TestFlag_0300` | `$B496` | +$0300 | Test |
+| `SetFlag_0300` | `$B4A1` | +$0300 | Set |
+| `TestFlag_0510` | `$B4AC` | +$0510 | Test |
+| `TestFlagRaw` | `$B4B7` | Direct | Test |
+| `SetFlagRaw` | `$B4BE` | Direct | Set |
+| `ClearFlagRaw` | `$B4C5` | Direct | Clear |
+| `SetFlag_0100` | `$B4E0` | +$0100 | Set |
+| `ClearFlag_0100` | `$B4EB` | +$0100 | Clear *(unreferenced)* |
+| `TestFlag_0100` | `$B4F6` | +$0100 | Test |
 
 ---
 
@@ -256,19 +254,19 @@ Covers `$00B05E`–`$00B4F6`: Bitfield-based flag operations for game progress t
 
 Covers `$00A608`–`$00B519`: Actor pool allocation, doubly-linked list management, state copying, unlinking, and thinker allocation.
 
-| Function | Old Name | Address | Size | Description |
-|----------|----------|---------|------|-------------|
-| `ActorPoolAllocator` | `func_00B501` | `$B501` | ~28 B | Read next free actor from pool at ($4E) |
-| `AllocateActorBefore` | `sub_00B15D` | `$B15D` | ~40 B | Allocate + link as predecessor ($04) |
-| `AllocateActorAfter` | `sub_00B189` | `$B189` | ~40 B | Allocate + link as successor ($06) |
-| `ReturnActorSlot` | `sub_00B1B5` | `$B1B5` | ~14 B | Return slot to free pool |
-| `MarkChildActor` | `sub_00B1CB` | `$B1CB` | ~10 B | Store parent DP into child's $7F001C,X |
-| `CopyActorState` | `sub_00B1DA` | `$B1DA` | ~120 B | Full actor state copy (flags, position, anim, body) |
-| `UnlinkActor` | `sub_00AF40` | `$AF40` | ~40 B | Remove from doubly-linked list + free slot |
-| `DieNow_UnlinkChildren` | `code_00A608` | `$A608` | ~153 B | Walk list unlinking all marked children |
-| `AllocateSpecialActor` | `sub_00B27B` | `$B27B` | ~24 B | Allocate thinker via func_03CE8F |
-| `ResolveActorIndex` | `sub_00B125` | `$B125` | ~14 B | Map 8-bit list index → WRAM actor ID |
-| `PaletteResetAndKillThinker` | `func_00B519` | `$B519` | ~8 B | COP PaletteRestart + PaletteStep + KillThinker |
+| Function | Address | Size | Description |
+| ---------- | --------- | ------ | ------------- |
+| `ActorPoolAllocator` | `$B501` | ~28 B | Read next free actor from pool at ($4E) |
+| `AllocateActorBefore` | `$B15D` | ~40 B | Allocate + link as predecessor ($04) |
+| `AllocateActorAfter` | `$B189` | ~40 B | Allocate + link as successor ($06) |
+| `ReturnActorSlot` | `$B1B5` | ~14 B | Return slot to free pool |
+| `MarkChildActor` | `$B1CB` | ~10 B | Store parent DP into child's $7F001C,X |
+| `CopyActorState` | `$B1DA` | ~120 B | Full actor state copy (flags, position, anim, body) |
+| `UnlinkActor` | `$AF40` | ~40 B | Remove from doubly-linked list + free slot |
+| `DieNow_UnlinkChildren` | `$A608` | ~153 B | Walk list unlinking all marked children |
+| `AllocateSpecialActor` | `$B27B` | ~24 B | Allocate thinker via ThinkerPoolAlloc ($03) |
+| `ResolveActorIndex` | `$B125` | ~14 B | Map 8-bit list index → WRAM actor ID |
+| `PaletteResetAndKillThinker` | `$B519` | ~8 B | COP PaletteRestart + PaletteStep + KillThinker |
 
 ---
 
@@ -280,38 +278,38 @@ Covers `$00B520`–`$00B808`: 20 thinkers for ambient palette cycling and one-sh
 
 ### Palette Cycling Family
 
-| Thinker | Old Name | Address | Scene | Description |
-|---------|----------|---------|-------|-------------|
-| `ambient_palette_cycler` | `thinker_00B520` | `$B520` | Dozens | Generic infinite palette loop from scene table |
-| `flag_gated_palette_warm` | `thinker_00B5C0` | `$B5C0` | Oakton | Bundle #02, gated by flags #1C/#16 |
-| `flag_gated_palette_cool` | `thinker_00B5DF` | `$B5DF` | Overworld | Bundle #4C, same gate pattern |
-| `palette_parent_child` | `thinker_00B5FE` | `$B5FE` | Inventory | Bundle #03, spawns child on flag #01 |
-| `edward_castle_alarm_palette` | `thinker_00B631` | `$B631` | Edward Castle | Red-alert palette #05 + COLDATA red tint |
-| `incan_ruins_transform_palette` | `thinker_00B671` | `$B671` | Angkor/Incan | Multi-phase: #1A→#34/#33→#36 |
-| `dream_palette_loop` | `thinker_00B6D2` | `$B6D2` | Gold Ship | Dream palette #35 with flag #FF exit |
-| `palace_fountain_palette` | `thinker_00B71E` | `$B71E` | Palace | CGADSUB=#03 + alternating #1A/#25 |
-| `watermia_festival_palette` | `thinker_00B754` | `$B754` | Watermia | Default #42; child #72 on flag #96 |
+| Thinker | Address | Scene | Description |
+| --------- | --------- | ------- | ------------- |
+| `ambient_palette_cycler` | `$B520` | Dozens | Generic infinite palette loop from scene table |
+| `flag_gated_palette_warm` | `$B5C0` | Oakton | Bundle #02, gated by flags #1C/#16 |
+| `flag_gated_palette_cool` | `$B5DF` | Overworld | Bundle #4C, same gate pattern |
+| `palette_parent_child` | `$B5FE` | Inventory | Bundle #03, spawns child on flag #01 |
+| `edward_castle_alarm_palette` | `$B631` | Edward Castle | Red-alert palette #05 + COLDATA red tint |
+| `incan_ruins_transform_palette` | `$B671` | Angkor/Incan | Multi-phase: #1A→#34/#33→#36 |
+| `dream_palette_loop` | `$B6D2` | Gold Ship | Dream palette #35 with flag #FF exit |
+| `palace_fountain_palette` | `$B71E` | Palace | CGADSUB=#03 + alternating #1A/#25 |
+| `watermia_festival_palette` | `$B754` | Watermia | Default #42; child #72 on flag #96 |
 
 ### One-Shot Palette Flashes
 
-| Thinker | Old Name | Address | Bundle | Scene Usage |
-|---------|----------|---------|--------|-------------|
-| `oneshot_coldata_warm_flash` | `thinker_00B65E` | `$B65E` | COLDATA | Incan/Larai |
-| `oneshot_coldata_green_tint` | `thinker_00B6E5` | `$B6E5` | COLDATA | Oakton storm |
-| `oneshot_palette_flash_18` | `thinker_00B7CC` | `$B7CC` | #18 | Comet/Angkor/Mu |
-| `oneshot_palette_flash_19` | `thinker_00B7D6` | `$B7D6` | #19 | (complement of #18) |
-| `oneshot_palette_flash_1B` | `thinker_00B7E0` | `$B7E0` | #1B | Mu prayer/Castle |
-| `oneshot_palette_flash_1C` | `thinker_00B7EA` | `$B7EA` | #1C | Snake Pit/Gold Ship |
-| `oneshot_palette_flash_40` | `thinker_00B7F4` | `$B7F4` | #40 | Angel Tunnel/Palace |
-| `oneshot_palette_flash_1F` | `thinker_00B7FE` | `$B7FE` | #1F | Itory Moon Tribe |
+| Thinker | Address | Bundle | Scene Usage |
+| --------- | --------- | -------- | ------------- |
+| `oneshot_coldata_warm_flash` | `$B65E` | COLDATA | Incan/Larai |
+| `oneshot_coldata_green_tint` | `$B6E5` | COLDATA | Oakton storm |
+| `oneshot_palette_flash_18` | `$B7CC` | #18 | Comet/Angkor/Mu |
+| `oneshot_palette_flash_19` | `$B7D6` | #19 | (complement of #18) |
+| `oneshot_palette_flash_1B` | `$B7E0` | #1B | Mu prayer/Castle |
+| `oneshot_palette_flash_1C` | `$B7EA` | #1C | Snake Pit/Gold Ship |
+| `oneshot_palette_flash_40` | `$B7F4` | #40 | Angel Tunnel/Palace |
+| `oneshot_palette_flash_1F` | `$B7FE` | #1F | Itory Moon Tribe |
 
 ### Unused
 
-| Thinker | Old Name | Address | Reason |
-|---------|----------|---------|--------|
-| `palette_buffer_clear_unused` | `thinker_00B6FD` | `$B6FD` | No references |
-| `babel_palette_65_unused` | `thinker_00B781` | `$B781` | Cut Babel Tower effect |
-| `palette_loop_flash_unused` | `thinker_00B808` | `$B808` | No references |
+| Thinker | Address | Reason |
+| --------- | --------- | -------- |
+| `palette_buffer_clear_unused` | `$B6FD` | No references |
+| `babel_palette_65_unused` | `$B781` | Cut Babel Tower effect |
+| `palette_loop_flash_unused` | `$B808` | No references |
 
 ---
 
@@ -323,27 +321,27 @@ Covers `$00BCB3`–`$00BF19` + `$00B87B`: 18 thinkers for sine-based HDMA oscill
 
 ### Sine HDMA Wave Effects
 
-| Thinker | Old Name | Address | Tick | Channel(s) | Scene |
-|---------|----------|---------|------|------------|-------|
-| `sine_hdma_slow_wave` | `thinker_00BE18` | `$BE18` | #01 | #0D | Multiple mid/late |
-| `sine_hdma_dual_channel` | `thinker_00BE83` | `$BE83` | #02 | #0F, #10 | Palace Coffins |
-| `sine_hdma_ending_wave` | `thinker_00BF19` | `$BF19` | — | #0F | Comet/Castoth |
-| `ending_comet_sine_hdma` | `thinker_00BCB3` | `$BCB3` | #05 | #0F, #10 | Ending Comet |
-| `comet_lair_hdma_a` | `thinker_00BCF5` | `$BCF5` | — | #10 | Comet Lair |
-| `comet_lair_hdma_b` | `thinker_00BD21` | `$BD21` | — | #0F | Comet Lair |
-| `comet_lair_hdma_c_timed` | `thinker_00BD42` | `$BD42` | — | #0D | Comet Lair |
-| `larai_cliff_scroll_wave` | `thinker_00BD96` | `$BD96` | — | — | Larai Cliff |
-| `mu_tint_and_wave` | `thinker_00BDCD` | `$BDCD` | — | #0D, #0E | Mu rooms |
-| `dao_sine_hdma_slow` | `thinker_00BED1` | `$BED1` | #00 | #0D | Dao Village |
-| `native_village_sine_hdma` | `thinker_00BEF2` | `$BEF2` | #04 | #0E, #10 | Native Village |
+| Thinker | Address | Tick | Channel(s) | Scene |
+| --------- | --------- | ------ | ------------ | ------- |
+| `sine_hdma_slow_wave` | `$BE18` | #01 | #0D | Multiple mid/late |
+| `sine_hdma_dual_channel` | `$BE83` | #02 | #0F, #10 | Palace Coffins |
+| `sine_hdma_ending_wave` | `$BF19` | — | #0F | Comet/Castoth |
+| `ending_comet_sine_hdma` | `$BCB3` | #05 | #0F, #10 | Ending Comet |
+| `comet_lair_hdma_a` | `$BCF5` | — | #10 | Comet Lair |
+| `comet_lair_hdma_b` | `$BD21` | — | #0F | Comet Lair |
+| `comet_lair_hdma_c_timed` | `$BD42` | — | #0D | Comet Lair |
+| `larai_cliff_scroll_wave` | `$BD96` | — | — | Larai Cliff |
+| `mu_tint_and_wave` | `$BDCD` | — | #0D, #0E | Mu rooms |
+| `dao_sine_hdma_slow` | `$BED1` | #00 | #0D | Dao Village |
+| `native_village_sine_hdma` | `$BEF2` | #04 | #0E, #10 | Native Village |
 
 ### Custom HDMA / DMA
 
-| Thinker | Old Name | Address | Scene | Description |
-|---------|----------|---------|-------|-------------|
-| `palace_coffin_hdma_table` | `thinker_00BE39` | `$BE39` | Palace Coffins | Builds HDMA table at $7E7000 |
-| `ending_comet_dma_setup` | `thinker_00BCDF` | `$BCDF` | Ending Comet | One-shot PPU DMA |
-| `angel_tunnel_window_dma` | `thinker_00B87B` | `$B87B` | Angel Tunnel | Window register DMA |
+| Thinker | Address | Scene | Description |
+| --------- | --------- | ------- | ------------- |
+| `palace_coffin_hdma_table` | `$BE39` | Palace Coffins | Builds HDMA table at $7E7000 |
+| `ending_comet_dma_setup` | `$BCDF` | Ending Comet | One-shot PPU DMA |
+| `angel_tunnel_window_dma` | `$B87B` | Angel Tunnel | Window register DMA |
 
 ### Unused
 
@@ -362,19 +360,19 @@ Covers `$00BCB3`–`$00BF19` + `$00B87B`: 18 thinkers for sine-based HDMA oscill
 
 Covers `$00B78F`–`$00BF89`: 11 thinkers for hardware configuration, boot logos, menus, and the global scene dispatcher.
 
-| Thinker | Old Name | Address | Description |
-|---------|----------|---------|-------------|
-| `babel_elevator_color_add` | `thinker_00B78F` | `$B78F` | CGADSUB=#02 — Babel elevator |
-| `palace_scroll_brightness` | `thinker_00B79D` | `$B79D` | COLDATA from $06C2 scroll |
-| `dao_window_mask` | `thinker_00B7BE` | `$B7BE` | W12SEL=#02 — Dao Village |
-| `itory_village_fog` | `thinker_00B818` | `$B818` | CGADSUB=$50 west of X=$01B0 *(not self-contained)* |
-| `dark_castoth_layer_config` | `thinker_00BF78` | `$BF78` | TM=#$17, TS=#$00 |
-| `inventory_dma_setup` | `thinker_00BB8E` | `$BB8E` | Inventory screen PPU init |
-| `diary_menu_window_dma` | `thinker_00BBAF` | `$BBAF` | State-machine DMA for diary |
-| `boot_logo_palette_enix` | `thinker_00B83F` | `$B83F` | Enix logo fade #50→#52→#54 |
-| `boot_logo_palette_quintet` | `thinker_00B853` | `$B853` | Quintet logo fade #51→#53→#55 |
-| `boot_logo_palette_third` | `thinker_00B867` | `$B867` | Third-party fade #56→#57→#58 |
-| **`global_ambient_dispatcher`** | `thinker_00BF89` | `$BF89` | **Hub:** SwitchCase on $0AD4 + player interaction *(not self-contained — has ?INCLUDE deps)* |
+| Thinker | Address | Description |
+| --------- | --------- | ------------- |
+| `babel_elevator_color_add` | `$B78F` | CGADSUB=#02 — Babel elevator |
+| `palace_scroll_brightness` | `$B79D` | COLDATA from $06C2 scroll |
+| `dao_window_mask` | `$B7BE` | W12SEL=#02 — Dao Village |
+| `itory_village_fog` | `$B818` | CGADSUB=$50 west of X=$01B0 *(not self-contained)* |
+| `dark_castoth_layer_config` | `$BF78` | TM=#$17, TS=#$00 |
+| `inventory_dma_setup` | `$BB8E` | Inventory screen PPU init |
+| `diary_menu_window_dma` | `$BBAF` | State-machine DMA for diary |
+| `boot_logo_palette_enix` | `$B83F` | Enix logo fade #50→#52→#54 |
+| `boot_logo_palette_quintet` | `$B853` | Quintet logo fade #51→#53→#55 |
+| `boot_logo_palette_third` | `$B867` | Third-party fade #56→#57→#58 |
+| **`global_ambient_dispatcher`** | `$BF89` | **Hub:** SwitchCase on $0AD4 + player interaction *(not self-contained — has ?INCLUDE deps)* |
 
 ---
 
@@ -384,16 +382,16 @@ Covers `$00B78F`–`$00BF89`: 11 thinkers for hardware configuration, boot logos
 
 Covers scene-level infrastructure actors: camera management, initialization, speed zones, and specialized systems.
 
-| Actor | Old Name | Address | Movable | Scenes | Description |
-|-------|----------|---------|---------|--------|-------------|
-| `camera_scroll_controller` | `actor_00EAED` | `$EAED` | ✓ | 100+ | Camera scroll deltas from player position |
-| `scene_flag_init` | `actor_00C667` | `$C667` | ✓ | 80+ | One-shot flag clear, then die |
-| `speed_zone_ew_slow` | `actor_00C1DF` | `$C1DF` | ✓ | MT | E-W speed $FFF9 (−7) |
-| `speed_zone_ew_fast` | `actor_00C218` | `$C218` | ✓ | Kress | E-W speed #7 |
-| `speed_zone_ns_slow` | `actor_00C286` | `$C286` | ✓ | MT | N-S speed $FFF9 (−7) |
-| `speed_zone_ns_fast_unused` | `actor_00C251` | `$C251` | — | None | **UNUSED** — dead duplicate |
-| `dream_zoom_controller` | `actor_00C1AA` | `$C1AA` | ✓ | Dream | Gold Ship scroll/zoom countdown |
-| `large_ramp_booster` | `large_ramps` | `$C963` | **No** | 2 | Player speed ±1 on active ramp |
+| Actor | Address | Movable | Scenes | Description |
+| ------- | --------- | --------- | -------- | ------------- |
+| `camera_scroll_controller` | `$EAED` | ✓ | 100+ | Camera scroll deltas from player position |
+| `scene_flag_init` | `$C667` | ✓ | 80+ | One-shot flag clear, then die |
+| `speed_zone_ew_slow` | `$C1DF` | ✓ | MT | E-W speed $FFF9 (−7) |
+| `speed_zone_ew_fast` | `$C218` | ✓ | Kress | E-W speed #7 |
+| `speed_zone_ns_slow` | `$C286` | ✓ | MT | N-S speed $FFF9 (−7) |
+| `speed_zone_ns_fast_unused` | `$C251` | — | None | **UNUSED** — dead duplicate |
+| `dream_zoom_controller` | `$C1AA` | ✓ | Dream | Gold Ship scroll/zoom countdown |
+| `large_ramp_booster` | `$C963` | **No** | 2 | Player speed ±1 on active ramp |
 
 ---
 
@@ -403,34 +401,34 @@ Covers scene-level infrastructure actors: camera management, initialization, spe
 
 Covers player transition animations, red jewel rewards, statue inventory, and location-specific actors.
 
-| Actor | Old Name | Address | Movable | Description |
-|-------|----------|---------|---------|-------------|
-| `boss_clear_reward_handler` | `actor_00C2BB` | `$C2BB` | ✓ | Boss defeat → catchup uncollected scene clear stat rewards |
-| `player_transition_handlers` | `entry_points_00C418` | `$C418` | **No** | Library: 11 sub-functions for cutscene/warp anims |
-| `statue_inventory_reward` | `actor_00CD59` | `$CD59` | ✓ | Scene $FD: grants statue collectibles |
-| `inventory_statue_slot` | `actor_00CF29` | `$CF29` | ✓ | Scene $FF: displays collected statues |
-| `freejia_street_prop` | `actor_00C62D` | `$C62D` | ✓ | Interactive scenery (Freejia) |
-| `hidden_red_jewel` | `hidden_red_jewel` | `$C6A2` | ✓ | Collectible red jewel |
-| `town_door` | `town_door` | `$C5A3` | ✓ | Door warp trigger |
-| `floor_button` | `floor_button` | `$C69B` | ✓ | Pressure plate actor |
-| `overworld_exit` | `overworld_exit` | `$CA52` | ✓ | Complex warp/fade logic |
-| `field_reveal_object` | `actor_00DA78` | `$DA78` | ✓ | Animated reveal/collectible |
+| Actor | Address | Movable | Description |
+| ------- | --------- | --------- | ------------- |
+| `boss_clear_reward_handler` | `$C2BB` | ✓ | Boss defeat → catchup uncollected scene clear stat rewards |
+| `player_transition_handlers` | `$C418` | **No** | Library: 11 sub-functions for cutscene/warp anims |
+| `statue_inventory_reward` | `$CD59` | ✓ | Scene $FD: grants statue collectibles |
+| `inventory_statue_slot` | `$CF29` | ✓ | Scene $FF: displays collected statues |
+| `freejia_street_prop` | `$C62D` | ✓ | Interactive scenery (Freejia) |
+| `hidden_red_jewel` | `$C6A2` | ✓ | Collectible red jewel |
+| `town_door` | `$C5A3` | ✓ | Door warp trigger |
+| `floor_button` | `$C69B` | ✓ | Pressure plate actor |
+| `overworld_exit` | `$CA52` | ✓ | Complex warp/fade logic |
+| `field_reveal_object` | `$DA78` | ✓ | Animated reveal/collectible |
 
 ### Player Transition Sub-Functions
 
-| Part | Address | Name | Behavior |
-|------|---------|------|----------|
-| `func_00C418` | `$C418` | `SpawnSparkleEffect` | Spawns sparkle animation |
-| `func_00C432` | `$C432` | `HoldPlayerSpriteLoop1` | Loops player sprite frame #01 |
-| `func_00C43D` | `$C43D` | `HoldPlayerSpriteLoop11` | Loops player sprite frame #11 |
-| `func_00C446` | `$C446` | `HoldBodySpriteLoop` | Body sprite #04, frame #1F |
-| `func_00C455` | `$C455` | `HoldBodySpriteRelease` | Release from body hold |
-| `func_00C45A` | `$C45A` | `RestorePlayerControlDirect` | JML to code_02C3C8 |
-| `func_00C45E` | `$C45E` | `PlayerWakeAnim` | Body #04, frame #20, anim once |
-| `func_00C46D` | `$C46D` | `PlayerWakeReturn` | Wake anim → normal control |
-| `func_00C479` | `$C479` | `WarpClimbAnim` | Vertical climb + sound |
-| `func_00C4D1` | `$C4D1` | `GardenJumpAnim` | Sky Garden ledge jump + flip |
-| `func_00C557` | `$C557` | `FallIntoHoleAnim` | Fall through hollow tile |
+| Function | Address | Description |
+|----------|---------|-------------|
+| `SpawnSparkleEffect` | `$C418` | Spawns sparkle animation |
+| `HoldPlayerSpriteLoop1` | `$C432` | Loops player sprite frame #01 |
+| `HoldPlayerSpriteLoop11` | `$C43D` | Loops player sprite frame #11 |
+| `HoldBodySpriteLoop` | `$C446` | Body sprite #04, frame #1F |
+| `HoldBodySpriteRelease` | `$C455` | Release from body hold |
+| `RestorePlayerControlDirect` | `$C45A` | JML to `PlayerIdleEntry` |
+| `PlayerWakeAnim` | `$C45E` | Body #04, frame #20, anim once |
+| `PlayerWakeReturn` | `$C46D` | Wake anim → normal control |
+| `WarpClimbAnim` | `$C479` | Vertical climb + sound |
+| `GardenJumpAnim` | `$C4D1` | Sky Garden ledge jump + flip |
+| `FallIntoHoleAnim` | `$C557` | Fall through hollow tile |
 
 ---
 
@@ -440,20 +438,20 @@ Covers player transition animations, red jewel rewards, statue inventory, and lo
 
 Covers combat knockback, stat reward actors, push handlers, smooth follow, and the visual effect pipeline.
 
-| Actor | Old Name | Address | Movable | Description |
-|-------|----------|---------|---------|-------------|
-| `hit_stagger_controller` | `actor_00D877` | `$D877` | ✓ | 7-part knockback system (spawned on hit) |
-| `e_hp_increase` | *(reward_actors)* | `$E02D` | ✓ | +1 HP (capped at $0255) |
-| `e_str_increase` | *(reward_actors)* | `$E06B` | ✓ | +1 STR |
-| `e_def_increase` | *(reward_actors)* | `$E0A6` | ✓ | +1 DEF |
-| `RewardActorVFX` | `func_00E110` | `$E110` | ✓ | Shared VFX: bounce, sound $25, flag $0300 |
-| `collect_handler_gem` | `actor_00E155` | `$E155` | ✓ | Gem collection: nudge toward player ±2 px on button press |
-| `push_handler_solid` | `actor_00E256` | `$E256` | ✓ | Requires ≥32 px offset, clears/sets tiles |
-| `push_handler_forceball` | `actor_00E3BA` | `$E3BA` | ✓ | Uses AddPosition, requires anim $003A–$003D |
-| `smooth_follow_child` | `actor_00E4DB` | `$E4DB` | **No** | Child homing via angle/step math |
-| `effect_velocity_init` | `actor_00E8D7` | `$E8D7` | ✓ | Convert coords → velocity, seed $06C8/$06C4 |
-| `effect_subpixel_math` | `actor_00E98B` | `$E98B` | ✓ | Multiply/divide scroll helper |
-| `effect_position_update` | `actor_00E9EC` | `$E9EC` | ✓ | Integrate velocity, clamp bounds |
+| Actor | Address | Movable | Description |
+| ------- | --------- | --------- | ------------- |
+| `hit_stagger_controller` | `$D877` | ✓ | 7-part knockback system (spawned on hit) |
+| `e_hp_increase` | `$E02D` | ✓ | +1 HP (capped at $0255) |
+| `e_str_increase` | `$E07B` | ✓ | +1 STR |
+| `e_def_increase` | `$E0C6` | ✓ | +1 DEF |
+| `RewardActorVFX` | `$E110` | ✓ | Shared VFX: bounce, sound $25, flag $0300 |
+| `collect_handler_gem` | `$E155` | ✓ | Gem collection: nudge toward player ±2 px on button press |
+| `push_handler_solid` | `$E256` | ✓ | Requires ≥32 px offset, clears/sets tiles |
+| `push_handler_forceball` | `$E3BA` | ✓ | Uses AddPosition, requires anim $003A–$003D |
+| `smooth_follow_child` | `$E4DB` | **No** | Child homing via angle/step math |
+| `effect_velocity_init` | `$E8D7` | ✓ | Convert coords → velocity, seed $06C8/$06C4 |
+| `effect_subpixel_math` | `$E98B` | ✓ | Multiply/divide scroll helper |
+| `effect_position_update` | `$E9EC` | ✓ | Integrate velocity, clamp bounds |
 
 ---
 
@@ -463,17 +461,17 @@ Covers combat knockback, stat reward actors, push handlers, smooth follow, and t
 
 Covers `$00DB8A`–`$00DFFF`: The complete enemy defeat pipeline from death handler through reward distribution.
 
-| Function | Old Name | Address | Movable | Description |
-|----------|----------|---------|---------|-------------|
-| `StandardEnemyDefeatHandler` | `func_00DB8A` | `$DB8A` | **No** | Central death: counters, flash, drops, rewards (~20 callers) |
-| `EnemyGemDropRouter` | `func_00DD5B` | `$DD5B` | **No** | Routes to dark gem type 1/2/weighted |
-| `EnemyStatBonusReward` | `func_00DD87` | `$DD87` | **No** | Scene-indexed HP/STR/DEF spawner |
-| `SpawnFieldRevealEffect` | `func_00DDF2` | `$DDF2` | ✓ | Field tile reveal effect (sparkles + event block tile swap) |
-| `EnemyDeathFlash` | `func_00DF15` | `$DF15` | ✓ | Brief white-flash metasprite (20 bytes) |
-| `DarkGemDropSystem` | `func_00DF29` | `$DF29` | ✓ | Dark gem drop spawner + 7 variant handlers |
-| `NullActorScriptStub` | `stub_00DC77` | `$DC77` | **No** | Immediate COP Die (2 bytes — default actor script) |
-| `SpawnAttackTrailEffect` | `func_00DCB4` | `$DCB4` | ✓ | 16-frame hit trail |
-| `SpawnHitSparkSprites` | `func_00DD03` | `$DD03` | ✓ | OAM spark entries for critical hits |
+| Function | Address | Movable | Description |
+| ---------- | --------- | --------- | ------------- |
+| `StandardEnemyDefeatHandler` | `$DB8A` | **No** | Central death: counters, flash, drops, rewards (~20 callers) |
+| `EnemyGemDropRouter` | `$DD5B` | **No** | Routes to dark gem type 1/2/weighted |
+| `EnemyStatBonusReward` | `$DD87` | **No** | Scene-indexed HP/STR/DEF spawner |
+| `SpawnFieldRevealEffect` | `$DDF2` | ✓ | Field tile reveal effect (sparkles + event block tile swap) |
+| `EnemyDeathFlash` | `$DF15` | ✓ | Brief white-flash metasprite (20 bytes) |
+| `DarkGemDropSystem` | `$DF29` | ✓ | Dark gem drop spawner + 7 variant handlers |
+| `NullActorScriptStub` | `$DC77` | **No** | Immediate COP Die (2 bytes — default actor script) |
+| `SpawnAttackTrailEffect` | `$DCB4` | ✓ | 16-frame hit trail |
+| `SpawnHitSparkSprites` | `$DD03` | ✓ | OAM spark entries for critical hits |
 
 ---
 
@@ -483,13 +481,13 @@ Covers `$00DB8A`–`$00DFFF`: The complete enemy defeat pipeline from death hand
 
 Covers the complete death sequence from player death assignment through fadeout to reload.
 
-| Function | Old Name | Address | Movable | Description |
-|----------|----------|---------|---------|-------------|
-| `StopPlayerOnDeathAssign` | `func_00F3B3` | `$F3B3` | ✓ | Zero player speed, set $0200 flag (22 bytes) |
-| `GameOverSequence` | `func_00D62F` | `$D62F` | **No** | Full death flow: fade, palette, reload saved scene |
-| `DeathPaletteFadeThinker` | `func_00B5B3` | `$B5B3` | ✓ | Death palette fade (spawned by GameOver) |
-| `GameOverCutsceneSprites` | `func_00D718` | `$D718` | ✓ | Post-death visual: 3 marked sprite actors |
-| `DeathWakeupMessage` | `death_message` | `$D796` | ✓ | Character-specific wake-up monologue (Will/Freedan/Shadow) |
+| Function | Address | Movable | Description |
+| ---------- | --------- | --------- | ------------- |
+| `StopPlayerOnDeathAssign` | `$F3B3` | ✓ | Zero player speed, set $0200 flag (22 bytes) |
+| `GameOverSequence` | `$D62F` | **No** | Full death flow: fade, palette, reload saved scene |
+| `DeathPaletteFadeThinker` | `$B5B3` | ✓ | Death palette fade (spawned by GameOver) |
+| `GameOverCutsceneSprites` | `$D718` | ✓ | Post-death visual: 3 marked sprite actors |
+| `DeathWakeupMessage` | `$D796` | ✓ | Character-specific wake-up monologue (Will/Freedan/Shadow) |
 
 ---
 
@@ -499,15 +497,15 @@ Covers the complete death sequence from player death assignment through fadeout 
 
 Covers player damage state, NPC wander AI, party escort pathfinding, and inventory messaging.
 
-| Function | Old Name | Address | Movable | Description |
-|----------|----------|---------|---------|-------------|
-| `ApplyPlayerHitstun` | `func_00C397` | `$C397` | ✓ | Damage knockback: stun, spawn hit actor (~12 callers) |
-| `InitPlayerScriptVariant` | `func_00C6E4` | `$C6E4` | ✓ | Select player COP script from 4-entry table |
-| `SyncActorPosFromDP` | `func_00C718` | `$C718` | ✓ | Copy $14/$16 to actor WRAM (13 bytes) |
-| `NpcRandomWanderAI` | `func_00C725` | `$C725` | ✓ | RNG 8-direction walk with collision (~12 callers) |
-| `ToggleActorVisibilityFlag` | `func_00C7FA` | `$C7FA` | ✓ | XOR $2000 on referenced actor (12 bytes) |
-| `EscortFollowPathTracker` | `func_00C806` | `$C806` | ✓ | Ring buffer of 9 XY waypoints for party follow |
-| `InventoryFullMessage` | `f_inventory_full` | `$C98E` | ✓ | "Your inventory is full." (10+ callers) |
+| Function | Address | Movable | Description |
+| ---------- | --------- | --------- | ------------- |
+| `ApplyPlayerHitstun` | `$C397` | ✓ | Damage knockback: stun, spawn hit actor (~12 callers) |
+| `InitPlayerScriptVariant` | `$C6E4` | ✓ | Select player COP script from 4-entry table |
+| `SyncActorPosFromDP` | `$C718` | ✓ | Copy $14/$16 to actor WRAM (13 bytes) |
+| `NpcRandomWanderAI` | `$C725` | ✓ | RNG 8-direction walk with collision (~12 callers) |
+| `ToggleActorVisibilityFlag` | `$C7FA` | ✓ | XOR $2000 on referenced actor (12 bytes) |
+| `EscortFollowPathTracker` | `$C806` | ✓ | Ring buffer of 9 XY waypoints for party follow |
+| `InventoryFullMessage` | `$C98E` | ✓ | "Your inventory is full." (10+ callers) |
 
 ---
 
@@ -517,15 +515,15 @@ Covers player damage state, NPC wander AI, party escort pathfinding, and invento
 
 Covers ambient camera drift, debris effects, and sin/cos orbital motion math.
 
-| Function | Old Name | Address | Movable | Description |
-|----------|----------|---------|---------|-------------|
-| `CameraDriftLoopSimple` | `func_00CF8E` | `$CF8E` | ✓ | 120-frame random ±1..2 camera nudge |
-| `CameraDriftLoopShip` | `func_00CFAE` | `$CFAE` | ✓ | Camera drift gated by $player_flags |
-| `CameraDriftPatterned` | `func_00CFEF` | `$CFEF` | ✓ | Direction-table drift (boss arenas) |
-| `SpawnDebrisBurst` | `func_00C9B8` | `$C9B8` | ✓ | 8 RNG-scattered sparkle actors |
-| `ApplyOrbitalOffsetFromRef` | `func_00F3C9` | `$F3C9` | ✓ | Sin/cos offset from reference actor (15+ refs) ⚠ *was misplaced in unused/* |
-| `ApplyOrbitalOffsetXY` | `func_00F432` | `$F432` | ✓ | Sin/cos offset with separate X/Y angles |
-| `CopyRefActorPos_unused` | `func_00F428` | `$F428` | — | **UNUSED** — dead entry stub (10 bytes) |
+| Function | Address | Movable | Description |
+| ---------- | --------- | --------- | ------------- |
+| `CameraDriftLoopSimple` | `$CF8E` | ✓ | 120-frame random ±1..2 camera nudge |
+| `CameraDriftLoopShip` | `$CFAE` | ✓ | Camera drift gated by $player_flags |
+| `CameraDriftPatterned` | `$CFEF` | ✓ | Direction-table drift (boss arenas) |
+| `SpawnDebrisBurst` | `$C9B8` | ✓ | 8 RNG-scattered sparkle actors |
+| `ApplyOrbitalOffsetFromRef` | `$F3C9` | ✓ | Sin/cos offset from reference actor (15+ refs) ⚠ *was misplaced in unused/* |
+| `ApplyOrbitalOffsetXY` | `$F432` | ✓ | Sin/cos offset with separate X/Y angles |
+| `CopyRefActorPos_unused` | `$F428` | — | **UNUSED** — dead entry stub (10 bytes) |
 
 ---
 
@@ -652,13 +650,6 @@ Comprehensive reference covering all data tables, hardware register aliases, the
 | Data tables | 20+ | ~1,500 bytes |
 | **Total** | **~380+ routines** | **~29,700+ bytes** |
 
-### Named Entries
-
-- **721 entries** in `us/names.json` for bank $00
-- **104 entries** added from upper-half analysis (2026-09-06)
-- **97 block-level renames** applied to `us/blocks.json`
-- **6 multi-part block merges** completed
-
 ### External Bank Dependencies
 
 | Bank | Unique Functions Called | Purpose |
@@ -693,9 +684,9 @@ These blocks have inbound `$&` (2-byte same-bank) references and **cannot** be r
 
 | Block | Inbound From | Reason |
 |-------|-------------|--------|
-| `GameOverSequence` ($D62F) | `chunk_03BAE1` | Player death pointer |
-| `StandardEnemyDefeatHandler` ($DB8A) | `chunk_03BAE1`, `actor_00D877` | Enemy defeat pointer |
-| `NullActorScriptStub` ($DC77) | `chunk_03BAE1` | Default actor script |
+| `GameOverSequence` ($D62F) | `ComposeDigits_Continuation` | Player death pointer |
+| `StandardEnemyDefeatHandler` ($DB8A) | `ComposeDigits_Continuation`, `actor_00D877` | Enemy defeat pointer |
+| `NullActorScriptStub` ($DC77) | `ComposeDigits_Continuation` | Default actor script |
 | `player_transition_handlers` ($C418) | 15+ consumers | Player anim `#$&func_00C4xx` refs |
 | `smooth_follow_child` ($E4DB) | Pyramid, Angkor, etc. | Hard `$&` refs |
 | `large_ramp_booster` ($C963) | — | Tight `$&` proximity to ramp code |
@@ -705,16 +696,15 @@ These blocks have inbound `$&` (2-byte same-bank) references and **cannot** be r
 
 | Issue | Status | Resolution |
 |-------|--------|------------|
-| `func_00F3C9` misplaced in `unused/` | ✅ Fixed | Moved to `functions` section — 15+ live references |
+| `ApplyOrbitalOffsetFromRef` misplaced in `unused/` | ✅ Fixed | Moved to `functions` section — 15+ live references |
 | `thinker_00BEAA` duplicate | ⚠ Flagged | Byte-identical copy of `native_village_sine_hdma` — kept in unused |
 | `func_00DC79` duplicate | ⚠ Flagged | Short variant of `SpawnAttackTrailEffect` — kept in unused |
 
 ### Source Documents
 
-This documentation suite was generated from deep analysis of the complete bank $00 ASM codebase, cross-referenced with `us/blocks.json`, `us/names.json`, `us/overrides.json`, extracted ASM files, `scene_actors.asm`, and `scene_thinkers.asm`.
+This documentation suite was generated from analysis of the complete bank $00 ASM codebase in `extracted/`.
 
 ---
 
-*Generated from deep analysis of the complete Illusion of Gaia US ROM bank $00 ($008000–$00F4FF).*  
-*Cross-referenced with `us/blocks.json`, `us/names.json`, `us/overrides.json`, extracted ASM files, `scene_actors.asm`, and `scene_thinkers.asm`.*  
+*Source: Complete analysis of bank $00 ($008000–$00F4FF).*  
 *Last updated: 2026-09-06*

@@ -2,8 +2,7 @@
 
 **Bank:** `$00` (mirrored at `$80`)  
 **Address range:** `$00C397`–`$00C806`, `$00C98E`  
-**Source files:** `extracted/functions/ApplyPlayerHitstun.asm`, `InitPlayerScriptVariant.asm`, `SyncActorPosFromDP.asm`, `NpcRandomWanderAI.asm`, `ToggleActorVisibilityFlag.asm`, `EscortFollowPathTracker.asm`, `InventoryFullMessage.asm`  
-**Block:** `functions` section in `us/blocks.json`
+**Source files:** [`extracted/functions/ApplyPlayerHitstun.asm`](../../../extracted/functions/ApplyPlayerHitstun.asm), [`InitPlayerScriptVariant.asm`](../../../extracted/functions/InitPlayerScriptVariant.asm), [`npc_wander_ai.asm`](../../../extracted/functions/npc_wander_ai.asm) (contains `SyncActorPosFromDP`, `NpcRandomWanderAI`), [`ToggleActorVisibilityFlag.asm`](../../../extracted/functions/ToggleActorVisibilityFlag.asm), [`EscortFollowPathTracker.asm`](../../../extracted/functions/EscortFollowPathTracker.asm), [`f_inventory_full.asm`](../../../extracted/functions/f_inventory_full.asm)
 
 These routines manage player damage response, COP script variant selection, town NPC wander behavior, party escort path tracking, actor visibility toggling, and the inventory-full message utility.
 
@@ -13,32 +12,21 @@ These routines manage player damage response, COP script variant selection, town
 
 ## Overview
 
-| Function | Old Name | Address | Size | Movable | Call Type | Priority |
-|----------|----------|---------|------|---------|-----------|----------|
-| `ApplyPlayerHitstun` | `func_00C397` | `$C397` | 129 B | ✓ | JSL (~12 callers) | **High** |
-| `InitPlayerScriptVariant` | `func_00C6E4` | `$C6E4` | 44 B + table | ✓ (with table) | JSL (~15 scenes) | **High** |
-| `SyncActorPosFromDP` | `func_00C718` | `$C718` | 13 B | ✓ | JSL | Medium |
-| `NpcRandomWanderAI` | `func_00C725` | `$C725` | 213 B | ✓ (with codes) | JSL (~12 callers) | **High** |
-| `ToggleActorVisibilityFlag` | `func_00C7FA` | `$C7FA` | 12 B | ✓ | COP `SpawnAfterAbsFlags` | Medium |
-| `EscortFollowPathTracker` | `func_00C806` | `$C806` | 317 B + array | ✓ (with array) | COP `SpawnAfterFlags` | **High** |
-| `InventoryFullMessage` | `f_inventory_full` | `$C98E` | 42 B | ✓ | JML (10+ scenes) | Medium |
+| Function | Address | Size | Movable | Call Type | Priority |
+|----------|---------|------|---------|-----------|----------|
+| `ApplyPlayerHitstun` | `$C397` | 129 B | ✓ | JSL (~12 callers) | **High** |
+| `InitPlayerScriptVariant` | `$C6E4` | 44 B + table | ✓ (with table) | JSL (~15 scenes) | **High** |
+| `SyncActorPosFromDP` | `$C718` | 13 B | ✓ | JSL | Medium |
+| `NpcRandomWanderAI` | `$C725` | 213 B | ✓ (with codes) | JSL (~12 callers) | **High** |
+| `ToggleActorVisibilityFlag` | `$C7FA` | 12 B | ✓ | COP `SpawnAfterAbsFlags` | Medium |
+| `EscortFollowPathTracker` | `$C806` | 317 B + array | ✓ (with array) | COP `SpawnAfterFlags` | **High** |
+| `InventoryFullMessage` | `$C98E` | 42 B | ✓ | JML (10+ scenes) | Medium |
 
 ---
 
 ## ApplyPlayerHitstun
 
-| Property | Value |
-|----------|-------|
-| **Old Name** | `func_00C397` |
-| **New Name** | `ApplyPlayerHitstun` |
-| **Hex Address** | `$00C397` |
-| **Decimal Address** | 50071 |
-| **End Address** | `$00C418` (50200) |
-| **Size** | 129 bytes |
-| **Type** | Standalone utility |
-| **ASM File** | `extracted/functions/ApplyPlayerHitstun.asm` |
-| **Movable** | Yes |
-| **Priority** | **High** (~12 enemy callers) |
+**Address:** `$C397` · **Size:** 129 bytes · **Movable:** Yes · **Priority:** **High** (~12 enemy callers)
 
 ### Description
 
@@ -75,26 +63,13 @@ Approximately 12 enemy types call this via JSL with the knockback direction push
 |-----------|--------|-------|
 | Spawns | `hit_stagger_controller` | `SpawnLastRel @HitStaggerMain` |
 | Called from | ~12 enemy attack scripts | JSL |
-| Returns to | `code_02C3C8` | Via stagger controller on completion |
-| Cataloged in | `us/blocks.json` | Block `ApplyPlayerHitstun` |
-| Cataloged in | `us/names.json` @ 50071 | |
+| Returns to | `PlayerIdleEntry` | Via stagger controller on completion |
 
 ---
 
 ## InitPlayerScriptVariant
 
-| Property | Value |
-|----------|-------|
-| **Old Name** | `func_00C6E4` |
-| **New Name** | `InitPlayerScriptVariant` |
-| **Hex Address** | `$00C6E4` |
-| **Decimal Address** | 50916 |
-| **End Address** | `$00C710` (50960) |
-| **Size** | 44 bytes + 8-byte table |
-| **Type** | Multi-part block with `table_00C710` |
-| **ASM File** | `extracted/functions/InitPlayerScriptVariant.asm` |
-| **Movable** | Yes (must move with `table_00C710`) |
-| **Priority** | **High** (~15 scenes) |
+**Address:** `$C6E4` · **Size:** 44 bytes + 8-byte table · **Movable:** Yes (must move with `table_00C710`) · **Priority:** **High** (~15 scenes)
 
 ### Description
 
@@ -126,24 +101,12 @@ Each table entry is a 2-byte `$&` pointer to a player script entry point in bank
 |-----------|--------|-------|
 | Co-located | `table_00C710` | 4 × 2-byte `$&Code$2` pointers |
 | Called from | ~15 scene init scripts | JSL |
-| Cataloged in | `us/blocks.json` | Block `InitPlayerScriptVariant` |
-| Cataloged in | `us/names.json` @ 50916 | |
 
 ---
 
 ## SyncActorPosFromDP
 
-| Property | Value |
-|----------|-------|
-| **Old Name** | `func_00C718` |
-| **New Name** | `SyncActorPosFromDP` |
-| **Hex Address** | `$00C718` |
-| **Decimal Address** | 50968 |
-| **End Address** | `$00C725` (50981) |
-| **Size** | 13 bytes |
-| **Type** | Leaf subroutine |
-| **ASM File** | `extracted/functions/SyncActorPosFromDP.asm` |
-| **Movable** | Yes |
+**Address:** `$C718` · **Size:** 13 bytes · **Movable:** Yes
 
 ### Description
 
@@ -166,25 +129,12 @@ Minimal leaf function — always paired with `NpcRandomWanderAI` in practice.
 | Direction | Symbol | Notes |
 |-----------|--------|-------|
 | Paired with | `NpcRandomWanderAI` | Always called first |
-| Cataloged in | `us/blocks.json` | Part of `npc_wander_ai` block |
-| Cataloged in | `us/names.json` @ 50968 | |
 
 ---
 
 ## NpcRandomWanderAI
 
-| Property | Value |
-|----------|-------|
-| **Old Name** | `func_00C725` |
-| **New Name** | `NpcRandomWanderAI` |
-| **Hex Address** | `$00C725` |
-| **Decimal Address** | 50981 |
-| **End Address** | `$00C7FA` (51194) |
-| **Size** | 213 bytes |
-| **Type** | Multi-part (includes direction handler blocks + `code_list_00C733`) |
-| **ASM File** | `extracted/functions/NpcRandomWanderAI.asm` |
-| **Movable** | Yes (move with embedded direction codes) |
-| **Priority** | **High** (~12 town NPC callers) |
+**Address:** `$C725` · **Size:** 213 bytes · **Movable:** Yes (move with embedded direction codes) · **Priority:** **High** (~12 town NPC callers)
 
 ### Description
 
@@ -193,7 +143,7 @@ RNG-driven 8-direction random walk with tile collision checking. Used by town NP
 The function contains eight direction handler blocks (N, NE, E, SE, S, SW, W, NW) dispatched via `code_list_00C733` (8-entry jump table). Each handler:
 
 1. Computes target tile from current position + direction delta
-2. Calls `$@func_03D78A` (bank `$03` tile collision query)
+2. Calls `$@CalcTileMapOffset` (bank `$03` tile collision query)
 3. If passable: update position, stage walking sprite, animate one step
 4. If blocked: pick new random direction or wait
 
@@ -207,7 +157,7 @@ The function contains eight direction handler blocks (N, NE, E, SE, S, SW, W, NW
 5. Jump via code_list_00C733 to direction handler
 6. Direction handler:
      a. Compute target coords
-     b. JSL $@func_03D78A — tile collision
+     b. JSL $@CalcTileMapOffset — tile collision
      c. If blocked: reset timer, RTL
      d. If clear: move 8 pixels, stage sprite, AnimOnce
 7. Set wander timer (random 30–120 frames)
@@ -229,26 +179,14 @@ The function contains eight direction handler blocks (N, NE, E, SE, S, SW, W, NW
 | Direction | Symbol | Notes |
 |-----------|--------|-------|
 | Preceded by | `SyncActorPosFromDP` | Position sync |
-| External | `func_03D78A` | Bank `$03` tile collision |
+| External | `CalcTileMapOffset` | Bank `$03` tile collision |
 | Called from | ~12 town NPC scripts | JSL |
-| Cataloged in | `us/blocks.json` | Part of `npc_wander_ai` block |
-| Cataloged in | `us/names.json` @ 50981 | |
 
 ---
 
 ## ToggleActorVisibilityFlag
 
-| Property | Value |
-|----------|-------|
-| **Old Name** | `func_00C7FA` |
-| **New Name** | `ToggleActorVisibilityFlag` |
-| **Hex Address** | `$00C7FA` |
-| **Decimal Address** | 51194 |
-| **End Address** | `$00C806` (51206) |
-| **Size** | 12 bytes |
-| **Type** | Leaf utility |
-| **ASM File** | `extracted/functions/ToggleActorVisibilityFlag.asm` |
-| **Movable** | Yes |
+**Address:** `$C7FA` · **Size:** 12 bytes · **Movable:** Yes
 
 ### Description
 
@@ -271,31 +209,18 @@ Invoked via `COP [SpawnAfterAbsFlags]` from scene scripts that need timed visibi
 | Direction | Symbol | Notes |
 |-----------|--------|-------|
 | Invoked via | COP `SpawnAfterAbsFlags` | Scene scripts |
-| Cataloged in | `us/blocks.json` | Block `ToggleActorVisibilityFlag` |
-| Cataloged in | `us/names.json` @ 51194 | |
 
 ---
 
 ## EscortFollowPathTracker
 
-| Property | Value |
-|----------|-------|
-| **Old Name** | `func_00C806` |
-| **New Name** | `EscortFollowPathTracker` |
-| **Hex Address** | `$00C806` |
-| **Decimal Address** | 51206 |
-| **End Address** | `$00C943` (51523) |
-| **Size** | 317 bytes + 32-byte array |
-| **Type** | Multi-part block with `array_00C943` |
-| **ASM File** | `extracted/functions/EscortFollowPathTracker.asm` |
-| **Movable** | Yes (move with `array_00C943`) |
-| **Priority** | **High** |
+**Address:** `$C806` · **Size:** 317 bytes + 32-byte array · **Movable:** Yes (move with `array_00C943`) · **Priority:** **High**
 
 ### Description
 
 Ring buffer of 9 XY waypoint pairs recording the player's recent path for party escort NPCs (Kara, Lily, etc.). Each frame, the player's `$14`/`$16` position is written to the next slot in the ring; escort NPCs read from trailing slots to follow the player's exact path with a delay.
 
-The direction delta table `array_00C943` maps movement direction indices to X/Y offset pairs for step computation. Escort NPCs call `$@func_03F0CA` (bank `$03` layer lookup) to ensure they stay on the same map layer as the player.
+The direction delta table `array_00C943` maps movement direction indices to X/Y offset pairs for step computation. Escort NPCs call `$@GetPlayerFacingDirection` (bank `$03` layer lookup) to ensure they stay on the same map layer as the player.
 
 ### Algorithm
 
@@ -310,7 +235,7 @@ The direction delta table `array_00C943` maps movement direction indices to X/Y 
      b. Load target from buffer[read_index]
      c. Compute direction via array_00C943 deltas
      d. Move escort toward target (8px steps)
-     e. JSL $@func_03F0CA — layer check
+     e. JSL $@GetPlayerFacingDirection — layer check
 5. RTL
 ```
 
@@ -335,27 +260,15 @@ The direction delta table `array_00C943` maps movement direction indices to X/Y 
 | Direction | Symbol | Notes |
 |-----------|--------|-------|
 | Co-located | `array_00C943` | Direction delta Word array |
-| External | `func_03F0CA` | Bank `$03` layer lookup |
+| External | `GetPlayerFacingDirection` | Bank `$03` layer lookup |
 | Invoked via | COP `SpawnAfterFlags` | Escort scene scripts |
 | Used by | Kara escort, party follow sequences | Multiple story scenes |
-| Cataloged in | `us/blocks.json` | Block `EscortFollowPathTracker` |
-| Cataloged in | `us/names.json` @ 51206 | |
 
 ---
 
 ## InventoryFullMessage
 
-| Property | Value |
-|----------|-------|
-| **Old Name** | `f_inventory_full` |
-| **New Name** | `InventoryFullMessage` |
-| **Hex Address** | `$00C98E` |
-| **Decimal Address** | 51598 |
-| **End Address** | `$00C9B8` (51640) |
-| **Size** | 42 bytes |
-| **Type** | Pure text utility |
-| **ASM File** | `extracted/functions/InventoryFullMessage.asm` |
-| **Movable** | Yes |
+**Address:** `$C98E` · **Size:** 42 bytes · **Movable:** Yes
 
 ### Description
 
@@ -377,8 +290,6 @@ Jumped to via JML from 10+ scene scripts (shop purchases, NPC gifts, hidden item
 | JML from | 10+ scene scripts | Shop/gift/item scenes |
 | JML from | Various scene scripts | Item grant overflow |
 | Embedded string | `dialogstring_00C993` | Full inventory message text |
-| Cataloged in | `us/blocks.json` | Block `f_inventory_full` |
-| Cataloged in | `us/names.json` @ 51598 | |
 
 ---
 
@@ -403,8 +314,8 @@ Jumped to via JML from 10+ scene scripts (shop purchases, NPC gifts, hidden item
 | Address span | `$C397`–`$C9B8` (~1,569 bytes) |
 | High-priority entries | 4 |
 | Multi-part blocks | 3 (`InitPlayerScriptVariant`, `npc_wander_ai`, `EscortFollowPathTracker`) |
-| External bank deps | `$03` (`func_03D78A`, `func_03F0CA`) |
+| External bank deps | `$03` (`CalcTileMapOffset`, `GetPlayerFacingDirection`) |
 
 ---
 
-*Source: `us/blocks.json`, `us/names.json`, `docs/code/bank00/actors-combat-interaction.md`.*
+*Source: `extracted/functions/*.asm`, `docs/code/bank00/actors-combat-interaction.md`.*

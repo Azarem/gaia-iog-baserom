@@ -2,8 +2,8 @@
 
 **Bank:** `$00` (mirrored at `$80`)  
 **Address range:** `$00B5B3`, `$00D62F`–`$00D796`, `$00F3B3`  
-**Source files:** `extracted/functions/DeathPaletteFadeThinker.asm`, `GameOverSequence.asm`, `GameOverCutsceneSprites.asm`, `DeathWakeupMessage.asm`, `StopPlayerOnDeathAssign.asm`  
-**Block:** `game_over_sequence` + standalone utilities in `us/blocks.json`
+**Source files:** [`extracted/functions/game_over_sequence.asm`](../../../extracted/functions/game_over_sequence.asm) (contains `GameOverSequence`, `GameOverCutsceneSprites`, `DeathWakeupMessage`), [`DeathPaletteFadeThinker.asm`](../../../extracted/functions/DeathPaletteFadeThinker.asm), [`StopPlayerOnDeathAssign.asm`](../../../extracted/functions/StopPlayerOnDeathAssign.asm)  
+**Block:** `game_over_sequence` + standalone utilities
 
 These functions implement the full player death flow: halting movement, fading the palette, reloading the saved scene, displaying post-death cutscene sprites, and presenting the character-specific wake-up monologue.
 
@@ -16,7 +16,7 @@ These functions implement the full player death flow: halting movement, fading t
 ```
 Player HP → 0
     └─► StopPlayerOnDeathAssign ($F3B3)     [JSL — zeros velocity, sets $0200 flag]
-            └─► GameOverSequence ($D62F)    [$& pointer from chunk_03BAE1]
+            └─► GameOverSequence ($D62F)    [$& pointer from ComposeDigits_Continuation]
                     ├─► Fade screen / palette teardown
                     ├─► COP [SpawnThinker] @DeathPaletteFadeThinker ($B5B3)
                     ├─► Reload saved scene from $0AF0–$0AF8
@@ -24,29 +24,19 @@ Player HP → 0
                     └─► (later) DeathWakeupMessage ($D796) via player_character.asm
 ```
 
-| Function | Old Name | Address | Size | Movable | Call Type | Priority |
-|----------|----------|---------|------|---------|-----------|----------|
-| `StopPlayerOnDeathAssign` | `func_00F3B3` | `$F3B3` | 22 B | ✓ | JSL | Medium |
-| `GameOverSequence` | `func_00D62F` | `$D62F` | 233 B | **No** | `$&` pointer assignment | **High** |
-| `DeathPaletteFadeThinker` | `func_00B5B3` | `$B5B3` | 13 B | ✓ | COP `SpawnThinker` | Medium |
-| `GameOverCutsceneSprites` | `func_00D718` | `$D718` | 126 B | ✓ | COP `SpawnAfter` | Medium |
-| `DeathWakeupMessage` | `death_message` | `$D796` | 225 B | ✓ | COP `SpawnAfterFlags` | Medium |
+| Function | Address | Size | Movable | Call Type | Priority |
+|----------|---------|------|---------|-----------|----------|
+| `StopPlayerOnDeathAssign` | `$F3B3` | 22 B | ✓ | JSL | Medium |
+| `GameOverSequence` | `$D62F` | 233 B | **No** | `$&` pointer assignment | **High** |
+| `DeathPaletteFadeThinker` | `$B5B3` | 13 B | ✓ | COP `SpawnThinker` | Medium |
+| `GameOverCutsceneSprites` | `$D718` | 126 B | ✓ | COP `SpawnAfter` | Medium |
+| `DeathWakeupMessage` | `$D796` | 225 B | ✓ | COP `SpawnAfterFlags` | Medium |
 
 ---
 
 ## StopPlayerOnDeathAssign
 
-| Property | Value |
-|----------|-------|
-| **Old Name** | `func_00F3B3` |
-| **New Name** | `StopPlayerOnDeathAssign` |
-| **Hex Address** | `$00F3B3` |
-| **Decimal Address** | 62387 |
-| **End Address** | `$00F3C9` (62409) |
-| **Size** | 22 bytes |
-| **Type** | Leaf utility |
-| **ASM File** | `extracted/functions/StopPlayerOnDeathAssign.asm` |
-| **Movable** | Yes |
+**Address:** `$F3B3` · **Size:** 22 bytes
 
 ### Description
 
@@ -79,28 +69,16 @@ This separation allows combat scripts to halt player movement instantly while de
 | Direction | Symbol | Notes |
 |-----------|--------|-------|
 | Precedes | `GameOverSequence` | Death callback chain |
-| Cataloged in | `us/names.json` @ 62387 | |
 
 ---
 
 ## GameOverSequence
 
-| Property | Value |
-|----------|-------|
-| **Old Name** | `func_00D62F` |
-| **New Name** | `GameOverSequence` |
-| **Hex Address** | `$00D62F` |
-| **Decimal Address** | 54831 |
-| **End Address** | `$00D718` (55064) |
-| **Size** | 233 bytes |
-| **Type** | Multi-part block entry (part 1 of `game_over_sequence`) |
-| **ASM File** | `extracted/functions/GameOverSequence.asm` |
-| **Movable** | **No** — inbound `$&func_00D62F` from `chunk_03BAE1` |
-| **Priority** | **High** |
+**Address:** `$D62F` · **Size:** 233 bytes · **Movable:** No (inbound `$&GameOverSequence` from `ComposeDigits_Continuation`)
 
 ### Description
 
-Full player death flow executed after `StopPlayerOnDeathAssign`. Assigned as the player OnDeath callback via `SetOnDeath` COP in `chunk_03BAE1` (`#$&func_00D62F`). Handles screen fade, palette teardown, scene state restoration, and spawning of post-death visual elements.
+Full player death flow executed after `StopPlayerOnDeathAssign`. Assigned as the player OnDeath callback via `SetOnDeath` COP in `ComposeDigits_Continuation` (`#$&GameOverSequence`). Handles screen fade, palette teardown, scene state restoration, and spawning of post-death visual elements.
 
 The sequence saves and restores scene persistence data from `$0AF0`–`$0AF8` (last visited scene, player position, party state) so the player respawns at the most recent save point rather than the death location.
 
@@ -137,28 +115,16 @@ The sequence saves and restores scene persistence data from `$0AF0`–`$0AF8` (l
 
 | Direction | Symbol | Notes |
 |-----------|--------|-------|
-| Assigned by | `chunk_03BAE1` | Player OnDeath: `#$&func_00D62F` |
+| Assigned by | `ComposeDigits_Continuation` | Player OnDeath: `#$&GameOverSequence` |
 | Spawns | `DeathPaletteFadeThinker` | `COP [SpawnThinker]` |
 | Spawns | `GameOverCutsceneSprites` | `COP [SpawnAfter]` |
 | Followed by | `DeathWakeupMessage` | Spawned from `player_character.asm` |
-| Cataloged in | `us/blocks.json` | Block `game_over_sequence` (movable: false) |
-| Cataloged in | `us/names.json` @ 54831 | |
 
 ---
 
 ## DeathPaletteFadeThinker
 
-| Property | Value |
-|----------|-------|
-| **Old Name** | `func_00B5B3` |
-| **New Name** | `DeathPaletteFadeThinker` |
-| **Hex Address** | `$00B5B3` |
-| **Decimal Address** | 46515 |
-| **End Address** | `$00B5C0` (46528) |
-| **Size** | 13 bytes |
-| **Type** | Thinker script |
-| **ASM File** | `extracted/functions/DeathPaletteFadeThinker.asm` |
-| **Movable** | Yes |
+**Address:** `$B5B3` · **Size:** 13 bytes
 
 ### Description
 
@@ -179,24 +145,12 @@ Self-contained with no `?INCLUDE` dependencies — can be relocated independentl
 | Direction | Symbol | Notes |
 |-----------|--------|-------|
 | Spawned by | `GameOverSequence` | `COP [SpawnThinker]` |
-| Cataloged in | `us/blocks.json` | Standalone `DeathPaletteFadeThinker` entry |
-| Cataloged in | `us/names.json` @ 46515 | |
 
 ---
 
 ## GameOverCutsceneSprites
 
-| Property | Value |
-|----------|-------|
-| **Old Name** | `func_00D718` |
-| **New Name** | `GameOverCutsceneSprites` |
-| **Hex Address** | `$00D718` |
-| **Decimal Address** | 55064 |
-| **End Address** | `$00D796` (55190) |
-| **Size** | 126 bytes |
-| **Type** | Multi-part block entry (part 2 of `game_over_sequence`) |
-| **ASM File** | `extracted/functions/GameOverCutsceneSprites.asm` |
-| **Movable** | Yes |
+**Address:** `$D718` · **Size:** 126 bytes
 
 ### Description
 
@@ -231,23 +185,12 @@ Uses `COP [SpawnAfter]` to create the child sprites relative to the player's pos
 |-----------|--------|-------|
 | Spawned by | `GameOverSequence` | `COP [SpawnAfter]` |
 | Precedes | `DeathWakeupMessage` | Visual then text phase |
-| Cataloged in | `us/names.json` @ 55064 | |
 
 ---
 
 ## DeathWakeupMessage
 
-| Property | Value |
-|----------|-------|
-| **Old Name** | `death_message` |
-| **New Name** | `DeathWakeupMessage` |
-| **Hex Address** | `$00D796` |
-| **Decimal Address** | 55190 |
-| **End Address** | `$00D877` (55415) |
-| **Size** | 225 bytes |
-| **Type** | Multi-part block entry (part 3 of `game_over_sequence`) |
-| **ASM File** | `extracted/functions/DeathWakeupMessage.asm` |
-| **Movable** | Yes |
+**Address:** `$D796` · **Size:** 225 bytes
 
 ### Description
 
@@ -291,8 +234,6 @@ Spawned from `player_character.asm` via `COP [SpawnAfterFlags]` after the cutsce
 | Spawned from | `player_character.asm` | `COP [SpawnAfterFlags]` |
 | Follows | `GameOverCutsceneSprites` | Text after visual |
 | Character index | `$0AD4` | Same as body swap / palette dispatch |
-| Cataloged in | `us/blocks.json` | Part of `game_over_sequence` |
-| Cataloged in | `us/names.json` @ 55190 | |
 
 ---
 
@@ -303,7 +244,7 @@ Spawned from `player_character.asm` via `COP [SpawnAfterFlags]` after the cutsce
 | Step | Caller | Callee | Mechanism |
 |------|--------|--------|-----------|
 | 1 | Combat / HP check | `StopPlayerOnDeathAssign` | JSL |
-| 2 | Death callback | `GameOverSequence` | `$&func_00D62F` pointer |
+| 2 | Death callback | `GameOverSequence` | `$&GameOverSequence` pointer |
 | 3 | `GameOverSequence` | `DeathPaletteFadeThinker` | COP `SpawnThinker` |
 | 4 | `GameOverSequence` | `GameOverCutsceneSprites` | COP `SpawnAfter` |
 | 5 | `player_character.asm` | `DeathWakeupMessage` | COP `SpawnAfterFlags` |
@@ -312,7 +253,7 @@ Spawned from `player_character.asm` via `COP [SpawnAfterFlags]` after the cutsce
 
 | Target | Bank | Purpose |
 |--------|------|---------|
-| `chunk_03BAE1` | `$03` | Death callback pointer assignment |
+| `ComposeDigits_Continuation` | `$03` | Death callback pointer assignment |
 | Scene script engine | `$02`/`$03` | Scene reload from save data |
 | `$0AF0`–`$0AF8` | `$00` WRAM | Save/restore scene state |
 
@@ -330,4 +271,4 @@ Spawned from `player_character.asm` via `COP [SpawnAfterFlags]` after the cutsce
 
 ---
 
-*Source: `us/blocks.json`, `us/names.json`, live `extracted/` ASM.*
+*Source: `extracted/functions/game_over_sequence.asm`, `extracted/functions/DeathPaletteFadeThinker.asm`, `extracted/functions/StopPlayerOnDeathAssign.asm`.*

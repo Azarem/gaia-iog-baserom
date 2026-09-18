@@ -2,8 +2,8 @@
 
 **Bank:** `$00` (mirrored at `$80`)  
 **Address range:** `$00C9B8`–`$00D068`, `$00F3B3`–`$00F432`  
-**Source files:** `extracted/functions/SpawnDebrisBurst.asm`, `CameraDriftLoopSimple.asm`, `CameraDriftLoopShip.asm`, `CameraDriftPatterned.asm`, `StopPlayerOnDeathAssign.asm`, `ApplyOrbitalOffsetFromRef.asm`, `ApplyOrbitalOffsetXY.asm`  
-**Block:** `camera_drift`, standalone functions in `us/blocks.json`
+**Source files:** [`extracted/functions/camera_drift.asm`](../../../extracted/functions/camera_drift.asm) (contains `CameraDriftLoopSimple`, `CameraDriftLoopShip`, `CameraDriftPatterned`), [`SpawnDebrisBurst.asm`](../../../extracted/functions/SpawnDebrisBurst.asm), [`StopPlayerOnDeathAssign.asm`](../../../extracted/functions/StopPlayerOnDeathAssign.asm), [`ApplyOrbitalOffsetFromRef.asm`](../../../extracted/functions/ApplyOrbitalOffsetFromRef.asm), [`ApplyOrbitalOffsetXY.asm`](../../../extracted/functions/ApplyOrbitalOffsetXY.asm)  
+**Block:** `camera_drift` + standalone orbital math functions
 
 Three subsystems share this address region: ambient camera drift loops for boss/ship arenas, debris burst VFX, and sin/cos orbital offset math used by COP handlers, bosses, and decorative actors.
 
@@ -13,15 +13,15 @@ Three subsystems share this address region: ambient camera drift loops for boss/
 
 ## Overview
 
-| Function | Old Name | Address | Size | Movable | Call Type | Priority |
-|----------|----------|---------|------|---------|-----------|----------|
-| `CameraDriftLoopSimple` | `func_00CF8E` | `$CF8E` | 32 B | ✓ | COP `SpawnAfterFlags` | Medium |
-| `CameraDriftLoopShip` | `func_00CFAE` | `$CFAE` | 65 B | ✓ | COP `SpawnAfterFlags` | Medium |
-| `CameraDriftPatterned` | `func_00CFEF` | `$CFEF` | 121 B | ✓ (with data) | COP `SpawnLastRel` | Medium |
-| `SpawnDebrisBurst` | `func_00C9B8` | `$C9B8` | 67 B | ✓ | COP `SpawnAfterFlags` | Medium |
-| `ApplyOrbitalOffsetFromRef` | `func_00F3C9` | `$F3C9` | 95 B | ✓ | JSL (15+ refs) | **High** |
-| `ApplyOrbitalOffsetXY` | `func_00F432` | `$F432` | 93 B | ✓ | JSL (~3 callers) | Medium |
-| `CopyRefActorPos_unused` | `func_00F428` | `$F428` | 10 B | — | None (dead) | — |
+| Function | Address | Size | Movable | Call Type | Priority |
+|----------|---------|------|---------|-----------|----------|
+| `CameraDriftLoopSimple` | `$CF8E` | 32 B | ✓ | COP `SpawnAfterFlags` | Medium |
+| `CameraDriftLoopShip` | `$CFAE` | 65 B | ✓ | COP `SpawnAfterFlags` | Medium |
+| `CameraDriftPatterned` | `$CFEF` | 121 B | ✓ (with data) | COP `SpawnLastRel` | Medium |
+| `SpawnDebrisBurst` | `$C9B8` | 67 B | ✓ | COP `SpawnAfterFlags` | Medium |
+| `ApplyOrbitalOffsetFromRef` | `$F3C9` | 95 B | ✓ | JSL (15+ refs) | **High** |
+| `ApplyOrbitalOffsetXY` | `$F432` | 93 B | ✓ | JSL (~3 callers) | Medium |
+| `CopyRefActorPos_unused` | `$F428` | 10 B | — | None (dead) | — |
 
 ---
 
@@ -29,16 +29,7 @@ Three subsystems share this address region: ambient camera drift loops for boss/
 
 ### CameraDriftLoopSimple
 
-| Property | Value |
-|----------|-------|
-| **Old Name** | `func_00CF8E` |
-| **New Name** | `CameraDriftLoopSimple` |
-| **Hex Address** | `$00CF8E` |
-| **Decimal Address** | 53134 |
-| **End Address** | `$00CFAE` (53166) |
-| **Size** | 32 bytes |
-| **ASM File** | `extracted/functions/CameraDriftLoopSimple.asm` |
-| **Movable** | Yes |
+**Address:** `$CF8E` · **Size:** 32 bytes
 
 #### Description
 
@@ -72,16 +63,7 @@ Spawned via `COP [SpawnAfterFlags]` from scene thinker/actor scripts that want c
 
 ### CameraDriftLoopShip
 
-| Property | Value |
-|----------|-------|
-| **Old Name** | `func_00CFAE` |
-| **New Name** | `CameraDriftLoopShip` |
-| **Hex Address** | `$00CFAE` |
-| **Decimal Address** | 53166 |
-| **End Address** | `$00CFEF` (53231) |
-| **Size** | 65 bytes |
-| **ASM File** | `extracted/functions/CameraDriftLoopShip.asm` |
-| **Movable** | Yes |
+**Address:** `$CFAE` · **Size:** 65 bytes
 
 #### Description
 
@@ -111,16 +93,7 @@ Same ±1..±2 pixel random offset as `CameraDriftLoopSimple` but with an additio
 
 ### CameraDriftPatterned
 
-| Property | Value |
-|----------|-------|
-| **Old Name** | `func_00CFEF` |
-| **New Name** | `CameraDriftPatterned` |
-| **Decimal Address** | 53231 |
-| **Hex Address** | `$00CFEF` |
-| **End Address** | `$00D068` (53352) |
-| **Size** | 121 bytes + 32-byte data |
-| **ASM File** | `extracted/functions/CameraDriftPatterned.asm` |
-| **Movable** | Yes (must move with `binary_00D068`) |
+**Address:** `$CFEF` · **Size:** 121 bytes + 32-byte data
 
 #### Description
 
@@ -144,11 +117,9 @@ Used in Viper boss arena, Comet Lair, and other set-piece battles where the came
 
 #### Data: `binary_00D068`
 
-| Property | Value |
-|----------|-------|
-| **Address** | `$00D068` |
-| **Size** | 32 bytes (8 × 4-byte X/Y delta pairs) |
-| **Format** | Signed byte X offset, signed byte Y offset, 2 padding/reserved bytes per entry |
+**Address:** `$D068` · **Size:** 32 bytes (8 × 4-byte X/Y delta pairs)
+
+| Format | Signed byte X offset, signed byte Y offset, 2 padding/reserved bytes per entry |
 
 ---
 
@@ -156,16 +127,7 @@ Used in Viper boss arena, Comet Lair, and other set-piece battles where the came
 
 ### SpawnDebrisBurst
 
-| Property | Value |
-|----------|-------|
-| **Old Name** | `func_00C9B8` |
-| **New Name** | `SpawnDebrisBurst` |
-| **Hex Address** | `$00C9B8` |
-| **Decimal Address** | 51640 |
-| **End Address** | `$00C9FB` (51707) |
-| **Size** | 67 bytes |
-| **ASM File** | `extracted/functions/SpawnDebrisBurst.asm` |
-| **Movable** | Yes |
+**Address:** `$C9B8` · **Size:** 67 bytes
 
 #### Description
 
@@ -192,23 +154,13 @@ Invoked via `COP [SpawnAfterFlags]` from scene scripts and destructible object a
 
 ### ApplyOrbitalOffsetFromRef
 
-| Property | Value |
-|----------|-------|
-| **Old Name** | `func_00F3C9` |
-| **New Name** | `ApplyOrbitalOffsetFromRef` |
-| **Hex Address** | `$00F3C9` |
-| **Decimal Address** | 62409 |
-| **End Address** | `$00F428` (62504) |
-| **Size** | 95 bytes |
-| **ASM File** | `extracted/functions/ApplyOrbitalOffsetFromRef.asm` |
-| **Movable** | Yes |
-| **Priority** | **High** (15+ live references) |
+**Address:** `$F3C9` · **Size:** 95 bytes
 
 #### Description
 
 Computes sin/cos orbital offset from a reference actor's position. Reads the reference actor index from `$0000`, loads that actor's `$14`/`$16` as the orbit center, then applies `$7F0010,X` (angle) and `$7F1010,X` (diameter/radius) to compute new X/Y positions using the sin/cos lookup tables at `binary_01C455`/`binary_01C495` (bank `$01`) and signed multiply via `SignedMultiply` (bank `$02`).
 
-**Previously misplaced in `extracted/unused/`** — moved to `functions` section in `blocks.json` (2026-09-06) after discovery of 15+ active `$@func_00F3C9` references.
+**Previously misplaced in `extracted/unused/`** — moved to `functions` after discovery of 15+ active `$@ApplyOrbitalOffsetFromRef` references.
 
 Used by:
 - COP `$6D` (`SpiralStep`) handler in `cop_handlers_collision.asm`
@@ -250,22 +202,12 @@ Used by:
 | Boss scripts | Castoth, Viper | Orbiting attacks |
 | Actors | Fire sprites, statue pickup | Decorative orbit |
 | System core | `system_core.asm` | `?INCLUDE` reference |
-| Cataloged in | `us/blocks.json` | Moved from `unused` → `functions` |
 
 ---
 
 ### ApplyOrbitalOffsetXY
 
-| Property | Value |
-|----------|-------|
-| **Old Name** | `func_00F432` |
-| **New Name** | `ApplyOrbitalOffsetXY` |
-| **Hex Address** | `$00F432` |
-| **Decimal Address** | 62514 |
-| **End Address** | `$00F48F` (62607) |
-| **Size** | 93 bytes |
-| **ASM File** | `extracted/functions/ApplyOrbitalOffsetXY.asm` |
-| **Movable** | Yes |
+**Address:** `$F432` · **Size:** 93 bytes
 
 #### Description
 
@@ -289,21 +231,12 @@ Used for elliptical orbits and Lissajous-style motion patterns where X and Y osc
 | Sin/cos tables | `binary_01C455/495` | Bank `$01` |
 | Math helper | `SignedMultiply` | Bank `$02` |
 | Callers | ~3 boss/actor scripts | JSL |
-| Cataloged in | `us/names.json` @ 62514 | |
 
 ---
 
 ### CopyRefActorPos_unused
 
-| Property | Value |
-|----------|-------|
-| **Old Name** | `func_00F428` |
-| **New Name** | `CopyRefActorPos_unused` |
-| **Hex Address** | `$00F428` |
-| **Decimal Address** | 62504 |
-| **End Address** | `$00F432` (62514) |
-| **Size** | 10 bytes |
-| **Movable** | N/A — dead code |
+**Address:** `$F428` · **Size:** 10 bytes
 
 #### Description
 
@@ -352,4 +285,4 @@ Dead entry stub between `ApplyOrbitalOffsetFromRef` (`$F3C9`) and `ApplyOrbitalO
 
 ---
 
-*Source: `us/blocks.json`, `us/names.json`, `docs/cop-commands-reference.md` §3.15.*
+*Source: `extracted/functions/camera_drift.asm`, `extracted/functions/SpawnDebrisBurst.asm`, `extracted/functions/ApplyOrbitalOffsetFromRef.asm`, `extracted/functions/ApplyOrbitalOffsetXY.asm`, `docs/cop-commands-reference.md` §3.15.*

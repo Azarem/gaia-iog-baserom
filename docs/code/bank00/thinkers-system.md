@@ -25,14 +25,7 @@ These thinkers configure SNES PPU hardware registers (`$CGADSUB`, `$COLDATA`, `$
 
 ### babel_elevator_color_add
 
-| Property | Value |
-|----------|-------|
-| **Old Name** | `thinker_00B78F` |
-| **New Name** | `babel_elevator_color_add` |
-| **Hex Address** | `$00B78F` |
-| **Decimal Address** | 46991 |
-| **Self-Contained** | Yes |
-| **ASM File** | `extracted/babel_tower/babel_light_elevator/babel_elevator_color_add.asm` |
+**Address:** `$00B78F`
 
 #### Purpose
 
@@ -60,14 +53,7 @@ None.
 
 ### palace_scroll_brightness
 
-| Property | Value |
-|----------|-------|
-| **Old Name** | `thinker_00B79D` |
-| **New Name** | `palace_scroll_brightness` |
-| **Hex Address** | `$00B79D` |
-| **Decimal Address** | 47005 |
-| **Self-Contained** | Yes |
-| **ASM File** | `extracted/seaside_palace/palace_scroll_brightness.asm` |
+**Address:** `$00B79D`
 
 #### Purpose
 
@@ -96,14 +82,7 @@ None. Reads `$06C2` (scroll WRAM) directly.
 
 ### dao_window_mask
 
-| Property | Value |
-|----------|-------|
-| **Old Name** | `thinker_00B7BE` |
-| **New Name** | `dao_window_mask` |
-| **Hex Address** | `$00B7BE` |
-| **Decimal Address** | 47038 |
-| **Self-Contained** | Yes |
-| **ASM File** | `extracted/dao/dao/dao_window_mask.asm` |
+**Address:** `$00B7BE`
 
 #### Purpose
 
@@ -123,14 +102,7 @@ None.
 
 ### itory_village_fog
 
-| Property | Value |
-|----------|-------|
-| **Old Name** | `thinker_00B818` |
-| **New Name** | `itory_village_fog` |
-| **Hex Address** | `$00B818` |
-| **Decimal Address** | 47128 |
-| **Self-Contained** | **No** |
-| **ASM File** | `extracted/itory/itory_village/itory_village_fog.asm` |
+**Address:** `$00B818`
 
 #### Purpose
 
@@ -163,14 +135,7 @@ RTL
 
 ### dark_castoth_layer_config
 
-| Property | Value |
-|----------|-------|
-| **Old Name** | `thinker_00BF78` |
-| **New Name** | `dark_castoth_layer_config` |
-| **Hex Address** | `$00BF78` |
-| **Decimal Address** | 49016 |
-| **Self-Contained** | Yes |
-| **ASM File** | `extracted/babel_tower/dark_castoth_lair/dark_castoth_layer_config.asm` |
+**Address:** `$00BF78`
 
 #### Purpose
 
@@ -192,14 +157,7 @@ None.
 
 ### inventory_dma_setup
 
-| Property | Value |
-|----------|-------|
-| **Old Name** | `thinker_00BB8E` |
-| **New Name** | `inventory_dma_setup` |
-| **Hex Address** | `$00BB8E` |
-| **Decimal Address** | 48014 |
-| **Self-Contained** | Yes |
-| **ASM File** | `extracted/system/inventory/inventory_dma_setup.asm` |
+**Address:** `$00BB8E`
 
 #### Purpose
 
@@ -228,14 +186,7 @@ None.
 
 ### diary_menu_window_dma
 
-| Property | Value |
-|----------|-------|
-| **Old Name** | `thinker_00BBAF` |
-| **New Name** | `diary_menu_window_dma` |
-| **Hex Address** | `$00BBAF` |
-| **Decimal Address** | 48047 |
-| **Self-Contained** | Yes |
-| **ASM File** | `extracted/system/diary_menu/diary_menu_window_dma.asm` |
+**Address:** `$00BBAF`
 
 #### Purpose
 
@@ -273,14 +224,7 @@ Three one-shot thinkers that run sequential palette fades during the publisher l
 
 ### boot_logo_palette_enix
 
-| Property | Value |
-|----------|-------|
-| **Old Name** | `thinker_00B83F` |
-| **New Name** | `boot_logo_palette_enix` |
-| **Hex Address** | `$00B83F` |
-| **Decimal Address** | 47167 |
-| **Self-Contained** | Yes |
-| **ASM File** | `extracted/system/boot_logos/boot_logo_palette_enix.asm` |
+**Address:** `$00B83F`
 
 #### Purpose
 
@@ -300,14 +244,7 @@ None.
 
 ### boot_logo_palette_quintet
 
-| Property | Value |
-|----------|-------|
-| **Old Name** | `thinker_00B853` |
-| **New Name** | `boot_logo_palette_quintet` |
-| **Hex Address** | `$00B853` |
-| **Decimal Address** | 47187 |
-| **Self-Contained** | Yes |
-| **ASM File** | `extracted/system/boot_logos/boot_logo_palette_quintet.asm` |
+**Address:** `$00B853`
 
 #### Purpose
 
@@ -327,14 +264,7 @@ None.
 
 ### boot_logo_palette_third
 
-| Property | Value |
-|----------|-------|
-| **Old Name** | `thinker_00B867` |
-| **New Name** | `boot_logo_palette_third` |
-| **Hex Address** | `$00B867` |
-| **Decimal Address** | 47207 |
-| **Self-Contained** | Yes |
-| **ASM File** | `extracted/system/boot_logos/boot_logo_palette_third.asm` |
+**Address:** `$00B867`
 
 #### Purpose
 
@@ -356,15 +286,7 @@ None.
 
 ### global_ambient_dispatcher
 
-| Property | Value |
-|----------|-------|
-| **Old Name** | `thinker_00BF89` |
-| **New Name** | `global_ambient_dispatcher` |
-| **Hex Address** | `$00BF89` |
-| **Decimal Address** | 49033 |
-| **Self-Contained** | **No** |
-| **ASM File** | `extracted/thinkers/global_ambient_dispatcher.asm` |
-| **Size** | ~545 bytes (largest bank $00 thinker) |
+**Address:** `$00BF89` · **Size:** ~545 bytes (largest bank $00 thinker)
 
 #### Purpose
 
@@ -372,7 +294,7 @@ Hub thinker present in nearly every field scene. Combines two responsibilities:
 
 1. **Ambient palette dispatch:** `SwitchCase` on `$0AD4` (current character/form index) selects one of four palette bundles (`#0B`, `#0C`, `#23`, `#0C`) for character-specific color grading during gameplay.
 
-2. **Player-proximity interaction:** After palette step, checks `$0656` bit 15 (`#$8000`). When set, calls `$@func_03F0CA` (direction probe) and scans all actors within 16×16 pixels of the player. If a matching actor with a linked script (`$7F000A,X` ≠ 0) is found and the player presses a direction button, triggers the actor's interaction script via `$@func_03CA55`.
+2. **Player-proximity interaction:** After palette step, checks `$0656` bit 15 (`#$8000`). When set, calls `GetPlayerFacingDirection` (direction probe) and scans all actors within 16×16 pixels of the player. If a matching actor with a linked script (`$7F000A,X` ≠ 0) is found and the player presses a direction button, triggers the actor's interaction script via `UpdateActorAnimation`.
 
 #### Algorithm
 
@@ -387,11 +309,11 @@ clear thinker flag $0800 on $7F000E,X
 SetEntryExit
 if $0656 bit 15 == 0 → RTL
 
-direction = func_03F0CA()
+direction = GetPlayerFacingDirection()
 find nearest actor within 16px of player in facing direction
 if found and button pressed:
   DMA sound #002F to APUIO
-  call func_03CA55 (interaction handler)
+  call UpdateActorAnimation (interaction handler)
   spawn deferred script callback
 else:
   toggle $0656/$0658 interaction flags
@@ -413,10 +335,10 @@ The `$0AD4` character index drives Will/Freedan/Shadow palette variants automati
 
 | Symbol | Type | Purpose |
 |--------|------|---------|
-| `chunk_03BAE1` | `?INCLUDE` | Shared actor/engine constants |
+| `ComposeDigits_Continuation` | `?INCLUDE` | Shared actor/engine constants |
 | `$player_actor` | WRAM label | Player actor index for proximity scan |
-| `$@func_03F0CA` | Far function | Direction probe from joypad input |
-| `$@func_03CA55` | Far function | Actor interaction script executor |
+| `GetPlayerFacingDirection` | Far function | Direction probe from joypad input |
+| `UpdateActorAnimation` | Far function | Actor interaction script executor |
 
 #### Internal Sub-functions
 
@@ -462,3 +384,7 @@ System scenes use dedicated layouts:
 | `$TM` / `$TS` (`$2105`/`$2106`) | `dark_castoth_layer_config` | `#17` / `#00` | Main/sub screen layer enables |
 | `$W12SEL` (`$2123`) | `dao_window_mask` | `#02` | BG1/BG2 window mask select |
 | `$WH0` (`$2126`) | `diary_menu_window_dma` | `#FF` | Window horizontal position |
+
+---
+
+*Source: `extracted/thinkers/global_ambient_dispatcher.asm` and related thinker ASM files in `extracted/`.*

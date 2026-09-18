@@ -2,8 +2,7 @@
 
 **Bank:** `$00` (mirrored at `$80` for FastROM access)  
 **Address range:** `$00A608`–`$00B519` (death cleanup, unlink, allocators, pool, palette helper)  
-**ASM files:** `extracted/system/engine/cop_handlers_actors.asm`, `extracted/system/engine/cop_handlers_collision.asm` (partial)  
-**Blocks:** `system/cop_handlers_actors`, `system/cop_handlers_collision` in `us/blocks.json`
+**ASM files:** `extracted/system/engine/cop_handlers_actors.asm`, `extracted/system/engine/cop_handlers_collision.asm` (partial)
 
 This page documents how Illusion of Gaia **allocates**, **links**, **copies state between**, and **recycles** actor slots in the doubly-linked actor list. The actor pool, predecessor/successor pointers, and parent-child marking (`$7F001C`) underpin every spawn, death, and thinker COP in the engine.
 
@@ -42,15 +41,7 @@ Each actor occupies a **64-byte direct-page-aligned slot**; the slot index (e.g.
 
 ### UnlinkActor
 
-| Property | Value |
-|----------|-------|
-| **Old Name** | `sub_00AF40` |
-| **New Name** | `UnlinkActor` |
-| **Hex Address** | `$00AF40` |
-| **Decimal Address** | 44864 |
-| **End Address** | `$00AF73` (exclusive `$00AF74`) |
-| **Size** | 79 bytes |
-| **ASM File** | `extracted/system/engine/cop_handlers_actors.asm` |
+**Address:** `$AF40` · **Size:** 79 bytes
 
 #### Description
 
@@ -85,21 +76,12 @@ Removes the **current actor** (direct page in **X**) from the **doubly-linked ac
 | Called by | COP `$A8` `KillPrev` | Unlinks predecessor |
 | Called by | COP `$A9` `KillNext` | Unlinks successor |
 | Calls | `ReturnActorSlot` | Recycle slot |
-| Cataloged in | `us/names.json` @ 44864 | |
 
 ---
 
 ### DieNow_UnlinkChildren
 
-| Property | Value |
-|----------|-------|
-| **Old Name** | `code_00A608` |
-| **New Name** | `DieNow_UnlinkChildren` |
-| **Hex Address** | `$00A608` |
-| **Decimal Address** | 42504 |
-| **End Address** | `$00A690` (exclusive `$00A691`) |
-| **Size** | 153 bytes |
-| **ASM File** | `extracted/system/engine/cop_handlers_actors.asm` |
+**Address:** `$A608` · **Size:** 153 bytes
 
 #### Description
 
@@ -140,7 +122,6 @@ The routine stores the backward-walk endpoint in **`$0002`** and forward endpoin
 | Called by | COP `$A7` `MarkDeath` | When `$12 & $0040` |
 | Called by | COP `$E0` `Die` | When `$12 & $0040` |
 | Calls | `ReturnActorSlot` | Per-child slot recycle |
-| Cataloged in | `us/names.json` @ 42504 | |
 
 ---
 
@@ -148,15 +129,7 @@ The routine stores the backward-walk endpoint in **`$0002`** and forward endpoin
 
 ### ResolveActorIndex
 
-| Property | Value |
-|----------|-------|
-| **Old Name** | `sub_00B125` |
-| **New Name** | `ResolveActorIndex` |
-| **Hex Address** | `$00B125` |
-| **Decimal Address** | 45349 |
-| **End Address** | `$00B13C` (exclusive `$00B13D`) |
-| **Size** | 17 bytes |
-| **ASM File** | `extracted/system/engine/cop_handlers_collision.asm` |
+**Address:** `$B125` · **Size:** 17 bytes
 
 #### Description
 
@@ -186,7 +159,6 @@ Maps an **8-bit actor list index** (from COP script bytecode) to a **WRAM actor 
 | Called by | COP `$20` | `BranchIfActorNear` |
 | Called by | COP `$29` | `BranchIfActorAt` |
 | Calls | `SignedMultiply` (`$0281D1`) | Hardware `WRMPY` multiply |
-| Cataloged in | `us/names.json` @ 45349 | |
 
 ---
 
@@ -194,15 +166,7 @@ Maps an **8-bit actor list index** (from COP script bytecode) to a **WRAM actor 
 
 ### AllocateActorBefore
 
-| Property | Value |
-|----------|-------|
-| **Old Name** | `sub_00B15D` |
-| **New Name** | `AllocateActorBefore` |
-| **Hex Address** | `$00B15D` |
-| **Decimal Address** | 45405 |
-| **End Address** | `$00B188` (exclusive `$00B189`) |
-| **Size** | 44 bytes |
-| **ASM File** | `extracted/system/engine/cop_handlers_actors.asm` |
+**Address:** `$B15D` · **Size:** 44 bytes
 
 #### Description
 
@@ -227,21 +191,12 @@ Allocates a new actor from the free pool and inserts it **immediately before** t
 | Called by | COP `$9A` `SpawnBeforeParam` | |
 | Called by | COP `$A1` `SpawnBeforeMarked` | + `MarkChildActor` |
 | Calls | `ActorPoolAllocator`, `CopyActorState` | |
-| Cataloged in | `us/names.json` @ 45405 | |
 
 ---
 
 ### AllocateActorAfter
 
-| Property | Value |
-|----------|-------|
-| **Old Name** | `sub_00B189` |
-| **New Name** | `AllocateActorAfter` |
-| **Hex Address** | `$00B189` |
-| **Decimal Address** | 45449 |
-| **End Address** | `$00B1B4` (exclusive `$00B1B5`) |
-| **Size** | 44 bytes |
-| **ASM File** | `extracted/system/engine/cop_handlers_actors.asm` |
+**Address:** `$B189` · **Size:** 44 bytes
 
 #### Description
 
@@ -265,32 +220,23 @@ Allocates and inserts **after** the current actor (toward `$0058` tail). Mirror 
 | Called by | COP `$3B`/`$3C` | Thinker spawn (via `AllocateSpecialActor` path) |
 | Called by | COP `$19` | List splice |
 | Calls | `ActorPoolAllocator`, `CopyActorState` | Highest-volume allocator (~14 call sites) |
-| Cataloged in | `us/names.json` @ 45449 | |
 
 ---
 
 ### AllocateSpecialActor
 
-| Property | Value |
-|----------|-------|
-| **Old Name** | `sub_00B27B` |
-| **New Name** | `AllocateSpecialActor` |
-| **Hex Address** | `$00B27B` |
-| **Decimal Address** | 45691 |
-| **End Address** | `$00B29D` (exclusive `$00B29E`) |
-| **Size** | 36 bytes |
-| **ASM File** | `extracted/system/engine/cop_handlers_actors.asm` |
+**Address:** `$B27B` · **Size:** 36 bytes
 
 #### Description
 
-Allocates a **thinker** (special non-sprite actor) via bank `$03` **`func_03CE8F`**, then links it into the **thinker list** at **`$005C`** rather than the main actor chain. Zeros the thinker's wait counter and successor pointer.
+Allocates a **thinker** (special non-sprite actor) via bank `$03` **`ThinkerPoolAlloc`**, then links it into the **thinker list** at **`$005C`** rather than the main actor chain. Zeros the thinker's wait counter and successor pointer.
 
 #### Algorithm
 
 | Step | Operation | Detail |
 |------|-----------|--------|
 | 1 | `PHD` / `TCD #$0000` | |
-| 2 | `JSL func_03CE8F` | Thinker allocator; **BCS** → fail |
+| 2 | `JSL ThinkerPoolAlloc` | Thinker allocator; **BCS** → fail |
 | 3 | `LDX $005C` | Current thinker list head |
 | 4 | Link | New `$04` = old head X; new `$06` = 0; new `$08` = 0; old head's `$06` = new Y |
 | 5 | `STY $005C` | New head |
@@ -302,22 +248,13 @@ Allocates a **thinker** (special non-sprite actor) via bank `$03` **`func_03CE8F
 |-----------|--------|-------|
 | Called by | COP `$3B` `SpawnThinkerParam` | |
 | Called by | COP `$3C` `SpawnThinker` | |
-| Calls | `func_03CE8F` (`$03CE8F`) | Bank `$03` thinker pool |
-| Cataloged in | `us/names.json` @ 45691 | |
+| Calls | `ThinkerPoolAlloc` (`$03CE8F`) | Bank `$03` thinker pool |
 
 ---
 
 ### ActorPoolAllocator
 
-| Property | Value |
-|----------|-------|
-| **Old Name** | `func_00B501` |
-| **New Name** | `ActorPoolAllocator` |
-| **Hex Address** | `$00B501` |
-| **Decimal Address** | 46337 |
-| **End Address** | `$00B518` (exclusive `$00B519`) |
-| **Size** | 24 bytes |
-| **ASM File** | `extracted/system/engine/cop_handlers_actors.asm` |
+**Address:** `$B501` · **Size:** 24 bytes
 
 #### Description
 
@@ -351,7 +288,6 @@ Core **free-list pop** for actor slots. Reads the next available actor ID from *
 | Called by | `AllocateActorBefore` / `AllocateActorAfter` | Primary consumers |
 | Called by | COP `$A5`/`$A6` | Direct spawn |
 | Called by | COP `$19` | List append |
-| Cataloged in | `us/names.json` @ 46337 | |
 
 ---
 
@@ -359,15 +295,7 @@ Core **free-list pop** for actor slots. Reads the next available actor ID from *
 
 ### ReturnActorSlot
 
-| Property | Value |
-|----------|-------|
-| **Old Name** | `sub_00B1B5` |
-| **New Name** | `ReturnActorSlot` |
-| **Hex Address** | `$00B1B5` |
-| **Decimal Address** | 45493 |
-| **End Address** | `$00B1CA` (exclusive `$00B1CB`) |
-| **Size** | 22 bytes |
-| **ASM File** | `extracted/system/engine/cop_handlers_actors.asm` |
+**Address:** `$B1B5` · **Size:** 22 bytes
 
 #### Description
 
@@ -391,21 +319,12 @@ Returns an actor slot to the **free pool** — inverse of `ActorPoolAllocator`. 
 |-----------|--------|-------|
 | Called by | `UnlinkActor` | Single-actor death |
 | Called by | `DieNow_UnlinkChildren` | Batch child cleanup |
-| Cataloged in | `us/names.json` @ 45493 | |
 
 ---
 
 ### MarkChildActor
 
-| Property | Value |
-|----------|-------|
-| **Old Name** | `sub_00B1CB` |
-| **New Name** | `MarkChildActor` |
-| **Hex Address** | `$00B1CB` |
-| **Decimal Address** | 45515 |
-| **End Address** | `$00B1D9` (exclusive `$00B1DA`) |
-| **Size** | 15 bytes |
-| **ASM File** | `extracted/system/engine/cop_handlers_actors.asm` |
+**Address:** `$B1CB` · **Size:** 15 bytes
 
 #### Description
 
@@ -426,21 +345,12 @@ Records a **parent link** on a newly spawned child actor. Stores the **current a
 | Direction | Symbol | Notes |
 |-----------|--------|-------|
 | Called by | COP `$A1`–`$A4` | Marked spawn variants |
-| Cataloged in | `us/names.json` @ 45515 | ~5 call sites |
 
 ---
 
 ### CopyActorState
 
-| Property | Value |
-|----------|-------|
-| **Old Name** | `sub_00B1DA` |
-| **New Name** | `CopyActorState` |
-| **Hex Address** | `$00B1DA` |
-| **Decimal Address** | 45530 |
-| **End Address** | `$00B27A` (exclusive `$00B27B`) |
-| **Size** | 161 bytes |
-| **ASM File** | `extracted/system/engine/cop_handlers_actors.asm` |
+**Address:** `$B1DA` · **Size:** 161 bytes
 
 #### Description
 
@@ -481,7 +391,6 @@ If **`$scene_current ≠ $FF`**, also zeroes callback table **`$7F1000`–`$7F10
 |-----------|--------|-------|
 | Called by | `AllocateActorBefore` | |
 | Called by | `AllocateActorAfter` | |
-| Cataloged in | `us/names.json` @ 45530 | |
 
 ---
 
@@ -489,15 +398,7 @@ If **`$scene_current ≠ $FF`**, also zeroes callback table **`$7F1000`–`$7F10
 
 ### PaletteResetAndKillThinker
 
-| Property | Value |
-|----------|-------|
-| **Old Name** | `func_00B519` |
-| **New Name** | `PaletteResetAndKillThinker` |
-| **Hex Address** | `$00B519` |
-| **Decimal Address** | 46361 |
-| **End Address** | `$00B520` (exclusive `$00B521`) |
-| **Size** | 7 bytes (+ COP bytecode) |
-| **ASM File** | `extracted/system/engine/cop_handlers_actors.asm` |
+**Address:** `$B519` · **Size:** 7 bytes (+ COP bytecode)
 
 #### Description
 
@@ -526,25 +427,24 @@ No register setup — relies on thinker COP entrancy state.
 |-----------|--------|-------|
 | Adjacent to | `ActorPoolAllocator` (`$B501`) | Allocator ends where this begins |
 | Used by | Music COP `$04`/`$05` | Palette thinker lifecycle |
-| Cataloged in | `us/names.json` @ 46361 | |
 
 ---
 
 ## Quick Reference
 
-| New Name | Old Name | Address | Size | Primary Callers |
-|----------|----------|---------|------|-----------------|
-| `UnlinkActor` | `sub_00AF40` | `$00AF40` | 79 | COP `$A7`/`$A8`/`$A9`/`$E0` |
-| `DieNow_UnlinkChildren` | `code_00A608` | `$00A608` | 153 | COP `$A7`/`$E0` (parent bit) |
-| `ResolveActorIndex` | `sub_00B125` | `$00B125` | 17 | COP `$20`/`$29` |
-| `AllocateActorBefore` | `sub_00B15D` | `$00B15D` | 44 | COP `$99`/`$9A`/`$A1` |
-| `AllocateActorAfter` | `sub_00B189` | `$00B189` | 44 | COP `$9B`–`$A4`, `$04`/`$05` |
-| `ReturnActorSlot` | `sub_00B1B5` | `$00B1B5` | 22 | Unlink paths |
-| `MarkChildActor` | `sub_00B1CB` | `$00B1CB` | 15 | COP `$A1`–`$A4` |
-| `CopyActorState` | `sub_00B1DA` | `$00B1DA` | 161 | Both allocators |
-| `AllocateSpecialActor` | `sub_00B27B` | `$00B27B` | 36 | COP `$3B`/`$3C` |
-| `ActorPoolAllocator` | `func_00B501` | `$00B501` | 24 | Allocators, COP `$A5`/`$A6`/`$19` |
-| `PaletteResetAndKillThinker` | `func_00B519` | `$00B519` | 7 | Music palette thinkers |
+| Name | Address | Size | Primary Callers |
+|------|---------|------|-----------------|
+| `UnlinkActor` | `$AF40` | 79 | COP `$A7`/`$A8`/`$A9`/`$E0` |
+| `DieNow_UnlinkChildren` | `$A608` | 153 | COP `$A7`/`$E0` (parent bit) |
+| `ResolveActorIndex` | `$B125` | 17 | COP `$20`/`$29` |
+| `AllocateActorBefore` | `$B15D` | 44 | COP `$99`/`$9A`/`$A1` |
+| `AllocateActorAfter` | `$B189` | 44 | COP `$9B`–`$A4`, `$04`/`$05` |
+| `ReturnActorSlot` | `$B1B5` | 22 | Unlink paths |
+| `MarkChildActor` | `$B1CB` | 15 | COP `$A1`–`$A4` |
+| `CopyActorState` | `$B1DA` | 161 | Both allocators |
+| `AllocateSpecialActor` | `$B27B` | 36 | COP `$3B`/`$3C` |
+| `ActorPoolAllocator` | `$B501` | 24 | Allocators, COP `$A5`/`$A6`/`$19` |
+| `PaletteResetAndKillThinker` | `$B519` | 7 | Music palette thinkers |
 
 ---
 

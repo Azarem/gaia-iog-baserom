@@ -2,8 +2,7 @@
 
 **Bank:** `$00` (mirrored at `$80` for FastROM access)  
 **Address range:** `$00B05E`–`$00B4F6`  
-**ASM file:** `extracted/system/engine/cop_handlers_script.asm`  
-**Block:** `system/cop_handlers_script` in `us/blocks.json`
+**ASM file:** `extracted/system/engine/cop_handlers_script.asm`
 
 This page documents the complete **bitfield flag subsystem** used throughout Illusion of Gaia for scene progression, puzzle state, WRAM-scoped actor flags, and cross-bank event queries. All core routines share one indexing scheme; far-call wrappers add constant offsets before delegating to the core set/test/clear functions.
 
@@ -35,13 +34,7 @@ bitmask     = bitmasks_bit_position[bit_number]
 
 ### Bitmask Lookup Table
 
-| Property | Value |
-|----------|-------|
-| **Old Name** | `bitmasks_00B11D` |
-| **New Name** | `bitmasks_bit_position` |
-| **Hex Address** | `$00B11D` |
-| **Decimal Address** | 45341 |
-| **Size** | 8 bytes |
+**Address:** `$B11D` · **Size:** 8 bytes
 
 | Index | Mask | Binary |
 |-------|------|--------|
@@ -92,15 +85,7 @@ CLC              ; carry clear → bit set
 
 ### TestWramFlag_Offset100
 
-| Property | Value |
-|----------|-------|
-| **Old Name** | `func_00B05E` |
-| **New Name** | `TestWramFlag_Offset100` |
-| **Hex Address** | `$00B05E` |
-| **Decimal Address** | 45150 |
-| **End Address** | `$00B068` (exclusive `$00B069`) |
-| **Size** | 11 bytes |
-| **Termination** | `RTL` (far-call entry) |
+**Address:** `$B05E` · **Size:** 11 bytes · **Termination:** `RTL`
 
 #### Description
 
@@ -123,14 +108,7 @@ Far-call wrapper: masks index to low 3 bits, adds **`$0100`**, then **`JSR TestW
 
 ### SetWramFlag_Offset100
 
-| Property | Value |
-|----------|-------|
-| **Old Name** | `func_00B069` |
-| **New Name** | `SetWramFlag_Offset100` |
-| **Hex Address** | `$00B069` |
-| **Decimal Address** | 45161 |
-| **Size** | 11 bytes |
-| **Termination** | `RTL` |
+**Address:** `$B069` · **Size:** 11 bytes · **Termination:** `RTL`
 
 #### Description
 
@@ -147,15 +125,7 @@ Identical to `TestWramFlag_Offset100` but calls **`SetWramFlag`**. Used when scr
 
 ### SetWramFlag
 
-| Property | Value |
-|----------|-------|
-| **Old Name** | `sub_00B074` |
-| **New Name** | `SetWramFlag` |
-| **Hex Address** | `$00B074` |
-| **Decimal Address** | 45172 |
-| **End Address** | `$00B094` (exclusive `$00B095`) |
-| **Size** | 33 bytes |
-| **Termination** | `RTS` (near call) |
+**Address:** `$B074` · **Size:** 33 bytes · **Termination:** `RTS`
 
 #### Description
 
@@ -185,21 +155,12 @@ Sets one bit in the **WRAM flag array** at `$000A80`. Index in **A** on entry (1
 |-----------|--------|-------|
 | Called by | `SetWramFlag_Offset100` | After `+$0100` offset |
 | Called by | COP flag-set handlers | Near `JSR` from script bank |
-| Cataloged in | `us/names.json` @ 45172 | |
 
 ---
 
 ### TestWramFlag
 
-| Property | Value |
-|----------|-------|
-| **Old Name** | `sub_00B095` |
-| **New Name** | `TestWramFlag` |
-| **Hex Address** | `$00B095` |
-| **Decimal Address** | 45205 |
-| **End Address** | `$00B0B6` (exclusive `$00B0B7`) |
-| **Size** | 34 bytes |
-| **Termination** | `RTS` |
+**Address:** `$B095` · **Size:** 34 bytes · **Termination:** `RTS`
 
 #### Description
 
@@ -224,21 +185,12 @@ CLC
 | Direction | Symbol | Notes |
 |-----------|--------|-------|
 | Called by | `TestWramFlag_Offset100` | |
-| Cataloged in | `us/names.json` @ 45205 | |
 
 ---
 
 ### ClearAllWramFlags
 
-| Property | Value |
-|----------|-------|
-| **Old Name** | `func_00B4CC` |
-| **New Name** | `ClearAllWramFlags` |
-| **Hex Address** | `$00B4CC` |
-| **Decimal Address** | 46284 |
-| **End Address** | `$00B4DF` (exclusive `$00B4E0`) |
-| **Size** | 19 bytes |
-| **Termination** | `RTL` |
+**Address:** `$B4CC` · **Size:** 19 bytes · **Termination:** `RTL`
 
 #### Description
 
@@ -262,7 +214,6 @@ RTL
 | Direction | Symbol | Notes |
 |-----------|--------|-------|
 | Used by | `st68_kara.asm`, `sp58_red_eye.asm`, `sFE_actor_03A2F1.asm` | Scene entry cleanup via `JSL` |
-| Cataloged in | `us/names.json` @ 46284 | |
 
 ---
 
@@ -270,15 +221,7 @@ RTL
 
 ### SetEventFlag
 
-| Property | Value |
-|----------|-------|
-| **Old Name** | `sub_00B0B7` |
-| **New Name** | `SetEventFlag` |
-| **Hex Address** | `$00B0B7` |
-| **Decimal Address** | 45239 |
-| **End Address** | `$00B0D7` (exclusive `$00B0D8`) |
-| **Size** | 33 bytes |
-| **Termination** | `RTS` |
+**Address:** `$B0B7` · **Size:** 33 bytes · **Termination:** `RTS`
 
 #### Description
 
@@ -300,21 +243,12 @@ Identical bitfield indexing to `SetWramFlag`, targeting **`$0A00,Y`** instead of
 |-----------|--------|-------|
 | Called by | All `Set*` far-call wrappers | After offset addition |
 | Called by | COP `$65`–style flag handlers | Direct `JSR` |
-| Cataloged in | `us/names.json` @ 45239 | ~6+ direct COP call sites |
 
 ---
 
 ### ClearEventFlag
 
-| Property | Value |
-|----------|-------|
-| **Old Name** | `sub_00B0D8` |
-| **New Name** | `ClearEventFlag` |
-| **Hex Address** | `$00B0D8` |
-| **Decimal Address** | 45272 |
-| **End Address** | `$00B0FA` (exclusive `$00B0FB`) |
-| **Size** | 35 bytes |
-| **Termination** | `RTS` |
+**Address:** `$B0D8` · **Size:** 35 bytes · **Termination:** `RTS`
 
 #### Description
 
@@ -332,21 +266,12 @@ STA $0A00, Y
 | Direction | Symbol | Notes |
 |-----------|--------|-------|
 | Called by | `ClearFlagRaw`, `ClearFlag_0100` | Far-call wrappers |
-| Cataloged in | `us/names.json` @ 45272 | |
 
 ---
 
 ### TestEventFlag
 
-| Property | Value |
-|----------|-------|
-| **Old Name** | `sub_00B0FB` |
-| **New Name** | `TestEventFlag` |
-| **Hex Address** | `$00B0FB` |
-| **Decimal Address** | 45307 |
-| **End Address** | `$00B11C` (exclusive `$00B11D`) |
-| **Size** | 34 bytes |
-| **Termination** | `RTS` |
+**Address:** `$B0FB` · **Size:** 34 bytes · **Termination:** `RTS`
 
 #### Description
 
@@ -357,8 +282,7 @@ Tests one **event flag** bit with the same carry convention as `TestWramFlag`. M
 | Direction | Symbol | Notes |
 |-----------|--------|-------|
 | Called by | All `Test*` far-call wrappers | ~8+ call sites |
-| Called by | `chunk_038000.asm`, `warps_interaction.asm` | Cross-bank `JSL` |
-| Cataloged in | `us/names.json` @ 45307 | |
+| Called by | `GlobalInputHandler.asm`, `warps_interaction.asm` | Cross-bank `JSL` |
 
 ---
 
@@ -366,26 +290,23 @@ Tests one **event flag** bit with the same carry convention as `TestWramFlag`. M
 
 All wrappers below are **`RTL` entry points** intended for **`JSL`** from other banks. They preserve the standard index-in-**A** convention, optionally mask or offset it, then **`JSR`** the near core routine.
 
-| New Name | Old Name | Address | Offset Added | Operation | Notes |
-|----------|----------|---------|--------------|-----------|-------|
-| `SetEventFlag_0200` | `func_00B481` | `$00B481` | `+$0200` | Set | Red jewel / warp flag range |
-| `TestEventFlag_0200` | `func_00B489` | `$00B489` | `+$0200` | Test | Masks A to `$FF` first |
-| `TestFlag_0300` | `func_00B496` | `$00B496` | `+$0300` | Test | Subsystem flags |
-| `SetFlag_0300` | `func_00B4A1` | `$00B4A1` | `+$0300` | Set | |
-| `TestFlag_0510` | `func_00B4AC` | `$00B4AC` | `+$0510` | Test | High-index event range |
-| `TestFlagRaw` | `func_00B4B7` | `$00B4B7` | none (`AND #$FF`) | Test | Direct 8-bit index |
-| `SetFlagRaw` | `func_00B4BE` | `$00B4BE` | none (`AND #$FF`) | Set | |
-| `ClearFlagRaw` | `func_00B4C5` | `$00B4C5` | none (`AND #$FF`) | Clear | |
-| `SetFlag_0100` | `func_00B4E0` | `$00B4E0` | `+$0100` | Set | Event array high page |
-| `ClearFlag_0100` | `func_00B4EB_noref` | `$00B4EB` | `+$0100` | Clear | **Unreferenced** in ROM |
-| `TestFlag_0100` | `func_00B4F6` | `$00B4F6` | `+$0100` | Test | |
+| Name | Address | Offset Added | Operation | Notes |
+|------|---------|--------------|-----------|-------|
+| `SetEventFlag_0200` | `$B481` | `+$0200` | Set | Red jewel / warp flag range |
+| `TestEventFlag_0200` | `$B489` | `+$0200` | Test | Masks A to `$FF` first |
+| `TestFlag_0300` | `$B496` | `+$0300` | Test | Subsystem flags |
+| `SetFlag_0300` | `$B4A1` | `+$0300` | Set | |
+| `TestFlag_0510` | `$B4AC` | `+$0510` | Test | High-index event range |
+| `TestFlagRaw` | `$B4B7` | none (`AND #$FF`) | Test | Direct 8-bit index |
+| `SetFlagRaw` | `$B4BE` | none (`AND #$FF`) | Set | |
+| `ClearFlagRaw` | `$B4C5` | none (`AND #$FF`) | Clear | |
+| `SetFlag_0100` | `$B4E0` | `+$0100` | Set | Event array high page |
+| `ClearFlag_0100` | `$B4EB` | `+$0100` | Clear | **Unreferenced** in ROM |
+| `TestFlag_0100` | `$B4F6` | `+$0100` | Test | |
 
 ### SetEventFlag_0200
 
-| Property | Value |
-|----------|-------|
-| **Hex Address** | `$00B481` |
-| **Size** | 8 bytes |
+**Address:** `$B481` · **Size:** 8 bytes
 
 ```asm
 CLC
@@ -398,10 +319,7 @@ Used by warp and red-jewel actors (`hidden_red_jewel.asm`, `warps_interaction.as
 
 ### TestEventFlag_0200
 
-| Property | Value |
-|----------|-------|
-| **Hex Address** | `$00B489` |
-| **Size** | 13 bytes |
+**Address:** `$B489` · **Size:** 13 bytes
 
 ```asm
 REP #$20
@@ -414,48 +332,31 @@ RTL
 
 ### TestFlag_0300 / SetFlag_0300
 
-| Property | Value |
-|----------|-------|
-| **Addresses** | `$00B496` / `$00B4A1` |
-| **Size** | 11 bytes each |
+**Addresses:** `$B496` / `$B4A1` · **Size:** 11 bytes each
 
 `AND #$00FF`, add `$0300`, JSR test/set, RTL.
 
 ### TestFlag_0510
 
-| Property | Value |
-|----------|-------|
-| **Hex Address** | `$00B4AC` |
-| **Size** | 11 bytes |
+**Address:** `$B4AC` · **Size:** 11 bytes
 
 Adds **`$0510`** before test — accesses flags in the `$0510`–`$051F` index range (byte `$0A00+$A2` area).
 
 ### TestFlagRaw / SetFlagRaw / ClearFlagRaw
 
-| Property | Value |
-|----------|-------|
-| **Addresses** | `$00B4B7` / `$00B4BE` / `$00B4C5` |
-| **Size** | 7 bytes each |
+**Addresses:** `$B4B7` / `$B4BE` / `$B4C5` · **Size:** 7 bytes each
 
 Pass **`A & $FF`** directly as the flag index with no offset — simplest cross-bank API for indices 0–255 in the base event array.
 
 ### SetFlag_0100 / TestFlag_0100
 
-| Property | Value |
-|----------|-------|
-| **Addresses** | `$00B4E0` / `$00B4F6` |
-| **Size** | 11 bytes each |
+**Addresses:** `$B4E0` / `$B4F6` · **Size:** 11 bytes each
 
 Add **`$0100`** to access the second 256-flag page within the `$0A00` array (indices `$0100`–`$01FF`).
 
 ### ClearFlag_0100 (Unreferenced)
 
-| Property | Value |
-|----------|-------|
-| **Old Name** | `func_00B4EB_noref` |
-| **Hex Address** | `$00B4EB` |
-| **Size** | 11 bytes |
-| **Status** | **Dead code** — no `JSL`/reference in extracted ROM |
+**Address:** `$B4EB` · **Size:** 11 bytes · **Status:** **Dead code** — no `JSL`/reference in extracted ROM
 
 Mirrors `SetFlag_0100` but calls `ClearEventFlag`. Present in the binary but unused by any shipped script.
 
@@ -479,25 +380,25 @@ Actor `.asm` files in other banks use **`JSL $@TestEventFlag_0200`** etc. The wr
 
 ## Quick Reference
 
-| New Name | Old Name | Address | Array | Operation |
-|----------|----------|---------|-------|-----------|
-| `TestWramFlag_Offset100` | `func_00B05E` | `$00B05E` | `$0A80` | Test (+$0100) |
-| `SetWramFlag_Offset100` | `func_00B069` | `$00B069` | `$0A80` | Set (+$0100) |
-| `SetWramFlag` | `sub_00B074` | `$00B074` | `$0A80` | Set |
-| `TestWramFlag` | `sub_00B095` | `$00B095` | `$0A80` | Test |
-| `SetEventFlag` | `sub_00B0B7` | `$00B0B7` | `$0A00` | Set |
-| `ClearEventFlag` | `sub_00B0D8` | `$00B0D8` | `$0A00` | Clear |
-| `TestEventFlag` | `sub_00B0FB` | `$00B0FB` | `$0A00` | Test |
-| `bitmasks_bit_position` | `bitmasks_00B11D` | `$00B11D` | — | Data table |
-| `ClearAllWramFlags` | `func_00B4CC` | `$00B4CC` | `$0A80` | Clear all |
-| `SetEventFlag_0200` | `func_00B481` | `$00B481` | `$0A00` | Set (+$0200) |
-| `TestEventFlag_0200` | `func_00B489` | `$00B489` | `$0A00` | Test (+$0200) |
-| `TestFlag_0300` | `func_00B496` | `$00B496` | `$0A00` | Test (+$0300) |
-| `SetFlag_0300` | `func_00B4A1` | `$00B4A1` | `$0A00` | Set (+$0300) |
-| `TestFlag_0510` | `func_00B4AC` | `$00B4AC` | `$0A00` | Test (+$0510) |
-| `TestFlagRaw` | `func_00B4B7` | `$00B4B7` | `$0A00` | Test (raw) |
-| `SetFlagRaw` | `func_00B4BE` | `$00B4BE` | `$0A00` | Set (raw) |
-| `ClearFlagRaw` | `func_00B4C5` | `$00B4C5` | `$0A00` | Clear (raw) |
-| `SetFlag_0100` | `func_00B4E0` | `$00B4E0` | `$0A00` | Set (+$0100) |
-| `ClearFlag_0100` | `func_00B4EB_noref` | `$00B4EB` | `$0A00` | Clear (+$0100, unused) |
-| `TestFlag_0100` | `func_00B4F6` | `$00B4F6` | `$0A00` | Test (+$0100) |
+| Name | Address | Array | Operation |
+|------|---------|-------|-----------|
+| `TestWramFlag_Offset100` | `$B05E` | `$0A80` | Test (+$0100) |
+| `SetWramFlag_Offset100` | `$B069` | `$0A80` | Set (+$0100) |
+| `SetWramFlag` | `$B074` | `$0A80` | Set |
+| `TestWramFlag` | `$B095` | `$0A80` | Test |
+| `SetEventFlag` | `$B0B7` | `$0A00` | Set |
+| `ClearEventFlag` | `$B0D8` | `$0A00` | Clear |
+| `TestEventFlag` | `$B0FB` | `$0A00` | Test |
+| `bitmasks_bit_position` | `$B11D` | — | Data table |
+| `ClearAllWramFlags` | `$B4CC` | `$0A80` | Clear all |
+| `SetEventFlag_0200` | `$B481` | `$0A00` | Set (+$0200) |
+| `TestEventFlag_0200` | `$B489` | `$0A00` | Test (+$0200) |
+| `TestFlag_0300` | `$B496` | `$0A00` | Test (+$0300) |
+| `SetFlag_0300` | `$B4A1` | `$0A00` | Set (+$0300) |
+| `TestFlag_0510` | `$B4AC` | `$0A00` | Test (+$0510) |
+| `TestFlagRaw` | `$B4B7` | `$0A00` | Test (raw) |
+| `SetFlagRaw` | `$B4BE` | `$0A00` | Set (raw) |
+| `ClearFlagRaw` | `$B4C5` | `$0A00` | Clear (raw) |
+| `SetFlag_0100` | `$B4E0` | `$0A00` | Set (+$0100) |
+| `ClearFlag_0100` | `$B4EB` | `$0A00` | Clear (+$0100, unused) |
+| `TestFlag_0100` | `$B4F6` | `$0A00` | Test (+$0100) |

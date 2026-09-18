@@ -1,7 +1,7 @@
 # Bank $00 — Tile/Map Helpers, Animation & Sprite Utilities
 
 **Address range:** `$0097EF`–`$00AF8F`  
-**Source files:** `extracted/system/engine/cop_handlers_collision.asm`, `extracted/system/engine/cop_handlers_actors.asm`  
+**Source files:** [`extracted/system/engine/cop_handlers_collision.asm`](../../../extracted/system/engine/cop_handlers_collision.asm), [`extracted/system/engine/cop_handlers_actors.asm`](../../../extracted/system/engine/cop_handlers_actors.asm)  
 **Related:** [`cop-dispatch.md`](cop-dispatch.md) (COP `$4B`–`$4E`, `$0D`/`$0E`, `$00`, `$60`, `$80`–`92`)
 
 Utility routines supporting metatile drawing, world-map streaming, sprite staging, sine-based HDMA effects, and collision offset computation. These are shared infrastructure called from multiple COP handlers rather than standalone entry points.
@@ -12,13 +12,7 @@ Utility routines supporting metatile drawing, world-map streaming, sprite stagin
 
 ### ParseMapEntry
 
-| Property | Value |
-|----------|-------|
-| **Old name** | `sub_0097EF` |
-| **New name** | `ParseMapEntry` |
-| **Address** | `$0097EF` |
-| **Size** | 58 bytes |
-| **Type** | Map stream parser |
+**Address:** `$97EF` · **Size:** 58 bytes
 
 #### Description
 
@@ -74,13 +68,7 @@ Called by COP `$4D` (WorldMapStream3) and `$4E` (WorldMapStream4) for each entry
 
 ### ResolveTileData
 
-| Property | Value |
-|----------|-------|
-| **Old name** | `sub_009829` |
-| **New name** | `ResolveTileData` |
-| **Address** | `$009829` |
-| **Size** | 128 bytes |
-| **Type** | Tile graphics resolver |
+**Address:** `$9829` · **Size:** 128 bytes
 
 #### Description
 
@@ -139,13 +127,7 @@ Called by all metatile drawing COPs ($4B–$4E) after coordinates are establishe
 
 ### TileQueryGate
 
-| Property | Value |
-|----------|-------|
-| **Old name** | `sub_0098A9` |
-| **New name** | `TileQueryGate` |
-| **Address** | `$0098A9` |
-| **Size** | 15 bytes |
-| **Type** | Conditional retry gate |
+**Address:** `$98A9` · **Size:** 15 bytes
 
 #### Description
 
@@ -209,13 +191,7 @@ TileQueryGate {
 
 ### ProcessAnimFlag
 
-| Property | Value |
-|----------|-------|
-| **Old name** | `sub_009F5F` |
-| **New name** | `ProcessAnimFlag` |
-| **Address** | `$009F5F` |
-| **Size** | 48 bytes |
-| **Type** | Sprite/animation flag processor |
+**Address:** `$9F5F` · **Size:** 48 bytes
 
 #### Description
 
@@ -275,13 +251,7 @@ Called by all sprite staging COPs ($80–$87, $8D, $8F–$92), movement initiali
 
 ### AnimFrameLookup
 
-| Property | Value |
-|----------|-------|
-| **Old name** | `sub_00B157` |
-| **New name** | `AnimFrameLookup` |
-| **Address** | `$00B157` |
-| **Size** | 6 bytes |
-| **Type** | Table lookup |
+**Address:** `$B157` · **Size:** 6 bytes
 
 #### Description
 
@@ -331,13 +301,7 @@ AnimFrameLookup {
 
 ### BuildSineHdmaTable
 
-| Property | Value |
-|----------|-------|
-| **Old name** | `sub_00ADCF` |
-| **New name** | `BuildSineHdmaTable` |
-| **Address** | `$00ADCF` |
-| **Size** | 233 bytes |
-| **Type** | HDMA buffer builder |
+**Address:** `$ADCF` · **Size:** 233 bytes
 
 #### Description
 
@@ -402,13 +366,7 @@ Called by COP `$60` (TickSineHdma) each frame to refresh the oscillation table.
 
 ### BuildSineLookupTable
 
-| Property | Value |
-|----------|-------|
-| **Old name** | `sub_00AEB8` |
-| **New name** | `BuildSineLookupTable` |
-| **Address** | `$00AEB8` |
-| **Size** | 136 bytes |
-| **Type** | Sine table precomputer |
+**Address:** `$AEB8` · **Size:** 136 bytes
 
 #### Description
 
@@ -459,13 +417,7 @@ Called by COP `$00` (GenHdmaSine) during HDMA sine effect initialization. After 
 
 ### SetActorBody
 
-| Property | Value |
-|----------|-------|
-| **Old name** | `sub_00AF6D` |
-| **New name** | `SetActorBody` |
-| **Address** | `$00AF6D` |
-| **Size** | 34 bytes |
-| **Type** | Body/sprite pointer setter |
+**Address:** `$AF6D` · **Size:** 34 bytes
 
 #### Description
 
@@ -531,13 +483,7 @@ SetActorBody {
 
 ### ParseSignedTileOffset
 
-| Property | Value |
-|----------|-------|
-| **Old name** | `sub_00AF8F` |
-| **New name** | `ParseSignedTileOffset` |
-| **Address** | `$00AF8F` |
-| **Size** | 63 bytes |
-| **Type** | Signed offset parser |
+**Address:** `$AF8F` · **Size:** 63 bytes
 
 #### Description
 
@@ -670,5 +616,7 @@ ParseSignedTileOffset {
 - [`cop-dispatch.md`](cop-dispatch.md) — COP handler table entries
 - [`utility-math-movement.md`](utility-math-movement.md) — `ProcessAnimFlag` in movement init
 - [`cop-commands-reference.md`](../../cop-commands-reference.md) — Full COP operand reference
-- `extracted/system/engine/map_coords.asm` — `TileCoordsToMapIndex`, `PixelToVramAddress`
+- [`extracted/system/engine/map_coords.asm`](../../../extracted/system/engine/map_coords.asm) — `TileCoordsToMapIndex`, `PixelToVramAddress`
 - `binary_01C455` — 256-byte sine table source data
+
+*Source: [`extracted/system/engine/cop_handlers_collision.asm`](../../../extracted/system/engine/cop_handlers_collision.asm), [`extracted/system/engine/cop_handlers_actors.asm`](../../../extracted/system/engine/cop_handlers_actors.asm)*

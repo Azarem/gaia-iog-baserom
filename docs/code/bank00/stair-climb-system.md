@@ -3,8 +3,7 @@
 **Bank:** `$00` (mirrored at `$80`)  
 **Address range:** `$00D088`–`$00D2D2` (core) + `$00D58A`–`$00D5BC` (shared utility)  
 **Size:** ~1,336 bytes, 13 parts  
-**File:** `extracted/system/engine/stair_climb.asm`  
-**Block:** `stair_climb` in `us/blocks.json` — `movable: false`
+**File:** `extracted/system/engine/stair_climb.asm`
 
 Each stair trigger is an invisible `actor_def` at a tile boundary. Every frame it checks player proximity, validates walking state and facing direction, then overwrites the player entry pointer to a climb function and calls `LockPlayerForClimb`.
 
@@ -52,14 +51,7 @@ Each stair trigger is a small invisible `actor_def` placed at a tile boundary. E
 
 ### LockPlayerForClimb
 
-| Property | Value |
-|----------|-------|
-| **Old Name** | `sub_00D088` |
-| **New Name** | `LockPlayerForClimb` |
-| **Hex Address** | `$00D088` |
-| **Decimal Address** | 53384 |
-| **Size** | 38 bytes |
-| **Type** | Shared subroutine |
+**Address:** `$00D088` · **Size:** 38 bytes
 
 #### Description
 
@@ -86,20 +78,13 @@ Called by all five stair triggers when activation conditions are met. Locks the 
 
 | Direction | Symbol | Notes |
 |-----------|--------|-------|
-| Called by | All 5 stair triggers | JSR `$&sub_00D088` |
+| Called by | All 5 stair triggers | JSR `$&LockPlayerForClimb` |
 
 ---
 
 ### UnlockPlayerAfterClimb
 
-| Property | Value |
-|----------|-------|
-| **Old Name** | `sub_00D0AE` |
-| **New Name** | `UnlockPlayerAfterClimb` |
-| **Hex Address** | `$00D0AE` |
-| **Decimal Address** | 53422 |
-| **Size** | 35 bytes |
-| **Type** | Shared subroutine |
+**Address:** `$00D0AE` · **Size:** 35 bytes
 
 #### Description
 
@@ -110,27 +95,20 @@ Called when the climb animation finishes (frame counter reaches zero). Restores 
 3. Set actor flags `$10` bit `$0008`, clear bit `$0200`
 4. Set `$0658` bit `$8000`
 5. Clear `$player_flags` bit `$0002`
-6. Call `RestorePlayerControl` (`sub_00D58A`)
+6. Call `RestorePlayerControl`
 
 #### Cross-References
 
 | Direction | Symbol | Notes |
 |-----------|--------|-------|
-| Called by | All 4 directional climb functions | JSR `$&sub_00D0AE` |
-| Calls | `RestorePlayerControl` | JSR `$&sub_00D58A` |
+| Called by | All 4 directional climb functions | JSR `$&UnlockPlayerAfterClimb` |
+| Calls | `RestorePlayerControl` | JSR `$&RestorePlayerControl` |
 
 ---
 
 ### CheckMoveState
 
-| Property | Value |
-|----------|-------|
-| **Old Name** | `sub_00D204` |
-| **New Name** | `CheckMoveState` |
-| **Hex Address** | `$00D204` |
-| **Decimal Address** | 53764 |
-| **Size** | 20 bytes |
-| **Type** | Shared subroutine |
+**Address:** `$00D204` · **Size:** 20 bytes
 
 #### Description
 
@@ -151,32 +129,25 @@ Register state: enters/exits with 8-bit A (`SEP #$20` / `REP #$20` implicit on r
 
 | Direction | Symbol | Notes |
 |-----------|--------|-------|
-| Called by | All 5 stair triggers | JSR `$&sub_00D204` |
+| Called by | All 5 stair triggers | JSR `$&CheckMoveState` |
 
 ---
 
 ### RestorePlayerControl
 
-| Property | Value |
-|----------|-------|
-| **Old Name** | `sub_00D58A` |
-| **New Name** | `RestorePlayerControl` |
-| **Hex Address** | `$00D58A` |
-| **Decimal Address** | 54666 |
-| **Size** | 54 bytes |
-| **Type** | Cross-file shared subroutine |
+**Address:** `$00D58A` · **Size:** 54 bytes
 
 #### Description
 
-Resets the player actor to normal walking state after a climb or ramp completes. Sets player entry pointer to `code_02C3C8` (normal player state machine in bank `$02`), zeros velocity/wait counter, adjusts actor flags, and unmasks joypad/player_flags.
+Resets the player actor to normal walking state after a climb or ramp completes. Sets player entry pointer to `PlayerIdleEntry` (normal player state machine in bank `$02`), zeros velocity/wait counter, adjusts actor flags, and unmasks joypad/player_flags.
 
-**Cross-file sharing:** `ramps.asm` calls this via `JSR $&sub_00D58A` from ramp completion handlers — this is why `stair_climb` is `movable: false`.
+**Cross-file sharing:** `ramps.asm` calls this via `JSR $&RestorePlayerControl` from ramp completion handlers — this is why `stair_climb` is `movable: false`.
 
 #### Algorithm
 
 ```
 1. LDX $player_actor
-2. LDA #$&code_02C3C8 → $7F0000,X  ; Normal player entry
+2. LDA #$&PlayerIdleEntry → $7F0000,X  ; Normal player entry
 3. STZ $002C,X; STZ $002E,X; STZ $0008,X
 4. Adjust $10 flags: OR #$0008, AND #$FDFF
 5. Clear $player_flags climb bits
@@ -193,7 +164,7 @@ Resets the player actor to normal walking state after a climb or ramp completes.
 | Called by | `code_00D550` (ramp_south) | ramps.asm |
 | Called by | `loc_00D518` (ramp_north) | ramps.asm |
 | Called by | `func_00D5C0` (ramp sprite anim) | ramps.asm |
-| Target | `code_02C3C8` | Bank `$02` normal player AI |
+| Target | `PlayerIdleEntry` | Bank `$02` normal player AI |
 
 ---
 
@@ -201,18 +172,11 @@ Resets the player actor to normal walking state after a climb or ramp completes.
 
 ### StairTriggerSouth
 
-| Property | Value |
-|----------|-------|
-| **Old Name** | `actor_00D0D1` (part of chunk) |
-| **New Name** | `StairTriggerSouth` |
-| **Hex Address** | `$00D0D1` |
-| **Decimal Address** | 53457 |
-| **Size** | 72 bytes |
-| **Type** | `actor_def` + trigger code |
+**Address:** `$00D0D1` · **Size:** 72 bytes
 
 #### Description
 
-South-facing stair trigger. Detects player approaching from the south (walking south, facing `$12`/`$13`). Redirects player to `ClimbSouth` (`func_00D218`).
+South-facing stair trigger. Detects player approaching from the south (walking south, facing `$12`/`$13`). Redirects player to `ClimbSouth`.
 
 - **Proximity check:** X range ±$8 to ±$20 pixels from trigger Y, same X row check
 - **Valid facing:** `$0012` or `$0013`
@@ -222,17 +186,11 @@ South-facing stair trigger. Detects player approaching from the south (walking s
 
 ### StairTriggerNorth
 
-| Property | Value |
-|----------|-------|
-| **Old Name** | `actor_00D119` |
-| **New Name** | `StairTriggerNorth` |
-| **Hex Address** | `$00D119` |
-| **Decimal Address** | 53529 |
-| **Size** | 72 bytes |
+**Address:** `$00D119` · **Size:** 72 bytes
 
 #### Description
 
-North-facing stair trigger. Detects player approaching from the north (walking north, facing `$15`/`$16`). Redirects to `ClimbNorth` (`func_00D246`).
+North-facing stair trigger. Detects player approaching from the north (walking north, facing `$15`/`$16`). Redirects to `ClimbNorth`.
 
 - **Valid facing:** `$0015` or `$0016`
 - **Scene usage:** Mu Passage (`event_def_0CA923`) — actor slot #12
@@ -241,13 +199,7 @@ North-facing stair trigger. Detects player approaching from the north (walking n
 
 ### StairTriggerWestEntry
 
-| Property | Value |
-|----------|-------|
-| **Old Name** | `actor_00D161` |
-| **New Name** | `StairTriggerWestEntry` |
-| **Hex Address** | `$00D161` |
-| **Decimal Address** | 53601 |
-| **Size** | 9 bytes |
+**Address:** `$00D161` · **Size:** 9 bytes
 
 #### Description
 
@@ -259,17 +211,11 @@ Thin wrapper — adds position offset (`COP [AddPosition] #F8, #00`) then falls 
 
 ### StairTriggerWest
 
-| Property | Value |
-|----------|-------|
-| **Old Name** | `actor_00D16A` |
-| **New Name** | `StairTriggerWest` |
-| **Hex Address** | `$00D16A` |
-| **Decimal Address** | 53610 |
-| **Size** | 75 bytes |
+**Address:** `$00D16A` · **Size:** 75 bytes
 
 #### Description
 
-West-facing stair trigger. Detects player approaching from the west (walking west, facing `$0F`/`$10`). Redirects to `ClimbWest` (`func_00D274`). Checks X-axis proximity (±$8 to ±$20) on the actor's Y column.
+West-facing stair trigger. Detects player approaching from the west (walking west, facing `$0F`/`$10`). Redirects to `ClimbWest`. Checks X-axis proximity (±$8 to ±$20) on the actor's Y column.
 
 - **Valid facing:** `$000F` or `$0010`
 - **Scene usage:** Mu Passage, Angel Village, Angkor Wat, Dracula Mansion — **12+** scene placements
@@ -278,17 +224,11 @@ West-facing stair trigger. Detects player approaching from the west (walking wes
 
 ### StairTriggerEast
 
-| Property | Value |
-|----------|-------|
-| **Old Name** | `actor_00D1B5` |
-| **New Name** | `StairTriggerEast` |
-| **Hex Address** | `$00D1B5` |
-| **Decimal Address** | 53685 |
-| **Size** | 79 bytes |
+**Address:** `$00D1B5` · **Size:** 79 bytes
 
 #### Description
 
-East-facing stair trigger. Detects player approaching from the east (walking east, facing `$0C`/`$0D`). Redirects to `ClimbEast` (`func_00D2A2`). Same pattern but on the opposite horizontal axis.
+East-facing stair trigger. Detects player approaching from the east (walking east, facing `$0C`/`$0D`). Redirects to `ClimbEast`. Same pattern but on the opposite horizontal axis.
 
 - **Valid facing:** `$000C` or `$000D`
 - **Scene usage:** Mu Cyclops, Angel Village, Angkor Wat temples — **10+** placements
@@ -307,52 +247,28 @@ All four climb functions share the same pattern:
 
 ### ClimbSouth
 
-| Property | Value |
-|----------|-------|
-| **Old Name** | `func_00D218` |
-| **New Name** | `ClimbSouth` |
-| **Hex Address** | `$00D218` |
-| **Decimal Address** | 53784 |
-| **Size** | 46 bytes |
+**Address:** `$00D218` · **Size:** 46 bytes
 
 - **Movement:** Decrements `$14` by 4 each frame (move player up/north on screen = climbing south in isometric)
 - **End sprite frame:** `#14`
 
 ### ClimbNorth
 
-| Property | Value |
-|----------|-------|
-| **Old Name** | `func_00D246` |
-| **New Name** | `ClimbNorth` |
-| **Hex Address** | `$00D246` |
-| **Decimal Address** | 53830 |
-| **Size** | 46 bytes |
+**Address:** `$00D246` · **Size:** 46 bytes
 
 - **Movement:** Increments `$14` by 4 each frame
 - **End sprite frame:** `#17`
 
 ### ClimbWest
 
-| Property | Value |
-|----------|-------|
-| **Old Name** | `func_00D274` |
-| **New Name** | `ClimbWest` |
-| **Hex Address** | `$00D274` |
-| **Decimal Address** | 53876 |
-| **Size** | 46 bytes |
+**Address:** `$00D274` · **Size:** 46 bytes
 
 - **Movement:** Decrements `$16` by 4 each frame
 - **End sprite frame:** `#11`
 
 ### ClimbEast
 
-| Property | Value |
-|----------|-------|
-| **Old Name** | `func_00D2A2` |
-| **New Name** | `ClimbEast` |
-| **Hex Address** | `$00D2A2` |
-| **Decimal Address** | 53922 |
-| **Size** | 46 bytes |
+**Address:** `$00D2A2` · **Size:** 46 bytes
 
 - **Movement:** Increments `$16` by 4 each frame
 - **End sprite frame:** `#0E`
@@ -407,7 +323,7 @@ All four climb functions share the same pattern:
 | Target | Bank | Purpose |
 |--------|------|---------|
 | `$player_actor` | global WRAM | Player actor slot ID |
-| `code_02C3C8` | `$02` | Normal player state machine (set by `RestorePlayerControl`) |
+| `PlayerIdleEntry` | `$02` | Normal player state machine (set by `RestorePlayerControl`) |
 | `player_character` | `$00` | Include for player variable access |
 | `ramps.asm` | `$00` | Slope walk system — shares `RestorePlayerControl` |
 
@@ -447,9 +363,9 @@ All triggers are placed as invisible `actor_def` entries in `scene_actors.asm` a
 | Block name | `stair_climb` |
 | Movable | **false** |
 | Reason | Tight `$&` coupling to `ramps.asm` |
-| Parts in blocks.json | 13 |
+| Parts | 13 |
 | Cross-file shared sub | `RestorePlayerControl` (4 external callers) |
 
 ---
 
-*Source: `us/blocks.json`, `us/names.json`, live `extracted/` ASM.*
+*Source: `extracted/system/engine/stair_climb.asm`, `extracted/actors/ramps.asm`.*

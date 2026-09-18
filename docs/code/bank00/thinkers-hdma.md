@@ -40,14 +40,7 @@ WRAM sine tables typically reside at `$7E8800`, `$7E8C00`, `$7E8400`, or `$7E800
 
 ### sine_hdma_slow_wave
 
-| Property | Value |
-|----------|-------|
-| **Old Name** | `thinker_00BE18` |
-| **New Name** | `sine_hdma_slow_wave` |
-| **Hex Address** | `$00BE18` |
-| **Decimal Address** | 48664 |
-| **Self-Contained** | Yes |
-| **ASM File** | `extracted/thinkers/sine_hdma_slow_wave.asm` |
+**Address:** `$00BE18`
 
 #### Purpose
 
@@ -78,14 +71,7 @@ None.
 
 ### sine_hdma_dual_channel
 
-| Property | Value |
-|----------|-------|
-| **Old Name** | `thinker_00BE83` |
-| **New Name** | `sine_hdma_dual_channel` |
-| **Hex Address** | `$00BE83` |
-| **Decimal Address** | 48771 |
-| **Self-Contained** | Yes |
-| **ASM File** | `extracted/seaside_palace/palace_coffins/sine_hdma_dual_channel.asm` |
+**Address:** `$00BE83`
 
 #### Purpose
 
@@ -115,14 +101,7 @@ None. Often paired with `palace_coffin_hdma_table` and `palace_scroll_brightness
 
 ### sine_hdma_ending_wave
 
-| Property | Value |
-|----------|-------|
-| **Old Name** | `thinker_00BF19` |
-| **New Name** | `sine_hdma_ending_wave` |
-| **Hex Address** | `$00BF19` |
-| **Decimal Address** | 48921 |
-| **Self-Contained** | Yes |
-| **ASM File** | `extracted/babel_tower/sine_hdma_ending_wave.asm` |
+**Address:** `$00BF19`
 
 #### Purpose
 
@@ -145,14 +124,7 @@ None. Contains inline helper `code_00BF3A` (not a separate thinker).
 
 ### ending_comet_sine_hdma
 
-| Property | Value |
-|----------|-------|
-| **Old Name** | `thinker_00BCB3` |
-| **New Name** | `ending_comet_sine_hdma` |
-| **Hex Address** | `$00BCB3` |
-| **Decimal Address** | 48307 |
-| **Self-Contained** | Yes |
-| **ASM File** | `extracted/ending/ending_comet/ending_comet_sine_hdma.asm` |
+**Address:** `$00BCB3`
 
 #### Purpose
 
@@ -174,14 +146,7 @@ None.
 
 ### comet_lair_hdma_a
 
-| Property | Value |
-|----------|-------|
-| **Old Name** | `thinker_00BCF5` |
-| **New Name** | `comet_lair_hdma_a` |
-| **Hex Address** | `$00BCF5` |
-| **Decimal Address** | 48373 |
-| **Self-Contained** | Yes |
-| **ASM File** | `extracted/babel_tower/comet_lair/comet_lair_hdma_a.asm` |
+**Address:** `$00BCF5`
 
 #### Purpose
 
@@ -201,14 +166,7 @@ None.
 
 ### comet_lair_hdma_b
 
-| Property | Value |
-|----------|-------|
-| **Old Name** | `thinker_00BD21` |
-| **New Name** | `comet_lair_hdma_b` |
-| **Hex Address** | `$00BD21` |
-| **Decimal Address** | 48417 |
-| **Self-Contained** | Yes |
-| **ASM File** | `extracted/babel_tower/comet_lair/comet_lair_hdma_b.asm` |
+**Address:** `$00BD21`
 
 #### Purpose
 
@@ -228,14 +186,7 @@ None.
 
 ### comet_lair_hdma_c_timed
 
-| Property | Value |
-|----------|-------|
-| **Old Name** | `thinker_00BD42` |
-| **New Name** | `comet_lair_hdma_c_timed` |
-| **Hex Address** | `$00BD42` |
-| **Decimal Address** | 48450 |
-| **Self-Contained** | Yes |
-| **ASM File** | `extracted/babel_tower/comet_lair/comet_lair_hdma_c_timed.asm` |
+**Address:** `$00BD42`
 
 #### Purpose
 
@@ -264,14 +215,7 @@ None.
 
 ### larai_cliff_scroll_wave
 
-| Property | Value |
-|----------|-------|
-| **Old Name** | `thinker_00BD96` |
-| **New Name** | `larai_cliff_scroll_wave` |
-| **Hex Address** | `$00BD96` |
-| **Decimal Address** | 48534 |
-| **Self-Contained** | Yes |
-| **ASM File** | `extracted/incan_ruins/larai_cliff/larai_cliff_scroll_wave.asm` |
+**Address:** `$00BD96`
 
 #### Purpose
 
@@ -291,14 +235,7 @@ None. Reads `$06C0` and `$0722` (scroll state WRAM) directly.
 
 ### mu_tint_and_wave
 
-| Property | Value |
-|----------|-------|
-| **Old Name** | `thinker_00BDCD` |
-| **New Name** | `mu_tint_and_wave` |
-| **Hex Address** | `$00BDCD` |
-| **Decimal Address** | 48589 |
-| **Self-Contained** | Yes |
-| **ASM File** | `extracted/mu/mu_tint_and_wave.asm` |
+**Address:** `$00BDCD`
 
 #### Purpose
 
@@ -318,14 +255,7 @@ None.
 
 ### dao_sine_hdma_slow
 
-| Property | Value |
-|----------|-------|
-| **Old Name** | `thinker_00BED1` |
-| **New Name** | `dao_sine_hdma_slow` |
-| **Hex Address** | `$00BED1` |
-| **Decimal Address** | 48849 |
-| **Self-Contained** | Yes |
-| **ASM File** | `extracted/dao/dao/dao_sine_hdma_slow.asm` |
+**Address:** `$00BED1`
 
 #### Purpose
 
@@ -347,14 +277,7 @@ None.
 
 ### native_village_sine_hdma
 
-| Property | Value |
-|----------|-------|
-| **Old Name** | `thinker_00BEF2` |
-| **New Name** | `native_village_sine_hdma` |
-| **Hex Address** | `$00BEF2` |
-| **Decimal Address** | 48882 |
-| **Self-Contained** | Yes |
-| **ASM File** | `extracted/native_village/native_village/native_village_sine_hdma.asm` |
+**Address:** `$00BEF2`
 
 #### Purpose
 
@@ -376,14 +299,7 @@ None.
 
 ### palace_coffin_hdma_table
 
-| Property | Value |
-|----------|-------|
-| **Old Name** | `thinker_00BE39` |
-| **New Name** | `palace_coffin_hdma_table` |
-| **Hex Address** | `$00BE39` |
-| **Decimal Address** | 48697 |
-| **Self-Contained** | Yes |
-| **ASM File** | `extracted/seaside_palace/palace_coffins/palace_coffin_hdma_table.asm` |
+**Address:** `$00BE39`
 
 #### Purpose
 
@@ -414,14 +330,7 @@ None.
 
 ### ending_comet_dma_setup
 
-| Property | Value |
-|----------|-------|
-| **Old Name** | `thinker_00BCDF` |
-| **New Name** | `ending_comet_dma_setup` |
-| **Hex Address** | `$00BCDF` |
-| **Decimal Address** | 48351 |
-| **Self-Contained** | Yes |
-| **ASM File** | `extracted/ending/ending_comet/ending_comet_dma_setup.asm` |
+**Address:** `$00BCDF`
 
 #### Purpose
 
@@ -442,14 +351,7 @@ None.
 
 ### angel_tunnel_window_dma
 
-| Property | Value |
-|----------|-------|
-| **Old Name** | `thinker_00B87B` |
-| **New Name** | `angel_tunnel_window_dma` |
-| **Hex Address** | `$00B87B` |
-| **Decimal Address** | 47227 |
-| **Self-Contained** | Yes |
-| **ASM File** | `extracted/angel_village/angel_tunnel_rooms/angel_tunnel_window_dma.asm` |
+**Address:** `$00B87B`
 
 #### Purpose
 
@@ -471,14 +373,7 @@ None.
 
 ### dma_setup_variant_unused
 
-| Property | Value |
-|----------|-------|
-| **Old Name** | `thinker_00BC97` |
-| **New Name** | `dma_setup_variant_unused` |
-| **Hex Address** | `$00BC97` |
-| **Decimal Address** | 48279 |
-| **Self-Contained** | Yes |
-| **ASM File** | `extracted/unused/dma_setup_variant_unused.asm` |
+**Address:** `$00BC97`
 
 #### Purpose
 
@@ -492,15 +387,7 @@ None.
 
 ### empty_stub_unused
 
-| Property | Value |
-|----------|-------|
-| **Old Name** | `thinker_00BDCA` |
-| **New Name** | `empty_stub_unused` |
-| **Hex Address** | `$00BDCA` |
-| **Decimal Address** | 48586 |
-| **Self-Contained** | Yes |
-| **ASM File** | `extracted/unused/empty_stub_unused.asm` |
-| **Size** | 3 bytes (RTL only) |
+**Address:** `$00BDCA` · **Size:** 3 bytes (RTL only)
 
 #### Purpose
 
@@ -514,14 +401,7 @@ None.
 
 ### native_village_dup_unused
 
-| Property | Value |
-|----------|-------|
-| **Old Name** | `thinker_00BEAA` |
-| **New Name** | `native_village_dup_unused` |
-| **Hex Address** | `$00BEAA` |
-| **Decimal Address** | 48810 |
-| **Self-Contained** | Yes |
-| **ASM File** | `extracted/unused/native_village_dup_unused.asm` |
+**Address:** `$00BEAA`
 
 #### Purpose
 
@@ -535,14 +415,7 @@ None.
 
 ### gen_hdma_sine_oneshot_unused
 
-| Property | Value |
-|----------|-------|
-| **Old Name** | `thinker_00BF52` |
-| **New Name** | `gen_hdma_sine_oneshot_unused` |
-| **Hex Address** | `$00BF52` |
-| **Decimal Address** | 48978 |
-| **Self-Contained** | Yes |
-| **ASM File** | `extracted/unused/gen_hdma_sine_oneshot_unused.asm` |
+**Address:** `$00BF52`
 
 #### Purpose
 
@@ -576,3 +449,7 @@ Scene 232 (`thinker_0CEABA`) runs the full Comet Lair effect stack:
 | `#03` | `comet_lair_hdma_a` | Wave layer A (channel `#10`) |
 | `#04` | `comet_lair_hdma_b` | Wave layer B (channel `#0F`) |
 | `#05` | `comet_lair_hdma_c_timed` | Timed fade wave (channel `#0D`) |
+
+---
+
+*Source: `extracted/thinkers/` and related HDMA thinker ASM in `extracted/`.*

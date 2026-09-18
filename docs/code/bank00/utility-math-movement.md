@@ -1,7 +1,7 @@
 # Bank $00 — Hardware Math Helpers & Movement Initialization
 
 **Address range:** `$008D25`–`$008FDC`  
-**Source file:** `extracted/system/engine/cop_handlers_collision.asm`  
+**Source file:** [`extracted/system/engine/cop_handlers_collision.asm`](../../../extracted/system/engine/cop_handlers_collision.asm)  
 **Related:** [`cop-dispatch.md`](cop-dispatch.md) (COP `$22` MoveToward, `$52` StageMove, `$53` TickMove)
 
 These routines implement the hardware-accelerated math pipeline and smooth-movement state initialization used by IOG's actor movement COPs. All multiply/divide operations use the SNES WRAM-mapped math registers at `$4202`–`$4217`.
@@ -25,13 +25,7 @@ These routines implement the hardware-accelerated math pipeline and smooth-movem
 
 ### ReadMultiplyResult
 
-| Property | Value |
-|----------|-------|
-| **Old name** | `sub_008D25` |
-| **New name** | `ReadMultiplyResult` |
-| **Address** | `$008D25` |
-| **Size** | 5 bytes |
-| **Type** | Leaf subroutine |
+**Address:** `$8D25` · **Size:** 5 bytes
 
 #### Description
 
@@ -74,13 +68,7 @@ ReadMultiplyResult {
 
 ### ReadDivideResult
 
-| Property | Value |
-|----------|-------|
-| **Old name** | `sub_008D2A` |
-| **New name** | `ReadDivideResult` |
-| **Address** | `$008D2A` |
-| **Size** | 9 bytes |
-| **Type** | Leaf subroutine |
+**Address:** `$8D2A` · **Size:** 9 bytes
 
 #### Description
 
@@ -127,13 +115,7 @@ ReadDivideResult {
 
 ### MultiplyThenDivide
 
-| Property | Value |
-|----------|-------|
-| **Old name** | `sub_008D33` |
-| **New name** | `MultiplyThenDivide` |
-| **Address** | `$008D33` |
-| **Size** | 26 bytes |
-| **Type** | Combined math helper |
+**Address:** `$8D33` · **Size:** 26 bytes
 
 #### Description
 
@@ -202,13 +184,7 @@ MultiplyThenDivide {
 
 ### InitSmoothMovement
 
-| Property | Value |
-|----------|-------|
-| **Old name** | `sub_008D4D` |
-| **New name** | `InitSmoothMovement` |
-| **Address** | `$008D4D` |
-| **Size** | 153 bytes |
-| **Type** | Movement initialization |
+**Address:** `$8D4D` · **Size:** 153 bytes
 
 #### Description
 
@@ -238,7 +214,7 @@ Called only when `$7F002A,X` bit 1 is clear (actor not already moving). On compl
 6. Select larger delta for step calculation:
    - Compare $7F001A,X vs $7F0018,X; take max in A
 7. Read speed from [$0A+1]:
-   - JSL UnsignedDivide (Bank $02 $281E8): A ÷ speed
+   - JSL UnsignedDivide (Bank $02): A ÷ speed
    - INC → $7F000E,X (step count + 1)
    - Speed byte → $7F000F,X
 8. Clear movement accumulators:
@@ -275,7 +251,7 @@ Called only when `$7F002A,X` bit 1 is clear (actor not already moving). On compl
 |--------|--------------|
 | `MoveToward` (COP `$22`) | Caller — `JSR $&InitSmoothMovement` when not already moving |
 | `ProcessAnimFlag` ($009F5F) | Called for sprite/anim byte processing |
-| `UnsignedDivide` (Bank $02 `$281E8`) | Step count = max_delta ÷ speed |
+| `UnsignedDivide` (Bank $02) | Step count = max_delta ÷ speed |
 | `MultiplyThenDivide` | Used by MoveToward after init for per-frame velocity |
 | `StageMove` (COP `$52`) | Alternative movement init path (does not call this routine) |
 
@@ -283,13 +259,7 @@ Called only when `$7F002A,X` bit 1 is clear (actor not already moving). On compl
 
 ### HalveMovementDistance
 
-| Property | Value |
-|----------|-------|
-| **Old name** | `sub_008EF1` |
-| **New name** | `HalveMovementDistance` |
-| **Address** | `$008EF1` |
-| **Size** | 28 bytes |
-| **Type** | Movement scaling helper |
+**Address:** `$8EF1` · **Size:** 28 bytes
 
 #### Description
 
@@ -342,13 +312,7 @@ HalveMovementDistance {
 
 ### MovementVelocityCompute
 
-| Property | Value |
-|----------|-------|
-| **Old name** | `sub_008FDC` |
-| **New name** | `MovementVelocityCompute` |
-| **Address** | `$008FDC` |
-| **Size** | 32 bytes |
-| **Type** | Combined math helper (TickMove variant) |
+**Address:** `$8FDC` · **Size:** 32 bytes
 
 #### Description
 
@@ -475,4 +439,6 @@ MovementVelocityCompute {
 - [`cop-dispatch.md`](cop-dispatch.md) — COP `$22`, `$52`, `$53` handler entries
 - [`utility-tiles-animation.md`](utility-tiles-animation.md) — `ProcessAnimFlag` called during movement init
 - [`cop-commands-reference.md`](../../cop-commands-reference.md) — Full MoveToward/StageMove/TickMove operand docs
-- Bank $02 `UnsignedDivide` ($281E8) — Step count division in InitSmoothMovement
+- Bank $02 `UnsignedDivide` — Step count division in InitSmoothMovement
+
+*Source: [`extracted/system/engine/cop_handlers_collision.asm`](../../../extracted/system/engine/cop_handlers_collision.asm)*

@@ -3,9 +3,9 @@
 **Bank:** `$00` (mirrored at `$80`)  
 **Address range:** `$00DB8A`–`$00DFFF`  
 **Source files:** `extracted/functions/StandardEnemyDefeatHandler.asm`, `NullActorScriptStub.asm`, `SpawnAttackTrailEffect.asm`, `SpawnHitSparkSprites.asm`, `SpawnFieldRevealEffect.asm`, `EnemyDeathFlash.asm`, `DarkGemDropSystem.asm`  
-**Block:** `functions` section in `us/blocks.json`
+**Block:** enemy defeat pipeline (`StandardEnemyDefeatHandler` multi-part block + standalone VFX)
 
-This region implements the complete enemy death resolution pipeline: kill tracking, visual feedback, field tile reveals, dark point gem drops, and stat bonus rewards. Every standard field enemy routes through `StandardEnemyDefeatHandler` via the `$7F1004` OnDeath callback assigned in `chunk_03BAE1`.
+This region implements the complete enemy death resolution pipeline: kill tracking, visual feedback, field tile reveals, dark point gem drops, and stat bonus rewards. Every standard field enemy routes through `StandardEnemyDefeatHandler` via the `$7F1004` OnDeath callback assigned in `ComposeDigits_Continuation`.
 
 **Related:** [`actors-combat-interaction.md`](actors-combat-interaction.md) (stat reward actors, hit stagger) · [`readme.md`](readme.md)
 
@@ -24,47 +24,36 @@ Enemy OnDeath callback
                     └─► EnemyStatBonusReward ($DD87) → e_hp/str/def_increase actors
 ```
 
-| Function | Old Name | Address | Size | Movable | Call Type | Priority |
-|----------|----------|---------|------|---------|-----------|----------|
-| `StandardEnemyDefeatHandler` | `func_00DB8A` | `$DB8A` | 237 B | **No** | `$&` pointer / COP `JumpScript` | **High** |
-| `EnemyGemDropRouter` | `func_00DD5B` | `$DD5B` | 44 B | **No** | Internal JSR `$&` | Medium |
-| `EnemyStatBonusReward` | `func_00DD87` | `$DD87` | 107 B | **No** | Internal JSR `$&` | Medium |
-| `SpawnFieldRevealEffect` | `func_00DDF2` | `$DDF2` | 291 B | ✓ | COP `SpawnLastRel` | **High** |
-| `EnemyDeathFlash` | `func_00DF15` | `$DF15` | 20 B | ✓ | COP `SpawnLastRel` | Medium |
-| `DarkGemDropSystem` | `func_00DF29`+ | `$DF29`–`$DFFF` | 260 B | ✓ | COP `SpawnLastRel` | **High** |
-| `NullActorScriptStub` | `stub_00DC77` | `$DC77` | 2 B | **No** | `$&` default script | Medium |
-| `SpawnAttackTrailEffect` | `func_00DCB4` | `$DCB4` | 79 B | ✓ | COP `SpawnLastRel` | Medium |
-| `SpawnHitSparkSprites` | `func_00DD03` | `$DD03` | 88 B | ✓ | COP `SpawnLastRel` | Medium |
+| Function | Address | Size | Movable | Call Type | Priority |
+|----------|---------|------|---------|-----------|----------|
+| `StandardEnemyDefeatHandler` | `$DB8A` | 237 B | **No** | `$&` pointer / COP `JumpScript` | **High** |
+| `EnemyGemDropRouter` | `$DD5B` | 44 B | **No** | Internal JSR `$&` | Medium |
+| `EnemyStatBonusReward` | `$DD87` | 107 B | **No** | Internal JSR `$&` | Medium |
+| `SpawnFieldRevealEffect` | `$DDF2` | 291 B | ✓ | COP `SpawnLastRel` | **High** |
+| `EnemyDeathFlash` | `$DF15` | 20 B | ✓ | COP `SpawnLastRel` | Medium |
+| `DarkGemDropSystem` | `$DF29`–`$DFFF` | 260 B | ✓ | COP `SpawnLastRel` | **High** |
+| `NullActorScriptStub` | `$DC77` | 2 B | **No** | `$&` default script | Medium |
+| `SpawnAttackTrailEffect` | `$DCB4` | 79 B | ✓ | COP `SpawnLastRel` | Medium |
+| `SpawnHitSparkSprites` | `$DD03` | 88 B | ✓ | COP `SpawnLastRel` | Medium |
 
 ---
 
 ## StandardEnemyDefeatHandler
 
-| Property | Value |
-|----------|-------|
-| **Old Name** | `func_00DB8A` |
-| **New Name** | `StandardEnemyDefeatHandler` |
-| **Hex Address** | `$00DB8A` |
-| **Decimal Address** | 56202 |
-| **End Address** | `$00DC77` (56439) |
-| **Size** | 237 bytes |
-| **Type** | Multi-part block entry (part 1 of 3) |
-| **ASM File** | `extracted/functions/StandardEnemyDefeatHandler.asm` |
-| **Movable** | **No** — inbound `$&func_00DB8A` from `chunk_03BAE1`, `hit_stagger_controller` |
-| **Priority** | **High** (~20 enemy types) |
+**Address:** `$DB8A` · **Size:** 237 bytes · **Movable:** No (inbound `$&StandardEnemyDefeatHandler` from `ComposeDigits_Continuation`, `hit_stagger_controller`)
 
 ### Description
 
-Central enemy death handler invoked when any standard enemy's HP reaches zero. Assigned as the default OnDeath callback via `SetOnDeath` COP in `chunk_03BAE1` (`#$&func_00DB8A`). Also referenced when `hit_stagger_controller` completes with no saved AI script for the victim.
+Central enemy death handler invoked when any standard enemy's HP reaches zero. Assigned as the default OnDeath callback via `SetOnDeath` COP in `ComposeDigits_Continuation` (`#$&StandardEnemyDefeatHandler`). Also referenced when `hit_stagger_controller` completes with no saved AI script for the victim.
 
 The handler performs four coordinated tasks before the enemy actor dies:
 
 1. **Kill accounting** — increments dungeon/scene kill counters stored in WRAM (`$7F0022,X` monster ID → flag tables), updates `$0AF0`–`$0AF8` scene persistence data where applicable
 2. **Death VFX** — spawns `EnemyDeathFlash` at the enemy's `$14`/`$16` position via `COP [SpawnLastRel]`
 3. **Field tile reveal** — if the enemy has a `deathActionIdx` (event block ID) and it hasn't been triggered yet, spawns `SpawnFieldRevealEffect` which animates sparkles at the reveal area then swaps hidden tilemap tiles to their visible destination via `StageBgChangeFromDeathIdx`/`ApplyBgChange`
-4. **Reward routing** — reads the enemy's `gemDropType` byte (field 4 of `enemy-stats`) and dispatches to either `EnemyGemDropRouter` (JSR `$&func_00DD5B`) for dark gem types 1/2/weighted, or `EnemyStatBonusReward` (JSR `$&func_00DD87`) for HP/STR/DEF stat bonuses
+4. **Reward routing** — reads the enemy's `gemDropType` byte (field 4 of `enemy-stats`) and dispatches to either `EnemyGemDropRouter` (JSR `$&EnemyGemDropRouter`) for dark gem types 1/2/weighted, or `EnemyStatBonusReward` (JSR `$&EnemyStatBonusReward`) for HP/STR/DEF stat bonuses
 
-Because parts `func_00DD5B` and `func_00DD87` are embedded in the same block file with internal `$&` references, this entire three-part block must remain co-located in bank `$00`.
+Because `EnemyGemDropRouter` and `EnemyStatBonusReward` are embedded in the same block file with internal `$&` references, this entire three-part block must remain co-located in bank `$00`.
 
 ### Algorithm
 
@@ -94,27 +83,16 @@ Because parts `func_00DD5B` and `func_00DD87` are embedded in the same block fil
 
 | Direction | Symbol | Notes |
 |-----------|--------|-------|
-| Assigned by | `chunk_03BAE1` | Default enemy OnDeath: `#$&func_00DB8A` |
+| Assigned by | `ComposeDigits_Continuation` | Default enemy OnDeath: `#$&StandardEnemyDefeatHandler` |
 | Called from | `hit_stagger_controller` | When enemy has no saved script ptr |
 | Calls | `EnemyGemDropRouter`, `EnemyStatBonusReward` | Internal JSR `$&` |
 | Spawns | `EnemyDeathFlash`, `SpawnFieldRevealEffect` | COP `SpawnLastRel` |
-| Cataloged in | `us/blocks.json` | Block `StandardEnemyDefeatHandler` |
-| Cataloged in | `us/names.json` @ 56202 | |
 
 ---
 
 ## EnemyGemDropRouter
 
-| Property | Value |
-|----------|-------|
-| **Old Name** | `func_00DD5B` (formerly `EnemyRewardChestRouter`) |
-| **New Name** | `EnemyGemDropRouter` |
-| **Hex Address** | `$00DD5B` |
-| **Decimal Address** | 56667 |
-| **End Address** | `$00DD87` (56711) |
-| **Size** | 44 bytes |
-| **Type** | Embedded subroutine (part 2 of `StandardEnemyDefeatHandler` block) |
-| **Movable** | **No** — only reachable via `$&` from `func_00DB8A` |
+**Address:** `$DD5B` · **Size:** 44 bytes · **Movable:** No (only reachable via `$&` from `StandardEnemyDefeatHandler`)
 
 ### Description
 
@@ -141,28 +119,18 @@ Routes the enemy's `gemDropType` (byte 3 of `enemy-stats`) to the appropriate da
 
 | Direction | Symbol | Notes |
 |-----------|--------|-------|
-| Caller | `StandardEnemyDefeatHandler` | JSR `$&func_00DD5B` |
+| Caller | `StandardEnemyDefeatHandler` | JSR `$&EnemyGemDropRouter` |
 | Targets | `SpawnDarkGemType1`–`code_00DFE3` | `$DF29`–`$DFE3` via `DarkGemDropSystem` |
-| Cataloged in | `us/names.json` @ 56667 | |
 
 ---
 
 ## EnemyStatBonusReward
 
-| Property | Value |
-|----------|-------|
-| **Old Name** | `func_00DD87` |
-| **New Name** | `EnemyStatBonusReward` |
-| **Hex Address** | `$00DD87` |
-| **Decimal Address** | 56711 |
-| **End Address** | `$00DDF2` (56818) |
-| **Size** | 107 bytes |
-| **Type** | Embedded subroutine (part 3 of `StandardEnemyDefeatHandler` block) |
-| **Movable** | **No** — only reachable via `$&` from `func_00DB8A` |
+**Address:** `$DD87` · **Size:** 107 bytes · **Movable:** No (only reachable via `$&` from `StandardEnemyDefeatHandler`)
 
 ### Description
 
-Scene-indexed HP/STR/DEF reward spawner. Looks up the current `$scene_current` in an embedded scene→stat-type table, then spawns the appropriate stat reward actor (`e_hp_increase`, `e_str_increase`, or `e_def_increase` at `$E02D`–`$E0A6`) via `COP [SpawnLastRel]`.
+Scene-indexed HP/STR/DEF reward spawner. Looks up the current `$scene_current` in an embedded scene→stat-type table, then spawns the appropriate stat reward actor (`e_hp_increase`, `e_str_increase`, or `e_def_increase` at `$E02D`–`$E0C6`) via `COP [SpawnLastRel]`.
 
 These actors bounce toward the player, play fanfare SFX `$25`, set the scene reward flag `$0300`, and print the stat increase message. Never placed directly in `scene_actors.asm` — always spawned dynamically after combat.
 
@@ -190,27 +158,15 @@ These actors bounce toward the player, play fanfare SFX `$25`, set the scene rew
 
 | Direction | Symbol | Notes |
 |-----------|--------|-------|
-| Caller | `StandardEnemyDefeatHandler` | JSR `$&func_00DD87` |
+| Caller | `StandardEnemyDefeatHandler` | JSR `$&EnemyStatBonusReward` |
 | Spawns | `e_hp_increase`, `e_str_increase`, `e_def_increase` | Via `SpawnLastRel` |
 | Shared VFX | `RewardActorVFX` (`$E110`) | Called by all stat actors |
-| Cataloged in | `us/names.json` @ 56711 | |
 
 ---
 
 ## SpawnFieldRevealEffect
 
-| Property | Value |
-|----------|-------|
-| **Old Name** | `func_00DDF2` (formerly `SpawnItemDropPickup`) |
-| **New Name** | `SpawnFieldRevealEffect` |
-| **Hex Address** | `$00DDF2` |
-| **Decimal Address** | 56818 |
-| **End Address** | `$00DF15` (57109) |
-| **Size** | 291 bytes |
-| **Type** | Field tile reveal effect actor |
-| **ASM File** | `extracted/functions/SpawnFieldRevealEffect.asm` |
-| **Movable** | Yes |
-| **Priority** | **High** |
+**Address:** `$DDF2` · **Size:** 291 bytes
 
 > ⚠ This actor was previously named `SpawnItemDropPickup` but contains **no item/inventory logic whatsoever**. It is the visual effect that plays when hidden tilemap tiles are revealed after an enemy defeat triggers an event block change.
 
@@ -263,24 +219,12 @@ Sign-extends randomly via carry flag to produce both positive and negative offse
 | Spawned by | `func_0AA43F.asm` | Generic enemy death with field reveal |
 | Reads | `event_block_table` | Event block definitions (dimensions + coordinates) |
 | Triggers | `StageBgChangeFromDeathIdx` / `ApplyBgChange` | Actual tile swap COP commands |
-| Cataloged in | `us/names.json` @ 56818 | |
-| Cataloged in | `us/blocks.json` | Block `SpawnFieldRevealEffect` |
 
 ---
 
 ## EnemyDeathFlash
 
-| Property | Value |
-|----------|-------|
-| **Old Name** | `func_00DF15` |
-| **New Name** | `EnemyDeathFlash` |
-| **Hex Address** | `$00DF15` |
-| **Decimal Address** | 57109 |
-| **End Address** | `$00DF29` (57129) |
-| **Size** | 20 bytes |
-| **Type** | Minimal VFX actor script |
-| **ASM File** | `extracted/functions/EnemyDeathFlash.asm` |
-| **Movable** | Yes (~10 direct callers) |
+**Address:** `$DF15` · **Size:** 20 bytes
 
 ### Description
 
@@ -302,23 +246,12 @@ Also called directly from some enemy actor scripts (not only through `StandardEn
 |-----------|--------|-------|
 | Spawned by | `StandardEnemyDefeatHandler` | Primary caller |
 | Also called from | ~10 enemy actor scripts | Direct `SpawnLastRel` |
-| Cataloged in | `us/names.json` @ 57109 | |
 
 ---
 
 ## DarkGemDropSystem
 
-| Property | Value |
-|----------|-------|
-| **Old Name** | `func_00DF29` (formerly `EnemyRewardChestSystem`) |
-| **New Name** | `DarkGemDropSystem` |
-| **Hex Address** | `$00DF29`–`$00DFFF` |
-| **Decimal Address** | 57129–57389 |
-| **Size** | 260 bytes (7 handlers + data) |
-| **Type** | Multi-part block |
-| **ASM File** | `extracted/functions/DarkGemDropSystem.asm` |
-| **Movable** | Yes (move with `gem_drop_threshold_00DFFD`) |
-| **Priority** | **High** |
+**Address:** `$DF29`–`$DFFF` · **Size:** 260 bytes (7 handlers + data)
 
 > ⚠ Previously misnamed `EnemyRewardChestSystem`. Enemies do **not** spawn chests — they drop animated dark point gems that the player collects for stat increases.
 
@@ -340,16 +273,16 @@ The `$chatPtr` values identify which stat the gem increases when collected:
 
 ### Parts
 
-| Part | Old Name | New Name | Address | Size | Purpose |
-|------|----------|----------|---------|------|---------|
-| Type 1 entry | `func_00DF29` | `SpawnDarkGemType1` | `$DF29` | 15 B | Fixed gem type A: setup metasprite + spawn collect handler |
-| Type 1 display | `func_00DF38` | `code_00DF38` | `$DF38` | 26 B | chatPtr `$0083` (HP gem), frames `#04`/`#09` |
-| Type 2 entry | `func_00DF52` | `code_00DF52` | `$DF52` | 15 B | Fixed gem type B: setup metasprite + spawn collect handler |
-| Type 2 display | `func_00DF61` | `code_00DF61` | `$DF61` | 26 B | chatPtr `$0084` (STR gem), frames `#05`/`#0A` |
-| Weighted | `func_00DF7B` | `SpawnDarkGemWeighted` | `$DF7B` | 78 B | RNG tier selection → weighted table lookup → PHA/RTS dispatch |
-| DEF gem | `func_00DFC9` | `code_00DFC9` | `$DFC9` | 26 B | chatPtr `$0085` (DEF gem), frames `#06`/`#0B` |
-| Special gem | `func_00DFE3` | `code_00DFE3` | `$DFE3` | 26 B | chatPtr `$0086` (special gem), frames `#22`/`#35` |
-| Data | `array_00DFFD` | `gem_drop_threshold_00DFFD` | `$DFFD` | 48 B | `gem-drop-threshold` weighted probability table (3 tiers × 4 entries) |
+| Part | Name | Address | Size | Purpose |
+|------|------|---------|------|---------|
+| Type 1 entry | `SpawnDarkGemType1` | `$DF29` | 15 B | Fixed gem type A: setup metasprite + spawn collect handler |
+| Type 1 display | `code_00DF38` | `$DF38` | 26 B | chatPtr `$0083` (HP gem), frames `#04`/`#09` |
+| Type 2 entry | `code_00DF52` | `$DF52` | 15 B | Fixed gem type B: setup metasprite + spawn collect handler |
+| Type 2 display | `code_00DF61` | `$DF61` | 26 B | chatPtr `$0084` (STR gem), frames `#05`/`#0A` |
+| Weighted | `SpawnDarkGemWeighted` | `$DF7B` | 78 B | RNG tier selection → weighted table lookup → PHA/RTS dispatch |
+| DEF gem | `code_00DFC9` | `$DFC9` | 26 B | chatPtr `$0085` (DEF gem), frames `#06`/`#0B` |
+| Special gem | `code_00DFE3` | `$DFE3` | 26 B | chatPtr `$0086` (special gem), frames `#22`/`#35` |
+| Data | `gem_drop_threshold_00DFFD` | `$DFFD` | 48 B | `gem-drop-threshold` weighted probability table (3 tiers × 4 entries) |
 
 ### Algorithm (SpawnDarkGemWeighted)
 
@@ -382,26 +315,16 @@ The `$chatPtr` values identify which stat the gem increases when collected:
 | Dispatched by | `EnemyGemDropRouter` | `COP [SpawnLastRel]` |
 | Child actor | `collect_handler_gem` | Gem collection interaction handler (nudges gem toward player) |
 | Data | `gem_drop_threshold_00DFFD` | Must move with block |
-| Cataloged in | `us/blocks.json` | Block `DarkGemDropSystem` |
 
 ---
 
 ## NullActorScriptStub
 
-| Property | Value |
-|----------|-------|
-| **Old Name** | `stub_00DC77` |
-| **New Name** | `NullActorScriptStub` |
-| **Hex Address** | `$00DC77` |
-| **Decimal Address** | 56439 |
-| **End Address** | `$00DC79` (56441) |
-| **Size** | 2 bytes |
-| **Type** | Minimal stub |
-| **Movable** | **No** — inbound `$&stub_00DC77` from `chunk_03BAE1` |
+**Address:** `$DC77` · **Size:** 2 bytes · **Movable:** No (inbound `$&NullActorScriptStub` from `ComposeDigits_Continuation`)
 
 ### Description
 
-Immediate `COP [Die]` — the default actor script pointer assigned to newly allocated actors that have no custom behavior. Referenced from `func_03C524` in `chunk_03BAE1` as `#$&stub_00DC77`. Any actor spawned without an explicit entry pointer gets this stub and dies on its first frame, preventing runaway execution on uninitialized slots.
+Immediate `COP [Die]` — the default actor script pointer assigned to newly allocated actors that have no custom behavior. Referenced from `CalcKnockbackFromActorCenters` in `ComposeDigits_Continuation` as `#$&NullActorScriptStub`. Any actor spawned without an explicit entry pointer gets this stub and dies on its first frame, preventing runaway execution on uninitialized slots.
 
 ### Algorithm
 
@@ -413,28 +336,17 @@ COP [Die]
 
 | Direction | Symbol | Notes |
 |-----------|--------|-------|
-| Assigned by | `chunk_03BAE1` | Default actor entry pointer |
-| Cataloged in | `us/names.json` @ 56439 | |
+| Assigned by | `ComposeDigits_Continuation` | Default actor entry pointer |
 
 ---
 
 ## SpawnAttackTrailEffect
 
-| Property | Value |
-|----------|-------|
-| **Old Name** | `func_00DCB4` |
-| **New Name** | `SpawnAttackTrailEffect` |
-| **Hex Address** | `$00DCB4` |
-| **Decimal Address** | 56500 |
-| **End Address** | `$00DD03` (56579) |
-| **Size** | 79 bytes |
-| **Type** | VFX spawn script |
-| **ASM File** | `extracted/functions/SpawnAttackTrailEffect.asm` |
-| **Movable** | Yes |
+**Address:** `$DCB4` · **Size:** 79 bytes
 
 ### Description
 
-Spawns a 16-frame hit trail effect at the attack impact point. Creates a series of afterimage sprites via `$@func_03BAF1` (bank `$03` sprite factory), spaced across the attack arc. Used by weapon swing animations and certain enemy attack scripts for visual impact feedback.
+Spawns a 16-frame hit trail effect at the attack impact point. Creates a series of afterimage sprites via `$@ComposeDigitSprites` (bank `$03` sprite factory), spaced across the attack arc. Used by weapon swing animations and certain enemy attack scripts for visual impact feedback.
 
 Invoked via `COP [SpawnLastRel]` from combat actor scripts with the trail origin coordinates preset in direct page.
 
@@ -443,7 +355,7 @@ Invoked via `COP [SpawnLastRel]` from combat actor scripts with the trail origin
 ```
 1. Loop 16 iterations:
      a. Compute trail position along attack arc
-     b. JSL $@func_03BAF1 — create afterimage sprite
+     b. JSL $@ComposeDigitSprites — create afterimage sprite
      c. Decrement frame counter
 2. COP [Die]
 ```
@@ -452,25 +364,14 @@ Invoked via `COP [SpawnLastRel]` from combat actor scripts with the trail origin
 
 | Direction | Symbol | Notes |
 |-----------|--------|-------|
-| External | `func_03BAF1` | Bank `$03` sprite factory |
+| External | `ComposeDigitSprites` | Bank `$03` sprite factory |
 | Duplicate | `AttackTrailShort_unused` (`$DC79`) | Shorter variant, no refs |
-| Cataloged in | `us/names.json` @ 56500 | |
 
 ---
 
 ## SpawnHitSparkSprites
 
-| Property | Value |
-|----------|-------|
-| **Old Name** | `func_00DD03` |
-| **New Name** | `SpawnHitSparkSprites` |
-| **Hex Address** | `$00DD03` |
-| **Decimal Address** | 56579 |
-| **End Address** | `$00DD5B` (56667) |
-| **Size** | 88 bytes |
-| **Type** | VFX spawn script (contains embedded sub `code_00DD1D`) |
-| **ASM File** | `extracted/functions/SpawnHitSparkSprites.asm` |
-| **Movable** | Yes (move with `code_00DD1D` sub) |
+**Address:** `$DD03` · **Size:** 88 bytes
 
 ### Description
 
@@ -494,7 +395,6 @@ Used when the player lands a critical hit or when certain enemies take bonus dam
 | Direction | Symbol | Notes |
 |-----------|--------|-------|
 | Embedded sub | `code_00DD1D` | OAM entry builder |
-| Cataloged in | `us/names.json` @ 56579 | |
 
 ---
 
@@ -502,12 +402,12 @@ Used when the player lands a critical hit or when certain enemies take bonus dam
 
 | Metric | Value |
 |--------|-------|
-| Total functions documented | 9 (+ 7 chest sub-handlers) |
+| Total functions documented | 9 (+ 7 gem sub-handlers) |
 | Address span | `$DB8A`–`$DFFF` (~1,397 bytes) |
 | Immovable entries | 4 (`StandardEnemyDefeatHandler` block parts + stub) |
-| External `$&` inbound refs | 2 (`func_00DB8A`, `stub_00DC77`) |
+| External `$&` inbound refs | 2 (`StandardEnemyDefeatHandler`, `NullActorScriptStub`) |
 | COP spawn pattern | 6 functions use `SpawnLastRel` |
 
 ---
 
-*Source: `us/blocks.json`, `us/names.json`, `docs/code/bank00/actors-combat-interaction.md`.*
+*Source: `extracted/functions/StandardEnemyDefeatHandler.asm`, `extracted/functions/SpawnFieldRevealEffect.asm`, `extracted/functions/EnemyDeathFlash.asm`, `extracted/functions/DarkGemDropSystem.asm`, `extracted/functions/SpawnAttackTrailEffect.asm`, `extracted/functions/SpawnHitSparkSprites.asm`, `extracted/functions/NullActorScriptStub.asm`, `docs/code/bank00/actors-combat-interaction.md`.*

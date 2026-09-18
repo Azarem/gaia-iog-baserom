@@ -2,7 +2,8 @@
 
 **Bank:** `$00` (mirrored at `$80`)  
 **Address range:** `$00C2BB`–`$00CF29` (this document)  
-**Scope:** Boss clear stat rewards, player transition animation library, statue/inventory system, location-specific interactables, and field reveal collectibles
+**Scope:** Boss clear stat rewards, player transition animation library, statue/inventory system, location-specific interactables, and field reveal collectibles  
+**Sources:** `extracted/actors/*.asm`, `extracted/system/statue_inventory/*`, `extracted/freejia/*`, `extracted/tables/scene_actors.asm`
 
 These actors handle player-facing progression: boss-triggered catchup stat rewards, cutscene/warp player animations, statue collectible grants, town doors, pressure plates, overworld map transitions, and animated field pickups.
 
@@ -12,18 +13,18 @@ These actors handle player-facing progression: boss-triggered catchup stat rewar
 
 ## Overview
 
-| Actor / Block | Old Name | Address | Movable | Scene / Spawn |
-|---------------|----------|---------|---------|---------------|
-| `boss_clear_reward_handler` | `actor_00C2BB` | `$C2BB` | ✓ | 5 scenes |
-| `player_transition_handlers` | `entry_points_00C418` | `$C418`–`$C5E3` | **No** | Library (`$&` refs) |
-| `freejia_street_prop` | `actor_00C62D` | `$C62D` | ✓ | Freejia ($32) |
-| `hidden_red_jewel` | `hidden_red_jewel` | `$C672` | ✓ | 16 scenes |
-| `town_door` | `town_door` | `$C5A3` | ✓ | 16 scenes |
-| `floor_button` | `floor_button` | `$C9FE` | ✓ | 7 scenes |
-| `overworld_exit` | `overworld_exit` | `$CA45` | ✓ | 15 overworld scenes |
-| `statue_inventory_reward` | `actor_00CD59` | `$CD59` | ✓ | Scene $FD |
-| `inventory_statue_slot` | `actor_00CF29` | `$CF29` | ✓ | Scene $FF |
-| `field_reveal_object` | `actor_00DA78` | `$DA78` | ✓ | Runtime spawn |
+| Actor / Block | Address | Movable | Scene / Spawn |
+|---------------|---------|---------|---------------|
+| `boss_clear_reward_handler` | `$C2BB` | ✓ | 5 scenes |
+| `player_transition_handlers` | `$C418`–`$C5E3` | **No** | Library (`$&` refs) |
+| `freejia_street_prop` | `$C62D` | ✓ | Freejia ($32) |
+| `hidden_red_jewel` | `$C672` | ✓ | 16 scenes |
+| `town_door` | `$C5A3` | ✓ | 16 scenes |
+| `floor_button` | `$C9FE` | ✓ | 7 scenes |
+| `overworld_exit` | `$CA45` | ✓ | 15 overworld scenes |
+| `statue_inventory_reward` | `$CD59` | ✓ | Scene $FD |
+| `inventory_statue_slot` | `$CF29` | ✓ | Scene $FF |
+| `field_reveal_object` | `$DA78` | ✓ | Runtime spawn |
 
 ---
 
@@ -31,17 +32,7 @@ These actors handle player-facing progression: boss-triggered catchup stat rewar
 
 ### boss_clear_reward_handler
 
-| Property | Value |
-|----------|-------|
-| **Old Name** | `actor_00C2BB` (formerly `red_jewel_reward_handler`) |
-| **New Name** | `boss_clear_reward_handler` |
-| **Hex Address** | `$00C2BB` (script `$C2BE`, range table `$C312`, helper `$C33E`) |
-| **Decimal Address** | 49851 |
-| **Size** | 220 bytes |
-| **Type** | `actor_def` (priority `#20`) |
-| **ASM File** | `extracted/actors/boss_clear_reward_handler.asm` |
-| **Movable** | Yes (move with `enemy_clear_reward_table`) |
-| **Priority** | High — boss reward scenes |
+**Address:** `$00C2BB` · **Size:** 220 bytes
 
 #### Description
 
@@ -50,6 +41,8 @@ After a boss is defeated, this handler retroactively awards all **uncollected** 
 Only activates when `$player_flags` bit `$0020` is set (boss defeated, reward-eligible state). Uses WRAM flag offset `$0100` range to prevent duplicate boss catchup per scene. Individual scene rewards are tracked via `$0300` flags.
 
 The helper at `$C33E` walks the reward table byte-by-byte: value `1` → increment `$0ACA` (HP), `2` → increment `$0ADE` (STR), `3` → increment `$0ADC` (DEF). Each scene's reward sets a `$0300` flag before applying, so already-collected rewards are skipped.
+
+Movable (move with `enemy_clear_reward_table`). High priority — boss reward scenes.
 
 > ⚠ This actor has **nothing to do with red jewels**. It is a boss-defeat catchup mechanism that ensures the player receives all stat bonuses from scenes they may have cleared (or skipped clearing) between boss milestones.
 
@@ -116,7 +109,6 @@ Each entry defines the range of scenes whose rewards are granted on boss defeat:
 | Includes | `cop_handlers_script` | Flag/stat COP helpers |
 | Related | `field_reveal_object` | Also reads `enemy_clear_reward_table` |
 | Related | `StandardEnemyDefeatHandler` | Reads `enemy_clear_reward_table` per scene for individual drops |
-| Cataloged in | `us/blocks.json` @ 49851 | |
 
 ---
 
@@ -124,46 +116,39 @@ Each entry defines the range of scenes whose rewards are granted on boss defeat:
 
 ### player_transition_handlers
 
-| Property | Value |
-|----------|-------|
-| **Old Name** | `entry_points_00C418` |
-| **New Name** | `player_transition_handlers` |
-| **Hex Address** | `$00C418`–`$00C5E3` |
-| **Decimal Address** | 50200–50659 |
-| **Size** | 460 bytes (11 sub-functions) |
-| **Type** | Multi-part `Code` block |
-| **ASM File** | `extracted/actors/player_transition_handlers.asm` |
-| **Movable** | **No** — widely referenced via `$&` short addresses |
+**Address:** `$00C418`–`$00C5E3` · **Size:** 460 bytes (11 sub-functions)
 
 #### Description
 
-Library of COP scripts for cutscene and warp player animations. Not placed directly in scenes; referenced by `$&func_00C4xx` pointers from warp handlers, boss scripts, and `chunk_03BAE1`. All player-control-restoration paths converge on `$@code_02C3C8` (bank `$02` normal player AI).
+Library of COP scripts for cutscene and warp player animations. Not placed directly in scenes; referenced by `$&func_00C4xx` pointers from warp handlers, boss scripts, and `ComposeDigits_Continuation`. All player-control-restoration paths converge on `$@PlayerIdleEntry` (bank `$02` normal player AI).
+
+**Not movable** — widely referenced via `$&` short addresses.
 
 Includes: `player_character`, `table_0EE000` (generic metasprite table).
 
 #### Sub-Functions
 
-| Part | Address | Old Name | New Name | Behavior |
-|------|---------|----------|----------|----------|
-| 1 | `$C418` | `func_00C418` | `SpawnSparkleEffect` | Spawns sparkle anim via `SpawnLastRel`, sound `$09`, frame `$2A` |
-| 2 | `$C432` | `func_00C432` | `HoldPlayerSpriteLoop1` | Loops player sprite frame `#01` (or `#11` if flag byte `#00` set) |
-| 3 | `$C43D` | `func_00C43D` | `HoldPlayerSpriteLoop11` | Loops player sprite frame `#11` |
-| 4 | `$C446` | `func_00C446` | `HoldBodySpriteLoop` | Body sprite `#04`, frame `#1F`, infinite anim loop |
-| 5 | `$C455` | `func_00C455` | `HoldBodySpriteRelease` | Clears `$10` bit `$0200` (releases body hold) |
-| 6 | `$C45A` | `func_00C45A` | `RestorePlayerControlDirect` | `JML $@code_02C3C8` |
-| 7 | `$C45E` | `func_00C45E` | `PlayerWakeAnim` | Body `#04`, frame `#20`, anim once, RTL |
-| 8 | `$C46D` | `func_00C46D` | `PlayerWakeReturn` | Wake anim → `JML code_02C3C8` |
-| 9 | `$C479` | `func_00C479` | `WarpClimbAnim` | Masks joypad, vertical climb + sound `$2C`, 8-frame Y move |
-| 10 | `$C4D1` | `func_00C4D1` | `GardenJumpAnim` | Sky Garden ledge jump: V-flip, multi-stage Y moves, landing sound |
-| 11 | `$C557` | `func_00C557` | `FallIntoHoleAnim` | Fall through hollow tile: body `#08`, solid probe, sink anim |
+| Part | Address | Name | Behavior |
+|------|---------|------|----------|
+| 1 | `$C418` | `SpawnSparkleEffect` | Spawns sparkle anim via `SpawnLastRel`, sound `$09`, frame `$2A` |
+| 2 | `$C432` | `HoldPlayerSpriteLoop1` | Loops player sprite frame `#01` (or `#11` if flag byte `#00` set) |
+| 3 | `$C43D` | `HoldPlayerSpriteLoop11` | Loops player sprite frame `#11` |
+| 4 | `$C446` | `HoldBodySpriteLoop` | Body sprite `#04`, frame `#1F`, infinite anim loop |
+| 5 | `$C455` | `HoldBodySpriteRelease` | Clears `$10` bit `$0200` (releases body hold) |
+| 6 | `$C45A` | `RestorePlayerControlDirect` | `JML $@PlayerIdleEntry` |
+| 7 | `$C45E` | `PlayerWakeAnim` | Body `#04`, frame `#20`, anim once, RTL |
+| 8 | `$C46D` | `PlayerWakeReturn` | Wake anim → `JML PlayerIdleEntry` |
+| 9 | `$C479` | `WarpClimbAnim` | Masks joypad, vertical climb + sound `$2C`, 8-frame Y move |
+| 10 | `$C4D1` | `GardenJumpAnim` | Sky Garden ledge jump: V-flip, multi-stage Y moves, landing sound |
+| 11 | `$C557` | `FallIntoHoleAnim` | Fall through hollow tile: body `#08`, solid probe, sink anim |
 
 #### Cross-References
 
 | Direction | Symbol | Notes |
 |-----------|--------|-------|
-| Included by | `warps_interaction.asm`, `chunk_038000`, `chunk_03BAE1` | `$&` pointer tables |
+| Included by | `warps_interaction.asm`, `GlobalInputHandler`, `ComposeDigits_Continuation` | `$&` pointer tables |
 | Called from | `sg4D_jump_handler`, `ir29_castoth`, `gw8A_sand_fanger`, Gold Ship scenes | `JumpScript` / pointer assignment |
-| Returns to | `code_02C3C8` | Bank `$02` player control |
+| Returns to | `PlayerIdleEntry` | Bank `$02` player control |
 
 ---
 
@@ -187,7 +172,7 @@ Forces body overlay sprite `#04` frame `#1F` in a hold loop (sets `$10` bit `$02
 
 ### RestorePlayerControlDirect (`$C45A`)
 
-Single-instruction entry: `JML $@code_02C3C8`. Used when no wake animation is needed.
+Single-instruction entry: `JML $@PlayerIdleEntry`. Used when no wake animation is needed.
 
 ---
 
@@ -204,7 +189,7 @@ Vertical warp climb used in ladder/rope transitions:
 1. Masks joypad (`$CFF0`), sets `$player_flags` bit `$0800`
 2. Waits 3 frames, moves Y + `$80`
 3. 8-frame animated Y climb (move IDs `$19`/`$1C`)
-4. Sound `$2C`, restores flags, `JML code_02C3C8`
+4. Sound `$2C`, restores flags, `JML PlayerIdleEntry`
 
 ---
 
@@ -228,7 +213,7 @@ Player falls through hollow floor tiles:
 1. Sets body sprite `#08`, probes downward with `BranchIfSolid`
 2. If solid type `#04` south: short fall + `$1C` landing
 3. Otherwise: sink through with `$2000` flag, frame-by-frame Y increment until solid type `#00`
-4. Restore player control via `code_02C3C8`
+4. Restore player control via `PlayerIdleEntry`
 
 ---
 
@@ -236,20 +221,11 @@ Player falls through hollow floor tiles:
 
 ### statue_inventory_reward
 
-| Property | Value |
-|----------|-------|
-| **Old Name** | `actor_00CD59` |
-| **New Name** | `statue_inventory_reward` |
-| **Hex Address** | `$00CD59` (script `$CD5C`, data `$CE97`) |
-| **Decimal Address** | 52569 |
-| **Size** | 464 bytes |
-| **Type** | `actor_def` (priority `#30`, scene `$FD`) |
-| **ASM File** | `extracted/system/statue_inventory/statue_inventory_reward.asm` |
-| **Movable** | Yes |
+**Address:** `$00CD59` · **Size:** 464 bytes
 
 #### Description
 
-Scene `$FD` (statue inventory overlay): grants statue collectibles when the player selects an uncollected slot. Flow: event flag check → item display via `func_03CA55` → fanfare wait → sparkle FX spawn → restore prior scene.
+Scene `$FD` (statue inventory overlay): grants statue collectibles when the player selects an uncollected slot. Flow: event flag check → item display via `UpdateActorAnimation` → fanfare wait → sparkle FX spawn → restore prior scene.
 
 Contains shared data `unk19_00CE97` — a **6×3-byte slot table** mapping flag ID, display frame, and inventory index. Spawns 6 animated pickup children (`code_00CEAF`) during fanfare, then random sparkle particles (`code_00CEFF`).
 
@@ -286,29 +262,20 @@ Scene `$FD` only — statue inventory reward screen.
 
 | Direction | Symbol | Notes |
 |-----------|--------|-------|
-| Includes | `chunk_03BAE1`, `cop_handlers_script`, `inventory_spritemap` | |
+| Includes | `ComposeDigits_Continuation`, `cop_handlers_script`, `inventory_spritemap` | |
 | Shared data | `unk19_00CE97` | Read by `inventory_statue_slot` |
-| Calls | `func_03CA55` | Advance animation frame |
+| Calls | `UpdateActorAnimation` | Advance animation frame |
 | Calls | `ApplyOrbitalOffsetFromRef` | Pickup child orbit motion |
 
 ---
 
 ### inventory_statue_slot
 
-| Property | Value |
-|----------|-------|
-| **Old Name** | `actor_00CF29` |
-| **New Name** | `inventory_statue_slot` |
-| **Hex Address** | `$00CF29` (script `$CF2C`, display `$CF63`) |
-| **Decimal Address** | 53033 |
-| **Size** | 84 bytes |
-| **Type** | `actor_def` (priority `#38`, scene `$FF`) |
-| **ASM File** | `extracted/system/inventory/inventory_statue_slot.asm` |
-| **Movable** | Yes |
+**Address:** `$00CF29` · **Size:** 84 bytes
 
 #### Description
 
-Scene `$FF` (inventory menu): displays collected statue items. Reads slot index from `$0E`, checks collection flag via shared `unk19_00CE97` from `statue_inventory_reward`. If uncollected, dies immediately. If collected, shows sprite via `func_03CA55` and toggles visibility based on `$0AFA` state (`#$0003` = highlighted/visible).
+Scene `$FF` (inventory menu): displays collected statue items. Reads slot index from `$0E`, checks collection flag via shared `unk19_00CE97` from `statue_inventory_reward`. If uncollected, dies immediately. If collected, shows sprite via `UpdateActorAnimation` and toggles visibility based on `$0AFA` state (`#$0003` = highlighted/visible).
 
 Depends on `statue_inventory_reward` via `?INCLUDE` for shared table access.
 
@@ -331,7 +298,7 @@ Scene `$FF` only — one slot actor per inventory row (6 slots).
 | Direction | Symbol | Notes |
 |-----------|--------|-------|
 | Includes | `statue_inventory_reward` | Shared `unk19_00CE97` |
-| Includes | `inventory_spritemap`, `chunk_03BAE1` | |
+| Includes | `inventory_spritemap`, `ComposeDigits_Continuation` | |
 
 ---
 
@@ -339,16 +306,7 @@ Scene `$FF` only — one slot actor per inventory row (6 slots).
 
 ### freejia_street_prop
 
-| Property | Value |
-|----------|-------|
-| **Old Name** | `actor_00C62D` |
-| **New Name** | `freejia_street_prop` |
-| **Hex Address** | `$00C62D` (script `$C630`) |
-| **Decimal Address** | 50733 |
-| **Size** | 58 bytes |
-| **Type** | `actor_def` (priority `#10`, scene `freejia`) |
-| **ASM File** | `extracted/freejia/freejia/freejia_street_prop.asm` |
-| **Movable** | Yes |
+**Address:** `$00C62D` · **Size:** 58 bytes
 
 #### Description
 
@@ -364,16 +322,7 @@ Structurally identical to `town_door` but uses frame `#07` and sound `$01` inste
 
 ### hidden_red_jewel
 
-| Property | Value |
-|----------|-------|
-| **Old Name** | `hidden_red_jewel` |
-| **New Name** | `hidden_red_jewel` |
-| **Hex Address** | `$00C672` (script `$C672`, interact `$C681`) |
-| **Decimal Address** | 50799 |
-| **Size** | 117 bytes |
-| **Type** | `actor_def` (priority `#30`) |
-| **ASM File** | `extracted/actors/hidden_red_jewel.asm` |
-| **Movable** | Yes |
+**Address:** `$00C672` · **Size:** 117 bytes
 
 #### Description
 
@@ -396,16 +345,7 @@ Each placement's `$0E` field encodes the unique event flag offset.
 
 ### town_door
 
-| Property | Value |
-|----------|-------|
-| **Old Name** | `town_door` |
-| **New Name** | `town_door` |
-| **Hex Address** | `$00C5A3` (script `$C5F6`) |
-| **Decimal Address** | 50675 |
-| **Size** | 58 bytes |
-| **Type** | `actor_def` (priority `#10`) |
-| **ASM File** | `extracted/actors/town_door.asm` |
-| **Movable** | Yes |
+**Address:** `$00C5A3` · **Size:** 58 bytes
 
 #### Description
 
@@ -421,16 +361,7 @@ Uses `table_0EDA00` metasprite (town object sprites).
 
 ### floor_button
 
-| Property | Value |
-|----------|-------|
-| **Old Name** | `floor_button` |
-| **New Name** | `floor_button` |
-| **Hex Address** | `$00C9FE` (script `$C9FE`, callback `$CA2D`) |
-| **Decimal Address** | 51707 |
-| **Size** | 71 bytes |
-| **Type** | `actor_def` (priority `#01`) |
-| **ASM File** | `extracted/actors/floor_button.asm` |
-| **Movable** | Yes |
+**Address:** `$00C9FE` · **Size:** 71 bytes
 
 #### Description
 
@@ -452,16 +383,7 @@ Pressure plate actor. On init: stores flag ID from `$0E` into `$24`, points `$7F
 
 ### overworld_exit
 
-| Property | Value |
-|----------|-------|
-| **Old Name** | `overworld_exit` |
-| **New Name** | `overworld_exit` |
-| **Hex Address** | `$00CA45` (dispatch `$CA45`, handlers `$CACA`–`$CD38`) |
-| **Decimal Address** | 51778 |
-| **Size** | 791 bytes |
-| **Type** | `actor_def` (priority `#30`) |
-| **ASM File** | `extracted/actors/overworld_exit.asm` |
-| **Movable** | Yes |
+**Address:** `$00CA45` · **Size:** 791 bytes
 
 #### Description
 
@@ -500,16 +422,7 @@ Common pattern: zero `$0D60`, stage world map choice, then jump to `code_00CAC1`
 
 ### field_reveal_object
 
-| Property | Value |
-|----------|-------|
-| **Old Name** | `actor_00DA78` |
-| **New Name** | `field_reveal_object` |
-| **Hex Address** | `$00DA78` (script `$DA78`–`$DB88`) |
-| **Decimal Address** | 55928 |
-| **Size** | 274 bytes |
-| **Type** | `Code` (spawned, not scene-placed) |
-| **ASM File** | `extracted/actors/field_reveal_object.asm` |
-| **Movable** | Yes (with includes) |
+**Address:** `$00DA78` · **Size:** 274 bytes
 
 #### Description
 
@@ -554,8 +467,7 @@ Runtime spawn only — called from:
 |-----------|--------|-------|
 | Spawns | `collect_handler_gem` | Gem collection interaction handler |
 | Includes | `interaction_handlers`, `enemy_clear_reward_table` | |
-| Cataloged in | `us/blocks.json` @ 55928 | |
 
 ---
 
-*Source: `extracted/actors/*.asm`, `extracted/system/statue_inventory/*`, `extracted/freejia/*`, `us/blocks.json`, `extracted/tables/scene_actors.asm`.*
+*Source: `extracted/actors/*.asm`, `extracted/system/statue_inventory/*`, `extracted/freejia/*`, `extracted/tables/scene_actors.asm`.*

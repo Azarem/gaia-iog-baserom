@@ -38,14 +38,7 @@ Thinkers are COP-scripted background processes. The palette family drives ambien
 
 ### ambient_palette_cycler
 
-| Property | Value |
-|----------|-------|
-| **Old Name** | `thinker_00B520` |
-| **New Name** | `ambient_palette_cycler` |
-| **Hex Address** | `$00B520` |
-| **Decimal Address** | 46368 |
-| **Self-Contained** | Yes |
-| **ASM File** | `extracted/thinkers/ambient_palette_cycler.asm` |
+**Address:** `$00B520`
 
 #### Purpose
 
@@ -84,14 +77,7 @@ None — no `?INCLUDE`, no external symbol references.
 
 ### flag_gated_palette_warm
 
-| Property | Value |
-|----------|-------|
-| **Old Name** | `thinker_00B5C0` |
-| **New Name** | `flag_gated_palette_warm` |
-| **Hex Address** | `$00B5C0` |
-| **Decimal Address** | 46528 |
-| **Self-Contained** | Yes |
-| **ASM File** | `extracted/thinkers/flag_gated_palette_warm.asm` |
+**Address:** `$00B5C0`
 
 #### Purpose
 
@@ -127,14 +113,7 @@ None.
 
 ### flag_gated_palette_cool
 
-| Property | Value |
-|----------|-------|
-| **Old Name** | `thinker_00B5DF` |
-| **New Name** | `flag_gated_palette_cool` |
-| **Hex Address** | `$00B5DF` |
-| **Decimal Address** | 46559 |
-| **Self-Contained** | Yes |
-| **ASM File** | `extracted/thinkers/flag_gated_palette_cool.asm` |
+**Address:** `$00B5DF`
 
 #### Purpose
 
@@ -158,14 +137,7 @@ None.
 
 ### palette_parent_child
 
-| Property | Value |
-|----------|-------|
-| **Old Name** | `thinker_00B5FE` |
-| **New Name** | `palette_parent_child` |
-| **Hex Address** | `$00B5FE` |
-| **Decimal Address** | 46590 |
-| **Self-Contained** | Yes |
-| **ASM File** | `extracted/thinkers/palette_parent_child.asm` |
+**Address:** `$00B5FE`
 
 #### Purpose
 
@@ -204,14 +176,7 @@ None.
 
 ### edward_castle_alarm_palette
 
-| Property | Value |
-|----------|-------|
-| **Old Name** | `thinker_00B631` |
-| **New Name** | `edward_castle_alarm_palette` |
-| **Hex Address** | `$00B631` |
-| **Decimal Address** | 46641 |
-| **Self-Contained** | Yes |
-| **ASM File** | `extracted/edward_castle/edward_castle/edward_castle_alarm_palette.asm` |
+**Address:** `$00B631`
 
 #### Purpose
 
@@ -244,14 +209,7 @@ None.
 
 ### incan_ruins_transform_palette
 
-| Property | Value |
-|----------|-------|
-| **Old Name** | `thinker_00B671` |
-| **New Name** | `incan_ruins_transform_palette` |
-| **Hex Address** | `$00B671` |
-| **Decimal Address** | 46705 |
-| **Self-Contained** | Yes |
-| **ASM File** | `extracted/thinkers/incan_ruins_transform_palette.asm` |
+**Address:** `$00B671`
 
 #### Purpose
 
@@ -277,14 +235,7 @@ None. Phase 3 uses direct WRAM palette buffer writes (`$7F0A40`, `$7F0A00`) rath
 
 ### dream_palette_loop
 
-| Property | Value |
-|----------|-------|
-| **Old Name** | `thinker_00B6D2` |
-| **New Name** | `dream_palette_loop` |
-| **Hex Address** | `$00B6D2` |
-| **Decimal Address** | 46802 |
-| **Self-Contained** | Yes |
-| **ASM File** | `extracted/gold_ship/dream/dream_palette_loop.asm` |
+**Address:** `$00B6D2`
 
 #### Purpose
 
@@ -304,14 +255,7 @@ None.
 
 ### palace_fountain_palette
 
-| Property | Value |
-|----------|-------|
-| **Old Name** | `thinker_00B71E` |
-| **New Name** | `palace_fountain_palette` |
-| **Hex Address** | `$00B71E` |
-| **Decimal Address** | 46878 |
-| **Self-Contained** | Yes |
-| **ASM File** | `extracted/seaside_palace/palace_fountain/palace_fountain_palette.asm` |
+**Address:** `$00B71E`
 
 #### Purpose
 
@@ -343,14 +287,7 @@ None.
 
 ### watermia_festival_palette
 
-| Property | Value |
-|----------|-------|
-| **Old Name** | `thinker_00B754` |
-| **New Name** | `watermia_festival_palette` |
-| **Hex Address** | `$00B754` |
-| **Decimal Address** | 46932 |
-| **Self-Contained** | Yes |
-| **ASM File** | `extracted/watermia/watermia/watermia_festival_palette.asm` |
+**Address:** `$00B754`
 
 #### Purpose
 
@@ -374,14 +311,7 @@ One-shot thinkers apply a single palette step or COLDATA tint, then immediately 
 
 ### oneshot_coldata_warm_flash
 
-| Property | Value |
-|----------|-------|
-| **Old Name** | `thinker_00B65E` |
-| **New Name** | `oneshot_coldata_warm_flash` |
-| **Hex Address** | `$00B65E` |
-| **Decimal Address** | 46686 |
-| **Self-Contained** | Yes |
-| **ASM File** | `extracted/thinkers/oneshot_coldata_warm_flash.asm` |
+**Address:** `$00B65E`
 
 #### Purpose
 
@@ -404,14 +334,7 @@ None.
 
 ### oneshot_coldata_green_tint
 
-| Property | Value |
-|----------|-------|
-| **Old Name** | `thinker_00B6E5` |
-| **New Name** | `oneshot_coldata_green_tint` |
-| **Hex Address** | `$00B6E5` |
-| **Decimal Address** | 46821 |
-| **Self-Contained** | Yes |
-| **ASM File** | `extracted/thinkers/oneshot_coldata_green_tint.asm` |
+**Address:** `$00B6E5`
 
 #### Purpose
 
@@ -431,14 +354,7 @@ None.
 
 ### oneshot_palette_flash_18
 
-| Property | Value |
-|----------|-------|
-| **Old Name** | `thinker_00B7CC` |
-| **New Name** | `oneshot_palette_flash_18` |
-| **Hex Address** | `$00B7CC` |
-| **Decimal Address** | 47052 |
-| **Self-Contained** | Yes |
-| **ASM File** | `extracted/thinkers/oneshot_palette_flash_18.asm` |
+**Address:** `$00B7CC`
 
 #### Purpose
 
@@ -462,14 +378,7 @@ None.
 
 ### oneshot_palette_flash_19
 
-| Property | Value |
-|----------|-------|
-| **Old Name** | `thinker_00B7D6` |
-| **New Name** | `oneshot_palette_flash_19` |
-| **Hex Address** | `$00B7D6` |
-| **Decimal Address** | 47062 |
-| **Self-Contained** | Yes |
-| **ASM File** | `extracted/thinkers/oneshot_palette_flash_19.asm` |
+**Address:** `$00B7D6`
 
 #### Purpose
 
@@ -487,14 +396,7 @@ None.
 
 ### oneshot_palette_flash_1B
 
-| Property | Value |
-|----------|-------|
-| **Old Name** | `thinker_00B7E0` |
-| **New Name** | `oneshot_palette_flash_1B` |
-| **Hex Address** | `$00B7E0` |
-| **Decimal Address** | 47072 |
-| **Self-Contained** | Yes |
-| **ASM File** | `extracted/thinkers/oneshot_palette_flash_1B.asm` |
+**Address:** `$00B7E0`
 
 #### Purpose
 
@@ -515,14 +417,7 @@ None.
 
 ### oneshot_palette_flash_1C
 
-| Property | Value |
-|----------|-------|
-| **Old Name** | `thinker_00B7EA` |
-| **New Name** | `oneshot_palette_flash_1C` |
-| **Hex Address** | `$00B7EA` |
-| **Decimal Address** | 47082 |
-| **Self-Contained** | Yes |
-| **ASM File** | `extracted/thinkers/oneshot_palette_flash_1C.asm` |
+**Address:** `$00B7EA`
 
 #### Purpose
 
@@ -545,14 +440,7 @@ None.
 
 ### oneshot_palette_flash_40
 
-| Property | Value |
-|----------|-------|
-| **Old Name** | `thinker_00B7F4` |
-| **New Name** | `oneshot_palette_flash_40` |
-| **Hex Address** | `$00B7F4` |
-| **Decimal Address** | 47092 |
-| **Self-Contained** | Yes |
-| **ASM File** | `extracted/thinkers/oneshot_palette_flash_40.asm` |
+**Address:** `$00B7F4`
 
 #### Purpose
 
@@ -573,14 +461,7 @@ None.
 
 ### oneshot_palette_flash_1F
 
-| Property | Value |
-|----------|-------|
-| **Old Name** | `thinker_00B7FE` |
-| **New Name** | `oneshot_palette_flash_1F` |
-| **Hex Address** | `$00B7FE` |
-| **Decimal Address** | 47102 |
-| **Self-Contained** | Yes |
-| **ASM File** | `extracted/thinkers/oneshot_palette_flash_1F.asm` |
+**Address:** `$00B7FE`
 
 #### Purpose
 
@@ -602,14 +483,7 @@ None.
 
 ### palette_buffer_clear_unused
 
-| Property | Value |
-|----------|-------|
-| **Old Name** | `thinker_00B6FD` |
-| **New Name** | `palette_buffer_clear_unused` |
-| **Hex Address** | `$00B6FD` |
-| **Decimal Address** | 46845 |
-| **Self-Contained** | Yes |
-| **ASM File** | `extracted/unused/palette_buffer_clear_unused.asm` |
+**Address:** `$00B6FD`
 
 #### Purpose
 
@@ -623,14 +497,7 @@ None.
 
 ### babel_palette_65_unused
 
-| Property | Value |
-|----------|-------|
-| **Old Name** | `thinker_00B781` |
-| **New Name** | `babel_palette_65_unused` |
-| **Hex Address** | `$00B781` |
-| **Decimal Address** | 46977 |
-| **Self-Contained** | Yes |
-| **ASM File** | `extracted/unused/babel_palette_65_unused.asm` |
+**Address:** `$00B781`
 
 #### Purpose
 
@@ -644,14 +511,7 @@ None.
 
 ### palette_loop_flash_unused
 
-| Property | Value |
-|----------|-------|
-| **Old Name** | `thinker_00B808` |
-| **New Name** | `palette_loop_flash_unused` |
-| **Hex Address** | `$00B808` |
-| **Decimal Address** | 47112 |
-| **Self-Contained** | Yes |
-| **ASM File** | `extracted/unused/palette_loop_flash_unused.asm` |
+**Address:** `$00B808`
 
 #### Purpose
 
@@ -673,3 +533,7 @@ None.
 | `#1F` | Lunar silver | Moon Tribe magic | Itory camp |
 | COLDATA warm | `#66`/`#82` | Golden warmth | Incan Ruins, Larai Cliff |
 | COLDATA green | `#2B`/`#44`/`#82` | Storm sickliness | Oakton thunderstorm |
+
+---
+
+*Source: `extracted/thinkers/` and related scene-specific thinker ASM in `extracted/`.*

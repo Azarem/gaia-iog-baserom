@@ -2,8 +2,7 @@
 
 **Bank:** `$00` (mirrored at `$80` for FastROM access)  
 **Address range:** `$00AFCE`–`$00B47F` (direction, collision map, tile query, camera scroll step)  
-**ASM files:** `extracted/system/engine/cop_handlers_collision.asm`, `extracted/system/engine/cop_handlers_actors.asm` (partial)  
-**Blocks:** `system/cop_handlers_collision`, `system/cop_handlers_actors` in `us/blocks.json`
+**ASM files:** `extracted/system/engine/cop_handlers_collision.asm`, `extracted/system/engine/cop_handlers_actors.asm` (partial)
 
 This page documents the engine routines that compute 8-way facing directions, query tile solidity against the live map, read/write the dynamic collision overlay at `$7FC000`, and index camera pan step tables. These functions sit between COP script handlers and bank `$03` map lookup code; almost every movement, spawn, and branch-on-wall COP in the `$00`–`$1E` and `$96`–`$98` ranges depends on them.
 
@@ -43,15 +42,7 @@ CameraPan COPs ($DC–$DF)
 
 ### ComputeDirectionToPlayer
 
-| Property | Value |
-|----------|-------|
-| **Old Name** | `sub_00AFCE` |
-| **New Name** | `ComputeDirectionToPlayer` |
-| **Hex Address** | `$00AFCE` |
-| **Decimal Address** | 45006 |
-| **End Address** | `$00B05D` (exclusive `$00B05E`) |
-| **Size** | 144 bytes |
-| **ASM File** | `extracted/system/engine/cop_handlers_collision.asm` |
+**Address:** `$AFCE` · **Size:** 144 bytes
 
 #### Description
 
@@ -106,7 +97,6 @@ Absolute value uses the common 65816 idiom `EOR #$FFFF` / `INC` on 16-bit deltas
 | Called by | COP `$2E` `DirToPlayerOffset` | Adds script offset to actor pos first |
 | Called by | COP `$2F` `BranchIfDirToPlayer` | Compares result to script byte; branches on match |
 | Called by | COP `$30` `BranchIfDirToPlayerFrom` | Uses offset origin for `$0018`/`$001C` |
-| Cataloged in | `us/names.json` @ 45006 | |
 
 ---
 
@@ -114,15 +104,7 @@ Absolute value uses the common 65816 idiom `EOR #$FFFF` / `INC` on 16-bit deltas
 
 ### TileCollisionQuery
 
-| Property | Value |
-|----------|-------|
-| **Old Name** | `sub_00B43B` |
-| **New Name** | `TileCollisionQuery` |
-| **Hex Address** | `$00B43B` |
-| **Decimal Address** | 46139 |
-| **End Address** | `$00B481` (exclusive) |
-| **Size** | 70 bytes |
-| **ASM File** | `extracted/system/engine/cop_handlers_collision.asm` |
+**Address:** `$B43B` · **Size:** 70 bytes
 
 #### Description
 
@@ -138,7 +120,7 @@ COP branch handlers test **`BIT #$000F`** on the result: a **non-zero low nibble
 | 2 | X bounds | `$18 &= $FFF0`; reject if negative, `< $camera_offset_x`, or `≥ $camera_bounds_x` |
 | 3 | Y bounds | Reject if `$1C < 0`, `< $camera_offset_y`, or `≥ $06DE` |
 | 4 | Tile index | Both coords `LSR ×4`; **Y decremented by 1** (engine tile-grid origin fudge) |
-| 5 | `JSL $@func_03D78A` | Map lookup; **Y = `$4000`** means invalid → branch to sentinel |
+| 5 | `JSL $@CalcTileMapOffset` | Map lookup; **Y = `$4000`** means invalid → branch to sentinel |
 | 6 | Property read | `LDA [$80],Y`; test **`BIT #$00F0`** — if any wall bit in high nibble, use sentinel |
 | 7 | Success | Return raw property byte in A |
 | 8 | Failure (`loc_00B47C`) | `LDA #$000F` — universal “solid” return |
@@ -162,8 +144,7 @@ COP branch handlers test **`BIT #$000F`** on the result: a **non-zero low nibble
 |-----------|--------|-------|
 | Called by | COP `$13`–`$1E` | All `BranchIfSolid*` handlers (here, offset, abs, directional) |
 | Called by | COP `$96`–`$98` | Wall-gated player movement COPs |
-| Calls | `func_03D78A` (`$03D78A`) | Map tile index → carry/Y validation |
-| Cataloged in | `us/names.json` @ 46139 | Highest call volume in bank `$00` upper page (~14 call sites) |
+| Calls | `CalcTileMapOffset` (`$03D78A`) | Map tile index → carry/Y validation |
 
 ---
 
@@ -173,15 +154,7 @@ Dynamic collision lives in WRAM **`$7FC000+`**. Each byte holds **occupancy in t
 
 ### MarkCollisionRect
 
-| Property | Value |
-|----------|-------|
-| **Old Name** | `sub_00B29F` |
-| **New Name** | `MarkCollisionRect` |
-| **Hex Address** | `$00B29F` |
-| **Decimal Address** | 45727 |
-| **End Address** | `$00B32A` (exclusive `$00B32B`) |
-| **Size** | 140 bytes |
-| **ASM File** | `extracted/system/engine/cop_handlers_collision.asm` |
+**Address:** `$B29F` · **Size:** 140 bytes
 
 #### Description
 
@@ -218,21 +191,12 @@ Marks a **rectangle of collision tiles as occupied** by OR-ing **`$F0`** into ea
 | Called by | COP `$0B` `MarkSolidHere` | Sets `$18`/`$1C` from actor `$14`/`$16`, `$00=0` |
 | Calls | `TileCoordsToMapIndex` (`$02B0A3`) | Pixel tile coords → `$7FC000` index |
 | Calls | `AdvanceMapY` | Row advance with page wrap |
-| Cataloged in | `us/names.json` @ 45727 | |
 
 ---
 
 ### ClearCollisionRect
 
-| Property | Value |
-|----------|-------|
-| **Old Name** | `sub_00B345` |
-| **New Name** | `ClearCollisionRect` |
-| **Hex Address** | `$00B345` |
-| **Decimal Address** | 45893 |
-| **End Address** | `$00B3EE` (exclusive `$00B3EF`) |
-| **Size** | 170 bytes |
-| **ASM File** | `extracted/system/engine/cop_handlers_collision.asm` |
+**Address:** `$B345` · **Size:** 170 bytes
 
 #### Description
 
@@ -269,21 +233,12 @@ Same as `MarkCollisionRect`, plus:
 | Called by | COP `$11` `ClearAllHere` | Sets `$00≠0` for full-byte clear |
 | Calls | `ClearCollisionRectFull` | When full clear requested |
 | Calls | `TileCoordsToMapIndex` | Shared with mark routine |
-| Cataloged in | `us/names.json` @ 45893 | |
 
 ---
 
 ### ClearCollisionRectFull
 
-| Property | Value |
-|----------|-------|
-| **Old Name** | `code_00B3EF` |
-| **New Name** | `ClearCollisionRectFull` |
-| **Hex Address** | `$00B3EF` |
-| **Decimal Address** | 46063 |
-| **End Address** | `$00B435` (exclusive) |
-| **Size** | 76 bytes |
-| **ASM File** | `extracted/system/engine/cop_handlers_collision.asm` |
+**Address:** `$B3EF` · **Size:** 76 bytes
 
 #### Description
 
@@ -307,21 +262,12 @@ Row advancement matches `ClearCollisionRect`'s inline path (`+$10` / `$map_bound
 |-----------|--------|-------|
 | Called by | `ClearCollisionRect` | When `$00 ≠ 0` at entry |
 | Called by | COP `$11` `ClearAllHere` | Indirectly via `ClearCollisionRect` |
-| Cataloged in | `us/names.json` @ 46063 | |
 
 ---
 
 ### AdvanceMapY
 
-| Property | Value |
-|----------|-------|
-| **Old Name** | `sub_00B32B` |
-| **New Name** | `AdvanceMapY` |
-| **Hex Address** | `$00B32B` |
-| **Decimal Address** | 45867 |
-| **End Address** | `$00B344` (exclusive `$00B345`) |
-| **Size** | 26 bytes |
-| **ASM File** | `extracted/system/engine/cop_handlers_collision.asm` |
+**Address:** `$B32B` · **Size:** 26 bytes
 
 #### Description
 
@@ -351,7 +297,6 @@ The `$0693` value is the **map width in bytes** (typically `$0100` for 16-tile r
 |-----------|--------|-------|
 | Called by | `MarkCollisionRect` | Between row iterations |
 | Note | `ClearCollisionRect` | Uses inline `+$10`/`$map_bounds_x` instead of this helper |
-| Cataloged in | `us/names.json` @ 45867 | |
 
 ---
 
@@ -359,15 +304,7 @@ The `$0693` value is the **map width in bytes** (typically `$0100` for 16-tile r
 
 ### CameraScrollStepLookup
 
-| Property | Value |
-|----------|-------|
-| **Old Name** | `sub_00B136` |
-| **New Name** | `CameraScrollStepLookup` |
-| **Hex Address** | `$00B136` |
-| **Decimal Address** | 45366 |
-| **End Address** | `$00B156` (exclusive `$00B157`) |
-| **Size** | 33 bytes |
-| **ASM File** | `extracted/system/engine/cop_handlers_collision.asm` |
+**Address:** `$B136` · **Size:** 33 bytes
 
 #### Description
 
@@ -399,18 +336,17 @@ Indexes the **camera pan step sequence** for COP `$DC`–`$DF` (`CameraPanUp/Dow
 | Called by | COP `$DD` | `CameraPanDown` |
 | Called by | COP `$DE` | `CameraPanLeft` |
 | Called by | COP `$DF` | `CameraPanRight` |
-| Cataloged in | `us/names.json` @ 45366 | |
 
 ---
 
 ## Quick Reference
 
-| New Name | Old Name | Address | Size | Primary Callers |
-|----------|----------|---------|------|-----------------|
-| `ComputeDirectionToPlayer` | `sub_00AFCE` | `$00AFCE` | 144 | COP `$2D`–`$30` |
-| `TileCollisionQuery` | `sub_00B43B` | `$00B43B` | 70 | COP `$13`–`$1E`, `$96`–`$98` |
-| `MarkCollisionRect` | `sub_00B29F` | `$00B29F` | 140 | COP `$0B` |
-| `ClearCollisionRect` | `sub_00B345` | `$00B345` | 170 | COP `$0C`, `$11` |
-| `ClearCollisionRectFull` | `code_00B3EF` | `$00B3EF` | 76 | `ClearCollisionRect` |
-| `AdvanceMapY` | `sub_00B32B` | `$00B32B` | 26 | `MarkCollisionRect` |
-| `CameraScrollStepLookup` | `sub_00B136` | `$00B136` | 33 | COP `$DC`–`$DF` |
+| Name | Address | Size | Primary Callers |
+|------|---------|------|-----------------|
+| `ComputeDirectionToPlayer` | `$AFCE` | 144 | COP `$2D`–`$30` |
+| `TileCollisionQuery` | `$B43B` | 70 | COP `$13`–`$1E`, `$96`–`$98` |
+| `MarkCollisionRect` | `$B29F` | 140 | COP `$0B` |
+| `ClearCollisionRect` | `$B345` | 170 | COP `$0C`, `$11` |
+| `ClearCollisionRectFull` | `$B3EF` | 76 | `ClearCollisionRect` |
+| `AdvanceMapY` | `$B32B` | 26 | `MarkCollisionRect` |
+| `CameraScrollStepLookup` | `$B136` | 33 | COP `$DC`–`$DF` |

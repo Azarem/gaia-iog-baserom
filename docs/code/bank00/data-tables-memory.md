@@ -2,7 +2,7 @@
 
 **Bank:** `$00` (mirrored at `$80` for FastROM access)  
 **Scope:** All of bank `$00` — system core (`$008000`–`$00B530`), upper-half actors/thinkers/functions (`$00B500`–`$00F4FF`), stair/climb system (`$00D088`–`$00D5BC`), and camera/follow engine (`$00E683`–`$00F292`)  
-**Sources:** Live `extracted/` ASM, `us/names.json`, `us/blocks.json`
+**Sources:** Live `extracted/` ASM
 
 This document consolidates **data tables**, **compile-time includes**, **WRAM/direct-page memory maps**, **stack conventions**, and **bank-wide statistics** for Illusion of Gaia's primary system bank.
 
@@ -158,10 +158,10 @@ All `?INCLUDE` directives observed in bank `$00` system and upper-half code:
 | `binary_01C384` | Sine/cosine lookup data (HUD pointer init in `SystemInit`) |
 | `binary_01D8BE` | DMA channel configuration bytes |
 | `body_table` | Player body sprite-set index table (Will/Freedan/Shadow) |
-| `chunk_028000` | Bank `$02` system functions (rendering, DMA, APU, actors, math) |
-| `chunk_038000` | Bank `$03` system functions (scenes, actors, text, metatiles) |
-| `chunk_03BAE1` | Bank `$03` extended (music, facing, animation helpers) |
-| `func_00F3C9` | Orbital/spiral movement math (`ApplyOrbitalOffsetFromRef`) |
+| `MulDivide` | Bank `$02` system functions (rendering, DMA, APU, actors, math) |
+| `GlobalInputHandler` | Bank `$03` system functions (scenes, actors, text, metatiles) |
+| `ComposeDigits_Continuation` | Bank `$03` extended (music, facing, animation helpers) |
+| `ApplyOrbitalOffsetFromRef` | Orbital/spiral movement math (`ApplyOrbitalOffsetFromRef`) |
 | `func_0AA3A7` | Grid-snap walk helper (deferred resume target, bank `$0A`) |
 | `system_strings` | System ASCII strings (BG3 HUD overlays) |
 | `table_01B086` | Animation frame duration/speed lookup table |
@@ -171,7 +171,7 @@ All `?INCLUDE` directives observed in bank `$00` system and upper-half code:
 | Include | Used By |
 |---------|---------|
 | `player_character` | Stair triggers (`stair_climb`), `ramps.asm`, `itory_village_fog` thinker |
-| `chunk_03BAE1` | Push handlers, `global_ambient_dispatcher`, statue inventory |
+| `ComposeDigits_Continuation` | Push handlers, `global_ambient_dispatcher`, statue inventory |
 | `cop_handlers_script` | Statue inventory reward actors |
 | `inventory_spritemap` | Inventory statue slot display |
 | `dir_sprite_01ABDE` | Forced walk functions, smooth follow |
@@ -327,7 +327,7 @@ Global variables use direct-page addressing with `D=$0000` (or absolute `$xxxx` 
 |---------|------|------|---------|
 | `$06F8` | 2 | SFX channel 1 queue | `PlaySoundCh1`, NMI → `$APUIO2` |
 | `$06F9` | 1 | SFX channel 2 queue | `PlaySoundCh2` |
-| `$06FA` | 2 | Music transition state | NMI → triggers `UpdateFrame_Full` when ≠ 0 |
+| `$06FA` | 2 | Music transition state | NMI → triggers `UpdateFrameFull` when ≠ 0 |
 
 #### Camera & Scroll
 
@@ -498,42 +498,33 @@ Bank `$00` code follows consistent stack conventions across interrupt handlers, 
 | Miscellaneous | 1 |
 | Data tables / constants | 3 |
 
-### 5.2 Named Entries
-
-| Metric | Value |
-|--------|-------|
-| **Total in `us/names.json`** | **721** entries |
-| System core cataloged | 68 entries |
-| Upper-half additions (2026-09-06) | 104 entries |
-| COP handler reference | [`cop-commands-reference.md`](../../cop-commands-reference.md) + `us/copdef.json` |
-
-### 5.3 External Dependencies
+### 5.2 External Dependencies
 
 | Bank | Unique Functions Called | Purpose |
 |------|-------------------------|---------|
 | `$02` | 17 | Rendering, DMA, actors, decompression, math |
 | `$03` | 27 | Scenes, actors, text, metatiles, inventory, collision, HDMA |
-| `$00` (other chunks) | 2 | Orbital math (`func_00F3C9`), grid-snap (`func_0AA3A7`) |
+| `$00` (other chunks) | 2 | Orbital math (`ApplyOrbitalOffsetFromRef`), grid-snap (`func_0AA3A7`) |
 | `$0A` | 1 | Grid-snap resume target |
 
 #### Key External Calls from System Core
 
 | Function | Bank | Called From | Purpose |
 |----------|------|-------------|---------|
-| `func_028043` | $02 | Main loop, frame updates | Begin frame |
-| `func_028191` | $02 | Main loop, frame updates | End frame / wait VBlank |
-| `func_0281A2` | $02 | Main loop, frame updates | Scene transitions |
-| `func_029F31` | $02 | SystemInit | PPU register init |
-| `func_02908E` | $02 | SystemInit | Init WRAM/game state |
-| `func_02AF5F` | $02 | NmiHandler | Upload OAM |
-| `func_03D9F6` | $03 | SystemInit | Load initial scene |
-| `run_actors_03CAF5` | $03 | Main loop | Execute all actor scripts |
-| `func_03C5FF` | $03 | Main loop | OAM sort/compose |
-| `func_03E146` | $03 | Main loop | Update HDMA channels |
-| `func_03CA55` | $03 | Animation COPs | Advance animation frame |
-| `func_03D78A` | $03 | TileCollisionQuery | Map tile lookup |
+| `VBlankWaitAndJoypad` | $02 | Main loop, frame updates | Begin frame |
+| `EnableNmiAndJoypad` | $02 | Main loop, frame updates | End frame / wait VBlank |
+| `EnableNmiOnly` | $02 | Main loop, frame updates | Scene transitions |
+| `InitHardwareRegisters` | $02 | SystemInit | PPU register init |
+| `SpcLoadBuiltinEngine` | $02 | SystemInit | Init WRAM/game state |
+| `FlushDirtyTilemapStrips` | $02 | NmiHandler | Upload OAM |
+| `ExecuteSceneTransition` | $03 | SystemInit | Load initial scene |
+| `RunActors_Normal` | $03 | Main loop | Execute all actor scripts |
+| `SortActorsByDepth` | $03 | Main loop | OAM sort/compose |
+| `ResetHdmaState` | $03 | Main loop | Update HDMA channels |
+| `UpdateActorAnimation` | $03 | Animation COPs | Advance animation frame |
+| `CalcTileMapOffset` | $03 | TileCollisionQuery | Map tile lookup |
 
-### 5.4 Upper Half Block Breakdown
+### 5.3 Upper Half Block Breakdown
 
 | Category | Total | Named | Auto-Named | Unused |
 |----------|-------|-------|------------|--------|
@@ -551,7 +542,7 @@ Bank `$00` code follows consistent stack conventions across interrupt handlers, 
 | `$00E100`–`$00EAFF` | 12 | Actors (push handlers, smooth follow, visual effects, camera) |
 | `$00F300`–`$00F4FF` | 4 | Functions (player stop, orbital math) |
 
-### 5.5 Most-Referenced Blocks (Top 10)
+### 5.4 Most-Referenced Blocks (Top 10)
 
 | Block | Ref Count | Primary Callers |
 |-------|-----------|-----------------|
@@ -577,19 +568,19 @@ Bank `$00` code follows consistent stack conventions across interrupt handlers, 
 | `TestEventFlag` | $00B0FB | 8 | Flag COPs, far-call wrappers |
 | `SetActorBody` | $00AF6D | 8 | Player sprite COPs |
 
-### 5.6 Engine Integration Points
+### 5.5 Engine Integration Points
 
 | Bank `$00` Block | Connects To | Via |
 |------------------|-------------|-----|
-| `GameOverSequence` ($D62F) | `chunk_03BAE1` | `$&func_00D62F` player death pointer |
-| `StandardEnemyDefeatHandler` ($DB8A) | `chunk_03BAE1` | `$&func_00DB8A` enemy defeat pointer |
-| `NullActorScriptStub` ($DC77) | `chunk_03BAE1` | `$&stub_00DC77` default actor script |
+| `GameOverSequence` ($D62F) | `ComposeDigits_Continuation` | `$&GameOverSequence` player death pointer |
+| `StandardEnemyDefeatHandler` ($DB8A) | `ComposeDigits_Continuation` | `$&StandardEnemyDefeatHandler` enemy defeat pointer |
+| `NullActorScriptStub` ($DC77) | `ComposeDigits_Continuation` | `$&stub_00DC77` default actor script |
 | `player_transition_handlers` ($C418) | Scene scripts, bank $03 | `#$&func_00C4xx` player anim refs |
 | `hit_stagger_controller` ($D877) | Bank $03 | `SpawnLastRel` from damage routines |
 | `smooth_follow_child` ($E4DB) | `smooth_follow` chunk | `$&ComputeFollow*` same-bank refs |
-| `ApplyOrbitalOffsetFromRef` ($F3C9) | System core | `?INCLUDE 'func_00F3C9'` from `$008000` chunk |
+| `ApplyOrbitalOffsetFromRef` ($F3C9) | System core | `?INCLUDE 'ApplyOrbitalOffsetFromRef'` from `$008000` chunk |
 
-### 5.7 Scene Usage Highlights
+### 5.6 Scene Usage Highlights
 
 | Actor/System | Scene Count | Areas |
 |--------------|-------------|-------|
@@ -602,4 +593,4 @@ Bank `$00` code follows consistent stack conventions across interrupt handlers, 
 
 ---
 
-*Ground truth: `extracted/system/*.asm`, `us/names.json` (721 entries), `us/blocks.json`, `us/copdef.json`.*
+*Source: `extracted/system/*.asm`, `extracted/actors/*.asm`, `extracted/functions/*.asm`.*
