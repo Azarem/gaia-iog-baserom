@@ -1,6 +1,6 @@
 # Bank $02 — Game World Systems
 
-*Part of the [Bank $02 Documentation Suite](index.md)*
+*Part of the [Bank $02 Documentation Suite](readme.md)*
 
 **Bank:** `$02` (FastROM; accessed via `$@` long calls from other banks)  
 **Address range:** `$02A040`–`$02AB8A`  

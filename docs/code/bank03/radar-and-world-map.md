@@ -4,7 +4,7 @@
 > and the overworld travel map (`scene $FE`) with its route bytecode, area-name
 > table, per-destination option handlers, and travel iris effect.
 
-*Part of the [Bank $03 Documentation Suite](index.md)*
+*Part of the [Bank $03 Documentation Suite](readme.md)*
 
 ## Parts in this category
 
@@ -420,4 +420,4 @@ controller's joypad mask `$FFF0`).
 - [mode7-and-cutscenes.md](mode7-and-cutscenes.md) — `IrisCircleEffect` vs `HdmaWindowEffect` comparison; shared HDMA windowing concepts
 - [scene-and-hardware.md](scene-and-hardware.md) — `ClearSceneState` initializes scene $FE; transition effects used by world map
 - [actor-thinker-runtime.md](actor-thinker-runtime.md) — `WorldMapController` is an actor; `HdmaWindowEffect` is a thinker
-- [Bank $03 index](index.md) — bank-wide memory map, WRAM reference, design patterns
+- [Bank $03 index](readme.md) — bank-wide memory map, WRAM reference, design patterns

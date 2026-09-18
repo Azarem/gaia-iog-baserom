@@ -4,7 +4,7 @@
 > scene-specific cutscene actors that drive them. Includes one confirmed-dead
 > alternate Mode 7 implementation.
 
-*Part of the [Bank $03 Documentation Suite](index.md)*
+*Part of the [Bank $03 Documentation Suite](readme.md)*
 
 ## Parts in this category
 
@@ -471,4 +471,4 @@ and `thinker_spawn_0CEB3D` respectively). WorldMapController spawns
 - [radar-and-world-map.md](radar-and-world-map.md) — world map scene $FE uses both Mode 7 perspective and IrisCircleEffect thinkers
 - [actor-thinker-runtime.md](actor-thinker-runtime.md) — thinker execution pipeline, `SpawnSceneThinkers` spawns Mode 7 / iris thinkers
 - [scene-and-hardware.md](scene-and-hardware.md) — `ClearSceneState` configures Mode 7 registers; HDMA channel management
-- [Bank $03 index](index.md) — bank-wide memory map, WRAM reference, design patterns
+- [Bank $03 index](readme.md) — bank-wide memory map, WRAM reference, design patterns

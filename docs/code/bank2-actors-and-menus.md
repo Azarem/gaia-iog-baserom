@@ -1,4 +1,4 @@
-> **Deprecated:** This document is superseded by the [Bank $02 documentation suite](bank02/index.md). See the index for current coverage of all bank $02 systems.
+> **Deprecated:** This document is superseded by the [Bank $02 documentation suite](bank02/readme.md). See the index for current coverage of all bank $02 systems.
 
 ---
 

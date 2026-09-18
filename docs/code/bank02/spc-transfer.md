@@ -1,6 +1,6 @@
 # Bank $02 — SPC700 Music Transfer Protocol
 
-*Part of the [Bank $02 Documentation Suite](index.md)*
+*Part of the [Bank $02 Documentation Suite](readme.md)*
 
 **Bank:** `$02` (FastROM; accessed via `$@` long calls from other banks)
 **ASM source:** [`spc_transfer.asm`](../../../extracted/system/engine/spc_transfer.asm) (block: `spc_transfer`)
@@ -212,7 +212,7 @@ N/A — embedded binary data, not executable 65816 code.
 
 - [scene-script.md](scene-script.md) — Scene script interpreter; command `$11` dispatches to `SpcMusicLoadCmd`
 - [hardware-and-init.md](hardware-and-init.md) — VBlank/joypad layer used during SPC transfers
-- [index.md](index.md) — Full bank `$02` overview
+- [index.md](readme.md) — Full bank `$02` overview
 - [bank00/system-core.md](../bank00/system-core.md) — Cold-start sequence calling `SpcLoadBuiltinEngine`
 
 ---

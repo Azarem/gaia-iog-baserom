@@ -1,6 +1,6 @@
 # Attack & Ability System
 
-*Part of the [Bank $02 Documentation Suite](index.md)*
+*Part of the [Bank $02 Documentation Suite](readme.md)*
 
 > Special attacks, abilities, and projectile actors for Will and Freedan
 

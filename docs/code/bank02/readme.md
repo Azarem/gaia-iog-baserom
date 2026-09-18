@@ -213,7 +213,7 @@ These are included from other compilation units outside bank 02:
 
 ```mermaid
 graph TB
-    indexHub["index.md"]
+    indexHub["readme.md"]
 
     subgraph engineGroup["System Engine"]
         hwInit["hardware-and-init"]

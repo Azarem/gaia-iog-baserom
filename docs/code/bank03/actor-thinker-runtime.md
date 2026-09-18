@@ -4,7 +4,7 @@
 > execution contexts, the actor/thinker memory pools, scene actor/thinker
 > spawning, and the thinker scheduler.
 
-*Part of the [Bank $03 Documentation Suite](index.md)*
+*Part of the [Bank $03 Documentation Suite](readme.md)*
 
 ## Parts in this category
 
@@ -380,4 +380,4 @@ resumes at PostTick (or `_Next` for thinkers).
 - [sprite-rendering.md](sprite-rendering.md) — `SortActorsByDepth` processes the actor linked list into a render list
 - [scene-and-hardware.md](scene-and-hardware.md) — `ClearSceneState` calls `InitActorPool` and `SpawnSceneActors`
 - [mode7-and-cutscenes.md](mode7-and-cutscenes.md) — cutscene actors and Mode 7 thinkers use actor/thinker runtime
-- [Bank $03 index](index.md) — bank-wide memory map, WRAM reference, design patterns
+- [Bank $03 index](readme.md) — bank-wide memory map, WRAM reference, design patterns

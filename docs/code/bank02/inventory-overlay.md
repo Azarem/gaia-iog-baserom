@@ -1,6 +1,6 @@
 # Inventory Overlay — `inventory_overlay.asm`
 
-*Part of the [Bank $02 Documentation Suite](index.md)*
+*Part of the [Bank $02 Documentation Suite](readme.md)*
 
 > Overlay state sandwich — saves/restores WRAM around inventory screen
 

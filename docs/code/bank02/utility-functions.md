@@ -1,6 +1,6 @@
 # Utility Functions
 
-*Part of the [Bank $02 Documentation Suite](index.md)*
+*Part of the [Bank $02 Documentation Suite](readme.md)*
 
 > Small helper functions: dialogue display and VRAM buffer operations
 

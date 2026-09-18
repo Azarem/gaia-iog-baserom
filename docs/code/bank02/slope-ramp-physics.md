@@ -1,6 +1,6 @@
 # Slope & Ramp Physics — `slope_ramp_physics.asm`
 
-*Part of the [Bank $02 Documentation Suite](index.md)*
+*Part of the [Bank $02 Documentation Suite](readme.md)*
 
 > Terrain-based movement physics with slope detection, speed curves, and deceleration
 

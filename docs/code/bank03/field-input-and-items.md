@@ -1,6 +1,6 @@
 # Field Input, Items & Inventory
 
-*Part of the [Bank $03 Documentation Suite](index.md)*
+*Part of the [Bank $03 Documentation Suite](readme.md)*
 
 > The player-facing interaction layer: the top-level field button gate, the
 > Y-button item-use dispatcher and its 41 handlers, inventory slot management,
@@ -497,4 +497,4 @@ the Y button from re-triggering during item-use processing.
 - [text-and-menus.md](text-and-menus.md) — `DialogStringRenderer` / `ConsoleStringRenderer` used by item handlers and inventory UI
 - [movement-and-collision.md](movement-and-collision.md) — `GetPlayerFacingDirection` used by knockback and interaction collision
 - [scene-and-hardware.md](scene-and-hardware.md) — scene transitions triggered by item-use `QueueMapChange`
-- [Bank $03 index](index.md) — bank-wide memory map, WRAM reference, design patterns
+- [Bank $03 index](readme.md) — bank-wide memory map, WRAM reference, design patterns

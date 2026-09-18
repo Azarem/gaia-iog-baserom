@@ -1,6 +1,6 @@
 # Scene Lifecycle, Hardware & Save
 
-*Part of the [Bank $03 Documentation Suite](index.md)*
+*Part of the [Bank $03 Documentation Suite](readme.md)*
 
 ## Parts in this category
 
@@ -381,4 +381,4 @@ setup, deferred VRAM writes).
 - [text-and-menus.md](text-and-menus.md) — `LoadHudTilemap` stages HUD tiles during scene setup
 - [radar-and-world-map.md](radar-and-world-map.md) — world map scene $FE uses special transition path via $0D52
 - [mode7-and-cutscenes.md](mode7-and-cutscenes.md) — Mode 7 setup registers configured during ClearSceneState
-- [Bank $03 index](index.md) — bank-wide memory map, WRAM reference, design patterns
+- [Bank $03 index](readme.md) — bank-wide memory map, WRAM reference, design patterns

@@ -1,6 +1,6 @@
 # Bank $02 — Tile Collision Probe System
 
-*Part of the [Bank $02 Documentation Suite](index.md)*
+*Part of the [Bank $02 Documentation Suite](readme.md)*
 
 **Bank:** `$02` (FastROM; accessed via `$@` long calls from other banks)  
 **Document scope:** Position→tile conversion, collision nibble lookup at `$7FC000`, corner probes, and movement delta finalization.  

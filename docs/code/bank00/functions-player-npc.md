@@ -7,7 +7,7 @@
 
 These routines manage player damage response, COP script variant selection, town NPC wander behavior, party escort path tracking, actor visibility toggling, and the inventory-full message utility.
 
-**Related:** [`actors-combat-interaction.md`](actors-combat-interaction.md) (`hit_stagger_controller` spawned by hitstun) · [`index.md`](index.md)
+**Related:** [`actors-combat-interaction.md`](actors-combat-interaction.md) (`hit_stagger_controller` spawned by hitstun) · [`readme.md`](readme.md)
 
 ---
 

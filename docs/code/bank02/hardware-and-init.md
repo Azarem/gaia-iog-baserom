@@ -1,6 +1,6 @@
 # Bank $02 — Hardware Math, VBlank, Decompression & System Init
 
-*Part of the [Bank $02 Documentation Suite](index.md)*
+*Part of the [Bank $02 Documentation Suite](readme.md)*
 
 **Bank:** `$02` (FastROM; accessed via `$@` long calls from other banks)
 **Address range:** `$028000`–`$0283A2`, `$029DE2`–`$02A040`
@@ -1411,4 +1411,4 @@ Scene Load (scene_script)
 | [camera-scrolling.md](camera-scrolling.md) | Consumer of `MulDivide`, `UploadCgramPalette` |
 | [game-systems.md](game-systems.md) | Frame update paths using VBlank/joypad routines |
 | [inventory-overlay.md](inventory-overlay.md) | Inventory overlay NMI/display sync |
-| [index.md](index.md) | Full bank `$02` memory map and document suite |
+| [index.md](readme.md) | Full bank `$02` memory map and document suite |

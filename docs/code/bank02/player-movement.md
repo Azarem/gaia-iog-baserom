@@ -1,6 +1,6 @@
 # Bank $02 — Player Movement Physics Engine
 
-*Part of the [Bank $02 Documentation Suite](index.md)*
+*Part of the [Bank $02 Documentation Suite](readme.md)*
 
 **Bank:** `$02` (FastROM; accessed via `$@` long calls from other banks)  
 **Document scope:** Tile-collision-driven player movement physics — six ASM compilation units in the `engine` scene that dispatch horizontal, vertical, diagonal, and ramp movement each frame.  

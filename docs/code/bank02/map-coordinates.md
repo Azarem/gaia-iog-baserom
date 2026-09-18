@@ -1,6 +1,6 @@
 # Bank $02 — Map Coordinate Helpers
 
-*Part of the [Bank $02 Documentation Suite](index.md)*
+*Part of the [Bank $02 Documentation Suite](readme.md)*
 
 **Bank:** `$02` (FastROM; accessed via `$@` long calls from other banks)  
 **Document scope:** Tile/pixel coordinate transforms, map-buffer index navigation, and directional collision cascade probes.  

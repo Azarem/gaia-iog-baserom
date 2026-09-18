@@ -6,7 +6,7 @@
 
 These actors handle player-facing progression: boss-triggered catchup stat rewards, cutscene/warp player animations, statue collectible grants, town doors, pressure plates, overworld map transitions, and animated field pickups.
 
-**Related:** [`actors-combat-interaction.md`](actors-combat-interaction.md) (stat reward VFX, push handlers) · [`index.md`](index.md)
+**Related:** [`actors-combat-interaction.md`](actors-combat-interaction.md) (stat reward VFX, push handlers) · [`readme.md`](readme.md)
 
 ---
 
