@@ -7,7 +7,7 @@
 
 Three subsystems share this address region: ambient camera drift loops for boss/ship arenas, debris burst VFX, and sin/cos orbital offset math used by COP handlers, bosses, and decorative actors.
 
-**Related:** [`actors-infrastructure.md`](actors-infrastructure.md) (`camera_scroll_controller`) · [`utility-math-movement.md`](utility-math-movement.md) · [`bank00-upper-analysis.md`](../bank00-upper-analysis.md) §4.6–§4.7
+**Related:** [`actors-infrastructure.md`](actors-infrastructure.md) (`camera_scroll_controller`) · [`utility-math-movement.md`](utility-math-movement.md) · [`index.md`](index.md)
 
 ---
 
@@ -352,4 +352,4 @@ Dead entry stub between `ApplyOrbitalOffsetFromRef` (`$F3C9`) and `ApplyOrbitalO
 
 ---
 
-*Source: `us/blocks.json`, `us/names.json`, `docs/code/bank00-upper-analysis.md`, `docs/cop-commands-reference.md` §3.15.*
+*Source: `us/blocks.json`, `us/names.json`, `docs/cop-commands-reference.md` §3.15.*

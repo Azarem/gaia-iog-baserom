@@ -657,4 +657,4 @@ The actor at `$EAED` (`camera_scroll_controller`) computes per-frame scroll delt
 
 ---
 
-*Source: `us/blocks.json`, `us/names.json`, `docs/code/chunk_008000-analysis.md` §chunk_00E683, `docs/cop-commands-reference.md`.*
+*Source: `us/blocks.json`, `us/names.json`, `docs/cop-commands-reference.md`, live `extracted/` ASM.*

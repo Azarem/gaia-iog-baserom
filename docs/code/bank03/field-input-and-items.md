@@ -185,6 +185,27 @@ suppresses Start re-entry.
 - `SetPlayerTransition` — sets the player actor function pointer and clears its
   frame timer (used by melody handlers and `UseItem_Aura`).
 
+### Key-item target cross-reference
+
+| Item | Scene | Location | Tile Region | Flag(s) Set |
+|------|-------|----------|-------------|-------------|
+| Prison Key | `$0B` | Edward's Prison | two door areas | `$06` (word), `$24`/`$42` (byte) |
+| Inca Statue A | `$1E` | Gold Ship interior | Y=$12–13, X=$37–38 (or alt Y=$15–16, X=$26–27) | — |
+| Inca Statue B | `$1E` | Gold Ship interior | Y=$15–16, X=$26–27 (or alt Y=$12–13, X=$37–38) | — |
+| Diamond Block | `$25` | Diamond Mine | Y=$19–1A, X=$0E–0F | `$2F` |
+| Mine Key A | `$44` | Diamond Mine | X=$0F–11, Y=$16–19 | `$5B` |
+| Mine Key B | `$44` | Diamond Mine | X=$0F–11, Y=$16–19 | `$5C` |
+| Elevator Key | `$3F` | Mu Passage | X=$18–1A, Y=$34–37 | `$69` |
+| Crystal Ball | `$4C` | Mu Shrine | 4 pedestal positions | `$60`–`$63` (one per ball) |
+| Seaside Palace Key | `$5A` | Seaside Palace | X=$08–0A, Y=$07–08 | `$0138` (word) |
+| Purification Stone | `$5D` | Watermia area | — | `$0E` |
+| Statue of Hope | `$63` | Euro area | 2 positions | `$7B`/`$7E` |
+| Rama Statue | `$66` | Dao area | 2 positions | `$80`/`$81` |
+| Smoked Meat | `$2F` | Itori's cave | — | `$03` |
+| Teapot | `$95` | Mountain area | — | `$A8` |
+| Mushroom Water | `$A2`/`$A5` | Forest areas | 2 positions (scene $A5) | `$01`/`$02` |
+| Gorgon Flower | `$AE` | Gorgon area | 3 statue mouths | `$BF`/`$C0`/`$C1` |
+
 ### Special mechanics
 
 - **Red Jewel** — BCD (`SED`/`CLD`) jewel counter; spawns an orbit VFX expanding

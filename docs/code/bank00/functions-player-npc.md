@@ -7,7 +7,7 @@
 
 These routines manage player damage response, COP script variant selection, town NPC wander behavior, party escort path tracking, actor visibility toggling, and the inventory-full message utility.
 
-**Related:** [`actors-combat-interaction.md`](actors-combat-interaction.md) (`hit_stagger_controller` spawned by hitstun) · [`bank00-upper-analysis.md`](../bank00-upper-analysis.md) §4.4–§4.5
+**Related:** [`actors-combat-interaction.md`](actors-combat-interaction.md) (`hit_stagger_controller` spawned by hitstun) · [`index.md`](index.md)
 
 ---
 
@@ -407,4 +407,4 @@ Jumped to via JML from 10+ scene scripts (shop purchases, NPC gifts, hidden item
 
 ---
 
-*Source: `us/blocks.json`, `us/names.json`, `docs/code/bank00-upper-analysis.md`, `docs/code/bank00/actors-combat-interaction.md`.*
+*Source: `us/blocks.json`, `us/names.json`, `docs/code/bank00/actors-combat-interaction.md`.*

@@ -7,7 +7,7 @@
 
 This page documents the CPU entry point, interrupt vector trampolines, one-time system initialization, the eternal main game loop, and the alternate per-frame update paths used during dialogue, text overlays, and music transitions. Together these routines form the backbone of Illusion of Gaia's runtime: everything else (actors, scenes, rendering) is invoked from here.
 
-**Related:** [`nmi-handler.md`](nmi-handler.md) covers the VBlank handler at `$0082F8`–`$00843F`. [`chunk_008000-analysis.md`](../chunk_008000-analysis.md) covers the full system code page including COP dispatch.
+**Related:** [`nmi-handler.md`](nmi-handler.md) covers the VBlank handler at `$0082F8`–`$00843F`. [`cop-dispatch.md`](cop-dispatch.md) covers the COP dispatch engine.
 
 ---
 

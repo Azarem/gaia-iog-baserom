@@ -7,7 +7,7 @@
 
 This page documents the vertical-blank interrupt handler and its same-bank helpers. Every visible frame passes through `NmiHandler`: it is the only place where OAM, CGRAM, VRAM DMA, HDMA enable, joypad sampling, and APU I/O are performed. The main game loop (`SystemInit`) blocks until VBlank; NMI runs concurrently on the interrupt stack.
 
-**Related:** [`system-core.md`](system-core.md) covers reset, init, and main loop. [`chunk_008000-analysis.md`](../chunk_008000-analysis.md) covers the broader system page.
+**Related:** [`system-core.md`](system-core.md) covers reset, init, and main loop. [`cop-dispatch.md`](cop-dispatch.md) covers the COP dispatch engine. [`data-tables-memory.md`](data-tables-memory.md) has the full variable map.
 
 ---
 

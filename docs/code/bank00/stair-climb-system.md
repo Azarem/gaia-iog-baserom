@@ -452,4 +452,4 @@ All triggers are placed as invisible `actor_def` entries in `scene_actors.asm` a
 
 ---
 
-*Source: `us/blocks.json`, `us/names.json`, `docs/code/chunk_008000-analysis.md` stair_climb.*
+*Source: `us/blocks.json`, `us/names.json`, live `extracted/` ASM.*

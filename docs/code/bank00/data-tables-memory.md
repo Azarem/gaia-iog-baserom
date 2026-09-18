@@ -2,7 +2,7 @@
 
 **Bank:** `$00` (mirrored at `$80` for FastROM access)  
 **Scope:** All of bank `$00` — system core (`$008000`–`$00B530`), upper-half actors/thinkers/functions (`$00B500`–`$00F4FF`), stair/climb system (`$00D088`–`$00D5BC`), and camera/follow engine (`$00E683`–`$00F292`)  
-**Sources:** [`chunk_008000-analysis.md`](../chunk_008000-analysis.md), [`bank00-upper-analysis.md`](../bank00-upper-analysis.md), live `extracted/` ASM, `us/names.json`, `us/blocks.json`
+**Sources:** Live `extracted/` ASM, `us/names.json`, `us/blocks.json`
 
 This document consolidates **data tables**, **compile-time includes**, **WRAM/direct-page memory maps**, **stack conventions**, and **bank-wide statistics** for Illusion of Gaia's primary system bank.
 
@@ -602,4 +602,4 @@ Bank `$00` code follows consistent stack conventions across interrupt handlers, 
 
 ---
 
-*Consolidated from [`chunk_008000-analysis.md`](../chunk_008000-analysis.md) and [`bank00-upper-analysis.md`](../bank00-upper-analysis.md). Ground truth: `extracted/system/*.asm`, `us/names.json` (721 entries), `us/blocks.json`, `us/copdef.json`.*
+*Ground truth: `extracted/system/*.asm`, `us/names.json` (721 entries), `us/blocks.json`, `us/copdef.json`.*

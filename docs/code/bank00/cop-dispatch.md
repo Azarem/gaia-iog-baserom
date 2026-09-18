@@ -2,7 +2,7 @@
 
 **Address range:** `$00846C`–`$00864D`  
 **Source files:** `extracted/system/engine/cop_dispatch.asm`, `extracted/system/engine/system_core.asm`  
-**Related:** [`cop-commands-reference.md`](../../cop-commands-reference.md), [`chunk_008000-analysis.md`](../chunk_008000-analysis.md)
+**Related:** [`cop-commands-reference.md`](../../cop-commands-reference.md), [`system-core.md`](system-core.md)
 
 This document covers the native-mode COP (`$02`) dispatch machinery at the heart of IOG's actor and thinker scripting system. Every script instruction — movement, collision, spawning, dialogue, palette, DMA — routes through this 24-byte dispatcher and its associated jump tables.
 

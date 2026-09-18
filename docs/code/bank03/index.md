@@ -1,305 +1,437 @@
-> **DEPRECATED** — This document has been superseded by the
-> [Bank $03 v2 documentation](../code_v2/bank03/index.md).
-> Do not update this file; see the v2 suite for current information.
+# Bank $03 — Engine Core Reference
 
-# Bank 03 — `chunk_038000` Deep Analysis
-
-> Complete reference for the overworld input handler, radar map screen,
-> and item use system in IOG's ROM bank `$03`.
->
-> **Source:** `extracted/system/chunk_038000.asm`
+> Source-of-truth documentation for the Illusion of Gaia engine code residing in
+> ROM bank `$03`. Bank membership is determined by address ranges in
+> [`db-us/blocks.json`](../../../db-us/blocks.json) (not the `?BANK` directive).
 
 ---
 
-## 1. Chunk Overview
+## 1. Bank Overview
+
+Bank `$03` holds the **runtime engine core** of IOG: the per-frame game loop
+subsystems (actors, thinkers, collision, sprites), the field-input/item/inventory
+UI layer, the world-map and radar navigation screens, the Mode 7 perspective and
+HDMA cutscene machinery, the text/menu renderers, and the scene-lifecycle +
+hardware-I/O (DMA/HDMA/SPC) + save infrastructure.
 
 | Metric | Value |
 |--------|-------|
-| **Address range** | `$038000`–`$03A0A7` |
-| **Total size** | 8,360 bytes |
-| **Named parts** | 54 (in `blocks.json`) |
-| **External entry point** | 1 — `func_038000` called from `system_core` main loop |
-| **Compilation unit** | `chunk_038000` (Bank 03, `?BANK 03`) |
+| **Documented span** | `$038000`–`$03F201` |
+| **Total size** | ~28.5 KB (contiguous, no gaps) |
+| **Source files** | 27 `.asm` units in `extracted/` |
+| **Document suite** | 8 topic docs + this index |
+| **Primary caller** | `system_core` main game loop (bank `$02`) |
 
-This chunk implements the **overworld player interaction layer** — everything
-that happens when the player presses a button on the field (outside menus,
-battles, and cutscenes). It contains three major functional areas:
-
-1. **Overworld Input Handler** — button dispatch gate
-2. **Radar Map Screen** — Start button minimap overlay
-3. **Item Use System** — Y button item dispatcher + 41 item handlers
+> The remainder of the bank (`$03F201`–`$03FFFF`) is unmapped filler.
 
 ---
 
-## 2. Functional Areas & Size Breakdown
+## 2. Memory Map
 
-| Area | Address Range | Size | % | Parts | Doc |
-|------|---------------|------|---|-------|-----|
-| Overworld Input Handler | `$038000`–`$03808E` | 191 B | 2.3% | 1 | [overworld-input.md](overworld-input.md) |
-| Radar Map Screen | `$0380BF`–`$03840F` | 849 B | 10.2% | 7 | [overworld-input.md](overworld-input.md) |
-| Item Dispatcher | `$038410`–`$0384BE` | 175 B | 2.1% | 3 | [item-use-system.md](item-use-system.md) |
-| Item Handlers (code + strings) | `$0384BF`–`$039FB1` | 6,899 B | 82.5% | 39 | [item-use-system.md](item-use-system.md) |
-| Item Utilities | `$039FB2`–`$03A0A7` | 246 B | 2.9% | 3 | [item-use-system.md](item-use-system.md) |
-
----
-
-## 3. Proposed Code Splits
-
-The chunk should be split into **three logical files**, minimizing cross-
-references between them:
-
-### Split A: `overworld_input_handler.asm`
-
-**Contains:** The main button dispatcher (`func_038000` only).
-
-| Current Part | Proposed Name |
-|-------------|---------------|
-| `func_038000` | `GlobalInputHandler` |
-
-**Cross-references OUT:**
-- `JSR` to `RadarScreenSetup` (Split B)
-- `JSR` to `RadarBorderAnimate` (Split B)
-- `JMP` to `ItemUseDispatch` (Split C)
-- `JSL` to external: `IsMusicPlaying`, `VBlankWait`, `OpenInventoryScreen`, etc.
-
-**Cross-references IN:**
-- `JSL` from `system_core` (1 external caller)
-
-**Rationale:** This is the sole entry point into the chunk. It's a clean
-dispatch gate with no data and no internal callers. Separating it makes
-the entry contract clear.
-
-### Split B: `radar_map_screen.asm`
-
-**Contains:** All radar/map screen code and data.
-
-| Current Part | Proposed Name |
-|-------------|---------------|
-| `sub_0380BF` | `RadarScreenSetup` |
-| `sub_038259` | `RadarBorderAnimate` |
-| `sub_03827C` | `RadarPlotSceneMarkers` |
-| `sub_03830E` | `RadarPlotActors` |
-| `sub_03832F` | `RadarPlotFriendlyActor` |
-| `sub_038379` | `RadarPlotEnemyActor` |
-| `word_0383D6` | `RadarBorderTileTable` |
-
-**Cross-references OUT:**
-- `JSL` to external: `VBlankWait`, `ClearVramBuffer`, `TestEventFlag`, `TestFlag`
-
-**Cross-references IN:**
-- `JSR` from `GlobalInputHandler` (Split A only — 2 calls)
-
-**Rationale:** The radar system is completely self-contained. No item handlers
-or utilities reference it. Only the input handler calls into it. This is the
-cleanest split boundary.
-
-### Split C: `item_use_system.asm`
-
-**Contains:** Item dispatcher, all handlers, all embedded strings, and shared
-utilities.
-
-| Current Part | Proposed Name |
-|-------------|---------------|
-| `sub_038410` | `ItemUseDispatch` |
-| `sub_03842F` | `ItemUseEpilogue` |
-| `table_03843F` | `ItemHandlerJumpTable` |
-| `func_0384BF`–`func_039FB1` | `UseItem_*` (see full table below) |
-| `sub_039FB2` | `RemoveEquippedItem` |
-| `func_039FCA` | `FluteMusicActorController` |
-| `sub_03A0A0` | `SetPlayerTransition` |
-
-**Cross-references OUT:**
-- `JSL` to external: `UpdateFrameDialogue`, `IsMusicPlaying`, various COP handlers
-- `JSL` to `chunk_03BAE1`: `func_03E1D6` (music actor), `func_03EF97` (plate exchange)
-
-**Cross-references IN:**
-- `JMP` from `GlobalInputHandler` (Split A only — 1 call)
-
-**Rationale:** The item handlers form a tightly coupled web: the dispatch
-table points to all 41 handlers, the flute controller dispatches to 3
-callbacks, many handlers share utility routines (`RemoveEquippedItem`,
-`SetPlayerTransition`) and even share string data. Splitting handlers apart
-would create dozens of cross-references with no benefit.
-
-### Cross-Reference Summary
+Blocks are listed in ascending address order. Non-contiguous units (`⇢`) have
+their fragments interleaved with neighbors but are documented together.
 
 ```
-                  ┌──────────────────────────┐
-                  │  system_core (external)  │
-                  └──────────┬───────────────┘
-                             │ JSL (1 call)
-                             ▼
-              ┌─────────────────────────────────┐
-              │ Split A: overworld_input_handler│
-              │  (GlobalInputHandler)           │
-              └──┬──────────────────┬───────────┘
-         JSR (2) │                  │ JMP (1)
-                 ▼                  ▼
-  ┌──────────────────────┐  ┌───────────────────────┐
-  │ Split B: radar_map   │  │ Split C: item_use     │
-  │  (7 pieces)          │  │  (44 pieces)          │
-  │  Self-contained      │  │  Self-contained       │
-  └──────────────────────┘  └───────────────────────┘
-         ↕ 0 calls              ↕ 0 calls
+$038000 ┌──────────────────────────────────────────────┐
+        │ GlobalInputHandler          $038000–$0380BF  │  Field Input & Items
+$0380BF ├──────────────────────────────────────────────┤
+        │ radar_map_screen            $0380BF–$038410  │  Radar & World Map
+$038410 ├──────────────────────────────────────────────┤
+        │ item_use_system             $038410–$03A0AA  │  Field Input & Items
+        │   (item dispatcher + 41 handlers + strings)  │
+$03A0AA ├──────────────────────────────────────────────┤
+        │ garden_crash_cutscene       $03A0AA–$03A1FA  │  Mode 7 & Cutscenes
+$03A1FA ├──────────────────────────────────────────────┤
+        │ future_vision_cutscene      $03A1FA–$03A2F1  │  Mode 7 & Cutscenes
+$03A2F1 ├──────────────────────────────────────────────┤
+        │ WorldMapController          $03A2F1–$03A6BA  │  Radar & World Map
+$03A6BA ├──────────────────────────────────────────────┤
+        │ IrisCircleEffect            $03A6BA–$03A83E  │  Mode 7 & Cutscenes
+$03A83E ├──────────────────────────────────────────────┤
+        │ HdmaWindowEffect            $03A83E–$03A940  │  Radar & World Map
+$03A940 ├──────────────────────────────────────────────┤
+        │ mode7_perspective           $03A940–$03AB88  │  Mode 7 & Cutscenes
+$03AB88 ├──────────────────────────────────────────────┤
+        │ mode7_perspective_unused    $03AB88–$03AD77  │  Mode 7 & Cutscenes (dead)
+$03AD77 ├──────────────────────────────────────────────┤
+        │ world_map_routes  (data)    $03AD77–$03B1D4  │  Radar & World Map
+$03B1D4 ├──────────────────────────────────────────────┤
+        │ world_map_names   (data)    $03B1D4–$03B401  │  Radar & World Map
+$03B401 ├──────────────────────────────────────────────┤
+        │ world_map_options (data+code)$03B401–$03BAE1 │  Radar & World Map
+$03BAE1 ├──────────────────────────────────────────────┤
+        │ oam_digit_compose           $03BAE1–$03BB85  │  Sprite Rendering
+$03BB85 ├──────────────────────────────────────────────┤
+        │ combat_collision            $03BB85–$03C5FF  │  Movement & Collision
+$03C5FF ├──────────────────────────────────────────────┤
+        │ sprite_composition ⇢        $03C5FF–$03CAF5  │  Sprite Rendering
+$03CAF5 ├──────────────────────────────────────────────┤
+        │ actor_execution             $03CAF5–$03D12D  │  Actor & Thinker Runtime
+$03D12D ├──────────────────────────────────────────────┤
+        │ thinker_execution ⇢         $03D12D–$03D1F5  │  Actor & Thinker Runtime
+$03D1F5 ├──────────────────────────────────────────────┤
+        │ tile_collision_physics      $03D1F5–$03D7E7  │  Movement & Collision
+$03D7E7 ├──────────────────────────────────────────────┤
+        │ thinker_execution ⇢         $03D7E7–$03D86A  │  Actor & Thinker Runtime
+$03D86A ├──────────────────────────────────────────────┤
+        │ sprite_composition ⇢        $03D86A–$03D881  │  Sprite Rendering
+$03D881 ├──────────────────────────────────────────────┤
+        │ hdma_dma_spc ⇢              $03D881–$03D916  │  Scene & Hardware
+$03D916 ├──────────────────────────────────────────────┤
+        │ save_system                 $03D916–$03D9E8  │  Scene & Hardware
+$03D9E8 ├──────────────────────────────────────────────┤
+        │ scene_lifecycle             $03D9E8–$03E0B0  │  Scene & Hardware
+$03E0B0 ├──────────────────────────────────────────────┤
+        │ hdma_dma_spc ⇢              $03E0B0–$03E255  │  Scene & Hardware
+$03E255 ├──────────────────────────────────────────────┤
+        │ DialogStringRenderer        $03E255–$03E849  │  Text & Menus
+$03E849 ├──────────────────────────────────────────────┤
+        │ MenuSelectionHandler        $03E849–$03EA62  │  Text & Menus
+$03EA62 ├──────────────────────────────────────────────┤
+        │ ConsoleStringRenderer       $03EA62–$03EF97  │  Text & Menus
+$03EF97 ├──────────────────────────────────────────────┤
+        │ inventory_mgmt              $03EF97–$03F0CA  │  Field Input & Items
+$03F0CA ├──────────────────────────────────────────────┤
+        │ GetPlayerFacingDirection    $03F0CA–$03F1D0  │  Field Input & Items
+$03F1D0 ├──────────────────────────────────────────────┤
+        │ hdma_dma_spc ⇢              $03F1D0–$03F201  │  Scene & Hardware
+$03F201 └──────────────────────────────────────────────┘
 ```
 
-**Total cross-calls between splits: 3** (all from A → B/C, none between B ↔ C)
-
 ---
 
-## 4. Complete Name Mapping
+## 3. Compilation Units
 
-### Overworld Input Handler (Split A)
+Most bank `$03` files are standalone compilation units with `?BANK 03`. Six files
+lack the directive but are bank 3 by address — they reach the bank via `?INCLUDE`
+chains or standalone placement.
 
-| Address | Current Name | Proposed Name |
-|---------|-------------|---------------|
-| `$038000` | `func_038000` | `GlobalInputHandler` |
-
-### Radar Map Screen (Split B)
-
-| Address | Current Name | Proposed Name |
-|---------|-------------|---------------|
-| `$0380BF` | `sub_0380BF` | `RadarScreenSetup` |
-| `$038259` | `sub_038259` | `RadarBorderAnimate` |
-| `$03827C` | `sub_03827C` | `RadarPlotSceneMarkers` |
-| `$03830E` | `sub_03830E` | `RadarPlotActors` |
-| `$03832F` | `sub_03832F` | `RadarPlotFriendlyActor` |
-| `$038379` | `sub_038379` | `RadarPlotEnemyActor` |
-| `$0383D6` | `word_0383D6` | `RadarBorderTileTable` |
-
-### Item Use System (Split C)
-
-#### Infrastructure
-
-| Address | Current Name | Proposed Name |
-|---------|-------------|---------------|
-| `$038410` | `sub_038410` | `ItemUseDispatch` |
-| `$03842F` | `sub_03842F` | `ItemUseEpilogue` |
-| `$03843F` | `table_03843F` | `ItemHandlerJumpTable` |
-
-#### Item Handlers
-
-| Address | Current Name | Proposed Name | Item |
-|---------|-------------|---------------|------|
-| `$0384BF` | `func_0384BF` | `UseItem_None` | *(no item equipped)* |
-| `$0384D5` | `func_0384D5` | `UseItem_RedJewel` | Red Jewel |
-| `$0385C2` | `func_0385C2` | `UseItem_PrisonKey` | Prison Key |
-| `$038691` | `func_038691` | `UseItem_IncaStatueA` | Inca Statue A |
-| `$0386DD` | `func_0386DD` | `UseItem_IncaStatueA_CheckAlt` | *(cont.)* |
-| `$0387A7` | `func_0387A7` | `UseItem_IncaStatueB` | Inca Statue B |
-| `$0387F3` | `func_0387F3` | `UseItem_IncaStatueB_CheckAlt` | *(cont.)* |
-| `$03881D` | `func_03881D` | `UseItem_IncanMelody` | Incan Melody |
-| `$03888A` | `func_03888A` | `UseItem_Herb` | Herb |
-| `$038917` | `func_038917` | `UseItem_DiamondBlock` | Diamond Block |
-| `$038971` | `func_038971` | `UseItem_DiamondBlock_Place` | *(cont.)* |
-| `$03899A` | `func_03899A` | `UseItem_WindFlute` | Flute (Wind Melody) |
-| `$038A16` | `func_038A16` | `UseItem_WindFlute_Effect` | *(callback)* |
-| `$038BA4` | `func_038BA4` | `UseItem_LolaMelody` | Lola's Melody |
-| `$038C35` | `func_038C35` | `UseItem_LolaMelody_Effect` | *(callback)* |
-| `$038D67` | `func_038D67` | `UseItem_SmokedMeat` | Smoked Meat |
-| `$038E15` | `func_038E15` | `UseItem_MineKeyA` | Mine Key A |
-| `$038E96` | `func_038E96` | `UseItem_MineKeyB` | Mine Key B |
-| `$038F17` | `func_038F17` | `UseItem_MemoryMelody` | Memory Melody |
-| `$038F6F` | `func_038F6F` | `UseItem_MemoryMelody_Effect` | *(callback)* |
-| `$038FF3` | `func_038FF3` | `UseItem_CrystalBall` | Crystal Ball |
-| `$0390CE` | `func_0390CE` | `UseItem_ElevatorKey` | Elevator Key |
-| `$039144` | `func_039144` | `UseItem_SeasidePalaceKey` | Seaside Palace Key |
-| `$03921A` | `func_03921A` | `UseItem_PurificationStone` | Purification Stone |
-| `$039299` | `func_039299` | `UseItem_StatueOfHope` | Statue of Hope |
-| `$03932B` | `func_03932B` | `UseItem_RamaStatue` | Rama Statue |
-| `$0393A1` | `func_0393A1` | `UseItem_MagicPowder` | Magic Powder |
-| `$039427` | `func_039427` | `UseItem_Journal` | Lance's Journal |
-| `$03950C` | `func_03950C` | `UseItem_LanceLetter` | Lance's Letter |
-| `$03966A` | `func_03966A` | `UseItem_LillyNecklace` | Lilly's Necklace |
-| `$039691` | `func_039691` | `UseItem_Will` | Will (testament) |
-| `$03983D` | `func_03983D` | `UseItem_Teapot` | Teapot |
-| `$0398B2` | `func_0398B2` | `UseItem_MushroomWater` | Mushroom Water |
-| `$0398DA` | `func_0398DA` | `UseItem_MushroomWater_Alt` | *(scene $A5 cont.)* |
-| `$03995C` | `func_03995C` | `UseItem_PrizeMoney` | Prize Money |
-| `$03997F` | `func_03997F` | `UseItem_BlackGlasses` | Black Glasses |
-| `$0399CD` | `func_0399CD` | `UseItem_GorgonFlower` | Gorgon Flower |
-| `$039AA0` | `func_039AA0` | `UseItem_HieroglyphPlate` | Hieroglyph Plates |
-| `$039AAD` | `func_039AAD` | `UseItem_HieroglyphPlate_Detail` | *(puzzle logic)* |
-| `$039CAF` | `func_039CAF` | `UseItem_Aura` | Aura (transformation) |
-| `$039D09` | `func_039D09` | `UseItem_BillLolaLetter` | Letter (Bill & Lola) |
-| `$039E15` | `func_039E15` | `UseItem_FatherJournal` | Father's Journal |
-| `$039F30` | `func_039F30` | `UseItem_CrystalRing` | Crystal Ring |
-| `$039F5D` | `func_039F5D` | `UseItem_Apple` | Apple |
-| `$039FB1` | `func_039FB1` | `UseItem_Unused` | *(stub)* |
-
-#### Utilities
-
-| Address | Current Name | Proposed Name |
-|---------|-------------|---------------|
-| `$039FB2` | `sub_039FB2` | `RemoveEquippedItem` |
-| `$039FCA` | `func_039FCA` | `FluteMusicActorController` |
-| `$03A0A0` | `sub_03A0A0` | `SetPlayerTransition` |
-
----
-
-## 5. Key Architectural Insights
-
-### 5.1 The Stacked-Return Epilogue Pattern
-
-The item dispatcher uses a clever `PEA` trick: before jumping to a handler,
-it pushes `ItemUseEpilogue - 1` onto the stack. Every handler ends with a
-plain `RTS`, which pops this address and "returns" to the epilogue. This
-avoids every handler needing to explicitly call the epilogue, saving code
-space across 41 handlers.
-
-### 5.2 Flute Actor State Machine
-
-The three melody instruments (IDs 08, 09, 0D) all share a single actor
-controller (`FluteMusicActorController`) that manages the full playback
-cutscene: lock player → spawn music → wait for completion → unlock →
-dispatch to instrument-specific callback. The callback index (0/1/2) is
-stored in the actor's `$0020` field at spawn time.
-
-### 5.3 Handler Continuations
-
-Several items span multiple `blocks.json` parts because they have fall-
-through logic:
-- Inca Statue A: `func_038691` → `func_0386DD` (two position checks)
-- Inca Statue B: `func_0387A7` → `func_0387F3` (two position checks)
-- Diamond Block: `func_038917` → `func_038971` (check → place)
-- Mushroom Water: `func_0398B2` → `func_0398DA` (two scene checks)
-- Hieroglyph Plates: `func_039AA0` → `func_039AAD` (entry → puzzle)
-
-These are not independent routines — they are contiguous code that falls
-through. A split should keep each continuation pair together.
-
-### 5.4 Scene-Gating Pattern
-
-Nearly every placement/key item follows the same structure:
 ```
-1. LDA $sceneCurrent / CMP #$xxxx / BNE fail
-2. COP [BranchIfPlayerInAbsTiles] (x1, y1, x2, y2, &success)
-3. fail: COP [PrintDialogString] (&fail_msg) / RTS
-4. success: COP [PrintDialogString] (&ok_msg) / COP [RemoveItem] / COP [SetFlagByte] / RTS
+system_core (bank $02, external)
+  └── ?INCLUDE: GlobalInputHandler, radar_map_screen, item_use_system,
+      actor_execution, thinker_execution, tile_collision_physics,
+      combat_collision, sprite_composition, oam_digit_compose,
+      scene_lifecycle, hdma_dma_spc, save_system,
+      DialogStringRenderer, MenuSelectionHandler, ConsoleStringRenderer,
+      inventory_mgmt, GetPlayerFacingDirection
+
+WorldMapController (?BANK 03)
+  └── ?INCLUDE: HdmaWindowEffect, world_map_routes,
+      world_map_names, world_map_options
+
+scene_actors (external table)
+  └── references: garden_crash_cutscene, future_vision_cutscene
+
+scene_thinkers (bank $0C, external table)
+  └── references: IrisCircleEffect, mode7_perspective
+
+mode7_perspective_unused — standalone dead code (no references)
 ```
 
-This could potentially be refactored into a generic handler with a data
-table, but the current code embeds all logic inline.
+---
+
+## 4. Document Suite
+
+| Doc | Coverage | Parts |
+|-----|----------|-------|
+| [field-input-and-items.md](field-input-and-items.md) | Field button dispatch, item-use system, inventory management, facing direction | 4 |
+| [radar-and-world-map.md](radar-and-world-map.md) | Radar minimap overlay, world map scene $FE, route travel, HDMA window effect | 6 |
+| [mode7-and-cutscenes.md](mode7-and-cutscenes.md) | Mode 7 rotation engine, iris circle HDMA, Sky Garden crash, Angkor Wat vision | 5 |
+| [actor-thinker-runtime.md](actor-thinker-runtime.md) | Actor execution (5 contexts), thinker scheduling, pool management, spawning | 2 |
+| [movement-and-collision.md](movement-and-collision.md) | Tile collision physics, combat/interaction collision, damage, knockback | 2 |
+| [sprite-rendering.md](sprite-rendering.md) | Depth sort, metasprite decomposition, OAM packing, damage digit sprites | 2 |
+| [text-and-menus.md](text-and-menus.md) | Dialogue renderer (wide-string), console renderer (ASCII), menu cursor | 3 |
+| [scene-and-hardware.md](scene-and-hardware.md) | Scene transitions, DMA/HDMA/SPC utilities, SRAM save/load | 3 |
+
+### Document Relationship Map
+
+```mermaid
+graph TD
+    Index["index.md"]
+    FieldInput["field-input-and-items"]
+    Radar["radar-and-world-map"]
+    Mode7["mode7-and-cutscenes"]
+    ActorRT["actor-thinker-runtime"]
+    Movement["movement-and-collision"]
+    Sprites["sprite-rendering"]
+    TextMenus["text-and-menus"]
+    Scene["scene-and-hardware"]
+
+    Index --> FieldInput
+    Index --> Radar
+    Index --> Mode7
+    Index --> ActorRT
+    Index --> Movement
+    Index --> Sprites
+    Index --> TextMenus
+    Index --> Scene
+
+    FieldInput -->|"Start button"| Radar
+    FieldInput -->|"item dialogue"| TextMenus
+    Radar -->|"HDMA iris"| Mode7
+    Radar -->|"travel scene"| Scene
+    Mode7 -->|"thinker spawn"| ActorRT
+    ActorRT -->|"PostTick movement"| Movement
+    ActorRT -->|"render list"| Sprites
+    Movement -->|"damage digits"| Sprites
+    Movement -->|"combat death"| Scene
+    Sprites -->|"player DMA"| Scene
+    TextMenus -->|"inventory mgmt"| FieldInput
+    Scene -->|"actor spawn"| ActorRT
+```
 
 ---
 
-## 6. Detailed Documentation Index
+## 5. Calling Conventions
 
-| Document | Contents |
-|----------|----------|
-| [overworld-input.md](overworld-input.md) | Input handler, radar screen, all 8 radar pieces |
-| [item-use-system.md](item-use-system.md) | Dispatcher, all 41 item handlers, 3 utilities |
+### COP Script Dispatch (actor_execution / thinker_execution)
+
+All actor and thinker contexts use the same indirect-call trick:
+
+```
+PHK                    ; push current bank
+PEA PostTick-1         ; push return address (post-tick handler)
+SEP #$20
+LDA $02                ; actor/thinker code bank
+PHA
+REP #$20
+LDA $00                ; actor/thinker code address - 1
+PHA
+RTL                    ; RTL pops target+bank, jumps to script
+```
+
+`RTL` adds 1 to the popped address, which is why `-1` is used. When the script
+yields (via `RTS` or `COP SetEntryContinue`), control returns to `PostTick`.
+
+### Actor/Thinker Entry State
+
+Scripts enter with: **m=0** (16-bit A), **x=0** (16-bit X/Y), **d=0**,
+**i=1** (IRQs enabled). `X` = `D` = actor/thinker slot DP base. `DBR` = `$81`
+(WRAM mirror for `$7E` access via long addressing).
+
+### Item Handler Return Convention
+
+`ItemUseDispatch` pushes `ItemUseEpilogue-1` via `PEA` before dispatching through
+the jump table. Each handler ends in `RTS`, which pops this address and enters
+the epilogue. The stacked `PHP` from `GlobalInputHandler` is consumed by the
+epilogue's `PLP`/`RTL`.
 
 ---
 
-## 7. `blocks.json` Part Count
+## 6. Key WRAM Variables
 
-The chunk currently has **54 parts** in `blocks.json`. The proposed split
-maps them to 3 logical files:
+### System State
 
-| Split | Parts | Files |
-|-------|-------|-------|
-| A: `overworld_input_handler` | 1 | 1 |
-| B: `radar_map_screen` | 7 | 1 |
-| C: `item_use_system` | 46 | 1 |
-| **Total** | **54** | **3** |
+| Address | Symbol | Used by |
+|---------|--------|---------|
+| `$0036` | `frameCounter` | HdmaWindowEffect (buffer parity), radar border animation |
+| `$0046` | `sceneNext` | scene_lifecycle, GlobalInputHandler guard |
+| `$0048` | `sceneCurrent` | item handlers (scene gates), save_system |
+| `$0056` | `actorListHead` | actor_execution linked list traversal |
+| `$005A` | `thinkerListHead` | thinker_execution linked list traversal |
+| `$0066` | `hdmaEnableMask` | hdma_dma_spc channel allocation |
+| `$0200` | bucket array | sprite_composition depth sort working space |
+| `$0422` | OAM low table | sprite_composition output (128 entries x 4 bytes) |
+| `$0644` | `sceneFlags` | scene_lifecycle display/transition config |
+| `$0648` | `gfxCacheIdxA` | scene_lifecycle exit transition type |
+| `$0649` | *(enter type)* | scene_lifecycle enter transition type |
+| `$0C00` | render list | sprite_composition sorted actor list output |
+
+### Player State
+
+| Address | Symbol | Used by |
+|---------|--------|---------|
+| `$09AA` | `playerActor` | GetPlayerFacingDirection, combat_collision |
+| `$09AE` | `playerFlags` | GlobalInputHandler guards, actor_execution context selection |
+| `$0AB4` | `inventorySlots` | inventory_mgmt (16 item slots) |
+| `$0AC4` | `inventoryEquippedIndex` | item_use_system dispatch |
+| `$0AC8` | *(form sub-index)* | GetPlayerFacingDirection form-aware path |
+| `$0ACA` | `playerMaxHp` | inventory_mgmt stat-up cap |
+| `$0ACE` | `playerHp` | combat_collision, ConsoleStringRenderer HP bars |
+| `$0AD4` | `characterForm` | item handlers (melody requires Will) |
+| `$0ADE` | `playerStr` | combat_collision damage formula |
+
+### World Map State (`$0D52`–`$0D6F`)
+
+| Address | Purpose |
+|---------|---------|
+| `$0D52`/`$0D53` | Special-transition trigger (checked by scene_lifecycle) |
+| `$0D54`/`$0D56` | Initial player X/Y on map |
+| `$0D58` | Destination/route selection ID |
+| `$0D5A` | Route active flag |
+| `$0D5C` | Route subroutine return pointer |
+| `$0D60`–`$0D6A` | Companion array (6 words) |
+| `$0D6C` | Deferred scene auxiliary data |
+| `$0D6E` | Deferred destination scene (from sceneNext) |
+| `$0D6F` | Source scene (from sceneCurrent, set by scene_lifecycle) |
+
+---
+
+## 7. Cross-File Dependency Overview
+
+### External Callers (into bank $03)
+
+```
+system_core (bank $02)
+  ├── JSL GlobalInputHandler           per-frame UI input
+  ├── JSL ClearActorRenderList          clear sprite bucket array
+  ├── JSL RunActors_Normal              actor update pipeline
+  ├── JSL RunThinkers_TypeA–D           thinker update pipeline
+  ├── JSL SortActorsByDepth             depth sort
+  ├── JSL ComposeAllSprites             OAM build
+  ├── JSL RunCombatCollision            combat hit tests
+  ├── JSL RunInteractionCollision       NPC/object interaction
+  ├── JSL CheckSceneTransition          scene change pipeline
+  └── JSL DialogStringRenderer          text rendering (via COP)
+```
+
+### External Dependencies (from bank $03 outward)
+
+| External symbol | Bank | Called by |
+|----------------|------|----------|
+| `system_core.UpdateFrameDialogue` | `$02` | ItemUseEpilogue, GlobalInputHandler |
+| `inventory_overlay.OpenInventoryScreen` | `$02` | GlobalInputHandler (Select) |
+| `music_actors.IsMusicPlaying` | `$02` | GlobalInputHandler guard, melody handlers |
+| `vblank_joypad.VBlankWaitAndJoypad` | `$02` | GlobalInputHandler, radar screen |
+| `scene_script.SceneScriptMain` | `$02` | ClearSceneState |
+| `camera_tilemap.CameraFullRefresh` | `$02` | ClearSceneState |
+| `event_blocks.ApplyAllEventBlocks` | `$02` | ClearSceneState |
+| `binary_01C595` / `binary_01C695` | `$01` | mode7_perspective (sine/cosine tables) |
+| `templates_01CA95` | `$01` | DialogStringRenderer ($C2 InsertTemplate) |
+| `dictionary_01EBA8` / `dictionary_01F54D` | `$01` | DialogStringRenderer ($D6/$D7 dictionary) |
+| `itemcomp_table_01EB0F` | `$01` | ConsoleStringRenderer ($10 InsertItemName) |
+| `scene_actors` / `scene_thinkers` | `$0C` | actor_execution / thinker_execution spawning |
+
+---
+
+## 8. Notable Design Patterns
+
+**Stack-trampoline actor dispatch:** The `PHK`/`PEA`/`PHA`/`RTL` pattern in
+`actor_execution` and `thinker_execution` creates an indirect call that
+automatically returns to PostTick when the actor/thinker script yields. This
+avoids storing a callback pointer per slot.
+See [actor-thinker-runtime.md](actor-thinker-runtime.md).
+
+**PEA-based handler return:** `ItemUseDispatch` pushes `ItemUseEpilogue-1` before
+dispatching, so every handler's `RTS` returns to the shared cleanup code. The
+same trick chains `GlobalInputHandler`'s `PHP` through to the epilogue's `PLP`/`RTL`.
+See [field-input-and-items.md](field-input-and-items.md).
+
+**Axis-separated collision:** `tile_collision_physics` resolves X movement first,
+then Y, each independently checking leading-edge tiles and snapping to boundaries.
+This avoids diagonal corner-cutting artifacts.
+See [movement-and-collision.md](movement-and-collision.md).
+
+**Dual text engines:** `DialogStringRenderer` (wide-string, 16x16 glyphs, 25
+commands) and `ConsoleStringRenderer` (ASCII, 8x8 tiles, 18 commands) share the
+VRAM staging buffer at `$7F0200` but use completely independent bytecode formats,
+command tables, and rendering paths.
+See [text-and-menus.md](text-and-menus.md).
+
+**ClearSceneState orchestration:** The scene lifecycle's "big setup" function
+coordinates 10+ subsystems in a fixed order (script parse, camera, events,
+barriers, actors, thinkers, palettes, graphics, tilemap) to prepare a new scene.
+See [scene-and-hardware.md](scene-and-hardware.md).
+
+**Scene-gating pattern (item handlers):** Key/placement item handlers check
+`sceneCurrent` against a target value, verify the player's tile position, then
+gate the item activation. Failure prints a "can't use here" message without
+consuming the item.
+See [field-input-and-items.md](field-input-and-items.md).
+
+**Flute music actor state machine:** `FluteMusicActorController` manages a
+multi-phase lifecycle for melody items: suppress input, spawn SPC actors, hold
+player pose, poll completion, dispatch effect, restore BGM.
+See [field-input-and-items.md](field-input-and-items.md).
+
+---
+
+## 9. blocks.json Structure
+
+All 27 parts sourced from [`db-us/blocks.json`](../../../db-us/blocks.json).
+Per-block summary notes available at [`notes/blockNotes/bank03.json`](../../../notes/blockNotes/bank03.json).
+
+| Block key | Scene | Range | Type |
+|-----------|-------|-------|------|
+| `system.GlobalInputHandler` | engine | `$038000`–`$0380BF` | Code |
+| `system.radar_map_screen` | engine | `$0380BF`–`$038410` | Code |
+| `system.item_use_system` | inventory | `$038410`–`$03A0AA` | Code |
+| `sky_garden.garden_crash_cutscene` | sky_garden | `$03A0AA`–`$03A1FA` | actor-def |
+| `angkor_wat.future_vision_cutscene` | angkor_wat | `$03A1FA`–`$03A2F1` | actor-def |
+| `system.WorldMapController` | system | `$03A2F1`–`$03A6BA` | actor-def |
+| `prologue.IrisCircleEffect` | prologue | `$03A6BA`–`$03A83E` | thinker-def |
+| `system.HdmaWindowEffect` | system | `$03A83E`–`$03A940` | Code |
+| `thinkers.mode7_perspective` | thinkers | `$03A940`–`$03AB88` | thinker-def |
+| `unused.mode7_perspective_unused` | unused | `$03AB88`–`$03AD77` | Code |
+| `system.world_map_routes` | system | `$03AD77`–`$03B1D4` | &route-step |
+| `system.world_map_names` | system | `$03B1D4`–`$03B401` | map-label |
+| `system.world_map_options` | system | `$03B401`–`$03BAE1` | &Code |
+| `system.oam_digit_compose` | engine | `$03BAE1`–`$03BB85` | Code |
+| `system.combat_collision` | engine | `$03BB85`–`$03C5FF` | Code |
+| `system.sprite_composition` | engine | `$03C5FF`–`$03CAF5` | Code |
+| `system.actor_execution` | engine | `$03CAF5`–`$03D12D` | Code |
+| `system.thinker_execution` | engine | `$03D12D`–`$03D1F5` | Code |
+| `system.tile_collision_physics` | engine | `$03D1F5`–`$03D7E7` | Code |
+| `system.thinker_execution` | engine | `$03D7E7`–`$03D86A` | Code |
+| `system.sprite_composition` | engine | `$03D86A`–`$03D881` | Code |
+| `system.hdma_dma_spc` | engine | `$03D881`–`$03D916` | Code |
+| `system.save_system` | engine | `$03D916`–`$03D9E8` | Code |
+| `system.scene_lifecycle` | engine | `$03D9E8`–`$03E0B0` | Code |
+| `system.hdma_dma_spc` | engine | `$03E0B0`–`$03E255` | Code |
+| `system.DialogStringRenderer` | engine | `$03E255`–`$03E849` | Code |
+| `system.MenuSelectionHandler` | engine | `$03E849`–`$03EA62` | Code |
+| `system.ConsoleStringRenderer` | engine | `$03EA62`–`$03EF97` | Code |
+| `system.inventory_mgmt` | inventory | `$03EF97`–`$03F0CA` | Code |
+| `system.GetPlayerFacingDirection` | engine | `$03F0CA`–`$03F1D0` | Code |
+| `system.hdma_dma_spc` | engine | `$03F1D0`–`$03F201` | Code |
+
+---
+
+## 10. Source Files Reference
+
+27 `.asm` files across 5 directories. Files without `?BANK 03` are noted — they
+are still bank 3 by address range.
+
+| Source file | Block | Doc |
+|-------------|-------|-----|
+| [`GlobalInputHandler.asm`](../../../extracted/system/engine/GlobalInputHandler.asm) | `system.GlobalInputHandler` | [field-input-and-items](field-input-and-items.md) |
+| [`item_use_system.asm`](../../../extracted/system/inventory/item_use_system.asm) | `system.item_use_system` | [field-input-and-items](field-input-and-items.md) |
+| [`inventory_mgmt.asm`](../../../extracted/system/inventory/inventory_mgmt.asm) | `system.inventory_mgmt` | [field-input-and-items](field-input-and-items.md) |
+| [`GetPlayerFacingDirection.asm`](../../../extracted/system/engine/GetPlayerFacingDirection.asm) | `system.GetPlayerFacingDirection` | [field-input-and-items](field-input-and-items.md) |
+| [`radar_map_screen.asm`](../../../extracted/system/engine/radar_map_screen.asm) | `system.radar_map_screen` | [radar-and-world-map](radar-and-world-map.md) |
+| [`WorldMapController.asm`](../../../extracted/system/world_map/WorldMapController.asm) | `system.WorldMapController` | [radar-and-world-map](radar-and-world-map.md) |
+| [`HdmaWindowEffect.asm`](../../../extracted/system/world_map/HdmaWindowEffect.asm) | `system.HdmaWindowEffect` | [radar-and-world-map](radar-and-world-map.md) |
+| [`world_map_routes.asm`](../../../extracted/system/world_map/world_map_routes.asm) | `system.world_map_routes` | [radar-and-world-map](radar-and-world-map.md) |
+| [`world_map_names.asm`](../../../extracted/system/world_map/world_map_names.asm) | `system.world_map_names` | [radar-and-world-map](radar-and-world-map.md) |
+| [`world_map_options.asm`](../../../extracted/system/world_map/world_map_options.asm) | `system.world_map_options` | [radar-and-world-map](radar-and-world-map.md) |
+| [`mode7_perspective.asm`](../../../extracted/thinkers/mode7_perspective.asm) | `thinkers.mode7_perspective` | [mode7-and-cutscenes](mode7-and-cutscenes.md) |
+| [`mode7_perspective_unused.asm`](../../../extracted/unused/mode7_perspective_unused.asm) | `unused.mode7_perspective_unused` | [mode7-and-cutscenes](mode7-and-cutscenes.md) |
+| [`IrisCircleEffect.asm`](../../../extracted/prologue/prologue_prophecy/IrisCircleEffect.asm) | `prologue.IrisCircleEffect` | [mode7-and-cutscenes](mode7-and-cutscenes.md) |
+| [`garden_crash_cutscene.asm`](../../../extracted/sky_garden/garden_crash/garden_crash_cutscene.asm) | `sky_garden.garden_crash_cutscene` | [mode7-and-cutscenes](mode7-and-cutscenes.md) |
+| [`future_vision_cutscene.asm`](../../../extracted/angkor_wat/future_vision/future_vision_cutscene.asm) | `angkor_wat.future_vision_cutscene` | [mode7-and-cutscenes](mode7-and-cutscenes.md) |
+| [`actor_execution.asm`](../../../extracted/system/engine/actor_execution.asm) | `system.actor_execution` | [actor-thinker-runtime](actor-thinker-runtime.md) |
+| [`thinker_execution.asm`](../../../extracted/system/engine/thinker_execution.asm) | `system.thinker_execution` | [actor-thinker-runtime](actor-thinker-runtime.md) |
+| [`tile_collision_physics.asm`](../../../extracted/system/engine/tile_collision_physics.asm) | `system.tile_collision_physics` | [movement-and-collision](movement-and-collision.md) |
+| [`combat_collision.asm`](../../../extracted/system/engine/combat_collision.asm) | `system.combat_collision` | [movement-and-collision](movement-and-collision.md) |
+| [`sprite_composition.asm`](../../../extracted/system/engine/sprite_composition.asm) | `system.sprite_composition` | [sprite-rendering](sprite-rendering.md) |
+| [`oam_digit_compose.asm`](../../../extracted/system/engine/oam_digit_compose.asm) | `system.oam_digit_compose` | [sprite-rendering](sprite-rendering.md) |
+| [`DialogStringRenderer.asm`](../../../extracted/system/engine/DialogStringRenderer.asm) | `system.DialogStringRenderer` | [text-and-menus](text-and-menus.md) |
+| [`MenuSelectionHandler.asm`](../../../extracted/system/engine/MenuSelectionHandler.asm) | `system.MenuSelectionHandler` | [text-and-menus](text-and-menus.md) |
+| [`ConsoleStringRenderer.asm`](../../../extracted/system/engine/ConsoleStringRenderer.asm) | `system.ConsoleStringRenderer` | [text-and-menus](text-and-menus.md) |
+| [`scene_lifecycle.asm`](../../../extracted/system/engine/scene_lifecycle.asm) | `system.scene_lifecycle` | [scene-and-hardware](scene-and-hardware.md) |
+| [`hdma_dma_spc.asm`](../../../extracted/system/engine/hdma_dma_spc.asm) | `system.hdma_dma_spc` | [scene-and-hardware](scene-and-hardware.md) |
+| [`save_system.asm`](../../../extracted/system/engine/save_system.asm) | `system.save_system` | [scene-and-hardware](scene-and-hardware.md) |
+
+**Files without `?BANK 03`** (bank 3 by address only): `garden_crash_cutscene`,
+`future_vision_cutscene`, `IrisCircleEffect`, `HdmaWindowEffect`,
+`world_map_routes`, `mode7_perspective_unused`.
+
+---
+
+## 11. Related Resources
+
+- [COP Commands Reference](../../cop-commands-reference.md) — COP opcode definitions used throughout bank $03
+- [Actor Organization Analysis](../../actor-organization-analysis.md) — bank-wide actor classification
+- [Assembler Syntax](../../../../gaia-knowledge/curated/gaialabs/assembler-syntax.md) — `$&`/`$@` reference conventions
+- [Reference Model](../../../../gaia-knowledge/curated/gaialabs/reference-model.md) — `blocks.json` / `overrides.json` / `names.json` database triad
+- [Bank $02 Documentation](../bank02/index.md) — `system_core`, player character, movement physics (primary caller of bank $03)

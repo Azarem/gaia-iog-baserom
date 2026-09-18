@@ -4,7 +4,7 @@
 **Address range:** `$00B520`–`$00B7FE` (plus unused stubs through `$00B808`)  
 **Block type:** `thinker_def` — background processes running in parallel with actors  
 **Priority:** All thinkers in this family use priority `#08`  
-**Related:** [`bank00-upper-analysis.md`](../bank00-upper-analysis.md), [`thinkers-hdma.md`](thinkers-hdma.md), [`thinkers-system.md`](thinkers-system.md)
+**Related:** [`index.md`](index.md), [`thinkers-hdma.md`](thinkers-hdma.md), [`thinkers-system.md`](thinkers-system.md)
 
 Thinkers are COP-scripted background processes. The palette family drives ambient color animation via `PaletteRestart` / `PaletteStart` / `PaletteStep` COP commands, direct `$COLDATA` tint writes, and occasional child-thinker spawning. One-shot flashes are spawned by actor cutscene scripts for brief visual transitions.
 

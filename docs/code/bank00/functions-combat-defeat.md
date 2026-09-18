@@ -7,7 +7,7 @@
 
 This region implements the complete enemy death resolution pipeline: kill tracking, visual feedback, field tile reveals, dark point gem drops, and stat bonus rewards. Every standard field enemy routes through `StandardEnemyDefeatHandler` via the `$7F1004` OnDeath callback assigned in `chunk_03BAE1`.
 
-**Related:** [`actors-combat-interaction.md`](actors-combat-interaction.md) (stat reward actors, hit stagger) · [`bank00-upper-analysis.md`](../bank00-upper-analysis.md) §4.2
+**Related:** [`actors-combat-interaction.md`](actors-combat-interaction.md) (stat reward actors, hit stagger) · [`index.md`](index.md)
 
 ---
 
@@ -510,4 +510,4 @@ Used when the player lands a critical hit or when certain enemies take bonus dam
 
 ---
 
-*Source: `us/blocks.json`, `us/names.json`, `docs/code/bank00-upper-analysis.md`, `docs/code/bank00/actors-combat-interaction.md`.*
+*Source: `us/blocks.json`, `us/names.json`, `docs/code/bank00/actors-combat-interaction.md`.*
