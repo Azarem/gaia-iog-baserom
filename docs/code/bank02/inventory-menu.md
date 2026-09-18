@@ -109,8 +109,8 @@ $02F06A └─ ClearVramBufferPartial / Full ───────────�
 | `$02EAC0` | HideStatusActors | Removes the status-panel sprites from view when the player hovers or enters Use, Arrange, or Discard tabs. Walks the equipped-item display actor and the three linked ability-row actors, setting the hidden flag on each so only the 4×4 grid and equip cursor remain visible. Called to prevent the status portraits from overlapping the item-management layout. |
 | `$02EAF7` | ShowEquipCursor | Makes the equip cursor visible on the 4×4 grid when an item is currently worn. If `inventory_equipped_index` is `$FFFF` (nothing equipped), delegates to `HideEquipCursor` instead. Called when entering Use tab or hovering tabs that show the grid, so the player always sees which slot holds the equipped item. |
 | `$02EB0B` | HideEquipCursor | Hides equip cursor actor via flag bit `$2000`. |
-| `$02EB1A` | HideAllItemSlots | Switches to list mode: hides all 16 slot icon sprites. Guarded — only runs when menu flag `$1000` is clear. |
-| `$02EB45` | ShowAllItemSlots | Switches to grid mode: shows all 16 slot icons. Guarded — only when `$1000` is set. |
+| `$02EB1A` | ShowAllItemSlots | Switches to grid mode: shows all 16 slot icons by clearing `$2000` on each slot actor. Guarded — only runs when menu flag `$1000` is clear (slots currently hidden). |
+| `$02EB45` | HideAllItemSlots | Switches to list mode: hides all 16 slot icon sprites by setting `$2000` on each slot actor. Guarded — only runs when `$1000` is set (slots currently shown). |
 | `$02EB70` | ComputeSlotPosition | Places each of the 16 item slot icons on the 4×4 grid during menu init. Uses the spawn counter in `$0AFA` (decremented to 0-based) to index `SlotPositionTable`, which stores precomputed X/Y pairs for columns `$5C`/`$74`/`$8C`/`A4` and rows Y = `$31`/`$41`/`$51`/`$61`. Writes the result to the spawning slot actor so icons appear in the correct grid cell. |
 | `$02EB86` | SlotPositionTable | 16 XY pairs for item slot positions on 4×4 grid. Columns `$5C/$74/$8C/$A4`, rows Y=`$31/$41/$51/$61`. |
 | `$02EBC6` | YesNoPromptLoop | Yes/No dialog input loop with blinking cursor. Returns carry set on confirm. |
@@ -801,15 +801,15 @@ Makes the equip cursor visible on the 4×4 grid when an item is currently worn. 
 |--------|--------------|
 | `HideEquipCursor` | BMI branch |
 
-### HideAllItemSlots
+### ShowAllItemSlots
 
-Switches to list mode: hides all 16 slot icon sprites. Guarded — only runs when menu flag `$1000` is clear.
+Switches to grid mode: shows all 16 slot icons by clearing `$2000` on each slot actor. Guarded — only runs when menu flag `$1000` is clear (slots currently hidden).
 
 **Algorithm:**
-1. If `$10` bit `$1000` set → RTS
+1. If `$10` bit `$1000` set → RTS (already showing)
 2. Set `$1000` on menu actor
 3. Walk 16 slot actors via `$0006` chain
-4. AND `#$DFFF` on each slot `$0010`
+4. AND `#$DFFF` on each slot `$0010` (clear `$2000` → visible)
 
 
 **Variables:**
@@ -821,17 +821,17 @@ Switches to list mode: hides all 16 slot icon sprites. Guarded — only runs whe
 **Cross-References:**
 | Symbol | Relationship |
 |--------|--------------|
-| `ShowAllItemSlots` | Inverse |
+| `HideAllItemSlots` | Inverse |
 | `TabHoverUse` | Caller |
 
-### ShowAllItemSlots
+### HideAllItemSlots
 
-Switches to grid mode: shows all 16 slot icons. Guarded — only when `$1000` is set.
+Switches to list mode: hides all 16 slot icon sprites by setting `$2000` on each slot actor. Guarded — only runs when `$1000` is set (slots currently shown).
 
 **Algorithm:**
-1. If `$1000` clear → RTS
+1. If `$1000` clear → RTS (already hidden)
 2. Clear `$1000`
-3. Walk slot list, ORA `$2000` on each (show)
+3. Walk slot list, ORA `$2000` on each (hide)
 
 
 **Variables:**
@@ -842,7 +842,7 @@ Switches to grid mode: shows all 16 slot icons. Guarded — only when `$1000` is
 **Cross-References:**
 | Symbol | Relationship |
 |--------|--------------|
-| `HideAllItemSlots` | Inverse |
+| `ShowAllItemSlots` | Inverse |
 | `TabHoverStatus` | Caller |
 
 ### ComputeSlotPosition

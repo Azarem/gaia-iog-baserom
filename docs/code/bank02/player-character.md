@@ -129,10 +129,21 @@ player_character.asm
 | 1 | `$0002` | Attack in progress (combo state) |
 | 3 | `$0008` | Player disabled / dead |
 | 4 | `$0010` | Terrain shake active |
-| 8 | `$0800` | Ability FX active (Aura/charge) |
 | 9 | `$0200` | Blocked movement flag |
+| 11 | `$0800` | Ability FX active (Aura/charge) |
 | 12 | `$1000` | On-slope flag (set by ramp physics) |
-| 14 | `$8000` | Damage state / hitstun |
+| 13 | `$2000` | Special action lock (ability/climb) |
+| 15 | `$8000` | Damage state / hitstun |
+
+**Composite masks** used as combined flag tests throughout the attack and movement code:
+
+| Mask | Hex | Meaning |
+|------|-----|---------|
+| combo | `$0A00` | Ability FX + blocked movement (`$0800 \| $0200`) |
+| combo | `$2A00` | Movement-blocking composite (`$2000 \| $0800 \| $0200`) |
+| combo | `$2B00` | Movement + action blocking composite |
+| combo | `$3000` | Both movement blocks (`$2000 \| $1000`) |
+| combo | `$3A00` | Extended movement block (`$2000 \| $1000 \| $0800 \| $0200`) |
 
 ### Ability System (`$0AD4` + `$0AA2`)
 
@@ -151,7 +162,7 @@ player_character.asm
 | 5 | `$0020` | Freedan | Aura Barrier |
 | 6 | `$0040` | Freedan/Shadow | Earthquaker (vine drop-attack) |
 
-**Charge timing:** Will abilities charge **28 frames**; Freedan/Shadow charge **40 frames**. L/R shoulder buttons during charge select alternate abilities (Slider vs Dash; Aura vs Dark Friar).
+**Charge timing:** Both Will and Freedan/Shadow share a **40-frame initial hold** (`#$28`). After the initial hold, Will has a **120-frame** extended charge window (`#$0078`) and Freedan/Shadow has **100 frames** (`#$0064`). L/R shoulder buttons during charge select alternate abilities (Slider vs Dash; Aura vs Dark Friar).
 
 ---
 

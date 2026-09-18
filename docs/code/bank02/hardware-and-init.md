@@ -51,7 +51,7 @@ $02A040 └─ (music_actors continues) ─────────────�
 ### MulDivide
 
 
-Performs a **16×8 multiply followed by an 8-bit divide** using the SNES hardware math unit at `$4202`–`$4217`. The routine computes `(A × Y) ÷ A_high`, returning the 16-bit quotient in `A`. The low byte of the 16-bit `A` input becomes the 8-bit multiplicand written to `$WRMPYA`; the high byte of `A` (saved on the stack) becomes the 8-bit divisor written to `$WRDIVB` after the 24-bit product is assembled in `$WRDIVL`/`$WRDIVH`. This is the bank `$02` counterpart to the movement math in bank `$00` (`MultiplyThenDivide`), but with a different register layout: callers pass a 16-bit scale factor in `A` and a 16-bit operand in `Y`. The eight `NOP` instructions after writing `$WRDIVB` provide the mandatory pipeline delay before reading `$RDDIVL`. Used for camera scroll delta computation (`ComputeScrollDeltas` in [`camera_scroll.asm`](../../../extracted/system/engine/camera_scroll.asm)), parallax scrolling (`parallax_thinker.asm`), and visual-effect coordinate scaling (`visual_effect_pipeline.asm`).
+Performs a **16×8 multiply followed by an 8-bit divide** using the SNES hardware math unit at `$4202`–`$4217`. The routine computes `(A_low × Y) ÷ A_high`, returning the 16-bit quotient in `A`. The low byte of the 16-bit `A` input becomes the 8-bit multiplicand written to `$WRMPYA`; the high byte of `A` (saved on the stack) becomes the 8-bit divisor written to `$WRDIVB` after the 24-bit product is assembled in `$WRDIVL`/`$WRDIVH`. This is the bank `$02` counterpart to the movement math in bank `$00` (`MultiplyThenDivide`), but with a different register layout: callers pass a 16-bit scale factor in `A` (low = multiplicand, high = divisor) and a 16-bit operand in `Y`. The eight `NOP` instructions after writing `$WRDIVB` provide the mandatory pipeline delay before reading `$RDDIVL`. Used for camera scroll delta computation (`ComputeScrollDeltas` in [`camera_scroll.asm`](../../../extracted/system/engine/camera_scroll.asm)), parallax scrolling (`parallax_thinker.asm`), and visual-effect coordinate scaling (`visual_effect_pipeline.asm`).
 
 **Algorithm:**
 
@@ -894,9 +894,9 @@ LzReadBackRef {
 | Address | Name | Description |
 |---------|------|-------------|
 | `$029DE2` | UploadCgramPalette | Uploads the **512-byte CGRAM palette** from WRAM `$7F:0A00` to the PPU color generator via DMA channel 0, then writes... |
-| `$029E1D` | UploadOamTable | Uploads the **544-byte OAM (sprite) table** from ROM `$00:0422` to PPU OAM via DMA channel 0. |
+| `$029E1D` | UploadOamTable | Uploads the **544-byte OAM (sprite) table** from WRAM `$00:0422` to PPU OAM via DMA channel 0. |
 | `$029E44` | InitSystemVariables | Performs **cold-start WRAM initialization** in two phases. |
-| `$029E85` | system_init_constants | A **33-entry initialization table** of `(WRAM address, value)` word pairs used by `InitSystemVariables`. |
+| `$029E85` | system_init_constants | A **34-entry initialization table** of `(WRAM address, value)` word pairs used by `InitSystemVariables`. |
 | `$029F0F` | DmaFixedByteFill | Performs a **fixed-byte DMA fill** of WRAM using DMA channel 0 in fill mode (`$DMAP0 = $08`). |
 | `$029F31` | InitHardwareRegisters | Loads **PPU and system register defaults** from the `ppu_register_init_table` during cold start. |
 | `$029F4E` | cache_slot_indices | A **4-entry lookup table** of 32-bit slot indices (`0`, `1`, `2`, `3`) used by the scene graphics VRAM ring-buffer ca... |
@@ -968,7 +968,7 @@ UploadCgramPalette {
 ### UploadOamTable
 
 
-Uploads the **544-byte OAM (sprite) table** from ROM `$00:0422` to PPU OAM via DMA channel 0. Configures DMA in word mode with destination `$2104` (OAM data write port), transfer size `$0220` (544 bytes = 128 sprites × 4 bytes + 32-byte extension). Called from `SystemInit` during the main loop's sprite composition phase to DMA the composed OAM buffer to the PPU each frame.
+Uploads the **544-byte OAM (sprite) table** from WRAM `$00:0422` to PPU OAM via DMA channel 0. Configures DMA in word mode with destination `$2104` (OAM data write port), transfer size `$0220` (544 bytes = 128 sprites × 4 bytes + 32-byte extension). Called from `SystemInit` during the main loop's sprite composition phase to DMA the composed OAM buffer to the PPU each frame. (Address `$00:0422` is in low WRAM — the OAM shadow buffer composed by the engine each frame.)
 
 **Algorithm:**
 
@@ -1006,7 +1006,7 @@ UploadOamTable {
 
 | Location | Direction | Role |
 |----------|-----------|------|
-| `$00:0422` | Read (DMA) | OAM table source in WRAM |
+| `$00:0422` | Read (DMA) | OAM shadow buffer in WRAM |
 | `$OAMADDL` | Write | OAM address latch |
 | DMA channel 0 | Config | `$4300`–`$4305` |
 
@@ -1076,7 +1076,7 @@ InitSystemVariables {
 |----------|-----------|------|
 | `$WMADDL` / `$WMADDH` | Write | WRAM DMA destination address |
 | `$0200`–`$FFFF` | Write (via DMA) | Bulk zero-fill target |
-| `system_init_constants` | Read | 33-entry init table |
+| `system_init_constants` | Read | 34-entry init table |
 | `Y` | Temp | Target WRAM address for each constant |
 
 **Cross-References:**
@@ -1090,7 +1090,7 @@ InitSystemVariables {
 ### system_init_constants
 
 
-A **33-entry initialization table** of `(WRAM address, value)` word pairs used by `InitSystemVariables`. Each entry is 4 bytes: a 16-bit WRAM address followed by a 16-bit initial value. The loop terminates when the address word has bit 15 set (`BMI` on the loaded address). Entries initialize scroll/camera parameters (`$069E`–`$06B8`), scene meta pointers (`$003A`/`$003C` → `scene_meta`), joypad remapping masks (`$0DA6`–`$0DB4`), default joypad state (`$005E`–`$0062`), graphics cache indices (`$0648`/`$064A`), and various gameplay flags (`$0402`, `$0406`, `$0AC4`, `$0B04`, `$0B14`).
+A **34-entry initialization table** of `(WRAM address, value)` word pairs used by `InitSystemVariables`. Each entry is 4 bytes: a 16-bit WRAM address followed by a 16-bit initial value. The loop terminates when the address word has bit 15 set (`BMI` on the loaded address). Entries initialize scroll/camera parameters (`$069E`–`$06B8`), scene meta pointers (`$003A`/`$003C` → `scene_meta`), joypad remapping masks (`$0DA6`–`$0DB4`), default joypad state (`$005E`–`$0062`), graphics cache indices (`$0648`/`$064A`), and various gameplay flags (`$0402`, `$0406`, `$0AC4`, `$0B04`, `$0B14`).
 
 **Algorithm:**
 

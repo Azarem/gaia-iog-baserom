@@ -78,11 +78,17 @@ $02C38C ├───────────────────────
 $02CFD0 ├═══════════════════════════════════════════════════┤
         │ player_move_main (pt1) [PlayerMovementTick]        │ 104 B
 $02D038 ├───────────────────────────────────────────────────┤
-        │ player_move_ns         [DispatchSouthMove]         │ 526 B
+        │ player_move_ns         [DispatchNorthMove]         │ 526 B
 $02D246 ├───────────────────────────────────────────────────┤
         │ player_move_main (pt2) [ComputeYSnapOffset]        │ 304 B
 $02D376 ├───────────────────────────────────────────────────┤
-        │ player_move_east       [DispatchEastMove]          │ 2,052 B
+        │ player_move_south      [DispatchSouthMove]         │ 870 B
+$02D6DC ├───────────────────────────────────────────────────┤
+        │ player_move_east (pt1) [DispatchEastMove]          │ 359 B
+$02D843 ├───────────────────────────────────────────────────┤
+        │ player_move_ramps      [EastRampDown]              │ 650 B
+$02DACD ├───────────────────────────────────────────────────┤
+        │ player_move_east (pt2) [AutoAlignNS_East]          │ 179 B
 $02DB80 ├───────────────────────────────────────────────────┤
         │ player_move_diag       [DispatchDiagDownLeft]      │ 1,410 B
 $02E102 ├───────────────────────────────────────────────────┤
@@ -377,8 +383,9 @@ player_character (player actor spawn chain)
 
 PlayerMoveController
   └─ JSL → PlayerMovementTick                             ← player_move_main
-           ├─ JSR → DispatchSouthMove / NorthWallHandler  ← player_move_ns
-           ├─ JSR → DispatchEastMove / DispatchWestMove   ← player_move_east
+           ├─ JSR → DispatchNorthMove / NorthWallHandler  ← player_move_ns
+           ├─ JSR → DispatchSouthMove                     ← player_move_south
+           ├─ JSR → DispatchEastMove                      ← player_move_east
            ├─ JSR → DispatchDiagDownLeft / DiagRamp*      ← player_move_diag
            └─ JSR → TileProbeMain, ReadCollisionNibble    ← tile_collision
 
@@ -475,10 +482,12 @@ Bank 02 blocks are organized under three top-level categories:
 | `warps_interaction` | `engine` | `$02A5DD`–`$02AB8A` | Code | 1 |
 | `camera_tilemap` | `engine` | `$02AB8A`–`$02B0A3` | Code | 1 |
 | `map_coords` | `engine` | `$02B0A3`–`$02B20E` | Code | 1 |
-| `player_move_main` | `engine` | `$02CFD0`–`$02D376` | Code | 2 |
-| `player_move_ns` | `engine` | `$02D038`–`$02D246` | Code | 1 |
-| `player_move_east` | `engine` | `$02D376`–`$02DB80` | Code | 1 |
-| `player_move_diag` | `engine` | `$02DB80`–`$02E102` | Code | 1 |
+| `player_move_main` | `player` | `$02CFD0`–`$02D376` | Code | 2 |
+| `player_move_ns` | `player` | `$02D038`–`$02D246` | Code | 1 |
+| `player_move_south` | `player` | `$02D376`–`$02D6DC` | Code | 1 |
+| `player_move_east` | `player` | `$02D6DC`–`$02DB80` | Code | 2 |
+| `player_move_ramps` | `player` | `$02D843`–`$02DACD` | Code | 1 |
+| `player_move_diag` | `player` | `$02DB80`–`$02E102` | Code | 1 |
 | `inventory_menu` | `inventory` | `$02E396`–`$02ED02` | actor_def | 1 |
 
 ### Actors (`actors.*`)
@@ -528,9 +537,9 @@ All 29 bank 02 ASM files in ROM address order:
 | `player_character.asm` | `extracted/actors/player/` | `player_character` |
 | `player_move_main.asm` | `extracted/system/player/` | `player_move_main` |
 | `player_move_ns.asm` | `extracted/system/player/` | `player_move_ns` |
-| `player_move_south.asm` | `extracted/system/player/` | — |
+| `player_move_south.asm` | `extracted/system/player/` | `player_move_south` |
 | `player_move_east.asm` | `extracted/system/player/` | `player_move_east` |
-| `player_move_ramps.asm` | `extracted/system/player/` | — |
+| `player_move_ramps.asm` | `extracted/system/player/` | `player_move_ramps` |
 | `player_move_diag.asm` | `extracted/system/player/` | `player_move_diag` |
 | `tile_collision.asm` | `extracted/system/player/` | `tile_collision` |
 | `inventory_menu.asm` | `extracted/system/inventory/` | `inventory_menu` |

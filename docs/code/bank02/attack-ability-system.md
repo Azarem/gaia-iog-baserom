@@ -30,7 +30,7 @@ AttackSystemEntry
 | `1` | Freedan | `FreedanAttackDispatch` | Dark Friar / Aura Barrier |
 | `2+` | Shadow | *(immediate RTL)* | — |
 
-Ability availability is gated by `$0AA2`: Will needs bit 0 (`$0001`) for basic attack and bit 2 (`$0004`) for Slider; Freedan needs bit 6 (`$0040`) for basic attack, bit 4 (`$0010`) for Dark Friar, and bit 5 (`$0020`) for Aura Barrier.
+Ability availability is gated by `$0AA2`: Will's dispatch requires bit 0 (`$0001`, basic attack) or bit 2 (`$0004`, Psycho Slider); Freedan's dispatch requires bit 4 (`$0010`, Dark Friar) or bit 6 (`$0040`, Earthquaker) — without either, the dispatch returns immediately without attacking. Aura Barrier additionally requires bit 5 (`$0020`).
 
 **Two-phase charge model:** Both characters share a **40-frame initial hold** (`LoopInit #28`). Only after that threshold does the extended-charge window open — **120 frames** (`$0078`) for Will, **100 frames** (`$0064`) for Freedan. During extended charge, L/R shoulder input selects the alternate special; releasing the attack button fires the default special (Dash or Dark Friar). Validation helpers (`ValidateAttackReady`, `CheckAttackChargeable`) block charging during hitstun, death, or mid-combo.
 
@@ -178,7 +178,7 @@ Called each frame by `AuraOrbitalSpawner` during both expand and shrink phases. 
 
 ### AuraProjectileChild
 
-Individual orbiting energy sprite spawned by `AuraOrbitalSpawner`. Plays a two-frame spawn-in sequence then loops frame #02 while the parent updates its world position each frame. In scene `$DD` (Dark Space) it adjusts sprite priority for correct layering. The `AuraProjectileShrink` entry point plays the spawn sequence in reverse and marks the actor for deferred removal when the barrier ends.
+Individual orbiting energy sprite spawned by `AuraOrbitalSpawner`. Plays a two-frame spawn-in sequence then loops frame #02 while the parent updates its world position each frame. In scene `$DD` (Mummy Queen's Lair) it adjusts sprite priority for correct layering. The `AuraProjectileShrink` entry point plays the spawn sequence in reverse and marks the actor for deferred removal when the barrier ends.
 
 #### Dark Friar Chain
 

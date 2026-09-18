@@ -589,15 +589,6 @@ extract → edit .asm / patches → rebuild → test in Mesen2
 
 ---
 
-## Deprecated Documents
-
-These older documents have been superseded by the current documentation suite:
-
-| Document | Superseded By |
-|----------|--------------|
-| [bank2-code-analysis.md](bank2-code-analysis.md) | [Bank $02 suite](bank02/) |
-| [bank2-actors-and-menus.md](bank2-actors-and-menus.md) | [Bank $02 suite](bank02/) |
-
 ---
 
 <p align="center">

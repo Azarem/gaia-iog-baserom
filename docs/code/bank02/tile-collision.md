@@ -74,10 +74,10 @@ The most-called subroutines in the player movement system. Every directional han
 | `$02E285` | ProbeFutureBL | ProbeFutureBL probes the bottom-left corner at the future position. |
 | `$02E2AF` | TileProbeMain | TileProbeMain is the master tile collision probe — the central lookup invoked by every corner probe and cascade routine. |
 | `$02E2FC` | ReadCollisionNibble | ReadCollisionNibble reads the collision type for map cell index X from the runtime overlay at $7FC000. |
-| `$02E313` | MapCellRight | MapCellRight advances the map cell index in $00 one cell to the right. |
-| `$02E32B` | MapCellLeft | MapCellLeft moves the cell index at $00 one cell left. |
-| `$02E343` | MapCellDown | MapCellDown moves the cell index at $00 one row down. |
-| `$02E35D` | MapCellUp | MapCellUp moves the cell index at $00 one row up. |
+| `$02E313` | MapCellDown | MapCellDown moves the cell index at $00 one row down. |
+| `$02E32B` | MapCellUp | MapCellUp moves the cell index at $00 one row up. |
+| `$02E343` | MapCellRight | MapCellRight advances the map cell index in $00 one cell to the right. |
+| `$02E35D` | MapCellLeft | MapCellLeft moves the cell index at $00 one cell left. |
 | `$02E37C` | CheckSubTileAlignX | CheckSubTileAlignX tests whether probe X coordinate $1A is aligned to a 16-pixel tile boundary. |
 | `$02E389` | CheckSubTileAlignY | CheckSubTileAlignY tests whether probe Y coordinate $1E is aligned to a 16-pixel tile boundary. |
 
@@ -509,6 +509,54 @@ For valid indices, reads `$7FC000,X`. If the high nibble (bits `$F0`) is non-zer
 | `MapCellRight/Left/Down/Up` | Cascade callers |
 | COP collision handlers | Writers of high nibble overlay |
 
+### MapCellDown
+
+`MapCellDown` moves the cell index at `$00` one row down. Increments the low byte; if the column nibble wraps (`$0F` → `$00`), increments the high byte and adds `$F0` for row alignment.
+
+**Algorithm:**
+
+| Step | Action |
+|------|--------|
+| 1 | Increment low byte of `$00` |
+| 2 | If column nibble ≠ wrap: return |
+| 3 | High byte++; low byte += `$F0` |
+
+**Variables:**
+
+| Location | Direction | Role |
+|----------|-----------|------|
+| `$00` | In/Out | Map cell index |
+
+**Cross-References:**
+
+| Symbol | Relationship |
+|--------|--------------|
+| `MapIndexMoveDown` | Parallel in map_coords |
+
+### MapCellUp
+
+`MapCellUp` moves the cell index at `$00` one row up. Decrements the low byte; if the column nibble underflows to `$0F`, decrements the high byte and subtracts `$F0`.
+
+**Algorithm:**
+
+| Step | Action |
+|------|--------|
+| 1 | Decrement low byte |
+| 2 | If nibble ≠ `$0F`: return |
+| 3 | High byte--; low byte −= `$F0` |
+
+**Variables:**
+
+| Location | Direction | Role |
+|----------|-----------|------|
+| `$00` | In/Out | Map cell index |
+
+**Cross-References:**
+
+| Symbol | Relationship |
+|--------|--------------|
+| `MapIndexMoveUp` | Parallel in map_coords |
+
 ### MapCellRight
 
 `MapCellRight` advances the map cell index in `$00` one cell to the right. Adds `$10` to the low byte; on carry (page boundary), adds map width `$0693` to the high byte. Returns updated index in X.
@@ -561,54 +609,6 @@ Operates on the cell index format established by `TileProbeMain` / `func_03D78A`
 |--------|--------------|
 | `MapIndexMoveLeft` | Parallel in map_coords |
 | `CombinedProbe_Unused` | Fallback probe path |
-
-### MapCellDown
-
-`MapCellDown` moves the cell index at `$00` one row down. Increments the low byte; if the column nibble wraps (`$0F` → `$00`), increments the high byte and adds `$F0` for row alignment.
-
-**Algorithm:**
-
-| Step | Action |
-|------|--------|
-| 1 | Increment low byte of `$00` |
-| 2 | If column nibble ≠ wrap: return |
-| 3 | High byte++; low byte += `$F0` |
-
-**Variables:**
-
-| Location | Direction | Role |
-|----------|-----------|------|
-| `$00` | In/Out | Map cell index |
-
-**Cross-References:**
-
-| Symbol | Relationship |
-|--------|--------------|
-| `MapIndexMoveDown` | Parallel in map_coords |
-
-### MapCellUp
-
-`MapCellUp` moves the cell index at `$00` one row up. Decrements the low byte; if the column nibble underflows to `$0F`, decrements the high byte and subtracts `$F0`.
-
-**Algorithm:**
-
-| Step | Action |
-|------|--------|
-| 1 | Decrement low byte |
-| 2 | If nibble ≠ `$0F`: return |
-| 3 | High byte--; low byte −= `$F0` |
-
-**Variables:**
-
-| Location | Direction | Role |
-|----------|-----------|------|
-| `$00` | In/Out | Map cell index |
-
-**Cross-References:**
-
-| Symbol | Relationship |
-|--------|--------------|
-| `MapIndexMoveDown` | Inverse navigation |
 
 ## See Also
 

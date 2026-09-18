@@ -225,7 +225,7 @@ Tier 1 applies to all cached commands (`LoadBgTiles`, `LoadTilemap`, `LoadSprite
 | `$028E6F` | GraphicsCacheLookup | Scans 4 cached source pointer slots at `$0084`–`$008F` (each 3 bytes: addr + bank) for a match against the current `$3E`/`$40`. |
 | `$028E94` | GraphicsCacheStore | Writes the current source pointer `$3E`/`$40` into the round-robin graphics cache at `$0084`–`$008F`. |
 | `$028EB8` | SaveVramToRingBuffer | Reads VRAM content back into the ring buffer at `$7F:4000+` via `DmaVramToRam`, preserving uploaded tile data for future cache hits. |
-| `$028F18` | DmaVramToRam | Performs a VRAM-to-RAM DMA read-back using HDMA channel 0. |
+| `$028F18` | DmaVramToRam | Performs a VRAM-to-RAM DMA read-back using DMA channel 0. |
 | `$028F43` | ComputeRingBufferAddr | Computes the WRAM ring-buffer address for the current cache slot index in `$0094`. |
 | `$028F53` | RestoreCachedVram | Restores previously saved VRAM tile data from the ring buffer back to VRAM. |
 | `$028FA7` | DmaWramToVram | DMAs data from WRAM bank `$7F` to VRAM. |
@@ -891,7 +891,7 @@ Compares the current source pointer at `$3E`/`$40` against a cached `(addr, bank
 
 ### DmaRomToWram
 
-Transfers data from ROM (or any source at `$3E`/`$40`) to a WRAM destination at `$42`/`$44`. If the source bank is ≥ `$80` and the address is ≥ `$8000`, uses HDMA channel 0 to transfer to `$2181` (WRAM bus). Otherwise falls back to the `$0402` MVN block-copy routine for low-memory sources. Transfer size is `$0666 - $0664`; source offset is `$3E + $0664`; destination is `$42 + $0668`. Handles bank `$7F` WRAM destination with proper `$2183` data bank setup.
+Transfers data from ROM (or any source at `$3E`/`$40`) to a WRAM destination at `$42`/`$44`. If the source bank is ≥ `$80` and the address is ≥ `$8000`, uses DMA channel 0 to transfer to `$2181` (WRAM bus). Otherwise falls back to the `$0402` MVN block-copy routine for low-memory sources. Transfer size is `$0666 - $0664`; source offset is `$3E + $0664`; destination is `$42 + $0668`. Handles bank `$7F` WRAM destination with proper `$2183` data bank setup.
 
 **Algorithm:**
 
@@ -957,7 +957,7 @@ Reads VRAM content back into the ring buffer at `$7F:4000+` via `DmaVramToRam`, 
 
 ### DmaVramToRam
 
-Performs a VRAM-to-RAM DMA read-back using HDMA channel 0. Transfer size in `A` (set to `$4305`). Destination address computed by `ComputeRingBufferAddr`. Source is VRAM via `$2139` (VRAM read port). Fixed destination bank `$7F` via `$4304`. Uses `$4300 = $81` (reverse direction: VRAM→CPU) and `$4301 = $39` for the VRAM source increment mode.
+Performs a VRAM-to-RAM DMA read-back using DMA channel 0. Transfer size in `A` (set to `$4305`). Destination address computed by `ComputeRingBufferAddr`. Source is VRAM via `$2139` (VRAM read port). Fixed destination bank `$7F` via `$4304`. Uses `$4300 = $81` (reverse direction: VRAM→CPU) and `$4301 = $39` for the VRAM source increment mode.
 
 ### RestoreCachedVram
 
