@@ -1,3 +1,8 @@
+; Spriteset definitions for the Aura Barrier shield effect.
+; 
+; 4 animation frames for the rotating barrier sprites that surround the player during Aura ability use.
+---------------------------------------------
+
 ?BANK 17
 
 ---------------------------------------------

@@ -1,3 +1,8 @@
+; Spriteset for interactive town objects.
+; 
+; Sprites for doors, switches, and other common interactive elements in town scenes.
+---------------------------------------------
+
 ?BANK 14
 
 ---------------------------------------------

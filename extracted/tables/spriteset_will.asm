@@ -1,3 +1,8 @@
+; Full spriteset definitions for Will character sprites.
+; 
+; Walking, idle, attack, flute-play, and climbing animation frames for all 4 cardinal directions. The primary player character spriteset.
+---------------------------------------------
+
 ?BANK 15
 
 ---------------------------------------------

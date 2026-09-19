@@ -1,0 +1,3 @@
+{
+    "inventory_spritemap": "Sprite tile map data for the inventory/status screen UI elements.\n\nContains OAM layouts for item icons, cursor sprites, tab indicators,\nand equipment display. Referenced by inventory_menu and related UI actors."
+}

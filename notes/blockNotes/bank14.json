@@ -1,0 +1,6 @@
+{
+    "spriteset_field_fx": "Spriteset for miscellaneous field visual effects.\n\nSmall set with 4 sprite groups used for non-combat environmental particles.",
+    "spriteset_particle_fx": "Spriteset for small particle effects.\n\nMinimal sprite groups for sparkles, dust, and other lightweight ambient particles.",
+    "spriteset_shadow": "Full spriteset definitions for Shadow character sprites.\n\nWalking, idle, attack, and liquify animation frames for all directions. Includes Shadow's unique morph poses.",
+    "spriteset_town_objects": "Spriteset for interactive town objects.\n\nSprites for doors, switches, and other common interactive elements in town scenes."
+}

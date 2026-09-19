@@ -1,0 +1,8 @@
+{
+    "spriteset_aura": "Spriteset definitions for the Aura Barrier shield effect.\n\n4 animation frames for the rotating barrier sprites that surround the player during Aura ability use.",
+    "spriteset_dark_friar": "Spriteset definitions for the Dark Friar projectile and impact effects.\n\nSprite groups for Freedan's ranged attack including fireball travel frames and hit splash.",
+    "spriteset_freedan_fx": "Spriteset for Freedan-specific visual effects (sword trails, charge flashes).\n\nAttack trail sprites and Dark Friar launch effects overlaid on Freedan during combat.",
+    "spriteset_shadow_fx": "Spriteset for Shadow-specific visual effects.\n\nAttack trail sprites and liquify transformation overlays.",
+    "spriteset_shadow_mode": "Spriteset for Shadow's special mode sprites.\n\nAdditional animation frames used during Shadow's unique movement and combat modes.",
+    "spriteset_will_projectile": "Spriteset for Will's Psycho Dash and Psycho Slide projectile sprites.\n\nTrail effect frames and impact sprites for Will's ranged abilities."
+}

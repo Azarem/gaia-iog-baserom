@@ -1,3 +1,8 @@
+; Spriteset for miscellaneous field visual effects.
+; 
+; Small set with 4 sprite groups used for non-combat environmental particles.
+---------------------------------------------
+
 ?BANK 14
 
 ---------------------------------------------

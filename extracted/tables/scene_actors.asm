@@ -1,3 +1,9 @@
+; Per-scene actor spawn lists indexed by scene ID.
+; 
+; Each scene entry defines which actors spawn, their initial positions, sprite assignments,
+; and behavior flags. Read by SpawnSceneActors during scene transitions.
+---------------------------------------------
+
 ?INCLUDE 'av69_erik'
 ?INCLUDE 'av69_kara'
 ?INCLUDE 'av69_lance'

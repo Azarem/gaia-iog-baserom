@@ -1,3 +1,8 @@
+; Spriteset for small particle effects.
+; 
+; Minimal sprite groups for sparkles, dust, and other lightweight ambient particles.
+---------------------------------------------
+
 ?BANK 14
 
 ---------------------------------------------

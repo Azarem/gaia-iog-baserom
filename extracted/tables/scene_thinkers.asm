@@ -1,3 +1,10 @@
+; Per-scene thinker spawn lists indexed by scene ID.
+; 
+; Each scene entry defines which background AI thinkers (palette cyclers,
+; HDMA effects, ambient handlers) spawn when the scene loads.
+; Read by SpawnSceneThinkers during scene transitions.
+---------------------------------------------
+
 ?BANK 0C
 
 ?INCLUDE 'ambient_palette_cycler'

@@ -1,0 +1,3 @@
+{
+    "ActorDisplayModeSwap": "Utility JSL that swaps an actor from display mode $2000 to $1000.\n\nSaves the low nibble of displayModeFlags ($0E) into scratch $24,\nforces $0E = $2000, clears $2000 in statusWord ($10), and sets\n$1000 in statusWord. Used by actors transitioning from spawned\ndisplay state to an active rendering state."
+}

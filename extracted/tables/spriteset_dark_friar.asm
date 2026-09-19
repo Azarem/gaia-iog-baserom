@@ -1,3 +1,8 @@
+; Spriteset definitions for the Dark Friar projectile and impact effects.
+; 
+; Sprite groups for Freedan's ranged attack including fireball travel frames and hit splash.
+---------------------------------------------
+
 ?BANK 17
 
 ---------------------------------------------

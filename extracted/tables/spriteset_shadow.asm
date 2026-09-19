@@ -1,3 +1,8 @@
+; Full spriteset definitions for Shadow character sprites.
+; 
+; Walking, idle, attack, and liquify animation frames for all directions. Includes Shadow's unique morph poses.
+---------------------------------------------
+
 ?BANK 14
 
 ---------------------------------------------

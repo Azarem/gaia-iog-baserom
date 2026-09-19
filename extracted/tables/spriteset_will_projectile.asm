@@ -1,3 +1,8 @@
+; Spriteset for Will's Psycho Dash and Psycho Slide projectile sprites.
+; 
+; Trail effect frames and impact sprites for Will's ranged abilities.
+---------------------------------------------
+
 ?BANK 17
 
 ---------------------------------------------

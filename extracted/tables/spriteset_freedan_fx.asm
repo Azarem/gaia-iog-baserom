@@ -1,3 +1,8 @@
+; Spriteset for Freedan-specific visual effects (sword trails, charge flashes).
+; 
+; Attack trail sprites and Dark Friar launch effects overlaid on Freedan during combat.
+---------------------------------------------
+
 ?BANK 17
 
 ---------------------------------------------

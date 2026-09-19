@@ -1,0 +1,3 @@
+{
+    "scene_meta": "Per-scene metadata records indexed by scene ID.\n\nEach entry defines the scene's tileset, tilemap, palette bundle, music track,\ncollision layer, and display configuration. Read by the scene lifecycle\nsystem during scene loading."
+}

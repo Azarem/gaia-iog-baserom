@@ -1,0 +1,3 @@
+{
+    "palette_bundles": "Compressed palette data bundles indexed by palette ID.\n\nEach bundle contains one or more CGRAM palette sets used by scenes\nand special effects. Loaded by LoadPaletteBundle during scene setup."
+}

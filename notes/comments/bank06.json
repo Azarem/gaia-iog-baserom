@@ -1,0 +1,7 @@
+{
+    "440818": "Extract low nibble of displayModeFlags",
+    "440823": "Save to scratch $24 for caller",
+    "440828": "Force displayModeFlags = $2000",
+    "440833": "Clear bit $2000 in statusWord",
+    "440838": "Set bit $1000 in statusWord"
+}

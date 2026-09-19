@@ -1,3 +1,9 @@
+; Compressed palette data bundles indexed by palette ID.
+; 
+; Each bundle contains one or more CGRAM palette sets used by scenes
+; and special effects. Loaded by LoadPaletteBundle during scene setup.
+---------------------------------------------
+
 ?BANK 16
 
 ---------------------------------------------

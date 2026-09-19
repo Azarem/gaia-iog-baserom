@@ -1,3 +1,8 @@
+; Spriteset definitions for player ability visual effects (Psycho Dash, Psycho Slide, Dark Friar cast, Aura Barrier, Earthquaker).
+; 
+; Contains OAM tile layouts, animation frames, and hitbox data for all three playable characters' special abilities.
+---------------------------------------------
+
 ?BANK 0F
 
 ---------------------------------------------

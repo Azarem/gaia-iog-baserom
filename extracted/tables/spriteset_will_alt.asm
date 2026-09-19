@@ -1,3 +1,8 @@
+; Alternate spriteset for Will character sprites.
+; 
+; Additional animation frames for Will used in specific cutscene or transformation contexts.
+---------------------------------------------
+
 ?BANK 0F
 
 ---------------------------------------------

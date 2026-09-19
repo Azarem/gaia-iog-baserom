@@ -1,3 +1,8 @@
+; Spriteset for Shadow's special mode sprites.
+; 
+; Additional animation frames used during Shadow's unique movement and combat modes.
+---------------------------------------------
+
 ?BANK 17
 
 ---------------------------------------------

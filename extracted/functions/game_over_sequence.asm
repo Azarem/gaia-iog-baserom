@@ -74,7 +74,7 @@ GameOverSequence {
     BRA loc_00D6E6
 
   loc_00D6AD:
-    STZ $gemCount         ; Gems≥100: subtract 100 from gemCount, restore HP to half max, reload save scene
+    STZ $gemCount         ; Gems < 100 (true death): zero gems, reset form, restore full HP, clear WRAM flags
     LDA $sceneCurrent
     AND #$00FF
     CMP #$00E8
@@ -105,7 +105,7 @@ GameOverSequence {
     LDY $sceneSaveData
 
   loc_00D6E6:
-    LDA $0000, Y          ; No gems: zero gemCount and WRAM flags; load respawn scene from sceneSaveData
+    LDA $0000, Y          ; Shared respawn: load scene ID, position, and flags from save data pointer Y
     STA $sceneNext
     LDA $0005, Y
     AND #$7F

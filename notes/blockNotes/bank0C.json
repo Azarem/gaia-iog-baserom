@@ -1,0 +1,3 @@
+{
+    "scene_thinkers": "Per-scene thinker spawn lists indexed by scene ID.\n\nEach scene entry defines which background AI thinkers (palette cyclers,\nHDMA effects, ambient handlers) spawn when the scene loads.\nRead by SpawnSceneThinkers during scene transitions."
+}

@@ -1,3 +1,8 @@
+; Full spriteset definitions for Freedan character sprites.
+; 
+; Walking, idle, attack, and special animation frames for all 4 cardinal directions. Includes Dark Friar cast poses.
+---------------------------------------------
+
 ?BANK 0E
 
 ---------------------------------------------

@@ -1,3 +1,9 @@
+; Sprite tile map data for the inventory/status screen UI elements.
+; 
+; Contains OAM layouts for item icons, cursor sprites, tab indicators,
+; and equipment display. Referenced by inventory_menu and related UI actors.
+---------------------------------------------
+
 ?BANK 10
 
 ---------------------------------------------

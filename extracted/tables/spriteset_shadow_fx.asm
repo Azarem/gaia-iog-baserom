@@ -1,3 +1,8 @@
+; Spriteset for Shadow-specific visual effects.
+; 
+; Attack trail sprites and liquify transformation overlays.
+---------------------------------------------
+
 ?BANK 17
 
 ---------------------------------------------

@@ -1,0 +1,6 @@
+{
+    "spriteset_enemies": "Master spriteset for enemy actors, death effects, gem drops, and field reveal sprites.\n\nShared by all dungeon enemies, boss sub-sprites, dark gem animations, and combat VFX. The largest spriteset file in the game.",
+    "spriteset_freedan": "Full spriteset definitions for Freedan character sprites.\n\nWalking, idle, attack, and special animation frames for all 4 cardinal directions. Includes Dark Friar cast poses.",
+    "spriteset_npc_props": "Spriteset for NPC props and interactive objects.\n\nTown furniture, signs, chests, and decorative elements used across multiple scene types.",
+    "scene_actors": "Per-scene actor spawn lists indexed by scene ID.\n\nEach scene entry defines which actors spawn, their initial positions, sprite assignments,\nand behavior flags. Read by SpawnSceneActors during scene transitions."
+}

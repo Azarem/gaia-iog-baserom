@@ -1,3 +1,8 @@
+; Master spriteset for enemy actors, death effects, gem drops, and field reveal sprites.
+; 
+; Shared by all dungeon enemies, boss sub-sprites, dark gem animations, and combat VFX. The largest spriteset file in the game.
+---------------------------------------------
+
 ?BANK 0E
 
 ---------------------------------------------

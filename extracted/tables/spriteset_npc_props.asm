@@ -1,3 +1,8 @@
+; Spriteset for NPC props and interactive objects.
+; 
+; Town furniture, signs, chests, and decorative elements used across multiple scene types.
+---------------------------------------------
+
 ?BANK 0E
 
 ---------------------------------------------

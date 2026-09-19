@@ -1,3 +1,10 @@
+; Per-scene metadata records indexed by scene ID.
+; 
+; Each entry defines the scene's tileset, tilemap, palette bundle, music track,
+; collision layer, and display configuration. Read by the scene lifecycle
+; system during scene loading.
+---------------------------------------------
+
 ---------------------------------------------
 
 scene-meta_list [

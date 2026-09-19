@@ -1,0 +1,4 @@
+{
+    "spriteset_ability_fx": "Spriteset definitions for player ability visual effects (Psycho Dash, Psycho Slide, Dark Friar cast, Aura Barrier, Earthquaker).\n\nContains OAM tile layouts, animation frames, and hitbox data for all three playable characters' special abilities.",
+    "spriteset_will_alt": "Alternate spriteset for Will character sprites.\n\nAdditional animation frames for Will used in specific cutscene or transformation contexts."
+}
