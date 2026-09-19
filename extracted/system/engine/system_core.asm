@@ -175,7 +175,7 @@ SystemInit {
   loc_00804C:
     TYA 
     STA $sceneNext        ; Store initial scene ID from warmboot result (Y=0 default)
-    JSL $@scene_lifecycle.ExecuteSceneTransition ; Store initial scene from warmboot (Y=0 default → title screen)
+    JSL $@scene_lifecycle.ExecuteSceneTransition ; Execute initial scene transition
     STZ $worldReadyFlag
     LDA #$20              ; Default sceneStateHelper: $20 palette bits
     STA $sceneStateHelper

@@ -729,7 +729,7 @@ BranchIfNotOnGridline {
     PHB 
     LDA $16               ; Test actor Y for 16px grid alignment (low nibble must be 0)
     BIT #$000F            ; Reject if actor Y not on 16px gridline
-    BEQ loc_008BF0        ; Not aligned → branch (off-grid)
+    BEQ loc_008BF0        ; Aligned → continue to X grid check
 
   loc_008BE6:
     PLB 
@@ -847,7 +847,7 @@ ParseSignedTileOffset {
 
 ComputeDirectionToPlayer {
     LDY $playerActor      ; Load player actor pointer for direction calc
-    LDA $0014, Y          ; ComputeDirectionToPlayer: load player actor pointer
+    LDA $0014, Y          ; Load player X position for direction comparison
     SEC                   ; ΔX = player.X − actor.X
     SBC $0018             ; ΔX = player.X − actor.X; positive = player is east
     BMI loc_00B01A        ; Negative ΔX → player is west of actor

@@ -505,7 +505,7 @@ BranchIfMissingItem {
     INC $0A
     AND #$00FF
     JSL $@inventory_mgmt.CheckInventoryForItem ; CheckInventoryForItem; carry clear = absent
-    BCC loc_00AC51        ; Item present: skip branch operand
+    BCC loc_00AC51        ; Item absent (carry clear): branch to &Code target
     LDA [$0A]
     INC $0A
     INC $0A

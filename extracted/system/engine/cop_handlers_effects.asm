@@ -158,7 +158,7 @@ TickSineHdma {
     AND #$00FF
     STA $animScratch+2, X
     LDA $retPtr1, X       ; Advance sine phase by 1 each reload cycle
-    INC                   ; Advance phase by 1 each reload
+    INC 
     STA $retPtr1, X
     BRA loc_009C5E
 
@@ -204,7 +204,7 @@ BindSineHdma {
     INC $0A
     TAY 
     LDA $0036             ; $0036 bit 0 = frame parity; odd frames offset table +$0200 for double-buffer
-    LSR                   ; $0036 bit 0 = frame parity for double-buffer selection
+    LSR 
     BCC loc_009CA5
     TYA 
     CLC 
@@ -267,7 +267,7 @@ InitGravity {
 
 TickGravity {
     TYX 
-    LDA $scratch1010, X   ; Load acceleration factor into Y
+    LDA $scratch1010, X   ; Load acceleration factor (→ Y for shift loop)
     TAY 
     LDA $scratch1010+4, X ; Increment tick counter; factor (in Y) controls curve attenuation via shift
     INC 
@@ -288,7 +288,7 @@ TickGravity {
     BRA loc_009D1A
 
   loc_009D20:
-    PHA                   ; Push current velocity for bounce-boundary subtraction
+    PHA                   ; Push gravity delta for velocity computation below
     LDA $scratch1010+2, X ; Load current velocity from scratch1010+2
     SEC 
     SBC $01, S
@@ -598,7 +598,7 @@ BuildSineHdmaTable {
     STA $L_WRDIVL
     PLA 
     SEP #$20
-    STA $L_WRDIVB         ; Wait for SNES hardware divider (16 cycles)
+    STA $L_WRDIVB         ; WRDIVB: start hardware divide (NOPs below provide 16-cycle wait)
     LDA #$00
     XBA 
     NOP                   ; 6 NOPs: wait for SNES hardware divider latency (16 cycles)
@@ -633,7 +633,7 @@ BuildSineHdmaTable {
     SEP #$20              ; Per-scanline: look up sine sample, scale by amplitude, write HDMA scroll data
     LDA $@math_lookup_tables.sine_table_8bit, X ; Fetch sine sample from sine_table_8bit at current angle
     STA $L_WRMPYB         ; Per-scanline: sine sample × amplitude → HDMA scroll data
-    BPL loc_00AE8F        ; WRMPYB: start hardware multiply (sine × amplitude)
+    BPL loc_00AE8F        ; Positive sine sample → simplified positive-value path
     NOP 
     NOP 
     NOP 
@@ -685,17 +685,17 @@ BuildSineHdmaTable {
     TXA 
     CLC 
     ADC $00
-    AND #$00FF            ; Mask to byte for BuildSineLookupTable entry
+    AND #$00FF            ; Mask angle to byte for circular sine table traversal
     TAX 
     INY 
     INY 
     CPY $0E
-    BNE loc_00AE4D        ; Nonzero: trigger bit is set, branch to process acknowledgment
+    BNE loc_00AE4D        ; Loop until all scanlines processed
     PLB 
     PLA 
     TCD 
     TAX 
-    RTS                   ; Clear displayModeFlags rebuild trigger
+    RTS 
 }
 
 ---------------------------------------------
@@ -712,7 +712,7 @@ BuildSineLookupTable {
     PHX 
     LDA $displayModeFlags ; Guard: rebuild only when displayModeFlags bit 6 or animScratch2 bit 0 set
     BIT #$0040
-    BNE loc_00AED4        ; 256-entry loop: sine_table_8bit × amplitude → sineTableA/B word entries
+    BNE loc_00AED4        ; Bit 6 set: proceed to rebuild sine tables
     LDA $animScratch2, X  ; Load animScratch2 to test rebuild trigger (bit 0)
     BIT #$0001            ; Test bit 0: rebuild trigger flag in animScratch2
     BEQ loc_00AF19
@@ -765,7 +765,7 @@ BuildSineLookupTable {
     RTS 
 
   loc_00AF1C:
-    REP #$20              ; Return to 16-bit A after sine table loop
+    REP #$20              ; 16-bit A for word-sized sineTable writes
     NOP 
     LDA $RDMPYH
     REP #$20

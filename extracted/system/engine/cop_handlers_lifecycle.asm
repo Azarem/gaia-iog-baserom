@@ -105,7 +105,7 @@ BranchIfPlayerInRelTiles {
 
   loc_0095E0:
     PLX                   ; Outside rectangle: skip 6-byte operand block
-    LDA $0A               ; Outside: skip 6-byte operand block
+    LDA $0A
     CLC 
     ADC #$0006
     STA $02, S
@@ -204,7 +204,7 @@ CopyPosToNext {
 
 GetPlayerFacing {
     TYX 
-    LDA $0A               ; GetPlayerFacing: call returns 0-3 in A
+    LDA $0A               ; Save script resume pointer
     STA $02, S
     JSL $@GetPlayerFacingDirection ; Call GetPlayerFacingDirection — returns 0–3 in A
     RTI 
@@ -363,7 +363,7 @@ SetLinkedEntryPtr {
 MarkDeath {
     TYX 
     PHD                   ; Save direct page before potential child-cascade path
-    LDA $12               ; MarkDeath: save DP before child-cascade
+    LDA $12               ; Load actor flags for child-flag test ($0040)
     BIT #$0040            ; Child flag $0040: route through DieNow_UnlinkChildren to cascade-remove children
     BEQ loc_00A5EC
     PEA $&MarkDeathResumeHandler-1 ; Push MarkDeathResumeHandler−1 for RTS-trick return from child cascade
@@ -395,7 +395,7 @@ Die {
     PHD 
     LDA $12               ; Test for child flag $0040 on dying actor
     BIT #$0040
-    BEQ loc_00A605        ; Test $0040 child flag
+    BEQ loc_00A605        ; No children: direct unlink path
     PEA $&DieNow_UnlinkChildren-1 ; Push DieNow_UnlinkChildren−1 for RTS-trick (RTL exit after cascade)
     BRA loc_00A60E
 
@@ -424,7 +424,7 @@ DieNow_UnlinkChildren {
 
   loc_00A617:
     LDA $parentId, X      ; Check if prev actor's parentId matches dying actor
-    CMP $0000             ; Check if prev actor parentId matches dying actor
+    CMP $0000
     BNE loc_00A626        ; Mismatch: this is the backward boundary (first non-child)
     LDA $0004, X          ; Match: continue walking backward through prev pointers
     TAX 
@@ -450,7 +450,7 @@ DieNow_UnlinkChildren {
     LDX $0002             ; Start at backward boundary, return all child slots to pool
     BNE loc_00A64F
     LDX $0056             ; Backward boundary is null: start from list head ($0056)
-    JSR $&actor_pool.ReturnActorSlot ; Backward null: start from list head ($0056)
+    JSR $&actor_pool.ReturnActorSlot
 
   loc_00A64F:
     LDA $0006, X          ; Walk forward through next pointers returning each child

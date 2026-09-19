@@ -139,7 +139,7 @@ MoveToward {
     AND #$00FF
     PHA 
     LDA $animScratch2, X
-    ASL                   ; Test X direction sign via bit 15 of animScratch2
+    ASL                   ; Test X direction sign via bit 14 of animScratch2 (shifted to N flag)
     BMI loc_008CB1
     PLA 
     BRA loc_008CB6
@@ -165,7 +165,7 @@ MoveToward {
     BEQ loc_008CF7
     AND #$00FF
     PHA 
-    LDA $animScratch2, X  ; Test Y direction sign via carry from ASL bit 14
+    LDA $animScratch2, X  ; Test Y direction sign (bit 15 → carry after ASL)
     ASL 
     BCS loc_008CE3
     PLA 
@@ -499,7 +499,7 @@ StageMove {
 ; Halves both moveXAlt and moveYAlt via LSR, then increments a halving-pass counter in chatPtr. StageMove calls this in a loop until the distance fits in a single byte, enabling the hardware divider to compute per-frame velocity accurately.
 
 HalveMovementDistance {
-    LDA $moveXAlt, X      ; LSR: halve remaining X distance
+    LDA $moveXAlt, X      ; Halve remaining X distance
     LSR                   ; Halve remaining X distance each halving iteration
     STA $moveXAlt, X
     LDA $moveYAlt, X
@@ -616,7 +616,7 @@ TickMove {
 ; End-of-pass handler for TickMove. Checks chatPtr for remaining halving passes: if non-zero, decrements it, zeroes animScratch and tick counter $24, and jumps back to TickMoveStep for another interpolation pass at halved scale. When chatPtr reaches zero, saves the script PC to $00 and yields RTL to resume the calling script.
 
 TickMoveComplete {
-    REP #$20              ; Halving passes remain in chatPtr: decrement and re-enter at half scale
+    REP #$20
     LDA $chatPtr, X       ; Check chatPtr for remaining halving passes
     BEQ loc_008FD5        ; Zero → all passes done, save PC and yield
     DEC                   ; Decrement halving pass counter
@@ -672,7 +672,7 @@ RngByte {
   loc_009006:
     LDA $0410, X          ; 16-byte Galois LFSR step across $040F–$041F state
     ADC $rngState, X      ; ADC chain: propagate carry through $0410+X state bytes
-    STA $rngState, X      ; ADC chain propagates carry through 16-byte RNG state
+    STA $rngState, X      ; Store updated byte back to RNG state
     DEX 
     BNE loc_009006
     LDX #$0010

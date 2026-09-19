@@ -1,4 +1,4 @@
-; Actor pool infrastructure — slot allocation, linked-list management, and state copying (Bank $00, 12 internal routines).
+; Actor pool infrastructure — slot allocation, linked-list management, and state copying (Bank $00, 11 internal routines).
 ; 
 ; ActorPoolAllocator is the core JSL allocator that pops the next free actor slot from the LIFO free list at ($4E). Returns carry clear with Y = new WRAM base ($1000 + index×$30); carry set with Y = $1FC0 on exhaustion. Increments activeActorCount.
 ; 

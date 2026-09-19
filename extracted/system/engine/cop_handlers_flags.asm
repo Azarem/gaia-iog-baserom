@@ -1,4 +1,4 @@
-; Exported JSL flag helper library and core flag routines for the eventFlags ($0A00) and wramFlags ($0A80) bitfields (Bank $00, 7 core routines + 12 JSL offset wrappers + 1 data table).
+; Exported JSL flag helper library and core flag routines for the eventFlags ($0A00) and wramFlags ($0A80) bitfields (Bank $00, 5 core routines + 14 JSL helpers + 1 data table).
 ; 
 ; Core routines: SetEventFlag/ClearEventFlag/TestEventFlag decompose a flag index into byte (÷8) and bit (AND $07) indices using the bitmasks_bit_position lookup table, then OR/AND/test the corresponding bit in the eventFlags array at $0A00. SetWramFlag/TestWramFlag perform the same operation on the wramFlags array at $0A80.
 ; 
@@ -53,7 +53,7 @@ SetWramFlag {
     LDA $0000             ; Recover low 3 bits of flag index for bit position
     AND #$07
     TAX 
-    LDA $wramFlags, Y     ; Flag bit index = operand AND #$07; byte = operand ÷ 8
+    LDA $wramFlags, Y     ; Load current wramFlags byte at computed offset
     ORA $@bitmasks_bit_position, X ; OR bitmask: set the targeted bit
     STA $wramFlags, Y     ; Write updated byte back to wramFlags
     REP #$20
@@ -103,7 +103,7 @@ SetEventFlag {
     LDA $0000
     AND #$07
     TAX 
-    LDA $eventFlags, Y    ; ORA bitmasks[X]: set one bit in eventFlags byte
+    LDA $eventFlags, Y    ; Load current eventFlags byte at computed offset
     ORA $@bitmasks_bit_position, X ; ORA bitmask: set the targeted event flag bit
     STA $eventFlags, Y    ; Write back to eventFlags
     REP #$20
@@ -126,7 +126,7 @@ ClearEventFlag {
     LDA $0000
     AND #$07
     TAX 
-    LDA $@bitmasks_bit_position, X ; EOR #$FF mask: clear one bit in eventFlags byte
+    LDA $@bitmasks_bit_position, X ; Load single-bit mask for flag position
     EOR #$FF              ; EOR #$FF: invert mask to create clear pattern
     AND $eventFlags, Y    ; AND: clear one bit, preserve all others
     STA $eventFlags, Y

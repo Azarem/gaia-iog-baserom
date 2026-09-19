@@ -250,7 +250,7 @@ RunActors_DisplayFiltered {
     LDA $12
     BIT #$1000            ; Bit 12 ($1000) in $12 also qualifies
     BEQ loc_03CC26
-    LDA $10               ; Reload $10 after display check (AND destroyed original)
+    LDA $10               ; Reload $10 (LDA $12 above changed A; BIT is non-destructive)
 
   loc_03CBBC:
     BIT #$2000
@@ -499,7 +499,7 @@ RunActors_CutsceneOnly {
     STA $10
     BIT #$0800            ; Bit 11 ($0800) = cutscene-active; skip actors without it
     BEQ loc_03CD57
-    LDA $10               ; Reload $10 (AND destroyed bit 2 above)
+    LDA $10               ; Reload $10 for COP mode check (redundant — A already holds $10)
     BIT #$2000
     BEQ loc_03CD32
     DEC $08
@@ -824,7 +824,7 @@ SpawnSceneActors {
     BEQ loc_03CEE9        ; $FF = end of list
     JSL $@actor_pool.ActorPoolAllocator
     TYA 
-    STA $0006, X          ; Link: new.$06 = previous, previous.$04 = new
+    STA $0006, X          ; Link: prev.$06 = new, new.$04 = prev
     TXA 
     STA $0004, Y
 
@@ -1027,7 +1027,7 @@ InitActorFromSceneData {
 
   loc_03D00F:
     LDA #$0088
-    TRB $playerFlags      ; Clear playerFlags $0088 (freeze | dead)
+    TRB $playerFlags      ; Clear playerFlags $0088 (freeze | input lock)
     LDA $0E
     BIT #$0600            ; Bits 9|10 ($0600) = scene-defined player state overrides
     BEQ loc_03D03B

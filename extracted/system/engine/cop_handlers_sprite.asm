@@ -238,7 +238,7 @@ StageSprLoopX {
     INC $0A
     AND #$00FF
     STA $sprTimer, X
-    LDA [$0A]             ; sprTimer: repeat count
+    LDA [$0A]             ; Read X distance byte
     INC $0A
     AND #$00FF            ; moveXAlt: X distance
     STA $moveXAlt, X
@@ -327,7 +327,7 @@ ProcessAnimFlag {
     AND #$FF7F            ; Mask off bit 7 → actual animation index
     STA $28               ; Store direction-aware animation index to $28
     LDA $12               ; Check actor direction flag $0002 on secondary status $12
-    BIT #$0002            ; Bit 2 set → facing right: leave flip state as-is
+    BIT #$0002            ; Flag $0002 set → facing right: leave flip state as-is
     BEQ loc_009F79
     RTS 
 
@@ -470,7 +470,7 @@ StageSprAndHitbox {
     LDA [$0A]
     INC $0A               ; StageSprAndHitbox: read anim index
     AND #$00FF
-    JSR $&ProcessAnimFlag ; ProcessAnimFlag + immediate UpdateActorAnimation
+    JSR $&ProcessAnimFlag ; Interpret anim flag: handle flip and store to $28
     JSL $@sprite_composition.UpdateActorAnimation ; Immediately update sprite+hitbox (doesn't yield — single-frame staging)
     STZ $2A               ; Reset frame counter after staging (staging only, not advancing)
     LDA $0C

@@ -41,12 +41,12 @@ ScrollCameraInit [
   actor-def < #00, #00, #2C, {
 
   code_00E950:
-    LDA #$1000            ; Y-only: set $0002 = 2 (add 2 for perpendicular axis)
+    LDA #$1000
     TSB $12               ; Set bit 12 in actor status — marks this actor as the active camera controller
     LDA $14
-    SEC                   ; Load current facing direction ($animScratch2)
-    SBC #$0008            ; First frame ($FFFF) → snap directly to target direction
-    JSR $&TileAlignCoord  ; Compute frame delta: current facing − target direction
+    SEC 
+    SBC #$0008            ; Subtract 8px X centering offset
+    JSR $&TileAlignCoord
     STA $14
     LDA $16
     SEC 
@@ -79,7 +79,7 @@ ScrollCameraTrack [
   actor-def < #00, #00, #2C, {
 
   code_00EA99:
-    LDA #$1000            ; Angle bands: $0D+ = move X only; $05–$0C = diagonal; <$05 = Y only
+    LDA #$1000
     TSB $12               ; Set camera-active flag (bit 12) in actor status word
     JSR $&TileAlignPosition
     COP [SetEntryContinue] ; Set re-entry point; actor recomputes both scroll deltas every frame from here
@@ -100,7 +100,7 @@ ScrollCameraVertical [
     LDA #$1000
     TSB $12
     JSR $&TileAlignPosition
-    COP [SetEntryContinue] ; X-only: zero Y component ($0002 = 0)
+    COP [SetEntryContinue]
     LDA $16               ; Check Y scroll speed parameter at DP $16; zero means no vertical scrolling needed
     BEQ loc_00EAC2
     LDY $cameraTargetY
@@ -108,7 +108,7 @@ ScrollCameraVertical [
     STA $cameraDeltaY
 
   loc_00EAC2:
-    RTL                   ; Y-only: set full Y step ($0002 = 2)
+    RTL 
 } >
 ]
 
@@ -124,20 +124,20 @@ ScrollCameraAccumulate [
     LDA #$1000
     TSB $12
     LDA #$0000            ; Zero both X and Y scroll accumulator registers at DP $24 and $26
-    STA $24               ; AND $000F: wrap to 16-direction range
+    STA $24
     STA $26
     JSR $&TileAlignPosition
-    COP [SetEntryContinue] ; Read chatPtr for animation parameter
+    COP [SetEntryContinue]
     JSR $&ComputeScrollDeltas
     LDA $cameraDeltaX     ; Add running accumulated X offset ($24) to computed horizontal scroll delta
-    CLC                   ; animScratch2 = $FFFF (uninitialized) → snap to target immediately
-    ADC $24               ; Compute delta between current and target direction
+    CLC 
+    ADC $24
     STA $cameraDeltaX
     LDA $cameraDeltaY     ; Add running accumulated Y offset ($26) to computed vertical scroll delta
     CLC 
-    ADC $26               ; Delta = 0 → already facing target, snap
-    STA $cameraDeltaY     ; Delta = 1 → one step away, snap
-    RTL                   ; Delta = $000F → one step away (reverse wrap), snap
+    ADC $26
+    STA $cameraDeltaY
+    RTL 
 } >
 ]
 ---------------------------------------------

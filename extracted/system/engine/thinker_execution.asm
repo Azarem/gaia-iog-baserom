@@ -82,7 +82,7 @@ SpawnSceneThinkers {
     AND #$00FF
     CMP #$00FF
     BEQ loc_03D82C
-    JSL $@actor_execution.ThinkerPoolAlloc ; Allocate and doubly-link: new.next = prev, prev.prev = new
+    JSL $@actor_execution.ThinkerPoolAlloc ; Allocate and doubly-link: prev.$06 = new, new.$04 = prev
     TYA 
     STA $0006, X
     TXA 

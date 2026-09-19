@@ -160,7 +160,7 @@ CheckSceneTransition {
 ; Stores the resolved scene to sceneCurrent and computes the doubled scene index ($0646) for table lookups.
 ; 
 ; === PHASE 3: LOAD ===
-; Calls ClearSceneState (the comprehensive scene setup), LoadHudTilemap, UpdateHUD, and a chain of VBlank sync/NMI enable calls. Sets worldReadyFlag to $0F0F (fully ready). Clears graphics cache indices.
+; Calls ClearSceneState (the comprehensive scene setup), LoadHudTilemap, UpdateHUD, and a chain of VBlank sync/NMI enable calls. Sets worldReadyFlag to $000F (fully ready). Clears graphics cache indices.
 ; 
 ; If $00B4 is nonzero (press-start flag): enters a wait loop calling UpdateFrameDialogue until any button is pressed, then clears the flag, flushes the VRAM buffer, and enables display mode bit 0.
 ; 
@@ -221,7 +221,7 @@ ExecuteSceneTransition {
     JSL $@vblank_joypad.ScreenBlackout ; Force blank before enter transition
     LDA $worldReadyFlag   ; Check if world was previously ready
     BNE loc_03DA81
-    JSR $&ScreenEnterTransition ; Run enter transition, set worldReadyFlag=$0F0F
+    JSR $&ScreenEnterTransition ; Run enter transition, set worldReadyFlag=$000F
     LDX #$000F
     STX $worldReadyFlag
 
@@ -818,7 +818,7 @@ ClearSceneState {
     STA $7F0C02
     LDA #$E0              ; COLDATA=$E0 — force black backdrop
     STA $COLDATA
-    LDA #$78              ; BG3SC=$78 — tilemap at $7800, 64×32 size
+    LDA #$78              ; BG3SC=$78 — tilemap at $7800, 32×32 size
     STA $BG3SC
     STZ $BG3HOFS          ; Reset BG3 H/V scroll (double-write registers)
     STZ $BG3HOFS
