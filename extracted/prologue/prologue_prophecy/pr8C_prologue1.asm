@@ -1,5 +1,5 @@
 ?INCLUDE 'mode7_perspective'
-?INCLUDE 'pr_actor_0BCF52'
+?INCLUDE 'pr_text_placement_calc'
 ?INCLUDE 'pr_thinkers'
 
 !gfxCacheIdxB                   064A
@@ -39,14 +39,14 @@ pr8C_prologue1 [
     TYX 
     TAY 
     COP [SpawnBeforeFlags] ( @code_0BCABF, #$2800 )
-    COP [SpawnAfterAbsFlags] ( @pr_actor_0BCF52.code_0BCF8F, #$0038, #$0030, #$2000 )
+    COP [SpawnAfterAbsFlags] ( @pr_text_placement_calc.code_0BCF8F, #$0038, #$0030, #$2000 )
     LDA #$&spritestring_0BD044
     STA $0026, Y
     COP [SpawnThinker] ( @pr_thinkers.e_pr_thinker_0BD031 )
     COP [WaitWord] ( #$01DF )
     COP [SpawnThinker] ( @pr_thinkers.e_pr_thinker_0BD039 )
     COP [WaitByte] ( #77 )
-    COP [SpawnAfterAbsFlags] ( @pr_actor_0BCF52.code_0BCF8F, #$003C, #$0020, #$2000 )
+    COP [SpawnAfterAbsFlags] ( @pr_text_placement_calc.code_0BCF8F, #$003C, #$0020, #$2000 )
     LDA #$&spritestring_0BD06D
     STA $0026, Y
     COP [SpawnThinker] ( @pr_thinkers.e_pr_thinker_0BD031 )

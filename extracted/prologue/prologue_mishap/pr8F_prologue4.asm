@@ -1,4 +1,4 @@
-?INCLUDE 'pr_actor_0BCF52'
+?INCLUDE 'pr_text_placement_calc'
 ?INCLUDE 'pr_thinkers'
 
 !gfxCacheIdxB                   064A
@@ -13,7 +13,7 @@ pr8F_prologue4 [
     LDA #$4001
     TSB $displayModeFlags
     COP [CopyPalette] ( @pal_prologue_mishap, #00, #00, #20 )
-    COP [SpawnAfterAbsFlags] ( @pr_actor_0BCF52.code_0BCF8F, #$0020, #$0020, #$2000 )
+    COP [SpawnAfterAbsFlags] ( @pr_text_placement_calc.code_0BCF8F, #$0020, #$0020, #$2000 )
     LDA #$&spritestring_0BD222
     STA $0026, Y
     COP [SpawnThinker] ( @pr_thinkers.e_pr_thinker_0BD031 )

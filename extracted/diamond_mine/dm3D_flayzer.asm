@@ -1,4 +1,4 @@
-?INCLUDE 'func_0AA41C'
+?INCLUDE 'ActorMidpointCalc'
 
 !playerXPos                     09A2
 !playerYPos                     09A4
@@ -593,7 +593,7 @@ code_0AAFBA {
 
   loc_0AAFBD:
     COP [SetEntryContinue]
-    JSL $@func_0AA41C
+    JSL $@ActorMidpointCalc
     RTL 
 }
 

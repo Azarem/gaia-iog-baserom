@@ -1,0 +1,14 @@
+---------------------------------------------
+
+fr32_idle_npc_b [
+  actor-def < #11, #00, #10, {
+
+  code_05B360:
+    COP [SetSpritePriority] ( #10 )
+    COP [AddPosition] ( #02, #05 )
+    COP [SetEntryContinue]
+    COP [AnimOneFrame]
+    COP [SetEntryContinue]
+    RTL 
+} >
+]

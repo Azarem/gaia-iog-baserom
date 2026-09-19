@@ -1,4 +1,4 @@
-?INCLUDE 'func_06B9F2'
+?INCLUDE 'ActorDisplayModeSwap'
 
 ---------------------------------------------
 
@@ -8,7 +8,7 @@ eu9D_slaves [
   code_07D09C:
     LDA #$0200
     TSB $12
-    JSL $@func_06B9F2
+    JSL $@ActorDisplayModeSwap
     COP [SetOnInteract] ( &code_07D0AE )
     COP [SolidHighHere]
     COP [SetEntryContinue]

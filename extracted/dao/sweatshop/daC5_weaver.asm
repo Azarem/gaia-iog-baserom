@@ -1,4 +1,4 @@
-?INCLUDE 'func_06B9F2'
+?INCLUDE 'ActorDisplayModeSwap'
 
 ---------------------------------------------
 
@@ -11,7 +11,7 @@ daC5_weaver [
     LDA $0E
     AND #$0010
     STA $26
-    JSL $@func_06B9F2
+    JSL $@ActorDisplayModeSwap
     LDA $26
     BEQ loc_08B482
     LDA $0E

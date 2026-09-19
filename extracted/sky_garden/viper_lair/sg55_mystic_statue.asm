@@ -1,5 +1,5 @@
 ?INCLUDE 'sE6_gaia'
-?INCLUDE 'sg55_actor_0AD000'
+?INCLUDE 'sg55_viper_arena'
 ?INCLUDE 'visual_effect_pipeline'
 
 !gfxCacheIdxB                   064A
@@ -50,14 +50,14 @@ code_0ACE81 {
     STA $0014, Y
     LDA #$000C
     STA $0016, Y
-    COP [SpawnBeforeFlags] ( @sg55_actor_0AD000.code_0AD034, #$2800 )
+    COP [SpawnBeforeFlags] ( @sg55_viper_arena.code_0AD034, #$2800 )
     COP [WaitByte] ( #3B )
     LDA $characterForm
     BEQ loc_0ACEC9
     LDY $playerActor
-    LDA #$*sE6_gaia.func_08F37D
+    LDA #$*sE6_gaia.Transform_FreedanToWill
     STA $0002, Y
-    LDA #$&sE6_gaia.func_08F37D
+    LDA #$&sE6_gaia.Transform_FreedanToWill
     STA $0000, Y
     LDA #$0000
     STA $0008, Y

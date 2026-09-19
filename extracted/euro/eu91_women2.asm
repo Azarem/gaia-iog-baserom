@@ -1,4 +1,4 @@
-?INCLUDE 'func_06B9F2'
+?INCLUDE 'ActorDisplayModeSwap'
 ?INCLUDE 'npc_wander_ai'
 
 !currentHp                      7F0026
@@ -9,7 +9,7 @@ eu91_women2 [
   actor-def < #2A, #00, #10, {
 
   code_07CA68:
-    JSL $@func_06B9F2
+    JSL $@ActorDisplayModeSwap
     COP [SetOnInteract] ( &code_07CA87 )
     LDA #$002A
     STA $currentHp, X

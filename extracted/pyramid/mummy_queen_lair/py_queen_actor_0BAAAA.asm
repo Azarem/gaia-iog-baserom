@@ -1,7 +1,7 @@
 ?BANK 0B
 
 ?INCLUDE 'ApplyOrbitalOffsetFromRef'
-?INCLUDE 'binary_0BACB4'
+?INCLUDE 'mummy_queen_angle_table'
 
 !animScratch                    7F0000
 !orbitAngle                     7F0010
@@ -35,7 +35,7 @@ py_queen_actor_0BAAAA {
     TAX 
     INC 
     STA $0026, Y
-    LDA $@binary_0BACB4, X
+    LDA $@mummy_queen_angle_table, X
     PLX 
     AND #$00FF
     STA $orbitAngle, X

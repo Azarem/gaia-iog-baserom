@@ -37,9 +37,9 @@ btE4_kara [
     COP [SpawnAfterFlags] ( @code_098F25, #$1802 )
     COP [SpawnAfterFlags] ( @code_098F2E, #$1802 )
     LDY $playerActor
-    LDA #$*sE6_gaia.func_08F5F9
+    LDA #$*sE6_gaia.Transform_WillToShadow
     STA $0002, Y
-    LDA #$&sE6_gaia.func_08F5F9
+    LDA #$&sE6_gaia.Transform_WillToShadow
     STA $0000, Y
     LDA #$0000
     STA $0008, Y

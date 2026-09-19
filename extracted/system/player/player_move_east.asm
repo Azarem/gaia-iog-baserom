@@ -33,7 +33,7 @@
 ;   FutureTR ≥ $0E → wall blocked → SnapXEastCollision
 ;   FutureTR $09 → EastWallNorthFlag
 ;   FutureTR $06 + sub-tile → EastWallSouthFlag
-;   Sub-tile aligned + MapCellRight → additional wall checks
+;   Sub-tile aligned + MapCellDown → additional wall checks
 ;   Tile $07 → EastLadderTile
 ;   CurrentBL $05 → WestRampUp, $0A → EastRampUp
 ; 
@@ -82,7 +82,7 @@ DispatchEastMove {
   loc_02D71B:
     CMP #$06              ; Y aligned at destination: south wall $06 still blocks east entry
     BEQ loc_02D753
-    JSR $&tile_collision.MapCellDown ; Y misaligned: MapCellRight secondary probe on adjacent east cell
+    JSR $&tile_collision.MapCellDown ; Y misaligned: MapCellDown secondary probe on cell below
     JSR $&tile_collision.ReadCollisionNibble
     CMP #$0E              ; Solid ($0E+) in secondary cell → hard block path
     BCS loc_02D753
@@ -180,7 +180,7 @@ SnapXEastCollision {
 ; North-wall ($09) interaction during east movement — full handler.
 ; 
 ; Sets $AB bit $80 (movement interaction flag). Probes FutureTR with sub-tile X alignment:
-;   - Aligned + $09: check MapCellRight (passable or $0A) → MapCellUp (passable or $09) → compute WestSnapOffset + DiagPushRight
+;   - Aligned + $09: check MapCellDown (passable or $0A) → MapCellLeft (passable or $09) → compute WestSnapOffset + DiagPushRight
 ;   - Not aligned: SnapYNorthCollision, re-probe FutureTR: if blocked/wall → SnapXEastCollision. If passable/special → WestSnapOffset + DiagPushRight.
 ; 
 ; The DiagPushRight output causes the player to slide upward (north) along the wall while maintaining east momentum.
@@ -195,7 +195,7 @@ EastWallNorthHandler {
     BNE loc_02D7C7
 
   loc_02D7AB:
-    JSR $&tile_collision.MapCellDown ; Gap probe: MapCellRight from north wall — adjacent cell must be passable
+    JSR $&tile_collision.MapCellDown ; Gap probe: MapCellDown from north wall — cell below must be passable
     STX $00
     JSR $&tile_collision.ReadCollisionNibble
     BEQ loc_02D7B9
@@ -203,7 +203,7 @@ EastWallNorthHandler {
     BNE ClearSpeedEW_5
 
   loc_02D7B9:
-    JSR $&tile_collision.MapCellLeft ; MapCellUp from gap cell — north wall $09 must continue above
+    JSR $&tile_collision.MapCellLeft ; MapCellLeft from gap cell — north wall $09 must continue to the left
     JSR $&tile_collision.ReadCollisionNibble
     BEQ loc_02D7D9
     CMP #$09              ; Open north-wall chain → ComputeEastSnapOffset + DiagPushRight slide
@@ -226,7 +226,7 @@ EastWallNorthHandler {
 }
 
 ---------------------------------------------
-; Compact north-wall handler — sets $AB bit $04 (north-wall flag) and jumps into EastWallNorthHandler's MapCellRight adjacency chain at loc_02D7AB.
+; Compact north-wall handler — sets $AB bit $04 (north-wall flag) and jumps into EastWallNorthHandler's MapCellDown adjacency chain at loc_02D7AB.
 ; 
 ; Used when FutureTR is $09 during east movement, bypassing the initial probe and sub-tile alignment check since the $09 tile was already confirmed.
 
@@ -256,7 +256,7 @@ EastWallSouthDiag {
 ; South-wall ($06) interaction during east movement — full handler.
 ; 
 ; Sets $AB bit $80. Probes FutureBR with sub-tile X alignment:
-;   - Aligned + $06: check MapCellLeft (passable or $05) → MapCellUp (passable or $06) → compute WestSnapOffset + DiagPushLeft
+;   - Aligned + $06: check MapCellUp (passable or $05) → MapCellLeft (passable or $06) → compute WestSnapOffset + DiagPushLeft
 ;   - Not aligned: SnapYSouthCollision, re-probe FutureBR: if blocked → SnapXEastCollision. If passable/$06 → WestSnapOffset + DiagPushLeft.
 ; 
 ; DiagPushLeft causes the player to slide downward (south) along the wall.
@@ -271,7 +271,7 @@ EastWallSouthHandler {
     BNE loc_02D823
 
   loc_02D7FF:
-    JSR $&tile_collision.MapCellUp ; Gap probe: MapCellLeft from south wall — adjacent cell must be passable
+    JSR $&tile_collision.MapCellUp ; Gap probe: MapCellUp from south wall — cell above must be passable
     STX $00
     JSR $&tile_collision.ReadCollisionNibble
     BEQ loc_02D80D
@@ -279,7 +279,7 @@ EastWallSouthHandler {
     BNE ClearSpeedEW_6
 
   loc_02D80D:
-    JSR $&tile_collision.MapCellLeft ; MapCellUp from gap cell — south wall $06 must continue above
+    JSR $&tile_collision.MapCellLeft ; MapCellLeft from gap cell — south wall $06 must continue to the left
     JSR $&tile_collision.ReadCollisionNibble
     BEQ loc_02D835
     CMP #$06
@@ -288,7 +288,7 @@ EastWallSouthHandler {
 }
 
 ---------------------------------------------
-; South-wall flag variant — sets $AB bit $08 (south-wall flag), saves tile map index ($00 = X), and jumps into EastWallSouthHandler's MapCellLeft adjacency chain at loc_02D7FF.
+; South-wall flag variant — sets $AB bit $08 (south-wall flag), saves tile map index ($00 = X), and jumps into EastWallSouthHandler's MapCellUp adjacency chain at loc_02D7FF.
 ; 
 ; Used when FutureTR has $06 during east movement at a sub-tile boundary.
 
@@ -377,7 +377,7 @@ AutoAlignNS_East {
 }
 
 ---------------------------------------------
-; Saves pixel coords. Probes CurrentTR: if $09 (north wall) or MapCellRight/ReadCollisionNibble yields $06 (south wall), takes the boundary-crossing path.
+; Saves pixel coords. Probes CurrentTR: if $09 (north wall) or MapCellDown/ReadCollisionNibble yields $06 (south wall), takes the boundary-crossing path.
 ; 
 ; Boundary path: $20 >> 2 (EW velocity to pixels), subtract from saved $1A on stack, XOR for 16px grid crossing (BIT $0010). If crossed, $02 = $0010.
 ; 
@@ -396,7 +396,7 @@ ComputeEastSnapOffset {
     BEQ loc_02DB44
     JSR $&tile_collision.CheckSubTileAlignY ; Y right-half alignment (carry): probe cell east for south wall $06
     BCC loc_02DB6B
-    JSR $&tile_collision.MapCellDown ; MapCellRight + ReadCollisionNibble for south-wall boundary case
+    JSR $&tile_collision.MapCellDown ; MapCellDown + ReadCollisionNibble for south-wall boundary case
     JSR $&tile_collision.ReadCollisionNibble
     CMP #$06
     BNE loc_02DB6B

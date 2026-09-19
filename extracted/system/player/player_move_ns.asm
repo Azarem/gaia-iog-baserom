@@ -1,6 +1,6 @@
 ; North-south movement collision — handles upward (north) player movement dispatch, wall interaction, slope physics, and wall-slide correction (184376–184902, Bank 02).
 ; 
-; Contains the DispatchNorthMove entry point called from PlayerMovementTick for negative $24 (NS velocity). The complementary south movement dispatch (DispatchSouthMove) is in player_move_ew.
+; Contains the DispatchNorthMove entry point called from PlayerMovementTick for negative $24 (NS velocity). The complementary south movement dispatch (DispatchSouthMove) is in player_move_south.
 ; 
 ; === DISPATCH STRUCTURE ===
 ; 
@@ -15,7 +15,7 @@
 ;   FutureTL $02 → NorthInteractTile (ladder → LadderClimbSouth)
 ;   FutureTL $06 → SouthWallNudge (nudge/redirect for south wall ahead)
 ;   FutureTL $09 + sub-tile → NorthProbeRedirect
-;   Sub-tile aligned: MapCellDown secondary probe for $0E/$08/$02/$09/$06
+;   Sub-tile aligned: MapCellRight secondary probe for $0E/$08/$02/$09/$06
 ; 
 ; Non-blocked path: $26 += $24 (apply negative NS velocity → Y decreases → player moves up).
 ; 
@@ -31,13 +31,13 @@
 ; 
 ; === WALL HANDLERS ===
 ; 
-; SouthWallHandler ($06 at TL): Checks BR for double-$06 (fully enclosed → ClearMovementDeltas). Probes FutureTL with sub-tile alignment, then MapCellDown/Right adjacency chain. SnapXDiagCollision fallback. ComputeYSnapOffset + FineAdjustXWest for wall sliding (player slides west along south wall).
+; SouthWallHandler ($06 at TL): Checks BR for double-$06 (fully enclosed → ClearMovementDeltas). Probes FutureTL with sub-tile alignment, then MapCellRight/MapCellDown adjacency chain. SnapXDiagCollision fallback. ComputeYSnapOffset + FineAdjustXWest for wall sliding (player slides west along south wall).
 ; 
-; SouthWallNudge: Special case when FutureTL is $06. Checks $AB bit $02 (wall interaction flag) — if set and sub-tile X aligned, zeroes $24 and applies deltas (stops NS, keeps EW). Otherwise: MapCellDown → solid → SnapYSouthCollision; non-solid → SouthWallHandler adjacency chain.
+; SouthWallNudge: Special case when FutureTL is $06. Checks $AB bit $02 (wall interaction flag) — if set and sub-tile X aligned, zeroes $24 and applies deltas (stops NS, keeps EW). Otherwise: MapCellRight → solid → SnapYSouthCollision; non-solid → SouthWallHandler adjacency chain.
 ; 
-; NorthWallHandler ($09 at TR): Checks BL for double-$09 → ClearMovementDeltas. FutureTR with alignment, MapCellUp/Right adjacency. SnapXEastCollision fallback (snaps X). SnapYSouthCollision if re-probe fails. ComputeYSnapOffset + FineAdjustXEast (player slides east along north wall).
+; NorthWallHandler ($09 at TR): Checks BL for double-$09 → ClearMovementDeltas. FutureTR with alignment, MapCellLeft/MapCellDown adjacency. SnapXEastCollision fallback (snaps X). SnapYSouthCollision if re-probe fails. ComputeYSnapOffset + FineAdjustXEast (player slides east along north wall).
 ; 
-; NorthProbeRedirect: Bridge routine when sub-tile check finds $09 — probes MapCellRight then falls into NorthWallHandler's adjacency chain.
+; NorthProbeRedirect: Bridge routine when sub-tile check finds $09 — probes MapCellDown then falls into NorthWallHandler's adjacency chain.
 ---------------------------------------------
 
 ?BANK 02
@@ -62,7 +62,7 @@
 ;   CurrentTR: $09 → NorthWallHandler
 ;   FutureTL: ≥$0E or $08 → blocked wall, $02 → NorthInteractTile, $06 → SouthWallNudge, $09 → NorthProbeRedirect
 ; 
-; Sub-tile aligned path: MapCellDown reads the cell below the future tile for additional $0E/$08/$02/$09/$06 checks.
+; Sub-tile aligned path: MapCellRight reads the cell to the right of the future tile for additional $0E/$08/$02/$09/$06 checks.
 ; 
 ; Blocked wall handler (loc_02D0AF): SetActorCollisionFlag → AutoAlignEW (X nudge) → SnapYNorthCollision if no nudge applied.
 ; 
@@ -117,7 +117,7 @@ DispatchNorthMove {
   loc_02D082:
     CMP #$09              ; X misaligned + north wall $09 below path → hard block
     BEQ loc_02D0AF
-    JSR $&tile_collision.MapCellRight ; MapCellDown: secondary probe on tile directly below misaligned destination
+    JSR $&tile_collision.MapCellRight ; MapCellRight: secondary probe on tile to the right of misaligned destination
     STX $00
     JSR $&tile_collision.ReadCollisionNibble
     CMP #$0E              ; Solid ($0E+) below → block north movement
@@ -196,7 +196,7 @@ DispatchNorthMove {
 ---------------------------------------------
 ; Right-descending slope ($03) during north movement.
 ; 
-; Verifies CurrentTR is also $03 (consistent slope across both corners). If TR doesn't match → blocked wall. Checks sub-tile Y alignment and MapCellRight adjacency: if the right neighbor is also $03, skip the position check.
+; Verifies CurrentTR is also $03 (consistent slope across both corners). If TR doesn't match → blocked wall. Checks sub-tile Y alignment and MapCellDown adjacency: if the cell below is also $03, skip the position check.
 ; 
 ; Sub-tile position: ($26+$24) >> 2, AND $0F, then inverted from top (SBC $10, EOR $FF, INC → distance from top of tile). If < $08 (player in upper half), applies movement deltas directly. Otherwise sets $09AF bit $10 (slope flag) and applies deltas.
 
@@ -206,7 +206,7 @@ NorthSlopeRight {
     BNE loc_02D0AF
     JSR $&tile_collision.CheckSubTileAlignY ; CheckSubTileAlignY: Y sub-tile position gates slope traversal
     BCC loc_02D11A
-    JSR $&tile_collision.MapCellDown ; MapCellRight: adjacent cell must also be $03 for smooth slope continue
+    JSR $&tile_collision.MapCellDown ; MapCellDown: cell below must also be $03 for smooth slope continue
     JSR $&tile_collision.ReadCollisionNibble
     CMP #$03
     BEQ loc_02D11A
@@ -233,7 +233,7 @@ NorthSlopeRight {
 ---------------------------------------------
 ; Left-descending slope ($0C) during north movement, with fractional accumulation.
 ; 
-; Same initial structure as NorthSlopeRight: verify TR matches $0C, check sub-tile Y alignment and MapCellRight adjacency.
+; Same initial structure as NorthSlopeRight: verify TR matches $0C, check sub-tile Y alignment and MapCellDown adjacency.
 ; 
 ; Fractional slope physics (inverted for negative velocity):
 ;   1. Clamp slopeFracAccum to non-positive (positive → zero, using BMI/STZ). Opposite polarity from EastSlopeLeft since $24 is negative.
@@ -250,7 +250,7 @@ NorthSlopeLeft {
     BNE loc_02D0AF
     JSR $&tile_collision.CheckSubTileAlignY ; CheckSubTileAlignY for left-slope traversal gate
     BCC loc_02D14E
-    JSR $&tile_collision.MapCellDown ; MapCellRight adjacency: neighbor must be $0C for continued slope
+    JSR $&tile_collision.MapCellDown ; MapCellDown adjacency: cell below must be $0C for continued slope
     JSR $&tile_collision.ReadCollisionNibble
     CMP #$0C
     BEQ loc_02D14E
@@ -309,7 +309,7 @@ NorthSlopeLeft {
 ; South-wall ($06) interaction during north movement — handles CurrentTL being a south-wall tile.
 ; 
 ; First checks CurrentBR: if also $06 → ClearMovementDeltas (player enclosed between two south walls). Otherwise: ProbeFutureTL with sub-tile Y alignment.
-;   - Aligned + FutureTL $06: MapCellDown/MapCellRight adjacency chain — if either nonzero → ClearSpeedNS_1. If both zero → ComputeYSnapOffset + FineAdjustXWest (slide west along south wall).
+;   - Aligned + FutureTL $06: MapCellRight/MapCellDown adjacency chain — if either nonzero → ClearSpeedNS_1. If both zero → ComputeYSnapOffset + FineAdjustXWest (slide west along south wall).
 ;   - Not aligned: SnapXDiagCollision, re-probe FutureTL — if $06 → compute snap. Otherwise → zero $24, SnapYSouthCollision, ApplyMovementDeltas.
 
 SouthWallHandler {
@@ -326,11 +326,11 @@ SouthWallHandler {
     BNE loc_02D1B2
 
   loc_02D19E:
-    JSR $&tile_collision.MapCellRight ; Gap probe: MapCellDown below south wall — empty cell allows passthrough
+    JSR $&tile_collision.MapCellRight ; Gap probe: MapCellRight from south wall — adjacent cell allows passthrough
     STX $00
     JSR $&tile_collision.ReadCollisionNibble
     BNE ClearSpeedNS_1
-    JSR $&tile_collision.MapCellDown ; MapCellRight from gap cell — both must be walkable or clear NS speed
+    JSR $&tile_collision.MapCellDown ; MapCellDown from gap cell — both must be walkable or clear NS speed
     JSR $&tile_collision.ReadCollisionNibble
     BNE ClearSpeedNS_1
     BRA loc_02D1C6
@@ -358,7 +358,7 @@ SouthWallHandler {
 ; 
 ; Guard: $AB bit $02 (wall interaction flag from prior collision pass). If set AND sub-tile X aligned (CheckSubTileAlignX carry clear): zero $24 and apply deltas immediately — stops NS movement while preserving EW velocity for diagonal cases.
 ; 
-; Otherwise: MapCellDown → if ≥ $0E (solid wall) → redirect to SnapYSouthCollision path (loc_02D1BC). If non-solid → redirect to SouthWallHandler's adjacency chain (loc_02D19E) for MapCellDown/Right gap checking.
+; Otherwise: MapCellRight → if ≥ $0E (solid wall) → redirect to SnapYSouthCollision path (loc_02D1BC). If non-solid → redirect to SouthWallHandler's adjacency chain (loc_02D19E) for MapCellRight/MapCellDown gap checking.
 
 SouthWallNudge {
     LDA $AB               ; SouthWallNudge: $AB bit $02 set → special aligned push path
@@ -371,13 +371,13 @@ SouthWallNudge {
     JMP $&tile_collision.ApplyMovementDeltas
 
   loc_02D1E0:
-    JSR $&tile_collision.MapCellRight ; MapCellDown from future TL for south-wall boundary case
+    JSR $&tile_collision.MapCellRight ; MapCellRight from future TL for south-wall boundary case
     JSR $&tile_collision.ReadCollisionNibble
     CMP #$0E              ; Solid ≥ $0E below → redirect to hard Y-snap + apply path
     BCS loc_02D1BC
     BRA loc_02D19E        ; Passable below → join south-wall gap probe chain (loc_02D19E)
 
-; Zero playerSpeedNs ($09B4) and return. Instance 1 — used by SouthWallHandler's MapCellDown/Right adjacency checks when an impassable neighbor is found.
+; Zero playerSpeedNs ($09B4) and return. Instance 1 — used by SouthWallHandler's MapCellRight/MapCellDown adjacency checks when an impassable neighbor is found.
 
   ClearSpeedNS_1:
     REP #$20              ; Gap found under south wall lip: clear $playerSpeedNs
@@ -389,8 +389,8 @@ SouthWallNudge {
 ; North-wall ($09) interaction during north movement — handles CurrentTR being a north-wall tile.
 ; 
 ; First checks CurrentBL: if also $09 → ClearMovementDeltas (enclosed between two north walls). Otherwise: ProbeFutureTR with sub-tile Y alignment.
-;   - Aligned + FutureTR $09: MapCellUp/MapCellRight adjacency — if either nonzero → ClearSpeedNS_2. If both zero → ComputeYSnapOffset + FineAdjustXEast (slide east along north wall).
-;   - Not aligned: SnapXEastCollision (snap X from player_move_ew), re-probe FutureTR — if $09 → compute snap. Otherwise → zero $24, SnapYSouthCollision, ApplyMovementDeltas.
+;   - Aligned + FutureTR $09: MapCellLeft/MapCellDown adjacency — if either nonzero → ClearSpeedNS_2. If both zero → ComputeYSnapOffset + FineAdjustXEast (slide east along north wall).
+;   - Not aligned: SnapXEastCollision (snap X from player_move_east), re-probe FutureTR — if $09 → compute snap. Otherwise → zero $24, SnapYSouthCollision, ApplyMovementDeltas.
 
 NorthWallHandler {
     JSR $&tile_collision.ProbeCurrentBL ; North wall ($09) during north move: probe current bottom-left for continuous wall
@@ -406,11 +406,11 @@ NorthWallHandler {
     BNE loc_02D21C
 
   loc_02D208:
-    JSR $&tile_collision.MapCellLeft ; Gap probe: MapCellUp above north-wall lip — walkable cell allows passthrough
+    JSR $&tile_collision.MapCellLeft ; Gap probe: MapCellLeft from north-wall lip — adjacent cell allows passthrough
     STX $00
     JSR $&tile_collision.ReadCollisionNibble
     BNE ClearSpeedNS_2
-    JSR $&tile_collision.MapCellDown ; MapCellRight from gap — both cells must be open or clear NS speed
+    JSR $&tile_collision.MapCellDown ; MapCellDown from gap — both cells must be open or clear NS speed
     JSR $&tile_collision.ReadCollisionNibble
     BNE ClearSpeedNS_2
     BRA loc_02D230
@@ -434,14 +434,14 @@ NorthWallHandler {
 ---------------------------------------------
 ; Bridge routine when sub-tile alignment finds $09 during north movement.
 ; 
-; Probes MapCellRight + ReadCollisionNibble at the future position, then falls into NorthWallHandler's MapCellUp adjacency chain at loc_02D208. This provides an alternate entry point that bypasses the initial FutureTR probe since $09 was already confirmed by the caller.
+; Probes MapCellDown + ReadCollisionNibble at the future position, then falls into NorthWallHandler's MapCellLeft adjacency chain at loc_02D208. This provides an alternate entry point that bypasses the initial FutureTR probe since $09 was already confirmed by the caller.
 
 NorthProbeRedirect {
-    JSR $&tile_collision.MapCellDown ; Extended north-wall probe: MapCellRight from future TL destination
+    JSR $&tile_collision.MapCellDown ; Extended north-wall probe: MapCellDown from future TL destination
     JSR $&tile_collision.ReadCollisionNibble
     BRA loc_02D208        ; Bridge into NorthWallHandler gap probe chain at loc_02D208
 
-; Zero playerSpeedNs and return. Instance 2 — used by NorthWallHandler's MapCellUp/Right adjacency checks.
+; Zero playerSpeedNs and return. Instance 2 — used by NorthWallHandler's MapCellLeft/MapCellDown adjacency checks.
 
   ClearSpeedNS_2:
     REP #$20              ; Gap found above north wall lip: clear $playerSpeedNs

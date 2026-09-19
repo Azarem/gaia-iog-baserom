@@ -1,4 +1,4 @@
-?INCLUDE 'func_06B9F2'
+?INCLUDE 'ActorDisplayModeSwap'
 ?INCLUDE 'npc_wander_ai'
 
 !currentHp                      7F0026
@@ -9,7 +9,7 @@ av6B_ocean_ache [
   actor-def < #02, #00, #10, {
 
   code_06C6DD:
-    JSL $@func_06B9F2
+    JSL $@ActorDisplayModeSwap
     COP [SetOnInteract] ( &code_06C6FC )
     LDA #$0002
     STA $currentHp, X

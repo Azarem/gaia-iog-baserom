@@ -1,4 +1,4 @@
-?INCLUDE 'func_06B9F2'
+?INCLUDE 'ActorDisplayModeSwap'
 
 !playerXPos                     09A2
 !playerYPos                     09A4
@@ -21,7 +21,7 @@ eu91_shop_queue [
     STZ $2A
     COP [SetEntryContinue]
     COP [AnimOneFrame]
-    JSL $@func_06B9F2
+    JSL $@ActorDisplayModeSwap
     COP [SetOnInteract] ( &code_07D39A )
     TXY 
     LDA $24

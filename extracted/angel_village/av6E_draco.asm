@@ -1,4 +1,4 @@
-?INCLUDE 'func_0AA41C'
+?INCLUDE 'ActorMidpointCalc'
 ?INCLUDE 'StandardEnemyDefeatHandler'
 ?INCLUDE 'table_0EE000'
 
@@ -107,7 +107,7 @@ code_0AEFF0 {
 
   loc_0AEFF9:
     COP [SetEntryContinue]
-    JSL $@func_0AA41C
+    JSL $@ActorMidpointCalc
     LDY $24
     LDA $000E, Y
     STA $0E
@@ -118,7 +118,7 @@ code_0AEFF0 {
 
   loc_0AF00F:
     COP [SetEntryContinue]
-    JSL $@func_0AA41C
+    JSL $@ActorMidpointCalc
     LDY $24
     LDA $0010, Y
     BIT #$0080

@@ -85,9 +85,9 @@ code_08B893 {
     CMP #$0001
     BEQ loc_08B90C
     LDY $playerActor
-    LDA #$*sE6_gaia.func_08F3B1
+    LDA #$*sE6_gaia.Transform_ShadowToWill
     STA $0002, Y
-    LDA #$&sE6_gaia.func_08F3B1
+    LDA #$&sE6_gaia.Transform_ShadowToWill
     STA $0000, Y
     LDA #$0800
     TSB $playerFlags
@@ -95,9 +95,9 @@ code_08B893 {
 
   loc_08B90C:
     LDY $playerActor
-    LDA #$*sE6_gaia.func_08F37D
+    LDA #$*sE6_gaia.Transform_FreedanToWill
     STA $0002, Y
-    LDA #$&sE6_gaia.func_08F37D
+    LDA #$&sE6_gaia.Transform_FreedanToWill
     STA $0000, Y
     LDA #$0800
     TSB $playerFlags

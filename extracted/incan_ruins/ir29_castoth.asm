@@ -2,9 +2,9 @@
 ?INCLUDE 'camera_drift'
 ?INCLUDE 'cop_handlers_flags'
 ?INCLUDE 'enemy_stats_table'
-?INCLUDE 'func_0AA36E'
 ?INCLUDE 'player_transition_handlers'
 ?INCLUDE 'sE6_gaia'
+?INCLUDE 'SetPlayerGameOverFlag'
 ?INCLUDE 'StandardEnemyDefeatHandler'
 ?INCLUDE 'table_0EE000'
 
@@ -52,9 +52,9 @@ btF2_neo_castoth [
     CMP #$0002
     BEQ loc_0A9A43
     LDY $playerActor
-    LDA #$*sE6_gaia.func_08F5F9
+    LDA #$*sE6_gaia.Transform_WillToShadow
     STA $0002, Y
-    LDA #$&sE6_gaia.func_08F5F9
+    LDA #$&sE6_gaia.Transform_WillToShadow
     STA $0000, Y
     LDA #$0000
     STA $0008, Y
@@ -124,9 +124,9 @@ code_0A9AB9 {
 
   loc_0A9AC1:
     LDY $playerActor
-    LDA #$*sE6_gaia.func_08F3B1
+    LDA #$*sE6_gaia.Transform_ShadowToWill
     STA $0002, Y
-    LDA #$&sE6_gaia.func_08F3B1
+    LDA #$&sE6_gaia.Transform_ShadowToWill
     STA $0000, Y
     LDA #$0000
     STA $0008, Y
@@ -290,7 +290,7 @@ func_0A9C1E {
     STA $0000, Y
     LDA #$0000
     STA $0008, Y
-    COP [SpawnLastRel] ( @func_0AA36E, #00, #00, #$2000 )
+    COP [SpawnLastRel] ( @SetPlayerGameOverFlag, #00, #00, #$2000 )
     COP [SpawnLastRel] ( @code_0A9C8E, #00, #00, #$2000 )
     COP [WaitByte] ( #3B )
     COP [SetMetasprite] ( @table_0EE000 )

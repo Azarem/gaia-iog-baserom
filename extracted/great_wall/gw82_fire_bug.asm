@@ -1,4 +1,4 @@
-?INCLUDE 'func_0AA43F'
+?INCLUDE 'EnemyDefeatDispatch'
 
 !moveXAlt                       7F0018
 !moveYAlt                       7F001A
@@ -183,5 +183,5 @@ code_0B8D99 {
 }
 
 code_0B8DB9 {
-    COP [JumpScript] ( @func_0AA43F )
+    COP [JumpScript] ( @EnemyDefeatDispatch )
 }

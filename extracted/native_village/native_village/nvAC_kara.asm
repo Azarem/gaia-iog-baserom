@@ -1,4 +1,4 @@
-?INCLUDE 'nv_actor_0881A5'
+?INCLUDE 'nv_village_event_sprite'
 
 !gfxCacheIdxB                   064A
 !joypadMaskStd                  065A
@@ -88,7 +88,7 @@ code_0880D6 {
 }
 
 code_088152 {
-    COP [SpawnAfterAbsFlags] ( @nv_actor_0881A5, #$0088, #$00FE, #$1002 )
+    COP [SpawnAfterAbsFlags] ( @nv_village_event_sprite, #$0088, #$00FE, #$1002 )
     LDA #$CFF0
     TSB $joypadMaskStd
     COP [SetTilePos] ( #06, #10 )
@@ -105,7 +105,7 @@ code_088152 {
     COP [PrintDialogString] ( &dialogstring_088811 )
     COP [ClearFlagByte] ( #03 )
     COP [ExitIfFlagByte] ( #05, #01 )
-    COP [SpawnAfterFlags] ( @nv_actor_0881A5.code_0881AE, #$1002 )
+    COP [SpawnAfterFlags] ( @nv_village_event_sprite.code_0881AE, #$1002 )
     COP [StageSpriteFrame] ( #0A )
     COP [AnimOnce]
     COP [SetOnInteract] ( &code_0881DD )

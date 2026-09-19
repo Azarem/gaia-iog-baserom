@@ -1,3 +1,64 @@
+; Dark Space / Gaia actor — scene $E6 master controller for save, heal, transform, and ability systems.
+; 
+; Implements the complete Dark Space experience: Gaia dialogue (location-specific hints), HP healing,
+; game save via SRAM, character form transformation (Will ↔ Freedan ↔ Shadow), and ability acquisition
+; (Psycho Dash, Psycho Slider, Spin Dash, Dark Friar, Aura Barrier, Earthquaker).
+; 
+; === ACTOR ARCHITECTURE ===
+; 
+; The main actor-def spawns three child actors:
+; - code_08F687: Firefly particle spawner (ambient VFX loop)
+; - GaiaNpcSprite: Gaia NPC sprite (single idle frame)
+; - code_09A096: Gaia voice sparkle reactor (responds to SFX activity)
+; 
+; After spawning, SwitchCase on $0AB2 (Dark Space layout variant, capped at 3) dispatches to
+; one of four room layouts:
+; - Case 0 (code_08D856): Basic Dark Space — Gaia statue only
+; - Case 1 (code_08D87C): Form-dependent — adds transformation statue(s)
+; - Case 2 (code_08D9CC): Ability acquisition — scene-based ability orb
+; - Case 3 (code_08DA7D): Special — redirects to case 1 with $0AAC=1
+; 
+; === DARK SPACE EXIT ($0B08–$0B12) ===
+; 
+; On exit, DarkSpaceExit reads the stored return state:
+; - $0B12 → sceneNext (destination scene)
+; - $0B08 → camera X position (×16 for tile-to-pixel)
+; - $0B0C → camera Y position (+2, ×16)
+; - $0B10 → $0652 (transition auxiliary data)
+; Uses mosaic transition (gfxCacheIdxA = $0002) with brightness fade ($0101).
+; 
+; === GAIA DIALOGUE FLOW ===
+; 
+; 1. First visit: intro lore (flag $DC tracks first encounter)
+; 2. HP check: if hurt, Gaia heals via damageFlashTimer = $28
+; 3. Location hint: GaiaHintSceneTable maps sceneIDs to a 34-entry hint dispatch table
+; 4. Save prompt: yes/no → SaveGameState_Scene → continue/rest prompt
+; 
+; === TRANSFORMATION SYSTEM ===
+; 
+; Three character forms, each with dedicated animation routines:
+; - Will → Freedan: Transform_WillToFreedan (standing) / Transform_WillToFreedanAlt (alternate)
+; - Will → Shadow: Transform_WillToShadow
+; - Freedan → Will: Transform_FreedanToWill
+; - Freedan → Shadow: Transform_FreedanToShadow
+; - Shadow → Will: Transform_ShadowToWill
+; - Shadow → Freedan: Transform_ShadowToFreedan
+; 
+; All transformations use spriteset #05 (transformation frames), play SFX $2525,
+; spawn PaletteResetAndKillThinker, and call RestorePlayerControl to restore player control.
+; 
+; === ABILITY SYSTEM ===
+; 
+; AbilitySceneTable maps scene IDs to ability/statue flags (2 bytes per entry):
+; - Byte 0: scene ID
+; - Byte 1 low nibble: ability index (0–5)
+; - Byte 1 high nibble: statue type (0 = Will/Freedan statue, nonzero = Shadow statue)
+; 
+; AbilityOrbActor spawns the ability orb actor, which checks abilityBitmask to skip already-learned
+; abilities. On interaction, the orb grants the ability via abilityBitmask OR, plays acquisition
+; music (#18), and shows the ability description dialogue.
+---------------------------------------------
+
 ?INCLUDE 'actor_pool'
 ?INCLUDE 'player_character'
 ?INCLUDE 'save_system'
@@ -27,206 +88,206 @@
 sE6_gaia [
   actor-def < #00, #00, #23, {
 
-  code_08D7AB:
-    COP [SpawnAfterFlags] ( @code_08F687, #$2800 )
-    COP [SpawnAfterAbsFlags] ( @e_actor_09A090, #$0080, #$0040, #$1800 )
-    COP [SpawnAfterAbsFlags] ( @code_09A096, #$0080, #$0058, #$1800 )
-    LDA $0AAC
-    CMP #$0004
+  DarkSpaceMainInit:
+    COP [SpawnAfterFlags] ( @FireflySpawnerLoop, #$2800 ) ; Firefly particle spawner
+    COP [SpawnAfterAbsFlags] ( @GaiaNpcSprite, #$0080, #$0040, #$1800 ) ; Gaia NPC sprite at (128,64)
+    COP [SpawnAfterAbsFlags] ( @GaiaVoiceSparkle, #$0080, #$0058, #$1800 ) ; Voice sparkle reactor at (128,88)
+    LDA $0AAC             ; Dark Space layout variant
+    CMP #$0004            ; Cap at 3 (valid range 0–3)
     BCC loc_08D7D3
-    LDA #$0000
+    LDA #$0000            ; Invalid → default to layout 0
 
   loc_08D7D3:
-    STA $0AB2
-    STZ $0AAC
+    STA $0AB2             ; Store validated layout
+    STZ $0AAC             ; Reset selection state
     STA $0000
-    COP [SwitchCase] ( #$0000, &code_list_08D7E2 )
+    COP [SwitchCase] ( #$0000, &code_list_08D7E2 ) ; Dispatch to room layout handler
 } >
 ]
 
 code_list_08D7E2 [
-  &code_08D856   ;00
-  &code_08D87C   ;01
-  &code_08D9CC   ;02
-  &code_08DA7D   ;03
+  &DS_LayoutBasic   ;00
+  &DS_LayoutTransform   ;01
+  &DS_LayoutAbility   ;02
+  &DS_LayoutSpecial   ;03
 ]
 ---------------------------------------------
 
-func_08D7EA {
-    LDA #$FFF0
+DarkSpaceExit {
+    LDA #$FFF0            ; Mask all joypad input
     TSB $joypadMaskStd
     LDY $playerActor
-    LDA $0010, Y
+    LDA $0010, Y          ; Hide player sprite (bit 13)
     ORA #$2000
     STA $0010, Y
-    LDA $0014, Y
+    LDA $0014, Y          ; Copy player position to this actor
     STA $14
     LDA $0016, Y
     STA $16
-    COP [PlaySoundBoth] ( #$0C0C )
-    LDA #$2000
+    COP [PlaySoundBoth] ( #$0C0C ) ; Dissolve SFX on both channels
+    LDA #$2000            ; Show this actor's sprite
     TRB $10
-    COP [SetMetasprite] ( @table_0EE000 )
-    COP [StageSpriteFrame] ( #1C )
+    COP [SetMetasprite] ( @table_0EE000 ) ; Transformation spriteset
+    COP [StageSpriteFrame] ( #1C ) ; Exit dissolve frame
     COP [AnimOnce]
-    COP [WaitByte] ( #1D )
-    LDA $0B12
+    COP [WaitByte] ( #1D ) ; Wait 29 frames for dissolve
+    LDA $0B12             ; Return scene ID
     STA $sceneNext
-    LDA $0B08
+    LDA $0B08             ; Return camera X (tile coords)
+    ASL                   ; ×16: tile → pixel
     ASL 
     ASL 
     ASL 
-    ASL 
-    STA $064C
-    LDA $0B0C
+    STA $064C             ; Camera target X
+    LDA $0B0C             ; Return camera Y (tile coords)
+    INC                   ; +2 tile offset
     INC 
-    INC 
+    ASL                   ; ×16: tile → pixel
     ASL 
     ASL 
     ASL 
-    ASL 
-    STA $064E
-    LDA #$0003
+    STA $064E             ; Camera target Y
+    LDA #$0003            ; Transition flags
     STA $0650
-    LDA $0B10
+    LDA $0B10             ; Transition auxiliary data
     STA $0652
-    STZ $0AAC
-    LDA #$0101
+    STZ $0AAC             ; Reset selection state
+    LDA #$0101            ; Brightness fade speed 1/1
     STA $gfxCacheIdxB
-    LDA #$0002
+    LDA #$0002            ; Mosaic dissolve transition
     STA $gfxCacheIdxA
     COP [SetEntryContinue]
     RTL 
 }
 
-code_08D856 {
+DS_LayoutBasic {
     COP [SetEntryContinue]
-    COP [BranchIfPlayerInAbsTiles] ( #07, #08, #09, #09, &code_08D862 )
+    COP [BranchIfPlayerInAbsTiles] ( #07, #08, #09, #09, &DS_BasicWait ) ; At Gaia statue → wait
     BRA loc_08D863
 }
 
-code_08D862 {
+DS_BasicWait {
     RTL 
 
   loc_08D863:
     COP [SetEntryContinue]
-    COP [BranchIfPlayerInAbsTiles] ( #07, #08, #09, #09, &code_08D876 )
-    COP [BranchIfPlayerInAbsTiles] ( #05, #0D, #0B, #0F, &func_08D7EA )
+    COP [BranchIfPlayerInAbsTiles] ( #07, #08, #09, #09, &DS_BasicTalkGaia ) ; At statue → talk to Gaia
+    COP [BranchIfPlayerInAbsTiles] ( #05, #0D, #0B, #0F, &DarkSpaceExit ) ; At exit → leave Dark Space
     RTL 
 }
 
-code_08D876 {
-    COP [CallScript] ( &code_08DAF0 )
-    BRA code_08D856
+DS_BasicTalkGaia {
+    COP [CallScript] ( &GaiaDialogueEntry )
+    BRA DS_LayoutBasic
 }
 
-code_08D87C {
-    LDA $characterForm
+DS_LayoutTransform {
+    LDA $characterForm    ; Current character form
     STA $0000
-    COP [SwitchCase] ( #$0000, &code_list_08D888 )
+    COP [SwitchCase] ( #$0000, &code_list_08D888 ) ; Dispatch by form
 }
 
 code_list_08D888 [
-  &code_08D88E   ;00
-  &code_08D8FA   ;01
-  &code_08D966   ;02
+  &DS_WillTransformRoom   ;00
+  &DS_FreedanTransformRoom   ;01
+  &DS_ShadowTransformRoom   ;02
 ]
 
-code_08D88E {
+DS_WillTransformRoom {
     COP [StageBgChange] ( #88 )
     COP [ApplyBgChange]
     COP [StageBgChange] ( #8A )
     COP [ApplyBgChange]
-    COP [BranchIfFlagByte] ( #B4, #00, &code_08D8A8 )
+    COP [BranchIfFlagByte] ( #B4, #00, &DS_WillInputWait )
     COP [StageBgChange] ( #8E )
     COP [ApplyBgChange]
     COP [StageBgChange] ( #8F )
     COP [ApplyBgChange]
 }
 
-code_08D8A8 {
+DS_WillInputWait {
     COP [SetEntryContinue]
-    COP [BranchIfPlayerInAbsTiles] ( #07, #08, #09, #09, &code_08D8C4 )
-    COP [BranchIfPlayerInAbsTiles] ( #03, #0A, #05, #0B, &code_08D8C4 )
-    COP [BranchIfPlayerInAbsTiles] ( #0B, #0A, #0D, #0B, &code_08D8C4 )
+    COP [BranchIfPlayerInAbsTiles] ( #07, #08, #09, #09, &DS_WillTileWait )
+    COP [BranchIfPlayerInAbsTiles] ( #03, #0A, #05, #0B, &DS_WillTileWait )
+    COP [BranchIfPlayerInAbsTiles] ( #0B, #0A, #0D, #0B, &DS_WillTileWait )
     BRA loc_08D8C5
 }
 
-code_08D8C4 {
+DS_WillTileWait {
     RTL 
 
   loc_08D8C5:
     COP [SetEntryContinue]
-    COP [BranchIfPlayerInAbsTiles] ( #07, #08, #09, #09, &code_08D8E8 )
-    COP [BranchIfPlayerInAbsTiles] ( #03, #0A, #05, #0B, &code_08D8EE )
-    COP [BranchIfPlayerInAbsTiles] ( #0B, #0A, #0D, #0B, &code_08D8F4 )
-    COP [BranchIfPlayerInAbsTiles] ( #05, #0D, #0B, #0F, &func_08D7EA )
+    COP [BranchIfPlayerInAbsTiles] ( #07, #08, #09, #09, &DS_WillTalkGaia )
+    COP [BranchIfPlayerInAbsTiles] ( #03, #0A, #05, #0B, &DS_WillToFreedan )
+    COP [BranchIfPlayerInAbsTiles] ( #0B, #0A, #0D, #0B, &DS_WillToShadow )
+    COP [BranchIfPlayerInAbsTiles] ( #05, #0D, #0B, #0F, &DarkSpaceExit )
     RTL 
 }
 
-code_08D8E8 {
-    COP [CallScript] ( &code_08DAF0 )
-    BRA code_08D8A8
+DS_WillTalkGaia {
+    COP [CallScript] ( &GaiaDialogueEntry ) ; Gaia statue → dialogue
+    BRA DS_WillInputWait
 }
 
-code_08D8EE {
-    COP [CallScript] ( &code_08F088 )
-    BRA code_08D8A8
+DS_WillToFreedan {
+    COP [CallScript] ( &FreedanTransformDialogue ) ; Left statue → Freedan transform
+    BRA DS_WillInputWait
 }
 
-code_08D8F4 {
-    COP [CallScript] ( &func_08F3EA )
-    BRA code_08D8A8
+DS_WillToShadow {
+    COP [CallScript] ( &ShadowTransformDialogue ) ; Right statue → Shadow transform
+    BRA DS_WillInputWait
 }
 
-code_08D8FA {
+DS_FreedanTransformRoom {
     COP [StageBgChange] ( #87 )
     COP [ApplyBgChange]
     COP [StageBgChange] ( #8A )
     COP [ApplyBgChange]
-    COP [BranchIfFlagByte] ( #B4, #00, &code_08D914 )
+    COP [BranchIfFlagByte] ( #B4, #00, &DS_FreedanInputWait )
     COP [StageBgChange] ( #8E )
     COP [ApplyBgChange]
     COP [StageBgChange] ( #8F )
     COP [ApplyBgChange]
 }
 
-code_08D914 {
+DS_FreedanInputWait {
     COP [SetEntryContinue]
-    COP [BranchIfPlayerInAbsTiles] ( #07, #08, #09, #09, &code_08D930 )
-    COP [BranchIfPlayerInAbsTiles] ( #03, #0A, #05, #0B, &code_08D930 )
-    COP [BranchIfPlayerInAbsTiles] ( #0B, #0A, #0D, #0B, &code_08D930 )
+    COP [BranchIfPlayerInAbsTiles] ( #07, #08, #09, #09, &DS_FreedanTileWait )
+    COP [BranchIfPlayerInAbsTiles] ( #03, #0A, #05, #0B, &DS_FreedanTileWait )
+    COP [BranchIfPlayerInAbsTiles] ( #0B, #0A, #0D, #0B, &DS_FreedanTileWait )
     BRA loc_08D931
 }
 
-code_08D930 {
+DS_FreedanTileWait {
     RTL 
 
   loc_08D931:
     COP [SetEntryContinue]
-    COP [BranchIfPlayerInAbsTiles] ( #07, #08, #09, #09, &code_08D954 )
-    COP [BranchIfPlayerInAbsTiles] ( #03, #0A, #05, #0B, &code_08D95A )
-    COP [BranchIfPlayerInAbsTiles] ( #0B, #0A, #0D, #0B, &code_08D960 )
-    COP [BranchIfPlayerInAbsTiles] ( #05, #0D, #0B, #0F, &func_08D7EA )
+    COP [BranchIfPlayerInAbsTiles] ( #07, #08, #09, #09, &DS_FreedanTalkGaia )
+    COP [BranchIfPlayerInAbsTiles] ( #03, #0A, #05, #0B, &DS_FreedanRevertWill )
+    COP [BranchIfPlayerInAbsTiles] ( #0B, #0A, #0D, #0B, &DS_FreedanToShadow )
+    COP [BranchIfPlayerInAbsTiles] ( #05, #0D, #0B, #0F, &DarkSpaceExit )
     RTL 
 }
 
-code_08D954 {
-    COP [CallScript] ( &code_08DAF0 )
-    BRA code_08D914
+DS_FreedanTalkGaia {
+    COP [CallScript] ( &GaiaDialogueEntry ) ; Gaia statue → dialogue
+    BRA DS_FreedanInputWait
 }
 
-code_08D95A {
-    COP [CallScript] ( &func_08F2DF )
-    BRA code_08D914
+DS_FreedanRevertWill {
+    COP [CallScript] ( &WillRevertDialogue ) ; Left statue → revert to Will
+    BRA DS_FreedanInputWait
 }
 
-code_08D960 {
-    COP [CallScript] ( &func_08F3EA )
-    BRA code_08D914
+DS_FreedanToShadow {
+    COP [CallScript] ( &ShadowTransformDialogue ) ; Right statue → Shadow transform
+    BRA DS_FreedanInputWait
 }
 
-code_08D966 {
+DS_ShadowTransformRoom {
     COP [StageBgChange] ( #87 )
     COP [ApplyBgChange]
     COP [StageBgChange] ( #8A )
@@ -238,83 +299,83 @@ code_08D966 {
 
   loc_08D97A:
     COP [SetEntryContinue]
-    COP [BranchIfPlayerInAbsTiles] ( #07, #08, #09, #09, &code_08D996 )
-    COP [BranchIfPlayerInAbsTiles] ( #03, #0A, #05, #0B, &code_08D996 )
-    COP [BranchIfPlayerInAbsTiles] ( #0B, #0A, #0D, #0B, &code_08D996 )
+    COP [BranchIfPlayerInAbsTiles] ( #07, #08, #09, #09, &DS_ShadowTileWait )
+    COP [BranchIfPlayerInAbsTiles] ( #03, #0A, #05, #0B, &DS_ShadowTileWait )
+    COP [BranchIfPlayerInAbsTiles] ( #0B, #0A, #0D, #0B, &DS_ShadowTileWait )
     BRA loc_08D997
 }
 
-code_08D996 {
+DS_ShadowTileWait {
     RTL 
 
   loc_08D997:
     COP [SetEntryContinue]
-    COP [BranchIfPlayerInAbsTiles] ( #07, #08, #09, #09, &code_08D9BA )
-    COP [BranchIfPlayerInAbsTiles] ( #03, #0A, #05, #0B, &code_08D9C0 )
-    COP [BranchIfPlayerInAbsTiles] ( #0B, #0A, #0D, #0B, &code_08D9C6 )
-    COP [BranchIfPlayerInAbsTiles] ( #05, #0D, #0B, #0F, &func_08D7EA )
+    COP [BranchIfPlayerInAbsTiles] ( #07, #08, #09, #09, &DS_ShadowTalkGaia )
+    COP [BranchIfPlayerInAbsTiles] ( #03, #0A, #05, #0B, &DS_ShadowRevertWill )
+    COP [BranchIfPlayerInAbsTiles] ( #0B, #0A, #0D, #0B, &DS_ShadowToFreedan )
+    COP [BranchIfPlayerInAbsTiles] ( #05, #0D, #0B, #0F, &DarkSpaceExit )
     RTL 
 }
 
-code_08D9BA {
-    COP [CallScript] ( &code_08DAF0 )
+DS_ShadowTalkGaia {
+    COP [CallScript] ( &GaiaDialogueEntry )
     BRA loc_08D97A
 }
 
-code_08D9C0 {
-    COP [CallScript] ( &func_08F2DF )
+DS_ShadowRevertWill {
+    COP [CallScript] ( &WillRevertDialogue )
     BRA loc_08D97A
 }
 
-code_08D9C6 {
-    COP [CallScript] ( &code_08F088 )
+DS_ShadowToFreedan {
+    COP [CallScript] ( &FreedanTransformDialogue )
     BRA loc_08D97A
 }
 
-code_08D9CC {
+DS_LayoutAbility {
     COP [StageBgChange] ( #8A )
     COP [ApplyBgChange]
     PHX 
     LDX #$0000
 
   loc_08D9D5:
-    LDA $@binary_08EB5A, X
-    BEQ loc_08DA44
+    LDA $@AbilitySceneTable, X ; Search scene→ability table
+    BEQ loc_08DA44        ; End of table → no ability for this scene
     AND #$00FF
-    CMP $0B12
+    CMP $0B12             ; Match current scene ID?
     BEQ loc_08D9E7
     INX 
     INX 
     BRA loc_08D9D5
 
   loc_08D9E7:
-    LDA $@binary_08EB5A+1, X
+    LDA $@AbilitySceneTable+1, X ; Read ability/statue flags
     AND #$00FF
     PLX 
-    AND #$000F
-    BEQ loc_08DA1C
-    COP [StageBgChange] ( #86 )
+    AND #$000F            ; Low nibble: statue type
+    BEQ loc_08DA1C        ; 0 → Will/Freedan statue
+    COP [StageBgChange] ( #86 ) ; Show Freedan/Will statue BG
     COP [ApplyBgChange]
-    LDA #$0000
+    LDA #$0000            ; orbitAngle=0: Will/Freedan ability
     STA $orbitAngle, X
-    COP [SpawnLastRel] ( @func_08E9D4, #00, #00, #$3800 )
-    LDA #$0040
+    COP [SpawnLastRel] ( @AbilityOrbActor, #00, #00, #$3800 ) ; Spawn ability orb actor
+    LDA #$0040            ; Orb X position (64px)
     STA $0014, Y
-    LDA #$006D
+    LDA #$006D            ; Orb Y position (109px)
     STA $0016, Y
     LDA $06
     STA $0026, Y
     BRA loc_08DA45
 
   loc_08DA1C:
-    COP [StageBgChange] ( #8B )
+    COP [StageBgChange] ( #8B ) ; Show Shadow statue BG
     COP [ApplyBgChange]
-    LDA #$0001
+    LDA #$0001            ; orbitAngle=1: Shadow ability
     STA $orbitAngle, X
-    COP [SpawnLastRel] ( @func_08E9D4, #00, #00, #$3800 )
-    LDA #$0040
+    COP [SpawnLastRel] ( @AbilityOrbActor, #00, #00, #$3800 ) ; Spawn ability orb actor
+    LDA #$0040            ; Orb X position (64px)
     STA $0014, Y
-    LDA #$0054
+    LDA #$0054            ; Orb Y position (84px)
     STA $0016, Y
     LDA $06
     STA $0026, Y
@@ -325,42 +386,42 @@ code_08D9CC {
 
   loc_08DA45:
     COP [SetEntryContinue]
-    COP [BranchIfPlayerInAbsTiles] ( #07, #08, #09, #09, &code_08DA51 )
+    COP [BranchIfPlayerInAbsTiles] ( #07, #08, #09, #09, &DS_AbilityTileWait )
     BRA loc_08DA52
 }
 
-code_08DA51 {
+DS_AbilityTileWait {
     RTL 
 
   loc_08DA52:
     COP [SetEntryContinue]
-    COP [BranchIfPlayerInAbsTiles] ( #07, #08, #09, #09, &code_08DA65 )
-    COP [BranchIfPlayerInAbsTiles] ( #05, #0D, #0B, #0F, &func_08D7EA )
+    COP [BranchIfPlayerInAbsTiles] ( #07, #08, #09, #09, &DS_AbilityTalkGaia )
+    COP [BranchIfPlayerInAbsTiles] ( #05, #0D, #0B, #0F, &DarkSpaceExit )
     RTL 
 }
 
-code_08DA65 {
-    COP [CallScript] ( &code_08DAF0 )
+DS_AbilityTalkGaia {
+    COP [CallScript] ( &GaiaDialogueEntry )
     BRA loc_08DA45
 
   loc_08DA6B:
     LDA $orbitAngle, X
     BNE loc_08DA77
-    COP [CallScript] ( &func_08F2DF )
+    COP [CallScript] ( &WillRevertDialogue )
     BRA loc_08DA45
 
   loc_08DA77:
-    COP [CallScript] ( &code_08F088 )
+    COP [CallScript] ( &FreedanTransformDialogue )
     BRA loc_08DA45
 }
 
-code_08DA7D {
-    LDA #$0001
+DS_LayoutSpecial {
+    LDA #$0001            ; Force selection state to 1
     STA $0AAC
-    JMP $&code_08D87C
+    JMP $&DS_LayoutTransform ; Redirect to form-dependent layout
 }
 
-code_08DA86 {
+DS_AuraItemRoom {
     COP [StageBgChange] ( #8B )
     COP [ApplyBgChange]
     COP [StageBgChange] ( #8F )
@@ -369,7 +430,7 @@ code_08DA86 {
     COP [ApplyBgChange]
     COP [StageBgChange] ( #8A )
     COP [ApplyBgChange]
-    COP [SpawnLastRel] ( @func_08EF32, #00, #00, #$3800 )
+    COP [SpawnLastRel] ( @AuraItemInteraction, #00, #00, #$3800 )
     LDA #$00C0
     STA $0014, Y
     LDA #$0078
@@ -379,324 +440,327 @@ code_08DA86 {
 
   loc_08DAB4:
     COP [SetEntryContinue]
-    COP [BranchIfPlayerInAbsTiles] ( #07, #08, #09, #09, &code_08DAC8 )
-    COP [BranchIfPlayerInAbsTiles] ( #03, #0A, #05, #0B, &code_08DAC8 )
+    COP [BranchIfPlayerInAbsTiles] ( #07, #08, #09, #09, &DS_AuraTileWait )
+    COP [BranchIfPlayerInAbsTiles] ( #03, #0A, #05, #0B, &DS_AuraTileWait )
     BRA loc_08DAC9
 }
 
-code_08DAC8 {
+DS_AuraTileWait {
     RTL 
 
   loc_08DAC9:
     COP [SetEntryContinue]
-    COP [BranchIfPlayerInAbsTiles] ( #07, #08, #09, #09, &code_08DAE4 )
-    COP [BranchIfPlayerInAbsTiles] ( #03, #0A, #05, #0B, &code_08DAEA )
-    COP [BranchIfPlayerInAbsTiles] ( #05, #0D, #0B, #0F, &func_08D7EA )
+    COP [BranchIfPlayerInAbsTiles] ( #07, #08, #09, #09, &DS_AuraTalkGaia )
+    COP [BranchIfPlayerInAbsTiles] ( #03, #0A, #05, #0B, &DS_AuraToShadow )
+    COP [BranchIfPlayerInAbsTiles] ( #05, #0D, #0B, #0F, &DarkSpaceExit )
     RTL 
 }
 
-code_08DAE4 {
-    COP [CallScript] ( &code_08DAF0 )
+DS_AuraTalkGaia {
+    COP [CallScript] ( &GaiaDialogueEntry )
     BRA loc_08DAB4
 }
 
-code_08DAEA {
-    COP [CallScript] ( &func_08F3EA )
+DS_AuraToShadow {
+    COP [CallScript] ( &ShadowTransformDialogue )
     BRA loc_08DAB4
 }
 
-code_08DAF0 {
-    LDA #$FFF0
+GaiaDialogueEntry {
+    LDA #$FFF0            ; Brief input mask
     TSB $joypadMaskStd
-    COP [WaitByte] ( #05 )
-    LDA #$FFF0
+    COP [WaitByte] ( #05 ) ; 5-frame delay
+    LDA #$FFF0            ; Unmask input
     TRB $joypadMaskStd
-    LDY $06
-    LDA #$FFFF
+    LDY $06               ; Get Gaia NPC actor link
+    LDA #$FFFF            ; Disable NPC interaction
     STA $0024, Y
-    COP [BranchIfFlagByte] ( #DC, #01, &code_08DB14 )
-    COP [SetFlagByte] ( #DC )
-    COP [PrintDialogString] ( &dialogstring_08DD0B )
+    COP [BranchIfFlagByte] ( #DC, #01, &GaiaHealAndHints ) ; Already met Gaia? → skip intro
+    COP [SetFlagByte] ( #DC ) ; Mark first encounter
+    COP [PrintDialogString] ( &dialogstring_08DD0B ) ; "I am Gaia..." intro
 }
 
-code_08DB14 {
+GaiaHealAndHints {
     LDA $playerHp
-    CMP $playerMaxHp
-    BEQ loc_08DB37
-    COP [PrintDialogString] ( &dialogstring_08DE4D )
-    LDA #$FFF0
+    CMP $playerMaxHp      ; Already at full HP?
+    BEQ loc_08DB37        ; Yes → skip healing
+    COP [PrintDialogString] ( &dialogstring_08DE4D ) ; "It looks like you're hurt..."
+    LDA #$FFF0            ; Mask input during heal
     TSB $joypadMaskStd
-    LDA #$0028
+    LDA #$0028            ; 40 damage flash ticks = full heal
     STA $damageFlashTimer
-    COP [SetEntryContinue]
+    COP [SetEntryContinue] ; Loop each frame until healed
     LDA $playerHp
     CMP $playerMaxHp
-    BEQ loc_08DB37
-    RTL 
+    BEQ loc_08DB37        ; Healed → continue to hints
+    RTL                   ; Not yet → re-enter next frame
 
   loc_08DB37:
     PHX 
     LDX #$0000
 
   loc_08DB3B:
-    LDA $@binary_08DE72, X
+    LDA $@GaiaHintSceneTable, X ; Scene→hint lookup table
     AND #$00FF
-    BEQ loc_08DB9A
-    CMP $0B12
+    BEQ loc_08DB9A        ; End of table → no hint for this scene
+    CMP $0B12             ; Match current scene?
     BEQ loc_08DB4C
     INX 
     BRA loc_08DB3B
 
   loc_08DB4C:
-    STX $0000
+    STX $0000             ; Store hint index
     PLX 
-    COP [SwitchCase] ( #$0000, &code_list_08DB56 )
+    COP [SwitchCase] ( #$0000, &code_list_08DB56 ) ; Dispatch to hint handler
 }
 
 code_list_08DB56 [
-  &code_08DC25   ;00
-  &code_08DC28   ;01
-  &code_08DC2F   ;02
-  &code_08DC36   ;03
-  &code_08DC3D   ;04
-  &code_08DC40   ;05
-  &code_08DC43   ;06
-  &code_08DC46   ;07
-  &code_08DC49   ;08
-  &code_08DC4C   ;09
-  &code_08DC53   ;0A
-  &code_08DC56   ;0B
-  &code_08DC59   ;0C
-  &code_08DC5C   ;0D
-  &code_08DC5F   ;0E
-  &code_08DC62   ;0F
-  &code_08DC69   ;10
-  &code_08DC70   ;11
-  &code_08DC73   ;12
-  &code_08DC76   ;13
-  &code_08DC79   ;14
-  &code_08DC80   ;15
-  &code_08DC83   ;16
-  &code_08DC86   ;17
-  &code_08DC89   ;18
-  &code_08DC90   ;19
-  &code_08DC93   ;1A
-  &code_08DC96   ;1B
-  &code_08DC9D   ;1C
-  &code_08DCA4   ;1D
-  &code_08DCA7   ;1E
-  &code_08DCFA   ;1F
-  &code_08DCFD   ;20
-  &code_08DD04   ;21
+  &GaiaHint_00   ;00
+  &GaiaHint_Jewels   ;01
+  &GaiaHint_PsychoDash   ;02
+  &GaiaHint_CastlianBoss   ;03
+  &GaiaHint_04   ;04
+  &GaiaHint_05   ;05
+  &GaiaHint_06   ;06
+  &GaiaHint_07   ;07
+  &GaiaHint_08   ;08
+  &GaiaHint_DarkFriar   ;09
+  &GaiaHint_0A   ;0A
+  &GaiaHint_0B   ;0B
+  &GaiaHint_0C   ;0C
+  &GaiaHint_0D   ;0D
+  &GaiaHint_0E   ;0E
+  &GaiaHint_MuContinent   ;0F
+  &GaiaHint_PsychoSlider   ;10
+  &GaiaHint_11   ;11
+  &GaiaHint_12   ;12
+  &GaiaHint_13   ;13
+  &GaiaHint_SpinDash   ;14
+  &GaiaHint_15   ;15
+  &GaiaHint_16   ;16
+  &GaiaHint_17   ;17
+  &GaiaHint_AuraBarrier   ;18
+  &GaiaHint_19   ;19
+  &GaiaHint_1A   ;1A
+  &GaiaHint_Earthquaker   ;1B
+  &GaiaHint_AnkorWat   ;1C
+  &GaiaHint_1D   ;1D
+  &GaiaHint_AuraItem   ;1E
+  &GaiaHint_1F   ;1F
+  &GaiaHint_CometApproach   ;20
+  &GaiaHint_TempShape   ;21
 ]
 ---------------------------------------------
+
+; Save prompt — "Record what's happened so far?" with Record/Don't record options.
+; Reached after Gaia's greeting + heal + optional hint dialogue.
 
 loc_08DB9A {
     PLX 
 
-  code_08DB9B:
-    LDA #$FFF0
+  GaiaSavePrompt:
+    LDA #$FFF0            ; Unmask input for menu navigation
     TRB $joypadMaskStd
-    COP [PrintDialogString] ( &dialogstring_08DDCB )
-    COP [DialogueOptions] ( #02, #02, &code_list_08DBAB )
+    COP [PrintDialogString] ( &dialogstring_08DDCB ) ; "Record what's happened so far?"
+    COP [DialogueOptions] ( #02, #02, &code_list_08DBAB ) ; 2 options, cursor at 2nd
 }
 
 code_list_08DBAB [
-  &code_08DBDA   ;00
-  &code_08DBB1   ;01
-  &code_08DBDA   ;02
+  &GaiaDontRecord   ;00
+  &GaiaSaveConfirm   ;01
+  &GaiaDontRecord   ;02
 ]
 
-code_08DBB1 {
-    LDA $0D8C
-    JSL $@save_system.SaveGameState_Scene
-    COP [PlaySoundCh1] ( #29 )
-    LDA #$FFF0
+GaiaSaveConfirm {
+    LDA $0D8C             ; Current save slot number
+    JSL $@save_system.SaveGameState_Scene ; Write event flags to SRAM
+    COP [PlaySoundCh1] ( #29 ) ; Save confirmation jingle
+    LDA #$FFF0            ; Mask input during jingle
     TSB $joypadMaskStd
-    COP [WaitByte] ( #3B )
+    COP [WaitByte] ( #3B ) ; Wait 59 frames for jingle
     LDA #$FFF0
     TRB $joypadMaskStd
-    COP [PrintDialogString] ( &dialogstring_08DDFE )
-    COP [DialogueOptions] ( #02, #01, &code_list_08DBD4 )
+    COP [PrintDialogString] ( &dialogstring_08DDFE ) ; "Continue your journey?"
+    COP [DialogueOptions] ( #02, #01, &code_list_08DBD4 ) ; Yes/No
 }
 
 code_list_08DBD4 [
-  &code_08DBE8   ;00
-  &code_08DBDA   ;01
-  &code_08DBE8   ;02
+  &GaiaContinueJourney   ;00
+  &GaiaDontRecord   ;01
+  &GaiaContinueJourney   ;02
 ]
 
-code_08DBDA {
-    COP [PrintDialogString] ( &dialogstring_08DE43 )
+GaiaDontRecord {
+    COP [PrintDialogString] ( &dialogstring_08DE43 ) ; "Then go."
     LDY $06
-    LDA #$0000
+    LDA #$0000            ; Re-enable NPC interaction
     STA $0024, Y
     COP [RestoreSavedPtr]
 }
 
-code_08DBE8 {
-    COP [PrintDialogString] ( &dialogstring_08DE32 )
+GaiaContinueJourney {
+    COP [PrintDialogString] ( &dialogstring_08DE32 ) ; "Then rest a while."
     LDY $06
-    LDA #$0000
+    LDA #$0000            ; Re-enable NPC interaction
     STA $0024, Y
-    LDA #$FFF0
+    LDA #$FFF0            ; Mask input during animation
     TSB $joypadMaskStd
     LDY $playerActor
-    LDA $0010, Y
+    LDA $0010, Y          ; Hide player sprite
     ORA #$2000
     STA $0010, Y
-    LDA $0014, Y
+    LDA $0014, Y          ; Copy player pos to this actor
     STA $14
     LDA $0016, Y
     STA $16
-    COP [SetMetasprite] ( @table_0EE000 )
-    LDA #$2000
+    COP [SetMetasprite] ( @table_0EE000 ) ; Transformation spriteset
+    LDA #$2000            ; Show this actor's sprite
     TRB $10
-    COP [StageSpriteFrame] ( #1C )
+    COP [StageSpriteFrame] ( #1C ) ; Rest/dissolve frame
     COP [AnimOnce]
-    COP [FadeThenStartMusic] ( #0E )
-    COP [SetEntryContinue]
+    COP [FadeThenStartMusic] ( #0E ) ; Fade to Dark Space ambient music
+    COP [SetEntryContinue] ; Loop indefinitely (rest state)
     RTL 
 }
 
-code_08DC25 {
-    JMP $&code_08DB9B
+GaiaHint_00 {
+    JMP $&GaiaSavePrompt
 }
 
-code_08DC28 {
+GaiaHint_Jewels {
     COP [PrintDialogString] ( &dialogstring_08DED3 )
-    JMP $&code_08DB9B
+    JMP $&GaiaSavePrompt
 }
 
-code_08DC2F {
+GaiaHint_PsychoDash {
     COP [PrintDialogString] ( &dialogstring_08DF80 )
-    JMP $&code_08DB9B
+    JMP $&GaiaSavePrompt
 }
 
-code_08DC36 {
+GaiaHint_CastlianBoss {
     COP [PrintDialogString] ( &dialogstring_08DFEE )
-    JMP $&code_08DB9B
+    JMP $&GaiaSavePrompt
 }
 
-code_08DC3D {
-    JMP $&code_08DB9B
+GaiaHint_04 {
+    JMP $&GaiaSavePrompt
 }
 
-code_08DC40 {
-    JMP $&code_08DB9B
+GaiaHint_05 {
+    JMP $&GaiaSavePrompt
 }
 
-code_08DC43 {
-    JMP $&code_08DB9B
+GaiaHint_06 {
+    JMP $&GaiaSavePrompt
 }
 
-code_08DC46 {
-    JMP $&code_08DB9B
+GaiaHint_07 {
+    JMP $&GaiaSavePrompt
 }
 
-code_08DC49 {
-    JMP $&code_08DB9B
+GaiaHint_08 {
+    JMP $&GaiaSavePrompt
 }
 
-code_08DC4C {
+GaiaHint_DarkFriar {
     COP [PrintDialogString] ( &dialogstring_08E1EE )
-    JMP $&code_08DB9B
+    JMP $&GaiaSavePrompt
 }
 
-code_08DC53 {
-    JMP $&code_08DB9B
+GaiaHint_0A {
+    JMP $&GaiaSavePrompt
 }
 
-code_08DC56 {
-    JMP $&code_08DB9B
+GaiaHint_0B {
+    JMP $&GaiaSavePrompt
 }
 
-code_08DC59 {
-    JMP $&code_08DB9B
+GaiaHint_0C {
+    JMP $&GaiaSavePrompt
 }
 
-code_08DC5C {
-    JMP $&code_08DB9B
+GaiaHint_0D {
+    JMP $&GaiaSavePrompt
 }
 
-code_08DC5F {
-    JMP $&code_08DB9B
+GaiaHint_0E {
+    JMP $&GaiaSavePrompt
 }
 
-code_08DC62 {
+GaiaHint_MuContinent {
     COP [PrintDialogString] ( &dialogstring_08E2F8 )
-    JMP $&code_08DB9B
+    JMP $&GaiaSavePrompt
 }
 
-code_08DC69 {
+GaiaHint_PsychoSlider {
     COP [PrintDialogString] ( &dialogstring_08E3A7 )
-    JMP $&code_08DB9B
+    JMP $&GaiaSavePrompt
 }
 
-code_08DC70 {
-    JMP $&code_08DB9B
+GaiaHint_11 {
+    JMP $&GaiaSavePrompt
 }
 
-code_08DC73 {
-    JMP $&code_08DB9B
+GaiaHint_12 {
+    JMP $&GaiaSavePrompt
 }
 
-code_08DC76 {
-    JMP $&code_08DB9B
+GaiaHint_13 {
+    JMP $&GaiaSavePrompt
 }
 
-code_08DC79 {
+GaiaHint_SpinDash {
     COP [PrintDialogString] ( &dialogstring_08E428 )
-    JMP $&code_08DB9B
+    JMP $&GaiaSavePrompt
 }
 
-code_08DC80 {
-    JMP $&code_08DB9B
+GaiaHint_15 {
+    JMP $&GaiaSavePrompt
 }
 
-code_08DC83 {
-    JMP $&code_08DB9B
+GaiaHint_16 {
+    JMP $&GaiaSavePrompt
 }
 
-code_08DC86 {
-    JMP $&code_08DB9B
+GaiaHint_17 {
+    JMP $&GaiaSavePrompt
 }
 
-code_08DC89 {
+GaiaHint_AuraBarrier {
     COP [PrintDialogString] ( &dialogstring_08E4A4 )
-    JMP $&code_08DB9B
+    JMP $&GaiaSavePrompt
 }
 
-code_08DC90 {
-    JMP $&code_08DB9B
+GaiaHint_19 {
+    JMP $&GaiaSavePrompt
 }
 
-code_08DC93 {
-    JMP $&code_08DB9B
+GaiaHint_1A {
+    JMP $&GaiaSavePrompt
 }
 
-code_08DC96 {
+GaiaHint_Earthquaker {
     COP [PrintDialogString] ( &dialogstring_08E540 )
-    JMP $&code_08DB9B
+    JMP $&GaiaSavePrompt
 }
 
-code_08DC9D {
+GaiaHint_AnkorWat {
     COP [PrintDialogString] ( &dialogstring_08E58B )
-    JMP $&code_08DB9B
+    JMP $&GaiaSavePrompt
 }
 
-code_08DCA4 {
-    JMP $&code_08DB9B
+GaiaHint_1D {
+    JMP $&GaiaSavePrompt
 }
 
-code_08DCA7 {
+GaiaHint_AuraItem {
     LDA $0AAC
     BNE loc_08DCAF
-    JMP $&code_08DB9B
+    JMP $&GaiaSavePrompt
 
   loc_08DCAF:
-    COP [BranchIfNoItem] ( #24, &code_08DCEC )
-    COP [GiveItem] ( #24, &code_08DCF3 )
+    COP [BranchIfNoItem] ( #24, &GaiaHint_AuraDesc )
+    COP [GiveItem] ( #24, &GaiaHint_AuraFull )
     COP [PrintDialogString] ( &dialogstring_08E66C )
     LDA #$FFF0
     TSB $joypadMaskStd
@@ -716,31 +780,31 @@ code_08DCA7 {
     COP [StartMusic] ( #16 )
     COP [WaitByte] ( #59 )
     COP [PrintDialogString] ( &dialogstring_08E722 )
-    JMP $&code_08DB9B
+    JMP $&GaiaSavePrompt
 }
 
-code_08DCEC {
+GaiaHint_AuraDesc {
     COP [PrintDialogString] ( &dialogstring_08E722 )
-    JMP $&code_08DB9B
+    JMP $&GaiaSavePrompt
 }
 
-code_08DCF3 {
+GaiaHint_AuraFull {
     COP [PrintDialogString] ( &dialogstring_08E800 )
-    JMP $&code_08DB9B
+    JMP $&GaiaSavePrompt
 }
 
-code_08DCFA {
-    JMP $&code_08DB9B
+GaiaHint_1F {
+    JMP $&GaiaSavePrompt
 }
 
-code_08DCFD {
+GaiaHint_CometApproach {
     COP [PrintDialogString] ( &dialogstring_08E853 )
-    JMP $&code_08DB9B
+    JMP $&GaiaSavePrompt
 }
 
-code_08DD04 {
+GaiaHint_TempShape {
     COP [PrintDialogString] ( &dialogstring_08E98A )
-    JMP $&code_08DB9B
+    JMP $&GaiaSavePrompt
 }
 ---------------------------------------------
 
@@ -757,7 +821,7 @@ dialogstring_08DE43 `[CLR]Then go.[END]`
 dialogstring_08DE4D `[DEF][CLR]It looks like you're[N]hurt. Close your eyes.[FIN]`
 ---------------------------------------------
 
-binary_08DE72 #010B151E2628343D40424C5154565A60626C7C858699A1A3A7ACB6B8BBC3CCE0E3120000
+GaiaHintSceneTable #010B151E2628343D40424C5154565A60626C7C858699A1A3A7ACB6B8BBC3CCE0E3120000
 ---------------------------------------------
 
 dialogstring_08DE96 `[DEF][CLR]I am Gaia, the source of[N]all life. I'll give you[N]some advice.[FIN]`
@@ -811,16 +875,16 @@ dialogstring_08E853 `[DEF][CLR]The comet draws near.[N]The time for your last[N]
 dialogstring_08E98A `[PRT:@dialogstring_08DE96]Your shape is only[N]temporary. Try standing[N]in front of the statue[N]next to you.[FIN]`
 ---------------------------------------------
 
-func_08E9D4 {
+AbilityOrbActor {
     PHX 
     LDX #$0000
-    LDY #$0000
+    LDY #$0000            ; Y = entry index counter
 
   loc_08E9DB:
-    LDA $@binary_08EB5A, X
-    BEQ loc_08E9EE
+    LDA $@AbilitySceneTable, X ; Search for current scene
+    BEQ loc_08E9EE        ; End of table → no ability here
     AND #$00FF
-    CMP $0B12
+    CMP $0B12             ; Match scene ID?
     BEQ loc_08E9F1
     INX 
     INX 
@@ -829,15 +893,15 @@ func_08E9D4 {
 
   loc_08E9EE:
     PLX 
-    COP [Die]
+    COP [Die]             ; No ability for this scene → remove orb
 
   loc_08E9F1:
-    LDA $@binary_08EB5A+1, X
+    LDA $@AbilitySceneTable+1, X ; Read ability flags byte
     AND #$00FF
-    STA $24
-    AND $abilityBitmask
-    BNE loc_08E9EE
-    TYA 
+    STA $24               ; Save for later abilityBitmask OR
+    AND $abilityBitmask   ; Already have this ability?
+    BNE loc_08E9EE        ; Yes → die
+    TYA                   ; Store table index for dialogue lookup
     STA $0AAC
     PLX 
     COP [StageSprAndHitbox] ( #0A )
@@ -846,64 +910,64 @@ func_08E9D4 {
     COP [SetEntryContinue]
     COP [SetEntryContinue]
     COP [AnimOneFrame]
-    COP [BranchIfPlayerInAbsTiles] ( #03, #0A, #05, #0B, &code_08EA1B )
+    COP [BranchIfPlayerInAbsTiles] ( #03, #0A, #05, #0B, &AbilityAcquisitionDispatch )
     RTL 
 }
 
-code_08EA1B {
-    LDA #$FFF0
+AbilityAcquisitionDispatch {
+    LDA #$FFF0            ; Mask input
     TSB $joypadMaskStd
-    COP [WaitByte] ( #05 )
-    JSR $&sub_08EB2F
-    CMP #$0000
-    BEQ loc_08EA78
-    LDA $characterForm
-    BEQ loc_08EA58
-    CMP #$0002
+    COP [WaitByte] ( #05 ) ; Brief pause
+    JSR $&LookupStatueType ; Check statue type for current scene
+    CMP #$0000            ; 0 = Will/Freedan statue
+    BEQ loc_08EA78        ; → revert to Will (if transformed)
+    LDA $characterForm    ; Which form are we in?
+    BEQ loc_08EA58        ; 0=Will → transform to Freedan
+    CMP #$0002            ; 2=Shadow → transform to Freedan
     BEQ loc_08EA38
-    BRA loc_08EA9B
+    BRA loc_08EA9B        ; 1=Freedan → already correct form
 
   loc_08EA38:
-    LDY $playerActor
+    LDY $playerActor      ; Shadow → Freedan: override player entry point
     SEP #$20
-    LDA #$^func_08F2A3
+    LDA #$^Transform_ShadowToFreedan ; Bank byte of Shadow→Freedan handler
     STA $0002, Y
     REP #$20
-    LDA #$&func_08F2A3
+    LDA #$&Transform_ShadowToFreedan ; Address of Shadow→Freedan handler
     STA $0000, Y
-    LDA #$0000
+    LDA #$0000            ; Clear frame timer
     STA $0008, Y
-    LDA #$0800
+    LDA #$0800            ; Set ability-active flag
     TSB $playerFlags
     BRA loc_08EA9B
 
   loc_08EA58:
-    LDY $playerActor
+    LDY $playerActor      ; Will → Freedan: override player entry point
     SEP #$20
-    LDA #$^func_08F26E
+    LDA #$^Transform_WillToFreedanAlt ; Bank byte of Will→Freedan handler
     STA $0002, Y
     REP #$20
-    LDA #$&func_08F26E
+    LDA #$&Transform_WillToFreedanAlt ; Address of Will→Freedan handler
     STA $0000, Y
     LDA #$0000
     STA $0008, Y
-    LDA #$0800
+    LDA #$0800            ; Set ability-active flag
     TSB $playerFlags
     BRA loc_08EA9B
 
   loc_08EA78:
-    LDA $characterForm
-    BEQ loc_08EA9B
-    LDY $playerActor
+    LDA $characterForm    ; Will/Freedan statue: revert to Will
+    BEQ loc_08EA9B        ; Already Will → no transform needed
+    LDY $playerActor      ; Freedan → Will: override player entry point
     SEP #$20
-    LDA #$^func_08F37D
+    LDA #$^Transform_FreedanToWill ; Bank byte of Freedan→Will handler
     STA $0002, Y
     REP #$20
-    LDA #$&func_08F37D
+    LDA #$&Transform_FreedanToWill ; Address of Freedan→Will handler
     STA $0000, Y
     LDA #$0000
     STA $0008, Y
-    LDA #$0800
+    LDA #$0800            ; Set ability-active flag
     TSB $playerFlags
 
   loc_08EA9B:
@@ -916,14 +980,14 @@ code_08EA1B {
     RTL 
 
   loc_08EAAA:
-    COP [LoopInit] ( #08 )
+    COP [LoopInit] ( #08 ) ; 8-frame delay for transform
     LDA #$FFF0
     TSB $joypadMaskStd
     COP [SetEntryContinue]
     COP [AnimOneFrame]
     COP [LoopNext]
-    LDA $24
-    ORA $abilityBitmask
+    LDA $24               ; Ability bit from table lookup
+    ORA $abilityBitmask   ; Grant the new ability
     STA $abilityBitmask
     COP [StageSpriteLoopMoveY] ( #0A, #03, #14 )
     COP [AnimLoop]
@@ -969,12 +1033,12 @@ code_08EA1B {
 }
 ---------------------------------------------
 
-sub_08EB2F {
+LookupStatueType {
     PHX 
     LDX #$0000
 
   loc_08EB33:
-    LDA $@binary_08EB5A, X
+    LDA $@AbilitySceneTable, X
     BEQ loc_08EB57
     AND #$00FF
     CMP $0B12
@@ -984,7 +1048,7 @@ sub_08EB2F {
     BRA loc_08EB33
 
   loc_08EB45:
-    LDA $@binary_08EB5A+1, X
+    LDA $@AbilitySceneTable+1, X
     AND #$00FF
     PLX 
     AND #$00F0
@@ -1002,7 +1066,7 @@ sub_08EB2F {
 }
 ---------------------------------------------
 
-binary_08EB5A #1501620286044210A720B8400000
+AbilitySceneTable #1501620286044210A720B8400000
 ---------------------------------------------
 
 dialogstring_08EB68 `[DEF][DLY:9][ADR:&table_08EB8F,AAC][N]can now be used![PAU:78][FIN]`
@@ -1054,25 +1118,25 @@ dialogstring_08EDF2 `The Aura Barrier is a [N]Dark Power that can only [N]be use
 dialogstring_08EE8B `The Earthquaker is a[N]Dark Power that can only[N]be used by Freedan,[N]the Dark Knight.[FIN]This causes earthquakes.[N]The enemy won't be able[N]to move for a long time.[FIN]Push the Attack Button [N]when jumping down. `
 ---------------------------------------------
 
-func_08EF32 {
-    COP [BranchIfNoItem] ( #24, &code_08EFC7 )
+AuraItemInteraction {
+    COP [BranchIfNoItem] ( #24, &AuraItemDie ) ; Already have Aura? → die
     COP [StageSprAndHitbox] ( #0A )
     LDA #$2000
     TRB $10
 
-  code_08EF3F:
+  AuraItemWaitLoop:
     COP [SetEntryContinue]
     COP [SetEntryContinue]
     COP [AnimOneFrame]
-    COP [BranchIfPlayerInAbsTiles] ( #0B, #0A, #0D, #0B, &code_08EF4E )
+    COP [BranchIfPlayerInAbsTiles] ( #0B, #0A, #0D, #0B, &AuraItemGrant )
     RTL 
 }
 
-code_08EF4E {
+AuraItemGrant {
     LDA #$FFF0
     TSB $joypadMaskStd
     COP [WaitByte] ( #05 )
-    COP [GiveItem] ( #24, &code_08EFC9 )
+    COP [GiveItem] ( #24, &AuraItemInventoryFull )
     COP [StageSpriteLoopMoveY] ( #0A, #03, #14 )
     COP [AnimLoop]
     COP [StageSpriteLoop] ( #0A, #03 )
@@ -1114,11 +1178,11 @@ code_08EF4E {
     TRB $joypadMaskStd
 }
 
-code_08EFC7 {
+AuraItemDie {
     COP [Die]
 }
 
-code_08EFC9 {
+AuraItemInventoryFull {
     LDA #$0800
     TRB $10
     COP [PrintDialogString] ( &dialogstring_08F060 )
@@ -1129,11 +1193,11 @@ code_08EFC9 {
     COP [SetEntryContinue]
     COP [SetEntryContinue]
     COP [AnimOneFrame]
-    COP [BranchIfPlayerInAbsTiles] ( #0B, #0A, #0D, #0B, &code_08EFEE )
-    JMP $&code_08EF3F
+    COP [BranchIfPlayerInAbsTiles] ( #0B, #0A, #0D, #0B, &AuraItemReturnToWait )
+    JMP $&AuraItemWaitLoop
 }
 
-code_08EFEE {
+AuraItemReturnToWait {
     RTL 
 }
 
@@ -1143,24 +1207,24 @@ dialogstring_08F003 `[DEF][CLR][DLY:2]Only Shadow can use[N]the Aura.[FIN]When y
 
 dialogstring_08F060 `[DEF]Your inventory is full. [N]Store things somewhere [N]and return here. [END]`
 
-code_08F088 {
+FreedanTransformDialogue {
     LDA $characterForm
-    CMP #$0001
-    BEQ loc_08F0CA
+    CMP #$0001            ; Already Freedan?
+    BEQ loc_08F0CA        ; Yes → skip (return to caller)
     LDA #$FFF0
     TSB $joypadMaskStd
     COP [WaitByte] ( #05 )
     LDA #$FFF0
     TRB $joypadMaskStd
-    COP [BranchIfFlagByte] ( #F7, #01, &code_08F0CC )
+    COP [BranchIfFlagByte] ( #F7, #01, &FreedanTransformPrompt )
     COP [SetFlagByte] ( #F7 )
     COP [PrintDialogString] ( &dialogstring_08F157 )
     LDY $playerActor
     SEP #$20
-    LDA #$^func_08F235
+    LDA #$^Transform_WillToFreedan
     STA $0002, Y
     REP #$20
-    LDA #$&func_08F235
+    LDA #$&Transform_WillToFreedan
     STA $0000, Y
     LDA #$0000
     STA $0008, Y
@@ -1171,27 +1235,27 @@ code_08F088 {
     COP [RestoreSavedPtr]
 }
 
-code_08F0CC {
+FreedanTransformPrompt {
     COP [PrintDialogString] ( &dialogstring_08F12B )
     COP [DialogueOptions] ( #02, #02, &code_list_08F0D6 )
 }
 
 code_list_08F0D6 [
-  &code_08F125   ;00
-  &code_08F0DC   ;01
-  &code_08F125   ;02
+  &FreedanTransformDecline   ;00
+  &FreedanTransformAccept   ;01
+  &FreedanTransformDecline   ;02
 ]
 
-code_08F0DC {
+FreedanTransformAccept {
     COP [PrintDialogString] ( &dialogstring_08F155 )
     LDA $characterForm
     BNE loc_08F105
     LDY $playerActor
     SEP #$20
-    LDA #$^func_08F26E
+    LDA #$^Transform_WillToFreedanAlt
     STA $0002, Y
     REP #$20
-    LDA #$&func_08F26E
+    LDA #$&Transform_WillToFreedanAlt
     STA $0000, Y
     LDA #$0000
     STA $0008, Y
@@ -1202,10 +1266,10 @@ code_08F0DC {
   loc_08F105:
     LDY $playerActor
     SEP #$20
-    LDA #$^func_08F2A3
+    LDA #$^Transform_ShadowToFreedan
     STA $0002, Y
     REP #$20
-    LDA #$&func_08F2A3
+    LDA #$&Transform_ShadowToFreedan
     STA $0000, Y
     LDA #$0000
     STA $0008, Y
@@ -1214,7 +1278,7 @@ code_08F0DC {
     COP [RestoreSavedPtr]
 }
 
-code_08F125 {
+FreedanTransformDecline {
     COP [PrintDialogString] ( &dialogstring_08F155 )
     COP [RestoreSavedPtr]
 }
@@ -1226,7 +1290,7 @@ dialogstring_08F155 `[CLD]`
 dialogstring_08F157 `[TPL:B][CLR][TPL:0]Will hears a voice [N]in his head. [FIN][TPL:4]Will. [N]I've been waiting a long [N]time for you to come. [FIN]I am Freedan.[N]I am eternal.[FIN]Let me help you on [N]your journey. As time [N]goes by, you'll come to [N]understand my nature.... [FIN][PAL:0]Will gradually loses [N]consciousness... [N][END]`
 ---------------------------------------------
 
-func_08F235 {
+Transform_WillToFreedan {
     COP [SetPlayerBodySprite] ( #05 )
     COP [StageSpriteFrame] ( #00 )
     COP [AnimOnce]
@@ -1242,14 +1306,14 @@ func_08F235 {
     COP [AnimLoop]
     COP [StageSpriteFrame] ( #0A )
     COP [AnimOnce]
-    LDA #$0001
+    LDA #$0001            ; Set form to Freedan
     STA $characterForm
-    JSR $&sub_08F6D3
+    JSR $&RestorePlayerControl ; Restore player control
     RTL 
 }
 ---------------------------------------------
 
-func_08F26E {
+Transform_WillToFreedanAlt {
     COP [SetPlayerBodySprite] ( #05 )
     COP [StageSpriteFrame] ( #01 )
     COP [AnimOnce]
@@ -1267,12 +1331,12 @@ func_08F26E {
     COP [AnimOnce]
     LDA #$0001
     STA $characterForm
-    JSR $&sub_08F6D3
+    JSR $&RestorePlayerControl
     RTL 
 }
 ---------------------------------------------
 
-func_08F2A3 {
+Transform_ShadowToFreedan {
     COP [SetPlayerBodySprite] ( #05 )
     COP [StageSpriteFrame] ( #0D )
     COP [AnimOnce]
@@ -1293,15 +1357,15 @@ func_08F2A3 {
     COP [AnimOnce]
     COP [StageSpriteFrame] ( #0B )
     COP [AnimOnce]
-    JSR $&sub_08F6D3
+    JSR $&RestorePlayerControl
     RTL 
 }
 ---------------------------------------------
 
-func_08F2DF {
-    LDA $characterForm
-    BNE loc_08F2E6
-    COP [RestoreSavedPtr]
+WillRevertDialogue {
+    LDA $characterForm    ; Already Will?
+    BNE loc_08F2E6        ; No → show transform prompt
+    COP [RestoreSavedPtr] ; Already Will → nothing to do
 
   loc_08F2E6:
     LDA #$FFF0
@@ -1314,22 +1378,22 @@ func_08F2DF {
 }
 
 code_list_08F2FF [
-  &code_08F351   ;00
-  &code_08F305   ;01
-  &code_08F351   ;02
+  &WillRevertDecline   ;00
+  &WillRevertAccept   ;01
+  &WillRevertDecline   ;02
 ]
 
-code_08F305 {
+WillRevertAccept {
     COP [PrintDialogString] ( &dialogstring_08F37B )
     LDA $characterForm
     CMP #$0001
     BNE loc_08F331
     LDY $playerActor
     SEP #$20
-    LDA #$^func_08F37D
+    LDA #$^Transform_FreedanToWill
     STA $0002, Y
     REP #$20
-    LDA #$&func_08F37D
+    LDA #$&Transform_FreedanToWill
     STA $0000, Y
     LDA #$0000
     STA $0008, Y
@@ -1340,10 +1404,10 @@ code_08F305 {
   loc_08F331:
     LDY $playerActor
     SEP #$20
-    LDA #$^func_08F3B1
+    LDA #$^Transform_ShadowToWill
     STA $0002, Y
     REP #$20
-    LDA #$&func_08F3B1
+    LDA #$&Transform_ShadowToWill
     STA $0000, Y
     LDA #$0000
     STA $0008, Y
@@ -1352,7 +1416,7 @@ code_08F305 {
     COP [RestoreSavedPtr]
 }
 
-code_08F351 {
+WillRevertDecline {
     COP [PrintDialogString] ( &dialogstring_08F37B )
     COP [RestoreSavedPtr]
 }
@@ -1362,7 +1426,7 @@ dialogstring_08F357 `[TPL:B]Return to young Will? [N] Yes [N] No `
 dialogstring_08F37B `[CLD]`
 ---------------------------------------------
 
-func_08F37D {
+Transform_FreedanToWill {
     COP [SetPlayerBodySprite] ( #05 )
     COP [StageSpriteFrame] ( #06 )
     COP [AnimOnce]
@@ -1371,21 +1435,21 @@ func_08F37D {
     COP [AnimOnce]
     COP [StageSpriteFrame] ( #08 )
     COP [AnimOnce]
-    STZ $characterForm
+    STZ $characterForm    ; Set form back to Will
     COP [SetEntryExit]
-    COP [SpawnThinkerParam] ( #0B, @actor_pool.PaletteResetAndKillThinker )
+    COP [SpawnThinkerParam] ( #0B, @actor_pool.PaletteResetAndKillThinker ) ; Reset palette
     COP [StageSpriteFrame] ( #03 )
     COP [AnimOnce]
     COP [StageSpriteFrame] ( #02 )
     COP [AnimOnce]
     COP [StageSpriteFrame] ( #05 )
     COP [AnimOnce]
-    JSR $&sub_08F6D3
+    JSR $&RestorePlayerControl
     RTL 
 }
 ---------------------------------------------
 
-func_08F3B1 {
+Transform_ShadowToWill {
     COP [SetPlayerBodySprite] ( #05 )
     COP [StageSpriteFrame] ( #0D )
     COP [AnimOnce]
@@ -1405,22 +1469,22 @@ func_08F3B1 {
     COP [AnimOnce]
     COP [StageSpriteFrame] ( #05 )
     COP [AnimOnce]
-    JSR $&sub_08F6D3
+    JSR $&RestorePlayerControl
     RTL 
 }
 ---------------------------------------------
 
-func_08F3EA {
-    COP [BranchIfFlagByte] ( #B4, #00, &code_08F41B )
+ShadowTransformDialogue {
+    COP [BranchIfFlagByte] ( #B4, #00, &ShadowTransformLocked ) ; Flag $B4 not set → Shadow locked
     LDA $characterForm
-    CMP #$0002
-    BEQ code_08F41B
+    CMP #$0002            ; Already Shadow?
+    BEQ ShadowTransformLocked ; Yes → nothing to do
     LDA #$FFF0
     TSB $joypadMaskStd
     COP [WaitByte] ( #05 )
     LDA #$FFF0
     TRB $joypadMaskStd
-    COP [BranchIfFlagByte] ( #DD, #01, &code_08F41D )
+    COP [BranchIfFlagByte] ( #DD, #01, &ShadowTransformPrompt )
     COP [SetFlagByte] ( #DD )
     COP [PrintDialogString] ( &dialogstring_08F4B1 )
     LDA $characterForm
@@ -1428,22 +1492,22 @@ func_08F3EA {
     BRA loc_08F456
 }
 
-code_08F41B {
+ShadowTransformLocked {
     COP [RestoreSavedPtr]
 }
 
-code_08F41D {
+ShadowTransformPrompt {
     COP [PrintDialogString] ( &dialogstring_08F47C )
     COP [DialogueOptions] ( #02, #02, &code_list_08F427 )
 }
 
 code_list_08F427 [
-  &code_08F476   ;00
-  &code_08F42D   ;01
-  &code_08F476   ;02
+  &ShadowTransformDecline   ;00
+  &ShadowTransformAccept   ;01
+  &ShadowTransformDecline   ;02
 ]
 
-code_08F42D {
+ShadowTransformAccept {
     COP [PrintDialogString] ( &dialogstring_08F4AF )
     LDA $characterForm
     BNE loc_08F456
@@ -1451,10 +1515,10 @@ code_08F42D {
   loc_08F436:
     LDY $playerActor
     SEP #$20
-    LDA #$^func_08F5F9
+    LDA #$^Transform_WillToShadow
     STA $0002, Y
     REP #$20
-    LDA #$&func_08F5F9
+    LDA #$&Transform_WillToShadow
     STA $0000, Y
     LDA #$0000
     STA $0008, Y
@@ -1465,10 +1529,10 @@ code_08F42D {
   loc_08F456:
     LDY $playerActor
     SEP #$20
-    LDA #$^func_08F63C
+    LDA #$^Transform_FreedanToShadow
     STA $0002, Y
     REP #$20
-    LDA #$&func_08F63C
+    LDA #$&Transform_FreedanToShadow
     STA $0000, Y
     LDA #$0000
     STA $0008, Y
@@ -1477,7 +1541,7 @@ code_08F42D {
     COP [RestoreSavedPtr]
 }
 
-code_08F476 {
+ShadowTransformDecline {
     COP [PrintDialogString] ( &dialogstring_08F4AF )
     COP [RestoreSavedPtr]
 }
@@ -1489,7 +1553,7 @@ dialogstring_08F4AF `[CLD]`
 dialogstring_08F4B1 `[TPL:B]A voice echoes inside[N]his head.[FIN][TPL:4]I've been waiting for[N]you to come.[FIN]I am made from the light[N]of a comet. The ultimate[N]warrior, Shadow.[FIN]My body has no shape.[N]This body appears only[N]when the human[N]consciousness evolves.[FIN]The comet that now [N]approaches Earth is [N]also a consciousness [N]without form. [FIN]My body is the only[N]thing that can confront[N]the comet and[N]bring it to an end.[FIN]Well, close your eyes...[PAL:0][END]`
 ---------------------------------------------
 
-func_08F5F9 {
+Transform_WillToShadow {
     COP [SetPlayerBodySprite] ( #05 )
     COP [StageSpriteFrame] ( #00 )
     COP [AnimOnce]
@@ -1504,18 +1568,18 @@ func_08F5F9 {
     COP [StageSpriteFrame] ( #0F )
     COP [AnimOnce]
     COP [SpawnLastRel] ( @shadow_shimmer.ShadowShimmerInit, #00, #00, #$2800 )
-    LDA #$0002
+    LDA #$0002            ; Set form to Shadow
     STA $characterForm
     COP [StageSpriteFrame] ( #10 )
     COP [AnimOnce]
     COP [StageSpriteFrame] ( #12 )
     COP [AnimOnce]
-    JSR $&sub_08F6D3
+    JSR $&RestorePlayerControl
     RTL 
 }
 ---------------------------------------------
 
-func_08F63C {
+Transform_FreedanToShadow {
     COP [SetPlayerBodySprite] ( #05 )
     COP [StageSpriteFrame] ( #07 )
     COP [AnimOnce]
@@ -1536,49 +1600,49 @@ func_08F63C {
     COP [AnimOnce]
     COP [StageSpriteFrame] ( #12 )
     COP [AnimOnce]
-    JSR $&sub_08F6D3
+    JSR $&RestorePlayerControl
     RTL 
 }
 ---------------------------------------------
 
-actor_08F67F [
+DarkSpaceAmbientParticle [
   actor-def < #02, #00, #28, {
 
-  code_08F682:
-    LDA #$1000
+  DS_AmbientParticleInit:
+    LDA #$1000            ; Display-filtered flag
     TSB $12
 } >
 ]
 
-code_08F687 {
+FireflySpawnerLoop {
     COP [SetEntryExit]
-    COP [RngByte]
-    AND #$000F
+    COP [RngByte]         ; Random 0–255
+    AND #$000F            ; Mask to 0–15
+    ASL                   ; ×8 → 0–120 frame delay
     ASL 
     ASL 
-    ASL 
-    STA $08
-    COP [SpawnAfterFlags] ( @code_08F69C, #$1B02 )
-    BRA code_08F687
+    STA $08               ; Set as frame timer
+    COP [SpawnAfterFlags] ( @FireflyParticle, #$1B02 ) ; Spawn one firefly
+    BRA FireflySpawnerLoop ; Loop forever
 }
 
-code_08F69C {
-    LDA #$1000
+FireflyParticle {
+    LDA #$1000            ; Display-filtered
     TSB $12
     COP [SetMetasprite] ( @table_0EE000 )
-    COP [StageSprAndHitbox] ( #02 )
-    LDA #$0000
+    COP [StageSprAndHitbox] ( #02 ) ; Firefly sprite
+    LDA #$0000            ; Start at Y=0
     STA $16
-    COP [RngByte]
-    ASL 
+    COP [RngByte]         ; Random X position
+    ASL                   ; ×2 → 0–510 px range
     STA $14
-    AND #$0003
-    ASL 
+    AND #$0003            ; Low 2 bits → speed variant (0–3)
+    ASL                   ; ×2 → 0–6
     CLC 
-    ADC #$0004
-    STA $moveXAlt, X
+    ADC #$0004            ; Base speed 4 → range 4–10
+    STA $moveXAlt, X      ; Horizontal drift speed
     DEC 
-    STA $moveYAlt, X
+    STA $moveYAlt, X      ; Vertical rise speed (slightly less)
 
   loc_08F6C4:
     COP [ReloadForceMove]
@@ -1591,40 +1655,44 @@ code_08F69C {
 }
 ---------------------------------------------
 
-sub_08F6D3 {
+; Restores normal player locomotion after a climb or ramp animation finishes.
+; 
+; Resets the player actor entry pointer to PlayerIdleEntry, clears velocity scratch at $002C/$002E/$0008, adjusts status word $0010 (clears $0200, sets $0008), unmasks joypad ($0F00), and clears playerFlags $0800. Called from UnlockPlayerAfterClimb and from ramp exit handlers in ramps.asm.
+
+RestorePlayerControl {
     PHX 
     LDX $playerActor
-    LDA #$*player_character.PlayerIdleEntry
+    LDA #$*player_character.PlayerIdleEntry ; Bank byte
     STA $0002, X
-    LDA #$&player_character.PlayerIdleEntry
+    LDA #$&player_character.PlayerIdleEntry ; Code address
     STA $0000, X
-    LDA #$0000
-    STA $002C, X
-    STA $002E, X
-    STA $0008, X
+    LDA #$0000            ; Clear all movement
+    STA $002C, X          ; Override chain X
+    STA $002E, X          ; Override chain Y
+    STA $0008, X          ; Frame timer
     LDA $0010, X
-    AND #$FDFF
-    ORA #$0008
+    AND #$FDFF            ; Clear bit 9 (game over flag)
+    ORA #$0008            ; Set bit 3 (grounded/collision)
     STA $0010, X
-    LDA #$0F00
+    LDA #$0F00            ; Unmask D-pad and face buttons
     TRB $joypadMaskStd
-    LDA #$0800
+    LDA #$0800            ; Clear ability-active flag
     TRB $playerFlags
     PLX 
     RTS 
 }
 ---------------------------------------------
 
-e_actor_09A090 {
+GaiaNpcSprite {
     COP [StageSpriteFrame] ( #00 )
     COP [AnimOnce]
     RTL 
 }
 
-code_09A096 {
-    COP [StageSprAndHitbox] ( #01 )
+GaiaVoiceSparkle {
+    COP [StageSprAndHitbox] ( #01 ) ; Sparkle sprite
     LDA #$0000
-    STA $24
+    STA $24               ; Activation flag (set by Gaia dialogue)
 
   loc_09A09E:
     COP [SetEntryContinue]
@@ -1638,12 +1706,12 @@ code_09A096 {
     RTL 
 
   loc_09A0AB:
-    COP [RngByte]
+    COP [RngByte]         ; Random 0–3 to pick sparkle variant
     AND #$0003
-    DEC 
+    DEC                   ; 1 → frame #02
     BEQ loc_09A0C1
-    DEC 
-    BEQ loc_09A0CC
+    DEC                   ; 2 → frame #03
+    BEQ loc_09A0CC        ; 0 or 3 → frame #01 (default)
     COP [StageSpriteFrame] ( #01 )
     COP [AnimOnce]
     COP [SetEntryContinue]

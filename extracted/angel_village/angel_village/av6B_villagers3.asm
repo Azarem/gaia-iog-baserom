@@ -1,4 +1,4 @@
-?INCLUDE 'func_06B9F2'
+?INCLUDE 'ActorDisplayModeSwap'
 
 ---------------------------------------------
 
@@ -18,7 +18,7 @@ av6B_villagers3 [
     STZ $2A
     COP [SetEntryContinue]
     COP [AnimOneFrame]
-    JSL $@func_06B9F2
+    JSL $@ActorDisplayModeSwap
     COP [SetOnInteract] ( &code_06CBD3 )
     COP [SolidHighHere]
     COP [SetEntryContinue]

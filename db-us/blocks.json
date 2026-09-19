@@ -224,36 +224,36 @@
             "scene": "dark_space",
             "parts": {
                 "sE6_gaia": { "start": 579496, "end": 579562, "type": "actor-def" },
-                "func_08D7EA": { "start": 579562, "end": 580506, "type": "Code" },
+                "DarkSpaceExit": { "start": 579562, "end": 580506, "type": "Code" },
                 "loc_08DB9A": { "start": 580506, "end": 580875, "type": "Code" },
                 "dialogstring_08DD0B": { "start": 580875, "end": 581234, "type": "DialogString" },
-                "binary_08DE72": { "start": 581234, "end": 581270, "type": "Binary" },
+                "GaiaHintSceneTable": { "start": 581234, "end": 581270, "type": "Binary" },
                 "dialogstring_08DE96": { "start": 581270, "end": 584148, "type": "DialogString" },
-                "func_08E9D4": { "start": 584148, "end": 584495, "type": "Code" },
-                "sub_08EB2F": { "start": 584495, "end": 584538, "type": "Code" },
-                "binary_08EB5A": { "start": 584538, "end": 584552, "type": "Binary" },
+                "AbilityOrbActor": { "start": 584148, "end": 584495, "type": "Code" },
+                "LookupStatueType": { "start": 584495, "end": 584538, "type": "Code" },
+                "AbilitySceneTable": { "start": 584538, "end": 584552, "type": "Binary" },
                 "dialogstring_08EB68": { "start": 584552, "end": 584591, "type": "DialogString" },
                 "table_08EB8F": { "start": 584591, "end": 584659, "type": "&DialogString" },
                 "table_08EBD3": { "start": 584659, "end": 585522, "type": "&DialogString" },
-                "func_08EF32": { "start": 585522, "end": 586293, "type": "Code" },
-                "func_08F235": { "start": 586293, "end": 586350, "type": "Code" },
-                "func_08F26E": { "start": 586350, "end": 586403, "type": "Code" },
-                "func_08F2A3": { "start": 586403, "end": 586463, "type": "Code" },
-                "func_08F2DF": { "start": 586463, "end": 586621, "type": "Code" },
-                "func_08F37D": { "start": 586621, "end": 586673, "type": "Code" },
-                "func_08F3B1": { "start": 586673, "end": 586730, "type": "Code" },
-                "func_08F3EA": { "start": 586730, "end": 587257, "type": "Code" },
-                "func_08F5F9": { "start": 587257, "end": 587324, "type": "Code" },
-                "func_08F63C": { "start": 587324, "end": 587391, "type": "Code" },
-                "actor_08F67F": { "start": 587391, "end": 587475, "type": "actor-def" },
-                "sub_08F6D3": { "start": 587475, "end": 587529, "type": "Code" },
-                "e_actor_09A090": { "start": 630928, "end": 630999, "type": "Code" }
+                "AuraItemInteraction": { "start": 585522, "end": 586293, "type": "Code" },
+                "Transform_WillToFreedan": { "start": 586293, "end": 586350, "type": "Code" },
+                "Transform_WillToFreedanAlt": { "start": 586350, "end": 586403, "type": "Code" },
+                "Transform_ShadowToFreedan": { "start": 586403, "end": 586463, "type": "Code" },
+                "WillRevertDialogue": { "start": 586463, "end": 586621, "type": "Code" },
+                "Transform_FreedanToWill": { "start": 586621, "end": 586673, "type": "Code" },
+                "Transform_ShadowToWill": { "start": 586673, "end": 586730, "type": "Code" },
+                "ShadowTransformDialogue": { "start": 586730, "end": 587257, "type": "Code" },
+                "Transform_WillToShadow": { "start": 587257, "end": 587324, "type": "Code" },
+                "Transform_FreedanToShadow": { "start": 587324, "end": 587391, "type": "Code" },
+                "DarkSpaceAmbientParticle": { "start": 587391, "end": 587475, "type": "actor-def" },
+                "RestorePlayerControl": { "start": 587475, "end": 587529, "type": "Code" },
+                "GaiaNpcSprite": { "start": 630928, "end": 630999, "type": "Code" }
             }
         },
         "strings_0BF706": { "start": 784134, "end": 784983, "type": "&diary-entry", "scene": "diary_menu" },
         "sFB_actor_0BC8BA": { "scene": "boot_logos", "movable": true, "parts": {
             "sFB_actor_0BC8BA": { "start": 772282, "end": 772388, "type": "actor-def" },
-            "func_0BC896": { "start": 772246, "end": 772280, "order": 772286, "type": "Code" }
+            "BootLogoPalTextFallback": { "start": 772246, "end": 772280, "order": 772286, "type": "Code" }
         } },
         "sFC_actor_0BC924": { "start": 772388, "end": 772526, "type": "actor-def", "scene": "title_screen", "movable": true },
         "sFC_actor_0BC9AE": { "start": 772526, "end": 772610, "type": "actor-def", "scene": "title_screen", "movable": true },
@@ -262,30 +262,30 @@
             "scene": "diary_menu",
             "parts": {
                 "sFA_diary_menu": { "start": 778807, "end": 778956, "type": "actor-def" },
-                "func_0BE2CC": { "start": 778956, "end": 779891, "type": "Code" },
-                "sub_0BE673": { "start": 779891, "end": 779962, "type": "Code" },
-                "func_0BE6BA": { "start": 779962, "end": 780352, "type": "Code" },
-                "sub_0BE840": { "start": 780352, "end": 780412, "type": "Code" },
-                "sub_0BE87C": { "start": 780412, "end": 780456, "type": "Code" },
-                "func_0BE8A8": { "start": 780456, "end": 781305, "type": "Code" },
-                "sub_0BEBF9": { "start": 781305, "end": 781318, "type": "Code" },
-                "func_0BEC06_noref": { "start": 781318, "end": 781374, "type": "Code" },
-                "func_0BEC3E": { "start": 781374, "end": 781489, "type": "Code" },
-                "sub_0BECB1": { "start": 781489, "end": 781529, "type": "Code" },
-                "sub_0BECD9": { "start": 781529, "end": 781563, "type": "Code" },
-                "sub_0BECFB": { "start": 781563, "end": 781628, "type": "Code" },
+                "DiaryMainMenuEntry": { "start": 778956, "end": 779891, "type": "Code" },
+                "ApplySoundAndRemap": { "start": 779891, "end": 779962, "type": "Code" },
+                "DiarySndBtnTab": { "start": 779962, "end": 780352, "type": "Code" },
+                "ReadSramSettings": { "start": 780352, "end": 780412, "type": "Code" },
+                "WriteSramSettings": { "start": 780412, "end": 780456, "type": "Code" },
+                "DiaryCopyTab": { "start": 780456, "end": 781305, "type": "Code" },
+                "DiaryMenuClearVram": { "start": 781305, "end": 781318, "type": "Code" },
+                "DiaryCursorNav_noref": { "start": 781318, "end": 781374, "type": "Code" },
+                "DiaryCursorApplyMove": { "start": 781374, "end": 781489, "type": "Code" },
+                "DiaryDrawCursorHighlight": { "start": 781489, "end": 781529, "type": "Code" },
+                "DiaryClearCursor": { "start": 781529, "end": 781563, "type": "Code" },
+                "DiaryClearAllCursors": { "start": 781563, "end": 781628, "type": "Code" },
                 "table_0BED3C": { "start": 781628, "end": 781668, "type": "&Word" },
-                "sub_0BED64": { "start": 781668, "end": 781856, "type": "Code" },
-                "func_0BF178_noref": { "start": 782712, "end": 782754, "type": "Code" },
-                "func_0BF1A2_noref": { "start": 782754, "end": 782758, "type": "Code" },
-                "func_0BF1A6_noref": { "start": 782758, "end": 782762, "type": "Code" },
-                "func_0BF1AA_noref": { "start": 782762, "end": 782811, "type": "Code" },
-                "sub_0BF1DB": { "start": 782811, "end": 782923, "type": "Code" },
-                "func_0BF24B_noref": { "start": 782923, "end": 782937, "type": "Code" },
-                "func_0BF259_noref": { "start": 782937, "end": 782944, "type": "Code" },
-                "func_0BF260_noref": { "start": 782944, "end": 782945, "type": "Code" },
-                "func_0BF261_noref": { "start": 782945, "end": 783014, "type": "Code" },
-                "func_0BF2A6": { "start": 783014, "end": 783348, "type": "Code" },
+                "DiaryScanSramSlots": { "start": 781668, "end": 781856, "type": "Code" },
+                "DiaryJoypadFilter_noref": { "start": 782712, "end": 782754, "type": "Code" },
+                "DiaryResetCounter_noref": { "start": 782754, "end": 782758, "type": "Code" },
+                "DiaryIncCounter_noref": { "start": 782758, "end": 782762, "type": "Code" },
+                "DiaryDigitDisplay_noref": { "start": 782762, "end": 782811, "type": "Code" },
+                "FormatBcdNumber": { "start": 782811, "end": 782923, "type": "Code" },
+                "DiaryUnused24B_noref": { "start": 782923, "end": 782937, "type": "Code" },
+                "DiaryReadJoy2_noref": { "start": 782937, "end": 782944, "type": "Code" },
+                "DiaryNullHandler_noref": { "start": 782944, "end": 782945, "type": "Code" },
+                "DiaryAwaitButtonRelease_noref": { "start": 782945, "end": 783014, "type": "Code" },
+                "DiaryMenuVBlankHandler": { "start": 783014, "end": 783348, "type": "Code" },
                 "table_0BF6AD": { "start": 784045, "end": 784051, "type": "&DialogString" },
                 "dialogstring_0BF3F4": { "start": 783348, "end": 783931, "order": 784046, "type": "DialogString" },
                 "table_0BF63B": { "start": 783931, "end": 783975, "order": 784047, "type": "&DialogString" },
@@ -327,14 +327,14 @@
         "slope_ramp_physics": { "start": 177195, "end": 178099, "type": "Code", "scene": "player", "movable": false },
         "attack_ability_system": { "start": 178099, "end": 181132, "type": "Code", "scene": "player", "movable": false },
         "player_character": { "start": 181132, "end": 184272, "type": "actor-def", "scene": "player", "movable": false },
-        "actor_08B577": { "start": 570743, "end": 570770, "type": "actor-def", "movable": true },
+        "camera_delta_oscillator": { "start": 570743, "end": 570770, "type": "actor-def", "movable": true },
         "jeweler_gem": { "start": 577184, "end": 579227, "type": "actor-def", "movable": true },
         "dark_space": { "start": 579227, "end": 579496, "type": "actor-def", "movable": true },
-        "actor_08FCFF": { "start": 589055, "end": 589078, "type": "actor-def", "movable": true },
-        "actor_0BD2AB": { "start": 774827, "end": 774918, "type": "actor-def", "movable": true },
-        "actor_0BE1C5": { "start": 778693, "end": 778807, "type": "actor-def", "movable": true },
+        "idle_sprite_display": { "start": 589055, "end": 589078, "type": "actor-def", "movable": true },
+        "particle_rain_spawner": { "start": 774827, "end": 774918, "type": "actor-def", "movable": true },
+        "dialog_string_scanner": { "start": 778693, "end": 778807, "type": "actor-def", "movable": true },
         "debug_man": { "start": 781856, "end": 782712, "type": "actor-def", "movable": true },
-        "actor_0BFA57": { "start": 784983, "end": 785012, "type": "actor-def", "movable": true }
+        "debug_stat_setter": { "start": 784983, "end": 785012, "type": "actor-def", "movable": true }
     },
     "thinkers": {
         "ambient_palette_cycler": { "start": 46368, "end": 46376, "type": "thinker-def", "movable": true },
@@ -370,7 +370,7 @@
         "InitSmoothFollowChase_unused": { "start": 58965, "end": 59011, "type": "Code", "movable": true },
         "CopyRefActorPos_unused": { "start": 62504, "end": 62514, "type": "Code", "movable": true },
         "mode7_perspective_unused": { "start": 240520, "end": 241015, "type": "Code", "movable": true },
-        "sc01_actor_0489EE": { "start": 297454, "end": 297458, "type": "actor-def", "movable": true },
+        "sc01_unused_null_npc": { "start": 297454, "end": 297458, "type": "actor-def", "movable": true },
         "hint_npc": { "movable": true, "parts": {
             "hint_npc1": { "start": 630999, "end": 631013, "type": "actor-def" },
             "hint_npc2": { "start": 631013, "end": 631107, "type": "actor-def" },
@@ -380,21 +380,21 @@
             "dark_rewards1": { "start": 631775, "end": 631789, "type": "actor-def" },
             "dark_rewards2": { "start": 631789, "end": 633109, "type": "actor-def" }
         } },
-        "actor_09AA6E": { "movable": true, "parts": {
+        "unused_actor_09AA6E": { "movable": true, "parts": {
             "actor_09AA6E": { "start": 633454, "end": 635484, "type": "actor-def" },
             "byte_09B25C": { "start": 635484, "end": 635492, "type": "Byte" },
             "byte_09B264": { "start": 635492, "end": 635500, "type": "Byte" },
             "byte_09B26C": { "start": 635500, "end": 636282, "type": "Byte" },
             "byte_09B57A": { "start": 636282, "end": 637568, "type": "Byte" }
         } },
-        "actor_09BA80": { "start": 637568, "end": 637667, "type": "actor-def", "movable": true },
-        "actor_09BAE3": { "start": 637667, "end": 637719, "type": "actor-def", "movable": true },
+        "unused_debug_mode": { "start": 637568, "end": 637667, "type": "actor-def", "movable": true },
+        "unused_debug_input_test": { "start": 637667, "end": 637719, "type": "actor-def", "movable": true },
         "kara_09BBB7": { "start": 637879, "end": 638004, "type": "actor-def", "movable": true },
-        "actor_0ADB38": { "start": 711480, "end": 711493, "type": "actor-def", "movable": true },
-        "func_0AEE96_noref": { "start": 716438, "end": 716447, "type": "Code" },
-        "func_0ADB45": { "start": 711493, "end": 711531, "type": "Code", "movable": true },
-        "func_0AFD5A_noref": { "start": 720218, "end": 720233, "type": "Code" },
-        "actor_0CF61F": { "start": 849439, "end": 849443, "type": "actor-def", "movable": true }
+        "unused_window_config": { "start": 711480, "end": 711493, "type": "actor-def", "movable": true },
+        "unused_proximity_check_noref": { "start": 716438, "end": 716447, "type": "Code" },
+        "unused_follow_chain": { "start": 711493, "end": 711531, "type": "Code", "movable": true },
+        "unused_random_position_noref": { "start": 720218, "end": 720233, "type": "Code" },
+        "unused_null_actor": { "start": 849439, "end": 849443, "type": "actor-def", "movable": true }
     },
     "edward_castle": {
         "edward_castle_alarm_palette": { "start": 46641, "end": 46686, "type": "thinker-def", "scene": "edward_castle", "movable": true },
@@ -424,15 +424,15 @@
         "ec0C_force_hint": { "start": 318610, "end": 318717, "type": "actor-def", "scene": "aqueduct_entrance", "movable": true },
         "ec10_dp_hint_spirit": { "start": 318717, "end": 318902, "type": "actor-def", "scene": "aqueduct_treasure", "movable": true },
         "ec0E_lily": { "start": 633109, "end": 633408, "type": "actor-def", "scene": "aqueduct_lockway", "movable": true },
-        "ec11_actor_09AA40": { "start": 633408, "end": 633454, "type": "actor-def", "scene": "aqueduct_doorway", "movable": true },
+        "ec11_aqueduct_gate_sprite": { "start": 633408, "end": 633454, "type": "actor-def", "scene": "aqueduct_doorway", "movable": true },
         "ec11_flower": { "start": 638004, "end": 638091, "type": "actor-def", "scene": "aqueduct_doorway", "movable": true },
-        "ec11_actor_09BC8B": { "start": 638091, "end": 638161, "type": "actor-def", "scene": "aqueduct_doorway", "movable": true },
+        "ec11_aqueduct_blocker": { "start": 638091, "end": 638161, "type": "actor-def", "scene": "aqueduct_doorway", "movable": true },
         "ec11_button_voice": { "start": 638161, "end": 638389, "type": "actor-def", "scene": "aqueduct_doorway", "movable": false },
         "ec11_countdown": { "start": 638389, "end": 638735, "type": "actor-def", "scene": "aqueduct_doorway", "movable": false },
-        "ec12_actor_09BF0F": { "start": 638735, "end": 638827, "type": "actor-def", "scene": "aqueduct_back", "movable": true },
-        "ec12_actor_09BF6B": { "start": 638827, "end": 638864, "type": "actor-def", "scene": "aqueduct_back", "movable": true },
+        "ec12_aqueduct_enemy": { "start": 638735, "end": 638827, "type": "actor-def", "scene": "aqueduct_back", "movable": true },
+        "ec12_aqueduct_dark_space": { "start": 638827, "end": 638864, "type": "actor-def", "scene": "aqueduct_back", "movable": true },
         "ec13_lily": { "start": 638864, "end": 639599, "type": "actor-def", "scene": "aqueduct_exit", "movable": true },
-        "ec_actor_09C2D0": { "start": 639696, "end": 639803, "type": "actor-def", "movable": true },
+        "ec_proximity_door_toggle": { "start": 639696, "end": 639803, "type": "actor-def", "movable": true },
         "ec0D_canal_worm": { "start": 688128, "end": 688748, "type": "actor-def", "movable": true },
         "ec0C_ribber": { "start": 688748, "end": 689270, "type": "actor-def", "movable": true },
         "ec12_skull_chaser": { "start": 689270, "end": 689655, "type": "actor-def", "movable": true },
@@ -508,7 +508,7 @@
     "watermia": {
         "watermia_festival_palette": { "start": 46932, "end": 46977, "type": "thinker-def", "scene": "watermia", "movable": true },
         "wa78_intro": { "start": 491520, "end": 491966, "type": "actor-def", "scene": "watermia", "movable": true },
-        "wa78_actor_0781BE": { "start": 491966, "end": 492162, "type": "actor-def", "movable": true },
+        "wa78_lance_camera_pan": { "start": 491966, "end": 492162, "type": "actor-def", "movable": true },
         "wa78_centipede_man": { "start": 492162, "end": 492525, "type": "actor-def", "scene": "watermia", "movable": true },
         "wa78_moving_woman": { "start": 492525, "end": 492699, "type": "actor-def", "scene": "watermia", "movable": true },
         "wa78_water_kid": { "start": 492699, "end": 492801, "type": "actor-def", "scene": "watermia", "movable": true },
@@ -571,7 +571,7 @@
         "btE2_brought_back": { "start": 628684, "end": 628915, "type": "actor-def", "scene": "babel_exterior", "movable": true },
         "btDE_monologue": { "start": 628915, "end": 629106, "type": "actor-def", "scene": "babel_entrance", "movable": true },
         "btDF_crystal_ring": { "start": 629106, "end": 629532, "type": "actor-def", "scene": "babel_lower_floors", "movable": true },
-        "bt_actor_099B1C": { "start": 629532, "end": 629550, "type": "Code", "movable": true },
+        "bt_static_sprite": { "start": 629532, "end": 629550, "type": "Code", "movable": true },
         "btDF_spirits": { "start": 629550, "end": 630412, "type": "actor-def", "scene": "babel_lower_floors", "movable": true },
         "btDF_kara": { "start": 630412, "end": 630928, "type": "actor-def", "scene": "babel_lower_floors", "movable": true },
         "sE7_thinker_0CEB5B": { "start": 846683, "end": 846708, "type": "thinker-def", "scene": "space_flight", "movable": true },
@@ -631,7 +631,7 @@
         "it15_bill": { "start": 323444, "end": 323747, "type": "actor-def", "scene": "itory_village", "movable": true },
         "it15_lola": { "start": 323747, "end": 324441, "type": "actor-def", "scene": "itory_village", "movable": true },
         "it19_inca_statue_a": { "start": 324441, "end": 324557, "type": "actor-def", "scene": "itory_cave", "movable": true },
-        "it19_actor_04F3CD": { "start": 324557, "end": 324673, "type": "actor-def", "scene": "itory_cave", "movable": true },
+        "it19_breakable_wall": { "start": 324557, "end": 324673, "type": "actor-def", "scene": "itory_cave", "movable": true },
         "it1A_lily": { "start": 324673, "end": 325781, "type": "actor-def", "scene": "moon_tribe_camp", "movable": true },
         "it1B_trial": { "start": 325781, "end": 326341, "type": "actor-def", "scene": "moon_tribe_cave", "movable": true },
         "it1B_inca_statue_b": { "start": 326341, "end": 326463, "type": "actor-def", "scene": "moon_tribe_cave", "movable": true },
@@ -646,7 +646,7 @@
         "st68_kara": { "start": 438063, "end": 439532, "type": "actor-def", "scene": "undersea_tunnel", "movable": true },
         "st68_lily": { "start": 439532, "end": 440384, "type": "actor-def", "scene": "undersea_tunnel", "movable": true },
         "st68_mushrooms": { "start": 440384, "end": 440631, "type": "actor-def", "scene": "undersea_tunnel", "movable": true },
-        "st68_actor_06B937": { "start": 440631, "end": 440818, "type": "actor-def", "scene": "undersea_tunnel", "movable": true },
+        "st68_ambient_bubbles": { "start": 440631, "end": 440818, "type": "actor-def", "scene": "undersea_tunnel", "movable": true },
         "av69_signs": { "start": 440841, "end": 440965, "type": "actor-def", "scene": "angel_entrance", "movable": true },
         "av69_lance": { "start": 440965, "end": 441327, "type": "actor-def", "scene": "angel_entrance", "movable": true },
         "av6A_lance": { "scene": "angel_annex", "movable": true, "parts": {
@@ -695,8 +695,8 @@
         "av70_flame_center": { "start": 447887, "end": 447902, "type": "actor-def", "scene": "angel_tunnel_river", "movable": true },
         "av70_hidden_passage": { "start": 447902, "end": 448047, "type": "actor-def", "scene": "angel_tunnel_river", "movable": true },
         "av70_crawlspace": { "start": 448047, "end": 448141, "type": "actor-def", "scene": "angel_tunnel_river", "movable": true },
-        "av71_actor_06D68D": { "start": 448141, "end": 448244, "type": "actor-def", "scene": "angel_tunnel_wind", "movable": true },
-        "av73_actor_06D6F4": { "start": 448244, "end": 448325, "type": "actor-def", "scene": "angel_tunnel_waterfall", "movable": true },
+        "av71_wind_effect": { "start": 448141, "end": 448244, "type": "actor-def", "scene": "angel_tunnel_wind", "movable": true },
+        "av73_waterfall_sound": { "start": 448244, "end": 448325, "type": "actor-def", "scene": "angel_tunnel_waterfall", "movable": true },
         "av6B_door": { "start": 448325, "end": 448388, "type": "actor-def", "scene": "angel_village", "movable": true },
         "av75_voice_doors": { "start": 448388, "end": 448700, "type": "actor-def", "scene": "angel_tunnel_test", "movable": true },
         "av75_voice_rooms": { "start": 448700, "end": 449616, "type": "actor-def", "scene": "angel_tunnel_test", "movable": true },
@@ -722,32 +722,32 @@
             "func_09F69F": { "start": 652959, "end": 652966, "type": "Code" }
         } },
         "sF0_class_dismissed": { "start": 645991, "end": 646567, "type": "actor-def", "scene": "ending_class_dismissed", "movable": true },
-        "sF7_actor_09DFF8": { "scene": "ending_credits", "movable": true, "parts": {
+        "sF7_credits_player": { "scene": "ending_credits", "movable": true, "parts": {
             "sF7_actor_09DFF8": { "start": 647160, "end": 647499, "type": "actor-def" },
             "e_actor_09DDA7": { "start": 646567, "end": 647160, "order": 647164, "type": "Code" }
         } },
-        "sF7_actor_09E26C": { "scene": "ending_credits", "movable": true, "parts": {
+        "sF7_credits_npc_a": { "scene": "ending_credits", "movable": true, "parts": {
             "sF7_actor_09E26C": { "start": 647788, "end": 647962, "type": "actor-def" },
             "e_actor_09E14B": { "start": 647499, "end": 647788, "order": 647792, "type": "Code" }
         } },
-        "sF7_actor_09E3EB": { "scene": "ending_credits", "movable": true, "parts": {
+        "sF7_credits_npc_b": { "scene": "ending_credits", "movable": true, "parts": {
             "sF7_actor_09E3EB": { "start": 648171, "end": 648292, "type": "actor-def" },
             "e_actor_09E31A": { "start": 647962, "end": 648171, "order": 648175, "type": "Code" }
         } },
-        "sF7_actor_09E4DD": { "scene": "ending_credits", "movable": true, "parts": {
+        "sF7_credits_npc_c": { "scene": "ending_credits", "movable": true, "parts": {
             "sF7_actor_09E4DD": { "start": 648413, "end": 648504, "type": "actor-def" },
             "e_actor_09E464": { "start": 648292, "end": 648413, "order": 648417, "type": "Code" }
         } },
-        "sF7_actor_09E591": { "scene": "ending_credits", "movable": true, "parts": {
+        "sF7_credits_npc_d": { "scene": "ending_credits", "movable": true, "parts": {
             "sF7_actor_09E591": { "start": 648593, "end": 648670, "type": "actor-def" },
             "e_actor_09E538": { "start": 648504, "end": 648593, "order": 648597, "type": "Code" }
         } },
-        "sF7_actor_09E607": { "scene": "ending_credits", "movable": true, "parts": {
+        "sF7_credits_npc_e": { "scene": "ending_credits", "movable": true, "parts": {
             "sF7_actor_09E607": { "start": 648711, "end": 648751, "type": "actor-def" },
             "func_09E5DE": { "start": 648670, "end": 648711, "order": 648715, "type": "Code" }
         } },
-        "misc_actors_09E64B": { "start": 648779, "end": 649444, "type": "Code", "scene": "ending_credits", "movable": true },
-        "func_09E8E4": {
+        "sF7_credits_misc_timeline": { "start": 648779, "end": 649444, "type": "Code", "scene": "ending_credits", "movable": true },
+        "CreditPositionLookup": {
             "movable": true,
             "scene": "ending_credits",
             "parts": {
@@ -756,9 +756,9 @@
                 "word_09E90D": { "start": 649485, "end": 649497, "type": "Word" }
             }
         },
-        "crF7_proc_09F330": { "start": 652080, "end": 652128, "type": "thinker-def", "scene": "ending_credits", "movable": true },
-        "crF7_proc_09F360": { "start": 652128, "end": 652458, "type": "thinker-def", "scene": "ending_credits", "movable": true },
-        "crF7_proc_09F510": { "start": 652560, "end": 652959, "type": "thinker-def", "scene": "ending_credits", "movable": true },
+        "crF7_credits_hdma_flicker": { "start": 652080, "end": 652128, "type": "thinker-def", "scene": "ending_credits", "movable": true },
+        "crF7_credits_dma_scroll": { "start": 652128, "end": 652458, "type": "thinker-def", "scene": "ending_credits", "movable": true },
+        "crF7_credits_camera_pan": { "start": 652560, "end": 652959, "type": "thinker-def", "scene": "ending_credits", "movable": true },
         "sE5_epilogue": { "start": 774918, "end": 777792, "type": "actor-def", "scene": "ending_comet", "movable": true },
         "s90_changed_world": { "start": 777792, "end": 778281, "type": "actor-def", "scene": "ending_changed_world", "movable": true },
         "s89_new_babel": { "start": 778281, "end": 778693, "type": "actor-def", "scene": "ending_new_babel", "movable": true }
@@ -775,7 +775,7 @@
         "ir1E_actor_09C563": { "start": 640355, "end": 640377, "type": "actor-def", "scene": "larai_cliff_back", "movable": true },
         "ir1D_wind_melody": { "start": 640377, "end": 640622, "type": "actor-def", "scene": "larai_cliff", "movable": true },
         "ir24_glowing_tile": { "start": 640622, "end": 640681, "type": "actor-def", "scene": "inca_plate_room", "movable": true },
-        "ir28_actor_09C6A9": { "start": 640681, "end": 640920, "type": "actor-def", "scene": "ceiling_trap_room", "movable": true },
+        "ir28_ceiling_trap_trigger": { "start": 640681, "end": 640920, "type": "actor-def", "scene": "ceiling_trap_room", "movable": true },
         "ir26_bones": { "start": 640920, "end": 641181, "type": "actor-def", "scene": "inca_treasure_room", "movable": true },
         "ir28_bones": { "start": 641181, "end": 641271, "type": "actor-def", "scene": "ceiling_trap_room", "movable": true },
         "ir26_journal_bones": { "start": 641271, "end": 641535, "type": "actor-def", "scene": "inca_treasure_room", "movable": true },
@@ -832,7 +832,7 @@
         "mu63_spirits": { "start": 432583, "end": 433194, "type": "actor-def", "scene": "mu_prayer_room", "movable": true },
         "mu66_altar1": { "start": 433194, "end": 433261, "type": "actor-def", "scene": "mu_altar_room", "movable": true },
         "mu66_altar2": { "start": 433261, "end": 433285, "type": "actor-def", "scene": "mu_altar_room", "movable": true },
-        "mu66_actor_069C85": { "start": 433285, "end": 433385, "type": "actor-def", "scene": "mu_altar_room", "movable": true },
+        "mu66_altar_dialog": { "start": 433285, "end": 433385, "type": "actor-def", "scene": "mu_altar_room", "movable": true },
         "mu60_floor_spikes": { "start": 433385, "end": 433439, "type": "actor-def", "movable": true },
         "mu64_switch_spikes": { "start": 433439, "end": 433485, "type": "actor-def", "scene": "mu_connector", "movable": true },
         "mu60_force_ball": { "start": 433485, "end": 433724, "type": "actor-def", "movable": true },
@@ -843,7 +843,7 @@
             "mu67_neil": { "start": 436037, "end": 436264, "type": "actor-def" },
             "e_mu67_lily": { "start": 436711, "end": 436909, "type": "Code" }
         } },
-        "mu67_actor_06A828": { "start": 436264, "end": 436294, "type": "actor-def", "scene": "mu_vampire_lair", "movable": true },
+        "mu67_lair_curtain": { "start": 436264, "end": 436294, "type": "actor-def", "scene": "mu_vampire_lair", "movable": true },
         "mu67_kara": { "start": 436294, "end": 436711, "type": "actor-def", "scene": "mu_vampire_lair", "movable": true },
         "mu5F_cyclops": { "start": 712094, "end": 713326, "type": "actor-def", "movable": true },
         "mu5F_flasher": { "start": 713326, "end": 713820, "type": "actor-def", "movable": true },
@@ -888,7 +888,7 @@
             "dialogstring_0887C6": { "start": 559046, "end": 559196, "type": "DialogString" },
             "code_088A60": { "start": 559712, "end": 559815, "type": "Code" }
         } },
-        "nv_actor_0881A5": { "start": 557477, "end": 557502, "type": "Code", "scene": "native_village", "movable": true },
+        "nv_village_event_sprite": { "start": 557477, "end": 557502, "type": "Code", "scene": "native_village", "movable": true },
         "nvAC_erik": { "start": 558406, "end": 558681, "type": "actor-def", "scene": "native_village", "movable": true },
         "nvAC_hamlet": { "scene": "native_village", "movable": true, "parts": {
             "nvAC_hamlet": { "start": 558681, "end": 559046, "type": "actor-def" },
@@ -991,13 +991,13 @@
         "StopPlayerOnDeathAssign": { "start": 62387, "end": 62409, "type": "Code", "movable": true },
         "ApplyOrbitalOffsetFromRef": { "start": 62409, "end": 62504, "type": "Code", "movable": true },
         "ApplyOrbitalOffsetXY": { "start": 62514, "end": 62607, "type": "Code", "movable": true },
-        "func_06B9F2": { "start": 440818, "end": 440841, "type": "Code", "movable": true },
-        "func_0AA36E": { "start": 697198, "end": 697211, "type": "Code", "movable": true },
-        "func_0AA3A7": { "start": 697255, "end": 697341, "type": "Code", "movable": true },
-        "func_0AA3FD": { "start": 697341, "end": 697372, "type": "Code", "movable": true },
-        "func_0AA41C": { "start": 697372, "end": 697407, "type": "Code", "movable": true },
-        "func_0AA43F": { "start": 697407, "end": 697570, "type": "Code", "movable": true },
-        "func_0AFD69": { "start": 720233, "end": 720263, "type": "Code", "movable": true }
+        "ActorDisplayModeSwap": { "start": 440818, "end": 440841, "type": "Code", "movable": true },
+        "SetPlayerGameOverFlag": { "start": 697198, "end": 697211, "type": "Code", "movable": true },
+        "EnemyPositionSnap": { "start": 697255, "end": 697341, "type": "Code", "movable": true },
+        "EnemyInitBasic": { "start": 697341, "end": 697372, "type": "Code", "movable": true },
+        "ActorMidpointCalc": { "start": 697372, "end": 697407, "type": "Code", "movable": true },
+        "EnemyDefeatDispatch": { "start": 697407, "end": 697570, "type": "Code", "movable": true },
+        "RandomPlayerOffset": { "start": 720233, "end": 720263, "type": "Code", "movable": true }
     },
     "freejia": {
         "freejia_street_prop": { "start": 50733, "end": 50791, "type": "actor-def", "scene": "freejia", "movable": true },
@@ -1012,12 +1012,12 @@
             "dialogstring_05ADAE": { "start": 372142, "end": 372387, "order": 372617, "type": "DialogString" },
             "dialogstring_05AF2F": { "start": 372527, "end": 372613, "order": 372618, "type": "DialogString" }
         } },
-        "fr32_actor_05B01E": { "start": 372766, "end": 372816, "type": "actor-def", "scene": "freejia", "movable": true },
+        "fr32_laborer_npc": { "start": 372766, "end": 372816, "type": "actor-def", "scene": "freejia", "movable": true },
         "fr32_kara": { "start": 372816, "end": 373141, "type": "actor-def", "scene": "freejia", "movable": true },
         "fr32_guide": { "start": 373141, "end": 373548, "type": "actor-def", "scene": "freejia", "movable": true },
-        "fr32_actor_05B32C": { "start": 373548, "end": 373565, "type": "actor-def", "scene": "freejia", "movable": true },
-        "fr32_actor_05B33D": { "start": 373565, "end": 373597, "type": "actor-def", "scene": "freejia", "movable": true },
-        "fr32_actor_05B35D": { "start": 373597, "end": 373614, "type": "actor-def", "scene": "freejia", "movable": true },
+        "fr32_idle_npc_a": { "start": 373548, "end": 373565, "type": "actor-def", "scene": "freejia", "movable": true },
+        "fr32_walking_npc": { "start": 373565, "end": 373597, "type": "actor-def", "scene": "freejia", "movable": true },
+        "fr32_idle_npc_b": { "start": 373597, "end": 373614, "type": "actor-def", "scene": "freejia", "movable": true },
         "fr32_kidnapper": { "start": 373614, "end": 374140, "type": "actor-def", "scene": "freejia", "movable": true },
         "fr32_slap": { "start": 374140, "end": 374371, "type": "actor-def", "scene": "freejia", "movable": true },
         "fr32_hotel_hint": { "start": 374371, "end": 374464, "type": "actor-def", "scene": "freejia", "movable": true },
@@ -1054,9 +1054,9 @@
         } },
         "fr39_erik": { "start": 379696, "end": 380182, "type": "actor-def", "scene": "freejia_hotel", "movable": true },
         "fr33_erik": { "start": 380276, "end": 380664, "type": "actor-def", "scene": "eriks_captivity", "movable": true },
-        "fr32_actor_05CEF8": { "start": 380664, "end": 380676, "type": "actor-def", "scene": "freejia", "movable": true },
-        "fr32_actor_05CF04": { "start": 380676, "end": 380688, "type": "actor-def", "scene": "freejia", "movable": true },
-        "fr32_actor_05CF10": { "start": 380688, "end": 380704, "type": "actor-def", "scene": "freejia", "movable": true },
+        "fr32_bg_sprite_a": { "start": 380664, "end": 380676, "type": "actor-def", "scene": "freejia", "movable": true },
+        "fr32_bg_sprite_b": { "start": 380676, "end": 380688, "type": "actor-def", "scene": "freejia", "movable": true },
+        "fr32_bg_sprite_c": { "start": 380688, "end": 380704, "type": "actor-def", "scene": "freejia", "movable": true },
         "fr32_herb": { "start": 380704, "end": 380805, "type": "actor-def", "scene": "freejia", "movable": true },
         "fr32_hp_jewel": { "start": 380805, "end": 380860, "type": "actor-def", "scene": "freejia", "movable": true },
         "fr32_locked_door": { "start": 380860, "end": 380960, "type": "actor-def", "scene": "freejia", "movable": true }
@@ -1129,14 +1129,14 @@
         "sg4C_spirits": { "start": 389974, "end": 390337, "type": "actor-def", "scene": "garden_main", "movable": true },
         "sg___hint_spirit": { "start": 390337, "end": 390404, "type": "actor-def", "movable": true },
         "sg4C_platforms": { "start": 390404, "end": 390622, "type": "actor-def", "scene": "garden_main", "movable": true },
-        "sg52_actor_05F5DE": { "start": 390622, "end": 390741, "type": "actor-def", "scene": "garden_southwest_underside", "movable": true },
-        "sg52_actor_05F655": { "start": 390741, "end": 390864, "type": "actor-def", "scene": "garden_southwest_underside", "movable": true },
+        "sg52_blocker_enemy_a": { "start": 390622, "end": 390741, "type": "actor-def", "scene": "garden_southwest_underside", "movable": true },
+        "sg52_blocker_enemy_b": { "start": 390741, "end": 390864, "type": "actor-def", "scene": "garden_southwest_underside", "movable": true },
         "sg52_switch": { "start": 390864, "end": 390985, "type": "actor-def", "scene": "garden_southwest_underside", "movable": true },
         "sg54_pressure_switch": { "start": 390985, "end": 391019, "type": "actor-def", "scene": "garden_west_underside", "movable": true },
         "sg4D_jump_handler": { "start": 391019, "end": 391257, "type": "actor-def", "movable": true },
         "sg51_statue": { "start": 391360, "end": 391415, "type": "actor-def", "scene": "garden_southwest", "movable": true },
         "sp58_missed_flight": { "start": 425984, "end": 426257, "type": "actor-def", "scene": "garden_descent", "movable": true },
-        "sp58_actor_068111": { "start": 426257, "end": 426384, "type": "actor-def", "scene": "garden_descent", "movable": true },
+        "sp58_descent_cutscene": { "start": 426257, "end": 426384, "type": "actor-def", "scene": "garden_descent", "movable": true },
         "sp58_red_eye": { "start": 426384, "end": 426880, "type": "actor-def", "scene": "garden_descent", "movable": true },
         "sp58_monologue": { "start": 426880, "end": 427158, "type": "actor-def", "scene": "garden_descent", "movable": true },
         "sg4C_actor_0AB496": { "start": 701590, "end": 701616, "type": "actor-def", "movable": true },
@@ -1157,7 +1157,7 @@
         "sg4E_plasma_snake": { "start": 707796, "end": 708148, "type": "actor-def", "movable": true },
         "sg55_mystic_statue": { "start": 708148, "end": 708581, "type": "actor-def", "scene": "viper_lair", "movable": true },
         "sg55_falling_tile": { "start": 708581, "end": 708608, "type": "actor-def", "scene": "viper_lair", "movable": true },
-        "sg55_actor_0AD000": { "start": 708608, "end": 708821, "type": "Code", "scene": "viper_lair", "movable": true },
+        "sg55_viper_arena": { "start": 708608, "end": 708821, "type": "Code", "scene": "viper_lair", "movable": true },
         "sg55_viper": { "start": 708821, "end": 711122, "type": "actor-def", "scene": "viper_lair", "movable": true },
         "sg_actors_0ADA52": { "start": 711250, "end": 711480, "type": "Code", "movable": true }
     },
@@ -1188,7 +1188,7 @@
             "awB1_goldcap": { "start": 769421, "end": 769769, "type": "actor-def" },
             "code_0BBF8C": { "start": 769932, "end": 769979, "type": "Code" }
         } },
-        "aw_actor_0BBEE9": { "start": 769769, "end": 769932, "type": "Code", "movable": false }
+        "aw_spirit_follower": { "start": 769769, "end": 769932, "type": "Code", "movable": false }
     },
     "prologue": {
         "IrisCircleEffect": { "start": 239290, "end": 239678, "type": "thinker-def", "scene": "prologue_prophecy", "movable": true },
@@ -1212,7 +1212,7 @@
             "pr8C_prologue5": { "start": 773753, "end": 773970, "type": "actor-def" },
             "spritestring_0BD272": { "start": 774770, "end": 774827, "type": "SpriteString" }
         } },
-        "pr_actor_0BCF52": { "start": 773970, "end": 774193, "type": "Code", "movable": true },
+        "pr_text_placement_calc": { "start": 773970, "end": 774193, "type": "Code", "movable": true },
         "pr_thinkers": { "movable": true, "parts": {
             "e_pr_thinker_0BD031": { "start": 774193, "end": 774201, "type": "Code" },
             "e_pr_thinker_0BD039": { "start": 774201, "end": 774212, "type": "Code" }
@@ -1220,7 +1220,7 @@
     },
     "south_cape": {
         "sc01_smoke": { "start": 294912, "end": 294916, "type": "actor-def", "scene": "south_cape", "movable": true },
-        "sc01_actor_048004": { "start": 294916, "end": 295080, "type": "actor-def", "scene": "south_cape", "movable": true },
+        "sc01_seagull": { "start": 294916, "end": 295080, "type": "actor-def", "scene": "south_cape", "movable": true },
         "sc01_girl1": { "start": 295080, "end": 295220, "type": "actor-def", "scene": "south_cape", "movable": true },
         "sc01_girl2": { "start": 295220, "end": 295336, "type": "actor-def", "scene": "south_cape", "movable": true },
         "sc01_girl3": { "start": 295336, "end": 295405, "type": "actor-def", "scene": "south_cape", "movable": true },
@@ -1250,7 +1250,7 @@
         "sc06_kara": { "start": 302508, "end": 303575, "type": "actor-def", "scene": "wills_house", "movable": true },
         "sc06_hamlet": { "start": 303575, "end": 303968, "type": "actor-def", "scene": "wills_house", "movable": true },
         "sc06_main_soldier": { "start": 303968, "end": 304175, "type": "actor-def", "scene": "wills_house", "movable": true },
-        "sc06_actor_04A42F": { "start": 304175, "end": 304225, "type": "actor-def", "scene": "wills_house", "movable": true },
+        "sc06_wills_pet": { "start": 304175, "end": 304225, "type": "actor-def", "scene": "wills_house", "movable": true },
         "sc06_monologue": { "start": 304225, "end": 304559, "type": "actor-def", "scene": "wills_house", "movable": true },
         "sc06_kara_return": { "scene": "wills_house", "movable": true, "parts": {
             "sc06_kara_return": { "start": 304559, "end": 305913, "type": "actor-def" },
@@ -1279,17 +1279,17 @@
             "dm47_sam": { "start": 381475, "end": 382110, "type": "actor-def" },
             "dm47_sam_destroy": { "start": 381117, "end": 381119, "order": 381479, "type": "Code" }
         } },
-        "dm_actor_05D49E": { "start": 382110, "end": 382127, "type": "Code", "scene": "mine_inner", "movable": true },
+        "dm_mine_static_prop": { "start": 382110, "end": 382127, "type": "Code", "scene": "mine_inner", "movable": true },
         "dm45_key": { "start": 382127, "end": 382248, "type": "actor-def", "scene": "mine_morgue", "movable": true },
         "dm44_cell_door": { "start": 382248, "end": 382494, "type": "actor-def", "scene": "mine_foyer", "movable": true },
         "dm40_hidden_dark_space": { "start": 382494, "end": 382530, "type": "actor-def", "scene": "mine_collapsed_tunnel", "movable": false },
         "dm3F_elevator_door": { "start": 382530, "end": 382632, "type": "actor-def", "scene": "mine_main", "movable": true },
         "dm3F_elevator_sign": { "start": 382632, "end": 382707, "type": "actor-def", "scene": "mine_main", "movable": true },
-        "dm41_actor_05D6F3": { "start": 382707, "end": 382730, "type": "actor-def", "scene": "mine_main", "movable": true },
-        "dm41_actor_05D70A": { "start": 382730, "end": 382774, "type": "actor-def", "scene": "mine_zigzag", "movable": true },
+        "dm41_solid_wall_setup": { "start": 382707, "end": 382730, "type": "actor-def", "scene": "mine_main", "movable": true },
+        "dm41_bat_spawner": { "start": 382730, "end": 382774, "type": "actor-def", "scene": "mine_zigzag", "movable": true },
         "dm40_trapped_slave": { "start": 382774, "end": 383130, "type": "actor-def", "scene": "mine_collapsed_tunnel", "movable": true },
         "dm3E_intro": { "start": 391580, "end": 391958, "type": "actor-def", "scene": "mine_entrance", "movable": true },
-        "dm41_actor_0AA4E2": { "start": 697570, "end": 697766, "type": "actor-def", "scene": "mine_zigzag", "movable": true },
+        "dm41_minecart": { "start": 697570, "end": 697766, "type": "actor-def", "scene": "mine_zigzag", "movable": true },
         "dm43_elevator": { "start": 697766, "end": 698038, "type": "actor-def", "scene": "mine_elevator", "movable": true },
         "dm3F_laborer": { "start": 698038, "end": 698860, "type": "actor-def", "scene": "mine_main", "movable": true },
         "dm3D_breakable_wall": { "start": 698860, "end": 698964, "type": "actor-def", "scene": "mine_promise_passage", "movable": true },
@@ -1299,7 +1299,7 @@
             "dm3D_eye_stalker1": { "start": 700595, "end": 701590, "type": "actor-def" },
             "code_0ADD66": { "start": 712038, "end": 712094, "type": "Code" }
         } },
-        "dm_func_0ADB6B": {
+        "dm_follower_behavior": {
             "movable": true,
             "parts": {
                 "dm_func_0ADB6B": { "start": 711531, "end": 711765, "type": "Code" },
@@ -1338,13 +1338,13 @@
                 "e_gw8B_lily": { "start": 506557, "end": 507112, "type": "Code" }
             }
         },
-        "gw85_actor_07BCE8": { "start": 507112, "end": 507159, "type": "actor-def", "scene": "wall_rampway", "movable": true },
+        "gw85_retractable_gate": { "start": 507112, "end": 507159, "type": "actor-def", "scene": "wall_rampway", "movable": true },
         "gw85_short_switch_spear": { "start": 507159, "end": 507206, "type": "actor-def", "scene": "wall_rampway", "movable": true },
         "gw85_long_switch_spear": { "start": 507206, "end": 507253, "type": "actor-def", "scene": "wall_rampway", "movable": true },
         "gw85_multi_switch_spear": { "start": 507253, "end": 507300, "type": "actor-def", "scene": "wall_rampway", "movable": true },
         "gw83_switch": { "start": 507300, "end": 507368, "type": "actor-def", "scene": "wall_dive", "movable": true },
-        "gw88_actor_07BDE8": { "start": 507368, "end": 507426, "type": "actor-def", "scene": "wall_tomb", "movable": true },
-        "gw85_actor_07E901": { "start": 518401, "end": 518439, "type": "actor-def", "scene": "wall_rampway", "movable": true },
+        "gw88_tomb_dark_space": { "start": 507368, "end": 507426, "type": "actor-def", "scene": "wall_tomb", "movable": true },
+        "gw85_spin_dash_gate": { "start": 518401, "end": 518439, "type": "actor-def", "scene": "wall_rampway", "movable": true },
         "gw8A_sand_fanger": { "scene": "sand_fanger_lair", "movable": true, "parts": {
             "btF5_neo_fanger": { "start": 753664, "end": 756728, "type": "actor-def" },
             "sub_0B9CE8": { "start": 761064, "end": 761103, "type": "Code" }
@@ -1371,7 +1371,7 @@
         "eu97_dark_medicine": { "start": 511450, "end": 511738, "type": "actor-def", "scene": "flea_market", "movable": true },
         "eu94_employee": { "start": 511738, "end": 512081, "type": "actor-def", "scene": "rolek_office", "movable": true },
         "eu91_peeking_man": { "start": 512081, "end": 512140, "type": "actor-def", "scene": "euro", "movable": true },
-        "actor_07D08C": { "start": 512140, "end": 512153, "type": "actor-def", "movable": true },
+        "euro_bg_scroll_actor": { "start": 512140, "end": 512153, "type": "actor-def", "movable": true },
         "eu9D_slaves": { "start": 512153, "end": 512567, "type": "actor-def", "scene": "dark_chapel", "movable": true },
         "eu9D_bones": { "start": 512567, "end": 512594, "type": "actor-def", "scene": "dark_chapel", "movable": true },
         "eu91_shop_queue": { "start": 512594, "end": 513493, "type": "actor-def", "scene": "euro", "movable": true },
@@ -1405,7 +1405,7 @@
             "pyCC_entrance_portal": { "start": 571042, "end": 571124, "type": "actor-def" },
             "dialogstring_08B70D": { "start": 571149, "end": 571213, "type": "DialogString" }
         } },
-        "py_actor_08B6F4": { "start": 571124, "end": 571149, "type": "actor-def", "movable": true },
+        "py_death_particle": { "start": 571124, "end": 571149, "type": "actor-def", "movable": true },
         "pyCD_flame_statue": { "start": 571213, "end": 571368, "type": "actor-def", "scene": "puzzle_room", "movable": true },
         "pyCD_jackal": { "scene": "puzzle_room", "movable": true, "parts": {
             "pyCD_jackal": { "start": 571422, "end": 572720, "type": "actor-def" },
@@ -1430,7 +1430,7 @@
         } },
         "pyCC_portal": { "start": 576876, "end": 577042, "type": "actor-def", "scene": "pyramid_main", "movable": true },
         "pyDD_mystic_statue": { "start": 577042, "end": 577184, "type": "actor-def", "scene": "mummy_queen_lair", "movable": true },
-        "func_09BB17": { "start": 637719, "end": 637879, "type": "Code", "movable": true },
+        "CollisionLayerRenderer": { "start": 637719, "end": 637879, "type": "Code", "movable": true },
         "pyDD_actor_0BA5DF": { "start": 763359, "end": 763418, "type": "actor-def", "scene": "mummy_queen_lair", "movable": true },
         "pyDD_mummy_queen": { "scene": "mummy_queen_lair", "movable": false, "parts": {
             "btF6_neo_queen": { "start": 763418, "end": 764586, "type": "actor-def" },
@@ -1438,7 +1438,7 @@
         } },
         "py_queen_actor_0BAAAA": { "start": 764586, "end": 764851, "type": "Code", "scene": "mummy_queen_lair", "movable": false },
         "py_queen_actor_0BABB3": { "start": 764851, "end": 765053, "type": "Code", "scene": "mummy_queen_lair", "movable": false },
-        "binary_0BACB4": { "start": 765108, "end": 765116, "type": "Binary", "scene": "mummy_queen_lair", "movable": false },
+        "mummy_queen_angle_table": { "start": 765108, "end": 765116, "type": "Binary", "scene": "mummy_queen_lair", "movable": false },
         "py_queen_actor_0BACBC": { "start": 765116, "end": 765291, "type": "Code", "scene": "mummy_queen_lair", "movable": false },
         "py_queen_actor_0BAD6B": { "start": 765291, "end": 765374, "type": "Code", "scene": "mummy_queen_lair", "movable": false },
         "pyDD_actor_0BADBE": { "start": 765374, "end": 765383, "type": "actor-def", "scene": "mummy_queen_lair", "movable": true },

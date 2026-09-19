@@ -1,4 +1,4 @@
-?INCLUDE 'pr_actor_0BCF52'
+?INCLUDE 'pr_text_placement_calc'
 ?INCLUDE 'pr_thinkers'
 
 !gfxCacheIdxB                   064A
@@ -69,7 +69,7 @@ pr8E_prologue3 [
     LDA #$E0
     STA $COLDATA
     REP #$20
-    COP [SpawnAfterAbsFlags] ( @pr_actor_0BCF52.code_0BCF8F, #$003C, #$0048, #$2000 )
+    COP [SpawnAfterAbsFlags] ( @pr_text_placement_calc.code_0BCF8F, #$003C, #$0048, #$2000 )
     LDA #$&spritestring_0BD1CA
     STA $0026, Y
     COP [SpawnThinker] ( @pr_thinkers.e_pr_thinker_0BD031 )

@@ -1,4 +1,4 @@
-?INCLUDE 'dm_actor_05D49E'
+?INCLUDE 'dm_mine_static_prop'
 
 ---------------------------------------------
 
@@ -7,7 +7,7 @@ dm47_imas [
 
   code_05D091:
     COP [BranchIfFlagByte] ( #5E, #01, &dm47_imas_destroy )
-    COP [SpawnAfterFlags] ( @dm_actor_05D49E, #$0100 )
+    COP [SpawnAfterFlags] ( @dm_mine_static_prop, #$0100 )
     LDA #$0200
     TSB $12
     COP [SetOnInteract] ( &code_05D0BF )

@@ -42,7 +42,7 @@
 ?INCLUDE 'cop_handlers_flags'
 ?INCLUDE 'HdmaWindowEffect'
 ?INCLUDE 'movement_delta_table'
-?INCLUDE 'pr_actor_0BCF52'
+?INCLUDE 'pr_text_placement_calc'
 ?INCLUDE 'world_map_names'
 ?INCLUDE 'world_map_options'
 ?INCLUDE 'world_map_routes'
@@ -193,7 +193,7 @@ ArrivalAndTravelSetup {
     LDA $0D6F             ; Load area ID from $0D6F (high byte of deferred scene)
     AND #$00FF
     STA $0000
-    COP [SpawnBeforeFlags] ( @pr_actor_0BCF52, #$2000 ) ; Spawn name display actor (pr_actor_0BCF52) with flags $2000
+    COP [SpawnBeforeFlags] ( @pr_text_placement_calc, #$2000 ) ; Spawn name display actor (pr_actor_0BCF52) with flags $2000
     JSR $&LookupMapName   ; Look up area name string from world_map_names table
     TYA                   ; Transfer name string pointer (Y) → save into spawned actor's $0026
     LDY $04
@@ -566,7 +566,7 @@ RouteEndHandler {
     LDA $0D6E             ; Load destination area ID from $0D6E for name display
     AND #$00FF
     STA $0000
-    COP [SpawnAfterFlags] ( @pr_actor_0BCF52, #$2000 ) ; Spawn name display actor for destination area
+    COP [SpawnAfterFlags] ( @pr_text_placement_calc, #$2000 ) ; Spawn name display actor for destination area
     JSR $&LookupMapName   ; Look up destination area name
     TYA 
     LDY $06

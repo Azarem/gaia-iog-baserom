@@ -1,4 +1,4 @@
-?INCLUDE 'func_0AA41C'
+?INCLUDE 'ActorMidpointCalc'
 
 !moveXAlt                       7F0018
 !moveYAlt                       7F001A
@@ -344,7 +344,7 @@ code_0BA2BE {
     COP [StageSprAndHitbox] ( #19 )
     COP [AnimOneFrame]
     COP [SetEntryContinue]
-    JSL $@func_0AA41C
+    JSL $@ActorMidpointCalc
     RTL 
 }
 
@@ -598,7 +598,7 @@ code_0BA4D5 {
     COP [StageSprAndHitbox] ( #18 )
     COP [AnimOneFrame]
     COP [SetEntryContinue]
-    JSL $@func_0AA41C
+    JSL $@ActorMidpointCalc
     RTL 
 }
 

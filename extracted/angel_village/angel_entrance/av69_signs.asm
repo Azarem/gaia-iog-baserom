@@ -1,4 +1,4 @@
-?INCLUDE 'func_06B9F2'
+?INCLUDE 'ActorDisplayModeSwap'
 ?INCLUDE 'table_0EDA00'
 
 ---------------------------------------------
@@ -7,7 +7,7 @@ av69_signs [
   actor-def < #05, #00, #10, {
 
   code_06BA0C:
-    JSL $@func_06B9F2
+    JSL $@ActorDisplayModeSwap
     COP [SetMetasprite] ( @table_0EDA00 )
     COP [StageSpriteFrame] ( #05 )
     COP [AnimOnce]

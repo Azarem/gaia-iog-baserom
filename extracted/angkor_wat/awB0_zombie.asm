@@ -1,6 +1,6 @@
+?INCLUDE 'ActorMidpointCalc'
 ?INCLUDE 'enemy_stats_table'
 ?INCLUDE 'EnemyDeathFlash'
-?INCLUDE 'func_0AA41C'
 
 !playerXPos                     09A2
 !playerYPos                     09A4
@@ -506,7 +506,7 @@ code_0BB6BD {
     TRB $10
     COP [StageSprAndHitbox] ( #1E )
     COP [SetEntryContinue]
-    JSL $@func_0AA41C
+    JSL $@ActorMidpointCalc
     RTL 
 }
 

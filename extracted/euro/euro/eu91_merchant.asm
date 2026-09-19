@@ -1,4 +1,4 @@
-?INCLUDE 'func_06B9F2'
+?INCLUDE 'ActorDisplayModeSwap'
 
 ---------------------------------------------
 
@@ -20,7 +20,7 @@ eu91_merchant [
     STZ $2A
     COP [SetEntryContinue]
     COP [AnimOneFrame]
-    JSL $@func_06B9F2
+    JSL $@ActorDisplayModeSwap
     LDA #$6000
     STA $0E
     COP [SetOnInteract] ( &code_07C2DF )
@@ -48,7 +48,7 @@ eu91_merchant2 [
     STZ $2A
     COP [SetEntryContinue]
     COP [AnimOneFrame]
-    JSL $@func_06B9F2
+    JSL $@ActorDisplayModeSwap
     COP [SetOnInteract] ( &code_07C2DF )
     COP [SolidHighHere]
     COP [SetEntryContinue]

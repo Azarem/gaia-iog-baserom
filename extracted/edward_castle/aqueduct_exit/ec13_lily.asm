@@ -25,9 +25,9 @@ ec13_lily [
     LDA #$CFF0
     TRB $joypadMaskStd
     LDY $playerActor
-    LDA #$*sE6_gaia.func_08F37D
+    LDA #$*sE6_gaia.Transform_FreedanToWill
     STA $0002, Y
-    LDA #$&sE6_gaia.func_08F37D
+    LDA #$&sE6_gaia.Transform_FreedanToWill
     STA $0000, Y
     LDA #$0000
     STA $0008, Y
@@ -81,9 +81,9 @@ code_09C037 {
     LDA #$CFF0
     TRB $joypadMaskStd
     LDY $playerActor
-    LDA #$*sE6_gaia.func_08F37D
+    LDA #$*sE6_gaia.Transform_FreedanToWill
     STA $0002, Y
-    LDA #$&sE6_gaia.func_08F37D
+    LDA #$&sE6_gaia.Transform_FreedanToWill
     STA $0000, Y
     LDA #$0000
     STA $0008, Y

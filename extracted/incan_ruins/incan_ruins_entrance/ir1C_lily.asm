@@ -89,10 +89,10 @@ code_09CAB1 {
     BEQ loc_09CADD
     LDY $playerActor
     SEP #$20
-    LDA #$^sE6_gaia.func_08F37D
+    LDA #$^sE6_gaia.Transform_FreedanToWill
     STA $0002, Y
     REP #$20
-    LDA #$&sE6_gaia.func_08F37D
+    LDA #$&sE6_gaia.Transform_FreedanToWill
     STA $0000, Y
     LDA #$0800
     TSB $playerFlags

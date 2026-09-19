@@ -30,8 +30,8 @@
 ?INCLUDE 'av70_flame_center'
 ?INCLUDE 'av70_hidden_passage'
 ?INCLUDE 'av70_ramskull'
-?INCLUDE 'av71_actor_06D68D'
-?INCLUDE 'av73_actor_06D6F4'
+?INCLUDE 'av71_wind_effect'
+?INCLUDE 'av73_waterfall_sound'
 ?INCLUDE 'av74_ishtar'
 ?INCLUDE 'av74_kara'
 ?INCLUDE 'av75_apprentice'
@@ -122,9 +122,9 @@
 ?INCLUDE 'dm3F_switch'
 ?INCLUDE 'dm40_hidden_dark_space'
 ?INCLUDE 'dm40_trapped_slave'
-?INCLUDE 'dm41_actor_05D6F3'
-?INCLUDE 'dm41_actor_05D70A'
-?INCLUDE 'dm41_actor_0AA4E2'
+?INCLUDE 'dm41_bat_spawner'
+?INCLUDE 'dm41_minecart'
+?INCLUDE 'dm41_solid_wall_setup'
 ?INCLUDE 'dm43_elevator'
 ?INCLUDE 'dm44_cell_door'
 ?INCLUDE 'dm45_key'
@@ -168,13 +168,13 @@
 ?INCLUDE 'ec0F_rusty_switch'
 ?INCLUDE 'ec0F_spear'
 ?INCLUDE 'ec10_dp_hint_spirit'
-?INCLUDE 'ec11_actor_09AA40'
-?INCLUDE 'ec11_actor_09BC8B'
+?INCLUDE 'ec11_aqueduct_blocker'
+?INCLUDE 'ec11_aqueduct_gate_sprite'
 ?INCLUDE 'ec11_button_voice'
 ?INCLUDE 'ec11_countdown'
 ?INCLUDE 'ec11_flower'
-?INCLUDE 'ec12_actor_09BF0F'
-?INCLUDE 'ec12_actor_09BF6B'
+?INCLUDE 'ec12_aqueduct_dark_space'
+?INCLUDE 'ec12_aqueduct_enemy'
 ?INCLUDE 'ec12_skull_chaser'
 ?INCLUDE 'ec13_lily'
 ?INCLUDE 'eu91_book'
@@ -211,14 +211,10 @@
 ?INCLUDE 'eu9D_bones'
 ?INCLUDE 'eu9D_slaves'
 ?INCLUDE 'floor_button'
-?INCLUDE 'fr32_actor_05B01E'
-?INCLUDE 'fr32_actor_05B32C'
-?INCLUDE 'fr32_actor_05B33D'
-?INCLUDE 'fr32_actor_05B35D'
-?INCLUDE 'fr32_actor_05CEF8'
-?INCLUDE 'fr32_actor_05CF04'
-?INCLUDE 'fr32_actor_05CF10'
 ?INCLUDE 'fr32_alley_guard'
+?INCLUDE 'fr32_bg_sprite_a'
+?INCLUDE 'fr32_bg_sprite_b'
+?INCLUDE 'fr32_bg_sprite_c'
 ?INCLUDE 'fr32_creep'
 ?INCLUDE 'fr32_doomsday'
 ?INCLUDE 'fr32_fragrance'
@@ -227,13 +223,17 @@
 ?INCLUDE 'fr32_honest_life'
 ?INCLUDE 'fr32_hotel_hint'
 ?INCLUDE 'fr32_hp_jewel'
+?INCLUDE 'fr32_idle_npc_a'
+?INCLUDE 'fr32_idle_npc_b'
 ?INCLUDE 'fr32_kara'
 ?INCLUDE 'fr32_kidnapper'
+?INCLUDE 'fr32_laborer_npc'
 ?INCLUDE 'fr32_locked_door'
 ?INCLUDE 'fr32_showman'
 ?INCLUDE 'fr32_slap'
 ?INCLUDE 'fr32_slaver1'
 ?INCLUDE 'fr32_slaver2'
+?INCLUDE 'fr32_walking_npc'
 ?INCLUDE 'fr33_erik'
 ?INCLUDE 'fr35_slave1'
 ?INCLUDE 'fr35_slave2'
@@ -292,13 +292,13 @@
 ?INCLUDE 'gw83_asp'
 ?INCLUDE 'gw83_lily'
 ?INCLUDE 'gw83_switch'
-?INCLUDE 'gw85_actor_07BCE8'
-?INCLUDE 'gw85_actor_07E901'
 ?INCLUDE 'gw85_long_switch_spear'
 ?INCLUDE 'gw85_multi_switch_spear'
+?INCLUDE 'gw85_retractable_gate'
 ?INCLUDE 'gw85_short_switch_spear'
-?INCLUDE 'gw88_actor_07BDE8'
+?INCLUDE 'gw85_spin_dash_gate'
 ?INCLUDE 'gw88_short_wall_spear'
+?INCLUDE 'gw88_tomb_dark_space'
 ?INCLUDE 'gw8A_sand_fanger'
 ?INCLUDE 'gw8B_lance_lily'
 ?INCLUDE 'hidden_red_jewel'
@@ -331,8 +331,8 @@
 ?INCLUDE 'ir26_bones'
 ?INCLUDE 'ir26_journal_bones'
 ?INCLUDE 'ir26_statue'
-?INCLUDE 'ir28_actor_09C6A9'
 ?INCLUDE 'ir28_bones'
+?INCLUDE 'ir28_ceiling_trap_trigger'
 ?INCLUDE 'ir29_castoth'
 ?INCLUDE 'ir29_transform'
 ?INCLUDE 'it15_bill'
@@ -349,7 +349,7 @@
 ?INCLUDE 'it17_lily'
 ?INCLUDE 'it18_warning_man'
 ?INCLUDE 'it18_warning_woman'
-?INCLUDE 'it19_actor_04F3CD'
+?INCLUDE 'it19_breakable_wall'
 ?INCLUDE 'it19_inca_statue_a'
 ?INCLUDE 'it1A_lily'
 ?INCLUDE 'it1A_moon_tribe'
@@ -376,14 +376,14 @@
 ?INCLUDE 'mu62_hope_statue'
 ?INCLUDE 'mu63_spirits'
 ?INCLUDE 'mu64_switch_spikes'
-?INCLUDE 'mu66_actor_069C85'
+?INCLUDE 'mu66_altar_dialog'
 ?INCLUDE 'mu66_altar1'
 ?INCLUDE 'mu66_altar2'
 ?INCLUDE 'mu66_rama_spirits'
-?INCLUDE 'mu67_actor_06A828'
 ?INCLUDE 'mu67_bomb'
 ?INCLUDE 'mu67_erik'
 ?INCLUDE 'mu67_kara'
+?INCLUDE 'mu67_lair_curtain'
 ?INCLUDE 'mu67_neil_lily'
 ?INCLUDE 'mu67_vampires'
 ?INCLUDE 'na49_camera'
@@ -459,7 +459,6 @@
 ?INCLUDE 'ramps'
 ?INCLUDE 's89_new_babel'
 ?INCLUDE 's90_changed_world'
-?INCLUDE 'sc01_actor_048004'
 ?INCLUDE 'sc01_astronomer'
 ?INCLUDE 'sc01_fisherman'
 ?INCLUDE 'sc01_girl1'
@@ -470,6 +469,7 @@
 ?INCLUDE 'sc01_jar_door'
 ?INCLUDE 'sc01_roof_man'
 ?INCLUDE 'sc01_salesman'
+?INCLUDE 'sc01_seagull'
 ?INCLUDE 'sc01_smoke'
 ?INCLUDE 'sc01_sprint_man'
 ?INCLUDE 'sc01_startled_woman'
@@ -486,7 +486,6 @@
 ?INCLUDE 'sc04_poverty'
 ?INCLUDE 'sc05_seths_father'
 ?INCLUDE 'sc05_seths_mother'
-?INCLUDE 'sc06_actor_04A42F'
 ?INCLUDE 'sc06_bill'
 ?INCLUDE 'sc06_hamlet'
 ?INCLUDE 'sc06_kara'
@@ -495,6 +494,7 @@
 ?INCLUDE 'sc06_lola'
 ?INCLUDE 'sc06_main_soldier'
 ?INCLUDE 'sc06_monologue'
+?INCLUDE 'sc06_wills_pet'
 ?INCLUDE 'sc07_chef'
 ?INCLUDE 'sc08_erik'
 ?INCLUDE 'sc08_lance'
@@ -508,13 +508,13 @@
 ?INCLUDE 'sE9_mansion_intro'
 ?INCLUDE 'sEA_solid_arm'
 ?INCLUDE 'sF0_class_dismissed'
-?INCLUDE 'sF7_actor_09DFF8'
-?INCLUDE 'sF7_actor_09E26C'
-?INCLUDE 'sF7_actor_09E3EB'
-?INCLUDE 'sF7_actor_09E4DD'
-?INCLUDE 'sF7_actor_09E591'
-?INCLUDE 'sF7_actor_09E607'
 ?INCLUDE 'sF7_credits'
+?INCLUDE 'sF7_credits_npc_a'
+?INCLUDE 'sF7_credits_npc_b'
+?INCLUDE 'sF7_credits_npc_c'
+?INCLUDE 'sF7_credits_npc_d'
+?INCLUDE 'sF7_credits_npc_e'
+?INCLUDE 'sF7_credits_player'
 ?INCLUDE 'sFA_diary_menu'
 ?INCLUDE 'sFB_actor_0BC8BA'
 ?INCLUDE 'sFC_actor_0BC924'
@@ -529,14 +529,14 @@
 ?INCLUDE 'sg4E_nitropede'
 ?INCLUDE 'sg4E_plasma_snake'
 ?INCLUDE 'sg51_statue'
-?INCLUDE 'sg52_actor_05F5DE'
-?INCLUDE 'sg52_actor_05F655'
+?INCLUDE 'sg52_blocker_enemy_a'
+?INCLUDE 'sg52_blocker_enemy_b'
 ?INCLUDE 'sg52_switch'
 ?INCLUDE 'sg54_pressure_switch'
 ?INCLUDE 'sg55_falling_tile'
 ?INCLUDE 'sg55_mystic_statue'
 ?INCLUDE 'sg55_viper'
-?INCLUDE 'sp58_actor_068111'
+?INCLUDE 'sp58_descent_cutscene'
 ?INCLUDE 'sp58_missed_flight'
 ?INCLUDE 'sp58_monologue'
 ?INCLUDE 'sp58_red_eye'
@@ -555,7 +555,7 @@
 ?INCLUDE 'sp5C_stone_coffin'
 ?INCLUDE 'sp5D_fountain'
 ?INCLUDE 'sp5E_passageway'
-?INCLUDE 'st68_actor_06B937'
+?INCLUDE 'st68_ambient_bubbles'
 ?INCLUDE 'st68_campfire'
 ?INCLUDE 'st68_erik'
 ?INCLUDE 'st68_kara'
@@ -567,7 +567,6 @@
 ?INCLUDE 'statue_inventory_reward'
 ?INCLUDE 'town_door'
 ?INCLUDE 'visual_effect_pipeline'
-?INCLUDE 'wa78_actor_0781BE'
 ?INCLUDE 'wa78_centipede_man'
 ?INCLUDE 'wa78_children'
 ?INCLUDE 'wa78_crazy_man'
@@ -577,6 +576,7 @@
 ?INCLUDE 'wa78_glass_game'
 ?INCLUDE 'wa78_intro'
 ?INCLUDE 'wa78_kruk'
+?INCLUDE 'wa78_lance_camera_pan'
 ?INCLUDE 'wa78_lily_pad'
 ?INCLUDE 'wa78_men'
 ?INCLUDE 'wa78_moving_pad'
@@ -884,9 +884,9 @@ scene_event_0C8221 [
   actor-spawn < #29, #13, #30, @sc01_smoke >   ;0C
   actor-spawn < #2B, #04, #30, @sc01_smoke >   ;0D
   actor-spawn < #1E, #03, #30, @sc01_smoke >   ;0E
-  actor-spawn < #00, #01, #00, @sc01_actor_048004 >   ;0F
-  actor-spawn < #00, #01, #00, @sc01_actor_048004 >   ;10
-  actor-spawn < #00, #01, #00, @sc01_actor_048004 >   ;11
+  actor-spawn < #00, #01, #00, @sc01_seagull >   ;0F
+  actor-spawn < #00, #01, #00, @sc01_seagull >   ;10
+  actor-spawn < #00, #01, #00, @sc01_seagull >   ;11
   actor-spawn < #07, #24, #00, @sc01_jar_door >   ;12
   actor-spawn < #23, #18, #00, @sc01_girl1 >   ;13
   actor-spawn < #29, #18, #00, @sc01_girl2 >   ;14
@@ -951,7 +951,7 @@ scene_event_0C83FB [
   actor-spawn < #03, #18, #00, @sc06_kara >   ;05
   actor-spawn < #08, #19, #00, @sc06_hamlet >   ;06
   actor-spawn < #05, #21, #00, @sc06_main_soldier >   ;07
-  actor-spawn < #06, #21, #00, @sc06_actor_04A42F >   ;08
+  actor-spawn < #06, #21, #00, @sc06_wills_pet >   ;08
   actor-spawn < #00, #01, #00, @sc06_monologue >   ;09
   actor-spawn < #03, #07, #00, @sc06_lily >   ;0A
   actor-spawn < #05, #1D, #00, @sc06_kara_return >   ;0B
@@ -1149,10 +1149,10 @@ scene_event_0C894C [
   actor-spawn < #00, #00, #00, @camera_scroll_controller >   ;01
   actor-spawn < #11, #11, #00, @camera_scroll.ScrollCameraTrack >   ;02
   actor-spawn < #04, #05, #00, @ec11_flower >   ;03
-  actor-spawn < #03, #07, #00, @ec11_actor_09BC8B >   ;04
+  actor-spawn < #03, #07, #00, @ec11_aqueduct_blocker >   ;04
   actor-spawn < #1C, #07, #00, @ec11_button_voice >   ;05
   actor-spawn < #1C, #07, #00, @ec11_countdown >   ;06
-  actor-spawn < #0B, #0B, #00, @ec11_actor_09AA40 >   ;07
+  actor-spawn < #0B, #0B, #00, @ec11_aqueduct_gate_sprite >   ;07
 ]
 
 scene_event_0C8986 [
@@ -1189,8 +1189,8 @@ scene_event_0C8986 [
   actor-spawn < #1E, #15, #40, @ec0E_spiney >   ;1E
   actor-spawn < #20, #12, #00, @ec0E_spiney >   ;1F
   actor-spawn < #1D, #0F, #C0, @ec0E_spiney >   ;20
-  actor-spawn < #2B, #56, #00, @ec12_actor_09BF0F >   ;21
-  actor-spawn < #00, #01, #00, @ec12_actor_09BF6B >   ;22
+  actor-spawn < #2B, #56, #00, @ec12_aqueduct_enemy >   ;21
+  actor-spawn < #00, #01, #00, @ec12_aqueduct_dark_space >   ;22
 ]
 
 scene_event_0C8AA9 [
@@ -1250,7 +1250,7 @@ scene_event_0C8BBE [
   actor-spawn < #05, #0A, #00, @player_character.PlayerCharacterDef >   ;00
   actor-spawn < #00, #00, #00, @camera_scroll_controller >   ;01
   actor-spawn < #07, #29, #00, @it19_inca_statue_a >   ;02
-  actor-spawn < #09, #07, #00, @it19_actor_04F3CD >   ;03
+  actor-spawn < #09, #07, #00, @it19_breakable_wall >   ;03
 ]
 
 scene_event_0C8BDC [
@@ -1520,7 +1520,7 @@ scene_event_0C92F2 [
   enemy-spawn < #04, #24, #00, @ir1D_four_way, #0C, #84, #10 >   ;08
   enemy-spawn < #12, #12, #00, @ir1D_four_way, #0C, #85, #00 >   ;09
   enemy-spawn < #0E, #18, #00, @ir1D_four_way, #0C, #86, #00 >   ;0A
-  actor-spawn < #00, #01, #00, @ir28_actor_09C6A9 >   ;0B
+  actor-spawn < #00, #01, #00, @ir28_ceiling_trap_trigger >   ;0B
   actor-spawn < #1B, #13, #00, @ir28_bones >   ;0C
 ]
 
@@ -1630,7 +1630,7 @@ scene_event_0C9572 [
   actor-spawn < #01, #82, #00, @visual_effect_pipeline.effect_position_update >   ;02
   actor-spawn < #00, #01, #00, @overworld_exit >   ;03
   actor-spawn < #00, #01, #00, @scene_flag_init >   ;04
-  actor-spawn < #00, #01, #00, @fr32_actor_05B01E >   ;05
+  actor-spawn < #00, #01, #00, @fr32_laborer_npc >   ;05
   actor-spawn < #07, #2B, #00, @town_door >   ;06
   actor-spawn < #16, #2D, #00, @town_door >   ;07
   actor-spawn < #21, #2B, #00, @town_door >   ;08
@@ -1638,10 +1638,10 @@ scene_event_0C9572 [
   actor-spawn < #2F, #2B, #00, @fr32_locked_door >   ;0A
   actor-spawn < #19, #0E, #00, @freejia_street_prop >   ;0B
   actor-spawn < #2F, #0F, #00, @freejia_street_prop >   ;0C
-  actor-spawn < #0D, #16, #00, @fr32_actor_05CF04 >   ;0D
-  actor-spawn < #0D, #19, #00, @fr32_actor_05CEF8 >   ;0E
-  actor-spawn < #3C, #16, #00, @fr32_actor_05CF10 >   ;0F
-  actor-spawn < #22, #17, #00, @fr32_actor_05CF10 >   ;10
+  actor-spawn < #0D, #16, #00, @fr32_bg_sprite_b >   ;0D
+  actor-spawn < #0D, #19, #00, @fr32_bg_sprite_a >   ;0E
+  actor-spawn < #3C, #16, #00, @fr32_bg_sprite_c >   ;0F
+  actor-spawn < #22, #17, #00, @fr32_bg_sprite_c >   ;10
   actor-spawn < #14, #0E, #00, @fr32_herb >   ;11
   actor-spawn < #24, #0E, #00, @fr32_herb >   ;12
   actor-spawn < #34, #10, #00, @fr32_herb >   ;13
@@ -1649,9 +1649,9 @@ scene_event_0C9572 [
   actor-spawn < #1D, #0F, #00, @fr32_hp_jewel >   ;15
   actor-spawn < #36, #10, #00, @fr32_hp_jewel >   ;16
   actor-spawn < #14, #36, #00, @fr32_kara >   ;17
-  actor-spawn < #22, #26, #00, @fr32_actor_05B32C >   ;18
-  actor-spawn < #03, #26, #00, @fr32_actor_05B33D >   ;19
-  actor-spawn < #21, #26, #00, @fr32_actor_05B35D >   ;1A
+  actor-spawn < #22, #26, #00, @fr32_idle_npc_a >   ;18
+  actor-spawn < #03, #26, #00, @fr32_walking_npc >   ;19
+  actor-spawn < #21, #26, #00, @fr32_idle_npc_b >   ;1A
   actor-spawn < #07, #0D, #00, @fr32_kidnapper >   ;1B
   actor-spawn < #1D, #2A, #00, @fr32_slap >   ;1C
   actor-spawn < #36, #1E, #00, @fr32_hotel_hint >   ;1D
@@ -1841,17 +1841,17 @@ scene_event_0C9A95 [
   enemy-spawn < #12, #0E, #00, @dm3D_grundit, #1A, #51, #00 >   ;04
   enemy-spawn < #22, #11, #00, @dm3D_grundit, #1A, #52, #00 >   ;05
   enemy-spawn < #25, #0D, #00, @dm3D_grundit, #1A, #53, #00 >   ;06
-  enemy-spawn < #29, #04, #30, @dm41_actor_05D70A, #1A, #55, #23 >   ;07
-  actor-spawn < #00, #01, #00, @dm41_actor_05D6F3 >   ;08
+  enemy-spawn < #29, #04, #30, @dm41_bat_spawner, #1A, #55, #23 >   ;07
+  actor-spawn < #00, #01, #00, @dm41_solid_wall_setup >   ;08
   enemy-spawn < #1E, #29, #00, @dm3D_eye_stalker.dm3D_eye_stalker3, #19, #56, #00 >   ;09
   enemy-spawn < #12, #24, #00, @dm3D_eye_stalker.dm3D_eye_stalker3, #19, #58, #00 >   ;0A
   enemy-spawn < #08, #24, #00, @dm3D_eye_stalker.dm3D_eye_stalker3, #19, #59, #00 >   ;0B
   enemy-spawn < #16, #2E, #00, @dm3D_flayzer.dm3D_flayzer3, #18, #5A, #00 >   ;0C
   enemy-spawn < #0C, #29, #00, @dm3D_flayzer.dm3D_flayzer3, #18, #5B, #00 >   ;0D
   enemy-spawn < #26, #10, #00, @dm3D_flayzer.dm3D_flayzer3, #18, #5C, #00 >   ;0E
-  actor-spawn < #02, #07, #00, @dm41_actor_0AA4E2 >   ;0F
-  actor-spawn < #28, #03, #00, @dm41_actor_0AA4E2.dm41_actor_0AA4F5 >   ;10
-  actor-spawn < #15, #3D, #00, @dm41_actor_0AA4E2.dm41_actor_0AA50C >   ;11
+  actor-spawn < #02, #07, #00, @dm41_minecart >   ;0F
+  actor-spawn < #28, #03, #00, @dm41_minecart.dm41_actor_0AA4F5 >   ;10
+  actor-spawn < #15, #3D, #00, @dm41_minecart.dm41_actor_0AA50C >   ;11
   actor-spawn < #16, #1C, #00, @large_ramps.large_ramp_booster >   ;12
   actor-spawn < #1B, #0B, #00, @large_ramps.large_ramp_booster >   ;13
 ]
@@ -2108,9 +2108,9 @@ scene_event_0CA192 [
   actor-spawn < #1C, #23, #00, @sg4E_plasma_snake.sg4E_plasma_snake2 >   ;0C
   actor-spawn < #15, #1C, #00, @sg4E_plasma_snake.sg4E_plasma_snake2 >   ;0D
   actor-spawn < #0C, #09, #00, @sg4E_plasma_snake.sg4E_plasma_snake2 >   ;0E
-  actor-spawn < #19, #0B, #00, @sg52_actor_05F5DE >   ;0F
-  actor-spawn < #23, #0A, #00, @sg52_actor_05F5DE >   ;10
-  actor-spawn < #3D, #0C, #00, @sg52_actor_05F655 >   ;11
+  actor-spawn < #19, #0B, #00, @sg52_blocker_enemy_a >   ;0F
+  actor-spawn < #23, #0A, #00, @sg52_blocker_enemy_a >   ;10
+  actor-spawn < #3D, #0C, #00, @sg52_blocker_enemy_b >   ;11
   actor-spawn < #25, #33, #00, @sg52_switch >   ;12
   actor-spawn < #00, #01, #00, @sg4D_jump_handler >   ;13
   actor-spawn < #00, #01, #00, @scene_flag_init >   ;14
@@ -2220,7 +2220,7 @@ scene_event_0CA4F5 [
 scene_event_0CA50C [
   actor-spawn < #00, #01, #00, @player_character.PlayerCharacterDef >   ;00
   actor-spawn < #00, #0C, #00, @visual_effect_pipeline.effect_velocity_init >   ;01
-  actor-spawn < #08, #01, #00, @sp58_actor_068111 >   ;02
+  actor-spawn < #08, #01, #00, @sp58_descent_cutscene >   ;02
   actor-spawn < #00, #0B, #00, @sp58_missed_flight >   ;03
   actor-spawn < #08, #0B, #00, @sp58_red_eye >   ;04
   actor-spawn < #05, #03, #00, @sp58_monologue.sp58_actor_068380 >   ;05
@@ -2505,7 +2505,7 @@ scene_event_0CACC3 [
   actor-spawn < #00, #00, #00, @camera_scroll_controller >   ;01
   actor-spawn < #24, #08, #00, @mu66_altar1 >   ;02
   actor-spawn < #2B, #08, #00, @mu66_altar2 >   ;03
-  actor-spawn < #00, #01, #00, @mu66_actor_069C85 >   ;04
+  actor-spawn < #00, #01, #00, @mu66_altar_dialog >   ;04
   actor-spawn < #0F, #07, #00, @mu66_rama_spirits >   ;05
 ]
 
@@ -2518,7 +2518,7 @@ scene_event_0CACEF [
   actor-spawn < #07, #11, #30, @mu67_bomb >   ;05
   actor-spawn < #07, #12, #30, @mu67_erik >   ;06
   actor-spawn < #07, #22, #30, @mu67_neil_lily.mu67_neil >   ;07
-  actor-spawn < #08, #22, #30, @mu67_actor_06A828 >   ;08
+  actor-spawn < #08, #22, #30, @mu67_lair_curtain >   ;08
   actor-spawn < #07, #23, #30, @mu67_kara >   ;09
   actor-spawn < #00, #01, #01, @boss_clear_reward_handler >   ;0A
 ]
@@ -2534,7 +2534,7 @@ scene_event_0CAD42 [
   actor-spawn < #0A, #0B, #00, @st68_kara >   ;07
   actor-spawn < #09, #0D, #00, @st68_lily >   ;08
   actor-spawn < #16, #0A, #00, @st68_mushrooms >   ;09
-  actor-spawn < #00, #01, #00, @st68_actor_06B937 >   ;0A
+  actor-spawn < #00, #01, #00, @st68_ambient_bubbles >   ;0A
 ]
 
 scene_event_0CAD99 [
@@ -2721,7 +2721,7 @@ scene_event_0CB258 [
   actor-spawn < #05, #0A, #00, @player_character.PlayerCharacterDef >   ;00
   actor-spawn < #00, #00, #00, @camera_scroll_controller >   ;01
   actor-spawn < #00, #01, #00, @scene_flag_init >   ;02
-  actor-spawn < #00, #01, #00, @av71_actor_06D68D >   ;03
+  actor-spawn < #00, #01, #00, @av71_wind_effect >   ;03
   actor-spawn < #1C, #09, #00, @av6D_flame_left >   ;04
   actor-spawn < #14, #07, #00, @av6D_flame_left >   ;05
   enemy-spawn < #1B, #0C, #00, @av70_ramskull, #2E, #37, #00 >   ;06
@@ -2759,7 +2759,7 @@ scene_event_0CB355 [
   actor-spawn < #08, #1E, #09, @stair_climb.StairTriggerEast >   ;03
   actor-spawn < #00, #01, #00, @av70_crawlspace >   ;04
   actor-spawn < #2C, #17, #00, @av70_hidden_passage >   ;05
-  actor-spawn < #00, #01, #00, @av73_actor_06D6F4 >   ;06
+  actor-spawn < #00, #01, #00, @av73_waterfall_sound >   ;06
 ]
 
 scene_event_0CB388 [
@@ -2796,7 +2796,7 @@ scene_event_0CB41F [
   actor-spawn < #00, #01, #00, @overworld_exit >   ;03
   actor-spawn < #00, #01, #00, @scene_flag_init >   ;04
   actor-spawn < #00, #01, #00, @wa78_intro >   ;05
-  actor-spawn < #00, #01, #00, @wa78_actor_0781BE >   ;06
+  actor-spawn < #00, #01, #00, @wa78_lance_camera_pan >   ;06
   actor-spawn < #4C, #2E, #00, @wa78_moving_pad >   ;07
   actor-spawn < #2D, #2C, #00, @wa78_lily_pad >   ;08
   actor-spawn < #1B, #1D, #00, @wa78_lily_pad >   ;09
@@ -2900,7 +2900,7 @@ scene_event_0CB695 [
   actor-spawn < #2E, #0C, #02, @player_character.PlayerCharacterDef >   ;00
   actor-spawn < #00, #00, #00, @camera_scroll_controller >   ;01
   actor-spawn < #11, #11, #00, @camera_scroll.ScrollCameraTrack >   ;02
-  actor-spawn < #00, #01, #00, @wa78_actor_0781BE >   ;03
+  actor-spawn < #00, #01, #00, @wa78_lance_camera_pan >   ;03
   actor-spawn < #2D, #0B, #00, @wa7F_lily >   ;04
   actor-spawn < #2B, #0B, #00, @wa7F_lance >   ;05
 ]
@@ -3036,7 +3036,7 @@ scene_event_0CB97D [
   enemy-spawn < #17, #2B, #00, @gw82_archer.gw82_archer2, #33, #72, #00 >   ;24
   actor-spawn < #13, #29, #01, @gw82_wall_spear >   ;25
   actor-spawn < #1A, #29, #01, @gw82_wall_spear >   ;26
-  actor-spawn < #12, #19, #00, @gw85_actor_07BCE8 >   ;27
+  actor-spawn < #12, #19, #00, @gw85_retractable_gate >   ;27
   actor-spawn < #2C, #29, #00, @gw85_short_switch_spear >   ;28
   actor-spawn < #34, #29, #00, @gw85_long_switch_spear >   ;29
   actor-spawn < #64, #19, #00, @gw85_multi_switch_spear >   ;2A
@@ -3046,7 +3046,7 @@ scene_event_0CB97D [
   actor-spawn < #29, #2B, #05, @floor_button >   ;2E
   actor-spawn < #37, #2C, #07, @floor_button >   ;2F
   actor-spawn < #64, #1D, #09, @floor_button >   ;30
-  actor-spawn < #00, #01, #00, @gw85_actor_07E901 >   ;31
+  actor-spawn < #00, #01, #00, @gw85_spin_dash_gate >   ;31
   actor-spawn < #06, #2B, #03, @dark_space.dark_space2 >   ;32
 ]
 
@@ -3097,7 +3097,7 @@ scene_event_0CBC3B [
   actor-spawn < #11, #11, #00, @camera_scroll.ScrollCameraVertical >   ;02
   actor-spawn < #16, #09, #03, @ramps.ramp_west >   ;03
   actor-spawn < #18, #09, #03, @ramps.ramp_east >   ;04
-  actor-spawn < #00, #01, #00, @gw88_actor_07BDE8 >   ;05
+  actor-spawn < #00, #01, #00, @gw88_tomb_dark_space >   ;05
   enemy-spawn < #14, #1B, #00, @gw82_archer.gw82_archer3, #33, #A0, #00 >   ;06
   enemy-spawn < #2F, #1A, #00, @gw82_archer.gw82_archer3, #33, #A1, #00 >   ;07
   enemy-spawn < #1E, #18, #00, @gw82_archer.gw82_archer1, #33, #A2, #00 >   ;08
@@ -4499,12 +4499,12 @@ scene_event_0CE193 [
 ]
 
 scene_event_0CE1AA [
-  actor-spawn < #12, #01, #00, @sF7_actor_09DFF8 >   ;00
-  actor-spawn < #12, #01, #00, @sF7_actor_09E26C >   ;01
-  actor-spawn < #12, #01, #00, @sF7_actor_09E3EB >   ;02
-  actor-spawn < #12, #01, #00, @sF7_actor_09E4DD >   ;03
-  actor-spawn < #12, #01, #00, @sF7_actor_09E591 >   ;04
-  actor-spawn < #12, #01, #00, @sF7_actor_09E607 >   ;05
+  actor-spawn < #12, #01, #00, @sF7_credits_player.sF7_actor_09DFF8 >   ;00
+  actor-spawn < #12, #01, #00, @sF7_credits_npc_a.sF7_actor_09E26C >   ;01
+  actor-spawn < #12, #01, #00, @sF7_credits_npc_b.sF7_actor_09E3EB >   ;02
+  actor-spawn < #12, #01, #00, @sF7_credits_npc_c.sF7_actor_09E4DD >   ;03
+  actor-spawn < #12, #01, #00, @sF7_credits_npc_d.sF7_actor_09E591 >   ;04
+  actor-spawn < #12, #01, #00, @sF7_credits_npc_e.sF7_actor_09E607 >   ;05
   actor-spawn < #00, #01, #00, @sF7_credits >   ;06
 ]
 

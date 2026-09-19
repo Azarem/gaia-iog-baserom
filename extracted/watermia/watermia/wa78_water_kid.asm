@@ -1,4 +1,4 @@
-?INCLUDE 'func_06B9F2'
+?INCLUDE 'ActorDisplayModeSwap'
 ?INCLUDE 'npc_wander_ai'
 
 !currentHp                      7F0026
@@ -9,7 +9,7 @@ wa78_water_kid [
   actor-def < #12, #00, #10, {
 
   code_07849E:
-    JSL $@func_06B9F2
+    JSL $@ActorDisplayModeSwap
     COP [SetOnInteract] ( &code_0784BD )
     LDA #$0012
     STA $currentHp, X

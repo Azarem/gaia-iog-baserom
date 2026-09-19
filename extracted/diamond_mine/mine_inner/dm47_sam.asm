@@ -1,4 +1,4 @@
-?INCLUDE 'dm_actor_05D49E'
+?INCLUDE 'dm_mine_static_prop'
 ?INCLUDE 'f_inventory_full'
 
 !joypadMaskStd                  065A
@@ -11,7 +11,7 @@ dm47_sam [
 
   code_05D226:
     COP [BranchIfFlagByte] ( #5E, #01, &dm47_sam_destroy )
-    COP [SpawnAfterFlags] ( @dm_actor_05D49E, #$0100 )
+    COP [SpawnAfterFlags] ( @dm_mine_static_prop, #$0100 )
     LDA #$0200
     TSB $12
     COP [SetOnInteract] ( &code_05D299 )

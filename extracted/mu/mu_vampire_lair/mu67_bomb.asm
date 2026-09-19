@@ -31,9 +31,9 @@ mu67_bomb [
     LDA $characterForm
     BEQ loc_06A466
     LDY $playerActor
-    LDA #$*sE6_gaia.func_08F37D
+    LDA #$*sE6_gaia.Transform_FreedanToWill
     STA $0002, Y
-    LDA #$&sE6_gaia.func_08F37D
+    LDA #$&sE6_gaia.Transform_FreedanToWill
     STA $0000, Y
     LDA #$0000
     STA $0008, Y

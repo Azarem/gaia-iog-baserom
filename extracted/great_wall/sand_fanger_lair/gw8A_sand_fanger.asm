@@ -2,12 +2,12 @@
 ?INCLUDE 'cop_handlers_flags'
 ?INCLUDE 'enemy_stats_table'
 ?INCLUDE 'EnemyDeathFlash'
-?INCLUDE 'func_0AA36E'
-?INCLUDE 'func_0AA43F'
+?INCLUDE 'EnemyDefeatDispatch'
 ?INCLUDE 'hardware_math'
 ?INCLUDE 'math_lookup_tables'
 ?INCLUDE 'player_transition_handlers'
 ?INCLUDE 'sE6_gaia'
+?INCLUDE 'SetPlayerGameOverFlag'
 ?INCLUDE 'smooth_follow_child'
 ?INCLUDE 'table_0EE000'
 
@@ -58,9 +58,9 @@ btF5_neo_fanger [
 
   loc_0B8037:
     LDY $playerActor
-    LDA #$*sE6_gaia.func_08F5F9
+    LDA #$*sE6_gaia.Transform_WillToShadow
     STA $0002, Y
-    LDA #$&sE6_gaia.func_08F5F9
+    LDA #$&sE6_gaia.Transform_WillToShadow
     STA $0000, Y
     LDA #$0000
     STA $0008, Y
@@ -122,9 +122,9 @@ code_0B80F0 {
 
   loc_0B80F8:
     LDY $playerActor
-    LDA #$*sE6_gaia.func_08F3B1
+    LDA #$*sE6_gaia.Transform_ShadowToWill
     STA $0002, Y
-    LDA #$&sE6_gaia.func_08F3B1
+    LDA #$&sE6_gaia.Transform_ShadowToWill
     STA $0000, Y
     LDA #$0000
     STA $0008, Y
@@ -715,7 +715,7 @@ code_0B8582 {
   loc_0B858D:
     LDA #$0020
     TSB $playerFlags
-    COP [SpawnLastRel] ( @func_0AA36E, #00, #00, #$2000 )
+    COP [SpawnLastRel] ( @SetPlayerGameOverFlag, #00, #00, #$2000 )
     LDA #$000A
     STA $0000
     LDA #$0014
@@ -774,7 +774,7 @@ code_0B8582 {
   loc_0B8603:
     PLX 
     COP [WaitByte] ( #10 )
-    COP [JumpScript] ( @func_0AA43F )
+    COP [JumpScript] ( @EnemyDefeatDispatch )
 
   loc_0B860C:
     COP [PlaySoundCh1] ( #06 )

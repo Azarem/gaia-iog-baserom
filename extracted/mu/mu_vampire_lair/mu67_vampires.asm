@@ -1,8 +1,8 @@
 ?INCLUDE 'actor_pool'
 ?INCLUDE 'cop_handlers_flags'
 ?INCLUDE 'enemy_stats_table'
-?INCLUDE 'func_0AA36E'
 ?INCLUDE 'sE6_gaia'
+?INCLUDE 'SetPlayerGameOverFlag'
 ?INCLUDE 'StandardEnemyDefeatHandler'
 ?INCLUDE 'table_0EE000'
 
@@ -40,9 +40,9 @@ btF4_neo_male_vampire [
 
   loc_0AF173:
     LDY $playerActor
-    LDA #$*sE6_gaia.func_08F5F9
+    LDA #$*sE6_gaia.Transform_WillToShadow
     STA $0002, Y
-    LDA #$&sE6_gaia.func_08F5F9
+    LDA #$&sE6_gaia.Transform_WillToShadow
     STA $0000, Y
     LDA #$0000
     STA $0008, Y
@@ -83,9 +83,9 @@ code_0AF1AD {
 
   loc_0AF1B5:
     LDY $playerActor
-    LDA #$*sE6_gaia.func_08F3B1
+    LDA #$*sE6_gaia.Transform_ShadowToWill
     STA $0002, Y
-    LDA #$&sE6_gaia.func_08F3B1
+    LDA #$&sE6_gaia.Transform_ShadowToWill
     STA $0000, Y
     LDA #$0000
     STA $0008, Y
@@ -1234,7 +1234,7 @@ func_0AFA59 {
   loc_0AFA72:
     LDA #$0020
     TSB $playerFlags
-    COP [SpawnLastRel] ( @func_0AA36E, #00, #00, #$2000 )
+    COP [SpawnLastRel] ( @SetPlayerGameOverFlag, #00, #00, #$2000 )
 
   loc_0AFA81:
     LDA $playerFlags
@@ -1266,7 +1266,7 @@ code_0AFAA0 {
   loc_0AFAB9:
     LDA #$0020
     TSB $playerFlags
-    COP [SpawnLastRel] ( @func_0AA36E, #00, #00, #$2000 )
+    COP [SpawnLastRel] ( @SetPlayerGameOverFlag, #00, #00, #$2000 )
 
   loc_0AFAC8:
     LDA $playerFlags

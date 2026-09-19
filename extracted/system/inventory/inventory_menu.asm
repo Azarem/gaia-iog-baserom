@@ -14,7 +14,7 @@
 ; 
 ; === TAB SYSTEM (4 tabs) ===
 ; 
-; 0 = Use: Equip/unequip items. 4×4 grid cursor ($1A = slot index). A/X confirms selection as equipped; selecting an empty slot or re-selecting clears equipment ($FFFF).
+; 0 = Use: Equip/unequip items. 4×4 grid cursor ($1A = slot index). B/Y/X confirms selection as equipped; selecting an empty slot or re-selecting clears equipment ($FFFF).
 ; 
 ; 1 = Arrange: Swap items between slots. Two-phase: pick source ($22) → pick target ($22/$2E). ArrangePerformSwap does an 8-bit byte swap in inventorySlots, updates both slot actor sprites via UpdateSlotActorSprite, and tracks inventoryEquippedIndex across the swap.
 ; 
@@ -207,7 +207,7 @@ UseItemTab {
     STA $itemAbilityIndex ; itemAbilityIndex for BG3 item detail strings
     COP [RunBg3Script] ( @system_strings.consolestring_01E9D0 )
     COP [SetEntryExit]
-    COP [BranchIfButton] ( #$C040, &UseItemConfirm ) ; A or X ($C040) confirms equip selection
+    COP [BranchIfButton] ( #$C040, &UseItemConfirm ) ; B, Y, or X ($C040) confirms equip selection
     COP [BranchIfButton] ( #$0800, &UseItemCursorUp )
     COP [BranchIfButton] ( #$0400, &UseItemCursorDown )
     COP [BranchIfButton] ( #$0200, &UseItemCursorLeft )
@@ -277,7 +277,7 @@ UseItemCursorRight {
 ; Confirm item selection in Use tab. Stores $1A → inventoryEquippedIndex. If slot is empty (item byte = 0): sets inventoryEquippedIndex = $FFFF, clears inventoryEquippedType. If non-empty: stores item type to inventoryEquippedType. Both paths return to InventoryMainLoop.
 
 UseItemConfirm {
-    LDA #$C040            ; Equip confirm: mask A+X held
+    LDA #$C040            ; Equip confirm: mask B+Y+X held
     TSB $joypadHeld
     COP [PlaySoundCh2] ( #11 )
     LDA $1A
@@ -315,7 +315,7 @@ ArrangeItemsTab {
   code_02E555:
     JSR $&PositionGridCursor ; Position grid selection cursor at slot $22
     COP [SetEntryExit]
-    COP [BranchIfButton] ( #$4040, &ArrangeCancelTab ) ; B or X ($4040) cancels Arrange tab
+    COP [BranchIfButton] ( #$4040, &ArrangeCancelTab ) ; Y or X ($4040) cancels Arrange tab
     COP [BranchIfButton] ( #$8000, &ArrangePickTarget ) ; B picks source slot for swap
     PEA $&code_02E555-1   ; Push resume address for shared grid navigation
     COP [BranchIfButton] ( #$0800, &GridCursorUp )
@@ -346,7 +346,7 @@ ArrangePickTarget {
   code_02E5AC:
     JSR $&PositionGridCursor ; Position target cursor during swap pick
     COP [SetEntryExit]
-    COP [BranchIfButton] ( #$4040, &ArrangeCancelTarget ) ; Cancel target pick (B/X)
+    COP [BranchIfButton] ( #$4040, &ArrangeCancelTarget ) ; Cancel target pick (Y/X)
     COP [BranchIfButton] ( #$8000, &ArrangePerformSwap ) ; B confirms swap destination slot
     PEA $&code_02E5AC-1
     COP [BranchIfButton] ( #$0800, &GridCursorUp )
@@ -458,7 +458,7 @@ DiscardItemTab {
   code_02E67C:
     JSR $&PositionGridCursor
     COP [SetEntryExit]
-    COP [BranchIfButton] ( #$4040, &DiscardCancelTab ) ; B/X exits Discard tab
+    COP [BranchIfButton] ( #$4040, &DiscardCancelTab ) ; Y/X exits Discard tab
     COP [BranchIfButton] ( #$8000, &code_02E6AA ) ; B selects slot to discard
     PEA $&code_02E67C-1
     COP [BranchIfButton] ( #$0800, &GridCursorUp )
@@ -523,7 +523,7 @@ code_02E6AA {
 ; Cancel Discard tab. Consumes B/Y, kills cursor, shows equip cursor, returns to InventoryMainLoop.
 
 DiscardCancelTab {
-    LDA #$4040            ; Discard cancel: mask B+X, kill cursor, show equip cursor
+    LDA #$4040            ; Discard cancel: mask Y+X, kill cursor, show equip cursor
     TSB $joypadHeld
     COP [KillNext]
     JSR $&ShowEquipCursor
@@ -1387,7 +1387,7 @@ TabSelectionLoop {
     COP [BranchIfButton] ( #$8000, &TabConfirm ) ; Tab selection loop — poll A/Up/Down/B/Y/X
     COP [BranchIfButton] ( #$0800, &TabSelectUp )
     COP [BranchIfButton] ( #$0400, &TabSelectDown )
-    COP [BranchIfButton] ( #$6040, &TabCancel ) ; B/Y/X ($6040) cancels tab hover
+    COP [BranchIfButton] ( #$6040, &TabCancel ) ; Y/Select/X ($6040) cancels tab hover
     LDA $1C               ; Tab cursor blink counter increment
     INC $1C
     BIT #$000F

@@ -1,4 +1,4 @@
-?INCLUDE 'bt_actor_099B1C'
+?INCLUDE 'bt_static_sprite'
 ?INCLUDE 'table_0EE000'
 
 !joypadMaskStd                  065A
@@ -14,8 +14,8 @@ btDF_crystal_ring [
   code_099975:
     LDA #$0200
     TSB $12
-    COP [SpawnAfterAbsFlags] ( @bt_actor_099B1C, #$076E, #$017C, #$0B00 )
-    COP [SpawnAfterAbsFlags] ( @bt_actor_099B1C, #$076E, #$018C, #$0B00 )
+    COP [SpawnAfterAbsFlags] ( @bt_static_sprite, #$076E, #$017C, #$0B00 )
+    COP [SpawnAfterAbsFlags] ( @bt_static_sprite, #$076E, #$018C, #$0B00 )
 
   loc_099990:
     COP [SetEntryContinue]

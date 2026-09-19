@@ -2,12 +2,12 @@
 
 ?INCLUDE 'actor_pool'
 ?INCLUDE 'cop_handlers_flags'
-?INCLUDE 'func_0AA36E'
-?INCLUDE 'func_0AFD69'
 ?INCLUDE 'py_queen_actor_0BAAAA'
 ?INCLUDE 'py_queen_actor_0BABB3'
 ?INCLUDE 'py_queen_actor_0BACBC'
+?INCLUDE 'RandomPlayerOffset'
 ?INCLUDE 'sE6_gaia'
+?INCLUDE 'SetPlayerGameOverFlag'
 ?INCLUDE 'smooth_follow_child'
 ?INCLUDE 'StandardEnemyDefeatHandler'
 ?INCLUDE 'table_0EE000'
@@ -44,9 +44,9 @@ btF6_neo_queen [
 
   loc_0BA636:
     LDY $playerActor
-    LDA #$*sE6_gaia.func_08F5F9
+    LDA #$*sE6_gaia.Transform_WillToShadow
     STA $0002, Y
-    LDA #$&sE6_gaia.func_08F5F9
+    LDA #$&sE6_gaia.Transform_WillToShadow
     STA $0000, Y
     LDA #$0000
     STA $0008, Y
@@ -78,9 +78,9 @@ code_0BA65F {
 
   loc_0BA674:
     LDY $playerActor
-    LDA #$*sE6_gaia.func_08F3B1
+    LDA #$*sE6_gaia.Transform_ShadowToWill
     STA $0002, Y
-    LDA #$&sE6_gaia.func_08F3B1
+    LDA #$&sE6_gaia.Transform_ShadowToWill
     STA $0000, Y
     LDA #$0000
     STA $0008, Y
@@ -130,7 +130,7 @@ code_0BA6CF {
     STA $22
     LDA #$0000
     STA $orbitAngle, X
-    COP [SpawnMarkedAfter] ( @func_0AFD69, #$2000 )
+    COP [SpawnMarkedAfter] ( @RandomPlayerOffset, #$2000 )
     TYA 
     STA $scratch1010+6, X
     COP [SetDeathCallback] ( @code_0BA9C2 )
@@ -482,7 +482,7 @@ code_0BA9C2 {
   loc_0BA9D5:
     LDA #$0020
     TSB $playerFlags
-    COP [SpawnLastRel] ( @func_0AA36E, #00, #00, #$2000 )
+    COP [SpawnLastRel] ( @SetPlayerGameOverFlag, #00, #00, #$2000 )
     COP [SpawnLastRel] ( @code_0BA9F2, #00, #E0, #$2300 )
     COP [WaitByte] ( #3B )
     COP [Die]

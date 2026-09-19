@@ -9,9 +9,9 @@
 ?INCLUDE 'comet_lair_hdma_a'
 ?INCLUDE 'comet_lair_hdma_b'
 ?INCLUDE 'comet_lair_hdma_c_timed'
-?INCLUDE 'crF7_proc_09F330'
-?INCLUDE 'crF7_proc_09F360'
-?INCLUDE 'crF7_proc_09F510'
+?INCLUDE 'crF7_credits_camera_pan'
+?INCLUDE 'crF7_credits_dma_scroll'
+?INCLUDE 'crF7_credits_hdma_flicker'
 ?INCLUDE 'dao_sine_hdma_slow'
 ?INCLUDE 'dao_window_mask'
 ?INCLUDE 'dark_castoth_layer_config'
@@ -603,10 +603,10 @@ thinker_spawn_0CEA52 [
 ]
 
 thinker_spawn_0CEA5B [
-  thinker-spawn < #00, @crF7_proc_09F330 >   ;00
-  thinker-spawn < #00, @crF7_proc_09F360 >   ;01
+  thinker-spawn < #00, @crF7_credits_hdma_flicker >   ;00
+  thinker-spawn < #00, @crF7_credits_dma_scroll >   ;01
   thinker-spawn < #00, @thinkers_05FB16.crF7_thinker_05FB16 >   ;02
-  thinker-spawn < #00, @crF7_proc_09F510 >   ;03
+  thinker-spawn < #00, @crF7_credits_camera_pan >   ;03
 ]
 
 thinker_spawn_0CEA6C [

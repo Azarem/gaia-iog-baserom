@@ -1,3 +1,51 @@
+; Diary/save menu system — scene $FA title screen menu with save management and settings.
+; 
+; Implements four menu tabs accessed from the title screen's Start button:
+; 1. Start Journey (code_0BE354) — load a saved game from one of 3 diary slots
+; 2. Erase Trip Diary (code_0BEA55) — delete a save slot with confirmation
+; 3. Copy Trip Diary (DiaryCopyTab) — copy one diary to an empty slot
+; 4. Change Snd/Buttons (DiarySndBtnTab) — toggle stereo/mono and button remapping
+; 
+; === DISPLAY SETUP ===
+; 
+; Uses Mode 7 scrolling for the diary background. TM=$01 (BG1), TS=$04 (BG3 sub).
+; Color math: CGWSEL=$82 (sub=fixed, always apply), CGADSUB=$41 (add BG1+backdrop).
+; Window registers: W34SEL=$88, WOBJSEL=$22 for dialogue box masking.
+; Camera positioned at ($80, $300) for the Mode 7 perspective view.
+; 
+; === DIARY STATE BLOCK ($0D74–$0D98) ===
+; 
+; | Address | Purpose |
+; |---------|---------|
+; | $0D74/76/78 | Scene IDs for slots 1/2/3 (0 = empty) |
+; | $0D7A/7C/7E | Max HP values for slots 1/2/3 |
+; | $0D80/82/84 | STR values for slots 1/2/3 |
+; | $0D86/88/8A | DEF values for slots 1/2/3 |
+; | $0D8C | Active save slot (0–2, stored in SRAM $306000) |
+; | $0D8E | Button type toggle (0=layout A, 1=layout B) |
+; | $0D90 | Sound mode toggle (0=stereo, 1=mono) |
+; | $0D92 | Current menu cursor position |
+; | $0D94 | Selected slot for copy/erase operations |
+; | $0D96 | Target slot for copy operation |
+; | $0D98 | Sub-menu cursor / tab selection |
+; 
+; === SRAM LAYOUT ===
+; 
+; $306000: Active slot number (0–2)
+; $306200 + (slot × 512): Event flag data (508 bytes)
+; $3063FC + (slot × 4): Dual checksums (additive + XOR, seeded with $3652)
+; 
+; === BUTTON REMAP ===
+; 
+; Two button layouts stored in $0B26:
+; - Layout A (0): A=confirm($8000), B=cancel($4000), Y=item palette($0040)
+; - Layout B (1): Default engine mapping (no remap)
+; 
+; DiaryMenuVBlankHandler provides a custom VBlank handler that reads raw joypad input and applies
+; the remap table to produce joypadCurrent. Also handles Mode 7 register writes and
+; auto-repeat timing (12-frame threshold).
+---------------------------------------------
+
 ?BANK 0B
 
 ?INCLUDE 'oam_digit_compose'
@@ -58,55 +106,55 @@
 sFA_diary_menu [
   actor-def < #00, #00, #28, {
 
-  code_0BE23A:
-    LDA #$0000
+  DiaryMenuInit:
+    LDA #$0000            ; Clear CGRAM
     STA $cgramPalette
     SEP #$20
-    STA $TM
+    STA $TM               ; Disable all layers initially
     REP #$20
-    LDA #$FFFF
+    LDA #$FFFF            ; Initialize cursor states to "none"
     STA $0D92
     STA $0D96
     STA $0D98
-    LDA #$4001
+    LDA #$4001            ; Bits 14+0: menu display mode
     TSB $displayModeFlags
     SEP #$20
-    LDA #$88
+    LDA #$88              ; Window 3/4 config for dialogue masking
     STA $W34SEL
-    LDA #$22
+    LDA #$22              ; OBJ window config
     STA $WOBJSEL
     REP #$20
     LDA #$0000
     STA $cgramPalette
-    STA $0B04
+    STA $0B04             ; Clear saved frame delay
     LDA #$0001
-    STA $00EE
+    STA $00EE             ; Enable menu mode flag
     SEP #$20
-    LDA #$01
+    LDA #$01              ; BG1 on main screen
     STA $TM
-    LDA #$04
+    LDA #$04              ; BG3 on sub screen (text overlay)
     STA $TS
-    LDA #$82
+    LDA #$82              ; Sub=fixed color, math always
     STA $CGWSEL
-    LDA #$41
+    LDA #$41              ; Add BG1 + backdrop
     STA $CGADSUB
     REP #$20
-    LDA #$0080
+    LDA #$0080            ; Camera X = 128 (Mode 7 center)
     STA $bg1ScrollH
     STA $cameraTargetX
-    LDA #$0300
+    LDA #$0300            ; Camera Y = 768 (Mode 7 perspective)
     STA $bg2ScrollH
     STA $cameraTargetY
-    LDA #$3000
+    LDA #$3000            ; Mask L+R shoulder buttons
     TSB $joypadMaskStd
-    LDA #$2800
+    LDA #$2800            ; Set running + ability-active flags
     TSB $playerFlags
-    COP [RunBg3Script] ( @system_strings.consolestring_01EADC )
-    COP [PrintDialogStringAlt] ( &dialogstring_0BF3F4 )
-    JSR $&sub_0BED64
-    LDA #$0F00
+    COP [RunBg3Script] ( @system_strings.consolestring_01EADC ) ; Draw BG3 text overlay
+    COP [PrintDialogStringAlt] ( &dialogstring_0BF3F4 ) ; "Start Journey / Erase / Copy / Change"
+    JSR $&DiaryScanSramSlots ; Scan SRAM: validate checksums, read slot data
+    LDA #$0F00            ; Enable auto-repeat on D-pad
     STA $joypadMaskInv
-    STZ $18
+    STZ $18               ; Clear frame counter
     COP [SetEntryContinue]
     LDA $worldReadyFlag
     BNE loc_0BE2CA
@@ -118,7 +166,7 @@ sFA_diary_menu [
 ]
 ---------------------------------------------
 
-func_0BE2CC {
+DiaryMainMenuEntry {
     COP [PrintDialogStringAlt] ( &dialogstring_0BF3F4 )
 
   loc_0BE2D0:
@@ -127,21 +175,21 @@ func_0BE2CC {
     LDA #$0000
     STA $0D98
 
-  code_0BE2DC:
+  DiaryTabSelectLoop:
     COP [RunBg3Script] ( @system_strings.consolestring_01EADC )
     COP [SetEntryContinue]
-    COP [BranchIfButton] ( #$0800, &code_0BE2F6 )
-    COP [BranchIfButton] ( #$0400, &code_0BE30F )
-    COP [BranchIfButton] ( #$0080, &code_0BE32B )
+    COP [BranchIfButton] ( #$0800, &DiaryTabCursorUp ) ; Up → previous tab
+    COP [BranchIfButton] ( #$0400, &DiaryTabCursorDown ) ; Down → next tab
+    COP [BranchIfButton] ( #$0080, &DiaryTabConfirm ) ; A → confirm selection
     RTL 
 }
 
-code_0BE2F6 {
-    COP [PlaySoundCh2] ( #10 )
+DiaryTabCursorUp {
+    COP [PlaySoundCh2] ( #10 ) ; Cursor move SFX
     LDA $0D98
     DEC 
     BPL loc_0BE302
-    LDA #$0003
+    LDA #$0003            ; Wrap to bottom
 
   loc_0BE302:
     STA $0D98
@@ -151,13 +199,13 @@ code_0BE2F6 {
     RTL 
 }
 
-code_0BE30F {
-    COP [PlaySoundCh2] ( #10 )
+DiaryTabCursorDown {
+    COP [PlaySoundCh2] ( #10 ) ; Cursor move SFX
     LDA $0D98
     INC 
     CMP #$0004
     BCC loc_0BE31E
-    LDA #$0000
+    LDA #$0000            ; Wrap to top
 
   loc_0BE31E:
     STA $0D98
@@ -167,8 +215,8 @@ code_0BE30F {
     RTL 
 }
 
-code_0BE32B {
-    COP [PlaySoundCh2] ( #11 )
+DiaryTabConfirm {
+    COP [PlaySoundCh2] ( #11 ) ; Confirm SFX
     LDA $joypadCurrent
     ORA $joypadHeld
     STA $joypadHeld
@@ -181,35 +229,35 @@ code_0BE32B {
 }
 
 code_list_0BE34C [
-  &code_0BE354   ;00
-  &code_0BEA55   ;01
-  &func_0BE8A8   ;02
-  &func_0BE6BA   ;03
+  &DiaryStartJourney   ;00
+  &DiaryEraseTab   ;01
+  &DiaryCopyTab   ;02
+  &DiarySndBtnTab   ;03
 ]
 
-code_0BE354 {
-    JSR $&sub_0BEBF9
-    COP [PrintDialogStringAlt] ( &dialogstring_0BF437 )
-    COP [CallScript] ( &code_0BEB8B )
+DiaryStartJourney {
+    JSR $&DiaryMenuClearVram ; Clear VRAM buffer
+    COP [PrintDialogStringAlt] ( &dialogstring_0BF437 ) ; "Which Diary?" with 3 slots
+    COP [CallScript] ( &DiaryRenderSlotStats ) ; Draw slot stats (HP/STR/DEF)
     COP [RunBg3Script] ( @system_strings.consolestring_01EADC )
-    LDA $0D8C
+    LDA $0D8C             ; Last used slot
     AND #$0003
-    STA $0D92
+    STA $0D92             ; Pre-select it
 
-  code_0BE36D:
+  DiaryStartSlotLoop:
     COP [SetEntryExit]
-    LDA #$000C
+    LDA #$000C            ; 12 frames per camera pan step
     STA $free101C, X
-    COP [CallScript] ( &code_0BE527 )
-    COP [SetEntryContinueDeferred] ( @code_0BE36D )
-    COP [BranchIfButton] ( #$0800, &code_0BE398 )
-    COP [BranchIfButton] ( #$0400, &code_0BE3B1 )
-    COP [BranchIfButton] ( #$0080, &code_0BE3DF )
-    COP [BranchIfButton] ( #$8000, &code_0BE3CD )
+    COP [CallScript] ( &DiaryCameraPan ) ; Animate camera pan to slot position
+    COP [SetEntryContinueDeferred] ( @DiaryStartSlotLoop )
+    COP [BranchIfButton] ( #$0800, &DiaryStartSlotUp ) ; Up → previous slot
+    COP [BranchIfButton] ( #$0400, &DiaryStartSlotDown ) ; Down → next slot
+    COP [BranchIfButton] ( #$0080, &DiaryStartLoadConfirm ) ; A → confirm slot
+    COP [BranchIfButton] ( #$8000, &DiaryStartCancel ) ; B → cancel, return to main menu
     RTL 
 }
 
-code_0BE398 {
+DiaryStartSlotUp {
     COP [PlaySoundCh2] ( #10 )
     LDA $0D92
     DEC 
@@ -224,7 +272,7 @@ code_0BE398 {
     RTL 
 }
 
-code_0BE3B1 {
+DiaryStartSlotDown {
     COP [PlaySoundCh2] ( #10 )
     LDA $0D92
     INC 
@@ -240,44 +288,47 @@ code_0BE3B1 {
     RTL 
 }
 
-code_0BE3CD {
+DiaryStartCancel {
     COP [PlaySoundCh2] ( #0D )
     LDA $joypadCurrent
     ORA $joypadHeld
     STA $joypadHeld
-    JSR $&sub_0BEBF9
-    JMP $&func_0BE2CC
+    JSR $&DiaryMenuClearVram
+    JMP $&DiaryMainMenuEntry
 }
 
-code_0BE3DF {
-    COP [PlaySoundCh2] ( #11 )
+DiaryStartLoadConfirm {
+    COP [PlaySoundCh2] ( #11 ) ; Confirm SFX
     LDA $joypadCurrent
     ORA $joypadHeld
     STA $joypadHeld
-    LDA $0D92
-    STA $0D8C
+    LDA $0D92             ; Selected slot
+    STA $0D8C             ; Set as active slot
     LDA #$FFFF
     STA $0D92
     LDA $0D8C
-    STA $306000
-    JSL $@save_system.LoadGameState_Scene
-    BCS loc_0BE433
-    JSR $&sub_0BE673
-    LDA $0AB2
+    STA $306000           ; Write active slot to SRAM
+    JSL $@save_system.LoadGameState_Scene ; Load event flags from SRAM
+    BCS loc_0BE433        ; Carry set → corrupt/empty slot
+    JSR $&ApplySoundAndRemap ; Apply sound mode + button remap
+    LDA $0AB2             ; Restore Dark Space layout variant
     STA $0AAC
-    LDA #$00E6
+    LDA #$00E6            ; Scene $E6 = Dark Space
     STA $sceneNext
-    LDA #$0078
+    LDA #$0078            ; Camera X = 120px
     STA $064C
-    LDA #$0090
+    LDA #$0090            ; Camera Y = 144px
     STA $064E
-    LDA #$0003
+    LDA #$0003            ; Transition flags
     STA $0650
-    LDA #$1100
+    LDA #$1100            ; Transition auxiliary data
     STA $0652
-    LDA #$2800
+    LDA #$2800            ; Clear running + ability flags
     TRB $playerFlags
-    COP [Die]
+    COP [Die]             ; Kill menu actor → scene transition fires
+
+; Load failed (corrupt/empty slot) — show settings arrangement screen instead.
+; Presents sound/button config for a new game start.
 
   loc_0BE433:
     LDA $0D92
@@ -287,7 +338,7 @@ code_0BE3DF {
     LDA #$0000
     STA $0D8E
     STA $0D90
-    JSR $&sub_0BEBF9
+    JSR $&DiaryMenuClearVram
     COP [PrintDialogStringAlt] ( &dialogstring_0BF5AD )
     COP [PrintDialogStringAlt] ( &dialogstring_0BF625 )
     COP [PrintDialogStringAlt] ( &dialogstring_0BF630 )
@@ -295,16 +346,16 @@ code_0BE3DF {
     LDA #$0000
     STA $0D98
 
-  code_0BE462:
+  DiaryNewGameSettingsLoop:
     COP [SetEntryExit]
-    COP [BranchIfButton] ( #$0380, &code_0BE498 )
-    COP [BranchIfButton] ( #$0800, &code_0BE75B )
-    COP [BranchIfButton] ( #$0400, &code_0BE774 )
-    COP [BranchIfButton] ( #$8000, &code_0BE47D )
+    COP [BranchIfButton] ( #$0380, &DiarySettingsToggle )
+    COP [BranchIfButton] ( #$0800, &DiarySettingsUp )
+    COP [BranchIfButton] ( #$0400, &DiarySettingsDown )
+    COP [BranchIfButton] ( #$8000, &DiaryNewGameCancel )
     RTL 
 }
 
-code_0BE47D {
+DiaryNewGameCancel {
     COP [PlaySoundCh2] ( #0D )
     LDA $joypadCurrent
     ORA $joypadHeld
@@ -313,10 +364,10 @@ code_0BE47D {
     STA $0D98
     LDA $0D94
     STA $0D92
-    JMP $&code_0BE354
+    JMP $&DiaryStartJourney
 }
 
-code_0BE498 {
+DiarySettingsToggle {
     LDA #$0380
     TSB $joypadHeld
     LDA $0D98
@@ -332,7 +383,7 @@ code_0BE498 {
     COP [RunBg3Script] ( @system_strings.consolestring_01EADC )
     LDA #$0380
     TSB $joypadHeld
-    JMP $&code_0BE462
+    JMP $&DiaryNewGameSettingsLoop
 
   loc_0BE4C5:
     DEC 
@@ -346,34 +397,34 @@ code_0BE498 {
     COP [RunBg3Script] ( @system_strings.consolestring_01EADC )
     LDA #$0380
     TSB $joypadHeld
-    JMP $&code_0BE462
+    JMP $&DiaryNewGameSettingsLoop
 
   loc_0BE4E7:
-    COP [BranchIfButton] ( #$0080, &code_0BE4EE )
+    COP [BranchIfButton] ( #$0080, &DiaryNewGameStart )
     RTL 
 }
 
-code_0BE4EE {
+DiaryNewGameStart {
     COP [PlaySoundCh2] ( #11 )
     LDA $joypadCurrent
     ORA $joypadHeld
     STA $joypadHeld
     LDA #$FFFF
     STA $0D98
-    LDA $0D90
+    LDA $0D90             ; Save sound mode to persistent storage
     STA $0B24
-    LDA $0D8E
+    LDA $0D8E             ; Save button layout to persistent storage
     STA $0B26
-    JSR $&sub_0BE673
-    LDA #$0008
+    JSR $&ApplySoundAndRemap ; Apply sound + button remap
+    LDA #$0008            ; Scene $08 = game opening
     STA $sceneNext
-    COP [QueueMapChange] ( #08, #$0050, #$00A0, #00, #$1200 )
-    LDA #$2800
+    COP [QueueMapChange] ( #08, #$0050, #$00A0, #00, #$1200 ) ; Start at ($50,$A0)
+    LDA #$2800            ; Clear flags
     TRB $playerFlags
     COP [Die]
 }
 
-code_0BE527 {
+DiaryCameraPan {
     PHX 
     LDA $0D92
     ASL 
@@ -527,71 +578,71 @@ code_0BE527 {
 }
 ---------------------------------------------
 
-sub_0BE673 {
+ApplySoundAndRemap {
     LDA #$0000
-    STA $0B04
-    STZ $00EE
-    LDA $0B24
-    BNE loc_0BE68C
+    STA $0B04             ; Clear frame delay
+    STZ $00EE             ; Clear menu mode flag
+    LDA $0B24             ; Sound mode from save
+    BNE loc_0BE68C        ; Nonzero → mono
     SEP #$20
-    LDA #$91
+    LDA #$91              ; SPC command: stereo mode
     STA $APUIO0
     REP #$20
     BRA loc_0BE695
 
   loc_0BE68C:
     SEP #$20
-    LDA #$90
+    LDA #$90              ; SPC command: mono mode
     STA $APUIO0
     REP #$20
 
   loc_0BE695:
-    LDA $0B26
-    BNE loc_0BE6B3
-    LDA #$8000
+    LDA $0B26             ; Button layout from save
+    BNE loc_0BE6B3        ; Nonzero → layout B (no remap)
+    LDA #$8000            ; Layout A: remap A→B (confirm=$8000)
     STA $remapA
-    LDA #$4000
+    LDA #$4000            ; Layout A: remap B→Y (cancel=$4000)
     STA $remapB
     LDA #$0000
     STA $remapStart
-    LDA #$0040
+    LDA #$0040            ; Layout A: remap Y→X (item palette=$0040)
     STA $remapY
     RTS 
 
   loc_0BE6B3:
-    LDA #$0000
+    LDA #$0000            ; Layout B: clear Start remap only
     STA $remapStart
     RTS 
 }
 ---------------------------------------------
 
-func_0BE6BA {
-    JSR $&sub_0BEBF9
+DiarySndBtnTab {
+    JSR $&DiaryMenuClearVram
     COP [PrintDialogStringAlt] ( &dialogstring_0BF476 )
-    COP [CallScript] ( &code_0BEB8B )
+    COP [CallScript] ( &DiaryRenderSlotStats )
     COP [RunBg3Script] ( @system_strings.consolestring_01EADC )
     LDA #$0000
     STA $0D92
 
-  code_0BE6D0:
+  DiarySndBtnSlotLoop:
     COP [SetEntryExit]
-    COP [BranchIfButton] ( #$0800, &code_0BEA86 )
-    COP [BranchIfButton] ( #$0400, &code_0BEA9F )
-    COP [BranchIfButton] ( #$0080, &code_0BE6FD )
-    COP [BranchIfButton] ( #$8000, &code_0BE6EB )
+    COP [BranchIfButton] ( #$0800, &DiaryEraseSlotUp )
+    COP [BranchIfButton] ( #$0400, &DiaryEraseSlotDown )
+    COP [BranchIfButton] ( #$0080, &DiarySndBtnSlotConfirm )
+    COP [BranchIfButton] ( #$8000, &DiarySndBtnCancel )
     RTL 
 }
 
-code_0BE6EB {
+DiarySndBtnCancel {
     COP [PlaySoundCh2] ( #0D )
     LDA $joypadCurrent
     ORA $joypadHeld
     STA $joypadHeld
-    JSR $&sub_0BEBF9
-    JMP $&func_0BE2CC
+    JSR $&DiaryMenuClearVram
+    JMP $&DiaryMainMenuEntry
 }
 
-code_0BE6FD {
+DiarySndBtnSlotConfirm {
     COP [PlaySoundCh2] ( #12 )
     LDA $joypadCurrent
     ORA $joypadHeld
@@ -607,10 +658,10 @@ code_0BE6FD {
     COP [PlaySoundCh2] ( #11 )
     LDA $0D92
     STA $0D94
-    JSR $&sub_0BE840
+    JSR $&ReadSramSettings
     LDA #$FFFF
     STA $0D92
-    JSR $&sub_0BEBF9
+    JSR $&DiaryMenuClearVram
     COP [PrintDialogStringAlt] ( &dialogstring_0BF538 )
     COP [PrintDialogStringAlt] ( &dialogstring_0BF625 )
     COP [PrintDialogStringAlt] ( &dialogstring_0BF630 )
@@ -618,16 +669,16 @@ code_0BE6FD {
     LDA #$0000
     STA $0D98
 
-  code_0BE740:
+  DiarySndBtnEditLoop:
     COP [SetEntryExit]
-    COP [BranchIfButton] ( #$0380, &code_0BE7A5 )
-    COP [BranchIfButton] ( #$0800, &code_0BE75B )
-    COP [BranchIfButton] ( #$0400, &code_0BE774 )
-    COP [BranchIfButton] ( #$8000, &code_0BE790 )
+    COP [BranchIfButton] ( #$0380, &DiarySndBtnOptionToggle )
+    COP [BranchIfButton] ( #$0800, &DiarySettingsUp )
+    COP [BranchIfButton] ( #$0400, &DiarySettingsDown )
+    COP [BranchIfButton] ( #$8000, &DiarySndBtnEditCancel )
     RTL 
 }
 
-code_0BE75B {
+DiarySettingsUp {
     COP [PlaySoundCh2] ( #10 )
     LDA $joypadCurrent
     ORA $joypadHeld
@@ -642,7 +693,7 @@ code_0BE75B {
     RTL 
 }
 
-code_0BE774 {
+DiarySettingsDown {
     COP [PlaySoundCh2] ( #10 )
     LDA $joypadCurrent
     ORA $joypadHeld
@@ -658,17 +709,17 @@ code_0BE774 {
     RTL 
 }
 
-code_0BE790 {
+DiarySndBtnEditCancel {
     COP [PlaySoundCh2] ( #0D )
     LDA $joypadCurrent
     ORA $joypadHeld
     STA $joypadHeld
     LDA #$FFFF
     STA $0D98
-    JMP $&func_0BE6BA
+    JMP $&DiarySndBtnTab
 }
 
-code_0BE7A5 {
+DiarySndBtnOptionToggle {
     LDA $0D98
     BEQ loc_0BE7EE
     DEC 
@@ -682,7 +733,7 @@ code_0BE7A5 {
     COP [RunBg3Script] ( @system_strings.consolestring_01EADC )
     LDA #$0380
     TSB $joypadHeld
-    JMP $&code_0BE740
+    JMP $&DiarySndBtnEditLoop
 
   loc_0BE7CC:
     DEC 
@@ -696,14 +747,14 @@ code_0BE7A5 {
     COP [RunBg3Script] ( @system_strings.consolestring_01EADC )
     LDA #$0380
     TSB $joypadHeld
-    JMP $&code_0BE740
+    JMP $&DiarySndBtnEditLoop
 
   loc_0BE7EE:
-    COP [BranchIfButton] ( #$0080, &code_0BE7F5 )
+    COP [BranchIfButton] ( #$0080, &DiarySndBtnSaveConfirm )
     RTL 
 }
 
-code_0BE7F5 {
+DiarySndBtnSaveConfirm {
     COP [PlaySoundCh2] ( #11 )
     LDA $joypadCurrent
     ORA $joypadHeld
@@ -711,7 +762,7 @@ code_0BE7F5 {
     LDA #$FFFF
     STA $0D98
     LDA $0D94
-    JSR $&sub_0BE87C
+    JSR $&WriteSramSettings
     PHX 
     LDA $0D94
     XBA 
@@ -723,17 +774,17 @@ code_0BE7F5 {
     LDA $001C
     STA $3063FE, X
     PLX 
-    JSR $&sub_0BEBF9
+    JSR $&DiaryMenuClearVram
     COP [PrintDialogStringAlt] ( &dialogstring_0BF476 )
-    COP [CallScript] ( &code_0BEB8B )
+    COP [CallScript] ( &DiaryRenderSlotStats )
     COP [RunBg3Script] ( @system_strings.consolestring_01EADC )
     LDA $0D94
     STA $0D92
-    JMP $&code_0BE6D0
+    JMP $&DiarySndBtnSlotLoop
 }
 ---------------------------------------------
 
-sub_0BE840 {
+ReadSramSettings {
     PHX 
     XBA 
     ASL 
@@ -771,7 +822,7 @@ sub_0BE840 {
 }
 ---------------------------------------------
 
-sub_0BE87C {
+WriteSramSettings {
     PHX 
     XBA 
     ASL 
@@ -799,41 +850,41 @@ sub_0BE87C {
 }
 ---------------------------------------------
 
-func_0BE8A8 {
-    LDA $0D74
-    BEQ loc_0BE8D4
+DiaryCopyTab {
+    LDA $0D74             ; Check if all slots occupied
+    BEQ loc_0BE8D4        ; Slot 1 empty → proceed
     LDA $0D76
-    BEQ loc_0BE8D4
+    BEQ loc_0BE8D4        ; Slot 2 empty → proceed
     LDA $0D78
-    BEQ loc_0BE8D4
+    BEQ loc_0BE8D4        ; Slot 3 empty → proceed
     LDA #$0002
     STA $0D98
     STZ $00EE
     COP [PrintDialogStringAlt] ( &dialogstring_0BF679 )
     LDA #$0001
     STA $00EE
-    JSR $&sub_0BEBF9
+    JSR $&DiaryMenuClearVram
     COP [PrintDialogStringAlt] ( &dialogstring_0BF3F4 )
-    JMP $&code_0BE2DC
+    JMP $&DiaryTabSelectLoop
 
   loc_0BE8D4:
-    JSR $&sub_0BEBF9
+    JSR $&DiaryMenuClearVram
     LDA #$0000
     STA $0D92
 
-  code_0BE8DD:
+  DiaryCopySourceLoop:
     COP [PrintDialogStringAlt] ( &dialogstring_0BF48C )
-    COP [CallScript] ( &code_0BEB8B )
+    COP [CallScript] ( &DiaryRenderSlotStats )
     COP [RunBg3Script] ( @system_strings.consolestring_01EADC )
     COP [SetEntryExit]
-    COP [BranchIfButton] ( #$0800, &code_0BE905 )
-    COP [BranchIfButton] ( #$0400, &code_0BE91E )
-    COP [BranchIfButton] ( #$0080, &code_0BE949 )
-    COP [BranchIfButton] ( #$8000, &code_0BE93A )
+    COP [BranchIfButton] ( #$0800, &DiaryCopySourceUp )
+    COP [BranchIfButton] ( #$0400, &DiaryCopySourceDown )
+    COP [BranchIfButton] ( #$0080, &DiaryCopySourceConfirm )
+    COP [BranchIfButton] ( #$8000, &DiaryCopyCancel )
     RTL 
 }
 
-code_0BE905 {
+DiaryCopySourceUp {
     COP [PlaySoundCh2] ( #10 )
     LDA $0D92
     DEC 
@@ -848,7 +899,7 @@ code_0BE905 {
     RTL 
 }
 
-code_0BE91E {
+DiaryCopySourceDown {
     COP [PlaySoundCh2] ( #10 )
     LDA $0D92
     INC 
@@ -864,15 +915,15 @@ code_0BE91E {
     RTL 
 }
 
-code_0BE93A {
+DiaryCopyCancel {
     COP [PlaySoundCh2] ( #0D )
     LDA #$8000
     TSB $joypadHeld
-    JSR $&sub_0BEBF9
-    JMP $&func_0BE2CC
+    JSR $&DiaryMenuClearVram
+    JMP $&DiaryMainMenuEntry
 }
 
-code_0BE949 {
+DiaryCopySourceConfirm {
     COP [PlaySoundCh2] ( #11 )
     LDA $joypadCurrent
     ORA $joypadHeld
@@ -902,14 +953,14 @@ code_0BE949 {
     LSR 
     STA $0D96
     COP [SetEntryExit]
-    COP [BranchIfButton] ( #$0800, &code_0BE992 )
-    COP [BranchIfButton] ( #$0400, &code_0BE9B7 )
-    COP [BranchIfButton] ( #$0080, &code_0BE9F7 )
-    COP [BranchIfButton] ( #$8000, &code_0BE9DF )
+    COP [BranchIfButton] ( #$0800, &DiaryCopyTargetUp )
+    COP [BranchIfButton] ( #$0400, &DiaryCopyTargetDown )
+    COP [BranchIfButton] ( #$0080, &DiaryCopyExecute )
+    COP [BranchIfButton] ( #$8000, &DiaryCopyTargetCancel )
     RTL 
 }
 
-code_0BE992 {
+DiaryCopyTargetUp {
     COP [PlaySoundCh2] ( #10 )
     LDA $0D96
 
@@ -925,14 +976,14 @@ code_0BE992 {
     ASL 
     TAY 
     LDA $0D74, Y
-    BNE code_0BE992
+    BNE DiaryCopyTargetUp
     LDA $joypadCurrent
     ORA $joypadHeld
     STA $joypadHeld
     RTL 
 }
 
-code_0BE9B7 {
+DiaryCopyTargetDown {
     COP [PlaySoundCh2] ( #10 )
     LDA $0D96
 
@@ -949,31 +1000,31 @@ code_0BE9B7 {
     ASL 
     TAY 
     LDA $0D74, Y
-    BNE code_0BE9B7
+    BNE DiaryCopyTargetDown
     LDA $joypadCurrent
     ORA $joypadHeld
     STA $joypadHeld
     RTL 
 }
 
-code_0BE9DF {
+DiaryCopyTargetCancel {
     COP [PlaySoundCh2] ( #0D )
     LDA $joypadCurrent
     ORA $joypadHeld
     STA $joypadHeld
-    JSR $&sub_0BEBF9
+    JSR $&DiaryMenuClearVram
     LDA #$FFFF
     STA $0D96
-    JMP $&code_0BE8DD
+    JMP $&DiaryCopySourceLoop
 }
 
-code_0BE9F7 {
+DiaryCopyExecute {
     LDA $0D96
     ASL 
     TAY 
     LDA $0D74, Y
     BEQ loc_0BEA04
-    JMP $&code_0BE949
+    JMP $&DiaryCopySourceConfirm
 
   loc_0BEA04:
     COP [PlaySoundCh2] ( #29 )
@@ -1008,31 +1059,31 @@ code_0BE9F7 {
     STA $0D92
     LDA #$FFFF
     STA $0D96
-    JSR $&sub_0BED64
-    JSR $&sub_0BEBF9
-    JMP $&code_0BE8DD
+    JSR $&DiaryScanSramSlots
+    JSR $&DiaryMenuClearVram
+    JMP $&DiaryCopySourceLoop
 }
 
-code_0BEA55 {
-    JSR $&sub_0BEBF9
+DiaryEraseTab {
+    JSR $&DiaryMenuClearVram
 
-  code_0BEA58:
+  DiaryEraseSelectLoop:
     COP [PrintDialogStringAlt] ( &dialogstring_0BF4A7 )
-    COP [CallScript] ( &code_0BEB8B )
+    COP [CallScript] ( &DiaryRenderSlotStats )
     COP [RunBg3Script] ( @system_strings.consolestring_01EADC )
     LDA #$0000
     STA $0D92
 
-  code_0BEA6B:
+  DiaryEraseInputLoop:
     COP [SetEntryExit]
-    COP [BranchIfButton] ( #$0800, &code_0BEA86 )
-    COP [BranchIfButton] ( #$0400, &code_0BEA9F )
-    COP [BranchIfButton] ( #$0080, &code_0BEACD )
-    COP [BranchIfButton] ( #$8000, &code_0BEABB )
+    COP [BranchIfButton] ( #$0800, &DiaryEraseSlotUp )
+    COP [BranchIfButton] ( #$0400, &DiaryEraseSlotDown )
+    COP [BranchIfButton] ( #$0080, &DiaryEraseSlotConfirm )
+    COP [BranchIfButton] ( #$8000, &DiaryEraseCancel )
     RTL 
 }
 
-code_0BEA86 {
+DiaryEraseSlotUp {
     COP [PlaySoundCh2] ( #10 )
     LDA $0D92
     DEC 
@@ -1047,7 +1098,7 @@ code_0BEA86 {
     RTL 
 }
 
-code_0BEA9F {
+DiaryEraseSlotDown {
     COP [PlaySoundCh2] ( #10 )
     LDA $0D92
     INC 
@@ -1063,16 +1114,16 @@ code_0BEA9F {
     RTL 
 }
 
-code_0BEABB {
+DiaryEraseCancel {
     COP [PlaySoundCh2] ( #0D )
     LDA $joypadCurrent
     ORA $joypadHeld
     STA $joypadHeld
-    JSR $&sub_0BEBF9
-    JMP $&func_0BE2CC
+    JSR $&DiaryMenuClearVram
+    JMP $&DiaryMainMenuEntry
 }
 
-code_0BEACD {
+DiaryEraseSlotConfirm {
     COP [PlaySoundCh2] ( #11 )
     LDA $joypadCurrent
     ORA $joypadHeld
@@ -1085,14 +1136,14 @@ code_0BEACD {
     COP [PlaySoundCh2] ( #12 )
     LDA $0D92
     JSL $@save_system.ClearSaveSlot
-    JMP $&code_0BEA6B
+    JMP $&DiaryEraseInputLoop
 
   loc_0BEAF0:
     LDA $0D92
     STA $0D94
     LDA #$FFFF
     STA $0D92
-    JSR $&sub_0BEBF9
+    JSR $&DiaryMenuClearVram
     COP [PrintDialogStringAlt] ( &dialogstring_0BF6B3 )
     COP [RunBg3Script] ( @system_strings.consolestring_01EADC )
     LDA $0D94
@@ -1100,17 +1151,17 @@ code_0BEACD {
     TAY 
     LDA $0D7A, Y
     PHY 
-    JSR $&sub_0BF1DB
+    JSR $&FormatBcdNumber
     PLY 
     STA $0D9A
     LDA $0D80, Y
     PHY 
-    JSR $&sub_0BF1DB
+    JSR $&FormatBcdNumber
     PLY 
     STA $0D9E
     LDA $0D86, Y
     PHY 
-    JSR $&sub_0BF1DB
+    JSR $&FormatBcdNumber
     PLY 
     STA $0D9C
     COP [PrintDialogStringAlt] ( &dialogstring_0BF6A4 )
@@ -1122,22 +1173,22 @@ code_0BEACD {
 }
 
 code_list_0BEB46 [
-  &code_0BEB4C   ;00
-  &code_0BEB4C   ;01
-  &code_0BEB61   ;02
+  &DiaryEraseDecline   ;00
+  &DiaryEraseDecline   ;01
+  &DiaryEraseExecute   ;02
 ]
 
-code_0BEB4C {
+DiaryEraseDecline {
     LDA #$8000
     TSB $joypadHeld
     LDA #$8000
     STA $remapB
     LDA #$4000
     STA $remapY
-    JMP $&code_0BEA55
+    JMP $&DiaryEraseTab
 }
 
-code_0BEB61 {
+DiaryEraseExecute {
     LDA #$8000
     STA $remapB
     LDA #$4000
@@ -1150,22 +1201,22 @@ code_0BEB61 {
     LDA $1C
     STA $1A
     STZ $1C
-    JSR $&sub_0BEBF9
-    JSR $&sub_0BED64
-    JMP $&code_0BEA58
+    JSR $&DiaryMenuClearVram
+    JSR $&DiaryScanSramSlots
+    JMP $&DiaryEraseSelectLoop
 }
 
-code_0BEB8B {
+DiaryRenderSlotStats {
     LDA $0D74
     BEQ loc_0BEBAF
     LDA $0D7A
-    JSR $&sub_0BF1DB
+    JSR $&FormatBcdNumber
     STA $0D9A
     LDA $0D80
-    JSR $&sub_0BF1DB
+    JSR $&FormatBcdNumber
     STA $0D9E
     LDA $0D86
-    JSR $&sub_0BF1DB
+    JSR $&FormatBcdNumber
     STA $0D9C
     COP [PrintDialogStringAlt] ( &dialogstring_0BF4C3 )
 
@@ -1173,13 +1224,13 @@ code_0BEB8B {
     LDA $0D76
     BEQ loc_0BEBD3
     LDA $0D7C
-    JSR $&sub_0BF1DB
+    JSR $&FormatBcdNumber
     STA $0D9A
     LDA $0D82
-    JSR $&sub_0BF1DB
+    JSR $&FormatBcdNumber
     STA $0D9E
     LDA $0D88
-    JSR $&sub_0BF1DB
+    JSR $&FormatBcdNumber
     STA $0D9C
     COP [PrintDialogStringAlt] ( &dialogstring_0BF4EA )
 
@@ -1187,13 +1238,13 @@ code_0BEB8B {
     LDA $0D78
     BEQ loc_0BEBF7
     LDA $0D7E
-    JSR $&sub_0BF1DB
+    JSR $&FormatBcdNumber
     STA $0D9A
     LDA $0D84
-    JSR $&sub_0BF1DB
+    JSR $&FormatBcdNumber
     STA $0D9E
     LDA $0D8A
-    JSR $&sub_0BF1DB
+    JSR $&FormatBcdNumber
     STA $0D9C
     COP [PrintDialogStringAlt] ( &dialogstring_0BF511 )
 
@@ -1202,7 +1253,7 @@ code_0BEB8B {
 }
 ---------------------------------------------
 
-sub_0BEBF9 {
+DiaryMenuClearVram {
     PHP 
     PHX 
     PHD 
@@ -1215,16 +1266,16 @@ sub_0BEBF9 {
 }
 ---------------------------------------------
 
-func_0BEC06_noref {
-    COP [BranchIfButton] ( #$8000, &code_0BEC8C )
-    COP [BranchIfButton] ( #$6040, &code_0BECA1 )
-    COP [BranchIfButton] ( #$0800, &code_0BEC6C )
-    COP [BranchIfButton] ( #$0400, &code_0BEC74 )
+DiaryCursorNav_noref {
+    COP [BranchIfButton] ( #$8000, &DiaryCursorConfirm )
+    COP [BranchIfButton] ( #$6040, &DiaryCursorCancel )
+    COP [BranchIfButton] ( #$0800, &DiaryCursorMoveUp )
+    COP [BranchIfButton] ( #$0400, &DiaryCursorMoveDown )
     LDA $14
     CMP #$0002
     BCS loc_0BEC31
-    COP [BranchIfButton] ( #$0200, &code_0BEC7C )
-    COP [BranchIfButton] ( #$0100, &code_0BEC84 )
+    COP [BranchIfButton] ( #$0200, &DiaryCursorPageUp )
+    COP [BranchIfButton] ( #$0100, &DiaryCursorPageDown )
 
   loc_0BEC31:
     LDA $18
@@ -1237,9 +1288,9 @@ func_0BEC06_noref {
 }
 ---------------------------------------------
 
-func_0BEC3E {
+DiaryCursorApplyMove {
     STA $1A
-    JSR $&sub_0BECFB
+    JSR $&DiaryClearAllCursors
     STZ $18
     LDA $joypadCurrent
     ORA $joypadHeld
@@ -1250,13 +1301,13 @@ func_0BEC3E {
   loc_0BEC53:
     BIT #$0010
     BNE loc_0BEC5F
-    JSR $&sub_0BECB1
+    JSR $&DiaryDrawCursorHighlight
     LDA $1A
     CLC 
     RTS 
 
   loc_0BEC5F:
-    JSR $&sub_0BECD9
+    JSR $&DiaryClearCursor
     LDA #$0001
     TSB $displayModeFlags
     LDA $1A
@@ -1264,36 +1315,36 @@ func_0BEC3E {
     RTS 
 }
 
-code_0BEC6C {
+DiaryCursorMoveUp {
     LDA $1A
     SEC 
     SBC #$0001
-    BRA func_0BEC3E
+    BRA DiaryCursorApplyMove
 }
 
-code_0BEC74 {
+DiaryCursorMoveDown {
     LDA $1A
     CLC 
     ADC #$0001
-    BRA func_0BEC3E
+    BRA DiaryCursorApplyMove
 }
 
-code_0BEC7C {
+DiaryCursorPageUp {
     LDA $1A
     SEC 
     SBC #$0002
-    BRA func_0BEC3E
+    BRA DiaryCursorApplyMove
 }
 
-code_0BEC84 {
+DiaryCursorPageDown {
     LDA $1A
     CLC 
     ADC #$0002
-    BRA func_0BEC3E
+    BRA DiaryCursorApplyMove
 }
 
-code_0BEC8C {
-    JSR $&sub_0BECB1
+DiaryCursorConfirm {
+    JSR $&DiaryDrawCursorHighlight
     COP [PlaySoundCh2] ( #11 )
     LDA $joypadCurrent
     ORA $joypadHeld
@@ -1304,7 +1355,7 @@ code_0BEC8C {
     RTS 
 }
 
-code_0BECA1 {
+DiaryCursorCancel {
     LDA $joypadCurrent
     ORA $joypadHeld
     STA $joypadHeld
@@ -1315,7 +1366,7 @@ code_0BECA1 {
 }
 ---------------------------------------------
 
-sub_0BECB1 {
+DiaryDrawCursorHighlight {
     PHX 
     LDA $14
     ASL 
@@ -1339,7 +1390,7 @@ sub_0BECB1 {
 }
 ---------------------------------------------
 
-sub_0BECD9 {
+DiaryClearCursor {
     PHX 
     LDA $14
     ASL 
@@ -1361,7 +1412,7 @@ sub_0BECD9 {
 }
 ---------------------------------------------
 
-sub_0BECFB {
+DiaryClearAllCursors {
     PHX 
     LDA $14
     ASL 
@@ -1441,7 +1492,7 @@ word_0BED5C [
 ]
 ---------------------------------------------
 
-sub_0BED64 {
+DiaryScanSramSlots {
     PHX 
     LDA #$0000
     STA $0D74
@@ -1468,7 +1519,7 @@ sub_0BED64 {
   loc_0BEDA3:
     STA $0D8C
 
-  code_0BEDA6:
+  DiaryScanSramLoop:
     LDA $24
     XBA 
     ASL 
@@ -1529,7 +1580,7 @@ sub_0BED64 {
     DEC 
     STA $24
     BMI loc_0BEE1E
-    JMP $&code_0BEDA6
+    JMP $&DiaryScanSramLoop
 
   loc_0BEE1E:
     PLX 
@@ -1537,7 +1588,7 @@ sub_0BED64 {
 }
 ---------------------------------------------
 
-func_0BF178_noref {
+DiaryJoypadFilter_noref {
     LDA $00E0
     AND $00E2
     STA $00E2
@@ -1558,19 +1609,19 @@ func_0BF178_noref {
 }
 ---------------------------------------------
 
-func_0BF1A2_noref {
+DiaryResetCounter_noref {
     STZ $00DE
     RTL 
 }
 ---------------------------------------------
 
-func_0BF1A6_noref {
+DiaryIncCounter_noref {
     INC $00DE
     RTL 
 }
 ---------------------------------------------
 
-func_0BF1AA_noref {
+DiaryDigitDisplay_noref {
     LDA $00E0
     BIT #$8000
     BNE loc_0BF1B3
@@ -1578,7 +1629,7 @@ func_0BF1AA_noref {
 
   loc_0BF1B3:
     LDA $00DE
-    JSR $&sub_0BF1DB
+    JSR $&FormatBcdNumber
     STA $0000
     LDA $bg1ScrollH
     CLC 
@@ -1595,7 +1646,7 @@ func_0BF1AA_noref {
 }
 ---------------------------------------------
 
-sub_0BF1DB {
+FormatBcdNumber {
     PHA 
     LDY $0000
     STZ $0000
@@ -1668,7 +1719,7 @@ sub_0BF1DB {
 }
 ---------------------------------------------
 
-func_0BF24B_noref {
+DiaryUnused24B_noref {
     LDA $00E1
     BIT #$F040
     ASL $A9
@@ -1678,26 +1729,26 @@ func_0BF24B_noref {
 }
 ---------------------------------------------
 
-func_0BF259_noref {
+DiaryReadJoy2_noref {
     LDA $JOY2L
     STA $00E0
     RTL 
 }
 ---------------------------------------------
 
-func_0BF260_noref {
+DiaryNullHandler_noref {
     RTL 
 }
 ---------------------------------------------
 
-func_0BF261_noref {
+DiaryAwaitButtonRelease_noref {
     LDA $joypadRaw
     BIT #$0080
     BEQ loc_0BF2A5
 
   loc_0BF269:
     JSL $@vblank_joypad.EnableNmiAndJoypad
-    JSL $@func_0BF2A6
+    JSL $@DiaryMenuVBlankHandler
     JSL $@vblank_joypad.EnableNmiOnly
     LDA $joypadRaw
     BIT #$0080
@@ -1705,7 +1756,7 @@ func_0BF261_noref {
 
   loc_0BF27D:
     JSL $@vblank_joypad.EnableNmiAndJoypad
-    JSL $@func_0BF2A6
+    JSL $@DiaryMenuVBlankHandler
     JSL $@vblank_joypad.EnableNmiOnly
     LDA $joypadRaw
     BIT #$0080
@@ -1713,7 +1764,7 @@ func_0BF261_noref {
 
   loc_0BF291:
     JSL $@vblank_joypad.EnableNmiAndJoypad
-    JSL $@func_0BF2A6
+    JSL $@DiaryMenuVBlankHandler
     JSL $@vblank_joypad.EnableNmiOnly
     LDA $joypadRaw
     BIT #$0080
@@ -1724,7 +1775,7 @@ func_0BF261_noref {
 }
 ---------------------------------------------
 
-func_0BF2A6 {
+DiaryMenuVBlankHandler {
     PHP 
     REP #$20
     PHA 

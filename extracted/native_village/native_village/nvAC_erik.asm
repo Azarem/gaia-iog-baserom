@@ -1,4 +1,4 @@
-?INCLUDE 'nv_actor_0881A5'
+?INCLUDE 'nv_village_event_sprite'
 
 ---------------------------------------------
 
@@ -44,7 +44,7 @@ code_0885A3 {
     COP [AnimOnce]
     COP [SolidHighHere]
     COP [ExitIfFlagByte] ( #05, #01 )
-    COP [SpawnAfterFlags] ( @nv_actor_0881A5.code_0881AE, #$1002 )
+    COP [SpawnAfterFlags] ( @nv_village_event_sprite.code_0881AE, #$1002 )
     COP [StageSpriteFrame] ( #02 )
     COP [AnimOnce]
     COP [SetOnInteract] ( &code_0885D7 )

@@ -1,7 +1,7 @@
 ?BANK 09
 
-?INCLUDE 'func_09E8E4'
-?INCLUDE 'misc_actors_09E64B'
+?INCLUDE 'CreditPositionLookup'
+?INCLUDE 'sF7_credits_misc_timeline'
 
 !joypadMaskStd                  065A
 !cameraTargetX                  06BE
@@ -148,9 +148,9 @@ sF7_credits [
     COP [HaltIfCounterGte] ( #$344A )
     COP [SpawnLastRel] ( @code_09E637, #00, #00, #$0500 )
     COP [HaltIfCounterGte] ( #$37B4 )
-    COP [SpawnLastRel] ( @misc_actors_09E64B.code_09E65D, #00, #00, #$0500 )
+    COP [SpawnLastRel] ( @sF7_credits_misc_timeline.code_09E65D, #00, #00, #$0500 )
     COP [HaltIfCounterGte] ( #$39FC )
-    COP [SpawnLastRel] ( @misc_actors_09E64B.code_09E67C, #00, #00, #$2500 )
+    COP [SpawnLastRel] ( @sF7_credits_misc_timeline.code_09E67C, #00, #00, #$2500 )
     COP [HaltIfCounterGte] ( #$3C8C )
     COP [CallScript] ( &code_09E9A4 )
     COP [AdhocVramDma] ( $7EA000, #$2000, #$0800 )
@@ -192,9 +192,9 @@ sF7_credits [
     COP [HaltIfCounterGte] ( #$4CF9 )
     COP [SpawnLastRel] ( @code_09F4ED, #00, #00, #$2000 )
     COP [HaltIfCounterGte] ( #$500C )
-    COP [SpawnLastRel] ( @misc_actors_09E64B.code_09E68D, #00, #00, #$0500 )
+    COP [SpawnLastRel] ( @sF7_credits_misc_timeline.code_09E68D, #00, #00, #$0500 )
     COP [HaltIfCounterGte] ( #$5208 )
-    COP [SpawnLastRel] ( @misc_actors_09E64B.code_09E6A5, #00, #00, #$0500 )
+    COP [SpawnLastRel] ( @sF7_credits_misc_timeline.code_09E6A5, #00, #00, #$0500 )
     COP [HaltIfCounterGte] ( #$526C )
     COP [AdhocVramDma] ( $7EF800, #$1180, #$0200 )
     COP [AdhocVramDma] ( $7EFA00, #$1980, #$0200 )
@@ -203,54 +203,54 @@ sF7_credits [
     COP [HaltIfCounterGte] ( #$5366 )
     COP [SpawnLastRel] ( @code_09F4ED, #00, #00, #$2000 )
     COP [HaltIfCounterGte] ( #$5398 )
-    COP [SpawnLastRel] ( @misc_actors_09E64B.code_09E6C0, #00, #00, #$0500 )
+    COP [SpawnLastRel] ( @sF7_credits_misc_timeline.code_09E6C0, #00, #00, #$0500 )
     COP [HaltIfCounterGte] ( #$53A8 )
-    COP [SpawnLastRel] ( @misc_actors_09E64B.code_09E6DB, #00, #00, #$0500 )
+    COP [SpawnLastRel] ( @sF7_credits_misc_timeline.code_09E6DB, #00, #00, #$0500 )
     COP [HaltIfCounterGte] ( #$5528 )
-    COP [SpawnLastRel] ( @misc_actors_09E64B.code_09E6F6, #00, #00, #$0500 )
+    COP [SpawnLastRel] ( @sF7_credits_misc_timeline.code_09E6F6, #00, #00, #$0500 )
     COP [HaltIfCounterGte] ( #$5538 )
-    COP [SpawnLastRel] ( @misc_actors_09E64B.code_09E711, #00, #00, #$0500 )
+    COP [SpawnLastRel] ( @sF7_credits_misc_timeline.code_09E711, #00, #00, #$0500 )
     COP [HaltIfCounterGte] ( #$56B8 )
-    COP [SpawnLastRel] ( @misc_actors_09E64B.code_09E72C, #00, #00, #$0500 )
+    COP [SpawnLastRel] ( @sF7_credits_misc_timeline.code_09E72C, #00, #00, #$0500 )
     COP [HaltIfCounterGte] ( #$5848 )
-    COP [SpawnLastRel] ( @misc_actors_09E64B.code_09E747, #00, #00, #$0500 )
+    COP [SpawnLastRel] ( @sF7_credits_misc_timeline.code_09E747, #00, #00, #$0500 )
     COP [HaltIfCounterGte] ( #$5860 )
-    COP [SpawnLastRel] ( @misc_actors_09E64B.code_09E762, #00, #00, #$0500 )
+    COP [SpawnLastRel] ( @sF7_credits_misc_timeline.code_09E762, #00, #00, #$0500 )
     COP [HaltIfCounterGte] ( #$59CE )
     COP [CallScript] ( &code_09E990 )
     COP [HaltIfCounterGte] ( #$59D8 )
-    COP [SpawnLastRel] ( @misc_actors_09E64B.code_09E77D, #00, #00, #$0500 )
+    COP [SpawnLastRel] ( @sF7_credits_misc_timeline.code_09E77D, #00, #00, #$0500 )
     COP [HaltIfCounterGte] ( #$59F0 )
-    COP [SpawnLastRel] ( @misc_actors_09E64B.code_09E798, #00, #00, #$0500 )
+    COP [SpawnLastRel] ( @sF7_credits_misc_timeline.code_09E798, #00, #00, #$0500 )
     COP [HaltIfCounterGte] ( #$5B68 )
-    COP [SpawnLastRel] ( @misc_actors_09E64B.code_09E7B3, #00, #00, #$0500 )
+    COP [SpawnLastRel] ( @sF7_credits_misc_timeline.code_09E7B3, #00, #00, #$0500 )
     COP [HaltIfCounterGte] ( #$5CF8 )
-    COP [SpawnLastRel] ( @misc_actors_09E64B.code_09E7CE, #00, #00, #$0500 )
+    COP [SpawnLastRel] ( @sF7_credits_misc_timeline.code_09E7CE, #00, #00, #$0500 )
     COP [HaltIfCounterGte] ( #$5D10 )
-    COP [SpawnLastRel] ( @misc_actors_09E64B.code_09E7E9, #00, #00, #$0500 )
+    COP [SpawnLastRel] ( @sF7_credits_misc_timeline.code_09E7E9, #00, #00, #$0500 )
     COP [HaltIfCounterGte] ( #$5E88 )
-    COP [SpawnLastRel] ( @misc_actors_09E64B.code_09E804, #00, #00, #$0500 )
+    COP [SpawnLastRel] ( @sF7_credits_misc_timeline.code_09E804, #00, #00, #$0500 )
     COP [HaltIfCounterGte] ( #$5EA0 )
-    COP [SpawnLastRel] ( @misc_actors_09E64B.code_09E81F, #00, #00, #$0500 )
+    COP [SpawnLastRel] ( @sF7_credits_misc_timeline.code_09E81F, #00, #00, #$0500 )
     COP [HaltIfCounterGte] ( #$600E )
     COP [CallScript] ( &code_09E99A )
     COP [HaltIfCounterGte] ( #$6018 )
-    COP [SpawnLastRel] ( @misc_actors_09E64B.code_09E83A, #00, #00, #$0500 )
+    COP [SpawnLastRel] ( @sF7_credits_misc_timeline.code_09E83A, #00, #00, #$0500 )
     COP [HaltIfCounterGte] ( #$6038 )
-    COP [SpawnLastRel] ( @misc_actors_09E64B.code_09E855, #00, #00, #$0500 )
+    COP [SpawnLastRel] ( @sF7_credits_misc_timeline.code_09E855, #00, #00, #$0500 )
     COP [HaltIfCounterGte] ( #$6198 )
-    COP [SpawnLastRel] ( @misc_actors_09E64B.code_09E870, #00, #00, #$0500 )
+    COP [SpawnLastRel] ( @sF7_credits_misc_timeline.code_09E870, #00, #00, #$0500 )
     COP [HaltIfCounterGte] ( #$61C8 )
-    COP [SpawnLastRel] ( @misc_actors_09E64B.code_09E88B, #00, #00, #$0500 )
+    COP [SpawnLastRel] ( @sF7_credits_misc_timeline.code_09E88B, #00, #00, #$0500 )
     COP [HaltIfCounterGte] ( #$6338 )
-    COP [SpawnLastRel] ( @misc_actors_09E64B.code_09E8A6, #00, #00, #$0500 )
+    COP [SpawnLastRel] ( @sF7_credits_misc_timeline.code_09E8A6, #00, #00, #$0500 )
     COP [HaltIfCounterGte] ( #$6400 )
     COP [CopyPalette] ( @palette_1E0B8C, #00, #00, #80 )
     COP [AdhocVramDma] ( $7EFC00, #$1180, #$0200 )
     COP [AdhocVramDma] ( $7EFE00, #$1980, #$0200 )
     COP [SpawnLastRel] ( @code_09F4AA, #00, #00, #$2000 )
     COP [HaltIfCounterGte] ( #$64C8 )
-    COP [SpawnLastRel] ( @misc_actors_09E64B.code_09E8C1, #00, #00, #$0500 )
+    COP [SpawnLastRel] ( @sF7_credits_misc_timeline.code_09E8C1, #00, #00, #$0500 )
     COP [HaltIfCounterGte] ( #$652C )
     COP [SpawnLastRel] ( @code_09F4ED, #00, #00, #$2000 )
     COP [HaltIfCounterGte] ( #$7068 )
@@ -294,13 +294,13 @@ code_09DB59 {
 
 code_09E62F {
     LDA #$0012
-    JSL $@func_09E8E4
+    JSR $&CreditPositionLookup.func_09E8E4
     BRA loc_09E63D
 }
 
 code_09E637 {
     LDA #$0022
-    JSL $@func_09E8E4
+    JSR $&CreditPositionLookup.func_09E8E4
 
   loc_09E63D:
     COP [SetMetasprite] ( $7E6000 )

@@ -1,4 +1,4 @@
-?INCLUDE 'func_09BB17'
+?INCLUDE 'CollisionLayerRenderer'
 
 !mapBoundsX                     0692
 !orbitAngle                     7F0010
@@ -31,7 +31,7 @@ code_08C4FC {
     STA $orbitAngle, X
     LDA #$2000
     STA $0E
-    JSL $@func_09BB17
+    JSL $@CollisionLayerRenderer
 
   loc_08C518:
     COP [StageSpriteFrame] ( #1D )
@@ -48,7 +48,7 @@ code_08C525 {
     JSR $&code_08C58A
     COP [CallScript] ( &code_08C549 )
     COP [SetEntryExit]
-    JSL $@func_09BB17
+    JSL $@CollisionLayerRenderer
     COP [PlaySoundBoth] ( #$1515 )
     COP [SetEntryContinue]
     COP [BranchIfPlayerNear] ( #01, &code_08C548 )

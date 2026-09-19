@@ -1,4 +1,4 @@
-?INCLUDE 'py_actor_08B6F4'
+?INCLUDE 'py_death_particle'
 
 !gfxCacheIdxA                   0648
 !gfxCacheIdxB                   064A
@@ -51,7 +51,7 @@ code_08CDAA {
     LDA $0010, Y
     ORA #$2000
     STA $0010, Y
-    COP [SpawnAfterFlags] ( @py_actor_08B6F4, #$1800 )
+    COP [SpawnAfterFlags] ( @py_death_particle, #$1800 )
     LDA #$0303
     STA $gfxCacheIdxA
     LDA #$0303

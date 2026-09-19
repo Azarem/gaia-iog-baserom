@@ -1,4 +1,4 @@
-?INCLUDE 'func_0AA43F'
+?INCLUDE 'EnemyDefeatDispatch'
 
 !playerXPos                     09A2
 !playerYPos                     09A4
@@ -96,5 +96,5 @@ code_0AEEF2 {
 }
 
 code_0AEF2E {
-    COP [JumpScript] ( @func_0AA43F )
+    COP [JumpScript] ( @EnemyDefeatDispatch )
 }

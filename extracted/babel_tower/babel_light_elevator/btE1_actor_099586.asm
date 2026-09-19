@@ -1,4 +1,4 @@
-?INCLUDE 'py_actor_08B6F4'
+?INCLUDE 'py_death_particle'
 
 !joypadMaskStd                  065A
 !playerActor                    09AA
@@ -24,7 +24,7 @@ code_09959C {
     COP [SetFlagByte] ( #00 )
     COP [WaitWord] ( #$0167 )
     COP [SetFlagByte] ( #01 )
-    COP [SpawnAfterFlags] ( @py_actor_08B6F4, #$1002 )
+    COP [SpawnAfterFlags] ( @py_death_particle, #$1002 )
     COP [SetEntryExit]
     LDY $playerActor
     LDA $000E, Y
@@ -50,7 +50,7 @@ code_09959C {
     SEC 
     SBC #$0190
     STA $0014, Y
-    COP [SpawnAfterFlags] ( @py_actor_08B6F4, #$1002 )
+    COP [SpawnAfterFlags] ( @py_death_particle, #$1002 )
     COP [WaitByte] ( #0F )
     LDY $playerActor
     LDA $000E, Y

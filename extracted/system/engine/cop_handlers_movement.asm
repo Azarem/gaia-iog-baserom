@@ -18,7 +18,7 @@
 ?BANK 00
 
 ?INCLUDE 'cop_handlers_sprite'
-?INCLUDE 'func_0AA3A7'
+?INCLUDE 'EnemyPositionSnap'
 ?INCLUDE 'hardware_math'
 ?INCLUDE 'sprite_composition'
 
@@ -361,10 +361,10 @@ SnapToGrid {
     STA $snapResumePtr, X
     LDA $02
     STA $7F101A, X        ; Save bank byte for post-snap restoration
-    LDA #$&func_0AA3A7    ; Yield to func_0AA3A7 snap helper; resume via snapResumePtr
+    LDA #$&EnemyPositionSnap ; Yield to func_0AA3A7 snap helper; resume via snapResumePtr
     STA $02, S
     SEP #$20
-    LDA #$^func_0AA3A7
+    LDA #$^EnemyPositionSnap
     STA $02
     STA $04, S
     REP #$20

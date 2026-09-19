@@ -19,7 +19,7 @@ When working on assembly, patches, or ROM metadata in this repo:
 ## Database triad
 
 - `us/blocks.json` — block/part structure (engine auto-discovers unmapped pieces)
-- `us/overrides.json` — per-address register state and type corrections
+- `us/overrides.json` — per-address register state and type corrections (do **not** use `"name"` key — deprecated; use `names.json` for naming)
 - `us/names.json` — human-readable address labels
 
 All three files are needed for the complete picture. See `gaia-knowledge/curated/gaialabs/reference-model.md`.

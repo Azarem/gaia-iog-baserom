@@ -1,4 +1,4 @@
-?INCLUDE 'func_06B9F2'
+?INCLUDE 'ActorDisplayModeSwap'
 
 ---------------------------------------------
 
@@ -6,7 +6,7 @@ av6C_villagers4 [
   actor-def < #02, #00, #10, {
 
   code_06CA13:
-    JSL $@func_06B9F2
+    JSL $@ActorDisplayModeSwap
     COP [SetOnInteract] ( &code_06CA43 )
     LDA #$0200
     TSB $12

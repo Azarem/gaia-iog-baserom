@@ -1,8 +1,8 @@
 ?BANK 0B
 
 ?INCLUDE 'ApplyOrbitalOffsetXY'
-?INCLUDE 'aw_actor_0BBEE9'
-?INCLUDE 'func_0AFD69'
+?INCLUDE 'aw_spirit_follower'
+?INCLUDE 'RandomPlayerOffset'
 
 !orbitAngle                     7F0010
 !orbitDiameter                  7F0012
@@ -17,7 +17,7 @@ awB1_goldcap [
   code_0BBD90:
     LDA #$0010
     TSB $12
-    COP [SpawnMarkedAfter] ( @func_0AFD69, #$2000 )
+    COP [SpawnMarkedAfter] ( @RandomPlayerOffset, #$2000 )
     TYA 
     STA $26
     BRA loc_0BBDA5
@@ -119,12 +119,12 @@ awB1_goldcap [
   loc_0BBE6D:
     LDA #$2200
     TSB $10
-    COP [SpawnLastRel] ( @aw_actor_0BBEE9, #00, #00, #$0200 )
+    COP [SpawnLastRel] ( @aw_spirit_follower, #00, #00, #$0200 )
     TYA 
     STA $7F100C, X
     LDA $26
     STA $0026, Y
-    COP [SpawnLastRel] ( @aw_actor_0BBEE9.code_0BBEF7, #00, #00, #$0200 )
+    COP [SpawnLastRel] ( @aw_spirit_follower.code_0BBEF7, #00, #00, #$0200 )
     TYA 
     STA $7F100E, X
     LDA $26

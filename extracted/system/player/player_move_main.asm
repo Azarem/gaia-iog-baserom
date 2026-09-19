@@ -1,6 +1,6 @@
 ; Player movement tick and collision helpers — main movement dispatch and grid alignment (184272–185206, Bank 02).
 ; 
-; Contains the per-frame player movement entry point and shared collision helper routines used by the north/south and east/west movement handlers (in player_move_ns and player_move_ew respectively).
+; Contains the per-frame player movement entry point and shared collision helper routines used by the north/south and east/west movement handlers (in player_move_ns and player_move_east respectively).
 ; 
 ; === MOVEMENT TICK (PlayerMovementTick) ===
 ; 
@@ -8,11 +8,11 @@
 ; 
 ; Phase 1 — Horizontal (EW) movement:
 ;   - Reads DP $20 (EW velocity from JoypadToVelocity)
-;   - Zero velocity → skip. Negative → diagonal down-left dispatch (DispatchDiagDownLeft with $0040 flag). Positive → west dispatch (DispatchEastMove with $0040 flag).
+;   - Zero velocity → skip. Negative → diagonal down-left dispatch (DispatchDiagDownLeft with $0040 flag). Positive → east dispatch (DispatchEastMove with $0040 flag).
 ;   - After dispatch: converts sub-pixel X ($22) back to pixel via >>2, stores to player actor $0014. Same for Y ($26 → $0016).
 ; 
 ; Phase 2 — Vertical (NS) movement:
-;   - Restores the saved NS velocity from stack ($24). Negative → south dispatch (DispatchNorthMove, gated by $0800 collision flag). Positive → east dispatch (DispatchSouthMove, gated by $0400 flag).
+;   - Restores the saved NS velocity from stack ($24). Negative → north dispatch (DispatchNorthMove, gated by $0800 collision flag). Positive → south dispatch (DispatchSouthMove, gated by $0400 flag).
 ; 
 ; The $AA register accumulates collision flags during movement: bit $0800 = south wall contact, bit $0400 = east wall contact, bit $0040 = diagonal mode active.
 ; 
@@ -157,7 +157,7 @@ DiagSnapCompute_Unused {
     BEQ loc_02D277
     JSR $&tile_collision.CheckSubTileAlignX ; X sub-tile in right half (CheckSubTileAlignX carry) → inspect cell below
     BCC loc_02D2A3
-    JSR $&tile_collision.MapCellRight ; Read collision nibble below; type $09 (slope) → take slope snap path
+    JSR $&tile_collision.MapCellRight ; MapCellRight from probe; type $09 (slope) → take slope snap path
     JSR $&tile_collision.ReadCollisionNibble
     CMP #$09
     BNE loc_02D2A3

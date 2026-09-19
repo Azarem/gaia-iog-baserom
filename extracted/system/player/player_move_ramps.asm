@@ -32,7 +32,7 @@
 ; 
 ; Despite the 'West' prefix, this handles the case where ProbeLeftTiles found an east-facing slope ($0A, carry clear). The player moves rightward and downward simultaneously.
 ; 
-; Probe sequence: ProbeCurrentTR, then TileProbeMain at $1A−8 (8px left) for $0A. If not found, checks MapCellRight. If still not found, probes FutureTR at $1A−9. If no slope → EastRedirectToNorth.
+; Probe sequence: ProbeCurrentTR, then TileProbeMain at $1A−8 (8px left) for $0A. If not found, checks MapCellDown. If still not found, probes FutureTR at $1A−9. If no slope → EastRedirectToNorth.
 ; 
 ; Slope physics (if slope found + boundary crossed):
 ;   - Sub-tile X offset ($22+$20, >>2, AND $0F) ×4 → add to $26 (Y displacement proportional to X position)
@@ -52,7 +52,7 @@ EastRampDown {
     AND #$00FF
     CMP #$000A
     BEQ code_02D8C7
-    JSR $&tile_collision.MapCellDown ; No slope at probe: MapCellRight and re-read collision on adjacent cell
+    JSR $&tile_collision.MapCellDown ; No slope at probe: MapCellDown and re-read collision on cell below
     SEP #$20
     JSR $&tile_collision.ReadCollisionNibble
     REP #$20
@@ -68,7 +68,7 @@ EastRampDown {
     AND #$00FF
     CMP #$000A
     BEQ loc_02D899
-    JSR $&tile_collision.MapCellDown ; MapCellRight on future cell for alternate $0A detection
+    JSR $&tile_collision.MapCellDown ; MapCellDown on future cell for alternate $0A detection
     SEP #$20
     JSR $&tile_collision.ReadCollisionNibble
     REP #$20
@@ -241,18 +241,18 @@ EastRedirectToNorth {
 }
 
 ---------------------------------------------
-; descend_TEMP a west-facing slope ($05) while moving east.
+; Ascend a west-facing slope ($05) while moving east.
 ; 
-; Mirror of EastRampDown for the opposite slope orientation. ProbeCurrentBR, then TileProbeMain at $1A−8 for $05. Multi-probe sequence through MapCellLeft, FutureTR, and $1A−9.
+; Mirror of EastRampDown for the opposite slope orientation. ProbeCurrentBR, then TileProbeMain at $1A−8 for $05. Multi-probe sequence through MapCellUp, FutureTR, and $1A−9.
 ; 
-; Slope physics: same structure as EastRampDown but Y displacement is NEGATED (EOR $FFFF, INC) since the slope descend_TEMPs in the opposite direction. Sub-pixel half-rounding subtracts $0004 instead of adding.
+; Slope physics: same structure as EastRampDown but Y displacement is NEGATED (EOR $FFFF, INC) since the slope descends in the opposite direction. Sub-pixel half-rounding subtracts $0004 instead of adding.
 ; 
 ; Direct slope: $26 += −$20 (inverted velocity).
 ; 
 ; Wall finalization: same FutureTR/FutureBR double-check with code_02DA7A/code_02DA82 snap paths. Corner collision produces full X/Y snap with speed zeroing.
 
 WestRampUp {
-    JSR $&player_move_diag.DiagClearReturnFlags ; WestRampUp: descend west-facing slope $05 while moving east (+X)
+    JSR $&player_move_diag.DiagClearReturnFlags ; WestRampUp: ascend west-facing slope $05 while moving east (+X)
     JSR $&tile_collision.ProbeCurrentBR ; ProbeCurrentBR to anchor slope probe at bottom-right corner
     LDA $1A               ; Shift probe Y up 8px ($1A -= 8) for slope surface sampling
     SEC 
@@ -262,7 +262,7 @@ WestRampUp {
     AND #$00FF
     CMP #$0005
     BEQ code_02DA0E
-    JSR $&tile_collision.MapCellUp ; No slope at probe: MapCellLeft and re-read collision on adjacent cell
+    JSR $&tile_collision.MapCellUp ; No slope at probe: MapCellUp and re-read collision on cell above
     SEP #$20
     JSR $&tile_collision.ReadCollisionNibble
     REP #$20
@@ -278,7 +278,7 @@ WestRampUp {
     AND #$00FF
     CMP #$0005
     BEQ loc_02D9DC
-    JSR $&tile_collision.MapCellDown ; MapCellRight on future cell for alternate $05 detection
+    JSR $&tile_collision.MapCellDown ; MapCellDown on future cell for alternate $05 detection
     SEP #$20
     JSR $&tile_collision.ReadCollisionNibble
     REP #$20
@@ -399,14 +399,14 @@ code_02DA82 {
 }
 
 ---------------------------------------------
-; ascend_TEMP a west-facing slope ($05) while moving east.
+; Descend a west-facing slope ($05) while moving east.
 ; 
 ; Probes TileProbeMain at $1A+8 for $05. If found and boundary crossed: $24 = sub-tile X offset ×4 − $20 (positive, producing upward displacement). Falls into code_02DA19 for slope finalization.
 ; 
 ; Mirror of EastRampUp with positive Y displacement instead of negative.
 
 WestRampDown {
-    JSR $&player_move_diag.DiagClearReturnFlags ; WestRampDown: ascend west-facing slope $05 while moving east (+X)
+    JSR $&player_move_diag.DiagClearReturnFlags ; WestRampDown: descend west-facing slope $05 while moving east (+X)
     LDA $1A               ; Raise probe Y +8px ($1A += 8) to sample west-facing slope surface
     CLC 
     ADC #$0008

@@ -1,8 +1,8 @@
 ?INCLUDE 'cop_handlers_flags'
-?INCLUDE 'func_0AA36E'
 ?INCLUDE 'hardware_math'
 ?INCLUDE 'sE6_gaia'
-?INCLUDE 'sg55_actor_0AD000'
+?INCLUDE 'SetPlayerGameOverFlag'
+?INCLUDE 'sg55_viper_arena'
 ?INCLUDE 'sprite_composition'
 ?INCLUDE 'StandardEnemyDefeatHandler'
 ?INCLUDE 'table_0EE000'
@@ -48,9 +48,9 @@ btF3_neo_viper [
 
   loc_0AD0F7:
     LDY $playerActor
-    LDA #$*sE6_gaia.func_08F5F9
+    LDA #$*sE6_gaia.Transform_WillToShadow
     STA $0002, Y
-    LDA #$&sE6_gaia.func_08F5F9
+    LDA #$&sE6_gaia.Transform_WillToShadow
     STA $0000, Y
     LDA #$0000
     STA $0008, Y
@@ -76,9 +76,9 @@ code_0AD125 {
 
   loc_0AD12D:
     LDY $playerActor
-    LDA #$*sE6_gaia.func_08F3B1
+    LDA #$*sE6_gaia.Transform_ShadowToWill
     STA $0002, Y
-    LDA #$&sE6_gaia.func_08F3B1
+    LDA #$&sE6_gaia.Transform_ShadowToWill
     STA $0000, Y
     LDA #$0000
     STA $0008, Y
@@ -141,7 +141,7 @@ sg55_viper [
     DEC 
     STA $cameraBoundsY
     COP [LoopNext]
-    COP [SpawnBeforeFlags] ( @sg55_actor_0AD000, #$2800 )
+    COP [SpawnBeforeFlags] ( @sg55_viper_arena, #$2800 )
 } >
 ]
 
@@ -1085,7 +1085,7 @@ code_0AD945 {
   loc_0AD950:
     LDA #$0020
     TSB $playerFlags
-    COP [SpawnLastRel] ( @func_0AA36E, #00, #00, #$2000 )
+    COP [SpawnLastRel] ( @SetPlayerGameOverFlag, #00, #00, #$2000 )
     COP [SpawnLastRel] ( @code_0AD970, #00, #00, #$2300 )
     COP [WaitByte] ( #27 )
     COP [JumpScript] ( @StandardEnemyDefeatHandler )

@@ -1,4 +1,4 @@
-?INCLUDE 'pr_actor_0BCF52'
+?INCLUDE 'pr_text_placement_calc'
 ?INCLUDE 'pr_thinkers'
 
 !gfxCacheIdxA                   0648
@@ -20,7 +20,7 @@ pr8D_prologue2 [
     COP [BranchIfFlagWord] ( #$017C, #01, &code_0BCB8A )
     COP [SetFlagWord] ( #$017C )
     COP [SpawnBeforeFlags] ( @code_0BCC2B, #$2800 )
-    COP [SpawnAfterAbsFlags] ( @pr_actor_0BCF52.code_0BCF8F, #$0020, #$0050, #$2000 )
+    COP [SpawnAfterAbsFlags] ( @pr_text_placement_calc.code_0BCF8F, #$0020, #$0050, #$2000 )
     LDA #$&spritestring_0BD0B2
     STA $0026, Y
     COP [SpawnThinker] ( @pr_thinkers.e_pr_thinker_0BD031 )
@@ -32,7 +32,7 @@ code_0BCB8A {
     COP [BranchIfFlagWord] ( #$017D, #01, &code_0BCBB4 )
     COP [SetFlagWord] ( #$017D )
     COP [SpawnBeforeFlags] ( @code_0BCC5B, #$2800 )
-    COP [SpawnAfterAbsFlags] ( @pr_actor_0BCF52.code_0BCF8F, #$0064, #$0058, #$2000 )
+    COP [SpawnAfterAbsFlags] ( @pr_text_placement_calc.code_0BCF8F, #$0064, #$0058, #$2000 )
     LDA #$&spritestring_0BD0E3
     STA $0026, Y
     COP [SpawnThinker] ( @pr_thinkers.e_pr_thinker_0BD031 )
@@ -43,7 +43,7 @@ code_0BCBB4 {
     COP [BranchIfFlagWord] ( #$017E, #01, &code_0BCBDE )
     COP [SetFlagWord] ( #$017E )
     COP [SpawnBeforeFlags] ( @code_0BCC85, #$2800 )
-    COP [SpawnAfterAbsFlags] ( @pr_actor_0BCF52.code_0BCF8F, #$0038, #$007C, #$2000 )
+    COP [SpawnAfterAbsFlags] ( @pr_text_placement_calc.code_0BCF8F, #$0038, #$007C, #$2000 )
     LDA #$&spritestring_0BD11C
     STA $0026, Y
     COP [SpawnThinker] ( @pr_thinkers.e_pr_thinker_0BD031 )
@@ -54,7 +54,7 @@ code_0BCBDE {
     COP [BranchIfFlagWord] ( #$017F, #01, &code_0BCC08 )
     COP [SetFlagWord] ( #$017F )
     COP [SpawnBeforeFlags] ( @code_0BCCAE, #$2800 )
-    COP [SpawnAfterAbsFlags] ( @pr_actor_0BCF52.code_0BCF8F, #$0040, #$0020, #$2000 )
+    COP [SpawnAfterAbsFlags] ( @pr_text_placement_calc.code_0BCF8F, #$0040, #$0020, #$2000 )
     LDA #$&spritestring_0BD144
     STA $0026, Y
     COP [SpawnThinker] ( @pr_thinkers.e_pr_thinker_0BD031 )
@@ -64,7 +64,7 @@ code_0BCBDE {
 code_0BCC08 {
     COP [SpawnBeforeFlags] ( @code_0BCCD7, #$2800 )
     COP [ClearFlagWord] ( #$017C )
-    COP [SpawnAfterAbsFlags] ( @pr_actor_0BCF52.code_0BCF8F, #$0038, #$0050, #$2000 )
+    COP [SpawnAfterAbsFlags] ( @pr_text_placement_calc.code_0BCF8F, #$0038, #$0050, #$2000 )
     LDA #$&spritestring_0BD189
     STA $0026, Y
     COP [SpawnThinker] ( @pr_thinkers.e_pr_thinker_0BD031 )

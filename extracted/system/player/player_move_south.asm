@@ -33,7 +33,7 @@
 ;   FutureBL $08 → SouthStairsTile (vine)
 ;   FutureBL $09 → SouthWallNorthProbe (north wall ahead)
 ;   FutureBL $06 + sub-tile align → SouthSlideJumpShim
-;   Sub-tile aligned + MapCellDown checks → additional wall/interaction tests
+;   Sub-tile aligned + MapCellRight checks → additional wall/interaction tests
 ; 
 ; Non-blocked path: $26 += $24 (apply NS velocity to Y sub-pixel position).
 
@@ -88,7 +88,7 @@ DispatchSouthMove {
   loc_02D3C1:
     CMP #$06              ; X misaligned and cell below is south wall $06 → hard block
     BEQ SouthBlockedWall
-    JSR $&tile_collision.MapCellRight ; MapCellDown: secondary probe on tile directly below misaligned destination
+    JSR $&tile_collision.MapCellRight ; MapCellRight: secondary probe on tile to the right of misaligned destination
     STX $00
     JSR $&tile_collision.ReadCollisionNibble
     CMP #$0E              ; Solid ($0E+) below → block south movement
@@ -169,14 +169,14 @@ SnapYSouthCollision {
 
 ; Vine/stairs interaction during south movement.
 ; 
-; Guard: CheckSubTileAlignX — if aligned (carry clear), proceed directly. If past alignment, checks MapCellDown for $08 (stairs continues below); if not $08, treat as wall.
+; Guard: CheckSubTileAlignX — if aligned (carry clear), proceed directly. If past alignment, checks MapCellRight for $08 (stairs continues to the right); if not $08, treat as wall.
 ; 
 ; Sets playerFlags byte $09AF bit $08 (stair flag). Sets player actor state to ClimbVineEntry, zeroes sub-state. Falls through to SnapYSouthCollision (zeroes NS speed).
 
   SouthStairsTile:
     JSR $&tile_collision.CheckSubTileAlignX ; Vine tile ($08): X alignment required; misaligned → inspect cell below
     BCC loc_02D434
-    JSR $&tile_collision.MapCellRight ; MapCellDown: vine must continue as $08 in tile below for entry
+    JSR $&tile_collision.MapCellRight ; MapCellRight: vine must continue as $08 in tile to the right for entry
     JSR $&tile_collision.ReadCollisionNibble
     CMP #$08              ; Non-$08 below → treat as blocked wall
     BNE SouthBlockedWall
@@ -198,7 +198,7 @@ SnapYSouthCollision {
 ---------------------------------------------
 ; Right-descending slope ($03) during south movement.
 ; 
-; Verifies both BL and BR tiles are $03 (consistent slope). If BR doesn't match → SouthBlockedWall. Then checks sub-tile Y alignment and MapCellLeft adjacency: if the left neighbor is also $03, or if the player's sub-tile position ($24+$26, >>2, AND $0F) is in the first half (< $08), applies movement deltas directly.
+; Verifies both BL and BR tiles are $03 (consistent slope). If BR doesn't match → SouthBlockedWall. Then checks sub-tile Y alignment and MapCellUp adjacency: if the cell above is also $03, or if the player's sub-tile position ($24+$26, >>2, AND $0F) is in the first half (< $08), applies movement deltas directly.
 ; 
 ; Otherwise, sets $09AF bit $10 (slope flag) and applies movement deltas. The sub-tile position check prevents the player from popping onto the slope mid-tile.
 
@@ -211,7 +211,7 @@ SouthSlopeRight {
   loc_02D458:
     JSR $&tile_collision.CheckSubTileAlignY ; CheckSubTileAlignY: Y sub-tile position gates slope traversal
     BCC loc_02D477
-    JSR $&tile_collision.MapCellUp ; MapCellLeft: adjacent cell must also be $03 for smooth slope continue
+    JSR $&tile_collision.MapCellUp ; MapCellUp: cell above must also be $03 for smooth slope continue
     JSR $&tile_collision.ReadCollisionNibble
     CMP #$03
     BEQ loc_02D477
@@ -253,7 +253,7 @@ SouthSlopeLeft {
   loc_02D489:
     JSR $&tile_collision.CheckSubTileAlignY ; CheckSubTileAlignY for left-slope traversal gate
     BCC loc_02D4A8
-    JSR $&tile_collision.MapCellUp ; MapCellLeft adjacency: neighbor must be $0C for continued slope
+    JSR $&tile_collision.MapCellUp ; MapCellUp adjacency: cell above must be $0C for continued slope
     JSR $&tile_collision.ReadCollisionNibble
     CMP #$0C
     BEQ loc_02D4A8
@@ -304,7 +304,7 @@ SouthSlopeLeft {
 ; North-wall ($09) interaction during south movement — handles the case where CurrentBL is a north-wall tile.
 ; 
 ; First checks CurrentTR: if also $09, both corners blocked → ClearMovementDeltas (full stop). Otherwise probes FutureBL and checks sub-tile Y alignment:
-;   - Aligned + FutureBL is $09 → probe MapCellDown/MapCellLeft chain: if either nonzero, ClearSpeedNS_3 (stop NS). If both zero → compute snap offset.
+;   - Aligned + FutureBL is $09 → probe MapCellRight/MapCellUp chain: if either nonzero, ClearSpeedNS_3 (stop NS). If both zero → compute snap offset.
 ;   - Not aligned or FutureBL not $09 → SnapXDiagCollision, then re-probe FutureBL: if solid/wall → SnapYSouthCollision. If passable → compute EastSnapOffset + FineAdjustXWest (slide west along north wall).
 
 SouthWallNorthInteract {
@@ -321,11 +321,11 @@ SouthWallNorthInteract {
     BNE loc_02D504
 
   loc_02D4F0:
-    JSR $&tile_collision.MapCellRight ; Gap probe: MapCellDown below north wall — empty cell allows passthrough
+    JSR $&tile_collision.MapCellRight ; Gap probe: MapCellRight from north wall — adjacent cell allows passthrough
     STX $00
     JSR $&tile_collision.ReadCollisionNibble
     BNE ClearSpeedNS_3
-    JSR $&tile_collision.MapCellUp ; MapCellLeft from gap cell — both must be walkable or clear NS speed
+    JSR $&tile_collision.MapCellUp ; MapCellUp from gap cell — both must be walkable or clear NS speed
     JSR $&tile_collision.ReadCollisionNibble
     BNE ClearSpeedNS_3
     BRA loc_02D51C
@@ -353,12 +353,12 @@ SouthWallNorthInteract {
 ---------------------------------------------
 ; Extended north-wall probe when FutureBL is $09 during south movement.
 ; 
-; Probes MapCellDown from the FutureBL position: if collision ≥ $0E (solid) → SnapYSouthCollision + ApplyDeltas. Otherwise falls into the SouthWallNorthInteract multi-cell adjacency check at loc_02D4F0.
+; Probes MapCellRight from the FutureBL position: if collision ≥ $0E (solid) → SnapYSouthCollision + ApplyDeltas. Otherwise falls into the SouthWallNorthInteract multi-cell adjacency check at loc_02D4F0.
 ; 
 ; Short bridge routine connecting the FutureBL $09 case to the main north-wall interaction logic.
 
 SouthWallNorthProbe {
-    JSR $&tile_collision.MapCellRight ; Extended north-wall probe: MapCellDown from future BL destination
+    JSR $&tile_collision.MapCellRight ; Extended north-wall probe: MapCellRight from future BL destination
     JSR $&tile_collision.ReadCollisionNibble
     CMP #$0E              ; Solid ≥ $0E below → redirect to hard Y-snap + apply path
     BCS loc_02D516
@@ -376,7 +376,7 @@ SouthWallNorthProbe {
 ; South-wall ($06) interaction during south movement — handles CurrentBR being a south-wall tile.
 ; 
 ; Checks CurrentTL: if also $06 → ClearMovementDeltas (enclosed on both sides). Otherwise probes FutureBR with sub-tile Y alignment:
-;   - Aligned + FutureBR is $06 → probe MapCellUp/MapCellLeft: if either nonzero → ClearSpeedNS_4. If both zero → compute EastSnapOffset + FineAdjustXEast (slide east along south wall).
+;   - Aligned + FutureBR is $06 → probe MapCellLeft/MapCellUp: if either nonzero → ClearSpeedNS_4. If both zero → compute EastSnapOffset + FineAdjustXEast (slide east along south wall).
 ;   - Not aligned → SnapXEastCollision, re-probe FutureBR: if $06 → compute snap. Otherwise → zero $24, SnapYNorthCollision, apply deltas.
 
 SouthWallSouthInteract {
@@ -393,11 +393,11 @@ SouthWallSouthInteract {
     BNE loc_02D560
 
   loc_02D54C:
-    JSR $&tile_collision.MapCellLeft ; Gap probe: MapCellUp — walkable cell above south-wall lip
+    JSR $&tile_collision.MapCellLeft ; Gap probe: MapCellLeft — adjacent cell from south-wall lip
     STX $00
     JSR $&tile_collision.ReadCollisionNibble
     BNE ClearSpeedNS_4
-    JSR $&tile_collision.MapCellUp ; MapCellLeft from gap — both cells must be open or clear NS speed
+    JSR $&tile_collision.MapCellUp ; MapCellUp from gap — both cells must be open or clear NS speed
     JSR $&tile_collision.ReadCollisionNibble
     BNE ClearSpeedNS_4
     BRA loc_02D574
@@ -419,7 +419,7 @@ SouthWallSouthInteract {
 }
 
 ---------------------------------------------
-; Short shim that jumps to the south-wall MapCellUp probe chain (loc_02D54C) in SouthWallSouthInteract.
+; Short shim that jumps to the south-wall MapCellLeft probe chain (loc_02D54C) in SouthWallSouthInteract.
 ; 
 ; Used when a $06 slide tile is detected during sub-tile-aligned south movement, redirecting into the south wall adjacency checking logic.
 
@@ -507,7 +507,7 @@ AutoAlignEW_South {
 ---------------------------------------------
 ; Compute a directional snap offset for wall-sliding during south movement.
 ; 
-; Saves pixel coords ($1A, $1E). Probes CurrentBL: if $09 (north wall) or MapCellDown yields $06 (south wall), takes the boundary-crossing path.
+; Saves pixel coords ($1A, $1E). Probes CurrentBL: if $09 (north wall) or MapCellRight yields $06 (south wall), takes the boundary-crossing path.
 ; 
 ; Boundary path: velocity-to-pixel conversion ($24 >> 2), subtract from saved $1E on stack, XOR to detect 16px grid line crossing (BIT $0010). If crossed, $02 = $0010.
 ; 
@@ -525,7 +525,7 @@ ComputeSouthSnapOffset {
     BEQ loc_02D619
     JSR $&tile_collision.CheckSubTileAlignX ; X right-half alignment (carry): probe cell below for south wall $06
     BCC loc_02D640
-    JSR $&tile_collision.MapCellRight ; MapCellDown + ReadCollisionNibble for south-wall boundary case
+    JSR $&tile_collision.MapCellRight ; MapCellRight + ReadCollisionNibble for south-wall boundary case
     JSR $&tile_collision.ReadCollisionNibble
     CMP #$06
     BNE loc_02D640

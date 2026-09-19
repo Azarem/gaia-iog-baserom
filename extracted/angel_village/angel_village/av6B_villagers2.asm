@@ -1,4 +1,4 @@
-?INCLUDE 'func_06B9F2'
+?INCLUDE 'ActorDisplayModeSwap'
 ?INCLUDE 'npc_wander_ai'
 
 !currentHp                      7F0026
@@ -9,7 +9,7 @@ av6B_villagers2 [
   actor-def < #0A, #00, #10, {
 
   code_06CACD:
-    JSL $@func_06B9F2
+    JSL $@ActorDisplayModeSwap
     COP [SetOnInteract] ( &code_06CAEC )
     LDA #$000A
     STA $currentHp, X

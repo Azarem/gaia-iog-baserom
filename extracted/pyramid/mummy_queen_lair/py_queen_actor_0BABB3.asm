@@ -1,8 +1,8 @@
 ?BANK 0B
 
 ?INCLUDE 'ApplyOrbitalOffsetFromRef'
-?INCLUDE 'aw_actor_0BBEE9'
-?INCLUDE 'binary_0BACB4'
+?INCLUDE 'aw_spirit_follower'
+?INCLUDE 'mummy_queen_angle_table'
 ?INCLUDE 'smooth_follow'
 
 !playerActor                    09AA
@@ -37,7 +37,7 @@ py_queen_actor_0BABB3 {
     TAX 
     INC 
     STA $0026, Y
-    LDA $@binary_0BACB4, X
+    LDA $@mummy_queen_angle_table, X
     PLX 
     AND #$00FF
     STA $orbitAngle, X
@@ -91,7 +91,7 @@ py_queen_actor_0BABB3 {
     TAY 
     LDA $playerActor
     STA $0024, Y
-    COP [CallScript] ( &aw_actor_0BBEE9.code_0BBF64 )
+    COP [CallScript] ( &aw_spirit_follower.code_0BBF64 )
     LDA $orbitDiameter, X
     TAY 
     PHX 
@@ -99,6 +99,6 @@ py_queen_actor_0BABB3 {
     LDA $scratch1010+6, X
     PLX 
     STA $0024, Y
-    COP [CallScript] ( &aw_actor_0BBEE9.code_0BBF64 )
+    COP [CallScript] ( &aw_spirit_follower.code_0BBF64 )
     BRA loc_0BAC58
 }

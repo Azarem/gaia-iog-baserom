@@ -1,4 +1,4 @@
-?INCLUDE 'func_0AA3FD'
+?INCLUDE 'EnemyInitBasic'
 ?INCLUDE 'table_0EDA00'
 
 !joypadMaskStd                  065A
@@ -57,7 +57,7 @@ code_05B3A1 {
     TSB $joypadMaskStd
     LDA #$0008
     TRB $playerFlags
-    JSL $@func_0AA3FD
+    JSL $@EnemyInitBasic
     LDA #$0005
     STA $currentHp, X
     LDA #$1000

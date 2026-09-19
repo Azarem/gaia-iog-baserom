@@ -1,5 +1,5 @@
 ?INCLUDE 'cop_handlers_flags'
-?INCLUDE 'func_0AA3FD'
+?INCLUDE 'EnemyInitBasic'
 
 !displayModeFlags               09EC
 
@@ -150,7 +150,7 @@ dialogstring_0AA97D `[DEF]There are eight[N]laborers including me[N]forced to wo
 dialogstring_0AA9C5 `[DEF][CLR]But your inventory[N]is full![END]`
 
 code_0AA9E0 {
-    JSL $@func_0AA3FD
+    JSL $@EnemyInitBasic
     COP [StageSpriteFrame] ( #33 )
     COP [AnimOnce]
     COP [SetEntryContinue]

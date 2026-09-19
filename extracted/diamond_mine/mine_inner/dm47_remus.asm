@@ -1,4 +1,4 @@
-?INCLUDE 'dm_actor_05D49E'
+?INCLUDE 'dm_mine_static_prop'
 
 ---------------------------------------------
 
@@ -7,7 +7,7 @@ dm47_remus [
 
   code_05D15D:
     COP [BranchIfFlagByte] ( #5E, #01, &dm47_remus_destroy )
-    COP [SpawnAfterFlags] ( @dm_actor_05D49E, #$0100 )
+    COP [SpawnAfterFlags] ( @dm_mine_static_prop, #$0100 )
     LDA #$0200
     TSB $12
     COP [SetOnInteract] ( &code_05D189 )

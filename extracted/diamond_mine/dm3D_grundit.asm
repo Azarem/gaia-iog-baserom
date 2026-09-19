@@ -1,4 +1,4 @@
-?INCLUDE 'dm_func_0ADB6B'
+?INCLUDE 'dm_follower_behavior'
 
 !orbitAngle                     7F0010
 
@@ -40,7 +40,7 @@ code_0AB00D {
     COP [AnimOnce]
     COP [StageSpriteFrame] ( #30 )
     COP [AnimOnce]
-    COP [SpawnLastRel] ( @dm_func_0ADB6B, #00, #CE, #$0202 )
+    COP [SpawnLastRel] ( @dm_follower_behavior, #00, #CE, #$0202 )
     COP [StageSpriteFrame] ( #30 )
     COP [AnimOnce]
     COP [StageSpriteFrame] ( #31 )

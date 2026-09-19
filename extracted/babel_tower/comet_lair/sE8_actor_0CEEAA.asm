@@ -1,11 +1,11 @@
 ?BANK 0C
 
 ?INCLUDE 'enemy_stats_table'
-?INCLUDE 'func_0AA36E'
 ?INCLUDE 'oneshot_palette_flash_18'
 ?INCLUDE 'oneshot_palette_flash_19'
 ?INCLUDE 'player_character'
 ?INCLUDE 'sE8_thinker_0CEB74'
+?INCLUDE 'SetPlayerGameOverFlag'
 ?INCLUDE 'smooth_follow'
 ?INCLUDE 'table_0EE000'
 
@@ -320,7 +320,7 @@ code_0CF154 {
     COP [SetFlagByte] ( #04 )
     LDA #$FFF0
     TSB $joypadMaskStd
-    COP [SpawnLastRel] ( @func_0AA36E, #00, #00, #$2000 )
+    COP [SpawnLastRel] ( @SetPlayerGameOverFlag, #00, #00, #$2000 )
     COP [SpawnLastRel] ( @code_0CF201, #00, #E0, #$2300 )
     COP [SpawnLastRel] ( @code_0CF1CE, #00, #00, #$0300 )
     COP [SpawnLastRel] ( @code_0CF1DF, #00, #00, #$0300 )

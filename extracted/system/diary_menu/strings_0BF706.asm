@@ -1,3 +1,11 @@
+; Diary entry lookup table — maps scene IDs (0–255) to diary entry records for the save menu.
+; 
+; Each diary-entry contains a location name string and a packed camera position value
+; used by the diary menu's Mode 7 camera pan (code_0BE527). Most scenes share the default
+; entry diary_entry_0BF906 ("Start from beginning"). Named locations correspond to the
+; game's major areas (South Cape, Itory Village, Freejia, etc.).
+---------------------------------------------
+
 ?BANK 0B
 
 ---------------------------------------------

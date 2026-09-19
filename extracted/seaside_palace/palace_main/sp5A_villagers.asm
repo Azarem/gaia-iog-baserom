@@ -1,4 +1,4 @@
-?INCLUDE 'func_06B9F2'
+?INCLUDE 'ActorDisplayModeSwap'
 ?INCLUDE 'music_actors'
 ?INCLUDE 'npc_wander_ai'
 
@@ -22,7 +22,7 @@ sp5A_villagers [
     ADC #$0002
     STA $currentHp, X
     JSL $@npc_wander_ai.SyncActorPosFromDP
-    JSL $@func_06B9F2
+    JSL $@ActorDisplayModeSwap
     COP [SetOnInteract] ( &code_068A90 )
 
   loc_068A82:
