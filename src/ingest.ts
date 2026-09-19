@@ -1,24 +1,29 @@
 /**
  * Notes Ingestion Module
- * 
+ *
  * Parses extracted .asm files and ingests block notes, part notes, and inline
  * comments into the notes/ JSON directory structure. This eliminates the need
  * for agents to manually edit JSON files — the most error-prone step in the
  * documentation workflow.
- * 
+ *
  * Workflow:
  *   1. Run `npm run extract:lt` to produce address-tagged .asm output
- *   2. Edit the .asm files: add/update block notes, part notes, and inline
- *      comments (keeping {address} tags for inline comments)
+ *   2. Edit the .asm files: add/update/remove block notes, part notes, and
+ *      inline comments (keeping {address} tags for inline comments)
  *   3. Run `npm run ingest` to parse the edits and write to notes/ JSON
  *   4. Run `npm run extract` to verify the final output
- * 
+ *
  * Inline comment format in extract:lt output:
  *   With existing comment:  `    LDA $00B2             ; {39414} existing comment`
  *   Without comment:        `    PLA                   ; {39419}`
  *   Agent adds comment:     `    PLA                   ; {39419} new comment text`
- * 
- * The ingest script MERGES with existing JSON — it never removes entries.
+ *   Agent removes comment:  `    LDA $00B2             ; {39414}`  (delete text after tag)
+ *
+ * The ingest script supports additions, updates, AND deletions:
+ *   - Additions: new annotations found in the .asm file are added to JSON
+ *   - Updates:   changed annotations overwrite the existing JSON entry
+ *   - Deletions: annotations present in JSON but absent from the .asm file
+ *                are removed (scoped to the processed file's labels/addresses)
  */
 
 import { readFileSync, writeFileSync, existsSync, mkdirSync, readdirSync } from 'fs';
@@ -35,12 +40,15 @@ export interface IngestStats {
     blockNotesFound: number;
     blockNotesNew: number;
     blockNotesUpdated: number;
+    blockNotesDeleted: number;
     partNotesFound: number;
     partNotesNew: number;
     partNotesUpdated: number;
+    partNotesDeleted: number;
     commentsFound: number;
     commentsNew: number;
     commentsUpdated: number;
+    commentsDeleted: number;
     hasLineTracking: boolean;
 }
 
@@ -48,6 +56,11 @@ interface ParsedAnnotations {
     blockNote?: { name: string; text: string };
     partNotes: Map<string, string>;
     comments: Map<number, string>;
+    // Deletion detection
+    fileName: string;
+    hasStructure: boolean;
+    allLabels: Set<string>;
+    uncommentedAddresses: Set<number>;
     bank: number | null;
     hasLineTracking: boolean;
 }
@@ -148,6 +161,8 @@ function parseBlockNote(lines: string[]): { text: string; endIndex: number } | n
 
 /**
  * Parse a single .asm file for block notes, part notes, and inline comments.
+ * Also tracks labels without notes and addresses without comments for
+ * deletion detection.
  */
 function parseFile(filePath: string, namesLookup: Map<string, number>): ParsedAnnotations {
     const content = readFileSync(filePath, 'utf-8');
@@ -157,9 +172,16 @@ function parseFile(filePath: string, namesLookup: Map<string, number>): ParsedAn
     const result: ParsedAnnotations = {
         partNotes: new Map(),
         comments: new Map(),
+        fileName,
+        hasStructure: false,
+        allLabels: new Set(),
+        uncommentedAddresses: new Set(),
         bank: null,
         hasLineTracking: false,
     };
+
+    // Detect structure (has ----- separators)
+    result.hasStructure = lines.some(l => l.startsWith('-----'));
 
     // Detect bank
     result.bank = detectBank(lines, fileName, namesLookup);
@@ -173,7 +195,7 @@ function parseFile(filePath: string, namesLookup: Map<string, number>): ParsedAn
     // Detect line tracking mode (has ; {address} tags)
     result.hasLineTracking = lines.some(l => /;\s*\{\d+\}/.test(l));
 
-    // Parse part notes and inline comments
+    // Parse part notes, inline comments, and track all labels/addresses
     const startIdx = blockNoteResult ? blockNoteResult.endIndex + 1 : 0;
     let commentBuffer: string[] = [];
 
@@ -206,34 +228,39 @@ function parseFile(filePath: string, namesLookup: Map<string, number>): ParsedAn
 
         const labelName = topLevelMatch?.[1] || internalMatch?.[1];
 
-        if (labelName && commentBuffer.length > 0) {
-            // Trim trailing empty lines from buffer
-            const trimmed = [...commentBuffer];
-            while (trimmed.length > 0 && trimmed[trimmed.length - 1] === '') {
-                trimmed.pop();
-            }
-            if (trimmed.length > 0) {
-                result.partNotes.set(labelName, trimmed.join('\n'));
+        if (labelName) {
+            // Always track the label for deletion detection
+            result.allLabels.add(labelName);
+
+            if (commentBuffer.length > 0) {
+                // Trim trailing empty lines from buffer
+                const trimmed = [...commentBuffer];
+                while (trimmed.length > 0 && trimmed[trimmed.length - 1] === '') {
+                    trimmed.pop();
+                }
+                if (trimmed.length > 0) {
+                    result.partNotes.set(labelName, trimmed.join('\n'));
+                }
             }
             commentBuffer = [];
             continue;
         }
 
-        // Check for inline comment with {address} tag (extract:lt format)
-        // Pattern: anything ; {address} comment text
-        // The address tag MUST be present — standard comments without tags are
-        // already in JSON and don't need ingestion.
-        const commentMatch = line.match(/;\s*\{(\d+)\}\s+(.+)/);
-        if (commentMatch) {
-            const address = parseInt(commentMatch[1], 10);
-            const commentText = commentMatch[2].trim();
-            if (commentText.length > 0) {
+        // Check for address tags (extract:lt format)
+        // Match ; {address} with optional trailing text
+        const addressTagMatch = line.match(/;\s*\{(\d+)\}\s*(.*)/);
+        if (addressTagMatch) {
+            const address = parseInt(addressTagMatch[1], 10);
+            const commentText = addressTagMatch[2]?.trim();
+            if (commentText && commentText.length > 0) {
                 result.comments.set(address, commentText);
+            } else {
+                // Address tag without text → candidate for deletion
+                result.uncommentedAddresses.add(address);
             }
         }
 
         // Non-comment, non-empty, non-separator, non-label line → reset buffer
-        // (instructions, directives, data, etc.)
         if (!line.startsWith('; ') && line !== ';') {
             commentBuffer = [];
         }
@@ -313,13 +340,30 @@ function findAsmFiles(dir: string): string[] {
     return files;
 }
 
+/** Format a change summary string like "2 new, 1 updated, 3 deleted" */
+function formatChanges(n: number, u: number, d: number): string {
+    const parts: string[] = [];
+    if (n > 0) parts.push(`${n} new`);
+    if (u > 0) parts.push(`${u} updated`);
+    if (d > 0) parts.push(`${d} deleted`);
+    return parts.join(', ');
+}
+
 /**
  * Main ingestion entry point.
- * 
+ *
  * Reads .asm files from extractedDir (or specific targetFiles),
  * parses block notes, part notes, and inline comments, then merges
  * them into the notes/ JSON directory structure.
- * 
+ *
+ * Supports additions, updates, AND deletions:
+ *   - Block note deletion: file has structure but no block note → remove from JSON
+ *   - Part note deletion:  label appears in file without a note → remove from JSON
+ *   - Comment deletion:    address has ; {addr} tag but no text → remove from JSON
+ *
+ * Deletions are scoped to processed files only — entries from unprocessed
+ * files are never touched.
+ *
  * @param projectRoot  Root of the baserom project (contains notes/, db-us/, extracted/)
  * @param targetFiles  Optional list of specific .asm file paths to ingest
  * @param options      Dry-run and verbosity options
@@ -336,12 +380,15 @@ export function ingest(projectRoot: string, targetFiles?: string[], options?: In
         blockNotesFound: 0,
         blockNotesNew: 0,
         blockNotesUpdated: 0,
+        blockNotesDeleted: 0,
         partNotesFound: 0,
         partNotesNew: 0,
         partNotesUpdated: 0,
+        partNotesDeleted: 0,
         commentsFound: 0,
         commentsNew: 0,
         commentsUpdated: 0,
+        commentsDeleted: 0,
         hasLineTracking: false,
     };
 
@@ -360,10 +407,15 @@ export function ingest(projectRoot: string, targetFiles?: string[], options?: In
 
     console.log(`Scanning ${asmFiles.length} .asm file(s)...\n`);
 
-    // Phase 1: Parse all files
+    // Phase 1: Parse all files and collect additions + deletion candidates
+    // Additions/updates
     const blockNotesByBank = new Map<number, Map<string, string>>();
     const partNotesByBank = new Map<number, Map<string, string>>();
     const commentsByBank = new Map<number, Map<number, string>>();
+    // Deletion candidates
+    const blockNoteDeletions = new Map<number, Set<string>>();
+    const partNoteDeletions = new Map<number, Set<string>>();
+    const commentDeletions = new Map<number, Set<number>>();
 
     for (const file of asmFiles) {
         let parsed: ParsedAnnotations;
@@ -380,7 +432,7 @@ export function ingest(projectRoot: string, targetFiles?: string[], options?: In
 
         const bank = parsed.bank;
 
-        // Block note
+        // --- Block note additions ---
         if (parsed.blockNote && bank !== null) {
             if (!blockNotesByBank.has(bank)) blockNotesByBank.set(bank, new Map());
             blockNotesByBank.get(bank)!.set(parsed.blockNote.name, parsed.blockNote.text);
@@ -390,7 +442,14 @@ export function ingest(projectRoot: string, targetFiles?: string[], options?: In
             }
         }
 
-        // Part notes
+        // --- Block note deletion candidate ---
+        // File has structure but no block note → the block note was removed
+        if (!parsed.blockNote && parsed.hasStructure && bank !== null) {
+            if (!blockNoteDeletions.has(bank)) blockNoteDeletions.set(bank, new Set());
+            blockNoteDeletions.get(bank)!.add(parsed.fileName);
+        }
+
+        // --- Part note additions ---
         if (bank !== null) {
             for (const [name, text] of parsed.partNotes) {
                 if (!partNotesByBank.has(bank)) partNotesByBank.set(bank, new Map());
@@ -400,17 +459,36 @@ export function ingest(projectRoot: string, targetFiles?: string[], options?: In
                     console.log(`  Part note:  ${name} → bank${bank.toString(16).toUpperCase().padStart(2, '0')}`);
                 }
             }
+
+            // --- Part note deletion candidates ---
+            // Labels that appear in the file WITHOUT a preceding part note
+            for (const label of parsed.allLabels) {
+                if (!parsed.partNotes.has(label)) {
+                    if (!partNoteDeletions.has(bank)) partNoteDeletions.set(bank, new Set());
+                    partNoteDeletions.get(bank)!.add(label);
+                }
+            }
         } else if (parsed.partNotes.size > 0) {
             const relPath = relative(projectRoot, file);
             console.warn(`  Warning: Could not determine bank for ${relPath} — skipping ${parsed.partNotes.size} part note(s)`);
         }
 
-        // Inline comments (bank determined per-address)
+        // --- Inline comment additions ---
         for (const [addr, text] of parsed.comments) {
             const commentBank = Math.floor(addr / 65536);
             if (!commentsByBank.has(commentBank)) commentsByBank.set(commentBank, new Map());
             commentsByBank.get(commentBank)!.set(addr, text);
             stats.commentsFound++;
+        }
+
+        // --- Inline comment deletion candidates ---
+        // Addresses with ; {address} but no text (only in extract:lt mode)
+        if (parsed.hasLineTracking) {
+            for (const addr of parsed.uncommentedAddresses) {
+                const commentBank = Math.floor(addr / 65536);
+                if (!commentDeletions.has(commentBank)) commentDeletions.set(commentBank, new Set());
+                commentDeletions.get(commentBank)!.add(addr);
+            }
         }
 
         stats.filesProcessed++;
@@ -426,121 +504,159 @@ export function ingest(projectRoot: string, targetFiles?: string[], options?: In
         console.log('\n[DRY RUN] No files will be written.\n');
     }
 
-    // Phase 3: Merge with existing JSON and write
+    // Phase 3: Merge additions/updates and apply deletions, then write
     console.log('\nMerging with existing notes/...');
 
-    // Block notes
-    for (const [bank, notes] of blockNotesByBank) {
-        const filePath = join(notesDir, 'blockNotes', bankFileName(bank));
-        const existing = loadJsonFile(filePath);
-        let newCount = 0, updatedCount = 0;
+    // Collect all bank numbers that need processing
+    const allBanks = new Set<number>();
+    for (const bank of blockNotesByBank.keys()) allBanks.add(bank);
+    for (const bank of blockNoteDeletions.keys()) allBanks.add(bank);
+    for (const bank of partNotesByBank.keys()) allBanks.add(bank);
+    for (const bank of partNoteDeletions.keys()) allBanks.add(bank);
+    for (const bank of commentsByBank.keys()) allBanks.add(bank);
+    for (const bank of commentDeletions.keys()) allBanks.add(bank);
 
-        for (const [name, text] of notes) {
-            if (existing[name] === text) continue;
-            if (existing[name] !== undefined) {
-                updatedCount++;
-                stats.blockNotesUpdated++;
-            } else {
-                newCount++;
-                stats.blockNotesNew++;
+    for (const bank of [...allBanks].sort()) {
+        // --- Block notes ---
+        const bnAdds = blockNotesByBank.get(bank);
+        const bnDels = blockNoteDeletions.get(bank);
+        if (bnAdds || bnDels) {
+            const filePath = join(notesDir, 'blockNotes', bankFileName(bank));
+            const existing = loadJsonFile(filePath);
+            let newCount = 0, updatedCount = 0, deletedCount = 0;
+
+            // Additions/updates
+            if (bnAdds) {
+                for (const [name, text] of bnAdds) {
+                    if (existing[name] === text) continue;
+                    if (existing[name] !== undefined) { updatedCount++; stats.blockNotesUpdated++; }
+                    else { newCount++; stats.blockNotesNew++; }
+                    existing[name] = text;
+                }
             }
-            existing[name] = text;
-        }
 
-        if (newCount === 0 && updatedCount === 0) continue;
-
-        const relPath = relative(projectRoot, filePath);
-        if (options?.dryRun) {
-            console.log(`  [DRY] ${relPath}: ${newCount} new, ${updatedCount} updated`);
-        } else {
-            const written = saveJsonFile(filePath, existing);
-            if (written) {
-                console.log(`  ${relPath}: ${newCount} new, ${updatedCount} updated`);
+            // Deletions: only delete if the name is NOT being added in this batch
+            if (bnDels) {
+                for (const name of bnDels) {
+                    if (bnAdds?.has(name)) continue;
+                    if (existing[name] !== undefined) {
+                        if (options?.verbose) console.log(`  Delete block note: ${name}`);
+                        delete existing[name];
+                        deletedCount++;
+                        stats.blockNotesDeleted++;
+                    }
+                }
             }
-        }
-    }
 
-    // Part notes
-    for (const [bank, notes] of partNotesByBank) {
-        const filePath = join(notesDir, 'partNotes', bankFileName(bank));
-        const existing = loadJsonFile(filePath);
-        let newCount = 0, updatedCount = 0;
-
-        for (const [name, text] of notes) {
-            if (existing[name] === text) continue;
-            if (existing[name] !== undefined) {
-                updatedCount++;
-                stats.partNotesUpdated++;
-            } else {
-                newCount++;
-                stats.partNotesNew++;
-            }
-            existing[name] = text;
-        }
-
-        if (newCount === 0 && updatedCount === 0) continue;
-
-        const relPath = relative(projectRoot, filePath);
-        if (options?.dryRun) {
-            console.log(`  [DRY] ${relPath}: ${newCount} new, ${updatedCount} updated`);
-        } else {
-            const written = saveJsonFile(filePath, existing);
-            if (written) {
-                console.log(`  ${relPath}: ${newCount} new, ${updatedCount} updated`);
+            if (newCount + updatedCount + deletedCount > 0) {
+                const relPath = relative(projectRoot, filePath);
+                const changes = formatChanges(newCount, updatedCount, deletedCount);
+                if (options?.dryRun) {
+                    console.log(`  [DRY] ${relPath}: ${changes}`);
+                } else if (saveJsonFile(filePath, existing)) {
+                    console.log(`  ${relPath}: ${changes}`);
+                }
             }
         }
-    }
 
-    // Comments
-    for (const [bank, comments] of commentsByBank) {
-        const filePath = join(notesDir, 'comments', bankFileName(bank));
-        const existing = loadJsonFile(filePath);
-        let newCount = 0, updatedCount = 0;
+        // --- Part notes ---
+        const pnAdds = partNotesByBank.get(bank);
+        const pnDels = partNoteDeletions.get(bank);
+        if (pnAdds || pnDels) {
+            const filePath = join(notesDir, 'partNotes', bankFileName(bank));
+            const existing = loadJsonFile(filePath);
+            let newCount = 0, updatedCount = 0, deletedCount = 0;
 
-        for (const [addr, text] of comments) {
-            const key = addr.toString();
-            if (existing[key] === text) continue;
-            if (existing[key] !== undefined) {
-                updatedCount++;
-                stats.commentsUpdated++;
-            } else {
-                newCount++;
-                stats.commentsNew++;
+            if (pnAdds) {
+                for (const [name, text] of pnAdds) {
+                    if (existing[name] === text) continue;
+                    if (existing[name] !== undefined) { updatedCount++; stats.partNotesUpdated++; }
+                    else { newCount++; stats.partNotesNew++; }
+                    existing[name] = text;
+                }
             }
-            existing[key] = text;
+
+            if (pnDels) {
+                for (const name of pnDels) {
+                    if (pnAdds?.has(name)) continue;
+                    if (existing[name] !== undefined) {
+                        if (options?.verbose) console.log(`  Delete part note: ${name}`);
+                        delete existing[name];
+                        deletedCount++;
+                        stats.partNotesDeleted++;
+                    }
+                }
+            }
+
+            if (newCount + updatedCount + deletedCount > 0) {
+                const relPath = relative(projectRoot, filePath);
+                const changes = formatChanges(newCount, updatedCount, deletedCount);
+                if (options?.dryRun) {
+                    console.log(`  [DRY] ${relPath}: ${changes}`);
+                } else if (saveJsonFile(filePath, existing)) {
+                    console.log(`  ${relPath}: ${changes}`);
+                }
+            }
         }
 
-        if (newCount === 0 && updatedCount === 0) continue;
+        // --- Comments ---
+        const cmAdds = commentsByBank.get(bank);
+        const cmDels = commentDeletions.get(bank);
+        if (cmAdds || cmDels) {
+            const filePath = join(notesDir, 'comments', bankFileName(bank));
+            const existing = loadJsonFile(filePath);
+            let newCount = 0, updatedCount = 0, deletedCount = 0;
 
-        const relPath = relative(projectRoot, filePath);
-        if (options?.dryRun) {
-            console.log(`  [DRY] ${relPath}: ${newCount} new, ${updatedCount} updated`);
-        } else {
-            const written = saveJsonFile(filePath, existing);
-            if (written) {
-                console.log(`  ${relPath}: ${newCount} new, ${updatedCount} updated`);
+            if (cmAdds) {
+                for (const [addr, text] of cmAdds) {
+                    const key = addr.toString();
+                    if (existing[key] === text) continue;
+                    if (existing[key] !== undefined) { updatedCount++; stats.commentsUpdated++; }
+                    else { newCount++; stats.commentsNew++; }
+                    existing[key] = text;
+                }
+            }
+
+            if (cmDels) {
+                for (const addr of cmDels) {
+                    const key = addr.toString();
+                    if (cmAdds?.has(addr)) continue;
+                    if (existing[key] !== undefined) {
+                        if (options?.verbose) console.log(`  Delete comment: ${key}`);
+                        delete existing[key];
+                        deletedCount++;
+                        stats.commentsDeleted++;
+                    }
+                }
+            }
+
+            if (newCount + updatedCount + deletedCount > 0) {
+                const relPath = relative(projectRoot, filePath);
+                const changes = formatChanges(newCount, updatedCount, deletedCount);
+                if (options?.dryRun) {
+                    console.log(`  [DRY] ${relPath}: ${changes}`);
+                } else if (saveJsonFile(filePath, existing)) {
+                    console.log(`  ${relPath}: ${changes}`);
+                }
             }
         }
     }
 
     // Phase 4: Summary
-    const totalChanges = stats.blockNotesNew + stats.blockNotesUpdated
-        + stats.partNotesNew + stats.partNotesUpdated
-        + stats.commentsNew + stats.commentsUpdated;
+    const totalChanges = stats.blockNotesNew + stats.blockNotesUpdated + stats.blockNotesDeleted
+        + stats.partNotesNew + stats.partNotesUpdated + stats.partNotesDeleted
+        + stats.commentsNew + stats.commentsUpdated + stats.commentsDeleted;
 
     console.log('\nSummary:');
     if (totalChanges === 0) {
         console.log('  No changes detected — notes/ is up to date.');
     } else {
-        if (stats.blockNotesNew + stats.blockNotesUpdated > 0) {
-            console.log(`  Block notes: ${stats.blockNotesNew} new, ${stats.blockNotesUpdated} updated`);
-        }
-        if (stats.partNotesNew + stats.partNotesUpdated > 0) {
-            console.log(`  Part notes:  ${stats.partNotesNew} new, ${stats.partNotesUpdated} updated`);
-        }
-        if (stats.commentsNew + stats.commentsUpdated > 0) {
-            console.log(`  Comments:    ${stats.commentsNew} new, ${stats.commentsUpdated} updated`);
-        }
+        const bn = stats.blockNotesNew + stats.blockNotesUpdated + stats.blockNotesDeleted;
+        const pn = stats.partNotesNew + stats.partNotesUpdated + stats.partNotesDeleted;
+        const cm = stats.commentsNew + stats.commentsUpdated + stats.commentsDeleted;
+        if (bn > 0) console.log(`  Block notes: ${formatChanges(stats.blockNotesNew, stats.blockNotesUpdated, stats.blockNotesDeleted)}`);
+        if (pn > 0) console.log(`  Part notes:  ${formatChanges(stats.partNotesNew, stats.partNotesUpdated, stats.partNotesDeleted)}`);
+        if (cm > 0) console.log(`  Comments:    ${formatChanges(stats.commentsNew, stats.commentsUpdated, stats.commentsDeleted)}`);
     }
 
     console.log(`\nIngestion ${options?.dryRun ? '(dry run) ' : ''}complete.`);
