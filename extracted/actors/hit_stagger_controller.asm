@@ -1,3 +1,10 @@
+; Runtime knockback and hit-recovery controller (Bank 00) spawned on virtually every player and enemy hit via ApplyPlayerHitstun and combat_collision.asm.
+; 
+; HitStaggerMain copies the victim's position, reads a 3-deep stack-encoded direction index, and selects velocity curves from movement_delta_table. HitStaggerDirection runs a 16-frame SetEntryExit loop syncing victim coordinates, probing axis alignment via distance thresholds ($20/$30/$40 depending on hit-type byte).
+; 
+; On completion it either routes to HitStaggerReturnAI (restores PlayerIdleEntry and iframe $FFE2 for the player, or re-enables AI for enemies with $0400 set), or falls through to onHitCallback/onDeathCallback dispatch and StandardEnemyDefeatHandler when HP reaches zero. Never scene-placed; always spawned at priorities $2000–$2400.
+---------------------------------------------
+
 ?INCLUDE 'movement_delta_table'
 ?INCLUDE 'player_character'
 ?INCLUDE 'StandardEnemyDefeatHandler'
@@ -19,14 +26,14 @@
 ---------------------------------------------
 
 HitStaggerMain {
-    LDA $extendedFlags, X
+    LDA $extendedFlags, X ; HitStaggerMain: copy attacker coords to scratch for knockback probe
     BIT #$0020
     BNE loc_00D885
     LDA #$0008
     TSB $10
 
   loc_00D885:
-    LDA #$0008
+    LDA #$0008            ; Stack-encoded direction index (3 deep) selects knockback curve
     TSB $12
     LDA $12
     BIT #$0010
@@ -63,13 +70,13 @@ HitStaggerMain {
     JMP $&HitStaggerReturnAI
 
   loc_00D8D3:
-    JMP $&code_00D988
+    JMP $&HitStaggerResolveHit
 
   loc_00D8D6:
     LDA #$6000
     TRB $12
     SEC 
-    JSR $&code_00DA47
+    JSR $&HitStaggerApplyKnockbackDelta
     RTS 
 
   loc_00D8E0:
@@ -77,7 +84,7 @@ HitStaggerMain {
     TRB $12
     COP [SetForceBoth] ( #01 )
     SEC 
-    JSR $&code_00DA47
+    JSR $&HitStaggerApplyKnockbackDelta
     RTS 
 
   loc_00D8ED:
@@ -85,19 +92,19 @@ HitStaggerMain {
     TRB $12
     COP [SetForceBoth] ( #01 )
     CLC 
-    JSR $&code_00DA47
+    JSR $&HitStaggerApplyKnockbackDelta
     RTS 
 
   loc_00D8FA:
     LDA #$6000
     TRB $12
     CLC 
-    JSR $&code_00DA47
+    JSR $&HitStaggerApplyKnockbackDelta
     RTS 
 }
 
 HitStaggerDirection {
-    COP [SetEntryExit]
+    COP [SetEntryExit]    ; HitStaggerDirection: 16-frame SetEntryExit loop syncs victim position
     COP [LoopInit] ( #10 )
     LDY $24
     LDA $14
@@ -113,13 +120,13 @@ HitStaggerDirection {
   loc_00D921:
     LDA $10
     BIT #$0008
-    BEQ code_00D988
+    BEQ HitStaggerResolveHit
     LDA $26
     BNE loc_00D95B
     LDA $orbitDiameter, X
     SEC 
     SBC $16
-    BEQ code_00D988
+    BEQ HitStaggerResolveHit
     BPL loc_00D93B
     EOR #$FFFF
     INC 
@@ -127,8 +134,8 @@ HitStaggerDirection {
   loc_00D93B:
     BIT #$000F
     BNE loc_00D945
-    JSR $&code_00DA13
-    BCC code_00D988
+    JSR $&HitStaggerCheckKnockbackDistance
+    BCC HitStaggerResolveHit
 
   loc_00D945:
     LDX $24
@@ -146,7 +153,7 @@ HitStaggerDirection {
     LDA $orbitAngle, X
     SEC 
     SBC $14
-    BEQ code_00D988
+    BEQ HitStaggerResolveHit
     BPL loc_00D96A
     EOR #$FFFF
     INC 
@@ -154,8 +161,8 @@ HitStaggerDirection {
   loc_00D96A:
     BIT #$000F
     BNE loc_00D974
-    JSR $&code_00DA13
-    BCC code_00D988
+    JSR $&HitStaggerCheckKnockbackDistance
+    BCC HitStaggerResolveHit
 
   loc_00D974:
     LDX $24
@@ -169,8 +176,8 @@ HitStaggerDirection {
     STA $moveScratch1, X
 }
 
-code_00D988 {
-    LDX $24
+HitStaggerResolveHit {
+    LDX $24               ; ResolveHit: HP zero routes to onDeathCallback or StandardEnemyDefeatHandler
 
   loc_00D98A:
     LDA $currentHp, X
@@ -218,7 +225,7 @@ code_00D988 {
 }
 
 HitStaggerReturnAI {
-    PHX 
+    PHX                   ; HitStaggerReturnAI: restore PlayerIdleEntry, iframe $FFE2, clear joypad $0F00
     LDX $playerActor
     LDA $playerFlags
     BIT #$0A00
@@ -237,9 +244,9 @@ HitStaggerReturnAI {
     COP [Die]
 }
 
-code_00DA13 {
-    STA $0000
-    PEA $&code_00DA41-1
+HitStaggerCheckKnockbackDistance {
+    STA $0000             ; Knockback distance thresholds vary by hit-type byte at $7F101C
+    PEA $&HitStaggerKnockbackCallbackPass-1
     LDA $free101C, X
     BNE loc_00DA26
     LDA $0000
@@ -266,7 +273,7 @@ code_00DA13 {
     RTS 
 }
 
-code_00DA41 {
+HitStaggerKnockbackCallbackPass {
     CLC 
     BNE loc_00DA45
     RTS 
@@ -276,8 +283,8 @@ code_00DA41 {
     RTS 
 }
 
-code_00DA47 {
-    PEA $&code_00DA66-1
+HitStaggerApplyKnockbackDelta {
+    PEA $&HitStaggerStoreMovementDelta-1 ; ApplyKnockbackDelta: free101C tier picks movement_delta_table row $44/$46
     LDA $free101C, X
     BNE loc_00DA54
     LDY #$0044
@@ -300,8 +307,8 @@ code_00DA47 {
     RTS 
 }
 
-code_00DA66 {
-    LDA $&movement_delta_table, Y
+HitStaggerStoreMovementDelta {
+    LDA $&movement_delta_table, Y ; StoreMovementDelta: BCS sets Y-delta; BCC sets X-delta with axis flag
     BCS loc_00DA73
     STA $2C
     LDA #$0001

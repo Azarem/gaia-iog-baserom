@@ -1,3 +1,10 @@
+; Overworld-to-world-map exit actor (Bank 00) placed in 15 overworld field scenes, dispatched by scene ID from the actor entry.
+; 
+; The main actor compares sceneCurrent against 15 hardcoded overworld scene indices and jumps to per-region handlers that gate on player tile position (BranchIfPlayerInAbsTiles), Y coordinate thresholds, and story flag bytes before calling StageWorldMapChoice with map coordinates and destination region index. Handlers cover South Cape, Great Wall, Incan Ruins, Watermia, Freejia, Euro, Angkor Wat, and other overworld zones with alternate destinations when progression flags differ.
+; 
+; All successful paths zero $0D60, stage the world-map cursor, and fall through to the exit handler which sets gfxCacheIdxB to $0400 before returning. Unmatched scenes or failed gate checks RTL without triggering a warp.
+---------------------------------------------
+
 !sceneCurrent                   0644
 !gfxCacheIdxB                   064A
 !playerYPos                     09A4
@@ -7,374 +14,374 @@
 overworld_exit [
   actor-def < #00, #00, #30, {
 
-  code_00CA45:
-    LDA $sceneCurrent
+  OverworldExitDispatch:
+    LDA $sceneCurrent     ; Overworld exit: sceneCurrent switch dispatches to per-region warp handler table
     CMP #$0001
-    BNE loc_00CA50
-    JMP $&code_00CACA
+    BNE OverworldExitNotScene01
+    JMP $&OverworldExitSouthCape
 
-  loc_00CA50:
+  OverworldExitNotScene01:
     CMP #$000A
-    BNE loc_00CA58
-    JMP $&code_00CB11
+    BNE OverworldExitNotScene0A
+    JMP $&OverworldExitEdwardCastle
 
-  loc_00CA58:
+  OverworldExitNotScene0A:
     CMP #$0015
-    BNE loc_00CA60
-    JMP $&code_00CB2A
+    BNE OverworldExitNotScene15
+    JMP $&OverworldExitItoryVillage
 
-  loc_00CA60:
+  OverworldExitNotScene15:
     CMP #$001C
-    BNE loc_00CA68
-    JMP $&code_00CB5F
+    BNE OverworldExitNotScene1C
+    JMP $&OverworldExitRuinsEntrance
 
-  loc_00CA68:
+  OverworldExitNotScene1C:
     CMP #$0032
-    BNE loc_00CA70
-    JMP $&code_00CB78
+    BNE OverworldExitNotScene32
+    JMP $&OverworldExitFreejia
 
-  loc_00CA70:
+  OverworldExitNotScene32:
     CMP #$003E
-    BNE loc_00CA78
-    JMP $&code_00CBA7
+    BNE OverworldExitNotScene3E
+    JMP $&OverworldExitDiamondMine
 
-  loc_00CA78:
+  OverworldExitNotScene3E:
     CMP #$0069
-    BNE loc_00CA80
-    JMP $&code_00CBC0
+    BNE OverworldExitNotScene69
+    JMP $&OverworldExitAngelVillage
 
-  loc_00CA80:
+  OverworldExitNotScene69:
     CMP #$0078
-    BNE loc_00CA88
-    JMP $&code_00CBEF
+    BNE OverworldExitNotScene78
+    JMP $&OverworldExitWatermia
 
-  loc_00CA88:
+  OverworldExitNotScene78:
     CMP #$0082
-    BNE loc_00CA90
-    JMP $&code_00CC34
+    BNE OverworldExitNotScene82
+    JMP $&OverworldExitGreatWall
 
-  loc_00CA90:
+  OverworldExitNotScene82:
     CMP #$0091
-    BNE loc_00CA98
-    JMP $&code_00CC4D
+    BNE OverworldExitNotScene91
+    JMP $&OverworldExitEuro
 
-  loc_00CA98:
+  OverworldExitNotScene91:
     CMP #$00A0
-    BNE loc_00CAA0
-    JMP $&code_00CC92
+    BNE OverworldExitNotSceneA0
+    JMP $&OverworldExitMountainTemple
 
-  loc_00CAA0:
+  OverworldExitNotSceneA0:
     CMP #$00AC
-    BNE loc_00CAA8
-    JMP $&code_00CCAB
+    BNE OverworldExitNotSceneAC
+    JMP $&OverworldExitNativeVillage
 
-  loc_00CAA8:
+  OverworldExitNotSceneAC:
     CMP #$00B0
-    BNE loc_00CAB0
-    JMP $&code_00CCF0
+    BNE OverworldExitNotSceneB0
+    JMP $&OverworldExitAngkorWatDoor
 
-  loc_00CAB0:
+  OverworldExitNotSceneB0:
     CMP #$00C3
-    BNE loc_00CAB8
-    JMP $&code_00CD09
+    BNE OverworldExitNotSceneC3
+    JMP $&OverworldExitDaoVillage
 
-  loc_00CAB8:
+  OverworldExitNotSceneC3:
     CMP #$00CC
-    BNE loc_00CAC0
-    JMP $&code_00CD38
+    BNE OverworldExitNoMatch
+    JMP $&OverworldExitPyramid
 
-  loc_00CAC0:
+  OverworldExitNoMatch:
     RTL 
 } >
 ]
 
-code_00CAC1 {
-    LDA #$0400
+OverworldExitFinalize {
+    LDA #$0400            ; All warp paths converge: set gfxCacheIdxB=$0400, SetEntryContinue, RTL
     STA $gfxCacheIdxB
     COP [SetEntryContinue]
     RTL 
 }
 
-code_00CACA {
-    COP [SetEntryContinue]
+OverworldExitSouthCape {
+    COP [SetEntryContinue] ; South Cape exit: playerY<$10 plus flag $26/$25 selects world-map destination
     LDA $playerYPos
     CMP #$0010
-    BCC loc_00CAD5
+    BCC OverworldExitSouthCapeNorthGate
     RTL 
 
-  loc_00CAD5:
-    COP [BranchIfFlagByte] ( #26, #01, &code_00CAF1 )
-    COP [BranchIfFlagByte] ( #25, #01, &code_00CB01 )
+  OverworldExitSouthCapeNorthGate:
+    COP [BranchIfFlagByte] ( #26, #01, &OverworldExitSouthCapeFlag26 )
+    COP [BranchIfFlagByte] ( #25, #01, &OverworldExitSouthCapeFlag25 )
     LDA #$0000
     STA $0D60
     COP [StageWorldMapChoice] ( #$00D4, #$03A4, #01 )
-    JMP $&code_00CAC1
+    JMP $&OverworldExitFinalize
 }
 
-code_00CAF1 {
+OverworldExitSouthCapeFlag26 {
     LDA #$0000
     STA $0D60
     COP [StageWorldMapChoice] ( #$00D4, #$03A4, #02 )
-    JMP $&code_00CAC1
+    JMP $&OverworldExitFinalize
 }
 
-code_00CB01 {
+OverworldExitSouthCapeFlag25 {
     LDA #$0000
     STA $0D60
     COP [StageWorldMapChoice] ( #$00D4, #$03A4, #1B )
-    JMP $&code_00CAC1
+    JMP $&OverworldExitFinalize
 }
 
-code_00CB11 {
+OverworldExitEdwardCastle {
     LDA $playerYPos
     CMP #$02D0
-    BEQ loc_00CB1A
+    BEQ OverworldExitEdwardCastleSouthEdge
     RTL 
 
-  loc_00CB1A:
+  OverworldExitEdwardCastleSouthEdge:
     LDA #$0000
     STA $0D60
     COP [StageWorldMapChoice] ( #$0104, #$0334, #03 )
-    JMP $&code_00CAC1
+    JMP $&OverworldExitFinalize
 }
 
-code_00CB2A {
-    COP [BranchIfFlagByte] ( #01, #01, &code_00CB38 )
-    COP [BranchIfPlayerInAbsTiles] ( #2D, #2E, #2F, #30, &code_00CB39 )
+OverworldExitItoryVillage {
+    COP [BranchIfFlagByte] ( #01, #01, &OverworldExitItoryVillageBlocked ) ; Itory exit: flag $01 blocks; tile rect check plus flag $4A picks map node
+    COP [BranchIfPlayerInAbsTiles] ( #2D, #2E, #2F, #30, &OverworldExitItoryVillageEnter )
 }
 
-code_00CB38 {
+OverworldExitItoryVillageBlocked {
     RTL 
 }
 
-code_00CB39 {
-    COP [BranchIfFlagByte] ( #4A, #01, &code_00CB4F )
+OverworldExitItoryVillageEnter {
+    COP [BranchIfFlagByte] ( #4A, #01, &OverworldExitItoryVillageFlag4A )
     LDA #$0000
     STA $0D60
     COP [StageWorldMapChoice] ( #$00C4, #$02B4, #04 )
-    JMP $&code_00CAC1
+    JMP $&OverworldExitFinalize
 }
 
-code_00CB4F {
+OverworldExitItoryVillageFlag4A {
     LDA #$0000
     STA $0D60
     COP [StageWorldMapChoice] ( #$00C4, #$02B4, #06 )
-    JMP $&code_00CAC1
+    JMP $&OverworldExitFinalize
 }
 
-code_00CB5F {
-    COP [BranchIfPlayerInAbsTiles] ( #06, #1C, #08, #1E, &code_00CB68 )
+OverworldExitRuinsEntrance {
+    COP [BranchIfPlayerInAbsTiles] ( #06, #1C, #08, #1E, &OverworldExitRuinsEntranceEast )
     RTL 
 }
 
-code_00CB68 {
+OverworldExitRuinsEntranceEast {
     LDA #$0000
     STA $0D60
     COP [StageWorldMapChoice] ( #$0134, #$0284, #05 )
-    JMP $&code_00CAC1
+    JMP $&OverworldExitFinalize
 }
 
-code_00CB78 {
-    COP [BranchIfPlayerInAbsTiles] ( #12, #3C, #16, #3E, &code_00CB81 )
+OverworldExitFreejia {
+    COP [BranchIfPlayerInAbsTiles] ( #12, #3C, #16, #3E, &OverworldExitFreejiaDefault )
     RTL 
 }
 
-code_00CB81 {
-    COP [BranchIfFlagByte] ( #65, #01, &code_00CB97 )
+OverworldExitFreejiaDefault {
+    COP [BranchIfFlagByte] ( #65, #01, &OverworldExitFreejiaFlag65 )
     LDA #$0000
     STA $0D60
     COP [StageWorldMapChoice] ( #$0254, #$02D4, #09 )
-    JMP $&code_00CAC1
+    JMP $&OverworldExitFinalize
 }
 
-code_00CB97 {
+OverworldExitFreejiaFlag65 {
     LDA #$0000
     STA $0D60
     COP [StageWorldMapChoice] ( #$0254, #$02D4, #07 )
-    JMP $&code_00CAC1
+    JMP $&OverworldExitFinalize
 }
 
-code_00CBA7 {
-    COP [BranchIfPlayerInAbsTiles] ( #0A, #3F, #0C, #40, &code_00CBB0 )
+OverworldExitDiamondMine {
+    COP [BranchIfPlayerInAbsTiles] ( #0A, #3F, #0C, #40, &OverworldExitDiamondMineEast )
     RTL 
 }
 
-code_00CBB0 {
+OverworldExitDiamondMineEast {
     LDA #$0000
     STA $0D60
     COP [StageWorldMapChoice] ( #$0334, #$0334, #08 )
-    JMP $&code_00CAC1
+    JMP $&OverworldExitFinalize
 }
 
-code_00CBC0 {
-    COP [BranchIfPlayerInAbsTiles] ( #29, #0D, #2C, #0F, &code_00CBC9 )
+OverworldExitAngelVillage {
+    COP [BranchIfPlayerInAbsTiles] ( #29, #0D, #2C, #0F, &OverworldExitAngelVillageDefault )
     RTL 
 }
 
-code_00CBC9 {
-    COP [BranchIfFlagByte] ( #8D, #01, &code_00CBDF )
+OverworldExitAngelVillageDefault {
+    COP [BranchIfFlagByte] ( #8D, #01, &OverworldExitAngelVillageFlag8D )
     LDA #$0000
     STA $0D60
     COP [StageWorldMapChoice] ( #$0384, #$0164, #15 )
-    JMP $&code_00CAC1
+    JMP $&OverworldExitFinalize
 }
 
-code_00CBDF {
+OverworldExitAngelVillageFlag8D {
     LDA #$0000
     STA $0D60
     COP [StageWorldMapChoice] ( #$0384, #$0164, #0A )
-    JMP $&code_00CAC1
+    JMP $&OverworldExitFinalize
 }
 
-code_00CBEF {
-    COP [BranchIfPlayerInAbsTiles] ( #27, #3D, #29, #40, &code_00CBF8 )
+OverworldExitWatermia {
+    COP [BranchIfPlayerInAbsTiles] ( #27, #3D, #29, #40, &OverworldExitWatermiaDefault )
     RTL 
 }
 
-code_00CBF8 {
-    COP [BranchIfFlagByte] ( #94, #01, &code_00CC24 )
-    COP [BranchIfFlagByte] ( #8E, #01, &code_00CC14 )
+OverworldExitWatermiaDefault {
+    COP [BranchIfFlagByte] ( #94, #01, &OverworldExitWatermiaFlag94 )
+    COP [BranchIfFlagByte] ( #8E, #01, &OverworldExitWatermiaFlag8E )
     LDA #$0000
     STA $0D60
     COP [StageWorldMapChoice] ( #$02D4, #$01A4, #0B )
-    JMP $&code_00CAC1
+    JMP $&OverworldExitFinalize
 }
 
-code_00CC14 {
+OverworldExitWatermiaFlag8E {
     LDA #$0000
     STA $0D60
     COP [StageWorldMapChoice] ( #$02D4, #$01A4, #0C )
-    JMP $&code_00CAC1
+    JMP $&OverworldExitFinalize
 }
 
-code_00CC24 {
+OverworldExitWatermiaFlag94 {
     LDA #$0000
     STA $0D60
     COP [StageWorldMapChoice] ( #$02D4, #$01A4, #0E )
-    JMP $&code_00CAC1
+    JMP $&OverworldExitFinalize
 }
 
-code_00CC34 {
-    COP [BranchIfPlayerInAbsTiles] ( #00, #08, #01, #0B, &code_00CC3D )
+OverworldExitGreatWall {
+    COP [BranchIfPlayerInAbsTiles] ( #00, #08, #01, #0B, &OverworldExitGreatWallNorth )
     RTL 
 }
 
-code_00CC3D {
+OverworldExitGreatWallNorth {
     LDA #$0000
     STA $0D60
     COP [StageWorldMapChoice] ( #$02A4, #$0124, #0D )
-    JMP $&code_00CAC1
+    JMP $&OverworldExitFinalize
 }
 
-code_00CC4D {
-    COP [BranchIfPlayerInAbsTiles] ( #3F, #42, #40, #48, &code_00CC56 )
+OverworldExitEuro {
+    COP [BranchIfPlayerInAbsTiles] ( #3F, #42, #40, #48, &OverworldExitEuroDefault )
     RTL 
 }
 
-code_00CC56 {
-    COP [BranchIfFlagByte] ( #AC, #01, &code_00CC82 )
-    COP [BranchIfFlagByte] ( #9F, #01, &code_00CC72 )
+OverworldExitEuroDefault {
+    COP [BranchIfFlagByte] ( #AC, #01, &OverworldExitEuroFlagAC )
+    COP [BranchIfFlagByte] ( #9F, #01, &OverworldExitEuroFlag9F )
     LDA #$0000
     STA $0D60
     COP [StageWorldMapChoice] ( #$01D4, #$0134, #0F )
-    JMP $&code_00CAC1
+    JMP $&OverworldExitFinalize
 }
 
-code_00CC72 {
+OverworldExitEuroFlag9F {
     LDA #$0000
     STA $0D60
     COP [StageWorldMapChoice] ( #$01D4, #$0134, #10 )
-    JMP $&code_00CAC1
+    JMP $&OverworldExitFinalize
 }
 
-code_00CC82 {
+OverworldExitEuroFlagAC {
     LDA #$0000
     STA $0D60
     COP [StageWorldMapChoice] ( #$01D4, #$0134, #1A )
-    JMP $&code_00CAC1
+    JMP $&OverworldExitFinalize
 }
 
-code_00CC92 {
-    COP [BranchIfPlayerInAbsTiles] ( #2F, #1B, #30, #1C, &code_00CC9B )
+OverworldExitMountainTemple {
+    COP [BranchIfPlayerInAbsTiles] ( #2F, #1B, #30, #1C, &OverworldExitMountainTempleEast )
     RTL 
 }
 
-code_00CC9B {
+OverworldExitMountainTempleEast {
     LDA #$0000
     STA $0D60
     COP [StageWorldMapChoice] ( #$0214, #$00B4, #11 )
-    JMP $&code_00CAC1
+    JMP $&OverworldExitFinalize
 }
 
-code_00CCAB {
-    COP [BranchIfPlayerInAbsTiles] ( #1F, #1B, #20, #20, &code_00CCB4 )
+OverworldExitNativeVillage {
+    COP [BranchIfPlayerInAbsTiles] ( #1F, #1B, #20, #20, &OverworldExitNativeVillageDefault )
     RTL 
 }
 
-code_00CCB4 {
-    COP [BranchIfFlagByte] ( #B6, #01, &code_00CCE0 )
-    COP [BranchIfFlagByte] ( #B1, #01, &code_00CCD0 )
+OverworldExitNativeVillageDefault {
+    COP [BranchIfFlagByte] ( #B6, #01, &OverworldExitNativeVillageFlagB6 )
+    COP [BranchIfFlagByte] ( #B1, #01, &OverworldExitNativeVillageFlagB1 )
     LDA #$0000
     STA $0D60
     COP [StageWorldMapChoice] ( #$0124, #$01A4, #12 )
-    JMP $&code_00CAC1
+    JMP $&OverworldExitFinalize
 }
 
-code_00CCD0 {
+OverworldExitNativeVillageFlagB1 {
     LDA #$0000
     STA $0D60
     COP [StageWorldMapChoice] ( #$0124, #$01A4, #13 )
-    JMP $&code_00CAC1
+    JMP $&OverworldExitFinalize
 }
 
-code_00CCE0 {
+OverworldExitNativeVillageFlagB6 {
     LDA #$0000
     STA $0D60
     COP [StageWorldMapChoice] ( #$0124, #$01A4, #19 )
-    JMP $&code_00CAC1
+    JMP $&OverworldExitFinalize
 }
 
-code_00CCF0 {
-    COP [BranchIfPlayerInAbsTiles] ( #1D, #4F, #24, #50, &code_00CCF9 )
+OverworldExitAngkorWatDoor {
+    COP [BranchIfPlayerInAbsTiles] ( #1D, #4F, #24, #50, &OverworldExitAngkorWatDoorSouth )
     RTL 
 }
 
-code_00CCF9 {
+OverworldExitAngkorWatDoorSouth {
     LDA #$0000
     STA $0D60
     COP [StageWorldMapChoice] ( #$0134, #$0154, #14 )
-    JMP $&code_00CAC1
+    JMP $&OverworldExitFinalize
 }
 
-code_00CD09 {
-    COP [BranchIfPlayerInAbsTiles] ( #00, #0D, #01, #11, &code_00CD12 )
+OverworldExitDaoVillage {
+    COP [BranchIfPlayerInAbsTiles] ( #00, #0D, #01, #11, &OverworldExitDaoVillageDefault )
     RTL 
 }
 
-code_00CD12 {
-    COP [BranchIfFlagByte] ( #B4, #01, &code_00CD28 )
+OverworldExitDaoVillageDefault {
+    COP [BranchIfFlagByte] ( #B4, #01, &OverworldExitDaoVillageFlagB4 )
     LDA #$0000
     STA $0D60
     COP [StageWorldMapChoice] ( #$0094, #$0114, #16 )
-    JMP $&code_00CAC1
+    JMP $&OverworldExitFinalize
 }
 
-code_00CD28 {
+OverworldExitDaoVillageFlagB4 {
     LDA #$0000
     STA $0D60
     COP [StageWorldMapChoice] ( #$0094, #$0114, #17 )
-    JMP $&code_00CAC1
+    JMP $&OverworldExitFinalize
 }
 
-code_00CD38 {
-    COP [BranchIfPlayerInAbsTiles] ( #00, #0D, #01, #0F, &code_00CD49 )
-    COP [BranchIfPlayerInAbsTiles] ( #3F, #0D, #40, #0F, &code_00CD49 )
+OverworldExitPyramid {
+    COP [BranchIfPlayerInAbsTiles] ( #00, #0D, #01, #0F, &OverworldExitPyramidNorth )
+    COP [BranchIfPlayerInAbsTiles] ( #3F, #0D, #40, #0F, &OverworldExitPyramidNorth )
     RTL 
 }
 
-code_00CD49 {
-    LDA #$0000
+OverworldExitPyramidNorth {
+    LDA #$0000            ; Pyramid exit: two tile rects both route to world-map node #18
     STA $0D60
     COP [StageWorldMapChoice] ( #$0074, #$00B4, #18 )
-    JMP $&code_00CAC1
+    JMP $&OverworldExitFinalize
 }

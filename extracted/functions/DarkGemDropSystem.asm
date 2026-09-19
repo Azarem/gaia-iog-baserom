@@ -1,3 +1,8 @@
+; Enemy death gem-drop system with HP-ratio-weighted random selection.
+; 
+; SpawnDarkGemType1 and variants roll against gem_drop_threshold tables based on current HP vs max HP, then spawn colored gem actors (chatPtr $83–$86) with collect_handler_gem and bob animations. Called by StandardEnemyDefeatHandler for each enemy kill. Determines which dark gem type drops after combat.
+---------------------------------------------
+
 ?INCLUDE 'interaction_handlers'
 ?INCLUDE 'table_0EE000'
 
@@ -8,7 +13,7 @@
 ---------------------------------------------
 
 SpawnDarkGemType1 {
-    COP [SetMetasprite] ( @table_0EE000 )
+    COP [SetMetasprite] ( @table_0EE000 ) ; SpawnDarkGemType1: attach collect_handler_gem, animate chatPtr gem $83
     COP [SetSpritePalette] ( #00 )
     COP [SpawnMarkedAfter] ( @interaction_handlers.collect_handler_gem, #$2700 )
 
@@ -24,7 +29,7 @@ SpawnDarkGemType1 {
     COP [Die]
 }
 
-code_00DF52 {
+DarkGemDropAnimVariantB {
     COP [SetMetasprite] ( @table_0EE000 )
     COP [SetSpritePalette] ( #00 )
     COP [SpawnMarkedAfter] ( @interaction_handlers.collect_handler_gem, #$2700 )
@@ -41,8 +46,8 @@ code_00DF52 {
     COP [Die]
 }
 
-code_00DF7B {
-    COP [SetMetasprite] ( @table_0EE000 )
+DarkGemDropTierPicker {
+    COP [SetMetasprite] ( @table_0EE000 ) ; DarkGemDropTierPicker: compare playerHp vs maxHp/4 and maxHp/2 for tier
     COP [SetSpritePalette] ( #00 )
     COP [SpawnMarkedAfter] ( @interaction_handlers.collect_handler_gem, #$2700 )
     LDA $playerMaxHp
@@ -65,7 +70,7 @@ code_00DF7B {
     LDA #$0000
 
   loc_00DFAA:
-    STA $26
+    STA $26               ; RngByte vs gem_drop_threshold table — tier sets chatPtr $85/$86/$84/$83
     COP [RngByte]
     PHX 
     LDX $26
@@ -89,7 +94,7 @@ code_00DF7B {
     RTS 
 }
 
-code_00DFC9 {
+DarkGemDropAnimVariantA {
     LDA #$0085
     STA $chatPtr, X
     LDA #$0400
@@ -114,15 +119,15 @@ code_00DFC9 {
 
 gem_drop_threshold_00DFFD [
   gem-drop-threshold < #$000F, &code_00DFE3 >   ;00
-  gem-drop-threshold < #$003C, &code_00DFC9 >   ;01
+  gem-drop-threshold < #$003C, &DarkGemDropAnimVariantA >   ;01
   gem-drop-threshold < #$0099, &code_00DF61 >   ;02
   gem-drop-threshold < #$0100, &code_00DF38 >   ;03
-  gem-drop-threshold < #$0019, &code_00DFC9 >   ;04
+  gem-drop-threshold < #$0019, &DarkGemDropAnimVariantA >   ;04
   gem-drop-threshold < #$004C, &code_00DF38 >   ;05
   gem-drop-threshold < #$0099, &code_00DFE3 >   ;06
   gem-drop-threshold < #$0100, &code_00DF61 >   ;07
   gem-drop-threshold < #$000C, &code_00DF61 >   ;08
   gem-drop-threshold < #$0033, &code_00DF38 >   ;09
-  gem-drop-threshold < #$007F, &code_00DFC9 >   ;0A
+  gem-drop-threshold < #$007F, &DarkGemDropAnimVariantA >   ;0A
   gem-drop-threshold < #$0100, &code_00DFE3 >   ;0B
 ]

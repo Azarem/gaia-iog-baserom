@@ -1,3 +1,8 @@
+; Interactive door actor using metasprite table.
+; 
+; Stands solid with frame #01 until the player approaches, then waits for A-button press to play sound #$0E, animate to open frame #00, and clear low collision. Used in multiple town scenes (South Cape, Freejia, and others via scene_actors). Standard reusable town door behavior.
+---------------------------------------------
+
 ?INCLUDE 'table_0EDA00'
 
 ---------------------------------------------
@@ -10,27 +15,27 @@ town_door [
     COP [StageSpriteFrame] ( #01 )
     COP [AnimOnce]
     COP [SolidHighHere]
-    COP [BranchIfPlayerNear] ( #01, &code_00C623 )
+    COP [BranchIfPlayerNear] ( #01, &TownDoorOpenIdle )
     COP [WaitWhileOffscreen] ( #0A )
 
   code_00C60A:
-    COP [BranchIfPlayerNear] ( #01, &code_00C610 )
+    COP [BranchIfPlayerNear] ( #01, &TownDoorInteractLoop )
     RTL 
 } >
 ]
 
-code_00C610 {
-    COP [LoopInit] ( #08 )
-    COP [BranchIfButton] ( #$0800, &code_00C61E )
+TownDoorInteractLoop {
+    COP [LoopInit] ( #08 ) ; Town door: 8-frame A-button hold loop before open sound and ClearLowHere
+    COP [BranchIfButton] ( #$0800, &TownDoorOpenAnim )
     COP [SetEntryExitNow] ( @code_00C60A )
 }
 
-code_00C61E {
+TownDoorOpenAnim {
     COP [LoopNext]
     COP [PlaySoundCh2] ( #0E )
 }
 
-code_00C623 {
+TownDoorOpenIdle {
     COP [ClearLowHere]
     COP [StageSpriteFrame] ( #00 )
     COP [AnimOnce]

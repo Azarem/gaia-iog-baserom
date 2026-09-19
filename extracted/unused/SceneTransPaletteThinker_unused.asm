@@ -1,3 +1,8 @@
+; Unreferenced scene-transition palette thinker, likely an earlier design for palette fades during map changes.
+; 
+; Would spawn looping child thinkers for palette #20/#21 or #22 depending on player flag $0002, with a one-shot #0B fade on exit. Superseded by the current scene-load palette system.
+---------------------------------------------
+
 !playerActor                    09AA
 !playerFlags                    09AE
 !chatPtr                        7F000A
@@ -9,7 +14,7 @@ SceneTransPaletteThinker_unused {
     LDY $playerActor
     LDA $0028, Y
     STA $metaspritePtr, X
-    COP [SpawnThinker] ( @code_00B592 )
+    COP [SpawnThinker] ( @SceneTransPaletteWarmLoop )
     TYA 
     STA $chatPtr, X
     COP [SetEntryContinue]
@@ -32,15 +37,15 @@ SceneTransPaletteThinker_unused {
 
   loc_00B562:
     REP #$20
-    JSR $&code_00B5A6
+    JSR $&SceneTransPaletteKillChild
     COP [PaletteStart] ( #0B )
     COP [PaletteStep]
     COP [KillThinker]
     RTL 
 
   loc_00B56F:
-    JSR $&code_00B5A6
-    COP [SpawnThinker] ( @code_00B59E )
+    JSR $&SceneTransPaletteKillChild
+    COP [SpawnThinker] ( @SceneTransPaletteChildTick )
     TYA 
     STA $chatPtr, X
     COP [SetEntryContinue]
@@ -50,14 +55,14 @@ SceneTransPaletteThinker_unused {
     RTL 
 
   loc_00B587:
-    JSR $&code_00B5A6
+    JSR $&SceneTransPaletteKillChild
     COP [PaletteStart] ( #0B )
     COP [PaletteStep]
     COP [KillThinker]
     RTL 
 }
 
-code_00B592 {
+SceneTransPaletteWarmLoop {
     COP [PaletteStart] ( #20 )
     COP [PaletteStep]
 
@@ -67,14 +72,14 @@ code_00B592 {
     BRA loc_00B597
 }
 
-code_00B59E {
+SceneTransPaletteChildTick {
     COP [PaletteStart] ( #22 )
     COP [PaletteStep]
     COP [SetEntryContinue]
     RTL 
 }
 
-code_00B5A6 {
+SceneTransPaletteKillChild {
     PHX 
     PHD 
     LDA $chatPtr, X

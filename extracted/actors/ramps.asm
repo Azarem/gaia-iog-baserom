@@ -1,3 +1,8 @@
+; Directional ramp actors (ramp_east, ramp_west, ramp_north, ramp_south) that detect player speed ≥6 and alignment within pixel thresholds, then hijack the player into a ramp-climb animation.
+; 
+; Uses hdma_ramp_tables motion curves for vertical arc movement, disables normal input, and restores control through stair_climb.RestorePlayerControl on exit. Placed on ramp tiles throughout overworld and dungeon maps via scene_actors.
+---------------------------------------------
+
 ?BANK 00
 
 ?INCLUDE 'hdma_ramp_tables'
@@ -30,7 +35,7 @@ ramp_east [
     ADC #$0008
     STA $0018
     LDA $playerSpeedEw
-    JSR $&code_00D4BB
+    JSR $&RampCheckPlayerSpeed
     BCC loc_00D2E7
     RTL 
 
@@ -87,11 +92,11 @@ ramp_east [
     COP [SetEntryExitNow] ( @code_00D2D5 )
 
   loc_00D334:
-    LDA #$&code_00D4D2
+    LDA #$&RampPlayerClimbEast
     STA $0000, Y
-    LDA #$*code_00D4D2
+    LDA #$*RampPlayerClimbEast
     STA $0002, Y
-    JSR $&code_00D496
+    JSR $&RampBeginPlayerControl
     COP [SetEntryExitNow] ( @code_00D2D5 )
 } >
 ]
@@ -108,7 +113,7 @@ ramp_west [
     SBC #$0008
     STA $0018
     LDA $playerSpeedEw
-    JSR $&code_00D4BB
+    JSR $&RampCheckPlayerSpeed
     BCC loc_00D35F
     RTL 
 
@@ -164,7 +169,7 @@ ramp_west [
     STA $0000, Y
     LDA #$*loc_00D4F5
     STA $0002, Y
-    JSR $&code_00D496
+    JSR $&RampBeginPlayerControl
     COP [SetEntryExitNow] ( @code_00D34D )
 } >
 ]
@@ -177,7 +182,7 @@ ramp_north [
 
   code_00D3BF:
     LDA $playerSpeedNs
-    JSR $&code_00D4BB
+    JSR $&RampCheckPlayerSpeed
     BCC loc_00D3C8
     RTL 
 
@@ -238,7 +243,7 @@ ramp_north [
     STA $0000, Y
     LDA #$*loc_00D518
     STA $0002, Y
-    JSR $&code_00D496
+    JSR $&RampBeginPlayerControl
     COP [SetEntryExitNow] ( @code_00D3BF )
 } >
 ]
@@ -255,7 +260,7 @@ ramp_south [
     SBC #$0010
     STA $001C
     LDA $playerSpeedNs
-    JSR $&code_00D4BB
+    JSR $&RampCheckPlayerSpeed
     BCC loc_00D43F
     RTL 
 
@@ -305,16 +310,16 @@ ramp_south [
     COP [SetEntryExitNow] ( @code_00D42D )
 
   loc_00D482:
-    LDA #$&code_00D550
+    LDA #$&RampPlayerClimbSouth
     STA $0000, Y
-    LDA #$*code_00D550
+    LDA #$*RampPlayerClimbSouth
     STA $0002, Y
-    JSR $&code_00D496
+    JSR $&RampBeginPlayerControl
     COP [SetEntryExitNow] ( @code_00D42D )
 } >
 ]
 
-code_00D496 {
+RampBeginPlayerControl {
     STZ $playerSpeedEw
     STZ $playerSpeedNs
     LDA $0E
@@ -332,7 +337,7 @@ code_00D496 {
     RTS 
 }
 
-code_00D4BB {
+RampCheckPlayerSpeed {
     BPL loc_00D4C1
     EOR #$FFFF
     INC 
@@ -351,7 +356,7 @@ code_00D4BB {
     RTS 
 }
 
-code_00D4D2 {
+RampPlayerClimbEast {
     COP [SpawnAfter] ( @func_00D5C0 )
     PHX 
     LDX $06
@@ -388,14 +393,14 @@ code_00D4D2 {
   loc_00D518:
     LDA $statsPtr, X
     STA $loopCounter, X
-    LDA #$&loc_00D531
+    LDA #$&ramp_east_step
     STA $retPtr2, X
     LDA #$0008
     TRB $10
     LDA #$0200
     TSB $10
 
-  loc_00D531:
+  ramp_east_step:
     COP [StagePlayerMoveXY] ( #1E, #00, #10 )
     COP [AnimOnce]
     COP [LoopNext]
@@ -409,10 +414,10 @@ code_00D4D2 {
     RTL 
 }
 
-code_00D550 {
+RampPlayerClimbSouth {
     LDA $statsPtr, X
     STA $loopCounter, X
-    LDA #$&loc_00D56B
+    LDA #$&ramp_north_step
     STA $retPtr2, X
     COP [SetEntryContinue]
     LDA #$0008
@@ -420,7 +425,7 @@ code_00D550 {
     LDA #$0200
     TSB $10
 
-  loc_00D56B:
+  ramp_north_step:
     COP [StagePlayerMoveXY] ( #19, #00, #0F )
     COP [AnimOnce]
     COP [LoopNext]
@@ -454,10 +459,10 @@ func_00D5C0 {
     TYA 
     STA $loopCounter, X
     STZ $2A
-    LDA #$&loc_00D5F1
+    LDA #$&ramp_motion_curve_step
     STA $retPtr2, X
 
-  loc_00D5F1:
+  ramp_motion_curve_step:
     PHX 
     LDA $orbitAngle, X
     CLC 

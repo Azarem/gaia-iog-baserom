@@ -172,7 +172,7 @@ All `?INCLUDE` directives observed in bank `$00` system and upper-half code:
 |---------|---------|
 | `player_character` | Stair triggers (`stair_climb`), `ramps.asm`, `itory_village_fog` thinker |
 | `ComposeDigits_Continuation` | Push handlers, `global_ambient_dispatcher`, statue inventory |
-| `cop_handlers_script` | Statue inventory reward actors |
+| `cop_handlers_flags` | Statue inventory reward actors |
 | `inventory_spritemap` | Inventory statue slot display |
 | `dir_sprite_01ABDE` | Forced walk functions, smooth follow |
 | `table_01A95E` | Forced walk camera pan speed lookup |

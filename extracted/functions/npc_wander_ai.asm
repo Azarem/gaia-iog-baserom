@@ -1,3 +1,10 @@
+; Reusable town-NPC wander behavior (Bank 00) used by ~12 ambient NPC actors in Watermia, Euro, Dao, Angel Village, South Cape, and similar field scenes.
+; 
+; SyncActorPosFromDP copies the actor's DP position ($14/$16) into WRAM home coordinates at $7F0010/$7F0012. NpcRandomWanderAI rolls RNG & $07 and dispatches through an 8-case SwitchCase table: cases 0–3 idle-turn in place (adding 0–3 to the facing/sprite index, staging animation, waiting $78 frames, SolidHighHere), cases 4–7 attempt a one-tile forced move south/north/west/east if within ±$30 pixels of home and the path is not blocked.
+; 
+; Successful moves call UpdateActorAnimation and ClearLowHere; idle turns hold collision high. The pattern gives lightweight random patrol without pathfinding.
+---------------------------------------------
+
 ?INCLUDE 'sprite_composition'
 
 !orbitAngle                     7F0010
@@ -15,45 +22,45 @@ SyncActorPosFromDP {
 }
 
 NpcRandomWanderAI {
-    COP [RngByte]
+    COP [RngByte]         ; NpcRandomWanderAI: RngByte AND #$07 selects one of eight direction handlers
     AND #$0007
     STA $0000
     COP [SwitchCase] ( #$0000, &code_list_00C733 )
 }
 
 code_list_00C733 [
-  &code_00C74D   ;00
-  &code_00C743   ;01
-  &code_00C757   ;02
-  &code_00C761   ;03
-  &code_00C798   ;04
-  &code_00C77B   ;05
-  &code_00C7B5   ;06
-  &code_00C7D2   ;07
+  &NpcWanderStandAnim1   ;00
+  &NpcWanderStandAnim0   ;01
+  &NpcWanderStandAnim2   ;02
+  &NpcWanderStandAnim3   ;03
+  &NpcWanderStepNorth   ;04
+  &NpcWanderStepSouth   ;05
+  &NpcWanderStepWest   ;06
+  &NpcWanderStepEast   ;07
 ]
 
-code_00C743 {
+NpcWanderStandAnim0 {
     LDA $currentHp, X
     CLC 
     ADC #$0000
     BRA loc_00C76B
 }
 
-code_00C74D {
-    LDA $currentHp, X
+NpcWanderStandAnim1 {
+    LDA $currentHp, X     ; Wander stand path: store anim index in $28, idle timer $78 frames
     CLC 
     ADC #$0001
     BRA loc_00C76B
 }
 
-code_00C757 {
+NpcWanderStandAnim2 {
     LDA $currentHp, X
     CLC 
     ADC #$0002
     BRA loc_00C76B
 }
 
-code_00C761 {
+NpcWanderStandAnim3 {
     LDA $currentHp, X
     CLC 
     ADC #$0003
@@ -69,13 +76,13 @@ code_00C761 {
     RTL 
 }
 
-code_00C77B {
-    LDA $orbitDiameter, X
+NpcWanderStepSouth {
+    LDA $orbitDiameter, X ; Wander south: probe Y+$30 against solid; StageForceMoveY #11 on blocked path
     CLC 
     ADC #$0030
     CMP $16
-    BCC code_00C743
-    COP [BranchIfSolidSouth] ( &code_00C743 )
+    BCC NpcWanderStandAnim0
+    COP [BranchIfSolidSouth] ( &NpcWanderStandAnim0 )
     COP [StageForceMoveY] ( #11 )
     LDA $currentHp, X
     CLC 
@@ -83,13 +90,13 @@ code_00C77B {
     BRA loc_00C7EF
 }
 
-code_00C798 {
+NpcWanderStepNorth {
     LDA $orbitDiameter, X
     SEC 
     SBC #$0030
     CMP $16
-    BCS code_00C74D
-    COP [BranchIfSolidNorth] ( &code_00C74D )
+    BCS NpcWanderStandAnim1
+    COP [BranchIfSolidNorth] ( &NpcWanderStandAnim1 )
     COP [StageForceMoveY] ( #12 )
     LDA $currentHp, X
     CLC 
@@ -97,13 +104,13 @@ code_00C798 {
     BRA loc_00C7EF
 }
 
-code_00C7B5 {
+NpcWanderStepWest {
     LDA $orbitAngle, X
     SEC 
     SBC #$0030
     CMP $14
-    BCS code_00C757
-    COP [BranchIfSolidWest] ( &code_00C757 )
+    BCS NpcWanderStandAnim2
+    COP [BranchIfSolidWest] ( &NpcWanderStandAnim2 )
     COP [StageForceMoveX] ( #12 )
     LDA $currentHp, X
     CLC 
@@ -111,13 +118,13 @@ code_00C7B5 {
     BRA loc_00C7EF
 }
 
-code_00C7D2 {
+NpcWanderStepEast {
     LDA $orbitAngle, X
     CLC 
     ADC #$0030
     CMP $14
-    BCC code_00C761
-    COP [BranchIfSolidEast] ( &code_00C761 )
+    BCC NpcWanderStandAnim3
+    COP [BranchIfSolidEast] ( &NpcWanderStandAnim3 )
     COP [StageForceMoveX] ( #11 )
     LDA $currentHp, X
     CLC 

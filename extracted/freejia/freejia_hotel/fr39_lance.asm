@@ -1,4 +1,4 @@
-?INCLUDE 'cop_handlers_actors'
+?INCLUDE 'actor_pool'
 ?INCLUDE 'table_0EE000'
 
 !joypadMaskStd                  065A
@@ -20,7 +20,7 @@ fr39_lance [
     COP [SetSpritePriority] ( #30 )
     COP [PrintDialogString] ( &dialogstring_05C85E )
     COP [ClearFlagByte] ( #0F )
-    COP [SpawnThinkerParam] ( #1C, @cop_handlers_actors.PaletteResetAndKillThinker )
+    COP [SpawnThinkerParam] ( #1C, @actor_pool.PaletteResetAndKillThinker )
     COP [SetSpritePriority] ( #20 )
     COP [WaitByte] ( #77 )
     COP [FadeThenStartMusic] ( #02 )

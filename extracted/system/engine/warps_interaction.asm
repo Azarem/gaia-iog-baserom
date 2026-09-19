@@ -70,7 +70,7 @@
 
 ?BANK 02
 
-?INCLUDE 'cop_handlers_script'
+?INCLUDE 'cop_handlers_flags'
 ?INCLUDE 'event_blocks'
 ?INCLUDE 'forced_walk'
 ?INCLUDE 'GetPlayerFacingDirection'
@@ -163,7 +163,7 @@ PlaceBarrierTiles {
     BNE loc_02A65B
     LDA $0003, X          ; Entry byte 3 AND $7F → event flag index (TestEventFlag_0200)
     AND #$007F
-    JSL $@cop_handlers_script.TestEventFlag_0200 ; Flag clear (BCC) — barrier removed; skip 2×2 tile placement
+    JSL $@cop_handlers_flags.TestEventFlag_0200 ; Flag clear (BCC) — barrier removed; skip 2×2 tile placement
     BCC loc_02A655
     PHX 
     SEP #$20              ; Entry +0/+1 = tile X/Y; DEC Y anchors top row at Y−1
@@ -361,7 +361,7 @@ HandleChestInteraction {
     TAX 
     LDA $0003, X          ; Entry byte 3 AND $7F → SetEventFlag_0200 (no item grant)
     AND #$007F
-    JSL $@cop_handlers_script.SetEventFlag_0200
+    JSL $@cop_handlers_flags.SetEventFlag_0200
     BRA loc_02A7B0
 
   loc_02A753:
@@ -404,7 +404,7 @@ HandleChestInteraction {
     TAX 
     LDA $0003, X          ; SetEventFlag_0200 on success — chest permanently opened
     AND #$007F
-    JSL $@cop_handlers_script.SetEventFlag_0200
+    JSL $@cop_handlers_flags.SetEventFlag_0200
     PLX 
     RTS 
 
@@ -464,9 +464,9 @@ ChestOpeningActor {
     LDA $0012, Y
     ORA #$1000
     STA $0012, Y
-    LDA #$*player_transition_handlers.loc_00C432 ; Player idle handler → player_transition_handlers.loc_00C432
+    LDA #$*player_transition_handlers.PlayerIdleAnimLoop ; Player idle handler → player_transition_handlers.loc_00C432
     STA $0002, Y
-    LDA #$&player_transition_handlers.loc_00C432
+    LDA #$&player_transition_handlers.PlayerIdleAnimLoop
     JSR $&SetAnimStatePointer
     LDA #$0800            ; TSB playerFlags $0800 — special chest-open player mode
     TSB $playerFlags
@@ -499,9 +499,9 @@ ChestOpeningActor {
     LDA $0012, Y
     AND #$EFFF
     STA $0012, Y
-    LDA #$*player_transition_handlers.loc_00C45A ; Restore player idle handler loc_00C45A via SetAnimStatePointer
+    LDA #$*player_transition_handlers.RestorePlayerControlDirect ; Restore player idle handler loc_00C45A via SetAnimStatePointer
     STA $0002, Y
-    LDA #$&player_transition_handlers.loc_00C45A
+    LDA #$&player_transition_handlers.RestorePlayerControlDirect
     JSR $&SetAnimStatePointer
     LDA #$CFF0            ; TRB joypadMaskStd $CFF0 — restore normal input
     TRB $joypadMaskStd

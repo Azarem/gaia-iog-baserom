@@ -1,3 +1,10 @@
+; Runtime push and collect interaction scripts (Bank 00) spawned as marked-after actors on pushable solids, statues, prison cells, and force-ball puzzles.
+; 
+; collect_handler_gem waits for button $31 while the player is near, checks facing via GetPlayerFacingDirection, and nudges the player toward the gem in 2-pixel steps until aligned. push_handler_solid requires the same button, verifies facing and ≥$20 pixel offset, confirms clearance with BranchIfSolidOffset, then moves the block one tile while toggling status bit $0010 during the 16-frame push loop.
+; 
+; push_handler_forceball mirrors push logic but requires specific player body sprites ($003A–$003D) and uses AddPosition instead of tile snapping — used for Mu force-ball puzzles. Spawn sites include Edward Castle statues, Incan Ruins guards, Sky Garden armor, South Cape Seth boulder, prison gem cell, and DarkGemDropSystem.
+---------------------------------------------
+
 ?INCLUDE 'GetPlayerFacingDirection'
 
 !playerActor                    09AA
@@ -8,37 +15,37 @@
 collect_handler_gem {
     COP [SetSavedPtr] ( &collect_handler_gem )
     COP [SetEntryExit]
-    COP [BranchIfButton] ( #$0031, &code_00E162 )
+    COP [BranchIfButton] ( #$0031, &CollectGemOnButton )
 
-  code_00E161:
+  CollectGemIdleRtl:
     RTL 
 }
 
-code_00E162 {
-    COP [BranchIfPlayerNear] ( #0F, &code_00E168 )
+CollectGemOnButton {
+    COP [BranchIfPlayerNear] ( #0F, &CollectGemBranchOnX )
     RTL 
 }
 
-code_00E168 {
-    COP [BranchOnPlayerX] ( #$000F, &code_00E1DF, &code_00E172, &code_00E1DF )
+CollectGemBranchOnX {
+    COP [BranchOnPlayerX] ( #$000F, &CollectGemBranchOnY, &CollectGemAlignWest, &CollectGemBranchOnY )
 }
 
-code_00E172 {
+CollectGemAlignWest {
     LDY $playerActor
     LDA $0016, Y
     SEC 
     SBC $16
-    BPL loc_00E1B1
-    BPL loc_00E183
+    BPL CollectGemAlignEast
+    BPL CollectGemNudgeWestHalf
     EOR #$FFFF
     INC 
 
-  loc_00E183:
+  CollectGemNudgeWestHalf:
     LSR 
     STA $orbitAngle, X
     JSL $@GetPlayerFacingDirection
     CMP #$0000
-    BNE loc_00E1AF
+    BNE CollectGemRestoreWest
     COP [SetEntryContinue]
     LDY $04
     LDA $0016, Y
@@ -47,21 +54,21 @@ code_00E172 {
     STA $0016, Y
     STA $16
     LDA $orbitAngle, X
-    BEQ loc_00E1AF
+    BEQ CollectGemRestoreWest
     DEC 
     STA $orbitAngle, X
-    BEQ loc_00E1AF
+    BEQ CollectGemRestoreWest
     RTL 
 
-  loc_00E1AF:
+  CollectGemRestoreWest:
     COP [RestoreSavedPtr]
 
-  loc_00E1B1:
+  CollectGemAlignEast:
     LSR 
     STA $orbitAngle, X
     JSL $@GetPlayerFacingDirection
     CMP #$0001
-    BNE loc_00E1DD
+    BNE CollectGemRestoreEast
     COP [SetEntryContinue]
     LDY $04
     LDA $0016, Y
@@ -70,36 +77,36 @@ code_00E172 {
     STA $0016, Y
     STA $16
     LDA $orbitAngle, X
-    BEQ loc_00E1DD
+    BEQ CollectGemRestoreEast
     DEC 
     STA $orbitAngle, X
-    BEQ loc_00E1DD
+    BEQ CollectGemRestoreEast
     RTL 
 
-  loc_00E1DD:
+  CollectGemRestoreEast:
     COP [RestoreSavedPtr]
 }
 
-code_00E1DF {
-    COP [BranchOnPlayerY] ( #$000F, &code_00E161, &code_00E1E9, &code_00E161 )
+CollectGemBranchOnY {
+    COP [BranchOnPlayerY] ( #$000F, &CollectGemIdleRtl, &CollectGemAlignNorth, &CollectGemIdleRtl )
 }
 
-code_00E1E9 {
+CollectGemAlignNorth {
     LDY $playerActor
     LDA $0014, Y
     SEC 
     SBC $14
-    BPL loc_00E228
-    BPL loc_00E1FA
+    BPL CollectGemAlignSouth
+    BPL CollectGemNudgeNorthHalf
     EOR #$FFFF
     INC 
 
-  loc_00E1FA:
+  CollectGemNudgeNorthHalf:
     LSR 
     STA $orbitAngle, X
     JSL $@GetPlayerFacingDirection
     CMP #$0003
-    BNE loc_00E226
+    BNE CollectGemRestoreNorth
     COP [SetEntryContinue]
     LDY $04
     LDA $0014, Y
@@ -108,21 +115,21 @@ code_00E1E9 {
     STA $0014, Y
     STA $14
     LDA $orbitAngle, X
-    BEQ loc_00E226
+    BEQ CollectGemRestoreNorth
     DEC 
     STA $orbitAngle, X
-    BEQ loc_00E226
+    BEQ CollectGemRestoreNorth
     RTL 
 
-  loc_00E226:
+  CollectGemRestoreNorth:
     COP [RestoreSavedPtr]
 
-  loc_00E228:
+  CollectGemAlignSouth:
     LSR 
     STA $orbitAngle, X
     JSL $@GetPlayerFacingDirection
     CMP #$0002
-    BNE loc_00E254
+    BNE CollectGemRestoreSouth
     COP [SetEntryContinue]
     LDY $04
     LDA $0014, Y
@@ -131,63 +138,63 @@ code_00E1E9 {
     STA $0014, Y
     STA $14
     LDA $orbitAngle, X
-    BEQ loc_00E254
+    BEQ CollectGemRestoreSouth
     DEC 
     STA $orbitAngle, X
-    BEQ loc_00E254
+    BEQ CollectGemRestoreSouth
     RTL 
 
-  loc_00E254:
+  CollectGemRestoreSouth:
     COP [RestoreSavedPtr]
 
   push_handler_solid:
-    COP [SetSavedPtr] ( &push_handler_solid )
+    COP [SetSavedPtr] ( &push_handler_solid ) ; push_handler_solid: BranchIfButton A, BranchIfPlayerNear radius $0F
     COP [SetEntryExit]
-    COP [BranchIfButton] ( #$0031, &code_00E263 )
+    COP [BranchIfButton] ( #$0031, &PushSolidOnButton )
 
-  code_00E262:
+  PushSolidIdleRtl:
     RTL 
 }
 
-code_00E263 {
-    COP [BranchIfPlayerNear] ( #0F, &code_00E269 )
+PushSolidOnButton {
+    COP [BranchIfPlayerNear] ( #0F, &PushSolidCheckState )
     RTL 
 }
 
-code_00E269 {
-    LDY $04
+PushSolidCheckState {
+    LDY $04               ; Skip push if parent actor $10 bit $80 set and $12 bit $0010 clear
     LDA $0010, Y
     BIT #$0080
-    BEQ loc_00E27F
+    BEQ PushSolidBranchOnX
     LDA $0012, Y
     BIT #$0010
-    BNE loc_00E27F
+    BNE PushSolidBranchOnX
     NOP 
     NOP 
     NOP 
     RTL 
 
-  loc_00E27F:
-    COP [BranchOnPlayerX] ( #$000F, &code_00E30C, &code_00E289, &code_00E30C )
+  PushSolidBranchOnX:
+    COP [BranchOnPlayerX] ( #$000F, &PushSolidBranchOnY, &PushSolidMoveWest, &PushSolidBranchOnY )
 }
 
-code_00E289 {
-    LDY $playerActor
+PushSolidMoveWest {
+    LDY $playerActor      ; Push west: abs delta-Y≥$20, facing north, solid offset clear, nudge −$10 Y
     LDA $0016, Y
     SEC 
     SBC $16
-    BPL loc_00E2D3
-    BPL loc_00E29A
+    BPL PushSolidMoveEast
+    BPL PushSolidDistWest
     EOR #$FFFF
     INC 
 
-  loc_00E29A:
+  PushSolidDistWest:
     CMP #$0020
-    BCC code_00E2D1
+    BCC PushSolidRestoreWest
     JSL $@GetPlayerFacingDirection
     CMP #$0000
-    BNE code_00E2D1
-    COP [BranchIfSolidOffset] ( #00, #FF, &code_00E2D1 )
+    BNE PushSolidRestoreWest
+    COP [BranchIfSolidOffset] ( #00, #FF, &PushSolidRestoreWest )
     COP [ClearLowHere]
     LDA $16
     SEC 
@@ -195,26 +202,26 @@ code_00E289 {
     STA $16
     COP [SolidHighHere]
     COP [PlaySoundCh1] ( #2C )
-    JSR $&code_00E399
+    JSR $&PushSolidSetPushingFlag
     COP [LoopInit] ( #10 )
     LDY $04
     LDA $0016, Y
     DEC 
     STA $0016, Y
     COP [LoopNext]
-    JSR $&code_00E3AC
+    JSR $&PushSolidClearPushingFlag
 }
 
-code_00E2D1 {
+PushSolidRestoreWest {
     COP [RestoreSavedPtr]
 
-  loc_00E2D3:
+  PushSolidMoveEast:
     CMP #$0020
-    BCC code_00E30A
+    BCC PushSolidRestoreEast
     JSL $@GetPlayerFacingDirection
     CMP #$0001
-    BNE code_00E30A
-    COP [BranchIfSolidOffset] ( #00, #01, &code_00E30A )
+    BNE PushSolidRestoreEast
+    COP [BranchIfSolidOffset] ( #00, #01, &PushSolidRestoreEast )
     COP [ClearLowHere]
     LDA $16
     CLC 
@@ -222,41 +229,41 @@ code_00E2D1 {
     STA $16
     COP [SolidHighHere]
     COP [PlaySoundCh1] ( #2C )
-    JSR $&code_00E399
+    JSR $&PushSolidSetPushingFlag
     COP [LoopInit] ( #10 )
     LDY $04
     LDA $0016, Y
     INC 
     STA $0016, Y
     COP [LoopNext]
-    JSR $&code_00E3AC
+    JSR $&PushSolidClearPushingFlag
 }
 
-code_00E30A {
+PushSolidRestoreEast {
     COP [RestoreSavedPtr]
 }
 
-code_00E30C {
-    COP [BranchOnPlayerY] ( #$000F, &code_00E262, &code_00E316, &code_00E262 )
+PushSolidBranchOnY {
+    COP [BranchOnPlayerY] ( #$000F, &PushSolidIdleRtl, &PushSolidMoveNorth, &PushSolidIdleRtl )
 }
 
-code_00E316 {
+PushSolidMoveNorth {
     LDY $playerActor
     LDA $0014, Y
     SEC 
     SBC $14
-    BPL loc_00E360
-    BPL loc_00E327
+    BPL PushSolidMoveSouth
+    BPL PushSolidDistNorth
     EOR #$FFFF
     INC 
 
-  loc_00E327:
+  PushSolidDistNorth:
     CMP #$0020
-    BCC code_00E35E
+    BCC PushSolidRestoreNorth
     JSL $@GetPlayerFacingDirection
     CMP #$0003
-    BNE code_00E35E
-    COP [BranchIfSolidOffset] ( #FF, #00, &code_00E35E )
+    BNE PushSolidRestoreNorth
+    COP [BranchIfSolidOffset] ( #FF, #00, &PushSolidRestoreNorth )
     COP [ClearLowHere]
     LDA $14
     SEC 
@@ -264,26 +271,26 @@ code_00E316 {
     STA $14
     COP [SolidHighHere]
     COP [PlaySoundCh1] ( #2C )
-    JSR $&code_00E399
+    JSR $&PushSolidSetPushingFlag
     COP [LoopInit] ( #10 )
     LDY $04
     LDA $0014, Y
     DEC 
     STA $0014, Y
     COP [LoopNext]
-    JSR $&code_00E3AC
+    JSR $&PushSolidClearPushingFlag
 }
 
-code_00E35E {
+PushSolidRestoreNorth {
     COP [RestoreSavedPtr]
 
-  loc_00E360:
+  PushSolidMoveSouth:
     CMP #$0020
-    BCC code_00E397
+    BCC PushSolidRestoreSouth
     JSL $@GetPlayerFacingDirection
     CMP #$0002
-    BNE code_00E397
-    COP [BranchIfSolidOffset] ( #01, #00, &code_00E397 )
+    BNE PushSolidRestoreSouth
+    COP [BranchIfSolidOffset] ( #01, #00, &PushSolidRestoreSouth )
     COP [ClearLowHere]
     LDA $14
     CLC 
@@ -291,22 +298,22 @@ code_00E35E {
     STA $14
     COP [SolidHighHere]
     COP [PlaySoundCh1] ( #2C )
-    JSR $&code_00E399
+    JSR $&PushSolidSetPushingFlag
     COP [LoopInit] ( #10 )
     LDY $04
     LDA $0014, Y
     INC 
     STA $0014, Y
     COP [LoopNext]
-    JSR $&code_00E3AC
+    JSR $&PushSolidClearPushingFlag
 }
 
-code_00E397 {
+PushSolidRestoreSouth {
     COP [RestoreSavedPtr]
 }
 
-code_00E399 {
-    LDY $04
+PushSolidSetPushingFlag {
+    LDY $04               ; PushSolidSetPushingFlag: OR parent $12 bit $0010 during 16-frame push loop
     LDA $0012, Y
     PHA 
     ORA #$0010
@@ -317,8 +324,8 @@ code_00E399 {
     RTS 
 }
 
-code_00E3AC {
-    LDY $04
+PushSolidClearPushingFlag {
+    LDY $04               ; PushSolidClearPushingFlag: restore original bit $0010 state from saved $24
     LDA $0012, Y
     AND #$FFEF
     ORA $24
@@ -327,48 +334,48 @@ code_00E3AC {
 }
 
 push_handler_forceball {
-    COP [SetSavedPtr] ( &push_handler_forceball )
+    COP [SetSavedPtr] ( &push_handler_forceball ) ; push_handler_forceball: requires player anim $3A–$3D matching direction
     COP [SetEntryExit]
-    COP [BranchIfButton] ( #$0031, &code_00E3D3 )
+    COP [BranchIfButton] ( #$0031, &PushForceballOnButton )
     LDY $04
     LDA $0014, Y
     STA $14
     LDA $0016, Y
     STA $16
 
-  code_00E3D2:
+  PushForceballIdleRtl:
     RTL 
 }
 
-code_00E3D3 {
-    COP [BranchIfPlayerNear] ( #0F, &code_00E3D9 )
+PushForceballOnButton {
+    COP [BranchIfPlayerNear] ( #0F, &PushForceballBranchOnX )
     RTL 
 }
 
-code_00E3D9 {
-    COP [BranchOnPlayerX] ( #$000F, &code_00E45A, &code_00E3E3, &code_00E45A )
+PushForceballBranchOnX {
+    COP [BranchOnPlayerX] ( #$000F, &PushForceballBranchOnY, &PushForceballMoveWest, &PushForceballBranchOnY )
 }
 
-code_00E3E3 {
+PushForceballMoveWest {
     LDY $playerActor
     LDA $0016, Y
     SEC 
     SBC $16
-    BPL loc_00E427
-    BPL loc_00E3F4
+    BPL PushForceballMoveEast
+    BPL PushForceballDistWest
     EOR #$FFFF
     INC 
 
-  loc_00E3F4:
+  PushForceballDistWest:
     CMP #$0020
-    BCC code_00E425
+    BCC PushForceballRestoreWest
     LDA $0028, Y
     CMP #$003A
-    BNE code_00E425
+    BNE PushForceballRestoreWest
     JSL $@GetPlayerFacingDirection
     CMP #$0000
-    BNE code_00E425
-    COP [BranchIfSolidOffset] ( #00, #FF, &code_00E425 )
+    BNE PushForceballRestoreWest
+    COP [BranchIfSolidOffset] ( #00, #FF, &PushForceballRestoreWest )
     COP [AddPosition] ( #00, #F0 )
     COP [PlaySoundCh1] ( #2C )
     COP [LoopInit] ( #10 )
@@ -379,19 +386,19 @@ code_00E3E3 {
     COP [LoopNext]
 }
 
-code_00E425 {
+PushForceballRestoreWest {
     COP [RestoreSavedPtr]
 
-  loc_00E427:
+  PushForceballMoveEast:
     CMP #$0020
-    BCC code_00E458
+    BCC PushForceballRestoreEast
     LDA $0028, Y
     CMP #$003B
-    BNE code_00E458
+    BNE PushForceballRestoreEast
     JSL $@GetPlayerFacingDirection
     CMP #$0001
-    BNE code_00E458
-    COP [BranchIfSolidOffset] ( #00, #01, &code_00E458 )
+    BNE PushForceballRestoreEast
+    COP [BranchIfSolidOffset] ( #00, #01, &PushForceballRestoreEast )
     COP [AddPosition] ( #00, #10 )
     COP [PlaySoundCh1] ( #2C )
     COP [LoopInit] ( #10 )
@@ -402,34 +409,34 @@ code_00E425 {
     COP [LoopNext]
 }
 
-code_00E458 {
+PushForceballRestoreEast {
     COP [RestoreSavedPtr]
 }
 
-code_00E45A {
-    COP [BranchOnPlayerY] ( #$000F, &code_00E3D2, &code_00E464, &code_00E3D2 )
+PushForceballBranchOnY {
+    COP [BranchOnPlayerY] ( #$000F, &PushForceballIdleRtl, &PushForceballMoveNorth, &PushForceballIdleRtl )
 }
 
-code_00E464 {
+PushForceballMoveNorth {
     LDY $playerActor
     LDA $0014, Y
     SEC 
     SBC $14
-    BPL loc_00E4A8
-    BPL loc_00E475
+    BPL PushForceballMoveSouth
+    BPL PushForceballDistNorth
     EOR #$FFFF
     INC 
 
-  loc_00E475:
+  PushForceballDistNorth:
     CMP #$0020
-    BCC code_00E4A6
+    BCC PushForceballRestoreNorth
     LDA $0028, Y
     CMP #$003D
-    BNE code_00E4A6
+    BNE PushForceballRestoreNorth
     JSL $@GetPlayerFacingDirection
     CMP #$0003
-    BNE code_00E4A6
-    COP [BranchIfSolidOffset] ( #FF, #00, &code_00E4A6 )
+    BNE PushForceballRestoreNorth
+    COP [BranchIfSolidOffset] ( #FF, #00, &PushForceballRestoreNorth )
     COP [AddPosition] ( #F0, #00 )
     COP [PlaySoundCh1] ( #2C )
     COP [LoopInit] ( #10 )
@@ -440,19 +447,19 @@ code_00E464 {
     COP [LoopNext]
 }
 
-code_00E4A6 {
+PushForceballRestoreNorth {
     COP [RestoreSavedPtr]
 
-  loc_00E4A8:
+  PushForceballMoveSouth:
     CMP #$0020
-    BCC code_00E4D9
+    BCC PushForceballRestoreSouth
     LDA $0028, Y
     CMP #$003C
-    BNE code_00E4D9
+    BNE PushForceballRestoreSouth
     JSL $@GetPlayerFacingDirection
     CMP #$0002
-    BNE code_00E4D9
-    COP [BranchIfSolidOffset] ( #01, #00, &code_00E4D9 )
+    BNE PushForceballRestoreSouth
+    COP [BranchIfSolidOffset] ( #01, #00, &PushForceballRestoreSouth )
     COP [AddPosition] ( #10, #00 )
     COP [PlaySoundCh1] ( #2C )
     COP [LoopInit] ( #10 )
@@ -463,6 +470,6 @@ code_00E4A6 {
     COP [LoopNext]
 }
 
-code_00E4D9 {
+PushForceballRestoreSouth {
     COP [RestoreSavedPtr]
 }

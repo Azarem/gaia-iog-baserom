@@ -14,7 +14,7 @@ Bank $00 is the **primary system bank** for Illusion of Gaia. It contains the CP
 
 ## Table of Contents
 
-1. [Address Map](#1-address-map)
+1. [Address Map](#1-address-map) + [Block File Overview](#1b-block-file-overview)
 2. [Category Index](#2-category-index)
 3. [System Core](#3-system-core) — Reset, Init, Main Loop, Frame Updates
 4. [NMI/VBlank Handler](#4-nmivblank-handler) — VBlank, Scroll, DMA
@@ -44,29 +44,209 @@ Bank $00 is the **primary system bank** for Illusion of Gaia. It contains the CP
 
 ## 1. Address Map
 
-| Range | Size | Content | Document |
-|-------|------|---------|----------|
-| `$008000`–`$0082DE` | ~734 bytes | Interrupt vectors, system init, main loop, frame updates, HUD | [system-core.md](system-core.md) |
-| `$0082F8`–`$00843F` | ~328 bytes | NMI/VBlank handler, scroll upload, VRAM DMA | [nmi-handler.md](nmi-handler.md) |
-| `$00846C`–`$00864B` | ~480 bytes | COP dispatch engine, opcode tables, sentinel | [cop-dispatch.md](cop-dispatch.md) |
-| `$008650`–`$00B530` | ~12,000 bytes | COP handlers ($00–$6D, $80–$E2) — 172 opcodes | [cop-commands-reference.md](../../cop-commands-reference.md) |
-| `$008D25`–`$008FDC` | ~184 bytes | Hardware math helpers, movement initialization | [utility-math-movement.md](utility-math-movement.md) |
-| `$0097EF`–`$00AF8F` | ~800 bytes | Tile/map helpers, animation, sprite/body utilities | [utility-tiles-animation.md](utility-tiles-animation.md) |
-| `$00AFCE`–`$00B43B` | ~320 bytes | Direction computation, tile collision, collision rects | [direction-collision.md](direction-collision.md) |
-| `$00B05E`–`$00B4F6` | ~280 bytes | Event flag system (WRAM + event flags + far-call wrappers) | [event-flags.md](event-flags.md) |
-| `$00A608`–`$00B519` | ~400 bytes | Actor allocation, linking, copy state, unlink | [actor-management.md](actor-management.md) |
-| `$00B520`–`$00B808` | ~740 bytes | Palette cycling thinkers + one-shot flashes | [thinkers-palette.md](thinkers-palette.md) |
-| `$00B87B`–`$00BF52` | ~1,750 bytes | HDMA wave effects + custom DMA thinkers | [thinkers-hdma.md](thinkers-hdma.md) |
-| `$00B78F`–`$00BF89` | ~1,200 bytes | System/menu/HW config thinkers + global dispatcher | [thinkers-system.md](thinkers-system.md) |
-| `$00C1AA`–`$00EAED` | ~800 bytes | Scene infrastructure actors (camera, flags, speed, ramps) | [actors-infrastructure.md](actors-infrastructure.md) |
-| `$00C2BB`–`$00CF29` | ~1,800 bytes | Player transitions, red jewels, inventory actors | [actors-player-rewards.md](actors-player-rewards.md) |
-| `$00D877`–`$00E4DB` | ~2,400 bytes | Combat knockback, push handlers, follow, effects | [actors-combat-interaction.md](actors-combat-interaction.md) |
-| `$00DB8A`–`$00DFFF` | ~1,150 bytes | Enemy defeat pipeline, VFX, field reveals, dark gem drops | [functions-combat-defeat.md](functions-combat-defeat.md) |
-| `$00B5B3`–`$00F3B3` | ~500 bytes | Game over sequence, death messages | [functions-game-over.md](functions-game-over.md) |
-| `$00C397`–`$00C98E` | ~600 bytes | Player/party state, NPC AI, escort pathfinding | [functions-player-npc.md](functions-player-npc.md) |
-| `$00C9B8`–`$00F432` | ~450 bytes | Camera drift, debris burst, orbital math | [functions-camera-motion.md](functions-camera-motion.md) |
-| `$00D088`–`$00D5BC` | ~1,336 bytes | Stair trigger & climb system | [stair-climb-system.md](stair-climb-system.md) |
-| `$00E683`–`$00F292` | ~3,376 bytes | Smooth scroll, camera pan, forced walks | [camera-scroll-system.md](camera-scroll-system.md) |
+| Range | Content | ASM Source | Document |
+|-------|---------|------------|----------|
+| `$8000`–`$846C` | System init, main loop, NMI, frame updates | [`system_core.asm`](../../../extracted/system/engine/system_core.asm) | [system-core](system-core.md), [nmi-handler](nmi-handler.md) |
+| `$846D`–`$864E` | COP bytecode dispatch engine + tables | [`cop_dispatch.asm`](../../../extracted/system/engine/cop_dispatch.asm) | [cop-dispatch](cop-dispatch.md) |
+| `$864E`–`$B520` | COP handlers ($00–$6D, $80–$E2) — 172 opcodes | [`cop_handlers_*.asm`](../../../extracted/system/engine/) | [cop-commands-reference](../../cop-commands-reference.md) |
+| `$B520`–`$B87B` | Palette thinkers: cycling, flashes, scene-specific | [18 thinker files](#palette-thinkers) | [thinkers-palette](thinkers-palette.md) |
+| `$B87B`–`$BF78` | HDMA thinkers: sine waves, DMA setup, scene-specific | [18 thinker files](#hdma--dma-thinkers) | [thinkers-hdma](thinkers-hdma.md) |
+| `$BF78`–`$C1AA` | System thinkers: HW config, boot, menus, dispatcher | [4 thinker files](#system-thinkers) | [thinkers-system](thinkers-system.md) |
+| `$C1AA`–`$C2BB` | Infrastructure actors: speed zones, dream zoom | [3 actor files](#infrastructure-actors) | [actors-infrastructure](actors-infrastructure.md) |
+| `$C2BB`–`$C9B8` | Player/reward actors, NPC AI, flags, doors, ramps | [16 function/actor files](#player--reward-zone) | [actors-player-rewards](actors-player-rewards.md), [functions-player-npc](functions-player-npc.md) |
+| `$C9B8`–`$D088` | Camera drift, debris, floor buttons, overworld exit | [5 files](#camera--utility-zone) | [functions-camera-motion](functions-camera-motion.md) |
+| `$D088`–`$D877` | Stair/climb system, ramps, game over sequence | [4 files](#stair--death-zone) | [stair-climb-system](stair-climb-system.md), [functions-game-over](functions-game-over.md) |
+| `$D877`–`$E683` | Combat: knockback, defeat pipeline, rewards, pushers | [14 files](#combat-zone) | [actors-combat-interaction](actors-combat-interaction.md), [functions-combat-defeat](functions-combat-defeat.md) |
+| `$E683`–`$F48F` | Camera/scroll engine, forced walks, orbital math | [7 files](#scroll--motion-zone) | [camera-scroll-system](camera-scroll-system.md) |
+| `$F490`–`$FFFF` | *Unmapped tail* (~2.9 KB) | — | — |
+
+---
+
+## 1b. Block File Overview
+
+Every block in bank $00 maps to one extracted ASM file. Links go directly to the source.
+
+### Engine Core (`extracted/system/engine/`)
+
+| Block | Range | Entry Label | ASM File |
+|-------|-------|-------------|----------|
+| `system_core` | `$8000`–`$846D` | `ResetVector` | [`system_core.asm`](../../../extracted/system/engine/system_core.asm) |
+| `cop_dispatch` | `$846D`–`$864E` | `CopDispatch` | [`cop_dispatch.asm`](../../../extracted/system/engine/cop_dispatch.asm) |
+| `cop_handlers_solid` | `$864E`–`$B481` | `GenHdmaSine` | [`cop_handlers_solid.asm`](../../../extracted/system/engine/cop_handlers_solid.asm) |
+| `cop_handlers_audio` | `$8714`–`$8876` | `StartMusic` | [`cop_handlers_audio.asm`](../../../extracted/system/engine/cop_handlers_audio.asm) |
+| `cop_handlers_movement` | `$8C19`–`$B157` | `BranchIfActorNear` | [`cop_handlers_movement.asm`](../../../extracted/system/engine/cop_handlers_movement.asm) |
+| `cop_handlers_spatial` | `$904E`–`$9317` | `SetTilePos` | [`cop_handlers_spatial.asm`](../../../extracted/system/engine/cop_handlers_spatial.asm) |
+| `cop_handlers_palette` | `$9317`–`$9485` | `StageBgChange` | [`cop_handlers_palette.asm`](../../../extracted/system/engine/cop_handlers_palette.asm) |
+| `cop_handlers_input` | `$9485`–`$9B89` | `WaitForButton` | [`cop_handlers_input.asm`](../../../extracted/system/engine/cop_handlers_input.asm) |
+| `cop_handlers_map` | `$9685`–`$9E06` | `DrawMetatileAbs` | [`cop_handlers_map.asm`](../../../extracted/system/engine/cop_handlers_map.asm) |
+| `cop_handlers_sprite` | `$99DA`–`$A036` | `ResetSpriteState` | [`cop_handlers_sprite.asm`](../../../extracted/system/engine/cop_handlers_sprite.asm) |
+| `cop_handlers_effects` | `$9B89`–`$AF40` | `InitSineHdma` | [`cop_handlers_effects.asm`](../../../extracted/system/engine/cop_handlers_effects.asm) |
+| `cop_handlers_lifecycle` | `$956B`–`$A867` | `BranchIfPlayerInRelTiles` | [`cop_handlers_lifecycle.asm`](../../../extracted/system/engine/cop_handlers_lifecycle.asm) |
+| `cop_handlers_player_sprite` | `$A036`–`$A24B` | `SetPlayerSpriteDirect` | [`cop_handlers_player_sprite.asm`](../../../extracted/system/engine/cop_handlers_player_sprite.asm) |
+| `cop_handlers_spawn` | `$A24B`–`$A5DE` | `SpawnBefore` | [`cop_handlers_spawn.asm`](../../../extracted/system/engine/cop_handlers_spawn.asm) |
+| `cop_handlers_flow` | `$A9EB`–`$ACDF` | `SetInteractHandler` | [`cop_handlers_flow.asm`](../../../extracted/system/engine/cop_handlers_flow.asm) |
+| `actor_pool` | `$AF40`–`$B520` | `UnlinkActor` | [`actor_pool.asm`](../../../extracted/system/engine/actor_pool.asm) |
+| `cop_handlers_flags` | `$B05E`–`$B501` | `TestWramFlag_Offset100` | [`cop_handlers_flags.asm`](../../../extracted/system/engine/cop_handlers_flags.asm) |
+| `stair_climb` | `$D088`–`$D5C0` | `LockPlayerForClimb` | [`stair_climb.asm`](../../../extracted/system/engine/stair_climb.asm) |
+| `smooth_follow` | `$E683`–`$F3B3` | `CopySiblingFollowState` | [`smooth_follow.asm`](../../../extracted/system/engine/smooth_follow.asm) |
+| `camera_scroll` | `$E94D`–`$ED28` | `ScrollCameraInit` | [`camera_scroll.asm`](../../../extracted/system/engine/camera_scroll.asm) |
+| `forced_walk` | `$EB9B`–`$EDA8` | `ForcedWalkSouth` | [`forced_walk.asm`](../../../extracted/system/engine/forced_walk.asm) |
+
+> **Note:** The fifteen COP handler blocks share overlapping address ranges — they are logical groupings of interleaved opcodes, not contiguous regions. Likewise `smooth_follow`/`camera_scroll`/`forced_walk` overlap in the `$E683`–`$EDA8` region.
+
+### System Services (`extracted/system/`)
+
+| Block | Range | ASM File |
+|-------|-------|----------|
+| `boot_logo_palette_enix` | `$B83F`–`$B853` | [`boot_logos/boot_logo_palette_enix.asm`](../../../extracted/system/boot_logos/boot_logo_palette_enix.asm) |
+| `boot_logo_palette_quintet` | `$B853`–`$B867` | [`boot_logos/boot_logo_palette_quintet.asm`](../../../extracted/system/boot_logos/boot_logo_palette_quintet.asm) |
+| `boot_logo_palette_third` | `$B867`–`$B87B` | [`boot_logos/boot_logo_palette_third.asm`](../../../extracted/system/boot_logos/boot_logo_palette_third.asm) |
+| `inventory_dma_setup` | `$BB8E`–`$BBAD` | [`inventory/inventory_dma_setup.asm`](../../../extracted/system/inventory/inventory_dma_setup.asm) |
+| `inventory_statue_slot` | `$CF29`–`$CF8E` | [`inventory/inventory_statue_slot.asm`](../../../extracted/system/inventory/inventory_statue_slot.asm) |
+| `diary_menu_window_dma` | `$BBAF`–`$BC97` | [`diary_menu/diary_menu_window_dma.asm`](../../../extracted/system/diary_menu/diary_menu_window_dma.asm) |
+| `statue_inventory_reward` | `$CD59`–`$CF29` | [`statue_inventory/statue_inventory_reward.asm`](../../../extracted/system/statue_inventory/statue_inventory_reward.asm) |
+
+### <a id="palette-thinkers"></a>Palette Thinkers (`extracted/thinkers/`)
+
+| Block | Range | Scene Usage | ASM File |
+|-------|-------|-------------|----------|
+| `ambient_palette_cycler` | `$B520`–`$B528` | Dozens | [`ambient_palette_cycler.asm`](../../../extracted/thinkers/ambient_palette_cycler.asm) |
+| `flag_gated_palette_warm` | `$B5C0`–`$B5DF` | Oakton | [`flag_gated_palette_warm.asm`](../../../extracted/thinkers/flag_gated_palette_warm.asm) |
+| `flag_gated_palette_cool` | `$B5DF`–`$B5FE` | Overworld | [`flag_gated_palette_cool.asm`](../../../extracted/thinkers/flag_gated_palette_cool.asm) |
+| `palette_parent_child` | `$B5FE`–`$B631` | Inventory | [`palette_parent_child.asm`](../../../extracted/thinkers/palette_parent_child.asm) |
+| `oneshot_coldata_warm_flash` | `$B65E`–`$B671` | Incan/Larai | [`oneshot_coldata_warm_flash.asm`](../../../extracted/thinkers/oneshot_coldata_warm_flash.asm) |
+| `incan_ruins_transform_palette` | `$B671`–`$B6D2` | Angkor/Incan | [`incan_ruins_transform_palette.asm`](../../../extracted/thinkers/incan_ruins_transform_palette.asm) |
+| `oneshot_coldata_green_tint` | `$B6E5`–`$B6FD` | Oakton | [`oneshot_coldata_green_tint.asm`](../../../extracted/thinkers/oneshot_coldata_green_tint.asm) |
+| `oneshot_palette_flash_18` | `$B7CC`–`$B7D6` | Comet/Angkor | [`oneshot_palette_flash_18.asm`](../../../extracted/thinkers/oneshot_palette_flash_18.asm) |
+| `oneshot_palette_flash_19` | `$B7D6`–`$B7E0` | (complement) | [`oneshot_palette_flash_19.asm`](../../../extracted/thinkers/oneshot_palette_flash_19.asm) |
+| `oneshot_palette_flash_1B` | `$B7E0`–`$B7EA` | Mu/Castle | [`oneshot_palette_flash_1B.asm`](../../../extracted/thinkers/oneshot_palette_flash_1B.asm) |
+| `oneshot_palette_flash_1C` | `$B7EA`–`$B7F4` | Snake Pit | [`oneshot_palette_flash_1C.asm`](../../../extracted/thinkers/oneshot_palette_flash_1C.asm) |
+| `oneshot_palette_flash_40` | `$B7F4`–`$B7FE` | Angel/Palace | [`oneshot_palette_flash_40.asm`](../../../extracted/thinkers/oneshot_palette_flash_40.asm) |
+| `oneshot_palette_flash_1F` | `$B7FE`–`$B808` | Itory | [`oneshot_palette_flash_1F.asm`](../../../extracted/thinkers/oneshot_palette_flash_1F.asm) |
+| `parallax_thinker` | `$B88B`–`$BB8E` | Multiple | [`parallax_thinker.asm`](../../../extracted/thinkers/parallax_thinker.asm) |
+| `sine_hdma_slow_wave` | `$BE18`–`$BE39` | Mid/late | [`sine_hdma_slow_wave.asm`](../../../extracted/thinkers/sine_hdma_slow_wave.asm) |
+| `global_ambient_dispatcher` | `$BF89`–`$C1AA` | Nearly all | [`global_ambient_dispatcher.asm`](../../../extracted/thinkers/global_ambient_dispatcher.asm) |
+
+### <a id="hdma--dma-thinkers"></a>HDMA & DMA Thinkers (scene-specific)
+
+| Block | Range | Scene | ASM File |
+|-------|-------|-------|----------|
+| `edward_castle_alarm_palette` | `$B631`–`$B65E` | Edward Castle | [`edward_castle/.../edward_castle_alarm_palette.asm`](../../../extracted/edward_castle/edward_castle/edward_castle_alarm_palette.asm) |
+| `dream_palette_loop` | `$B6D2`–`$B6E5` | Gold Ship | [`gold_ship/dream/dream_palette_loop.asm`](../../../extracted/gold_ship/dream/dream_palette_loop.asm) |
+| `palace_fountain_palette` | `$B71E`–`$B754` | Palace | [`seaside_palace/.../palace_fountain_palette.asm`](../../../extracted/seaside_palace/palace_fountain/palace_fountain_palette.asm) |
+| `watermia_festival_palette` | `$B754`–`$B781` | Watermia | [`watermia/.../watermia_festival_palette.asm`](../../../extracted/watermia/watermia/watermia_festival_palette.asm) |
+| `babel_elevator_color_add` | `$B78F`–`$B79D` | Babel | [`babel_tower/.../babel_elevator_color_add.asm`](../../../extracted/babel_tower/babel_light_elevator/babel_elevator_color_add.asm) |
+| `palace_scroll_brightness` | `$B79D`–`$B7BE` | Palace | [`seaside_palace/palace_scroll_brightness.asm`](../../../extracted/seaside_palace/palace_scroll_brightness.asm) |
+| `dao_window_mask` | `$B7BE`–`$B7CC` | Dao | [`dao/.../dao_window_mask.asm`](../../../extracted/dao/dao/dao_window_mask.asm) |
+| `itory_village_fog` | `$B818`–`$B83F` | Itory | [`itory/.../itory_village_fog.asm`](../../../extracted/itory/itory_village/itory_village_fog.asm) |
+| `angel_tunnel_window_dma` | `$B87B`–`$B88B` | Angel Village | [`angel_village/.../angel_tunnel_window_dma.asm`](../../../extracted/angel_village/angel_tunnel_rooms/angel_tunnel_window_dma.asm) |
+| `ending_comet_sine_hdma` | `$BCB3`–`$BCDF` | Ending | [`ending/.../ending_comet_sine_hdma.asm`](../../../extracted/ending/ending_comet/ending_comet_sine_hdma.asm) |
+| `ending_comet_dma_setup` | `$BCDF`–`$BCF5` | Ending | [`ending/.../ending_comet_dma_setup.asm`](../../../extracted/ending/ending_comet/ending_comet_dma_setup.asm) |
+| `comet_lair_hdma_a` | `$BCF5`–`$BD21` | Comet Lair | [`babel_tower/.../comet_lair_hdma_a.asm`](../../../extracted/babel_tower/comet_lair/comet_lair_hdma_a.asm) |
+| `comet_lair_hdma_b` | `$BD21`–`$BD42` | Comet Lair | [`babel_tower/.../comet_lair_hdma_b.asm`](../../../extracted/babel_tower/comet_lair/comet_lair_hdma_b.asm) |
+| `comet_lair_hdma_c_timed` | `$BD42`–`$BD96` | Comet Lair | [`babel_tower/.../comet_lair_hdma_c_timed.asm`](../../../extracted/babel_tower/comet_lair/comet_lair_hdma_c_timed.asm) |
+| `larai_cliff_scroll_wave` | `$BD96`–`$BDCA` | Larai Cliff | [`incan_ruins/.../larai_cliff_scroll_wave.asm`](../../../extracted/incan_ruins/larai_cliff/larai_cliff_scroll_wave.asm) |
+| `mu_tint_and_wave` | `$BDCD`–`$BE18` | Mu | [`mu/mu_tint_and_wave.asm`](../../../extracted/mu/mu_tint_and_wave.asm) |
+| `palace_coffin_hdma_table` | `$BE39`–`$BE83` | Palace | [`seaside_palace/.../palace_coffin_hdma_table.asm`](../../../extracted/seaside_palace/palace_coffins/palace_coffin_hdma_table.asm) |
+| `sine_hdma_dual_channel` | `$BE83`–`$BEAA` | Palace | [`seaside_palace/.../sine_hdma_dual_channel.asm`](../../../extracted/seaside_palace/palace_coffins/sine_hdma_dual_channel.asm) |
+| `dao_sine_hdma_slow` | `$BED1`–`$BEF2` | Dao | [`dao/.../dao_sine_hdma_slow.asm`](../../../extracted/dao/dao/dao_sine_hdma_slow.asm) |
+| `native_village_sine_hdma` | `$BEF2`–`$BF19` | Native Village | [`native_village/.../native_village_sine_hdma.asm`](../../../extracted/native_village/native_village/native_village_sine_hdma.asm) |
+| `sine_hdma_ending_wave` | `$BF19`–`$BF52` | Comet/Castoth | [`babel_tower/sine_hdma_ending_wave.asm`](../../../extracted/babel_tower/sine_hdma_ending_wave.asm) |
+| `dark_castoth_layer_config` | `$BF78`–`$BF89` | Castoth | [`babel_tower/.../dark_castoth_layer_config.asm`](../../../extracted/babel_tower/dark_castoth_lair/dark_castoth_layer_config.asm) |
+
+### <a id="system-thinkers"></a>System Thinkers
+
+Listed above in [System Services](#system-services-extractedsystem) and [Palette Thinkers](#palette-thinkers) — the `global_ambient_dispatcher` is the hub thinker that drives all scene-level palette/HDMA effects.
+
+### <a id="infrastructure-actors"></a>Infrastructure Actors
+
+| Block | Range | ASM File |
+|-------|-------|----------|
+| `dream_zoom_controller` | `$C1AA`–`$C1DF` | [`gold_ship/dream/dream_zoom_controller.asm`](../../../extracted/gold_ship/dream/dream_zoom_controller.asm) |
+| `movement_speed_zones` | `$C1DF`–`$C2BB` | [`mountain_temple/movement_speed_zones.asm`](../../../extracted/mountain_temple/movement_speed_zones.asm) |
+| `camera_scroll_controller` | `$EAED`–`$EB9B` | [`actors/camera_scroll_controller.asm`](../../../extracted/actors/camera_scroll_controller.asm) |
+
+### <a id="player--reward-zone"></a>Player & Reward Zone (`$C2BB`–`$C9B8`)
+
+| Block | Range | Entry Label | ASM File |
+|-------|-------|-------------|----------|
+| `boss_clear_reward_handler` | `$C2BB`–`$C397` | `boss_clear_reward_handler` | [`actors/boss_clear_reward_handler.asm`](../../../extracted/actors/boss_clear_reward_handler.asm) |
+| `ApplyPlayerHitstun` | `$C397`–`$C418` | `ApplyPlayerHitstun` | [`functions/ApplyPlayerHitstun.asm`](../../../extracted/functions/ApplyPlayerHitstun.asm) |
+| `player_transition_handlers` | `$C418`–`$C5F3` | `SpawnSparkleEffect` | [`actors/player_transition_handlers.asm`](../../../extracted/actors/player_transition_handlers.asm) |
+| `town_door` | `$C5F3`–`$C62D` | `town_door` | [`actors/town_door.asm`](../../../extracted/actors/town_door.asm) |
+| `freejia_street_prop` | `$C62D`–`$C667` | `freejia_street_prop` | [`freejia/.../freejia_street_prop.asm`](../../../extracted/freejia/freejia/freejia_street_prop.asm) |
+| `scene_flag_init` | `$C667`–`$C66F` | `scene_flag_init` | [`actors/scene_flag_init.asm`](../../../extracted/actors/scene_flag_init.asm) |
+| `hidden_red_jewel` | `$C66F`–`$C6E4` | `hidden_red_jewel` | [`actors/hidden_red_jewel.asm`](../../../extracted/actors/hidden_red_jewel.asm) |
+| `InitPlayerScriptVariant` | `$C6E4`–`$C718` | `InitPlayerScriptVariant` | [`functions/InitPlayerScriptVariant.asm`](../../../extracted/functions/InitPlayerScriptVariant.asm) |
+| `npc_wander_ai` | `$C718`–`$C7FA` | `SyncActorPosFromDP` | [`functions/npc_wander_ai.asm`](../../../extracted/functions/npc_wander_ai.asm) |
+| `ToggleActorVisibilityFlag` | `$C7FA`–`$C806` | `ToggleActorVisibilityFlag` | [`functions/ToggleActorVisibilityFlag.asm`](../../../extracted/functions/ToggleActorVisibilityFlag.asm) |
+| `EscortFollowPathTracker` | `$C806`–`$C963` | `EscortFollowPathTracker` | [`functions/EscortFollowPathTracker.asm`](../../../extracted/functions/EscortFollowPathTracker.asm) |
+| `large_ramps` | `$C963`–`$C98E` | `large_ramp_booster` | [`actors/large_ramps.asm`](../../../extracted/actors/large_ramps.asm) |
+| `f_inventory_full` | `$C98E`–`$C9B8` | `InventoryFullMessage` | [`functions/f_inventory_full.asm`](../../../extracted/functions/f_inventory_full.asm) |
+
+### <a id="camera--utility-zone"></a>Camera & Utility Zone (`$C9B8`–`$D088`)
+
+| Block | Range | ASM File |
+|-------|-------|----------|
+| `SpawnDebrisBurst` | `$C9B8`–`$C9FB` | [`functions/SpawnDebrisBurst.asm`](../../../extracted/functions/SpawnDebrisBurst.asm) |
+| `floor_button` | `$C9FB`–`$CA42` | [`actors/floor_button.asm`](../../../extracted/actors/floor_button.asm) |
+| `overworld_exit` | `$CA42`–`$CD59` | [`actors/overworld_exit.asm`](../../../extracted/actors/overworld_exit.asm) |
+| `camera_drift` | `$CF8E`–`$D088` | [`functions/camera_drift.asm`](../../../extracted/functions/camera_drift.asm) |
+
+### <a id="stair--death-zone"></a>Stair & Death Zone (`$D088`–`$D877`)
+
+| Block | Range | ASM File |
+|-------|-------|----------|
+| `stair_climb` | `$D088`–`$D5C0` | [`system/engine/stair_climb.asm`](../../../extracted/system/engine/stair_climb.asm) |
+| `ramps` | `$D2D0`–`$D62F` | [`actors/ramps.asm`](../../../extracted/actors/ramps.asm) |
+| `game_over_sequence` | `$D62F`–`$D877` | [`functions/game_over_sequence.asm`](../../../extracted/functions/game_over_sequence.asm) |
+
+### <a id="combat-zone"></a>Combat Zone (`$D877`–`$E683`)
+
+| Block | Range | Entry Label | ASM File |
+|-------|-------|-------------|----------|
+| `hit_stagger_controller` | `$D877`–`$DA78` | `HitStaggerMain` | [`actors/hit_stagger_controller.asm`](../../../extracted/actors/hit_stagger_controller.asm) |
+| `field_reveal_object` | `$DA78`–`$DB8A` | `field_reveal_object` | [`actors/field_reveal_object.asm`](../../../extracted/actors/field_reveal_object.asm) |
+| `StandardEnemyDefeatHandler` | `$DB8A`–`$DDF2` | `StandardEnemyDefeatHandler` | [`functions/StandardEnemyDefeatHandler.asm`](../../../extracted/functions/StandardEnemyDefeatHandler.asm) |
+| `NullActorScriptStub` | `$DC77`–`$DC79` | `NullActorScriptStub` | [`functions/NullActorScriptStub.asm`](../../../extracted/functions/NullActorScriptStub.asm) |
+| `SpawnAttackTrailEffect` | `$DCB4`–`$DD03` | `SpawnAttackTrailEffect` | [`functions/SpawnAttackTrailEffect.asm`](../../../extracted/functions/SpawnAttackTrailEffect.asm) |
+| `SpawnHitSparkSprites` | `$DD03`–`$DD5B` | `SpawnHitSparkSprites` | [`functions/SpawnHitSparkSprites.asm`](../../../extracted/functions/SpawnHitSparkSprites.asm) |
+| `SpawnFieldRevealEffect` | `$DDF2`–`$DF15` | `SpawnFieldRevealEffect` | [`functions/SpawnFieldRevealEffect.asm`](../../../extracted/functions/SpawnFieldRevealEffect.asm) |
+| `EnemyDeathFlash` | `$DF15`–`$DF29` | `EnemyDeathFlash` | [`functions/EnemyDeathFlash.asm`](../../../extracted/functions/EnemyDeathFlash.asm) |
+| `DarkGemDropSystem` | `$DF29`–`$E02D` | `SpawnDarkGemType1` | [`functions/DarkGemDropSystem.asm`](../../../extracted/functions/DarkGemDropSystem.asm) |
+| `reward_actors` | `$E02D`–`$E155` | `e_hp_increase` | [`actors/reward_actors.asm`](../../../extracted/actors/reward_actors.asm) |
+| `interaction_handlers` | `$E155`–`$E4DB` | `collect_handler_gem` | [`actors/interaction_handlers.asm`](../../../extracted/actors/interaction_handlers.asm) |
+| `smooth_follow_child` | `$E4DB`–`$E655` | `smooth_follow_child` | [`actors/smooth_follow_child.asm`](../../../extracted/actors/smooth_follow_child.asm) |
+| `visual_effect_pipeline` | `$E8D7`–`$EA96` | `effect_velocity_init` | [`actors/visual_effect_pipeline.asm`](../../../extracted/actors/visual_effect_pipeline.asm) |
+
+### <a id="scroll--motion-zone"></a>Scroll & Motion Zone (`$E683`–`$F48F`)
+
+| Block | Range | Entry Label | ASM File |
+|-------|-------|-------------|----------|
+| `smooth_follow` | `$E683`–`$F3B3` | `CopySiblingFollowState` | [`system/engine/smooth_follow.asm`](../../../extracted/system/engine/smooth_follow.asm) |
+| `camera_scroll` | `$E94D`–`$ED28` | `ScrollCameraInit` | [`system/engine/camera_scroll.asm`](../../../extracted/system/engine/camera_scroll.asm) |
+| `camera_scroll_controller` | `$EAED`–`$EB9B` | `camera_scroll_controller` | [`actors/camera_scroll_controller.asm`](../../../extracted/actors/camera_scroll_controller.asm) |
+| `forced_walk` | `$EB9B`–`$EDA8` | `ForcedWalkSouth` | [`system/engine/forced_walk.asm`](../../../extracted/system/engine/forced_walk.asm) |
+| `StopPlayerOnDeathAssign` | `$F3B3`–`$F3C9` | `StopPlayerOnDeathAssign` | [`functions/StopPlayerOnDeathAssign.asm`](../../../extracted/functions/StopPlayerOnDeathAssign.asm) |
+| `ApplyOrbitalOffsetFromRef` | `$F3C9`–`$F428` | `ApplyOrbitalOffsetFromRef` | [`functions/ApplyOrbitalOffsetFromRef.asm`](../../../extracted/functions/ApplyOrbitalOffsetFromRef.asm) |
+| `ApplyOrbitalOffsetXY` | `$F432`–`$F48F` | `ApplyOrbitalOffsetXY` | [`functions/ApplyOrbitalOffsetXY.asm`](../../../extracted/functions/ApplyOrbitalOffsetXY.asm) |
+
+### Unused Blocks
+
+| Block | Range | ASM File |
+|-------|-------|----------|
+| `SceneTransPaletteThinker_unused` | `$B528`–`$B5B3` | [`unused/SceneTransPaletteThinker_unused.asm`](../../../extracted/unused/SceneTransPaletteThinker_unused.asm) |
+| `palette_buffer_clear_unused` | `$B6FD`–`$B71E` | [`unused/palette_buffer_clear_unused.asm`](../../../extracted/unused/palette_buffer_clear_unused.asm) |
+| `babel_palette_65_unused` | `$B781`–`$B78F` | [`unused/babel_palette_65_unused.asm`](../../../extracted/unused/babel_palette_65_unused.asm) |
+| `palette_loop_flash_unused` | `$B808`–`$B818` | [`unused/palette_loop_flash_unused.asm`](../../../extracted/unused/palette_loop_flash_unused.asm) |
+| `dma_setup_variant_unused` | `$BC97`–`$BCB3` | [`unused/dma_setup_variant_unused.asm`](../../../extracted/unused/dma_setup_variant_unused.asm) |
+| `empty_stub_unused` | `$BDCA`–`$BDCD` | [`unused/empty_stub_unused.asm`](../../../extracted/unused/empty_stub_unused.asm) |
+| `native_village_dup_unused` | `$BEAA`–`$BED1` | [`unused/native_village_dup_unused.asm`](../../../extracted/unused/native_village_dup_unused.asm) |
+| `gen_hdma_sine_oneshot_unused` | `$BF52`–`$BF78` | [`unused/gen_hdma_sine_oneshot_unused.asm`](../../../extracted/unused/gen_hdma_sine_oneshot_unused.asm) |
+| `speed_zone_ns_fast_unused` | `$C251`–`$C286` | [`unused/speed_zone_ns_fast_unused.asm`](../../../extracted/unused/speed_zone_ns_fast_unused.asm) |
+| `AttackTrailShort_unused` | `$DC79`–`$DCB4` | [`unused/AttackTrailShort_unused.asm`](../../../extracted/unused/AttackTrailShort_unused.asm) |
+| `InitSmoothFollowChase_unused` | `$E655`–`$E683` | [`unused/InitSmoothFollowChase_unused.asm`](../../../extracted/unused/InitSmoothFollowChase_unused.asm) |
+| `CopyRefActorPos_unused` | `$F428`–`$F432` | [`unused/CopyRefActorPos_unused.asm`](../../../extracted/unused/CopyRefActorPos_unused.asm) |
 
 ---
 
@@ -302,6 +482,7 @@ Covers `$00B520`–`$00B808`: 20 thinkers for ambient palette cycling and one-sh
 | `oneshot_palette_flash_1C` | `$B7EA` | #1C | Snake Pit/Gold Ship |
 | `oneshot_palette_flash_40` | `$B7F4` | #40 | Angel Tunnel/Palace |
 | `oneshot_palette_flash_1F` | `$B7FE` | #1F | Itory Moon Tribe |
+| `DeathPaletteFadeThinker` | `$B5B3` | #10/#0E | Spawned by GameOverSequence |
 
 ### Unused
 
@@ -408,9 +589,9 @@ Covers player transition animations, red jewel rewards, statue inventory, and lo
 | `statue_inventory_reward` | `$CD59` | ✓ | Scene $FD: grants statue collectibles |
 | `inventory_statue_slot` | `$CF29` | ✓ | Scene $FF: displays collected statues |
 | `freejia_street_prop` | `$C62D` | ✓ | Interactive scenery (Freejia) |
-| `hidden_red_jewel` | `$C6A2` | ✓ | Collectible red jewel |
-| `town_door` | `$C5A3` | ✓ | Door warp trigger |
-| `floor_button` | `$C69B` | ✓ | Pressure plate actor |
+| `hidden_red_jewel` | `$C66F` | ✓ | Collectible red jewel |
+| `town_door` | `$C5F3` | ✓ | Door warp trigger |
+| `floor_button` | `$C9FB` | ✓ | Pressure plate actor |
 | `overworld_exit` | `$CA52` | ✓ | Complex warp/fade logic |
 | `field_reveal_object` | `$DA78` | ✓ | Animated reveal/collectible |
 
@@ -700,6 +881,18 @@ These blocks have inbound `$&` (2-byte same-bank) references and **cannot** be r
 | `thinker_00BEAA` duplicate | ⚠ Flagged | Byte-identical copy of `native_village_sine_hdma` — kept in unused |
 | `func_00DC79` duplicate | ⚠ Flagged | Short variant of `SpawnAttackTrailEffect` — kept in unused |
 
+### Part Decomposition Opportunities
+
+The following monolithic blocks contain many internal routines that would benefit from explicit `parts` registration in `blocks.json`:
+
+| Block | Internal Labels | Benefit |
+|-------|----------------|---------|
+| `overworld_exit` | 42 | Complex multi-state warp system with per-region handlers |
+| `interaction_handlers` | 25 | Three distinct handler types (gem, solid push, forceball) |
+| `player_transition_handlers` | 13 | 11 documented sub-functions for cutscene/warp animations |
+| `global_ambient_dispatcher` | 9 | Scene dispatch table with distinct palette and interaction paths |
+| `game_over_sequence` | 5 | Multi-phase death flow with sub-actors |
+
 ### Source Documents
 
 This documentation suite was generated from analysis of the complete bank $00 ASM codebase in `extracted/`.
@@ -707,4 +900,4 @@ This documentation suite was generated from analysis of the complete bank $00 AS
 ---
 
 *Source: Complete analysis of bank $00 ($008000–$00F4FF).*  
-*Last updated: 2026-09-06*
+*Last updated: 2026-09-18*

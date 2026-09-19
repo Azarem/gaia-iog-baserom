@@ -1,3 +1,8 @@
+; Escort NPC path-recording actor that samples the player's facing and position into a 9-waypoint ring buffer at $7EDF00.
+; 
+; Each frame advances orbitAngle by 8 and writes X/Y/facing triples so an escorted NPC can replay the player's recent path. Updates the escort actor's position and animation from the buffer when the player moves. Used for Kara/Lily escort sequences in Babel Tower and Incan Ruins.
+---------------------------------------------
+
 ?INCLUDE 'GetPlayerFacingDirection'
 
 !playerActor                    09AA
@@ -7,7 +12,7 @@
 ---------------------------------------------
 
 EscortFollowPathTracker {
-    PHX 
+    PHX                   ; EscortFollowPathTracker: dec orbitAngle timer or refresh facing when zero
     LDA $orbitAngle, X
     BEQ loc_00C810
     DEC 
@@ -26,17 +31,17 @@ EscortFollowPathTracker {
     STA $0000
     LDA $0016, Y
     STA $0002
-    LDA $@word_00C943+4, X
+    LDA $@EscortFollowPathDeltaTable+4, X
     STA $001C
     LDY #$0000
 
   loc_00C830:
-    LDA $@word_00C943, X
+    LDA $@EscortFollowPathDeltaTable, X ; Ring buffer: write 9 path snapshots (X/Y/facing) to $7EDF00 every 8 steps
     CLC 
     ADC $0000
     STA $0000
     STA $0018
-    LDA $@word_00C943+2, X
+    LDA $@EscortFollowPathDeltaTable+2, X
     CLC 
     ADC $0002
     STA $0002
@@ -79,7 +84,7 @@ EscortFollowPathTracker {
     BEQ loc_00C8F7
 
   loc_00C89F:
-    PHX 
+    PHX                   ; Replay ring buffer entry orbitAngle&$3F when player position diverges
     LDY $04
     LDA $orbitAngle, X
     AND #$003F
@@ -138,7 +143,7 @@ EscortFollowPathTracker {
     RTL 
 
   loc_00C924:
-    LDA $orbitAngle, X
+    LDA $orbitAngle, X    ; Advance orbitAngle by 8 each frame; refresh facing byte in ring slot on exit
     AND #$003F
     PHX 
     TAX 
@@ -152,7 +157,7 @@ EscortFollowPathTracker {
     RTL 
 }
 
-word_00C943 [
+EscortFollowPathDeltaTable [
   #$0000   ;00
   #$FFFE   ;01
   #$0001   ;02

@@ -1,3 +1,8 @@
+; Unreferenced one-shot HDMA sine generator using COP GenHdmaSine and QueueHdma instead of the InitSineHdma/BindSineHdma loop pattern.
+; 
+; Would have applied a single sine-table HDMA write rather than a continuous wave. Superseded by sine_hdma_slow_wave and native_village_sine_hdma.
+---------------------------------------------
+
 !animScratch2                   7F000E
 
 ---------------------------------------------

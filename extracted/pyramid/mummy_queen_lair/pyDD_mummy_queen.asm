@@ -1,7 +1,7 @@
 ?BANK 0B
 
-?INCLUDE 'cop_handlers_actors'
-?INCLUDE 'cop_handlers_script'
+?INCLUDE 'actor_pool'
+?INCLUDE 'cop_handlers_flags'
 ?INCLUDE 'func_0AA36E'
 ?INCLUDE 'func_0AFD69'
 ?INCLUDE 'py_queen_actor_0BAAAA'
@@ -107,7 +107,7 @@ pyDD_mummy_queen [
 
   code_0BA6B9:
     LDA #$0004
-    JSL $@cop_handlers_script.TestWramFlag_Offset100
+    JSL $@cop_handlers_flags.TestWramFlag_Offset100
     BCC loc_0BA6CA
     STZ $0AEC
     STZ $0AEE
@@ -214,7 +214,7 @@ code_0BA782 {
     CLC 
     ADC $0B02
     STA $loopCounter, X
-    COP [SpawnMarkedAfter] ( @smooth_follow_child.code_00E4FC, #$2000 )
+    COP [SpawnMarkedAfter] ( @smooth_follow_child.SmoothFollowChildTick, #$2000 )
     LDA $playerActor
     STA $0024, Y
 
@@ -405,7 +405,7 @@ code_0BA8FB {
     BEQ loc_0BA94E
     LDA #$0001
     STA $orbitAngle, X
-    COP [SpawnThinkerParam] ( #5C, @cop_handlers_actors.PaletteResetAndKillThinker )
+    COP [SpawnThinkerParam] ( #5C, @actor_pool.PaletteResetAndKillThinker )
     BRA loc_0BA94E
 
   loc_0BA936:
@@ -414,7 +414,7 @@ code_0BA8FB {
     BEQ loc_0BA94E
     LDA #$0002
     STA $orbitAngle, X
-    COP [SpawnThinkerParam] ( #5D, @cop_handlers_actors.PaletteResetAndKillThinker )
+    COP [SpawnThinkerParam] ( #5D, @actor_pool.PaletteResetAndKillThinker )
     BRA loc_0BA94E
 
   loc_0BA94E:

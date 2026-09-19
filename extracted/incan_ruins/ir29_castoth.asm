@@ -1,6 +1,6 @@
 ?INCLUDE 'ApplyOrbitalOffsetFromRef'
 ?INCLUDE 'camera_drift'
-?INCLUDE 'cop_handlers_script'
+?INCLUDE 'cop_handlers_flags'
 ?INCLUDE 'enemy_stats_table'
 ?INCLUDE 'func_0AA36E'
 ?INCLUDE 'player_transition_handlers'
@@ -154,7 +154,7 @@ ir29_castoth [
 
   code_0A9B06:
     LDA #$0000
-    JSL $@cop_handlers_script.TestWramFlag_Offset100
+    JSL $@cop_handlers_flags.TestWramFlag_Offset100
     BCC loc_0A9B17
     STZ $0AEC
     STZ $0AEE
@@ -1130,9 +1130,9 @@ code_0AA31D {
 
 func_0AA37B {
     LDY $playerActor
-    LDA #$*player_transition_handlers.loc_00C432
+    LDA #$*player_transition_handlers.PlayerIdleAnimLoop
     STA $0002, Y
-    LDA #$&player_transition_handlers.loc_00C432
+    LDA #$&player_transition_handlers.PlayerIdleAnimLoop
     STA $0000, Y
     LDA #$0000
     STA $0008, Y
@@ -1142,9 +1142,9 @@ func_0AA37B {
 
 func_0AA391 {
     LDY $playerActor
-    LDA #$*player_transition_handlers.loc_00C45A
+    LDA #$*player_transition_handlers.RestorePlayerControlDirect
     STA $0002, Y
-    LDA #$&player_transition_handlers.loc_00C45A
+    LDA #$&player_transition_handlers.RestorePlayerControlDirect
     STA $0000, Y
     LDA #$0000
     STA $0008, Y

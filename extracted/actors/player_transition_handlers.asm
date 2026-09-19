@@ -1,3 +1,10 @@
+; Shared library of player cutscene and transition COP scripts (Bank 00) consumed by 15+ scene and boss actors via direct entry-pointer writes or SpawnLastRel.
+; 
+; Entry points cover distinct gameplay moments: item reveal with metasprite staging, flag-gated sprite loops and Freedan body-sprite staging, scripted fall/jump sequences with joypad masking, layer priority, and landing animations, and a floor-fall handler that scans downward for solid type $04 tiles.
+; 
+; Most routines finish by restoring PlayerIdleEntry from player_character. Callers include Castoth, Sand Fanger, Sky Garden jump handler, Angkor Wat sequences, Gold Ship/Oakton rescue scenes, combat_collision knockdown paths, item_use_system, and warps_interaction.
+---------------------------------------------
+
 ?INCLUDE 'player_character'
 ?INCLUDE 'table_0EE000'
 
@@ -8,50 +15,50 @@
 ---------------------------------------------
 
 player_transition_handlers {
-    COP [SpawnLastRel] ( @code_00C423, #00, #00, #$0302 )
+    COP [SpawnLastRel] ( @PlayerItemRevealSpawn, #00, #00, #$0302 )
     COP [Die]
 }
 
-code_00C423 {
+PlayerItemRevealSpawn {
     COP [PlaySoundCh2] ( #09 )
     COP [SetMetasprite] ( @table_0EE000 )
     COP [StageSpriteFrame] ( #2A )
     COP [AnimOnce]
     COP [Die]
 
-  loc_00C432:
-    COP [BranchIfFlagByte] ( #00, #01, &code_00C43D )
+  PlayerIdleAnimLoop:
+    COP [BranchIfFlagByte] ( #00, #01, &PlayerIdleUseShadowSprite )
     COP [StagePlayerSprite] ( #01 )
-    BRA loc_00C440
+    BRA PlayerIdleAnimContinue
 }
 
-code_00C43D {
+PlayerIdleUseShadowSprite {
     COP [StagePlayerSprite] ( #11 )
 
-  loc_00C440:
+  PlayerIdleAnimContinue:
     COP [SetEntryContinue]
     COP [AnimOnce]
-    BRA loc_00C440
+    BRA PlayerIdleAnimContinue
 
-  loc_00C446:
+  PlayerStaticBodyPose:
     LDA #$0200
     TSB $10
     COP [SetPlayerBodySprite] ( #04 )
 
-  loc_00C44E:
+  PlayerStaticBodyAnimLoop:
     COP [StageSpriteFrame] ( #1F )
     COP [AnimOnce]
-    BRA loc_00C44E
+    BRA PlayerStaticBodyAnimLoop
 
-  loc_00C455:
+  PlayerWalkingIdlePose:
     LDA #$0200
     TRB $10
 
-  loc_00C45A:
-    JML $@player_character.PlayerIdleEntry
+  RestorePlayerControlDirect:
+    JML $@player_character.PlayerIdleEntry ; RestorePlayerControlDirect
 }
 
-code_00C45E {
+PlayerFreedanRevealIdle {
     COP [SetPlayerBodySprite] ( #04 )
     COP [SetEntryContinue]
     COP [StageSpriteFrame] ( #20 )
@@ -59,19 +66,19 @@ code_00C45E {
     RTL 
 }
 
-code_00C469 {
+PlayerIdleEntryJump {
     JML $@player_character.PlayerIdleEntry
 }
 
-code_00C46D {
+PlayerFreedanRevealExit {
     COP [SetPlayerBodySprite] ( #04 )
     COP [StageSpriteFrame] ( #20 )
     COP [AnimOnce]
     JML $@player_character.PlayerIdleEntry
 }
 
-code_00C479 {
-    LDA #$CFF0
+PlayerFallFromHeight {
+    LDA #$CFF0            ; Player fall: mask joypad $CFF0, set playerFlags $0800, force layer priority $0200
     TSB $joypadMaskStd
     LDA #$0800
     TSB $playerFlags
@@ -104,7 +111,7 @@ code_00C479 {
     JML $@player_character.PlayerIdleEntry
 }
 
-code_00C4D1 {
+PlayerSkyGardenJumpLanding {
     LDA #$0008
     TRB $10
     LDA #$2200
@@ -154,8 +161,8 @@ code_00C4D1 {
     JML $@player_character.PlayerIdleEntry
 }
 
-code_00C557 {
-    LDA #$0800
+PlayerAuraTransformEntry {
+    LDA #$0800            ; Aura transform: scan downward for solid type $04, align Y to $FFF0 grid
     TSB $playerFlags
     LDA #$0008
     TRB $10
@@ -172,27 +179,27 @@ code_00C557 {
     AND #$FFF0
     STA $16
 
-  loc_00C57E:
-    COP [BranchIfSolid] ( &code_00C58C )
+  PlayerAuraAlignToSolidSouth:
+    COP [BranchIfSolid] ( &PlayerAuraBlockedBySolid )
     LDA $16
     CLC 
     ADC #$0010
     STA $16
-    BRA loc_00C57E
+    BRA PlayerAuraAlignToSolidSouth
 }
 
-code_00C58C {
-    COP [BranchIfSolidTypeSouth] ( #04, &code_00C5A1 )
+PlayerAuraBlockedBySolid {
+    COP [BranchIfSolidTypeSouth] ( #04, &PlayerAuraDescendToFloor )
     LDA $24
     STA $14
     LDA $26
     STA $16
     COP [StageSpriteFrame] ( #01 )
     COP [AnimOnce]
-    JMP $&code_00C5E3
+    JMP $&PlayerAuraTransformExit
 }
 
-code_00C5A1 {
+PlayerAuraDescendToFloor {
     LDA $24
     STA $14
     LDA $26
@@ -200,38 +207,38 @@ code_00C5A1 {
     LDA #$2000
     TSB $10
 
-  code_00C5AE:
-    LDA $16
+  PlayerAuraScanSolidRow:
+    LDA $16               ; Per-row solid scan: BranchIfSolidType $04 only when Y mod 16 equals zero
     AND #$000F
-    BNE loc_00C5BA
-    COP [BranchIfSolidType] ( #04, &code_00C5C1 )
+    BNE PlayerAuraScanSolidNext
+    COP [BranchIfSolidType] ( #04, &PlayerAuraLandOnSolid )
 
-  loc_00C5BA:
+  PlayerAuraScanSolidNext:
     INC $16
-    COP [SetEntryExitNow] ( @code_00C5AE )
+    COP [SetEntryExitNow] ( @PlayerAuraScanSolidRow )
 }
 
-code_00C5C1 {
+PlayerAuraLandOnSolid {
     LDA #$2000
     TRB $10
     LDA #$0002
     TSB $10
 
-  loc_00C5CB:
+  PlayerAuraLandAnimLoop:
     COP [StageSpriteMoveY] ( #02, #01 )
     COP [AnimOnce]
-    COP [BranchIfSolidType] ( #00, &code_00C5D8 )
-    BRA loc_00C5CB
+    COP [BranchIfSolidType] ( #00, &PlayerAuraLandComplete )
+    BRA PlayerAuraLandAnimLoop
 }
 
-code_00C5D8 {
+PlayerAuraLandComplete {
     LDA #$0002
     TRB $10
     COP [StagePlayerMoveY] ( #1C, #00 )
     COP [AnimOnce]
 }
 
-code_00C5E3 {
+PlayerAuraTransformExit {
     LDA #$0008
     TSB $10
     LDA #$0200

@@ -1,3 +1,8 @@
+; One-frame thinker that writes warm color-add values ($66, $82) to the SNES COLDATA register, then immediately kills itself.
+; 
+; Provides an instant warm screen tint without a full palette fade. Spawned on Larai Cliff and related overworld scenes as part of their ambient thinker sets.
+---------------------------------------------
+
 !COLDATA                        2132
 
 ---------------------------------------------

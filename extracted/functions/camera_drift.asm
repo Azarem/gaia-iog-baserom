@@ -1,3 +1,8 @@
+; Camera drift effect library with three actor scripts.
+; 
+; CameraDriftLoopSimple applies random ±1 vertical drift for 120 frames; CameraDriftLoopShip adds player flag $0100 gating for ship scenes; CameraDriftPatterned walks an 8-entry binary offset table for structured sway. Used in Incan Ruins Castoth fight, pyramid danger rooms, Angel Village underwater tunnel, and other atmospheric sequences. Creates subtle unsettling camera movement during set-piece scenes.
+---------------------------------------------
+
 !cameraTargetX                  06BE
 !cameraDeltaX                   06C0
 !cameraTargetY                  06C2
@@ -7,7 +12,7 @@
 ---------------------------------------------
 
 CameraDriftLoopSimple {
-    COP [LoopInit] ( #78 )
+    COP [LoopInit] ( #78 ) ; CameraDriftLoopSimple: 120-frame loop applies RNG offset −1..+2 to cameraTargetY
     COP [RngByte]
     AND #$0003
     SEC 
@@ -24,7 +29,7 @@ CameraDriftLoopSimple {
     COP [Die]
 
   CameraDriftLoopShip:
-    LDA #$1000
+    LDA #$1000            ; CameraDriftLoopShip: TSB $12 bit $1000; skip drift when playerFlags $0100 set
     TSB $12
     STZ $26
     COP [LoopInit] ( #78 )
@@ -57,7 +62,7 @@ CameraDriftLoopSimple {
     COP [Die]
 
   CameraDriftPatterned:
-    COP [RngByte]
+    COP [RngByte]         ; CameraDriftPatterned: walk 8-entry binary_00D068 table for structured sway
     STA $28
     LDA #$0002
     STA $2A
@@ -79,7 +84,7 @@ CameraDriftLoopSimple {
     STZ $cameraTargetY
 
   loc_00D016:
-    LDA $24
+    LDA $24               ; Clamp cameraTargetY at zero if accumulated offset goes negative
     CMP #$FFFF
     BEQ loc_00D02C
     PLA 

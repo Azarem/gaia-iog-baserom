@@ -1,16 +1,21 @@
+; Breakable-wall debris effect that loops 8 times, spawning child actors with random ±16 pixel offsets, debris sprite frame #01, and crumbling sound #$0F.
+; 
+; Each child animates once and dies. Spawned when breakable walls are destroyed (Diamond Mine passage, Great Wall switch room). Standard destructible-wall particle burst.
+---------------------------------------------
+
 ?INCLUDE 'table_0EE000'
 
 ---------------------------------------------
 
 SpawnDebrisBurst {
-    COP [LoopInit] ( #08 )
+    COP [LoopInit] ( #08 ) ; SpawnDebrisBurst entry — particle burst actor at range boundary
     COP [WaitByte] ( #03 )
-    COP [SpawnAfterFlags] ( @code_00C9C9, #$0302 )
+    COP [SpawnAfterFlags] ( @DebrisBurstParticle, #$0302 )
     COP [LoopNext]
     COP [Die]
 }
 
-code_00C9C9 {
+DebrisBurstParticle {
     COP [SetMetasprite] ( @table_0EE000 )
     COP [SetSpritePalette] ( #00 )
     COP [SetSpritePriority] ( #30 )

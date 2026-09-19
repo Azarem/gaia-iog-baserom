@@ -77,7 +77,7 @@
 
 ?BANK 02
 
-?INCLUDE 'cop_handlers_script'
+?INCLUDE 'cop_handlers_flags'
 ?INCLUDE 'display_preset_table'
 ?INCLUDE 'hardware_math'
 ?INCLUDE 'QuintetLzDecompress'
@@ -237,7 +237,7 @@ SceneCmd_ConditionalLoad {
     REP #$20
     JSR $&ReadScriptByte  ; Read game flag index from script stream
     PHY 
-    JSL $@cop_handlers_script.TestFlagRaw ; Test flag via TestFlagRaw — carry set if flag is active
+    JSL $@cop_handlers_flags.TestFlagRaw ; Test flag via TestFlagRaw — carry set if flag is active
     PLY 
     BCC loc_028458
     PLP                   ; Flag active: skip remaining scene commands (conditional block)

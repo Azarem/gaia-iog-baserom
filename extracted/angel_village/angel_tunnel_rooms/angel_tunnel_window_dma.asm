@@ -1,3 +1,8 @@
+; One-shot window register DMA setup for Angel Village tunnel rooms.
+; 
+; Queues a 2-channel DMA burst via QueueDma: first entry targets register #$6F (WH0/WH1 horizontal window positions) with bytes #$15/#$70, second targets #$15 (WBGLOG window area logic) with #$01/#$00. Configures SNES window registers to mask background layers, producing the tunnel light-beam clipping effect. Runs once on scene entry then RTL.
+---------------------------------------------
+
 ---------------------------------------------
 
 angel_tunnel_window_dma [

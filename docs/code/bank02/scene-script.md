@@ -1091,7 +1091,7 @@ Reloads layer 1 map strip from the cached source pointer at `$06AC` into `$7F:00
 | [`decompress.asm`](../../../extracted/system/engine/decompress.asm) | `QuintetLzDecompress` — compressed payloads |
 | [`hardware_math.asm`](../../../extracted/system/engine/hardware_math.asm) | `SignedMultiply` — map dimension math |
 | [`vblank_joypad.asm`](../../../extracted/system/engine/vblank_joypad.asm) | `WaitFrames`, `EnableNmiOnly`, `EnableNmiAndJoypad` |
-| [`cop_handlers_script.asm`](../../../extracted/system/engine/cop_handlers_script.asm) | `TestFlagRaw` — conditional load `$13` |
+| [`cop_handlers_flags.asm`](../../../extracted/system/engine/cop_handlers_flags.asm) | `TestFlagRaw` — conditional load `$13` |
 | [`table_018000.asm`](../../../extracted/tables/table_018000.asm) | Display presets for command `$02` |
 | [`system_init.asm`](../../../extracted/system/engine/system_init.asm) | `cache_slot_indices` — ring-buffer mapping |
 

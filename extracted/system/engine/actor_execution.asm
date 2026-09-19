@@ -47,8 +47,8 @@
 
 ?BANK 03
 
+?INCLUDE 'actor_pool'
 ?INCLUDE 'body_table'
-?INCLUDE 'cop_handlers_actors'
 ?INCLUDE 'direction_velocity_table'
 ?INCLUDE 'enemy_stats_table'
 ?INCLUDE 'event_blocks'
@@ -791,7 +791,7 @@ ThinkerPoolAlloc {
 ; Clears the actor linked list head ($56) and tail ($58). Reads the scene_actors table using the current scene index ($0646) to find the scene's actor definition data.
 ; 
 ; For each actor entry in the table (terminated by $FF byte):
-; 1. Allocates a slot via cop_handlers_actors.ActorPoolAllocator
+; 1. Allocates a slot via actor_pool.ActorPoolAllocator
 ; 2. Links the new slot into a doubly-linked list ($04=prev, $06=next)
 ; 3. Calls InitActorFromSceneData to parse the binary actor record
 ; 4. If InitActorFromSceneData returns carry set (enemy was already defeated), the loop continues but the slot was freed internally
@@ -813,7 +813,7 @@ SpawnSceneActors {
     AND #$00FF
     CMP #$00FF            ; $FF = end-of-actor-list marker
     BEQ loc_03CEEC
-    JSL $@cop_handlers_actors.ActorPoolAllocator ; Allocate first actor slot
+    JSL $@actor_pool.ActorPoolAllocator ; Allocate first actor slot
     STY $0056             ; Store as linked list head ($56)
     BRA loc_03CEE3
 
@@ -822,7 +822,7 @@ SpawnSceneActors {
     AND #$00FF
     CMP #$00FF
     BEQ loc_03CEE9        ; $FF = end of list
-    JSL $@cop_handlers_actors.ActorPoolAllocator
+    JSL $@actor_pool.ActorPoolAllocator
     TYA 
     STA $0006, X          ; Link: new.$06 = previous, previous.$04 = new
     TXA 

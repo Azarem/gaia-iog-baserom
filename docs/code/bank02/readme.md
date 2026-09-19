@@ -175,7 +175,7 @@ A self-contained inventory actor:
 
 ```
 inventory_menu.asm (?BANK 02)
-  ├─ cop_handlers_script        (ref only)
+  ├─ cop_handlers_flags         (ref only)
   ├─ inventory_spritemap        (spritemap data)
   └─ system_strings             (text data)
 ```

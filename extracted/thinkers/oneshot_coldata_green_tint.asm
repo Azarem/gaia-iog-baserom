@@ -1,3 +1,8 @@
+; One-shot thinker that applies a green color-add tint via three COLDATA writes ($2B, $44, $82), then kills itself.
+; 
+; Runs once at scene load on South Cape scene group. Gives that area its distinctive green atmospheric cast before the warm palette cycler takes over.
+---------------------------------------------
+
 !COLDATA                        2132
 
 ---------------------------------------------

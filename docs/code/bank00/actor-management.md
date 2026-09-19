@@ -2,7 +2,7 @@
 
 **Bank:** `$00` (mirrored at `$80` for FastROM access)  
 **Address range:** `$00A608`–`$00B519` (death cleanup, unlink, allocators, pool, palette helper)  
-**ASM files:** `extracted/system/engine/cop_handlers_actors.asm`, `extracted/system/engine/cop_handlers_collision.asm` (partial)
+**ASM files:** `extracted/system/engine/actor_pool.asm`, `cop_handlers_lifecycle.asm`, `cop_handlers_movement.asm` (partial)
 
 This page documents how Illusion of Gaia **allocates**, **links**, **copies state between**, and **recycles** actor slots in the doubly-linked actor list. The actor pool, predecessor/successor pointers, and parent-child marking (`$7F001C`) underpin every spawn, death, and thinker COP in the engine.
 

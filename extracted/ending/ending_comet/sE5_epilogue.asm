@@ -1,4 +1,4 @@
-?INCLUDE 'cop_handlers_actors'
+?INCLUDE 'actor_pool'
 ?INCLUDE 'sE6_gaia'
 ?INCLUDE 'table_0EDA00'
 ?INCLUDE 'table_0EE000'
@@ -22,7 +22,7 @@ sE5_epilogue [
     TSB $joypadMaskStd
     LDA #$4001
     TSB $displayModeFlags
-    COP [SpawnThinkerParam] ( #0B, @cop_handlers_actors.PaletteResetAndKillThinker )
+    COP [SpawnThinkerParam] ( #0B, @actor_pool.PaletteResetAndKillThinker )
     LDA #$1062
     STA $cgramPalette
     COP [BranchIfFlagByte] ( #DB, #01, &code_0BD374 )

@@ -1,4 +1,9 @@
-?INCLUDE 'cop_handlers_script'
+; Floor pressure-plate actor with solid collision, 255 HP, and a hit callback.
+; 
+; When struck, sets a scene flag from the actor's $24 parameter, animates press frames #0F→#10→#0F, and waits 15 frames before resetting. Used in pyramid puzzle rooms and dungeon switch layouts. Triggers puzzle state when the player or objects land on the plate.
+---------------------------------------------
+
+?INCLUDE 'cop_handlers_flags'
 ?INCLUDE 'enemy_stats_table'
 ?INCLUDE 'table_0EE000'
 
@@ -27,15 +32,15 @@ floor_button [
   loc_00CA1F:
     LDA #$00FF
     STA $currentHp, X
-    COP [SetHitCallback] ( &code_00CA2D )
+    COP [SetHitCallback] ( &FloorButtonHitCallback )
     COP [SetEntryContinue]
     RTL 
 } >
 ]
 
-code_00CA2D {
+FloorButtonHitCallback {
     LDA $24
-    JSL $@cop_handlers_script.SetFlagRaw
+    JSL $@cop_handlers_flags.SetFlagRaw
     COP [StageSpriteFrame] ( #10 )
     COP [AnimOnce]
     COP [WaitByte] ( #0F )

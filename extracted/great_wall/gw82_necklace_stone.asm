@@ -1,4 +1,4 @@
-?INCLUDE 'cop_handlers_script'
+?INCLUDE 'cop_handlers_flags'
 ?INCLUDE 'f_inventory_full'
 ?INCLUDE 'table_0EE000'
 
@@ -17,7 +17,7 @@ gw82_necklace_stone [
     LDA $@byte_07B5F5, X
     AND #$00FF
     PLX 
-    JSL $@cop_handlers_script.TestFlagRaw
+    JSL $@cop_handlers_flags.TestFlagRaw
     BCS loc_07B5EF
     LDA #$2000
     STA $0E
@@ -44,7 +44,7 @@ code_07B5E0 {
     LDA $@byte_07B5F5, X
     AND #$00FF
     PLX 
-    JSL $@cop_handlers_script.SetFlagRaw
+    JSL $@cop_handlers_flags.SetFlagRaw
 
   loc_07B5EF:
     COP [Die]

@@ -1,3 +1,8 @@
+; Unreferenced smooth-follow initializer that spawns smooth_follow.InitFollowAndChase instead of the active smooth_follow_child path.
+; 
+; Waits for animScratch2 countdown and flag $4000 before dying. Alternative chase setup likely replaced by the active smooth_follow_child implementation in boss scripts.
+---------------------------------------------
+
 ?INCLUDE 'smooth_follow'
 
 !animScratch2                   7F000E

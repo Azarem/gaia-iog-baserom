@@ -1,3 +1,12 @@
+; Hub thinker spawned in nearly every field scene—~60 entries in scene_thinkers.asm, typically as the final slot in multi-thinker sets or the sole thinker in minimal scenes (Bank $00, ~545 bytes).
+; 
+; Dual responsibility: (1) ambient character palette dispatch via SwitchCase on $0AD4 (current form index)—selects PaletteStart bundles #0B, #0C, or #23 for Will/Freedan/Shadow color grading, then PaletteStep; (2) player-proximity NPC interaction when joypad bit $8000 is set.
+; 
+; Interaction path calls GetPlayerFacingDirection, then scans all active actors within 16×16 pixels of the player in the facing direction. If a qualifying actor has a linked script and the player presses a direction, it triggers sound and invokes the actor's talk/interact handler.
+; 
+; Present from early South Cape scenes through late-game areas; pairs with scene-specific thinkers (palette cyclers, HDMA waves, parallax) while providing universal character tinting and the field interaction system.
+---------------------------------------------
+
 ?INCLUDE 'GetPlayerFacingDirection'
 ?INCLUDE 'sprite_composition'
 
@@ -12,43 +21,43 @@
 global_ambient_dispatcher [
   thinker-def < #00, #08, {
 
-  code_00BF8B:
-    COP [SwitchCase] ( #$0AD4, &code_list_00BF91 )
+  GlobalAmbientDispatchEntry:
+    COP [SwitchCase] ( #$0AD4, &code_list_00BF91 ) ; SwitchCase on $0AD4 — dispatch Will/Freedan/Shadow/default ambient palette set
 } >
 ]
 
 code_list_00BF91 [
-  &code_00BF99   ;00
-  &code_00BFA0   ;01
-  &code_00BFA7   ;02
-  &code_00BFAE   ;03
+  &GlobalAmbientPaletteWill   ;00
+  &GlobalAmbientPaletteFreedan   ;01
+  &GlobalAmbientPaletteShadow   ;02
+  &GlobalAmbientPaletteDefault   ;03
 ]
 
-code_00BF99 {
+GlobalAmbientPaletteWill {
     COP [PaletteStart] ( #0B )
     COP [PaletteStep]
-    BRA loc_00BFB5
+    BRA GlobalAmbientInteractEntry
 }
 
-code_00BFA0 {
+GlobalAmbientPaletteFreedan {
     COP [PaletteStart] ( #0C )
     COP [PaletteStep]
-    BRA loc_00BFB5
+    BRA GlobalAmbientInteractEntry
 }
 
-code_00BFA7 {
+GlobalAmbientPaletteShadow {
     COP [PaletteStart] ( #23 )
     COP [PaletteStep]
-    BRA loc_00BFB5
+    BRA GlobalAmbientInteractEntry
 }
 
-code_00BFAE {
+GlobalAmbientPaletteDefault {
     COP [PaletteStart] ( #0C )
     COP [PaletteStep]
-    BRA loc_00BFB5
+    BRA GlobalAmbientInteractEntry
 
-  loc_00BFB5:
-    LDA $animScratch2, X
+  GlobalAmbientInteractEntry:
+    LDA $animScratch2, X  ; TRB animScratch2 bit 11; RTL unless joypad A held (bit 15 of joypadCurrent)
     AND #$F7FF
     STA $animScratch2, X
     COP [SetEntryExit]
@@ -57,119 +66,119 @@ code_00BFAE {
     TCD 
     LDA $joypadCurrent
     BIT #$8000
-    BEQ loc_00BFD2
-    JMP $&code_00BFD4
+    BEQ GlobalAmbientNoInteractInput
+    JMP $&GlobalAmbientOnDirectionPress
 
-  loc_00BFD2:
+  GlobalAmbientNoInteractInput:
     PLD 
     RTL 
 }
 
-code_00BFD4 {
-    JSL $@GetPlayerFacingDirection
-    BCC loc_00BFDC
+GlobalAmbientOnDirectionPress {
+    JSL $@GetPlayerFacingDirection ; Direction press: save facing to $09EE, scan actors in 16px cone ahead of player
+    BCC GlobalAmbientFacingInvalid
     PLD 
     RTL 
 
-  loc_00BFDC:
+  GlobalAmbientFacingInvalid:
     STA $09EE
     LDY $playerActor
     PHP 
     REP #$20
     AND #$00FF
-    BEQ loc_00BFF2
+    BEQ GlobalAmbientScanEast
     DEC 
-    BEQ loc_00C00C
+    BEQ GlobalAmbientScanWest
     DEC 
-    BEQ loc_00C026
-    BRA loc_00C040
+    BEQ GlobalAmbientScanNorth
+    BRA GlobalAmbientScanSouth
 
-  loc_00BFF2:
+  GlobalAmbientScanEast:
     LDA $0014, Y
     STA $18
     LDA $0016, Y
     INC 
     STA $1C
-    JSR $&code_00C133
-    BEQ loc_00C05A
+    JSR $&GlobalAmbientFindActorInFront
+    BEQ GlobalAmbientNoTargetFound
     LDA $0016, X
     SEC 
     SBC $1C
-    BMI loc_00C05D
-    BRA loc_00C06A
+    BMI GlobalAmbientTargetBehindPlayer
+    BRA GlobalAmbientTargetInRange
 
-  loc_00C00C:
+  GlobalAmbientScanWest:
     LDA $0014, Y
     STA $18
     LDA $0016, Y
     DEC 
     STA $1C
-    JSR $&code_00C133
-    BEQ loc_00C05A
+    JSR $&GlobalAmbientFindActorInFront
+    BEQ GlobalAmbientNoTargetFound
     LDA $1C
     SEC 
     SBC $0016, X
-    BMI loc_00C05D
-    BRA loc_00C06A
+    BMI GlobalAmbientTargetBehindPlayer
+    BRA GlobalAmbientTargetInRange
 
-  loc_00C026:
+  GlobalAmbientScanNorth:
     LDA $0014, Y
     DEC 
     STA $18
     LDA $0016, Y
     STA $1C
-    JSR $&code_00C133
-    BEQ loc_00C05A
+    JSR $&GlobalAmbientFindActorInFront
+    BEQ GlobalAmbientNoTargetFound
     LDA $18
     SEC 
     SBC $0014, X
-    BMI loc_00C05D
-    BRA loc_00C06A
+    BMI GlobalAmbientTargetBehindPlayer
+    BRA GlobalAmbientTargetInRange
 
-  loc_00C040:
+  GlobalAmbientScanSouth:
     LDA $0014, Y
     INC 
     STA $18
     LDA $0016, Y
     STA $1C
-    JSR $&code_00C133
-    BEQ loc_00C05A
+    JSR $&GlobalAmbientFindActorInFront
+    BEQ GlobalAmbientNoTargetFound
     LDA $0014, X
     SEC 
     SBC $18
-    BMI loc_00C05D
-    BRA loc_00C06A
+    BMI GlobalAmbientTargetBehindPlayer
+    BRA GlobalAmbientTargetInRange
 
-  loc_00C05A:
+  GlobalAmbientNoTargetFound:
     PLP 
     PLD 
     RTL 
 
-  loc_00C05D:
+  GlobalAmbientTargetBehindPlayer:
     LDA $chatPtr, X
-    BNE loc_00C066
-    JMP $&code_00C0DE
+    BNE GlobalAmbientInvokeLinkedScript
+    JMP $&GlobalAmbientClearTalkInput
 
-  loc_00C066:
-    TXA 
+  GlobalAmbientInvokeLinkedScript:
+    TXA                   ; Target behind player: TSB joypadHeld A and invoke linked chat script
     TCD 
-    BRA loc_00C07F
+    BRA GlobalAmbientDeferToScript
 
-  loc_00C06A:
+  GlobalAmbientTargetInRange:
     LDA #$8000
     TSB $joypadHeld
     LDA $chatPtr, X
-    BEQ loc_00C0EA
+    BEQ GlobalAmbientInteractExit
     TXA 
     TCD 
     LDA $12
     BIT #$0200
-    BEQ loc_00C097
+    BEQ GlobalAmbientPlayTalkSound
 
-  loc_00C07F:
-    SEP #$20
+  GlobalAmbientDeferToScript:
+    SEP #$20              ; Play SFX $2F via $0402 jump table before deferring to linked NPC script
     PHK 
-    PEA $&code_00C0DE-1
+    PEA $&GlobalAmbientClearTalkInput-1
     LDA $02
     PHA 
     REP #$20
@@ -180,7 +189,7 @@ code_00BFD4 {
     TSB $joypadHeld
     RTL 
 
-  loc_00C097:
+  GlobalAmbientPlayTalkSound:
     SEP #$20
     LDA #$7E
     STA $0404
@@ -200,13 +209,13 @@ code_00BFD4 {
     JSR $0402
     TDC 
     TAX 
-    JSR $&code_00C182
+    JSR $&GlobalAmbientPickTalkAnimFrame
     STA $28
     STZ $2A
     JSL $@sprite_composition.UpdateActorAnimation
     SEP #$20
     PHK 
-    PEA $&code_00C0ED-1
+    PEA $&GlobalAmbientTalkSoundResume-1
     LDA $02
     PHA 
     REP #$20
@@ -216,19 +225,19 @@ code_00BFD4 {
     RTL 
 }
 
-code_00C0DE {
+GlobalAmbientClearTalkInput {
     LDA #$8000
     TRB $joypadCurrent
     LDA #$8000
     TSB $joypadHeld
 
-  loc_00C0EA:
+  GlobalAmbientInteractExit:
     PLP 
     PLD 
     RTL 
 }
 
-code_00C0ED {
+GlobalAmbientTalkSoundResume {
     TXY 
     LDA $06
     PHA 
@@ -252,11 +261,11 @@ code_00C0ED {
     TDC 
     TAX 
     LDA $06
-    BNE loc_00C123
+    BNE GlobalAmbientTalkSoundCleanup
     LDA $01, S
     STA $06
 
-  loc_00C123:
+  GlobalAmbientTalkSoundCleanup:
     PLA 
     LDA #$8000
     TRB $joypadCurrent
@@ -267,72 +276,72 @@ code_00C0ED {
     RTL 
 }
 
-code_00C133 {
-    LDA #$0020
+GlobalAmbientFindActorInFront {
+    LDA #$0020            ; Actor scan: require status bit $1000 and ≤$10 Manhattan distance from probe point
     STA $02
     STZ $00
     STZ $04
     LDA $0056
-    BRA loc_00C144
+    BRA GlobalAmbientScanLoop
 
-  loc_00C141:
+  GlobalAmbientScanNextActor:
     LDA $0006, X
 
-  loc_00C144:
+  GlobalAmbientScanLoop:
     TAX 
-    BEQ loc_00C17F
+    BEQ GlobalAmbientScanDone
     LDA $0010, X
     BIT #$1000
-    BEQ loc_00C141
+    BEQ GlobalAmbientScanNextActor
     LDA $0014, X
     SEC 
     SBC $18
-    BPL loc_00C15B
+    BPL GlobalAmbientCheckDeltaX
     EOR #$FFFF
     INC 
 
-  loc_00C15B:
-    CMP #$0010
-    BCS loc_00C141
+  GlobalAmbientCheckDeltaX:
+    CMP #$0010            ; Abs delta-X ≤$10 check; keep nearest actor index in running minimum at $04
+    BCS GlobalAmbientScanNextActor
     STA $00
     LDA $0016, X
     SEC 
     SBC $1C
-    BPL loc_00C16E
+    BPL GlobalAmbientCheckDeltaY
     EOR #$FFFF
     INC 
 
-  loc_00C16E:
+  GlobalAmbientCheckDeltaY:
     CMP #$0010
-    BCS loc_00C141
+    BCS GlobalAmbientScanNextActor
     ADC $00
     CMP $02
-    BCS loc_00C141
+    BCS GlobalAmbientScanNextActor
     STA $02
     STX $04
-    BRA loc_00C141
+    BRA GlobalAmbientScanNextActor
 
-  loc_00C17F:
+  GlobalAmbientScanDone:
     LDX $04
     RTS 
 }
 
-code_00C182 {
-    LDA $09EE
+GlobalAmbientPickTalkAnimFrame {
+    LDA $09EE             ; Map saved facing in $09EE to talk animation frame offset for sprite update
     AND #$00FF
     BIT #$0002
-    BNE loc_00C193
+    BNE GlobalAmbientAnimFacingVertical
     INC 
     AND #$0001
-    BRA loc_00C199
+    BRA GlobalAmbientAnimFacingApply
 
-  loc_00C193:
+  GlobalAmbientAnimFacingVertical:
     INC 
     AND #$0001
     INC 
     INC 
 
-  loc_00C199:
+  GlobalAmbientAnimFacingApply:
     STA $09EE
     LDA $28
     DEC 

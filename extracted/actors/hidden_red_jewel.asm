@@ -1,4 +1,9 @@
-?INCLUDE 'cop_handlers_script'
+; Interactable hidden Red Jewel pickup actor.
+; 
+; Sets an on-interact handler that tests event flag $0200+actorID; on first pickup gives item #01 (Red Jewel) and shows found/full dialog, then sets the flag. Jumped into by native village and Euro mansion hidden-jewel actors. Reusable hidden collectible template placed in secret locations across the world.
+---------------------------------------------
+
+?INCLUDE 'cop_handlers_flags'
 ?INCLUDE 'table_0EE000'
 
 ---------------------------------------------
@@ -7,7 +12,7 @@ hidden_red_jewel [
   actor-def < #00, #00, #30, {
 
   code_00C672:
-    COP [SetOnInteract] ( &code_00C681 )
+    COP [SetOnInteract] ( &HiddenRedJewelInteract )
     COP [SetMetasprite] ( @table_0EE000 )
     COP [StageSprAndHitbox] ( #00 )
     COP [SetEntryContinue]
@@ -15,22 +20,22 @@ hidden_red_jewel [
 } >
 ]
 
-code_00C681 {
-    LDA $0E
+HiddenRedJewelInteract {
+    LDA $0E               ; Hidden jewel interact: test event flag $0200+actorIndex before GiveItem
     CLC 
     ADC #$0080
-    JSL $@cop_handlers_script.TestEventFlag_0200
+    JSL $@cop_handlers_flags.TestEventFlag_0200
     BCS loc_00C6A5
-    COP [GiveItem] ( #01, &code_00C6A1 )
+    COP [GiveItem] ( #01, &HiddenRedJewelInventoryFull )
     COP [PrintDialogString] ( &dialogstring_00C6A6 )
     LDA $0E
     CLC 
     ADC #$0080
-    JSL $@cop_handlers_script.SetEventFlag_0200
+    JSL $@cop_handlers_flags.SetEventFlag_0200
     RTL 
 }
 
-code_00C6A1 {
+HiddenRedJewelInventoryFull {
     COP [PrintDialogString] ( &dialogstring_00C6BF )
 
   loc_00C6A5:

@@ -1,4 +1,4 @@
-?INCLUDE 'cop_handlers_script'
+?INCLUDE 'cop_handlers_flags'
 ?INCLUDE 'dark_space'
 
 ---------------------------------------------
@@ -8,11 +8,11 @@ pyCC_actor_08B668 [
 
   code_08B66B:
     LDA $0E
-    JSL $@cop_handlers_script.TestFlag_0100
+    JSL $@cop_handlers_flags.TestFlag_0100
     BCS loc_08B67E
     COP [SetEntryContinue]
     LDA $0E
-    JSL $@cop_handlers_script.TestFlag_0100
+    JSL $@cop_handlers_flags.TestFlag_0100
     BCS loc_08B67E
     RTL 
 

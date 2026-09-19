@@ -45,7 +45,7 @@ code_0893A3 {
 }
 
 code_0893B6 {
-    JML $@hidden_red_jewel.code_00C6A1
+    JML $@hidden_red_jewel.HiddenRedJewelInventoryFull
 }
 
 code_0893BA {

@@ -54,8 +54,8 @@
 ?BANK 02
 
 ?INCLUDE 'ability_anim_tables'
+?INCLUDE 'actor_pool'
 ?INCLUDE 'ApplyOrbitalOffsetFromRef'
-?INCLUDE 'cop_handlers_actors'
 ?INCLUDE 'player_character'
 ?INCLUDE 'table_0EE000'
 ?INCLUDE 'table_178000'
@@ -585,7 +585,7 @@ DarkFriarMain {
 
   loc_02BB77:
     COP [CopyPalette] ( @fx_palette_198070, #00, #A0, #10 ) ; Copy Dark Friar FX palette: 16 words from offset $00 into CGRAM position $A0
-    COP [SpawnThinkerParam] ( #4A, @cop_handlers_actors.PaletteResetAndKillThinker ) ; Spawn palette reset thinker (ID #4A) — auto-restores palette on ability end
+    COP [SpawnThinkerParam] ( #4A, @actor_pool.PaletteResetAndKillThinker ) ; Spawn palette reset thinker (ID #4A) — auto-restores palette on ability end
     COP [GetPlayerFacing] ; Get player facing for directional projectile dispatch (0=S, 1=N, 2=W, 3=E)
     AND #$0003
     STA $0000

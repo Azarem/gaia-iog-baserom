@@ -1,22 +1,27 @@
+; Hit-spark OAM effect that writes four tile entries flanking the hit position into the OAM compose buffer at $7F3100.
+; 
+; Runs 8 frames at original Y, then 16 frames drifting upward. Spawned during inventory-screen hit feedback. Lightweight spark burst without full actor overhead.
+---------------------------------------------
+
 !oamComposeBuffer               7F3100
 
 ---------------------------------------------
 
 SpawnHitSparkSprites {
     COP [LoopInit] ( #08 )
-    JSR $&code_00DD1D
+    JSR $&AppendHitSparkOamEntry
     COP [LoopNext]
     COP [LoopInit] ( #10 )
     LDA $16
     CLC 
     ADC #$FFFF
     STA $16
-    JSR $&code_00DD1D
+    JSR $&AppendHitSparkOamEntry
     COP [LoopNext]
     COP [Die]
 }
 
-code_00DD1D {
+AppendHitSparkOamEntry {
     PHX 
     LDX $00D8
     LDA #$327A

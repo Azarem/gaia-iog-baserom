@@ -102,7 +102,7 @@ code_048474 {
 }
 
 code_048475 {
-    JML $@hidden_red_jewel.code_00C6A1
+    JML $@hidden_red_jewel.HiddenRedJewelInventoryFull
 }
 
 dialogstring_048479 `[DLG:3,11][SIZ:D,3]You've found[N]a Red Jewel![END]`

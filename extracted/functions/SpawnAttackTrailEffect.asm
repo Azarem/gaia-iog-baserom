@@ -1,3 +1,8 @@
+; Combat floating damage-number effect that spawns ghost copies of digit sprites interpolated between the attacker's previous and current position using oam_digit_compose.ComposeDigitSprites.
+; 
+; Renders 16 frames at position then 16 more frames drifting upward. Called by combat_collision when the player or enemies take damage. Renders the classic IOG floating damage numbers.
+---------------------------------------------
+
 ?INCLUDE 'oam_digit_compose'
 
 ---------------------------------------------

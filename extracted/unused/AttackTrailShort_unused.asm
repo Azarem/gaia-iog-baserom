@@ -1,3 +1,8 @@
+; Unreferenced shortened attack trail effect, a reduced variant of SpawnAttackTrailEffect.
+; 
+; Composes only 4 upward digit-sprite frames plus 32 more (vs 16+16), with a smaller Y offset ($FFF8). Would have rendered a shorter floating damage number trail. Never called by combat_collision or any actor script.
+---------------------------------------------
+
 ?INCLUDE 'oam_digit_compose'
 
 ---------------------------------------------

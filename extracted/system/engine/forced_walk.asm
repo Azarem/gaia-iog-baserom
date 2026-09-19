@@ -1,3 +1,10 @@
+; Cutscene auto-walk and camera-pan actors (Bank 00) spawned by warps_interaction.StartForcedWalk during extended warp transitions.
+; 
+; ForcedWalkSouth/North/West/East each mask all joypad input, index forced_walk_sequence_table from scrollStepTableBase, pan the camera in the walk direction (PanCameraDown/Up/Left/Right), apply scroll offsets via ApplyScrollOffset, stage direction-specific player sprites from direction_velocity_table and movement_delta_table, and SyncPlayerToCamera before dying.
+; 
+; StartForcedWalk decodes scrollStepTableBase bit flags (bit 5=west, 4=east, 7=north, default south) and SpawnBefore the matching handler on the player actor while setting playerFlags $0100/$2000. ReadDirSprite_X/YVelocity helpers pull per-step deltas from the shared movement tables also used by hit stagger and world map travel.
+---------------------------------------------
+
 ?BANK 00
 
 ?INCLUDE 'direction_velocity_table'
@@ -12,8 +19,12 @@
 
 ---------------------------------------------
 
+; Cutscene auto-walk actor spawned on the player by StartForcedWalk during extended warp transitions.
+; 
+; Masks all joypad input, indexes forced_walk_sequence_table from scrollStepTableBase, stages south-facing player sprites via ReadDirSprite_YVelocity, pans the camera down (PanCameraDown), applies scroll offsets, re-syncs the player sprite, and calls SyncPlayerToCamera before dying. Default direction when no east/west/north bit is set.
+
 ForcedWalkSouth {
-    LDA #$6000
+    LDA #$6000            ; ForcedWalkSouth: TSB joypadMaskStd $FFFF, zero joypadCurrent, mask $12 $6000
     TRB $12
     COP [SetEntryContinue]
     LDA #$FFFF
@@ -162,8 +173,12 @@ ForcedWalkSouth {
 }
 ---------------------------------------------
 
+; Advances the forced-walk data stream and resolves south/north sprite frame plus Y-axis animation duration.
+; 
+; Increments the stream pointer at $0650, reads the next direction byte, looks up a base sprite frame in direction_velocity_table (stored to $0000), and fetches a movement-delta index into movement_delta_table (stored to $2E as frame duration). Has a sibling ReadDirSprite_XVelocity for east/west walks.
+
 ReadDirSprite_YVelocity {
-    LDY $0650
+    LDY $0650             ; ReadDirSprite_YVelocity: pull step delta from direction_velocity_table to $2E
     INC $0650
     LDA $0000, Y
     AND #$00FF
@@ -216,7 +231,7 @@ ApplyScrollOffset {
 }
 
 SyncPlayerToCamera {
-    LDY $playerActor
+    LDY $playerActor      ; SyncPlayerToCamera: copy $14/$16 to player actor, set $0008 clear $0400
     LDA $14
     STA $0014, Y
     LDA $16

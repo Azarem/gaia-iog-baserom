@@ -1,7 +1,7 @@
 # Bank $00 — Hardware Math Helpers & Movement Initialization
 
 **Address range:** `$008D25`–`$008FDC`  
-**Source file:** [`extracted/system/engine/cop_handlers_collision.asm`](../../../extracted/system/engine/cop_handlers_collision.asm)  
+**Source file:** [`extracted/system/engine/cop_handlers_movement.asm`](../../../extracted/system/engine/cop_handlers_movement.asm)  
 **Related:** [`cop-dispatch.md`](cop-dispatch.md) (COP `$22` MoveToward, `$52` StageMove, `$53` TickMove)
 
 These routines implement the hardware-accelerated math pipeline and smooth-movement state initialization used by IOG's actor movement COPs. All multiply/divide operations use the SNES WRAM-mapped math registers at `$4202`–`$4217`.
@@ -41,7 +41,7 @@ Provides the mandatory pipeline delay after writing to `$WRMPYB`, then reads the
 
 #### Source
 
-```840:844:extracted/system/engine/cop_handlers_collision.asm
+```840:844:extracted/system/engine/cop_handlers_movement.asm
 ReadMultiplyResult {
     NOP 
     LDY $RDMPYL
@@ -84,7 +84,7 @@ Provides the pipeline delay after writing `$WRDIVL`/`$WRDIVB`, then reads the qu
 
 #### Source
 
-```846:854:extracted/system/engine/cop_handlers_collision.asm
+```846:854:extracted/system/engine/cop_handlers_movement.asm
 ReadDivideResult {
     NOP 
     NOP 
@@ -141,7 +141,7 @@ Used by COP `$22` (MoveToward) to compute per-frame pixel velocity along each ax
 
 #### Source
 
-```856:869:extracted/system/engine/cop_handlers_collision.asm
+```856:869:extracted/system/engine/cop_handlers_movement.asm
 MultiplyThenDivide {
     STA $WRMPYB
     JSR $&ReadMultiplyResult
@@ -278,7 +278,7 @@ This is the mechanism behind StageMove's loop that repeatedly LSRs distances > $
 
 #### Source
 
-```1088:1099:extracted/system/engine/cop_handlers_collision.asm
+```1088:1099:extracted/system/engine/cop_handlers_movement.asm
 HalveMovementDistance {
     LDA $7F0018, X
     LSR 
@@ -336,7 +336,7 @@ The carry flag on exit is significant: the caller (`TickMove`) executes `SBC $7F
 
 #### Source
 
-```1218:1235:extracted/system/engine/cop_handlers_collision.asm
+```1218:1235:extracted/system/engine/cop_handlers_movement.asm
 MovementVelocityCompute {
     STA $WRMPYB
     LDA $7F000E, X
@@ -441,4 +441,4 @@ MovementVelocityCompute {
 - [`cop-commands-reference.md`](../../cop-commands-reference.md) — Full MoveToward/StageMove/TickMove operand docs
 - Bank $02 `UnsignedDivide` — Step count division in InitSmoothMovement
 
-*Source: [`extracted/system/engine/cop_handlers_collision.asm`](../../../extracted/system/engine/cop_handlers_collision.asm)*
+*Source: [`extracted/system/engine/cop_handlers_movement.asm`](../../../extracted/system/engine/cop_handlers_movement.asm)*

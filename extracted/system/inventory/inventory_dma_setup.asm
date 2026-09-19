@@ -1,3 +1,8 @@
+; Thinker that queues a 12-byte DMA channel table to VRAM each frame via QueueDma.
+; 
+; Configures transfers targeting video registers for the inventory screen layout. Spawned on scene $FF (inventory menu) as the primary VRAM DMA driver for the inventory screen.
+---------------------------------------------
+
 ---------------------------------------------
 
 inventory_dma_setup [

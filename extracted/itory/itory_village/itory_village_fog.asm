@@ -1,3 +1,8 @@
+; Position-dependent fog overlay for Itory Village's west side.
+; 
+; Reads the player actor's X coordinate and compares against threshold #$01B0 (432 pixels). West of the threshold: writes #$50 to CGADSUB ($2131) for halftone subscreen color addition fog; east of it: clears CGADSUB to #$00. Exits entirely when flag #2B is set; runs every frame via SetEntryContinue otherwise.
+---------------------------------------------
+
 !playerActor                    09AA
 !CGADSUB                        2131
 

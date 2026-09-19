@@ -39,9 +39,9 @@
 
 ?BANK 03
 
+?INCLUDE 'actor_pool'
 ?INCLUDE 'ambient_palette_cycler'
 ?INCLUDE 'ApplyOrbitalOffsetFromRef'
-?INCLUDE 'cop_handlers_actors'
 ?INCLUDE 'hdma_dma_spc'
 ?INCLUDE 'inventory_mgmt'
 ?INCLUDE 'music_actors'
@@ -905,7 +905,7 @@ code_038F3B {
 
 UseItem_MemoryMelody_Effect {
     COP [RemoveItem] ( #0D )
-    COP [SpawnThinkerParam] ( #1B, @cop_handlers_actors.PaletteResetAndKillThinker )
+    COP [SpawnThinkerParam] ( #1B, @actor_pool.PaletteResetAndKillThinker )
     COP [SetFlagByte] ( #0F )
     COP [RestoreSavedPtr]
 }
@@ -1627,9 +1627,9 @@ UseItem_Aura {
     CMP #$0002
     BNE loc_039CDC
     LDY $playerActor      ; Initiate Aura transformation by overriding player function to code_00C557
-    LDA #$*player_transition_handlers.code_00C557
+    LDA #$*player_transition_handlers.PlayerAuraTransformEntry
     STA $0002, Y
-    LDA #$&player_transition_handlers.code_00C557
+    LDA #$&player_transition_handlers.PlayerAuraTransformEntry
     JSR $&SetPlayerTransition
     RTS 
 
@@ -1751,9 +1751,9 @@ FluteMusicActorController {
     LDA $0012, Y
     ORA #$1000
     STA $0012, Y
-    LDA #$*player_transition_handlers.loc_00C446 ; Override player to static idle pose (loc_00C446) during playback
+    LDA #$*player_transition_handlers.PlayerStaticBodyPose ; Override player to static idle pose (loc_00C446) during playback
     STA $0002, Y
-    LDA #$&player_transition_handlers.loc_00C446
+    LDA #$&player_transition_handlers.PlayerStaticBodyPose
     JSR $&SetPlayerTransition
     LDA #$0800            ; playerFlags $0800 = special movement lock, prevents walking
     TSB $playerFlags
@@ -1780,9 +1780,9 @@ FluteMusicActorController {
     LDA $0012, Y          ; Clear display-filter ($1000) from player actor, restore normal rendering
     AND #$EFFF
     STA $0012, Y
-    LDA #$*player_transition_handlers.loc_00C455 ; Restore player to walking idle pose (loc_00C455)
+    LDA #$*player_transition_handlers.PlayerWalkingIdlePose ; Restore player to walking idle pose (loc_00C455)
     STA $0002, Y
-    LDA #$&player_transition_handlers.loc_00C455
+    LDA #$&player_transition_handlers.PlayerWalkingIdlePose
     JSR $&SetPlayerTransition
     LDA #$CFF0            ; Unlock buttons — remove $CFF0 mask from joypadMaskStd
     TRB $joypadMaskStd

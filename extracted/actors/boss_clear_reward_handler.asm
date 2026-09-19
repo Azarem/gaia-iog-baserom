@@ -1,4 +1,9 @@
-?INCLUDE 'cop_handlers_script'
+; Invisible scene actor that grants post-boss stat rewards after victory.
+; 
+; Matches current scene ID against a boss_reward_range table (scenes for Castoth, Viper, Mu vampires, Sand Fanger, Mummy Queen), checks a per-boss WRAM flag, and distributes HP/STR/DEF increases from enemy_clear_reward_table when player flag $0020 is set. Sets the boss-cleared flag and triggers damage-flash timer to show the HP recovery animation. Spawned as a background actor in each major boss arena.
+---------------------------------------------
+
+?INCLUDE 'cop_handlers_flags'
 ?INCLUDE 'enemy_clear_reward_table'
 
 !sceneCurrent                   0644
@@ -36,7 +41,7 @@ boss_clear_reward_handler [
     PLX 
     LSR 
     LSR 
-    JSL $@cop_handlers_script.TestWramFlag_Offset100
+    JSL $@cop_handlers_flags.TestWramFlag_Offset100
     BCS loc_00C30C
     COP [SetEntryContinue]
     LDA $playerFlags
@@ -49,7 +54,7 @@ boss_clear_reward_handler [
     LDX $20
     LDA $@boss_reward_range_00C312+1, X
     STA $0004
-    JSR $&code_00C33E
+    JSR $&BossClearApplyStatReward
     PLX 
     LDA $playerMaxHp
     SEC 
@@ -58,7 +63,7 @@ boss_clear_reward_handler [
     LDA $20
     LSR 
     LSR 
-    JSL $@cop_handlers_script.SetWramFlag_Offset100
+    JSL $@cop_handlers_flags.SetWramFlag_Offset100
 
   loc_00C30C:
     COP [SetEntryContinue]
@@ -83,8 +88,8 @@ boss_reward_range_00C312 [
   boss-reward-range < #29, #00, #00 >   ;0A
 ]
 
-code_00C33E {
-    XBA 
+BossClearApplyStatReward {
+    XBA                   ; BossClearApplyStatReward
     AND #$00FF
     STA $000E
     LDA $0004
@@ -111,12 +116,12 @@ code_00C33E {
     STA $0004
     TYA 
     PHY 
-    JSL $@cop_handlers_script.TestFlag_0300
+    JSL $@cop_handlers_flags.TestFlag_0300
     PLY 
     BCS code_00C350
     PHY 
     TYA 
-    JSL $@cop_handlers_script.SetFlag_0300
+    JSL $@cop_handlers_flags.SetFlag_0300
     PLY 
     LDA $0004
     PEA $&code_00C350-1

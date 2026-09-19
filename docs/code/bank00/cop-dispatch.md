@@ -284,7 +284,7 @@ Invalid entries contain `#$0000`, causing a jump to `$0000` if dispatched.
 | Symbol | Relationship |
 |--------|--------------|
 | `CopDispatch` | Indexer — `JMP ($&cop_dispatch_table, X)` |
-| 209 handler routines | Targets across `cop_handlers_collision.asm`, `cop_handlers_actors.asm`, `cop_handlers_script.asm` |
+| 209 handler routines | Targets across `cop_handlers_audio.asm`, `cop_handlers_palette.asm`, `cop_handlers_sprite.asm`, `cop_handlers_player_sprite.asm`, `cop_handlers_spawn.asm`, `cop_handlers_lifecycle.asm`, `actor_pool.asm`, `cop_handlers_solid.asm`, `cop_handlers_movement.asm`, `cop_handlers_spatial.asm`, `cop_handlers_map.asm`, `cop_handlers_effects.asm`, `cop_handlers_input.asm`, `cop_handlers_flow.asm`, `cop_handlers_flags.asm` |
 | `db-us/copdef.json` | Declarative opcode metadata (names, operand types) |
 
 ---

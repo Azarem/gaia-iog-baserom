@@ -1,3 +1,14 @@
+; Shared follow/chase AI engine for actors that homing-track a target position (Bank $00, ~1.3 KB).
+; 
+; Main entries CopySiblingFollowState (copies loopCounter and chatPtr from a sibling actor) and InitFollowAndChase (same copy plus resets direction state in $7F000E to $FFFF, then enters the 8-direction chase loop).
+; 
+; Compares delta-X and delta-Y to the target (parent actor in $24, Y offset −8 for sprite anchor) to pick a dominant axis, then dispatches through ComputeFollowAngle/ComputeFollowAngleAlt, ResolveFollowDirection/ResolveFollowDirectionAlt, and ComputeFollowStep.
+; 
+; ComputeFollowStep walks the SmoothFollowLookup sine table to produce sub-pixel movement deltas; ApplyFollowMovement writes results to actor and parent positions ($14/$16) and re-queues via SetEntryExitNow when orbitDiameter ≥ 8.
+; 
+; Sixteen FollowDirectionTable handlers set facing sprites and OAM flip bits ($000E) per direction; SelectFallbackDirection rotates through alternatives on blocked paths. Called programmatically by smooth_follow_child actor scripts (bosses, projectiles, platforms) and hard $& references from Pyramid, Angkor Wat, and similar scenes.
+---------------------------------------------
+
 ?BANK 00
 
 ?INCLUDE 'hardware_math'
@@ -13,8 +24,12 @@
 
 ---------------------------------------------
 
+; Lightweight entry into the smooth-follow engine that mirrors state from a sibling actor.
+; 
+; Reads the sibling actor ID at $0004,Y, swaps loopCounter ($7F0014) and chatPtr ($7F000A) between sibling and self, then branches into the shared chase loop without resetting direction state in animScratch2. Spawned via SpawnMarkedAfter from boss and puzzle scripts.
+
 CopySiblingFollowState {
-    TXY 
+    TXY                   ; CopySiblingFollowState: mirror loopCounter and chatPtr from sibling $04
     LDX $0004, Y
     LDA $loopCounter, X
     STA $0000
@@ -25,11 +40,11 @@ CopySiblingFollowState {
     STA $loopCounter, X
     LDA $0002
     STA $chatPtr, X
-    BRA code_00E6CE
+    BRA FollowChaseMainLoop
 }
 
 InitFollowAndChase {
-    TXY 
+    TXY                   ; InitFollowAndChase: reset animScratch2=$FFFF, enter 8-direction chase dispatch
     LDX $0004, Y
     LDA $loopCounter, X
     STA $0000
@@ -43,36 +58,36 @@ InitFollowAndChase {
     LDA #$FFFF
     STA $animScratch2, X
 
-  code_00E6CE:
-    LDY $24
+  FollowChaseMainLoop:
+    LDY $24               ; FollowChaseMainLoop: compare |deltaX| vs |deltaY−8| to pick dominant axis
     LDA $0014, Y
     SEC 
     SBC $14
-    BMI loc_00E703
+    BMI FollowChaseYDiffNegative
     STA $0018
     LDA $0016, Y
     SEC 
     SBC #$0008
     SEC 
     SBC $16
-    BMI loc_00E6F5
+    BMI FollowChaseXDiffNegativePrimary
     STA $001C
     CMP $0018
-    BCC loc_00E6F2
-    JMP $&code_00E7A5
+    BCC FollowChaseDominantXGreater
+    JMP $&FollowChaseMoveEast
 
-  loc_00E6F2:
-    JMP $&code_00E789
+  FollowChaseDominantXGreater:
+    JMP $&FollowChaseMoveWest
 
-  loc_00E6F5:
+  FollowChaseXDiffNegativePrimary:
     EOR #$FFFF
     INC 
     STA $001C
     CMP $0018
-    BCS loc_00E736
-    BRA loc_00E763
+    BCS FollowChaseDiagQuadrantSW
+    BRA FollowChaseDiagQuadrantNW
 
-  loc_00E703:
+  FollowChaseYDiffNegative:
     EOR #$FFFF
     INC 
     STA $0018
@@ -81,36 +96,36 @@ InitFollowAndChase {
     SBC #$0008
     SEC 
     SBC $16
-    BMI loc_00E724
+    BMI FollowChaseXDiffNegativeSecondary
     STA $001C
     CMP $0018
-    BCC loc_00E721
-    JMP $&code_00E7CE
+    BCC FollowChaseDominantXGreaterAlt
+    JMP $&FollowChaseMoveNorth
 
-  loc_00E721:
-    JMP $&code_00E7FB
+  FollowChaseDominantXGreaterAlt:
+    JMP $&FollowChaseMoveSouth
 
-  loc_00E724:
+  FollowChaseXDiffNegativeSecondary:
     EOR #$FFFF
     INC 
     STA $001C
     CMP $0018
-    BCC loc_00E733
-    JMP $&code_00E850
+    BCC FollowChaseDiagQuadrantNE
+    JMP $&FollowChaseMoveDiagSE
 
-  loc_00E733:
-    JMP $&code_00E821
+  FollowChaseDiagQuadrantNE:
+    JMP $&FollowChaseMoveDiagNE
 
-  loc_00E736:
-    JSR $&ComputeFollowAngle
+  FollowChaseDiagQuadrantSW:
+    JSR $&ComputeFollowAngle ; Diagonal quadrant NE: ComputeFollowAngle then ResolveFollowDirection index $0004
     LDA #$0000
     STA $0000
     JSR $&ResolveFollowDirection
     LDA $0000
-    BMI code_00E74A
+    BMI FollowChaseMoveDiagSW
     JMP $&SelectFallbackDirection
 
-  code_00E74A:
+  FollowChaseMoveDiagSW:
     COP [SetEntryContinue]
     JSR $&ComputeFollowStep
     LDA $0000
@@ -122,16 +137,16 @@ InitFollowAndChase {
     STY $0002
     JMP $&ApplyFollowMovement
 
-  loc_00E763:
+  FollowChaseDiagQuadrantNW:
     JSR $&ComputeFollowAngleAlt
     LDA #$0002
     STA $0000
     JSR $&ResolveFollowDirectionAlt
     LDA $0000
-    BMI code_00E777
+    BMI FollowChaseMoveDiagNW
     JMP $&SelectFallbackDirection
 
-  code_00E777:
+  FollowChaseMoveDiagNW:
     COP [SetEntryContinue]
     JSR $&ComputeFollowStep
     LDA $0002
@@ -141,31 +156,31 @@ InitFollowAndChase {
     JMP $&ApplyFollowMovement
 }
 
-code_00E789 {
+FollowChaseMoveWest {
     JSR $&ComputeFollowAngleAlt
     LDA #$0004
     STA $0000
     JSR $&ResolveFollowDirection
     LDA $0000
-    BMI code_00E79D
+    BMI FollowChaseApplyWest
     JMP $&SelectFallbackDirection
 
-  code_00E79D:
+  FollowChaseApplyWest:
     COP [SetEntryContinue]
     JSR $&ComputeFollowStep
     JMP $&ApplyFollowMovement
 }
 
-code_00E7A5 {
+FollowChaseMoveEast {
     JSR $&ComputeFollowAngle
     LDA #$0006
     STA $0000
     JSR $&ResolveFollowDirectionAlt
     LDA $0000
-    BMI code_00E7B9
+    BMI FollowChaseApplyEast
     JMP $&SelectFallbackDirection
 
-  code_00E7B9:
+  FollowChaseApplyEast:
     COP [SetEntryContinue]
     JSR $&ComputeFollowStep
     LDA $0000
@@ -176,16 +191,16 @@ code_00E7A5 {
     JMP $&ApplyFollowMovement
 }
 
-code_00E7CE {
+FollowChaseMoveNorth {
     JSR $&ComputeFollowAngle
     LDA #$0008
     STA $0000
     JSR $&ResolveFollowDirection
     LDA $0000
-    BMI code_00E7E2
+    BMI FollowChaseApplyNorth
     JMP $&SelectFallbackDirection
 
-  code_00E7E2:
+  FollowChaseApplyNorth:
     COP [SetEntryContinue]
     JSR $&ComputeFollowStep
     LDA $0002
@@ -198,16 +213,16 @@ code_00E7CE {
     JMP $&ApplyFollowMovement
 }
 
-code_00E7FB {
+FollowChaseMoveSouth {
     JSR $&ComputeFollowAngleAlt
     LDA #$000A
     STA $0000
     JSR $&ResolveFollowDirectionAlt
     LDA $0000
-    BMI code_00E80F
+    BMI FollowChaseApplySouth
     JMP $&SelectFallbackDirection
 
-  code_00E80F:
+  FollowChaseApplySouth:
     COP [SetEntryContinue]
     JSR $&ComputeFollowStep
     LDA $0000
@@ -217,16 +232,16 @@ code_00E7FB {
     JMP $&ApplyFollowMovement
 }
 
-code_00E821 {
+FollowChaseMoveDiagNE {
     JSR $&ComputeFollowAngleAlt
     LDA #$000C
     STA $0000
     JSR $&ResolveFollowDirection
     LDA $0000
-    BMI code_00E835
+    BMI FollowChaseApplyDiagNE
     JMP $&SelectFallbackDirection
 
-  code_00E835:
+  FollowChaseApplyDiagNE:
     COP [SetEntryContinue]
     JSR $&ComputeFollowStep
     LDA $0000
@@ -240,16 +255,16 @@ code_00E821 {
     BRA ApplyFollowMovement
 }
 
-code_00E850 {
+FollowChaseMoveDiagSE {
     JSR $&ComputeFollowAngle
     LDA #$000E
     STA $0000
     JSR $&ResolveFollowDirectionAlt
     LDA $0000
-    BMI code_00E864
+    BMI FollowChaseApplyDiagSE
     JMP $&SelectFallbackDirection
 
-  code_00E864:
+  FollowChaseApplyDiagSE:
     COP [SetEntryContinue]
     JSR $&ComputeFollowStep
     LDA $0000
@@ -264,7 +279,7 @@ code_00E850 {
 }
 
 ApplyFollowMovement {
-    LDY $04
+    LDY $04               ; ApplyFollowMovement: write sub-pixel deltas to parent $14/$16 and moveScratch
     LDA $14
     CLC 
     ADC $0000
@@ -281,103 +296,107 @@ ApplyFollowMovement {
     STA $moveScratch2, X
     LDA $orbitDiameter, X
     CMP #$0008
-    BPL loc_00E8AE
+    BPL FollowChaseRequeueLoop
     RTL 
 
-  loc_00E8AE:
-    LDA #$0000
+  FollowChaseRequeueLoop:
+    LDA #$0000            ; orbitDiameter≥8 triggers SetEntryExitNow re-queue to FollowChaseMainLoop
     STA $orbitDiameter, X
-    COP [SetEntryExitNow] ( @code_00E6CE )
+    COP [SetEntryExitNow] ( @FollowChaseMainLoop )
 }
 
 SelectFallbackDirection {
-    DEC 
+    DEC                   ; SelectFallbackDirection: DEC+AND #$07 rotates through 8 chase handlers
     AND #$0007
     STA $0004
     COP [SwitchCase] ( #$0004, &follow_fallback_table )
 }
 
 follow_fallback_table [
-  &code_00E74A   ;00
-  &code_00E777   ;01
-  &code_00E79D   ;02
-  &code_00E7B9   ;03
-  &code_00E7E2   ;04
-  &code_00E80F   ;05
-  &code_00E835   ;06
-  &code_00E864   ;07
+  &FollowChaseMoveDiagSW   ;00
+  &FollowChaseMoveDiagNW   ;01
+  &FollowChaseApplyWest   ;02
+  &FollowChaseApplyEast   ;03
+  &FollowChaseApplyNorth   ;04
+  &FollowChaseApplySouth   ;05
+  &FollowChaseApplyDiagNE   ;06
+  &FollowChaseApplyDiagSE   ;07
 ]
 ---------------------------------------------
+
+; Computes the angular step for smooth follow when horizontal separation dominates.
+; 
+; Inputs are absolute delta-X ($0018) and delta-Y ($001C) prepared by InitFollowAndChase; if equal, stores angle zero. Otherwise divides the smaller axis by 16 and calls hardware_math.UnsignedDivide to map the ratio into a 0–23 orbit index. Stores the result in orbitAngle ($7F0010,X), clears orbitDiameter, and returns via RTS.
 
 ComputeFollowAngle {
     LDA $0018
     CMP $001C
-    BNE loc_00EDB5
+    BNE ComputeFollowAngleDivide
     LDA #$0000
-    BRA loc_00EE10
+    BRA ComputeFollowAngleStore
 
-  loc_00EDB5:
+  ComputeFollowAngleDivide:
     LDY $0018
     LDA $001C
     LSR 
     LSR 
     LSR 
     LSR 
-    BNE loc_00EDDD
-    BRA loc_00EDDC
+    BNE ComputeFollowAngleAltDoDivide
+    BRA ComputeFollowAngleAltIncY
 }
 
 ComputeFollowAngleAlt {
     LDA $001C
     CMP $0018
-    BNE loc_00EDD0
+    BNE ComputeFollowAngleAltDivide
     LDA #$0000
-    BRA loc_00EE10
+    BRA ComputeFollowAngleStore
 
-  loc_00EDD0:
+  ComputeFollowAngleAltDivide:
     LDY $001C
     LDA $0018
     LSR 
     LSR 
     LSR 
     LSR 
-    BNE loc_00EDDD
+    BNE ComputeFollowAngleAltDoDivide
 
-  loc_00EDDC:
+  ComputeFollowAngleAltIncY:
     INC 
 
-  loc_00EDDD:
+  ComputeFollowAngleAltDoDivide:
     SEP #$20
     JSL $@hardware_math.UnsignedDivide
     REP #$20
     AND #$00FF
     CMP #$0018
-    BPL loc_00EDF4
+    BPL ComputeFollowAngleAltReflectHigh
     CMP #$0011
-    BPL loc_00EE02
-    BRA loc_00EE08
+    BPL ComputeFollowAngleAltSubtractMid
+    BRA ComputeFollowAngleAltReflectLow
 
-  loc_00EDF4:
+  ComputeFollowAngleAltReflectHigh:
     SEC 
     SBC #$0010
     EOR #$FFFF
     INC 
     CLC 
     ADC #$0010
-    BRA loc_00EE10
+    BRA ComputeFollowAngleStore
 
-  loc_00EE02:
+  ComputeFollowAngleAltSubtractMid:
     SEC 
     SBC #$0010
-    BRA loc_00EE10
+    BRA ComputeFollowAngleStore
 
-  loc_00EE08:
+  ComputeFollowAngleAltReflectLow:
     EOR #$FFFF
     INC 
     CLC 
     ADC #$0010
 
-  loc_00EE10:
+  ComputeFollowAngleStore:
     STA $orbitAngle, X
     LDA #$0000
     STA $orbitDiameter, X
@@ -385,7 +404,7 @@ ComputeFollowAngleAlt {
 }
 
 ComputeFollowStep {
-    LDA $orbitAngle, X
+    LDA $orbitAngle, X    ; ComputeFollowStep: walk SmoothFollowLookup table using orbitAngle×32 as index
     ASL 
     ASL 
     ASL 
@@ -411,7 +430,7 @@ ComputeFollowStep {
     TYX 
     STZ $0002
 
-  loc_00EE51:
+  ComputeFollowStepAccumLoop:
     LDA $@SmoothFollowLookup, X
     CLC 
     ADC $0002
@@ -421,7 +440,7 @@ ComputeFollowStep {
     INC $0004
     LDA $0004
     BIT #$FFF0
-    BEQ loc_00EE75
+    BEQ ComputeFollowStepTableWrap
     TXA 
     SEC 
     SBC #$0020
@@ -429,44 +448,44 @@ ComputeFollowStep {
     LDA #$0000
     STA $0004
 
-  loc_00EE75:
+  ComputeFollowStepTableWrap:
     CMP $0008
-    BNE loc_00EE51
+    BNE ComputeFollowStepAccumLoop
     PLX 
     RTS 
 }
 
 ResolveFollowDirection {
-    LDA $orbitAngle, X
+    LDA $orbitAngle, X    ; ResolveFollowDirection: angle bands $05–$0D pick X, diagonal, or Y step
     CMP #$000D
-    BPL loc_00EE9A
+    BPL ResolveFollowDirMoveXOnly
     CMP #$0005
-    BPL loc_00EEA2
-    BRA loc_00EEAA
+    BPL ResolveFollowDirMoveDiagonal
+    BRA ResolveFollowDirMoveYOnly
 }
 
 ResolveFollowDirectionAlt {
     LDA $orbitAngle, X
     CMP #$000D
-    BPL loc_00EEAA
+    BPL ResolveFollowDirMoveYOnly
     CMP #$0005
-    BPL loc_00EEA2
+    BPL ResolveFollowDirMoveDiagonal
 
-  loc_00EE9A:
+  ResolveFollowDirMoveXOnly:
     LDA #$0000
     STA $0002
-    BRA loc_00EEB0
+    BRA ResolveFollowDirAdvanceFrame
 
-  loc_00EEA2:
+  ResolveFollowDirMoveDiagonal:
     LDA #$0001
     STA $0002
-    BRA loc_00EEB0
+    BRA ResolveFollowDirAdvanceFrame
 
-  loc_00EEAA:
+  ResolveFollowDirMoveYOnly:
     LDA #$0002
     STA $0002
 
-  loc_00EEB0:
+  ResolveFollowDirAdvanceFrame:
     LDA $0000
     CLC 
     ADC $0002
@@ -474,67 +493,67 @@ ResolveFollowDirectionAlt {
     STA $0004
     LDA $chatPtr, X
     LDA $animScratch2, X
-    BMI loc_00EF1C
+    BMI ResolveFollowDirAltSnapFrame
     SEC 
     SBC $0004
-    BMI loc_00EEE0
-    BEQ loc_00EF1C
+    BMI ResolveFollowDirAltWrapNeg
+    BEQ ResolveFollowDirAltSnapFrame
     CMP #$0001
-    BEQ loc_00EF1C
+    BEQ ResolveFollowDirAltSnapFrame
     CMP #$000F
-    BEQ loc_00EF1C
+    BEQ ResolveFollowDirAltSnapFrame
     CMP #$0009
-    BPL loc_00EF0B
-    BRA loc_00EEF1
+    BPL ResolveFollowDirAltIncFrame
+    BRA ResolveFollowDirAltDecFrame
 
-  loc_00EEE0:
+  ResolveFollowDirAltWrapNeg:
     CMP #$FFFF
-    BEQ loc_00EF1C
+    BEQ ResolveFollowDirAltSnapFrame
     CMP #$FFF1
-    BEQ loc_00EF1C
+    BEQ ResolveFollowDirAltSnapFrame
     CMP #$FFF9
-    BPL loc_00EF0B
-    BRA loc_00EEF1
+    BPL ResolveFollowDirAltIncFrame
+    BRA ResolveFollowDirAltDecFrame
 
-  loc_00EEF1:
+  ResolveFollowDirAltDecFrame:
     LDA $animScratch2, X
     DEC 
     STA $animScratch2, X
     STA $0004
-    BPL loc_00EF29
+    BPL ResolveFollowDirAltApplyFrame
     LDA #$000F
     STA $animScratch2, X
     STA $0004
-    BRA loc_00EF29
+    BRA ResolveFollowDirAltApplyFrame
 
-  loc_00EF0B:
+  ResolveFollowDirAltIncFrame:
     LDA $animScratch2, X
     INC 
     AND #$000F
     STA $animScratch2, X
     STA $0004
-    BRA loc_00EF29
+    BRA ResolveFollowDirAltApplyFrame
 
-  loc_00EF1C:
+  ResolveFollowDirAltSnapFrame:
     LDA $0004
     STA $animScratch2, X
     LDA #$FFFF
     STA $0000
 
-  loc_00EF29:
-    LDA $0004, X
+  ResolveFollowDirAltApplyFrame:
+    LDA $0004, X          ; ResolveFollowDirAltApplyFrame: update $0028 facing from FollowDirectionTable
     TAY 
     LDA $chatPtr, X
-    BMI loc_00EF40
+    BMI ResolveFollowDirAltSkipAnimUpdate
     CLC 
     ADC $0004
     STA $0028, Y
     LDA #$0000
     STA $002A, Y
 
-  loc_00EF40:
+  ResolveFollowDirAltSkipAnimUpdate:
     LDA $chatPtr, X
-    BMI loc_00EF52
+    BMI ResolveFollowDirAltUpdateAnim
     PHX 
     TYX 
     TYA 
@@ -545,7 +564,7 @@ ResolveFollowDirectionAlt {
     TAX 
     TCD 
 
-  loc_00EF52:
+  ResolveFollowDirAltUpdateAnim:
     LDA $chatPtr, X
     STA $0006
     LDA $animScratch2, X
@@ -555,10 +574,10 @@ ResolveFollowDirectionAlt {
     TAX 
     CLC 
     LDA $0006
-    BPL loc_00EF6A
+    BPL ResolveFollowDirAltLoadTable
     SEC 
 
-  loc_00EF6A:
+  ResolveFollowDirAltLoadTable:
     LDA $@FollowDirectionTable, X
     DEC 
     PLX 
@@ -567,320 +586,320 @@ ResolveFollowDirectionAlt {
 }
 
 FollowDirectionTable [
-  &code_00EF92   ;00
-  &code_00EFB0   ;01
-  &code_00EFCE   ;02
-  &code_00EFEC   ;03
-  &code_00F00A   ;04
-  &code_00F028   ;05
-  &code_00F049   ;06
-  &code_00F06A   ;07
-  &code_00F08B   ;08
-  &code_00F0AC   ;09
-  &code_00F0CD   ;0A
-  &code_00F0EE   ;0B
-  &code_00F10F   ;0C
-  &code_00F130   ;0D
-  &code_00F151   ;0E
-  &code_00F172   ;0F
+  &FollowDirHandler00   ;00
+  &FollowDirHandler01   ;01
+  &FollowDirHandler02   ;02
+  &FollowDirHandler03   ;03
+  &FollowDirHandler04   ;04
+  &FollowDirHandler05   ;05
+  &FollowDirHandler06   ;06
+  &FollowDirHandler07   ;07
+  &FollowDirHandler08   ;08
+  &FollowDirHandler09   ;09
+  &FollowDirHandler0A   ;0A
+  &FollowDirHandler0B   ;0B
+  &FollowDirHandler0C   ;0C
+  &FollowDirHandler0D   ;0D
+  &FollowDirHandler0E   ;0E
+  &FollowDirHandler0F   ;0F
 ]
 
-code_00EF92 {
-    BCS loc_00EF9D
+FollowDirHandler00 {
+    BCS FollowDir00ClearHFlip
     LDA $000E, Y
     AND #$3FFF
     STA $000E, Y
 
-  loc_00EF9D:
+  FollowDir00ClearHFlip:
     LDA $0000
-    BMI loc_00EFAF
+    BMI FollowDir00SetFacing
     LDA #$0001
     STA $0000
     LDA #$0010
     STA $orbitAngle, X
 
-  loc_00EFAF:
+  FollowDir00SetFacing:
     RTS 
 }
 
-code_00EFB0 {
-    BCS loc_00EFBB
+FollowDirHandler01 {
+    BCS FollowDir01ClearHFlip
     LDA $000E, Y
     AND #$3FFF
     STA $000E, Y
 
-  loc_00EFBB:
+  FollowDir01ClearHFlip:
     LDA $0000
-    BMI loc_00EFCD
+    BMI FollowDir01SetFacing
     LDA #$0001
     STA $0000
     LDA #$0008
     STA $orbitAngle, X
 
-  loc_00EFCD:
+  FollowDir01SetFacing:
     RTS 
 }
 
-code_00EFCE {
-    BCS loc_00EFD9
+FollowDirHandler02 {
+    BCS FollowDir02ClearHFlip
     LDA $000E, Y
     AND #$3FFF
     STA $000E, Y
 
-  loc_00EFD9:
+  FollowDir02ClearHFlip:
     LDA $0000
-    BMI loc_00EFEB
+    BMI FollowDir02SetFacing
     LDA #$0002
     STA $0000
     LDA #$0000
     STA $orbitAngle, X
 
-  loc_00EFEB:
+  FollowDir02SetFacing:
     RTS 
 }
 
-code_00EFEC {
-    BCS loc_00EFF7
+FollowDirHandler03 {
+    BCS FollowDir03ClearHFlip
     LDA $000E, Y
     AND #$3FFF
     STA $000E, Y
 
-  loc_00EFF7:
+  FollowDir03ClearHFlip:
     LDA $0000
-    BMI loc_00F009
+    BMI FollowDir03SetFacing
     LDA #$0002
     STA $0000
     LDA #$0008
     STA $orbitAngle, X
 
-  loc_00F009:
+  FollowDir03SetFacing:
     RTS 
 }
 
-code_00F00A {
-    BCS loc_00F015
+FollowDirHandler04 {
+    BCS FollowDir04ClearHFlip
     LDA $000E, Y
     AND #$3FFF
     STA $000E, Y
 
-  loc_00F015:
+  FollowDir04ClearHFlip:
     LDA $0000
-    BMI loc_00F027
+    BMI FollowDir04SetFacing
     LDA #$0003
     STA $0000
     LDA #$0010
     STA $orbitAngle, X
 
-  loc_00F027:
+  FollowDir04SetFacing:
     RTS 
 }
 
-code_00F028 {
-    BCS loc_00F036
+FollowDirHandler05 {
+    BCS FollowDir05SetVFlip
     LDA $000E, Y
     AND #$3FFF
     ORA #$8000
     STA $000E, Y
 
-  loc_00F036:
+  FollowDir05SetVFlip:
     LDA $0000
-    BMI loc_00F048
+    BMI FollowDir05SetFacing
     LDA #$0003
     STA $0000
     LDA #$0008
     STA $orbitAngle, X
 
-  loc_00F048:
+  FollowDir05SetFacing:
     RTS 
 }
 
-code_00F049 {
-    BCS loc_00F057
+FollowDirHandler06 {
+    BCS FollowDir06SetVFlip
     LDA $000E, Y
     AND #$3FFF
     ORA #$8000
     STA $000E, Y
 
-  loc_00F057:
+  FollowDir06SetVFlip:
     LDA $0000
-    BMI loc_00F069
+    BMI FollowDir06SetFacing
     LDA #$0004
     STA $0000
     LDA #$0000
     STA $orbitAngle, X
 
-  loc_00F069:
+  FollowDir06SetFacing:
     RTS 
 }
 
-code_00F06A {
-    BCS loc_00F078
+FollowDirHandler07 {
+    BCS FollowDir07SetVFlip
     LDA $000E, Y
     AND #$3FFF
     ORA #$8000
     STA $000E, Y
 
-  loc_00F078:
+  FollowDir07SetVFlip:
     LDA $0000
-    BMI loc_00F08A
+    BMI FollowDir07SetFacing
     LDA #$0004
     STA $0000
     LDA #$0008
     STA $orbitAngle, X
 
-  loc_00F08A:
+  FollowDir07SetFacing:
     RTS 
 }
 
-code_00F08B {
-    BCS loc_00F099
+FollowDirHandler08 {
+    BCS FollowDir08SetVFlip
     LDA $000E, Y
     AND #$3FFF
     ORA #$8000
     STA $000E, Y
 
-  loc_00F099:
+  FollowDir08SetVFlip:
     LDA $0000
-    BMI loc_00F0AB
+    BMI FollowDir08SetFacing
     LDA #$0005
     STA $0000
     LDA #$0010
     STA $orbitAngle, X
 
-  loc_00F0AB:
+  FollowDir08SetFacing:
     RTS 
 }
 
-code_00F0AC {
-    BCS loc_00F0BA
+FollowDirHandler09 {
+    BCS FollowDir09SetHVFlip
     LDA $000E, Y
     AND #$3FFF
     ORA #$C000
     STA $000E, Y
 
-  loc_00F0BA:
+  FollowDir09SetHVFlip:
     LDA $0000
-    BMI loc_00F0CC
+    BMI FollowDir09SetFacing
     LDA #$0005
     STA $0000
     LDA #$0008
     STA $orbitAngle, X
 
-  loc_00F0CC:
+  FollowDir09SetFacing:
     RTS 
 }
 
-code_00F0CD {
-    BCS loc_00F0DB
+FollowDirHandler0A {
+    BCS FollowDir0ASetHVFlip
     LDA $000E, Y
     AND #$3FFF
     ORA #$C000
     STA $000E, Y
 
-  loc_00F0DB:
+  FollowDir0ASetHVFlip:
     LDA $0000
-    BMI loc_00F0ED
+    BMI FollowDir0ASetFacing
     LDA #$0006
     STA $0000
     LDA #$0000
     STA $orbitAngle, X
 
-  loc_00F0ED:
+  FollowDir0ASetFacing:
     RTS 
 }
 
-code_00F0EE {
-    BCS loc_00F0FC
+FollowDirHandler0B {
+    BCS FollowDir0BSetHVFlip
     LDA $000E, Y
     AND #$3FFF
     ORA #$C000
     STA $000E, Y
 
-  loc_00F0FC:
+  FollowDir0BSetHVFlip:
     LDA $0000
-    BMI loc_00F10E
+    BMI FollowDir0BSetFacing
     LDA #$0006
     STA $0000
     LDA #$0008
     STA $orbitAngle, X
 
-  loc_00F10E:
+  FollowDir0BSetFacing:
     RTS 
 }
 
-code_00F10F {
-    BCS loc_00F11D
+FollowDirHandler0C {
+    BCS FollowDir0CSetHFlipOnly
     LDA $000E, Y
     AND #$3FFF
     ORA #$4000
     STA $000E, Y
 
-  loc_00F11D:
+  FollowDir0CSetHFlipOnly:
     LDA $0000
-    BMI loc_00F12F
+    BMI FollowDir0CSetFacing
     LDA #$0007
     STA $0000
     LDA #$0010
     STA $orbitAngle, X
 
-  loc_00F12F:
+  FollowDir0CSetFacing:
     RTS 
 }
 
-code_00F130 {
-    BCS loc_00F13E
+FollowDirHandler0D {
+    BCS FollowDir0DSetHFlipOnly
     LDA $000E, Y
     AND #$3FFF
     ORA #$4000
     STA $000E, Y
 
-  loc_00F13E:
+  FollowDir0DSetHFlipOnly:
     LDA $0000
-    BMI loc_00F150
+    BMI FollowDir0DSetFacing
     LDA #$0007
     STA $0000
     LDA #$0008
     STA $orbitAngle, X
 
-  loc_00F150:
+  FollowDir0DSetFacing:
     RTS 
 }
 
-code_00F151 {
-    BCS loc_00F15F
+FollowDirHandler0E {
+    BCS FollowDir0ESetHFlipOnly
     LDA $000E, Y
     AND #$3FFF
     ORA #$4000
     STA $000E, Y
 
-  loc_00F15F:
+  FollowDir0ESetHFlipOnly:
     LDA $0000
-    BMI loc_00F171
+    BMI FollowDir0ESetFacing
     LDA #$0008
     STA $0000
     LDA #$0000
     STA $orbitAngle, X
 
-  loc_00F171:
+  FollowDir0ESetFacing:
     RTS 
 }
 
-code_00F172 {
-    BCS loc_00F180
+FollowDirHandler0F {
+    BCS FollowDir0FSetHFlipOnly
     LDA $000E, Y
     AND #$3FFF
     ORA #$4000
     STA $000E, Y
 
-  loc_00F180:
+  FollowDir0FSetHFlipOnly:
     LDA $0000
-    BMI loc_00F192
+    BMI FollowDir0FSetFacing
     LDA #$0008
     STA $0000
     LDA #$0008
     STA $orbitAngle, X
 
-  loc_00F192:
+  FollowDir0FSetFacing:
     RTS 
 }
 

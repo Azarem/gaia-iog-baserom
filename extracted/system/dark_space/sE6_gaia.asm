@@ -1,4 +1,4 @@
-?INCLUDE 'cop_handlers_actors'
+?INCLUDE 'actor_pool'
 ?INCLUDE 'player_character'
 ?INCLUDE 'save_system'
 ?INCLUDE 'shadow_shimmer'
@@ -1235,7 +1235,7 @@ func_08F235 {
     COP [AnimLoop]
     COP [StageSpriteLoop] ( #03, #02 )
     COP [AnimLoop]
-    COP [SpawnThinkerParam] ( #0C, @cop_handlers_actors.PaletteResetAndKillThinker )
+    COP [SpawnThinkerParam] ( #0C, @actor_pool.PaletteResetAndKillThinker )
     COP [StageSpriteLoop] ( #08, #02 )
     COP [AnimLoop]
     COP [StageSpriteLoop] ( #09, #02 )
@@ -1258,7 +1258,7 @@ func_08F26E {
     COP [AnimOnce]
     COP [StageSpriteFrame] ( #03 )
     COP [AnimOnce]
-    COP [SpawnThinkerParam] ( #0C, @cop_handlers_actors.PaletteResetAndKillThinker )
+    COP [SpawnThinkerParam] ( #0C, @actor_pool.PaletteResetAndKillThinker )
     COP [StageSpriteFrame] ( #08 )
     COP [AnimOnce]
     COP [StageSpriteFrame] ( #09 )
@@ -1286,7 +1286,7 @@ func_08F2A3 {
     LDA #$0001
     STA $characterForm
     COP [SetEntryExit]
-    COP [SpawnThinkerParam] ( #0C, @cop_handlers_actors.PaletteResetAndKillThinker )
+    COP [SpawnThinkerParam] ( #0C, @actor_pool.PaletteResetAndKillThinker )
     COP [StageSpriteFrame] ( #08 )
     COP [AnimOnce]
     COP [StageSpriteFrame] ( #09 )
@@ -1373,7 +1373,7 @@ func_08F37D {
     COP [AnimOnce]
     STZ $characterForm
     COP [SetEntryExit]
-    COP [SpawnThinkerParam] ( #0B, @cop_handlers_actors.PaletteResetAndKillThinker )
+    COP [SpawnThinkerParam] ( #0B, @actor_pool.PaletteResetAndKillThinker )
     COP [StageSpriteFrame] ( #03 )
     COP [AnimOnce]
     COP [StageSpriteFrame] ( #02 )
@@ -1398,7 +1398,7 @@ func_08F3B1 {
     COP [AnimOnce]
     STZ $characterForm
     COP [SetEntryExit]
-    COP [SpawnThinkerParam] ( #0B, @cop_handlers_actors.PaletteResetAndKillThinker )
+    COP [SpawnThinkerParam] ( #0B, @actor_pool.PaletteResetAndKillThinker )
     COP [StageSpriteFrame] ( #03 )
     COP [AnimOnce]
     COP [StageSpriteFrame] ( #02 )
@@ -1498,7 +1498,7 @@ func_08F5F9 {
     COP [AnimOnce]
     COP [StageSpriteFrame] ( #03 )
     COP [AnimOnce]
-    COP [SpawnThinkerParam] ( #6C, @cop_handlers_actors.PaletteResetAndKillThinker )
+    COP [SpawnThinkerParam] ( #6C, @actor_pool.PaletteResetAndKillThinker )
     COP [StageSpriteFrame] ( #0E )
     COP [AnimOnce]
     COP [StageSpriteFrame] ( #0F )
@@ -1524,7 +1524,7 @@ func_08F63C {
     COP [AnimOnce]
     COP [StageSpriteFrame] ( #08 )
     COP [AnimOnce]
-    COP [SpawnThinkerParam] ( #6C, @cop_handlers_actors.PaletteResetAndKillThinker )
+    COP [SpawnThinkerParam] ( #6C, @actor_pool.PaletteResetAndKillThinker )
     COP [StageSpriteFrame] ( #0E )
     COP [AnimOnce]
     COP [StageSpriteFrame] ( #0F )

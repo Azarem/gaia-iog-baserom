@@ -1,5 +1,5 @@
-?INCLUDE 'cop_handlers_actors'
-?INCLUDE 'cop_handlers_script'
+?INCLUDE 'actor_pool'
+?INCLUDE 'cop_handlers_flags'
 ?INCLUDE 'enemy_stats_table'
 ?INCLUDE 'func_0AA36E'
 ?INCLUDE 'sE6_gaia'
@@ -119,7 +119,7 @@ mu67_male_vampire [
     COP [BranchIfPlayerAt] ( #$0180, #$0060, &func_0AFA48 )
     COP [BranchIfPlayerAt] ( #$0180, #$01E0, &func_0AFA48 )
     LDA #$0002
-    JSL $@cop_handlers_script.TestWramFlag_Offset100
+    JSL $@cop_handlers_flags.TestWramFlag_Offset100
     BCC loc_0AF22F
     STZ $0AEC
     STZ $0AEE
@@ -256,7 +256,7 @@ code_0AF27E {
     TSB $10
     COP [StageSpriteFrame] ( #04 )
     COP [AnimOnce]
-    COP [SpawnThinkerParam] ( #43, @cop_handlers_actors.PaletteResetAndKillThinker )
+    COP [SpawnThinkerParam] ( #43, @actor_pool.PaletteResetAndKillThinker )
     COP [WaitByte] ( #17 )
     COP [SpawnLastRel] ( @code_0AF619, #00, #00, #$0202 )
     COP [StageSpriteFrame] ( #11 )
@@ -291,7 +291,7 @@ mu67_female_vampire [
     COP [BranchIfPlayerAt] ( #$0180, #$0060, &func_0AFA48 )
     COP [BranchIfPlayerAt] ( #$0180, #$01E0, &func_0AFA48 )
     LDA #$0002
-    JSL $@cop_handlers_script.TestWramFlag_Offset100
+    JSL $@cop_handlers_flags.TestWramFlag_Offset100
     BCC code_0AF3E6
     COP [Die]
 } >
@@ -474,7 +474,7 @@ code_0AF551 {
     COP [TickMove]
     COP [PlaySoundBoth] ( #$2323 )
     COP [SpawnAfterFlags] ( @code_0AF633, #$2000 )
-    COP [SpawnThinkerParam] ( #67, @cop_handlers_actors.PaletteResetAndKillThinker )
+    COP [SpawnThinkerParam] ( #67, @actor_pool.PaletteResetAndKillThinker )
     COP [StageSpriteLoop] ( #0B, #04 )
     COP [AnimLoop]
     JSR $&sub_0AF6D7

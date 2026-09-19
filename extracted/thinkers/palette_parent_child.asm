@@ -1,3 +1,8 @@
+; Parent thinker that starts palette animation #03 and, when flag byte $01 is set, spawns a child thinker that continuously steps the same palette.
+; 
+; The parent stores the child thinker ID in chatPtr and kills/restarts the child when flag $01 clears. Used on scenes $FD and $FF together with parallax_thinker and ambient palette cycling. Keeps a sustained palette effect running while a scene flag indicates an active state.
+---------------------------------------------
+
 !chatPtr                        7F000A
 
 ---------------------------------------------
@@ -8,13 +13,13 @@ palette_parent_child [
   loc_00B600:
     COP [PaletteStart] ( #03 )
     COP [SetEntryContinue]
-    COP [BranchIfFlagByte] ( #01, #01, &code_00B60C )
+    COP [BranchIfFlagByte] ( #01, #01, &PaletteParentChildSpawnWave )
     RTL 
 } >
 ]
 
-code_00B60C {
-    COP [SpawnThinker] ( @code_00B62A )
+PaletteParentChildSpawnWave {
+    COP [SpawnThinker] ( @PaletteParentChildWaveLoop ) ; Spawn child PaletteStart #03; store child actor index in chatPtr
     TYA 
     STA $chatPtr, X
     COP [SetEntryContinue]
@@ -30,8 +35,8 @@ code_00B60C {
     BRA loc_00B600
 }
 
-code_00B62A {
+PaletteParentChildWaveLoop {
     COP [PaletteStart] ( #03 )
     COP [PaletteStep]
-    BRA code_00B62A
+    BRA PaletteParentChildWaveLoop
 }

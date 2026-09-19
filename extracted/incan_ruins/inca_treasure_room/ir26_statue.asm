@@ -41,6 +41,6 @@ ir26_statue [
     RTL 
 
   loc_0A88D9:
-    COP [JumpScript] ( @StandardEnemyDefeatHandler.code_00DBB6 )
+    COP [JumpScript] ( @StandardEnemyDefeatHandler.EnemyDefeatFlashAndDrop )
 } >
 ]

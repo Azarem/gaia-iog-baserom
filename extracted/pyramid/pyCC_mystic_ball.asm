@@ -1,4 +1,4 @@
-?INCLUDE 'cop_handlers_script'
+?INCLUDE 'cop_handlers_flags'
 ?INCLUDE 'field_reveal_object'
 ?INCLUDE 'sg_actors_0ADA52'
 ?INCLUDE 'SpawnFieldRevealEffect'
@@ -235,10 +235,10 @@ code_0BC738 {
   loc_0BC76E:
     LDA $deathActionIdx, X
     BEQ loc_0BC796
-    JSL $@cop_handlers_script.TestFlag_0100
+    JSL $@cop_handlers_flags.TestFlag_0100
     BCS loc_0BC796
     LDA $deathActionIdx, X
-    JSL $@cop_handlers_script.SetFlag_0100
+    JSL $@cop_handlers_flags.SetFlag_0100
     COP [SpawnLastRel] ( @SpawnFieldRevealEffect, #00, #00, #$0342 )
     PHX 
     LDA $deathActionIdx, X

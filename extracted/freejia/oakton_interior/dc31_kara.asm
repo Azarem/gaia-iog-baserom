@@ -23,9 +23,9 @@ dc31_kara [
     COP [SolidHighHere]
     COP [PrintDialogString] ( &dialogstring_05ADAE )
     LDY $playerActor
-    LDA #$*player_transition_handlers.code_00C46D
+    LDA #$*player_transition_handlers.PlayerFreedanRevealExit
     STA $0002, Y
-    LDA #$&player_transition_handlers.code_00C46D
+    LDA #$&player_transition_handlers.PlayerFreedanRevealExit
     STA $0000, Y
     LDA #$0000
     STA $0008, Y

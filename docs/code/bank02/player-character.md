@@ -85,7 +85,7 @@ player_character.asm
   ?INCLUDE 'attack_ability_system'
     ?INCLUDE 'attack_trail_followers'
     ?INCLUDE 'ApplyOrbitalOffsetFromRef'
-    ?INCLUDE 'cop_handlers_actors'
+    ?INCLUDE 'actor_pool'
     ?INCLUDE 'table_01D9A7'    — ability animation data A
     ?INCLUDE 'table_01D9BF'    — ability animation data B
     ?INCLUDE 'table_0EE000'    — guided projectile spritemap

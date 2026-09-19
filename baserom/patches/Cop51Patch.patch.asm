@@ -1,6 +1,6 @@
 ﻿?BANK 00
 
-?INCLUDE 'cop_handlers_collision'
+?INCLUDE 'cop_handlers_map'
 
 !SPTR		$3E
 !DCMP_SIZE	$78

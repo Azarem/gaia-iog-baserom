@@ -1,4 +1,9 @@
-?INCLUDE 'cop_handlers_script'
+; Collection of stat-reward pickup actor scripts: e_hp_increase, e_str_increase, and e_def_increase.
+; 
+; Each displays a floating metasprite, runs RewardActorVFX (bob animation, sound #$25, sets scene flag $0300), prints a stat-increase dialog, and dies. Spawned by StandardEnemyDefeatHandler when an enemy_clear_reward_table entry awards a stat boost.
+---------------------------------------------
+
+?INCLUDE 'cop_handlers_flags'
 ?INCLUDE 'table_0EE000'
 
 !sceneCurrent                   0644
@@ -96,6 +101,6 @@ RewardActorVFX {
     TRB $displayModeFlags
     COP [PlaySoundCh2] ( #25 )
     LDA $sceneCurrent
-    JSL $@cop_handlers_script.SetFlag_0300
+    JSL $@cop_handlers_flags.SetFlag_0300
     COP [RestoreSavedPtr]
 }

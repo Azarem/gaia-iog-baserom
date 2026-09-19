@@ -29,7 +29,7 @@
 
 ?BANK 03
 
-?INCLUDE 'cop_handlers_script'
+?INCLUDE 'cop_handlers_flags'
 ?INCLUDE 'enemy_clear_reward_table'
 ?INCLUDE 'scene_barrier_chest_table'
 ?INCLUDE 'system_strings'
@@ -176,7 +176,7 @@ RadarScreenSetup {
     LDA #$2AE7            ; Friendly actor legend icon tile $2AE7
     STA $7F0608
     LDA $sceneCurrent
-    JSL $@cop_handlers_script.TestFlag_0300 ; Test flag $0300 — have this scene's enemies been cleared?
+    JSL $@cop_handlers_flags.TestFlag_0300 ; Test flag $0300 — have this scene's enemies been cleared?
     BCS loc_038248
     LDX $sceneCurrent
     LDA $@enemy_clear_reward_table, X ; Look up enemy_clear_reward_table — 0 = no reward available
@@ -284,7 +284,7 @@ RadarPlotSceneMarkers {
     LDA $@scene_barrier_chest_table+3, X
     REP #$20
     AND #$007F            ; Mask to 7-bit event flag ID
-    JSL $@cop_handlers_script.TestEventFlag_0200
+    JSL $@cop_handlers_flags.TestEventFlag_0200
     SEP #$20
     BCS loc_038304        ; Event flag set = visited marker, skip plotting
     LDA $@scene_barrier_chest_table, X

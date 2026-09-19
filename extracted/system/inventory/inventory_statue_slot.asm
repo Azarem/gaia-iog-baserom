@@ -1,4 +1,9 @@
-?INCLUDE 'cop_handlers_script'
+; Inventory menu actor that displays a collected mystic statue sprite at one of six grid slots when its flag is set.
+; 
+; Reads statue_reward table entries indexed by actor $0E nibble, checks TestFlagRaw, and shows the appropriate inventory_spritemap frame on inventory tab #3. Spawned on scene $FF alongside the inventory menu. Shows which statues the player has placed in the inventory grid.
+---------------------------------------------
+
+?INCLUDE 'cop_handlers_flags'
 ?INCLUDE 'inventory_spritemap'
 ?INCLUDE 'sprite_composition'
 ?INCLUDE 'statue_inventory_reward'
@@ -30,9 +35,9 @@ inventory_statue_slot [
     TAX 
     LDA $@statue_inventory_reward.statue_reward_00CE97, X
     AND #$00FF
-    JSL $@cop_handlers_script.TestFlagRaw
+    JSL $@cop_handlers_flags.TestFlagRaw
     BCC loc_00CF60
-    JMP $&code_00CF63
+    JMP $&InventoryStatueSlotClaimed
 
   loc_00CF60:
     PLX 
@@ -40,7 +45,7 @@ inventory_statue_slot [
 } >
 ]
 
-code_00CF63 {
+InventoryStatueSlotClaimed {
     LDA $@statue_inventory_reward.statue_reward_00CE97+1, X
     AND #$00FF
     STA $28

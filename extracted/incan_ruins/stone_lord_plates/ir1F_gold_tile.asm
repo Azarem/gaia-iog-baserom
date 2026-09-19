@@ -1,4 +1,4 @@
-?INCLUDE 'cop_handlers_script'
+?INCLUDE 'cop_handlers_flags'
 
 ---------------------------------------------
 
@@ -17,7 +17,7 @@ ir1F_gold_tile [
     COP [BranchIfActorNear] ( #04, #01, &code_09C407 )
     COP [BranchIfActorNear] ( #05, #01, &code_09C407 )
     LDA $0E
-    JSL $@cop_handlers_script.ClearFlagRaw
+    JSL $@cop_handlers_flags.ClearFlagRaw
     RTL 
 } >
 ]
@@ -36,7 +36,7 @@ code_09C3FB {
 
 code_09C407 {
     LDA $0E
-    JSL $@cop_handlers_script.SetFlagRaw
+    JSL $@cop_handlers_flags.SetFlagRaw
     RTL 
 }
 

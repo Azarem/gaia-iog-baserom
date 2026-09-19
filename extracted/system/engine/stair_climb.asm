@@ -1,3 +1,10 @@
+; Stair trigger and climb animation system (Bank 00) with five directional actor-def triggers referenced ~30 times in scene_actors.asm plus shared helpers also used by ramps.asm.
+; 
+; Each trigger (StairTriggerSouth/North/West/East and StairTriggerWestEntry) validates player proximity (±8 to ±$20 pixels), matching row/column, walking move byte $8F via CheckMoveState, and correct facing sprite index before redirecting the player entry pointer to ClimbSouth/North/West/East. LockPlayerForClimb stores frame count from actor param $0E, zeros velocity, masks joypad $0F00, and sets playerFlags $0800.
+; 
+; Climb routines step 4 pixels per frame along the stair axis until statsPtr ($7F0020) expires, then play the landing frame and UnlockPlayerAfterClimb → RestorePlayerControl → PlayerIdleEntry. Block is marked non-movable due to tight $& coupling between triggers and climb handlers.
+---------------------------------------------
+
 ?BANK 00
 
 ?INCLUDE 'player_character'
@@ -11,11 +18,15 @@
 
 ---------------------------------------------
 
+; South-facing stair trigger actor-def placed on stair tiles in scene_actors (e.g. Mu Passage and other dungeons).
+; 
+; Each frame it checks whether the player is within an 8–32 pixel Y band aligned to the trigger row, shares the trigger X column, is in a walking move state ($8F via CheckMoveState), and faces south (sprite index $0012 or $0013). On success it redirects the player entry pointer to ClimbSouth and calls LockPlayerForClimb.
+
 StairTriggerSouth [
   actor-def < #00, #00, #20, {
 
   code_00D0D4:
-    LDY $playerActor
+    LDY $playerActor      ; Stair trigger south: player must be within ±$20 Y band and share X column
     LDA $16
     SEC 
     SBC #$0008
@@ -31,7 +42,7 @@ StairTriggerSouth [
     RTL 
 
   loc_00D0ED:
-    LDA $0014, Y
+    LDA $0014, Y          ; Require player anim $12/$13 (south walk) before arming ClimbSouth script
     CMP $14
     BEQ loc_00D0F5
     RTL 
@@ -218,7 +229,7 @@ StairTriggerEast [
 ]
 
 CheckMoveState {
-    PHX 
+    PHX                   ; CheckMoveState: animScratch2 byte must equal $8F (active walk) or climb rejected
     TYX 
     SEP #$20
     LDA $7F0008, X
@@ -252,7 +263,7 @@ ClimbSouth {
     RTL 
 
   loc_00D238:
-    LDA #$2000
+    LDA #$2000            ; ClimbSouth per frame: subtract 4px from X while statsPtr countdown non-zero
     TRB $10
     COP [StageSpriteFrame] ( #14 )
     COP [AnimOnce]
@@ -261,7 +272,7 @@ ClimbSouth {
 }
 
 ClimbNorth {
-    LDA #$2200
+    LDA #$2200            ; ClimbNorth per frame: add 4px to X each tick until step counter reaches zero
     TSB $10
     LDA #$0008
     TRB $10
@@ -336,8 +347,12 @@ ClimbEast {
 }
 ---------------------------------------------
 
+; Shared helper that freezes the player for a stair-climb animation sequence.
+; 
+; Takes the climb frame count from actor parameter $0E (shifted left twice into statsPtr at $7F0020), zeros player velocity words at $002C/$002E/$0008, masks directional joypad input ($0F00 in joypadMaskStd), and sets playerFlags bit $0800. Called by all four StairTrigger handlers immediately before the player script switches to a Climb* routine.
+
 LockPlayerForClimb {
-    LDA $0E
+    LDA $0E               ; LockPlayerForClimb: mask joypad $0F00, set playerFlags $0800, store step count
     ASL 
     ASL 
     PHX 
@@ -371,6 +386,10 @@ UnlockPlayerAfterClimb {
     RTS 
 }
 ---------------------------------------------
+
+; Restores normal player locomotion after a climb or ramp animation finishes.
+; 
+; Resets the player actor entry pointer to PlayerIdleEntry, clears velocity scratch at $002C/$002E/$0008, adjusts status word $0010 (clears $0200, sets $0008), unmasks joypad ($0F00), and clears playerFlags $0800. Called from UnlockPlayerAfterClimb and from ramp exit handlers in ramps.asm.
 
 RestorePlayerControl {
     PHX 

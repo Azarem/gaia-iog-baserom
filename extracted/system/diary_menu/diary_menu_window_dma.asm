@@ -1,3 +1,8 @@
+; Thinker that selects among multiple window-mask DMA channel tables based on diary menu state bytes $0D92, $0D96, and $0D98.
+; 
+; Queues 26-byte HDMA/DMA setups that configure window layers for the diary UI panels. Spawned on scene $FA (diary menu scene). Updates window masking as the player navigates diary pages.
+---------------------------------------------
+
 !WH0                            2126
 
 ---------------------------------------------

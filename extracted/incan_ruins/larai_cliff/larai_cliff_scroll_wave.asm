@@ -1,3 +1,8 @@
+; Scroll-linked sine HDMA unique to Larai Cliff.
+; 
+; Initializes sine table at $7E8800 with amplitude 16, temporarily overwrites cameraDeltaX ($06C0) with the upper nibble of scroll accumulator $0722 before TickSineHdma, then restores the original value. Binds $7E8800 to HDMA channel #0D at tick speed #04, tying wave amplitude to camera scroll position for parallax-linked cliff-edge distortion. Re-inits when flag #FF is clear; produces water/wind shimmer at the cliff edge tied to player movement.
+---------------------------------------------
+
 !cameraDeltaX                   06C0
 
 ---------------------------------------------

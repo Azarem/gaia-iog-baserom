@@ -1,3 +1,8 @@
+; Per-frame HDMA thinker that configures multi-layer background parallax scrolling from the parallax_scroll_table indexed by the spawning actor's animScratch.
+; 
+; Clears HDMA scratch at $0720, computes per-region scroll offsets from camera delta and BG scroll registers, and programs HDMA channels via SetupHdmaChannel_Direct. Spawned on many overworld and dungeon scenes (Edward Castle, Itory, Incan Ruins, inventory screen, and others). Enables layered cloud, water, and background depth effects.
+---------------------------------------------
+
 ?INCLUDE 'hardware_math'
 ?INCLUDE 'hdma_dma_spc'
 ?INCLUDE 'hdma_ramp_tables'
@@ -17,7 +22,7 @@ parallax_thinker [
   thinker-def < #04, #08, {
 
   code_00B88D:
-    JSR $&code_00B8C3
+    JSR $&ParallaxClearHdmaScratch ; Parallax thinker: clear HDMA scratch, SetEntryContinue, bind channel
     LDA #$0000
     STA $chatPtr, X
     COP [SetEntryContinue]
@@ -25,7 +30,7 @@ parallax_thinker [
     STA $0012
     INC 
     STA $chatPtr, X
-    JSR $&code_00B8D4
+    JSR $&ParallaxBuildHdmaTable
     SEP #$20
     LDA $0002
     XBA 
@@ -40,8 +45,8 @@ parallax_thinker [
 } >
 ]
 
-code_00B8C3 {
-    LDY #$0000
+ParallaxClearHdmaScratch {
+    LDY #$0000            ; Zero 48 bytes ($30 words) of parallax HDMA staging buffer at $0720
     LDA #$0000
 
   loc_00B8C9:
@@ -53,8 +58,8 @@ code_00B8C3 {
     RTS 
 }
 
-code_00B8D4 {
-    PHX 
+ParallaxBuildHdmaTable {
+    PHX                   ; Index parallax_scroll_table by animScratch2×2 to select layer scroll config
     LDA #$0000
     TCD 
     LDA $effectDeltaX
@@ -77,7 +82,7 @@ code_00B8D4 {
     STA $1A
 
   loc_00B8FD:
-    LDA $savedCameraDelta
+    LDA $savedCameraDelta ; Config bit $40: left-shift effectDeltaX×4 before adding to scroll accumulator
     STA $1C
     LDA $bg1ScrollH
     STA $18
@@ -90,7 +95,7 @@ code_00B8D4 {
     STA $18
 
   loc_00B919:
-    LDA $0012
+    LDA $0012             ; Config bit $80: swap scroll inputs to BG2H horizontal + BG1V vertical
     LSR 
     BCS loc_00B92F
     LDA $0002, X
@@ -112,10 +117,10 @@ code_00B8D4 {
     STA $5E
 
   loc_00B941:
-    LDA $0003, X
+    LDA $0003, X          ; Lower 6 bits of config select hdma_channel_config and parallax_speed_config row
     AND #$003F
     STA $02
-    JSR $&code_00BABA
+    JSR $&ParallaxResolveChannelSpeed
     LDA $0004, X
     AND #$00FF
     STA $00
@@ -130,14 +135,14 @@ code_00B8D4 {
     BEQ loc_00B9B3
 
   loc_00B966:
-    LDA $0000, X
+    LDA $0000, X          ; Mode 9 HDMA: compare ramp breakpoints against live BG1/BG2 scroll registers
     BEQ loc_00B981
     CLC 
     ADC $1C
     STA $1C
     BMI loc_00B97E
     PHA 
-    JSR $&code_00BB63
+    JSR $&ParallaxApplyScrollOffset
     TXA 
     CLC 
     ADC $00
@@ -146,7 +151,7 @@ code_00B8D4 {
     BRA loc_00B966
 
   loc_00B97E:
-    JSR $&code_00BACD
+    JSR $&ParallaxWriteNegativeScrollRamp
 
   loc_00B981:
     LDA #$0000
@@ -174,7 +179,7 @@ code_00B8D4 {
     BRA loc_00B98E
 
   loc_00B9A3:
-    JSR $&code_00BB1F
+    JSR $&ParallaxWriteNegativeScrollRampY
 
   loc_00B9A6:
     LDA #$0000
@@ -215,7 +220,7 @@ code_00B8D4 {
     BMI loc_00B9E9
     CMP #$00FF
     BCS loc_00B9F9
-    JSR $&code_00BA1B
+    JSR $&ParallaxWriteWindowHdmaEntry
     BRA loc_00B9F9
 
   loc_00B9E9:
@@ -225,7 +230,7 @@ code_00B8D4 {
     BMI loc_00B9F9
     CMP #$00FF
     BCS loc_00B9F9
-    JSR $&code_00BA1B
+    JSR $&ParallaxWriteWindowHdmaEntry
 
   loc_00B9F9:
     TXA 
@@ -250,7 +255,7 @@ code_00B8D4 {
     RTS 
 }
 
-code_00BA1B {
+ParallaxWriteWindowHdmaEntry {
     LDA $0004, X
     SEC 
     SBC $bg2ScrollH
@@ -291,11 +296,11 @@ code_00BA1B {
 
   loc_00BA5A:
     LDY $20
-    JSR $&code_00BA60
+    JSR $&ParallaxFillHdmaRampRow
     RTS 
 }
 
-code_00BA60 {
+ParallaxFillHdmaRampRow {
     LDA $24
     SEC 
     SBC $08
@@ -353,8 +358,8 @@ code_00BA60 {
     RTS 
 }
 
-code_00BABA {
-    LDA $02
+ParallaxResolveChannelSpeed {
+    LDA $02               ; Mask channel index to 3 bits; look up DMAP transfer mode and speed divisor
     TAY 
     LDA $&hdma_ramp_tables.hdma_channel_config, Y
     AND #$0007
@@ -365,11 +370,11 @@ code_00BABA {
     RTS 
 }
 
-code_00BACD {
-    EOR #$FFFF
+ParallaxWriteNegativeScrollRamp {
+    EOR #$FFFF            ; Negative scroll ramp: emit $7F scanline HDMA entries with nibble scroll high bytes
     INC 
     PHA 
-    JSR $&code_00BB63
+    JSR $&ParallaxApplyScrollOffset
     LDA $10
     SEC 
     SBC $01, S
@@ -419,10 +424,10 @@ code_00BACD {
     RTS 
 
   loc_00BB1D:
-    BRA code_00BACD
+    BRA ParallaxWriteNegativeScrollRamp
 }
 
-code_00BB1F {
+ParallaxWriteNegativeScrollRampY {
     EOR #$FFFF
     INC 
     PHA 
@@ -466,11 +471,11 @@ code_00BB1F {
     RTS 
 
   loc_00BB61:
-    BRA code_00BB1F
+    BRA ParallaxWriteNegativeScrollRampY
 }
 
-code_00BB63 {
-    LDA $0004, X
+ParallaxApplyScrollOffset {
+    LDA $0004, X          ; Zero scroll-factor path: accumulate offset from linked WRAM table plus effectDeltaX
     BEQ loc_00BB7B
     LDY $18
     JSL $@hardware_math.MulDivide

@@ -1,3 +1,8 @@
+; Multi-phase palette thinker for the Incan Ruins transformation sequence.
+; 
+; Default state loops palette #1A; flag $4D triggers palettes #34 then #33; flag $52 enters the final phase that fills CGRAM buffer entries, applies palette #36, and kills sibling thinkers. Spawned on Incan Ruins scenes $2B, $2C, and related entries in scene_thinkers. Drives the visual transformation when the ruins change after story events.
+---------------------------------------------
+
 !cgramPalette                   7F0A00
 
 ---------------------------------------------
@@ -6,8 +11,8 @@ incan_ruins_transform_palette [
   thinker-def < #00, #08, {
 
   code_00B673:
-    COP [BranchIfFlagByte] ( #52, #01, &code_00B69B )
-    COP [BranchIfFlagByte] ( #4D, #01, &code_00B686 )
+    COP [BranchIfFlagByte] ( #52, #01, &IncanRuinsTransformPaletteFinal )
+    COP [BranchIfFlagByte] ( #4D, #01, &IncanRuinsTransformPaletteWarmup )
 
   loc_00B67F:
     COP [PaletteStart] ( #1A )
@@ -16,8 +21,8 @@ incan_ruins_transform_palette [
 } >
 ]
 
-code_00B686 {
-    COP [PaletteStart] ( #34 )
+IncanRuinsTransformPaletteWarmup {
+    COP [PaletteStart] ( #34 ) ; Warmup runs palette #34 once, sets flag $FF, then loops #33 until flag cleared
     COP [PaletteStep]
     COP [SetFlagByte] ( #FF )
 
@@ -25,10 +30,10 @@ code_00B686 {
     COP [PaletteStart] ( #33 )
     COP [PaletteStep]
     COP [BranchIfFlagByte] ( #FF, #01, &code_00B68E )
-    BRA code_00B686
+    BRA IncanRuinsTransformPaletteWarmup
 }
 
-code_00B69B {
+IncanRuinsTransformPaletteFinal {
     PHX 
     LDX $005A
     COP [KillThinker]
@@ -45,7 +50,7 @@ code_00B69B {
     LDX #$0000
 
   loc_00B6B1:
-    STA $7F0A40, X
+    STA $7F0A40, X        ; Fill 16 words at $7F0A40 with $1421 before final palette #36 transition
     INX 
     INX 
     CPX #$0020

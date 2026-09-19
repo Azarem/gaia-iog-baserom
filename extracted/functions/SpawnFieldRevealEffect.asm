@@ -1,3 +1,8 @@
+; Dark Space room-clear reveal cutscene effect.
+; 
+; Animates a rising sprite sequence, moves toward target coordinates from event_block_table via deathActionIdx, spawns flash and scatter particle children, waits, then calls StageBgChangeFromDeathIdx to swap the room background. Used after defeating enemies that unlock a field reveal (Pyramid mystic ball, Angkor wall walker). The visual centerpiece of the "room cleared" transformation.
+---------------------------------------------
+
 ?INCLUDE 'event_block_table'
 ?INCLUDE 'table_0EE000'
 

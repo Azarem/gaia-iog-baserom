@@ -1,3 +1,8 @@
+; Dream-sequence palette cycler for Tim's Gold Ship dream aboard the ship.
+; 
+; Continuously steps through palette bundle #35 with PaletteStart/PaletteStep, maintaining the surreal dream color grading. Sets thinker flag #FF each iteration; when that flag is externally cleared, ExitIfFlagByte falls through to KillThinker and the dream palette loop terminates. No direct PPU register writes — the effect is entirely driven by the engine palette bundle system.
+---------------------------------------------
+
 ---------------------------------------------
 
 dream_palette_loop [

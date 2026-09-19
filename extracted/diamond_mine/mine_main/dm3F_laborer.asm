@@ -1,4 +1,4 @@
-?INCLUDE 'cop_handlers_script'
+?INCLUDE 'cop_handlers_flags'
 ?INCLUDE 'func_0AA3FD'
 
 !displayModeFlags               09EC
@@ -18,7 +18,7 @@ dm3F_laborer [
     LDA $@byte_0AA72F, X
     PLX 
     AND #$00FF
-    JSL $@cop_handlers_script.TestFlagRaw
+    JSL $@cop_handlers_flags.TestFlagRaw
     BCC loc_0AA6D5
     JMP $&code_0AA72D
 
@@ -60,7 +60,7 @@ code_0AA700 {
     LDA $@byte_0AA72F, X
     PLX 
     AND #$00FF
-    JSL $@cop_handlers_script.SetFlagRaw
+    JSL $@cop_handlers_flags.SetFlagRaw
 }
 
 code_0AA72D {

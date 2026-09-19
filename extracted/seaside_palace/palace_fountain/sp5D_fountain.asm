@@ -1,4 +1,4 @@
-?INCLUDE 'cop_handlers_actors'
+?INCLUDE 'actor_pool'
 ?INCLUDE 'oneshot_palette_flash_40'
 ?INCLUDE 'table_0EE000'
 
@@ -63,7 +63,7 @@ code_069412 {
     COP [SetFlagByte] ( #0F )
     COP [WaitByte] ( #3B )
     COP [SpawnThinker] ( @oneshot_palette_flash_40.code_00B7F6 )
-    COP [SpawnThinkerParam] ( #26, @cop_handlers_actors.PaletteResetAndKillThinker )
+    COP [SpawnThinkerParam] ( #26, @actor_pool.PaletteResetAndKillThinker )
     COP [WaitWord] ( #$02B1 )
     COP [ClearFlagByte] ( #0F )
     COP [SetFlagByte] ( #70 )

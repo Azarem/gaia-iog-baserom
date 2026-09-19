@@ -1,3 +1,8 @@
+; Unreferenced byte-identical duplicate of native_village_sine_hdma with identical logic: InitSineHdma on $8800 (20-byte, speed $04), TickSineHdma, dual BindSineHdma to channels $0E and $10.
+; 
+; The active native_village_sine_hdma thinker is used on Native Village scenes instead. Dead copy left in the unused bank region.
+---------------------------------------------
+
 ---------------------------------------------
 
 native_village_dup_unused [

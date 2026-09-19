@@ -1,3 +1,8 @@
+; Unreferenced north-south fast speed zone actor, structurally identical to movement_speed_zones.speed_zone_ns_slow but setting playerSpeedNs to $0007 instead of $FFF9.
+; 
+; Would boost north-south movement in a 16×4 pixel zone. The active movement_speed_zones block includes EW slow/fast and NS slow only; this NS fast variant was never placed.
+---------------------------------------------
+
 !playerActor                    09AA
 !playerSpeedNs                  09B4
 

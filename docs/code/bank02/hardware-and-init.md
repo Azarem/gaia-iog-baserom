@@ -649,7 +649,7 @@ QuintetLzDecompress {
 | Symbol | Relationship |
 |--------|--------------|
 | `scene_script.asm` | Primary caller — all compressed graphics loaders |
-| `cop_handlers_collision.asm` | Caller — runtime decompression |
+| `cop_handlers_map.asm` | Caller — runtime decompression |
 | `LzReadBitField` | Callee — variable-length bit/byte extraction |
 | `LzReadBackRef` | Callee — back-reference length decode |
 

@@ -1,4 +1,4 @@
-?INCLUDE 'cop_handlers_script'
+?INCLUDE 'cop_handlers_flags'
 
 !gfxCacheIdxB                   064A
 !joypadMaskStd                  065A
@@ -58,7 +58,7 @@ code_0681F0 {
     STA $002C, Y
     COP [StageSpriteLoopMoveX] ( #07, #3C, #11 )
     COP [AnimLoop]
-    JSL $@cop_handlers_script.ClearAllWramFlags
+    JSL $@cop_handlers_flags.ClearAllWramFlags
     LDA #$0404
     STA $gfxCacheIdxB
     COP [QueueMapChange] ( #59, #$0000, #$0000, #00, #$1100 )

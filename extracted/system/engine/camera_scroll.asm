@@ -89,11 +89,9 @@ ScrollCameraTrack [
 ]
 
 ---------------------------------------------
-; Vertical-only camera tracking actor.
+; Vertical-only camera tracking actor-def referenced from scene_actors in Edward's Castle, Itory, Incan Ruins, and Dao.
 ; 
-; Sets the camera-active flag and aligns position, then enters a per-frame loop. Each frame, only the Y axis delta is computed via MulDivide: cameraDeltaY = cameraTargetY × speed parameter $16 / scale. The X delta is left unchanged (whatever was set by a previous scroll actor or zero).
-; 
-; The Y speed parameter at DP $16 is checked first — if zero, the MulDivide call is skipped entirely. Used for cutscenes or areas where only vertical camera movement is needed.
+; Sets camera-active flag $1000, tile-aligns position via TileAlignPosition, then loops with SetEntryContinue computing only the Y scroll delta through MulDivide when speed parameter $16 is nonzero. Leaves cameraDeltaX unchanged from any prior scroll actor. X speed parameter $14 is ignored entirely.
 
 ScrollCameraVertical [
   actor-def < #00, #00, #2C, {
@@ -115,13 +113,9 @@ ScrollCameraVertical [
 ]
 
 ---------------------------------------------
-; Accumulative scroll actor that adds running offsets to computed deltas.
+; Accumulative camera scroll actor-def used in Pyramid interior scenes.
 ; 
-; Sets the camera-active flag and initializes accumulator registers at DP $24 (X accumulator) and $26 (Y accumulator) to zero. Aligns position to the tile grid.
-; 
-; Each frame after SetEntryContinue, computes both scroll deltas via ComputeScrollDeltas, then adds the accumulated offsets: cameraDeltaX += $24 and cameraDeltaY += $26. The accumulators can be set externally by other actors to apply additional camera drift or offset on top of the base scroll tracking.
-; 
-; Used for scenes with layered camera effects where additional motion is blended with standard tracking.
+; Initializes X/Y accumulator registers at DP $24 and $26 to zero, tile-aligns position, then each frame calls ComputeScrollDeltas and adds the accumulators to cameraDeltaX and cameraDeltaY. External actors can pre-load $24/$26 to inject extra drift on top of standard tracking.
 
 ScrollCameraAccumulate [
   actor-def < #00, #00, #24, {

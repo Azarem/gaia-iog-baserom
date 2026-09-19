@@ -1,3 +1,8 @@
+; Boot-sequence thinker that steps palette animations #50, #52, and #54 in order, then exits.
+; 
+; Spawned on scene $FB (boot logo scene) as the first of three logo palette thinkers. Animates the Enix logo colors during the opening publisher screen.
+---------------------------------------------
+
 ---------------------------------------------
 
 boot_logo_palette_enix [

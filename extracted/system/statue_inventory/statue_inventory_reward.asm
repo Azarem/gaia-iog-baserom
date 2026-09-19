@@ -1,5 +1,10 @@
+; Full-screen statue-collection reward ceremony actor on scene $FD.
+; 
+; Reconfigures BG mode/registers for the inventory display, validates statue flags and inventory count ($0AAC), plays music wait and sound, spawns orbital particle effects, and sets scene transition parameters for return to gameplay. Awards mystic statues #00–#05 with animated reveal. Counterpart to inventory_statue_slot for the initial collection moment.
+---------------------------------------------
+
 ?INCLUDE 'ApplyOrbitalOffsetFromRef'
-?INCLUDE 'cop_handlers_script'
+?INCLUDE 'cop_handlers_flags'
 ?INCLUDE 'inventory_spritemap'
 ?INCLUDE 'music_actors'
 ?INCLUDE 'sprite_composition'
@@ -60,21 +65,21 @@ statue_inventory_reward [
     TAX 
     LDA $@statue_reward_00CE97, X
     AND #$00FF
-    JSL $@cop_handlers_script.TestFlagRaw
+    JSL $@cop_handlers_flags.TestFlagRaw
     BCC loc_00CDBB
-    JMP $&code_00CE7B
+    JMP $&StatueRewardAlreadyClaimed
 
   loc_00CDBB:
     LDA $@statue_reward_00CE97+2, X
     AND #$00FF
     CMP $0AAC
     BEQ loc_00CDCA
-    JMP $&code_00CE93
+    JMP $&StatueRewardWrongTab
 
   loc_00CDCA:
     LDA $@statue_reward_00CE97, X
     AND #$00FF
-    JSL $@cop_handlers_script.SetFlagRaw
+    JSL $@cop_handlers_flags.SetFlagRaw
     LDA $@statue_reward_00CE97+1, X
     AND #$00FF
     STA $28
@@ -85,7 +90,7 @@ statue_inventory_reward [
     STA $26
 
   loc_00CDEA:
-    COP [SpawnAfterFlags] ( @code_00CEAF, #$1802 )
+    COP [SpawnAfterFlags] ( @StatueRewardOrbitalSparkle, #$1802 )
     LDA $26
     CLC 
     ADC #$0020
@@ -122,7 +127,7 @@ statue_inventory_reward [
     LDA #$2000
     TRB $10
     COP [LoopInit] ( #3C )
-    COP [SpawnAfterFlags] ( @code_00CEFF, #$1802 )
+    COP [SpawnAfterFlags] ( @StatueRewardConfettiBurst, #$1802 )
     COP [LoopNext]
 
   loc_00CE46:
@@ -153,7 +158,7 @@ statue_inventory_reward [
 } >
 ]
 
-code_00CE7B {
+StatueRewardAlreadyClaimed {
     LDA $@statue_reward_00CE97+1, X
     AND #$00FF
     STA $28
@@ -166,7 +171,7 @@ code_00CE7B {
     RTL 
 }
 
-code_00CE93 {
+StatueRewardWrongTab {
     PLX 
     COP [SetEntryContinue]
     RTL 
@@ -181,7 +186,7 @@ statue_reward_00CE97 [
   statue-reward < #FD, #3F, #05 >   ;05
 ]
 
-code_00CEAF {
+StatueRewardOrbitalSparkle {
     COP [SetSpritePriority] ( #30 )
     COP [SetMetasprite] ( @table_0EE000 )
     COP [StageSprAndHitbox] ( #02 )
@@ -219,7 +224,7 @@ code_00CEAF {
     COP [Die]
 }
 
-code_00CEFF {
+StatueRewardConfettiBurst {
     LDA $0036
     AND #$0003
     BNE loc_00CF27

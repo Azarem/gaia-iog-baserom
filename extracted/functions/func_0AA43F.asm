@@ -1,4 +1,4 @@
-?INCLUDE 'cop_handlers_script'
+?INCLUDE 'cop_handlers_flags'
 ?INCLUDE 'EnemyDeathFlash'
 ?INCLUDE 'field_reveal_object'
 ?INCLUDE 'SpawnFieldRevealEffect'
@@ -60,10 +60,10 @@ code_0AA474 {
   loc_0AA4B8:
     LDA $deathActionIdx, X
     BEQ loc_0AA4E0
-    JSL $@cop_handlers_script.TestFlag_0100
+    JSL $@cop_handlers_flags.TestFlag_0100
     BCS loc_0AA4E0
     LDA $deathActionIdx, X
-    JSL $@cop_handlers_script.SetFlag_0100
+    JSL $@cop_handlers_flags.SetFlag_0100
     COP [SpawnLastRel] ( @SpawnFieldRevealEffect, #00, #00, #$0342 )
     PHX 
     LDA $deathActionIdx, X

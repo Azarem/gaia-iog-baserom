@@ -1,4 +1,4 @@
-?INCLUDE 'cop_handlers_script'
+?INCLUDE 'cop_handlers_flags'
 ?INCLUDE 'func_0AA36E'
 ?INCLUDE 'hardware_math'
 ?INCLUDE 'sE6_gaia'
@@ -105,7 +105,7 @@ sg55_viper [
 
   code_0AD172:
     LDA #$0001
-    JSL $@cop_handlers_script.TestWramFlag_Offset100
+    JSL $@cop_handlers_flags.TestWramFlag_Offset100
     BCC loc_0AD183
     STZ $0AEC
     STZ $0AEE

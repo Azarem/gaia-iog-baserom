@@ -106,7 +106,7 @@ Each entry defines the range of scenes whose rewards are granted on boss defeat:
 | Direction | Symbol | Notes |
 |-----------|--------|-------|
 | Includes | `enemy_clear_reward_table` | Must move together |
-| Includes | `cop_handlers_script` | Flag/stat COP helpers |
+| Includes | `cop_handlers_flags` | Flag/stat COP helpers |
 | Related | `field_reveal_object` | Also reads `enemy_clear_reward_table` |
 | Related | `StandardEnemyDefeatHandler` | Reads `enemy_clear_reward_table` per scene for individual drops |
 
@@ -262,7 +262,7 @@ Scene `$FD` only — statue inventory reward screen.
 
 | Direction | Symbol | Notes |
 |-----------|--------|-------|
-| Includes | `ComposeDigits_Continuation`, `cop_handlers_script`, `inventory_spritemap` | |
+| Includes | `ComposeDigits_Continuation`, `cop_handlers_flags`, `inventory_spritemap` | |
 | Shared data | `unk19_00CE97` | Read by `inventory_statue_slot` |
 | Calls | `UpdateActorAnimation` | Advance animation frame |
 | Calls | `ApplyOrbitalOffsetFromRef` | Pickup child orbit motion |

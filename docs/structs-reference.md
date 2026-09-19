@@ -624,7 +624,7 @@ Singly-linked list node for per-frame signed movement deltas. The core animation
 3. **Overworld route playback** — three parallel chains per route step drive camera X, Y, and player position
 4. **Hit knockback** — stagger controller selects X or Y chain for knockback direction
 
-**Files:** `table_01B086.asm` (85-entry pointer table + 1,173 nodes), `cop_handlers_actors.asm`, `forced_walk.asm`, `sFE_actor_03A2F1.asm`, `hit_stagger_controller.asm`
+**Files:** `table_01B086.asm` (85-entry pointer table + 1,173 nodes), `actor_pool.asm`, `forced_walk.asm`, `sFE_actor_03A2F1.asm`, `hit_stagger_controller.asm`
 
 **blocks.json:** `table_01B086` (110726–115588, typed `&delta-node`)
 
@@ -1108,7 +1108,7 @@ Character body form → sprite resource mapping.
 | 8     | Shadow (3rd)   | `table_17C000`  | `shad_sprites_1BC000` |
 
 
-**Files:** `body_table.asm` (9 entries), `cop_handlers_actors.asm`, `chunk_03BAE1.asm`
+**Files:** `body_table.asm` (9 entries), `actor_pool.asm`, `chunk_03BAE1.asm`
 
 **blocks.json:** `body_table` (121201–121255)
 

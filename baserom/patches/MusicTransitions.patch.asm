@@ -1,6 +1,6 @@
 ﻿?BANK 03
 
-?INCLUDE 'cop_handlers_actors'
+?INCLUDE 'cop_handlers_audio'
 ?INCLUDE 'chunk_03BAE1'
 ?INCLUDE 'scene_script'
 ?INCLUDE 'spc_transfer'

@@ -5,7 +5,7 @@
 
 ---------------------------------------------
 
-; DMA transfer mode lookup table for HDMA channel configuration — 64 byte entries. Each byte is a DMAP register value (transfer mode + direction bits): $00 = 1-byte single register, $01 = 2-byte register pair, $02 = 2-byte same register, $80/$81/$82 = same with indirect flag. Referenced by SetupHdmaChannel_Indirect/Direct in hdma_dma_spc.asm, parallax_thinker.asm, and cop_handlers_collision.asm.
+; DMA transfer mode lookup table for HDMA channel configuration — 64 byte entries. Each byte is a DMAP register value (transfer mode + direction bits): $00 = 1-byte single register, $01 = 2-byte register pair, $02 = 2-byte same register, $80/$81/$82 = same with indirect flag. Referenced by SetupHdmaChannel_Indirect/Direct in hdma_dma_spc.asm, parallax_thinker.asm, and cop_handlers_solid.asm.
 
 hdma_channel_config [
   #00   ;00

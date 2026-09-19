@@ -43,7 +43,7 @@ ir20_statue [
 
   loc_0A8927:
     COP [SetFlagByte] ( #B9 )
-    COP [JumpScript] ( @StandardEnemyDefeatHandler.code_00DBB6 )
+    COP [JumpScript] ( @StandardEnemyDefeatHandler.EnemyDefeatFlashAndDrop )
 } >
 ]
 

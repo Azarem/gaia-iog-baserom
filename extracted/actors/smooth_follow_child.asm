@@ -1,3 +1,8 @@
+; Helper actor spawned by boss and puzzle scripts to make a child actor smoothly chase a reference actor.
+; 
+; Computes directional follow steps via smooth_follow.ComputeFollowAngle/ComputeFollowStep based on relative X/Y offsets, updating both actors' positions each frame. Used in Pyramid Blaster, Angkor wall walker, Mummy Queen, Sand Fanger, Edward Ribber, and other chase segments. Dies when the parent actor sets flag $4000 or on special actor ID $1FC0.
+---------------------------------------------
+
 ?BANK 00
 
 ?INCLUDE 'smooth_follow'
@@ -8,7 +13,7 @@
 
 smooth_follow_child {
     STZ $002A, X
-    COP [SpawnMarkedAfter] ( @code_00E4FC, #$2000 )
+    COP [SpawnMarkedAfter] ( @SmoothFollowChildTick, #$2000 )
     CPY #$1FC0
     BEQ loc_00E4FA
     LDA $24
@@ -25,7 +30,7 @@ smooth_follow_child {
     COP [Die]
 }
 
-code_00E4FC {
+SmoothFollowChildTick {
     TXY 
     LDX $0004, Y
     LDA $loopCounter, X
@@ -46,7 +51,7 @@ code_00E4FC {
     STA $001C
     CMP $0018
     BCC loc_00E52D
-    JMP $&code_00E5C1
+    JMP $&SmoothFollowApplyEastPrimary
 
   loc_00E52D:
     BRA loc_00E5A6
@@ -72,10 +77,10 @@ code_00E4FC {
     STA $001C
     CMP $0018
     BCC loc_00E55B
-    JMP $&code_00E5DC
+    JMP $&SmoothFollowApplyEastSecondary
 
   loc_00E55B:
-    JMP $&code_00E5F6
+    JMP $&SmoothFollowApplyWestPrimary
 
   loc_00E55E:
     EOR #$FFFF
@@ -83,10 +88,10 @@ code_00E4FC {
     STA $001C
     CMP $0018
     BCC loc_00E56D
-    JMP $&code_00E62A
+    JMP $&SmoothFollowApplySouthPrimary
 
   loc_00E56D:
-    JMP $&code_00E610
+    JMP $&SmoothFollowApplyWestSecondary
 
   loc_00E570:
     JSR $&smooth_follow.ComputeFollowAngle
@@ -100,7 +105,7 @@ code_00E4FC {
     CLC 
     ADC $0002
     STA $14
-    JMP $&code_00E644
+    JMP $&SmoothFollowWriteParentPos
 
   loc_00E58B:
     JSR $&smooth_follow.ComputeFollowAngleAlt
@@ -114,7 +119,7 @@ code_00E4FC {
     SEC 
     SBC $0002
     STA $16
-    JMP $&code_00E644
+    JMP $&SmoothFollowWriteParentPos
 
   loc_00E5A6:
     JSR $&smooth_follow.ComputeFollowAngleAlt
@@ -128,10 +133,10 @@ code_00E4FC {
     CLC 
     ADC $0002
     STA $16
-    JMP $&code_00E644
+    JMP $&SmoothFollowWriteParentPos
 }
 
-code_00E5C1 {
+SmoothFollowApplyEastPrimary {
     JSR $&smooth_follow.ComputeFollowAngle
     COP [SetEntryContinue]
     JSR $&smooth_follow.ComputeFollowStep
@@ -143,10 +148,10 @@ code_00E5C1 {
     CLC 
     ADC $0002
     STA $14
-    JMP $&code_00E644
+    JMP $&SmoothFollowWriteParentPos
 }
 
-code_00E5DC {
+SmoothFollowApplyEastSecondary {
     JSR $&smooth_follow.ComputeFollowAngle
     COP [SetEntryContinue]
     JSR $&smooth_follow.ComputeFollowStep
@@ -158,10 +163,10 @@ code_00E5DC {
     SEC 
     SBC $0002
     STA $14
-    BRA code_00E644
+    BRA SmoothFollowWriteParentPos
 }
 
-code_00E5F6 {
+SmoothFollowApplyWestPrimary {
     JSR $&smooth_follow.ComputeFollowAngleAlt
     COP [SetEntryContinue]
     JSR $&smooth_follow.ComputeFollowStep
@@ -173,10 +178,10 @@ code_00E5F6 {
     CLC 
     ADC $0002
     STA $16
-    BRA code_00E644
+    BRA SmoothFollowWriteParentPos
 }
 
-code_00E610 {
+SmoothFollowApplyWestSecondary {
     JSR $&smooth_follow.ComputeFollowAngleAlt
     COP [SetEntryContinue]
     JSR $&smooth_follow.ComputeFollowStep
@@ -188,10 +193,10 @@ code_00E610 {
     SEC 
     SBC $0002
     STA $16
-    BRA code_00E644
+    BRA SmoothFollowWriteParentPos
 }
 
-code_00E62A {
+SmoothFollowApplySouthPrimary {
     JSR $&smooth_follow.ComputeFollowAngle
     COP [SetEntryContinue]
     JSR $&smooth_follow.ComputeFollowStep
@@ -203,10 +208,10 @@ code_00E62A {
     SEC 
     SBC $0002
     STA $14
-    BRA code_00E644
+    BRA SmoothFollowWriteParentPos
 }
 
-code_00E644 {
+SmoothFollowWriteParentPos {
     LDA $0004, X
     TAY 
     LDA $0014, X

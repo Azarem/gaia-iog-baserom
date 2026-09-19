@@ -50,7 +50,7 @@ code_04C204 {
 }
 
 code_04C21B {
-    JML $@hidden_red_jewel.code_00C6A1
+    JML $@hidden_red_jewel.HiddenRedJewelInventoryFull
 }
 
 code_04C21F {

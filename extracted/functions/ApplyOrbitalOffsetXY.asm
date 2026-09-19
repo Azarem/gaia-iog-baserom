@@ -1,3 +1,8 @@
+; Math utility that offsets an actor's $14/$16 position using orbitAngle and orbitDiameter with sine_table_8bit lookups and SignedMultiply.
+; 
+; Produces circular/arc motion around the current position. Called by Sand Fanger boss attacks, Angkor goldcap, and statue_inventory_reward orbital particles. General-purpose orbital positioning helper used by VFX and boss patterns.
+---------------------------------------------
+
 ?INCLUDE 'hardware_math'
 ?INCLUDE 'math_lookup_tables'
 

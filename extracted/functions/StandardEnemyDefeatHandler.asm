@@ -1,4 +1,13 @@
-?INCLUDE 'cop_handlers_script'
+; Central enemy death resolution pipeline invoked when any standard field enemy's HP reaches zero (Bank $00, ~360 bytes).
+; 
+; Assigned as the default OnDeath callback ($7F1004) by ComposeDigits_Continuation during enemy setup; also reached from hit_stagger_controller when an enemy has no saved AI script. Referenced by ~20 enemy actor scripts across Pyramid, Angkor Wat, Sky Garden, Incan Ruins, Great Wall, Mu, and other regions.
+; 
+; Entry path decrements BCD kill counters ($0AEE/$0AEC) for non-boss enemies, then runs a shared defeat sequence: play death SFX, spawn EnemyDeathFlash, wait, and optionally SetDungeonKillFlag.
+; 
+; Branches on enemy stats (enemy_stats_table), extended flag $0080 (boss/miniboss), and scene flag $0300 to route gem drops via EnemyGemDropRouter (DarkGemDropSystem) or stat bonuses via EnemyStatBonusReward. Handles field-tile reveal (SpawnFieldRevealEffect when deathActionIdx is set), ClearLowHere for actors with flag $0008, and final Die COP.
+---------------------------------------------
+
+?INCLUDE 'cop_handlers_flags'
 ?INCLUDE 'DarkGemDropSystem'
 ?INCLUDE 'enemy_clear_reward_table'
 ?INCLUDE 'enemy_stats_table'
@@ -17,16 +26,20 @@
 
 ---------------------------------------------
 
+; Main entry for the standard field-enemy death pipeline; reached when an enemy's HP hits zero.
+; 
+; Expects X = defeated actor index; reads statsPtr and extendedFlags to distinguish normal enemies, stat-table entries, and boss-flag ($0080) actors. Non-boss kills decrement BCD counters $0AEE/$0AEC and stash the remaining count in orbitAngle before falling into the shared defeat sequence. The sequence plays death SFX, spawns EnemyDeathFlash, routes gem drops or stat rewards, and ends with COP Die.
+
 StandardEnemyDefeatHandler {
-    LDA $statsPtr, X
+    LDA $statsPtr, X      ; StandardEnemyDefeatHandler: SED subtract 1 from BCD kill counter at $0AEE
     CMP #$&enemy_stats_table
     BNE loc_00DB96
-    JMP $&code_00DBB6
+    JMP $&EnemyDefeatFlashAndDrop
 
   loc_00DB96:
     LDA $extendedFlags, X
     BIT #$0080
-    BNE code_00DBB6
+    BNE EnemyDefeatFlashAndDrop
     SED 
     LDA $0AEE
     SEC 
@@ -39,8 +52,8 @@ StandardEnemyDefeatHandler {
     STA $orbitAngle, X
 }
 
-code_00DBB6 {
-    LDA #$0000
+EnemyDefeatFlashAndDrop {
+    LDA #$0000            ; Defeat flash: OR actor $12 bit $1000 for priority boost during death anim
     STA $2C
     STA $2E
     STA $moveScratch1, X
@@ -54,21 +67,21 @@ code_00DBB6 {
     LDA $statsPtr, X
     CMP #$&enemy_stats_table
     BNE loc_00DBE9
-    JMP $&code_00DC5F
+    JMP $&EnemyDefeatBossCleanup
 
   loc_00DBE9:
     LDA $extendedFlags, X
     BIT #$0080
-    BNE code_00DC5F
+    BNE EnemyDefeatBossCleanup
     COP [SetDungeonKillFlag]
     LDA $sceneCurrent
-    JSL $@cop_handlers_script.TestFlag_0300
+    JSL $@cop_handlers_flags.TestFlag_0300
     BCS loc_00DC03
     LDA $orbitAngle, X
     BEQ code_00DC13
 
   loc_00DC03:
-    LDA $statsPtr, X
+    LDA $statsPtr, X      ; Dungeon kill flag set; TestFlag_0300 skips gem drop when scene flag set
     TAY 
     LDA $0003, Y
     AND #$00FF
@@ -86,10 +99,10 @@ code_00DBB6 {
   loc_00DC23:
     LDA $deathActionIdx, X
     BEQ loc_00DC54
-    JSL $@cop_handlers_script.TestFlag_0100
+    JSL $@cop_handlers_flags.TestFlag_0100
     BCS loc_00DC54
     LDA $deathActionIdx, X
-    JSL $@cop_handlers_script.SetFlag_0100
+    JSL $@cop_handlers_flags.SetFlag_0100
     COP [SpawnLastRel] ( @SpawnFieldRevealEffect, #00, #00, #$0342 )
     LDA $0012, Y
     ORA #$1000
@@ -109,7 +122,7 @@ code_00DBB6 {
     COP [Die]
 }
 
-code_00DC5F {
+EnemyDefeatBossCleanup {
     COP [WaitByte] ( #02 )
     LDA #$2000
     TSB $10
@@ -124,8 +137,12 @@ code_00DC5F {
 }
 ---------------------------------------------
 
+; Gem-type dispatcher called from StandardEnemyDefeatHandler when the enemy's stats byte at offset $03 is nonzero and scene flag $0300 is clear.
+; 
+; Uses the kill-count value in orbitAngle: two DEC operations select among three DarkGemDropSystem spawn targets (type 1, type 2, or weighted random). Each path spawns a gem actor via SpawnLastRel then jumps back for the remainder of the defeat sequence.
+
 EnemyGemDropRouter {
-    DEC 
+    DEC                   ; EnemyGemDropRouter: deathActionIdx 3/2/1 selects dark gem spawn variant
     BEQ loc_00DD63
     DEC 
     BEQ loc_00DD6F
@@ -136,11 +153,11 @@ EnemyGemDropRouter {
     JMP $&code_00DC13
 
   loc_00DD6F:
-    COP [SpawnLastRel] ( @DarkGemDropSystem.code_00DF52, #00, #00, #$0420 )
+    COP [SpawnLastRel] ( @DarkGemDropSystem.DarkGemDropAnimVariantB, #00, #00, #$0420 )
     JMP $&code_00DC13
 
   loc_00DD7B:
-    COP [SpawnLastRel] ( @DarkGemDropSystem.code_00DF7B, #00, #00, #$0420 )
+    COP [SpawnLastRel] ( @DarkGemDropSystem.DarkGemDropTierPicker, #00, #00, #$0420 )
     JMP $&code_00DC13
 }
 
@@ -151,7 +168,7 @@ EnemyStatBonusReward {
     AND #$00FF
     PHA 
     LDA $sceneCurrent
-    JSL $@cop_handlers_script.TestFlag_0300
+    JSL $@cop_handlers_flags.TestFlag_0300
     BCS loc_00DDB3
     COP [SetSpritePalette] ( #00 )
     LDA $01, S

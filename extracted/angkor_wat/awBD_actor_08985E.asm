@@ -36,9 +36,9 @@ awBD_actor_08985E [
 
   loc_08988D:
     LDY $playerActor
-    LDA #$*player_transition_handlers.code_00C479
+    LDA #$*player_transition_handlers.PlayerFallFromHeight
     STA $0002, Y
-    LDA #$&player_transition_handlers.code_00C479
+    LDA #$&player_transition_handlers.PlayerFallFromHeight
     STA $0000, Y
     LDA #$0000
     STA $0008, Y

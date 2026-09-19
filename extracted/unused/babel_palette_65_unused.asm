@@ -1,3 +1,8 @@
+; Unreferenced thinker that would loop palette animation #65 each frame unless flag byte $F5 is set.
+; 
+; Likely intended for a Babel Tower area palette effect. Never spawned in any scene or cutscene.
+---------------------------------------------
+
 ---------------------------------------------
 
 babel_palette_65_unused [

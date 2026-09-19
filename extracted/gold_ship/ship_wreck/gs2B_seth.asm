@@ -27,7 +27,7 @@ code_059652 {
 }
 
 code_059665 {
-    JML $@hidden_red_jewel.code_00C6A1
+    JML $@hidden_red_jewel.HiddenRedJewelInventoryFull
 }
 
 code_059669 {

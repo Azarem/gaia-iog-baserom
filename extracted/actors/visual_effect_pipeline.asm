@@ -1,3 +1,8 @@
+; Forced camera-scroll effect system with three actor entry points.
+; 
+; effect_velocity_init converts actor position to scroll velocity and sets forcedScrollOverride for cutscene camera takeover; effect_subpixel_math applies subpixel scroll math with camera target ratios; effect_position_update integrates velocity with bounds clamping. Spawned in Sky Garden viper lair, Babel Tower plane jump, and other scripted camera-pan sequences. Drives cinematic background scrolling independent of normal player camera.
+---------------------------------------------
+
 ?INCLUDE 'hardware_math'
 
 !bg1ScrollV                     068C
@@ -13,6 +18,10 @@
 !effectDeltaY                   06E6
 
 ---------------------------------------------
+
+; Visual-effect actor that seeds forced camera scroll from actor placement coordinates.
+; 
+; Converts actor $14/$16 (pixel position) into signed scroll velocities at $2C/$2E, zeroes integrated position state, waits one frame, then adds effectDeltaX/Y from the camera_scroll_controller and writes forcedScrollOverride ($06C8) with bit 15 set. Spawned in Babel Tower plane-jump and other cutscene scenes.
 
 effect_velocity_init [
   actor-def < #00, #00, #2C, {
@@ -81,9 +90,13 @@ effect_velocity_init [
 ]
 ---------------------------------------------
 
+; Per-frame subpixel scroll refinement actor spawned alongside effect_position_update.
+; 
+; On entry calls SetEntryContinue and accumulates fractional scroll: when $14 has a nonzero high byte it scales through hardware_math.MulDivide against cameraTargetX into forcedScrollOverride; otherwise sign-extends and adds the low byte directly. Used in Sky Garden viper lair and mystic-statue sequences for smooth cinematic pans.
+
 effect_subpixel_math {
     COP [SetEntryContinue]
-    PEA $&code_00E9CA-1
+    PEA $&EffectUpdateCameraDeltaY-1
     LDA $14
     BIT #$8000
     BNE loc_00E9A7
@@ -118,7 +131,7 @@ effect_subpixel_math {
     RTS 
 }
 
-code_00E9CA {
+EffectUpdateCameraDeltaY {
     LDA $16
     BIT #$FF00
     BEQ loc_00E9DC
@@ -139,6 +152,10 @@ code_00E9CA {
     RTL 
 }
 ---------------------------------------------
+
+; Integrating scroll actor that advances forced camera motion with hard bounds.
+; 
+; Each tick converts actor coordinates to velocity ($2C/$2E), adds effectDeltaX/Y, clamps cameraDeltaX against effectBoundsX and cameraDeltaY against effectBoundsY, then writes render deltas to $06E8/$06EA. Pairs with effect_velocity_init and effect_subpixel_math in the visual_effect_pipeline block.
 
 effect_position_update [
   actor-def < #00, #00, #2C, {

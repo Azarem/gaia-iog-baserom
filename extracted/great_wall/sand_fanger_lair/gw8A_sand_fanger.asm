@@ -1,5 +1,5 @@
 ?INCLUDE 'ApplyOrbitalOffsetXY'
-?INCLUDE 'cop_handlers_script'
+?INCLUDE 'cop_handlers_flags'
 ?INCLUDE 'enemy_stats_table'
 ?INCLUDE 'EnemyDeathFlash'
 ?INCLUDE 'func_0AA36E'
@@ -169,7 +169,7 @@ gw8A_sand_fanger [
   code_0B815F:
     COP [SpawnLastRel] ( @code_0B813A, #00, #00, #$2000 )
     LDA #$0003
-    JSL $@cop_handlers_script.TestWramFlag_Offset100
+    JSL $@cop_handlers_flags.TestWramFlag_Offset100
     BCC loc_0B8179
     STZ $0AEC
     STZ $0AEE
@@ -1249,7 +1249,7 @@ code_0B8979 {
     COP [PlaySoundCh1] ( #1E )
     LDA #$0002
     STA $loopCounter, X
-    COP [SpawnMarkedAfter] ( @smooth_follow_child.code_00E4FC, #$2000 )
+    COP [SpawnMarkedAfter] ( @smooth_follow_child.SmoothFollowChildTick, #$2000 )
     CPY #$1FC0
     BEQ loc_0B89D0
     LDA $playerActor

@@ -1,3 +1,8 @@
+; Gold Ship dream sequence actor that performs a slow zoom-out by decrementing an internal scroll value from $A0 toward $40 each frame.
+; 
+; Captures initial BG1/BG2 scroll offsets on entry and exits (dies) once the threshold is reached, unless flag byte $0E is already set. Spawned on Gold Ship dream scene. Creates the dreamy pull-back camera effect during the ship dream cutscene.
+---------------------------------------------
+
 !bg1ScrollH                     068A
 !bg2ScrollH                     068E
 

@@ -1,4 +1,9 @@
-?INCLUDE 'cop_handlers_script'
+; Dark Space field-reveal reward actor that checks whether all enemies in the current scene are cleared (flag $0300).
+; 
+; Reads enemy_clear_reward_table for the scene's reward tier and stages HP/STR/DEF gem sprites. Animates upward through solid tiles, moves toward reveal position, spawns a collect_handler_gem, and plays a spin/shrink loop. Used when a cleared room's hidden stat reward becomes visible.
+---------------------------------------------
+
+?INCLUDE 'cop_handlers_flags'
 ?INCLUDE 'enemy_clear_reward_table'
 ?INCLUDE 'interaction_handlers'
 ?INCLUDE 'table_0EE000'
@@ -19,10 +24,10 @@ field_reveal_object {
     LDA #$6000
     TRB $12
     LDA $26
-    BNE code_00DAD9
+    BNE FieldRevealFromActorStats
     LDA $sceneCurrent
-    JSL $@cop_handlers_script.TestFlag_0300
-    BCS code_00DAD9
+    JSL $@cop_handlers_flags.TestFlag_0300
+    BCS FieldRevealFromActorStats
     LDY $sceneCurrent
     LDA $&enemy_clear_reward_table, Y
     AND #$0003
@@ -31,13 +36,13 @@ field_reveal_object {
 }
 
 code_list_00DAA4 [
-  &code_00DAD9   ;00
-  &code_00DAAC   ;01
-  &code_00DABB   ;02
-  &code_00DACA   ;03
+  &FieldRevealFromActorStats   ;00
+  &FieldRevealHiddenSpriteA   ;01
+  &FieldRevealHiddenSpriteB   ;02
+  &FieldRevealHiddenSpriteC   ;03
 ]
 
-code_00DAAC {
+FieldRevealHiddenSpriteA {
     COP [StageSprAndHitbox] ( #0C )
     LDA #$FFFF
     STA $orbitAngle, X
@@ -45,7 +50,7 @@ code_00DAAC {
     BRA loc_00DB0B
 }
 
-code_00DABB {
+FieldRevealHiddenSpriteB {
     COP [StageSprAndHitbox] ( #0D )
     LDA #$FFFF
     STA $orbitAngle, X
@@ -53,7 +58,7 @@ code_00DABB {
     BRA loc_00DB0B
 }
 
-code_00DACA {
+FieldRevealHiddenSpriteC {
     COP [StageSprAndHitbox] ( #0E )
     LDA #$FFFF
     STA $orbitAngle, X
@@ -61,7 +66,7 @@ code_00DACA {
     BRA loc_00DB0B
 }
 
-code_00DAD9 {
+FieldRevealFromActorStats {
     LDA $statsPtr, X
     TAY 
     LDA $0003, Y
@@ -71,25 +76,25 @@ code_00DAD9 {
 }
 
 code_list_00DAED [
-  &code_00DB88   ;00
-  &code_00DAF5   ;01
-  &code_00DAFD   ;02
-  &code_00DB05   ;03
+  &FieldRevealDieEmpty   ;00
+  &FieldRevealCollectSpriteA   ;01
+  &FieldRevealCollectSpriteB   ;02
+  &FieldRevealCollectSpriteC   ;03
 ]
 
-code_00DAF5 {
+FieldRevealCollectSpriteA {
     COP [StageSprAndHitbox] ( #04 )
     LDA #$0083
     BRA loc_00DB0B
 }
 
-code_00DAFD {
+FieldRevealCollectSpriteB {
     COP [StageSprAndHitbox] ( #05 )
     LDA #$0084
     BRA loc_00DB0B
 }
 
-code_00DB05 {
+FieldRevealCollectSpriteC {
     COP [StageSprAndHitbox] ( #06 )
     LDA #$0085
 
@@ -157,6 +162,6 @@ code_00DB05 {
     COP [LoopNext]
 }
 
-code_00DB88 {
+FieldRevealDieEmpty {
     COP [Die]
 }

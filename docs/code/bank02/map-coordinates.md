@@ -97,7 +97,7 @@ The X component contributes via `(Y & $F8) × 4 + (X & $F8) >> 3`, plus `$0100` 
 | Symbol | Relationship |
 |--------|--------------|
 | `event_blocks.asm` | Dynamic tile write caller |
-| `cop_handlers_collision.asm` | COP tile overlay caller |
+| `cop_handlers_map.asm` | COP tile overlay caller |
 
 ### MapIndexMoveRight
 

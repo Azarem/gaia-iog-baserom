@@ -38,8 +38,8 @@
 
 ?BANK 03
 
-?INCLUDE 'cop_handlers_actors'
-?INCLUDE 'cop_handlers_script'
+?INCLUDE 'actor_pool'
+?INCLUDE 'cop_handlers_flags'
 ?INCLUDE 'HdmaWindowEffect'
 ?INCLUDE 'movement_delta_table'
 ?INCLUDE 'pr_actor_0BCF52'
@@ -88,9 +88,9 @@ WorldMapController [
   code_03A2F4:
     LDA #$0000            ; Reset to Will's base form (characterForm = 0)
     STA $characterForm
-    COP [SpawnThinkerParam] ( #0B, @cop_handlers_actors.PaletteResetAndKillThinker ) ; First palette reset thinker (type $0B) — double-buffered with second spawn
-    JSL $@cop_handlers_script.ClearAllWramFlags ; Clear all WRAM event flags for clean world map state
-    COP [SpawnThinkerParam] ( #0B, @cop_handlers_actors.PaletteResetAndKillThinker ) ; Second palette reset thinker for double-buffer coverage
+    COP [SpawnThinkerParam] ( #0B, @actor_pool.PaletteResetAndKillThinker ) ; First palette reset thinker (type $0B) — double-buffered with second spawn
+    JSL $@cop_handlers_flags.ClearAllWramFlags ; Clear all WRAM event flags for clean world map state
+    COP [SpawnThinkerParam] ( #0B, @actor_pool.PaletteResetAndKillThinker ) ; Second palette reset thinker for double-buffer coverage
     COP [SpawnAfterFlags] ( @ArrivalAndTravelSetup, #$3800 ) ; Spawn ArrivalAndTravelSetup as linked child with flags $3800
     LDA #$FFF0            ; Mask D-pad bits ($FFF0) from standard joypad — disable player movement on map
     TSB $joypadMaskStd

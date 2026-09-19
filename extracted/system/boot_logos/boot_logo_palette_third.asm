@@ -1,3 +1,8 @@
+; Boot-sequence thinker that steps palette animations #56, #57, and #58, then exits.
+; 
+; Third and final logo palette thinker on scene $FB. Completes the boot logo palette rotation before gameplay begins.
+---------------------------------------------
+
 ---------------------------------------------
 
 boot_logo_palette_third [

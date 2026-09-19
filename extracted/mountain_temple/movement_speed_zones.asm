@@ -1,8 +1,17 @@
+; Invisible zone actors that override player movement speed when the player enters a 16×16 pixel area.
+; 
+; speed_zone_ew_slow/fast set playerSpeedEw to $FFF9 or $0007; speed_zone_ns_slow sets playerSpeedNs to $FFF9. Placed extensively in Mountain Temple and related dungeon scenes to create slow walkways and fast current lanes.
+---------------------------------------------
+
 !playerActor                    09AA
 !playerSpeedEw                  09B2
 !playerSpeedNs                  09B4
 
 ---------------------------------------------
+
+; Invisible east–west slow-movement zone actor placed in Mountain Temple and related scenes.
+; 
+; When the player center lies within a 16×16 pixel box around the actor, writes $FFF9 (−7) to global playerSpeedEw ($09B4). Returns immediately if the player is outside the zone.
 
 speed_zone_ew_slow [
   actor-def < #00, #00, #20, {
@@ -46,6 +55,10 @@ speed_zone_ew_slow [
 ]
 ---------------------------------------------
 
+; Invisible east–west fast-movement zone actor used in Kress Maze and Mountain Temple.
+; 
+; Uses the same 16×16 proximity test as speed_zone_ew_slow but writes $0007 (+7) to playerSpeedEw when the player is inside the zone. Paired with speed_zone_ew_slow and speed_zone_ns_slow to create directional current lanes.
+
 speed_zone_ew_fast [
   actor-def < #00, #00, #20, {
 
@@ -87,6 +100,10 @@ speed_zone_ew_fast [
 } >
 ]
 ---------------------------------------------
+
+; Invisible north–south slow-movement zone actor with a tighter vertical window than the east–west variants.
+; 
+; Requires the player to be within 16 pixels horizontally and within 4 pixels vertically of the actor center, then sets playerSpeedNs to $FFF9 (−7). Placed in Mountain Temple scenes alongside the EW zones.
 
 speed_zone_ns_slow [
   actor-def < #00, #00, #20, {

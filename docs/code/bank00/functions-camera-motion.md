@@ -163,7 +163,7 @@ Computes sin/cos orbital offset from a reference actor's position. Reads the ref
 **Previously misplaced in `extracted/unused/`** — moved to `functions` after discovery of 15+ active `$@ApplyOrbitalOffsetFromRef` references.
 
 Used by:
-- COP `$6D` (`SpiralStep`) handler in `cop_handlers_collision.asm`
+- COP `$6D` (`SpiralStep`) handler in `cop_handlers_effects.asm`
 - Castoth boss orbiting projectiles
 - Fire sprite actors
 - Statue inventory pickup children

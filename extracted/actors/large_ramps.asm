@@ -1,3 +1,8 @@
+; Invisible large-ramp speed booster actor (large_ramp_booster).
+; 
+; When the player is moving and within proximity zones #02 and #03, increments playerSpeedEw or playerSpeedNs in the current direction each frame. Placed on steep ramp tiles in scenes that need extra momentum. Complements the full ramp_climb actors with a simpler speed boost only.
+---------------------------------------------
+
 ?BANK 00
 
 !playerSpeedEw                  09B2
@@ -16,12 +21,12 @@ large_ramp_booster [
 
   loc_00C96F:
     COP [SetEntryContinue]
-    COP [BranchIfPlayerNear] ( #02, &code_00C977 )
+    COP [BranchIfPlayerNear] ( #02, &LargeRampBoostEastWest )
     RTL 
 } >
 ]
 
-code_00C977 {
+LargeRampBoostEastWest {
     LDA $playerSpeedEw
     BMI loc_00C981
     INC $playerSpeedEw
@@ -32,10 +37,10 @@ code_00C977 {
 
   loc_00C984:
     COP [SetEntryContinue]
-    COP [BranchIfPlayerNear] ( #03, &code_00C98D )
+    COP [BranchIfPlayerNear] ( #03, &LargeRampBoostNorthSouth )
     BRA loc_00C966
 }
 
-code_00C98D {
+LargeRampBoostNorthSouth {
     RTL 
 }

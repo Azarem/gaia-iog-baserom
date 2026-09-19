@@ -1,3 +1,8 @@
+; Unreferenced thinker that zero-fills 14 words at $7F0A94 in a loop gated by flag byte $FF.
+; 
+; Would have cleared a section of the palette buffer each frame until externally stopped. Appears to be a discarded palette-buffer reset helper from development.
+---------------------------------------------
+
 ---------------------------------------------
 
 palette_buffer_clear_unused [

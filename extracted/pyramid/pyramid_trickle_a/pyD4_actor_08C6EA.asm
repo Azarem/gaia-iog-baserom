@@ -1,4 +1,4 @@
-?INCLUDE 'cop_handlers_script'
+?INCLUDE 'cop_handlers_flags'
 ?INCLUDE 'table_0EE000'
 
 !playerActor                    09AA
@@ -20,7 +20,7 @@ pyD4_actor_08C6EA [
     COP [StageSprAndHitbox] ( #1B )
     COP [AddPosition] ( #08, #00 )
     LDA $24
-    JSL $@cop_handlers_script.TestFlagRaw
+    JSL $@cop_handlers_flags.TestFlagRaw
     BCC loc_08C711
     JMP $&code_08C76E
 
@@ -55,7 +55,7 @@ pyD4_actor_08C6EA [
 
 code_08C73D {
     LDA $24
-    JSL $@cop_handlers_script.SetFlagRaw
+    JSL $@cop_handlers_flags.SetFlagRaw
     COP [WaitByte] ( #B3 )
     COP [RngByte]
     STA $08

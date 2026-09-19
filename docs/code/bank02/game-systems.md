@@ -53,7 +53,7 @@ $02AB8A └─ (camera_tilemap continues) ────────────�
 
 ## music_actors.asm
 
-COP-based actors and a query routine that coordinate **music playback lifecycle** with the render pipeline. When the `MusicAndText` COP command (opcode `$19`) fires, `cop_handlers_actors.asm` allocates an actor and points it at `MusicPlaybackActor`.
+COP-based actors and a query routine that coordinate **music playback lifecycle** with the render pipeline. When the `MusicAndText` COP command (opcode `$19`) fires, `cop_handlers_audio.asm` allocates an actor and points it at `MusicPlaybackActor`.
 
 | Address | Name | Description |
 |---------|------|-------------|
@@ -100,7 +100,7 @@ The main loop waits until `$06FA` (active music track ID) equals `$FFFF` (idle).
 
 | Symbol | Relationship |
 |--------|--------------|
-| `cop_handlers_actors.asm` — `MusicAndText` | Spawns this actor with music ID and text pointer |
+| `cop_handlers_audio.asm` — `MusicAndText` | Spawns this actor with music ID and text pointer |
 | `MusicRenderSync` | Child actor spawned after music ends |
 | `chunk_03BAE1.func_03E1D6` | Visual overlay child respawned each cycle |
 | `IsMusicPlaying` | Query used by other actors waiting for same idle state |
@@ -343,7 +343,7 @@ On success, geometry is loaded into working registers: destination col/row (`$96
 | Symbol | Relationship |
 |--------|--------------|
 | `ApplyAllEventBlocks` | Called per set flag bit |
-| `cop_handlers_actors.asm` | COP `$32`/`$34` `StageBgChange` |
+| `cop_handlers_palette.asm` | COP `$32`/`$34` `StageBgChange` |
 | `chunk_03BAE1.func_03D0DB` | Conditional scene-script reload |
 | `event_block_table` | 8-byte event block definition array (bank `$01`) |
 
@@ -380,7 +380,7 @@ Returns **SEC** when all columns and rows are processed; **CLC** if interrupted 
 
 | Symbol | Relationship |
 |--------|--------------|
-| `cop_handlers_actors.asm` | COP `$33` `ApplyBgChange` loop |
+| `cop_handlers_palette.asm` | COP `$33` `ApplyBgChange` loop |
 | `QueueVisibleTileVram` | Per-tile VRAM enqueue |
 | `AdvanceEventColumn` / `AdvanceEventRow` | Rectangle iteration |
 | `FlushVramWriteQueue` | Drains queue in VBlank |
@@ -523,7 +523,7 @@ For each entry with bit `$80` clear and the corresponding event flag set (`TestE
 |--------|--------------|
 | `chunk_03BAE1.asm` (~line 5441) | Scene load initialization |
 | `inventory_overlay.asm` | Inventory exit — restore barriers |
-| `cop_handlers_script.TestEventFlag_0200` | Flag test on entry byte 3 |
+| `cop_handlers_flags.TestEventFlag_0200` | Flag test on entry byte 3 |
 | `table_01ADA8` | Per-scene chest/barrier entry table |
 
 ### HandleChestInteraction

@@ -1,4 +1,9 @@
-?INCLUDE 'cop_handlers_actors'
+; Full player-death handler assigned by combat_collision when HP reaches zero.
+; 
+; Disables input, spawns DeathPaletteFadeThinker and GameOverCutsceneSprites, fades INIDISP to black, plays sound #$0C, then either revives at half HP if gems ≥100 or resets HP/form/flags and loads save-scene data for respawn. Handles special case for scene $E8 (character form). Includes DeathWakeupMessage dialog variants for Will, Freedan, and Shadow.
+---------------------------------------------
+
+?INCLUDE 'actor_pool'
 ?INCLUDE 'DeathPaletteFadeThinker'
 ?INCLUDE 'table_0EE000'
 
@@ -19,7 +24,7 @@
 ---------------------------------------------
 
 GameOverSequence {
-    LDA #$0040
+    LDA #$0040            ; GameOver: mask joypad $FFF0, spawn DeathPaletteFadeThinker and cutscene sprites
     TSB $10
     LDA #$FFF0
     TSB $joypadMaskStd
@@ -37,7 +42,7 @@ GameOverSequence {
     STA $orbitAngle, X
 
   loc_00D664:
-    SEP #$20
+    SEP #$20              ; Fade loop: decrement orbitAngle into INIDISP ($2100) every 3 frames until negative
     LDA $orbitAngle, X
     DEC 
     BMI loc_00D67B
@@ -48,9 +53,9 @@ GameOverSequence {
     BRA loc_00D664
 
   loc_00D67B:
-    REP #$20
-    COP [SpawnThinkerParam] ( #0B, @cop_handlers_actors.PaletteResetAndKillThinker )
-    COP [SpawnThinkerParam] ( #0D, @cop_handlers_actors.PaletteResetAndKillThinker )
+    REP #$20              ; Post-fade: spawn palette reset thinkers #0B and #0D, evaluate gem revival
+    COP [SpawnThinkerParam] ( #0B, @actor_pool.PaletteResetAndKillThinker )
+    COP [SpawnThinkerParam] ( #0D, @actor_pool.PaletteResetAndKillThinker )
     COP [SetEntryExit]
     PHB 
     LDA $gemCount
@@ -69,7 +74,7 @@ GameOverSequence {
     BRA loc_00D6E6
 
   loc_00D6AD:
-    STZ $gemCount
+    STZ $gemCount         ; Gems≥100: subtract 100 from gemCount, restore HP to half max, reload save scene
     LDA $sceneCurrent
     AND #$00FF
     CMP #$00E8
@@ -100,7 +105,7 @@ GameOverSequence {
     LDY $sceneSaveData
 
   loc_00D6E6:
-    LDA $0000, Y
+    LDA $0000, Y          ; No gems: zero gemCount and WRAM flags; load respawn scene from sceneSaveData
     STA $sceneNext
     LDA $0005, Y
     AND #$7F
@@ -127,16 +132,16 @@ GameOverCutsceneSprites {
     COP [SetMetasprite] ( @table_0EE000 )
     COP [SetSpritePalette] ( #00 )
     COP [WaitByte] ( #0B )
-    COP [SpawnMarkedAfterRel] ( @code_00D74E, #E7, #D8, #$0700 )
+    COP [SpawnMarkedAfterRel] ( @GameOverSparkleDriftA, #E7, #D8, #$0700 )
     COP [WaitByte] ( #02 )
-    COP [SpawnMarkedAfterRel] ( @code_00D772, #19, #E8, #$0700 )
+    COP [SpawnMarkedAfterRel] ( @GameOverSparkleDriftB, #19, #E8, #$0700 )
     COP [WaitByte] ( #04 )
-    COP [SpawnMarkedAfterRel] ( @code_00D74E, #E7, #F8, #$0700 )
+    COP [SpawnMarkedAfterRel] ( @GameOverSparkleDriftA, #E7, #F8, #$0700 )
     COP [WaitByte] ( #62 )
     COP [Die]
 }
 
-code_00D74E {
+GameOverSparkleDriftA {
     LDA #$0001
     TSB $10
     COP [StageSpriteMoveXY] ( #15, #2D, #2F )
@@ -149,10 +154,10 @@ code_00D74E {
     COP [AnimOnce]
     LDA #$0002
     TRB $10
-    BRA code_00D74E
+    BRA GameOverSparkleDriftA
 }
 
-code_00D772 {
+GameOverSparkleDriftB {
     LDA #$0001
     TSB $10
     COP [StageSpriteMoveXY] ( #15, #2E, #2F )
@@ -165,10 +170,10 @@ code_00D772 {
     COP [AnimOnce]
     LDA #$0002
     TRB $10
-    BRA code_00D772
+    BRA GameOverSparkleDriftB
 
   DeathWakeupMessage:
-    LDA #$CFF0
+    LDA #$CFF0            ; DeathWakeupMessage: characterForm selects Will/Freedan/Shadow dialog variant
     TSB $joypadMaskStd
     STZ $0AF8
     COP [WaitByte] ( #02 )

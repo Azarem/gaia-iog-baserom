@@ -22,7 +22,7 @@ code_05B6CC {
 }
 
 code_05B6DF {
-    JML $@hidden_red_jewel.code_00C6A1
+    JML $@hidden_red_jewel.HiddenRedJewelInventoryFull
 }
 
 code_05B6E3 {
