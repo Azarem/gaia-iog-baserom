@@ -11,13 +11,13 @@ edward_castle_alarm_palette [
   thinker-def < #00, #08, {
 
   code_00B633:
-    COP [BranchIfFlagByte] ( #22, #01, &EdwardCastleAlarmPaletteKill ) ; WRMPYB: axis distance byte for hardware multiply
-    COP [BranchIfFlagByte] ( #21, #00, &EdwardCastleAlarmPaletteKill ) ; RDMPYL -> WRDIVL: multiply output feeds divider
+    COP [BranchIfFlagByte] ( #22, #01, &EdwardCastleAlarmPaletteKill )
+    COP [BranchIfFlagByte] ( #21, #00, &EdwardCastleAlarmPaletteKill )
 
   loc_00B63F:
     COP [PaletteStart] ( #05 )
-    COP [PaletteStep]     ; RDDIVL: pixels-per-frame result
-    SEP #$20              ; Store velocity in $0000
+    COP [PaletteStep]
+    SEP #$20
     LDA #$24
     STA $COLDATA
     LDA #$42

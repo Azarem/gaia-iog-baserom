@@ -12,26 +12,26 @@ palette_parent_child [
 
   loc_00B600:
     COP [PaletteStart] ( #03 )
-    COP [SetEntryContinue] ; Animation sub-frame counter
+    COP [SetEntryContinue]
     COP [BranchIfFlagByte] ( #01, #01, &PaletteParentChildSpawnWave )
     RTL 
 } >
 ]
 
 PaletteParentChildSpawnWave {
-    COP [SpawnThinker] ( @PaletteParentChildWaveLoop ) ; Spawn child PaletteStart #03; store child actor index in chatPtr
+    COP [SpawnThinker] ( @PaletteParentChildWaveLoop )
     TYA 
-    STA $chatPtr, X       ; Increment tick counter, yield RTL
+    STA $chatPtr, X
     COP [SetEntryContinue]
     COP [ExitIfFlagByte] ( #01, #00 )
     PHX 
-    PHD                   ; Zero -> all passes done
+    PHD 
     LDA $chatPtr, X
     TAX 
-    TCD                   ; Reset accumulators and tick for next halved pass
+    TCD 
     COP [KillThinker]
     PLD 
-    PLX                   ; Jump back to TickMoveStep at halved scale
+    PLX 
     BRA loc_00B600
 }
 

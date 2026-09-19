@@ -109,7 +109,7 @@ WaitWhileOffscreen {
     DEC 
     STA $00
     LDA [$0A]             ; Read delay timer byte operand
-    INC $0A               ; Read delay timer byte
+    INC $0A               ; Advance script pointer past delay timer byte
     AND #$00FF
     STA $08               ; Store frame delay to actor $08 timer
     PLA                   ; Pop COP frame and yield via RTL — re-execute next frame
@@ -294,7 +294,7 @@ DirToPlayer {
 
 CardinalToPlayer {
     TYX 
-    LDY #$&code_009230-1  ; Push code_009230−1 for RTS-trick dispatch (return epilogue address)
+    LDY #$&code_009230-1  ; Load code_009230−1 for RTS-trick dispatch (return epilogue address)
     PHY 
     LDY $playerActor
     LDA $0014, Y          ; Get player X position

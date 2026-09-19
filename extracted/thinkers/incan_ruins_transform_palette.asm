@@ -22,7 +22,7 @@ incan_ruins_transform_palette [
 ]
 
 IncanRuinsTransformPaletteWarmup {
-    COP [PaletteStart] ( #34 ) ; Warmup runs palette #34 once, sets flag $FF, then loops #33 until flag cleared
+    COP [PaletteStart] ( #34 )
     COP [PaletteStep]
     COP [SetFlagByte] ( #FF )
 
@@ -50,7 +50,7 @@ IncanRuinsTransformPaletteFinal {
     LDX #$0000
 
   loc_00B6B1:
-    STA $7F0A40, X        ; Fill 16 words at $7F0A40 with $1421 before final palette #36 transition
+    STA $7F0A40, X
     INX 
     INX 
     CPX #$0020

@@ -12,35 +12,35 @@
 
 SceneTransPaletteThinker_unused {
     LDY $playerActor
-    LDA $0028, Y          ; OR Y to check both axes simultaneously
+    LDA $0028, Y
     STA $metaspritePtr, X
     COP [SpawnThinker] ( @SceneTransPaletteWarmLoop )
     TYA 
     STA $chatPtr, X
     COP [SetEntryContinue]
     LDA $playerFlags
-    BIT #$0002            ; ResumeAfterSnap: restore saved script PC
+    BIT #$0002
     BNE loc_00B56F
     PHX 
-    LDY $playerActor      ; Restore saved bank byte from $7F101A
+    LDY $playerActor
     TYX 
     SEP #$20
     LDA $7F0008, X
     PLX 
     CMP #$8F
-    BNE loc_00B562        ; StageMove: read animation index
+    BNE loc_00B562
     REP #$20
     LDA $0028, Y
     CMP $metaspritePtr, X
-    BNE loc_00B562        ; ProcessAnimFlag: set animation with directional flip
+    BNE loc_00B562
     RTL 
 
   loc_00B562:
-    REP #$20              ; X delta: moveXAlt - actor.X
+    REP #$20
     JSR $&SceneTransPaletteKillChild
     COP [PaletteStart] ( #0B )
     COP [PaletteStep]
-    COP [KillThinker]     ; Store absolute X distance
+    COP [KillThinker]
     RTL 
 
   loc_00B56F:
@@ -48,8 +48,8 @@ SceneTransPaletteThinker_unused {
     COP [SpawnThinker] ( @SceneTransPaletteChildTick )
     TYA 
     STA $chatPtr, X
-    COP [SetEntryContinue] ; Store absolute Y distance
-    LDA $playerFlags      ; Select larger axis for frame count calc
+    COP [SetEntryContinue]
+    LDA $playerFlags
     BIT #$0002
     BEQ loc_00B587
     RTL 
@@ -58,7 +58,7 @@ SceneTransPaletteThinker_unused {
     JSR $&SceneTransPaletteKillChild
     COP [PaletteStart] ( #0B )
     COP [PaletteStep]
-    COP [KillThinker]     ; Loop: halve distances while high byte nonzero
+    COP [KillThinker]
     RTL 
 }
 
@@ -68,14 +68,14 @@ SceneTransPaletteWarmLoop {
 
   loc_00B597:
     COP [PaletteStart] ( #21 )
-    COP [PaletteStep]     ; Distance (single byte) as WRDIVL dividend
-    BRA loc_00B597        ; Read speed byte operand
+    COP [PaletteStep]
+    BRA loc_00B597
 }
 
 SceneTransPaletteChildTick {
     COP [PaletteStart] ( #22 )
     COP [PaletteStep]
-    COP [SetEntryContinue] ; Speed >= $80: treat as signed negative
+    COP [SetEntryContinue]
     RTL 
 }
 
@@ -83,7 +83,7 @@ SceneTransPaletteKillChild {
     PHX 
     PHD 
     LDA $chatPtr, X
-    TCD                   ; HalveMovementDistance: LSR both axis distances
+    TCD 
     TAX 
     COP [KillThinker]
     PLD 

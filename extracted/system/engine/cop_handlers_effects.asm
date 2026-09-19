@@ -288,8 +288,8 @@ TickGravity {
     BRA loc_009D1A
 
   loc_009D20:
-    PHA                   ; Subtract acceleration from velocity, negate for downward movement delta
-    LDA $scratch1010+2, X ; Subtract gravity from initial velocity
+    PHA                   ; Push current velocity for bounce-boundary subtraction
+    LDA $scratch1010+2, X ; Load current velocity from scratch1010+2
     SEC 
     SBC $01, S
     STA $01, S
@@ -670,8 +670,8 @@ BuildSineHdmaTable {
     RTS 
 
   loc_00AE8F:
-    REP #$20              ; Positive sine path: RDMPYH masked to byte is the complete product
-    NOP                   ; Positive sine path: RDMPYH masked is complete product
+    REP #$20              ; Return to 16-bit A for HDMA table word writes
+    NOP                   ; NOP timing: wait for hardware multiply result
     LDA $L_RDMPYH
     AND #$00FF
     PHA 
@@ -685,10 +685,10 @@ BuildSineHdmaTable {
     TXA 
     CLC 
     ADC $00
-    AND #$00FF            ; BuildSineLookupTable: check displayModeFlags bit 6 for rebuild trigger
+    AND #$00FF            ; Mask to byte for BuildSineLookupTable entry
     TAX 
     INY 
-    INY                   ; Alternate trigger: animScratch2 bit 0
+    INY 
     CPY $0E
     BNE loc_00AE4D        ; Nonzero: trigger bit is set, branch to process acknowledgment
     PLB 
@@ -713,22 +713,22 @@ BuildSineLookupTable {
     LDA $displayModeFlags ; Guard: rebuild only when displayModeFlags bit 6 or animScratch2 bit 0 set
     BIT #$0040
     BNE loc_00AED4        ; 256-entry loop: sine_table_8bit × amplitude → sineTableA/B word entries
-    LDA $animScratch2, X  ; Alternate trigger: animScratch2 bit 0
-    BIT #$0001            ; Negative sine: RDMPYH × $FF correction + ADC RDMPYL
+    LDA $animScratch2, X  ; Load animScratch2 to test rebuild trigger (bit 0)
+    BIT #$0001            ; Test bit 0: rebuild trigger flag in animScratch2
     BEQ loc_00AF19
     AND #$FFFE            ; Clear trigger bit after acknowledging
-    STA $animScratch2, X  ; Write scaled sine to sineTableA ($7E8900+X)
-    BRA loc_00AEDA        ; Mirror to sineTableB ($7E8B00+X)
+    STA $animScratch2, X  ; Store updated animScratch2 with trigger bit cleared
+    BRA loc_00AEDA        ; Skip to shared BuildSineLookupTable entry point
 
   loc_00AED4:
     AND #$FFBF            ; Clear trigger flag after acknowledging rebuild request
-    STA $displayModeFlags ; Advance sine index by step ($0E)
+    STA $displayModeFlags ; Store displayModeFlags with bit 6 cleared
 
   loc_00AEDA:
-    SEP #$20              ; Loop until 256 entries ($0200 bytes) written
+    SEP #$20              ; Switch to 8-bit A for byte-level sine table generation
     LDA $7F0008, X        ; Actor amplitude → WRMPYA for sine scaling
     STA $WRMPYA           ; Actor amplitude → WRMPYA; same scaling technique as BuildSineHdmaTable
-    LDX #$0000            ; Positive sine: RDMPYH masked to byte = complete product
+    LDX #$0000            ; Initialize sine table loop counter X=0
     TXY 
 
   loc_00AEE7:
@@ -765,7 +765,7 @@ BuildSineLookupTable {
     RTS 
 
   loc_00AF1C:
-    REP #$20              ; Positive sine: RDMPYH masked to byte is the complete unsigned product
+    REP #$20              ; Return to 16-bit A after sine table loop
     NOP 
     LDA $RDMPYH
     REP #$20

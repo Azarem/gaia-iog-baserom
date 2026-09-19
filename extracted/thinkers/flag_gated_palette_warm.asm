@@ -13,7 +13,7 @@ flag_gated_palette_warm [
     COP [BranchIfFlagByte] ( #16, #00, &FlagGatedPaletteWarmKill )
 
   loc_00B5CE:
-    COP [PaletteStart] ( #02 ) ; PaletteStart #02 warm tint; SetFlagByte $FF gates exit until cycle completes
+    COP [PaletteStart] ( #02 )
     COP [PaletteStep]
     COP [SetFlagByte] ( #FF )
     COP [ExitIfFlagByte] ( #FF, #00 )
@@ -23,5 +23,5 @@ flag_gated_palette_warm [
 
 FlagGatedPaletteWarmKill {
     COP [KillThinker]
-    RTL                   ; Same multiply/divide for X axis
+    RTL 
 }

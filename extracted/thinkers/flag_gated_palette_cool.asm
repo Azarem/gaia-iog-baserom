@@ -13,7 +13,7 @@ flag_gated_palette_cool [
     COP [BranchIfFlagByte] ( #16, #00, &FlagGatedPaletteCoolKill )
 
   loc_00B5ED:
-    COP [PaletteStart] ( #4C ) ; X negative: negate for westward movement
+    COP [PaletteStart] ( #4C )
     COP [PaletteStep]
     COP [SetFlagByte] ( #FF )
     COP [ExitIfFlagByte] ( #FF, #00 )

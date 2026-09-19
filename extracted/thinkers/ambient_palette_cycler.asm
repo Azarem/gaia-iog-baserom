@@ -13,6 +13,6 @@ ambient_palette_cycler [
   code_00B522:
     COP [PaletteRestart]
     COP [PaletteStep]
-    BRA code_00B522       ; Check X grid alignment: (X - 8) for sprite center
+    BRA code_00B522
 } >
 ]

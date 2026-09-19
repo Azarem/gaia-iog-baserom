@@ -557,7 +557,7 @@ StageMoveX {
 StageMoveY {
     TYX 
     LDA [$0A]             ; Read Y movement index byte
-    INC $0A               ; StageMoveY: read Y movement index
+    INC $0A               ; Advance script pointer past Y index byte
     AND #$00FF
     STA $moveYAlt, X      ; Store to moveYAlt ($7F001A)
     JSR $&actor_pool.AnimFrameLookup ; Compute Y frame duration
@@ -573,13 +573,13 @@ StageMoveY {
 StageMoveXY {
     TYX 
     LDA [$0A]
-    INC $0A               ; StageMoveXY: read X index
+    INC $0A               ; Advance script pointer past X index byte
     AND #$00FF
     STA $moveXAlt, X
     JSR $&actor_pool.AnimFrameLookup ; AnimFrameLookup for X -> $2C
     STA $2C
     LDA [$0A]
-    INC $0A               ; Read Y index
+    INC $0A               ; Advance script pointer past Y index byte
     AND #$00FF
     STA $moveYAlt, X
     JSR $&actor_pool.AnimFrameLookup ; AnimFrameLookup for Y -> $2E
@@ -595,7 +595,7 @@ StageMoveXY {
 ForceDirSW {
     TYX 
     LDA [$0A]
-    INC $0A               ; Nonzero operand → set $4000 (force SW facing), zero → clear
+    INC $0A               ; Advance script pointer past facing flag operand
     AND #$00FF
     BEQ loc_00A727
     LDA #$4000
@@ -618,7 +618,7 @@ ForceDirSW {
 ForceDirNE {
     TYX 
     LDA [$0A]
-    INC $0A               ; NE facing: nonzero → set $2000, zero → clear
+    INC $0A               ; Advance script pointer past NE facing flag operand
     AND #$00FF
     BEQ loc_00A745
     LDA #$2000
@@ -641,7 +641,7 @@ ForceDirNE {
 ForceDirBoth {
     TYX 
     LDA [$0A]
-    INC $0A               ; Both diagonals: nonzero → set $6000, zero → clear
+    INC $0A               ; Advance script pointer past diagonal flag operand
     AND #$00FF
     BEQ loc_00A763
     LDA #$6000

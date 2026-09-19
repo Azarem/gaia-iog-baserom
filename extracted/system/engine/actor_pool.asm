@@ -269,26 +269,26 @@ AllocateSpecialActor {
 ; Internal JSL/JSR allocator that pops the next free actor slot from the LIFO free list at ($4E). On success returns carry clear with Y = new actor WRAM base ($1000 + index×$30) and zeroes the free-list entry; on pool exhaustion returns carry set with Y = $1FC0. Increments activeActorCount on allocation. Called by SpawnSceneActors, AllocateActorBefore/After, and SpawnBefore/After COP handlers.
 
 ActorPoolAllocator {
-    LDA ($4E)             ; Read next free slot from LIFO stack pointed to by ($4E)
-    BMI loc_00B514        ; Negative (bit 15 set) = pool exhausted sentinel
-    TAY                   ; Y = actor WRAM base address from free list
+    LDA ($4E)
+    BMI loc_00B514
+    TAY 
     LDA #$0000
-    STA ($4E)             ; Zero the free list entry (mark slot as allocated)
-    INC $4E               ; Advance free list pointer by 2 bytes (word-sized stack entries)
+    STA ($4E)
     INC $4E
-    INC $activeActorCount ; Increment active actor count
-    CLC                   ; Carry clear = allocation successful
+    INC $4E
+    INC $activeActorCount
+    CLC 
     RTL 
 
   loc_00B514:
-    LDY #$1FC0            ; Pool exhausted: return sentinel Y=$1FC0
-    SEC                   ; Carry set = allocation failed
-    RTL                   ; Set extendedFlags bit 1 (smooth interpolated move active)
+    LDY #$1FC0
+    SEC 
+    RTL 
 }
 
 PaletteResetAndKillThinker {
     COP [PaletteRestart]
     COP [PaletteStep]
     COP [KillThinker]
-    RTL                   ; Ambient palette cycler — infinite PaletteRestart/PaletteStep loop
+    RTL 
 }

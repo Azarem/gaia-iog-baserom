@@ -140,7 +140,7 @@ StagePlayerSprXY {
     STA $2C               ; AnimFrameLookup for X → $2C
     LDA [$0A]
     INC $0A
-    AND #$00FF            ; moveYAlt: Y-axis distance
+    AND #$00FF            ; Mask Y distance operand to byte
     STA $moveYAlt, X
     JSR $&actor_pool.AnimFrameLookup
     STA $2E               ; AnimFrameLookup for Y → $2E

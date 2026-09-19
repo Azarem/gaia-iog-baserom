@@ -6,10 +6,10 @@
 ---------------------------------------------
 
 DeathPaletteFadeThinker {
-    COP [PaletteStart] ( #10 ) ; Death palette fade: step animations #10 then #0E before KillThinker
+    COP [PaletteStart] ( #10 )
     COP [PaletteStep]
     COP [PaletteStart] ( #0E )
-    COP [PaletteStep]     ; Compare against tick counter $24
+    COP [PaletteStep]
     COP [KillThinker]
     RTL 
 }

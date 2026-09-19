@@ -11,11 +11,11 @@ oneshot_coldata_warm_flash [
   thinker-def < #00, #08, {
 
   code_00B660:
-    SEP #$20              ; Return RNG output byte from $0410
+    SEP #$20
     LDA #$66
     STA $COLDATA
     LDA #$82
-    STA $COLDATA          ; RngMod: read modulus byte operand
+    STA $COLDATA
     REP #$20
     COP [KillThinker]
     RTL 

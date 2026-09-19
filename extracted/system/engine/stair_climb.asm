@@ -231,7 +231,7 @@ StairTriggerEast [
 CheckMoveState {
     PHX                   ; CheckMoveState: animScratch2 byte must equal $8F (active walk) or climb rejected
     TYX 
-    SEP #$20              ; Read animScratch2 byte for move state check
+    SEP #$20              ; Switch to 8-bit A for single-byte state comparison
     LDA $7F0008, X        ; Read animScratch2 byte ($7F0008) for move state check
     CMP #$8F              ; Must be $8F = active walking state
     REP #$20
