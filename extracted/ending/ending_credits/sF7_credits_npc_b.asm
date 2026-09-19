@@ -56,7 +56,7 @@ code_09E3F6 {
 
   code_09E431:
     LDA #$0031
-    JSR $&CreditPositionLookup.func_09E8E4
+    JSL $@CreditPositionLookup
 
   loc_09E437:
     COP [StageSpriteMoveX] ( #08, #01 )
@@ -80,7 +80,7 @@ code_09E3F6 {
 
   code_09E456:
     LDA #$0042
-    JSR $&CreditPositionLookup.func_09E8E4
+    JSL $@CreditPositionLookup
 
   loc_09E45C:
     COP [StageSpriteMoveX] ( #33, #02 )

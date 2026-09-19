@@ -32,7 +32,7 @@
     "func_08F5F9": "Will → Shadow transformation. Spawns ShadowShimmerInit for the visual shimmer effect.",
     "func_08F63C": "Freedan → Shadow transformation. Same shimmer effect as Will→Shadow.",
     "loc_08DB9A": "Save prompt — \"Record what's happened so far?\" with Record/Don't record options.\nReached after Gaia's greeting + heal + optional hint dialogue.",
-    "RestorePlayerControl": "Restores normal player locomotion after a climb or ramp animation finishes.\n\nResets the player actor entry pointer to PlayerIdleEntry, clears velocity scratch at $002C/$002E/$0008, adjusts status word $0010 (clears $0200, sets $0008), unmasks joypad ($0F00), and clears playerFlags $0800. Called from UnlockPlayerAfterClimb and from ramp exit handlers in ramps.asm.",
+    "DarkSpaceRestoreControl": "Local copy of stair_climb.RestorePlayerControl for the dark space system.\n\nRestores normal player locomotion after a dark space interaction. Resets the player actor entry pointer to PlayerIdleEntry, clears velocity scratch at $002C/$002E/$0008, adjusts status word $0010 (clears $0200, sets $0008), unmasks joypad ($0F00), and clears playerFlags $0800.",
     "sub_08EB2F": "Scene→statue type lookup — searches binary_08EB5A for current scene, returns high nibble\nof the flags byte. Returns 0 for Will/Freedan statue, nonzero for Shadow statue.\nReturns SEC if scene not found in table.",
     "sub_08F6D3": "Restore player control after transformation — resets entry point to PlayerIdleEntry,\nclears movement overrides, restores grounded state, unmasks joypad, clears ability-active flag."
 }

@@ -1821,7 +1821,7 @@
     "587394": "DS_AmbientParticleInit",
     "587399": "FireflySpawnerLoop",
     "587420": "FireflyParticle",
-    "587475": "RestorePlayerControl",
+    "587475": "DarkSpaceRestoreControl",
     "630928": "GaiaNpcSprite",
     "630934": "GaiaVoiceSparkle",
     "778810": "DiaryMenuInit",

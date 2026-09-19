@@ -16,7 +16,7 @@ sF7_actor_09E591 [
 
 code_09E59C {
     LDA #$0042
-    JSR $&CreditPositionLookup.func_09E8E4
+    JSL $@CreditPositionLookup
 
   loc_09E5A2:
     COP [StageSpriteMoveX] ( #01, #12 )
@@ -35,7 +35,7 @@ code_09E59C {
 
   code_09E5B9:
     LDA #$0032
-    JSR $&CreditPositionLookup.func_09E8E4
+    JSL $@CreditPositionLookup
 
   loc_09E5BF:
     COP [StageSpriteMoveX] ( #2B, #02 )

@@ -83,58 +83,58 @@
       "value": "LDA $$0C\r\n    STA $$02\r\n    $&"
     }
   ],
-  "func_09E8E4": [
+  "CreditPositionLookup": [
     {
       "key": "RTS",
       "value": "RTL"
     }
   ],
-  "misc_actors_09E64B": [
+  "sF7_credits_player": [
     {
-      "key": "JSR \\$&func_09E8E4",
-      "value": "JSL $$@func_09E8E4"
+      "key": "JSR \\$&CreditPositionLookup",
+      "value": "JSL $$@CreditPositionLookup"
     }
   ],
-  "sF7_actor_09DFF8": [
+  "sF7_credits_misc_timeline": [
     {
-      "key": "JSR \\$&func_09E8E4",
-      "value": "JSL $$@func_09E8E4"
+      "key": "JSR \\$&CreditPositionLookup",
+      "value": "JSL $$@CreditPositionLookup"
     }
   ],
-  "sF7_actor_09E26C": [
+  "sF7_credits_npc_a": [
     {
-      "key": "JSR \\$&func_09E8E4",
-      "value": "JSL $$@func_09E8E4"
+      "key": "JSR \\$&CreditPositionLookup",
+      "value": "JSL $$@CreditPositionLookup"
     }
   ],
-  "sF7_actor_09E3EB": [
+  "sF7_credits_npc_b": [
     {
-      "key": "JSR \\$&func_09E8E4",
-      "value": "JSL $$@func_09E8E4"
+      "key": "JSR \\$&CreditPositionLookup",
+      "value": "JSL $$@CreditPositionLookup"
     }
   ],
-  "sF7_actor_09E4DD": [
+  "sF7_credits_npc_c": [
     {
-      "key": "JSR \\$&func_09E8E4",
-      "value": "JSL $$@func_09E8E4"
+      "key": "JSR \\$&CreditPositionLookup",
+      "value": "JSL $$@CreditPositionLookup"
     }
   ],
-  "sF7_actor_09E591": [
+  "sF7_credits_npc_d": [
     {
-      "key": "JSR \\$&func_09E8E4",
-      "value": "JSL $$@func_09E8E4"
+      "key": "JSR \\$&CreditPositionLookup",
+      "value": "JSL $$@CreditPositionLookup"
     }
   ],
-  "sF7_actor_09E607": [
+  "sF7_credits_npc_e": [
     {
-      "key": "JSR \\$&func_09E8E4",
-      "value": "JSL $$@func_09E8E4"
+      "key": "JSR \\$&CreditPositionLookup",
+      "value": "JSL $$@CreditPositionLookup"
     }
   ],
   "sF7_credits": [
     {
-      "key": "JSR \\$&func_09E8E4",
-      "value": "JSL $$@func_09E8E4"
+      "key": "JSR \\$&CreditPositionLookup",
+      "value": "JSL $$@CreditPositionLookup"
     }
   ],
   "mtA0_skulker": [

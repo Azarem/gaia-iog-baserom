@@ -45,7 +45,7 @@
 ; - Shadow → Freedan: Transform_ShadowToFreedan
 ; 
 ; All transformations use spriteset #05 (transformation frames), play SFX $2525,
-; spawn PaletteResetAndKillThinker, and call RestorePlayerControl to restore player control.
+; spawn PaletteResetAndKillThinker, and call DarkSpaceRestoreControl to restore player control.
 ; 
 ; === ABILITY SYSTEM ===
 ; 
@@ -1308,7 +1308,7 @@ Transform_WillToFreedan {
     COP [AnimOnce]
     LDA #$0001            ; Set form to Freedan
     STA $characterForm
-    JSR $&RestorePlayerControl ; Restore player control
+    JSR $&DarkSpaceRestoreControl ; Restore player control
     RTL 
 }
 ---------------------------------------------
@@ -1331,7 +1331,7 @@ Transform_WillToFreedanAlt {
     COP [AnimOnce]
     LDA #$0001
     STA $characterForm
-    JSR $&RestorePlayerControl
+    JSR $&DarkSpaceRestoreControl
     RTL 
 }
 ---------------------------------------------
@@ -1357,7 +1357,7 @@ Transform_ShadowToFreedan {
     COP [AnimOnce]
     COP [StageSpriteFrame] ( #0B )
     COP [AnimOnce]
-    JSR $&RestorePlayerControl
+    JSR $&DarkSpaceRestoreControl
     RTL 
 }
 ---------------------------------------------
@@ -1444,7 +1444,7 @@ Transform_FreedanToWill {
     COP [AnimOnce]
     COP [StageSpriteFrame] ( #05 )
     COP [AnimOnce]
-    JSR $&RestorePlayerControl
+    JSR $&DarkSpaceRestoreControl
     RTL 
 }
 ---------------------------------------------
@@ -1469,7 +1469,7 @@ Transform_ShadowToWill {
     COP [AnimOnce]
     COP [StageSpriteFrame] ( #05 )
     COP [AnimOnce]
-    JSR $&RestorePlayerControl
+    JSR $&DarkSpaceRestoreControl
     RTL 
 }
 ---------------------------------------------
@@ -1574,7 +1574,7 @@ Transform_WillToShadow {
     COP [AnimOnce]
     COP [StageSpriteFrame] ( #12 )
     COP [AnimOnce]
-    JSR $&RestorePlayerControl
+    JSR $&DarkSpaceRestoreControl
     RTL 
 }
 ---------------------------------------------
@@ -1600,7 +1600,7 @@ Transform_FreedanToShadow {
     COP [AnimOnce]
     COP [StageSpriteFrame] ( #12 )
     COP [AnimOnce]
-    JSR $&RestorePlayerControl
+    JSR $&DarkSpaceRestoreControl
     RTL 
 }
 ---------------------------------------------
@@ -1655,11 +1655,11 @@ FireflyParticle {
 }
 ---------------------------------------------
 
-; Restores normal player locomotion after a climb or ramp animation finishes.
+; Local copy of stair_climb.RestorePlayerControl for the dark space system.
 ; 
-; Resets the player actor entry pointer to PlayerIdleEntry, clears velocity scratch at $002C/$002E/$0008, adjusts status word $0010 (clears $0200, sets $0008), unmasks joypad ($0F00), and clears playerFlags $0800. Called from UnlockPlayerAfterClimb and from ramp exit handlers in ramps.asm.
+; Restores normal player locomotion after a dark space interaction. Resets the player actor entry pointer to PlayerIdleEntry, clears velocity scratch at $002C/$002E/$0008, adjusts status word $0010 (clears $0200, sets $0008), unmasks joypad ($0F00), and clears playerFlags $0800.
 
-RestorePlayerControl {
+DarkSpaceRestoreControl {
     PHX 
     LDX $playerActor
     LDA #$*player_character.PlayerIdleEntry ; Bank byte

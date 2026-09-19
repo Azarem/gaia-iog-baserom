@@ -290,8 +290,8 @@ code_0691BE! {
 -----------------------------------------
 
 loc_08DCAF! {
-    COP [D6] ( #24, &code_08DCEC )
-    COP [D4] ( #24, &code_08DCF3 )
+    COP [D6] ( #24, &GaiaHint_AuraDesc )
+    COP [D4] ( #24, &GaiaHint_AuraFull )
     COP [BF] ( &dialogstring_08E66C )
     LDA #$FFF0
     TSB $joypadMaskStd
@@ -389,11 +389,11 @@ loc_08EAAA! {
 
 -----------------------------------------
 
-code_08EF4E! {
+AuraItemGrant! {
     LDA #$FFF0
     TSB $joypadMaskStd
     COP [DA] ( #05 )
-    COP [D4] ( #24, &code_08EFC9 )
+    COP [D4] ( #24, &AuraItemInventoryFull )
     COP [86] ( #0A, #03, #14 )
     COP [8A]
     COP [84] ( #0A, #03 )

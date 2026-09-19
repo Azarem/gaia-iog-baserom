@@ -6,9 +6,9 @@
 --------------------------------------------------
 
 diary_ngp_option {
-    JSR $&sub_0BEBF9
+    JSR $&DiaryMenuClearVram
     COP [6B] ( &dialogstring_0BF437 )
-    COP [C8] ( &code_0BEB8B )
+    COP [C8] ( &DiaryRenderSlotStats )
     COP [BD] ( @consolestring_01EADC )
     LDA $0D8C
     AND #$0003
@@ -18,12 +18,12 @@ diary_ngp_option {
     COP [C2]
     LDA #$000C
     STA $7F101C, X
-    COP [C8] ( &code_0BE527 )
+    COP [C8] ( &DiaryCameraPan )
     COP [E2] ( @diary_ngp_stub )
-    COP [40] ( #$0800, &code_0BE398 )
-    COP [40] ( #$0400, &code_0BE3B1 )
+    COP [40] ( #$0800, &DiaryStartSlotUp )
+    COP [40] ( #$0400, &DiaryStartSlotDown )
     COP [40] ( #$0080, &diary_ngp_confirm )
-    COP [40] ( #$8000, &code_0BE3CD )
+    COP [40] ( #$8000, &DiaryStartCancel )
     RTL 
 }
 
@@ -51,7 +51,7 @@ diary_ngp_confirm {
     STA $306000
     JSL $@LoadGameState_Scene
     ;BCS code_0BE433
-    JSR $&sub_0BE673
+    JSR $&ApplySoundAndRemap
     LDA $0AB2
     STA $0AAC
 
@@ -107,7 +107,7 @@ diary_ngp_str     `[DLG:6,A][SIZ:A,5]Start Journey[N]Erase Trip Diary[N]Copy Tri
 ?INCLUDE 'sFA_diary_menu'
 --------------------------------------------------
 
-code_0BE23A! {
+DiaryMenuInit! {
     LDA #$0000
     STA $7F0A00
     SEP #$20
@@ -150,7 +150,7 @@ code_0BE23A! {
     TSB $joypadMaskStd
     LDA #$2800
     TSB $playerFlags
-    JSR $&sub_0BED64
+    JSR $&DiaryScanSramSlots
     COP [BD] ( @consolestring_01EADC )
     LDA $20
     BEQ diary_menu_normal
@@ -172,7 +172,7 @@ code_0BE23A! {
 
 -----------------------------------------------
 
-code_0BE2F6! {
+DiaryTabCursorUp! {
     COP [06] ( #10 )
     LDA $20
     BEQ diary_main_dec_normal
@@ -192,7 +192,7 @@ diary_main_dec_normal {
 
 ------------------------------------------------
 
-func_0BE2CC! {
+DiaryMainMenuEntry! {
     LDA $20
     BEQ diary_print_normal
     COP [6B] ( &diary_ngp_str )
@@ -204,7 +204,7 @@ func_0BE2CC! {
 
 ------------------------------------------------
 
-code_0BE30F! {
+DiaryTabCursorDown! {
     COP [06] ( #10 )
     LDA $20
     BEQ diary_main_inc_normal
@@ -226,7 +226,7 @@ diary_main_inc_normal {
 
 -----------------------------------------------
 
-code_0BE32B! {
+DiaryTabConfirm! {
     COP [06] ( #11 )
     LDA $0656
     ORA $0658
@@ -240,17 +240,17 @@ code_0BE32B! {
 }
 
 code_list_0BE34C! [
-  &code_0BE354   ;00
-  &code_0BEA55   ;01
-  &func_0BE8A8   ;02
-  &func_0BE6BA   ;03
+  &DiaryStartJourney   ;00
+  &DiaryEraseTab   ;01
+  &DiaryCopyTab   ;02
+  &DiarySndBtnTab   ;03
   &diary_ngp_option   ;04
 ]
 
 -----------------------------------------------
 ;Code for loading diary data into temp variables
 
-sub_0BED64! {
+DiaryScanSramSlots! {
     PHX 
     LDA #$0000
     STA $0D74
@@ -284,7 +284,7 @@ sub_0BED64! {
   loc_0BEDA3!:
     STA $0D8C
 
-  code_0BEDA6!:
+  DiaryScanSramLoop!:
     LDA $24
     XBA 
     ASL 

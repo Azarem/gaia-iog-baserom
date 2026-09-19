@@ -271,7 +271,7 @@ RunActors_Normal! {
 ------------------------------------------------
 ;Disable continue option when saving
 
-code_08DBB1! {
+GaiaSaveConfirm! {
     LDA $0D8C
     JSL $@SaveGameState_Scene
     COP [07] ( #29 )
@@ -282,13 +282,13 @@ code_08DBB1! {
     TRB $joypadMaskStd
     ;COP [BF] ( &dialogstring_08DDFE )
     ;COP [BE] ( #02, #01, &code_list_08DBD4 )
-    BRA code_08DBDA
+    BRA GaiaDontRecord
 }
 
 -----------------------------------------------
 ;Disable region protection
 
-func_0BC896! {
+BootLogoPalTextFallback! {
     BRA loc_0BC8EA
 }
 

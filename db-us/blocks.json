@@ -246,7 +246,7 @@
                 "Transform_WillToShadow": { "start": 587257, "end": 587324, "type": "Code" },
                 "Transform_FreedanToShadow": { "start": 587324, "end": 587391, "type": "Code" },
                 "DarkSpaceAmbientParticle": { "start": 587391, "end": 587475, "type": "actor-def" },
-                "RestorePlayerControl": { "start": 587475, "end": 587529, "type": "Code" },
+                "DarkSpaceRestoreControl": { "start": 587475, "end": 587529, "type": "Code" },
                 "GaiaNpcSprite": { "start": 630928, "end": 630999, "type": "Code" }
             }
         },
@@ -747,15 +747,7 @@
             "func_09E5DE": { "start": 648670, "end": 648711, "order": 648715, "type": "Code" }
         } },
         "sF7_credits_misc_timeline": { "start": 648779, "end": 649444, "type": "Code", "scene": "ending_credits", "movable": true },
-        "CreditPositionLookup": {
-            "movable": true,
-            "scene": "ending_credits",
-            "parts": {
-                "func_09E8E4": { "start": 649444, "end": 649473, "type": "Code" },
-                "word_09E901": { "start": 649473, "end": 649485, "type": "Word" },
-                "word_09E90D": { "start": 649485, "end": 649497, "type": "Word" }
-            }
-        },
+        "CreditPositionLookup": { "start": 649444, "end": 649497, "type": "Code", "scene": "ending_credits", "movable": true },
         "crF7_credits_hdma_flicker": { "start": 652080, "end": 652128, "type": "thinker-def", "scene": "ending_credits", "movable": true },
         "crF7_credits_dma_scroll": { "start": 652128, "end": 652458, "type": "thinker-def", "scene": "ending_credits", "movable": true },
         "crF7_credits_camera_pan": { "start": 652560, "end": 652959, "type": "thinker-def", "scene": "ending_credits", "movable": true },

@@ -294,13 +294,13 @@ code_09DB59 {
 
 code_09E62F {
     LDA #$0012
-    JSR $&CreditPositionLookup.func_09E8E4
+    JSL $@CreditPositionLookup
     BRA loc_09E63D
 }
 
 code_09E637 {
     LDA #$0022
-    JSR $&CreditPositionLookup.func_09E8E4
+    JSL $@CreditPositionLookup
 
   loc_09E63D:
     COP [SetMetasprite] ( $7E6000 )

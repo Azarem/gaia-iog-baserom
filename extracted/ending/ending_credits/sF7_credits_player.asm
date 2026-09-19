@@ -24,7 +24,7 @@ code_09E013 {
     LDA #$2000
     TRB $10
     LDA #$0033
-    JSR $&CreditPositionLookup.func_09E8E4
+    JSL $@CreditPositionLookup
     LDA $16
     CLC 
     ADC #$0002
