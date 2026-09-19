@@ -1,3 +1,9 @@
+; Seth's father NPC -- one side of the arguing parents.
+; 
+; Dialog about spending money. Part of the fighting-parents theme
+; that drives Seth's character.
+---------------------------------------------
+
 ---------------------------------------------
 
 sc05_seths_father [

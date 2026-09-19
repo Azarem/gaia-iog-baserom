@@ -1,3 +1,10 @@
+; Grandma Lola NPC in Itory Village.
+; 
+; Multi-phase dialog: reunites with Will after the kidnapping,
+; explains how she escaped (poisoned pie), and thanks Lily.
+; Comic relief scene.
+---------------------------------------------
+
 ?INCLUDE 'InitPlayerScriptVariant'
 
 !joypadMaskStd                  065A

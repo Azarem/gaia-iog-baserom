@@ -1,3 +1,8 @@
+; Prison chain ball inspection dialog.
+; 
+; Will examines a ball and chain that held a previous prisoner.
+---------------------------------------------
+
 ---------------------------------------------
 
 ec0B_ball [

@@ -1,3 +1,8 @@
+; South Cape girl asking how long they have been playing.
+; 
+; Single dialog line. Part of the children playing scene.
+---------------------------------------------
+
 ---------------------------------------------
 
 sc01_girl3 [

@@ -1,3 +1,9 @@
+; South Cape roof NPC who scolds Will for climbing.
+; 
+; Single dialog about Will's habit of jumping from high places.
+; Accessible by climbing to the rooftops.
+---------------------------------------------
+
 ?INCLUDE 'npc_wander_ai'
 
 !currentHp                      7F0026

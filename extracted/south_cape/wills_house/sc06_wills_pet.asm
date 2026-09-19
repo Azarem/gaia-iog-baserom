@@ -1,3 +1,8 @@
+; Will's pet animal in his house.
+; 
+; Small ambient actor. Minimal dialog.
+---------------------------------------------
+
 ---------------------------------------------
 
 sc06_wills_pet [

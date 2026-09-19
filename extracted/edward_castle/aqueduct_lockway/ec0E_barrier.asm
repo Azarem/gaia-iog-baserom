@@ -1,3 +1,9 @@
+; Aqueduct barrier/gate actor in the lockway.
+; 
+; Physics-driven barrier that opens when switches are pressed.
+; Controls passage through the lockway puzzle area.
+---------------------------------------------
+
 ---------------------------------------------
 
 ec0E_barrier [

@@ -1,3 +1,9 @@
+; Statue inspection actor in the aqueduct lockway.
+; 
+; Will recognizes the statue as similar to the one from the
+; coastal cave.
+---------------------------------------------
+
 ?INCLUDE 'interaction_handlers'
 
 ---------------------------------------------

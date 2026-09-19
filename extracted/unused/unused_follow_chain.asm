@@ -1,3 +1,10 @@
+; Unused actor that sets up a smooth_follow follower chain.
+; 
+; Configures OrActorFlags, calls dm_follower_behavior setup, then
+; tail-calls smooth_follow_child via JSL address push. Prototype
+; follower mechanic that was replaced by the Diamond Mine escort system.
+---------------------------------------------
+
 ?INCLUDE 'dm_follower_behavior'
 ?INCLUDE 'smooth_follow_child'
 

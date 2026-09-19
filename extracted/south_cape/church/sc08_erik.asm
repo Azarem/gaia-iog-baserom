@@ -1,3 +1,9 @@
+; Erik in the South Cape school after the opening lesson.
+; 
+; Speaks his lines about going home first and heading to the cave.
+; Part of the post-school cutscene sequence.
+---------------------------------------------
+
 !joypadMaskStd                  065A
 
 ---------------------------------------------

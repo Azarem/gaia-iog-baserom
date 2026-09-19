@@ -1,3 +1,10 @@
+; Unused Dark Space reward actors (dark_rewards1, dark_rewards2, dark_rewards3).
+; 
+; Prototype reward dispensers that hint at abilities and stat boosts.
+; Likely an earlier version of the Dark Space ability system before
+; it was integrated into sE6_gaia. Never referenced by any scene.
+---------------------------------------------
+
 ?INCLUDE 'hint_npc'
 
 !abilityBitmask                 0AA2

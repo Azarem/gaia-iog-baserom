@@ -1,3 +1,8 @@
+; Chef's house NPC in South Cape.
+; 
+; Single dialog about cooking in a pot since there is no stove.
+---------------------------------------------
+
 ---------------------------------------------
 
 sc07_chef [

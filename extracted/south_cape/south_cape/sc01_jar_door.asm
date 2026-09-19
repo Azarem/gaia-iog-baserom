@@ -1,3 +1,9 @@
+; Seth's house door event in South Cape.
+; 
+; Triggers the comedic jar-throwing cutscene when Will approaches
+; Seth's front door, showing his parents fighting.
+---------------------------------------------
+
 !joypadMaskStd                  065A
 
 ---------------------------------------------

@@ -1,3 +1,9 @@
+; Aqueduct lockway switch actor.
+; 
+; Interactive switch that toggles barrier state when activated.
+; Part of the lockway puzzle mechanic.
+---------------------------------------------
+
 ?INCLUDE 'enemy_stats_table'
 ?INCLUDE 'spriteset_enemies'
 

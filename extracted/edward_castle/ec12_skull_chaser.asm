@@ -1,3 +1,9 @@
+; Skull Chaser enemy for the aqueduct back area.
+; 
+; Aggressive enemy that tracks and chases the player.
+; Multi-pattern AI with directional pursuit.
+---------------------------------------------
+
 ?INCLUDE 'enemy_stats_table'
 ?INCLUDE 'spriteset_enemies'
 

@@ -1,3 +1,11 @@
+; Kara in her room at Edward Castle.
+; 
+; Complex multi-phase actor covering: initial meeting through the door,
+; the escape planning sequence, searching for food in barrels, and
+; the castle escape with cutscene movement. One of the longest
+; scene scripts in the castle.
+---------------------------------------------
+
 ?INCLUDE 'EscortFollowPathTracker'
 
 !gfxCacheIdxB                   064A

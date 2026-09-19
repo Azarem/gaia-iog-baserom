@@ -1,3 +1,8 @@
+; Erik's father NPC in his house.
+; 
+; Single dialog about the big house and being early settlers.
+---------------------------------------------
+
 ---------------------------------------------
 
 sc04_eriks_father [

@@ -1,3 +1,9 @@
+; Grandpa Bill NPC in Itory Village.
+; 
+; Multi-state dialog: initially directs Will to the Elder,
+; later asks about the Red Jewel from Edward Castle.
+---------------------------------------------
+
 ---------------------------------------------
 
 it15_bill [

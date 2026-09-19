@@ -1,0 +1,19 @@
+{
+    "dark_rewards": "Unused Dark Space reward actors (dark_rewards1, dark_rewards2, dark_rewards3).\n\nPrototype reward dispensers that hint at abilities and stat boosts.\nLikely an earlier version of the Dark Space ability system before\nit was integrated into sE6_gaia. Never referenced by any scene.",
+    "ec_proximity_door_toggle": "Proximity-based door open/close actor used across Edward Castle.\n\nMonitors player distance and toggles door tile state.\nShared utility actor used by multiple castle rooms.",
+    "ec0E_lily": "Lily NPC in the aqueduct lockway.\n\nLily warns Will about demons and guides him through the\nlockway puzzle. Multi-state dialog with movement sequences.",
+    "ec11_aqueduct_blocker": "Aqueduct doorway blocker actor.\n\nPhysical barrier that blocks passage until a puzzle condition\nis met.",
+    "ec11_aqueduct_gate_sprite": "Aqueduct doorway gate sprite actor.\n\nVisual gate sprite that animates open/closed states.",
+    "ec11_button_voice": "Mysterious voice at the aqueduct doorway buttons.\n\nMulti-phase dialog: instructs Will to push switches simultaneously,\ncounts down, and announces when the door opens.",
+    "ec11_countdown": "Countdown dialog for the aqueduct doorway switch puzzle.\n\nThe strange voice counts 1-2-3 and Will must push the switch\nat the right time. Includes timing-based success/failure.",
+    "ec11_flower": "Flower NPC in the aqueduct doorway.\n\nTells Will to play the Flute melody. Part of the melody-gated\nprogression system.",
+    "ec12_aqueduct_dark_space": "Dark Space portal in the aqueduct back area.\n\nSpawns the dark space portal after flag check.",
+    "ec12_aqueduct_enemy": "Generic aqueduct enemy for the back area.\n\nStandard dungeon enemy spawn with death handling.",
+    "ec13_lily": "Lily at the aqueduct exit.\n\nMajor story scene: Lily reveals herself after Will transforms,\nexplains she is from Itory Village, and the two begin their\njourney together.",
+    "hint_npc": "Unused hint NPC actors (hint_npc1 through hint_npc8).\n\nPrototype Gaia-like hint dispensers that display dialog based on\nscene flags. Similar to the hint system in sE6_gaia but standalone.\nNever referenced by any scene.",
+    "it1A_moon_tribe": "Moon Tribe encounter at their camp.\n\nMajor story scene: the Moon Tribe introduces themselves as\nShadows created by the comet's light. Exposition about the\ncomet, the transformation, and Shadow's origin. Complex\nmulti-phase dialog with cutscene elements.",
+    "unused_debug_input_test": "Unused debug actor for cycling through enemy spriteset frames.\n\nAdvances frame index $28 on each A-button press (0..$32), displaying\none sprite from spriteset_enemies per frame. Debug sprite viewer.",
+    "unused_debug_mode": "Unused debug initialization actor.\n\nSets player stats (HP=19, STR=32, DEF=33), character form to Shadow,\nunlocks all abilities ($FF), sets MEMSEL fast ROM, flags the player\nas dead ($0200), then enters the same sprite viewer loop as\nunused_debug_input_test.",
+    "unused_kara_dialog": "Unused Kara dialog actor with looping music test.\n\nSpawns a dialog child, alternates between music tracks #02 and #04\nwith a dialog prompt between each. Contains a single Kara dialog\nline. Possibly a cutscene test or early Kara interaction prototype.",
+    "unused_mode7_boss": "Unused complete Mode 7 boss fight (~1,900 lines).\n\nFull boss implementation with Mode 7 tilemap manipulation, orbital\nattack patterns, HP tracking, phase transitions, projectile spawning,\nand camera control. Uses ApplyOrbitalOffsetFromRef, hardware_math,\nand enemy_stats_table. The largest unused code block in the ROM.\nPossibly a cut boss or a prototype for the Babel Tower boss."
+}

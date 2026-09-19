@@ -1,3 +1,10 @@
+; South Cape traveling weapon salesman NPC.
+; 
+; Multi-state dialog gated by game progress flags. Initially refuses
+; to sell weapons to a child. Later dialog changes based on story
+; progression.
+---------------------------------------------
+
 ---------------------------------------------
 
 sc01_salesman [

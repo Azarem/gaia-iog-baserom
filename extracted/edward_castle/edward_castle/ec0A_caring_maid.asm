@@ -1,3 +1,8 @@
+; Castle maid NPC with shy guard subplot.
+; 
+; Dialog about someone thinking of her. References the shy guard NPC.
+---------------------------------------------
+
 ---------------------------------------------
 
 ec0A_caring_maid [

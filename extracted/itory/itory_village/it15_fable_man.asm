@@ -1,3 +1,9 @@
+; Itory Village NPC who tells an ancient legend.
+; 
+; Dialog about a messenger appearing when the ancient world
+; was about to be destroyed.
+---------------------------------------------
+
 ---------------------------------------------
 
 it15_fable_man [

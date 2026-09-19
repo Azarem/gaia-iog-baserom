@@ -1,3 +1,10 @@
+; Unused random position generator.
+; 
+; Sets $14/$16 to random values (X: 0..255, Y: 0..510), $08 = $3C.
+; Similar to RandomPlayerOffset but without centering on the player.
+; No references.
+---------------------------------------------
+
 ?BANK 0A
 
 ---------------------------------------------

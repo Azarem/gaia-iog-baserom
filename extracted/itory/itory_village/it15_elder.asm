@@ -1,3 +1,11 @@
+; The Elder of Itory Village -- major story NPC.
+; 
+; Complex multi-phase actor: Will hears a voice, finds the Elder
+; among the flowers, and receives exposition about his father,
+; the Dark Power, and the quest to collect Mystic Statues.
+; Sets multiple story-critical flags.
+---------------------------------------------
+
 ---------------------------------------------
 
 it15_elder [

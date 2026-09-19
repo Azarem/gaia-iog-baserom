@@ -1,3 +1,8 @@
+; Generic aqueduct enemy for the back area.
+; 
+; Standard dungeon enemy spawn with death handling.
+---------------------------------------------
+
 ?INCLUDE 'enemy_stats_table'
 ?INCLUDE 'spriteset_enemies'
 

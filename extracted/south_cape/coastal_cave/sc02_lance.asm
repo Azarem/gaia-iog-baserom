@@ -1,3 +1,10 @@
+; Lance in the coastal cave -- card game and flute tutorial.
+; 
+; Multi-state dialog covering the card game with Seth, the flute
+; tutorial (Melody of Wind), and the cave statue puzzle. Key
+; gameplay tutorial sequence.
+---------------------------------------------
+
 ?INCLUDE 'sc02_card'
 
 !joypadMaskStd                  065A

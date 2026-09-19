@@ -1,3 +1,8 @@
+; Bat enemy actor for the Edward Castle aqueduct.
+; 
+; Standard dungeon enemy with flight patterns.
+---------------------------------------------
+
 !mapBoundsX                     0692
 !mapBoundsY                     0696
 

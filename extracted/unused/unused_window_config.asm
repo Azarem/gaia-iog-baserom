@@ -1,3 +1,9 @@
+; Unused window object select configuration actor.
+; 
+; Writes #$A0 to WOBJSEL ($2125) via 8-bit mode, then returns.
+; Sets window 1 inversion for BG3/BG4. No references.
+---------------------------------------------
+
 !WOBJSEL                        2125
 
 ---------------------------------------------

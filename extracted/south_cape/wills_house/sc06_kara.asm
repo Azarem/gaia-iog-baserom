@@ -1,3 +1,10 @@
+; Kara's first meeting with Will in his house.
+; 
+; Runs the full introduction cutscene: Kara comments on Will's
+; house, asks about his parents, and they look at the family
+; photo together. Multi-character dialog with movement sequences.
+---------------------------------------------
+
 ?INCLUDE 'InitPlayerScriptVariant'
 
 !joypadMaskStd                  065A

@@ -1,3 +1,9 @@
+; Kara in Itory Village -- arrival and departure scenes.
+; 
+; Multi-state dialog: arrives complaining about sore feet,
+; later decides to accompany Will, then says goodbye.
+---------------------------------------------
+
 !joypadMaskStd                  065A
 
 ---------------------------------------------

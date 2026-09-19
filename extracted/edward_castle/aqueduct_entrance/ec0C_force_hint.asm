@@ -1,3 +1,9 @@
+; Will's self-narration hint about defeating enemies for jewels.
+; 
+; Displays a tutorial dialog about dark gems appearing when
+; enemies are defeated.
+---------------------------------------------
+
 !joypadMaskStd                  065A
 !playerMaxHp                    0ACA
 

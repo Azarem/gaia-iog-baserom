@@ -1,3 +1,8 @@
+; Prison guard NPC who refuses help.
+; 
+; Single dialog where the guard says he does not need anyone's help.
+---------------------------------------------
+
 !playerActor                    09AA
 
 ---------------------------------------------

@@ -1,3 +1,9 @@
+; Stairway guard NPC in Edward Castle.
+; 
+; Two-state dialog: tells Will to wait during breakfast, then directs
+; him to climb the stairs to the interview room.
+---------------------------------------------
+
 ---------------------------------------------
 
 ec0A_stair_guard [

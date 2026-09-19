@@ -1,3 +1,9 @@
+; South Cape NPC who mentions the approaching comet.
+; 
+; Flag-gated dialog with two branches: before and after the castle
+; summons. Provides foreshadowing about the comet.
+---------------------------------------------
+
 ---------------------------------------------
 
 sc01_astronomer [

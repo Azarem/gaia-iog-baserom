@@ -1,3 +1,9 @@
+; South Cape woman worried about strange merchants.
+; 
+; Multi-state dialog gated by game progress flags. Initially worried
+; about merchants, dialog changes as story progresses.
+---------------------------------------------
+
 ---------------------------------------------
 
 sc01_worried_woman [

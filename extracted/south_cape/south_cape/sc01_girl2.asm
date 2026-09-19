@@ -1,3 +1,9 @@
+; South Cape girl commenting on the hide-and-seek game.
+; 
+; Single dialog about Red Light, Green Light. Part of the children
+; playing scene.
+---------------------------------------------
+
 ---------------------------------------------
 
 sc01_girl2 [

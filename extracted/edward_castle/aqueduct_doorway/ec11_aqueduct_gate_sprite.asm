@@ -1,3 +1,8 @@
+; Aqueduct doorway gate sprite actor.
+; 
+; Visual gate sprite that animates open/closed states.
+---------------------------------------------
+
 ?INCLUDE 'spriteset_enemies'
 
 !moveXAlt                       7F0018

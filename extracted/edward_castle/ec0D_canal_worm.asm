@@ -1,3 +1,9 @@
+; Canal worm enemy actor for the aqueduct canals.
+; 
+; Large enemy that surfaces from water, attacks, and submerges.
+; Multi-phase AI with surface/submerge animation sequences.
+---------------------------------------------
+
 ?INCLUDE 'spriteset_enemies'
 
 !moveXAlt                       7F0018

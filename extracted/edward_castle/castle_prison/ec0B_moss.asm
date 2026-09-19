@@ -1,3 +1,9 @@
+; Prison wall moss inspection dialog.
+; 
+; Will examines moss growing on the prison wall and reflects on
+; the prisoners who came before him.
+---------------------------------------------
+
 ---------------------------------------------
 
 ec0B_moss [

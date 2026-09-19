@@ -1,3 +1,9 @@
+; Itory Village NPC about Lily's loneliness.
+; 
+; Dialog asking Will to befriend Lily since there are no other
+; children her age in the village.
+---------------------------------------------
+
 ---------------------------------------------
 
 it15_friendly_woman [

@@ -1,3 +1,8 @@
+; Itory Village NPC who hints about the slope dash.
+; 
+; Tutorial dialog suggesting Will run down the hill for a surprise.
+---------------------------------------------
+
 ---------------------------------------------
 
 it15_running_man [

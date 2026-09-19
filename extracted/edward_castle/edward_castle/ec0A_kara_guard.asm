@@ -1,3 +1,9 @@
+; Guard outside Kara's room at Edward Castle.
+; 
+; Two-state dialog: initially blocks entry, then Kara threatens to
+; reveal his nickname and he lets Will in. Comedy scene.
+---------------------------------------------
+
 !joypadCurrent                  0656
 !joypadMaskStd                  065A
 !playerSpeedEw                  09B2

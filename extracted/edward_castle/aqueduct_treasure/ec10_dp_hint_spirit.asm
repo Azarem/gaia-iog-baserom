@@ -1,3 +1,9 @@
+; Dark Space hint spirit in the aqueduct treasure room.
+; 
+; Tutorial dialog explaining dark gems and the extra life mechanic
+; (collect 100 gems for one life).
+---------------------------------------------
+
 ?INCLUDE 'spriteset_npc_props'
 
 ---------------------------------------------

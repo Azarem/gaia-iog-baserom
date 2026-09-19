@@ -1,3 +1,10 @@
+; Ribber (frog) enemy actor for the aqueduct entrance.
+; 
+; Multi-phase enemy with jump attack patterns, tongue attacks,
+; and directional AI. One of the more complex enemy scripts
+; in the early dungeon.
+---------------------------------------------
+
 ?INCLUDE 'smooth_follow_child'
 
 !playerActor                    09AA

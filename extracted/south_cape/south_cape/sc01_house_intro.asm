@@ -1,3 +1,10 @@
+; South Cape house narration actor.
+; 
+; Displays a text box describing the house Will is entering. Uses
+; flag checks to determine which house and shows the appropriate
+; narration.
+---------------------------------------------
+
 !joypadMaskStd                  065A
 
 ---------------------------------------------

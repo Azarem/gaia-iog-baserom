@@ -1,3 +1,10 @@
+; Moon Tribe trial in their cave.
+; 
+; Challenge sequence: the Moon Tribe tests Will before giving
+; the statue. Includes dialog about creatures changed by the
+; comet's light. Success grants Incan Statue B.
+---------------------------------------------
+
 ?INCLUDE 'oam_digit_compose'
 
 !joypadMaskStd                  065A

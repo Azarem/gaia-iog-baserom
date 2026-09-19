@@ -1,3 +1,9 @@
+; Seth's mother NPC -- the other side of the arguing parents.
+; 
+; Dialog about putting up with Seth's father for Seth's sake.
+; Part of the family conflict theme.
+---------------------------------------------
+
 ---------------------------------------------
 
 sc05_seths_mother [

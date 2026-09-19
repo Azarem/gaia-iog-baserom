@@ -1,3 +1,8 @@
+; Itory Village NPC continuing the ancient legend.
+; 
+; Dialog about disease and famine increasing across the world.
+---------------------------------------------
+
 ---------------------------------------------
 
 it15_fable_woman [

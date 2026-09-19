@@ -1,3 +1,10 @@
+; Lily's appearance in Will's house after the kidnapping.
+; 
+; Introduces Lily and Itory Village. Dialog sequence where Lily
+; offers to help, Kara insists on coming, and they depart.
+; Sets the Itory Village storyline in motion.
+---------------------------------------------
+
 ?INCLUDE 'InitPlayerScriptVariant'
 
 !joypadMaskStd                  065A

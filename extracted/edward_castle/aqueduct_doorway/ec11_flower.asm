@@ -1,3 +1,9 @@
+; Flower NPC in the aqueduct doorway.
+; 
+; Tells Will to play the Flute melody. Part of the melody-gated
+; progression system.
+---------------------------------------------
+
 ---------------------------------------------
 
 ec11_flower [

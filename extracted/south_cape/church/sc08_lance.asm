@@ -1,3 +1,9 @@
+; Lance in the South Cape school after the opening lesson.
+; 
+; Speaks about meeting at the usual place (the seaside cave).
+; Part of the post-school cutscene sequence.
+---------------------------------------------
+
 ---------------------------------------------
 
 sc08_lance [

@@ -1,3 +1,8 @@
+; Spiney (spiny creature) enemy for the aqueduct lockway.
+; 
+; Dungeon enemy with collision-based movement patterns.
+---------------------------------------------
+
 ?INCLUDE 'enemy_stats_table'
 
 !statsPtr                       7F0020

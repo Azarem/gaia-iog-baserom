@@ -1,3 +1,11 @@
+; South Cape gate guard who blocks town exit before the castle summons.
+; 
+; Three dialog states gated by flags: blocks exit initially (flag $27=0),
+; allows passage after Edward Castle summons (flag $35), and has a
+; brief farewell after (flag $27=1). Animates walking to open/close
+; the gate path.
+---------------------------------------------
+
 !playerYPos                     09A4
 
 ---------------------------------------------

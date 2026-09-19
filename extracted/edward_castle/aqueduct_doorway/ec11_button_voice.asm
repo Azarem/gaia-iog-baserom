@@ -1,3 +1,9 @@
+; Mysterious voice at the aqueduct doorway buttons.
+; 
+; Multi-phase dialog: instructs Will to push switches simultaneously,
+; counts down, and announces when the door opens.
+---------------------------------------------
+
 ?BANK 09
 
 ?INCLUDE 'ec11_countdown'

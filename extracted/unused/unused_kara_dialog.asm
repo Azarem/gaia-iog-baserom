@@ -1,3 +1,10 @@
+; Unused Kara dialog actor with looping music test.
+; 
+; Spawns a dialog child, alternates between music tracks #02 and #04
+; with a dialog prompt between each. Contains a single Kara dialog
+; line. Possibly a cutscene test or early Kara interaction prototype.
+---------------------------------------------
+
 ---------------------------------------------
 
 unused_kara_dialog [

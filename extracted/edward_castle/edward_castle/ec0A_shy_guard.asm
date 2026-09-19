@@ -1,3 +1,9 @@
+; Shy guard NPC in Edward Castle.
+; 
+; Humorous single dialog where the guard stammers a love confession.
+; Part of the caring maid subplot.
+---------------------------------------------
+
 ---------------------------------------------
 
 ec0A_shy_guard [

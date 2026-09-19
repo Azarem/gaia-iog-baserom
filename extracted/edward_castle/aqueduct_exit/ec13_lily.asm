@@ -1,3 +1,10 @@
+; Lily at the aqueduct exit.
+; 
+; Major story scene: Lily reveals herself after Will transforms,
+; explains she is from Itory Village, and the two begin their
+; journey together.
+---------------------------------------------
+
 ?INCLUDE 'sE6_gaia'
 
 !joypadMaskStd                  065A

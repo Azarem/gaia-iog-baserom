@@ -1,3 +1,10 @@
+; Lance's frail mother NPC.
+; 
+; Multi-state dialog gated by story progression. Initially speaks
+; about Will's father being lost at the Tower of Babel. Dialog
+; changes as the story progresses.
+---------------------------------------------
+
 ---------------------------------------------
 
 sc03_lances_mother [

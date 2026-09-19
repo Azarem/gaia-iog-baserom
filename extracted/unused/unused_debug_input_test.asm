@@ -1,3 +1,9 @@
+; Unused debug actor for cycling through enemy spriteset frames.
+; 
+; Advances frame index $28 on each A-button press (0..$32), displaying
+; one sprite from spriteset_enemies per frame. Debug sprite viewer.
+---------------------------------------------
+
 ?INCLUDE 'spriteset_enemies'
 
 !joypadCurrent                  0656

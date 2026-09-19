@@ -1,3 +1,9 @@
+; Coastal cave entry narration and Lance's gate dialog.
+; 
+; Displays introductory narration about the four friends' hangout.
+; Lance has a flag-gated dialog asking Will to stay and play.
+---------------------------------------------
+
 ?BANK 04
 
 !joypadMaskStd                  065A

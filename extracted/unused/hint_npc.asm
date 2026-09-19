@@ -1,3 +1,10 @@
+; Unused hint NPC actors (hint_npc1 through hint_npc8).
+; 
+; Prototype Gaia-like hint dispensers that display dialog based on
+; scene flags. Similar to the hint system in sE6_gaia but standalone.
+; Never referenced by any scene.
+---------------------------------------------
+
 !sfxQueueCh1                    06F8
 
 ---------------------------------------------

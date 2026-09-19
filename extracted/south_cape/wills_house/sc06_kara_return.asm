@@ -1,3 +1,11 @@
+; Kara's return to Will's house -- kidnapping aftermath.
+; 
+; Major story cutscene: Kara returns to find Will's grandparents
+; missing, the house ransacked. Multi-phase sequence with Lily's
+; arrival, the journey to Itory Village, and Kara's departure.
+; Sets multiple story flags.
+---------------------------------------------
+
 !gfxCacheIdxB                   064A
 !joypadMaskStd                  065A
 !playerActor                    09AA

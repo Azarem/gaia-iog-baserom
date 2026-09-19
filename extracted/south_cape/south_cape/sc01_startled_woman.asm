@@ -1,3 +1,9 @@
+; South Cape woman who is startled when Will talks to her.
+; 
+; First interaction triggers a surprised reaction. Subsequent
+; interactions show a different dialog about the sea breeze.
+---------------------------------------------
+
 ---------------------------------------------
 
 sc01_startled_woman [

@@ -1,3 +1,9 @@
+; South Cape NPC who teaches the player about running.
+; 
+; Static NPC with a single dialog explaining the dash mechanic
+; (press direction twice on the D-pad).
+---------------------------------------------
+
 ---------------------------------------------
 
 sc01_sprint_man [

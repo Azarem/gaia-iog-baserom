@@ -1,3 +1,8 @@
+; Animated torch actor in Edward Castle (instance 2).
+; 
+; Cosmetic flickering torch sprite for castle ambiance.
+---------------------------------------------
+
 ?INCLUDE 'spriteset_npc_props'
 
 ---------------------------------------------

@@ -1,3 +1,9 @@
+; Countdown dialog for the aqueduct doorway switch puzzle.
+; 
+; The strange voice counts 1-2-3 and Will must push the switch
+; at the right time. Includes timing-based success/failure.
+---------------------------------------------
+
 ?BANK 09
 
 ?INCLUDE 'ec11_button_voice'

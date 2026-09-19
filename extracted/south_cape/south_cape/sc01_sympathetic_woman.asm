@@ -1,3 +1,9 @@
+; South Cape woman who sympathizes with Seth.
+; 
+; Single dialog about feeling sorry for Seth because of his parents
+; fighting.
+---------------------------------------------
+
 ---------------------------------------------
 
 sc01_sympathetic_woman [

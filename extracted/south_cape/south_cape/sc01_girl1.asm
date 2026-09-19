@@ -1,3 +1,9 @@
+; South Cape girl playing hide-and-seek.
+; 
+; Counts up to 10 in dialog, then says she lost. Part of the
+; children-playing ambient scene decoration.
+---------------------------------------------
+
 ---------------------------------------------
 
 sc01_girl1 [

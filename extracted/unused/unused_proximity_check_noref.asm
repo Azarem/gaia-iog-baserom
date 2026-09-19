@@ -1,3 +1,9 @@
+; Unused proximity check subroutine.
+; 
+; Returns carry set if player is not near (BranchIfPlayerNear radius 7),
+; carry clear if near. No references anywhere in the ROM.
+---------------------------------------------
+
 ?BANK 0A
 
 ---------------------------------------------

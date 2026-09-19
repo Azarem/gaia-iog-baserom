@@ -1,3 +1,8 @@
+; Castle maid NPC near the bedroom.
+; 
+; Single dialog about a hunter being hired by the King.
+---------------------------------------------
+
 ---------------------------------------------
 
 ec0A_bed_maid [

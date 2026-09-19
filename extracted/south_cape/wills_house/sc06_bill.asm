@@ -1,3 +1,11 @@
+; Grandpa Bill NPC in Will's house -- multi-phase story actor.
+; 
+; Complex flag-gated dialog covering: initial homecoming, Lola's
+; opera singing, the soldier/Kara arrest event, the kidnapping,
+; and post-rescue states. One of the most story-critical NPCs
+; in Will's house with screen fade and music change sequences.
+---------------------------------------------
+
 !gfxCacheIdxA                   0648
 !joypadMaskStd                  065A
 !joypadInject                   09AC

@@ -1,3 +1,9 @@
+; Incan Statue A collectible in the Itory cave.
+; 
+; Key item pickup with inventory-full fallback dialog.
+; Required for the Incan Ruins dungeon entrance.
+---------------------------------------------
+
 !displayModeFlags               09EC
 
 ---------------------------------------------

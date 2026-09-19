@@ -1,3 +1,8 @@
+; Right guard at the castle entrance.
+; 
+; Multi-state dialog about castle etiquette and strict rules.
+---------------------------------------------
+
 ?INCLUDE 'hidden_red_jewel'
 
 ---------------------------------------------

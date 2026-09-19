@@ -1,3 +1,8 @@
+; NPC in Itory couple's house warning about the Incan ruins.
+; 
+; Dialog about gold hunters who entered the ruins and never returned.
+---------------------------------------------
+
 ---------------------------------------------
 
 it18_warning_man [

@@ -1,3 +1,9 @@
+; NPC in the Itory legend house who explains Incan oral tradition.
+; 
+; Dialog about the Incas preserving their legends in song
+; rather than writing.
+---------------------------------------------
+
 ---------------------------------------------
 
 it16_song_woman [

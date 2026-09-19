@@ -1,3 +1,9 @@
+; Lily NPC in the aqueduct lockway.
+; 
+; Lily warns Will about demons and guides him through the
+; lockway puzzle. Multi-state dialog with movement sequences.
+---------------------------------------------
+
 ?INCLUDE 'ApplyOrbitalOffsetFromRef'
 ?INCLUDE 'enemy_stats_table'
 ?INCLUDE 'spriteset_enemies'

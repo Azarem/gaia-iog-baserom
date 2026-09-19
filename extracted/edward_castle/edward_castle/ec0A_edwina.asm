@@ -1,3 +1,8 @@
+; Queen Edwina NPC in the castle.
+; 
+; Brief dialog directing Will to speak with King Edward.
+---------------------------------------------
+
 ---------------------------------------------
 
 ec0A_edwina [

@@ -1,3 +1,9 @@
+; Seth in the South Cape school after the opening lesson.
+; 
+; Speaks his line about meeting at the cave, then leaves.
+; Part of the post-school cutscene sequence.
+---------------------------------------------
+
 ---------------------------------------------
 
 sc08_seth [

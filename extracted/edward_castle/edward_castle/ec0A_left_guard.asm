@@ -1,3 +1,9 @@
+; Left guard at the castle entrance.
+; 
+; Two-state dialog: before prison (directions to second floor),
+; after prison escape (warns Will to flee).
+---------------------------------------------
+
 !joypadMaskStd                  065A
 
 ---------------------------------------------

@@ -1,3 +1,8 @@
+; Locked prison door interaction.
+; 
+; Will tries the door and finds it locked.
+---------------------------------------------
+
 ---------------------------------------------
 
 ec0B_door [

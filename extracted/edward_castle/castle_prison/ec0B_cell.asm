@@ -1,3 +1,11 @@
+; Castle prison cell -- Will's imprisonment sequence.
+; 
+; Major story scene: Will is imprisoned, examines his cell, eats
+; stale bread, and must find a way to escape. Multi-phase dialog
+; covering Will's despair and eventual discovery of the escape route.
+; The longest scene script in the prison area.
+---------------------------------------------
+
 ?INCLUDE 'f_inventory_full'
 ?INCLUDE 'interaction_handlers'
 ?INCLUDE 'oneshot_palette_flash_1B'

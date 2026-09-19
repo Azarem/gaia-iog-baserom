@@ -1,3 +1,9 @@
+; Coastal cave collectible card pickup.
+; 
+; Displays a dialog when Will picks up the Ace of Diamonds.
+; One of the Red Jewel/card collectibles.
+---------------------------------------------
+
 ?BANK 04
 
 !joypadMaskStd                  065A

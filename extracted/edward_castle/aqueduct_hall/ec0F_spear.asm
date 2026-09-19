@@ -1,3 +1,9 @@
+; Spear trap actor in the aqueduct hall.
+; 
+; Animated spear that extends and retracts on a timer.
+; Damages the player on contact.
+---------------------------------------------
+
 ---------------------------------------------
 
 ec0F_spear [

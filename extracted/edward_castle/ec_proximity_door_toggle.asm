@@ -1,3 +1,9 @@
+; Proximity-based door open/close actor used across Edward Castle.
+; 
+; Monitors player distance and toggles door tile state.
+; Shared utility actor used by multiple castle rooms.
+---------------------------------------------
+
 !orbitAngle                     7F0010
 
 ---------------------------------------------

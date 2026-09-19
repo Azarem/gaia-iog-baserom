@@ -1,3 +1,8 @@
+; Dark Space portal in the aqueduct back area.
+; 
+; Spawns the dark space portal after flag check.
+---------------------------------------------
+
 ?INCLUDE 'dark_space'
 
 ---------------------------------------------

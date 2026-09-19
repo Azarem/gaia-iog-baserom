@@ -1,3 +1,11 @@
+; Moon Tribe encounter at their camp.
+; 
+; Major story scene: the Moon Tribe introduces themselves as
+; Shadows created by the comet's light. Exposition about the
+; comet, the transformation, and Shadow's origin. Complex
+; multi-phase dialog with cutscene elements.
+---------------------------------------------
+
 ?INCLUDE 'oneshot_palette_flash_1F'
 
 ---------------------------------------------

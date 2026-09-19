@@ -1,3 +1,9 @@
+; Hamlet the pig -- Kara's pet in Will's house.
+; 
+; Ambient pig actor that oinks and wrecks the room. Appears after
+; Kara arrives. Will comments on the pig in his house.
+---------------------------------------------
+
 !joypadMaskStd                  065A
 !playerActor                    09AA
 

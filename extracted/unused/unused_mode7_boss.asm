@@ -1,3 +1,12 @@
+; Unused complete Mode 7 boss fight (~1,900 lines).
+; 
+; Full boss implementation with Mode 7 tilemap manipulation, orbital
+; attack patterns, HP tracking, phase transitions, projectile spawning,
+; and camera control. Uses ApplyOrbitalOffsetFromRef, hardware_math,
+; and enemy_stats_table. The largest unused code block in the ROM.
+; Possibly a cut boss or a prototype for the Babel Tower boss.
+---------------------------------------------
+
 ?INCLUDE 'ActorMidpointCalc'
 ?INCLUDE 'ApplyOrbitalOffsetFromRef'
 ?INCLUDE 'enemy_stats_table'

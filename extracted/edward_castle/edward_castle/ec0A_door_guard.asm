@@ -1,3 +1,8 @@
+; Castle entrance guard who escorts Will to King Edward.
+; 
+; Greets Will and directs him to the throne room.
+---------------------------------------------
+
 ---------------------------------------------
 
 ec0A_door_guard [

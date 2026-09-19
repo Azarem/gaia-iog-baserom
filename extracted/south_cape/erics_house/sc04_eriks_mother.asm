@@ -1,3 +1,9 @@
+; Erik's mother NPC with a humorous treatment dialog.
+; 
+; Explains she is using a heat treatment for sore muscles.
+; Complains about cleaning the big house.
+---------------------------------------------
+
 ---------------------------------------------
 
 sc04_eriks_mother [

@@ -1,3 +1,10 @@
+; Erik in the coastal cave -- Kara escape news cutscene.
+; 
+; Triggers the major early-game cutscene where Erik rushes in with
+; news about Princess Kara's escape from Edward Castle. Multi-character
+; dialog sequence with Lance and Seth reacting.
+---------------------------------------------
+
 !joypadMaskStd                  065A
 
 ---------------------------------------------

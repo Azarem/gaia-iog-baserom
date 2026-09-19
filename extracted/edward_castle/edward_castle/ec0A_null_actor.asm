@@ -1,3 +1,8 @@
+; Null placeholder actor in Edward Castle.
+; 
+; Empty actor-def with immediate RTL.
+---------------------------------------------
+
 ---------------------------------------------
 
 ec0A_null_actor [

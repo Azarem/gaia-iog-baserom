@@ -1,3 +1,10 @@
+; Edward Castle soldier who arrests Kara in Will's house.
+; 
+; Cutscene actor: the soldier arrives to take Kara back to the
+; castle. Kara resists. Sets the flag that triggers the kidnapping
+; event.
+---------------------------------------------
+
 !joypadMaskStd                  065A
 
 ---------------------------------------------

@@ -1,3 +1,11 @@
+; Unused debug initialization actor.
+; 
+; Sets player stats (HP=19, STR=32, DEF=33), character form to Shadow,
+; unlocks all abilities ($FF), sets MEMSEL fast ROM, flags the player
+; as dead ($0200), then enters the same sprite viewer loop as
+; unused_debug_input_test.
+---------------------------------------------
+
 !joypadCurrent                  0656
 !joypadHeld                     0658
 !playerActor                    09AA

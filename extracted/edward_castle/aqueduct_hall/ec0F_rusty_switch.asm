@@ -1,3 +1,9 @@
+; Rusty switch in the aqueduct hall that requires force.
+; 
+; Will cannot push it initially. Returns after getting Psycho Dash
+; ability to force it open.
+---------------------------------------------
+
 ?INCLUDE 'spriteset_enemies'
 
 ---------------------------------------------

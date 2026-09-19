@@ -1,3 +1,10 @@
+; Lily in her house -- quest direction NPC.
+; 
+; Multi-state dialog covering: directing Will to the Elder,
+; explaining the Inca Statue location in the cave,
+; and revealing the Moon Tribe's mountain location.
+---------------------------------------------
+
 !gfxCacheIdxB                   064A
 !joypadMaskStd                  065A
 

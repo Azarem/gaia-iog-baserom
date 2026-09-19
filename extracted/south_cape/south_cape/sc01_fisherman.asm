@@ -1,3 +1,10 @@
+; South Cape fisherman NPC with the Lola Melody sidequest.
+; 
+; Multi-state actor: initially fishing (flag $15), then gives the
+; teapot item after catching it. After the castle summons, dialog
+; changes. Returns in the endgame with Lola Melody when flag $15 is set.
+---------------------------------------------
+
 ?INCLUDE 'hidden_red_jewel'
 
 !playerYPos                     09A4

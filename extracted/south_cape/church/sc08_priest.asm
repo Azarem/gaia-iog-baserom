@@ -1,3 +1,10 @@
+; South Cape school teacher (Priest) who gives the opening narration.
+; 
+; Runs the game's opening sequence: Will's monologue about his father,
+; the teacher's lesson, and dismissal. Sets the initial story flags
+; that begin gameplay. The longest dialog sequence in the opening.
+---------------------------------------------
+
 !gfxCacheIdxB                   064A
 !joypadMaskStd                  065A
 

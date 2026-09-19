@@ -1,3 +1,8 @@
+; Unused null actor — single actor-def with immediate RTL.
+; 
+; Empty placeholder actor at $0CF622. No references.
+---------------------------------------------
+
 ---------------------------------------------
 
 unused_null_actor [

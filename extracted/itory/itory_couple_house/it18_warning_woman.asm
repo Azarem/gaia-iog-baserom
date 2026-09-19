@@ -1,3 +1,8 @@
+; NPC in Itory couple's house commenting on the ruins.
+; 
+; Dialog about leaving the ancient tomb alone.
+---------------------------------------------
+
 ---------------------------------------------
 
 it18_warning_woman [

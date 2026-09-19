@@ -1,3 +1,10 @@
+; Will's end-of-day narration in his house.
+; 
+; Displays the dinner scene narration (snail pie feast) and the
+; transition to the next morning. Bridges the Kara meeting day
+; to the kidnapping event.
+---------------------------------------------
+
 !gfxCacheIdxA                   0648
 !gfxCacheIdxB                   064A
 !joypadMaskStd                  065A

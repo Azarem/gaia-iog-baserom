@@ -1,3 +1,10 @@
+; Lily in Itory Village -- guide and tutorial NPC.
+; 
+; Major multi-phase actor: introduces the village, teaches the
+; barrier melody, explains the village's invisible protection,
+; and guides Will to meet the Elder. Key tutorial sequence.
+---------------------------------------------
+
 ?INCLUDE 'InitPlayerScriptVariant'
 ?INCLUDE 'oneshot_palette_flash_18'
 ?INCLUDE 'oneshot_palette_flash_19'

@@ -1,3 +1,9 @@
+; Breakable wall in the Itory cave.
+; 
+; Destructible wall that reveals a passage when attacked.
+; Guards access to the Incan Statue A collectible.
+---------------------------------------------
+
 ?INCLUDE 'enemy_stats_table'
 ?INCLUDE 'SpawnDebrisBurst'
 ?INCLUDE 'spriteset_enemies'

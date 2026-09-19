@@ -1,3 +1,9 @@
+; Kara's barrel-roast food item in the castle escape sequence.
+; 
+; Kara tells Will to check barrels for food. Finding the roast
+; triggers dialog and progresses the escape preparation.
+---------------------------------------------
+
 ?INCLUDE 'f_inventory_full'
 
 !displayModeFlags               09EC

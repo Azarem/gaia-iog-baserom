@@ -1,3 +1,10 @@
+; Lily at the Moon Tribe camp.
+; 
+; Accompanies Will to the Moon Tribe, waits outside during
+; the encounter, and reacts to outcomes. Multi-phase dialog
+; with movement sequences.
+---------------------------------------------
+
 ?INCLUDE 'EscortFollowPathTracker'
 
 !gfxCacheIdxB                   064A

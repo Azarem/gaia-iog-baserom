@@ -1,3 +1,9 @@
+; King Bat boss enemy for the aqueduct hall.
+; 
+; Multi-phase boss with flight patterns, dive attacks, and
+; HP-gated phase transitions.
+---------------------------------------------
+
 !playerYPos                     09A4
 
 ---------------------------------------------

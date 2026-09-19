@@ -1,3 +1,10 @@
+; Animated seagull actor that flies back and forth across South Cape.
+; 
+; Randomly picks a Y height and direction (left or right), then loops
+; a 3-pass flying animation pattern with sprite movement. Purely
+; cosmetic ambient decoration.
+---------------------------------------------
+
 ---------------------------------------------
 
 sc01_seagull [

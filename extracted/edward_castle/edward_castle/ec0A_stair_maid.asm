@@ -1,3 +1,9 @@
+; Stairway maid NPC in Edward Castle.
+; 
+; Two-state dialog: initially warns Will about the King, later
+; asks Will to take care of Kara during the escape.
+---------------------------------------------
+
 ---------------------------------------------
 
 ec0A_stair_maid [

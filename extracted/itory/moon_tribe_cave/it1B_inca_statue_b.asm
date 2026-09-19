@@ -1,3 +1,9 @@
+; Incan Statue B collectible in the Moon Tribe cave.
+; 
+; Key item pickup with inventory-full fallback dialog.
+; Second of the two statues needed for the Incan Ruins.
+---------------------------------------------
+
 !displayModeFlags               09EC
 
 ---------------------------------------------

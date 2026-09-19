@@ -1,3 +1,8 @@
+; Erik's house NPC (neighbor/visitor) with a philosophy dialog.
+; 
+; Comments about how small things make you rich or poor.
+---------------------------------------------
+
 ?INCLUDE 'npc_wander_ai'
 
 !currentHp                      7F0026

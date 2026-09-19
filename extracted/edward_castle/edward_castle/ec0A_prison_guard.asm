@@ -1,3 +1,8 @@
+; Guard blocking the prison entrance in the castle.
+; 
+; Single dialog refusing entry to innocent people.
+---------------------------------------------
+
 ---------------------------------------------
 
 ec0A_prison_guard [

@@ -1,3 +1,9 @@
+; Seth in the coastal cave -- card game and statue puzzle.
+; 
+; Multi-state dialog covering the card game with Lance, reactions
+; to Kara's escape news, and the cave statue puzzle sequence.
+---------------------------------------------
+
 ?INCLUDE 'InitPlayerScriptVariant'
 ?INCLUDE 'interaction_handlers'
 

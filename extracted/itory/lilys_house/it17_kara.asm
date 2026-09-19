@@ -1,3 +1,9 @@
+; Kara in Lily's house.
+; 
+; Multi-state dialog: comments on the village breeze, then
+; insists on joining Will to see the Moon Tribe.
+---------------------------------------------
+
 ---------------------------------------------
 
 it17_kara [

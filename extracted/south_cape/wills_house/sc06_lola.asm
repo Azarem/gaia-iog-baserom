@@ -1,3 +1,10 @@
+; Grandma Lola NPC in Will's house.
+; 
+; Multi-state dialog: initially cooking dinner, later singing
+; opera with Bill, and post-kidnapping states. Key domestic
+; NPC with several story-gated dialog branches.
+---------------------------------------------
+
 ?INCLUDE 'f_inventory_full'
 
 !joypadMaskStd                  065A

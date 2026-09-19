@@ -1,3 +1,9 @@
+; Aqueduct doorway blocker actor.
+; 
+; Physical barrier that blocks passage until a puzzle condition
+; is met.
+---------------------------------------------
+
 ?INCLUDE 'enemy_stats_table'
 ?INCLUDE 'spriteset_enemies'
 

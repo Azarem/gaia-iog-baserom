@@ -1,3 +1,10 @@
+; King Edward -- the throne room audience scene.
+; 
+; Major story cutscene: Edward asks Will about the Crystal Ring,
+; interrogates him, and ultimately sends him to prison. Multi-choice
+; dialog with yes/no prompts. Sets prison story flags.
+---------------------------------------------
+
 !joypadMaskStd                  065A
 
 ---------------------------------------------

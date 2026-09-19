@@ -1,3 +1,9 @@
+; Throne room guard NPCs in Edward Castle.
+; 
+; Multiple guards with dialog about meeting the King. Includes the
+; scene where Will calls Queen Edwina 'Ma'am' and she reacts angrily.
+---------------------------------------------
+
 !gfxCacheIdxA                   0648
 !gfxCacheIdxB                   064A
 !joypadMaskStd                  065A
