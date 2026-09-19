@@ -1,14 +1,18 @@
-; COP handlers for smooth interpolated movement, grid snapping, proximity testing, and RNG (Bank $00, 15 handlers).
+; COP handlers for smooth interpolated movement, grid snapping, proximity testing, and RNG (Bank $00, 9 COP handlers + 10 internal subroutines).
 ; 
 ; BranchIfActorNear/BranchIfPlayerNear test Manhattan distance within a radius operand (operand × 16 + 1 pixels). ResolveActorIndex converts an 8-bit actor list index to a WRAM pointer ($30 × index + $1000).
 ; 
-; MoveToward is a yielding handler that interpolates position from current to target over N frames using hardware multiply/divide. InitSmoothMovement sets up the interpolation state: converts target deltas to absolute distances, computes per-frame velocity via UnsignedDivide, and sets extendedFlags bit 1.
+; MoveToward is a yielding handler that interpolates position from current to target over N frames using hardware multiply/divide. InitSmoothMovement sets up the interpolation state: converts target deltas to absolute distances, computes per-frame velocity via UnsignedDivide, and sets extendedFlags bit 1. MoveTowardFinish clears the smooth-move flag when complete.
+; 
+; The hardware math pipeline uses three chained helpers: MultiplyThenDivide feeds WRMPYB → RDMPYL → WRDIVL → RDDIVL for per-frame velocity, with ReadMultiplyResult (1 NOP) and ReadDivideResult (5 NOPs) providing the required hardware latency delays. MovementVelocityCompute wraps this pipeline for TickMove's per-axis calculations.
 ; 
 ; SnapToGrid yields to func_0AA3A7 until the actor aligns to the 16×16 tile grid. ResumeAfterSnap restores the script pointer from snapResumePtr.
 ; 
-; StageMove/TickMove implement frame-counted movement with sub-pixel precision. StageMove reads direction, speed, and frame delay operands, halving distance when the high byte is non-zero. TickMove advances each frame using hardware multiply/divide for velocity.
+; StageMove/TickMove implement frame-counted movement with sub-pixel precision. StageMove reads direction, speed, and frame delay operands, halving distance via HalveMovementDistance when the high byte is non-zero. TickMove advances each frame; TickMoveComplete handles halving-pass re-entry or final cleanup.
 ; 
 ; RngByte steps a 16-byte Galois LFSR. RngMod applies a modulo to the RNG output.
+; 
+; CameraScrollStepLookup reads scroll speed entries from scrollStepTableBase for the four CameraPan COP handlers in cop_handlers_effects.
 ---------------------------------------------
 
 ?BANK 00
@@ -109,7 +113,7 @@ BranchIfPlayerNear {
 
 MoveToward {
     TYX 
-    LDA $extendedFlags, X ; MoveToward reads extendedFlags before axis step logic
+    LDA $extendedFlags, X ; Check extendedFlags bit 1: skip init if smooth move already active
     BIT #$0002
     BNE loc_008C7C
     JSR $&InitSmoothMovement
@@ -198,8 +202,13 @@ MoveToward {
     RTL 
 }
 
+---------------------------------------------
+; Cleanup exit for MoveToward when the frame counter matches the target tick count.
+; 
+; Clears extendedFlags bit 1 (smooth move active) via AND #$FFFD, skips the two-byte operand by advancing $0A, and yields RTL to resume the calling script. Called via JMP from MoveToward when animScratch2 low byte equals $24.
+
 MoveTowardFinish {
-    LDA $extendedFlags, X ; MoveTowardFinish
+    LDA $extendedFlags, X ; Clear extendedFlags bit 1 (smooth move), skip operands, yield RTL
     AND #$FFFD
     STA $extendedFlags, X
     LDA $0A
@@ -211,11 +220,17 @@ MoveTowardFinish {
     RTL 
 }
 
+---------------------------------------------
+; Hardware multiply latency wrapper. One NOP provides the 8-cycle wait required after writing WRMPYB before the SNES hardware multiplier result is valid, then reads RDMPYL into Y. Called by MultiplyThenDivide.
+
 ReadMultiplyResult {
     NOP 
     LDY $RDMPYL
     RTS 
 }
+
+---------------------------------------------
+; Hardware divide latency wrapper. Five NOPs provide the 16-cycle wait required after writing WRDIVB before the SNES hardware divider result is valid, then reads RDDIVL into A. Called by MultiplyThenDivide.
 
 ReadDivideResult {
     NOP 
@@ -226,6 +241,11 @@ ReadDivideResult {
     LDA $RDDIVL
     RTS 
 }
+
+---------------------------------------------
+; Chained hardware multiply→divide for per-frame interpolation velocity.
+; 
+; Writes the axis distance byte to WRMPYB (starting the multiply), reads the product from RDMPYL into WRDIVL as the dividend, uses animScratch2−1 as the frame-count divisor in WRDIVB, and returns the quotient (pixels per frame) in A via $0000. When the divisor is zero (BEQ), skips the divide to avoid a division-by-zero hang. Called twice per MoveToward tick for X and Y axes.
 
 MultiplyThenDivide {
     STA $WRMPYB           ; STA WRMPYB: start hardware multiply for velocity calc
@@ -241,6 +261,11 @@ MultiplyThenDivide {
     STA $0000
     RTS 
 }
+
+---------------------------------------------
+; Computes interpolation setup for MoveToward on first entry.
+; 
+; Converts moveXAlt/moveYAlt from absolute target coordinates to signed deltas from the current position ($14/$16), takes their absolute values, caps each at $00FE when the high byte is non-zero, and records the sign of each axis in $0004 via ROR. Selects the larger axis as the travel distance, divides by the frame-count operand via UnsignedDivide for per-frame velocity, zeroes animScratch/tick state, and sets extendedFlags bit 1 to mark smooth movement active.
 
 InitSmoothMovement {
     STZ $0004
@@ -468,6 +493,11 @@ StageMove {
     RTI 
 }
 
+---------------------------------------------
+; Iterative distance halver called by StageMove when the pixel distance high byte is non-zero.
+; 
+; Halves both moveXAlt and moveYAlt via LSR, then increments a halving-pass counter in chatPtr. StageMove calls this in a loop until the distance fits in a single byte, enabling the hardware divider to compute per-frame velocity accurately.
+
 HalveMovementDistance {
     LDA $moveXAlt, X
     LSR                   ; Halve remaining X distance each halving iteration
@@ -488,7 +518,7 @@ TickMove {
     TYX 
 
   TickMoveStep:
-    LDA $animScratch2, X  ; TickMoveStep
+    LDA $animScratch2, X  ; Mask direction sign bits (14–15) for frame-count comparison against tick $24
     AND #$3FFF
     CMP $24
     BNE loc_008F1C
@@ -582,8 +612,11 @@ TickMove {
     RTL 
 }
 
+---------------------------------------------
+; End-of-pass handler for TickMove. Checks chatPtr for remaining halving passes: if non-zero, decrements it, zeroes animScratch and tick counter $24, and jumps back to TickMoveStep for another interpolation pass at halved scale. When chatPtr reaches zero, saves the script PC to $00 and yields RTL to resume the calling script.
+
 TickMoveComplete {
-    REP #$20              ; TickMoveComplete
+    REP #$20              ; Halving passes remain in chatPtr: decrement and re-enter at half scale
     LDA $chatPtr, X
     BEQ loc_008FD5
     DEC 
@@ -600,6 +633,11 @@ TickMoveComplete {
     PLA 
     RTL 
 }
+
+---------------------------------------------
+; Per-axis velocity calculator for TickMove.
+; 
+; Writes the axis distance byte to WRMPYB, reads the multiply product from RDMPYL into WRDIVL, divides by animScratch2−1 (frame count) via WRDIVB, waits 5 NOPs for divider latency, then returns the per-frame pixel step in A ($0000). Called twice per TickMove tick: once for Y axis, once for X axis.
 
 MovementVelocityCompute {
     STA $WRMPYB           ; MovementVelocityCompute entry — WRMPYB then RDMPYL→WRDIV
@@ -693,6 +731,9 @@ ResolveActorIndex {
     TAY 
     RTS 
 }
+
+---------------------------------------------
+; Reads the next scroll speed entry from the table at scrollStepTableBase, indexed by scrollStepIndex. Increments the index and doubles it for word access. Returns carry clear with the speed value in A when the entry high byte is non-zero (valid step); returns carry set and resets scrollStepIndex to zero when a zero high-byte terminator is reached. Called by all four CameraPan handlers (Down/Up/Right/Left) to fetch per-frame scroll step values.
 
 CameraScrollStepLookup {
     PHP 

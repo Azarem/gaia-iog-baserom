@@ -1,4 +1,4 @@
-; COP handlers for actor spawning — the full SpawnBefore/After/Abs/Offset/Marked family plus list append (Bank $00, 14 handlers).
+; COP handlers for actor spawning — the full SpawnBefore/After/Abs/Offset/Marked family plus list append (Bank $00, 14 COP handlers).
 ; 
 ; All spawn handlers allocate a new actor slot via AllocateActorBefore or AllocateActorAfter, then read script operands for entry pointer (word + bank byte), optional position offsets or absolute coordinates, and optional status flags ($0010).
 ; 
@@ -264,8 +264,8 @@ SpawnAfterMarked {
     INC $0A
     INC $0A
     STA $0010, Y
-    LDA #$0040            ; TSB #$0040 on $0012: mark spawned actor as child node
-    TSB $12
+    LDA #$0040
+    TSB $12               ; Mark spawned actor as child node ($0040 on spawner flags)
     JSR $&actor_pool.MarkChildActor
     LDA $0A
     STA $02, S

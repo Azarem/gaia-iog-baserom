@@ -1,12 +1,12 @@
-; COP handlers for event/WRAM flag manipulation, inventory, and dungeon kill tracking — plus exported JSL flag helpers (Bank $00, 30 handlers/helpers).
+; Exported JSL flag helper library and core flag routines for the eventFlags ($0A00) and wramFlags ($0A80) bitfields (Bank $00, 7 core routines + 12 JSL offset wrappers + 1 data table).
 ; 
-; SetFlagByte/Word and ClearFlagByte/Word set or clear bits in the eventFlags ($0A00) bitfield. BranchOnFlagByte/Word branch based on flag state. WaitOnFlagByte/Word yield until a flag condition is met.
+; Core routines: SetEventFlag/ClearEventFlag/TestEventFlag decompose a flag index into byte (÷8) and bit (AND $07) indices using the bitmasks_bit_position lookup table, then OR/AND/test the corresponding bit in the eventFlags array at $0A00. SetWramFlag/TestWramFlag perform the same operation on the wramFlags array at $0A80.
 ; 
-; GiveItem calls GiveItemToPlayer; on failure (inventory full) branches to the overflow address. RemoveItem calls RemoveItemFromInventory. BranchIfMissingItem/BranchIfItemEquipped test inventory state. SetDungeonKillFlag sets a WRAM flag indexed by enemyNum for dungeon clear tracking.
+; JSL offset wrappers add base offsets ($0100, $0200, $0300, $0510) before calling the core routines, providing scoped flag access for different game systems: $0100 for boss/dungeon defeat flags, $0200 for persistent world events (chests, Red Jewels), $0300 for scene-scoped state, $0510 for late-game progression. TestFlagRaw/SetFlagRaw/ClearFlagRaw access flags without offset.
 ; 
-; Exported JSL helpers (used by engine code outside COP context): SetEventFlag/ClearEventFlag/TestEventFlag operate on the eventFlags bitfield at various base offsets (_0200, _0300, _0510, _0100). SetWramFlag/TestWramFlag operate on wramFlags ($0A80). ClearAllWramFlags zeroes the entire $20-byte wramFlags region. TestFlagRaw/SetFlagRaw/ClearFlagRaw access flags without base offset.
+; ClearAllWramFlags zero-fills the entire $20-byte wramFlags region. bitmasks_bit_position is a shared 8-byte table mapping indices 0–7 to mask bytes $01–$80.
 ; 
-; bitmasks_bit_position is a shared 8-byte lookup table mapping bit indices 0–7 to mask bytes $01–$80.
+; The COP handlers that call these routines (SetFlagByte/Word, ClearFlagByte/Word, BranchOnFlagByte/Word, WaitOnFlagByte/Word, GiveItem, RemoveItem, BranchIfMissingItem, BranchIfItemEquipped, SetDungeonKillFlag) are in cop_handlers_flow.
 ---------------------------------------------
 
 ?BANK 00
@@ -27,6 +27,9 @@ TestWramFlag_Offset100 {
     RTL 
 }
 
+---------------------------------------------
+; JSL helper that sets a WRAM flag at base $0100. Masks the index to 3 bits, adds $0100, and calls SetWramFlag. Pairs with TestWramFlag_Offset100 for boss/dungeon defeat flags.
+
 SetWramFlag_Offset100 {
     AND #$0007
     CLC 
@@ -34,6 +37,9 @@ SetWramFlag_Offset100 {
     JSR $&SetWramFlag
     RTL 
 }
+
+---------------------------------------------
+; Core JSR routine that sets one bit in the wramFlags ($0A80) bitfield. Decomposes the flag index: byte = index÷8 (LSR×3), bit = index AND $07, then ORs the corresponding bitmasks_bit_position entry into the wramFlags byte. Called by SetDungeonKillFlag and all SetWramFlag JSL wrappers.
 
 SetWramFlag {
     PHX 
@@ -54,6 +60,9 @@ SetWramFlag {
     PLX 
     RTS 
 }
+
+---------------------------------------------
+; Core JSR routine that tests one bit in the wramFlags ($0A80) bitfield. Uses the same byte/bit decomposition as SetWramFlag, ANDs the bit mask against the wramFlags byte, and returns carry set if the flag is set, carry clear otherwise.
 
 TestWramFlag {
     PHX 
@@ -79,6 +88,9 @@ TestWramFlag {
     RTS 
 }
 
+---------------------------------------------
+; Core JSR routine that sets one bit in the eventFlags ($0A00) bitfield. Decomposes the flag index into byte (÷8) and bit (AND $07) indices, ORs the bitmasks_bit_position entry into the eventFlags byte. Called by all SetFlag COP handlers and JSL offset wrappers.
+
 SetEventFlag {
     PHX 
     STA $0000
@@ -98,6 +110,9 @@ SetEventFlag {
     PLX 
     RTS 
 }
+
+---------------------------------------------
+; Core JSR routine that clears one bit in the eventFlags ($0A00) bitfield. Loads the bitmasks_bit_position entry, inverts it via EOR #$FF to create a clear mask, then ANDs against the eventFlags byte. Called by ClearFlag COP handlers and JSL wrappers.
 
 ClearEventFlag {
     PHX 
@@ -120,10 +135,13 @@ ClearEventFlag {
     RTS 
 }
 
+---------------------------------------------
+; Core JSR routine that tests one bit in the eventFlags ($0A00) bitfield. ANDs the bitmasks_bit_position entry against the eventFlags byte, then uses SEC/BNE/CLC to return carry set if the bit is set, carry clear if clear. Called by BranchOnFlag, WaitOnFlag COP handlers and all TestFlag JSL wrappers.
+
 TestEventFlag {
     PHX 
     STA $0000
-    LSR                   ; SEC after AND: TestEventFlag returns carry = bit set
+    LSR 
     LSR 
     LSR 
     TAY 
@@ -134,7 +152,7 @@ TestEventFlag {
     TAX 
     LDA $@bitmasks_bit_position, X
     AND $eventFlags, Y
-    SEC 
+    SEC                   ; Presume flag set; CLC below clears carry if AND was zero
     BNE loc_00B119
     CLC 
 
@@ -143,6 +161,9 @@ TestEventFlag {
     PLX 
     RTS 
 }
+
+---------------------------------------------
+; Shared 8-byte lookup table mapping bit indices 0–7 to single-bit mask bytes: $01, $02, $04, $08, $10, $20, $40, $80. Used by all Set/Clear/Test flag routines for bit-level access to the eventFlags and wramFlags arrays.
 
 bitmasks_bit_position [
   #01   ;00
@@ -165,6 +186,9 @@ SetEventFlag_0200 {
     RTL 
 }
 
+---------------------------------------------
+; JSL helper that tests an event flag at base $0200 (persistent world events). Masks to byte, adds $0200, and calls TestEventFlag. Returns carry set if set.
+
 TestEventFlag_0200 {
     REP #$20
     AND #$00FF
@@ -174,6 +198,9 @@ TestEventFlag_0200 {
     RTL 
 }
 
+---------------------------------------------
+; JSL helper that tests an event flag at base $0300 (scene-scoped flags). Masks to byte, adds $0300, and calls TestEventFlag.
+
 TestFlag_0300 {
     AND #$00FF
     CLC 
@@ -181,6 +208,9 @@ TestFlag_0300 {
     JSR $&TestEventFlag
     RTL 
 }
+
+---------------------------------------------
+; JSL helper that sets an event flag at base $0300 (scene-scoped flags). Masks to byte, adds $0300, and calls SetEventFlag.
 
 SetFlag_0300 {
     AND #$00FF
@@ -190,6 +220,9 @@ SetFlag_0300 {
     RTL 
 }
 
+---------------------------------------------
+; JSL helper that tests an event flag at base $0510 (late-game progression). Masks to byte, adds $0510, and calls TestEventFlag.
+
 TestFlag_0510 {
     AND #$00FF
     CLC 
@@ -198,11 +231,17 @@ TestFlag_0510 {
     RTL 
 }
 
+---------------------------------------------
+; JSL helper that tests an event flag without adding a base offset. Masks to byte and calls TestEventFlag directly.
+
 TestFlagRaw {
     AND #$00FF
     JSR $&TestEventFlag
     RTL 
 }
+
+---------------------------------------------
+; JSL helper that sets an event flag without adding a base offset. Masks to byte and calls SetEventFlag directly.
 
 SetFlagRaw {
     AND #$00FF
@@ -210,11 +249,17 @@ SetFlagRaw {
     RTL 
 }
 
+---------------------------------------------
+; JSL helper that clears an event flag without adding a base offset. Masks to byte and calls ClearEventFlag directly.
+
 ClearFlagRaw {
     AND #$00FF
     JSR $&ClearEventFlag
     RTL 
 }
+
+---------------------------------------------
+; JSL helper that zero-fills the entire $20-byte wramFlags region at $0A80. Uses a word-wide STA loop (16 iterations × 2 bytes = 32 bytes). Called on scene transitions to reset all temporary WRAM flags.
 
 ClearAllWramFlags {
     PHX 
@@ -222,7 +267,7 @@ ClearAllWramFlags {
     LDA #$0000
 
   loc_00B4D3:
-    STA $L_wramFlags, X
+    STA $L_wramFlags, X   ; Zero $20 bytes (16 words) of wramFlags at $0A80 via word-wide STA loop
     INX 
     INX 
     CPX #$0020
@@ -230,6 +275,9 @@ ClearAllWramFlags {
     PLX 
     RTL 
 }
+
+---------------------------------------------
+; JSL helper that sets an event flag at base $0100 (boss/dungeon defeat flags). Masks to byte, adds $0100, and calls SetEventFlag.
 
 SetFlag_0100 {
     AND #$00FF
@@ -239,6 +287,9 @@ SetFlag_0100 {
     RTL 
 }
 
+---------------------------------------------
+; JSL helper that clears an event flag at base $0100. Masks to byte, adds $0100, and calls ClearEventFlag.
+
 ClearFlag_0100 {
     AND #$00FF
     CLC 
@@ -246,6 +297,9 @@ ClearFlag_0100 {
     JSR $&ClearEventFlag
     RTL 
 }
+
+---------------------------------------------
+; JSL helper that tests an event flag at base $0100. Masks to byte, adds $0100, and calls TestEventFlag.
 
 TestFlag_0100 {
     AND #$00FF

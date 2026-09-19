@@ -1,4 +1,4 @@
-; COP handlers for player-specific sprite staging, body-form switching, and wall-collision animation (Bank $00, 14 handlers).
+; COP handlers for player-specific sprite staging, body-form switching, and wall-collision animation (Bank $00, 11 COP handlers).
 ; 
 ; SetPlayerSpriteDirect writes a body sprite index directly to spriteset/bank fields and sets playerFlags bit $8000. StagePlayerSpr and its axis variants (X/Y/XY) call SetActorBody to apply the current characterForm's body_table entry before staging. RunPlayerAnim runs a single animation pass via UpdateActorAnimation.
 ; 
@@ -24,14 +24,14 @@
 
 ---------------------------------------------
 
-; COP #8E with one byte operand (body index). Multiplies the index by three to look up body_table, writes spritesetPtr and bank byte ($7F0008), caches the index in animScratch2, and sets playerFlags bit $8000.
+; COP #8E with one byte operand (body index). Multiplies the index by six to index 6-byte body_table entries, writes spritesetPtr and bank byte ($7F0008), caches the index in animScratch2, and sets playerFlags bit $8000.
 
 SetPlayerSpriteDirect {
     TYX 
     SEP #$20
     LDA [$0A]
     STA $0AC8
-    ASL 
+    ASL                   ; Index ×6: ASL (×2) + ADC self (×3) + ASL (×6) for 6-byte body_table entries
     CLC 
     ADC [$0A]
     ASL 
@@ -236,18 +236,18 @@ WallAnimHere {
     CMP $joypadCurrent
     BNE loc_00A1A4
     LDA $16
-    BIT #$000F
+    BIT #$000F            ; Grid-aligned test: low nibble of Y must be zero (16px tile boundary)
     BNE loc_00A19E
     STA $001C
     LDA $14
     STA $0018
     JSR $&cop_handlers_solid.TileCollisionQuery
     AND #$00FF
-    BIT #$00F0
+    BIT #$00F0            ; Solid nibble ($F0): any set bit means blocked tile → set wall contact flag
     BNE loc_00A1A9
     CMP #$000F
     BEQ loc_00A1A9
-    CMP $playerWallType
+    CMP $playerWallType   ; Tile collision type must match playerWallType for animation to advance
     BNE loc_00A1A4
 
   loc_00A19E:

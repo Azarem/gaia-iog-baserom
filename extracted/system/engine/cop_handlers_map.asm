@@ -1,4 +1,4 @@
-; COP handlers for metatile painting, world-map streaming, VRAM DMA, decompression, and occlusion queries (Bank $00, 12 handlers).
+; COP handlers for metatile painting, world-map streaming, VRAM DMA, decompression, and occlusion queries (Bank $00, 12 COP handlers + 3 internal subroutines).
 ; 
 ; DrawMetatileAbs/Here write a metatile ID to mapLayerTilemap and collisionLayer, queue BG VRAM tile writes when on-screen. WorldMapStream3/4 parse sequential map-entry records (3 or 4 bytes) to stream tile changes with optional SFX.
 ; 
@@ -6,7 +6,7 @@
 ; 
 ; BranchIfBehindWall tests tile-layer occlusion via CalcTileMapOffset. BranchIfCollisionTypeNe branches when the tile type nibble differs from an operand. BranchIfOffCamera compares actor position against camera bounds. HaltIfMaxFrames yields when the frame counter exceeds a threshold.
 ; 
-; Internal: ParseMapEntry decodes tile X/Y/ID from a byte stream. ResolveTileData converts tile coordinates to map index and writes metatile/collision bytes. TileQueryGate prevents concurrent tile queries.
+; Internal: ParseMapEntry decodes tile X/Y/ID from a 3-byte stream record; returns carry set on end sentinel. ResolveTileData converts tile coordinates to a map-layer index, writes metatile and collision bytes, and queues VRAM tile updates when the tile is on-screen. TileQueryGate prevents concurrent tile queries by yielding RTL when tileQueryResult is non-zero.
 ---------------------------------------------
 
 ?BANK 00
@@ -207,7 +207,7 @@ WorldMapStream4 {
 
   loc_00977D:
     LDA $extendedFlags, X
-    BIT #$0002            ; BIT #$0002: first WorldMapStream3 call caches script ptr in $24
+    BIT #$0002            ; First call caches script stream pointer in $24 and sets extendedFlags bit 1
     BNE loc_009791
     ORA #$0002
     STA $extendedFlags, X
@@ -269,6 +269,11 @@ WorldMapStream4 {
     RTI 
 }
 
+---------------------------------------------
+; Decodes a 3-byte stream record at address X into tile coordinates and metatile ID.
+; 
+; Zeroes direct page, reads 3 bytes from the stream: byte 0 = tile X, byte 1 = tile Y, byte 2 = metatile ID. If byte 0 has bit 7 set, returns carry set (end-of-stream sentinel). Otherwise sign-extends tile coords, computes pixel positions (×16) in DP $1A/$1E, stores tile coords in DP $18/$1C and metatile ID in DP $00, and returns carry clear. Called by WorldMapStream3/4 for sequential tile painting.
+
 ParseMapEntry {
     LDA #$0000
     TCD 
@@ -306,14 +311,19 @@ ParseMapEntry {
     RTS 
 }
 
+---------------------------------------------
+; Converts parsed tile coordinates to a map-layer index and writes metatile and collision data.
+; 
+; Calls TileCoordsToMapIndex (DP $18/$1C → linear index in X), reads the collision byte from animScratch[index], writes the metatile ID to mapLayerTilemap[index] and collision byte to collisionLayer[index]. Then checks if the tile is on-screen by comparing pixel X against BG1 scroll and pixel Y against BG2 scroll. When visible, expands the metatile into four 16×16 VRAM tile words from metatileMapLayer, stages them in the tile-update queue ($0904–$090C), and computes the VRAM address pair via PixelToVramAddress. Called by DrawMetatileAbs/Here and WorldMapStream3/4.
+
 ResolveTileData {
-    LDX #$0000
+    LDX #$0000            ; Convert tile coords (DP $18/$1C) to linear map index via TileCoordsToMapIndex
     JSL $@map_coords.TileCoordsToMapIndex
     LDA $00
     PHX 
     TAX 
     SEP #$20
-    LDA $animScratch, X
+    LDA $animScratch, X   ; Look up collision byte from animScratch; write metatile+collision to map layers
     STA $02
     TXA 
     PLX 
@@ -323,7 +333,7 @@ ResolveTileData {
     REP #$20
     LDA $1A
     CLC 
-    ADC #$0010
+    ADC #$0010            ; Check if tile is on-screen: pixel X vs BG1 scroll, pixel Y vs BG2 scroll
     SEC 
     SBC $bg1ScrollH
     CMP #$0111
@@ -340,7 +350,7 @@ ResolveTileData {
     CMP #$00F1
     BCS loc_0098A7
     PLA 
-    LDA $mapLayerTilemap, X
+    LDA $mapLayerTilemap, X ; Expand metatile into 4 VRAM tile words (2×2) and queue for BG tile update
     AND #$00FF
     ASL 
     ASL 
@@ -354,7 +364,7 @@ ResolveTileData {
     STA $090A
     LDA $7E2006, X
     STA $090C
-    JSL $@map_coords.PixelToVramAddress
+    JSL $@map_coords.PixelToVramAddress ; Compute VRAM address from pixel position; +$0020 for bottom tile row
     STA $tileQueryResult
     CLC 
     ADC #$0020
@@ -367,6 +377,9 @@ ResolveTileData {
   loc_0098A8:
     RTS 
 }
+
+---------------------------------------------
+; Concurrency guard for tile mutation handlers. Returns carry clear (proceed) when tileQueryResult ($0902) is zero, indicating no pending tile update. Returns carry set (busy) when a previous tile update is still queued — rewinds the script PC by 2 bytes so the COP handler yields RTL and re-enters on the next frame. Called at the top of DrawMetatileAbs/Here and WorldMapStream3/4.
 
 TileQueryGate {
     CLC 
@@ -388,7 +401,7 @@ TileQueryGate {
 
 AdhocVramDma {
     TYX 
-    LDA $extendedFlags, X ; BIT #$0001 extendedFlags: defer VRAM DMA until staging ready
+    LDA $extendedFlags, X ; Defer DMA staging until extendedFlags bit 0 is clear
     BIT #$0001
     BNE loc_00990E
     LDA $7F0C07
@@ -423,7 +436,7 @@ AdhocVramDma {
     INC $0A
     STA $7F0C09
     LDA $extendedFlags, X
-    ORA #$0001            ; ORA #$0001: flag adhoc VRAM DMA pending on extendedFlags
+    ORA #$0001            ; Flag adhoc VRAM DMA pending on extendedFlags bit 0
     STA $extendedFlags, X
     PLA 
     PLA 
@@ -556,7 +569,7 @@ SetScratchPointer {
 
 BranchIfBehindWall {
     TYX 
-    LDA $14
+    LDA $14               ; Convert actor pixel position to tile coordinates (÷16) for collision lookup
     LSR 
     LSR 
     LSR 
@@ -572,7 +585,7 @@ BranchIfBehindWall {
     LDA #$0000
     TCD 
     JSL $@tile_collision_physics.CalcTileMapOffset
-    CPY #$4000
+    CPY #$4000            ; Out of bounds (Y ≥ $4000) → treat as occluded; flag $0010 selects layer-aware mode
     BCS loc_009B37
     LDA $000F, X
     AND #$0010
@@ -583,7 +596,7 @@ BranchIfBehindWall {
     BRA loc_009B2D
 
   loc_009B1C:
-    LDA [$80], Y
+    LDA [$80], Y          ; Standard mode: solid nibble ($F0) → occluded; type $0E = passthrough → visible
     BIT #$00F0
     BNE loc_009B37
     AND #$000F

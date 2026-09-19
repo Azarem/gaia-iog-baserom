@@ -1,10 +1,10 @@
-; COP handlers for input polling, button-wait loops, world-map staging, and BG3/dialogue UI (Bank $00, 11 handlers).
+; COP handlers for input polling, button-wait loops, world-map staging, dialogue rendering, and BG3 UI (Bank $00, 11 handlers).
 ; 
-; WaitForButton/WaitForRelease yield via RTL until a button mask matches joypadCurrent or joypadRaw. BranchIfPressed/BranchIfNotPressed branch based on current button state. WaitByte/WaitWord set a frame delay and yield.
+; WaitForButton/WaitForRelease yield via RTL until a button mask matches joypadCurrent or joypadRaw. BranchIfPressed/BranchIfNotPressed branch based on current button state.
 ; 
 ; StageWorldMapMove/Choice/MoveIds write destination coordinates, scene IDs, and companion bytes into WRAM staging fields ($0D52–$0D5E) for the world-map transition system.
 ; 
-; RunBg3Script switches data bank and calls ConsoleStringRenderer for BG3 overlay text, then sets displayModeFlags bit 0. DialogueOptions sets dialogue mode ($2000), masks inventory input, and calls MenuSelectionHandler for branching choices.
+; RunBg3Script switches data bank and calls ConsoleStringRenderer for BG3 overlay text, then sets displayModeFlags bit 0. DialogueOptions sets dialogue mode ($2000), masks inventory input, and calls MenuSelectionHandler for branching choices. PrintDialogString/PrintDialogStringAlt render dialogue text via DialogStringRenderer with status bar hiding and joypad cleanup; the Alt variant omits dialogue-mode setup and UpdateFrameRender.
 ---------------------------------------------
 
 ?BANK 00
@@ -231,7 +231,7 @@ StageWorldMapMoveIds {
 RunBg3Script {
     PHY 
     PHB 
-    LDA [$0A]
+    LDA [$0A]             ; Read Address operand: 2-byte text pointer into Y, 1-byte bank
     INC $0A
     INC $0A
     TAY 
@@ -242,15 +242,15 @@ RunBg3Script {
     PHA 
     PLB 
     REP #$20
-    LDA #$0000
+    LDA #$0000            ; Zero direct page for ConsoleStringRenderer workspace
     TCD 
     JSL $@ConsoleStringRenderer
     PLB 
-    PLA 
+    PLA                   ; Restore caller data bank, actor ID (X), and direct page from stack
     TAX 
     TCD 
     LDA #$0001
-    TSB $displayModeFlags ; TSB displayModeFlags bit 0: enable BG3 console overlay
+    TSB $displayModeFlags ; Bit 0: mark BG3 console overlay active for HUD rendering
     LDA $0A
     STA $02, S
     RTI 
@@ -261,7 +261,7 @@ RunBg3Script {
 
 DialogueOptions {
     TYX 
-    LDA $worldReadyFlag
+    LDA $worldReadyFlag   ; Require worldReadyFlag $000F; yield RTL until all subsystems ready
     CMP #$000F
     BEQ loc_00A8A6
     LDA $0A
@@ -274,9 +274,9 @@ DialogueOptions {
 
   loc_00A8A6:
     LDA #$2000
-    TSB $displayModeFlags ; TSB #$2000: dialogue mode — suppress normal HUD updates
+    TSB $displayModeFlags
     LDA #$0F00
-    STA $joypadMaskInv
+    STA $joypadMaskInv    ; Mask inventory input ($0F00) during menu navigation
     PHB 
     SEP #$20
     LDA $0C
@@ -284,7 +284,7 @@ DialogueOptions {
     PLB 
     REP #$20
     LDA $joypadMaskStd
-    STZ $joypadMaskStd
+    STZ $joypadMaskStd    ; Save and clear standard joypad mask — menu controls its own input
     PHA 
     LDA $10
     AND #$0800
@@ -294,14 +294,14 @@ DialogueOptions {
     LDA [$0A]
     INC $0A
     INC $0A
-    JSL $@MenuSelectionHandler
+    JSL $@MenuSelectionHandler ; Returns chosen option index in A; ASL doubles for word table
     ASL 
     PHA 
     LDA [$0A]
     INC $0A
     INC $0A
     CLC 
-    ADC $01, S
+    ADC $01, S            ; Branch table base + (choice × 2) → target script address
     TAY 
     PLA 
     PLA 
@@ -311,7 +311,7 @@ DialogueOptions {
     STZ $joypadMaskInv
     LDA #$2000
     TRB $displayModeFlags
-    LDA $0000, Y
+    LDA $0000, Y          ; Read branch target from table entry and RTI to chosen dialogue path
     PLB 
     STA $02, S
     RTI 
@@ -322,10 +322,10 @@ DialogueOptions {
 
 PrintDialogString {
     TYX 
-    LDA #$2000
+    LDA #$2000            ; Set dialogue mode ($2000) — suppress HUD updates during text
     TSB $displayModeFlags
     LDA $0A
-    PHA 
+    PHA                   ; Save script state — UpdateFrameRender clobbers direct page
     SEP #$20
     LDA $0C
     PHA 
@@ -339,9 +339,9 @@ PrintDialogString {
     AND #$0800
     PHA 
     LDA #$0800
-    TRB $10               ; TRB #$0800 on $0010: hide status bar during text box
+    TRB $10               ; Hide status bar ($0800) during text rendering
     LDA $joypadMaskStd
-    STZ $joypadMaskStd
+    STZ $joypadMaskStd    ; Block standard joypad input during text rendering
     PHA 
     PHB 
     SEP #$20
@@ -349,7 +349,7 @@ PrintDialogString {
     PHA 
     PLB 
     REP #$20
-    LDA [$0A]
+    LDA [$0A]             ; Read text pointer operand; switch DBR to script bank for string data
     INC $0A
     INC $0A
     TAY 
@@ -357,9 +357,9 @@ PrintDialogString {
     PLB 
     PLA 
     STA $joypadMaskStd
-    TRB $joypadCurrent    ; TRB joypadCurrent $0F00: clear directional input after text
+    TRB $joypadCurrent    ; Clear directional inputs ($0F00) so D-pad state doesn't leak into gameplay
     LDA #$0F00
-    TRB $joypadHeld
+    TRB $joypadHeld       ; Also clear held D-pad state in joypadHeld
     LDA #$2000
     TRB $displayModeFlags
     PLA 

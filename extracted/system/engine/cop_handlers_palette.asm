@@ -1,10 +1,10 @@
-; COP handlers for background event-block transitions, palette animation, and thinker lifecycle (Bank $00, 14 handlers).
+; COP handlers for background event-block transitions, palette animation, and thinker lifecycle (Bank $00, 11 COP handlers).
 ; 
 ; StageBgChange queues a BG tilemap/palette swap via event_blocks.LookupEventBlock without applying it. ApplyBgChange performs the animated transition loop calling AnimateEventBlock and UpdateFrameDialogue. StageBgChangeFromDeathIdx uses the actor's deathActionIdx as the event-block index.
 ; 
 ; PaletteRestart/Start/StartLoop initialize palette animation sequences from bundle IDs. PaletteStep/StepLoop advance palette frames, with loop variants supporting repeat counts via retPtr1.
 ; 
-; SpawnThinkerParam/SpawnThinker allocate special thinker actors via AllocateSpecialActor and set entry pointers from script operands. KillThinker removes a thinker from the linked list and returns its slot.
+; SpawnThinkerParam/SpawnThinker allocate special thinker actors via AllocateSpecialActor and set entry pointers from script operands. KillThinker unlinks the thinker from the doubly-linked list ($005A/$005C) and returns the slot to the actor free stack.
 ---------------------------------------------
 
 ?BANK 00
@@ -267,11 +267,11 @@ KillThinker {
     LDA #$0000
     TCD 
     SEP #$20
-    DEC $0052
+    DEC $0052             ; Pre-decrement free-stack pointer by 2 (two 8-bit DECs for word slot)
     DEC $0052
     REP #$20
     TXA 
-    STA [$52]
+    STA [$52]             ; Write freed actor slot address to top of free stack via indirect [$52]
     PLD 
     LDA $0A
     STA $02, S

@@ -1,4 +1,4 @@
-; COP handlers for generic sprite staging, animation control, and metasprite assignment (Bank $00, 18 handlers).
+; COP handlers for generic sprite staging, animation control, and metasprite assignment (Bank $00, 16 COP handlers + 1 internal routine).
 ; 
 ; ResetSpriteState initializes animation index ($28), frame counter ($2A), and spriteset pointer ($24). AdvanceSpriteAnim steps through animation frames using the spriteset table.
 ; 
@@ -311,6 +311,9 @@ StageSprLoopXY {
     STA $02, S
     RTI 
 }
+
+---------------------------------------------
+; Internal JSR helper shared by all StageSpr variants. Clears frame counter $2A, then interprets the animation index byte: $FF leaves $28 unchanged (no-op), bit $80 set masks to the low 7 bits and conditionally sets horizontal flip ($4000 on $0E) based on actor flag $0002, and all other values store directly to $28 while clearing the flip bit. Returns via RTS.
 
 ProcessAnimFlag {
     STZ $2A

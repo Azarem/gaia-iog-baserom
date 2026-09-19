@@ -1,4 +1,4 @@
-; COP handlers for direction computation, position branching, map transitions, and camera scroll (Bank $00, 15 handlers).
+; COP handlers for direction computation, position branching, and map transitions (Bank $00, 14 COP handlers + 1 internal stub).
 ; 
 ; SetTilePos converts byte tile coordinates to pixel positions ($14/$16). QueueMapChange writes scene/position/flag data for map transitions with optional save-restore.
 ; 
@@ -6,7 +6,7 @@
 ; 
 ; DirToPlayer/CardinalToPlayer/DirToPlayerFrom compute direction indices (0–7 or 0–3) from the actor to the player. BranchIfDirToPlayer/From branch on computed direction. BranchOnPlayerFacing dispatches on the player's 4-way facing direction.
 ; 
-; Internal: CameraScrollStepLookup reads scroll speed entries from scrollStepTableBase for camera pan handlers.
+; Internal: code_009230 is the return epilogue for CardinalToPlayer's RTS-trick dispatch.
 ---------------------------------------------
 
 ?BANK 00
@@ -74,14 +74,14 @@ QueueMapChange {
     INC $0A
     STA $0652
     LDA $0650
-    BIT #$0080            ; BIT #$0080 on scene flags: bit 7 triggers save-restore path
+    BIT #$0080            ; Scene flags bit 7 triggers save-restore path
     BNE loc_0090AF
     LDA $0A
     STA $02, S
     RTI 
 
   loc_0090AF:
-    AND #$FF7F            ; AND #$FF7F: clear save-game flag after capturing script PC
+    AND #$FF7F            ; Clear save-game flag after capturing script PC
     STA $0650
     LDA $0A
     SEC 
@@ -102,7 +102,7 @@ QueueMapChange {
 WaitWhileOffscreen {
     TYX 
     LDA $10
-    BIT #$4000            ; BIT #$4000 on $0010: actor off-screen → yield with timer
+    BIT #$4000            ; Actor off-screen ($4000 on status) → yield with timer
     BEQ loc_0090E8
     LDA $0A
     DEC 

@@ -1,4 +1,4 @@
-; COP handlers for SPC700 audio communication and music playback (Bank $00, 8 handlers).
+; COP handlers for SPC700 audio communication and music playback (Bank $00, 8 COP handlers).
 ; 
 ; StartMusic allocates a thinker actor via AllocateActorAfter and sets its entry to SpcTransferMusicData for asynchronous SPC handshake. FadeThenStartMusic uses SpcCheckMusicReady for fade-before-play. PlaySoundCh1/Ch2/Both queue sound effects to APU channels via sfxQueueCh1/Ch2. WriteApuIo0/1 write directly to SPC I/O ports $2140/$2141.
 ; 
@@ -35,10 +35,10 @@ StartMusic {
     LDA #$*hdma_dma_spc.SpcTransferMusicData
     STA $0002, X
     LDA $0012, X
-    ORA #$1000            ; ORA #$1000: thinker flag — SPC music transfer in progress
+    ORA #$1000            ; Thinker flag — SPC music transfer in progress
     STA $0012, X
     LDA $0010, X
-    AND #$EFFF            ; AND #$EFFF: suppress actor render until music thinker ready
+    AND #$EFFF            ; Suppress actor render until music thinker ready
     STA $0010, X
     LDA [$0A]
     INC $0A
@@ -118,7 +118,7 @@ PlaySoundBoth {
     LDA [$0A]
     INC $0A
     INC $0A
-    STA $sfxQueueCh1      ; PlaySoundBoth: write second SFX byte without reading operand
+    STA $sfxQueueCh1      ; Word write fills both sfxQueueCh1 and sfxQueueCh2 in one store
     LDA $0A
     STA $02, S
     RTI 
@@ -215,7 +215,7 @@ MusicAndText {
     INC $0A
     TAY 
     LDA $joypadMaskStd
-    STZ $joypadMaskStd    ; STZ joypadMaskStd: block player input during dialogue render
+    STZ $joypadMaskStd    ; Block player input during dialogue render
     PHA 
     LDA [$0A]
     INC $0A               ; DialogStringRenderer with temporary data bank from script

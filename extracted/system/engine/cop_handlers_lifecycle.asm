@@ -1,12 +1,12 @@
-; COP handlers for actor death, removal, callbacks, position queries, movement staging, OAM attributes, and extended flags (Bank $00, 25 handlers).
+; COP handlers for actor death, removal, callbacks, position queries, movement staging, OAM attributes, and extended flags (Bank $00, 37 COP handlers + 2 internal routines).
 ; 
 ; Callback setters: SetDeathCallback, SetHitCallback, SetDodgeCallback, SetCollideCallback, SetCustomCallback write script pointers into WRAM callback fields ($7F1000–$7F1016). OrExtraFlags/AndExtraFlags modify the extendedFlags word ($7F002A).
 ; 
 ; SetLinkedEntryPtr writes a far script pointer into the linked actor's entry fields. BranchIfPlayerInRelTiles/AbsTiles test whether the player falls inside a tile rectangle. CopyPosToPrev/Next copy position to adjacent list actors. GetPlayerFacing loads player direction. BranchIfBodyNe branches on characterForm.
 ; 
-; MarkDeath/Die handle actor death — Die with child flag $0040 routes through DieNow_UnlinkChildren to cascade-remove children by parentId. KillPrev/KillNext remove adjacent actors.
+; MarkDeath/Die handle actor death — Die with child flag $0040 routes through DieNow_UnlinkChildren to cascade-remove children by parentId, then patches the doubly-linked list. MarkDeathResumeHandler restores actor context after MarkDeath's PEA/RTS dispatch. KillPrev/KillNext remove adjacent actors.
 ; 
-; StageMoveX/Y/XY set movement deltas via AnimFrameLookup. ForceDirSW/NE/Both set direction bits on $0012. ApplyMoveToChild propagates move to the child actor. SetPriorityMax/Min and SetOamPriority/Palette control draw priority and OAM attributes. Mirror toggles (ToggleHMirror/VMirror, ClearHMirror, SetHMirror) flip sprites. NudgePosition applies signed pixel offsets.
+; StageMoveX/Y/XY set movement deltas via AnimFrameLookup. ForceDirSW/NE/Both set direction bits on $0012. ApplyMoveToChild propagates move to the child actor. ReloadMoveDurations refreshes frame durations without changing indices. SetPriorityMax/Min/ClearPriorityMax/Min control draw priority bits. SetOamPriority/Palette write OAM attribute fields. Mirror toggles (ToggleHMirror/VMirror, ClearHMirror, SetHMirror) flip sprites. NudgePosition applies signed pixel offsets.
 ---------------------------------------------
 
 ?BANK 00
@@ -34,7 +34,7 @@ BranchIfPlayerInRelTiles {
     PHY 
     LDX $playerActor
     LDY #$0000
-    LDA [$0A]
+    LDA [$0A]             ; Four signed byte tile offsets define a pixel rectangle relative to actor
     INY 
     AND #$00FF
     BIT #$0080
@@ -42,7 +42,7 @@ BranchIfPlayerInRelTiles {
     ORA #$FF00
 
   loc_009580:
-    ASL 
+    ASL                   ; Tile→pixel (×16); test player.X ≥ actor.X + minX offset (BCS = outside)
     ASL 
     ASL 
     ASL 
@@ -74,7 +74,7 @@ BranchIfPlayerInRelTiles {
     ORA #$FF00
 
   loc_0095B4:
-    ASL 
+    ASL                   ; Upper bounds: test player.X ≤ maxX and player.Y ≤ maxY (BCC = outside)
     ASL 
     ASL 
     ASL 
@@ -364,7 +364,7 @@ MarkDeath {
     TYX 
     PHD 
     LDA $12
-    BIT #$0040            ; BIT #$0040 on $0012: Die skips unlink if child-marked
+    BIT #$0040            ; Child flag $0040: route through DieNow_UnlinkChildren to cascade-remove children
     BEQ loc_00A5EC
     PEA $&MarkDeathResumeHandler-1
     BRA loc_00A60E
@@ -373,8 +373,13 @@ MarkDeath {
     JSR $&actor_pool.UnlinkActor
 }
 
+---------------------------------------------
+; PEA/RTS return target reached from MarkDeath when the dying actor has child flag $0040 set.
+; 
+; Restores the actor's direct page (TCD) and index register (TAX) from the stack after the child-unlinking code in loc_00A60E completes, then RTIs to resume the calling script. Separated from MarkDeath because the child-unlinking path is shared with Die via BRA loc_00A60E.
+
 MarkDeathResumeHandler {
-    PLA                   ; MarkDeathResumeHandler
+    PLA                   ; Restore actor direct page and index after child-unlinking completes
     TAX 
     TCD 
     LDA $0A
@@ -398,6 +403,11 @@ Die {
     JSR $&actor_pool.UnlinkActor
 }
 
+---------------------------------------------
+; Cascade child-actor removal for Die/MarkDeath when actor flag $0040 is set.
+; 
+; The entry point (PLA/TAX/TCD/PLA/PLA/RTL) is the normal non-child Die exit. The shared child-removal code at loc_00A60E walks the doubly-linked actor list both backward ($04 pointers) and forward ($06 pointers) from the dying actor, collecting contiguous runs of actors whose parentId matches the dying actor. It then returns all collected child slots via ReturnActorSlot and patches the list pointers with three cases: head-removed (new head = forward boundary), tail-removed (new tail = backward boundary), or mid-list splice (link boundaries to each other).
+
 DieNow_UnlinkChildren {
     PLA 
     TAX 
@@ -407,7 +417,7 @@ DieNow_UnlinkChildren {
     RTL 
 
   loc_00A60E:
-    STX $0000
+    STX $0000             ; Save dying actor pointer; walk backward ($04) to find first non-child
     LDA $0004, X
     TAX 
     BEQ loc_00A626
@@ -416,12 +426,12 @@ DieNow_UnlinkChildren {
     LDA $parentId, X
     CMP $0000
     BNE loc_00A626
-    LDA $0004, X          ; DieNow: match parentId before unlinking child actors
+    LDA $0004, X
     TAX 
     BNE loc_00A617
 
   loc_00A626:
-    STX $0002
+    STX $0002             ; $0002 = backward boundary; walk forward ($06) to find first non-child after
     LDX $0000
     LDA $0006, X
     TAX 
@@ -436,14 +446,14 @@ DieNow_UnlinkChildren {
     BNE loc_00A632
 
   loc_00A641:
-    STX $0004
+    STX $0004             ; $0004 = forward boundary; return all child slots between boundaries
     LDX $0002
     BNE loc_00A64F
     LDX $0056
     JSR $&actor_pool.ReturnActorSlot
 
   loc_00A64F:
-    LDA $0006, X
+    LDA $0006, X          ; Return slots by walking next pointers until reaching forward boundary $0004
     CMP $0004
     BEQ loc_00A65D
     TAX 
@@ -451,7 +461,7 @@ DieNow_UnlinkChildren {
     BRA loc_00A64F
 
   loc_00A65D:
-    LDA $0002
+    LDA $0002             ; Patch list pointers: head-removed, tail-removed, or mid-list splice
     BNE loc_00A675
     LDX $0004
     STX $0056
@@ -585,7 +595,7 @@ StageMoveXY {
 ForceDirSW {
     TYX 
     LDA [$0A]
-    INC $0A               ; TSB #$4000 on $0012: force actor facing southwest
+    INC $0A               ; Nonzero operand sets $4000; zero operand clears — controls SW facing
     AND #$00FF
     BEQ loc_00A727
     LDA #$4000

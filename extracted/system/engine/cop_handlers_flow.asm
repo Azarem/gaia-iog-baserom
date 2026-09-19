@@ -1,10 +1,12 @@
-; COP handlers for script pointer management, dialogue rendering, jumps, calls, and loops (Bank $00, 19 handlers).
+; COP handlers for script control flow, event flags, inventory management, and timer waits (Bank $00, 30 COP handlers).
 ; 
-; PrintDialogString/PrintDialogStringAlt render dialogue text via DialogStringRenderer with frame update, joypad masking, and display mode flag management. SetInteractHandler stores a script pointer in the actor chatPtr field for NPC interaction.
+; Script control flow (14 handlers): SetInteractHandler stores NPC interaction pointers in chatPtr. SetEntryHere/HereAndYield/Far set or save entry points for yielding actors. JumpAfterDelay/NextFrame/Far implement deferred and cross-bank jumps. CallNear/Deferred provide subroutine calls with return PC saved in retPtr1. RestoreSavedPtr/ReturnWithSignal restore deferred call pointers. SetSavedPtr stores return addresses for later restoration. LoopStart/LoopEnd implement counted iteration with separate player (loopCounter/$7F0014) and scene actor (loopCounterActor/$7F2102) loop state.
 ; 
-; SetEntryHere/HereAndYield/Far write the current or specified script pointer to the actor entry fields. SetSavedPtr/RestoreSavedPtr manage a secondary pointer in retPtr1 for nested calls. ReturnWithSignal restores from retPtr1 with A=$FFFF as a signal.
+; Event flag handlers (8): SetFlagByte/Word and ClearFlagByte/Word set or clear bits in the eventFlags bitfield via cop_handlers_flags core routines. BranchOnFlagByte/Word branch based on flag state with a sense operand (0=branch-on-clear, nonzero=branch-on-set). WaitOnFlagByte/Word yield each frame until a flag condition is met by rewinding the entry PC.
 ; 
-; JumpAfterDelay sets entry pointer and frame delay. JumpNextFrame sets entry pointer with zero delay. JumpFar jumps cross-bank. CallNear saves the return PC in retPtr1. CallNearDeferred saves return PC and yields. LoopStart/LoopEnd implement counted loops with separate player (loopCounter) and actor (loopCounterActor) counters. SwitchCase reads a WRAM byte and dispatches through a word-aligned jump table.
+; Inventory and state (5): GiveItem calls GiveItemToPlayer with carry-based overflow branching. RemoveItem removes by item ID. BranchIfMissingItem/BranchIfItemEquipped test inventory state. SetDungeonKillFlag records enemy kills in wramFlags.
+; 
+; Misc (3): SwitchCase dispatches through a word-aligned jump table indexed by a WRAM byte. WaitByte/WaitWord set frame delay timers and yield.
 ---------------------------------------------
 
 ?BANK 00
@@ -72,7 +74,7 @@ JumpAfterDelay {
     LDA [$0A]
     INC $0A
     INC $0A
-    STA $00               ; JumpAfterDelay: save resume PC in actor $00 (EntryPtr)
+    STA $00               ; Store target script pointer in actor EntryPtr ($00) for deferred resume
     LDA [$0A]
     INC $0A
     AND #$00FF
@@ -129,7 +131,7 @@ SetEntryFar {
 
 RestoreSavedPtr {
     TYX 
-    LDA $retPtr1, X
+    LDA $retPtr1, X       ; retPtr1 nonzero: restore as script PC and clear; zero: no saved return — yield RTL
     BEQ loc_00AA71
     STA $02, S
     LDA #$0000
@@ -149,7 +151,7 @@ ReturnWithSignal {
     TYX 
     LDA $retPtr1, X
     BEQ loc_00AA88
-    STA $02, S            ; ReturnWithSignal: restore deferred call PC from retPtr1
+    STA $02, S            ; Restore return PC from retPtr1 to stack for RTI-resume at caller
     LDA #$0000
     STA $retPtr1, X
     LDA #$FFFF            ; RTI with A=$FFFF: signal non-zero return to caller script
@@ -188,7 +190,7 @@ JumpFar {
     LDA [$0A]
     INC $0A
     AND #$00FF
-    SEP #$20
+    SEP #$20              ; 8-bit mode: write bank byte to both DP $02 (entry) and $04,S (COP stack frame)
     STA $02
     STA $04, S
     REP #$20
@@ -205,7 +207,7 @@ CallNear {
     INC $0A
     STA $02, S
     LDA $0A
-    STA $retPtr1, X       ; CallNear: save return PC in $7F0004 for nested calls
+    STA $retPtr1, X       ; Save caller PC in retPtr1; restored later via RestoreSavedPtr or ReturnWithSignal
     RTI 
 }
 
@@ -214,7 +216,7 @@ CallNear {
 
 CallNearDeferred {
     TYX 
-    LDA [$0A]             ; CallNearDeferred: yield; callee resumes next frame
+    LDA [$0A]             ; Read target &Code; save caller's return PC in retPtr1, yield for next-frame execution
     INC $0A
     INC $0A
     STA $00
@@ -261,7 +263,7 @@ LoopStart {
 
 LoopEnd {
     TYX 
-    CPX #$1000            ; LoopEnd: CPX #$1000 selects player vs actor loop state
+    CPX #$1000            ; X ≥ $1000 = player (loopCounter/$7F0014); else scene actor (loopCounterActor/$7F2102)
     BCC loc_00AB2D
     LDA $loopCounter, X
     DEC 
@@ -367,11 +369,11 @@ BranchOnFlagWord {
     LDA [$0A]
     INC $0A
     INC $0A
-    JSR $&cop_handlers_flags.TestEventFlag ; TestEventFlag; BCS/BCC encodes branch polarity in operand
+    JSR $&cop_handlers_flags.TestEventFlag ; Test flag; BCS/BCC dispatch to sense-byte check below
     BCS loc_00ABA5
 
   loc_00AB9A:
-    LDA [$0A]
+    LDA [$0A]             ; Sense=0 branches when flag clear; sense≠0 branches when flag set
     INC $0A
     AND #$00FF
     BNE loc_00ABB7
@@ -404,7 +406,7 @@ BranchOnFlagWord {
 
 WaitOnFlagByte {
     TYX 
-    LDA $0A
+    LDA $0A               ; Rewind entry 2 bytes before $0A to re-execute this COP handler each frame
     DEC 
     DEC 
     STA $00
@@ -464,7 +466,7 @@ GiveItem {
     INC $0A
     AND #$00FF
     JSL $@inventory_mgmt.GiveItemToPlayer
-    BCS loc_00AC1E
+    BCS loc_00AC1E        ; Carry set = inventory full: jump to overflow &Code handler
     LDA [$0A]
     INC $0A
     INC $0A
@@ -527,7 +529,7 @@ BranchIfItemEquipped {
     LDA [$0A]
     INC $0A
     AND #$00FF
-    SEP #$20
+    SEP #$20              ; 8-bit compare: item ID byte vs equipped slot in inventorySlots[equippedIndex]
     LDY $inventoryEquippedIndex
     CMP $inventorySlots, Y
     REP #$20
@@ -604,7 +606,7 @@ WaitByte {
     AND #$00FF
 
   loc_00ACC9:
-    STA $08
+    STA $08               ; Shared wait path: store frame count in $08, save entry pointer, yield RTL
     LDA $0C
     STA $02
     LDA $0A

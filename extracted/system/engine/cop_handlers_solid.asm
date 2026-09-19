@@ -1,4 +1,4 @@
-; COP handlers for collision layer manipulation, DMA/HDMA queue operations, and tile collision queries (Bank $00, 30 handlers).
+; COP handlers for collision layer manipulation, DMA/HDMA queue operations, and tile collision queries (Bank $00, 25 COP handlers + 7 internal routines).
 ; 
 ; DMA/HDMA queue: GenHdmaSine builds a 512-entry sine wave via the hardware multiplier and writes a 3-entry HDMA indirect table. QueueHdma/QueueDma/QueueHdmaChannel set up HDMA and DMA channel registers.
 ; 
@@ -47,9 +47,9 @@ GenHdmaSine {
     LDA $spritesetPtr, X
     INC 
     STA $spritesetPtr, X
-    AND #$01FE            ; AND #$01FE: ping-pong sine buffers via spritesetPtr LSB
+    AND #$01FE            ; Ping-pong sine buffers via spritesetPtr LSB
     CLC 
-    ADC #$8900            ; ADC #$8900: HDMA source pointer into WRAM sineTableA
+    ADC #$8900            ; HDMA source pointer into WRAM sineTableA
     STA $7E8801
     CLC 
     ADC #$00FE
@@ -120,7 +120,7 @@ QueueHdmaChannel {
     LDX $0002
     SEP #$20
     LDA $@cop_handlers_flags.bitmasks_bit_position, X
-    TSB $0066             ; TSB $0066: OR bit into cached HDMA channel enable mask
+    TSB $0066             ; OR channel bit into cached HDMA enable mask
     REP #$20
     LDA [$0A]
     INC $0A
@@ -138,18 +138,18 @@ QueueHdmaChannel {
     TAX 
     LDA $&hdma_ramp_tables.hdma_channel_config, X
     LDX $0000
-    ORA #$40              ; ORA #$40: DMAP bit 6 selects HDMA (not linear DMA) mode
-    STA $DMAP0, X         ; STA $DMAP0,X: write transfer mode for this HDMA channel
+    ORA #$40              ; DMAP bit 6 = HDMA transfer mode (not linear DMA)
+    STA $DMAP0, X         ; Write DMAP transfer mode for this HDMA channel
     LDA $02, S
     STA $DASB0, X
     PLA 
-    STA $BBAD0, X         ; STA $BBAD0,X: B-bus destination register (VRAM/CGRAM port)
+    STA $BBAD0, X         ; B-bus destination register (VRAM/CGRAM port)
     REP #$20
     TYA 
-    STA $A1T0L, X         ; STA $A1T0L,X: A-bus source address low word
+    STA $A1T0L, X         ; A-bus source address low word
     SEP #$20
     PLA 
-    STA $A1B0, X          ; STA $A1B0,X: A-bus source bank byte for HDMA fetch
+    STA $A1B0, X          ; A-bus source bank byte for HDMA fetch
     PLP 
     PLX 
     LDA $0A
@@ -203,7 +203,7 @@ MarkSolidOffset {
     JSL $@map_coords.TileCoordsToMapIndex
     SEP #$20
     LDA $collisionLayer, X
-    ORA #$F0              ; ORA #$F0: set upper nibble — mark tile solid for collision
+    ORA #$F0              ; Set upper nibble — mark tile solid for collision
     STA $collisionLayer, X
     REP #$20
     PLD 
@@ -224,10 +224,10 @@ ClearSolidOffset {
     LDA #$0000
     TCD 
     LDX #$0000
-    JSL $@map_coords.TileCoordsToMapIndex ; AND #$0F: clear solid nibble, preserve collision type nibble
+    JSL $@map_coords.TileCoordsToMapIndex
     SEP #$20
     LDA $collisionLayer, X
-    AND #$0F
+    AND #$0F              ; Clear solid nibble, preserve collision type nibble
     STA $collisionLayer, X
     REP #$20
     PLD 
@@ -336,8 +336,8 @@ ClearTypeAbs {
     LDX #$0000
     JSL $@map_coords.TileCoordsToMapIndex
     SEP #$20
-    LDA $collisionLayer, X ; AND #$F0: clear type nibble only, keep solid flags
-    AND #$F0
+    LDA $collisionLayer, X
+    AND #$F0              ; Clear type nibble only, keep solid flags
     STA $collisionLayer, X
     REP #$20
     PLD 
@@ -357,7 +357,7 @@ BranchIfSolidHere {
     LDA $16
     STA $001C
     JSR $&TileCollisionQuery
-    BIT #$000F            ; BIT #$000F: branch taken if any solid nibble bit set
+    BIT #$000F            ; Branch taken if any solid nibble bit set
     BNE loc_0089CA
     LDA [$0A]
     INC $0A
@@ -728,7 +728,7 @@ BranchIfNotOnGridline {
     TYX 
     PHB 
     LDA $16
-    BIT #$000F            ; BIT #$000F: reject if actor Y not on 16px gridline
+    BIT #$000F            ; Reject if actor Y not on 16px gridline
     BEQ loc_008BF0
 
   loc_008BE6:
@@ -751,7 +751,7 @@ BranchIfNotOnGridline {
     ORA #$FF00            ; Sign-extend metasprite hitbox width from script byte
     CLC 
     ADC $14
-    BIT #$000F            ; BIT #$000F: player must be grid-aligned on Y axis
+    BIT #$000F            ; Player must be grid-aligned on Y axis
     BNE loc_008BE6
     PLB 
     LDA [$0A]
@@ -842,19 +842,22 @@ ParseSignedTileOffset {
     RTS 
 }
 
+---------------------------------------------
+; Internal JSR helper that computes an 8-direction octant index (0–7) from the actor reference coordinates in DP $18/$1C to the player position. Compares |ΔX| and |ΔY| against a $0010 threshold to distinguish near vs far on each axis, producing compass directions: 0=N, 1=NE, 2=E, 3=SE, 4=S, 5=SW, 6=W, 7=NW. Returns the direction in A. Called by DirToPlayer, DirToPlayerFrom, and BranchIfDirToPlayer.
+
 ComputeDirectionToPlayer {
     LDY $playerActor
     LDA $0014, Y
     SEC 
-    SBC $0018
+    SBC $0018             ; ΔX = player.X − actor.X; positive = player is east
     BMI loc_00B01A
     STA $0000
     LDA $0016, Y
     SEC 
-    SBC $001C
+    SBC $001C             ; ΔY = player.Y − actor.Y; positive = player is south
     BMI loc_00AFFE
     LDY #$0002
-    CMP #$0010
+    CMP #$0010            ; Within ±$10 pixels: classify as near on this axis
     BCC loc_00B05C
     LDY #$0004
     LDA $0000
@@ -994,6 +997,9 @@ MarkCollisionRect {
     RTS 
 }
 
+---------------------------------------------
+; Internal JSR helper that advances the collision map pointer in DP $1C by one tile row ($10 bytes). Handles carry-based row wrapping by adding mapRowStrideL0 when the low byte overflows, ensuring correct row addressing across tilemap boundaries. Called by MarkCollisionRect during per-row solid marking.
+
 AdvanceMapY {
     PHP 
     SEP #$20
@@ -1015,6 +1021,9 @@ AdvanceMapY {
     PLP 
     RTS 
 }
+
+---------------------------------------------
+; Internal JSR helper that clears solid flags from a rectangle on the collision map. Reads the metasprite hitbox like MarkCollisionRect, then ANDs #$0F on every tile in the rectangle to remove the solid nibble while preserving the type nibble. If flag $0001 is set in DP $00, routes to ClearCollisionRectFull instead. Called by ClearSolidHere and ClearCollisionHere.
 
 ClearCollisionRect {
     PHB 
@@ -1116,6 +1125,9 @@ ClearCollisionRect {
     RTS 
 }
 
+---------------------------------------------
+; Internal subroutine reached via JMP from ClearCollisionRect when the full-clear flag ($0001) is set. ANDs #$00 on every tile in the metasprite hitbox rectangle, zeroing both the solid and type nibbles. Used by ClearCollisionHere to completely remove collision data at the actor footprint.
+
 ClearCollisionRectFull {
     TXA 
 
@@ -1167,13 +1179,16 @@ ClearCollisionRectFull {
     RTS 
 }
 
+---------------------------------------------
+; Internal JSR helper that samples a single collision byte from the $7FC000 collision layer. Validates that pixel coordinates in DP $18/$1C fall within the camera viewport (cameraOffsetX/Y to cameraBoundsX/cameraLowerYBound), converts to tile coordinates, calls CalcTileMapOffset, and reads the collision byte. Returns the byte in A; out-of-bounds or negative coordinates return $000F (treated as solid). Called by all BranchIfSolid/BranchIfType handlers and WallAnim routines.
+
 TileCollisionQuery {
     PHD 
     LDA #$0000
     TCD 
     LDA $18
     AND #$FFF0
-    BMI loc_00B47C
+    BMI loc_00B47C        ; Negative pixel X = off map left → treat as blocked
     CMP $cameraOffsetX
     BCC loc_00B47C
     CMP $cameraBoundsX
@@ -1193,17 +1208,17 @@ TileCollisionQuery {
     LSR 
     LSR 
     LSR 
-    DEC 
+    DEC                   ; DEC: adjust tile Y down by 1 row (camera top-edge offset)
     STA $1C
     JSL $@tile_collision_physics.CalcTileMapOffset
     CPY #$4000
     BCS loc_00B47C
     LDA [$80], Y
-    BIT #$00F0            ; BIT #$00F0 on tile byte: non-zero type nibble = solid query hit
+    BIT #$00F0            ; Non-zero upper nibble = solid tile → query reports blocked
     BEQ loc_00B47F
 
   loc_00B47C:
-    LDA #$000F
+    LDA #$000F            ; Return $000F: out-of-bounds fallback → treat as solid
 
   loc_00B47F:
     PLD 
