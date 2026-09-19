@@ -42,24 +42,24 @@
 
 GenHdmaSine {
     TYX 
-    PHP 
-    JSR $&cop_handlers_effects.BuildSineLookupTable ; Build 512-entry sine table via SNES hardware multiplier
-    LDA $spritesetPtr, X
+    PHP                   ; Save processor state before multiplier/HDMA setup
+    JSR $&cop_handlers_effects.BuildSineLookupTable ; Build 512-entry sine lookup via SNES hardware multiplier ($4202/$4203)
+    LDA $spritesetPtr, X  ; Read and increment sine buffer ping-pong index
     INC 
     STA $spritesetPtr, X
-    AND #$01FE            ; Ping-pong sine buffers via spritesetPtr LSB
+    AND #$01FE            ; Toggle between $8900/$8A00 double-buffer pages
     CLC 
     ADC #$8900            ; HDMA source pointer into WRAM sineTableA
-    STA $7E8801
+    STA $7E8801           ; HDMA indirect table entry 0: source address in sine buffer
     CLC 
-    ADC #$00FE
+    ADC #$00FE            ; +$00FE: second half of sine data for table entry 1
     STA $7E8804
     SEP #$20
     LDA #$FF
     STA $7E8800           ; HDMA table entry 0: $FF terminator byte
-    LDA #$E0
+    LDA #$E0              ; HDMA entry 1 line count: $E0 (224 remaining visible scanlines)
     STA $7E8803           ; HDMA table entry 1: $E0 → CGRAM (palette) write port
-    LDA #$00
+    LDA #$00              ; HDMA entry 2: $00 terminator (end of indirect table)
     STA $7E8806           ; HDMA table entry 2: $00 line-count terminator
     PLP 
     LDA $0A
@@ -72,14 +72,14 @@ GenHdmaSine {
 
 QueueHdma {
     TYX 
-    LDA [$0A]
+    LDA [$0A]             ; Read HDMA table address word from script
     INC $0A
     INC $0A
     TAY 
-    LDA [$0A]
+    LDA [$0A]             ; Read channel configuration word
     INC $0A
     INC $0A
-    JSL $@hdma_dma_spc.SetupHdmaChannel_Indirect
+    JSL $@hdma_dma_spc.SetupHdmaChannel_Indirect ; Configure HDMA channel with indirect addressing mode
     LDA $0A
     STA $02, S
     RTI 
@@ -90,14 +90,14 @@ QueueHdma {
 
 QueueDma {
     TYX 
-    LDA [$0A]
+    LDA [$0A]             ; Read DMA source/dest setup word
     INC $0A
     INC $0A
     TAY 
-    LDA [$0A]
+    LDA [$0A]             ; Read second DMA configuration word
     INC $0A
     INC $0A
-    JSL $@hdma_dma_spc.SetupHdmaChannel_Direct
+    JSL $@hdma_dma_spc.SetupHdmaChannel_Direct ; Configure linear DMA channel (non-HDMA transfer)
     LDA $0A
     STA $02, S
     RTI 
@@ -108,25 +108,25 @@ QueueDma {
 
 QueueHdmaChannel {
     PHY 
-    LDA [$0A]
+    LDA [$0A]             ; Read HDMA channel ID byte (0–7)
     INC $0A
     AND #$00FF
-    STA $0002
-    ASL                   ; Channel ID × 16 → CPU $4300 DMA register block offset
+    STA $0002             ; Save channel ID in $0002 for bitmask lookup
+    ASL                   ; Channel × 16: offset into $4300 DMA register block
     ASL 
     ASL 
     ASL 
     STA $0000
     LDX $0002
     SEP #$20
-    LDA $@cop_handlers_flags.bitmasks_bit_position, X
-    TSB $0066             ; OR channel bit into cached HDMA enable mask
+    LDA $@cop_handlers_flags.bitmasks_bit_position, X ; Look up single-bit channel mask from position table
+    TSB $0066             ; OR channel bit into cached HDMA enable mask ($0066)
     REP #$20
-    LDA [$0A]
+    LDA [$0A]             ; Read HDMA A-bus table address word from script
     INC $0A
     INC $0A
     TAY 
-    LDA [$0A]
+    LDA [$0A]             ; Read packed B-bus register byte (low) + source bank (high)
     INC $0A
     INC $0A
     PHP 
@@ -136,17 +136,17 @@ QueueHdmaChannel {
     XBA 
     PHA 
     TAX 
-    LDA $&hdma_ramp_tables.hdma_channel_config, X
+    LDA $&hdma_ramp_tables.hdma_channel_config, X ; Look up transfer mode from hdma_channel_config table
     LDX $0000
     ORA #$40              ; DMAP bit 6 = HDMA transfer mode (not linear DMA)
     STA $DMAP0, X         ; Write DMAP transfer mode for this HDMA channel
     LDA $02, S
     STA $DASB0, X
     PLA 
-    STA $BBAD0, X         ; B-bus destination register (VRAM/CGRAM port)
+    STA $BBAD0, X         ; Write B-bus destination register (BBAD)
     REP #$20
     TYA 
-    STA $A1T0L, X         ; A-bus source address low word
+    STA $A1T0L, X         ; Write A-bus source address low word (A1TL)
     SEP #$20
     PLA 
     STA $A1B0, X          ; A-bus source bank byte for HDMA fetch
@@ -162,12 +162,12 @@ QueueHdmaChannel {
 
 MarkSolidHere {
     TYX 
-    LDA $14
+    LDA $14               ; Copy actor X to collision probe coordinate
     STA $0018
-    LDA $16
+    LDA $16               ; Copy actor Y to collision probe coordinate
     STA $001C
     STZ $0000
-    JSR $&MarkCollisionRect
+    JSR $&MarkCollisionRect ; Mark solid nibble ($F0) on all tiles in actor hitbox
     LDA $0A
     STA $02, S
     RTI 
@@ -178,12 +178,12 @@ MarkSolidHere {
 
 ClearSolidHere {
     TYX 
-    LDA $14
+    LDA $14               ; Copy actor X for clearing
     STA $0018
-    LDA $16
+    LDA $16               ; Copy actor Y
     STA $001C
     STZ $0000
-    JSR $&ClearCollisionRect
+    JSR $&ClearCollisionRect ; Clear solid nibble (AND #$0F) on all hitbox tiles
     LDA $0A
     STA $02, S
     RTI 
@@ -194,14 +194,14 @@ ClearSolidHere {
 
 MarkSolidOffset {
     TYX 
-    JSR $&ParseSignedTileOffset
+    JSR $&ParseSignedTileOffset ; Sign-extend tile offsets, add to position, convert to tile coords
     PHX 
     PHD 
     LDA #$0000
     TCD 
-    LDX #$0000
+    LDX #$0000            ; TileCoordsToMapIndex: DP $18/$1C → linear collision index
     JSL $@map_coords.TileCoordsToMapIndex
-    SEP #$20
+    SEP #$20              ; TileCoordsToMapIndex → byte offset in $7FC000 collision layer
     LDA $collisionLayer, X
     ORA #$F0              ; Set upper nibble — mark tile solid for collision
     STA $collisionLayer, X
@@ -218,7 +218,7 @@ MarkSolidOffset {
 
 ClearSolidOffset {
     TYX 
-    JSR $&ParseSignedTileOffset
+    JSR $&ParseSignedTileOffset ; Decode signed offsets to tile coordinates
     PHX 
     PHD 
     LDA #$0000
@@ -242,11 +242,11 @@ ClearSolidOffset {
 
 MarkSolidAbs {
     TYX 
-    LDA [$0A]
+    LDA [$0A]             ; Read absolute tile X byte
     INC $0A
     AND #$00FF
     STA $0018
-    LDA [$0A]
+    LDA [$0A]             ; Read absolute tile Y byte
     INC $0A
     AND #$00FF
     STA $001C
@@ -255,7 +255,7 @@ MarkSolidAbs {
     LDA #$0000
     TCD 
     LDX #$0000
-    JSL $@map_coords.TileCoordsToMapIndex
+    JSL $@map_coords.TileCoordsToMapIndex ; TileCoordsToMapIndex for absolute tile position
     SEP #$20
     LDA $collisionLayer, X
     ORA #$F0
@@ -304,11 +304,11 @@ ClearSolidAbs {
 
 ClearCollisionHere {
     TYX 
-    LDA $14
+    LDA $14               ; ClearCollisionHere: copy actor position
     STA $0018
     LDA $16
     STA $001C
-    LDA #$0001
+    LDA #$0001            ; Flag $0001 routes to ClearCollisionRectFull (zero both nibbles)
     STA $0000
     JSR $&ClearCollisionRect
     LDA $0A
@@ -321,7 +321,7 @@ ClearCollisionHere {
 
 ClearTypeAbs {
     TYX 
-    LDA [$0A]
+    LDA [$0A]             ; Read tile X, Y; resolve index; AND #$F0 to clear type only
     INC $0A
     AND #$00FF
     STA $0018
@@ -337,7 +337,7 @@ ClearTypeAbs {
     JSL $@map_coords.TileCoordsToMapIndex
     SEP #$20
     LDA $collisionLayer, X
-    AND #$F0              ; Clear type nibble only, keep solid flags
+    AND #$F0              ; AND #$F0: preserve solid flags, clear type nibble
     STA $collisionLayer, X
     REP #$20
     PLD 
@@ -352,14 +352,14 @@ ClearTypeAbs {
 
 BranchIfSolidHere {
     TYX 
-    LDA $14
+    LDA $14               ; Set probe X from actor position
     STA $0018
-    LDA $16
+    LDA $16               ; Set probe Y from actor position
     STA $001C
-    JSR $&TileCollisionQuery
+    JSR $&TileCollisionQuery ; Query collision at actor's tile position
     BIT #$000F            ; Branch taken if any solid nibble bit set
     BNE loc_0089CA
-    LDA [$0A]
+    LDA [$0A]             ; Not solid: skip branch operand and continue
     INC $0A
     INC $0A
     LDA $0A
@@ -367,7 +367,7 @@ BranchIfSolidHere {
     RTI 
 
   loc_0089CA:
-    LDA [$0A]
+    LDA [$0A]             ; Solid: take branch to target address
     INC $0A
     INC $0A
     STA $02, S
@@ -379,22 +379,22 @@ BranchIfSolidHere {
 
 BranchIfSolidOffset {
     TYX 
-    LDA [$0A]
+    LDA [$0A]             ; BranchIfSolidOffset: read signed X tile offset
     INC $0A
     AND #$00FF
-    BIT #$0080            ; Sign-extend $0080 tile offset to 16-bit before ×16 shift
+    BIT #$0080            ; Sign extension: bit 7 set → OR #$FF00 for negative offset
     BEQ loc_0089E3
     ORA #$FF00
 
   loc_0089E3:
-    ASL 
+    ASL                   ; Tile→pixel: ASL ×4 = ×16, add to actor.X
     ASL 
     ASL 
     ASL 
     CLC 
     ADC $14
     STA $0018
-    LDA [$0A]
+    LDA [$0A]             ; Read signed Y tile offset
     INC $0A
     AND #$00FF
     BIT #$0080
@@ -409,7 +409,7 @@ BranchIfSolidOffset {
     CLC 
     ADC $16
     STA $001C
-    JSR $&TileCollisionQuery
+    JSR $&TileCollisionQuery ; Query collision at offset position
     BIT #$000F
     BNE loc_008A19
     LDA [$0A]
@@ -432,7 +432,7 @@ BranchIfSolidOffset {
 
 BranchIfSolidNorth {
     TYX 
-    LDA $14
+    LDA $14               ; North probe: set X from actor, Y − $10 (one tile up)
     STA $0018
     LDA $16
     SEC 
@@ -461,7 +461,7 @@ BranchIfSolidNorth {
 
 BranchIfSolidSouth {
     TYX 
-    LDA $14
+    LDA $14               ; South probe: Y + $10 (one tile down)
     STA $0018
     LDA $16
     CLC 
@@ -490,7 +490,7 @@ BranchIfSolidSouth {
 
 BranchIfSolidWest {
     TYX 
-    LDA $14
+    LDA $14               ; West probe: X − $10 (one tile left)
     SEC 
     SBC #$0010
     STA $0018
@@ -519,7 +519,7 @@ BranchIfSolidWest {
 
 BranchIfSolidEast {
     TYX 
-    LDA $14
+    LDA $14               ; East probe: X + $10 (one tile right)
     CLC 
     ADC #$0010
     STA $0018
@@ -548,18 +548,18 @@ BranchIfSolidEast {
 
 BranchIfTypeHere {
     TYX 
-    LDA $14
+    LDA $14               ; Type query: probe at actor position
     STA $0018
     LDA $16
     STA $001C
-    JSR $&TileCollisionQuery
-    AND #$00FF
+    JSR $&TileCollisionQuery ; Get collision byte at actor tile
+    AND #$00FF            ; Mask to full byte for type comparison
     PHA 
-    LDA [$0A]
+    LDA [$0A]             ; Read expected collision type operand
     INC $0A
     AND #$00FF
-    CMP $01, S
-    BEQ loc_008AF7
+    CMP $01, S            ; Compare query result against expected type
+    BEQ loc_008AF7        ; Match → take branch
     LDA [$0A]
     INC $0A
     INC $0A
@@ -582,7 +582,7 @@ BranchIfTypeHere {
 
 BranchIfTypeNorth {
     TYX 
-    LDA $14
+    LDA $14               ; TypeNorth: probe Y − $10
     STA $0018
     LDA $16
     SEC 
@@ -618,7 +618,7 @@ BranchIfTypeNorth {
 
 BranchIfTypeSouth {
     TYX 
-    LDA $14
+    LDA $14               ; TypeSouth: probe Y + $10
     STA $0018
     LDA $16
     CLC 
@@ -654,7 +654,7 @@ BranchIfTypeSouth {
 
 BranchIfTypeWest {
     TYX 
-    LDA $14
+    LDA $14               ; TypeWest: probe X − $10
     SEC 
     SBC #$0010
     STA $0018
@@ -690,7 +690,7 @@ BranchIfTypeWest {
 
 BranchIfTypeEast {
     TYX 
-    LDA $14
+    LDA $14               ; TypeEast: probe X + $10
     CLC 
     ADC #$0010
     STA $0018
@@ -727,9 +727,9 @@ BranchIfTypeEast {
 BranchIfNotOnGridline {
     TYX 
     PHB 
-    LDA $16
+    LDA $16               ; Test actor Y for 16px grid alignment (low nibble must be 0)
     BIT #$000F            ; Reject if actor Y not on 16px gridline
-    BEQ loc_008BF0
+    BEQ loc_008BF0        ; Not aligned → branch (off-grid)
 
   loc_008BE6:
     PLB 
@@ -740,18 +740,18 @@ BranchIfNotOnGridline {
     RTI 
 
   loc_008BF0:
-    LDA $metaspritePtr, X
+    LDA $metaspritePtr, X ; Load metasprite pointer for hitbox width
     TAY 
     SEP #$20
     LDA $7F0008, X
     PHA 
     PLB 
     REP #$20
-    LDA $0000, Y
+    LDA $0000, Y          ; Sign-extend and add metasprite width to X
     ORA #$FF00            ; Sign-extend metasprite hitbox width from script byte
     CLC 
-    ADC $14
-    BIT #$000F            ; Player must be grid-aligned on Y axis
+    ADC $14               ; Test adjusted X for grid alignment
+    BIT #$000F            ; Test adjusted X for grid alignment (BIT #$000F)
     BNE loc_008BE6
     PLB 
     LDA [$0A]
@@ -768,24 +768,24 @@ BranchIfNotOnGridline {
 SetCollisionAbs {
     PHY 
     PHD 
-    LDA [$0A]
+    LDA [$0A]             ; SetCollisionAbs: read tile X operand
     INC $0A
     AND #$00FF
     STA $0018
-    LDA [$0A]
+    LDA [$0A]             ; Read tile Y byte operand
     INC $0A
     AND #$00FF
     STA $001C
-    LDA [$0A]
+    LDA [$0A]             ; Read collision byte value operand
     INC $0A
     AND #$00FF
     STA $0000
     LDA #$0000
     TCD 
     LDX #$0000
-    JSL $@map_coords.TileCoordsToMapIndex
+    JSL $@map_coords.TileCoordsToMapIndex ; Convert tile coords to map index
     SEP #$20
-    LDA $00               ; Write full collision byte (type+solid) to map layer
+    LDA $00               ; Load full collision byte to map layer
     STA $collisionLayer, X
     REP #$20
     PLD 
@@ -799,26 +799,26 @@ SetCollisionAbs {
 ; Internal JSR helper that reads two signed byte operands from the script pointer at $0A. Sign-extends each offset, scales by 16 pixels, adds them to the actor position ($14/$16, with Y adjusted by −16), and converts the result to tile coordinates in DP $18/$1C. Returns via RTS with $0A advanced past both operands. Called by MarkSolidOffset, ClearSolidOffset, BranchIfSolidOffset, and other offset-based collision COP handlers.
 
 ParseSignedTileOffset {
-    LDA [$0A]
+    LDA [$0A]             ; ParseSignedTileOffset: read signed X offset byte from script
     INC $0A
     AND #$00FF
-    BIT #$0080
+    BIT #$0080            ; Test bit 7 for negative sign extension
     BEQ loc_00AF9E
     ORA #$FF00
 
   loc_00AF9E:
-    ASL 
+    ASL                   ; Tile→pixel: ×16 via ASL ×4
     ASL 
     ASL 
     ASL 
     CLC 
-    ADC $14
-    LSR 
+    ADC $14               ; Add scaled X offset to actor X ($14)
+    LSR                   ; Pixel→tile: LSR ×4 = ÷16 (convert back to tile coords)
     LSR 
     LSR 
     LSR 
     STA $0018
-    LDA [$0A]
+    LDA [$0A]             ; Read signed Y tile offset byte
     INC $0A
     AND #$00FF
     BIT #$0080
@@ -831,10 +831,10 @@ ParseSignedTileOffset {
     ASL 
     ASL 
     CLC 
-    ADC $16
-    SEC 
+    ADC $16               ; Add scaled offset to actor Y ($16)
+    SEC                   ; Subtract $10: compensate for camera top-edge offset before tile conversion
     SBC #$0010
-    LSR 
+    LSR                   ; Pixel→tile: LSR ×4 = ÷16
     LSR 
     LSR 
     LSR 
@@ -846,68 +846,68 @@ ParseSignedTileOffset {
 ; Internal JSR helper that computes an 8-direction octant index (0–7) from the actor reference coordinates in DP $18/$1C to the player position. Compares |ΔX| and |ΔY| against a $0010 threshold to distinguish near vs far on each axis, producing compass directions: 0=N, 1=NE, 2=E, 3=SE, 4=S, 5=SW, 6=W, 7=NW. Returns the direction in A. Called by DirToPlayer, DirToPlayerFrom, and BranchIfDirToPlayer.
 
 ComputeDirectionToPlayer {
-    LDY $playerActor
-    LDA $0014, Y
-    SEC 
+    LDY $playerActor      ; Load player actor pointer for direction calc
+    LDA $0014, Y          ; ComputeDirectionToPlayer: load player actor pointer
+    SEC                   ; ΔX = player.X − actor.X
     SBC $0018             ; ΔX = player.X − actor.X; positive = player is east
-    BMI loc_00B01A
+    BMI loc_00B01A        ; Negative ΔX → player is west of actor
     STA $0000
-    LDA $0016, Y
-    SEC 
+    LDA $0016, Y          ; Get player Y position
+    SEC                   ; ΔY = player.Y − actor.Y
     SBC $001C             ; ΔY = player.Y − actor.Y; positive = player is south
-    BMI loc_00AFFE
-    LDY #$0002
+    BMI loc_00AFFE        ; Negative ΔY → player is north
+    LDY #$0002            ; Default Y=2 (East) — player east, ΔY check next
     CMP #$0010            ; Within ±$10 pixels: classify as near on this axis
     BCC loc_00B05C
-    LDY #$0004
+    LDY #$0004            ; Far on Y axis → Y=4 (South), check X distance
     LDA $0000
-    CMP #$0010
+    CMP #$0010            ; |ΔX| < $10 → far Y but near X = pure South
     BCC loc_00B05C
-    LDY #$0003
+    LDY #$0003            ; Both far → direction 3 (Southeast)
     BRA loc_00B05C
 
   loc_00AFFE:
     EOR #$FFFF
     INC 
-    LDY #$0002
+    LDY #$0002            ; ΔY negative: Y=2 (East), check Y distance for North bias
     CMP #$0010
-    BCC loc_00B05C
-    LDY #$0000
+    BCC loc_00B05C        ; Far negative Y → direction 0 (North); check X
+    LDY #$0000            ; Far on Y, negative → Y=0 (North), check X
     LDA $0000
     CMP #$0010
-    BCC loc_00B05C
-    LDY #$0001
+    BCC loc_00B05C        ; Both far NE quadrant → direction 1 (Northeast)
+    LDY #$0001            ; Both far, NE quadrant → Y=1 (Northeast)
     BRA loc_00B05C
 
   loc_00B01A:
-    EOR #$FFFF
+    EOR #$FFFF            ; ΔX negative: take |ΔX| for comparison
     INC 
     STA $0000
     LDA $0016, Y
     SEC 
     SBC $001C
     BMI loc_00B042
-    LDY #$0006
+    LDY #$0006            ; West side: Y=6 (West), check ΔY for S/N bias
     CMP #$0010
     BCC loc_00B05C
-    LDY #$0004
+    LDY #$0004            ; Far positive ΔY → direction 4 (South); check X
     LDA $0000
     CMP #$0010
     BCC loc_00B05C
-    LDY #$0005
+    LDY #$0005            ; SW quadrant, both far → direction 5 (Southwest)
     BRA loc_00B05C
 
   loc_00B042:
     EOR #$FFFF
     INC 
-    LDY #$0006
+    LDY #$0006            ; West+North: Y=6 (West), check ΔY
     CMP #$0010
     BCC loc_00B05C
-    LDY #$0000
+    LDY #$0000            ; Far negative ΔY → direction 0 (North); check X
     LDA $0000
     CMP #$0010
     BCC loc_00B05C
-    LDY #$0007
+    LDY #$0007            ; NW quadrant, both far → Y=7 (Northwest)
 
   loc_00B05C:
     TYA 
@@ -919,30 +919,30 @@ ComputeDirectionToPlayer {
 
 MarkCollisionRect {
     PHB 
-    PHD 
-    PHX 
+    PHD                   ; Save direct page and actor X before rectangle iteration
+    PHX                   ; MarkCollisionRect: save DP and X before rectangle iteration
     LDA #$0000
     TCD 
-    LDA $metaspritePtr, X
+    LDA $metaspritePtr, X ; Load metasprite pointer for hitbox bounds
     TAY 
     SEP #$20
     LDA $7F0008, X
     PHA 
     PLB 
     REP #$20
-    LDA $0000, Y
+    LDA $0000, Y          ; Sign-extend metasprite left offset → add to actor X
     ORA #$FF00
     CLC 
-    ADC $18
-    LSR 
+    ADC $18               ; Pixel→tile conversion (÷16) for column start
+    LSR                   ; Pixel→tile conversion (÷16) for column start
     LSR 
     LSR 
     LSR 
     STA $18
-    LDA $0002, Y
+    LDA $0002, Y          ; Read metasprite hitbox tile width
     AND #$00FF
     STA $1A
-    LDA $0001, Y
+    LDA $0001, Y          ; Sign-extend metasprite top offset → add to actor Y
     ORA #$FF00
     CLC 
     ADC $1C
@@ -951,41 +951,41 @@ MarkCollisionRect {
     LSR 
     LSR 
     STA $1C
-    LDA $0003, Y
+    LDA $0003, Y          ; Read metasprite hitbox tile height (rows to iterate)
     AND #$00FF
     STA $1E
     LDX #$0000
-    JSL $@map_coords.TileCoordsToMapIndex
-    CPX #$4000
+    JSL $@map_coords.TileCoordsToMapIndex ; TileCoordsToMapIndex: starting position → collision map offset
+    CPX #$4000            ; Bounds check: X ≥ $4000 means out-of-map
     BCS loc_00B325
-    LDA $1A
+    LDA $1A               ; Load tile width as column counter
     STA $18
     TXA 
-    STA $1C
+    STA $1C               ; Save starting map index as row pointer
 
   loc_00B2F6:
     SEP #$20
     TAX 
-    LDA $collisionLayer, X
-    ORA #$F0
+    LDA $collisionLayer, X ; Read collision byte at current tile
+    ORA #$F0              ; OR #$F0: set solid nibble on collision layer
     STA $collisionLayer, X
-    DEC $18
+    DEC $18               ; Decrement column counter
     BEQ loc_00B316
     REP #$20
     TXA 
-    INC 
-    BIT #$000F
+    INC                   ; Advance to next tile in row (+1 byte in collision map)
+    BIT #$000F            ; Check if crossed 16-tile metatile boundary
     BNE loc_00B2F6
     CLC 
-    ADC #$00F0
-    BRA loc_00B2F6
+    ADC #$00F0            ; +$F0: wrap to next metatile row in collision map
+    BRA loc_00B2F6        ; +$F0: wrap to next metatile row in collision map
 
   loc_00B316:
-    DEC $1E
+    DEC $1E               ; Decrement row counter; 0 = rectangle complete
     BEQ loc_00B325
-    LDA $1A
+    LDA $1A               ; Reset column counter for new row
     STA $18
-    JSR $&AdvanceMapY
+    JSR $&AdvanceMapY     ; Advance map pointer to next tile row
     LDA $1C
     BRA loc_00B2F6
 
@@ -1002,11 +1002,11 @@ MarkCollisionRect {
 
 AdvanceMapY {
     PHP 
-    SEP #$20
+    SEP #$20              ; 8-bit mode for byte-level map address manipulation
     LDA $1C
     CLC 
-    ADC #$10
-    BCS loc_00B339
+    ADC #$10              ; Add $10 to map pointer low byte (advance one row = 16 tiles)
+    BCS loc_00B339        ; Carry set = crossed page boundary → add row stride
     STA $1C
     PLP 
     RTS 
@@ -1014,7 +1014,7 @@ AdvanceMapY {
   loc_00B339:
     XBA 
     CLC 
-    ADC $mapRowStrideL0
+    ADC $mapRowStrideL0   ; Add mapRowStrideL0 to handle map wrapping at row boundary
     XBA 
     REP #$20
     STA $1C
@@ -1028,10 +1028,10 @@ AdvanceMapY {
 ClearCollisionRect {
     PHB 
     PHD 
-    PHX 
+    PHX                   ; ClearCollisionRect: save state for rectangle clear
     LDA #$0000
     TCD 
-    LDA $metaspritePtr, X
+    LDA $metaspritePtr, X ; Load metasprite hitbox for rectangle bounds
     TAY 
     SEP #$20
     LDA $7F0008, X
@@ -1042,15 +1042,15 @@ ClearCollisionRect {
     ORA #$FF00
     CLC 
     ADC $18
-    LSR                   ; LSR×4: convert pixel coords to tile coords for map edit
+    LSR                   ; Pixel→tile conversion for clear rectangle
     LSR 
     LSR 
     LSR 
     STA $18               ; Tile width/height in tiles from metasprite hitbox / 16
-    LDA $0002, Y
+    LDA $0002, Y          ; Read hitbox tile width for column count
     AND #$00FF
     STA $1A
-    LDA $0001, Y
+    LDA $0001, Y          ; Sign-extend top Y offset and convert to tile
     ORA #$FF00
     CLC 
     ADC $1C
@@ -1059,20 +1059,20 @@ ClearCollisionRect {
     LSR 
     LSR 
     STA $1C
-    LDA $0003, Y
+    LDA $0003, Y          ; Read hitbox tile height (row count)
     AND #$00FF
     STA $1E
     LDX #$0000
-    JSL $@map_coords.TileCoordsToMapIndex
+    JSL $@map_coords.TileCoordsToMapIndex ; TileCoordsToMapIndex for starting clear position
     CPX #$4000
     BCS loc_00B3E9
     LDA $1A
     STA $18
     TXA 
     STA $1C
-    LDA $00
+    LDA $00               ; Flag $0001 → full clear (both nibbles) via ClearCollisionRectFull
     BEQ loc_00B3A3
-    JMP $&ClearCollisionRectFull
+    JMP $&ClearCollisionRectFull ; Jump to ClearCollisionRectFull for zeroing both nibbles
 
   loc_00B3A3:
     TXA 
@@ -1080,15 +1080,15 @@ ClearCollisionRect {
   loc_00B3A4:
     SEP #$20
     TAX 
-    LDA $collisionLayer, X
-    AND #$0F
+    LDA $collisionLayer, X ; Read collision byte at current tile
+    AND #$0F              ; AND #$0F: clear solid nibble, keep type
     STA $collisionLayer, X
     DEC $18
     BEQ loc_00B3C4
     REP #$20
     TXA 
     INC 
-    BIT #$000F
+    BIT #$000F            ; BIT #$000F: check metatile boundary for column wrap
     BNE loc_00B3A4
     CLC 
     ADC #$00F0
@@ -1102,7 +1102,7 @@ ClearCollisionRect {
     LDA $1C
     CLC 
     ADC #$10
-    BCS loc_00B3DB
+    BCS loc_00B3DB        ; Carry set → add page stride to row pointer
     STA $1C
     REP #$20
     LDA $1C
@@ -1133,17 +1133,17 @@ ClearCollisionRectFull {
 
   loc_00B3F0:
     SEP #$20
-    TAX 
-    LDA $collisionLayer, X
-    AND #$00
+    TAX                   ; ClearCollisionRectFull: AND #$00 zeros both nibbles
+    LDA $collisionLayer, X ; ClearCollisionRectFull: read collision byte
+    AND #$00              ; AND #$00: zero both solid and type nibbles
     STA $collisionLayer, X
     DEC $18
     BEQ loc_00B410
     REP #$20
     TXA 
     INC 
-    BIT #$000F
-    BNE loc_00B3F0
+    BIT #$000F            ; Check metatile boundary for wrap
+    BNE loc_00B3F0        ; Metatile boundary check for column wrap
     CLC 
     ADC #$00F0
     BRA loc_00B3F0
@@ -1184,41 +1184,41 @@ ClearCollisionRectFull {
 
 TileCollisionQuery {
     PHD 
-    LDA #$0000
-    TCD 
-    LDA $18
-    AND #$FFF0
-    BMI loc_00B47C        ; Negative pixel X = off map left → treat as blocked
-    CMP $cameraOffsetX
+    LDA #$0000            ; Zero DP for WRAM direct access in collision lookup
+    TCD                   ; TileCollisionQuery: zero DP for WRAM direct access
+    LDA $18               ; Load probe pixel X
+    AND #$FFF0            ; Align probe X to 16px boundary (AND #$FFF0)
+    BMI loc_00B47C        ; Negative pixel X → off-map (return $000F solid fallback)
+    CMP $cameraOffsetX    ; Compare against camera left bound (cameraOffsetX)
     BCC loc_00B47C
-    CMP $cameraBoundsX
+    CMP $cameraBoundsX    ; Compare against camera right bound (cameraBoundsX)
     BCS loc_00B47C
-    LSR 
+    LSR                   ; Pixel→tile: LSR ×4 = ÷16
     LSR 
     LSR 
     LSR 
     STA $18
-    LDA $1C
+    LDA $1C               ; Load probe pixel Y
     BMI loc_00B47C
-    CMP $cameraOffsetY
+    CMP $cameraOffsetY    ; Compare against camera top bound (cameraOffsetY)
     BCC loc_00B47C
-    CMP $cameraLowerYBound
+    CMP $cameraLowerYBound ; Compare against camera bottom bound (cameraLowerYBound)
     BCS loc_00B47C
     LSR 
     LSR 
     LSR 
     LSR 
-    DEC                   ; DEC: adjust tile Y down by 1 row (camera top-edge offset)
+    DEC                   ; DEC: adjust tile Y for camera top-edge row offset
     STA $1C
-    JSL $@tile_collision_physics.CalcTileMapOffset
-    CPY #$4000
+    JSL $@tile_collision_physics.CalcTileMapOffset ; CalcTileMapOffset: tile coords → collision layer pointer
+    CPY #$4000            ; Y ≥ $4000 = out-of-bounds → fallback
     BCS loc_00B47C
-    LDA [$80], Y
+    LDA [$80], Y          ; Read collision byte from layer via pointer
     BIT #$00F0            ; Non-zero upper nibble = solid tile → query reports blocked
     BEQ loc_00B47F
 
   loc_00B47C:
-    LDA #$000F            ; Return $000F: out-of-bounds fallback → treat as solid
+    LDA #$000F            ; $000F = solid fallback for all out-of-bounds queries
 
   loc_00B47F:
     PLD 

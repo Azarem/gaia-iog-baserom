@@ -536,7 +536,7 @@ ComputeSineScrollTable {
     TXY 
     LDA $00               ; Check amplitude ($00) — zero = skip table fill
     BEQ loc_03DC90
-    LDA $006E             ; Write wave phase to hardware multiplier WRMPYA ($4202)
+    LDA $006E             ; Load wave phase to hardware multiplier WRMPYA ($4202)
     STA $L_WRMPYA
     CLC 
 

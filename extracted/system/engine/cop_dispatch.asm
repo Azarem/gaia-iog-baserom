@@ -1,12 +1,14 @@
 ; Central COP bytecode dispatch engine for IOG's actor and thinker scripting system (Bank $00).
 ; 
-; Contains CopDispatch, a 24-byte native-mode entry reached from the COP interrupt vector (CopVector → JML CopDispatch). On each COP ($02) instruction it reads the opcode byte from the script stream, doubles it, and indirect-jumps through cop_dispatch_table to the matching handler across 15 focused handler blocks.
+; Contains CopDispatch, a 24-byte native-mode entry reached from the COP interrupt vector (CopVector → JML CopDispatch). On each COP ($02) instruction it reads the opcode byte from the script stream, doubles it, and indirect-jumps through cop_dispatch_table to the matching handler across 13 handler blocks.
 ; 
-; The table maps 172 valid opcodes ($00–$6D and $80–$E2) to short-address handler labels; opcodes $6E–$7F are a deliberate #$0000 gap that would crash if executed. A cop_table_sentinel (NOP/BRA loop) guards the table end.
+; The 227-entry table maps 209 valid opcodes ($00–$6D and $80–$E2) to short-address handler labels; opcodes $6E–$7F are an 18-entry #$0000 gap that would crash if executed. A cop_table_sentinel (NOP/BRA loop) guards the table end.
 ; 
 ; Every actor and thinker script in the game routes through this dispatcher—movement, collision, spawning, dialogue, palette, and DMA all depend on it. Handlers receive Actor ID in X/Y, DBR=$81, an argument pointer in $0A, and exit via RTI (continue/branch) or RTL (yield/halt).
 ; 
-; Handler blocks: cop_handlers_audio, cop_handlers_palette, cop_handlers_sprite, cop_handlers_player_sprite, cop_handlers_spawn, cop_handlers_lifecycle, actor_pool, cop_handlers_solid, cop_handlers_movement, cop_handlers_spatial, cop_handlers_map, cop_handlers_effects, cop_handlers_input, cop_handlers_flow, cop_handlers_flags.
+; Dispatch target blocks: cop_handlers_audio, cop_handlers_effects, cop_handlers_flow, cop_handlers_input, cop_handlers_lifecycle, cop_handlers_map, cop_handlers_movement, cop_handlers_palette, cop_handlers_player_sprite, cop_handlers_solid, cop_handlers_spatial, cop_handlers_spawn, cop_handlers_sprite.
+; 
+; Support blocks (called internally by handlers, not dispatch targets): actor_pool, cop_handlers_flags.
 ---------------------------------------------
 
 ?BANK 00
@@ -42,11 +44,11 @@ CopDispatch {
     AND #$00FF
     ASL                   ; ASL: word index = opcode × 2 into cop_dispatch_table
     TAX 
-    JMP ($&cop_dispatch_table, X) ; Indirect JMP through 172-entry handler pointer table
+    JMP ($&cop_dispatch_table, X) ; Indirect JMP through 227-entry handler pointer table (209 valid + 18 gap)
 }
 
 ---------------------------------------------
-; 172-entry handler pointer table mapping COP opcodes $00–$6D and $80–$E2 to short-address handler labels across 15 handler blocks. Opcodes $6E–$7F are a deliberate #$0000 gap that would crash if executed.
+; 227-entry handler pointer table mapping COP opcodes $00–$6D and $80–$E2 (209 valid) to short-address handler labels across 13 handler blocks. Opcodes $6E–$7F are an 18-entry #$0000 gap that would crash if executed.
 
 cop_dispatch_table [
   &cop_handlers_solid.GenHdmaSine   ;00

@@ -568,7 +568,7 @@ PlayerAttackHitTest {
   loc_03BE77:
     LDA #$0080            ; $0080 = iframe state
     TSB $10
-    LDA $playerFlags
+    LDA $playerFlags      ; $0010 in playerFlags = debug/auto-kill mode
     BIT #$0010
     BNE loc_03BE8B
     LDA $12               ; $0010 in $12 = stagger-immune
@@ -883,7 +883,7 @@ EnemyHitPlayer_Epilogue {
     NOP 
 
   loc_03C0AE:
-    LDA $12
+    LDA $12               ; $0001 in $12: recovery ($FFEF) vs invincibility ($0011) iframes
     BIT #$0001
     BEQ loc_03C0BE
     LDA #$FFEF
@@ -959,7 +959,7 @@ InvinciblePlayerHit {
     NOP 
 
   loc_03C13D:
-    COP [PlaySoundCh1] ( #09 )
+    COP [PlaySoundCh1] ( #09 ) ; Invincible-hit sound #09 (instead of normal #05)
     BRA loc_03C0E2
 }
 
@@ -977,7 +977,7 @@ InvinciblePlayerHit {
 CalcKnockbackDirection {
     LDY $000E
     LDX $0BFE, Y
-    CPX $playerActor
+    CPX $playerActor      ; Attacker = player → return carry set (caller uses GetPlayerFacing)
     SEC 
     BNE loc_03C14F
     RTS 
@@ -1001,7 +1001,7 @@ CalcKnockbackDirection {
   loc_03C16F:
     BCS loc_03C188
     CLC 
-    ADC $0014, X
+    ADC $0014, X          ; Compute attacker hitbox center X (with H-mirror handling)
     STA $0018
     LDA $0005, Y
     AND #$00FF
@@ -1178,9 +1178,9 @@ RunInteractionCollision {
     STA $1E
     SEC 
     SBC #$000A
-    STA $1C
+    STA $1C               ; $2040 = COP active or orb → no interaction
     LDA $0010, Y
-    BIT #$2040
+    BIT #$2040            ; $0280 = climb/special → FriendlyMode (restricted)
     BNE InteractionCollision_Exit
     BIT #$0280
     BEQ loc_03C293
@@ -1492,7 +1492,7 @@ ApplyInteractionDamage {
     PHX 
     TYX 
     STA $extendedFlags, X
-    PLX 
+    PLX                   ; Mask joypad $0F00 during stagger
     LDA #$0F00
     TSB $joypadMaskStd
     JSR $&CalcKnockbackFromActorCenters
@@ -1529,9 +1529,9 @@ InteractionDamage_NPCChat {
     LDA #$81
     PHA 
     PLB 
-    REP #$20
+    REP #$20              ; chatPtr = item or dialogue reference for this NPC
     LDA $chatPtr, X
-    JSL $@inventory_mgmt.GiveItemToPlayer
+    JSL $@inventory_mgmt.GiveItemToPlayer ; GiveItemToPlayer — carry set = inventory full
     BCC loc_03C4F7
     AND #$00FF
     STA $0DB8
@@ -1705,7 +1705,7 @@ FormatDamageDigits {
   loc_03C5E2:
     PHA 
     LDA $0000
-    ASL 
+    ASL                   ; ASL ×4 shifts tens to bits 7-4; ORA ones into bits 3-0
     ASL 
     ASL 
     ASL 

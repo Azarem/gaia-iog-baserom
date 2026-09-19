@@ -46,7 +46,7 @@ SaveGameState_Scene {
     XBA 
     ASL 
     TAX 
-    LDA $sceneCurrent     ; Save sceneCurrent to $0B06 as part of save data
+    LDA $sceneCurrent     ; Load sceneCurrent to $0B06 as part of save data
     STA $0B06
     LDY #$0000
     PHX 

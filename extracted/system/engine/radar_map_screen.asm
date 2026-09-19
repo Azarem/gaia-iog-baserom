@@ -243,7 +243,7 @@ RadarBorderAnimate {
     REP #$20
     LDA $03, S
     INC 
-    CMP #$001D
+    CMP #$001D            ; Wrap animation index at 29 (table length)
     BCC loc_03826D
     LDA #$0000
 
@@ -251,8 +251,8 @@ RadarBorderAnimate {
     STA $03, S
     ASL 
     TAX 
-    LDA $@RadarBorderTileTable, X
-    STA $7F0A24
+    LDA $@RadarBorderTileTable, X ; Index RadarBorderTileTable for current animation frame
+    STA $7F0A24           ; Write animated tile to border position $7F0A24
     SEP #$20
     RTS 
 }

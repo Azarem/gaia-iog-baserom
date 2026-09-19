@@ -328,7 +328,7 @@ DrawMenuCursor {
     CLC 
     ADC $18
     TAX 
-    LDA $7F0200, X        ; Save tiles under cursor to $0990/$0992, write cursor tiles over them
+    LDA $7F0200, X        ; Load tiles under cursor to $0990/$0992, write cursor tiles over them
     PHA 
     LDA $00
     STA $7F0200, X

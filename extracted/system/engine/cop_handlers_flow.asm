@@ -30,10 +30,10 @@
 
 SetInteractHandler {
     TYX 
-    LDA [$0A]
+    LDA [$0A]             ; Read &Code operand pointer for NPC interaction handler
     INC $0A
     INC $0A
-    STA $chatPtr, X
+    STA $chatPtr, X       ; Store in chatPtr ($7F000A) — interaction system invokes on player contact
     LDA $0A
     STA $02, S
     RTI 
@@ -44,9 +44,9 @@ SetInteractHandler {
 
 SetEntryHere {
     TYX 
-    LDA $0C
+    LDA $0C               ; Load current script bank to actor $02 (entry bank byte)
     STA $02
-    LDA $0A
+    LDA $0A               ; Load script PC to actor $00 (entry resume address)
     STA $00
     STA $02, S
     RTI 
@@ -57,11 +57,11 @@ SetEntryHere {
 
 SetEntryHereAndYield {
     TYX 
-    LDA $0C
+    LDA $0C               ; SetEntryHereAndYield: save bank to $02
     STA $02
-    LDA $0A
+    LDA $0A               ; Load PC to $00 as resume entry
     STA $00
-    PLA 
+    PLA                   ; Pop COP frame and yield RTL — resume next frame at saved $00/$02
     PLA 
     RTL 
 }
@@ -71,19 +71,19 @@ SetEntryHereAndYield {
 
 JumpAfterDelay {
     TYX 
-    LDA [$0A]
+    LDA [$0A]             ; Read Address target word → deferred entry pointer $00
     INC $0A
     INC $0A
     STA $00               ; Store target script pointer in actor EntryPtr ($00) for deferred resume
-    LDA [$0A]
+    LDA [$0A]             ; Read bank byte for deferred target
     INC $0A
     AND #$00FF
-    STA $02
-    LDA [$0A]
+    STA $02               ; Store bank in entry $02
+    LDA [$0A]             ; Read frame delay word operand
     INC $0A
     INC $0A
-    STA $08
-    PLA 
+    STA $08               ; Store delay in timer $08 — actor waits this many frames before resuming
+    PLA                   ; Yield RTL — resumes at target entry after $08 timer expires
     PLA 
     RTL 
 }
@@ -93,15 +93,15 @@ JumpAfterDelay {
 
 JumpNextFrame {
     TYX 
-    LDA [$0A]
+    LDA [$0A]             ; Read Address target → $00 for next-frame jump
     INC $0A
     INC $0A
     STA $00
-    LDA [$0A]
+    LDA [$0A]             ; Read bank byte → $02
     INC $0A
     AND #$00FF
     STA $02
-    STZ $08
+    STZ $08               ; Zero timer: immediate 1-frame deferred jump
     PLA 
     PLA 
     RTL 
@@ -112,15 +112,15 @@ JumpNextFrame {
 
 SetEntryFar {
     TYX 
-    LDA [$0A]
+    LDA [$0A]             ; SetEntryFar: read far pointer word → $00
     INC $0A
     INC $0A
     STA $00
-    LDA [$0A]
+    LDA [$0A]             ; Read bank byte → $02
     INC $0A
     AND #$00FF
     STA $02
-    STZ $08
+    STZ $08               ; Zero timer $08 (no delay)
     LDA $0A
     STA $02, S
     RTI 
@@ -132,9 +132,9 @@ SetEntryFar {
 RestoreSavedPtr {
     TYX 
     LDA $retPtr1, X       ; retPtr1 nonzero: restore as script PC and clear; zero: no saved return — yield RTL
-    BEQ loc_00AA71
-    STA $02, S
-    LDA #$0000
+    BEQ loc_00AA71        ; retPtr1 is zero: no saved return — yield RTL
+    STA $02, S            ; Restore retPtr1 as return PC on COP stack
+    LDA #$0000            ; Clear retPtr1 after restoring (one-shot)
     STA $retPtr1, X
     RTI 
 
@@ -149,12 +149,12 @@ RestoreSavedPtr {
 
 ReturnWithSignal {
     TYX 
-    LDA $retPtr1, X
-    BEQ loc_00AA88
+    LDA $retPtr1, X       ; Read retPtr1 for signal-return check
+    BEQ loc_00AA88        ; No saved PC → yield RTL
     STA $02, S            ; Restore return PC from retPtr1 to stack for RTI-resume at caller
     LDA #$0000
-    STA $retPtr1, X
-    LDA #$FFFF            ; RTI with A=$FFFF: signal non-zero return to caller script
+    STA $retPtr1, X       ; Clear retPtr1 after use
+    LDA #$FFFF            ; A=$FFFF: non-zero signal to caller (distinguishes from normal return)
     RTI 
 
   loc_00AA88:
@@ -168,7 +168,7 @@ ReturnWithSignal {
 
 SetSavedPtr {
     TYX 
-    LDA [$0A]
+    LDA [$0A]             ; Read &Code operand and store in retPtr1 ($7F0004) for later RestoreSavedPtr
     INC $0A
     INC $0A
     STA $retPtr1, X
@@ -182,12 +182,12 @@ SetSavedPtr {
 
 JumpFar {
     TYX 
-    LDA [$0A]
+    LDA [$0A]             ; JumpFar: read target word → $00 and stack $02,S
     INC $0A
     INC $0A
     STA $00
     STA $02, S
-    LDA [$0A]
+    LDA [$0A]             ; Read bank byte for far jump
     INC $0A
     AND #$00FF
     SEP #$20              ; 8-bit mode: write bank byte to both DP $02 (entry) and $04,S (COP stack frame)
@@ -202,11 +202,11 @@ JumpFar {
 
 CallNear {
     TYX 
-    LDA [$0A]
+    LDA [$0A]             ; Read &Code target for near call
     INC $0A
     INC $0A
     STA $02, S
-    LDA $0A
+    LDA $0A               ; Load caller return PC in retPtr1 before jumping
     STA $retPtr1, X       ; Save caller PC in retPtr1; restored later via RestoreSavedPtr or ReturnWithSignal
     RTI 
 }
@@ -219,10 +219,10 @@ CallNearDeferred {
     LDA [$0A]             ; Read target &Code; save caller's return PC in retPtr1, yield for next-frame execution
     INC $0A
     INC $0A
-    STA $00
-    LDA $0A
+    STA $00               ; Set $00 to target for next-frame execution
+    LDA $0A               ; Load return PC in retPtr1 for later RestoreSavedPtr
     STA $retPtr1, X
-    PLA 
+    PLA                   ; Yield RTL — callee runs next frame
     PLA 
     RTL 
 }
@@ -232,14 +232,14 @@ CallNearDeferred {
 
 LoopStart {
     TYX 
-    CPX #$1000
+    CPX #$1000            ; X ≥ $1000 → player actor (uses loopCounter/$7F0014 and retPtr2)
     BCC loc_00AAF6
-    LDA [$0A]
+    LDA [$0A]             ; Read iteration count byte
     INC $0A
     AND #$00FF
-    STA $loopCounter, X
+    STA $loopCounter, X   ; Store count in player loopCounter ($7F0014)
     LDA $0A
-    STA $retPtr2, X
+    STA $retPtr2, X       ; Save loop-head PC in retPtr2 for LoopEnd to jump back
     STA $00
     LDA $0A
     STA $02, S
@@ -249,9 +249,9 @@ LoopStart {
     LDA [$0A]
     INC $0A
     AND #$00FF
-    STA $loopCounterActor, X ; Per-actor loop counter stored at $7F2102
+    STA $loopCounterActor, X ; Scene actor: store count in loopCounterActor ($7F2102)
     LDA $0A
-    STA $loopStartPcActor, X
+    STA $loopStartPcActor, X ; Save loop-head PC in loopStartPcActor ($7F2100)
     STA $00
     LDA $0A
     STA $02, S
@@ -265,13 +265,13 @@ LoopEnd {
     TYX 
     CPX #$1000            ; X ≥ $1000 = player (loopCounter/$7F0014); else scene actor (loopCounterActor/$7F2102)
     BCC loc_00AB2D
-    LDA $loopCounter, X
-    DEC 
-    BEQ loc_00AB28
-    STA $loopCounter, X
-    LDA $retPtr2, X
+    LDA $loopCounter, X   ; Read player loop counter
+    DEC                   ; Decrement; zero → loop exhausted
+    BEQ loc_00AB28        ; Counter reached zero: exit loop and continue script
+    STA $loopCounter, X   ; Counter nonzero: store decremented count
+    LDA $retPtr2, X       ; Restore loop-head PC from retPtr2
     STA $00
-    PLA 
+    PLA                   ; Yield RTL for next loop iteration
     PLA 
     RTL 
 
@@ -281,11 +281,11 @@ LoopEnd {
     RTI 
 
   loc_00AB2D:
-    LDA $loopCounterActor, X
+    LDA $loopCounterActor, X ; Scene actor: read loopCounterActor
     DEC 
     BEQ loc_00AB28
     STA $loopCounterActor, X
-    LDA $loopStartPcActor, X
+    LDA $loopStartPcActor, X ; Restore scene actor loop-head PC from loopStartPcActor
     STA $00
     PLA 
     PLA 
@@ -300,7 +300,7 @@ SetFlagByte {
     LDA [$0A]
     INC $0A
     AND #$00FF
-    JSR $&cop_handlers_flags.SetEventFlag
+    JSR $&cop_handlers_flags.SetEventFlag ; SetFlagByte: call SetEventFlag with byte-indexed flag
     LDA $0A
     STA $02, S
     RTI 
@@ -314,7 +314,7 @@ SetFlagWord {
     LDA [$0A]
     INC $0A
     INC $0A
-    JSR $&cop_handlers_flags.SetEventFlag
+    JSR $&cop_handlers_flags.SetEventFlag ; SetFlagWord: call SetEventFlag with word flag index
     LDA $0A
     STA $02, S
     RTI 
@@ -328,7 +328,7 @@ ClearFlagByte {
     LDA [$0A]
     INC $0A
     AND #$00FF
-    JSR $&cop_handlers_flags.ClearEventFlag
+    JSR $&cop_handlers_flags.ClearEventFlag ; ClearFlagByte: call ClearEventFlag on byte flag
     LDA $0A
     STA $02, S
     RTI 
@@ -342,7 +342,7 @@ ClearFlagWord {
     LDA [$0A]
     INC $0A
     INC $0A
-    JSR $&cop_handlers_flags.ClearEventFlag
+    JSR $&cop_handlers_flags.ClearEventFlag ; ClearFlagWord: call ClearEventFlag on word flag
     LDA $0A
     STA $02, S
     RTI 
@@ -353,10 +353,10 @@ ClearFlagWord {
 
 BranchOnFlagByte {
     TYX 
-    LDA [$0A]
+    LDA [$0A]             ; BranchOnFlagByte: read byte flag index
     INC $0A
     AND #$00FF
-    JSR $&cop_handlers_flags.TestEventFlag
+    JSR $&cop_handlers_flags.TestEventFlag ; Test flag state via TestEventFlag
     BCS loc_00ABA5
     BCC loc_00AB9A
 }
@@ -366,7 +366,7 @@ BranchOnFlagByte {
 
 BranchOnFlagWord {
     TYX 
-    LDA [$0A]
+    LDA [$0A]             ; BranchOnFlagWord: read word flag index
     INC $0A
     INC $0A
     JSR $&cop_handlers_flags.TestEventFlag ; Test flag; BCS/BCC dispatch to sense-byte check below
@@ -380,20 +380,20 @@ BranchOnFlagWord {
     BRA loc_00ABAE
 
   loc_00ABA5:
-    LDA [$0A]
+    LDA [$0A]             ; Flag set path: read sense byte
     INC $0A
     AND #$00FF
     BEQ loc_00ABB7
 
   loc_00ABAE:
-    LDA [$0A]
+    LDA [$0A]             ; Sense condition met: read &Code branch target and jump
     INC $0A
     INC $0A
     STA $02, S
     RTI 
 
   loc_00ABB7:
-    LDA [$0A]
+    LDA [$0A]             ; Sense not met: skip &Code operand and continue
     INC $0A
     INC $0A
     LDA $0A
@@ -410,10 +410,10 @@ WaitOnFlagByte {
     DEC 
     DEC 
     STA $00
-    LDA [$0A]
+    LDA [$0A]             ; Read byte flag index
     INC $0A
     AND #$00FF
-    JSR $&cop_handlers_flags.TestEventFlag
+    JSR $&cop_handlers_flags.TestEventFlag ; TestEventFlag: carry reflects flag state
     BCS loc_00ABF4
     BCC loc_00ABE9
 }
@@ -423,21 +423,21 @@ WaitOnFlagByte {
 
 WaitOnFlagWord {
     TYX 
-    LDA $0A
+    LDA $0A               ; WaitOnFlagWord: save rewind PC
     DEC 
     DEC 
     STA $00
-    LDA [$0A]
+    LDA [$0A]             ; Read word flag index
     INC $0A
     INC $0A
-    JSR $&cop_handlers_flags.TestEventFlag ; WaitOnFlagWord: yield loop until event flag matches sense
+    JSR $&cop_handlers_flags.TestEventFlag ; TestEventFlag for word flag
     BCS loc_00ABF4
 
   loc_00ABE9:
-    LDA [$0A]
+    LDA [$0A]             ; Check sense byte for yield decision
     INC $0A
     AND #$00FF
-    BEQ loc_00AC00
+    BEQ loc_00AC00        ; Sense matched: advance past operand and RTI (flag condition satisfied)
     BRA loc_00ABFD
 
   loc_00ABF4:
@@ -447,7 +447,7 @@ WaitOnFlagWord {
     BNE loc_00AC00
 
   loc_00ABFD:
-    PLA 
+    PLA                   ; Sense not matched: yield RTL (recheck next frame)
     PLA 
     RTL 
 
@@ -462,12 +462,12 @@ WaitOnFlagWord {
 
 GiveItem {
     TYX 
-    LDA [$0A]
+    LDA [$0A]             ; Read item ID byte for GiveItemToPlayer
     INC $0A
     AND #$00FF
-    JSL $@inventory_mgmt.GiveItemToPlayer
+    JSL $@inventory_mgmt.GiveItemToPlayer ; Call GiveItemToPlayer; carry set = inventory full
     BCS loc_00AC1E        ; Carry set = inventory full: jump to overflow &Code handler
-    LDA [$0A]
+    LDA [$0A]             ; Success: skip overflow branch operand
     INC $0A
     INC $0A
     LDA $0A
@@ -475,7 +475,7 @@ GiveItem {
     RTI 
 
   loc_00AC1E:
-    LDA [$0A]
+    LDA [$0A]             ; Overflow: read &Code target and jump
     INC $0A
     INC $0A
     STA $02, S
@@ -487,7 +487,7 @@ GiveItem {
 
 RemoveItem {
     TYX 
-    LDA [$0A]
+    LDA [$0A]             ; Read item ID byte
     INC $0A
     AND #$00FF
     JSL $@inventory_mgmt.RemoveItemFromInventory ; JSL RemoveItemFromInventory on script item ID byte
@@ -501,11 +501,11 @@ RemoveItem {
 
 BranchIfMissingItem {
     TYX 
-    LDA [$0A]
+    LDA [$0A]             ; Read item ID for inventory check
     INC $0A
     AND #$00FF
-    JSL $@inventory_mgmt.CheckInventoryForItem
-    BCC loc_00AC51
+    JSL $@inventory_mgmt.CheckInventoryForItem ; CheckInventoryForItem; carry clear = absent
+    BCC loc_00AC51        ; Item present: skip branch operand
     LDA [$0A]
     INC $0A
     INC $0A
@@ -514,7 +514,7 @@ BranchIfMissingItem {
     RTI 
 
   loc_00AC51:
-    LDA [$0A]
+    LDA [$0A]             ; Item absent: read &Code branch target and jump
     INC $0A
     INC $0A
     STA $02, S
@@ -526,15 +526,15 @@ BranchIfMissingItem {
 
 BranchIfItemEquipped {
     TYX 
-    LDA [$0A]
+    LDA [$0A]             ; Read item ID byte for equipped check
     INC $0A
     AND #$00FF
     SEP #$20              ; 8-bit compare: item ID byte vs equipped slot in inventorySlots[equippedIndex]
-    LDY $inventoryEquippedIndex
-    CMP $inventorySlots, Y
+    LDY $inventoryEquippedIndex ; Load equipped inventory slot index
+    CMP $inventorySlots, Y ; Compare item ID against equipped slot
     REP #$20
-    BEQ loc_00AC79
-    LDA [$0A]
+    BEQ loc_00AC79        ; Match: take branch (item is equipped)
+    LDA [$0A]             ; Not equipped: skip branch operand
     INC $0A
     INC $0A
     LDA $0A
@@ -542,7 +542,7 @@ BranchIfItemEquipped {
     RTI 
 
   loc_00AC79:
-    LDA [$0A]
+    LDA [$0A]             ; Equipped: read &Code target and jump
     INC $0A
     INC $0A
     STA $02, S
@@ -555,9 +555,9 @@ BranchIfItemEquipped {
 SetDungeonKillFlag {
     TYX 
     LDA $enemyNum, X      ; SetDungeonKillFlag: enemyNum indexes WRAM kill bitfield
-    AND #$00FF
-    BEQ loc_00AC8F
-    JSR $&cop_handlers_flags.SetWramFlag
+    AND #$00FF            ; Mask to byte
+    BEQ loc_00AC8F        ; Zero → no enemy to record, skip
+    JSR $&cop_handlers_flags.SetWramFlag ; SetWramFlag: mark enemy kill in dungeon bitfield
 
   loc_00AC8F:
     LDA $0A
@@ -569,27 +569,27 @@ SetDungeonKillFlag {
 ; COP #D9 with one word (WRAM address) and one Address (case table base). Reads a byte from the WRAM address, doubles it for a word index, and jumps into the case table in the script bank.
 
 SwitchCase {
-    LDA [$0A]
+    LDA [$0A]             ; Read WRAM address word (switch variable source)
     INC $0A
     INC $0A
     TAX 
-    LDA $0000, X
+    LDA $0000, X          ; Read byte at WRAM address → case index
     AND #$00FF
     ASL                   ; SwitchCase: table index ×2 for word-aligned jump table
     STA $0000
     PHB 
     SEP #$20
-    LDA $0C
+    LDA $0C               ; Switch DBR to script bank for table data reads
     PHA 
     PLB 
     REP #$20
-    LDA [$0A]
+    LDA [$0A]             ; Read case table base address from script
     INC $0A
     INC $0A
     CLC 
     ADC $0000             ; Add case base + scaled index for switch target address
     TAX 
-    LDA $0000, X
+    LDA $0000, X          ; Read target script address from table entry
     PLB 
     TYX 
     STA $02, S
@@ -601,17 +601,17 @@ SwitchCase {
 
 WaitByte {
     TYX 
-    LDA [$0A]
+    LDA [$0A]             ; Read frame count byte for wait timer
     INC $0A
     AND #$00FF
 
   loc_00ACC9:
     STA $08               ; Shared wait path: store frame count in $08, save entry pointer, yield RTL
-    LDA $0C
+    LDA $0C               ; Load bank to $02 for entry point
     STA $02
-    LDA $0A
+    LDA $0A               ; Load script PC to $00
     STA $00
-    PLA 
+    PLA                   ; Yield RTL — actor waits until $08 timer expires
     PLA 
     RTL 
 }
@@ -621,7 +621,7 @@ WaitByte {
 
 WaitWord {
     TYX 
-    LDA [$0A]
+    LDA [$0A]             ; WaitWord: read frame count word (for delays > 255 frames)
     INC $0A
     INC $0A
     BRA loc_00ACC9

@@ -28,23 +28,23 @@
 
 SetPlayerSpriteDirect {
     TYX 
-    SEP #$20
-    LDA [$0A]
-    STA $0AC8
-    ASL                   ; Index ×6: ASL (×2) + ADC self (×3) + ASL (×6) for 6-byte body_table entries
+    SEP #$20              ; 8-bit mode for byte operand read and body_table index math
+    LDA [$0A]             ; Read body sprite index byte from script
+    STA $0AC8             ; Cache raw index in $0AC8 for external reference
+    ASL                   ; Index ×6: ASL(×2) + ADC self(×3) + ASL(×6) — 6 bytes per body_table entry
     CLC 
     ADC [$0A]
     ASL 
     REP #$20
     AND #$00FF
-    STA $animScratch2, X
+    STA $animScratch2, X  ; Cache computed table offset in animScratch2
     TAY 
-    LDA $&body_table, Y
-    STA $spritesetPtr, X
-    LDA $&body_table+2, Y
+    LDA $&body_table, Y   ; Load spriteset pointer from body_table[index]
+    STA $spritesetPtr, X  ; Write to actor spritesetPtr ($7F0006)
+    LDA $&body_table+2, Y ; Load bank byte from body_table[index]+2
     AND #$00FF
-    STA $7F0008, X
-    LDA #$8000
+    STA $7F0008, X        ; Write to actor sprite bank ($7F0008)
+    LDA #$8000            ; Set playerFlags $8000 (player sprite was directly overridden)
     TSB $playerFlags
     INC $0A
     LDA $0A
@@ -57,16 +57,16 @@ SetPlayerSpriteDirect {
 
 StagePlayerSpr {
     TYX 
-    LDA [$0A]
+    LDA [$0A]             ; StagePlayerSpr: read animation index byte
     INC $0A
     AND #$00FF
-    STA $28
-    STZ $2A
-    JSR $&actor_pool.SetActorBody
+    STA $28               ; Store anim index to $28; clear frame counter $2A
+    STZ $2A               ; Clear frame counter — start from frame 0
+    JSR $&actor_pool.SetActorBody ; SetActorBody: apply characterForm body_table to spriteset/bank
     LDA $0C
     STA $02
     LDA $0A
-    STA $00
+    STA $00               ; Cache script pointer in $00 for deferred animation entry
     STA $02, S
     RTI 
 }
@@ -77,7 +77,7 @@ StagePlayerSpr {
 StagePlayerSprX {
     TYX 
     LDA [$0A]
-    INC $0A
+    INC $0A               ; StagePlayerSprX: read anim index, stage X axis
     AND #$00FF
     STA $28
     STZ $2A
@@ -85,9 +85,9 @@ StagePlayerSprX {
     LDA [$0A]
     INC $0A
     AND #$00FF
-    STA $moveXAlt, X
-    JSR $&actor_pool.AnimFrameLookup
-    STA $2C
+    STA $moveXAlt, X      ; Store X distance in moveXAlt ($7F0018)
+    JSR $&actor_pool.AnimFrameLookup ; Look up frame duration for X axis
+    STA $2C               ; Store X-axis frame duration to $2C
     LDA $0C
     STA $02
     LDA $0A
@@ -102,7 +102,7 @@ StagePlayerSprX {
 StagePlayerSprY {
     TYX 
     LDA [$0A]
-    INC $0A
+    INC $0A               ; StagePlayerSprY: read anim index, stage Y axis
     AND #$00FF
     STA $28
     STZ $2A
@@ -110,9 +110,9 @@ StagePlayerSprY {
     LDA [$0A]
     INC $0A
     AND #$00FF
-    STA $moveYAlt, X
-    JSR $&actor_pool.AnimFrameLookup
-    STA $2E
+    STA $moveYAlt, X      ; Store Y distance in moveYAlt ($7F001A)
+    JSR $&actor_pool.AnimFrameLookup ; Look up frame duration for Y axis
+    STA $2E               ; Store Y-axis frame duration to $2E
     LDA $0C
     STA $02
     LDA $0A
@@ -127,7 +127,7 @@ StagePlayerSprY {
 StagePlayerSprXY {
     TYX 
     LDA [$0A]
-    INC $0A
+    INC $0A               ; StagePlayerSprXY: read anim index, stage both axes
     AND #$00FF
     STA $28
     STZ $2A
@@ -135,15 +135,15 @@ StagePlayerSprXY {
     LDA [$0A]
     INC $0A
     AND #$00FF
-    STA $moveXAlt, X
+    STA $moveXAlt, X      ; moveXAlt: X-axis distance
     JSR $&actor_pool.AnimFrameLookup
-    STA $2C
+    STA $2C               ; AnimFrameLookup for X → $2C
     LDA [$0A]
     INC $0A
-    AND #$00FF
+    AND #$00FF            ; moveYAlt: Y-axis distance
     STA $moveYAlt, X
     JSR $&actor_pool.AnimFrameLookup
-    STA $2E
+    STA $2E               ; AnimFrameLookup for Y → $2E
     LDA $0C
     STA $02
     LDA $0A
@@ -157,9 +157,9 @@ StagePlayerSprXY {
 
 RunPlayerAnim {
     TYX 
-    JSL $@sprite_composition.UpdateActorAnimation
-    BCC loc_00A116
-    LDA #$0000
+    JSL $@sprite_composition.UpdateActorAnimation ; Update player animation; carry set = sequence completed
+    BCC loc_00A116        ; Not done: yield RTL
+    LDA #$0000            ; Done: clear both movement deltas
     STA $2C
     STA $2E
     LDA $0A
@@ -178,7 +178,7 @@ RunPlayerAnim {
 StagePlayerSprWall {
     TYX 
     LDA [$0A]
-    INC $0A
+    INC $0A               ; StagePlayerSprWall: read anim+X+Y+wall type (4 operands)
     AND #$00FF
     STA $28
     STZ $2A
@@ -195,10 +195,10 @@ StagePlayerSprWall {
     STA $moveYAlt, X
     JSR $&actor_pool.AnimFrameLookup
     STA $2E
-    LDA [$0A]
+    LDA [$0A]             ; Read wall-type byte operand (4th operand)
     INC $0A
     AND #$00FF
-    STA $playerWallType
+    STA $playerWallType   ; Store to playerWallType ($09B0) for WallAnim checks
     LDA $0C
     STA $02
     LDA $0A
@@ -212,11 +212,11 @@ StagePlayerSprWall {
 
 StagePlayerSprFromDP {
     TYX 
-    LDA $0000
+    LDA $0000             ; Read anim index from DP $0000 instead of script stream
     AND #$00FF
     STA $28
     STZ $2A
-    JSR $&actor_pool.SetActorBody
+    JSR $&actor_pool.SetActorBody ; Apply body table without script operand consumption
     LDA $0C
     STA $02
     LDA $0A
@@ -230,29 +230,29 @@ StagePlayerSprFromDP {
 
 WallAnimHere {
     TYX 
-    LDA [$0A]
+    LDA [$0A]             ; WallAnimHere: read joypad mask operand (word)
     INC $0A
     INC $0A
-    CMP $joypadCurrent
+    CMP $joypadCurrent    ; Compare mask against joypadCurrent — skip if no matching button held
     BNE loc_00A1A4
     LDA $16
-    BIT #$000F            ; Grid-aligned test: low nibble of Y must be zero (16px tile boundary)
+    BIT #$000F            ; Test grid alignment: Y low nibble must be 0 (on 16px boundary)
     BNE loc_00A19E
     STA $001C
-    LDA $14
+    LDA $14               ; Set probe X coordinate from actor position
     STA $0018
-    JSR $&cop_handlers_solid.TileCollisionQuery
+    JSR $&cop_handlers_solid.TileCollisionQuery ; Query collision layer tile at actor's feet
     AND #$00FF
-    BIT #$00F0            ; Solid nibble ($F0): any set bit means blocked tile → set wall contact flag
+    BIT #$00F0            ; Test solid nibble ($F0) — any bit set means blocked tile
     BNE loc_00A1A9
-    CMP #$000F
+    CMP #$000F            ; Type $0F also counts as blocked
     BEQ loc_00A1A9
-    CMP $playerWallType   ; Tile collision type must match playerWallType for animation to advance
+    CMP $playerWallType   ; Compare tile type against playerWallType — must match for animation
     BNE loc_00A1A4
 
   loc_00A19E:
-    JSL $@sprite_composition.UpdateActorAnimation
-    BCC loc_00A1B2
+    JSL $@sprite_composition.UpdateActorAnimation ; Type matches: advance wall animation via UpdateActorAnimation
+    BCC loc_00A1B2        ; Carry clear = animation still running → yield RTL
 
   loc_00A1A4:
     LDA $0A
@@ -261,7 +261,7 @@ WallAnimHere {
 
   loc_00A1A9:
     LDA $10
-    ORA #$0004
+    ORA #$0004            ; Set actor flag $0004 (wall contact) on blocked tile
     STA $10
     BRA loc_00A1A4
 
@@ -285,11 +285,11 @@ WallAnimNorth {
     BIT #$000F
     BNE loc_00A1E9
     SEC 
-    SBC #$0010
-    STA $001C
+    SBC #$0010            ; North variant: subtract $10 (one tile north) from Y for collision probe
+    STA $001C             ; WallAnimNorth: probe Y−$10 (one tile north)
     LDA $14
     STA $0018
-    JSR $&cop_handlers_solid.TileCollisionQuery
+    JSR $&cop_handlers_solid.TileCollisionQuery ; TileCollisionQuery at tile north of actor
     AND #$00FF
     BIT #$00F0
     BNE loc_00A1F4
@@ -333,11 +333,11 @@ WallAnimSouth {
     BIT #$000F
     BNE loc_00A234
     CLC 
-    ADC #$0010
-    STA $001C
+    ADC #$0010            ; South variant: add $10 (one tile south) to Y for collision probe
+    STA $001C             ; WallAnimSouth: probe Y+$10 (one tile south)
     LDA $14
     STA $0018
-    JSR $&cop_handlers_solid.TileCollisionQuery
+    JSR $&cop_handlers_solid.TileCollisionQuery ; Query collision at tile south of actor
     AND #$00FF
     BIT #$00F0
     BNE loc_00A23F

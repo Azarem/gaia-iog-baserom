@@ -30,16 +30,16 @@
 
 CopySiblingFollowState {
     TXY                   ; CopySiblingFollowState: mirror loopCounter and chatPtr from sibling $04
-    LDX $0004, Y
-    LDA $loopCounter, X
+    LDX $0004, Y          ; Load sibling actor ID from prev-link $0004
+    LDA $loopCounter, X   ; Copy sibling's loopCounter to scratch $0000
     STA $0000
-    LDA $chatPtr, X
+    LDA $chatPtr, X       ; Copy sibling's chatPtr to scratch $0002
     STA $0002
     TYX 
     LDA $0000
-    STA $loopCounter, X
+    STA $loopCounter, X   ; Store sibling's loopCounter into this actor
     LDA $0002
-    STA $chatPtr, X
+    STA $chatPtr, X       ; Store sibling's chatPtr into this actor
     BRA FollowChaseMainLoop
 }
 
@@ -55,32 +55,32 @@ InitFollowAndChase {
     STA $loopCounter, X
     LDA $0002
     STA $chatPtr, X
-    LDA #$FFFF
+    LDA #$FFFF            ; Reset direction state to $FFFF (uninitialized — forces fresh direction pick)
     STA $animScratch2, X
 
   FollowChaseMainLoop:
     LDY $24               ; FollowChaseMainLoop: compare |deltaX| vs |deltaY−8| to pick dominant axis
-    LDA $0014, Y
+    LDA $0014, Y          ; deltaX = target.X − self.X; deltaY = target.Y − 8 − self.Y
     SEC 
-    SBC $14
-    BMI FollowChaseYDiffNegative
-    STA $0018
-    LDA $0016, Y
+    SBC $14               ; Subtract own X from target X
+    BMI FollowChaseYDiffNegative ; Negative deltaX → target is to the left (Y diff path)
+    STA $0018             ; Store |deltaX| in $0018 (positive = target is right)
+    LDA $0016, Y          ; deltaY = target.Y ($0016,Y) − 8 (sprite anchor offset) − self.Y
     SEC 
-    SBC #$0008
-    SEC 
+    SBC #$0008            ; Subtract 8px for sprite anchor offset on Y axis
+    SEC                   ; Subtract 8px sprite anchor offset from Y delta
     SBC $16
     BMI FollowChaseXDiffNegativePrimary
-    STA $001C
-    CMP $0018
-    BCC FollowChaseDominantXGreater
-    JMP $&FollowChaseMoveEast
+    STA $001C             ; Store |deltaY| in $001C
+    CMP $0018             ; Compare |deltaY| vs |deltaX| to pick dominant movement axis
+    BCC FollowChaseDominantXGreater ; |deltaY| < |deltaX| → X axis dominates → move west/east
+    JMP $&FollowChaseMoveEast ; |deltaY| ≥ |deltaX| → Y dominates → move east
 
   FollowChaseDominantXGreater:
-    JMP $&FollowChaseMoveWest
+    JMP $&FollowChaseMoveWest ; X dominates → dispatch west/east path
 
   FollowChaseXDiffNegativePrimary:
-    EOR #$FFFF
+    EOR #$FFFF            ; Negate deltaY: EOR #$FFFF + INC = two's complement
     INC 
     STA $001C
     CMP $0018
@@ -88,7 +88,7 @@ InitFollowAndChase {
     BRA FollowChaseDiagQuadrantNW
 
   FollowChaseYDiffNegative:
-    EOR #$FFFF
+    EOR #$FFFF            ; Negate deltaX for target-is-left case
     INC 
     STA $0018
     LDA $0016, Y
@@ -117,22 +117,22 @@ InitFollowAndChase {
     JMP $&FollowChaseMoveDiagNE
 
   FollowChaseDiagQuadrantSW:
-    JSR $&ComputeFollowAngle ; Diagonal quadrant NE: ComputeFollowAngle then ResolveFollowDirection index $0004
-    LDA #$0000
+    JSR $&ComputeFollowAngle ; ComputeFollowAngle for SW quadrant
+    LDA #$0000            ; Direction base index 0 (SW diagonal)
     STA $0000
-    JSR $&ResolveFollowDirection
+    JSR $&ResolveFollowDirection ; Resolve sub-direction from angle + base index
     LDA $0000
-    BMI FollowChaseMoveDiagSW
-    JMP $&SelectFallbackDirection
+    BMI FollowChaseMoveDiagSW ; $0000 < 0 → direction resolved, proceed with movement
+    JMP $&SelectFallbackDirection ; Direction blocked → rotate through fallback directions
 
   FollowChaseMoveDiagSW:
     COP [SetEntryContinue]
-    JSR $&ComputeFollowStep
-    LDA $0000
+    JSR $&ComputeFollowStep ; ComputeFollowStep: sine-table walk → sub-pixel deltas
+    LDA $0000             ; Negate X delta (flip to SW direction)
     EOR #$FFFF
     INC 
     TAY 
-    LDA $0002
+    LDA $0002             ; Swap X/Y for diagonal movement: $0000=Y, $0002=X
     STA $0000
     STY $0002
     JMP $&ApplyFollowMovement
@@ -158,7 +158,7 @@ InitFollowAndChase {
 
 FollowChaseMoveWest {
     JSR $&ComputeFollowAngleAlt
-    LDA #$0004
+    LDA #$0004            ; Direction base 4 = west (pure horizontal)
     STA $0000
     JSR $&ResolveFollowDirection
     LDA $0000
@@ -173,7 +173,7 @@ FollowChaseMoveWest {
 
 FollowChaseMoveEast {
     JSR $&ComputeFollowAngle
-    LDA #$0006
+    LDA #$0006            ; Direction base index 6 (east)
     STA $0000
     JSR $&ResolveFollowDirectionAlt
     LDA $0000
@@ -193,7 +193,7 @@ FollowChaseMoveEast {
 
 FollowChaseMoveNorth {
     JSR $&ComputeFollowAngle
-    LDA #$0008
+    LDA #$0008            ; Direction base index 8 (north)
     STA $0000
     JSR $&ResolveFollowDirection
     LDA $0000
@@ -204,18 +204,18 @@ FollowChaseMoveNorth {
     COP [SetEntryContinue]
     JSR $&ComputeFollowStep
     LDA $0002
-    EOR #$FFFF
+    EOR #$FFFF            ; Negate Y for northward movement
     INC 
     TAY 
     LDA $0000
-    STA $0002
+    STA $0002             ; Swap: X becomes Y step, Y becomes X step
     STY $0000
     JMP $&ApplyFollowMovement
 }
 
 FollowChaseMoveSouth {
     JSR $&ComputeFollowAngleAlt
-    LDA #$000A
+    LDA #$000A            ; Direction base index $A (south)
     STA $0000
     JSR $&ResolveFollowDirectionAlt
     LDA $0000
@@ -226,7 +226,7 @@ FollowChaseMoveSouth {
     COP [SetEntryContinue]
     JSR $&ComputeFollowStep
     LDA $0000
-    EOR #$FFFF
+    EOR #$FFFF            ; Negate for southward (positive Y delta → negative step)
     INC 
     STA $0000
     JMP $&ApplyFollowMovement
@@ -234,7 +234,7 @@ FollowChaseMoveSouth {
 
 FollowChaseMoveDiagNE {
     JSR $&ComputeFollowAngleAlt
-    LDA #$000C
+    LDA #$000C            ; Direction base index $C (NE diagonal)
     STA $0000
     JSR $&ResolveFollowDirection
     LDA $0000
@@ -245,7 +245,7 @@ FollowChaseMoveDiagNE {
     COP [SetEntryContinue]
     JSR $&ComputeFollowStep
     LDA $0000
-    EOR #$FFFF
+    EOR #$FFFF            ; Negate both X and Y for NE quadrant
     INC 
     STA $0000
     LDA $0002
@@ -257,7 +257,7 @@ FollowChaseMoveDiagNE {
 
 FollowChaseMoveDiagSE {
     JSR $&ComputeFollowAngle
-    LDA #$000E
+    LDA #$000E            ; Direction base index $E (SE diagonal)
     STA $0000
     JSR $&ResolveFollowDirectionAlt
     LDA $0000
@@ -268,7 +268,7 @@ FollowChaseMoveDiagSE {
     COP [SetEntryContinue]
     JSR $&ComputeFollowStep
     LDA $0000
-    EOR #$FFFF
+    EOR #$FFFF            ; Negate both for SE quadrant direction
     INC 
     TAY 
     LDA $0002
@@ -280,22 +280,22 @@ FollowChaseMoveDiagSE {
 
 ApplyFollowMovement {
     LDY $04               ; ApplyFollowMovement: write sub-pixel deltas to parent $14/$16 and moveScratch
-    LDA $14
-    CLC 
+    LDA $14               ; Apply X delta: self.X += $0000 (computed step)
+    CLC                   ; Add computed X step ($0000) to self.X
     ADC $0000
     STA $14
-    STA $0014, Y
+    STA $0014, Y          ; Sync position to parent actor Y via $04 link
     LDA $0000
-    STA $moveScratch1, X
+    STA $moveScratch1, X  ; Store X step in moveScratch1 for external reference
     LDA $16
     CLC 
-    ADC $0002
+    ADC $0002             ; Add computed Y step ($0002) to self.Y
     STA $16
-    STA $0016, Y
+    STA $0016, Y          ; Sync Y position to parent actor
     LDA $0002
-    STA $moveScratch2, X
-    LDA $orbitDiameter, X
-    CMP #$0008
+    STA $moveScratch2, X  ; Store Y step in moveScratch2
+    LDA $orbitDiameter, X ; orbitDiameter ≥ 8 → re-queue to FollowChaseMainLoop
+    CMP #$0008            ; Reset diameter and re-enter chase loop via SetEntryExitNow
     BPL FollowChaseRequeueLoop
     RTL 
 
@@ -308,8 +308,8 @@ ApplyFollowMovement {
 SelectFallbackDirection {
     DEC                   ; SelectFallbackDirection: DEC+AND #$07 rotates through 8 chase handlers
     AND #$0007
-    STA $0004
-    COP [SwitchCase] ( #$0004, &follow_fallback_table )
+    STA $0004             ; Equal deltas → angle = 0 (45° diagonal)
+    COP [SwitchCase] ( #$0004, &follow_fallback_table ) ; Equal deltas → angle = 0 (45° diagonal); dispatch via switch table
 }
 
 follow_fallback_table [
@@ -582,7 +582,7 @@ ResolveFollowDirectionAlt {
     DEC 
     PLX 
     PHA 
-    RTS 
+    RTS                   ; FollowDirectionTable: 16 handlers set OAM flip bits $4000/$8000/$C000 on $000E
 }
 
 FollowDirectionTable [
@@ -606,16 +606,16 @@ FollowDirectionTable [
 
 FollowDirHandler00 {
     BCS FollowDir00ClearHFlip
-    LDA $000E, Y
+    LDA $000E, Y          ; Clear H-flip ($4000) and V-flip ($8000) from OAM attribute $000E
     AND #$3FFF
     STA $000E, Y
 
   FollowDir00ClearHFlip:
-    LDA $0000
+    LDA $0000             ; Check if direction already resolved ($0000 < 0)
     BMI FollowDir00SetFacing
-    LDA #$0001
+    LDA #$0001            ; Not resolved: set fallback direction index 1
     STA $0000
-    LDA #$0010
+    LDA #$0010            ; Reset orbitAngle to $10 (perpendicular)
     STA $orbitAngle, X
 
   FollowDir00SetFacing:
@@ -687,7 +687,7 @@ FollowDirHandler04 {
     BMI FollowDir04SetFacing
     LDA #$0003
     STA $0000
-    LDA #$0010
+    LDA #$0010            ; Fallback direction 3, orbitAngle $10
     STA $orbitAngle, X
 
   FollowDir04SetFacing:
@@ -697,7 +697,7 @@ FollowDirHandler04 {
 FollowDirHandler05 {
     BCS FollowDir05SetVFlip
     LDA $000E, Y
-    AND #$3FFF
+    AND #$3FFF            ; Set V-flip ($8000) in OAM attribute for mirrored facing
     ORA #$8000
     STA $000E, Y
 
@@ -707,7 +707,7 @@ FollowDirHandler05 {
     LDA #$0003
     STA $0000
     LDA #$0008
-    STA $orbitAngle, X
+    STA $orbitAngle, X    ; Set H-flip ($4000) for horizontally mirrored facing
 
   FollowDir05SetFacing:
     RTS 
@@ -724,7 +724,7 @@ FollowDirHandler06 {
     LDA $0000
     BMI FollowDir06SetFacing
     LDA #$0004
-    STA $0000
+    STA $0000             ; Set both V+H flip ($C000) for diagonal mirror
     LDA #$0000
     STA $orbitAngle, X
 
@@ -740,7 +740,7 @@ FollowDirHandler07 {
     STA $000E, Y
 
   FollowDir07SetVFlip:
-    LDA $0000
+    LDA $0000             ; Direction 8: facing left-down; AND #$3FFF clear both flips
     BMI FollowDir07SetFacing
     LDA #$0004
     STA $0000
@@ -756,7 +756,7 @@ FollowDirHandler08 {
     LDA $000E, Y
     AND #$3FFF
     ORA #$8000
-    STA $000E, Y
+    STA $000E, Y          ; Direction 9: facing left; clear flips
 
   FollowDir08SetVFlip:
     LDA $0000
@@ -774,7 +774,7 @@ FollowDirHandler09 {
     BCS FollowDir09SetHVFlip
     LDA $000E, Y
     AND #$3FFF
-    ORA #$C000
+    ORA #$C000            ; Direction A: facing left-up; clear flips
     STA $000E, Y
 
   FollowDir09SetHVFlip:

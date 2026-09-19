@@ -16,18 +16,18 @@
 ; COP #99 with one Address operand (word+bank entry pointer). Calls AllocateActorBefore (which inserts a list slot and CopyActorState from the spawner), then writes the script entry address to the new actor $0000/$0002.
 
 SpawnBefore {
-    TYX 
-    JSR $&actor_pool.AllocateActorBefore
-    LDA [$0A]
+    TYX                   ; Restore caller's actor ID in X for AllocateActorBefore
+    JSR $&actor_pool.AllocateActorBefore ; AllocateActorBefore: insert new slot, CopyActorState from spawner
+    LDA [$0A]             ; Read entry pointer word (operands 1–2) from script stream [$0A]
     INC $0A
     INC $0A
-    STA $0000, Y
-    LDA [$0A]
+    STA $0000, Y          ; Write entry pointer low word to new actor $0000
+    LDA [$0A]             ; Read bank byte (operand 3) from script stream
     INC $0A
-    AND #$00FF
-    STA $0002, Y
-    LDA $0A
-    STA $02, S
+    AND #$00FF            ; Mask to byte — bank is bits 0–7 only
+    STA $0002, Y          ; Write entry bank byte to new actor $0002
+    LDA $0A               ; Load script pointer (now past all operands)
+    STA $02, S            ; Update COP return PC on stack — script resumes past operands on RTI
     RTI 
 }
 
@@ -48,7 +48,7 @@ SpawnBeforeFlags {
     LDA [$0A]
     INC $0A
     INC $0A
-    STA $0010, Y
+    STA $0010, Y          ; SpawnBeforeFlags: write initial status flags to new actor $0010
     LDA $0A
     STA $02, S
     RTI 
@@ -59,7 +59,7 @@ SpawnBeforeFlags {
 
 SpawnAfter {
     TYX 
-    JSR $&actor_pool.AllocateActorAfter
+    JSR $&actor_pool.AllocateActorAfter ; SpawnAfter: AllocateActorAfter inserts after current actor
     LDA [$0A]
     INC $0A
     INC $0A
@@ -90,7 +90,7 @@ SpawnAfterFlags {
     LDA [$0A]
     INC $0A
     INC $0A
-    STA $0010, Y
+    STA $0010, Y          ; SpawnAfterFlags: status flags → new actor $0010
     LDA $0A
     STA $02, S
     RTI 
@@ -110,17 +110,17 @@ SpawnAfterOffset {
     INC $0A
     AND #$00FF
     STA $0002, Y
-    LDA [$0A]
+    LDA [$0A]             ; SpawnAfterOffset: read signed X offset word
     INC $0A
     INC $0A
     CLC 
-    ADC $0014, Y
+    ADC $0014, Y          ; Add X offset to position inherited from CopyActorState
     STA $0014, Y
-    LDA [$0A]
+    LDA [$0A]             ; Read signed Y offset word (operands 6–7)
     INC $0A
     INC $0A
     CLC 
-    ADC $0016, Y
+    ADC $0016, Y          ; Add Y offset to inherited Y position
     STA $0016, Y
     LDA $0A
     STA $02, S
@@ -144,19 +144,19 @@ SpawnAfterOffsetFlags {
     LDA [$0A]
     INC $0A
     INC $0A
-    CLC 
+    CLC                   ; SpawnAfterOffsetFlags: X offset + inherited position
     ADC $0014, Y
     STA $0014, Y
     LDA [$0A]
     INC $0A
     INC $0A
-    CLC 
+    CLC                   ; Y offset + inherited position
     ADC $0016, Y
     STA $0016, Y
     LDA [$0A]
     INC $0A
     INC $0A
-    STA $0010, Y
+    STA $0010, Y          ; Flags → new actor $0010
     LDA $0A
     STA $02, S
     RTI 
@@ -177,11 +177,11 @@ SpawnAfterAbs {
     AND #$00FF
     STA $0002, Y
     LDA [$0A]
-    INC $0A
+    INC $0A               ; SpawnAfterAbs: absolute X → new actor $0014
     INC $0A
     STA $0014, Y
     LDA [$0A]
-    INC $0A
+    INC $0A               ; Absolute Y → new actor $0016
     INC $0A
     STA $0016, Y
     LDA $0A
@@ -206,15 +206,15 @@ SpawnAfterAbsFlags {
     LDA [$0A]
     INC $0A
     INC $0A
-    STA $0014, Y
+    STA $0014, Y          ; SpawnAfterAbsFlags: absolute X
     LDA [$0A]
     INC $0A
     INC $0A
-    STA $0016, Y
+    STA $0016, Y          ; Absolute Y
     LDA [$0A]
     INC $0A
     INC $0A
-    STA $0010, Y
+    STA $0010, Y          ; Status flags → new actor $0010
     LDA $0A
     STA $02, S
     RTI 
@@ -238,9 +238,9 @@ SpawnBeforeMarked {
     INC $0A
     INC $0A
     STA $0010, Y
-    LDA #$0040
-    TSB $12
-    JSR $&actor_pool.MarkChildActor
+    LDA #$0040            ; Flag $0040 = parent has marked children (enables cascade death in Die)
+    TSB $12               ; Set child flag on spawner's own status word $12
+    JSR $&actor_pool.MarkChildActor ; Link parentId from spawner to new actor for group lifecycle
     LDA $0A
     STA $02, S
     RTI 
@@ -299,7 +299,7 @@ SpawnAfterAbsMarked {
     INC $0A
     STA $0010, Y
     LDA #$0040
-    TSB $12
+    TSB $12               ; SpawnAfterAbsMarked: $0040 + MarkChildActor
     JSR $&actor_pool.MarkChildActor
     LDA $0A
     STA $02, S
@@ -318,36 +318,36 @@ SpawnAfterOffsetMarked {
     STA $0000, Y
     LDA [$0A]
     INC $0A
-    AND #$00FF
+    AND #$00FF            ; Zero-extend signed byte offset to 16-bit for arithmetic
     STA $0002, Y
     LDA [$0A]
     INC $0A
     AND #$00FF
-    BIT #$0080
+    BIT #$0080            ; Test sign bit of byte offset ($80+ = negative)
     BEQ loc_00A466
-    ORA #$FF00
+    ORA #$FF00            ; Sign-extend: $80–$FF → $FF80–$FFFF (negative offset)
 
   loc_00A466:
     CLC 
-    ADC $0014, Y
+    ADC $0014, Y          ; Add signed X offset to inherited X position
     STA $0014, Y
     LDA [$0A]
     INC $0A
     AND #$00FF
-    BIT #$0080
+    BIT #$0080            ; Test sign bit of Y byte offset
     BEQ loc_00A47C
-    ORA #$FF00
+    ORA #$FF00            ; Sign-extend Y offset for negative values
 
   loc_00A47C:
     CLC 
-    ADC $0016, Y
+    ADC $0016, Y          ; Add signed Y offset to inherited Y position
     STA $0016, Y
     LDA [$0A]
     INC $0A
     INC $0A
     STA $0010, Y
     LDA #$0040
-    TSB $12
+    TSB $12               ; MarkChildActor for group lifecycle tracking
     JSR $&actor_pool.MarkChildActor
     LDA $0A
     STA $02, S
@@ -359,23 +359,23 @@ SpawnAfterOffsetMarked {
 
 SpawnListAppend {
     PHY 
-    LDA #$0000
+    LDA #$0000            ; Zero DP — ActorPoolAllocator expects DP=0 for pool field access
     TCD 
-    JSL $@actor_pool.ActorPoolAllocator
-    BCS loc_00A50A
+    JSL $@actor_pool.ActorPoolAllocator ; Allocate from LIFO free list; Y=new WRAM base, carry set=pool exhausted
+    BCS loc_00A50A        ; Pool full → skip all operand bytes without spawning
     TYX 
-    LDY $0058
+    LDY $0058             ; Load current actor list tail pointer ($0058)
     TXA 
-    STA $0006, Y
-    STA $0058
+    STA $0006, Y          ; Link: old tail.next ($0006) → new actor
+    STA $0058             ; Update global list tail to new actor
     TYA 
-    STA $0004, X
-    STZ $0006, X
+    STA $0004, X          ; Link: new actor.prev ($0004) → old tail
+    STZ $0006, X          ; New actor.next = null (is the new list tail)
     TXY 
-    PLA 
-    TCD 
-    TAX 
-    JSR $&actor_pool.CopyActorState
+    PLA                   ; Restore spawner actor ID from stack
+    TCD                   ; Restore DP to spawner actor base address
+    TAX                   ; X = spawner ID as source for CopyActorState
+    JSR $&actor_pool.CopyActorState ; CopyActorState: clone spawner fields to new actor
     LDA [$0A]
     INC $0A
     INC $0A
@@ -387,9 +387,9 @@ SpawnListAppend {
     LDA [$0A]
     INC $0A
     AND #$00FF
-    BIT #$0080
+    BIT #$0080            ; SpawnListAppend: sign-extend X byte offset
     BEQ loc_00A4DF
-    ORA #$FF00
+    ORA #$FF00            ; Sign-extend X offset for negative values
 
   loc_00A4DF:
     CLC 
@@ -398,9 +398,9 @@ SpawnListAppend {
     LDA [$0A]
     INC $0A
     AND #$00FF
-    BIT #$0080
+    BIT #$0080            ; Test sign bit of Y byte offset
     BEQ loc_00A4F5
-    ORA #$FF00
+    ORA #$FF00            ; Sign-extend Y offset for negative values
 
   loc_00A4F5:
     CLC 
@@ -415,10 +415,10 @@ SpawnListAppend {
     RTI 
 
   loc_00A50A:
-    PLA 
+    PLA                   ; Pool exhaustion path: restore spawner DP
     TCD 
     TAX 
-    LDA [$0A]
+    LDA [$0A]             ; Read-and-discard all operand bytes (entry ptr + bank + offsets + flags)
     INC $0A
     INC $0A
     LDA [$0A]
@@ -443,10 +443,10 @@ SpawnListAppend {
 
 SpawnListAppendSpr {
     PHY 
-    LDA #$0000
+    LDA #$0000            ; Zero DP for ActorPoolAllocator
     TCD 
-    JSL $@actor_pool.ActorPoolAllocator
-    BCS loc_00A5AE
+    JSL $@actor_pool.ActorPoolAllocator ; Allocate slot; carry set on pool exhaustion
+    BCS loc_00A5AE        ; Pool full → skip all operands (including extra anim index byte)
     TYX 
     LDY $0058
     TXA 
@@ -470,8 +470,8 @@ SpawnListAppendSpr {
     STA $0002, Y
     LDA [$0A]
     INC $0A
-    AND #$00FF
-    STA $0028, Y
+    AND #$00FF            ; Mask animation index byte from operand
+    STA $0028, Y          ; Store animation index to new actor $0028 (sprite frame)
     LDA [$0A]
     INC $0A
     AND #$00FF
@@ -503,10 +503,10 @@ SpawnListAppendSpr {
     RTI 
 
   loc_00A5AE:
-    PLA 
+    PLA                   ; Pool exhaustion: discard entry+bank+anim+offsets+flags
     TCD 
     TAX 
-    LDA [$0A]
+    LDA [$0A]             ; Read-and-discard all operands (entry + bank + anim + offsets + flags)
     INC $0A
     INC $0A
     LDA [$0A]

@@ -1,3 +1,33 @@
+; Scene title display system — centered area name overlay during scene transitions (172315–172521, Bank 02).
+; 
+; Called during ClearSceneState immediately after actor/thinker spawning and before palette loading. Displays the current scene's area name (e.g., 'South Cape', 'Edward's Castle') in a centered dialogue box overlay, giving the player a visual cue of the new location.
+; 
+; === DISPLAY PIPELINE (DisplaySceneTitle) ===
+; 
+; 1. Scene change guard: Compares the source scene ($0D6E, recorded during ExecuteSceneTransition) against sceneCurrent ($0644). If identical, the player is re-entering the same scene (e.g., returning from a sub-area) and the title is suppressed.
+; 
+; 2. Width measurement: CountTitleGlyphs walks the scene title wide-string at [$3E], counting visible characters while expanding dictionary references ($D6/$D7) and cursor advances ($CC). Returns the total glyph width in $00.
+; 
+; 3. Empty title guard: If glyph count is zero, the scene has no title string and the routine returns immediately.
+; 
+; 4. Centering calculation: Computes (18 − glyphCount), negates, AND $FE to produce an even-aligned left padding offset. This centers the title text within the 10-column dialogue box.
+; 
+; 5. Box setup: Sets $00B4 = $E0 (wait-for-input flag checked by the scene transition epilogue). Opens a 10×1 dialogue box at position (7, 7) via scene_title_box_format — the DialogStringRenderer $C7 (OpenDialogueBox) command.
+; 
+; 6. Centered render: Adds the computed padding to the VRAM write cursor ($0998) to offset the text start, then calls DialogStringRenderer a second time with the actual title string pointer to render the area name.
+; 
+; === GLYPH COUNTING (CountTitleGlyphs) ===
+; 
+; A specialized wide-string character counter that handles the subset of commands found in scene title strings:
+; - Literal tiles (< $C0): counted as 1 glyph each
+; - $CA (Return): terminates counting
+; - $CC (AdvanceCursor): adds the operand byte to the count
+; - $D6/$D7 (DictionaryA/B): resolves the compressed word from dictionary_01EBA8 or dictionary_01F54D and counts each expanded character
+; - Other commands (≥ $C0): skips the operand byte without counting
+; 
+; The title string pointer is at [$3E] + 1 (INC $3E skips a leading type/length byte before the character data begins).
+---------------------------------------------
+
 ?BANK 02
 
 ?INCLUDE 'dialog_dictionaries'
@@ -46,9 +76,9 @@ DisplaySceneTitle {
     LDA #$E0              ; $E0 → $00B4: wait-for-input flag checked by scene transition epilogue
     STA $00B4
     STZ $00B5             ; Clear $00B5 (secondary display control byte)
-    LDA $0040             ; Save current $40 (string bank) — DialogStringRenderer may overwrite it
+    LDA $0040             ; Load current $40 (string bank) — DialogStringRenderer may overwrite it
     PHA 
-    LDY $3E               ; Save scene title pointer $3E/Y on stack
+    LDY $3E               ; Load scene title pointer $3E/Y on stack
     PHY 
     PHK                   ; Set DBR to current program bank for format string access
     PLB 

@@ -178,18 +178,18 @@ PlaceBarrierTiles {
     JSL $@map_coords.TileCoordsToMapIndex
     STX $02
     STX $00
-    LDA #$FE              ; Write $FE — barrier top-left closed tile
+    LDA #$FE              ; Load $FE — barrier top-left closed tile
     STA $mapLayerTilemap, X
     JSL $@map_coords.MapIndexMoveRight ; MapIndexMoveRight → adjacent column
-    LDA #$FF              ; Write $FF — barrier top-right closed tile
+    LDA #$FF              ; Load $FF — barrier top-right closed tile
     STA $mapLayerTilemap, X
     LDX $00
     STX $02
     JSL $@map_coords.MapIndexMoveDown ; MapIndexMoveDown — advance to bottom row of 2×2
-    LDA #$FC              ; Write $FC — barrier bottom-left closed tile
+    LDA #$FC              ; Load $FC — barrier bottom-left closed tile
     STA $mapLayerTilemap, X
     JSL $@map_coords.MapIndexMoveRight ; MapIndexMoveRight
-    LDA #$FD              ; Write $FD — barrier bottom-right closed tile
+    LDA #$FD              ; Load $FD — barrier bottom-right closed tile
     STA $mapLayerTilemap, X
     REP #$20
     PLX 
@@ -391,7 +391,7 @@ HandleChestInteraction {
     LDA $0012, Y          ; Set actor $0012 bit 12 ($1000) — lock actor during sequence
     ORA #$1000
     STA $0012, Y
-    LDA #$0017            ; Store dialogue string ID in actor $0026 for child handoff
+    LDA #$0017            ; Load dialogue string ID in actor $0026 for child handoff
     STA $0026, Y
     PLX 
     PLA 
@@ -438,7 +438,7 @@ HandleChestInteraction {
 ; code_02A88B: Cleanup — clears displayModeFlags bit 7 ($0080) and COP [Die].
 
 ChestOpeningActor {
-    LDA $musicParentActor ; Save musicParentActor to orbitAngle — parent tracking for child actors
+    LDA $musicParentActor ; Load musicParentActor to orbitAngle — parent tracking for child actors
     STA $orbitAngle, X
     COP [SpawnAfterFlags] ( @hdma_dma_spc.SpcTransferMusicData, #$2000 ) ; Spawn SpcTransferMusicData — async music load for chest fanfare
     CPY #$1FC0            ; Actor pool full ($1FC0) → code_02A88B cleanup (clear flag, Die)
@@ -546,7 +546,7 @@ ChestDialogueActor {
     COP [WaitByte] ( #48 ) ; COP WaitByte #$48 — 72-frame delay before showing item dialogue
     LDA #$1000            ; TRB actor $12 $1000 — release render lock on this actor
     TRB $12
-    LDA $20               ; Store render bank $20 → $0DB8 for dialogue frame context
+    LDA $20               ; Load render bank $20 → $0DB8 for dialogue frame context
     STA $0DB8
     LDY $24               ; ShowDialogueFrame with dialogue pointer from actor $24
     JSL $@ShowDialogueFrame
@@ -870,7 +870,7 @@ ExecuteWarp {
     ADC #$0004
     STA $0AF4
     SEP #$20
-    LDA #$^scene_warps    ; Store scene_warps bank byte → $0AF6
+    LDA #$^scene_warps    ; Load scene_warps bank byte → $0AF6
     STA $0AF6
     LDA $0004, X          ; Load destination scene, coords, direction from warp entry bytes 4–11
     STA $sceneNext

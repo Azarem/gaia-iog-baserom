@@ -51,7 +51,7 @@ UploadCgramPalette {
     STX $DAS0L
     LDA #$01
     STA $MDMAEN
-    LDA $backdropColors   ; Write backdrop color components to COLDATA fixed-color registers
+    LDA $backdropColors   ; Load backdrop color components to COLDATA fixed-color registers
     STA $COLDATA
     LDA $7F0C01
     STA $COLDATA
@@ -119,7 +119,7 @@ InitSystemVariables {
     LDA $@SystemInitConstants, X ; Read destination address from init constant table
     BMI loc_029E83        ; Negative address = end-of-table sentinel
     TAY 
-    LDA $@SystemInitConstants+2, X ; Store initialization value to WRAM destination
+    LDA $@SystemInitConstants+2, X ; Load initialization value to WRAM destination
     STA $0000, Y
     INX 
     INX 
@@ -216,7 +216,7 @@ InitHardwareRegisters {
     BMI loc_029F4C        ; Negative address = end-of-table sentinel
     TAY 
     SEP #$20
-    LDA $@PpuRegisterInitTable+2, X ; Write 8-bit initialization value to hardware register
+    LDA $@PpuRegisterInitTable+2, X ; Load 8-bit initialization value to hardware register
     STA $0000, Y
     INX 
     INX 

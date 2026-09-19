@@ -181,7 +181,7 @@ CameraSmoothScroll {
     RTL 
 
   loc_02AC62:
-    LDA $bg1ScrollH, X    ; Save current horizontal scroll position on stack for tile-boundary XOR detection
+    LDA $bg1ScrollH, X    ; Load current horizontal scroll position on stack for tile-boundary XOR detection
     PHA 
     LDA $cameraTargetX, X
     SEC 

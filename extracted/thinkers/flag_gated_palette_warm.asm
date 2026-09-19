@@ -23,5 +23,5 @@ flag_gated_palette_warm [
 
 FlagGatedPaletteWarmKill {
     COP [KillThinker]
-    RTL 
+    RTL                   ; Same multiply/divide for X axis
 }

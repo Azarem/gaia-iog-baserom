@@ -138,7 +138,7 @@ InitThinkerFromSceneData {
     CLC 
     ADC $42
     STA $0000, X          ; Entry point = code + 2 → thinker function pointer $0000,X
-    LDA $44               ; Store bank byte to thinker slot $0002,X
+    LDA $44               ; Load bank byte to thinker slot $0002,X
     STA $0002, X
     RTS 
 }

@@ -206,7 +206,7 @@ SwapEventBlockTiles {
     LDX $00
     STA $3E               ; Store tile ID to $3E — LDA [$3E] fetches collision from bank $7F
     LDA [$3E]
-    BEQ loc_02A2CE        ; Nonzero resolved collision overwrites dest; zero preserves existing
+    BEQ loc_02A2CE        ; Zero collision result: skip overwrite, preserve existing tile data
     STA $collisionLayer, X
 
   loc_02A2CE:
@@ -290,7 +290,7 @@ FlushVramWriteQueue {
     STA $VMDATAL
     LDA $0906
     STA $VMDATAL
-    LDA $0908             ; Write second row VRAM addr ($0908) + tile words ($090A/$090C)
+    LDA $0908             ; Load second row VRAM addr ($0908) + tile words ($090A/$090C)
     STA $VMADDL
     LDA $090A
     STA $VMDATAL
@@ -476,7 +476,7 @@ AnimateEventBlock {
     LDX $00
     STA $3E
     LDA [$3E]
-    BEQ loc_02A462        ; Write resolved collision to dest only when indirect byte nonzero
+    BEQ loc_02A462        ; Zero indirect byte: skip collision write, preserve existing data
     STA $collisionLayer, X
 
   loc_02A462:

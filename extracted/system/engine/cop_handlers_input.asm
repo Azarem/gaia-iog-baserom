@@ -28,17 +28,17 @@
 
 WaitForButton {
     TYX 
-    LDA [$0A]
+    LDA [$0A]             ; Read button mask word operand
     INC $0A
     INC $0A
-    BIT #$0001
+    BIT #$0001            ; Bit 0 selects joypad source: 0=joypadCurrent, 1=joypadRaw
     BNE loc_009498
-    BIT $joypadCurrent
-    BNE loc_00949D
+    BIT $joypadCurrent    ; Test mask against joypadCurrent (latched state)
+    BNE loc_00949D        ; Any masked button pressed → advance script via RTI
     BRA loc_0094A2
 
   loc_009498:
-    BIT $joypadRaw
+    BIT $joypadRaw        ; Test mask against joypadRaw (held-edge state)
     BEQ loc_0094A2
 
   loc_00949D:
@@ -47,11 +47,11 @@ WaitForButton {
     RTI 
 
   loc_0094A2:
-    LDA $0A
+    LDA $0A               ; No button pressed: rewind script PC by 4 bytes (re-enter next frame)
     SEC 
     SBC #$0004
     STA $00
-    PLA 
+    PLA                   ; Pop COP frame and yield RTL until button detected
     PLA 
     RTL 
 }
@@ -61,17 +61,17 @@ WaitForButton {
 
 WaitForRelease {
     TYX 
-    LDA [$0A]
+    LDA [$0A]             ; Read button mask word
     INC $0A
     INC $0A
-    BIT #$0001
+    BIT #$0001            ; Bit 0 selects joypad source for release detection
     BNE loc_0094C0
-    BIT $joypadCurrent
-    BEQ loc_0094C5
+    BIT $joypadCurrent    ; Test mask against joypadCurrent — zero means all released
+    BEQ loc_0094C5        ; All masked buttons released → advance script
     BRA loc_0094CA
 
   loc_0094C0:
-    BIT $joypadRaw
+    BIT $joypadRaw        ; Test mask against joypadRaw
     BNE loc_0094CA
 
   loc_0094C5:
@@ -80,7 +80,7 @@ WaitForRelease {
     RTI 
 
   loc_0094CA:
-    LDA $0A
+    LDA $0A               ; Buttons still held: rewind PC and yield RTL
     SEC 
     SBC #$0004
     STA $00
@@ -94,21 +94,21 @@ WaitForRelease {
 
 BranchIfPressed {
     TYX 
-    LDA [$0A]
+    LDA [$0A]             ; Read button mask word
     INC $0A
     INC $0A
-    BIT #$0001
+    BIT #$0001            ; Bit 0 selects joypad source
     BNE loc_0094E8
-    BIT $joypadCurrent
-    BNE loc_0094F8
+    BIT $joypadCurrent    ; Test mask against joypadCurrent
+    BNE loc_0094F8        ; Any bit set → jump to branch target
     BRA loc_0094ED
 
   loc_0094E8:
-    BIT $joypadRaw
+    BIT $joypadRaw        ; Test mask against joypadRaw
     BNE loc_0094F8
 
   loc_0094ED:
-    LDA [$0A]
+    LDA [$0A]             ; No match: skip branch target operand (2 bytes)
     INC $0A
     INC $0A
     LDA $0A
@@ -116,7 +116,7 @@ BranchIfPressed {
     RTI 
 
   loc_0094F8:
-    LDA [$0A]
+    LDA [$0A]             ; Match: read branch target and jump
     INC $0A
     INC $0A
     STA $02, S
@@ -128,29 +128,29 @@ BranchIfPressed {
 
 BranchIfNotPressed {
     TYX 
-    LDA [$0A]
+    LDA [$0A]             ; Read button mask word
     INC $0A
     INC $0A
-    BIT #$0001
+    BIT #$0001            ; Bit 0 selects joypad source
     BNE loc_009514
-    BIT $joypadCurrent
-    BEQ loc_00951B
+    BIT $joypadCurrent    ; Test joypadCurrent — zero means not pressed
+    BEQ loc_00951B        ; Not pressed → jump to branch target
     BRA loc_009524
 
   loc_009514:
-    BIT $joypadRaw
+    BIT $joypadRaw        ; Test joypadRaw for not-pressed check
     BEQ loc_00951B
     BRA loc_009524
 
   loc_00951B:
-    LDA [$0A]
+    LDA [$0A]             ; Not pressed: read and jump to branch target
     INC $0A
     INC $0A
     STA $02, S
     RTI 
 
   loc_009524:
-    LDA [$0A]
+    LDA [$0A]             ; Pressed: skip branch target operand
     INC $0A
     INC $0A
     LDA $0A
@@ -163,23 +163,23 @@ BranchIfNotPressed {
 
 StageWorldMapMove {
     TYX 
-    LDA [$0A]
+    LDA [$0A]             ; Read destination X pixel position (word)
     INC $0A
     INC $0A
-    STA $0D52
-    LDA [$0A]
+    STA $0D52             ; Store to world-map staging $0D52 (destination X)
+    LDA [$0A]             ; Read destination Y pixel position (word)
     INC $0A
     INC $0A
-    STA $0D56
-    LDA [$0A]
-    INC $0A
-    AND #$00FF
-    STA $0D5E
-    LDA [$0A]
+    STA $0D56             ; Store to $0D56 (destination Y)
+    LDA [$0A]             ; Read scene/area ID byte
     INC $0A
     AND #$00FF
-    STA $0D5A
-    STZ $0D58
+    STA $0D5E             ; Store to $0D5E (area identifier)
+    LDA [$0A]             ; Read companion byte
+    INC $0A
+    AND #$00FF
+    STA $0D5A             ; Store to $0D5A (companion/party member index)
+    STZ $0D58             ; Clear $0D58 (choice ID = none for direct relocation)
     LDA $0A
     STA $02, S
     RTI 
@@ -190,18 +190,18 @@ StageWorldMapMove {
 
 StageWorldMapChoice {
     TYX 
-    LDA [$0A]
+    LDA [$0A]             ; Read destination X (word)
     INC $0A
     INC $0A
-    STA $0D52
-    LDA [$0A]
+    STA $0D52             ; Store to world-map staging $0D52
+    LDA [$0A]             ; Read destination Y (word)
     INC $0A
     INC $0A
-    STA $0D56
-    LDA [$0A]
+    STA $0D56             ; Store to $0D56
+    LDA [$0A]             ; Read choice ID byte
     INC $0A
     AND #$00FF
-    STA $0D58
+    STA $0D58             ; Store to $0D58 (world-map choice selection)
     LDA $0A
     STA $02, S
     RTI 
@@ -212,14 +212,14 @@ StageWorldMapChoice {
 
 StageWorldMapMoveIds {
     TYX 
-    LDA [$0A]
+    LDA [$0A]             ; Read scene/area ID byte
     INC $0A
     AND #$00FF
-    STA $0D5E
-    LDA [$0A]
+    STA $0D5E             ; Store to $0D5E
+    LDA [$0A]             ; Read companion byte
     INC $0A
     AND #$00FF
-    STA $0D5A
+    STA $0D5A             ; Store to $0D5A
     LDA $0A
     STA $02, S
     RTI 
@@ -231,26 +231,26 @@ StageWorldMapMoveIds {
 RunBg3Script {
     PHY 
     PHB 
-    LDA [$0A]             ; Read Address operand: 2-byte text pointer into Y, 1-byte bank
+    LDA [$0A]             ; Read Address operand: 2-byte pointer + 1-byte bank
     INC $0A
     INC $0A
     TAY 
     LDA [$0A]
     INC $0A
     AND #$00FF
-    SEP #$20
-    PHA 
-    PLB 
+    SEP #$20              ; Switch to 8-bit to push bank byte to DBR
+    PHA                   ; Push bank byte for PLB
+    PLB                   ; Set data bank to script text bank
     REP #$20
     LDA #$0000            ; Zero direct page for ConsoleStringRenderer workspace
     TCD 
-    JSL $@ConsoleStringRenderer
+    JSL $@ConsoleStringRenderer ; Render BG3 console text commands
     PLB 
-    PLA                   ; Restore caller data bank, actor ID (X), and direct page from stack
+    PLA                   ; Restore caller data bank, actor X, and direct page
     TAX 
     TCD 
     LDA #$0001
-    TSB $displayModeFlags ; Bit 0: mark BG3 console overlay active for HUD rendering
+    TSB $displayModeFlags ; Set displayModeFlags bit 0 (BG3 console overlay active)
     LDA $0A
     STA $02, S
     RTI 
@@ -261,10 +261,10 @@ RunBg3Script {
 
 DialogueOptions {
     TYX 
-    LDA $worldReadyFlag   ; Require worldReadyFlag $000F; yield RTL until all subsystems ready
+    LDA $worldReadyFlag   ; Read worldReadyFlag — must be $000F for all subsystems ready
     CMP #$000F
-    BEQ loc_00A8A6
-    LDA $0A
+    BEQ loc_00A8A6        ; Ready: proceed to menu setup
+    LDA $0A               ; Not ready: rewind script pointer and yield RTL
     DEC 
     DEC 
     STA $00
@@ -273,45 +273,45 @@ DialogueOptions {
     RTL 
 
   loc_00A8A6:
-    LDA #$2000
+    LDA #$2000            ; Set dialogue mode $2000 on displayModeFlags
     TSB $displayModeFlags
     LDA #$0F00
     STA $joypadMaskInv    ; Mask inventory input ($0F00) during menu navigation
     PHB 
     SEP #$20
-    LDA $0C
+    LDA $0C               ; Load script bank for PLB to set text data bank
     PHA 
     PLB 
     REP #$20
-    LDA $joypadMaskStd
+    LDA $joypadMaskStd    ; Load and clear standard joypad mask — menu handles input
     STZ $joypadMaskStd    ; Save and clear standard joypad mask — menu controls its own input
     PHA 
     LDA $10
-    AND #$0800
+    AND #$0800            ; Save and clear status bar bit $0800 during menu
     PHA 
     LDA #$0800
     TRB $10
-    LDA [$0A]
+    LDA [$0A]             ; Read menu layout pointer word
     INC $0A
     INC $0A
     JSL $@MenuSelectionHandler ; Returns chosen option index in A; ASL doubles for word table
-    ASL 
+    ASL                   ; ASL: double choice index for word-sized table entries
     PHA 
-    LDA [$0A]
+    LDA [$0A]             ; Read branch table base pointer word
     INC $0A
     INC $0A
-    CLC 
+    CLC                   ; Branch table base + (choice × 2) → table entry address
     ADC $01, S            ; Branch table base + (choice × 2) → target script address
-    TAY 
+    TAY                   ; Y = address of chosen entry in branch table
     PLA 
     PLA 
     TSB $10
     PLA 
-    STA $joypadMaskStd
-    STZ $joypadMaskInv
-    LDA #$2000
+    STA $joypadMaskStd    ; Restore standard joypad mask
+    STZ $joypadMaskInv    ; Clear inventory input mask
+    LDA #$2000            ; Clear dialogue mode $2000
     TRB $displayModeFlags
-    LDA $0000, Y          ; Read branch target from table entry and RTI to chosen dialogue path
+    LDA $0000, Y          ; Read branch target from table and RTI to chosen path
     PLB 
     STA $02, S
     RTI 
@@ -324,43 +324,43 @@ PrintDialogString {
     TYX 
     LDA #$2000            ; Set dialogue mode ($2000) — suppress HUD updates during text
     TSB $displayModeFlags
-    LDA $0A
+    LDA $0A               ; Load script pointer — UpdateFrameRender clobbers DP
     PHA                   ; Save script state — UpdateFrameRender clobbers direct page
     SEP #$20
     LDA $0C
     PHA 
-    JSL $@system_core.UpdateFrameRender
+    JSL $@system_core.UpdateFrameRender ; Render one frame to sync display before text output
     PLA 
     STA $0C
     REP #$20
     PLA 
     STA $0A
     LDA $10
-    AND #$0800
+    AND #$0800            ; Save status bar state and hide it ($0800) during dialogue
     PHA 
     LDA #$0800
     TRB $10               ; Hide status bar ($0800) during text rendering
-    LDA $joypadMaskStd
+    LDA $joypadMaskStd    ; Load and clear joypad mask — input blocked during text
     STZ $joypadMaskStd    ; Block standard joypad input during text rendering
     PHA 
     PHB 
     SEP #$20
-    LDA $0C
+    LDA $0C               ; Switch DBR to script bank for string data access
     PHA 
     PLB 
     REP #$20
-    LDA [$0A]             ; Read text pointer operand; switch DBR to script bank for string data
+    LDA [$0A]             ; Read text pointer operand word
     INC $0A
     INC $0A
     TAY 
-    JSL $@DialogStringRenderer
+    JSL $@DialogStringRenderer ; Render dialogue text via DialogStringRenderer
     PLB 
     PLA 
-    STA $joypadMaskStd
-    TRB $joypadCurrent    ; Clear directional inputs ($0F00) so D-pad state doesn't leak into gameplay
+    STA $joypadMaskStd    ; Restore joypad mask after text complete
+    TRB $joypadCurrent    ; Clear directional D-pad in joypadCurrent (prevent input leak)
     LDA #$0F00
-    TRB $joypadHeld       ; Also clear held D-pad state in joypadHeld
-    LDA #$2000
+    TRB $joypadHeld       ; Clear held D-pad in joypadHeld
+    LDA #$2000            ; Clear dialogue mode $2000
     TRB $displayModeFlags
     PLA 
     TSB $10
@@ -377,18 +377,18 @@ PrintDialogStringAlt {
     LDA $10
     AND #$0800
     PHA 
-    LDA #$0800
+    LDA #$0800            ; Hide status bar ($0800) during alt text render
     TRB $10
-    LDA $joypadMaskStd
+    LDA $joypadMaskStd    ; Load and clear joypad mask
     STZ $joypadMaskStd
     PHA 
     PHB 
     SEP #$20
-    LDA $0C
+    LDA $0C               ; Switch DBR to script bank
     PHA 
     PLB 
     REP #$20
-    LDA [$0A]
+    LDA [$0A]             ; Read text pointer and render via DialogStringRenderer
     INC $0A
     INC $0A
     TAY 
@@ -396,7 +396,7 @@ PrintDialogStringAlt {
     PLB 
     PLA 
     STA $joypadMaskStd
-    LDA #$0F00
+    LDA #$0F00            ; Clear D-pad held state in joypadHeld after rendering
     TRB $joypadHeld
     PLA 
     TSB $10

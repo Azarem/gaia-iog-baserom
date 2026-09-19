@@ -27,10 +27,10 @@
 
 StartMusic {
     TYX 
-    PHX 
+    PHX                   ; Save current actor X for restoration after allocation
     JSR $&actor_pool.AllocateActorAfter ; Allocate pooled thinker actor slot after current in list
     TYX 
-    LDA #$&hdma_dma_spc.SpcTransferMusicData
+    LDA #$&hdma_dma_spc.SpcTransferMusicData ; Set new thinker entry point to SpcTransferMusicData
     STA $0000, X
     LDA #$*hdma_dma_spc.SpcTransferMusicData
     STA $0002, X
@@ -38,13 +38,13 @@ StartMusic {
     ORA #$1000            ; Thinker flag — SPC music transfer in progress
     STA $0012, X
     LDA $0010, X
-    AND #$EFFF            ; Suppress actor render until music thinker ready
+    AND #$EFFF            ; Clear $0800 on new thinker (suppress actor render)
     STA $0010, X
-    LDA [$0A]
+    LDA [$0A]             ; Read music bundle ID byte from script
     INC $0A
     AND #$00FF
     STA $chatPtr, X       ; Music track ID stored in thinker chatPtr ($7F000A)
-    PLX 
+    PLX                   ; Restore X = original calling actor
     LDA $0A
     STA $02, S
     RTI 
@@ -58,7 +58,7 @@ FadeThenStartMusic {
     PHX 
     JSR $&actor_pool.AllocateActorAfter
     TYX 
-    LDA #$&hdma_dma_spc.SpcCheckMusicReady
+    LDA #$&hdma_dma_spc.SpcCheckMusicReady ; Set thinker entry to SpcCheckMusicReady (fade-before-play path)
     STA $0000, X
     LDA #$*hdma_dma_spc.SpcCheckMusicReady
     STA $0002, X
@@ -83,11 +83,11 @@ FadeThenStartMusic {
 
 PlaySoundCh2 {
     TYX 
-    LDA [$0A]
+    LDA [$0A]             ; Read SFX ID byte for channel 2
     INC $0A
     AND #$00FF
-    SEP #$20
-    STA $sfxQueueCh2
+    SEP #$20              ; Switch to 8-bit for byte-size I/O register write
+    STA $sfxQueueCh2      ; Queue SFX byte to channel 2 ($06F9)
     REP #$20
     LDA $0A
     STA $02, S
@@ -99,11 +99,11 @@ PlaySoundCh2 {
 
 PlaySoundCh1 {
     TYX 
-    LDA [$0A]
+    LDA [$0A]             ; Read SFX ID byte for channel 1
     INC $0A
     AND #$00FF
     SEP #$20
-    STA $sfxQueueCh1
+    STA $sfxQueueCh1      ; Queue SFX byte to channel 1 ($06F8)
     REP #$20
     LDA $0A
     STA $02, S
@@ -115,10 +115,10 @@ PlaySoundCh1 {
 
 PlaySoundBoth {
     TYX 
-    LDA [$0A]
+    LDA [$0A]             ; Read packed word: low byte=ch1, high byte=ch2
     INC $0A
     INC $0A
-    STA $sfxQueueCh1      ; Word write fills both sfxQueueCh1 and sfxQueueCh2 in one store
+    STA $sfxQueueCh1      ; Word write: fills both sfxQueueCh1 ($06F8) and sfxQueueCh2 ($06F9)
     LDA $0A
     STA $02, S
     RTI 
@@ -129,11 +129,11 @@ PlaySoundBoth {
 
 WriteApuIo1 {
     TYX 
-    LDA [$0A]
+    LDA [$0A]             ; Read byte for APU I/O port 1
     INC $0A
     AND #$00FF
     SEP #$20
-    STA $APUIO1
+    STA $APUIO1           ; Direct write to APUIO1 ($2141) for SPC700 command
     REP #$20
     LDA $0A
     STA $02, S
@@ -145,11 +145,11 @@ WriteApuIo1 {
 
 WriteApuIo0 {
     TYX 
-    LDA [$0A]
+    LDA [$0A]             ; Read byte for APU I/O port 0
     INC $0A
     AND #$00FF
     SEP #$20
-    STA $APUIO0           ; Direct write to APUIO0 ($2140) SPC700 communication port
+    STA $APUIO0           ; Direct write to APUIO0 ($2140) for SPC700 command
     REP #$20
     LDA $0A
     STA $02, S
@@ -161,39 +161,39 @@ WriteApuIo0 {
 
 MusicAndText {
     TYX 
-    PHD 
-    LDA #$0000
+    PHD                   ; Save caller's direct page for later restoration
+    LDA #$0000            ; Set DP=0 for WRAM direct-page access during allocation
     TCD 
     JSL $@actor_pool.ActorPoolAllocator ; ActorPoolAllocator — get free slot for music+text thinker
-    BCS loc_008836
+    BCS loc_008836        ; Pool exhausted → jump to inline fallback path
     TYX 
-    LDY $0058
+    LDY $0058             ; Load thinker list tail pointer ($0058)
     TXA 
-    STA $0006, Y
-    STA $0058
+    STA $0006, Y          ; Link new actor as next of current tail
+    STA $0058             ; Update thinker list tail to new actor
     TYA 
-    STA $0004, X
-    STZ $0006, X
+    STA $0004, X          ; Set new actor's prev pointer to old tail
+    STZ $0006, X          ; New actor is now tail: clear next pointer (null terminator)
     TXY 
-    PLA 
+    PLA                   ; Pop saved DP and restore caller's direct page
     TCD 
     TAX 
-    JSR $&actor_pool.CopyActorState
-    LDA #$&music_actors.MusicPlaybackActor
+    JSR $&actor_pool.CopyActorState ; Copy actor state from parent to new music+text thinker
+    LDA #$&music_actors.MusicPlaybackActor ; Set entry point to MusicPlaybackActor for async playback
     STA $0000, Y
     LDA #$*music_actors.MusicPlaybackActor
     STA $0002, Y
-    LDA #$1000
+    LDA #$1000            ; Set thinker status $1000 (active music/text actor)
     STA $0012, Y
-    LDA [$0A]
+    LDA [$0A]             ; Read track ID byte → store in new actor $0026
     INC $0A
     AND #$00FF
     STA $0026, Y
-    LDA [$0A]
+    LDA [$0A]             ; Read text pointer word → store in new actor $0020
     INC $0A
     INC $0A
     STA $0020, Y
-    LDA [$0A]
+    LDA [$0A]             ; Read data bank byte → store in new actor $0022
     INC $0A
     AND #$00FF
     STA $0022, Y
@@ -202,35 +202,35 @@ MusicAndText {
     RTI 
 
   loc_008836:
-    PLA 
+    PLA                   ; Pool exhaustion fallback: restore caller DP for inline rendering
     TCD 
     TAX 
     LDA [$0A]
     INC $0A
     AND #$00FF
-    PHP 
+    PHP                   ; Save processor flags and data bank before inline dialogue
     PHB 
-    LDA [$0A]
+    LDA [$0A]             ; Read text pointer word from script
     INC $0A
     INC $0A
     TAY 
-    LDA $joypadMaskStd
-    STZ $joypadMaskStd    ; Block player input during dialogue render
+    LDA $joypadMaskStd    ; Load current joypad mask before suppressing input
+    STZ $joypadMaskStd    ; Block all player input during inline dialogue render
     PHA 
-    LDA [$0A]
+    LDA [$0A]             ; Read data bank byte for DialogStringRenderer
     INC $0A               ; DialogStringRenderer with temporary data bank from script
     AND #$00FF
     SEP #$20
-    PHA 
+    PHA                   ; Push bank byte and PLB to set temporary DBR for text data
     PLB 
-    JSL $@system_core.UpdateFrameRender
+    JSL $@system_core.UpdateFrameRender ; Render one frame to sync screen before dialogue text
     REP #$20
-    JSL $@DialogStringRenderer
-    PLA 
+    JSL $@DialogStringRenderer ; Run inline DialogStringRenderer with temporary data bank
+    PLA                   ; Restore original joypad mask (re-enable player input)
     STA $joypadMaskStd
     PLB 
     PLP 
-    LDA #$0080
+    LDA #$0080            ; Clear displayModeFlags bit $80 (dialogue overlay complete)
     TRB $displayModeFlags
     LDA $0A
     STA $02, S

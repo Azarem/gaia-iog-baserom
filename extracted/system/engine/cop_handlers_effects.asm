@@ -55,22 +55,22 @@
 InitSineHdma {
     PHY 
     PHB 
-    TYX 
+    TYX                   ; InitSineHdma: read WRAM base for four $0200-byte HDMA tables
     LDA [$0A]             ; Read WRAM base operand — root of four $0200-byte HDMA indirect tables
     INC $0A
     INC $0A
     STA $0062
-    STA $spritesetPtr, X
+    STA $spritesetPtr, X  ; Cache base in spritesetPtr for TickSineHdma
     CLC 
     ADC #$0200            ; Compute four table bases spaced $0200 apart at DP $62/$5E/$06/$08
     STA $005E
     CLC 
-    ADC #$0200
+    ADC #$0200            ; Table 3 at base+$0400
     STA $0006
     CLC 
-    ADC #$0200
+    ADC #$0200            ; Table 4 at base+$0600
     STA $0008
-    LDA [$0A]
+    LDA [$0A]             ; Read scanline count byte — determines HDMA table rows
     INC $0A
     AND #$00FF
     STA $0E
@@ -85,15 +85,15 @@ InitSineHdma {
     LDA $0E
     LSR 
     LDY #$0100            ; $0100 ÷ scanlines = entries per table; ×3 below for 3-byte HDMA entry stride
-    JSL $@hardware_math.UnsignedDivide
+    JSL $@hardware_math.UnsignedDivide ; UnsignedDivide for HDMA table spacing
     AND #$00FF
     STA $000E
-    ASL 
+    ASL                   ; ×3: each HDMA indirect entry is 3 bytes (control + pointer word)
     CLC 
     ADC $000E
     STA $000E
     SEP #$20
-    LDA #$7E
+    LDA #$7E              ; Set DBR to $7E for WRAM table writes
     PHA 
     PLB 
     REP #$20
@@ -150,15 +150,15 @@ InitSineHdma {
 
 TickSineHdma {
     TYX 
-    LDA $animScratch+2, X
+    LDA $animScratch+2, X ; Read delay counter from animScratch+2
     DEC                   ; Decrement delay; underflow reloads from operand and advances sine phase
     BPL loc_009C58
-    LDA [$0A]
+    LDA [$0A]             ; Reload delay from operand on underflow
     INC $0A
     AND #$00FF
     STA $animScratch+2, X
-    LDA $retPtr1, X
-    INC 
+    LDA $retPtr1, X       ; Advance sine phase by 1 each reload cycle
+    INC                   ; Advance phase by 1 each reload
     STA $retPtr1, X
     BRA loc_009C5E
 
@@ -174,9 +174,9 @@ TickSineHdma {
     BEQ loc_009C7C
     AND #$000F
     TAY 
-    LDA $cameraTargetX, Y
+    LDA $cameraTargetX, Y ; Load cameraTargetX for horizontal sine offset
     STA $0018
-    LDA $cameraTargetY, Y
+    LDA $cameraTargetY, Y ; Load cameraTargetY for vertical sine offset
     STA $001C
     BRA loc_009C89
 
@@ -199,23 +199,23 @@ TickSineHdma {
 
 BindSineHdma {
     TYX 
-    LDA [$0A]
+    LDA [$0A]             ; Read HDMA table address operand
     INC $0A
     INC $0A
     TAY 
     LDA $0036             ; $0036 bit 0 = frame parity; odd frames offset table +$0200 for double-buffer
-    LSR 
+    LSR                   ; $0036 bit 0 = frame parity for double-buffer selection
     BCC loc_009CA5
     TYA 
     CLC 
-    ADC #$0200
+    ADC #$0200            ; Odd frame: offset table by $0200 for ping-pong buffer
     TAY 
 
   loc_009CA5:
     LDA [$0A]
     INC $0A
     INC $0A
-    JSL $@hdma_dma_spc.SetupHdmaChannel_Indirect
+    JSL $@hdma_dma_spc.SetupHdmaChannel_Indirect ; Register HDMA channel with indirect table address
     LDA $0A
     STA $02, S
     RTI 
@@ -234,19 +234,19 @@ InitGravity {
     ORA #$FF00
 
   loc_009CC4:
-    STA $scratch1010+2, X
-    LDA [$0A]
+    STA $scratch1010+2, X ; Store initial velocity in scratch1010+2
+    LDA [$0A]             ; Read acceleration factor (right-shift count for curve attenuation)
     INC $0A
     AND #$00FF
     STA $scratch1010, X   ; Acceleration factor: right-shift count that attenuates the quadratic curve
-    LDA [$0A]
+    LDA [$0A]             ; Read signed target Y tile offset byte
     INC $0A
     AND #$00FF
     ASL                   ; Tile→pixel: ASL ×4 (×16); BIT #$0800 tests original sign bit for negation
     ASL 
     ASL 
     ASL 
-    BIT #$0800
+    BIT #$0800            ; BIT $0800: test original sign for signed tile offset
     BEQ loc_009CE7
     EOR #$FFFF
     INC 
@@ -267,7 +267,7 @@ InitGravity {
 
 TickGravity {
     TYX 
-    LDA $scratch1010, X
+    LDA $scratch1010, X   ; Load acceleration factor into Y
     TAY 
     LDA $scratch1010+4, X ; Increment tick counter; factor (in Y) controls curve attenuation via shift
     INC 
@@ -279,7 +279,7 @@ TickGravity {
     LDA #$00
     XBA 
     REP #$20
-    LDA $RDMPYL
+    LDA $RDMPYL           ; Read hardware multiply result (raw gravity magnitude)
 
   loc_009D1A:
     DEY                   ; Right-shift product by factor count: higher factor = gentler ramp
@@ -289,15 +289,15 @@ TickGravity {
 
   loc_009D20:
     PHA                   ; Subtract acceleration from velocity, negate for downward movement delta
-    LDA $scratch1010+2, X
+    LDA $scratch1010+2, X ; Subtract gravity from initial velocity
     SEC 
     SBC $01, S
     STA $01, S
     PLA 
     EOR #$FFFF            ; Invert gravity delta for upward bounce boundary check
     INC 
-    STA $moveScratch2, X
-    BMI loc_009D4A
+    STA $moveScratch2, X  ; Store inverted gravity as Y movement delta in moveScratch2
+    BMI loc_009D4A        ; Delta still negative → actor above target, continue falling
     LDA $16
     BMI loc_009D4A
     LDA $moveYAlt, X      ; Target − current: borrow means actor passed target → return $FFFF done
@@ -306,7 +306,7 @@ TickGravity {
     BCS loc_009D4A
     LDA $0A
     STA $02, S
-    LDA #$FFFF
+    LDA #$FFFF            ; A=$FFFF: signal target reached to caller
     RTI 
 
   loc_009D4A:
@@ -321,14 +321,14 @@ TickGravity {
 
 InitSpiral {
     TYX 
-    LDA [$0A]
+    LDA [$0A]             ; Read starting orbit diameter byte
     INC $0A
     AND #$00FF
-    STA $orbitDiameter, X
-    LDA [$0A]
+    STA $orbitDiameter, X ; Store in orbitDiameter ($7F0012)
+    LDA [$0A]             ; Read starting orbit angle byte
     INC $0A
     AND #$00FF
-    STA $orbitAngle, X
+    STA $orbitAngle, X    ; Store in orbitAngle ($7F0010)
     LDA $0A
     STA $02, S
     RTI 
@@ -348,9 +348,9 @@ SpiralStep {
 
   loc_00A9BE:
     CLC 
-    ADC $orbitDiameter, X
+    ADC $orbitDiameter, X ; Accumulate diameter delta into orbitDiameter
     STA $orbitDiameter, X
-    LDA [$0A]
+    LDA [$0A]             ; Read signed angle delta byte
     INC $0A
     AND #$00FF
     BIT #$0080
@@ -359,10 +359,10 @@ SpiralStep {
 
   loc_00A9D6:
     CLC 
-    ADC $orbitAngle, X
+    ADC $orbitAngle, X    ; Accumulate angle delta into orbitAngle
     STA $orbitAngle, X
-    LDY $0000
-    JSL $@ApplyOrbitalOffsetFromRef
+    LDY $0000             ; Load reference actor pointer from $0000
+    JSL $@ApplyOrbitalOffsetFromRef ; Apply orbital offset: sine/cosine of angle × diameter → position
     LDA $0A
     STA $02, S
     RTI 
@@ -373,9 +373,9 @@ SpiralStep {
 
 CameraPanDown {
     TYX 
-    LDA $2A               ; Decrement frame counter; underflow triggers CameraScrollStepLookup reload
+    LDA $2A               ; Read frame delay counter from $2A
     AND #$00FF
-    DEC 
+    DEC                   ; Decrement; negative → time to fetch next scroll step
     BMI loc_00ACF0
     SEP #$20
     STA $2A
@@ -384,23 +384,23 @@ CameraPanDown {
 
   loc_00ACF0:
     REP #$20
-    JSR $&cop_handlers_movement.CameraScrollStepLookup ; CameraScrollStepLookup when pan step counter underflowed
-    BCC loc_00ACFC
+    JSR $&cop_handlers_movement.CameraScrollStepLookup ; CameraScrollStepLookup: fetch speed from scroll table
+    BCC loc_00ACFC        ; Carry clear = valid step; carry set = end of table → resume script
     LDA $0A
     STA $02, S
     RTI 
 
   loc_00ACFC:
-    STA $2A
+    STA $2A               ; Reload frame delay from scroll step entry
 
   loc_00ACFE:
     LDA $2B               ; $2B low nibble = pixel step added to cameraTargetY each pan tick
     AND #$000F
     CLC 
-    ADC $cameraTargetY
+    ADC $cameraTargetY    ; Add step to cameraTargetY (scroll south)
     STA $cameraTargetY
-    CMP $cameraBoundsY
-    BPL loc_00AD12
+    CMP $cameraBoundsY    ; Compare against cameraBoundsY (bottom limit)
+    BPL loc_00AD12        ; Reached boundary → resume script
     PLA                   ; Not at cameraBoundsY — pop RTI frame and yield RTL until boundary
     PLA 
     RTL 
@@ -418,7 +418,7 @@ CameraPanUp {
     TYX 
     LDA $2A
     AND #$00FF
-    DEC 
+    DEC                   ; CameraPanUp: same pattern but subtracts from cameraTargetY
     BMI loc_00AD28
     SEP #$20
     STA $2A
@@ -448,7 +448,7 @@ CameraPanUp {
 
   loc_00AD47:
     STA $cameraTargetY
-    CMP $cameraOffsetY
+    CMP $cameraOffsetY    ; Compare against cameraOffsetY (top limit)
     BMI loc_00AD52
     PLA 
     PLA 
@@ -467,7 +467,7 @@ CameraPanRight {
     TYX 
     LDA $2A
     AND #$00FF
-    DEC 
+    DEC                   ; CameraPanRight: same pattern but adds to cameraTargetX
     BMI loc_00AD68
     SEP #$20
     STA $2A
@@ -489,9 +489,9 @@ CameraPanRight {
     LDA $2B               ; Same as PanDown but adds step to cameraTargetX toward cameraBoundsX
     AND #$000F
     CLC 
-    ADC $cameraTargetX
+    ADC $cameraTargetX    ; Add step to cameraTargetX (scroll right)
     STA $cameraTargetX
-    CMP $cameraBoundsX
+    CMP $cameraBoundsX    ; Compare against cameraBoundsX (right limit)
     BPL loc_00AD8A
     PLA 
     PLA 
@@ -510,7 +510,7 @@ CameraPanLeft {
     TYX 
     LDA $2A
     AND #$00FF
-    DEC 
+    DEC                   ; CameraPanLeft: same pattern subtracting from cameraTargetX
     BMI loc_00ADA0
     SEP #$20
     STA $2A
@@ -532,7 +532,7 @@ CameraPanLeft {
     LDA $2B               ; Same as PanUp but subtracts from cameraTargetX toward cameraOffsetX
     AND #$000F
     SEC 
-    SBC $cameraTargetX
+    SBC $cameraTargetX    ; Subtract step from cameraTargetX (scroll left)
     BEQ loc_00ADBF
     BPL loc_00ADCA
     EOR #$FFFF
@@ -540,7 +540,7 @@ CameraPanLeft {
 
   loc_00ADBF:
     STA $cameraTargetX
-    CMP $cameraOffsetX
+    CMP $cameraOffsetX    ; Compare against cameraOffsetX (left limit)
     BMI loc_00ADCA
     PLA 
     PLA 
@@ -564,13 +564,13 @@ BuildSineHdmaTable {
     PHB 
     LDA $spritesetPtr, X  ; Double-buffered WRAM: base from spritesetPtr + $0100, secondary at +$0400
     CLC 
-    ADC #$0100
+    ADC #$0100            ; +$0100: offset to data region past indirect headers
     STA $0062
     CLC 
-    ADC #$0400
+    ADC #$0400            ; +$0400: second table data region for vertical
     STA $005E
     LDA $0036             ; Frame parity ($0036 bit 0): offset both pointers for ping-pong buffer swap
-    LSR 
+    LSR                   ; Frame parity bit 0: swap buffers for flicker-free HDMA
     BCC loc_00ADFA
     LDA $0062
     CLC 
@@ -584,30 +584,30 @@ BuildSineHdmaTable {
     SEP #$20
     LDA $7F0008, X        ; Actor amplitude byte ($7F0008) → WRMPYA for per-scanline sine scaling
     STA $WRMPYA
-    LDA #$7E
+    LDA #$7E              ; Set DBR to $7E for WRAM sine table writes
     PHA 
     PLB 
     REP #$20
     LDA #$0000
     TCD 
     LDA $000E, X
-    STA $0E
+    STA $0E               ; Store scanline count into DP $0E
     LSR 
     PHA 
     LDA #$0100            ; $0100 ÷ half-scanlines = per-scanline step through sine_table_8bit
     STA $L_WRDIVL
     PLA 
     SEP #$20
-    STA $L_WRDIVB
+    STA $L_WRDIVB         ; Wait for SNES hardware divider (16 cycles)
     LDA #$00
     XBA 
-    NOP                   ; Six NOPs: wait for hardware divider result latency
+    NOP                   ; 6 NOPs: wait for SNES hardware divider latency (16 cycles)
     NOP 
     NOP 
     NOP 
     NOP 
     NOP 
-    LDA $L_RDDIVL
+    LDA $L_RDDIVL         ; Read divider result: per-scanline step size
     REP #$20
     STA $00
     LDY #$0000
@@ -622,7 +622,7 @@ BuildSineHdmaTable {
     ADC $1C
 
   loc_00AE42:
-    ASL 
+    ASL                   ; Left-shift angle by step alignment count
     DEY 
     BNE loc_00AE42
     AND #$00FF
@@ -631,9 +631,9 @@ BuildSineHdmaTable {
 
   loc_00AE4D:
     SEP #$20              ; Per-scanline: look up sine sample, scale by amplitude, write HDMA scroll data
-    LDA $@math_lookup_tables.sine_table_8bit, X
-    STA $L_WRMPYB
-    BPL loc_00AE8F
+    LDA $@math_lookup_tables.sine_table_8bit, X ; Fetch sine sample from sine_table_8bit at current angle
+    STA $L_WRMPYB         ; Per-scanline: sine sample × amplitude → HDMA scroll data
+    BPL loc_00AE8F        ; WRMPYB: start hardware multiply (sine × amplitude)
     NOP 
     NOP 
     NOP 
@@ -646,13 +646,13 @@ BuildSineHdmaTable {
     CLC 
     ADC $L_RDMPYL
     REP #$20
-    PHA 
+    PHA                   ; Camera X added for horizontal; camera Y for vertical HDMA
     CLC                   ; Camera X added for horizontal table ($62); camera Y for vertical ($5E)
     ADC $18
     STA ($62), Y
     PLA 
     CLC 
-    ADC $1C
+    ADC $1C               ; Add camera Y offset for vertical HDMA table
     STA ($5E), Y
     TXA 
     CLC 
@@ -671,7 +671,7 @@ BuildSineHdmaTable {
 
   loc_00AE8F:
     REP #$20              ; Positive sine path: RDMPYH masked to byte is the complete product
-    NOP 
+    NOP                   ; Positive sine path: RDMPYH masked is complete product
     LDA $L_RDMPYH
     AND #$00FF
     PHA 
@@ -685,17 +685,17 @@ BuildSineHdmaTable {
     TXA 
     CLC 
     ADC $00
-    AND #$00FF
+    AND #$00FF            ; BuildSineLookupTable: check displayModeFlags bit 6 for rebuild trigger
     TAX 
     INY 
-    INY 
+    INY                   ; Alternate trigger: animScratch2 bit 0
     CPY $0E
-    BNE loc_00AE4D
+    BNE loc_00AE4D        ; Nonzero: trigger bit is set, branch to process acknowledgment
     PLB 
     PLA 
     TCD 
     TAX 
-    RTS 
+    RTS                   ; Clear displayModeFlags rebuild trigger
 }
 
 ---------------------------------------------
@@ -712,28 +712,28 @@ BuildSineLookupTable {
     PHX 
     LDA $displayModeFlags ; Guard: rebuild only when displayModeFlags bit 6 or animScratch2 bit 0 set
     BIT #$0040
-    BNE loc_00AED4
-    LDA $animScratch2, X
-    BIT #$0001
+    BNE loc_00AED4        ; 256-entry loop: sine_table_8bit × amplitude → sineTableA/B word entries
+    LDA $animScratch2, X  ; Alternate trigger: animScratch2 bit 0
+    BIT #$0001            ; Negative sine: RDMPYH × $FF correction + ADC RDMPYL
     BEQ loc_00AF19
-    AND #$FFFE
-    STA $animScratch2, X
-    BRA loc_00AEDA
+    AND #$FFFE            ; Clear trigger bit after acknowledging
+    STA $animScratch2, X  ; Write scaled sine to sineTableA ($7E8900+X)
+    BRA loc_00AEDA        ; Mirror to sineTableB ($7E8B00+X)
 
   loc_00AED4:
     AND #$FFBF            ; Clear trigger flag after acknowledging rebuild request
-    STA $displayModeFlags
+    STA $displayModeFlags ; Advance sine index by step ($0E)
 
   loc_00AEDA:
-    SEP #$20
-    LDA $7F0008, X
+    SEP #$20              ; Loop until 256 entries ($0200 bytes) written
+    LDA $7F0008, X        ; Actor amplitude → WRMPYA for sine scaling
     STA $WRMPYA           ; Actor amplitude → WRMPYA; same scaling technique as BuildSineHdmaTable
-    LDX #$0000
+    LDX #$0000            ; Positive sine: RDMPYH masked to byte = complete product
     TXY 
 
   loc_00AEE7:
     LDA $&math_lookup_tables.sine_table_8bit, Y ; 256-entry loop: sine_table_8bit[Y] × amplitude → sineTableA/B[X] word entries
-    STA $WRMPYB
+    STA $WRMPYB           ; STA WRMPYB: sine sample × amplitude
     BPL loc_00AF1C
     NOP 
     NOP 
@@ -747,16 +747,16 @@ BuildSineLookupTable {
     CLC 
     ADC $RDMPYL
     REP #$20
-    STA $sineTableA, X
-    STA $sineTableB, X
+    STA $sineTableA, X    ; Write scaled sine value to sineTableA ($7E8900+X)
+    STA $sineTableB, X    ; Mirror to sineTableB ($7E8B00+X)
     TYA 
     SEP #$20
     CLC 
-    ADC $0E
+    ADC $0E               ; Advance sine index by step ($0E) for next entry
     TAY 
     INX 
     INX 
-    CPX #$0200
+    CPX #$0200            ; Loop until 256 entries ($0200 bytes = 256 words) written
     BNE loc_00AEE7
 
   loc_00AF19:

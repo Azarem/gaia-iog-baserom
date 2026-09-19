@@ -45,7 +45,7 @@ camera_scroll_controller [
     SEC 
     SBC #$0008
     STA $playerXPos
-    LSR 
+    LSR                   ; Wrap below 0 → reset to 15 (16-direction circle)
     LSR 
     LSR 
     LSR 
@@ -60,7 +60,7 @@ camera_scroll_controller [
     LSR 
     STA $playerYTile
     LDA $playerFlags
-    BIT #$0100
+    BIT #$0100            ; AND $000F: wrap at 16
     BNE loc_00EB85
     LDA $14
     SEC 
@@ -69,9 +69,9 @@ camera_scroll_controller [
     CMP $cameraOffsetX
     BMI loc_00EB4D
     CLC 
-    ADC #$0100
+    ADC #$0100            ; $0000 = $FFFF signals direction is resolved (snap case)
     CMP $cameraBoundsX
-    BMI loc_00EB52
+    BMI loc_00EB52        ; Read parent actor from $0004,X
     LDA $cameraBoundsX
     BRA loc_00EB52
 
@@ -84,7 +84,7 @@ camera_scroll_controller [
     BRA loc_00EB56
 
   loc_00EB52:
-    SEC 
+    SEC                   ; Zero OAM flip bits in $002A
     SBC #$0100
 
   loc_00EB56:
@@ -107,15 +107,15 @@ camera_scroll_controller [
     BRA loc_00EB7E
 
   loc_00EB79:
-    LDA $cameraOffsetY
-    BRA loc_00EB82
+    LDA $cameraOffsetY    ; ASL ×2 for word table offset into FollowDirectionTable
+    BRA loc_00EB82        ; chatPtr sign → carry flag for direction handler
 
   loc_00EB7E:
     SEC 
     SBC #$0100
 
   loc_00EB82:
-    STA $cameraTargetY
+    STA $cameraTargetY    ; Load handler address from FollowDirectionTable[direction]
 
   loc_00EB85:
     LDA $cameraTargetX

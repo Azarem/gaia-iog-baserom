@@ -88,7 +88,7 @@
     "effect_position_update": "Integrating scroll actor that advances forced camera motion with hard bounds.\n\nEach tick converts actor coordinates to velocity ($2C/$2E), adds effectDeltaX/Y, clamps cameraDeltaX against effectBoundsX and cameraDeltaY against effectBoundsY, then writes render deltas to $06E8/$06EA. Pairs with effect_velocity_init and effect_subpixel_math in the visual_effect_pipeline block.",
 
     "CopDispatch": "Central COP bytecode dispatcher reached from CopVector. Reads the opcode byte from the script stream at [$0A], doubles it as a word index, and indirect-jumps through cop_dispatch_table to the matching handler. Sets up X=Y=ActorID, script pointer $0A, and bank byte $0C from the COP interrupt stack frame.",
-    "cop_dispatch_table": "172-entry handler pointer table mapping COP opcodes $00–$6D and $80–$E2 to short-address handler labels across 15 handler blocks. Opcodes $6E–$7F are a deliberate #$0000 gap that would crash if executed.",
+    "cop_dispatch_table": "227-entry handler pointer table mapping COP opcodes $00–$6D and $80–$E2 (209 valid) to short-address handler labels across 13 handler blocks. Opcodes $6E–$7F are an 18-entry #$0000 gap that would crash if executed.",
     "cop_table_sentinel": "End-of-table guard: a NOP/BRA infinite loop that catches any opcode past $E2, preventing execution from falling into unmapped ROM.",
 
     "QueueHdma": "COP #01 with two word operands (HDMA table address, channel configuration word). Reads both from the script pointer and calls SetupHdmaChannel_Indirect to queue an indirect HDMA transfer.",

@@ -27,12 +27,12 @@
 
 StageBgChange {
     TYX 
-    LDA [$0A]
+    LDA [$0A]             ; Read event-block index byte from script
     INC $0A
     AND #$00FF
 
   loc_00931F:
-    JSL $@event_blocks.LookupEventBlock
+    JSL $@event_blocks.LookupEventBlock ; Look up event block and queue BG tilemap/palette swap
     LDA $0A
     STA $02, S
     RTI 
@@ -43,16 +43,16 @@ StageBgChange {
 
 ApplyBgChange {
     TYX 
-    SEP #$20
-    JSL $@system_core.UpdateFrameRender
-    JSL $@system_core.UpdateFrameDialogue
+    SEP #$20              ; Switch to 8-bit for UpdateFrameRender (expects SEP #$20)
+    JSL $@system_core.UpdateFrameRender ; Render one complete frame before starting transition
+    JSL $@system_core.UpdateFrameDialogue ; Run dialogue-mode frame update
     REP #$20
 
   loc_009335:
-    JSL $@event_blocks.AnimateEventBlock
-    BCS loc_009345
+    JSL $@event_blocks.AnimateEventBlock ; Animate one step of the event block tile swap
+    BCS loc_009345        ; Carry set = animation complete, all tiles swapped
     SEP #$20
-    JSL $@system_core.UpdateFrameDialogue
+    JSL $@system_core.UpdateFrameDialogue ; Render a frame between animation steps for visible transition
     REP #$20
     BRA loc_009335
 
@@ -70,9 +70,9 @@ ApplyBgChange {
 
 StageBgChangeFromDeathIdx {
     TYX 
-    LDA $deathActionIdx, X
+    LDA $deathActionIdx, X ; Read event-block index from actor's deathActionIdx field
     PHA 
-    LDA #$0F0F
+    LDA #$0F0F            ; Queue SFX $0F to both sound channels (tile-change sound effect)
     STA $sfxQueueCh1
     PLA 
     BRA loc_00931F
@@ -91,18 +91,18 @@ PaletteRestart {
 
 PaletteStart {
     TYX 
-    LDA [$0A]
+    LDA [$0A]             ; Read palette bundle ID byte
     INC $0A
     AND #$00FF
-    STA $animScratch+2, X
+    STA $animScratch+2, X ; Store bundle ID in animScratch+2 for LoadPaletteBundle
 
   loc_009370:
-    STZ $0E
-    JSL $@hdma_dma_spc.LoadPaletteBundle
-    JSL $@hdma_dma_spc.DecompressGfxToVram
+    STZ $0E               ; Reset frame index to 0 (start from first palette frame)
+    JSL $@hdma_dma_spc.LoadPaletteBundle ; Load palette bundle header and frame data
+    JSL $@hdma_dma_spc.DecompressGfxToVram ; Decompress and apply first palette frame to CGRAM staging
     LDA $0A
-    STA $00
-    PLA 
+    STA $00               ; Save script pointer for deferred re-entry
+    PLA                   ; Pop COP frame and yield RTL (palette step next frame)
     PLA 
     RTL 
 }
@@ -112,16 +112,16 @@ PaletteStart {
 
 PaletteStartLoop {
     TYX 
-    LDA [$0A]
+    LDA [$0A]             ; Read palette bundle ID
     INC $0A
     AND #$00FF
-    STA $animScratch+2, X
+    STA $animScratch+2, X ; Store bundle ID
     STZ $000E, X
-    LDA [$0A]
+    LDA [$0A]             ; Read repeat count byte
     INC $0A
     AND #$00FF
-    STA $retPtr1, X
-    JSL $@hdma_dma_spc.LoadPaletteBundle
+    STA $retPtr1, X       ; Store repeat count in retPtr1 ($7F0004)
+    JSL $@hdma_dma_spc.LoadPaletteBundle ; Load and decompress first palette frame
     JSL $@hdma_dma_spc.DecompressGfxToVram
     LDA $0A
     STA $00
@@ -135,19 +135,19 @@ PaletteStartLoop {
 
 PaletteStep {
     TYX 
-    LDA $spritesetPtr, X
+    LDA $spritesetPtr, X  ; Decrement spritesetPtr frame delay counter
     DEC 
-    BNE loc_0093BD
-    JSL $@hdma_dma_spc.LoadPaletteBundle
-    BCC loc_0093C7
-    LDA $0A
+    BNE loc_0093BD        ; Counter nonzero: not time to advance palette frame yet
+    JSL $@hdma_dma_spc.LoadPaletteBundle ; Counter reached zero: load next palette frame from bundle
+    BCC loc_0093C7        ; Carry clear = more frames remain in bundle
+    LDA $0A               ; Carry set = bundle exhausted: resume script
     STA $02, S
     RTI 
 
   loc_0093BD:
-    STA $spritesetPtr, X
-    LDA $animScratch, X
-    STA $08
+    STA $spritesetPtr, X  ; Store decremented counter back to spritesetPtr
+    LDA $animScratch, X   ; Load current animation scratch (frame data pointer)
+    STA $08               ; Store to $08 for DecompressGfxToVram
 
   loc_0093C7:
     JSL $@hdma_dma_spc.DecompressGfxToVram
@@ -161,17 +161,17 @@ PaletteStep {
 
 PaletteStepLoop {
     TYX 
-    LDA $spritesetPtr, X
+    LDA $spritesetPtr, X  ; Decrement palette frame delay counter
     DEC 
     BNE loc_0093EE
 
   loc_0093D6:
-    JSL $@hdma_dma_spc.LoadPaletteBundle
-    BCC loc_0093F9
-    LDA $retPtr1, X
+    JSL $@hdma_dma_spc.LoadPaletteBundle ; Load next frame from bundle
+    BCC loc_0093F9        ; Carry clear = more frames in bundle
+    LDA $retPtr1, X       ; Bundle exhausted: check retPtr1 repeat counter
     DEC 
-    BEQ loc_0093E9
-    STA $retPtr1, X
+    BEQ loc_0093E9        ; Counter reached zero: all repeats done → resume script
+    STA $retPtr1, X       ; Decremented counter still nonzero: reload bundle from frame 0
     BRA loc_0093D6
 
   loc_0093E9:
@@ -196,29 +196,29 @@ PaletteStepLoop {
 
 SpawnThinkerParam {
     PHY 
-    JSR $&actor_pool.AllocateSpecialActor
+    JSR $&actor_pool.AllocateSpecialActor ; Allocate from thinker pool via AllocateSpecialActor
     TYX 
-    LDA [$0A]
+    LDA [$0A]             ; Read param byte and store in animScratch+2 of new thinker
     INC $0A
     AND #$00FF
     STA $animScratch+2, X
 
   loc_009410:
-    LDA [$0A]
+    LDA [$0A]             ; Read entry pointer word from script
     INC $0A
     INC $0A
-    STA $0000, X
-    LDA [$0A]
+    STA $0000, X          ; Write entry pointer to new thinker $0000
+    LDA [$0A]             ; Read entry bank byte
     INC $0A
     AND #$00FF
-    STA $0002, X
+    STA $0002, X          ; Write bank byte to new thinker $0002
     TXY 
     LDA $01, S
     TAX 
-    LDA $animScratch2, X
+    LDA $animScratch2, X  ; Copy caller's animScratch2 to new thinker (inherit parent state)
     TYX 
     STA $animScratch2, X
-    LDA #$0000
+    LDA #$0000            ; Clear $000E on new thinker (no initial OAM attributes)
     STA $000E, X
     PLX 
     LDA $0A
@@ -241,25 +241,25 @@ SpawnThinker {
 
 KillThinker {
     TYX 
-    LDY $0004, X
-    BNE loc_009459
-    LDY $0006, X
-    STY $005A
+    LDY $0004, X          ; Load prev pointer of dying thinker
+    BNE loc_009459        ; Prev nonzero → not the list head (normal splice)
+    LDY $0006, X          ; No prev: load next and make it the new head
+    STY $005A             ; Update thinker list head ($005A) to next
     BEQ loc_00946D
     LDA #$0000
     STA $0004, Y
     BRA loc_00946D
 
   loc_009459:
-    LDA $0006, X
-    STA $0006, Y
-    BNE loc_009466
-    STY $005C
+    LDA $0006, X          ; Mid/tail splice: get dying thinker's next
+    STA $0006, Y          ; Patch: prev.next = dying.next
+    BNE loc_009466        ; If next is null, prev becomes new tail
+    STY $005C             ; Update thinker list tail ($005C) to prev
     BRA loc_00946D
 
   loc_009466:
     TAY 
-    LDA $0004, X
+    LDA $0004, X          ; Reverse patch: next.prev = dying.prev
     STA $0004, Y
 
   loc_00946D:
@@ -267,10 +267,10 @@ KillThinker {
     LDA #$0000
     TCD 
     SEP #$20
-    DEC $0052             ; Pre-decrement free-stack pointer by 2 (two 8-bit DECs for word slot)
+    DEC $0052             ; Pre-decrement thinker free-stack pointer by 2
     DEC $0052
     REP #$20
-    TXA 
+    TXA                   ; Push freed thinker slot address onto LIFO free stack
     STA [$52]             ; Write freed actor slot address to top of free stack via indirect [$52]
     PLD 
     LDA $0A

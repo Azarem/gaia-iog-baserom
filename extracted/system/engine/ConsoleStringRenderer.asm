@@ -1037,5 +1037,5 @@ AsciiCmd_PrintEquipIcons {
     PLA 
     TXA 
     STA $03, S
-    RTS 
+    RTS                   ; GiveItemToPlayer entry — item ID in A; save P register
 }

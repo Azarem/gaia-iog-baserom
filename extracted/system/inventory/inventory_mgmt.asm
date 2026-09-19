@@ -55,9 +55,9 @@
 ; Return: carry clear = success, carry set = inventory full. Y = dialogue string pointer.
 
 GiveItemToPlayer {
-    PHP                   ; GiveItemToPlayer entry — item ID in A; save P register
+    PHP 
     SEP #$20
-    BIT #$80              ; Bit 7 test: $00–$7F = regular inventory item, $80+ = special effect
+    BIT #$80
     BNE loc_03EFB3
     PHA 
     LDY #$0000            ; Regular item path — scan 16 inventorySlots for first empty slot (Y=0)
@@ -269,11 +269,11 @@ CheckInventoryForItem {
     CPY #$0010
     BNE loc_03F0B9
     PLP 
-    SEC                   ; Not found — SEC, RTL (carry set = item absent)
+    SEC 
     RTL 
 
   loc_03F0C7:
     PLP 
-    CLC                   ; Found — CLC, RTL (carry clear = item present)
+    CLC 
     RTL 
 }

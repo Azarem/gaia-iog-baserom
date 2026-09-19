@@ -989,7 +989,7 @@ TileCollision_SolidV {
 ; All other tiles or incomplete patterns → CLC (normal collision applies).
 
 CheckActorOnSpecialTile {
-    LDA $18               ; Save tile coords $18/$1C; will restore on exit
+    LDA $18               ; Load tile coords $18/$1C; will restore on exit
     PHA 
     LDA $1C
     PHA 

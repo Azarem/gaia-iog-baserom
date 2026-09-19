@@ -35,8 +35,8 @@
 ; Active only when the player is Shadow form, providing the distinctive shimmering palette visual effect.
 
 ShadowShimmerInit {
-    LDA $characterForm    ; Check character form — this shimmer actor is Shadow-only (form 2)
-    CMP #$0002            ; Form 2 = Shadow → continue initialization
+    LDA $characterForm
+    CMP #$0002
     BEQ loc_02B218
     COP [Die]             ; Not Shadow → self-destruct immediately (no shimmer for Will/Freedan)
 

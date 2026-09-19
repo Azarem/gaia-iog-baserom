@@ -450,7 +450,7 @@ DialogCmd_OpenDialogueBox {
     STA $0996
     STZ $00DC             ; Clear overlay flag ($00DC) and reset line counter ($099C)
     STZ $099C
-    LDA $097A             ; Save column/row origins: $097A→$097E, $097C→$0980
+    LDA $097A             ; Load column/row origins: $097A→$097E, $097C→$0980
     STA $097E
     LDA $097C
     STA $0980

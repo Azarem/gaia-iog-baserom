@@ -49,10 +49,10 @@
 
 BranchIfActorNear {
     TYX 
-    LDA [$0A]
+    LDA [$0A]             ; Read actor list index byte operand
     INC $0A
     AND #$00FF
-    JSR $&ResolveActorIndex
+    JSR $&ResolveActorIndex ; ResolveActorIndex: index × $30 + $1000 → Y = actor WRAM pointer
     BRA loc_008C2A
 }
 
@@ -61,19 +61,19 @@ BranchIfActorNear {
 
 BranchIfPlayerNear {
     TYX 
-    LDY $playerActor
+    LDY $playerActor      ; Use player actor pointer for proximity test
 
   loc_008C2A:
-    LDA [$0A]
+    LDA [$0A]             ; Read radius byte operand
     INC $0A
     AND #$00FF
-    ASL                   ; Near-test radius = (operand × 16) + 1 pixel
+    ASL                   ; Radius × 16 + 1: tile radius → pixel threshold
     ASL 
     ASL 
     ASL 
     INC 
-    STA $0000
-    LDA $14
+    STA $0000             ; Store pixel threshold in DP $0000 for axis comparisons
+    LDA $14               ; ΔX = actor.X − target.X
     SEC 
     SBC $0014, Y
     BPL loc_008C45
@@ -81,9 +81,9 @@ BranchIfPlayerNear {
     INC 
 
   loc_008C45:
-    CMP $0000
+    CMP $0000             ; |ΔX| ≥ threshold → not near (skip branch)
     BCS loc_008C64
-    LDA $16
+    LDA $16               ; ΔY = actor.Y − target.Y
     SEC 
     SBC $0016, Y
     BPL loc_008C56
@@ -91,16 +91,16 @@ BranchIfPlayerNear {
     INC 
 
   loc_008C56:
-    CMP $0000
+    CMP $0000             ; |ΔY| ≥ threshold → not near
     BCS loc_008C64
-    LDA [$0A]
+    LDA [$0A]             ; Both axes within radius: take branch to &Code target
     INC $0A
     INC $0A
     STA $02, S
     RTI 
 
   loc_008C64:
-    LDA [$0A]
+    LDA [$0A]             ; Outside radius: skip branch operand and continue
     INC $0A
     INC $0A
     LDA $0A
@@ -116,56 +116,56 @@ MoveToward {
     LDA $extendedFlags, X ; Check extendedFlags bit 1: skip init if smooth move already active
     BIT #$0002
     BNE loc_008C7C
-    JSR $&InitSmoothMovement
+    JSR $&InitSmoothMovement ; First entry: init interpolation (velocity, accumulators, flags)
 
   loc_008C7C:
-    LDA $animScratch2, X
+    LDA $animScratch2, X  ; Read target tick count from animScratch2 low byte
     AND #$00FF
-    CMP $24
+    CMP $24               ; Compare target ticks against current tick counter $24
     BNE loc_008C8A
-    JMP $&MoveTowardFinish
+    JMP $&MoveTowardFinish ; Tick count reached: jump to MoveTowardFinish (clear flags, yield)
 
   loc_008C8A:
     SEP #$20
     LDA $24
-    STA $WRMPYA
-    LDA $moveXAlt, X
+    STA $WRMPYA           ; STA WRMPYA: tick counter as hardware multiplier input
+    LDA $moveXAlt, X      ; Load X axis distance byte for velocity computation
     AND #$FF
-    JSR $&MultiplyThenDivide
-    SEC 
+    JSR $&MultiplyThenDivide ; MultiplyThenDivide: tick×distance / frameCount → per-frame X velocity
+    SEC                   ; Subtract previous accumulator to get this frame's X delta
     SBC $animScratch, X
-    BEQ loc_008CC3
+    BEQ loc_008CC3        ; Zero X delta this frame: skip X position update
     REP #$20
     AND #$00FF
     PHA 
     LDA $animScratch2, X
-    ASL 
+    ASL                   ; Test X direction sign via bit 15 of animScratch2
     BMI loc_008CB1
     PLA 
     BRA loc_008CB6
 
   loc_008CB1:
-    PLA 
+    PLA                   ; X direction negative: negate velocity
     EOR #$FFFF
     INC 
 
   loc_008CB6:
-    STA $moveScratch1, X
+    STA $moveScratch1, X  ; Store signed X velocity in moveScratch1 ($7F002C)
     SEP #$20
-    LDA $0000
+    LDA $0000             ; Update X accumulator to match expected position at this tick
     STA $animScratch, X
 
   loc_008CC3:
-    LDA $moveYAlt, X
+    LDA $moveYAlt, X      ; Load Y axis distance byte for velocity computation
     AND #$FF
-    JSR $&MultiplyThenDivide
-    SEC 
+    JSR $&MultiplyThenDivide ; MultiplyThenDivide: tick×distance / frameCount → per-frame Y velocity
+    SEC                   ; Subtract previous Y accumulator for frame delta
     SBC $animScratch+1, X
     REP #$20
     BEQ loc_008CF7
     AND #$00FF
     PHA 
-    LDA $animScratch2, X
+    LDA $animScratch2, X  ; Test Y direction sign via carry from ASL bit 14
     ASL 
     BCS loc_008CE3
     PLA 
@@ -177,27 +177,27 @@ MoveToward {
     INC 
 
   loc_008CE8:
-    STA $moveScratch2, X
+    STA $moveScratch2, X  ; Store signed Y velocity in moveScratch2 ($7F002E)
     SEP #$20
-    LDA $0000
+    LDA $0000             ; Update Y accumulator
     STA $animScratch+1, X
     REP #$20
 
   loc_008CF7:
-    INC $24
-    LDA $animScratch+2, X
+    INC $24               ; Increment tick counter for next frame
+    LDA $animScratch+2, X ; Decrement animation frame delay counter
     DEC 
     BPL loc_008D08
 
   loc_008D00:
-    JSL $@sprite_composition.UpdateActorAnimation
+    JSL $@sprite_composition.UpdateActorAnimation ; Spin UpdateActorAnimation until cycle complete (BCS loop)
     BCS loc_008D00
     LDA $08
 
   loc_008D08:
-    STZ $08
+    STZ $08               ; Zero frame timer and store delay for next cycle
     STA $animScratch+2, X
-    PLA 
+    PLA                   ; Pop COP frame and yield RTL until next tick
     PLA 
     RTL 
 }
@@ -211,11 +211,11 @@ MoveTowardFinish {
     LDA $extendedFlags, X ; Clear extendedFlags bit 1 (smooth move), skip operands, yield RTL
     AND #$FFFD
     STA $extendedFlags, X
-    LDA $0A
+    LDA $0A               ; Skip 2-byte operand and save resume PC
     INC 
     INC 
     STA $00
-    PLA 
+    PLA                   ; Yield RTL to resume calling script
     PLA 
     RTL 
 }
@@ -224,8 +224,8 @@ MoveTowardFinish {
 ; Hardware multiply latency wrapper. One NOP provides the 8-cycle wait required after writing WRMPYB before the SNES hardware multiplier result is valid, then reads RDMPYL into Y. Called by MultiplyThenDivide.
 
 ReadMultiplyResult {
-    NOP 
-    LDY $RDMPYL
+    NOP                   ; 1 NOP: 8-cycle wait for SNES hardware multiplier result
+    LDY $RDMPYL           ; Read multiply product from RDMPYL → Y
     RTS 
 }
 
@@ -233,12 +233,12 @@ ReadMultiplyResult {
 ; Hardware divide latency wrapper. Five NOPs provide the 16-cycle wait required after writing WRDIVB before the SNES hardware divider result is valid, then reads RDDIVL into A. Called by MultiplyThenDivide.
 
 ReadDivideResult {
+    NOP                   ; 5 NOPs: 16-cycle wait for SNES hardware divider result
     NOP 
     NOP 
     NOP 
     NOP 
-    NOP 
-    LDA $RDDIVL
+    LDA $RDDIVL           ; Read divide quotient from RDDIVL → A
     RTS 
 }
 
@@ -249,16 +249,16 @@ ReadDivideResult {
 
 MultiplyThenDivide {
     STA $WRMPYB           ; STA WRMPYB: start hardware multiply for velocity calc
-    JSR $&ReadMultiplyResult
-    STY $WRDIVL           ; Product → WRDIVL: feed multiply result into divider
-    LDA $animScratch2, X
-    DEC 
+    JSR $&ReadMultiplyResult ; Wait for multiply result
+    STY $WRDIVL           ; STY WRDIVL: feed multiply product into divider as dividend
+    LDA $animScratch2, X  ; Load frame count from animScratch2
+    DEC                   ; DEC: frame count − 1 as divisor
     STA $WRDIVB           ; STA WRDIVB: frame count divisor from animScratch2
-    BEQ loc_008D49
+    BEQ loc_008D49        ; Zero divisor guard: skip divide to avoid hardware hang
     JSR $&ReadDivideResult
 
   loc_008D49:
-    STA $0000
+    STA $0000             ; Store quotient (pixels-per-frame velocity) in $0000
     RTS 
 }
 
@@ -268,38 +268,38 @@ MultiplyThenDivide {
 ; Converts moveXAlt/moveYAlt from absolute target coordinates to signed deltas from the current position ($14/$16), takes their absolute values, caps each at $00FE when the high byte is non-zero, and records the sign of each axis in $0004 via ROR. Selects the larger axis as the travel distance, divides by the frame-count operand via UnsignedDivide for per-frame velocity, zeroes animScratch/tick state, and sets extendedFlags bit 1 to mark smooth movement active.
 
 InitSmoothMovement {
-    STZ $0004
-    LDA $0A
+    STZ $0004             ; Zero direction sign accumulator ($0004) for ROR tracking
+    LDA $0A               ; Load rewind PC (COP − 2) as entry point
     DEC 
     DEC 
     STA $00
     LDY #$0001
-    LDA [$0A]
+    LDA [$0A]             ; Read animation index operand
     AND #$00FF
-    CMP #$00FF
+    CMP #$00FF            ; $FF = keep current animation index unchanged
     BNE loc_008D65
     LDA $28
 
   loc_008D65:
-    JSR $&cop_handlers_sprite.ProcessAnimFlag
-    LDA $moveXAlt, X
+    JSR $&cop_handlers_sprite.ProcessAnimFlag ; ProcessAnimFlag: set $28 with directional flip handling
+    LDA $moveXAlt, X      ; Compute X delta: moveXAlt (target) − current actor.X ($14)
     SEC 
     SBC $14
     CLC 
-    BPL loc_008D77
-    EOR #$FFFF
+    BPL loc_008D77        ; Positive → rightward movement
+    EOR #$FFFF            ; Negative → negate for absolute distance
     INC 
     SEC 
 
   loc_008D77:
-    ROR $0004             ; ROR $0004: record dominant movement axis in bit 0
-    BIT #$FF00
+    ROR $0004             ; ROR $0004: shift X sign bit into direction tracking word
+    BIT #$FF00            ; High byte nonzero → cap distance at $00FE (single-byte max)
     BEQ loc_008D82
     LDA #$00FE
 
   loc_008D82:
-    STA $moveXAlt, X
-    LDA $moveYAlt, X
+    STA $moveXAlt, X      ; Store absolute X distance back to moveXAlt
+    LDA $moveYAlt, X      ; Compute Y delta: moveYAlt (target) − current actor.Y ($16)
     SEC 
     SBC $16
     CLC 
@@ -309,37 +309,37 @@ InitSmoothMovement {
     SEC 
 
   loc_008D95:
-    ROR $0004
+    ROR $0004             ; ROR $0004: shift Y sign into direction word
     BIT #$FF00
     BEQ loc_008DA0
     LDA #$00FE
 
   loc_008DA0:
-    STA $moveYAlt, X
-    CMP $moveXAlt, X
+    STA $moveYAlt, X      ; Store absolute Y distance back to moveYAlt
+    CMP $moveXAlt, X      ; Compare Y vs X distance: select larger axis for primary travel
     BCS loc_008DAE
     LDA $moveXAlt, X
 
   loc_008DAE:
-    PHA 
-    LDA [$0A], Y
+    PHA                   ; Push larger distance as dividend for velocity calc
+    LDA [$0A], Y          ; Read frame-count operand (duration in ticks)
     AND #$00FF
     PLY 
     SEP #$20
     JSL $@hardware_math.UnsignedDivide ; JSL UnsignedDivide: distance/duration → pixels per frame
     INC 
-    STA $animScratch2, X
-    LDA $0005
+    STA $animScratch2, X  ; Store velocity+1 as tick limit in animScratch2
+    LDA $0005             ; Load animation frame delay byte in $7F000F
     STA $7F000F, X
     REP #$20
-    LDA #$0000
+    LDA #$0000            ; Zero accumulators, tick counter, and movement deltas
     STA $animScratch, X
     STA $animScratch+2, X
     STA $24
     STZ $2C
     STZ $2E
     LDA $extendedFlags, X
-    ORA #$0002            ; ORA #$0002: extendedFlags bit 1 = smooth move active
+    ORA #$0002            ; Set extendedFlags bit 1 (smooth interpolated move active)
     STA $extendedFlags, X
     RTS 
 }
@@ -349,18 +349,18 @@ InitSmoothMovement {
 
 SnapToGrid {
     TYX 
-    STZ $2C
+    STZ $2C               ; Clear movement deltas ($2C/$2E) before snap
     STZ $2E
-    LDA $14
+    LDA $14               ; Check X grid alignment: (actor.X − 8) for sprite centering
     SEC 
     SBC #$0008
-    ORA $16
+    ORA $16               ; OR with Y to check both axes simultaneously
     AND #$000F            ; AND #$000F: skip snap if already on 16×16 tile grid
     BEQ loc_008E14
-    LDA $0A
+    LDA $0A               ; Not aligned: save script resume PC in snapResumePtr
     STA $snapResumePtr, X
     LDA $02
-    STA $7F101A, X
+    STA $7F101A, X        ; Save bank byte for post-snap restoration
     LDA #$&func_0AA3A7    ; Yield to func_0AA3A7 snap helper; resume via snapResumePtr
     STA $02, S
     SEP #$20
@@ -371,7 +371,7 @@ SnapToGrid {
     RTI 
 
   loc_008E14:
-    LDA $0A
+    LDA $0A               ; Already aligned: continue script immediately
     STA $02, S
     RTI 
 }
@@ -381,13 +381,13 @@ SnapToGrid {
 
 ResumeAfterSnap {
     TYX 
-    LDA $snapResumePtr, X
+    LDA $snapResumePtr, X ; Restore saved script PC from snapResumePtr ($7F1018)
     STA $02, S
     SEP #$20
-    LDA $7F101A, X
+    LDA $7F101A, X        ; Restore saved bank byte from $7F101A
     STA $04, S
     REP #$20
-    LDA #$0000
+    LDA #$0000            ; Clear both save slots after restoration
     STA $snapResumePtr, X
     STA $7F101A, X
     RTI 
@@ -398,17 +398,17 @@ ResumeAfterSnap {
 
 StageMove {
     TYX 
-    LDA [$0A]
+    LDA [$0A]             ; Read animation index byte for staged movement
     INC $0A
     AND #$00FF
-    CMP #$00FF
+    CMP #$00FF            ; $FF = keep current animation
     BNE loc_008E45
     LDA $28
 
   loc_008E45:
-    JSR $&cop_handlers_sprite.ProcessAnimFlag
+    JSR $&cop_handlers_sprite.ProcessAnimFlag ; ProcessAnimFlag: set animation with directional flip
     LDY #$0000
-    LDA $moveXAlt, X
+    LDA $moveXAlt, X      ; Compute X delta: moveXAlt − actor.X ($14)
     SEC 
     SBC $14
     BPL loc_008E5B
@@ -417,11 +417,11 @@ StageMove {
     INC 
 
   loc_008E5B:
-    STA $moveXAlt, X
+    STA $moveXAlt, X      ; Store absolute X distance in moveXAlt
     TYA 
     STA $animScratch2, X
     LDY #$0000
-    LDA $moveYAlt, X
+    LDA $moveYAlt, X      ; Compute Y delta: moveYAlt − actor.Y ($16)
     SEC 
     SBC $16
     BPL loc_008E77
@@ -430,36 +430,36 @@ StageMove {
     INC 
 
   loc_008E77:
-    STA $moveYAlt, X
-    CMP $moveXAlt, X
+    STA $moveYAlt, X      ; Store absolute Y distance in moveYAlt
+    CMP $moveXAlt, X      ; Select larger axis distance for frame count calculation
     BCS loc_008E85
     LDA $moveXAlt, X
 
   loc_008E85:
     PHA 
     TYA 
-    ORA $animScratch2, X
+    ORA $animScratch2, X  ; Combine X/Y direction bits into animScratch2
     STA $animScratch2, X
     LDA #$0000
-    STA $chatPtr, X
+    STA $chatPtr, X       ; Zero halving-pass counter in chatPtr
     PLA 
 
   loc_008E97:
-    BIT #$FF00            ; Halve distance loop while high byte of delta non-zero
+    BIT #$FF00            ; Loop: halve distances while high byte nonzero (fit in single byte)
     BEQ loc_008EA4
     LSR 
     PHA 
-    JSR $&HalveMovementDistance
+    JSR $&HalveMovementDistance ; HalveMovementDistance: LSR both axes, increment pass counter
     PLA 
     BRA loc_008E97
 
   loc_008EA4:
-    STA $WRDIVL           ; STA WRDIVL: total pixel distance as dividend
-    LDA [$0A]
+    STA $WRDIVL           ; STA WRDIVL: distance (now single byte) as dividend
+    LDA [$0A]             ; Read speed byte operand
     INC $0A
     AND #$00FF
     SEP #$20
-    CMP #$80              ; CMP #$80: treat speed byte as signed if ≥$80
+    CMP #$80              ; Speed ≥ $80: treat as signed negative (negate for absolute value)
     BCC loc_008EB7
     EOR #$FF
     INC 
@@ -467,20 +467,20 @@ StageMove {
   loc_008EB7:
     STA $WRDIVB           ; STA WRDIVB: signed speed divisor for frame count
     REP #$20
-    LDA [$0A]
+    LDA [$0A]             ; Read frame delay byte operand
     INC $0A
     AND #$00FF
     XBA                   ; XBA: frame counter high byte from script operand
     STA $animScratch+2, X
-    LDA $RDDIVL
+    LDA $RDDIVL           ; RDDIVL: quotient = total frames for staged trajectory
     INC 
-    ORA $animScratch2, X
+    ORA $animScratch2, X  ; Combine frame count with direction sign bits
     STA $animScratch2, X
-    BCC loc_008ED9
+    BCC loc_008ED9        ; Carry set from divide: need extra halving pass
     JSR $&HalveMovementDistance
 
   loc_008ED9:
-    LDA #$0000
+    LDA #$0000            ; Zero accumulators, tick counter, and movement deltas
     STA $animScratch, X
     STA $24
     STA $00002C, X
@@ -499,13 +499,13 @@ StageMove {
 ; Halves both moveXAlt and moveYAlt via LSR, then increments a halving-pass counter in chatPtr. StageMove calls this in a loop until the distance fits in a single byte, enabling the hardware divider to compute per-frame velocity accurately.
 
 HalveMovementDistance {
-    LDA $moveXAlt, X
+    LDA $moveXAlt, X      ; LSR: halve remaining X distance
     LSR                   ; Halve remaining X distance each halving iteration
     STA $moveXAlt, X
     LDA $moveYAlt, X
     LSR                   ; Halve remaining Y distance each halving iteration
     STA $moveYAlt, X
-    LDA $chatPtr, X
+    LDA $chatPtr, X       ; Increment halving-pass counter in chatPtr
     INC 
     STA $chatPtr, X
     RTS 
@@ -519,25 +519,25 @@ TickMove {
 
   TickMoveStep:
     LDA $animScratch2, X  ; Mask direction sign bits (14–15) for frame-count comparison against tick $24
-    AND #$3FFF
-    CMP $24
+    AND #$3FFF            ; Mask off sign bits (14–15) for pure frame count
+    CMP $24               ; Compare against tick counter $24
     BNE loc_008F1C
-    JMP $&TickMoveComplete
+    JMP $&TickMoveComplete ; Frame count reached: movement complete → TickMoveComplete
 
   loc_008F1C:
     SEP #$20
     LDA $24               ; STA WRMPYA: tick counter drives per-frame velocity scale
     STA $WRMPYA
-    LDA $moveYAlt, X
-    JSR $&MovementVelocityCompute ; MovementVelocityCompute: WRMPY then WRDIV for Y axis
-    SBC $animScratch+1, X
+    LDA $moveYAlt, X      ; Load Y distance for per-frame velocity
+    JSR $&MovementVelocityCompute ; MovementVelocityCompute: hardware multiply/divide → Y velocity
+    SBC $animScratch+1, X ; Subtract previous Y accumulator for this frame's delta
     BEQ loc_008F55
     PHA 
-    LDA $animScratch2, X
+    LDA $animScratch2, X  ; Test Y direction sign (bit 15 via ASL)
     ASL 
     PLA 
     BCC loc_008F3D
-    EOR #$FFFF
+    EOR #$FFFF            ; Y negative: negate velocity for southward movement
     INC 
 
   loc_008F3D:
@@ -547,7 +547,7 @@ TickMove {
     ORA #$FF00
 
   loc_008F48:
-    STA $moveScratch2, X
+    STA $moveScratch2, X  ; Store signed Y velocity in moveScratch2
     SEP #$20
     LDA $0000
     STA $animScratch+1, X
@@ -555,16 +555,16 @@ TickMove {
   loc_008F55:
     SEP #$20
     LDA $moveXAlt, X      ; MovementVelocityCompute: same multiply/divide for X axis
-    JSR $&MovementVelocityCompute
-    SBC $animScratch, X
+    JSR $&MovementVelocityCompute ; MovementVelocityCompute: → X velocity
+    SBC $animScratch, X   ; Subtract previous X accumulator
     BEQ loc_008F8A
     PHA 
     LDA $animScratch2, X
-    ASL 
+    ASL                   ; Test X direction sign (bit 14 via double ASL)
     ASL 
     PLA 
     BCC loc_008F72
-    EOR #$FFFF
+    EOR #$FFFF            ; X negative: negate velocity for westward movement
     INC 
 
   loc_008F72:
@@ -574,7 +574,7 @@ TickMove {
     ORA #$FF00
 
   loc_008F7D:
-    STA $moveScratch1, X
+    STA $moveScratch1, X  ; Store signed X velocity in moveScratch1
     SEP #$20
     LDA $0000
     STA $animScratch, X
@@ -583,21 +583,21 @@ TickMove {
     SEP #$20
     LDA $animScratch+3, X ; Frame delay in animScratch+3 before next move step
     BMI loc_008F9C
-    DEC 
+    DEC                   ; Decrement delay counter; zero → pass complete
     BNE loc_008F98
-    JMP $&TickMoveComplete
+    JMP $&TickMoveComplete ; Delay expired: jump to TickMoveComplete for pass check
 
   loc_008F98:
     STA $animScratch+3, X
 
   loc_008F9C:
     LDA $animScratch+2, X
-    DEC 
+    DEC                   ; Animation sub-frame counter
     BPL loc_008FAF
     REP #$20              ; Spin until UpdateActorAnimation completes (BCS loop)
 
   loc_008FA5:
-    JSL $@sprite_composition.UpdateActorAnimation
+    JSL $@sprite_composition.UpdateActorAnimation ; Spin UpdateActorAnimation until cycle finishes
     BCS loc_008FA5
     SEP #$20
     LDA $08
@@ -606,8 +606,8 @@ TickMove {
     STA $animScratch+2, X
     REP #$20
     STZ $08
-    INC $24
-    PLA 
+    INC $24               ; Increment tick counter for next frame
+    PLA                   ; Yield RTL until next tick
     PLA 
     RTL 
 }
@@ -617,19 +617,19 @@ TickMove {
 
 TickMoveComplete {
     REP #$20              ; Halving passes remain in chatPtr: decrement and re-enter at half scale
-    LDA $chatPtr, X
-    BEQ loc_008FD5
-    DEC 
+    LDA $chatPtr, X       ; Check chatPtr for remaining halving passes
+    BEQ loc_008FD5        ; Zero → all passes done, save PC and yield
+    DEC                   ; Decrement halving pass counter
     STA $chatPtr, X
-    LDA #$0000
+    LDA #$0000            ; Reset accumulators and tick for next pass at halved scale
     STA $animScratch, X
     STA $24
-    JMP $&TickMoveStep
+    JMP $&TickMoveStep    ; Jump back to TickMoveStep for another interpolation pass
 
   loc_008FD5:
-    LDA $0A
+    LDA $0A               ; All passes complete: save resume PC
     STA $00
-    PLA 
+    PLA                   ; Yield RTL to return to calling script
     PLA 
     RTL 
 }
@@ -641,11 +641,11 @@ TickMoveComplete {
 
 MovementVelocityCompute {
     STA $WRMPYB           ; MovementVelocityCompute entry — WRMPYB then RDMPYL→WRDIV
-    LDA $animScratch2, X
-    DEC 
+    LDA $animScratch2, X  ; Load frame count from animScratch2 for divisor
+    DEC                   ; DEC: frame count − 1 as divisor
     LDY $RDMPYL           ; RDMPYL → WRDIVL: multiply output feeds hardware divider
     STY $WRDIVL
-    STA $WRDIVB
+    STA $WRDIVB           ; STA WRDIVB: start hardware divide
     NOP 
     NOP 
     NOP 
@@ -654,7 +654,7 @@ MovementVelocityCompute {
     REP #$20
     SEC 
     LDA $RDDIVL           ; RDDIVL: pixels-per-frame result after divide latency
-    STA $0000
+    STA $0000             ; Store velocity result in $0000
     RTS 
 }
 
@@ -664,21 +664,21 @@ MovementVelocityCompute {
 RngByte {
     PHY 
     SEP #$20
-    LDX #$000F
+    LDX #$000F            ; Init loop X=15 for 16-byte Galois LFSR state
     LDA #$00
     XBA 
     CLC 
 
   loc_009006:
     LDA $0410, X          ; 16-byte Galois LFSR step across $040F–$041F state
-    ADC $rngState, X
+    ADC $rngState, X      ; ADC chain: propagate carry through $0410+X state bytes
     STA $rngState, X      ; ADC chain propagates carry through 16-byte RNG state
     DEX 
     BNE loc_009006
     LDX #$0010
 
   loc_009015:
-    INC $rngState, X
+    INC $rngState, X      ; Ripple increment: find first non-overflow byte
     BNE loc_00901D
     DEX 
     BNE loc_009015
@@ -688,7 +688,7 @@ RngByte {
     PLX 
     LDA $0A
     STA $02, S
-    LDA $0410
+    LDA $0410             ; Return RNG output byte from $0410
     AND #$00FF
     RTI 
 }
@@ -698,20 +698,20 @@ RngByte {
 
 RngMod {
     TYX 
-    LDA [$0A]
+    LDA [$0A]             ; Read modulus byte operand
     INC $0A
     AND #$00FF
     STA $0000
-    LDA $0410
+    LDA $0410             ; Load current RNG output from $0410
     AND #$00FF
 
   loc_00903C:
-    SEC 
+    SEC                   ; Repeated subtraction loop: A -= modulus until negative
     SBC $0000
-    BPL loc_00903C
+    BPL loc_00903C        ; Repeated subtract modulo — bias RNG byte to [0, operand)
     CLC 
-    ADC $0000
-    STA $rngModuloResult
+    ADC $0000             ; Add modulus back for correct remainder
+    STA $rngModuloResult  ; Store modulo result in rngModuloResult ($0420)
     LDA $0A
     STA $02, S
     RTI 
@@ -722,12 +722,12 @@ RngMod {
 
 ResolveActorIndex {
     SEP #$20
-    XBA 
+    XBA                   ; XBA: swap index byte to high position for SignedMultiply
     LDA #$30
-    JSL $@hardware_math.SignedMultiply
+    JSL $@hardware_math.SignedMultiply ; Multiply index × $30 (48 bytes per actor structure)
     REP #$20
     CLC 
-    ADC #$1000
+    ADC #$1000            ; Add $1000 base → Y = WRAM actor table address
     TAY 
     RTS 
 }
@@ -738,22 +738,22 @@ ResolveActorIndex {
 CameraScrollStepLookup {
     PHP 
     PHX 
-    LDA $scrollStepIndex
-    INC $scrollStepIndex
-    ASL 
+    LDA $scrollStepIndex  ; Read current scroll step table index
+    INC $scrollStepIndex  ; Advance index for next call
+    ASL                   ; ASL: ×2 for word-sized table entries
     CLC 
-    ADC $scrollStepTableBase
+    ADC $scrollStepTableBase ; Add scrollStepTableBase for absolute entry address
     TAX 
-    LDA $0000, X
-    BIT #$FF00
+    LDA $0000, X          ; Read speed value from scroll step table
+    BIT #$FF00            ; High byte zero = end-of-table terminator
     BEQ loc_00B150
-    PLX 
+    PLX                   ; Valid entry: return carry clear with speed in A
     PLP 
     CLC 
     RTS 
 
   loc_00B150:
-    STZ $scrollStepIndex
+    STZ $scrollStepIndex  ; End of table: reset index to 0, return carry set
     PLX 
     PLP 
     SEC 

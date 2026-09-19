@@ -865,10 +865,10 @@ SceneCmd_FullGraphics {
 ; Store map parameters and decompress one layer's tilemap. X selects layer (0 = primary, 2 = secondary): stores row stride ($01) and column count ($03) to mapRowStrideL0+X / $0697+X, computes total byte count via SignedMultiply → $069B+X, then decompresses map data via QuintetLZ directly to mapTilemapBaseA+X. HandleEmptyGeometry is the alternate entry for zero-size compressed maps.
 
 StoreMapAndDecompress {
-    LDA $01               ; Store map row stride from data byte $01 to mapRowStrideL0+X
+    LDA $01               ; Load map row stride from data byte $01 to mapRowStrideL0+X
     STA $mapRowStrideL0, X
     XBA 
-    LDA $03               ; Store column count from $03 to $0697+X
+    LDA $03               ; Load column count from $03 to $0697+X
     STA $0697, X
     JSL $@hardware_math.SignedMultiply ; Compute total map byte count = stride × columns
     STA $069B, X
@@ -910,7 +910,7 @@ StoreMapAndDecompress {
     LDA #$7E
     STA $44
     JSR $&DmaRomToWram    ; Layer 1 copy: DMA from $A000 to $C000 (duplicate primary as overlay)
-    LDX $00               ; Store effect bounds from computed dimensions
+    LDX $00               ; Load effect bounds from computed dimensions
     STX $effectBoundsX
     LDX $02
     STX $effectBoundsY
@@ -933,7 +933,7 @@ StoreMapAndDecompress {
 
 WriteMapBounds {
     REP #$20
-    LDA $00               ; Store X bounds to mapBoundsX+X for camera system
+    LDA $00               ; Load X bounds to mapBoundsX+X for camera system
     STA $mapBoundsX, X
     LDA $02
     STA $mapBoundsY, X    ; Store Y bounds to mapBoundsY+X
@@ -1823,7 +1823,7 @@ GraphicsCacheStore {
     ADC $01, S
     TAX 
     PLA 
-    LDA $003E             ; Store source address and bank to computed cache slot
+    LDA $003E             ; Load source address and bank to computed cache slot
     STA $0084, X
     SEP #$20
     LDA $0040

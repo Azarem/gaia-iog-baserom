@@ -49,7 +49,7 @@
 ; Actor pool exhaustion ($1FC0 from SpawnAfterFlags) branches to code_02A0DD for graceful cleanup.
 
 MusicPlaybackActor {
-    LDA $musicParentActor ; Store musicParentActor to per-actor scratch (orbitAngle,X)
+    LDA $musicParentActor ; Load musicParentActor to per-actor scratch (orbitAngle,X)
     STA $orbitAngle, X
     COP [SpawnAfterFlags] ( @hdma_dma_spc.SpcTransferMusicData, #$2000 ) ; Spawn SpcTransferMusicData child actor for SPC data upload
     CPY #$1FC0            ; $1FC0 = actor pool exhausted — check spawn success

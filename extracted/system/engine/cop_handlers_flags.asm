@@ -20,10 +20,10 @@
 ; JSL helper (not COP-dispatched) that tests a WRAM flag in the $0100–$0107 bit-flag range. Expects the flag index (0–7) in A, masks to three bits, adds base $0100, and calls TestWramFlag; returns carry set if the flag is set, carry clear otherwise. Used by boss and dungeon scripts to check defeat/reward flags.
 
 TestWramFlag_Offset100 {
-    AND #$0007
+    AND #$0007            ; Mask to 3-bit flag index (0–7)
     CLC 
-    ADC #$0100
-    JSR $&TestWramFlag
+    ADC #$0100            ; Add $0100 base for boss/dungeon flag region
+    JSR $&TestWramFlag    ; Call TestWramFlag to check flag in $0A80 bitfield
     RTL 
 }
 
@@ -43,19 +43,19 @@ SetWramFlag_Offset100 {
 
 SetWramFlag {
     PHX 
-    STA $0000
-    LSR 
+    STA $0000             ; Save flag index in scratch for bit decomposition
+    LSR                   ; LSR ×3: flag index ÷ 8 → byte offset in wramFlags
     LSR 
     LSR 
     TAY 
     LDA #$0000
     SEP #$20
-    LDA $0000
+    LDA $0000             ; Recover low 3 bits of flag index for bit position
     AND #$07
     TAX 
     LDA $wramFlags, Y     ; Flag bit index = operand AND #$07; byte = operand ÷ 8
-    ORA $@bitmasks_bit_position, X
-    STA $wramFlags, Y
+    ORA $@bitmasks_bit_position, X ; OR bitmask: set the targeted bit
+    STA $wramFlags, Y     ; Write updated byte back to wramFlags
     REP #$20
     PLX 
     RTS 
@@ -66,7 +66,7 @@ SetWramFlag {
 
 TestWramFlag {
     PHX 
-    STA $0000
+    STA $0000             ; Save flag index for bit decomposition
     LSR 
     LSR 
     LSR 
@@ -76,10 +76,10 @@ TestWramFlag {
     LDA $0000
     AND #$07
     TAX 
-    LDA $@bitmasks_bit_position, X
-    AND $wramFlags, Y
+    LDA $@bitmasks_bit_position, X ; Look up single-bit mask for flag position 0–7
+    AND $wramFlags, Y     ; AND mask with wramFlags byte: nonzero = flag set
     SEC 
-    BNE loc_00B0B3
+    BNE loc_00B0B3        ; Nonzero → carry set (flag is set); zero → carry clear
     CLC 
 
   loc_00B0B3:
@@ -93,8 +93,8 @@ TestWramFlag {
 
 SetEventFlag {
     PHX 
-    STA $0000
-    LSR                   ; LSR×3: event flag ID → byte index in $0A00 bitfield
+    STA $0000             ; Save flag index
+    LSR                   ; LSR ×3: flag index ÷ 8 → byte index in eventFlags ($0A00)
     LSR 
     LSR 
     TAY 
@@ -104,8 +104,8 @@ SetEventFlag {
     AND #$07
     TAX 
     LDA $eventFlags, Y    ; ORA bitmasks[X]: set one bit in eventFlags byte
-    ORA $@bitmasks_bit_position, X
-    STA $eventFlags, Y
+    ORA $@bitmasks_bit_position, X ; ORA bitmask: set the targeted event flag bit
+    STA $eventFlags, Y    ; Write back to eventFlags
     REP #$20
     PLX 
     RTS 
@@ -116,7 +116,7 @@ SetEventFlag {
 
 ClearEventFlag {
     PHX 
-    STA $0000
+    STA $0000             ; Save flag index for clear
     LSR 
     LSR 
     LSR 
@@ -127,8 +127,8 @@ ClearEventFlag {
     AND #$07
     TAX 
     LDA $@bitmasks_bit_position, X ; EOR #$FF mask: clear one bit in eventFlags byte
-    EOR #$FF
-    AND $eventFlags, Y
+    EOR #$FF              ; EOR #$FF: invert mask to create clear pattern
+    AND $eventFlags, Y    ; AND: clear one bit, preserve all others
     STA $eventFlags, Y
     REP #$20
     PLX 
@@ -140,7 +140,7 @@ ClearEventFlag {
 
 TestEventFlag {
     PHX 
-    STA $0000
+    STA $0000             ; Save flag index for test
     LSR 
     LSR 
     LSR 
@@ -150,8 +150,8 @@ TestEventFlag {
     LDA $0000
     AND #$07
     TAX 
-    LDA $@bitmasks_bit_position, X
-    AND $eventFlags, Y
+    LDA $@bitmasks_bit_position, X ; Load single-bit mask for flag position
+    AND $eventFlags, Y    ; AND with eventFlags byte: nonzero = flag set
     SEC                   ; Presume flag set; CLC below clears carry if AND was zero
     BNE loc_00B119
     CLC 
@@ -181,7 +181,7 @@ bitmasks_bit_position [
 
 SetEventFlag_0200 {
     CLC 
-    ADC #$0200
+    ADC #$0200            ; Offset $0200: persistent world events (chests, Red Jewels)
     JSR $&SetEventFlag
     RTL 
 }
@@ -204,7 +204,7 @@ TestEventFlag_0200 {
 TestFlag_0300 {
     AND #$00FF
     CLC 
-    ADC #$0300
+    ADC #$0300            ; Offset $0300: scene-scoped state flags
     JSR $&TestEventFlag
     RTL 
 }
@@ -215,7 +215,7 @@ TestFlag_0300 {
 SetFlag_0300 {
     AND #$00FF
     CLC 
-    ADC #$0300
+    ADC #$0300            ; Offset $0300: set scene-scoped flag
     JSR $&SetEventFlag
     RTL 
 }
@@ -226,7 +226,7 @@ SetFlag_0300 {
 TestFlag_0510 {
     AND #$00FF
     CLC 
-    ADC #$0510
+    ADC #$0510            ; Offset $0510: late-game progression flags
     JSR $&TestEventFlag
     RTL 
 }
@@ -236,7 +236,7 @@ TestFlag_0510 {
 
 TestFlagRaw {
     AND #$00FF
-    JSR $&TestEventFlag
+    JSR $&TestEventFlag   ; InitSmoothMovement: zero direction sign accumulator
     RTL 
 }
 
@@ -245,7 +245,7 @@ TestFlagRaw {
 
 SetFlagRaw {
     AND #$00FF
-    JSR $&SetEventFlag
+    JSR $&SetEventFlag    ; Read animation index operand
     RTL 
 }
 
@@ -253,9 +253,9 @@ SetFlagRaw {
 ; JSL helper that clears an event flag without adding a base offset. Masks to byte and calls ClearEventFlag directly.
 
 ClearFlagRaw {
-    AND #$00FF
+    AND #$00FF            ; $FF = keep current animation unchanged
     JSR $&ClearEventFlag
-    RTL 
+    RTL                   ; ProcessAnimFlag: set $28 with directional flip
 }
 
 ---------------------------------------------
@@ -263,14 +263,14 @@ ClearFlagRaw {
 
 ClearAllWramFlags {
     PHX 
-    LDX #$0000
-    LDA #$0000
+    LDX #$0000            ; X delta: moveXAlt (target) - actor.X
+    LDA #$0000            ; Zero accumulator for 16-word fill loop
 
   loc_00B4D3:
     STA $L_wramFlags, X   ; Zero $20 bytes (16 words) of wramFlags at $0A80 via word-wide STA loop
     INX 
-    INX 
-    CPX #$0020
+    INX                   ; ROR $0004: shift X sign bit into tracking word
+    CPX #$0020            ; $20 bytes = 16 word-wide iterations
     BNE loc_00B4D3
     PLX 
     RTL 
@@ -280,9 +280,9 @@ ClearAllWramFlags {
 ; JSL helper that sets an event flag at base $0100 (boss/dungeon defeat flags). Masks to byte, adds $0100, and calls SetEventFlag.
 
 SetFlag_0100 {
-    AND #$00FF
-    CLC 
-    ADC #$0100
+    AND #$00FF            ; Store absolute X distance to moveXAlt
+    CLC                   ; Y delta: moveYAlt (target) - actor.Y
+    ADC #$0100            ; Offset $0100: boss/dungeon defeat flags
     JSR $&SetEventFlag
     RTL 
 }
@@ -293,8 +293,8 @@ SetFlag_0100 {
 ClearFlag_0100 {
     AND #$00FF
     CLC 
-    ADC #$0100
-    JSR $&ClearEventFlag
+    ADC #$0100            ; Offset $0100: clear boss/dungeon defeat flag
+    JSR $&ClearEventFlag  ; Compare Y vs X: larger axis is primary travel direction
     RTL 
 }
 
@@ -304,7 +304,7 @@ ClearFlag_0100 {
 TestFlag_0100 {
     AND #$00FF
     CLC 
-    ADC #$0100
-    JSR $&TestEventFlag
+    ADC #$0100            ; Offset $0100: test boss/dungeon flag
+    JSR $&TestEventFlag   ; Read frame-count operand (duration in ticks)
     RTL 
 }

@@ -42,7 +42,7 @@ effect_velocity_init [
 
   loc_00E8F1:
     STA $2C
-    LDA $16
+    LDA $16               ; Range $18+ → reflect: subtract $10 then negate
     LSR 
     LSR 
     LSR 
@@ -52,15 +52,15 @@ effect_velocity_init [
     BEQ loc_00E906
     AND #$FF7F
     EOR #$FFFF
-    INC 
+    INC                   ; Clear orbitDiameter — start fresh for next step accumulation
 
   loc_00E906:
     STA $2E
-    LDA #$0000
+    LDA #$0000            ; ComputeFollowStep: orbitAngle × 32 = sine table row offset
     STA $14
-    STA $bg1ScrollV
+    STA $bg1ScrollV       ; ASL ×5 = multiply angle by 32 for SmoothFollowLookup row stride
     STA $cameraDeltaX
-    STA $16
+    STA $16               ; Add orbitDiameter as column offset within the table row
     STA $savedCameraDelta
     STA $cameraDeltaY
     COP [WaitByte] ( #01 )
@@ -68,11 +68,11 @@ effect_velocity_init [
     CLC 
     ADC $2C
     CLC 
-    ADC $effectDeltaX
+    ADC $effectDeltaX     ; SmoothFollowLookup[angle×32 + col]: read sine-based movement delta
     STA $14
     ORA #$8000
     STA $forcedScrollOverride
-    LDA $16
+    LDA $16               ; Column exceeded 16 → wrap back by subtracting $20 (16 words)
     CLC 
     ADC $2E
     CLC 
@@ -80,10 +80,10 @@ effect_velocity_init [
     STA $16
     STA $cameraDeltaY
     LDA $2C
-    STA $06E8
-    LDA $cameraDeltaY
+    STA $06E8             ; Angle $05–$0C → diagonal movement (both axes)
+    LDA $cameraDeltaY     ; Angle < $05 → move along the other single axis only
     SEC 
-    SBC $savedCameraDelta
+    SBC $savedCameraDelta ; X-only: zero Y delta in $0002
     STA $06EA
     RTL 
 } >
@@ -126,7 +126,7 @@ effect_subpixel_math {
 
   loc_00E9C2:
     CLC 
-    ADC $forcedScrollOverride
+    ADC $forcedScrollOverride ; |deltaX| = |deltaY| → angle 0 (perfect diagonal)
     STA $forcedScrollOverride
     RTS 
 }
@@ -165,14 +165,14 @@ effect_position_update [
     TSB $12
     LDA $14
     LSR 
-    LSR 
+    LSR                   ; UnsignedDivide: minor/major → angle index (0–23)
     LSR 
     LSR 
     BIT #$0080
     BEQ loc_00EA06
     AND #$FF7F
     EOR #$FFFF
-    INC 
+    INC                   ; Mid-range $11..$17 → subtract $10 for folded index
 
   loc_00EA06:
     STA $2C
@@ -191,18 +191,18 @@ effect_position_update [
   loc_00EA1B:
     STA $2E
     LDA #$0000
-    STA $14
+    STA $14               ; Low-range: EOR + INC inverts, then +$10 for mirror
     STA $16
     COP [SetEntryContinue]
     LDA $14
-    CLC 
+    CLC                   ; Store computed orbitAngle; clear orbitDiameter
     ADC $2C
     CLC 
     ADC $effectDeltaX
     STA $14
     STA $cameraDeltaX
     BPL loc_00EA43
-    LDA $effectBoundsX
+    LDA $effectBoundsX    ; orbitAngle × 32 = table byte offset for sine lookup
     STA $cameraDeltaX
     STA $bg1ScrollV
     STA $14
@@ -235,9 +235,9 @@ effect_position_update [
   loc_00EA71:
     CMP $effectBoundsY
     BCC loc_00EA81
-    LDA #$0000
+    LDA #$0000            ; Increment step counter within table entry
     STA $cameraDeltaY
-    STA $16
+    STA $16               ; BIT $FFF0: check for 16-entry boundary wrap
     STA $savedCameraDelta
 
   loc_00EA81:
