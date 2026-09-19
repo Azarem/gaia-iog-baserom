@@ -5,6 +5,7 @@ import { DbBlock, DbFile, DbGroup, DbStringType, DbStruct, CopDef, DbFileType, A
 import { DbRootUtils } from '@gaialabs/core';
 import type { DbAddressingMode, DbConfig, DbGameRomModule } from '@gaialabs/core';
 import { snes } from '@gaialabs/core';
+import { ingest } from './ingest.ts';
 
 const __pkgRoot = join(dirname(fileURLToPath(import.meta.url)), '..');
 
@@ -226,9 +227,16 @@ if (isMainModule) {
                     await rebuild(args[0], args[1], args[2]);
                     console.log('ROM rebuild completed successfully!');
                     break;
+                case 'ingest':
+                    console.log('Starting notes ingestion...\n');
+                    ingest(__pkgRoot, args.length > 0 ? args : undefined, {
+                        dryRun: flags.includes('dry-run') || flags.includes('dryrun'),
+                        verbose: flags.includes('verbose'),
+                    });
+                    break;
                 default:
                     console.error('Unknown command:', command);
-                    console.log('Available commands: extractRom, rebuildRom');
+                    console.log('Available commands: extract, extract-jp, rebuild, rebuild-jp, ingest');
                     process.exit(1);
             }
         } catch (error) {

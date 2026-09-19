@@ -27,7 +27,10 @@
         "extract:lt": "rm -rf extracted/* && node --env-file=.env.local src/index.ts extract --linetracking",
         "extract-jp": "rm -rf extracted-jp && node --env-file=.env.local src/index.ts extract-jp",
         "rebuild": "node src/index.ts rebuild --artifacts",
-        "rebuild-jp": "node src/index.ts rebuild-jp"
+        "rebuild-jp": "node src/index.ts rebuild-jp",
+        "ingest": "node src/index.ts ingest",
+        "ingest:dry": "node src/index.ts ingest --dry-run",
+        "ingest:verbose": "node src/index.ts ingest --verbose"
     },
     "dependencies": {
         "@gaialabs/core": "1.0.5"
