@@ -180,8 +180,8 @@ ForcedWalkSouth {
 ReadDirSprite_YVelocity {
     LDY $0650             ; ReadDirSprite_YVelocity: pull step delta from direction_velocity_table to $2E
     INC $0650             ; Advance data stream pointer to next walk-step entry
-    LDA $0000, Y          ; Advance walk data stream pointer to next step entry
-    AND #$00FF            ; Read direction byte from walk data at $0650
+    LDA $0000, Y          ; Read direction byte from current walk data position
+    AND #$00FF            ; Mask to 8-bit direction index
     ASL 
     TAY 
     LDA $&direction_velocity_table, Y ; direction_velocity_table: sprite frame + velocity per direction

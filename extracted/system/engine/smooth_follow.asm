@@ -68,7 +68,7 @@ InitFollowAndChase {
     LDA $0016, Y          ; deltaY = target.Y ($0016,Y) − 8 (sprite anchor offset) − self.Y
     SEC 
     SBC #$0008            ; Subtract 8px for sprite anchor offset on Y axis
-    SEC                   ; Subtract 8px sprite anchor offset from Y delta
+    SEC 
     SBC $16
     BMI FollowChaseXDiffNegativePrimary
     STA $001C             ; Store |deltaY| in $001C
@@ -308,8 +308,8 @@ ApplyFollowMovement {
 SelectFallbackDirection {
     DEC                   ; SelectFallbackDirection: DEC+AND #$07 rotates through 8 chase handlers
     AND #$0007
-    STA $0004             ; Equal deltas → angle = 0 (45° diagonal)
-    COP [SwitchCase] ( #$0004, &follow_fallback_table ) ; Equal deltas → angle = 0 (45° diagonal); dispatch via switch table
+    STA $0004             ; Store rotated direction index for SwitchCase dispatch
+    COP [SwitchCase] ( #$0004, &follow_fallback_table ) ; Dispatch fallback direction via switch table
 }
 
 follow_fallback_table [

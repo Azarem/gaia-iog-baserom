@@ -379,5 +379,5 @@ ProbeLeftTiles {
 
   loc_02B20C:
     CLC 
-    RTS                   ; Check character form — this shimmer actor is Shadow-only (form 2)
+    RTS 
 }

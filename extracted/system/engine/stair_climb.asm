@@ -263,7 +263,7 @@ ClimbSouth {
     RTL 
 
   loc_00D238:
-    LDA #$2000            ; ClimbSouth per frame: subtract 4px from X while statsPtr countdown non-zero
+    LDA #$2000            ; Climb complete: clear display override and play landing sprite
     TRB $10
     COP [StageSpriteFrame] ( #14 ) ; Stage south landing sprite frame #$14
     COP [AnimOnce]

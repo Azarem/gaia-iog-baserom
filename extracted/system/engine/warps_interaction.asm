@@ -242,7 +242,7 @@ HandleChestInteraction {
     RTS 
 
   loc_02A672:
-    LDA $joypadCurrent    ; Guard: joypad A button ($0800) pressed this frame
+    LDA $joypadCurrent    ; Guard: Up button ($0800) pressed this frame
     BIT #$0800
     BNE loc_02A67B
     RTS 

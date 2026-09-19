@@ -607,7 +607,7 @@ DrawDialogueBodyRows {
     TAX 
 
   loc_03E56F:
-    LDA $3E               ; Advance border pointer past 4 tile entries (+8 bytes) for next call
+    LDA $3E               ; Advance border pointer past 2 tile entries (+4 bytes) for bottom border
     CLC 
     ADC #$0004
     STA $3E
@@ -626,7 +626,7 @@ DialogCmd_ClearDialogueBox {
     LDA $099A             ; Reset VRAM cursor to box origin $099A
     STA $0998
     LDA $0982
-    ASL                   ; Clear dimensions: (width+1) columns × (height+1)×2 tile rows
+    ASL                   ; Clear dimensions: (width×2+1) columns × (height+1)×2 tile rows
     INC 
     STA $00
     STA $18
@@ -818,7 +818,7 @@ DialogCmd_WaitForButton {
   loc_03E6AA:
     JSR $&WaitOneFrame
     LDA $joypadCurrent
-    AND #$C080            ; $C080 mask: A ($0080), B ($8000), or Start ($4000)
+    AND #$C080            ; $C080 mask: A ($0080), B ($8000), or Y ($4000)
     BNE loc_03E6C1
     SEC                   ; SEC = animate blinking cursor, CLC = erase cursor
     JSR $&DrawDialogueCursor

@@ -37,8 +37,8 @@
 ; joypadMaskStd is TRB'd from joypadCurrent at the end to unconditionally suppress certain buttons.
 ; 
 ; === UTILITY ROUTINES ===
-; EnableNmiAndJoypad: $81 → NMITIMEN (NMI + auto-read).
-; EnableNmiOnly: $01 → NMITIMEN (NMI only).
+; EnableNmiAndJoypad: $81 → NMITIMEN (NMI + joypad auto-read).
+; EnableNmiOnly: $01 → NMITIMEN (joypad auto-read only, NMI disabled).
 ; ScreenBlackout: $00 → INIDISP (forced blank OFF, brightness 0 — screen appears black but PPU remains active; does NOT set the SNES forced blank bit).
 ; EnterForcedBlank: $80 → INIDISP (forced blank ON — PPU halted, VRAM/OAM/CGRAM accessible for DMA transfers).
 ; WaitFrames: loop VBlankWaitAndJoypad for A frames.
@@ -261,8 +261,8 @@ VBlankWaitAndJoypad {
 ---------------------------------------------
 ; Enable NMI and joypad auto-read by writing $81 to NMITIMEN ($4200).
 ; 
-; Bit 7 = enable joypad auto-read (hardware reads controller data during V-Blank into $4218–$421F).
-; Bit 0 = enable NMI on V-Blank.
+; Bit 7 = enable NMI on V-Blank.
+; Bit 0 = enable joypad auto-read (hardware reads controller data during V-Blank into $4218–$421F).
 ; 
 ; Reads RDNMI first to clear any pending NMI flag, preventing an immediate spurious interrupt.
 
@@ -271,7 +271,7 @@ EnableNmiAndJoypad {
     SEP #$20
     PHA 
     LDA $L_RDNMI          ; Clear pending NMI flag before writing NMITIMEN
-    LDA #$81              ; $81: NMI enable (bit 0) + joypad auto-read (bit 7)
+    LDA #$81              ; $81: NMI enable (bit 7) + joypad auto-read (bit 0)
     STA $L_NMITIMEN
     PLA 
     PLP 
@@ -281,13 +281,13 @@ EnableNmiAndJoypad {
 ---------------------------------------------
 ; Enable NMI only (no joypad auto-read) by writing $01 to NMITIMEN ($4200).
 ; 
-; Bit 0 = enable NMI. Joypad auto-read disabled — used during initialization or special rendering modes where the engine handles input manually.
+; Bit 0 = enable joypad auto-read. NMI disabled (bit 7 clear) — used during initialization or special rendering modes where NMI is handled separately.
 
 EnableNmiOnly {
     PHP 
     SEP #$20
     PHA 
-    LDA #$01              ; $01: NMI enable only — joypad auto-read disabled
+    LDA #$01              ; $01: joypad auto-read only (bit 0) — NMI disabled (bit 7 clear)
     STA $L_NMITIMEN
     PLA 
     PLP 

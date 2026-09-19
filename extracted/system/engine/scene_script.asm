@@ -1491,7 +1491,7 @@ ReadScriptByte {
 }
 
 ---------------------------------------------
-; Locate the current scene's command block in script data. Starts at Y=0, reads scene ID byte at [$3A],Y, skips one byte, compares to sceneCurrent — match returns with Y at the first command opcode. On mismatch, scans forward: reads each opcode and advances Y by operand size using a fall-through INY cascade ($02/$13/$14/$15 = +2, $04/$10 = +3, $03/$05 = +5, $06 = +4, $0E = +3, $11 = +4). Repeats until the target scene is found.
+; Locate the current scene's command block in script data. Starts at Y=0, reads scene ID byte at [$3A],Y, skips one byte, compares to sceneCurrent — match returns with Y at the first command opcode. On mismatch, scans forward: reads each opcode and advances Y by operand size using a fall-through INY cascade ($02/$14/$15 = +1, $13 = +2, $0E = +3, $06 = +4, $11 = +5, $04/$10 = +6, $03/$05 = +7). Repeats until the target scene is found.
 
 FindCurrentScene {
     LDY #$0000            ; Start scanning at beginning of scene table (Y=0)
@@ -1534,7 +1534,7 @@ FindCurrentScene {
     BEQ loc_028D3A
 
   loc_028D34:
-    INY                   ; Skip cascade: INY fall-throughs give 5/4/3/2/1 byte skips per command type
+    INY                   ; Skip cascade: INY fall-throughs give 7/6/5/4/3/2/1 byte skips per command type
 
   loc_028D35:
     INY 

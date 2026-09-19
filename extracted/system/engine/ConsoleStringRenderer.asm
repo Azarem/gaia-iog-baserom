@@ -20,7 +20,7 @@
 ; | $05 | PrintBcdNumber | 1B count + 2B addr | Print packed BCD digits right-to-left |
 ; | $06 | DrawBox | 1B w + 1B h + 2B pos | Draw bordered rectangle with corners/edges/fill |
 ; | $07 | ClearColumn | 2B addr | Clear tiles in a column region |
-; | $08 | FillTile | 1B count + 2B tile addr | Repeat a tile N times |
+; | $08 | FillTile | 1B tile + 2B count addr | Repeat a tile N times |
 ; | $09 | PrintEquipIcons | var (term $80+) | Draw 2×2 equipment metatiles |
 ; | $0A | DrawPlayerHpBar | — | Render player HP as filled/half/empty segments |
 ; | $0B | DrawEnemyHpBar | — | Render enemy HP bar (same algorithm, different palette) |
@@ -396,7 +396,7 @@ HpBar_AdvanceRow {
 ---------------------------------------------
 ; Draw the enemy's HP bar using the same segment algorithm as player HP.
 ; 
-; No operand. Uses enemyHpDisplay ($09E4) as current HP and $09E6 as max HP. Same clamping (max 40) and segment calculation as AsciiCmd_DrawPlayerHpBar. Sets palette offset to $0400 (enemy color) and calls DrawHpBar.
+; No operand. Uses $09E6 as current HP and enemyHpDisplay ($09E4) as max HP. Same clamping (max 40) and segment calculation as AsciiCmd_DrawPlayerHpBar. Sets palette offset to $0400 (enemy color) and calls DrawHpBar.
 
 AsciiCmd_DrawEnemyHpBar {
     PHY 
@@ -909,9 +909,9 @@ AsciiCmd_ClearColumn {
 }
 
 ---------------------------------------------
-; Fill N tile positions with a value loaded from a specified address.
+; Fill N tile positions with a single tile value.
 ; 
-; 3-byte operand: 1-byte count + 2-byte address of tile source. Loads the tile word from the source address, OR's it with $099E palette, and writes it to N consecutive positions in the VRAM buffer. Count is read in 8-bit mode (1-byte). Updates cursor on the stack after writing.
+; 3-byte operand: 1-byte tile index + 2-byte address of repeat count. The tile byte is OR'd with $099E palette to form a VRAM word, and the 16-bit value at the count address determines how many times to write it. Updates cursor on the stack after writing.
 
 AsciiCmd_FillTile {
     PHY 
@@ -923,7 +923,7 @@ AsciiCmd_FillTile {
     TAX 
     LDA $099E
     SEP #$20
-    LDA $0000, Y          ; 1-byte count operand (read in 8-bit mode)
+    LDA $0000, Y          ; 1-byte tile operand (read in 8-bit, OR'd with palette high byte)
     REP #$20
     PLY 
     BEQ loc_03EF17
@@ -1037,5 +1037,5 @@ AsciiCmd_PrintEquipIcons {
     PLA 
     TXA 
     STA $03, S
-    RTS                   ; GiveItemToPlayer entry — item ID in A; save P register
+    RTS 
 }
