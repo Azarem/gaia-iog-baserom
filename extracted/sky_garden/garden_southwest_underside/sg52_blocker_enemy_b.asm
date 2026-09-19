@@ -1,5 +1,5 @@
 ?INCLUDE 'enemy_stats_table'
-?INCLUDE 'table_0EE000'
+?INCLUDE 'spriteset_enemies'
 
 !statsPtr                       7F0020
 !currentHp                      7F0026
@@ -14,7 +14,7 @@ sg52_blocker_enemy_b [
     STA $statsPtr, X
     LDA #$0031
     TSB $12
-    COP [SetMetasprite] ( @table_0EE000 )
+    COP [SetMetasprite] ( @spriteset_enemies )
     COP [BranchIfFlagWord] ( #$0127, #01, &code_05F68C )
     BRA loc_05F6BB
 

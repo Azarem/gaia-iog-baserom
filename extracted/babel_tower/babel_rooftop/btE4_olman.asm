@@ -1,5 +1,5 @@
-?INCLUDE 'table_0EDA00'
-?INCLUDE 'table_0EE000'
+?INCLUDE 'spriteset_enemies'
+?INCLUDE 'spriteset_npc_props'
 
 !joypadMaskStd                  065A
 !playerActor                    09AA
@@ -14,7 +14,7 @@ btE4_olman [
   code_098F95:
     LDA #$0200
     TSB $12
-    COP [SetMetasprite] ( @table_0EDA00 )
+    COP [SetMetasprite] ( @spriteset_npc_props )
     COP [StageSprAndHitbox] ( #04 )
     COP [SolidHighHere]
     LDA #$CFF0
@@ -89,10 +89,10 @@ dialogstring_0991A9 `[TPL:F][TPL:4][DLY:0]Will's father: At last [N]the time is 
 code_0991F4 {
     LDA #$0200
     TSB $12
-    COP [SetMetasprite] ( @table_0EE000 )
+    COP [SetMetasprite] ( @spriteset_enemies )
     COP [StageSpriteFrame] ( #1E )
     COP [AnimOnce]
-    COP [SetMetasprite] ( @table_0EDA00 )
+    COP [SetMetasprite] ( @spriteset_npc_props )
     COP [SolidHighHere]
     COP [SetOnInteract] ( &code_099232 )
 
@@ -121,10 +121,10 @@ dialogstring_09923A `[DEF][TPL:5]Seth: Ah, Will. [N]It's been a long time. [FIN]
 code_0992A0 {
     LDA #$0200
     TSB $12
-    COP [SetMetasprite] ( @table_0EE000 )
+    COP [SetMetasprite] ( @spriteset_enemies )
     COP [StageSpriteFrame] ( #1E )
     COP [AnimOnce]
-    COP [SetMetasprite] ( @table_0EDA00 )
+    COP [SetMetasprite] ( @spriteset_npc_props )
     COP [SolidHighHere]
     COP [SetOnInteract] ( &code_0992E4 )
 
@@ -155,10 +155,10 @@ dialogstring_0992EC `[DEF]Neil's father: [N]Neil... [N]What are you doing!! [FIN
 code_099347 {
     LDA #$0200
     TSB $12
-    COP [SetMetasprite] ( @table_0EE000 )
+    COP [SetMetasprite] ( @spriteset_enemies )
     COP [StageSpriteFrame] ( #1E )
     COP [AnimOnce]
-    COP [SetMetasprite] ( @table_0EDA00 )
+    COP [SetMetasprite] ( @spriteset_npc_props )
     COP [SolidHighHere]
     COP [SetOnInteract] ( &code_099385 )
 
@@ -187,10 +187,10 @@ dialogstring_09938D `[DEF]Neil's mother: Even if [N]I can see the real[N]world,[
 code_0993F8 {
     LDA #$0200
     TSB $12
-    COP [SetMetasprite] ( @table_0EE000 )
+    COP [SetMetasprite] ( @spriteset_enemies )
     COP [StageSpriteFrame] ( #1E )
     COP [AnimOnce]
-    COP [SetMetasprite] ( @table_0EDA00 )
+    COP [SetMetasprite] ( @spriteset_npc_props )
     COP [SolidHighHere]
     COP [SetOnInteract] ( &code_099436 )
 
@@ -219,10 +219,10 @@ dialogstring_09943E `[DEF]Hamlet: [N]Oink oink!! [FIN][SFX:0][TPL:0]Will: [N]Of 
 code_0994A0 {
     LDA #$0200
     TSB $12
-    COP [SetMetasprite] ( @table_0EE000 )
+    COP [SetMetasprite] ( @spriteset_enemies )
     COP [StageSpriteFrame] ( #1E )
     COP [AnimOnce]
-    COP [SetMetasprite] ( @table_0EDA00 )
+    COP [SetMetasprite] ( @spriteset_npc_props )
     COP [SolidHighHere]
     COP [SetOnInteract] ( &code_0994DE )
 

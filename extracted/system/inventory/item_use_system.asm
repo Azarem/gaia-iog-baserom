@@ -26,7 +26,7 @@
 ; 
 ; Hieroglyph Plates: Items $1E–$23 share one handler. Plate ID = item − $1E. Six slots stored at $0B28 (word each, $FFFF = empty). Placing a plate in an occupied slot swaps the old plate back to inventory via GiveItemToPlayer.
 ; 
-; Aura: Shadow-only (form 2), requires stationary player with no active dialogue/cutscene flags. Triggers transformation via player actor function pointer override to code_00C557.
+; Aura: Shadow-only (form 2), requires stationary player with no active dialogue/cutscene flags. Triggers transformation via player actor function pointer override to PlayerAuraTransformEntry.
 ; 
 ; Gorgon Flower: Three independent petal flags ($BF/$C0/$C1). Item is only removed when all three are set — partial placement persists across visits.
 ; 
@@ -46,8 +46,8 @@
 ?INCLUDE 'inventory_mgmt'
 ?INCLUDE 'music_actors'
 ?INCLUDE 'player_transition_handlers'
+?INCLUDE 'spriteset_enemies'
 ?INCLUDE 'system_core'
-?INCLUDE 'table_0EE000'
 
 !sceneCurrent                   0644
 !joypadHeld                     0658
@@ -236,7 +236,7 @@ code_038566 {
 }
 
 code_038576 {
-    COP [SetMetasprite] ( @table_0EE000 )
+    COP [SetMetasprite] ( @spriteset_enemies )
     COP [StageSprAndHitbox] ( #02 )
     LDA #$0001            ; Initialize orbit parameters: angle = 1, diameter = 1
     STA $orbitAngle, X
@@ -1612,7 +1612,7 @@ dialogstring_039C8B `[DEF]There's no place to put[N]the hieroglyph plate.[PAL:0]
 ---------------------------------------------
 ; Aura — Shadow's transformation ability.
 ; 
-; Multiple guard conditions must pass: playerFlags bits $1000 (cutscene lock) and $0100 (dialogue active) must be clear, both playerSpeedEw and playerSpeedNs must be zero (standing still), and characterForm must be 2 (Shadow). On success, overwrites the player actor's function pointer to code_00C557 via SetPlayerTransition, initiating the Aura transformation sequence. If not Shadow or any guard fails, prints failure message or returns silently.
+; Multiple guard conditions must pass: playerFlags bits $1000 (cutscene lock) and $0100 (dialogue active) must be clear, both playerSpeedEw and playerSpeedNs must be zero (standing still), and characterForm must be 2 (Shadow). On success, overwrites the player actor's function pointer to PlayerAuraTransformEntry via SetPlayerTransition, initiating the Aura transformation sequence. If not Shadow or any guard fails, prints failure message or returns silently.
 
 UseItem_Aura {
     LDA $playerFlags      ; Guard: $1000 = cutscene lock, $0100 = dialogue active — both block Aura
@@ -1626,7 +1626,7 @@ UseItem_Aura {
     LDA $characterForm    ; Shadow (form 2) only — other forms see failure message
     CMP #$0002
     BNE loc_039CDC
-    LDY $playerActor      ; Initiate Aura transformation by overriding player function to code_00C557
+    LDY $playerActor      ; Initiate Aura transformation by overriding player function to PlayerAuraTransformEntry
     LDA #$*player_transition_handlers.PlayerAuraTransformEntry
     STA $0002, Y
     LDA #$&player_transition_handlers.PlayerAuraTransformEntry
@@ -1716,9 +1716,9 @@ RemoveEquippedItem {
 ; 
 ; Orchestrates the complete melody playback lifecycle shared by Wind Melody, Lola's Melody, and Memory Melody:
 ; 
-; Phase 1 — Setup: Suppress rendering (displayModeFlags $0080), store the original music ID from musicParentActor into DP $24, spawn SpcTransferMusicData to upload the melody's music data to the SPC700. If spawn fails (Y=$1FC0 = pool full), jump to cleanup and die. Otherwise swap X/Y registers to configure the spawned music actor: store track number (+1) in chatPtr, set display-filter bit ($1000). Override the player actor to static idle pose (loc_00C446 via SetPlayerTransition), set playerFlags $0800 (special movement lock), mask joypad ($CFF0). Yield and poll each frame until musicTransitionState == $FFFF.
+; Phase 1 — Setup: Suppress rendering (displayModeFlags $0080), store the original music ID from musicParentActor into DP $24, spawn SpcTransferMusicData to upload the melody's music data to the SPC700. If spawn fails (Y=$1FC0 = pool full), jump to cleanup and die. Otherwise swap X/Y registers to configure the spawned music actor: store track number (+1) in chatPtr, set display-filter bit ($1000). Override the player actor to static idle pose (PlayerStaticBodyPose via SetPlayerTransition), set playerFlags $0800 (special movement lock), mask joypad ($CFF0). Yield and poll each frame until musicTransitionState == $FFFF.
 ; 
-; Phase 2 — Playback: Poll APUIO1 ($2141) each frame. When the SPC signals $FF (track finished), restore the player to normal pose (loc_00C455), re-enable joypad, and dispatch to the melody-specific *_Effect handler via SwitchCase on DP $20 (melody index 0/1/2).
+; Phase 2 — Playback: Poll APUIO1 ($2141) each frame. When the SPC signals $FF (track finished), restore the player to normal pose (PlayerWalkingIdlePose), re-enable joypad, and dispatch to the melody-specific *_Effect handler via SwitchCase on DP $20 (melody index 0/1/2).
 ; 
 ; Phase 3 — Restoration (code_03A06E): After the effect handler, spawn another SpcTransferMusicData to restore the original background music. Wait for musicTransitionState == $FFFF again, delay 1 frame (WaitByte), then die.
 ; 
@@ -1751,7 +1751,7 @@ FluteMusicActorController {
     LDA $0012, Y
     ORA #$1000
     STA $0012, Y
-    LDA #$*player_transition_handlers.PlayerStaticBodyPose ; Override player to static idle pose (loc_00C446) during playback
+    LDA #$*player_transition_handlers.PlayerStaticBodyPose ; Override player to static idle pose (PlayerStaticBodyPose) during playback
     STA $0002, Y
     LDA #$&player_transition_handlers.PlayerStaticBodyPose
     JSR $&SetPlayerTransition
@@ -1780,7 +1780,7 @@ FluteMusicActorController {
     LDA $0012, Y          ; Clear display-filter ($1000) from player actor, restore normal rendering
     AND #$EFFF
     STA $0012, Y
-    LDA #$*player_transition_handlers.PlayerWalkingIdlePose ; Restore player to walking idle pose (loc_00C455)
+    LDA #$*player_transition_handlers.PlayerWalkingIdlePose ; Restore player to walking idle pose (PlayerWalkingIdlePose)
     STA $0002, Y
     LDA #$&player_transition_handlers.PlayerWalkingIdlePose
     JSR $&SetPlayerTransition

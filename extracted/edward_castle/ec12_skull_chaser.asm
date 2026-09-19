@@ -1,5 +1,5 @@
 ?INCLUDE 'enemy_stats_table'
-?INCLUDE 'table_0EE000'
+?INCLUDE 'spriteset_enemies'
 
 !orbitAngle                     7F0010
 !statsPtr                       7F0020
@@ -116,7 +116,7 @@ code_0A853E {
 
 code_0A854C {
     COP [PlaySoundCh1] ( #06 )
-    COP [SetMetasprite] ( @table_0EE000 )
+    COP [SetMetasprite] ( @spriteset_enemies )
     COP [SetSpritePalette] ( #00 )
     LDA #$0002
     TSB $10

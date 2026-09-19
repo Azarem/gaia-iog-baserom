@@ -1,4 +1,4 @@
-?INCLUDE 'table_0EDA00'
+?INCLUDE 'spriteset_npc_props'
 
 !joypadMaskStd                  065A
 
@@ -10,7 +10,7 @@ fr32_locked_door [
   code_05CFBF:
     LDA #$0200
     TSB $12
-    COP [SetMetasprite] ( @table_0EDA00 )
+    COP [SetMetasprite] ( @spriteset_npc_props )
     COP [SetSpritePriority] ( #20 )
     COP [BranchIfPlayerNear] ( #01, &code_05CFDF )
 

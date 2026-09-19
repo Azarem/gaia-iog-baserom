@@ -1,5 +1,5 @@
 ?INCLUDE 'sprite_composition'
-?INCLUDE 'table_0EE000'
+?INCLUDE 'spriteset_enemies'
 
 !joypadMaskStd                  065A
 !playerXPos                     09A2
@@ -90,7 +90,7 @@ code_0BAE18 {
     COP [PlaySoundCh2] ( #0C )
     COP [StageSpriteFrame] ( #14 )
     COP [AnimOnce]
-    COP [SetMetasprite] ( @table_0EE000 )
+    COP [SetMetasprite] ( @spriteset_enemies )
     LDA $04
     LDA $0014, Y
     STA $moveXAlt, X
@@ -103,7 +103,7 @@ code_0BAE18 {
     COP [PlaySoundCh2] ( #0C )
     COP [StageSpriteFrame] ( #14 )
     COP [AnimOnce]
-    COP [SetMetasprite] ( @table_0EE000 )
+    COP [SetMetasprite] ( @spriteset_enemies )
     LDA $14
     CMP #$0100
     BCC loc_0BAE99

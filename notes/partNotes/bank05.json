@@ -1,0 +1,11 @@
+{
+    "HdmaGradientBuildV1": "Gradient builder (variant 1) — build diamond brightness pattern in WRAM buffer",
+    "HdmaGradientBuildV2": "Gradient builder (variant 2) — same diamond pattern but for thinker_def_05FB32",
+    "HdmaSegmentSplitDown": "HDMA segment splitter (downward) — splits extent into max-127 scanline segments",
+    "HdmaSegmentSplitUp": "HDMA segment splitter (upward) — same as HdmaSegmentSplitDown but sets bit 7 for direction",
+    "HdmaParamChangeCheck": "Parameter change detection + double buffer toggle\nCompares $FE/$FC, $F6/$F4, $FA/$F8 — if all match, returns carry set (no change).\nOn change: copies new params to previous, toggles chatPtr for double buffering,\nand sets up the write pointer for the appropriate buffer half.",
+    "HdmaNoChange": "Return carry set — no parameter change detected",
+    "HdmaInitPrevState": "Initialize previous-state registers to zero (called on thinker's first frame)",
+    "HdmaCompareParams": "Compare current vs previous gradient parameters\nReturns: carry set = no change, carry clear = changed",
+    "HdmaCopyCurrentToPrev": "Copy current gradient parameters to previous-state registers"
+}

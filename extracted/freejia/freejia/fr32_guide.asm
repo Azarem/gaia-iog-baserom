@@ -1,4 +1,4 @@
-?INCLUDE 'table_0EDA00'
+?INCLUDE 'spriteset_npc_props'
 ?INCLUDE 'town_door'
 
 ---------------------------------------------
@@ -69,7 +69,7 @@ dialogstring_05B2D3 `[DEF]Well, come in.[END]`
 dialogstring_05B2DC `[DEF]Recently tourists have[N]avoided this town...[N]Business is terrible.[END]`
 
 code_05B315 {
-    COP [SetMetasprite] ( @table_0EDA00 )
+    COP [SetMetasprite] ( @spriteset_npc_props )
     COP [StageSpriteFrame] ( #01 )
     COP [AnimOnce]
     COP [SolidHighHere]

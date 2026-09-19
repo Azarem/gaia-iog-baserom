@@ -1,4 +1,4 @@
-?INCLUDE 'sg_actors_0ADA52'
+?INCLUDE 'sg_bird_flight_patterns'
 ?INCLUDE 'StandardEnemyDefeatHandler'
 
 !playerActor                    09AA
@@ -1336,7 +1336,7 @@ code_0ABFC6 {
     BNE loc_0ABFEB
     COP [StageSpriteLoop] ( #0C, #08 )
     COP [AnimLoop]
-    COP [SpawnAfterRelFlags] ( @sg_actors_0ADA52, #$0000, #$FFD9, #$2202 )
+    COP [SpawnAfterRelFlags] ( @sg_bird_flight_patterns, #$0000, #$FFD9, #$2202 )
     COP [StageSpriteLoop] ( #0C, #02 )
     COP [AnimLoop]
 
@@ -1352,7 +1352,7 @@ code_0ABFED {
     BNE loc_0AC012
     COP [StageSpriteLoop] ( #0D, #08 )
     COP [AnimLoop]
-    COP [SpawnAfterRelFlags] ( @sg_actors_0ADA52.code_0ADA69, #$FFFA, #$FFD9, #$2202 )
+    COP [SpawnAfterRelFlags] ( @sg_bird_flight_patterns.code_0ADA69, #$FFFA, #$FFD9, #$2202 )
     COP [StageSpriteLoop] ( #0D, #02 )
     COP [AnimLoop]
 
@@ -1368,7 +1368,7 @@ code_0AC014 {
     BNE loc_0AC039
     COP [StageSpriteLoop] ( #0E, #08 )
     COP [AnimLoop]
-    COP [SpawnAfterRelFlags] ( @sg_actors_0ADA52.code_0ADAA0, #$FFF5, #$FFDA, #$2202 )
+    COP [SpawnAfterRelFlags] ( @sg_bird_flight_patterns.code_0ADAA0, #$FFF5, #$FFDA, #$2202 )
     COP [StageSpriteLoop] ( #0E, #02 )
     COP [AnimLoop]
 
@@ -1384,7 +1384,7 @@ code_0AC03B {
     BNE loc_0AC060
     COP [StageSpriteLoop] ( #0F, #08 )
     COP [AnimLoop]
-    COP [SpawnAfterRelFlags] ( @sg_actors_0ADA52.code_0ADAD1, #$FFF9, #$FFD0, #$2200 )
+    COP [SpawnAfterRelFlags] ( @sg_bird_flight_patterns.code_0ADAD1, #$FFF9, #$FFD0, #$2200 )
     COP [StageSpriteLoop] ( #0F, #02 )
     COP [AnimLoop]
 
@@ -1400,7 +1400,7 @@ code_0AC062 {
     BNE loc_0AC087
     COP [StageSpriteLoop] ( #10, #08 )
     COP [AnimLoop]
-    COP [SpawnAfterRelFlags] ( @sg_actors_0ADA52.code_0ADB04, #$0000, #$FFD0, #$2200 )
+    COP [SpawnAfterRelFlags] ( @sg_bird_flight_patterns.code_0ADB04, #$0000, #$FFD0, #$2200 )
     COP [StageSpriteLoop] ( #10, #02 )
     COP [AnimLoop]
 
@@ -1416,7 +1416,7 @@ code_0AC089 {
     BNE loc_0AC0AE
     COP [StageSpriteLoop] ( #8F, #08 )
     COP [AnimLoop]
-    COP [SpawnAfterRelFlags] ( @sg_actors_0ADA52.code_0ADAE7, #$0007, #$FFD0, #$2200 )
+    COP [SpawnAfterRelFlags] ( @sg_bird_flight_patterns.code_0ADAE7, #$0007, #$FFD0, #$2200 )
     COP [StageSpriteLoop] ( #8F, #02 )
     COP [AnimLoop]
 
@@ -1432,7 +1432,7 @@ code_0AC0B0 {
     BNE loc_0AC0D5
     COP [StageSpriteLoop] ( #8E, #08 )
     COP [AnimLoop]
-    COP [SpawnAfterRelFlags] ( @sg_actors_0ADA52.code_0ADAB5, #$000B, #$FFDA, #$2202 )
+    COP [SpawnAfterRelFlags] ( @sg_bird_flight_patterns.code_0ADAB5, #$000B, #$FFDA, #$2202 )
     COP [StageSpriteLoop] ( #8E, #02 )
     COP [AnimLoop]
 
@@ -1448,7 +1448,7 @@ code_0AC0D7 {
     BNE loc_0AC0FC
     COP [StageSpriteLoop] ( #8D, #08 )
     COP [AnimLoop]
-    COP [SpawnAfterRelFlags] ( @sg_actors_0ADA52.code_0ADA81, #$0006, #$FFD9, #$2202 )
+    COP [SpawnAfterRelFlags] ( @sg_bird_flight_patterns.code_0ADA81, #$0006, #$FFD9, #$2202 )
     COP [StageSpriteLoop] ( #8D, #02 )
     COP [AnimLoop]
 

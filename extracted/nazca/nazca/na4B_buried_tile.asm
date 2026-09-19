@@ -1,4 +1,4 @@
-?INCLUDE 'table_0EE000'
+?INCLUDE 'spriteset_enemies'
 
 !gfxCacheIdxB                   064A
 !joypadMaskStd                  065A
@@ -72,7 +72,7 @@ code_05E7A6 {
     LDA $0010, Y
     ORA #$2000
     STA $0010, Y
-    COP [SetMetasprite] ( @table_0EE000 )
+    COP [SetMetasprite] ( @spriteset_enemies )
     COP [StageSpriteFrame] ( #1C )
     COP [AnimOnce]
     COP [PlaySoundBoth] ( #$0C0C )

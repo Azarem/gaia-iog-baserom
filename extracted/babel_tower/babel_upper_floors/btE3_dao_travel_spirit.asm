@@ -1,4 +1,4 @@
-?INCLUDE 'table_0EDA00'
+?INCLUDE 'spriteset_npc_props'
 
 !gfxCacheIdxA                   0648
 !gfxCacheIdxB                   064A
@@ -11,7 +11,7 @@ btE3_dao_travel_spirit [
   code_098003:
     LDA #$0200
     TSB $12
-    COP [SetMetasprite] ( @table_0EDA00 )
+    COP [SetMetasprite] ( @spriteset_npc_props )
     COP [StageSprAndHitbox] ( #04 )
     COP [SolidHighHere]
     COP [SetOnInteract] ( &code_09801D )

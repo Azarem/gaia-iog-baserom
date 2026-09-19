@@ -1,6 +1,6 @@
 ?INCLUDE 'oneshot_palette_flash_1B'
 ?INCLUDE 'oneshot_palette_flash_1C'
-?INCLUDE 'table_0EDA00'
+?INCLUDE 'spriteset_npc_props'
 
 !joypadMaskStd                  065A
 
@@ -145,7 +145,7 @@ code_069BDA {
 }
 
 code_069C14 {
-    COP [SetMetasprite] ( @table_0EDA00 )
+    COP [SetMetasprite] ( @spriteset_npc_props )
     COP [PlaySoundBoth] ( #$2525 )
 
   code_069C1D:

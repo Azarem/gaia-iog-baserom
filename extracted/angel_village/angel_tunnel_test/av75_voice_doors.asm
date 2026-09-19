@@ -1,4 +1,4 @@
-?INCLUDE 'table_0EE000'
+?INCLUDE 'spriteset_enemies'
 
 !playerYPos                     09A4
 
@@ -12,7 +12,7 @@ av75_voice_doors [
     TSB $12
     COP [BranchIfFlagByte] ( #89, #01, &code_06D7BB )
     STZ $067F
-    COP [SetMetasprite] ( @table_0EE000 )
+    COP [SetMetasprite] ( @spriteset_enemies )
     COP [StageSpriteFrame] ( #00 )
     COP [AnimOnce]
     LDA $playerYPos

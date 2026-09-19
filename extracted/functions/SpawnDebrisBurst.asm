@@ -3,7 +3,7 @@
 ; Each child animates once and dies. Spawned when breakable walls are destroyed (Diamond Mine passage, Great Wall switch room). Standard destructible-wall particle burst.
 ---------------------------------------------
 
-?INCLUDE 'table_0EE000'
+?INCLUDE 'spriteset_enemies'
 
 ---------------------------------------------
 
@@ -16,7 +16,7 @@ SpawnDebrisBurst {
 }
 
 DebrisBurstParticle {
-    COP [SetMetasprite] ( @table_0EE000 )
+    COP [SetMetasprite] ( @spriteset_enemies )
     COP [SetSpritePalette] ( #00 )
     COP [SetSpritePriority] ( #30 )
     COP [RngByte]

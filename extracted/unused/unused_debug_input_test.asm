@@ -1,4 +1,4 @@
-?INCLUDE 'table_0EE000'
+?INCLUDE 'spriteset_enemies'
 
 !joypadCurrent                  0656
 !joypadHeld                     0658
@@ -9,7 +9,7 @@ unused_debug_input_test [
   actor-def < #00, #00, #03, {
 
   code_09BAE6:
-    COP [SetMetasprite] ( @table_0EE000 )
+    COP [SetMetasprite] ( @spriteset_enemies )
     LDA #$0000
     STA $28
 

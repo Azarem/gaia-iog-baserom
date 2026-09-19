@@ -12,7 +12,7 @@
 ; 
 ; Phase 2 — Matrix computation (each tick after init):
 ; 1. Load scale ($B8 → $02), rotation angle ($B6 → $04), perspective rotation ($BC)
-; 2. Index into sine table (binary_01C595) and cosine table (binary_01C695) using $BC × 2
+; 2. Index into sine table (sine_table_16bit) and cosine table (cosine_table_16bit) using $BC × 2
 ; 3. Dispatch to one of 4 quadrant handlers based on sine/cosine signs:
 ;    - Mode7Quadrant_PosCosPosSin: +cos, +sin
 ;    - Mode7Quadrant_PosCosNegSin: +cos, −sin
@@ -97,7 +97,7 @@ Mode7PerspectiveInit [
 ; 
 ; First tick (after SetEntryContinue yield): initializes three HDMA tables at $7E7000, $7E7800, $7E8000 with 224 entries × 3 bytes each (scanline count = 1, two zero data bytes), terminated by $00. This sets a neutral default before the first perspective computation.
 ; 
-; Subsequent ticks: loads scale ($B8), rotation ($B6), and perspective angle ($BC). Looks up sine (binary_01C595) and cosine (binary_01C695) from 512-entry tables using ($BC AND $01FF) × 2 as index. Pushes QueueMode7HdmaTables−1 as RTS-trick return address.
+; Subsequent ticks: loads scale ($B8), rotation ($B6), and perspective angle ($BC). Looks up sine (sine_table_16bit) and cosine (cosine_table_16bit) from 512-entry tables using ($BC AND $01FF) × 2 as index. Pushes QueueMode7HdmaTables−1 as RTS-trick return address.
 ; 
 ; Dispatches to one of 4 quadrant handlers based on the signs of cos and sin:
 ; - Both positive → Mode7Quadrant_PosCosPosSin
@@ -152,10 +152,10 @@ Mode7PerspectiveUpdate {
     TAY 
     LDX #$0000
     PEA $&QueueMode7HdmaTables-1 ; Push QueueMode7HdmaTables−1 as RTS-trick return address
-    LDA $&math_lookup_tables.cosine_table_16bit, Y ; Look up cosine value from binary_01C695 table
+    LDA $&math_lookup_tables.cosine_table_16bit, Y ; Look up cosine value from cosine_table_16bit table
     BMI loc_03A9F9        ; Negative cosine → quadrant 3 or 4
     STA $18               ; $18 = |cos| (positive cosine)
-    LDA $&math_lookup_tables.sine_table_16bit, Y ; Look up sine value from binary_01C595 table
+    LDA $&math_lookup_tables.sine_table_16bit, Y ; Look up sine value from sine_table_16bit table
     BMI loc_03A9F0        ; Negative sine → quadrant 2 (+cos, −sin)
     STA $1C               ; $1C = |sin| (positive sine)
     JMP $&Mode7Quadrant_PosCosPosSin ; Quadrant 1: +cos, +sin → Mode7Quadrant_PosCosPosSin

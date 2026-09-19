@@ -57,7 +57,7 @@ GlobalAmbientPaletteDefault {
     BRA GlobalAmbientInteractEntry
 
   GlobalAmbientInteractEntry:
-    LDA $animScratch2, X  ; TRB animScratch2 bit 11; RTL unless joypad A held (bit 15 of joypadCurrent)
+    LDA $animScratch2, X  ; Clear bit 11 of animScratch2 (interaction ready flag)
     AND #$F7FF
     STA $animScratch2, X
     COP [SetEntryExit]

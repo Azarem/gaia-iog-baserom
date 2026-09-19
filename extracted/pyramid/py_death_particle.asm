@@ -1,4 +1,4 @@
-?INCLUDE 'table_0EE000'
+?INCLUDE 'spriteset_enemies'
 
 ---------------------------------------------
 
@@ -10,7 +10,7 @@ py_death_particle [
     STA $14
     LDA $0016, Y
     STA $16
-    COP [SetMetasprite] ( @table_0EE000 )
+    COP [SetMetasprite] ( @spriteset_enemies )
     COP [StageSpriteFrame] ( #1C )
     COP [AnimOnce]
     COP [Die]

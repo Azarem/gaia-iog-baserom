@@ -1,4 +1,4 @@
-?INCLUDE 'table_0EE000'
+?INCLUDE 'spriteset_enemies'
 
 ---------------------------------------------
 
@@ -9,7 +9,7 @@ nv_village_event_sprite {
 }
 
 code_0881AE {
-    COP [SetMetasprite] ( @table_0EE000 )
+    COP [SetMetasprite] ( @spriteset_enemies )
     COP [AddPosition] ( #00, #F6 )
     COP [StageSpriteFrame] ( #07 )
     COP [AnimOnce]

@@ -1,6 +1,6 @@
 ?INCLUDE 'cop_handlers_flags'
 ?INCLUDE 'f_inventory_full'
-?INCLUDE 'table_0EE000'
+?INCLUDE 'spriteset_enemies'
 
 ---------------------------------------------
 
@@ -21,7 +21,7 @@ gw82_necklace_stone [
     BCS loc_07B5EF
     LDA #$2000
     STA $0E
-    COP [SetMetasprite] ( @table_0EE000 )
+    COP [SetMetasprite] ( @spriteset_enemies )
     COP [SetOnInteract] ( &code_07B5D2 )
 
   loc_07B5C8:

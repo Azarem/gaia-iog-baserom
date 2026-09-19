@@ -211,7 +211,7 @@ code_0691BE! {
     TSB $joypadMaskStd
     LDA #$2000
     TRB $10
-    COP [88] ( @table_0EE000 )
+    COP [88] ( @spriteset_enemies )
     LDY $player_actor
     LDA $0014, Y
     STA $14

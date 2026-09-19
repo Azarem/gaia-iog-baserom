@@ -18,7 +18,7 @@
 ; 
 ; 1 = Arrange: Swap items between slots. Two-phase: pick source ($22) → pick target ($22/$2E). ArrangePerformSwap does an 8-bit byte swap in inventorySlots, updates both slot actor sprites via UpdateSlotActorSprite, and tracks inventoryEquippedIndex across the swap.
 ; 
-; 2 = Discard: Remove items. Grid cursor selects a slot; CheckItemDiscardable gates via a bitfield table (BitMaskTable × system_strings.binary_01E12A). If discardable, YesNoPromptLoop confirms. On yes: zeroes the slot's item byte (AND $FF00), updates sprite, clears equip state if discarding the equipped item.
+; 2 = Discard: Remove items. Grid cursor selects a slot; CheckItemDiscardable gates via a bitfield table (BitMaskTable × system_strings.item_table_separator). If discardable, YesNoPromptLoop confirms. On yes: zeroes the slot's item byte (AND $FF00), updates sprite, clears equip state if discarding the equipped item.
 ; 
 ; 3 = Status: View character abilities. 3-row vertical cursor ($22 = 0/1/2). For each row, TestAbilityFlag checks whether the ability is unlocked for the current characterForm. Unlocked abilities show their name via ComputeAbilityIndex → RunBg3Script.
 ; 
@@ -57,7 +57,7 @@
 ; 
 ; TestAbilityFlag: Maps (characterForm, abilitySlot) → game flag index = characterForm × 4 + slot, calls TestFlag_0510. Returns carry set if the ability is unlocked.
 ; 
-; CheckItemDiscardable: Tests item ID against a bitfield at system_strings.binary_01E12A. Item ID >> 3 = byte index, item ID & 7 = bit via BitMaskTable. Returns carry set if item is non-discardable (quest item).
+; CheckItemDiscardable: Tests item ID against a bitfield at system_strings.item_table_separator. Item ID >> 3 = byte index, item ID & 7 = bit via BitMaskTable. Returns carry set if item is non-discardable (quest item).
 ---------------------------------------------
 
 ?BANK 02
@@ -1005,7 +1005,7 @@ UpdateSlotActorSprite {
 }
 
 ---------------------------------------------
-; Test if item is non-discardable. Item ID → byte index (>>3) + bit (& 7) via BitMaskTable. ANDs with system_strings.binary_01E12A bitfield. Carry set = non-discardable (quest item).
+; Test if item is non-discardable. Item ID → byte index (>>3) + bit (& 7) via BitMaskTable. ANDs with system_strings.item_table_separator bitfield. Carry set = non-discardable (quest item).
 
 CheckItemDiscardable {
     PHX                   ; CheckItemDiscardable — save index register

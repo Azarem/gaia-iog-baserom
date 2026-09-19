@@ -1,4 +1,4 @@
-?INCLUDE 'table_0EE000'
+?INCLUDE 'spriteset_enemies'
 
 !sceneCurrent                   0644
 !cameraTargetY                  06C2
@@ -272,7 +272,7 @@ code_0AE89E {
 }
 
 code_0AE8B6 {
-    COP [SetMetasprite] ( @table_0EE000 )
+    COP [SetMetasprite] ( @spriteset_enemies )
 
   loc_0AE8BB:
     COP [StageSpriteFrame] ( #31 )

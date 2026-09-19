@@ -1,5 +1,5 @@
 ?INCLUDE 'ActorDisplayModeSwap'
-?INCLUDE 'table_0EDA00'
+?INCLUDE 'spriteset_npc_props'
 
 ---------------------------------------------
 
@@ -8,7 +8,7 @@ av69_signs [
 
   code_06BA0C:
     JSL $@ActorDisplayModeSwap
-    COP [SetMetasprite] ( @table_0EDA00 )
+    COP [SetMetasprite] ( @spriteset_npc_props )
     COP [StageSpriteFrame] ( #05 )
     COP [AnimOnce]
     LDA #$0200

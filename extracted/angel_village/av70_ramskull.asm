@@ -1,4 +1,4 @@
-?INCLUDE 'table_0EE000'
+?INCLUDE 'spriteset_enemies'
 
 ---------------------------------------------
 
@@ -39,7 +39,7 @@ code_0AF102 {
     LDA #$0004
     STA $0008, Y
     COP [PlaySoundCh1] ( #1E )
-    COP [SetMetasprite] ( @table_0EE000 )
+    COP [SetMetasprite] ( @spriteset_enemies )
 
   loc_0AF128:
     COP [StageSpriteMoveX] ( #08, #04 )
@@ -51,7 +51,7 @@ code_0AF102 {
 }
 
 code_0AF137 {
-    COP [SetMetasprite] ( @table_0EE000 )
+    COP [SetMetasprite] ( @spriteset_enemies )
     COP [SetEntryExit]
     LDA #$2000
     TRB $10

@@ -424,12 +424,12 @@ HandleChestInteraction {
 ; 2. Spawns SpcTransferMusicData via SpawnAfterFlags — guards $1FC0 (pool full → code_02A88B cleanup)
 ; 3. Forwards the dialogue string ID ($26+1) and $1000 flag to the music child
 ; 4. Saves actor references: X = self, Y = music child
-; 5. Suppresses joypad ($CFF0 → joypadMaskStd) and locks player in idle animation via SetAnimStatePointer (pointing to player_transition_handlers.loc_00C432)
+; 5. Suppresses joypad ($CFF0 → joypadMaskStd) and locks player in idle animation via SetAnimStatePointer (pointing to player_transition_handlers.PlayerIdleAnimLoop)
 ; 6. Sets playerFlags $0800 (special mode)
 ; 7. COP [SetEntryContinue] — yields until musicTransitionState == $FFFF
 ; 8. Spawns ChestDialogueActor (forwards $24 dialogue string and $1000 flag, stores render bank $20)
 ; 9. COP [SetEntryContinue] — polls APUIO1 for $FF (SPC ready)
-; 10. Unlocks player (clear $1000 from actor flags, restore idle animation to loc_00C45A), unmasks joypad ($CFF0 TRB)
+; 10. Unlocks player (clear $1000 from actor flags, restore idle animation to RestorePlayerControlDirect), unmasks joypad ($CFF0 TRB)
 ; 11. Spawns second SpcTransferMusicData for follow-up data, guards $1FC0
 ; 12. Forwards musicParentActor (via orbitAngle) and $1000 flag to the second child
 ; 13. COP [SetEntryContinue] — waits for second transfer ($FFFF)
@@ -464,7 +464,7 @@ ChestOpeningActor {
     LDA $0012, Y
     ORA #$1000
     STA $0012, Y
-    LDA #$*player_transition_handlers.PlayerIdleAnimLoop ; Player idle handler → player_transition_handlers.loc_00C432
+    LDA #$*player_transition_handlers.PlayerIdleAnimLoop ; Player idle handler → player_transition_handlers.PlayerIdleAnimLoop
     STA $0002, Y
     LDA #$&player_transition_handlers.PlayerIdleAnimLoop
     JSR $&SetAnimStatePointer
@@ -499,7 +499,7 @@ ChestOpeningActor {
     LDA $0012, Y
     AND #$EFFF
     STA $0012, Y
-    LDA #$*player_transition_handlers.RestorePlayerControlDirect ; Restore player idle handler loc_00C45A via SetAnimStatePointer
+    LDA #$*player_transition_handlers.RestorePlayerControlDirect ; Restore player idle handler RestorePlayerControlDirect via SetAnimStatePointer
     STA $0002, Y
     LDA #$&player_transition_handlers.RestorePlayerControlDirect
     JSR $&SetAnimStatePointer

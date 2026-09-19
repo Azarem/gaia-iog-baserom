@@ -1,4 +1,4 @@
-?INCLUDE 'table_0EDA00'
+?INCLUDE 'spriteset_npc_props'
 
 ---------------------------------------------
 
@@ -14,7 +14,7 @@ btDF_spirits [
     STA $0E
     LDA #$2000
     TRB $10
-    COP [SetMetasprite] ( @table_0EDA00 )
+    COP [SetMetasprite] ( @spriteset_npc_props )
     COP [StageSprAndHitbox] ( #04 )
     COP [SolidHighHere]
     COP [SetOnInteract] ( &code_099B5A )

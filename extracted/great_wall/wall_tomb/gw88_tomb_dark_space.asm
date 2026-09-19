@@ -22,7 +22,7 @@ gw88_tomb_dark_space [
 ]
 
 code_07BE09 {
-    COP [SpawnAfterAbsFlags] ( @dark_space.code_08D6B5, #$01C8, #$0280, #$2B00 )
+    COP [SpawnAfterAbsFlags] ( @dark_space.DarkSpacePortalInit, #$01C8, #$0280, #$2B00 )
     LDA #$0001
     STA $0024, Y
     LDA #$2000

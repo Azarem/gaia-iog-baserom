@@ -19,16 +19,16 @@
 boss_clear_reward_handler [
   actor-def < #00, #00, #20, {
 
-  code_00C2BE:
+  BossRewardCheckInit:
     PHX 
-    SEP #$20
+    SEP #$20              ; 8-bit for scene ID comparison
     LDX #$0000
     LDA $sceneCurrent
 
   loc_00C2C7:
-    CMP $@boss_reward_range_00C312, X
+    CMP $@boss_reward_range_00C312, X ; Match scene ID in boss table
     BEQ loc_00C2D3
-    INX 
+    INX                   ; Next table entry (4 bytes each)
     INX 
     INX 
     INX 
@@ -36,37 +36,37 @@ boss_clear_reward_handler [
 
   loc_00C2D3:
     REP #$20
-    TXA 
+    TXA                   ; Table index → boss ID for WRAM flag
     STX $20
-    PLX 
+    PLX                   ; Restore actor pointer
+    LSR                   ; Index / 4 = boss number
     LSR 
-    LSR 
-    JSL $@cop_handlers_flags.TestWramFlag_Offset100
-    BCS loc_00C30C
+    JSL $@cop_handlers_flags.TestWramFlag_Offset100 ; Already rewarded this boss?
+    BCS loc_00C30C        ; Yes → skip to idle
     COP [SetEntryContinue]
     LDA $playerFlags
-    BIT #$0020
+    BIT #$0020            ; Boss defeated flag set?
     BNE loc_00C2EC
-    RTL 
+    RTL                   ; Not yet — wait
 
   loc_00C2EC:
     PHX 
     LDX $20
-    LDA $@boss_reward_range_00C312+1, X
+    LDA $@boss_reward_range_00C312+1, X ; Load reward table range (start, end)
     STA $0004
-    JSR $&BossClearApplyStatReward
+    JSR $&BossClearApplyStatReward ; Apply HP/STR/DEF boosts
     PLX 
-    LDA $playerMaxHp
+    LDA $playerMaxHp      ; Flash HP bar: timer = maxHP - currentHP
     SEC 
     SBC $playerHp
     STA $damageFlashTimer
     LDA $20
     LSR 
     LSR 
-    JSL $@cop_handlers_flags.SetWramFlag_Offset100
+    JSL $@cop_handlers_flags.SetWramFlag_Offset100 ; Mark this boss as rewarded
 
   loc_00C30C:
-    COP [SetEntryContinue]
+    COP [SetEntryContinue] ; Idle loop after rewards granted
     NOP 
     NOP 
     NOP 
@@ -88,61 +88,66 @@ boss_reward_range_00C312 [
   boss-reward-range < #29, #00, #00 >   ;0A
 ]
 
+---------------------------------------------
+; Iterates enemy_clear_reward_table entries in the boss's range [$04.lo .. $0E].
+; Each entry byte is a reward type: 1=MaxHP+1, 2=STR+1, 3=DEF+1, 0=skip.
+; Uses per-enemy flags ($0300 range) to avoid granting the same reward twice.
+
 BossClearApplyStatReward {
-    XBA                   ; BossClearApplyStatReward
+    XBA                   ; Extract end offset from high byte
     AND #$00FF
-    STA $000E
-    LDA $0004
+    STA $000E             ; End index in reward table
+    LDA $0004             ; Extract start offset from low byte
     AND #$00FF
-    TAY 
+    TAY                   ; Y = current index in reward table
     SEP #$20
     BRA loc_00C353
 
   code_00C350:
     SEP #$20
-    INY 
+    INY                   ; Next enemy in table
 
   loc_00C353:
-    LDA $&enemy_clear_reward_table, Y
-    BNE loc_00C360
-    INY 
+    LDA $&enemy_clear_reward_table, Y ; Load reward type for this enemy
+    BNE loc_00C360        ; Non-zero → has reward
+    INY                   ; Zero → skip, check if past end
     CPY $000E
     BCC loc_00C353
-    BRA loc_00C394
+    BRA loc_00C394        ; Past end → done
 
   loc_00C360:
     REP #$20
     AND #$00FF
-    STA $0004
+    STA $0004             ; Reward type: 1=HP, 2=STR, 3=DEF
     TYA 
     PHY 
-    JSL $@cop_handlers_flags.TestFlag_0300
+    JSL $@cop_handlers_flags.TestFlag_0300 ; Already killed this enemy?
     PLY 
-    BCS code_00C350
+    BCS code_00C350       ; Already flagged → skip
     PHY 
     TYA 
-    JSL $@cop_handlers_flags.SetFlag_0300
+    JSL $@cop_handlers_flags.SetFlag_0300 ; Mark enemy as killed
     PLY 
-    LDA $0004
-    PEA $&code_00C350-1
+    LDA $0004             ; Dispatch reward type via DEC cascade
+    PEA $&code_00C350-1   ; Push return to loop (RTS trick)
     DEC 
     BNE loc_00C385
-    INC $playerMaxHp
+    INC $playerMaxHp      ; Type 1: MaxHP +1
     RTS 
 
   loc_00C385:
     DEC 
     BNE loc_00C38C
-    INC $playerStr
+    INC $playerStr        ; Type 2: STR +1
     RTS 
 
   loc_00C38C:
     DEC 
     BEQ loc_00C390
-    RTS 
+    RTS                   ; Unknown type → no reward
 
   loc_00C390:
-    INC $playerDef
+    INC $playerDef        ; Type 3: DEF +1
     RTS 
 
   loc_00C394:

@@ -3,7 +3,7 @@
 ; Stands solid with frame #01 until the player approaches, then waits for A-button press to play sound #$0E, animate to open frame #00, and clear low collision. Used in multiple town scenes (South Cape, Freejia, and others via scene_actors). Standard reusable town door behavior.
 ---------------------------------------------
 
-?INCLUDE 'table_0EDA00'
+?INCLUDE 'spriteset_npc_props'
 
 ---------------------------------------------
 
@@ -11,7 +11,7 @@ town_door [
   actor-def < #01, #00, #10, {
 
   code_00C5F6:
-    COP [SetMetasprite] ( @table_0EDA00 )
+    COP [SetMetasprite] ( @spriteset_npc_props )
     COP [StageSpriteFrame] ( #01 )
     COP [AnimOnce]
     COP [SolidHighHere]

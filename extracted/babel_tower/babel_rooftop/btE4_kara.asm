@@ -1,8 +1,8 @@
 ?INCLUDE 'ApplyOrbitalOffsetFromRef'
 ?INCLUDE 'GetPlayerFacingDirection'
 ?INCLUDE 'sE6_gaia'
-?INCLUDE 'table_0EDA00'
-?INCLUDE 'table_0EE000'
+?INCLUDE 'spriteset_enemies'
+?INCLUDE 'spriteset_npc_props'
 
 !gfxCacheIdxB                   064A
 !joypadMaskStd                  065A
@@ -138,7 +138,7 @@ code_098F2E {
     STA $orbitAngle, X
 
   loc_098F35:
-    COP [SetMetasprite] ( @table_0EDA00 )
+    COP [SetMetasprite] ( @spriteset_npc_props )
     COP [StageSprAndHitbox] ( #0A )
     LDA #$0001
     STA $orbitDiameter, X
@@ -163,7 +163,7 @@ code_098F2E {
 }
 
 code_098F72 {
-    COP [SetMetasprite] ( @table_0EE000 )
+    COP [SetMetasprite] ( @spriteset_enemies )
     COP [StageSpriteFrame] ( #1E )
     COP [AnimOnce]
     COP [Die]

@@ -1,6 +1,6 @@
 ?INCLUDE 'EscortFollowPathTracker'
 ?INCLUDE 'GetPlayerFacingDirection'
-?INCLUDE 'table_0EE000'
+?INCLUDE 'spriteset_enemies'
 
 !sceneCurrent                   0644
 !joypadMaskStd                  065A
@@ -101,7 +101,7 @@ btDE_kara_missing_destroy {
 dialogstring_0986E1 `[TPL:A][TPL:0]Kara's not here... [N]Where did she go...?[PAL:0][END]`
 
 code_09870C {
-    COP [SetMetasprite] ( @table_0EE000 )
+    COP [SetMetasprite] ( @spriteset_enemies )
     COP [StageSpriteFrame] ( #1C )
     COP [AnimOnce]
     COP [Die]

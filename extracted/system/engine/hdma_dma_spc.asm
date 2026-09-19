@@ -12,7 +12,7 @@
 ; 
 ; === HDMA CHANNEL MANAGEMENT (254278–254378) ===
 ; 
-; ResetHdmaState initializes the HDMA channel allocation state ($66 enable mask, $68 channel bit, $6A register offset). SetupHdmaChannel_Indirect and SetupHdmaChannel_Direct configure individual HDMA channels from a register lookup table (binary_01D8BE), with indirect mode adding the $40 flag and bank byte for pointer-based HDMA tables. Both advance the allocation state for the next channel.
+; ResetHdmaState initializes the HDMA channel allocation state ($66 enable mask, $68 channel bit, $6A register offset). SetupHdmaChannel_Indirect and SetupHdmaChannel_Direct configure individual HDMA channels from a register lookup table (hdma_channel_config), with indirect mode adding the $40 flag and bank byte for pointer-based HDMA tables. Both advance the allocation state for the next channel.
 ; 
 ; === SPC AUDIO TRANSFER (254378–254549) ===
 ; 
@@ -293,9 +293,9 @@ ResetHdmaState {
 ---------------------------------------------
 ; Configure one HDMA channel in indirect (pointer-based) mode.
 ; 
-; Entry: A = channel index (lookup key for binary_01D8BE register table), Y = HDMA table source address, stack byte = target PPU register, additional stack byte = indirect bank.
+; Entry: A = channel index (lookup key for hdma_channel_config register table), Y = HDMA table source address, stack byte = target PPU register, additional stack byte = indirect bank.
 ; 
-; Looks up the DMA transfer mode from binary_01D8BE and OR’s with $40 to set indirect mode in DMAP. Sets DASB0 (indirect bank byte) from the stack parameter. Falls through to the shared tail at SetupHdmaChannel_Direct to complete the channel configuration.
+; Looks up the DMA transfer mode from hdma_channel_config and OR’s with $40 to set indirect mode in DMAP. Sets DASB0 (indirect bank byte) from the stack parameter. Falls through to the shared tail at SetupHdmaChannel_Direct to complete the channel configuration.
 ; 
 ; Indirect HDMA uses a pointer table in RAM where each entry contains a scanline count and a pointer to the actual data, allowing dynamic per-scanline register updates.
 
@@ -308,7 +308,7 @@ SetupHdmaChannel_Indirect {
     XBA 
     PHA 
     TAX 
-    LDA $&hdma_ramp_tables.hdma_channel_config, X ; Look up DMA transfer mode from binary_01D8BE register table
+    LDA $&hdma_ramp_tables.hdma_channel_config, X ; Look up DMA transfer mode from hdma_channel_config register table
     LDX $006A
     ORA #$40              ; Set indirect mode flag ($40) in DMAP register
     STA $DMAP0, X
@@ -322,7 +322,7 @@ SetupHdmaChannel_Indirect {
 ; 
 ; Entry: A = channel index, Y = HDMA table source address, stack byte = source bank, additional stack byte = target PPU register.
 ; 
-; Looks up the DMA transfer mode from binary_01D8BE and writes it directly to DMAP (no indirect flag). The shared tail code (loc_03E186) sets the target PPU register (BBAD0), source address (A1T0L from Y), and source bank (A1B0).
+; Looks up the DMA transfer mode from hdma_channel_config and writes it directly to DMAP (no indirect flag). The shared tail code (loc_03E186) sets the target PPU register (BBAD0), source address (A1T0L from Y), and source bank (A1B0).
 ; 
 ; After configuration, enables this channel’s bit in the HDMA enable mask ($0066 via TSB $0068), shifts the channel bit left for the next channel (ASL $0068), and advances the register offset by $10 ($006A) to point at the next DMA channel’s register block.
 ; 

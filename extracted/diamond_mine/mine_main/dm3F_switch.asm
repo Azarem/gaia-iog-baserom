@@ -1,5 +1,5 @@
 ?INCLUDE 'enemy_stats_table'
-?INCLUDE 'table_0EE000'
+?INCLUDE 'spriteset_enemies'
 
 !statsPtr                       7F0020
 !currentHp                      7F0026
@@ -14,7 +14,7 @@ dm3F_switch [
     STA $statsPtr, X
     LDA #$0030
     TSB $12
-    COP [SetMetasprite] ( @table_0EE000 )
+    COP [SetMetasprite] ( @spriteset_enemies )
     COP [StageSpriteFrame] ( #0F )
     COP [AnimOnce]
     COP [SolidHighHere]

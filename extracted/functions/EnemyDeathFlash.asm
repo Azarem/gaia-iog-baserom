@@ -3,12 +3,12 @@
 ; Spawned at enemy death positions by combat handlers and boss scripts. Brief white flash marking an enemy's defeat.
 ---------------------------------------------
 
-?INCLUDE 'table_0EE000'
+?INCLUDE 'spriteset_enemies'
 
 ---------------------------------------------
 
 EnemyDeathFlash {
-    COP [SetMetasprite] ( @table_0EE000 )
+    COP [SetMetasprite] ( @spriteset_enemies )
     COP [SetSpritePalette] ( #00 )
     COP [StageSpriteFrame] ( #01 )
     COP [AnimOnce]

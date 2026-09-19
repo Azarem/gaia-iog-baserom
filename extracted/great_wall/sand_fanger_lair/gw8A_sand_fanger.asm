@@ -9,7 +9,7 @@
 ?INCLUDE 'sE6_gaia'
 ?INCLUDE 'SetPlayerGameOverFlag'
 ?INCLUDE 'smooth_follow_child'
-?INCLUDE 'table_0EE000'
+?INCLUDE 'spriteset_enemies'
 
 !gfxCacheIdxA                   0648
 !gfxCacheIdxB                   064A
@@ -1154,7 +1154,7 @@ code_0B8896 {
 }
 
 code_0B88C1 {
-    COP [SetMetasprite] ( @table_0EE000 )
+    COP [SetMetasprite] ( @spriteset_enemies )
     COP [StageSpriteFrame] ( #07 )
     COP [AnimOnce]
     COP [Die]

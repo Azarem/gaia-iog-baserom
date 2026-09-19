@@ -13,7 +13,7 @@ ec12_aqueduct_dark_space [
 ]
 
 code_09BF7D {
-    COP [SpawnAfterAbsFlags] ( @dark_space.code_08D6B5, #$00A8, #$04C0, #$0B00 )
+    COP [SpawnAfterAbsFlags] ( @dark_space.DarkSpacePortalInit, #$00A8, #$04C0, #$0B00 )
     LDA #$0001
     STA $0024, Y
     COP [Die]

@@ -28,7 +28,7 @@
 camera_scroll_controller [
   actor-def < #00, #00, #2C, {
 
-  code_00EAF0:
+  CameraScrollUpdate:
     LDA #$1000
     TSB $12
     COP [SetEntryContinue]
@@ -45,34 +45,34 @@ camera_scroll_controller [
     SEC 
     SBC #$0008
     STA $playerXPos
-    LSR                   ; Wrap below 0 → reset to 15 (16-direction circle)
+    LSR                   ; ÷16: pixel X → tile X
     LSR 
     LSR 
     LSR 
     STA $playerXTile
-    LDA $16
+    LDA $16               ; Player actor Y position (pixel)
     SEC 
-    SBC #$0010
+    SBC #$0010            ; Subtract 16px sprite offset
     STA $playerYPos
-    LSR 
+    LSR                   ; ÷16: pixel Y → tile Y
     LSR 
     LSR 
     LSR 
     STA $playerYTile
     LDA $playerFlags
-    BIT #$0100            ; AND $000F: wrap at 16
+    BIT #$0100            ; Camera lock flag — skip target calc
     BNE loc_00EB85
-    LDA $14
+    LDA $14               ; Player pixel X
     SEC 
-    SBC #$0080
-    BMI loc_00EB4D
+    SBC #$0080            ; Center camera: X - 128px dead zone
+    BMI loc_00EB4D        ; Underflow → clamp to left offset
     CMP $cameraOffsetX
-    BMI loc_00EB4D
+    BMI loc_00EB4D        ; Below left limit → clamp
     CLC 
-    ADC #$0100            ; $0000 = $FFFF signals direction is resolved (snap case)
+    ADC #$0100            ; Add screen width (256px)
     CMP $cameraBoundsX
-    BMI loc_00EB52        ; Read parent actor from $0004,X
-    LDA $cameraBoundsX
+    BMI loc_00EB52        ; Within bounds → use computed target
+    LDA $cameraBoundsX    ; Over right limit → clamp to max
     BRA loc_00EB52
 
   loc_00EB48:
@@ -84,22 +84,22 @@ camera_scroll_controller [
     BRA loc_00EB56
 
   loc_00EB52:
-    SEC                   ; Zero OAM flip bits in $002A
+    SEC                   ; Subtract screen width to get scroll origin
     SBC #$0100
 
   loc_00EB56:
     STA $cameraTargetX
-    LDA $16
+    LDA $16               ; Player pixel Y
     SEC 
-    SBC #$0080
-    BMI loc_00EB79
+    SBC #$0080            ; Center camera: Y - 128px dead zone
+    BMI loc_00EB79        ; Underflow → clamp to top offset
     CMP $cameraOffsetY
-    BMI loc_00EB79
+    BMI loc_00EB79        ; Below top limit → clamp
     CLC 
-    ADC #$0100
+    ADC #$0100            ; Add screen height (256px)
     CMP $cameraBoundsY
-    BMI loc_00EB7E
-    LDA $cameraBoundsY
+    BMI loc_00EB7E        ; Within bounds → use computed target
+    LDA $cameraBoundsY    ; Over bottom limit → clamp to max
     BRA loc_00EB7E
 
   loc_00EB74:
@@ -107,22 +107,24 @@ camera_scroll_controller [
     BRA loc_00EB7E
 
   loc_00EB79:
-    LDA $cameraOffsetY    ; ASL ×2 for word table offset into FollowDirectionTable
-    BRA loc_00EB82        ; chatPtr sign → carry flag for direction handler
+    LDA $cameraOffsetY    ; Clamp to top offset
+    BRA loc_00EB82
 
   loc_00EB7E:
-    SEC 
+    SEC                   ; Subtract screen height to get scroll origin
     SBC #$0100
 
   loc_00EB82:
-    STA $cameraTargetY    ; Load handler address from FollowDirectionTable[direction]
+    STA $cameraTargetY
+
+; Compute scroll deltas for the visual effect pipeline
 
   loc_00EB85:
-    LDA $cameraTargetX
+    LDA $cameraTargetX    ; Delta X = target - current BG1 scroll
     SEC 
     SBC $bg1ScrollH
     STA $effectDeltaX
-    LDA $cameraTargetY
+    LDA $cameraTargetY    ; Delta Y = target - current BG2 scroll
     SEC 
     SBC $bg2ScrollH
     STA $effectDeltaY

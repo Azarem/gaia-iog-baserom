@@ -2,15 +2,15 @@
 
 ?INCLUDE 'actor_pool'
 ?INCLUDE 'cop_handlers_flags'
-?INCLUDE 'py_queen_actor_0BAAAA'
-?INCLUDE 'py_queen_actor_0BABB3'
-?INCLUDE 'py_queen_actor_0BACBC'
+?INCLUDE 'pyDD_queen_orb_shot'
+?INCLUDE 'pyDD_queen_phase_transition'
+?INCLUDE 'pyDD_queen_spirit_attack'
 ?INCLUDE 'RandomPlayerOffset'
 ?INCLUDE 'sE6_gaia'
 ?INCLUDE 'SetPlayerGameOverFlag'
 ?INCLUDE 'smooth_follow_child'
+?INCLUDE 'spriteset_enemies'
 ?INCLUDE 'StandardEnemyDefeatHandler'
-?INCLUDE 'table_0EE000'
 
 !gfxCacheIdxA                   0648
 !gfxCacheIdxB                   064A
@@ -232,7 +232,7 @@ code_0BA7BD {
     STA $26
 
   loc_0BA7C2:
-    COP [SpawnAfterRelFlags] ( @py_queen_actor_0BAAAA, #$0000, #$FFFC, #$2200 )
+    COP [SpawnAfterRelFlags] ( @pyDD_queen_orb_shot, #$0000, #$FFFC, #$2200 )
     LDA #$0000
     STA $0026, Y
     DEC $26
@@ -350,7 +350,7 @@ code_0BA8AA {
     STA $26
 
   loc_0BA8AF:
-    COP [SpawnAfterRelFlags] ( @py_queen_actor_0BABB3, #$0000, #$FFFC, #$2200 )
+    COP [SpawnAfterRelFlags] ( @pyDD_queen_spirit_attack, #$0000, #$FFFC, #$2200 )
     DEC $26
     BPL loc_0BA8AF
     STZ $26
@@ -447,7 +447,7 @@ code_0BA96D {
     STA $28
     COP [StageSpriteFrame] ( #FF )
     COP [AnimOnce]
-    COP [SpawnMarkedAfter] ( @py_queen_actor_0BACBC, #$2800 )
+    COP [SpawnMarkedAfter] ( @pyDD_queen_phase_transition, #$2800 )
     COP [StageSpriteLoop] ( #FF, #0A )
     COP [AnimLoop]
     LDY $06
@@ -489,7 +489,7 @@ code_0BA9C2 {
 }
 
 code_0BA9F2 {
-    COP [SetMetasprite] ( @table_0EE000 )
+    COP [SetMetasprite] ( @spriteset_enemies )
     COP [LoopInit] ( #0C )
     COP [SpawnLastRel] ( @code_0BAA19, #00, #00, #$0302 )
     COP [WaitByte] ( #01 )

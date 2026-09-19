@@ -1,6 +1,6 @@
 ?INCLUDE 'oneshot_palette_flash_18'
 ?INCLUDE 'oneshot_palette_flash_19'
-?INCLUDE 'table_0EDA00'
+?INCLUDE 'spriteset_npc_props'
 
 !gfxCacheIdxA                   0648
 !gfxCacheIdxB                   064A
@@ -18,7 +18,7 @@ awBF_spirit_guide [
     COP [BranchIfFlagByte] ( #BE, #01, &code_089B6B )
     LDA #$0200
     TSB $12
-    COP [SetMetasprite] ( @table_0EDA00 )
+    COP [SetMetasprite] ( @spriteset_npc_props )
     COP [StageSprAndHitbox] ( #04 )
     COP [SolidHighHere]
     COP [SolidHighOffset] ( #01, #00 )

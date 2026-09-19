@@ -1,3 +1,23 @@
+; Jeweler Gem — the NPC who collects Red Jewels and grants progressive rewards.
+; 
+; Gem appears in multiple towns throughout the game. On interaction, he displays the
+; player's current Red Jewel count and checks thresholds against event flags:
+;   Flag $E9: 3 jewels → Herb (item #06)
+;   Flag $EA: 5 jewels → DEF +1
+;   Flag $EB: 8 jewels → MaxHP +1 (+ damageFlashTimer for HP bar flash)
+;   Flag $EC: 12 jewels → STR +1
+;   Flag $ED: 20 jewels → Psycho Dash upgrade ($0B16 = 1)
+;   Flag $EE: 30 jewels → Dark Friar upgrade ($0B1C = 2)
+;   50 jewels → Warp to Gem's secret room (map $E9)
+; 
+; The "Give you Red Jewels" option (code_08CF5E → JewelerCountJewels) uses BCD mode to count
+; jewel items (item #01) in the 16 inventory slots, adds them to jewelsCollected, then
+; removes all jewel items. The "See your inventory" option shows the reward list with
+; flag-based completion markers.
+; 
+; If flag $E8 is set (game complete), Gem auto-dies on spawn.
+---------------------------------------------
+
 !gfxCacheIdxA                   0648
 !gfxCacheIdxB                   064A
 !jewelsCollected                0AB0
@@ -13,13 +33,13 @@ jeweler_gem [
   actor-def < #02, #00, #10, {
 
   code_08CEA3:
-    COP [BranchIfFlagByte] ( #E8, #01, &code_08D092 )
-    LDA $0E
+    COP [BranchIfFlagByte] ( #E8, #01, &JewelerDie ) ; If game complete → die
+    LDA $0E               ; Spawn param: appearance variant
     ASL 
     ASL 
-    ASL 
+    ASL                   ; ×8
     CLC 
-    ADC #$0002
+    ADC #$0002            ; Sprite frame = variant×8 + 2
     STA $28
     STZ $002A
     COP [SetEntryContinue]
@@ -27,74 +47,82 @@ jeweler_gem [
     LDA #$3000
     STA $0E
     COP [SolidHighHere]
-    COP [SetOnInteract] ( &code_08CEC9 )
+    COP [SetOnInteract] ( &JewelerInteract )
     COP [SetEntryContinue]
     RTL 
 } >
 ]
 
-code_08CEC9 {
-    COP [PrintDialogString] ( &dialogstring_08D094 )
+---------------------------------------------
+; Interaction entry — greet and show jewel count if > 0
+
+JewelerInteract {
+    COP [PrintDialogString] ( &dialogstring_08D094 ) ; "I am the Jeweler Gem"
     LDA $jewelsCollected
-    BEQ code_08CED6
-    COP [PrintDialogString] ( &dialogstring_08D0C8 )
+    BEQ code_08CED6       ; Skip count display if 0
+    COP [PrintDialogString] ( &dialogstring_08D0C8 ) ; "I'm holding [count] Red Jewels"
+
+; Reward threshold cascade — checks each tier in ascending order
 
   code_08CED6:
-    COP [BranchIfFlagByte] ( #E9, #01, &code_08CEE7 )
+    COP [BranchIfFlagByte] ( #E9, #01, &JewelerCheck5 ) ; 3-jewel reward already given?
     LDA $jewelsCollected
-    CMP #$0003
-    BCC code_08CEE7
-    JMP $&code_08D017
+    CMP #$0003            ; Need ≥ 3 jewels
+    BCC JewelerCheck5
+    JMP $&JewelerRewardHerb ; → Give Herb
 }
 
-code_08CEE7 {
-    COP [BranchIfFlagByte] ( #EA, #01, &code_08CEF8 )
+JewelerCheck5 {
+    COP [BranchIfFlagByte] ( #EA, #01, &JewelerCheck8 ) ; 5-jewel reward given?
     LDA $jewelsCollected
-    CMP #$0005
-    BCC code_08CEF8
-    JMP $&code_08D02A
+    CMP #$0005            ; Need ≥ 5 jewels
+    BCC JewelerCheck8
+    JMP $&JewelerRewardDef ; → DEF +1
 }
 
-code_08CEF8 {
-    COP [BranchIfFlagByte] ( #EB, #01, &code_08CF09 )
+JewelerCheck8 {
+    COP [BranchIfFlagByte] ( #EB, #01, &JewelerCheck12 ) ; 8-jewel reward given?
     LDA $jewelsCollected
-    CMP #$0008
-    BCC code_08CF09
-    JMP $&code_08D037
+    CMP #$0008            ; Need ≥ 8 jewels
+    BCC JewelerCheck12
+    JMP $&JewelerRewardHp ; → MaxHP +1
 }
 
-code_08CF09 {
-    COP [BranchIfFlagByte] ( #EC, #01, &code_08CF1A )
+JewelerCheck12 {
+    COP [BranchIfFlagByte] ( #EC, #01, &JewelerCheck20 ) ; 12-jewel reward given?
     LDA $jewelsCollected
-    CMP #$0012
-    BCC code_08CF1A
-    JMP $&code_08D04A
+    CMP #$0012            ; Need ≥ 12 jewels (BCD)
+    BCC JewelerCheck20
+    JMP $&JewelerRewardStr ; → STR +1
 }
 
-code_08CF1A {
-    COP [BranchIfFlagByte] ( #ED, #01, &code_08CF2B )
+JewelerCheck20 {
+    COP [BranchIfFlagByte] ( #ED, #01, &JewelerCheck30 ) ; 20-jewel reward given?
     LDA $jewelsCollected
-    CMP #$0020
-    BCC code_08CF2B
-    JMP $&code_08D057
+    CMP #$0020            ; Need ≥ 20 jewels (BCD)
+    BCC JewelerCheck30
+    JMP $&JewelerRewardPsychoDash ; → Psycho Dash upgrade
 }
 
-code_08CF2B {
-    COP [BranchIfFlagByte] ( #EE, #01, &code_08CF3C )
+JewelerCheck30 {
+    COP [BranchIfFlagByte] ( #EE, #01, &JewelerCheck50 ) ; 30-jewel reward given?
     LDA $jewelsCollected
-    CMP #$0030
-    BCC code_08CF3C
-    JMP $&code_08D067
+    CMP #$0030            ; Need ≥ 30 jewels (BCD)
+    BCC JewelerCheck50
+    JMP $&JewelerRewardDarkFriar ; → Dark Friar upgrade
 }
 
-code_08CF3C {
+---------------------------------------------
+; 50-jewel check — triggers warp to secret room
+
+JewelerCheck50 {
     LDA $jewelsCollected
-    CMP #$0050
+    CMP #$0050            ; Need ≥ 50 jewels (BCD)
     BCC loc_08CF47
-    JMP $&code_08D077
+    JMP $&JewelerSecretRoom ; → Warp to Gem's secret room
 
   loc_08CF47:
-    COP [PrintDialogString] ( &dialogstring_08D0F1+M )
+    COP [PrintDialogString] ( &dialogstring_08D0F1+M ) ; "What's your business?"
 
   code_08CF4B:
     COP [DialogueOptions] ( #03, #01, &code_list_08CF51 )
@@ -104,7 +132,7 @@ code_list_08CF51 [
   &code_08CF59   ;00
   &code_08CF59   ;01
   &code_08CF5E   ;02
-  &code_08CFA6   ;03
+  &JewelerShowInventory   ;03
 ]
 
 code_08CF59 {
@@ -112,24 +140,30 @@ code_08CF59 {
     RTL 
 }
 
+---------------------------------------------
+; "Give you Red Jewels" — check if player has jewels, then collect them
+
 code_08CF5E {
-    COP [BranchIfNoItem] ( #01, &code_08CF68 )
-    COP [PrintDialogString] ( &dialogstring_08D1E0 )
+    COP [BranchIfNoItem] ( #01, &JewelerCountJewels ) ; Has jewel items?
+    COP [PrintDialogString] ( &dialogstring_08D1E0 ) ; "But you don't have any"
     RTL 
 }
 
-code_08CF68 {
-    SED 
-    STZ $0000
-    LDA #$0001
-    SEP #$20
+---------------------------------------------
+; BCD jewel counting — scan all 16 inventory slots for item #01 (Red Jewel)
+
+JewelerCountJewels {
+    SED                   ; Enter BCD mode for decimal counting
+    STZ $0000             ; Counter = 0
+    LDA #$0001            ; Item ID to search for
+    SEP #$20              ; 8-bit accumulator for item comparison
     LDY #$0000
 
   loc_08CF74:
-    CMP $inventorySlots, Y
-    BNE loc_08CF84
+    CMP $inventorySlots, Y ; Check slot Y for Red Jewel
+    BNE loc_08CF84        ; Not a match — skip
     PHA 
-    LDA $0000
+    LDA $0000             ; BCD increment counter
     CLC 
     ADC #$01
     STA $0000
@@ -137,27 +171,30 @@ code_08CF68 {
 
   loc_08CF84:
     INY 
-    CPY #$0010
+    CPY #$0010            ; 16 inventory slots
     BNE loc_08CF74
-    REP #$20
-    LDA $0000
+    REP #$20              ; 16-bit mode
+    LDA $0000             ; Add BCD count to total
     CLC 
     ADC $jewelsCollected
     STA $jewelsCollected
-    CLD 
+    CLD                   ; Exit BCD mode
 
   code_08CF97:
-    COP [RemoveItem] ( #01 )
+    COP [RemoveItem] ( #01 ) ; Remove all jewel items from inventory
     COP [BranchIfNoItem] ( #01, &code_08CF97 )
-    COP [PrintDialogString] ( &dialogstring_08D20F )
-    JMP $&code_08CED6
+    COP [PrintDialogString] ( &dialogstring_08D20F ) ; "This is a rare jewel"
+    JMP $&code_08CED6     ; Re-check reward thresholds
 }
 
-code_08CFA6 {
-    COP [PrintDialogString] ( &dialogstring_08D267 )
-    COP [PrintDialogString] ( &dialogstring_08D617 )
-    COP [BranchIfFlagByte] ( #E9, #00, &code_08CFB8 )
-    COP [PrintDialogString] ( &dialogstring_08D611 )
+---------------------------------------------
+; "See your inventory" — display reward list with completion markers
+
+JewelerShowInventory {
+    COP [PrintDialogString] ( &dialogstring_08D267 ) ; "I will give you goods..."
+    COP [PrintDialogString] ( &dialogstring_08D617 ) ; Set up list display format
+    COP [BranchIfFlagByte] ( #E9, #00, &code_08CFB8 ) ; Herb (3 jewels) — claimed?
+    COP [PrintDialogString] ( &dialogstring_08D611 ) ; Highlight color (claimed)
 }
 
 code_08CFB8 {
@@ -207,64 +244,88 @@ code_08D012 {
     RTL 
 }
 
-code_08D017 {
-    COP [PrintDialogString] ( &dialogstring_08D2D0 )
-    COP [GiveItem] ( #06, &code_08D012 )
-    COP [PrintDialogString] ( &dialogstring_08D31A )
-    COP [SetFlagByte] ( #E9 )
-    JMP $&code_08CEE7
+---------------------------------------------
+; Reward: 3 jewels → Herb
+
+JewelerRewardHerb {
+    COP [PrintDialogString] ( &dialogstring_08D2D0 ) ; "You've collected more than three!"
+    COP [GiveItem] ( #06, &code_08D012 ) ; Give Herb (item #06)
+    COP [PrintDialogString] ( &dialogstring_08D31A ) ; "You received the herb!"
+    COP [SetFlagByte] ( #E9 ) ; Mark 3-jewel reward given
+    JMP $&JewelerCheck5   ; Check next tier
 }
 
-code_08D02A {
+---------------------------------------------
+; Reward: 5 jewels → DEF +1
+
+JewelerRewardDef {
     INC $playerDef
     COP [SetFlagByte] ( #EA )
     COP [PrintDialogString] ( &dialogstring_08D332 )
-    JMP $&code_08CEF8
+    JMP $&JewelerCheck8
 }
 
-code_08D037 {
+---------------------------------------------
+; Reward: 8 jewels → MaxHP +1
+
+JewelerRewardHp {
     INC $playerMaxHp
     LDA #$0001
-    STA $damageFlashTimer
+    STA $damageFlashTimer ; Trigger HP bar flash effect
     COP [SetFlagByte] ( #EB )
     COP [PrintDialogString] ( &dialogstring_08D395 )
-    JMP $&code_08CF09
+    JMP $&JewelerCheck12
 }
 
-code_08D04A {
+---------------------------------------------
+; Reward: 12 jewels → STR +1
+
+JewelerRewardStr {
     INC $playerStr
     COP [SetFlagByte] ( #EC )
     COP [PrintDialogString] ( &dialogstring_08D3F9 )
-    JMP $&code_08CF1A
+    JMP $&JewelerCheck20
 }
 
-code_08D057 {
-    LDA #$0001
+---------------------------------------------
+; Reward: 20 jewels → Psycho Dash upgrade
+
+JewelerRewardPsychoDash {
+    LDA #$0001            ; Enable Psycho Dash
     STA $0B16
     COP [SetFlagByte] ( #ED )
     COP [PrintDialogString] ( &dialogstring_08D459 )
-    JMP $&code_08CF2B
+    JMP $&JewelerCheck30
 }
 
-code_08D067 {
-    LDA #$0002
+---------------------------------------------
+; Reward: 30 jewels → Dark Friar upgrade
+
+JewelerRewardDarkFriar {
+    LDA #$0002            ; Dark Friar power level 2
     STA $0B1C
     COP [SetFlagByte] ( #EE )
     COP [PrintDialogString] ( &dialogstring_08D4E3 )
-    JMP $&code_08CF3C
+    JMP $&JewelerCheck50
 }
 
-code_08D077 {
-    COP [PrintDialogString] ( &dialogstring_08D5AE )
-    LDA #$0202
+---------------------------------------------
+; Reward: 50 jewels → warp to Gem's secret room
+
+JewelerSecretRoom {
+    COP [PrintDialogString] ( &dialogstring_08D5AE ) ; "50... Follow me!!"
+    LDA #$0202            ; Configure gfx cache for secret room
     STA $gfxCacheIdxA
     LDA #$0404
     STA $gfxCacheIdxB
-    COP [QueueMapChange] ( #E9, #$0330, #$03D0, #80, #$4400 )
+    COP [QueueMapChange] ( #E9, #$0330, #$03D0, #80, #$4400 ) ; Warp to secret room
     RTL 
 }
 
-code_08D092 {
+---------------------------------------------
+; Game complete — Gem no longer appears
+
+JewelerDie {
     COP [Die]
 }
 

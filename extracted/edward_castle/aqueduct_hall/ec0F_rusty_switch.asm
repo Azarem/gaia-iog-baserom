@@ -1,4 +1,4 @@
-?INCLUDE 'table_0EE000'
+?INCLUDE 'spriteset_enemies'
 
 ---------------------------------------------
 
@@ -6,7 +6,7 @@ ec0F_rusty_switch [
   actor-def < #0F, #01, #03, {
 
   code_0A8974:
-    COP [SetMetasprite] ( @table_0EE000 )
+    COP [SetMetasprite] ( @spriteset_enemies )
 
   loc_0A8979:
     COP [SetEntryContinue]

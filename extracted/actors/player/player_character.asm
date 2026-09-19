@@ -45,7 +45,7 @@
 ?INCLUDE 'player_move_controller'
 ?INCLUDE 'shadow_shimmer'
 ?INCLUDE 'slope_ramp_physics'
-?INCLUDE 'table_17D000'
+?INCLUDE 'spriteset_will_projectile'
 
 !invincibilityTimer             040C
 !sceneCurrent                   0644
@@ -1835,7 +1835,7 @@ RangedSetForceY {
 ; North/West/East variants use matching sprite pairs and MoveX/MoveY directions.
 
 ProjectileSouth {
-    COP [SetMetasprite] ( @table_17D000 ) ; Projectile south: metasprite from table_17D000, initial sprite #00 + MoveY #09, then loop #04 + #0F
+    COP [SetMetasprite] ( @spriteset_will_projectile ) ; Projectile south: metasprite from table_17D000, initial sprite #00 + MoveY #09, then loop #04 + #0F
     COP [StageSpriteMoveY] ( #00, #09 )
     COP [AnimOnce]
 
@@ -1849,7 +1849,7 @@ ProjectileSouth {
 }
 
 ProjectileNorth {
-    COP [SetMetasprite] ( @table_17D000 ) ; Projectile north: initial #01 + MoveY #0A, loop #05 + #10
+    COP [SetMetasprite] ( @spriteset_will_projectile ) ; Projectile north: initial #01 + MoveY #0A, loop #05 + #10
     COP [StageSpriteMoveY] ( #01, #0A )
     COP [AnimOnce]
 
@@ -1863,7 +1863,7 @@ ProjectileNorth {
 }
 
 ProjectileWest {
-    COP [SetMetasprite] ( @table_17D000 ) ; Projectile west: initial #02 + MoveX #0A, loop #06 + #10
+    COP [SetMetasprite] ( @spriteset_will_projectile ) ; Projectile west: initial #02 + MoveX #0A, loop #06 + #10
     COP [StageSpriteMoveX] ( #02, #0A )
     COP [AnimOnce]
 
@@ -1877,7 +1877,7 @@ ProjectileWest {
 }
 
 ProjectileEast {
-    COP [SetMetasprite] ( @table_17D000 ) ; Projectile east: initial #03 + MoveX #09, loop #07 + #0F
+    COP [SetMetasprite] ( @spriteset_will_projectile ) ; Projectile east: initial #03 + MoveX #09, loop #07 + #0F
     COP [StageSpriteMoveX] ( #03, #09 )
     COP [AnimOnce]
 

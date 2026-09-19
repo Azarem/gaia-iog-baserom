@@ -4,7 +4,7 @@
 ---------------------------------------------
 
 ?INCLUDE 'interaction_handlers'
-?INCLUDE 'table_0EE000'
+?INCLUDE 'spriteset_enemies'
 
 !playerMaxHp                    0ACA
 !playerHp                       0ACE
@@ -13,7 +13,7 @@
 ---------------------------------------------
 
 SpawnDarkGemType1 {
-    COP [SetMetasprite] ( @table_0EE000 ) ; SpawnDarkGemType1: attach collect_handler_gem, animate chatPtr gem $83
+    COP [SetMetasprite] ( @spriteset_enemies ) ; SpawnDarkGemType1: attach collect_handler_gem, animate chatPtr gem $83
     COP [SetSpritePalette] ( #00 )
     COP [SpawnMarkedAfter] ( @interaction_handlers.collect_handler_gem, #$2700 )
 
@@ -30,7 +30,7 @@ SpawnDarkGemType1 {
 }
 
 DarkGemDropAnimVariantB {
-    COP [SetMetasprite] ( @table_0EE000 )
+    COP [SetMetasprite] ( @spriteset_enemies )
     COP [SetSpritePalette] ( #00 )
     COP [SpawnMarkedAfter] ( @interaction_handlers.collect_handler_gem, #$2700 )
 
@@ -47,7 +47,7 @@ DarkGemDropAnimVariantB {
 }
 
 DarkGemDropTierPicker {
-    COP [SetMetasprite] ( @table_0EE000 ) ; DarkGemDropTierPicker: compare playerHp vs maxHp/4 and maxHp/2 for tier
+    COP [SetMetasprite] ( @spriteset_enemies ) ; DarkGemDropTierPicker: compare playerHp vs maxHp/4 and maxHp/2 for tier
     COP [SetSpritePalette] ( #00 )
     COP [SpawnMarkedAfter] ( @interaction_handlers.collect_handler_gem, #$2700 )
     LDA $playerMaxHp

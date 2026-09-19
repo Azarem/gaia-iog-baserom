@@ -1,4 +1,4 @@
-?INCLUDE 'table_0EE000'
+?INCLUDE 'spriteset_enemies'
 
 !joypadMaskStd                  065A
 !playerActor                    09AA
@@ -28,7 +28,7 @@ code_07B68B {
     LDA #$EFF0
     TSB $joypadMaskStd
     COP [PrintDialogString] ( &dialogstring_07B6FF )
-    COP [SetMetasprite] ( @table_0EE000 )
+    COP [SetMetasprite] ( @spriteset_enemies )
     COP [StageSpriteLoopMoveX] ( #33, #04, #03 )
     COP [AnimLoop]
     COP [StageSpriteLoopMoveX] ( #33, #04, #01 )

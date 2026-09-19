@@ -2,7 +2,7 @@
 ?INCLUDE 'interaction_handlers'
 ?INCLUDE 'oneshot_palette_flash_1B'
 ?INCLUDE 'oneshot_palette_flash_1C'
-?INCLUDE 'table_0EE000'
+?INCLUDE 'spriteset_enemies'
 
 !joypadMaskStd                  065A
 !displayModeFlags               09EC
@@ -112,7 +112,7 @@ code_04D30E {
 code_04D310 {
     LDA #$0200
     TSB $12
-    COP [SetMetasprite] ( @table_0EE000 )
+    COP [SetMetasprite] ( @spriteset_enemies )
     COP [SetOnInteract] ( &code_04D329 )
     COP [StageSpriteFrame] ( #00 )
     COP [AnimOnce]
@@ -162,7 +162,7 @@ code_04D36F {
 dialogstring_04D37A `[DLG:3,11][SIZ:D,3]Will tastes some of[N]the bread.[FIN]The bread is hard.[N]It's the worst thing[N]he's ever tasted.[FIN]For some reason, he[N]really misses Grandma[N]Lola's creative cuisine...[END]`
 
 code_04D408 {
-    COP [SetMetasprite] ( @table_0EE000 )
+    COP [SetMetasprite] ( @spriteset_enemies )
     LDA #$0085
     STA $chatPtr, X
     COP [StageSpriteMoveY] ( #06, #07 )

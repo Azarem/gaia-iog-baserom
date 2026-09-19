@@ -1,9 +1,9 @@
 ?INCLUDE 'cop_handlers_flags'
 ?INCLUDE 'field_reveal_object'
-?INCLUDE 'sg_actors_0ADA52'
+?INCLUDE 'sg_bird_flight_patterns'
 ?INCLUDE 'SpawnFieldRevealEffect'
+?INCLUDE 'spriteset_enemies'
 ?INCLUDE 'StandardEnemyDefeatHandler'
-?INCLUDE 'table_0EE000'
 
 !orbitAngle                     7F0010
 !deathActionIdx                 7F0024
@@ -153,7 +153,7 @@ code_0BC697 {
     STA $08
     COP [SetEntryExit]
     COP [LoopNext]
-    COP [SpawnAfterRelFlags] ( @sg_actors_0ADA52.code_0ADAB5, #$000A, #$FFF6, #$2200 )
+    COP [SpawnAfterRelFlags] ( @sg_bird_flight_patterns.code_0ADAB5, #$000A, #$FFF6, #$2200 )
     COP [SetEntryExit]
     COP [RestoreSavedPtr]
 }
@@ -166,7 +166,7 @@ code_0BC6BF {
     STA $08
     COP [SetEntryExit]
     COP [LoopNext]
-    COP [SpawnAfterRelFlags] ( @sg_actors_0ADA52.code_0ADAA0, #$FFF6, #$FFF6, #$2200 )
+    COP [SpawnAfterRelFlags] ( @sg_bird_flight_patterns.code_0ADAA0, #$FFF6, #$FFF6, #$2200 )
     COP [SetEntryExit]
     COP [RestoreSavedPtr]
 }
@@ -188,7 +188,7 @@ code_0BC6E7 {
 }
 
 code_0BC70D {
-    COP [SetMetasprite] ( @table_0EE000 )
+    COP [SetMetasprite] ( @spriteset_enemies )
     COP [RngByte]
     AND #$0007
     SEC 

@@ -14,7 +14,7 @@ dm40_hidden_dark_space [
 ]
 
 code_05D62D {
-    COP [SpawnAfterFlags] ( @dark_space.code_08D6B5, #$2B00 )
+    COP [SpawnAfterFlags] ( @dark_space.DarkSpacePortalInit, #$2B00 )
     LDA #$0001
     STA $0024, Y
     LDA #$2000

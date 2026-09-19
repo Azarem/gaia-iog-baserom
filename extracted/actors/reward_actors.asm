@@ -4,7 +4,7 @@
 ---------------------------------------------
 
 ?INCLUDE 'cop_handlers_flags'
-?INCLUDE 'table_0EE000'
+?INCLUDE 'spriteset_enemies'
 
 !sceneCurrent                   0644
 !playerActor                    09AA
@@ -20,7 +20,7 @@
 ---------------------------------------------
 
 e_hp_increase {
-    COP [SetMetasprite] ( @table_0EE000 )
+    COP [SetMetasprite] ( @spriteset_enemies )
     COP [SetSpritePalette] ( #00 )
     COP [StageSprAndHitbox] ( #0C )
     COP [CallScript] ( &RewardActorVFX )
@@ -42,7 +42,7 @@ e_hp_increase {
 dialogstring_00E058 `[DEF][DLY:1][SFX:0]Your HP (Power) [N]has increased! [END]`
 
 e_str_increase {
-    COP [SetMetasprite] ( @table_0EE000 )
+    COP [SetMetasprite] ( @spriteset_enemies )
     COP [SetSpritePalette] ( #00 )
     COP [StageSprAndHitbox] ( #0D )
     COP [CallScript] ( &RewardActorVFX )
@@ -61,7 +61,7 @@ e_str_increase {
 dialogstring_00E09F `[DEF][DLY:1][SFX:0]Your STR (Strength) [N]has increased! [END]`
 
 e_def_increase {
-    COP [SetMetasprite] ( @table_0EE000 )
+    COP [SetMetasprite] ( @spriteset_enemies )
     COP [SetSpritePalette] ( #00 )
     COP [StageSprAndHitbox] ( #0E )
     COP [CallScript] ( &RewardActorVFX )

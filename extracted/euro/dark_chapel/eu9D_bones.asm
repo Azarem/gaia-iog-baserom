@@ -1,4 +1,4 @@
-?INCLUDE 'table_0EDA00'
+?INCLUDE 'spriteset_npc_props'
 
 ---------------------------------------------
 
@@ -8,7 +8,7 @@ eu9D_bones [
   code_07D23A:
     LDA #$0200
     TSB $12
-    COP [SetMetasprite] ( @table_0EDA00 )
+    COP [SetMetasprite] ( @spriteset_npc_props )
     COP [StageSpriteFrame] ( #02 )
     COP [AnimOnce]
     COP [SolidHighHere]

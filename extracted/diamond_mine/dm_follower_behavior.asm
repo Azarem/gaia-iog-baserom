@@ -1,5 +1,5 @@
 ?INCLUDE 'smooth_follow'
-?INCLUDE 'table_0EE000'
+?INCLUDE 'spriteset_enemies'
 
 !playerActor                    09AA
 !chatPtr                        7F000A
@@ -97,7 +97,7 @@ dm_func_0ADB6B {
 }
 
 code_0ADC25 {
-    COP [SetMetasprite] ( @table_0EE000 )
+    COP [SetMetasprite] ( @spriteset_enemies )
     COP [SpawnLastRel] ( @code_0ADC45, #00, #00, #$0202 )
     COP [PlaySoundCh1] ( #1E )
     LDA #$0080

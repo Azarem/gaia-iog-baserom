@@ -1,7 +1,7 @@
 ?INCLUDE 'EnemyDeathFlash'
 ?INCLUDE 'sg4D_dynapede'
+?INCLUDE 'spriteset_enemies'
 ?INCLUDE 'StandardEnemyDefeatHandler'
-?INCLUDE 'table_0EE000'
 
 !cameraTargetY                  06C2
 !orbitAngle                     7F0010
@@ -523,7 +523,7 @@ code_0ACC74 {
     TRB $10
     COP [PlaySoundCh1] ( #06 )
     COP [SetSpritePalette] ( #00 )
-    COP [SetMetasprite] ( @table_0EE000 )
+    COP [SetMetasprite] ( @spriteset_enemies )
     COP [StageSpriteFrame] ( #01 )
     COP [AnimOnce]
     COP [Die]
@@ -531,7 +531,7 @@ code_0ACC74 {
 
 code_0ACCC2 {
     COP [BranchIfSolid] ( &code_0ACCD2 )
-    COP [SetMetasprite] ( @table_0EE000 )
+    COP [SetMetasprite] ( @spriteset_enemies )
 
   loc_0ACCCB:
     COP [StageSpriteFrame] ( #31 )

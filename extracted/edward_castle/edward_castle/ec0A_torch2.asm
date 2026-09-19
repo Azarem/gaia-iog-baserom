@@ -1,4 +1,4 @@
-?INCLUDE 'table_0EDA00'
+?INCLUDE 'spriteset_npc_props'
 
 ---------------------------------------------
 
@@ -8,7 +8,7 @@ ec0A_torch2 [
   code_04BFBD:
     COP [BranchIfFlagByte] ( #21, #00, &code_04BFE2 )
     COP [AddPosition] ( #FE, #03 )
-    COP [SetMetasprite] ( @table_0EDA00 )
+    COP [SetMetasprite] ( @spriteset_npc_props )
     COP [StageSprAndHitbox] ( #06 )
     COP [RngByte]
     AND #$0007

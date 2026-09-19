@@ -2,7 +2,7 @@
 
 ?INCLUDE 'ec11_countdown'
 ?INCLUDE 'enemy_stats_table'
-?INCLUDE 'table_0EE000'
+?INCLUDE 'spriteset_enemies'
 
 !statsPtr                       7F0020
 !currentHp                      7F0026
@@ -17,7 +17,7 @@ ec11_button_voice [
     STA $statsPtr, X
     LDA #$0031
     TSB $12
-    COP [SetMetasprite] ( @table_0EE000 )
+    COP [SetMetasprite] ( @spriteset_enemies )
     COP [StageSpriteFrame] ( #0F )
     COP [AnimOnce]
     COP [SolidHighHere]

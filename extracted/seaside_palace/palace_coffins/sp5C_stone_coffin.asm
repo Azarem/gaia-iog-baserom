@@ -1,5 +1,5 @@
 ?INCLUDE 'music_actors'
-?INCLUDE 'table_0EE000'
+?INCLUDE 'spriteset_enemies'
 
 !joypadMaskStd                  065A
 !playerActor                    09AA
@@ -24,7 +24,7 @@ sp5C_stone_coffin [
     TSB $joypadMaskStd
     LDA #$2000
     TRB $10
-    COP [SetMetasprite] ( @table_0EE000 )
+    COP [SetMetasprite] ( @spriteset_enemies )
     LDY $playerActor
     LDA $0014, Y
     STA $14

@@ -6,7 +6,7 @@
 ; 
 ; The hardware math pipeline uses three chained helpers: MultiplyThenDivide feeds WRMPYB → RDMPYL → WRDIVL → RDDIVL for per-frame velocity, with ReadMultiplyResult (1 NOP) and ReadDivideResult (5 NOPs) providing the required hardware latency delays. MovementVelocityCompute wraps this pipeline for TickMove's per-axis calculations.
 ; 
-; SnapToGrid yields to func_0AA3A7 until the actor aligns to the 16×16 tile grid. ResumeAfterSnap restores the script pointer from snapResumePtr.
+; SnapToGrid yields to EnemyPositionSnap until the actor aligns to the 16×16 tile grid. ResumeAfterSnap restores the script pointer from snapResumePtr.
 ; 
 ; StageMove/TickMove implement frame-counted movement with sub-pixel precision. StageMove reads direction, speed, and frame delay operands, halving distance via HalveMovementDistance when the high byte is non-zero. TickMove advances each frame; TickMoveComplete handles halving-pass re-entry or final cleanup.
 ; 
@@ -345,7 +345,7 @@ InitSmoothMovement {
 }
 
 ---------------------------------------------
-; COP #43 with no operands. If the actor is not 16×16 tile-aligned ((X−8)|Y & $0F ≠ 0), saves snapResumePtr/$7F101A and yields RTI into func_0AA3A7; otherwise continues immediately.
+; COP #43 with no operands. If the actor is not 16×16 tile-aligned ((X−8)|Y & $0F ≠ 0), saves snapResumePtr/$7F101A and yields RTI into EnemyPositionSnap; otherwise continues immediately.
 
 SnapToGrid {
     TYX 
@@ -361,7 +361,7 @@ SnapToGrid {
     STA $snapResumePtr, X
     LDA $02
     STA $7F101A, X        ; Save bank byte for post-snap restoration
-    LDA #$&EnemyPositionSnap ; Yield to func_0AA3A7 snap helper; resume via snapResumePtr
+    LDA #$&EnemyPositionSnap ; Yield to EnemyPositionSnap snap helper; resume via snapResumePtr
     STA $02, S
     SEP #$20
     LDA #$^EnemyPositionSnap

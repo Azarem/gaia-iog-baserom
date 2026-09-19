@@ -3,8 +3,8 @@
 ?INCLUDE 'field_reveal_object'
 ?INCLUDE 'smooth_follow_child'
 ?INCLUDE 'SpawnFieldRevealEffect'
+?INCLUDE 'spriteset_enemies'
 ?INCLUDE 'StandardEnemyDefeatHandler'
-?INCLUDE 'table_0EE000'
 
 !playerActor                    09AA
 !orbitAngle                     7F0010
@@ -218,7 +218,7 @@ code_0BBD02 {
 code_0BBD19 {
     COP [PlaySoundCh1] ( #1E )
     COP [OrActorFlags] ( #$0010 )
-    COP [SetMetasprite] ( @table_0EE000 )
+    COP [SetMetasprite] ( @spriteset_enemies )
     COP [StageSpriteFrame] ( #03 )
     COP [AnimOnce]
     LDA $playerActor

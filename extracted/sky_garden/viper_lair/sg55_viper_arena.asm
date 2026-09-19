@@ -1,4 +1,4 @@
-?INCLUDE 'gs2B_actor_058027'
+?INCLUDE 'gs2B_wreck_wave_motion'
 ?INCLUDE 'visual_effect_pipeline'
 
 !bg1ScrollH                     068A
@@ -31,7 +31,7 @@ sg55_viper_arena {
 }
 
 code_0AD034 {
-    COP [SpawnAfterFlags] ( @gs2B_actor_058027.code_05F859, #$2B00 )
+    COP [SpawnAfterFlags] ( @gs2B_wreck_wave_motion.code_05F859, #$2B00 )
     COP [LoopInit] ( #04 )
     COP [RngByte]
     COP [SpawnAfterFlags] ( @code_0AD07A, #$0B01 )

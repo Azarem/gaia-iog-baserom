@@ -7,16 +7,16 @@
 ; === ACTOR ARCHITECTURE ===
 ; 
 ; The main actor-def spawns three child actors:
-; - code_08F687: Firefly particle spawner (ambient VFX loop)
+; - FireflySpawnerLoop: Firefly particle spawner (ambient VFX loop)
 ; - GaiaNpcSprite: Gaia NPC sprite (single idle frame)
-; - code_09A096: Gaia voice sparkle reactor (responds to SFX activity)
+; - GaiaVoiceSparkle: Gaia voice sparkle reactor (responds to SFX activity)
 ; 
 ; After spawning, SwitchCase on $0AB2 (Dark Space layout variant, capped at 3) dispatches to
 ; one of four room layouts:
-; - Case 0 (code_08D856): Basic Dark Space — Gaia statue only
-; - Case 1 (code_08D87C): Form-dependent — adds transformation statue(s)
-; - Case 2 (code_08D9CC): Ability acquisition — scene-based ability orb
-; - Case 3 (code_08DA7D): Special — redirects to case 1 with $0AAC=1
+; - Case 0 (DS_LayoutBasic): Basic Dark Space — Gaia statue only
+; - Case 1 (DS_LayoutTransform): Form-dependent — adds transformation statue(s)
+; - Case 2 (DS_LayoutAbility): Ability acquisition — scene-based ability orb
+; - Case 3 (DS_LayoutSpecial): Special — redirects to case 1 with $0AAC=1
 ; 
 ; === DARK SPACE EXIT ($0B08–$0B12) ===
 ; 
@@ -63,7 +63,7 @@
 ?INCLUDE 'player_character'
 ?INCLUDE 'save_system'
 ?INCLUDE 'shadow_shimmer'
-?INCLUDE 'table_0EE000'
+?INCLUDE 'spriteset_enemies'
 
 !sceneNext                      0642
 !gfxCacheIdxA                   0648
@@ -113,6 +113,10 @@ code_list_08D7E2 [
 ]
 ---------------------------------------------
 
+; Dark Space exit — masks input, plays dissolve animation, loads return scene from $0B08–$0B12.
+; Converts stored tile positions to pixel coordinates (×16) for camera placement.
+; Uses mosaic transition (gfxCacheIdxA=$0002) with brightness fade ($0101).
+
 DarkSpaceExit {
     LDA #$FFF0            ; Mask all joypad input
     TSB $joypadMaskStd
@@ -127,7 +131,7 @@ DarkSpaceExit {
     COP [PlaySoundBoth] ( #$0C0C ) ; Dissolve SFX on both channels
     LDA #$2000            ; Show this actor's sprite
     TRB $10
-    COP [SetMetasprite] ( @table_0EE000 ) ; Transformation spriteset
+    COP [SetMetasprite] ( @spriteset_enemies ) ; Transformation spriteset
     COP [StageSpriteFrame] ( #1C ) ; Exit dissolve frame
     COP [AnimOnce]
     COP [WaitByte] ( #1D ) ; Wait 29 frames for dissolve
@@ -160,6 +164,11 @@ DarkSpaceExit {
     RTL 
 }
 
+---------------------------------------------
+; Layout 0: Basic Dark Space — Gaia statue only (no transformation statues).
+; Checks two tile regions: center statue (7,8)-(9,9) for Gaia interaction,
+; and exit zone (5,D)-(B,F) to leave Dark Space.
+
 DS_LayoutBasic {
     COP [SetEntryContinue]
     COP [BranchIfPlayerInAbsTiles] ( #07, #08, #09, #09, &DS_BasicWait ) ; At Gaia statue → wait
@@ -181,6 +190,11 @@ DS_BasicTalkGaia {
     BRA DS_LayoutBasic
 }
 
+---------------------------------------------
+; Layout 1: Transformation Dark Space — dispatches to form-specific room with statue(s).
+; Sub-dispatches on characterForm: 0=Will, 1=Freedan, 2=Shadow.
+; Each sub-case applies BG changes to show/hide the appropriate transformation statues.
+
 DS_LayoutTransform {
     LDA $characterForm    ; Current character form
     STA $0000
@@ -192,6 +206,10 @@ code_list_08D888 [
   &DS_FreedanTransformRoom   ;01
   &DS_ShadowTransformRoom   ;02
 ]
+
+---------------------------------------------
+; Will's transformation room — shows both Freedan and Shadow statues (if flag $B4 set).
+; Three interaction zones: center Gaia (7,8)-(9,9), left statue (3,A)-(5,B), right statue (B,A)-(D,B).
 
 DS_WillTransformRoom {
     COP [StageBgChange] ( #88 )
@@ -240,6 +258,9 @@ DS_WillToShadow {
     BRA DS_WillInputWait
 }
 
+---------------------------------------------
+; Freedan's transformation room — shows Will revert and Shadow statues (if flag $B4 set).
+
 DS_FreedanTransformRoom {
     COP [StageBgChange] ( #87 )
     COP [ApplyBgChange]
@@ -287,6 +308,10 @@ DS_FreedanToShadow {
     BRA DS_FreedanInputWait
 }
 
+---------------------------------------------
+; Shadow's transformation room — shows Will revert and Freedan statues.
+; All BG changes applied unconditionally (Shadow always has access to both).
+
 DS_ShadowTransformRoom {
     COP [StageBgChange] ( #87 )
     COP [ApplyBgChange]
@@ -331,6 +356,11 @@ DS_ShadowToFreedan {
     COP [CallScript] ( &FreedanTransformDialogue )
     BRA loc_08D97A
 }
+
+---------------------------------------------
+; Layout 2: Ability acquisition Dark Space — looks up current scene in AbilitySceneTable to determine
+; which ability orb to spawn and which statue type (Will/Freedan vs Shadow) to display.
+; High nibble of lookup byte selects statue BG (0 = Will/Freedan #86, else = Shadow #8B).
 
 DS_LayoutAbility {
     COP [StageBgChange] ( #8A )
@@ -415,11 +445,18 @@ DS_AbilityTalkGaia {
     BRA loc_08DA45
 }
 
+---------------------------------------------
+; Layout 3: Special Dark Space — forces $0AAC=1 and redirects to layout 1 (transformation room).
+
 DS_LayoutSpecial {
     LDA #$0001            ; Force selection state to 1
     STA $0AAC
     JMP $&DS_LayoutTransform ; Redirect to form-dependent layout
 }
+
+---------------------------------------------
+; Alternate ability room layout — Shadow statue plus Aura item interaction actor.
+; Spawns AuraItemInteraction (Aura item handler) at position ($C0, $78).
 
 DS_AuraItemRoom {
     COP [StageBgChange] ( #8B )
@@ -466,6 +503,11 @@ DS_AuraToShadow {
     BRA loc_08DAB4
 }
 
+---------------------------------------------
+; Gaia dialogue entry — first-visit intro (flag $DC), HP healing, then location-specific hint.
+; After the intro, heals player via damageFlashTimer loop, then looks up the current scene
+; in GaiaHintSceneTable to dispatch to one of 34 hint entries (GaiaHint_00–GaiaHint_TempShape).
+
 GaiaDialogueEntry {
     LDA #$FFF0            ; Brief input mask
     TSB $joypadMaskStd
@@ -479,6 +521,11 @@ GaiaDialogueEntry {
     COP [SetFlagByte] ( #DC ) ; Mark first encounter
     COP [PrintDialogString] ( &dialogstring_08DD0B ) ; "I am Gaia..." intro
 }
+
+---------------------------------------------
+; HP healing and location-specific hint dispatch.
+; If HP < max, shows healing dialogue and loops damageFlashTimer until full.
+; Then searches GaiaHintSceneTable for the current scene to dispatch a location hint.
 
 GaiaHealAndHints {
     LDA $playerHp
@@ -571,6 +618,9 @@ code_list_08DBAB [
   &GaiaDontRecord   ;02
 ]
 
+---------------------------------------------
+; "Record" option selected — save to SRAM and ask continue/rest.
+
 GaiaSaveConfirm {
     LDA $0D8C             ; Current save slot number
     JSL $@save_system.SaveGameState_Scene ; Write event flags to SRAM
@@ -590,6 +640,9 @@ code_list_08DBD4 [
   &GaiaContinueJourney   ;02
 ]
 
+---------------------------------------------
+; "Don't record" or "No" (stay) — "Then go." Re-enables NPC interaction and returns.
+
 GaiaDontRecord {
     COP [PrintDialogString] ( &dialogstring_08DE43 ) ; "Then go."
     LDY $06
@@ -597,6 +650,10 @@ GaiaDontRecord {
     STA $0024, Y
     COP [RestoreSavedPtr]
 }
+
+---------------------------------------------
+; "Yes" (continue journey) — plays rest dissolve animation and fades to Dark Space music.
+; Re-enables NPC interaction, hides player, shows dissolve sprite, then loops with music fade.
 
 GaiaContinueJourney {
     COP [PrintDialogString] ( &dialogstring_08DE32 ) ; "Then rest a while."
@@ -613,7 +670,7 @@ GaiaContinueJourney {
     STA $14
     LDA $0016, Y
     STA $16
-    COP [SetMetasprite] ( @table_0EE000 ) ; Transformation spriteset
+    COP [SetMetasprite] ( @spriteset_enemies ) ; Transformation spriteset
     LDA #$2000            ; Show this actor's sprite
     TRB $10
     COP [StageSpriteFrame] ( #1C ) ; Rest/dissolve frame
@@ -875,6 +932,10 @@ dialogstring_08E853 `[DEF][CLR]The comet draws near.[N]The time for your last[N]
 dialogstring_08E98A `[PRT:@dialogstring_08DE96]Your shape is only[N]temporary. Try standing[N]in front of the statue[N]next to you.[FIN]`
 ---------------------------------------------
 
+; Ability orb actor — spawned near a transformation statue. Searches AbilitySceneTable for
+; the current scene's ability. If already acquired (abilityBitmask match), dies immediately.
+; Otherwise displays the orb sprite and waits for player to approach the statue.
+
 AbilityOrbActor {
     PHX 
     LDX #$0000
@@ -913,6 +974,10 @@ AbilityOrbActor {
     COP [BranchIfPlayerInAbsTiles] ( #03, #0A, #05, #0B, &AbilityAcquisitionDispatch )
     RTL 
 }
+
+---------------------------------------------
+; Ability acquisition — player reached the statue. Checks statue type and dispatches
+; form-specific transformation. LookupStatueType returns 0 for Will/Freedan statue, 1 for Shadow.
 
 AbilityAcquisitionDispatch {
     LDA #$FFF0            ; Mask input
@@ -1033,6 +1098,10 @@ AbilityAcquisitionDispatch {
 }
 ---------------------------------------------
 
+; Scene→statue type lookup — searches AbilitySceneTable for current scene, returns high nibble
+; of the flags byte. Returns 0 for Will/Freedan statue, nonzero for Shadow statue.
+; Returns SEC if scene not found in table.
+
 LookupStatueType {
     PHX 
     LDX #$0000
@@ -1117,6 +1186,10 @@ dialogstring_08EDF2 `The Aura Barrier is a [N]Dark Power that can only [N]be use
 
 dialogstring_08EE8B `The Earthquaker is a[N]Dark Power that can only[N]be used by Freedan,[N]the Dark Knight.[FIN]This causes earthquakes.[N]The enemy won't be able[N]to move for a long time.[FIN]Push the Attack Button [N]when jumping down. `
 ---------------------------------------------
+
+; Aura item interaction actor — spawned at the Shadow transformation statue.
+; If player doesn't have Aura (item #24), offers it. If inventory full, shows error.
+; After acquiring Aura, plays SFX music and shows description text.
 
 AuraItemInteraction {
     COP [BranchIfNoItem] ( #24, &AuraItemDie ) ; Already have Aura? → die
@@ -1207,6 +1280,10 @@ dialogstring_08F003 `[DEF][CLR][DLY:2]Only Shadow can use[N]the Aura.[FIN]When y
 
 dialogstring_08F060 `[DEF]Your inventory is full. [N]Store things somewhere [N]and return here. [END]`
 
+---------------------------------------------
+; Freedan transformation dialogue — checks form, shows first-visit lore (flag $F7),
+; then sets player entry to the appropriate transformation handler.
+
 FreedanTransformDialogue {
     LDA $characterForm
     CMP #$0001            ; Already Freedan?
@@ -1290,6 +1367,9 @@ dialogstring_08F155 `[CLD]`
 dialogstring_08F157 `[TPL:B][CLR][TPL:0]Will hears a voice [N]in his head. [FIN][TPL:4]Will. [N]I've been waiting a long [N]time for you to come. [FIN]I am Freedan.[N]I am eternal.[FIN]Let me help you on [N]your journey. As time [N]goes by, you'll come to [N]understand my nature.... [FIN][PAL:0]Will gradually loses [N]consciousness... [N][END]`
 ---------------------------------------------
 
+; Will → Freedan transformation (standing animation).
+; Uses spriteset #05 (transformation frames). Spawns PaletteResetAndKillThinker for color transition.
+
 Transform_WillToFreedan {
     COP [SetPlayerBodySprite] ( #05 )
     COP [StageSpriteFrame] ( #00 )
@@ -1313,6 +1393,8 @@ Transform_WillToFreedan {
 }
 ---------------------------------------------
 
+; Will → Freedan transformation (alternate animation — single-frame sequence).
+
 Transform_WillToFreedanAlt {
     COP [SetPlayerBodySprite] ( #05 )
     COP [StageSpriteFrame] ( #01 )
@@ -1335,6 +1417,8 @@ Transform_WillToFreedanAlt {
     RTL 
 }
 ---------------------------------------------
+
+; Shadow → Freedan transformation. Uses SetEntryExit to mark exit after palette reset.
 
 Transform_ShadowToFreedan {
     COP [SetPlayerBodySprite] ( #05 )
@@ -1361,6 +1445,9 @@ Transform_ShadowToFreedan {
     RTL 
 }
 ---------------------------------------------
+
+; Revert to Will dialogue — "Return to young Will?" yes/no prompt.
+; If already Will (form 0), immediately returns via RestoreSavedPtr.
 
 WillRevertDialogue {
     LDA $characterForm    ; Already Will?
@@ -1426,6 +1513,8 @@ dialogstring_08F357 `[TPL:B]Return to young Will? [N] Yes [N] No `
 dialogstring_08F37B `[CLD]`
 ---------------------------------------------
 
+; Freedan → Will revert animation. Plays reverse of Will→Freedan sequence.
+
 Transform_FreedanToWill {
     COP [SetPlayerBodySprite] ( #05 )
     COP [StageSpriteFrame] ( #06 )
@@ -1448,6 +1537,8 @@ Transform_FreedanToWill {
     RTL 
 }
 ---------------------------------------------
+
+; Shadow → Will revert animation. Plays Shadow dissolve, then Freedan reverse, back to Will.
 
 Transform_ShadowToWill {
     COP [SetPlayerBodySprite] ( #05 )
@@ -1473,6 +1564,10 @@ Transform_ShadowToWill {
     RTL 
 }
 ---------------------------------------------
+
+; Shadow transformation dialogue — requires flag $B4 (unlocked at Ankor Wat).
+; First visit shows lore text (flag $DD). Subsequent visits offer yes/no prompt.
+; If already Shadow (form 2), immediately returns.
 
 ShadowTransformDialogue {
     COP [BranchIfFlagByte] ( #B4, #00, &ShadowTransformLocked ) ; Flag $B4 not set → Shadow locked
@@ -1553,6 +1648,8 @@ dialogstring_08F4AF `[CLD]`
 dialogstring_08F4B1 `[TPL:B]A voice echoes inside[N]his head.[FIN][TPL:4]I've been waiting for[N]you to come.[FIN]I am made from the light[N]of a comet. The ultimate[N]warrior, Shadow.[FIN]My body has no shape.[N]This body appears only[N]when the human[N]consciousness evolves.[FIN]The comet that now [N]approaches Earth is [N]also a consciousness [N]without form. [FIN]My body is the only[N]thing that can confront[N]the comet and[N]bring it to an end.[FIN]Well, close your eyes...[PAL:0][END]`
 ---------------------------------------------
 
+; Will → Shadow transformation. Spawns ShadowShimmerInit for the visual shimmer effect.
+
 Transform_WillToShadow {
     COP [SetPlayerBodySprite] ( #05 )
     COP [StageSpriteFrame] ( #00 )
@@ -1578,6 +1675,8 @@ Transform_WillToShadow {
     RTL 
 }
 ---------------------------------------------
+
+; Freedan → Shadow transformation. Same shimmer effect as Will→Shadow.
 
 Transform_FreedanToShadow {
     COP [SetPlayerBodySprite] ( #05 )
@@ -1605,6 +1704,8 @@ Transform_FreedanToShadow {
 }
 ---------------------------------------------
 
+; Dark Space ambient particle — sets display-filtered flag for background rendering.
+
 DarkSpaceAmbientParticle [
   actor-def < #02, #00, #28, {
 
@@ -1613,6 +1714,10 @@ DarkSpaceAmbientParticle [
     TSB $12
 } >
 ]
+
+---------------------------------------------
+; Firefly spawner loop — continuously spawns individual firefly particles with random timing.
+; RNG byte × 8 → variable delay between spawns. Loops indefinitely.
 
 FireflySpawnerLoop {
     COP [SetEntryExit]
@@ -1626,10 +1731,14 @@ FireflySpawnerLoop {
     BRA FireflySpawnerLoop ; Loop forever
 }
 
+---------------------------------------------
+; Individual firefly particle — random X position, drifts upward with slight horizontal movement.
+; Dies when Y exceeds $FF (off screen top).
+
 FireflyParticle {
     LDA #$1000            ; Display-filtered
     TSB $12
-    COP [SetMetasprite] ( @table_0EE000 )
+    COP [SetMetasprite] ( @spriteset_enemies )
     COP [StageSprAndHitbox] ( #02 ) ; Firefly sprite
     LDA #$0000            ; Start at Y=0
     STA $16
@@ -1655,9 +1764,8 @@ FireflyParticle {
 }
 ---------------------------------------------
 
-; Local copy of stair_climb.RestorePlayerControl for the dark space system.
-; 
-; Restores normal player locomotion after a dark space interaction. Resets the player actor entry pointer to PlayerIdleEntry, clears velocity scratch at $002C/$002E/$0008, adjusts status word $0010 (clears $0200, sets $0008), unmasks joypad ($0F00), and clears playerFlags $0800.
+; Restore player control after transformation — resets entry point to PlayerIdleEntry,
+; clears movement overrides, restores grounded state, unmasks joypad, clears ability-active flag.
 
 DarkSpaceRestoreControl {
     PHX 
@@ -1683,11 +1791,17 @@ DarkSpaceRestoreControl {
 }
 ---------------------------------------------
 
+; Gaia NPC idle sprite — single animation frame, runs once and returns.
+
 GaiaNpcSprite {
     COP [StageSpriteFrame] ( #00 )
     COP [AnimOnce]
     RTL 
 }
+
+---------------------------------------------
+; Gaia voice sparkle reactor — monitors sfxQueueCh1 and plays random sprite frames
+; when sound effects are active. Creates a visual "speaking" effect synced to audio.
 
 GaiaVoiceSparkle {
     COP [StageSprAndHitbox] ( #01 ) ; Sparkle sprite

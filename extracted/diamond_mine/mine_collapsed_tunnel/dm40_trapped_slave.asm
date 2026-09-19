@@ -1,6 +1,6 @@
 ?INCLUDE 'enemy_stats_table'
 ?INCLUDE 'SpawnDebrisBurst'
-?INCLUDE 'table_0EE000'
+?INCLUDE 'spriteset_enemies'
 
 !joypadMaskStd                  065A
 !playerFlags                    09AE
@@ -18,7 +18,7 @@ dm40_trapped_slave [
     COP [BranchIfFlagByte] ( #D9, #01, &code_05D796 )
     COP [SpawnAfterFlags] ( @code_05D7CB, #$1000 )
     COP [AddPosition] ( #08, #08 )
-    COP [SetMetasprite] ( @table_0EE000 )
+    COP [SetMetasprite] ( @spriteset_enemies )
     COP [StageSpriteFrame] ( #00 )
     COP [AnimOnce]
     LDA #$&enemy_stats_table+118

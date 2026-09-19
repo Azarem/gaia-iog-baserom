@@ -1,5 +1,5 @@
 ?INCLUDE 'sE6_gaia'
-?INCLUDE 'table_0EDA00'
+?INCLUDE 'spriteset_npc_props'
 
 !joypadMaskStd                  065A
 !musicParentActor               06F2
@@ -186,7 +186,7 @@ code_08B9EC {
     LDA #$2000
     TRB $10
     COP [SetTilePos] ( #09, #0B )
-    COP [SetMetasprite] ( @table_0EDA00 )
+    COP [SetMetasprite] ( @spriteset_npc_props )
     COP [StageSpriteFrame] ( #02 )
     COP [AnimOnce]
     COP [SolidHighHere]

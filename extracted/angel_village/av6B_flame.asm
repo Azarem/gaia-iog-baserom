@@ -1,4 +1,4 @@
-?INCLUDE 'table_0EDA00'
+?INCLUDE 'spriteset_npc_props'
 
 ---------------------------------------------
 
@@ -7,7 +7,7 @@ av6B_flame [
 
   code_06D55E:
     COP [AddPosition] ( #09, #03 )
-    COP [SetMetasprite] ( @table_0EDA00 )
+    COP [SetMetasprite] ( @spriteset_npc_props )
     COP [SetEntryContinue]
     COP [StageSpriteFrame] ( #06 )
     COP [AnimOnce]

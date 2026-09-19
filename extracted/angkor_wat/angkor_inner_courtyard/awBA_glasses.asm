@@ -1,5 +1,5 @@
 ?INCLUDE 'f_inventory_full'
-?INCLUDE 'table_0EE000'
+?INCLUDE 'spriteset_enemies'
 
 !displayModeFlags               09EC
 
@@ -12,7 +12,7 @@ awBA_glasses [
     COP [BranchIfFlagByte] ( #BA, #01, &code_089FB5 )
     LDA #$0200
     TSB $12
-    COP [SetMetasprite] ( @table_0EE000 )
+    COP [SetMetasprite] ( @spriteset_enemies )
     COP [SetOnInteract] ( &code_089F9D )
 
   loc_089F93:

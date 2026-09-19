@@ -19,7 +19,7 @@
 ; 
 ; Each character tile is written to two VRAM buffer rows: $7F0200,X (top half) and $7F0240,X (bottom half, offset +$10 from top). This produces 16×16 pixel characters from pairs of 8×8 tiles.
 ; 
-; The command dispatch uses an RTS trick: PEA pushes the loop return address (code_03E25F − 1), then the command table address − 1 is pushed and RTS jumps to it. Commands return via RTS back to the character loop.
+; The command dispatch uses an RTS trick: PEA pushes the loop return address (DialogString_CharLoop − 1), then the command table address − 1 is pushed and RTS jumps to it. Commands return via RTS back to the character loop.
 ; 
 ; === COMMAND TABLE (254659) ===
 ; 

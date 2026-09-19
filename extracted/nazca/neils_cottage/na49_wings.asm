@@ -1,4 +1,4 @@
-?INCLUDE 'table_0EE000'
+?INCLUDE 'spriteset_enemies'
 
 ---------------------------------------------
 
@@ -7,7 +7,7 @@ na49_wings [
 
   code_05E3F6:
     COP [AddPosition] ( #08, #00 )
-    COP [SetMetasprite] ( @table_0EE000 )
+    COP [SetMetasprite] ( @spriteset_enemies )
     COP [StageSpriteFrame] ( #00 )
     COP [AnimOnce]
     COP [SetOnInteract] ( &code_05E40B )

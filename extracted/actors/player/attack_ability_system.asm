@@ -57,9 +57,9 @@
 ?INCLUDE 'actor_pool'
 ?INCLUDE 'ApplyOrbitalOffsetFromRef'
 ?INCLUDE 'player_character'
-?INCLUDE 'table_0EE000'
-?INCLUDE 'table_178000'
-?INCLUDE 'table_179000'
+?INCLUDE 'spriteset_aura'
+?INCLUDE 'spriteset_dark_friar'
+?INCLUDE 'spriteset_enemies'
 
 !sceneCurrent                   0644
 !joypadCurrent                  0656
@@ -534,7 +534,7 @@ AuraProjectileChild {
     STA $0E
 
   loc_02BB13:
-    COP [SetMetasprite] ( @table_179000 ) ; Set metasprite table to table_179000 (Aura orbital projectile graphics)
+    COP [SetMetasprite] ( @spriteset_aura ) ; Set metasprite table to table_179000 (Aura orbital projectile graphics)
     COP [StageSpriteFrame] ( #00 )
     COP [AnimOnce]
     COP [StageSpriteFrame] ( #01 )
@@ -641,7 +641,7 @@ DarkFriarVramDma {
 }
 
 DarkFriarProjectile {
-    COP [SetMetasprite] ( @table_178000 ) ; Set metasprite to table_178000 (Dark Friar projectile graphics)
+    COP [SetMetasprite] ( @spriteset_dark_friar ) ; Set metasprite to table_178000 (Dark Friar projectile graphics)
     JSR $&ComputeParentOffset ; Compute offset from parent — tracks relative position for trail following
     COP [WaitByte] ( #07 ) ; Wait 7 frames before revealing projectile (syncs with casting animation)
     JSR $&ApplyParentOffset ; Apply stored offset to follow parent's movement during delay
@@ -660,7 +660,7 @@ DarkFriarTrailSouthInit {
 DarkFriarTrailSouth {
     LDA #$0000            ; Load animation table B entry 0 — Dark Friar trail sprite configuration
     JSR $&LoadAbilityAnimTableB
-    COP [SetMetasprite] ( @table_178000 )
+    COP [SetMetasprite] ( @spriteset_dark_friar )
     LDA $playerFlags      ; Check player flags bit 7 ($0080) for behind-wall rendering mode
     BIT #$0080
     BEQ loc_02BC42
@@ -695,7 +695,7 @@ DarkFriarTrailWestInit {
 DarkFriarTrailEastWest {
     LDA #$0000            ; Shared trail code for east and west directions — uses X-axis movement instead of Y
     JSR $&LoadAbilityAnimTableB
-    COP [SetMetasprite] ( @table_178000 )
+    COP [SetMetasprite] ( @spriteset_dark_friar )
     LDA $playerFlags      ; Check player flags bit 7 ($0080) for behind-wall rendering mode
     BIT #$0080
     BEQ loc_02BC8F
@@ -1455,7 +1455,7 @@ GuidedProjectileActor {
     SEC 
     SBC $playerYPos       ; Compute initial Y offset = projectile Y − player Y → $7F100E,X
     STA $7F100E, X
-    COP [SetMetasprite] ( @table_0EE000 ) ; Set metasprite to table_0EE000 — Psycho Slider projectile graphics
+    COP [SetMetasprite] ( @spriteset_enemies ) ; Set metasprite to table_0EE000 — Psycho Slider projectile graphics
 
   code_02C24E:
     COP [BranchIfButton] ( #$0100, &ProjectileMoveRight ) ; D-pad direction dispatch: right=$0100, left=$0200, up=$0800, down=$0400

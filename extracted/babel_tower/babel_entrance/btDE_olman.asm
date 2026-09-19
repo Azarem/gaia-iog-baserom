@@ -1,6 +1,6 @@
 ?INCLUDE 'InitPlayerScriptVariant'
 ?INCLUDE 'music_actors'
-?INCLUDE 'table_0EDA00'
+?INCLUDE 'spriteset_npc_props'
 
 !gfxCacheIdxA                   0648
 !gfxCacheIdxB                   064A
@@ -15,7 +15,7 @@ btDE_olman [
   code_09880B:
     LDA #$1200
     TSB $12
-    COP [SetMetasprite] ( @table_0EDA00 )
+    COP [SetMetasprite] ( @spriteset_npc_props )
     COP [StageSprAndHitbox] ( #02 )
     COP [BranchIfFlagByte] ( #FD, #01, &code_098891 )
     COP [SolidHighHere]
@@ -84,7 +84,7 @@ code_0988D2 {
 }
 
 code_0988DA {
-    COP [SetMetasprite] ( @table_0EDA00 )
+    COP [SetMetasprite] ( @spriteset_npc_props )
     COP [StageSprAndHitbox] ( #04 )
     COP [LoopInit] ( #28 )
     LDA #$2000
@@ -96,7 +96,7 @@ code_0988DA {
 }
 
 code_0988F3 {
-    COP [SetMetasprite] ( @table_0EDA00 )
+    COP [SetMetasprite] ( @spriteset_npc_props )
     COP [StageSprAndHitbox] ( #04 )
     COP [SetEntryContinue]
     COP [StageSpriteFrame] ( #04 )

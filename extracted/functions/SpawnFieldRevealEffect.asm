@@ -4,7 +4,7 @@
 ---------------------------------------------
 
 ?INCLUDE 'event_block_table'
-?INCLUDE 'table_0EE000'
+?INCLUDE 'spriteset_enemies'
 
 !orbitAngle                     7F0010
 !orbitDiameter                  7F0012
@@ -20,7 +20,7 @@ SpawnFieldRevealEffect {
     STA $10
     LDA #$6000
     TRB $12
-    COP [SetMetasprite] ( @table_0EE000 )
+    COP [SetMetasprite] ( @spriteset_enemies )
     COP [StageSpriteMoveY] ( #29, #02 )
     COP [AnimOnce]
     COP [StageSpriteMoveY] ( #29, #12 )

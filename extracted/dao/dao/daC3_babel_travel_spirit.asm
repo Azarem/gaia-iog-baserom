@@ -1,4 +1,4 @@
-?INCLUDE 'table_0EDA00'
+?INCLUDE 'spriteset_npc_props'
 
 !gfxCacheIdxA                   0648
 !gfxCacheIdxB                   064A
@@ -12,7 +12,7 @@ daC3_babel_travel_spirit [
     LDA #$0200
     TSB $12
     COP [BranchIfFlagByte] ( #D2, #00, &code_0980E6 )
-    COP [SetMetasprite] ( @table_0EDA00 )
+    COP [SetMetasprite] ( @spriteset_npc_props )
     COP [StageSprAndHitbox] ( #04 )
     COP [SolidHighHere]
     COP [SetOnInteract] ( &code_0980E8 )

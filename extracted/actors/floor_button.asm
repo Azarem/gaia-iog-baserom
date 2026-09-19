@@ -5,7 +5,7 @@
 
 ?INCLUDE 'cop_handlers_flags'
 ?INCLUDE 'enemy_stats_table'
-?INCLUDE 'table_0EE000'
+?INCLUDE 'spriteset_enemies'
 
 !statsPtr                       7F0020
 !currentHp                      7F0026
@@ -22,7 +22,7 @@ floor_button [
     STA $0E
     LDA #$&enemy_stats_table+118
     STA $statsPtr, X
-    COP [SetMetasprite] ( @table_0EE000 )
+    COP [SetMetasprite] ( @spriteset_enemies )
     COP [StageSpriteFrame] ( #0F )
     COP [AnimOnce]
     COP [SolidHighHere]

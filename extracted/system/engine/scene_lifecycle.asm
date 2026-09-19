@@ -518,7 +518,7 @@ ApplyScrollWaveEffect {
 ; Build per-scanline horizontal scroll offset tables for HDMA wave effect.
 ; 
 ; For each of 256 scanlines ($0200 bytes, 128 entries per table):
-; 1. Reads a signed sine value from the lookup table at binary_01C455, indexed by the current phase (Y)
+; 1. Reads a signed sine value from the lookup table at sine_table_8bit, indexed by the current phase (Y)
 ; 2. Multiplies the sine value by the wave amplitude ($006E) using the SNES hardware multiplier ($4202/$4203 → $4216/$4217)
 ; 3. For negative sine values: performs sign-extended multiplication using $FF multiply + carry-based addition of the low byte
 ; 4. Adds the base BG1 horizontal scroll ($bg1ScrollH) to the offset

@@ -1,5 +1,5 @@
 ?INCLUDE 'smooth_follow_child'
-?INCLUDE 'table_0EE000'
+?INCLUDE 'spriteset_enemies'
 
 !playerActor                    09AA
 !loopCounter                    7F0014
@@ -33,7 +33,7 @@ code_0BC7C1 {
 
 code_0BC7CE {
     COP [OrActorFlags] ( #$0010 )
-    COP [SetMetasprite] ( @table_0EE000 )
+    COP [SetMetasprite] ( @spriteset_enemies )
     COP [AddPosition] ( #00, #02 )
     COP [StageSpriteFrame] ( #2A )
     COP [AnimOnce]
@@ -97,7 +97,7 @@ code_0BC84A {
 
 code_0BC85D {
     COP [OrActorFlags] ( #$0010 )
-    COP [SetMetasprite] ( @table_0EE000 )
+    COP [SetMetasprite] ( @spriteset_enemies )
     COP [AddPosition] ( #00, #02 )
     COP [StageSpriteFrame] ( #2A )
     COP [AnimOnce]

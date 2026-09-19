@@ -1,4 +1,4 @@
-?INCLUDE 'table_0EE000'
+?INCLUDE 'spriteset_enemies'
 
 !joypadMaskStd                  065A
 
@@ -11,7 +11,7 @@ gs2D_mummy [
     LDA #$0200
     TSB $12
     COP [AddPosition] ( #08, #00 )
-    COP [SetMetasprite] ( @table_0EE000 )
+    COP [SetMetasprite] ( @spriteset_enemies )
     COP [StageSpriteFrame] ( #00 )
     COP [AnimOnce]
     COP [SetOnInteract] ( &code_058B38 )

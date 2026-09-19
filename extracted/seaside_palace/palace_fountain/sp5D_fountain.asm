@@ -1,6 +1,6 @@
 ?INCLUDE 'actor_pool'
 ?INCLUDE 'oneshot_palette_flash_40'
-?INCLUDE 'table_0EE000'
+?INCLUDE 'spriteset_enemies'
 
 !joypadMaskStd                  065A
 !playerActor                    09AA
@@ -100,7 +100,7 @@ code_06951E {
     CLC 
     ADC $14
     STA $14
-    COP [SetMetasprite] ( @table_0EE000 )
+    COP [SetMetasprite] ( @spriteset_enemies )
     COP [StageSpriteFrame] ( #02 )
     COP [AnimOnce]
     COP [Die]

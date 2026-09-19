@@ -243,7 +243,7 @@ SystemInit {
 
 ; Lightweight frame update called during dialogue and text display.
 ; 
-; Saves and restores full register context (B, A, X, Y, D) for safe re-entrant calling from within COP script handlers. Runs actor rendering (func_03CCFF variant), OAM termination, sprite composition, camera scrolling, HDMA updates, display sync, and scene tick — but skips the full actor AI pass and warp/chest checks that the main loop performs.
+; Saves and restores full register context (B, A, X, Y, D) for safe re-entrant calling from within COP script handlers. Runs actor rendering (RunActors_CutsceneOnly variant), OAM termination, sprite composition, camera scrolling, HDMA updates, display sync, and scene tick — but skips the full actor AI pass and warp/chest checks that the main loop performs.
 ; 
 ; Clears bit 3 of displayModeFlags after rendering to signal dialogue frame completion.
 
@@ -333,7 +333,7 @@ UpdateFrameRender {
 ---------------------------------------------
 ; Complete single-frame update used during music transitions.
 ; 
-; Runs all subsystems including VBlank partial wait, scene tick, actor AI (func_03CD6E variant), OAM termination, sprite composition, camera scrolling for both BG layers, HDMA updates, and display list processing. Called from within the NMI handler when musicTransitionState is positive, allowing visual animation to continue during music fade sequences.
+; Runs all subsystems including VBlank partial wait, scene tick, actor AI (RunActors_OverlayOnly variant), OAM termination, sprite composition, camera scrolling for both BG layers, HDMA updates, and display list processing. Called from within the NMI handler when musicTransitionState is positive, allowing visual animation to continue during music fade sequences.
 
 UpdateFrameFull {
     PHP 

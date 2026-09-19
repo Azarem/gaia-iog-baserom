@@ -261,7 +261,7 @@ loc_03F0A0! {
 -----------------------------------------
 ;Entry point for giving Jewels to Gem
 
-code_08CF68! {
+JewelerCountJewels! {
     SEP #$20
     LDA #$00
     XBA

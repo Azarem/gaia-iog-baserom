@@ -16,7 +16,7 @@
 ; 
 ; Phase 1 (outer loop): For each enemy in the render list, checks if the player is attacking ($0080 in enemy $10 = hittable AND $0040 = not orb-protected AND $0010 in $12 = not damage-immune). If eligible, calls PlayerAttackHitTest.
 ; 
-; Phase 2 (inner loop at code_03BCBC): After player attack processing, checks all actors against the current enemy's hitbox for enemy-hits-player collision. Uses AABB overlap testing on hitbox fields ($20–$23). Two paths based on $20 flag: normal ($76E0 exclusion mask) or friendly ($74E0 mask + extendedFlags $0010 check).
+; Phase 2 (inner loop at CombatCollision_InnerLoop): After player attack processing, checks all actors against the current enemy's hitbox for enemy-hits-player collision. Uses AABB overlap testing on hitbox fields ($20–$23). Two paths based on $20 flag: normal ($76E0 exclusion mask) or friendly ($74E0 mask + extendedFlags $0010 check).
 ; 
 ; === HITBOX FORMAT ===
 ; 
@@ -201,7 +201,7 @@ RunCombatCollision {
 ; 
 ; Phase 1 (player attack test): For each actor Y in the render list, checks eligibility: bit 7 ($0080) of $10 set (hittable), bit 6 ($0040) clear (not orb), and $12 bit 4 ($0010) clear (not damage-immune). If eligible and the enemy's iframe counter is non-negative, calls PlayerAttackHitTest.
 ; 
-; Phase 2 (enemy-hits-player test): After phase 1, constructs the current enemy's AABB from metasprite hitbox fields ($0004–$0007), accounting for H-mirror via the carry flag from ASL on $000E. Then iterates the render list again (inner loop at code_03BCBC), testing each actor's hitbox ($0020–$0023) for AABB overlap against the enemy's box.
+; Phase 2 (enemy-hits-player test): After phase 1, constructs the current enemy's AABB from metasprite hitbox fields ($0004–$0007), accounting for H-mirror via the carry flag from ASL on $000E. Then iterates the render list again (inner loop at CombatCollision_InnerLoop), testing each actor's hitbox ($0020–$0023) for AABB overlap against the enemy's box.
 ; 
 ; The $20 DP flag distinguishes normal mode (exclusion mask $76E0) from friendly/interaction mode ($74E0 + extendedFlags $0010 check). On overlap, calls EnemyHitPlayerHandler.
 

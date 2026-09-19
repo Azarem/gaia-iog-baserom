@@ -1,6 +1,6 @@
 ?INCLUDE 'ActorMidpointCalc'
+?INCLUDE 'spriteset_enemies'
 ?INCLUDE 'StandardEnemyDefeatHandler'
-?INCLUDE 'table_0EE000'
 
 !playerXPos                     09A2
 !playerActor                    09AA
@@ -211,7 +211,7 @@ code_0AF06B {
     LDA $26
     STA $0E
     COP [PlaySoundCh1] ( #06 )
-    COP [SetMetasprite] ( @table_0EE000 )
+    COP [SetMetasprite] ( @spriteset_enemies )
     COP [StageSpriteFrame] ( #01 )
     COP [AnimOnce]
     COP [Die]

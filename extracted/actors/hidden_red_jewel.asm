@@ -4,7 +4,7 @@
 ---------------------------------------------
 
 ?INCLUDE 'cop_handlers_flags'
-?INCLUDE 'table_0EE000'
+?INCLUDE 'spriteset_enemies'
 
 ---------------------------------------------
 
@@ -13,7 +13,7 @@ hidden_red_jewel [
 
   code_00C672:
     COP [SetOnInteract] ( &HiddenRedJewelInteract )
-    COP [SetMetasprite] ( @table_0EE000 )
+    COP [SetMetasprite] ( @spriteset_enemies )
     COP [StageSprAndHitbox] ( #00 )
     COP [SetEntryContinue]
     RTL 

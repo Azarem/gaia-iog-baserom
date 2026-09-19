@@ -5,7 +5,7 @@
 
 ?INCLUDE 'actor_pool'
 ?INCLUDE 'DeathPaletteFadeThinker'
-?INCLUDE 'table_0EE000'
+?INCLUDE 'spriteset_enemies'
 
 !sceneNext                      0642
 !sceneCurrent                   0644
@@ -35,7 +35,7 @@ GameOverSequence {
     LDA #$8000
     TRB $10
     COP [PlaySoundBoth] ( #$0C0C )
-    COP [SetMetasprite] ( @table_0EE000 )
+    COP [SetMetasprite] ( @spriteset_enemies )
     COP [StageSpriteFrame] ( #1C )
     COP [AnimOnce]
     LDA #$000F
@@ -129,7 +129,7 @@ GameOverSequence {
 GameOverCutsceneSprites {
     LDA #$2000
     TSB $10
-    COP [SetMetasprite] ( @table_0EE000 )
+    COP [SetMetasprite] ( @spriteset_enemies )
     COP [SetSpritePalette] ( #00 )
     COP [WaitByte] ( #0B )
     COP [SpawnMarkedAfterRel] ( @GameOverSparkleDriftA, #E7, #D8, #$0700 )

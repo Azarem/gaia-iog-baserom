@@ -1,7 +1,7 @@
 ?INCLUDE 'actor_pool'
 ?INCLUDE 'sE6_gaia'
-?INCLUDE 'table_0EDA00'
-?INCLUDE 'table_0EE000'
+?INCLUDE 'spriteset_enemies'
+?INCLUDE 'spriteset_npc_props'
 
 !gfxCacheIdxB                   064A
 !joypadMaskStd                  065A
@@ -128,7 +128,7 @@ code_0BD374 {
     COP [WaitByte] ( #77 )
     LDA #$2000
     TRB $10
-    COP [SetMetasprite] ( @table_0EE000 )
+    COP [SetMetasprite] ( @spriteset_enemies )
     COP [SetTilePos] ( #08, #01 )
     COP [StageSpriteLoopMoveY] ( #02, #04, #11 )
     COP [AnimLoop]
@@ -180,7 +180,7 @@ code_0BD4B7 {
 }
 
 code_0BD4DE {
-    COP [SetMetasprite] ( @table_0EDA00 )
+    COP [SetMetasprite] ( @spriteset_npc_props )
     COP [StageSprAndHitbox] ( #04 )
     COP [LoopInit] ( #1E )
     LDA #$2000
@@ -192,7 +192,7 @@ code_0BD4DE {
 }
 
 code_0BD4F7 {
-    COP [SetMetasprite] ( @table_0EDA00 )
+    COP [SetMetasprite] ( @spriteset_npc_props )
     COP [StageSprAndHitbox] ( #04 )
     COP [SetEntryContinue]
     COP [SetEntryContinue]
@@ -223,7 +223,7 @@ code_0BD51F {
 }
 
 code_0BD539 {
-    COP [SetMetasprite] ( @table_0EDA00 )
+    COP [SetMetasprite] ( @spriteset_npc_props )
     COP [StageSprAndHitbox] ( #04 )
     COP [StageSpriteLoopMoveY] ( #04, #06, #01 )
     COP [AnimLoop]

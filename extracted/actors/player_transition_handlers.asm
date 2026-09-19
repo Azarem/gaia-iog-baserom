@@ -6,7 +6,7 @@
 ---------------------------------------------
 
 ?INCLUDE 'player_character'
-?INCLUDE 'table_0EE000'
+?INCLUDE 'spriteset_enemies'
 
 !joypadMaskStd                  065A
 !layerPriorityFlag              06EE
@@ -21,7 +21,7 @@ player_transition_handlers {
 
 PlayerItemRevealSpawn {
     COP [PlaySoundCh2] ( #09 )
-    COP [SetMetasprite] ( @table_0EE000 )
+    COP [SetMetasprite] ( @spriteset_enemies )
     COP [StageSpriteFrame] ( #2A )
     COP [AnimOnce]
     COP [Die]

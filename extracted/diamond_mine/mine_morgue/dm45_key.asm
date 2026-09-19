@@ -1,4 +1,4 @@
-?INCLUDE 'table_0EE000'
+?INCLUDE 'spriteset_enemies'
 
 !displayModeFlags               09EC
 
@@ -9,7 +9,7 @@ dm45_key [
 
   code_05D4B2:
     COP [BranchIfFlagByte] ( #5D, #01, &code_05D4E4 )
-    COP [SetMetasprite] ( @table_0EE000 )
+    COP [SetMetasprite] ( @spriteset_enemies )
     LDA #$0200
     TSB $12
     COP [SetOnInteract] ( &code_05D4D0 )

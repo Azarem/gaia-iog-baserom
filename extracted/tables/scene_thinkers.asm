@@ -23,6 +23,7 @@
 ?INCLUDE 'flag_gated_palette_cool'
 ?INCLUDE 'flag_gated_palette_warm'
 ?INCLUDE 'global_ambient_dispatcher'
+?INCLUDE 'hdma_gradient_thinker'
 ?INCLUDE 'incan_ruins_transform_palette'
 ?INCLUDE 'inventory_dma_setup'
 ?INCLUDE 'IrisCircleEffect'
@@ -38,12 +39,11 @@
 ?INCLUDE 'palace_scroll_brightness'
 ?INCLUDE 'palette_parent_child'
 ?INCLUDE 'parallax_thinker'
-?INCLUDE 'sE7_thinker_0CEB5B'
-?INCLUDE 'sE8_thinker_0CEB74'
+?INCLUDE 'sE7_space_bg_scroll'
+?INCLUDE 'sE8_comet_display_config'
 ?INCLUDE 'sine_hdma_dual_channel'
 ?INCLUDE 'sine_hdma_ending_wave'
 ?INCLUDE 'sine_hdma_slow_wave'
-?INCLUDE 'thinkers_05FB16'
 ?INCLUDE 'watermia_festival_palette'
 
 ---------------------------------------------
@@ -322,7 +322,7 @@ thinker_spawn_0CE7FB [
   thinker-spawn < #00, @dream_palette_loop >   ;00
   thinker-spawn < #02, @parallax_thinker >   ;01
   thinker-spawn < #00, @global_ambient_dispatcher >   ;02
-  thinker-spawn < #00, @thinkers_05FB16.thinker_def_05FB32 >   ;03
+  thinker-spawn < #00, @hdma_gradient_thinker.thinker_def_05FB32 >   ;03
 ]
 
 thinker_spawn_0CE80C [
@@ -509,7 +509,7 @@ thinker_spawn_0CE98D [
 
 thinker_spawn_0CE99A [
   thinker-spawn < #00, @global_ambient_dispatcher >   ;00
-  thinker-spawn < #00, @thinkers_05FB16.thinker_def_05FB32 >   ;01
+  thinker-spawn < #00, @hdma_gradient_thinker.thinker_def_05FB32 >   ;01
 ]
 
 thinker_spawn_0CE9A3 [
@@ -605,7 +605,7 @@ thinker_spawn_0CEA52 [
 thinker_spawn_0CEA5B [
   thinker-spawn < #00, @crF7_credits_hdma_flicker >   ;00
   thinker-spawn < #00, @crF7_credits_dma_scroll >   ;01
-  thinker-spawn < #00, @thinkers_05FB16.crF7_thinker_05FB16 >   ;02
+  thinker-spawn < #00, @hdma_gradient_thinker.crF7_thinker_05FB16 >   ;02
   thinker-spawn < #00, @crF7_credits_camera_pan >   ;03
 ]
 
@@ -642,11 +642,11 @@ thinker_spawn_0CEAAC [
 ]
 
 thinker_spawn_0CEAB5 [
-  thinker-spawn < #00, @sE7_thinker_0CEB5B >
+  thinker-spawn < #00, @sE7_space_bg_scroll >
 ]
 
 thinker_spawn_0CEABA [
-  thinker-spawn < #00, @sE8_thinker_0CEB74 >   ;00
+  thinker-spawn < #00, @sE8_comet_display_config >   ;00
   thinker-spawn < #71, @ambient_palette_cycler >   ;01
   thinker-spawn < #00, @ending_comet_dma_setup >   ;02
   thinker-spawn < #00, @comet_lair_hdma_a >   ;03

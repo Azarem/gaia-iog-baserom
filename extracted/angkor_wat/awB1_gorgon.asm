@@ -1,5 +1,5 @@
 ?INCLUDE 'camera_drift'
-?INCLUDE 'table_0EE000'
+?INCLUDE 'spriteset_enemies'
 
 !bg1ScrollH                     068A
 !bg2ScrollH                     068E
@@ -262,7 +262,7 @@ code_0BBA54 {
 }
 
 code_0BBA56 {
-    COP [SetMetasprite] ( @table_0EE000 )
+    COP [SetMetasprite] ( @spriteset_enemies )
 
   loc_0BBA5B:
     COP [StageSpriteFrame] ( #31 )

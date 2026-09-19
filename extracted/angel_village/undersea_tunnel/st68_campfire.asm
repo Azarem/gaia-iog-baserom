@@ -1,4 +1,4 @@
-?INCLUDE 'table_0EDA00'
+?INCLUDE 'spriteset_npc_props'
 
 ---------------------------------------------
 
@@ -19,7 +19,7 @@ code_list_06AABC [
 ]
 
 code_06AAC2 {
-    COP [SetMetasprite] ( @table_0EDA00 )
+    COP [SetMetasprite] ( @spriteset_npc_props )
     COP [StageSprAndHitbox] ( #08 )
     COP [SolidHighHere]
     COP [SetEntryContinue]

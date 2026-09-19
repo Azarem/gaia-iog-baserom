@@ -1,6 +1,6 @@
 ?INCLUDE 'oneshot_palette_flash_18'
 ?INCLUDE 'oneshot_palette_flash_19'
-?INCLUDE 'table_0EDA00'
+?INCLUDE 'spriteset_npc_props'
 
 !gfxCacheIdxB                   064A
 !joypadMaskStd                  065A
@@ -104,7 +104,7 @@ dialogstring_069FE3 `[DEF]The underwater tunnel[N]dug by man is inside.[FIN]Plea
 code_06A01E {
     LDA #$0200
     TSB $12
-    COP [SetMetasprite] ( @table_0EDA00 )
+    COP [SetMetasprite] ( @spriteset_npc_props )
     COP [StageSprAndHitbox] ( #04 )
     COP [SolidHighHere]
     COP [LoopInit] ( #1E )

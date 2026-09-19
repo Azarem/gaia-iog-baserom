@@ -1,4 +1,4 @@
-?INCLUDE 'table_0EE000'
+?INCLUDE 'spriteset_enemies'
 
 !joypadMaskStd                  065A
 !spritesetPtr                   7F0006
@@ -103,7 +103,7 @@ code_088750 {
 }
 
 code_088755 {
-    COP [SetMetasprite] ( @table_0EE000 )
+    COP [SetMetasprite] ( @spriteset_enemies )
     COP [PlaySoundBoth] ( #$0F0F )
     COP [StageSpriteFrame] ( #25 )
     COP [AnimOnce]

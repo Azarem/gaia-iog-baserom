@@ -39,7 +39,7 @@
 ; 
 ; Yields via SetEntryContinue after header setup.
 ; 
-; Phase 2 — Per-frame computation: loads scale ($B8 → $02), rotation ($B6 → $04), perspective angle ($BC). Sine/cosine lookup from binary_01C595/01C695 with 4-quadrant dispatch. Starts from X=$01C0 and works downward. Pushes QueueMode7HdmaAlt−1 as RTS-trick return. Does NOT call NormalizeDivisor — divisor is used as-is.
+; Phase 2 — Per-frame computation: loads scale ($B8 → $02), rotation ($B6 → $04), perspective angle ($BC). Sine/cosine lookup from sine_table_16bit/01C695 with 4-quadrant dispatch. Starts from X=$01C0 and works downward. Pushes QueueMode7HdmaAlt−1 as RTS-trick return. Does NOT call NormalizeDivisor — divisor is used as-is.
 ; 
 ; Key difference from active version: subtracts rotation increment (SEC/SBC $04 → $01) instead of adding, and uses BCC/DEC for underflow handling.
 
@@ -89,10 +89,10 @@ Mode7PerspectiveAlt {
     TAY 
     LDX #$01C0            ; Start from X=$01C0 — fill data regions from high to low (reverse of active version)
     PEA $&QueueMode7HdmaAlt-1 ; Push QueueMode7HdmaAlt−1 as RTS-trick return
-    LDA $&math_lookup_tables.cosine_table_16bit, Y ; Cosine lookup from binary_01C695 table
+    LDA $&math_lookup_tables.cosine_table_16bit, Y ; Cosine lookup from cosine_table_16bit table
     BMI loc_03AC1F
     STA $18
-    LDA $&math_lookup_tables.sine_table_16bit, Y ; Sine lookup from binary_01C595 table
+    LDA $&math_lookup_tables.sine_table_16bit, Y ; Sine lookup from sine_table_16bit table
     BMI loc_03AC16
     STA $1C
     JMP $&Mode7AltQ1_PosCosPosSin ; Quadrant 1: +cos, +sin

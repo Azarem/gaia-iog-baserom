@@ -1,5 +1,5 @@
 ?INCLUDE 'EnemyInitBasic'
-?INCLUDE 'table_0EDA00'
+?INCLUDE 'spriteset_npc_props'
 
 !joypadMaskStd                  065A
 !playerFlags                    09AE
@@ -34,7 +34,7 @@ code_05B39F {
 code_05B3A1 {
     LDA #$0200
     TSB $12
-    COP [SetMetasprite] ( @table_0EDA00 )
+    COP [SetMetasprite] ( @spriteset_npc_props )
     COP [SetSpritePriority] ( #20 )
     COP [SetOnInteract] ( &code_05B40B )
     COP [PlaySoundCh2] ( #0E )

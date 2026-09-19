@@ -1,8 +1,8 @@
 ; Diary/save menu system — scene $FA title screen menu with save management and settings.
 ; 
 ; Implements four menu tabs accessed from the title screen's Start button:
-; 1. Start Journey (code_0BE354) — load a saved game from one of 3 diary slots
-; 2. Erase Trip Diary (code_0BEA55) — delete a save slot with confirmation
+; 1. Start Journey (DiaryStartJourney) — load a saved game from one of 3 diary slots
+; 2. Erase Trip Diary (DiaryEraseTab) — delete a save slot with confirmation
 ; 3. Copy Trip Diary (DiaryCopyTab) — copy one diary to an empty slot
 ; 4. Change Snd/Buttons (DiarySndBtnTab) — toggle stereo/mono and button remapping
 ; 
@@ -48,9 +48,9 @@
 
 ?BANK 0B
 
+?INCLUDE 'diary_entry_table'
 ?INCLUDE 'oam_digit_compose'
 ?INCLUDE 'save_system'
-?INCLUDE 'strings_0BF706'
 ?INCLUDE 'system_strings'
 ?INCLUDE 'vblank_joypad'
 ?INCLUDE 'vram_buffer_clear'
@@ -166,6 +166,9 @@ sFA_diary_menu [
 ]
 ---------------------------------------------
 
+; Main menu re-entry — redraws the 4-option menu and enters the tab selection loop.
+; Navigation: Up/Down cycle through 4 tabs ($0D98), A confirms, dispatches via SwitchCase.
+
 DiaryMainMenuEntry {
     COP [PrintDialogStringAlt] ( &dialogstring_0BF3F4 )
 
@@ -184,6 +187,9 @@ DiaryMainMenuEntry {
     RTL 
 }
 
+---------------------------------------------
+; Tab cursor Up — decrement with wraparound (0→3).
+
 DiaryTabCursorUp {
     COP [PlaySoundCh2] ( #10 ) ; Cursor move SFX
     LDA $0D98
@@ -198,6 +204,9 @@ DiaryTabCursorUp {
     STA $joypadHeld
     RTL 
 }
+
+---------------------------------------------
+; Tab cursor Down — increment with wraparound (3→0).
 
 DiaryTabCursorDown {
     COP [PlaySoundCh2] ( #10 ) ; Cursor move SFX
@@ -214,6 +223,9 @@ DiaryTabCursorDown {
     STA $joypadHeld
     RTL 
 }
+
+---------------------------------------------
+; Tab confirm — dispatches to the selected tab handler via SwitchCase on $0D98.
 
 DiaryTabConfirm {
     COP [PlaySoundCh2] ( #11 ) ; Confirm SFX
@@ -234,6 +246,12 @@ code_list_0BE34C [
   &DiaryCopyTab   ;02
   &DiarySndBtnTab   ;03
 ]
+
+---------------------------------------------
+; Start Journey tab — diary slot selection, save validation, and game load.
+; Displays 3 diary slots with HP/STR/DEF stats. On confirm, validates the SRAM checksum,
+; loads event flags, and transitions to scene $E6 (Dark Space) to resume gameplay.
+; Camera pan animation (DiaryCameraPan) scrolls to the selected slot's world position.
 
 DiaryStartJourney {
     JSR $&DiaryMenuClearVram ; Clear VRAM buffer
@@ -296,6 +314,9 @@ DiaryStartCancel {
     JSR $&DiaryMenuClearVram
     JMP $&DiaryMainMenuEntry
 }
+
+---------------------------------------------
+; Load confirmed — validate SRAM, apply settings, and transition to Dark Space.
 
 DiaryStartLoadConfirm {
     COP [PlaySoundCh2] ( #11 ) ; Confirm SFX
@@ -404,6 +425,9 @@ DiarySettingsToggle {
     RTL 
 }
 
+---------------------------------------------
+; New game start confirmed — apply settings and transition to scene $08 (game start).
+
 DiaryNewGameStart {
     COP [PlaySoundCh2] ( #11 )
     LDA $joypadCurrent
@@ -424,6 +448,11 @@ DiaryNewGameStart {
     COP [Die]
 }
 
+---------------------------------------------
+; Camera pan animation — smoothly scrolls the Mode 7 camera to the selected diary slot's
+; world position. Uses Bresenham-style line algorithm to interpolate X/Y camera movement
+; over a fixed number of frames ($free101C steps per tick).
+
 DiaryCameraPan {
     PHX 
     LDA $0D92
@@ -432,21 +461,21 @@ DiaryCameraPan {
     LDA $0D74, Y
     ASL 
     TAX 
-    LDA $@strings_0BF706, X
+    LDA $@diary_entry_table, X
     SEC 
-    SBC #$&strings_0BF706
+    SBC #$&diary_entry_table
     TAX 
     SEP #$20
 
   loc_0BE53D:
-    LDA $@strings_0BF706, X
+    LDA $@diary_entry_table, X
     INX 
     CMP #$CA
     BNE loc_0BE53D
     REP #$20
-    LDA $@strings_0BF706, X
+    LDA $@diary_entry_table, X
     TAY 
-    LDA $@strings_0BF706+2, X
+    LDA $@diary_entry_table+2, X
     PLX 
     STA $7F100E, X
     TYA 
@@ -578,6 +607,10 @@ DiaryCameraPan {
 }
 ---------------------------------------------
 
+; Apply sound mode and button remap — reads $0B24 (sound) and $0B26 (buttons) from save data.
+; Sound: $0B24=0 → APUIO0=$91 (stereo), $0B24≠0 → APUIO0=$90 (mono).
+; Buttons: $0B26=0 → layout A (remap A→$8000, B→$4000, Y→$0040), $0B26≠0 → layout B (no remap).
+
 ApplySoundAndRemap {
     LDA #$0000
     STA $0B04             ; Clear frame delay
@@ -615,6 +648,9 @@ ApplySoundAndRemap {
     RTS 
 }
 ---------------------------------------------
+
+; Change Snd/Buttons tab — toggle stereo/mono sound and button layout assignment.
+; After confirming, saves settings to the active save slot's SRAM and recomputes checksums.
 
 DiarySndBtnTab {
     JSR $&DiaryMenuClearVram
@@ -784,6 +820,9 @@ DiarySndBtnSaveConfirm {
 }
 ---------------------------------------------
 
+; Read sound/button settings from SRAM for the selected slot.
+; Extracts $0B24 (sound mode) and $0B26 (button layout) from the slot's save data.
+
 ReadSramSettings {
     PHX 
     XBA 
@@ -822,6 +861,9 @@ ReadSramSettings {
 }
 ---------------------------------------------
 
+; Write sound/button settings to SRAM for the selected slot.
+; Stores $0D90 (sound mode) and $0D8E (button layout) into the slot's save data.
+
 WriteSramSettings {
     PHX 
     XBA 
@@ -849,6 +891,11 @@ WriteSramSettings {
     RTS 
 }
 ---------------------------------------------
+
+; Copy Trip Diary tab — copy a diary slot's SRAM data to an empty slot.
+; First checks if all 3 slots are occupied — if so, shows "Diary not empty" and returns.
+; Otherwise enters source slot selection, then target slot selection (skips occupied slots).
+; Uses SRAM block copy (JSR $0402) to transfer 512 bytes between slot offsets.
 
 DiaryCopyTab {
     LDA $0D74             ; Check if all slots occupied
@@ -1064,6 +1111,11 @@ DiaryCopyExecute {
     JMP $&DiaryCopySourceLoop
 }
 
+---------------------------------------------
+; Erase Trip Diary tab — select a diary slot and optionally delete it.
+; Shows slot stats before confirming. Empty slots are erased immediately via ClearSaveSlot.
+; Occupied slots show a yes/no confirmation prompt with stat preview.
+
 DiaryEraseTab {
     JSR $&DiaryMenuClearVram
 
@@ -1206,6 +1258,10 @@ DiaryEraseExecute {
     JMP $&DiaryEraseSelectLoop
 }
 
+---------------------------------------------
+; Render diary slot stats — for each non-empty slot, reads the saved HP/STR/DEF values,
+; converts them to BCD via FormatBcdNumber, and prints them using the stat display templates.
+
 DiaryRenderSlotStats {
     LDA $0D74
     BEQ loc_0BEBAF
@@ -1252,6 +1308,8 @@ DiaryRenderSlotStats {
     COP [RestoreSavedPtr]
 }
 ---------------------------------------------
+
+; Clear VRAM buffer — wrapper that preserves registers across ClearVramBufferFull call.
 
 DiaryMenuClearVram {
     PHP 
@@ -1366,6 +1424,8 @@ DiaryCursorCancel {
 }
 ---------------------------------------------
 
+; Draw cursor highlight — writes tile $202B (highlight arrow) at the cursor's VRAM position.
+
 DiaryDrawCursorHighlight {
     PHX 
     LDA $14
@@ -1390,6 +1450,8 @@ DiaryDrawCursorHighlight {
 }
 ---------------------------------------------
 
+; Clear cursor — writes blank tile $2040 at the cursor's VRAM position to erase the highlight.
+
 DiaryClearCursor {
     PHX 
     LDA $14
@@ -1411,6 +1473,9 @@ DiaryClearCursor {
     RTS 
 }
 ---------------------------------------------
+
+; Clear all cursor positions in a sub-menu — writes blank tiles to every selectable row.
+; Wraps the cursor index within the valid range using the count from table_0BED3C[0].
 
 DiaryClearAllCursors {
     PHX 
@@ -1491,6 +1556,10 @@ word_0BED5C [
   #$044A   ;03
 ]
 ---------------------------------------------
+
+; Scan all 3 SRAM save slots — validates dual checksums and extracts scene ID, HP, STR, DEF
+; into the diary state block ($0D74–$0D8A). Invalid/empty slots get zeroed entries.
+; Also reads $306000 for the last-used slot number and clamps it to 0–2.
 
 DiaryScanSramSlots {
     PHX 
@@ -1646,6 +1715,11 @@ DiaryDigitDisplay_noref {
 }
 ---------------------------------------------
 
+; BCD number formatter — converts a 16-bit value to packed hundreds:tens:ones format.
+; Returns carry clear on success, carry set if value ≥ 1000 (overflow).
+; Output: high byte = hundreds (×$100), low byte = tens (×$10) | ones.
+; Values 500+ get pre-subtracted 500 with hundreds starting at 5.
+
 FormatBcdNumber {
     PHA 
     LDY $0000
@@ -1774,6 +1848,11 @@ DiaryAwaitButtonRelease_noref {
     RTL 
 }
 ---------------------------------------------
+
+; Custom VBlank handler for diary menu — waits for NMI, writes Mode 7 registers,
+; reads raw joypad, applies button remap table, and handles auto-repeat timing.
+; Each remap variable (remapA through remapSelect) maps a physical button to a
+; logical button mask. The 12-frame auto-repeat threshold enables cursor acceleration.
 
 DiaryMenuVBlankHandler {
     PHP 
@@ -1945,7 +2024,7 @@ table_0BF6AD [
 
 dialogstring_0BF3F4 `[DLG:6,A][SIZ:A,4]Start Journey[N]Erase Trip Diary[N]Copy Trip Diary[N]Change Snd/Buttons`
 
-dialogstring_0BF437 `[DLG:2,8][SIZ:E,7]Which Diary?[N][::] Diary1 [ADR:&strings_0BF706,D74][N][N] Diary2 [ADR:&strings_0BF706,D76][N][N] Diary3 [ADR:&strings_0BF706,D78]`
+dialogstring_0BF437 `[DLG:2,8][SIZ:E,7]Which Diary?[N][::] Diary1 [ADR:&diary_entry_table,D74][N][N] Diary2 [ADR:&diary_entry_table,D76][N][N] Diary3 [ADR:&diary_entry_table,D78]`
 
 dialogstring_0BF476 `[DLG:2,8][SIZ:E,7]Change Snd/Button[N][JMP:&dialogstring_0BF437+M]`
 
@@ -2003,8 +2082,8 @@ table_0BF6D9 [
   &dialogstring_0BF6F9   ;02
 ]
 
-dialogstring_0BF6DF `Diary1 [ADR:&strings_0BF706,D74]`
+dialogstring_0BF6DF `Diary1 [ADR:&diary_entry_table,D74]`
 
-dialogstring_0BF6EC `Diary2 [ADR:&strings_0BF706,D76]`
+dialogstring_0BF6EC `Diary2 [ADR:&diary_entry_table,D76]`
 
-dialogstring_0BF6F9 `Diary3 [ADR:&strings_0BF706,D78]`
+dialogstring_0BF6F9 `Diary3 [ADR:&diary_entry_table,D78]`

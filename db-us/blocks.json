@@ -250,13 +250,13 @@
                 "GaiaNpcSprite": { "start": 630928, "end": 630999, "type": "Code" }
             }
         },
-        "strings_0BF706": { "start": 784134, "end": 784983, "type": "&diary-entry", "scene": "diary_menu" },
-        "sFB_actor_0BC8BA": { "scene": "boot_logos", "movable": true, "parts": {
-            "sFB_actor_0BC8BA": { "start": 772282, "end": 772388, "type": "actor-def" },
+        "diary_entry_table": { "start": 784134, "end": 784983, "type": "&diary-entry", "scene": "diary_menu" },
+        "sFB_boot_logo": { "scene": "boot_logos", "movable": true, "parts": {
+            "sFB_boot_logo": { "start": 772282, "end": 772388, "type": "actor-def" },
             "BootLogoPalTextFallback": { "start": 772246, "end": 772280, "order": 772286, "type": "Code" }
         } },
-        "sFC_actor_0BC924": { "start": 772388, "end": 772526, "type": "actor-def", "scene": "title_screen", "movable": true },
-        "sFC_actor_0BC9AE": { "start": 772526, "end": 772610, "type": "actor-def", "scene": "title_screen", "movable": true },
+        "sFC_title_intro": { "start": 772388, "end": 772526, "type": "actor-def", "scene": "title_screen", "movable": true },
+        "sFC_title_start_handler": { "start": 772526, "end": 772610, "type": "actor-def", "scene": "title_screen", "movable": true },
         "sFA_diary_menu": {
             "movable": false,
             "scene": "diary_menu",
@@ -354,7 +354,7 @@
         "sine_hdma_slow_wave": { "start": 48664, "end": 48697, "type": "thinker-def", "movable": true },
         "global_ambient_dispatcher": { "start": 49033, "end": 49578, "type": "thinker-def", "movable": true },
         "mode7_perspective": { "start": 239936, "end": 240520, "type": "thinker-def" },
-        "thinkers_05FB16": { "start": 391958, "end": 392914, "type": "thinker-def", "movable": true }
+        "hdma_gradient_thinker": { "start": 391958, "end": 392914, "type": "thinker-def", "movable": true }
     },
     "unused": {
         "SceneTransPaletteThinker_unused": { "start": 46376, "end": 46515, "type": "Code", "movable": true },
@@ -380,7 +380,7 @@
             "dark_rewards1": { "start": 631775, "end": 631789, "type": "actor-def" },
             "dark_rewards2": { "start": 631789, "end": 633109, "type": "actor-def" }
         } },
-        "unused_actor_09AA6E": { "movable": true, "parts": {
+        "unused_mode7_boss": { "movable": true, "parts": {
             "actor_09AA6E": { "start": 633454, "end": 635484, "type": "actor-def" },
             "byte_09B25C": { "start": 635484, "end": 635492, "type": "Byte" },
             "byte_09B264": { "start": 635492, "end": 635500, "type": "Byte" },
@@ -389,7 +389,7 @@
         } },
         "unused_debug_mode": { "start": 637568, "end": 637667, "type": "actor-def", "movable": true },
         "unused_debug_input_test": { "start": 637667, "end": 637719, "type": "actor-def", "movable": true },
-        "kara_09BBB7": { "start": 637879, "end": 638004, "type": "actor-def", "movable": true },
+        "unused_kara_dialog": { "start": 637879, "end": 638004, "type": "actor-def", "movable": true },
         "unused_window_config": { "start": 711480, "end": 711493, "type": "actor-def", "movable": true },
         "unused_proximity_check_noref": { "start": 716438, "end": 716447, "type": "Code" },
         "unused_follow_chain": { "start": 711493, "end": 711531, "type": "Code", "movable": true },
@@ -404,7 +404,7 @@
         "ec0A_right_guard": { "start": 311730, "end": 312062, "type": "actor-def", "scene": "edward_castle", "movable": true },
         "ec0A_stair_guard": { "start": 312062, "end": 312264, "type": "actor-def", "scene": "edward_castle", "movable": true },
         "ec0A_edward": { "start": 312264, "end": 312682, "type": "actor-def", "scene": "edward_castle", "movable": true },
-        "ec0A_actor_04C56A": { "start": 312682, "end": 312686, "type": "actor-def", "scene": "edward_castle", "movable": true },
+        "ec0A_null_actor": { "start": 312682, "end": 312686, "type": "actor-def", "scene": "edward_castle", "movable": true },
         "ec0A_edwina": { "start": 312686, "end": 312776, "type": "actor-def", "scene": "edward_castle", "movable": true },
         "ec0A_door_guard": { "start": 312776, "end": 312858, "type": "actor-def", "scene": "edward_castle", "movable": true },
         "ec0A_throne_guards": { "start": 312858, "end": 313262, "type": "actor-def", "scene": "edward_castle", "movable": true },
@@ -448,14 +448,14 @@
     "gold_ship": {
         "dream_palette_loop": { "start": 46802, "end": 46821, "type": "thinker-def", "scene": "dream", "movable": true },
         "dream_zoom_controller": { "start": 49578, "end": 49631, "type": "actor-def", "scene": "dream", "movable": true },
-        "dialogstring_058000": { "start": 360448, "end": 360487, "type": "DialogString", "movable": true },
-        "gs2B_actor_058027": { "scene": "ship_wreck", "movable": true, "parts": {
-            "gs2B_actor_058027": { "start": 360487, "end": 360624, "type": "actor-def" },
+        "gs_gold_ship_intro_text": { "start": 360448, "end": 360487, "type": "DialogString", "movable": true },
+        "gs2B_wreck_wave_motion": { "scene": "ship_wreck", "movable": true, "parts": {
+            "gs2B_wreck_wave_motion": { "start": 360487, "end": 360624, "type": "actor-def" },
             "unk18_0580B0": { "start": 360624, "end": 360762, "type": "camera-keyframe" },
             "code_05F859": { "start": 391257, "end": 391360, "type": "Code" }
         } },
-        "gs2C_actor_05813A": { "start": 360762, "end": 360815, "type": "actor-def", "scene": "ship_gold", "movable": true },
-        "gs2C_actor_05816F": { "start": 360815, "end": 360825, "type": "actor-def", "scene": "ship_gold", "movable": true },
+        "gs2C_rain_spawner": { "start": 360762, "end": 360815, "type": "actor-def", "scene": "ship_gold", "movable": true },
+        "gs2C_rain_particle": { "start": 360815, "end": 360825, "type": "actor-def", "scene": "ship_gold", "movable": true },
         "gs2C_descent": { "start": 360825, "end": 361039, "type": "actor-def", "scene": "ship_gold", "movable": true },
         "gs2C_crew1": { "start": 361039, "end": 361092, "type": "actor-def", "scene": "ship_gold", "movable": true },
         "gs2C_crew2": { "start": 361092, "end": 361221, "type": "actor-def", "scene": "ship_gold", "movable": true },
@@ -481,7 +481,7 @@
             "unk18_058606": { "start": 361990, "end": 362028, "order": 364958, "type": "camera-keyframe" }
         } },
         "gs2A_shira": { "start": 365652, "end": 366142, "type": "actor-def", "scene": "dream", "movable": false },
-        "dc2F_actor_0596FA": { "start": 366330, "end": 366351, "type": "actor-def", "scene": "adrift", "movable": true },
+        "dc2F_adrift_fx": { "start": 366330, "end": 366351, "type": "actor-def", "scene": "adrift", "movable": true },
         "dc2F_adrift": { "start": 366351, "end": 371308, "type": "actor-def", "scene": "adrift", "movable": false }
     },
     "seaside_palace": {
@@ -558,15 +558,15 @@
             "btE3_kara_destroy": { "start": 624351, "end": 624353, "type": "Code" }
         } },
         "btDE_kara_missing": { "start": 624160, "end": 624408, "type": "actor-def", "scene": "babel_entrance", "movable": true },
-        "btE0_actor_098718": { "start": 624408, "end": 624456, "type": "actor-def", "scene": "babel_middle_floors", "movable": true },
-        "btE0_actor_098748": { "start": 624456, "end": 624504, "type": "actor-def", "scene": "babel_middle_floors", "movable": true },
-        "btE0_actor_098778": { "start": 624504, "end": 624552, "type": "actor-def", "scene": "babel_middle_floors", "movable": true },
-        "btE0_actor_0987A8": { "start": 624552, "end": 624600, "type": "actor-def", "scene": "babel_middle_floors", "movable": true },
-        "btE3_actor_0987D8": { "start": 624600, "end": 624648, "type": "actor-def", "scene": "babel_upper_floors", "movable": true },
+        "btE0_crystal_gate_a": { "start": 624408, "end": 624456, "type": "actor-def", "scene": "babel_middle_floors", "movable": true },
+        "btE0_crystal_gate_b": { "start": 624456, "end": 624504, "type": "actor-def", "scene": "babel_middle_floors", "movable": true },
+        "btE0_crystal_gate_c": { "start": 624504, "end": 624552, "type": "actor-def", "scene": "babel_middle_floors", "movable": true },
+        "btE0_crystal_gate_d": { "start": 624552, "end": 624600, "type": "actor-def", "scene": "babel_middle_floors", "movable": true },
+        "btE3_crystal_gate": { "start": 624600, "end": 624648, "type": "actor-def", "scene": "babel_upper_floors", "movable": true },
         "btDE_olman": { "start": 624648, "end": 625944, "type": "actor-def", "scene": "babel_entrance", "movable": true },
         "btE4_kara": { "start": 625944, "end": 626578, "type": "actor-def", "scene": "babel_rooftop", "movable": true },
         "btE4_olman": { "start": 626578, "end": 628102, "type": "actor-def", "scene": "babel_rooftop", "movable": true },
-        "btE1_actor_099586": { "start": 628102, "end": 628276, "type": "actor-def", "scene": "babel_light_elevator", "movable": true },
+        "btE1_light_elevator": { "start": 628102, "end": 628276, "type": "actor-def", "scene": "babel_light_elevator", "movable": true },
         "btE1_comet_soon": { "start": 628276, "end": 628684, "type": "actor-def", "scene": "babel_light_elevator", "movable": true },
         "btE2_brought_back": { "start": 628684, "end": 628915, "type": "actor-def", "scene": "babel_exterior", "movable": true },
         "btDE_monologue": { "start": 628915, "end": 629106, "type": "actor-def", "scene": "babel_entrance", "movable": true },
@@ -574,14 +574,14 @@
         "bt_static_sprite": { "start": 629532, "end": 629550, "type": "Code", "movable": true },
         "btDF_spirits": { "start": 629550, "end": 630412, "type": "actor-def", "scene": "babel_lower_floors", "movable": true },
         "btDF_kara": { "start": 630412, "end": 630928, "type": "actor-def", "scene": "babel_lower_floors", "movable": true },
-        "sE7_thinker_0CEB5B": { "start": 846683, "end": 846708, "type": "thinker-def", "scene": "space_flight", "movable": true },
-        "sE8_thinker_0CEB74": { "start": 846708, "end": 846949, "type": "thinker-def", "scene": "comet_lair", "movable": false },
-        "sE7_actor_0CEDC5": { "scene": "space_flight", "movable": true, "parts": {
-            "sE7_actor_0CEDC5": { "start": 847301, "end": 847530, "type": "actor-def" },
+        "sE7_space_bg_scroll": { "start": 846683, "end": 846708, "type": "thinker-def", "scene": "space_flight", "movable": true },
+        "sE8_comet_display_config": { "start": 846708, "end": 846949, "type": "thinker-def", "scene": "comet_lair", "movable": false },
+        "sE7_space_flight_controller": { "scene": "space_flight", "movable": true, "parts": {
+            "sE7_space_flight_controller": { "start": 847301, "end": 847530, "type": "actor-def" },
             "code_0CED4C": { "start": 847180, "end": 847301, "order": 847305, "type": "Code" }
         } },
-        "sE8_actor_0CEEAA": { "scene": "comet_lair", "movable": false, "parts": {
-            "sE8_actor_0CEEAA": { "start": 847530, "end": 849439, "type": "actor-def" },
+        "sE8_dark_gaia": { "scene": "comet_lair", "movable": false, "parts": {
+            "sE8_dark_gaia": { "start": 847530, "end": 849439, "type": "actor-def" },
             "code_0CEC65": { "start": 846949, "end": 847180, "order": 848458, "type": "Code" }
         } }
     },
@@ -761,10 +761,10 @@
         "ir25_ceiling_tile": { "start": 639803, "end": 639903, "type": "actor-def", "scene": "inca_entryway", "movable": true },
         "ir25_block_slot": { "start": 639903, "end": 639931, "type": "actor-def", "scene": "inca_entryway", "movable": true },
         "ir1F_gold_tile": { "start": 639931, "end": 640137, "type": "actor-def", "scene": "stone_lord_plates", "movable": true },
-        "ir1F_actor_09C489": { "start": 640137, "end": 640178, "type": "actor-def", "scene": "stone_lord_plates", "movable": true },
-        "ir1E_actor_09C4B2": { "start": 640178, "end": 640333, "type": "actor-def", "scene": "larai_cliff_back", "movable": true },
-        "ir1E_actor_09C54D": { "start": 640333, "end": 640355, "type": "actor-def", "scene": "larai_cliff_back", "movable": true },
-        "ir1E_actor_09C563": { "start": 640355, "end": 640377, "type": "actor-def", "scene": "larai_cliff_back", "movable": true },
+        "ir1F_plate_gate_opener": { "start": 640137, "end": 640178, "type": "actor-def", "scene": "stone_lord_plates", "movable": true },
+        "ir1E_cliff_slide_trigger": { "start": 640178, "end": 640333, "type": "actor-def", "scene": "larai_cliff_back", "movable": true },
+        "ir1E_cliff_boulder_a": { "start": 640333, "end": 640355, "type": "actor-def", "scene": "larai_cliff_back", "movable": true },
+        "ir1E_cliff_boulder_b": { "start": 640355, "end": 640377, "type": "actor-def", "scene": "larai_cliff_back", "movable": true },
         "ir1D_wind_melody": { "start": 640377, "end": 640622, "type": "actor-def", "scene": "larai_cliff", "movable": true },
         "ir24_glowing_tile": { "start": 640622, "end": 640681, "type": "actor-def", "scene": "inca_plate_room", "movable": true },
         "ir28_ceiling_trap_trigger": { "start": 640681, "end": 640920, "type": "actor-def", "scene": "ceiling_trap_room", "movable": true },
@@ -921,16 +921,16 @@
             }
         },
         "mtA0_intro": { "start": 517981, "end": 518128, "type": "actor-def", "scene": "kress_entrance", "movable": true },
-        "mtA2_actor_07E7F0": { "scene": "kress_crossroads", "movable": true, "parts": {
-            "mtA2_actor_07E7F0": { "start": 518128, "end": 518209, "type": "actor-def" },
+        "mtA2_crystal_ball_gate": { "scene": "kress_crossroads", "movable": true, "parts": {
+            "mtA2_crystal_ball_gate": { "start": 518128, "end": 518209, "type": "actor-def" },
             "f_mtA2_actor_07E7F0_destroy": { "start": 518209, "end": 518211, "type": "Code" }
         } },
-        "mtA5_actor_07E843": { "scene": "kress_circuit", "movable": true, "parts": {
-            "mtA5_actor_07E843": { "start": 518211, "end": 518294, "type": "actor-def" },
+        "mtA5_crystal_ball_gate_a": { "scene": "kress_circuit", "movable": true, "parts": {
+            "mtA5_crystal_ball_gate_a": { "start": 518211, "end": 518294, "type": "actor-def" },
             "f_mtA5_actor_07E843_destroy": { "start": 518209, "end": 518211, "order": 518215, "type": "Code" }
         } },
-        "mtA5_actor_07E896": { "scene": "kress_circuit", "movable": true, "parts": {
-            "mtA5_actor_07E896": { "start": 518294, "end": 518401, "type": "actor-def" },
+        "mtA5_crystal_ball_gate_b": { "scene": "kress_circuit", "movable": true, "parts": {
+            "mtA5_crystal_ball_gate_b": { "start": 518294, "end": 518401, "type": "actor-def" },
             "f_mtA5_actor_07E896_destroy": { "start": 518209, "end": 518211, "order": 518298, "type": "Code" }
         } },
         "mtA1_fire_sprite": { "movable": true, "parts": {
@@ -1097,24 +1097,24 @@
         "scene_actors": { "start": 819200, "end": 845285, "type": "&scene-event", "postProcess": "Extract(1)", "movable": true, "order": -1 },
         "scene_thinkers": { "start": 845285, "end": 846683, "type": "&thinker-spawn", "order": -1 },
         "scene_meta": { "start": 884736, "end": 897023, "type": "scene-meta", "postProcess": "Lookup(0,1)&&Label(label,meta_label)", "movable": true },
-        "table_0E8000": { "start": 950272, "end": 969435, "type": "&sprite-set" },
-        "table_0EDA00": { "start": 973312, "end": 974144, "type": "&sprite-set" },
-        "table_0EE000": { "start": 974848, "end": 982479, "type": "&sprite-set" },
-        "table_0F8000": { "start": 1015808, "end": 1020133, "type": "&sprite-set" },
-        "table_0FC000": { "start": 1032192, "end": 1043845, "type": "&sprite-set" },
+        "spriteset_freedan": { "start": 950272, "end": 969435, "type": "&sprite-set" },
+        "spriteset_npc_props": { "start": 973312, "end": 974144, "type": "&sprite-set" },
+        "spriteset_enemies": { "start": 974848, "end": 982479, "type": "&sprite-set" },
+        "spriteset_will_alt": { "start": 1015808, "end": 1020133, "type": "&sprite-set" },
+        "spriteset_ability_fx": { "start": 1032192, "end": 1043845, "type": "&sprite-set" },
         "inventory_spritemap": { "start": 1081344, "end": 1085191, "type": "&sprite-set" },
-        "table_148000": { "start": 1343488, "end": 1355931, "type": "&sprite-set" },
-        "table_14C000": { "start": 1359872, "end": 1360072, "type": "&sprite-set" },
-        "table_14C0C8": { "start": 1360072, "end": 1360172, "type": "&sprite-set" },
-        "table_14C12C": { "start": 1360172, "end": 1360280, "type": "&sprite-set" },
-        "table_158000": { "start": 1409024, "end": 1426465, "type": "&sprite-set" },
+        "spriteset_shadow": { "start": 1343488, "end": 1355931, "type": "&sprite-set" },
+        "spriteset_town_objects": { "start": 1359872, "end": 1360072, "type": "&sprite-set" },
+        "spriteset_field_fx": { "start": 1360072, "end": 1360172, "type": "&sprite-set" },
+        "spriteset_particle_fx": { "start": 1360172, "end": 1360280, "type": "&sprite-set" },
+        "spriteset_will": { "start": 1409024, "end": 1426465, "type": "&sprite-set" },
         "palette_bundles": { "start": 1474560, "end": 1497132, "type": "&palette-bundle" },
-        "table_178000": { "start": 1540096, "end": 1541149, "type": "&sprite-set" },
-        "table_179000": { "start": 1544192, "end": 1544618, "type": "&sprite-set" },
-        "table_17A000": { "start": 1548288, "end": 1549554, "type": "&sprite-set" },
-        "table_17B000": { "start": 1552384, "end": 1553318, "type": "&sprite-set" },
-        "table_17C000": { "start": 1556480, "end": 1557571, "type": "&sprite-set" },
-        "table_17D000": { "start": 1560576, "end": 1561584, "type": "&sprite-set" }
+        "spriteset_dark_friar": { "start": 1540096, "end": 1541149, "type": "&sprite-set" },
+        "spriteset_aura": { "start": 1544192, "end": 1544618, "type": "&sprite-set" },
+        "spriteset_freedan_fx": { "start": 1548288, "end": 1549554, "type": "&sprite-set" },
+        "spriteset_shadow_fx": { "start": 1552384, "end": 1553318, "type": "&sprite-set" },
+        "spriteset_shadow_mode": { "start": 1556480, "end": 1557571, "type": "&sprite-set" },
+        "spriteset_will_projectile": { "start": 1560576, "end": 1561584, "type": "&sprite-set" }
     },
     "sky_garden": {
         "garden_crash_cutscene": { "start": 237738, "end": 238074, "type": "actor-def", "scene": "garden_crash", "movable": true },
@@ -1131,7 +1131,7 @@
         "sp58_descent_cutscene": { "start": 426257, "end": 426384, "type": "actor-def", "scene": "garden_descent", "movable": true },
         "sp58_red_eye": { "start": 426384, "end": 426880, "type": "actor-def", "scene": "garden_descent", "movable": true },
         "sp58_monologue": { "start": 426880, "end": 427158, "type": "actor-def", "scene": "garden_descent", "movable": true },
-        "sg4C_actor_0AB496": { "start": 701590, "end": 701616, "type": "actor-def", "movable": true },
+        "sg4C_auto_advance": { "start": 701590, "end": 701616, "type": "actor-def", "movable": true },
         "sg4D_cyber": { "movable": true, "parts": {
             "sg4D_blue_cyber": { "start": 701616, "end": 704766, "type": "actor-def" },
             "sub_0ADD1E": { "start": 711966, "end": 711975, "type": "Code" }
@@ -1151,20 +1151,20 @@
         "sg55_falling_tile": { "start": 708581, "end": 708608, "type": "actor-def", "scene": "viper_lair", "movable": true },
         "sg55_viper_arena": { "start": 708608, "end": 708821, "type": "Code", "scene": "viper_lair", "movable": true },
         "sg55_viper": { "start": 708821, "end": 711122, "type": "actor-def", "scene": "viper_lair", "movable": true },
-        "sg_actors_0ADA52": { "start": 711250, "end": 711480, "type": "Code", "movable": true }
+        "sg_bird_flight_patterns": { "start": 711250, "end": 711480, "type": "Code", "movable": true }
     },
     "angkor_wat": {
         "future_vision_cutscene": { "start": 238074, "end": 238321, "type": "actor-def", "scene": "future_vision", "movable": true },
-        "awB4_actor_0897CB": { "start": 563147, "end": 563168, "type": "actor-def", "scene": "snake_pit", "movable": true },
+        "awB4_snake_pit_fx": { "start": 563147, "end": 563168, "type": "actor-def", "scene": "snake_pit", "movable": true },
         "awB0_intro": { "start": 563168, "end": 563294, "type": "actor-def", "scene": "angkor_entrance", "movable": true },
-        "awBD_actor_08985E": { "start": 563294, "end": 563400, "type": "actor-def", "movable": true },
-        "awB2_actor_0898C8": { "start": 563400, "end": 563418, "type": "actor-def", "scene": "angkor_outer_east", "movable": true },
-        "awB3_actor_0898DA": { "start": 563418, "end": 563498, "type": "actor-def", "scene": "angkor_outer_north", "movable": true },
-        "awB4_actor_08992A": { "start": 563498, "end": 563631, "type": "actor-def", "scene": "snake_pit", "movable": true },
-        "awB7_actor_0899AF": { "start": 563631, "end": 563740, "type": "actor-def", "scene": "angkor_inner_gate", "movable": true },
+        "awBD_fall_trigger": { "start": 563294, "end": 563400, "type": "actor-def", "movable": true },
+        "awB2_stair_climb": { "start": 563400, "end": 563418, "type": "actor-def", "scene": "angkor_outer_east", "movable": true },
+        "awB3_vine_reveal": { "start": 563418, "end": 563498, "type": "actor-def", "scene": "angkor_outer_north", "movable": true },
+        "awB4_snake_pit_entry": { "start": 563498, "end": 563631, "type": "actor-def", "scene": "snake_pit", "movable": true },
+        "awB7_sliding_gate": { "start": 563631, "end": 563740, "type": "actor-def", "scene": "angkor_inner_gate", "movable": true },
         "awBC_blinding_light": { "start": 563740, "end": 563875, "type": "actor-def", "scene": "angkor_shrine_crystal", "movable": true },
         "awBF_spirit_guide": { "start": 563875, "end": 565036, "type": "actor-def", "scene": "angkor_pinnacle", "movable": true },
-        "awBC_actor_089F2C": { "start": 565036, "end": 565116, "type": "actor-def", "scene": "angkor_shrine_crystal", "movable": true },
+        "awBC_bouncing_crystal": { "start": 565036, "end": 565116, "type": "actor-def", "scene": "angkor_shrine_crystal", "movable": true },
         "awBA_glasses": { "start": 565116, "end": 565244, "type": "actor-def", "scene": "angkor_inner_courtyard", "movable": true },
         "awB6_bones": { "start": 565244, "end": 565854, "type": "actor-def", "scene": "angkor_outer_courtyard", "movable": true },
         "awBA_bones": { "start": 565854, "end": 566443, "type": "actor-def", "scene": "angkor_inner_courtyard", "movable": true },
@@ -1261,7 +1261,7 @@
     },
     "diamond_mine": {
         "dm3F_switch": { "start": 380960, "end": 381030, "type": "actor-def", "scene": "mine_main", "movable": true },
-        "dm3F_actor_05D066": { "start": 381030, "end": 381070, "type": "actor-def", "scene": "mine_main", "movable": false },
+        "dm3F_mine_collapse_trigger": { "start": 381030, "end": 381070, "type": "actor-def", "scene": "mine_main", "movable": false },
         "dm47_imas": { "start": 381070, "end": 381274, "type": "actor-def", "scene": "mine_inner", "movable": true },
         "dm47_remus": { "scene": "mine_inner", "movable": true, "parts": {
             "dm47_remus": { "start": 381274, "end": 381475, "type": "actor-def" },
@@ -1391,8 +1391,8 @@
         } }
     },
     "pyramid": {
-        "pyD0_actor_08B592": { "start": 570770, "end": 570984, "type": "actor-def", "movable": true },
-        "pyCC_actor_08B668": { "start": 570984, "end": 571042, "type": "actor-def", "scene": "pyramid_main", "movable": true },
+        "pyD0_breakable_wall": { "start": 570770, "end": 570984, "type": "actor-def", "movable": true },
+        "pyCC_dark_space_portal": { "start": 570984, "end": 571042, "type": "actor-def", "scene": "pyramid_main", "movable": true },
         "pyCC_entrance_portal": { "scene": "pyramid_main", "movable": true, "parts": {
             "pyCC_entrance_portal": { "start": 571042, "end": 571124, "type": "actor-def" },
             "dialogstring_08B70D": { "start": 571149, "end": 571213, "type": "DialogString" }
@@ -1405,11 +1405,11 @@
         } },
         "pyCD_kara": { "start": 572720, "end": 573949, "type": "actor-def", "scene": "puzzle_room", "movable": true },
         "pyCD_explorer": { "start": 573949, "end": 574170, "type": "actor-def", "scene": "puzzle_room", "movable": true },
-        "pyD6_actor_08C2DA": { "start": 574170, "end": 574461, "type": "actor-def", "scene": "pyramid_vader_a", "movable": true },
-        "pyD6_actor_08C3FD": { "start": 574461, "end": 574698, "type": "actor-def", "scene": "pyramid_vader_a", "movable": true },
-        "pyD7_actor_08C4EA": { "start": 574698, "end": 574922, "type": "actor-def", "scene": "pyramid_vader_b", "movable": true },
-        "pyD9_actor_08C4EA": { "start": 574922, "end": 575210, "type": "actor-def", "scene": "pyramid_dangerslide_b", "movable": true },
-        "pyD4_actor_08C6EA": { "start": 575210, "end": 575359, "type": "actor-def", "scene": "pyramid_trickle_a", "movable": true },
+        "pyD6_vader_barrier_upper": { "start": 574170, "end": 574461, "type": "actor-def", "scene": "pyramid_vader_a", "movable": true },
+        "pyD6_vader_barrier_lower": { "start": 574461, "end": 574698, "type": "actor-def", "scene": "pyramid_vader_a", "movable": true },
+        "pyD7_sliding_wall": { "start": 574698, "end": 574922, "type": "actor-def", "scene": "pyramid_vader_b", "movable": true },
+        "pyD9_dangerslide_controller": { "start": 574922, "end": 575210, "type": "actor-def", "scene": "pyramid_dangerslide_b", "movable": true },
+        "pyD4_falling_orb": { "start": 575210, "end": 575359, "type": "actor-def", "scene": "pyramid_trickle_a", "movable": true },
         "pyDA_lithograph1": { "start": 575359, "end": 575564, "type": "actor-def", "scene": "heiroglyph_room", "movable": false },
         "pyDA_lithograph2": { "start": 575564, "end": 575732, "type": "actor-def", "scene": "heiroglyph_room", "movable": false },
         "pyDA_lithograph3": { "start": 575732, "end": 575900, "type": "actor-def", "scene": "heiroglyph_room", "movable": false },
@@ -1423,17 +1423,17 @@
         "pyCC_portal": { "start": 576876, "end": 577042, "type": "actor-def", "scene": "pyramid_main", "movable": true },
         "pyDD_mystic_statue": { "start": 577042, "end": 577184, "type": "actor-def", "scene": "mummy_queen_lair", "movable": true },
         "CollisionLayerRenderer": { "start": 637719, "end": 637879, "type": "Code", "movable": true },
-        "pyDD_actor_0BA5DF": { "start": 763359, "end": 763418, "type": "actor-def", "scene": "mummy_queen_lair", "movable": true },
+        "pyDD_queen_arena_boundary": { "start": 763359, "end": 763418, "type": "actor-def", "scene": "mummy_queen_lair", "movable": true },
         "pyDD_mummy_queen": { "scene": "mummy_queen_lair", "movable": false, "parts": {
             "btF6_neo_queen": { "start": 763418, "end": 764586, "type": "actor-def" },
             "code_0BAC7D": { "start": 765053, "end": 765108, "type": "Code" }
         } },
-        "py_queen_actor_0BAAAA": { "start": 764586, "end": 764851, "type": "Code", "scene": "mummy_queen_lair", "movable": false },
-        "py_queen_actor_0BABB3": { "start": 764851, "end": 765053, "type": "Code", "scene": "mummy_queen_lair", "movable": false },
+        "pyDD_queen_orb_shot": { "start": 764586, "end": 764851, "type": "Code", "scene": "mummy_queen_lair", "movable": false },
+        "pyDD_queen_spirit_attack": { "start": 764851, "end": 765053, "type": "Code", "scene": "mummy_queen_lair", "movable": false },
         "mummy_queen_angle_table": { "start": 765108, "end": 765116, "type": "Binary", "scene": "mummy_queen_lair", "movable": false },
-        "py_queen_actor_0BACBC": { "start": 765116, "end": 765291, "type": "Code", "scene": "mummy_queen_lair", "movable": false },
-        "py_queen_actor_0BAD6B": { "start": 765291, "end": 765374, "type": "Code", "scene": "mummy_queen_lair", "movable": false },
-        "pyDD_actor_0BADBE": { "start": 765374, "end": 765383, "type": "actor-def", "scene": "mummy_queen_lair", "movable": true },
+        "pyDD_queen_phase_transition": { "start": 765116, "end": 765291, "type": "Code", "scene": "mummy_queen_lair", "movable": false },
+        "pyDD_queen_debris": { "start": 765291, "end": 765374, "type": "Code", "scene": "mummy_queen_lair", "movable": false },
+        "pyDD_queen_invincible_orb": { "start": 765374, "end": 765383, "type": "actor-def", "scene": "mummy_queen_lair", "movable": true },
         "pyDD_teleporter": { "start": 765383, "end": 765775, "type": "actor-def", "scene": "mummy_queen_lair", "movable": true },
         "pyD2_haunt": { "start": 770436, "end": 770973, "type": "actor-def", "movable": true },
         "pyCE_tuts": { "start": 770973, "end": 771491, "type": "actor-def", "movable": true },
@@ -1443,8 +1443,8 @@
     "mansion": {
         "sEA_solid_arm": { "start": 587529, "end": 588906, "type": "actor-def", "scene": "solid_arm_lair", "movable": true },
         "sE9_mansion_intro": { "start": 588906, "end": 589055, "type": "actor-def", "scene": "mansion", "movable": true },
-        "btEA_actor_0ADC55": { "scene": "solid_arm_lair", "movable": true, "parts": {
-            "btEA_actor_0ADC55": { "start": 711765, "end": 711934, "type": "actor-def" },
+        "btEA_conveyor_controller": { "scene": "solid_arm_lair", "movable": true, "parts": {
+            "btEA_conveyor_controller": { "start": 711765, "end": 711934, "type": "actor-def" },
             "sc_ix_0ADCFE": { "start": 711934, "end": 711941, "type": "conveyor-index" },
             "sc_data_0ADD05": { "start": 711941, "end": 711966, "type": "conveyor-zone" }
         } }

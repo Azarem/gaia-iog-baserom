@@ -3,8 +3,8 @@
 ?INCLUDE 'enemy_stats_table'
 ?INCLUDE 'sE6_gaia'
 ?INCLUDE 'SetPlayerGameOverFlag'
+?INCLUDE 'spriteset_enemies'
 ?INCLUDE 'StandardEnemyDefeatHandler'
-?INCLUDE 'table_0EE000'
 
 !sceneCurrent                   0644
 !gfxCacheIdxA                   0648
@@ -1284,7 +1284,7 @@ code_0AFAA0 {
 }
 
 code_0AFAE7 {
-    COP [SetMetasprite] ( @table_0EE000 )
+    COP [SetMetasprite] ( @spriteset_enemies )
     COP [LoopInit] ( #03 )
     COP [SpawnLastRel] ( @code_0AFB0E, #00, #00, #$0302 )
     COP [WaitByte] ( #01 )

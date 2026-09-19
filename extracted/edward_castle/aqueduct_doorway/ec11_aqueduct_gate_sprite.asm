@@ -1,4 +1,4 @@
-?INCLUDE 'table_0EE000'
+?INCLUDE 'spriteset_enemies'
 
 !moveXAlt                       7F0018
 !moveYAlt                       7F001A
@@ -11,7 +11,7 @@ ec11_aqueduct_gate_sprite [
   code_09AA43:
     COP [BranchIfFlagByte] ( #DF, #01, &code_09AA6C )
     COP [SetFlagByte] ( #DF )
-    COP [SetMetasprite] ( @table_0EE000 )
+    COP [SetMetasprite] ( @spriteset_enemies )
     COP [StageSpriteLoop] ( #33, #02 )
     COP [AnimLoop]
     LDA #$0048

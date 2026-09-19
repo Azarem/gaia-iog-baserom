@@ -1,5 +1,5 @@
 ?INCLUDE 'enemy_stats_table'
-?INCLUDE 'table_0EE000'
+?INCLUDE 'spriteset_enemies'
 
 !characterForm                  0AD4
 !statsPtr                       7F0020
@@ -22,7 +22,7 @@ ec12_aqueduct_enemy [
     STA $statsPtr, X
     LDA #$0031
     TSB $12
-    COP [SetMetasprite] ( @table_0EE000 )
+    COP [SetMetasprite] ( @spriteset_enemies )
     LDA #$00FF
     STA $currentHp, X
 

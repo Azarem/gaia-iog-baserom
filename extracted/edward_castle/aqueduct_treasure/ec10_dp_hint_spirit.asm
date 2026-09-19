@@ -1,4 +1,4 @@
-?INCLUDE 'table_0EDA00'
+?INCLUDE 'spriteset_npc_props'
 
 ---------------------------------------------
 
@@ -9,7 +9,7 @@ ec10_dp_hint_spirit [
     LDA #$0200
     TSB $12
     COP [SetOnInteract] ( &code_04DD1B )
-    COP [SetMetasprite] ( @table_0EDA00 )
+    COP [SetMetasprite] ( @spriteset_npc_props )
     COP [StageSprAndHitbox] ( #04 )
     COP [SolidHighHere]
     COP [SetEntryContinue]

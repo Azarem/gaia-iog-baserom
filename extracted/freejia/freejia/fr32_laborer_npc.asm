@@ -1,4 +1,4 @@
-?INCLUDE 'table_14C000'
+?INCLUDE 'spriteset_town_objects'
 
 !cameraBoundsY                  06DC
 
@@ -12,7 +12,7 @@ fr32_laborer_npc [
     STA $cameraBoundsY
     COP [SpawnAfter] ( @code_05B03E )
     COP [SetAnimScratch] ( @misc_fx_1CD080 )
-    COP [SetMetasprite] ( @table_14C000 )
+    COP [SetMetasprite] ( @spriteset_town_objects )
     COP [ResetSpriteInit] ( #00, #$3FE0 )
     COP [LoadSpriteAnimGlobal]
     RTL 
@@ -21,7 +21,7 @@ fr32_laborer_npc [
 
 code_05B03E {
     COP [SetAnimScratch] ( @misc_fx_1CD080 )
-    COP [SetMetasprite] ( @table_14C000 )
+    COP [SetMetasprite] ( @spriteset_town_objects )
     COP [ResetSpriteInit] ( #01, #$3FF0 )
     COP [LoadSpriteAnimGlobal]
     RTL 

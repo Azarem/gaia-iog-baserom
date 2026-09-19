@@ -8,7 +8,7 @@
 ?INCLUDE 'inventory_spritemap'
 ?INCLUDE 'music_actors'
 ?INCLUDE 'sprite_composition'
-?INCLUDE 'table_0EE000'
+?INCLUDE 'spriteset_enemies'
 
 !sceneNext                      0642
 !gfxCacheIdxA                   0648
@@ -188,7 +188,7 @@ statue_reward_00CE97 [
 
 StatueRewardOrbitalSparkle {
     COP [SetSpritePriority] ( #30 )
-    COP [SetMetasprite] ( @table_0EE000 )
+    COP [SetMetasprite] ( @spriteset_enemies )
     COP [StageSprAndHitbox] ( #02 )
     LDA #$00FC
     STA $orbitDiameter, X
@@ -239,7 +239,7 @@ StatueRewardConfettiBurst {
     SEC 
     SBC #$0008
     STA $16
-    COP [SetMetasprite] ( @table_0EE000 )
+    COP [SetMetasprite] ( @spriteset_enemies )
     COP [StageSpriteFrame] ( #02 )
     COP [AnimOnce]
 

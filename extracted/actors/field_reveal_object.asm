@@ -1,4 +1,4 @@
-; Dark Space field-reveal reward actor that checks whether all enemies in the current scene are cleared (flag $0300).
+; Field-reveal reward actor that checks whether all enemies in the current scene are cleared (flag $0300).
 ; 
 ; Reads enemy_clear_reward_table for the scene's reward tier and stages HP/STR/DEF gem sprites. Animates upward through solid tiles, moves toward reveal position, spawns a collect_handler_gem, and plays a spin/shrink loop. Used when a cleared room's hidden stat reward becomes visible.
 ---------------------------------------------
@@ -6,7 +6,7 @@
 ?INCLUDE 'cop_handlers_flags'
 ?INCLUDE 'enemy_clear_reward_table'
 ?INCLUDE 'interaction_handlers'
-?INCLUDE 'table_0EE000'
+?INCLUDE 'spriteset_enemies'
 
 !sceneCurrent                   0644
 !chatPtr                        7F000A
@@ -19,7 +19,7 @@
 ---------------------------------------------
 
 field_reveal_object {
-    COP [SetMetasprite] ( @table_0EE000 )
+    COP [SetMetasprite] ( @spriteset_enemies )
     COP [SetSpritePalette] ( #00 )
     LDA #$6000
     TRB $12
