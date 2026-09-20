@@ -27,7 +27,7 @@ mu63_spirits [
     COP [WaitByte] ( #0F )
     COP [StartMusic] ( #1B )
     COP [WaitByte] ( #3B )
-    COP [SpawnThinker] ( @oneshot_palette_flash_1B.code_00B7E2 )
+    COP [SpawnThinker] ( @oneshot_palette_flash_1B.FlashPalette1B )
     COP [WaitByte] ( #BF )
     COP [SpawnAfterAbsFlags] ( @code_069C14, #$0020, #$00C0, #$1800 )
     COP [WaitByte] ( #27 )
@@ -54,7 +54,7 @@ mu63_spirits [
     COP [WaitByte] ( #3B )
     COP [SetFlagByte] ( #02 )
     COP [WaitByte] ( #77 )
-    COP [SpawnThinker] ( @oneshot_palette_flash_1C.code_00B7EC )
+    COP [SpawnThinker] ( @oneshot_palette_flash_1C.FlashPalette1C )
     COP [WaitByte] ( #7F )
     STZ $0688
     LDA #$CFF0
@@ -83,7 +83,7 @@ code_069AC1 {
     COP [WaitByte] ( #0F )
     COP [StartMusic] ( #1B )
     COP [WaitByte] ( #3B )
-    COP [SpawnThinker] ( @oneshot_palette_flash_1B.code_00B7E2 )
+    COP [SpawnThinker] ( @oneshot_palette_flash_1B.FlashPalette1B )
     COP [WaitByte] ( #BF )
     COP [SpawnAfterAbsFlags] ( @code_069C14, #$0120, #$00C0, #$1800 )
     COP [WaitByte] ( #27 )
@@ -110,7 +110,7 @@ code_069AC1 {
     COP [WaitByte] ( #3B )
     COP [SetFlagByte] ( #02 )
     COP [WaitByte] ( #77 )
-    COP [SpawnThinker] ( @oneshot_palette_flash_1C.code_00B7EC )
+    COP [SpawnThinker] ( @oneshot_palette_flash_1C.FlashPalette1C )
     COP [WaitByte] ( #7F )
     STZ $0688
     LDA #$CFF0

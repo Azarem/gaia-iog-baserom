@@ -55,7 +55,7 @@ code_09D137 {
     LDA #$2000
     TRB $10
     COP [SetFlagByte] ( #2A )
-    COP [SpawnThinker] ( @oneshot_palette_flash_1F.code_00B800 )
+    COP [SpawnThinker] ( @oneshot_palette_flash_1F.FlashPalette1F )
     COP [SolidHighHere]
     COP [SetOnInteract] ( &code_09D1D3 )
     COP [SetEntryContinue]

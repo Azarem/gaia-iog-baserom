@@ -50,7 +50,7 @@ gs2C_crow_crew [
     STA $CGADSUB
     REP #$20
     COP [WaitByte] ( #3B )
-    COP [SpawnThinker] ( @oneshot_palette_flash_1C.code_00B7EC )
+    COP [SpawnThinker] ( @oneshot_palette_flash_1C.FlashPalette1C )
     COP [WaitByte] ( #BF )
     SEP #$20
     LDA #$22

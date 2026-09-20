@@ -53,7 +53,7 @@ code_089937 {
     STA $COLDATA
     REP #$20
     COP [WaitByte] ( #B3 )
-    COP [SpawnThinker] ( @oneshot_palette_flash_1C.code_00B7EC )
+    COP [SpawnThinker] ( @oneshot_palette_flash_1C.FlashPalette1C )
 }
 
 code_089988 {

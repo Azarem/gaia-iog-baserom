@@ -58,7 +58,7 @@
 ; === INTERACTION COLLISION (246366–246996) ===
 ; 
 ; Two modes:
-; - Normal mode: Tests actors without $35C0 flags against player bbox. On hit, checks extendedFlags $0010 (collision callback). If callback exists, overwrites actor entry point. Otherwise defaults to smooth_follow_child.loc_00E4FA.
+; - Normal mode: Tests actors without $35C0 flags against player bbox. On hit, checks extendedFlags $0010 (collision callback). If callback exists, overwrites actor entry point. Otherwise defaults to smooth_follow_child.SmoothFollowChildDie.
 ; - Friendly mode ($0280): Only tests actors with $0020 flag (friendly/NPC). Simplified hitbox test (no H-mirror).
 ; 
 ; ApplyInteractionDamage (246752): For combat actors ($0020 clear), calculates damage = max(1, enemyAtk − playerDef), subtracts from playerHp, spawns HitStaggerMain with knockback. For NPCs ($0020 set), routes to InteractionDamage_NPCChat.
@@ -1286,9 +1286,9 @@ RunInteractionCollision {
     BRA loc_03C354
 
   loc_03C348:
-    LDA #$*smooth_follow_child.loc_00E4FA
+    LDA #$*smooth_follow_child.SmoothFollowChildDie
     STA $0002, X
-    LDA #$&smooth_follow_child.loc_00E4FA
+    LDA #$&smooth_follow_child.SmoothFollowChildDie
     STA $0000, X
 
   loc_03C354:

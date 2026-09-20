@@ -50,13 +50,13 @@ code_089AD4 {
     LDA #$15
     STA $CGADSUB
     REP #$20
-    COP [SpawnThinker] ( @oneshot_palette_flash_18.code_00B7CE )
+    COP [SpawnThinker] ( @oneshot_palette_flash_18.FlashPalette18 )
     COP [WaitByte] ( #EF )
     LDA #$2000
     TSB $10
     COP [ClearLowAbs] ( #0F, #0A )
     COP [ClearLowAbs] ( #10, #0A )
-    COP [SpawnThinker] ( @oneshot_palette_flash_19.code_00B7D8 )
+    COP [SpawnThinker] ( @oneshot_palette_flash_19.FlashPalette19 )
     COP [WaitByte] ( #EF )
     COP [PrintDialogString] ( &dialogstring_089E2E )
     COP [GiveItem] ( #1D, &code_089B27 )

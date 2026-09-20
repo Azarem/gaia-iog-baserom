@@ -598,4 +598,285 @@ All 28 scene files annotated. Covers Solid Arm boss, mansion intro, conveyor bel
 
 All 25 unused files have block notes. 12 annotated from scratch, 13 already had notes.
 
-### Phase 10: Future — coverage verification and inline comment passes for complex scene scripts
+### Phase 10: Generic label renames, inline comments for shared code, and overflow utilities
+
+**Goal:** Rename all remaining `code_`, `func_`, `sub_`, `dm_func_`, `dm_sub_` prefixed labels to descriptive names, add inline comments to heavily-referenced shared files, and audit overflow utility functions at bank boundaries.
+
+**Methodology:** Cross-reference scan of all `.asm` files for `$&block.part`, `$@block.part`, `#$&block.part`, `#$@block.part`, `&label`, `@label`, and `Address label` operands. This captures references that `?INCLUDE` alone cannot reveal (auto-discovered parts, dot-notation refs to parts not in blocks.json, direct label refs).
+
+**Current baseline (cross-reference scan results):**
+- 5,555 distinct cross-file reference targets across all .asm files
+- 551 of those targets have generic names (`code_`, `func_`, `sub_`, `loc_`, `binary_`, etc.)
+- 577 total cross-file references point to those 551 generic targets
+- 34 `func_`/`sub_` part names in `blocks.json` needing key updates
+- 3,310 total generic labels in all .asm files (3,276 `code_`, 20 `func_`, 12 `sub_`, 2 `dm_*`)
+- 7,214 existing inline comments (concentrated in engine banks 00-03)
+
+**How to discover shared code targets (agent instructions):**
+
+Scan the extracted `.asm` files for these reference patterns:
+```
+$&blockName.partName        — short cross-file ref (same bank)
+$@blockName.partName        — long cross-file ref (cross-bank)
+#$&blockName.partName       — immediate short pointer
+#$@blockName.partName       — immediate long pointer
+&label / @label             — COP operand refs
+Address label               — data table far pointer
+JSL $@blockName.partName    — long subroutine call
+JSR $&blockName.partName    — short subroutine call
+```
+
+Not all referenced "parts" will exist in `blocks.json` — many are auto-discovered by the engine during code analysis. These still appear in the extracted `.asm` as labels and can be referenced via dot-notation from other files.
+
+#### Step 10a: Rename high-impact generic labels referenced from multiple external files
+
+**Tier 1 — Cross-file dot-notation generics (2+ external files):**
+
+These appear in other files as `block.code_XXXXXX` and are the most visible generics:
+
+| Target | Ext refs | Referenced by |
+|--------|----------|---------------|
+| `oneshot_palette_flash_19.code_00B7D8` | 6 | awBC_blinding_light, awBF_spirit_guide, future_vision_cutscene, it15_lily, mu66_rama_spirits, sE8_dark_gaia |
+| `oneshot_palette_flash_18.code_00B7CE` | 5 | awBC_blinding_light, awBF_spirit_guide, it15_lily, mu66_rama_spirits, sE8_dark_gaia |
+| `oneshot_palette_flash_1C.code_00B7EC` | 5 | awB4_snake_pit_entry, ec0B_cell, gs2C_crow_crew, gs2C_descent, mu63_spirits |
+| `pr_text_placement_calc.code_0BCF8F` | 5 | pr8C_prologue1, pr8C_prologue5, pr8D_prologue2, pr8E_prologue3, pr8F_prologue4 |
+| `ApplyOrbitalOffsetFromRef.code_00F3D3` | 4 | attack_ability_system, mtA1_fire_sprite, pyDD_queen_spirit_attack, unused_mode7_boss |
+| `nv_village_event_sprite.code_0881AE` | 2 | nvAC_erik, nvAC_kara |
+| `oneshot_palette_flash_1B.code_00B7E2` | 2 | ec0B_cell, mu63_spirits |
+| `oneshot_palette_flash_40.code_00B7F6` | 2 | av74_kara, sp5D_fountain |
+| `player_character.loc_02C63B` | 2 | awB4_snake_pit_entry, gs2C_descent |
+| `sg_bird_flight_patterns.code_0ADAA0` | 2 | pyCC_mystic_ball, sg4D_cyber |
+| `sg_bird_flight_patterns.code_0ADAB5` | 2 | pyCC_mystic_ball, sg4D_cyber |
+
+Plus single-ref dot-notation generics (lower priority but still cross-file visible):
+
+| Target | Referenced by |
+|--------|---------------|
+| `aw_spirit_follower.code_0BBEF7` | awB1_goldcap |
+| `aw_spirit_follower.code_0BBF64` | pyDD_queen_spirit_attack |
+| `stair_climb.code_00D16D` | awB2_stair_climb |
+| `sp5D_fountain.code_069502` | awBC_bouncing_crystal |
+| `btE1_comet_soon.code_0997B7` | btE2_brought_back |
+| `sE8_comet_display_config.code_0CEB76` | sE8_dark_gaia |
+| `sE8_comet_display_config.code_0CEBA1` | sE8_dark_gaia |
+| `sE8_comet_display_config.code_0CEBF7` | sE8_dark_gaia |
+| `sE8_comet_display_config.code_0CEC35` | sE8_dark_gaia |
+| `sF7_credits_misc_timeline.code_09E65D` .. `code_09E8C1` (25 entries) | sF7_credits |
+| `town_door.code_00C5F6` | fr32_guide |
+| `ec_proximity_door_toggle.code_09C2DB`, `.code_09C2E4` | ir28_ceiling_trap_trigger |
+| `oneshot_palette_flash_1F.code_00B800` | it1A_moon_tribe |
+| `pyCD_jackal.code_08B804` | pyCD_flame_statue |
+| `sg55_viper_arena.code_0AD034` | sg55_mystic_statue |
+| `gs2B_wreck_wave_motion.code_05F859` | sg55_viper_arena |
+| `sg_bird_flight_patterns.code_0ADA69`, `.code_0ADA81`, `.code_0ADAD1`, `.code_0ADAE7`, `.code_0ADB04` | sg4D_cyber |
+| `sc02_card.code_04AFBF` | sc02_lance |
+| `smooth_follow_child.loc_00E4FA` | combat_collision |
+| `ambient_palette_cycler.code_00B522` | item_use_system |
+| `hint_npc.code_09A38D`, `.code_09A3A0` | dark_rewards |
+| `dm_follower_behavior.code_0ADC25` | unused_follow_chain |
+| `wa7B_competitor_right.code_07A192` | wa7B_competitor_left |
+| `wa78_men.code_078504` | wa78_full_pad |
+
+**Tier 2 — `?INCLUDE`-level shared files with generic top-level labels:**
+
+Files `?INCLUDE`d by 2+ other files with `code_`/`func_`/`sub_` as top-level block or part labels:
+
+| File | Ext refs | Generics | Key labels |
+|------|----------|----------|------------|
+| `music_actors.asm` | 8 | 1 | `code_02A0DD` |
+| `pr_text_placement_calc.asm` | 6 | 1 | `code_0BCF8F` |
+| `player_move_diag.asm` | 5 | 10 | 10 diagonal collision subroutines |
+| `dm_follower_behavior.asm` | 3 | 6 | `dm_func_0ADB6B`, `dm_sub_0ADD27`, 4 `code_` |
+| `warps_interaction.asm` | 3 | 2 | `code_02A88B`, `code_02AAF2` |
+| `EnemyDefeatDispatch.asm` | 3 | 1 | `code_0AA474` |
+| `spc_transfer.asm` | 3 | 1 | `code_029153` |
+| `scene_script.asm` | 2 | 3 | `code_02845C`, `code_0285F3`, `code_028CB0` |
+| `sg4D_dynapede.asm` | 2 | 26 | 26 movement/attack subroutines |
+| `wa78_men.asm` | 2 | 15 | 15 NPC dialog branch labels |
+| `pyCD_jackal.asm` | 2 | 10 | 10 stealth puzzle states |
+| `sg_bird_flight_patterns.asm` | 2 | 9 | 9 flight path entries |
+| `btE1_comet_soon.asm` | 2 | 4 | 4 spirit dialog sections |
+| `sE8_comet_display_config.asm` | 2 | 4 | 4 display setup routines |
+| `ec11_countdown.asm` | 2 | 4 | 4 countdown/puzzle states |
+| `sp5D_fountain.asm` | 2 | 4 | 4 fountain puzzle states |
+| `sg55_viper_arena.asm` | 2 | 4 | 4 arena setup routines |
+| `pyDA_lithograph1.asm` | 6 | 3 | 3 lithograph helper routines |
+| `ec11_button_voice.asm` | 2 | 3 | 3 button event states |
+| `fr39_kara.asm` | 2 | 3 | 3 dialog branches |
+| `sc02_card.asm` | 2 | 3 | 3 card game states |
+| `aw_spirit_follower.asm` | 2 | 2 | 2 follow behavior states |
+| `wa7B_competitor_right.asm` | 2 | 2 | 2 reaction states |
+| `gs2B_wreck_wave_motion.asm` | 2 | 1 | 1 wave computation |
+| `gs2C_crew4.asm` | 2 | 1 | 1 dialog callback |
+| `nv_village_event_sprite.asm` | 2 | 1 | 1 event handler |
+
+**Method per label:**
+1. Read the `.asm` file and understand each generic label's purpose
+2. For `code_` labels: add descriptive entry to `names.json`
+3. For `func_`/`sub_`/`dm_*` labels: update the part key in `blocks.json` via targeted string replacement AND add `names.json` entry
+4. For dot-notation refs that are auto-discovered (not in blocks.json): add `names.json` entry only
+5. Run `npm run extract` to verify the labels appear correctly
+6. Update any `notes/partNotes/` keys that reference the old name (rename propagation checklist)
+
+#### Step 10b: Rename `func_`/`sub_` part names in blocks.json (34 entries)
+
+These are `blocks.json` part keys with generic prefixes. They require key updates (targeted string replacement to preserve formatting) plus `names.json` additions:
+
+| Block | Part count | Description |
+|-------|-----------|-------------|
+| `mu67_vampires` | 16 (`func_` × 9, `sub_` × 7) | Boss helper routines + shared utilities |
+| `ir29_castoth` | 9 (`func_` × 7, `sub_` × 2) | Boss helper routines — JSL utilities |
+| `dm_follower_behavior` | 2 (`dm_func_0ADB6B`, `dm_sub_0ADD27`) | Mine follower init + tile check |
+| `ramps` | 1 (`func_00D5C0`) | Ramp calculation utility |
+| `av6E_draco` | 1 (`sub_0AFD26`) | Draco enemy subroutine |
+| `sF7_credits` | 1 (`func_09F69F`) | Credits utility |
+| `sF7_credits_npc_e` | 1 (`func_09E5DE`) | Credits NPC utility |
+| `mtA1_fire_sprite` | 1 (`sub_0BA5D5`) | Fire Sprite math utility |
+| `sg4D_cyber` | 1 (`sub_0ADD1E`) | Cyber enemy subroutine |
+| `sg4D_knight_armor` | 1 (`sub_0ADD59`) | Knight Armor subroutine |
+| `gw8A_sand_fanger` | 1 (`sub_0B9CE8`) | Sand Fanger boss subroutine |
+
+**Method:** Read the function's code to understand its role, then:
+1. Choose descriptive name that reflects the function's behavior
+2. Update `blocks.json` part key via targeted string replacement
+3. Add `names.json` entry at the part's start address
+4. Update `notes/partNotes/` key if a part note exists
+5. Run `npm run extract` to verify
+
+#### Step 10c: Add inline comments to high-reference shared files
+
+Files that are heavily referenced via both `?INCLUDE` AND cross-file `$&`/`$@` operands, with >100 lines, and currently lacking inline comments. These are the backbone of the codebase and benefit most from inline documentation.
+
+**Top 13 cross-file reference targets (10+ files reference their parts via dot-notation):**
+
+| Target | Part refs | Description |
+|--------|----------|-------------|
+| `tile_collision.*` | 50+ part refs | Collision probes, movement deltas, map cell reads |
+| `npc_wander_ai.*` | 26 refs | NPC random walk + position sync |
+| `sprite_composition.*` | 14 refs | Animation update, OAM composition, depth sort |
+| `hardware_math.*` | 16 refs | SignedMultiply, UnsignedDivide, MulDivide |
+| `actor_pool.*` | 15 refs | Allocator, palette reset, anim frame lookup |
+| `vblank_joypad.*` | 25 refs | NMI enable, VBlank wait, joypad read |
+| `system_core.*` | 15 refs | Frame render, dialogue, main loop |
+| `cop_handlers_flags.*` | 24 refs | Flag test/set/clear across all flag spaces |
+| `interaction_handlers.*` | 12 refs | Push handler, collect handler |
+| `player_character.*` | 13 refs | Idle entry, vine entry, loc_02C63B |
+| `sE6_gaia.*` | 19 refs | Transform routines, Dark Space architecture |
+| `smooth_follow.*` | 8 refs | Follow+chase, sibling copy |
+| `map_coords.*` | 8 refs | Tile-to-index, pixel-to-VRAM, movement |
+
+**Engine/System files needing inline comments (sorted by reference impact):**
+1. `tile_collision.asm` (8 `?INCLUDE` + 50+ part refs, 691L) — collision core
+2. `player_character.asm` (19 `?INCLUDE` + 13 part refs, 1891L) — player state machine
+3. `sprite_composition.asm` (15 `?INCLUDE` + 14 part refs, 970L) — OAM pipeline
+4. `system_core.asm` (13 `?INCLUDE` + 15 part refs, 772L) — main loop
+5. `actor_pool.asm` (17 `?INCLUDE` + 15 part refs, 294L) — actor allocation
+6. `hardware_math.asm` (18 `?INCLUDE` + 16 part refs, 226L) — multiply/divide
+7. `vblank_joypad.asm` (11 `?INCLUDE` + 25 part refs, 340L) — VBlank/NMI
+8. `hdma_dma_spc.asm` (12 `?INCLUDE` + 7 part refs, 516L) — DMA/HDMA
+9. `smooth_follow.asm` (9 `?INCLUDE` + 8 part refs, 906L) — follow AI
+10. `scene_lifecycle.asm` (3 `?INCLUDE` + part refs, 1228L) — scene management
+11. `actor_execution.asm` (5 `?INCLUDE` + part refs, 1201L) — actor main loop
+12. `tile_collision_physics.asm` (4 `?INCLUDE` + 3 part refs, 1156L) — physics
+13. `map_coords.asm` (6 `?INCLUDE` + 8 part refs, 383L) — coordinate math
+
+**Shared Functions/Actors needing inline comments:**
+14. `StandardEnemyDefeatHandler.asm` (16 part refs + 18 `?INCLUDE`, 209L)
+15. `npc_wander_ai.asm` (26 part refs + 13 `?INCLUDE`, 140L)
+16. `interaction_handlers.asm` (12 part refs + 13 `?INCLUDE`, 475L)
+17. `player_transition_handlers.asm` (6 part refs + 13 `?INCLUDE`, 248L)
+18. `camera_drift.asm` (7 part refs + 9 `?INCLUDE`, 141L)
+19. `EscortFollowPathTracker.asm` (7 `?INCLUDE`, 177L)
+20. `ApplyOrbitalOffsetFromRef.asm` (4 part refs + 11 `?INCLUDE`, 73L)
+21. `mode7_perspective.asm` (4 part refs + 5 `?INCLUDE`, 423L)
+
+**Player Movement files needing inline comments:**
+22. `player_move_diag.asm` (5 `?INCLUDE` + 4 part refs, 985L)
+23. `player_move_main.asm` (5 `?INCLUDE` + 3 part refs, 345L)
+24. `player_move_ns.asm` (5 `?INCLUDE` + 4 part refs, 450L)
+25. `player_move_south.asm` (5 `?INCLUDE` + 4 part refs, 667L)
+26. `player_move_east.asm` (4 `?INCLUDE` + 2 part refs, 445L)
+
+**Method per file:**
+1. Run `npm run extract:lt` to get address-tagged output
+2. Read file — identify complex logic, non-obvious operations, key branch points
+3. Add inline comments directly in the `.asm` file after `; {addr}` tags
+4. Aim for ~1 comment per 5-8 instructions in complex code, fewer in straightforward code
+5. Run `npm run ingest` to synchronize
+6. Run `npm run extract` to verify
+
+#### Step 10d: Audit remaining high-generic-count internal files
+
+Files with 1 external reference but many generic labels. These are primarily boss scripts and complex enemies whose internal structure benefits from named labels:
+
+| File | Generics | Lines | Description |
+|------|----------|-------|-------------|
+| `sg4D_cyber.asm` | 104 | 1474 | Cyber enemy — Sky Garden |
+| `mu67_vampires.asm` | 83 | 1347 | Vampire duo boss — Mu |
+| `world_map_options.asm` | 80 | 787 | World map menu system |
+| `item_use_system.asm` | 66 | 1840 | All 41 item use handlers |
+| `mu5F_cyclops.asm` | 63 | 622 | Cyclops enemy — Mu |
+| `sg55_viper.asm` | 60 | 1150 | Viper boss — Sky Garden |
+| `gw8A_sand_fanger.asm` | 53 | 1610 | Sand Fanger boss — Great Wall |
+| `sE8_dark_gaia.asm` | 48 | 1005 | Dark Gaia — final boss |
+| `gw83_asp.asm` | 48 | 573 | Asp enemy — Great Wall |
+| `ir29_castoth.asm` | 46 | 1150 | Castoth boss — Incan Ruins |
+| `ir1F_stone_guard.asm` | 44 | 770 | Stone Guard — Incan Ruins |
+| `pyDD_mummy_queen.asm` | 44 | 627 | Mummy Queen — Pyramid |
+| `sF7_credits_misc_timeline.asm` | ~25 | — | Credits timeline entries (all `code_09E*`) |
+| (+ ~50 more files with 10-40 generics each) | | | |
+
+Also includes ~100 `binary_` labels referenced once each (mostly sprite data in banks 01, 03) — lowest priority.
+
+These are lower priority since they're only referenced internally or by `scene_actors`, but renaming improves readability for anyone auditing the boss/enemy logic.
+
+#### Step 10e: Rename oneshot thinker/palette entry points
+
+A recurring pattern found by the cross-reference scan: the `oneshot_palette_flash_*` thinker files each have a single auto-discovered `code_` entry point that is referenced by multiple scene scripts via dot-notation. These are small files (1 label each) with high cross-file visibility:
+
+| Thinker | Label | Refs | Description |
+|---------|-------|------|-------------|
+| `oneshot_palette_flash_19` | `code_00B7D8` | 6 | Bright white flash (used by spirit/vision scenes) |
+| `oneshot_palette_flash_18` | `code_00B7CE` | 5 | Spirit flash variant |
+| `oneshot_palette_flash_1C` | `code_00B7EC` | 5 | Dark/dramatic flash |
+| `oneshot_palette_flash_1B` | `code_00B7E2` | 2 | Prison/spirit flash |
+| `oneshot_palette_flash_40` | `code_00B7F6` | 2 | Subtle flash |
+| `oneshot_palette_flash_1F` | `code_00B800` | 1 | Moon tribe flash |
+| `ambient_palette_cycler` | `code_00B522` | 1 | Cycler entry point |
+
+These are quick wins — read, name, verify.
+
+#### Sub-phase breakdown
+
+Work is split into file-sized chunks. Each sub-phase: read file(s), rename generics (`names.json` + `blocks.json` + `partNotes` propagation), audit block/part notes and inline comments.
+
+| Sub-phase | Files | Scope |
+|-----------|-------|-------|
+| **10.1** | Oneshot thinkers (7), ambient_palette_cycler, smooth_follow_child, music_actors, town_door, stair_climb | Quick wins: 12 files, ~14 generic labels, audit existing notes |
+| **10.2** | scene_script, spc_transfer, warps_interaction | Engine shared code: 3 files, 6 generics |
+| **10.3** | player_move_diag, player_character (`loc_02C63B`) | Player movement: 2 files, 11 generics |
+| **10.4** | EnemyDefeatDispatch, ApplyOrbitalOffsetFromRef, dm_follower_behavior | Shared functions: 3 files, 8 generics |
+| **10.5** | sc02_card, ec11_countdown, ec11_button_voice, ec_proximity_door_toggle, hint_npc | Scene cross-refs early game: 5 files, ~15 generics |
+| **10.6** | fr39_kara, gs2C_crew4, gs2B_wreck_wave_motion, wa78_men, wa7B_competitor_right, nv_village_event_sprite | Scene cross-refs mid game: 6 files, ~24 generics |
+| **10.7** | sg_bird_flight_patterns, sg55_viper_arena, sg4D_dynapede, sp5D_fountain, aw_spirit_follower | Scene cross-refs dungeons: 5 files, ~45 generics |
+| **10.8** | pyDA_lithograph1, pyCD_jackal, btE1_comet_soon, sE8_comet_display_config, pr_text_placement_calc | Scene cross-refs late game: 5 files, ~22 generics |
+| **10.9** | sF7_credits_misc_timeline, sF7_credits (`func_`), sF7_credits_npc_e (`func_`) | Credits: 3 files, ~27 generics |
+| **10.10** | ramps, av6E_draco, mtA1_fire_sprite, sg4D_cyber (`sub_`), sg4D_knight_armor (`sub_`), gw8A_sand_fanger (`sub_`) | `func_`/`sub_` blocks.json renames — small files: 6 files, 7 entries |
+| **10.11** | ir29_castoth | `func_`/`sub_` blocks.json renames — Castoth boss: 1 file, 9 entries |
+| **10.12** | mu67_vampires | `func_`/`sub_` blocks.json renames — Vampires boss: 1 file, 16 entries |
+| **10.13** | sg4D_cyber, world_map_options, item_use_system, boss/enemy files | Internal high-generic files: ~60 files, 500+ labels |
+
+#### Progress tracking
+
+**10.1: Quick wins — COMPLETE**
+- Renamed 13 generic labels across 12 files via `names.json`
+- 7 oneshot thinker entry points: `FlashPalette18`/`19`/`1B`/`1C`/`1F`/`40`, `PaletteCycleLoop`
+- `smooth_follow_child.loc_00E4FA` → `SmoothFollowChildDie` (2 cross-file refs in combat_collision)
+- `music_actors.code_02A0DD` → `MusicLoadCleanup` (propagated to block note + 2 part note refs)
+- `town_door.code_00C5F6`/`code_00C60A` → `TownDoorInit`/`TownDoorProximityCheck`
+- `stair_climb.code_00D164`/`code_00D16D` → `StairTriggerWestOffset`/`StairTriggerWestMain`
+- Added 14 part notes: town_door (5), smooth_follow_child (8), stair_climb (0 — existing)
+- Added 59 inline comments: smooth_follow_child (43), town_door (14), stair_climb (2 existing)
+- 0 stale cross-file generic dot-notation refs remain for these targets
+
+### Phase 11: Future — inline comments for complex scene scripts and remaining generic labels

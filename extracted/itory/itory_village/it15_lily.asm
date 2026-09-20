@@ -58,7 +58,7 @@ code_04E2E6 {
     LDA #$03
     STA $CGADSUB
     REP #$20
-    COP [SpawnThinker] ( @oneshot_palette_flash_18.code_00B7CE )
+    COP [SpawnThinker] ( @oneshot_palette_flash_18.FlashPalette18 )
     COP [WaitByte] ( #7F )
     COP [SetFlagByte] ( #01 )
     COP [LoopInit] ( #10 )
@@ -80,7 +80,7 @@ code_04E2E6 {
     STA $cameraBoundsY
     COP [ClearFlagByte] ( #01 )
     COP [WaitByte] ( #3B )
-    COP [SpawnThinker] ( @oneshot_palette_flash_19.code_00B7D8 )
+    COP [SpawnThinker] ( @oneshot_palette_flash_19.FlashPalette19 )
     COP [WaitByte] ( #9D )
     COP [WaitByte] ( #59 )
     COP [PrintDialogString] ( &dialogstring_04E46F )

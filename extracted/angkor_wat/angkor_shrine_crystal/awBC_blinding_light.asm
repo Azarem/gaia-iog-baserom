@@ -32,7 +32,7 @@ code_089A3B {
     COP [WaitByte] ( #13 )
 
   loc_089A43:
-    COP [SpawnThinker] ( @oneshot_palette_flash_18.code_00B7CE )
+    COP [SpawnThinker] ( @oneshot_palette_flash_18.FlashPalette18 )
     COP [WaitByte] ( #B3 )
     COP [SetEntryContinue]
     COP [BranchIfEquipped] ( #1C, &code_089A53 )
@@ -40,7 +40,7 @@ code_089A3B {
 }
 
 code_089A53 {
-    COP [SpawnThinker] ( @oneshot_palette_flash_19.code_00B7D8 )
+    COP [SpawnThinker] ( @oneshot_palette_flash_19.FlashPalette19 )
     COP [WaitByte] ( #B3 )
 }
 

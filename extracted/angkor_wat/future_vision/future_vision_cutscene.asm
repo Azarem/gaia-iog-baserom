@@ -107,7 +107,7 @@ FutureVisionController {
     STA $00B8
     LDA #$0130            ; Perspective angle = $0130 (304) — starting rotation offset
     STA $00BC
-    COP [SpawnThinker] ( @oneshot_palette_flash_19.code_00B7D8 ) ; Spawn palette flash thinker for dramatic visual entrance
+    COP [SpawnThinker] ( @oneshot_palette_flash_19.FlashPalette19 ) ; Spawn palette flash thinker for dramatic visual entrance
     COP [SetEntryContinue]
     INC $00BC             ; Phase 1: rotate perspective every frame
     LDA $0036             ; Check frame parity ($0036 & 1)

@@ -67,10 +67,10 @@ code_069412 {
     LDA #$03
     STA $CGADSUB
     REP #$20
-    COP [SpawnThinker] ( @oneshot_palette_flash_40.code_00B7F6 )
+    COP [SpawnThinker] ( @oneshot_palette_flash_40.FlashPalette40 )
     COP [SetFlagByte] ( #0F )
     COP [WaitByte] ( #3B )
-    COP [SpawnThinker] ( @oneshot_palette_flash_40.code_00B7F6 )
+    COP [SpawnThinker] ( @oneshot_palette_flash_40.FlashPalette40 )
     COP [SpawnThinkerParam] ( #26, @actor_pool.PaletteResetAndKillThinker )
     COP [WaitWord] ( #$02B1 )
     COP [ClearFlagByte] ( #0F )

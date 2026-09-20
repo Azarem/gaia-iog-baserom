@@ -44,11 +44,11 @@ code_06D171 {
     LDA #$21
     STA $CGADSUB
     REP #$20
-    COP [SpawnThinker] ( @oneshot_palette_flash_40.code_00B7F6 )
+    COP [SpawnThinker] ( @oneshot_palette_flash_40.FlashPalette40 )
     COP [WaitByte] ( #3B )
     LDA #$2000
     TSB $10
-    COP [SpawnThinker] ( @oneshot_palette_flash_40.code_00B7F6 )
+    COP [SpawnThinker] ( @oneshot_palette_flash_40.FlashPalette40 )
     COP [WaitByte] ( #3B )
     LDA #$2000
     TSB $10

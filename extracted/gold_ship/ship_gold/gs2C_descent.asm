@@ -64,7 +64,7 @@ code_0581DD {
     LDA #$EFF0
     TSB $joypadMaskStd
     COP [LoopNext]
-    COP [SpawnThinker] ( @oneshot_palette_flash_1C.code_00B7EC )
+    COP [SpawnThinker] ( @oneshot_palette_flash_1C.FlashPalette1C )
     COP [WaitByte] ( #BF )
     COP [SetFlagByte] ( #4C )
     COP [PrintDialogString] ( &dialogstring_0581FF )

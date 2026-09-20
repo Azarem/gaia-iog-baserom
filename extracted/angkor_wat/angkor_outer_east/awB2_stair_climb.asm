@@ -16,6 +16,6 @@ awB2_stair_climb [
     COP [ExitIfFlagWord] ( #$016B, #01 )
     LDA #$000A
     STA $0E
-    COP [JumpScript] ( @stair_climb.code_00D16D )
+    COP [JumpScript] ( @stair_climb.StairTriggerWestMain )
 } >
 ]

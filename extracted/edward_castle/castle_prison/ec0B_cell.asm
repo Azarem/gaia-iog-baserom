@@ -62,10 +62,10 @@ code_04D275 {
     TSB $joypadMaskStd
     COP [PrintDialogString] ( &dialogstring_04D679 )
     COP [WaitByte] ( #1D )
-    COP [SpawnThinker] ( @oneshot_palette_flash_1B.code_00B7E2 )
+    COP [SpawnThinker] ( @oneshot_palette_flash_1B.FlashPalette1B )
     COP [WaitByte] ( #BF )
     COP [PrintDialogString] ( &dialogstring_04D732 )
-    COP [SpawnThinker] ( @oneshot_palette_flash_1C.code_00B7EC )
+    COP [SpawnThinker] ( @oneshot_palette_flash_1C.FlashPalette1C )
     COP [WaitByte] ( #BF )
     LDA #$CFF0
     TRB $joypadMaskStd

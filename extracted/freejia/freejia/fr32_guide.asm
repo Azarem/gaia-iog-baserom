@@ -52,7 +52,7 @@ code_05B1F1 {
 }
 
 code_05B203 {
-    COP [SpawnAfterAbsFlags] ( @town_door.code_00C5F6, #$0278, #$0230, #$1000 )
+    COP [SpawnAfterAbsFlags] ( @town_door.TownDoorInit, #$0278, #$0230, #$1000 )
     COP [SetOnInteract] ( &code_05B220 )
     COP [SetTilePos] ( #29, #24 )
     COP [SolidHighHere]

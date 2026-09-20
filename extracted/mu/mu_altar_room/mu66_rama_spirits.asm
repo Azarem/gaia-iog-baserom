@@ -54,12 +54,12 @@ mu66_rama_spirits [
     LDA #$03
     STA $CGADSUB
     REP #$20
-    COP [SpawnThinker] ( @oneshot_palette_flash_18.code_00B7CE )
+    COP [SpawnThinker] ( @oneshot_palette_flash_18.FlashPalette18 )
     COP [WaitByte] ( #7F )
     COP [StageBgChange] ( #39 )
     COP [ApplyBgChange]
     COP [SetFlagWord] ( #$0139 )
-    COP [SpawnThinker] ( @oneshot_palette_flash_19.code_00B7D8 )
+    COP [SpawnThinker] ( @oneshot_palette_flash_19.FlashPalette19 )
     COP [WaitByte] ( #7F )
     LDA #$0002
     STA $0AAC

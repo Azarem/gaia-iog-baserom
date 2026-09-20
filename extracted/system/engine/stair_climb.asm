@@ -121,16 +121,16 @@ StairTriggerNorth [
 StairTriggerWestEntry [
   actor-def < #00, #00, #20, {
 
-  code_00D164:
+  StairTriggerWestOffset:
     COP [AddPosition] ( #F8, #00 ) ; WestEntry variant: nudge trigger position 8px left before detection
-    BRA code_00D16D
+    BRA StairTriggerWestMain
 } >
 ]
 
 StairTriggerWest [
   actor-def < #00, #00, #20, {
 
-  code_00D16D:
+  StairTriggerWestMain:
     COP [SetEntryContinue] ; Set entry for per-frame execution (re-check every frame)
     LDY $playerActor
     LDA $14

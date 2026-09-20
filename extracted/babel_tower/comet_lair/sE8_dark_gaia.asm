@@ -172,7 +172,7 @@ code_0CEF88 {
     LDY #$0F00
     LDA #$&sE8_comet_display_config.code_0CEB76
     STA $0000, Y
-    COP [SpawnThinker] ( @oneshot_palette_flash_18.code_00B7CE )
+    COP [SpawnThinker] ( @oneshot_palette_flash_18.FlashPalette18 )
     COP [WaitByte] ( #77 )
     LDA #$&enemy_stats_table+154
     STA $statsPtr, X
@@ -214,7 +214,7 @@ code_0CEF88 {
     BNE loc_0CF004
     COP [LoopNext]
     COP [SetEntryExit]
-    COP [SpawnThinker] ( @oneshot_palette_flash_19.code_00B7D8 )
+    COP [SpawnThinker] ( @oneshot_palette_flash_19.FlashPalette19 )
     LDY #$0F00
     LDA #$&sE8_comet_display_config.code_0CEBA1
     STA $0000, Y
@@ -344,7 +344,7 @@ code_0CF154 {
     LDY #$0F00
     LDA #$&sE8_comet_display_config.code_0CEC35
     STA $0000, Y
-    COP [SpawnThinker] ( @oneshot_palette_flash_18.code_00B7CE )
+    COP [SpawnThinker] ( @oneshot_palette_flash_18.FlashPalette18 )
     COP [WaitWord] ( #$012B )
     LDA #$0404
     STA $gfxCacheIdxB

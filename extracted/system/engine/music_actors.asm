@@ -19,7 +19,7 @@
 ; 
 ; === ACTOR POOL GUARD ===
 ; 
-; Both SpawnAfterFlags calls check for $1FC0 return (actor pool exhausted). On failure, code_02A0DD clears displayModeFlags bit 7 ($0080, music loading active) and kills the actor — the music load is abandoned gracefully.
+; Both SpawnAfterFlags calls check for $1FC0 return (actor pool exhausted). On failure, MusicLoadCleanup clears displayModeFlags bit 7 ($0080, music loading active) and kills the actor — the music load is abandoned gracefully.
 ; 
 ; === QUERY INTERFACE ===
 ; 
@@ -46,7 +46,7 @@
 ; 
 ; After the first transfer: spawns MusicRenderSync for a post-load screen update, copies render state ($20/$22) to the child actor, then polls APUIO1 for $FF (SPC700 readiness signal). On ready: unmasks joypad, spawns a second SpcTransferMusicData for follow-up data, waits again for $FFFF transition state, then WaitByte(1) for final sync.
 ; 
-; Actor pool exhaustion ($1FC0 from SpawnAfterFlags) branches to code_02A0DD for graceful cleanup.
+; Actor pool exhaustion ($1FC0 from SpawnAfterFlags) branches to MusicLoadCleanup for graceful cleanup.
 
 MusicPlaybackActor {
     LDA $musicParentActor ; Load musicParentActor to per-actor scratch (orbitAngle,X)
@@ -54,7 +54,7 @@ MusicPlaybackActor {
     COP [SpawnAfterFlags] ( @hdma_dma_spc.SpcTransferMusicData, #$2000 ) ; Spawn SpcTransferMusicData child actor for SPC data upload
     CPY #$1FC0            ; $1FC0 = actor pool exhausted — check spawn success
     BNE loc_02A056
-    JMP $&code_02A0DD     ; Spawn failed: jump to cleanup (clear flags, die)
+    JMP $&MusicLoadCleanup ; Spawn failed: jump to cleanup (clear flags, die)
 
   loc_02A056:
     TXA                   ; Swap X/Y to access spawned child actor's slot
@@ -100,7 +100,7 @@ MusicPlaybackActor {
     TRB $joypadMaskStd
     COP [SpawnAfterFlags] ( @hdma_dma_spc.SpcTransferMusicData, #$2000 ) ; Spawn second SpcTransferMusicData for follow-up data block
     CPY #$1FC0            ; Check spawn success ($1FC0 = pool exhausted)
-    BEQ code_02A0DD
+    BEQ MusicLoadCleanup
     PHX 
     LDA $orbitAngle, X    ; Copy parent actor reference to child's chatPtr
     TYX 
@@ -122,7 +122,7 @@ MusicPlaybackActor {
 ---------------------------------------------
 ; Music actor cleanup on failure or completion. Clears displayModeFlags bit 7 ($0080 = music loading active flag) and kills the actor via COP [Die]. Reached when SpawnAfterFlags returns $1FC0 (actor pool exhausted) or as the normal exit path after all transfers complete.
 
-code_02A0DD {
+MusicLoadCleanup {
     LDA #$0080            ; Clear music loading flag (displayModeFlags bit 7 = $0080)
     TRB $displayModeFlags
     COP [Die]             ; Kill this actor — music load complete or abandoned

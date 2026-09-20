@@ -629,7 +629,7 @@ dialogstring_0389FF `[DEF]Play the Flute?[N] Yes[N] No`
 UseItem_WindFlute_Effect {
     COP [SetFlagByte] ( #01 )
     COP [PrintDialogString] ( &dialogstring_038A46 )
-    COP [SpawnThinkerParam] ( #2F, @ambient_palette_cycler.code_00B522 )
+    COP [SpawnThinkerParam] ( #2F, @ambient_palette_cycler.PaletteCycleLoop )
     COP [RestoreSavedPtr]
 
   loc_038A25:
