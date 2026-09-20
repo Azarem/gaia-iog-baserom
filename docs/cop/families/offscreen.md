@@ -19,7 +19,6 @@ Yield while an actor is off-screen, branch when outside the camera window, or ho
 
 ## Family notes
 
-- IOG `[27]` is **`WaitWhileOffscreen`** — not Robotrek’s player-script queue opcode at the same hex index.
 - `[68]` script/asm name **`BranchIfOffCamera`**; older docs alias **`BranchIfOffscreen`**.
 - `[69]` **`HaltIfMaxFrames`**: `BCC` on `threshold CMP $00E4` means **continue** when `$00E4 ≥ threshold`; **RTL yield** while `$00E4 < threshold`. Legacy “`< Min`” wording is easy to invert.
 

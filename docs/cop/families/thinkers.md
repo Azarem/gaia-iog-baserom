@@ -22,7 +22,6 @@ _Deep-audited ops: `[3B]`, `[3C]`, `[3D]`_ · _Source: [`cop_handlers_thinker.as
 - **`[3C]`** skips the param byte; entry pointer is the first operand.
 - **`[3D]`** does **not** `RTL` — it `RTI`s. Thinker scripts almost always **`COP [KillThinker]` then `RTL`**.
 - Spawn copies caller **`animScratch2`** into the new thinker (inherit parent ambient state).
-- Do not confuse **`[3C] SpawnThinker`** (IOG) with Robotrek’s unrelated `[3C]` music op — opcode numbers are game-specific.
 
 ## Usage statistics
 

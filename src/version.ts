@@ -1,1 +1,1 @@
-export const BASEROM_VERSION = "0.2.4";
+export const BASEROM_VERSION = "0.2.5";

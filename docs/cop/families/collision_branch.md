@@ -102,7 +102,6 @@ COP [BranchIfSolidHere] ( &code_0BBA54 )
   - `extracted/great_wall/gw83_asp.asm:255`
   - `extracted/mu/mu60_plasma_chain.asm:25`
 
-- **Relations:** Same probe point as `[0B]` but read-only. Directional variants `[15]`–`[18]`. Robotrek has no direct named equivalent in the `[44]`–`[49]` paint/probe family.
 
 ---
 

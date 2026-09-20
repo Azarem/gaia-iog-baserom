@@ -1019,7 +1019,7 @@
         },
         "system_strings": {
             "parts": {
-                "boot_screen_strings": { "start": 121304, "end": 121535, "type": "ConsoleString" },
+                "consolestring_01D9D8": { "start": 121304, "end": 121535, "type": "ConsoleString" },
                 "item_name_table": { "start": 121535, "end": 122398, "type": "&ConsoleString" },
                 "item_menu_table": { "start": 122398, "end": 123178, "type": "&ConsoleString" },
                 "item_table_separator": { "start": 123178, "end": 123186, "type": "Binary" },

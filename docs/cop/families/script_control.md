@@ -595,7 +595,6 @@ Callee ends with **`RestoreSavedPtr`** or **`ReturnWithSignal`**.
 | Op | Difference |
 |----|------------|
 | `[C9]` | Sets **`$00`** to target, yields; callee next **frame** |
-| Robotrek `[00]` gosub | IOG uses **`retPtr1`** and **`$0A`** cursor, not `$7F001A` |
 
 ---
 
@@ -711,7 +710,6 @@ COP [LoopEnd]
 | Op | Difference |
 |----|------------|
 | `[CB]` | Decrements count; branch back or exit |
-| Robotrek `[05]`–`[07]` | Different WRAM (`$7F0024` / `$7F0026`) |
 
 ---
 

@@ -104,7 +104,7 @@ COP [ClearSolidOffset] ( #00, #03 )
   - `extracted/great_wall/gw82_archer.asm:48,93,152`
   - `extracted/mu/mu5F_cyclops.asm:25,81,101`
 
-- **Relations:** Inverse of `[0C]`. Same solid paint as `[0F]`/`[0D]` but rectangle vs single tile. Robotrek `[44]` `solid_on` is the same role on `$7FA000`.
+- **Relations:** Inverse of `[0C]`. Same solid paint as `[0F]`/`[0D]` but rectangle vs single tile.
 
 ---
 
@@ -153,7 +153,7 @@ Often immediately after `[0B]` in cyclic traps or when an enemy dies:
 | Effect | Clear hi nibble only |
 | vs `[11]` | `[11]` zeros entire byte |
 
-- **Relations:** Inverse of `[0B]`. Pairs with `[0E]` for offset clears. Robotrek `[45]` `solid_off`.
+- **Relations:** Inverse of `[0B]`. Pairs with `[0E]` for offset clears.
 
 ---
 
@@ -210,7 +210,7 @@ Signed offsets: `#FF` = −1 tile, `#01` = +1 tile (same encoding as `[0E]`).
 | dX, dY | Signed **tile** offsets (8-bit, sign-extended, ×16 px) |
 | Outcome | Always continue |
 
-- **Relations:** Single-tile counterpart to `[0B]` rectangle. Pairs with `[0E]`. Robotrek `[46]` `solid_on_at`.
+- **Relations:** Single-tile counterpart to `[0B]` rectangle. Pairs with `[0E]`.
 
 ---
 
@@ -241,7 +241,7 @@ COP [ClearSolidOffset] ( #00, #03 )
 |-------|------------|
 | dX, dY | Same signed tile encoding as `[0D]` |
 
-- **Relations:** Inverse of `[0D]`. Robotrek `[47]` `solid_off_at`.
+- **Relations:** Inverse of `[0D]`.
 
 ---
 
