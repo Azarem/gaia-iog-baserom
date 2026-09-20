@@ -35,7 +35,7 @@ Bank `$00` embeds dispatch jump tables, bitmasks, interpolation curves, and co-l
 | `wram_fill_constant` | `$00846C` | `byte_00846C` | 1 byte (`$E0`) | WRAM fill constant (unused) |
 | `bitmasks_bit_position` | `$00B11D` | `bitmasks_00B11D` | 8 bytes | `$01,$02,$04,$08,$10,$20,$40,$80` |
 | `body_table` | *(include)* | `body_table` | Variable | Player body sprite-set index (Will/Freedan/Shadow) |
-| `table_01B086` | *(include)* | `table_01B086` | Variable | Animation frame duration/speed lookup |
+| `movement_delta_table` | *(include)* | `movement_delta_table` | Variable | Animation frame duration/speed lookup |
 | `scene_flag_table` | *(include)* | `scene_flag_table` | Variable | Sine/cosine lookup data for HUD init |
 | `sine_table_8bit` | *(include)* | `sine_table_8bit` | 256 bytes | Sine table for HDMA wave effects |
 | `hdma_channel_config` | *(include)* | `hdma_channel_config` | Variable | DMA channel configuration bytes |
@@ -121,7 +121,7 @@ Weighted probability threshold table for `DarkGemDropSystem` (`$00DF29`). Contai
 | Include | Bank | Referenced By | Purpose |
 |---------|------|---------------|---------|
 | `body_table` | `$01` | `SetActorBody`, player sprite COPs | 6 bytes × N entries: sprite pointer triplets for Will/Freedan/Shadow bodies |
-| `table_01B086` | `$01` | `AnimFrameLookup`, forced walks, sprite staging | Animation frame duration/speed; indexed as `A << 1` |
+| `movement_delta_table` | `$01` | `AnimFrameLookup`, forced walks, sprite staging | Animation frame duration/speed; indexed as `A << 1` |
 | `scene_flag_table` | `$01` | `SystemInit` HUD pointer init | Sine/cosine pairs → copied to `$09BA`–`$09C4` at boot |
 | `sine_table_8bit` | `$01` | `BuildSineHdmaTable`, `BuildSineLookupTable`, orbital math | 256-byte sine wave for HDMA displacement and `$7E8900`/`$7E8B00` precompute |
 | `hdma_channel_config` | `$01` | HDMA queue COPs, DMA setup thinkers | Per-channel HDMA register template bytes |
@@ -164,7 +164,7 @@ All `?INCLUDE` directives observed in bank `$00` system and upper-half code:
 | `ApplyOrbitalOffsetFromRef` | Orbital/spiral movement math (`ApplyOrbitalOffsetFromRef`) |
 | `EnemyPositionSnap` | Grid-snap walk helper (deferred resume target, bank `$0A`) |
 | `system_strings` | System ASCII strings (BG3 HUD overlays) |
-| `table_01B086` | Animation frame duration/speed lookup table |
+| `movement_delta_table` | Animation frame duration/speed lookup table |
 
 **Additional includes in upper-half blocks** (not in system core chunk):
 

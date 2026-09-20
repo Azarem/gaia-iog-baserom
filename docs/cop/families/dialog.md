@@ -1,6 +1,6 @@
 # COP family: Dialog
 
-_Deep-audited ops: `[6B]`, `[BD]`, `[BE]`, `[BF]`_
+_Deep-audited ops: `[6B]`, `[BD]`, `[BE]`, `[BF]`_ · _Source: [`cop_handlers_input.asm`](../../../extracted/system/engine/cop_handlers_input.asm)_
 
 [← COP index](../index.md)
 
@@ -45,7 +45,7 @@ Text output and branching choice menus. **`PrintDialogString` (`$BF`)** is the d
 
 - **Preferred name:** `PrintDialogString`
 - **Aliases:** (primary NPC “talk” opcode)
-- **Handler:** `PrintDialogString` @ `extracted/system/engine/cop_handlers_input.asm`
+- **Handler:** `PrintDialogString` @ [`cop_handlers_input.asm`](../../../extracted/system/engine/cop_handlers_input.asm)
 - **Usage count:** 1383
 
 ##### What it does
@@ -110,7 +110,7 @@ COP [DialogueOptions] ( #04, #00, &code_list_0BEE4E )
 #### COP [BE] — `DialogueOptions` (choice menu → branch table)
 
 - **Preferred name:** `DialogueOptions`
-- **Handler:** `DialogueOptions` @ `extracted/system/engine/cop_handlers_input.asm`
+- **Handler:** `DialogueOptions` @ [`cop_handlers_input.asm`](../../../extracted/system/engine/cop_handlers_input.asm)
 - **Usage count:** 92
 
 ##### What it does
@@ -176,7 +176,7 @@ Layout bytes **`#04, #00`** → word **`$0004`** (four options in a single row �
 
 - **Preferred name:** `PrintDialogStringAlt`
 - **Aliases:** (no `$2000` dialogue mode path)
-- **Handler:** `PrintDialogStringAlt` @ `extracted/system/engine/cop_handlers_input.asm`
+- **Handler:** `PrintDialogStringAlt` @ [`cop_handlers_input.asm`](../../../extracted/system/engine/cop_handlers_input.asm)
 - **Usage count:** 24
 
 ##### What it does
@@ -226,7 +226,7 @@ COP [PrintDialogStringAlt] ( &dialogstring_0BF437 )  ; system/diary_menu/sFA_dia
 #### COP [BD] — `RunBg3Script` (BG3 console / ASCII overlay)
 
 - **Preferred name:** `RunBg3Script`
-- **Handler:** `RunBg3Script` @ `extracted/system/engine/cop_handlers_input.asm`
+- **Handler:** `RunBg3Script` @ [`cop_handlers_input.asm`](../../../extracted/system/engine/cop_handlers_input.asm)
 - **Usage count:** 61
 
 ##### What it does

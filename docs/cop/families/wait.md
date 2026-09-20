@@ -1,6 +1,6 @@
 # COP family: Wait
 
-_Ops: `[DA]`, `[DB]`_ · _Source: `extracted/system/engine/cop_handlers_flow.asm`_
+_Ops: `[DA]`, `[DB]`_ · _Source: [`cop_handlers_flow.asm`](../../../extracted/system/engine/cop_handlers_flow.asm)_
 
 [← COP index](../index.md)
 
@@ -39,7 +39,7 @@ Frame-based delays for actor scripts. Both opcodes load a countdown into **`$08`
 
 #### COP [DA] — `WaitByte` (delay 0–255 frames)
 
-- **Handler:** `WaitByte` @ `cop_handlers_flow.asm:602-617`
+- **Handler:** `WaitByte` @ [`cop_handlers_flow.asm:602-617`](../../../extracted/system/engine/cop_handlers_flow.asm)
 - **Parameters:** `Byte Frames` (`db-us/copdef.json`)
 - **Usage count:** 713
 
@@ -118,7 +118,7 @@ COP [WaitByte] ( #0E )
 
 #### COP [DB] — `WaitWord` (delay 0–65535 frames)
 
-- **Handler:** `WaitWord` @ `cop_handlers_flow.asm:622-628` (falls into **`loc_00ACC9`**)
+- **Handler:** `WaitWord` @ [`cop_handlers_flow.asm:622-628`](../../../extracted/system/engine/cop_handlers_flow.asm) (falls into **`loc_00ACC9`**)
 - **Parameters:** `Word Frames`
 - **Usage count:** 41
 

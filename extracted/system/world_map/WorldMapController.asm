@@ -395,9 +395,9 @@ binary_03A525 #80807090909068A098A0
 ; 
 ; === MOVEMENT STEP (4 bytes) ===
 ; 
-; Byte 1 (step type): × 2 → index into table_01B086 for X movement delta source pointer → $18
-; Byte 2: × 2 → index into table_01B086 for Y movement delta source pointer → $1A
-; Byte 3: × 2 → index into table_01B086 for Z movement delta source pointer → $1C
+; Byte 1 (step type): × 2 → index into movement_delta_table for X movement delta source pointer → $18
+; Byte 2: × 2 → index into movement_delta_table for Y movement delta source pointer → $1A
+; Byte 3: × 2 → index into movement_delta_table for Z movement delta source pointer → $1C
 ; Byte 4: frame count → $24
 ; 
 ; Each frame, for each non-null axis pointer ($18/$1A/$1C):
@@ -409,7 +409,7 @@ binary_03A525 #80807090909068A098A0
 ; 
 ; Decrement frame count ($24). When negative, jump back to RouteStepLoop for next step.
 ; 
-; The table_01B086 contains pointers to pre-computed movement delta sequences (velocity curves, arcs, straight-line deltas) shared with forced_walk and hit_stagger systems.
+; The movement_delta_table contains pointers to pre-computed movement delta sequences (velocity curves, arcs, straight-line deltas) shared with forced_walk and hit_stagger systems.
 
 RouteAnimationEngine {
     PHX                   ; Load route pointer: world_map_routes[$0D5A × 2] → $2C/$2E
@@ -436,7 +436,7 @@ RouteAnimationEngine {
     JMP $&RouteSubroutineCall
 
   loc_03A558:
-    ASL                   ; Step type × 2 → index into table_01B086 for X delta source
+    ASL                   ; Step type × 2 → index into movement_delta_table for X delta source
     TAY 
     LDA $&movement_delta_table, Y
     STA $18
@@ -445,14 +445,14 @@ RouteAnimationEngine {
     INC $2C
     ASL 
     TAY 
-    LDA $&movement_delta_table, Y ; Look up Y delta source pointer from table_01B086
+    LDA $&movement_delta_table, Y ; Look up Y delta source pointer from movement_delta_table
     STA $1A
     LDA [$2C]             ; Read Z movement table index (byte 3)
     AND #$00FF
     INC $2C
     ASL 
     TAY 
-    LDA $&movement_delta_table, Y ; Look up Z delta source pointer from table_01B086
+    LDA $&movement_delta_table, Y ; Look up Z delta source pointer from movement_delta_table
     STA $1C
     LDA [$2C]             ; Read frame count (byte 4) → $24
     AND #$00FF

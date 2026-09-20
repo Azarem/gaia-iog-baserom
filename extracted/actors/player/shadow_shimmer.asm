@@ -18,7 +18,7 @@
 ;   - If player actor flag bit 6 ($0040) is set (e.g. cutscene lock, menu active): pop return address, switch child to ShadowShimmerNop (idle no-op), and yield — palette cycling pauses without dying.
 ;   - Otherwise returns normally and the caller continues its idle/active logic.
 ; 
-; ShadowShimmerNop is a minimal COP [SetEntryHere] + RTL loop — the child actor stays alive but produces no visual effect until the parent overwrites its function pointer again.
+; ShadowShimmerNop is a minimal COP [SetEntryContinue] + RTL loop — the child actor stays alive but produces no visual effect until the parent overwrites its function pointer again.
 ---------------------------------------------
 
 !playerActor                    09AA

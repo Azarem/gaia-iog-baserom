@@ -1,6 +1,6 @@
 # COP family: VRAM / memory
 
-_Ops: `[4F]`, `[50]`, `[51]`, `[54]`_ · _Source: `extracted/system/engine/cop_handlers_map.asm`_
+_Ops: `[4F]`, `[50]`, `[51]`, `[54]`_ · _Source: [`cop_handlers_map.asm`](../../../extracted/system/engine/cop_handlers_map.asm)_
 
 [← COP index](../index.md)
 
@@ -47,7 +47,7 @@ Graphics memory helpers: stage one-off VRAM DMA, copy palette rows into CGRAM st
 #### COP [4F] — `AdhocVramDma` (one-shot VRAM upload)
 
 - **Confidence:** high
-- **Handler:** `AdhocVramDma` @ `extracted/system/engine/cop_handlers_map.asm:402-463`
+- **Handler:** `AdhocVramDma` @ [`cop_handlers_map.asm:402-463`](../../../extracted/system/engine/cop_handlers_map.asm)
 - **Parameters:** `Address Src`, `Word VramWord`, `Word Size` (`db-us/copdef.json`)
 - **Usage count:** 67
 
@@ -102,7 +102,7 @@ COP [AdhocVramDma] ( $7FC000, #$2000, #$0800 )
 #### COP [50] — `CopyPalette` (CGRAM staging copy)
 
 - **Confidence:** high
-- **Handler:** `CopyPalette` @ `extracted/system/engine/cop_handlers_map.asm:468-509`
+- **Handler:** `CopyPalette` @ [`cop_handlers_map.asm:468-509`](../../../extracted/system/engine/cop_handlers_map.asm)
 - **Parameters:** `Address Src`, `Byte srcPalIndex`, `Byte dstPalIndex`, `Byte count`
 - **Usage count:** 23
 
@@ -147,7 +147,7 @@ Credits swap full **`#80`**-entry palettes between scenes.
 #### COP [51] — `Decompress` (Quintet LZ)
 
 - **Confidence:** high
-- **Handler:** `Decompress` @ `extracted/system/engine/cop_handlers_map.asm:514-547`
+- **Handler:** `Decompress` @ [`cop_handlers_map.asm:514-547`](../../../extracted/system/engine/cop_handlers_map.asm)
 - **Parameters:** `Address Src`, `Address Dest` (dest includes bank byte in `Address` form)
 - **Usage count:** 13
 
@@ -187,7 +187,7 @@ Credits load large GFX blobs into **`$7EE000` / `$7EA000`** before **`AdhocVramD
 - **Confidence:** high
 - **Preferred name:** `SetScratchPointer`
 - **Aliases:** `SetAnimScratch`
-- **Handler:** `SetScratchPointer` @ `extracted/system/engine/cop_handlers_map.asm:552-565`
+- **Handler:** `SetScratchPointer` @ [`cop_handlers_map.asm:552-565`](../../../extracted/system/engine/cop_handlers_map.asm)
 - **Parameters:** `Address` (word + bank)
 - **Usage count:** 4
 

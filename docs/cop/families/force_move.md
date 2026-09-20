@@ -1,6 +1,6 @@
 # COP family: Force move
 
-_Ops: `[AA]`, `[AB]`, `[AC]`, `[AD]`, `[AE]`, `[AF]`, `[B0]`, `[B1]`_ · _Source: `extracted/system/engine/cop_handlers_lifecycle.asm`_
+_Ops: `[AA]`, `[AB]`, `[AC]`, `[AD]`, `[AE]`, `[AF]`, `[B0]`, `[B1]`_ · _Source: [`cop_handlers_lifecycle.asm`](../../../extracted/system/engine/cop_handlers_lifecycle.asm)_
 
 [← COP index](../index.md) · [Sprite staging](sprite_staging.md) · [Movement](movement.md)
 
@@ -50,7 +50,7 @@ These pair with `COP [53]` (`TickMove`) and with sprite staging (`$81`–`$87`) 
 
 - **Preferred name:** `StageMoveX`
 - **Aliases:** `StageForceMoveX`
-- **Handler:** `StageMoveX` @ `extracted/system/engine/cop_handlers_lifecycle.asm:541-552`
+- **Handler:** `StageMoveX` @ [`cop_handlers_lifecycle.asm:541-552`](../../../extracted/system/engine/cop_handlers_lifecycle.asm)
 - **Parameters:** `Byte` — X movement speed index (`db-us/copdef.json`)
 - **Outcome:** Continue
 - **Usage count:** 60
@@ -99,7 +99,7 @@ Great Wall archer and Sand Fanger use repeated `StageMoveX` with different indic
 
 - **Preferred name:** `StageMoveY`
 - **Aliases:** `StageForceMoveY`
-- **Handler:** `StageMoveY` @ `cop_handlers_lifecycle.asm:557-568`
+- **Handler:** `StageMoveY` @ [`cop_handlers_lifecycle.asm:557-568`](../../../extracted/system/engine/cop_handlers_lifecycle.asm)
 - **Parameters:** `Byte` Y index
 - **Outcome:** Continue
 - **Usage count:** 45
@@ -138,7 +138,7 @@ Less common alone than `$AA`; appears in vertical knockback setups alongside `$A
 
 - **Preferred name:** `StageMoveXY`
 - **Aliases:** `StageForceMoveXY`
-- **Handler:** `StageMoveXY` @ `cop_handlers_lifecycle.asm:573-590`
+- **Handler:** `StageMoveXY` @ [`cop_handlers_lifecycle.asm:573-590`](../../../extracted/system/engine/cop_handlers_lifecycle.asm)
 - **Parameters:** `Byte` X index, `Byte` Y index
 - **Outcome:** Continue
 - **Usage count:** 42
@@ -188,7 +188,7 @@ Reset to idle drift: `COP [StageMoveXY] ( #00, #00 )` after an attack (`pyCC_mys
 
 - **Preferred name:** `ForceDirSW`
 - **Aliases:** `SetForceSW`
-- **Handler:** `ForceDirSW` @ `cop_handlers_lifecycle.asm:595-613`
+- **Handler:** `ForceDirSW` @ [`cop_handlers_lifecycle.asm:595-613`](../../../extracted/system/engine/cop_handlers_lifecycle.asm)
 - **Parameters:** `Byte` — nonzero sets bit `$4000` on `$12`; `#00` clears it
 - **Outcome:** Continue
 - **Usage count:** 1
@@ -231,7 +231,7 @@ Child projectile init sets `$4000` manually in Eyesore spawn (`gw82_eyesore.asm`
 
 - **Preferred name:** `ForceDirNE`
 - **Aliases:** `SetForceNE`
-- **Handler:** `ForceDirNE` @ `cop_handlers_lifecycle.asm:618-636`
+- **Handler:** `ForceDirNE` @ [`cop_handlers_lifecycle.asm:618-636`](../../../extracted/system/engine/cop_handlers_lifecycle.asm)
 - **Parameters:** `Byte` set/clear
 - **Outcome:** Continue
 - **Usage count:** 2
@@ -256,7 +256,7 @@ Paired with `$AD`/`$AF` on enemies that must slide along fixed isometric diagona
 
 - **Preferred name:** `ForceDirBoth`
 - **Aliases:** `SetForceBoth`
-- **Handler:** `ForceDirBoth` @ `cop_handlers_lifecycle.asm:641-659`
+- **Handler:** `ForceDirBoth` @ [`cop_handlers_lifecycle.asm:641-659`](../../../extracted/system/engine/cop_handlers_lifecycle.asm)
 - **Parameters:** `Byte` set/clear
 - **Outcome:** Continue
 - **Usage count:** 6
@@ -288,7 +288,7 @@ Locks both diagonal force bits during a scripted slide so movement tables cannot
 
 - **Preferred name:** `ApplyMoveToChild`
 - **Aliases:** `ForceMoveLastChild`
-- **Handler:** `ApplyMoveToChild` @ `cop_handlers_lifecycle.asm:664-683`
+- **Handler:** `ApplyMoveToChild` @ [`cop_handlers_lifecycle.asm:664-683`](../../../extracted/system/engine/cop_handlers_lifecycle.asm)
 - **Parameters:** `Byte` X index, `Byte` Y index
 - **Outcome:** Continue
 - **Usage count:** 16
@@ -343,7 +343,7 @@ Four facing branches use different `(X,Y)` index pairs (`#06,#00`, `#05,#00`, `#
 
 - **Preferred name:** `ReloadMoveDurations`
 - **Aliases:** `ReloadForceMove`
-- **Handler:** `ReloadMoveDurations` @ `cop_handlers_lifecycle.asm:688-699`
+- **Handler:** `ReloadMoveDurations` @ [`cop_handlers_lifecycle.asm:688-699`](../../../extracted/system/engine/cop_handlers_lifecycle.asm)
 - **Parameters:** (none)
 - **Outcome:** Continue
 - **Usage count:** 25

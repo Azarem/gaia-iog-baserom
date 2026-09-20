@@ -7,10 +7,10 @@ _Canonical docs for all **209 COP opcodes** (`$00`–`$6D`, `$80`–`$E2`). Fami
 Illusion of Gaia scene logic is driven by **actors** and **thinkers**: scripted objects that execute 65816 code peppered with **COP** (Coprocessor) instructions. COP opcodes are dispatched through `CopDispatch` at `$00846D` → jump tables `cop_dispatch_table` at `$008485` (primary, 110 entries) and `$008585` (extended, 99 entries). Operand layouts are declared in `db-us/copdef.json`.
 
 - COP opcodes defined: **209** (110 primary + 99 extended)
-- Invalid gap: **$6E–$7F** (18 garbage pointers in `cop_junk_008561`)
+- Invalid gap: **$6E–$7F** (18 garbage pointers)
 - Phantom entries: **$6E**, **$6F**, **$E3** (listed in copdef with empty parts)
-- Handler source: `extracted/system/engine/cop_handlers_*.asm` (14 files)
-- Jump table: `extracted/system/engine/cop_dispatch.asm`
+- Handler source: [`extracted/system/engine/cop_handlers_*.asm`](../../extracted/system/engine/) (14 files)
+- Jump table: [`extracted/system/engine/cop_dispatch.asm`](../../extracted/system/engine/cop_dispatch.asm)
 
 ## Dispatch architecture
 
@@ -27,8 +27,8 @@ JMP ($&cop_dispatch_table, X)   ; X = opcode × 2
 | Opcode range | Table | Status |
 |---|---|---|
 | `$00`–`$6D` | `cop_dispatch_table` (110 entries) | Valid |
-| `$6E`–`$7F` | `cop_junk_008561` | **Invalid** (garbage pointers) |
-| `$80`–`$E2` | Extended table at `$008585` (99 entries) | Valid |
+| `$6E`–`$7F` | Same | **Invalid** (garbage pointers) |
+| `$80`–`$E2` | Same | Valid |
 | `$E3`+ | Past end | **Invalid** |
 
 ### Entrancy state
@@ -264,7 +264,7 @@ Almost all "branch if …" COPs take a single `&Code`. **Taken** → jump to tha
 
 ### Move byte encoding
 
-The `Byte XMove` / `Byte YMove` operands in sprite staging (`$80`–`$87`) and force move (`$AA`–`$AC`) are **speed/duration indices** into `table_01B086`, not raw pixel values. `AnimFrameLookup` maps the index to a frame duration stored in `$2C`/`$2E`. Direction comes from `$12` force bits (`$AD`–`$AF`) and H-mirror.
+The `Byte XMove` / `Byte YMove` operands in sprite staging (`$80`–`$87`) and force move (`$AA`–`$AC`) are **speed/duration indices** into `movement_delta_table`, not raw pixel values. `AnimFrameLookup` maps the index to a frame duration stored in `$2C`/`$2E`. Direction comes from `$12` force bits (`$AD`–`$AF`) and H-mirror.
 
 ### `New10` spawn flags
 
@@ -323,8 +323,8 @@ Screen Y increases downward: `$15` probes `Y−$10` = **north**, `$16` probes `Y
 
 ## Sources
 
-1. **Primary:** `extracted/system/engine/cop_dispatch.asm` — dispatch tables
-2. **Handler ASM:** `extracted/system/engine/cop_handlers_*.asm` (14 files)
+1. **Primary:** [`extracted/system/engine/cop_dispatch.asm`](../../extracted/system/engine/cop_dispatch.asm) — dispatch tables
+2. **Handler ASM:** [`extracted/system/engine/cop_handlers_*.asm`](../../extracted/system/engine/) (14 files)
 3. **Tooling schema:** `db-us/copdef.json`
 4. **Secondary:** [Data Crystal — Illusion of Gaia / Notes § Actor code](https://datacrystal.tcrf.net/wiki/Illusion_of_Gaia/Notes#Actor_code)
 5. **Patches:** `baserom/patches/Cop51Patch.patch.asm` (`$51` extended decompress/copy)
@@ -556,5 +556,5 @@ Screen Y increases downward: `$15` probes `Y−$10` = **north**, `$16` probes `Y
 | [families/](families/) | Per-family deep dives (39 docs) |
 | [`../code/bank00/cop-dispatch.md`](../code/bank00/cop-dispatch.md) | Dispatch engine documentation |
 | `db-us/copdef.json` | Operand layouts for assembler |
-| `extracted/system/engine/cop_dispatch.asm` | Dispatch + jump tables |
-| `extracted/system/engine/cop_handlers_*.asm` | Handler source (14 files) |
+| [`extracted/system/engine/cop_dispatch.asm`](../../extracted/system/engine/cop_dispatch.asm) | Dispatch + jump tables |
+| [`extracted/system/engine/cop_handlers_*.asm`](../../extracted/system/engine/) | Handler source (14 files) |

@@ -1,6 +1,6 @@
 # COP family: Sprite state
 
-_Ops: `[55]`, `[56]`_ · _Source: `extracted/system/engine/cop_handlers_sprite.asm`_
+_Ops: `[55]`, `[56]`_ · _Source: [`cop_handlers_sprite.asm`](../../../extracted/system/engine/cop_handlers_sprite.asm)_
 
 [← COP index](../index.md) · [Sprite animation](sprite_anim.md) · [Sprite staging](sprite_staging.md)
 
@@ -43,7 +43,7 @@ Typical use: lightweight FX actors (particles, ambient sprites) that call `SetMe
 
 #### COP [55] — `ResetSpriteState` (reset anim index + frame + table pointer)
 
-- **Handler:** `ResetSpriteState` @ `extracted/system/engine/cop_handlers_sprite.asm:25-42`
+- **Handler:** `ResetSpriteState` @ [`cop_handlers_sprite.asm:25-42`](../../../extracted/system/engine/cop_handlers_sprite.asm)
 - **Legacy name:** `ResetSpriteInit`
 - **Parameters:** `Byte` anim index, `Word` pointer (stored to `$24`)
 - **Outcome:** Continue
@@ -128,7 +128,7 @@ COP [AdvanceSpriteAnim]
 
 #### COP [56] — `AdvanceSpriteAnim` (step global/table animation + DMA tile)
 
-- **Handler:** `AdvanceSpriteAnim` @ `cop_handlers_sprite.asm:47-113`
+- **Handler:** `AdvanceSpriteAnim` @ [`cop_handlers_sprite.asm:47-113`](../../../extracted/system/engine/cop_handlers_sprite.asm)
 - **Legacy name:** `LoadSpriteAnimGlobal`
 - **Parameters:** none
 - **Outcome:** Halt while `$00B2` DMA pending; Continue (`RTI`) when a frame is staged; **`RTI`** when sequence ends (negative sentinel)

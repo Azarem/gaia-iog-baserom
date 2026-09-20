@@ -1,6 +1,6 @@
 # COP family: Player sprite
 
-_Deep-audited ops: `[8E]`, `[8F]`, `[90]`, `[91]`, `[92]`, `[93]`, `[94]`, `[95]`, `[96]`, `[97]`, `[98]`_
+_Deep-audited ops: `[8E]`, `[8F]`, `[90]`, `[91]`, `[92]`, `[93]`, `[94]`, `[95]`, `[96]`, `[97]`, `[98]`_ · _Source: [`cop_handlers_player_sprite.asm`](../../../extracted/system/engine/cop_handlers_player_sprite.asm)_
 
 [← COP index](../index.md)
 
@@ -61,7 +61,7 @@ Eleven opcodes for **Will / Freedan / Shadow** sprite staging, axis movement set
 
 - **Preferred name:** `SetPlayerSpriteDirect`
 - **Aliases:** `SetPlayerBodySprite`
-- **Handler:** `SetPlayerSpriteDirect` @ `extracted/system/engine/cop_handlers_player_sprite.asm:29-53`
+- **Handler:** `SetPlayerSpriteDirect` @ [`cop_handlers_player_sprite.asm:29-53`](../../../extracted/system/engine/cop_handlers_player_sprite.asm)
 - **Pairs with:** Form-specific idle/walk scripts that must force a **raw** `body_table` row (credits poses, Freedan reveal, Dark Gaia sequences)
 
 ##### What it does (exact semantics)
@@ -115,7 +115,7 @@ COP [SetPlayerSpriteDirect] ( #04 )
 
 - **Preferred name:** `StagePlayerSprite` (copdef) / handler `StagePlayerSpr`
 - **Aliases:** (none common)
-- **Handler:** `StagePlayerSpr` @ `cop_handlers_player_sprite.asm:58-72`
+- **Handler:** `StagePlayerSpr` @ [`cop_handlers_player_sprite.asm:58-72`](../../../extracted/system/engine/cop_handlers_player_sprite.asm)
 - **Params:** `Byte Anim` — animation index stored to **`$28`**, `$2A` cleared
 
 ##### What it does
@@ -147,7 +147,7 @@ COP [StagePlayerSprite] ( #10 )     ; Shadow south idle
 
 #### COP [90] — `StagePlayerMoveX` (stage + X axis duration)
 
-- **Handler:** `StagePlayerSprX` @ `cop_handlers_player_sprite.asm:77-97`
+- **Handler:** `StagePlayerSprX` @ [`cop_handlers_player_sprite.asm:77-97`](../../../extracted/system/engine/cop_handlers_player_sprite.asm)
 - **Params:** `Byte Anim`, `Byte XStep` → `moveXAlt`, `$2C` via `AnimFrameLookup`
 
 ##### What it does
@@ -179,7 +179,7 @@ loc_09E026:
 
 #### COP [91] — `StagePlayerMoveY` (stage + Y axis duration)
 
-- **Handler:** `StagePlayerSprY` @ `cop_handlers_player_sprite.asm:102-122`
+- **Handler:** `StagePlayerSprY` @ [`cop_handlers_player_sprite.asm:102-122`](../../../extracted/system/engine/cop_handlers_player_sprite.asm)
 - **Params:** `Byte Anim`, `Byte YStep` → `moveYAlt`, **`$2E`**
 
 ##### What it does
@@ -209,7 +209,7 @@ COP [AnimOnce]
 
 #### COP [92] — `StagePlayerMoveXY` (stage + both axes)
 
-- **Handler:** `StagePlayerSprXY` @ `cop_handlers_player_sprite.asm:127-153`
+- **Handler:** `StagePlayerSprXY` @ [`cop_handlers_player_sprite.asm:127-153`](../../../extracted/system/engine/cop_handlers_player_sprite.asm)
 - **Params:** `Byte Anim`, `Byte XStep`, `Byte YStep`
 
 ##### What it does
@@ -243,7 +243,7 @@ COP [AnimOnce]
 
 - **Preferred name:** `RunPlayerAnim`
 - **Aliases:** `AnimPlayerOnce`
-- **Handler:** `RunPlayerAnim` @ `cop_handlers_player_sprite.asm:158-173`
+- **Handler:** `RunPlayerAnim` @ [`cop_handlers_player_sprite.asm:158-173`](../../../extracted/system/engine/cop_handlers_player_sprite.asm)
 - **Outcome:** **Halt** — yields **`RTL`** until `UpdateActorAnimation` reports complete (carry set)
 
 ##### What it does
@@ -293,7 +293,7 @@ Pair with **`StagePlayerSprFromDP`** or any stage op that sets `$28` before the 
 #### COP [94] — `StagePlayerSprWall` (XY stage + save wall type)
 
 - **Aliases:** `StagePlayerMoveXYWall`
-- **Handler:** `StagePlayerSprWall` @ `cop_handlers_player_sprite.asm:178-208`
+- **Handler:** `StagePlayerSprWall` @ [`cop_handlers_player_sprite.asm:178-208`](../../../extracted/system/engine/cop_handlers_player_sprite.asm)
 - **Params:** `Byte Anim`, `Byte XStep`, `Byte YStep`, **`Byte WallType`**
 
 ##### What it does
@@ -326,7 +326,7 @@ See **`$96`–`$98`** for probe geometry.
 #### COP [95] — `StagePlayerSprFromDP` (stage anim from DP `$0000`)
 
 - **Aliases:** `StagePlayerSpriteFromBank` (misleading legacy name)
-- **Handler:** `StagePlayerSprFromDP` @ `cop_handlers_player_sprite.asm:213-226`
+- **Handler:** `StagePlayerSprFromDP` @ [`cop_handlers_player_sprite.asm:213-226`](../../../extracted/system/engine/cop_handlers_player_sprite.asm)
 
 ##### What it does
 
@@ -357,7 +357,7 @@ Same pattern for all four `ForcedWalk*` handlers (8× **`StagePlayerSprFromDP`**
 #### COP [96] — `WallAnimHere` (wall type at feet + joypad gate)
 
 - **Aliases:** `WallCheckCurrent`
-- **Handler:** `WallAnimHere` @ `cop_handlers_player_sprite.asm:231-272`
+- **Handler:** `WallAnimHere` @ [`cop_handlers_player_sprite.asm:231-272`](../../../extracted/system/engine/cop_handlers_player_sprite.asm)
 - **Params:** **`Word JoyMask`** — compared to **`joypadCurrent` (`$0656`)**
 - **Outcome:** Skip anim ( **`RTI`**, continue script) if mask mismatch, misaligned, or wrong tile; **`RTL`** while anim runs; set **`$10` bit `$0004`** on blocked `$F0` / type `$0F`
 
@@ -386,7 +386,7 @@ Used inside **player wall-slide / ice ramp** loops together with **`$94`**. Oper
 #### COP [97] — `WallAnimNorth` (probe one tile north)
 
 - **Aliases:** `WallCheckNorth`
-- **Handler:** `WallAnimNorth` @ `cop_handlers_player_sprite.asm:277-320`
+- **Handler:** `WallAnimNorth` @ [`cop_handlers_player_sprite.asm:277-320`](../../../extracted/system/engine/cop_handlers_player_sprite.asm)
 - **Params:** `Word JoyMask`
 
 ##### What it does
@@ -409,7 +409,7 @@ East/west movement through **north-wall columns** (`player_move_east.asm` docume
 #### COP [98] — `WallAnimSouth` (probe one tile south)
 
 - **Aliases:** `WallCheckSouth`
-- **Handler:** `WallAnimSouth` @ `cop_handlers_player_sprite.asm:325-368`
+- **Handler:** `WallAnimSouth` @ [`cop_handlers_player_sprite.asm:325-368`](../../../extracted/system/engine/cop_handlers_player_sprite.asm)
 - **Params:** `Word JoyMask`
 
 ##### What it does

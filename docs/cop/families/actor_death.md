@@ -1,6 +1,6 @@
 # COP family: Actor death
 
-_Deep-audited ops: `[A7]`, `[A8]`, `[A9]`, `[E0]`_
+_Deep-audited ops: `[A7]`, `[A8]`, `[A9]`, `[E0]`_ · _Source: [`cop_handlers_lifecycle.asm`](../../../extracted/system/engine/cop_handlers_lifecycle.asm), [`cop_handlers_flow.asm`](../../../extracted/system/engine/cop_handlers_flow.asm)_
 
 [← COP index](../index.md)
 
@@ -45,8 +45,8 @@ Shared heavy lifting: **`UnlinkActor`** (single slot) and **`DieNow_UnlinkChildr
 #### COP [A7] — `MarkDeath` (unlink with optional child cascade)
 
 - **Preferred name:** `MarkDeath`
-- **Handler:** `MarkDeath` @ `extracted/system/engine/cop_handlers_lifecycle.asm:363-374`
-- **Resume helper:** `MarkDeathResumeHandler` @ `cop_handlers_lifecycle.asm:381-388`
+- **Handler:** `MarkDeath` @ [`cop_handlers_lifecycle.asm:363-374`](../../../extracted/system/engine/cop_handlers_lifecycle.asm)
+- **Resume helper:** `MarkDeathResumeHandler` @ [`cop_handlers_lifecycle.asm:381-388`](../../../extracted/system/engine/cop_handlers_lifecycle.asm)
 - **Parameters:** (none)
 - **Usage count:** 7
 
@@ -131,7 +131,7 @@ COP [MarkDeath]
 #### COP [A8] — `KillPrev` (unlink previous neighbor)
 
 - **Preferred name:** `KillPrev`
-- **Handler:** `KillPrev` @ `cop_handlers_lifecycle.asm:507-519`
+- **Handler:** `KillPrev` @ [`cop_handlers_lifecycle.asm:507-519`](../../../extracted/system/engine/cop_handlers_lifecycle.asm)
 - **Parameters:** (none)
 - **Usage count:** 17
 
@@ -187,7 +187,7 @@ Use when the target was spawned **`SpawnBefore`** / **`SpawnBeforeMarked`** so i
 #### COP [A9] — `KillNext` (unlink next neighbor)
 
 - **Preferred name:** `KillNext`
-- **Handler:** `KillNext` @ `cop_handlers_lifecycle.asm:524-536`
+- **Handler:** `KillNext` @ [`cop_handlers_lifecycle.asm:524-536`](../../../extracted/system/engine/cop_handlers_lifecycle.asm)
 - **Parameters:** (none)
 - **Usage count:** 75
 
@@ -243,7 +243,7 @@ Pairs naturally with **`SpawnAfterMarked`** / **`SpawnAfter`** children linked a
 #### COP [E0] — `Die` (immediate death, script halt)
 
 - **Preferred name:** `Die`
-- **Handler:** `Die` @ `cop_handlers_lifecycle.asm:393-404`
+- **Handler:** `Die` @ [`cop_handlers_lifecycle.asm:393-404`](../../../extracted/system/engine/cop_handlers_lifecycle.asm)
 - **Parameters:** (none)
 - **Usage count:** 665
 

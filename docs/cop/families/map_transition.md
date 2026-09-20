@@ -1,6 +1,6 @@
 # COP family: Map transition
 
-_Deep-audited ops: `[26]`, `[65]`, `[66]`, `[67]`_
+_Deep-audited ops: `[26]`, `[65]`, `[66]`, `[67]`_ · _Source: [`cop_handlers_spatial.asm`](../../../extracted/system/engine/cop_handlers_spatial.asm), [`cop_handlers_input.asm`](../../../extracted/system/engine/cop_handlers_input.asm)_
 
 [← COP index](../index.md)
 
@@ -40,7 +40,7 @@ Queue field scene changes and stage world-map cursor / party metadata consumed b
 
 #### COP [26] — `QueueMapChange`
 
-- **Handler:** `QueueMapChange` @ `extracted/system/engine/cop_handlers_spatial.asm`
+- **Handler:** `QueueMapChange` @ [`cop_handlers_spatial.asm`](../../../extracted/system/engine/cop_handlers_spatial.asm)
 - **Parameters:** `Byte` scene, `Word` pos X, `Word` pos Y, `Byte` dirAndSave flags, `Word` cam/extra
 
 ##### What it does
@@ -81,7 +81,7 @@ COP [QueueMapChange] ( #E5, #$0000, #$0000, #00, #$1100 )
 
 #### COP [65] — `StageWorldMapMove`
 
-- **Handler:** `StageWorldMapMove` @ `extracted/system/engine/cop_handlers_input.asm`
+- **Handler:** `StageWorldMapMove` @ [`cop_handlers_input.asm`](../../../extracted/system/engine/cop_handlers_input.asm)
 - **Parameters:** `Word` dest X, `Word` dest Y, `Byte` area/scene id, `Byte` companion id
 
 ##### What it does
@@ -103,7 +103,7 @@ Full world-map relocation staging before `[26]` or world-map animation — e.g. 
 
 #### COP [66] — `StageWorldMapChoice`
 
-- **Handler:** `StageWorldMapChoice` @ `cop_handlers_input.asm`
+- **Handler:** `StageWorldMapChoice` @ [`cop_handlers_input.asm`](../../../extracted/system/engine/cop_handlers_input.asm)
 - **Parameters:** `Word` X, `Word` Y, `Byte` choiceId → `$0D58`
 
 ##### What it does
@@ -121,7 +121,7 @@ Same coordinate staging as `[65]` but sets **choice** id instead of clearing it 
 
 #### COP [67] — `StageWorldMapMoveIds`
 
-- **Handler:** `StageWorldMapMoveIds` @ `cop_handlers_input.asm`
+- **Handler:** `StageWorldMapMoveIds` @ [`cop_handlers_input.asm`](../../../extracted/system/engine/cop_handlers_input.asm)
 - **Parameters:** `Byte` area id, `Byte` companion id
 
 ##### What it does

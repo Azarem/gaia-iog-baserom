@@ -1,6 +1,6 @@
 # COP family: Callbacks
 
-_Ops: `[57]`, `[58]`, `[59]`, `[5A]`, `[5E]`_ · _Source: `extracted/system/engine/cop_handlers_lifecycle.asm`_
+_Ops: `[57]`, `[58]`, `[59]`, `[5A]`, `[5E]`_ · _Source: [`cop_handlers_lifecycle.asm`](../../../extracted/system/engine/cop_handlers_lifecycle.asm)_
 
 [← COP index](../index.md) · [Actor death](actor_death.md)
 
@@ -46,7 +46,7 @@ Clearing a callback: store **`#$0000`** (near) or **`$000000`** (far death) — 
 #### COP [57] — `SetDeathCallback` (install death script hook)
 
 - **Preferred name:** `SetDeathCallback`
-- **Handler:** `SetDeathCallback` @ `cop_handlers_lifecycle.asm:240-253`
+- **Handler:** `SetDeathCallback` @ [`cop_handlers_lifecycle.asm:240-253`](../../../extracted/system/engine/cop_handlers_lifecycle.asm)
 - **Parameters:** `@Code` — 16-bit offset + **bank byte** following in script stream
 - **Outcome:** Continue
 - **Usage count:** 41
@@ -97,7 +97,7 @@ COP [SetDeathCallback] ( $000000 )
 #### COP [58] — `SetHitCallback` (install damage reaction)
 
 - **Preferred name:** `SetHitCallback`
-- **Handler:** `SetHitCallback` @ `cop_handlers_lifecycle.asm:258-267`
+- **Handler:** `SetHitCallback` @ [`cop_handlers_lifecycle.asm:258-267`](../../../extracted/system/engine/cop_handlers_lifecycle.asm)
 - **Parameters:** `&Code`
 - **Outcome:** Continue
 - **Usage count:** 104
@@ -149,7 +149,7 @@ Hit callee typically plays hurt anim and `COP [RestoreSavedPtr]` or `COP [01]` r
 #### COP [59] — `SetDodgeCallback` (install dodge / miss hook)
 
 - **Preferred name:** `SetDodgeCallback`
-- **Handler:** `SetDodgeCallback` @ `cop_handlers_lifecycle.asm:272-281`
+- **Handler:** `SetDodgeCallback` @ [`cop_handlers_lifecycle.asm:272-281`](../../../extracted/system/engine/cop_handlers_lifecycle.asm)
 - **Parameters:** `&Code`
 - **Outcome:** Continue
 - **Usage count:** 3
@@ -180,7 +180,7 @@ COP [SetDodgeCallback] ( &code_0AE539 )
 #### COP [5A] — `SetCollideCallback` (actor–actor collision script)
 
 - **Preferred name:** `SetCollideCallback`
-- **Handler:** `SetCollideCallback` @ `cop_handlers_lifecycle.asm:286-295`
+- **Handler:** `SetCollideCallback` @ [`cop_handlers_lifecycle.asm:286-295`](../../../extracted/system/engine/cop_handlers_lifecycle.asm)
 - **Parameters:** `&Code`
 - **Outcome:** Continue
 - **Usage count:** 11
@@ -213,7 +213,7 @@ COP [SetCollideCallback] ( #$0000 )
 
 - **Preferred name:** `SetCustomCallback`
 - **Aliases:** `SetExtraCallback`
-- **Handler:** `SetCustomCallback` @ `cop_handlers_lifecycle.asm:300-309`
+- **Handler:** `SetCustomCallback` @ [`cop_handlers_lifecycle.asm:300-309`](../../../extracted/system/engine/cop_handlers_lifecycle.asm)
 - **Parameters:** `&Code`
 - **Outcome:** Continue
 - **Usage count:** 31

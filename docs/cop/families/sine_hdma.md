@@ -1,6 +1,6 @@
 # COP family: Sine HDMA (scroll wobble)
 
-_Deep-audited ops: `[5F]`, `[60]`, `[61]`_ · _Source: `cop_handlers_effects.asm`_
+_Deep-audited ops: `[5F]`, `[60]`, `[61]`_ · _Source: [`cop_handlers_effects.asm`](../../../extracted/system/engine/cop_handlers_effects.asm)_
 
 [← COP index](../index.md)
 
@@ -40,7 +40,7 @@ Per-scanline **BG scroll HDMA** driven by `sine_table_8bit` and hardware multipl
 #### COP [5F] — `InitSineHdma` (build sine HDMA tables)
 
 - **Preferred name:** `InitSineHdma`
-- **Handler:** `InitSineHdma` @ `extracted/system/engine/cop_handlers_effects.asm`
+- **Handler:** `InitSineHdma` @ [`cop_handlers_effects.asm`](../../../extracted/system/engine/cop_handlers_effects.asm)
 - **Usage count:** 13
 
 ##### What it does
@@ -86,7 +86,7 @@ COP [InitSineHdma] ( #$8800, #40 )     ; babel_tower/sine_hdma_ending_wave.asm:1
 #### COP [60] — `TickSineHdma` (advance sine phase)
 
 - **Preferred name:** `TickSineHdma`
-- **Handler:** `TickSineHdma` @ `extracted/system/engine/cop_handlers_effects.asm`
+- **Handler:** `TickSineHdma` @ [`cop_handlers_effects.asm`](../../../extracted/system/engine/cop_handlers_effects.asm)
 - **Usage count:** 13
 
 ##### What it does
@@ -129,7 +129,7 @@ COP [TickSineHdma] ( #04, #02 )        ; native_village_sine_hdma.asm:19 — del
 #### COP [61] — `BindSineHdma` (bind HDMA channel)
 
 - **Preferred name:** `BindSineHdma`
-- **Handler:** `BindSineHdma` @ `extracted/system/engine/cop_handlers_effects.asm`
+- **Handler:** `BindSineHdma` @ [`cop_handlers_effects.asm`](../../../extracted/system/engine/cop_handlers_effects.asm)
 - **Usage count:** 18
 
 ##### What it does

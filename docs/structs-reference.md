@@ -624,9 +624,9 @@ Singly-linked list node for per-frame signed movement deltas. The core animation
 3. **Overworld route playback** — three parallel chains per route step drive camera X, Y, and player position
 4. **Hit knockback** — stagger controller selects X or Y chain for knockback direction
 
-**Files:** `table_01B086.asm` (85-entry pointer table + 1,173 nodes), `actor_pool.asm`, `forced_walk.asm`, `WorldMapController.asm`, `hit_stagger_controller.asm`
+**Files:** `movement_delta_table.asm` (85-entry pointer table + 1,173 nodes), `actor_pool.asm`, `forced_walk.asm`, `WorldMapController.asm`, `hit_stagger_controller.asm`
 
-**blocks.json:** `table_01B086` (110726–115588, typed `&delta-node`)
+**blocks.json:** `movement_delta_table` (110726–115588, typed `&delta-node`)
 
 **Entry count:** 85 index entries + 1,173 nodes = 4,862 bytes
 

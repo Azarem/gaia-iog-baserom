@@ -1,6 +1,6 @@
 # COP family: Audio (music + SFX)
 
-_Deep-audited ops: `[04]`, `[05]`, `[06]`, `[07]`, `[08]`, `[09]`, `[0A]`, `[19]`_
+_Deep-audited ops: `[04]`, `[05]`, `[06]`, `[07]`, `[08]`, `[09]`, `[0A]`, `[19]`_ · _Source: [`cop_handlers_audio.asm`](../../../extracted/system/engine/cop_handlers_audio.asm)_
 
 [← COP index](../index.md)
 
@@ -14,7 +14,7 @@ Background music and sound effects reach the SPC700 through two layers: **thinke
 - `$06FA` — Music track ID (written during SPC handshake by thinker code in `hdma_dma_spc.asm`)
 - `$2140`–`$2143` — SNES APU I/O ports (`APUIO0`–`APUIO3`)
 - `$7F000A` (`chatPtr`) — Music bundle ID stored on the thinker spawned by `$04`/`$05`
-- `AllocateActorAfter` — inserts a thinker after the calling actor (`actor_pool.asm`)
+- `AllocateActorAfter` — inserts a thinker after the calling actor ([`actor_pool.asm`](../../../extracted/system/engine/actor_pool.asm))
 - `ActorPoolAllocator` / `MusicPlaybackActor` — pooled path for `$19`
 - `SpcTransferMusicData` / `SpcCheckMusicReady` — thinker entry points in `hdma_dma_spc.asm`
 
@@ -48,7 +48,7 @@ Background music and sound effects reach the SPC700 through two layers: **thinke
 
 - **Preferred name:** `StartMusic`
 - **Aliases:** (legacy copdef name matches)
-- **Handler:** `StartMusic` @ `extracted/system/engine/cop_handlers_audio.asm`
+- **Handler:** `StartMusic` @ [`cop_handlers_audio.asm`](../../../extracted/system/engine/cop_handlers_audio.asm)
 - **Usage count:** 57
 
 ##### What it does
@@ -109,7 +109,7 @@ COP [StartMusic] ( #1B )          ; incan_ruins/incan_ruins_entrance/ir1C_kara.a
 #### COP [05] — `FadeThenStartMusic` (fade, then queue music)
 
 - **Preferred name:** `FadeThenStartMusic`
-- **Handler:** `FadeThenStartMusic` @ `extracted/system/engine/cop_handlers_audio.asm`
+- **Handler:** `FadeThenStartMusic` @ [`cop_handlers_audio.asm`](../../../extracted/system/engine/cop_handlers_audio.asm)
 - **Usage count:** 14
 
 ##### What it does
@@ -150,7 +150,7 @@ COP [FadeThenStartMusic] ( #1B )  ; incan_ruins/castoth_lair/ir29_transform.asm:
 #### COP [06] — `PlaySoundCh2` (queue SFX on channel 2)
 
 - **Preferred name:** `PlaySoundCh2`
-- **Handler:** `PlaySoundCh2` @ `extracted/system/engine/cop_handlers_audio.asm`
+- **Handler:** `PlaySoundCh2` @ [`cop_handlers_audio.asm`](../../../extracted/system/engine/cop_handlers_audio.asm)
 - **Usage count:** 92
 
 ##### What it does
@@ -198,7 +198,7 @@ COP [PlaySoundCh2] ( #2C )        ; babel_tower/comet_lair/sE8_dark_gaia.asm:881
 #### COP [07] — `PlaySoundCh1` (queue SFX on channel 1)
 
 - **Preferred name:** `PlaySoundCh1`
-- **Handler:** `PlaySoundCh1` @ `extracted/system/engine/cop_handlers_audio.asm`
+- **Handler:** `PlaySoundCh1` @ [`cop_handlers_audio.asm`](../../../extracted/system/engine/cop_handlers_audio.asm)
 - **Usage count:** 244
 
 ##### What it does
@@ -244,7 +244,7 @@ COP [PlaySoundCh1] ( #13 )        ; typical dialog confirm (many NPC scripts aft
 #### COP [08] — `PlaySoundBoth` (queue both SFX channels)
 
 - **Preferred name:** `PlaySoundBoth`
-- **Handler:** `PlaySoundBoth` @ `extracted/system/engine/cop_handlers_audio.asm`
+- **Handler:** `PlaySoundBoth` @ [`cop_handlers_audio.asm`](../../../extracted/system/engine/cop_handlers_audio.asm)
 - **Usage count:** 72
 
 ##### What it does
@@ -290,7 +290,7 @@ COP [PlaySoundBoth] ( #$2C2C )    ; incan_ruins/ceiling_trap_room/ir28_ceiling_t
 #### COP [09] — `WriteApuIo1` (direct `$2141` write)
 
 - **Preferred name:** `WriteApuIo1`
-- **Handler:** `WriteApuIo1` @ `extracted/system/engine/cop_handlers_audio.asm`
+- **Handler:** `WriteApuIo1` @ [`cop_handlers_audio.asm`](../../../extracted/system/engine/cop_handlers_audio.asm)
 - **Usage count:** 4
 
 ##### What it does
@@ -337,7 +337,7 @@ COP [WriteApuIo1] ( #0A )         ; gold_ship/ship_wreck_interior/gs2D_lily.asm:
 #### COP [0A] — `WriteApuIo0` (direct `$2140` write)
 
 - **Preferred name:** `WriteApuIo0`
-- **Handler:** `WriteApuIo0` @ `extracted/system/engine/cop_handlers_audio.asm`
+- **Handler:** `WriteApuIo0` @ [`cop_handlers_audio.asm`](../../../extracted/system/engine/cop_handlers_audio.asm)
 - **Usage count:** 7
 
 ##### What it does
@@ -382,7 +382,7 @@ COP [WriteApuIo0] ( #01 )         ; native_village/native_village/nvAC_hamlet.as
 #### COP [19] — `MusicAndText` (start music + show dialogue)
 
 - **Preferred name:** `MusicAndText`
-- **Handler:** `MusicAndText` @ `extracted/system/engine/cop_handlers_audio.asm`
+- **Handler:** `MusicAndText` @ [`cop_handlers_audio.asm`](../../../extracted/system/engine/cop_handlers_audio.asm)
 - **Usage count:** 22
 
 ##### What it does

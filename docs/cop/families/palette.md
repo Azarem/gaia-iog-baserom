@@ -1,6 +1,6 @@
 # COP family: Palette animation
 
-_Deep-audited ops: `[36]`, `[37]`, `[38]`, `[39]`, `[3A]`_ · _Source: `cop_handlers_palette.asm`_
+_Deep-audited ops: `[36]`, `[37]`, `[38]`, `[39]`, `[3A]`_ · _Source: [`cop_handlers_palette.asm`](../../../extracted/system/engine/cop_handlers_palette.asm)_
 
 [← COP index](../index.md)
 
@@ -42,7 +42,7 @@ _Deep-audited ops: `[36]`, `[37]`, `[38]`, `[39]`, `[3A]`_ · _Source: `cop_hand
 #### COP [36] — `PaletteRestart` (restart bundle 0)
 
 - **Preferred name:** `PaletteRestart`
-- **Handler:** `PaletteRestart` @ `extracted/system/engine/cop_handlers_palette.asm`
+- **Handler:** `PaletteRestart` @ [`cop_handlers_palette.asm`](../../../extracted/system/engine/cop_handlers_palette.asm)
 - **Usage count:** 2
 
 ##### What it does
@@ -76,7 +76,7 @@ COP [PaletteRestart]              ; prologue/pr_thinkers.asm, title paths
 #### COP [37] — `PaletteStart` (start palette bundle)
 
 - **Preferred name:** `PaletteStart`
-- **Handler:** `PaletteStart` @ `extracted/system/engine/cop_handlers_palette.asm`
+- **Handler:** `PaletteStart` @ [`cop_handlers_palette.asm`](../../../extracted/system/engine/cop_handlers_palette.asm)
 - **Usage count:** 84
 
 ##### What it does
@@ -126,7 +126,7 @@ COP [PaletteStart] ( #1F )         ; thinkers/oneshot_palette_flash_1F.asm
 #### COP [38] — `PaletteStartLoop` (start bundle with repeat count)
 
 - **Preferred name:** `PaletteStartLoop`
-- **Handler:** `PaletteStartLoop` @ `extracted/system/engine/cop_handlers_palette.asm`
+- **Handler:** `PaletteStartLoop` @ [`cop_handlers_palette.asm`](../../../extracted/system/engine/cop_handlers_palette.asm)
 - **Usage count:** 3
 
 ##### What it does
@@ -165,7 +165,7 @@ COP [PaletteStepLoop]
 #### COP [39] — `PaletteStep` (advance one palette frame)
 
 - **Preferred name:** `PaletteStep`
-- **Handler:** `PaletteStep` @ `extracted/system/engine/cop_handlers_palette.asm`
+- **Handler:** `PaletteStep` @ [`cop_handlers_palette.asm`](../../../extracted/system/engine/cop_handlers_palette.asm)
 - **Usage count:** 85
 
 ##### What it does
@@ -209,7 +209,7 @@ COP [PaletteStep]                  ; ending/ending_changed_world/s90_changed_wor
 #### COP [3A] — `PaletteStepLoop` (advance with outer repeat)
 
 - **Preferred name:** `PaletteStepLoop`
-- **Handler:** `PaletteStepLoop` @ `extracted/system/engine/cop_handlers_palette.asm`
+- **Handler:** `PaletteStepLoop` @ [`cop_handlers_palette.asm`](../../../extracted/system/engine/cop_handlers_palette.asm)
 - **Usage count:** 3
 
 ##### What it does

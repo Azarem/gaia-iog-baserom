@@ -1,6 +1,6 @@
 # COP family: Collision paint
 
-_Ops: `[0B]`, `[0C]`, `[0D]`, `[0E]`, `[0F]`, `[10]`, `[11]`, `[12]`, `[42]`_ · _Source: `cop_handlers_solid.asm`_
+_Ops: `[0B]`, `[0C]`, `[0D]`, `[0E]`, `[0F]`, `[10]`, `[11]`, `[12]`, `[42]`_ · _Source: [`cop_handlers_solid.asm`](../../../extracted/system/engine/cop_handlers_solid.asm)_
 
 [← COP index](../index.md) · [Collision branch (read/probe)](collision_branch.md)
 
@@ -50,7 +50,7 @@ Write collision data into WRAM `$7FC000` (`collisionLayer`). The high nibble (`#
 
 - **Preferred name:** `MarkSolidHere`
 - **Aliases:** `SolidHighHere`, `solid_on`, `occupy_tile`
-- **Handler:** `MarkSolidHere` @ `extracted/system/engine/cop_handlers_solid.asm:163-174` → `MarkCollisionRect`
+- **Handler:** `MarkSolidHere` @ [`cop_handlers_solid.asm:163-174`](../../../extracted/system/engine/cop_handlers_solid.asm) → `MarkCollisionRect`
 - **Usage count:** 462
 
 ##### What it does
@@ -112,7 +112,7 @@ COP [ClearSolidOffset] ( #00, #03 )
 
 - **Preferred name:** `ClearSolidHere`
 - **Aliases:** `ClearLowHere`, `solid_off`, `vacate_tile`
-- **Handler:** `ClearSolidHere` @ `extracted/system/engine/cop_handlers_solid.asm:179-190` → `ClearCollisionRect`
+- **Handler:** `ClearSolidHere` @ [`cop_handlers_solid.asm:179-190`](../../../extracted/system/engine/cop_handlers_solid.asm) → `ClearCollisionRect`
 - **Usage count:** 163
 
 ##### What it does
@@ -161,7 +161,7 @@ Often immediately after `[0B]` in cyclic traps or when an enemy dies:
 
 - **Preferred name:** `MarkSolidOffset`
 - **Aliases:** `SolidHighOffset`, `solid_on_at`
-- **Handler:** `MarkSolidOffset` @ `extracted/system/engine/cop_handlers_solid.asm:195-214`
+- **Handler:** `MarkSolidOffset` @ [`cop_handlers_solid.asm:195-214`](../../../extracted/system/engine/cop_handlers_solid.asm)
 - **Usage count:** 20
 
 ##### What it does
@@ -218,7 +218,7 @@ Signed offsets: `#FF` = −1 tile, `#01` = +1 tile (same encoding as `[0E]`).
 
 - **Preferred name:** `ClearSolidOffset`
 - **Aliases:** `ClearLowOffset`, `solid_off_at`
-- **Handler:** `ClearSolidOffset` @ `extracted/system/engine/cop_handlers_solid.asm:219-238`
+- **Handler:** `ClearSolidOffset` @ [`cop_handlers_solid.asm:219-238`](../../../extracted/system/engine/cop_handlers_solid.asm)
 - **Usage count:** 11
 
 ##### What it does
@@ -249,7 +249,7 @@ COP [ClearSolidOffset] ( #00, #03 )
 
 - **Preferred name:** `MarkSolidAbs`
 - **Aliases:** `SolidHighAbs`
-- **Handler:** `MarkSolidAbs` @ `extracted/system/engine/cop_handlers_solid.asm:243-269`
+- **Handler:** `MarkSolidAbs` @ [`cop_handlers_solid.asm:243-269`](../../../extracted/system/engine/cop_handlers_solid.asm)
 - **Usage count:** 86
 
 ##### What it does
@@ -300,7 +300,7 @@ COP [MarkSolidAbs] ( #10, #2A )
 
 - **Preferred name:** `ClearSolidAbs`
 - **Aliases:** `ClearLowAbs`
-- **Handler:** `ClearSolidAbs` @ `extracted/system/engine/cop_handlers_solid.asm:274-300`
+- **Handler:** `ClearSolidAbs` @ [`cop_handlers_solid.asm:274-300`](../../../extracted/system/engine/cop_handlers_solid.asm)
 - **Usage count:** 60
 
 ##### What it does
@@ -326,7 +326,7 @@ COP [ClearSolidAbs] ( #10, #2A )
 
 - **Preferred name:** `ClearCollisionHere`
 - **Aliases:** `ClearAllHere`
-- **Handler:** `ClearCollisionHere` @ `extracted/system/engine/cop_handlers_solid.asm:305-317` → `ClearCollisionRectFull`
+- **Handler:** `ClearCollisionHere` @ [`cop_handlers_solid.asm:305-317`](../../../extracted/system/engine/cop_handlers_solid.asm) → `ClearCollisionRectFull`
 - **Usage count:** 9
 
 ##### What it does
@@ -371,7 +371,7 @@ COP [MarkSolidHere]       ; restore when reset
 
 - **Preferred name:** `ClearTypeAbs`
 - **Aliases:** `ClearHighAbs` (legacy — clears **low** type nibble, not high)
-- **Handler:** `ClearTypeAbs` @ `extracted/system/engine/cop_handlers_solid.asm:322-348`
+- **Handler:** `ClearTypeAbs` @ [`cop_handlers_solid.asm:322-348`](../../../extracted/system/engine/cop_handlers_solid.asm)
 - **Usage count:** 27
 
 ##### What it does
@@ -408,7 +408,7 @@ COP [ClearTypeAbs] ( #35, #4B )
 
 - **Preferred name:** `SetCollisionAbs`
 - **Aliases:** `SetSolidAbs`
-- **Handler:** `SetCollisionAbs` @ `extracted/system/engine/cop_handlers_solid.asm:768-796`
+- **Handler:** `SetCollisionAbs` @ [`cop_handlers_solid.asm:768-796`](../../../extracted/system/engine/cop_handlers_solid.asm)
 - **Usage count:** 1
 
 ##### What it does

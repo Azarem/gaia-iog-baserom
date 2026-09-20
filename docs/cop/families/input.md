@@ -1,6 +1,6 @@
 # COP family: Input (button wait + branch)
 
-_Deep-audited ops: `[3E]`, `[3F]`, `[40]`, `[41]`_
+_Deep-audited ops: `[3E]`, `[3F]`, `[40]`, `[41]`_ · _Source: [`cop_handlers_input.asm`](../../../extracted/system/engine/cop_handlers_input.asm)_
 
 [← COP index](../index.md)
 
@@ -53,7 +53,7 @@ Script-level joypad **wait** and **branch** primitives. Mask **bit 0** of the op
 
 - **Preferred name:** `WaitForButton`
 - **Aliases:** `WaitUntilButton` (legacy script / wiki name)
-- **Handler:** `WaitForButton` @ `extracted/system/engine/cop_handlers_input.asm`
+- **Handler:** `WaitForButton` @ [`cop_handlers_input.asm`](../../../extracted/system/engine/cop_handlers_input.asm)
 - **Usage count:** 0
 
 ##### What it does
@@ -119,7 +119,7 @@ For “press A to continue” during dialogue, scripts usually rely on **`[BF]`*
 
 - **Preferred name:** `WaitForRelease`
 - **Aliases:** `WaitUntilNoButton` (legacy)
-- **Handler:** `WaitForRelease` @ `extracted/system/engine/cop_handlers_input.asm`
+- **Handler:** `WaitForRelease` @ [`cop_handlers_input.asm`](../../../extracted/system/engine/cop_handlers_input.asm)
 - **Usage count:** 0
 
 ##### What it does
@@ -184,7 +184,7 @@ COP [WaitForRelease] ( #$0080 )
 
 - **Preferred name:** `BranchIfPressed`
 - **Aliases:** `BranchIfButton`, `BranchIfPressed` (copdef)
-- **Handler:** `BranchIfPressed` @ `extracted/system/engine/cop_handlers_input.asm`
+- **Handler:** `BranchIfPressed` @ [`cop_handlers_input.asm`](../../../extracted/system/engine/cop_handlers_input.asm)
 - **Usage count:** 170
 
 ##### What it does
@@ -254,7 +254,7 @@ COP [BranchIfPressed] ( #$0080, &code_09BBD6 )              ; unused/unused_kara
 
 - **Preferred name:** `BranchIfNotPressed`
 - **Aliases:** `BranchIfNoButton`, `BranchIfNotPressed` (copdef)
-- **Handler:** `BranchIfNotPressed` @ `extracted/system/engine/cop_handlers_input.asm`
+- **Handler:** `BranchIfNotPressed` @ [`cop_handlers_input.asm`](../../../extracted/system/engine/cop_handlers_input.asm)
 - **Usage count:** 22
 
 ##### What it does

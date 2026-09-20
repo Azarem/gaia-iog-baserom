@@ -1,12 +1,12 @@
 # COP family: Scene flags
 
-_Ops: `[CC]`–`[D3]`_ · _Source: `extracted/system/engine/cop_handlers_flow.asm` (handlers), `cop_handlers_flags.asm` (core routines)_
+_Ops: `[CC]`–`[D3]`_ · _Source: [`cop_handlers_flow.asm`](../../../extracted/system/engine/cop_handlers_flow.asm) (handlers), [`cop_handlers_flags.asm`](../../../extracted/system/engine/cop_handlers_flags.asm) (core routines)_
 
 [← COP index](../index.md)
 
 ## Overview
 
-Persistent story and map state live in the **`eventFlags`** bitfield at **`$0A00`**. These eight COP opcodes set/clear/test flags by index and implement conditional branches and cooperative waits. Core math (**byte = index ÷ 8**, **bit = index & 7**, mask from **`bitmasks_bit_position`**) is in **`SetEventFlag`**, **`ClearEventFlag`**, and **`TestEventFlag`** (`cop_handlers_flags.asm`). Word-indexed ops (`*Word`) use the same routines with 16-bit indices (flags above `$FF`, map rearranges, prologue legend bits).
+Persistent story and map state live in the **`eventFlags`** bitfield at **`$0A00`**. These eight COP opcodes set/clear/test flags by index and implement conditional branches and cooperative waits. Core math (**byte = index ÷ 8**, **bit = index & 7**, mask from **`bitmasks_bit_position`**) is in **`SetEventFlag`**, **`ClearEventFlag`**, and **`TestEventFlag`** ([`cop_handlers_flags.asm`](../../../extracted/system/engine/cop_handlers_flags.asm)). Word-indexed ops (`*Word`) use the same routines with 16-bit indices (flags above `$FF`, map rearranges, prologue legend bits).
 
 ## Shared state
 
@@ -14,7 +14,7 @@ Persistent story and map state live in the **`eventFlags`** bitfield at **`$0A00
 |--------|---------|------|
 | `eventFlags` | `$0A00` | Primary save-backed event bitfield |
 | `wramFlags` | `$0A80` | Dungeon kill / WRAM flags (**not** these COPs — see `[D8]`) |
-| `bitmasks_bit_position` | table in `cop_handlers_flags.asm` | Bit 0–7 → `$01`–`$80` |
+| `bitmasks_bit_position` | table in [`cop_handlers_flags.asm`](../../../extracted/system/engine/cop_handlers_flags.asm) | Bit 0–7 → `$01`–`$80` |
 
 JSL wrappers with bases **`$0100`**, **`$0200`**, **`$0300`**, **`$0510`** offset indices for bosses, chests, scene scope, and late-game progression; COP flag ops use **raw** indices into **`$0A00`**.
 
@@ -48,7 +48,7 @@ JSL wrappers with bases **`$0100`**, **`$0200`**, **`$0300`**, **`$0510`** offse
 
 #### COP [CC] — `SetFlagByte` (set event flag, byte index)
 
-- **Handler:** `SetFlagByte` @ `cop_handlers_flow.asm:298-307`
+- **Handler:** `SetFlagByte` @ [`cop_handlers_flow.asm:298-307`](../../../extracted/system/engine/cop_handlers_flow.asm)
 - **Parameters:** `Byte Flag` (`db-us/copdef.json`)
 - **Usage count:** 475
 
@@ -105,7 +105,7 @@ COP [SetFlagByte] ( #03 )
 
 #### COP [CD] — `SetFlagWord` (set event flag, word index)
 
-- **Handler:** `SetFlagWord` @ `cop_handlers_flow.asm:312-321`
+- **Handler:** `SetFlagWord` @ [`cop_handlers_flow.asm:312-321`](../../../extracted/system/engine/cop_handlers_flow.asm)
 - **Parameters:** `Word Flag`
 - **Usage count:** 62
 
@@ -155,7 +155,7 @@ COP [SetFlagWord] ( #$017D )
 
 #### COP [CE] — `ClearFlagByte` (clear flag, byte index)
 
-- **Handler:** `ClearFlagByte` @ `cop_handlers_flow.asm:326-335`
+- **Handler:** `ClearFlagByte` @ [`cop_handlers_flow.asm:326-335`](../../../extracted/system/engine/cop_handlers_flow.asm)
 - **Parameters:** `Byte Flag`
 - **Usage count:** 71
 
@@ -210,7 +210,7 @@ COP [ClearFlagByte] ( #10 )
 
 #### COP [CF] — `ClearFlagWord` (clear flag, word index)
 
-- **Handler:** `ClearFlagWord` @ `cop_handlers_flow.asm:340-349`
+- **Handler:** `ClearFlagWord` @ [`cop_handlers_flow.asm:340-349`](../../../extracted/system/engine/cop_handlers_flow.asm)
 - **Parameters:** `Word Flag`
 - **Usage count:** 22
 
@@ -258,7 +258,7 @@ COP [ClearFlagWord] ( #$017C )
 
 - **Preferred name:** `BranchOnFlagByte`
 - **Aliases:** `BranchIfFlagByte`
-- **Handler:** `BranchOnFlagByte` @ `cop_handlers_flow.asm:354-402` (shared tail with `[D1]`)
+- **Handler:** `BranchOnFlagByte` @ [`cop_handlers_flow.asm:354-402`](../../../extracted/system/engine/cop_handlers_flow.asm) (shared tail with `[D1]`)
 - **Parameters:** `Byte Flag`, `Byte Val`, `&Code`
 - **Usage count:** 630
 
@@ -322,7 +322,7 @@ COP [BranchOnFlagByte] ( #03, #01, &code_0CF5AD )
 
 - **Preferred name:** `BranchOnFlagWord`
 - **Aliases:** `BranchIfFlagWord`
-- **Handler:** `BranchOnFlagWord` @ `cop_handlers_flow.asm:367-402`
+- **Handler:** `BranchOnFlagWord` @ [`cop_handlers_flow.asm:367-402`](../../../extracted/system/engine/cop_handlers_flow.asm)
 - **Parameters:** `Word Flag`, `Byte Val`, `&Code`
 - **Usage count:** 40
 
@@ -372,7 +372,7 @@ COP [BranchOnFlagWord] ( #$017C, #00, &code_0BCD14 )
 
 - **Preferred name:** `WaitOnFlagByte`
 - **Aliases:** `ExitIfFlagByte`
-- **Handler:** `WaitOnFlagByte` @ `cop_handlers_flow.asm:407-458` (shared tail with `[D3]`)
+- **Handler:** `WaitOnFlagByte` @ [`cop_handlers_flow.asm:407-458`](../../../extracted/system/engine/cop_handlers_flow.asm) (shared tail with `[D3]`)
 - **Parameters:** `Byte Flag`, `Byte Val`
 - **Usage count:** 384
 
@@ -437,7 +437,7 @@ Wait **`#02, #00`** = pause until flag **#02 is clear** (companion clears it whe
 
 - **Preferred name:** `WaitOnFlagWord`
 - **Aliases:** `ExitIfFlagWord`
-- **Handler:** `WaitOnFlagWord` @ `cop_handlers_flow.asm:424-458`
+- **Handler:** `WaitOnFlagWord` @ [`cop_handlers_flow.asm:424-458`](../../../extracted/system/engine/cop_handlers_flow.asm)
 - **Parameters:** `Word Flag`, `Byte Val`
 - **Usage count:** 9
 

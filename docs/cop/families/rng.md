@@ -1,6 +1,6 @@
 # COP family: RNG
 
-_Deep-audited ops: `[23]`, `[24]`_
+_Deep-audited ops: `[23]`, `[24]`_ · _Source: [`cop_handlers_movement.asm`](../../../extracted/system/engine/cop_handlers_movement.asm)_
 
 [← COP index](../index.md)
 
@@ -35,7 +35,7 @@ Global pseudo-random bytes from a 16-byte Galois LFSR at `$040F`–`$041F`, plus
 
 #### COP [23] — `RngByte`
 
-- **Handler:** `RngByte` @ `extracted/system/engine/cop_handlers_movement.asm`
+- **Handler:** `RngByte` @ [`cop_handlers_movement.asm`](../../../extracted/system/engine/cop_handlers_movement.asm)
 - **Parameters:** (none)
 
 ##### What it does
@@ -81,7 +81,7 @@ COP [RngMod] ( #60 )
 
 #### COP [24] — `RngMod`
 
-- **Handler:** `RngMod` @ `cop_handlers_movement.asm`
+- **Handler:** `RngMod` @ [`cop_handlers_movement.asm`](../../../extracted/system/engine/cop_handlers_movement.asm)
 - **Parameters:** `Byte` modulus (must be > 0 for sensible results)
 
 ##### What it does

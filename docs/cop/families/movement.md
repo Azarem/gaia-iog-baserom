@@ -1,6 +1,6 @@
 # COP family: Movement / staged
 
-_Deep-audited ops: `[22]`, `[43]`, `[4A]`, `[52]`, `[53]`_
+_Deep-audited ops: `[22]`, `[43]`, `[4A]`, `[52]`, `[53]`_ · _Source: [`cop_handlers_movement.asm`](../../../extracted/system/engine/cop_handlers_movement.asm)_
 
 [← COP index](../index.md)
 
@@ -44,7 +44,7 @@ Smooth interpolated movement toward a pre-written target, optional grid snapping
 #### COP [22] — `MoveToward` (interpolate toward target)
 
 - **Preferred name:** `MoveToward`
-- **Handler:** `MoveToward` @ `extracted/system/engine/cop_handlers_movement.asm`
+- **Handler:** `MoveToward` @ [`cop_handlers_movement.asm`](../../../extracted/system/engine/cop_handlers_movement.asm)
 - **Pairs with:** Pre-written `$7F0018`/`$7F001A`; often `[43]`/`[4A]` via `EnemyPositionSnap`
 - **Parameters:** `Byte` animation index (`#$FF` = keep `$28`), `Byte` duration in movement ticks
 
@@ -106,7 +106,7 @@ Common in Angkor Wat, Great Wall, Mu lairs — `#FF` anim + `#02` frames for sho
 #### COP [43] — `SnapToGrid` (start grid alignment)
 
 - **Preferred name:** `SnapToGrid`
-- **Handler:** `SnapToGrid` @ `cop_handlers_movement.asm`
+- **Handler:** `SnapToGrid` @ [`cop_handlers_movement.asm`](../../../extracted/system/engine/cop_handlers_movement.asm)
 - **Parameters:** (none)
 
 ##### What it does
@@ -145,7 +145,7 @@ Bosses and platform enemies that must interact with tile-aligned collision (`sg4
 #### COP [4A] — `ResumeAfterSnap` (restore PC after grid snap)
 
 - **Preferred name:** `ResumeAfterSnap`
-- **Handler:** `ResumeAfterSnap` @ `cop_handlers_movement.asm`
+- **Handler:** `ResumeAfterSnap` @ [`cop_handlers_movement.asm`](../../../extracted/system/engine/cop_handlers_movement.asm)
 - **Parameters:** (none)
 
 ##### What it does
@@ -168,7 +168,7 @@ Only emitted from `EnemyPositionSnap` when alignment completes (`functions/Enemy
 #### COP [52] — `StageMove` (init staged movement)
 
 - **Preferred name:** `StageMove`
-- **Handler:** `StageMove` @ `cop_handlers_movement.asm`
+- **Handler:** `StageMove` @ [`cop_handlers_movement.asm`](../../../extracted/system/engine/cop_handlers_movement.asm)
 - **Pairs with:** `[53]` `TickMove` (required for motion)
 - **Parameters:** `Byte` anim (`#$FF` = keep), `Byte` speed (≥ `$80` treated as negative magnitude), `Byte` anim frame delay (high byte of internal counter via `XBA`)
 
@@ -203,7 +203,7 @@ Same pattern for minion spawn scripts at `#09`–`#0B` with speed `#06`.
 #### COP [53] — `TickMove` (advance staged move one frame)
 
 - **Preferred name:** `TickMove`
-- **Handler:** `TickMove` / `TickMoveComplete` @ `cop_handlers_movement.asm`
+- **Handler:** `TickMove` / `TickMoveComplete` @ [`cop_handlers_movement.asm`](../../../extracted/system/engine/cop_handlers_movement.asm)
 - **Parameters:** (none)
 
 ##### What it does

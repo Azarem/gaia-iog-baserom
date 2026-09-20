@@ -1,6 +1,6 @@
 # COP family: Collision branch
 
-_Ops: `[13]`, `[14]`, `[15]`, `[16]`, `[17]`, `[18]`, `[1A]`, `[1B]`, `[1C]`, `[1D]`, `[1E]`, `[62]`_ · _Source: `cop_handlers_solid.asm` (+ `[62]` in `cop_handlers_map.asm`)_
+_Ops: `[13]`, `[14]`, `[15]`, `[16]`, `[17]`, `[18]`, `[1A]`, `[1B]`, `[1C]`, `[1D]`, `[1E]`, `[62]`_ · _Source: [`cop_handlers_solid.asm`](../../../extracted/system/engine/cop_handlers_solid.asm) (+ `[62]` in [`cop_handlers_map.asm`](../../../extracted/system/engine/cop_handlers_map.asm))_
 
 [← COP index](../index.md) · [Collision paint (write)](collision_paint.md)
 
@@ -21,7 +21,7 @@ Read-only probes of `$7FC000` that **conditionally branch** in COP scripts. Soli
 - **Solid branches** (`$13`–`$18`): branch when `TileCollisionQuery` result has **any bit in `$000F` set** (includes the `$000F` “blocked” sentinel).
 - **Directional solid ops** move the probe one tile (`±$10` pixels) from `$14`/`$16` on N/S/E/W; `[14]` uses signed tile offsets like paint op `[0D]`.
 - **Type branches** (`$1A`–`$1E`): branch when `(query result & $FF) == Type` operand (full byte compare after query).
-- **`[62]`** is **not** the same as `[1A]`: no `TileCollisionQuery` (no camera clamp / solid fallback), compares **`(byte & $0F) == Nibble`**, and branches on **match** or OOB. Handler lives in `cop_handlers_map.asm`.
+- **`[62]`** is **not** the same as `[1A]`: no `TileCollisionQuery` (no camera clamp / solid fallback), compares **`(byte & $0F) == Nibble`**, and branches on **match** or OOB. Handler lives in [`cop_handlers_map.asm`](../../../extracted/system/engine/cop_handlers_map.asm).
 - Opcode `$19` (`MusicAndText`) sits between `$18` and `$1A` in the dispatch table — it is audio, not collision.
 
 ## Usage statistics
@@ -51,7 +51,7 @@ Read-only probes of `$7FC000` that **conditionally branch** in COP scripts. Soli
 
 - **Preferred name:** `BranchIfSolidHere`
 - **Aliases:** `BranchIfSolid`
-- **Handler:** `BranchIfSolidHere` @ `extracted/system/engine/cop_handlers_solid.asm:353-375`
+- **Handler:** `BranchIfSolidHere` @ [`cop_handlers_solid.asm:353-375`](../../../extracted/system/engine/cop_handlers_solid.asm)
 - **Usage count:** 27
 
 ##### What it does
@@ -109,7 +109,7 @@ COP [BranchIfSolidHere] ( &code_0BBA54 )
 #### COP [14] — `BranchIfSolidOffset` (branch if offset tile blocked)
 
 - **Preferred name:** `BranchIfSolidOffset`
-- **Handler:** `BranchIfSolidOffset` @ `extracted/system/engine/cop_handlers_solid.asm:380-428`
+- **Handler:** `BranchIfSolidOffset` @ [`cop_handlers_solid.asm:380-428`](../../../extracted/system/engine/cop_handlers_solid.asm)
 - **Usage count:** 160
 
 ##### What it does
@@ -155,7 +155,7 @@ COP [BranchIfSolidOffset] ( #00, #03, &code_0BBC1F )
 #### COP [15] — `BranchIfSolidNorth` (branch if tile north blocked)
 
 - **Preferred name:** `BranchIfSolidNorth`
-- **Handler:** `BranchIfSolidNorth` @ `extracted/system/engine/cop_handlers_solid.asm:433-457`
+- **Handler:** `BranchIfSolidNorth` @ [`cop_handlers_solid.asm:433-457`](../../../extracted/system/engine/cop_handlers_solid.asm)
 - **Usage count:** 75
 
 ##### What it does
@@ -194,7 +194,7 @@ COP [BranchIfSolidNorth] ( &code_0BC632 )
 #### COP [16] — `BranchIfSolidSouth` (branch if tile south blocked)
 
 - **Preferred name:** `BranchIfSolidSouth`
-- **Handler:** `BranchIfSolidSouth` @ `extracted/system/engine/cop_handlers_solid.asm:462-486`
+- **Handler:** `BranchIfSolidSouth` @ [`cop_handlers_solid.asm:462-486`](../../../extracted/system/engine/cop_handlers_solid.asm)
 - **Usage count:** 78
 
 ##### What it does
@@ -216,7 +216,7 @@ COP [BranchIfSolidSouth] ( &code_0BC60C )
 #### COP [17] — `BranchIfSolidWest` (branch if tile west blocked)
 
 - **Preferred name:** `BranchIfSolidWest`
-- **Handler:** `BranchIfSolidWest` @ `extracted/system/engine/cop_handlers_solid.asm:491-515`
+- **Handler:** `BranchIfSolidWest` @ [`cop_handlers_solid.asm:491-515`](../../../extracted/system/engine/cop_handlers_solid.asm)
 - **Usage count:** 67
 
 ##### What it does
@@ -238,7 +238,7 @@ COP [BranchIfSolidWest] ( &code_0BC5D9 )
 #### COP [18] — `BranchIfSolidEast` (branch if tile east blocked)
 
 - **Preferred name:** `BranchIfSolidEast`
-- **Handler:** `BranchIfSolidEast` @ `extracted/system/engine/cop_handlers_solid.asm:520-544`
+- **Handler:** `BranchIfSolidEast` @ [`cop_handlers_solid.asm:520-544`](../../../extracted/system/engine/cop_handlers_solid.asm)
 - **Usage count:** 71
 
 ##### What it does
@@ -261,7 +261,7 @@ COP [BranchIfSolidEast] ( &code_0BC5B3 )
 
 - **Preferred name:** `BranchIfTypeHere`
 - **Aliases:** `BranchIfSolidType` (copdef / extracted scripts)
-- **Handler:** `BranchIfTypeHere` @ `extracted/system/engine/cop_handlers_solid.asm:549-578`
+- **Handler:** `BranchIfTypeHere` @ [`cop_handlers_solid.asm:549-578`](../../../extracted/system/engine/cop_handlers_solid.asm)
 - **Usage count:** 9
 
 ##### What it does
@@ -314,7 +314,7 @@ Aura landing checks other types (`#04`) in `player_transition_handlers.asm`.
 
 - **Preferred name:** `BranchIfTypeNorth`
 - **Aliases:** `BranchIfSolidTypeNorth`
-- **Handler:** `BranchIfTypeNorth` @ `extracted/system/engine/cop_handlers_solid.asm:583-614`
+- **Handler:** `BranchIfTypeNorth` @ [`cop_handlers_solid.asm:583-614`](../../../extracted/system/engine/cop_handlers_solid.asm)
 - **Usage count:** 4
 
 ##### What it does
@@ -340,7 +340,7 @@ COP [BranchIfSolidTypeNorth] ( #00, &ShimmyTopCorner )
 
 - **Preferred name:** `BranchIfTypeSouth`
 - **Aliases:** `BranchIfSolidTypeSouth`
-- **Handler:** `BranchIfTypeSouth` @ `extracted/system/engine/cop_handlers_solid.asm:619-650`
+- **Handler:** `BranchIfTypeSouth` @ [`cop_handlers_solid.asm:619-650`](../../../extracted/system/engine/cop_handlers_solid.asm)
 - **Usage count:** 6
 
 ##### What it does
@@ -364,7 +364,7 @@ COP [BranchIfSolidTypeSouth] ( #08, &code_0BB939 )
 
 - **Preferred name:** `BranchIfTypeWest`
 - **Aliases:** `BranchIfSolidTypeWest`
-- **Handler:** `BranchIfTypeWest` @ `extracted/system/engine/cop_handlers_solid.asm:655-686`
+- **Handler:** `BranchIfTypeWest` @ [`cop_handlers_solid.asm:655-686`](../../../extracted/system/engine/cop_handlers_solid.asm)
 - **Usage count:** 4
 
 ##### What it does
@@ -390,7 +390,7 @@ COP [BranchIfSolidTypeWest] ( #00, &ShimmyLeftLoop )
 
 - **Preferred name:** `BranchIfTypeEast`
 - **Aliases:** `BranchIfSolidTypeEast`
-- **Handler:** `BranchIfTypeEast` @ `extracted/system/engine/cop_handlers_solid.asm:691-722`
+- **Handler:** `BranchIfTypeEast` @ [`cop_handlers_solid.asm:691-722`](../../../extracted/system/engine/cop_handlers_solid.asm)
 - **Usage count:** 4
 
 ##### What it does
@@ -414,7 +414,7 @@ COP [BranchIfSolidTypeEast] ( #00, &ShimmyRightLoop )
 
 - **Preferred name:** `BranchIfCollisionTypeNe`
 - **Aliases:** `BranchIfSolidNibbleNe`
-- **Handler:** `BranchIfCollisionTypeNe` @ `extracted/system/engine/cop_handlers_map.asm:627-668`
+- **Handler:** `BranchIfCollisionTypeNe` @ [`cop_handlers_map.asm:627-668`](../../../extracted/system/engine/cop_handlers_map.asm)
 - **Usage count:** 2
 
 ##### What it does

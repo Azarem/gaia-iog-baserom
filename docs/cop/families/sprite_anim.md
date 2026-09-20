@@ -1,6 +1,6 @@
 # COP family: Sprite animation
 
-_Ops: `[88]`, `[89]`, `[8A]`, `[8B]`, `[8C]`_ · _Source: `extracted/system/engine/cop_handlers_sprite.asm`_
+_Ops: `[88]`, `[89]`, `[8A]`, `[8B]`, `[8C]`_ · _Source: [`cop_handlers_sprite.asm`](../../../extracted/system/engine/cop_handlers_sprite.asm)_
 
 [← COP index](../index.md) · [Sprite staging (configure)](sprite_staging.md)
 
@@ -45,7 +45,7 @@ _Legacy ASM names:_ `$8C` = `ContinueIfFrame` in older comments; handler symbol 
 
 #### COP [88] — `SetMetasprite` (point actor at spritesheet table)
 
-- **Handler:** `SetMetasprite` @ `extracted/system/engine/cop_handlers_sprite.asm:355-368`
+- **Handler:** `SetMetasprite` @ [`cop_handlers_sprite.asm:355-368`](../../../extracted/system/engine/cop_handlers_sprite.asm)
 - **Parameters:** `@&sprite-set` — word pointer + bank byte per `db-us/copdef.json`
 - **Outcome:** Continue
 - **Usage count:** 186
@@ -117,7 +117,7 @@ COP [AdvanceSpriteAnim]
 
 #### COP [89] — `AnimOnce` (run one full animation cycle)
 
-- **Handler:** `AnimOnce` @ `cop_handlers_sprite.asm:373-388`
+- **Handler:** `AnimOnce` @ [`cop_handlers_sprite.asm:373-388`](../../../extracted/system/engine/cop_handlers_sprite.asm)
 - **Parameters:** none
 - **Outcome:** Halt (yields each frame until sequence completes)
 - **Usage count:** 2075
@@ -179,7 +179,7 @@ COP [AnimOnce]
 
 #### COP [8A] — `AnimLoop` (repeat animation N times)
 
-- **Handler:** `AnimLoop` @ `cop_handlers_sprite.asm:393-413`
+- **Handler:** `AnimLoop` @ [`cop_handlers_sprite.asm:393-413`](../../../extracted/system/engine/cop_handlers_sprite.asm)
 - **Parameters:** none
 - **Outcome:** Halt until `$7F0016` reaches 0
 - **Usage count:** 1048
@@ -243,7 +243,7 @@ COP [AnimLoop]
 
 #### COP [8B] — `AnimOneFrame` (single update, no yield)
 
-- **Handler:** `AnimOneFrame` @ `cop_handlers_sprite.asm:418-430`
+- **Handler:** `AnimOneFrame` @ [`cop_handlers_sprite.asm:418-430`](../../../extracted/system/engine/cop_handlers_sprite.asm)
 - **Parameters:** none
 - **Outcome:** Continue (always `RTI` same invocation)
 - **Usage count:** 165
@@ -305,7 +305,7 @@ Use when the actor already re-enters every frame and must not nest a halting `$8
 
 #### COP [8C] — `WaitForAnimFrame` (halt until frame index reached)
 
-- **Handler:** `WaitForAnimFrame` @ `cop_handlers_sprite.asm:435-463`
+- **Handler:** `WaitForAnimFrame` @ [`cop_handlers_sprite.asm:435-463`](../../../extracted/system/engine/cop_handlers_sprite.asm)
 - **Script name:** `WaitForAnimFrame` (legacy: `ContinueIfFrame`)
 - **Parameters:** `Byte` target frame index
 - **Outcome:** Halt until `$2A == target` (or sequence ends early)

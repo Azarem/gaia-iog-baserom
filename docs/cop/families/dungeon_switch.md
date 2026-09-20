@@ -1,12 +1,12 @@
 # COP family: Dungeon / switch
 
-_Ops: `[D8]`, `[D9]`_ · _Source: `extracted/system/engine/cop_handlers_flow.asm`_
+_Ops: `[D8]`, `[D9]`_ · _Source: [`cop_handlers_flow.asm`](../../../extracted/system/engine/cop_handlers_flow.asm)_
 
 [← COP index](../index.md)
 
 ## Overview
 
-Two flow handlers with different jobs: **`SetDungeonKillFlag`** persists per-dungeon enemy defeat bits in WRAM, and **`SwitchCase`** performs byte-indexed jump-table dispatch (random AI, dialog variants, menu routing). Both live in `cop_handlers_flow.asm` alongside flag and wait opcodes.
+Two flow handlers with different jobs: **`SetDungeonKillFlag`** persists per-dungeon enemy defeat bits in WRAM, and **`SwitchCase`** performs byte-indexed jump-table dispatch (random AI, dialog variants, menu routing). Both live in [`cop_handlers_flow.asm`](../../../extracted/system/engine/cop_handlers_flow.asm) alongside flag and wait opcodes.
 
 ## Shared state
 
@@ -40,7 +40,7 @@ Two flow handlers with different jobs: **`SetDungeonKillFlag`** persists per-dun
 
 - **Confidence:** high
 - **Preferred name:** `SetDungeonKillFlag`
-- **Handler:** `SetDungeonKillFlag` @ `extracted/system/engine/cop_handlers_flow.asm:555-566`
+- **Handler:** `SetDungeonKillFlag` @ [`cop_handlers_flow.asm:555-566`](../../../extracted/system/engine/cop_handlers_flow.asm)
 - **Parameters:** none (`db-us/copdef.json`: `[]`)
 - **Usage count:** 4
 
@@ -95,7 +95,7 @@ COP [SetDungeonKillFlag]
 
 - **Confidence:** high
 - **Preferred name:** `SwitchCase`
-- **Handler:** `SwitchCase` @ `extracted/system/engine/cop_handlers_flow.asm:571-597`
+- **Handler:** `SwitchCase` @ [`cop_handlers_flow.asm:571-597`](../../../extracted/system/engine/cop_handlers_flow.asm)
 - **Parameters:** `Word IndexAddr`, `&&Code JmpList`
 - **Usage count:** 109
 

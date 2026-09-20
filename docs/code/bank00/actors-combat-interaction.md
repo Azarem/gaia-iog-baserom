@@ -42,7 +42,7 @@ These actors are spawned at runtime rather than placed in most scenes. They impl
 
 Spawned when the player or an enemy takes a hit. Applies directional knockback, manages stun timer, and on completion either restores the target's AI script or returns the player to normal control (`PlayerIdleEntry`). Spawned by `ApplyPlayerHitstun` (`$C397`) via `SpawnLastRel @HitStaggerMain` with flags `$2400`.
 
-The block spans 7 linked parts with internal `$&` references. Entry point `HitStaggerMain` reads knockback direction from a 3-deep stack (`PEA` chain), selects animation via `table_01B086`, and delegates to `HitStaggerDirection` for the movement loop.
+The block spans 7 linked parts with internal `$&` references. Entry point `HitStaggerMain` reads knockback direction from a 3-deep stack (`PEA` chain), selects animation via `movement_delta_table`, and delegates to `HitStaggerDirection` for the movement loop.
 
 #### Parts
 
@@ -53,7 +53,7 @@ The block spans 7 linked parts with internal `$&` references. Entry point `HitSt
 | Return | `$D9EB` | `HitStaggerReturnAI` | Restore player AI or `$FFF4` stun timer; clear joypad mask |
 | Probe | `$DA13` | `HitStaggerCheckKnockbackDistance` | Distance threshold check ($30/$20/$40 based on `$7F101C`) |
 | Flag | `$DA41` | `HitStaggerKnockbackCallbackPass` | Carry set/clear from compare result |
-| Dir | `$DA47` | `HitStaggerApplyKnockbackDelta` | Map direction index → `table_01B086` offset |
+| Dir | `$DA47` | `HitStaggerApplyKnockbackDelta` | Map direction index → `movement_delta_table` offset |
 | Apply | `$DA66` | `HitStaggerStoreMovementDelta` | Write `$2C`/`$2E` velocity; set axis flag `$26` |
 
 #### Algorithm (HitStaggerMain)
@@ -65,7 +65,7 @@ The block spans 7 linked parts with internal `$&` references. Entry point `HitSt
      → AI restore path or player return path
 4. Copy victim $14/$16 to stagger actor; save $7F101C
 5. Pop direction from 3-deep stack (0=N, 1=S, 2=E, 3=W variants)
-6. JSR HitStaggerApplyKnockbackDelta → load velocity from table_01B086
+6. JSR HitStaggerApplyKnockbackDelta → load velocity from movement_delta_table
 7. Enter HitStaggerDirection loop
 ```
 
@@ -92,7 +92,7 @@ The block spans 7 linked parts with internal `$&` references. Entry point `HitSt
 | `$10` | Bits `$0008` (player hit), `$0400` (enemy hit) |
 | `$2C`, `$2E` | Knockback velocity components |
 | `$26` | Axis selector (0=X, 1=Y) |
-| `table_01B086` | Direction → velocity lookup |
+| `movement_delta_table` | Direction → velocity lookup |
 
 #### Scene Usage
 
@@ -111,7 +111,7 @@ Never scene-placed. Spawned at runtime from:
 | Spawned by | `ApplyPlayerHitstun` (`$C397`) | `SpawnLastRel @HitStaggerMain` |
 | Returns to | `PlayerIdleEntry` | Player normal AI (bank `$02`) |
 | Falls through to | `StandardEnemyDefeatHandler` | When enemy has no saved script |
-| Includes | `player_character`, `StandardEnemyDefeatHandler`, `table_01B086` | |
+| Includes | `player_character`, `StandardEnemyDefeatHandler`, `movement_delta_table` | |
 
 ---
 

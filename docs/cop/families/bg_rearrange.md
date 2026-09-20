@@ -1,6 +1,6 @@
 # COP family: BG rearrange
 
-_Deep-audited ops: `[32]`, `[33]`, `[34]`_
+_Deep-audited ops: `[32]`, `[33]`, `[34]`_ · _Source: [`cop_handlers_palette.asm`](../../../extracted/system/engine/cop_handlers_palette.asm)_
 
 [← COP index](../index.md)
 
@@ -37,7 +37,7 @@ Stage and apply background **event block** tilemap/palette swaps (doors opening,
 
 #### COP [32] — `StageBgChange`
 
-- **Handler:** `StageBgChange` @ `extracted/system/engine/cop_handlers_palette.asm`
+- **Handler:** `StageBgChange` @ [`cop_handlers_palette.asm`](../../../extracted/system/engine/cop_handlers_palette.asm)
 - **Parameters:** `Byte` event-block index
 
 ##### What it does
@@ -82,7 +82,7 @@ Ending changed-world sequence and Babel comet lair use the same pairing.
 
 #### COP [33] — `ApplyBgChange`
 
-- **Handler:** `ApplyBgChange` @ `cop_handlers_palette.asm`
+- **Handler:** `ApplyBgChange` @ [`cop_handlers_palette.asm`](../../../extracted/system/engine/cop_handlers_palette.asm)
 - **Parameters:** (none)
 
 ##### What it does
@@ -116,7 +116,7 @@ ApplyBgChange {
 
 #### COP [34] — `StageBgChangeFromDeathIdx`
 
-- **Handler:** `StageBgChangeFromDeathIdx` @ `cop_handlers_palette.asm`
+- **Handler:** `StageBgChangeFromDeathIdx` @ [`cop_handlers_palette.asm`](../../../extracted/system/engine/cop_handlers_palette.asm)
 - **Parameters:** (none)
 
 ##### What it does

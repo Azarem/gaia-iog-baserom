@@ -1,6 +1,6 @@
 # COP family: Metatile / world map draw
 
-_Ops: `[4B]`, `[4C]`, `[4D]`, `[4E]`_ · _Source: `extracted/system/engine/cop_handlers_map.asm`_
+_Ops: `[4B]`, `[4C]`, `[4D]`, `[4E]`_ · _Source: [`cop_handlers_map.asm`](../../../extracted/system/engine/cop_handlers_map.asm)_
 
 [← COP index](../index.md)
 
@@ -45,7 +45,7 @@ Map mutation from scripts: paint one metatile at fixed or actor coordinates, or 
 #### COP [4B] — `DrawMetatileAbs` (tile X/Y + metatile)
 
 - **Confidence:** high
-- **Handler:** `DrawMetatileAbs` @ `extracted/system/engine/cop_handlers_map.asm:39-80`
+- **Handler:** `DrawMetatileAbs` @ [`cop_handlers_map.asm:39-80`](../../../extracted/system/engine/cop_handlers_map.asm)
 - **Parameters:** `Byte tileX`, `Byte tileY`, `Byte metatileId`
 - **Usage count:** 24
 
@@ -100,7 +100,7 @@ COP [DrawMetatileAbs] ( #06, #06, #87 )
 #### COP [4C] — `DrawMetatileHere` (metatile at actor cell)
 
 - **Confidence:** high
-- **Handler:** `DrawMetatileHere` @ `extracted/system/engine/cop_handlers_map.asm:85-122`
+- **Handler:** `DrawMetatileHere` @ [`cop_handlers_map.asm:85-122`](../../../extracted/system/engine/cop_handlers_map.asm)
 - **Parameters:** `Byte metatileId`
 - **Usage count:** 8
 
@@ -143,7 +143,7 @@ COP [DrawMetatileHere] ( #E9 )
 #### COP [4D] — `WorldMapStream3` (3-byte record stream)
 
 - **Confidence:** high
-- **Handler:** `WorldMapStream3` @ `extracted/system/engine/cop_handlers_map.asm:127-195`
+- **Handler:** `WorldMapStream3` @ [`cop_handlers_map.asm:127-195`](../../../extracted/system/engine/cop_handlers_map.asm)
 - **Parameters:** `Word streamOffset` (script-bank data)
 - **Usage count:** 48
 
@@ -191,7 +191,7 @@ World-map reveal animations and long tile-replacement cinematics: data lives in 
 #### COP [4E] — `WorldMapStream4` (4-byte record stream)
 
 - **Confidence:** high
-- **Handler:** `WorldMapStream4` @ `extracted/system/engine/cop_handlers_map.asm:200-270`
+- **Handler:** `WorldMapStream4` @ [`cop_handlers_map.asm:200-270`](../../../extracted/system/engine/cop_handlers_map.asm)
 - **Parameters:** `Word streamOffset`
 - **Usage count:** 48
 

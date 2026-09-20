@@ -1,6 +1,6 @@
 # COP family: Spiral / orbit
 
-_Deep-audited ops: `[6C]`, `[6D]`_ · _Source: `cop_handlers_effects.asm`_
+_Deep-audited ops: `[6C]`, `[6D]`_ · _Source: [`cop_handlers_effects.asm`](../../../extracted/system/engine/cop_handlers_effects.asm)_
 
 [← COP index](../index.md)
 
@@ -35,7 +35,7 @@ _Deep-audited ops: `[6C]`, `[6D]`_ · _Source: `cop_handlers_effects.asm`_
 #### COP [6C] — `InitSpiral` (initialize orbit)
 
 - **Preferred name:** `InitSpiral`
-- **Handler:** `InitSpiral` @ `extracted/system/engine/cop_handlers_effects.asm`
+- **Handler:** `InitSpiral` @ [`cop_handlers_effects.asm`](../../../extracted/system/engine/cop_handlers_effects.asm)
 - **Usage count:** 8
 
 ##### What it does
@@ -79,7 +79,7 @@ COP [InitSpiral] ( #00, #C0 )        ; mu67_vampires.asm:719-757
 #### COP [6D] — `SpiralStep` (advance orbit one frame)
 
 - **Preferred name:** `SpiralStep`
-- **Handler:** `SpiralStep` @ `extracted/system/engine/cop_handlers_effects.asm`
+- **Handler:** `SpiralStep` @ [`cop_handlers_effects.asm`](../../../extracted/system/engine/cop_handlers_effects.asm)
 - **Usage count:** 3
 
 ##### What it does

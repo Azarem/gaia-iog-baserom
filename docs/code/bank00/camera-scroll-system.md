@@ -45,7 +45,7 @@ Implements two distinct subsystems: a **smooth actor follow/chase engine** (slid
 | `ComposeDigits_Continuation` | Shared actor/engine constants (bank `$03`) |
 | `dir_sprite_01ABDE` | Direction-indexed sprite table (facing frames) |
 | `table_01A95E` | Camera scroll speed table |
-| `table_01B086` | Animation frame duration lookup |
+| `movement_delta_table` | Animation frame duration lookup |
 
 ### Subsystem Breakdown
 
@@ -186,7 +186,7 @@ Automated player walk in a cardinal direction during scene transitions involving
 
 1. Clear `$12` bits `$6000`, set entry continue
 2. Mask joypad (`$FFFF` → `$joypad_mask_std`), zero `$0656`
-3. Read direction sprite + animation duration from `dir_sprite_01ABDE` / `table_01B086`
+3. Read direction sprite + animation duration from `dir_sprite_01ABDE` / `movement_delta_table`
 4. Clear actor flags, stage player sprite, animate once
 5. Look up camera scroll speed from `table_01A95E` → `$06E0`, zero `$2A`, reset X
 6. Execute `COP [PanCamera*]` in the appropriate direction
@@ -249,7 +249,7 @@ Computes camera scroll deltas. If `$14 ≠ 0`, calls `MulDivide(Y=$06BE)` → `$
 
 **Address:** `$00ED28` · **Size:** 32 bytes
 
-Reads direction byte from forced-walk data stream at `$0650`, looks up sprite index from `dir_sprite_01ABDE` and animation duration from `table_01B086`. Stores sprite to `$0000`, duration to `$2E`. Called by `ForcedWalkSouth`, `ForcedWalkNorth`.
+Reads direction byte from forced-walk data stream at `$0650`, looks up sprite index from `dir_sprite_01ABDE` and animation duration from `movement_delta_table`. Stores sprite to `$0000`, duration to `$2E`. Called by `ForcedWalkSouth`, `ForcedWalkNorth`.
 
 ### ReadDirSprite_XVelocity
 
@@ -419,7 +419,7 @@ Interpolation table for smooth movement. Contains pairs of signed 16-bit values 
 | `UpdateActorAnimation` | `$03` | `ResolveFollowDirectionAlt` (×16) | Advance sprite animation |
 | `dir_sprite_01ABDE` | `$01` | `ReadDirSprite_*` | Direction sprite lookup |
 | `table_01A95E` | `$01` | Forced walks | Scroll speed |
-| `table_01B086` | `$01` | `ReadDirSprite_*` | Animation duration |
+| `movement_delta_table` | `$01` | `ReadDirSprite_*` | Animation duration |
 
 ---
 

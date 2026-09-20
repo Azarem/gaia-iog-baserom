@@ -1,6 +1,6 @@
 # COP family: Thinkers (spawn / kill)
 
-_Deep-audited ops: `[3B]`, `[3C]`, `[3D]`_ · _Source: `cop_handlers_palette.asm`_
+_Deep-audited ops: `[3B]`, `[3C]`, `[3D]`_ · _Source: [`cop_handlers_palette.asm`](../../../extracted/system/engine/cop_handlers_palette.asm)_
 
 [← COP index](../index.md)
 
@@ -15,7 +15,7 @@ _Deep-audited ops: `[3B]`, `[3C]`, `[3D]`_ · _Source: `cop_handlers_palette.asm
 - `$7F0002` (`animScratch+2`) — **Param byte** written by `[3B]`
 - `$7F0000` / `$7F0002` — Entry pointer word + bank on new thinker
 - `$7F000E` — Cleared on spawn
-- `AllocateSpecialActor` — `actor_pool.asm`
+- `AllocateSpecialActor` — [`actor_pool.asm`](../../../extracted/system/engine/actor_pool.asm)
 
 ## Family notes
 
@@ -39,7 +39,7 @@ _Deep-audited ops: `[3B]`, `[3C]`, `[3D]`_ · _Source: `cop_handlers_palette.asm
 #### COP [3B] — `SpawnThinkerParam` (spawn thinker with parameter)
 
 - **Preferred name:** `SpawnThinkerParam`
-- **Handler:** `SpawnThinkerParam` @ `extracted/system/engine/cop_handlers_palette.asm`
+- **Handler:** `SpawnThinkerParam` @ [`cop_handlers_palette.asm`](../../../extracted/system/engine/cop_handlers_palette.asm)
 - **Usage count:** 21
 
 ##### What it does
@@ -95,7 +95,7 @@ COP [SpawnThinkerParam] ( #67, @actor_pool.PaletteResetAndKillThinker )
 #### COP [3C] — `SpawnThinker` (spawn thinker)
 
 - **Preferred name:** `SpawnThinker`
-- **Handler:** `SpawnThinker` @ `extracted/system/engine/cop_handlers_palette.asm`
+- **Handler:** `SpawnThinker` @ [`cop_handlers_palette.asm`](../../../extracted/system/engine/cop_handlers_palette.asm)
 - **Usage count:** 56
 
 ##### What it does
@@ -141,7 +141,7 @@ COP [SpawnThinker] ( @code_059BAF )
 #### COP [3D] — `KillThinker` (unlink and free thinker slot)
 
 - **Preferred name:** `KillThinker`
-- **Handler:** `KillThinker` @ `extracted/system/engine/cop_handlers_palette.asm`
+- **Handler:** `KillThinker` @ [`cop_handlers_palette.asm`](../../../extracted/system/engine/cop_handlers_palette.asm)
 - **Usage count:** 29
 
 ##### What it does

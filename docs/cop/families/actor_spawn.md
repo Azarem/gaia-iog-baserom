@@ -1,6 +1,6 @@
 # COP family: Actor spawn
 
-_Deep-audited ops: `[99]`–`[A6]`_
+_Deep-audited ops: `[99]`–`[A6]`_ · _Source: [`cop_handlers_spawn.asm`](../../../extracted/system/engine/cop_handlers_spawn.asm)_
 
 [← COP index](../index.md)
 
@@ -61,7 +61,7 @@ On success, **`Y` = new actor direct-page ID** (same convention as `AllocateActo
 
 - **Preferred name:** `SpawnBefore`
 - **Aliases:** (none in legacy copdef)
-- **Handler:** `SpawnBefore` @ `extracted/system/engine/cop_handlers_spawn.asm:18-32`
+- **Handler:** `SpawnBefore` @ [`cop_handlers_spawn.asm:18-32`](../../../extracted/system/engine/cop_handlers_spawn.asm)
 - **Parameters:** `@Code Entry` — far script entry (word + bank byte)
 - **Usage count:** 18
 
@@ -124,7 +124,7 @@ COP [SpawnBefore] ( @attack_ability_system.AttackSystemEntry )
 #### COP [9A] — `SpawnBeforeFlags` (before + initial `$0010`)
 
 - **Preferred name:** `SpawnBeforeFlags`
-- **Handler:** `SpawnBeforeFlags` @ `cop_handlers_spawn.asm:37-55`
+- **Handler:** `SpawnBeforeFlags` @ [`cop_handlers_spawn.asm:37-55`](../../../extracted/system/engine/cop_handlers_spawn.asm)
 - **Parameters:** `@Code Entry`, `Word New10`
 - **Usage count:** 19
 
@@ -169,7 +169,7 @@ COP [SpawnBeforeFlags] ( @code_0BCEBD, #$2800 )
 #### COP [9B] — `SpawnAfter` (allocate after caller, entry only)
 
 - **Preferred name:** `SpawnAfter`
-- **Handler:** `SpawnAfter` @ `cop_handlers_spawn.asm:60-74`
+- **Handler:** `SpawnAfter` @ [`cop_handlers_spawn.asm:60-74`](../../../extracted/system/engine/cop_handlers_spawn.asm)
 - **Parameters:** `@Code Entry`
 - **Usage count:** 23
 
@@ -218,7 +218,7 @@ COP [SpawnAfter] ( @code_0CED37 )
 #### COP [9C] — `SpawnAfterFlags` (after + `$0010`)
 
 - **Preferred name:** `SpawnAfterFlags`
-- **Handler:** `SpawnAfterFlags` @ `cop_handlers_spawn.asm:79-97`
+- **Handler:** `SpawnAfterFlags` @ [`cop_handlers_spawn.asm:79-97`](../../../extracted/system/engine/cop_handlers_spawn.asm)
 - **Parameters:** `@Code Entry`, `Word New10`
 - **Usage count:** 231
 
@@ -267,7 +267,7 @@ COP [SpawnAfterFlags] ( @code_0CF2BB, #$0B00 )
 
 - **Preferred name:** `SpawnAfterOffset`
 - **Aliases:** `SpawnAfterRel`
-- **Handler:** `SpawnAfterOffset` @ `cop_handlers_spawn.asm:102-128`
+- **Handler:** `SpawnAfterOffset` @ [`cop_handlers_spawn.asm:102-128`](../../../extracted/system/engine/cop_handlers_spawn.asm)
 - **Parameters:** `@Code Entry`, `Word OffsX`, `Word OffsY`
 - **Usage count:** 0
 
@@ -320,7 +320,7 @@ COP [SpawnAfterOffsetFlags] ( @code_0BC7CE, #$000C, #$FFF0, #$0200 )
 
 - **Preferred name:** `SpawnAfterOffsetFlags`
 - **Aliases:** `SpawnAfterRelFlags`
-- **Handler:** `SpawnAfterOffsetFlags` @ `cop_handlers_spawn.asm:133-163`
+- **Handler:** `SpawnAfterOffsetFlags` @ [`cop_handlers_spawn.asm:133-163`](../../../extracted/system/engine/cop_handlers_spawn.asm)
 - **Parameters:** `@Code Entry`, `Word OffsX`, `Word OffsY`, `Word New10`
 - **Usage count:** 126
 
@@ -362,7 +362,7 @@ COP [SpawnAfterOffsetFlags] ( @code_0B9DA9, #$FFFD, #$FFF8, #$0202 )
 #### COP [9F] — `SpawnAfterAbs` (after + absolute pixel position)
 
 - **Preferred name:** `SpawnAfterAbs`
-- **Handler:** `SpawnAfterAbs` @ `cop_handlers_spawn.asm:168-190`
+- **Handler:** `SpawnAfterAbs` @ [`cop_handlers_spawn.asm:168-190`](../../../extracted/system/engine/cop_handlers_spawn.asm)
 - **Parameters:** `@Code Entry`, `Word AbsX`, `Word AbsY`
 - **Usage count:** 0
 
@@ -409,7 +409,7 @@ COP [SpawnAfterAbsFlags] ( @code_0BCAB1, #$016E, #$03E8, #$1800 )
 #### COP [A0] — `SpawnAfterAbsFlags` (after + absolute position + flags)
 
 - **Preferred name:** `SpawnAfterAbsFlags`
-- **Handler:** `SpawnAfterAbsFlags` @ `cop_handlers_spawn.asm:195-221`
+- **Handler:** `SpawnAfterAbsFlags` @ [`cop_handlers_spawn.asm:195-221`](../../../extracted/system/engine/cop_handlers_spawn.asm)
 - **Parameters:** `@Code Entry`, `Word AbsX`, `Word AbsY`, `Word New10`
 - **Usage count:** 106
 
@@ -455,7 +455,7 @@ COP [SpawnAfterAbsFlags] ( @TitleCometSpriteActor, #$0080, #$0050, #$1800 )
 
 - **Preferred name:** `SpawnBeforeMarked`
 - **Aliases:** `SpawnMarkedBefore`
-- **Handler:** `SpawnBeforeMarked` @ `cop_handlers_spawn.asm:226-247`
+- **Handler:** `SpawnBeforeMarked` @ [`cop_handlers_spawn.asm:226-247`](../../../extracted/system/engine/cop_handlers_spawn.asm)
 - **Parameters:** `@Code Entry`, `Word New10`
 - **Usage count:** 19
 
@@ -502,7 +502,7 @@ COP [KillPrev]
 
 - **Preferred name:** `SpawnAfterMarked`
 - **Aliases:** `SpawnMarkedAfter`
-- **Handler:** `SpawnAfterMarked` @ `cop_handlers_spawn.asm:252-273`
+- **Handler:** `SpawnAfterMarked` @ [`cop_handlers_spawn.asm:252-273`](../../../extracted/system/engine/cop_handlers_spawn.asm)
 - **Parameters:** `@Code Entry`, `Word New10`
 - **Usage count:** 101
 
@@ -551,7 +551,7 @@ COP [SpawnAfterMarked] ( @interaction_handlers.collect_handler_gem, #$2300 )
 
 - **Preferred name:** `SpawnAfterAbsMarked`
 - **Aliases:** `SpawnMarkedAfterAbs`
-- **Handler:** `SpawnAfterAbsMarked` @ `cop_handlers_spawn.asm:278-307`
+- **Handler:** `SpawnAfterAbsMarked` @ [`cop_handlers_spawn.asm:278-307`](../../../extracted/system/engine/cop_handlers_spawn.asm)
 - **Parameters:** `@Code Entry`, `Word AbsX`, `Word AbsY`, `Word New10`
 - **Usage count:** 21
 
@@ -584,7 +584,7 @@ COP [SpawnAfterAbsMarked] ( @bt_static_sprite, #$02AE, #$0384, #$1800 )
 
 - **Preferred name:** `SpawnAfterOffsetMarked`
 - **Aliases:** `SpawnMarkedAfterRel`
-- **Handler:** `SpawnAfterOffsetMarked` @ `cop_handlers_spawn.asm:312-355`
+- **Handler:** `SpawnAfterOffsetMarked` @ [`cop_handlers_spawn.asm:312-355`](../../../extracted/system/engine/cop_handlers_spawn.asm)
 - **Parameters:** `@Code Entry`, `Byte OffsX`, `Byte OffsY`, `Word New10`
 - **Usage count:** 77
 
@@ -637,7 +637,7 @@ COP [SpawnAfterOffsetMarked] ( @code_0CF543, #04, #00, #$0301 )
 
 - **Preferred name:** `SpawnListAppend`
 - **Aliases:** `SpawnLastRel`
-- **Handler:** `SpawnListAppend` @ `cop_handlers_spawn.asm:360-439`
+- **Handler:** `SpawnListAppend` @ [`cop_handlers_spawn.asm:360-439`](../../../extracted/system/engine/cop_handlers_spawn.asm)
 - **Parameters:** `@Code Entry`, `Byte OffsX`, `Byte OffsY`, `Word New10`
 - **Usage count:** 256
 
@@ -695,7 +695,7 @@ COP [SpawnListAppend] ( @SpawnHitSparkSprites, #00, #00, #$2F00 )
 
 - **Preferred name:** `SpawnListAppendSpr`
 - **Aliases:** `SpawnLastRelSpr`
-- **Handler:** `SpawnListAppendSpr` @ `cop_handlers_spawn.asm:444-530`
+- **Handler:** `SpawnListAppendSpr` @ [`cop_handlers_spawn.asm:444-530`](../../../extracted/system/engine/cop_handlers_spawn.asm)
 - **Parameters:** `@Code Entry`, `Byte Spr`, `Byte OffsX`, `Byte OffsY`, `Word New10` (see handler — bank follows `@Code` word)
 - **Usage count:** 0
 

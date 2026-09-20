@@ -307,7 +307,7 @@ Each `route-step` is a 4-byte record: `route-step < a, b, c, d >`.
 
 `RouteStepLoop` reads each step and applies the delta indices to the player's
 position for the specified number of frames. The delta tables are internal to
-`RouteAnimationEngine` (`table_01B086`).
+`RouteAnimationEngine` (`movement_delta_table`).
 
 **Control bytes** (in place of a normal step):
 - `$FE` — subroutine call: the next word is a pointer to a sub-route. Return

@@ -1,6 +1,6 @@
 # COP family: Sprite staging
 
-_Ops: `[80]`, `[81]`, `[82]`, `[83]`, `[84]`, `[85]`, `[86]`, `[87]`, `[8D]`_ · _Source: `extracted/system/engine/cop_handlers_sprite.asm`_
+_Ops: `[80]`, `[81]`, `[82]`, `[83]`, `[84]`, `[85]`, `[86]`, `[87]`, `[8D]`_ · _Source: [`cop_handlers_sprite.asm`](../../../extracted/system/engine/cop_handlers_sprite.asm)_
 
 [← COP index](../index.md) · [Sprite animation (execute)](sprite_anim.md)
 
@@ -56,7 +56,7 @@ Handler labels in ASM (`StageSpr`, `StageSprX`, …) differ from **script names*
 
 #### COP [80] — `StageSpriteFrame` (stage animation index only)
 
-- **Handler:** `StageSpr` @ `extracted/system/engine/cop_handlers_sprite.asm:118-130`
+- **Handler:** `StageSpr` @ [`cop_handlers_sprite.asm:118-130`](../../../extracted/system/engine/cop_handlers_sprite.asm)
 - **Script alias:** `COP [StageSpriteFrame]` (same as handler name `StageSpr` in dispatch table)
 - **Parameters:** `Byte` — animation index byte (see `ProcessAnimFlag` for `$FF` / `$80` semantics)
 - **Outcome:** Continue (`RTI` same tick)
@@ -130,13 +130,13 @@ COP [AnimOnce]
 
 - **`$81`–`$87`:** Same staging prefix with movement and/or loop operands.
 - **`$8D`:** Same anim index semantics but immediately applies pose + hitbox via `UpdateActorAnimation`.
-- **Player `$8F`:** Parallel staging for the player actor (`cop_handlers_player_sprite.asm`).
+- **Player `$8F`:** Parallel staging for the player actor ([`cop_handlers_player_sprite.asm`](../../../extracted/system/engine/cop_handlers_player_sprite.asm)).
 
 ---
 
 #### COP [81] — `StageSpriteMoveX` (stage + X axis duration)
 
-- **Handler:** `StageSprX` @ `cop_handlers_sprite.asm:135-153`
+- **Handler:** `StageSprX` @ [`cop_handlers_sprite.asm:135-153`](../../../extracted/system/engine/cop_handlers_sprite.asm)
 - **Parameters:** `Byte` anim, `Byte` X speed index
 - **Outcome:** Continue
 - **Usage count:** 310
@@ -201,7 +201,7 @@ COP [StageSpriteMoveX] ( #85, #01 )
 
 #### COP [82] — `StageSpriteMoveY` (stage + Y axis duration)
 
-- **Handler:** `StageSprY` @ `cop_handlers_sprite.asm:158-176`
+- **Handler:** `StageSprY` @ [`cop_handlers_sprite.asm:158-176`](../../../extracted/system/engine/cop_handlers_sprite.asm)
 - **Parameters:** `Byte` anim, `Byte` Y speed index
 - **Outcome:** Continue
 - **Usage count:** 331
@@ -243,7 +243,7 @@ COP [AnimOnce]
 
 #### COP [83] — `StageSpriteMoveXY` (stage + both axis durations)
 
-- **Handler:** `StageSprXY` @ `cop_handlers_sprite.asm:181-205`
+- **Handler:** `StageSprXY` @ [`cop_handlers_sprite.asm:181-205`](../../../extracted/system/engine/cop_handlers_sprite.asm)
 - **Parameters:** `Byte` anim, `Byte` X speed, `Byte` Y speed
 - **Outcome:** Continue
 - **Usage count:** 68
@@ -277,7 +277,7 @@ COP [AnimOnce]
 
 #### COP [84] — `StageSpriteLoop` (stage + loop count)
 
-- **Handler:** `StageSprLoop` @ `cop_handlers_sprite.asm:210-226`
+- **Handler:** `StageSprLoop` @ [`cop_handlers_sprite.asm:210-226`](../../../extracted/system/engine/cop_handlers_sprite.asm)
 - **Parameters:** `Byte` anim, `Byte` loops
 - **Outcome:** Continue
 - **Usage count:** 455
@@ -325,7 +325,7 @@ COP [AnimLoop]
 
 #### COP [85] — `StageSpriteLoopMoveX` (stage + loop + X duration)
 
-- **Handler:** `StageSprLoopX` @ `cop_handlers_sprite.asm:231-253`
+- **Handler:** `StageSprLoopX` @ [`cop_handlers_sprite.asm:231-253`](../../../extracted/system/engine/cop_handlers_sprite.asm)
 - **Parameters:** `Byte` anim, `Byte` loops, `Byte` X speed
 - **Outcome:** Continue
 - **Usage count:** 278
@@ -366,7 +366,7 @@ COP [AnimLoop]
 
 #### COP [86] — `StageSpriteLoopMoveY` (stage + loop + Y duration)
 
-- **Handler:** `StageSprLoopY` @ `cop_handlers_sprite.asm:258-280`
+- **Handler:** `StageSprLoopY` @ [`cop_handlers_sprite.asm:258-280`](../../../extracted/system/engine/cop_handlers_sprite.asm)
 - **Parameters:** `Byte` anim, `Byte` loops, `Byte` Y speed
 - **Outcome:** Continue
 - **Usage count:** 252
@@ -402,7 +402,7 @@ COP [AnimLoop]
 
 #### COP [87] — `StageSpriteLoopMoveXY` (stage + loop + X + Y durations)
 
-- **Handler:** `StageSprLoopXY` @ `cop_handlers_sprite.asm:285-313`
+- **Handler:** `StageSprLoopXY` @ [`cop_handlers_sprite.asm:285-313`](../../../extracted/system/engine/cop_handlers_sprite.asm)
 - **Parameters:** `Byte` anim, `Byte` loops, `Byte` X speed, `Byte` Y speed
 - **Outcome:** Continue
 - **Usage count:** 61
@@ -445,7 +445,7 @@ COP [AnimLoop]
 
 #### COP [8D] — `StageSprAndHitbox` (stage + immediate sprite/hitbox refresh)
 
-- **Handler:** `StageSprAndHitbox` @ `cop_handlers_sprite.asm:468-482`
+- **Handler:** `StageSprAndHitbox` @ [`cop_handlers_sprite.asm:468-482`](../../../extracted/system/engine/cop_handlers_sprite.asm)
 - **Parameters:** `Byte` anim
 - **Outcome:** Continue (no yield — completes in one COP invocation)
 - **Usage count:** 229

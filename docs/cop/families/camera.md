@@ -1,12 +1,12 @@
 # COP family: Camera pan (directional scroll wait)
 
-_Deep-audited ops: `[DC]`, `[DD]`, `[DE]`, `[DF]`_ · _Source: `cop_handlers_effects.asm`_
+_Deep-audited ops: `[DC]`, `[DD]`, `[DE]`, `[DF]`_ · _Source: [`cop_handlers_effects.asm`](../../../extracted/system/engine/cop_handlers_effects.asm)_
 
 [← COP index](../index.md)
 
 ## Overview
 
-Four **directional camera scroll wait loops** that nudge `$06BE` (`cameraTargetX`) / `$06C2` (`cameraTargetY`) until a bound is reached. Each frame decrements actor **`$2A`**; at underflow, **`CameraScrollStepLookup`** (`cop_handlers_movement.asm`) loads delay + step from the table pointed to by **`$06E0`** / index **`$06E2`**. Step magnitude is **`$2B` low nibble**.
+Four **directional camera scroll wait loops** that nudge `$06BE` (`cameraTargetX`) / `$06C2` (`cameraTargetY`) until a bound is reached. Each frame decrements actor **`$2A`**; at underflow, **`CameraScrollStepLookup`** ([`cop_handlers_movement.asm`](../../../extracted/system/engine/cop_handlers_movement.asm)) loads delay + step from the table pointed to by **`$06E0`** / index **`$06E2`**. Step magnitude is **`$2B` low nibble**.
 
 These are **not** general-purpose cutscene pans — they anchor the **forced-walk warp pipeline** (`warps_interaction.asm` → `StartForcedWalk` → `forced_walk.asm`).
 
@@ -23,7 +23,7 @@ These are **not** general-purpose cutscene pans — they anchor the **forced-wal
 
 ## Family notes
 
-- **Aliases:** extracted scripts use **`CameraPanDown`** etc.; legacy docs say **`PanCameraDown`** — same handlers (`cop_dispatch.asm` `[DC]`–`[DF]`).
+- **Aliases:** extracted scripts use **`CameraPanDown`** etc.; legacy docs say **`PanCameraDown`** — same handlers ([`cop_dispatch.asm`](../../../extracted/system/engine/cop_dispatch.asm) `[DC]`–`[DF]`).
 - Caller must **`STZ $2A`**, point **`$06E0`** at a `forced_walk_sequence_table` entry, and usually **`COP [SetEntryHere]`** before the pan so re-entry yields correctly.
 - On boundary hit, handler **`RTI`s** (script continues). While scrolling, handler **`RTL`s** (yield same COP next frame).
 - Usage counts include **all warp-driven forced walks** that invoke the directional actor (not only literal `COP [CameraPan*]` text — the canonical site is one COP per `ForcedWalk*` actor in `forced_walk.asm`).
@@ -45,7 +45,7 @@ These are **not** general-purpose cutscene pans — they anchor the **forced-wal
 
 - **Preferred name:** `CameraPanDown`
 - **Aliases:** `PanCameraDown`
-- **Handler:** `CameraPanDown` @ `extracted/system/engine/cop_handlers_effects.asm`
+- **Handler:** `CameraPanDown` @ [`cop_handlers_effects.asm`](../../../extracted/system/engine/cop_handlers_effects.asm)
 - **Usage count:** 1
 
 ##### What it does
@@ -118,7 +118,7 @@ Extended warps across the world map and dungeon exits (via `StartForcedWalk` →
 
 - **Preferred name:** `CameraPanUp`
 - **Aliases:** `PanCameraUp`
-- **Handler:** `CameraPanUp` @ `extracted/system/engine/cop_handlers_effects.asm`
+- **Handler:** `CameraPanUp` @ [`cop_handlers_effects.asm`](../../../extracted/system/engine/cop_handlers_effects.asm)
 - **Usage count:** 1
 
 ##### What it does
@@ -155,7 +155,7 @@ Warp sequences with **bit 7** set in the walk sequence byte select north forced 
 
 - **Preferred name:** `CameraPanRight`
 - **Aliases:** `PanCameraRight`
-- **Handler:** `CameraPanRight` @ `extracted/system/engine/cop_handlers_effects.asm`
+- **Handler:** `CameraPanRight` @ [`cop_handlers_effects.asm`](../../../extracted/system/engine/cop_handlers_effects.asm)
 - **Usage count:** 1
 
 ##### What it does
@@ -191,7 +191,7 @@ East forced walk when sequence ID has **bit 4** (`StartForcedWalk` decode).
 
 - **Preferred name:** `CameraPanLeft`
 - **Aliases:** `PanCameraLeft`
-- **Handler:** `CameraPanLeft` @ `extracted/system/engine/cop_handlers_effects.asm`
+- **Handler:** `CameraPanLeft` @ [`cop_handlers_effects.asm`](../../../extracted/system/engine/cop_handlers_effects.asm)
 - **Usage count:** 1
 
 ##### What it does

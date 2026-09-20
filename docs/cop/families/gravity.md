@@ -1,6 +1,6 @@
 # COP family: Gravity (quadratic fall)
 
-_Deep-audited ops: `[63]`, `[64]`_ · _Source: `cop_handlers_effects.asm`_
+_Deep-audited ops: `[63]`, `[64]`_ · _Source: [`cop_handlers_effects.asm`](../../../extracted/system/engine/cop_handlers_effects.asm)_
 
 [← COP index](../index.md)
 
@@ -37,7 +37,7 @@ _Deep-audited ops: `[63]`, `[64]`_ · _Source: `cop_handlers_effects.asm`_
 #### COP [63] — `InitGravity` (set up gravity state)
 
 - **Preferred name:** `InitGravity`
-- **Handler:** `InitGravity` @ `extracted/system/engine/cop_handlers_effects.asm`
+- **Handler:** `InitGravity` @ [`cop_handlers_effects.asm`](../../../extracted/system/engine/cop_handlers_effects.asm)
 - **Usage count:** 25
 
 ##### What it does
@@ -115,7 +115,7 @@ COP [InitGravity] ( #00, #09, #00 )
 #### COP [64] — `TickGravity` (apply one gravity frame)
 
 - **Preferred name:** `TickGravity`
-- **Handler:** `TickGravity` @ `extracted/system/engine/cop_handlers_effects.asm`
+- **Handler:** `TickGravity` @ [`cop_handlers_effects.asm`](../../../extracted/system/engine/cop_handlers_effects.asm)
 - **Usage count:** 20
 
 ##### What it does
