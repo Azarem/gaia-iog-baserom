@@ -1166,7 +1166,7 @@ system_init_constants [
 ### DmaFixedByteFill
 
 
-Performs a **fixed-byte DMA fill** of WRAM using DMA channel 0 in fill mode (`$DMAP0 = $08`). The fill byte comes from a single-byte source at `binary_01C384.binary_01C455` (a zero byte in the shared binary block). The destination is the current `$WMADDL`/`$WMADDH` address; the transfer size is passed in `Y` (16-bit byte count). Called three times by `InitSystemVariables` to zero WRAM regions during cold start. The `$BBAD0 = $80` setting selects fixed-byte mode where the same source byte is repeated for the entire transfer length.
+Performs a **fixed-byte DMA fill** of WRAM using DMA channel 0 in fill mode (`$DMAP0 = $08`). The fill byte comes from a single-byte source at `scene_flag_table.sine_table_8bit` (a zero byte in the shared binary block). The destination is the current `$WMADDL`/`$WMADDH` address; the transfer size is passed in `Y` (16-bit byte count). Called three times by `InitSystemVariables` to zero WRAM regions during cold start. The `$BBAD0 = $80` setting selects fixed-byte mode where the same source byte is repeated for the entire transfer length.
 
 **Algorithm:**
 
@@ -1174,7 +1174,7 @@ Performs a **fixed-byte DMA fill** of WRAM using DMA channel 0 in fill mode (`$D
 |------|--------|--------|
 | 1 | `STY $DAS0L` | Transfer size in bytes |
 | 2 | `$DMAP0` ← `$08` (fill mode), `$BBAD0` ← `$80` | Fixed-byte DMA config |
-| 3 | Source ← `binary_01C455` (zero byte) | Fill value |
+| 3 | Source ← `sine_table_8bit` (zero byte) | Fill value |
 | 4 | Trigger `$MDMAEN` / `RTS` | Fill WRAM at `$WMADD` |
 
 **Source:**
@@ -1188,9 +1188,9 @@ DmaFixedByteFill {
     STA $DMAP0
     LDA #$80
     STA $BBAD0
-    LDA #$^binary_01C384.binary_01C455
+    LDA #$^scene_flag_table.sine_table_8bit
     STA $A1B0
-    LDX #$&binary_01C384.binary_01C455
+    LDX #$&scene_flag_table.sine_table_8bit
     STX $A1T0L
     LDA #$01
     STA $MDMAEN
@@ -1205,7 +1205,7 @@ DmaFixedByteFill {
 |----------|-----------|------|
 | `Y` (input) | Input | DMA transfer byte count |
 | `$WMADDL` / `$WMADDH` | Input (preset) | WRAM destination address |
-| `binary_01C455` | Read | Single-byte fill value (zero) |
+| `sine_table_8bit` | Read | Single-byte fill value (zero) |
 | DMA channel 0 | Config | Fill mode via `$4300`–`$4305` |
 
 **Cross-References:**

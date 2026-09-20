@@ -105,7 +105,7 @@ None. Often paired with `palace_coffin_hdma_table` and `palace_scroll_brightness
 
 #### Purpose
 
-Ending-region sine wave using amplitude 40, tick speed `#01`, channel `#0F`. Includes auxiliary code at `code_00BF3A` that sets thinker flag bit 0, calls `GenHdmaSine`, and queues HDMA — this subset was extracted into the unused `gen_hdma_sine_oneshot_unused`.
+Ending-region sine wave using amplitude 40, tick speed `#01`, channel `#0F`. Includes auxiliary code at `SineHdmaEndingWaveGen` that sets thinker flag bit 0, calls `GenHdmaSine`, and queues HDMA — this subset was extracted into the unused `gen_hdma_sine_oneshot_unused`.
 
 #### Scene Usage
 
@@ -118,7 +118,7 @@ Ending-region sine wave using amplitude 40, tick speed `#01`, channel `#0F`. Inc
 
 #### Dependencies
 
-None. Contains inline helper `code_00BF3A` (not a separate thinker).
+None. Contains inline helper `SineHdmaEndingWaveGen` (not a separate thinker).
 
 ---
 
@@ -190,7 +190,7 @@ None.
 
 #### Purpose
 
-Timed transition HDMA for Comet Lair. Phase 1: standard sine on channel `#0D` at `$7E8400`. When flag `#01` is set, transitions to phase 2 (`code_00BD69`): reloads with amplitude 4, counts down `#$0070` (112) frames from `$7F0008,X`, then calls `SetEntryContinue` and stops — producing a gradual dampening of the wave effect during a story beat.
+Timed transition HDMA for Comet Lair. Phase 1: standard sine on channel `#0D` at `$7E8400`. When flag `#01` is set, transitions to phase 2 (`CometLairHdmaCTimedBurst`): reloads with amplitude 4, counts down `#$0070` (112) frames from `$7F0008,X`, then calls `SetEntryContinue` and stops — producing a gradual dampening of the wave effect during a story beat.
 
 #### Algorithm
 
@@ -419,7 +419,7 @@ None.
 
 #### Purpose
 
-Extracted subset of `code_00BF3A` from `sine_hdma_ending_wave`. Sets `$0E` ← `#$0006`, counter ← `#$0005`, sets thinker flag bit 0, calls `GenHdmaSine`, queues HDMA on channel `#10`. Would have been a one-shot sine generation step, inlined back into the parent thinker during development.
+Extracted subset of `SineHdmaEndingWaveGen` from `sine_hdma_ending_wave`. Sets `$0E` ← `#$0006`, counter ← `#$0005`, sets thinker flag bit 0, calls `GenHdmaSine`, queues HDMA on channel `#10`. Would have been a one-shot sine generation step, inlined back into the parent thinker during development.
 
 #### Dependencies
 

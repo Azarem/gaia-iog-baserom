@@ -33,7 +33,7 @@ Manual review of all **855** `.asm` files under `extracted/` (34 in `actors/`, 6
 ### `blocks.json` structure
 
 - **Top-level keys** mirror extraction folders: `system`, `actors`, `thinkers`, scene names (`edward_castle`, `pyramid`, …).
-- **`parts` blocks** (~100 entries): intentionally group an actor with its helper code (e.g. `actor_00D877`, `sE6_gaia`, `player_character` cluster).
+- **`parts` blocks** (~100 entries): intentionally group an actor with its helper code (e.g. `HitStaggerMain`, `sE6_gaia`, `player_character` cluster).
 - **`movable` flag**: ~100 explicit assignments; `false` marks bank-locked or tightly coupled units.
 - **`overrides.json`**: Supplies human-readable names for sub-actors (`ec0A_throne_guard1`, `eu91_merchant2`, `it1A_moon_tribe3`, …) and **`M` overrides** (0 = force non-movable, 1 = force movable) consumed via `fixups.json`.
 
@@ -62,14 +62,14 @@ Files that pack multiple independent actors and should become separate logical u
 #### 1. `system/chunk_00E683.asm` (~1,297 lines, 4 `actor_def`s)
 
 Currently mixes:
-- Global collision/distance utilities (`func_00E683`, `func_00E6A6`, large `table_00EF72`)
-- Four actors (`actor_00E94D`, `actor_00EA96`, `actor_00EAA7`, `actor_00EAC3`) that are **scene props**, not collision core
+- Global collision/distance utilities (`CopySiblingFollowState`, `InitFollowAndChase`, large `table_00EF72`)
+- Four actors (`ScrollCameraInit`, `ScrollCameraTrack`, `ScrollCameraVertical`, `ScrollCameraAccumulate`) that are **scene props**, not collision core
 
 **Action:** Split into `functions/chunk_00E683_collision.asm` (movable global library) and four small actor files under `actors/` or appropriate scenes. `blocks.json` already lists these as separate `parts` — extraction should follow.
 
 #### 2. `great_wall/gw82_archer.asm` (7 actors, 709 lines)
 
-Shared behavior: stone/statue archers call `@actor_00E256` (global aimable-target handler) but use extensive local `$&` chains (`code_0B8F15` → `code_0B917A` → …).
+Shared behavior: stone/statue archers call `@push_handler_solid` (global aimable-target handler) but use extensive local `$&` chains (`code_0B8F15` → `code_0B917A` → …).
 
 **Action:** Split into:
 - `gw83_stone_archer.asm` (variants 1–4 + shared local code)
@@ -83,21 +83,21 @@ Mark shared local routines as a `parts` sibling or a `gw82_archer_common` chunk 
 | File | Actors | Shared code |
 |------|--------|-------------|
 | `edward_castle/ec0F_king_bat.asm` | King + 4 sub-bats | `code_0A8733`, `code_0A8743` |
-| `incan_ruins/ir1F_stone_guard.asm` | 5 guards | `@actor_00E256` + local `$&` |
+| `incan_ruins/ir1F_stone_guard.asm` | 5 guards | `@push_handler_solid` + local `$&` |
 | `mountain_temple/mtA0_acid_spider.asm` | 5 spiders | Local web/AI routines |
-| `itory/moon_tribe_camp/it1A_moon_tribe.asm` | 5 tribe NPCs | Dialogue `$&` chains; one `@code_00B800` thinker ref |
+| `itory/moon_tribe_camp/it1A_moon_tribe.asm` | 5 tribe NPCs | Dialogue `$&` chains; one `@FlashPalette1F` thinker ref |
 
 **Action:** Use `parts` per variant (names already in `overrides.json`). Keep **one** shared-code section included by all variants.
 
 #### 4. `system/dark_space/sE6_gaia.asm` (~1,679 lines)
 
-Single `actor_def` but contains an entire sub-system: Gaia actor, cutscene funcs, widescreen strings, secondary `actor_08F67F`, and **`e_actor_09A090`** (physically in bank 09 per `@` refs).
+Single `actor_def` but contains an entire sub-system: Gaia actor, cutscene funcs, widescreen strings, secondary `DarkSpaceAmbientParticle`, and **`e_GaiaNpcSprite`** (physically in bank 09 per `@` refs).
 
 **Action:** Split into:
 - `sE6_gaia.asm` — actor + directly `$&`-linked cutscene driver
 - `sE6_gaia_dialogue.asm` — strings/tables (already partially typed as `&DialogString` in blocks)
-- `actor_08F67F.asm` — separate actor file
-- `e_actor_09A090.asm` — relocate to `unused/` or `system/` (hint NPC related code lives nearby in ROM)
+- `DarkSpaceAmbientParticle.asm` — separate actor file
+- `e_GaiaNpcSprite.asm` — relocate to `unused/` or `system/` (hint NPC related code lives nearby in ROM)
 
 The composite is marked `movable: true` in blocks but is **not** practically movable as one unit.
 
@@ -105,7 +105,7 @@ The composite is marked `movable: true` in blocks but is **not** practically mov
 
 | File | Notes |
 |------|-------|
-| `sky_garden/sg4D_knight_armor.asm` | 4 armor variants; 613 lines; `@actor_00E256`; good `parts` candidate |
+| `sky_garden/sg4D_knight_armor.asm` | 4 armor variants; 613 lines; `@push_handler_solid`; good `parts` candidate |
 | `sky_garden/garden_main/sg4C_platforms.asm` | 4 platforms; handlers are `@` (relocated spawns) — could split with minimal coupling |
 | `mu/mu_vampire_lair/mu67_vampires.asm` | 4 vampire variants |
 | `mountain_temple/mtA0_skulker.asm` | 4 skulker variants |
@@ -113,11 +113,11 @@ The composite is marked `movable: true` in blocks but is **not** practically mov
 | `euro/euro/eu91_merchant.asm` | 4 merchants + shared shop UI |
 | `edward_castle/aqueduct_lockway/ec0E_barrier.asm` | 4 barrier variants (overrides: `ec0E_barrier2–4`) |
 | `angkor_wat/awB1_wall_walker.asm` | 4 walkers; heavy `$&` sharing — split stubs, keep shared core |
-| `actors/ramps.asm` | 4 ramp directions + shared `$&` physics (`code_00D4BB`); blocks marks **`movable: false`** — correct |
+| `actors/ramps.asm` | 4 ramp directions + shared `$&` physics (`RampCheckPlayerSpeed`); blocks marks **`movable: false`** — correct |
 
 ### Lower priority (2–3 actors)
 
-Examples: `hint_npc.asm`, `dark_rewards.asm`, `sg4C_spirits.asm`, `pyCC_mystic_ball.asm`, `dm43_elevator.asm`, `av6C_portrait.asm`, `sp58_monologue.asm`, title screen actors (`sFC_actor_0BC9AE.asm` has 2), etc. These are manageable but would benefit from `parts` documentation in `blocks.json`.
+Examples: `hint_npc.asm`, `dark_rewards.asm`, `sg4C_spirits.asm`, `pyCC_mystic_ball.asm`, `dm43_elevator.asm`, `av6C_portrait.asm`, `sp58_monologue.asm`, title screen actors (`sFC_title_start_handler.asm` has 2), etc. These are manageable but would benefit from `parts` documentation in `blocks.json`.
 
 ---
 
@@ -128,27 +128,27 @@ Cases where separate blocks/files should merge into one logical `parts` group.
 ### 1. Player character cluster (`actors/player_character.asm` + dependencies)
 
 `player_character` includes and references via `@`:
-- `e_actor_02B7B3`, `actor_02B29E`, `e_actor_02B42B`, `e_actor_02B20E` (separate files today)
-- `code_02C3C8` is the hub returned to from `entry_points_00C418`, `actor_00D877`, inventory flows
+- `e_AttackSystemEntry`, `PlayerMoveController`, `e_SlopePhysicsEntry`, `e_ShadowShimmerInit` (separate files today)
+- `PlayerIdleEntry` is the hub returned to from `entry_points_00C418`, `HitStaggerMain`, inventory flows
 
-**blocks.json** already marks `actor_02B7B3` and `actor_02B42B` as `movable: false` with large `parts`. **`player_character` is `movable: false`.**
+**blocks.json** already marks `AttackSystemEntry` and `SlopePhysicsEntry` as `movable: false` with large `parts`. **`player_character` is `movable: false`.**
 
 **Action:** Formalize a **`player`** mega-block in `blocks.json`:
 ```
 player_character (actor_def)
-├── actor_02B20E parts (sidekick / companion COP handler)
-├── actor_02B29E (movement state machine — Code)
-├── actor_02B42B parts (inventory overlay logic)
-├── actor_02B7B3 parts (field interaction — 30+ funcs)
-└── actor_02BDF6 parts (tiny e_actor pair)
+├── ShadowShimmerInit parts (sidekick / companion COP handler)
+├── PlayerMoveController (movement state machine — Code)
+├── SlopePhysicsEntry parts (inventory overlay logic)
+├── AttackSystemEntry parts (field interaction — 30+ funcs)
+└── TrailFollowerSprA parts (tiny e_actor pair)
 ```
 Keep separate `.asm` files for readability but **one `parts` parent** and shared `?BANK 02`. Do not attempt to move individual pieces.
 
-### 2. `actor_00D877` + `actor_00DA78` + `func_00DB8A`
+### 2. `HitStaggerMain` + `field_reveal_object` + `StandardEnemyDefeatHandler`
 
-`actor_00D877.asm` is already a model `parts` block (e_actor + 6 funcs, all `$&`). It `@`-points to `code_02C3C8` (player) and `#$&func_00DB8A` (player setup).
+`HitStaggerMain.asm` is already a model `parts` block (e_actor + 6 funcs, all `$&`). It `@`-points to `PlayerIdleEntry` (player) and `#$&StandardEnemyDefeatHandler` (player setup).
 
-**Action:** Document that `func_00DB8A` (`functions/func_00DB8A.asm`, referenced from **14** scene files) is a **global actor utility**, not part of `00D877`. Consider merging `actor_00DA78` into a `field_interaction` library alongside `00D877` if they share bank 00.
+**Action:** Document that `StandardEnemyDefeatHandler` (`functions/StandardEnemyDefeatHandler.asm`, referenced from **14** scene files) is a **global actor utility**, not part of `00D877`. Consider merging `field_reveal_object` into a `field_interaction` library alongside `00D877` if they share bank 00.
 
 ### 3. Edward Castle `ec0A_*` NPCs (already one file per NPC)
 
@@ -164,9 +164,9 @@ Merchants 2–4 differ only in entry address; body jumps to shared `code_07C2DF`
 
 Same pattern for `it1A_moon_tribe2–5`, `ec0F_sub_bat1–4`, `sg4C_platform1–4`.
 
-### 5. `reward_actors.asm` + `actor_00C2BB.asm`
+### 5. `reward_actors.asm` + `boss_clear_reward_handler.asm`
 
-HP/STR/DEF reward handlers share `func_00E110` and `$&` wide strings. `actor_00C2BB` (red jewel reward) calls `$&code_00C33E` locally and `$@func_00B05E` globally.
+HP/STR/DEF reward handlers share `RewardActorVFX` and `$&` wide strings. `boss_clear_reward_handler` (red jewel reward) calls `$&BossClearApplyStatReward` locally and `$@TestWramFlag_Offset100` globally.
 
 **Action:** Keep `reward_actors` as one **`parts`** group (`movable: true` already). Ensure `reward_table_01AADE` stays in same bank or is referenced via `@`.
 
@@ -182,9 +182,9 @@ HP/STR/DEF reward handlers share `func_00E110` and `$&` wide strings. `actor_00C
 | `ramps` / `large_ramps` | Tight `$&` loops + `@code_00D2D5` self-COP |
 | `inventory_menu` | Heavy `@inventory_spritemap`, `@code_02E8xx` internal layout |
 | `sFA_diary_menu` | Full menu engine, PPU registers, `@` strings |
-| `sFE_actor_03A2F1` (world map) | `@func_00B519`, `@func_00B4CC`, includes overworld tables |
-| `actor_00E4DB` | Used as **`@` library** by angkor/pyramid actors — must stay put |
-| Boss arenas (`pyDD_mummy_queen`, `sE8_actor_0CEEAA`, `na49_kara/lily`) | Multi-bank `@` includes (`sE6_gaia`, `func_08F5F9`, …) |
+| `WorldMapController` (world map) | `@PaletteResetAndKillThinker`, `@ClearAllWramFlags`, includes overworld tables |
+| `smooth_follow_child` | Used as **`@` library** by angkor/pyramid actors — must stay put |
+| Boss arenas (`pyDD_mummy_queen`, `sE8_dark_gaia`, `na49_kara/lily`) | Multi-bank `@` includes (`sE6_gaia`, `Transform_WillToShadow`, …) |
 
 ### Should remain movable (`movable: true`) — verified self-contained
 
@@ -193,10 +193,10 @@ Files with **zero `$@` refs** and substantial `$&` usage (relocate-friendly):
 | File | `$&` refs | Lines | Notes |
 |------|----------:|------:|-------|
 | `actors/overworld_exit.asm` | 42 | 379 | Exemplary isolated actor |
-| `actors/actor_00E4DB.asm` | 25 | 214 | **Note:** marked non-movable because others `@`-link *into* it |
+| `actors/smooth_follow_child.asm` | 25 | 214 | **Note:** marked non-movable because others `@`-link *into* it |
 | `actors/jeweler_gem.asm` | 15 | 317 | |
-| `actors/actor_00D877.asm` | 15 | 317 | Model `parts` actor |
-| `actors/actor_00C2BB.asm` | mixed | 142 | Only `@` to system funcs |
+| `actors/HitStaggerMain.asm` | 15 | 317 | Model `parts` actor |
+| `actors/boss_clear_reward_handler.asm` | mixed | 142 | Only `@` to system funcs |
 | `edward_castle/ec0C_ribber.asm` | 13 | 242 | |
 | `incan_ruins/ir1D_scuttlebug.asm` | 14 | 200 | |
 | Most `ec0A_*.asm` NPCs | low `@` | varies | Scene-local |
@@ -206,9 +206,9 @@ Files with **zero `$@` refs** and substantial `$&` usage (relocate-friendly):
 | Unit | Current | Recommended | Evidence |
 |------|---------|-------------|----------|
 | `sky_garden/sg4D_cyber.asm` | not explicit | **`movable: true`** per variant | 34 `$&`, 1461 lines but modular blue/red sub-actors; split first |
-| `sE6_gaia` | `movable: true` | **`movable: false`** until split | `@e_actor_09A090`, `@table_0EE000`, spans banks 08–09 |
-| `actor_00CD59` (statue inventory) | `movable: true` | **`movable: false`** | 11 `@` vs 2 `$&`; `@inventory_spritemap`, `@func_00B4B7` |
-| `entry_points_00C418` | `movable: true` | **`movable: false`** | `@code_02C3C8`, `@table_0EE000`; hub for scene transitions |
+| `sE6_gaia` | `movable: true` | **`movable: false`** until split | `@e_GaiaNpcSprite`, `@table_0EE000`, spans banks 08–09 |
+| `statue_inventory_reward` (statue inventory) | `movable: true` | **`movable: false`** | 11 `@` vs 2 `$&`; `@inventory_spritemap`, `@TestFlagRaw` |
+| `entry_points_00C418` | `movable: true` | **`movable: false`** | `@PlayerIdleEntry`, `@table_0EE000`; hub for scene transitions |
 | `thinkers_05FB16` | `movable: true` | keep **true** | 18 `$&`, isolated thinker bundle |
 | `dc2F_adrift` | `movable: false` | keep **false** | Large self-contained scene script |
 | `fr32_showman` | `movable: false` | verify — may be overly conservative | Check `@` density if relocation needed |
@@ -227,10 +227,10 @@ Code referenced via `@` from many scenes should **not** be folded into scene act
 
 | Symbol | Referenced from | Role |
 |--------|-----------------|------|
-| `func_00DB8A` | 14+ files | Standard actor slot initialization |
-| `func_00B05E` / `func_00B069` / `func_00B496` | reward/jewel actors | Flag/stat check helpers |
-| `func_00F3C9` | inventory, statue, diary | Scene fade/transition |
-| `func_06B9F2` | euro merchants | Shop inventory logic |
+| `StandardEnemyDefeatHandler` | 14+ files | Standard actor slot initialization |
+| `TestWramFlag_Offset100` / `SetWramFlag_Offset100` / `TestFlag_0300` | reward/jewel actors | Flag/stat check helpers |
+| `ApplyOrbitalOffsetFromRef` | inventory, statue, diary | Scene fade/transition |
+| `ActorDisplayModeSwap` | euro merchants | Shop inventory logic |
 | `entry_points_00C418` | great_wall archers, many scenes | Scene entry COP handlers |
 | `chunk_00E683` funcs + `table_00EF72` | collision-heavy actors | **Must split from embedded actors** |
 
@@ -238,19 +238,19 @@ Code referenced via `@` from many scenes should **not** be folded into scene act
 
 | Symbol | `@` ref count | Role |
 |--------|-------------:|------|
-| `actor_00E256` | 9 files | Aimable-target / COP `[A2]` handler for statues, archers, knights |
-| `actor_00E4DB` | 5+ files | Alternate combat collision pattern (angkor wall walkers, pyramid) |
-| `actor_00DA78` | included widely | Field object behavior template |
-| `code_02C3C8` | player hub | Return point for control handoff — never merge into scene actors |
+| `push_handler_solid` | 9 files | Aimable-target / COP `[A2]` handler for statues, archers, knights |
+| `smooth_follow_child` | 5+ files | Alternate combat collision pattern (angkor wall walkers, pyramid) |
+| `field_reveal_object` | included widely | Field object behavior template |
+| `PlayerIdleEntry` | player hub | Return point for control handoff — never merge into scene actors |
 
 ### Tier 3 — Data tables (stay in `tables/`)
 
 | Symbol | `@` ref count | Role |
 |--------|-------------:|------|
 | `table_0EE000` | **85** files | Universal sprite/map table — quintessential global |
-| `table_01B086` | common | Direction/speed lookup (`actor_00D877`, world map) |
+| `table_01B086` | common | Direction/speed lookup (`HitStaggerMain`, world map) |
 | `stats_01ABF0` | great_wall | Enemy stat block |
-| `reward_table_01AADE` | `actor_00C2BB` | `$&` — keep with reward group or mark `&`-typed in blocks |
+| `reward_table_01AADE` | `boss_clear_reward_handler` | `$&` — keep with reward group or mark `&`-typed in blocks |
 
 ### Tier 4 — Candidates to **promote** to global
 
@@ -270,7 +270,7 @@ Thinkers follow the same `&`/`@` rules. Notable units:
 | File | Assessment |
 |------|------------|
 | `thinkers/parallax_thinker.asm` | Large, scene-agnostic — global |
-| `thinkers/sFE_proc_03A940.asm` | 12 `$&`, world-map related — keep near `sFE_actor_03A2F1` |
+| `thinkers/sFE_proc_03A940.asm` | 12 `$&`, world-map related — keep near `WorldMapController` |
 | `thinkers/thinkers_05FB16.asm` | 18 `$&`, 611 lines — movable bundle (`crF7_thinker_05FB16` in overrides) |
 | Scene-local thinkers (`thinker_00B520` etc.) | Already small, movable |
 
@@ -304,7 +304,7 @@ Thinkers follow the same `&`/`@` rules. Notable units:
 3. **Split `sE6_gaia.asm`** — unlock dark_space bank management.
 4. **Split `sg4D_cyber.asm`** and **`gw82_archer.asm`** — largest scene files after gaia.
 5. **Formalize `player` mega-block** in blocks — document immovable cluster.
-6. **Audit `movable` flags** for `actor_00CD59`, `sE6_gaia`, `entry_points_00C418` (set false).
+6. **Audit `movable` flags** for `statue_inventory_reward`, `sE6_gaia`, `entry_points_00C418` (set false).
 7. **Promote ending `misc_actors_09E64B`** to system/functions namespace.
 8. Sweep remaining ~40 multi-actor files into `parts` documentation (low urgency if asm layout already matches overrides).
 
@@ -336,9 +336,9 @@ Files with more than one `actor_def` (sorted by count):
 
 ---
 
-## Appendix: `@actor_00E256` Consumers
+## Appendix: `@push_handler_solid` Consumers
 
-These actors depend on the global aimable-target module and must either keep `@actor_00E256` or include `actor_00E256.asm`:
+These actors depend on the global aimable-target module and must either keep `@push_handler_solid` or include `push_handler_solid.asm`:
 
 - `great_wall/gw82_archer.asm`
 - `incan_ruins/ir1F_stone_lord.asm`
@@ -350,7 +350,7 @@ These actors depend on the global aimable-target module and must either keep `@a
 - `sky_garden/garden_southwest/sg51_statue.asm`
 - `south_cape/coastal_cave/sc02_seth.asm`
 
-Do **not** merge `actor_00E256` into any of these — it is correctly centralized in `actors/actor_00E256.asm` (`movable: true`, 192 lines, all `$&`).
+Do **not** merge `push_handler_solid` into any of these — it is correctly centralized in `actors/push_handler_solid.asm` (`movable: true`, 192 lines, all `$&`).
 
 ---
 

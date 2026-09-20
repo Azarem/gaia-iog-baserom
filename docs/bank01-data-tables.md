@@ -245,7 +245,7 @@ These linked lists define velocity curves — acceleration ramps, arc trajectori
 
 ### 9. trig_and_level_tables
 
-**Current name:** `binary_01C384`  
+**Current name:** `scene_flag_table`  
 **Proposed name:** `trig_and_level_tables`  
 **Address:** `$1C384`–`$1CA95` (1,809 bytes)  
 **Category:** `system`
@@ -253,59 +253,59 @@ These linked lists define velocity curves — acceleration ramps, arc trajectori
 A composite block containing six related sub-tables for math and progression:
 
 #### 9a. level_experience_table
-**Part:** `binary_01C384`  
+**Part:** `scene_flag_table`  
 **Address:** `$1C384`–`$1C455` (209 bytes, `$D1` entries)  
 **Type:** `Byte` array
 
 Experience level thresholds. Indices `$00`–`$41` show a repeating pattern of `$01` every 8th entry (8 experience points per level). Indices `$42`–`$C0` contain a smooth ramp from `$01` to `$10` (level scaling). Indices `$C1`+ contain high values `$E0`–`$EF` (endgame level caps). Used by the leveling system to determine when the player gains a level.
 
 #### 9b. sine_table_8bit
-**Part:** `binary_01C455`  
+**Part:** `sine_table_8bit`  
 **Address:** `$1C455`–`$1C495` (64 entries)  
 **Type:** `Byte` array
 
 8-bit sine lookup table. Values range from `$00` to `$7F` covering one quarter-wave (0°–90°). Used by actor code for circular/oscillating motion (whirligigs, skulker enemy, sand fanger spiral attacks) and the scene lifecycle system for screen wipe effects.
 
 #### 9c. signed_sine_table
-**Part:** `binary_01C495`  
+**Part:** `signed_sine_table`  
 **Address:** `$1C495`–`$1C595` (256 entries)  
 **Type:** `Byte` array (signed)
 
 Full 360° signed 8-bit sine table. Values go: `$7F` (peak) → `$00` (zero-crossing) → `$81` (trough) → `$00` (zero-crossing). The incan ruins whirligig enemy uses this for X/Y circular motion, and it's used for signed oscillation effects.
 
 #### 9d. sine_table_16bit
-**Part:** `binary_01C595`  
+**Part:** `sine_table_16bit`  
 **Address:** `$1C595`–`$1C695` (128 word entries)  
 **Type:** `Word` array
 
 16-bit high-precision sine table, one quarter-wave (0°–90°). Values range from `$0000` to `$7FFF` (0.0 to ~1.0 in fixed-point). Used by the Mode 7 perspective system for rotation calculations.
 
 #### 9e. cosine_table_16bit
-**Part:** `binary_01C695`  
+**Part:** `cosine_table_16bit`  
 **Address:** `$1C695`–`$1C795` (128 word entries)  
 **Type:** `Word` array
 
 16-bit high-precision cosine table, one quarter-wave. Values range from `$7FFF` (1.0) down to `$0000` (0.0). Paired with the sine table for Mode 7 matrix computations.
 
 #### 9f. signed_sine_table_16bit
-**Part:** `binary_01C795`  
+**Part:** `signed_sine_table_16bit`  
 **Address:** `$1C795`–`$1C995` (256 word entries)  
 **Type:** `Word` array (signed)
 
 Full-cycle 16-bit signed sine table. Values range from `$0000` through `$7FFF` (positive peak) to `$8001` (negative trough). Used by Mode 7 perspective with 4-quadrant dispatch for rotation at arbitrary angles.
 
 #### 9g. sine_table_16bit_copy
-**Part:** `binary_01C995`  
+**Part:** `sine_table_16bit_quarter`  
 **Address:** `$1C995`–`$1CA95` (128 word entries)  
 **Type:** `Word` array
 
-Duplicate of `binary_01C595`. Likely exists for bank-alignment or separate addressing context.
+Duplicate of `sine_table_16bit`. Likely exists for bank-alignment or separate addressing context.
 
 **Usage:**
 - `mode7_perspective.asm` / `mode7_perspective_unused.asm` — Mode 7 rotation matrix (16-bit sin/cos)
 - `scene_lifecycle.asm` — screen transition effects (8-bit sine)
 - Actor code (whirligig, skulker, sand fanger) — circular movement patterns
-- `system_init.asm` — uses `binary_01C455` address as a known zero-byte source for WRAM clearing
+- `system_init.asm` — uses `sine_table_8bit` address as a known zero-byte source for WRAM clearing
 
 ---
 
@@ -428,7 +428,7 @@ These are used for doors opening/closing, barriers appearing/disappearing, puzzl
 
 ### 14. hdma_and_ramp_tables
 
-**Current name:** `binary_01D8BE`  
+**Current name:** `hdma_channel_config`  
 **Proposed name:** `hdma_and_ramp_tables`  
 **Address:** `$1D8BE`–`$1D971` (179 bytes)  
 **Category:** `system`
@@ -436,7 +436,7 @@ These are used for doors opening/closing, barriers appearing/disappearing, puzzl
 A composite block with three sub-tables:
 
 #### 14a. hdma_channel_config
-**Part:** `binary_01D8BE`  
+**Part:** `hdma_channel_config`  
 **Address:** `$1D8BE`–`$1D8FE` (64 entries)  
 **Type:** `Byte` array
 
@@ -449,7 +449,7 @@ DMA transfer mode lookup table for HDMA channel configuration. Each byte specifi
 **Usage:** `hdma_dma_spc.asm` — `SetupHdmaChannel_Indirect/Direct` uses this to configure DMAP for HDMA channels. Also referenced by `parallax_thinker.asm` and `cop_handlers_solid.asm`.
 
 #### 14b. parallax_speed_table
-**Part:** `binary_01D8FE`  
+**Part:** `parallax_speed_config`  
 **Address:** `$1D8FE`–`$1D90B` (13 bytes)  
 **Type:** `Byte` array
 
@@ -563,7 +563,7 @@ Pointer table of 64 item display names (Red Jewel, Herb, Incan Statue A/B, Cryst
 #### 18c. item_menu_table (`itemmenu_table_01DE1E`)
 Pointer table of 64 item menu descriptions — longer text shown when selecting items in the inventory menu.
 
-#### 18d. Separator (`binary_01E12A`)
+#### 18d. Separator (`item_table_separator`)
 8-byte padding between item menu and item description tables.
 
 #### 18e. item_description_table (`itemdesc_table_01E132`)
@@ -691,18 +691,18 @@ The strings at `dialogstring_01FF02` (inventory full) and `dialogstring_01FF1F` 
 | `stats_01ABF0` | `enemy_stats_table` | Master enemy stat table |
 | `table_01ADA8` | `scene_barrier_chest_table` | Per-scene barrier/chest placement data |
 | `table_01B086` | `movement_delta_table` | Pre-computed movement delta curves |
-| `binary_01C384` | `trig_and_level_tables` | Composite: trig LUTs + level thresholds |
-| `binary_01C455` | `sine_table_8bit` | 8-bit quarter-wave sine LUT |
-| `binary_01C495` | `signed_sine_table` | Full-cycle signed 8-bit sine |
-| `binary_01C595` | `sine_table_16bit` | 16-bit quarter-wave sine LUT |
-| `binary_01C695` | `cosine_table_16bit` | 16-bit quarter-wave cosine LUT |
-| `binary_01C795` | `signed_sine_table_16bit` | Full-cycle 16-bit signed sine |
-| `binary_01C995` | `sine_table_16bit_copy` | Duplicate of sine_table_16bit |
+| `scene_flag_table` | `trig_and_level_tables` | Composite: trig LUTs + level thresholds |
+| `sine_table_8bit` | `sine_table_8bit` | 8-bit quarter-wave sine LUT |
+| `signed_sine_table` | `signed_sine_table` | Full-cycle signed 8-bit sine |
+| `sine_table_16bit` | `sine_table_16bit` | 16-bit quarter-wave sine LUT |
+| `cosine_table_16bit` | `cosine_table_16bit` | 16-bit quarter-wave cosine LUT |
+| `signed_sine_table_16bit` | `signed_sine_table_16bit` | Full-cycle 16-bit signed sine |
+| `sine_table_16bit_quarter` | `sine_table_16bit_copy` | Duplicate of sine_table_16bit |
 | `templates_01CA95` | `dialog_template_table` | Dialog box/FX template strings |
 | `music_array_01CBA6` | `music_pointer_array` | Scene music → SPC data pointers |
 | `parallax_table` | `parallax_scroll_table` | Per-scene parallax HDMA configs |
-| `binary_01D8BE` | `hdma_channel_config` | HDMA DMA transfer mode lookup |
-| `binary_01D8FE` | `parallax_speed_table` | Parallax scroll speed params |
+| `hdma_channel_config` | `hdma_channel_config` | HDMA DMA transfer mode lookup |
+| `parallax_speed_config` | `parallax_speed_table` | Parallax scroll speed params |
 | `array_01D90B` | `ramp_motion_curves` | Acceleration curves for ramp actors |
 | `table_01D9A7` | `will_ability_anim_table` | Will's ability animation configs |
 | `table_01D9BF` | `freedan_ability_anim_table` | Freedan's ability animation configs |

@@ -160,10 +160,10 @@ Resets the player actor to normal walking state after a climb or ramp completes.
 | Direction | Symbol | Notes |
 |-----------|--------|-------|
 | Called by | `UnlockPlayerAfterClimb` | This chunk |
-| Called by | `code_00D4D2` (ramp_east) | ramps.asm |
-| Called by | `code_00D550` (ramp_south) | ramps.asm |
+| Called by | `RampPlayerClimbEast` (ramp_east) | ramps.asm |
+| Called by | `RampPlayerClimbSouth` (ramp_south) | ramps.asm |
 | Called by | `loc_00D518` (ramp_north) | ramps.asm |
-| Called by | `func_00D5C0` (ramp sprite anim) | ramps.asm |
+| Called by | `RampApplyMotionCurve` (ramp sprite anim) | ramps.asm |
 | Target | `PlayerIdleEntry` | Bank `$02` normal player AI |
 
 ---
@@ -203,7 +203,7 @@ North-facing stair trigger. Detects player approaching from the north (walking n
 
 #### Description
 
-Thin wrapper — adds position offset (`COP [AddPosition] #F8, #00`) then falls through to `StairTriggerWest` code (`code_00D16D`). Used in Angel Village 72 where the trigger needs a pixel offset before the standard west-facing proximity check.
+Thin wrapper — adds position offset (`COP [AddPosition] #F8, #00`) then falls through to `StairTriggerWest` code (`StairTriggerWestMain`). Used in Angel Village 72 where the trigger needs a pixel offset before the standard west-facing proximity check.
 
 - **Scene usage:** Angel Village (`event_def_0CB258`) — actor slot #14
 
@@ -311,10 +311,10 @@ All four climb functions share the same pattern:
 
 | Caller | Target | Type |
 |--------|--------|------|
-| `code_00D4D2` (ramp_east climb) | `RestorePlayerControl` (`$D58A`) | JSR `$&` |
-| `code_00D550` (ramp_south climb) | `RestorePlayerControl` (`$D58A`) | JSR `$&` |
+| `RampPlayerClimbEast` (ramp_east climb) | `RestorePlayerControl` (`$D58A`) | JSR `$&` |
+| `RampPlayerClimbSouth` (ramp_south climb) | `RestorePlayerControl` (`$D58A`) | JSR `$&` |
 | `loc_00D518` (ramp_north climb) | `RestorePlayerControl` (`$D58A`) | JSR `$&` |
-| `func_00D5C0` (ramp sprite anim) | `RestorePlayerControl` (`$D58A`) | JSR `$&` |
+| `RampApplyMotionCurve` (ramp sprite anim) | `RestorePlayerControl` (`$D58A`) | JSR `$&` |
 
 ---
 

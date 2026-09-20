@@ -60,8 +60,8 @@ centers camera (X−`$80`, Y−`$70`) with scroll-override flags. Initializes
 
 - **Phase 1** — fill three 224-entry HDMA tables (`$7E7000`, `$7E7800`, `$7E8000`)
   with 1-scanline defaults; yield.
-- **Phase 2** — matrix computation: index sine (`binary_01C595`) and cosine
-  (`binary_01C695`) tables by `$BC × 2`; dispatch to one of four quadrant handlers
+- **Phase 2** — matrix computation: index sine (`sine_table_16bit`) and cosine
+  (`cosine_table_16bit`) tables by `$BC × 2`; dispatch to one of four quadrant handlers
   by sine/cosine sign; `NormalizeDivisor` right-shifts until the scale divisor fits
   8 bits; per-scanline hardware 16÷8 divide (`WRDIV`/`RDDIV`) yields cos/scale and
   sin/scale; adaptive overflow halving preserves the ratio.
@@ -109,8 +109,8 @@ Two 512-entry signed word tables stored in bank `$01`:
 
 | Table | Address | Content |
 |-------|---------|---------|
-| `binary_01C595` | `$01C595` | sine values (512 entries × 2 bytes = 1024 bytes) |
-| `binary_01C695` | `$01C695` | cosine values (512 entries × 2 bytes) |
+| `sine_table_16bit` | `$01C595` | sine values (512 entries × 2 bytes = 1024 bytes) |
+| `cosine_table_16bit` | `$01C695` | cosine values (512 entries × 2 bytes) |
 
 Indexed by `($BC AND $01FF) × 2` (word-sized lookup). The 512-step period gives
 `~0.7°` per step. Negative values indicate the respective quadrant sign.
@@ -386,7 +386,7 @@ During the final loop: `loopCounter & $0078` (bits 3–6, 8-frame granularity),
 
 ### Palette-flash thinker
 
-`FutureVisionCutscene` spawns `oneshot_palette_flash_19.code_00B7D8` as a separate
+`FutureVisionCutscene` spawns `oneshot_palette_flash_19.FlashPalette19` as a separate
 thinker during init. This produces a dramatic white-flash effect at the vision's
 start by cycling palette entries rapidly for a few frames, then dying automatically.
 `GardenCrashCutscene` does not use a palette flash.

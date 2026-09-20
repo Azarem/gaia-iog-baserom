@@ -866,7 +866,7 @@ These blocks have inbound `$&` (2-byte same-bank) references and **cannot** be r
 | Block | Inbound From | Reason |
 |-------|-------------|--------|
 | `GameOverSequence` ($D62F) | `ComposeDigits_Continuation` | Player death pointer |
-| `StandardEnemyDefeatHandler` ($DB8A) | `ComposeDigits_Continuation`, `actor_00D877` | Enemy defeat pointer |
+| `StandardEnemyDefeatHandler` ($DB8A) | `ComposeDigits_Continuation`, `HitStaggerMain` | Enemy defeat pointer |
 | `NullActorScriptStub` ($DC77) | `ComposeDigits_Continuation` | Default actor script |
 | `player_transition_handlers` ($C418) | 15+ consumers | Player anim `#$&func_00C4xx` refs |
 | `smooth_follow_child` ($E4DB) | Pyramid, Angkor, etc. | Hard `$&` refs |

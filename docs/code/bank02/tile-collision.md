@@ -445,7 +445,7 @@ Used in leftward diagonal cascades to predict whether the destination position w
 
 `TileProbeMain` is the master tile collision probe — the central lookup invoked by every corner probe and cascade routine. It bounds-checks probe coordinates `$1A`/`$1E` against the active camera window (`$camera_offset_x`/`$camera_bounds_x` for X, `$camera_offset_y`/`$06DE` for Y).
 
-In bounds: converts pixel coords to tile col/row (`$18`/`$1C` via >> 4), JSLs to `func_03D78A` in bank `$03` for map cell index resolution, stores result in `$00`, and reads collision via `ReadCollisionNibble`. Carry clear = type `$00` (passable); carry set = blocked.
+In bounds: converts pixel coords to tile col/row (`$18`/`$1C` via >> 4), JSLs to `CalcTileMapOffset` in bank `$03` for map cell index resolution, stores result in `$00`, and reads collision via `ReadCollisionNibble`. Carry clear = type `$00` (passable); carry set = blocked.
 
 Out of bounds: stores `$4001` in `$00`, returns type `$0F` (solid) with carry set.
 
@@ -456,7 +456,7 @@ Out of bounds: stores `$4001` in `$00`, returns type `$0F` (solid) with carry se
 | 1 | If `$1A` < 0 or < `$06D6` or ≥ `$06DA`: goto OOB |
 | 2 | If `$1E` < 0 or < `$06D8` or ≥ `$06DE`: goto OOB |
 | 3 | `$18` ← `$1A >> 4`; `$1C` ← `$1E >> 4` |
-| 4 | JSL `func_03D78A`; `$00` ← cell index; `ReadCollisionNibble` |
+| 4 | JSL `CalcTileMapOffset`; `$00` ← cell index; `ReadCollisionNibble` |
 | 5 | If A = 0: CLC return; else SEC return |
 | 6 | OOB: `$00` ← `$4001`; A ← `$0F`; SEC return |
 
@@ -474,7 +474,7 @@ Out of bounds: stores `$4001` in `$00`, returns type `$0F` (solid) with carry se
 
 | Symbol | Relationship |
 |--------|--------------|
-| `func_03D78A` | JSL map cell resolver (bank `$03`) |
+| `CalcTileMapOffset` | JSL map cell resolver (bank `$03`) |
 | `ReadCollisionNibble` | Collision byte lookup |
 | All `ProbeCurrent*` / `ProbeFuture*` | Callers |
 
@@ -561,7 +561,7 @@ For valid indices, reads `$7FC000,X`. If the high nibble (bits `$F0`) is non-zer
 
 `MapCellRight` advances the map cell index in `$00` one cell to the right. Adds `$10` to the low byte; on carry (page boundary), adds map width `$0693` to the high byte. Returns updated index in X.
 
-Operates on the cell index format established by `TileProbeMain` / `func_03D78A`, parallel to `MapIndexMoveRight` in map_coords.
+Operates on the cell index format established by `TileProbeMain` / `CalcTileMapOffset`, parallel to `MapIndexMoveRight` in map_coords.
 
 **Algorithm:**
 

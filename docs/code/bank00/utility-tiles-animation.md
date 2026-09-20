@@ -305,7 +305,7 @@ AnimFrameLookup {
 
 #### Description
 
-Builds HDMA displacement data from the 256-byte sine table at `binary_01C455`. Computes write buffer pointers from the actor's body data pointer (`$7F0006,X`), scales each sine sample by the amplitude via hardware multiply, and writes paired horizontal/vertical displacement values to double-buffered HDMA tables.
+Builds HDMA displacement data from the 256-byte sine table at `sine_table_8bit`. Computes write buffer pointers from the actor's body data pointer (`$7F0006,X`), scales each sine sample by the amplitude via hardware multiply, and writes paired horizontal/vertical displacement values to double-buffered HDMA tables.
 
 Double-buffering uses `$0036` bit 0 (frame parity): even frames write to base buffers, odd frames offset by `$0200` to prevent visual tearing during HDMA table updates.
 
@@ -327,7 +327,7 @@ Called by COP `$60` (TickSineHdma) each frame to refresh the oscillation table.
 5. Compute initial sine index:
    - Shift $7F0004,X + $1C left by (8 − period/2) → X index
 6. Loop (Y = 0 .. period/2 − 1):
-   a. Read sine[X] from binary_01C455
+   a. Read sine[X] from sine_table_8bit
    b. STA $WRMPYB; multiply by amplitude
    c. If sine negative (bit 7):
       - Sign-extend via $FF × high_byte + low_byte
@@ -349,7 +349,7 @@ Called by COP `$60` (TickSineHdma) each frame to refresh the oscillation table.
 | `$18` / `$1C` | Read | Base horizontal/vertical offsets |
 | `$62` / `$5E` | Temp | HDMA write buffer pointers (DP) |
 | `$00` | Temp | Sine table step size |
-| `binary_01C455` | Read | 256-byte sine lookup table |
+| `sine_table_8bit` | Read | 256-byte sine lookup table |
 | `($62),Y` | Write | Horizontal displacement buffer |
 | `($5E),Y` | Write | Vertical displacement buffer |
 
@@ -360,7 +360,7 @@ Called by COP `$60` (TickSineHdma) each frame to refresh the oscillation table.
 | `TickSineHdma` (COP `$60`) | Caller — per-frame HDMA refresh |
 | `InitSineHdma` (COP `$5F`) | Sets up initial `$7F000E,X` parameters |
 | `BuildSineLookupTable` | Precomputes expanded tables at `$7E8900`/`$7E8B00` |
-| `binary_01C455` | Source sine data |
+| `sine_table_8bit` | Source sine data |
 
 ---
 
@@ -370,7 +370,7 @@ Called by COP `$60` (TickSineHdma) each frame to refresh the oscillation table.
 
 #### Description
 
-Precomputes 512-byte sine lookup tables at WRAM `$7E8900` and `$7E8B00` by multiplying each entry of `binary_01C455` by the actor's amplitude (`$7F0008,X`). Triggered when `$7F000E,X` bit 0 is set (sine HDMA init flag) or when `$09EC` bit 6 is set (global sine rebuild flag).
+Precomputes 512-byte sine lookup tables at WRAM `$7E8900` and `$7E8B00` by multiplying each entry of `sine_table_8bit` by the actor's amplitude (`$7F0008,X`). Triggered when `$7F000E,X` bit 0 is set (sine HDMA init flag) or when `$09EC` bit 6 is set (global sine rebuild flag).
 
 Called by COP `$00` (GenHdmaSine) during HDMA sine effect initialization. After building, GenHdmaSine configures the HDMA channel table entries at `$7E8800` to point at the computed buffers.
 
@@ -386,7 +386,7 @@ Called by COP `$00` (GenHdmaSine) during HDMA sine effect initialization. After 
 4. $WRMPYA ← $7F0008,X (amplitude)
 5. LDX ← 0; LDY ← 0
 6. Loop (512 iterations, step X by 2):
-   a. LDA binary_01C455,Y → STA $WRMPYB
+   a. LDA sine_table_8bit,Y → STA $WRMPYB
    b. If negative: sign-extend multiply result
    c. Else: use $RDMPYH (high byte of product)
    d. Store to $7E8900,X and $7E8B00,X
@@ -403,7 +403,7 @@ Called by COP `$00` (GenHdmaSine) during HDMA sine effect initialization. After 
 | `$09EC` | R/W | Bit 6 = global rebuild flag |
 | `$7E8900` | Write | 512-byte horizontal sine table |
 | `$7E8B00` | Write | 512-byte vertical sine table |
-| `binary_01C455` | Read | Source sine data (256 bytes, indexed with wrap) |
+| `sine_table_8bit` | Read | Source sine data (256 bytes, indexed with wrap) |
 
 #### Cross-References
 
@@ -617,6 +617,6 @@ ParseSignedTileOffset {
 - [`utility-math-movement.md`](utility-math-movement.md) — `ProcessAnimFlag` in movement init
 - [`cop-commands-reference.md`](../../cop-commands-reference.md) — Full COP operand reference
 - [`extracted/system/engine/map_coords.asm`](../../../extracted/system/engine/map_coords.asm) — `TileCoordsToMapIndex`, `PixelToVramAddress`
-- `binary_01C455` — 256-byte sine table source data
+- `sine_table_8bit` — 256-byte sine table source data
 
 *Source: [`extracted/system/engine/cop_handlers_map.asm`](../../../extracted/system/engine/cop_handlers_map.asm), [`extracted/system/engine/cop_handlers_effects.asm`](../../../extracted/system/engine/cop_handlers_effects.asm), [`extracted/system/engine/actor_pool.asm`](../../../extracted/system/engine/actor_pool.asm), [`extracted/system/engine/cop_handlers_solid.asm`](../../../extracted/system/engine/cop_handlers_solid.asm)*

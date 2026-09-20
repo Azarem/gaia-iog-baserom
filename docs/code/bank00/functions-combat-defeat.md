@@ -99,8 +99,8 @@ Because `EnemyGemDropRouter` and `EnemyStatBonusReward` are embedded in the same
 Routes the enemy's `gemDropType` (byte 3 of `enemy-stats`) to the appropriate dark gem spawner within `DarkGemDropSystem`. The `gemDropType` is read from `stats_01ABF0` during the defeat handler and passed via A register. The router decrements and branch-equals to dispatch:
 
 - **Type 1** → `SpawnDarkGemType1` (`$DF29`) — fixed dark gem variant A
-- **Type 2** → `code_00DF52` (`$DF52`) — fixed dark gem variant B
-- **Type 3+** → `code_00DF7B` (`$DF7B`) — weighted random selection from `gem-drop-threshold` table
+- **Type 2** → `DarkGemDropAnimVariantB` (`$DF52`) — fixed dark gem variant B
+- **Type 3+** → `DarkGemDropTierPicker` (`$DF7B`) — weighted random selection from `gem-drop-threshold` table
 
 > ⚠ This system was previously misnamed "EnemyRewardChestRouter" — enemies do **not** spawn chests on death. They drop dark point gems (animated collectible gems with stat-boosting properties).
 
@@ -109,8 +109,8 @@ Routes the enemy's `gemDropType` (byte 3 of `enemy-stats`) to the appropriate da
 ```
 1. LDA gemDropType (from enemy-stats byte 3, via caller)
 2. DEC; BEQ → SpawnDarkGemType1 ($DF29)   [type 1: fixed gem A]
-3. DEC; BEQ → code_00DF52 ($DF52)          [type 2: fixed gem B]
-4. BRA → code_00DF7B ($DF7B)               [type 3+: random weighted]
+3. DEC; BEQ → DarkGemDropAnimVariantB ($DF52)          [type 2: fixed gem B]
+4. BRA → DarkGemDropTierPicker ($DF7B)               [type 3+: random weighted]
 5. COP [SpawnLastRel] @selected_handler
 6. JMP $&code_00DC13
 ```
@@ -216,7 +216,7 @@ Sign-extends randomly via carry flag to produce both positive and negative offse
 | Spawned by | `StandardEnemyDefeatHandler` | `COP [SpawnLastRel]` when `deathActionIdx` set |
 | Spawned by | `pyCC_mystic_ball.asm` | Pyramid mystic ball custom death |
 | Spawned by | `awB1_wall_walker.asm` | Angkor wall walker custom death |
-| Spawned by | `func_0AA43F.asm` | Generic enemy death with field reveal |
+| Spawned by | `EnemyDefeatDispatch.asm` | Generic enemy death with field reveal |
 | Reads | `event_block_table` | Event block definitions (dimensions + coordinates) |
 | Triggers | `StageBgChangeFromDeathIdx` / `ApplyBgChange` | Actual tile swap COP commands |
 
@@ -277,10 +277,10 @@ The `$chatPtr` values identify which stat the gem increases when collected:
 |------|------|---------|------|---------|
 | Type 1 entry | `SpawnDarkGemType1` | `$DF29` | 15 B | Fixed gem type A: setup metasprite + spawn collect handler |
 | Type 1 display | `code_00DF38` | `$DF38` | 26 B | chatPtr `$0083` (HP gem), frames `#04`/`#09` |
-| Type 2 entry | `code_00DF52` | `$DF52` | 15 B | Fixed gem type B: setup metasprite + spawn collect handler |
+| Type 2 entry | `DarkGemDropAnimVariantB` | `$DF52` | 15 B | Fixed gem type B: setup metasprite + spawn collect handler |
 | Type 2 display | `code_00DF61` | `$DF61` | 26 B | chatPtr `$0084` (STR gem), frames `#05`/`#0A` |
 | Weighted | `SpawnDarkGemWeighted` | `$DF7B` | 78 B | RNG tier selection → weighted table lookup → PHA/RTS dispatch |
-| DEF gem | `code_00DFC9` | `$DFC9` | 26 B | chatPtr `$0085` (DEF gem), frames `#06`/`#0B` |
+| DEF gem | `DarkGemDropAnimVariantA` | `$DFC9` | 26 B | chatPtr `$0085` (DEF gem), frames `#06`/`#0B` |
 | Special gem | `code_00DFE3` | `$DFE3` | 26 B | chatPtr `$0086` (special gem), frames `#22`/`#35` |
 | Data | `gem_drop_threshold_00DFFD` | `$DFFD` | 48 B | `gem-drop-threshold` weighted probability table (3 tiers × 4 entries) |
 
@@ -375,7 +375,7 @@ Invoked via `COP [SpawnLastRel]` from combat actor scripts with the trail origin
 
 ### Description
 
-Creates OAM spark entries for critical-hit visual feedback. Writes short-lived sprite entries to the OAM buffer with randomized scatter offsets around the impact point. Contains internal sub-function `code_00DD1D` that builds individual spark OAM entries with priority/mirror bits and 4-frame lifetime.
+Creates OAM spark entries for critical-hit visual feedback. Writes short-lived sprite entries to the OAM buffer with randomized scatter offsets around the impact point. Contains internal sub-function `AppendHitSparkOamEntry` that builds individual spark OAM entries with priority/mirror bits and 4-frame lifetime.
 
 Used when the player lands a critical hit or when certain enemies take bonus damage. Spawned via `COP [SpawnLastRel]` from combat callback chains.
 
@@ -384,7 +384,7 @@ Used when the player lands a critical hit or when certain enemies take bonus dam
 ```
 1. Read impact position from spawn params
 2. Loop spark count (typically 4–8):
-     a. JSR code_00DD1D — write OAM entry with RNG offset
+     a. JSR AppendHitSparkOamEntry — write OAM entry with RNG offset
      b. Set 4-frame lifetime counter
 3. Animate sparks (fade priority bits each frame)
 4. COP [Die]
@@ -394,7 +394,7 @@ Used when the player lands a critical hit or when certain enemies take bonus dam
 
 | Direction | Symbol | Notes |
 |-----------|--------|-------|
-| Embedded sub | `code_00DD1D` | OAM entry builder |
+| Embedded sub | `AppendHitSparkOamEntry` | OAM entry builder |
 
 ---
 

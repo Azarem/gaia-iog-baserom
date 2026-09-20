@@ -83,7 +83,7 @@
 | `$0BAAAA` | `$0BABB3` | 265 | `py_queen_actor_0BAAAA` | Code | Pyramid (Queen) |
 | `$0BABB3` | `$0BAC7D` | 202 | `py_queen_actor_0BABB3` | Code | Pyramid (Queen) |
 | `$0BAC7D` | `$0BACB4` | 55 | `pyDD_mummy_queen` / `code_0BAC7D` | Code | Pyramid (Queen) |
-| `$0BACB4` | `$0BACBC` | 8 | `binary_0BACB4` | Binary | Pyramid (Queen) |
+| `$0BACB4` | `$0BACBC` | 8 | `mummy_queen_angle_table` | Binary | Pyramid (Queen) |
 | `$0BACBC` | `$0BAD6B` | 175 | `py_queen_actor_0BACBC` | Code | Pyramid (Queen) |
 | `$0BAD6B` | `$0BADBE` | 83 | `py_queen_actor_0BAD6B` | Code | Pyramid (Queen) |
 | `$0BADBE` | `$0BADC7` | 9 | `pyDD_actor_0BADBE` | actor-def | Pyramid (Queen) |
@@ -101,11 +101,11 @@
 | `$0BC39D` | `$0BC5A3` | 518 | `pyCE_tuts` | actor-def | Pyramid (Enemies) |
 | `$0BC5A3` | `$0BC798` | 501 | `pyCC_mystic_ball` | actor-def | Pyramid (Enemies) |
 | `$0BC798` | `$0BC896` | 254 | `pyCC_blaster` | actor-def | Pyramid (Enemies) |
-| `$0BC896` | `$0BC8B8` | 34 | `sFB_actor_0BC8BA` / `func_0BC896` | Code | System (Boot) |
+| `$0BC896` | `$0BC8B8` | 34 | `sFB_boot_logo` / `BootLogoPalTextFallback` | Code | System (Boot) |
 | `$0BC8B8` | `$0BC8BA` | 2 | *(unmapped gap)* | — | — |
-| `$0BC8BA` | `$0BC924` | 106 | `sFB_actor_0BC8BA` / `sFB_actor_0BC8BA` | actor-def | System (Boot) |
-| `$0BC924` | `$0BC9AE` | 138 | `sFC_actor_0BC924` | actor-def | System (Title) |
-| `$0BC9AE` | `$0BCA02` | 84 | `sFC_actor_0BC9AE` | actor-def | System (Title) |
+| `$0BC8BA` | `$0BC924` | 106 | `sFB_boot_logo` / `sFB_boot_logo` | actor-def | System (Boot) |
+| `$0BC924` | `$0BC9AE` | 138 | `sFC_title_intro` | actor-def | System (Title) |
+| `$0BC9AE` | `$0BCA02` | 84 | `sFC_title_start_handler` | actor-def | System (Title) |
 | `$0BCA02` | `$0BCB4E` | 332 | `pr8C_prologue1` / `pr8C_prologue1` | actor-def | Prologue |
 | `$0BCB4E` | `$0BCD4B` | 509 | `pr8D_prologue2` / `pr8D_prologue2` | actor-def | Prologue |
 | `$0BCD4B` | `$0BCE33` | 232 | `pr8E_prologue3` / `pr8E_prologue3` | actor-def | Prologue |
@@ -119,37 +119,37 @@
 | `$0BD1CA` | `$0BD222` | 88 | `pr8E_prologue3` / `spritestring_0BD1CA` | SpriteString | Prologue |
 | `$0BD222` | `$0BD272` | 80 | `pr8F_prologue4` / `spritestring_0BD222` | SpriteString | Prologue |
 | `$0BD272` | `$0BD2AB` | 57 | `pr8C_prologue5` / `spritestring_0BD272` | SpriteString | Prologue |
-| `$0BD2AB` | `$0BD306` | 91 | `actor_0BD2AB` | actor-def | Generic |
+| `$0BD2AB` | `$0BD306` | 91 | `particle_rain_spawner` | actor-def | Generic |
 | `$0BD306` | `$0BDE40` | 2,874 | `sE5_epilogue` | actor-def | Ending |
 | `$0BDE40` | `$0BE029` | 489 | `s90_changed_world` | actor-def | Ending |
 | `$0BE029` | `$0BE1C5` | 412 | `s89_new_babel` | actor-def | Ending |
-| `$0BE1C5` | `$0BE237` | 114 | `actor_0BE1C5` | actor-def | Generic |
+| `$0BE1C5` | `$0BE237` | 114 | `dialog_string_scanner` | actor-def | Generic |
 | `$0BE237` | `$0BE2CC` | 149 | `sFA_diary_menu` / `sFA_diary_menu` | actor-def | Diary Menu |
-| `$0BE2CC` | `$0BE673` | 935 | `sFA_diary_menu` / `func_0BE2CC` | Code | Diary Menu |
-| `$0BE673` | `$0BE6BA` | 71 | `sFA_diary_menu` / `sub_0BE673` | Code | Diary Menu |
-| `$0BE6BA` | `$0BE840` | 390 | `sFA_diary_menu` / `func_0BE6BA` | Code | Diary Menu |
-| `$0BE840` | `$0BE87C` | 60 | `sFA_diary_menu` / `sub_0BE840` | Code | Diary Menu |
-| `$0BE87C` | `$0BE8A8` | 44 | `sFA_diary_menu` / `sub_0BE87C` | Code | Diary Menu |
-| `$0BE8A8` | `$0BEBF9` | 849 | `sFA_diary_menu` / `func_0BE8A8` | Code | Diary Menu |
-| `$0BEBF9` | `$0BEC06` | 13 | `sFA_diary_menu` / `sub_0BEBF9` | Code | Diary Menu |
+| `$0BE2CC` | `$0BE673` | 935 | `sFA_diary_menu` / `DiaryMainMenuEntry` | Code | Diary Menu |
+| `$0BE673` | `$0BE6BA` | 71 | `sFA_diary_menu` / `ApplySoundAndRemap` | Code | Diary Menu |
+| `$0BE6BA` | `$0BE840` | 390 | `sFA_diary_menu` / `DiarySndBtnTab` | Code | Diary Menu |
+| `$0BE840` | `$0BE87C` | 60 | `sFA_diary_menu` / `ReadSramSettings` | Code | Diary Menu |
+| `$0BE87C` | `$0BE8A8` | 44 | `sFA_diary_menu` / `WriteSramSettings` | Code | Diary Menu |
+| `$0BE8A8` | `$0BEBF9` | 849 | `sFA_diary_menu` / `DiaryCopyTab` | Code | Diary Menu |
+| `$0BEBF9` | `$0BEC06` | 13 | `sFA_diary_menu` / `DiaryMenuClearVram` | Code | Diary Menu |
 | `$0BEC06` | `$0BEC3E` | 56 | `sFA_diary_menu` / `func_0BEC06_noref` | Code | Diary Menu |
-| `$0BEC3E` | `$0BECB1` | 115 | `sFA_diary_menu` / `func_0BEC3E` | Code | Diary Menu |
-| `$0BECB1` | `$0BECD9` | 40 | `sFA_diary_menu` / `sub_0BECB1` | Code | Diary Menu |
-| `$0BECD9` | `$0BECFB` | 34 | `sFA_diary_menu` / `sub_0BECD9` | Code | Diary Menu |
-| `$0BECFB` | `$0BED3C` | 65 | `sFA_diary_menu` / `sub_0BECFB` | Code | Diary Menu |
+| `$0BEC3E` | `$0BECB1` | 115 | `sFA_diary_menu` / `DiaryCursorApplyMove` | Code | Diary Menu |
+| `$0BECB1` | `$0BECD9` | 40 | `sFA_diary_menu` / `DiaryDrawCursorHighlight` | Code | Diary Menu |
+| `$0BECD9` | `$0BECFB` | 34 | `sFA_diary_menu` / `DiaryClearCursor` | Code | Diary Menu |
+| `$0BECFB` | `$0BED3C` | 65 | `sFA_diary_menu` / `DiaryClearAllCursors` | Code | Diary Menu |
 | `$0BED3C` | `$0BED64` | 40 | `sFA_diary_menu` / `table_0BED3C` | &Word | Diary Menu |
-| `$0BED64` | `$0BEE20` | 188 | `sFA_diary_menu` / `sub_0BED64` | Code | Diary Menu |
+| `$0BED64` | `$0BEE20` | 188 | `sFA_diary_menu` / `DiaryScanSramSlots` | Code | Diary Menu |
 | `$0BEE20` | `$0BF178` | 856 | `debug_man` | actor-def | Debug |
 | `$0BF178` | `$0BF1A2` | 42 | `sFA_diary_menu` / `func_0BF178_noref` | Code | Diary Menu |
 | `$0BF1A2` | `$0BF1A6` | 4 | `sFA_diary_menu` / `func_0BF1A2_noref` | Code | Diary Menu |
 | `$0BF1A6` | `$0BF1AA` | 4 | `sFA_diary_menu` / `func_0BF1A6_noref` | Code | Diary Menu |
 | `$0BF1AA` | `$0BF1DB` | 49 | `sFA_diary_menu` / `func_0BF1AA_noref` | Code | Diary Menu |
-| `$0BF1DB` | `$0BF24B` | 112 | `sFA_diary_menu` / `sub_0BF1DB` | Code | Diary Menu |
+| `$0BF1DB` | `$0BF24B` | 112 | `sFA_diary_menu` / `FormatBcdNumber` | Code | Diary Menu |
 | `$0BF24B` | `$0BF259` | 14 | `sFA_diary_menu` / `func_0BF24B_noref` | Code | Diary Menu |
 | `$0BF259` | `$0BF260` | 7 | `sFA_diary_menu` / `func_0BF259_noref` | Code | Diary Menu |
 | `$0BF260` | `$0BF261` | 1 | `sFA_diary_menu` / `func_0BF260_noref` | Code | Diary Menu |
 | `$0BF261` | `$0BF2A6` | 69 | `sFA_diary_menu` / `func_0BF261_noref` | Code | Diary Menu |
-| `$0BF2A6` | `$0BF3F4` | 334 | `sFA_diary_menu` / `func_0BF2A6` | Code | Diary Menu |
+| `$0BF2A6` | `$0BF3F4` | 334 | `sFA_diary_menu` / `DiaryMenuVBlankHandler` | Code | Diary Menu |
 | `$0BF3F4` | `$0BF63B` | 583 | `sFA_diary_menu` / `dialogstring_0BF3F4` | DialogString | Diary Menu |
 | `$0BF63B` | `$0BF667` | 44 | `sFA_diary_menu` / `table_0BF63B` | &DialogString | Diary Menu |
 | `$0BF667` | `$0BF679` | 18 | `sFA_diary_menu` / `table_0BF667` | &DialogString | Diary Menu |
@@ -159,7 +159,7 @@
 | `$0BF6B3` | `$0BF6D9` | 38 | `sFA_diary_menu` / `dialogstring_0BF6B3` | DialogString | Diary Menu |
 | `$0BF6D9` | `$0BF706` | 45 | `sFA_diary_menu` / `table_0BF6D9` | &DialogString | Diary Menu |
 | `$0BF706` | `$0BFA57` | 849 | `strings_0BF706` | &diary-entry | Diary Menu |
-| `$0BFA57` | `$0BFA74` | 29 | `actor_0BFA57` | actor-def | Generic |
+| `$0BFA57` | `$0BFA74` | 29 | `debug_stat_setter` | actor-def | Generic |
 | `$0BFA74` | `$0BFFFF` | 1,420 | *(unmapped tail)* | — | — |
 
 ---
@@ -297,13 +297,13 @@ HP thresholds at `$0014`/`$001E` trigger palette thinkers `#5C`/`#5D`. Death run
 
 #### `py_queen_actor_0BAAAA` — Phase 1 Orbiting Eye (265 bytes)
 
-Runtime spawn from Queen phase-1 hit callback. Picks an orbit angle from `binary_0BACB4` (evenly spaced at `$20` intervals), expands orbit diameter, then orbits the Queen via `ApplyOrbitalOffsetFromRef`. Death callback clears the parent's projectile counter to re-enable attacks.
+Runtime spawn from Queen phase-1 hit callback. Picks an orbit angle from `mummy_queen_angle_table` (evenly spaced at `$20` intervals), expands orbit diameter, then orbits the Queen via `ApplyOrbitalOffsetFromRef`. Death callback clears the parent's projectile counter to re-enable attacks.
 
 #### `py_queen_actor_0BABB3` — Phase 2 Homing Orb (202 bytes)
 
 Runtime spawn from Queen phase-2 hit callback. Starts with a short expanding orbit, then switches to `smooth_follow.InitFollowAndChase` targeting the player. Calls `aw_actor_0BBEE9.code_0BBF64` each frame for animation stepping.
 
-#### `binary_0BACB4` — Orbit Angle Lookup (8 bytes)
+#### `mummy_queen_angle_table` — Orbit Angle Lookup (8 bytes)
 
 Data table: `$00, $20, $40, $60, $80, $A0, $C0, $E0` — orbit angle offsets indexed by spawn order (1–7) for the Queen's projectile ring.
 
@@ -409,17 +409,17 @@ On death, spawns a **smaller secondary ghost** with its own HP (`enemy_stats_tab
 **Validated scenes:** `$FB` Boot Logos (scene 251), `$FC` Title Screen (scene 252)
 **Extracted files:** `system/boot_logos/`, `system/title_screen/`
 
-#### `sFB_actor_0BC8BA` — Boot Sequence Controller (140 bytes)
+#### `sFB_boot_logo` — Boot Sequence Controller (140 bytes)
 
-**Scene:** `$FB`. Sets fast-ROM mode (`MEMSEL`), display flags, and joypad mask. Checks `STAT78` bit 4 for ROM configuration. On standard path: animates the Enix logo sprite (`StageSpriteLoop`), toggles flag byte `#10`, and queues map change to `$FC` (title). Alternate path (`func_0BC896`): loads ending comet palette, runs BG3 boot text via `RunBg3Script` with `boot_screen_strings`.
+**Scene:** `$FB`. Sets fast-ROM mode (`MEMSEL`), display flags, and joypad mask. Checks `STAT78` bit 4 for ROM configuration. On standard path: animates the Enix logo sprite (`StageSpriteLoop`), toggles flag byte `#10`, and queues map change to `$FC` (title). Alternate path (`BootLogoPalTextFallback`): loads ending comet palette, runs BG3 boot text via `RunBg3Script` with `boot_screen_strings`.
 
-#### `sFC_actor_0BC924` — Title Screen Orchestrator (138 bytes)
+#### `sFC_title_intro` — Title Screen Orchestrator (138 bytes)
 
 **Scene:** `$FC`. Primary title-screen director. Sets display mode and palettes, spawns a logo animation actor that slides in horizontally (`StageSpriteLoopMoveX`), displays two copyright strings with timed waits, sets flag `#F4`, then transitions to scene `$8C` (prologue start) via `QueueMapChange`.
 
-#### `sFC_actor_0BC9AE` — Start Button / Skip Handler (84 bytes)
+#### `sFC_title_start_handler` — Start Button / Skip Handler (84 bytes)
 
-**Scenes:** `$FC` (title screen), `$8C`–`$8F` (prologue scenes, spawned as `sFC_actor_0BC9BD` variant). Masks joypad, polls for Start button (`$1001`). On press: clears gfx cache, queues map change to `$FA` (diary/save menu), waits through vblank, and blanks screen. On title screen this opens the diary menu; during prologue it acts as a skip gate.
+**Scenes:** `$FC` (title screen), `$8C`–`$8F` (prologue scenes, spawned as `sFC_sFC_title_start_handler` variant). Masks joypad, polls for Start button (`$1001`). On press: clears gfx cache, queues map change to `$FA` (diary/save menu), waits through vblank, and blanks screen. On title screen this opens the diary menu; during prologue it acts as a skip gate.
 
 ### 4.7 Prologue — Cutscene Actors
 
@@ -463,15 +463,15 @@ Not scene-bound — shared palette-effect thinkers:
 
 **Scattered across bank** (234 bytes total)
 
-#### `actor_0BD2AB` — Particle Effect Spawner (91 bytes)
+#### `particle_rain_spawner` — Particle Effect Spawner (91 bytes)
 
 **Scenes:** None (no spawn table entry; unreferenced). Visual-effect spawner that runs a countdown (120 → 4 frames) and repeatedly spawns short-lived metasprite particles that start at screen top (Y = `$FFE0`), get randomized X position and velocity, rise via `ReloadForceMove` until Y ≥ `$0200`, then die. Likely intended for ending/comet particle effects but appears orphaned in the final ROM.
 
-#### `actor_0BE1C5` — Dialog String Streamer (114 bytes)
+#### `dialog_string_scanner` — Dialog String Streamer (114 bytes)
 
 **Scenes:** None (no spawn table entry; unreferenced). Waits until `worldReadyFlag` is set, then iterates banks `$85`–`$8C` searching for dialog markers (`$BF02`). When found, calls `DialogStringRenderer` to render each string with `UpdateFrameRender`. The infinite loop suggests a **dev/test harness** or orphaned credits-text driver rather than a normal gameplay actor.
 
-#### `actor_0BFA57` — Stat Init Bootstrap (29 bytes)
+#### `debug_stat_setter` — Stat Init Bootstrap (29 bytes)
 
 **Scenes:** None (no spawn table entry). One-shot stub that sets all player combat stats to `$0040` (64): `playerStr`, `playerDef`, `playerMaxHp`, and `damageFlashTimer`, then immediately dies. **Development/testing actor** for stat initialization.
 
@@ -509,7 +509,7 @@ Not scene-bound — shared palette-effect thinkers:
 3. **Copy Trip Diary** — source → destination slot copy
 4. **Change Sound + Buttons** — stereo/mono toggle and button remap submenu
 
-Save slots display HP/STR/DEF stats via a BCD digit formatter (`sub_0BF1DB`). Selecting a diary slot triggers an animated camera pan to the saved location on the world map (`code_0BE527`). New game starts at scene `$08` (South Cape church).
+Save slots display HP/STR/DEF stats via a BCD digit formatter (`FormatBcdNumber`). Selecting a diary slot triggers an animated camera pan to the saved location on the world map (`DiaryCameraPan`). New game starts at scene `$08` (South Cape church).
 
 The block is **pinned** (`movable: false`). Several functions after the `debug_man` insertion are tagged `_noref` (unreferenced/orphaned code).
 
@@ -556,7 +556,7 @@ Developer debug NPC physically interleaved within the diary menu's address range
 | `extracted/pyramid/mummy_queen_lair/pyDD_mummy_queen.asm` | `pyDD_mummy_queen` |
 | `extracted/pyramid/mummy_queen_lair/py_queen_actor_0BAAAA.asm` | `py_queen_actor_0BAAAA` |
 | `extracted/pyramid/mummy_queen_lair/py_queen_actor_0BABB3.asm` | `py_queen_actor_0BABB3` |
-| `extracted/pyramid/mummy_queen_lair/binary_0BACB4.asm` | `binary_0BACB4` |
+| `extracted/pyramid/mummy_queen_lair/mummy_queen_angle_table.asm` | `mummy_queen_angle_table` |
 | `extracted/pyramid/mummy_queen_lair/py_queen_actor_0BACBC.asm` | `py_queen_actor_0BACBC` |
 | `extracted/pyramid/mummy_queen_lair/py_queen_actor_0BAD6B.asm` | `py_queen_actor_0BAD6B` |
 | `extracted/pyramid/mummy_queen_lair/pyDD_actor_0BADBE.asm` | `pyDD_actor_0BADBE` |
@@ -584,9 +584,9 @@ Developer debug NPC physically interleaved within the diary menu's address range
 ### System — Boot / Title
 | File | Block |
 |------|-------|
-| `extracted/system/boot_logos/sFB_actor_0BC8BA.asm` | `sFB_actor_0BC8BA` |
-| `extracted/system/title_screen/sFC_actor_0BC924.asm` | `sFC_actor_0BC924` |
-| `extracted/system/title_screen/sFC_actor_0BC9AE.asm` | `sFC_actor_0BC9AE` |
+| `extracted/system/boot_logos/sFB_boot_logo.asm` | `sFB_boot_logo` |
+| `extracted/system/title_screen/sFC_title_intro.asm` | `sFC_title_intro` |
+| `extracted/system/title_screen/sFC_title_start_handler.asm` | `sFC_title_start_handler` |
 
 ### Prologue
 | File | Block |
@@ -616,9 +616,9 @@ Developer debug NPC physically interleaved within the diary menu's address range
 ### Generic Actors
 | File | Block |
 |------|-------|
-| `extracted/actors/actor_0BD2AB.asm` | `actor_0BD2AB` |
-| `extracted/actors/actor_0BE1C5.asm` | `actor_0BE1C5` |
-| `extracted/actors/actor_0BFA57.asm` | `actor_0BFA57` |
+| `extracted/actors/particle_rain_spawner.asm` | `particle_rain_spawner` |
+| `extracted/actors/dialog_string_scanner.asm` | `dialog_string_scanner` |
+| `extracted/actors/debug_stat_setter.asm` | `debug_stat_setter` |
 
 ---
 
@@ -693,16 +693,16 @@ All scene assignments validated against `groups.json` and `scene_actors` spawn d
 ### System / Cutscene Scenes
 | ID | Decimal | Name | Actors from Bank $0B |
 |----|---------|------|-----------------------|
-| `$8C` | 140 | Prologue — Prophecy | pr8C_prologue1, pr8C_prologue5, sFC_actor_0BC9BD (skip) |
-| `$8D` | 141 | Prologue — Legends | pr8D_prologue2, sFC_actor_0BC9BD |
-| `$8E` | 142 | Prologue — Missing | pr8E_prologue3, sFC_actor_0BC9BD |
-| `$8F` | 143 | Prologue — Mishap | pr8F_prologue4, sFC_actor_0BC9BD |
+| `$8C` | 140 | Prologue — Prophecy | pr8C_prologue1, pr8C_prologue5, sFC_sFC_title_start_handler (skip) |
+| `$8D` | 141 | Prologue — Legends | pr8D_prologue2, sFC_sFC_title_start_handler |
+| `$8E` | 142 | Prologue — Missing | pr8E_prologue3, sFC_sFC_title_start_handler |
+| `$8F` | 143 | Prologue — Mishap | pr8F_prologue4, sFC_sFC_title_start_handler |
 | `$89` | 137 | Ending — New Babel | s89_new_babel |
 | `$90` | 144 | Ending — Changed World | s90_changed_world |
 | `$E5` | 229 | Ending — Comet | sE5_epilogue |
 | `$FA` | 250 | Diary Menu | sFA_diary_menu |
-| `$FB` | 251 | Boot Logos | sFB_actor_0BC8BA |
-| `$FC` | 252 | Title Screen | sFC_actor_0BC924, sFC_actor_0BC9AE |
+| `$FB` | 251 | Boot Logos | sFB_boot_logo |
+| `$FC` | 252 | Title Screen | sFC_title_intro, sFC_title_start_handler |
 
 ---
 
@@ -737,7 +737,7 @@ the Haunt spawns a smaller secondary ghost that continues pursuing the player.
 - `sub_0BA5D5` (Fire Sprite) lives at the end of the Acid Spider's range
 
 ### Development remnants
-Three unscened actors (`actor_0BD2AB`, `actor_0BE1C5`, `actor_0BFA57`) are
+Three unscened actors (`particle_rain_spawner`, `dialog_string_scanner`, `debug_stat_setter`) are
 orphaned dev/test code. The `debug_man` provides a full debug warp menu with
 stat maxing. Several diary menu functions are tagged `_noref`.
 

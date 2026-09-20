@@ -39,10 +39,10 @@ prop, and references to Erik/Seth actors that live later in the bank.
 | Address | End | Size | Block Name | Type | Description |
 |---------|-----|------|------------|------|-------------|
 | `$058000` | `$058026` | 39 | `dialogstring_058000` | DialogString | "An explorer who sought the Incan Gold Ship...?" — introductory shipwreck lore text |
-| `$058027` | `$0580AF` | 137 | `gs2B_actor_058027` | actor-def | **Camera wave controller** — reads `unk18_0580B0` keyframe table to apply sinusoidal camera Y-bobbing; scene-aware: subtracts `#$0020` from `cameraDeltaY` for scenes `$2D`–`$2E` (wreck interior); on scene `$2F` also writes `cameraTargetY`. Invisible, no sprite |
+| `$058027` | `$0580AF` | 137 | `ggs2B_wreck_wave_motion` | actor-def | **Camera wave controller** — reads `unk18_0580B0` keyframe table to apply sinusoidal camera Y-bobbing; scene-aware: subtracts `#$0020` from `cameraDeltaY` for scenes `$2D`–`$2E` (wreck interior); on scene `$2F` also writes `cameraTargetY`. Invisible, no sprite |
 | `$0580B0` | `$058139` | 138 | `unk18_0580B0` | camera-keyframe | 69-entry keyframe table for ocean bobbing — alternating up/down deltas with duration counters; creates a slow swell, pause, then reverse pattern |
 
-**Note:** `gs2B_actor_058027` also has a helper `Code` part (`code_05F859`) at `$05F859`–`$05F8F6` (103 bytes) placed near the bank tail — identical logic but targets a different `$16` scratch register for independent camera offset.
+**Note:** `ggs2B_wreck_wave_motion` also has a helper `Code` part (`code_05F859`) at `$05F859`–`$05F8F6` (103 bytes) placed near the bank tail — identical logic but targets a different `$16` scratch register for independent camera offset.
 
 **Subtotal:** 3 pieces, 314 bytes (+ 103 bytes code at tail)
 
@@ -55,8 +55,8 @@ sequence with PPU register manipulation for weather effects.
 
 | Address | End | Size | Block Name | Type | Description |
 |---------|-----|------|------------|------|-------------|
-| `$05813A` | `$05816E` | 53 | `gs2C_actor_05813A` | actor-def | **Seagull spawner** — infinite loop: waits 15 frames, spawns a child seagull actor with RNG X-position relative to player, metasprite from `table_0EE000`; priority #30; child plays frame #02 then dies |
-| `$05816F` | `$058178` | 10 | `gs2C_actor_05816F` | actor-def | Barrel/rope prop — body #1E, adds position offset (-8, 0), `SetEntryContinue` idle loop. Static deck decoration |
+| `$05813A` | `$05816E` | 53 | `ggs2C_rain_spawner` | actor-def | **Seagull spawner** — infinite loop: waits 15 frames, spawns a child seagull actor with RNG X-position relative to player, metasprite from `table_0EE000`; priority #30; child plays frame #02 then dies |
+| `$05816F` | `$058178` | 10 | `ggs2C_rain_particle` | actor-def | Barrel/rope prop — body #1E, adds position offset (-8, 0), `SetEntryContinue` idle loop. Static deck decoration |
 | `$058179` | `$058201` | 214 | `gs2C_descent` | actor-def | **Descent cutscene controller** — gates on `#4C`; locks joypad, sets flag word `#$0185`, configures PPU registers (`TM=#$15`, `CGADSUB=#$B1`, `COLDATA=#$FF` for color math whitewash), positions player at (D0, 20), forces player into walking code via `player_character.loc_02C63B`; waits until player reaches (D0, 240), fires palette flash `oneshot_palette_flash_1C`, sets `#4C`, prints "This is the Incan Gold Ship?!" dialogue |
 | `$058202` | `$058236` | 53 | `gs2C_crew1` | actor-def | Crew member — solid, interactable; says "King! You're safe! Now we can set sail." Static |
 | `$058237` | `$0582B7` | 129 | `gs2C_crew2` | actor-def | Patrolling crew — multi-leg walk loop (south, east, idle, north, west, idle); interactable: "It's a happy occasion! We have waited for you!" |
@@ -109,7 +109,7 @@ atmosphere of the wrecked ship.
 | `$058B2F` | `$058BE6` | 152 | `gs2D_mummy` | actor-def | **Queen's mummy** — metasprite display from `table_0EE000` frame #00; first interact (sets `#01`): locks joypad; second interact (sets `#02`): "The Queen's mummy sleeps silently. There's a gold ring on her long, slender, bony finger..." |
 | `$058BE7` | `$058C66` | 80 | `gs2B_bones` | actor-def | Skeleton bones (scene `ship_wreck`) — metasprite from `table_0EDA00` frame #02; solid with offset (+0,+4); interact: Will reflects "This is where the Inca were standing..." |
 | `$058C67` | `$058CA4` | 159 | `gs2D_kara` | actor-def | **Kara** — solid, two interact states. Pre-`#02`: "They perished waiting for the King's return... I can't stand anything that disrupts people's peaceful lives..." Post-`#02`: "What...?" (reacts to mummy discovery) |
-| `$058CA5` | `$059122` | 798 | `gs2D_lily` | actor-def | **Lily — wreck reunion master controller.** First visit sets `#50`, locks joypad, freezes player via `player_transition_handlers.code_00C45E`, prints "Will! Wake up!", restores player to `PlayerIdleEntry`. Post-`#50`: walks to position (1D,0D), reaches party, prints ring discussion dialogue (Lily/Kara argue about keeping the Queen's ring), starts music `#1B`, triggers `CameraDriftLoopShip` shaking effects (multiple spawns with #FFFF Y-delta), changes music to `#06` with APU channel #0A, sets `musicRoomGroup=#1`. Then enters idle with RNG-triggered camera drift. Interact post-setup: "Maybe it belongs to Riverson!" |
+| `$058CA5` | `$059122` | 798 | `gs2D_lily` | actor-def | **Lily — wreck reunion master controller.** First visit sets `#50`, locks joypad, freezes player via `player_transition_handlers.PlayerFreedanRevealIdle`, prints "Will! Wake up!", restores player to `PlayerIdleEntry`. Post-`#50`: walks to position (1D,0D), reaches party, prints ring discussion dialogue (Lily/Kara argue about keeping the Queen's ring), starts music `#1B`, triggers `CameraDriftLoopShip` shaking effects (multiple spawns with #FFFF Y-delta), changes music to `#06` with APU channel #0A, sets `musicRoomGroup=#1`. Then enters idle with RNG-triggered camera drift. Interact post-setup: "Maybe it belongs to Riverson!" |
 | `$059123` | `$05919B` | 473 | `gs2D_lance` | actor-def | **Lance** — solid; gates on `#01`. Pre-`#01`: walks to position (0F,0D) facing south, waits for player proximity, locks joypad, triggers camera drift, prints "That's Seth! It's coming from the deck!" (hearing Seth's cry), sets `#51`, walks east and dies. Post-`#01` interact: extended dialogue about following Will to a "strange town" (Itory); Kara/Lily interject; Lance says "Since we're friends, we have to share good times and bad" |
 
 **Subtotal:** 5 pieces, 1,662 bytes
@@ -122,7 +122,7 @@ Erik and Seth actors on the shipwreck deck, plus the Shira dream sequence.
 |---------|-----|------|------------|------|-------------|
 | `$05919C` | `$059456` | 699 | `gs2B_erik` | actor-def | **Erik — storm awakening cutscene.** Pre-`#51`: solid, interact "Don't scare me!!" Post-`#51`: spawns child actor at (1D8,260), positions at tile (19,26), displays frame #0D. Waits, prints panicked dialogue about the giant fish. Sets `#02`, spawns `code_058598` (camera shaker) + helper actor that launches player with gravity physics. After `#02`: gravity-launches Erik off-screen, clears `#4D`, resets `$0AA6`, reloads GFX cache, `QueueMapChange` to scene `#2F` (adrift) at (70,B0). The spawned child actor at (1D8,260) walks east, prints Seth's scream, sets `#01`, then RNG-triggers camera drifts until `#02` is set, then gravity-jumps off-screen |
 | `$059457` | `$059641` | 490 | `gs2A_shira` | actor-def | **Shira (Will's mother) — dream sequence.** Sets up PPU window masks (`W12SEL=#$33`, `WOBJSEL=#$03`) for spotlight effect, spawns joypad-lock thinker (`TSB $7000`). Interact sets `#0E`, prints motherly stargazing dialogue, presents Yes/No choice: "Unlucky star" or "Lucky star" — both lead to a farewell message ("I am always watching over you"), then `QueueMapChange` to scene `#2D` at (B0,50) (returning from dream) |
-| `$059642` | `$05970D` | 188 | `gs2B_seth` | actor-def | **Seth — Red Jewel gift.** Pre-`#51`: solid interactable. Post-`#51`: dies. Interact: if `#E0` not set, gives Red Jewel item `#01` via `hidden_red_jewel.code_00C6A1`, sets `#E0`: "I found a strange jewel on board the ship. I'll give it to you." Post-`#E0`: "It's the first time I've ever given you anything. Take care of it." |
+| `$059642` | `$05970D` | 188 | `gs2B_seth` | actor-def | **Seth — Red Jewel gift.** Pre-`#51`: solid interactable. Post-`#51`: dies. Interact: if `#E0` not set, gives Red Jewel item `#01` via `hidden_red_jewel.HiddenRedJewelInventoryFull`, sets `#E0`: "I found a strange jewel on board the ship. I'll give it to you." Post-`#E0`: "It's the first time I've ever given you anything. Take care of it." |
 
 **Subtotal:** 3 pieces, 1,377 bytes
 
@@ -197,10 +197,10 @@ beauty, unaware of its dark underbelly.
 | `$05B32C` | `$05B33C` | 17 | `fr32_actor_05B32C` | actor-def | **Awning prop** — body #08, priority #10, position offset (-2,+5); static one-frame idle. Town decoration |
 | `$05B33D` | `$05B35C` | 32 | `fr32_actor_05B33D` | actor-def | **Walking townsperson** — body #0A, priority #10; infinite east-west patrol loop with idle pauses |
 | `$05B35D` | `$05B370` | 17 | `fr32_actor_05B35D` | actor-def | **Awning prop 2** — body #11, priority #10, position offset (+2,+5); static one-frame idle. Town decoration |
-| `$05B371` | `$05B5AF` | 526 | `fr32_kidnapper` | actor-def | **Kidnapper — position-triggered ambush.** Guards Erik's prison. Gates on `#67`. Solid at tile (04,0D), priority #10. Waits offscreen, monitors player tile area (05,0E)–(0B,12). When triggered: walks east, spawns child actor at (48,E0) — child loads a door metasprite from `table_0EDA00`, copies South Cape sprite palette to `$7F0BE0`, enables attack mode via `func_0AA3FD`, sets HP=5, enables collision. Child monitors player area (07,0E)–(08,12). Pre-`#66`: "If you don't want to lose your lives, go home!!" Post-`#66` (Sam has been talked to): extended scene with Erik's muffled voice heard, man threatens, Will resolves to break down the door. Sets `#67`, opens solid tiles |
+| `$05B371` | `$05B5AF` | 526 | `fr32_kidnapper` | actor-def | **Kidnapper — position-triggered ambush.** Guards Erik's prison. Gates on `#67`. Solid at tile (04,0D), priority #10. Waits offscreen, monitors player tile area (05,0E)–(0B,12). When triggered: walks east, spawns child actor at (48,E0) — child loads a door metasprite from `table_0EDA00`, copies South Cape sprite palette to `$7F0BE0`, enables attack mode via `EnemyInitBasic`, sets HP=5, enables collision. Child monitors player area (07,0E)–(08,12). Pre-`#66`: "If you don't want to lose your lives, go home!!" Post-`#66` (Sam has been talked to): extended scene with Erik's muffled voice heard, man threatens, Will resolves to break down the door. Sets `#67`, opens solid tiles |
 | `$05B5B0` | `$05B6B6` | 231 | `fr32_slap` | actor-def | **Slap NPC** — body #02, priority #10. Waits offscreen, then interact: startled dialogue about someone dropping from the ceiling, gives a "gift" (sound effect #05), then slaps Will — "Kids! If you do something this dangerous again, you'll be in big trouble!!!" |
 | `$05B6B7` | `$05B713` | 93 | `fr32_hotel_hint` | actor-def | **Hotel gossip woman** — body #12, priority #10; spawns a child hitbox 24px below. Child's interact: "A man working at the hotel was caught by a labor trader." Parent is invisible with passthrough |
-| `$05B714` | `$05B7CC` | 217 | `fr32_creep` | actor-def | **Back-alley man — Red Jewel gift.** Solid. Pre-`#E1`: extended dialogue about understanding the town's underside ("Sometimes what you think is unimportant is the most important thing"), secretly gives Red Jewel item `#01` via `hidden_red_jewel.code_00C6A1`, sets `#E1`. Post-`#E1`: "Ha ha ha." |
+| `$05B714` | `$05B7CC` | 217 | `fr32_creep` | actor-def | **Back-alley man — Red Jewel gift.** Solid. Pre-`#E1`: extended dialogue about understanding the town's underside ("Sometimes what you think is unimportant is the most important thing"), secretly gives Red Jewel item `#01` via `hidden_red_jewel.HiddenRedJewelInventoryFull`, sets `#E1`. Post-`#E1`: "Ha ha ha." |
 | `$05B7CD` | `$05B859` | 125 | `fr32_alley_guard` | actor-def | **Alley guard — movement blocker.** Solid; on interact, checks player X vs actor X: if player is to the left (approaching), "Children don't come here. Go home." If passed: "This kid! Where did you come from?! Go home!" + sets `#01` which triggers collision clear and forces player west (`playerSpeedEw = -5`). Loop rearms after clear |
 | `$05B85A` | `$05B895` | 60 | `fr32_slaver1` | actor-def | **Slaver 1** — body #1D; gates on `#5A`. Idle animation loop frame #21; when `#5A` set (slaver2 event complete): clears collision, walks east off-screen. Pre-`#5A` interact: "Where'd he go..." (searching for the escaped laborer) |
 | `$05B896` | `$05BAF7` | 442 | `fr32_slaver2` | actor-def | **Slaver 2 — escaped laborer quest.** Solid, interact presents dialogue "A laborer escaped. Have you seen him?" with Yes/No. "Yes" → "Tell me if you see him." "No" → second choice "Tell location" / "Laugh and lie." If `#59` (sympathetic woman told Will) + "Tell location": gives Red Jewel item `#01`, sets `#5A`, locks joypad. If no `#59`: "But Will doesn't know where the laborer is." Post-`#5A`: dies. Unlocks `joypadMaskStd` after walk-off |
@@ -361,7 +361,7 @@ pre-rescue (chained) and post-rescue (freed).
 
 | Address | End | Size | Block Name | Type | Description |
 |---------|-----|------|------------|------|-------------|
-| `$05D552` | `$05D555` | 36 | `dm40_hidden_dark_space` | actor-def | **Hidden Dark Space** — body #24; gates on word flag `#$0132`. Waits until `#$0132` is set, then spawns `dark_space.code_08D6B5` (Dark Space portal) at the actor's position with Y-offset +1 and flags `#$2000`, then dies. Not movable |
+| `$05D552` | `$05D555` | 36 | `dm40_hidden_dark_space` | actor-def | **Hidden Dark Space** — body #24; gates on word flag `#$0132`. Waits until `#$0132` is set, then spawns `dark_space.DarkSpacePortalInit` (Dark Space portal) at the actor's position with Y-offset +1 and flags `#$2000`, then dies. Not movable |
 | `$05D62E` | `$05D8A5` | 356 | `dm40_trapped_slave` | actor-def | **Trapped slave — enemy-type breakable.** Body #00, enemy-type (`$12=#$0031`), metasprite from `table_0EE000` frame #00, HP=255 from `enemy_stats_table+118`. Monitors player area (08,14)–(0A,17), sets/clears `#00`. When attacked (`playerFlags` bit #02): spawns `SpawnDebrisBurst` debris. On destruction (sets `#D9`): redraws 6 metatiles to open a passage, places collision tiles. Spawns child actor (frame #0C) that adds 3 Red Jewels to `jewelsCollected` (BCD addition), locks joypad, prints "Thank you. I was buried in the cave-in... We want to give you a present. I'm sending 3 Red Jewels to the Jeweler." Child walks north and dies |
 
 **Subtotal:** 2 pieces, 392 bytes
@@ -370,7 +370,7 @@ pre-rescue (chained) and post-rescue (freed).
 
 | Address | End | Size | Block Name | Type | Description |
 |---------|-----|------|------------|------|-------------|
-| `$05D62E` | `$05D6F2` | 44 | `dm41_actor_05D70A` | actor-def | **Dripping poison/lava hazard** — body #30; infinite loop: waits offscreen, plays 3-frame drip animation (#2F→#30→#31), spawns `dm_func_0ADB6B` child at relative offset (0, CE), waits. Ceiling hazard that spawns falling projectiles |
+| `$05D62E` | `$05D6F2` | 44 | `dm41_actor_05D70A` | actor-def | **Dripping poison/lava hazard** — body #30; infinite loop: waits offscreen, plays 3-frame drip animation (#2F→#30→#31), spawns `dm_dm_follower_behavior` child at relative offset (0, CE), waits. Ceiling hazard that spawns falling projectiles |
 
 **Subtotal:** 1 piece, 44 bytes
 
@@ -453,15 +453,15 @@ Toggle switches that apply BG changes to open/close paths via word flags.
 
 | Address | End | Size | Block Name | Type | Description |
 |---------|-----|------|------------|------|-------------|
-| `$05F76F` | `$05F858` | 238 | `sg4D_jump_handler` | actor-def | **Table-driven inter-platform jump system** — body #00, invisible. Scans `spawn_trigger_05F7BB` table: each 6-byte entry is (sceneID, playerX, playerY). Matches current scene + player position; on match, freezes player via `player_transition_handlers.code_00C45E`, loads spawn code pointer from the table to execute the appropriate platform-jump transition. Handles all Sky Garden inter-area jumps from a single dispatcher |
+| `$05F76F` | `$05F858` | 238 | `sg4D_jump_handler` | actor-def | **Table-driven inter-platform jump system** — body #00, invisible. Scans `spawn_trigger_05F7BB` table: each 6-byte entry is (sceneID, playerX, playerY). Matches current scene + player position; on match, freezes player via `player_transition_handlers.PlayerFreedanRevealIdle`, loads spawn code pointer from the table to execute the appropriate platform-jump transition. Handles all Sky Garden inter-area jumps from a single dispatcher |
 
 **Subtotal:** 1 piece, 238 bytes
 
-### 2.32 Gold Ship — Tail Code (part of `gs2B_actor_058027`)
+### 2.32 Gold Ship — Tail Code (part of `ggs2B_wreck_wave_motion`)
 
 | Address | End | Size | Block Name | Type | Description |
 |---------|-----|------|------------|------|-------------|
-| `$05F859` | `$05F8F6` | 103 | `code_05F859` | Code | **Camera Y target driver** — same keyframe-reading logic as `gs2B_actor_058027` but writes to `$16` scratch + `cameraTargetY` instead of `cameraDeltaY`. Used for independent Y camera control in post-storm wreck scenes |
+| `$05F859` | `$05F8F6` | 103 | `code_05F859` | Code | **Camera Y target driver** — same keyframe-reading logic as `ggs2B_wreck_wave_motion` but writes to `$16` scratch + `cameraTargetY` instead of `cameraDeltaY`. Used for independent Y camera control in post-storm wreck scenes |
 
 **Subtotal:** 1 piece, 103 bytes
 
@@ -493,7 +493,7 @@ Toggle switches that apply BG changes to open/close paths via word flags.
 
 | Address | End | Size | Block Name | Type | Description |
 |---------|-----|------|------------|------|-------------|
-| `$05FB16` | `$05FEB1` | 956 | `thinkers_05FB16` | thinker-def | **HDMA circle/ellipse rasterizer suite** — multiple thinker-defs implementing Bresenham circle/ellipse algorithms. `crF7_thinker_05FB16`: reads parameters from `$F4`–`$FE` (center, radii, brightness), alternates double-buffered HDMA tables (`$7E7000`/`$7E7100`) via `QueueHdma` on channel 26. `thinker_def_05FB32`: enhanced version with delta detection (skips recompute if params unchanged). Core routines: `code_05FB59` draws circles with signed radius stepping, writes paired window entries at symmetric offsets with brightness blending. `code_05FC92` draws ellipses. Used for spotlight iris effects, screen wipes, and transition circles across multiple scenes |
+| `$05FB16` | `$05FEB1` | 956 | `thinkers_05FB16` | thinker-def | **HDMA circle/ellipse rasterizer suite** — multiple thinker-defs implementing Bresenham circle/ellipse algorithms. `crF7_thinker_05FB16`: reads parameters from `$F4`–`$FE` (center, radii, brightness), alternates double-buffered HDMA tables (`$7E7000`/`$7E7100`) via `QueueHdma` on channel 26. `thinker_def_05FB32`: enhanced version with delta detection (skips recompute if params unchanged). Core routines: `HdmaGradientBuildV1` draws circles with signed radius stepping, writes paired window entries at symmetric offsets with brightness blending. `HdmaGradientBuildV2` draws ellipses. Used for spotlight iris effects, screen wipes, and transition circles across multiple scenes |
 
 **Subtotal:** 1 piece, 956 bytes
 

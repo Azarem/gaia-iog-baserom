@@ -168,7 +168,7 @@ then re-extend after a delay.
 | `$07BD46` | `$07BD75` | 47 | `gw85_long_switch_spear` | actor-def | **Retractable spear C** — identical logic, keyed to a different flag |
 | `$07BD75` | `$07BDA4` | 47 | `gw85_multi_switch_spear` | actor-def | **Retractable spear D** — identical logic, keyed to yet another flag |
 | `$07BDA4` | `$07BDE8` | 68 | `gw83_switch` | actor-def | **Diving switch** — invisible trigger (body `#00`). Gated on flag word `$0152`. Uses `SetMetasprite(@table_0EE000)`. Moves toward coordinates `$0278,$0190` with `StageMove`, spawns `SpawnDebrisBurst` on impact, applies `StageBgChange(#52)`, sets flag word `$0152` |
-| `$07BDE8` | `$07BE22` | 58 | `gw88_actor_07BDE8` | actor-def | **Tomb dark space trigger** — invisible (body `#00`). Gated on flag word `$0174`. Monitors `$0A9F` (scene-clear counter); when value equals `$3F` (all enemies killed): applies `StageBgChange(#74)`, sets flag word `$0174`. Post-flag: spawns a Dark Space portal (`dark_space.code_08D6B5`) at `$01C8,$0280` with `$2B00` flags |
+| `$07BDE8` | `$07BE22` | 58 | `gw88_actor_07BDE8` | actor-def | **Tomb dark space trigger** — invisible (body `#00`). Gated on flag word `$0174`. Monitors `$0A9F` (scene-clear counter); when value equals `$3F` (all enemies killed): applies `StageBgChange(#74)`, sets flag word `$0174`. Post-flag: spawns a Dark Space portal (`dark_space.DarkSpacePortalInit`) at `$01C8,$0280` with `$2B00` flags |
 
 **Subtotal:** 6 pieces, 314 bytes
 
@@ -190,7 +190,7 @@ townspeople, and the shop queue system.
 | `$07C92A` | `$07CA65` | 315 | `eu91_men2` | actor-def | **Town men group 2** — additional male NPCs for Euro |
 | `$07CA65` | `$07CB95` | 304 | `eu91_women2` | actor-def | **Town women group 2** — additional female NPCs for Euro |
 | `$07D051` | `$07D08C` | 59 | `eu91_peeking_man` | actor-def | **Peeking man** — body `#02`. Purely animated: bobs up (sprite move Y ↑), waits, bobs down, waits, then walks side-to-side in a loop. Uses `SetSpritePriority(#10)` to render behind buildings. No interact handler — decorative only |
-| `$07D08C` | `$07D099` | 13 | `actor_07D08C` | actor-def | **Behind-wall prop** — body `#02`. Adjusts position by `(0, -2)`, sets sprite priority `#30`. Purely decorative static actor behind scenery |
+| `$07D08C` | `$07D099` | 13 | `euro_bg_scroll_actor` | actor-def | **Behind-wall prop** — body `#02`. Adjusts position by `(0, -2)`, sets sprite priority `#30`. Purely decorative static actor behind scenery |
 | `$07D252` | `$07D5D5` | 899 | `eu91_shop_queue` | actor-def | **Shop queue system** — invisible (body `#00`, flags `$30`). The most complex non-combat actor in Euro. Spawns multi-instance queuing NPCs (sprite from `($0E>>1)&$38 + 2`). Links to siblings via `$20` pointer chain. Each NPC walks a fixed path: south to `Y=$0420` → west to `X=$0228` → north to `Y=$0400` → enters shop (teleports to `$2C,$40`, loops). Collision-checks against other queue members and player proximity (`$0D` pixel threshold) before advancing. 6-entry `SwitchCase` dialogue: market praise, queue complaints, life medicine tips |
 | `$07D5D5` | `$07D5E7` | 18 | `eu91_shop_door` | actor-def | **Shop door** — invisible (body `#00`, flags `$20`). Monitors its own collision tile; when a queue NPC steps on it (`BranchIfSolid`), waits `$0707` frames then clears the collision, allowing the next NPC through |
 | `$07E4BC` | `$07E50B` | 79 | `eu91_book` | actor-def | **Rofsky's book** — body `#27`. Sprite priority `#30`. Interact: "This is the book that Rofsky wrote about the future of mankind." |

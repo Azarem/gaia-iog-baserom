@@ -213,7 +213,7 @@ RTL
 
 | Direction | Symbol | Notes |
 |-----------|--------|-------|
-| Used by | `st68_kara.asm`, `sp58_red_eye.asm`, `sFE_actor_03A2F1.asm` | Scene entry cleanup via `JSL` |
+| Used by | `st68_kara.asm`, `sp58_red_eye.asm`, `sFE_WorldMapController.asm` | Scene entry cleanup via `JSL` |
 
 ---
 

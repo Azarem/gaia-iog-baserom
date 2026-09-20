@@ -52,11 +52,11 @@
 | `$0CE5E5` | `$0CEB5B` | 1,398 | `scene_thinkers` | &thinker-spawn | tables |
 | `$0CEB5B` | `$0CEB74` | 25 | `sE7_thinker_0CEB5B` | thinker-def | babel_tower |
 | `$0CEB74` | `$0CEC65` | 241 | `sE8_thinker_0CEB74` | thinker-def | babel_tower |
-| `$0CEC65` | `$0CED4C` | 231 | `sE8_actor_0CEEAA` / `code_0CEC65` | Code | babel_tower |
-| `$0CED4C` | `$0CEDC5` | 121 | `sE7_actor_0CEDC5` / `code_0CED4C` | Code | babel_tower |
-| `$0CEDC5` | `$0CEEAA` | 229 | `sE7_actor_0CEDC5` / `sE7_actor_0CEDC5` | actor-def | babel_tower |
-| `$0CEEAA` | `$0CF61F` | 1,909 | `sE8_actor_0CEEAA` / `sE8_actor_0CEEAA` | actor-def | babel_tower |
-| `$0CF61F` | `$0CF623` | 4 | `actor_0CF61F` | actor-def | unused |
+| `$0CEC65` | `$0CED4C` | 231 | `sE8_dark_gaia` / `code_0CEC65` | Code | babel_tower |
+| `$0CED4C` | `$0CEDC5` | 121 | `sE7_space_flight_controller` / `code_0CED4C` | Code | babel_tower |
+| `$0CEDC5` | `$0CEEAA` | 229 | `sE7_space_flight_controller` / `sE7_space_flight_controller` | actor-def | babel_tower |
+| `$0CEEAA` | `$0CF61F` | 1,909 | `sE8_dark_gaia` / `sE8_dark_gaia` | actor-def | babel_tower |
+| `$0CF61F` | `$0CF623` | 4 | `unused_null_actor` | actor-def | unused |
 | `$0CF623` | `$0D0000` | 2,525 | *(unmapped tail)* | — | — |
 
 ### 3.2 Visual Layout
@@ -117,7 +117,7 @@ $0CEEAA ├───────────────────────
         │  Death: Debris shower, palette cascade, map → Ending         │
         │                                                              │
 $0CF61F ├──────────────────────────────────────────────────────────────┤
-        │  actor_0CF61F — unused RTL stub (4 bytes)                    │
+        │  unused_null_actor — unused RTL stub (4 bytes)                    │
 $0CF623 ├──────────────────────────────────────────────────────────────┤
         │  UNMAPPED TAIL (2,525 bytes)                                 │
 $0D0000 └──────────────────────────────────────────────────────────────┘
@@ -562,7 +562,7 @@ A spawned thinker that builds a per-scanline HDMA brightness gradient during
 the Comet boss's eye beam attack. Creates a glowing intensity ramp effect
 across the screen.
 
-**File:** Part of `extracted/babel_tower/comet_lair/sE8_actor_0CEEAA.asm`
+**File:** Part of `extracted/babel_tower/comet_lair/sE8_dark_gaia.asm`
 
 **Mechanism:**
 1. Initializes `animScratch2 = 4` (scanline step), clears all scratch registers
@@ -582,26 +582,26 @@ across the screen.
 The double-buffering is critical — one buffer is being displayed by HDMA while
 the other is being built for the next frame.
 
-**Properties:** Part of `sE8_actor_0CEEAA` block, `movable: false`
+**Properties:** Part of `sE8_dark_gaia` block, `movable: false`
 
 ---
 
-### 4.6 Space Flight Actor — `sE7_actor_0CEDC5` (350 bytes total)
+### 4.6 Space Flight Actor — `sE7_space_flight_controller` (350 bytes total)
 
 The Space Flight actor controls scene `$E7` — the sequence where Shadow (Will in
 Shadow form) falls through space before the final boss. Manages the player's
 falling animation and spawns star particles streaming past.
 
-**File:** `extracted/babel_tower/space_flight/sE7_actor_0CEDC5.asm`
+**File:** `extracted/babel_tower/space_flight/sE7_space_flight_controller.asm`
 
 #### Parts
 
 | Part | Size | Type | Description |
 |------|------|------|-------------|
 | `code_0CED4C` | 121 | Code | Player falling script — injected into the player actor |
-| `sE7_actor_0CEDC5` | 229 | actor-def | Star field controller — spawns star particles in a loop |
+| `sE7_space_flight_controller` | 229 | actor-def | Star field controller — spawns star particles in a loop |
 
-#### Star Field Controller (`sE7_actor_0CEDC5`)
+#### Star Field Controller (`sE7_space_flight_controller`)
 
 **Actor-def params:** sprite `#00`, hitbox `#10`, variant `#29`
 
@@ -671,17 +671,17 @@ Injected into the player actor by the star field controller:
 
 ---
 
-### 4.7 Dark Gaia — Final Boss (`sE8_actor_0CEEAA`, 2,140 bytes total)
+### 4.7 Dark Gaia — Final Boss (`sE8_dark_gaia`, 2,140 bytes total)
 
 The **Dark Gaia** boss is the game's final battle, fought in scene `$E8`
 (Comet — Final Lair). This is a two-phase boss with a dramatic mid-fight
 transformation sequence. It is the largest code block in bank 0C.
 
-**File:** `extracted/babel_tower/comet_lair/sE8_actor_0CEEAA.asm`
+**File:** `extracted/babel_tower/comet_lair/sE8_dark_gaia.asm`
 
 **Actor-def params:** sprite `#00`, hitbox `#00`, variant `#21`
 
-**Dependencies:** `enemy_stats_table`, `func_0AA36E`, `oneshot_palette_flash_18`,
+**Dependencies:** `enemy_stats_table`, `SetPlayerGameOverFlag`, `oneshot_palette_flash_18`,
 `oneshot_palette_flash_19`, `player_character`, `sE8_thinker_0CEB74`,
 `smooth_follow`, `table_0EE000`
 
@@ -718,7 +718,7 @@ transformation sequence. It is the largest code block in bank 0C.
 | `code_0CF550` | `$0301` | Eye beam telegraph + fire |
 | `code_0CF570` | `$0202` | Downward beam projectile |
 | `code_0CF5AF` | `$0202` | Rising spread projectile |
-| `func_0AA36E` | `$2000` | Boss kill invulnerability flash (cross-bank) |
+| `SetPlayerGameOverFlag` | `$2000` | Boss kill invulnerability flash (cross-bank) |
 
 #### Phase 1 — Initial Form
 
@@ -891,7 +891,7 @@ Triggered when Phase 1 HP depletes (death callback `code_0CEF88`):
 
 1. Sets flag byte `#04` (signals all sub-actors: spawners, tentacles, homing entities)
 2. Masks joypad (`$FFF0` → full input lock)
-3. Spawns `func_0AA36E` (boss kill invulnerability flash)
+3. Spawns `SetPlayerGameOverFlag` (boss kill invulnerability flash)
 4. Spawns explosion debris controller (`code_0CF201`) at relative (0, −32):
    at position (128, 368), uses `table_0EE000` metasprites, 12 cycles each
    spawning paired debris sprites (`code_0CF22F` type A + `code_0CF23C` type B)
@@ -919,11 +919,11 @@ scene: `comet_lair`
 
 ---
 
-### 4.8 Unused Actor Stub — `actor_0CF61F` (4 bytes)
+### 4.8 Unused Actor Stub — `unused_null_actor` (4 bytes)
 
 A minimal dead actor definition containing only an `RTL` instruction.
 
-**File:** `extracted/unused/actor_0CF61F.asm`
+**File:** `extracted/unused/unused_null_actor.asm`
 
 **Actor-def params:** sprite `#00`, hitbox `#00`, variant `#20`
 
@@ -991,8 +991,8 @@ a flag-byte protocol and direct script pointer manipulation:
 | Starfield scroll | `sE7_thinker_0CEB5B` | Background scrolling | Independent |
 | PPU phase control | `sE8_thinker_0CEB74` | 5 rendering configs | Flag byte `#FF` gates loops; boss writes `&`-pointers to `$0F00` |
 | HDMA ramp | `code_0CEC65` | Eye beam brightness | Flag byte `#02`: boss sets, thinker clears when done |
-| Pre-boss sequence | `sE7_actor_0CEDC5` | Falling + stars | Hijacks player script, `QueueMapChange` to `$E8` |
-| Boss AI | `sE8_actor_0CEEAA` | Full Dark Gaia fight | Orchestrates all other components |
+| Pre-boss sequence | `sE7_space_flight_controller` | Falling + stars | Hijacks player script, `QueueMapChange` to `$E8` |
+| Boss AI | `sE8_dark_gaia` | Full Dark Gaia fight | Orchestrates all other components |
 
 The boss has **two distinct phases** with 5 thinker-driven PPU transitions:
 
@@ -1014,7 +1014,7 @@ Phase 0 (dark arena) → Phase 1 (boss active) → [combat] →
 
 ### 5.6 Immovable Blocks
 
-Two Comet blocks (`sE8_thinker_0CEB74` and `sE8_actor_0CEEAA`) are marked
+Two Comet blocks (`sE8_thinker_0CEB74` and `sE8_dark_gaia`) are marked
 `movable: false`. The boss actor directly writes bank-local `&`-prefixed
 pointers into the thinker actor's script slot (`LDA #$&code_0CEBA1; STA $0000,Y`).
 If either block were relocated, these pointers would break. This is a necessary
@@ -1031,7 +1031,7 @@ The Comet boss references shared code from other banks:
 
 | Reference | Bank | Purpose |
 |-----------|------|---------|
-| `func_0AA36E` | `$0A` | Boss kill invulnerability flash |
+| `SetPlayerGameOverFlag` | `$0A` | Boss kill invulnerability flash |
 | `enemy_stats_table` (+154, +158, +15C, +160) | `$00` | HP/stats for boss forms and sub-entities |
 | `smooth_follow.CopySiblingFollowState` | `$01` | Homing tentacle behavior |
 | `table_0EE000` | `$0E` | Metasprite frame definitions |

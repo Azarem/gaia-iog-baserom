@@ -138,7 +138,7 @@ When a COP handler or game code sets `TCD #$0000`, offsets `$00`–`$FF` access 
 | `$005A`–`$005B` | 2 | `thinkerListFirst` | Base address of first thinker in thinker list | `KillThinker` |
 | `$005C`–`$005D` | 2 | `thinkerListLast` | Base address of last thinker in thinker list | `AllocateSpecialActor` |
 | `$005E`–`$0062` | 5 | Joypad state defaults | Initialized to `$0000/$0081/$0000` at cold start | `InitSystemVariables` |
-| `$0066`–`$0067` | 2 | `hdmaEnableMask` | Bitwise flags: HDMA channels queued for enable; written to `$HDMAEN` during NMI | `NmiHandler`, HDMA COPs, `func_03E146` |
+| `$0066`–`$0067` | 2 | `hdmaEnableMask` | Bitwise flags: HDMA channels queued for enable; written to `$HDMAEN` during NMI | `NmiHandler`, HDMA COPs, `ResetHdmaState` |
 | `$0080`–`$0082` | 3 | `collisionLayerBase` | Base RAM address of CollisionLayer (hardcoded `$7FC000`) | Collision routines, `MarkCollisionRect` |
 | `$00AC`–`$00AE` | 3 | `dmaSourceAddr` | DMA source address (16-bit) + bank byte | `ExecuteVramDma`, `AdhocVramDma` COP |
 | `$00B0` | 2 | `vramDestAddr` | VRAM destination word address | `ExecuteVramDma` |

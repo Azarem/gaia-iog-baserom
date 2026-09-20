@@ -101,7 +101,7 @@ $02F06A └─ ClearVramBufferPartial / Full ───────────�
 | `$02E9CF` | SetSlotSprite | Writes item sprite type to actor `$0028,Y` and clears animation state. |
 | `$02E9DC` | TestAbilityFlag | Tests whether an ability tier is unlocked. Flag index = `$0AD4 × 4 + row`. Calls `TestFlag_0510` in bank `$05`; carry... |
 | `$02E9ED` | UpdateSlotActorSprite | Refreshes a slot actor's sprite after inventory mutation. Walks linked list from `$7F0010,X` to slot index in A, rese... |
-| `$02EA13` | CheckItemDiscardable | Tests whether item ID in A may be discarded. Indexes 3-bit-per-item bit array at `binary_01E12A`. Carry set = discard... |
+| `$02EA13` | CheckItemDiscardable | Tests whether item ID in A may be discarded. Indexes 3-bit-per-item bit array at `item_table_separator`. Carry set = discard... |
 | `$02EA35` | BitMaskTable | Eight single-bit masks `$01`–`$80` for discardable-item lookup. |
 | `$02EA3D` | PositionGridCursor | Computes XY for grid selection cursor. Uses `$22` (or `$2E` for second cursor in arrange) and `GridColumnPositions`. |
 | `$02EA73` | PositionEquipCursor | Positions equip cursor on grid using `$1A`. If index negative, hides cursor instead. |
@@ -695,7 +695,7 @@ Refreshes a slot actor's sprite after inventory mutation. Walks linked list from
 
 ### CheckItemDiscardable
 
-Tests whether item ID in A may be discarded. Indexes 3-bit-per-item bit array at `binary_01E12A`. Carry set = discardable, clear = protected.
+Tests whether item ID in A may be discarded. Indexes 3-bit-per-item bit array at `item_table_separator`. Carry set = discardable, clear = protected.
 
 **Algorithm:**
 1. Item ID → byte index (÷8) + bit index (mod 8)
@@ -712,7 +712,7 @@ Tests whether item ID in A may be discarded. Indexes 3-bit-per-item bit array at
 | Symbol | Relationship |
 |--------|--------------|
 | `BitMaskTable` | Lookup |
-| `binary_01E12A` | Protection bit array |
+| `item_table_separator` | Protection bit array |
 
 #### 20I — Cursor Positioning
 

@@ -92,7 +92,7 @@ Assembler syntax examples:
 
 ```asm
 COP [D0] ( #8D, #00, &skyd_destroy )
-COP [A0] ( @code_0BC988, #$0080, #$0050, #$1800 )
+COP [A0] ( @TitleCometSpriteActor, #$0080, #$0050, #$1800 )
 COP [BE] ( #02, #01, &skyd_options )
 COP [26] ( #78, #$0160, #$0268, #07, #$4500 )
 ```
@@ -200,25 +200,25 @@ code_list_0AE4D7 [
 - **Handler:** `cop_handler_00_00864E`
 - **Params:** none
 - **Does:** Builds a scaled 16-bit sine table in `$7E8900`–`$7E8CFF` and an HDMA descriptor at `$7E8800`.
-- **How:** `JSR sub_00AEB8` fills the table from `binary_01C455` × amplitude `$7F0008,X`, advances phase `$7F0006,X`, writes channel control bytes. Continues.
+- **How:** `JSR BuildSineLookupTable` fills the table from `sine_table_8bit` × amplitude `$7F0008,X`, advances phase `$7F0006,X`, writes channel control bytes. Continues.
 
 #### `$01` — `QueueHdma`
 - **Handler:** `cop_handler_01_008689`
 - **Params:** `@dma_data Src`, `Byte Reg`
 - **Does:** Queue HDMA (indirect) to B-bus register `Reg` on the next free channel.
-- **How:** `JSL func_03E157` (sets `DMAP` with `$40`, `A1T`, `BBAD`, advances `$006A`, enables `$0066`).
+- **How:** `JSL SetupHdmaChannel_Indirect` (sets `DMAP` with `$40`, `A1T`, `BBAD`, advances `$006A`, enables `$0066`).
 
 #### `$02` — `QueueDma`
 - **Handler:** `cop_handler_02_0086A0`
 - **Params:** `@dma_data Src`, `Byte Reg`
 - **Does:** Queue general DMA (not HDMA-indirect).
-- **How:** Same layout as `$01`; `JSL func_03E173`.
+- **How:** Same layout as `$01`; `JSL SetupHdmaChannel_Direct`.
 
 #### `$03` — `QueueHdmaChannel`
 - **Handler:** `cop_handler_03_0086B7`
 - **Params:** `Byte Channel`, `Address Src`, `Byte Reg` *(copdef incorrectly lists `Byte, Word, Word`)*
 - **Does:** Program a **specific** DMA/HDMA channel immediately.
-- **How:** Channel bitmask → `TSB $0066`; write `DMAP0+X` / `A1T0+X` / `BBAD0+X` using `binary_01D8BE`.
+- **How:** Channel bitmask → `TSB $0066`; write `DMAP0+X` / `A1T0+X` / `BBAD0+X` using `hdma_channel_config`.
 
 ---
 
@@ -228,13 +228,13 @@ code_list_0AE4D7 [
 - **Handler:** `cop_handler_04_008714`
 - **Params:** `Byte MusicId`
 - **Does:** Start (or change) music.
-- **How:** Allocates a thinker (`sub_00B189`), points it at `func_03E1D6` (`$F0` APU handshake → write id to `$06FA`), stores `MusicId` in thinker `$7F000A`. Continues asynchronously. Fail-soft if no slot.
+- **How:** Allocates a thinker (`AllocateActorAfter`), points it at `SpcTransferMusicData` (`$F0` APU handshake → write id to `$06FA`), stores `MusicId` in thinker `$7F000A`. Continues asynchronously. Fail-soft if no slot.
 
 #### `$05` — `FadeThenStartMusic`
 - **Handler:** `cop_handler_05_008749`
 - **Params:** `Byte MusicId`
 - **Does:** Fade out, then start music.
-- **How:** Same as `$04` but thinker entry is `func_03E1AA` (`$F1` handshake), which falls into `func_03E1D6`.
+- **How:** Same as `$04` but thinker entry is `SpcCheckMusicReady` (`$F1` handshake), which falls into `SpcTransferMusicData`.
 
 #### `$06` — `PlaySoundCh2`
 - **Handler:** `cop_handler_06_00877E`
@@ -268,13 +268,13 @@ code_list_0AE4D7 [
 - **Handler:** `cop_handler_19_0087DD`
 - **Params:** `Byte MusicId`, `@DialogString Text`
 - **Does:** Start music and show text (combined `$04` + `$BF`-like path).
-- **How:** Prefer spawn thinker `func_02A040` with music/text fields; if no slot, run wide-string interpreter inline (`sub_03E255`) with joypad masked.
+- **How:** Prefer spawn thinker `MusicPlaybackActor` with music/text fields; if no slot, run wide-string interpreter inline (`DialogStringRenderer`) with joypad masked.
 
 ---
 
 ### 3.3 BG solidity / collision map (`$0B`–`$1E`, `$42`, `$62`)
 
-Collision bytes live in WRAM `$7FC000` (indexed via `func_02B0A3` / probes via `sub_00B43B`). High nibble ≈ wall; low nibble ≈ type/dir.
+Collision bytes live in WRAM `$7FC000` (indexed via `TileCoordsToMapIndex` / probes via `TileCollisionQuery`). High nibble ≈ wall; low nibble ≈ type/dir.
 
 | Op | Name | Handler | Params | Effect |
 |---|---|---|---|---|
@@ -313,7 +313,7 @@ Collision bytes live in WRAM `$7FC000` (indexed via `func_02B0A3` / probes via `
 - **Handler:** `cop_handler_62_009B41`
 - **Params:** `Byte Nibble`, `&Code`
 - **Does:** Branch if collision **low nibble ≠ Nibble** (not a duplicate of `$1A`).
-- **How:** Tile coords from `$14/$16`; `JSL func_03D78A`; compare `[$80],Y & $0F`. Polarity and helper differ from `$1A`.
+- **How:** Tile coords from `$14/$16`; `JSL CalcTileMapOffset`; compare `[$80],Y & $0F`. Polarity and helper differ from `$1A`.
 
 ---
 
@@ -327,7 +327,7 @@ Collision bytes live in WRAM `$7FC000` (indexed via `func_02B0A3` / probes via `
 #### `$20` — `BranchIfActorNear`
 - **Handler:** `cop_handler_20_008C19`
 - **Params:** `Byte AcNum`, `Byte Dist`, `&Code`
-- **Does:** Resolve map-list actor `AcNum` (`sub_00B125`), Chebyshev distance test (tile×16), branch if within range.
+- **Does:** Resolve map-list actor `AcNum` (`ResolveActorIndex`), Chebyshev distance test (tile×16), branch if within range.
 
 #### `$21` — `BranchIfPlayerNear`
 - **Handler:** `cop_handler_21_008C26`
@@ -393,7 +393,7 @@ Collision bytes live in WRAM `$7FC000` (indexed via `func_02B0A3` / probes via `
 #### `$2D` — `DirToPlayer`
 - **Handler:** `cop_handler_2D_0091B8`
 - **Params:** none
-- **Does:** Compute 8-way octant actor→player (`sub_00AFCE`); **`A = 0..7`** (N, NE, E, …).
+- **Does:** Compute 8-way octant actor→player (`ComputeDirectionToPlayer`); **`A = 0..7`** (N, NE, E, …).
 
 #### `$2E` — `DirToPlayerFrom`
 - **Handler:** `cop_handler_2E_009236`
@@ -411,7 +411,7 @@ Collision bytes live in WRAM `$7FC000` (indexed via `func_02B0A3` / probes via `
 #### `$31` — `BranchOnPlayerFacing`
 - **Handler:** `cop_handler_31_0092E8`
 - **Params:** `&Code South`, `&Code North`, `&Code West`, `&Code East` *(4 words; copdef `size:10` / 5 codes overcounts)*
-- **Does:** `JSL func_03F0CA` maps player `$0028` through `binary_03F11F` → facing `0..3`; picks matching target. If result ≥4 / SEC path, skip all four and continue.
+- **Does:** `JSL GetPlayerFacingDirection` maps player `$0028` through `FacingDirectionLookup` → facing `0..3`; picks matching target. If result ≥4 / SEC path, skip all four and continue.
 - **Note:** Same helper as `$48`. Wiki facing order is correct.
 
 #### `$35` — `CardinalToPlayer`
@@ -440,7 +440,7 @@ Collision bytes live in WRAM `$7FC000` (indexed via `func_02B0A3` / probes via `
 #### `$48` — `GetPlayerFacing`
 - **Handler:** `cop_handler_48_00965E`
 - **Params:** none
-- **Does:** `JSL func_03F0CA`; leave facing in `A` (does **not** branch).
+- **Does:** `JSL GetPlayerFacingDirection`; leave facing in `A` (does **not** branch).
 
 #### `$49` — `BranchIfBodyNe`
 - **Handler:** `cop_handler_49_009668`
@@ -454,12 +454,12 @@ Collision bytes live in WRAM `$7FC000` (indexed via `func_02B0A3` / probes via `
 #### `$32` — `StageBgChange`
 - **Handler:** `cop_handler_32_009317`
 - **Params:** `Byte BgChg`
-- **Does:** Stage rearrangement from `$81d3ce + 8×BgChg` via `func_02A363` into `$96`–`$A4`.
+- **Does:** Stage rearrangement from `$81d3ce + 8×BgChg` via `LookupEventBlock` into `$96`–`$A4`.
 
 #### `$33` — `ApplyBgChange`
 - **Handler:** `cop_handler_33_009328`
 - **Params:** none
-- **Does:** Apply staged change (`func_02A3A8`) with VBlank sync until complete.
+- **Does:** Apply staged change (`AnimateEventBlock`) with VBlank sync until complete.
 
 #### `$34` — `StageBgChangeFromDeathIdx`
 - **Handler:** `cop_handler_34_009352`
@@ -490,7 +490,7 @@ Thinker-friendly. Sequences live in bank `$16`, indexed at `$168000`.
 | `$39` | `PaletteStep` | `$0093AA` | — | Advance one frame; halt while more remain; continue when done |
 | `$3A` | `PaletteStepLoop` | `$0093CE` | — | Like `$39` but also respects outer `Iters` |
 
-Helpers: `func_03E0B0` (load), `func_03E125` (apply / HDMA CGRAM).
+Helpers: `LoadPaletteBundle` (load), `DecompressGfxToVram` (apply / HDMA CGRAM).
 
 ---
 
@@ -551,7 +551,7 @@ Wiki “exit if …” = yield actor until condition (same as halt/retry).
 #### `$4D` — `WorldMapStream3`
 - **Handler:** `cop_handler_4D_009703`
 - **Params:** `Word DataOffset`
-- **Does:** Multi-frame 3-byte record stream from script bank; draws via shared `sub_009829`; **halts** between records. Terminal record has MSB set.
+- **Does:** Multi-frame 3-byte record stream from script bank; draws via shared `ResolveTileData`; **halts** between records. Terminal record has MSB set.
 
 #### `$4E` — `WorldMapStream4`
 - **Handler:** `cop_handler_4E_009774`
@@ -576,7 +576,7 @@ Wiki “exit if …” = yield actor until condition (same as halt/retry).
 #### `$51` — `Decompress`
 - **Handler:** `cop_handler_51_00997B`
 - **Params:** `Address Src`, `Address Dest` *(vanilla reads 7 bytes; trailing byte discarded)*
-- **Does (vanilla):** Always decompress `[Src]` bitstream into bank `$7E` Dest via `func_028270`.
+- **Does (vanilla):** Always decompress `[Src]` bitstream into bank `$7E` Dest via `QuintetLzDecompress`.
 - **Patch note:** `baserom/patches/Cop51Patch.patch.asm` extends semantics: size>0 decompress; size=0 MVN `$2000`; size<0 raw MVN `|size|−1`.
 
 #### `$54` — `SetScratchPointer`
@@ -672,7 +672,7 @@ COP [26] ( #78, #$0160, #$0268, #07, #$4500 )
 #### `$6B` — `PrintDialogStringAlt`
 - **Handler:** `cop_handler_6B_00A958`
 - **Params:** `&DialogString`
-- **Does:** Text without full screen-refresh path of `$BF` (`sub_03E255`, masks `$10` bit `$0800`).
+- **Does:** Text without full screen-refresh path of `$BF` (`DialogStringRenderer`, masks `$10` bit `$0800`).
 
 #### `$6C` — `InitSpiral`
 - **Handler:** `cop_handler_6C_00A992`
@@ -681,13 +681,13 @@ COP [26] ( #78, #$0160, #$0268, #07, #$4500 )
 #### `$6D` — `SpiralStep`
 - **Handler:** `cop_handler_6D_00A9AE`
 - **Params:** `Byte DiameterSpeed`, `Byte AngleSpeed`
-- **Does:** Add signed deltas; `JSL func_00F3C9` orbits about actor id in `$0000`.
+- **Does:** Add signed deltas; `JSL ApplyOrbitalOffsetFromRef` orbits about actor id in `$0000`.
 
 ---
 
 ### 3.16 Sprite staging & animation (`$80`–`$8D`)
 
-Staging stores frame in `$28`, optional loop `$7F0016`, move durations `$7F0018/$1A` → `$2C/$2E` via `sub_00B157`. `$FF` frame clears `$2A` (restart current).
+Staging stores frame in `$28`, optional loop `$7F0016`, move durations `$7F0018/$1A` → `$2C/$2E` via `AnimFrameLookup`. `$FF` frame clears `$2A` (restart current).
 
 **Critical:** `$80`–`$87` only *stage*. A following `$89`/`$8A`/`$8B` actually runs the animation across frames.
 
@@ -711,7 +711,7 @@ Staging stores frame in `$28`, optional loop `$7F0016`, move durations `$7F0018/
 
 #### `$89` — `AnimOnce`
 - **Handler:** `cop_handler_89_009FAA`
-- **Params:** none — `func_03CA55`; **RTL** while animating; clear move on done.
+- **Params:** none — `UpdateActorAnimation`; **RTL** while animating; clear move on done.
 - **Usage:** After `$80`/`$8D` for one full cycle (face player, pose, then continue).
 
 #### `$8A` — `AnimLoop`
@@ -739,7 +739,7 @@ COP [8A]
 
 #### `$8D` — `StageSprAndHitbox`
 - **Handler:** `cop_handler_8D_00A01E`
-- **Params:** `Byte Spr` — stage + immediately `func_03CA55` (updates hitbox).
+- **Params:** `Byte Spr` — stage + immediately `UpdateActorAnimation` (updates hitbox).
 - **Usage:** Combat pose changes that also resize the hurtbox (slipper `COP [8D] ( #27 )`).
 
 ---
@@ -771,10 +771,10 @@ Same staging model as `$80`+, but body lookup goes through `$0AD4` / `body_table
 ### 3.18 Spawn actors (`$99`–`$A6`)
 
 Link helpers:
-- `sub_00B15D` — insert **before** this (parent `$04` = child)
-- `sub_00B189` — insert **after** this (parent `$06` = child)
-- `sub_00B1DA` — copy parent state/sprite
-- `sub_00B1CB` — mark child (`$7F001C` = parent; parent `$12` bit `$0040` so `$A7`/`$E0` can cascade)
+- `AllocateActorBefore` — insert **before** this (parent `$04` = child)
+- `AllocateActorAfter` — insert **after** this (parent `$06` = child)
+- `CopyActorState` — copy parent state/sprite
+- `MarkChildActor` — mark child (`$7F001C` = parent; parent `$12` bit `$0040` so `$A7`/`$E0` can cascade)
 
 | Op | Name | Handler | Link | Extras |
 |---|---|---|---|---|
@@ -816,7 +816,7 @@ After spawn, scripts often write extra fields through `Y` (`STA $0026, Y` for a 
 | Op | Name | Handler | Effect | When to use |
 |---|---|---|---|---|
 | `$A7` | `MarkDeath` | `$00A5DE` | Mark death after **next** `RTL` | Finish current frame / anim, then die |
-| `$E0` | `Die` | `$00A5F7` | Kill **now** (unlink via `sub_00AF40`) | Terminal end of cutscene actors, despawn NPCs |
+| `$E0` | `Die` | `$00A5F7` | Kill **now** (unlink via `UnlinkActor`) | Terminal end of cutscene actors, despawn NPCs |
 | `$A8` | `KillPrev` | `$00A6A1` | Kill actor linked in `$04` | Parent tears down a specific child |
 | `$A9` | `KillNext` | `$00A6B1` | Kill actor linked in `$06` | Parent tears down a specific child |
 | `$AA` | `StageMoveX` | `$00A6C1` | Stage X force-move duration | Push/pull without a full `$80` anim stage |
@@ -857,19 +857,19 @@ After spawn, scripts often write extra fields through `Y` (`STA $0026, Y` for a 
 #### `$BD` — `RunBg3Script`
 - **Handler:** `cop_handler_BD_00A867`
 - **Params:** `Address Script` (word + bank)
-- **Does:** Run a BG3 command stream via `func_03EA62` (ASCII overlays, not wide dialogue).
-- **Usage:** Title “PUSH START BUTTON”, credits, inventory HUD labels (`sFC_actor_0BC924`, `inventory_menu.asm`). Distinct from `$BF`.
+- **Does:** Run a BG3 command stream via `ConsoleStringRenderer` (ASCII overlays, not wide dialogue).
+- **Usage:** Title “PUSH START BUTTON”, credits, inventory HUD labels (`sFC_title_intro`, `inventory_menu.asm`). Distinct from `$BF`.
 
 #### `$BF` — `PrintDialogString`
 - **Handler:** `cop_handler_BF_00A8FB`
 - **Params:** `&DialogString` (near ptr to tagged dialogue)
-- **Does:** Print a dialogue box (`sub_03E255`); masks joypad; frame-syncs. Continues after the string finishes (no choice menu).
+- **Does:** Print a dialogue box (`DialogStringRenderer`); masks joypad; frame-syncs. Continues after the string finishes (no choice menu).
 - **Usage:** Every NPC line. Often followed by `$BE` when the text ends with a question.
 
 #### `$BE` — `DialogueOptions` *(halt)*
 - **Handler:** `cop_handler_BE_00A894`
 - **Params (assembler):** `Byte OptCounts`, `Byte SkipLines`, `&&Code OptionsTable`
-- **ASM:** packs the two bytes as a config `Word` for `func_03E849`, then a `Word` jump-table base.
+- **ASM:** packs the two bytes as a config `Word` for `MenuSelectionHandler`, then a `Word` jump-table base.
 - **Does:**
   1. If `$0654 ≠ $000F` (world not ready), rewind and RTL (retry next frame).
   2. Run the choice UI; player selection index × 2 indexes the table.
@@ -950,7 +950,7 @@ Loop counters live in `$7F0014/$7F001E` (large actor ids) or `$7F2102/$7F2100` (
 
 ### 3.23 Scene flags (`$CC`–`$D3`)
 
-Persistent story bits in `$0A00` (`sub_00B0B7` set, `sub_00B0D8` clear, `sub_00B0FB` test). Byte ops cover flags `0..$FF`; word ops allow the extended range used by map rearrangements (`#$011D`, etc.).
+Persistent story bits in `$0A00` (`SetEventFlag` set, `ClearEventFlag` clear, `TestEventFlag` test). Byte ops cover flags `0..$FF`; word ops allow the extended range used by map rearrangements (`#$011D`, etc.).
 
 | Op | Name | Handler | Params | Behavior |
 |---|---|---|---|---|
@@ -987,7 +987,7 @@ COP [CC] ( #48 )
 
 ### 3.24 Inventory (`$D4`–`$D7`)
 
-Slots start at `$AB4`; equipped index in `$AC4`. `func_03EF97` handles both normal items and special ids ≥`$80` (gold/HP/herbs/etc.).
+Slots start at `$AB4`; equipped index in `$AC4`. `GiveItemToPlayer` handles both normal items and special ids ≥`$80` (gold/HP/herbs/etc.).
 
 | Op | Name | Handler | Params | Behavior |
 |---|---|---|---|---|
@@ -1068,7 +1068,7 @@ Autoscroll helpers used by the overworld / forced-walk engine (`chunk_00E683.asm
 
 1. Caller loads a step-speed index into `$06E0` (from `table_01A95E`).
 2. Clears actor `$2A`, then `$C1` + one of `$DC`–`$DF`.
-3. Each frame: `$2A` countdown; when 0, `sub_00B136` reloads step from `$06E0/$06E2`; accumulate into camera X/Y.
+3. Each frame: `$2A` countdown; when 0, `CameraScrollStepLookup` reloads step from `$06E0/$06E2`; accumulate into camera X/Y.
 4. RTI while panning; RTL when the bound is reached — script continues (usually restore joypad and `$E0`).
 
 ```asm
@@ -1078,7 +1078,7 @@ STA $06E0
 STZ $2A
 COP [C1]
 COP [DC]          ; blocks here until camera hits south bound
-JSR $&sub_00ED68
+JSR $&ApplyScrollOffset
 COP [E0]
 ```
 
@@ -1358,7 +1358,7 @@ Every valid COP opcode, its canonical name, handler SNES address, and parameter 
 ## 7. Sources
 
 1. **Primary:** `extracted/system/chunk_008000.asm` — `native_mode_cop_handler_00846D`, `cop_table_008485`, `cop_table2_008585`, every `cop_handler_*`
-2. **Related:** `extracted/system/chunk_03BAE1.asm` — `func_03E1AA`/`func_03E1D6` (music), `func_03F0CA` (facing), text/DMA helpers
+2. **Related:** `extracted/system/chunk_03BAE1.asm` — `SpcCheckMusicReady`/`SpcTransferMusicData` (music), `GetPlayerFacingDirection` (facing), text/DMA helpers
 3. **Tooling schema:** `us/copdef.json`
 4. **Secondary notes:** [Data Crystal Illusion of Gaia / Notes § Actor code](https://datacrystal.tcrf.net/wiki/Illusion_of_Gaia/Notes#Actor_code)
 5. **Patch insight:** `baserom/patches/Cop51Patch.patch.asm` (`$51` extended decompress/copy)

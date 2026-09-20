@@ -89,13 +89,13 @@
 | `$0A9EBB` | `$0A9ED3` | 24 | `ir29_castoth` / `array_0A9EBB` | screen-pos | Incan Ruins |
 | `$0A9ED3` | `$0A9EEB` | 24 | `ir29_castoth` / `array_0A9ED3` | screen-pos | Incan Ruins |
 | `$0A9EEB` | `$0AA36E` | 1,155 | `ir29_castoth` / `func_0A9EEB` | Code | Incan Ruins |
-| `$0AA36E` | `$0AA37B` | 13 | `func_0AA36E` | Code | Shared |
+| `$0AA36E` | `$0AA37B` | 13 | `SetPlayerGameOverFlag` | Code | Shared |
 | `$0AA37B` | `$0AA391` | 22 | `ir29_castoth` / `func_0AA37B` | Code | Incan Ruins |
 | `$0AA391` | `$0AA3A7` | 22 | `ir29_castoth` / `func_0AA391` | Code | Incan Ruins |
-| `$0AA3A7` | `$0AA3FD` | 86 | `func_0AA3A7` | Code | Shared |
-| `$0AA3FD` | `$0AA41C` | 31 | `func_0AA3FD` | Code | Shared |
-| `$0AA41C` | `$0AA43F` | 35 | `func_0AA41C` | Code | Shared |
-| `$0AA43F` | `$0AA4E2` | 163 | `func_0AA43F` | Code | Shared |
+| `$0AA3A7` | `$0AA3FD` | 86 | `EnemyPositionSnap` | Code | Shared |
+| `$0AA3FD` | `$0AA41C` | 31 | `EnemyInitBasic` | Code | Shared |
+| `$0AA41C` | `$0AA43F` | 35 | `ActorMidpointCalc` | Code | Shared |
+| `$0AA43F` | `$0AA4E2` | 163 | `EnemyDefeatDispatch` | Code | Shared |
 | `$0AA4E2` | `$0AA5A6` | 196 | `dm41_actor_0AA4E2` | actor-def | Diamond Mine |
 | `$0AA5A6` | `$0AA6B6` | 272 | `dm43_elevator` | actor-def | Diamond Mine |
 | `$0AA6B6` | `$0AA9EC` | 822 | `dm3F_laborer` | actor-def | Diamond Mine |
@@ -116,14 +116,14 @@
 | `$0AD0D5` | `$0AD9D2` | 2,301 | `sg55_viper` | actor-def | Sky Garden |
 | `$0AD9D2` | `$0ADA52` | 128 | `sg4D_knight_armor` / `code_0AD9D2` | Code | Sky Garden |
 | `$0ADA52` | `$0ADB38` | 230 | `sg_actors_0ADA52` | Code | Sky Garden |
-| `$0ADB38` | `$0ADB45` | 13 | `actor_0ADB38` | actor-def | Shared |
-| `$0ADB45` | `$0ADB6B` | 38 | `func_0ADB45` | Code | Shared |
-| `$0ADB6B` | `$0ADC55` | 234 | `dm_func_0ADB6B` / `dm_func_0ADB6B` | Code | Diamond Mine |
+| `$0ADB38` | `$0ADB45` | 13 | `unused_window_config` | actor-def | Shared |
+| `$0ADB45` | `$0ADB6B` | 38 | `unused_follow_chain` | Code | Shared |
+| `$0ADB6B` | `$0ADC55` | 234 | `dm_dm_follower_behavior` / `dm_dm_follower_behavior` | Code | Diamond Mine |
 | `$0ADC55` | `$0ADCFE` | 169 | `btEA_actor_0ADC55` / `btEA_actor_0ADC55` | actor-def | Babel Tower |
 | `$0ADCFE` | `$0ADD05` | 7 | `btEA_actor_0ADC55` / `sc_ix_0ADCFE` | conveyor-index | Babel Tower |
 | `$0ADD05` | `$0ADD1E` | 25 | `btEA_actor_0ADC55` / `sc_data_0ADD05` | conveyor-zone | Babel Tower |
 | `$0ADD1E` | `$0ADD27` | 9 | `sg4D_cyber` / `sub_0ADD1E` | Code | Sky Garden |
-| `$0ADD27` | `$0ADD59` | 50 | `dm_func_0ADB6B` / `dm_sub_0ADD27` | Code | Diamond Mine |
+| `$0ADD27` | `$0ADD59` | 50 | `dm_dm_follower_behavior` / `dm_sub_0ADD27` | Code | Diamond Mine |
 | `$0ADD59` | `$0ADD66` | 13 | `sg4D_knight_armor` / `sub_0ADD59` | Code | Sky Garden |
 | `$0ADD66` | `$0ADD9E` | 56 | `dm3D_eye_stalker` / `code_0ADD66` | Code | Diamond Mine |
 | `$0ADD9E` | `$0AE26E` | 1,232 | `mu5F_cyclops` | actor-def | Mu |
@@ -132,7 +132,7 @@
 | `$0AE6CC` | `$0AE943` | 631 | `sp5C_skuddle` | actor-def | Seaside Palace |
 | `$0AE943` | `$0AEA51` | 270 | `mu60_plasma_chain` | actor-def | Mu |
 | `$0AEA51` | `$0AEE96` | 1,093 | `av6D_steelbones` | actor-def | Angel Village |
-| `$0AEE96` | `$0AEE9F` | 9 | `func_0AEE96_noref` | Code | Unused |
+| `$0AEE96` | `$0AEE9F` | 9 | `unused_proximity_check_noref_noref` | Code | Unused |
 | `$0AEE9F` | `$0AEF33` | 148 | `av6D_dive_bat` | actor-def | Angel Village |
 | `$0AEF33` | `$0AF0C7` | 404 | `av6E_draco` / `av6E_draco` | actor-def | Angel Village |
 | `$0AF0C7` | `$0AF150` | 137 | `av70_ramskull` | actor-def | Angel Village |
@@ -161,8 +161,8 @@
 | `$0AFB28` | `$0AFB45` | 29 | `mu67_vampires` / `sub_0AFB28` | Code | Mu |
 | `$0AFB45` | `$0AFD26` | 481 | `mu67_vampires` / `dialogstring_0AFB45` | DialogString | Mu |
 | `$0AFD26` | `$0AFD5A` | 52 | `av6E_draco` / `sub_0AFD26` | Code | Angel Village |
-| `$0AFD5A` | `$0AFD69` | 15 | `func_0AFD5A_noref` | Code | Unused |
-| `$0AFD69` | `$0AFD87` | 30 | `func_0AFD69` | Code | Shared |
+| `$0AFD5A` | `$0AFD69` | 15 | `unused_random_position_noref_noref` | Code | Unused |
+| `$0AFD69` | `$0AFD87` | 30 | `RandomPlayerOffset` | Code | Shared |
 | `$0AFD87` | `$0B0000` | 633 | *(unmapped tail)* | — | — |
 
 ### 3.2 Visual Layout
@@ -182,7 +182,7 @@ $0A99D7 ├───────────────────────
         │  Actor defs, AI code, screen-pos arrays, attack logic       │
 $0AA36E ├──────────────────────────────────────────────────────────────┤
         │  SHARED UTILITY CODE                                        │
-        │  func_0AA36E through func_0AA43F                            │
+        │  SetPlayerGameOverFlag through EnemyDefeatDispatch                            │
 $0AA4E2 ├──────────────────────────────────────────────────────────────┤
         │  DIAMOND MINE — ACTORS & ENEMIES                            │
         │  Mine NPC laborer, elevator, breakable wall, Flayzer,       │
@@ -211,7 +211,7 @@ $0AF150 ├───────────────────────
         │  extensive AI code, attack patterns, dialogue               │
 $0AFD69 ├──────────────────────────────────────────────────────────────┤
         │  TAIL                                                       │
-        │  func_0AFD69 (30 bytes) + unmapped (633 bytes)              │
+        │  RandomPlayerOffset (30 bytes) + unmapped (633 bytes)              │
 $0B0000 └──────────────────────────────────────────────────────────────┘
 ```
 
@@ -340,7 +340,7 @@ original Castoth and the Neo Castoth rematch (for the Babel Tower boss rush).
 - **Death (`func_0A9C1E`):** Wing cleanup, palette effects, debris spawn, `StandardEnemyDefeatHandler`. Sets `playerFlags` bit `$0200`.
 
 **Neo Castoth (`btF2_neo_castoth`):**
-- Skips full intro; shorter setup. If not Shadow form (`characterForm ≠ 2`): forces Gaia transformation via `sE6_gaia.func_08F5F9`, waits on `playerFlags` `$0800`. Spawns totems at different absolute positions. Monitor: if `$0AEC` set → `SetFlagWord(#$0175)`, queue map change to `#$4830`. Reuses main fight loop and death logic.
+- Skips full intro; shorter setup. If not Shadow form (`characterForm ≠ 2`): forces Gaia transformation via `sE6_gaia.Transform_WillToShadow`, waits on `playerFlags` `$0800`. Spawns totems at different absolute positions. Monitor: if `$0AEC` set → `SetFlagWord(#$0175)`, queue map change to `#$4830`. Reuses main fight loop and death logic.
 
 ---
 
@@ -357,18 +357,18 @@ searches for the laborers. Includes NPCs, enemies, and environmental actors.
 - `extracted/diamond_mine/dm3D_flayzer.asm`
 - `extracted/diamond_mine/dm3D_grundit.asm`
 - `extracted/diamond_mine/dm3D_eye_stalker.asm`
-- `extracted/diamond_mine/dm_func_0ADB6B.asm`
+- `extracted/diamond_mine/dm_dm_follower_behavior.asm`
 
 | Block | Size | Description |
 |-------|------|-------------|
 | `dm41_actor_0AA4E2` | 196 | **Bouncing Hazards** (×3 variants) — Camera-aware orbiting projectiles in the zigzag mine room. Flagged as enemies (`$0010`) with sprite `#34`/hitbox `#02`. Each variant sets different velocity vectors in `$moveXAlt`/`$moveYAlt`: variant 1 = `(2,1)` diagonal drift, variant 2 = `(0,1)` vertical after horizontal nudge, variant 3 = `(1,0)` horizontal only. Bounce AI: if position exceeds `$effectBoundsX`/`$effectBoundsY`, negate velocity component (pinball bounce). Motion stays camera-relative via `$cameraTargetX/Y` and `$cameraDeltaX/Y` reconciliation. Pure ambient hazards — no hit callbacks or player interaction. Scene: `mine_zigzag`. |
 | `dm43_elevator` | 272 | **Mine Elevator** — Cutscene controller that moves the elevator platform and force-carries the player between landings. Tweaks `$COLDATA` for dim tint. Branches on `playerXPos < 0x30` for lower vs upper shaft. Lower ride: waits at `(0x48, 0x80)`, masks joypad `$CFF0`, animates down (`StageSpriteMoveXY #34,#03,#01`), syncs player Y each frame until `Y = 0x340`. Upper ride: reverse. Helper plays sound `#0C` every 16 frames and updates player facing via `InitPlayerScriptVariant`. Sub-actors `dm43_elevator_stop_y`/`stop_x` ping-pong stage scroll between map bounds. Scene: `mine_elevator`. |
-| `dm3F_laborer` | 822 | **Rescuable Laborer NPCs** (8 instances) — Each instance indexed by spawn variant (`$0E` → `$24`), tied to persistent flags (`$A0`–`$A3`). If flag set → `Die`. While chained: sets interactable (`$1000`), `SolidHighHere`, spawns breakable chain sub-actor (1 HP destructible via `func_0AA3FD`). First talk: *"I beg you! Cut this chain!!"* Chain break animates laborer stepping down, sets per-laborer flag. Post-rescue dialogue via `SwitchCase` on index: index 0 = generic plea; index 1 = **Mine Key** (item `#0C`) + jingle; index 2 = **Elevator Key** (item `#0F`) + hint; index 3 = secret-room hint about wind cracks. Inventory full → *"But your inventory is full!"* Scene: `mine_main`. |
+| `dm3F_laborer` | 822 | **Rescuable Laborer NPCs** (8 instances) — Each instance indexed by spawn variant (`$0E` → `$24`), tied to persistent flags (`$A0`–`$A3`). If flag set → `Die`. While chained: sets interactable (`$1000`), `SolidHighHere`, spawns breakable chain sub-actor (1 HP destructible via `EnemyInitBasic`). First talk: *"I beg you! Cut this chain!!"* Chain break animates laborer stepping down, sets per-laborer flag. Post-rescue dialogue via `SwitchCase` on index: index 0 = generic plea; index 1 = **Mine Key** (item `#0C`) + jingle; index 2 = **Elevator Key** (item `#0F`) + hint; index 3 = secret-room hint about wind cracks. Inventory full → *"But your inventory is full!"* Scene: `mine_main`. |
 | `dm3D_breakable_wall` | 104 | **Promise Passage Wall** — Secret destructible wall. Word flag `$0133` bit 1 → die if already broken. Offset `(+8,+8)`, `$0031` on `$12` (solid+enemy), HP 255. Wind detection: while HP = 255, if player enters tile rect `(5,3)–(7,7)` → sets flag byte `#00` (crack/wind hint active). Breaking requires Tornado Psycho Slider (`$playerFlags` bit 2): spawns debris burst, BG tile change `#33`, clears flag `#00`, sets word flag `$0133`. Two-step puzzle: proximity detects the secret, Tornado delivers the break. Scene: `mine_promise_passage`. |
-| `dm3D_flayzer` | 1,441 | **Flayzer** — Flame-thrower enemy with wall-following patrol. Patrols south → north → west → east with `BranchIfSolid*` collision, idle/wiggle loops on blocked paths. Aggro at 4 tiles via `BranchIfPlayerNear`: sets enemy `$0001`, picks axis via `BranchNearerAxis`. Four directional flamethrower attacks (all play sound `#23`): aligns to player, spawns leading flame head (`MoveToward` player) plus multiple static flame segments via `func_0AA41C`. Cleanup after `WaitByte #4F`: clears enemy flag, `KillNext` ×6, returns to patrol. Hit callback disables, clears `$0002`, re-triggers aggro. Three variants: `flayzer` starts with `SetHFlip`, `flayzer2` is identical, `flayzer3` adds random initial delay. |
-| `dm3D_grundit` | 190 | **Grundit** — Burrowing ground enemy. Sets `$0011` (solid+enemy). Activates when player within 4 tiles. Telegraphs: 5-frame loop, sound `#2C`, warning frame `#2D`. Spawns: two horizontal crack strips (animated fissures, die after move), two "behind wall" variants (`$4000` on `$12`), flash marker (frame `#2E`, long wait, die). Main body spawned via `SpawnLastRel` → `dm_func_0ADB6B` at relative offset `(0, 0xCE)`. Emerge anim: frames `#2F` → `#30` → `#31`, loops. All telegraph VFX delegated to short-lived sub-actors. |
+| `dm3D_flayzer` | 1,441 | **Flayzer** — Flame-thrower enemy with wall-following patrol. Patrols south → north → west → east with `BranchIfSolid*` collision, idle/wiggle loops on blocked paths. Aggro at 4 tiles via `BranchIfPlayerNear`: sets enemy `$0001`, picks axis via `BranchNearerAxis`. Four directional flamethrower attacks (all play sound `#23`): aligns to player, spawns leading flame head (`MoveToward` player) plus multiple static flame segments via `ActorMidpointCalc`. Cleanup after `WaitByte #4F`: clears enemy flag, `KillNext` ×6, returns to patrol. Hit callback disables, clears `$0002`, re-triggers aggro. Three variants: `flayzer` starts with `SetHFlip`, `flayzer2` is identical, `flayzer3` adds random initial delay. |
+| `dm3D_grundit` | 190 | **Grundit** — Burrowing ground enemy. Sets `$0011` (solid+enemy). Activates when player within 4 tiles. Telegraphs: 5-frame loop, sound `#2C`, warning frame `#2D`. Spawns: two horizontal crack strips (animated fissures, die after move), two "behind wall" variants (`$4000` on `$12`), flash marker (frame `#2E`, long wait, die). Main body spawned via `SpawnLastRel` → `dm_dm_follower_behavior` at relative offset `(0, 0xCE)`. Emerge anim: frames `#2F` → `#30` → `#31`, loops. All telegraph VFX delegated to short-lived sub-actors. |
 | `dm3D_eye_stalker` | 1,051 | **Eye Stalker** — Floating eye with patrol, charge, and beam attacks. Three variants: **stalker1** = sentinel (solid-high closed eye `#1A` until player within 3 tiles → opens, clears solid, enters AI); **sE9_eye_stalker2** = scene `$E9` copy with palette `#04` while closed; **eye_stalker3** = active hunter (waits offscreen, monitors distance). Patrol: 4-direction wall follower, direction from `$28 − 0x16` mod 4. Two-tier threat radius: 5 tiles = ranged beam (aligns on grid via `code_0ADD66`/`0ADD83`, spawns directional beam projectile that moves until owner `$10.$4000` set, frames `#24`/`#A4` horizontal or `#23`/`#22` vertical, sound `#20`); 3 tiles = charge (solid-high, pulsing eye for 12 loops). Aggro variant: `$0E.$4000` uses alternate sprites `#9F`/`#A0`/`#A1`. |
-| `dm_func_0ADB6B` | 284 | **Ground Popup Body** — Shared "pop up from ground" enemy behavior used by Grundit. Emerges with burst VFX (`code_0ADC25`), spawns `smooth_follow.InitFollowAndChase` targeting player. 30-frame emerge loop checks tile-grid alignment (XOR on `$0010` boundary bits); if movement crosses 16px boundary → wall collision → kill follower or die with frame `#2A`. Post-emerge: stores movement scratch in orbit vars, animates in place; dies when parent hit flag `$10.$4000` set. |
+| `dm_dm_follower_behavior` | 284 | **Ground Popup Body** — Shared "pop up from ground" enemy behavior used by Grundit. Emerges with burst VFX (`code_0ADC25`), spawns `smooth_follow.InitFollowAndChase` targeting player. 30-frame emerge loop checks tile-grid alignment (XOR on `$0010` boundary bits); if movement crosses 16px boundary → wall collision → kill follower or die with frame `#2A`. Post-emerge: stores movement scratch in orbit vars, animates in place; dies when parent hit flag `$10.$4000` set. |
 
 | Flag | Set by | Purpose |
 |------|--------|---------|
@@ -417,10 +417,10 @@ The Viper (Huge Demon) is the boss of Sky Garden, fought in scene `$55` (`viper_
 
 | Block | Size | Type | Description |
 |-------|------|------|-------------|
-| `sg55_mystic_statue` | 433 | actor-def | **Mystic Statue Cutscene** — Post-Viper narrative controller. Guards exit if `$0AEC` (boss-active) set. **First visit** (flag `#F9` clear): masks joypad `$FFF0`, prints *"You have defeated the huge demon! Look! A Mystic Statue!!"*, sets `$0AAC`, `$0B12=$55`, queues map change `#FD`. **Return visit** (flag `#F9` set): spawns `sg55_actor_0AD000` debris, swaps to Gaia form if needed (`func_08F37D`, `$0800`), Neil dialogue *"Will! You're falling to the ground!!!! Grab the airplane…"*, scrolls camera down 48 frames, waits for player Y tile `$18`, queues map change `#58` (falling sequence). |
+| `sg55_mystic_statue` | 433 | actor-def | **Mystic Statue Cutscene** — Post-Viper narrative controller. Guards exit if `$0AEC` (boss-active) set. **First visit** (flag `#F9` clear): masks joypad `$FFF0`, prints *"You have defeated the huge demon! Look! A Mystic Statue!!"*, sets `$0AAC`, `$0B12=$55`, queues map change `#FD`. **Return visit** (flag `#F9` set): spawns `sg55_actor_0AD000` debris, swaps to Gaia form if needed (`Transform_FreedanToWill`, `$0800`), Neil dialogue *"Will! You're falling to the ground!!!! Grab the airplane…"*, scrolls camera down 48 frames, waits for player Y tile `$18`, queues map change `#58` (falling sequence). |
 | `sg55_falling_tile` | 27 | actor-def | **Collapsing Floor** — One-shot trap tile. `ClearAllHere` on init, only activates when player Y ≥ `$20`. Then: `SolidHighHere`, frame `#0B`, `AnimOnce`, `Die`. Creates collapsing floor during boss intro. 18 instances placed at X=7, Y=`$0D`–`$20`. |
 | `sg55_actor_0AD000` | 213 | Code | **Debris Spawner** — Camera-scroll-linked rubble spawner for Viper fight intro. Spawns visual effect, gravity tick synced to `moveScratch2`. At Y≥`$0C` triggers spawn phase: spawns standard actor + loops 4× spawning random debris (fast-falling sprite `#06`, medium `#07`, slow `#08` based on `$0036` bit 0). Position derived from BG scroll + RNG offset. |
-| `sg55_viper` | 2,301 | actor-def | **Viper Boss** — Full boss AI. `$0011` solid+enemy. Checks WRAM flag → die if beaten. Intro: `$EFF0` joypad mask, music `#0F`, camera pans from `$0130` down 48 frames, spawns debris. **Main loop**: spawns collision handler applying knockback when overlapping. **Attack cycle**: (1) jump slam — RNG-scaled hop toward player with gravity; (2) reposition toward random X near player; (3) roar/wind-up → spawns homing fireball (`MoveToward` player with palette flash) that splits into 4 directional flame waves; (4) spawns 6 serpent projectiles with easing toward player, sprites grow over `$1E` frames. **Directional body attacks**: `BranchOnPlayerX` → timed bite/lunge patterns with `$24` frame counters. **Projectile drops**: RNG velocity fire with gravity. **Death**: sets `$0020` player flag, spawns defeat sequence + explosion particles, `StandardEnemyDefeatHandler`. **Neo Viper** (`btF3_neo_viper`): `$0011`, fixed camera Y=`$0100`. If player not Freedan: swaps via `func_08F5F9`. Spawns helper locking control → flag word `$0176` → map change `#E0`. Same combat/death scripts, no intro camera pan or debris. Boss uses `$0AEC` as active flag; `$0AF4`/`$0AF6` point to attack timing data. |
+| `sg55_viper` | 2,301 | actor-def | **Viper Boss** — Full boss AI. `$0011` solid+enemy. Checks WRAM flag → die if beaten. Intro: `$EFF0` joypad mask, music `#0F`, camera pans from `$0130` down 48 frames, spawns debris. **Main loop**: spawns collision handler applying knockback when overlapping. **Attack cycle**: (1) jump slam — RNG-scaled hop toward player with gravity; (2) reposition toward random X near player; (3) roar/wind-up → spawns homing fireball (`MoveToward` player with palette flash) that splits into 4 directional flame waves; (4) spawns 6 serpent projectiles with easing toward player, sprites grow over `$1E` frames. **Directional body attacks**: `BranchOnPlayerX` → timed bite/lunge patterns with `$24` frame counters. **Projectile drops**: RNG velocity fire with gravity. **Death**: sets `$0020` player flag, spawns defeat sequence + explosion particles, `StandardEnemyDefeatHandler`. **Neo Viper** (`btF3_neo_viper`): `$0011`, fixed camera Y=`$0100`. If player not Freedan: swaps via `Transform_WillToShadow`. Spawns helper locking control → flag word `$0176` → map change `#E0`. Same combat/death scripts, no intro camera pan or debris. Boss uses `$0AEC` as active flag; `$0AF4`/`$0AF6` point to attack timing data. |
 
 ---
 
@@ -441,7 +441,7 @@ the area's regular enemies and the climactic Vampire boss fight.
 |-------|------|-------------|
 | `mu5F_cyclops` | 1,232 | **Cyclops** — One-eyed enemy with two actor-def variants. Patrols via 4-way `SwitchCase` on RNG (east/west/north/south) with solid checks and player-axis branching. When player within 5 tiles, picks attack direction and executes directional lunge spawning 1–N projectiles (`SpawnAfterRelFlags`) with force-move patterns. Burst count in `$24` is RNG-weighted (25% chance of 4 extra shots via `$0B02`). **On hit**: hurt frame `#2E`, sound `#1E`, spawns 8 radial projectiles, then re-enters attack selection. Projectiles: force-move, looping anim `#1F`, die on wall hit. Flags: `$0008` (high collision), toggles `$0110` on `$10` during attacks; projectiles get `$0010`+`$0080` on `$12`. |
 | `mu5F_flasher` | 494 | **Flasher** — Teleporting ambush enemy. Stores spawn position, each cycle waits 59 frames, picks random 16×16-aligned point within ~256px of player, validates line-of-sight/proximity. On trigger: picks nearest axis, plays 3-frame windup dash. Spawns projectile (`$0202` flags) with force-move, then attaches `smooth_follow.CopySiblingFollowState` for homing. Parent stores velocity in scratch RAM and dies (`KillNext`) while child persists. Flags: `$0011` (solid+enemy) when active; `$2000` on `$10` when solid-blocked. Hit callback: recovery frame + `RestoreSavedPtr`. |
-| `mu60_plasma_chain` | 270 | **Plasma Chain** — Segment-chain enemy: head node + 3 follower segments. Followers set `$0100` on `$12`. On init, loads `enemy_stats_table`, spawns 1 leader + 3 followers. Dies immediately if spawned inside solid tile. **Leader AI**: stores spawn as orbit center; when player far: RNG-offset wander toward random point, idle loop anim `#2C`. When player within 5 tiles: chases player position, returns to orbit center, repeats. **Followers**: infinite loop copies midpoint of parent+grandparent positions (via `func_0AA41C`), mirrors parent sprite/hitbox. Creates visual chain trailing effect. Damage via contact hitbox. |
+| `mu60_plasma_chain` | 270 | **Plasma Chain** — Segment-chain enemy: head node + 3 follower segments. Followers set `$0100` on `$12`. On init, loads `enemy_stats_table`, spawns 1 leader + 3 followers. Dies immediately if spawned inside solid tile. **Leader AI**: stores spawn as orbit center; when player far: RNG-offset wander toward random point, idle loop anim `#2C`. When player within 5 tiles: chases player position, returns to orbit center, repeats. **Followers**: infinite loop copies midpoint of parent+grandparent positions (via `ActorMidpointCalc`), mirrors parent sprite/hitbox. Creates visual chain trailing effect. Damage via contact hitbox. |
 
 #### Vampire Boss Fight (3,030 bytes)
 
@@ -464,7 +464,7 @@ This is the second-largest block in the bank, with 24 individual parts.
 | `sub_0AF961`–`sub_0AFA17` | 215 | Code | Damage handling and HP check routines. |
 | `word_0AFA38`–`word_0AFA40` | 16 | Word | Grid position lookup tables (8 bytes each). |
 | `func_0AFA48`–`binary_0AFA51` | 17 | Code+Binary | Remaining combat support code and data. |
-| `func_0AFA59`–`sub_0AFB28` | 236 | Code | Male death callback (`func_0AFA59`), female death callback (`code_0AFAA0`). First kill: defeat dialogue. Second kill: spawns `func_0AA36E` (invuln flash) + defeat effect → `StandardEnemyDefeatHandler`. |
+| `func_0AFA59`–`sub_0AFB28` | 236 | Code | Male death callback (`func_0AFA59`), female death callback (`code_0AFAA0`). First kill: defeat dialogue. Second kill: spawns `SetPlayerGameOverFlag` (invuln flash) + defeat effect → `StandardEnemyDefeatHandler`. |
 | `dialogstring_0AFB45` | 481 | DialogString | Vampire encounter dialogue — intro argument about Mystic Statue, female taunt on male death, male rage on female death. |
 
 **Phase structure:** Phase 1 = grid-based bat swarm attacks + spiral projectiles. Phase 2 (`$00F2` timer): transform anim → bat form (`$0202` flags) with erratic bouncing movement, palette thinker, directional sprite swaps. Dies off-screen or at boundaries. Flags: byte `#86`, `#87`, `#02`; word `#0177` for Neo transition.
@@ -506,8 +506,8 @@ this bank appear in the village tunnel scenes: `$6D` (Entrance Tunnel), `$6E`
 | Block | Size | Description |
 |-------|------|-------------|
 | `av6D_steelbones` | 1,093 | **Steelbones** — Skeleton archer with dual-range combat. **Far AI**: random 4-way patrol (`SwitchCase`) with long idle loops (frames `#00`–`#02`, `#82`) and short alert loops (`#09`–`#0B`). Hit callbacks during idle detect player in directional tile zones. **Near AI** (6 tiles): aggressive mode with shorter move counter (`$24=2`), cardinal direction charge attacks — four directional force-lunge scripts with 2-iteration burst and solid checks. **Ranged (on hit)**: snap to grid, throw anim (`#0C`/`#8C`), wait 29 frames, spawn bone projectile that moves toward computed point offset from player (RNG spread), tracks parent actor position, bounces subtly, dies after ~6 convergence frames or timeout. |
-| `av6D_dive_bat` | 148 | **Dive Bat** — Ceiling bat that swoops when player passes below within range. `$2000` on `$12`; `$0020` flag (flyer). Requires player Y ≥ bat Y, vertical gap < 256px, horizontal gap < 64px. Dive: flips sprite toward player (`#11`/`#91` + `$4000`), gravity init `(4, 9, 0)`, force-moves X at speed 2 while ticking gravity until reaching original Y (`$26`). Return: clears `$4000`, snaps Y to roost, loops to offscreen wait. Death jumps to `func_0AA43F`. |
-| `av6E_draco` | 456 | **Draco** — Dragon head with three tail segments (via `func_0AA41C` midpoint interpolation). Records home position, spawns tail controller + 3 segments. **Idle**: frame `#12` at nest. When player within 4 tiles, enters attack: faces player (optional HFlip), frame `#16`, computes semi-random target near player (`sub_0AFD26` — Y biased, X RNG ±31), fires twice via `MoveToward` lunge anim `#17`. If player still near, direct chase; otherwise returns to nest via `MoveToward` speed 12 until exact home match. **Death**: sets 4 tail segments to staggered explosion anims, clears low collision, `StandardEnemyDefeatHandler`. Flags: `$0001` solid, `$0002` enemy, `$0020` flyer. |
+| `av6D_dive_bat` | 148 | **Dive Bat** — Ceiling bat that swoops when player passes below within range. `$2000` on `$12`; `$0020` flag (flyer). Requires player Y ≥ bat Y, vertical gap < 256px, horizontal gap < 64px. Dive: flips sprite toward player (`#11`/`#91` + `$4000`), gravity init `(4, 9, 0)`, force-moves X at speed 2 while ticking gravity until reaching original Y (`$26`). Return: clears `$4000`, snaps Y to roost, loops to offscreen wait. Death jumps to `EnemyDefeatDispatch`. |
+| `av6E_draco` | 456 | **Draco** — Dragon head with three tail segments (via `ActorMidpointCalc` midpoint interpolation). Records home position, spawns tail controller + 3 segments. **Idle**: frame `#12` at nest. When player within 4 tiles, enters attack: faces player (optional HFlip), frame `#16`, computes semi-random target near player (`sub_0AFD26` — Y biased, X RNG ±31), fires twice via `MoveToward` lunge anim `#17`. If player still near, direct chase; otherwise returns to nest via `MoveToward` speed 12 until exact home match. **Death**: sets 4 tail segments to staggered explosion anims, clears low collision, `StandardEnemyDefeatHandler`. Flags: `$0001` solid, `$0002` enemy, `$0020` flyer. |
 | `av70_ramskull` | 137 | **Ramskull** — Charging skull with lateral projectiles. `$0011` (solid+enemy), `$0008` actor flag. Infinite loop: idle `#1A` → charge loop `#1B` → spawns two lateral projectiles at `(#FC,#F4)` and `(#04,#F4)` → recovery `#1A`. Projectiles: enemy `$0010`, spawn two trailing sparks (`$2200` flags), force-move X at speed 8 until wall hit → die. Spark trail: metasprite effect, force-move X speed 4, loops frame `#26` until parent dies. |
 
 ---
@@ -535,16 +535,16 @@ Small utility functions and stubs shared across multiple actors or unreferenced.
 
 | Block | Size | Description |
 |-------|------|-------------|
-| `func_0AA36E` | 13 | **Boss Kill Invuln Flash** — Sets `$0200` on the player actor's `$10` flags (brief post-hit invulnerability). Referenced by: `mu67_vampires` (both death callbacks), `sg55_viper`, `ir29_castoth`, `pyDD_mummy_queen`, `gw8A_sand_fanger`. |
-| `func_0AA3A7` | 86 | **Grid-Snap Movement** — Clears hit/dodge callbacks, computes nearest 16×16 grid position, `MoveToward` at speed `$FF`/1 frame, repeats until aligned, then `ResumeAfterSnap`. Installed as deferred resume target by `cop_handlers_movement` when movement is interrupted mid-tile. Not called directly by actor scripts. |
-| `func_0AA3FD` | 31 | **Chain Destructible Setup** — Turns the laborer's chain into a 1-HP destructible: sets `$0030` (solid+enemy) on `$12`, attaches `enemy_stats_table`, HP = 1, extended flag `$0080`. Used exclusively by `dm3F_laborer` chain spawn. |
-| `func_0AA41C` | 35 | **Midpoint Position Calculator** — Averages parent (`$04`) and grandparent (`$06`) actor X/Y into current actor's `$14`/`$16`. Used for chain/tail following by: `av6E_draco` (tail segments), `mu60_plasma_chain` (chain followers), `dm3D_flayzer` (flame segments). |
-| `func_0AA43F` | 163 | **Standard Enemy Death** — Two-path handler: if `$0AEC==1`, skip loot → defeat anim. Otherwise: death sound, decrement `$0AEC`/`$0AEE` counters, spawn `EnemyDeathFlash`, set dungeon kill flag, optionally spawn field-reveal effect if `deathActionIdx` set, then die. Referenced by: `av6D_dive_bat`, `gw82_fire_bug`, `gw8A_sand_fanger`. |
-| `actor_0ADB38` | 13 | **Unused Window Setup** — Sets SNES `$WOBJSEL` to `$A0` (window/object layer selection), immediately returns. Likely discarded color-window or compositing setup. Unreferenced. |
-| `func_0ADB45` | 38 | **Unused Projectile Wrapper** — Marks enemy `$0010`, calls `dm_func_0ADB6B.code_0ADC25` (burst effect), stores player actor ID, sets loop counter, tail-calls `smooth_follow_child`. Closely related to live `dm_func_0ADB6B` but unreferenced. |
-| `func_0AEE96_noref` | 9 | **Unused Proximity Test** — Runs `BranchIfPlayerNear(7)`, returns SEC if far / CLC if near. Designed as JSR helper, never referenced. Dead code. |
-| `func_0AFD5A_noref` | 15 | **Unused Random Pos Setter** — Sets `$14` from RNG byte, `$16` from RNG×2, `$08=#3C`. Simpler/less-centered variant of `func_0AFD69`. Unreferenced. Dead code. |
-| `func_0AFD69` | 30 | **Random Position Near Player** — Sets actor `$14`/`$16` to player position ± RNG (centered ±128), sets `$08=#3C` wait timer. One-shot spawn initializer for effects near the player. Referenced by: `awB1_goldcap`, `pyDD_mummy_queen`. |
+| `SetPlayerGameOverFlag` | 13 | **Boss Kill Invuln Flash** — Sets `$0200` on the player actor's `$10` flags (brief post-hit invulnerability). Referenced by: `mu67_vampires` (both death callbacks), `sg55_viper`, `ir29_castoth`, `pyDD_mummy_queen`, `gw8A_sand_fanger`. |
+| `EnemyPositionSnap` | 86 | **Grid-Snap Movement** — Clears hit/dodge callbacks, computes nearest 16×16 grid position, `MoveToward` at speed `$FF`/1 frame, repeats until aligned, then `ResumeAfterSnap`. Installed as deferred resume target by `cop_handlers_movement` when movement is interrupted mid-tile. Not called directly by actor scripts. |
+| `EnemyInitBasic` | 31 | **Chain Destructible Setup** — Turns the laborer's chain into a 1-HP destructible: sets `$0030` (solid+enemy) on `$12`, attaches `enemy_stats_table`, HP = 1, extended flag `$0080`. Used exclusively by `dm3F_laborer` chain spawn. |
+| `ActorMidpointCalc` | 35 | **Midpoint Position Calculator** — Averages parent (`$04`) and grandparent (`$06`) actor X/Y into current actor's `$14`/`$16`. Used for chain/tail following by: `av6E_draco` (tail segments), `mu60_plasma_chain` (chain followers), `dm3D_flayzer` (flame segments). |
+| `EnemyDefeatDispatch` | 163 | **Standard Enemy Death** — Two-path handler: if `$0AEC==1`, skip loot → defeat anim. Otherwise: death sound, decrement `$0AEC`/`$0AEE` counters, spawn `EnemyDeathFlash`, set dungeon kill flag, optionally spawn field-reveal effect if `deathActionIdx` set, then die. Referenced by: `av6D_dive_bat`, `gw82_fire_bug`, `gw8A_sand_fanger`. |
+| `unused_window_config` | 13 | **Unused Window Setup** — Sets SNES `$WOBJSEL` to `$A0` (window/object layer selection), immediately returns. Likely discarded color-window or compositing setup. Unreferenced. |
+| `unused_follow_chain` | 38 | **Unused Projectile Wrapper** — Marks enemy `$0010`, calls `dm_dm_follower_behavior.code_0ADC25` (burst effect), stores player actor ID, sets loop counter, tail-calls `smooth_follow_child`. Closely related to live `dm_dm_follower_behavior` but unreferenced. |
+| `unused_proximity_check_noref_noref` | 9 | **Unused Proximity Test** — Runs `BranchIfPlayerNear(7)`, returns SEC if far / CLC if near. Designed as JSR helper, never referenced. Dead code. |
+| `unused_random_position_noref_noref` | 15 | **Unused Random Pos Setter** — Sets `$14` from RNG byte, `$16` from RNG×2, `$08=#3C`. Simpler/less-centered variant of `RandomPlayerOffset`. Unreferenced. Dead code. |
+| `RandomPlayerOffset` | 30 | **Random Position Near Player** — Sets actor `$14`/`$16` to player position ± RNG (centered ±128), sets `$08=#3C` wait timer. One-shot spawn initializer for effects near the player. Referenced by: `awB1_goldcap`, `pyDD_mummy_queen`. |
 
 ---
 
@@ -578,10 +578,10 @@ Several common AI patterns recur across actors in this bank:
 |---------|---------|
 | `BranchNearerAxis` → cardinal patrol | Ribber, Mudpit, Slugger, Scuttlebug, Flayzer, Eye Stalker, Cyclops |
 | `BranchIfPlayerNear` → aggro transition | Ribber, Stone Guard, Splop, Whirligig, Flasher, Slipper, Dive Bat, Draco |
-| `smooth_follow_child` homing | Ribber (projectile), Flasher (projectile), dm_func_0ADB6B (popup body) |
-| `func_0AA41C` midpoint following | Draco (tail), Plasma Chain (segments), Flayzer (flame segments) |
-| `func_0AA43F` standard death | Dive Bat, and cross-bank enemies |
-| `func_0AA36E` boss kill flash | Castoth, Viper, Vampires (all 3 bosses) |
+| `smooth_follow_child` homing | Ribber (projectile), Flasher (projectile), dm_dm_follower_behavior (popup body) |
+| `ActorMidpointCalc` midpoint following | Draco (tail), Plasma Chain (segments), Flayzer (flame segments) |
+| `EnemyDefeatDispatch` standard death | Dive Bat, and cross-bank enemies |
+| `SetPlayerGameOverFlag` boss kill flash | Castoth, Viper, Vampires (all 3 bosses) |
 | `InitSpiral`/`SpiralStep` | Vampires (spiral projectiles) |
 | Wall-following patrol | Eye Stalker, Plasma Snake, Dynapede, Nitropede |
 | Two-phase activation | Skull Chaser (harmless→revived), Knight Armor (statue→combat), Stone Guard (dormant→awake), Eye Stalker (closed→open) |
@@ -600,6 +600,6 @@ Many actors in this bank reference shared engine code:
 - `enemy_stats_table` — HP/ATK/DEF/EXP lookup
 - `table_0EE000` — metasprite frame definitions
 - `smooth_follow` — homing projectile/follower system
-- `func_0AA36E` — boss-kill invulnerability flash (shared within this bank)
-- `func_0AA41C` — chain/tail midpoint following (shared within this bank)
-- `func_0AA43F` — standard enemy death pipeline (shared within this bank)
+- `SetPlayerGameOverFlag` — boss-kill invulnerability flash (shared within this bank)
+- `ActorMidpointCalc` — chain/tail midpoint following (shared within this bank)
+- `EnemyDefeatDispatch` — standard enemy death pipeline (shared within this bank)

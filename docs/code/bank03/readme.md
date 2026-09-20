@@ -296,7 +296,7 @@ system_core (bank $02)
 | `scene_script.SceneScriptMain` | `$02` | ClearSceneState |
 | `camera_tilemap.CameraFullRefresh` | `$02` | ClearSceneState |
 | `event_blocks.ApplyAllEventBlocks` | `$02` | ClearSceneState |
-| `binary_01C595` / `binary_01C695` | `$01` | mode7_perspective (sine/cosine tables) |
+| `sine_table_16bit` / `cosine_table_16bit` | `$01` | mode7_perspective (sine/cosine tables) |
 | `templates_01CA95` | `$01` | DialogStringRenderer ($C2 InsertTemplate) |
 | `dictionary_01EBA8` / `dictionary_01F54D` | `$01` | DialogStringRenderer ($D6/$D7 dictionary) |
 | `itemcomp_table_01EB0F` | `$01` | ConsoleStringRenderer ($10 InsertItemName) |

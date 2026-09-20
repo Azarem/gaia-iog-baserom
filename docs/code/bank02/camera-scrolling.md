@@ -590,7 +590,7 @@ flowchart LR
 
     subgraph external["External"]
         SC[system_core.asm main loop]
-        VM[func_03D78A chunk_03BAE1]
+        VM[CalcTileMapOffset chunk_03BAE1]
         PM[player_move_*.asm]
         EV[event_blocks / warps / COP]
     end
@@ -627,7 +627,7 @@ flowchart LR
 |------|----|-----------|
 | `camera_tilemap` | `map_coords` | Shared tile coordinate variables `$18`/`$1C`; both use `$0693` row stride |
 | `map_coords` | `tile_collision` | `?INCLUDE 'tile_collision'`; cascade probes JSR into probe helpers |
-| `tile_collision` | `chunk_03BAE1` | `TileProbeMain` JSL `func_03D78A` for map cell index |
+| `tile_collision` | `chunk_03BAE1` | `TileProbeMain` JSL `CalcTileMapOffset` for map cell index |
 | `map_coords` | Event/COP layer | `TileCoordsToMapIndex` / `PixelToVramAddress` JSL from event code |
 | `tile_collision` | Player movement | Direct JSR from `player_move_ns/ew/diag.asm` |
 

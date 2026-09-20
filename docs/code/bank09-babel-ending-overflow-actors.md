@@ -56,7 +56,7 @@
 | `$099B1C` | `$099B2E` | 18 | `babel_tower` / `bt_actor_099B1C` | Code | (shared) |
 | `$099B2E` | `$099E8C` | 862 | `babel_tower` / `btDF_spirits` | actor-def | babel_lower_floors |
 | `$099E8C` | `$09A090` | 516 | `babel_tower` / `btDF_kara` | actor-def | babel_lower_floors |
-| `$09A090` | `$09A0D7` | 71 | `sE6_gaia` / `e_actor_09A090` | Code | dark_space |
+| `$09A090` | `$09A0D7` | 71 | `sE6_gaia` / `e_GaiaNpcSprite` | Code | dark_space |
 | `$09A0D7` | `$09A0E5` | 14 | `hint_npc` / `hint_npc1` | actor-def | (global) |
 | `$09A0E5` | `$09A143` | 94 | `hint_npc` / `hint_npc2` | actor-def | (global) |
 | `$09A143` | `$09A3DF` | 668 | `hint_npc` / `code_09A143` | Code | (global) |
@@ -69,9 +69,9 @@
 | `$09B264` | `$09B26C` | 8 | `actor_09AA6E` / `byte_09B264` | Byte | (unused) |
 | `$09B26C` | `$09B57A` | 782 | `actor_09AA6E` / `byte_09B26C` | Byte | (unused) |
 | `$09B57A` | `$09BA80` | 1,286 | `actor_09AA6E` / `byte_09B57A` | Byte | (unused) |
-| `$09BA80` | `$09BAE3` | 99 | `unused` / `actor_09BA80` | actor-def | (debug) |
-| `$09BAE3` | `$09BB17` | 52 | `unused` / `actor_09BAE3` | actor-def | (debug) |
-| `$09BB17` | `$09BBB7` | 160 | `pyramid` / `func_09BB17` | Code | (utility) |
+| `$09BA80` | `$09BAE3` | 99 | `unused` / `unused_debug_mode` | actor-def | (debug) |
+| `$09BAE3` | `$09BB17` | 52 | `unused` / `unused_debug_input_test` | actor-def | (debug) |
+| `$09BB17` | `$09BBB7` | 160 | `pyramid` / `CollisionLayerRenderer` | Code | (utility) |
 | `$09BBB7` | `$09BC34` | 125 | `unused` / `kara_09BBB7` | actor-def | (debug) |
 | `$09BC34` | `$09BC8B` | 87 | `edward_castle` / `ec11_flower` | actor-def | aqueduct_doorway |
 | `$09BC8B` | `$09BCD1` | 70 | `edward_castle` / `ec11_actor_09BC8B` | actor-def | aqueduct_doorway |
@@ -102,18 +102,18 @@
 | `$09D0F5` | `$09D64D` | 1,368 | `itory` / `it1A_moon_tribe` | actor-def | moon_tribe_camp |
 | `$09D64D` | `$09DB67` | 1,306 | `sF7_credits` / `sF7_credits` | actor-def | ending_credits |
 | `$09DB67` | `$09DDA7` | 576 | `ending` / `sF0_class_dismissed` | actor-def | ending_class_dismissed |
-| `$09DDA7` | `$09DFF8` | 593 | `sF7_actor_09DFF8` / `e_actor_09DDA7` | Code | ending_credits |
-| `$09DFF8` | `$09E14B` | 339 | `sF7_actor_09DFF8` / `sF7_actor_09DFF8` | actor-def | ending_credits |
-| `$09E14B` | `$09E26C` | 289 | `sF7_actor_09E26C` / `e_actor_09E14B` | Code | ending_credits |
-| `$09E26C` | `$09E31A` | 174 | `sF7_actor_09E26C` / `sF7_actor_09E26C` | actor-def | ending_credits |
-| `$09E31A` | `$09E3EB` | 209 | `sF7_actor_09E3EB` / `e_actor_09E31A` | Code | ending_credits |
-| `$09E3EB` | `$09E464` | 121 | `sF7_actor_09E3EB` / `sF7_actor_09E3EB` | actor-def | ending_credits |
-| `$09E464` | `$09E4DD` | 121 | `sF7_actor_09E4DD` / `e_actor_09E464` | Code | ending_credits |
-| `$09E4DD` | `$09E538` | 91 | `sF7_actor_09E4DD` / `sF7_actor_09E4DD` | actor-def | ending_credits |
-| `$09E538` | `$09E591` | 89 | `sF7_actor_09E591` / `e_actor_09E538` | Code | ending_credits |
-| `$09E591` | `$09E5DE` | 77 | `sF7_actor_09E591` / `sF7_actor_09E591` | actor-def | ending_credits |
-| `$09E5DE` | `$09E607` | 41 | `sF7_actor_09E607` / `func_09E5DE` | Code | ending_credits |
-| `$09E607` | `$09E62F` | 40 | `sF7_actor_09E607` / `sF7_actor_09E607` | actor-def | ending_credits |
+| `$09DDA7` | `$09DFF8` | 593 | `sF7_credits_player` / `e_actor_09DDA7` | Code | ending_credits |
+| `$09DFF8` | `$09E14B` | 339 | `sF7_credits_player` / `sF7_credits_player` | actor-def | ending_credits |
+| `$09E14B` | `$09E26C` | 289 | `sF7_credits_npc_a` / `e_actor_09E14B` | Code | ending_credits |
+| `$09E26C` | `$09E31A` | 174 | `sF7_credits_npc_a` / `sF7_credits_npc_a` | actor-def | ending_credits |
+| `$09E31A` | `$09E3EB` | 209 | `sF7_credits_npc_b` / `e_actor_09E31A` | Code | ending_credits |
+| `$09E3EB` | `$09E464` | 121 | `sF7_credits_npc_b` / `sF7_credits_npc_b` | actor-def | ending_credits |
+| `$09E464` | `$09E4DD` | 121 | `sF7_credits_npc_c` / `e_actor_09E464` | Code | ending_credits |
+| `$09E4DD` | `$09E538` | 91 | `sF7_credits_npc_c` / `sF7_credits_npc_c` | actor-def | ending_credits |
+| `$09E538` | `$09E591` | 89 | `sF7_credits_npc_d` / `e_actor_09E538` | Code | ending_credits |
+| `$09E591` | `$09E5DE` | 77 | `sF7_credits_npc_d` / `sF7_credits_npc_d` | actor-def | ending_credits |
+| `$09E5DE` | `$09E607` | 41 | `sF7_credits_npc_e` / `func_09E5DE` | Code | ending_credits |
+| `$09E607` | `$09E62F` | 40 | `sF7_credits_npc_e` / `sF7_credits_npc_e` | actor-def | ending_credits |
 | `$09E62F` | `$09E64B` | 28 | `sF7_credits` / `code_09E62F` | Code | ending_credits |
 | `$09E64B` | `$09E8E4` | 665 | `ending` / `misc_actors_09E64B` | Code | ending_credits |
 | `$09E8E4` | `$09E901` | 29 | `func_09E8E4` / `func_09E8E4` | Code | ending_credits |
@@ -291,7 +291,7 @@ Pattern: `SolidHighAbs` × 2 → `SpawnMarkedAfterAbs` (2× `bt_actor_099B1C`) �
 
 | Part | Description |
 |------|-------------|
-| `btE4_kara` | **Rooftop finale — Kara.** Solid + interactable. Before flag `#0E`: prints *"Kara: ................."*. After flag `#0F` set by Olman: prints *"When Will and Kara joined and became one with the Light Knight, a great power was born... The Firebird was released!"* → sets flag `#0E`. Once flag `#0E` set: disables interact, reads player facing direction, spawns **six orbital light orb sub-actors** (`code_098F01`–`098F2E`), each with different `orbitAngle` offsets (0, `$2A`, `$54`, `$80`, `$AA`, `$D4` — evenly spaced around a circle). Each orb uses `table_0EDA00` frame `#0A`, incrementally grows `orbitDiameter` from 1 to `$80`, calls `ApplyOrbitalOffsetFromRef` each frame using `playerActor` as reference. Hooks player to `sE6_gaia.func_08F5F9` (Gaia visual script). Moves toward player, waits for player script to finish. Prints Olman's speech: *"Your battle will change the fate of humanity. Now you must go to the comet!!"* → sets flag `#0A`. Hooks player to `code_098F7E` (falling/climbing animation — `StagePlayerSprite(#1C)`, flips V, loops `StagePlayerMoveY(#1B,#08)` infinitely upward). Sets `gfxCacheIdxB=#$0404` → `QueueMapChange` to scene `$E7` at `($0050,$0090)`. Orbs: when flag `#0A` set, switch to `table_0EE000` frame `#1E` and die. |
+| `btE4_kara` | **Rooftop finale — Kara.** Solid + interactable. Before flag `#0E`: prints *"Kara: ................."*. After flag `#0F` set by Olman: prints *"When Will and Kara joined and became one with the Light Knight, a great power was born... The Firebird was released!"* → sets flag `#0E`. Once flag `#0E` set: disables interact, reads player facing direction, spawns **six orbital light orb sub-actors** (`code_098F01`–`098F2E`), each with different `orbitAngle` offsets (0, `$2A`, `$54`, `$80`, `$AA`, `$D4` — evenly spaced around a circle). Each orb uses `table_0EDA00` frame `#0A`, incrementally grows `orbitDiameter` from 1 to `$80`, calls `ApplyOrbitalOffsetFromRef` each frame using `playerActor` as reference. Hooks player to `sE6_gaia.Transform_WillToShadow` (Gaia visual script). Moves toward player, waits for player script to finish. Prints Olman's speech: *"Your battle will change the fate of humanity. Now you must go to the comet!!"* → sets flag `#0A`. Hooks player to `code_098F7E` (falling/climbing animation — `StagePlayerSprite(#1C)`, flips V, loops `StagePlayerMoveY(#1B,#08)` infinitely upward). Sets `gfxCacheIdxB=#$0404` → `QueueMapChange` to scene `$E7` at `($0050,$0090)`. Orbs: when flag `#0A` set, switch to `table_0EE000` frame `#1E` and die. |
 | `btE4_olman` | **Rooftop finale — Olman hub.** Uses `table_0EDA00` frame `#04`. Locks joypad, waits, prints long speech about comet as spirit/demon, evolution bringing destruction. Unlocks. Then sequentially spawns **five spirit NPCs** at fixed positions with sound `#1D` between each: (1) Seth at `($00D8,$00F0)` — *"Ah, Will. It's been a long time..."* → flag `#01`. (2) Neil's father at `($0098,$00E0)` — *"Neil... What are you doing!!"* → flag `#02`. (3) Neil's mother at `($00B8,$0160)` — *"Even if I can see the real world, I can't touch it..."* → flag `#03`. (4) Hamlet at `($0148,$0130)` — *"Oink oink!! / No difference between humans and animals..."* → flag `#04`. (5) Vampire woman at `($0158,$00E0)` — *"With my body gone, I became forever young... But is there meaning in eternal life?"* → flag `#05`. Each spirit: spawns with light flash (`table_0EE000` frame `#1E`), becomes solid + interactable with `table_0EDA00` frame `#04`. After flag `#0F` set, each moves toward player and dies. Olman: interactable — if not all 5 flags set, prints *"I need to talk to you"*. When all 5 set: *"At last the time is near. Everyone. Give Will your power!"* → sets flag `#0F`, locks joypad. Main loop: waits for flag `#0F`, clears collision, dies. |
 
 | Flag | Set by | Purpose |
@@ -320,17 +320,17 @@ post-credits "class dismissed" epilogue.
 
 #### ending_credits (`$09D64D`–`$09DB67`, `$09DDA7`–`$09F6A6`, 7,705 bytes)
 
-**Files:** `extracted/ending/ending_credits/sF7_credits.asm` (main controller + inline code), `sF7_actor_09DFF8.asm`, `sF7_actor_09E26C.asm`, `sF7_actor_09E3EB.asm`, `sF7_actor_09E4DD.asm`, `sF7_actor_09E591.asm`, `sF7_actor_09E607.asm`, `misc_actors_09E64B.asm`, `func_09E8E4.asm`, `crF7_proc_09F330.asm`, `crF7_proc_09F360.asm`, `crF7_proc_09F510.asm`
+**Files:** `extracted/ending/ending_credits/sF7_credits.asm` (main controller + inline code), `sF7_credits_player.asm`, `sF7_credits_npc_a.asm`, `sF7_credits_npc_b.asm`, `sF7_credits_npc_c.asm`, `sF7_credits_npc_d.asm`, `sF7_credits_npc_e.asm`, `misc_actors_09E64B.asm`, `func_09E8E4.asm`, `crF7_proc_09F330.asm`, `crF7_proc_09F360.asm`, `crF7_proc_09F510.asm`
 
 | Part | Description |
 |------|-------------|
 | `sF7_credits` | **Main credits controller.** Sets window mask (`W12SEL=#$33`), disables all BG layers, locks joypad fully (`$FFF0`). Decompresses 4 sets of GFX (SC02 main characters, credits actors 1–3, credits scenery, font) using bank-copy MVN routines (`code_09DB4B`/`code_09DB59`). Loads sprite metasprites from `spm_credits` to `$7E6000`. Starts music `#14`. Spawns two persistent sub-actors: `code_09E9D2` (credits text scroller) and `code_09E919` (BCD frame counter incrementing `$00E4`/`$00E6`/`$00E8` each frame). The main timeline uses `HaltIfCounterGte` to sequence events: at `$00C8` enables BG1 (`TM=#$10`), uploads 8× 2KB VRAM DMA chunks for background tiles. Then a long sequence of timed spawns: palette fades (`code_09F4AA`/`code_09F4ED`), scenery DMA swaps at act breaks, BG palette changes via `CopyPalette`, `CallScript` for tilemap swaps, and `SpawnLastRel` for crowd extra actors. **Five distinct "acts"** with different background art/palettes, each separated by darken→DMA swap→brighten. At `$3264` starts spawning text overlay actors (`code_09E62F`/`code_09E637`). Crowd extras from `misc_actors_09E64B` are spawned at precise counter checkpoints from `$37B4` through `$6338`. At `$6400` loads final palette + scenery. Final fade at `$652C`. At `$7068`: clears all GFX cache indices, → `QueueMapChange` to scene `$F0` at `($0090,$0178)` with transition `#06`. |
-| `sF7_actor_09DFF8` + `e_actor_09DDA7` | **Will (player character) parade actor.** Init: priority `#30`, X=`$0200`, clears `characterForm`. Linked controller `e_actor_09DDA7` uses ~75 `HaltIfCounterGte`/`SetLinkedActorScript` pairs to switch Will between animation scripts across the full timeline (`$012C`–`$6D38`). Scripts include: walking (`StagePlayerMoveX`), idle player sprites (`#00`–`#44`), body sprite changes (`SetPlayerBodySprite #04`), and individual frame poses (`#02`, `#06`, `#0C`–`#0E`, `#1A`–`#1F`, `#23`–`#26`, `#32`, `#36`, `#38`, `#3A`, `#3C`, `#44`). |
-| `sF7_actor_09E26C` + `e_actor_09E14B` | **NPC parade actor #1.** Uses `$7E6000` metasprite (credits actors). Linked controller has ~40 timed script swaps (`$0F00`–`$6E74`). Animations include: static frames `#00`–`#09`/`#11`, directional walks (`StageSpriteMoveX`, `StageSpriteMoveY`). Uses `func_09E8E4` for repositioning (placement `#$0031`, `#$0035`). Long idle/hidden period `$1F70`–`$2F58`. |
-| `sF7_actor_09E3EB` + `e_actor_09E31A` | **NPC parade actor #2.** Enters at counter `$1770`. Controller has rapid pose cycling around `$17E8`–`$182A` (frames `#04`→`#05`→`#06`→`#07` repeating). Later: walks with frame `#08`, `#2E`, `#33`. Uses placements `#$0031`, `#$0042`. Active `$1770`–`$4748`. |
-| `sF7_actor_09E4DD` + `e_actor_09E464` | **NPC parade actor #3.** First active at `$0438`. Opens with placement `#$0025`, fast walk (`StageSpriteMoveX #00,#12`). Idle at `$0C78`–`$3F0C`. Late act: placement `#$0022`, frames `#1D`/`#1F`/`#20`/`#23`. Active `$0438`–`$4748`. |
-| `sF7_actor_09E591` + `e_actor_09E538` | **NPC parade actor #4.** Active from `$04B0`. Placement `#$0042`, walks with frame `#01`. Idle `$0BD0`–`$3FFC`. Late: placement `#$0032`, frame `#2B`/`#27`. Active `$04B0`–`$4748`. |
-| `sF7_actor_09E607` + `func_09E5DE` | **NPC parade actor #5.** Shortest lifecycle. Active `$0564`–`$0A74` (only 3 script phases). Placement `#$0035`, walks with frame `#02`, reverses direction, then idles. |
+| `sF7_credits_player` + `e_actor_09DDA7` | **Will (player character) parade actor.** Init: priority `#30`, X=`$0200`, clears `characterForm`. Linked controller `e_actor_09DDA7` uses ~75 `HaltIfCounterGte`/`SetLinkedActorScript` pairs to switch Will between animation scripts across the full timeline (`$012C`–`$6D38`). Scripts include: walking (`StagePlayerMoveX`), idle player sprites (`#00`–`#44`), body sprite changes (`SetPlayerBodySprite #04`), and individual frame poses (`#02`, `#06`, `#0C`–`#0E`, `#1A`–`#1F`, `#23`–`#26`, `#32`, `#36`, `#38`, `#3A`, `#3C`, `#44`). |
+| `sF7_credits_npc_a` + `e_actor_09E14B` | **NPC parade actor #1.** Uses `$7E6000` metasprite (credits actors). Linked controller has ~40 timed script swaps (`$0F00`–`$6E74`). Animations include: static frames `#00`–`#09`/`#11`, directional walks (`StageSpriteMoveX`, `StageSpriteMoveY`). Uses `func_09E8E4` for repositioning (placement `#$0031`, `#$0035`). Long idle/hidden period `$1F70`–`$2F58`. |
+| `sF7_credits_npc_b` + `e_actor_09E31A` | **NPC parade actor #2.** Enters at counter `$1770`. Controller has rapid pose cycling around `$17E8`–`$182A` (frames `#04`→`#05`→`#06`→`#07` repeating). Later: walks with frame `#08`, `#2E`, `#33`. Uses placements `#$0031`, `#$0042`. Active `$1770`–`$4748`. |
+| `sF7_credits_npc_c` + `e_actor_09E464` | **NPC parade actor #3.** First active at `$0438`. Opens with placement `#$0025`, fast walk (`StageSpriteMoveX #00,#12`). Idle at `$0C78`–`$3F0C`. Late act: placement `#$0022`, frames `#1D`/`#1F`/`#20`/`#23`. Active `$0438`–`$4748`. |
+| `sF7_credits_npc_d` + `e_actor_09E538` | **NPC parade actor #4.** Active from `$04B0`. Placement `#$0042`, walks with frame `#01`. Idle `$0BD0`–`$3FFC`. Late: placement `#$0032`, frame `#2B`/`#27`. Active `$04B0`–`$4748`. |
+| `sF7_credits_npc_e` + `func_09E5DE` | **NPC parade actor #5.** Shortest lifecycle. Active `$0564`–`$0A74` (only 3 script phases). Placement `#$0035`, walks with frame `#02`, reverses direction, then idles. |
 | `misc_actors_09E64B` | **Crowd extras library.** `code_09E65D`: linked walker with placement `#$0041`, frame `#0E` walking. `code_09E67C`: palette flash (`PaletteStart #7C`). `code_09E68D`: linked walker with placement `#$0003`. `code_09E6A5`: `$7E4000` metasprite walker, placement `#$0021`, walks `$C8` frames right then `$68` frames left. `code_09E6C0`–`code_09E8A6`: **16 nearly identical walk-on/walk-off crowd actors**, each using a different frame from `$7E4000` (frames `#09`–`#1C`), all placement `#$0021`, walk `$C8` then `$68`/`$80`/`$88`. `code_09E8C1`: comet/trail actor — placement `#$0032`, walks 4 frames with frame `#13`, loops 85 frames, switches to frame `#12`, waits `$0FEF` frames, dies. |
 | `func_09E8E4` | **Placement utility.** Decodes a packed word: low nibble → index into `word_09E90D` (X offsets: `$FFE0`, `$FFF0`, `$0110`, `$0120`, `$FFF8`, `$0108`), high nibble → index into `word_09E901` (Y offsets: `$0080`–`$00D0` in `$10` steps). Stores result in `$14` (X) and `$16` (Y). Called by all parade and crowd actors. |
 | `code_09E919` | **BCD frame counter.** Increments `$00E4` each frame, maintains BCD counter in `$00E6`/`$00E8` using SED mode. |
@@ -403,7 +403,7 @@ aqueduct puzzle sequence.
 | Part | Description |
 |------|-------------|
 | `ec12_actor_09BF0F` | **Rear switch.** Uses `enemy_stats_table+118`, invulnerable. If Will is in normal form (`characterForm=0`), sets `$0200` on `$10`. On first hit: plays sound `$0F0F`, applies `StageBgChange(#14)` + `StageBgChange(#15)`, sets flag words `$0114` and `$0115`. Subsequent hits just animate. |
-| `ec12_actor_09BF6B` | **Dark Space spawner.** If flag word `$0116` set → spawns `dark_space.code_08D6B5` at absolute `($00A8,$04C0)` with `$0B00` flags, sets `$0024=1` on spawned actor, dies. Otherwise waits on `ExitIfFlagWord($0116)` with `$B3` frame delay. |
+| `ec12_actor_09BF6B` | **Dark Space spawner.** If flag word `$0116` set → spawns `dark_space.DarkSpacePortalInit` at absolute `($00A8,$04C0)` with `$0B00` flags, sets `$0024=1` on spawned actor, dies. Otherwise waits on `ExitIfFlagWord($0116)` with `$B3` frame delay. |
 
 | Flag | Set by | Purpose |
 |------|--------|---------|
@@ -418,7 +418,7 @@ aqueduct puzzle sequence.
 
 | Part | Description |
 |------|-------------|
-| `ec13_lily` | **Lily reunion cutscene.** If flag `#3A` set: checks `characterForm` — if demon form, locks joypad, prints *"When the enemies are destroyed, Will can return to his original shape..."*, hooks player to `sE6_gaia.func_08F37D` (Gaia revert), dies. **First visit** (flag `#3A` clear): waits 1 frame, starts music `#1B`, waits, adds position offset. If demon form → same revert message + hook, then waits for player near. On approach: sets flag `#3A`, locks joypad. Long dialogue: Lily reveals she saw Will shape-change, introduces herself as an Itory girl protected by the Flower Spirit, they discuss Grandma Lola's pie and the melody. Plays sound `$1616`, waits `$EF` frames. Lily delivers farewell (*"The Elder is calling... We'll meet again!"*). Exit animation: cycles through frames `#24`→`#23`→`#25`→`#22`→`#36`, then walks offscreen with `StageSpriteLoopMoveY(#36)`. |
+| `ec13_lily` | **Lily reunion cutscene.** If flag `#3A` set: checks `characterForm` — if demon form, locks joypad, prints *"When the enemies are destroyed, Will can return to his original shape..."*, hooks player to `sE6_gaia.Transform_FreedanToWill` (Gaia revert), dies. **First visit** (flag `#3A` clear): waits 1 frame, starts music `#1B`, waits, adds position offset. If demon form → same revert message + hook, then waits for player near. On approach: sets flag `#3A`, locks joypad. Long dialogue: Lily reveals she saw Will shape-change, introduces herself as an Itory girl protected by the Flower Spirit, they discuss Grandma Lola's pie and the melody. Plays sound `$1616`, waits `$EF` frames. Lily delivers farewell (*"The Elder is calling... We'll meet again!"*). Exit animation: cycles through frames `#24`→`#23`→`#25`→`#22`→`#36`, then walks offscreen with `StageSpriteLoopMoveY(#36)`. |
 
 | Flag | Set by | Purpose |
 |------|--------|---------|
@@ -447,7 +447,7 @@ hazards, NPC encounters, and lore.
 
 | Part | Description |
 |------|-------------|
-| `ir1C_lily` | **Lily exposition cutscene.** If flag `#4B` set → positions at tile `($16,$13)`, becomes solid NPC. If demon form → hooks player to `sE6_gaia.func_08F37D` for revert. On interact: repeats Elder's riddle. **First visit**: locks joypad, long dialogue about the Incan Gold Ship legend (*"After being invaded, the Incas decided to leave their native land..."*). Sets solid tiles at `($06,$19)` / `($07,$19)`. Spawns `EscortFollowPathTracker` (orbit `angle=3`, `diameter=$1A`). Loops, checking for flag `#01` (Kara trigger). When Kara arrives: kills escort, clears solid tiles. Hooks player via `InitPlayerScriptVariant(#0)`. Lily reacts: *"Why are you in a place like this! It's dangerous!"* Kara responds: *"Lola told me about this place..."* Sets flag `#02`. Waits, Lily walks away with exit animation (frames `#1E`→`#1A`→`#1C`→`#1B`). Prints Elder's riddle: *"Put the statue on the Larai Cliff below the ruins, where the spirits' breath cannot reach."* Sets flag `#4B`. Walks off screen right. |
+| `ir1C_lily` | **Lily exposition cutscene.** If flag `#4B` set → positions at tile `($16,$13)`, becomes solid NPC. If demon form → hooks player to `sE6_gaia.Transform_FreedanToWill` for revert. On interact: repeats Elder's riddle. **First visit**: locks joypad, long dialogue about the Incan Gold Ship legend (*"After being invaded, the Incas decided to leave their native land..."*). Sets solid tiles at `($06,$19)` / `($07,$19)`. Spawns `EscortFollowPathTracker` (orbit `angle=3`, `diameter=$1A`). Loops, checking for flag `#01` (Kara trigger). When Kara arrives: kills escort, clears solid tiles. Hooks player via `InitPlayerScriptVariant(#0)`. Lily reacts: *"Why are you in a place like this! It's dangerous!"* Kara responds: *"Lola told me about this place..."* Sets flag `#02`. Waits, Lily walks away with exit animation (frames `#1E`→`#1A`→`#1C`→`#1B`). Prints Elder's riddle: *"Put the statue on the Larai Cliff below the ruins, where the spirits' breath cannot reach."* Sets flag `#4B`. Walks off screen right. |
 | `ir1C_kara` | **Kara confrontation.** If flag `#4B` set → positions at tile `($15,$13)`, becomes solid NPC with repeat dialogue *"Well? Did you find what you were looking for?"*. **First trigger**: waits for player in tile region `($1A,$0F)–($1B,$11)`. Locks joypad, sets flag `#01`, starts music `#1B`. Walks with `StageSpriteMoveX(#19,#01)` then `StageSpriteMoveY(#17,#02)`. Poses frame `#13`. Prints *"Kara: You're so mean!! Leaving me behind!"* Starts music `#02`, sets flag `#03`. Waits for flag `#02`, walks south + right offscreen. |
 
 | Flag | Set by | Purpose |
@@ -555,7 +555,7 @@ hazards, NPC encounters, and lore.
 
 | Part | Description |
 |------|-------------|
-| `ir29_transform` | **Post-Castoth controller.** If flag word `$011F` set → die. Waits until `$0AEC = 0` (boss defeated). Locks joypad, applies `StageBgChange(#1F)` → `ApplyBgChange`, sets flag word `$011F`. Fades and starts music `#1B`, waits `$77` frames. If Will is in demon form: locks additional joypad, waits `$59` frames, prints *"After the demon disappears, Will returns to his original shape..."*, hooks player to `sE6_gaia.func_08F37D` (revert transform), waits for `playerFlags & $0800` to clear. Then unlocks joypad. |
+| `ir29_transform` | **Post-Castoth controller.** If flag word `$011F` set → die. Waits until `$0AEC = 0` (boss defeated). Locks joypad, applies `StageBgChange(#1F)` → `ApplyBgChange`, sets flag word `$011F`. Fades and starts music `#1B`, waits `$77` frames. If Will is in demon form: locks additional joypad, waits `$59` frames, prints *"After the demon disappears, Will returns to his original shape..."*, hooks player to `sE6_gaia.Transform_FreedanToWill` (revert transform), waits for `playerFlags & $0800` to clear. Then unlocks joypad. |
 
 ---
 
@@ -567,7 +567,7 @@ System-wide actors spawned across many scenes throughout the game.
 
 | Part | Address | Description |
 |------|---------|-------------|
-| `e_actor_09A090` | `$09A090`–`$09A0D7` | **Dark Space Gaia visual effect.** Spawned by `sE6_gaia` (bank 8). Plays one sprite animation frame. Idle flicker variant: when `$24` set and SFX queued, randomly cycles frames 1–3 (ambient Gaia glow). |
+| `e_GaiaNpcSprite` | `$09A090`–`$09A0D7` | **Dark Space Gaia visual effect.** Spawned by `sE6_gaia` (bank 8). Plays one sprite animation frame. Idle flicker variant: when `$24` set and SFX queued, randomly cycles frames 1–3 (ambient Gaia glow). |
 | `hint_npc1` / `hint_npc2` | `$09A0D7`–`$09A143` | **Dark Space hint NPCs.** Two actor defs (invisible interactable). `hint_npc2` spawns companion sprite actors with animated flicker. |
 | `code_09A143` | `$09A143`–`$09A3DF` | **Hint NPC shared code.** Uses `$26` (parent scene index) in a `SwitchCase` to select one of **8 hint strings** covering: jewels, Dark Power, jumping mechanics, pyramid cracks, combat tips, water droplets, etc. |
 | `dark_rewards1` / `dark_rewards2` | `$09A3DF`–`$09A915` | **Dark Space ability reward NPCs.** Same visual template as `hint_npc`. Scene ID (`$0B12`) → reward mapping: `$15` → Psycho Crusher (`abilityBitmask` bit 0), `$42` → Psycho Flier (bit 4), `$62` → Psycho Slider (bit 1), `$86` → Spin Dasher (bit 2), `$B8` → Earthquaker (bit 6), `$A7` → Aura Barrier (bit 5), `$CC` → Aura item (`#24`) via `GiveItem`, `$A1` → hint dialog only. Sets bitmask bit on first grant; repeat visits show shortened message. |
@@ -576,25 +576,25 @@ System-wide actors spawned across many scenes throughout the game.
 
 ### 3.6 Overflow: Dao, Itory, Pyramid (1,659 bytes — 5.1%)
 
-**Files:** `extracted/dao/dao/daC3_babel_travel_spirit.asm`, `extracted/itory/moon_tribe_camp/it1A_moon_tribe.asm`, `extracted/pyramid/func_09BB17.asm`
+**Files:** `extracted/dao/dao/daC3_babel_travel_spirit.asm`, `extracted/itory/moon_tribe_camp/it1A_moon_tribe.asm`, `extracted/pyramid/CollisionLayerRenderer.asm`
 
 | Part | Address | Scene | Description |
 |------|---------|-------|-------------|
 | `daC3_babel_travel_spirit` | `$0980C3`–`$098146` | dao | Travel spirit in Dao village. Uses `table_0EDA00` metasprite, solid + interactable. Dialogue: *"Go to Tower of Babel? Quit / Return"*. On confirm: clears `$066D`/`$0670`, sets `gfxCacheIdxA`/`gfxCacheIdxB`, `QueueMapChange` to scene `$E3` at `($0280,$01B0)`. Dies if flag `$D2` set. |
 | `it1A_moon_tribe` | `$09D0F5`–`$09D64D` | moon_tribe_camp | **Moon Tribe camp scene.** Clears `$7F0B00` buffer. Intro actor: waits for player nearby, plays "Strange Voice" riddle dialogue — wrong answer reveals Moon Tribe / Shadows. Once flag `$2A` set: becomes solid, plays palette flash, enables interact. Five lore NPCs discuss: shadows/light duality, comet cycle, kidnapped member, Incan statue in cave below. One NPC offers yes/no destination choice (both answers lead to teasing). |
-| `func_09BB17` | `$09BB17`–`$09BBB7` | (utility) | **Pyramid collision-layer copier.** Copies SFX/effect tilemap layer (`$7EC000`) into collision layer (`$7FC000`) using camera scroll deltas from `$06BF`–`$06C5`. Iterates viewport region using `$0693`–`$0699` dimensions. For each tile: if effect layer tile nonzero, copies via indirect addressing through `$3E` pointer. Uses `hardware_math.SignedMultiply` for coordinate mapping. Called by pyramid block-puzzle actors (`pyD7_actor_08C4EA`). |
+| `CollisionLayerRenderer` | `$09BB17`–`$09BBB7` | (utility) | **Pyramid collision-layer copier.** Copies SFX/effect tilemap layer (`$7EC000`) into collision layer (`$7FC000`) using camera scroll deltas from `$06BF`–`$06C5`. Iterates viewport region using `$0693`–`$0699` dimensions. For each tile: if effect layer tile nonzero, copies via indirect addressing through `$3E` pointer. Uses `hardware_math.SignedMultiply` for coordinate mapping. Called by pyramid block-puzzle actors (`pyD7_actor_08C4EA`). |
 
 ---
 
 ### 3.7 Unused / Debug (4,490 bytes — 13.7%)
 
-**Files:** `extracted/unused/actor_09AA6E.asm`, `extracted/unused/actor_09BA80.asm`, `extracted/unused/actor_09BAE3.asm`, `extracted/unused/kara_09BBB7.asm`
+**Files:** `extracted/unused/actor_09AA6E.asm`, `extracted/unused/unused_debug_mode.asm`, `extracted/unused/unused_debug_input_test.asm`, `extracted/unused/kara_09BBB7.asm`
 
 | Part | Address | Description |
 |------|---------|-------------|
 | `actor_09AA6E` | `$09AA6E`–`$09BA80` | **Cut boss encounter** (4,114 bytes including data tables). Multi-phase fight: resets camera, spawns ~10+ marked child actors (turrets, orbiters, palette thinker, spawners). Main loop: repeating attack cycle with spawned effects, hit callbacks, and timed waits. On boss body death (`code_09ABF5`): VRAM DMA from `$7EExxx` buffers, spawns boss body with `enemy_stats_table+15C` stats. Boss AI: random movement toward player, 8-way orbital projectiles via `ApplyOrbitalOffsetFromRef`. On defeat (`code_09B1D5`): spawns celebration effects. `code_09BA38`: resets `characterForm=0`, sets `gfxCacheIdxB=#$0404`, `QueueMapChange` to scene `$E5`. Includes sine lookup helper `code_09BA59` and child actor position propagation `code_09B9CC`. |
-| `actor_09BA80` | `$09BA80`–`$09BAE3` | **Debug max-stats actor.** Sets `playerMaxHp=playerHp=$13` (19 HP), `playerStr=$20`, `playerDef=$21`, `MEMSEL=1` (fast ROM), `characterForm=2` (Shadow), `abilityBitmask=$FF` (all abilities). Sets `$0200` on player flags. Loops on Start button (`$0080`): increments frame counter `$28`, wraps at `$42` — likely a hold-to-advance debug gate. |
-| `actor_09BAE3` | `$09BAE3`–`$09BB17` | **Debug metasprite viewer.** Loads `table_0EE000`, loops on Start button with frame counter wrapping at `$33` (51 frames). No stat changes — minimal test placeholder. |
+| `unused_debug_mode` | `$09BA80`–`$09BAE3` | **Debug max-stats actor.** Sets `playerMaxHp=playerHp=$13` (19 HP), `playerStr=$20`, `playerDef=$21`, `MEMSEL=1` (fast ROM), `characterForm=2` (Shadow), `abilityBitmask=$FF` (all abilities). Sets `$0200` on player flags. Loops on Start button (`$0080`): increments frame counter `$28`, wraps at `$42` — likely a hold-to-advance debug gate. |
+| `unused_debug_input_test` | `$09BAE3`–`$09BB17` | **Debug metasprite viewer.** Loads `table_0EE000`, loops on Start button with frame counter wrapping at `$33` (51 frames). No stat changes — minimal test placeholder. |
 | `kara_09BBB7` | `$09BBB7`–`$09BC34` | **Unused Kara dialogue test.** Sets `$0800` on `$10`, `$1000` on `$12`. Spawns `code_09BBCE` child. Child: writes `#00` to `APUIO0`, prints Kara dialogue *"It's terrible! Leave me alone! How far will you go?!"*, starts music `#02`, waits, writes `#00` to `APUIO0`, same dialogue, starts music `#04`, waits. Loops while Start held. Countdown `$24=$78` (unused). |
 
 ---
@@ -608,11 +608,11 @@ System-wide actors spawned across many scenes throughout the game.
 | `ec_actor_09C2D0` (falling block) | `ir25_ceiling_tile`, `ir28_actor_09C6A9` (via `code_09C2DB` / `code_09C2E4`) |
 | `bt_actor_099B1C` (marker sprite) | All 5 door controllers (`btE0_*` × 4, `btE3_actor_0987D8`), `btDF_crystal_ring` |
 | `func_09E8E4` (placement utility) | All 6 credits parade actors, `misc_actors_09E64B` (16+ crowd actors), `code_09E62F`/`code_09E637` |
-| `sE6_gaia.func_08F37D` (form revert) | `ec13_lily`, `ir1C_lily`, `ir29_transform` |
+| `sE6_gaia.Transform_FreedanToWill` (form revert) | `ec13_lily`, `ir1C_lily`, `ir29_transform` |
 | `btE1_comet_soon.code_0997B7` (player climb sprite) | `btE1_comet_soon`, `btE2_brought_back` |
 | `EscortFollowPathTracker` (follower) | `btDE_kara_missing`, `btE3_kara`, `btDF_kara`, `ir1C_lily` |
 | `InitPlayerScriptVariant` (script hook) | `btDE_olman`, `btDE_monologue`, `btDF_kara`, `ir1C_lily` |
-| `func_09BB17` (collision copier) | Pyramid block-puzzle actors (bank 8) |
+| `CollisionLayerRenderer` (collision copier) | Pyramid block-puzzle actors (bank 8) |
 | `oam_digit_compose.ComposeDigitSprites` | `ec11_countdown` |
 | `cop_handlers_flags.SetFlagRaw/ClearFlagRaw` | `ir1F_gold_tile` |
 

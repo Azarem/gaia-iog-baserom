@@ -65,7 +65,7 @@ COP-based actors and a query routine that coordinate **music playback lifecycle*
 
 `MusicPlaybackActor` is the primary COP coroutine spawned by the `MusicAndText` command. It orchestrates the full music-and-dialogue sequence: blocking player input, waiting for the active music track to finish, synchronizing a render frame so dialogue can appear cleanly, and respawning the visual overlay child actor that keeps the screen updated during the wait.
 
-On entry the actor saves the parent actor ID from `$06F2` into `$7F0010,X`, then spawns `@chunk_03BAE1.func_03E1D6` as a visual-sync child with flag `$2000`. If spawn fails (`CPY #$1FC0`), control jumps to cleanup at `code_02A0DD`. Otherwise the actor increments its child counter, sets actor flag bit `$1000`, and masks the joypad via `TSB $065A` with mask `$FFF0` (stripping directional input).
+On entry the actor saves the parent actor ID from `$06F2` into `$7F0010,X`, then spawns `@chunk_03BAE1.SpcTransferMusicData` as a visual-sync child with flag `$2000`. If spawn fails (`CPY #$1FC0`), control jumps to cleanup at `MusicLoadCleanup`. Otherwise the actor increments its child counter, sets actor flag bit `$1000`, and masks the joypad via `TSB $065A` with mask `$FFF0` (stripping directional input).
 
 The main loop waits until `$06FA` (active music track ID) equals `$FFFF` (idle). When music ends, it spawns `MusicRenderSync`, copies text pointer registers `$20`/`$22` to the child, waits for APU handshake (`$2141` = `$FF`), restores joypad input, respawns the visual child, and loops. When the sequence completes, cleanup clears `$09EC` bit `$0080` and dies.
 
@@ -74,7 +74,7 @@ The main loop waits until `$06FA` (active music track ID) equals `$FFFF` (idle).
 | Step | Action |
 |------|--------|
 | 1 | Save parent actor ID → `$7F0010,X` |
-| 2 | Spawn visual child `func_03E1D6`; on failure → cleanup |
+| 2 | Spawn visual child `SpcTransferMusicData`; on failure → cleanup |
 | 3 | Set actor flag `$1000`; mask joypad (`$065A \|= $FFF0`) |
 | 4 | **Loop:** if `$06FA ≠ $FFFF`, yield (`RTL` on resume) |
 | 5 | Spawn `MusicRenderSync`; copy `$20`/`$22` to child |
@@ -102,14 +102,14 @@ The main loop waits until `$06FA` (active music track ID) equals `$FFFF` (idle).
 |--------|--------------|
 | `cop_handlers_audio.asm` — `MusicAndText` | Spawns this actor with music ID and text pointer |
 | `MusicRenderSync` | Child actor spawned after music ends |
-| `chunk_03BAE1.func_03E1D6` | Visual overlay child respawned each cycle |
+| `chunk_03BAE1.SpcTransferMusicData` | Visual overlay child respawned each cycle |
 | `IsMusicPlaying` | Query used by other actors waiting for same idle state |
 
 ### MusicRenderSync
 
 `MusicRenderSync` is a one-shot render-sync child spawned by `MusicPlaybackActor` after the music track reaches idle. It bridges the gap between music ending and visible dialogue display by forcing a full render frame after a fixed delay.
 
-The actor waits 72 frames (`WaitByte #48`), clears actor flag bit `$1000`, zeroes the joypad mask at `$065A`, saves and restores DBR from the text pointer bank byte at `$22`, then calls `UpdateFrame_Render` followed by `sub_03E255` (dialogue box opener in chunk `$03`). It then dies. This ensures the dialogue frame is laid out on screen before the parent actor resumes and waits for the APU handshake.
+The actor waits 72 frames (`WaitByte #48`), clears actor flag bit `$1000`, zeroes the joypad mask at `$065A`, saves and restores DBR from the text pointer bank byte at `$22`, then calls `UpdateFrame_Render` followed by `DialogStringRenderer` (dialogue box opener in chunk `$03`). It then dies. This ensures the dialogue frame is laid out on screen before the parent actor resumes and waits for the APU handshake.
 
 ## DisplaySceneTitle.asm
 
@@ -281,7 +281,7 @@ No VRAM writes occur — the camera DMA picks up WRAM changes on the next scroll
 | Symbol | Relationship |
 |--------|--------------|
 | `ApplyAllEventBlocks` | Bulk caller at scene load |
-| `chunk_03BAE1.func_03D0DB` | Scene-script conditional reload |
+| `chunk_03BAE1.CheckEnemyDefeatedFlag` | Scene-script conditional reload |
 | `map_coords.TileCoordsToMapIndex` | Resolves tile coords → map index |
 | `AnimateEventBlock` | Animated variant with VRAM queue |
 
@@ -344,7 +344,7 @@ On success, geometry is loaded into working registers: destination col/row (`$96
 |--------|--------------|
 | `ApplyAllEventBlocks` | Called per set flag bit |
 | `cop_handlers_palette.asm` | COP `$32`/`$34` `StageBgChange` |
-| `chunk_03BAE1.func_03D0DB` | Conditional scene-script reload |
+| `chunk_03BAE1.CheckEnemyDefeatedFlag` | Conditional scene-script reload |
 | `event_block_table` | 8-byte event block definition array (bank `$01`) |
 
 ### AnimateEventBlock
@@ -528,9 +528,9 @@ For each entry with bit `$80` clear and the corresponding event flag set (`TestE
 
 ### HandleChestInteraction
 
-`HandleChestInteraction` implements the full chest-open flow when the player presses the action button facing a chest tile. Multiple guard conditions must pass: `$06EE` bit `$0200` clear (chest interaction not blocked), player actor bit `$0004` set (action enabled), `$0656` bit `$0800` set (A button), and `func_03F0CA` returning `$01` (facing interactable).
+`HandleChestInteraction` implements the full chest-open flow when the player presses the action button facing a chest tile. Multiple guard conditions must pass: `$06EE` bit `$0200` clear (chest interaction not blocked), player actor bit `$0004` set (action enabled), `$0656` bit `$0800` set (A button), and `GetPlayerFacingDirection` returning `$01` (facing interactable).
 
-The handler computes the tile in front of the player and checks for chest tile pair `$F8`/`$F9`. It scans `table_01ADA8` for matching coordinates. On miss, shows the empty-chest string. On hit: sets `$09EC` bit `$0080`, draws closed lid via `DrawChestTiles`, checks inventory space via `func_03EF97`.
+The handler computes the tile in front of the player and checks for chest tile pair `$F8`/`$F9`. It scans `table_01ADA8` for matching coordinates. On miss, shows the empty-chest string. On hit: sets `$09EC` bit `$0080`, draws closed lid via `DrawChestTiles`, checks inventory space via `GiveItemToPlayer`.
 
 Outcomes branch three ways: empty item slot → name dialogue + set flag; key item → jingle via `$06F9` + name dialogue; normal item → spawn `ChestOpeningActor` for animated open. Event flag from entry byte 3 is always set on successful pickup.
 
@@ -604,7 +604,7 @@ After music reaches idle (`$06FA = $FFFF`), it spawns `ChestDialogueActor` with 
 | `HandleChestInteraction` | Spawner via `SpawnLastRel` |
 | `ChestDialogueActor` | Child for item name display |
 | `SetAnimStatePointer` | Player animation switch |
-| `player_transition_handlers.loc_00C432`/`loc_00C45A` | Wait/idle animations |
+| `player_transition_handlers.PlayerIdleAnimLoop`/`RestorePlayerControlDirect` | Wait/idle animations |
 
 ### DrawChestTiles
 
@@ -745,7 +745,7 @@ The warp entry pointer (adjusted by +4) is saved to `$0AF4`–`$0AF6` with bank 
 
 ### code_02AAF2
 
-**Extended/stair warp handler** reached when `CheckWarpRectangles` pass 2 finds a pixel-level hit on a 13-byte `stair_warp` entry. Guards against re-entry when `$09AE` bit `$0100` is already set, copies transition flags from the warp entry, calls `func_03E050` for transition prep, then dispatches `StartForcedWalk`. Returns **carry set** on success.
+**Extended/stair warp handler** reached when `CheckWarpRectangles` pass 2 finds a pixel-level hit on a 13-byte `stair_warp` entry. Guards against re-entry when `$09AE` bit `$0100` is already set, copies transition flags from the warp entry, calls `InitCameraBounds` for transition prep, then dispatches `StartForcedWalk`. Returns **carry set** on success.
 
 **Source:**
 
@@ -769,7 +769,7 @@ code_02AAF2 {
     STY $0652
     LDA $0006, X
     STA $scrollStepTableBase
-    JSL $@chunk_03BAE1.func_03E050
+    JSL $@chunk_03BAE1.InitCameraBounds
     JSR $&StartForcedWalk
     REP #$20
     SEC 
@@ -783,11 +783,11 @@ code_02AAF2 {
 |--------|--------------|
 | `CheckWarpRectangles` | Caller on extended warp hit |
 | `StartForcedWalk` | Spawns directional forced-walk actor |
-| `chunk_03BAE1.func_03E050` | Transition prep before walk |
+| `chunk_03BAE1.InitCameraBounds` | Transition prep before walk |
 
 ### StartForcedWalk
 
-`StartForcedWalk` dispatches a directional forced-walk COP actor when the player triggers an extended/stair warp. Called from `code_02AAF2` after transition prep via `func_03E050`.
+`StartForcedWalk` dispatches a directional forced-walk COP actor when the player triggers an extended/stair warp. Called from `code_02AAF2` after transition prep via `InitCameraBounds`.
 
 It sets `$09AE` bit `$0100` (warp-in-progress), sets player actor bit `$2000`, and reads direction from `$06E0`. The low nibble selects the base direction; flag bits `$0020`/`$0010`/`$0080` on the high byte select west/east/north respectively. Default direction is south. The matching `ForcedWalk` actor from `forced_walk.asm` is spawned via `SpawnBefore` with the player actor as direct page context.
 
@@ -815,7 +815,7 @@ It sets `$09AE` bit `$0100` (warp-in-progress), sets player actor bit `$2000`, a
 |--------|--------------|
 | `code_02AAF2` | Caller from extended warp path |
 | `forced_walk.ForcedWalk{North,South,East,West}` | Spawned walk actors |
-| `chunk_03BAE1.func_03E050` | Transition prep before forced walk |
+| `chunk_03BAE1.InitCameraBounds` | Transition prep before forced walk |
 
 ## Warp System — Rectangle Detection + Scene Transition
 
@@ -869,7 +869,7 @@ CheckWarpAndChest (main loop, every frame)
         └─► [extended warp hit]
               code_02AAF2
                 ├─ guard: $09AE bit $0100 clear
-                ├─ func_03E050 (transition prep)
+                ├─ InitCameraBounds (transition prep)
                 └─ StartForcedWalk → ForcedWalk{North,South,East,West}
                       └─ walk completes → ExecuteWarp path
 ```

@@ -36,11 +36,11 @@ Bank `$00` embeds dispatch jump tables, bitmasks, interpolation curves, and co-l
 | `bitmasks_bit_position` | `$00B11D` | `bitmasks_00B11D` | 8 bytes | `$01,$02,$04,$08,$10,$20,$40,$80` |
 | `body_table` | *(include)* | `body_table` | Variable | Player body sprite-set index (Will/Freedan/Shadow) |
 | `table_01B086` | *(include)* | `table_01B086` | Variable | Animation frame duration/speed lookup |
-| `binary_01C384` | *(include)* | `binary_01C384` | Variable | Sine/cosine lookup data for HUD init |
-| `binary_01C455` | *(include)* | `binary_01C455` | 256 bytes | Sine table for HDMA wave effects |
-| `binary_01D8BE` | *(include)* | `binary_01D8BE` | Variable | DMA channel configuration bytes |
+| `scene_flag_table` | *(include)* | `scene_flag_table` | Variable | Sine/cosine lookup data for HUD init |
+| `sine_table_8bit` | *(include)* | `sine_table_8bit` | 256 bytes | Sine table for HDMA wave effects |
+| `hdma_channel_config` | *(include)* | `hdma_channel_config` | Variable | DMA channel configuration bytes |
 | `FollowDirectionTable` | `$00EF72` | `code_list_00EF72` | 32 bytes | 16-direction smooth follow sprite handler jump table |
-| `SmoothFollowLookup` | `$00F193` | `binary_00F193` | 544 bytes | Interpolation table for smooth movement deceleration |
+| `SmoothFollowLookup` | `$00F193` | `SmoothFollowLookup` | 544 bytes | Interpolation table for smooth movement deceleration |
 | `binary_00D068` | `$00D068` | `binary_00D068` | 32 bytes | Camera drift direction offset data |
 | `enemy_clear_reward_table` | *(include)* | `enemy_clear_reward_table` | Variable | Per-scene enemy clear stat reward table (0=none, 1=HP, 2=STR, 3=DEF) |
 | `table_00C710` | `$00C710` | `table_00C710` | 8 bytes | Player script variant pointer table (4 entries) |
@@ -84,7 +84,7 @@ Index computation: `byte_offset = index >> 3`, `bitmask = bitmasks[index & 7]`.
 
 #### `FollowDirectionTable` (`$00EF72`) — 32 bytes
 
-16 × 2-byte same-bank pointers (`$&`) into direction sprite handlers at `code_00EF92`–`code_00F172`. Indexed by `$7F000E,X & $0F` after the smooth-follow engine resolves a 16-way direction (22.5° steps). Each handler sets OAM priority/mirror bits and computes walking sprite index + angular step.
+16 × 2-byte same-bank pointers (`$&`) into direction sprite handlers at `FollowDirHandler00`–`FollowDirHandler0F`. Indexed by `$7F000E,X & $0F` after the smooth-follow engine resolves a 16-way direction (22.5° steps). Each handler sets OAM priority/mirror bits and computes walking sprite index + angular step.
 
 #### `SmoothFollowLookup` (`$00F193`) — 544 bytes
 
@@ -122,9 +122,9 @@ Weighted probability threshold table for `DarkGemDropSystem` (`$00DF29`). Contai
 |---------|------|---------------|---------|
 | `body_table` | `$01` | `SetActorBody`, player sprite COPs | 6 bytes × N entries: sprite pointer triplets for Will/Freedan/Shadow bodies |
 | `table_01B086` | `$01` | `AnimFrameLookup`, forced walks, sprite staging | Animation frame duration/speed; indexed as `A << 1` |
-| `binary_01C384` | `$01` | `SystemInit` HUD pointer init | Sine/cosine pairs → copied to `$09BA`–`$09C4` at boot |
-| `binary_01C455` | `$01` | `BuildSineHdmaTable`, `BuildSineLookupTable`, orbital math | 256-byte sine wave for HDMA displacement and `$7E8900`/`$7E8B00` precompute |
-| `binary_01D8BE` | `$01` | HDMA queue COPs, DMA setup thinkers | Per-channel HDMA register template bytes |
+| `scene_flag_table` | `$01` | `SystemInit` HUD pointer init | Sine/cosine pairs → copied to `$09BA`–`$09C4` at boot |
+| `sine_table_8bit` | `$01` | `BuildSineHdmaTable`, `BuildSineLookupTable`, orbital math | 256-byte sine wave for HDMA displacement and `$7E8900`/`$7E8B00` precompute |
+| `hdma_channel_config` | `$01` | HDMA queue COPs, DMA setup thinkers | Per-channel HDMA register template bytes |
 | `enemy_clear_reward_table` | `$01` | `boss_clear_reward_handler`, `StandardEnemyDefeatHandler`, `field_reveal_object` | Per-scene enemy clear stat reward bytes (0=none, 1=HP, 2=STR, 3=DEF) |
 
 ### 1.7 Inventory & Statue Tables
@@ -155,14 +155,14 @@ All `?INCLUDE` directives observed in bank `$00` system and upper-half code:
 
 | Include | Purpose |
 |---------|---------|
-| `binary_01C384` | Sine/cosine lookup data (HUD pointer init in `SystemInit`) |
-| `binary_01D8BE` | DMA channel configuration bytes |
+| `scene_flag_table` | Sine/cosine lookup data (HUD pointer init in `SystemInit`) |
+| `hdma_channel_config` | DMA channel configuration bytes |
 | `body_table` | Player body sprite-set index table (Will/Freedan/Shadow) |
 | `MulDivide` | Bank `$02` system functions (rendering, DMA, APU, actors, math) |
 | `GlobalInputHandler` | Bank `$03` system functions (scenes, actors, text, metatiles) |
 | `ComposeDigits_Continuation` | Bank `$03` extended (music, facing, animation helpers) |
 | `ApplyOrbitalOffsetFromRef` | Orbital/spiral movement math (`ApplyOrbitalOffsetFromRef`) |
-| `func_0AA3A7` | Grid-snap walk helper (deferred resume target, bank `$0A`) |
+| `EnemyPositionSnap` | Grid-snap walk helper (deferred resume target, bank `$0A`) |
 | `system_strings` | System ASCII strings (BG3 HUD overlays) |
 | `table_01B086` | Animation frame duration/speed lookup table |
 
@@ -354,7 +354,7 @@ Global variables use direct-page addressing with `D=$0000` (or absolute `$xxxx` 
 | Address | Size | Name | Used By |
 |---------|------|------|---------|
 | `$09AF` | 2 | HUD helper | `UpdateHUD` |
-| `$09BA`–`$09C4` | 11 | HUD sine/pointer table | `SystemInit` from `binary_01C384` |
+| `$09BA`–`$09C4` | 11 | HUD sine/pointer table | `SystemInit` from `scene_flag_table` |
 | `$09C8`/`$09CA` | 4 | HUD related pointers | System init |
 | `$09E4`/`$09E6` | 4 | Enemy HP display values | HUD enemy health bar |
 | `$09EA` | 2 | Enemy HP pending flag | HUD enemy health bar trigger |
@@ -504,7 +504,7 @@ Bank `$00` code follows consistent stack conventions across interrupt handlers, 
 |------|-------------------------|---------|
 | `$02` | 17 | Rendering, DMA, actors, decompression, math |
 | `$03` | 27 | Scenes, actors, text, metatiles, inventory, collision, HDMA |
-| `$00` (other chunks) | 2 | Orbital math (`ApplyOrbitalOffsetFromRef`), grid-snap (`func_0AA3A7`) |
+| `$00` (other chunks) | 2 | Orbital math (`ApplyOrbitalOffsetFromRef`), grid-snap (`EnemyPositionSnap`) |
 | `$0A` | 1 | Grid-snap resume target |
 
 #### Key External Calls from System Core

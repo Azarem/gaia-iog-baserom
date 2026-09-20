@@ -141,7 +141,7 @@ None.
 
 #### Purpose
 
-Parent thinker for bundle `#03` that spawns a child thinker when flag `#01` is set. The parent holds the initial palette state; the child (`code_00B62A`) runs an independent infinite `PaletteStart #03` / `PaletteStep` loop. When flag `#01` clears, the parent kills the child and restarts its own cycle.
+Parent thinker for bundle `#03` that spawns a child thinker when flag `#01` is set. The parent holds the initial palette state; the child (`PaletteParentChildWaveLoop`) runs an independent infinite `PaletteStart #03` / `PaletteStep` loop. When flag `#01` clears, the parent kills the child and restarts its own cycle.
 
 #### Algorithm
 
@@ -149,10 +149,10 @@ Parent thinker for bundle `#03` that spawns a child thinker when flag `#01` is s
 parent (loc_00B600):
   PaletteStart #03
   SetEntryContinue
-  if flag #01 == 1 → spawn child @code_00B62A
+  if flag #01 == 1 → spawn child @PaletteParentChildWaveLoop
   RTL
 
-child (code_00B62A):
+child (PaletteParentChildWaveLoop):
   loop: PaletteStart #03 → PaletteStep → BRA loop
 
 on flag #01 clear:
@@ -364,7 +364,7 @@ Single-step white flash using palette bundle `#18`. Paired with `oneshot_palette
 
 | Location | Actor Script |
 |----------|-------------|
-| Comet Lair | `sE8_actor_0CEEAA.asm` |
+| Comet Lair | `sE8_dark_gaia.asm` |
 | Angkor blinding light | `awBC_blinding_light.asm` |
 | Angkor spirit guide | `awBF_spirit_guide.asm` |
 | Mu altar spirits | `mu66_rama_spirits.asm` |

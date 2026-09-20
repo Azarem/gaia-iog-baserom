@@ -158,7 +158,7 @@ Invoked via `COP [SpawnAfterFlags]` from scene scripts and destructible object a
 
 #### Description
 
-Computes sin/cos orbital offset from a reference actor's position. Reads the reference actor index from `$0000`, loads that actor's `$14`/`$16` as the orbit center, then applies `$7F0010,X` (angle) and `$7F1010,X` (diameter/radius) to compute new X/Y positions using the sin/cos lookup tables at `binary_01C455`/`binary_01C495` (bank `$01`) and signed multiply via `SignedMultiply` (bank `$02`).
+Computes sin/cos orbital offset from a reference actor's position. Reads the reference actor index from `$0000`, loads that actor's `$14`/`$16` as the orbit center, then applies `$7F0010,X` (angle) and `$7F1010,X` (diameter/radius) to compute new X/Y positions using the sin/cos lookup tables at `sine_table_8bit`/`signed_sine_table` (bank `$01`) and signed multiply via `SignedMultiply` (bank `$02`).
 
 **Previously misplaced in `extracted/unused/`** — moved to `functions` after discovery of 15+ active `$@ApplyOrbitalOffsetFromRef` references.
 
@@ -191,8 +191,8 @@ Used by:
 | `$7F0010,X` | Orbit angle byte |
 | `$7F1010,X` | Orbit diameter/radius |
 | `$14`, `$16` | Output position (also input center via ref actor) |
-| `binary_01C455` | Sin lookup table (bank `$01`) |
-| `binary_01C495` | Cos lookup table (bank `$01`) |
+| `sine_table_8bit` | Sin lookup table (bank `$01`) |
+| `signed_sine_table` | Cos lookup table (bank `$01`) |
 
 #### Cross-References
 
@@ -228,7 +228,7 @@ Used for elliptical orbits and Lissajous-style motion patterns where X and Y osc
 
 | Direction | Symbol | Notes |
 |-----------|--------|-------|
-| Sin/cos tables | `binary_01C455/495` | Bank `$01` |
+| Sin/cos tables | `sine_table_8bit/495` | Bank `$01` |
 | Math helper | `SignedMultiply` | Bank `$02` |
 | Callers | ~3 boss/actor scripts | JSL |
 
@@ -267,7 +267,7 @@ Dead entry stub between `ApplyOrbitalOffsetFromRef` (`$F3C9`) and `ApplyOrbitalO
 
 | Target | Bank | Used By |
 |--------|------|---------|
-| `binary_01C455/495` | `$01` | Sin/cos tables |
+| `sine_table_8bit/495` | `$01` | Sin/cos tables |
 | `SignedMultiply` | `$02` | Orbital offset functions |
 | RNG routine | `$00`/`$02` | Camera drift, debris burst |
 

@@ -214,7 +214,7 @@ suppresses Start re-entry.
   item − `$1E`); six word slots at `$0B28` (`$FFFF` = empty); placing into an
   occupied slot swaps the old plate back via `GiveItemToPlayer`.
 - **Aura** — shadow form (2) only, requires stationary player with no active
-  dialogue/cutscene; overrides the player function pointer to `code_00C557`.
+  dialogue/cutscene; overrides the player function pointer to `PlayerAuraTransformEntry`.
 - **Gorgon Flower** — three petal flags (`$BF`/`$C0`/`$C1`); item removed only
   when all three are set.
 
@@ -273,7 +273,7 @@ Items `$00`–`$28` point to individual handlers; `$29`–`$3F` all point to
 | `$1C` | `UseItem_BlackGlasses` | `$03997F` | display | story text only |
 | `$1D` | `UseItem_GorgonFlower` | `$0399CD` | scene-key | 3 petals (`$BF`/`$C0`/`$C1`); removed when all set |
 | `$1E`–`$23` | `UseItem_HieroglyphPlate` | `$039AA0` | puzzle | 6 shared entries; plate ID = item − `$1E` |
-| `$24` | `UseItem_Aura` | `$039CAF` | ability | Shadow form only; overrides player to `code_00C557` |
+| `$24` | `UseItem_Aura` | `$039CAF` | ability | Shadow form only; overrides player to `PlayerAuraTransformEntry` |
 | `$25` | `UseItem_BillLolaLetter` | `$039D09` | display | story text only |
 | `$26` | `UseItem_FatherJournal` | `$039E15` | display | story text (long) |
 | `$27` | `UseItem_CrystalRing` | `$039F30` | display | story text only |

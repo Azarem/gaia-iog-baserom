@@ -67,7 +67,7 @@ Implements two distinct subsystems: a **smooth actor follow/chase engine** (slid
 
 #### Description
 
-Copies follow state from the sibling actor referenced by `$0004,Y` (predecessor link): `$7F0014,X` ← sibling sprite index; `$7F000A,X` ← sibling movement param. Falls through to `ChasePlayerLoop` at `code_00E6CE`.
+Copies follow state from the sibling actor referenced by `$0004,Y` (predecessor link): `$7F0014,X` ← sibling sprite index; `$7F000A,X` ← sibling movement param. Falls through to `ChasePlayerLoop` at `FollowChaseMainLoop`.
 
 #### Algorithm
 
@@ -88,20 +88,20 @@ Copies follow state from the sibling actor referenced by `$0004,Y` (predecessor 
 
 Main entry point for the smooth follow/chase engine. Performs the same sibling copy as `CopySiblingFollowState`, but additionally sets `$7F000E,X = $FFFF` (reset direction state), then enters `ChasePlayerLoop`.
 
-#### ChasePlayerLoop (`code_00E6CE`)
+#### ChasePlayerLoop (`FollowChaseMainLoop`)
 
 The core tracking loop computes signed delta X/Y from the actor to the player (`$24` = player actor reference), determines the dominant axis via absolute magnitude comparison, and dispatches to one of 8 directional handler blocks:
 
 | Condition | Direction Block | Handler |
 |-----------|----------------|---------|
-| +X, +Y, Y > X | `code_00E7A5` | NE-biased (Y dominant) |
-| +X, +Y, X > Y | `code_00E789` | NE-biased (X dominant) |
-| +X, -Y, Y > X | `code_00E736` | SE-biased (Y dominant, neg) |
-| +X, -Y, X > Y | `loc_00E763` | SE-biased (X dominant, neg) |
-| -X, +Y, Y > X | `code_00E7CE` | NW-biased (Y dominant) |
-| -X, +Y, X > Y | `code_00E7FB` | NW-biased (X dominant) |
-| -X, -Y, Y > X | `code_00E850` | SW-biased (Y dominant, neg) |
-| -X, -Y, X > Y | `code_00E821` | SW-biased (X dominant, neg) |
+| +X, +Y, Y > X | `FollowChaseMoveEast` | NE-biased (Y dominant) |
+| +X, +Y, X > Y | `FollowChaseMoveWest` | NE-biased (X dominant) |
+| +X, -Y, Y > X | `FollowChaseDiagQuadrantSW` | SE-biased (Y dominant, neg) |
+| +X, -Y, X > Y | `FollowChaseDiagQuadrantNW` | SE-biased (X dominant, neg) |
+| -X, +Y, Y > X | `FollowChaseMoveNorth` | NW-biased (Y dominant) |
+| -X, +Y, X > Y | `FollowChaseMoveSouth` | NW-biased (X dominant) |
+| -X, -Y, Y > X | `FollowChaseMoveDiagSE` | SW-biased (Y dominant, neg) |
+| -X, -Y, X > Y | `FollowChaseMoveDiagNE` | SW-biased (X dominant, neg) |
 
 Each handler calls either `ComputeFollowAngle` or `ComputeFollowAngleAlt`, then `SelectFallbackDirection`. All handlers converge at `ApplyFollowMovement`.
 
@@ -285,7 +285,7 @@ Same as `ComputeFollowAngle` but axes swapped — primary is `$001C` (Y distance
 
 **Address:** `$00EE1C` · **Size:** 96 bytes
 
-Computes pixel movement step from follow angle. Uses `$7F0010,X` (angle) and `$7F0012,X` (sub-step) as table index into `SmoothFollowLookup` (`binary_00F193`). Accumulates fractional movement. Called by all 8 direction handlers.
+Computes pixel movement step from follow angle. Uses `$7F0010,X` (angle) and `$7F0012,X` (sub-step) as table index into `SmoothFollowLookup` (`SmoothFollowLookup`). Accumulates fractional movement. Called by all 8 direction handlers.
 
 ### ResolveFollowDirection
 
@@ -311,22 +311,22 @@ Each handler sets the actor's OAM flags (`$000E,Y`) for correct sprite priority/
 
 | Handler | Index | Address | OAM Priority Bits | Walk Direction | Step |
 |---------|-------|---------|-------------------|----------------|------|
-| `code_00EF92` | 0 (N) | `$EF92` | `AND $3FFF` (front) | `$0001` | `$10` |
-| `code_00EFB0` | 1 (NNE) | `$EFB0` | `AND $3FFF` | `$0001` | `$08` |
-| `code_00EFCE` | 2 (NE) | `$EFCE` | `AND $3FFF` | `$0002` | `$00` |
-| `code_00EFEC` | 3 (ENE) | `$EFEC` | `AND $3FFF` | `$0002` | `$08` |
-| `code_00F00A` | 4 (E) | `$F00A` | `AND $3FFF` | `$0003` | `$10` |
-| `code_00F028` | 5 (ESE) | `$F028` | `OR $8000` (H-flip) | `$0003` | `$08` |
-| `code_00F049` | 6 (SE) | `$F049` | `OR $8000` | `$0004` | `$00` |
-| `code_00F06A` | 7 (SSE) | `$F06A` | `OR $8000` | `$0004` | `$08` |
-| `code_00F08B` | 8 (S) | `$F08B` | `OR $8000` | `$0005` | `$10` |
-| `code_00F0AC` | 9 (SSW) | `$F0AC` | `OR $C000` (H+V flip) | `$0005` | `$08` |
-| `code_00F0CD` | 10 (SW) | `$F0CD` | `OR $C000` | `$0006` | `$00` |
-| `code_00F0EE` | 11 (WSW) | `$F0EE` | `OR $C000` | `$0006` | `$08` |
-| `code_00F10F` | 12 (W) | `$F10F` | `OR $4000` (V-flip) | `$0007` | `$10` |
-| `code_00F130` | 13 (WNW) | `$F130` | `OR $4000` | `$0007` | `$08` |
-| `code_00F151` | 14 (NW) | `$F151` | `OR $4000` | `$0008` | `$00` |
-| `code_00F172` | 15 (NNW) | `$F172` | `OR $4000` | `$0008` | `$08` |
+| `FollowDirHandler00` | 0 (N) | `$EF92` | `AND $3FFF` (front) | `$0001` | `$10` |
+| `FollowDirHandler01` | 1 (NNE) | `$EFB0` | `AND $3FFF` | `$0001` | `$08` |
+| `FollowDirHandler02` | 2 (NE) | `$EFCE` | `AND $3FFF` | `$0002` | `$00` |
+| `FollowDirHandler03` | 3 (ENE) | `$EFEC` | `AND $3FFF` | `$0002` | `$08` |
+| `FollowDirHandler04` | 4 (E) | `$F00A` | `AND $3FFF` | `$0003` | `$10` |
+| `FollowDirHandler05` | 5 (ESE) | `$F028` | `OR $8000` (H-flip) | `$0003` | `$08` |
+| `FollowDirHandler06` | 6 (SE) | `$F049` | `OR $8000` | `$0004` | `$00` |
+| `FollowDirHandler07` | 7 (SSE) | `$F06A` | `OR $8000` | `$0004` | `$08` |
+| `FollowDirHandler08` | 8 (S) | `$F08B` | `OR $8000` | `$0005` | `$10` |
+| `FollowDirHandler09` | 9 (SSW) | `$F0AC` | `OR $C000` (H+V flip) | `$0005` | `$08` |
+| `FollowDirHandler0A` | 10 (SW) | `$F0CD` | `OR $C000` | `$0006` | `$00` |
+| `FollowDirHandler0B` | 11 (WSW) | `$F0EE` | `OR $C000` | `$0006` | `$08` |
+| `FollowDirHandler0C` | 12 (W) | `$F10F` | `OR $4000` (V-flip) | `$0007` | `$10` |
+| `FollowDirHandler0D` | 13 (WNW) | `$F130` | `OR $4000` | `$0007` | `$08` |
+| `FollowDirHandler0E` | 14 (NW) | `$F151` | `OR $4000` | `$0008` | `$00` |
+| `FollowDirHandler0F` | 15 (NNW) | `$F172` | `OR $4000` | `$0008` | `$08` |
 
 ---
 

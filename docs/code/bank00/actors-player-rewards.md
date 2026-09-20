@@ -227,7 +227,7 @@ Player falls through hollow floor tiles:
 
 Scene `$FD` (statue inventory overlay): grants statue collectibles when the player selects an uncollected slot. Flow: event flag check → item display via `UpdateActorAnimation` → fanfare wait → sparkle FX spawn → restore prior scene.
 
-Contains shared data `unk19_00CE97` — a **6×3-byte slot table** mapping flag ID, display frame, and inventory index. Spawns 6 animated pickup children (`code_00CEAF`) during fanfare, then random sparkle particles (`code_00CEFF`).
+Contains shared data `unk19_00CE97` — a **6×3-byte slot table** mapping flag ID, display frame, and inventory index. Spawns 6 animated pickup children (`StatueRewardOrbitalSparkle`) during fanfare, then random sparkle particles (`StatueRewardConfettiBurst`).
 
 On completion, writes saved scene/position from `$0B08`–`$0B12` into warp vars `$0648`–`$0652` and sets fade mode `$0303`.
 
@@ -389,7 +389,7 @@ Pressure plate actor. On init: stores flag ID from `$0E` into `$24`, points `$7F
 
 Complex warp/fade logic for overworld-to-world-map transitions. Entry dispatches on `$scene_current` via a cascade of `CMP`/`JMP` to scene-specific handlers. Each handler checks player position thresholds, flag bytes, and tile regions before calling `StageWorldMapChoice` with world-map coordinates and destination index.
 
-Common pattern: zero `$0D60`, stage world map choice, then jump to `code_00CAC1` which sets `$064A ← #$0400` (fade mode) and continues.
+Common pattern: zero `$0D60`, stage world map choice, then jump to `OverworldExitFinalize` which sets `$064A ← #$0400` (fade mode) and continues.
 
 #### Handled Scenes (partial)
 
@@ -459,7 +459,7 @@ Runtime spawn only — called from:
 |--------|---------|
 | `pyCC_mystic_ball.asm` | Pyramid mystic ball reveal |
 | `awB1_wall_walker.asm` | Angkor wall walker drop |
-| `func_0AA43F.asm` | Generic field reveal helper |
+| `EnemyDefeatDispatch.asm` | Generic field reveal helper |
 
 #### Cross-References
 

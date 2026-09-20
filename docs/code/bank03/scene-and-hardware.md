@@ -202,7 +202,7 @@ decompress graphics into VRAM from actor WRAM parameters.
 `ResetHdmaState` initializes HDMA allocation state (`$66` enable mask, `$68`
 channel bit, `$6A` register offset). `SetupHdmaChannel_Indirect` /
 `SetupHdmaChannel_Direct` configure a channel from register lookup table
-`binary_01D8BE`; indirect mode adds the `$40` flag + bank byte for pointer-based
+`hdma_channel_config`; indirect mode adds the `$40` flag + bank byte for pointer-based
 tables. Both advance the allocation state.
 
 ### SPC audio transfer (`$03E0B0`–`$03E255`, cont.)
@@ -241,13 +241,13 @@ writes outside the normal V-Blank pipeline.
 - **In:** `scene_lifecycle` (`ClearSceneState`, transitions), NMI handler
   (`DmaPlayerTilesToVram`), actor systems (`LoadPaletteBundle`), HDMA-effect
   thinkers (`SetupHdmaChannel_*` — `IrisCircleEffect`, `HdmaWindowEffect`).
-- **Out:** `binary_01D8BE` (HDMA register lookup table), `palette_bundles`
+- **Out:** `hdma_channel_config` (HDMA register lookup table), `palette_bundles`
   (external data), `music_array_01CBA6` (music pointers), `spc_transfer` (SPC
   block data).
 
 ### HDMA register lookup table
 
-`binary_01D8BE` is a table of SNES HDMA destination register offsets. Each entry
+`hdma_channel_config` is a table of SNES HDMA destination register offsets. Each entry
 is a register number (e.g., `$0D` for BG1HOFS, `$0F` for BG2HOFS). The
 `SetupHdmaChannel_*` routines use `$6A` as an index into this table to select
 which PPU register each HDMA channel targets. `ResetHdmaState` resets `$66` (HDMA

@@ -143,7 +143,7 @@ Variable-length actor definition: 3-byte header + inline code body. This is the 
 
 **Layout:** `[Byte, Byte, Byte, Code]`
 
-**Spawn behavior:** `func_03CF1B` reads the header: byte +0 → `$7E0028` (sprite index), byte +1 OR'd with `$4000` → `$7E0010` (Flags10 with bit 14 set). Execution begins at +3. Data Crystal confirms byte +0 as "starting sprite ID" and bytes +1/+2 as "starting actor-page $10/$11."
+**Spawn behavior:** `InitActorFromSceneData` reads the header: byte +0 → `$7E0028` (sprite index), byte +1 OR'd with `$4000` → `$7E0010` (Flags10 with bit 14 set). Execution begins at +3. Data Crystal confirms byte +0 as "starting sprite ID" and bytes +1/+2 as "starting actor-page $10/$11."
 
 **Usage:** Every actor in the game — NPCs, enemies, bosses, interactive objects, system actors, camera controllers, menu handlers. This is the most-used struct type in the entire ROM.
 
@@ -624,7 +624,7 @@ Singly-linked list node for per-frame signed movement deltas. The core animation
 3. **Overworld route playback** — three parallel chains per route step drive camera X, Y, and player position
 4. **Hit knockback** — stagger controller selects X or Y chain for knockback direction
 
-**Files:** `table_01B086.asm` (85-entry pointer table + 1,173 nodes), `actor_pool.asm`, `forced_walk.asm`, `sFE_actor_03A2F1.asm`, `hit_stagger_controller.asm`
+**Files:** `table_01B086.asm` (85-entry pointer table + 1,173 nodes), `actor_pool.asm`, `forced_walk.asm`, `WorldMapController.asm`, `hit_stagger_controller.asm`
 
 **blocks.json:** `table_01B086` (110726–115588, typed `&delta-node`)
 
@@ -739,7 +739,7 @@ Ramp/slope Y-motion pattern descriptor. Points to a byte stream of signed Y delt
 - Pattern 0: 64 bytes — gradual slope (long ramp)
 - Pattern 1: 32 bytes — steep slope (short ramp)
 
-**Files:** `binary_01D8BE.asm` (2 entries), `ramps.asm` (consumer)
+**Files:** `hdma_channel_config.asm` (2 entries), `ramps.asm` (consumer)
 
 **blocks.json:** `array_01D90B` (121099–121201)
 
@@ -942,7 +942,7 @@ Mystic Statue inventory reward slot configuration.
 | Field | Type | Offset | Name       | Description                                      |
 | ----- | ---- | ------ | ---------- | ------------------------------------------------ |
 | 0     | Byte | +0     | flag       | WRAM flag index (tested/set to track collection) |
-| 1     | Byte | +1     | rewardItem | Reward item ID (passed to `func_03CA55`)         |
+| 1     | Byte | +1     | rewardItem | Reward item ID (passed to `UpdateActorAnimation`)         |
 | 2     | Byte | +2     | slotIndex  | Inventory slot index (compared against `$0AAC`)  |
 
 
@@ -1140,7 +1140,7 @@ Palette animation sequence header (6 bytes per entry). Data Crystal: "The indexe
 - `COP $39` (`PaletteStep`) — advance one timed write; halt until `delayFrames` expires
 - `COP $3A` (`PaletteStepLoop`) — step with outer iteration counter
 
-**Engine:** `func_03E0B0` (load header into actor scratch), `func_03E125` (apply write via WRAM trampoline → `$548B`)
+**Engine:** `LoadPaletteBundle` (load header into actor scratch), `DecompressGfxToVram` (apply write via WRAM trampoline → `$548B`)
 
 **Common field values:**
 

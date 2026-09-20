@@ -209,7 +209,7 @@ The main loop at **`loc_0080B5`** executes 22 ordered steps every frame: frame b
 | 10 | `JSL EnterForcedBlank` | Initialize actor linked lists and pool |
 | 11 | SRAM check | Read `$000100`; if magic byte = `$83`, valid save exists (affects starting scene path) |
 | 12 | `JSL ExecuteSceneTransition` | Load initial scene data |
-| 13 | HUD pointer init | Copy addresses from `binary_01C384` (sine/HUD table) into `$09BA`–`$09C4` |
+| 13 | HUD pointer init | Copy addresses from `scene_flag_table` (slope curve/HUD pointer region) into `$09BA`–`$09C4` |
 | 14 | Stat display init | Seed HP/STR/DEF counters at `$0ACA`–`$0ADE` (playerMaxHp=8, playerHp=8, playerStr=1, playerDef=0) |
 | 15 | Title screen | `STA $scene_next` with `$FB` — queue title scene |
 
@@ -251,7 +251,7 @@ The main loop at **`loc_0080B5`** executes 22 ordered steps every frame: frame b
 | `$scene_next` | 2 | Next scene ID | Write — set to `$FB` for title |
 | `$0654` | 2 | World-ready flag | Init — gates dialogue when ≠ `$000F` |
 | `$099F` | 2 | Scene/state helper | Init |
-| `$09BA`–`$09C4` | 11 | HUD sine/pointer table | Write — from `binary_01C384` |
+| `$09BA`–`$09C4` | 11 | HUD slope/pointer table | Write — from `scene_flag_table` |
 | `$09C8` / `$09CA` | 4 | HUD related pointers | Init |
 | `$0ACA` / `$0ACE` | 4 | Player max HP / current HP | Init / HUD |
 | `$0ADE` / `$0ADC` | 4 | Player STR / DEF stat values | Init / HUD |

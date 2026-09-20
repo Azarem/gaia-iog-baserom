@@ -49,12 +49,12 @@ The block spans 7 linked parts with internal `$&` references. Entry point `HitSt
 | Part | Address | Name (ASM) | Role |
 |------|---------|------------|------|
 | Entry | `$D877` | `HitStaggerMain` | Init: copy victim pos, read direction stack, start knockback |
-| Loop | `$D904` | `HitStaggerDirection` | 16-frame position sync loop; collision probe via `sub_00DA13` |
+| Loop | `$D904` | `HitStaggerDirection` | 16-frame position sync loop; collision probe via `HitStaggerCheckKnockbackDistance` |
 | Return | `$D9EB` | `HitStaggerReturnAI` | Restore player AI or `$FFF4` stun timer; clear joypad mask |
-| Probe | `$DA13` | `sub_00DA13` | Distance threshold check ($30/$20/$40 based on `$7F101C`) |
-| Flag | `$DA41` | `sub_00DA41` | Carry set/clear from compare result |
-| Dir | `$DA47` | `sub_00DA47` | Map direction index → `table_01B086` offset |
-| Apply | `$DA66` | `sub_00DA66` | Write `$2C`/`$2E` velocity; set axis flag `$26` |
+| Probe | `$DA13` | `HitStaggerCheckKnockbackDistance` | Distance threshold check ($30/$20/$40 based on `$7F101C`) |
+| Flag | `$DA41` | `HitStaggerKnockbackCallbackPass` | Carry set/clear from compare result |
+| Dir | `$DA47` | `HitStaggerApplyKnockbackDelta` | Map direction index → `table_01B086` offset |
+| Apply | `$DA66` | `HitStaggerStoreMovementDelta` | Write `$2C`/`$2E` velocity; set axis flag `$26` |
 
 #### Algorithm (HitStaggerMain)
 
@@ -65,7 +65,7 @@ The block spans 7 linked parts with internal `$&` references. Entry point `HitSt
      → AI restore path or player return path
 4. Copy victim $14/$16 to stagger actor; save $7F101C
 5. Pop direction from 3-deep stack (0=N, 1=S, 2=E, 3=W variants)
-6. JSR sub_00DA47 → load velocity from table_01B086
+6. JSR HitStaggerApplyKnockbackDelta → load velocity from table_01B086
 7. Enter HitStaggerDirection loop
 ```
 
@@ -74,7 +74,7 @@ The block spans 7 linked parts with internal `$&` references. Entry point `HitSt
 ```
 1. SetEntryExit; 16-frame LoopInit syncing victim position
 2. If $10 bit $0400 (enemy hit): restore AI via saved script ptr
-3. If $10 bit $0008 (player hit): probe distance via sub_00DA13
+3. If $10 bit $0008 (player hit): probe distance via HitStaggerCheckKnockbackDistance
 4. On axis alignment: zero victim $0008, set stun $0028 ← $FFF4
 5. On timeout: restore saved script ptr or StandardEnemyDefeatHandler
 6. Die
@@ -298,16 +298,16 @@ Force ball puzzle push handler. Requires player animation `$0028` in range `$003
 
 #### Description
 
-Spawns a child actor that homes toward a target using angle/step math from the `smooth_follow` include block. Parent script zeros `$002A`, spawns child at `@code_00E4FC` with flags `$2000`, copies `$24` (target actor index) to child, then loops `AnimOnce` until `$10` bit `$4000` (arrival flag) before dying.
+Spawns a child actor that homes toward a target using angle/step math from the `smooth_follow` include block. Parent script zeros `$002A`, spawns child at `@SmoothFollowChildTick` with flags `$2000`, copies `$24` (target actor index) to child, then loops `AnimOnce` until `$10` bit `$4000` (arrival flag) before dying.
 
-Child script (`code_00E4FC`) computes delta-X and delta-Y to target (target Y − 8 for sprite anchor), compares magnitudes to pick dominant axis, then dispatches to one of 8 movement paths that call `ComputeFollowAngle` / `ComputeFollowAngleAlt` and `ComputeFollowStep` from `smooth_follow.asm`.
+Child script (`SmoothFollowChildTick`) computes delta-X and delta-Y to target (target Y − 8 for sprite anchor), compares magnitudes to pick dominant axis, then dispatches to one of 8 movement paths that call `ComputeFollowAngle` / `ComputeFollowAngleAlt` and `ComputeFollowStep` from `smooth_follow.asm`.
 
 #### Algorithm
 
 ```
 Parent:
   1. STZ $002A
-  2. SpawnMarkedAfter @code_00E4FC (#$2000)
+  2. SpawnMarkedAfter @SmoothFollowChildTick (#$2000)
   3. Copy $24 → child $0024
   4. AnimOnce loop until $10 bit $4000
   5. Die
@@ -408,7 +408,7 @@ Sets `$06C8` with `$8000` OR — the high bit marks sub-pixel overflow pending i
 
 Multiply/divide helper for sub-pixel scroll values. Uses `$@MulDivide` from `hardware_math` (bank `$02`). For X: if `$14` bit `$8000` (negative sub-pixel), sign-extends and adds to `$06C8`; otherwise if high byte non-zero, multiplies by `$06BE` (target scroll). Y path at `$E9CA` mirrors for `$16`/`$06C4`/`$06C2`.
 
-`SetEntryContinue` + `PEA $&code_00E9CA-1` structure allows X and Y passes in one actor tick.
+`SetEntryContinue` + `PEA $&EffectUpdateCameraDeltaY-1` structure allows X and Y passes in one actor tick.
 
 #### Variables
 
