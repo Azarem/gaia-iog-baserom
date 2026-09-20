@@ -1,14 +1,3 @@
-; Exported JSL flag helper library and core flag routines for the eventFlags ($0A00) and wramFlags ($0A80) bitfields (Bank $00, 5 core routines + 14 JSL helpers + 1 data table).
-; 
-; Core routines: SetEventFlag/ClearEventFlag/TestEventFlag decompose a flag index into byte (÷8) and bit (AND $07) indices using the bitmasks_bit_position lookup table, then OR/AND/test the corresponding bit in the eventFlags array at $0A00. SetWramFlag/TestWramFlag perform the same operation on the wramFlags array at $0A80.
-; 
-; JSL offset wrappers add base offsets ($0100, $0200, $0300, $0510) before calling the core routines, providing scoped flag access for different game systems: $0100 for boss/dungeon defeat flags, $0200 for persistent world events (chests, Red Jewels), $0300 for scene-scoped state, $0510 for late-game progression. TestFlagRaw/SetFlagRaw/ClearFlagRaw access flags without offset.
-; 
-; ClearAllWramFlags zero-fills the entire $20-byte wramFlags region. bitmasks_bit_position is a shared 8-byte table mapping indices 0–7 to mask bytes $01–$80.
-; 
-; The COP handlers that call these routines (SetFlagByte/Word, ClearFlagByte/Word, BranchOnFlagByte/Word, WaitOnFlagByte/Word, GiveItem, RemoveItem, BranchIfMissingItem, BranchIfItemEquipped, SetDungeonKillFlag) are in cop_handlers_flow.
----------------------------------------------
-
 ?BANK 00
 
 !L_wramFlags                    000A80

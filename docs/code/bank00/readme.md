@@ -72,27 +72,44 @@ Every block in bank $00 maps to one extracted ASM file. Links go directly to the
 |-------|-------|-------------|----------|
 | `system_core` | `$8000`–`$846D` | `ResetVector` | [`system_core.asm`](../../../extracted/system/engine/system_core.asm) |
 | `cop_dispatch` | `$846D`–`$864E` | `CopDispatch` | [`cop_dispatch.asm`](../../../extracted/system/engine/cop_dispatch.asm) |
-| `cop_handlers_solid` | `$864E`–`$B481` | `GenHdmaSine` | [`cop_handlers_solid.asm`](../../../extracted/system/engine/cop_handlers_solid.asm) |
+| `cop_handlers_hdma_dma` | `$864E`–`$8714` | `GenHdmaSine` | [`cop_handlers_hdma_dma.asm`](../../../extracted/system/engine/cop_handlers_hdma_dma.asm) |
 | `cop_handlers_audio` | `$8714`–`$8876` | `StartMusic` | [`cop_handlers_audio.asm`](../../../extracted/system/engine/cop_handlers_audio.asm) |
+| `cop_handlers_collision` | `$8876`–`$8C19` | `MarkSolidHere` | [`cop_handlers_collision.asm`](../../../extracted/system/engine/cop_handlers_collision.asm) |
 | `cop_handlers_movement` | `$8C19`–`$B157` | `BranchIfActorNear` | [`cop_handlers_movement.asm`](../../../extracted/system/engine/cop_handlers_movement.asm) |
-| `cop_handlers_spatial` | `$904E`–`$9317` | `SetTilePos` | [`cop_handlers_spatial.asm`](../../../extracted/system/engine/cop_handlers_spatial.asm) |
-| `cop_handlers_palette` | `$9317`–`$9485` | `StageBgChange` | [`cop_handlers_palette.asm`](../../../extracted/system/engine/cop_handlers_palette.asm) |
-| `cop_handlers_input` | `$9485`–`$9B89` | `WaitForButton` | [`cop_handlers_input.asm`](../../../extracted/system/engine/cop_handlers_input.asm) |
-| `cop_handlers_map` | `$9685`–`$9E06` | `DrawMetatileAbs` | [`cop_handlers_map.asm`](../../../extracted/system/engine/cop_handlers_map.asm) |
+| `cop_handlers_player_query` | `$904E`–`$9317` | `SetTilePos` | [`cop_handlers_player_query.asm`](../../../extracted/system/engine/cop_handlers_player_query.asm) |
+| `cop_handlers_bg_rearrange` | `$9317`–`$9361` | `StageBgChange` | [`cop_handlers_bg_rearrange.asm`](../../../extracted/system/engine/cop_handlers_bg_rearrange.asm) |
+| `cop_handlers_palette` | `$9361`–`$9400` | `PaletteRestart` | [`cop_handlers_palette.asm`](../../../extracted/system/engine/cop_handlers_palette.asm) |
+| `cop_handlers_thinker` | `$9400`–`$9485` | `SpawnThinkerParam` | [`cop_handlers_thinker.asm`](../../../extracted/system/engine/cop_handlers_thinker.asm) |
+| `cop_handlers_input` | `$9485`–`$952F` | `WaitForButton` | [`cop_handlers_input.asm`](../../../extracted/system/engine/cop_handlers_input.asm) |
+| `cop_handlers_actor_query` | `$956B`–`$9685` | `BranchIfPlayerInRelTiles` | [`cop_handlers_actor_query.asm`](../../../extracted/system/engine/cop_handlers_actor_query.asm) |
+| `cop_handlers_metatile` | `$9685`–`$98B8` | `DrawMetatileAbs` | [`cop_handlers_metatile.asm`](../../../extracted/system/engine/cop_handlers_metatile.asm) |
+| `cop_handlers_vram` | `$98B8`–`$99DA` | `AdhocVramDma` | [`cop_handlers_vram.asm`](../../../extracted/system/engine/cop_handlers_vram.asm) |
 | `cop_handlers_sprite` | `$99DA`–`$A036` | `ResetSpriteState` | [`cop_handlers_sprite.asm`](../../../extracted/system/engine/cop_handlers_sprite.asm) |
+| `cop_handlers_callbacks` | `$9A67`–`$9AEA` | `SetDeathCallback` | [`cop_handlers_callbacks.asm`](../../../extracted/system/engine/cop_handlers_callbacks.asm) |
+| `cop_handlers_actor_flags` | `$9AEA`–`$9B89` | `BranchIfBehindWall` | [`cop_handlers_actor_flags.asm`](../../../extracted/system/engine/cop_handlers_actor_flags.asm) |
 | `cop_handlers_effects` | `$9B89`–`$AF40` | `InitSineHdma` | [`cop_handlers_effects.asm`](../../../extracted/system/engine/cop_handlers_effects.asm) |
-| `cop_handlers_lifecycle` | `$956B`–`$A867` | `BranchIfPlayerInRelTiles` | [`cop_handlers_lifecycle.asm`](../../../extracted/system/engine/cop_handlers_lifecycle.asm) |
+| `cop_handlers_world_map` | `$9D52`–`$9DBD` | `StageWorldMapMove` | [`cop_handlers_world_map.asm`](../../../extracted/system/engine/cop_handlers_world_map.asm) |
+| `cop_handlers_offscreen` | `$9DBD`–`$9E23` | `BranchIfOffCamera` | [`cop_handlers_offscreen.asm`](../../../extracted/system/engine/cop_handlers_offscreen.asm) |
+| `cop_handlers_linked_actor` | `$9E06`–`$9E23` | `SetLinkedEntryPtr` | [`cop_handlers_linked_actor.asm`](../../../extracted/system/engine/cop_handlers_linked_actor.asm) |
 | `cop_handlers_player_sprite` | `$A036`–`$A24B` | `SetPlayerSpriteDirect` | [`cop_handlers_player_sprite.asm`](../../../extracted/system/engine/cop_handlers_player_sprite.asm) |
 | `cop_handlers_spawn` | `$A24B`–`$A5DE` | `SpawnBefore` | [`cop_handlers_spawn.asm`](../../../extracted/system/engine/cop_handlers_spawn.asm) |
-| `cop_handlers_flow` | `$A9EB`–`$ACDF` | `SetInteractHandler` | [`cop_handlers_flow.asm`](../../../extracted/system/engine/cop_handlers_flow.asm) |
+| `cop_handlers_actor_death` | `$A5DE`–`$A6C1` | `MarkDeath` | [`cop_handlers_actor_death.asm`](../../../extracted/system/engine/cop_handlers_actor_death.asm) |
+| `cop_handlers_force_move` | `$A6C1`–`$A7B3` | `StageMoveX` | [`cop_handlers_force_move.asm`](../../../extracted/system/engine/cop_handlers_force_move.asm) |
+| `cop_handlers_oam_attribs` | `$A7B3`–`$A867` | `SetPriorityMax` | [`cop_handlers_oam_attribs.asm`](../../../extracted/system/engine/cop_handlers_oam_attribs.asm) |
+| `cop_handlers_dialog` | `$A867`–`$A992` | `RunBg3Script` | [`cop_handlers_dialog.asm`](../../../extracted/system/engine/cop_handlers_dialog.asm) |
+| `cop_handlers_script_control` | `$A9EB`–`$AB41` | `SetInteractHandler` | [`cop_handlers_script_control.asm`](../../../extracted/system/engine/cop_handlers_script_control.asm) |
+| `cop_handlers_scene_flags` | `$AB41`–`$AC05` | `SetFlagByte` | [`cop_handlers_scene_flags.asm`](../../../extracted/system/engine/cop_handlers_scene_flags.asm) |
+| `cop_handlers_inventory` | `$AC05`–`$AC82` | `GiveItem` | [`cop_handlers_inventory.asm`](../../../extracted/system/engine/cop_handlers_inventory.asm) |
+| `cop_handlers_dungeon_switch` | `$AC82`–`$ACC1` | `SetDungeonKillFlag` | [`cop_handlers_dungeon_switch.asm`](../../../extracted/system/engine/cop_handlers_dungeon_switch.asm) |
+| `cop_handlers_wait` | `$ACC1`–`$ACDF` | `WaitByte` | [`cop_handlers_wait.asm`](../../../extracted/system/engine/cop_handlers_wait.asm) |
 | `actor_pool` | `$AF40`–`$B520` | `UnlinkActor` | [`actor_pool.asm`](../../../extracted/system/engine/actor_pool.asm) |
-| `cop_handlers_flags` | `$B05E`–`$B501` | `TestWramFlag_Offset100` | [`cop_handlers_flags.asm`](../../../extracted/system/engine/cop_handlers_flags.asm) |
+| `flag_helpers` | `$B05E`–`$B501` | `TestWramFlag_Offset100` | [`flag_helpers.asm`](../../../extracted/system/engine/flag_helpers.asm) |
 | `stair_climb` | `$D088`–`$D5C0` | `LockPlayerForClimb` | [`stair_climb.asm`](../../../extracted/system/engine/stair_climb.asm) |
 | `smooth_follow` | `$E683`–`$F3B3` | `CopySiblingFollowState` | [`smooth_follow.asm`](../../../extracted/system/engine/smooth_follow.asm) |
 | `camera_scroll` | `$E94D`–`$ED28` | `ScrollCameraInit` | [`camera_scroll.asm`](../../../extracted/system/engine/camera_scroll.asm) |
 | `forced_walk` | `$EB9B`–`$EDA8` | `ForcedWalkSouth` | [`forced_walk.asm`](../../../extracted/system/engine/forced_walk.asm) |
 
-> **Note:** The fifteen COP handler blocks share overlapping address ranges — they are logical groupings of interleaved opcodes, not contiguous regions. Likewise `smooth_follow`/`camera_scroll`/`forced_walk` overlap in the `$E683`–`$EDA8` region.
+> **Note:** The thirty COP handler blocks share overlapping address ranges — they are logical groupings of interleaved opcodes, not contiguous regions. Likewise `smooth_follow`/`camera_scroll`/`forced_walk` overlap in the `$E683`–`$EDA8` region.
 
 ### System Services (`extracted/system/`)
 

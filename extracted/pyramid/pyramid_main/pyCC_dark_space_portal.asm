@@ -4,8 +4,8 @@
 ; Standard Dark Space spawn with flag checks for visibility.
 ---------------------------------------------
 
-?INCLUDE 'cop_handlers_flags'
 ?INCLUDE 'dark_space'
+?INCLUDE 'flag_helpers'
 
 ---------------------------------------------
 
@@ -14,11 +14,11 @@ pyCC_dark_space_portal [
 
   code_08B66B:
     LDA $0E
-    JSL $@cop_handlers_flags.TestFlag_0100
+    JSL $@flag_helpers.TestFlag_0100
     BCS loc_08B67E
     COP [SetEntryHere]
     LDA $0E
-    JSL $@cop_handlers_flags.TestFlag_0100
+    JSL $@flag_helpers.TestFlag_0100
     BCS loc_08B67E
     RTL 
 

@@ -446,7 +446,7 @@ DMA transfer mode lookup table for HDMA channel configuration. Each byte specifi
 - `$02` = 2-byte write to same register twice
 - `$80`/`$81`/`$82` = same modes with indirect flag set
 
-**Usage:** `hdma_dma_spc.asm` — `SetupHdmaChannel_Indirect/Direct` uses this to configure DMAP for HDMA channels. Also referenced by `parallax_thinker.asm` and `cop_handlers_solid.asm`.
+**Usage:** `hdma_dma_spc.asm` — `SetupHdmaChannel_Indirect/Direct` uses this to configure DMAP for HDMA channels. Also referenced by `parallax_thinker.asm` and `cop_handlers_collision.asm`.
 
 #### 14b. parallax_speed_table
 **Part:** `parallax_speed_config`  

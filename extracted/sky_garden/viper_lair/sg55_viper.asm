@@ -8,7 +8,7 @@
 ; cry is the vulnerability window (hinted by Moon Tribe spirit).
 ---------------------------------------------
 
-?INCLUDE 'cop_handlers_flags'
+?INCLUDE 'flag_helpers'
 ?INCLUDE 'hardware_math'
 ?INCLUDE 'sE6_gaia'
 ?INCLUDE 'SetPlayerGameOverFlag'
@@ -115,7 +115,7 @@ sg55_viper [
 
   code_0AD172:
     LDA #$0001
-    JSL $@cop_handlers_flags.TestWramFlag_Offset100
+    JSL $@flag_helpers.TestWramFlag_Offset100
     BCC loc_0AD183
     STZ $0AEC
     STZ $0AEE

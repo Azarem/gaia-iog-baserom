@@ -1,6 +1,6 @@
 # COP family: Proximity / area
 
-_Deep-audited ops: `[1F]`, `[20]`, `[21]`, `[44]`, `[45]`_ · _Source: [`cop_handlers_movement.asm`](../../../extracted/system/engine/cop_handlers_movement.asm), [`cop_handlers_lifecycle.asm`](../../../extracted/system/engine/cop_handlers_lifecycle.asm)_
+_Deep-audited ops: `[1F]`, `[20]`, `[21]`, `[44]`, `[45]`_ · _Source: [`cop_handlers_collision.asm`](../../../extracted/system/engine/cop_handlers_collision.asm), [`cop_handlers_movement.asm`](../../../extracted/system/engine/cop_handlers_movement.asm), [`cop_handlers_actor_query.asm`](../../../extracted/system/engine/cop_handlers_actor_query.asm)_
 
 [← COP index](../index.md)
 
@@ -38,7 +38,7 @@ Conditional branches based on grid alignment, Chebyshev-style tile distance to a
 
 #### COP [1F] — `BranchIfNotOnGridline`
 
-- **Handler:** `BranchIfNotOnGridline` @ [`cop_handlers_solid.asm`](../../../extracted/system/engine/cop_handlers_solid.asm)
+- **Handler:** `BranchIfNotOnGridline` @ [`cop_handlers_collision.asm`](../../../extracted/system/engine/cop_handlers_collision.asm)
 - **Parameters:** `&Code` branch target
 
 ##### What it does
@@ -136,7 +136,7 @@ COP [BranchIfPlayerNear] ( #05, &code_0BB82E )
 
 #### COP [44] — `BranchIfPlayerInRelTiles`
 
-- **Handler:** `BranchIfPlayerInRelTiles` @ [`cop_handlers_lifecycle.asm`](../../../extracted/system/engine/cop_handlers_lifecycle.asm)
+- **Handler:** `BranchIfPlayerInRelTiles` @ [`cop_handlers_actor_query.asm`](../../../extracted/system/engine/cop_handlers_actor_query.asm)
 - **Parameters:** Four signed `Byte` tile offsets (minX, minY, maxX, maxY style rectangle), `&Code`
 
 ##### What it does
@@ -158,7 +158,7 @@ Interaction zones anchored to NPCs (`dark_space.asm`, `ec_proximity_door_toggle.
 
 #### COP [45] — `BranchIfPlayerInAbsTiles`
 
-- **Handler:** `BranchIfPlayerInAbsTiles` @ [`cop_handlers_lifecycle.asm`](../../../extracted/system/engine/cop_handlers_lifecycle.asm)
+- **Handler:** `BranchIfPlayerInAbsTiles` @ [`cop_handlers_actor_query.asm`](../../../extracted/system/engine/cop_handlers_actor_query.asm)
 - **Parameters:** Four `Byte` tile coordinates (min X, min Y, max X, max Y), `&Code`
 
 ##### What it does

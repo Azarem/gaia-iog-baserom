@@ -10,10 +10,10 @@
 ---------------------------------------------
 
 ?INCLUDE 'ApplyOrbitalOffsetXY'
-?INCLUDE 'cop_handlers_flags'
 ?INCLUDE 'enemy_stats_table'
 ?INCLUDE 'EnemyDeathFlash'
 ?INCLUDE 'EnemyDefeatDispatch'
+?INCLUDE 'flag_helpers'
 ?INCLUDE 'hardware_math'
 ?INCLUDE 'math_lookup_tables'
 ?INCLUDE 'player_transition_handlers'
@@ -180,7 +180,7 @@ gw8A_sand_fanger [
   code_0B815F:
     COP [SpawnListAppend] ( @code_0B813A, #00, #00, #$2000 )
     LDA #$0003
-    JSL $@cop_handlers_flags.TestWramFlag_Offset100
+    JSL $@flag_helpers.TestWramFlag_Offset100
     BCC loc_0B8179
     STZ $0AEC
     STZ $0AEE

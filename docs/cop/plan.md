@@ -23,7 +23,7 @@ The 14 existing handler files under `extracted/system/engine/`:
 | `cop_handlers_player_sprite.asm` | 11 | $8E–$98 |
 | `cop_handlers_spawn.asm` | 14 | $99–$A6 |
 | `cop_handlers_flow.asm` | 30 | $C0–$CB, $CC–$D3, $D4–$D7, $D8–$DB, $E0–$E2 |
-| `cop_handlers_flags.asm` | — | (flag library, not COP handlers) |
+| `flag_helpers.asm` | — | (flag library, not COP handlers) |
 
 ## Documentation family split (38 doc files)
 

@@ -1,114 +1,60 @@
 {
     "system": {
         "cop_dispatch": { "start": 33901, "end": 34382, "type": "Code", "scene": "engine" },
-        "cop_handlers_audio": {
-            "scene": "engine",
-            "parts": {
-                "StartMusic": { "start": 34580, "end": 34934, "type": "Code" }
-            }
-        },
-        "cop_handlers_palette": {
-            "scene": "engine",
-            "parts": {
-                "StageBgChange": { "start": 37655, "end": 38021, "type": "Code" }
-            }
-        },
-        "cop_handlers_sprite": {
-            "scene": "engine",
-            "parts": {
-                "ResetSpriteState": { "start": 39386, "end": 39527, "type": "Code" },
-                "StageSpr": { "start": 40483, "end": 41014, "type": "Code" }
-            }
-        },
-        "cop_handlers_player_sprite": {
-            "scene": "engine",
-            "parts": {
-                "SetPlayerSpriteDirect": { "start": 41014, "end": 41547, "type": "Code" }
-            }
-        },
-        "cop_handlers_spawn": {
-            "scene": "engine",
-            "parts": {
-                "SpawnBefore": { "start": 41547, "end": 42462, "type": "Code" }
-            }
-        },
-        "cop_handlers_lifecycle": {
-            "scene": "engine",
-            "parts": {
-                "BranchIfPlayerInRelTiles": { "start": 38251, "end": 38533, "type": "Code" },
-                "SetDeathCallback": { "start": 39527, "end": 39658, "type": "Code" },
-                "SetLinkedEntryPtr": { "start": 40454, "end": 40483, "type": "Code" },
-                "MarkDeath": { "start": 42462, "end": 43111, "type": "Code" }
-            }
-        },
-        "actor_pool": {
-            "scene": "engine",
-            "parts": {
-                "UnlinkActor": { "start": 44864, "end": 44943, "type": "Code" },
-                "AnimFrameLookup": { "start": 45399, "end": 45727, "type": "Code" },
-                "ActorPoolAllocator": { "start": 46337, "end": 46368, "type": "Code" }
-            }
-        },
-        "cop_handlers_solid": {
-            "scene": "engine",
-            "parts": {
-                "GenHdmaSine": { "start": 34382, "end": 34580, "type": "Code" },
-                "MarkSolidHere": { "start": 34934, "end": 35865, "type": "Code" },
-                "SetCollisionAbs": { "start": 38191, "end": 38251, "type": "Code" },
-                "ParseSignedTileOffset": { "start": 44943, "end": 45150, "type": "Code" },
-                "MarkCollisionRect": { "start": 45727, "end": 46209, "type": "Code" }
-            }
-        },
-        "cop_handlers_movement": {
-            "scene": "engine",
-            "parts": {
-                "BranchIfActorNear": { "start": 35865, "end": 36942, "type": "Code" },
-                "ResolveActorIndex": { "start": 45349, "end": 45399, "type": "Code" }
-            }
-        },
-        "cop_handlers_spatial": {
-            "scene": "engine",
-            "parts": {
-                "SetTilePos": { "start": 36942, "end": 37655, "type": "Code" }
-            }
-        },
-        "cop_handlers_map": {
-            "scene": "engine",
-            "parts": {
-                "DrawMetatileAbs": { "start": 38533, "end": 39386, "type": "Code" },
-                "BranchIfBehindWall": { "start": 39658, "end": 39817, "type": "Code" },
-                "BranchIfOffCamera": { "start": 40381, "end": 40454, "type": "Code" }
-            }
-        },
-        "cop_handlers_effects": {
-            "scene": "engine",
-            "parts": {
-                "InitSineHdma": { "start": 39817, "end": 40274, "type": "Code" },
-                "InitSpiral": { "start": 43410, "end": 43499, "type": "Code" },
-                "CameraPanDown": { "start": 44255, "end": 44864, "type": "Code" }
-            }
-        },
-        "cop_handlers_input": {
-            "scene": "engine",
-            "parts": {
-                "WaitForButton": { "start": 38021, "end": 38191, "type": "Code" },
-                "StageWorldMapMove": { "start": 40274, "end": 40381, "type": "Code" },
-                "RunBg3Script": { "start": 43111, "end": 43410, "type": "Code" }
-            }
-        },
-        "cop_handlers_flow": {
-            "scene": "engine",
-            "parts": {
-                "SetInteractHandler": { "start": 43499, "end": 44255, "type": "Code" }
-            }
-        },
-        "cop_handlers_flags": {
-            "scene": "engine",
-            "parts": {
-                "TestWramFlag_Offset100": { "start": 45150, "end": 45349, "type": "Code" },
-                "SetEventFlag_0200": { "start": 46209, "end": 46337, "type": "Code" }
-            }
-        },
+        "cop_handlers_audio": { "start": 34580, "end": 34934, "type": "Code", "scene": "engine" },
+        "cop_handlers_bg_rearrange": { "start": 37655, "end": 37729, "type": "Code", "scene": "engine" },
+        "cop_handlers_palette": { "start": 37729, "end": 37888, "type": "Code", "scene": "engine" },
+        "cop_handlers_thinker": { "start": 37888, "end": 38021, "type": "Code", "scene": "engine" },
+        "cop_handlers_sprite": { "scene": "engine", "parts": {
+            "ResetSpriteState": { "start": 39386, "end": 39527, "type": "Code" },
+            "StageSpr": { "start": 40483, "end": 41014, "type": "Code" }
+        } },
+        "cop_handlers_player_sprite": { "start": 41014, "end": 41547, "type": "Code", "scene": "engine" },
+        "cop_handlers_spawn": { "start": 41547, "end": 42462, "type": "Code", "scene": "engine" },
+        "cop_handlers_actor_query": { "start": 38251, "end": 38533, "type": "Code", "scene": "engine" },
+        "cop_handlers_callbacks": { "start": 39527, "end": 39658, "type": "Code", "scene": "engine" },
+        "cop_handlers_linked_actor": { "start": 40454, "end": 40483, "type": "Code", "scene": "engine" },
+        "cop_handlers_actor_death": { "start": 42462, "end": 42689, "type": "Code", "scene": "engine" },
+        "cop_handlers_force_move": { "start": 42689, "end": 42931, "type": "Code", "scene": "engine" },
+        "cop_handlers_oam_attribs": { "start": 42931, "end": 43111, "type": "Code", "scene": "engine" },
+        "actor_pool": { "scene": "engine", "parts": {
+            "UnlinkActor": { "start": 44864, "end": 44943, "type": "Code" },
+            "AnimFrameLookup": { "start": 45399, "end": 45727, "type": "Code" },
+            "ActorPoolAllocator": { "start": 46337, "end": 46368, "type": "Code" }
+        } },
+        "cop_handlers_hdma_dma": { "start": 34382, "end": 34580, "type": "Code", "scene": "engine" },
+        "cop_handlers_collision": { "scene": "engine", "parts": {
+            "MarkSolidHere": { "start": 34934, "end": 35865, "type": "Code" },
+            "SetCollisionAbs": { "start": 38191, "end": 38251, "type": "Code" },
+            "ParseSignedTileOffset": { "start": 44943, "end": 45150, "type": "Code" },
+            "MarkCollisionRect": { "start": 45727, "end": 46209, "type": "Code" }
+        } },
+        "cop_handlers_movement": { "scene": "engine", "parts": {
+            "BranchIfActorNear": { "start": 35865, "end": 36942, "type": "Code" },
+            "ResolveActorIndex": { "start": 45349, "end": 45399, "type": "Code" }
+        } },
+        "cop_handlers_player_query": { "start": 36942, "end": 37655, "type": "Code", "scene": "engine" },
+        "cop_handlers_metatile": { "start": 38533, "end": 39096, "type": "Code", "scene": "engine" },
+        "cop_handlers_vram": { "start": 39096, "end": 39386, "type": "Code", "scene": "engine" },
+        "cop_handlers_actor_flags": { "start": 39658, "end": 39817, "type": "Code", "scene": "engine" },
+        "cop_handlers_offscreen": { "start": 40381, "end": 40454, "type": "Code", "scene": "engine" },
+        "cop_handlers_effects": { "scene": "engine", "parts": {
+            "InitSineHdma": { "start": 39817, "end": 40274, "type": "Code" },
+            "InitSpiral": { "start": 43410, "end": 43499, "type": "Code" },
+            "CameraPanDown": { "start": 44255, "end": 44864, "type": "Code" }
+        } },
+        "cop_handlers_input": { "start": 38021, "end": 38191, "type": "Code", "scene": "engine" },
+        "cop_handlers_world_map": { "start": 40274, "end": 40381, "type": "Code", "scene": "engine" },
+        "cop_handlers_dialog": { "start": 43111, "end": 43410, "type": "Code", "scene": "engine" },
+        "cop_handlers_script_control": { "start": 43499, "end": 43841, "type": "Code", "scene": "engine" },
+        "cop_handlers_scene_flags": { "start": 43841, "end": 44037, "type": "Code", "scene": "engine" },
+        "cop_handlers_inventory": { "start": 44037, "end": 44162, "type": "Code", "scene": "engine" },
+        "cop_handlers_dungeon_switch": { "start": 44162, "end": 44225, "type": "Code", "scene": "engine" },
+        "cop_handlers_wait": { "start": 44225, "end": 44255, "type": "Code", "scene": "engine" },
+        "flag_helpers": { "scene": "engine", "parts": {
+            "TestWramFlag_Offset100": { "start": 45150, "end": 45349, "type": "Code" },
+            "SetEventFlag_0200": { "start": 46209, "end": 46337, "type": "Code" }
+        } },
         "system_core": { "start": 32768, "end": 33901, "type": "Code", "scene": "engine" },
         "stair_climb": { "scene": "engine", "parts": {
             "StairTriggerSouth": { "start": 53457, "end": 53968, "type": "actor-def" },

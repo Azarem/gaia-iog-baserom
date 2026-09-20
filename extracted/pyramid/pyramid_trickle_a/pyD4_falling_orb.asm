@@ -5,7 +5,7 @@
 ; Uses position timing with spawn intervals.
 ---------------------------------------------
 
-?INCLUDE 'cop_handlers_flags'
+?INCLUDE 'flag_helpers'
 ?INCLUDE 'spriteset_enemies'
 
 !playerActor                    09AA
@@ -27,7 +27,7 @@ pyD4_falling_orb [
     COP [StageSprAndHitbox] ( #1B )
     COP [NudgePosition] ( #08, #00 )
     LDA $24
-    JSL $@cop_handlers_flags.TestFlagRaw
+    JSL $@flag_helpers.TestFlagRaw
     BCC loc_08C711
     JMP $&code_08C76E
 
@@ -62,7 +62,7 @@ pyD4_falling_orb [
 
 code_08C73D {
     LDA $24
-    JSL $@cop_handlers_flags.SetFlagRaw
+    JSL $@flag_helpers.SetFlagRaw
     COP [WaitByte] ( #B3 )
     COP [RngByte]
     STA $08

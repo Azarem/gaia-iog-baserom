@@ -7,11 +7,11 @@
 ; Branches on enemy stats (enemy_stats_table), extended flag $0080 (boss/miniboss), and scene flag $0300 to route gem drops via EnemyGemDropRouter (DarkGemDropSystem) or stat bonuses via EnemyStatBonusReward. Handles field-tile reveal (SpawnFieldRevealEffect when deathActionIdx is set), ClearLowHere for actors with flag $0008, and final Die COP.
 ---------------------------------------------
 
-?INCLUDE 'cop_handlers_flags'
 ?INCLUDE 'DarkGemDropSystem'
 ?INCLUDE 'enemy_clear_reward_table'
 ?INCLUDE 'enemy_stats_table'
 ?INCLUDE 'EnemyDeathFlash'
+?INCLUDE 'flag_helpers'
 ?INCLUDE 'reward_actors'
 ?INCLUDE 'SpawnFieldRevealEffect'
 
@@ -75,7 +75,7 @@ EnemyDefeatFlashAndDrop {
     BNE EnemyDefeatBossCleanup
     COP [SetDungeonKillFlag]
     LDA $sceneCurrent
-    JSL $@cop_handlers_flags.TestFlag_0300
+    JSL $@flag_helpers.TestFlag_0300
     BCS loc_00DC03
     LDA $orbitAngle, X
     BEQ code_00DC13
@@ -99,10 +99,10 @@ EnemyDefeatFlashAndDrop {
   loc_00DC23:
     LDA $deathActionIdx, X
     BEQ loc_00DC54
-    JSL $@cop_handlers_flags.TestFlag_0100
+    JSL $@flag_helpers.TestFlag_0100
     BCS loc_00DC54
     LDA $deathActionIdx, X
-    JSL $@cop_handlers_flags.SetFlag_0100
+    JSL $@flag_helpers.SetFlag_0100
     COP [SpawnListAppend] ( @SpawnFieldRevealEffect, #00, #00, #$0342 )
     LDA $0012, Y
     ORA #$1000
@@ -168,7 +168,7 @@ EnemyStatBonusReward {
     AND #$00FF
     PHA 
     LDA $sceneCurrent
-    JSL $@cop_handlers_flags.TestFlag_0300
+    JSL $@flag_helpers.TestFlag_0300
     BCS loc_00DDB3
     COP [SetSpritePalette] ( #00 )
     LDA $01, S

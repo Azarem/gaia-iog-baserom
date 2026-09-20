@@ -1,6 +1,6 @@
 # COP family: OAM attributes
 
-_Ops: `[B2]`, `[B3]`, `[B4]`, `[B5]`, `[B6]`, `[B7]`, `[B8]`, `[B9]`, `[BA]`, `[BB]`_ · _Source: [`cop_handlers_lifecycle.asm`](../../../extracted/system/engine/cop_handlers_lifecycle.asm)_
+_Ops: `[B2]`, `[B3]`, `[B4]`, `[B5]`, `[B6]`, `[B7]`, `[B8]`, `[B9]`, `[BA]`, `[BB]`_ · _Source: [`cop_handlers_oam_attribs.asm`](../../../extracted/system/engine/cop_handlers_oam_attribs.asm)_
 
 [← COP index](../index.md) · [Sprite staging](sprite_staging.md)
 
@@ -53,7 +53,7 @@ Handler comments use `SetOamPriority` / `SetOamPalette`; extracted scripts use *
 
 - **Preferred name:** `SetPriorityMax`
 - **Aliases:** `CollPrioritySetMax`
-- **Handler:** `SetPriorityMax` @ [`cop_handlers_lifecycle.asm:704-711`](../../../extracted/system/engine/cop_handlers_lifecycle.asm)
+- **Handler:** `SetPriorityMax` @ [`cop_handlers_oam_attribs.asm:704-711`](../../../extracted/system/engine/cop_handlers_oam_attribs.asm)
 - **Parameters:** (none)
 - **Outcome:** Continue
 - **Usage count:** 14
@@ -90,7 +90,7 @@ Boss phases and invulnerable blinks — Castoth sets max before iframe windows (
 
 - **Preferred name:** `SetPriorityMin`
 - **Aliases:** `CollPrioritySetMin`
-- **Handler:** `SetPriorityMin` @ [`cop_handlers_lifecycle.asm:716-723`](../../../extracted/system/engine/cop_handlers_lifecycle.asm)
+- **Handler:** `SetPriorityMin` @ [`cop_handlers_oam_attribs.asm:716-723`](../../../extracted/system/engine/cop_handlers_oam_attribs.asm)
 - **Parameters:** (none)
 - **Outcome:** Continue
 - **Usage count:** 3
@@ -115,7 +115,7 @@ Decorations and harmless FX that should not block the player — often cleared a
 
 - **Preferred name:** `ClearPriorityMax`
 - **Aliases:** `CollPriorityClearMax`
-- **Handler:** `ClearPriorityMax` @ [`cop_handlers_lifecycle.asm:728-735`](../../../extracted/system/engine/cop_handlers_lifecycle.asm)
+- **Handler:** `ClearPriorityMax` @ [`cop_handlers_oam_attribs.asm:728-735`](../../../extracted/system/engine/cop_handlers_oam_attribs.asm)
 - **Parameters:** (none)
 - **Outcome:** Continue
 - **Usage count:** 11
@@ -140,7 +140,7 @@ End of iframe or post-attack cleanup paired with earlier `$B2`.
 
 - **Preferred name:** `ClearPriorityMin`
 - **Aliases:** `CollPriorityClearMin`
-- **Handler:** `ClearPriorityMin` @ [`cop_handlers_lifecycle.asm:740-747`](../../../extracted/system/engine/cop_handlers_lifecycle.asm)
+- **Handler:** `ClearPriorityMin` @ [`cop_handlers_oam_attribs.asm:740-747`](../../../extracted/system/engine/cop_handlers_oam_attribs.asm)
 - **Parameters:** (none)
 - **Outcome:** Continue
 - **Usage count:** 1
@@ -165,7 +165,7 @@ Castoth and similar bosses restore normal collision after min-priority ghost pha
 
 - **Preferred name:** `SetSpritePriority`
 - **Aliases:** `SetOamPriority` (handler label)
-- **Handler:** `SetOamPriority` @ [`cop_handlers_lifecycle.asm:752-764`](../../../extracted/system/engine/cop_handlers_lifecycle.asm)
+- **Handler:** `SetOamPriority` @ [`cop_handlers_oam_attribs.asm:752-764`](../../../extracted/system/engine/cop_handlers_oam_attribs.asm)
 - **Parameters:** `Byte` value 0–3
 - **Outcome:** Continue
 - **Usage count:** 106
@@ -211,7 +211,7 @@ Weather particles use high priority so rain draws above playfield (`actors/parti
 
 - **Preferred name:** `SetSpritePalette`
 - **Aliases:** `SetOamPalette`
-- **Handler:** `SetOamPalette` @ [`cop_handlers_lifecycle.asm:769-781`](../../../extracted/system/engine/cop_handlers_lifecycle.asm)
+- **Handler:** `SetOamPalette` @ [`cop_handlers_oam_attribs.asm:769-781`](../../../extracted/system/engine/cop_handlers_oam_attribs.asm)
 - **Parameters:** `Byte` 0–7
 - **Outcome:** Continue
 - **Usage count:** 88
@@ -237,7 +237,7 @@ Status tints and form changes — Yorrick EW/NS variants force palette `#02` (`m
 
 - **Preferred name:** `ToggleHMirror`
 - **Aliases:** `ToggleHFlip`
-- **Handler:** `ToggleHMirror` @ [`cop_handlers_lifecycle.asm:786-794`](../../../extracted/system/engine/cop_handlers_lifecycle.asm)
+- **Handler:** `ToggleHMirror` @ [`cop_handlers_oam_attribs.asm:786-794`](../../../extracted/system/engine/cop_handlers_oam_attribs.asm)
 - **Parameters:** (none)
 - **Outcome:** Continue
 - **Usage count:** 4
@@ -262,7 +262,7 @@ Alternating facing in idle loops — Castoth (`ir29_castoth.asm`), queen debris 
 
 - **Preferred name:** `ToggleVMirror`
 - **Aliases:** `ToggleVFlip`
-- **Handler:** `ToggleVMirror` @ [`cop_handlers_lifecycle.asm:799-807`](../../../extracted/system/engine/cop_handlers_lifecycle.asm)
+- **Handler:** `ToggleVMirror` @ [`cop_handlers_oam_attribs.asm:799-807`](../../../extracted/system/engine/cop_handlers_oam_attribs.asm)
 - **Parameters:** (none)
 - **Outcome:** Continue
 - **Usage count:** 10
@@ -287,7 +287,7 @@ Rare — upside-down FX or symmetric vertical bob scripts.
 
 - **Preferred name:** `ClearHMirror`
 - **Aliases:** `ClearHFlip`
-- **Handler:** `ClearHMirror` @ [`cop_handlers_lifecycle.asm:812-819`](../../../extracted/system/engine/cop_handlers_lifecycle.asm)
+- **Handler:** `ClearHMirror` @ [`cop_handlers_oam_attribs.asm:812-819`](../../../extracted/system/engine/cop_handlers_oam_attribs.asm)
 - **Parameters:** (none)
 - **Outcome:** Continue
 - **Usage count:** 3
@@ -312,7 +312,7 @@ After a mirrored walk cycle, reset facing — Sand Fanger, Draco, Viper armor (`
 
 - **Preferred name:** `SetHMirror`
 - **Aliases:** `SetHFlip`
-- **Handler:** `SetHMirror` @ [`cop_handlers_lifecycle.asm:824-831`](../../../extracted/system/engine/cop_handlers_lifecycle.asm)
+- **Handler:** `SetHMirror` @ [`cop_handlers_oam_attribs.asm:824-831`](../../../extracted/system/engine/cop_handlers_oam_attribs.asm)
 - **Parameters:** (none)
 - **Outcome:** Continue
 - **Usage count:** 23

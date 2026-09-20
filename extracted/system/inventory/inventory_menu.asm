@@ -62,7 +62,7 @@
 
 ?BANK 02
 
-?INCLUDE 'cop_handlers_flags'
+?INCLUDE 'flag_helpers'
 ?INCLUDE 'inventory_spritemap'
 ?INCLUDE 'system_strings'
 
@@ -975,7 +975,7 @@ TestAbilityFlag {
     ADC $01, S
     STA $01, S
     PLA 
-    JSL $@cop_handlers_flags.TestFlag_0510 ; JSL TestFlag_0510 — carry set if ability unlocked
+    JSL $@flag_helpers.TestFlag_0510 ; JSL TestFlag_0510 — carry set if ability unlocked
     RTS 
 }
 

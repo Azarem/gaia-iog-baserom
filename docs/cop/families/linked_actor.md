@@ -1,6 +1,6 @@
 # COP family: Linked actor
 
-_Ops: `[6A]`_ · _Source: [`cop_handlers_lifecycle.asm`](../../../extracted/system/engine/cop_handlers_lifecycle.asm)_
+_Ops: `[6A]`_ · _Source: [`cop_handlers_linked_actor.asm`](../../../extracted/system/engine/cop_handlers_linked_actor.asm)_
 
 [← COP index](../index.md)
 
@@ -42,7 +42,7 @@ Single-op family that retargets the **next actor in the doubly-linked list** (`$
 - **Confidence:** high (handler + credits audit)
 - **Preferred name:** `SetLinkedEntryPtr`
 - **Aliases:** `SetLinkedActorScript`
-- **Handler:** `SetLinkedEntryPtr` @ [`cop_handlers_lifecycle.asm:344-358`](../../../extracted/system/engine/cop_handlers_lifecycle.asm)
+- **Handler:** `SetLinkedEntryPtr` @ [`cop_handlers_linked_actor.asm:344-358`](../../../extracted/system/engine/cop_handlers_linked_actor.asm)
 - **Parameters:** `&Code` (`db-us/copdef.json`: `["&Code"]`)
 - **Usage count:** 164
 

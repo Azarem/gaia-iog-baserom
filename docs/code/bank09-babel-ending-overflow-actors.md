@@ -494,7 +494,7 @@ hazards, NPC encounters, and lore.
 
 | Part | Description |
 |------|-------------|
-| `ir1F_gold_tile` | **Individual gold pressure plate.** If flag `#3C` set → die. Adds `(+8,+8)` position offset. Checks: player near (`#01`) OR any of actors `#02`–`#05` near (`BranchIfActorNear`). When occupied: calls `cop_handlers_flags.SetFlagRaw` with `$0E` (actor event flag). When vacated: calls `ClearFlagRaw`. On first player step: if flag `#0F` not set, prints hint *"Stepping on a gold tile emits a sound. There are four gold tiles. Stand on each of the four tiles at the same time."* → sets `#0F`. |
+| `ir1F_gold_tile` | **Individual gold pressure plate.** If flag `#3C` set → die. Adds `(+8,+8)` position offset. Checks: player near (`#01`) OR any of actors `#02`–`#05` near (`BranchIfActorNear`). When occupied: calls `flag_helpers.SetFlagRaw` with `$0E` (actor event flag). When vacated: calls `ClearFlagRaw`. On first player step: if flag `#0F` not set, prints hint *"Stepping on a gold tile emits a sound. There are four gold tiles. Stand on each of the four tiles at the same time."* → sets `#0F`. |
 | `ir1F_actor_09C489` | **Puzzle completion monitor.** If flag `#3C` set → die. Polls `eventFlags & $001E` — when all 4 bits set (all plates pressed simultaneously): plays sound `$0F0F`, `StageBgChange(#08)` → `ApplyBgChange`, sets flag word `$0108` and flag byte `#3C`. |
 
 | Flag | Set by | Purpose |
@@ -614,7 +614,7 @@ System-wide actors spawned across many scenes throughout the game.
 | `InitPlayerScriptVariant` (script hook) | `btDE_olman`, `btDE_monologue`, `btDF_kara`, `ir1C_lily` |
 | `CollisionLayerRenderer` (collision copier) | Pyramid block-puzzle actors (bank 8) |
 | `oam_digit_compose.ComposeDigitSprites` | `ec11_countdown` |
-| `cop_handlers_flags.SetFlagRaw/ClearFlagRaw` | `ir1F_gold_tile` |
+| `flag_helpers.SetFlagRaw/ClearFlagRaw` | `ir1F_gold_tile` |
 
 ### 4.2 Key flag words
 

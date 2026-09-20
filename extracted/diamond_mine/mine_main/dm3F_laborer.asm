@@ -14,8 +14,8 @@
 ; prisoners. Each freed laborer walks offscreen and sets their flag.
 ---------------------------------------------
 
-?INCLUDE 'cop_handlers_flags'
 ?INCLUDE 'EnemyInitBasic'
+?INCLUDE 'flag_helpers'
 
 !displayModeFlags               09EC
 
@@ -34,7 +34,7 @@ dm3F_laborer [
     LDA $@byte_0AA72F, X
     PLX 
     AND #$00FF
-    JSL $@cop_handlers_flags.TestFlagRaw
+    JSL $@flag_helpers.TestFlagRaw
     BCC loc_0AA6D5
     JMP $&code_0AA72D
 
@@ -76,7 +76,7 @@ code_0AA700 {
     LDA $@byte_0AA72F, X
     PLX 
     AND #$00FF
-    JSL $@cop_handlers_flags.SetFlagRaw
+    JSL $@flag_helpers.SetFlagRaw
 }
 
 code_0AA72D {

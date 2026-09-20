@@ -8,7 +8,7 @@
 ; checks when all 4 flags ($001E) are set to open the gate.
 ---------------------------------------------
 
-?INCLUDE 'cop_handlers_flags'
+?INCLUDE 'flag_helpers'
 
 ---------------------------------------------
 
@@ -27,7 +27,7 @@ ir1F_gold_tile [
     COP [BranchIfActorNear] ( #04, #01, &code_09C407 )
     COP [BranchIfActorNear] ( #05, #01, &code_09C407 )
     LDA $0E
-    JSL $@cop_handlers_flags.ClearFlagRaw
+    JSL $@flag_helpers.ClearFlagRaw
     RTL 
 } >
 ]
@@ -46,7 +46,7 @@ code_09C3FB {
 
 code_09C407 {
     LDA $0E
-    JSL $@cop_handlers_flags.SetFlagRaw
+    JSL $@flag_helpers.SetFlagRaw
     RTL 
 }
 

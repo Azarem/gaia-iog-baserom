@@ -3,8 +3,8 @@
 ; Matches current scene ID against a boss_reward_range table (scenes for Castoth, Viper, Mu vampires, Sand Fanger, Mummy Queen), checks a per-boss WRAM flag, and distributes HP/STR/DEF increases from enemy_clear_reward_table when player flag $0020 is set. Sets the boss-cleared flag and triggers damage-flash timer to show the HP recovery animation. Spawned as a background actor in each major boss arena.
 ---------------------------------------------
 
-?INCLUDE 'cop_handlers_flags'
 ?INCLUDE 'enemy_clear_reward_table'
+?INCLUDE 'flag_helpers'
 
 !sceneCurrent                   0644
 !playerFlags                    09AE
@@ -41,7 +41,7 @@ boss_clear_reward_handler [
     PLX                   ; Restore actor pointer
     LSR                   ; Index / 4 = boss number
     LSR 
-    JSL $@cop_handlers_flags.TestWramFlag_Offset100 ; Already rewarded this boss?
+    JSL $@flag_helpers.TestWramFlag_Offset100 ; Already rewarded this boss?
     BCS loc_00C30C        ; Yes → skip to idle
     COP [SetEntryHere]
     LDA $playerFlags
@@ -63,7 +63,7 @@ boss_clear_reward_handler [
     LDA $20
     LSR 
     LSR 
-    JSL $@cop_handlers_flags.SetWramFlag_Offset100 ; Mark this boss as rewarded
+    JSL $@flag_helpers.SetWramFlag_Offset100 ; Mark this boss as rewarded
 
   loc_00C30C:
     COP [SetEntryHere]    ; Idle loop after rewards granted
@@ -121,12 +121,12 @@ BossClearApplyStatReward {
     STA $0004             ; Reward type: 1=HP, 2=STR, 3=DEF
     TYA 
     PHY 
-    JSL $@cop_handlers_flags.TestFlag_0300 ; Already killed this enemy?
+    JSL $@flag_helpers.TestFlag_0300 ; Already killed this enemy?
     PLY 
     BCS code_00C350       ; Already flagged → skip
     PHY 
     TYA 
-    JSL $@cop_handlers_flags.SetFlag_0300 ; Mark enemy as killed
+    JSL $@flag_helpers.SetFlag_0300 ; Mark enemy as killed
     PLY 
     LDA $0004             ; Dispatch reward type via DEC cascade
     PEA $&code_00C350-1   ; Push return to loop (RTS trick)

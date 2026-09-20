@@ -1,6 +1,6 @@
 # COP family: Position
 
-_Deep-audited ops: `[25]`, `[46]`, `[47]`, `[BC]`_ · _Source: [`cop_handlers_spatial.asm`](../../../extracted/system/engine/cop_handlers_spatial.asm), [`cop_handlers_lifecycle.asm`](../../../extracted/system/engine/cop_handlers_lifecycle.asm)_
+_Deep-audited ops: `[25]`, `[46]`, `[47]`, `[BC]`_ · _Source: [`cop_handlers_player_query.asm`](../../../extracted/system/engine/cop_handlers_player_query.asm), [`cop_handlers_actor_query.asm`](../../../extracted/system/engine/cop_handlers_actor_query.asm), [`cop_handlers_oam_attribs.asm`](../../../extracted/system/engine/cop_handlers_oam_attribs.asm)_
 
 [← COP index](../index.md)
 
@@ -37,7 +37,7 @@ Instant tile teleport, copy position to linked actors in the doubly-linked actor
 
 #### COP [25] — `SetTilePos` (teleport to tile coordinates)
 
-- **Handler:** `SetTilePos` @ [`cop_handlers_spatial.asm`](../../../extracted/system/engine/cop_handlers_spatial.asm)
+- **Handler:** `SetTilePos` @ [`cop_handlers_player_query.asm`](../../../extracted/system/engine/cop_handlers_player_query.asm)
 - **Parameters:** `Byte` tile X, `Byte` tile Y
 
 ##### What it does
@@ -77,7 +77,7 @@ Heavy use in town NPCs, portals, and puzzle rooms (100 sites).
 
 #### COP [46] — `CopyPosToPrev`
 
-- **Handler:** `CopyPosToPrev` @ [`cop_handlers_lifecycle.asm`](../../../extracted/system/engine/cop_handlers_lifecycle.asm)
+- **Handler:** `CopyPosToPrev` @ [`cop_handlers_actor_query.asm`](../../../extracted/system/engine/cop_handlers_actor_query.asm)
 - **Parameters:** (none)
 
 ##### What it does
@@ -99,7 +99,7 @@ Multi-segment enemies and follower chains: the head actor moves via `[22]`/`Stag
 
 #### COP [47] — `CopyPosToNext`
 
-- **Handler:** `CopyPosToNext` → shared `loc_00964F` @ [`cop_handlers_lifecycle.asm`](../../../extracted/system/engine/cop_handlers_lifecycle.asm)
+- **Handler:** `CopyPosToNext` → shared `loc_00964F` @ [`cop_handlers_actor_query.asm`](../../../extracted/system/engine/cop_handlers_actor_query.asm)
 - **Parameters:** (none)
 
 ##### What it does
@@ -122,7 +122,7 @@ Forward propagation to a child/next slot (debris, tail sprites, spawned echo act
 #### COP [BC] — `NudgePosition` (signed pixel offset)
 
 - **Aliases:** `AddPosition` (legacy docs)
-- **Handler:** `NudgePosition` @ [`cop_handlers_lifecycle.asm`](../../../extracted/system/engine/cop_handlers_lifecycle.asm)
+- **Handler:** `NudgePosition` @ [`cop_handlers_actor_query.asm`](../../../extracted/system/engine/cop_handlers_actor_query.asm)
 - **Parameters:** Signed `Byte` dX, signed `Byte` dY
 
 ##### What it does

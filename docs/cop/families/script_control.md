@@ -1,6 +1,6 @@
 # COP family: Script control
 
-_Ops: `[C0]`–`[CB]`, `[E1]`, `[E2]`_ · _Source: [`cop_handlers_flow.asm`](../../../extracted/system/engine/cop_handlers_flow.asm)_
+_Ops: `[C0]`–`[CB]`, `[E1]`, `[E2]`_ · _Source: [`cop_handlers_script_control.asm`](../../../extracted/system/engine/cop_handlers_script_control.asm)_
 
 [← COP index](../index.md)
 
@@ -63,7 +63,7 @@ Actor-script “VM” primitives: program counter (`$0A` script cursor, `$0C` ba
 - **Confidence:** high (handler + call-site audit)
 - **Preferred name:** `SetInteractHandler`
 - **Aliases:** `SetOnInteract`
-- **Handler:** `SetInteractHandler` @ [`cop_handlers_flow.asm:31-40`](../../../extracted/system/engine/cop_handlers_flow.asm)
+- **Handler:** `SetInteractHandler` @ [`cop_handlers_script_control.asm:31-40`](../../../extracted/system/engine/cop_handlers_script_control.asm)
 - **Parameters:** `&Code` — same-bank interact script entry (`db-us/copdef.json`: `["&Code"]`)
 - **Usage count:** 486
 
@@ -124,7 +124,7 @@ Legacy name `SetOnInteract` does not appear in extracted COP lines; only the mod
 
 - **Preferred name:** `SetEntryHere`
 - **Aliases:** `SetEntryContinue`
-- **Handler:** `SetEntryHere` @ [`cop_handlers_flow.asm:45-53`](../../../extracted/system/engine/cop_handlers_flow.asm)
+- **Handler:** `SetEntryHere` @ [`cop_handlers_script_control.asm:45-53`](../../../extracted/system/engine/cop_handlers_script_control.asm)
 - **Parameters:** (none)
 - **Usage count:** 1295
 
@@ -182,7 +182,7 @@ Comments and docs often say `SetEntryContinue`; extracted COP text is `SetEntryH
 
 - **Preferred name:** `SetEntryHereAndYield`
 - **Aliases:** `SetEntryExit`
-- **Handler:** `SetEntryHereAndYield` @ [`cop_handlers_flow.asm:58-67`](../../../extracted/system/engine/cop_handlers_flow.asm)
+- **Handler:** `SetEntryHereAndYield` @ [`cop_handlers_script_control.asm:58-67`](../../../extracted/system/engine/cop_handlers_script_control.asm)
 - **Parameters:** (none)
 - **Usage count:** 502
 
@@ -244,7 +244,7 @@ DiaryStartSlotLoop:
 
 - **Preferred name:** `JumpAfterDelay`
 - **Aliases:** `SetEntryDelayExit`
-- **Handler:** `JumpAfterDelay` @ [`cop_handlers_flow.asm:72-89`](../../../extracted/system/engine/cop_handlers_flow.asm)
+- **Handler:** `JumpAfterDelay` @ [`cop_handlers_script_control.asm:72-89`](../../../extracted/system/engine/cop_handlers_script_control.asm)
 - **Parameters:** `@Code`, `Word` delay frames
 - **Usage count:** 12
 
@@ -310,7 +310,7 @@ COP [JumpAfterDelay] ( @code_059C04, #$04B0 )
 
 - **Preferred name:** `JumpNextFrame`
 - **Aliases:** `SetEntryExitNow`
-- **Handler:** `JumpNextFrame` @ [`cop_handlers_flow.asm:94-108`](../../../extracted/system/engine/cop_handlers_flow.asm)
+- **Handler:** `JumpNextFrame` @ [`cop_handlers_script_control.asm:94-108`](../../../extracted/system/engine/cop_handlers_script_control.asm)
 - **Parameters:** `@Code`
 - **Usage count:** 61
 
@@ -369,7 +369,7 @@ COP [JumpNextFrame] ( @code_0AF5D7 )
 #### COP [C5] — `RestoreSavedPtr` (return from near call)
 
 - **Preferred name:** `RestoreSavedPtr`
-- **Handler:** `RestoreSavedPtr` @ [`cop_handlers_flow.asm:132-145`](../../../extracted/system/engine/cop_handlers_flow.asm)
+- **Handler:** `RestoreSavedPtr` @ [`cop_handlers_script_control.asm:132-145`](../../../extracted/system/engine/cop_handlers_script_control.asm)
 - **Parameters:** (none); `halt` in copdef when slot empty
 - **Usage count:** 309
 
@@ -428,7 +428,7 @@ COP [RestoreSavedPtr]
 #### COP [C6] — `SetSavedPtr` (arm return address)
 
 - **Preferred name:** `SetSavedPtr`
-- **Handler:** `SetSavedPtr` @ [`cop_handlers_flow.asm:169-178`](../../../extracted/system/engine/cop_handlers_flow.asm)
+- **Handler:** `SetSavedPtr` @ [`cop_handlers_script_control.asm:169-178`](../../../extracted/system/engine/cop_handlers_script_control.asm)
 - **Parameters:** `&Code`
 - **Usage count:** 53
 
@@ -482,7 +482,7 @@ COP [RestoreSavedPtr]
 
 - **Preferred name:** `JumpFar`
 - **Aliases:** `JumpScript`
-- **Handler:** `JumpFar` @ [`cop_handlers_flow.asm:183-198`](../../../extracted/system/engine/cop_handlers_flow.asm)
+- **Handler:** `JumpFar` @ [`cop_handlers_script_control.asm:183-198`](../../../extracted/system/engine/cop_handlers_script_control.asm)
 - **Parameters:** `@Code`
 - **Usage count:** 22
 
@@ -545,7 +545,7 @@ COP [JumpFar] ( @player_transition_handlers )
 
 - **Preferred name:** `CallNear`
 - **Aliases:** `CallScript`
-- **Handler:** `CallNear` @ [`cop_handlers_flow.asm:203-212`](../../../extracted/system/engine/cop_handlers_flow.asm)
+- **Handler:** `CallNear` @ [`cop_handlers_script_control.asm:203-212`](../../../extracted/system/engine/cop_handlers_script_control.asm)
 - **Parameters:** `&Code`
 - **Usage count:** 230
 
@@ -603,7 +603,7 @@ Callee ends with **`RestoreSavedPtr`** or **`ReturnWithSignal`**.
 
 - **Preferred name:** `CallNearDeferred`
 - **Aliases:** `CallScriptDeferred`
-- **Handler:** `CallNearDeferred` @ [`cop_handlers_flow.asm:217-228`](../../../extracted/system/engine/cop_handlers_flow.asm)
+- **Handler:** `CallNearDeferred` @ [`cop_handlers_script_control.asm:217-228`](../../../extracted/system/engine/cop_handlers_script_control.asm)
 - **Parameters:** `&Code`
 - **Usage count:** 8
 
@@ -659,7 +659,7 @@ BCS code_0ADE6C
 
 - **Preferred name:** `LoopStart`
 - **Aliases:** `LoopInit`
-- **Handler:** `LoopStart` @ [`cop_handlers_flow.asm:233-259`](../../../extracted/system/engine/cop_handlers_flow.asm)
+- **Handler:** `LoopStart` @ [`cop_handlers_script_control.asm:233-259`](../../../extracted/system/engine/cop_handlers_script_control.asm)
 - **Parameters:** `Byte` count
 - **Usage count:** 277
 
@@ -719,7 +719,7 @@ COP [LoopEnd]
 
 - **Preferred name:** `LoopEnd`
 - **Aliases:** `LoopNext`
-- **Handler:** `LoopEnd` @ [`cop_handlers_flow.asm:264-293`](../../../extracted/system/engine/cop_handlers_flow.asm)
+- **Handler:** `LoopEnd` @ [`cop_handlers_script_control.asm:264-293`](../../../extracted/system/engine/cop_handlers_script_control.asm)
 - **Parameters:** (none)
 - **Usage count:** 284
 
@@ -776,7 +776,7 @@ Paired with **`LoopStart`** in boss scripts, epilogue FX, dark gaia sequences (s
 
 - **Preferred name:** `ReturnWithSignal`
 - **Aliases:** `RestoreSavedPtrFFFF`
-- **Handler:** `ReturnWithSignal` @ [`cop_handlers_flow.asm:150-164`](../../../extracted/system/engine/cop_handlers_flow.asm)
+- **Handler:** `ReturnWithSignal` @ [`cop_handlers_script_control.asm:150-164`](../../../extracted/system/engine/cop_handlers_script_control.asm)
 - **Parameters:** (none)
 - **Usage count:** 4
 
@@ -832,7 +832,7 @@ BCS code_0ADE6C
 
 - **Preferred name:** `SetEntryFar`
 - **Aliases:** `SetEntryContinueDeferred`
-- **Handler:** `SetEntryFar` @ [`cop_handlers_flow.asm:113-127`](../../../extracted/system/engine/cop_handlers_flow.asm)
+- **Handler:** `SetEntryFar` @ [`cop_handlers_script_control.asm:113-127`](../../../extracted/system/engine/cop_handlers_script_control.asm)
 - **Parameters:** `@Code`
 - **Usage count:** 1
 

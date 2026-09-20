@@ -1,6 +1,6 @@
 # COP family: Offscreen
 
-_Deep-audited ops: `[27]`, `[68]`, `[69]`_ · _Source: [`cop_handlers_spatial.asm`](../../../extracted/system/engine/cop_handlers_spatial.asm), [`cop_handlers_lifecycle.asm`](../../../extracted/system/engine/cop_handlers_lifecycle.asm)_
+_Deep-audited ops: `[27]`, `[68]`, `[69]`_ · _Source: [`cop_handlers_player_query.asm`](../../../extracted/system/engine/cop_handlers_player_query.asm), [`cop_handlers_offscreen.asm`](../../../extracted/system/engine/cop_handlers_offscreen.asm)_
 
 [← COP index](../index.md)
 
@@ -37,7 +37,7 @@ Yield while an actor is off-screen, branch when outside the camera window, or ho
 
 #### COP [27] — `WaitWhileOffscreen`
 
-- **Handler:** `WaitWhileOffscreen` @ [`cop_handlers_spatial.asm`](../../../extracted/system/engine/cop_handlers_spatial.asm)
+- **Handler:** `WaitWhileOffscreen` @ [`cop_handlers_player_query.asm`](../../../extracted/system/engine/cop_handlers_player_query.asm)
 - **Parameters:** `Byte` frame delay when waiting
 
 ##### What it does
@@ -71,7 +71,7 @@ NPCs and props that should pause logic until the player scrolls them into view (
 #### COP [68] — `BranchIfOffCamera`
 
 - **Aliases:** `BranchIfOffscreen`
-- **Handler:** `BranchIfOffCamera` @ [`cop_handlers_map.asm`](../../../extracted/system/engine/cop_handlers_map.asm)
+- **Handler:** `BranchIfOffCamera` @ [`cop_handlers_metatile.asm`](../../../extracted/system/engine/cop_handlers_metatile.asm)
 - **Parameters:** `&Code`
 
 ##### What it does
@@ -101,7 +101,7 @@ Despawn when scrolled away, activate when off-camera, credits NPCs exiting the w
 #### COP [69] — `HaltIfMaxFrames`
 
 - **Aliases:** `HaltIfCounterGte` (continue once counter **≥** threshold)
-- **Handler:** `HaltIfMaxFrames` @ [`cop_handlers_map.asm`](../../../extracted/system/engine/cop_handlers_map.asm)
+- **Handler:** `HaltIfMaxFrames` @ [`cop_handlers_metatile.asm`](../../../extracted/system/engine/cop_handlers_metatile.asm)
 - **Parameters:** `Word` frame threshold
 
 ##### What it does

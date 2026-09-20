@@ -86,8 +86,8 @@ other frame at VRAM position `$7F0A24`.
 - **Out:**
   - `vblank_joypad.VBlankWaitAndJoypad` / `EnableNmiAndJoypad` / `EnableNmiOnly` — VBlank sync
   - `vram_buffer_clear.ClearVramBufferPartial` — clear staging buffer before draw
-  - `cop_handlers_flags.TestEventFlag_0200` — check visited markers
-  - `cop_handlers_flags.TestFlag_0300` — enemy-clear reward eligibility
+  - `flag_helpers.TestEventFlag_0200` — check visited markers
+  - `flag_helpers.TestFlag_0300` — enemy-clear reward eligibility
   - `enemy_clear_reward_table` — per-scene reward lookup
   - `COP RunBg3Script (consolestring_01EAD1)` — radar text label overlay
 

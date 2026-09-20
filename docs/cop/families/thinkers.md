@@ -1,6 +1,6 @@
 # COP family: Thinkers (spawn / kill)
 
-_Deep-audited ops: `[3B]`, `[3C]`, `[3D]`_ · _Source: [`cop_handlers_palette.asm`](../../../extracted/system/engine/cop_handlers_palette.asm)_
+_Deep-audited ops: `[3B]`, `[3C]`, `[3D]`_ · _Source: [`cop_handlers_thinker.asm`](../../../extracted/system/engine/cop_handlers_thinker.asm)_
 
 [← COP index](../index.md)
 

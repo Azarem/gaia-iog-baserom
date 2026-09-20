@@ -9,7 +9,7 @@ Illusion of Gaia scene logic is driven by **actors** and **thinkers**: scripted 
 - COP opcodes defined: **209** (110 primary + 99 extended)
 - Invalid gap: **$6E–$7F** (18 garbage pointers)
 - Phantom entries: **$6E**, **$6F**, **$E3** (listed in copdef with empty parts)
-- Handler source: [`extracted/system/engine/cop_handlers_*.asm`](../../extracted/system/engine/) (14 files)
+- Handler source: [`extracted/system/engine/cop_handlers_*.asm`](../../extracted/system/engine/) (30 files)
 - Jump table: [`extracted/system/engine/cop_dispatch.asm`](../../extracted/system/engine/cop_dispatch.asm)
 
 ## Dispatch architecture
@@ -72,43 +72,43 @@ Families are grouped by **shared handlers / purpose / WRAM**, not by jump-table 
 
 | Family | Ops | Doc | Handler source |
 |--------|-----|-----|----------------|
-| **HDMA / DMA** | `00` `01` `02` `03` | [hdma_dma.md](families/hdma_dma.md) | `cop_handlers_solid.asm` |
+| **HDMA / DMA** | `00` `01` `02` `03` | [hdma_dma.md](families/hdma_dma.md) | `cop_handlers_hdma_dma.asm` |
 | **Audio (music + SFX)** | `04` `05` `06` `07` `08` `09` `0A` `19` | [audio.md](families/audio.md) | `cop_handlers_audio.asm` |
-| **Collision paint** | `0B` `0C` `0D` `0E` `0F` `10` `11` `12` `42` | [collision_paint.md](families/collision_paint.md) | `cop_handlers_solid.asm` |
-| **Collision branch** | `13` `14` `15` `16` `17` `18` `1A` `1B` `1C` `1D` `1E` `62` | [collision_branch.md](families/collision_branch.md) | `cop_handlers_solid.asm` |
-| **Proximity / area** | `1F` `20` `21` `44` `45` | [proximity.md](families/proximity.md) | `cop_handlers_movement.asm`, `cop_handlers_lifecycle.asm` |
+| **Collision paint** | `0B` `0C` `0D` `0E` `0F` `10` `11` `12` `42` | [collision_paint.md](families/collision_paint.md) | `cop_handlers_collision.asm` |
+| **Collision branch** | `13` `14` `15` `16` `17` `18` `1A` `1B` `1C` `1D` `1E` `62` | [collision_branch.md](families/collision_branch.md) | `cop_handlers_collision.asm`, `cop_handlers_actor_flags.asm` |
+| **Proximity / area** | `1F` `20` `21` `44` `45` | [proximity.md](families/proximity.md) | `cop_handlers_collision.asm`, `cop_handlers_movement.asm`, `cop_handlers_actor_query.asm` |
 | **Movement / staged** | `22` `43` `4A` `52` `53` | [movement.md](families/movement.md) | `cop_handlers_movement.asm` |
 | **RNG** | `23` `24` | [rng.md](families/rng.md) | `cop_handlers_movement.asm` |
-| **Position** | `25` `46` `47` `BC` | [position.md](families/position.md) | `cop_handlers_spatial.asm`, `cop_handlers_lifecycle.asm` |
-| **Map transition** | `26` `65` `66` `67` | [map_transition.md](families/map_transition.md) | `cop_handlers_spatial.asm`, `cop_handlers_input.asm` |
-| **Offscreen** | `27` `68` `69` | [offscreen.md](families/offscreen.md) | `cop_handlers_spatial.asm`, `cop_handlers_lifecycle.asm` |
-| **Player query** | `28` `29` `2A` `2B` `2C` `2D` `2E` `2F` `30` `31` `35` `48` `49` | [player_query.md](families/player_query.md) | `cop_handlers_spatial.asm`, `cop_handlers_lifecycle.asm` |
-| **BG rearrange** | `32` `33` `34` | [bg_rearrange.md](families/bg_rearrange.md) | `cop_handlers_palette.asm` |
+| **Position** | `25` `46` `47` `BC` | [position.md](families/position.md) | `cop_handlers_player_query.asm`, `cop_handlers_actor_query.asm`, `cop_handlers_oam_attribs.asm` |
+| **Map transition** | `26` `65` `66` `67` | [map_transition.md](families/map_transition.md) | `cop_handlers_player_query.asm`, `cop_handlers_world_map.asm` |
+| **Offscreen** | `27` `68` `69` | [offscreen.md](families/offscreen.md) | `cop_handlers_player_query.asm`, `cop_handlers_offscreen.asm` |
+| **Player query** | `28` `29` `2A` `2B` `2C` `2D` `2E` `2F` `30` `31` `35` `48` `49` | [player_query.md](families/player_query.md) | `cop_handlers_player_query.asm`, `cop_handlers_actor_query.asm` |
+| **BG rearrange** | `32` `33` `34` | [bg_rearrange.md](families/bg_rearrange.md) | `cop_handlers_bg_rearrange.asm` |
 | **Palette** | `36` `37` `38` `39` `3A` | [palette.md](families/palette.md) | `cop_handlers_palette.asm` |
-| **Thinkers** | `3B` `3C` `3D` | [thinkers.md](families/thinkers.md) | `cop_handlers_palette.asm` |
+| **Thinkers** | `3B` `3C` `3D` | [thinkers.md](families/thinkers.md) | `cop_handlers_thinker.asm` |
 | **Input** | `3E` `3F` `40` `41` | [input.md](families/input.md) | `cop_handlers_input.asm` |
-| **Metatile / world map draw** | `4B` `4C` `4D` `4E` | [metatile.md](families/metatile.md) | `cop_handlers_map.asm` |
-| **VRAM / memory** | `4F` `50` `51` `54` | [vram_memory.md](families/vram_memory.md) | `cop_handlers_map.asm` |
-| **Sprite state** | `55` `56` | [sprite_state.md](families/sprite_state.md) | `cop_handlers_lifecycle.asm` |
-| **Callbacks** | `57` `58` `59` `5A` `5E` | [callbacks.md](families/callbacks.md) | `cop_handlers_lifecycle.asm` |
-| **Actor flags** | `5B` `5C` `5D` | [actor_flags.md](families/actor_flags.md) | `cop_handlers_lifecycle.asm` |
+| **Metatile / world map draw** | `4B` `4C` `4D` `4E` | [metatile.md](families/metatile.md) | `cop_handlers_metatile.asm` |
+| **VRAM / memory** | `4F` `50` `51` `54` | [vram_memory.md](families/vram_memory.md) | `cop_handlers_vram.asm` |
+| **Sprite state** | `55` `56` | [sprite_state.md](families/sprite_state.md) | `cop_handlers_sprite.asm` |
+| **Callbacks** | `57` `58` `59` `5A` `5E` | [callbacks.md](families/callbacks.md) | `cop_handlers_callbacks.asm` |
+| **Actor flags** | `5B` `5C` `5D` | [actor_flags.md](families/actor_flags.md) | `cop_handlers_callbacks.asm`, `cop_handlers_actor_flags.asm` |
 | **Sine HDMA** | `5F` `60` `61` | [sine_hdma.md](families/sine_hdma.md) | `cop_handlers_effects.asm` |
 | **Gravity** | `63` `64` | [gravity.md](families/gravity.md) | `cop_handlers_effects.asm` |
-| **Dialog** | `6B` `BD` `BE` `BF` | [dialog.md](families/dialog.md) | `cop_handlers_input.asm` |
-| **Linked actor** | `6A` | [linked_actor.md](families/linked_actor.md) | `cop_handlers_lifecycle.asm` |
+| **Dialog** | `6B` `BD` `BE` `BF` | [dialog.md](families/dialog.md) | `cop_handlers_dialog.asm` |
+| **Linked actor** | `6A` | [linked_actor.md](families/linked_actor.md) | `cop_handlers_linked_actor.asm` |
 | **Spiral / orbit** | `6C` `6D` | [spiral.md](families/spiral.md) | `cop_handlers_effects.asm` |
 | **Sprite staging** | `80` `81` `82` `83` `84` `85` `86` `87` `8D` | [sprite_staging.md](families/sprite_staging.md) | `cop_handlers_sprite.asm` |
 | **Sprite animation** | `88` `89` `8A` `8B` `8C` | [sprite_anim.md](families/sprite_anim.md) | `cop_handlers_sprite.asm` |
 | **Player sprite** | `8E` `8F` `90` `91` `92` `93` `94` `95` `96` `97` `98` | [player_sprite.md](families/player_sprite.md) | `cop_handlers_player_sprite.asm` |
 | **Actor spawn** | `99` `9A` `9B` `9C` `9D` `9E` `9F` `A0` `A1` `A2` `A3` `A4` `A5` `A6` | [actor_spawn.md](families/actor_spawn.md) | `cop_handlers_spawn.asm` |
-| **Actor death** | `A7` `A8` `A9` `E0` | [actor_death.md](families/actor_death.md) | `cop_handlers_lifecycle.asm`, `cop_handlers_flow.asm` |
-| **Force move** | `AA` `AB` `AC` `AD` `AE` `AF` `B0` `B1` | [force_move.md](families/force_move.md) | `cop_handlers_lifecycle.asm` |
-| **OAM attributes** | `B2` `B3` `B4` `B5` `B6` `B7` `B8` `B9` `BA` `BB` | [oam_attribs.md](families/oam_attribs.md) | `cop_handlers_lifecycle.asm` |
-| **Script control** | `C0` `C1` `C2` `C3` `C4` `C5` `C6` `C7` `C8` `C9` `CA` `CB` `E1` `E2` | [script_control.md](families/script_control.md) | `cop_handlers_flow.asm` |
-| **Scene flags** | `CC` `CD` `CE` `CF` `D0` `D1` `D2` `D3` | [scene_flags.md](families/scene_flags.md) | `cop_handlers_flow.asm` |
-| **Inventory** | `D4` `D5` `D6` `D7` | [inventory.md](families/inventory.md) | `cop_handlers_flow.asm` |
-| **Dungeon / switch** | `D8` `D9` | [dungeon_switch.md](families/dungeon_switch.md) | `cop_handlers_flow.asm` |
-| **Wait** | `DA` `DB` | [wait.md](families/wait.md) | `cop_handlers_flow.asm` |
+| **Actor death** | `A7` `A8` `A9` `E0` | [actor_death.md](families/actor_death.md) | `cop_handlers_actor_death.asm` |
+| **Force move** | `AA` `AB` `AC` `AD` `AE` `AF` `B0` `B1` | [force_move.md](families/force_move.md) | `cop_handlers_force_move.asm` |
+| **OAM attributes** | `B2` `B3` `B4` `B5` `B6` `B7` `B8` `B9` `BA` `BB` | [oam_attribs.md](families/oam_attribs.md) | `cop_handlers_oam_attribs.asm` |
+| **Script control** | `C0` `C1` `C2` `C3` `C4` `C5` `C6` `C7` `C8` `C9` `CA` `CB` `E1` `E2` | [script_control.md](families/script_control.md) | `cop_handlers_script_control.asm` |
+| **Scene flags** | `CC` `CD` `CE` `CF` `D0` `D1` `D2` `D3` | [scene_flags.md](families/scene_flags.md) | `cop_handlers_scene_flags.asm` |
+| **Inventory** | `D4` `D5` `D6` `D7` | [inventory.md](families/inventory.md) | `cop_handlers_inventory.asm` |
+| **Dungeon / switch** | `D8` `D9` | [dungeon_switch.md](families/dungeon_switch.md) | `cop_handlers_dungeon_switch.asm` |
+| **Wait** | `DA` `DB` | [wait.md](families/wait.md) | `cop_handlers_wait.asm` |
 | **Camera** | `DC` `DD` `DE` `DF` | [camera.md](families/camera.md) | `cop_handlers_effects.asm` |
 | **Invalid ops** | `6E`–`7F`, `E3` | [invalid_ops.md](families/invalid_ops.md) | — |
 
@@ -543,7 +543,7 @@ Screen Y increases downward: `$15` probes `Y−$10` = **north**, `$16` probes `Y
 ## Sources
 
 1. **Primary:** [`extracted/system/engine/cop_dispatch.asm`](../../extracted/system/engine/cop_dispatch.asm) — dispatch tables
-2. **Handler ASM:** [`extracted/system/engine/cop_handlers_*.asm`](../../extracted/system/engine/) (14 files)
+2. **Handler ASM:** [`extracted/system/engine/cop_handlers_*.asm`](../../extracted/system/engine/) (30 files)
 3. **Tooling schema:** `db-us/copdef.json`
 4. **Secondary:** [Data Crystal — Illusion of Gaia / Notes § Actor code](https://datacrystal.tcrf.net/wiki/Illusion_of_Gaia/Notes#Actor_code)
 5. **Patches:** `baserom/patches/Cop51Patch.patch.asm` (`$51` extended decompress/copy)
@@ -559,4 +559,4 @@ Screen Y increases downward: `$15` probes `Y−$10` = **north**, `$16` probes `Y
 | [`../code/bank00/cop-dispatch.md`](../code/bank00/cop-dispatch.md) | Dispatch engine documentation |
 | `db-us/copdef.json` | Operand layouts for assembler |
 | [`extracted/system/engine/cop_dispatch.asm`](../../extracted/system/engine/cop_dispatch.asm) | Dispatch + jump tables |
-| [`extracted/system/engine/cop_handlers_*.asm`](../../extracted/system/engine/) | Handler source (14 files) |
+| [`extracted/system/engine/cop_handlers_*.asm`](../../extracted/system/engine/) | Handler source (30 files) |

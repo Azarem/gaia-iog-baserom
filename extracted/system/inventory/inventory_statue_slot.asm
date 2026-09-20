@@ -3,7 +3,7 @@
 ; Reads statue_reward table entries indexed by actor $0E nibble, checks TestFlagRaw, and shows the appropriate inventory_spritemap frame on inventory tab #3. Spawned on scene $FF alongside the inventory menu. Shows which statues the player has placed in the inventory grid.
 ---------------------------------------------
 
-?INCLUDE 'cop_handlers_flags'
+?INCLUDE 'flag_helpers'
 ?INCLUDE 'inventory_spritemap'
 ?INCLUDE 'sprite_composition'
 ?INCLUDE 'statue_inventory_reward'
@@ -35,7 +35,7 @@ inventory_statue_slot [
     TAX 
     LDA $@statue_inventory_reward.statue_reward_00CE97, X
     AND #$00FF
-    JSL $@cop_handlers_flags.TestFlagRaw
+    JSL $@flag_helpers.TestFlagRaw
     BCC loc_00CF60
     JMP $&InventoryStatueSlotClaimed
 

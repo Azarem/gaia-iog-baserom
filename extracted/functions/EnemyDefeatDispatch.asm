@@ -7,9 +7,9 @@
 ; reveal effect if deathActionIdx is set and not already triggered.
 ---------------------------------------------
 
-?INCLUDE 'cop_handlers_flags'
 ?INCLUDE 'EnemyDeathFlash'
 ?INCLUDE 'field_reveal_object'
+?INCLUDE 'flag_helpers'
 ?INCLUDE 'SpawnFieldRevealEffect'
 ?INCLUDE 'StandardEnemyDefeatHandler'
 
@@ -72,10 +72,10 @@ code_0AA474 {
   loc_0AA4B8:
     LDA $deathActionIdx, X ; Has a field reveal action?
     BEQ loc_0AA4E0        ; No → skip
-    JSL $@cop_handlers_flags.TestFlag_0100 ; Already triggered?
+    JSL $@flag_helpers.TestFlag_0100 ; Already triggered?
     BCS loc_0AA4E0        ; Yes → skip
     LDA $deathActionIdx, X
-    JSL $@cop_handlers_flags.SetFlag_0100 ; Mark as triggered
+    JSL $@flag_helpers.SetFlag_0100 ; Mark as triggered
     COP [SpawnListAppend] ( @SpawnFieldRevealEffect, #00, #00, #$0342 ) ; Spawn reveal effect
     PHX 
     LDA $deathActionIdx, X ; Pass action index to spawned actor

@@ -1,18 +1,7 @@
-; COP handlers for direction computation, position branching, and map transitions (Bank $00, 14 COP handlers + 1 internal stub).
-; 
-; SetTilePos converts byte tile coordinates to pixel positions ($14/$16). QueueMapChange writes scene/position/flag data for map transitions with optional save-restore.
-; 
-; WaitWhileOffscreen yields when actor flag $4000 (off-screen) is set. BranchIfPlayerAt/BranchIfActorAt compare exact pixel coordinates. BranchOnPlayerX/Y perform 3-way branches (left/center/right or above/center/below) based on distance thresholds. BranchNearerAxis branches on the closer axis.
-; 
-; DirToPlayer/CardinalToPlayer/DirToPlayerFrom compute direction indices (0–7 or 0–3) from the actor to the player. BranchIfDirToPlayer/From branch on computed direction. BranchOnPlayerFacing dispatches on the player's 4-way facing direction.
-; 
-; Internal: code_009230 is the return epilogue for CardinalToPlayer's RTS-trick dispatch.
----------------------------------------------
-
 ?BANK 00
 
+?INCLUDE 'cop_handlers_collision'
 ?INCLUDE 'cop_handlers_movement'
-?INCLUDE 'cop_handlers_solid'
 ?INCLUDE 'GetPlayerFacingDirection'
 
 !sceneNext                      0642
@@ -282,7 +271,7 @@ DirToPlayer {
     STA $0018
     LDA $16               ; Set reference Y = actor.Y
     STA $001C
-    JSR $&cop_handlers_solid.ComputeDirectionToPlayer ; Compute 0–7 octant direction to player from reference point
+    JSR $&cop_handlers_collision.ComputeDirectionToPlayer ; Compute 0–7 octant direction to player from reference point
     LDA $0A
     STA $02, S
     TYA 
@@ -396,7 +385,7 @@ DirToPlayerFrom {
     CLC 
     ADC $16               ; Add signed Y offset to actor.Y as reference
     STA $001C
-    JSR $&cop_handlers_solid.ComputeDirectionToPlayer ; Compute 8-way direction from offset reference to player
+    JSR $&cop_handlers_collision.ComputeDirectionToPlayer ; Compute 8-way direction from offset reference to player
     LDA $0A
     STA $02, S
     TYA 
@@ -412,7 +401,7 @@ BranchIfDirToPlayer {
     STA $0018
     LDA $16               ; Set reference Y
     STA $001C
-    JSR $&cop_handlers_solid.ComputeDirectionToPlayer
+    JSR $&cop_handlers_collision.ComputeDirectionToPlayer
     SEP #$20              ; Switch to 8-bit for byte comparison with direction operand
     CMP [$0A]             ; Compare computed direction vs expected direction operand
     REP #$20
@@ -461,7 +450,7 @@ BranchIfDirToPlayerFrom {
     CLC 
     ADC $16
     STA $001C
-    JSR $&cop_handlers_solid.ComputeDirectionToPlayer
+    JSR $&cop_handlers_collision.ComputeDirectionToPlayer
     SEP #$20
     CMP [$0A]
     REP #$20

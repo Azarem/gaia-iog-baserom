@@ -4,7 +4,7 @@
 ---------------------------------------------
 
 ?INCLUDE 'ApplyOrbitalOffsetFromRef'
-?INCLUDE 'cop_handlers_flags'
+?INCLUDE 'flag_helpers'
 ?INCLUDE 'inventory_spritemap'
 ?INCLUDE 'music_actors'
 ?INCLUDE 'sprite_composition'
@@ -65,7 +65,7 @@ statue_inventory_reward [
     TAX 
     LDA $@statue_reward_00CE97, X
     AND #$00FF
-    JSL $@cop_handlers_flags.TestFlagRaw
+    JSL $@flag_helpers.TestFlagRaw
     BCC loc_00CDBB
     JMP $&StatueRewardAlreadyClaimed
 
@@ -79,7 +79,7 @@ statue_inventory_reward [
   loc_00CDCA:
     LDA $@statue_reward_00CE97, X
     AND #$00FF
-    JSL $@cop_handlers_flags.SetFlagRaw
+    JSL $@flag_helpers.SetFlagRaw
     LDA $@statue_reward_00CE97+1, X
     AND #$00FF
     STA $28

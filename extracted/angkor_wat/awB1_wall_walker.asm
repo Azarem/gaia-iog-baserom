@@ -7,9 +7,9 @@
 ; with wall-following navigation logic.
 ---------------------------------------------
 
-?INCLUDE 'cop_handlers_flags'
 ?INCLUDE 'EnemyDeathFlash'
 ?INCLUDE 'field_reveal_object'
+?INCLUDE 'flag_helpers'
 ?INCLUDE 'smooth_follow_child'
 ?INCLUDE 'SpawnFieldRevealEffect'
 ?INCLUDE 'spriteset_enemies'
@@ -530,10 +530,10 @@ code_0BC11B {
   loc_0BC15A:
     LDA $deathActionIdx, X
     BEQ loc_0BC182
-    JSL $@cop_handlers_flags.TestFlag_0100
+    JSL $@flag_helpers.TestFlag_0100
     BCS loc_0BC182
     LDA $deathActionIdx, X
-    JSL $@cop_handlers_flags.SetFlag_0100
+    JSL $@flag_helpers.SetFlag_0100
     COP [SpawnListAppend] ( @SpawnFieldRevealEffect, #00, #00, #$0342 )
     PHX 
     LDA $deathActionIdx, X

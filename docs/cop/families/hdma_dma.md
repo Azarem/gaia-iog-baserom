@@ -1,6 +1,6 @@
 # COP family: HDMA / DMA
 
-_Deep-audited ops: `[00]`, `[01]`, `[02]`, `[03]`_ · _Source: [`cop_handlers_solid.asm`](../../../extracted/system/engine/cop_handlers_solid.asm)_
+_Deep-audited ops: `[00]`, `[01]`, `[02]`, `[03]`_ · _Source: [`cop_handlers_hdma_dma.asm`](../../../extracted/system/engine/cop_handlers_hdma_dma.asm)_
 
 [← COP index](../index.md)
 
@@ -40,7 +40,7 @@ Low-level **HDMA channel registration** and **linear DMA queueing** used by menu
 #### COP [00] — `GenHdmaSine` (build sine HDMA indirect table)
 
 - **Preferred name:** `GenHdmaSine`
-- **Handler:** `GenHdmaSine` @ [`cop_handlers_solid.asm`](../../../extracted/system/engine/cop_handlers_solid.asm)
+- **Handler:** `GenHdmaSine` @ [`cop_handlers_collision.asm`](../../../extracted/system/engine/cop_handlers_collision.asm)
 - **Usage count:** 2
 
 ##### What it does
@@ -92,7 +92,7 @@ COP [QueueHdma] ( $7E8800, #0F )    ; babel_tower/sine_hdma_ending_wave.asm:31-3
 #### COP [01] — `QueueHdma` (queue indirect HDMA)
 
 - **Preferred name:** `QueueHdma`
-- **Handler:** `QueueHdma` @ [`cop_handlers_solid.asm`](../../../extracted/system/engine/cop_handlers_solid.asm)
+- **Handler:** `QueueHdma` @ [`cop_handlers_collision.asm`](../../../extracted/system/engine/cop_handlers_collision.asm)
 - **Usage count:** 18
 
 ##### What it does
@@ -139,7 +139,7 @@ COP [QueueHdma] ( $7E8C00, #10 )           ; native_village_sine_hdma.asm (with 
 #### COP [02] — `QueueDma` (queue linear DMA)
 
 - **Preferred name:** `QueueDma`
-- **Handler:** `QueueDma` @ [`cop_handlers_solid.asm`](../../../extracted/system/engine/cop_handlers_solid.asm)
+- **Handler:** `QueueDma` @ [`cop_handlers_collision.asm`](../../../extracted/system/engine/cop_handlers_collision.asm)
 - **Usage count:** 28
 
 ##### What it does
@@ -185,7 +185,7 @@ COP [QueueDma] ( @dma_setup, #26 )            ; system/inventory/inventory_dma_s
 #### COP [03] — `QueueHdmaChannel` (program one HDMA channel now)
 
 - **Preferred name:** `QueueHdmaChannel`
-- **Handler:** `QueueHdmaChannel` @ [`cop_handlers_solid.asm`](../../../extracted/system/engine/cop_handlers_solid.asm)
+- **Handler:** `QueueHdmaChannel` @ [`cop_handlers_collision.asm`](../../../extracted/system/engine/cop_handlers_collision.asm)
 - **Usage count:** 3
 
 ##### What it does

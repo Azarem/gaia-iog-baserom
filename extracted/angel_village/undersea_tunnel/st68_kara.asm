@@ -7,7 +7,7 @@
 ---------------------------------------------
 
 ?INCLUDE 'camera_drift'
-?INCLUDE 'cop_handlers_flags'
+?INCLUDE 'flag_helpers'
 
 !gfxCacheIdxB                   064A
 
@@ -93,7 +93,7 @@ code_06AF83 {
     COP [PrintDialogString] ( &dialogstring_06B250 )
     COP [WaitByte] ( #3B )
     COP [PrintDialogString] ( &dialogstring_06B3EC )
-    JSL $@cop_handlers_flags.ClearAllWramFlags
+    JSL $@flag_helpers.ClearAllWramFlags
     LDA #$0404
     STA $gfxCacheIdxB
     COP [QueueMapChange] ( #69, #$02A0, #$00C0, #00, #$1300 )

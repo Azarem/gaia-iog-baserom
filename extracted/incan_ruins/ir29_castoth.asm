@@ -14,8 +14,8 @@
 
 ?INCLUDE 'ApplyOrbitalOffsetFromRef'
 ?INCLUDE 'camera_drift'
-?INCLUDE 'cop_handlers_flags'
 ?INCLUDE 'enemy_stats_table'
+?INCLUDE 'flag_helpers'
 ?INCLUDE 'player_transition_handlers'
 ?INCLUDE 'sE6_gaia'
 ?INCLUDE 'SetPlayerGameOverFlag'
@@ -168,7 +168,7 @@ ir29_castoth [
 
   code_0A9B06:
     LDA #$0000
-    JSL $@cop_handlers_flags.TestWramFlag_Offset100
+    JSL $@flag_helpers.TestWramFlag_Offset100
     BCC loc_0A9B17
     STZ $0AEC
     STZ $0AEE

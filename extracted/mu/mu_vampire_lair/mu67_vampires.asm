@@ -9,8 +9,8 @@
 ---------------------------------------------
 
 ?INCLUDE 'actor_pool'
-?INCLUDE 'cop_handlers_flags'
 ?INCLUDE 'enemy_stats_table'
+?INCLUDE 'flag_helpers'
 ?INCLUDE 'sE6_gaia'
 ?INCLUDE 'SetPlayerGameOverFlag'
 ?INCLUDE 'spriteset_enemies'
@@ -129,7 +129,7 @@ mu67_male_vampire [
     COP [BranchIfPlayerAt] ( #$0180, #$0060, &func_0AFA48 )
     COP [BranchIfPlayerAt] ( #$0180, #$01E0, &func_0AFA48 )
     LDA #$0002
-    JSL $@cop_handlers_flags.TestWramFlag_Offset100
+    JSL $@flag_helpers.TestWramFlag_Offset100
     BCC loc_0AF22F
     STZ $0AEC
     STZ $0AEE
@@ -301,7 +301,7 @@ mu67_female_vampire [
     COP [BranchIfPlayerAt] ( #$0180, #$0060, &func_0AFA48 )
     COP [BranchIfPlayerAt] ( #$0180, #$01E0, &func_0AFA48 )
     LDA #$0002
-    JSL $@cop_handlers_flags.TestWramFlag_Offset100
+    JSL $@flag_helpers.TestWramFlag_Offset100
     BCC code_0AF3E6
     COP [Die]
 } >

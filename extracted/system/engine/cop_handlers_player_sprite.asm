@@ -11,7 +11,7 @@
 
 ?INCLUDE 'actor_pool'
 ?INCLUDE 'body_table'
-?INCLUDE 'cop_handlers_solid'
+?INCLUDE 'cop_handlers_collision'
 ?INCLUDE 'sprite_composition'
 
 !joypadCurrent                  0656
@@ -241,7 +241,7 @@ WallAnimHere {
     STA $001C
     LDA $14               ; Set probe X coordinate from actor position
     STA $0018
-    JSR $&cop_handlers_solid.TileCollisionQuery ; Query collision layer tile at actor's feet
+    JSR $&cop_handlers_collision.TileCollisionQuery ; Query collision layer tile at actor's feet
     AND #$00FF
     BIT #$00F0            ; Test solid nibble ($F0) — any bit set means blocked tile
     BNE loc_00A1A9
@@ -289,7 +289,7 @@ WallAnimNorth {
     STA $001C             ; WallAnimNorth: probe Y−$10 (one tile north)
     LDA $14
     STA $0018
-    JSR $&cop_handlers_solid.TileCollisionQuery ; TileCollisionQuery at tile north of actor
+    JSR $&cop_handlers_collision.TileCollisionQuery ; TileCollisionQuery at tile north of actor
     AND #$00FF
     BIT #$00F0
     BNE loc_00A1F4
@@ -337,7 +337,7 @@ WallAnimSouth {
     STA $001C             ; WallAnimSouth: probe Y+$10 (one tile south)
     LDA $14
     STA $0018
-    JSR $&cop_handlers_solid.TileCollisionQuery ; Query collision at tile south of actor
+    JSR $&cop_handlers_collision.TileCollisionQuery ; Query collision at tile south of actor
     AND #$00FF
     BIT #$00F0
     BNE loc_00A23F

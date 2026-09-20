@@ -12,7 +12,7 @@
 ?BANK 0B
 
 ?INCLUDE 'actor_pool'
-?INCLUDE 'cop_handlers_flags'
+?INCLUDE 'flag_helpers'
 ?INCLUDE 'pyDD_queen_orb_shot'
 ?INCLUDE 'pyDD_queen_phase_transition'
 ?INCLUDE 'pyDD_queen_spirit_attack'
@@ -118,7 +118,7 @@ pyDD_mummy_queen [
 
   code_0BA6B9:
     LDA #$0004
-    JSL $@cop_handlers_flags.TestWramFlag_Offset100
+    JSL $@flag_helpers.TestWramFlag_Offset100
     BCC loc_0BA6CA
     STZ $0AEC
     STZ $0AEE

@@ -523,7 +523,7 @@ For each entry with bit `$80` clear and the corresponding event flag set (`TestE
 |--------|--------------|
 | `chunk_03BAE1.asm` (~line 5441) | Scene load initialization |
 | `inventory_overlay.asm` | Inventory exit — restore barriers |
-| `cop_handlers_flags.TestEventFlag_0200` | Flag test on entry byte 3 |
+| `flag_helpers.TestEventFlag_0200` | Flag test on entry byte 3 |
 | `table_01ADA8` | Per-scene chest/barrier entry table |
 
 ### HandleChestInteraction

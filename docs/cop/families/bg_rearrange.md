@@ -1,6 +1,6 @@
 # COP family: BG rearrange
 
-_Deep-audited ops: `[32]`, `[33]`, `[34]`_ · _Source: [`cop_handlers_palette.asm`](../../../extracted/system/engine/cop_handlers_palette.asm)_
+_Deep-audited ops: `[32]`, `[33]`, `[34]`_ · _Source: [`cop_handlers_bg_rearrange.asm`](../../../extracted/system/engine/cop_handlers_bg_rearrange.asm)_
 
 [← COP index](../index.md)
 

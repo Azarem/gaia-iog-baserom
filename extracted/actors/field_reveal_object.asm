@@ -3,8 +3,8 @@
 ; Reads enemy_clear_reward_table for the scene's reward tier and stages HP/STR/DEF gem sprites. Animates upward through solid tiles, moves toward reveal position, spawns a collect_handler_gem, and plays a spin/shrink loop. Used when a cleared room's hidden stat reward becomes visible.
 ---------------------------------------------
 
-?INCLUDE 'cop_handlers_flags'
 ?INCLUDE 'enemy_clear_reward_table'
+?INCLUDE 'flag_helpers'
 ?INCLUDE 'interaction_handlers'
 ?INCLUDE 'spriteset_enemies'
 
@@ -26,7 +26,7 @@ field_reveal_object {
     LDA $26
     BNE FieldRevealFromActorStats
     LDA $sceneCurrent
-    JSL $@cop_handlers_flags.TestFlag_0300
+    JSL $@flag_helpers.TestFlag_0300
     BCS FieldRevealFromActorStats
     LDY $sceneCurrent
     LDA $&enemy_clear_reward_table, Y

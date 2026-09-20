@@ -1,7 +1,7 @@
 # Bank $00 — Tile/Map Helpers, Animation & Sprite Utilities
 
 **Address range:** `$0097EF`–`$00AF8F`  
-**Source files:** [`extracted/system/engine/cop_handlers_map.asm`](../../../extracted/system/engine/cop_handlers_map.asm), [`extracted/system/engine/cop_handlers_effects.asm`](../../../extracted/system/engine/cop_handlers_effects.asm), [`extracted/system/engine/actor_pool.asm`](../../../extracted/system/engine/actor_pool.asm), [`extracted/system/engine/cop_handlers_solid.asm`](../../../extracted/system/engine/cop_handlers_solid.asm)  
+**Source files:** [`extracted/system/engine/cop_handlers_metatile.asm`](../../../extracted/system/engine/cop_handlers_metatile.asm), [`extracted/system/engine/cop_handlers_effects.asm`](../../../extracted/system/engine/cop_handlers_effects.asm), [`extracted/system/engine/actor_pool.asm`](../../../extracted/system/engine/actor_pool.asm), [`extracted/system/engine/cop_handlers_collision.asm`](../../../extracted/system/engine/cop_handlers_collision.asm)  
 **Related:** [`cop-dispatch.md`](cop-dispatch.md) (COP `$4B`–`$4E`, `$0D`/`$0E`, `$00`, `$60`, `$80`–`92`)
 
 Utility routines supporting metatile drawing, world-map streaming, sprite staging, sine-based HDMA effects, and collision offset computation. These are shared infrastructure called from multiple COP handlers rather than standalone entry points.
@@ -149,7 +149,7 @@ This implements a "try again next frame" pattern for metatile operations that de
 
 #### Source
 
-```2109:2122:extracted/system/engine/cop_handlers_map.asm
+```2109:2122:extracted/system/engine/cop_handlers_metatile.asm
 TileQueryGate {
     CLC 
     LDA $0902
@@ -513,7 +513,7 @@ Y axis:
 
 #### Source
 
-```3125:3167:extracted/system/engine/cop_handlers_solid.asm
+```3125:3167:extracted/system/engine/cop_handlers_collision.asm
 ParseSignedTileOffset {
     LDA [$0A]
     INC $0A
@@ -619,4 +619,4 @@ ParseSignedTileOffset {
 - [`extracted/system/engine/map_coords.asm`](../../../extracted/system/engine/map_coords.asm) — `TileCoordsToMapIndex`, `PixelToVramAddress`
 - `sine_table_8bit` — 256-byte sine table source data
 
-*Source: [`extracted/system/engine/cop_handlers_map.asm`](../../../extracted/system/engine/cop_handlers_map.asm), [`extracted/system/engine/cop_handlers_effects.asm`](../../../extracted/system/engine/cop_handlers_effects.asm), [`extracted/system/engine/actor_pool.asm`](../../../extracted/system/engine/actor_pool.asm), [`extracted/system/engine/cop_handlers_solid.asm`](../../../extracted/system/engine/cop_handlers_solid.asm)*
+*Source: [`extracted/system/engine/cop_handlers_metatile.asm`](../../../extracted/system/engine/cop_handlers_metatile.asm), [`extracted/system/engine/cop_handlers_effects.asm`](../../../extracted/system/engine/cop_handlers_effects.asm), [`extracted/system/engine/actor_pool.asm`](../../../extracted/system/engine/actor_pool.asm), [`extracted/system/engine/cop_handlers_collision.asm`](../../../extracted/system/engine/cop_handlers_collision.asm)*

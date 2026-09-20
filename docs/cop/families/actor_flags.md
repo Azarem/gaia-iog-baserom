@@ -1,6 +1,6 @@
 # COP family: Actor flags
 
-_Ops: `[5B]`, `[5C]`, `[5D]`_ · _Source: [`cop_handlers_lifecycle.asm`](../../../extracted/system/engine/cop_handlers_lifecycle.asm) + [`cop_handlers_map.asm`](../../../extracted/system/engine/cop_handlers_map.asm)_
+_Ops: `[5B]`, `[5C]`, `[5D]`_ · _Source: [`cop_handlers_callbacks.asm`](../../../extracted/system/engine/cop_handlers_callbacks.asm) + [`cop_handlers_actor_flags.asm`](../../../extracted/system/engine/cop_handlers_actor_flags.asm)_
 
 [← COP index](../index.md) · [Callbacks](callbacks.md) · [Collision branch](collision_branch.md)
 
@@ -15,7 +15,7 @@ Three opcodes for **extended actor state** and **line-of-sight** gating. `$5B` /
 | `$7F002A,X` (`extendedFlags`) | Persistent per-actor flag word (gameplay bits, not `$12` status) |
 | `$14` / `$16` | Actor pixel position (for `$5D` tile sample) |
 | `$10` bit `$0010` | Layer-aware occlusion mode for `$5D` (when set, uses low collision nibble) |
-| `$80` + `CalcTileMapOffset` | Map collision layer pointer ([`cop_handlers_map.asm`](../../../extracted/system/engine/cop_handlers_map.asm)) |
+| `$80` + `CalcTileMapOffset` | Map collision layer pointer ([`cop_handlers_metatile.asm`](../../../extracted/system/engine/cop_handlers_metatile.asm)) |
 
 Common **`OrExtraFlags`** masks in shipped scripts: `$0010`, `$0080`, `$0090` (combined) — actor-specific meaning (smooth follow, damage rules, etc.).
 
@@ -23,7 +23,7 @@ Common **`OrExtraFlags`** masks in shipped scripts: `$0010`, `$0080`, `$0090` (c
 
 - `$5C` **AND** keeps only bits set in the mask operand (clear bits where mask is 0).
 - `$5D` semantics: **visible** → skip branch operand, **continue**; **occluded** → jump to `&Code`. (Opposite of a “branch if visible” test.)
-- `$5D` handler lives in **[`cop_handlers_map.asm`](../../../extracted/system/engine/cop_handlers_map.asm)**, not lifecycle — same dispatch table, different compilation unit.
+- `$5D` handler lives in **[`cop_handlers_metatile.asm`](../../../extracted/system/engine/cop_handlers_metatile.asm)**, not lifecycle — same dispatch table, different compilation unit.
 - Legacy: `OrActorFlags` → `OrExtraFlags`, `AndActorFlags` → `AndExtraFlags`.
 
 ## Usage statistics
@@ -42,7 +42,7 @@ Common **`OrExtraFlags`** masks in shipped scripts: `$0010`, `$0080`, `$0090` (c
 
 - **Preferred name:** `OrExtraFlags`
 - **Aliases:** `OrActorFlags`
-- **Handler:** `OrExtraFlags` @ [`cop_handlers_lifecycle.asm:314-324`](../../../extracted/system/engine/cop_handlers_lifecycle.asm)
+- **Handler:** `OrExtraFlags` @ [`cop_handlers_callbacks.asm:314-324`](../../../extracted/system/engine/cop_handlers_callbacks.asm)
 - **Parameters:** `Word` bitmask ORed into `$7F002A,X`
 - **Outcome:** Continue
 - **Usage count:** 74
@@ -50,7 +50,7 @@ Common **`OrExtraFlags`** masks in shipped scripts: `$0010`, `$0080`, `$0090` (c
 ##### What it does
 
 ```asm
-OrExtraFlags {                ; cop_handlers_lifecycle.asm:313-323
+OrExtraFlags {                ; cop_handlers_callbacks.asm:313-323
     TYX 
     LDA [$0A]                 ; Read flags word operand
     INC $0A
@@ -108,7 +108,7 @@ COP [OrExtraFlags] ( #$0080 )
 
 - **Preferred name:** `AndExtraFlags`
 - **Aliases:** `AndActorFlags`
-- **Handler:** `AndExtraFlags` @ [`cop_handlers_lifecycle.asm:329-339`](../../../extracted/system/engine/cop_handlers_lifecycle.asm)
+- **Handler:** `AndExtraFlags` @ [`cop_handlers_callbacks.asm:329-339`](../../../extracted/system/engine/cop_handlers_callbacks.asm)
 - **Parameters:** `Word` mask ANDed with `$7F002A,X`
 - **Outcome:** Continue
 - **Usage count:** 9
@@ -116,7 +116,7 @@ COP [OrExtraFlags] ( #$0080 )
 ##### What it does
 
 ```asm
-AndExtraFlags {               ; cop_handlers_lifecycle.asm:329-339
+AndExtraFlags {               ; cop_handlers_callbacks.asm:329-339
     TYX 
     LDA [$0A]                 ; Read flags word operand
     INC $0A
@@ -164,7 +164,7 @@ COP [AndExtraFlags] ( #$FFBF )
 #### COP [5D] — `BranchIfBehindWall` (skip logic when visible)
 
 - **Preferred name:** `BranchIfBehindWall`
-- **Handler:** `BranchIfBehindWall` @ [`cop_handlers_map.asm:570-622`](../../../extracted/system/engine/cop_handlers_map.asm)
+- **Handler:** `BranchIfBehindWall` @ [`cop_handlers_metatile.asm:570-622`](../../../extracted/system/engine/cop_handlers_metatile.asm)
 - **Parameters:** `&Code` — taken when actor is **occluded**
 - **Outcome:** Branch if occluded; Continue if visible
 - **Usage count:** 4

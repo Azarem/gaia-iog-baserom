@@ -70,8 +70,8 @@
 
 ?BANK 02
 
-?INCLUDE 'cop_handlers_flags'
 ?INCLUDE 'event_blocks'
+?INCLUDE 'flag_helpers'
 ?INCLUDE 'forced_walk'
 ?INCLUDE 'GetPlayerFacingDirection'
 ?INCLUDE 'hdma_dma_spc'
@@ -163,7 +163,7 @@ PlaceBarrierTiles {
     BNE loc_02A65B
     LDA $0003, X          ; Entry byte 3 AND $7F → event flag index (TestEventFlag_0200)
     AND #$007F
-    JSL $@cop_handlers_flags.TestEventFlag_0200 ; Flag clear (BCC) — barrier removed; skip 2×2 tile placement
+    JSL $@flag_helpers.TestEventFlag_0200 ; Flag clear (BCC) — barrier removed; skip 2×2 tile placement
     BCC loc_02A655
     PHX 
     SEP #$20              ; Entry +0/+1 = tile X/Y; DEC Y anchors top row at Y−1
@@ -361,7 +361,7 @@ HandleChestInteraction {
     TAX 
     LDA $0003, X          ; Entry byte 3 AND $7F → SetEventFlag_0200 (no item grant)
     AND #$007F
-    JSL $@cop_handlers_flags.SetEventFlag_0200
+    JSL $@flag_helpers.SetEventFlag_0200
     BRA loc_02A7B0
 
   loc_02A753:
@@ -404,7 +404,7 @@ HandleChestInteraction {
     TAX 
     LDA $0003, X          ; SetEventFlag_0200 on success — chest permanently opened
     AND #$007F
-    JSL $@cop_handlers_flags.SetEventFlag_0200
+    JSL $@flag_helpers.SetEventFlag_0200
     PLX 
     RTS 
 

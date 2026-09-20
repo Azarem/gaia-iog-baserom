@@ -1,6 +1,6 @@
 # COP family: Inventory
 
-_Ops: `[D4]`, `[D5]`, `[D6]`, `[D7]`_ · _Source: [`cop_handlers_flow.asm`](../../../extracted/system/engine/cop_handlers_flow.asm)_
+_Ops: `[D4]`, `[D5]`, `[D6]`, `[D7]`_ · _Source: [`cop_handlers_inventory.asm`](../../../extracted/system/engine/cop_handlers_inventory.asm)_
 
 [← COP index](../index.md)
 
@@ -46,7 +46,7 @@ Script-facing inventory primitives: grant or remove items, branch on possession,
 
 - **Confidence:** high (handler + call-site audit)
 - **Preferred name:** `GiveItem`
-- **Handler:** `GiveItem` @ [`cop_handlers_flow.asm:463-483`](../../../extracted/system/engine/cop_handlers_flow.asm)
+- **Handler:** `GiveItem` @ [`cop_handlers_inventory.asm:463-483`](../../../extracted/system/engine/cop_handlers_inventory.asm)
 - **Parameters:** `Byte ItemId`, `&Code OnFull` (`db-us/copdef.json`: `["Byte", "&Code"]`)
 - **Usage count:** 49
 
@@ -117,7 +117,7 @@ code_0AA767 {
 
 - **Confidence:** high
 - **Preferred name:** `RemoveItem`
-- **Handler:** `RemoveItem` @ [`cop_handlers_flow.asm:488-497`](../../../extracted/system/engine/cop_handlers_flow.asm)
+- **Handler:** `RemoveItem` @ [`cop_handlers_inventory.asm:488-497`](../../../extracted/system/engine/cop_handlers_inventory.asm)
 - **Parameters:** `Byte ItemId`
 - **Usage count:** 34
 
@@ -160,7 +160,7 @@ Payment gates (spirit guide takes Red Jewel or Herb), key consumption in `item_u
 - **Confidence:** high
 - **Preferred name:** `BranchIfMissingItem`
 - **Aliases:** `BranchIfNoItem`
-- **Handler:** `BranchIfMissingItem` @ [`cop_handlers_flow.asm:502-522`](../../../extracted/system/engine/cop_handlers_flow.asm)
+- **Handler:** `BranchIfMissingItem` @ [`cop_handlers_inventory.asm:502-522`](../../../extracted/system/engine/cop_handlers_inventory.asm)
 - **Parameters:** `Byte ItemId`, `&Code`
 - **Usage count:** 35
 
@@ -228,7 +228,7 @@ COP [BranchIfMissingItem] ( #23, &code_08C250 )
 - **Confidence:** high
 - **Preferred name:** `BranchIfItemEquipped`
 - **Aliases:** `BranchIfEquipped`
-- **Handler:** `BranchIfItemEquipped` @ [`cop_handlers_flow.asm:527-550`](../../../extracted/system/engine/cop_handlers_flow.asm)
+- **Handler:** `BranchIfItemEquipped` @ [`cop_handlers_inventory.asm:527-550`](../../../extracted/system/engine/cop_handlers_inventory.asm)
 - **Parameters:** `Byte ItemId`, `&Code`
 - **Usage count:** 5
 

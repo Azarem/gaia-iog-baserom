@@ -2,7 +2,7 @@
 
 **Bank:** `$00` (mirrored at `$80` for FastROM access)  
 **Address range:** `$00AFCE`–`$00B47F` (direction, collision map, tile query, camera scroll step)  
-**ASM files:** `extracted/system/engine/cop_handlers_solid.asm`, `extracted/system/engine/cop_handlers_movement.asm` (partial)
+**ASM files:** `extracted/system/engine/cop_handlers_collision.asm`, `extracted/system/engine/cop_handlers_movement.asm` (partial)
 
 This page documents the engine routines that compute 8-way facing directions, query tile solidity against the live map, read/write the dynamic collision overlay at `$7FC000`, and index camera pan step tables. These functions sit between COP script handlers and bank `$03` map lookup code; almost every movement, spawn, and branch-on-wall COP in the `$00`–`$1E` and `$96`–`$98` ranges depends on them.
 

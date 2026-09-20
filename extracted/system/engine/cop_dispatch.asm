@@ -13,19 +13,36 @@
 
 ?BANK 00
 
+?INCLUDE 'cop_handlers_actor_death'
+?INCLUDE 'cop_handlers_actor_flags'
+?INCLUDE 'cop_handlers_actor_query'
 ?INCLUDE 'cop_handlers_audio'
+?INCLUDE 'cop_handlers_bg_rearrange'
+?INCLUDE 'cop_handlers_callbacks'
+?INCLUDE 'cop_handlers_collision'
+?INCLUDE 'cop_handlers_dialog'
+?INCLUDE 'cop_handlers_dungeon_switch'
 ?INCLUDE 'cop_handlers_effects'
-?INCLUDE 'cop_handlers_flow'
+?INCLUDE 'cop_handlers_force_move'
+?INCLUDE 'cop_handlers_hdma_dma'
 ?INCLUDE 'cop_handlers_input'
-?INCLUDE 'cop_handlers_lifecycle'
-?INCLUDE 'cop_handlers_map'
+?INCLUDE 'cop_handlers_inventory'
+?INCLUDE 'cop_handlers_linked_actor'
+?INCLUDE 'cop_handlers_metatile'
 ?INCLUDE 'cop_handlers_movement'
+?INCLUDE 'cop_handlers_oam_attribs'
+?INCLUDE 'cop_handlers_offscreen'
 ?INCLUDE 'cop_handlers_palette'
+?INCLUDE 'cop_handlers_player_query'
 ?INCLUDE 'cop_handlers_player_sprite'
-?INCLUDE 'cop_handlers_solid'
-?INCLUDE 'cop_handlers_spatial'
+?INCLUDE 'cop_handlers_scene_flags'
+?INCLUDE 'cop_handlers_script_control'
 ?INCLUDE 'cop_handlers_spawn'
 ?INCLUDE 'cop_handlers_sprite'
+?INCLUDE 'cop_handlers_thinker'
+?INCLUDE 'cop_handlers_vram'
+?INCLUDE 'cop_handlers_wait'
+?INCLUDE 'cop_handlers_world_map'
 
 ---------------------------------------------
 
@@ -51,10 +68,10 @@ CopDispatch {
 ; 227-entry handler pointer table mapping COP opcodes $00–$6D and $80–$E2 (209 valid) to short-address handler labels across 13 handler blocks. Opcodes $6E–$7F are an 18-entry #$0000 gap that would crash if executed.
 
 cop_dispatch_table [
-  &cop_handlers_solid.GenHdmaSine   ;00
-  &cop_handlers_solid.QueueHdma   ;01
-  &cop_handlers_solid.QueueDma   ;02
-  &cop_handlers_solid.QueueHdmaChannel   ;03
+  &cop_handlers_hdma_dma.GenHdmaSine   ;00
+  &cop_handlers_hdma_dma.QueueHdma   ;01
+  &cop_handlers_hdma_dma.QueueDma   ;02
+  &cop_handlers_hdma_dma.QueueHdmaChannel   ;03
   &cop_handlers_audio.StartMusic   ;04
   &cop_handlers_audio.FadeThenStartMusic   ;05
   &cop_handlers_audio.PlaySoundCh2   ;06
@@ -62,103 +79,103 @@ cop_dispatch_table [
   &cop_handlers_audio.PlaySoundBoth   ;08
   &cop_handlers_audio.WriteApuIo1   ;09
   &cop_handlers_audio.WriteApuIo0   ;0A
-  &cop_handlers_solid.MarkSolidHere   ;0B
-  &cop_handlers_solid.ClearSolidHere   ;0C
-  &cop_handlers_solid.MarkSolidOffset   ;0D
-  &cop_handlers_solid.ClearSolidOffset   ;0E
-  &cop_handlers_solid.MarkSolidAbs   ;0F
-  &cop_handlers_solid.ClearSolidAbs   ;10
-  &cop_handlers_solid.ClearCollisionHere   ;11
-  &cop_handlers_solid.ClearTypeAbs   ;12
-  &cop_handlers_solid.BranchIfSolidHere   ;13
-  &cop_handlers_solid.BranchIfSolidOffset   ;14
-  &cop_handlers_solid.BranchIfSolidNorth   ;15
-  &cop_handlers_solid.BranchIfSolidSouth   ;16
-  &cop_handlers_solid.BranchIfSolidWest   ;17
-  &cop_handlers_solid.BranchIfSolidEast   ;18
+  &cop_handlers_collision.MarkSolidHere   ;0B
+  &cop_handlers_collision.ClearSolidHere   ;0C
+  &cop_handlers_collision.MarkSolidOffset   ;0D
+  &cop_handlers_collision.ClearSolidOffset   ;0E
+  &cop_handlers_collision.MarkSolidAbs   ;0F
+  &cop_handlers_collision.ClearSolidAbs   ;10
+  &cop_handlers_collision.ClearCollisionHere   ;11
+  &cop_handlers_collision.ClearTypeAbs   ;12
+  &cop_handlers_collision.BranchIfSolidHere   ;13
+  &cop_handlers_collision.BranchIfSolidOffset   ;14
+  &cop_handlers_collision.BranchIfSolidNorth   ;15
+  &cop_handlers_collision.BranchIfSolidSouth   ;16
+  &cop_handlers_collision.BranchIfSolidWest   ;17
+  &cop_handlers_collision.BranchIfSolidEast   ;18
   &cop_handlers_audio.MusicAndText   ;19
-  &cop_handlers_solid.BranchIfTypeHere   ;1A
-  &cop_handlers_solid.BranchIfTypeNorth   ;1B
-  &cop_handlers_solid.BranchIfTypeSouth   ;1C
-  &cop_handlers_solid.BranchIfTypeWest   ;1D
-  &cop_handlers_solid.BranchIfTypeEast   ;1E
-  &cop_handlers_solid.BranchIfNotOnGridline   ;1F
+  &cop_handlers_collision.BranchIfTypeHere   ;1A
+  &cop_handlers_collision.BranchIfTypeNorth   ;1B
+  &cop_handlers_collision.BranchIfTypeSouth   ;1C
+  &cop_handlers_collision.BranchIfTypeWest   ;1D
+  &cop_handlers_collision.BranchIfTypeEast   ;1E
+  &cop_handlers_collision.BranchIfNotOnGridline   ;1F
   &cop_handlers_movement.BranchIfActorNear   ;20
   &cop_handlers_movement.BranchIfPlayerNear   ;21
   &cop_handlers_movement.MoveToward   ;22
   &cop_handlers_movement.RngByte   ;23
   &cop_handlers_movement.RngMod   ;24
-  &cop_handlers_spatial.SetTilePos   ;25
-  &cop_handlers_spatial.QueueMapChange   ;26
-  &cop_handlers_spatial.WaitWhileOffscreen   ;27
-  &cop_handlers_spatial.BranchIfPlayerAt   ;28
-  &cop_handlers_spatial.BranchIfActorAt   ;29
-  &cop_handlers_spatial.BranchOnPlayerX   ;2A
-  &cop_handlers_spatial.BranchOnPlayerY   ;2B
-  &cop_handlers_spatial.BranchNearerAxis   ;2C
-  &cop_handlers_spatial.DirToPlayer   ;2D
-  &cop_handlers_spatial.DirToPlayerFrom   ;2E
-  &cop_handlers_spatial.BranchIfDirToPlayer   ;2F
-  &cop_handlers_spatial.BranchIfDirToPlayerFrom   ;30
-  &cop_handlers_spatial.BranchOnPlayerFacing   ;31
-  &cop_handlers_palette.StageBgChange   ;32
-  &cop_handlers_palette.ApplyBgChange   ;33
-  &cop_handlers_palette.StageBgChangeFromDeathIdx   ;34
-  &cop_handlers_spatial.CardinalToPlayer   ;35
+  &cop_handlers_player_query.SetTilePos   ;25
+  &cop_handlers_player_query.QueueMapChange   ;26
+  &cop_handlers_player_query.WaitWhileOffscreen   ;27
+  &cop_handlers_player_query.BranchIfPlayerAt   ;28
+  &cop_handlers_player_query.BranchIfActorAt   ;29
+  &cop_handlers_player_query.BranchOnPlayerX   ;2A
+  &cop_handlers_player_query.BranchOnPlayerY   ;2B
+  &cop_handlers_player_query.BranchNearerAxis   ;2C
+  &cop_handlers_player_query.DirToPlayer   ;2D
+  &cop_handlers_player_query.DirToPlayerFrom   ;2E
+  &cop_handlers_player_query.BranchIfDirToPlayer   ;2F
+  &cop_handlers_player_query.BranchIfDirToPlayerFrom   ;30
+  &cop_handlers_player_query.BranchOnPlayerFacing   ;31
+  &cop_handlers_bg_rearrange.StageBgChange   ;32
+  &cop_handlers_bg_rearrange.ApplyBgChange   ;33
+  &cop_handlers_bg_rearrange.StageBgChangeFromDeathIdx   ;34
+  &cop_handlers_player_query.CardinalToPlayer   ;35
   &cop_handlers_palette.PaletteRestart   ;36
   &cop_handlers_palette.PaletteStart   ;37
   &cop_handlers_palette.PaletteStartLoop   ;38
   &cop_handlers_palette.PaletteStep   ;39
   &cop_handlers_palette.PaletteStepLoop   ;3A
-  &cop_handlers_palette.SpawnThinkerParam   ;3B
-  &cop_handlers_palette.SpawnThinker   ;3C
-  &cop_handlers_palette.KillThinker   ;3D
+  &cop_handlers_thinker.SpawnThinkerParam   ;3B
+  &cop_handlers_thinker.SpawnThinker   ;3C
+  &cop_handlers_thinker.KillThinker   ;3D
   &cop_handlers_input.WaitForButton   ;3E
   &cop_handlers_input.WaitForRelease   ;3F
   &cop_handlers_input.BranchIfPressed   ;40
   &cop_handlers_input.BranchIfNotPressed   ;41
-  &cop_handlers_solid.SetCollisionAbs   ;42
+  &cop_handlers_collision.SetCollisionAbs   ;42
   &cop_handlers_movement.SnapToGrid   ;43
-  &cop_handlers_lifecycle.BranchIfPlayerInRelTiles   ;44
-  &cop_handlers_lifecycle.BranchIfPlayerInAbsTiles   ;45
-  &cop_handlers_lifecycle.CopyPosToPrev   ;46
-  &cop_handlers_lifecycle.CopyPosToNext   ;47
-  &cop_handlers_lifecycle.GetPlayerFacing   ;48
-  &cop_handlers_lifecycle.BranchIfBodyNe   ;49
+  &cop_handlers_actor_query.BranchIfPlayerInRelTiles   ;44
+  &cop_handlers_actor_query.BranchIfPlayerInAbsTiles   ;45
+  &cop_handlers_actor_query.CopyPosToPrev   ;46
+  &cop_handlers_actor_query.CopyPosToNext   ;47
+  &cop_handlers_actor_query.GetPlayerFacing   ;48
+  &cop_handlers_actor_query.BranchIfBodyNe   ;49
   &cop_handlers_movement.ResumeAfterSnap   ;4A
-  &cop_handlers_map.DrawMetatileAbs   ;4B
-  &cop_handlers_map.DrawMetatileHere   ;4C
-  &cop_handlers_map.WorldMapStream3   ;4D
-  &cop_handlers_map.WorldMapStream4   ;4E
-  &cop_handlers_map.AdhocVramDma   ;4F
-  &cop_handlers_map.CopyPalette   ;50
-  &cop_handlers_map.Decompress   ;51
+  &cop_handlers_metatile.DrawMetatileAbs   ;4B
+  &cop_handlers_metatile.DrawMetatileHere   ;4C
+  &cop_handlers_metatile.WorldMapStream3   ;4D
+  &cop_handlers_metatile.WorldMapStream4   ;4E
+  &cop_handlers_vram.AdhocVramDma   ;4F
+  &cop_handlers_vram.CopyPalette   ;50
+  &cop_handlers_vram.Decompress   ;51
   &cop_handlers_movement.StageMove   ;52
   &cop_handlers_movement.TickMove   ;53
-  &cop_handlers_map.SetScratchPointer   ;54
+  &cop_handlers_vram.SetScratchPointer   ;54
   &cop_handlers_sprite.ResetSpriteState   ;55
   &cop_handlers_sprite.AdvanceSpriteAnim   ;56
-  &cop_handlers_lifecycle.SetDeathCallback   ;57
-  &cop_handlers_lifecycle.SetHitCallback   ;58
-  &cop_handlers_lifecycle.SetDodgeCallback   ;59
-  &cop_handlers_lifecycle.SetCollideCallback   ;5A
-  &cop_handlers_lifecycle.OrExtraFlags   ;5B
-  &cop_handlers_lifecycle.AndExtraFlags   ;5C
-  &cop_handlers_map.BranchIfBehindWall   ;5D
-  &cop_handlers_lifecycle.SetCustomCallback   ;5E
+  &cop_handlers_callbacks.SetDeathCallback   ;57
+  &cop_handlers_callbacks.SetHitCallback   ;58
+  &cop_handlers_callbacks.SetDodgeCallback   ;59
+  &cop_handlers_callbacks.SetCollideCallback   ;5A
+  &cop_handlers_callbacks.OrExtraFlags   ;5B
+  &cop_handlers_callbacks.AndExtraFlags   ;5C
+  &cop_handlers_actor_flags.BranchIfBehindWall   ;5D
+  &cop_handlers_callbacks.SetCustomCallback   ;5E
   &cop_handlers_effects.InitSineHdma   ;5F
   &cop_handlers_effects.TickSineHdma   ;60
   &cop_handlers_effects.BindSineHdma   ;61
-  &cop_handlers_map.BranchIfCollisionTypeNe   ;62
+  &cop_handlers_actor_flags.BranchIfCollisionTypeNe   ;62
   &cop_handlers_effects.InitGravity   ;63
   &cop_handlers_effects.TickGravity   ;64
-  &cop_handlers_input.StageWorldMapMove   ;65
-  &cop_handlers_input.StageWorldMapChoice   ;66
-  &cop_handlers_input.StageWorldMapMoveIds   ;67
-  &cop_handlers_map.BranchIfOffCamera   ;68
-  &cop_handlers_map.HaltIfMaxFrames   ;69
-  &cop_handlers_lifecycle.SetLinkedEntryPtr   ;6A
-  &cop_handlers_input.PrintDialogStringAlt   ;6B
+  &cop_handlers_world_map.StageWorldMapMove   ;65
+  &cop_handlers_world_map.StageWorldMapChoice   ;66
+  &cop_handlers_world_map.StageWorldMapMoveIds   ;67
+  &cop_handlers_offscreen.BranchIfOffCamera   ;68
+  &cop_handlers_offscreen.HaltIfMaxFrames   ;69
+  &cop_handlers_linked_actor.SetLinkedEntryPtr   ;6A
+  &cop_handlers_dialog.PrintDialogStringAlt   ;6B
   &cop_handlers_effects.InitSpiral   ;6C
   &cop_handlers_effects.SpiralStep   ;6D
   #$0000   ;6E
@@ -218,66 +235,66 @@ cop_dispatch_table [
   &cop_handlers_spawn.SpawnAfterOffsetMarked   ;A4
   &cop_handlers_spawn.SpawnListAppend   ;A5
   &cop_handlers_spawn.SpawnListAppendSpr   ;A6
-  &cop_handlers_lifecycle.MarkDeath   ;A7
-  &cop_handlers_lifecycle.KillPrev   ;A8
-  &cop_handlers_lifecycle.KillNext   ;A9
-  &cop_handlers_lifecycle.StageMoveX   ;AA
-  &cop_handlers_lifecycle.StageMoveY   ;AB
-  &cop_handlers_lifecycle.StageMoveXY   ;AC
-  &cop_handlers_lifecycle.ForceDirSW   ;AD
-  &cop_handlers_lifecycle.ForceDirNE   ;AE
-  &cop_handlers_lifecycle.ForceDirBoth   ;AF
-  &cop_handlers_lifecycle.ApplyMoveToChild   ;B0
-  &cop_handlers_lifecycle.ReloadMoveDurations   ;B1
-  &cop_handlers_lifecycle.SetPriorityMax   ;B2
-  &cop_handlers_lifecycle.SetPriorityMin   ;B3
-  &cop_handlers_lifecycle.ClearPriorityMax   ;B4
-  &cop_handlers_lifecycle.ClearPriorityMin   ;B5
-  &cop_handlers_lifecycle.SetOamPriority   ;B6
-  &cop_handlers_lifecycle.SetOamPalette   ;B7
-  &cop_handlers_lifecycle.ToggleHMirror   ;B8
-  &cop_handlers_lifecycle.ToggleVMirror   ;B9
-  &cop_handlers_lifecycle.ClearHMirror   ;BA
-  &cop_handlers_lifecycle.SetHMirror   ;BB
-  &cop_handlers_lifecycle.NudgePosition   ;BC
-  &cop_handlers_input.RunBg3Script   ;BD
-  &cop_handlers_input.DialogueOptions   ;BE
-  &cop_handlers_input.PrintDialogString   ;BF
-  &cop_handlers_flow.SetInteractHandler   ;C0
-  &cop_handlers_flow.SetEntryHere   ;C1
-  &cop_handlers_flow.SetEntryHereAndYield   ;C2
-  &cop_handlers_flow.JumpAfterDelay   ;C3
-  &cop_handlers_flow.JumpNextFrame   ;C4
-  &cop_handlers_flow.RestoreSavedPtr   ;C5
-  &cop_handlers_flow.SetSavedPtr   ;C6
-  &cop_handlers_flow.JumpFar   ;C7
-  &cop_handlers_flow.CallNear   ;C8
-  &cop_handlers_flow.CallNearDeferred   ;C9
-  &cop_handlers_flow.LoopStart   ;CA
-  &cop_handlers_flow.LoopEnd   ;CB
-  &cop_handlers_flow.SetFlagByte   ;CC
-  &cop_handlers_flow.SetFlagWord   ;CD
-  &cop_handlers_flow.ClearFlagByte   ;CE
-  &cop_handlers_flow.ClearFlagWord   ;CF
-  &cop_handlers_flow.BranchOnFlagByte   ;D0
-  &cop_handlers_flow.BranchOnFlagWord   ;D1
-  &cop_handlers_flow.WaitOnFlagByte   ;D2
-  &cop_handlers_flow.WaitOnFlagWord   ;D3
-  &cop_handlers_flow.GiveItem   ;D4
-  &cop_handlers_flow.RemoveItem   ;D5
-  &cop_handlers_flow.BranchIfMissingItem   ;D6
-  &cop_handlers_flow.BranchIfItemEquipped   ;D7
-  &cop_handlers_flow.SetDungeonKillFlag   ;D8
-  &cop_handlers_flow.SwitchCase   ;D9
-  &cop_handlers_flow.WaitByte   ;DA
-  &cop_handlers_flow.WaitWord   ;DB
+  &cop_handlers_actor_death.MarkDeath   ;A7
+  &cop_handlers_actor_death.KillPrev   ;A8
+  &cop_handlers_actor_death.KillNext   ;A9
+  &cop_handlers_force_move.StageMoveX   ;AA
+  &cop_handlers_force_move.StageMoveY   ;AB
+  &cop_handlers_force_move.StageMoveXY   ;AC
+  &cop_handlers_force_move.ForceDirSW   ;AD
+  &cop_handlers_force_move.ForceDirNE   ;AE
+  &cop_handlers_force_move.ForceDirBoth   ;AF
+  &cop_handlers_force_move.ApplyMoveToChild   ;B0
+  &cop_handlers_force_move.ReloadMoveDurations   ;B1
+  &cop_handlers_oam_attribs.SetPriorityMax   ;B2
+  &cop_handlers_oam_attribs.SetPriorityMin   ;B3
+  &cop_handlers_oam_attribs.ClearPriorityMax   ;B4
+  &cop_handlers_oam_attribs.ClearPriorityMin   ;B5
+  &cop_handlers_oam_attribs.SetOamPriority   ;B6
+  &cop_handlers_oam_attribs.SetOamPalette   ;B7
+  &cop_handlers_oam_attribs.ToggleHMirror   ;B8
+  &cop_handlers_oam_attribs.ToggleVMirror   ;B9
+  &cop_handlers_oam_attribs.ClearHMirror   ;BA
+  &cop_handlers_oam_attribs.SetHMirror   ;BB
+  &cop_handlers_oam_attribs.NudgePosition   ;BC
+  &cop_handlers_dialog.RunBg3Script   ;BD
+  &cop_handlers_dialog.DialogueOptions   ;BE
+  &cop_handlers_dialog.PrintDialogString   ;BF
+  &cop_handlers_script_control.SetInteractHandler   ;C0
+  &cop_handlers_script_control.SetEntryHere   ;C1
+  &cop_handlers_script_control.SetEntryHereAndYield   ;C2
+  &cop_handlers_script_control.JumpAfterDelay   ;C3
+  &cop_handlers_script_control.JumpNextFrame   ;C4
+  &cop_handlers_script_control.RestoreSavedPtr   ;C5
+  &cop_handlers_script_control.SetSavedPtr   ;C6
+  &cop_handlers_script_control.JumpFar   ;C7
+  &cop_handlers_script_control.CallNear   ;C8
+  &cop_handlers_script_control.CallNearDeferred   ;C9
+  &cop_handlers_script_control.LoopStart   ;CA
+  &cop_handlers_script_control.LoopEnd   ;CB
+  &cop_handlers_scene_flags.SetFlagByte   ;CC
+  &cop_handlers_scene_flags.SetFlagWord   ;CD
+  &cop_handlers_scene_flags.ClearFlagByte   ;CE
+  &cop_handlers_scene_flags.ClearFlagWord   ;CF
+  &cop_handlers_scene_flags.BranchOnFlagByte   ;D0
+  &cop_handlers_scene_flags.BranchOnFlagWord   ;D1
+  &cop_handlers_scene_flags.WaitOnFlagByte   ;D2
+  &cop_handlers_scene_flags.WaitOnFlagWord   ;D3
+  &cop_handlers_inventory.GiveItem   ;D4
+  &cop_handlers_inventory.RemoveItem   ;D5
+  &cop_handlers_inventory.BranchIfMissingItem   ;D6
+  &cop_handlers_inventory.BranchIfItemEquipped   ;D7
+  &cop_handlers_dungeon_switch.SetDungeonKillFlag   ;D8
+  &cop_handlers_dungeon_switch.SwitchCase   ;D9
+  &cop_handlers_wait.WaitByte   ;DA
+  &cop_handlers_wait.WaitWord   ;DB
   &cop_handlers_effects.CameraPanDown   ;DC
   &cop_handlers_effects.CameraPanUp   ;DD
   &cop_handlers_effects.CameraPanRight   ;DE
   &cop_handlers_effects.CameraPanLeft   ;DF
-  &cop_handlers_lifecycle.Die   ;E0
-  &cop_handlers_flow.ReturnWithSignal   ;E1
-  &cop_handlers_flow.SetEntryFar   ;E2
+  &cop_handlers_actor_death.Die   ;E0
+  &cop_handlers_script_control.ReturnWithSignal   ;E1
+  &cop_handlers_script_control.SetEntryFar   ;E2
 ]
 
 ---------------------------------------------
