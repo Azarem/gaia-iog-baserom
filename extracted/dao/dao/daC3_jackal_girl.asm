@@ -12,9 +12,9 @@ daC3_jackal_girl [
   actor-def < #14, #00, #10, {
 
   code_08ACC8:
-    COP [SolidHighHere]
-    COP [SetOnInteract] ( &code_08ACD1 )
-    COP [SetEntryContinue]
+    COP [MarkSolidHere]
+    COP [SetInteractHandler] ( &code_08ACD1 )
+    COP [SetEntryHere]
     RTL 
 } >
 ]

@@ -11,11 +11,11 @@ av6B_musician [
   actor-def < #18, #00, #10, {
 
   code_06D0AE:
-    COP [SolidHighHere]
+    COP [MarkSolidHere]
     LDA #$0200
     TSB $12
-    COP [SetOnInteract] ( &code_06D0C1 )
-    COP [SetEntryContinue]
+    COP [SetInteractHandler] ( &code_06D0C1 )
+    COP [SetEntryHere]
     COP [StageSpriteFrame] ( #98 )
     COP [AnimOnce]
     RTL 

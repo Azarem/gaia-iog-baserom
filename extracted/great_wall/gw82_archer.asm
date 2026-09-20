@@ -44,9 +44,9 @@ gw83_stone_archer3 [
 
   loc_0B8F01:
     COP [SetSpritePalette] ( #06 )
-    COP [SpawnMarkedAfter] ( @interaction_handlers.push_handler_solid, #$2300 )
-    COP [SolidHighHere]
-    COP [SetEntryContinue]
+    COP [SpawnAfterMarked] ( @interaction_handlers.push_handler_solid, #$2300 )
+    COP [MarkSolidHere]
+    COP [SetEntryHere]
     COP [BranchIfPlayerNear] ( #03, &code_0B8F15 )
     RTL 
 } >
@@ -58,27 +58,27 @@ code_0B8F15 {
 }
 
 code_0B8F1B {
-    COP [SetEntryExitNow] ( @code_0B8F15 )
+    COP [JumpNextFrame] ( @code_0B8F15 )
 
   loc_0B8F20:
     COP [KillNext]
-    COP [LoopInit] ( #1E )
+    COP [LoopStart] ( #1E )
     COP [SetSpritePalette] ( #06 )
-    COP [SetEntryExit]
+    COP [SetEntryHereAndYield]
     COP [SetSpritePalette] ( #00 )
-    COP [LoopNext]
-    COP [LoopInit] ( #0F )
+    COP [LoopEnd]
+    COP [LoopStart] ( #0F )
     COP [SetSpritePalette] ( #06 )
-    COP [SetEntryExit]
-    COP [SetEntryExit]
+    COP [SetEntryHereAndYield]
+    COP [SetEntryHereAndYield]
     COP [SetSpritePalette] ( #00 )
-    COP [SetEntryExit]
-    COP [LoopNext]
+    COP [SetEntryHereAndYield]
+    COP [LoopEnd]
     LDA #$0010
     TRB $12
     LDA #$0300
     TRB $10
-    COP [ClearLowHere]
+    COP [ClearSolidHere]
     JMP $&code_0B917A
 }
 
@@ -89,10 +89,10 @@ gw83_stone_archer4 [
     LDA #$0010
     TSB $12
     COP [SetSpritePalette] ( #06 )
-    COP [SpawnMarkedAfter] ( @interaction_handlers.push_handler_solid, #$2300 )
-    COP [SolidHighHere]
+    COP [SpawnAfterMarked] ( @interaction_handlers.push_handler_solid, #$2300 )
+    COP [MarkSolidHere]
     COP [SetHitCallback] ( &code_0B8F6A )
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     RTL 
 } >
 ]
@@ -110,8 +110,8 @@ gw87_statue_archer [
     LDA #$0020
     TSB $12
     COP [SetSpritePalette] ( #06 )
-    COP [SpawnMarkedAfter] ( @code_0B8FFB, #$2700 )
-    COP [SolidHighHere]
+    COP [SpawnAfterMarked] ( @code_0B8FFB, #$2700 )
+    COP [MarkSolidHere]
     LDA $currentHp, X
     STA $26
 
@@ -122,7 +122,7 @@ gw87_statue_archer [
     STA $orbitDiameter, X
     LDA $26
     STA $currentHp, X
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     LDA $14
     CMP $orbitAngle, X
     BNE loc_0B8FBF
@@ -132,7 +132,7 @@ gw87_statue_archer [
     LDA $currentHp, X
     CMP $26
     BNE loc_0B8F8C
-    COP [BranchIfFlagByte] ( #0F, #01, &code_0B8FDD )
+    COP [BranchOnFlagByte] ( #0F, #01, &code_0B8FDD )
     RTL 
 
   loc_0B8FBF:
@@ -144,12 +144,12 @@ gw87_statue_archer [
     STA $14
     LDA $orbitDiameter, X
     STA $16
-    COP [ClearLowHere]
+    COP [ClearSolidHere]
     PLA 
     STA $16
     PLA 
     STA $14
-    COP [SolidHighHere]
+    COP [MarkSolidHere]
     BRA loc_0B8F8C
 } >
 ]
@@ -169,7 +169,7 @@ code_0B8FDD {
 
 code_0B8FFB {
     COP [SetSavedPtr] ( &code_0B8FFB )
-    COP [SetEntryExit]
+    COP [SetEntryHereAndYield]
     LDY $24
     LDA $0014, Y
     STA $14
@@ -181,7 +181,7 @@ code_0B8FFB {
     RTL 
 
   loc_0B9016:
-    COP [BranchIfButton] ( #$0031, &code_0B901D )
+    COP [BranchIfPressed] ( #$0031, &code_0B901D )
 
   code_0B901C:
     RTL 
@@ -217,14 +217,14 @@ code_0B902D {
     BNE code_0B9075
     COP [BranchIfSolidOffset] ( #00, #FF, &code_0B9075 )
     JSR $&code_0B913D
-    COP [AddPosition] ( #00, #F0 )
+    COP [NudgePosition] ( #00, #F0 )
     COP [PlaySoundCh1] ( #2C )
-    COP [LoopInit] ( #10 )
+    COP [LoopStart] ( #10 )
     LDY $04
     LDA $0016, Y
     DEC 
     STA $0016, Y
-    COP [LoopNext]
+    COP [LoopEnd]
     JSR $&code_0B9149
 }
 
@@ -242,14 +242,14 @@ code_0B9075 {
     BNE code_0B90AE
     COP [BranchIfSolidOffset] ( #00, #01, &code_0B90AE )
     JSR $&code_0B913D
-    COP [AddPosition] ( #00, #10 )
+    COP [NudgePosition] ( #00, #10 )
     COP [PlaySoundCh1] ( #2C )
-    COP [LoopInit] ( #10 )
+    COP [LoopStart] ( #10 )
     LDY $04
     LDA $0016, Y
     INC 
     STA $0016, Y
-    COP [LoopNext]
+    COP [LoopEnd]
     JSR $&code_0B9149
 }
 
@@ -282,14 +282,14 @@ code_0B90BA {
     BNE code_0B9102
     COP [BranchIfSolidOffset] ( #FF, #00, &code_0B9102 )
     JSR $&code_0B913D
-    COP [AddPosition] ( #F0, #00 )
+    COP [NudgePosition] ( #F0, #00 )
     COP [PlaySoundCh1] ( #2C )
-    COP [LoopInit] ( #10 )
+    COP [LoopStart] ( #10 )
     LDY $04
     LDA $0014, Y
     DEC 
     STA $0014, Y
-    COP [LoopNext]
+    COP [LoopEnd]
     JSR $&code_0B9149
 }
 
@@ -307,14 +307,14 @@ code_0B9102 {
     BNE code_0B913B
     COP [BranchIfSolidOffset] ( #01, #00, &code_0B913B )
     JSR $&code_0B913D
-    COP [AddPosition] ( #10, #00 )
+    COP [NudgePosition] ( #10, #00 )
     COP [PlaySoundCh1] ( #2C )
-    COP [LoopInit] ( #10 )
+    COP [LoopStart] ( #10 )
     LDY $04
     LDA $0014, Y
     INC 
     STA $0014, Y
-    COP [LoopNext]
+    COP [LoopEnd]
     JSR $&code_0B9149
 }
 
@@ -346,7 +346,7 @@ gw82_archer1 [
 
   loc_0B915C:
     COP [WaitWhileOffscreen] ( #09 )
-    COP [CallScript] ( &code_0B91AF )
+    COP [CallNear] ( &code_0B91AF )
     BRA loc_0B915C
 } >
 ]
@@ -355,12 +355,12 @@ gw82_archer2 [
   actor-def < #07, #00, #00, {
 
   code_0B9168:
-    COP [SetHFlip]
+    COP [SetHMirror]
     COP [SetHitCallback] ( &code_0B917A )
 
   loc_0B916E:
     COP [WaitWhileOffscreen] ( #09 )
-    COP [CallScript] ( &code_0B91C6 )
+    COP [CallNear] ( &code_0B91C6 )
     BRA loc_0B916E
 } >
 ]
@@ -391,7 +391,7 @@ code_0B91A5 {
 code_0B91AF {
     COP [StageSpriteFrame] ( #0B )
     COP [AnimOnce]
-    COP [SpawnAfterRelFlags] ( @code_0B926C, #$0000, #$FFF5, #$0300 )
+    COP [SpawnAfterOffsetFlags] ( @code_0B926C, #$0000, #$FFF5, #$0300 )
     COP [StageSpriteFrame] ( #0E )
     COP [AnimOnce]
     COP [RestoreSavedPtr]
@@ -400,7 +400,7 @@ code_0B91AF {
 code_0B91C6 {
     COP [StageSpriteFrame] ( #8B )
     COP [AnimOnce]
-    COP [SpawnAfterRelFlags] ( @code_0B9253, #$0000, #$FFF5, #$0300 )
+    COP [SpawnAfterOffsetFlags] ( @code_0B9253, #$0000, #$FFF5, #$0300 )
     COP [StageSpriteFrame] ( #8E )
     COP [AnimOnce]
     COP [RestoreSavedPtr]
@@ -429,70 +429,70 @@ code_0B91FF {
 }
 
 code_0B9209 {
-    COP [LoopInit] ( #02 )
+    COP [LoopStart] ( #02 )
     COP [BranchIfSolidWest] ( &code_0B91F5 )
     COP [StageSprAndHitbox] ( #8A )
-    COP [StageForceMoveX] ( #04 )
-    COP [SetEntryContinue]
-    COP [ContinueIfFrame] ( #02 )
-    COP [SetEntryExit]
+    COP [StageMoveX] ( #04 )
+    COP [SetEntryHere]
+    COP [WaitForAnimFrame] ( #02 )
+    COP [SetEntryHereAndYield]
     STZ $2C
     COP [BranchIfSolidWest] ( &code_0B91F5 )
-    COP [StageForceMoveX] ( #04 )
-    COP [SetEntryContinue]
+    COP [StageMoveX] ( #04 )
+    COP [SetEntryHere]
     COP [AnimOnce]
-    COP [LoopNext]
+    COP [LoopEnd]
     BRA code_0B91F5
 }
 
 code_0B922E {
-    COP [LoopInit] ( #02 )
+    COP [LoopStart] ( #02 )
     COP [BranchIfSolidEast] ( &code_0B91F5 )
     COP [StageSprAndHitbox] ( #0A )
-    COP [StageForceMoveX] ( #03 )
-    COP [SetEntryContinue]
-    COP [ContinueIfFrame] ( #02 )
-    COP [SetEntryExit]
+    COP [StageMoveX] ( #03 )
+    COP [SetEntryHere]
+    COP [WaitForAnimFrame] ( #02 )
+    COP [SetEntryHereAndYield]
     STZ $2C
     COP [BranchIfSolidEast] ( &code_0B91F5 )
-    COP [StageForceMoveX] ( #03 )
-    COP [SetEntryContinue]
+    COP [StageMoveX] ( #03 )
+    COP [SetEntryHere]
     COP [AnimOnce]
-    COP [LoopNext]
+    COP [LoopEnd]
     BRA code_0B91F5
 }
 
 code_0B9253 {
-    COP [SetExtraCallback] ( &code_0B92E9 )
-    COP [OrActorFlags] ( #$0010 )
-    COP [SpawnMarkedAfter] ( @code_0B931A, #$2000 )
+    COP [SetCustomCallback] ( &code_0B92E9 )
+    COP [OrExtraFlags] ( #$0010 )
+    COP [SpawnAfterMarked] ( @code_0B931A, #$2000 )
     COP [StageSpriteFrame] ( #8C )
     COP [AnimOnce]
-    COP [StageForceMoveX] ( #05 )
+    COP [StageMoveX] ( #05 )
     BRA loc_0B9283
 }
 
 code_0B926C {
-    COP [SetExtraCallback] ( &code_0B92F9 )
-    COP [OrActorFlags] ( #$0010 )
-    COP [SpawnMarkedAfter] ( @code_0B9375, #$2000 )
+    COP [SetCustomCallback] ( &code_0B92F9 )
+    COP [OrExtraFlags] ( #$0010 )
+    COP [SpawnAfterMarked] ( @code_0B9375, #$2000 )
     COP [StageSpriteFrame] ( #0C )
     COP [AnimOnce]
-    COP [StageForceMoveX] ( #06 )
+    COP [StageMoveX] ( #06 )
 
   loc_0B9283:
     COP [PlaySoundCh1] ( #1E )
     LDA #$0064
     STA $24
-    COP [SetEntryContinue]
-    COP [BranchIfSolidNibbleNe] ( #0F, &code_0B92A8 )
+    COP [SetEntryHere]
+    COP [BranchIfCollisionTypeNe] ( #0F, &code_0B92A8 )
     DEC $24
     BMI loc_0B9297
     RTL 
 
   loc_0B9297:
-    COP [SetEntryContinue]
-    COP [BranchIfSolidNibbleNe] ( #0F, &code_0B92A8 )
+    COP [SetEntryHere]
+    COP [BranchIfCollisionTypeNe] ( #0F, &code_0B92A8 )
     LDA $10
     BIT #$4000
     BNE loc_0B92A6
@@ -560,7 +560,7 @@ code_0B92F9 {
     SEC 
     SBC #$000E
     STA $16
-    COP [SpawnLastRel] ( @player_transition_handlers.PlayerItemRevealSpawn, #00, #00, #$0302 )
+    COP [SpawnListAppend] ( @player_transition_handlers.PlayerItemRevealSpawn, #00, #00, #$0302 )
     COP [Die]
 }
 
@@ -569,7 +569,7 @@ code_0B931A {
     LDA $0010, Y
     BIT #$0040
     BEQ loc_0B9328
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     RTL 
 
   loc_0B9328:
@@ -624,7 +624,7 @@ code_0B9375 {
     LDA $0010, Y
     BIT #$0040
     BEQ loc_0B9383
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     RTL 
 
   loc_0B9383:
@@ -682,7 +682,7 @@ code_0B9375 {
     SBC $0016, X
     STA $16
     PLX 
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     PHX 
     LDX $playerActor
     LDY $24

@@ -14,11 +14,11 @@ ir1D_four_way [
   actor-def < #09, #00, #00, {
 
   code_0A8C73:
-    COP [AddPosition] ( #08, #00 )
+    COP [NudgePosition] ( #08, #00 )
     LDA #$0011
     TSB $12
-    COP [OrActorFlags] ( #$0008 )
-    COP [SolidHighHere]
+    COP [OrExtraFlags] ( #$0008 )
+    COP [MarkSolidHere]
 
   loc_0A8C82:
     COP [WaitWhileOffscreen] ( #10 )
@@ -35,10 +35,10 @@ ir1D_four_way [
     COP [StageSpriteFrame] ( #29 )
     COP [AnimOnce]
     COP [PlaySoundCh1] ( #1E )
-    COP [SpawnLastRel] ( @code_0A8D61, #F2, #F0, #$0200 )
-    COP [SpawnLastRel] ( @code_0A8D74, #0F, #F0, #$0200 )
-    COP [SpawnLastRel] ( @code_0A8D87, #F2, #04, #$0200 )
-    COP [SpawnLastRel] ( @code_0A8D9A, #0F, #04, #$0200 )
+    COP [SpawnListAppend] ( @code_0A8D61, #F2, #F0, #$0200 )
+    COP [SpawnListAppend] ( @code_0A8D74, #0F, #F0, #$0200 )
+    COP [SpawnListAppend] ( @code_0A8D87, #F2, #04, #$0200 )
+    COP [SpawnListAppend] ( @code_0A8D9A, #0F, #04, #$0200 )
     COP [StageSpriteFrame] ( #2A )
     COP [AnimOnce]
     COP [StageSpriteLoop] ( #27, #02 )
@@ -49,10 +49,10 @@ ir1D_four_way [
     COP [StageSpriteFrame] ( #0A )
     COP [AnimOnce]
     COP [PlaySoundCh1] ( #1E )
-    COP [SpawnLastRel] ( @code_0A8D0C, #00, #E0, #$0200 )
-    COP [SpawnLastRel] ( @code_0A8D2B, #00, #00, #$0202 )
-    COP [SpawnLastRel] ( @code_0A8D3D, #E8, #F5, #$0200 )
-    COP [SpawnLastRel] ( @code_0A8D4F, #18, #F5, #$0200 )
+    COP [SpawnListAppend] ( @code_0A8D0C, #00, #E0, #$0200 )
+    COP [SpawnListAppend] ( @code_0A8D2B, #00, #00, #$0202 )
+    COP [SpawnListAppend] ( @code_0A8D3D, #E8, #F5, #$0200 )
+    COP [SpawnListAppend] ( @code_0A8D4F, #18, #F5, #$0200 )
     COP [StageSpriteFrame] ( #0B )
     COP [AnimOnce]
     COP [StageSpriteLoop] ( #09, #02 )
@@ -63,7 +63,7 @@ ir1D_four_way [
 
 code_0A8D0C {
     JSR $&code_0A8DAD
-    COP [ToggleVFlip]
+    COP [ToggleVMirror]
     COP [StageSpriteMoveY] ( #0D, #06 )
     COP [AnimOnce]
     LDA #$0002
@@ -155,7 +155,7 @@ code_0A8D9A {
 }
 
 code_0A8DAD {
-    COP [OrActorFlags] ( #$0010 )
+    COP [OrExtraFlags] ( #$0010 )
     LDA #$0080
     TSB $12
     RTS 

@@ -25,13 +25,13 @@ ir1C_lily [
   actor-def < #1D, #00, #10, {
 
   code_09CA02:
-    COP [BranchIfFlagByte] ( #4B, #01, &code_09CAB1 )
+    COP [BranchOnFlagByte] ( #4B, #01, &code_09CAB1 )
     LDA #$CFF0
     TSB $joypadMaskStd
     COP [WaitByte] ( #1D )
     COP [PrintDialogString] ( &dialogstring_09CAE5 )
-    COP [SolidHighAbs] ( #06, #19 )
-    COP [SolidHighAbs] ( #07, #19 )
+    COP [MarkSolidAbs] ( #06, #19 )
+    COP [MarkSolidAbs] ( #07, #19 )
     LDA #$CFF0
     TRB $joypadMaskStd
     COP [SpawnAfterFlags] ( @EscortFollowPathTracker, #$2000 )
@@ -45,13 +45,13 @@ ir1C_lily [
     TXA 
     TYX 
     TAY 
-    COP [SetOnInteract] ( #$0000 )
+    COP [SetInteractHandler] ( #$0000 )
     LDA #$0800
     TSB $10
-    COP [SetEntryContinue]
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
+    COP [SetEntryHere]
     COP [AnimOneFrame]
-    COP [BranchIfFlagByte] ( #01, #01, &code_09CA54 )
+    COP [BranchOnFlagByte] ( #01, #01, &code_09CA54 )
     RTL 
 } >
 ]
@@ -60,16 +60,16 @@ code_09CA54 {
     LDA #$0800
     TRB $10
     COP [KillNext]
-    COP [ClearLowAbs] ( #06, #19 )
-    COP [ClearLowAbs] ( #07, #19 )
-    COP [ExitIfFlagByte] ( #03, #01 )
+    COP [ClearSolidAbs] ( #06, #19 )
+    COP [ClearSolidAbs] ( #07, #19 )
+    COP [WaitOnFlagByte] ( #03, #01 )
     LDA #$0000
     JSL $@InitPlayerScriptVariant
     COP [StageSpriteFrame] ( #1A )
     COP [AnimOnce]
     COP [PrintDialogString] ( &dialogstring_09CCD0 )
     COP [SetFlagByte] ( #02 )
-    COP [ExitIfFlagByte] ( #02, #00 )
+    COP [WaitOnFlagByte] ( #02, #00 )
     LDA $16
     AND #$FFF0
     STA $16
@@ -93,8 +93,8 @@ code_09CAB1 {
     COP [StageSpriteFrame] ( #1A )
     COP [AnimOnce]
     COP [SetTilePos] ( #16, #13 )
-    COP [SolidHighHere]
-    COP [SetOnInteract] ( &code_09CAE0 )
+    COP [MarkSolidHere]
+    COP [SetInteractHandler] ( &code_09CAE0 )
     LDA $characterForm
     BEQ loc_09CADD
     LDY $playerActor
@@ -108,7 +108,7 @@ code_09CAB1 {
     TSB $playerFlags
 
   loc_09CADD:
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     RTL 
 }
 

@@ -20,7 +20,7 @@ awB0_zip_fly [
     STZ $24
 
   loc_0BAF63:
-    COP [BranchIfOffscreen] ( &code_0BAF71 )
+    COP [BranchIfOffCamera] ( &code_0BAF71 )
     COP [WaitWhileOffscreen] ( #0F )
 
   code_0BAF6A:

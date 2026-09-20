@@ -15,7 +15,7 @@ idle_sprite_display [
     LDA #$0085            ; Dialog bank pointer (unused for display-only)
     STA $chatPtr, X
     COP [SetMetasprite] ( @spriteset_enemies )
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     COP [StageSpriteFrame] ( #06 ) ; Static idle frame
     COP [AnimOnce]
     RTL 

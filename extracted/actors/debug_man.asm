@@ -23,9 +23,9 @@ debug_man [
   actor-def < #02, #00, #10, {
 
   code_0BEE23:
-    COP [SolidHighHere]
-    COP [SetOnInteract] ( &DebugManInteract )
-    COP [SetEntryContinue]
+    COP [MarkSolidHere]
+    COP [SetInteractHandler] ( &DebugManInteract )
+    COP [SetEntryHere]
     RTL 
 } >
 ]

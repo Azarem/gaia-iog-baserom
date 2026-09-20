@@ -14,15 +14,15 @@ it17_lily [
   actor-def < #1C, #00, #10, {
 
   code_04E5A4:
-    COP [BranchIfFlagByte] ( #37, #01, &code_04E5F2 )
-    COP [SetOnInteract] ( &code_04E5F4 )
-    COP [SolidHighHere]
-    COP [ExitIfFlagByte] ( #02, #01 )
+    COP [BranchOnFlagByte] ( #37, #01, &code_04E5F2 )
+    COP [SetInteractHandler] ( &code_04E5F4 )
+    COP [MarkSolidHere]
+    COP [WaitOnFlagByte] ( #02, #01 )
     COP [StageSpriteFrame] ( #1A )
     COP [AnimOnce]
     COP [PrintDialogString] ( &dialogstring_04E7C9 )
     COP [ClearFlagByte] ( #02 )
-    COP [ExitIfFlagByte] ( #03, #01 )
+    COP [WaitOnFlagByte] ( #03, #01 )
     COP [PrintDialogString] ( &dialogstring_04E869 )
     COP [SetFlagByte] ( #37 )
     LDA #$0000
@@ -33,7 +33,7 @@ it17_lily [
     STA $gfxCacheIdxB
     COP [StageWorldMapMove] ( #$00C4, #$02B4, #00, #05 )
     COP [QueueMapChange] ( #1A, #$0150, #$01A0, #00, #$2200 )
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     RTL 
 } >
 ]
@@ -43,8 +43,8 @@ code_04E5F2 {
 }
 
 code_04E5F4 {
-    COP [BranchIfNoItem] ( #03, &code_04E609 )
-    COP [BranchIfFlagByte] ( #47, #01, &code_04E604 )
+    COP [BranchIfMissingItem] ( #03, &code_04E609 )
+    COP [BranchOnFlagByte] ( #47, #01, &code_04E604 )
     COP [PrintDialogString] ( &dialogstring_04E62C )
     RTL 
 }

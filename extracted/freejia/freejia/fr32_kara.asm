@@ -15,9 +15,9 @@ fr32_kara [
   actor-def < #2B, #00, #10, {
 
   code_05B053:
-    COP [BranchIfFlagByte] ( #65, #01, &code_05B0F6 )
-    COP [BranchIfFlagByte] ( #57, #01, &code_05B0F6 )
-    COP [BranchIfFlagByte] ( #64, #01, &code_05B0B8 )
+    COP [BranchOnFlagByte] ( #65, #01, &code_05B0F6 )
+    COP [BranchOnFlagByte] ( #57, #01, &code_05B0F6 )
+    COP [BranchOnFlagByte] ( #64, #01, &code_05B0B8 )
     LDA #$CFF0
     TSB $joypadMaskStd
     COP [StageSpriteMoveY] ( #2F, #12 )
@@ -26,7 +26,7 @@ fr32_kara [
     COP [AnimLoop]
     COP [PrintDialogString] ( &dialogstring_05B100 )
     COP [SetFlagByte] ( #02 )
-    COP [ExitIfFlagByte] ( #02, #00 )
+    COP [WaitOnFlagByte] ( #02, #00 )
     COP [StageSpriteFrame] ( #2A )
     COP [AnimOnce]
     COP [WaitByte] ( #1D )
@@ -51,12 +51,12 @@ code_05B0B8 {
     COP [StageSpriteFrame] ( #2D )
     COP [AnimOnce]
     COP [SetTilePos] ( #27, #25 )
-    COP [SolidHighHere]
-    COP [SetOnInteract] ( &code_05B0F8 )
-    COP [ExitIfFlagByte] ( #04, #01 )
+    COP [MarkSolidHere]
+    COP [SetInteractHandler] ( &code_05B0F8 )
+    COP [WaitOnFlagByte] ( #04, #01 )
     LDA #$CFF0
     TSB $joypadMaskStd
-    COP [ClearLowHere]
+    COP [ClearSolidHere]
     COP [StageSpriteMoveY] ( #2F, #12 )
     COP [AnimOnce]
     COP [StageSpriteFrame] ( #2B )

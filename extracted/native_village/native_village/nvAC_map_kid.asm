@@ -12,24 +12,24 @@ nvAC_map_kid [
   actor-def < #24, #00, #18, {
 
   code_088F8B:
-    COP [BranchIfFlagByte] ( #AF, #00, &code_088FC2 )
-    COP [SetOnInteract] ( &code_088FC4 )
-    COP [SolidHighHere]
-    COP [ExitIfFlagByte] ( #03, #01 )
-    COP [ClearLowHere]
+    COP [BranchOnFlagByte] ( #AF, #00, &code_088FC2 )
+    COP [SetInteractHandler] ( &code_088FC4 )
+    COP [MarkSolidHere]
+    COP [WaitOnFlagByte] ( #03, #01 )
+    COP [ClearSolidHere]
     COP [StageSpriteMoveY] ( #26, #11 )
     COP [AnimOnce]
     COP [StageSpriteMoveX] ( #28, #02 )
     COP [AnimOnce]
     COP [StageSpriteFrame] ( #24 )
     COP [AnimOnce]
-    COP [ExitIfFlagByte] ( #04, #01 )
+    COP [WaitOnFlagByte] ( #04, #01 )
     COP [StageSpriteMoveX] ( #28, #03 )
     COP [AnimOnce]
     COP [StageSpriteFrame] ( #24 )
     COP [AnimOnce]
-    COP [SolidHighHere]
-    COP [SetEntryContinue]
+    COP [MarkSolidHere]
+    COP [SetEntryHere]
     RTL 
 } >
 ]

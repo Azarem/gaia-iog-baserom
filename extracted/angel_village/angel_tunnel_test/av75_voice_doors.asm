@@ -18,7 +18,7 @@ av75_voice_doors [
   code_06D787:
     LDA #$0200
     TSB $12
-    COP [BranchIfFlagByte] ( #89, #01, &code_06D7BB )
+    COP [BranchOnFlagByte] ( #89, #01, &code_06D7BB )
     STZ $067F
     COP [SetMetasprite] ( @spriteset_enemies )
     COP [StageSpriteFrame] ( #00 )
@@ -26,13 +26,13 @@ av75_voice_doors [
     LDA $playerYPos
     CMP #$00F0
     BCC code_06D7BB
-    COP [AddPosition] ( #08, #02 )
+    COP [NudgePosition] ( #08, #02 )
     LDA $0E
     AND #$000F
     STA $24
     STZ $0E
-    COP [SetOnInteract] ( &code_06D7BD )
-    COP [SetEntryContinue]
+    COP [SetInteractHandler] ( &code_06D7BD )
+    COP [SetEntryHere]
     RTL 
 } >
 ]

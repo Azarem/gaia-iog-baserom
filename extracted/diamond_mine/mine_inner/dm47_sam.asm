@@ -21,13 +21,13 @@ dm47_sam [
   actor-def < #28, #00, #10, {
 
   code_05D226:
-    COP [BranchIfFlagByte] ( #5E, #01, &dm47_sam_destroy )
+    COP [BranchOnFlagByte] ( #5E, #01, &dm47_sam_destroy )
     COP [SpawnAfterFlags] ( @dm_mine_static_prop, #$0100 )
     LDA #$0200
     TSB $12
-    COP [SetOnInteract] ( &code_05D299 )
-    COP [SolidHighHere]
-    COP [SetEntryContinue]
+    COP [SetInteractHandler] ( &code_05D299 )
+    COP [MarkSolidHere]
+    COP [SetEntryHere]
     LDY $06
     LDA $0010, Y
     BIT #$0040
@@ -35,13 +35,13 @@ dm47_sam [
     RTL 
 
   loc_05D24B:
-    COP [SetOnInteract] ( &code_05D29E )
-    COP [ExitIfFlagByte] ( #5E, #01 )
+    COP [SetInteractHandler] ( &code_05D29E )
+    COP [WaitOnFlagByte] ( #5E, #01 )
     LDA #$FFF0
     TSB $joypadMaskStd
     COP [StartMusic] ( #1E )
     COP [WaitByte] ( #77 )
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     SEP #$20
     LDA $APUIO1
     REP #$20
@@ -51,12 +51,12 @@ dm47_sam [
     RTL 
 
   loc_05D271:
-    COP [BranchIfNoItem] ( #08, &code_05D286 )
+    COP [BranchIfMissingItem] ( #08, &code_05D286 )
     COP [PrintDialogString] ( &dialogstring_05D40C )
     COP [RemoveItem] ( #02 )
     LDA #$FFF0
     TRB $joypadMaskStd
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     RTL 
 } >
 ]
@@ -67,7 +67,7 @@ code_05D286 {
     COP [RemoveItem] ( #08 )
     LDA #$FFF0
     TRB $joypadMaskStd
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     RTL 
 }
 
@@ -77,9 +77,9 @@ code_05D299 {
 }
 
 code_05D29E {
-    COP [BranchIfFlagByte] ( #5E, #01, &code_05D2BB )
+    COP [BranchOnFlagByte] ( #5E, #01, &code_05D2BB )
     COP [PrintDialogString] ( &dialogstring_05D2DA )
-    COP [BranchIfFlagByte] ( #5E, #01, &code_05D2B6 )
+    COP [BranchOnFlagByte] ( #5E, #01, &code_05D2B6 )
     COP [GiveItem] ( #0D, &code_05D2B7 )
     COP [SetFlagByte] ( #5E )
 }

@@ -10,9 +10,9 @@ sc05_seths_mother [
   actor-def < #14, #00, #10, {
 
   code_049102:
-    COP [SetOnInteract] ( &code_04910B )
-    COP [SolidHighHere]
-    COP [SetEntryContinue]
+    COP [SetInteractHandler] ( &code_04910B )
+    COP [MarkSolidHere]
+    COP [SetEntryHere]
     RTL 
 } >
 ]

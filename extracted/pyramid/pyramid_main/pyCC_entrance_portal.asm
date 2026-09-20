@@ -20,8 +20,8 @@ pyCC_entrance_portal [
   code_08B6A5:
     LDA #$0200
     TSB $12
-    COP [SetOnInteract] ( &code_08B6B1 )
-    COP [SetEntryContinue]
+    COP [SetInteractHandler] ( &code_08B6B1 )
+    COP [SetEntryHere]
     RTL 
 } >
 ]

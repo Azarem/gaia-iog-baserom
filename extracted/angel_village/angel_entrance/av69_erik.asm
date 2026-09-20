@@ -11,9 +11,9 @@ av69_erik [
   actor-def < #0B, #00, #18, {
 
   code_06C46D:
-    COP [BranchIfFlagByte] ( #8D, #01, &av69_erik_destroy )
-    COP [BranchIfFlagByte] ( #75, #01, &av69_erik_destroy )
-    COP [ExitIfFlagByte] ( #01, #01 )
+    COP [BranchOnFlagByte] ( #8D, #01, &av69_erik_destroy )
+    COP [BranchOnFlagByte] ( #75, #01, &av69_erik_destroy )
+    COP [WaitOnFlagByte] ( #01, #01 )
     COP [WaitByte] ( #1D )
     COP [StageSpriteLoopMoveY] ( #0F, #05, #12 )
     COP [AnimLoop]
@@ -25,7 +25,7 @@ av69_erik [
     COP [AnimLoop]
     COP [StageSpriteFrame] ( #0A )
     COP [AnimOnce]
-    COP [ExitIfFlagByte] ( #04, #01 )
+    COP [WaitOnFlagByte] ( #04, #01 )
     COP [StageSpriteLoopMoveX] ( #10, #02, #12 )
     COP [AnimLoop]
     COP [StageSpriteMoveY] ( #0E, #11 )

@@ -15,7 +15,7 @@ gw88_short_wall_spear [
     STA $08
     LDA #$2000
     STA $0E
-    COP [SetEntryExit]
+    COP [SetEntryHereAndYield]
 
   loc_0B8C06:
     COP [WaitByte] ( #3B )
@@ -27,9 +27,9 @@ gw88_short_wall_spear [
   loc_0B8C13:
     COP [StageSpriteFrame] ( #1D )
     COP [AnimOnce]
-    COP [SolidHighHere]
+    COP [MarkSolidHere]
     COP [WaitByte] ( #3B )
-    COP [ClearLowHere]
+    COP [ClearSolidHere]
     LDA #$0100
     TSB $10
     COP [StageSpriteFrame] ( #1E )

@@ -12,12 +12,12 @@ fr3C_remus [
   actor-def < #28, #00, #10, {
 
   code_05BFAD:
-    COP [BranchIfFlagByte] ( #6A, #01, &code_05BFC1 )
+    COP [BranchOnFlagByte] ( #6A, #01, &code_05BFC1 )
     LDA #$0200
     TSB $12
-    COP [SolidHighHere]
-    COP [SetOnInteract] ( &code_05BFD4 )
-    COP [SetEntryContinue]
+    COP [MarkSolidHere]
+    COP [SetInteractHandler] ( &code_05BFD4 )
+    COP [SetEntryHere]
     RTL 
 } >
 ]
@@ -27,9 +27,9 @@ code_05BFC1 {
     COP [AnimOnce]
     LDA #$0200
     TSB $12
-    COP [SolidHighHere]
-    COP [SetOnInteract] ( &code_05BFD9 )
-    COP [SetEntryContinue]
+    COP [MarkSolidHere]
+    COP [SetInteractHandler] ( &code_05BFD9 )
+    COP [SetEntryHere]
     RTL 
 }
 

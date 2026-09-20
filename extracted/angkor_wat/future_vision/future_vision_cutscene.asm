@@ -57,7 +57,7 @@ FutureVisionCutscene [
     STA $animScratch2, X
     PLX 
     COP [SpawnBefore] ( @FutureVisionController ) ; Spawn FutureVisionController as companion (does all the work)
-    COP [SetEntryContinue] ; Yield indefinitely — actor stays alive but idle
+    COP [SetEntryHere]    ; Yield indefinitely — actor stays alive but idle
     RTL 
 } >
 ]
@@ -108,7 +108,7 @@ FutureVisionController {
     LDA #$0130            ; Perspective angle = $0130 (304) — starting rotation offset
     STA $00BC
     COP [SpawnThinker] ( @oneshot_palette_flash_19.FlashPalette19 ) ; Spawn palette flash thinker for dramatic visual entrance
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     INC $00BC             ; Phase 1: rotate perspective every frame
     LDA $0036             ; Check frame parity ($0036 & 1)
     AND #$0001
@@ -124,7 +124,7 @@ FutureVisionController {
     RTL 
 
   loc_03A277:
-    COP [SetEntryContinue] ; Phase 2: new yield point — wait for full rotation
+    COP [SetEntryHere]    ; Phase 2: new yield point — wait for full rotation
     LDA $00BC             ; Check perspective angle low 9 bits
     AND #$01FF
     BEQ loc_03A285        ; ($BC & $01FF) == 0 → full 512-step rotation complete
@@ -133,7 +133,7 @@ FutureVisionController {
 
   loc_03A285:
     COP [WaitByte] ( #77 ) ; Phase 3: WaitByte $77 — 119-frame pause to hold the view
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     LDA $00B8             ; Zoom-out loop: check if scale reached $0060
     CMP #$0060
     BEQ loc_03A2A6        ; Scale == $60 → zoom-out complete, enter scroll phase
@@ -147,15 +147,15 @@ FutureVisionController {
     RTL 
 
   loc_03A2A6:
-    COP [LoopInit] ( #FF ) ; Phase 4a: 255-frame upward scroll
+    COP [LoopStart] ( #FF ) ; Phase 4a: 255-frame upward scroll
     DEC $cameraTargetY    ; Scroll camera up 1px/frame
     DEC $00CC
-    COP [LoopNext]
-    COP [LoopInit] ( #80 ) ; Phase 4b: 128-frame continued scroll
+    COP [LoopEnd]
+    COP [LoopStart] ( #80 ) ; Phase 4b: 128-frame continued scroll
     DEC $cameraTargetY
     DEC $00CC
-    COP [LoopNext]
-    COP [LoopInit] ( #7F ) ; Phase 4c: 127-frame scroll + brightness fade
+    COP [LoopEnd]
+    COP [LoopStart] ( #7F ) ; Phase 4c: 127-frame scroll + brightness fade
     DEC $cameraTargetY
     DEC $00CC
     LDA $loopCounter, X   ; Extract loopCounter bits 3-6 for brightness ramp
@@ -166,12 +166,12 @@ FutureVisionController {
     SEP #$20              ; Switch to 8-bit for INIDISP write
     STA $INIDISP          ; Write brightness — fades from $0F (full) to $00 (black) over 127 frames
     REP #$20
-    COP [LoopNext]
+    COP [LoopEnd]
     COP [QueueMapChange] ( #BF, #$00F8, #$00C0, #00, #$2200 ) ; Phase 5: QueueMapChange to scene $BF at ($00F8,$00C0), params ($00, $2200)
     LDA #$0001            ; gfxCacheIdxA = $0001 (instant transition type)
     STA $gfxCacheIdxA
     LDA #$0400            ; gfxCacheIdxB = $0400 (transition brightness speed)
     STA $gfxCacheIdxB
-    COP [SetEntryContinue] ; Final yield before actor terminates
+    COP [SetEntryHere]    ; Final yield before actor terminates
     RTL 
 }

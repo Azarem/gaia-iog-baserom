@@ -11,8 +11,8 @@ edward_castle_alarm_palette [
   thinker-def < #00, #08, {
 
   code_00B633:
-    COP [BranchIfFlagByte] ( #22, #01, &EdwardCastleAlarmPaletteKill )
-    COP [BranchIfFlagByte] ( #21, #00, &EdwardCastleAlarmPaletteKill )
+    COP [BranchOnFlagByte] ( #22, #01, &EdwardCastleAlarmPaletteKill )
+    COP [BranchOnFlagByte] ( #21, #00, &EdwardCastleAlarmPaletteKill )
 
   loc_00B63F:
     COP [PaletteStart] ( #05 )
@@ -24,7 +24,7 @@ edward_castle_alarm_palette [
     STA $COLDATA
     REP #$20
     COP [SetFlagByte] ( #FF )
-    COP [ExitIfFlagByte] ( #FF, #00 )
+    COP [WaitOnFlagByte] ( #FF, #00 )
     BRA loc_00B63F
 } >
 ]

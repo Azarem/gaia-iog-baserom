@@ -21,7 +21,7 @@ pyCE_tuts [
     STA $20
     LDA #$0428
     STA $22
-    COP [SpawnMarkedAfter] ( @code_0BC529, #$2000 )
+    COP [SpawnAfterMarked] ( @code_0BC529, #$2000 )
 
   loc_0BC3B6:
     COP [WaitWhileOffscreen] ( #07 )
@@ -40,7 +40,7 @@ code_0BC3CB {
 }
 
 code_0BC3D5 {
-    COP [LoopInit] ( #02 )
+    COP [LoopStart] ( #02 )
     COP [BranchIfSolidWest] ( &code_0BC465 )
     COP [StageSpriteMoveX] ( #05, #02 )
     COP [AnimOnce]
@@ -51,12 +51,12 @@ code_0BC3D5 {
 }
 
 code_0BC3F2 {
-    COP [LoopNext]
+    COP [LoopEnd]
     BRA code_0BC3B9
 }
 
 code_0BC3F6 {
-    COP [LoopInit] ( #03 )
+    COP [LoopStart] ( #03 )
     COP [BranchIfSolidEast] ( &code_0BC465 )
     COP [StageSpriteMoveX] ( #85, #01 )
     COP [AnimOnce]
@@ -67,7 +67,7 @@ code_0BC3F6 {
 }
 
 code_0BC413 {
-    COP [LoopNext]
+    COP [LoopEnd]
     BRA code_0BC3B9
 }
 
@@ -76,7 +76,7 @@ code_0BC417 {
 }
 
 code_0BC421 {
-    COP [LoopInit] ( #03 )
+    COP [LoopStart] ( #03 )
     COP [BranchIfSolidNorth] ( &code_0BC465 )
     COP [StageSpriteMoveY] ( #04, #02 )
     COP [AnimOnce]
@@ -87,12 +87,12 @@ code_0BC421 {
 }
 
 code_0BC43E {
-    COP [LoopNext]
+    COP [LoopEnd]
     JMP $&code_0BC3B9
 }
 
 code_0BC443 {
-    COP [LoopInit] ( #03 )
+    COP [LoopStart] ( #03 )
     COP [BranchIfSolidSouth] ( &code_0BC465 )
     COP [StageSpriteMoveY] ( #03, #01 )
     COP [AnimOnce]
@@ -103,12 +103,12 @@ code_0BC443 {
 }
 
 code_0BC460 {
-    COP [LoopNext]
+    COP [LoopEnd]
     JMP $&code_0BC3B9
 }
 
 code_0BC465 {
-    COP [SetEntryExit]
+    COP [SetEntryHereAndYield]
     COP [RngByte]
     AND #$0003
     STA $0000
@@ -151,7 +151,7 @@ code_0BC4A4 {
 }
 
 code_0BC4B1 {
-    COP [SetEntryExit]
+    COP [SetEntryHereAndYield]
     COP [CardinalToPlayer]
     AND #$0003
     STA $0000

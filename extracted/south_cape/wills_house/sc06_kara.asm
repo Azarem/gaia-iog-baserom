@@ -15,10 +15,10 @@ sc06_kara [
   actor-def < #12, #00, #30, {
 
   code_049DAF:
-    COP [BranchIfFlagByte] ( #1B, #01, &code_049EA0 )
-    COP [BranchIfFlagByte] ( #3D, #01, &code_049EA2 )
-    COP [BranchIfFlagByte] ( #16, #00, &code_049EA0 )
-    COP [ExitIfFlagByte] ( #01, #01 )
+    COP [BranchOnFlagByte] ( #1B, #01, &code_049EA0 )
+    COP [BranchOnFlagByte] ( #3D, #01, &code_049EA2 )
+    COP [BranchOnFlagByte] ( #16, #00, &code_049EA0 )
+    COP [WaitOnFlagByte] ( #01, #01 )
     LDA #$2000
     TRB $10
     COP [StageSpriteLoopMoveY] ( #16, #02, #11 )
@@ -40,7 +40,7 @@ sc06_kara [
     COP [AnimLoop]
     LDA #$0001
     JSL $@InitPlayerScriptVariant
-    COP [SetEntryExit]
+    COP [SetEntryHereAndYield]
     COP [PrintDialogString] ( &dialogstring_049F09 )
     COP [SetFlagByte] ( #02 )
     COP [StageSpriteLoopMoveX] ( #19, #03, #11 )
@@ -49,7 +49,7 @@ sc06_kara [
     COP [AnimOnce]
     LDA #$0003
     JSL $@InitPlayerScriptVariant
-    COP [SetEntryExit]
+    COP [SetEntryHereAndYield]
     COP [PrintDialogString] ( &dialogstring_049F71 )
     COP [StageSpriteLoop] ( #14, #10 )
     COP [AnimLoop]
@@ -62,20 +62,20 @@ sc06_kara [
     COP [AnimLoop]
     COP [StageSpriteLoop] ( #14, #1E )
     COP [AnimLoop]
-    COP [SolidHighHere]
+    COP [MarkSolidHere]
     COP [PrintDialogString] ( &dialogstring_04A04C )
     LDA #$CFF0
     TRB $joypadMaskStd
     COP [SetFlagByte] ( #3D )
 
   loc_049E5A:
-    COP [SetOnInteract] ( &code_049EAF )
-    COP [ExitIfFlagByte] ( #04, #01 )
-    COP [ClearLowHere]
+    COP [SetInteractHandler] ( &code_049EAF )
+    COP [WaitOnFlagByte] ( #04, #01 )
+    COP [ClearSolidHere]
     COP [SetTilePos] ( #0D, #19 )
     COP [StageSpriteFrame] ( #14 )
     COP [AnimOnce]
-    COP [ExitIfFlagByte] ( #07, #01 )
+    COP [WaitOnFlagByte] ( #07, #01 )
     COP [StageSpriteLoop] ( #15, #1E )
     COP [AnimLoop]
     COP [PrintDialogString] ( &dialogstring_04A0D7 )
@@ -99,7 +99,7 @@ code_049EA0 {
 
 code_049EA2 {
     COP [SetTilePos] ( #0A, #19 )
-    COP [SolidHighHere]
+    COP [MarkSolidHere]
     LDA #$2000
     TRB $10
     BRA loc_049E5A

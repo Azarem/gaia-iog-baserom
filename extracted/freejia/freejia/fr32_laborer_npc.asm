@@ -17,18 +17,18 @@ fr32_laborer_npc [
     LDA #$0420
     STA $cameraBoundsY
     COP [SpawnAfter] ( @code_05B03E )
-    COP [SetAnimScratch] ( @misc_fx_1CD080 )
+    COP [SetScratchPointer] ( @misc_fx_1CD080 )
     COP [SetMetasprite] ( @spriteset_town_objects )
-    COP [ResetSpriteInit] ( #00, #$3FE0 )
-    COP [LoadSpriteAnimGlobal]
+    COP [ResetSpriteState] ( #00, #$3FE0 )
+    COP [AdvanceSpriteAnim]
     RTL 
 } >
 ]
 
 code_05B03E {
-    COP [SetAnimScratch] ( @misc_fx_1CD080 )
+    COP [SetScratchPointer] ( @misc_fx_1CD080 )
     COP [SetMetasprite] ( @spriteset_town_objects )
-    COP [ResetSpriteInit] ( #01, #$3FF0 )
-    COP [LoadSpriteAnimGlobal]
+    COP [ResetSpriteState] ( #01, #$3FF0 )
+    COP [AdvanceSpriteAnim]
     RTL 
 }

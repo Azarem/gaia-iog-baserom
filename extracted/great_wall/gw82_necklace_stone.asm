@@ -30,7 +30,7 @@ gw82_necklace_stone [
     LDA #$2000
     STA $0E
     COP [SetMetasprite] ( @spriteset_enemies )
-    COP [SetOnInteract] ( &code_07B5D2 )
+    COP [SetInteractHandler] ( &code_07B5D2 )
 
   loc_07B5C8:
     COP [StageSpriteFrame] ( #02 )
@@ -42,7 +42,7 @@ gw82_necklace_stone [
 
 code_07B5D2 {
     COP [PrintDialogString] ( &dialogstring_07B611 )
-    COP [BranchIfNoItem] ( #17, &code_07B5E0 )
+    COP [BranchIfMissingItem] ( #17, &code_07B5E0 )
     COP [GiveItem] ( #17, &code_07B5F1 )
 }
 

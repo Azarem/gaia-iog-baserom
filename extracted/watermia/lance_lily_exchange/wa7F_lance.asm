@@ -17,16 +17,16 @@ wa7F_lance [
   actor-def < #05, #00, #10, {
 
   code_07AFCD:
-    COP [AddPosition] ( #08, #00 )
-    COP [ExitIfFlagByte] ( #01, #01 )
-    COP [SpawnAfterRelFlags] ( @code_07B1C2, #$000A, #$FFF4, #$1002 )
+    COP [NudgePosition] ( #08, #00 )
+    COP [WaitOnFlagByte] ( #01, #01 )
+    COP [SpawnAfterOffsetFlags] ( @code_07B1C2, #$000A, #$FFF4, #$1002 )
     COP [StageSpriteFrame] ( #38 )
     COP [AnimOnce]
-    COP [ExitIfFlagByte] ( #02, #01 )
+    COP [WaitOnFlagByte] ( #02, #01 )
     COP [StageSpriteFrame] ( #05 )
     COP [AnimOnce]
     COP [WaitByte] ( #1D )
-    COP [ExitIfFlagByte] ( #03, #01 )
+    COP [WaitOnFlagByte] ( #03, #01 )
     COP [StageSpriteFrame] ( #02 )
     COP [AnimOnce]
     COP [WaitByte] ( #1D )
@@ -41,7 +41,7 @@ wa7F_lance [
     COP [PrintDialogString] ( &dialogstring_07B108 )
     COP [WaitByte] ( #77 )
     COP [SetFlagByte] ( #04 )
-    COP [ExitIfFlagByte] ( #05, #01 )
+    COP [WaitOnFlagByte] ( #05, #01 )
     COP [SpawnAfterFlags] ( @code_07B077, #$2000 )
     LDA #$0800
     TSB $10
@@ -52,7 +52,7 @@ wa7F_lance [
     COP [MoveToward] ( #06, #02 )
     LDA #$0800
     TRB $10
-    COP [SetEntryExit]
+    COP [SetEntryHereAndYield]
     COP [SpawnAfterFlags] ( @code_07B07D, #$2000 )
     LDA #$0800
     TSB $10
@@ -66,7 +66,7 @@ wa7F_lance [
     COP [AnimLoop]
     COP [StageSpriteFrame] ( #03 )
     COP [AnimOnce]
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     RTL 
 } >
 ]
@@ -102,6 +102,6 @@ dialogstring_07B174 `[TPL:A][TPL:0]Will: [N]We had no idea [N]what had happened.
 code_07B1C2 {
     COP [StageSpriteFrame] ( #3A )
     COP [AnimOnce]
-    COP [ExitIfFlagByte] ( #02, #01 )
+    COP [WaitOnFlagByte] ( #02, #01 )
     COP [Die]
 }

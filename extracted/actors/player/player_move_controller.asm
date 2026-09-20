@@ -62,7 +62,7 @@ PlayerMoveController {
     ASL 
     ASL 
     STA $16
-    COP [SetEntryContinue] ; Actor continue — runs each frame after player_character
+    COP [SetEntryHere]    ; Actor continue — runs each frame after player_character
     PHX                   ; Check if player is frozen ($0080) — if frozen with no active iframes, skip movement entirely
     LDX $playerActor
     LDA $0010, X

@@ -16,15 +16,15 @@ wa78_centipede_man [
 
   code_078285:
     JSL $@ActorDisplayModeSwap
-    COP [SetOnInteract] ( &code_0782A4 )
+    COP [SetInteractHandler] ( &code_0782A4 )
     LDA #$0002
     STA $currentHp, X
     JSL $@npc_wander_ai.SyncActorPosFromDP
 
   loc_078298:
     JSL $@npc_wander_ai.NpcRandomWanderAI
-    COP [SetEntryExit]
-    COP [SetEntryContinue]
+    COP [SetEntryHereAndYield]
+    COP [SetEntryHere]
     COP [AnimOnce]
     BRA loc_078298
 } >

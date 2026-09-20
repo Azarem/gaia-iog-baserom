@@ -11,21 +11,21 @@ sc01_salesman [
   actor-def < #0C, #00, #10, {
 
   code_0481F0:
-    COP [SetOnInteract] ( &code_0482CD )
-    COP [SetEntryContinue]
-    COP [SolidHighHere]
+    COP [SetInteractHandler] ( &code_0482CD )
+    COP [SetEntryHere]
+    COP [MarkSolidHere]
     COP [WaitByte] ( #EF )
-    COP [ClearLowHere]
+    COP [ClearSolidHere]
     COP [StageSpriteLoopMoveY] ( #0E, #01, #11 )
     COP [AnimLoop]
     COP [StageSpriteLoopMoveX] ( #10, #0D, #12 )
     COP [AnimLoop]
     COP [StageSpriteLoopMoveY] ( #0F, #01, #12 )
     COP [AnimLoop]
-    COP [SolidHighHere]
+    COP [MarkSolidHere]
     COP [StageSpriteLoop] ( #0B, #78 )
     COP [AnimLoop]
-    COP [ClearLowHere]
+    COP [ClearSolidHere]
     COP [StageSpriteLoopMoveY] ( #0E, #01, #11 )
     COP [AnimLoop]
     COP [StageSpriteLoopMoveX] ( #10, #07, #12 )
@@ -42,20 +42,20 @@ sc01_salesman [
     COP [AnimLoop]
     COP [StageSpriteLoopMoveX] ( #11, #04, #11 )
     COP [AnimLoop]
-    COP [SolidHighHere]
+    COP [MarkSolidHere]
     COP [StageSpriteLoop] ( #0B, #78 )
     COP [AnimLoop]
-    COP [ClearLowHere]
+    COP [ClearSolidHere]
     COP [StageSpriteLoopMoveX] ( #10, #06, #12 )
     COP [AnimLoop]
     COP [StageSpriteLoopMoveXY] ( #10, #04, #12, #11 )
     COP [AnimLoop]
     COP [StageSpriteLoopMoveX] ( #10, #06, #12 )
     COP [AnimLoop]
-    COP [SolidHighHere]
+    COP [MarkSolidHere]
     COP [StageSpriteLoop] ( #0B, #78 )
     COP [AnimLoop]
-    COP [ClearLowHere]
+    COP [ClearSolidHere]
     COP [StageSpriteLoopMoveX] ( #10, #06, #12 )
     COP [AnimLoop]
     COP [StageSpriteLoopMoveY] ( #0E, #01, #11 )
@@ -64,10 +64,10 @@ sc01_salesman [
     COP [AnimLoop]
     COP [StageSpriteLoopMoveY] ( #0F, #01, #12 )
     COP [AnimLoop]
-    COP [SolidHighHere]
+    COP [MarkSolidHere]
     COP [StageSpriteLoop] ( #0B, #78 )
     COP [AnimLoop]
-    COP [ClearLowHere]
+    COP [ClearSolidHere]
     COP [StageSpriteLoopMoveY] ( #0E, #01, #11 )
     COP [AnimLoop]
     COP [StageSpriteLoopMoveX] ( #11, #0C, #11 )
@@ -76,11 +76,11 @@ sc01_salesman [
     COP [AnimLoop]
     COP [StageSpriteFrame] ( #0A )
     COP [AnimOnce]
-    COP [SetOnInteract] ( &code_0482D2 )
-    COP [SolidHighHere]
+    COP [SetInteractHandler] ( &code_0482D2 )
+    COP [MarkSolidHere]
     LDA #$0200
     TSB $12
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     RTL 
 } >
 ]

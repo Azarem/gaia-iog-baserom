@@ -17,18 +17,18 @@ gs2D_mummy [
   code_058B1E:
     LDA #$0200
     TSB $12
-    COP [AddPosition] ( #08, #00 )
+    COP [NudgePosition] ( #08, #00 )
     COP [SetMetasprite] ( @spriteset_enemies )
     COP [StageSpriteFrame] ( #00 )
     COP [AnimOnce]
-    COP [SetOnInteract] ( &code_058B38 )
-    COP [SetEntryContinue]
+    COP [SetInteractHandler] ( &code_058B38 )
+    COP [SetEntryHere]
     RTL 
 } >
 ]
 
 code_058B38 {
-    COP [BranchIfFlagByte] ( #01, #01, &code_058B47 )
+    COP [BranchOnFlagByte] ( #01, #01, &code_058B47 )
     LDA #$CFF0
     TSB $joypadMaskStd
     COP [SetFlagByte] ( #01 )

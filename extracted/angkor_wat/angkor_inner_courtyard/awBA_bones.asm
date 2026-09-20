@@ -14,9 +14,9 @@ awBA_bones [
   code_08A261:
     LDA #$0200
     TSB $12
-    COP [SolidHighHere]
-    COP [SetOnInteract] ( &code_08A26F )
-    COP [SetEntryContinue]
+    COP [MarkSolidHere]
+    COP [SetInteractHandler] ( &code_08A26F )
+    COP [SetEntryHere]
     RTL 
 } >
 ]

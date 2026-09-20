@@ -40,7 +40,7 @@ code_0B9EAA {
 }
 
 code_0B9EC5 {
-    COP [CallScript] ( &code_0B9F0C )
+    COP [CallNear] ( &code_0B9F0C )
     COP [StageSpriteLoop] ( #04, #02 )
     COP [AnimLoop]
     BRA loc_0B9EB7
@@ -69,7 +69,7 @@ code_0B9EE5 {
 }
 
 code_0B9F00 {
-    COP [CallScript] ( &code_0B9F0C )
+    COP [CallNear] ( &code_0B9F0C )
     COP [StageSpriteLoop] ( #04, #02 )
     COP [AnimLoop]
     BRA loc_0B9EF2
@@ -78,8 +78,8 @@ code_0B9F00 {
 code_0B9F0C {
     COP [StageSpriteLoop] ( #1C, #06 )
     COP [AnimLoop]
-    COP [SpawnAfterRelFlags] ( @code_0B9F2F, #$FFFA, #$FFF8, #$0202 )
-    COP [SpawnAfterRelFlags] ( @code_0B9F2F, #$FFFA, #$FFF6, #$0202 )
+    COP [SpawnAfterOffsetFlags] ( @code_0B9F2F, #$FFFA, #$FFF8, #$0202 )
+    COP [SpawnAfterOffsetFlags] ( @code_0B9F2F, #$FFFA, #$FFF6, #$0202 )
     COP [StageSpriteFrame] ( #04 )
     COP [AnimOnce]
     COP [RestoreSavedPtr]
@@ -88,7 +88,7 @@ code_0B9F0C {
 code_0B9F2F {
     COP [PlaySoundCh1] ( #1D )
     COP [SetSpritePalette] ( #02 )
-    COP [OrActorFlags] ( #$0010 )
+    COP [OrExtraFlags] ( #$0010 )
     COP [StageSpriteMoveX] ( #20, #04 )
     COP [AnimOnce]
     LDA #$0002
@@ -108,7 +108,7 @@ mtA1_yorrick_4 [
   actor-def < #04, #00, #00, {
 
   code_0B9F56:
-    COP [SetHFlip]
+    COP [SetHMirror]
     COP [SetSpritePalette] ( #02 )
     LDA #$0011
     TSB $12
@@ -138,7 +138,7 @@ code_0B9F74 {
 }
 
 code_0B9F8F {
-    COP [CallScript] ( &code_0B9FD6 )
+    COP [CallNear] ( &code_0B9FD6 )
     COP [StageSpriteLoop] ( #84, #02 )
     COP [AnimLoop]
     BRA loc_0B9F81
@@ -167,7 +167,7 @@ code_0B9FAF {
 }
 
 code_0B9FCA {
-    COP [CallScript] ( &code_0B9FD6 )
+    COP [CallNear] ( &code_0B9FD6 )
     COP [StageSpriteLoop] ( #84, #02 )
     COP [AnimLoop]
     BRA loc_0B9FBC
@@ -176,8 +176,8 @@ code_0B9FCA {
 code_0B9FD6 {
     COP [StageSpriteLoop] ( #9C, #06 )
     COP [AnimLoop]
-    COP [SpawnAfterRelFlags] ( @code_0B9FF9, #$0006, #$FFF8, #$0202 )
-    COP [SpawnAfterRelFlags] ( @code_0B9FF9, #$0006, #$FFF6, #$0202 )
+    COP [SpawnAfterOffsetFlags] ( @code_0B9FF9, #$0006, #$FFF8, #$0202 )
+    COP [SpawnAfterOffsetFlags] ( @code_0B9FF9, #$0006, #$FFF6, #$0202 )
     COP [StageSpriteFrame] ( #84 )
     COP [AnimOnce]
     COP [RestoreSavedPtr]
@@ -186,7 +186,7 @@ code_0B9FD6 {
 code_0B9FF9 {
     COP [PlaySoundCh1] ( #1D )
     COP [SetSpritePalette] ( #02 )
-    COP [OrActorFlags] ( #$0010 )
+    COP [OrExtraFlags] ( #$0010 )
     COP [StageSpriteMoveX] ( #20, #03 )
     COP [AnimOnce]
     LDA #$0002

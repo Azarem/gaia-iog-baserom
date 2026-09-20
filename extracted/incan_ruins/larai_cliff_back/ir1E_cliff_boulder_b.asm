@@ -10,12 +10,12 @@ ir1E_cliff_boulder_b [
   actor-def < #19, #02, #30, {
 
   code_09C566:
-    COP [AddPosition] ( #08, #FE )
+    COP [NudgePosition] ( #08, #FE )
     COP [SetSpritePriority] ( #30 )
-    COP [ExitIfFlagByte] ( #31, #01 )
+    COP [WaitOnFlagByte] ( #31, #01 )
     LDA #$2000
     TRB $10
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     RTL 
 } >
 ]

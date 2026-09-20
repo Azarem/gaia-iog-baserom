@@ -14,15 +14,15 @@ sc01_guard [
   actor-def < #02, #00, #10, {
 
   code_048534:
-    COP [BranchIfFlagByte] ( #27, #01, &code_04859B )
-    COP [SolidHighHere]
-    COP [SetEntryContinue]
+    COP [BranchOnFlagByte] ( #27, #01, &code_04859B )
+    COP [MarkSolidHere]
+    COP [SetEntryHere]
     LDA $playerYPos
     CMP #$00B0
     BCS loc_048573
-    COP [ClearLowHere]
-    COP [SolidHighOffset] ( #FF, #FF )
-    COP [SolidHighOffset] ( #FE, #FF )
+    COP [ClearSolidHere]
+    COP [MarkSolidOffset] ( #FF, #FF )
+    COP [MarkSolidOffset] ( #FE, #FF )
     COP [StageSpriteMoveX] ( #08, #12 )
     COP [AnimOnce]
     COP [StageSpriteMoveY] ( #07, #12 )
@@ -31,9 +31,9 @@ sc01_guard [
     COP [AnimOnce]
     COP [StageSpriteFrame] ( #02 )
     COP [AnimOnce]
-    COP [BranchIfFlagByte] ( #35, #01, &code_048574 )
-    COP [SetOnInteract] ( &code_0485A4 )
-    COP [SetEntryContinue]
+    COP [BranchOnFlagByte] ( #35, #01, &code_048574 )
+    COP [SetInteractHandler] ( &code_0485A4 )
+    COP [SetEntryHere]
 
   loc_048573:
     RTL 
@@ -41,10 +41,10 @@ sc01_guard [
 ]
 
 code_048574 {
-    COP [SetOnInteract] ( &code_0485A9 )
-    COP [ExitIfFlagByte] ( #27, #01 )
-    COP [ClearLowAbs] ( #17, #06 )
-    COP [ClearLowAbs] ( #18, #06 )
+    COP [SetInteractHandler] ( &code_0485A9 )
+    COP [WaitOnFlagByte] ( #27, #01 )
+    COP [ClearSolidAbs] ( #17, #06 )
+    COP [ClearSolidAbs] ( #18, #06 )
     COP [StageSpriteMoveX] ( #09, #13 )
     COP [AnimOnce]
     COP [StageSpriteMoveY] ( #06, #11 )
@@ -56,9 +56,9 @@ code_048574 {
 }
 
 code_04859B {
-    COP [SolidHighHere]
-    COP [SetOnInteract] ( &code_0485B1 )
-    COP [SetEntryContinue]
+    COP [MarkSolidHere]
+    COP [SetInteractHandler] ( &code_0485B1 )
+    COP [SetEntryHere]
     RTL 
 }
 

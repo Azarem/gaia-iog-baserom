@@ -10,12 +10,12 @@ sc04_eriks_mother [
   actor-def < #14, #00, #10, {
 
   code_049055:
-    COP [SpawnAfterRelFlags] ( @code_04906E, #$0009, #$FFF8, #$1002 )
-    COP [SetOnInteract] ( &code_049076 )
+    COP [SpawnAfterOffsetFlags] ( @code_04906E, #$0009, #$FFF8, #$1002 )
+    COP [SetInteractHandler] ( &code_049076 )
     LDA #$0200
     TSB $12
-    COP [SolidHighHere]
-    COP [SetEntryContinue]
+    COP [MarkSolidHere]
+    COP [SetEntryHere]
     RTL 
 } >
 ]
@@ -23,7 +23,7 @@ sc04_eriks_mother [
 code_04906E {
     COP [StageSpriteFrame] ( #01 )
     COP [AnimOnce]
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     RTL 
 }
 

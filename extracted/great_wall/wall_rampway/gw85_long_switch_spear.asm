@@ -13,12 +13,12 @@ gw85_long_switch_spear [
   loc_07BD49:
     COP [StageSpriteFrame] ( #1F )
     COP [AnimOnce]
-    COP [SolidHighHere]
-    COP [SolidHighOffset] ( #00, #03 )
-    COP [ExitIfFlagByte] ( #03, #01 )
+    COP [MarkSolidHere]
+    COP [MarkSolidOffset] ( #00, #03 )
+    COP [WaitOnFlagByte] ( #03, #01 )
     COP [ClearFlagByte] ( #03 )
-    COP [ClearLowHere]
-    COP [ClearLowOffset] ( #00, #03 )
+    COP [ClearSolidHere]
+    COP [ClearSolidOffset] ( #00, #03 )
     LDA #$0100
     TSB $10
     COP [StageSpriteFrame] ( #20 )

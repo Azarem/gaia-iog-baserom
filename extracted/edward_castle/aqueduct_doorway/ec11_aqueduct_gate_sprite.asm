@@ -14,7 +14,7 @@ ec11_aqueduct_gate_sprite [
   actor-def < #15, #00, #10, {
 
   code_09AA43:
-    COP [BranchIfFlagByte] ( #DF, #01, &code_09AA6C )
+    COP [BranchOnFlagByte] ( #DF, #01, &code_09AA6C )
     COP [SetFlagByte] ( #DF )
     COP [SetMetasprite] ( @spriteset_enemies )
     COP [StageSpriteLoop] ( #33, #02 )

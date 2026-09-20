@@ -16,7 +16,7 @@ ir1B_slugger [
     COP [WaitWhileOffscreen] ( #10 )
 
   code_0A8DBD:
-    COP [SetEntryExit]
+    COP [SetEntryHereAndYield]
 
   code_0A8DBF:
     COP [DirToPlayer]
@@ -50,35 +50,35 @@ ir1B_slugger [
     BRA loc_0A8E02
 
   loc_0A8DF0:
-    COP [LoopInit] ( #02 )
+    COP [LoopStart] ( #02 )
     COP [BranchIfSolidWest] ( &code_0A8DBD )
     COP [StageSpriteLoopMoveX] ( #13, #02, #14 )
     COP [AnimLoop]
-    COP [LoopNext]
+    COP [LoopEnd]
     BRA code_0A8DBF
 
   loc_0A8E02:
-    COP [LoopInit] ( #02 )
+    COP [LoopStart] ( #02 )
     COP [BranchIfSolidEast] ( &code_0A8DBD )
     COP [StageSpriteLoopMoveX] ( #93, #02, #13 )
     COP [AnimLoop]
-    COP [LoopNext]
+    COP [LoopEnd]
     BRA code_0A8DBF
 
   loc_0A8E14:
-    COP [LoopInit] ( #02 )
+    COP [LoopStart] ( #02 )
     COP [BranchIfSolidNorth] ( &code_0A8DBD )
     COP [StageSpriteLoopMoveY] ( #12, #02, #14 )
     COP [AnimLoop]
-    COP [LoopNext]
+    COP [LoopEnd]
     JMP $&code_0A8DBF
 
   loc_0A8E27:
-    COP [LoopInit] ( #02 )
+    COP [LoopStart] ( #02 )
     COP [BranchIfSolidSouth] ( &code_0A8DBD )
     COP [StageSpriteLoopMoveY] ( #11, #02, #13 )
     COP [AnimLoop]
-    COP [LoopNext]
+    COP [LoopEnd]
     JMP $&code_0A8DBF
 } >
 ]

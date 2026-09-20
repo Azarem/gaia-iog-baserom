@@ -16,7 +16,7 @@ pyCC_dark_space_portal [
     LDA $0E
     JSL $@cop_handlers_flags.TestFlag_0100
     BCS loc_08B67E
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     LDA $0E
     JSL $@cop_handlers_flags.TestFlag_0100
     BCS loc_08B67E

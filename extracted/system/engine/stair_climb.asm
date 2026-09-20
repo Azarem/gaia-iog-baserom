@@ -122,7 +122,7 @@ StairTriggerWestEntry [
   actor-def < #00, #00, #20, {
 
   StairTriggerWestOffset:
-    COP [AddPosition] ( #F8, #00 ) ; WestEntry variant: nudge trigger position 8px left before detection
+    COP [NudgePosition] ( #F8, #00 ) ; WestEntry variant: nudge trigger position 8px left before detection
     BRA StairTriggerWestMain
 } >
 ]
@@ -131,7 +131,7 @@ StairTriggerWest [
   actor-def < #00, #00, #20, {
 
   StairTriggerWestMain:
-    COP [SetEntryContinue] ; Set entry for per-frame execution (re-check every frame)
+    COP [SetEntryHere]    ; Set entry for per-frame execution (re-check every frame)
     LDY $playerActor
     LDA $14
     SEC 
@@ -251,7 +251,7 @@ ClimbSouth {
     TSB $10
     LDA #$0008            ; Clear flag $0008 (grounded) — player is on stairs
     TRB $10
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     LDA $14               ; Subtract 4px from X each frame (stair descent moves left)
     SEC 
     SBC #$0004
@@ -276,7 +276,7 @@ ClimbNorth {
     TSB $10
     LDA #$0008
     TRB $10
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     LDA $14               ; Add 4px to X each frame (stair ascent moves right)
     CLC 
     ADC #$0004
@@ -301,7 +301,7 @@ ClimbWest {
     TSB $10
     LDA #$0008
     TRB $10
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     LDA $16               ; Subtract 4px from Y each frame (west stair moves up-screen)
     SEC 
     SBC #$0004
@@ -326,7 +326,7 @@ ClimbEast {
     TSB $10
     LDA #$0008
     TRB $10
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     LDA $16               ; Add 4px to Y each frame (east stair moves down-screen)
     CLC 
     ADC #$0004

@@ -25,7 +25,7 @@ awB1_goldcap [
   code_0BBD90:
     LDA #$0010
     TSB $12
-    COP [SpawnMarkedAfter] ( @RandomPlayerOffset, #$2000 )
+    COP [SpawnAfterMarked] ( @RandomPlayerOffset, #$2000 )
     TYA 
     STA $26
     BRA loc_0BBDA5
@@ -54,7 +54,7 @@ awB1_goldcap [
     BNE loc_0BBDC5
     LDA #$0000
     STA $orbitDiameter, X
-    COP [LoopInit] ( #FF )
+    COP [LoopStart] ( #FF )
     SEP #$20
     LDA $orbitAngle, X
     CLC 
@@ -118,7 +118,7 @@ awB1_goldcap [
     STA $7F100E, X
 
   loc_0BBE61:
-    COP [LoopNext]
+    COP [LoopEnd]
     LDA $10
     BIT #$4000
     BEQ loc_0BBE6D
@@ -127,12 +127,12 @@ awB1_goldcap [
   loc_0BBE6D:
     LDA #$2200
     TSB $10
-    COP [SpawnLastRel] ( @aw_spirit_follower, #00, #00, #$0200 )
+    COP [SpawnListAppend] ( @aw_spirit_follower, #00, #00, #$0200 )
     TYA 
     STA $7F100C, X
     LDA $26
     STA $0026, Y
-    COP [SpawnLastRel] ( @aw_spirit_follower.code_0BBEF7, #00, #00, #$0200 )
+    COP [SpawnListAppend] ( @aw_spirit_follower.code_0BBEF7, #00, #00, #$0200 )
     TYA 
     STA $7F100E, X
     LDA $26
@@ -148,7 +148,7 @@ awB1_goldcap [
     STA $0000, Y
     LDA #$0003
     STA $24
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     LDA $24
     BEQ loc_0BBEBE
     RTL 

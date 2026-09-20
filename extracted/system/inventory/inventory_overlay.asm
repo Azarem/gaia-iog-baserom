@@ -230,7 +230,7 @@ OpenInventoryScreen {
     JSL $@system_core.UpdateFrameDialogue ; Main loop tick — UpdateFrameDialogue (input + actor scripts)
     LDA $bg1ConfigMode    ; bg1ConfigMode → BG1SC — tabs dynamically swap BG1 tilemap base
     STA $BG1SC
-    COP [BranchIfFlagByte] ( #00, #00, &code_02EE17 ) ; BranchIfFlagByte #00 — loop while exit flag zero; inventory_menu sets on close
+    COP [BranchOnFlagByte] ( #00, #00, &code_02EE17 ) ; BranchIfFlagByte #00 — loop while exit flag zero; inventory_menu sets on close
     STZ $BG3VOFS          ; Close path — zero BG3 vertical scroll before teardown
     STZ $BG3VOFS
     JSL $@vblank_joypad.EnableNmiOnly ; Re-enable NMI-only before RestoreGameState

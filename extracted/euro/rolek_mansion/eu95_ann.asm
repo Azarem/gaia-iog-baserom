@@ -15,15 +15,15 @@ eu95_ann [
   actor-def < #14, #00, #10, {
 
   code_07DF07:
-    COP [SolidHighHere]
-    COP [SetOnInteract] ( &code_07DF10 )
-    COP [SetEntryContinue]
+    COP [MarkSolidHere]
+    COP [SetInteractHandler] ( &code_07DF10 )
+    COP [SetEntryHere]
     RTL 
 } >
 ]
 
 code_07DF10 {
-    COP [BranchIfFlagByte] ( #D6, #01, &code_07DF33 )
+    COP [BranchOnFlagByte] ( #D6, #01, &code_07DF33 )
     COP [PrintDialogString] ( &dialogstring_07DF7A )
     COP [DialogueOptions] ( #02, #02, &code_list_07DF20 )
 }
@@ -46,15 +46,15 @@ code_07DF2E {
 }
 
 code_07DF33 {
-    COP [BranchIfFlagByte] ( #E5, #01, &code_07DF75 )
-    COP [BranchIfNoItem] ( #28, &code_07DF43 )
+    COP [BranchOnFlagByte] ( #E5, #01, &code_07DF75 )
+    COP [BranchIfMissingItem] ( #28, &code_07DF43 )
     COP [PrintDialogString] ( &dialogstring_07E0DE )
     RTL 
 }
 
 code_07DF43 {
-    COP [BranchIfFlagByte] ( #E3, #00, &code_07DF63 )
-    COP [BranchIfFlagByte] ( #E4, #00, &code_07DF68 )
+    COP [BranchOnFlagByte] ( #E3, #00, &code_07DF63 )
+    COP [BranchOnFlagByte] ( #E4, #00, &code_07DF68 )
     COP [RemoveItem] ( #28 )
     COP [PrintDialogString] ( &dialogstring_07E10A )
     COP [GiveItem] ( #01, &code_07DF5F )

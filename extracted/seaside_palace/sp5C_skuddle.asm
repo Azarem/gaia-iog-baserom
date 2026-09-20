@@ -19,7 +19,7 @@ sp5C_skuddle [
   code_0AE6CF:
     LDA #$0010
     TSB $12
-    COP [BranchIfSolid] ( &code_0AE6DA )
+    COP [BranchIfSolidHere] ( &code_0AE6DA )
     BRA loc_0AE6E2
 } >
 ]
@@ -27,7 +27,7 @@ sp5C_skuddle [
 code_0AE6DA {
     LDA #$2000
     TSB $10
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     RTL 
 
   loc_0AE6E2:
@@ -51,7 +51,7 @@ sp5C_ceiling_skuddle [
     BNE code_0AE711
 
   loc_0AE709:
-    COP [BranchIfFlagByte] ( #70, #00, &code_0AE711 )
+    COP [BranchOnFlagByte] ( #70, #00, &code_0AE711 )
     COP [Die]
 } >
 ]
@@ -62,7 +62,7 @@ code_0AE711 {
 }
 
 code_0AE717 {
-    COP [SpawnMarkedAfter] ( @code_0AE8B6, #$0301 )
+    COP [SpawnAfterMarked] ( @code_0AE8B6, #$0301 )
     LDA #$2000
     TRB $10
     LDA $16
@@ -73,7 +73,7 @@ code_0AE717 {
     LSR 
     ASL 
     STA $16
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     LDA $16
     INC 
     INC 
@@ -86,7 +86,7 @@ code_0AE717 {
     LDA #$0302
     TRB $10
     COP [KillNext]
-    COP [SetEntryExit]
+    COP [SetEntryHereAndYield]
 }
 
 code_0AE74C {
@@ -101,12 +101,12 @@ code_0AE759 {
 }
 
 code_0AE763 {
-    COP [CallScript] ( &code_0AE787 )
+    COP [CallNear] ( &code_0AE787 )
     BRA code_0AE74C
 }
 
 code_0AE769 {
-    COP [CallScript] ( &code_0AE7AA )
+    COP [CallNear] ( &code_0AE7AA )
     BRA code_0AE74C
 }
 
@@ -115,16 +115,16 @@ code_0AE76F {
 }
 
 code_0AE779 {
-    COP [CallScript] ( &code_0AE7CD )
+    COP [CallNear] ( &code_0AE7CD )
     BRA code_0AE74C
 }
 
 code_0AE77F {
-    COP [CallScript] ( &code_0AE7F0 )
+    COP [CallNear] ( &code_0AE7F0 )
     BRA code_0AE74C
 
   code_0AE785:
-    COP [SetEntryExit]
+    COP [SetEntryHereAndYield]
 }
 
 code_0AE787 {
@@ -144,7 +144,7 @@ code_0AE79D {
 }
 
 code_0AE7A8 {
-    COP [SetEntryExit]
+    COP [SetEntryHereAndYield]
 }
 
 code_0AE7AA {
@@ -163,7 +163,7 @@ code_0AE7C0 {
     BRA loc_0AE836
 
   code_0AE7CB:
-    COP [SetEntryExit]
+    COP [SetEntryHereAndYield]
 }
 
 code_0AE7CD {
@@ -183,7 +183,7 @@ code_0AE7E2 {
 }
 
 code_0AE7EE {
-    COP [SetEntryExit]
+    COP [SetEntryHereAndYield]
 }
 
 code_0AE7F0 {
@@ -208,12 +208,12 @@ code_0AE805 {
     LDA #$4000
     TSB $12
     COP [StageSprAndHitbox] ( #1D )
-    COP [StageForceMoveXY] ( #42, #41 )
-    COP [SetEntryContinue]
-    COP [ContinueIfFrame] ( #02 )
+    COP [StageMoveXY] ( #42, #41 )
+    COP [SetEntryHere]
+    COP [WaitForAnimFrame] ( #02 )
     LDA #$0100
     TRB $10
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     COP [AnimOnce]
     COP [RestoreSavedPtr]
 
@@ -222,12 +222,12 @@ code_0AE805 {
     LDA #$0100
     TSB $10
     COP [StageSprAndHitbox] ( #1D )
-    COP [StageForceMoveXY] ( #42, #41 )
-    COP [SetEntryContinue]
-    COP [ContinueIfFrame] ( #02 )
+    COP [StageMoveXY] ( #42, #41 )
+    COP [SetEntryHere]
+    COP [WaitForAnimFrame] ( #02 )
     LDA #$0100
     TRB $10
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     COP [AnimOnce]
     COP [RestoreSavedPtr]
 }
@@ -239,12 +239,12 @@ code_0AE857 {
     LDA #$4000
     TSB $12
     COP [StageSprAndHitbox] ( #1D )
-    COP [StageForceMoveXY] ( #42, #40 )
-    COP [SetEntryContinue]
-    COP [ContinueIfFrame] ( #02 )
+    COP [StageMoveXY] ( #42, #40 )
+    COP [SetEntryHere]
+    COP [WaitForAnimFrame] ( #02 )
     LDA #$0100
     TRB $10
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     COP [AnimOnce]
     COP [RestoreSavedPtr]
 }
@@ -254,12 +254,12 @@ code_0AE87D {
     LDA #$0100
     TSB $10
     COP [StageSprAndHitbox] ( #1D )
-    COP [StageForceMoveXY] ( #42, #40 )
-    COP [SetEntryContinue]
-    COP [ContinueIfFrame] ( #02 )
+    COP [StageMoveXY] ( #42, #40 )
+    COP [SetEntryHere]
+    COP [WaitForAnimFrame] ( #02 )
     LDA #$0100
     TRB $10
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     COP [AnimOnce]
     COP [RestoreSavedPtr]
 }
@@ -339,15 +339,15 @@ code_0AE90D {
     BRA loc_0AE920
 
   loc_0AE91C:
-    COP [StageForceMoveXY] ( #42, #42 )
+    COP [StageMoveXY] ( #42, #42 )
 
   loc_0AE920:
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     COP [AnimOneFrame]
     LDA $08
     STZ $08
     STA $26
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     LDY $24
     LDA $0010, Y
     BIT #$0080

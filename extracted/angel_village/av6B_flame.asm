@@ -12,9 +12,9 @@ av6B_flame [
   actor-def < #06, #00, #18, {
 
   code_06D55E:
-    COP [AddPosition] ( #09, #03 )
+    COP [NudgePosition] ( #09, #03 )
     COP [SetMetasprite] ( @spriteset_npc_props )
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     COP [StageSpriteFrame] ( #06 )
     COP [AnimOnce]
     RTL 

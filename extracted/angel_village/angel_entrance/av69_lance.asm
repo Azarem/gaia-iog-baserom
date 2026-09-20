@@ -13,8 +13,8 @@ av69_lance [
   actor-def < #03, #00, #10, {
 
   code_06BA88:
-    COP [BranchIfFlagByte] ( #8D, #01, &av69_lance_destroy )
-    COP [BranchIfFlagByte] ( #75, #01, &av69_lance_destroy )
+    COP [BranchOnFlagByte] ( #8D, #01, &av69_lance_destroy )
+    COP [BranchOnFlagByte] ( #75, #01, &av69_lance_destroy )
     LDA #$CFF0
     TSB $joypadMaskStd
     COP [WaitByte] ( #1D )
@@ -31,7 +31,7 @@ av69_lance [
     COP [AnimLoop]
     COP [StageSpriteFrame] ( #02 )
     COP [AnimOnce]
-    COP [ExitIfFlagByte] ( #04, #01 )
+    COP [WaitOnFlagByte] ( #04, #01 )
     COP [SetFlagByte] ( #75 )
     COP [StageSpriteMoveX] ( #08, #12 )
     COP [AnimOnce]

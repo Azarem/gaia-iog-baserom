@@ -23,16 +23,16 @@ pyCD_jackal [
 
   code_08B821:
     COP [SetFlagByte] ( #0E )
-    COP [ExitIfFlagByte] ( #C2, #01 )
-    COP [ExitIfFlagByte] ( #C3, #01 )
-    COP [ExitIfFlagByte] ( #C4, #01 )
-    COP [ExitIfFlagByte] ( #C5, #01 )
-    COP [ExitIfFlagByte] ( #C6, #01 )
-    COP [ExitIfFlagByte] ( #C7, #01 )
-    COP [BranchIfFlagByte] ( #BB, #01, &code_08B9EC )
+    COP [WaitOnFlagByte] ( #C2, #01 )
+    COP [WaitOnFlagByte] ( #C3, #01 )
+    COP [WaitOnFlagByte] ( #C4, #01 )
+    COP [WaitOnFlagByte] ( #C5, #01 )
+    COP [WaitOnFlagByte] ( #C6, #01 )
+    COP [WaitOnFlagByte] ( #C7, #01 )
+    COP [BranchOnFlagByte] ( #BB, #01, &code_08B9EC )
     COP [ClearFlagByte] ( #0E )
     COP [SetFlagByte] ( #0F )
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     COP [BranchIfPlayerInAbsTiles] ( #05, #09, #0A, #0B, &code_08B853 )
     RTL 
 } >
@@ -43,17 +43,17 @@ code_08B853 {
     TSB $joypadMaskStd
     COP [StartMusic] ( #1B )
     COP [WaitByte] ( #3B )
-    COP [SolidHighAbs] ( #06, #0C )
-    COP [SolidHighAbs] ( #07, #0C )
-    COP [SolidHighAbs] ( #08, #0C )
-    COP [SolidHighAbs] ( #09, #09 )
-    COP [SolidHighAbs] ( #09, #0A )
+    COP [MarkSolidAbs] ( #06, #0C )
+    COP [MarkSolidAbs] ( #07, #0C )
+    COP [MarkSolidAbs] ( #08, #0C )
+    COP [MarkSolidAbs] ( #09, #09 )
+    COP [MarkSolidAbs] ( #09, #0A )
     COP [PrintDialogString] ( &dialogstring_08BA11 )
     LDA #$EFF0
     TRB $joypadMaskStd
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     COP [BranchIfPlayerInAbsTiles] ( #03, #09, #04, #0D, &code_08B893 )
-    COP [BranchIfButton] ( #$0501, &code_08B88E )
+    COP [BranchIfPressed] ( #$0501, &code_08B88E )
     RTL 
 }
 
@@ -63,13 +63,13 @@ code_08B88E {
 }
 
 code_08B893 {
-    COP [ClearLowAbs] ( #06, #0C )
-    COP [ClearLowAbs] ( #07, #0C )
-    COP [ClearLowAbs] ( #08, #0C )
-    COP [ClearLowAbs] ( #09, #09 )
-    COP [ClearLowAbs] ( #09, #0A )
-    COP [SolidHighAbs] ( #05, #09 )
-    COP [SolidHighAbs] ( #05, #0A )
+    COP [ClearSolidAbs] ( #06, #0C )
+    COP [ClearSolidAbs] ( #07, #0C )
+    COP [ClearSolidAbs] ( #08, #0C )
+    COP [ClearSolidAbs] ( #09, #09 )
+    COP [ClearSolidAbs] ( #09, #0A )
+    COP [MarkSolidAbs] ( #05, #09 )
+    COP [MarkSolidAbs] ( #05, #0A )
     COP [PrintDialogString] ( &dialogstring_08BA5A )
     LDA #$CFF0
     TSB $joypadMaskStd
@@ -117,9 +117,9 @@ code_08B893 {
     LDA #$000F
     STA $musicParentActor
     COP [SetFlagByte] ( #0E )
-    COP [SetEntryContinue]
-    COP [BranchIfFlagByte] ( #03, #01, &code_08B956 )
-    COP [BranchIfFlagByte] ( #0D, #01, &code_08B950 )
+    COP [SetEntryHere]
+    COP [BranchOnFlagByte] ( #03, #01, &code_08B956 )
+    COP [BranchOnFlagByte] ( #0D, #01, &code_08B950 )
     LDY $playerActor
     LDA $0014, Y
     CMP #$0048
@@ -127,7 +127,7 @@ code_08B893 {
     RTL 
 
   loc_08B94A:
-    COP [BranchIfButton] ( #$0101, &code_08B951 )
+    COP [BranchIfPressed] ( #$0101, &code_08B951 )
 }
 
 code_08B950 {
@@ -144,10 +144,10 @@ code_08B956 {
     TSB $joypadMaskStd
     COP [ClearFlagByte] ( #0E )
     COP [WaitByte] ( #1D )
-    COP [LoopInit] ( #0C )
+    COP [LoopStart] ( #0C )
     COP [SpawnAfterFlags] ( @code_08B7E8, #$0B02 )
     COP [WaitByte] ( #09 )
-    COP [LoopNext]
+    COP [LoopEnd]
     LDA #$0800
     TSB $10
     COP [StageSprAndHitbox] ( #13 )
@@ -180,14 +180,14 @@ code_08B956 {
     COP [AnimOnce]
     COP [FadeThenStartMusic] ( #11 )
     COP [WaitByte] ( #B3 )
-    COP [ClearLowAbs] ( #05, #09 )
-    COP [ClearLowAbs] ( #05, #0A )
+    COP [ClearSolidAbs] ( #05, #09 )
+    COP [ClearSolidAbs] ( #05, #0A )
     COP [SetFlagByte] ( #06 )
     COP [SetFlagByte] ( #BB )
     COP [ClearFlagByte] ( #0F )
     LDA #$EFF0
     TRB $joypadMaskStd
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     RTL 
 }
 
@@ -198,8 +198,8 @@ code_08B9EC {
     COP [SetMetasprite] ( @spriteset_npc_props )
     COP [StageSpriteFrame] ( #02 )
     COP [AnimOnce]
-    COP [SolidHighHere]
-    COP [SetEntryContinue]
+    COP [MarkSolidHere]
+    COP [SetEntryHere]
     RTL 
 }
 
@@ -248,10 +248,10 @@ code_08B7E8 {
 
 code_08B804 {
     COP [PlaySoundBoth] ( #$0505 )
-    COP [AddPosition] ( #00, #FC )
+    COP [NudgePosition] ( #00, #FC )
     COP [StageSpriteLoop] ( #11, #02 )
     COP [AnimLoop]
-    COP [AddPosition] ( #00, #04 )
+    COP [NudgePosition] ( #00, #04 )
     COP [StageSpriteLoop] ( #12, #10 )
     COP [AnimLoop]
     COP [Die]

@@ -23,12 +23,12 @@ eu91_men1 [
     ADC #$0002
     STA $28
     STZ $2A
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     COP [AnimOneFrame]
     JSL $@ActorDisplayModeSwap
-    COP [SetOnInteract] ( &code_07C427 )
-    COP [SolidHighHere]
-    COP [SetEntryContinue]
+    COP [SetInteractHandler] ( &code_07C427 )
+    COP [MarkSolidHere]
+    COP [SetEntryHere]
     RTL 
 } >
 ]

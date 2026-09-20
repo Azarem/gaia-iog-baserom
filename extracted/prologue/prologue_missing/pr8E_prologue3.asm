@@ -41,7 +41,7 @@ pr8E_prologue3 [
     AND #$FFF7
     STA $0010, Y
     COP [SpawnAfterFlags] ( @code_0BCE05, #$2800 )
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     LDY $playerActor
     LDA $0016, Y
     INC 
@@ -86,13 +86,13 @@ pr8E_prologue3 [
     LDA #$0404
     STA $gfxCacheIdxB
     COP [QueueMapChange] ( #8F, #$0000, #$0000, #00, #$1100 )
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     RTL 
 } >
 ]
 
 code_0BCE02 {
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     RTL 
 }
 
@@ -103,7 +103,7 @@ code_0BCE05 {
     ASL 
     ASL 
     STA $08
-    COP [SetEntryExit]
+    COP [SetEntryHereAndYield]
     COP [SpawnAfterFlags] ( @code_0BCE1A, #$1800 )
     BRA code_0BCE05
 }

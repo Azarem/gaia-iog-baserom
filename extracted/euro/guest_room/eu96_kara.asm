@@ -13,16 +13,16 @@ eu96_kara [
   actor-def < #1A, #00, #10, {
 
   code_07D988:
-    COP [BranchIfFlagByte] ( #AC, #01, &code_07D9C4 )
-    COP [BranchIfFlagByte] ( #AB, #01, &code_07D9BB )
-    COP [SolidHighHere]
-    COP [SetOnInteract] ( &code_07D9C6 )
-    COP [AddPosition] ( #00, #FE )
-    COP [ExitIfFlagByte] ( #AA, #01 )
+    COP [BranchOnFlagByte] ( #AC, #01, &code_07D9C4 )
+    COP [BranchOnFlagByte] ( #AB, #01, &code_07D9BB )
+    COP [MarkSolidHere]
+    COP [SetInteractHandler] ( &code_07D9C6 )
+    COP [NudgePosition] ( #00, #FE )
+    COP [WaitOnFlagByte] ( #AA, #01 )
     COP [StageSpriteFrame] ( #1D )
     COP [AnimOnce]
-    COP [ExitIfFlagByte] ( #01, #01 )
-    COP [ClearLowHere]
+    COP [WaitOnFlagByte] ( #01, #01 )
+    COP [ClearSolidHere]
     COP [StageSpriteMoveX] ( #21, #01 )
     COP [AnimOnce]
     COP [StageSpriteFrame] ( #1D )
@@ -32,9 +32,9 @@ eu96_kara [
 ]
 
 code_07D9BB {
-    COP [SetOnInteract] ( &code_07D9CB )
-    COP [SolidHighHere]
-    COP [SetEntryContinue]
+    COP [SetInteractHandler] ( &code_07D9CB )
+    COP [MarkSolidHere]
+    COP [SetEntryHere]
     RTL 
 }
 

@@ -20,13 +20,13 @@ mu60_force_ball [
   actor-def < #25, #00, #01, {
 
   code_069D50:
-    COP [BranchIfSolid] ( &code_069E3A )
+    COP [BranchIfSolidHere] ( &code_069E3A )
     LDA #$0021
     TSB $12
     COP [SetSpritePriority] ( #30 )
-    COP [SpawnMarkedAfter] ( @interaction_handlers.push_handler_forceball, #$2400 )
-    COP [SpawnMarkedBefore] ( @code_069D79, #$2000 )
-    COP [SetEntryContinue]
+    COP [SpawnAfterMarked] ( @interaction_handlers.push_handler_forceball, #$2400 )
+    COP [SpawnBeforeMarked] ( @code_069D79, #$2000 )
+    COP [SetEntryHere]
     COP [StageSpriteFrame] ( #25 )
     COP [AnimOnce]
     LDA #$00FF
@@ -36,7 +36,7 @@ mu60_force_ball [
 ]
 
 code_069D79 {
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     LDY $06
     LDA $0014, Y
     STA $14

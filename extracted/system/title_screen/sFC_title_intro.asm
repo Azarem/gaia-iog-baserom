@@ -51,7 +51,7 @@ sFC_title_intro [
     LDA #$0804
     STA $gfxCacheIdxB
     COP [QueueMapChange] ( #8C, #$0000, #$0000, #00, #$1100 ) ; Transition to scene $8C (prologue)
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     RTL 
 } >
 ]
@@ -71,7 +71,7 @@ TitleCometSpriteActor {
     LDA #$16              ; BG1 + BG2 + BG3: enable text/subtitle layers
     STA $TM
     REP #$20
-    COP [SetEntryContinue] ; Persist as idle actor
+    COP [SetEntryHere]    ; Persist as idle actor
     RTL 
 }
 

@@ -11,10 +11,10 @@ sg52_switch [
   actor-def < #00, #00, #20, {
 
   code_05F6D3:
-    COP [BranchIfFlagWord] ( #$012E, #01, &code_05F6F8 )
+    COP [BranchOnFlagWord] ( #$012E, #01, &code_05F6F8 )
 
   loc_05F6DA:
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     COP [BranchIfPlayerNear] ( #01, &code_05F70E )
     COP [BranchIfActorAt] ( #03, #$0258, #$0330, &code_05F6EB )
     RTL 
@@ -34,14 +34,14 @@ code_05F6F8 {
     STA $0014, Y
     LDA #$0330
     STA $0016, Y
-    COP [ClearLowAbs] ( #38, #32 )
-    COP [SetEntryContinue]
+    COP [ClearSolidAbs] ( #38, #32 )
+    COP [SetEntryHere]
     RTL 
 }
 
 code_05F70E {
     COP [PrintDialogString] ( &dialogstring_05F71C )
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     COP [BranchIfPlayerNear] ( #01, &code_05F71B )
     BRA loc_05F6DA
 }

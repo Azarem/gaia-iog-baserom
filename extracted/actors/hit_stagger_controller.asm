@@ -82,7 +82,7 @@ HitStaggerMain {
   loc_00D8E0:
     LDA #$6000
     TRB $12
-    COP [SetForceBoth] ( #01 )
+    COP [ForceDirBoth] ( #01 )
     SEC 
     JSR $&HitStaggerApplyKnockbackDelta
     RTS 
@@ -90,7 +90,7 @@ HitStaggerMain {
   loc_00D8ED:
     LDA #$6000
     TRB $12
-    COP [SetForceBoth] ( #01 )
+    COP [ForceDirBoth] ( #01 )
     CLC 
     JSR $&HitStaggerApplyKnockbackDelta
     RTS 
@@ -104,14 +104,14 @@ HitStaggerMain {
 }
 
 HitStaggerDirection {
-    COP [SetEntryExit]    ; HitStaggerDirection: 16-frame SetEntryExit loop syncs victim position
-    COP [LoopInit] ( #10 )
+    COP [SetEntryHereAndYield] ; HitStaggerDirection: 16-frame SetEntryExit loop syncs victim position
+    COP [LoopStart] ( #10 )
     LDY $24
     LDA $14
     STA $0014, Y
     LDA $16
     STA $0016, Y
-    COP [LoopNext]
+    COP [LoopEnd]
     LDA $10
     BIT #$0400
     BEQ loc_00D921

@@ -72,7 +72,7 @@ pyDD_queen_spirit_attack {
 
   loc_0BAC21:
     JSL $@ApplyOrbitalOffsetFromRef.code_00F3D3
-    COP [SetEntryExit]
+    COP [SetEntryHereAndYield]
     DEC $26
     BPL loc_0BAC21
     BRA loc_0BAC07
@@ -82,7 +82,7 @@ pyDD_queen_spirit_attack {
     COP [AnimOnce]
     LDA $24
     STA $26
-    COP [SpawnMarkedAfter] ( @smooth_follow.InitFollowAndChase, #$2000 )
+    COP [SpawnAfterMarked] ( @smooth_follow.InitFollowAndChase, #$2000 )
     TYA 
     STA $orbitDiameter, X
     LDA #$800E
@@ -91,14 +91,14 @@ pyDD_queen_spirit_attack {
     STA $loopCounter, X
     LDA $playerActor
     STA $0024, Y
-    COP [SetEntryExit]
+    COP [SetEntryHereAndYield]
 
   loc_0BAC58:
     LDA $orbitDiameter, X
     TAY 
     LDA $playerActor
     STA $0024, Y
-    COP [CallScript] ( &aw_spirit_follower.code_0BBF64 )
+    COP [CallNear] ( &aw_spirit_follower.code_0BBF64 )
     LDA $orbitDiameter, X
     TAY 
     PHX 
@@ -106,6 +106,6 @@ pyDD_queen_spirit_attack {
     LDA $scratch1010+6, X
     PLX 
     STA $0024, Y
-    COP [CallScript] ( &aw_spirit_follower.code_0BBF64 )
+    COP [CallNear] ( &aw_spirit_follower.code_0BBF64 )
     BRA loc_0BAC58
 }

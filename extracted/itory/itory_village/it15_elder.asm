@@ -14,8 +14,8 @@ it15_elder [
   code_04E92C:
     LDA #$0200
     TSB $12
-    COP [BranchIfFlagByte] ( #41, #01, &code_04E958 )
-    COP [SetEntryContinue]
+    COP [BranchOnFlagByte] ( #41, #01, &code_04E958 )
+    COP [SetEntryHere]
     COP [BranchIfPlayerInAbsTiles] ( #04, #1C, #07, #1E, &code_04E942 )
     RTL 
 } >
@@ -24,7 +24,7 @@ it15_elder [
 code_04E942 {
     COP [PrintDialogString] ( &dialogstring_04E9FF )
     COP [SetFlagByte] ( #41 )
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     COP [BranchIfPlayerInAbsTiles] ( #08, #19, #0D, #1A, &code_04E954 )
     RTL 
 }
@@ -34,29 +34,29 @@ code_04E954 {
 }
 
 code_04E958 {
-    COP [SetOnInteract] ( &code_04E97A )
-    COP [SpawnAfterRelFlags] ( @code_04E96A, #$0000, #$0004, #$0B00 )
-    COP [SetEntryContinue]
+    COP [SetInteractHandler] ( &code_04E97A )
+    COP [SpawnAfterOffsetFlags] ( @code_04E96A, #$0000, #$0004, #$0B00 )
+    COP [SetEntryHere]
     RTL 
 }
 
 code_04E96A {
-    COP [SolidHighHere]
+    COP [MarkSolidHere]
     COP [StageSpriteLoop] ( #22, #14 )
     COP [AnimLoop]
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     COP [StageSpriteFrame] ( #23 )
     COP [AnimOnce]
     RTL 
 }
 
 code_04E97A {
-    COP [BranchIfFlagByte] ( #44, #01, &code_04E9F1 )
-    COP [BranchIfNoItem] ( #04, &code_04E9DC )
-    COP [BranchIfNoItem] ( #03, &code_04E9E1 )
-    COP [BranchIfFlagByte] ( #47, #01, &code_04E9D4 )
-    COP [BranchIfFlagByte] ( #0E, #01, &code_04E9BC )
-    COP [BranchIfFlagByte] ( #0F, #01, &code_04E9A0 )
+    COP [BranchOnFlagByte] ( #44, #01, &code_04E9F1 )
+    COP [BranchIfMissingItem] ( #04, &code_04E9DC )
+    COP [BranchIfMissingItem] ( #03, &code_04E9E1 )
+    COP [BranchOnFlagByte] ( #47, #01, &code_04E9D4 )
+    COP [BranchOnFlagByte] ( #0E, #01, &code_04E9BC )
+    COP [BranchOnFlagByte] ( #0F, #01, &code_04E9A0 )
     COP [PrintDialogString] ( &dialogstring_04EA77 )
 }
 

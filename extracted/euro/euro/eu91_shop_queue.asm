@@ -28,10 +28,10 @@ eu91_shop_queue [
     STA $26
     STA $28
     STZ $2A
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     COP [AnimOneFrame]
     JSL $@ActorDisplayModeSwap
-    COP [SetOnInteract] ( &code_07D39A )
+    COP [SetInteractHandler] ( &code_07D39A )
     TXY 
     LDA $24
     STA $0000
@@ -46,7 +46,7 @@ eu91_shop_queue [
   loc_07D287:
     TYA 
     STA $20
-    COP [SolidHighHere]
+    COP [MarkSolidHere]
     BRA loc_07D2F9
 
   code_07D28E:
@@ -68,7 +68,7 @@ eu91_shop_queue [
     BRA loc_07D2B1
 
   code_07D2AF:
-    COP [SetEntryExit]
+    COP [SetEntryHereAndYield]
 
   loc_07D2B1:
     JSR $&code_07D513
@@ -76,14 +76,14 @@ eu91_shop_queue [
     COP [BranchIfSolidSouth] ( &code_07D2AF )
     JSR $&code_07D593
     BCC code_07D2AF
-    COP [SolidHighOffset] ( #00, #01 )
+    COP [MarkSolidOffset] ( #00, #01 )
     LDA $26
     CLC 
     ADC #$0004
     STA $28
     STZ $2A
-    COP [StageForceMoveY] ( #11 )
-    COP [SetEntryContinue]
+    COP [StageMoveY] ( #11 )
+    COP [SetEntryHere]
     COP [AnimOnce]
     LDA $26
     CLC 
@@ -93,7 +93,7 @@ eu91_shop_queue [
     COP [AnimOneFrame]
     JSR $&code_07D4FF
     BCS loc_07D2A6
-    COP [ClearLowOffset] ( #00, #FF )
+    COP [ClearSolidOffset] ( #00, #FF )
     BRA loc_07D2A6
 
   loc_07D2EB:
@@ -102,7 +102,7 @@ eu91_shop_queue [
     ADC #$0006
     STA $28
     STZ $2A
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     COP [AnimOneFrame]
 
   loc_07D2F9:
@@ -112,7 +112,7 @@ eu91_shop_queue [
     BRA loc_07D304
 
   code_07D302:
-    COP [SetEntryExit]
+    COP [SetEntryHereAndYield]
 
   loc_07D304:
     JSR $&code_07D555
@@ -120,14 +120,14 @@ eu91_shop_queue [
     COP [BranchIfSolidWest] ( &code_07D302 )
     JSR $&code_07D583
     BCC code_07D302
-    COP [SolidHighOffset] ( #FF, #00 )
+    COP [MarkSolidOffset] ( #FF, #00 )
     LDA $26
     CLC 
     ADC #$0006
     STA $28
     STZ $2A
-    COP [StageForceMoveX] ( #12 )
-    COP [SetEntryContinue]
+    COP [StageMoveX] ( #12 )
+    COP [SetEntryHere]
     COP [AnimOnce]
     LDA $26
     CLC 
@@ -137,7 +137,7 @@ eu91_shop_queue [
     COP [AnimOneFrame]
     JSR $&code_07D541
     BCS loc_07D2F9
-    COP [ClearLowOffset] ( #01, #00 )
+    COP [ClearSolidOffset] ( #01, #00 )
     BRA loc_07D2F9
 
   loc_07D33E:
@@ -147,7 +147,7 @@ eu91_shop_queue [
     BRA loc_07D349
 
   code_07D347:
-    COP [SetEntryExit]
+    COP [SetEntryHereAndYield]
 
   loc_07D349:
     JSR $&code_07D4FF
@@ -166,26 +166,26 @@ eu91_shop_queue [
     ADC #$0005
     STA $28
     STZ $2A
-    COP [SolidHighOffset] ( #00, #FF )
-    COP [StageForceMoveY] ( #12 )
-    COP [SetEntryContinue]
+    COP [MarkSolidOffset] ( #00, #FF )
+    COP [StageMoveY] ( #12 )
+    COP [SetEntryHere]
     COP [AnimOnce]
     LDA $26
     CLC 
     ADC #$0005
     STA $28
     STZ $2A
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     COP [AnimOneFrame]
     JSR $&code_07D513
     BCS loc_07D33E
-    COP [ClearLowOffset] ( #00, #01 )
+    COP [ClearSolidOffset] ( #00, #01 )
     BRA loc_07D33E
 
   loc_07D390:
     LDA #$2000
     TSB $10
-    COP [SetEntryExitNow] ( @code_07D28E )
+    COP [JumpNextFrame] ( @code_07D28E )
 } >
 ]
 

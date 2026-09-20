@@ -10,9 +10,9 @@ av69_kara [
   actor-def < #1B, #00, #10, {
 
   code_06C34B:
-    COP [BranchIfFlagByte] ( #8D, #01, &av69_kara_destroy )
-    COP [BranchIfFlagByte] ( #75, #01, &av69_kara_destroy )
-    COP [ExitIfFlagByte] ( #02, #01 )
+    COP [BranchOnFlagByte] ( #8D, #01, &av69_kara_destroy )
+    COP [BranchOnFlagByte] ( #75, #01, &av69_kara_destroy )
+    COP [WaitOnFlagByte] ( #02, #01 )
     COP [StageSpriteFrame] ( #1D )
     COP [AnimOnce]
     COP [PrintDialogString] ( &dialogstring_06C3B1 )

@@ -14,12 +14,12 @@ wa7D_glass_opponent [
   actor-def < #2C, #00, #10, {
 
   code_078D74:
-    COP [BranchIfFlagByte] ( #95, #01, &code_078DB3 )
-    COP [BranchIfFlagByte] ( #97, #01, &code_078D8F )
-    COP [BranchIfFlagByte] ( #96, #01, &code_078DB3 )
-    COP [SolidHighHere]
-    COP [SetOnInteract] ( &code_078DFC )
-    COP [SetEntryContinue]
+    COP [BranchOnFlagByte] ( #95, #01, &code_078DB3 )
+    COP [BranchOnFlagByte] ( #97, #01, &code_078D8F )
+    COP [BranchOnFlagByte] ( #96, #01, &code_078DB3 )
+    COP [MarkSolidHere]
+    COP [SetInteractHandler] ( &code_078DFC )
+    COP [SetEntryHere]
     RTL 
 } >
 ]
@@ -43,8 +43,8 @@ code_078DB3 {
 }
 
 code_078DB5 {
-    COP [BranchIfNoItem] ( #01, &code_078DBF )
-    COP [BranchIfNoItem] ( #06, &code_078DE8 )
+    COP [BranchIfMissingItem] ( #01, &code_078DBF )
+    COP [BranchIfMissingItem] ( #06, &code_078DE8 )
 }
 
 code_078DBF {

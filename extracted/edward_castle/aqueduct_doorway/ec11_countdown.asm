@@ -19,9 +19,9 @@ ec11_countdown [
   actor-def < #00, #00, #23, {
 
   code_09BDB8:
-    COP [BranchIfFlagWord] ( #$0113, #01, &code_09BE6D )
-    COP [ExitIfFlagByte] ( #02, #01 )
-    COP [SetEntryContinue]
+    COP [BranchOnFlagWord] ( #$0113, #01, &code_09BE6D )
+    COP [WaitOnFlagByte] ( #02, #01 )
+    COP [SetEntryHere]
     COP [BranchIfPlayerNear] ( #03, &code_09BDCB )
     RTL 
 } >
@@ -38,43 +38,43 @@ code_09BDCB {
     TRB $joypadMaskStd
 
   code_09BDE4:
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     LDA #$2200
     STA $0E
-    COP [LoopInit] ( #78 )
-    COP [BranchIfFlagByte] ( #03, #01, &code_09BE67 )
-    COP [LoopNext]
+    COP [LoopStart] ( #78 )
+    COP [BranchOnFlagByte] ( #03, #01, &code_09BE67 )
+    COP [LoopEnd]
     COP [PlaySoundCh1] ( #10 )
-    COP [LoopInit] ( #3C )
-    COP [BranchIfFlagByte] ( #03, #01, &code_09BE67 )
+    COP [LoopStart] ( #3C )
+    COP [BranchOnFlagByte] ( #03, #01, &code_09BE67 )
     JSR $&code_09BEFC
     LDA #$0001
     STA $0000
     JSL $@oam_digit_compose.ComposeDigitSprites
-    COP [LoopNext]
-    COP [LoopInit] ( #78 )
-    COP [BranchIfFlagByte] ( #03, #01, &code_09BE67 )
-    COP [LoopNext]
+    COP [LoopEnd]
+    COP [LoopStart] ( #78 )
+    COP [BranchOnFlagByte] ( #03, #01, &code_09BE67 )
+    COP [LoopEnd]
     COP [PlaySoundCh1] ( #10 )
-    COP [LoopInit] ( #3C )
-    COP [BranchIfFlagByte] ( #03, #01, &code_09BE67 )
+    COP [LoopStart] ( #3C )
+    COP [BranchOnFlagByte] ( #03, #01, &code_09BE67 )
     JSR $&code_09BEFC
     LDA #$0002
     STA $0000
     JSL $@oam_digit_compose.ComposeDigitSprites
-    COP [LoopNext]
-    COP [LoopInit] ( #63 )
-    COP [BranchIfFlagByte] ( #03, #01, &code_09BE67 )
-    COP [LoopNext]
+    COP [LoopEnd]
+    COP [LoopStart] ( #63 )
+    COP [BranchOnFlagByte] ( #03, #01, &code_09BE67 )
+    COP [LoopEnd]
     COP [SetFlagByte] ( #01 )
     COP [PlaySoundCh1] ( #11 )
-    COP [LoopInit] ( #28 )
-    COP [BranchIfFlagByte] ( #02, #00, &code_09BE6D )
+    COP [LoopStart] ( #28 )
+    COP [BranchOnFlagByte] ( #02, #00, &code_09BE6D )
     JSR $&code_09BEFC
     LDA #$0003
     STA $0000
     JSL $@oam_digit_compose.ComposeDigitSprites
-    COP [LoopNext]
+    COP [LoopEnd]
     COP [ClearFlagByte] ( #01 )
     COP [PrintDialogString] ( &ec11_button_voice.dialogstring_09BD58 )
 }
@@ -85,7 +85,7 @@ code_09BE67 {
 }
 
 code_09BE6D {
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     RTL 
 }
 

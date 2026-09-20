@@ -490,4 +490,4 @@ The actor at `$EAED` (`camera_scroll_controller`) computes per-frame scroll delt
 
 ---
 
-*Source: `extracted/system/engine/smooth_follow.asm`, `camera_scroll.asm`, `forced_walk.asm`, `docs/cop-commands-reference.md`.*
+*Source: `extracted/system/engine/smooth_follow.asm`, `camera_scroll.asm`, `forced_walk.asm`, `docs/cop/index.md`.*

@@ -33,9 +33,9 @@ gs2A_shira [
     LDA #$03
     STA $WOBJSEL
     REP #$20
-    COP [SetOnInteract] ( &code_059484 )
-    COP [SolidHighHere]
-    COP [SetEntryContinue]
+    COP [SetInteractHandler] ( &code_059484 )
+    COP [MarkSolidHere]
+    COP [SetEntryHere]
     RTL 
 } >
 ]

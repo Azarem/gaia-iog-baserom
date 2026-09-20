@@ -11,10 +11,10 @@ fr32_idle_npc_a [
 
   code_05B32F:
     COP [SetSpritePriority] ( #10 )
-    COP [AddPosition] ( #FE, #05 )
-    COP [SetEntryContinue]
+    COP [NudgePosition] ( #FE, #05 )
+    COP [SetEntryHere]
     COP [AnimOneFrame]
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     RTL 
 } >
 ]

@@ -10,15 +10,15 @@ sc08_lance [
   actor-def < #03, #00, #10, {
 
   code_048D24:
-    COP [SetOnInteract] ( &code_048D35 )
-    COP [BranchIfFlagByte] ( #10, #00, &code_048D30 )
+    COP [SetInteractHandler] ( &code_048D35 )
+    COP [BranchOnFlagByte] ( #10, #00, &code_048D30 )
     COP [Die]
 } >
 ]
 
 code_048D30 {
-    COP [SolidHighHere]
-    COP [SetEntryContinue]
+    COP [MarkSolidHere]
+    COP [SetEntryHere]
     RTL 
 }
 

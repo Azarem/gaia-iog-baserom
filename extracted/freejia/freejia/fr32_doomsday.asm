@@ -13,9 +13,9 @@ fr32_doomsday [
   code_05BE58:
     LDA #$0200
     TSB $12
-    COP [SolidHighHere]
-    COP [SetOnInteract] ( &code_05BE66 )
-    COP [SetEntryContinue]
+    COP [MarkSolidHere]
+    COP [SetInteractHandler] ( &code_05BE66 )
+    COP [SetEntryHere]
     RTL 
 } >
 ]

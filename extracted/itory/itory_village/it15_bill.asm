@@ -10,26 +10,26 @@ it15_bill [
   actor-def < #2A, #00, #10, {
 
   code_04EF77:
-    COP [SetOnInteract] ( &code_04EFA4 )
-    COP [SolidHighHere]
-    COP [BranchIfFlagByte] ( #47, #01, &code_04EF9E )
-    COP [BranchIfFlagByte] ( #3B, #01, &code_04EF9B )
-    COP [ExitIfFlagByte] ( #3B, #01 )
+    COP [SetInteractHandler] ( &code_04EFA4 )
+    COP [MarkSolidHere]
+    COP [BranchOnFlagByte] ( #47, #01, &code_04EF9E )
+    COP [BranchOnFlagByte] ( #3B, #01, &code_04EF9B )
+    COP [WaitOnFlagByte] ( #3B, #01 )
     COP [StageSpriteFrame] ( #2C )
     COP [AnimOnce]
-    COP [ExitIfFlagByte] ( #05, #01 )
+    COP [WaitOnFlagByte] ( #05, #01 )
     COP [StageSpriteFrame] ( #2A )
     COP [AnimOnce]
 } >
 ]
 
 code_04EF9B {
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     RTL 
 }
 
 code_04EF9E {
-    COP [SetOnInteract] ( &code_04EFA9 )
+    COP [SetInteractHandler] ( &code_04EFA9 )
     BRA code_04EF9B
 }
 

@@ -50,7 +50,7 @@ EnemyPositionSnap {
 
   loc_0AA3E4:
     STA $moveYAlt, X      ; Set Y target
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     COP [MoveToward] ( #FF, #01 ) ; Move toward target at max speed
     LDA $14               ; Check if aligned: (X-8) | Y low nibble = 0?
     SEC 

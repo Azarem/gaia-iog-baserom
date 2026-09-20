@@ -209,7 +209,7 @@ UseItem_RedJewel {
     LDA $playerActor      ; Switch DP to player actor slot for SpawnLastRel relative base position
     TCD 
     TAX 
-    COP [SpawnLastRel] ( @code_038566, #00, #00, #$2000 ) ; Spawn orbit visual effect at player position; $2000 = display-filtered actor
+    COP [SpawnListAppend] ( @code_038566, #00, #00, #$2000 ) ; Spawn orbit visual effect at player position; $2000 = display-filtered actor
     TYX 
     LDA #$0000            ; Clear spawned actor flags ($0012), set OAM priority $3000 ($000E)
     STA $0012, X
@@ -228,10 +228,10 @@ UseItem_RedJewel {
 dialogstring_038517 `[DEF]He raised the Red Jewel![FIN]Red Jewels[N]fly to Jeweler Gem's in[N]a single ray of light![END]`
 
 code_038566 {
-    COP [SpawnMarkedAfter] ( @code_038576, #$1002 )
-    COP [LoopInit] ( #FF )
+    COP [SpawnAfterMarked] ( @code_038576, #$1002 )
+    COP [LoopStart] ( #FF )
     DEC $16
-    COP [LoopNext]
+    COP [LoopEnd]
     COP [Die]
 }
 
@@ -254,7 +254,7 @@ code_038576 {
   loc_038598:
     LDY $24               ; Orbital motion loop: load parent ref, apply circular offset each frame
     JSL $@ApplyOrbitalOffsetFromRef
-    COP [SetEntryExit]
+    COP [SetEntryHereAndYield]
     LDA $orbitAngle, X    ; Advance orbit angle by 2 per frame for rotation speed
     CLC 
     ADC #$0002
@@ -287,24 +287,24 @@ UseItem_PrisonKey {
 }
 
 code_0385DC {
-    COP [BranchIfFlagByte] ( #24, #01, &code_038615 )
+    COP [BranchOnFlagByte] ( #24, #01, &code_038615 )
     COP [PrintDialogString] ( &dialogstring_03861F )
     COP [StageBgChange] ( #06 ) ; BG change #06 removes the prison door tiles from the tilemap
     COP [ApplyBgChange]
     COP [SetFlagWord] ( #$0106 ) ; Flag word $0106 and flag byte $24 track first door unlock
     COP [SetFlagByte] ( #24 )
     COP [PlaySoundBoth] ( #$0E0E )
-    COP [ClearLowAbs] ( #0E, #11 ) ; Clear collision tiles for both door columns at Y=$11
-    COP [ClearLowAbs] ( #0F, #11 )
+    COP [ClearSolidAbs] ( #0E, #11 ) ; Clear collision tiles for both door columns at Y=$11
+    COP [ClearSolidAbs] ( #0F, #11 )
     RTS 
 }
 
 code_0385FF {
-    COP [BranchIfFlagByte] ( #42, #01, &code_038615 )
+    COP [BranchOnFlagByte] ( #42, #01, &code_038615 )
     COP [PrintDialogString] ( &dialogstring_03861F )
     COP [SetFlagByte] ( #42 )
     COP [PlaySoundBoth] ( #$0E0E )
-    COP [ClearHighAbs] ( #09, #17 )
+    COP [ClearTypeAbs] ( #09, #17 )
     RTS 
 }
 
@@ -377,7 +377,7 @@ UseItem_IncaStatueA_CheckAlt {
     BNE loc_0386FA
 
   loc_0386FA:
-    COP [BranchIfFlagByte] ( #44, #00, &code_038705 )
+    COP [BranchOnFlagByte] ( #44, #00, &code_038705 )
     COP [PrintDialogString] ( &dialogstring_03870A )
     RTS 
 }
@@ -447,7 +447,7 @@ UseItem_IncaStatueB_CheckAlt {
     BNE loc_03880D
 
   loc_03880D:
-    COP [BranchIfFlagByte] ( #44, #00, &code_038705 )
+    COP [BranchOnFlagByte] ( #44, #00, &code_038705 )
     COP [PrintDialogString] ( &dialogstring_03870A )
     RTS 
 
@@ -577,13 +577,13 @@ UseItem_WindFlute {
     LDA $sceneCurrent     ; Scene $24 = Gold Ship; flag $01 = wind effect already activated
     CMP #$0024
     BNE code_0389F0
-    COP [BranchIfFlagByte] ( #01, #01, &code_0389F0 )
+    COP [BranchOnFlagByte] ( #01, #01, &code_0389F0 )
     LDA #$0080            ; Suppress normal rendering during music playback
     TSB $displayModeFlags
     COP [PrintDialogString] ( &dialogstring_038A2B )
     PHX 
     LDX #$0000
-    COP [SpawnLastRel] ( @FluteMusicActorController, #00, #00, #$2000 ) ; Spawn FluteMusicActorController; $2000 = display-filtered actor flags
+    COP [SpawnListAppend] ( @FluteMusicActorController, #00, #00, #$2000 ) ; Spawn FluteMusicActorController; $2000 = display-filtered actor flags
     CPY #$1FC0            ; Y=$1FC0 = actor pool full — spawn failed, skip input suppression
     BNE loc_0389D3
     JMP $&code_0389D9
@@ -675,17 +675,17 @@ UseItem_LolaMelody {
     BRA code_038C2B
 
   loc_038BC7:
-    COP [BranchIfFlagWord] ( #$0113, #01, &code_038C2B )
-    COP [BranchIfFlagByte] ( #02, #01, &code_038C2B )
+    COP [BranchOnFlagWord] ( #$0113, #01, &code_038C2B )
+    COP [BranchOnFlagByte] ( #02, #01, &code_038C2B )
     BRA loc_038BEF
 
   loc_038BD6:
-    COP [BranchIfFlagByte] ( #40, #01, &code_038C2B )
+    COP [BranchOnFlagByte] ( #40, #01, &code_038C2B )
     BRA loc_038BEF
 
   loc_038BDE:
-    COP [BranchIfFlagByte] ( #BB, #01, &code_038C2B )
-    COP [BranchIfFlagByte] ( #0E, #00, &code_038C2B )
+    COP [BranchOnFlagByte] ( #BB, #01, &code_038C2B )
+    COP [BranchOnFlagByte] ( #0E, #00, &code_038C2B )
     COP [SetFlagByte] ( #0D )
     BRA loc_038BEF
 
@@ -695,7 +695,7 @@ UseItem_LolaMelody {
     COP [PrintDialogString] ( &dialogstring_038C76 )
     PHX 
     LDX #$0000
-    COP [SpawnLastRel] ( @FluteMusicActorController, #00, #00, #$2000 )
+    COP [SpawnListAppend] ( @FluteMusicActorController, #00, #00, #$2000 )
     CPY #$1FC0
     BNE loc_038C0E
     JMP $&code_038C14
@@ -743,13 +743,13 @@ UseItem_LolaMelody_Effect {
     BRA code_038C70
 
   loc_038C49:
-    COP [BranchIfFlagByte] ( #40, #01, &code_038C68 )
+    COP [BranchOnFlagByte] ( #40, #01, &code_038C68 )
     COP [SetFlagByte] ( #40 )
     COP [PrintDialogString] ( &dialogstring_038CA0 )
     COP [RestoreSavedPtr]
 
   loc_038C58:
-    COP [BranchIfFlagWord] ( #$0113, #01, &code_038C70 )
+    COP [BranchOnFlagWord] ( #$0113, #01, &code_038C70 )
     COP [SetFlagByte] ( #02 )
     COP [PrintDialogString] ( &dialogstring_038D17 )
     COP [RestoreSavedPtr]
@@ -783,7 +783,7 @@ UseItem_SmokedMeat {
     LDA $sceneCurrent
     CMP #$002F
     BNE code_038D80
-    COP [BranchIfFlagByte] ( #02, #00, &code_038D80 )
+    COP [BranchOnFlagByte] ( #02, #00, &code_038D80 )
     COP [RemoveItem] ( #0A )
     COP [PrintDialogString] ( &dialogstring_038DDA )
     COP [SetFlagByte] ( #03 )
@@ -875,7 +875,7 @@ UseItem_MemoryMelody {
     BRA code_038F7D
 
   loc_038F2B:
-    COP [BranchIfFlagByte] ( #68, #01, &code_038F7D )
+    COP [BranchOnFlagByte] ( #68, #01, &code_038F7D )
     COP [BranchIfPlayerInAbsTiles] ( #13, #18, #1A, #1D, &code_038F3B )
     BRA code_038F7D
 }
@@ -886,7 +886,7 @@ code_038F3B {
     COP [PrintDialogString] ( &dialogstring_038FCD )
     PHX 
     LDX #$0000
-    COP [SpawnLastRel] ( @FluteMusicActorController, #00, #00, #$2000 )
+    COP [SpawnListAppend] ( @FluteMusicActorController, #00, #00, #$2000 )
     LDA $0012, Y          ; Inline actor config: display-filtered, track $1D, melody index 2 (Memory)
     ORA #$1000
     STA $0012, Y
@@ -941,25 +941,25 @@ UseItem_CrystalBall {
 }
 
 code_039020 {
-    COP [BranchIfFlagByte] ( #60, #01, &code_039052 )
+    COP [BranchOnFlagByte] ( #60, #01, &code_039052 )
     COP [SetFlagByte] ( #60 )
     BRA loc_03904A
 }
 
 code_03902B {
-    COP [BranchIfFlagByte] ( #61, #01, &code_039052 )
+    COP [BranchOnFlagByte] ( #61, #01, &code_039052 )
     COP [SetFlagByte] ( #61 )
     BRA loc_03904A
 }
 
 code_039036 {
-    COP [BranchIfFlagByte] ( #62, #01, &code_039052 )
+    COP [BranchOnFlagByte] ( #62, #01, &code_039052 )
     COP [SetFlagByte] ( #62 )
     BRA loc_03904A
 }
 
 code_039041 {
-    COP [BranchIfFlagByte] ( #63, #01, &code_039052 )
+    COP [BranchOnFlagByte] ( #63, #01, &code_039052 )
     COP [SetFlagByte] ( #63 )
 
   loc_03904A:
@@ -1027,7 +1027,7 @@ UseItem_SeasidePalaceKey {
 }
 
 code_03915D {
-    COP [BranchIfFlagWord] ( #$0138, #01, &code_039158 )
+    COP [BranchOnFlagWord] ( #$0138, #01, &code_039158 )
     COP [PrintDialogString] ( &dialogstring_0391B6 )
     COP [RemoveItem] ( #10 )
     COP [StageBgChange] ( #38 )
@@ -1060,7 +1060,7 @@ UseItem_PurificationStone {
 }
 
 code_039230 {
-    COP [SolidHighAbs] ( #0D, #0F )
+    COP [MarkSolidAbs] ( #0D, #0F )
     COP [RemoveItem] ( #11 )
     COP [PrintDialogString] ( &dialogstring_03926F )
     COP [SetFlagByte] ( #0E )
@@ -1093,7 +1093,7 @@ UseItem_StatueOfHope {
 }
 
 code_0392B7 {
-    COP [BranchIfFlagByte] ( #7E, #01, &code_0392D9 )
+    COP [BranchOnFlagByte] ( #7E, #01, &code_0392D9 )
     JSR $&RemoveEquippedItem
     COP [PrintDialogString] ( &dialogstring_03930B )
     COP [SetFlagByte] ( #7E )
@@ -1101,7 +1101,7 @@ code_0392B7 {
 }
 
 code_0392C8 {
-    COP [BranchIfFlagByte] ( #7B, #01, &code_0392D9 )
+    COP [BranchOnFlagByte] ( #7B, #01, &code_0392D9 )
     JSR $&RemoveEquippedItem
     COP [PrintDialogString] ( &dialogstring_03930B )
     COP [SetFlagByte] ( #7B )
@@ -1135,7 +1135,7 @@ UseItem_RamaStatue {
 }
 
 code_039349 {
-    COP [BranchIfFlagByte] ( #80, #01, &code_03936B )
+    COP [BranchOnFlagByte] ( #80, #01, &code_03936B )
     JSR $&RemoveEquippedItem
     COP [PrintDialogString] ( &dialogstring_03939F )
     COP [SetFlagByte] ( #80 )
@@ -1143,7 +1143,7 @@ code_039349 {
 }
 
 code_03935A {
-    COP [BranchIfFlagByte] ( #81, #01, &code_03936B )
+    COP [BranchOnFlagByte] ( #81, #01, &code_03936B )
     JSR $&RemoveEquippedItem
     COP [PrintDialogString] ( &dialogstring_03939F )
     COP [SetFlagByte] ( #81 )
@@ -1391,29 +1391,29 @@ UseItem_GorgonFlower {
 }
 
 code_0399F2 {
-    COP [BranchIfFlagByte] ( #BF, #01, &code_0399ED )
+    COP [BranchOnFlagByte] ( #BF, #01, &code_0399ED )
     COP [SetFlagByte] ( #BF )
     COP [PrintDialogString] ( &dialogstring_039A63 )
     BRA loc_039A1F
 }
 
 code_039A01 {
-    COP [BranchIfFlagByte] ( #C0, #01, &code_0399ED )
+    COP [BranchOnFlagByte] ( #C0, #01, &code_0399ED )
     COP [SetFlagByte] ( #C0 )
     COP [PrintDialogString] ( &dialogstring_039A63 )
     BRA loc_039A1F
 }
 
 code_039A10 {
-    COP [BranchIfFlagByte] ( #C1, #01, &code_0399ED )
+    COP [BranchOnFlagByte] ( #C1, #01, &code_0399ED )
     COP [SetFlagByte] ( #C1 )
     COP [PrintDialogString] ( &dialogstring_039A63 )
     BRA loc_039A1F
 
   loc_039A1F:
-    COP [BranchIfFlagByte] ( #BF, #00, &code_039A34 ) ; All three petals placed? Check flags $BF/$C0/$C1 — remove item only when all set
-    COP [BranchIfFlagByte] ( #C0, #00, &code_039A34 )
-    COP [BranchIfFlagByte] ( #C1, #00, &code_039A34 )
+    COP [BranchOnFlagByte] ( #BF, #00, &code_039A34 ) ; All three petals placed? Check flags $BF/$C0/$C1 — remove item only when all set
+    COP [BranchOnFlagByte] ( #C0, #00, &code_039A34 )
+    COP [BranchOnFlagByte] ( #C1, #00, &code_039A34 )
     COP [RemoveItem] ( #1D )
 }
 
@@ -1450,7 +1450,7 @@ UseItem_HieroglyphPlate_Detail {
     RTS 
 
   loc_039AB2:
-    COP [BranchIfFlagByte] ( #0F, #01, &UseItem_HieroglyphPlate_Detail )
+    COP [BranchOnFlagByte] ( #0F, #01, &UseItem_HieroglyphPlate_Detail )
     COP [BranchIfPlayerInAbsTiles] ( #04, #09, #0C, #0B, &code_039AC2 )
     BRA loc_039AA8
 }
@@ -1520,7 +1520,7 @@ code_039B07 {
     JSR $&RemoveEquippedItem ; Remove equipped plate before spawning placement actor
     PHX 
     LDX #$0000
-    COP [SpawnLastRel] ( @code_039B70, #00, #00, #$2000 )
+    COP [SpawnListAppend] ( @code_039B70, #00, #00, #$2000 )
     LDA $0AA6
     STA $0024, Y          ; Pass plate ID to spawned actor via DP $24 for metatile selection
     LDA $0AAC
@@ -1759,14 +1759,14 @@ FluteMusicActorController {
     TSB $playerFlags
     LDA #$CFF0            ; Mask all buttons ($CFF0 = everything except D-pad and Select)
     TSB $joypadMaskStd
-    COP [SetEntryContinue] ; Yield — re-enter each frame to poll music upload state
+    COP [SetEntryHere]    ; Yield — re-enter each frame to poll music upload state
     LDA $musicTransitionState ; Wait for musicTransitionState == $FFFF (music upload complete, track started)
     CMP #$FFFF
     BEQ loc_03A029
     RTL 
 
   loc_03A029:
-    COP [SetEntryContinue] ; Phase 2: music is playing — poll SPC for completion each frame
+    COP [SetEntryHere]    ; Phase 2: music is playing — poll SPC for completion each frame
     SEP #$20
     LDA $APUIO1           ; Read APUIO1 ($2141); SPC signals $FF when the track finishes
     REP #$20
@@ -1811,7 +1811,7 @@ code_03A06E {
     TXA 
     TYX 
     TAY 
-    COP [SetEntryContinue] ; Yield — poll each frame for background music restoration
+    COP [SetEntryHere]    ; Yield — poll each frame for background music restoration
     LDA $musicTransitionState ; Wait for musicTransitionState == $FFFF (original music restored)
     CMP #$FFFF
     BEQ loc_03A095

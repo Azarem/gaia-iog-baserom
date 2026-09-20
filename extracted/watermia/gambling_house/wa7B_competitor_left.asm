@@ -14,13 +14,13 @@ wa7B_competitor_left [
   code_07A0F3:
     LDA #$0200
     TSB $12
-    COP [SpawnAfterRelFlags] ( @wa7B_competitor_right.code_07A192, #$0010, #$0000, #$1000 )
-    COP [SpawnAfterRelFlags] ( @wa7B_competitor_right.code_07A192, #$000C, #$FFF6, #$1000 )
-    COP [SpawnAfterRelFlags] ( @wa7B_competitor_right.code_07A192, #$0018, #$0008, #$1000 )
-    COP [SpawnAfterRelFlags] ( @wa7B_competitor_right.code_07A192, #$0020, #$0002, #$1000 )
-    COP [SolidHighHere]
-    COP [SetOnInteract] ( &code_07A12D )
-    COP [SetEntryContinue]
+    COP [SpawnAfterOffsetFlags] ( @wa7B_competitor_right.code_07A192, #$0010, #$0000, #$1000 )
+    COP [SpawnAfterOffsetFlags] ( @wa7B_competitor_right.code_07A192, #$000C, #$FFF6, #$1000 )
+    COP [SpawnAfterOffsetFlags] ( @wa7B_competitor_right.code_07A192, #$0018, #$0008, #$1000 )
+    COP [SpawnAfterOffsetFlags] ( @wa7B_competitor_right.code_07A192, #$0020, #$0002, #$1000 )
+    COP [MarkSolidHere]
+    COP [SetInteractHandler] ( &code_07A12D )
+    COP [SetEntryHere]
     RTL 
 } >
 ]

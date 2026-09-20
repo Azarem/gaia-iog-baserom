@@ -11,8 +11,8 @@ sg54_pressure_switch [
   actor-def < #00, #00, #20, {
 
   code_05F74C:
-    COP [BranchIfFlagWord] ( #$012F, #01, &code_05F768 )
-    COP [SetEntryContinue]
+    COP [BranchOnFlagWord] ( #$012F, #01, &code_05F768 )
+    COP [SetEntryHere]
     COP [BranchIfActorAt] ( #03, #$0348, #$02E0, &code_05F75F )
     RTL 
 } >

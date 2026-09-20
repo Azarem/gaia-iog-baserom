@@ -18,10 +18,10 @@ av6B_door [
     STA $7FCA52
     STA $7FCA54
     REP #$20
-    COP [AddPosition] ( #08, #00 )
+    COP [NudgePosition] ( #08, #00 )
     COP [BranchIfPlayerNear] ( #01, &code_06D76F )
-    COP [SetOnInteract] ( &code_06D780 )
-    COP [ExitIfFlagByte] ( #01, #01 )
+    COP [SetInteractHandler] ( &code_06D780 )
+    COP [WaitOnFlagByte] ( #01, #01 )
 } >
 ]
 
@@ -31,7 +31,7 @@ code_06D76F {
     COP [ApplyBgChange]
     LDA #$0000
     STA $0AA6
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     RTL 
 }
 

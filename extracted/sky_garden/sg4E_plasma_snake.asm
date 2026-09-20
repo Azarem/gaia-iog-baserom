@@ -119,7 +119,7 @@ code_0ACDCE {
     STA $2C
     STA $2E
     STA $2A
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     LDA $24
     BEQ loc_0ACDE9
     RTL 
@@ -146,8 +146,8 @@ code_0ACDCE {
     STA $7F100E, X
     PLA 
     STA $7F100C, X
-    COP [ReloadForceMove]
-    COP [SetEntryContinue]
+    COP [ReloadMoveDurations]
+    COP [SetEntryHere]
     COP [AnimLoop]
     LDA $7F100C, X
     STA $moveXAlt, X

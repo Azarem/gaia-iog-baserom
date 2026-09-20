@@ -21,7 +21,7 @@ palette_buffer_clear_unused [
     BNE loc_00B706
     PLX 
     COP [SetFlagByte] ( #FF )
-    COP [ExitIfFlagByte] ( #FF, #00 )
+    COP [WaitOnFlagByte] ( #FF, #00 )
     BRA loc_00B6FF
 
   loc_00B71B:

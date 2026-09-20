@@ -21,7 +21,7 @@ ec12_skull_chaser [
     COP [SetSpritePriority] ( #30 )
     COP [WaitWhileOffscreen] ( #08 )
     COP [SetDeathCallback] ( @code_0A853E )
-    COP [SetEntryExit]
+    COP [SetEntryHereAndYield]
 
   code_0A8489:
     COP [BranchNearerAxis] ( &code_0A848F, &code_0A8499 )
@@ -41,7 +41,7 @@ code_0A84A3 {
 }
 
 code_0A84A4 {
-    COP [SetEntryExit]
+    COP [SetEntryHereAndYield]
     COP [RngByte]
     AND #$0003
     STA $0000
@@ -58,14 +58,14 @@ code_list_0A84B4 [
 code_0A84BC {
     COP [BranchIfSolidWest] ( &code_0A84A4 )
     COP [StageSprAndHitbox] ( #07 )
-    COP [StageForceMoveX] ( #02 )
-    COP [SetEntryContinue]
-    COP [ContinueIfFrame] ( #02 )
-    COP [SetEntryExit]
+    COP [StageMoveX] ( #02 )
+    COP [SetEntryHere]
+    COP [WaitForAnimFrame] ( #02 )
+    COP [SetEntryHereAndYield]
     STZ $2C
     COP [BranchIfSolidWest] ( &code_0A84A4 )
-    COP [StageForceMoveX] ( #02 )
-    COP [SetEntryContinue]
+    COP [StageMoveX] ( #02 )
+    COP [SetEntryHere]
     COP [AnimOnce]
     BRA code_0A8489
 }
@@ -73,14 +73,14 @@ code_0A84BC {
 code_0A84DC {
     COP [BranchIfSolidEast] ( &code_0A84A4 )
     COP [StageSprAndHitbox] ( #87 )
-    COP [StageForceMoveX] ( #01 )
-    COP [SetEntryContinue]
-    COP [ContinueIfFrame] ( #02 )
-    COP [SetEntryExit]
+    COP [StageMoveX] ( #01 )
+    COP [SetEntryHere]
+    COP [WaitForAnimFrame] ( #02 )
+    COP [SetEntryHereAndYield]
     STZ $2C
     COP [BranchIfSolidEast] ( &code_0A84A4 )
-    COP [StageForceMoveX] ( #01 )
-    COP [SetEntryContinue]
+    COP [StageMoveX] ( #01 )
+    COP [SetEntryHere]
     COP [AnimOnce]
     BRA code_0A8489
 }
@@ -88,14 +88,14 @@ code_0A84DC {
 code_0A84FC {
     COP [BranchIfSolidNorth] ( &code_0A84A4 )
     COP [StageSprAndHitbox] ( #05 )
-    COP [StageForceMoveY] ( #02 )
-    COP [SetEntryContinue]
-    COP [ContinueIfFrame] ( #02 )
-    COP [SetEntryExit]
+    COP [StageMoveY] ( #02 )
+    COP [SetEntryHere]
+    COP [WaitForAnimFrame] ( #02 )
+    COP [SetEntryHereAndYield]
     STZ $2E
     COP [BranchIfSolidNorth] ( &code_0A84A4 )
-    COP [StageForceMoveY] ( #02 )
-    COP [SetEntryContinue]
+    COP [StageMoveY] ( #02 )
+    COP [SetEntryHere]
     COP [AnimOnce]
     JMP $&code_0A8489
 }
@@ -103,21 +103,21 @@ code_0A84FC {
 code_0A851D {
     COP [BranchIfSolidSouth] ( &code_0A84A4 )
     COP [StageSprAndHitbox] ( #03 )
-    COP [StageForceMoveY] ( #01 )
-    COP [SetEntryContinue]
-    COP [ContinueIfFrame] ( #02 )
-    COP [SetEntryExit]
+    COP [StageMoveY] ( #01 )
+    COP [SetEntryHere]
+    COP [WaitForAnimFrame] ( #02 )
+    COP [SetEntryHereAndYield]
     STZ $2E
     COP [BranchIfSolidSouth] ( &code_0A84A4 )
-    COP [StageForceMoveY] ( #01 )
-    COP [SetEntryContinue]
+    COP [StageMoveY] ( #01 )
+    COP [SetEntryHere]
     COP [AnimOnce]
     JMP $&code_0A8489
 }
 
 code_0A853E {
     COP [SpawnAfterFlags] ( @code_0A854C, #$0300 )
-    COP [SetEntryDelayExit] ( @code_0A8563, #$0002 )
+    COP [JumpAfterDelay] ( @code_0A8563, #$0002 )
 }
 
 code_0A854C {
@@ -142,7 +142,7 @@ code_0A8563 {
     STA $currentHp, X
     LDA #$0340
     TRB $10
-    COP [AddPosition] ( #00, #E0 )
+    COP [NudgePosition] ( #00, #E0 )
 
   loc_0A8589:
     LDA $orbitAngle, X

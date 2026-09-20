@@ -13,13 +13,13 @@ wa79_lily [
   actor-def < #22, #00, #10, {
 
   code_07A870:
-    COP [BranchIfFlagByte] ( #97, #01, &code_07A904 )
-    COP [BranchIfFlagByte] ( #96, #01, &code_07A8F3 )
-    COP [BranchIfFlagByte] ( #91, #01, &code_07A8F1 )
-    COP [SetOnInteract] ( &code_07A915 )
-    COP [SolidHighHere]
-    COP [AddPosition] ( #00, #F8 )
-    COP [ExitIfFlagByte] ( #01, #01 )
+    COP [BranchOnFlagByte] ( #97, #01, &code_07A904 )
+    COP [BranchOnFlagByte] ( #96, #01, &code_07A8F3 )
+    COP [BranchOnFlagByte] ( #91, #01, &code_07A8F1 )
+    COP [SetInteractHandler] ( &code_07A915 )
+    COP [MarkSolidHere]
+    COP [NudgePosition] ( #00, #F8 )
+    COP [WaitOnFlagByte] ( #01, #01 )
     COP [StageSpriteLoop] ( #24, #0C )
     COP [AnimLoop]
     COP [StageSpriteLoop] ( #22, #0C )
@@ -30,7 +30,7 @@ wa79_lily [
     COP [AnimLoop]
     COP [PrintDialogString] ( &dialogstring_07A974 )
     COP [SetFlagByte] ( #02 )
-    COP [ExitIfFlagByte] ( #04, #01 )
+    COP [WaitOnFlagByte] ( #04, #01 )
     COP [PrintDialogString] ( &dialogstring_07A9F2 )
     COP [StageSpriteLoopMoveX] ( #29, #03, #11 )
     COP [AnimLoop]
@@ -57,19 +57,19 @@ code_07A8F1 {
 
 code_07A8F3 {
     COP [SetTilePos] ( #08, #09 )
-    COP [SolidHighHere]
-    COP [AddPosition] ( #00, #F8 )
-    COP [SetOnInteract] ( &code_07A91A )
-    COP [SetEntryContinue]
+    COP [MarkSolidHere]
+    COP [NudgePosition] ( #00, #F8 )
+    COP [SetInteractHandler] ( &code_07A91A )
+    COP [SetEntryHere]
     RTL 
 }
 
 code_07A904 {
     COP [SetTilePos] ( #08, #09 )
-    COP [SolidHighHere]
-    COP [AddPosition] ( #00, #F8 )
-    COP [SetOnInteract] ( &code_07A91F )
-    COP [SetEntryContinue]
+    COP [MarkSolidHere]
+    COP [NudgePosition] ( #00, #F8 )
+    COP [SetInteractHandler] ( &code_07A91F )
+    COP [SetEntryHere]
     RTL 
 }
 
@@ -84,7 +84,7 @@ code_07A91A {
 }
 
 code_07A91F {
-    COP [BranchIfFlagByte] ( #A5, #01, &code_07A92A )
+    COP [BranchOnFlagByte] ( #A5, #01, &code_07A92A )
     COP [PrintDialogString] ( &dialogstring_07AA5E )
     RTL 
 }

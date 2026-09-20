@@ -18,7 +18,7 @@ gen_hdma_sine_oneshot_unused [
     LDA $animScratch2, X
     ORA #$0001
     STA $animScratch2, X
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     COP [GenHdmaSine]
     COP [QueueHdma] ( $7E8800, #10 )
     REP #$20

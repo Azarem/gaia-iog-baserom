@@ -10,9 +10,9 @@ it16_song_woman [
   actor-def < #0A, #00, #10, {
 
   code_04DF88:
-    COP [SetOnInteract] ( &code_04DF91 )
-    COP [SolidHighHere]
-    COP [SetEntryContinue]
+    COP [SetInteractHandler] ( &code_04DF91 )
+    COP [MarkSolidHere]
+    COP [SetEntryHere]
     RTL 
 } >
 ]

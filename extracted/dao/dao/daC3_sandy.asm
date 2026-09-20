@@ -10,9 +10,9 @@ daC3_sandy [
   actor-def < #02, #00, #10, {
 
   code_08A862:
-    COP [SetOnInteract] ( &code_08A86B )
-    COP [SolidHighHere]
-    COP [SetEntryContinue]
+    COP [SetInteractHandler] ( &code_08A86B )
+    COP [MarkSolidHere]
+    COP [SetEntryHere]
     RTL 
 } >
 ]

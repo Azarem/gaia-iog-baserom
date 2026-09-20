@@ -22,8 +22,8 @@ dm3D_breakable_wall [
   actor-def < #00, #00, #01, {
 
   code_0AA9EF:
-    COP [BranchIfFlagWord] ( #$0133, #01, &code_0AAA52 )
-    COP [AddPosition] ( #08, #08 )
+    COP [BranchOnFlagWord] ( #$0133, #01, &code_0AAA52 )
+    COP [NudgePosition] ( #08, #08 )
     COP [SetMetasprite] ( @spriteset_enemies )
     COP [StageSpriteFrame] ( #00 )
     COP [AnimOnce]
@@ -35,7 +35,7 @@ dm3D_breakable_wall [
   loc_0AAA10:
     LDA #$00FF
     STA $currentHp, X
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     LDA $currentHp, X
     CMP #$00FF
     BNE loc_0AAA32

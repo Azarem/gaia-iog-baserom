@@ -21,7 +21,7 @@ ir20_statue [
   actor-def < #1E, #00, #01, {
 
   code_0A88E1:
-    COP [BranchIfFlagByte] ( #B9, #01, &code_0A892F )
+    COP [BranchOnFlagByte] ( #B9, #01, &code_0A892F )
     LDA #$&enemy_stats_table
     STA $statsPtr, X
     LDA #$1111
@@ -29,14 +29,14 @@ ir20_statue [
     STA $22
     LDA #$0031
     TSB $12
-    COP [OrActorFlags] ( #$0008 )
-    COP [SolidHighHere]
-    COP [SpawnMarkedAfter] ( @interaction_handlers.push_handler_solid, #$2300 )
+    COP [OrExtraFlags] ( #$0008 )
+    COP [MarkSolidHere]
+    COP [SpawnAfterMarked] ( @interaction_handlers.push_handler_solid, #$2300 )
 
   loc_0A8907:
     LDA #$00FF
     STA $currentHp, X
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     LDA $currentHp, X
     CMP #$00FF
     BNE loc_0A891A
@@ -52,7 +52,7 @@ ir20_statue [
 
   loc_0A8927:
     COP [SetFlagByte] ( #B9 )
-    COP [JumpScript] ( @StandardEnemyDefeatHandler.EnemyDefeatFlashAndDrop )
+    COP [JumpFar] ( @StandardEnemyDefeatHandler.EnemyDefeatFlashAndDrop )
 } >
 ]
 

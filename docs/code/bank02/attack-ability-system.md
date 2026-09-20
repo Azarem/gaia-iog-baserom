@@ -36,7 +36,7 @@ Ability availability is gated by `$0AA2`: Will's dispatch requires bit 0 (`$0001
 
 **Trail followers:** Psycho Dash and Dark Friar spawn companion trail actors that lag behind the parent projectile. Each follower maintains a **3-slot position FIFO** (`TrailPositionCascade`): each frame the parent's `$14`/`$16` shifts through slot 0 → slot 1 → slot 2, and the follower renders at the oldest slot — producing a smooth motion trail without re-simulating physics. Parent offset helpers (`ComputeParentOffset` / `ApplyParentOffset`) keep fragments and trails aligned when the player moves during an ability.
 
-**Related:** [`player-character.md`](player-character.md) · [`../../cop-commands-reference.md`](../../cop-commands-reference.md)
+**Related:** [`player-character.md`](player-character.md) · [`../../cop/index.md`](../../cop/index.md)
 
 ---
 
@@ -323,5 +323,5 @@ Called once when a trail follower actor spawns in `TrailFollowerSprA`/`TrailFoll
 
 - [`player-movement.md`](player-movement.md) — `PlayerMovementTick` (`$02CFD0`), tile collision (`$02E102`)
 - [`tile-collision.md`](tile-collision.md) — tile probing for slopes and shimmy
-- [`../../cop-commands-reference.md`](../../cop-commands-reference.md) — COP command semantics
+- [`../../cop/index.md`](../../cop/index.md) — COP command semantics
 - [`../../actor-organization-analysis.md`](../../actor-organization-analysis.md) — global actor linked list

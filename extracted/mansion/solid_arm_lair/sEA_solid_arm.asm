@@ -48,7 +48,7 @@ sEA_solid_arm [
     COP [PlaySoundCh1] ( #0E )
     COP [StageBgChange] ( #9C )
     COP [ApplyBgChange]
-    COP [BranchIfFlagByte] ( #E8, #01, &code_08F754 )
+    COP [BranchOnFlagByte] ( #E8, #01, &code_08F754 )
     COP [FadeThenStartMusic] ( #1B )
     COP [WaitWord] ( #$0120 )
     COP [SetFlagByte] ( #E8 )
@@ -80,9 +80,9 @@ code_08F754 {
 code_08F77D {
     COP [StageSpriteFrame] ( #0E )
     COP [AnimOnce]
-    COP [SpawnAfterRelFlags] ( @code_08F8B4, #$0000, #$FFE8, #$0200 )
-    COP [SpawnAfterRelFlags] ( @code_08F8E6, #$0000, #$FFE8, #$0200 )
-    COP [SpawnAfterRelFlags] ( @code_08F900, #$0000, #$FFE8, #$0200 )
+    COP [SpawnAfterOffsetFlags] ( @code_08F8B4, #$0000, #$FFE8, #$0200 )
+    COP [SpawnAfterOffsetFlags] ( @code_08F8E6, #$0000, #$FFE8, #$0200 )
+    COP [SpawnAfterOffsetFlags] ( @code_08F900, #$0000, #$FFE8, #$0200 )
     COP [StageSpriteFrame] ( #16 )
     COP [AnimOnce]
     BRA loc_08F763
@@ -103,12 +103,12 @@ code_08F7BE {
 code_08F7C8 {
     COP [StageSpriteFrame] ( #0D )
     COP [AnimOnce]
-    COP [SpawnAfterRelFlags] ( @code_08F937, #$FFF0, #$FFE6, #$0200 )
+    COP [SpawnAfterOffsetFlags] ( @code_08F937, #$FFF0, #$FFE6, #$0200 )
     COP [StageSpriteFrame] ( #17 )
     COP [AnimOnce]
     COP [StageSpriteFrame] ( #0D )
     COP [AnimOnce]
-    COP [SpawnAfterRelFlags] ( @code_08F937, #$FFF0, #$FFE6, #$0200 )
+    COP [SpawnAfterOffsetFlags] ( @code_08F937, #$FFF0, #$FFE6, #$0200 )
     COP [StageSpriteFrame] ( #17 )
     COP [AnimOnce]
     JMP $&code_08F768
@@ -117,12 +117,12 @@ code_08F7C8 {
 code_08F7F5 {
     COP [StageSpriteFrame] ( #0F )
     COP [AnimOnce]
-    COP [SpawnAfterRelFlags] ( @code_08F957, #$0010, #$FFE6, #$0200 )
+    COP [SpawnAfterOffsetFlags] ( @code_08F957, #$0010, #$FFE6, #$0200 )
     COP [StageSpriteFrame] ( #18 )
     COP [AnimOnce]
     COP [StageSpriteFrame] ( #0F )
     COP [AnimOnce]
-    COP [SpawnAfterRelFlags] ( @code_08F957, #$0010, #$FFE6, #$0200 )
+    COP [SpawnAfterOffsetFlags] ( @code_08F957, #$0010, #$FFE6, #$0200 )
     COP [StageSpriteFrame] ( #18 )
     COP [AnimOnce]
     JMP $&code_08F768
@@ -199,8 +199,8 @@ code_08F8AB {
 }
 
 code_08F8B4 {
-    COP [OrActorFlags] ( #$0010 )
-    COP [CollPrioritySetMax]
+    COP [OrExtraFlags] ( #$0010 )
+    COP [SetPriorityMax]
     COP [SetSpritePriority] ( #30 )
     COP [StageSpriteFrame] ( #10 )
     COP [AnimOnce]
@@ -218,8 +218,8 @@ code_08F8B4 {
 }
 
 code_08F8E6 {
-    COP [OrActorFlags] ( #$0010 )
-    COP [CollPrioritySetMax]
+    COP [OrExtraFlags] ( #$0010 )
+    COP [SetPriorityMax]
     COP [SetSpritePriority] ( #30 )
     COP [PlaySoundCh1] ( #1E )
     COP [StageSpriteFrame] ( #10 )
@@ -230,8 +230,8 @@ code_08F8E6 {
 }
 
 code_08F900 {
-    COP [OrActorFlags] ( #$0010 )
-    COP [CollPrioritySetMax]
+    COP [OrExtraFlags] ( #$0010 )
+    COP [SetPriorityMax]
     COP [SetSpritePriority] ( #30 )
     COP [StageSpriteFrame] ( #10 )
     COP [AnimOnce]
@@ -251,8 +251,8 @@ code_08F900 {
 }
 
 code_08F937 {
-    COP [OrActorFlags] ( #$0010 )
-    COP [CollPrioritySetMax]
+    COP [OrExtraFlags] ( #$0010 )
+    COP [SetPriorityMax]
     COP [SetSpritePriority] ( #30 )
     COP [PlaySoundCh1] ( #1E )
     COP [StageSpriteFrame] ( #11 )
@@ -265,8 +265,8 @@ code_08F937 {
 }
 
 code_08F957 {
-    COP [OrActorFlags] ( #$0010 )
-    COP [CollPrioritySetMax]
+    COP [OrExtraFlags] ( #$0010 )
+    COP [SetPriorityMax]
     COP [SetSpritePriority] ( #30 )
     COP [PlaySoundCh1] ( #1E )
     COP [StageSpriteFrame] ( #12 )
@@ -279,7 +279,7 @@ code_08F957 {
 }
 
 code_08F977 {
-    COP [SpawnMarkedAfter] ( @smooth_follow.CopySiblingFollowState, #$2000 )
+    COP [SpawnAfterMarked] ( @smooth_follow.CopySiblingFollowState, #$2000 )
     LDA #$8013
     STA $chatPtr, X
     LDA #$0003
@@ -306,12 +306,12 @@ code_08F977 {
     COP [StageSprAndHitbox] ( #13 )
 
   loc_08F9C0:
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     COP [AnimOneFrame]
     LDA $08
     STA $24
     STZ $08
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     LDA $7F100C, X
     STA $moveScratch1, X
     LDA $7F100E, X

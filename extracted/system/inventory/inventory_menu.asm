@@ -122,7 +122,7 @@ InventoryMenuDef [
     COP [SpawnAfterFlags] ( @StatusCharRow3, #$0800 )
     TYA 
     STA $moveYAlt, X      ; moveYAlt = status row chain head actor Y
-    COP [SetEntryExit]
+    COP [SetEntryHereAndYield]
     STZ $inventoryTabIndex ; Clear tab index again before main loop
     LDA #$1000            ; Set $1000 in $10 — track item slot visibility state
     TSB $10
@@ -137,7 +137,7 @@ InventoryMenuDef [
     STA $18
     LDA #$8000            ; Mask B in joypadHeld during tab selection
     TSB $joypadHeld
-    COP [SetEntryExit]
+    COP [SetEntryHereAndYield]
     JSR $&TabSelectionLoop
     BCS TabConfirmDispatch ; Tab confirmed with A — run action dispatch
     LDA $inventoryTabIndex ; Same tab as last frame — exit menu (RTL)
@@ -206,12 +206,12 @@ UseItemTab {
     AND #$00FF
     STA $itemAbilityIndex ; itemAbilityIndex for BG3 item detail strings
     COP [RunBg3Script] ( @system_strings.consolestring_01E9D0 )
-    COP [SetEntryExit]
-    COP [BranchIfButton] ( #$C040, &UseItemConfirm ) ; B, Y, or X ($C040) confirms equip selection
-    COP [BranchIfButton] ( #$0800, &UseItemCursorUp )
-    COP [BranchIfButton] ( #$0400, &UseItemCursorDown )
-    COP [BranchIfButton] ( #$0200, &UseItemCursorLeft )
-    COP [BranchIfButton] ( #$0100, &UseItemCursorRight )
+    COP [SetEntryHereAndYield]
+    COP [BranchIfPressed] ( #$C040, &UseItemConfirm ) ; B, Y, or X ($C040) confirms equip selection
+    COP [BranchIfPressed] ( #$0800, &UseItemCursorUp )
+    COP [BranchIfPressed] ( #$0400, &UseItemCursorDown )
+    COP [BranchIfPressed] ( #$0200, &UseItemCursorLeft )
+    COP [BranchIfPressed] ( #$0100, &UseItemCursorRight )
     RTL 
 }
 
@@ -314,14 +314,14 @@ ArrangeItemsTab {
 
   code_02E555:
     JSR $&PositionGridCursor ; Position grid selection cursor at slot $22
-    COP [SetEntryExit]
-    COP [BranchIfButton] ( #$4040, &ArrangeCancelTab ) ; Y or X ($4040) cancels Arrange tab
-    COP [BranchIfButton] ( #$8000, &ArrangePickTarget ) ; B picks source slot for swap
+    COP [SetEntryHereAndYield]
+    COP [BranchIfPressed] ( #$4040, &ArrangeCancelTab ) ; Y or X ($4040) cancels Arrange tab
+    COP [BranchIfPressed] ( #$8000, &ArrangePickTarget ) ; B picks source slot for swap
     PEA $&code_02E555-1   ; Push resume address for shared grid navigation
-    COP [BranchIfButton] ( #$0800, &GridCursorUp )
-    COP [BranchIfButton] ( #$0400, &GridCursorDown )
-    COP [BranchIfButton] ( #$0200, &GridCursorLeft )
-    COP [BranchIfButton] ( #$0100, &GridCursorRight )
+    COP [BranchIfPressed] ( #$0800, &GridCursorUp )
+    COP [BranchIfPressed] ( #$0400, &GridCursorDown )
+    COP [BranchIfPressed] ( #$0200, &GridCursorLeft )
+    COP [BranchIfPressed] ( #$0100, &GridCursorRight )
     PLA 
     RTL 
 }
@@ -345,14 +345,14 @@ ArrangePickTarget {
 
   code_02E5AC:
     JSR $&PositionGridCursor ; Position target cursor during swap pick
-    COP [SetEntryExit]
-    COP [BranchIfButton] ( #$4040, &ArrangeCancelTarget ) ; Cancel target pick (Y/X)
-    COP [BranchIfButton] ( #$8000, &ArrangePerformSwap ) ; B confirms swap destination slot
+    COP [SetEntryHereAndYield]
+    COP [BranchIfPressed] ( #$4040, &ArrangeCancelTarget ) ; Cancel target pick (Y/X)
+    COP [BranchIfPressed] ( #$8000, &ArrangePerformSwap ) ; B confirms swap destination slot
     PEA $&code_02E5AC-1
-    COP [BranchIfButton] ( #$0800, &GridCursorUp )
-    COP [BranchIfButton] ( #$0400, &GridCursorDown )
-    COP [BranchIfButton] ( #$0200, &GridCursorLeft )
-    COP [BranchIfButton] ( #$0100, &GridCursorRight )
+    COP [BranchIfPressed] ( #$0800, &GridCursorUp )
+    COP [BranchIfPressed] ( #$0400, &GridCursorDown )
+    COP [BranchIfPressed] ( #$0200, &GridCursorLeft )
+    COP [BranchIfPressed] ( #$0100, &GridCursorRight )
     PLA 
     RTL 
 }
@@ -457,14 +457,14 @@ DiscardItemTab {
 
   code_02E67C:
     JSR $&PositionGridCursor
-    COP [SetEntryExit]
-    COP [BranchIfButton] ( #$4040, &DiscardCancelTab ) ; Y/X exits Discard tab
-    COP [BranchIfButton] ( #$8000, &code_02E6AA ) ; B selects slot to discard
+    COP [SetEntryHereAndYield]
+    COP [BranchIfPressed] ( #$4040, &DiscardCancelTab ) ; Y/X exits Discard tab
+    COP [BranchIfPressed] ( #$8000, &code_02E6AA ) ; B selects slot to discard
     PEA $&code_02E67C-1
-    COP [BranchIfButton] ( #$0800, &GridCursorUp )
-    COP [BranchIfButton] ( #$0400, &GridCursorDown )
-    COP [BranchIfButton] ( #$0200, &GridCursorLeft )
-    COP [BranchIfButton] ( #$0100, &GridCursorRight )
+    COP [BranchIfPressed] ( #$0800, &GridCursorUp )
+    COP [BranchIfPressed] ( #$0400, &GridCursorDown )
+    COP [BranchIfPressed] ( #$0200, &GridCursorLeft )
+    COP [BranchIfPressed] ( #$0100, &GridCursorRight )
     PLA 
     RTL 
 }
@@ -485,7 +485,7 @@ code_02E6AA {
     COP [RunBg3Script] ( @system_strings.consolestring_01E912 )
     COP [RunBg3Script] ( @system_strings.consolestring_01E9E2 )
     STZ $28               ; Clear Yes/No prompt result ($28)
-    COP [SetEntryExit]
+    COP [SetEntryHereAndYield]
     JSR $&YesNoPromptLoop ; Yes/No prompt — carry set if user chose Yes
     BCS loc_02E6D6
     RTL                   ; User declined discard — exit tab handler
@@ -555,10 +555,10 @@ StatusViewTab {
     COP [RunBg3Script] ( @system_strings.consolestring_01EAB4 )
 
   loc_02E753:
-    COP [SetEntryExit]    ; Status view input poll entry point
-    COP [BranchIfButton] ( #$0800, &StatusCursorUp ) ; Up moves status cursor (wrap row 0 → 2)
-    COP [BranchIfButton] ( #$0400, &StatusCursorDown )
-    COP [BranchIfButton] ( #$C040, &StatusConfirmExit )
+    COP [SetEntryHereAndYield] ; Status view input poll entry point
+    COP [BranchIfPressed] ( #$0800, &StatusCursorUp ) ; Up moves status cursor (wrap row 0 → 2)
+    COP [BranchIfPressed] ( #$0400, &StatusCursorDown )
+    COP [BranchIfPressed] ( #$C040, &StatusConfirmExit )
     RTL 
 }
 
@@ -755,7 +755,7 @@ InventorySlotActor {
     JSR $&ComputeSlotPosition ; Look up slot screen position via ComputeSlotPosition
 
   loc_02E8CD:
-    COP [SetEntryContinue] ; Slot actor main loop entry
+    COP [SetEntryHere]    ; Slot actor main loop entry
     LDA $28               ; Empty slot if item sprite frame ($28) is zero
     BNE loc_02E8D9
     LDA #$2000            ; Hide empty slot actor (TSB $2000 on flags)
@@ -767,7 +767,7 @@ InventorySlotActor {
     TRB $10
 
   loc_02E8DE:
-    COP [SetEntryContinue] ; Animate visible slot until $2A signals refresh
+    COP [SetEntryHere]    ; Animate visible slot until $2A signals refresh
     COP [AnimOneFrame]
     LDA $2A
     BEQ loc_02E8DE
@@ -789,10 +789,10 @@ EquipCursorActor {
 
 SelectionCursorActor {
     COP [StageSprAndHitbox] ( #40 ) ; Stage cursor sprite #40 and register exit point
-    COP [SetEntryExit]
+    COP [SetEntryHereAndYield]
 
   loc_02E8F6:
-    COP [SetEntryContinue] ; Selection cursor anim loop until $2A update
+    COP [SetEntryHere]    ; Selection cursor anim loop until $2A update
     COP [AnimOneFrame]
     LDA $2A
     BEQ loc_02E8F6
@@ -810,7 +810,7 @@ EquippedItemDisplay {
     LDA $inventoryEquippedType ; Load inventoryEquippedType as sprite frame
     STA $28
     STZ $2A
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     COP [AnimOneFrame]
     RTL 
 }
@@ -831,7 +831,7 @@ StatusCharRow3 {
     ADC #$0044            ; Row 3 portrait base sprite #$0044
     STA $28
     STZ $2A
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     COP [AnimOneFrame]
     RTL 
 }
@@ -852,7 +852,7 @@ StatusCharRow2 {
     ADC #$0045            ; Row 2 portrait base offset #$0045
     STA $28
     STZ $2A
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     COP [AnimOneFrame]
     RTL 
 }
@@ -873,7 +873,7 @@ StatusCharRow1 {
     ADC #$0046            ; Row 1 portrait base offset #$0046
     STA $28
     STZ $2A
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     COP [AnimOneFrame]
     RTL 
 }
@@ -1281,9 +1281,9 @@ SlotPositionTable [
 ; Yes/No prompt input handler. A → YesNoConfirm, Up/Down → toggle $28. Blink counter $1C toggles draw/clear every 16 frames. Returns carry set on confirm.
 
 YesNoPromptLoop {
-    COP [BranchIfButton] ( #$8000, &YesNoConfirm ) ; Yes/No prompt input — poll A / Up / Down
-    COP [BranchIfButton] ( #$0800, &YesNoSelectUp )
-    COP [BranchIfButton] ( #$0400, &YesNoSelectDown )
+    COP [BranchIfPressed] ( #$8000, &YesNoConfirm ) ; Yes/No prompt input — poll A / Up / Down
+    COP [BranchIfPressed] ( #$0800, &YesNoSelectUp )
+    COP [BranchIfPressed] ( #$0400, &YesNoSelectDown )
     LDA $1C               ; Blink timer $1C — toggle cursor every 16 frames
     INC $1C
     BIT #$000F            ; Test low nibble — time to flip cursor blink
@@ -1384,10 +1384,10 @@ YesNoClearCursor {
 ; Tab navigation handler. A → TabConfirm, Up/Down → TabSelect, B/Y/X → TabCancel. Blink $1C toggles cursor. Carry set = confirmed.
 
 TabSelectionLoop {
-    COP [BranchIfButton] ( #$8000, &TabConfirm ) ; Tab selection loop — poll A/Up/Down/B/Y/X
-    COP [BranchIfButton] ( #$0800, &TabSelectUp )
-    COP [BranchIfButton] ( #$0400, &TabSelectDown )
-    COP [BranchIfButton] ( #$6040, &TabCancel ) ; Y/Select/X ($6040) cancels tab hover
+    COP [BranchIfPressed] ( #$8000, &TabConfirm ) ; Tab selection loop — poll A/Up/Down/B/Y/X
+    COP [BranchIfPressed] ( #$0800, &TabSelectUp )
+    COP [BranchIfPressed] ( #$0400, &TabSelectDown )
+    COP [BranchIfPressed] ( #$6040, &TabCancel ) ; Y/Select/X ($6040) cancels tab hover
     LDA $1C               ; Tab cursor blink counter increment
     INC $1C
     BIT #$000F

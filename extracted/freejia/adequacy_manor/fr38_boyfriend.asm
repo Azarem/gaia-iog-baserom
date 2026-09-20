@@ -11,23 +11,23 @@ fr38_boyfriend [
   actor-def < #04, #00, #10, {
 
   code_05BAEA:
-    COP [AddPosition] ( #FC, #00 )
-    COP [SetOnInteract] ( &code_05BB17 )
+    COP [NudgePosition] ( #FC, #00 )
+    COP [SetInteractHandler] ( &code_05BB17 )
     COP [WaitWhileOffscreen] ( #01 )
     COP [WaitByte] ( #1D )
     COP [StageSprAndHitbox] ( #09 )
-    COP [StageForceMoveX] ( #13 )
-    COP [SetEntryContinue]
+    COP [StageMoveX] ( #13 )
+    COP [SetEntryHere]
     COP [AnimOneFrame]
-    COP [SetEntryExit]
-    COP [SetEntryContinue]
+    COP [SetEntryHereAndYield]
+    COP [SetEntryHere]
     COP [AnimOneFrame]
-    COP [SetEntryExit]
-    COP [StageForceMoveX] ( #00 )
+    COP [SetEntryHereAndYield]
+    COP [StageMoveX] ( #00 )
     COP [StageSpriteFrame] ( #05 )
     COP [AnimOnce]
-    COP [SolidHighHere]
-    COP [SetEntryContinue]
+    COP [MarkSolidHere]
+    COP [SetEntryHere]
     RTL 
 } >
 ]

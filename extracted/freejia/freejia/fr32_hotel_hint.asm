@@ -12,17 +12,17 @@ fr32_hotel_hint [
 
   code_05B666:
     COP [SetSpritePriority] ( #10 )
-    COP [SpawnAfterRelFlags] ( @code_05B67C, #$0000, #$0018, #$3000 )
+    COP [SpawnAfterOffsetFlags] ( @code_05B67C, #$0000, #$0018, #$3000 )
     LDA #$0800
     TSB $10
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     RTL 
 } >
 ]
 
 code_05B67C {
-    COP [SetOnInteract] ( &code_05B683 )
-    COP [SetEntryContinue]
+    COP [SetInteractHandler] ( &code_05B683 )
+    COP [SetEntryHere]
     RTL 
 }
 

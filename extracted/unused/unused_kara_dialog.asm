@@ -16,7 +16,7 @@ unused_kara_dialog [
     LDA #$1000
     TSB $12
     COP [SpawnAfterFlags] ( @code_09BBCE, #$2000 )
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     RTL 
 } >
 ]
@@ -35,7 +35,7 @@ code_09BBCE {
     COP [PrintDialogString] ( &dialogstring_09BBF7 )
     COP [StartMusic] ( #04 )
     COP [WaitByte] ( #3B )
-    COP [BranchIfButton] ( #$0080, &code_09BBD6 )
+    COP [BranchIfPressed] ( #$0080, &code_09BBD6 )
     RTL 
 }
 

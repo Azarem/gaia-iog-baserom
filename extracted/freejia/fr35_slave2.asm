@@ -13,9 +13,9 @@ fr35_slave2 [
   code_05C3A8:
     LDA #$0200
     TSB $12
-    COP [SolidHighHere]
-    COP [SetOnInteract] ( &code_05C3B6 )
-    COP [SetEntryContinue]
+    COP [MarkSolidHere]
+    COP [SetInteractHandler] ( &code_05C3B6 )
+    COP [SetEntryHere]
     RTL 
 } >
 ]

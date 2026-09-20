@@ -24,13 +24,13 @@ mu67_bomb [
   actor-def < #24, #00, #10, {
 
   code_06A413:
-    COP [SpawnMarkedAfterAbs] ( @code_06A69E, #$0080, #$00F0, #$2B00 )
-    COP [SolidHighHere]
-    COP [SolidHighOffset] ( #01, #00 )
-    COP [AddPosition] ( #08, #00 )
+    COP [SpawnAfterAbsMarked] ( @code_06A69E, #$0080, #$00F0, #$2B00 )
+    COP [MarkSolidHere]
+    COP [MarkSolidOffset] ( #01, #00 )
+    COP [NudgePosition] ( #08, #00 )
     LDA #$0200
     TSB $12
-    COP [SetOnInteract] ( &code_06A4C9 )
+    COP [SetInteractHandler] ( &code_06A4C9 )
 
   loc_06A431:
     COP [StageSpriteFrame] ( #24 )
@@ -48,7 +48,7 @@ mu67_bomb [
     STA $0008, Y
     LDA #$0800
     TSB $playerFlags
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     LDA $playerFlags
     BIT #$0800
     BEQ loc_06A466
@@ -65,24 +65,24 @@ mu67_bomb [
   code_06A478:
     COP [StageSpriteFrame] ( #24 )
     COP [AnimOnce]
-    COP [BranchIfFlagByte] ( #01, #00, &code_06A478 )
+    COP [BranchOnFlagByte] ( #01, #00, &code_06A478 )
     LDA #$CFF0
     TSB $joypadMaskStd
     COP [StartMusic] ( #1B )
     COP [WaitByte] ( #77 )
     COP [PlaySoundBoth] ( #$2C2C )
-    COP [SetOnInteract] ( #$0000 )
+    COP [SetInteractHandler] ( #$0000 )
     COP [WaitByte] ( #3B )
-    COP [LoopInit] ( #3C )
+    COP [LoopStart] ( #3C )
     LDA #$2000
     TRB $10
-    COP [SetEntryExit]
+    COP [SetEntryHereAndYield]
     LDA #$2000
     TSB $10
-    COP [LoopNext]
-    COP [AddPosition] ( #F8, #00 )
-    COP [ClearLowHere]
-    COP [ClearLowOffset] ( #01, #00 )
+    COP [LoopEnd]
+    COP [NudgePosition] ( #F8, #00 )
+    COP [ClearSolidHere]
+    COP [ClearSolidOffset] ( #01, #00 )
     COP [PrintDialogString] ( &dialogstring_06A57F )
     COP [SetFlagByte] ( #03 )
     COP [StageBgChange] ( #93 )
@@ -125,7 +125,7 @@ dialogstring_06A566 `[CLR]The blue wire is cut![PAL:0][END]`
 dialogstring_06A57F `[PAU:28][TPL:A][TPL:0]Will: The bomb [N]has been defused... [FIN][TPL:3]Erik: [N]Saved... [FIN][TPL:2]Lilly speaks from[N]his pocket.[FIN]Lilly: Sorry, Will... [N]There was nothing [N]I could do... [FIN]My legs gave out from[N]fear. I couldn't move or[N]make a sound.[FIN]Up to now I thought I[N]was strong, but in a[N]crisis...[FIN]..............[N]Sorry for staying in[N]your pocket for so long.[PAL:0][END]`
 
 code_06A69E {
-    COP [ExitIfFlagByte] ( #02, #01 )
+    COP [WaitOnFlagByte] ( #02, #01 )
     COP [SetSpritePalette] ( #02 )
     LDA #$0140
     STA $26
@@ -133,13 +133,13 @@ code_06A69E {
     STA $orbitAngle, X
 
   code_06A6B1:
-    COP [BranchIfFlagByte] ( #01, #01, &code_06A6F5 )
-    COP [LoopInit] ( #3C )
+    COP [BranchOnFlagByte] ( #01, #01, &code_06A6F5 )
+    COP [LoopStart] ( #3C )
     LDA $26
     STA $0000
     JSL $@oam_digit_compose.ComposeDigitSprites
-    COP [LoopNext]
-    COP [BranchIfFlagByte] ( #01, #01, &code_06A6F5 )
+    COP [LoopEnd]
+    COP [BranchOnFlagByte] ( #01, #01, &code_06A6F5 )
     LDA $displayModeFlags
     BIT #$2000
     BEQ loc_06A6D7
@@ -160,7 +160,7 @@ code_06A69E {
   loc_06A6E9:
     STA $0000
     JSL $@oam_digit_compose.ComposeDigitSprites
-    COP [SetEntryExitNow] ( @code_06A6B1 )
+    COP [JumpNextFrame] ( @code_06A6B1 )
 }
 
 code_06A6F5 {
@@ -177,12 +177,12 @@ code_06A6F7 {
     LDA #$00
     STA $playerHp
     REP #$20
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     RTL 
 
   loc_06A712:
     COP [PrintDialogString] ( &dialogstring_06A719 )
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     RTL 
 }
 

@@ -13,7 +13,7 @@ babel_elevator_color_add [
   thinker-def < #00, #08, {
 
   code_00B791:
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     SEP #$20
     LDA #$02
     STA $CGADSUB

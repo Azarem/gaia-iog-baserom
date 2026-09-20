@@ -14,8 +14,8 @@ sp5B_lily [
   actor-def < #24, #00, #10, {
 
   code_068688:
-    COP [BranchIfFlagByte] ( #6F, #01, &code_068707 )
-    COP [SetEntryContinue]
+    COP [BranchOnFlagByte] ( #6F, #01, &code_068707 )
+    COP [SetEntryHere]
     COP [BranchIfPlayerNear] ( #02, &code_068696 )
     RTL 
 } >

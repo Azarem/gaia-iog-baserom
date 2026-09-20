@@ -16,9 +16,9 @@ eu9D_slaves [
     LDA #$0200
     TSB $12
     JSL $@ActorDisplayModeSwap
-    COP [SetOnInteract] ( &code_07D0AE )
-    COP [SolidHighHere]
-    COP [SetEntryContinue]
+    COP [SetInteractHandler] ( &code_07D0AE )
+    COP [MarkSolidHere]
+    COP [SetEntryHere]
     RTL 
 } >
 ]

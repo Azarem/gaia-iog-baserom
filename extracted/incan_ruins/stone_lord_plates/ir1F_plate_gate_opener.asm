@@ -14,8 +14,8 @@ ir1F_plate_gate_opener [
   actor-def < #00, #00, #23, {
 
   code_09C48C:
-    COP [BranchIfFlagByte] ( #3C, #01, &code_09C4B0 )
-    COP [SetEntryContinue]
+    COP [BranchOnFlagByte] ( #3C, #01, &code_09C4B0 )
+    COP [SetEntryHere]
     LDA $eventFlags
     AND #$001E
     CMP #$001E

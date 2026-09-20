@@ -11,8 +11,8 @@ incan_ruins_transform_palette [
   thinker-def < #00, #08, {
 
   code_00B673:
-    COP [BranchIfFlagByte] ( #52, #01, &IncanRuinsTransformPaletteFinal ) ; Ruins fully transformed?
-    COP [BranchIfFlagByte] ( #4D, #01, &IncanRuinsTransformPaletteWarmup ) ; Transformation starting?
+    COP [BranchOnFlagByte] ( #52, #01, &IncanRuinsTransformPaletteFinal ) ; Ruins fully transformed?
+    COP [BranchOnFlagByte] ( #4D, #01, &IncanRuinsTransformPaletteWarmup ) ; Transformation starting?
 
   loc_00B67F:
     COP [PaletteStart] ( #1A ) ; Default state: loop normal ruins palette
@@ -32,7 +32,7 @@ IncanRuinsTransformPaletteWarmup {
   code_00B68E:
     COP [PaletteStart] ( #33 ) ; Second warmup palette
     COP [PaletteStep]
-    COP [BranchIfFlagByte] ( #FF, #01, &code_00B68E ) ; Loop #33 while flag $FF set
+    COP [BranchOnFlagByte] ( #FF, #01, &code_00B68E ) ; Loop #33 while flag $FF set
     BRA IncanRuinsTransformPaletteWarmup ; Restart cycle
 }
 
@@ -67,6 +67,6 @@ IncanRuinsTransformPaletteFinal {
     COP [PaletteStart] ( #36 ) ; Final transformation palette
     COP [PaletteStep]
     COP [SetFlagByte] ( #FF )
-    COP [ExitIfFlagByte] ( #FF, #00 ) ; Exit when flag $FF cleared by scene
+    COP [WaitOnFlagByte] ( #FF, #00 ) ; Exit when flag $FF cleared by scene
     BRA loc_00B6AA        ; Loop until stopped
 }

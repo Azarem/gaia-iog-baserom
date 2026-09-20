@@ -18,25 +18,25 @@ av70_crawlspace [
     LDA $sceneCurrent
     CMP #$0070
     BEQ loc_06D64C
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     LDA $playerYPos
     CMP #$01D0
     BEQ loc_06D645
     RTL 
 
   loc_06D645:
-    COP [BranchIfButton] ( #$0400, &code_06D65E )
+    COP [BranchIfPressed] ( #$0400, &code_06D65E )
     RTL 
 
   loc_06D64C:
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     LDA $playerYPos
     CMP #$02D0
     BEQ loc_06D657
     RTL 
 
   loc_06D657:
-    COP [BranchIfButton] ( #$0400, &code_06D65E )
+    COP [BranchIfPressed] ( #$0400, &code_06D65E )
     RTL 
 } >
 ]

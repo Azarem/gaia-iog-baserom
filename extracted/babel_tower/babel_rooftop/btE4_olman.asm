@@ -26,7 +26,7 @@ btE4_olman [
     TSB $12
     COP [SetMetasprite] ( @spriteset_npc_props )
     COP [StageSprAndHitbox] ( #04 )
-    COP [SolidHighHere]
+    COP [MarkSolidHere]
     LDA #$CFF0
     TSB $joypadMaskStd
     COP [WaitByte] ( #1D )
@@ -49,24 +49,24 @@ btE4_olman [
     COP [PlaySoundCh1] ( #1D )
     LDA #$0800
     TSB $10
-    COP [SetOnInteract] ( &code_099023 )
+    COP [SetInteractHandler] ( &code_099023 )
 
   code_099012:
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     COP [AnimOnce]
-    COP [BranchIfFlagByte] ( #0F, #00, &code_099012 )
+    COP [BranchOnFlagByte] ( #0F, #00, &code_099012 )
     COP [WaitByte] ( #1D )
-    COP [ClearLowHere]
+    COP [ClearSolidHere]
     COP [Die]
 } >
 ]
 
 code_099023 {
-    COP [BranchIfFlagByte] ( #01, #00, &code_099041 )
-    COP [BranchIfFlagByte] ( #02, #00, &code_099041 )
-    COP [BranchIfFlagByte] ( #03, #00, &code_099041 )
-    COP [BranchIfFlagByte] ( #04, #00, &code_099041 )
-    COP [BranchIfFlagByte] ( #05, #01, &code_099050 )
+    COP [BranchOnFlagByte] ( #01, #00, &code_099041 )
+    COP [BranchOnFlagByte] ( #02, #00, &code_099041 )
+    COP [BranchOnFlagByte] ( #03, #00, &code_099041 )
+    COP [BranchOnFlagByte] ( #04, #00, &code_099041 )
+    COP [BranchOnFlagByte] ( #05, #01, &code_099050 )
 }
 
 code_099041 {
@@ -103,14 +103,14 @@ code_0991F4 {
     COP [StageSpriteFrame] ( #1E )
     COP [AnimOnce]
     COP [SetMetasprite] ( @spriteset_npc_props )
-    COP [SolidHighHere]
-    COP [SetOnInteract] ( &code_099232 )
+    COP [MarkSolidHere]
+    COP [SetInteractHandler] ( &code_099232 )
 
   code_09920E:
     COP [StageSpriteFrame] ( #04 )
     COP [AnimOnce]
-    COP [BranchIfFlagByte] ( #0F, #00, &code_09920E )
-    COP [ClearLowHere]
+    COP [BranchOnFlagByte] ( #0F, #00, &code_09920E )
+    COP [ClearSolidHere]
     LDY $playerActor
     LDA $0014, Y
     STA $moveXAlt, X
@@ -135,14 +135,14 @@ code_0992A0 {
     COP [StageSpriteFrame] ( #1E )
     COP [AnimOnce]
     COP [SetMetasprite] ( @spriteset_npc_props )
-    COP [SolidHighHere]
-    COP [SetOnInteract] ( &code_0992E4 )
+    COP [MarkSolidHere]
+    COP [SetInteractHandler] ( &code_0992E4 )
 
   code_0992BA:
     COP [StageSpriteFrame] ( #04 )
     COP [AnimOnce]
-    COP [BranchIfFlagByte] ( #0F, #00, &code_0992BA )
-    COP [ClearLowHere]
+    COP [BranchOnFlagByte] ( #0F, #00, &code_0992BA )
+    COP [ClearSolidHere]
     LDY $playerActor
     LDA $0014, Y
     STA $moveXAlt, X
@@ -169,14 +169,14 @@ code_099347 {
     COP [StageSpriteFrame] ( #1E )
     COP [AnimOnce]
     COP [SetMetasprite] ( @spriteset_npc_props )
-    COP [SolidHighHere]
-    COP [SetOnInteract] ( &code_099385 )
+    COP [MarkSolidHere]
+    COP [SetInteractHandler] ( &code_099385 )
 
   code_099361:
     COP [StageSpriteFrame] ( #04 )
     COP [AnimOnce]
-    COP [BranchIfFlagByte] ( #0F, #00, &code_099361 )
-    COP [ClearLowHere]
+    COP [BranchOnFlagByte] ( #0F, #00, &code_099361 )
+    COP [ClearSolidHere]
     LDY $playerActor
     LDA $0014, Y
     STA $moveXAlt, X
@@ -201,14 +201,14 @@ code_0993F8 {
     COP [StageSpriteFrame] ( #1E )
     COP [AnimOnce]
     COP [SetMetasprite] ( @spriteset_npc_props )
-    COP [SolidHighHere]
-    COP [SetOnInteract] ( &code_099436 )
+    COP [MarkSolidHere]
+    COP [SetInteractHandler] ( &code_099436 )
 
   code_099412:
     COP [StageSpriteFrame] ( #04 )
     COP [AnimOnce]
-    COP [BranchIfFlagByte] ( #0F, #00, &code_099412 )
-    COP [ClearLowHere]
+    COP [BranchOnFlagByte] ( #0F, #00, &code_099412 )
+    COP [ClearSolidHere]
     LDY $playerActor
     LDA $0014, Y
     STA $moveXAlt, X
@@ -233,14 +233,14 @@ code_0994A0 {
     COP [StageSpriteFrame] ( #1E )
     COP [AnimOnce]
     COP [SetMetasprite] ( @spriteset_npc_props )
-    COP [SolidHighHere]
-    COP [SetOnInteract] ( &code_0994DE )
+    COP [MarkSolidHere]
+    COP [SetInteractHandler] ( &code_0994DE )
 
   code_0994BA:
     COP [StageSpriteFrame] ( #04 )
     COP [AnimOnce]
-    COP [BranchIfFlagByte] ( #0F, #00, &code_0994BA )
-    COP [ClearLowHere]
+    COP [BranchOnFlagByte] ( #0F, #00, &code_0994BA )
+    COP [ClearSolidHere]
     LDY $playerActor
     LDA $0014, Y
     STA $moveXAlt, X

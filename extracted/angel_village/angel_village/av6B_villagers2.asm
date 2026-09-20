@@ -17,15 +17,15 @@ av6B_villagers2 [
 
   code_06CACD:
     JSL $@ActorDisplayModeSwap
-    COP [SetOnInteract] ( &code_06CAEC )
+    COP [SetInteractHandler] ( &code_06CAEC )
     LDA #$000A
     STA $currentHp, X
     JSL $@npc_wander_ai.SyncActorPosFromDP
 
   loc_06CAE0:
     JSL $@npc_wander_ai.NpcRandomWanderAI
-    COP [SetEntryExit]
-    COP [SetEntryContinue]
+    COP [SetEntryHereAndYield]
+    COP [SetEntryHere]
     COP [AnimOnce]
     BRA loc_06CAE0
 } >

@@ -18,23 +18,23 @@ sc06_bill [
   actor-def < #02, #00, #10, {
 
   code_04927C:
-    COP [BranchIfFlagByte] ( #21, #01, &code_0493EE )
-    COP [BranchIfFlagByte] ( #1C, #01, &code_0493E1 )
-    COP [BranchIfFlagByte] ( #3E, #01, &code_0493D9 )
-    COP [BranchIfFlagByte] ( #1B, #01, &code_049349 )
-    COP [BranchIfFlagByte] ( #16, #01, &code_0492A3 )
-    COP [SolidHighHere]
-    COP [SetOnInteract] ( &code_0493F0 )
-    COP [SetEntryContinue]
+    COP [BranchOnFlagByte] ( #21, #01, &code_0493EE )
+    COP [BranchOnFlagByte] ( #1C, #01, &code_0493E1 )
+    COP [BranchOnFlagByte] ( #3E, #01, &code_0493D9 )
+    COP [BranchOnFlagByte] ( #1B, #01, &code_049349 )
+    COP [BranchOnFlagByte] ( #16, #01, &code_0492A3 )
+    COP [MarkSolidHere]
+    COP [SetInteractHandler] ( &code_0493F0 )
+    COP [SetEntryHere]
     RTL 
 } >
 ]
 
 code_0492A3 {
     COP [SetTilePos] ( #08, #09 )
-    COP [SolidHighHere]
-    COP [SetOnInteract] ( &code_0493F5 )
-    COP [ExitIfFlagByte] ( #04, #01 )
+    COP [MarkSolidHere]
+    COP [SetInteractHandler] ( &code_0493F5 )
+    COP [WaitOnFlagByte] ( #04, #01 )
     COP [WaitByte] ( #1D )
     COP [StartMusic] ( #1B )
     COP [WaitByte] ( #59 )
@@ -52,13 +52,13 @@ code_0492A3 {
     COP [StageSpriteLoop] ( #02, #10 )
     COP [AnimLoop]
     COP [PrintDialogString] ( &dialogstring_04956D )
-    COP [SetOnInteract] ( #$0000 )
+    COP [SetInteractHandler] ( #$0000 )
     LDA #$CFF0
     TRB $joypadMaskStd
     COP [SetFlagByte] ( #06 )
     LDA #$0800
     TSB $10
-    COP [ClearLowHere]
+    COP [ClearSolidHere]
     COP [StageSpriteMoveY] ( #06, #11 )
     COP [AnimOnce]
     COP [StageSpriteLoopMoveX] ( #08, #05, #12 )
@@ -74,7 +74,7 @@ code_0492A3 {
     COP [AnimOnce]
     LDA #$0800
     TRB $10
-    COP [ExitIfFlagByte] ( #1B, #01 )
+    COP [WaitOnFlagByte] ( #1B, #01 )
     LDA #$1000
     TSB $12
     COP [FadeThenStartMusic] ( #1C )
@@ -91,9 +91,9 @@ code_049349 {
     COP [StageSpriteFrame] ( #02 )
     COP [AnimOnce]
     COP [SetTilePos] ( #0A, #1A )
-    COP [SolidHighHere]
-    COP [SetOnInteract] ( &code_049413 )
-    COP [ExitIfFlagByte] ( #0A, #01 )
+    COP [MarkSolidHere]
+    COP [SetInteractHandler] ( &code_049413 )
+    COP [WaitOnFlagByte] ( #0A, #01 )
     COP [PrintDialogString] ( &dialogstring_0495C9 )
     COP [StageSpriteMoveX] ( #08, #12 )
     COP [AnimOnce]
@@ -107,8 +107,8 @@ code_049349 {
     COP [SetFlagByte] ( #0B )
 
   loc_04937D:
-    COP [SetOnInteract] ( &code_049418 )
-    COP [SetEntryContinue]
+    COP [SetInteractHandler] ( &code_049418 )
+    COP [SetEntryHere]
     COP [BranchIfPlayerInAbsTiles] ( #03, #17, #04, #19, &code_04938C )
     RTL 
 }
@@ -118,10 +118,10 @@ code_04938C {
     TSB $joypadMaskStd
     LDA #$0800
     TSB $10
-    COP [LoopInit] ( #09 )
+    COP [LoopStart] ( #09 )
     LDA #$0800
     STA $joypadInject
-    COP [LoopNext]
+    COP [LoopEnd]
     LDA #$000F
     STA $orbitAngle, X
 
@@ -133,7 +133,7 @@ code_04938C {
     SEP #$20
     STA $INIDISP
     REP #$20
-    COP [SetEntryDelayExit] ( @code_0493A9, #$0003 )
+    COP [JumpAfterDelay] ( @code_0493A9, #$0003 )
 
   loc_0493C2:
     LDA #$0001
@@ -146,15 +146,15 @@ code_04938C {
 
 code_0493D9 {
     COP [SetTilePos] ( #0A, #1A )
-    COP [SolidHighHere]
+    COP [MarkSolidHere]
     BRA loc_04937D
 }
 
 code_0493E1 {
     COP [SetTilePos] ( #0A, #1A )
-    COP [SolidHighHere]
-    COP [SetOnInteract] ( &code_049403 )
-    COP [SetEntryContinue]
+    COP [MarkSolidHere]
+    COP [SetInteractHandler] ( &code_049403 )
+    COP [SetEntryHere]
     RTL 
 }
 
@@ -176,7 +176,7 @@ code_0493F5 {
 }
 
 code_049403 {
-    COP [BranchIfFlagByte] ( #35, #01, &code_04940E )
+    COP [BranchOnFlagByte] ( #35, #01, &code_04940E )
     COP [PrintDialogString] ( &dialogstring_049828 )
     RTL 
 }

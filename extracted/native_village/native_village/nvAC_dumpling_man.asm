@@ -12,13 +12,13 @@ nvAC_dumpling_man1 [
   actor-def < #1C, #00, #18, {
 
   code_088D6E:
-    COP [BranchIfFlagByte] ( #AF, #00, &code_088DC2 )
+    COP [BranchOnFlagByte] ( #AF, #00, &code_088DC2 )
     LDA #$1000
     TSB $12
-    COP [SetOnInteract] ( &code_088DC4 )
+    COP [SetInteractHandler] ( &code_088DC4 )
 
   loc_088D7D:
-    COP [BranchIfFlagByte] ( #03, #01, &code_088D9D )
+    COP [BranchOnFlagByte] ( #03, #01, &code_088D9D )
     COP [StageSpriteMoveX] ( #20, #02 )
     COP [AnimOnce]
     COP [StageSpriteMoveY] ( #1F, #02 )
@@ -38,13 +38,13 @@ code_088D9D {
     COP [AnimOnce]
     COP [StageSpriteFrame] ( #1B )
     COP [AnimOnce]
-    COP [ExitIfFlagByte] ( #04, #01 )
+    COP [WaitOnFlagByte] ( #04, #01 )
     COP [StageSpriteMoveY] ( #1F, #03 )
     COP [AnimOnce]
     COP [StageSpriteFrame] ( #1B )
     COP [AnimOnce]
-    COP [SolidHighHere]
-    COP [SetEntryContinue]
+    COP [MarkSolidHere]
+    COP [SetEntryHere]
     RTL 
 }
 
@@ -84,11 +84,11 @@ nvAC_dumpling_man2 [
   actor-def < #1A, #00, #18, {
 
   code_089203:
-    COP [BranchIfFlagByte] ( #AF, #00, &code_089246 )
-    COP [SolidHighHere]
-    COP [SetOnInteract] ( &code_088DC4 )
-    COP [ExitIfFlagByte] ( #03, #01 )
-    COP [ClearLowHere]
+    COP [BranchOnFlagByte] ( #AF, #00, &code_089246 )
+    COP [MarkSolidHere]
+    COP [SetInteractHandler] ( &code_088DC4 )
+    COP [WaitOnFlagByte] ( #03, #01 )
+    COP [ClearSolidHere]
     COP [StageSpriteMoveX] ( #21, #11 )
     COP [AnimOnce]
     COP [StageSpriteMoveY] ( #1E, #01 )
@@ -99,13 +99,13 @@ nvAC_dumpling_man2 [
     COP [AnimOnce]
     COP [StageSpriteFrame] ( #1A )
     COP [AnimOnce]
-    COP [ExitIfFlagByte] ( #04, #01 )
+    COP [WaitOnFlagByte] ( #04, #01 )
     COP [StageSpriteMoveY] ( #1E, #04 )
     COP [AnimOnce]
     COP [StageSpriteFrame] ( #1A )
     COP [AnimOnce]
-    COP [SolidHighHere]
-    COP [SetEntryContinue]
+    COP [MarkSolidHere]
+    COP [SetEntryHere]
     RTL 
 } >
 ]

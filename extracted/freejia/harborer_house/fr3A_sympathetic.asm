@@ -11,12 +11,12 @@ fr3A_sympathetic [
   actor-def < #27, #00, #10, {
 
   code_05C311:
-    COP [BranchIfFlagByte] ( #5A, #01, &code_05C325 )
+    COP [BranchOnFlagByte] ( #5A, #01, &code_05C325 )
     LDA #$0200
     TSB $12
-    COP [SolidHighHere]
-    COP [SetOnInteract] ( &code_05C327 )
-    COP [SetEntryContinue]
+    COP [MarkSolidHere]
+    COP [SetInteractHandler] ( &code_05C327 )
+    COP [SetEntryHere]
     RTL 
 } >
 ]

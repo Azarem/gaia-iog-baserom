@@ -24,10 +24,10 @@ gs2B_erik [
   actor-def < #0B, #00, #10, {
 
   code_05919C:
-    COP [BranchIfFlagByte] ( #51, #01, &code_0591AB )
-    COP [SolidHighHere]
-    COP [SetOnInteract] ( &code_05923B )
-    COP [SetEntryContinue]
+    COP [BranchOnFlagByte] ( #51, #01, &code_0591AB )
+    COP [MarkSolidHere]
+    COP [SetInteractHandler] ( &code_05923B )
+    COP [SetEntryHere]
     RTL 
 } >
 ]
@@ -37,7 +37,7 @@ code_0591AB {
     COP [SetTilePos] ( #19, #26 )
     COP [StageSpriteFrame] ( #0D )
     COP [AnimOnce]
-    COP [ExitIfFlagByte] ( #01, #01 )
+    COP [WaitOnFlagByte] ( #01, #01 )
     COP [WaitByte] ( #1D )
     COP [PrintDialogString] ( &dialogstring_0593DA )
     COP [SetFlagByte] ( #02 )
@@ -46,17 +46,17 @@ code_0591AB {
     COP [SpawnAfterFlags] ( @code_0591F8, #$2000 )
     COP [WaitByte] ( #4F )
     COP [InitGravity] ( #08, #07, #00 )
-    COP [StageForceMoveX] ( #06 )
+    COP [StageMoveX] ( #06 )
 
   loc_0591EA:
     COP [TickGravity]
     CMP #$0000
     BMI loc_0591F5
-    COP [SetEntryExit]
+    COP [SetEntryHereAndYield]
     BRA loc_0591EA
 
   loc_0591F5:
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     RTL 
 }
 
@@ -74,7 +74,7 @@ code_0591F8 {
     LDA $0016, Y
     STA $16
     COP [InitGravity] ( #08, #07, #00 )
-    COP [StageForceMoveX] ( #03 )
+    COP [StageMoveX] ( #03 )
 
   loc_059221:
     COP [TickGravity]
@@ -85,7 +85,7 @@ code_0591F8 {
     STA $0014, Y
     LDA $16
     STA $0016, Y
-    COP [SetEntryExit]
+    COP [SetEntryHereAndYield]
     BRA loc_059221
 
   loc_059239:
@@ -119,26 +119,26 @@ code_05927E {
     AND #$0060
     BEQ loc_0592C2
     STA $08
-    COP [SetEntryExit]
+    COP [SetEntryHereAndYield]
     COP [SpawnAfterFlags] ( @camera_drift.CameraDriftLoopShip, #$2000 )
     LDA #$FFFF
     STA $0024, Y
 
   loc_0592C2:
-    COP [BranchIfFlagByte] ( #02, #01, &code_0592CD )
-    COP [SetEntryExitNow] ( @code_0592AA )
+    COP [BranchOnFlagByte] ( #02, #01, &code_0592CD )
+    COP [JumpNextFrame] ( @code_0592AA )
 }
 
 code_0592CD {
     COP [WaitByte] ( #63 )
     COP [InitGravity] ( #08, #07, #00 )
-    COP [StageForceMoveX] ( #07 )
+    COP [StageMoveX] ( #07 )
 
   loc_0592D8:
     COP [TickGravity]
     CMP #$0000
     BMI loc_0592E3
-    COP [SetEntryExit]
+    COP [SetEntryHereAndYield]
     BRA loc_0592D8
 
   loc_0592E3:
@@ -148,7 +148,7 @@ code_0592CD {
     LDA #$0808
     STA $gfxCacheIdxB
     COP [QueueMapChange] ( #2F, #$0070, #$00B0, #03, #$1100 )
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     RTL 
 }
 
@@ -187,7 +187,7 @@ code_058598 {
     AND #$00FF
     BEQ loc_0585FD
     STA $orbitDiameter, X
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     LDA $orbitDiameter, X
     BEQ loc_0585F1
     DEC 

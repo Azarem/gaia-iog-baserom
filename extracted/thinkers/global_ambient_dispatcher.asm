@@ -60,7 +60,7 @@ GlobalAmbientPaletteDefault {
     LDA $animScratch2, X  ; Clear bit 11 of animScratch2 (interaction ready flag)
     AND #$F7FF
     STA $animScratch2, X
-    COP [SetEntryExit]
+    COP [SetEntryHereAndYield]
     PHD 
     LDA #$0000
     TCD 

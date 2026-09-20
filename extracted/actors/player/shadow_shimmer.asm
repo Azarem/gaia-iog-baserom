@@ -18,7 +18,7 @@
 ;   - If player actor flag bit 6 ($0040) is set (e.g. cutscene lock, menu active): pop return address, switch child to ShadowShimmerNop (idle no-op), and yield — palette cycling pauses without dying.
 ;   - Otherwise returns normally and the caller continues its idle/active logic.
 ; 
-; ShadowShimmerNop is a minimal COP [SetEntryContinue] + RTL loop — the child actor stays alive but produces no visual effect until the parent overwrites its function pointer again.
+; ShadowShimmerNop is a minimal COP [SetEntryHere] + RTL loop — the child actor stays alive but produces no visual effect until the parent overwrites its function pointer again.
 ---------------------------------------------
 
 !playerActor                    09AA
@@ -41,7 +41,7 @@ ShadowShimmerInit {
     COP [Die]             ; Not Shadow → self-destruct immediately (no shimmer for Will/Freedan)
 
   loc_02B218:
-    COP [SpawnMarkedAfter] ( @ShadowShimmerCycleA, #$2800 ) ; Spawn ShadowShimmerCycleA as child palette actor with priority flags $2800
+    COP [SpawnAfterMarked] ( @ShadowShimmerCycleA, #$2800 ) ; Spawn ShadowShimmerCycleA as child palette actor with priority flags $2800
 
 ; Palette shimmer idle state — waiting for player movement.
 ; 
@@ -53,12 +53,12 @@ ShadowShimmerInit {
     STA $0000, Y
     LDA #$0000            ; Zero child's frame counter — restart palette cycle from beginning
     STA $0008, Y
-    COP [SetEntryContinue] ; COP re-entry — idle state polls every frame
+    COP [SetEntryHere]    ; COP re-entry — idle state polls every frame
     JSR $&ShadowShimmerGuard ; Guard check: verify still Shadow and not in cutscene/menu lock
     LDA $playerSpeedEw    ; Check if player is moving: OR both speed axes
     ORA $playerSpeedNs
     BNE ShadowShimmerActive ; Nonzero speed → transition to ShadowShimmerActive (movement palette)
-    COP [BranchIfFlagByte] ( #00, #01, &ShadowShimmerActive ) ; Speed is zero but flag byte #00 == $01 → also transition to Active (secondary trigger)
+    COP [BranchOnFlagByte] ( #00, #01, &ShadowShimmerActive ) ; Speed is zero but flag byte #00 == $01 → also transition to Active (secondary trigger)
     RTL 
 }
 
@@ -73,7 +73,7 @@ ShadowShimmerActive {
     STA $0000, Y
     LDA #$0000            ; Zero child's frame counter — restart palette cycle
     STA $0008, Y
-    COP [SetEntryContinue] ; COP re-entry — active state polls every frame
+    COP [SetEntryHere]    ; COP re-entry — active state polls every frame
     JSR $&ShadowShimmerGuard ; Guard check: verify still Shadow and not locked
     LDA $playerSpeedEw    ; Check if player has stopped: OR both speed axes
     ORA $playerSpeedNs
@@ -81,7 +81,7 @@ ShadowShimmerActive {
     RTL 
 
   loc_02B25D:
-    COP [BranchIfFlagByte] ( #00, #00, &ShadowShimmerIdle ) ; Speed is zero and flag byte #00 == $00 → transition back to Idle
+    COP [BranchOnFlagByte] ( #00, #00, &ShadowShimmerIdle ) ; Speed is zero and flag byte #00 == $00 → transition back to Idle
     RTL 
 }
 
@@ -102,7 +102,7 @@ ShadowShimmerGuard {
     STA $0000, Y
     LDA #$0000            ; Zero child's frame counter
     STA $0008, Y
-    COP [SetEntryContinue] ; Yield — palette cycling paused until parent resumes control
+    COP [SetEntryHere]    ; Yield — palette cycling paused until parent resumes control
     RTL 
 
   loc_02B28A:
@@ -121,6 +121,6 @@ ShadowShimmerCycleA {
     BRA ShadowShimmerCycleB
 
   ShadowShimmerNop:
-    COP [SetEntryContinue] ; No-op loop: yield each frame with no palette effect — paused state
+    COP [SetEntryHere]    ; No-op loop: yield each frame with no palette effect — paused state
     RTL 
 }

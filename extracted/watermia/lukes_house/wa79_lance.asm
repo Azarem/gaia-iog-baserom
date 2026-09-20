@@ -16,10 +16,10 @@ wa79_lance [
   actor-def < #03, #00, #10, {
 
   code_07AC7F:
-    COP [BranchIfFlagByte] ( #97, #01, &code_07ACEC )
-    COP [BranchIfFlagByte] ( #96, #01, &code_07ACD6 )
-    COP [BranchIfFlagByte] ( #91, #01, &code_07ACD4 )
-    COP [BranchIfFlagByte] ( #90, #00, &code_07ACD4 )
+    COP [BranchOnFlagByte] ( #97, #01, &code_07ACEC )
+    COP [BranchOnFlagByte] ( #96, #01, &code_07ACD6 )
+    COP [BranchOnFlagByte] ( #91, #01, &code_07ACD4 )
+    COP [BranchOnFlagByte] ( #90, #00, &code_07ACD4 )
     LDA #$CFF0
     TSB $joypadMaskStd
     LDY $playerActor
@@ -30,7 +30,7 @@ wa79_lance [
     COP [WaitByte] ( #1D )
     COP [PrintDialogString] ( &dialogstring_07AD31 )
     COP [SetFlagByte] ( #01 )
-    COP [ExitIfFlagByte] ( #03, #01 )
+    COP [WaitOnFlagByte] ( #03, #01 )
     COP [WaitByte] ( #27 )
     COP [PrintDialogString] ( &dialogstring_07AD63 )
     COP [StageSpriteMoveX] ( #09, #11 )
@@ -51,10 +51,10 @@ code_07ACD6 {
     COP [SetTilePos] ( #07, #09 )
     COP [StageSpriteFrame] ( #02 )
     COP [AnimOnce]
-    COP [SetOnInteract] ( &code_07AD02 )
-    COP [SolidHighHere]
-    COP [AddPosition] ( #00, #F8 )
-    COP [SetEntryContinue]
+    COP [SetInteractHandler] ( &code_07AD02 )
+    COP [MarkSolidHere]
+    COP [NudgePosition] ( #00, #F8 )
+    COP [SetEntryHere]
     RTL 
 }
 
@@ -62,10 +62,10 @@ code_07ACEC {
     COP [SetTilePos] ( #07, #09 )
     COP [StageSpriteFrame] ( #02 )
     COP [AnimOnce]
-    COP [SolidHighHere]
-    COP [AddPosition] ( #00, #F8 )
-    COP [SetOnInteract] ( &code_07AD07 )
-    COP [SetEntryContinue]
+    COP [MarkSolidHere]
+    COP [NudgePosition] ( #00, #F8 )
+    COP [SetInteractHandler] ( &code_07AD07 )
+    COP [SetEntryHere]
     RTL 
 }
 
@@ -75,14 +75,14 @@ code_07AD02 {
 }
 
 code_07AD07 {
-    COP [BranchIfFlagByte] ( #A5, #01, &code_07AD15 )
+    COP [BranchOnFlagByte] ( #A5, #01, &code_07AD15 )
     COP [PrintDialogString] ( &dialogstring_07ADEA )
     COP [SetFlagByte] ( #01 )
     RTL 
 }
 
 code_07AD15 {
-    COP [BranchIfFlagByte] ( #E2, #01, &code_07AD2C )
+    COP [BranchOnFlagByte] ( #E2, #01, &code_07AD2C )
     COP [PrintDialogString] ( &dialogstring_07AEDE )
     COP [GiveItem] ( #01, &code_07AD28 )
     COP [SetFlagByte] ( #E2 )

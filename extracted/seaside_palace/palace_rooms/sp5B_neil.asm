@@ -12,11 +12,11 @@ sp5B_neil [
   actor-def < #14, #00, #10, {
 
   code_06894F:
-    COP [BranchIfFlagByte] ( #70, #01, &code_068985 )
+    COP [BranchOnFlagByte] ( #70, #01, &code_068985 )
     COP [SpawnAfterAbsFlags] ( @ToggleActorVisibilityFlag, #$0000, #$0000, #$2800 )
     LDA #$0200
     TSB $12
-    COP [SetOnInteract] ( &code_068987 )
+    COP [SetInteractHandler] ( &code_068987 )
 
   loc_068969:
     COP [StageSpriteLoopMoveX] ( #18, #04, #12 )

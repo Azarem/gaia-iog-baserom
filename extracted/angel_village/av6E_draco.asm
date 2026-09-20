@@ -21,7 +21,7 @@ av6E_draco [
   actor-def < #15, #02, #00, {
 
   code_0AEF36:
-    COP [SolidHighHere]
+    COP [MarkSolidHere]
     LDA #$0001
     TSB $12
     COP [SetDeathCallback] ( @code_0AF06B )
@@ -37,12 +37,12 @@ av6E_draco [
     COP [SpawnAfterFlags] ( @code_0AEFF0, #$0202 )
     DEC $24
     BPL loc_0AEF5A
-    COP [OrActorFlags] ( #$0020 )
+    COP [OrExtraFlags] ( #$0020 )
 
   loc_0AEF69:
     COP [StageSpriteFrame] ( #12 )
     COP [AnimOnce]
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     COP [BranchIfPlayerNear] ( #04, &code_0AEF76 )
     RTL 
 } >
@@ -55,16 +55,16 @@ code_0AEF76 {
 }
 
 code_0AEF85 {
-    COP [SetHFlip]
+    COP [SetHMirror]
 }
 
 code_0AEF87 {
     COP [StageSpriteFrame] ( #16 )
     COP [AnimOnce]
     JSR $&sub_0AFD26
-    COP [CallScript] ( &code_0AEFC0 )
+    COP [CallNear] ( &code_0AEFC0 )
     JSR $&sub_0AFD26
-    COP [CallScript] ( &code_0AEFC0 )
+    COP [CallNear] ( &code_0AEFC0 )
     COP [BranchIfPlayerNear] ( #04, &code_0AEFA1 )
     BRA loc_0AEF69
 }
@@ -75,8 +75,8 @@ code_0AEFA1 {
     STA $moveXAlt, X
     LDA $0016, Y
     STA $moveYAlt, X
-    COP [CallScript] ( &code_0AEFBA )
-    COP [ClearHFlip]
+    COP [CallNear] ( &code_0AEFBA )
+    COP [ClearHMirror]
     BRA loc_0AEF69
 }
 
@@ -114,7 +114,7 @@ code_0AEFF0 {
     STA $26
 
   loc_0AEFF9:
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     JSL $@ActorMidpointCalc
     LDY $24
     LDA $000E, Y
@@ -125,7 +125,7 @@ code_0AEFF0 {
     RTL 
 
   loc_0AF00F:
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     JSL $@ActorMidpointCalc
     LDY $24
     LDA $0010, Y
@@ -154,7 +154,7 @@ code_0AF032 {
   loc_0AF03B:
     LDA $26
     STA $0E
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     LDY $24
     LDA $0010, Y
     BIT #$0080
@@ -162,7 +162,7 @@ code_0AF032 {
     RTL 
 
   loc_0AF04C:
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     LDY $24
     LDA $0010, Y
     BIT #$0080
@@ -208,12 +208,12 @@ code_0AF06B {
     STA $14
     LDA $7F100E, X
     STA $16
-    COP [ClearLowHere]
+    COP [ClearSolidHere]
     PLA 
     STA $16
     PLA 
     STA $14
-    COP [JumpScript] ( @StandardEnemyDefeatHandler )
+    COP [JumpFar] ( @StandardEnemyDefeatHandler )
 
   loc_0AF0B4:
     LDA $26

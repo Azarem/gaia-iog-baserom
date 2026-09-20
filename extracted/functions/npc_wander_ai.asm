@@ -72,7 +72,7 @@ NpcWanderStandAnim3 {
     JSL $@sprite_composition.UpdateActorAnimation
     LDA #$0078
     STA $08
-    COP [SolidHighHere]
+    COP [MarkSolidHere]
     RTL 
 }
 
@@ -83,7 +83,7 @@ NpcWanderStepSouth {
     CMP $16
     BCC NpcWanderStandAnim0
     COP [BranchIfSolidSouth] ( &NpcWanderStandAnim0 )
-    COP [StageForceMoveY] ( #11 )
+    COP [StageMoveY] ( #11 )
     LDA $currentHp, X
     CLC 
     ADC #$0004
@@ -97,7 +97,7 @@ NpcWanderStepNorth {
     CMP $16
     BCS NpcWanderStandAnim1
     COP [BranchIfSolidNorth] ( &NpcWanderStandAnim1 )
-    COP [StageForceMoveY] ( #12 )
+    COP [StageMoveY] ( #12 )
     LDA $currentHp, X
     CLC 
     ADC #$0005
@@ -111,7 +111,7 @@ NpcWanderStepWest {
     CMP $14
     BCS NpcWanderStandAnim2
     COP [BranchIfSolidWest] ( &NpcWanderStandAnim2 )
-    COP [StageForceMoveX] ( #12 )
+    COP [StageMoveX] ( #12 )
     LDA $currentHp, X
     CLC 
     ADC #$0006
@@ -125,7 +125,7 @@ NpcWanderStepEast {
     CMP $14
     BCC NpcWanderStandAnim3
     COP [BranchIfSolidEast] ( &NpcWanderStandAnim3 )
-    COP [StageForceMoveX] ( #11 )
+    COP [StageMoveX] ( #11 )
     LDA $currentHp, X
     CLC 
     ADC #$0007
@@ -135,6 +135,6 @@ NpcWanderStepEast {
     STA $28
     STZ $2A
     JSL $@sprite_composition.UpdateActorAnimation
-    COP [ClearLowHere]
+    COP [ClearSolidHere]
     RTL 
 }

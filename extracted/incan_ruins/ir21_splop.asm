@@ -15,11 +15,11 @@ ir21_splop [
   actor-def < #1D, #01, #23, {
 
   code_0A97F1:
-    COP [AddPosition] ( #08, #00 )
+    COP [NudgePosition] ( #08, #00 )
     LDA #$0080
     TSB $12
     COP [WaitWhileOffscreen] ( #30 )
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     COP [BranchIfPlayerNear] ( #08, &code_0A9805 )
     RTL 
 } >
@@ -50,7 +50,7 @@ code_0A9805 {
     BEQ code_0A9805
     CMP #$0006
     BEQ loc_0A9866
-    COP [SetEntryExit]
+    COP [SetEntryHereAndYield]
     COP [RngByte]
     AND #$0007
     DEC 

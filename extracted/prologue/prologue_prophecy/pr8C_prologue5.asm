@@ -21,7 +21,7 @@ pr8C_prologue5 [
   actor-def < #00, #00, #38, {
 
   code_0BCE7C:
-    COP [BranchIfFlagByte] ( #F4, #01, &code_0BCEBB )
+    COP [BranchOnFlagByte] ( #F4, #01, &code_0BCEBB )
     COP [SpawnAfterAbsFlags] ( @pr_text_placement_calc.code_0BCF8F, #$0038, #$0038, #$2000 )
     LDA #$&spritestring_0BD272
     STA $0026, Y
@@ -39,7 +39,7 @@ pr8C_prologue5 [
     TYX 
     TAY 
     COP [SpawnBeforeFlags] ( @code_0BCEBD, #$2800 )
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     RTL 
 } >
 ]
@@ -62,7 +62,7 @@ code_0BCEBD {
     STA $00CA
     LDA #$0380
     STA $00CC
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     LDA $cameraTargetY
     CMP #$0040
     BEQ loc_0BCF00
@@ -76,7 +76,7 @@ code_0BCEBD {
     RTL 
 
   loc_0BCF00:
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     LDA $cameraTargetY
     CMP #$FFD8
     BEQ loc_0BCF1F
@@ -92,23 +92,23 @@ code_0BCEBD {
 
   loc_0BCF1F:
     COP [WaitByte] ( #3B )
-    COP [LoopInit] ( #82 )
+    COP [LoopStart] ( #82 )
     DEC $00B6
-    COP [LoopNext]
+    COP [LoopEnd]
     COP [SpawnThinker] ( @pr_thinkers.e_pr_thinker_0BD039 )
-    COP [LoopInit] ( #64 )
+    COP [LoopStart] ( #64 )
     DEC $00B6
-    COP [LoopNext]
+    COP [LoopEnd]
     LDA #$0008
     STA $gfxCacheIdxB
     COP [QueueMapChange] ( #FC, #$0000, #$0000, #00, #$1100 )
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     DEC $00B6
     BEQ loc_0BCF4F
     RTL 
 
   loc_0BCF4F:
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     RTL 
 }
 ---------------------------------------------

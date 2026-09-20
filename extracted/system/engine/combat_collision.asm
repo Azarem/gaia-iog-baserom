@@ -557,7 +557,7 @@ PlayerAttackHitTest {
     JSR $&FormatDamageDigits
     BCS loc_03BE77
     PHA 
-    COP [SpawnLastRel] ( @SpawnAttackTrailEffect, #00, #00, #$2F00 )
+    COP [SpawnListAppend] ( @SpawnAttackTrailEffect, #00, #00, #$2F00 )
     PLA 
     STA $0028, Y
     BRA loc_03BE77
@@ -601,7 +601,7 @@ PlayerAttackHitTest {
     BRA loc_03BF08
 
   loc_03BEBE:
-    COP [SpawnLastRel] ( @hit_stagger_controller.HitStaggerMain, #00, #00, #$2000 ) ; Spawn HitStaggerMain; copy direction flag; CalcKnockbackDirection
+    COP [SpawnListAppend] ( @hit_stagger_controller.HitStaggerMain, #00, #00, #$2000 ) ; Spawn HitStaggerMain; copy direction flag; CalcKnockbackDirection
     LDA #$0000
     STA $002C, Y
     STA $002E, Y
@@ -799,7 +799,7 @@ EnemyHitPlayer_Epilogue {
     JSR $&FormatDamageDigits
     BCS loc_03C01E
     PHA 
-    COP [SpawnLastRel] ( @SpawnAttackTrailEffect, #00, #00, #$2B00 ) ; Spawn damage number at $2B00 priority; set $1000 display flag
+    COP [SpawnListAppend] ( @SpawnAttackTrailEffect, #00, #00, #$2B00 ) ; Spawn damage number at $2B00 priority; set $1000 display flag
     LDA $0012, Y
     ORA #$1000
     STA $0012, Y
@@ -848,7 +848,7 @@ EnemyHitPlayer_Epilogue {
   loc_03C065:
     TXA 
     TCD 
-    COP [SpawnLastRel] ( @hit_stagger_controller.HitStaggerMain, #00, #00, #$2000 ) ; Spawn HitStaggerMain; CalcKnockbackDirection for knockback
+    COP [SpawnListAppend] ( @hit_stagger_controller.HitStaggerMain, #00, #00, #$2000 ) ; Spawn HitStaggerMain; CalcKnockbackDirection for knockback
     LDA #$0000
     STA $002C, Y
     STA $002E, Y
@@ -1484,7 +1484,7 @@ ApplyInteractionDamage {
     LDA $playerFlags
     BIT #$1800
     BNE loc_03C4C2
-    COP [SpawnLastRel] ( @hit_stagger_controller.HitStaggerMain, #00, #00, #$2400 ) ; Spawn HitStaggerMain; CalcKnockbackFromActorCenters for knockback
+    COP [SpawnListAppend] ( @hit_stagger_controller.HitStaggerMain, #00, #00, #$2400 ) ; Spawn HitStaggerMain; CalcKnockbackFromActorCenters for knockback
     CPY #$1FC0
     BEQ loc_03C4C2
     LDA $extendedFlags, X

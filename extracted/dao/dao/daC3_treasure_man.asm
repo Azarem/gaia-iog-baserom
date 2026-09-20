@@ -13,10 +13,10 @@ daC3_treasure_man [
   code_08B337:
     LDA #$0200
     TSB $12
-    COP [SolidHighHere]
-    COP [SetOnInteract] ( &code_08B349 )
-    COP [SetEntryContinue]
-    COP [SetEntryContinue]
+    COP [MarkSolidHere]
+    COP [SetInteractHandler] ( &code_08B349 )
+    COP [SetEntryHere]
+    COP [SetEntryHere]
     COP [AnimOnce]
     RTL 
 } >

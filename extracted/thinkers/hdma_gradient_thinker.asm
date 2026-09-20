@@ -32,7 +32,7 @@ crF7_thinker_05FB16 [
   thinker-def < #04, #08, {
 
   HdmaGradientSimpleEntry:
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     JSR $&HdmaGradientBuildV1 ; Regenerate gradient into current buffer
     LDA $chatPtr, X       ; Double-buffer select: odd/even frame
     LSR 
@@ -51,7 +51,7 @@ thinker_def_05FB32 [
 
   HdmaGradientFullEntry:
     JSR $&HdmaInitPrevState ; Clear previous-state registers on first frame
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     JSR $&HdmaCompareParams ; Check if parameters changed
     BCS loc_05FB44        ; No change — skip regeneration
     JSR $&HdmaGradientBuildV2 ; Regenerate gradient pattern

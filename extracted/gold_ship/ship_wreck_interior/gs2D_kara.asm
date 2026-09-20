@@ -11,11 +11,11 @@ gs2D_kara [
   actor-def < #1B, #00, #10, {
 
   code_058C06:
-    COP [SolidHighHere]
-    COP [SetOnInteract] ( &code_058C17 )
-    COP [ExitIfFlagByte] ( #02, #01 )
-    COP [SetOnInteract] ( &code_058C1C )
-    COP [SetEntryContinue]
+    COP [MarkSolidHere]
+    COP [SetInteractHandler] ( &code_058C17 )
+    COP [WaitOnFlagByte] ( #02, #01 )
+    COP [SetInteractHandler] ( &code_058C1C )
+    COP [SetEntryHere]
     RTL 
 } >
 ]

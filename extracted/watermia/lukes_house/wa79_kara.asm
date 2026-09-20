@@ -14,13 +14,13 @@ wa79_kara [
   actor-def < #1D, #00, #10, {
 
   code_07A53A:
-    COP [BranchIfFlagByte] ( #94, #01, &code_07A59E )
-    COP [BranchIfFlagByte] ( #97, #01, &code_07A5F6 )
-    COP [BranchIfFlagByte] ( #96, #01, &code_07A5ED )
-    COP [SolidHighHere]
-    COP [BranchIfFlagByte] ( #91, #01, &code_07A5A0 )
-    COP [SetOnInteract] ( &code_07A5FF )
-    COP [ExitIfFlagByte] ( #02, #01 )
+    COP [BranchOnFlagByte] ( #94, #01, &code_07A59E )
+    COP [BranchOnFlagByte] ( #97, #01, &code_07A5F6 )
+    COP [BranchOnFlagByte] ( #96, #01, &code_07A5ED )
+    COP [MarkSolidHere]
+    COP [BranchOnFlagByte] ( #91, #01, &code_07A5A0 )
+    COP [SetInteractHandler] ( &code_07A5FF )
+    COP [WaitOnFlagByte] ( #02, #01 )
     COP [StageSpriteLoopMoveY] ( #1F, #02, #12 )
     COP [AnimLoop]
     COP [StageSpriteLoop] ( #1B, #3C )
@@ -33,12 +33,12 @@ wa79_kara [
     COP [AnimLoop]
     COP [StageSpriteLoop] ( #1B, #28 )
     COP [AnimLoop]
-    COP [SpawnAfterRelFlags] ( @code_07A860, #$0010, #$FFF2, #$1002 )
+    COP [SpawnAfterOffsetFlags] ( @code_07A860, #$0010, #$FFF2, #$1002 )
     COP [StageSpriteLoop] ( #1D, #3C )
     COP [AnimLoop]
     COP [PrintDialogString] ( &dialogstring_07A6AF )
     COP [SetFlagByte] ( #03 )
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     RTL 
 } >
 ]
@@ -48,14 +48,14 @@ code_07A59E {
 }
 
 code_07A5A0 {
-    COP [BranchIfFlagByte] ( #92, #01, &code_07A5E1 )
+    COP [BranchOnFlagByte] ( #92, #01, &code_07A5E1 )
     COP [GiveItem] ( #16, &code_07A5AD )
     BRA code_07A5CB
 }
 
 code_07A5AD {
-    COP [BranchIfNoItem] ( #01, &code_07A5B7 )
-    COP [BranchIfNoItem] ( #06, &code_07A5E8 )
+    COP [BranchIfMissingItem] ( #01, &code_07A5B7 )
+    COP [BranchIfMissingItem] ( #06, &code_07A5E8 )
 }
 
 code_07A5B7 {
@@ -82,8 +82,8 @@ code_07A5CB {
 }
 
 code_07A5E1 {
-    COP [SetOnInteract] ( &code_07A604 )
-    COP [SetEntryContinue]
+    COP [SetInteractHandler] ( &code_07A604 )
+    COP [SetEntryHere]
     RTL 
 }
 
@@ -93,16 +93,16 @@ code_07A5E8 {
 }
 
 code_07A5ED {
-    COP [SolidHighHere]
-    COP [SetOnInteract] ( &code_07A609 )
-    COP [SetEntryContinue]
+    COP [MarkSolidHere]
+    COP [SetInteractHandler] ( &code_07A609 )
+    COP [SetEntryHere]
     RTL 
 }
 
 code_07A5F6 {
-    COP [SolidHighHere]
-    COP [SetOnInteract] ( &code_07A60E )
-    COP [SetEntryContinue]
+    COP [MarkSolidHere]
+    COP [SetInteractHandler] ( &code_07A60E )
+    COP [SetEntryHere]
     RTL 
 }
 
@@ -142,6 +142,6 @@ code_07A860 {
     COP [SetSpritePriority] ( #30 )
     COP [StageSpriteLoopMoveX] ( #37, #20, #11 )
     COP [AnimLoop]
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     RTL 
 }

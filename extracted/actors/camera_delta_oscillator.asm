@@ -13,7 +13,7 @@ camera_delta_oscillator [
   actor-def < #00, #00, #20, {
 
   CameraDeltaOscillate:
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     LDA $cameraTargetX    ; Sync horizontal delta to camera target
     STA $cameraDeltaX
     LDA $0036             ; Global frame counter

@@ -15,19 +15,19 @@ daC8_neil [
   actor-def < #12, #00, #10, {
 
   code_08A5B1:
-    COP [BranchIfFlagByte] ( #D2, #01, &code_08A5ED )
-    COP [SolidHighHere]
-    COP [SetOnInteract] ( &code_08A5EF )
-    COP [BranchIfFlagByte] ( #B4, #01, &code_08A5EA )
+    COP [BranchOnFlagByte] ( #D2, #01, &code_08A5ED )
+    COP [MarkSolidHere]
+    COP [SetInteractHandler] ( &code_08A5EF )
+    COP [BranchOnFlagByte] ( #B4, #01, &code_08A5EA )
     COP [SetFlagByte] ( #B4 )
     LDA #$CFF0
     TSB $joypadMaskStd
     COP [WaitByte] ( #0F )
-    COP [ClearLowHere]
+    COP [ClearSolidHere]
     COP [StageSpriteMoveY] ( #16, #01 )
     COP [AnimOnce]
-    COP [SolidHighHere]
-    COP [SetEntryContinue]
+    COP [MarkSolidHere]
+    COP [SetEntryHere]
     COP [AnimOneFrame]
     COP [WaitByte] ( #1D )
     COP [PrintDialogString] ( &dialogstring_08A61D )
@@ -37,7 +37,7 @@ daC8_neil [
 ]
 
 code_08A5EA {
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     RTL 
 }
 
@@ -46,7 +46,7 @@ code_08A5ED {
 }
 
 code_08A5EF {
-    COP [BranchIfFlagByte] ( #D0, #01, &code_08A5FA )
+    COP [BranchOnFlagByte] ( #D0, #01, &code_08A5FA )
     COP [PrintDialogString] ( &dialogstring_08A700 )
     RTL 
 }

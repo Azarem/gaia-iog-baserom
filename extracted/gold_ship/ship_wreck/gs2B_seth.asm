@@ -15,10 +15,10 @@ gs2B_seth [
   actor-def < #14, #00, #10, {
 
   code_059641:
-    COP [BranchIfFlagByte] ( #51, #01, &code_059650 )
-    COP [SolidHighHere]
-    COP [SetOnInteract] ( &code_059652 )
-    COP [SetEntryContinue]
+    COP [BranchOnFlagByte] ( #51, #01, &code_059650 )
+    COP [MarkSolidHere]
+    COP [SetInteractHandler] ( &code_059652 )
+    COP [SetEntryHere]
     RTL 
 } >
 ]
@@ -28,7 +28,7 @@ code_059650 {
 }
 
 code_059652 {
-    COP [BranchIfFlagByte] ( #E0, #01, &code_059669 )
+    COP [BranchOnFlagByte] ( #E0, #01, &code_059669 )
     COP [PrintDialogString] ( &dialogstring_05966E )
     COP [GiveItem] ( #01, &code_059665 )
     COP [SetFlagByte] ( #E0 )

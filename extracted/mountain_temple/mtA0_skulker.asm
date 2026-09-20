@@ -46,10 +46,10 @@ mtA0_skulker_ns [
     STA $26
 
   loc_0B9BD6:
-    COP [StageForceMoveY] ( #01 )
+    COP [StageMoveY] ( #01 )
 
   loc_0B9BD9:
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     COP [AnimOneFrame]
     LDA $2A
     BEQ loc_0B9BD6
@@ -123,7 +123,7 @@ mtA0_skulker_ew [
   actor-def < #04, #00, #00, {
 
   code_0B9C51:
-    COP [SetHFlip]
+    COP [SetHMirror]
 
   loc_0B9C53:
     LDA #$0010
@@ -143,10 +143,10 @@ mtA0_skulker_ew [
     STA $26
 
   loc_0B9C7A:
-    COP [StageForceMoveX] ( #01 )
+    COP [StageMoveX] ( #01 )
 
   loc_0B9C7D:
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     COP [AnimOneFrame]
     LDA $2A
     BEQ loc_0B9C7A

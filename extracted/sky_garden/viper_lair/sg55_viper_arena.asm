@@ -28,7 +28,7 @@ sg55_viper_arena {
     STA $orbitAngle, X
     COP [WaitByte] ( #02 )
     COP [InitGravity] ( #00, #09, #00 )
-    COP [SetEntryExit]
+    COP [SetEntryHereAndYield]
     COP [TickGravity]
     LDA $moveScratch2, X
     LDY $04
@@ -40,13 +40,13 @@ sg55_viper_arena {
 
 code_0AD034 {
     COP [SpawnAfterFlags] ( @gs2B_wreck_wave_motion.code_05F859, #$2B00 )
-    COP [LoopInit] ( #04 )
+    COP [LoopStart] ( #04 )
     COP [RngByte]
     COP [SpawnAfterFlags] ( @code_0AD07A, #$0B01 )
     LDA $0410
     AND #$0033
     STA $08
-    COP [LoopNext]
+    COP [LoopEnd]
     COP [SpawnAfterFlags] ( @code_0AD060, #$0B02 )
     COP [RngByte]
     AND #$0070
@@ -63,7 +63,7 @@ code_0AD060 {
     COP [SetSpritePriority] ( #30 )
 
   loc_0AD06D:
-    COP [ReloadForceMove]
+    COP [ReloadMoveDurations]
     COP [StageSpriteFrame] ( #06 )
     COP [AnimOnce]
     LDA $16
@@ -81,7 +81,7 @@ code_0AD07A {
     BCS loc_0AD098
 
   loc_0AD08B:
-    COP [ReloadForceMove]
+    COP [ReloadMoveDurations]
     COP [StageSpriteFrame] ( #07 )
     COP [AnimOnce]
     LDA $16
@@ -89,7 +89,7 @@ code_0AD07A {
     COP [Die]
 
   loc_0AD098:
-    COP [ReloadForceMove]
+    COP [ReloadMoveDurations]
     COP [StageSpriteFrame] ( #08 )
     COP [AnimOnce]
     LDA $16

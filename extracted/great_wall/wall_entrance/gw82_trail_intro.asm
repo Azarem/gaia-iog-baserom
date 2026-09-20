@@ -13,7 +13,7 @@ gw82_trail_intro [
   actor-def < #00, #00, #30, {
 
   code_07B532:
-    COP [BranchIfFlagByte] ( #9D, #01, &code_07B54E )
+    COP [BranchOnFlagByte] ( #9D, #01, &code_07B54E )
     COP [SetFlagByte] ( #9D )
     LDA #$CFF0
     TSB $joypadMaskStd

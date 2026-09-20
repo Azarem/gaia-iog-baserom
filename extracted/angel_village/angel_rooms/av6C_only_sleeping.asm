@@ -11,11 +11,11 @@ av6C_only_sleeping [
   actor-def < #0A, #00, #10, {
 
   code_06D050:
-    COP [SolidHighHere]
+    COP [MarkSolidHere]
     LDA #$0200
     TSB $12
-    COP [SetOnInteract] ( &code_06D05E )
-    COP [SetEntryContinue]
+    COP [SetInteractHandler] ( &code_06D05E )
+    COP [SetEntryHere]
     RTL 
 } >
 ]

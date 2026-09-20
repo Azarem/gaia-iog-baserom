@@ -23,12 +23,12 @@ wa78_women [
     ADC #$000A
     STA $28
     STZ $2A
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     COP [AnimOneFrame]
     JSL $@ActorDisplayModeSwap
-    COP [SetOnInteract] ( &code_078987 )
-    COP [SolidHighHere]
-    COP [SetEntryContinue]
+    COP [SetInteractHandler] ( &code_078987 )
+    COP [MarkSolidHere]
+    COP [SetEntryHere]
     RTL 
 } >
 ]
@@ -69,7 +69,7 @@ code_0789AD {
 }
 
 code_0789B2 {
-    COP [BranchIfFlagByte] ( #95, #01, &code_0789BD )
+    COP [BranchOnFlagByte] ( #95, #01, &code_0789BD )
     COP [PrintDialogString] ( &dialogstring_078AF8 )
     RTL 
 }

@@ -481,5 +481,5 @@ The scene script maintains a 4-entry ring buffer cache for tile graphics (`$0084
 - [`scene_script.asm`](../../extracted/system/engine/scene_script.asm) — Scene command interpreter and graphics pipeline
 - [`scene_lifecycle.asm`](../../extracted/system/engine/scene_lifecycle.asm) — Scene transition pipeline
 - [`SceneLoadPatch.patch.asm`](../../baserom/patches/SceneLoadPatch.patch.asm) — O(1) lookup optimization patch
-- [COP Commands Reference](../cop-commands-reference.md) — Game scripting commands
+- [COP System Overview](../cop/index.md) — Game scripting commands
 - [Actor Organization Analysis](../actor-organization-analysis.md) — Scene actor structure

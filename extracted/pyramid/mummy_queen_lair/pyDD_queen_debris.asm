@@ -24,7 +24,7 @@ pyDD_queen_debris {
     STA $14
 
   loc_0BAD7F:
-    COP [StageForceMoveX] ( #01 )
+    COP [StageMoveX] ( #01 )
     COP [RngByte]
     LSR 
     BCC loc_0BAD8E
@@ -34,14 +34,14 @@ pyDD_queen_debris {
 
   loc_0BAD8E:
     COP [InitGravity] ( #02, #07, #05 )
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     COP [TickGravity]
     CMP #$0000
     BMI loc_0BAD9D
     RTL 
 
   loc_0BAD9D:
-    COP [ToggleHFlip]
+    COP [ToggleHMirror]
     LDA $10
     BIT #$4000
     BNE loc_0BADB3

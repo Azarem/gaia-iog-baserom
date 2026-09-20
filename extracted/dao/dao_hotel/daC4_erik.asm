@@ -10,10 +10,10 @@ daC4_erik [
   actor-def < #0A, #00, #10, {
 
   code_08A56A:
-    COP [BranchIfFlagByte] ( #D2, #01, &code_08A579 )
-    COP [SolidHighHere]
-    COP [SetOnInteract] ( &code_08A57B )
-    COP [SetEntryContinue]
+    COP [BranchOnFlagByte] ( #D2, #01, &code_08A579 )
+    COP [MarkSolidHere]
+    COP [SetInteractHandler] ( &code_08A57B )
+    COP [SetEntryHere]
     RTL 
 } >
 ]

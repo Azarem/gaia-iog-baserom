@@ -16,10 +16,10 @@ sc08_priest [
   code_048A8F:
     LDA #$0200
     TSB $12
-    COP [SetOnInteract] ( &code_048AD9 )
-    COP [SolidHighHere]
-    COP [BranchIfFlagByte] ( #10, #00, &code_048AA3 )
-    COP [SetEntryContinue]
+    COP [SetInteractHandler] ( &code_048AD9 )
+    COP [MarkSolidHere]
+    COP [BranchOnFlagByte] ( #10, #00, &code_048AA3 )
+    COP [SetEntryHere]
     RTL 
 } >
 ]
@@ -32,23 +32,23 @@ code_048AA3 {
     COP [WaitByte] ( #1D )
     COP [PrintDialogString] ( &dialogstring_048AE9 )
     COP [WaitByte] ( #3B )
-    COP [LoopInit] ( #06 )
+    COP [LoopStart] ( #06 )
     COP [PlaySoundBoth] ( #$0909 )
-    COP [SetEntryDelayExit] ( @code_048AC7, #$001E )
+    COP [JumpAfterDelay] ( @code_048AC7, #$001E )
 }
 
 code_048AC7 {
-    COP [LoopNext]
+    COP [LoopEnd]
     COP [WaitByte] ( #3B )
     COP [PrintDialogString] ( &dialogstring_048C01 )
     COP [WaitByte] ( #3B )
     COP [SetFlagByte] ( #10 )
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     RTL 
 }
 
 code_048AD9 {
-    COP [BranchIfFlagByte] ( #21, #01, &code_048AE4 )
+    COP [BranchOnFlagByte] ( #21, #01, &code_048AE4 )
     COP [PrintDialogString] ( &dialogstring_048C98 )
     RTL 
 }

@@ -71,7 +71,7 @@ Mode7PerspectiveAlt {
     LDA #$81E0
     STA $7E8004, X
     PLX 
-    COP [SetEntryContinue] ; Yield after header init — re-enter here each subsequent frame
+    COP [SetEntryHere]    ; Yield after header init — re-enter here each subsequent frame
     PHX 
     PHD 
     LDA #$0000

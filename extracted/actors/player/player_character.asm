@@ -100,7 +100,7 @@ PlayerCharacterDef [
     COP [SpawnBefore] ( @attack_ability_system.AttackSystemEntry ) ; Spawn attack_ability_system.AttackSystemEntry as SpawnBefore companion (runs before player each frame)
     COP [SpawnAfter] ( @player_move_controller.PlayerMoveController ) ; Spawn player_move_controller as SpawnAfter companion (physics/collision processing)
     COP [SpawnAfter] ( @slope_ramp_physics.SlopePhysicsEntry ) ; Spawn slope_ramp_physics as SpawnAfter companion (slope tile handling)
-    COP [SpawnLastRel] ( @shadow_shimmer.ShadowShimmerInit, #00, #00, #$2800 ) ; Spawn shadow_shimmer as SpawnLastRel companion (Shadow palette shimmer, dies if not form 2)
+    COP [SpawnListAppend] ( @shadow_shimmer.ShadowShimmerInit, #00, #00, #$2800 ) ; Spawn shadow_shimmer as SpawnLastRel companion (Shadow palette shimmer, dies if not form 2)
 } >
 ]
 
@@ -114,7 +114,7 @@ PlayerCharacterDef [
 ; If no residual speed, computes a dispatch index: GetPlayerFacing (0=S, 1=N, 2=W, 3=E) × 14 via SignedMultiply → row offset into PlayerIdleDispatchTable. Then scans joypad input in priority order: attack button > D-pad cardinal (S/N/W/E) > L/R run > idle stand. The resulting 2-byte address is loaded from the table and executed via the DEC+PHA+RTS trick.
 
 PlayerIdleEntry {
-    COP [SetEntryContinue] ; Main idle entry — clears transient flags and dispatches to walk/run/attack/stand based on input
+    COP [SetEntryHere]    ; Main idle entry — clears transient flags and dispatches to walk/run/attack/stand based on input
     LDA $joypadHeld       ; Clear directional held bits ($0F00) from joypadHeld — prevents stale D-pad state from previous frame
     AND #$F0FF
     STA $joypadHeld
@@ -132,7 +132,7 @@ PlayerIdleEntry {
 
   loc_02C3EE:
     COP [SetSavedPtr] ( &PlayerIdleEntry ) ; Save PlayerIdleEntry as return point and clear force movement
-    COP [SetForceBoth] ( #00 )
+    COP [ForceDirBoth] ( #00 )
     LDA $playerSpeedEw    ; Check for residual EW speed — if nonzero, enter MovingEastWest for deceleration
     BEQ loc_02C3FD
     JMP $&MovingEastWest
@@ -225,7 +225,7 @@ PlayerIdleDispatchTable [
 ]
 
 IdleStandSouth {
-    COP [BranchIfFlagByte] ( #00, #01, &IdleStandSouthShadow ) ; South idle: check Shadow flag byte → select normal (#00) or Shadow (#10) sprite
+    COP [BranchOnFlagByte] ( #00, #01, &IdleStandSouthShadow ) ; South idle: check Shadow flag byte → select normal (#00) or Shadow (#10) sprite
     COP [StagePlayerSprite] ( #00 )
     BRA loc_02C4BD
 }
@@ -236,7 +236,7 @@ IdleStandSouthShadow {
 }
 
 IdleStandNorth {
-    COP [BranchIfFlagByte] ( #00, #01, &IdleStandNorthShadow ) ; North idle: normal (#01) or Shadow (#11) sprite
+    COP [BranchOnFlagByte] ( #00, #01, &IdleStandNorthShadow ) ; North idle: normal (#01) or Shadow (#11) sprite
     COP [StagePlayerSprite] ( #01 )
     BRA loc_02C4BD
 }
@@ -247,7 +247,7 @@ IdleStandNorthShadow {
 }
 
 IdleStandWest {
-    COP [BranchIfFlagByte] ( #00, #01, &IdleStandWestShadow ) ; West idle: normal (#02) or Shadow (#12) sprite
+    COP [BranchOnFlagByte] ( #00, #01, &IdleStandWestShadow ) ; West idle: normal (#02) or Shadow (#12) sprite
     COP [StagePlayerSprite] ( #02 )
     BRA loc_02C4BD
 }
@@ -258,7 +258,7 @@ IdleStandWestShadow {
 }
 
 IdleStandEast {
-    COP [BranchIfFlagByte] ( #00, #01, &IdleStandEastShadow ) ; East idle: normal (#03) or Shadow (#13) sprite
+    COP [BranchOnFlagByte] ( #00, #01, &IdleStandEastShadow ) ; East idle: normal (#03) or Shadow (#13) sprite
     COP [StagePlayerSprite] ( #03 )
     BRA loc_02C4BD
 }
@@ -272,11 +272,11 @@ IdleStandEastShadow {
     STZ $08
     INC 
     STA $24
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     LDA $playerSpeedEw    ; Check if player has started moving (speed nonzero) → restore saved ptr to re-dispatch
     ORA $playerSpeedNs
     BNE IdleAnimReturn
-    COP [BranchIfButton] ( #$8F30, &IdleAnimReturn ) ; Any gameplay button ($8F30 = attack + D-pad + L/R) → exit idle and re-dispatch
+    COP [BranchIfPressed] ( #$8F30, &IdleAnimReturn ) ; Any gameplay button ($8F30 = attack + D-pad + L/R) → exit idle and re-dispatch
     DEC $24
     BMI loc_02C4BD
     RTL 
@@ -296,7 +296,7 @@ WalkSouth {
     STA $playerSpeedNs
     STZ $slopeStepCounter ; Stage south walk sprite (#08) and set auto-walk timer (13 frames)
     STZ $decelStepCounter
-    COP [SetEntryExit]
+    COP [SetEntryHereAndYield]
     COP [RestoreSavedPtr]
 
   loc_02C4F9:
@@ -309,13 +309,13 @@ WalkSouth {
     STZ $08
     INC 
     STA $24
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     LDA $2A
     BEQ loc_02C4FF
-    COP [BranchIfNoButton] ( #$0400, &WalkRestoreSaved )
+    COP [BranchIfNotPressed] ( #$0400, &WalkRestoreSaved )
     JSR $&CheckAttackWhileWalking
     BNE loc_02C51F
-    COP [BranchIfButton] ( #$0030, &RunSouth )
+    COP [BranchIfPressed] ( #$0030, &RunSouth )
 
   loc_02C51F:
     DEC $24
@@ -334,7 +334,7 @@ WalkNorth {
     STA $playerSpeedNs
     STZ $slopeStepCounter
     STZ $decelStepCounter
-    COP [SetEntryExit]
+    COP [SetEntryHereAndYield]
     COP [RestoreSavedPtr]
 
   loc_02C541:
@@ -347,13 +347,13 @@ WalkNorth {
     STZ $08
     INC 
     STA $24
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     LDA $2A
     BEQ loc_02C547
-    COP [BranchIfNoButton] ( #$0800, &WalkRestoreSaved )
+    COP [BranchIfNotPressed] ( #$0800, &WalkRestoreSaved )
     JSR $&CheckAttackWhileWalking
     BNE loc_02C567
-    COP [BranchIfButton] ( #$0030, &RunNorth )
+    COP [BranchIfPressed] ( #$0030, &RunNorth )
 
   loc_02C567:
     DEC $24
@@ -373,7 +373,7 @@ WalkWest {
     STA $playerSpeedEw
     STZ $slopeStepCounter
     STZ $decelStepCounter
-    COP [SetEntryExit]
+    COP [SetEntryHereAndYield]
     COP [RestoreSavedPtr]
 
   loc_02C58A:
@@ -386,13 +386,13 @@ WalkWest {
     STZ $08
     INC 
     STA $24
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     LDA $2A
     BEQ loc_02C590
-    COP [BranchIfNoButton] ( #$0200, &WalkRestoreSaved )
+    COP [BranchIfNotPressed] ( #$0200, &WalkRestoreSaved )
     JSR $&CheckAttackWhileWalking
     BNE loc_02C5B0
-    COP [BranchIfButton] ( #$0030, &RunWest )
+    COP [BranchIfPressed] ( #$0030, &RunWest )
 
   loc_02C5B0:
     DEC $24
@@ -413,7 +413,7 @@ WalkEast {
     STA $playerSpeedEw
     STZ $slopeStepCounter
     STZ $decelStepCounter
-    COP [SetEntryExit]
+    COP [SetEntryHereAndYield]
     COP [RestoreSavedPtr]
 
   loc_02C5D4:
@@ -426,13 +426,13 @@ WalkEast {
     STZ $08
     INC 
     STA $24
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     LDA $2A
     BEQ loc_02C5DA
-    COP [BranchIfNoButton] ( #$0100, &WalkRestoreSaved )
+    COP [BranchIfNotPressed] ( #$0100, &WalkRestoreSaved )
     JSR $&CheckAttackWhileWalking
     BNE loc_02C5FA
-    COP [BranchIfButton] ( #$0030, &RunEast )
+    COP [BranchIfPressed] ( #$0030, &RunEast )
 
   loc_02C5FA:
     DEC $24
@@ -451,7 +451,7 @@ WalkEast {
 ; Returns: Z flag = 0 means walk-attack is active (caller should check for run transition).
 
 CheckAttackWhileWalking {
-    COP [BranchIfButton] ( #$8000, &WalkAbortToIdle ) ; Check for attack button ($8000) or zero speed while walking → abort walk to idle
+    COP [BranchIfPressed] ( #$8000, &WalkAbortToIdle ) ; Check for attack button ($8000) or zero speed while walking → abort walk to idle
     LDA $playerSpeedEw
     ORA $playerSpeedNs
     BNE WalkAbortToIdle
@@ -496,7 +496,7 @@ ClimbVineEntry {
   loc_02C63B:
     COP [BranchIfSolidType] ( #00, &ClimbVineLand ) ; Check solid type below for landing; begin 3-sprite alternating climb cycle
     COP [StagePlayerSprite] ( #1A )
-    COP [StageForceMoveY] ( #07 )
+    COP [StageMoveY] ( #07 )
 
   loc_02C646:
     COP [AnimOneFrame]
@@ -505,7 +505,7 @@ ClimbVineEntry {
 
   loc_02C64D:
     JSR $&CheckClimbAttack
-    COP [SetEntryExit]
+    COP [SetEntryHereAndYield]
     DEC $24
     BPL loc_02C64D
     BRA loc_02C646
@@ -513,7 +513,7 @@ ClimbVineEntry {
   loc_02C658:
     COP [BranchIfSolidType] ( #00, &ClimbVineLand )
     COP [StagePlayerSprite] ( #1B )
-    COP [StageForceMoveY] ( #07 )
+    COP [StageMoveY] ( #07 )
 
   loc_02C663:
     COP [AnimOneFrame]
@@ -522,7 +522,7 @@ ClimbVineEntry {
 
   loc_02C66A:
     JSR $&CheckClimbAttack
-    COP [SetEntryExit]
+    COP [SetEntryHereAndYield]
     DEC $24
     BPL loc_02C66A
     BRA loc_02C663
@@ -530,7 +530,7 @@ ClimbVineEntry {
   loc_02C675:
     COP [BranchIfSolidType] ( #00, &ClimbVineLand )
     COP [StagePlayerSprite] ( #19 )
-    COP [StageForceMoveY] ( #07 )
+    COP [StageMoveY] ( #07 )
 
   loc_02C680:
     COP [AnimOneFrame]
@@ -539,7 +539,7 @@ ClimbVineEntry {
 
   loc_02C687:
     JSR $&CheckClimbAttack
-    COP [SetEntryExit]
+    COP [SetEntryHereAndYield]
     DEC $24
     BPL loc_02C687
     BRA loc_02C680
@@ -585,7 +585,7 @@ CheckClimbAttack {
     RTS 
 
   loc_02C6CE:
-    COP [BranchIfButton] ( #$8000, &ClimbDropAttack )
+    COP [BranchIfPressed] ( #$8000, &ClimbDropAttack )
     RTS 
 }
 
@@ -596,11 +596,11 @@ CheckClimbAttack {
 
 ClimbDropAttack {
     PLA                   ; Drop attack: pop caller, set body sprite #06, hitbox #00, fall with force move Y #07
-    COP [SetPlayerBodySprite] ( #06 )
+    COP [SetPlayerSpriteDirect] ( #06 )
     COP [StageSprAndHitbox] ( #00 )
 
   loc_02C6DC:
-    COP [StageForceMoveY] ( #07 )
+    COP [StageMoveY] ( #07 )
 
   loc_02C6DF:
     COP [AnimOneFrame]
@@ -614,7 +614,7 @@ ClimbDropAttack {
     COP [BranchIfSolidType] ( #00, &ClimbDropLand )
 
   loc_02C6F2:
-    COP [SetEntryExit]
+    COP [SetEntryHereAndYield]
     DEC $24
     BPL loc_02C6E6
     BRA loc_02C6DF
@@ -627,10 +627,10 @@ ClimbDropLand {
     AND #$00FF
     CMP #$00DD
     BEQ loc_02C714
-    COP [SpawnLastRel] ( @ImpactTerrainShake, #00, #00, #$2400 )
+    COP [SpawnListAppend] ( @ImpactTerrainShake, #00, #00, #$2400 )
 
   loc_02C714:
-    COP [SpawnLastRel] ( @CameraShakeActor, #00, #00, #$2400 )
+    COP [SpawnListAppend] ( @CameraShakeActor, #00, #00, #$2400 )
     LDA #$003C
     STA $0026, Y
     COP [StageSpriteMoveY] ( #01, #00 )
@@ -726,8 +726,8 @@ CameraShakeFrame {
     TSB $joypadMaskStd    ; Ladder entry animation, then check up/down buttons to begin movement or idle
     COP [StagePlayerMoveXY] ( #26, #00, #1B )
     COP [AnimOnce]
-    COP [BranchIfButton] ( #$0801, &LadderMoveUp )
-    COP [BranchIfButton] ( #$0401, &LadderMoveDown )
+    COP [BranchIfPressed] ( #$0801, &LadderMoveUp )
+    COP [BranchIfPressed] ( #$0401, &LadderMoveDown )
     JMP $&LadderIdleNorth
 }
 
@@ -742,8 +742,8 @@ LadderClimbNorth {
     TSB $joypadMaskStd
     COP [StagePlayerMoveXY] ( #28, #00, #19 )
     COP [AnimOnce]
-    COP [BranchIfButton] ( #$0401, &LadderMoveDown )
-    COP [BranchIfButton] ( #$0801, &LadderMoveUp )
+    COP [BranchIfPressed] ( #$0401, &LadderMoveDown )
+    COP [BranchIfPressed] ( #$0801, &LadderMoveUp )
     BRA LadderIdleSouth
 }
 
@@ -751,7 +751,7 @@ LadderMoveDown {
     COP [StagePlayerSprite] ( #2D ) ; Ladder move down: sprite #2D, force Y movement #1D, check 16px boundary for bottom landing
 
   loc_02C810:
-    COP [StageForceMoveY] ( #1D )
+    COP [StageMoveY] ( #1D )
 
   loc_02C813:
     LDA $16
@@ -760,12 +760,12 @@ LadderMoveDown {
     COP [BranchIfSolidTypeSouth] ( #00, &LadderLandBottom )
 
   loc_02C81F:
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     COP [AnimOneFrame]
     LDA $2A
     BEQ loc_02C810
-    COP [BranchIfNoButton] ( #$0401, &LadderIdleSouth )
-    COP [SetEntryExit]
+    COP [BranchIfNotPressed] ( #$0401, &LadderIdleSouth )
+    COP [SetEntryHereAndYield]
     BRA loc_02C813
 }
 
@@ -773,7 +773,7 @@ LadderMoveUp {
     COP [StagePlayerSprite] ( #2C ) ; Ladder move up: sprite #2C, force Y movement #1E, check 16px boundary for top exit
 
   loc_02C834:
-    COP [StageForceMoveY] ( #1E )
+    COP [StageMoveY] ( #1E )
 
   loc_02C837:
     LDA $16
@@ -782,17 +782,17 @@ LadderMoveUp {
     COP [BranchIfSolidTypeNorth] ( #00, &LadderReachTop )
 
   loc_02C843:
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     COP [AnimOneFrame]
     LDA $2A
     BEQ loc_02C834
-    COP [BranchIfNoButton] ( #$0801, &LadderIdleNorth )
-    COP [SetEntryExit]
+    COP [BranchIfNotPressed] ( #$0801, &LadderIdleNorth )
+    COP [SetEntryHereAndYield]
     BRA loc_02C837
 }
 
 LadderIdleSouth {
-    COP [BranchIfFlagByte] ( #00, #01, &LadderIdleSouthShadow ) ; Ladder idle south: Shadow flag check → normal sprite #2B or Shadow sprite #2F
+    COP [BranchOnFlagByte] ( #00, #01, &LadderIdleSouthShadow ) ; Ladder idle south: Shadow flag check → normal sprite #2B or Shadow sprite #2F
     COP [StagePlayerSprite] ( #2B )
     BRA loc_02C873
 }
@@ -803,7 +803,7 @@ LadderIdleSouthShadow {
 }
 
 LadderIdleNorth {
-    COP [BranchIfFlagByte] ( #00, #01, &LadderIdleNorthShadow ) ; Ladder idle north: normal sprite #2A or Shadow sprite #2E
+    COP [BranchOnFlagByte] ( #00, #01, &LadderIdleNorthShadow ) ; Ladder idle north: normal sprite #2A or Shadow sprite #2E
     COP [StagePlayerSprite] ( #2A )
     BRA loc_02C873
 }
@@ -824,9 +824,9 @@ LadderIdleNorthShadow {
     STA $24
 
   loc_02C883:
-    COP [SetEntryExit]
-    COP [BranchIfButton] ( #$0401, &LadderMoveDown )
-    COP [BranchIfButton] ( #$0801, &LadderMoveUp )
+    COP [SetEntryHereAndYield]
+    COP [BranchIfPressed] ( #$0401, &LadderMoveDown )
+    COP [BranchIfPressed] ( #$0801, &LadderMoveUp )
     DEC $24
     BPL loc_02C883
     BRA loc_02C877
@@ -876,7 +876,7 @@ ShimmyRightLoop {
     COP [StagePlayerSprite] ( #33 ) ; Shimmy right main loop: sprite #33, force move X #51, check tile boundaries for transitions
 
   loc_02C8EF:
-    COP [StageForceMoveX] ( #51 )
+    COP [StageMoveX] ( #51 )
 
   loc_02C8F2:
     LDA $14
@@ -885,8 +885,8 @@ ShimmyRightLoop {
     AND #$000F
     BNE ShimmyRightAnimLoop
     COP [BranchIfSolidType] ( #00, &ShimmyTopCorner )
-    COP [BranchIfButton] ( #$0801, &ShimmyRightUpCheck )
-    COP [BranchIfButton] ( #$0401, &ShimmyRightDownCheck )
+    COP [BranchIfPressed] ( #$0801, &ShimmyRightUpCheck )
+    COP [BranchIfPressed] ( #$0401, &ShimmyRightDownCheck )
 
   loc_02C90E:
     COP [BranchIfSolidTypeEast] ( #07, &ShimmyRightAnimLoop )
@@ -895,12 +895,12 @@ ShimmyRightLoop {
 }
 
 ShimmyRightAnimLoop {
-    COP [SetEntryContinue] ; Shimmy right animation loop: animate, check button release → detach; re-check wall contact
+    COP [SetEntryHere]    ; Shimmy right animation loop: animate, check button release → detach; re-check wall contact
     COP [AnimOneFrame]
     LDA $2A
     BEQ loc_02C8EF
-    COP [BranchIfNoButton] ( #$0101, &ShimmyDetachRight )
-    COP [SetEntryExit]
+    COP [BranchIfNotPressed] ( #$0101, &ShimmyDetachRight )
+    COP [SetEntryHereAndYield]
     BRA loc_02C8F2
 }
 
@@ -938,7 +938,7 @@ ShimmyLeftLoop {
     COP [StagePlayerSprite] ( #32 ) ; Shimmy left main loop: sprite #32, force move X #52
 
   loc_02C96C:
-    COP [StageForceMoveX] ( #52 )
+    COP [StageMoveX] ( #52 )
 
   loc_02C96F:
     LDA $14
@@ -947,8 +947,8 @@ ShimmyLeftLoop {
     AND #$000F
     BNE ShimmyLeftAnimLoop
     COP [BranchIfSolidType] ( #00, &ShimmyTopCorner )
-    COP [BranchIfButton] ( #$0801, &ShimmyLeftUpCheck )
-    COP [BranchIfButton] ( #$0401, &ShimmyLeftDownCheck )
+    COP [BranchIfPressed] ( #$0801, &ShimmyLeftUpCheck )
+    COP [BranchIfPressed] ( #$0401, &ShimmyLeftDownCheck )
 
   loc_02C98B:
     COP [BranchIfSolidTypeWest] ( #07, &ShimmyLeftAnimLoop )
@@ -957,12 +957,12 @@ ShimmyLeftLoop {
 }
 
 ShimmyLeftAnimLoop {
-    COP [SetEntryContinue] ; Shimmy left animation loop
+    COP [SetEntryHere]    ; Shimmy left animation loop
     COP [AnimOneFrame]
     LDA $2A
     BEQ loc_02C96C
-    COP [BranchIfNoButton] ( #$0201, &ShimmyDetachLeft )
-    COP [SetEntryExit]
+    COP [BranchIfNotPressed] ( #$0201, &ShimmyDetachLeft )
+    COP [SetEntryHereAndYield]
     BRA loc_02C96F
 }
 
@@ -977,8 +977,8 @@ ShimmyLeftDownCheck {
 }
 
 ShimmyDetachRight {
-    COP [StageForceMoveX] ( #00 ) ; Detach right: stop X movement, select normal (#31) or Shadow (#35) sprite, enter wall-hang idle
-    COP [BranchIfFlagByte] ( #00, #01, &ShimmyDetachRightShadow )
+    COP [StageMoveX] ( #00 ) ; Detach right: stop X movement, select normal (#31) or Shadow (#35) sprite, enter wall-hang idle
+    COP [BranchOnFlagByte] ( #00, #01, &ShimmyDetachRightShadow )
     COP [StagePlayerSprite] ( #31 )
     BRA loc_02C9DB
 }
@@ -989,8 +989,8 @@ ShimmyDetachRightShadow {
 }
 
 ShimmyDetachLeft {
-    COP [StageForceMoveX] ( #00 ) ; Detach left: stop X movement, normal (#30) or Shadow (#34) sprite
-    COP [BranchIfFlagByte] ( #00, #01, &ShimmyDetachLeftShadow )
+    COP [StageMoveX] ( #00 ) ; Detach left: stop X movement, normal (#30) or Shadow (#34) sprite
+    COP [BranchOnFlagByte] ( #00, #01, &ShimmyDetachLeftShadow )
     COP [StagePlayerSprite] ( #30 )
     BRA loc_02C9DB
 }
@@ -1011,11 +1011,11 @@ ShimmyDetachLeftShadow {
     STA $24
 
   loc_02C9EB:
-    COP [SetEntryExit]
-    COP [BranchIfButton] ( #$0801, &DetachedCheckUp )
-    COP [BranchIfButton] ( #$0401, &DetachedCheckDown )
-    COP [BranchIfButton] ( #$0201, &ShimmyLeftCheckWall )
-    COP [BranchIfButton] ( #$0101, &ShimmyRightCheckWall )
+    COP [SetEntryHereAndYield]
+    COP [BranchIfPressed] ( #$0801, &DetachedCheckUp )
+    COP [BranchIfPressed] ( #$0401, &DetachedCheckDown )
+    COP [BranchIfPressed] ( #$0201, &ShimmyLeftCheckWall )
+    COP [BranchIfPressed] ( #$0101, &ShimmyRightCheckWall )
 
   loc_02CA05:
     DEC $24
@@ -1092,10 +1092,10 @@ RunEast {
     STZ $08
     INC 
     STA $24
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     LDA $2A
     BEQ loc_02CA68
-    COP [BranchIfNoButton] ( #$0030, &RunStopToIdle )
+    COP [BranchIfNotPressed] ( #$0030, &RunStopToIdle )
     DEC $24
     BMI loc_02CA68
     RTL 
@@ -1126,7 +1126,7 @@ MovingEastWest {
     BRA loc_02CA9C        ; East-facing inertial movement: sprite #0F, animation loop with attack/run checks
 
   MovingToEast:
-    COP [SetEntryExit]    ; Direction switch to east: re-enter with SetEntryExit
+    COP [SetEntryHereAndYield] ; Direction switch to east: re-enter with SetEntryExit
 
   loc_02CA9C:
     COP [StagePlayerSprite] ( #0F )
@@ -1137,17 +1137,17 @@ MovingEastWest {
     STZ $08
     INC 
     STA $24
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     LDA $2A
     BEQ loc_02CA9F
     LDA $playerSpeedEw
     BEQ loc_02CB0A
-    COP [BranchIfButton] ( #$0200, &MovingToWest )
+    COP [BranchIfPressed] ( #$0200, &MovingToWest )
     JSR $&CheckRunAttack
     JSR $&SpeedThresholdEW
     BCS loc_02CACD
-    COP [BranchIfButton] ( #$8000, &AttackEast )
-    COP [BranchIfButton] ( #$0030, &AttackFromWalkEast )
+    COP [BranchIfPressed] ( #$8000, &AttackEast )
+    COP [BranchIfPressed] ( #$0030, &AttackFromWalkEast )
 
   loc_02CACD:
     DEC $24
@@ -1156,7 +1156,7 @@ MovingEastWest {
 }
 
 MovingToWest {
-    COP [SetEntryExit]    ; Direction switch to west: re-enter with SetEntryExit
+    COP [SetEntryHereAndYield] ; Direction switch to west: re-enter with SetEntryExit
 
   loc_02CAD4:
     COP [StagePlayerSprite] ( #0E )
@@ -1167,17 +1167,17 @@ MovingToWest {
     STZ $08
     INC 
     STA $24
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     LDA $2A
     BEQ loc_02CAD7
     LDA $playerSpeedEw
     BEQ loc_02CB0A
-    COP [BranchIfButton] ( #$0100, &MovingToEast )
+    COP [BranchIfPressed] ( #$0100, &MovingToEast )
     JSR $&CheckRunAttack
     JSR $&SpeedThresholdEW
     BCS loc_02CB05
-    COP [BranchIfButton] ( #$8000, &AttackWest )
-    COP [BranchIfButton] ( #$0030, &AttackFromWalkWest )
+    COP [BranchIfPressed] ( #$8000, &AttackWest )
+    COP [BranchIfPressed] ( #$0030, &AttackFromWalkWest )
 
   loc_02CB05:
     DEC $24
@@ -1207,7 +1207,7 @@ MovingNorthSouth {
     BRA loc_02CB5C
 
   MovingToNorth:
-    COP [SetEntryExit]    ; Direction switch to north: re-enter with SetEntryExit
+    COP [SetEntryHereAndYield] ; Direction switch to north: re-enter with SetEntryExit
 
   loc_02CB24:
     COP [StagePlayerSprite] ( #0D )
@@ -1218,17 +1218,17 @@ MovingNorthSouth {
     STZ $08
     INC 
     STA $24
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     LDA $2A
     BEQ loc_02CB27
     LDA $playerSpeedNs
     BEQ loc_02CB0A
-    COP [BranchIfButton] ( #$0400, &MovingToSouth )
+    COP [BranchIfPressed] ( #$0400, &MovingToSouth )
     JSR $&CheckRunAttack
     JSR $&SpeedThresholdNS
     BCS loc_02CB55
-    COP [BranchIfButton] ( #$8000, &AttackNorth )
-    COP [BranchIfButton] ( #$0030, &AttackFromWalkNorth )
+    COP [BranchIfPressed] ( #$8000, &AttackNorth )
+    COP [BranchIfPressed] ( #$0030, &AttackFromWalkNorth )
 
   loc_02CB55:
     DEC $24
@@ -1237,7 +1237,7 @@ MovingNorthSouth {
 }
 
 MovingToSouth {
-    COP [SetEntryExit]    ; Direction switch to south: re-enter with SetEntryExit
+    COP [SetEntryHereAndYield] ; Direction switch to south: re-enter with SetEntryExit
 
   loc_02CB5C:
     COP [StagePlayerSprite] ( #0C )
@@ -1248,17 +1248,17 @@ MovingToSouth {
     STZ $08
     INC 
     STA $24
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     LDA $2A
     BEQ loc_02CB5F
     LDA $playerSpeedNs
     BEQ loc_02CB0A
-    COP [BranchIfButton] ( #$0800, &MovingToNorth )
+    COP [BranchIfPressed] ( #$0800, &MovingToNorth )
     JSR $&CheckRunAttack
     JSR $&SpeedThresholdNS
     BCS loc_02CB8D
-    COP [BranchIfButton] ( #$8000, &AttackSouth )
-    COP [BranchIfButton] ( #$0030, &AttackFromWalkSouth )
+    COP [BranchIfPressed] ( #$8000, &AttackSouth )
+    COP [BranchIfPressed] ( #$0030, &AttackFromWalkSouth )
 
   loc_02CB8D:
     DEC $24
@@ -1283,7 +1283,7 @@ CheckRunAttack {
     LDA $playerFlags
     BIT #$1000            ; Attack button pressed during run → RunAttackSpeedCheck
     BNE loc_02CBB4
-    COP [BranchIfButton] ( #$8000, &RunAttackSpeedCheck )
+    COP [BranchIfPressed] ( #$8000, &RunAttackSpeedCheck )
 
   loc_02CBB4:
     RTS 
@@ -1364,7 +1364,7 @@ SpeedThresholdNS {
 RunAttackNS {
     LDA #$0001            ; Run attack NS: load anim table A entry 1, set body sprite #04; south or north by speed sign
     JSR $&attack_ability_system.LoadAbilityAnimTableA
-    COP [SetPlayerBodySprite] ( #04 )
+    COP [SetPlayerSpriteDirect] ( #04 )
     LDA $playerSpeedNs
     BMI loc_02CC2E
     JSR $&RunAttackFlagSetup
@@ -1382,7 +1382,7 @@ RunAttackNS {
 
   loc_02CC2E:
     JSR $&RunAttackFlagSetup
-    COP [SetForceNE] ( #01 )
+    COP [ForceDirNE] ( #01 )
     COP [StageSpriteFrame] ( #0F )
     COP [AnimOnce]
     STZ $playerSpeedNs
@@ -1399,11 +1399,11 @@ RunAttackNS {
 RunAttackEW {
     LDA #$0001            ; Run attack EW: same structure for horizontal axis
     JSR $&attack_ability_system.LoadAbilityAnimTableA
-    COP [SetPlayerBodySprite] ( #04 )
+    COP [SetPlayerSpriteDirect] ( #04 )
     LDA $playerSpeedEw
     BPL loc_02CC84
     JSR $&RunAttackFlagSetup
-    COP [SetForceSW] ( #01 )
+    COP [ForceDirSW] ( #01 )
     COP [StageSpriteFrame] ( #12 )
     COP [AnimOnce]
     STZ $playerSpeedEw
@@ -1498,12 +1498,12 @@ AttackSouthWallPush {
     LDA $sceneCurrent
     CMP #$00E8
     BNE loc_02CD18
-    COP [SpawnLastRel] ( @ProjectileSouth, #00, #00, #$0602 )
+    COP [SpawnListAppend] ( @ProjectileSouth, #00, #00, #$0602 )
 
   loc_02CD18:
-    COP [SetEntryContinue] ; Will (form 0): per-frame redirect check ($0B00 perpendicular D-pad) + ranged follow-up ($0400 south)
+    COP [SetEntryHere]    ; Will (form 0): per-frame redirect check ($0B00 perpendicular D-pad) + ranged follow-up ($0400 south)
     COP [AnimOneFrame]
-    COP [SetEntryExit]
+    COP [SetEntryHereAndYield]
 
   loc_02CD1E:
     COP [AnimOneFrame]
@@ -1511,27 +1511,27 @@ AttackSouthWallPush {
     STZ $08
     INC 
     STA $24
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     LDA $2A
     BEQ loc_02CD52
     LDA $characterForm
     BNE loc_02CD45        ; No input → check for attack button re-press (combo) or finish
-    COP [SetEntryContinue]
-    COP [BranchIfButton] ( #$0B00, &AttackRedirect )
-    COP [BranchIfButton] ( #$0400, &RangedAttackSouth )
+    COP [SetEntryHere]
+    COP [BranchIfPressed] ( #$0B00, &AttackRedirect )
+    COP [BranchIfPressed] ( #$0400, &RangedAttackSouth )
     DEC $24
     BMI loc_02CD1E
     RTL 
 
   loc_02CD45:
-    COP [SetEntryContinue]
-    COP [BranchIfButton] ( #$0B00, &AttackRedirect )
+    COP [SetEntryHere]
+    COP [BranchIfPressed] ( #$0B00, &AttackRedirect )
     DEC $24
     BMI loc_02CD1E
     RTL 
 
   loc_02CD52:
-    COP [BranchIfButton] ( #$8000, &AttackSouth )
+    COP [BranchIfPressed] ( #$8000, &AttackSouth )
     JMP $&AttackFinish
 }
 
@@ -1561,12 +1561,12 @@ AttackNorthWallPush {
     LDA $sceneCurrent
     CMP #$00E8
     BNE loc_02CD99
-    COP [SpawnLastRel] ( @ProjectileNorth, #00, #D0, #$0602 )
+    COP [SpawnListAppend] ( @ProjectileNorth, #00, #D0, #$0602 )
 
   loc_02CD99:
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     COP [AnimOneFrame]
-    COP [SetEntryExit]
+    COP [SetEntryHereAndYield]
 
   loc_02CD9F:
     COP [AnimOneFrame]
@@ -1574,27 +1574,27 @@ AttackNorthWallPush {
     STZ $08
     INC 
     STA $24
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     LDA $2A
     BEQ loc_02CDD3
     LDA $characterForm
     BNE loc_02CDC6
-    COP [SetEntryContinue]
-    COP [BranchIfButton] ( #$0700, &AttackRedirect )
-    COP [BranchIfButton] ( #$0800, &RangedAttackNorth )
+    COP [SetEntryHere]
+    COP [BranchIfPressed] ( #$0700, &AttackRedirect )
+    COP [BranchIfPressed] ( #$0800, &RangedAttackNorth )
     DEC $24
     BMI loc_02CD9F
     RTL 
 
   loc_02CDC6:
-    COP [SetEntryContinue]
-    COP [BranchIfButton] ( #$0700, &AttackRedirect )
+    COP [SetEntryHere]
+    COP [BranchIfPressed] ( #$0700, &AttackRedirect )
     DEC $24
     BMI loc_02CD9F
     RTL 
 
   loc_02CDD3:
-    COP [BranchIfButton] ( #$8000, &AttackNorth )
+    COP [BranchIfPressed] ( #$8000, &AttackNorth )
     JMP $&AttackFinish
 }
 
@@ -1623,12 +1623,12 @@ AttackWestWallPush {
     LDA $sceneCurrent
     CMP #$00E8
     BNE loc_02CE17
-    COP [SpawnLastRel] ( @ProjectileWest, #00, #00, #$0602 )
+    COP [SpawnListAppend] ( @ProjectileWest, #00, #00, #$0602 )
 
   loc_02CE17:
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     COP [AnimOneFrame]
-    COP [SetEntryExit]
+    COP [SetEntryHereAndYield]
 
   loc_02CE1D:
     COP [AnimOneFrame]
@@ -1636,27 +1636,27 @@ AttackWestWallPush {
     STZ $08
     INC 
     STA $24
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     LDA $2A
     BEQ loc_02CE51
     LDA $characterForm
     BNE loc_02CE44
-    COP [SetEntryContinue]
-    COP [BranchIfButton] ( #$0D00, &AttackRedirect )
-    COP [BranchIfButton] ( #$0200, &RangedAttackWest )
+    COP [SetEntryHere]
+    COP [BranchIfPressed] ( #$0D00, &AttackRedirect )
+    COP [BranchIfPressed] ( #$0200, &RangedAttackWest )
     DEC $24
     BMI loc_02CE1D
     RTL 
 
   loc_02CE44:
-    COP [SetEntryContinue]
-    COP [BranchIfButton] ( #$0D00, &AttackRedirect )
+    COP [SetEntryHere]
+    COP [BranchIfPressed] ( #$0D00, &AttackRedirect )
     DEC $24
     BMI loc_02CE1D
     RTL 
 
   loc_02CE51:
-    COP [BranchIfButton] ( #$8000, &AttackWest )
+    COP [BranchIfPressed] ( #$8000, &AttackWest )
     JMP $&AttackFinish
 }
 
@@ -1685,12 +1685,12 @@ AttackEastWallPush {
     LDA $sceneCurrent
     CMP #$00E8
     BNE loc_02CE95
-    COP [SpawnLastRel] ( @ProjectileEast, #00, #00, #$0602 )
+    COP [SpawnListAppend] ( @ProjectileEast, #00, #00, #$0602 )
 
   loc_02CE95:
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     COP [AnimOneFrame]
-    COP [SetEntryExit]
+    COP [SetEntryHereAndYield]
 
   loc_02CE9B:
     COP [AnimOneFrame]
@@ -1698,27 +1698,27 @@ AttackEastWallPush {
     STZ $08
     INC 
     STA $24
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     LDA $2A
     BEQ loc_02CECF
     LDA $characterForm
     BNE loc_02CEC2
-    COP [SetEntryContinue]
-    COP [BranchIfButton] ( #$0E00, &AttackRedirect )
-    COP [BranchIfButton] ( #$0100, &RangedAttackEast )
+    COP [SetEntryHere]
+    COP [BranchIfPressed] ( #$0E00, &AttackRedirect )
+    COP [BranchIfPressed] ( #$0100, &RangedAttackEast )
     DEC $24
     BMI loc_02CE9B
     RTL 
 
   loc_02CEC2:
-    COP [SetEntryContinue]
-    COP [BranchIfButton] ( #$0E00, &AttackRedirect )
+    COP [SetEntryHere]
+    COP [BranchIfPressed] ( #$0E00, &AttackRedirect )
     DEC $24
     BMI loc_02CE9B
     RTL 
 
   loc_02CECF:
-    COP [BranchIfButton] ( #$8000, &AttackEast )
+    COP [BranchIfPressed] ( #$8000, &AttackEast )
     JMP $&AttackFinish
 }
 
@@ -1804,17 +1804,17 @@ RangedAttackEast {
   loc_02CF3F:
     LDA #$0200
     TRB $10
-    COP [AndActorFlags] ( #$FFBF )
+    COP [AndExtraFlags] ( #$FFBF )
     COP [RestoreSavedPtr]
 }
 
 RangedSetForceX {
-    COP [StageForceMoveX] ( #46 ) ; Ranged set force X: stage force move X #46 for horizontal projectile launch
+    COP [StageMoveX] ( #46 ) ; Ranged set force X: stage force move X #46 for horizontal projectile launch
     BRA loc_02CF52
 }
 
 RangedSetForceY {
-    COP [StageForceMoveY] ( #46 ) ; Ranged set force Y: stage force move Y #46 for vertical projectile launch
+    COP [StageMoveY] ( #46 ) ; Ranged set force Y: stage force move Y #46 for vertical projectile launch
 
   loc_02CF52:
     LDA #$0800
@@ -1823,7 +1823,7 @@ RangedSetForceY {
     STA $climbStateData
     LDA #$0200
     TSB $10
-    COP [OrActorFlags] ( #$0040 )
+    COP [OrExtraFlags] ( #$0040 )
     RTS 
 }
 

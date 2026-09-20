@@ -17,8 +17,8 @@ na49_camera [
     COP [SetMetasprite] ( @spriteset_enemies )
     COP [StageSpriteFrame] ( #00 )
     COP [AnimOnce]
-    COP [SetOnInteract] ( &code_05E54E )
-    COP [SetEntryContinue]
+    COP [SetInteractHandler] ( &code_05E54E )
+    COP [SetEntryHere]
     RTL 
 } >
 ]

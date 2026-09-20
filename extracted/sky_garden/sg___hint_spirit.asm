@@ -13,9 +13,9 @@ sg___hint_spirit [
   code_05F4C4:
     LDA #$0200
     TSB $12
-    COP [SetOnInteract] ( &code_05F4D7 )
-    COP [SolidHighHere]
-    COP [SetEntryContinue]
+    COP [SetInteractHandler] ( &code_05F4D7 )
+    COP [MarkSolidHere]
+    COP [SetEntryHere]
     COP [StageSpriteFrame] ( #3C )
     COP [AnimOnce]
     RTL 

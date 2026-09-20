@@ -14,13 +14,13 @@ dm47_remus [
   actor-def < #28, #00, #10, {
 
   code_05D15D:
-    COP [BranchIfFlagByte] ( #5E, #01, &dm47_remus_destroy )
+    COP [BranchOnFlagByte] ( #5E, #01, &dm47_remus_destroy )
     COP [SpawnAfterFlags] ( @dm_mine_static_prop, #$0100 )
     LDA #$0200
     TSB $12
-    COP [SetOnInteract] ( &code_05D189 )
-    COP [SolidHighHere]
-    COP [SetEntryContinue]
+    COP [SetInteractHandler] ( &code_05D189 )
+    COP [MarkSolidHere]
+    COP [SetEntryHere]
     LDY $06
     LDA $0010, Y
     BIT #$0040
@@ -28,8 +28,8 @@ dm47_remus [
     RTL 
 
   loc_05D182:
-    COP [SetOnInteract] ( &code_05D18E )
-    COP [SetEntryContinue]
+    COP [SetInteractHandler] ( &code_05D18E )
+    COP [SetEntryHere]
     RTL 
 } >
 ]

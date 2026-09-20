@@ -14,17 +14,17 @@ daC4_kara [
   actor-def < #1A, #00, #10, {
 
   code_08A4AE:
-    COP [BranchIfFlagByte] ( #D2, #01, &code_08A4CF )
-    COP [BranchIfFlagByte] ( #D0, #01, &code_08A4C0 )
-    COP [BranchIfFlagByte] ( #BB, #01, &code_08A4CF )
+    COP [BranchOnFlagByte] ( #D2, #01, &code_08A4CF )
+    COP [BranchOnFlagByte] ( #D0, #01, &code_08A4C0 )
+    COP [BranchOnFlagByte] ( #BB, #01, &code_08A4CF )
 } >
 ]
 
 code_08A4C0 {
-    COP [SolidHighHere]
-    COP [SetOnInteract] ( &code_08A4D1 )
-    COP [BranchIfFlagByte] ( #B6, #00, &code_08A4D6 )
-    COP [SetEntryContinue]
+    COP [MarkSolidHere]
+    COP [SetInteractHandler] ( &code_08A4D1 )
+    COP [BranchOnFlagByte] ( #B6, #00, &code_08A4D6 )
+    COP [SetEntryHere]
     RTL 
 }
 
@@ -45,7 +45,7 @@ code_08A4D6 {
     COP [PrintDialogString] ( &dialogstring_08A4EF )
     LDA #$CFF0
     TRB $joypadMaskStd
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     RTL 
 }
 

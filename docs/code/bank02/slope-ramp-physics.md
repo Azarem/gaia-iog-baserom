@@ -107,5 +107,5 @@ Flat-ground north-south deceleration, structurally identical to `DecelerateEW` b
 
 - [`player-movement.md`](player-movement.md) — `PlayerMovementTick` (`$02CFD0`), tile collision (`$02E102`)
 - [`tile-collision.md`](tile-collision.md) — tile probing for slopes and shimmy
-- [`../../cop-commands-reference.md`](../../cop-commands-reference.md) — COP command semantics
+- [`../../cop/index.md`](../../cop/index.md) — COP command semantics
 - [`../../actor-organization-analysis.md`](../../actor-organization-analysis.md) — global actor linked list

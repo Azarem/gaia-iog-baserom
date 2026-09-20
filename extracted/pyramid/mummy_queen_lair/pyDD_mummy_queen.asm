@@ -47,7 +47,7 @@ btF6_neo_queen [
   code_0BA61D:
     LDA #$8191
     TSB $12
-    COP [SpawnLastRel] ( @code_0BA65F, #00, #00, #$2000 )
+    COP [SpawnListAppend] ( @code_0BA65F, #00, #00, #$2000 )
     LDA $characterForm
     CMP #$0002
     BNE loc_0BA636
@@ -63,7 +63,7 @@ btF6_neo_queen [
     STA $0008, Y
     LDA #$0800
     TSB $playerFlags
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     LDA $playerFlags
     BIT #$0800
     BEQ loc_0BA65C
@@ -75,13 +75,13 @@ btF6_neo_queen [
 ]
 
 code_0BA65F {
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     LDA $0AEC
     BEQ loc_0BA667
     RTL 
 
   loc_0BA667:
-    COP [ExitIfFlagByte] ( #01, #00 )
+    COP [WaitOnFlagByte] ( #01, #00 )
     LDA $playerFlags
     BIT #$0800
     BEQ loc_0BA674
@@ -97,7 +97,7 @@ code_0BA65F {
     STA $0008, Y
     LDA #$0800
     TSB $playerFlags
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     LDA $playerFlags
     BIT #$0800
     BEQ loc_0BA69A
@@ -141,7 +141,7 @@ code_0BA6CF {
     STA $22
     LDA #$0000
     STA $orbitAngle, X
-    COP [SpawnMarkedAfter] ( @RandomPlayerOffset, #$2000 )
+    COP [SpawnAfterMarked] ( @RandomPlayerOffset, #$2000 )
     TYA 
     STA $scratch1010+6, X
     COP [SetDeathCallback] ( @code_0BA9C2 )
@@ -214,7 +214,7 @@ code_0BA769 {
 }
 
 code_0BA782 {
-    COP [AddPosition] ( #0C, #B2 )
+    COP [NudgePosition] ( #0C, #B2 )
     LDA #$2000
     TRB $10
     COP [PlaySoundCh1] ( #1E )
@@ -225,7 +225,7 @@ code_0BA782 {
     CLC 
     ADC $0B02
     STA $loopCounter, X
-    COP [SpawnMarkedAfter] ( @smooth_follow_child.SmoothFollowChildTick, #$2000 )
+    COP [SpawnAfterMarked] ( @smooth_follow_child.SmoothFollowChildTick, #$2000 )
     LDA $playerActor
     STA $0024, Y
 
@@ -243,7 +243,7 @@ code_0BA7BD {
     STA $26
 
   loc_0BA7C2:
-    COP [SpawnAfterRelFlags] ( @pyDD_queen_orb_shot, #$0000, #$FFFC, #$2200 )
+    COP [SpawnAfterOffsetFlags] ( @pyDD_queen_orb_shot, #$0000, #$FFFC, #$2200 )
     LDA #$0000
     STA $0026, Y
     DEC $26
@@ -267,7 +267,7 @@ code_0BA7BD {
     STA $moveXAlt, X
     LDA #$0001
     STA $moveYAlt, X
-    COP [SetEntryExit]
+    COP [SetEntryHereAndYield]
     LDA $26
     BEQ loc_0BA829
     JSR $&code_0BA842
@@ -361,7 +361,7 @@ code_0BA8AA {
     STA $26
 
   loc_0BA8AF:
-    COP [SpawnAfterRelFlags] ( @pyDD_queen_spirit_attack, #$0000, #$FFFC, #$2200 )
+    COP [SpawnAfterOffsetFlags] ( @pyDD_queen_spirit_attack, #$0000, #$FFFC, #$2200 )
     DEC $26
     BPL loc_0BA8AF
     STZ $26
@@ -385,7 +385,7 @@ code_0BA8AA {
     CLC 
     ADC #$0168
     STA $08
-    COP [SetEntryExit]
+    COP [SetEntryHereAndYield]
     LDA #$0007
     STA $0000
     LDA #$&code_0BAC7D
@@ -393,7 +393,7 @@ code_0BA8AA {
 }
 
 code_0BA8FB {
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     LDA $24
     BEQ loc_0BA902
     RTL 
@@ -458,7 +458,7 @@ code_0BA96D {
     STA $28
     COP [StageSpriteFrame] ( #FF )
     COP [AnimOnce]
-    COP [SpawnMarkedAfter] ( @pyDD_queen_phase_transition, #$2800 )
+    COP [SpawnAfterMarked] ( @pyDD_queen_phase_transition, #$2800 )
     COP [StageSpriteLoop] ( #FF, #0A )
     COP [AnimLoop]
     LDY $06
@@ -487,27 +487,27 @@ code_0BA9C2 {
     LDA $playerFlags
     BIT #$0200
     BEQ loc_0BA9D5
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     RTL 
 
   loc_0BA9D5:
     LDA #$0020
     TSB $playerFlags
-    COP [SpawnLastRel] ( @SetPlayerGameOverFlag, #00, #00, #$2000 )
-    COP [SpawnLastRel] ( @code_0BA9F2, #00, #E0, #$2300 )
+    COP [SpawnListAppend] ( @SetPlayerGameOverFlag, #00, #00, #$2000 )
+    COP [SpawnListAppend] ( @code_0BA9F2, #00, #E0, #$2300 )
     COP [WaitByte] ( #3B )
     COP [Die]
 }
 
 code_0BA9F2 {
     COP [SetMetasprite] ( @spriteset_enemies )
-    COP [LoopInit] ( #0C )
-    COP [SpawnLastRel] ( @code_0BAA19, #00, #00, #$0302 )
+    COP [LoopStart] ( #0C )
+    COP [SpawnListAppend] ( @code_0BAA19, #00, #00, #$0302 )
     COP [WaitByte] ( #01 )
-    COP [SpawnLastRel] ( @code_0BAA23, #00, #00, #$0302 )
+    COP [SpawnListAppend] ( @code_0BAA23, #00, #00, #$0302 )
     COP [WaitByte] ( #03 )
-    COP [LoopNext]
-    COP [JumpScript] ( @StandardEnemyDefeatHandler )
+    COP [LoopEnd]
+    COP [JumpFar] ( @StandardEnemyDefeatHandler )
 }
 
 code_0BAA19 {

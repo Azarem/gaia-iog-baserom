@@ -29,10 +29,10 @@ btE4_kara [
   actor-def < #1B, #00, #10, {
 
   code_098D1B:
-    COP [SolidHighHere]
-    COP [SetOnInteract] ( &code_098DEA )
-    COP [ExitIfFlagByte] ( #0E, #01 )
-    COP [SetOnInteract] ( #$0000 )
+    COP [MarkSolidHere]
+    COP [SetInteractHandler] ( &code_098DEA )
+    COP [WaitOnFlagByte] ( #0E, #01 )
+    COP [SetInteractHandler] ( #$0000 )
     JSL $@GetPlayerFacingDirection
     EOR #$0001
     CLC 
@@ -62,7 +62,7 @@ btE4_kara [
     COP [MoveToward] ( #1A, #01 )
     LDA #$2000
     TSB $10
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     LDA $playerFlags
     BIT #$0800
     BEQ loc_098DA2
@@ -89,13 +89,13 @@ btE4_kara [
     LDA #$0404
     STA $gfxCacheIdxB
     COP [QueueMapChange] ( #E7, #$0050, #$0090, #00, #$1100 )
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     RTL 
 } >
 ]
 
 code_098DEA {
-    COP [BranchIfFlagByte] ( #0F, #01, &code_098DF5 )
+    COP [BranchOnFlagByte] ( #0F, #01, &code_098DF5 )
     COP [PrintDialogString] ( &dialogstring_098DFD )
     RTL 
 }
@@ -151,7 +151,7 @@ code_098F2E {
     COP [StageSprAndHitbox] ( #0A )
     LDA #$0001
     STA $orbitDiameter, X
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     LDA $playerActor
     STA $24
     LDY $24
@@ -167,7 +167,7 @@ code_098F2E {
     STA $orbitDiameter, X
 
   loc_098F6B:
-    COP [BranchIfFlagByte] ( #0A, #01, &code_098F72 )
+    COP [BranchOnFlagByte] ( #0A, #01, &code_098F72 )
     RTL 
 }
 
@@ -183,7 +183,7 @@ code_098F7E {
     TRB $10
     COP [StagePlayerSprite] ( #1C )
     COP [AnimOnce]
-    COP [ToggleVFlip]
+    COP [ToggleVMirror]
 
   loc_098F8A:
     COP [StagePlayerMoveY] ( #1B, #08 )

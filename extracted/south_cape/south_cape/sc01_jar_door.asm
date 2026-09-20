@@ -12,11 +12,11 @@ sc01_jar_door [
   actor-def < #00, #00, #10, {
 
   code_0489F5:
-    COP [CollPrioritySetMax]
+    COP [SetPriorityMax]
     COP [DrawMetatileAbs] ( #2C, #0E, #F8 )
     COP [DrawMetatileAbs] ( #15, #24, #F8 )
-    COP [BranchIfFlagByte] ( #11, #01, &code_048A46 )
-    COP [SetEntryContinue]
+    COP [BranchOnFlagByte] ( #11, #01, &code_048A46 )
+    COP [SetEntryHere]
     COP [BranchIfPlayerAt] ( #$0078, #$025E, &code_048A12 )
     RTL 
 } >
@@ -32,16 +32,16 @@ code_048A12 {
     COP [AnimOnce]
     LDA #$CFF0
     TRB $joypadMaskStd
-    COP [CollPriorityClearMax]
+    COP [ClearPriorityMax]
     COP [PrintDialogString] ( &dialogstring_048A48 )
-    COP [LoopInit] ( #10 )
+    COP [LoopStart] ( #10 )
     LDA #$2000
     TSB $10
-    COP [SetEntryExit]
+    COP [SetEntryHereAndYield]
     LDA #$2000
     TRB $10
-    COP [SetEntryExit]
-    COP [LoopNext]
+    COP [SetEntryHereAndYield]
+    COP [LoopEnd]
 }
 
 code_048A46 {

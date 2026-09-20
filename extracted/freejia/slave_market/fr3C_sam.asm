@@ -11,12 +11,12 @@ fr3C_sam [
   actor-def < #28, #00, #10, {
 
   code_05C076:
-    COP [BranchIfFlagByte] ( #6A, #01, &code_05C08A )
+    COP [BranchOnFlagByte] ( #6A, #01, &code_05C08A )
     LDA #$0200
     TSB $12
-    COP [SolidHighHere]
-    COP [SetOnInteract] ( &code_05C08C )
-    COP [SetEntryContinue]
+    COP [MarkSolidHere]
+    COP [SetInteractHandler] ( &code_05C08C )
+    COP [SetEntryHere]
     RTL 
 } >
 ]

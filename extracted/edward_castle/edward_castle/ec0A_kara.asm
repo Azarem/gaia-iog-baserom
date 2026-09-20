@@ -19,12 +19,12 @@ ec0A_kara [
   actor-def < #15, #00, #10, {
 
   code_04CB5D:
-    COP [BranchIfFlagByte] ( #22, #01, &code_04CC5A )
+    COP [BranchOnFlagByte] ( #22, #01, &code_04CC5A )
     COP [SetSpritePriority] ( #30 )
-    COP [BranchIfFlagByte] ( #21, #01, &code_04CC07 )
-    COP [BranchIfFlagByte] ( #19, #01, &code_04CBFE )
-    COP [BranchIfFlagByte] ( #1A, #01, &code_04CBAA )
-    COP [ExitIfFlagByte] ( #01, #01 )
+    COP [BranchOnFlagByte] ( #21, #01, &code_04CC07 )
+    COP [BranchOnFlagByte] ( #19, #01, &code_04CBFE )
+    COP [BranchOnFlagByte] ( #1A, #01, &code_04CBAA )
+    COP [WaitOnFlagByte] ( #01, #01 )
     COP [SetFlagByte] ( #1A )
     COP [WaitByte] ( #1D )
     COP [PrintDialogString] ( &dialogstring_04CC6E )
@@ -46,8 +46,8 @@ code_04CBAA {
     COP [StageSpriteFrame] ( #15 )
     COP [AnimOnce]
     COP [SetTilePos] ( #0B, #0C )
-    COP [SolidHighHere]
-    COP [SetEntryContinue]
+    COP [MarkSolidHere]
+    COP [SetEntryHere]
     COP [BranchIfPlayerNear] ( #02, &code_04CBBD )
     RTL 
 }
@@ -57,18 +57,18 @@ code_04CBBD {
     TSB $joypadMaskStd
     COP [PrintDialogString] ( &dialogstring_04CC96 )
     COP [WaitByte] ( #1D )
-    COP [LoopInit] ( #02 )
+    COP [LoopStart] ( #02 )
     COP [StageSpriteLoopMoveY] ( #15, #04, #04 )
     COP [AnimLoop]
     COP [StageSpriteLoopMoveY] ( #15, #04, #03 )
     COP [AnimLoop]
     COP [StageSpriteLoop] ( #15, #10 )
     COP [AnimLoop]
-    COP [LoopNext]
+    COP [LoopEnd]
     COP [WaitByte] ( #1D )
     COP [PrintDialogString] ( &dialogstring_04CCE4 )
     COP [SetFlagByte] ( #03 )
-    COP [ExitIfFlagByte] ( #03, #00 )
+    COP [WaitOnFlagByte] ( #03, #00 )
     COP [PrintDialogString] ( &dialogstring_04CDC0 )
     COP [SetFlagByte] ( #19 )
     LDA #$CFF0
@@ -76,9 +76,9 @@ code_04CBBD {
 }
 
 code_04CBFE {
-    COP [SetOnInteract] ( &code_04CC61 )
-    COP [SolidHighHere]
-    COP [SetEntryContinue]
+    COP [SetInteractHandler] ( &code_04CC61 )
+    COP [MarkSolidHere]
+    COP [SetEntryHere]
     RTL 
 }
 
@@ -86,13 +86,13 @@ code_04CC07 {
     COP [SpawnAfterFlags] ( @code_04CF5C, #$2000 )
     COP [SetTilePos] ( #05, #0A )
     COP [SetSpritePriority] ( #20 )
-    COP [SolidHighHere]
-    COP [SetOnInteract] ( &code_04CC66 )
+    COP [MarkSolidHere]
+    COP [SetInteractHandler] ( &code_04CC66 )
     COP [StageSpriteFrame] ( #12 )
     COP [AnimOnce]
-    COP [ExitIfFlagByte] ( #01, #01 )
-    COP [SolidHighAbs] ( #06, #36 )
-    COP [ClearLowHere]
+    COP [WaitOnFlagByte] ( #01, #01 )
+    COP [MarkSolidAbs] ( #06, #36 )
+    COP [ClearSolidHere]
     LDA #$1000
     TRB $10
     LDA #$0300
@@ -108,9 +108,9 @@ code_04CC07 {
     TXA 
     TYX 
     TAY 
-    COP [SetOnInteract] ( #$0000 )
-    COP [SetEntryContinue]
-    COP [SetEntryContinue]
+    COP [SetInteractHandler] ( #$0000 )
+    COP [SetEntryHere]
+    COP [SetEntryHere]
     COP [AnimOnce]
     RTL 
 }
@@ -149,36 +149,36 @@ dialogstring_04CE45 `[TPL:A][JMP:&dialogstring_04CDC0+M]`
 dialogstring_04CE4A `[TPL:B][TPL:1]Kara: [N]Of course, you've come![N]Thank you.[FIN]Was the guard asleep[N]outside? His nickname is[N]"Old Snorehead.ˮ[N]Sleeping again.[FIN][TPL:0]Will: Your little[N]pig has come....[FIN][TPL:1]Kara: His name is [N]Hamlet. Cute, isn't he?[FIN][TPL:1]Kara: He's very smart.[N]He has some kind of[N]strange pig power...[FIN]Please, take me out of[N]here![PAL:0][END]`
 
 code_04CF5C {
-    COP [BranchIfFlagByte] ( #22, #01, &code_04CFD9 )
-    COP [SolidHighAbs] ( #1E, #2D )
-    COP [SolidHighAbs] ( #1F, #2D )
-    COP [SolidHighAbs] ( #20, #2D )
-    COP [SolidHighAbs] ( #21, #2D )
+    COP [BranchOnFlagByte] ( #22, #01, &code_04CFD9 )
+    COP [MarkSolidAbs] ( #1E, #2D )
+    COP [MarkSolidAbs] ( #1F, #2D )
+    COP [MarkSolidAbs] ( #20, #2D )
+    COP [MarkSolidAbs] ( #21, #2D )
 
   code_04CF72:
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     COP [BranchIfPlayerInAbsTiles] ( #1E, #2C, #22, #2D, &code_04CF7D )
     RTL 
 }
 
 code_04CF7D {
-    COP [BranchIfButton] ( #$0400, &code_04CF88 )
-    COP [SetEntryExitNow] ( @code_04CF72 )
+    COP [BranchIfPressed] ( #$0400, &code_04CF88 )
+    COP [JumpNextFrame] ( @code_04CF72 )
 }
 
 code_04CF88 {
-    COP [BranchIfFlagByte] ( #01, #00, &code_04CF95 )
-    COP [BranchIfNoItem] ( #0A, &code_04CFA7 )
+    COP [BranchOnFlagByte] ( #01, #00, &code_04CF95 )
+    COP [BranchIfMissingItem] ( #0A, &code_04CFA7 )
     BRA loc_04CF9E
 }
 
 code_04CF95 {
     COP [PrintDialogString] ( &dialogstring_04CFDB )
-    COP [SetEntryExitNow] ( @code_04CF72 )
+    COP [JumpNextFrame] ( @code_04CF72 )
 
   loc_04CF9E:
     COP [PrintDialogString] ( &dialogstring_04D012 )
-    COP [SetEntryExitNow] ( @code_04CF72 )
+    COP [JumpNextFrame] ( @code_04CF72 )
 }
 
 code_04CFA7 {
@@ -193,7 +193,7 @@ code_04CFA7 {
     STA $gfxCacheIdxB
     COP [StageWorldMapMove] ( #$0104, #$0334, #00, #02 )
     COP [QueueMapChange] ( #06, #$0058, #$01C0, #00, #$2110 )
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     RTL 
 }
 

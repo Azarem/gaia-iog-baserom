@@ -15,9 +15,9 @@ sg4C_spirit1 [
   code_05F359:
     LDA #$0200
     TSB $12
-    COP [SetOnInteract] ( &code_05F36C )
-    COP [SolidHighHere]
-    COP [SetEntryContinue]
+    COP [SetInteractHandler] ( &code_05F36C )
+    COP [MarkSolidHere]
+    COP [SetEntryHere]
     COP [StageSpriteFrame] ( #3C )
     COP [AnimOnce]
     RTL 
@@ -37,9 +37,9 @@ sg4C_spirit2 [
   code_05F3B1:
     LDA #$0200
     TSB $12
-    COP [SetOnInteract] ( &code_05F3C4 )
-    COP [SolidHighHere]
-    COP [SetEntryContinue]
+    COP [SetInteractHandler] ( &code_05F3C4 )
+    COP [MarkSolidHere]
+    COP [SetEntryHere]
     COP [StageSpriteFrame] ( #3C )
     COP [AnimOnce]
     RTL 
@@ -59,9 +59,9 @@ sg4C_spirit3 [
   code_05F456:
     LDA #$0200
     TSB $12
-    COP [SetOnInteract] ( &code_05F469 )
-    COP [SolidHighHere]
-    COP [SetEntryContinue]
+    COP [SetInteractHandler] ( &code_05F469 )
+    COP [MarkSolidHere]
+    COP [SetEntryHere]
     COP [StageSpriteFrame] ( #3C )
     COP [AnimOnce]
     RTL 

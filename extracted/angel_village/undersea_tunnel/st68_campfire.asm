@@ -27,9 +27,9 @@ code_list_06AABC [
 code_06AAC2 {
     COP [SetMetasprite] ( @spriteset_npc_props )
     COP [StageSprAndHitbox] ( #08 )
-    COP [SolidHighHere]
-    COP [SetEntryContinue]
-    COP [SetEntryContinue]
+    COP [MarkSolidHere]
+    COP [SetEntryHere]
+    COP [SetEntryHere]
     COP [AnimOnce]
     RTL 
 }

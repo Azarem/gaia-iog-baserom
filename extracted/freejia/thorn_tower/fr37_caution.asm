@@ -11,9 +11,9 @@ fr37_caution [
   actor-def < #0A, #00, #10, {
 
   code_05BD02:
-    COP [SetOnInteract] ( &code_05BD0B )
-    COP [SolidHighHere]
-    COP [SetEntryContinue]
+    COP [SetInteractHandler] ( &code_05BD0B )
+    COP [MarkSolidHere]
+    COP [SetEntryHere]
     RTL 
 } >
 ]

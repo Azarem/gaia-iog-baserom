@@ -18,17 +18,17 @@ dc31_kara [
   actor-def < #2D, #00, #10, {
 
   code_05AF88:
-    COP [BranchIfFlagByte] ( #56, #01, &code_05B007 )
-    COP [SetOnInteract] ( &code_05B016 )
-    COP [BranchIfFlagByte] ( #76, #01, &code_05B009 )
-    COP [ExitIfFlagByte] ( #01, #01 )
+    COP [BranchOnFlagByte] ( #56, #01, &code_05B007 )
+    COP [SetInteractHandler] ( &code_05B016 )
+    COP [BranchOnFlagByte] ( #76, #01, &code_05B009 )
+    COP [WaitOnFlagByte] ( #01, #01 )
     COP [StageSpriteMoveY] ( #2F, #12 )
     COP [AnimOnce]
     COP [StageSpriteLoopMoveX] ( #31, #02, #11 )
     COP [AnimLoop]
     COP [StageSpriteFrame] ( #2D )
     COP [AnimOnce]
-    COP [SolidHighHere]
+    COP [MarkSolidHere]
     COP [PrintDialogString] ( &dialogstring_05ADAE )
     LDY $playerActor
     LDA #$*player_transition_handlers.PlayerFreedanRevealExit
@@ -48,10 +48,10 @@ dc31_kara [
     COP [SetFlagByte] ( #02 )
 
   loc_05AFE7:
-    COP [ExitIfFlagByte] ( #56, #01 )
+    COP [WaitOnFlagByte] ( #56, #01 )
     LDA #$CFF0
     TSB $joypadMaskStd
-    COP [ClearLowHere]
+    COP [ClearSolidHere]
     COP [StageSpriteLoopMoveX] ( #30, #02, #02 )
     COP [AnimLoop]
     COP [StageSpriteLoopMoveY] ( #2E, #04, #01 )
@@ -69,7 +69,7 @@ code_05B009 {
     COP [SetTilePos] ( #07, #09 )
     COP [StageSpriteFrame] ( #2A )
     COP [AnimOnce]
-    COP [SolidHighHere]
+    COP [MarkSolidHere]
     BRA loc_05AFE7
 }
 

@@ -44,8 +44,8 @@ pyCD_puzzle [
     PLX 
 
   code_08CBC2:
-    COP [BranchIfFlagByte] ( #D1, #01, &code_08CC09 )
-    COP [SetEntryContinue]
+    COP [BranchOnFlagByte] ( #D1, #01, &code_08CC09 )
+    COP [SetEntryHere]
     LDY #$0000
 
   loc_08CBCD:

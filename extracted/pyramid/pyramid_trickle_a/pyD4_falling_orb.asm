@@ -25,14 +25,14 @@ pyD4_falling_orb [
     STA $0E
     COP [SetMetasprite] ( @spriteset_enemies )
     COP [StageSprAndHitbox] ( #1B )
-    COP [AddPosition] ( #08, #00 )
+    COP [NudgePosition] ( #08, #00 )
     LDA $24
     JSL $@cop_handlers_flags.TestFlagRaw
     BCC loc_08C711
     JMP $&code_08C76E
 
   loc_08C711:
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     PHX 
     LDX $playerActor
     LDA $7F0008, X
@@ -66,18 +66,18 @@ code_08C73D {
     COP [WaitByte] ( #B3 )
     COP [RngByte]
     STA $08
-    COP [SetEntryExit]
+    COP [SetEntryHereAndYield]
     LDA $16
     SEC 
     SBC #$0100
     STA $16
     LDA #$2000
     TRB $10
-    COP [CollPrioritySetMax]
+    COP [SetPriorityMax]
     COP [StageSpriteLoopMoveY] ( #1B, #02, #0F )
     COP [AnimLoop]
     COP [PlaySoundBoth] ( #$1515 )
-    COP [CollPriorityClearMax]
+    COP [ClearPriorityMax]
     COP [StageSpriteMoveY] ( #1B, #35 )
     COP [AnimOnce]
 }
@@ -87,8 +87,8 @@ code_08C76E {
     TRB $10
     LDA #$0300
     TSB $10
-    COP [CollPrioritySetMin]
-    COP [ClearAllHere]
-    COP [SetEntryContinue]
+    COP [SetPriorityMin]
+    COP [ClearCollisionHere]
+    COP [SetEntryHere]
     RTL 
 }

@@ -11,9 +11,9 @@ daC3_carpet_man [
   actor-def < #04, #00, #10, {
 
   code_08AB8B:
-    COP [SolidHighHere]
-    COP [SetOnInteract] ( &code_08AB94 )
-    COP [SetEntryContinue]
+    COP [MarkSolidHere]
+    COP [SetInteractHandler] ( &code_08AB94 )
+    COP [SetEntryHere]
     RTL 
 } >
 ]

@@ -13,7 +13,7 @@ watermia_festival_palette [
   thinker-def < #00, #08, {
 
   code_00B756:
-    COP [BranchIfFlagByte] ( #96, #01, &WatermiaFestivalPaletteFlash )
+    COP [BranchOnFlagByte] ( #96, #01, &WatermiaFestivalPaletteFlash )
 
   loc_00B75C:
     COP [PaletteStart] ( #42 )

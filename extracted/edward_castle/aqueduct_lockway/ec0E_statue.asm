@@ -14,15 +14,15 @@ ec0E_statue [
   code_0A8838:
     LDA #$0200
     TSB $12
-    COP [BranchIfFlagByte] ( #21, #00, &code_0A8847 )
-    COP [SetOnInteract] ( &code_0A8853 )
+    COP [BranchOnFlagByte] ( #21, #00, &code_0A8847 )
+    COP [SetInteractHandler] ( &code_0A8853 )
 } >
 ]
 
 code_0A8847 {
-    COP [SolidHighHere]
-    COP [SpawnMarkedAfter] ( @interaction_handlers.push_handler_solid, #$2300 )
-    COP [SetEntryContinue]
+    COP [MarkSolidHere]
+    COP [SpawnAfterMarked] ( @interaction_handlers.push_handler_solid, #$2300 )
+    COP [SetEntryHere]
     RTL 
 }
 

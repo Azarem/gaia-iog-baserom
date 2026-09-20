@@ -16,7 +16,7 @@ awBC_blinding_light [
   actor-def < #00, #00, #30, {
 
   code_089A1F:
-    COP [BranchIfFlagByte] ( #B7, #01, &code_089A3B )
+    COP [BranchOnFlagByte] ( #B7, #01, &code_089A3B )
     COP [SetFlagByte] ( #B7 )
     LDA #$CFF0
     TSB $joypadMaskStd
@@ -28,14 +28,14 @@ awBC_blinding_light [
 ]
 
 code_089A3B {
-    COP [BranchIfEquipped] ( #1C, &code_089A5B )
+    COP [BranchIfItemEquipped] ( #1C, &code_089A5B )
     COP [WaitByte] ( #13 )
 
   loc_089A43:
     COP [SpawnThinker] ( @oneshot_palette_flash_18.FlashPalette18 )
     COP [WaitByte] ( #B3 )
-    COP [SetEntryContinue]
-    COP [BranchIfEquipped] ( #1C, &code_089A53 )
+    COP [SetEntryHere]
+    COP [BranchIfItemEquipped] ( #1C, &code_089A53 )
     RTL 
 }
 
@@ -45,8 +45,8 @@ code_089A53 {
 }
 
 code_089A5B {
-    COP [SetEntryContinue]
-    COP [BranchIfEquipped] ( #1C, &code_089A64 )
+    COP [SetEntryHere]
+    COP [BranchIfItemEquipped] ( #1C, &code_089A64 )
     BRA loc_089A43
 }
 

@@ -15,10 +15,10 @@ sc06_lily [
   actor-def < #36, #00, #30, {
 
   code_04AAFC:
-    COP [BranchIfFlagByte] ( #26, #01, &code_04AB93 )
-    COP [BranchIfFlagByte] ( #25, #01, &code_04AB95 )
-    COP [BranchIfFlagByte] ( #21, #00, &code_04ABDA )
-    COP [ExitIfFlagByte] ( #01, #01 )
+    COP [BranchOnFlagByte] ( #26, #01, &code_04AB93 )
+    COP [BranchOnFlagByte] ( #25, #01, &code_04AB95 )
+    COP [BranchOnFlagByte] ( #21, #00, &code_04ABDA )
+    COP [WaitOnFlagByte] ( #01, #01 )
     LDA #$CFF0
     TSB $joypadMaskStd
     LDA #$2000
@@ -43,23 +43,23 @@ sc06_lily [
     COP [AnimOnce]
     LDA #$0002
     JSL $@InitPlayerScriptVariant
-    COP [SetEntryExit]
+    COP [SetEntryHereAndYield]
     COP [PrintDialogString] ( &dialogstring_04AC0C )
     COP [SetFlagByte] ( #02 )
-    COP [ExitIfFlagByte] ( #02, #00 )
+    COP [WaitOnFlagByte] ( #02, #00 )
     COP [StageSpriteLoop] ( #22, #28 )
     COP [AnimLoop]
     COP [PrintDialogString] ( &dialogstring_04AC45 )
     COP [StageSpriteLoop] ( #25, #28 )
     COP [AnimLoop]
     COP [PrintDialogString] ( &dialogstring_04AC77 )
-    COP [SolidHighHere]
-    COP [SetOnInteract] ( &code_04ABDC )
+    COP [MarkSolidHere]
+    COP [SetInteractHandler] ( &code_04ABDC )
     LDA #$FFF0
     TRB $joypadMaskStd
-    COP [ExitIfFlagByte] ( #04, #01 )
-    COP [SetOnInteract] ( &code_04ABE4 )
-    COP [SetEntryContinue]
+    COP [WaitOnFlagByte] ( #04, #01 )
+    COP [SetInteractHandler] ( &code_04ABE4 )
+    COP [SetEntryHere]
     RTL 
 } >
 ]
@@ -72,25 +72,25 @@ code_04AB95 {
     COP [SetTilePos] ( #08, #1B )
     LDA #$2000
     TRB $10
-    COP [SetOnInteract] ( &code_04ABE9 )
+    COP [SetInteractHandler] ( &code_04ABE9 )
     COP [StageSpriteFrame] ( #25 )
     COP [AnimOnce]
-    COP [SolidHighHere]
-    COP [ExitIfFlagByte] ( #04, #01 )
-    COP [ClearLowHere]
+    COP [MarkSolidHere]
+    COP [WaitOnFlagByte] ( #04, #01 )
+    COP [ClearSolidHere]
     COP [StageSpriteMoveY] ( #27, #12 )
     COP [AnimOnce]
     COP [StageSpriteMoveX] ( #29, #11 )
     COP [AnimOnce]
-    COP [ExitIfFlagByte] ( #02, #01 )
+    COP [WaitOnFlagByte] ( #02, #01 )
     COP [StageSpriteMoveX] ( #29, #13 )
     COP [AnimOnce]
     COP [PrintDialogString] ( &dialogstring_04AEC1 )
     COP [ClearFlagByte] ( #02 )
-    COP [ExitIfFlagByte] ( #03, #01 )
+    COP [WaitOnFlagByte] ( #03, #01 )
     COP [PrintDialogString] ( &dialogstring_04AEF7 )
     COP [ClearFlagByte] ( #03 )
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     RTL 
 }
 

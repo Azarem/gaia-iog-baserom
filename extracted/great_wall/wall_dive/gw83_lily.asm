@@ -20,8 +20,8 @@ gw83_lily [
   actor-def < #00, #00, #30, {
 
   code_07B67A:
-    COP [BranchIfFlagByte] ( #93, #01, &code_07B6FD )
-    COP [SetEntryContinue]
+    COP [BranchOnFlagByte] ( #93, #01, &code_07B6FD )
+    COP [SetEntryHere]
     COP [BranchIfPlayerInAbsTiles] ( #3B, #08, #3D, #0B, &code_07B68B )
     RTL 
 } >

@@ -30,16 +30,16 @@ code_list_06B4FB [
 ]
 
 code_06B501 {
-    COP [ExitIfFlagByte] ( #01, #01 )
+    COP [WaitOnFlagByte] ( #01, #01 )
     COP [WaitByte] ( #3F )
     COP [StageSpriteFrame] ( #25 )
     COP [AnimOnce]
-    COP [SolidHighHere]
-    COP [SetOnInteract] ( &code_06B578 )
-    COP [ExitIfFlagByte] ( #04, #01 )
+    COP [MarkSolidHere]
+    COP [SetInteractHandler] ( &code_06B578 )
+    COP [WaitOnFlagByte] ( #04, #01 )
     COP [StageSpriteFrame] ( #23 )
     COP [AnimOnce]
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     RTL 
 }
 
@@ -60,19 +60,19 @@ code_06B51F {
     COP [PrintDialogString] ( &dialogstring_06B661 )
     LDA #$0003
     JSL $@InitPlayerScriptVariant
-    COP [SetEntryExit]
+    COP [SetEntryHereAndYield]
     COP [PrintDialogString] ( &dialogstring_06B67B )
     INC $0AA6
     LDA #$0404
     STA $gfxCacheIdxB
     COP [QueueMapChange] ( #68, #$0160, #$01C0, #00, #$2211 )
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     RTL 
 }
 
 code_06B571 {
     COP [SetTilePos] ( #19, #1D )
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     RTL 
 }
 

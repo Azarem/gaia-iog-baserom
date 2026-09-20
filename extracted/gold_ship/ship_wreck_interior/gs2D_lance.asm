@@ -16,14 +16,14 @@ gs2D_lance [
   actor-def < #03, #00, #10, {
 
   code_058FC3:
-    COP [SolidHighHere]
-    COP [SetOnInteract] ( &code_059028 )
-    COP [ExitIfFlagByte] ( #01, #01 )
-    COP [ClearLowHere]
+    COP [MarkSolidHere]
+    COP [SetInteractHandler] ( &code_059028 )
+    COP [WaitOnFlagByte] ( #01, #01 )
+    COP [ClearSolidHere]
     COP [SetTilePos] ( #0F, #0D )
     COP [StageSpriteFrame] ( #05 )
     COP [AnimOnce]
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     COP [BranchIfPlayerNear] ( #03, &code_058FE0 )
     RTL 
 } >
@@ -41,7 +41,7 @@ code_058FE0 {
     COP [WaitByte] ( #B3 )
     COP [PrintDialogString] ( &dialogstring_059157 )
     COP [SetFlagByte] ( #51 )
-    COP [SetOnInteract] ( #$0000 )
+    COP [SetInteractHandler] ( #$0000 )
     COP [StageSpriteLoopMoveX] ( #08, #04, #02 )
     COP [AnimLoop]
     COP [StageSpriteMoveY] ( #07, #02 )

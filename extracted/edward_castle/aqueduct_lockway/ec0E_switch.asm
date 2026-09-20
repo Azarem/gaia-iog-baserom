@@ -23,7 +23,7 @@ ec0E_switch [
     COP [SetMetasprite] ( @spriteset_enemies )
     COP [StageSpriteFrame] ( #0F )
     COP [AnimOnce]
-    COP [SolidHighHere]
+    COP [MarkSolidHere]
     LDA #$00FF
     STA $currentHp, X
 
@@ -32,7 +32,7 @@ ec0E_switch [
     COP [SetHitCallback] ( &code_0A8962 )
     COP [StageSpriteFrame] ( #0F )
     COP [AnimOnce]
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     RTL 
 } >
 ]
@@ -42,6 +42,6 @@ code_0A8962 {
     COP [SetHitCallback] ( &code_0A8953 )
     COP [StageSpriteFrame] ( #10 )
     COP [AnimOnce]
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     RTL 
 }

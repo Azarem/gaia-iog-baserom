@@ -13,7 +13,7 @@ av6C_harpist [
   code_06D127:
     LDA #$0200
     TSB $12
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     COP [StageSpriteFrame] ( #18 )
     COP [AnimOnce]
     RTL 

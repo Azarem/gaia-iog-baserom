@@ -11,11 +11,11 @@ nvAE_erik [
   actor-def < #03, #00, #30, {
 
   code_089733:
-    COP [BranchIfFlagByte] ( #B6, #01, &code_089771 )
-    COP [BranchIfFlagByte] ( #CF, #01, &code_08975A )
-    COP [ExitIfFlagByte] ( #BF, #01 )
-    COP [ExitIfFlagByte] ( #C0, #01 )
-    COP [ExitIfFlagByte] ( #C1, #01 )
+    COP [BranchOnFlagByte] ( #B6, #01, &code_089771 )
+    COP [BranchOnFlagByte] ( #CF, #01, &code_08975A )
+    COP [WaitOnFlagByte] ( #BF, #01 )
+    COP [WaitOnFlagByte] ( #C0, #01 )
+    COP [WaitOnFlagByte] ( #C1, #01 )
     COP [WaitByte] ( #59 )
     LDA #$2000
     TRB $10
@@ -30,9 +30,9 @@ code_08975A {
     TRB $10
     COP [StageSpriteFrame] ( #03 )
     COP [AnimOnce]
-    COP [SolidHighHere]
-    COP [SetOnInteract] ( &code_089773 )
-    COP [SetEntryContinue]
+    COP [MarkSolidHere]
+    COP [SetInteractHandler] ( &code_089773 )
+    COP [SetEntryHere]
     RTL 
 }
 

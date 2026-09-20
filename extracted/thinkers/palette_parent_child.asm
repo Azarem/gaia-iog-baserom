@@ -12,8 +12,8 @@ palette_parent_child [
 
   loc_00B600:
     COP [PaletteStart] ( #03 )
-    COP [SetEntryContinue]
-    COP [BranchIfFlagByte] ( #01, #01, &PaletteParentChildSpawnWave )
+    COP [SetEntryHere]
+    COP [BranchOnFlagByte] ( #01, #01, &PaletteParentChildSpawnWave )
     RTL 
 } >
 ]
@@ -22,8 +22,8 @@ PaletteParentChildSpawnWave {
     COP [SpawnThinker] ( @PaletteParentChildWaveLoop )
     TYA 
     STA $chatPtr, X
-    COP [SetEntryContinue]
-    COP [ExitIfFlagByte] ( #01, #00 )
+    COP [SetEntryHere]
+    COP [WaitOnFlagByte] ( #01, #00 )
     PHX 
     PHD 
     LDA $chatPtr, X

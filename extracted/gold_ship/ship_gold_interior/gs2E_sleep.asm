@@ -21,30 +21,30 @@ gs2E_sleep [
   actor-def < #0A, #00, #10, {
 
   code_05862F:
-    COP [SetOnInteract] ( &code_0586AE )
-    COP [SolidHighHere]
-    COP [ExitIfFlagByte] ( #4E, #01 )
-    COP [ExitIfFlagByte] ( #4F, #01 )
+    COP [SetInteractHandler] ( &code_0586AE )
+    COP [MarkSolidHere]
+    COP [WaitOnFlagByte] ( #4E, #01 )
+    COP [WaitOnFlagByte] ( #4F, #01 )
     COP [WaitByte] ( #01 )
     LDA #$0002
     STA $musicRoomGroup
-    COP [SetEntryContinue]
-    COP [BranchIfFlagByte] ( #F8, #01, &code_05864F )
+    COP [SetEntryHere]
+    COP [BranchOnFlagByte] ( #F8, #01, &code_05864F )
     RTL 
 } >
 ]
 
 code_05864F {
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     COP [BranchIfPlayerInAbsTiles] ( #0B, #04, #0C, #06, &code_05865A )
     RTL 
 }
 
 code_05865A {
-    COP [LoopInit] ( #1E )
+    COP [LoopStart] ( #1E )
     LDA #$CFF0
     TSB $joypadMaskStd
-    COP [LoopNext]
+    COP [LoopEnd]
     COP [PrintDialogString] ( &dialogstring_0586CC )
     LDY $playerActor
     LDA #$*player_transition_handlers.PlayerFreedanRevealIdle
@@ -71,9 +71,9 @@ code_05865A {
 }
 
 code_0586AE {
-    COP [BranchIfFlagByte] ( #4E, #00, &code_0586C7 )
-    COP [BranchIfFlagByte] ( #4F, #00, &code_0586C7 )
-    COP [BranchIfFlagByte] ( #F8, #01, &code_0586C2 )
+    COP [BranchOnFlagByte] ( #4E, #00, &code_0586C7 )
+    COP [BranchOnFlagByte] ( #4F, #00, &code_0586C7 )
+    COP [BranchOnFlagByte] ( #F8, #01, &code_0586C2 )
     BRA code_0586C7
 }
 

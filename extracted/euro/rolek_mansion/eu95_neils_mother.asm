@@ -15,14 +15,14 @@ eu95_neils_mother [
   actor-def < #0D, #00, #10, {
 
   code_07E2DA:
-    COP [BranchIfFlagByte] ( #A8, #01, &code_07E314 )
+    COP [BranchOnFlagByte] ( #A8, #01, &code_07E314 )
     LDA #$1200
     TSB $12
-    COP [SolidHighHere]
-    COP [SetOnInteract] ( &code_07E316 )
-    COP [ExitIfFlagByte] ( #A8, #01 )
-    COP [ClearLowHere]
-    COP [AddPosition] ( #00, #F0 )
+    COP [MarkSolidHere]
+    COP [SetInteractHandler] ( &code_07E316 )
+    COP [WaitOnFlagByte] ( #A8, #01 )
+    COP [ClearSolidHere]
+    COP [NudgePosition] ( #00, #F0 )
     COP [StageSpriteLoopMoveY] ( #2F, #03, #12 )
     COP [AnimLoop]
     COP [StageSpriteLoop] ( #2F, #06 )

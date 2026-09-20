@@ -23,12 +23,12 @@ sp5C_stone_coffin [
   actor-def < #00, #02, #30, {
 
   code_0691AF:
-    COP [BranchIfFlagWord] ( #$013B, #01, &code_069291 )
-    COP [AddPosition] ( #08, #00 )
-    COP [SetOnInteract] ( &code_0692CF )
+    COP [BranchOnFlagWord] ( #$013B, #01, &code_069291 )
+    COP [NudgePosition] ( #08, #00 )
+    COP [SetInteractHandler] ( &code_0692CF )
 
   code_0691BE:
-    COP [ExitIfFlagByte] ( #02, #01 )
+    COP [WaitOnFlagByte] ( #02, #01 )
     LDA #$CFF0
     TSB $joypadMaskStd
     LDA #$2000
@@ -71,7 +71,7 @@ sp5C_stone_coffin [
     TSB $displayModeFlags
     COP [MusicAndText] ( #17, @dialogstring_06939E )
     COP [WaitByte] ( #03 )
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     LDA #$CFF0
     TSB $joypadMaskStd
     SEP #$20
@@ -133,7 +133,7 @@ code_069293 {
 }
 
 code_0692CF {
-    COP [BranchIfFlagByte] ( #6F, #01, &code_0692DA )
+    COP [BranchOnFlagByte] ( #6F, #01, &code_0692DA )
     COP [PrintDialogString] ( &dialogstring_0692E2 )
     RTL 
 }

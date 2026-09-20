@@ -30,7 +30,7 @@ pr8F_prologue4 [
     LDA #$0804
     STA $gfxCacheIdxB
     COP [QueueMapChange] ( #8C, #$0000, #$0000, #00, #$1100 )
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     RTL 
 } >
 ]

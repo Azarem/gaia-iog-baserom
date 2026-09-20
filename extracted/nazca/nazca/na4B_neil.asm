@@ -14,7 +14,7 @@ na4B_neil [
   actor-def < #12, #00, #10, {
 
   code_05E844:
-    COP [SolidHighHere]
+    COP [MarkSolidHere]
     LDA #$CFF0
     TSB $joypadMaskStd
     COP [WaitByte] ( #1D )
@@ -22,20 +22,20 @@ na4B_neil [
     COP [SetFlagByte] ( #01 )
     LDA #$CFF0
     TRB $joypadMaskStd
-    COP [SetOnInteract] ( &code_05E8BE )
-    COP [ExitIfFlagByte] ( #02, #01 )
-    COP [SetOnInteract] ( &code_05E8C3 )
-    COP [ExitIfFlagByte] ( #08, #01 )
+    COP [SetInteractHandler] ( &code_05E8BE )
+    COP [WaitOnFlagByte] ( #02, #01 )
+    COP [SetInteractHandler] ( &code_05E8C3 )
+    COP [WaitOnFlagByte] ( #08, #01 )
     COP [StageSpriteFrame] ( #14 )
     COP [AnimOnce]
-    COP [ExitIfFlagByte] ( #0A, #01 )
+    COP [WaitOnFlagByte] ( #0A, #01 )
     COP [StageSpriteFrame] ( #12 )
     COP [AnimOnce]
     LDA #$CFF0
     TRB $joypadMaskStd
-    COP [CallScript] ( &code_05E8CB )
-    COP [SetOnInteract] ( &code_05E8F2 )
-    COP [ClearLowHere]
+    COP [CallNear] ( &code_05E8CB )
+    COP [SetInteractHandler] ( &code_05E8F2 )
+    COP [ClearSolidHere]
     COP [StageSpriteLoopMoveY] ( #16, #0B, #01 )
     COP [AnimLoop]
     COP [StageSpriteLoopMoveX] ( #19, #04, #01 )
@@ -50,9 +50,9 @@ na4B_neil [
     COP [AnimOnce]
     COP [StageSpriteFrame] ( #12 )
     COP [AnimOnce]
-    COP [SolidHighHere]
+    COP [MarkSolidHere]
     COP [SetFlagByte] ( #0B )
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     RTL 
 } >
 ]

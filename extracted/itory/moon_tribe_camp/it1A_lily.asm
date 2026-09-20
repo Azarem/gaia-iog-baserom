@@ -18,10 +18,10 @@ it1A_lily [
   actor-def < #1B, #00, #10, {
 
   code_04F444:
-    COP [BranchIfFlagByte] ( #4A, #01, &code_04F4E9 )
+    COP [BranchOnFlagByte] ( #4A, #01, &code_04F4E9 )
     COP [SpawnAfterFlags] ( @code_04F77B, #$2000 )
     COP [SpawnAfterFlags] ( @code_04F828, #$2000 )
-    COP [BranchIfFlagByte] ( #49, #01, &code_04F4C0 )
+    COP [BranchOnFlagByte] ( #49, #01, &code_04F4C0 )
     LDA #$CFF0
     TSB $joypadMaskStd
     COP [StageSpriteFrame] ( #1C )
@@ -45,11 +45,11 @@ it1A_lily [
     TXA 
     TYX 
     TAY 
-    COP [SetOnInteract] ( #$0000 )
-    COP [SetEntryContinue]
-    COP [SetEntryContinue]
+    COP [SetInteractHandler] ( #$0000 )
+    COP [SetEntryHere]
+    COP [SetEntryHere]
     COP [AnimOneFrame]
-    COP [BranchIfFlagByte] ( #49, #01, &code_04F4AC )
+    COP [BranchOnFlagByte] ( #49, #01, &code_04F4AC )
     RTL 
 } >
 ]
@@ -58,10 +58,10 @@ code_04F4AC {
     COP [KillNext]
     LDA #$0000
     STA $2A
-    COP [SetEntryExit]
+    COP [SetEntryHereAndYield]
     COP [PrintDialogString] ( &dialogstring_04F575 )
-    COP [SetOnInteract] ( &code_04F4EB )
-    COP [SetEntryContinue]
+    COP [SetInteractHandler] ( &code_04F4EB )
+    COP [SetEntryHere]
     RTL 
 }
 
@@ -69,10 +69,10 @@ code_04F4C0 {
     COP [SetTilePos] ( #0D, #1A )
     COP [StageSpriteFrame] ( #1A )
     COP [AnimOnce]
-    COP [SolidHighHere]
-    COP [SetOnInteract] ( &code_04F4F0 )
-    COP [ExitIfFlagByte] ( #4A, #01 )
-    COP [ClearLowHere]
+    COP [MarkSolidHere]
+    COP [SetInteractHandler] ( &code_04F4F0 )
+    COP [WaitOnFlagByte] ( #4A, #01 )
+    COP [ClearSolidHere]
     COP [StageSpriteMoveY] ( #1E, #11 )
     COP [AnimOnce]
     COP [StageSpriteLoopMoveX] ( #21, #04, #01 )
@@ -91,7 +91,7 @@ code_04F4EB {
 }
 
 code_04F4F0 {
-    COP [BranchIfNoItem] ( #04, &code_04F4FA )
+    COP [BranchIfMissingItem] ( #04, &code_04F4FA )
     COP [PrintDialogString] ( &dialogstring_04F591 )
     RTL 
 }
@@ -122,7 +122,7 @@ code_04F511 {
     STA $gfxCacheIdxB
     COP [StageWorldMapMove] ( #$0094, #$0254, #00, #06 )
     COP [QueueMapChange] ( #1C, #$0070, #$0160, #00, #$2200 )
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     RTL 
 }
 
@@ -139,35 +139,35 @@ dialogstring_04F653 `[CLR][TPL:2]Lilly: [N]Will, I know you're. [N]lying. You mu
 dialogstring_04F68F `[CLR][TPL:0]Will: [N]Yes. My father [N]summoned me... [FIN]I don't want to fight [N]the demons, but if my [N]father's alive, I'll risk [N]anything to see him. [FIN]You don't really[N]understand until you[N]lose your parents...[FIN][TPL:2]Lilly:[N]Typical....[FIN]I understand.[N]Let's go to the ruins.[FIN][PAL:0][SFX:10]They headed to [N]the Incan ruins. [END]`
 
 code_04F77B {
-    COP [SolidHighAbs] ( #15, #1C )
-    COP [SolidHighAbs] ( #16, #1C )
+    COP [MarkSolidAbs] ( #15, #1C )
+    COP [MarkSolidAbs] ( #16, #1C )
 
   code_04F783:
-    COP [SetEntryContinue]
-    COP [BranchIfFlagByte] ( #4A, #01, &code_04F7B7 )
+    COP [SetEntryHere]
+    COP [BranchOnFlagByte] ( #4A, #01, &code_04F7B7 )
     COP [BranchIfPlayerInAbsTiles] ( #15, #1B, #17, #1C, &code_04F794 )
     RTL 
 }
 
 code_04F794 {
-    COP [BranchIfButton] ( #$0400, &code_04F79F )
-    COP [SetEntryExitNow] ( @code_04F783 )
+    COP [BranchIfPressed] ( #$0400, &code_04F79F )
+    COP [JumpNextFrame] ( @code_04F783 )
 }
 
 code_04F79F {
-    COP [BranchIfFlagByte] ( #49, #01, &code_04F7AE )
+    COP [BranchOnFlagByte] ( #49, #01, &code_04F7AE )
     COP [PrintDialogString] ( &dialogstring_04F7C1 )
-    COP [SetEntryExitNow] ( @code_04F783 )
+    COP [JumpNextFrame] ( @code_04F783 )
 }
 
 code_04F7AE {
     COP [PrintDialogString] ( &dialogstring_04F7F7 )
-    COP [SetEntryExitNow] ( @code_04F783 )
+    COP [JumpNextFrame] ( @code_04F783 )
 }
 
 code_04F7B7 {
-    COP [ClearLowAbs] ( #15, #1C )
-    COP [ClearLowAbs] ( #16, #1C )
+    COP [ClearSolidAbs] ( #15, #1C )
+    COP [ClearSolidAbs] ( #16, #1C )
     COP [Die]
 }
 
@@ -176,29 +176,29 @@ dialogstring_04F7C1 `[DLG:3,6][SIZ:D,3][TPL:2]Lilly: Wait! We came[N]here for a 
 dialogstring_04F7F7 `[DLG:3,6][SIZ:D,3][TPL:0]Will: [N](I can't go without the [N]Incan Statue...)[PAL:0][END]`
 
 code_04F828 {
-    COP [SolidHighAbs] ( #0C, #18 )
-    COP [BranchIfFlagByte] ( #2A, #01, &code_04F857 )
+    COP [MarkSolidAbs] ( #0C, #18 )
+    COP [BranchOnFlagByte] ( #2A, #01, &code_04F857 )
 
   code_04F832:
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     COP [BranchIfPlayerInAbsTiles] ( #0C, #19, #0D, #1A, &code_04F83D )
     RTL 
 }
 
 code_04F83D {
-    COP [BranchIfButton] ( #$0800, &code_04F848 )
-    COP [SetEntryExitNow] ( @code_04F832 )
+    COP [BranchIfPressed] ( #$0800, &code_04F848 )
+    COP [JumpNextFrame] ( @code_04F832 )
 }
 
 code_04F848 {
-    COP [BranchIfFlagByte] ( #2A, #01, &code_04F857 )
+    COP [BranchOnFlagByte] ( #2A, #01, &code_04F857 )
     COP [PrintDialogString] ( &dialogstring_04F860 )
-    COP [SetEntryExitNow] ( @code_04F832 )
+    COP [JumpNextFrame] ( @code_04F832 )
 }
 
 code_04F857 {
     COP [SetFlagByte] ( #49 )
-    COP [ClearLowAbs] ( #0C, #18 )
+    COP [ClearSolidAbs] ( #0C, #18 )
     COP [Die]
 }
 

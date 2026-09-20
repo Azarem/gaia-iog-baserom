@@ -14,21 +14,21 @@ na49_lance [
   actor-def < #03, #00, #10, {
 
   code_05E145:
-    COP [SolidHighHere]
-    COP [SetOnInteract] ( &code_05E1E9 )
-    COP [ExitIfFlagByte] ( #01, #01 )
+    COP [MarkSolidHere]
+    COP [SetInteractHandler] ( &code_05E1E9 )
+    COP [WaitOnFlagByte] ( #01, #01 )
     COP [StageSpriteLoopMoveY] ( #07, #05, #12 )
     COP [AnimLoop]
     COP [StageSpriteFrame] ( #03 )
     COP [AnimOnce]
-    COP [ExitIfFlagByte] ( #03, #01 )
+    COP [WaitOnFlagByte] ( #03, #01 )
     COP [StageSpriteLoop] ( #05, #14 )
     COP [AnimLoop]
     COP [StageSpriteLoop] ( #02, #1E )
     COP [AnimLoop]
     COP [PrintDialogString] ( &dialogstring_05E1EE )
     COP [SetFlagByte] ( #04 )
-    COP [ExitIfFlagByte] ( #05, #01 )
+    COP [WaitOnFlagByte] ( #05, #01 )
     COP [StageSpriteLoopMoveY] ( #07, #02, #12 )
     COP [AnimLoop]
     COP [StageSpriteLoopMoveX] ( #08, #04, #12 )
@@ -37,8 +37,8 @@ na49_lance [
     COP [AnimOnce]
     COP [StageSpriteFrame] ( #02 )
     COP [AnimOnce]
-    COP [SolidHighOffset] ( #00, #01 )
-    COP [ExitIfFlagByte] ( #08, #01 )
+    COP [MarkSolidOffset] ( #00, #01 )
+    COP [WaitOnFlagByte] ( #08, #01 )
     COP [StageSpriteLoopMoveX] ( #09, #02, #11 )
     COP [AnimLoop]
     COP [StageSpriteFrame] ( #05 )
@@ -61,7 +61,7 @@ na49_lance [
     STA $gfxCacheIdxB
     COP [StageWorldMapMove] ( #$0274, #$0264, #00, #0D )
     COP [QueueMapChange] ( #4B, #$0120, #$0080, #00, #$4400 )
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     RTL 
 } >
 ]

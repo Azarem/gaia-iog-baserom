@@ -23,7 +23,7 @@ e_hp_increase {
     COP [SetMetasprite] ( @spriteset_enemies )
     COP [SetSpritePalette] ( #00 )
     COP [StageSprAndHitbox] ( #0C )
-    COP [CallScript] ( &RewardActorVFX )
+    COP [CallNear] ( &RewardActorVFX )
     LDA $playerMaxHp
     CLC 
     ADC #$0001
@@ -45,7 +45,7 @@ e_str_increase {
     COP [SetMetasprite] ( @spriteset_enemies )
     COP [SetSpritePalette] ( #00 )
     COP [StageSprAndHitbox] ( #0D )
-    COP [CallScript] ( &RewardActorVFX )
+    COP [CallNear] ( &RewardActorVFX )
     LDA $playerStr
     CLC 
     ADC #$0001
@@ -64,7 +64,7 @@ e_def_increase {
     COP [SetMetasprite] ( @spriteset_enemies )
     COP [SetSpritePalette] ( #00 )
     COP [StageSprAndHitbox] ( #0E )
-    COP [CallScript] ( &RewardActorVFX )
+    COP [CallNear] ( &RewardActorVFX )
     LDA $playerDef
     CLC 
     ADC #$0001

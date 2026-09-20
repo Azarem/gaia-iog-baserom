@@ -14,15 +14,15 @@ fr32_hp_jewel [
   code_05CF88:
     LDA #$0200
     TSB $12
-    COP [SetOnInteract] ( &code_05CF96 )
-    COP [SolidHighHere]
-    COP [SetEntryContinue]
+    COP [SetInteractHandler] ( &code_05CF96 )
+    COP [MarkSolidHere]
+    COP [SetEntryHere]
     RTL 
 } >
 ]
 
 code_05CF96 {
-    COP [BranchIfFlagByte] ( #54, #01, &code_05CFA6 )
+    COP [BranchOnFlagByte] ( #54, #01, &code_05CFA6 )
     COP [SetFlagByte] ( #54 )
     COP [PrintDialogString] ( &dialogstring_05CFA7 )
     INC $playerMaxHp

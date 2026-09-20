@@ -13,9 +13,9 @@ awB2_stair_climb [
   actor-def < #00, #00, #23, {
 
   code_0898CB:
-    COP [ExitIfFlagWord] ( #$016B, #01 )
+    COP [WaitOnFlagWord] ( #$016B, #01 )
     LDA #$000A
     STA $0E
-    COP [JumpScript] ( @stair_climb.StairTriggerWestMain )
+    COP [JumpFar] ( @stair_climb.StairTriggerWestMain )
 } >
 ]

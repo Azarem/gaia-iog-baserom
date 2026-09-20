@@ -9,9 +9,9 @@ sc04_eriks_father [
   actor-def < #03, #00, #10, {
 
   code_048FE1:
-    COP [SetOnInteract] ( &code_048FEA )
-    COP [SolidHighHere]
-    COP [SetEntryContinue]
+    COP [SetInteractHandler] ( &code_048FEA )
+    COP [MarkSolidHere]
+    COP [SetEntryHere]
     RTL 
 } >
 ]

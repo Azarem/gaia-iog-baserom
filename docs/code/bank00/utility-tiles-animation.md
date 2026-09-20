@@ -615,7 +615,7 @@ ParseSignedTileOffset {
 
 - [`cop-dispatch.md`](cop-dispatch.md) — COP handler table entries
 - [`utility-math-movement.md`](utility-math-movement.md) — `ProcessAnimFlag` in movement init
-- [`cop-commands-reference.md`](../../cop-commands-reference.md) — Full COP operand reference
+- [`../../cop/index.md`](../../cop/index.md) — Full COP operand reference
 - [`extracted/system/engine/map_coords.asm`](../../../extracted/system/engine/map_coords.asm) — `TileCoordsToMapIndex`, `PixelToVramAddress`
 - `sine_table_8bit` — 256-byte sine table source data
 

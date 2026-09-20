@@ -17,18 +17,18 @@ awB3_vine_reveal [
   actor-def < #00, #00, #30, {
 
   code_0898DD:
-    COP [BranchIfFlagWord] ( #$016E, #01, &code_089928 )
-    COP [SetEntryContinue]
+    COP [BranchOnFlagWord] ( #$016E, #01, &code_089928 )
+    COP [SetEntryHere]
     COP [BranchIfPlayerInAbsTiles] ( #6A, #0C, #6F, #0D, &code_0898EF )
     RTL 
 } >
 ]
 
 code_0898EF {
-    COP [LoopInit] ( #14 )
+    COP [LoopStart] ( #14 )
     LDA #$CFF0
     TSB $joypadMaskStd
-    COP [LoopNext]
+    COP [LoopEnd]
     COP [PlaySoundBoth] ( #$0F0F )
     COP [StageBgChange] ( #6E )
     COP [ApplyBgChange]

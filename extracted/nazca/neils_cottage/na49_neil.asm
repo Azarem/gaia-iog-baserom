@@ -21,8 +21,8 @@ na49_neil [
 
   code_05D89D:
     COP [SpawnAfterFlags] ( @code_05DCED, #$2000 )
-    COP [SolidHighHere]
-    COP [SetOnInteract] ( &code_05D96F )
+    COP [MarkSolidHere]
+    COP [SetInteractHandler] ( &code_05D96F )
     LDA #$CFF0
     TSB $joypadMaskStd
     LDY $playerActor
@@ -31,10 +31,10 @@ na49_neil [
     LDA #$0100
     STA $0016, Y
     COP [WaitByte] ( #1D )
-    COP [LoopInit] ( #02 )
+    COP [LoopStart] ( #02 )
     COP [PlaySoundBoth] ( #$0505 )
     COP [WaitByte] ( #13 )
-    COP [LoopNext]
+    COP [LoopEnd]
     COP [PrintDialogString] ( &dialogstring_05D984 )
     COP [PlaySoundBoth] ( #$0E0E )
     COP [WaitByte] ( #1D )
@@ -53,33 +53,33 @@ na49_neil [
     TSB $playerFlags
     COP [WaitByte] ( #3B )
     COP [SetFlagByte] ( #01 )
-    COP [ExitIfFlagByte] ( #01, #00 )
+    COP [WaitOnFlagByte] ( #01, #00 )
     COP [StageSpriteLoop] ( #15, #14 )
     COP [AnimLoop]
     COP [StageSpriteLoop] ( #12, #3C )
     COP [AnimLoop]
     COP [PrintDialogString] ( &dialogstring_05D9C1 )
     COP [SetFlagByte] ( #02 )
-    COP [ExitIfFlagByte] ( #02, #00 )
+    COP [WaitOnFlagByte] ( #02, #00 )
     COP [PrintDialogString] ( &dialogstring_05DA04 )
     COP [SetFlagByte] ( #03 )
-    COP [ExitIfFlagByte] ( #03, #00 )
+    COP [WaitOnFlagByte] ( #03, #00 )
     COP [PrintDialogString] ( &dialogstring_05DAC7 )
     LDA #$0000
     STA $0AA6
     COP [SetFlagByte] ( #05 )
     LDA #$CFF0
     TRB $joypadMaskStd
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     RTL 
 } >
 ]
 
 code_05D942 {
-    COP [LoopInit] ( #03 )
+    COP [LoopStart] ( #03 )
     COP [StagePlayerMoveY] ( #09, #02 )
     COP [AnimOnce]
-    COP [LoopNext]
+    COP [LoopEnd]
     LDY $playerActor
     LDA #$*player_character.PlayerIdleEntry
     STA $0002, Y
@@ -120,14 +120,14 @@ dialogstring_05DB1C `[TPL:A][TPL:6]Neil: It's been about [N]two years since we [
 dialogstring_05DB9C `[TPL:B][TPL:6]Tell me why you came[N]to see me.[FIN][TPL:0]Will tells Neil about [N]hearing his father's[N]voice, and visiting [FIN]the world's ruins in [N]his search to [N]find the Mystic Statues. [FIN][TPL:6]Neil: [N]Heh heh. [N]Interesting. [FIN]I, too, have some[N]interest in ruins.[FIN]The ruins Will talked [N]about are scattered over [N]the world, but they have [N]something in common. [FIN]Drawing a line among[N]the ruins makes a shape[N]that looks like the[N]constellation of Cygnus.[END]`
 
 code_05DCED {
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     LDA $playerYPos
     CMP #$00D0
     BEQ loc_05DCF8
     RTL 
 
   loc_05DCF8:
-    COP [BranchIfButton] ( #$0400, &code_05DCFF )
+    COP [BranchIfPressed] ( #$0400, &code_05DCFF )
     RTL 
 }
 

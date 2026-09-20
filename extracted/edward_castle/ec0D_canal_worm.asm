@@ -25,7 +25,7 @@ ec0D_canal_worm [
     COP [WaitByte] ( #77 )
     LDA #$2000
     TRB $10
-    COP [SpawnMarkedAfter] ( @code_0A8264, #$0301 )
+    COP [SpawnAfterMarked] ( @code_0A8264, #$0301 )
     LDA #$2000
     TSB $10
     COP [WaitByte] ( #3F )
@@ -33,7 +33,7 @@ ec0D_canal_worm [
     TRB $10
     COP [StageSpriteFrame] ( #22 )
     COP [AnimOnce]
-    COP [SpawnMarkedAfter] ( @code_0A825C, #$0301 )
+    COP [SpawnAfterMarked] ( @code_0A825C, #$0301 )
     COP [BranchIfDirToPlayerFrom] ( #00, #F0, #04, &code_0A80D1 )
     COP [StageSpriteFrame] ( #23 )
     COP [AnimOnce]
@@ -106,8 +106,8 @@ code_0A80C3 {
 code_0A80D1 {
     COP [StageSpriteFrame] ( #2B )
     COP [AnimOnce]
-    COP [SpawnLastRel] ( @code_0A81A9, #00, #D8, #$0202 )
-    COP [ForceMoveLastChild] ( #00, #03 )
+    COP [SpawnListAppend] ( @code_0A81A9, #00, #D8, #$0202 )
+    COP [ApplyMoveToChild] ( #00, #03 )
     COP [StageSpriteLoop] ( #2B, #02 )
     COP [AnimLoop]
     JMP $&code_0A80A0
@@ -116,8 +116,8 @@ code_0A80D1 {
 code_0A80EC {
     COP [StageSpriteFrame] ( #2C )
     COP [AnimOnce]
-    COP [SpawnLastRel] ( @code_0A81A9, #FC, #D8, #$0202 )
-    COP [ForceMoveLastChild] ( #04, #03 )
+    COP [SpawnListAppend] ( @code_0A81A9, #FC, #D8, #$0202 )
+    COP [ApplyMoveToChild] ( #04, #03 )
     COP [StageSpriteLoop] ( #2C, #02 )
     COP [AnimLoop]
     JMP $&code_0A80A5
@@ -126,8 +126,8 @@ code_0A80EC {
 code_0A8107 {
     COP [StageSpriteFrame] ( #2D )
     COP [AnimOnce]
-    COP [SpawnLastRel] ( @code_0A81A9, #F8, #D8, #$0202 )
-    COP [ForceMoveLastChild] ( #04, #00 )
+    COP [SpawnListAppend] ( @code_0A81A9, #F8, #D8, #$0202 )
+    COP [ApplyMoveToChild] ( #04, #00 )
     COP [StageSpriteLoop] ( #2D, #02 )
     COP [AnimLoop]
     JMP $&code_0A80AA
@@ -136,8 +136,8 @@ code_0A8107 {
 code_0A8122 {
     COP [StageSpriteFrame] ( #2E )
     COP [AnimOnce]
-    COP [SpawnLastRel] ( @code_0A81A9, #FC, #D8, #$0200 )
-    COP [ForceMoveLastChild] ( #04, #04 )
+    COP [SpawnListAppend] ( @code_0A81A9, #FC, #D8, #$0200 )
+    COP [ApplyMoveToChild] ( #04, #04 )
     COP [StageSpriteLoop] ( #2E, #02 )
     COP [AnimLoop]
     JMP $&code_0A80AF
@@ -146,8 +146,8 @@ code_0A8122 {
 code_0A813D {
     COP [StageSpriteFrame] ( #2F )
     COP [AnimOnce]
-    COP [SpawnLastRel] ( @code_0A81A9, #00, #D8, #$0200 )
-    COP [ForceMoveLastChild] ( #00, #04 )
+    COP [SpawnListAppend] ( @code_0A81A9, #00, #D8, #$0200 )
+    COP [ApplyMoveToChild] ( #00, #04 )
     COP [StageSpriteLoop] ( #2F, #02 )
     COP [AnimLoop]
     JMP $&code_0A80B4
@@ -156,8 +156,8 @@ code_0A813D {
 code_0A8158 {
     COP [StageSpriteFrame] ( #B0 )
     COP [AnimOnce]
-    COP [SpawnLastRel] ( @code_0A81A9, #04, #D8, #$0200 )
-    COP [ForceMoveLastChild] ( #03, #04 )
+    COP [SpawnListAppend] ( @code_0A81A9, #04, #D8, #$0200 )
+    COP [ApplyMoveToChild] ( #03, #04 )
     COP [StageSpriteLoop] ( #B0, #02 )
     COP [AnimLoop]
     JMP $&code_0A80B9
@@ -166,8 +166,8 @@ code_0A8158 {
 code_0A8173 {
     COP [StageSpriteFrame] ( #B1 )
     COP [AnimOnce]
-    COP [SpawnLastRel] ( @code_0A81A9, #08, #D8, #$0202 )
-    COP [ForceMoveLastChild] ( #03, #00 )
+    COP [SpawnListAppend] ( @code_0A81A9, #08, #D8, #$0202 )
+    COP [ApplyMoveToChild] ( #03, #00 )
     COP [StageSpriteLoop] ( #B1, #02 )
     COP [AnimLoop]
     JMP $&code_0A80BE
@@ -176,8 +176,8 @@ code_0A8173 {
 code_0A818E {
     COP [StageSpriteFrame] ( #B2 )
     COP [AnimOnce]
-    COP [SpawnLastRel] ( @code_0A81A9, #04, #D8, #$0202 )
-    COP [ForceMoveLastChild] ( #03, #03 )
+    COP [SpawnListAppend] ( @code_0A81A9, #04, #D8, #$0202 )
+    COP [ApplyMoveToChild] ( #03, #03 )
     COP [StageSpriteLoop] ( #B2, #02 )
     COP [AnimLoop]
     JMP $&code_0A80C3
@@ -186,15 +186,15 @@ code_0A818E {
 code_0A81A9 {
     LDA #$0080
     TSB $12
-    COP [SpawnLastRel] ( @code_0A8250, #00, #00, #$0300 )
+    COP [SpawnListAppend] ( @code_0A8250, #00, #00, #$0300 )
     LDA $0010, Y
     ORA $10
     STA $0010, Y
-    COP [OrActorFlags] ( #$0010 )
-    COP [SpawnMarkedAfter] ( @code_0A822B, #$2200 )
+    COP [OrExtraFlags] ( #$0010 )
+    COP [SpawnAfterMarked] ( @code_0A822B, #$2200 )
     LDA #$0002
     JSR $&code_0A8200
-    COP [SpawnMarkedAfter] ( @code_0A822B, #$2200 )
+    COP [SpawnAfterMarked] ( @code_0A822B, #$2200 )
     LDA #$0003
     JSR $&code_0A8200
     COP [SetMetasprite] ( @spriteset_enemies )
@@ -202,10 +202,10 @@ code_0A81A9 {
     COP [PlaySoundCh1] ( #1E )
     COP [StageSpriteLoop] ( #08, #02 )
     COP [AnimLoop]
-    COP [CollPriorityClearMax]
+    COP [ClearPriorityMax]
 
   loc_0A81F0:
-    COP [ReloadForceMove]
+    COP [ReloadMoveDurations]
     COP [StageSpriteFrame] ( #08 )
     COP [AnimOnce]
     LDA $10
@@ -242,10 +242,10 @@ code_0A822B {
     COP [SetMetasprite] ( @spriteset_enemies )
     COP [StageSpriteLoop] ( #26, #02 )
     COP [AnimLoop]
-    COP [CollPriorityClearMax]
+    COP [ClearPriorityMax]
 
   loc_0A8240:
-    COP [ReloadForceMove]
+    COP [ReloadMoveDurations]
     COP [StageSpriteFrame] ( #26 )
     COP [AnimOnce]
     LDA $10

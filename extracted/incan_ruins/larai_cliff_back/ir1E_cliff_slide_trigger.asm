@@ -17,7 +17,7 @@ ir1E_cliff_slide_trigger [
   actor-def < #00, #00, #30, {
 
   code_09C4B5:
-    COP [SetEntryExit]
+    COP [SetEntryHereAndYield]
     LDA $playerYPos
     CMP #$0110
     BCS loc_09C4C4
@@ -28,13 +28,13 @@ ir1E_cliff_slide_trigger [
     COP [ClearFlagByte] ( #00 )
 
   loc_09C4C7:
-    COP [BranchIfFlagByte] ( #30, #00, &code_09C4B5 )
-    COP [BranchIfFlagByte] ( #31, #00, &code_09C4B5 )
+    COP [BranchOnFlagByte] ( #30, #00, &code_09C4B5 )
+    COP [BranchOnFlagByte] ( #31, #00, &code_09C4B5 )
     COP [SetFlagByte] ( #00 )
     COP [PlaySoundBoth] ( #$1616 )
 
   loc_09C4DA:
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     COP [BranchIfPlayerAt] ( #$01E8, #$0120, &code_09C4ED )
     COP [BranchIfPlayerAt] ( #$01E7, #$0120, &code_09C4ED )
     RTL 
@@ -45,13 +45,13 @@ code_09C4ED {
     LDA #$EFF0
     TSB $joypadMaskStd
     COP [PlaySoundBoth] ( #$1616 )
-    COP [LoopInit] ( #28 )
+    COP [LoopStart] ( #28 )
     COP [SpawnAfterFlags] ( @code_09C51B, #$1000 )
-    COP [SetEntryDelayExit] ( @code_09C508, #$0008 )
+    COP [JumpAfterDelay] ( @code_09C508, #$0008 )
 }
 
 code_09C508 {
-    COP [LoopNext]
+    COP [LoopEnd]
     LDA #$FFF8
     STA $playerSpeedEw
     LDA #$EFF0

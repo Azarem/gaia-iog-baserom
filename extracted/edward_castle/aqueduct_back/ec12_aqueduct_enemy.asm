@@ -22,7 +22,7 @@ ec12_aqueduct_enemy [
     TSB $10
 
   loc_09BF1C:
-    COP [AddPosition] ( #02, #00 )
+    COP [NudgePosition] ( #02, #00 )
     LDA #$&enemy_stats_table+118
     STA $statsPtr, X
     LDA #$0031
@@ -35,14 +35,14 @@ ec12_aqueduct_enemy [
     COP [SetHitCallback] ( &code_09BF46 )
     COP [StageSpriteFrame] ( #0F )
     COP [AnimOnce]
-    COP [SetEntryExitNow] ( @code_09BF38 )
+    COP [JumpNextFrame] ( @code_09BF38 )
 } >
 ]
 
 code_09BF46 {
     COP [StageSpriteFrame] ( #11 )
     COP [AnimOnce]
-    COP [BranchIfFlagWord] ( #$0114, #01, &code_09BF68 )
+    COP [BranchOnFlagWord] ( #$0114, #01, &code_09BF68 )
     COP [PlaySoundBoth] ( #$0F0F )
     COP [StageBgChange] ( #14 )
     COP [ApplyBgChange]
@@ -53,6 +53,6 @@ code_09BF46 {
 }
 
 code_09BF68 {
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     RTL 
 }

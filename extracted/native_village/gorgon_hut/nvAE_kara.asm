@@ -15,11 +15,11 @@ nvAE_kara [
   actor-def < #0B, #00, #30, {
 
   code_089521:
-    COP [BranchIfFlagByte] ( #B6, #01, &code_08956C )
-    COP [BranchIfFlagByte] ( #CF, #01, &code_08956E )
-    COP [ExitIfFlagByte] ( #BF, #01 )
-    COP [ExitIfFlagByte] ( #C0, #01 )
-    COP [ExitIfFlagByte] ( #C1, #01 )
+    COP [BranchOnFlagByte] ( #B6, #01, &code_08956C )
+    COP [BranchOnFlagByte] ( #CF, #01, &code_08956E )
+    COP [WaitOnFlagByte] ( #BF, #01 )
+    COP [WaitOnFlagByte] ( #C0, #01 )
+    COP [WaitOnFlagByte] ( #C1, #01 )
     LDA #$CFF0
     TSB $joypadMaskStd
     COP [WaitByte] ( #3B )
@@ -29,14 +29,14 @@ nvAE_kara [
     COP [AnimLoop]
     COP [StageSpriteFrame] ( #0B )
     COP [AnimOnce]
-    COP [SolidHighHere]
+    COP [MarkSolidHere]
     COP [WaitByte] ( #3B )
     COP [PrintDialogString] ( &dialogstring_0895C9 )
     COP [SetFlagByte] ( #CF )
     LDA #$CFF0
     TRB $joypadMaskStd
-    COP [SetOnInteract] ( &code_089585 )
-    COP [SetEntryContinue]
+    COP [SetInteractHandler] ( &code_089585 )
+    COP [SetEntryHere]
     RTL 
 } >
 ]
@@ -51,9 +51,9 @@ code_08956E {
     COP [SetTilePos] ( #07, #0A )
     COP [StageSpriteFrame] ( #0B )
     COP [AnimOnce]
-    COP [SolidHighHere]
-    COP [SetOnInteract] ( &code_089585 )
-    COP [SetEntryContinue]
+    COP [MarkSolidHere]
+    COP [SetInteractHandler] ( &code_089585 )
+    COP [SetEntryHere]
     RTL 
 }
 

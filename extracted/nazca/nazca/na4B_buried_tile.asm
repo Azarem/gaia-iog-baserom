@@ -23,14 +23,14 @@ na4B_buried_tile [
 
   code_05E64A:
     COP [SpawnAfterFlags] ( @code_05E7D0, #$2000 )
-    COP [ExitIfFlagByte] ( #09, #01 )
-    COP [SetOnInteract] ( &code_05E6AD )
-    COP [ExitIfFlagByte] ( #0F, #01 )
+    COP [WaitOnFlagByte] ( #09, #01 )
+    COP [SetInteractHandler] ( &code_05E6AD )
+    COP [WaitOnFlagByte] ( #0F, #01 )
     LDA #$EFF0
     TSB $joypadMaskStd
     LDA #$00E0
     STA $orbitAngle, X
-    COP [LoopInit] ( #08 )
+    COP [LoopStart] ( #08 )
     LDA $orbitAngle, X
     SEP #$20
     STA $COLDATA
@@ -38,7 +38,7 @@ na4B_buried_tile [
     INC 
     STA $orbitAngle, X
     COP [WaitByte] ( #1F )
-    COP [LoopNext]
+    COP [LoopEnd]
     COP [PrintDialogString] ( &dialogstring_05E753 )
     COP [SetFlagByte] ( #0C )
     COP [WaitByte] ( #3B )
@@ -48,13 +48,13 @@ na4B_buried_tile [
     LDA #$0404
     STA $gfxCacheIdxB
     COP [QueueMapChange] ( #4C, #$0168, #$0040, #83, #$2200 )
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     RTL 
 } >
 ]
 
 code_05E6AD {
-    COP [BranchIfFlagByte] ( #0B, #00, &code_05E6BB )
+    COP [BranchOnFlagByte] ( #0B, #00, &code_05E6BB )
     COP [PrintDialogString] ( &dialogstring_05E6C0 )
     COP [SetFlagByte] ( #0F )
     RTL 
@@ -87,12 +87,12 @@ code_05E7A6 {
     COP [AnimOnce]
     COP [PlaySoundBoth] ( #$0C0C )
     COP [SetFlagByte] ( #0D )
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     RTL 
 }
 
 code_05E7D0 {
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     LDY $playerActor
     LDA $0014, Y
     CMP #$0008
@@ -107,19 +107,19 @@ code_05E7D0 {
     RTL 
 
   loc_05E7F0:
-    COP [BranchIfButton] ( #$0200, &code_05E80C )
+    COP [BranchIfPressed] ( #$0200, &code_05E80C )
     RTL 
 
   loc_05E7F7:
-    COP [BranchIfButton] ( #$0100, &code_05E80C )
+    COP [BranchIfPressed] ( #$0100, &code_05E80C )
     RTL 
 
   loc_05E7FE:
-    COP [BranchIfButton] ( #$0800, &code_05E80C )
+    COP [BranchIfPressed] ( #$0800, &code_05E80C )
     RTL 
 
   loc_05E805:
-    COP [BranchIfButton] ( #$0400, &code_05E80C )
+    COP [BranchIfPressed] ( #$0400, &code_05E80C )
     RTL 
 }
 

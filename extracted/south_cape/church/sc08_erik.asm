@@ -12,8 +12,8 @@ sc08_erik [
   actor-def < #0B, #00, #10, {
 
   code_048D98:
-    COP [BranchIfFlagByte] ( #10, #01, &code_048DCF )
-    COP [ExitIfFlagByte] ( #10, #01 )
+    COP [BranchOnFlagByte] ( #10, #01, &code_048DCF )
+    COP [WaitOnFlagByte] ( #10, #01 )
     COP [StageSpriteLoop] ( #0C, #1E )
     COP [AnimLoop]
     COP [PrintDialogString] ( &dialogstring_048DD1 )

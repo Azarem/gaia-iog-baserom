@@ -26,15 +26,15 @@
 ForcedWalkSouth {
     LDA #$6000            ; Clear direction flags $6000 from secondary status $12
     TRB $12
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     LDA #$FFFF            ; Mask ALL joypad input — player cannot control during forced walk
     TSB $joypadMaskStd
     STZ $joypadCurrent    ; Zero current input — suppress all player control
     JSR $&ReadDirSprite_YVelocity ; Look up south walk sprite and Y-axis frame duration
     LDA #$2008            ; Clear flags $2008 (climb + grounded) for forced-walk mode
     TRB $10
-    COP [StagePlayerSpriteFromBank] ; Index forced_walk_sequence_table from scrollStepTableBase low byte ×2
-    COP [AnimPlayerOnce]
+    COP [StagePlayerSprFromDP] ; Index forced_walk_sequence_table from scrollStepTableBase low byte ×2
+    COP [RunPlayerAnim]
     LDA #$2000
     TSB $10
     STZ $scrollStepIndex  ; Reset scroll step index to start of walk sequence
@@ -47,14 +47,14 @@ ForcedWalkSouth {
     STZ $2A
     TDC                   ; TDC/TAX: restore actor slot address to X register
     TAX 
-    COP [SetEntryContinue]
-    COP [PanCameraDown]   ; Pan camera southward — yields until camera finishes scrolling
+    COP [SetEntryHere]
+    COP [CameraPanDown]   ; Pan camera southward — yields until camera finishes scrolling
     JSR $&ApplyScrollOffset ; Apply position offset from walk sequence data to actor
     LDA #$2008
     TRB $10
     JSR $&ReadDirSprite_YVelocity ; Re-read next sprite frame for post-pan walk animation
-    COP [StagePlayerSpriteFromBank]
-    COP [AnimPlayerOnce]
+    COP [StagePlayerSprFromDP]
+    COP [RunPlayerAnim]
     JSR $&SyncPlayerToCamera ; Sync player position/flags to match camera after forced walk
     LDA #$FFFF
     TRB $joypadMaskStd    ; Unmask all joypad — forced walk finished, return control
@@ -63,15 +63,15 @@ ForcedWalkSouth {
   ForcedWalkNorth:
     LDA #$6000            ; ForcedWalkNorth: identical structure to South but PanCameraUp
     TRB $12
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     LDA #$FFFF
     TSB $joypadMaskStd
     STZ $joypadCurrent
     JSR $&ReadDirSprite_YVelocity
     LDA #$2008
     TRB $10
-    COP [StagePlayerSpriteFromBank]
-    COP [AnimPlayerOnce]
+    COP [StagePlayerSprFromDP]
+    COP [RunPlayerAnim]
     LDA #$2000
     TSB $10
     STZ $scrollStepIndex
@@ -84,14 +84,14 @@ ForcedWalkSouth {
     STZ $2A
     TDC 
     TAX 
-    COP [SetEntryContinue]
-    COP [PanCameraUp]
+    COP [SetEntryHere]
+    COP [CameraPanUp]
     JSR $&ApplyScrollOffset
     LDA #$2008
     TRB $10
     JSR $&ReadDirSprite_YVelocity
-    COP [StagePlayerSpriteFromBank]
-    COP [AnimPlayerOnce]
+    COP [StagePlayerSprFromDP]
+    COP [RunPlayerAnim]
     JSR $&SyncPlayerToCamera
     LDA #$FFFF
     TRB $joypadMaskStd
@@ -100,15 +100,15 @@ ForcedWalkSouth {
   ForcedWalkWest:
     LDA #$6000            ; ForcedWalkWest: uses ReadDirSprite_XVelocity and PanCameraLeft
     TRB $12
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     LDA #$FFFF
     TSB $joypadMaskStd
     STZ $joypadCurrent
     JSR $&ReadDirSprite_XVelocity ; X velocity for horizontal walk direction
     LDA #$2008
     TRB $10
-    COP [StagePlayerSpriteFromBank]
-    COP [AnimPlayerOnce]
+    COP [StagePlayerSprFromDP]
+    COP [RunPlayerAnim]
     LDA #$2000
     TSB $10
     STZ $scrollStepIndex
@@ -121,14 +121,14 @@ ForcedWalkSouth {
     STZ $2A
     TDC 
     TAX 
-    COP [SetEntryContinue]
-    COP [PanCameraLeft]
+    COP [SetEntryHere]
+    COP [CameraPanLeft]
     JSR $&ApplyScrollOffset
     LDA #$2008
     TRB $10
     JSR $&ReadDirSprite_XVelocity
-    COP [StagePlayerSpriteFromBank]
-    COP [AnimPlayerOnce]
+    COP [StagePlayerSprFromDP]
+    COP [RunPlayerAnim]
     JSR $&SyncPlayerToCamera
     LDA #$FFFF
     TRB $joypadMaskStd
@@ -137,15 +137,15 @@ ForcedWalkSouth {
   ForcedWalkEast:
     LDA #$6000            ; ForcedWalkEast: ReadDirSprite_XVelocity + PanCameraRight
     TRB $12
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     LDA #$FFFF
     TSB $joypadMaskStd
     STZ $joypadCurrent
     JSR $&ReadDirSprite_XVelocity
     LDA #$2008
     TRB $10
-    COP [StagePlayerSpriteFromBank]
-    COP [AnimPlayerOnce]
+    COP [StagePlayerSprFromDP]
+    COP [RunPlayerAnim]
     LDA #$2000
     TSB $10
     STZ $scrollStepIndex
@@ -158,14 +158,14 @@ ForcedWalkSouth {
     STZ $2A
     TDC 
     TAX 
-    COP [SetEntryContinue]
-    COP [PanCameraRight]
+    COP [SetEntryHere]
+    COP [CameraPanRight]
     JSR $&ApplyScrollOffset
     LDA #$2008
     TRB $10
     JSR $&ReadDirSprite_XVelocity
-    COP [StagePlayerSpriteFromBank]
-    COP [AnimPlayerOnce]
+    COP [StagePlayerSprFromDP]
+    COP [RunPlayerAnim]
     JSR $&SyncPlayerToCamera
     LDA #$FFFF
     TRB $joypadMaskStd

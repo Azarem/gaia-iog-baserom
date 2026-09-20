@@ -98,20 +98,20 @@ overworld_exit [
 OverworldExitFinalize {
     LDA #$0400            ; All warp paths converge: set gfxCacheIdxB=$0400, SetEntryContinue, RTL
     STA $gfxCacheIdxB
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     RTL 
 }
 
 OverworldExitSouthCape {
-    COP [SetEntryContinue] ; South Cape exit: playerY<$10 plus flag $26/$25 selects world-map destination
+    COP [SetEntryHere]    ; South Cape exit: playerY<$10 plus flag $26/$25 selects world-map destination
     LDA $playerYPos
     CMP #$0010
     BCC OverworldExitSouthCapeNorthGate
     RTL 
 
   OverworldExitSouthCapeNorthGate:
-    COP [BranchIfFlagByte] ( #26, #01, &OverworldExitSouthCapeFlag26 )
-    COP [BranchIfFlagByte] ( #25, #01, &OverworldExitSouthCapeFlag25 )
+    COP [BranchOnFlagByte] ( #26, #01, &OverworldExitSouthCapeFlag26 )
+    COP [BranchOnFlagByte] ( #25, #01, &OverworldExitSouthCapeFlag25 )
     LDA #$0000
     STA $0D60
     COP [StageWorldMapChoice] ( #$00D4, #$03A4, #01 )
@@ -146,7 +146,7 @@ OverworldExitEdwardCastle {
 }
 
 OverworldExitItoryVillage {
-    COP [BranchIfFlagByte] ( #01, #01, &OverworldExitItoryVillageBlocked ) ; Itory exit: flag $01 blocks; tile rect check plus flag $4A picks map node
+    COP [BranchOnFlagByte] ( #01, #01, &OverworldExitItoryVillageBlocked ) ; Itory exit: flag $01 blocks; tile rect check plus flag $4A picks map node
     COP [BranchIfPlayerInAbsTiles] ( #2D, #2E, #2F, #30, &OverworldExitItoryVillageEnter )
 }
 
@@ -155,7 +155,7 @@ OverworldExitItoryVillageBlocked {
 }
 
 OverworldExitItoryVillageEnter {
-    COP [BranchIfFlagByte] ( #4A, #01, &OverworldExitItoryVillageFlag4A )
+    COP [BranchOnFlagByte] ( #4A, #01, &OverworldExitItoryVillageFlag4A )
     LDA #$0000
     STA $0D60
     COP [StageWorldMapChoice] ( #$00C4, #$02B4, #04 )
@@ -187,7 +187,7 @@ OverworldExitFreejia {
 }
 
 OverworldExitFreejiaDefault {
-    COP [BranchIfFlagByte] ( #65, #01, &OverworldExitFreejiaFlag65 )
+    COP [BranchOnFlagByte] ( #65, #01, &OverworldExitFreejiaFlag65 )
     LDA #$0000
     STA $0D60
     COP [StageWorldMapChoice] ( #$0254, #$02D4, #09 )
@@ -219,7 +219,7 @@ OverworldExitAngelVillage {
 }
 
 OverworldExitAngelVillageDefault {
-    COP [BranchIfFlagByte] ( #8D, #01, &OverworldExitAngelVillageFlag8D )
+    COP [BranchOnFlagByte] ( #8D, #01, &OverworldExitAngelVillageFlag8D )
     LDA #$0000
     STA $0D60
     COP [StageWorldMapChoice] ( #$0384, #$0164, #15 )
@@ -239,8 +239,8 @@ OverworldExitWatermia {
 }
 
 OverworldExitWatermiaDefault {
-    COP [BranchIfFlagByte] ( #94, #01, &OverworldExitWatermiaFlag94 )
-    COP [BranchIfFlagByte] ( #8E, #01, &OverworldExitWatermiaFlag8E )
+    COP [BranchOnFlagByte] ( #94, #01, &OverworldExitWatermiaFlag94 )
+    COP [BranchOnFlagByte] ( #8E, #01, &OverworldExitWatermiaFlag8E )
     LDA #$0000
     STA $0D60
     COP [StageWorldMapChoice] ( #$02D4, #$01A4, #0B )
@@ -279,8 +279,8 @@ OverworldExitEuro {
 }
 
 OverworldExitEuroDefault {
-    COP [BranchIfFlagByte] ( #AC, #01, &OverworldExitEuroFlagAC )
-    COP [BranchIfFlagByte] ( #9F, #01, &OverworldExitEuroFlag9F )
+    COP [BranchOnFlagByte] ( #AC, #01, &OverworldExitEuroFlagAC )
+    COP [BranchOnFlagByte] ( #9F, #01, &OverworldExitEuroFlag9F )
     LDA #$0000
     STA $0D60
     COP [StageWorldMapChoice] ( #$01D4, #$0134, #0F )
@@ -319,8 +319,8 @@ OverworldExitNativeVillage {
 }
 
 OverworldExitNativeVillageDefault {
-    COP [BranchIfFlagByte] ( #B6, #01, &OverworldExitNativeVillageFlagB6 )
-    COP [BranchIfFlagByte] ( #B1, #01, &OverworldExitNativeVillageFlagB1 )
+    COP [BranchOnFlagByte] ( #B6, #01, &OverworldExitNativeVillageFlagB6 )
+    COP [BranchOnFlagByte] ( #B1, #01, &OverworldExitNativeVillageFlagB1 )
     LDA #$0000
     STA $0D60
     COP [StageWorldMapChoice] ( #$0124, #$01A4, #12 )
@@ -359,7 +359,7 @@ OverworldExitDaoVillage {
 }
 
 OverworldExitDaoVillageDefault {
-    COP [BranchIfFlagByte] ( #B4, #01, &OverworldExitDaoVillageFlagB4 )
+    COP [BranchOnFlagByte] ( #B4, #01, &OverworldExitDaoVillageFlagB4 )
     LDA #$0000
     STA $0D60
     COP [StageWorldMapChoice] ( #$0094, #$0114, #16 )

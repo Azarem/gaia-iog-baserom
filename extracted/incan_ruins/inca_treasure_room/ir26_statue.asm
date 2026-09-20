@@ -26,14 +26,14 @@ ir26_statue [
     STA $22
     LDA #$0031
     TSB $12
-    COP [OrActorFlags] ( #$0008 )
-    COP [SolidHighHere]
-    COP [SpawnMarkedAfter] ( @interaction_handlers.push_handler_solid, #$2300 )
+    COP [OrExtraFlags] ( #$0008 )
+    COP [MarkSolidHere]
+    COP [SpawnAfterMarked] ( @interaction_handlers.push_handler_solid, #$2300 )
 
   loc_0A88B9:
     LDA #$00FF
     STA $currentHp, X
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     LDA $currentHp, X
     CMP #$00FF
     BNE loc_0A88CC
@@ -48,6 +48,6 @@ ir26_statue [
     RTL 
 
   loc_0A88D9:
-    COP [JumpScript] ( @StandardEnemyDefeatHandler.EnemyDefeatFlashAndDrop )
+    COP [JumpFar] ( @StandardEnemyDefeatHandler.EnemyDefeatFlashAndDrop )
 } >
 ]

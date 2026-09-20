@@ -26,14 +26,14 @@ dm3F_switch [
     COP [SetMetasprite] ( @spriteset_enemies )
     COP [StageSpriteFrame] ( #0F )
     COP [AnimOnce]
-    COP [SolidHighHere]
+    COP [MarkSolidHere]
     SEP #$20
     STZ $0A01
     REP #$20
     COP [SetHitCallback] ( &code_05D050 )
     LDA #$00FF
     STA $currentHp, X
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     RTL 
 } >
 ]
@@ -44,7 +44,7 @@ code_05D050 {
     SEP #$20
     INC $0A01
     REP #$20
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     LDA #$00FF
     STA $currentHp, X
     RTL 

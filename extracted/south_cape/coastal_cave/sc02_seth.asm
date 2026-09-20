@@ -18,21 +18,21 @@ sc02_seth [
 
   code_04B458:
     COP [SpawnAfterAbsFlags] ( @e_sc02_actor_04B051, #$00E8, #$00C0, #$0300 )
-    COP [BranchIfFlagByte] ( #4C, #01, &code_04B55D )
+    COP [BranchOnFlagByte] ( #4C, #01, &code_04B55D )
     COP [SetSpritePriority] ( #30 )
-    COP [SolidHighHere]
+    COP [MarkSolidHere]
     LDA #$0200
     TSB $12
-    COP [BranchIfFlagByte] ( #20, #01, &code_04B583 )
-    COP [BranchIfFlagByte] ( #16, #01, &code_04B551 )
-    COP [SetOnInteract] ( &code_04B58F )
+    COP [BranchOnFlagByte] ( #20, #01, &code_04B583 )
+    COP [BranchOnFlagByte] ( #16, #01, &code_04B551 )
+    COP [SetInteractHandler] ( &code_04B58F )
     LDA #$0800
     TSB $10
 
   code_04B488:
     COP [StageSpriteFrame] ( #33 )
     COP [AnimOnce]
-    COP [BranchIfFlagByte] ( #03, #00, &code_04B488 )
+    COP [BranchOnFlagByte] ( #03, #00, &code_04B488 )
     LDA #$0800
     TRB $10
     LDA #$0200
@@ -40,11 +40,11 @@ sc02_seth [
     COP [WaitByte] ( #1D )
     COP [StageSpriteFrame] ( #12 )
     COP [AnimOnce]
-    COP [ExitIfFlagByte] ( #03, #00 )
-    COP [SetOnInteract] ( &code_04B597 )
+    COP [WaitOnFlagByte] ( #03, #00 )
+    COP [SetInteractHandler] ( &code_04B597 )
     COP [StageSpriteFrame] ( #14 )
     COP [AnimOnce]
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     COP [BranchIfPlayerAt] ( #$0078, #$0090, &code_04B4BD )
     RTL 
 } >
@@ -55,18 +55,18 @@ code_04B4BD {
     TSB $joypadMaskStd
     LDA #$0000
     JSL $@InitPlayerScriptVariant
-    COP [SetEntryExit]
+    COP [SetEntryHereAndYield]
     COP [PrintDialogString] ( &dialogstring_04B652 )
     LDA #$CFF0
     TRB $joypadMaskStd
     COP [SetFlagByte] ( #05 )
-    COP [SetOnInteract] ( &code_04B5AC )
+    COP [SetInteractHandler] ( &code_04B5AC )
     LDY $06
     LDA $0014, Y
     STA $orbitAngle, X
     LDA $0016, Y
     STA $orbitDiameter, X
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     LDY $06
     LDA $0014, Y
     CMP $orbitAngle, X
@@ -80,12 +80,12 @@ code_04B4BD {
     COP [WaitByte] ( #1F )
     COP [PrintDialogString] ( &dialogstring_04B75D )
     COP [SetFlagByte] ( #06 )
-    COP [CallScript] ( &code_04B55F )
-    COP [SetOnInteract] ( &code_04B5B1 )
-    COP [ExitIfFlagByte] ( #08, #01 )
-    COP [SetOnInteract] ( #$0000 )
-    COP [CallScript] ( &code_04B55F )
-    COP [ExitIfFlagByte] ( #09, #01 )
+    COP [CallNear] ( &code_04B55F )
+    COP [SetInteractHandler] ( &code_04B5B1 )
+    COP [WaitOnFlagByte] ( #08, #01 )
+    COP [SetInteractHandler] ( #$0000 )
+    COP [CallNear] ( &code_04B55F )
+    COP [WaitOnFlagByte] ( #09, #01 )
     COP [StageSpriteMoveY] ( #16, #11 )
     COP [AnimOnce]
     COP [StageSpriteFrame] ( #12 )
@@ -100,12 +100,12 @@ code_04B4BD {
     COP [AnimOnce]
     COP [StageSpriteFrame] ( #14 )
     COP [AnimOnce]
-    COP [ExitIfFlagByte] ( #0B, #01 )
+    COP [WaitOnFlagByte] ( #0B, #01 )
 }
 
 code_04B551 {
-    COP [SetOnInteract] ( &code_04B592 )
-    COP [SetEntryContinue]
+    COP [SetInteractHandler] ( &code_04B592 )
+    COP [SetEntryHere]
     COP [StageSpriteFrame] ( #33 )
     COP [AnimOnce]
     RTL 
@@ -130,8 +130,8 @@ code_04B55F {
 }
 
 code_04B583 {
-    COP [SetOnInteract] ( &code_04B59C )
-    COP [SetEntryContinue]
+    COP [SetInteractHandler] ( &code_04B59C )
+    COP [SetEntryHere]
     COP [StageSpriteFrame] ( #33 )
     COP [AnimOnce]
     RTL 
@@ -152,7 +152,7 @@ code_04B597 {
 }
 
 code_04B59C {
-    COP [BranchIfFlagByte] ( #25, #01, &code_04B5A7 )
+    COP [BranchOnFlagByte] ( #25, #01, &code_04B5A7 )
     COP [PrintDialogString] ( &dialogstring_04B5B6 )
     RTL 
 }
@@ -190,9 +190,9 @@ dialogstring_04B7DE `[TPL:A][TPL:5]Seth: Yeah, it must be[N]some kind of psychic
 ---------------------------------------------
 
 e_sc02_actor_04B051 {
-    COP [SolidHighHere]
-    COP [SpawnMarkedAfter] ( @interaction_handlers.push_handler_solid, #$2300 )
-    COP [SetEntryContinue]
+    COP [MarkSolidHere]
+    COP [SpawnAfterMarked] ( @interaction_handlers.push_handler_solid, #$2300 )
+    COP [SetEntryHere]
     COP [StageSpriteFrame] ( #37 )
     COP [AnimOnce]
     RTL 

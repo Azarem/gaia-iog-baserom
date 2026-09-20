@@ -26,7 +26,7 @@ code_list_06AAE4 [
 ]
 
 code_06AAEA {
-    COP [SolidHighHere]
+    COP [MarkSolidHere]
     LDA #$CFF0
     TSB $joypadMaskStd
     COP [WaitByte] ( #1D )
@@ -37,9 +37,9 @@ code_06AAEA {
     COP [WaitByte] ( #3F )
     COP [StageSpriteFrame] ( #14 )
     COP [AnimOnce]
-    COP [SetOnInteract] ( &code_06AB4E )
-    COP [ExitIfFlagByte] ( #02, #01 )
-    COP [SetEntryContinue]
+    COP [SetInteractHandler] ( &code_06AB4E )
+    COP [WaitOnFlagByte] ( #02, #01 )
+    COP [SetEntryHere]
     COP [BranchIfPlayerInAbsTiles] ( #0B, #00, #0C, #10, &code_06AB1D )
     RTL 
 }
@@ -50,7 +50,7 @@ code_06AB1D {
     COP [SetFlagByte] ( #03 )
     COP [StageSpriteFrame] ( #12 )
     COP [AnimOnce]
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     RTL 
 }
 
@@ -67,7 +67,7 @@ code_06AB30 {
     COP [WaitByte] ( #3B )
     COP [PrintDialogString] ( &dialogstring_06AD64 )
     COP [SetFlagByte] ( #01 )
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     RTL 
 }
 

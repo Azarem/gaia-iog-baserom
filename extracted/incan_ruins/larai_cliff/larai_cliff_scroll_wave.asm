@@ -27,7 +27,7 @@ larai_cliff_scroll_wave [
     PLA 
     STA $cameraDeltaX
     COP [BindSineHdma] ( $7E8800, #0D )
-    COP [BranchIfFlagByte] ( #FF, #00, &code_00BD98 )
+    COP [BranchOnFlagByte] ( #FF, #00, &code_00BD98 )
     RTL 
 } >
 ]

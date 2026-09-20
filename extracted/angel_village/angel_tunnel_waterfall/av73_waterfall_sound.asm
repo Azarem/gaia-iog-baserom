@@ -16,7 +16,7 @@ av73_waterfall_sound [
   code_06D6F7:
     COP [BranchIfPlayerInAbsTiles] ( #00, #00, #40, #10, &code_06D72E )
     COP [SpawnAfterFlags] ( @code_06D733, #$2000 )
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     LDA $0036
     AND #$0003
     BEQ loc_06D711
@@ -52,7 +52,7 @@ code_06D72E {
 }
 
 code_06D733 {
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     COP [BranchIfPlayerInAbsTiles] ( #2A, #17, #2F, #1D, &code_06D741 )
     COP [ClearFlagByte] ( #00 )
     RTL 

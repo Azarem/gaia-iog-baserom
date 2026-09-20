@@ -11,18 +11,18 @@ av6A_kara [
   actor-def < #1A, #00, #30, {
 
   code_06C385:
-    COP [BranchIfFlagByte] ( #8D, #01, &av6A_kara_destroy )
-    COP [ExitIfFlagByte] ( #8C, #01 )
+    COP [BranchOnFlagByte] ( #8D, #01, &av6A_kara_destroy )
+    COP [WaitOnFlagByte] ( #8C, #01 )
     LDA #$2000
     TRB $10
-    COP [SetOnInteract] ( &code_06C3AC )
-    COP [ExitIfFlagByte] ( #A9, #01 )
+    COP [SetInteractHandler] ( &code_06C3AC )
+    COP [WaitOnFlagByte] ( #A9, #01 )
     COP [StageSpriteMoveX] ( #21, #11 )
     COP [AnimOnce]
     COP [StageSpriteFrame] ( #1A )
     COP [AnimOnce]
-    COP [SolidHighHere]
-    COP [SetEntryContinue]
+    COP [MarkSolidHere]
+    COP [SetEntryHere]
     RTL 
 } >
 ]

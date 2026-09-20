@@ -15,8 +15,8 @@ ir1C_kara [
   actor-def < #12, #00, #10, {
 
   code_09CEA6:
-    COP [BranchIfFlagByte] ( #4B, #01, &code_09CF07 )
-    COP [SetEntryContinue]
+    COP [BranchOnFlagByte] ( #4B, #01, &code_09CF07 )
+    COP [SetEntryHere]
     COP [BranchIfPlayerInAbsTiles] ( #1A, #0F, #1B, #11, &code_09CEB7 )
     RTL 
 } >
@@ -38,7 +38,7 @@ code_09CEB7 {
     COP [StartMusic] ( #02 )
     COP [WaitByte] ( #77 )
     COP [SetFlagByte] ( #03 )
-    COP [ExitIfFlagByte] ( #02, #01 )
+    COP [WaitOnFlagByte] ( #02, #01 )
     LDA #$0800
     TSB $10
     COP [StageSpriteMoveY] ( #17, #12 )
@@ -54,9 +54,9 @@ code_09CEB7 {
 
 code_09CF07 {
     COP [SetTilePos] ( #15, #13 )
-    COP [SolidHighHere]
-    COP [SetOnInteract] ( &code_09CF14 )
-    COP [SetEntryContinue]
+    COP [MarkSolidHere]
+    COP [SetInteractHandler] ( &code_09CF14 )
+    COP [SetEntryHere]
     RTL 
 }
 

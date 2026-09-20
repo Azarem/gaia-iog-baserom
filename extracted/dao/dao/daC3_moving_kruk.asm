@@ -12,10 +12,10 @@ daC3_moving_kruk [
   code_08AAE2:
     LDA #$0200
     TSB $12
-    COP [SetOnInteract] ( &code_08AB0C )
-    COP [SolidHighHere]
+    COP [SetInteractHandler] ( &code_08AB0C )
+    COP [MarkSolidHere]
     COP [WaitByte] ( #EF )
-    COP [ClearLowHere]
+    COP [ClearSolidHere]
     COP [SpawnAfterFlags] ( @code_08AB03, #$1001 )
     COP [StageSpriteLoopMoveXY] ( #1B, #40, #53, #54 )
     COP [AnimLoop]

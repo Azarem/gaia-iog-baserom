@@ -9,9 +9,9 @@ sc07_chef [
   actor-def < #05, #00, #10, {
 
   code_0491DF:
-    COP [SetOnInteract] ( &code_0491E8 )
-    COP [SolidHighHere]
-    COP [SetEntryContinue]
+    COP [SetInteractHandler] ( &code_0491E8 )
+    COP [MarkSolidHere]
+    COP [SetEntryHere]
     RTL 
 } >
 ]

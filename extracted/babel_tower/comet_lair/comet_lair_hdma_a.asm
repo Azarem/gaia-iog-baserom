@@ -16,8 +16,8 @@ comet_lair_hdma_a [
     LDA #$0000
     STA $7E8C30
     STA $7E8E30
-    COP [SetEntryExit]
-    COP [BranchIfFlagByte] ( #FF, #00, &code_00BCF7 )
+    COP [SetEntryHereAndYield]
+    COP [BranchOnFlagByte] ( #FF, #00, &code_00BCF7 )
     COP [TickSineHdma] ( #05, #02 )
     COP [BindSineHdma] ( $7E8C00, #10 )
     RTL 

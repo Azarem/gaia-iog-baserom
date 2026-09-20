@@ -11,12 +11,12 @@ wa78_prize_kruk [
   actor-def < #1A, #00, #10, {
 
   code_079B09:
-    COP [BranchIfFlagByte] ( #94, #01, &code_079B29 )
-    COP [BranchIfFlagByte] ( #97, #00, &code_079B29 )
+    COP [BranchOnFlagByte] ( #94, #01, &code_079B29 )
+    COP [BranchOnFlagByte] ( #97, #00, &code_079B29 )
     LDA #$0200
     TSB $12
-    COP [SetOnInteract] ( &code_079B2B )
-    COP [SolidHighHere]
+    COP [SetInteractHandler] ( &code_079B2B )
+    COP [MarkSolidHere]
     COP [WaitWhileOffscreen] ( #0F )
     COP [StageSpriteFrame] ( #1C )
     COP [AnimOnce]

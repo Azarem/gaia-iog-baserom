@@ -11,12 +11,12 @@ fireplace_journal [
   actor-def < #22, #00, #10, {
 
   code_07B4BE:
-    COP [BranchIfFlagByte] ( #8F, #01, &code_07B4D4 )
+    COP [BranchOnFlagByte] ( #8F, #01, &code_07B4D4 )
     LDA #$0200
     TSB $12
-    COP [AddPosition] ( #03, #00 )
-    COP [SetOnInteract] ( &code_07B4D6 )
-    COP [SetEntryContinue]
+    COP [NudgePosition] ( #03, #00 )
+    COP [SetInteractHandler] ( &code_07B4D6 )
+    COP [SetEntryHere]
     RTL 
 } >
 ]

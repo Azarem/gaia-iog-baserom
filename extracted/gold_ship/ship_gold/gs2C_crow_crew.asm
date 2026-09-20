@@ -25,14 +25,14 @@ gs2C_crow_crew [
   actor-def < #02, #00, #30, {
 
   code_058427:
-    COP [AddPosition] ( #00, #FC )
-    COP [SetOnInteract] ( &code_0584A9 )
-    COP [BranchIfFlagByte] ( #4F, #01, &code_058498 )
-    COP [ExitIfFlagByte] ( #4C, #01 )
+    COP [NudgePosition] ( #00, #FC )
+    COP [SetInteractHandler] ( &code_0584A9 )
+    COP [BranchOnFlagByte] ( #4F, #01, &code_058498 )
+    COP [WaitOnFlagByte] ( #4C, #01 )
     COP [SpawnAfterFlags] ( @code_05857A, #$2000 )
     LDA #$2000
     TRB $10
-    COP [ExitIfFlagByte] ( #4F, #01 )
+    COP [WaitOnFlagByte] ( #4F, #01 )
     LDA #$EFF0
     TSB $joypadMaskStd
     COP [StartMusic] ( #03 )
@@ -69,12 +69,12 @@ code_058498 {
     COP [WaitByte] ( #01 )
     LDA #$0002
     STA $musicRoomGroup
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     RTL 
 }
 
 code_0584A9 {
-    COP [BranchIfFlagByte] ( #4F, #01, &code_0584B7 )
+    COP [BranchOnFlagByte] ( #4F, #01, &code_0584B7 )
     COP [PrintDialogString] ( &dialogstring_0584BC )
     COP [SetFlagByte] ( #4F )
     RTL 
@@ -90,7 +90,7 @@ dialogstring_0584BC `[DEF]Guard: Oh short King,[N]look there. The ship is[N]comi
 dialogstring_0584FB `[DEF]Guard: After living in [N]darkness for so long, [N]the brightness is like [N]a new beginning. [FIN]How can invaders come[N]to destroy a world as[N]beautiful as this?[END]`
 
 code_05857A {
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     SEP #$20
     LDA #$15
     STA $TM
@@ -99,7 +99,7 @@ code_05857A {
     LDA #$E0
     STA $COLDATA
     REP #$20
-    COP [BranchIfFlagByte] ( #4F, #01, &code_058596 )
+    COP [BranchOnFlagByte] ( #4F, #01, &code_058596 )
     RTL 
 }
 

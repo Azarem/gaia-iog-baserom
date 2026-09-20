@@ -15,20 +15,20 @@ eu95_neils_father [
   actor-def < #02, #00, #10, {
 
   code_07E1BD:
-    COP [BranchIfFlagByte] ( #A8, #01, &code_07E21A )
+    COP [BranchOnFlagByte] ( #A8, #01, &code_07E21A )
     LDA #$1200
     TSB $12
-    COP [SolidHighHere]
-    COP [SetOnInteract] ( &code_07E21C )
-    COP [AddPosition] ( #00, #FE )
-    COP [ExitIfFlagByte] ( #A8, #01 )
+    COP [MarkSolidHere]
+    COP [SetInteractHandler] ( &code_07E21C )
+    COP [NudgePosition] ( #00, #FE )
+    COP [WaitOnFlagByte] ( #A8, #01 )
     LDA #$EFF0
     TSB $joypadMaskStd
     COP [WaitByte] ( #03 )
     COP [StartMusic] ( #1B )
     COP [WaitByte] ( #3B )
-    COP [ClearLowHere]
-    COP [AddPosition] ( #00, #F0 )
+    COP [ClearSolidHere]
+    COP [NudgePosition] ( #00, #F0 )
     COP [StageSpriteLoopMoveY] ( #2F, #02, #12 )
     COP [AnimLoop]
     COP [StageSpriteLoop] ( #2F, #06 )

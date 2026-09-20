@@ -16,9 +16,9 @@ ec0F_king_bat [
     TSB $12
     COP [SetSpritePriority] ( #30 )
     COP [SetSpritePalette] ( #02 )
-    COP [AddPosition] ( #08, #00 )
+    COP [NudgePosition] ( #08, #00 )
     COP [WaitWhileOffscreen] ( #10 )
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     JSR $&code_0A8733
     BCC loc_0A8614
     RTL 
@@ -62,7 +62,7 @@ ec0F_sub_bat1 [
   code_0A866C:
     JSR $&code_0A8743
     COP [WaitWhileOffscreen] ( #10 )
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     JSR $&code_0A8733
     BCC loc_0A867A
     RTL 
@@ -90,7 +90,7 @@ ec0F_sub_bat2 [
   code_0A869D:
     JSR $&code_0A8743
     COP [WaitWhileOffscreen] ( #10 )
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     JSR $&code_0A8733
     BCC loc_0A86AB
     RTL 
@@ -118,7 +118,7 @@ ec0F_sub_bat3 [
   code_0A86CE:
     JSR $&code_0A8743
     COP [WaitWhileOffscreen] ( #10 )
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     JSR $&code_0A8733
     BCC loc_0A86DC
     RTL 
@@ -146,7 +146,7 @@ ec0F_sub_bat4 [
   code_0A8702:
     JSR $&code_0A8743
     COP [WaitWhileOffscreen] ( #10 )
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     JSR $&code_0A8733
     BCC loc_0A8710
     RTL 
@@ -186,7 +186,7 @@ code_0A8743 {
     TSB $12
     COP [SetSpritePriority] ( #30 )
     COP [SetSpritePalette] ( #00 )
-    COP [AddPosition] ( #08, #00 )
+    COP [NudgePosition] ( #08, #00 )
     RTS 
 }
 

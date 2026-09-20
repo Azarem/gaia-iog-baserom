@@ -22,9 +22,9 @@ btE2_brought_back [
     LDA #$0200
     TSB $12
     COP [SetSpritePriority] ( #30 )
-    COP [SolidHighHere]
-    COP [SetOnInteract] ( &code_09985E )
-    COP [ExitIfFlagByte] ( #01, #01 )
+    COP [MarkSolidHere]
+    COP [SetInteractHandler] ( &code_09985E )
+    COP [WaitOnFlagByte] ( #01, #01 )
     LDA #$0001
     TSB $10
     LDA #$CFF0
@@ -66,7 +66,7 @@ btE2_brought_back [
     TRB $joypadMaskStd
     COP [StageSpriteLoopMoveY] ( #00, #0A, #04 )
     COP [AnimLoop]
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     RTL 
 } >
 ]
@@ -80,7 +80,7 @@ code_09985E {
 dialogstring_099866 `[DEF]You were brought back to [N]save Earth. I'll take [N]you to the top floor.[END]`
 
 code_099899 {
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     PHX 
     LDX $24
     LDY $playerActor

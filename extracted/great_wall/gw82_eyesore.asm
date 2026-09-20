@@ -71,14 +71,14 @@ code_0B8E29 {
     TSB $12
     COP [StageSpriteLoop] ( #0F, #02 )
     COP [AnimLoop]
-    COP [LoopInit] ( #03 )
+    COP [LoopStart] ( #03 )
     COP [StageSpriteFrame] ( #0F )
     COP [AnimOnce]
     COP [RngByte]
-    COP [SpawnAfterRelFlags] ( @code_0B8E67, #$0000, #$FFF6, #$0302 )
-    COP [SpawnAfterRelFlags] ( @code_0B8E6C, #$0000, #$FFF6, #$0302 )
+    COP [SpawnAfterOffsetFlags] ( @code_0B8E67, #$0000, #$FFF6, #$0302 )
+    COP [SpawnAfterOffsetFlags] ( @code_0B8E6C, #$0000, #$FFF6, #$0302 )
     COP [PlaySoundCh1] ( #1E )
-    COP [LoopNext]
+    COP [LoopEnd]
     COP [StageSpriteLoop] ( #00, #02 )
     COP [AnimLoop]
     LDA #$0001
@@ -97,22 +97,22 @@ code_0B8E6C {
     LDA $0410
     AND #$0003
     BNE loc_0B8E80
-    COP [StageForceMoveX] ( #00 )
+    COP [StageMoveX] ( #00 )
     RTS 
 
   loc_0B8E80:
     DEC 
     BNE loc_0B8E86
-    COP [StageForceMoveX] ( #13 )
+    COP [StageMoveX] ( #13 )
 
   loc_0B8E86:
     DEC 
     BNE loc_0B8E8D
-    COP [StageForceMoveX] ( #11 )
+    COP [StageMoveX] ( #11 )
     RTS 
 
   loc_0B8E8D:
-    COP [StageForceMoveX] ( #13 )
+    COP [StageMoveX] ( #13 )
     RTS 
 }
 
@@ -141,15 +141,15 @@ code_0B8E91 {
     STZ $08
     INC 
     STA $24
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     LDA $2A
     BNE loc_0B8EC8
-    COP [ReloadForceMove]
+    COP [ReloadMoveDurations]
     STZ $2E
     BRA loc_0B8EB3
 
   loc_0B8EC8:
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     COP [TickGravity]
     CMP #$0000
     BMI loc_0B8ED6

@@ -13,11 +13,11 @@ dm3F_elevator_door [
   actor-def < #35, #01, #30, {
 
   code_05D645:
-    COP [AddPosition] ( #08, #FE )
+    COP [NudgePosition] ( #08, #FE )
     LDA #$0200
     TSB $12
-    COP [SetOnInteract] ( &code_05D661 )
-    COP [ExitIfFlagByte] ( #69, #01 )
+    COP [SetInteractHandler] ( &code_05D661 )
+    COP [WaitOnFlagByte] ( #69, #01 )
     COP [StageBgChange] ( #7B )
     COP [ApplyBgChange]
     COP [SetFlagWord] ( #$017B )
@@ -26,7 +26,7 @@ dm3F_elevator_door [
 ]
 
 code_05D661 {
-    COP [BranchIfEquipped] ( #0F, &code_05D66B )
+    COP [BranchIfItemEquipped] ( #0F, &code_05D66B )
     COP [PrintDialogString] ( &dialogstring_05D676 )
     RTL 
 }

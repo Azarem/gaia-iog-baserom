@@ -22,14 +22,14 @@ mu60_plasma_chain [
   actor-def < #2C, #00, #20, {
 
   code_0AE946:
-    COP [BranchIfSolid] ( &code_0AE970 )
+    COP [BranchIfSolidHere] ( &code_0AE970 )
     LDA #$&enemy_stats_table
     STA $statsPtr, X
     COP [SpawnAfterFlags] ( @code_0AE972, #$0200 )
     COP [SpawnAfterFlags] ( @code_0AEA0D, #$0200 )
     COP [SpawnAfterFlags] ( @code_0AEA0D, #$0200 )
     COP [SpawnAfterFlags] ( @code_0AEA0D, #$0200 )
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     RTL 
 } >
 ]
@@ -47,7 +47,7 @@ code_0AE972 {
 
   code_0AE981:
     COP [WaitWhileOffscreen] ( #08 )
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     COP [BranchIfPlayerNear] ( #05, &code_0AE9D5 )
     COP [RngByte]
     AND #$007F
@@ -126,6 +126,6 @@ code_0AEA0D {
     LDA $metaspritePtr, X
     PLX 
     STA $metaspritePtr, X
-    COP [SetEntryExit]
+    COP [SetEntryHereAndYield]
     BRA loc_0AEA15
 }

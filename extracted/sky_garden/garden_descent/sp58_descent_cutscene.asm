@@ -36,8 +36,8 @@ sp58_descent_cutscene [
   code_068140:
     COP [StageSpriteMoveY] ( #00, #11 )
     COP [AnimOnce]
-    COP [BranchIfFlagByte] ( #01, #00, &code_068140 )
-    COP [ExitIfFlagByte] ( #02, #01 )
+    COP [BranchOnFlagByte] ( #01, #00, &code_068140 )
+    COP [WaitOnFlagByte] ( #02, #01 )
     COP [ClearFlagByte] ( #02 )
     LDA #$FFF0
     STA $16
@@ -51,7 +51,7 @@ sp58_descent_cutscene [
     LDA #$0404
     STA $gfxCacheIdxB
     COP [QueueMapChange] ( #58, #$0000, #$0000, #80, #$1100 )
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     RTL 
 
   loc_068183:

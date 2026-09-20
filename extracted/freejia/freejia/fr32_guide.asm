@@ -15,10 +15,10 @@ fr32_guide [
   actor-def < #02, #00, #10, {
 
   code_05B198:
-    COP [BranchIfFlagByte] ( #57, #01, &code_05B203 )
+    COP [BranchOnFlagByte] ( #57, #01, &code_05B203 )
     COP [SpawnAfterAbsFlags] ( @code_05B315, #$0278, #$0230, #$1000 )
-    COP [BranchIfFlagByte] ( #64, #01, &code_05B1F1 )
-    COP [ExitIfFlagByte] ( #02, #01 )
+    COP [BranchOnFlagByte] ( #64, #01, &code_05B1F1 )
+    COP [WaitOnFlagByte] ( #02, #01 )
     COP [StageSpriteLoopMoveX] ( #08, #04, #02 )
     COP [AnimLoop]
     COP [StageSpriteLoopMoveY] ( #06, #02, #11 )
@@ -27,7 +27,7 @@ fr32_guide [
     COP [AnimOnce]
     COP [PrintDialogString] ( &dialogstring_05B225 )
     COP [ClearFlagByte] ( #02 )
-    COP [ExitIfFlagByte] ( #03, #01 )
+    COP [WaitOnFlagByte] ( #03, #01 )
     COP [StageSpriteMoveX] ( #09, #11 )
     COP [AnimOnce]
     COP [StageSpriteMoveY] ( #07, #02 )
@@ -45,18 +45,18 @@ code_05B1F1 {
     COP [StageSpriteFrame] ( #04 )
     COP [AnimOnce]
     COP [SetTilePos] ( #28, #25 )
-    COP [SetOnInteract] ( &code_05B21B )
-    COP [SolidHighHere]
-    COP [SetEntryContinue]
+    COP [SetInteractHandler] ( &code_05B21B )
+    COP [MarkSolidHere]
+    COP [SetEntryHere]
     RTL 
 }
 
 code_05B203 {
     COP [SpawnAfterAbsFlags] ( @town_door.TownDoorInit, #$0278, #$0230, #$1000 )
-    COP [SetOnInteract] ( &code_05B220 )
+    COP [SetInteractHandler] ( &code_05B220 )
     COP [SetTilePos] ( #29, #24 )
-    COP [SolidHighHere]
-    COP [SetEntryContinue]
+    COP [MarkSolidHere]
+    COP [SetEntryHere]
     RTL 
 }
 
@@ -80,9 +80,9 @@ code_05B315 {
     COP [SetMetasprite] ( @spriteset_npc_props )
     COP [StageSpriteFrame] ( #01 )
     COP [AnimOnce]
-    COP [SolidHighHere]
-    COP [ExitIfFlagByte] ( #05, #01 )
+    COP [MarkSolidHere]
+    COP [WaitOnFlagByte] ( #05, #01 )
     COP [PlaySoundCh2] ( #0E )
-    COP [ClearLowHere]
+    COP [ClearSolidHere]
     COP [Die]
 }

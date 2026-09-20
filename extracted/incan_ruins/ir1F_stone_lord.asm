@@ -41,7 +41,7 @@ ir1F_stone_lord4 [
   actor-def < #02, #00, #03, {
 
   code_0A95C5:
-    COP [SetHFlip]
+    COP [SetHMirror]
     BRA loc_0A95C9
 
   loc_0A95C9:
@@ -56,9 +56,9 @@ ir1F_stone_lord4 [
     STA $orbitAngle, X
     COP [SetSpritePalette] ( #0E )
     COP [SetSpritePriority] ( #20 )
-    COP [SolidHighHere]
+    COP [MarkSolidHere]
     COP [WaitWhileOffscreen] ( #08 )
-    COP [SpawnMarkedAfter] ( @interaction_handlers.push_handler_solid, #$2300 )
+    COP [SpawnAfterMarked] ( @interaction_handlers.push_handler_solid, #$2300 )
     LDA $orbitAngle, X
     BEQ loc_0A960D
     BRA loc_0A9615
@@ -66,7 +66,7 @@ ir1F_stone_lord4 [
   loc_0A95F5:
     LDA #$0200
     TRB $10
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     LDA $currentHp, X
     CMP #$000A
     BNE loc_0A9606
@@ -78,12 +78,12 @@ ir1F_stone_lord4 [
     BRA code_0A9619
 
   loc_0A960D:
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     COP [BranchIfPlayerNear] ( #02, &code_0A9619 )
     RTL 
 
   loc_0A9615:
-    COP [ExitIfFlagByte] ( #0F, #01 )
+    COP [WaitOnFlagByte] ( #0F, #01 )
 } >
 ]
 
@@ -93,27 +93,27 @@ code_0A9619 {
 }
 
 code_0A961F {
-    COP [SetEntryExitNow] ( @code_0A9619 )
+    COP [JumpNextFrame] ( @code_0A9619 )
 
   loc_0A9624:
     COP [KillNext]
-    COP [LoopInit] ( #1E )
+    COP [LoopStart] ( #1E )
     COP [SetSpritePalette] ( #0E )
-    COP [SetEntryExit]
+    COP [SetEntryHereAndYield]
     COP [SetSpritePalette] ( #02 )
-    COP [LoopNext]
-    COP [LoopInit] ( #0F )
+    COP [LoopEnd]
+    COP [LoopStart] ( #0F )
     COP [SetSpritePalette] ( #0E )
-    COP [SetEntryExit]
-    COP [SetEntryExit]
+    COP [SetEntryHereAndYield]
+    COP [SetEntryHereAndYield]
     COP [SetSpritePalette] ( #02 )
-    COP [SetEntryExit]
-    COP [LoopNext]
+    COP [SetEntryHereAndYield]
+    COP [LoopEnd]
     LDA #$0300
     TRB $10
     LDA #$0010
     TRB $12
-    COP [ClearLowHere]
+    COP [ClearSolidHere]
     JMP $&code_0A965F
 }
 
@@ -128,7 +128,7 @@ ir1F_stone_lord5 [
 ]
 
 code_0A965F {
-    COP [SetEntryExit]
+    COP [SetEntryHereAndYield]
 
   code_0A9661:
     COP [BranchNearerAxis] ( &code_0A9667, &code_0A9671 )
@@ -147,7 +147,7 @@ code_0A967B {
 }
 
 code_0A967C {
-    COP [SetEntryExit]
+    COP [SetEntryHereAndYield]
     COP [RngByte]
     AND #$0003
     STA $0000
@@ -218,7 +218,7 @@ code_0A970E {
     COP [StageSpriteFrame] ( #0B )
     COP [AnimOnce]
     COP [PlaySoundCh1] ( #21 )
-    COP [SpawnLastRel] ( @code_0A977E, #E0, #00, #$0200 )
+    COP [SpawnListAppend] ( @code_0A977E, #E0, #00, #$0200 )
     COP [StageSpriteFrame] ( #1A )
     COP [AnimOnce]
     JMP $&code_0A969C
@@ -228,7 +228,7 @@ code_0A972A {
     COP [PlaySoundCh1] ( #1F )
     COP [StageSpriteFrame] ( #8B )
     COP [AnimOnce]
-    COP [SpawnLastRel] ( @code_0A979A, #20, #00, #$0200 )
+    COP [SpawnListAppend] ( @code_0A979A, #20, #00, #$0200 )
     COP [PlaySoundCh1] ( #21 )
     COP [StageSpriteFrame] ( #9A )
     COP [AnimOnce]
@@ -239,7 +239,7 @@ code_0A9746 {
     COP [PlaySoundCh1] ( #1F )
     COP [StageSpriteFrame] ( #0A )
     COP [AnimOnce]
-    COP [SpawnLastRel] ( @code_0A97B6, #00, #E0, #$0200 )
+    COP [SpawnListAppend] ( @code_0A97B6, #00, #E0, #$0200 )
     COP [PlaySoundCh1] ( #21 )
     COP [StageSpriteFrame] ( #19 )
     COP [AnimOnce]
@@ -250,7 +250,7 @@ code_0A9762 {
     COP [PlaySoundCh1] ( #1F )
     COP [StageSpriteFrame] ( #09 )
     COP [AnimOnce]
-    COP [SpawnLastRel] ( @code_0A97D2, #00, #08, #$0200 )
+    COP [SpawnListAppend] ( @code_0A97D2, #00, #08, #$0200 )
     COP [PlaySoundCh1] ( #21 )
     COP [StageSpriteFrame] ( #18 )
     COP [AnimOnce]
@@ -261,10 +261,10 @@ code_0A977E {
     COP [SetSpritePalette] ( #00 )
 
   code_0A9781:
-    COP [BranchIfSolid] ( &code_0A97EC )
+    COP [BranchIfSolidHere] ( &code_0A97EC )
     COP [StageSpriteFrame] ( #23 )
     COP [AnimOnce]
-    COP [SpawnLastRel] ( @code_0A9781, #FA, #00, #$0200 )
+    COP [SpawnListAppend] ( @code_0A9781, #FA, #00, #$0200 )
     COP [StageSpriteFrame] ( #24 )
     COP [AnimOnce]
     COP [Die]
@@ -274,10 +274,10 @@ code_0A979A {
     COP [SetSpritePalette] ( #00 )
 
   code_0A979D:
-    COP [BranchIfSolid] ( &code_0A97EC )
+    COP [BranchIfSolidHere] ( &code_0A97EC )
     COP [StageSpriteFrame] ( #A3 )
     COP [AnimOnce]
-    COP [SpawnLastRel] ( @code_0A979D, #06, #00, #$0200 )
+    COP [SpawnListAppend] ( @code_0A979D, #06, #00, #$0200 )
     COP [StageSpriteFrame] ( #A4 )
     COP [AnimOnce]
     COP [Die]
@@ -287,10 +287,10 @@ code_0A97B6 {
     COP [SetSpritePalette] ( #00 )
 
   code_0A97B9:
-    COP [BranchIfSolid] ( &code_0A97EC )
+    COP [BranchIfSolidHere] ( &code_0A97EC )
     COP [StageSpriteFrame] ( #23 )
     COP [AnimOnce]
-    COP [SpawnLastRel] ( @code_0A97B9, #00, #FA, #$0200 )
+    COP [SpawnListAppend] ( @code_0A97B9, #00, #FA, #$0200 )
     COP [StageSpriteFrame] ( #24 )
     COP [AnimOnce]
     COP [Die]
@@ -300,10 +300,10 @@ code_0A97D2 {
     COP [SetSpritePalette] ( #00 )
 
   code_0A97D5:
-    COP [BranchIfSolid] ( &code_0A97EC )
+    COP [BranchIfSolidHere] ( &code_0A97EC )
     COP [StageSpriteFrame] ( #23 )
     COP [AnimOnce]
-    COP [SpawnLastRel] ( @code_0A97D5, #00, #06, #$0200 )
+    COP [SpawnListAppend] ( @code_0A97D5, #00, #06, #$0200 )
     COP [StageSpriteFrame] ( #24 )
     COP [AnimOnce]
 }

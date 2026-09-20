@@ -52,24 +52,24 @@ code_0BBEF7 {
     STA $chatPtr, X
     LDA #$0001
     STA $loopCounter, X
-    COP [SpawnMarkedAfter] ( @smooth_follow.InitFollowAndChase, #$2000 )
+    COP [SpawnAfterMarked] ( @smooth_follow.InitFollowAndChase, #$2000 )
     TYA 
     STA $orbitDiameter, X
     LDA $playerActor
     STA $0024, Y
-    COP [SetEntryExit]
+    COP [SetEntryHereAndYield]
 
   loc_0BBF45:
     LDA $orbitDiameter, X
     TAY 
     LDA $playerActor
     STA $0024, Y
-    COP [CallScript] ( &code_0BBF64 )
+    COP [CallNear] ( &code_0BBF64 )
     LDA $orbitDiameter, X
     TAY 
     LDA $26
     STA $0024, Y
-    COP [CallScript] ( &code_0BBF64 )
+    COP [CallNear] ( &code_0BBF64 )
     BRA loc_0BBF45
 }
 
@@ -88,12 +88,12 @@ code_0BBF64 {
     LDA $08
     STA $24
     STZ $08
-    COP [SetEntryExit]
+    COP [SetEntryHereAndYield]
     DEC $24
     BMI loc_0BBF88
     RTL 
 
   loc_0BBF88:
-    COP [LoopNext]
+    COP [LoopEnd]
     COP [RestoreSavedPtr]
 }

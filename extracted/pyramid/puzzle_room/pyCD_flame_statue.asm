@@ -21,9 +21,9 @@ pyCD_flame_statue [
     STA $cameraBoundsY
     COP [StageSpriteFrame] ( #1C )
     COP [AnimOnce]
-    COP [SolidHighHere]
-    COP [AddPosition] ( #F8, #00 )
-    COP [ExitIfFlagByte] ( #01, #01 )
+    COP [MarkSolidHere]
+    COP [NudgePosition] ( #F8, #00 )
+    COP [WaitOnFlagByte] ( #01, #01 )
     COP [WaitByte] ( #1D )
     COP [PlaySoundBoth] ( #$1919 )
     COP [SpawnAfterFlags] ( @camera_drift.CameraDriftLoopSimple, #$2000 )
@@ -34,11 +34,11 @@ pyCD_flame_statue [
     TSB $10
     COP [StageSpriteFrame] ( #1D )
     COP [AnimOnce]
-    COP [SpawnAfterRelFlags] ( @code_08B7D0, #$0004, #$FFF0, #$2800 )
+    COP [SpawnAfterOffsetFlags] ( @code_08B7D0, #$0004, #$FFF0, #$2800 )
     LDA #$0008
     STA $0026, Y
     COP [SetFlagByte] ( #03 )
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     RTL 
 } >
 ]
@@ -49,30 +49,30 @@ pyCD_flame_statue2 [
   code_08B7A0:
     COP [StageSpriteFrame] ( #9C )
     COP [AnimOnce]
-    COP [SolidHighHere]
-    COP [AddPosition] ( #08, #00 )
-    COP [ExitIfFlagByte] ( #01, #01 )
+    COP [MarkSolidHere]
+    COP [NudgePosition] ( #08, #00 )
+    COP [WaitOnFlagByte] ( #01, #01 )
     COP [WaitByte] ( #59 )
     LDA #$0800
     TSB $10
     COP [StageSpriteFrame] ( #9D )
     COP [AnimOnce]
-    COP [SpawnAfterRelFlags] ( @code_08B7D0, #$FFFC, #$FFF0, #$2800 )
+    COP [SpawnAfterOffsetFlags] ( @code_08B7D0, #$FFFC, #$FFF0, #$2800 )
     LDA #$FFF8
     STA $0026, Y
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     RTL 
 } >
 ]
 
 code_08B7D0 {
-    COP [LoopInit] ( #05 )
+    COP [LoopStart] ( #05 )
     COP [SpawnAfterFlags] ( @pyCD_jackal.code_08B804, #$0B02 )
     COP [WaitByte] ( #03 )
     LDA $14
     CLC 
     ADC $26
     STA $14
-    COP [LoopNext]
+    COP [LoopEnd]
     COP [Die]
 }

@@ -12,16 +12,16 @@ fr3C_slaver [
   actor-def < #1A, #00, #10, {
 
   code_05C157:
-    COP [SolidHighHere]
-    COP [SetOnInteract] ( &code_05C173 )
-    COP [ExitIfFlagByte] ( #01, #01 )
-    COP [ClearLowHere]
+    COP [MarkSolidHere]
+    COP [SetInteractHandler] ( &code_05C173 )
+    COP [WaitOnFlagByte] ( #01, #01 )
+    COP [ClearSolidHere]
     COP [StageSpriteMoveX] ( #20, #12 )
     COP [AnimOnce]
     COP [StageSpriteFrame] ( #1A )
     COP [AnimOnce]
-    COP [SolidHighHere]
-    COP [SetEntryContinue]
+    COP [MarkSolidHere]
+    COP [SetEntryHere]
     RTL 
 } >
 ]

@@ -10,10 +10,10 @@ sc01_astronomer [
   actor-def < #02, #00, #10, {
 
   code_048852:
-    COP [SetOnInteract] ( &code_0488F6 )
-    COP [SolidHighHere]
+    COP [SetInteractHandler] ( &code_0488F6 )
+    COP [MarkSolidHere]
     COP [WaitByte] ( #EF )
-    COP [ClearLowHere]
+    COP [ClearSolidHere]
     COP [StageSpriteLoopMoveY] ( #07, #02, #12 )
     COP [AnimLoop]
     COP [StageSpriteLoopMoveX] ( #09, #03, #11 )
@@ -28,9 +28,9 @@ sc01_astronomer [
     COP [AnimLoop]
     COP [StageSpriteFrame] ( #05 )
     COP [AnimOnce]
-    COP [SolidHighHere]
+    COP [MarkSolidHere]
     COP [WaitByte] ( #EF )
-    COP [ClearLowHere]
+    COP [ClearSolidHere]
     COP [StageSpriteLoopMoveX] ( #08, #02, #12 )
     COP [AnimLoop]
     COP [StageSpriteMoveY] ( #07, #12 )
@@ -51,17 +51,17 @@ sc01_astronomer [
     COP [AnimLoop]
     COP [StageSpriteFrame] ( #05 )
     COP [AnimOnce]
-    COP [SolidHighHere]
+    COP [MarkSolidHere]
     COP [WaitByte] ( #EF )
-    COP [ClearLowHere]
+    COP [ClearSolidHere]
     COP [StageSpriteLoopMoveY] ( #07, #02, #12 )
     COP [AnimLoop]
     COP [StageSpriteMoveX] ( #09, #11 )
     COP [AnimOnce]
     COP [StageSpriteFrame] ( #04 )
     COP [AnimOnce]
-    COP [SolidHighHere]
-    COP [SetEntryContinue]
+    COP [MarkSolidHere]
+    COP [SetEntryHere]
     RTL 
 } >
 ]

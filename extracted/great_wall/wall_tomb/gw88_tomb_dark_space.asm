@@ -13,8 +13,8 @@ gw88_tomb_dark_space [
   actor-def < #00, #00, #30, {
 
   code_07BDEB:
-    COP [BranchIfFlagWord] ( #$0174, #01, &code_07BE09 )
-    COP [SetEntryContinue]
+    COP [BranchOnFlagWord] ( #$0174, #01, &code_07BE09 )
+    COP [SetEntryHere]
     LDA $0A9F
     AND #$00FF
     CMP #$003F

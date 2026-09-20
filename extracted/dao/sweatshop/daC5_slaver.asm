@@ -13,10 +13,10 @@ daC5_slaver [
   code_08B3A5:
     LDA #$0200
     TSB $12
-    COP [SolidHighHere]
-    COP [SetOnInteract] ( &code_08B3B7 )
-    COP [SetEntryContinue]
-    COP [SetEntryContinue]
+    COP [MarkSolidHere]
+    COP [SetInteractHandler] ( &code_08B3B7 )
+    COP [SetEntryHere]
+    COP [SetEntryHere]
     COP [AnimOnce]
     RTL 
 } >

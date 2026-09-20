@@ -11,10 +11,10 @@ fr3A_harborer [
   actor-def < #02, #00, #10, {
 
   code_05BC59:
-    COP [BranchIfFlagByte] ( #5A, #01, &code_05BC68 )
-    COP [SetOnInteract] ( &code_05BC6A )
-    COP [SolidHighHere]
-    COP [SetEntryContinue]
+    COP [BranchOnFlagByte] ( #5A, #01, &code_05BC68 )
+    COP [SetInteractHandler] ( &code_05BC6A )
+    COP [MarkSolidHere]
+    COP [SetEntryHere]
     RTL 
 } >
 ]

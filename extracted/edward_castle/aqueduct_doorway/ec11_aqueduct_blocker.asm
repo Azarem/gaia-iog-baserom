@@ -23,7 +23,7 @@ ec11_aqueduct_blocker [
     COP [SetMetasprite] ( @spriteset_enemies )
     COP [StageSpriteFrame] ( #0F )
     COP [AnimOnce]
-    COP [SolidHighHere]
+    COP [MarkSolidHere]
 
   loc_09BCA6:
     LDA #$00FF
@@ -33,7 +33,7 @@ ec11_aqueduct_blocker [
     COP [SetHitCallback] ( &code_09BCBB )
     COP [StageSpriteFrame] ( #0F )
     COP [AnimOnce]
-    COP [SetEntryExitNow] ( @code_09BCAD )
+    COP [JumpNextFrame] ( @code_09BCAD )
 } >
 ]
 

@@ -18,10 +18,10 @@ gs2B_bones [
     COP [SetMetasprite] ( @spriteset_npc_props )
     COP [StageSpriteFrame] ( #02 )
     COP [AnimOnce]
-    COP [SetOnInteract] ( &code_058BD2 )
-    COP [SolidHighHere]
-    COP [AddPosition] ( #00, #04 )
-    COP [SetEntryContinue]
+    COP [SetInteractHandler] ( &code_058BD2 )
+    COP [MarkSolidHere]
+    COP [NudgePosition] ( #00, #04 )
+    COP [SetEntryHere]
     RTL 
 } >
 ]

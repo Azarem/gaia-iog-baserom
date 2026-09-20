@@ -23,7 +23,7 @@ dm41_bat_spawner [
     COP [AnimOnce]
     COP [StageSpriteFrame] ( #30 )
     COP [AnimOnce]
-    COP [SpawnLastRel] ( @dm_follower_behavior, #00, #CE, #$0202 )
+    COP [SpawnListAppend] ( @dm_follower_behavior, #00, #CE, #$0202 )
     COP [StageSpriteFrame] ( #31 )
     COP [AnimOnce]
     COP [WaitByte] ( #3B )

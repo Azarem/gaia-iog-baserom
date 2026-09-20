@@ -17,15 +17,15 @@ av6B_ocean_ache [
 
   code_06C6DD:
     JSL $@ActorDisplayModeSwap
-    COP [SetOnInteract] ( &code_06C6FC )
+    COP [SetInteractHandler] ( &code_06C6FC )
     LDA #$0002
     STA $currentHp, X
     JSL $@npc_wander_ai.SyncActorPosFromDP
 
   loc_06C6F0:
     JSL $@npc_wander_ai.NpcRandomWanderAI
-    COP [SetEntryExit]
-    COP [SetEntryContinue]
+    COP [SetEntryHereAndYield]
+    COP [SetEntryHere]
     COP [AnimOnce]
     BRA loc_06C6F0
 } >

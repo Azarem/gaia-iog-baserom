@@ -16,15 +16,15 @@ wa78_water_kid [
 
   code_07849E:
     JSL $@ActorDisplayModeSwap
-    COP [SetOnInteract] ( &code_0784BD )
+    COP [SetInteractHandler] ( &code_0784BD )
     LDA #$0012
     STA $currentHp, X
     JSL $@npc_wander_ai.SyncActorPosFromDP
 
   loc_0784B1:
     JSL $@npc_wander_ai.NpcRandomWanderAI
-    COP [SetEntryExit]
-    COP [SetEntryContinue]
+    COP [SetEntryHereAndYield]
+    COP [SetEntryHere]
     COP [AnimOnce]
     BRA loc_0784B1
 } >

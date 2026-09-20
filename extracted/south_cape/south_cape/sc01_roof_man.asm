@@ -17,12 +17,12 @@ sc01_roof_man [
     LDA #$000A
     STA $currentHp, X
     JSL $@npc_wander_ai.SyncActorPosFromDP
-    COP [SetOnInteract] ( &code_0484B2 )
+    COP [SetInteractHandler] ( &code_0484B2 )
 
   loc_0484A6:
     JSL $@npc_wander_ai.NpcRandomWanderAI
-    COP [SetEntryExit]
-    COP [SetEntryContinue]
+    COP [SetEntryHereAndYield]
+    COP [SetEntryHere]
     COP [AnimOnce]
     BRA loc_0484A6
 } >

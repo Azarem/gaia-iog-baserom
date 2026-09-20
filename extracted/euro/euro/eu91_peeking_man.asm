@@ -11,7 +11,7 @@ eu91_peeking_man [
   actor-def < #02, #00, #10, {
 
   code_07D054:
-    COP [AddPosition] ( #08, #00 )
+    COP [NudgePosition] ( #08, #00 )
     COP [SetSpritePriority] ( #10 )
 
   loc_07D05B:
@@ -21,14 +21,14 @@ eu91_peeking_man [
     COP [StageSpriteMoveY] ( #06, #12 )
     COP [AnimOnce]
     COP [WaitByte] ( #27 )
-    COP [LoopInit] ( #02 )
+    COP [LoopStart] ( #02 )
     COP [StageSpriteLoopMoveX] ( #02, #02, #04 )
     COP [AnimLoop]
     COP [StageSpriteLoopMoveX] ( #02, #04, #03 )
     COP [AnimLoop]
     COP [StageSpriteLoopMoveX] ( #02, #02, #04 )
     COP [AnimLoop]
-    COP [LoopNext]
+    COP [LoopEnd]
     COP [WaitByte] ( #3B )
     BRA loc_07D05B
 } >

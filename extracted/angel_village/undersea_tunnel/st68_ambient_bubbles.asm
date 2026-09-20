@@ -49,7 +49,7 @@ code_06B95F {
   code_06B97E:
     COP [StageSpriteMoveY] ( #35, #07 )
     COP [AnimOnce]
-    COP [BranchIfSolid] ( &code_06B97E )
+    COP [BranchIfSolidHere] ( &code_06B97E )
 
   loc_06B988:
     COP [StageSpriteMoveY] ( #35, #07 )
@@ -81,7 +81,7 @@ code_06B99E {
   code_06B9C4:
     COP [StageSpriteMoveY] ( #34, #0B )
     COP [AnimOnce]
-    COP [BranchIfSolid] ( &code_06B9C4 )
+    COP [BranchIfSolidHere] ( &code_06B9C4 )
 
   loc_06B9CE:
     COP [StageSpriteMoveY] ( #34, #0B )

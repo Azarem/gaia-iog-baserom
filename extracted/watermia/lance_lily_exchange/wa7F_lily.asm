@@ -14,7 +14,7 @@ wa7F_lily [
   actor-def < #24, #00, #10, {
 
   code_07B1DB:
-    COP [AddPosition] ( #08, #00 )
+    COP [NudgePosition] ( #08, #00 )
     LDA #$CFF0
     TSB $joypadMaskStd
     LDY $playerActor
@@ -33,12 +33,12 @@ wa7F_lily [
     COP [AnimOnce]
     COP [WaitByte] ( #1D )
     COP [SetFlagByte] ( #02 )
-    COP [SpawnAfterRelFlags] ( @code_07B1CD, #$FFF7, #$FFF5, #$1002 )
+    COP [SpawnAfterOffsetFlags] ( @code_07B1CD, #$FFF7, #$FFF5, #$1002 )
     COP [StageSpriteLoop] ( #39, #1E )
     COP [AnimLoop]
     COP [PrintDialogString] ( &dialogstring_07B329 )
     COP [SetFlagByte] ( #03 )
-    COP [ExitIfFlagByte] ( #04, #01 )
+    COP [WaitOnFlagByte] ( #04, #01 )
     LDA #$0800
     TSB $10
     COP [StageSpriteLoop] ( #24, #04 )
@@ -74,6 +74,6 @@ dialogstring_07B329 `[DEF][TPL:2]Lilly:[N]They smell wonderful...[FIN]Thank you.
 code_07B1CD {
     COP [StageSpriteFrame] ( #BA )
     COP [AnimOnce]
-    COP [ExitIfFlagByte] ( #04, #01 )
+    COP [WaitOnFlagByte] ( #04, #01 )
     COP [Die]
 }

@@ -25,7 +25,7 @@ floor_button [
     COP [SetMetasprite] ( @spriteset_enemies )
     COP [StageSpriteFrame] ( #0F )
     COP [AnimOnce]
-    COP [SolidHighHere]
+    COP [MarkSolidHere]
     LDA #$0031
     TSB $12
 
@@ -33,7 +33,7 @@ floor_button [
     LDA #$00FF
     STA $currentHp, X
     COP [SetHitCallback] ( &FloorButtonHitCallback )
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     RTL 
 } >
 ]

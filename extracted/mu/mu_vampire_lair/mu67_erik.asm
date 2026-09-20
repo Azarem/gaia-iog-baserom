@@ -21,14 +21,14 @@ mu67_erik [
     STA $24
 
   loc_06A2CB:
-    COP [SolidHighHere]
-    COP [SolidHighOffset] ( #01, #00 )
-    COP [AddPosition] ( #08, #00 )
+    COP [MarkSolidHere]
+    COP [MarkSolidOffset] ( #01, #00 )
+    COP [NudgePosition] ( #08, #00 )
     LDA #$0200
     TSB $12
-    COP [SetOnInteract] ( &code_06A34F )
-    COP [BranchIfFlagByte] ( #86, #01, &code_06A305 )
-    COP [SetEntryContinue]
+    COP [SetInteractHandler] ( &code_06A34F )
+    COP [BranchOnFlagByte] ( #86, #01, &code_06A305 )
+    COP [SetEntryHere]
     COP [BranchIfPlayerInAbsTiles] ( #01, #13, #0F, #15, &code_06A2EF )
     RTL 
 } >
@@ -45,15 +45,15 @@ code_06A2EF {
 }
 
 code_06A305 {
-    COP [ExitIfFlagByte] ( #04, #01 )
+    COP [WaitOnFlagByte] ( #04, #01 )
     LDA #$2000
     TSB $10
-    COP [ExitIfFlagByte] ( #88, #01 )
+    COP [WaitOnFlagByte] ( #88, #01 )
     COP [StageSpriteFrame] ( #0A )
     COP [AnimOnce]
     LDA #$2000
     TRB $10
-    COP [ExitIfFlagByte] ( #06, #01 )
+    COP [WaitOnFlagByte] ( #06, #01 )
     LDA #$0800
     TSB $10
     COP [StageSpriteLoopMoveY] ( #0E, #02, #01 )
@@ -68,12 +68,12 @@ code_06A305 {
     COP [AnimLoop]
     COP [StageSpriteFrame] ( #0B )
     COP [AnimOnce]
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     RTL 
 }
 
 code_06A34F {
-    COP [BranchIfFlagByte] ( #01, #01, &code_06A35A )
+    COP [BranchOnFlagByte] ( #01, #01, &code_06A35A )
     COP [PrintDialogString] ( &dialogstring_06A38D )
     RTL 
 }

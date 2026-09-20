@@ -20,11 +20,11 @@ av6D_dive_bat [
     COP [SetDeathCallback] ( @code_0AEF2E )
     LDA #$2000
     TSB $12
-    COP [OrActorFlags] ( #$0020 )
+    COP [OrExtraFlags] ( #$0020 )
     BRA loc_0AEEB6
 
   loc_0AEEB2:
-    COP [BranchIfOffscreen] ( &code_0AEEE3 )
+    COP [BranchIfOffCamera] ( &code_0AEEE3 )
 
   loc_0AEEB6:
     COP [WaitWhileOffscreen] ( #0F )
@@ -81,9 +81,9 @@ code_0AEEF2 {
     STZ $08
     INC 
     STA $24
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     COP [TickGravity]
-    COP [StageForceMoveX] ( #02 )
+    COP [StageMoveX] ( #02 )
     LDA $16
     CMP $26
     BCC loc_0AEF1A
@@ -103,5 +103,5 @@ code_0AEEF2 {
 }
 
 code_0AEF2E {
-    COP [JumpScript] ( @EnemyDefeatDispatch )
+    COP [JumpFar] ( @EnemyDefeatDispatch )
 }

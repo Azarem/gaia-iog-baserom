@@ -16,13 +16,13 @@ inventory_statue_slot [
   actor-def < #00, #00, #38, {
 
   code_00CF2C:
-    COP [AddPosition] ( #08, #08 )
+    COP [NudgePosition] ( #08, #08 )
     COP [SetMetasprite] ( @inventory_spritemap )
     LDA $0E
     STA $24
     BIT #$0010
     BEQ loc_00CF42
-    COP [AddPosition] ( #00, #F8 )
+    COP [NudgePosition] ( #00, #F8 )
 
   loc_00CF42:
     LDA #$2000
@@ -54,7 +54,7 @@ InventoryStatueSlotClaimed {
     JSL $@sprite_composition.UpdateActorAnimation
     LDA #$2000
     TRB $10
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     LDA $inventoryTabIndex
     CMP #$0003
     BEQ loc_00CF88

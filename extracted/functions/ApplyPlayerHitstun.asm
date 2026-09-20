@@ -53,7 +53,7 @@ ApplyPlayerHitstun {
     LDA $playerFlags      ; Spawn HitStaggerMain at priority $2400 unless playerFlags $0800 already set
     BIT #$0800
     BNE loc_00C410
-    COP [SpawnLastRel] ( @hit_stagger_controller.HitStaggerMain, #00, #00, #$2400 )
+    COP [SpawnListAppend] ( @hit_stagger_controller.HitStaggerMain, #00, #00, #$2400 )
     CPY #$1FC0
     BNE loc_00C3ED
     LDA #$0F00

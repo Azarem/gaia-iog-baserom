@@ -16,39 +16,39 @@ na49_kara [
   actor-def < #1B, #00, #10, {
 
   code_05E01B:
-    COP [SolidHighHere]
-    COP [SetOnInteract] ( &code_05E081 )
-    COP [ExitIfFlagByte] ( #01, #01 )
+    COP [MarkSolidHere]
+    COP [SetInteractHandler] ( &code_05E081 )
+    COP [WaitOnFlagByte] ( #01, #01 )
     COP [StageSpriteLoopMoveY] ( #1F, #05, #12 )
     COP [AnimLoop]
     COP [StageSpriteFrame] ( #1B )
     COP [AnimOnce]
-    COP [ExitIfFlagByte] ( #04, #01 )
+    COP [WaitOnFlagByte] ( #04, #01 )
     COP [StageSpriteLoop] ( #1D, #0A )
     COP [AnimLoop]
     COP [StageSpriteLoop] ( #1A, #14 )
     COP [AnimLoop]
     COP [PrintDialogString] ( &dialogstring_05E086 )
     COP [ClearFlagByte] ( #03 )
-    COP [ExitIfFlagByte] ( #05, #01 )
+    COP [WaitOnFlagByte] ( #05, #01 )
     COP [SetSpritePriority] ( #30 )
     COP [StageSpriteLoopMoveX] ( #20, #03, #12 )
     COP [AnimLoop]
     COP [StageSpriteFrame] ( #1B )
     COP [AnimOnce]
-    COP [SolidHighHere]
-    COP [ExitIfFlagByte] ( #06, #01 )
+    COP [MarkSolidHere]
+    COP [WaitOnFlagByte] ( #06, #01 )
     LDA #$EFF0
     TSB $joypadMaskStd
-    COP [ClearLowHere]
+    COP [ClearSolidHere]
     COP [StageSpriteLoopMoveX] ( #21, #02, #01 )
     COP [AnimLoop]
     COP [StageSpriteFrame] ( #1B )
     COP [AnimOnce]
-    COP [SolidHighHere]
+    COP [MarkSolidHere]
     COP [PrintDialogString] ( &dialogstring_05E0C1 )
     COP [SetFlagByte] ( #07 )
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     RTL 
 } >
 ]

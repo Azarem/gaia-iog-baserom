@@ -17,17 +17,17 @@ pyCC_portal [
   actor-def < #1C, #01, #20, {
 
   code_08CD6F:
-    COP [BranchIfFlagByte] ( #FC, #01, &code_08CD93 )
-    COP [AddPosition] ( #08, #0C )
-    COP [ExitIfFlagByte] ( #D1, #01 )
+    COP [BranchOnFlagByte] ( #FC, #01, &code_08CD93 )
+    COP [NudgePosition] ( #08, #0C )
+    COP [WaitOnFlagByte] ( #D1, #01 )
     LDA #$1000
     TSB $10
     LDA #$2000
     TRB $10
     LDA #$0200
     TSB $12
-    COP [SetOnInteract] ( &code_08CD95 )
-    COP [SetEntryContinue]
+    COP [SetInteractHandler] ( &code_08CD95 )
+    COP [SetEntryHere]
     RTL 
 } >
 ]
@@ -64,7 +64,7 @@ code_08CDAA {
     LDA #$0303
     STA $gfxCacheIdxB
     COP [QueueMapChange] ( #DD, #$00F8, #$01B0, #00, #$2200 )
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     RTL 
 }
 

@@ -48,12 +48,12 @@ btF2_neo_castoth [
   code_0A99DA:
     LDA #$8011
     TSB $12
-    COP [AddPosition] ( #08, #00 )
+    COP [NudgePosition] ( #08, #00 )
     COP [SetSpritePriority] ( #30 )
-    COP [SpawnMarkedAfterAbs] ( @code_0A9A68, #$0058, #$00A0, #$0200 )
+    COP [SpawnAfterAbsMarked] ( @code_0A9A68, #$0058, #$00A0, #$0200 )
     TYA 
     STA $animScratch, X
-    COP [SpawnMarkedAfterAbs] ( @code_0A9A76, #$0098, #$00A0, #$0200 )
+    COP [SpawnAfterAbsMarked] ( @code_0A9A76, #$0098, #$00A0, #$0200 )
     TYA 
     STA $animScratch+2, X
     COP [StageSpriteFrame] ( #00 )
@@ -74,18 +74,18 @@ btF2_neo_castoth [
     STA $0008, Y
     LDA #$0800
     TSB $playerFlags
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     LDA $playerFlags
     BIT #$0800
     BEQ loc_0A9A43
     RTL 
 
   loc_0A9A43:
-    COP [SpawnLastRel] ( @func_0A9EEB, #00, #00, #$2200 )
+    COP [SpawnListAppend] ( @func_0A9EEB, #00, #00, #$2200 )
     TYA 
     STA $orbitAngle, X
     COP [SetDeathCallback] ( @func_0A9C1E )
-    COP [SpawnLastRel] ( @code_0A9AB9, #00, #00, #$2000 )
+    COP [SpawnListAppend] ( @code_0A9AB9, #00, #00, #$2000 )
     STZ $00F0
     STZ $00F2
     JMP $&code_0A9BF6
@@ -93,7 +93,7 @@ btF2_neo_castoth [
 ]
 
 code_0A9A68 {
-    COP [AddPosition] ( #08, #00 )
+    COP [NudgePosition] ( #08, #00 )
     LDA #$8023
     TSB $12
     COP [SetSpritePriority] ( #30 )
@@ -101,8 +101,8 @@ code_0A9A68 {
 }
 
 code_0A9A76 {
-    COP [AddPosition] ( #08, #00 )
-    COP [ToggleHFlip]
+    COP [NudgePosition] ( #08, #00 )
+    COP [ToggleHMirror]
     LDA #$8023
     TSB $12
     COP [SetSpritePriority] ( #30 )
@@ -120,7 +120,7 @@ code_0A9A76 {
     STA $7F100C, X
     LDA $16
     STA $7F100E, X
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     LDA $playerFlags
     BIT #$0800
     BNE loc_0A9AB8
@@ -131,7 +131,7 @@ code_0A9A76 {
 }
 
 code_0A9AB9 {
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     LDA $0AEC
     BEQ loc_0A9AC1
     RTL 
@@ -146,7 +146,7 @@ code_0A9AB9 {
     STA $0008, Y
     LDA #$0800
     TSB $playerFlags
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     LDA $playerFlags
     BIT #$0800
     BEQ loc_0A9AE7
@@ -177,7 +177,7 @@ ir29_castoth [
   loc_0A9B17:
     LDA #$8011
     TSB $12
-    COP [AddPosition] ( #08, #F8 )
+    COP [NudgePosition] ( #08, #F8 )
     COP [SetSpritePriority] ( #20 )
     LDA #$*binary_0A9C0F
     AND #$00FF
@@ -197,12 +197,12 @@ ir29_castoth [
     LDA #$EFF0
     TRB $joypadMaskStd
     JSL $@func_0AA391
-    COP [SpawnLastRel] ( @camera_drift.CameraDriftLoopSimple, #00, #00, #$2000 )
-    COP [SpawnMarkedAfterAbs] ( @code_0AA169, #$0050, #$00E0, #$0301 )
+    COP [SpawnListAppend] ( @camera_drift.CameraDriftLoopSimple, #00, #00, #$2000 )
+    COP [SpawnAfterAbsMarked] ( @code_0AA169, #$0050, #$00E0, #$0301 )
     TYA 
     STA $animScratch, X
     COP [WaitByte] ( #3B )
-    COP [SpawnMarkedAfterAbs] ( @code_0AA177, #$00A0, #$00E0, #$0301 )
+    COP [SpawnAfterAbsMarked] ( @code_0AA177, #$00A0, #$00E0, #$0301 )
     TYA 
     STA $animScratch+2, X
     COP [WaitByte] ( #3B )
@@ -215,7 +215,7 @@ ir29_castoth [
     LDA $14
     STA $moveXAlt, X
     COP [MoveToward] ( #01, #01 )
-    COP [SpawnLastRel] ( @func_0A9EEB, #00, #00, #$2200 )
+    COP [SpawnListAppend] ( @func_0A9EEB, #00, #00, #$2200 )
     TYA 
     STA $orbitAngle, X
     COP [SetDeathCallback] ( @func_0A9C1E )
@@ -232,11 +232,11 @@ func_0A9BC2 {
     TRB $10
     COP [StageSpriteFrame] ( #29 )
     COP [AnimOnce]
-    COP [SpawnLastRel] ( @func_0A9C17, #00, #00, #$2000 )
+    COP [SpawnListAppend] ( @func_0A9C17, #00, #00, #$2000 )
     COP [WaitWord] ( #$0095 )
-    COP [SpawnMarkedAfter] ( @code_0A9D64, #$0302 )
+    COP [SpawnAfterMarked] ( @code_0A9D64, #$0302 )
     COP [WaitWord] ( #$0095 )
-    COP [CallScript] ( &func_0A9D25 )
+    COP [CallNear] ( &func_0A9D25 )
     LDA #$0003
     STA $00F2
     LDA #$0200
@@ -246,7 +246,7 @@ func_0A9BC2 {
 
 code_0A9BF6 {
     COP [WaitWord] ( #$010D )
-    COP [SpawnMarkedAfter] ( @code_0A9D64, #$0302 )
+    COP [SpawnAfterMarked] ( @code_0A9D64, #$0302 )
     COP [WaitWord] ( #$010D )
     LDA $00F0
     CMP #$0003
@@ -269,7 +269,7 @@ func_0A9C1E {
     LDA $playerFlags
     BIT #$0200
     BEQ loc_0A9C29
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     RTL 
 
   loc_0A9C29:
@@ -304,27 +304,27 @@ func_0A9C1E {
     STA $0000, Y
     LDA #$0000
     STA $0008, Y
-    COP [SpawnLastRel] ( @SetPlayerGameOverFlag, #00, #00, #$2000 )
-    COP [SpawnLastRel] ( @code_0A9C8E, #00, #00, #$2000 )
+    COP [SpawnListAppend] ( @SetPlayerGameOverFlag, #00, #00, #$2000 )
+    COP [SpawnListAppend] ( @code_0A9C8E, #00, #00, #$2000 )
     COP [WaitByte] ( #3B )
     COP [SetMetasprite] ( @spriteset_enemies )
-    COP [JumpScript] ( @StandardEnemyDefeatHandler )
+    COP [JumpFar] ( @StandardEnemyDefeatHandler )
 }
 
 code_0A9C8E {
     COP [SetMetasprite] ( @spriteset_enemies )
-    COP [LoopInit] ( #12 )
-    COP [SpawnLastRel] ( @code_0A9CE7, #00, #C8, #$0302 )
+    COP [LoopStart] ( #12 )
+    COP [SpawnListAppend] ( @code_0A9CE7, #00, #C8, #$0302 )
     COP [WaitByte] ( #01 )
-    COP [SpawnLastRel] ( @code_0A9CF4, #00, #C8, #$0302 )
+    COP [SpawnListAppend] ( @code_0A9CF4, #00, #C8, #$0302 )
     COP [WaitByte] ( #02 )
-    COP [LoopNext]
+    COP [LoopEnd]
     COP [Die]
 }
 ---------------------------------------------
 
 func_0A9CB2 {
-    COP [SpawnLastRel] ( @code_0A9CC0, #00, #00, #$2000 )
+    COP [SpawnListAppend] ( @code_0A9CC0, #00, #00, #$2000 )
     COP [WaitByte] ( #1D )
     COP [Die]
 }
@@ -332,12 +332,12 @@ func_0A9CB2 {
 code_0A9CC0 {
     COP [SetSpritePriority] ( #30 )
     COP [SetMetasprite] ( @spriteset_enemies )
-    COP [LoopInit] ( #0A )
-    COP [SpawnLastRel] ( @code_0A9CE7, #00, #00, #$0302 )
+    COP [LoopStart] ( #0A )
+    COP [SpawnListAppend] ( @code_0A9CE7, #00, #00, #$0302 )
     COP [WaitByte] ( #01 )
-    COP [SpawnLastRel] ( @code_0A9CF4, #00, #00, #$0302 )
+    COP [SpawnListAppend] ( @code_0A9CF4, #00, #00, #$0302 )
     COP [WaitByte] ( #02 )
-    COP [LoopNext]
+    COP [LoopEnd]
     COP [Die]
 }
 
@@ -383,12 +383,12 @@ sub_0A9CFE {
 func_0A9D25 {
     LDA #$0200
     TSB $10
-    COP [LoopInit] ( #05 )
+    COP [LoopStart] ( #05 )
     COP [PlaySoundCh1] ( #1F )
     COP [StageSpriteFrame] ( #28 )
     COP [AnimOnce]
-    COP [LoopNext]
-    COP [SpawnAfterRelFlags] ( @code_0A9D93, #$0000, #$FFE0, #$2202 )
+    COP [LoopEnd]
+    COP [SpawnAfterOffsetFlags] ( @code_0A9D93, #$0000, #$FFE0, #$2202 )
     STY $26
     COP [StageSpriteFrame] ( #01 )
     COP [AnimOnce]
@@ -409,12 +409,12 @@ code_0A9D64 {
     COP [AnimOnce]
     COP [StageSpriteFrame] ( #26 )
     COP [AnimOnce]
-    COP [SpawnLastRel] ( @code_0A9FDB, #00, #A0, #$2000 )
+    COP [SpawnListAppend] ( @code_0A9FDB, #00, #A0, #$2000 )
     LDA $sceneCurrent
     CMP #$002A
     BCC loc_0A9D8B
     COP [WaitByte] ( #0E )
-    COP [SpawnLastRel] ( @code_0A9FDB, #00, #A0, #$2000 )
+    COP [SpawnListAppend] ( @code_0A9FDB, #00, #A0, #$2000 )
 
   loc_0A9D8B:
     COP [StageSpriteLoop] ( #26, #08 )
@@ -424,9 +424,9 @@ code_0A9D64 {
 
 code_0A9D93 {
     COP [SetSpritePriority] ( #30 )
-    COP [SpawnMarkedAfter] ( @code_0A9DBA, #$0202 )
-    COP [SpawnMarkedAfter] ( @code_0A9DB3, #$0202 )
-    COP [SetEntryContinue]
+    COP [SpawnAfterMarked] ( @code_0A9DBA, #$0202 )
+    COP [SpawnAfterMarked] ( @code_0A9DB3, #$0202 )
+    COP [SetEntryHere]
     LDY $24
     LDA $0010, Y
     BIT #$0040
@@ -501,17 +501,17 @@ code_0A9DBA {
     COP [WaitByte] ( #0F )
     LDA #$2000
     TRB $10
-    COP [SpawnLastRel] ( @code_0A9E36, #00, #00, #$2200 )
+    COP [SpawnListAppend] ( @code_0A9E36, #00, #00, #$2200 )
     COP [PlaySoundCh1] ( #20 )
     LDA #$0004
     STA $24
 
   loc_0A9E29:
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     COP [AnimOnce]
     DEC $24
     BPL loc_0A9E29
-    COP [SetEntryExitNow] ( @code_0A9DBA )
+    COP [JumpNextFrame] ( @code_0A9DBA )
 }
 
 code_0A9E36 {
@@ -606,11 +606,11 @@ func_0A9EEB {
     COP [SetSavedPtr] ( &code_0A9EEE )
     LDA #$2000
     TSB $10
-    COP [LoopInit] ( #1E )
+    COP [LoopStart] ( #1E )
     COP [BranchIfPlayerInAbsTiles] ( #05, #02, #0C, #05, &code_0A9F2A )
     COP [BranchIfPlayerInAbsTiles] ( #05, #0A, #0B, #0C, &code_0A9FAA )
     COP [WaitByte] ( #04 )
-    COP [LoopNext]
+    COP [LoopEnd]
     LDA #$2000
     TRB $10
     COP [RngByte]
@@ -642,11 +642,11 @@ code_0A9F37 {
     STA $16
     COP [StageSpriteLoop] ( #27, #06 )
     COP [AnimLoop]
-    COP [LoopInit] ( #10 )
+    COP [LoopStart] ( #10 )
     COP [SpawnAfterFlags] ( @code_0A9FD3, #$0200 )
     COP [StageSpriteMoveX] ( #27, #07 )
     COP [AnimOnce]
-    COP [LoopNext]
+    COP [LoopEnd]
     COP [RestoreSavedPtr]
 }
 
@@ -657,11 +657,11 @@ code_0A9F5B {
     STA $16
     COP [StageSpriteLoop] ( #27, #06 )
     COP [AnimLoop]
-    COP [LoopInit] ( #10 )
+    COP [LoopStart] ( #10 )
     COP [SpawnAfterFlags] ( @code_0A9FD3, #$0200 )
     COP [StageSpriteMoveX] ( #27, #08 )
     COP [AnimOnce]
-    COP [LoopNext]
+    COP [LoopEnd]
     COP [RestoreSavedPtr]
 }
 
@@ -680,11 +680,11 @@ code_0A9F86 {
     STA $16
     COP [StageSpriteLoop] ( #27, #06 )
     COP [AnimLoop]
-    COP [LoopInit] ( #10 )
+    COP [LoopStart] ( #10 )
     COP [SpawnAfterFlags] ( @code_0A9FD3, #$0200 )
     COP [StageSpriteMoveY] ( #27, #07 )
     COP [AnimOnce]
-    COP [LoopNext]
+    COP [LoopEnd]
     COP [RestoreSavedPtr]
 }
 
@@ -697,11 +697,11 @@ code_0A9FAA {
     STA $16
     COP [StageSpriteLoop] ( #27, #06 )
     COP [AnimLoop]
-    COP [LoopInit] ( #10 )
+    COP [LoopStart] ( #10 )
     COP [SpawnAfterFlags] ( @code_0A9FD3, #$0200 )
     COP [StageSpriteMoveX] ( #27, #07 )
     COP [AnimOnce]
-    COP [LoopNext]
+    COP [LoopEnd]
     COP [RestoreSavedPtr]
 }
 
@@ -720,10 +720,10 @@ code_0A9FDB {
     COP [StageSpriteLoop] ( #19, #04 )
     COP [AnimLoop]
     COP [PlaySoundCh1] ( #1F )
-    COP [SpawnMarkedAfter] ( @code_0AA04D, #$0302 )
+    COP [SpawnAfterMarked] ( @code_0AA04D, #$0302 )
     COP [StageSpriteLoop] ( #1A, #02 )
     COP [AnimLoop]
-    COP [SetEntryExit]
+    COP [SetEntryHereAndYield]
     LDA $20
     CMP #$0010
     BCS loc_0AA011
@@ -769,13 +769,13 @@ code_0A9FDB {
 code_0AA04D {
     LDA $24
     STA $orbitAngle, X
-    COP [SpawnMarkedAfter] ( @code_0AA12E, #$0202 )
+    COP [SpawnAfterMarked] ( @code_0AA12E, #$0202 )
     LDA #$0000
     STA $0026, Y
-    COP [SpawnMarkedAfter] ( @code_0AA12E, #$0202 )
+    COP [SpawnAfterMarked] ( @code_0AA12E, #$0202 )
     LDA #$0055
     STA $0026, Y
-    COP [SpawnMarkedAfter] ( @code_0AA12E, #$0202 )
+    COP [SpawnAfterMarked] ( @code_0AA12E, #$0202 )
     LDA #$00AA
     STA $0026, Y
     COP [StageSpriteLoop] ( #24, #04 )
@@ -799,7 +799,7 @@ code_0AA096 {
 }
 
 code_0AA09B {
-    COP [StageForceMoveXY] ( #05, #03 )
+    COP [StageMoveXY] ( #05, #03 )
     BRA loc_0AA0AC
 }
 
@@ -809,7 +809,7 @@ code_0AA0A1 {
 }
 
 code_0AA0A6 {
-    COP [StageForceMoveXY] ( #03, #05 )
+    COP [StageMoveXY] ( #03, #05 )
     BRA loc_0AA0AC
 
   loc_0AA0AC:
@@ -818,7 +818,7 @@ code_0AA0A6 {
     STA $26
 
   loc_0AA0B4:
-    COP [ReloadForceMove]
+    COP [ReloadMoveDurations]
     COP [AnimOneFrame]
     LDA $2A
     BEQ loc_0AA0B4
@@ -827,7 +827,7 @@ code_0AA0A6 {
     STZ $08
 
   loc_0AA0C2:
-    COP [SetEntryExit]
+    COP [SetEntryHereAndYield]
     LDA $14
     BMI loc_0AA0CD
     CMP #$0020
@@ -877,11 +877,11 @@ code_0AA0A6 {
     DEC 
     BMI loc_0AA113
     STA $08
-    COP [SetEntryExit]
+    COP [SetEntryHereAndYield]
 
   loc_0AA113:
-    COP [ReloadForceMove]
-    COP [SetEntryContinue]
+    COP [ReloadMoveDurations]
+    COP [SetEntryHere]
     COP [AnimOnce]
     LDA $10
     BIT #$4000
@@ -890,7 +890,7 @@ code_0AA0A6 {
     TAY 
     LDA #$&loc_0AA030
     STA $0000, Y
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     RTL 
 }
 
@@ -918,14 +918,14 @@ code_0AA12E {
     STA $orbitAngle, X
     LDY $24
     JSL $@ApplyOrbitalOffsetFromRef
-    COP [SetEntryExit]
+    COP [SetEntryHereAndYield]
     DEC $26
     BPL loc_0AA143
     BRA loc_0AA137
 }
 
 code_0AA169 {
-    COP [AddPosition] ( #08, #00 )
+    COP [NudgePosition] ( #08, #00 )
     LDA #$8023
     TSB $12
     COP [SetSpritePriority] ( #20 )
@@ -933,8 +933,8 @@ code_0AA169 {
 }
 
 code_0AA177 {
-    COP [AddPosition] ( #08, #00 )
-    COP [ToggleHFlip]
+    COP [NudgePosition] ( #08, #00 )
+    COP [ToggleHMirror]
     LDA #$8023
     TSB $12
     COP [SetSpritePriority] ( #20 )
@@ -954,8 +954,8 @@ code_0AA177 {
     COP [StageSpriteFrame] ( #05 )
     COP [AnimOnce]
     COP [PlaySoundBoth] ( #$1515 )
-    COP [SpawnLastRel] ( @camera_drift.CameraDriftPatterned, #00, #00, #$2000 )
-    COP [CollPriorityClearMin]
+    COP [SpawnListAppend] ( @camera_drift.CameraDriftPatterned, #00, #00, #$2000 )
+    COP [ClearPriorityMin]
     COP [StageSpriteFrame] ( #06 )
     COP [AnimOnce]
     LDA #$0101
@@ -1017,12 +1017,12 @@ code_0AA230 {
 }
 
 code_0AA241 {
-    COP [AndActorFlags] ( #$FFBD )
-    COP [LoopInit] ( #08 )
+    COP [AndExtraFlags] ( #$FFBD )
+    COP [LoopStart] ( #08 )
     COP [SetSpritePalette] ( #02 )
-    COP [SetEntryExit]
+    COP [SetEntryHereAndYield]
     COP [SetSpritePalette] ( #00 )
-    COP [LoopNext]
+    COP [LoopEnd]
     LDA $28
     CMP #$000A
     BCS loc_0AA260
@@ -1070,7 +1070,7 @@ code_0AA241 {
     STA $currentHp, X
     SEC 
     ROL $00F0
-    COP [SetEntryExit]
+    COP [SetEntryHereAndYield]
     LDA $00F2
     BNE loc_0AA2C2
     RTL 
@@ -1129,7 +1129,7 @@ code_0AA31D {
 
   loc_0AA33E:
     COP [PlaySoundCh1] ( #15 )
-    COP [SpawnLastRel] ( @camera_drift.CameraDriftPatterned, #00, #00, #$2000 )
+    COP [SpawnListAppend] ( @camera_drift.CameraDriftPatterned, #00, #00, #$2000 )
     COP [StageSpriteFrame] ( #11 )
     COP [AnimOnce]
     LDA $7F100C, X
@@ -1137,7 +1137,7 @@ code_0AA31D {
     LDA $7F100E, X
     STA $moveYAlt, X
     COP [MoveToward] ( #11, #01 )
-    COP [SpawnLastRel] ( @camera_drift.CameraDriftPatterned, #00, #00, #$2000 )
+    COP [SpawnListAppend] ( @camera_drift.CameraDriftPatterned, #00, #00, #$2000 )
     COP [RestoreSavedPtr]
 }
 ---------------------------------------------

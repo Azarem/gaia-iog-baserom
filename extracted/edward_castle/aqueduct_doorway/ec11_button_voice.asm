@@ -26,7 +26,7 @@ ec11_button_voice [
     COP [SetMetasprite] ( @spriteset_enemies )
     COP [StageSpriteFrame] ( #0F )
     COP [AnimOnce]
-    COP [SolidHighHere]
+    COP [MarkSolidHere]
 
   code_09BCEC:
     LDA #$00FF
@@ -34,7 +34,7 @@ ec11_button_voice [
     COP [SetHitCallback] ( &code_09BCFF )
     COP [StageSpriteFrame] ( #0F )
     COP [AnimOnce]
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     RTL 
 } >
 ]
@@ -42,9 +42,9 @@ ec11_button_voice [
 code_09BCFF {
     LDA #$0200
     TSB $10
-    COP [BranchIfFlagWord] ( #$0113, #01, &code_09BD25 )
-    COP [BranchIfFlagByte] ( #02, #00, &code_09BD25 )
-    COP [BranchIfFlagByte] ( #01, #01, &code_09BD39 )
+    COP [BranchOnFlagWord] ( #$0113, #01, &code_09BD25 )
+    COP [BranchOnFlagByte] ( #02, #00, &code_09BD25 )
+    COP [BranchOnFlagByte] ( #01, #01, &code_09BD39 )
     COP [StageSpriteFrame] ( #11 )
     COP [AnimOnce]
     COP [PrintDialogString] ( &dialogstring_09BD58 )
@@ -61,7 +61,7 @@ code_09BD25 {
     COP [AnimOnce]
     LDA #$0200
     TRB $10
-    COP [SetEntryExitNow] ( @code_09BCEC )
+    COP [JumpNextFrame] ( @code_09BCEC )
 }
 
 code_09BD39 {
@@ -74,7 +74,7 @@ code_09BD39 {
     COP [PlaySoundBoth] ( #$0F0F )
     COP [PrintDialogString] ( &dialogstring_09BD92 )
     COP [PlaySoundCh1] ( #16 )
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     RTL 
 }
 

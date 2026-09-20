@@ -12,7 +12,7 @@ gs2C_crew2 [
   actor-def < #04, #00, #10, {
 
   code_058287:
-    COP [SetOnInteract] ( &code_0582C7 )
+    COP [SetInteractHandler] ( &code_0582C7 )
 
   loc_05828B:
     COP [StageSpriteMoveY] ( #07, #12 )
@@ -21,20 +21,20 @@ gs2C_crew2 [
     COP [AnimLoop]
     COP [StageSpriteMoveY] ( #06, #11 )
     COP [AnimOnce]
-    COP [SolidHighHere]
+    COP [MarkSolidHere]
     COP [StageSpriteLoop] ( #05, #3C )
     COP [AnimLoop]
-    COP [ClearLowHere]
+    COP [ClearSolidHere]
     COP [StageSpriteMoveY] ( #07, #12 )
     COP [AnimOnce]
     COP [StageSpriteLoopMoveX] ( #09, #02, #11 )
     COP [AnimLoop]
     COP [StageSpriteMoveY] ( #06, #11 )
     COP [AnimOnce]
-    COP [SolidHighHere]
+    COP [MarkSolidHere]
     COP [StageSpriteLoop] ( #04, #3C )
     COP [AnimLoop]
-    COP [ClearLowHere]
+    COP [ClearSolidHere]
     BRA loc_05828B
 } >
 ]

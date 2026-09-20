@@ -20,7 +20,7 @@ ec0C_ribber [
   code_0A826F:
     COP [WaitWhileOffscreen] ( #08 )
     COP [SetSpritePriority] ( #30 )
-    COP [SetEntryExit]
+    COP [SetEntryHereAndYield]
 
   code_0A8277:
     COP [RngByte]
@@ -49,7 +49,7 @@ code_list_0A82A4 [
 ]
 
 code_0A82AC {
-    COP [SetEntryExit]
+    COP [SetEntryHereAndYield]
     COP [RngByte]
     STA $orbitAngle, X
     BRA loc_0A8294
@@ -60,7 +60,7 @@ code_0A82B6 {
     COP [SnapToGrid]
     LDA #$FFFF
     STA $orbitDiameter, X
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
 
   loc_0A82C5:
     COP [BranchNearerAxis] ( &code_0A82CB, &code_0A82D5 )
@@ -93,11 +93,11 @@ code_0A82E0 {
     JMP $&code_0A8277
 
   loc_0A8301:
-    COP [LoopInit] ( #02 )
+    COP [LoopStart] ( #02 )
     COP [StageSpriteFrame] ( #0B )
     COP [AnimOnce]
     COP [BranchIfPlayerNear] ( #04, &code_0A82B6 )
-    COP [LoopNext]
+    COP [LoopEnd]
     JMP $&code_0A8277
 }
 
@@ -116,11 +116,11 @@ code_0A8313 {
     JMP $&code_0A8277
 
   loc_0A8334:
-    COP [LoopInit] ( #02 )
+    COP [LoopStart] ( #02 )
     COP [StageSpriteFrame] ( #8B )
     COP [AnimOnce]
     COP [BranchIfPlayerNear] ( #04, &code_0A82B6 )
-    COP [LoopNext]
+    COP [LoopEnd]
     JMP $&code_0A8277
 }
 
@@ -139,11 +139,11 @@ code_0A8346 {
     JMP $&code_0A8277
 
   loc_0A8367:
-    COP [LoopInit] ( #02 )
+    COP [LoopStart] ( #02 )
     COP [StageSpriteFrame] ( #0A )
     COP [AnimOnce]
     COP [BranchIfPlayerNear] ( #04, &code_0A82B6 )
-    COP [LoopNext]
+    COP [LoopEnd]
     JMP $&code_0A8277
 }
 
@@ -162,11 +162,11 @@ code_0A8379 {
     JMP $&code_0A8277
 
   loc_0A839A:
-    COP [LoopInit] ( #02 )
+    COP [LoopStart] ( #02 )
     COP [StageSpriteFrame] ( #09 )
     COP [AnimOnce]
     COP [BranchIfPlayerNear] ( #04, &code_0A82B6 )
-    COP [LoopNext]
+    COP [LoopEnd]
     JMP $&code_0A8277
 }
 
@@ -174,8 +174,8 @@ code_0A83AC {
     COP [SetHitCallback] ( #$0000 )
     COP [StageSpriteFrame] ( #1A )
     COP [AnimOnce]
-    COP [SpawnLastRel] ( @code_0A843E, #F8, #E0, #$0200 )
-    COP [ForceMoveLastChild] ( #04, #00 )
+    COP [SpawnListAppend] ( @code_0A843E, #F8, #E0, #$0200 )
+    COP [ApplyMoveToChild] ( #04, #00 )
     COP [StageSpriteFrame] ( #1B )
     COP [AnimOnce]
     COP [StageSpriteLoop] ( #02, #20 )
@@ -187,8 +187,8 @@ code_0A83D0 {
     COP [SetHitCallback] ( #$0000 )
     COP [StageSpriteFrame] ( #9A )
     COP [AnimOnce]
-    COP [SpawnLastRel] ( @code_0A843E, #08, #E0, #$0200 )
-    COP [ForceMoveLastChild] ( #03, #00 )
+    COP [SpawnListAppend] ( @code_0A843E, #08, #E0, #$0200 )
+    COP [ApplyMoveToChild] ( #03, #00 )
     COP [StageSpriteFrame] ( #9B )
     COP [AnimOnce]
     COP [StageSpriteLoop] ( #82, #20 )
@@ -200,8 +200,8 @@ code_0A83F4 {
     COP [SetHitCallback] ( #$0000 )
     COP [StageSpriteFrame] ( #18 )
     COP [AnimOnce]
-    COP [SpawnLastRel] ( @code_0A843E, #00, #D0, #$0200 )
-    COP [ForceMoveLastChild] ( #00, #04 )
+    COP [SpawnListAppend] ( @code_0A843E, #00, #D0, #$0200 )
+    COP [ApplyMoveToChild] ( #00, #04 )
     COP [StageSpriteFrame] ( #19 )
     COP [AnimOnce]
     COP [StageSpriteLoop] ( #01, #20 )
@@ -213,8 +213,8 @@ code_0A8418 {
     COP [SetHitCallback] ( #$0000 )
     COP [StageSpriteFrame] ( #16 )
     COP [AnimOnce]
-    COP [SpawnLastRel] ( @code_0A843C, #00, #E0, #$0200 )
-    COP [ForceMoveLastChild] ( #00, #03 )
+    COP [SpawnListAppend] ( @code_0A843C, #00, #E0, #$0200 )
+    COP [ApplyMoveToChild] ( #00, #03 )
     COP [StageSpriteFrame] ( #17 )
     COP [AnimOnce]
     COP [StageSpriteLoop] ( #00, #20 )
@@ -223,17 +223,17 @@ code_0A8418 {
 }
 
 code_0A843C {
-    COP [CollPrioritySetMax]
+    COP [SetPriorityMax]
 }
 
 code_0A843E {
-    COP [OrActorFlags] ( #$0010 )
+    COP [OrExtraFlags] ( #$0010 )
     LDA #$0080
     TSB $12
     COP [PlaySoundCh1] ( #1E )
     COP [StageSpriteLoop] ( #1C, #02 )
     COP [AnimLoop]
-    COP [CollPriorityClearMax]
+    COP [ClearPriorityMax]
     COP [StageSpriteLoop] ( #1C, #02 )
     COP [AnimLoop]
     LDA $playerActor

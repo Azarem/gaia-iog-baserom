@@ -19,8 +19,8 @@ mu63_spirits [
 
   code_0699CA:
     COP [BranchIfPlayerInAbsTiles] ( #10, #00, #20, #10, &code_069AC1 )
-    COP [BranchIfFlagByte] ( #7B, #01, &code_069AAE )
-    COP [ExitIfFlagByte] ( #7B, #01 )
+    COP [BranchOnFlagByte] ( #7B, #01, &code_069AAE )
+    COP [WaitOnFlagByte] ( #7B, #01 )
     COP [SpawnAfterAbsFlags] ( @code_069ABB, #$0080, #$0058, #$1000 )
     LDA #$CFF0
     TSB $joypadMaskStd
@@ -75,8 +75,8 @@ code_069ABB {
 }
 
 code_069AC1 {
-    COP [BranchIfFlagByte] ( #7E, #01, &code_069B9D )
-    COP [ExitIfFlagByte] ( #7E, #01 )
+    COP [BranchOnFlagByte] ( #7E, #01, &code_069B9D )
+    COP [WaitOnFlagByte] ( #7E, #01 )
     COP [SpawnAfterAbsFlags] ( @code_069ABB, #$0180, #$0058, #$1000 )
     LDA #$CFF0
     TSB $joypadMaskStd
@@ -129,26 +129,26 @@ code_069BDA {
     COP [SetSpritePriority] ( #30 )
     COP [StageSprAndHitbox] ( #0E )
     COP [PlaySoundBoth] ( #$2626 )
-    COP [LoopInit] ( #1E )
+    COP [LoopStart] ( #1E )
     LDA #$2000
     TSB $10
-    COP [SetEntryExit]
+    COP [SetEntryHereAndYield]
     LDA #$2000
     TRB $10
-    COP [LoopNext]
+    COP [LoopEnd]
 
   code_069BF5:
-    COP [SetEntryExit]
-    COP [SetEntryContinue]
+    COP [SetEntryHereAndYield]
+    COP [SetEntryHere]
     COP [AnimOneFrame]
-    COP [BranchIfFlagByte] ( #02, #00, &code_069BF5 )
-    COP [LoopInit] ( #1E )
+    COP [BranchOnFlagByte] ( #02, #00, &code_069BF5 )
+    COP [LoopStart] ( #1E )
     LDA #$2000
     TSB $10
-    COP [SetEntryExit]
+    COP [SetEntryHereAndYield]
     LDA #$2000
     TRB $10
-    COP [LoopNext]
+    COP [LoopEnd]
     COP [Die]
 }
 
@@ -159,6 +159,6 @@ code_069C14 {
   code_069C1D:
     COP [StageSpriteFrame] ( #06 )
     COP [AnimOnce]
-    COP [BranchIfFlagByte] ( #02, #00, &code_069C1D )
+    COP [BranchOnFlagByte] ( #02, #00, &code_069C1D )
     COP [Die]
 }

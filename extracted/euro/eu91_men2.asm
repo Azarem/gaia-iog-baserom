@@ -17,15 +17,15 @@ eu91_men2 [
 
   code_07C92D:
     JSL $@ActorDisplayModeSwap
-    COP [SetOnInteract] ( &code_07C94C )
+    COP [SetInteractHandler] ( &code_07C94C )
     LDA #$0002
     STA $currentHp, X
     JSL $@npc_wander_ai.SyncActorPosFromDP
 
   loc_07C940:
     JSL $@npc_wander_ai.NpcRandomWanderAI
-    COP [SetEntryExit]
-    COP [SetEntryContinue]
+    COP [SetEntryHereAndYield]
+    COP [SetEntryHere]
     COP [AnimOnce]
     BRA loc_07C940
 } >

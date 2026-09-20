@@ -37,8 +37,8 @@ sFC_actor_0BC9BD [
     TSB $joypadMaskStd
 
   loc_0BC9C6:
-    COP [SetEntryContinue] ; Re-enter each frame to poll input
-    COP [BranchIfButton] ( #$1001, &TitleToDiaryTransition ) ; Start ($1000) or R ($0001) → begin game
+    COP [SetEntryHere]    ; Re-enter each frame to poll input
+    COP [BranchIfPressed] ( #$1001, &TitleToDiaryTransition ) ; Start ($1000) or R ($0001) → begin game
     RTL                   ; No button → loop
 } >
 ]
@@ -54,7 +54,7 @@ TitleToDiaryTransition {
     LDA #$0001            ; Instant blank transition type
     STA $gfxCacheIdxA
     COP [QueueMapChange] ( #FA, #$0100, #$0370, #00, #$4400 ) ; Scene $FA (diary menu), pos ($100,$370)
-    COP [SetEntryExit]    ; Mark actor for cleanup after transition
+    COP [SetEntryHereAndYield] ; Mark actor for cleanup after transition
     PHD                   ; Save actor DP
     PHX                   ; Save actor slot index
     LDA #$0000            ; Set DP to system page for VBlank routine
@@ -62,7 +62,7 @@ TitleToDiaryTransition {
     JSL $@vblank_joypad.VBlankWaitAndJoypad ; One VBlank sync before fade
     PLX 
     PLD 
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     SEP #$20
     LDA #$00              ; Force blank — screen off
     STA $INIDISP

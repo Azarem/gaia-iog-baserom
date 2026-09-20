@@ -26,20 +26,20 @@ btDE_olman [
     TSB $12
     COP [SetMetasprite] ( @spriteset_npc_props )
     COP [StageSprAndHitbox] ( #02 )
-    COP [BranchIfFlagByte] ( #FD, #01, &code_098891 )
-    COP [SolidHighHere]
-    COP [SetOnInteract] ( &code_0988D2 )
-    COP [ExitIfFlagByte] ( #01, #01 )
+    COP [BranchOnFlagByte] ( #FD, #01, &code_098891 )
+    COP [MarkSolidHere]
+    COP [SetInteractHandler] ( &code_0988D2 )
+    COP [WaitOnFlagByte] ( #01, #01 )
     LDA #$EFF0
     TSB $joypadMaskStd
-    COP [SetOnInteract] ( #$0000 )
-    COP [SpawnAfterRelFlags] ( @code_0988DA, #$0000, #$FFE0, #$1800 )
+    COP [SetInteractHandler] ( #$0000 )
+    COP [SpawnAfterOffsetFlags] ( @code_0988DA, #$0000, #$FFE0, #$1800 )
     COP [StartMusic] ( #0E )
     COP [WaitByte] ( #B3 )
     COP [PrintDialogString] ( &dialogstring_0989A2 )
     COP [FadeThenStartMusic] ( #1B )
     COP [WaitWord] ( #$012B )
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     JSL $@music_actors.IsMusicPlaying
     BCC loc_098857
     RTL 
@@ -61,13 +61,13 @@ btDE_olman [
     LDA #$0104
     STA $gfxCacheIdxB
     COP [QueueMapChange] ( #FD, #$0000, #$0000, #00, #$1100 )
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     RTL 
 } >
 ]
 
 code_098891 {
-    COP [SpawnAfterRelFlags] ( @code_0988F3, #$0000, #$FFE0, #$1800 )
+    COP [SpawnAfterOffsetFlags] ( @code_0988F3, #$0000, #$FFE0, #$1800 )
     LDA #$0001
     JSL $@InitPlayerScriptVariant
     LDY $playerActor
@@ -82,7 +82,7 @@ code_098891 {
     LDA #$0404
     STA $gfxCacheIdxB
     COP [QueueMapChange] ( #E4, #$00F0, #$0140, #80, #$2200 )
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     RTL 
 }
 
@@ -95,19 +95,19 @@ code_0988D2 {
 code_0988DA {
     COP [SetMetasprite] ( @spriteset_npc_props )
     COP [StageSprAndHitbox] ( #04 )
-    COP [LoopInit] ( #28 )
+    COP [LoopStart] ( #28 )
     LDA #$2000
     TSB $10
-    COP [SetEntryExit]
+    COP [SetEntryHereAndYield]
     LDA #$2000
     TRB $10
-    COP [LoopNext]
+    COP [LoopEnd]
 }
 
 code_0988F3 {
     COP [SetMetasprite] ( @spriteset_npc_props )
     COP [StageSprAndHitbox] ( #04 )
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     COP [StageSpriteFrame] ( #04 )
     COP [AnimOnce]
     RTL 

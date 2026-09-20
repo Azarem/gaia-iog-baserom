@@ -9,9 +9,9 @@ it18_warning_man [
   actor-def < #02, #00, #10, {
 
   code_04DDB9:
-    COP [SolidHighHere]
-    COP [SetOnInteract] ( &code_04DDC2 )
-    COP [SetEntryContinue]
+    COP [MarkSolidHere]
+    COP [SetInteractHandler] ( &code_04DDC2 )
+    COP [SetEntryHere]
     RTL 
 } >
 ]

@@ -14,7 +14,7 @@ sF7_actor_09E4DD [
     COP [SpawnBefore] ( @e_actor_09E464 )
 
   code_09E4E5:
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     RTL 
 } >
 ]
@@ -80,34 +80,34 @@ e_actor_09E464 {
     RTL 
 
   loc_09E46A:
-    COP [HaltIfCounterGte] ( #$0438 )
-    COP [SetLinkedActorScript] ( &code_09E4E8 )
-    COP [HaltIfCounterGte] ( #$0528 )
-    COP [SetLinkedActorScript] ( &code_09E4FE )
-    COP [HaltIfCounterGte] ( #$0B70 )
-    COP [SetLinkedActorScript] ( &code_09E4F6 )
-    COP [HaltIfCounterGte] ( #$0C78 )
-    COP [SetLinkedActorScript] ( &code_09E4E5 )
-    COP [HaltIfCounterGte] ( #$3F0C )
-    COP [SetLinkedActorScript] ( &code_09E52A )
-    COP [HaltIfCounterGte] ( #$3F54 )
-    COP [SetLinkedActorScript] ( &code_09E505 )
-    COP [HaltIfCounterGte] ( #$4164 )
-    COP [SetLinkedActorScript] ( &code_09E50C )
-    COP [HaltIfCounterGte] ( #$417C )
-    COP [SetLinkedActorScript] ( &code_09E505 )
-    COP [HaltIfCounterGte] ( #$4434 )
-    COP [SetLinkedActorScript] ( &code_09E51C )
-    COP [HaltIfCounterGte] ( #$4470 )
-    COP [SetLinkedActorScript] ( &code_09E505 )
-    COP [HaltIfCounterGte] ( #$447A )
-    COP [SetLinkedActorScript] ( &code_09E523 )
-    COP [HaltIfCounterGte] ( #$44AC )
-    COP [SetLinkedActorScript] ( &code_09E505 )
-    COP [HaltIfCounterGte] ( #$46C8 )
-    COP [SetLinkedActorScript] ( &code_09E514 )
-    COP [HaltIfCounterGte] ( #$4748 )
-    COP [SetLinkedActorScript] ( &code_09E4E5 )
-    COP [SetEntryContinue]
+    COP [HaltIfMaxFrames] ( #$0438 )
+    COP [SetLinkedEntryPtr] ( &code_09E4E8 )
+    COP [HaltIfMaxFrames] ( #$0528 )
+    COP [SetLinkedEntryPtr] ( &code_09E4FE )
+    COP [HaltIfMaxFrames] ( #$0B70 )
+    COP [SetLinkedEntryPtr] ( &code_09E4F6 )
+    COP [HaltIfMaxFrames] ( #$0C78 )
+    COP [SetLinkedEntryPtr] ( &code_09E4E5 )
+    COP [HaltIfMaxFrames] ( #$3F0C )
+    COP [SetLinkedEntryPtr] ( &code_09E52A )
+    COP [HaltIfMaxFrames] ( #$3F54 )
+    COP [SetLinkedEntryPtr] ( &code_09E505 )
+    COP [HaltIfMaxFrames] ( #$4164 )
+    COP [SetLinkedEntryPtr] ( &code_09E50C )
+    COP [HaltIfMaxFrames] ( #$417C )
+    COP [SetLinkedEntryPtr] ( &code_09E505 )
+    COP [HaltIfMaxFrames] ( #$4434 )
+    COP [SetLinkedEntryPtr] ( &code_09E51C )
+    COP [HaltIfMaxFrames] ( #$4470 )
+    COP [SetLinkedEntryPtr] ( &code_09E505 )
+    COP [HaltIfMaxFrames] ( #$447A )
+    COP [SetLinkedEntryPtr] ( &code_09E523 )
+    COP [HaltIfMaxFrames] ( #$44AC )
+    COP [SetLinkedEntryPtr] ( &code_09E505 )
+    COP [HaltIfMaxFrames] ( #$46C8 )
+    COP [SetLinkedEntryPtr] ( &code_09E514 )
+    COP [HaltIfMaxFrames] ( #$4748 )
+    COP [SetLinkedEntryPtr] ( &code_09E4E5 )
+    COP [SetEntryHere]
     RTL 
 }

@@ -25,7 +25,7 @@ pr8D_prologue2 [
     STZ $M7SEL
     REP #$20
     COP [CopyPalette] ( @pal_prologue_legends, #00, #00, #20 )
-    COP [BranchIfFlagWord] ( #$017C, #01, &code_0BCB8A )
+    COP [BranchOnFlagWord] ( #$017C, #01, &code_0BCB8A )
     COP [SetFlagWord] ( #$017C )
     COP [SpawnBeforeFlags] ( @code_0BCC2B, #$2800 )
     COP [SpawnAfterAbsFlags] ( @pr_text_placement_calc.code_0BCF8F, #$0020, #$0050, #$2000 )
@@ -37,7 +37,7 @@ pr8D_prologue2 [
 ]
 
 code_0BCB8A {
-    COP [BranchIfFlagWord] ( #$017D, #01, &code_0BCBB4 )
+    COP [BranchOnFlagWord] ( #$017D, #01, &code_0BCBB4 )
     COP [SetFlagWord] ( #$017D )
     COP [SpawnBeforeFlags] ( @code_0BCC5B, #$2800 )
     COP [SpawnAfterAbsFlags] ( @pr_text_placement_calc.code_0BCF8F, #$0064, #$0058, #$2000 )
@@ -48,7 +48,7 @@ code_0BCB8A {
 }
 
 code_0BCBB4 {
-    COP [BranchIfFlagWord] ( #$017E, #01, &code_0BCBDE )
+    COP [BranchOnFlagWord] ( #$017E, #01, &code_0BCBDE )
     COP [SetFlagWord] ( #$017E )
     COP [SpawnBeforeFlags] ( @code_0BCC85, #$2800 )
     COP [SpawnAfterAbsFlags] ( @pr_text_placement_calc.code_0BCF8F, #$0038, #$007C, #$2000 )
@@ -59,7 +59,7 @@ code_0BCBB4 {
 }
 
 code_0BCBDE {
-    COP [BranchIfFlagWord] ( #$017F, #01, &code_0BCC08 )
+    COP [BranchOnFlagWord] ( #$017F, #01, &code_0BCC08 )
     COP [SetFlagWord] ( #$017F )
     COP [SpawnBeforeFlags] ( @code_0BCCAE, #$2800 )
     COP [SpawnAfterAbsFlags] ( @pr_text_placement_calc.code_0BCF8F, #$0040, #$0020, #$2000 )
@@ -81,7 +81,7 @@ code_0BCC08 {
 
 code_0BCC2B {
     JSR $&code_0BCD26
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     LDA $0036
     AND #$0003
     BNE loc_0BCC3E
@@ -108,7 +108,7 @@ code_0BCC2B {
 
 code_0BCC5B {
     JSR $&code_0BCD26
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     LDA $0036
     AND #$0003
     BNE loc_0BCC6E
@@ -131,7 +131,7 @@ code_0BCC5B {
 
 code_0BCC85 {
     JSR $&code_0BCD26
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     LDA $0036
     AND #$0003
     BNE loc_0BCC98
@@ -154,7 +154,7 @@ code_0BCC85 {
 
 code_0BCCAE {
     JSR $&code_0BCD26
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     LDA $0036
     AND #$0003
     BNE loc_0BCCC1
@@ -177,7 +177,7 @@ code_0BCCAE {
 
 code_0BCCD7 {
     JSR $&code_0BCD26
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     DEC $00C2
     DEC $00C8
     LDA $00C2
@@ -195,7 +195,7 @@ code_0BCCD7 {
 }
 
 code_0BCCF5 {
-    COP [BranchIfFlagWord] ( #$017C, #00, &code_0BCD14 )
+    COP [BranchOnFlagWord] ( #$017C, #00, &code_0BCD14 )
     LDA #$0200
     STA $gfxCacheIdxB
     LDA #$0001

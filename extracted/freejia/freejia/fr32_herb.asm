@@ -13,15 +13,15 @@ fr32_herb [
   code_05CF23:
     LDA #$0200
     TSB $12
-    COP [SetOnInteract] ( &code_05CF31 )
-    COP [SolidHighHere]
-    COP [SetEntryContinue]
+    COP [SetInteractHandler] ( &code_05CF31 )
+    COP [MarkSolidHere]
+    COP [SetEntryHere]
     RTL 
 } >
 ]
 
 code_05CF31 {
-    COP [BranchIfFlagByte] ( #53, #01, &code_05CF43 )
+    COP [BranchOnFlagByte] ( #53, #01, &code_05CF43 )
     COP [GiveItem] ( #06, &code_05CF44 )
     COP [SetFlagByte] ( #53 )
     COP [PrintDialogString] ( &dialogstring_05CF49 )

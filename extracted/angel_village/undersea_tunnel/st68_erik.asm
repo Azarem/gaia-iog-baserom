@@ -26,7 +26,7 @@ code_list_06ADFC [
 ]
 
 code_06AE02 {
-    COP [ExitIfFlagByte] ( #01, #01 )
+    COP [WaitOnFlagByte] ( #01, #01 )
     COP [StageSpriteMoveY] ( #0E, #11 )
     COP [AnimOnce]
     COP [StageSpriteMoveX] ( #10, #02 )
@@ -39,10 +39,10 @@ code_06AE02 {
     COP [AnimOnce]
     COP [StageSpriteFrame] ( #0A )
     COP [AnimOnce]
-    COP [SolidHighHere]
-    COP [SetOnInteract] ( &code_06AE6B )
-    COP [ExitIfFlagByte] ( #04, #01 )
-    COP [ClearLowHere]
+    COP [MarkSolidHere]
+    COP [SetInteractHandler] ( &code_06AE6B )
+    COP [WaitOnFlagByte] ( #04, #01 )
+    COP [ClearSolidHere]
     COP [StageSpriteLoopMoveX] ( #11, #03, #01 )
     COP [AnimLoop]
     COP [StageSpriteMoveY] ( #0F, #12 )
@@ -54,7 +54,7 @@ code_06AE02 {
     LDA #$0404
     STA $gfxCacheIdxB
     COP [QueueMapChange] ( #68, #$0070, #$01A0, #03, #$2110 )
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     RTL 
 }
 
@@ -64,7 +64,7 @@ code_06AE62 {
 
 code_06AE64 {
     COP [SetTilePos] ( #17, #1A )
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     RTL 
 }
 

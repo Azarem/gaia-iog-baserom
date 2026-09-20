@@ -19,8 +19,8 @@ mu67_neil [
   actor-def < #13, #00, #30, {
 
   code_06A748:
-    COP [ExitIfFlagByte] ( #03, #01 )
-    COP [SetEntryContinue]
+    COP [WaitOnFlagByte] ( #03, #01 )
+    COP [SetEntryHere]
     COP [BranchIfPlayerInAbsTiles] ( #01, #19, #0F, #1B, &code_06A757 )
     RTL 
 } >
@@ -49,7 +49,7 @@ code_06A757 {
     COP [WaitByte] ( #45 )
     COP [PrintDialogString] ( &dialogstring_06A7C7 )
     COP [SpawnAfterFlags] ( @e_mu67_lily, #$1002 )
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     RTL 
 }
 
@@ -89,7 +89,7 @@ e_mu67_lily {
     COP [WaitByte] ( #3B )
     COP [PrintDialogString] ( &dialogstring_06AA89 )
     COP [SetFlagByte] ( #06 )
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     RTL 
 }
 

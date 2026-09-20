@@ -22,7 +22,7 @@ awB1_gorgon [
 
   code_0BB81A:
     COP [WaitWhileOffscreen] ( #0F )
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     COP [BranchIfPlayerNear] ( #04, &code_0BB939 )
     RTL 
 } >
@@ -56,7 +56,7 @@ code_0BB82E {
     COP [SpawnAfterFlags] ( @code_0BBB0A, #$0300 )
     LDA #$FFFF
     STA $26
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     LDA $26
     BPL loc_0BB88E
     RTL 
@@ -160,10 +160,10 @@ code_0BB950 {
     LDA #$0011
     TRB $12
     COP [PlaySoundCh1] ( #15 )
-    COP [SpawnMarkedAfter] ( @code_0BB9BE, #$2000 )
+    COP [SpawnAfterMarked] ( @code_0BB9BE, #$2000 )
     LDA #$0010
     TSB $10
-    COP [SpawnLastRel] ( @code_0BB9DF, #00, #00, #$2000 )
+    COP [SpawnListAppend] ( @code_0BB9DF, #00, #00, #$2000 )
     COP [StageSpriteFrame] ( #2E )
     COP [AnimOnce]
     LDA #$0010
@@ -173,7 +173,7 @@ code_0BB950 {
 }
 
 code_0BB97C {
-    COP [SetEntryExit]
+    COP [SetEntryHereAndYield]
     COP [RngByte]
     AND #$0003
     STA $0000
@@ -188,10 +188,10 @@ code_list_0BB98C [
 ]
 
 code_0BB994 {
-    COP [SetEntryExit]
+    COP [SetEntryHereAndYield]
     LDA #$0010
     TSB $10
-    COP [SpawnMarkedAfter] ( @code_0BB9BE, #$2000 )
+    COP [SpawnAfterMarked] ( @code_0BB9BE, #$2000 )
     COP [StageSpriteFrame] ( #07 )
     COP [AnimOnce]
     COP [StageSpriteLoop] ( #08, #04 )
@@ -221,13 +221,13 @@ code_0BB9BE {
 }
 
 code_0BB9DF {
-    COP [LoopInit] ( #0F )
+    COP [LoopStart] ( #0F )
     COP [SpawnAfterFlags] ( @code_0BB9FC, #$2300 )
-    COP [SpawnLastRel] ( @camera_drift.CameraDriftPatterned, #00, #00, #$2000 )
+    COP [SpawnListAppend] ( @camera_drift.CameraDriftPatterned, #00, #00, #$2000 )
     CLC 
     ADC #$0020
     STA $08
-    COP [LoopNext]
+    COP [LoopEnd]
     COP [Die]
 }
 
@@ -242,7 +242,7 @@ code_0BB9FC {
     ADC $bg2ScrollH
     STA $16
     STA $moveYAlt, X
-    COP [BranchIfSolid] ( &code_0BBA54 )
+    COP [BranchIfSolidHere] ( &code_0BBA54 )
     COP [SpawnAfterFlags] ( @code_0BBA56, #$0300 )
     COP [WaitByte] ( #3B )
     LDA #$2000
@@ -263,7 +263,7 @@ code_0BB9FC {
     COP [AnimOnce]
     COP [StageSpriteFrame] ( #30 )
     COP [AnimOnce]
-    COP [SetEntryExit]
+    COP [SetEntryHereAndYield]
 }
 
 code_0BBA54 {
@@ -292,7 +292,7 @@ code_0BBA69 {
     COP [PlaySoundCh1] ( #15 )
     COP [StageSpriteLoopMoveY] ( #09, #10, #4A )
     COP [AnimLoop]
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     RTL 
 }
 
@@ -303,7 +303,7 @@ code_0BBA80 {
     COP [PlaySoundCh1] ( #15 )
     COP [StageSpriteLoopMoveY] ( #0A, #10, #4A )
     COP [AnimLoop]
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     RTL 
 }
 
@@ -314,7 +314,7 @@ code_0BBA97 {
     COP [PlaySoundCh1] ( #15 )
     COP [StageSpriteLoopMoveY] ( #0B, #10, #4A )
     COP [AnimLoop]
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     RTL 
 }
 
@@ -325,7 +325,7 @@ code_0BBAAE {
     COP [PlaySoundCh1] ( #15 )
     COP [StageSpriteLoopMoveY] ( #0C, #10, #4A )
     COP [AnimLoop]
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     RTL 
 }
 
@@ -336,7 +336,7 @@ code_0BBAC5 {
     COP [PlaySoundCh1] ( #15 )
     COP [StageSpriteLoopMoveY] ( #0D, #10, #4A )
     COP [AnimLoop]
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     RTL 
 }
 
@@ -347,7 +347,7 @@ code_0BBADC {
     COP [PlaySoundCh1] ( #15 )
     COP [StageSpriteLoopMoveY] ( #0E, #10, #4A )
     COP [AnimLoop]
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     RTL 
 }
 
@@ -358,7 +358,7 @@ code_0BBAF3 {
     COP [PlaySoundCh1] ( #15 )
     COP [StageSpriteLoopMoveY] ( #0F, #11, #4A )
     COP [AnimLoop]
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     RTL 
 }
 
@@ -383,7 +383,7 @@ code_0BBB0A {
     LDY $26
     LDA #$0000
     STA $0026, Y
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     RTL 
 }
 

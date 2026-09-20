@@ -95,7 +95,7 @@ effect_velocity_init [
 ; On entry calls SetEntryContinue and accumulates fractional scroll: when $14 has a nonzero high byte it scales through hardware_math.MulDivide against cameraTargetX into forcedScrollOverride; otherwise sign-extends and adds the low byte directly. Used in Sky Garden viper lair and mystic-statue sequences for smooth cinematic pans.
 
 effect_subpixel_math {
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     PEA $&EffectUpdateCameraDeltaY-1
     LDA $14
     BIT #$8000
@@ -193,7 +193,7 @@ effect_position_update [
     LDA #$0000
     STA $14               ; Low-range: EOR + INC inverts, then +$10 for mirror
     STA $16
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     LDA $14
     CLC                   ; Store computed orbitAngle; clear orbitDiameter
     ADC $2C

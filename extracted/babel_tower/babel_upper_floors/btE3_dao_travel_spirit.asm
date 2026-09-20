@@ -21,10 +21,10 @@ btE3_dao_travel_spirit [
     TSB $12
     COP [SetMetasprite] ( @spriteset_npc_props )
     COP [StageSprAndHitbox] ( #04 )
-    COP [SolidHighHere]
-    COP [SetOnInteract] ( &code_09801D )
-    COP [SetEntryContinue]
-    COP [SetEntryContinue]
+    COP [MarkSolidHere]
+    COP [SetInteractHandler] ( &code_09801D )
+    COP [SetEntryHere]
+    COP [SetEntryHere]
     COP [AnimOnce]
     RTL 
 } >

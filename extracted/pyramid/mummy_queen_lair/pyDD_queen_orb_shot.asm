@@ -62,7 +62,7 @@ pyDD_queen_orb_shot {
 
   loc_0BAB06:
     JSR $&code_0BABAC
-    COP [SetEntryExit]
+    COP [SetEntryHereAndYield]
     LDA $orbitDiameter, X
     CMP #$0080
     BCS loc_0BAB25
@@ -86,7 +86,7 @@ pyDD_queen_orb_shot {
     STZ $08
     STA $24
     JSR $&code_0BABAC
-    COP [SetEntryExit]
+    COP [SetEntryHereAndYield]
 
   loc_0BAB3C:
     LDA $orbitAngle, X
@@ -124,7 +124,7 @@ pyDD_queen_orb_shot {
 
   loc_0BAB7D:
     JSR $&code_0BABAC
-    COP [SetEntryExit]
+    COP [SetEntryHereAndYield]
     LDA $orbitAngle, X
     CLC 
     ADC #$0002

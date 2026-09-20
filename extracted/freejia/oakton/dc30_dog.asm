@@ -13,12 +13,12 @@ dc30_dog [
   code_05AA6F:
     LDA #$0200
     TSB $12
-    COP [SetOnInteract] ( &code_05AA89 )
-    COP [SolidHighHere]
+    COP [SetInteractHandler] ( &code_05AA89 )
+    COP [MarkSolidHere]
 
   loc_05AA7A:
     COP [ClearFlagByte] ( #01 )
-    COP [ExitIfFlagByte] ( #01, #01 )
+    COP [WaitOnFlagByte] ( #01, #01 )
     COP [StageSpriteLoop] ( #48, #10 )
     COP [AnimLoop]
     BRA loc_05AA7A

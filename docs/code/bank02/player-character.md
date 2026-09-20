@@ -21,7 +21,7 @@ Illusion of Gaia's playable character is not a single monolithic actor. Instead,
 | 5 | [`attack_ability_system.asm`](../../../extracted/actors/player/attack_ability_system.asm) | `attack_ability_system` | `$02B7B3`–`$02BDF6` + `$02BE72`–`$02C38C` | 2,909 B |
 | 6 | [`attack_trail_followers.asm`](../../../extracted/actors/player/attack_trail_followers.asm) | `attack_trail_followers` | `$02BDF6`–`$02BE72` | 124 B |
 
-**Related:** [`tile-collision.md`](tile-collision.md) · [`hardware-and-init.md`](hardware-and-init.md) · [`player-movement.md`](player-movement.md) (player movement physics `$02CFD0`–`$02E395`) · [`readme.md`](readme.md) · [`../../cop-commands-reference.md`](../../cop-commands-reference.md) · [`../../actor-organization-analysis.md`](../../actor-organization-analysis.md) · [`attack-ability-system.md`](attack-ability-system.md) · [`slope-ramp-physics.md`](slope-ramp-physics.md)
+**Related:** [`tile-collision.md`](tile-collision.md) · [`hardware-and-init.md`](hardware-and-init.md) · [`player-movement.md`](player-movement.md) (player movement physics `$02CFD0`–`$02E395`) · [`readme.md`](readme.md) · [`../../cop/index.md`](../../cop/index.md) · [`../../actor-organization-analysis.md`](../../actor-organization-analysis.md) · [`attack-ability-system.md`](attack-ability-system.md) · [`slope-ramp-physics.md`](slope-ramp-physics.md)
 
 ## Architecture Overview
 
@@ -786,5 +786,5 @@ Shadow form (`$0AD4 == 2`) uses alternate sprites via `COP [BranchIfFlagByte]`. 
 
 - [`player-movement.md`](player-movement.md) — `PlayerMovementTick` (`$02CFD0`), tile collision (`$02E102`)
 - [`tile-collision.md`](tile-collision.md) — tile probing for slopes and shimmy
-- [`../../cop-commands-reference.md`](../../cop-commands-reference.md) — COP command semantics
+- [`../../cop/index.md`](../../cop/index.md) — COP command semantics
 - [`../../actor-organization-analysis.md`](../../actor-organization-analysis.md) — global actor linked list

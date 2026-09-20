@@ -35,14 +35,14 @@ hint_npc2 [
     TSB $12
 
   loc_09A0F9:
-    COP [AddPosition] ( #F8, #00 )
-    COP [SpawnAfterRelFlags] ( @code_09A38D, #$0000, #$FFD0, #$1800 )
-    COP [SpawnAfterRelFlags] ( @code_09A3A0, #$0000, #$FFD0, #$1800 )
-    COP [AddPosition] ( #F8, #01 )
-    COP [SetOnInteract] ( &code_09A123 )
+    COP [NudgePosition] ( #F8, #00 )
+    COP [SpawnAfterOffsetFlags] ( @code_09A38D, #$0000, #$FFD0, #$1800 )
+    COP [SpawnAfterOffsetFlags] ( @code_09A3A0, #$0000, #$FFD0, #$1800 )
+    COP [NudgePosition] ( #F8, #01 )
+    COP [SetInteractHandler] ( &code_09A123 )
     LDA #$0000
     STA $24
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     RTL 
 } >
 ]
@@ -134,7 +134,7 @@ code_09A38D {
     COP [WaitByte] ( #3B )
     COP [StageSpriteFrame] ( #05 )
     COP [AnimOnce]
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     COP [StageSpriteFrame] ( #06 )
     COP [AnimOnce]
     RTL 
@@ -144,7 +144,7 @@ code_09A3A0 {
     COP [StageSprAndHitbox] ( #07 )
 
   loc_09A3A3:
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     LDY $24
     LDA $0024, Y
     BNE loc_09A3AD
@@ -164,21 +164,21 @@ code_09A3A0 {
     BEQ loc_09A3D4
     COP [StageSpriteFrame] ( #07 )
     COP [AnimOnce]
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     COP [AnimOneFrame]
     BRA loc_09A3A3
 
   loc_09A3C9:
     COP [StageSpriteFrame] ( #08 )
     COP [AnimOnce]
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     COP [AnimOneFrame]
     BRA loc_09A3A3
 
   loc_09A3D4:
     COP [StageSpriteFrame] ( #09 )
     COP [AnimOnce]
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     COP [AnimOneFrame]
     BRA loc_09A3A3
 }

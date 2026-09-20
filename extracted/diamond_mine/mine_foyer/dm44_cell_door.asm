@@ -14,12 +14,12 @@ dm44_cell_door [
   actor-def < #35, #01, #30, {
 
   code_05D52B:
-    COP [AddPosition] ( #08, #00 )
+    COP [NudgePosition] ( #08, #00 )
     LDA #$0200
     TSB $12
-    COP [SetOnInteract] ( &code_05D54B )
-    COP [ExitIfFlagByte] ( #5B, #01 )
-    COP [ExitIfFlagByte] ( #5C, #01 )
+    COP [SetInteractHandler] ( &code_05D54B )
+    COP [WaitOnFlagByte] ( #5B, #01 )
+    COP [WaitOnFlagByte] ( #5C, #01 )
     COP [StageBgChange] ( #7A )
     COP [ApplyBgChange]
     COP [SetFlagWord] ( #$017A )
@@ -28,16 +28,16 @@ dm44_cell_door [
 ]
 
 code_05D54B {
-    COP [BranchIfNoItem] ( #0B, &code_05D552 )
+    COP [BranchIfMissingItem] ( #0B, &code_05D552 )
     BRA loc_05D557
 }
 
 code_05D552 {
-    COP [BranchIfNoItem] ( #0C, &code_05D56D )
+    COP [BranchIfMissingItem] ( #0C, &code_05D56D )
 
   loc_05D557:
-    COP [BranchIfFlagByte] ( #5B, #01, &code_05D568 )
-    COP [BranchIfFlagByte] ( #5C, #01, &code_05D568 )
+    COP [BranchOnFlagByte] ( #5B, #01, &code_05D568 )
+    COP [BranchOnFlagByte] ( #5C, #01, &code_05D568 )
     COP [PrintDialogString] ( &dialogstring_05D593 )
     RTL 
 }

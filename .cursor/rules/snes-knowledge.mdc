@@ -9,7 +9,7 @@ When working on assembly, patches, or ROM metadata in this repo:
 
 1. Prefer the **gaia-snes** multi-root workspace (`c:/Work/gaia-snes.code-workspace`) so `gaia-knowledge` is indexed
 2. Read `gaia-knowledge/curated/gaialabs/assembler-syntax.md` before editing `.asm`
-3. IOG-specific docs: `docs/cop-commands-reference.md`, `docs/actor-organization-analysis.md` (also in knowledge corpus after ingest)
+3. IOG-specific docs: `docs/cop/index.md` (COP system overview + family links), `docs/actor-organization-analysis.md` (also in knowledge corpus after ingest)
 4. Rebuild to validate: `npm run rebuild`
 
 ## Label rules

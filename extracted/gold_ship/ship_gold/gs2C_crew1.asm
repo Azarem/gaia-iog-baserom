@@ -10,9 +10,9 @@ gs2C_crew1 [
   actor-def < #02, #00, #10, {
 
   code_058252:
-    COP [SolidHighHere]
-    COP [SetOnInteract] ( &code_05825B )
-    COP [SetEntryContinue]
+    COP [MarkSolidHere]
+    COP [SetInteractHandler] ( &code_05825B )
+    COP [SetEntryHere]
     RTL 
 } >
 ]

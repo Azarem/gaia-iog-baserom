@@ -13,20 +13,20 @@ av6A_neil [
   actor-def < #15, #00, #10, {
 
   code_06C03B:
-    COP [BranchIfFlagByte] ( #8D, #01, &av6A_neil_destroy )
-    COP [BranchIfFlagByte] ( #A9, #01, &code_06C065 )
-    COP [BranchIfFlagByte] ( #8C, #01, &code_06C056 )
-    COP [SetOnInteract] ( &code_06C0CD )
-    COP [SolidHighHere]
-    COP [SetEntryContinue]
+    COP [BranchOnFlagByte] ( #8D, #01, &av6A_neil_destroy )
+    COP [BranchOnFlagByte] ( #A9, #01, &code_06C065 )
+    COP [BranchOnFlagByte] ( #8C, #01, &code_06C056 )
+    COP [SetInteractHandler] ( &code_06C0CD )
+    COP [MarkSolidHere]
+    COP [SetEntryHere]
     RTL 
 } >
 ]
 
 code_06C056 {
     COP [SetTilePos] ( #0F, #0E )
-    COP [SolidHighHere]
-    COP [ClearLowHere]
+    COP [MarkSolidHere]
+    COP [ClearSolidHere]
     COP [StageSpriteLoopMoveX] ( #19, #04, #01 )
     COP [AnimLoop]
 }
@@ -35,9 +35,9 @@ code_06C065 {
     COP [SetTilePos] ( #17, #0E )
     COP [StageSpriteFrame] ( #15 )
     COP [AnimOnce]
-    COP [SolidHighHere]
-    COP [SetOnInteract] ( &code_06C077 )
-    COP [SetEntryContinue]
+    COP [MarkSolidHere]
+    COP [SetInteractHandler] ( &code_06C077 )
+    COP [SetEntryHere]
     RTL 
 }
 

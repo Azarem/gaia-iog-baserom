@@ -11,8 +11,8 @@ awB7_sliding_gate [
   actor-def < #03, #00, #00, {
 
   code_0899B2:
-    COP [AddPosition] ( #08, #00 )
-    COP [SetEntryContinue]
+    COP [NudgePosition] ( #08, #00 )
+    COP [SetEntryHere]
     LDA #$0010
     TRB $10
     COP [BranchIfPlayerInAbsTiles] ( #08, #12, #0A, #14, &code_0899CE )
@@ -30,14 +30,14 @@ code_0899CE {
 code_0899D4 {
     LDA #$0010
     TSB $10
-    COP [SolidHighAbs] ( #05, #0F )
-    COP [SolidHighAbs] ( #06, #0F )
+    COP [MarkSolidAbs] ( #05, #0F )
+    COP [MarkSolidAbs] ( #06, #0F )
     COP [SpawnAfterFlags] ( @code_0899FB, #$2000 )
     COP [StageSpriteMoveX] ( #85, #01 )
     COP [AnimOnce]
     COP [StageSpriteFrame] ( #07 )
     COP [AnimOnce]
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     COP [StageSpriteFrame] ( #08 )
     COP [AnimOnce]
     RTL 

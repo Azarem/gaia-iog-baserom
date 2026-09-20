@@ -10,10 +10,10 @@ eu9A_max [
   actor-def < #05, #00, #10, {
 
   code_07E699:
-    COP [BranchIfFlagByte] ( #A7, #01, &eu9A_max_destroy )
-    COP [SetOnInteract] ( &code_07E6A8 )
-    COP [SolidHighHere]
-    COP [SetEntryContinue]
+    COP [BranchOnFlagByte] ( #A7, #01, &eu9A_max_destroy )
+    COP [SetInteractHandler] ( &code_07E6A8 )
+    COP [MarkSolidHere]
+    COP [SetEntryHere]
     RTL 
 } >
 ]

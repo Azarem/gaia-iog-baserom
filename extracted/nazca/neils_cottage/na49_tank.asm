@@ -17,8 +17,8 @@ na49_tank [
     COP [SetMetasprite] ( @spriteset_enemies )
     COP [StageSpriteFrame] ( #00 )
     COP [AnimOnce]
-    COP [SetOnInteract] ( &code_05E319 )
-    COP [SetEntryContinue]
+    COP [SetInteractHandler] ( &code_05E319 )
+    COP [SetEntryHere]
     RTL 
 } >
 ]

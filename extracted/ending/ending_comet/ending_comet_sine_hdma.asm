@@ -16,7 +16,7 @@ ending_comet_sine_hdma [
     LDA #$0000
     STA $7E8C30
     STA $7E8E30
-    COP [SetEntryExit]
+    COP [SetEntryHereAndYield]
     COP [TickSineHdma] ( #05, #02 )
     COP [BindSineHdma] ( $7E8800, #0F )
     COP [BindSineHdma] ( $7E8C00, #10 )

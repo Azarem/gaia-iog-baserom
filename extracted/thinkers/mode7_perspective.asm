@@ -134,7 +134,7 @@ Mode7PerspectiveUpdate {
     REP #$20
     PLD 
     PLX 
-    COP [SetEntryContinue] ; Yield after init — re-enter here each subsequent frame
+    COP [SetEntryHere]    ; Yield after init — re-enter here each subsequent frame
     PHX 
     PHD 
     LDA #$0000

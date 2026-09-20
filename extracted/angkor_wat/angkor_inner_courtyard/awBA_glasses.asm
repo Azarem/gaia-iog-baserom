@@ -16,11 +16,11 @@ awBA_glasses [
   actor-def < #02, #01, #10, {
 
   code_089F7F:
-    COP [BranchIfFlagByte] ( #BA, #01, &code_089FB5 )
+    COP [BranchOnFlagByte] ( #BA, #01, &code_089FB5 )
     LDA #$0200
     TSB $12
     COP [SetMetasprite] ( @spriteset_enemies )
-    COP [SetOnInteract] ( &code_089F9D )
+    COP [SetInteractHandler] ( &code_089F9D )
 
   loc_089F93:
     COP [StageSpriteFrame] ( #02 )

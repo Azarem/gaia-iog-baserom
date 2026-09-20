@@ -56,7 +56,7 @@ GameOverSequence {
     REP #$20              ; Post-fade: spawn palette reset thinkers #0B and #0D, evaluate gem revival
     COP [SpawnThinkerParam] ( #0B, @actor_pool.PaletteResetAndKillThinker )
     COP [SpawnThinkerParam] ( #0D, @actor_pool.PaletteResetAndKillThinker )
-    COP [SetEntryExit]
+    COP [SetEntryHereAndYield]
     PHB 
     LDA $gemCount
     CMP #$0064
@@ -122,7 +122,7 @@ GameOverSequence {
     STA $gfxCacheIdxB
     INC $0AF8
     STZ $worldReadyFlag
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     RTL 
 }
 
@@ -132,11 +132,11 @@ GameOverCutsceneSprites {
     COP [SetMetasprite] ( @spriteset_enemies )
     COP [SetSpritePalette] ( #00 )
     COP [WaitByte] ( #0B )
-    COP [SpawnMarkedAfterRel] ( @GameOverSparkleDriftA, #E7, #D8, #$0700 )
+    COP [SpawnAfterOffsetMarked] ( @GameOverSparkleDriftA, #E7, #D8, #$0700 )
     COP [WaitByte] ( #02 )
-    COP [SpawnMarkedAfterRel] ( @GameOverSparkleDriftB, #19, #E8, #$0700 )
+    COP [SpawnAfterOffsetMarked] ( @GameOverSparkleDriftB, #19, #E8, #$0700 )
     COP [WaitByte] ( #04 )
-    COP [SpawnMarkedAfterRel] ( @GameOverSparkleDriftA, #E7, #F8, #$0700 )
+    COP [SpawnAfterOffsetMarked] ( @GameOverSparkleDriftA, #E7, #F8, #$0700 )
     COP [WaitByte] ( #62 )
     COP [Die]
 }

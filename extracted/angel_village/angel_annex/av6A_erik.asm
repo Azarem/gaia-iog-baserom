@@ -13,23 +13,23 @@ av6A_erik [
   actor-def < #0C, #00, #10, {
 
   code_06C4BC:
-    COP [BranchIfFlagByte] ( #8D, #01, &av6A_erik_destroy )
-    COP [BranchIfFlagByte] ( #A9, #01, &code_06C513 )
-    COP [BranchIfFlagByte] ( #8C, #01, &code_06C4D7 )
-    COP [SetOnInteract] ( &code_06C52A )
-    COP [SolidHighHere]
-    COP [SetEntryContinue]
+    COP [BranchOnFlagByte] ( #8D, #01, &av6A_erik_destroy )
+    COP [BranchOnFlagByte] ( #A9, #01, &code_06C513 )
+    COP [BranchOnFlagByte] ( #8C, #01, &code_06C4D7 )
+    COP [SetInteractHandler] ( &code_06C52A )
+    COP [MarkSolidHere]
+    COP [SetEntryHere]
     RTL 
 } >
 ]
 
 code_06C4D7 {
     COP [SetTilePos] ( #0F, #0C )
-    COP [SolidHighHere]
+    COP [MarkSolidHere]
     LDA #$CFF0
     TSB $joypadMaskStd
-    COP [SetOnInteract] ( &code_06C525 )
-    COP [ClearLowHere]
+    COP [SetInteractHandler] ( &code_06C525 )
+    COP [ClearSolidHere]
     COP [StageSpriteMoveX] ( #11, #11 )
     COP [AnimOnce]
     COP [StageSpriteLoop] ( #0D, #28 )
@@ -38,12 +38,12 @@ code_06C4D7 {
     COP [AnimLoop]
     COP [StageSpriteFrame] ( #0D )
     COP [AnimOnce]
-    COP [SolidHighHere]
+    COP [MarkSolidHere]
     COP [PrintDialogString] ( &dialogstring_06C568 )
     COP [SetFlagByte] ( #A9 )
     LDA #$CFF0
     TRB $joypadMaskStd
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     RTL 
 }
 
@@ -51,9 +51,9 @@ code_06C513 {
     COP [SetTilePos] ( #16, #0C )
     COP [StageSpriteFrame] ( #0D )
     COP [AnimOnce]
-    COP [SolidHighHere]
-    COP [SetOnInteract] ( &code_06C525 )
-    COP [SetEntryContinue]
+    COP [MarkSolidHere]
+    COP [SetInteractHandler] ( &code_06C525 )
+    COP [SetEntryHere]
     RTL 
 }
 

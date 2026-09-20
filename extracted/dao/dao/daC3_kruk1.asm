@@ -12,10 +12,10 @@ daC3_kruk1 [
   code_08ABFA:
     LDA #$0200
     TSB $12
-    COP [SetOnInteract] ( &code_08AC0C )
-    COP [SolidHighHere]
-    COP [SetEntryContinue]
-    COP [SetEntryContinue]
+    COP [SetInteractHandler] ( &code_08AC0C )
+    COP [MarkSolidHere]
+    COP [SetEntryHere]
+    COP [SetEntryHere]
     COP [AnimOnce]
     RTL 
 } >

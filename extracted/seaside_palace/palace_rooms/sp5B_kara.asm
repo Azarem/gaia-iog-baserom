@@ -12,11 +12,11 @@ sp5B_kara [
   actor-def < #1C, #00, #10, {
 
   code_068621:
-    COP [BranchIfFlagByte] ( #70, #01, &code_068657 )
+    COP [BranchOnFlagByte] ( #70, #01, &code_068657 )
     COP [SpawnAfterAbsFlags] ( @ToggleActorVisibilityFlag, #$0000, #$0000, #$2800 )
     LDA #$0200
     TSB $12
-    COP [SetOnInteract] ( &code_068659 )
+    COP [SetInteractHandler] ( &code_068659 )
 
   loc_06863B:
     COP [StageSpriteLoopMoveX] ( #20, #04, #12 )

@@ -14,11 +14,11 @@ fr33_erik [
   actor-def < #0A, #00, #10, {
 
   code_05CD77:
-    COP [BranchIfFlagByte] ( #65, #01, &code_05CDA3 )
-    COP [SolidHighHere]
-    COP [SetOnInteract] ( &code_05CDA5 )
-    COP [ExitIfFlagByte] ( #65, #01 )
-    COP [ClearLowHere]
+    COP [BranchOnFlagByte] ( #65, #01, &code_05CDA3 )
+    COP [MarkSolidHere]
+    COP [SetInteractHandler] ( &code_05CDA5 )
+    COP [WaitOnFlagByte] ( #65, #01 )
+    COP [ClearSolidHere]
     LDA #$CFF0
     TSB $joypadMaskStd
     COP [StageSpriteLoopMoveX] ( #10, #03, #12 )

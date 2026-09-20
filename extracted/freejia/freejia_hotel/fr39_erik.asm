@@ -14,10 +14,10 @@ fr39_erik [
   actor-def < #0C, #00, #10, {
 
   code_05CB33:
-    COP [BranchIfFlagByte] ( #65, #00, &code_05CB42 )
-    COP [SolidHighHere]
-    COP [SetOnInteract] ( &code_05CB4B )
-    COP [SetEntryContinue]
+    COP [BranchOnFlagByte] ( #65, #00, &code_05CB42 )
+    COP [MarkSolidHere]
+    COP [SetInteractHandler] ( &code_05CB4B )
+    COP [SetEntryHere]
     RTL 
 } >
 ]
@@ -26,13 +26,13 @@ code_05CB42 {
     COP [Die]
 
   loc_05CB44:
-    COP [SetOnInteract] ( &code_05CB56 )
-    COP [SetEntryContinue]
+    COP [SetInteractHandler] ( &code_05CB56 )
+    COP [SetEntryHere]
     RTL 
 }
 
 code_05CB4B {
-    COP [BranchIfFlagByte] ( #68, #01, &code_05CB56 )
+    COP [BranchOnFlagByte] ( #68, #01, &code_05CB56 )
     COP [PrintDialogString] ( &dialogstring_05CB93 )
     RTL 
 }
@@ -53,7 +53,7 @@ code_05CB56 {
     STA $gfxCacheIdxB
     COP [StageWorldMapMove] ( #$0254, #$02D4, #00, #0C )
     COP [QueueMapChange] ( #49, #$0050, #$00D0, #00, #$1100 )
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     RTL 
 }
 

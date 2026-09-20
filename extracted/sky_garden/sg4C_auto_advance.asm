@@ -16,10 +16,10 @@ sg4C_auto_advance [
   code_0AB499:
     LDA $00B4
     BEQ loc_0AB4AE
-    COP [LoopInit] ( #3C )
+    COP [LoopStart] ( #3C )
     LDA $joypadRaw
     BNE loc_0AB4AE
-    COP [LoopNext]
+    COP [LoopEnd]
     LDA #$FFFF
     STA $joypadInject
 

@@ -74,7 +74,7 @@ EscortFollowPathTracker {
     STA $0E
     LDA #$0000
     STA $orbitAngle, X
-    COP [SetEntryExit]
+    COP [SetEntryHereAndYield]
     LDY $playerActor
     LDA $0014, Y
     CMP $14

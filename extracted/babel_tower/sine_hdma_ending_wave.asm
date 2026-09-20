@@ -15,8 +15,8 @@ sine_hdma_ending_wave [
     LDA #$0008
     STA $7F0008, X
     COP [InitSineHdma] ( #$8800, #40 )
-    COP [SetEntryExit]
-    COP [BranchIfFlagByte] ( #FF, #00, &code_00BF1B )
+    COP [SetEntryHereAndYield]
+    COP [BranchOnFlagByte] ( #FF, #00, &code_00BF1B )
     COP [TickSineHdma] ( #01, #02 )
     COP [BindSineHdma] ( $7E8800, #0F )
     RTL 
@@ -27,7 +27,7 @@ SineHdmaEndingWaveGen {
     LDA $animScratch2, X  ; SineHdmaEndingWaveGen: OR animScratch2 bit 0, GenHdmaSine, QueueHdma channel $10
     ORA #$0001
     STA $animScratch2, X
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     COP [GenHdmaSine]
     COP [QueueHdma] ( $7E8800, #0F )
     REP #$20

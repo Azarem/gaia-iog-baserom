@@ -11,7 +11,7 @@ sc03_lances_mother [
   actor-def < #13, #00, #10, {
 
   code_048E87:
-    COP [SetOnInteract] ( &code_048F14 )
+    COP [SetInteractHandler] ( &code_048F14 )
 
   code_048E8B:
     COP [StageSpriteMoveX] ( #18, #12 )

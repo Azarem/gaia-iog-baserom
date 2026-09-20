@@ -34,7 +34,7 @@ sE7_space_flight_controller [
     STA $0008, Y
     LDA #$0800
     TSB $playerFlags
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     COP [RngByte]
     AND #$0007
     STA $0000
@@ -100,7 +100,7 @@ code_0CEE4D {
     COP [StageSprAndHitbox] ( #03 )
 
   loc_0CEE50:
-    COP [OrActorFlags] ( #$0080 )
+    COP [OrExtraFlags] ( #$0080 )
     LDA #$0030
     TSB $12
     COP [RngByte]
@@ -127,7 +127,7 @@ code_0CEE4D {
     STA $moveYAlt, X
 
   loc_0CEE89:
-    COP [ReloadForceMove]
+    COP [ReloadMoveDurations]
     COP [StageSpriteFrame] ( #FF )
     COP [AnimOnce]
     LDA $16
@@ -173,7 +173,7 @@ code_0CED4C {
     STA $24
 
   loc_0CED76:
-    COP [SetEntryExit]
+    COP [SetEntryHereAndYield]
     DEC $26
     BMI loc_0CED82
     DEC $24
@@ -194,7 +194,7 @@ code_0CED4C {
     CMP #$0030
     BCC loc_0CED82
     COP [QueueMapChange] ( #E8, #$0000, #$0000, #80, #$2100 )
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     RTL 
 }
 

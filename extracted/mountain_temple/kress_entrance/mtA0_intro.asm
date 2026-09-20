@@ -14,7 +14,7 @@ mtA0_intro [
   actor-def < #00, #00, #30, {
 
   code_07E760:
-    COP [BranchIfFlagByte] ( #A7, #01, &code_07E77C )
+    COP [BranchOnFlagByte] ( #A7, #01, &code_07E77C )
     COP [SetFlagByte] ( #A7 )
     LDA #$CFF0
     TSB $joypadMaskStd

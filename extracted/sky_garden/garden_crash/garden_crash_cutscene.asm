@@ -62,17 +62,17 @@ GardenCrashCutscene [
     COP [StageSprAndHitbox] ( #04 ) ; Stage sprite/hitbox config #04
 
   loc_03A0E7:
-    COP [SetEntryContinue] ; Main loop: yield, animate, track camera
+    COP [SetEntryHere]    ; Main loop: yield, animate, track camera
     COP [AnimOneFrame]
     LDA $08               ; Copy animation result to timer $24
     STA $24
     STZ $08
-    COP [SetEntryContinue] ; Second yield per cycle
+    COP [SetEntryHere]    ; Second yield per cycle
     LDA $cameraTargetY    ; Position sprite at cameraTargetY + $B4 (vertical offset from camera center)
     CLC 
     ADC #$00B4
     STA $16
-    COP [BranchIfFlagByte] ( #01, #01, &GardenCrashExitPhase ) ; Check flag byte #01 — set by CrashCameraController when approach phase ends
+    COP [BranchOnFlagByte] ( #01, #01, &GardenCrashExitPhase ) ; Check flag byte #01 — set by CrashCameraController when approach phase ends
     DEC $24               ; Decrement animation timer
     BMI loc_03A107        ; Timer negative → loop back to main loop
     RTL 
@@ -88,16 +88,16 @@ GardenCrashCutscene [
 ; Entered when CrashCameraController sets flag byte #01 (approach + gravity phases complete). SetEntryExit marks this as a terminal state. Loops 30 frames ($1E): each frame animates one step and positions at cameraTargetY + $B4, tracking the still-scrolling camera. After the loop, one final yield + RTL ends the actor.
 
 GardenCrashExitPhase {
-    COP [SetEntryExit]    ; Exit phase: SetEntryExit marks terminal state
-    COP [LoopInit] ( #1E ) ; Loop 30 frames for fadeout animation
-    COP [SetEntryContinue]
+    COP [SetEntryHereAndYield] ; Exit phase: SetEntryExit marks terminal state
+    COP [LoopStart] ( #1E ) ; Loop 30 frames for fadeout animation
+    COP [SetEntryHere]
     COP [AnimOneFrame]
     LDA $cameraTargetY    ; Track camera Y + $B4 each frame during exit
     CLC 
     ADC #$00B4
     STA $16
-    COP [LoopNext]        ; LoopNext: decrement and branch back for remaining frames
-    COP [SetEntryContinue] ; Final yield after loop, then RTL ends actor
+    COP [LoopEnd]         ; LoopNext: decrement and branch back for remaining frames
+    COP [SetEntryHere]    ; Final yield after loop, then RTL ends actor
     RTL 
 }
 
@@ -143,7 +143,7 @@ CrashCameraController {
     LDA #$0032            ; Scale $0032 (50) → $00B8 (initial Mode 7 zoom level)
     STA $00B8
     STZ $00BC             ; Perspective angle 0 → $00BC
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     LDA $cameraTargetY    ; Per-frame: scroll camera up by 2 pixels
     SEC 
     SBC #$0002
@@ -158,7 +158,7 @@ CrashCameraController {
 
   loc_03A15E:
     COP [SetFlagByte] ( #01 ) ; Signal main actor: SetFlagByte #01 (triggers exit phase)
-    COP [LoopInit] ( #3C ) ; Loop 60 more frames ($3C) of continued camera scroll
+    COP [LoopStart] ( #3C ) ; Loop 60 more frames ($3C) of continued camera scroll
     LDA $cameraTargetY    ; Continue scrolling camera up by 2px/frame during signal phase
     SEC 
     SBC #$0002
@@ -167,10 +167,10 @@ CrashCameraController {
     CLC 
     ADC #$0070
     STA $00CC
-    COP [LoopNext]        ; LoopNext: 60-frame extended scroll
+    COP [LoopEnd]         ; LoopNext: 60-frame extended scroll
     COP [SpawnAfterFlags] ( @CrashDebrisSfx, #$2000 ) ; Spawn CrashDebrisSfx with flags $2000
     COP [InitGravity] ( #00, #05, #00 ) ; InitGravity(0, 5, 0): start vertical gravity at speed 5
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     COP [TickGravity]     ; Gravity loop: TickGravity updates velocity
     LDA $moveScratch2, X  ; Read gravity velocity from moveScratch2
     CLC 
@@ -194,7 +194,7 @@ CrashCameraController {
     LDA #$0404            ; Post-crash graphics cache: $0404 → gfxCacheIdxB
     STA $gfxCacheIdxB
     COP [QueueMapChange] ( #58, #$0000, #$0000, #80, #$1100 ) ; QueueMapChange to scene $58 (post-crash map), params ($0000, $0000, $80, $1100)
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     COP [TickGravity]     ; Post-transition: continue gravity + camera scroll for smooth exit
     LDA $moveScratch2, X  ; Add gravity velocity to scale (continues increasing)
     CLC 
@@ -217,11 +217,11 @@ CrashCameraController {
 ; Spawned via SpawnAfterFlags with $2000 flags during the gravity phase. Loops 6 times: each iteration generates a random byte, masks to $1C (values 0/4/8/12/16/20/24/28) and stores to $08 as an animation/frame offset, then plays sound #15 (crash/impact). Dies after all 6 iterations.
 
 CrashDebrisSfx {
-    COP [LoopInit] ( #06 ) ; Debris SFX: loop 6 times
+    COP [LoopStart] ( #06 ) ; Debris SFX: loop 6 times
     COP [RngByte]         ; Random byte for animation variety
     AND #$001C            ; Mask to $1C (values 0/4/8/12/16/20/24/28)
     STA $08               ; Store random offset → $08 (animation frame variant)
     COP [PlaySoundCh1] ( #15 ) ; Play crash sound #15
-    COP [LoopNext]        ; Loop back for remaining sound bursts
+    COP [LoopEnd]         ; Loop back for remaining sound bursts
     COP [Die]             ; Die after 6 iterations
 }

@@ -96,7 +96,7 @@ WorldMapController [
     TSB $joypadMaskStd
     LDA $0D58             ; Check destination ID — zero means no travel selected
     BEQ loc_03A35C        ; No destination → skip to Die (idle arrival only)
-    COP [SetEntryExit]
+    COP [SetEntryHereAndYield]
     PHX                   ; Save actor index, switch to child actor index (Y from SpawnAfterFlags)
     TYX 
     LDA $animScratch2, X
@@ -172,19 +172,19 @@ ArrivalAndTravelSetup {
     SBC #$0070            ; Camera target Y = player Y − $70 (center 224px screen)
     STA $cameraTargetY
     COP [InitGravity] ( #20, #05, #00 ) ; InitGravity: velocity $20, gravity $05, floor $00 — fast initial drop
-    COP [LoopInit] ( #2C ) ; 44-frame gravity loop for arrival drop animation
+    COP [LoopStart] ( #2C ) ; 44-frame gravity loop for arrival drop animation
     COP [TickGravity]
     LDA $moveScratch2, X  ; Accumulate gravity delta (moveScratch2) into $00B8 — player falls each frame
     CLC 
     ADC $00B8
     STA $00B8
-    COP [SetEntryExit]
-    COP [LoopNext]
+    COP [SetEntryHereAndYield]
+    COP [LoopEnd]
     LDA $0D58             ; Check destination — zero means no route to play
     BEQ loc_03A3A4
     COP [WaitByte] ( #0F ) ; Wait 15 frames before HDMA effect starts
     COP [SpawnThinker] ( @HdmaWindowEffect ) ; Spawn HdmaWindowEffect thinker for iris transition during travel
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     LDA $0D5A             ; Poll $0D5A (route active): nonzero = route still playing, skip ahead
     BNE loc_03A3A4
     RTL                   ; RTL to yield — route animation engine handles movement each frame
@@ -199,14 +199,14 @@ ArrivalAndTravelSetup {
     LDY $04
     STA $0026, Y
     COP [InitGravity] ( #00, #07, #00 ) ; InitGravity: velocity $00, gravity $07, floor $00 — slow expansion
-    COP [LoopInit] ( #5D ) ; 93-frame ascent/expansion loop for landing animation
+    COP [LoopStart] ( #5D ) ; 93-frame ascent/expansion loop for landing animation
     COP [TickGravity]
     LDA $00B6             ; Accumulate gravity into $00B6 (horizontal spread movement)
     CLC 
     ADC $moveScratch2, X
     STA $00B6
     INC $00B8             ; Increment $00B8 each frame (vertical settle)
-    COP [LoopNext]
+    COP [LoopEnd]
     LDA #$0000            ; Clear moveScratch2 — reset per-frame movement delta
     STA $moveScratch2, X
     LDA #$2000            ; Clear $2000 from actor flags $10 (re-enable Select-related processing)
@@ -271,10 +271,10 @@ ArrivalAndTravelSetup {
   loc_03A450:
     LDA $24               ; Store final formation center position into this actor's orbitDiameter
     STA $orbitDiameter, X
-    COP [LoopInit] ( #02 ) ; 2-frame entry animation before route begins
-    COP [SetEntryContinue]
+    COP [LoopStart] ( #02 ) ; 2-frame entry animation before route begins
+    COP [SetEntryHere]
     COP [AnimOnce]
-    COP [LoopNext]
+    COP [LoopEnd]
     STZ $00DA             ; Clear $00DA (shared animation state)
     COP [SpawnBefore] ( @RouteAnimationEngine ) ; Spawn RouteAnimationEngine as predecessor (runs before this actor)
     BRA loc_03A497        ; Fall through to shared CompanionDotMovement animation loop
@@ -312,12 +312,12 @@ CompanionDotMovement {
     STA $24
 
   loc_03A497:
-    COP [SetEntryContinue] ; Shared animation loop entry: yield for next frame
+    COP [SetEntryHere]    ; Shared animation loop entry: yield for next frame
     COP [AnimOneFrame]
     LDA $08               ; Capture animation frame counter from $08, clear it
     STZ $08
     STA $26
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     LDA $24               ; Recompute screen X from low byte of $24 + cameraTargetX
     AND #$00FF
     CLC 
@@ -458,7 +458,7 @@ RouteAnimationEngine {
     AND #$00FF
     INC $2C
     STA $24
-    COP [SetEntryContinue] ; Yield one frame per route step iteration
+    COP [SetEntryHere]    ; Yield one frame per route step iteration
     LDA $18               ; X axis: check for null pointer (0 = no X movement this step)
     BEQ loc_03A5A2
     LDA ($18)             ; Read X delta from indirect pointer, advance pointer by 2
@@ -521,7 +521,7 @@ SkipToSceneTransition {
     LDA $0D6C             ; Restore auxiliary data ($0D6C) → $0652
     STA $0652
     JSR $&ClearWorldMapState ; Clear entire world map state block
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     RTL 
 }
 
@@ -572,7 +572,7 @@ RouteEndHandler {
     LDY $06
     STA $0026, Y          ; Store name pointer into spawned actor's $0026
     COP [WaitByte] ( #3B ) ; Display destination name for 59 frames ($3B)
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     LDA $00B6             ; Descent loop: decrement $00B6 (altitude) by $10 per frame
     SEC 
     SBC #$0010
@@ -586,7 +586,7 @@ RouteEndHandler {
   loc_03A644:
     LDA #$0000            ; Landing: zero altitude ($00B6)
     STA $00B6
-    COP [SetEntryExit]    ; SetEntryExit for reentrant landing sequence
+    COP [SetEntryHereAndYield] ; SetEntryExit for reentrant landing sequence
     STZ $00DA
     LDA #$0800            ; Set $0800 flag in actor flags (special state during landing)
     TSB $10
@@ -599,7 +599,7 @@ RouteEndHandler {
     LDA $0D6C             ; Restore auxiliary data ($0D6C) → $0652
     STA $0652
     JSR $&ClearWorldMapState ; Clear world map state block
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     COP [TickGravity]
     LDA $moveScratch2, X  ; Landing gravity: accumulate moveScratch2 into $00B8
     CLC 

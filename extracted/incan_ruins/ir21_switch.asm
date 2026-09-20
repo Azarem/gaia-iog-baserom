@@ -25,7 +25,7 @@ ir21_switch [
     COP [SetMetasprite] ( @spriteset_enemies )
     COP [StageSpriteFrame] ( #0F )
     COP [AnimOnce]
-    COP [SolidHighHere]
+    COP [MarkSolidHere]
 
   loc_0A9041:
     LDA #$00FF
@@ -33,7 +33,7 @@ ir21_switch [
     COP [SetHitCallback] ( &code_0A9054 )
     COP [StageSpriteFrame] ( #0F )
     COP [AnimOnce]
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     RTL 
 } >
 ]

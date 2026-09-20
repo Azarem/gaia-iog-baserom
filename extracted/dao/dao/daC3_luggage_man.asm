@@ -16,17 +16,17 @@ daC3_luggage_man [
   code_08B155:
     LDA #$0200
     TSB $12
-    COP [SolidHighHere]
-    COP [SetOnInteract] ( &code_08B167 )
-    COP [SetEntryContinue]
-    COP [SetEntryContinue]
+    COP [MarkSolidHere]
+    COP [SetInteractHandler] ( &code_08B167 )
+    COP [SetEntryHere]
+    COP [SetEntryHere]
     COP [AnimOnce]
     RTL 
 } >
 ]
 
 code_08B167 {
-    COP [BranchIfFlagByte] ( #B8, #00, &code_08B172 )
+    COP [BranchOnFlagByte] ( #B8, #00, &code_08B172 )
     COP [PrintDialogString] ( &dialogstring_08B1CD )
     RTL 
 }

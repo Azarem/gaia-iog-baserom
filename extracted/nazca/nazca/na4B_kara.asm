@@ -13,10 +13,10 @@ na4B_kara [
   actor-def < #1B, #00, #10, {
 
   code_05EC8E:
-    COP [SolidHighHere]
-    COP [ExitIfFlagByte] ( #01, #01 )
-    COP [SetOnInteract] ( &code_05ED46 )
-    COP [ClearLowHere]
+    COP [MarkSolidHere]
+    COP [WaitOnFlagByte] ( #01, #01 )
+    COP [SetInteractHandler] ( &code_05ED46 )
+    COP [ClearSolidHere]
     COP [StageSpriteLoopMoveX] ( #21, #08, #01 )
     COP [AnimLoop]
     COP [StageSpriteMoveY] ( #1E, #01 )
@@ -25,35 +25,35 @@ na4B_kara [
     COP [AnimLoop]
     COP [StageSpriteFrame] ( #1D )
     COP [AnimOnce]
-    COP [SolidHighHere]
-    COP [SetOnInteract] ( &code_05ED4B )
+    COP [MarkSolidHere]
+    COP [SetInteractHandler] ( &code_05ED4B )
     LDA #$0200
     TSB $12
-    COP [ExitIfFlagByte] ( #05, #01 )
+    COP [WaitOnFlagByte] ( #05, #01 )
     LDA #$0200
     TRB $12
-    COP [ClearLowHere]
+    COP [ClearSolidHere]
     COP [StageSpriteLoopMoveY] ( #1E, #09, #01 )
     COP [AnimLoop]
     COP [StageSpriteLoopMoveX] ( #20, #05, #02 )
     COP [AnimLoop]
     COP [StageSpriteFrame] ( #1C )
     COP [AnimOnce]
-    COP [SolidHighHere]
-    COP [SetOnInteract] ( &code_05ED53 )
-    COP [ExitIfFlagByte] ( #02, #01 )
-    COP [ClearLowHere]
+    COP [MarkSolidHere]
+    COP [SetInteractHandler] ( &code_05ED53 )
+    COP [WaitOnFlagByte] ( #02, #01 )
+    COP [ClearSolidHere]
     COP [SetTilePos] ( #13, #09 )
     COP [StageSpriteFrame] ( #1B )
     COP [AnimOnce]
-    COP [SolidHighHere]
-    COP [SetOnInteract] ( &code_05ED46 )
-    COP [ExitIfFlagByte] ( #08, #01 )
+    COP [MarkSolidHere]
+    COP [SetInteractHandler] ( &code_05ED46 )
+    COP [WaitOnFlagByte] ( #08, #01 )
     COP [StageSpriteFrame] ( #1C )
     COP [AnimOnce]
-    COP [ExitIfFlagByte] ( #09, #01 )
-    COP [SetOnInteract] ( &code_05ED5B )
-    COP [ClearLowHere]
+    COP [WaitOnFlagByte] ( #09, #01 )
+    COP [SetInteractHandler] ( &code_05ED5B )
+    COP [ClearSolidHere]
     COP [StageSpriteLoopMoveY] ( #1E, #09, #01 )
     COP [AnimLoop]
     COP [StageSpriteLoopMoveX] ( #21, #06, #01 )
@@ -62,18 +62,18 @@ na4B_kara [
     COP [AnimLoop]
     COP [StageSpriteFrame] ( #1C )
     COP [AnimOnce]
-    COP [SolidHighHere]
-    COP [ExitIfFlagByte] ( #0C, #01 )
+    COP [MarkSolidHere]
+    COP [WaitOnFlagByte] ( #0C, #01 )
     COP [StageSpriteFrame] ( #1A )
     COP [AnimOnce]
     LDA #$0800
     TSB $10
-    COP [ExitIfFlagByte] ( #0D, #01 )
+    COP [WaitOnFlagByte] ( #0D, #01 )
     COP [StageSpriteMoveX] ( #20, #12 )
     COP [AnimOnce]
     COP [StageSpriteFrame] ( #1C )
     COP [AnimOnce]
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     RTL 
 } >
 ]

@@ -11,11 +11,11 @@ eu9D_altar [
   actor-def < #00, #00, #30, {
 
   code_07E570:
-    COP [SetOnInteract] ( &code_07E5A1 )
+    COP [SetInteractHandler] ( &code_07E5A1 )
 
   code_07E574:
-    COP [SetEntryContinue]
-    COP [BranchIfFlagByte] ( #01, #01, &code_07E58C )
+    COP [SetEntryHere]
+    COP [BranchOnFlagByte] ( #01, #01, &code_07E58C )
     COP [BranchIfPlayerInAbsTiles] ( #0F, #07, #10, #09, &code_07E588 )
     COP [ClearFlagByte] ( #00 )
     RTL 
@@ -31,9 +31,9 @@ code_07E58C {
     COP [PlaySoundBoth] ( #$0101 )
     COP [StageBgChange] ( #69 )
     COP [ApplyBgChange]
-    COP [SetOnInteract] ( #$0000 )
+    COP [SetInteractHandler] ( #$0000 )
     COP [ClearFlagByte] ( #01 )
-    COP [SetEntryExitNow] ( @code_07E574 )
+    COP [JumpNextFrame] ( @code_07E574 )
 }
 
 code_07E5A1 {

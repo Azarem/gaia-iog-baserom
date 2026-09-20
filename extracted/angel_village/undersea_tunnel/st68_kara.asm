@@ -30,26 +30,26 @@ code_list_06AF3E [
 ]
 
 code_06AF44 {
-    COP [ExitIfFlagByte] ( #01, #01 )
+    COP [WaitOnFlagByte] ( #01, #01 )
     COP [StageSpriteLoopMoveY] ( #1E, #02, #11 )
     COP [AnimLoop]
     COP [StageSpriteFrame] ( #1C )
     COP [AnimOnce]
-    COP [SolidHighHere]
-    COP [SetOnInteract] ( &code_06B064 )
-    COP [ExitIfFlagByte] ( #03, #01 )
+    COP [MarkSolidHere]
+    COP [SetInteractHandler] ( &code_06B064 )
+    COP [WaitOnFlagByte] ( #03, #01 )
     COP [StageSpriteLoop] ( #1A, #06 )
     COP [AnimLoop]
     COP [StageSpriteFrame] ( #1D )
     COP [AnimOnce]
     COP [PrintDialogString] ( &dialogstring_06B0BC )
     COP [SetFlagByte] ( #04 )
-    COP [ClearLowHere]
+    COP [ClearSolidHere]
     COP [StageSpriteLoopMoveY] ( #1F, #02, #12 )
     COP [AnimLoop]
     COP [StageSpriteFrame] ( #1C )
     COP [AnimOnce]
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     RTL 
 }
 
@@ -61,7 +61,7 @@ code_06AF83 {
     COP [SetTilePos] ( #15, #1B )
     COP [StageSpriteFrame] ( #1D )
     COP [AnimOnce]
-    COP [ExitIfFlagByte] ( #01, #01 )
+    COP [WaitOnFlagByte] ( #01, #01 )
     COP [WaitByte] ( #3B )
     COP [PlaySoundCh1] ( #1E )
     COP [WaitByte] ( #59 )
@@ -78,18 +78,18 @@ code_06AF83 {
     COP [StageSpriteLoop] ( #1D, #1E )
     COP [AnimLoop]
     COP [PrintDialogString] ( &dialogstring_06B10B )
-    COP [CallScript] ( &code_06B00C )
+    COP [CallNear] ( &code_06B00C )
     COP [WaitByte] ( #3B )
     COP [StartMusic] ( #06 )
     COP [WaitByte] ( #B3 )
     COP [PrintDialogString] ( &dialogstring_06B13C )
     COP [WaitByte] ( #59 )
-    COP [CallScript] ( &code_06B03C )
+    COP [CallNear] ( &code_06B03C )
     COP [FadeThenStartMusic] ( #1B )
     COP [WaitByte] ( #B3 )
     COP [PrintDialogString] ( &dialogstring_06B195 )
     COP [WaitByte] ( #3B )
-    COP [CallScript] ( &code_06B03C )
+    COP [CallNear] ( &code_06B03C )
     COP [PrintDialogString] ( &dialogstring_06B250 )
     COP [WaitByte] ( #3B )
     COP [PrintDialogString] ( &dialogstring_06B3EC )
@@ -97,7 +97,7 @@ code_06AF83 {
     LDA #$0404
     STA $gfxCacheIdxB
     COP [QueueMapChange] ( #69, #$02A0, #$00C0, #00, #$1300 )
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     RTL 
 }
 
@@ -108,18 +108,18 @@ code_06B00C {
     LDA #$FFFF
     STA $0024, Y
     COP [WaitByte] ( #3B )
-    COP [LoopInit] ( #02 )
+    COP [LoopStart] ( #02 )
     COP [PlaySoundCh1] ( #15 )
     COP [SpawnAfterFlags] ( @camera_drift.CameraDriftLoopShip, #$2800 )
     LDA #$FFFF
     STA $0024, Y
     COP [WaitByte] ( #17 )
-    COP [LoopNext]
+    COP [LoopEnd]
     COP [RestoreSavedPtr]
 }
 
 code_06B03C {
-    COP [LoopInit] ( #02 )
+    COP [LoopStart] ( #02 )
     COP [PlaySoundCh1] ( #1E )
     COP [WaitByte] ( #1D )
     COP [PlaySoundCh1] ( #1E )
@@ -131,7 +131,7 @@ code_06B03C {
     COP [PlaySoundCh1] ( #1E )
     COP [WaitByte] ( #1D )
     COP [PlaySoundCh1] ( #1E )
-    COP [LoopNext]
+    COP [LoopEnd]
     COP [RestoreSavedPtr]
 }
 

@@ -26,7 +26,7 @@ btDF_crystal_ring [
     COP [SpawnAfterAbsFlags] ( @bt_static_sprite, #$076E, #$018C, #$0B00 )
 
   loc_099990:
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     COP [BranchIfPlayerInAbsTiles] ( #75, #17, #77, #19, &code_09999B )
 
   code_09999A:
@@ -35,18 +35,18 @@ btDF_crystal_ring [
 ]
 
 code_09999B {
-    COP [BranchIfEquipped] ( #27, &code_09999A )
+    COP [BranchIfItemEquipped] ( #27, &code_09999A )
     COP [PlaySoundBoth] ( #$1D1D )
     LDA #$0006
     STA $playerSpeedNs
-    COP [BranchIfNoItem] ( #27, &code_09999A )
-    COP [BranchIfFlagByte] ( #01, #01, &code_0999BF )
+    COP [BranchIfMissingItem] ( #27, &code_09999A )
+    COP [BranchOnFlagByte] ( #01, #01, &code_0999BF )
     COP [SetFlagByte] ( #01 )
     COP [SpawnAfterFlags] ( @code_0999CC, #$3802 )
 }
 
 code_0999BF {
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     COP [BranchIfPlayerInAbsTiles] ( #75, #17, #77, #19, &code_0999CB )
     BRA loc_099990
 }
@@ -69,7 +69,7 @@ code_0999CC {
     COP [SetMetasprite] ( @spriteset_enemies )
     COP [StageSprAndHitbox] ( #02 )
     COP [InitGravity] ( #02, #06, #00 )
-    COP [StageForceMoveX] ( #12 )
+    COP [StageMoveX] ( #12 )
 
   loc_0999F7:
     COP [AnimOneFrame]
@@ -83,7 +83,7 @@ code_0999CC {
     COP [TickGravity]
     CMP #$0000
     BMI loc_099A12
-    COP [SetEntryExit]
+    COP [SetEntryHereAndYield]
     DEC $24
     BPL loc_099A03
     BRA loc_0999F7
@@ -104,8 +104,8 @@ code_0999CC {
     TSB $10
     LDA #$CFF0
     TRB $joypadMaskStd
-    COP [SetOnInteract] ( &code_099A49 )
-    COP [SetEntryContinue]
+    COP [SetInteractHandler] ( &code_099A49 )
+    COP [SetEntryHere]
     COP [StageSpriteFrame] ( #02 )
     COP [AnimOnce]
     RTL 

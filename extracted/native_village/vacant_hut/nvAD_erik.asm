@@ -10,11 +10,11 @@ nvAD_erik [
   actor-def < #03, #00, #10, {
 
   code_088BA2:
-    COP [BranchIfFlagByte] ( #B2, #01, &code_088BD1 )
-    COP [BranchIfFlagByte] ( #AE, #01, &code_088BC3 )
-    COP [BranchIfFlagByte] ( #AD, #00, &code_088BD1 )
-    COP [SetOnInteract] ( &code_088BD3 )
-    COP [ExitIfFlagByte] ( #AE, #01 )
+    COP [BranchOnFlagByte] ( #B2, #01, &code_088BD1 )
+    COP [BranchOnFlagByte] ( #AE, #01, &code_088BC3 )
+    COP [BranchOnFlagByte] ( #AD, #00, &code_088BD1 )
+    COP [SetInteractHandler] ( &code_088BD3 )
+    COP [WaitOnFlagByte] ( #AE, #01 )
     COP [StageSpriteLoopMoveY] ( #07, #04, #12 )
     COP [AnimLoop]
 } >
@@ -24,8 +24,8 @@ code_088BC3 {
     COP [SetTilePos] ( #07, #0A )
     COP [StageSpriteFrame] ( #03 )
     COP [AnimOnce]
-    COP [SolidHighHere]
-    COP [SetEntryContinue]
+    COP [MarkSolidHere]
+    COP [SetEntryHere]
     RTL 
 }
 

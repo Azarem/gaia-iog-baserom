@@ -14,7 +14,7 @@ mu_tint_and_wave [
   thinker-def < #04, #08, {
 
   code_00BDCF:
-    COP [BranchIfFlagByte] ( #7B, #01, &MuTintAndWaveInit )
+    COP [BranchOnFlagByte] ( #7B, #01, &MuTintAndWaveInit )
     SEP #$20
     LDA #$2A
     STA $COLDATA
@@ -37,8 +37,8 @@ MuTintAndWaveInit {
     LDA #$0001
     STA $7F0008, X
     COP [InitSineHdma] ( #$8800, #08 )
-    COP [SetEntryExit]
-    COP [BranchIfFlagByte] ( #FF, #00, &code_00BDCF )
+    COP [SetEntryHereAndYield]
+    COP [BranchOnFlagByte] ( #FF, #00, &code_00BDCF )
     COP [TickSineHdma] ( #03, #02 )
     COP [BindSineHdma] ( $7E8800, #0D )
     COP [BindSineHdma] ( $7E8C00, #0E )

@@ -12,25 +12,25 @@ it15_kara [
   actor-def < #12, #00, #10, {
 
   code_04E06D:
-    COP [BranchIfFlagByte] ( #4B, #01, &code_04E110 )
-    COP [BranchIfFlagByte] ( #37, #01, &code_04E112 )
-    COP [BranchIfFlagByte] ( #2B, #00, &code_04E08B )
-    COP [BranchIfFlagByte] ( #3B, #01, &code_04E110 )
+    COP [BranchOnFlagByte] ( #4B, #01, &code_04E110 )
+    COP [BranchOnFlagByte] ( #37, #01, &code_04E112 )
+    COP [BranchOnFlagByte] ( #2B, #00, &code_04E08B )
+    COP [BranchOnFlagByte] ( #3B, #01, &code_04E110 )
     COP [SetTilePos] ( #41, #27 )
     BRA loc_04E0F1
 } >
 ]
 
 code_04E08B {
-    COP [BranchIfFlagByte] ( #26, #00, &code_04E110 )
-    COP [ExitIfFlagByte] ( #01, #01 )
-    COP [LoopInit] ( #10 )
+    COP [BranchOnFlagByte] ( #26, #00, &code_04E110 )
+    COP [WaitOnFlagByte] ( #01, #01 )
+    COP [LoopStart] ( #10 )
     LDA $16
     SEC 
     SBC #$0010
     STA $16
-    COP [LoopNext]
-    COP [ExitIfFlagByte] ( #02, #01 )
+    COP [LoopEnd]
+    COP [WaitOnFlagByte] ( #02, #01 )
     COP [StageSpriteFrame] ( #15 )
     COP [AnimOnce]
     COP [PrintDialogString] ( &dialogstring_04E124 )
@@ -61,7 +61,7 @@ code_04E08B {
     COP [AnimOnce]
     LDA #$0800
     TRB $10
-    COP [ExitIfFlagByte] ( #05, #01 )
+    COP [WaitOnFlagByte] ( #05, #01 )
     COP [PrintDialogString] ( &dialogstring_04E175 )
     COP [StageSpriteLoopMoveY] ( #17, #04, #02 )
     COP [AnimLoop]
@@ -75,9 +75,9 @@ code_04E110 {
 
 code_04E112 {
     COP [SetTilePos] ( #49, #27 )
-    COP [SolidHighHere]
-    COP [SetOnInteract] ( &code_04E11F )
-    COP [SetEntryContinue]
+    COP [MarkSolidHere]
+    COP [SetInteractHandler] ( &code_04E11F )
+    COP [SetEntryHere]
     RTL 
 }
 

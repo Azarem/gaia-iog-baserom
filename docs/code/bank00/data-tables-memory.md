@@ -6,7 +6,7 @@
 
 This document consolidates **data tables**, **compile-time includes**, **WRAM/direct-page memory maps**, **stack conventions**, and **bank-wide statistics** for Illusion of Gaia's primary system bank.
 
-**Related topic docs:** [`system-core.md`](system-core.md), [`cop-dispatch.md`](cop-dispatch.md), [`actor-management.md`](actor-management.md), [`utility-math-movement.md`](utility-math-movement.md), [`../cop-commands-reference.md`](../../cop-commands-reference.md)
+**Related topic docs:** [`system-core.md`](system-core.md), [`cop-dispatch.md`](cop-dispatch.md), [`actor-management.md`](actor-management.md), [`utility-math-movement.md`](utility-math-movement.md), [`../../cop/index.md`](../../cop/index.md)
 
 ---
 

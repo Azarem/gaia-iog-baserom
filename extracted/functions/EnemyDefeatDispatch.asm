@@ -27,14 +27,14 @@ EnemyDefeatDispatch {
     BNE loc_0AA460        ; Not last → normal death
     LDA #$6000            ; Last enemy: clear movement flags
     TRB $12
-    COP [StageForceMoveXY] ( #00, #00 ) ; Halt movement
+    COP [StageMoveXY] ( #00, #00 ) ; Halt movement
     LDA #$0000
     STA $moveScratch1, X
     STA $moveScratch2, X
-    COP [JumpScript] ( @StandardEnemyDefeatHandler ) ; Full defeat sequence
+    COP [JumpFar] ( @StandardEnemyDefeatHandler ) ; Full defeat sequence
 
   loc_0AA460:
-    COP [CallScript] ( &code_0AA474 ) ; Non-last death handler
+    COP [CallNear] ( &code_0AA474 ) ; Non-last death handler
     COP [SpawnAfterFlags] ( @field_reveal_object, #$0020 ) ; Spawn stat gem reveal
     LDA $orbitAngle, X    ; Pass angle to spawned actor
     STA $0026, Y
@@ -56,18 +56,18 @@ code_0AA474 {
     DEC 
     STA $0AEC
     STA $orbitAngle, X    ; Store for spawned actors
-    COP [StageForceMoveXY] ( #00, #00 ) ; Halt movement
+    COP [StageMoveXY] ( #00, #00 ) ; Halt movement
     LDA #$0000
     STA $moveScratch1, X
     STA $moveScratch2, X
-    COP [SpawnLastRel] ( @EnemyDeathFlash, #00, #00, #$0302 ) ; Spawn death flash VFX
+    COP [SpawnListAppend] ( @EnemyDeathFlash, #00, #00, #$0302 ) ; Spawn death flash VFX
     COP [SetDungeonKillFlag]
     LDA #$2000
     TSB $10               ; Set display flag $2000
     LDA $extendedFlags, X
     BIT #$0008            ; Bit 3: enemy occupies collision tile?
     BEQ loc_0AA4B8
-    COP [ClearLowHere]    ; Clear collision at enemy position
+    COP [ClearSolidHere]  ; Clear collision at enemy position
 
   loc_0AA4B8:
     LDA $deathActionIdx, X ; Has a field reveal action?
@@ -76,7 +76,7 @@ code_0AA474 {
     BCS loc_0AA4E0        ; Yes → skip
     LDA $deathActionIdx, X
     JSL $@cop_handlers_flags.SetFlag_0100 ; Mark as triggered
-    COP [SpawnLastRel] ( @SpawnFieldRevealEffect, #00, #00, #$0342 ) ; Spawn reveal effect
+    COP [SpawnListAppend] ( @SpawnFieldRevealEffect, #00, #00, #$0342 ) ; Spawn reveal effect
     PHX 
     LDA $deathActionIdx, X ; Pass action index to spawned actor
     TYX 

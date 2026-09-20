@@ -98,7 +98,7 @@ GiveItemToPlayer {
     PHD 
     TXA 
     TCD 
-    COP [SpawnLastRel] ( @SpawnHitSparkSprites, #00, #00, #$2F00 ) ; COP SpawnLastRel — spawn hit spark sprites at player position (#$2F00 offset)
+    COP [SpawnListAppend] ( @SpawnHitSparkSprites, #00, #00, #$2F00 ) ; COP SpawnLastRel — spawn hit spark sprites at player position (#$2F00 offset)
     PLD 
     COP [PlaySoundCh2] ( #22 ) ; COP PlaySoundCh2 #22 — hurt/damage SFX
     JMP $&GiveItem_Success

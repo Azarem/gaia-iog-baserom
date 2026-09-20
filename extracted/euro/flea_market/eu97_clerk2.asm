@@ -40,8 +40,8 @@ eu97_clerk2 [
     TAY 
     LDA #$0800
     TSB $10
-    COP [SetEntryContinue]
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
+    COP [SetEntryHere]
     COP [AnimOneFrame]
     RTL 
 } >

@@ -13,11 +13,11 @@ sc01_seagull [
   code_048007:
     LDA #$0200
     TSB $12
-    COP [CollPrioritySetMax]
+    COP [SetPriorityMax]
     COP [SetSpritePriority] ( #30 )
 
   code_048011:
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     COP [RngByte]
     STA $08
     PHA 
@@ -37,8 +37,8 @@ sc01_seagull [
   loc_04802E:
     LDA #$0320
     STA $14
-    COP [SetEntryExit]
-    COP [LoopInit] ( #03 )
+    COP [SetEntryHereAndYield]
+    COP [LoopStart] ( #03 )
     COP [StageSpriteLoopMoveXY] ( #23, #20, #04, #01 )
     COP [AnimLoop]
     COP [StageSpriteMoveXY] ( #24, #04, #11 )
@@ -51,7 +51,7 @@ sc01_seagull [
     COP [AnimLoop]
     COP [StageSpriteLoopMoveXY] ( #23, #18, #04, #11 )
     COP [AnimLoop]
-    COP [LoopNext]
+    COP [LoopEnd]
     JMP $&code_048011
 } >
 ]
@@ -59,8 +59,8 @@ sc01_seagull [
 code_048069 {
     LDA #$FFE0
     STA $14
-    COP [SetEntryExit]
-    COP [LoopInit] ( #03 )
+    COP [SetEntryHereAndYield]
+    COP [LoopStart] ( #03 )
     COP [StageSpriteLoopMoveXY] ( #23, #20, #03, #01 )
     COP [AnimLoop]
     COP [StageSpriteMoveXY] ( #24, #03, #11 )
@@ -73,7 +73,7 @@ code_048069 {
     COP [AnimLoop]
     COP [StageSpriteLoopMoveXY] ( #23, #18, #03, #11 )
     COP [AnimLoop]
-    COP [LoopNext]
+    COP [LoopEnd]
     JMP $&code_048011
 }
 

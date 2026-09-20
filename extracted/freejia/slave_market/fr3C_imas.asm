@@ -12,12 +12,12 @@ fr3C_imas [
   actor-def < #28, #00, #10, {
 
   code_05BEE9:
-    COP [BranchIfFlagByte] ( #6A, #01, &code_05BEFD )
+    COP [BranchOnFlagByte] ( #6A, #01, &code_05BEFD )
     LDA #$0200
     TSB $12
-    COP [SolidHighHere]
-    COP [SetOnInteract] ( &code_05BEFF )
-    COP [SetEntryContinue]
+    COP [MarkSolidHere]
+    COP [SetInteractHandler] ( &code_05BEFF )
+    COP [SetEntryHere]
     RTL 
 } >
 ]

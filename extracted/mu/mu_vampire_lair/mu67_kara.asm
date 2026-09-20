@@ -13,7 +13,7 @@ mu67_kara [
   actor-def < #1B, #00, #30, {
 
   code_06A849:
-    COP [ExitIfFlagByte] ( #88, #01 )
+    COP [WaitOnFlagByte] ( #88, #01 )
     COP [WaitByte] ( #1D )
     LDA #$2000
     TRB $10
@@ -21,10 +21,10 @@ mu67_kara [
     COP [AnimLoop]
     COP [StageSpriteFrame] ( #1B )
     COP [AnimOnce]
-    COP [ExitIfFlagByte] ( #05, #01 )
+    COP [WaitOnFlagByte] ( #05, #01 )
     COP [StageSpriteFrame] ( #1C )
     COP [AnimOnce]
-    COP [ExitIfFlagByte] ( #06, #01 )
+    COP [WaitOnFlagByte] ( #06, #01 )
     COP [WaitByte] ( #3B )
     COP [StageSpriteLoop] ( #1B, #1E )
     COP [AnimLoop]
@@ -34,7 +34,7 @@ mu67_kara [
     LDA #$0404
     STA $gfxCacheIdxB
     COP [QueueMapChange] ( #68, #$0070, #$00C0, #00, #$1200 )
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     RTL 
 } >
 ]

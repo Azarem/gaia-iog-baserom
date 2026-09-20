@@ -9,7 +9,7 @@
 
 The most-called subroutines in the player movement system. The movement engine in [`player-movement.md`](player-movement.md) is this block's primary consumer — every directional handler in `player_move_ns.asm`, `player_move_east.asm`, and `player_move_diag.asm` depends on `TileProbeMain` and the corner probe helpers documented here. Map index navigation parallels [`map-coordinates.md`](map-coordinates.md); camera window bounds come from [`camera-scrolling.md`](camera-scrolling.md).
 
-**Related:** [`player-movement.md`](player-movement.md) · [`map-coordinates.md`](map-coordinates.md) · [`../bank00/direction-collision.md`](../bank00/direction-collision.md) · [`../../cop-commands-reference.md`](../../cop-commands-reference.md)
+**Related:** [`player-movement.md`](player-movement.md) · [`map-coordinates.md`](map-coordinates.md) · [`../bank00/direction-collision.md`](../bank00/direction-collision.md) · [`../../cop/index.md`](../../cop/index.md)
 
 ## Block Layout (tile_collision)
 

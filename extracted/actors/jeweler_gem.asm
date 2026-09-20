@@ -33,7 +33,7 @@ jeweler_gem [
   actor-def < #02, #00, #10, {
 
   code_08CEA3:
-    COP [BranchIfFlagByte] ( #E8, #01, &JewelerDie ) ; If game complete → die
+    COP [BranchOnFlagByte] ( #E8, #01, &JewelerDie ) ; If game complete → die
     LDA $0E               ; Spawn param: appearance variant
     ASL 
     ASL 
@@ -42,13 +42,13 @@ jeweler_gem [
     ADC #$0002            ; Sprite frame = variant×8 + 2
     STA $28
     STZ $002A
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     COP [AnimOneFrame]
     LDA #$3000
     STA $0E
-    COP [SolidHighHere]
-    COP [SetOnInteract] ( &JewelerInteract )
-    COP [SetEntryContinue]
+    COP [MarkSolidHere]
+    COP [SetInteractHandler] ( &JewelerInteract )
+    COP [SetEntryHere]
     RTL 
 } >
 ]
@@ -65,7 +65,7 @@ JewelerInteract {
 ; Reward threshold cascade — checks each tier in ascending order
 
   code_08CED6:
-    COP [BranchIfFlagByte] ( #E9, #01, &JewelerCheck5 ) ; 3-jewel reward already given?
+    COP [BranchOnFlagByte] ( #E9, #01, &JewelerCheck5 ) ; 3-jewel reward already given?
     LDA $jewelsCollected
     CMP #$0003            ; Need ≥ 3 jewels
     BCC JewelerCheck5
@@ -73,7 +73,7 @@ JewelerInteract {
 }
 
 JewelerCheck5 {
-    COP [BranchIfFlagByte] ( #EA, #01, &JewelerCheck8 ) ; 5-jewel reward given?
+    COP [BranchOnFlagByte] ( #EA, #01, &JewelerCheck8 ) ; 5-jewel reward given?
     LDA $jewelsCollected
     CMP #$0005            ; Need ≥ 5 jewels
     BCC JewelerCheck8
@@ -81,7 +81,7 @@ JewelerCheck5 {
 }
 
 JewelerCheck8 {
-    COP [BranchIfFlagByte] ( #EB, #01, &JewelerCheck12 ) ; 8-jewel reward given?
+    COP [BranchOnFlagByte] ( #EB, #01, &JewelerCheck12 ) ; 8-jewel reward given?
     LDA $jewelsCollected
     CMP #$0008            ; Need ≥ 8 jewels
     BCC JewelerCheck12
@@ -89,7 +89,7 @@ JewelerCheck8 {
 }
 
 JewelerCheck12 {
-    COP [BranchIfFlagByte] ( #EC, #01, &JewelerCheck20 ) ; 12-jewel reward given?
+    COP [BranchOnFlagByte] ( #EC, #01, &JewelerCheck20 ) ; 12-jewel reward given?
     LDA $jewelsCollected
     CMP #$0012            ; Need ≥ 12 jewels (BCD)
     BCC JewelerCheck20
@@ -97,7 +97,7 @@ JewelerCheck12 {
 }
 
 JewelerCheck20 {
-    COP [BranchIfFlagByte] ( #ED, #01, &JewelerCheck30 ) ; 20-jewel reward given?
+    COP [BranchOnFlagByte] ( #ED, #01, &JewelerCheck30 ) ; 20-jewel reward given?
     LDA $jewelsCollected
     CMP #$0020            ; Need ≥ 20 jewels (BCD)
     BCC JewelerCheck30
@@ -105,7 +105,7 @@ JewelerCheck20 {
 }
 
 JewelerCheck30 {
-    COP [BranchIfFlagByte] ( #EE, #01, &JewelerCheck50 ) ; 30-jewel reward given?
+    COP [BranchOnFlagByte] ( #EE, #01, &JewelerCheck50 ) ; 30-jewel reward given?
     LDA $jewelsCollected
     CMP #$0030            ; Need ≥ 30 jewels (BCD)
     BCC JewelerCheck50
@@ -144,7 +144,7 @@ code_08CF59 {
 ; "Give you Red Jewels" — check if player has jewels, then collect them
 
 code_08CF5E {
-    COP [BranchIfNoItem] ( #01, &JewelerCountJewels ) ; Has jewel items?
+    COP [BranchIfMissingItem] ( #01, &JewelerCountJewels ) ; Has jewel items?
     COP [PrintDialogString] ( &dialogstring_08D1E0 ) ; "But you don't have any"
     RTL 
 }
@@ -182,7 +182,7 @@ JewelerCountJewels {
 
   code_08CF97:
     COP [RemoveItem] ( #01 ) ; Remove all jewel items from inventory
-    COP [BranchIfNoItem] ( #01, &code_08CF97 )
+    COP [BranchIfMissingItem] ( #01, &code_08CF97 )
     COP [PrintDialogString] ( &dialogstring_08D20F ) ; "This is a rare jewel"
     JMP $&code_08CED6     ; Re-check reward thresholds
 }
@@ -193,37 +193,37 @@ JewelerCountJewels {
 JewelerShowInventory {
     COP [PrintDialogString] ( &dialogstring_08D267 ) ; "I will give you goods..."
     COP [PrintDialogString] ( &dialogstring_08D617 ) ; Set up list display format
-    COP [BranchIfFlagByte] ( #E9, #00, &code_08CFB8 ) ; Herb (3 jewels) — claimed?
+    COP [BranchOnFlagByte] ( #E9, #00, &code_08CFB8 ) ; Herb (3 jewels) — claimed?
     COP [PrintDialogString] ( &dialogstring_08D611 ) ; Highlight color (claimed)
 }
 
 code_08CFB8 {
     COP [PrintDialogString] ( &dialogstring_08D621 )
-    COP [BranchIfFlagByte] ( #EA, #00, &code_08CFC6 )
+    COP [BranchOnFlagByte] ( #EA, #00, &code_08CFC6 )
     COP [PrintDialogString] ( &dialogstring_08D611 )
 }
 
 code_08CFC6 {
     COP [PrintDialogString] ( &dialogstring_08D636 )
-    COP [BranchIfFlagByte] ( #EB, #00, &code_08CFD4 )
+    COP [BranchOnFlagByte] ( #EB, #00, &code_08CFD4 )
     COP [PrintDialogString] ( &dialogstring_08D611 )
 }
 
 code_08CFD4 {
     COP [PrintDialogString] ( &dialogstring_08D64A )
-    COP [BranchIfFlagByte] ( #EC, #00, &code_08CFE2 )
+    COP [BranchOnFlagByte] ( #EC, #00, &code_08CFE2 )
     COP [PrintDialogString] ( &dialogstring_08D611 )
 }
 
 code_08CFE2 {
     COP [PrintDialogString] ( &dialogstring_08D65E )
-    COP [BranchIfFlagByte] ( #ED, #00, &code_08CFF0 )
+    COP [BranchOnFlagByte] ( #ED, #00, &code_08CFF0 )
     COP [PrintDialogString] ( &dialogstring_08D611 )
 }
 
 code_08CFF0 {
     COP [PrintDialogString] ( &dialogstring_08D672 )
-    COP [BranchIfFlagByte] ( #EE, #00, &code_08CFFE )
+    COP [BranchOnFlagByte] ( #EE, #00, &code_08CFFE )
     COP [PrintDialogString] ( &dialogstring_08D611 )
 }
 

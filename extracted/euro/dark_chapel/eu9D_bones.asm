@@ -17,9 +17,9 @@ eu9D_bones [
     COP [SetMetasprite] ( @spriteset_npc_props )
     COP [StageSpriteFrame] ( #02 )
     COP [AnimOnce]
-    COP [SolidHighHere]
-    COP [AddPosition] ( #00, #04 )
-    COP [SetEntryContinue]
+    COP [MarkSolidHere]
+    COP [NudgePosition] ( #00, #04 )
+    COP [SetEntryHere]
     RTL 
 } >
 ]

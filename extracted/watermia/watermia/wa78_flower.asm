@@ -12,7 +12,7 @@ wa78_flower [
     COP [RngByte]
     AND #$000F
     STA $08
-    COP [SetEntryExit]
+    COP [SetEntryHereAndYield]
     COP [WaitWhileOffscreen] ( #08 )
     COP [StageSpriteFrame] ( #1E )
     COP [AnimOnce]

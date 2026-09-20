@@ -10,15 +10,15 @@ sc01_worried_woman [
   actor-def < #15, #00, #10, {
 
   code_048657:
-    COP [SetOnInteract] ( &code_048719 )
-    COP [SolidHighHere]
+    COP [SetInteractHandler] ( &code_048719 )
+    COP [MarkSolidHere]
     COP [WaitByte] ( #B3 )
     COP [StageSpriteFrame] ( #14 )
     COP [AnimOnce]
     COP [WaitByte] ( #77 )
     COP [StageSpriteFrame] ( #15 )
     COP [AnimOnce]
-    COP [SetEntryDelayExit] ( @code_048674, #$053C )
+    COP [JumpAfterDelay] ( @code_048674, #$053C )
 } >
 ]
 
@@ -30,7 +30,7 @@ code_048674 {
     COP [AnimOnce]
     LDA #$0200
     TRB $12
-    COP [ClearLowHere]
+    COP [ClearSolidHere]
     COP [StageSpriteMoveY] ( #2E, #11 )
     COP [AnimOnce]
     COP [StageSpriteLoopMoveX] ( #30, #10, #12 )
@@ -51,9 +51,9 @@ code_048674 {
     COP [DrawMetatileAbs] ( #1C, #0E, #F8 )
     COP [StageSpriteFrame] ( #14 )
     COP [AnimOnce]
-    COP [SolidHighHere]
+    COP [MarkSolidHere]
     COP [WaitByte] ( #EF )
-    COP [ClearLowHere]
+    COP [ClearSolidHere]
     COP [StageSpriteFrame] ( #15 )
     COP [AnimOnce]
     COP [DrawMetatileAbs] ( #1C, #0E, #F9 )
@@ -80,8 +80,8 @@ code_048674 {
     COP [DrawMetatileAbs] ( #2C, #0E, #F8 )
     COP [StageSpriteFrame] ( #15 )
     COP [AnimOnce]
-    COP [SolidHighHere]
-    COP [SetEntryContinue]
+    COP [MarkSolidHere]
+    COP [SetEntryHere]
     RTL 
 }
 

@@ -12,9 +12,9 @@ ir28_bones [
   code_09C8A0:
     LDA #$0200
     TSB $12
-    COP [SolidHighHere]
-    COP [SetOnInteract] ( &code_09C8AE )
-    COP [SetEntryContinue]
+    COP [MarkSolidHere]
+    COP [SetInteractHandler] ( &code_09C8AE )
+    COP [SetEntryHere]
     RTL 
 } >
 ]

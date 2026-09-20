@@ -31,7 +31,7 @@ camera_scroll_controller [
   CameraScrollUpdate:
     LDA #$1000
     TSB $12
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     LDA $layerPriorityFlag
     BIT #$0200
     BEQ loc_00EB00

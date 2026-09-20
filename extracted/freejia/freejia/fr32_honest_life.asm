@@ -12,9 +12,9 @@ fr32_honest_life [
   code_05BE11:
     LDA #$0200
     TSB $12
-    COP [SolidHighHere]
-    COP [SetOnInteract] ( &code_05BE1F )
-    COP [SetEntryContinue]
+    COP [MarkSolidHere]
+    COP [SetInteractHandler] ( &code_05BE1F )
+    COP [SetEntryHere]
     RTL 
 } >
 ]

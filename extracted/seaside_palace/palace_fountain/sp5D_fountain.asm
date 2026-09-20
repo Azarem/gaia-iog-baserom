@@ -23,9 +23,9 @@ sp5D_fountain [
 
   code_0693FB:
     STZ $066D
-    COP [BranchIfFlagByte] ( #70, #01, &code_0694A8 )
-    COP [BranchIfFlagByte] ( #6F, #00, &code_0694A8 )
-    COP [BranchIfNoItem] ( #11, &code_069412 )
+    COP [BranchOnFlagByte] ( #70, #01, &code_0694A8 )
+    COP [BranchOnFlagByte] ( #6F, #00, &code_0694A8 )
+    COP [BranchIfMissingItem] ( #11, &code_069412 )
     JMP $&code_0694A8
 } >
 ]
@@ -37,7 +37,7 @@ code_069412 {
     COP [PrintDialogString] ( &dialogstring_0694AA )
     LDA #$CFF0
     TRB $joypadMaskStd
-    COP [ExitIfFlagByte] ( #0E, #01 )
+    COP [WaitOnFlagByte] ( #0E, #01 )
     LDA #$EFF0
     TSB $joypadMaskStd
     LDY $playerActor
@@ -47,14 +47,14 @@ code_069412 {
     SEC 
     SBC #$0010
     STA $16
-    COP [SpawnMarkedAfter] ( @code_069502, #$2000 )
+    COP [SpawnAfterMarked] ( @code_069502, #$2000 )
     COP [PlaySoundBoth] ( #$2525 )
     COP [SetSpritePriority] ( #30 )
-    COP [LoopInit] ( #40 )
-    COP [SetEntryExit]
+    COP [LoopStart] ( #40 )
+    COP [SetEntryHereAndYield]
     COP [StageSpriteMoveY] ( #26, #02 )
     COP [AnimOnce]
-    COP [LoopNext]
+    COP [LoopEnd]
     COP [WaitByte] ( #3B )
     LDA #$0100
     STA $moveXAlt, X
@@ -75,7 +75,7 @@ code_069412 {
     COP [WaitWord] ( #$02B1 )
     COP [ClearFlagByte] ( #0F )
     COP [SetFlagByte] ( #70 )
-    COP [ClearLowAbs] ( #0D, #0F )
+    COP [ClearSolidAbs] ( #0D, #0F )
     LDA #$EFF0
     TRB $joypadMaskStd
 }

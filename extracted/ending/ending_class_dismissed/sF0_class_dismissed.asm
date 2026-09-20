@@ -43,14 +43,14 @@ sF0_class_dismissed [
     COP [WaitWord] ( #$00B3 )
     INC $00E4
     COP [WaitWord] ( #$00B3 )
-    COP [LoopInit] ( #06 )
+    COP [LoopStart] ( #06 )
     COP [PlaySoundBoth] ( #$0909 )
-    COP [SetEntryDelayExit] ( @code_09DBF3, #$001E )
+    COP [JumpAfterDelay] ( @code_09DBF3, #$001E )
 } >
 ]
 
 code_09DBF3 {
-    COP [LoopNext]
+    COP [LoopEnd]
     COP [WaitWord] ( #$003B )
     COP [PrintDialogString] ( &dialogstring_09DD10 )
     COP [WaitWord] ( #$003B )
@@ -67,7 +67,7 @@ code_09DBF3 {
     INC $00E4
     COP [WaitWord] ( #$0077 )
     INC $00E4
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     RTL 
 }
 
@@ -82,7 +82,7 @@ code_09DC2D {
   loc_09DC3B:
     COP [PaletteStart] ( #6A )
     COP [PaletteStep]
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     LDA $00E4
     CMP #$0002
     BEQ loc_09DC4B
@@ -91,7 +91,7 @@ code_09DC2D {
   loc_09DC4B:
     COP [PaletteStart] ( #1C )
     COP [PaletteStep]
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     LDA $00E4
     CMP #$0007
     BEQ loc_09DC5B
@@ -100,7 +100,7 @@ code_09DC2D {
   loc_09DC5B:
     COP [PaletteStart] ( #70 )
     COP [PaletteStep]
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     RTL 
 }
 
@@ -114,7 +114,7 @@ code_09DC63 {
     LDA $00E4
     CMP #$0007
     BNE loc_09DC68
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     RTL 
 }
 
@@ -132,7 +132,7 @@ code_09DC78 {
     LDA $00E4
     CMP #$0007
     BNE loc_09DC86
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     RTL 
 }
 
@@ -150,7 +150,7 @@ code_09DC97 {
     LDA $00E4
     CMP #$0007
     BNE loc_09DCA5
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     RTL 
 }
 
@@ -168,7 +168,7 @@ code_09DCB6 {
     LDA $00E4
     CMP #$0007
     BNE loc_09DCC4
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     RTL 
 }
 
@@ -186,7 +186,7 @@ code_09DCD5 {
     LDA $00E4
     CMP #$0007
     BNE loc_09DCE3
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     RTL 
 }
 
@@ -203,7 +203,7 @@ code_09DCF4 {
     TRB $10
     COP [StageSpriteMoveY] ( #09, #11 )
     COP [AnimOnce]
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     RTL 
 }
 

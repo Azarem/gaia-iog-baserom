@@ -18,9 +18,9 @@ nvAC_bones [
     COP [SetMetasprite] ( @spriteset_npc_props )
     COP [StageSpriteFrame] ( #02 )
     COP [AnimOnce]
-    COP [SolidHighHere]
-    COP [SetOnInteract] ( &code_08801B )
-    COP [SetEntryContinue]
+    COP [MarkSolidHere]
+    COP [SetInteractHandler] ( &code_08801B )
+    COP [SetEntryHere]
     RTL 
 } >
 ]

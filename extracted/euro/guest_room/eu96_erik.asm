@@ -11,10 +11,10 @@ eu96_erik [
   actor-def < #0A, #00, #10, {
 
   code_07DAA0:
-    COP [BranchIfFlagByte] ( #AC, #01, &code_07DAAF )
-    COP [SolidHighHere]
-    COP [SetOnInteract] ( &code_07DAB1 )
-    COP [SetEntryContinue]
+    COP [BranchOnFlagByte] ( #AC, #01, &code_07DAAF )
+    COP [MarkSolidHere]
+    COP [SetInteractHandler] ( &code_07DAB1 )
+    COP [SetEntryHere]
     RTL 
 } >
 ]
@@ -24,7 +24,7 @@ code_07DAAF {
 }
 
 code_07DAB1 {
-    COP [BranchIfFlagByte] ( #AA, #01, &code_07DABC )
+    COP [BranchOnFlagByte] ( #AA, #01, &code_07DABC )
     COP [PrintDialogString] ( &dialogstring_07DAC1 )
     RTL 
 }

@@ -136,7 +136,7 @@ These reference documents span multiple banks and provide system-wide context:
 
 | Document | Scope | Description |
 |----------|-------|-------------|
-| [**COP Commands Reference**](../cop-commands-reference.md) | All banks | Complete reference for all 172 COP bytecode opcodes used by actors and thinkers |
+| [**COP System Overview**](../cop/index.md) | All banks | Complete reference for all COP bytecode opcodes used by actors and thinkers |
 | [**Actor Organization Analysis**](../actor-organization-analysis.md) | All banks | Classification of all 855 ASM files and 721 actor definitions across the ROM |
 | [**Structs Reference**](../structs-reference.md) | All banks | Documentation of all struct types in `us/structs.json` — `actor-def`, `thinker-def`, `scene-meta`, etc. |
 | [**WRAM Memory Map**](../wram-memory-map.md) | All banks | Complete WRAM address map (`$7E:0000`–`$7F:FFFF`) with all known variables |

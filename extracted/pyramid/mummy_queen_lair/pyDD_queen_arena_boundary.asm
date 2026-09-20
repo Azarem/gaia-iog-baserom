@@ -18,7 +18,7 @@ pyDD_queen_arena_boundary [
     LDA $0010, Y
     AND #$FFFE
     STA $0010, Y
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     COP [BranchIfPlayerInAbsTiles] ( #08, #0C, #0D, #0E, &code_0BA601 )
     COP [BranchIfPlayerInAbsTiles] ( #14, #0C, #19, #0E, &code_0BA601 )
     RTL 
@@ -30,7 +30,7 @@ code_0BA601 {
     LDA $0010, Y
     ORA #$0001
     STA $0010, Y
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     LDA $playerYPos
     CMP #$01B0
     BEQ loc_0BA618

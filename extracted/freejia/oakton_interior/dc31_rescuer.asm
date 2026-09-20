@@ -17,10 +17,10 @@ dc31_rescuer [
   actor-def < #04, #00, #18, {
 
   code_05AB5F:
-    COP [SolidHighHere]
-    COP [SetOnInteract] ( &code_05ABC1 )
-    COP [BranchIfFlagByte] ( #56, #01, &code_05ABBE )
-    COP [BranchIfFlagByte] ( #76, #01, &code_05ABBE )
+    COP [MarkSolidHere]
+    COP [SetInteractHandler] ( &code_05ABC1 )
+    COP [BranchOnFlagByte] ( #56, #01, &code_05ABBE )
+    COP [BranchOnFlagByte] ( #76, #01, &code_05ABBE )
     LDA #$CFF0
     TSB $joypadMaskStd
     LDY $playerActor
@@ -39,7 +39,7 @@ dc31_rescuer [
     COP [WaitByte] ( #95 )
     COP [PrintDialogString] ( &dialogstring_05ABC6 )
     COP [SetFlagByte] ( #01 )
-    COP [ExitIfFlagByte] ( #02, #01 )
+    COP [WaitOnFlagByte] ( #02, #01 )
     COP [StageSpriteLoop] ( #03, #1E )
     COP [AnimLoop]
     COP [PrintDialogString] ( &dialogstring_05AEA3 )
@@ -50,7 +50,7 @@ dc31_rescuer [
 ]
 
 code_05ABBE {
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     RTL 
 }
 

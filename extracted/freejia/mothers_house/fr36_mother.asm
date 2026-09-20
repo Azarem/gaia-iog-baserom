@@ -11,7 +11,7 @@ fr36_mother [
   actor-def < #0C, #00, #10, {
 
   code_05BB4A:
-    COP [SetOnInteract] ( &code_05BB6A )
+    COP [SetInteractHandler] ( &code_05BB6A )
 
   loc_05BB4E:
     COP [StageSpriteLoopMoveX] ( #10, #07, #12 )

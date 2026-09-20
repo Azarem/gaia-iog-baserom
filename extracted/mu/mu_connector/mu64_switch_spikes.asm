@@ -21,9 +21,9 @@ mu64_switch_spikes [
   loc_069D29:
     COP [StageSpriteFrame] ( #2A )
     COP [AnimOnce]
-    COP [SolidHighHere]
-    COP [ExitIfFlagByte] ( #0F, #01 )
-    COP [ClearLowHere]
+    COP [MarkSolidHere]
+    COP [WaitOnFlagByte] ( #0F, #01 )
+    COP [ClearSolidHere]
     COP [StageSpriteFrame] ( #2B )
     COP [AnimOnce]
     COP [StageSpriteFrame] ( #28 )

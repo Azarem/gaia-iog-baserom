@@ -11,20 +11,20 @@ av6A_lance [
   actor-def < #04, #00, #10, {
 
   code_06BBF2:
-    COP [BranchIfFlagByte] ( #8D, #01, &av6A_lance_destroy )
-    COP [BranchIfFlagByte] ( #8C, #01, &code_06BC07 )
-    COP [SetOnInteract] ( &code_06BC19 )
-    COP [SolidHighHere]
-    COP [SetEntryContinue]
+    COP [BranchOnFlagByte] ( #8D, #01, &av6A_lance_destroy )
+    COP [BranchOnFlagByte] ( #8C, #01, &code_06BC07 )
+    COP [SetInteractHandler] ( &code_06BC19 )
+    COP [MarkSolidHere]
+    COP [SetEntryHere]
     RTL 
 } >
 ]
 
 code_06BC07 {
     COP [SetTilePos] ( #1C, #0C )
-    COP [SolidHighHere]
-    COP [SetOnInteract] ( &code_06BC14 )
-    COP [SetEntryContinue]
+    COP [MarkSolidHere]
+    COP [SetInteractHandler] ( &code_06BC14 )
+    COP [SetEntryHere]
     RTL 
 }
 
@@ -34,7 +34,7 @@ code_06BC14 {
 }
 
 code_06BC19 {
-    COP [BranchIfFlagByte] ( #74, #01, &code_06BC57 )
+    COP [BranchOnFlagByte] ( #74, #01, &code_06BC57 )
     COP [SetFlagByte] ( #74 )
     COP [PrintDialogString] ( &dialogstring_06BC5C )
     COP [DialogueOptions] ( #02, #01, &code_list_06BC2C )

@@ -21,12 +21,12 @@ pyDA_lithograph1 [
   code_08C782:
     LDA #$0100
     STA $cameraBoundsY
-    COP [BranchIfFlagByte] ( #C2, #01, &code_08C79F )
+    COP [BranchOnFlagByte] ( #C2, #01, &code_08C79F )
     LDA #$0200
     TSB $12
-    COP [AddPosition] ( #00, #02 )
-    COP [SetOnInteract] ( &code_08C7A6 )
-    COP [ExitIfFlagByte] ( #C2, #01 )
+    COP [NudgePosition] ( #00, #02 )
+    COP [SetInteractHandler] ( &code_08C7A6 )
+    COP [WaitOnFlagByte] ( #C2, #01 )
 } >
 ]
 
@@ -37,7 +37,7 @@ code_08C79F {
 }
 
 code_08C7A6 {
-    COP [BranchIfFlagByte] ( #C2, #01, &code_08C7C4 )
+    COP [BranchOnFlagByte] ( #C2, #01, &code_08C7C4 )
     COP [PrintDialogString] ( &dialogstring_08C7C9 )
     COP [GiveItem] ( #1E, &pyDA_lithograph_full )
     COP [SetFlagByte] ( #C2 )

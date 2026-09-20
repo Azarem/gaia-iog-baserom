@@ -13,9 +13,9 @@ wa78_crazy_man [
   code_07A08F:
     LDA #$0200
     TSB $12
-    COP [SolidHighHere]
-    COP [SetOnInteract] ( &code_07A0A2 )
-    COP [SetEntryContinue]
+    COP [MarkSolidHere]
+    COP [SetInteractHandler] ( &code_07A0A2 )
+    COP [SetEntryHere]
     COP [StageSpriteFrame] ( #22 )
     COP [AnimOnce]
     RTL 

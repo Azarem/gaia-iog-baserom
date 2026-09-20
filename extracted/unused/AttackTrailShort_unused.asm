@@ -14,7 +14,7 @@ AttackTrailShort_unused {
     CLC 
     ADC #$FFF8
     STA $16
-    COP [LoopInit] ( #04 )
+    COP [LoopStart] ( #04 )
     LDA $16
     CLC 
     ADC #$0002
@@ -22,8 +22,8 @@ AttackTrailShort_unused {
     LDA $28
     STA $0000
     JSL $@oam_digit_compose.ComposeDigitSprites
-    COP [LoopNext]
-    COP [LoopInit] ( #20 )
+    COP [LoopEnd]
+    COP [LoopStart] ( #20 )
     LDA $16
     CLC 
     ADC #$FFFF
@@ -31,6 +31,6 @@ AttackTrailShort_unused {
     LDA $28
     STA $0000
     JSL $@oam_digit_compose.ComposeDigitSprites
-    COP [LoopNext]
+    COP [LoopEnd]
     COP [Die]
 }

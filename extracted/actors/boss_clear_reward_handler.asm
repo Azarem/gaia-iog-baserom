@@ -43,7 +43,7 @@ boss_clear_reward_handler [
     LSR 
     JSL $@cop_handlers_flags.TestWramFlag_Offset100 ; Already rewarded this boss?
     BCS loc_00C30C        ; Yes → skip to idle
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     LDA $playerFlags
     BIT #$0020            ; Boss defeated flag set?
     BNE loc_00C2EC
@@ -66,7 +66,7 @@ boss_clear_reward_handler [
     JSL $@cop_handlers_flags.SetWramFlag_Offset100 ; Mark this boss as rewarded
 
   loc_00C30C:
-    COP [SetEntryContinue] ; Idle loop after rewards granted
+    COP [SetEntryHere]    ; Idle loop after rewards granted
     NOP 
     NOP 
     NOP 

@@ -42,7 +42,7 @@ pyCC_mystic_ball [
 ]
 
 code_0BC5C8 {
-    COP [SetEntryExit]
+    COP [SetEntryHereAndYield]
     COP [BranchIfSolidWest] ( &code_0BC5D9 )
     COP [StageSpriteMoveX] ( #0F, #12 )
     COP [AnimOnce]
@@ -61,7 +61,7 @@ code_0BC5D9 {
 }
 
 code_0BC5EE {
-    COP [SetEntryExit]
+    COP [SetEntryHereAndYield]
     COP [BranchIfSolidEast] ( &code_0BC5B3 )
     COP [StageSpriteMoveX] ( #0F, #11 )
     COP [AnimOnce]
@@ -89,7 +89,7 @@ pyCC_mystic_ball2 [
 ]
 
 code_0BC621 {
-    COP [SetEntryExit]
+    COP [SetEntryHereAndYield]
     COP [BranchIfSolidNorth] ( &code_0BC632 )
     COP [StageSpriteMoveY] ( #0F, #12 )
     COP [AnimOnce]
@@ -108,7 +108,7 @@ code_0BC632 {
 }
 
 code_0BC647 {
-    COP [SetEntryExit]
+    COP [SetEntryHereAndYield]
     COP [BranchIfSolidSouth] ( &code_0BC60C )
     COP [StageSpriteMoveY] ( #0F, #11 )
     COP [AnimOnce]
@@ -154,28 +154,28 @@ code_list_0BC68F [
 ]
 
 code_0BC697 {
-    COP [LoopInit] ( #05 )
-    COP [SpawnAfterRelFlags] ( @code_0BC70D, #$000A, #$FFF6, #$0300 )
+    COP [LoopStart] ( #05 )
+    COP [SpawnAfterOffsetFlags] ( @code_0BC70D, #$000A, #$FFF6, #$0300 )
     COP [RngByte]
     AND #$000F
     STA $08
-    COP [SetEntryExit]
-    COP [LoopNext]
-    COP [SpawnAfterRelFlags] ( @sg_bird_flight_patterns.code_0ADAB5, #$000A, #$FFF6, #$2200 )
-    COP [SetEntryExit]
+    COP [SetEntryHereAndYield]
+    COP [LoopEnd]
+    COP [SpawnAfterOffsetFlags] ( @sg_bird_flight_patterns.code_0ADAB5, #$000A, #$FFF6, #$2200 )
+    COP [SetEntryHereAndYield]
     COP [RestoreSavedPtr]
 }
 
 code_0BC6BF {
-    COP [LoopInit] ( #05 )
-    COP [SpawnAfterRelFlags] ( @code_0BC70D, #$FFF6, #$FFF6, #$0300 )
+    COP [LoopStart] ( #05 )
+    COP [SpawnAfterOffsetFlags] ( @code_0BC70D, #$FFF6, #$FFF6, #$0300 )
     COP [RngByte]
     AND #$000F
     STA $08
-    COP [SetEntryExit]
-    COP [LoopNext]
-    COP [SpawnAfterRelFlags] ( @sg_bird_flight_patterns.code_0ADAA0, #$FFF6, #$FFF6, #$2200 )
-    COP [SetEntryExit]
+    COP [SetEntryHereAndYield]
+    COP [LoopEnd]
+    COP [SpawnAfterOffsetFlags] ( @sg_bird_flight_patterns.code_0ADAA0, #$FFF6, #$FFF6, #$2200 )
+    COP [SetEntryHereAndYield]
     COP [RestoreSavedPtr]
 }
 
@@ -185,10 +185,10 @@ code_0BC6E7 {
     LDA $0AEC
     CMP #$0001
     BNE loc_0BC6F9
-    COP [JumpScript] ( @StandardEnemyDefeatHandler )
+    COP [JumpFar] ( @StandardEnemyDefeatHandler )
 
   loc_0BC6F9:
-    COP [CallScript] ( &code_0BC738 )
+    COP [CallNear] ( &code_0BC738 )
     COP [SpawnAfterFlags] ( @field_reveal_object, #$0020 )
     LDA $orbitAngle, X
     STA $0026, Y
@@ -230,7 +230,7 @@ code_0BC738 {
     DEC 
     STA $0AEC
     STA $orbitAngle, X
-    COP [StageForceMoveXY] ( #00, #00 )
+    COP [StageMoveXY] ( #00, #00 )
     LDA #$0000
     STA $moveScratch1, X
     STA $moveScratch2, X
@@ -238,7 +238,7 @@ code_0BC738 {
     LDA $extendedFlags, X
     BIT #$0008
     BEQ loc_0BC76E
-    COP [ClearLowHere]
+    COP [ClearSolidHere]
 
   loc_0BC76E:
     LDA $deathActionIdx, X
@@ -247,7 +247,7 @@ code_0BC738 {
     BCS loc_0BC796
     LDA $deathActionIdx, X
     JSL $@cop_handlers_flags.SetFlag_0100
-    COP [SpawnLastRel] ( @SpawnFieldRevealEffect, #00, #00, #$0342 )
+    COP [SpawnListAppend] ( @SpawnFieldRevealEffect, #00, #00, #$0342 )
     PHX 
     LDA $deathActionIdx, X
     TYX 

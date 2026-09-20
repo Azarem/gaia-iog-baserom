@@ -12,9 +12,9 @@ it1B_inca_statue_b [
   actor-def < #00, #00, #30, {
 
   code_04FAC8:
-    COP [AddPosition] ( #08, #00 )
-    COP [SetOnInteract] ( &code_04FADF )
-    COP [ExitIfFlagByte] ( #48, #01 )
+    COP [NudgePosition] ( #08, #00 )
+    COP [SetInteractHandler] ( &code_04FADF )
+    COP [WaitOnFlagByte] ( #48, #01 )
     COP [StageBgChange] ( #1D )
     COP [ApplyBgChange]
     COP [SetFlagWord] ( #$011D )

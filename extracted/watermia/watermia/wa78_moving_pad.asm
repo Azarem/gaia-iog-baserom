@@ -15,13 +15,13 @@ wa78_moving_pad [
   actor-def < #1F, #01, #03, {
 
   code_079FA1:
-    COP [AddPosition] ( #08, #00 )
-    COP [ExitIfFlagByte] ( #8D, #01 )
+    COP [NudgePosition] ( #08, #00 )
+    COP [WaitOnFlagByte] ( #8D, #01 )
     COP [SpawnBefore] ( @actor_079E22 )
-    COP [SetEntryExit]
+    COP [SetEntryHereAndYield]
     STZ $26
-    COP [ClearAllHere]
-    COP [ClearLowHere]
+    COP [ClearCollisionHere]
+    COP [ClearSolidHere]
 
   loc_079FB6:
     COP [WaitByte] ( #77 )
@@ -38,7 +38,7 @@ wa78_moving_pad [
     LDA $26
     DEC 
     BEQ loc_079FE6
-    COP [SetEntryExit]
+    COP [SetEntryHereAndYield]
     COP [KillNext]
 
   loc_079FE6:
@@ -56,7 +56,7 @@ wa78_moving_pad [
     LDA $26
     DEC 
     BEQ loc_079FB6
-    COP [SetEntryExit]
+    COP [SetEntryHereAndYield]
     COP [KillNext]
     BRA loc_079FB6
 } >
@@ -80,7 +80,7 @@ code_07A018 {
     STA $0010, Y
 
   loc_07A036:
-    COP [SolidHighHere]
+    COP [MarkSolidHere]
     LDY $04
     LDA #$0001
     STA $0026, Y
@@ -100,8 +100,8 @@ code_07A041 {
     LDY $04
     LDA #$0000
     STA $0026, Y
-    COP [ClearAllHere]
-    COP [ClearLowHere]
+    COP [ClearCollisionHere]
+    COP [ClearSolidHere]
     RTL 
 }
 
@@ -168,7 +168,7 @@ actor_079E22 {
     PLX 
 
   code_079E5F:
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     LDA $26
     BEQ loc_079E68
     JMP $&code_079F0D
@@ -258,7 +258,7 @@ actor_079E22 {
 }
 
 code_079F0D {
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     LDA $26
     BNE loc_079F16
     JMP $&code_079E5F

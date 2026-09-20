@@ -22,7 +22,7 @@ wa78_lance_camera_pan [
     TSB $12
     LDA #$0400
     STA $cameraBoundsY
-    COP [ExitIfFlagByte] ( #8D, #01 )
+    COP [WaitOnFlagByte] ( #8D, #01 )
     LDA $cameraTargetY
     STA $16
 
@@ -54,7 +54,7 @@ wa78_lance_camera_pan [
     AND #$00FF
     BEQ loc_0781D5
     STA $orbitDiameter, X
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     LDA $orbitDiameter, X
     BEQ loc_07822C
     DEC 

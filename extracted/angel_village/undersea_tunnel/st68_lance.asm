@@ -23,20 +23,20 @@ code_list_06AEBF [
 ]
 
 code_06AEC5 {
-    COP [ExitIfFlagByte] ( #01, #01 )
+    COP [WaitOnFlagByte] ( #01, #01 )
     COP [StageSpriteLoopMoveY] ( #07, #02, #12 )
     COP [AnimLoop]
     COP [StageSpriteFrame] ( #05 )
     COP [AnimOnce]
-    COP [SolidHighHere]
-    COP [SetOnInteract] ( &code_06AEFE )
-    COP [ExitIfFlagByte] ( #04, #01 )
-    COP [ClearLowHere]
+    COP [MarkSolidHere]
+    COP [SetInteractHandler] ( &code_06AEFE )
+    COP [WaitOnFlagByte] ( #04, #01 )
+    COP [ClearSolidHere]
     COP [StageSpriteLoopMoveX] ( #09, #03, #11 )
     COP [AnimLoop]
     COP [StageSpriteFrame] ( #02 )
     COP [AnimOnce]
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     RTL 
 }
 
@@ -48,7 +48,7 @@ code_06AEF2 {
     COP [SetTilePos] ( #18, #1D )
     COP [StageSpriteFrame] ( #03 )
     COP [AnimOnce]
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     RTL 
 }
 

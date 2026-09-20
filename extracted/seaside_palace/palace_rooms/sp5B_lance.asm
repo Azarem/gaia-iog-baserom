@@ -12,11 +12,11 @@ sp5B_lance [
   actor-def < #04, #00, #10, {
 
   code_0688F3:
-    COP [BranchIfFlagByte] ( #70, #01, &code_068929 )
+    COP [BranchOnFlagByte] ( #70, #01, &code_068929 )
     COP [SpawnAfterAbsFlags] ( @ToggleActorVisibilityFlag, #$0000, #$0000, #$2800 )
     LDA #$0200
     TSB $12
-    COP [SetOnInteract] ( &code_06892B )
+    COP [SetInteractHandler] ( &code_06892B )
 
   loc_06890D:
     COP [StageSpriteLoopMoveX] ( #08, #04, #12 )

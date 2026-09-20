@@ -13,23 +13,23 @@ daC3_training_man [
   code_08AD92:
     LDA #$0200
     TSB $12
-    COP [SpawnAfterRelFlags] ( @code_08ADF3, #$FFE0, #$0020, #$1000 )
-    COP [SpawnAfterRelFlags] ( @code_08ADF3, #$FFF0, #$0020, #$1000 )
+    COP [SpawnAfterOffsetFlags] ( @code_08ADF3, #$FFE0, #$0020, #$1000 )
+    COP [SpawnAfterOffsetFlags] ( @code_08ADF3, #$FFF0, #$0020, #$1000 )
     LDA #$0008
     STA $0008, Y
-    COP [SpawnAfterRelFlags] ( @code_08ADF3, #$0000, #$0020, #$1000 )
+    COP [SpawnAfterOffsetFlags] ( @code_08ADF3, #$0000, #$0020, #$1000 )
     LDA #$0010
     STA $0008, Y
-    COP [SpawnAfterRelFlags] ( @code_08ADF3, #$0010, #$0020, #$1000 )
+    COP [SpawnAfterOffsetFlags] ( @code_08ADF3, #$0010, #$0020, #$1000 )
     LDA #$0018
     STA $0008, Y
-    COP [SpawnAfterRelFlags] ( @code_08ADF3, #$0020, #$0020, #$1000 )
+    COP [SpawnAfterOffsetFlags] ( @code_08ADF3, #$0020, #$0020, #$1000 )
     LDA #$0020
     STA $0008, Y
-    COP [SolidHighHere]
-    COP [SetOnInteract] ( &code_08AE09 )
-    COP [SetEntryContinue]
-    COP [SetEntryContinue]
+    COP [MarkSolidHere]
+    COP [SetInteractHandler] ( &code_08AE09 )
+    COP [SetEntryHere]
+    COP [SetEntryHere]
     COP [AnimOnce]
     RTL 
 } >
@@ -37,7 +37,7 @@ daC3_training_man [
 
 code_08ADF3 {
     COP [StageSprAndHitbox] ( #20 )
-    COP [SolidHighHere]
+    COP [MarkSolidHere]
 
   loc_08ADF8:
     COP [StageSpriteFrame] ( #24 )

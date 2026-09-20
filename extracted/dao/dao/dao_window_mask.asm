@@ -12,7 +12,7 @@ dao_window_mask [
   thinker-def < #00, #08, {
 
   code_00B7C0:
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     SEP #$20
     LDA #$02
     STA $W12SEL

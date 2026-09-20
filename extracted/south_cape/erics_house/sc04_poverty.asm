@@ -16,12 +16,12 @@ sc04_poverty [
     LDA #$0012
     STA $currentHp, X
     JSL $@npc_wander_ai.SyncActorPosFromDP
-    COP [SetOnInteract] ( &code_048F98 )
+    COP [SetInteractHandler] ( &code_048F98 )
 
   loc_048F8C:
     JSL $@npc_wander_ai.NpcRandomWanderAI
-    COP [SetEntryExit]
-    COP [SetEntryContinue]
+    COP [SetEntryHereAndYield]
+    COP [SetEntryHere]
     COP [AnimOnce]
     BRA loc_048F8C
 } >

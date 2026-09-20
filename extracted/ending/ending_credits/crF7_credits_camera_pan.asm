@@ -20,10 +20,10 @@ crF7_credits_camera_pan [
 
   loc_09F518:
     JSR $&code_09F68D
-    COP [HaltIfCounterGte] ( #$2FA8 )
+    COP [HaltIfMaxFrames] ( #$2FA8 )
     LDA #$0258
     STA $0E
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     LDA $0E
     AND #$000F
     BNE loc_09F54C
@@ -49,10 +49,10 @@ crF7_credits_camera_pan [
 
   loc_09F557:
     JSR $&code_09F68D
-    COP [HaltIfCounterGte] ( #$3CF0 )
+    COP [HaltIfMaxFrames] ( #$3CF0 )
     LDA #$0258
     STA $0E
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     PHX 
     LDX #$0000
 

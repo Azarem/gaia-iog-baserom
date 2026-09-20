@@ -13,10 +13,10 @@
 ---------------------------------------------
 
 sF7_credits_misc_timeline {
-    COP [HaltIfCounterGte] ( #$3844 )
-    COP [SetLinkedActorScript] ( &code_09E675 )
-    COP [HaltIfCounterGte] ( #$3A4C )
-    COP [SetLinkedActorScript] ( &code_09E65B )
+    COP [HaltIfMaxFrames] ( #$3844 )
+    COP [SetLinkedEntryPtr] ( &code_09E675 )
+    COP [HaltIfMaxFrames] ( #$3A4C )
+    COP [SetLinkedEntryPtr] ( &code_09E65B )
 }
 
 code_09E65B {
@@ -47,8 +47,8 @@ code_09E67C {
     COP [Die]
 
   code_09E683:
-    COP [HaltIfCounterGte] ( #$515C )
-    COP [SetLinkedActorScript] ( &code_09E68B )
+    COP [HaltIfMaxFrames] ( #$515C )
+    COP [SetLinkedEntryPtr] ( &code_09E68B )
 }
 
 code_09E68B {

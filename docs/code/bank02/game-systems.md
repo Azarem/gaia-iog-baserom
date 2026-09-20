@@ -7,7 +7,7 @@
 **Source:** [`music_actors.asm`](../../../extracted/system/engine/music_actors.asm), [`DisplaySceneTitle.asm`](../../../extracted/system/engine/DisplaySceneTitle.asm), [`event_blocks.asm`](../../../extracted/system/engine/event_blocks.asm), [`warps_interaction.asm`](../../../extracted/system/engine/warps_interaction.asm)  
 **Scene:** `engine`
 
-**Related docs:** [hardware-and-init.md](hardware-and-init.md) · [scene-script.md](scene-script.md) · [spc-transfer.md](spc-transfer.md) · [camera-scrolling.md](camera-scrolling.md) · [map-coordinates.md](map-coordinates.md) · [../bank00/event-flags.md](../bank00/event-flags.md) · [../../cop-commands-reference.md](../../cop-commands-reference.md)
+**Related docs:** [hardware-and-init.md](hardware-and-init.md) · [scene-script.md](scene-script.md) · [spc-transfer.md](spc-transfer.md) · [camera-scrolling.md](camera-scrolling.md) · [map-coordinates.md](map-coordinates.md) · [../bank00/event-flags.md](../bank00/event-flags.md) · [../../cop/index.md](../../cop/index.md)
 
 ## Overview
 
@@ -899,4 +899,4 @@ Return-warp data at `$0B08`–`$0B12` allows the destination scene to send the p
 | [camera-scrolling.md](camera-scrolling.md) | Camera scrolling, map buffer layout (`$7E:A000`) |
 | [map-coordinates.md](map-coordinates.md) | `TileCoordsToMapIndex`, `PixelToVramAddress` for event blocks |
 | [../bank00/event-flags.md](../bank00/event-flags.md) | Flag `$0200`–`$02FF` range used by event blocks |
-| [../../cop-commands-reference.md](../../cop-commands-reference.md) | COP `$19` MusicAndText, `$32`–`$34` BG change commands |
+| [../../cop/index.md](../../cop/index.md) | COP `$19` MusicAndText, `$32`–`$34` BG change commands |

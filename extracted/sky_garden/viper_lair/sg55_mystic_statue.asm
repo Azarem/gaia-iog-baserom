@@ -24,13 +24,13 @@ sg55_mystic_statue [
   actor-def < #00, #00, #30, {
 
   code_0ACE37:
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     LDA $0AEC
     BEQ loc_0ACE3F
     RTL 
 
   loc_0ACE3F:
-    COP [BranchIfFlagByte] ( #F9, #01, &code_0ACE81 )
+    COP [BranchOnFlagByte] ( #F9, #01, &code_0ACE81 )
     LDA #$FFF0
     TSB $joypadMaskStd
     COP [WaitByte] ( #3B )
@@ -71,7 +71,7 @@ code_0ACE81 {
     STA $0008, Y
     LDA #$0800
     TSB $playerFlags
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     LDA $playerFlags
     BIT #$0800
     BEQ loc_0ACEC9
@@ -80,15 +80,15 @@ code_0ACE81 {
   loc_0ACEC9:
     COP [WaitByte] ( #3B )
     COP [PrintDialogString] ( &dialogstring_0ACF4A )
-    COP [LoopInit] ( #30 )
+    COP [LoopStart] ( #30 )
     LDA $cameraBoundsY
     INC 
     STA $cameraBoundsY
-    COP [LoopNext]
+    COP [LoopEnd]
     LDA #$0170
     STA $cameraBoundsY
-    COP [SetSolidAbs] ( #07, #0C, #08 )
-    COP [SetEntryContinue]
+    COP [SetCollisionAbs] ( #07, #0C, #08 )
+    COP [SetEntryHere]
     LDA $playerYTile
     CMP #$0018
     BEQ loc_0ACEF2
@@ -101,7 +101,7 @@ code_0ACE81 {
     LDA #$0404
     STA $gfxCacheIdxB
     COP [QueueMapChange] ( #58, #$0000, #$0000, #03, #$1100 )
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     RTL 
 }
 

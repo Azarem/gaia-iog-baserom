@@ -19,7 +19,7 @@ wa78_intro [
   actor-def < #00, #00, #38, {
 
   code_078003:
-    COP [BranchIfFlagByte] ( #8D, #01, &code_07808E )
+    COP [BranchOnFlagByte] ( #8D, #01, &code_07808E )
     LDA #$0008
     TSB $12
     LDA #$CFF0
@@ -37,7 +37,7 @@ wa78_intro [
     COP [WaitByte] ( #01 )
     LDA #$0800
     TSB $10
-    COP [SpawnLastRel] ( @code_0780AD, #00, #00, #$2000 )
+    COP [SpawnListAppend] ( @code_0780AD, #00, #00, #$2000 )
     COP [SpawnAfterFlags] ( @code_078090, #$2800 )
     COP [StageSpriteLoopMoveY] ( #07, #08, #02 )
     COP [AnimLoop]
@@ -59,7 +59,7 @@ wa78_intro [
     COP [QueueMapChange] ( #79, #$0070, #$00B0, #00, #$1100 )
     LDA #$CFF0
     TRB $joypadMaskStd
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     RTL 
 } >
 ]

@@ -15,7 +15,7 @@ mu60_floor_spikes [
   actor-def < #28, #01, #03, {
 
   code_069CEC:
-    COP [BranchIfSolid] ( &code_069D1D )
+    COP [BranchIfSolidHere] ( &code_069D1D )
     LDA #$&enemy_stats_table
     STA $statsPtr, X
 

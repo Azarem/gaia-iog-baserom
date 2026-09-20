@@ -13,17 +13,17 @@ wa7A_lances_father [
   code_07B39D:
     LDA #$0200
     TSB $12
-    COP [SetOnInteract] ( &code_07B3AF )
-    COP [SolidHighHere]
-    COP [SetEntryContinue]
-    COP [SetEntryContinue]
+    COP [SetInteractHandler] ( &code_07B3AF )
+    COP [MarkSolidHere]
+    COP [SetEntryHere]
+    COP [SetEntryHere]
     COP [AnimOnce]
     RTL 
 } >
 ]
 
 code_07B3AF {
-    COP [BranchIfFlagByte] ( #A5, #01, &code_07B3BD )
+    COP [BranchOnFlagByte] ( #A5, #01, &code_07B3BD )
     COP [PrintDialogString] ( &dialogstring_07B3C2 )
     COP [SetFlagByte] ( #01 )
     RTL 

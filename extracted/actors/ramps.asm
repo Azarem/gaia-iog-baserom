@@ -27,7 +27,7 @@ ramp_east [
   actor-def < #00, #00, #20, {
 
   code_00D2D3:
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
 
   code_00D2D5:
     LDA $14
@@ -73,7 +73,7 @@ ramp_east [
     RTL 
 
   loc_00D316:
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     LDY $playerActor
     LDA $0014, Y
     SEC 
@@ -89,7 +89,7 @@ ramp_east [
     RTL 
 
   loc_00D32F:
-    COP [SetEntryExitNow] ( @code_00D2D5 )
+    COP [JumpNextFrame] ( @code_00D2D5 )
 
   loc_00D334:
     LDA #$&RampPlayerClimbEast
@@ -97,7 +97,7 @@ ramp_east [
     LDA #$*RampPlayerClimbEast
     STA $0002, Y
     JSR $&RampBeginPlayerControl
-    COP [SetEntryExitNow] ( @code_00D2D5 )
+    COP [JumpNextFrame] ( @code_00D2D5 )
 } >
 ]
 
@@ -105,7 +105,7 @@ ramp_west [
   actor-def < #00, #00, #20, {
 
   code_00D34B:
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
 
   code_00D34D:
     LDA $14
@@ -146,7 +146,7 @@ ramp_west [
     RTL 
 
   loc_00D388:
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     LDY $playerActor
     LDA $0014, Y
     SEC 
@@ -162,7 +162,7 @@ ramp_west [
     RTL 
 
   loc_00D3A1:
-    COP [SetEntryExitNow] ( @code_00D34D )
+    COP [JumpNextFrame] ( @code_00D34D )
 
   loc_00D3A6:
     LDA #$&loc_00D4F5
@@ -170,7 +170,7 @@ ramp_west [
     LDA #$*loc_00D4F5
     STA $0002, Y
     JSR $&RampBeginPlayerControl
-    COP [SetEntryExitNow] ( @code_00D34D )
+    COP [JumpNextFrame] ( @code_00D34D )
 } >
 ]
 
@@ -178,7 +178,7 @@ ramp_north [
   actor-def < #00, #00, #20, {
 
   code_00D3BD:
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
 
   code_00D3BF:
     LDA $playerSpeedNs
@@ -220,7 +220,7 @@ ramp_north [
     RTL 
 
   loc_00D3F6:
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     LDY $playerActor
     LDA $0016, Y
     SEC 
@@ -236,7 +236,7 @@ ramp_north [
     RTL 
 
   loc_00D40F:
-    COP [SetEntryExitNow] ( @code_00D3BF )
+    COP [JumpNextFrame] ( @code_00D3BF )
 
   loc_00D414:
     LDA #$&loc_00D518
@@ -244,7 +244,7 @@ ramp_north [
     LDA #$*loc_00D518
     STA $0002, Y
     JSR $&RampBeginPlayerControl
-    COP [SetEntryExitNow] ( @code_00D3BF )
+    COP [JumpNextFrame] ( @code_00D3BF )
 } >
 ]
 
@@ -252,7 +252,7 @@ ramp_south [
   actor-def < #00, #00, #20, {
 
   code_00D42B:
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
 
   code_00D42D:
     LDA $16
@@ -291,7 +291,7 @@ ramp_south [
     RTL 
 
   loc_00D464:
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     LDY $playerActor
     LDA $0016, Y
     SEC 
@@ -307,7 +307,7 @@ ramp_south [
     RTL 
 
   loc_00D47D:
-    COP [SetEntryExitNow] ( @code_00D42D )
+    COP [JumpNextFrame] ( @code_00D42D )
 
   loc_00D482:
     LDA #$&RampPlayerClimbSouth
@@ -315,7 +315,7 @@ ramp_south [
     LDA #$*RampPlayerClimbSouth
     STA $0002, Y
     JSR $&RampBeginPlayerControl
-    COP [SetEntryExitNow] ( @code_00D42D )
+    COP [JumpNextFrame] ( @code_00D42D )
 } >
 ]
 
@@ -403,7 +403,7 @@ RampPlayerClimbEast {
   ramp_east_step:
     COP [StagePlayerMoveXY] ( #1E, #00, #10 )
     COP [AnimOnce]
-    COP [LoopNext]
+    COP [LoopEnd]
     LDA #$FFF8
     STA $playerSpeedNs
     JSR $&stair_climb.RestorePlayerControl
@@ -419,7 +419,7 @@ RampPlayerClimbSouth {
     STA $loopCounter, X
     LDA #$&ramp_north_step
     STA $retPtr2, X
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     LDA #$0008
     TRB $10
     LDA #$0200
@@ -428,7 +428,7 @@ RampPlayerClimbSouth {
   ramp_north_step:
     COP [StagePlayerMoveXY] ( #19, #00, #0F )
     COP [AnimOnce]
-    COP [LoopNext]
+    COP [LoopEnd]
     LDA #$0008
     STA $playerSpeedNs
     JSR $&stair_climb.RestorePlayerControl
@@ -481,7 +481,7 @@ func_00D5C0 {
     ADC $0016, X
     STA $0016, X
     PLX 
-    COP [LoopNext]
+    COP [LoopEnd]
     LDA $orbitDiameter, X
     STA $playerSpeedEw
     JSR $&stair_climb.RestorePlayerControl

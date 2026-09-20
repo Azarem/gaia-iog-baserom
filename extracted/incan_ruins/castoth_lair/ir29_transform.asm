@@ -20,8 +20,8 @@ ir29_transform [
   actor-def < #00, #00, #30, {
 
   code_09CF89:
-    COP [BranchIfFlagWord] ( #$011F, #01, &code_09CFEB )
-    COP [SetEntryContinue]
+    COP [BranchOnFlagWord] ( #$011F, #01, &code_09CFEB )
+    COP [SetEntryHere]
     LDA $0AEC
     BEQ loc_09CF98
     RTL 
@@ -49,7 +49,7 @@ ir29_transform [
     STA $0000, Y
     LDA #$0800
     TSB $playerFlags
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     LDA $playerFlags
     BIT #$0800
     BEQ loc_09CFE5

@@ -14,8 +14,8 @@
 ---------------------------------------------
 
 unused_follow_chain {
-    COP [OrActorFlags] ( #$0010 )
-    COP [CallScript] ( &dm_follower_behavior.code_0ADC25 )
+    COP [OrExtraFlags] ( #$0010 )
+    COP [CallNear] ( &dm_follower_behavior.code_0ADC25 )
     LDA $playerActor
     STA $24
     LDA #$0008

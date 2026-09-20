@@ -16,15 +16,15 @@ eu91_women2 [
 
   code_07CA68:
     JSL $@ActorDisplayModeSwap
-    COP [SetOnInteract] ( &code_07CA87 )
+    COP [SetInteractHandler] ( &code_07CA87 )
     LDA #$002A
     STA $currentHp, X
     JSL $@npc_wander_ai.SyncActorPosFromDP
 
   loc_07CA7B:
     JSL $@npc_wander_ai.NpcRandomWanderAI
-    COP [SetEntryExit]
-    COP [SetEntryContinue]
+    COP [SetEntryHereAndYield]
+    COP [SetEntryHere]
     COP [AnimOnce]
     BRA loc_07CA7B
 } >

@@ -45,7 +45,7 @@ HdmaWindowEffect {
     LDA #$0000            ; Initialize HDMA frame offset to 0 for this actor
     STA $7F2104, X
     JSR $&InitSineTableBuffers ; Fill both sine table buffers with $01FF (fully open window)
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     LDA $0D58             ; Check destination ($0D58): zero = no travel, go to opening animation
     BEQ loc_03A85B
     LDA $0D5A             ; Check route active ($0D5A): nonzero = arriving, go to opening animation
@@ -55,19 +55,19 @@ HdmaWindowEffect {
     RTL 
 
   loc_03A85B:
-    COP [LoopInit] ( #02 ) ; Opening animation: 2-frame initial hold
+    COP [LoopStart] ( #02 ) ; Opening animation: 2-frame initial hold
     JSR $&UpdateHdmaWindowParams
     JSR $&QueueHdmaSineBuffers
-    COP [LoopNext]
-    COP [LoopInit] ( #28 ) ; 40-frame iris animation: advance HDMA offset by 2 each frame
+    COP [LoopEnd]
+    COP [LoopStart] ( #28 ) ; 40-frame iris animation: advance HDMA offset by 2 each frame
     LDA $7F2104, X        ; Load current HDMA frame offset
     CLC 
     ADC #$0002            ; Advance by 2 (scroll sine table by one entry)
     STA $7F2104, X
     JSR $&UpdateHdmaWindowParams
     JSR $&QueueHdmaSineBuffers
-    COP [LoopNext]
-    COP [SetEntryContinue] ; Hold final iris state indefinitely — update + DMA each tick
+    COP [LoopEnd]
+    COP [SetEntryHere]    ; Hold final iris state indefinitely — update + DMA each tick
     JSR $&UpdateHdmaWindowParams
     JSR $&QueueHdmaSineBuffers
     RTL 

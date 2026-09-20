@@ -17,7 +17,7 @@ SceneTransPaletteThinker_unused {
     COP [SpawnThinker] ( @SceneTransPaletteWarmLoop )
     TYA 
     STA $chatPtr, X
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     LDA $playerFlags
     BIT #$0002
     BNE loc_00B56F
@@ -48,7 +48,7 @@ SceneTransPaletteThinker_unused {
     COP [SpawnThinker] ( @SceneTransPaletteChildTick )
     TYA 
     STA $chatPtr, X
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     LDA $playerFlags
     BIT #$0002
     BEQ loc_00B587
@@ -75,7 +75,7 @@ SceneTransPaletteWarmLoop {
 SceneTransPaletteChildTick {
     COP [PaletteStart] ( #22 )
     COP [PaletteStep]
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     RTL 
 }
 

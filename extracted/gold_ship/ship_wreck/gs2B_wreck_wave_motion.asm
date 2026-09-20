@@ -57,7 +57,7 @@ gs2B_wreck_wave_motion [
     AND #$00FF
     BEQ loc_058041
     STA $orbitDiameter, X
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     LDA $orbitDiameter, X
     BEQ loc_0580A4
     DEC 
@@ -191,7 +191,7 @@ code_05F859 {
     AND #$00FF
     BEQ loc_05F85E
     STA $orbitDiameter, X
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     LDA $orbitDiameter, X
     BEQ loc_05F8B3
     DEC 

@@ -13,8 +13,8 @@ mtA2_crystal_ball_gate [
   actor-def < #00, #00, #30, {
 
   code_07E7F3:
-    COP [BranchIfFlagWord] ( #$0159, #01, &f_mtA2_actor_07E7F0_destroy )
-    COP [ExitIfFlagByte] ( #01, #01 )
+    COP [BranchOnFlagWord] ( #$0159, #01, &f_mtA2_actor_07E7F0_destroy )
+    COP [WaitOnFlagByte] ( #01, #01 )
     LDA #$EFF0
     TSB $joypadMaskStd
     COP [RemoveItem] ( #1A )

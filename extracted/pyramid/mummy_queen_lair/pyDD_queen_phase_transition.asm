@@ -16,7 +16,7 @@
 ---------------------------------------------
 
 pyDD_queen_phase_transition {
-    COP [SpawnMarkedAfter] ( @code_0BACD8, #$2000 )
+    COP [SpawnAfterMarked] ( @code_0BACD8, #$2000 )
     STZ $24
 
   loc_0BACC5:
@@ -52,9 +52,9 @@ code_0BACFE {
     LDA #$0000
     STA $7F100C, X
     STA $7F100E, X
-    COP [LoopInit] ( #78 )
+    COP [LoopStart] ( #78 )
     JSR $&code_0BAD13
-    COP [LoopNext]
+    COP [LoopEnd]
     COP [Die]
 }
 

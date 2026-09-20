@@ -24,33 +24,33 @@
 ---------------------------------------------
 
 dm_func_0ADB6B {
-    COP [OrActorFlags] ( #$0010 )
-    COP [CallScript] ( &code_0ADC25 )
+    COP [OrExtraFlags] ( #$0010 )
+    COP [CallNear] ( &code_0ADC25 )
     LDA #$8008
     STA $chatPtr, X
     LDA #$0001
     STA $loopCounter, X
-    COP [SpawnMarkedAfter] ( @smooth_follow.InitFollowAndChase, #$2000 )
+    COP [SpawnAfterMarked] ( @smooth_follow.InitFollowAndChase, #$2000 )
     LDA $playerActor
     STA $0024, Y
-    COP [SetEntryExit]
+    COP [SetEntryHereAndYield]
     LDA #$003B
     STA $24
     LDA $14
     STA $7F100C, X
     LDA $16
     STA $7F100E, X
-    COP [LoopInit] ( #1E )
-    COP [SetEntryContinue]
+    COP [LoopStart] ( #1E )
+    COP [SetEntryHere]
     COP [AnimOneFrame]
     JSR $&dm_sub_0ADD27
     BCC loc_0ADBB1
     COP [BranchIfBehindWall] ( &code_0ADC4C )
 
   loc_0ADBB1:
-    COP [LoopNext]
-    COP [CollPriorityClearMax]
-    COP [SetEntryContinue]
+    COP [LoopEnd]
+    COP [ClearPriorityMax]
+    COP [SetEntryHere]
     COP [AnimOneFrame]
     DEC $24
     BMI loc_0ADBC8
@@ -81,13 +81,13 @@ dm_func_0ADB6B {
     COP [KillNext]
 
   loc_0ADBF1:
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     COP [AnimOneFrame]
     LDA $08
     STZ $08
     INC 
     STA $24
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     LDA $orbitAngle, X
     STA $moveScratch1, X
     LDA $orbitDiameter, X
@@ -110,7 +110,7 @@ dm_func_0ADB6B {
 
 code_0ADC25 {
     COP [SetMetasprite] ( @spriteset_enemies )
-    COP [SpawnLastRel] ( @code_0ADC45, #00, #00, #$0202 )
+    COP [SpawnListAppend] ( @code_0ADC45, #00, #00, #$0202 )
     COP [PlaySoundCh1] ( #1E )
     LDA #$0080
     TSB $12

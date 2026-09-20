@@ -11,8 +11,8 @@ ec12_aqueduct_dark_space [
   actor-def < #00, #00, #23, {
 
   code_09BF6E:
-    COP [BranchIfFlagWord] ( #$0116, #01, &code_09BF7D )
-    COP [ExitIfFlagWord] ( #$0116, #01 )
+    COP [BranchOnFlagWord] ( #$0116, #01, &code_09BF7D )
+    COP [WaitOnFlagWord] ( #$0116, #01 )
     COP [WaitByte] ( #B3 )
 } >
 ]

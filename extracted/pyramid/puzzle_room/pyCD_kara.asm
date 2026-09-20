@@ -19,15 +19,15 @@ pyCD_kara [
   actor-def < #03, #00, #30, {
 
   code_08BD33:
-    COP [BranchIfFlagByte] ( #D0, #01, &code_08BE0D )
-    COP [ExitIfFlagByte] ( #C2, #01 )
-    COP [ExitIfFlagByte] ( #C3, #01 )
-    COP [ExitIfFlagByte] ( #C4, #01 )
-    COP [ExitIfFlagByte] ( #C5, #01 )
-    COP [ExitIfFlagByte] ( #C6, #01 )
-    COP [ExitIfFlagByte] ( #C7, #01 )
-    COP [BranchIfFlagByte] ( #BB, #01, &code_08BE0F )
-    COP [ExitIfFlagByte] ( #02, #01 )
+    COP [BranchOnFlagByte] ( #D0, #01, &code_08BE0D )
+    COP [WaitOnFlagByte] ( #C2, #01 )
+    COP [WaitOnFlagByte] ( #C3, #01 )
+    COP [WaitOnFlagByte] ( #C4, #01 )
+    COP [WaitOnFlagByte] ( #C5, #01 )
+    COP [WaitOnFlagByte] ( #C6, #01 )
+    COP [WaitOnFlagByte] ( #C7, #01 )
+    COP [BranchOnFlagByte] ( #BB, #01, &code_08BE0F )
+    COP [WaitOnFlagByte] ( #02, #01 )
     LDA #$2000
     TRB $10
     COP [StageSpriteLoopMoveY] ( #07, #03, #12 )
@@ -38,24 +38,24 @@ pyCD_kara [
     COP [AnimLoop]
     COP [StageSpriteFrame] ( #04 )
     COP [AnimOnce]
-    COP [ExitIfFlagByte] ( #04, #01 )
+    COP [WaitOnFlagByte] ( #04, #01 )
     LDA #$0800
     TSB $10
-    COP [LoopInit] ( #04 )
+    COP [LoopStart] ( #04 )
     COP [StageSpriteMoveX] ( #09, #14 )
     COP [AnimOnce]
     COP [StageSpriteFrame] ( #05 )
     COP [AnimOnce]
-    COP [LoopNext]
-    COP [ExitIfFlagByte] ( #05, #01 )
+    COP [LoopEnd]
+    COP [WaitOnFlagByte] ( #05, #01 )
     COP [WaitByte] ( #0F )
-    COP [LoopInit] ( #06 )
+    COP [LoopStart] ( #06 )
     COP [StageSpriteMoveX] ( #09, #14 )
     COP [AnimOnce]
     COP [StageSpriteFrame] ( #05 )
     COP [AnimOnce]
-    COP [LoopNext]
-    COP [ExitIfFlagByte] ( #06, #01 )
+    COP [LoopEnd]
+    COP [WaitOnFlagByte] ( #06, #01 )
     LDA #$CFF0
     TSB $joypadMaskStd
     LDY $playerActor
@@ -78,15 +78,15 @@ pyCD_kara [
     COP [MoveToward] ( #08, #01 )
     COP [StageSpriteFrame] ( #04 )
     COP [AnimOnce]
-    COP [SolidHighHere]
+    COP [MarkSolidHere]
     COP [WaitByte] ( #3B )
     COP [PrintDialogString] ( &dialogstring_08BEA9 )
     COP [StageSpriteFrame] ( #05 )
     COP [AnimOnce]
     LDA #$CFF0
     TRB $joypadMaskStd
-    COP [SetOnInteract] ( &code_08BE61 )
-    COP [SetEntryContinue]
+    COP [SetInteractHandler] ( &code_08BE61 )
+    COP [SetEntryHere]
     RTL 
 } >
 ]
@@ -101,9 +101,9 @@ code_08BE0F {
     COP [SetTilePos] ( #08, #0B )
     COP [StageSpriteFrame] ( #05 )
     COP [AnimOnce]
-    COP [SolidHighHere]
-    COP [SetOnInteract] ( &code_08BE61 )
-    COP [ExitIfFlagByte] ( #FC, #01 )
+    COP [MarkSolidHere]
+    COP [SetInteractHandler] ( &code_08BE61 )
+    COP [WaitOnFlagByte] ( #FC, #01 )
     LDA #$CFF0
     TSB $joypadMaskStd
     COP [WaitByte] ( #1D )
@@ -120,7 +120,7 @@ code_08BE0F {
     LDA #$0404
     STA $gfxCacheIdxB
     COP [QueueMapChange] ( #C8, #$0070, #$00A0, #00, #$1100 )
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     RTL 
 }
 

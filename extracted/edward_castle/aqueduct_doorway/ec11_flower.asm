@@ -12,9 +12,9 @@ ec11_flower [
   code_09BC37:
     LDA #$0200
     TSB $12
-    COP [AddPosition] ( #00, #02 )
-    COP [SetOnInteract] ( &code_09BC4C )
-    COP [SetEntryContinue]
+    COP [NudgePosition] ( #00, #02 )
+    COP [SetInteractHandler] ( &code_09BC4C )
+    COP [SetEntryHere]
     COP [StageSpriteFrame] ( #3F )
     COP [AnimOnce]
     RTL 

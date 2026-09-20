@@ -25,9 +25,9 @@ btDF_spirits [
     TRB $10
     COP [SetMetasprite] ( @spriteset_npc_props )
     COP [StageSprAndHitbox] ( #04 )
-    COP [SolidHighHere]
-    COP [SetOnInteract] ( &code_099B5A )
-    COP [SetEntryContinue]
+    COP [MarkSolidHere]
+    COP [SetInteractHandler] ( &code_099B5A )
+    COP [SetEntryHere]
     COP [StageSpriteFrame] ( #04 )
     COP [AnimOnce]
     RTL 

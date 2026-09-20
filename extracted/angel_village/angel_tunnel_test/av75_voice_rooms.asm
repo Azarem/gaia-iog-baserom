@@ -41,7 +41,7 @@ av75_voice_rooms [
     COP [PrintDialogString] ( &dialogstring_06DA14 )
     LDA #$CFF0
     TRB $joypadMaskStd
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     RTL 
 
   loc_06D90B:
@@ -55,8 +55,8 @@ av75_voice_rooms [
     STA $0014, Y
     LDA $playerYPos
     STA $0016, Y
-    COP [SetEntryContinue]
-    COP [BranchIfButton] ( #$8001, &code_06D937 )
+    COP [SetEntryHere]
+    COP [BranchIfPressed] ( #$8001, &code_06D937 )
     RTL 
 } >
 ]
@@ -194,17 +194,17 @@ code_06DBF3 {
     COP [SetSpritePriority] ( #30 )
     COP [StageSpriteFrame] ( #19 )
     COP [AnimOnce]
-    COP [SetEntryContinue]
-    COP [BranchIfButton] ( #$0801, &code_06DC16 )
+    COP [SetEntryHere]
+    COP [BranchIfPressed] ( #$0801, &code_06DC16 )
 
   loc_06DC03:
-    COP [BranchIfButton] ( #$0401, &code_06DC23 )
+    COP [BranchIfPressed] ( #$0401, &code_06DC23 )
 
   loc_06DC09:
-    COP [BranchIfButton] ( #$0201, &code_06DC30 )
+    COP [BranchIfPressed] ( #$0201, &code_06DC30 )
 
   loc_06DC0F:
-    COP [BranchIfButton] ( #$0101, &code_06DC40 )
+    COP [BranchIfPressed] ( #$0101, &code_06DC40 )
 
   loc_06DC15:
     RTL 

@@ -11,9 +11,9 @@ it15_fable_woman [
   code_04DF0F:
     LDA #$0200
     TSB $12
-    COP [SetOnInteract] ( &code_04DF1D )
-    COP [SolidHighHere]
-    COP [SetEntryContinue]
+    COP [SetInteractHandler] ( &code_04DF1D )
+    COP [MarkSolidHere]
+    COP [SetEntryHere]
     RTL 
 } >
 ]

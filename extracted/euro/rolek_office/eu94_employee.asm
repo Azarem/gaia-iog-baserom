@@ -14,9 +14,9 @@ eu94_employee [
   code_07CEFD:
     LDA #$0200
     TSB $12
-    COP [SolidHighHere]
-    COP [SetOnInteract] ( &code_07CF1A )
-    COP [SetEntryContinue]
+    COP [MarkSolidHere]
+    COP [SetInteractHandler] ( &code_07CF1A )
+    COP [SetEntryHere]
     COP [BranchIfPlayerInAbsTiles] ( #06, #07, #07, #08, &code_07CF13 )
     RTL 
 } >
@@ -24,7 +24,7 @@ eu94_employee [
 
 code_07CF13 {
     COP [PrintDialogString] ( &dialogstring_07CF75 )
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     RTL 
 }
 

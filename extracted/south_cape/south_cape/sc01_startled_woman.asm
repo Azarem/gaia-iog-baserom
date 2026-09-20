@@ -10,37 +10,37 @@ sc01_startled_woman [
   actor-def < #14, #00, #10, {
 
   code_048765:
-    COP [SetOnInteract] ( &code_0487BA )
-    COP [SolidHighHere]
-    COP [SetEntryContinue]
+    COP [SetInteractHandler] ( &code_0487BA )
+    COP [MarkSolidHere]
+    COP [SetEntryHere]
     COP [BranchIfPlayerAt] ( #$02A8, #$01C8, &code_048776 )
     RTL 
 } >
 ]
 
 code_048776 {
-    COP [ClearLowHere]
+    COP [ClearSolidHere]
     COP [SetTilePos] ( #28, #25 )
     COP [StageSpriteLoopMoveX] ( #19, #01, #11 )
     COP [AnimLoop]
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     COP [BranchIfPlayerAt] ( #$02A8, #$0250, &code_04878E )
     RTL 
 }
 
 code_04878E {
-    COP [SetEntryDelayExit] ( @code_048795, #$0010 )
+    COP [JumpAfterDelay] ( @code_048795, #$0010 )
 }
 
 code_048795 {
     COP [PrintDialogString] ( &dialogstring_0487BF )
-    COP [SetOnInteract] ( &code_0487B5 )
+    COP [SetInteractHandler] ( &code_0487B5 )
     COP [StageSpriteLoopMoveX] ( #18, #04, #12 )
     COP [AnimLoop]
     COP [StageSpriteLoopMoveY] ( #17, #02, #12 )
     COP [AnimLoop]
-    COP [SolidHighHere]
-    COP [SetEntryContinue]
+    COP [MarkSolidHere]
+    COP [SetEntryHere]
     RTL 
 }
 

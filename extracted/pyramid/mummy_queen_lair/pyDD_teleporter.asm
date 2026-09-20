@@ -33,7 +33,7 @@ pyDD_teleporter_right [
 
   loc_0BADCF:
     COP [StageSprAndHitbox] ( #0F )
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     LDY $playerActor
     LDA $0010, Y
     BIT #$2000
@@ -57,7 +57,7 @@ code_0BADEF {
     COP [SpawnAfterFlags] ( @code_0BAE18, #$2700 )
     LDA #$0001
     STA $24
-    COP [SetEntryExit]
+    COP [SetEntryHereAndYield]
     LDA $24
     BEQ loc_0BADCF
     PHX 
@@ -165,7 +165,7 @@ code_0BAE18 {
     LDA $0010, Y
     ORA #$0200
     STA $0010, Y
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     DEC $24
     BMI loc_0BAF2D
     LDY $playerActor

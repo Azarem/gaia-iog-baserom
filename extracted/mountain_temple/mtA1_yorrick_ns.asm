@@ -38,7 +38,7 @@ code_0B9D2E {
 }
 
 code_0B9D44 {
-    COP [CallScript] ( &code_0B9D86 )
+    COP [CallNear] ( &code_0B9D86 )
     COP [StageSpriteLoop] ( #02, #02 )
     COP [AnimLoop]
     BRA loc_0B9D36
@@ -65,7 +65,7 @@ code_0B9D64 {
 }
 
 code_0B9D7A {
-    COP [CallScript] ( &code_0B9D86 )
+    COP [CallNear] ( &code_0B9D86 )
     COP [StageSpriteLoop] ( #02, #02 )
     COP [AnimLoop]
     BRA loc_0B9D6C
@@ -74,8 +74,8 @@ code_0B9D7A {
 code_0B9D86 {
     COP [StageSpriteLoop] ( #1A, #06 )
     COP [AnimLoop]
-    COP [SpawnAfterRelFlags] ( @code_0B9DA9, #$FFFD, #$FFF8, #$0202 )
-    COP [SpawnAfterRelFlags] ( @code_0B9DA9, #$0004, #$FFF8, #$0202 )
+    COP [SpawnAfterOffsetFlags] ( @code_0B9DA9, #$FFFD, #$FFF8, #$0202 )
+    COP [SpawnAfterOffsetFlags] ( @code_0B9DA9, #$0004, #$FFF8, #$0202 )
     COP [StageSpriteFrame] ( #02 )
     COP [AnimOnce]
     COP [RestoreSavedPtr]
@@ -84,7 +84,7 @@ code_0B9D86 {
 code_0B9DA9 {
     COP [PlaySoundCh1] ( #1D )
     COP [SetSpritePalette] ( #02 )
-    COP [OrActorFlags] ( #$0010 )
+    COP [OrExtraFlags] ( #$0010 )
     COP [StageSpriteMoveY] ( #20, #03 )
     COP [AnimOnce]
     LDA #$0002
@@ -131,7 +131,7 @@ code_0B9DEC {
 }
 
 code_0B9E02 {
-    COP [CallScript] ( &code_0B9E44 )
+    COP [CallNear] ( &code_0B9E44 )
     COP [StageSpriteLoop] ( #03, #02 )
     COP [AnimLoop]
     BRA loc_0B9DF4
@@ -158,7 +158,7 @@ code_0B9E22 {
 }
 
 code_0B9E38 {
-    COP [CallScript] ( &code_0B9E44 )
+    COP [CallNear] ( &code_0B9E44 )
     COP [StageSpriteLoop] ( #03, #02 )
     COP [AnimLoop]
     BRA loc_0B9E2A
@@ -167,8 +167,8 @@ code_0B9E38 {
 code_0B9E44 {
     COP [StageSpriteLoop] ( #1B, #06 )
     COP [AnimLoop]
-    COP [SpawnAfterRelFlags] ( @code_0B9E67, #$FFFD, #$FFF8, #$0200 )
-    COP [SpawnAfterRelFlags] ( @code_0B9E67, #$0004, #$FFF8, #$0200 )
+    COP [SpawnAfterOffsetFlags] ( @code_0B9E67, #$FFFD, #$FFF8, #$0200 )
+    COP [SpawnAfterOffsetFlags] ( @code_0B9E67, #$0004, #$FFF8, #$0200 )
     COP [StageSpriteFrame] ( #03 )
     COP [AnimOnce]
     COP [RestoreSavedPtr]
@@ -177,7 +177,7 @@ code_0B9E44 {
 code_0B9E67 {
     COP [PlaySoundCh1] ( #1D )
     COP [SetSpritePalette] ( #02 )
-    COP [OrActorFlags] ( #$0010 )
+    COP [OrExtraFlags] ( #$0010 )
     COP [StageSpriteMoveY] ( #20, #04 )
     COP [AnimOnce]
     LDA #$0002

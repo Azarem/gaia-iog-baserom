@@ -22,35 +22,35 @@ sc01_fisherman [
     BCS loc_0483AA
     CMP #$00C8
     BCS code_048393
-    COP [SetOnInteract] ( &code_0483E7 )
+    COP [SetInteractHandler] ( &code_0483E7 )
     COP [SetTilePos] ( #06, #2F )
-    COP [SolidHighHere]
-    COP [AddPosition] ( #04, #00 )
+    COP [MarkSolidHere]
+    COP [NudgePosition] ( #04, #00 )
     BRA loc_0483D0
 
   code_048393:
-    COP [SetOnInteract] ( &code_0483EC )
+    COP [SetInteractHandler] ( &code_0483EC )
     COP [SetTilePos] ( #0B, #33 )
-    COP [SetHFlip]
+    COP [SetHMirror]
     LDA #$0002
     TSB $12
-    COP [SolidHighHere]
-    COP [AddPosition] ( #FC, #00 )
+    COP [MarkSolidHere]
+    COP [NudgePosition] ( #FC, #00 )
     BRA loc_0483D0
 
   loc_0483AA:
-    COP [BranchIfFlagByte] ( #D7, #01, &code_048393 )
-    COP [SetOnInteract] ( &code_0483F1 )
+    COP [BranchOnFlagByte] ( #D7, #01, &code_048393 )
+    COP [SetInteractHandler] ( &code_0483F1 )
     COP [SetTilePos] ( #29, #30 )
-    COP [SpawnAfterRelFlags] ( @e_sc01_pot, #$FFF0, #$0000, #$1000 )
-    COP [SetHFlip]
+    COP [SpawnAfterOffsetFlags] ( @e_sc01_pot, #$FFF0, #$0000, #$1000 )
+    COP [SetHMirror]
     LDA #$0002
     TSB $12
-    COP [SolidHighHere]
-    COP [AddPosition] ( #FC, #FE )
+    COP [MarkSolidHere]
+    COP [NudgePosition] ( #FC, #FE )
 
   loc_0483D0:
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     COP [StageSpriteFrame] ( #22 )
     COP [AnimOnce]
     LDA $playerYPos
@@ -91,14 +91,14 @@ e_sc01_pot {
     TSB $12
     COP [StageSpriteFrame] ( #3E )
     COP [AnimOnce]
-    COP [SolidHighHere]
-    COP [SetOnInteract] ( &code_048462 )
-    COP [SetEntryContinue]
+    COP [MarkSolidHere]
+    COP [SetInteractHandler] ( &code_048462 )
+    COP [SetEntryHere]
     RTL 
 }
 
 code_048462 {
-    COP [BranchIfFlagByte] ( #D7, #01, &code_048474 )
+    COP [BranchOnFlagByte] ( #D7, #01, &code_048474 )
     COP [GiveItem] ( #01, &code_048475 )
     COP [PrintDialogString] ( &dialogstring_048479 )
     COP [SetFlagByte] ( #D7 )

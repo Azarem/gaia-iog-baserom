@@ -33,24 +33,24 @@ dm3D_grundit [
 code_0AB00D {
     LDA #$2000
     TRB $10
-    COP [LoopInit] ( #05 )
+    COP [LoopStart] ( #05 )
     COP [PlaySoundCh1] ( #2C )
     COP [StageSpriteFrame] ( #2D )
     COP [AnimOnce]
-    COP [LoopNext]
+    COP [LoopEnd]
     LDA #$0200
     TRB $10
     COP [SpawnAfterFlags] ( @code_0AB081, #$0200 )
     COP [SpawnAfterFlags] ( @code_0AB098, #$0200 )
     COP [SpawnAfterFlags] ( @code_0AB091, #$0200 )
-    COP [SetEntryExit]
+    COP [SetEntryHereAndYield]
     COP [SpawnAfterFlags] ( @code_0AB0AC, #$0200 )
-    COP [SpawnMarkedAfter] ( @code_0AB071, #$0301 )
+    COP [SpawnAfterMarked] ( @code_0AB071, #$0301 )
     COP [StageSpriteFrame] ( #2F )
     COP [AnimOnce]
     COP [StageSpriteFrame] ( #30 )
     COP [AnimOnce]
-    COP [SpawnLastRel] ( @dm_follower_behavior, #00, #CE, #$0202 )
+    COP [SpawnListAppend] ( @dm_follower_behavior, #00, #CE, #$0202 )
     COP [StageSpriteFrame] ( #30 )
     COP [AnimOnce]
     COP [StageSpriteFrame] ( #31 )
@@ -85,7 +85,7 @@ code_0AB091 {
 }
 
 code_0AB098 {
-    COP [AddPosition] ( #00, #06 )
+    COP [NudgePosition] ( #00, #06 )
     COP [StageSpriteMoveXY] ( #32, #12, #2A )
     COP [AnimOnce]
     COP [StageSpriteMoveXY] ( #32, #12, #2B )

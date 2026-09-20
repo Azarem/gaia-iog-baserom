@@ -15,14 +15,14 @@
 
 smooth_follow_child {
     STZ $002A, X          ; Clear scratch
-    COP [SpawnMarkedAfter] ( @SmoothFollowChildTick, #$2000 ) ; Spawn tick handler as child actor
+    COP [SpawnAfterMarked] ( @SmoothFollowChildTick, #$2000 ) ; Spawn tick handler as child actor
     CPY #$1FC0            ; Actor pool exhausted?
     BEQ SmoothFollowChildDie ; Yes → die immediately
     LDA $24               ; Pass chase target actor ID to child
     STA $0024, Y
 
   loc_00E4EF:
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     COP [AnimOnce]
     LDA $10
     BIT #$4000            ; Parent set kill flag?
@@ -102,7 +102,7 @@ SmoothFollowChildTick {
 
   loc_00E570:
     JSR $&smooth_follow.ComputeFollowAngle ; North primary: compute angle
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     JSR $&smooth_follow.ComputeFollowStep ; Compute step from angle
     LDA $16               ; Y -= step (move north)
     SEC 
@@ -116,7 +116,7 @@ SmoothFollowChildTick {
 
   loc_00E58B:
     JSR $&smooth_follow.ComputeFollowAngleAlt ; East+North secondary: alt angle
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     JSR $&smooth_follow.ComputeFollowStep
     LDA $14               ; X += step (move east)
     CLC 
@@ -130,7 +130,7 @@ SmoothFollowChildTick {
 
   loc_00E5A6:
     JSR $&smooth_follow.ComputeFollowAngleAlt ; East+South secondary: alt angle
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     JSR $&smooth_follow.ComputeFollowStep
     LDA $14               ; X += step (move east)
     CLC 
@@ -148,7 +148,7 @@ SmoothFollowChildTick {
 
 SmoothFollowApplyEastPrimary {
     JSR $&smooth_follow.ComputeFollowAngle
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     JSR $&smooth_follow.ComputeFollowStep
     LDA $16
     CLC 
@@ -166,7 +166,7 @@ SmoothFollowApplyEastPrimary {
 
 SmoothFollowApplyEastSecondary {
     JSR $&smooth_follow.ComputeFollowAngle
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     JSR $&smooth_follow.ComputeFollowStep
     LDA $16
     CLC 
@@ -184,7 +184,7 @@ SmoothFollowApplyEastSecondary {
 
 SmoothFollowApplyWestPrimary {
     JSR $&smooth_follow.ComputeFollowAngleAlt
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     JSR $&smooth_follow.ComputeFollowStep
     LDA $14
     SEC 
@@ -202,7 +202,7 @@ SmoothFollowApplyWestPrimary {
 
 SmoothFollowApplyWestSecondary {
     JSR $&smooth_follow.ComputeFollowAngleAlt
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     JSR $&smooth_follow.ComputeFollowStep
     LDA $14
     SEC 
@@ -220,7 +220,7 @@ SmoothFollowApplyWestSecondary {
 
 SmoothFollowApplySouthPrimary {
     JSR $&smooth_follow.ComputeFollowAngle
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     JSR $&smooth_follow.ComputeFollowStep
     LDA $16
     SEC 

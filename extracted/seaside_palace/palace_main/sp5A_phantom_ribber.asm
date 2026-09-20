@@ -18,7 +18,7 @@ sp5A_phantom_ribber [
   actor-def < #00, #00, #01, {
 
   code_0689A6:
-    COP [BranchIfFlagByte] ( #70, #01, &code_068A14 )
+    COP [BranchOnFlagByte] ( #70, #01, &code_068A14 )
     LDA #$00FF
     STA $currentHp, X
     LDA #$&enemy_stats_table+44
@@ -28,20 +28,20 @@ sp5A_phantom_ribber [
     COP [SetHitCallback] ( &code_0689F3 )
 
   loc_0689C3:
-    COP [LoopInit] ( #04 )
+    COP [LoopStart] ( #04 )
     COP [StageSpriteMoveX] ( #07, #12 )
     COP [AnimOnce]
     COP [StageSpriteMoveX] ( #08, #12 )
     COP [AnimOnce]
-    COP [LoopNext]
+    COP [LoopEnd]
     COP [StageSpriteLoop] ( #00, #14 )
     COP [AnimLoop]
-    COP [LoopInit] ( #04 )
+    COP [LoopStart] ( #04 )
     COP [StageSpriteMoveX] ( #87, #11 )
     COP [AnimOnce]
     COP [StageSpriteMoveX] ( #88, #11 )
     COP [AnimOnce]
-    COP [LoopNext]
+    COP [LoopEnd]
     COP [StageSpriteLoop] ( #00, #14 )
     COP [AnimLoop]
     BRA loc_0689C3
@@ -54,10 +54,10 @@ code_0689F3 {
     TSB $10
     LDA #$0200
     TSB $12
-    COP [SetOnInteract] ( &code_068A16 )
+    COP [SetInteractHandler] ( &code_068A16 )
     COP [StageSpriteFrame] ( #00 )
     COP [AnimOnce]
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     RTL 
 }
 

@@ -11,10 +11,10 @@ eu9A_friezer [
   actor-def < #0A, #00, #10, {
 
   code_07E607:
-    COP [BranchIfFlagByte] ( #A7, #01, &eu9A_friezer_destroy )
-    COP [SetOnInteract] ( &code_07E618 )
-    COP [SolidHighHere]
-    COP [SetEntryContinue]
+    COP [BranchOnFlagByte] ( #A7, #01, &eu9A_friezer_destroy )
+    COP [SetInteractHandler] ( &code_07E618 )
+    COP [MarkSolidHere]
+    COP [SetEntryHere]
     RTL 
 } >
 ]

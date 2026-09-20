@@ -13,8 +13,8 @@ awB0_intro [
   actor-def < #00, #00, #30, {
 
   code_0897E3:
-    COP [BranchIfFlagByte] ( #BE, #01, &code_089805 )
-    COP [BranchIfFlagByte] ( #B3, #01, &code_089805 )
+    COP [BranchOnFlagByte] ( #BE, #01, &code_089805 )
+    COP [BranchOnFlagByte] ( #B3, #01, &code_089805 )
     COP [SetFlagByte] ( #B3 )
     LDA #$CFF0
     TSB $joypadMaskStd

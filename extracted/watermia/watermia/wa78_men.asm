@@ -26,22 +26,22 @@ wa78_men [
     ADC #$0002
     STA $28
     STZ $2A
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     COP [AnimOneFrame]
     JSL $@ActorDisplayModeSwap
-    COP [SetOnInteract] ( &code_078537 )
-    COP [SolidHighHere]
+    COP [SetInteractHandler] ( &code_078537 )
+    COP [MarkSolidHere]
     LDA $24
     CMP #$0005
     BEQ loc_07852D
 
   code_07852A:
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     RTL 
 
   loc_07852D:
-    COP [BranchIfFlagByte] ( #9D, #00, &code_07852A )
-    COP [ClearLowHere]
+    COP [BranchOnFlagByte] ( #9D, #00, &code_07852A )
+    COP [ClearSolidHere]
     COP [Die]
 } >
 ]

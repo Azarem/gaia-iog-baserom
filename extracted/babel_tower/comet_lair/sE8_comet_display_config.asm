@@ -38,8 +38,8 @@ sE8_comet_display_config [
     LDA #$18
     STA $BG2SC
     REP #$20
-    COP [SetEntryExit]
-    COP [BranchIfFlagByte] ( #FF, #00, &code_0CEB76 )
+    COP [SetEntryHereAndYield]
+    COP [BranchOnFlagByte] ( #FF, #00, &code_0CEB76 )
     RTL 
 } >
 ]
@@ -59,8 +59,8 @@ code_0CEBA1 {
     LDA #$18
     STA $BG2SC
     REP #$20
-    COP [SetEntryExit]
-    COP [BranchIfFlagByte] ( #FF, #00, &code_0CEBA1 )
+    COP [SetEntryHereAndYield]
+    COP [BranchOnFlagByte] ( #FF, #00, &code_0CEBA1 )
     RTL 
 }
 
@@ -79,8 +79,8 @@ code_0CEBCC {
     LDA #$18
     STA $BG2SC
     REP #$20
-    COP [SetEntryExit]
-    COP [BranchIfFlagByte] ( #FF, #00, &code_0CEBCC )
+    COP [SetEntryHereAndYield]
+    COP [BranchOnFlagByte] ( #FF, #00, &code_0CEBCC )
     RTL 
 }
 
@@ -106,8 +106,8 @@ code_0CEBF7 {
     LDA #$18
     STA $BG2SC
     REP #$20
-    COP [SetEntryExit]
-    COP [BranchIfFlagByte] ( #FF, #00, &code_0CEBF7 )
+    COP [SetEntryHereAndYield]
+    COP [BranchOnFlagByte] ( #FF, #00, &code_0CEBF7 )
     RTL 
 }
 
@@ -128,7 +128,7 @@ code_0CEC35 {
     LDA #$18
     STA $BG2SC
     REP #$20
-    COP [SetEntryExit]
-    COP [BranchIfFlagByte] ( #FF, #00, &code_0CEC35 )
+    COP [SetEntryHereAndYield]
+    COP [BranchOnFlagByte] ( #FF, #00, &code_0CEC35 )
     RTL 
 }

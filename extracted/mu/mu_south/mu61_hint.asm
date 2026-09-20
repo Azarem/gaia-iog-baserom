@@ -11,9 +11,9 @@ mu61_hint [
   actor-def < #00, #00, #30, {
 
   code_0697A9:
-    COP [BranchIfFlagByte] ( #7A, #01, &code_0697C7 )
-    COP [BranchIfFlagByte] ( #78, #00, &code_0697C7 )
-    COP [SetEntryContinue]
+    COP [BranchOnFlagByte] ( #7A, #01, &code_0697C7 )
+    COP [BranchOnFlagByte] ( #78, #00, &code_0697C7 )
+    COP [SetEntryHere]
     COP [BranchIfPlayerInAbsTiles] ( #0A, #30, #0C, #37, &code_0697C0 )
     RTL 
 } >

@@ -31,7 +31,7 @@ statue_inventory_reward [
   code_00CD5C:
     LDA #$FFF0
     TSB $joypadMaskStd
-    COP [AddPosition] ( #08, #08 )
+    COP [NudgePosition] ( #08, #08 )
     COP [SetMetasprite] ( @inventory_spritemap )
     SEP #$20
     LDA #$08
@@ -52,7 +52,7 @@ statue_inventory_reward [
     STA $24
     BIT #$0010
     BEQ loc_00CD9D
-    COP [AddPosition] ( #00, #F8 )
+    COP [NudgePosition] ( #00, #F8 )
 
   loc_00CD9D:
     LDA #$2000
@@ -102,7 +102,7 @@ statue_inventory_reward [
     STA $26
     LDA #$00B4
     STA $0AAC
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     DEC $0AAC
     BEQ loc_00CE46
     JSL $@music_actors.IsMusicPlaying
@@ -114,7 +114,7 @@ statue_inventory_reward [
     STA $0AAC
     COP [WaitByte] ( #0F )
     COP [PlaySoundBoth] ( #$2525 )
-    COP [SetEntryExit]
+    COP [SetEntryHereAndYield]
     PHX 
     LDX $26
     LDA $orbitDiameter, X
@@ -126,9 +126,9 @@ statue_inventory_reward [
   loc_00CE35:
     LDA #$2000
     TRB $10
-    COP [LoopInit] ( #3C )
+    COP [LoopStart] ( #3C )
     COP [SpawnAfterFlags] ( @StatueRewardConfettiBurst, #$1802 )
-    COP [LoopNext]
+    COP [LoopEnd]
 
   loc_00CE46:
     LDA $0B12
@@ -153,7 +153,7 @@ statue_inventory_reward [
     STA $gfxCacheIdxB
     LDA #$0002
     STA $gfxCacheIdxA
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     RTL 
 } >
 ]
@@ -167,13 +167,13 @@ StatueRewardAlreadyClaimed {
     JSL $@sprite_composition.UpdateActorAnimation
     LDA #$2000
     TRB $10
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     RTL 
 }
 
 StatueRewardWrongTab {
     PLX 
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     RTL 
 }
 
@@ -196,7 +196,7 @@ StatueRewardOrbitalSparkle {
     STA $orbitAngle, X
 
   loc_00CEC7:
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     COP [AnimOneFrame]
     LDA $2A
     BEQ loc_00CEC7
@@ -204,7 +204,7 @@ StatueRewardOrbitalSparkle {
     INC 
     STA $26
     STZ $08
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     DEC $26
     BMI loc_00CEC7
     LDY $24

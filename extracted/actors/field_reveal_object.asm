@@ -131,7 +131,7 @@ FieldRevealCollectSpriteC {
     STA $16
 
   loc_00DB43:
-    COP [BranchIfSolid] ( &code_00DB21 )
+    COP [BranchIfSolidHere] ( &code_00DB21 )
 
   loc_00DB47:
     LDA $16
@@ -141,25 +141,25 @@ FieldRevealCollectSpriteC {
     LDA $24
     STA $16
     COP [MoveToward] ( #FF, #04 )
-    COP [StageForceMoveXY] ( #00, #45 )
+    COP [StageMoveXY] ( #00, #45 )
     COP [WaitByte] ( #0B )
-    COP [SpawnMarkedAfter] ( @interaction_handlers.collect_handler_gem, #$2300 )
+    COP [SpawnAfterMarked] ( @interaction_handlers.collect_handler_gem, #$2300 )
 
   loc_00DB69:
-    COP [LoopInit] ( #64 )
-    COP [SetEntryContinue]
+    COP [LoopStart] ( #64 )
+    COP [SetEntryHere]
     COP [AnimOneFrame]
-    COP [LoopNext]
+    COP [LoopEnd]
     LDA $28
     CMP #$0008
     BCS loc_00DB69
     CLC 
     ADC #$0005
     STA $28
-    COP [LoopInit] ( #0A )
-    COP [SetEntryContinue]
+    COP [LoopStart] ( #0A )
+    COP [SetEntryHere]
     COP [AnimOneFrame]
-    COP [LoopNext]
+    COP [LoopEnd]
 }
 
 FieldRevealDieEmpty {

@@ -11,22 +11,22 @@ ec0B_guard [
   actor-def < #1B, #00, #10, {
 
   code_04DC1C:
-    COP [BranchIfFlagByte] ( #42, #00, &code_04DC26 )
-    COP [ClearHighAbs] ( #09, #17 )
+    COP [BranchOnFlagByte] ( #42, #00, &code_04DC26 )
+    COP [ClearTypeAbs] ( #09, #17 )
 } >
 ]
 
 code_04DC26 {
-    COP [BranchIfFlagByte] ( #43, #00, &code_04DC30 )
-    COP [ClearHighAbs] ( #14, #17 )
+    COP [BranchOnFlagByte] ( #43, #00, &code_04DC30 )
+    COP [ClearTypeAbs] ( #14, #17 )
 }
 
 code_04DC30 {
     LDA #$0200
     TSB $12
-    COP [SetOnInteract] ( &code_04DC59 )
-    COP [SolidHighHere]
-    COP [SetEntryContinue]
+    COP [SetInteractHandler] ( &code_04DC59 )
+    COP [MarkSolidHere]
+    COP [SetEntryHere]
     COP [BranchIfPlayerInAbsTiles] ( #0D, #12, #11, #14, &code_04DC4F )
     LDY $playerActor
     LDA #$2000

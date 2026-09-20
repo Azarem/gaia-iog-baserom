@@ -36,7 +36,7 @@ dm43_elevator [
     CMP #$0030
     BCS loc_0AA5FE
     COP [SetTilePos] ( #04, #08 )
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     COP [BranchIfPlayerAt] ( #$0048, #$0080, &code_0AA5CE )
     RTL 
 } >
@@ -45,7 +45,7 @@ dm43_elevator [
 code_0AA5CE {
     LDA #$CFF0
     TSB $joypadMaskStd
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
 
   loc_0AA5D6:
     COP [StageSpriteMoveXY] ( #34, #03, #01 )
@@ -64,12 +64,12 @@ code_0AA5CE {
   loc_0AA5F5:
     LDA #$CFF0
     TRB $joypadMaskStd
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     RTL 
 
   loc_0AA5FE:
     COP [SetTilePos] ( #5C, #34 )
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     COP [BranchIfPlayerAt] ( #$05C8, #$0340, &code_0AA60D )
     RTL 
 }
@@ -77,7 +77,7 @@ code_0AA5CE {
 code_0AA60D {
     LDA #$CFF0
     TSB $joypadMaskStd
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
 
   loc_0AA615:
     COP [StageSpriteMoveXY] ( #34, #04, #02 )
@@ -96,7 +96,7 @@ code_0AA60D {
   loc_0AA634:
     LDA #$CFF0
     TRB $joypadMaskStd
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     RTL 
 }
 
@@ -107,10 +107,10 @@ code_0AA63D {
     COP [PlaySoundCh2] ( #0C )
 
   loc_0AA648:
-    COP [BranchIfButton] ( #$0801, &code_0AA661 )
-    COP [BranchIfButton] ( #$0401, &code_0AA666 )
-    COP [BranchIfButton] ( #$0201, &code_0AA66B )
-    COP [BranchIfButton] ( #$0101, &code_0AA670 )
+    COP [BranchIfPressed] ( #$0801, &code_0AA661 )
+    COP [BranchIfPressed] ( #$0401, &code_0AA666 )
+    COP [BranchIfPressed] ( #$0201, &code_0AA66B )
+    COP [BranchIfPressed] ( #$0101, &code_0AA670 )
     RTS 
 }
 
@@ -141,19 +141,19 @@ dm43_elevator_stop_y [
   actor-def < #34, #01, #13, {
 
   code_0AA67B:
-    COP [AddPosition] ( #05, #00 )
+    COP [NudgePosition] ( #05, #00 )
 
   loc_0AA67F:
-    COP [SetEntryContinue]
-    COP [StageForceMoveY] ( #01 )
+    COP [SetEntryHere]
+    COP [StageMoveY] ( #01 )
     LDA $16
     CMP $mapBoundsY
     BEQ loc_0AA68C
     RTL 
 
   loc_0AA68C:
-    COP [SetEntryContinue]
-    COP [StageForceMoveY] ( #02 )
+    COP [SetEntryHere]
+    COP [StageMoveY] ( #02 )
     LDA $16
     CMP #$0000
     BEQ loc_0AA67F
@@ -165,16 +165,16 @@ dm43_elevator_stop_x [
   actor-def < #34, #01, #13, {
 
   loc_0AA69C:
-    COP [SetEntryContinue]
-    COP [StageForceMoveX] ( #01 )
+    COP [SetEntryHere]
+    COP [StageMoveX] ( #01 )
     LDA $14
     CMP $mapBoundsX
     BEQ loc_0AA6A9
     RTL 
 
   loc_0AA6A9:
-    COP [SetEntryContinue]
-    COP [StageForceMoveX] ( #02 )
+    COP [SetEntryHere]
+    COP [StageMoveX] ( #02 )
     LDA $14
     CMP #$0000
     BEQ loc_0AA69C

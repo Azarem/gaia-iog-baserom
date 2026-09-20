@@ -12,7 +12,7 @@
 ---------------------------------------------
 
 CameraDriftLoopSimple {
-    COP [LoopInit] ( #78 ) ; CameraDriftLoopSimple: 120-frame loop applies RNG offset −1..+2 to cameraTargetY
+    COP [LoopStart] ( #78 ) ; CameraDriftLoopSimple: 120-frame loop applies RNG offset −1..+2 to cameraTargetY
     COP [RngByte]
     AND #$0003
     SEC 
@@ -25,14 +25,14 @@ CameraDriftLoopSimple {
     CLC 
     ADC $cameraDeltaY
     STA $cameraDeltaY
-    COP [LoopNext]
+    COP [LoopEnd]
     COP [Die]
 
   CameraDriftLoopShip:
     LDA #$1000            ; CameraDriftLoopShip: TSB $12 bit $1000; skip drift when playerFlags $0100 set
     TSB $12
     STZ $26
-    COP [LoopInit] ( #78 )
+    COP [LoopStart] ( #78 )
     LDA $playerFlags
     BIT #$0100
     BNE loc_00CFE0
@@ -53,8 +53,8 @@ CameraDriftLoopSimple {
     STA $cameraDeltaY
 
   loc_00CFE0:
-    COP [LoopNext]
-    COP [SetEntryExit]
+    COP [LoopEnd]
+    COP [SetEntryHereAndYield]
     LDA $cameraDeltaY
     SEC 
     SBC $26
@@ -66,7 +66,7 @@ CameraDriftLoopSimple {
     STA $28
     LDA #$0002
     STA $2A
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     PHB 
     PHK 
     PLB 

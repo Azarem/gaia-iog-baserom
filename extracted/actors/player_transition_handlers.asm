@@ -15,7 +15,7 @@
 ---------------------------------------------
 
 player_transition_handlers {
-    COP [SpawnLastRel] ( @PlayerItemRevealSpawn, #00, #00, #$0302 )
+    COP [SpawnListAppend] ( @PlayerItemRevealSpawn, #00, #00, #$0302 )
     COP [Die]
 }
 
@@ -27,7 +27,7 @@ PlayerItemRevealSpawn {
     COP [Die]
 
   PlayerIdleAnimLoop:
-    COP [BranchIfFlagByte] ( #00, #01, &PlayerIdleUseShadowSprite )
+    COP [BranchOnFlagByte] ( #00, #01, &PlayerIdleUseShadowSprite )
     COP [StagePlayerSprite] ( #01 )
     BRA PlayerIdleAnimContinue
 }
@@ -36,14 +36,14 @@ PlayerIdleUseShadowSprite {
     COP [StagePlayerSprite] ( #11 )
 
   PlayerIdleAnimContinue:
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     COP [AnimOnce]
     BRA PlayerIdleAnimContinue
 
   PlayerStaticBodyPose:
     LDA #$0200
     TSB $10
-    COP [SetPlayerBodySprite] ( #04 )
+    COP [SetPlayerSpriteDirect] ( #04 )
 
   PlayerStaticBodyAnimLoop:
     COP [StageSpriteFrame] ( #1F )
@@ -59,8 +59,8 @@ PlayerIdleUseShadowSprite {
 }
 
 PlayerFreedanRevealIdle {
-    COP [SetPlayerBodySprite] ( #04 )
-    COP [SetEntryContinue]
+    COP [SetPlayerSpriteDirect] ( #04 )
+    COP [SetEntryHere]
     COP [StageSpriteFrame] ( #20 )
     COP [AnimOnce]
     RTL 
@@ -71,7 +71,7 @@ PlayerIdleEntryJump {
 }
 
 PlayerFreedanRevealExit {
-    COP [SetPlayerBodySprite] ( #04 )
+    COP [SetPlayerSpriteDirect] ( #04 )
     COP [StageSpriteFrame] ( #20 )
     COP [AnimOnce]
     JML $@player_character.PlayerIdleEntry
@@ -89,13 +89,13 @@ PlayerFallFromHeight {
     LDA #$0200
     TSB $layerPriorityFlag
     COP [WaitByte] ( #03 )
-    COP [AddPosition] ( #00, #80 )
+    COP [NudgePosition] ( #00, #80 )
     LDA #$2000
     TRB $10
-    COP [LoopInit] ( #08 )
+    COP [LoopStart] ( #08 )
     COP [StagePlayerMoveY] ( #19, #07 )
     COP [AnimOnce]
-    COP [LoopNext]
+    COP [LoopEnd]
     COP [PlaySoundCh2] ( #2C )
     COP [StagePlayerMoveY] ( #1C, #00 )
     COP [AnimOnce]
@@ -116,22 +116,22 @@ PlayerSkyGardenJumpLanding {
     TRB $10
     LDA #$2200
     TSB $10
-    COP [AddPosition] ( #00, #C0 )
-    COP [SetEntryExit]
+    COP [NudgePosition] ( #00, #C0 )
+    COP [SetEntryHereAndYield]
     LDA #$0200
     TSB $layerPriorityFlag
     COP [WaitByte] ( #03 )
-    COP [AddPosition] ( #00, #40 )
+    COP [NudgePosition] ( #00, #40 )
     LDA #$2000
     TRB $10
-    COP [ToggleVFlip]
-    COP [AddPosition] ( #00, #E0 )
+    COP [ToggleVMirror]
+    COP [NudgePosition] ( #00, #E0 )
     COP [StagePlayerMoveY] ( #1A, #08 )
     COP [AnimOnce]
-    COP [LoopInit] ( #03 )
+    COP [LoopStart] ( #03 )
     COP [StagePlayerMoveY] ( #1B, #08 )
     COP [AnimOnce]
-    COP [LoopNext]
+    COP [LoopEnd]
     COP [StagePlayerMoveY] ( #1B, #04 )
     COP [AnimOnce]
     COP [StagePlayerMoveY] ( #1B, #04 )
@@ -140,8 +140,8 @@ PlayerSkyGardenJumpLanding {
     COP [AnimOnce]
     COP [StagePlayerMoveY] ( #1B, #02 )
     COP [AnimOnce]
-    COP [ToggleVFlip]
-    COP [AddPosition] ( #00, #20 )
+    COP [ToggleVMirror]
+    COP [NudgePosition] ( #00, #20 )
     COP [StagePlayerSprite] ( #1E )
     COP [AnimOnce]
     COP [StagePlayerMoveY] ( #1E, #01 )
@@ -168,7 +168,7 @@ PlayerAuraTransformEntry {
     TRB $10
     LDA #$0200
     TSB $10
-    COP [SetPlayerBodySprite] ( #08 )
+    COP [SetPlayerSpriteDirect] ( #08 )
     COP [StageSpriteFrame] ( #00 )
     COP [AnimOnce]
     LDA $14
@@ -180,7 +180,7 @@ PlayerAuraTransformEntry {
     STA $16
 
   PlayerAuraAlignToSolidSouth:
-    COP [BranchIfSolid] ( &PlayerAuraBlockedBySolid )
+    COP [BranchIfSolidHere] ( &PlayerAuraBlockedBySolid )
     LDA $16
     CLC 
     ADC #$0010
@@ -215,7 +215,7 @@ PlayerAuraDescendToFloor {
 
   PlayerAuraScanSolidNext:
     INC $16
-    COP [SetEntryExitNow] ( @PlayerAuraScanSolidRow )
+    COP [JumpNextFrame] ( @PlayerAuraScanSolidRow )
 }
 
 PlayerAuraLandOnSolid {

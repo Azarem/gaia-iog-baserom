@@ -24,7 +24,7 @@ pr8C_prologue1 [
   code_0BCA05:
     LDA #$0800
     STA $gfxCacheIdxB
-    COP [BranchIfFlagByte] ( #F4, #00, &code_0BCAAF )
+    COP [BranchOnFlagByte] ( #F4, #00, &code_0BCAAF )
     COP [SpawnAfterAbsFlags] ( @code_0BCAB1, #$016E, #$03E8, #$1800 )
     COP [WaitByte] ( #00 )
     COP [SpawnAfterAbsFlags] ( @code_0BCAB1, #$0166, #$041A, #$1800 )
@@ -58,7 +58,7 @@ pr8C_prologue1 [
     LDA #$&spritestring_0BD06D
     STA $0026, Y
     COP [SpawnThinker] ( @pr_thinkers.e_pr_thinker_0BD031 )
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     RTL 
 } >
 ]
@@ -70,7 +70,7 @@ code_0BCAAF {
 code_0BCAB1 {
     COP [StageSpriteMoveX] ( #8B, #11 )
     COP [AnimOnce]
-    COP [BranchIfFlagByte] ( #01, #00, &code_0BCAB1 )
+    COP [BranchOnFlagByte] ( #01, #00, &code_0BCAB1 )
     COP [Die]
 }
 
@@ -90,7 +90,7 @@ code_0BCABF {
     LDA #$0020
     STA $00B8
     STZ $00BC
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     LDA $cameraTargetX
     INC 
     AND #$03FF
@@ -104,7 +104,7 @@ code_0BCABF {
 
   loc_0BCB03:
     COP [SetFlagByte] ( #01 )
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     INC $00BC
     DEC $00B6
     LDA $00B6
@@ -127,7 +127,7 @@ code_0BCABF {
     COP [ClearFlagWord] ( #$017E )
     COP [ClearFlagWord] ( #$017F )
     COP [QueueMapChange] ( #8D, #$0000, #$0000, #00, #$4400 )
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     DEC $00B6
     INC $00BC
     RTL 

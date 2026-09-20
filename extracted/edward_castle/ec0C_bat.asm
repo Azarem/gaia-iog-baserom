@@ -17,7 +17,7 @@ ec0C_bat [
 
   code_0A875E:
     COP [WaitWhileOffscreen] ( #01 )
-    COP [SetEntryExit]
+    COP [SetEntryHereAndYield]
 
   code_0A8763:
     COP [RngByte]

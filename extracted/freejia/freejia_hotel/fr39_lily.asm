@@ -18,8 +18,8 @@ fr39_lily [
   actor-def < #22, #00, #10, {
 
   code_05C5B6:
-    COP [BranchIfFlagByte] ( #65, #01, &code_05C629 )
-    COP [BranchIfFlagByte] ( #58, #01, &code_05C629 )
+    COP [BranchOnFlagByte] ( #65, #01, &code_05C629 )
+    COP [BranchOnFlagByte] ( #58, #01, &code_05C629 )
     LDA #$CFF0
     TSB $joypadMaskStd
     COP [StageSpriteLoopMoveY] ( #26, #02, #11 )
@@ -30,14 +30,14 @@ fr39_lily [
     COP [AnimOnce]
     COP [StageSpriteLoop] ( #22, #1E )
     COP [AnimLoop]
-    COP [SolidHighHere]
+    COP [MarkSolidHere]
     COP [PrintDialogString] ( &dialogstring_05C654 )
     COP [SetFlagByte] ( #01 )
-    COP [SetOnInteract] ( &code_05C634 )
+    COP [SetInteractHandler] ( &code_05C634 )
     LDA #$0800
     TSB $10
-    COP [ExitIfFlagByte] ( #02, #01 )
-    COP [ClearLowHere]
+    COP [WaitOnFlagByte] ( #02, #01 )
+    COP [ClearSolidHere]
     COP [SetTilePos] ( #0D, #1C )
     COP [StageSpriteLoopMoveX] ( #29, #06, #11 )
     COP [AnimLoop]
@@ -45,7 +45,7 @@ fr39_lily [
     COP [AnimOnce]
     LDA #$0800
     TRB $10
-    COP [SetEntryExit]
+    COP [SetEntryHereAndYield]
     COP [StageSpriteLoop] ( #22, #1E )
     COP [AnimLoop]
     COP [PrintDialogString] ( &dialogstring_05C67C )
@@ -53,9 +53,9 @@ fr39_lily [
     TRB $joypadMaskStd
 
   loc_05C620:
-    COP [SolidHighHere]
-    COP [SetOnInteract] ( &code_05C639 )
-    COP [SetEntryContinue]
+    COP [MarkSolidHere]
+    COP [SetInteractHandler] ( &code_05C639 )
+    COP [SetEntryHere]
     RTL 
 } >
 ]
@@ -73,8 +73,8 @@ code_05C634 {
 }
 
 code_05C639 {
-    COP [BranchIfFlagByte] ( #68, #01, &code_05C64F )
-    COP [BranchIfFlagByte] ( #65, #01, &code_05C64A )
+    COP [BranchOnFlagByte] ( #68, #01, &code_05C64F )
+    COP [BranchOnFlagByte] ( #65, #01, &code_05C64A )
     COP [PrintDialogString] ( &dialogstring_05C70B )
     RTL 
 }

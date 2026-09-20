@@ -13,10 +13,10 @@ dc30_kara [
   actor-def < #15, #00, #10, {
 
   code_05AAA1:
-    COP [BranchIfFlagByte] ( #56, #00, &code_05AAB0 )
-    COP [SetOnInteract] ( &code_05AAB2 )
-    COP [SolidHighHere]
-    COP [SetEntryContinue]
+    COP [BranchOnFlagByte] ( #56, #00, &code_05AAB0 )
+    COP [SetInteractHandler] ( &code_05AAB2 )
+    COP [MarkSolidHere]
+    COP [SetEntryHere]
     RTL 
 } >
 ]
@@ -35,7 +35,7 @@ code_05AAB2 {
     STA $gfxCacheIdxB
     COP [StageWorldMapMove] ( #$0254, #$0354, #00, #09 )
     COP [QueueMapChange] ( #32, #$0130, #$0350, #00, #$4500 )
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     RTL 
 }
 

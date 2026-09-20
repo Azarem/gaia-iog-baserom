@@ -13,25 +13,25 @@ wa79_neil [
   actor-def < #14, #00, #10, {
 
   code_07A19F:
-    COP [BranchIfFlagByte] ( #94, #01, &code_07A1C8 )
-    COP [SolidHighHere]
-    COP [BranchIfFlagByte] ( #97, #01, &code_07A1C1 )
-    COP [BranchIfFlagByte] ( #96, #01, &code_07A1BA )
-    COP [SetOnInteract] ( &code_07A1CA )
-    COP [SetEntryContinue]
+    COP [BranchOnFlagByte] ( #94, #01, &code_07A1C8 )
+    COP [MarkSolidHere]
+    COP [BranchOnFlagByte] ( #97, #01, &code_07A1C1 )
+    COP [BranchOnFlagByte] ( #96, #01, &code_07A1BA )
+    COP [SetInteractHandler] ( &code_07A1CA )
+    COP [SetEntryHere]
     RTL 
 } >
 ]
 
 code_07A1BA {
-    COP [SetOnInteract] ( &code_07A1CF )
-    COP [SetEntryContinue]
+    COP [SetInteractHandler] ( &code_07A1CF )
+    COP [SetEntryHere]
     RTL 
 }
 
 code_07A1C1 {
-    COP [SetOnInteract] ( &code_07A1D4 )
-    COP [SetEntryContinue]
+    COP [SetInteractHandler] ( &code_07A1D4 )
+    COP [SetEntryHere]
     RTL 
 }
 
@@ -50,7 +50,7 @@ code_07A1CF {
 }
 
 code_07A1D4 {
-    COP [BranchIfFlagByte] ( #01, #01, &code_07A1DF )
+    COP [BranchOnFlagByte] ( #01, #01, &code_07A1DF )
     COP [PrintDialogString] ( &dialogstring_07A2BE )
     RTL 
 }

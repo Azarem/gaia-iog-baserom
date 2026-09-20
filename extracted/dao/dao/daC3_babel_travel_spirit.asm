@@ -18,13 +18,13 @@ daC3_babel_travel_spirit [
   code_0980C6:
     LDA #$0200
     TSB $12
-    COP [BranchIfFlagByte] ( #D2, #00, &code_0980E6 )
+    COP [BranchOnFlagByte] ( #D2, #00, &code_0980E6 )
     COP [SetMetasprite] ( @spriteset_npc_props )
     COP [StageSprAndHitbox] ( #04 )
-    COP [SolidHighHere]
-    COP [SetOnInteract] ( &code_0980E8 )
-    COP [SetEntryContinue]
-    COP [SetEntryContinue]
+    COP [MarkSolidHere]
+    COP [SetInteractHandler] ( &code_0980E8 )
+    COP [SetEntryHere]
+    COP [SetEntryHere]
     COP [AnimOnce]
     RTL 
 } >

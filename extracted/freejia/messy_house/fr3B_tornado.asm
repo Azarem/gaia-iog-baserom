@@ -11,9 +11,9 @@ fr3B_tornado [
   actor-def < #02, #00, #10, {
 
   code_05BBF2:
-    COP [SetOnInteract] ( &code_05BBFB )
-    COP [SolidHighHere]
-    COP [SetEntryContinue]
+    COP [SetInteractHandler] ( &code_05BBFB )
+    COP [MarkSolidHere]
+    COP [SetEntryHere]
     RTL 
 } >
 ]

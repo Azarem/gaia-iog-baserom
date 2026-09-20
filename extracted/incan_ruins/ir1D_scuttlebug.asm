@@ -16,7 +16,7 @@ ir1D_scuttlebug [
     COP [WaitWhileOffscreen] ( #10 )
 
   code_0A8EBF:
-    COP [SetEntryExit]
+    COP [SetEntryHereAndYield]
 
   code_0A8EC1:
     COP [DirToPlayer]
@@ -50,35 +50,35 @@ ir1D_scuttlebug [
     BRA loc_0A8F03
 
   loc_0A8EF2:
-    COP [LoopInit] ( #02 )
+    COP [LoopStart] ( #02 )
     COP [BranchIfSolidWest] ( &code_0A8EBF )
     COP [StageSpriteMoveX] ( #13, #12 )
     COP [AnimOnce]
-    COP [LoopNext]
+    COP [LoopEnd]
     BRA code_0A8EC1
 
   loc_0A8F03:
-    COP [LoopInit] ( #02 )
+    COP [LoopStart] ( #02 )
     COP [BranchIfSolidEast] ( &code_0A8EBF )
     COP [StageSpriteMoveX] ( #93, #11 )
     COP [AnimOnce]
-    COP [LoopNext]
+    COP [LoopEnd]
     BRA code_0A8EC1
 
   loc_0A8F14:
-    COP [LoopInit] ( #02 )
+    COP [LoopStart] ( #02 )
     COP [BranchIfSolidNorth] ( &code_0A8EBF )
     COP [StageSpriteMoveY] ( #12, #12 )
     COP [AnimOnce]
-    COP [LoopNext]
+    COP [LoopEnd]
     JMP $&code_0A8EC1
 
   loc_0A8F26:
-    COP [LoopInit] ( #02 )
+    COP [LoopStart] ( #02 )
     COP [BranchIfSolidSouth] ( &code_0A8EBF )
     COP [StageSpriteMoveY] ( #11, #11 )
     COP [AnimOnce]
-    COP [LoopNext]
+    COP [LoopEnd]
     JMP $&code_0A8EC1
 } >
 ]

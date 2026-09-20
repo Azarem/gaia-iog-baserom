@@ -20,7 +20,7 @@ sp5A_villagers [
   actor-def < #02, #00, #10, {
 
   code_068A5C:
-    COP [BranchIfFlagByte] ( #70, #00, &code_068A8E )
+    COP [BranchOnFlagByte] ( #70, #00, &code_068A8E )
     LDA #$0008
     TSB $playerFlags
     LDA $0E
@@ -31,12 +31,12 @@ sp5A_villagers [
     STA $currentHp, X
     JSL $@npc_wander_ai.SyncActorPosFromDP
     JSL $@ActorDisplayModeSwap
-    COP [SetOnInteract] ( &code_068A90 )
+    COP [SetInteractHandler] ( &code_068A90 )
 
   loc_068A82:
     JSL $@npc_wander_ai.NpcRandomWanderAI
-    COP [SetEntryExit]
-    COP [SetEntryContinue]
+    COP [SetEntryHereAndYield]
+    COP [SetEntryHere]
     COP [AnimOnce]
     BRA loc_068A82
 } >
@@ -120,7 +120,7 @@ code_068AE4 {
 }
 
 code_068AE9 {
-    COP [BranchIfFlagByte] ( #85, #01, &code_068B13 )
+    COP [BranchOnFlagByte] ( #85, #01, &code_068B13 )
     JSL $@music_actors.IsMusicPlaying
     BCS loc_068B0D
     COP [GiveItem] ( #10, &code_068B0E )

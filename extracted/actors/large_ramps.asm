@@ -20,7 +20,7 @@ large_ramp_booster [
     RTL 
 
   loc_00C96F:
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     COP [BranchIfPlayerNear] ( #02, &LargeRampBoostEastWest )
     RTL 
 } >
@@ -36,7 +36,7 @@ LargeRampBoostEastWest {
     DEC $playerSpeedEw
 
   loc_00C984:
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     COP [BranchIfPlayerNear] ( #03, &LargeRampBoostNorthSouth )
     BRA loc_00C966
 }

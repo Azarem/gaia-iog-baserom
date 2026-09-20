@@ -11,28 +11,28 @@ nvAE_stone_girl1 [
   actor-def < #36, #00, #10, {
 
   code_0892A5:
-    COP [SolidHighHere]
-    COP [BranchIfFlagByte] ( #BF, #01, &code_0892CE )
+    COP [MarkSolidHere]
+    COP [BranchOnFlagByte] ( #BF, #01, &code_0892CE )
     LDA #$0200
     TSB $12
-    COP [SetOnInteract] ( &code_0892DA )
-    COP [ExitIfFlagByte] ( #BF, #01 )
-    COP [LoopInit] ( #1E )
+    COP [SetInteractHandler] ( &code_0892DA )
+    COP [WaitOnFlagByte] ( #BF, #01 )
+    COP [LoopStart] ( #1E )
     COP [StageSpriteFrame] ( #36 )
     COP [AnimOnce]
     COP [StageSpriteFrame] ( #32 )
     COP [AnimOnce]
-    COP [LoopNext]
+    COP [LoopEnd]
     LDA #$0200
     TRB $12
 } >
 ]
 
 code_0892CE {
-    COP [SetOnInteract] ( &code_0892DF )
+    COP [SetInteractHandler] ( &code_0892DF )
     COP [StageSpriteFrame] ( #32 )
     COP [AnimOnce]
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     RTL 
 }
 

@@ -377,7 +377,7 @@ SpcCheckMusicReady {
     LDA #$F1              ; Send $F1 handshake to SPC via APUIO0
     STA $APUIO0
     REP #$20
-    COP [SetEntryExit]    ; Yield — wait one frame for SPC to process
+    COP [SetEntryHereAndYield] ; Yield — wait one frame for SPC to process
     LDA $APUIO0
     AND #$00FF
     CMP #$00F1            ; Check for $F1 echo — SPC acknowledged?
@@ -389,7 +389,7 @@ SpcCheckMusicReady {
     LDA #$01
     STA $APUIO0           ; SPC ready — send $01 transfer request
     REP #$20
-    COP [SetEntryExit]
+    COP [SetEntryHereAndYield]
     SEP #$20
     LDA $APUIO0
     REP #$20
@@ -411,7 +411,7 @@ SpcTransferMusicData {
     LDA #$F0              ; Send $F0 transfer-start signal to SPC
     STA $APUIO0
     REP #$20
-    COP [SetEntryExit]
+    COP [SetEntryHereAndYield]
     SEP #$20
     LDA $APUIO0
     REP #$20
@@ -419,14 +419,14 @@ SpcTransferMusicData {
     RTL 
 
   loc_03E1EB:
-    COP [SetEntryExit]
+    COP [SetEntryHereAndYield]
     SEP #$20
     LDA #$FF              ; Send $FF ready-for-data signal
     STA $APUIO0
     REP #$20
     LDA $chatPtr, X       ; Load music data pointer from chatPtr → musicTransitionState
     STA $musicTransitionState
-    COP [SetEntryExit]
+    COP [SetEntryHereAndYield]
     LDA $musicTransitionState
     CMP #$FFFF            ; Wait for musicTransitionState = $FFFF (NMI completed transfer)
     BEQ loc_03E208
@@ -438,7 +438,7 @@ SpcTransferMusicData {
     LDA #$01
     STA $APUIO0
     REP #$20
-    COP [SetEntryExit]
+    COP [SetEntryHereAndYield]
     STZ $sfxQueueCh1      ; Clear SFX queue and musicTransitionState, then die
     STZ $musicTransitionState
     COP [Die]

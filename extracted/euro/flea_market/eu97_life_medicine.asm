@@ -13,16 +13,16 @@ eu97_life_medicine [
   actor-def < #00, #00, #30, {
 
   code_07CCF6:
-    COP [AddPosition] ( #08, #00 )
-    COP [SpawnMarkedAfterRel] ( @code_07CDD4, #00, #EC, #$1000 )
-    COP [SetOnInteract] ( &code_07CD0A )
-    COP [SetEntryContinue]
+    COP [NudgePosition] ( #08, #00 )
+    COP [SpawnAfterOffsetMarked] ( @code_07CDD4, #00, #EC, #$1000 )
+    COP [SetInteractHandler] ( &code_07CD0A )
+    COP [SetEntryHere]
     RTL 
 } >
 ]
 
 code_07CD0A {
-    COP [BranchIfFlagByte] ( #F0, #01, &code_07CD34 )
+    COP [BranchOnFlagByte] ( #F0, #01, &code_07CD34 )
     COP [PrintDialogString] ( &dialogstring_07CD39 )
     COP [DialogueOptions] ( #02, #02, &code_list_07CD1A )
 }

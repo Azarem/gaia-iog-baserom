@@ -13,11 +13,11 @@ sp5B_erik [
   actor-def < #0C, #00, #10, {
 
   code_068879:
-    COP [BranchIfFlagByte] ( #70, #01, &code_0688AF )
+    COP [BranchOnFlagByte] ( #70, #01, &code_0688AF )
     COP [SpawnAfterAbsFlags] ( @ToggleActorVisibilityFlag, #$0000, #$0000, #$2800 )
     LDA #$0200
     TSB $12
-    COP [SetOnInteract] ( &code_0688B1 )
+    COP [SetInteractHandler] ( &code_0688B1 )
 
   loc_068893:
     COP [StageSpriteLoopMoveX] ( #10, #04, #12 )

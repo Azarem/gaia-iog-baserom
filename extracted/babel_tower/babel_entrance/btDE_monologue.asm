@@ -22,11 +22,11 @@ btDE_monologue [
     BEQ loc_0998C6
     CMP #$00DF
     BEQ loc_0998E4
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     RTL 
 
   loc_0998C6:
-    COP [BranchIfFlagByte] ( #D2, #01, &code_0998E2 )
+    COP [BranchOnFlagByte] ( #D2, #01, &code_0998E2 )
     COP [SetFlagByte] ( #D2 )
     LDA #$CFF0
     TSB $joypadMaskStd
@@ -41,8 +41,8 @@ code_0998E2 {
     COP [Die]
 
   loc_0998E4:
-    COP [BranchIfFlagByte] ( #D3, #01, &code_099912 )
-    COP [SetEntryContinue]
+    COP [BranchOnFlagByte] ( #D3, #01, &code_099912 )
+    COP [SetEntryHere]
     COP [BranchIfPlayerInAbsTiles] ( #3F, #19, #40, #1D, &code_0998F5 )
     RTL 
 }

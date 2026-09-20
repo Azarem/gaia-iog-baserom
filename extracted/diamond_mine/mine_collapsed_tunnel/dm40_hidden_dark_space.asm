@@ -15,8 +15,8 @@ dm40_hidden_dark_space [
   actor-def < #24, #00, #20, {
 
   code_05D621:
-    COP [BranchIfFlagWord] ( #$0132, #01, &code_05D62D )
-    COP [ExitIfFlagWord] ( #$0132, #01 )
+    COP [BranchOnFlagWord] ( #$0132, #01, &code_05D62D )
+    COP [WaitOnFlagWord] ( #$0132, #01 )
 } >
 ]
 

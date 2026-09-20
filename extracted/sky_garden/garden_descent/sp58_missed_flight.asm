@@ -24,9 +24,9 @@ sp58_missed_flight [
   code_068020:
     COP [StageSpriteMoveX] ( #03, #01 )
     COP [AnimOnce]
-    COP [BranchIfFlagByte] ( #01, #00, &code_068020 )
+    COP [BranchOnFlagByte] ( #01, #00, &code_068020 )
     COP [SetFlagByte] ( #02 )
-    COP [ExitIfFlagByte] ( #02, #00 )
+    COP [WaitOnFlagByte] ( #02, #00 )
     LDA #$01C0
     STA $14
 
@@ -43,7 +43,7 @@ sp58_missed_flight [
 code_068042 {
     COP [WaitByte] ( #1D )
     COP [PrintDialogString] ( &dialogstring_06805C )
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     LDY $04
     LDA $0014, Y
     CMP #$0120
@@ -52,7 +52,7 @@ code_068042 {
 
   loc_068056:
     COP [SetFlagByte] ( #01 )
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     RTL 
 }
 

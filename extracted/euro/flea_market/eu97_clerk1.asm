@@ -13,10 +13,10 @@ eu97_clerk1 [
   actor-def < #04, #00, #10, {
 
   code_07CB98:
-    COP [SolidHighHere]
-    COP [SetOnInteract] ( &code_07CBDE )
+    COP [MarkSolidHere]
+    COP [SetInteractHandler] ( &code_07CBDE )
     COP [BranchIfPlayerAt] ( #$0170, #$00D0, &code_07CBA9 )
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     RTL 
 } >
 ]
@@ -34,7 +34,7 @@ code_07CBA9 {
     COP [AnimOnce]
     COP [StageSpriteFrame] ( #02 )
     COP [AnimOnce]
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     RTL 
 }
 

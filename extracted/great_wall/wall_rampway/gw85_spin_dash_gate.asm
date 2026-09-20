@@ -15,7 +15,7 @@ gw85_spin_dash_gate [
   actor-def < #00, #00, #30, {
 
   code_07E904:
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     COP [BranchIfPlayerAt] ( #$0458, #$00D0, &code_07E90F )
     RTL 
 } >

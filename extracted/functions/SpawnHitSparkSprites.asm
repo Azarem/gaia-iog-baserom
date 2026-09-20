@@ -8,16 +8,16 @@
 ---------------------------------------------
 
 SpawnHitSparkSprites {
-    COP [LoopInit] ( #08 )
+    COP [LoopStart] ( #08 )
     JSR $&AppendHitSparkOamEntry
-    COP [LoopNext]
-    COP [LoopInit] ( #10 )
+    COP [LoopEnd]
+    COP [LoopStart] ( #10 )
     LDA $16
     CLC 
     ADC #$FFFF
     STA $16
     JSR $&AppendHitSparkOamEntry
-    COP [LoopNext]
+    COP [LoopEnd]
     COP [Die]
 }
 

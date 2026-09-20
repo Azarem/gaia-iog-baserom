@@ -13,7 +13,7 @@ palace_scroll_brightness [
   thinker-def < #04, #08, {
 
   code_00B79F:
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     LDA $cameraTargetY
     CLC 
     ADC #$0080

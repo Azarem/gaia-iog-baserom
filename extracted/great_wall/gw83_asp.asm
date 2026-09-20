@@ -46,7 +46,7 @@ gw83_asp [
     COP [AnimOnce]
     COP [BranchIfPlayerNear] ( #05, &code_0B9547 )
     INC $24
-    COP [SetEntryExitNow] ( @code_0B942B )
+    COP [JumpNextFrame] ( @code_0B942B )
 
   loc_0B9456:
     STZ $24
@@ -62,7 +62,7 @@ gw83_asp [
     COP [AnimOnce]
     COP [BranchIfPlayerNear] ( #05, &code_0B950A )
     INC $24
-    COP [SetEntryExitNow] ( @code_0B942B )
+    COP [JumpNextFrame] ( @code_0B942B )
 
   loc_0B9477:
     STZ $24
@@ -74,7 +74,7 @@ gw83_asp [
     COP [RngByte]
     AND #$0007
     STA $08
-    COP [SetEntryExit]
+    COP [SetEntryHereAndYield]
     JSR $&code_0B9638
     BPL loc_0B9492
     EOR #$FFFF
@@ -110,7 +110,7 @@ code_0B94BD {
     COP [RngByte]
     AND #$0007
     STA $08
-    COP [SetEntryExit]
+    COP [SetEntryHereAndYield]
     JSR $&code_0B9638
     BPL loc_0B94D9
     EOR #$FFFF
@@ -144,13 +144,13 @@ code_0B950A {
     COP [RngByte]
     AND #$0003
     STA $08
-    COP [SetEntryExit]
+    COP [SetEntryHereAndYield]
     COP [StageSpriteFrame] ( #14 )
     COP [AnimOnce]
     COP [PlaySoundCh1] ( #1D )
     COP [StageSpriteFrame] ( #17 )
     COP [AnimOnce]
-    COP [SpawnMarkedAfter] ( @code_0B96B1, #$2000 )
+    COP [SpawnAfterMarked] ( @code_0B96B1, #$2000 )
     LDA #$4000
     TSB $12
     LDA #$0008
@@ -169,13 +169,13 @@ code_0B9547 {
     COP [RngByte]
     AND #$0003
     STA $08
-    COP [SetEntryExit]
+    COP [SetEntryHereAndYield]
     COP [StageSpriteFrame] ( #94 )
     COP [AnimOnce]
     COP [PlaySoundCh1] ( #1D )
     COP [StageSpriteFrame] ( #97 )
     COP [AnimOnce]
-    COP [SpawnMarkedAfter] ( @code_0B964E, #$2000 )
+    COP [SpawnAfterMarked] ( @code_0B964E, #$2000 )
     LDA #$0008
     TSB $10
     COP [StageSpriteMoveXY] ( #9B, #48, #49 )
@@ -189,7 +189,7 @@ code_0B9547 {
 code_0B957A {
     COP [StageSpriteFrame] ( #16 )
     COP [AnimOnce]
-    COP [SpawnMarkedAfter] ( @code_0B96B1, #$2000 )
+    COP [SpawnAfterMarked] ( @code_0B96B1, #$2000 )
     LDA #$4000
     TSB $12
     COP [StageSpriteMoveXY] ( #1B, #48, #49 )
@@ -203,7 +203,7 @@ code_0B957A {
 code_0B959C {
     COP [StageSpriteFrame] ( #96 )
     COP [AnimOnce]
-    COP [SpawnMarkedAfter] ( @code_0B964E, #$2000 )
+    COP [SpawnAfterMarked] ( @code_0B964E, #$2000 )
     LDA #$0008
     TSB $10
     COP [StageSpriteMoveXY] ( #9B, #48, #49 )
@@ -248,11 +248,11 @@ code_0B95D0 {
     TRB $10
 
   code_0B9606:
-    COP [SetEntryExit]
+    COP [SetEntryHereAndYield]
 
   loc_0B9608:
-    COP [BranchIfOffscreen] ( &code_0B9606 )
-    COP [BranchIfSolid] ( &code_0B9613 )
+    COP [BranchIfOffCamera] ( &code_0B9606 )
+    COP [BranchIfSolidHere] ( &code_0B9613 )
     JMP $&code_0B942B
 }
 
@@ -275,7 +275,7 @@ code_0B9613 {
 code_0B962D {
     LDA #$8000
     TRB $joypadMaskStd
-    COP [JumpScript] ( @StandardEnemyDefeatHandler )
+    COP [JumpFar] ( @StandardEnemyDefeatHandler )
 }
 
 code_0B9638 {
@@ -296,7 +296,7 @@ code_0B964E {
     LDA $0010, Y
     BIT #$0040
     BEQ loc_0B965C
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     RTL 
 
   loc_0B965C:
@@ -357,7 +357,7 @@ code_0B96B1 {
     LDA $0010, Y
     BIT #$0040
     BEQ loc_0B96BF
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     RTL 
 
   loc_0B96BF:
@@ -437,7 +437,7 @@ code_0B96B1 {
     PLX 
     STZ $2A
     STZ $28
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     LDY $playerActor
     LDA $0010, Y
     BIT #$2040
@@ -511,7 +511,7 @@ code_0B96B1 {
 
   loc_0B97CC:
     PLX 
-    COP [SetEntryExit]
+    COP [SetEntryHereAndYield]
 }
 
 code_0B97CF {

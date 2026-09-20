@@ -22,8 +22,8 @@ btDF_kara [
   actor-def < #1A, #00, #30, {
 
   code_099E8F:
-    COP [BranchIfFlagByte] ( #D4, #01, &code_099EA0 )
-    COP [SetEntryContinue]
+    COP [BranchOnFlagByte] ( #D4, #01, &code_099EA0 )
+    COP [SetEntryHere]
     COP [BranchIfPlayerInAbsTiles] ( #70, #09, #72, #0D, &code_099EA2 )
     RTL 
 } >
@@ -73,8 +73,8 @@ code_099EA2 {
     TYX 
     TAY 
     COP [SetFlagByte] ( #D4 )
-    COP [SetEntryContinue]
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
+    COP [SetEntryHere]
     COP [AnimOnce]
     RTL 
 }

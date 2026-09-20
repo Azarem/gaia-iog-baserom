@@ -49,9 +49,9 @@ sFB_boot_logo [
 
   loc_0BC8EA:
     REP #$20
-    COP [AddPosition] ( #08, #00 ) ; Nudge X +8px for sprite centering
-    COP [BranchIfFlagByte] ( #10, #01, &BootLogoSecondPhase ) ; Flag #10 set? → second logo phase
-    COP [AddPosition] ( #00, #F0 ) ; Nudge Y −16px ($F0 signed)
+    COP [NudgePosition] ( #08, #00 ) ; Nudge X +8px for sprite centering
+    COP [BranchOnFlagByte] ( #10, #01, &BootLogoSecondPhase ) ; Flag #10 set? → second logo phase
+    COP [NudgePosition] ( #00, #F0 ) ; Nudge Y −16px ($F0 signed)
     COP [StageSpriteLoop] ( #01, #02 ) ; First logo: sprite loop #01, 2 ticks
     COP [AnimLoop]
     COP [SetFlagByte] ( #10 ) ; Mark first logo as shown
@@ -85,6 +85,6 @@ BootLogoPalTextFallback {
     LDA #$04              ; BG3 only — text layer for PAL boot
     STA $TM
     REP #$20
-    COP [SetEntryContinue] ; Loop indefinitely (PAL has no logo exit)
+    COP [SetEntryHere]    ; Loop indefinitely (PAL has no logo exit)
     RTL 
 }

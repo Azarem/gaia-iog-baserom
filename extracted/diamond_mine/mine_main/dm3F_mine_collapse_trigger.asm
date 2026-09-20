@@ -14,8 +14,8 @@ dm3F_mine_collapse_trigger [
   actor-def < #00, #00, #30, {
 
   code_05D069:
-    COP [BranchIfFlagWord] ( #$0121, #01, &code_05D08B )
-    COP [SetEntryContinue]
+    COP [BranchOnFlagWord] ( #$0121, #01, &code_05D08B )
+    COP [SetEntryHere]
     LDA $0A01
     AND #$00FF
     CMP #$0004

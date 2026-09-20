@@ -20,7 +20,7 @@ unused_debug_input_test [
     STA $28
 
   loc_09BAF0:
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     COP [AnimOneFrame]
     LDA $joypadCurrent
     BIT #$0080
@@ -39,7 +39,7 @@ unused_debug_input_test [
     STZ $2A
     LDA #$0080
     TSB $joypadHeld
-    COP [SetEntryExit]
+    COP [SetEntryHereAndYield]
     BRA loc_09BAF0
 
   loc_09BB16:

@@ -17,8 +17,8 @@ mu62_hope_statue [
 
   code_0698A5:
     COP [SetFlagByte] ( #78 )
-    COP [SetOnInteract] ( &code_0698B2 )
-    COP [ExitIfFlagByte] ( #79, #01 )
+    COP [SetInteractHandler] ( &code_0698B2 )
+    COP [WaitOnFlagByte] ( #79, #01 )
     COP [Die]
 } >
 ]
@@ -49,8 +49,8 @@ mu62_hope_statue2 [
   actor-def < #00, #00, #30, {
 
   code_069950:
-    COP [SetOnInteract] ( &code_06995A )
-    COP [ExitIfFlagByte] ( #7F, #01 )
+    COP [SetInteractHandler] ( &code_06995A )
+    COP [WaitOnFlagByte] ( #7F, #01 )
     COP [Die]
 } >
 ]

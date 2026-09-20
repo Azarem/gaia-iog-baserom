@@ -11,9 +11,9 @@ fr32_fragrance [
   actor-def < #13, #00, #10, {
 
   code_05BA0F:
-    COP [SolidHighHere]
-    COP [SetOnInteract] ( &code_05BA18 )
-    COP [SetEntryContinue]
+    COP [MarkSolidHere]
+    COP [SetInteractHandler] ( &code_05BA18 )
+    COP [SetEntryHere]
     RTL 
 } >
 ]

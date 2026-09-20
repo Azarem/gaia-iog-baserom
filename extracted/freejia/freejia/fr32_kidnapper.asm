@@ -19,10 +19,10 @@ fr32_kidnapper [
   actor-def < #1A, #00, #10, {
 
   code_05B371:
-    COP [BranchIfFlagByte] ( #67, #01, &code_05B39F )
-    COP [SolidHighAbs] ( #04, #0D )
+    COP [BranchOnFlagByte] ( #67, #01, &code_05B39F )
+    COP [MarkSolidAbs] ( #04, #0D )
     COP [SetSpritePriority] ( #10 )
-    COP [AddPosition] ( #08, #02 )
+    COP [NudgePosition] ( #08, #02 )
     COP [WaitWhileOffscreen] ( #08 )
     COP [BranchIfPlayerInAbsTiles] ( #05, #0E, #0B, #12, &code_05B38E )
     RTL 
@@ -44,12 +44,12 @@ code_05B3A1 {
     TSB $12
     COP [SetMetasprite] ( @spriteset_npc_props )
     COP [SetSpritePriority] ( #20 )
-    COP [SetOnInteract] ( &code_05B40B )
+    COP [SetInteractHandler] ( &code_05B40B )
     COP [PlaySoundCh2] ( #0E )
     COP [StageSpriteFrame] ( #01 )
     COP [AnimOnce]
-    COP [SolidHighHere]
-    COP [ExitIfFlagByte] ( #67, #01 )
+    COP [MarkSolidHere]
+    COP [WaitOnFlagByte] ( #67, #01 )
     PHX 
     LDX #$0000
 
@@ -72,20 +72,20 @@ code_05B3A1 {
     TRB $10
     LDA #$0100
     TSB $10
-    COP [OrActorFlags] ( #$0008 )
-    COP [SetEntryContinue]
+    COP [OrExtraFlags] ( #$0008 )
+    COP [SetEntryHere]
     COP [BranchIfPlayerInAbsTiles] ( #07, #0E, #08, #12, &code_05B404 )
     RTL 
 }
 
 code_05B404 {
     COP [PrintDialogString] ( &dialogstring_05B55F )
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     RTL 
 }
 
 code_05B40B {
-    COP [BranchIfFlagByte] ( #66, #01, &code_05B416 )
+    COP [BranchOnFlagByte] ( #66, #01, &code_05B416 )
     COP [PrintDialogString] ( &dialogstring_05B42E )
     RTL 
 }
@@ -93,10 +93,10 @@ code_05B40B {
 code_05B416 {
     COP [PrintDialogString] ( &dialogstring_05B45E )
     COP [SetFlagByte] ( #67 )
-    COP [SolidHighAbs] ( #08, #0E )
-    COP [SolidHighAbs] ( #08, #0F )
-    COP [SolidHighAbs] ( #08, #10 )
-    COP [SolidHighAbs] ( #08, #11 )
+    COP [MarkSolidAbs] ( #08, #0E )
+    COP [MarkSolidAbs] ( #08, #0F )
+    COP [MarkSolidAbs] ( #08, #10 )
+    COP [MarkSolidAbs] ( #08, #11 )
     RTL 
 }
 

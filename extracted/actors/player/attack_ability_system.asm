@@ -114,7 +114,7 @@ AttackSystemEntry {
   code_02B7BD:
     LDA #$0001            ; Clear attack-in-progress bit ($0001) each frame before re-evaluation
     TRB $playerFlags
-    COP [SetEntryContinue] ; COP re-entry point — companion actor resumes here each frame to poll for attacks
+    COP [SetEntryHere]    ; COP re-entry point — companion actor resumes here each frame to poll for attacks
     LDA $playerFlags
     BIT #$2A00            ; Bits 9+11+13 ($2A00) = hurt, knockback, or dialogue transition active — blocks attacking
     BEQ loc_02B7CE
@@ -127,7 +127,7 @@ AttackSystemEntry {
     RTL 
 
   loc_02B7D7:
-    COP [BranchIfButton] ( #$8001, &WillAttackDispatch ) ; Listen for attack button ($8001 = B + secondary bit); branch to dispatch on press
+    COP [BranchIfPressed] ( #$8001, &WillAttackDispatch ) ; Listen for attack button ($8001 = B + secondary bit); branch to dispatch on press
     RTL 
 }
 
@@ -147,17 +147,17 @@ WillAttackDispatch {
     RTL 
 
   loc_02B7FB:
-    COP [LoopInit] ( #28 ) ; Begin 40-frame ($28 hex) button-hold detection loop — must hold to commit
-    COP [BranchIfNoButton] ( #$8001, &code_02B7BD ) ; Attack released during hold period → cancel back to idle (code_02B7BD)
-    COP [LoopNext]        ; Hold period complete — player committed to charged attack
+    COP [LoopStart] ( #28 ) ; Begin 40-frame ($28 hex) button-hold detection loop — must hold to commit
+    COP [BranchIfNotPressed] ( #$8001, &code_02B7BD ) ; Attack released during hold period → cancel back to idle (code_02B7BD)
+    COP [LoopEnd]         ; Hold period complete — player committed to charged attack
     JSR $&SavePlayerPosition ; Snapshot player position for palette FX actor reference point
-    COP [SpawnLastRel] ( @WillAttackPaletteFX, #00, #00, #$2C00 ) ; Spawn Will's charge-up palette FX actor (cycles palettes #2A → #2B)
+    COP [SpawnListAppend] ( @WillAttackPaletteFX, #00, #00, #$2C00 ) ; Spawn Will's charge-up palette FX actor (cycles palettes #2A → #2B)
     STY $22               ; Store spawned FX actor ID in DP $22 — AttackCleanup will kill it later
     LDA #$0078            ; Set extended charge timer to 120 frames ($0078)
     STA $24
-    COP [SetEntryContinue] ; COP re-entry for per-frame charge loop
+    COP [SetEntryHere]    ; COP re-entry for per-frame charge loop
     JSR $&ValidateAttackContinue ; Per-frame abort check: hurt, knockback, transition interrupts the charge
-    COP [BranchIfNoButton] ( #$8001, &AttackCleanup ) ; Attack released during charge → clean up and return to idle
+    COP [BranchIfNotPressed] ( #$8001, &AttackCleanup ) ; Attack released during charge → clean up and return to idle
     DEC $24               ; Decrement charge timer each frame
     BMI loc_02B829        ; Timer expired (negative) → proceed to ability selection phase
     RTL 
@@ -166,21 +166,21 @@ WillAttackDispatch {
     LDA $abilityBitmask   ; Check if Psycho Slider ability (bit 2, $0004) is unlocked
     BIT #$0004
     BNE loc_02B83D        ; Psycho Slider unlocked → enter extended charge with L/R selection
-    COP [SetEntryContinue] ; Without Psycho Slider: simple hold loop — release fires Psycho Dash
+    COP [SetEntryHere]    ; Without Psycho Slider: simple hold loop — release fires Psycho Dash
     JSR $&ValidateAttackContinue
-    COP [BranchIfNoButton] ( #$8001, &LaunchPsychoDash ) ; Attack released → launch Psycho Dash (default Will charged ability)
+    COP [BranchIfNotPressed] ( #$8001, &LaunchPsychoDash ) ; Attack released → launch Psycho Dash (default Will charged ability)
     RTL 
 
   loc_02B83D:
-    COP [SetEntryContinue] ; With Psycho Slider: extended charge with chargeable gate check
+    COP [SetEntryHere]    ; With Psycho Slider: extended charge with chargeable gate check
     JSR $&ValidateAttackContinue
-    COP [BranchIfNoButton] ( #$8001, &LaunchPsychoDash ) ; Attack released → launch Psycho Dash (still the default on release)
+    COP [BranchIfNotPressed] ( #$8001, &LaunchPsychoDash ) ; Attack released → launch Psycho Dash (still the default on release)
     JSR $&CheckAttackChargeable ; Gate check: can the player continue charging? (not in hitstun/death/mid-combo)
     BCC loc_02B84E        ; Not chargeable (carry clear) → fall through to L/R shoulder check
     RTL 
 
   loc_02B84E:
-    COP [BranchIfButton] ( #$0030, &LaunchPsychoSlider ) ; L/R shoulder ($0030) pressed → launch Psycho Slider (alternate ability)
+    COP [BranchIfPressed] ( #$0030, &LaunchPsychoSlider ) ; L/R shoulder ($0030) pressed → launch Psycho Slider (alternate ability)
     RTL 
 }
 
@@ -205,18 +205,18 @@ FreedanAttackDispatch {
     RTL 
 
   loc_02B876:
-    COP [LoopInit] ( #28 ) ; Begin 40-frame ($28 hex) button-hold period — same duration as Will
-    COP [BranchIfNoButton] ( #$8001, &code_02B7BD ) ; Released during hold → cancel back to idle
-    COP [LoopNext]
+    COP [LoopStart] ( #28 ) ; Begin 40-frame ($28 hex) button-hold period — same duration as Will
+    COP [BranchIfNotPressed] ( #$8001, &code_02B7BD ) ; Released during hold → cancel back to idle
+    COP [LoopEnd]
     JSR $&SavePlayerPosition ; Snapshot player position for Freedan palette FX reference
-    COP [SpawnLastRel] ( @FreedanAttackPaletteFX, #00, #00, #$2C00 ) ; Spawn Freedan's charge-up palette FX actor (cycles palettes #4B → #2C)
+    COP [SpawnListAppend] ( @FreedanAttackPaletteFX, #00, #00, #$2C00 ) ; Spawn Freedan's charge-up palette FX actor (cycles palettes #4B → #2C)
     STY $22               ; Store spawned FX actor ID in DP $22 for cleanup
     LDA #$0064            ; Set extended charge timer to 100 frames ($0064) — shorter than Will's 120
     STA $24
-    COP [SetEntryContinue] ; COP re-entry for Freedan per-frame charge loop
+    COP [SetEntryHere]    ; COP re-entry for Freedan per-frame charge loop
     JSR $&ValidateAttackContinue
-    COP [BranchIfNoButton] ( #$8001, &AttackCleanup ) ; Attack released during charge → abort to cleanup
-    COP [BranchIfButton] ( #$40B0, &AttackCleanup ) ; Y/A/L/R ($40B0) pressed during charge → abort (prevents accidental input)
+    COP [BranchIfNotPressed] ( #$8001, &AttackCleanup ) ; Attack released during charge → abort to cleanup
+    COP [BranchIfPressed] ( #$40B0, &AttackCleanup ) ; Y/A/L/R ($40B0) pressed during charge → abort (prevents accidental input)
     DEC $24               ; Decrement Freedan charge timer each frame
     BMI loc_02B8AA
     RTL 
@@ -225,17 +225,17 @@ FreedanAttackDispatch {
     LDA $abilityBitmask   ; Timer expired — check if Aura Barrier (bit 5, $0020) is unlocked
     BIT #$0020
     BNE loc_02B8BE
-    COP [SetEntryContinue] ; Without Aura Barrier: simple wait-for-release loop
+    COP [SetEntryHere]    ; Without Aura Barrier: simple wait-for-release loop
     JSR $&ValidateAttackContinue
-    COP [BranchIfNoButton] ( #$8001, &LaunchDarkFriar ) ; Release → launch Dark Friar (only available Freedan ability)
+    COP [BranchIfNotPressed] ( #$8001, &LaunchDarkFriar ) ; Release → launch Dark Friar (only available Freedan ability)
     RTL 
 
   loc_02B8BE:
-    COP [SetEntryContinue] ; With Aura Barrier: extended selection with D-pad guard and L/R trigger
+    COP [SetEntryHere]    ; With Aura Barrier: extended selection with D-pad guard and L/R trigger
     JSR $&ValidateAttackContinue
-    COP [BranchIfNoButton] ( #$8001, &LaunchDarkFriar ) ; Release → launch Dark Friar (still the default ability on release)
-    COP [BranchIfButton] ( #$0F00, &AttackChargeReturn ) ; D-pad ($0F00) during charge → return without action (prevents Aura trigger while moving)
-    COP [BranchIfButton] ( #$0030, &LaunchAuraBarrier ) ; L/R shoulder ($0030) → launch Aura Barrier (alternate Freedan ability)
+    COP [BranchIfNotPressed] ( #$8001, &LaunchDarkFriar ) ; Release → launch Dark Friar (still the default ability on release)
+    COP [BranchIfPressed] ( #$0F00, &AttackChargeReturn ) ; D-pad ($0F00) during charge → return without action (prevents Aura trigger while moving)
+    COP [BranchIfPressed] ( #$0030, &LaunchAuraBarrier ) ; L/R shoulder ($0030) → launch Aura Barrier (alternate Freedan ability)
 }
 
 AttackChargeReturn {
@@ -282,12 +282,12 @@ AttackCleanup {
     BNE loc_02B91C
     COP [PaletteStart] ( #0B ) ; Will (form 0): restore palette bundle #0B after attack ends
     COP [PaletteStep]
-    COP [SetEntryExitNow] ( @code_02B7BD ) ; Set entry point to idle loop and exit immediately — attack complete
+    COP [JumpNextFrame] ( @code_02B7BD ) ; Set entry point to idle loop and exit immediately — attack complete
 
   loc_02B91C:
     COP [PaletteStart] ( #0C ) ; Freedan (form 1): restore palette bundle #0C after attack ends
     COP [PaletteStep]
-    COP [SetEntryExitNow] ( @code_02B7BD )
+    COP [JumpNextFrame] ( @code_02B7BD )
 }
 
 SetPlayerActorFunc {
@@ -358,7 +358,7 @@ AuraBarrierMain {
     TSB $10
     LDA #$0800            ; Set bit 11 ($0800) in player flags — Aura Barrier active state
     TSB $playerFlags
-    COP [SpawnLastRel] ( @AuraVramDmaLoader, #00, #00, #$2600 ) ; Spawn VRAM DMA loader to upload Aura Barrier tile graphics to VRAM
+    COP [SpawnListAppend] ( @AuraVramDmaLoader, #00, #00, #$2600 ) ; Spawn VRAM DMA loader to upload Aura Barrier tile graphics to VRAM
     CPY #$1FC0            ; Check spawn result — $1FC0 = actor pool exhausted, spawn failed
     BNE loc_02B99B
     JMP $&AuraBarrierEnd  ; Pool exhausted → skip directly to AuraBarrierEnd
@@ -367,16 +367,16 @@ AuraBarrierMain {
     LDA $16               ; Check if VRAM DMA has completed (DP $16 reaching $0020 signals ready)
     CMP #$0020
     BNE loc_02B9B4
-    COP [SetEntryExit]
-    COP [LoopInit] ( #08 )
+    COP [SetEntryHereAndYield]
+    COP [LoopStart] ( #08 )
     LDA $7F0C07           ; $7F0C07 = adhoc VRAM destination cache; $4400 means DMA still pending
     CMP #$4400
     BNE loc_02B9C0
-    COP [LoopNext]
+    COP [LoopEnd]
     BRA loc_02B9C0
 
   loc_02B9B4:
-    COP [SetEntryContinue] ; DMA still pending — yield each frame until transfer completes
+    COP [SetEntryHere]    ; DMA still pending — yield each frame until transfer completes
     LDA $7F0C07
     CMP #$4400
     BNE loc_02B9C0
@@ -384,17 +384,17 @@ AuraBarrierMain {
 
   loc_02B9C0:
     COP [CopyPalette] ( @fx_palette_198090, #00, #A9, #07 ) ; Copy Aura Barrier FX palette: 7 words from offset $00 into CGRAM position $A9
-    COP [SetPlayerBodySprite] ( #06 ) ; Set player body to Aura casting pose (sprite #06)
+    COP [SetPlayerSpriteDirect] ( #06 ) ; Set player body to Aura casting pose (sprite #06)
     COP [StageSpriteFrame] ( #02 )
     COP [AnimOnce]
-    COP [SpawnLastRel] ( @AuraBarrierPaletteFX, #00, #00, #$2400 ) ; Spawn Aura Barrier palette cycling FX actor (palette #5B infinite loop)
+    COP [SpawnListAppend] ( @AuraBarrierPaletteFX, #00, #00, #$2400 ) ; Spawn Aura Barrier palette cycling FX actor (palette #5B infinite loop)
     TYA 
     STA $orbitDiameter, X ; Store palette FX actor ID in orbitDiameter for KillSpawnedProjectile cleanup
     COP [StageSpriteLoop] ( #03, #02 ) ; Stage Aura casting animation loop: sprite #03, 2 iterations
     COP [AnimLoop]
     LDA #$0001            ; Clear attack-in-progress bit — player can now move during Aura Barrier
     TRB $playerFlags
-    COP [SpawnLastRel] ( @AuraOrbitalSpawner, #00, #F0, #$2600 ) ; Spawn the orbital child spawner at Y offset -16 (above player head)
+    COP [SpawnListAppend] ( @AuraOrbitalSpawner, #00, #F0, #$2600 ) ; Spawn the orbital child spawner at Y offset -16 (above player head)
     COP [StageSpriteLoop] ( #03, #0A ) ; Stage orbital sustain animation: sprite #03, 10 iterations
     COP [AnimLoop]
     JSR $&KillSpawnedProjectile ; Kill spawned projectile/FX actor after Aura Barrier animation ends
@@ -423,18 +423,18 @@ AuraOrbitalSpawner {
     STA $orbitDiameter, X
     LDA $0B1E             ; Check $0B1E (Aura upgrade flag) — upgraded version spawns 4 orbitals instead of 2
     BEQ loc_02BA39
-    COP [SpawnMarkedAfter] ( @AuraProjectileChild, #$0600 ) ; Upgraded: spawn first additional orbital child (only if upgrade flag set)
+    COP [SpawnAfterMarked] ( @AuraProjectileChild, #$0600 ) ; Upgraded: spawn first additional orbital child (only if upgrade flag set)
     INC $24
-    COP [SpawnMarkedAfter] ( @AuraProjectileChild, #$0600 )
+    COP [SpawnAfterMarked] ( @AuraProjectileChild, #$0600 )
     INC $24
 
   loc_02BA39:
-    COP [SpawnMarkedAfter] ( @AuraProjectileChild, #$0600 ) ; Spawn standard orbital child (always present regardless of upgrade)
+    COP [SpawnAfterMarked] ( @AuraProjectileChild, #$0600 ) ; Spawn standard orbital child (always present regardless of upgrade)
     INC $24
-    COP [SpawnMarkedAfter] ( @AuraProjectileChild, #$0600 )
+    COP [SpawnAfterMarked] ( @AuraProjectileChild, #$0600 )
     LDA #$00F0            ; Set orbital lifetime to 240 frames ($00F0)
     STA $20
-    COP [SetEntryContinue] ; COP re-entry for per-frame orbital management loop
+    COP [SetEntryHere]    ; COP re-entry for per-frame orbital management loop
     LDA $playerFlags      ; Check attack-in-progress flag — set means player released button → begin shrink
     BIT #$0001
     BNE loc_02BA7D
@@ -470,7 +470,7 @@ AuraOrbitalSpawner {
     TAY 
     DEC $0000
     BPL loc_02BA84
-    COP [LoopInit] ( #1E ) ; Run 30-frame ($1E hex) shrink loop — contracts orbit back to center
+    COP [LoopStart] ( #1E ) ; Run 30-frame ($1E hex) shrink loop — contracts orbit back to center
     LDA $26
     CLC 
     ADC #$0002
@@ -484,7 +484,7 @@ AuraOrbitalSpawner {
 
   loc_02BAB6:
     JSR $&UpdateOrbitalPositions ; Recompute child positions during shrink phase
-    COP [LoopNext]
+    COP [LoopEnd]
     COP [Die]
 }
 
@@ -552,14 +552,14 @@ AuraProjectileChild {
     COP [AnimOnce]
     LDA #$2000            ; Set bit 13 ($2000) in actor flags — marks for deferred removal by parent
     TSB $10
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     RTL 
 }
 
 DarkFriarMain {
     LDA #$2000            ; Set bit 13 ($2000) in player flags — Dark Friar active state marker
     TSB $playerFlags
-    COP [SpawnLastRel] ( @DarkFriarVramDma, #00, #00, #$2600 ) ; Spawn VRAM DMA loader for Dark Friar tile graphics
+    COP [SpawnListAppend] ( @DarkFriarVramDma, #00, #00, #$2600 ) ; Spawn VRAM DMA loader for Dark Friar tile graphics
     CPY #$1FC0            ; Check spawn result — $1FC0 = pool exhausted
     BNE loc_02BB52
     JMP $&DarkFriarFinish ; Pool exhausted → skip to DarkFriarFinish (clean exit)
@@ -568,16 +568,16 @@ DarkFriarMain {
     LDA $16               ; Wait for VRAM DMA completion — same DMA-wait pattern as AuraBarrierMain
     CMP #$0020
     BNE loc_02BB6B
-    COP [SetEntryExit]
-    COP [LoopInit] ( #08 )
+    COP [SetEntryHereAndYield]
+    COP [LoopStart] ( #08 )
     LDA $7F0C07
     CMP #$4400
     BNE loc_02BB77
-    COP [LoopNext]
+    COP [LoopEnd]
     BRA loc_02BB77
 
   loc_02BB6B:
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     LDA $7F0C07
     CMP #$4400
     BNE loc_02BB77
@@ -600,32 +600,32 @@ DarkFriarDirTable [
 ]
 
 DarkFriarSouth {
-    COP [SpawnLastRel] ( @DarkFriarProjectile, #FE, #1A, #$2600 ) ; South: spawn projectile at (-2, +26) relative to player
-    COP [SpawnLastRel] ( @DarkFriarTrailSouth, #FE, #1A, #$2600 ) ; South: spawn trail actor at same offset — follows behind projectile
+    COP [SpawnListAppend] ( @DarkFriarProjectile, #FE, #1A, #$2600 ) ; South: spawn projectile at (-2, +26) relative to player
+    COP [SpawnListAppend] ( @DarkFriarTrailSouth, #FE, #1A, #$2600 ) ; South: spawn trail actor at same offset — follows behind projectile
     COP [StagePlayerSprite] ( #36 ) ; Play Freedan south casting animation (sprite #36)
     COP [AnimOnce]
     BRA DarkFriarFinish
 }
 
 DarkFriarNorth {
-    COP [SpawnLastRel] ( @DarkFriarProjectile, #00, #C0, #$2600 ) ; North: spawn projectile at (0, -64) — above player
-    COP [SpawnLastRel] ( @DarkFriarTrailSouthInit, #00, #C0, #$2600 ) ; North: spawn trail via DarkFriarTrailSouthInit (reuses south path with direction flag)
+    COP [SpawnListAppend] ( @DarkFriarProjectile, #00, #C0, #$2600 ) ; North: spawn projectile at (0, -64) — above player
+    COP [SpawnListAppend] ( @DarkFriarTrailSouthInit, #00, #C0, #$2600 ) ; North: spawn trail via DarkFriarTrailSouthInit (reuses south path with direction flag)
     COP [StagePlayerSprite] ( #37 )
     COP [AnimOnce]
     BRA DarkFriarFinish
 }
 
 DarkFriarWest {
-    COP [SpawnLastRel] ( @DarkFriarProjectile, #CC, #EA, #$2600 ) ; West: spawn projectile at (-52, -22) — to the left
-    COP [SpawnLastRel] ( @DarkFriarTrailWestInit, #CC, #EA, #$2600 ) ; West: spawn trail via DarkFriarTrailWestInit (sets horizontal movement flag)
+    COP [SpawnListAppend] ( @DarkFriarProjectile, #CC, #EA, #$2600 ) ; West: spawn projectile at (-52, -22) — to the left
+    COP [SpawnListAppend] ( @DarkFriarTrailWestInit, #CC, #EA, #$2600 ) ; West: spawn trail via DarkFriarTrailWestInit (sets horizontal movement flag)
     COP [StagePlayerSprite] ( #38 )
     COP [AnimOnce]
     BRA DarkFriarFinish
 }
 
 DarkFriarEast {
-    COP [SpawnLastRel] ( @DarkFriarProjectile, #34, #EA, #$2600 ) ; East: spawn projectile at (+52, -22) — to the right
-    COP [SpawnLastRel] ( @DarkFriarTrailEastWest, #34, #EA, #$2600 ) ; East: spawn trail actor directly (DarkFriarTrailEastWest — no init flag needed)
+    COP [SpawnListAppend] ( @DarkFriarProjectile, #34, #EA, #$2600 ) ; East: spawn projectile at (+52, -22) — to the right
+    COP [SpawnListAppend] ( @DarkFriarTrailEastWest, #34, #EA, #$2600 ) ; East: spawn trail actor directly (DarkFriarTrailEastWest — no init flag needed)
     COP [StagePlayerSprite] ( #39 ) ; Play Freedan east casting animation (sprite #39)
     COP [AnimOnce]
 }
@@ -674,7 +674,7 @@ DarkFriarTrailSouth {
     TRB $10
     LDA $0B1C             ; $0B1C = Dark Friar upgrade level; nonzero enables damage-on-contact
     BEQ loc_02BC5D
-    COP [OrActorFlags] ( #$0010 ) ; Upgraded: enable damage flag ($0010) in actor flags — trail can hurt enemies
+    COP [OrExtraFlags] ( #$0010 ) ; Upgraded: enable damage flag ($0010) in actor flags — trail can hurt enemies
     COP [SetCollideCallback] ( &DarkFriarOnHit ) ; Set collision callback → DarkFriarOnHit (triggers fragment burst on contact)
 
   loc_02BC5D:
@@ -683,7 +683,7 @@ DarkFriarTrailSouth {
     COP [StageSpriteLoopMoveY] ( #02, #03, #03 )
     COP [AnimLoop]
     COP [StageSprAndHitbox] ( #03 ) ; Final trail sprite #03 with active hitbox for continued collision detection
-    COP [StageForceMoveXY] ( #00, #05 ) ; Apply constant force movement: 0 X, 5 Y → trail continues south
+    COP [StageMoveXY] ( #00, #05 ) ; Apply constant force movement: 0 X, 5 Y → trail continues south
     BRA loc_02BCCA
 }
 
@@ -709,7 +709,7 @@ DarkFriarTrailEastWest {
     TRB $10
     LDA $0B1C             ; $0B1C = Dark Friar upgrade level; nonzero enables damage-on-contact
     BEQ loc_02BCAA
-    COP [OrActorFlags] ( #$0010 ) ; Upgraded: enable damage flag ($0010) in actor flags
+    COP [OrExtraFlags] ( #$0010 ) ; Upgraded: enable damage flag ($0010) in actor flags
     COP [SetCollideCallback] ( &DarkFriarOnHit ) ; Set collision callback → DarkFriarOnHit (triggers fragment burst on contact)
 
   loc_02BCAA:
@@ -718,14 +718,14 @@ DarkFriarTrailEastWest {
     COP [StageSpriteLoopMoveX] ( #02, #03, #03 )
     COP [AnimLoop]
     COP [StageSprAndHitbox] ( #03 )
-    COP [StageForceMoveXY] ( #05, #00 ) ; Apply constant force movement: 5 X, 0 Y → trail moves horizontally
+    COP [StageMoveXY] ( #05, #00 ) ; Apply constant force movement: 5 X, 0 Y → trail moves horizontally
     BRA loc_02BCCA
 
   DarkFriarBounceLoop:
     LDA $10               ; Check bit 14 ($4000) of actor flags — set on wall contact
     BIT #$4000
     BNE loc_02BCEC        ; Wall hit → die (trail dissipates on wall contact)
-    COP [ReloadForceMove] ; No wall hit: reload force movement parameters for continued travel
+    COP [ReloadMoveDurations] ; No wall hit: reload force movement parameters for continued travel
 
   loc_02BCCA:
     COP [AnimOneFrame]    ; Animate one frame and check for collision events
@@ -739,10 +739,10 @@ DarkFriarTrailEastWest {
     LDA $0B1C             ; $0B1C = Dark Friar upgrade level: 2 = fully upgraded with player redirect
     CMP #$0002
     BNE loc_02BCE4
-    COP [BranchIfButton] ( #$8001, &DarkFriarDisableCollide ) ; Level 2 + attack button held → DarkFriarDisableCollide (player can redirect trail)
+    COP [BranchIfPressed] ( #$8001, &DarkFriarDisableCollide ) ; Level 2 + attack button held → DarkFriarDisableCollide (player can redirect trail)
 
   loc_02BCE4:
-    COP [SetEntryExit]    ; Set re-entry and yield — continue bounce/travel loop next frame
+    COP [SetEntryHereAndYield] ; Set re-entry and yield — continue bounce/travel loop next frame
     DEC $26
     BPL loc_02BCD6
     BRA loc_02BCCA
@@ -786,8 +786,8 @@ DarkFriarFragment3 {
     STA $moveXAlt, X
     LDA $16
     STA $moveYAlt, X      ; Save current Y position as spiral center (moveYAlt)
-    COP [SpawnMarkedAfter] ( @TrailFollowerSprB, #$0600 ) ; Spawn trail follower sprite B — visual trail segment behind fragment
-    COP [SpawnMarkedAfter] ( @TrailFollowerSprA, #$0600 ) ; Spawn trail follower sprite A — second trail segment for longer trail
+    COP [SpawnAfterMarked] ( @TrailFollowerSprB, #$0600 ) ; Spawn trail follower sprite B — visual trail segment behind fragment
+    COP [SpawnAfterMarked] ( @TrailFollowerSprA, #$0600 ) ; Spawn trail follower sprite A — second trail segment for longer trail
     LDA #$0001            ; Initialize X and Y movement deltas to 1 — minimal initial velocity
     STA $7F100E, X
     STA $7F100C, X
@@ -802,7 +802,7 @@ DarkFriarFragment3 {
     STA $26
 
   loc_02BD5E:
-    COP [SetEntryExit]    ; Per-frame spiral update: advance angle by 2, expand diameter by 4
+    COP [SetEntryHereAndYield] ; Per-frame spiral update: advance angle by 2, expand diameter by 4
     SEP #$20              ; Switch to 8-bit accumulator for byte-level angle and diameter math
     LDA $orbitAngle, X
     CLC 
@@ -858,7 +858,7 @@ DarkFriarFragment3 {
     STA $26
 
   loc_02BDD5:
-    COP [SetEntryExit]
+    COP [SetEntryHereAndYield]
 
   loc_02BDD7:
     LDA $7F100C, X        ; Copy stored X velocity to moveScratch1 for engine movement application
@@ -896,7 +896,7 @@ TrailFollowerSprB {
     STA $26
 
   loc_02BE0D:
-    COP [SetEntryExit]    ; Per-frame cascade: yield execution, then shift one position through the FIFO
+    COP [SetEntryHereAndYield] ; Per-frame cascade: yield execution, then shift one position through the FIFO
     LDY $04               ; Load parent actor ID from $04 for position sampling
     JSR $&TrailPositionCascade ; Cascade parent position through the 3-stage FIFO buffer
     DEC $26               ; Decrement remaining cascade updates
@@ -1008,7 +1008,7 @@ PsychoDashDirTable [
 
 PsychoDashSouth {
     COP [SpawnAfter] ( @PsychoDashTrailSouth ) ; South: spawn trail afterimage actor for dash path
-    COP [SetPlayerBodySprite] ( #04 ) ; Set player body to Psycho Dash pose (sprite #04)
+    COP [SetPlayerSpriteDirect] ( #04 ) ; Set player body to Psycho Dash pose (sprite #04)
     COP [StageSpriteMoveY] ( #04, #36 ) ; Stage south movement: sprite #04, move speed/distance #36 (~54 pixels southward)
     COP [AnimOnce]
     BRA loc_02BF03
@@ -1016,8 +1016,8 @@ PsychoDashSouth {
 
 PsychoDashNorth {
     COP [SpawnAfter] ( @PsychoDashTrailNorth ) ; North: spawn trail afterimage actor for northward dash path
-    COP [SetForceNE] ( #01 ) ; Set NE force direction — reverses Y movement for northward dash
-    COP [SetPlayerBodySprite] ( #04 ) ; Set player body to Psycho Dash pose (sprite #04)
+    COP [ForceDirNE] ( #01 ) ; Set NE force direction — reverses Y movement for northward dash
+    COP [SetPlayerSpriteDirect] ( #04 ) ; Set player body to Psycho Dash pose (sprite #04)
     COP [StageSpriteMoveY] ( #05, #36 ) ; Stage north movement: sprite #05, move speed/distance #36 (~54 pixels northward)
     COP [AnimOnce]
     BRA loc_02BF03
@@ -1025,8 +1025,8 @@ PsychoDashNorth {
 
 PsychoDashWest {
     COP [SpawnAfter] ( @PsychoDashTrailWest ) ; West: spawn trail afterimage actor for westward dash path
-    COP [SetForceBoth] ( #01 ) ; Set both force directions — reverses X movement for westward dash
-    COP [SetPlayerBodySprite] ( #04 ) ; Set player body to Psycho Dash pose (sprite #04)
+    COP [ForceDirBoth] ( #01 ) ; Set both force directions — reverses X movement for westward dash
+    COP [SetPlayerSpriteDirect] ( #04 ) ; Set player body to Psycho Dash pose (sprite #04)
     COP [StageSpriteMoveX] ( #06, #36 ) ; Stage west movement: sprite #06, move speed/distance #36 (~54 pixels westward)
     COP [AnimOnce]
     BRA loc_02BF03
@@ -1034,7 +1034,7 @@ PsychoDashWest {
 
 PsychoDashEast {
     COP [SpawnAfter] ( @PsychoDashTrailEast ) ; East: spawn trail afterimage actor for eastward dash path
-    COP [SetPlayerBodySprite] ( #04 ) ; Set player body to Psycho Dash pose (sprite #04)
+    COP [SetPlayerSpriteDirect] ( #04 ) ; Set player body to Psycho Dash pose (sprite #04)
     COP [StageSpriteMoveX] ( #07, #36 ) ; Stage east movement: sprite #07, move speed/distance #36 (~54 pixels eastward)
     COP [AnimOnce]
 
@@ -1051,8 +1051,8 @@ PsychoDashTrailSouth {
     STA $14
     LDA #$09D0            ; Delta buffer starts at $09D0 (scratch area for 8 word-sized entries)
     STA $16
-    COP [SetEntryExit]    ; Yield — recording begins on the next frame
-    COP [LoopInit] ( #08 ) ; Recording loop: 8 iterations, capture one Y-position delta per frame
+    COP [SetEntryHereAndYield] ; Yield — recording begins on the next frame
+    COP [LoopStart] ( #08 ) ; Recording loop: 8 iterations, capture one Y-position delta per frame
     LDY $04
     LDA $14
     SEC 
@@ -1064,16 +1064,16 @@ PsychoDashTrailSouth {
     LDY $04
     LDA $0016, Y
     STA $14
-    COP [LoopNext]        ; Recording complete — switch to playback mode
+    COP [LoopEnd]         ; Recording complete — switch to playback mode
     LDA #$0003            ; Playback speed = 3 frames per segment (slower than recording for afterimage effect)
     STA $08
     LDY $04
     LDA #$0000
     STA $002E, Y          ; Zero parent Y movement scratch — trail actor takes over movement control
-    COP [SetEntryExit]    ; Yield — playback begins on the next frame
+    COP [SetEntryHereAndYield] ; Yield — playback begins on the next frame
     DEC $16               ; Rewind buffer pointer — deltas played back in reverse order
     DEC $16
-    COP [LoopInit] ( #08 ) ; Playback loop: 8 iterations, replay one stored delta per frame
+    COP [LoopStart] ( #08 ) ; Playback loop: 8 iterations, replay one stored delta per frame
     LDY $16
     DEC $16
     DEC $16
@@ -1082,8 +1082,8 @@ PsychoDashTrailSouth {
     LDA $0000, Y
     STA $moveScratch2, X  ; Apply delta to parent moveScratch2 — afterimage reproduces dash movement in reverse
     PLX 
-    COP [LoopNext]
-    COP [SetEntryExit]    ; Final cleanup: set re-entry for zero-movement frame
+    COP [LoopEnd]
+    COP [SetEntryHereAndYield] ; Final cleanup: set re-entry for zero-movement frame
     PHX 
     LDX $04
     LDA #$0000            ; Zero residual movement delta — clean stop
@@ -1100,8 +1100,8 @@ PsychoDashTrailNorth {
     STA $14
     LDA #$09D0
     STA $16
-    COP [SetEntryExit]    ; Yield — recording begins on the next frame
-    COP [LoopInit] ( #08 ) ; Recording loop: 8 iterations, capture one Y-position delta per frame
+    COP [SetEntryHereAndYield] ; Yield — recording begins on the next frame
+    COP [LoopStart] ( #08 ) ; Recording loop: 8 iterations, capture one Y-position delta per frame
     LDY $04
     LDA $0016, Y
     SEC                   ; Delta = current parent Y − baseline (inverted from south for northward direction)
@@ -1113,16 +1113,16 @@ PsychoDashTrailNorth {
     LDY $04
     LDA $0016, Y
     STA $14
-    COP [LoopNext]        ; Recording complete — switch to playback mode
+    COP [LoopEnd]         ; Recording complete — switch to playback mode
     LDA #$0003            ; Playback speed = 3 frames per segment
     STA $08
     LDY $04
     LDA #$0000
     STA $002E, Y          ; Zero parent Y movement scratch for afterimage takeover
-    COP [SetEntryExit]    ; Yield — playback begins on next frame
+    COP [SetEntryHereAndYield] ; Yield — playback begins on next frame
     DEC $16
     DEC $16
-    COP [LoopInit] ( #08 )
+    COP [LoopStart] ( #08 )
     LDY $16
     DEC $16
     DEC $16
@@ -1131,8 +1131,8 @@ PsychoDashTrailNorth {
     LDA $0000, Y
     STA $moveScratch2, X  ; Apply stored delta to parent moveScratch2 — north afterimage movement
     PLX 
-    COP [LoopNext]
-    COP [SetEntryExit]    ; Final cleanup: zero residual movement
+    COP [LoopEnd]
+    COP [SetEntryHereAndYield] ; Final cleanup: zero residual movement
     PHX 
     LDX $04
     LDA #$0000
@@ -1149,8 +1149,8 @@ PsychoDashTrailWest {
     STA $14
     LDA #$09D0            ; Delta buffer at $09D0 for X-axis recording
     STA $16
-    COP [SetEntryExit]    ; Yield — recording begins on the next frame
-    COP [LoopInit] ( #08 ) ; Recording loop: 8 iterations, capture one X-position delta per frame
+    COP [SetEntryHereAndYield] ; Yield — recording begins on the next frame
+    COP [LoopStart] ( #08 ) ; Recording loop: 8 iterations, capture one X-position delta per frame
     LDY $04
     LDA $0014, Y
     SEC                   ; Delta = current parent X − baseline (horizontal movement)
@@ -1162,16 +1162,16 @@ PsychoDashTrailWest {
     LDY $04
     LDA $0014, Y
     STA $14
-    COP [LoopNext]        ; Recording complete — switch to playback mode
+    COP [LoopEnd]         ; Recording complete — switch to playback mode
     LDA #$0003
     STA $08
     LDY $04
     LDA #$0000
     STA $002C, Y          ; Zero parent X movement scratch for afterimage takeover
-    COP [SetEntryExit]    ; Yield — playback begins on the next frame
+    COP [SetEntryHereAndYield] ; Yield — playback begins on the next frame
     DEC $16
     DEC $16
-    COP [LoopInit] ( #08 )
+    COP [LoopStart] ( #08 )
     LDY $16
     DEC $16
     DEC $16
@@ -1180,8 +1180,8 @@ PsychoDashTrailWest {
     LDA $0000, Y
     STA $moveScratch1, X  ; Apply stored delta to parent moveScratch1 — horizontal afterimage movement
     PLX 
-    COP [LoopNext]
-    COP [SetEntryExit]    ; Final cleanup: zero residual X movement
+    COP [LoopEnd]
+    COP [SetEntryHereAndYield] ; Final cleanup: zero residual X movement
     PHX 
     LDX $04
     LDA #$0000
@@ -1198,8 +1198,8 @@ PsychoDashTrailEast {
     STA $14
     LDA #$09D0
     STA $16
-    COP [SetEntryExit]    ; Yield — recording begins on the next frame
-    COP [LoopInit] ( #08 ) ; Recording loop: 8 iterations, capture one X-position delta per frame
+    COP [SetEntryHereAndYield] ; Yield — recording begins on the next frame
+    COP [LoopStart] ( #08 ) ; Recording loop: 8 iterations, capture one X-position delta per frame
     LDY $04
     LDA $14
     SEC                   ; Delta = baseline X − current parent X (inverted for eastward direction)
@@ -1211,16 +1211,16 @@ PsychoDashTrailEast {
     LDY $04
     LDA $0014, Y
     STA $14
-    COP [LoopNext]        ; Recording complete — switch to playback mode
+    COP [LoopEnd]         ; Recording complete — switch to playback mode
     LDA #$0003
     STA $08
     LDY $04
     LDA #$0000
     STA $002C, Y          ; Zero parent X movement scratch for afterimage takeover
-    COP [SetEntryExit]    ; Yield — playback begins on the next frame
+    COP [SetEntryHereAndYield] ; Yield — playback begins on the next frame
     DEC $16
     DEC $16
-    COP [LoopInit] ( #08 )
+    COP [LoopStart] ( #08 )
     LDY $16
     DEC $16
     DEC $16
@@ -1229,8 +1229,8 @@ PsychoDashTrailEast {
     LDA $0000, Y
     STA $moveScratch1, X  ; Apply stored delta to parent moveScratch1 — east afterimage movement
     PLX 
-    COP [LoopNext]
-    COP [SetEntryExit]    ; Final cleanup: zero residual X movement
+    COP [LoopEnd]
+    COP [SetEntryHereAndYield] ; Final cleanup: zero residual X movement
     PHX 
     LDX $04
     LDA #$0000
@@ -1246,13 +1246,13 @@ PsychoDashTrailEast {
     LDA #$000F            ; Initialize charge parameter $26 to $000F — controls slider charge intensity
     STA $26
     STA $orbitAngle, X    ; Store charge parameter in orbitAngle,X for per-frame access
-    COP [SetPlayerBodySprite] ( #04 ) ; Set player body to attack pose (sprite #04)
+    COP [SetPlayerSpriteDirect] ( #04 ) ; Set player body to attack pose (sprite #04)
     COP [StageSprAndHitbox] ( #22 ) ; Set sprite #22 with active hitbox — Psycho Slider contact damage during charge
     LDA #$0000
     STA $7F102E, X
 
   loc_02C0CB:
-    COP [SetEntryContinue] ; Main charge animation loop — animate and wait for wall collision or charge input
+    COP [SetEntryHere]    ; Main charge animation loop — animate and wait for wall collision or charge input
     COP [AnimOneFrame]
     LDA $2A
     BEQ loc_02C0CB
@@ -1269,8 +1269,8 @@ PsychoDashTrailEast {
     BCC loc_02C0FB
     LSR 
     STA $24
-    COP [SetEntryContinue] ; Re-entry for button-hold monitoring during charge tick phase
-    COP [BranchIfNoButton] ( #$8001, &PsychoSliderAbort ) ; Release during tick → abort Psycho Slider
+    COP [SetEntryHere]    ; Re-entry for button-hold monitoring during charge tick phase
+    COP [BranchIfNotPressed] ( #$8001, &PsychoSliderAbort ) ; Release during tick → abort Psycho Slider
     JSR $&PsychoSliderChargeTick ; Process charge tick: L/R shoulder buttons decrement charge level alternately
     DEC $24
     BMI loc_02C0CB
@@ -1283,7 +1283,7 @@ PsychoDashTrailEast {
     TRB $10
     LDA #$0200            ; Set bit 9 ($0200) — guided projectile active state marker
     TSB $10
-    COP [SpawnLastRel] ( @GuidedProjectileActor, #00, #00, #$0302 ) ; Spawn GuidedProjectileActor at player position with special flags $0302
+    COP [SpawnListAppend] ( @GuidedProjectileActor, #00, #00, #$0302 ) ; Spawn GuidedProjectileActor at player position with special flags $0302
     TYA                   ; Store projectile actor ID in orbitDiameter for later cleanup
     STA $orbitDiameter, X
     COP [StageSpriteFrame] ( #1C )
@@ -1358,11 +1358,11 @@ PsychoSliderLaunch {
   PsychoSliderLaunchLoop:
     COP [StageSpriteFrame] ( #1D ) ; Launch animation re-entry point — stored in retPtr2 for COP loop
     COP [AnimOnce]
-    COP [LoopNext]
+    COP [LoopEnd]
     LDA #$0002            ; Clear bit 1 ($0002) from player flags — end Slider charge state
     TRB $playerFlags
-    COP [BranchIfButton] ( #$0300, &PsychoSliderDirEW ) ; Check D-pad left/right ($0300) for horizontal launch direction
-    COP [BranchIfButton] ( #$0C00, &PsychoSliderDirNS ) ; Check D-pad up/down ($0C00) for vertical launch direction
+    COP [BranchIfPressed] ( #$0300, &PsychoSliderDirEW ) ; Check D-pad left/right ($0300) for horizontal launch direction
+    COP [BranchIfPressed] ( #$0C00, &PsychoSliderDirNS ) ; Check D-pad up/down ($0C00) for vertical launch direction
     BRA PsychoSliderAbort ; No direction held → abort Psycho Slider (no launch without directional input)
 }
 
@@ -1458,11 +1458,11 @@ GuidedProjectileActor {
     COP [SetMetasprite] ( @spriteset_enemies ) ; Set metasprite to table_0EE000 — Psycho Slider projectile graphics
 
   code_02C24E:
-    COP [BranchIfButton] ( #$0100, &ProjectileMoveRight ) ; D-pad direction dispatch: right=$0100, left=$0200, up=$0800, down=$0400
-    COP [BranchIfButton] ( #$0200, &ProjectileMoveLeft )
-    COP [BranchIfButton] ( #$0800, &ProjectileMoveUp )
-    COP [BranchIfButton] ( #$0400, &ProjectileMoveDown )
-    COP [SetEntryContinue] ; No direction → neutral float with sprite #39 (idle projectile pose)
+    COP [BranchIfPressed] ( #$0100, &ProjectileMoveRight ) ; D-pad direction dispatch: right=$0100, left=$0200, up=$0800, down=$0400
+    COP [BranchIfPressed] ( #$0200, &ProjectileMoveLeft )
+    COP [BranchIfPressed] ( #$0800, &ProjectileMoveUp )
+    COP [BranchIfPressed] ( #$0400, &ProjectileMoveDown )
+    COP [SetEntryHere]    ; No direction → neutral float with sprite #39 (idle projectile pose)
     COP [StageSprAndHitbox] ( #39 )
 
   loc_02C26B:
@@ -1471,10 +1471,10 @@ GuidedProjectileActor {
     STZ $08
     INC 
     STA $24
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     LDA $2A
     BEQ loc_02C26B
-    COP [BranchIfButton] ( #$0F00, &code_02C24E )
+    COP [BranchIfPressed] ( #$0F00, &code_02C24E )
     JSR $&RecomputeProjectilePos
     DEC $24
     BMI loc_02C26B
@@ -1490,10 +1490,10 @@ ProjectileMoveRight {
     STZ $08
     INC 
     STA $24
-    COP [SetEntryContinue] ; COP re-entry for per-frame steering — checks button state each frame
+    COP [SetEntryHere]    ; COP re-entry for per-frame steering — checks button state each frame
     LDA $2A
     BEQ loc_02C28B
-    COP [BranchIfNoButton] ( #$0100, &code_02C24E ) ; Right button released → return to neutral direction dispatch (code_02C24E)
+    COP [BranchIfNotPressed] ( #$0100, &code_02C24E ) ; Right button released → return to neutral direction dispatch (code_02C24E)
     JSR $&RecomputeProjectilePos ; Recompute projectile world position from player + stored offset
     DEC $24
     BMI loc_02C28B
@@ -1509,10 +1509,10 @@ ProjectileMoveLeft {
     STZ $08
     INC 
     STA $24
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     LDA $2A
     BEQ loc_02C2AB
-    COP [BranchIfNoButton] ( #$0200, &code_02C24E ) ; Left button released → return to neutral direction dispatch
+    COP [BranchIfNotPressed] ( #$0200, &code_02C24E ) ; Left button released → return to neutral direction dispatch
     JSR $&RecomputeProjectilePos
     DEC $24
     BMI loc_02C2AB
@@ -1528,10 +1528,10 @@ ProjectileMoveUp {
     STZ $08
     INC 
     STA $24
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     LDA $2A
     BEQ loc_02C2CB
-    COP [BranchIfNoButton] ( #$0800, &code_02C24E ) ; Up button released → return to neutral direction dispatch
+    COP [BranchIfNotPressed] ( #$0800, &code_02C24E ) ; Up button released → return to neutral direction dispatch
     JSR $&RecomputeProjectilePos
     DEC $24
     BMI loc_02C2CB
@@ -1547,10 +1547,10 @@ ProjectileMoveDown {
     STZ $08
     INC 
     STA $24
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     LDA $2A
     BEQ loc_02C2EB
-    COP [BranchIfNoButton] ( #$0400, &code_02C24E ) ; Down button released → return to neutral direction dispatch
+    COP [BranchIfNotPressed] ( #$0400, &code_02C24E ) ; Down button released → return to neutral direction dispatch
     JSR $&RecomputeProjectilePos
     DEC $24
     BMI loc_02C2EB

@@ -155,7 +155,7 @@ sFA_diary_menu [
     LDA #$0F00            ; Enable auto-repeat on D-pad
     STA $joypadMaskInv
     STZ $18               ; Clear frame counter
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     LDA $worldReadyFlag
     BNE loc_0BE2CA
     RTL 
@@ -180,10 +180,10 @@ DiaryMainMenuEntry {
 
   DiaryTabSelectLoop:
     COP [RunBg3Script] ( @system_strings.consolestring_01EADC )
-    COP [SetEntryContinue]
-    COP [BranchIfButton] ( #$0800, &DiaryTabCursorUp ) ; Up → previous tab
-    COP [BranchIfButton] ( #$0400, &DiaryTabCursorDown ) ; Down → next tab
-    COP [BranchIfButton] ( #$0080, &DiaryTabConfirm ) ; A → confirm selection
+    COP [SetEntryHere]
+    COP [BranchIfPressed] ( #$0800, &DiaryTabCursorUp ) ; Up → previous tab
+    COP [BranchIfPressed] ( #$0400, &DiaryTabCursorDown ) ; Down → next tab
+    COP [BranchIfPressed] ( #$0080, &DiaryTabConfirm ) ; A → confirm selection
     RTL 
 }
 
@@ -256,22 +256,22 @@ code_list_0BE34C [
 DiaryStartJourney {
     JSR $&DiaryMenuClearVram ; Clear VRAM buffer
     COP [PrintDialogStringAlt] ( &dialogstring_0BF437 ) ; "Which Diary?" with 3 slots
-    COP [CallScript] ( &DiaryRenderSlotStats ) ; Draw slot stats (HP/STR/DEF)
+    COP [CallNear] ( &DiaryRenderSlotStats ) ; Draw slot stats (HP/STR/DEF)
     COP [RunBg3Script] ( @system_strings.consolestring_01EADC )
     LDA $0D8C             ; Last used slot
     AND #$0003
     STA $0D92             ; Pre-select it
 
   DiaryStartSlotLoop:
-    COP [SetEntryExit]
+    COP [SetEntryHereAndYield]
     LDA #$000C            ; 12 frames per camera pan step
     STA $free101C, X
-    COP [CallScript] ( &DiaryCameraPan ) ; Animate camera pan to slot position
-    COP [SetEntryContinueDeferred] ( @DiaryStartSlotLoop )
-    COP [BranchIfButton] ( #$0800, &DiaryStartSlotUp ) ; Up → previous slot
-    COP [BranchIfButton] ( #$0400, &DiaryStartSlotDown ) ; Down → next slot
-    COP [BranchIfButton] ( #$0080, &DiaryStartLoadConfirm ) ; A → confirm slot
-    COP [BranchIfButton] ( #$8000, &DiaryStartCancel ) ; B → cancel, return to main menu
+    COP [CallNear] ( &DiaryCameraPan ) ; Animate camera pan to slot position
+    COP [SetEntryFar] ( @DiaryStartSlotLoop )
+    COP [BranchIfPressed] ( #$0800, &DiaryStartSlotUp ) ; Up → previous slot
+    COP [BranchIfPressed] ( #$0400, &DiaryStartSlotDown ) ; Down → next slot
+    COP [BranchIfPressed] ( #$0080, &DiaryStartLoadConfirm ) ; A → confirm slot
+    COP [BranchIfPressed] ( #$8000, &DiaryStartCancel ) ; B → cancel, return to main menu
     RTL 
 }
 
@@ -368,11 +368,11 @@ DiaryStartLoadConfirm {
     STA $0D98
 
   DiaryNewGameSettingsLoop:
-    COP [SetEntryExit]
-    COP [BranchIfButton] ( #$0380, &DiarySettingsToggle )
-    COP [BranchIfButton] ( #$0800, &DiarySettingsUp )
-    COP [BranchIfButton] ( #$0400, &DiarySettingsDown )
-    COP [BranchIfButton] ( #$8000, &DiaryNewGameCancel )
+    COP [SetEntryHereAndYield]
+    COP [BranchIfPressed] ( #$0380, &DiarySettingsToggle )
+    COP [BranchIfPressed] ( #$0800, &DiarySettingsUp )
+    COP [BranchIfPressed] ( #$0400, &DiarySettingsDown )
+    COP [BranchIfPressed] ( #$8000, &DiaryNewGameCancel )
     RTL 
 }
 
@@ -421,7 +421,7 @@ DiarySettingsToggle {
     JMP $&DiaryNewGameSettingsLoop
 
   loc_0BE4E7:
-    COP [BranchIfButton] ( #$0080, &DiaryNewGameStart )
+    COP [BranchIfPressed] ( #$0080, &DiaryNewGameStart )
     RTL 
 }
 
@@ -529,7 +529,7 @@ DiaryCameraPan {
     STA $scratch1010, X
     LDA $7F100E, X
     STA $scratch1010+2, X
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     LDA $free101C, X
     STA $0000
 
@@ -571,7 +571,7 @@ DiaryCameraPan {
     STA $scratch1010+2, X
     LDA $7F100C, X
     STA $scratch1010, X
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     LDA $free101C, X
     STA $0000
 
@@ -655,17 +655,17 @@ ApplySoundAndRemap {
 DiarySndBtnTab {
     JSR $&DiaryMenuClearVram
     COP [PrintDialogStringAlt] ( &dialogstring_0BF476 )
-    COP [CallScript] ( &DiaryRenderSlotStats )
+    COP [CallNear] ( &DiaryRenderSlotStats )
     COP [RunBg3Script] ( @system_strings.consolestring_01EADC )
     LDA #$0000
     STA $0D92
 
   DiarySndBtnSlotLoop:
-    COP [SetEntryExit]
-    COP [BranchIfButton] ( #$0800, &DiaryEraseSlotUp )
-    COP [BranchIfButton] ( #$0400, &DiaryEraseSlotDown )
-    COP [BranchIfButton] ( #$0080, &DiarySndBtnSlotConfirm )
-    COP [BranchIfButton] ( #$8000, &DiarySndBtnCancel )
+    COP [SetEntryHereAndYield]
+    COP [BranchIfPressed] ( #$0800, &DiaryEraseSlotUp )
+    COP [BranchIfPressed] ( #$0400, &DiaryEraseSlotDown )
+    COP [BranchIfPressed] ( #$0080, &DiarySndBtnSlotConfirm )
+    COP [BranchIfPressed] ( #$8000, &DiarySndBtnCancel )
     RTL 
 }
 
@@ -706,11 +706,11 @@ DiarySndBtnSlotConfirm {
     STA $0D98
 
   DiarySndBtnEditLoop:
-    COP [SetEntryExit]
-    COP [BranchIfButton] ( #$0380, &DiarySndBtnOptionToggle )
-    COP [BranchIfButton] ( #$0800, &DiarySettingsUp )
-    COP [BranchIfButton] ( #$0400, &DiarySettingsDown )
-    COP [BranchIfButton] ( #$8000, &DiarySndBtnEditCancel )
+    COP [SetEntryHereAndYield]
+    COP [BranchIfPressed] ( #$0380, &DiarySndBtnOptionToggle )
+    COP [BranchIfPressed] ( #$0800, &DiarySettingsUp )
+    COP [BranchIfPressed] ( #$0400, &DiarySettingsDown )
+    COP [BranchIfPressed] ( #$8000, &DiarySndBtnEditCancel )
     RTL 
 }
 
@@ -786,7 +786,7 @@ DiarySndBtnOptionToggle {
     JMP $&DiarySndBtnEditLoop
 
   loc_0BE7EE:
-    COP [BranchIfButton] ( #$0080, &DiarySndBtnSaveConfirm )
+    COP [BranchIfPressed] ( #$0080, &DiarySndBtnSaveConfirm )
     RTL 
 }
 
@@ -812,7 +812,7 @@ DiarySndBtnSaveConfirm {
     PLX 
     JSR $&DiaryMenuClearVram
     COP [PrintDialogStringAlt] ( &dialogstring_0BF476 )
-    COP [CallScript] ( &DiaryRenderSlotStats )
+    COP [CallNear] ( &DiaryRenderSlotStats )
     COP [RunBg3Script] ( @system_strings.consolestring_01EADC )
     LDA $0D94
     STA $0D92
@@ -921,13 +921,13 @@ DiaryCopyTab {
 
   DiaryCopySourceLoop:
     COP [PrintDialogStringAlt] ( &dialogstring_0BF48C )
-    COP [CallScript] ( &DiaryRenderSlotStats )
+    COP [CallNear] ( &DiaryRenderSlotStats )
     COP [RunBg3Script] ( @system_strings.consolestring_01EADC )
-    COP [SetEntryExit]
-    COP [BranchIfButton] ( #$0800, &DiaryCopySourceUp )
-    COP [BranchIfButton] ( #$0400, &DiaryCopySourceDown )
-    COP [BranchIfButton] ( #$0080, &DiaryCopySourceConfirm )
-    COP [BranchIfButton] ( #$8000, &DiaryCopyCancel )
+    COP [SetEntryHereAndYield]
+    COP [BranchIfPressed] ( #$0800, &DiaryCopySourceUp )
+    COP [BranchIfPressed] ( #$0400, &DiaryCopySourceDown )
+    COP [BranchIfPressed] ( #$0080, &DiaryCopySourceConfirm )
+    COP [BranchIfPressed] ( #$8000, &DiaryCopyCancel )
     RTL 
 }
 
@@ -999,11 +999,11 @@ DiaryCopySourceConfirm {
     TYA 
     LSR 
     STA $0D96
-    COP [SetEntryExit]
-    COP [BranchIfButton] ( #$0800, &DiaryCopyTargetUp )
-    COP [BranchIfButton] ( #$0400, &DiaryCopyTargetDown )
-    COP [BranchIfButton] ( #$0080, &DiaryCopyExecute )
-    COP [BranchIfButton] ( #$8000, &DiaryCopyTargetCancel )
+    COP [SetEntryHereAndYield]
+    COP [BranchIfPressed] ( #$0800, &DiaryCopyTargetUp )
+    COP [BranchIfPressed] ( #$0400, &DiaryCopyTargetDown )
+    COP [BranchIfPressed] ( #$0080, &DiaryCopyExecute )
+    COP [BranchIfPressed] ( #$8000, &DiaryCopyTargetCancel )
     RTL 
 }
 
@@ -1121,17 +1121,17 @@ DiaryEraseTab {
 
   DiaryEraseSelectLoop:
     COP [PrintDialogStringAlt] ( &dialogstring_0BF4A7 )
-    COP [CallScript] ( &DiaryRenderSlotStats )
+    COP [CallNear] ( &DiaryRenderSlotStats )
     COP [RunBg3Script] ( @system_strings.consolestring_01EADC )
     LDA #$0000
     STA $0D92
 
   DiaryEraseInputLoop:
-    COP [SetEntryExit]
-    COP [BranchIfButton] ( #$0800, &DiaryEraseSlotUp )
-    COP [BranchIfButton] ( #$0400, &DiaryEraseSlotDown )
-    COP [BranchIfButton] ( #$0080, &DiaryEraseSlotConfirm )
-    COP [BranchIfButton] ( #$8000, &DiaryEraseCancel )
+    COP [SetEntryHereAndYield]
+    COP [BranchIfPressed] ( #$0800, &DiaryEraseSlotUp )
+    COP [BranchIfPressed] ( #$0400, &DiaryEraseSlotDown )
+    COP [BranchIfPressed] ( #$0080, &DiaryEraseSlotConfirm )
+    COP [BranchIfPressed] ( #$8000, &DiaryEraseCancel )
     RTL 
 }
 
@@ -1246,7 +1246,7 @@ DiaryEraseExecute {
     LDA #$4000
     STA $remapY
     COP [PlaySoundCh2] ( #13 )
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     LDA $0D94
     JSL $@save_system.ClearSaveSlot
     COP [WaitByte] ( #1D )
@@ -1325,15 +1325,15 @@ DiaryMenuClearVram {
 ---------------------------------------------
 
 DiaryCursorNav_noref {
-    COP [BranchIfButton] ( #$8000, &DiaryCursorConfirm )
-    COP [BranchIfButton] ( #$6040, &DiaryCursorCancel )
-    COP [BranchIfButton] ( #$0800, &DiaryCursorMoveUp )
-    COP [BranchIfButton] ( #$0400, &DiaryCursorMoveDown )
+    COP [BranchIfPressed] ( #$8000, &DiaryCursorConfirm )
+    COP [BranchIfPressed] ( #$6040, &DiaryCursorCancel )
+    COP [BranchIfPressed] ( #$0800, &DiaryCursorMoveUp )
+    COP [BranchIfPressed] ( #$0400, &DiaryCursorMoveDown )
     LDA $14
     CMP #$0002
     BCS loc_0BEC31
-    COP [BranchIfButton] ( #$0200, &DiaryCursorPageUp )
-    COP [BranchIfButton] ( #$0100, &DiaryCursorPageDown )
+    COP [BranchIfPressed] ( #$0200, &DiaryCursorPageUp )
+    COP [BranchIfPressed] ( #$0100, &DiaryCursorPageDown )
 
   loc_0BEC31:
     LDA $18

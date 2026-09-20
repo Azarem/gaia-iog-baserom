@@ -14,10 +14,10 @@ ir21_frozen_whirligig [
   code_0A99C6:
     LDA #$0010
     TSB $12
-    COP [AddPosition] ( #08, #08 )
+    COP [NudgePosition] ( #08, #08 )
     COP [StageSpriteFrame] ( #1B )
     COP [AnimOnce]
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     RTL 
 } >
 ]

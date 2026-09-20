@@ -9,19 +9,19 @@ sc01_girl3 [
   actor-def < #1C, #00, #10, {
 
   code_0481AB:
-    COP [SetOnInteract] ( &code_0481D1 )
+    COP [SetInteractHandler] ( &code_0481D1 )
 
   loc_0481AF:
-    COP [SolidHighHere]
+    COP [MarkSolidHere]
 
   code_0481B1:
-    COP [ExitIfFlagByte] ( #02, #01 )
-    COP [ClearLowHere]
+    COP [WaitOnFlagByte] ( #02, #01 )
+    COP [ClearSolidHere]
     COP [StageSpriteLoopMoveX] ( #20, #02, #14 )
     COP [AnimLoop]
-    COP [SolidHighHere]
-    COP [BranchIfFlagByte] ( #03, #00, &code_0481B1 )
-    COP [ClearLowHere]
+    COP [MarkSolidHere]
+    COP [BranchOnFlagByte] ( #03, #00, &code_0481B1 )
+    COP [ClearSolidHere]
     COP [StageSpriteLoopMoveX] ( #21, #06, #11 )
     COP [AnimLoop]
     BRA loc_0481AF

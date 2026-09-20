@@ -12,10 +12,10 @@ hidden_red_jewel [
   actor-def < #00, #00, #30, {
 
   code_00C672:
-    COP [SetOnInteract] ( &HiddenRedJewelInteract )
+    COP [SetInteractHandler] ( &HiddenRedJewelInteract )
     COP [SetMetasprite] ( @spriteset_enemies )
     COP [StageSprAndHitbox] ( #00 )
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     RTL 
 } >
 ]

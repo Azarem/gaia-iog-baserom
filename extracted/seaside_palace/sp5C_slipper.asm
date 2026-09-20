@@ -14,11 +14,11 @@ sp5C_slipper [
   actor-def < #19, #00, #03, {
 
   code_0AE45F:
-    COP [BranchIfSolid] ( &code_0AE473 )
+    COP [BranchIfSolidHere] ( &code_0AE473 )
     LDA $sceneCurrent
     CMP #$005C
     BNE code_0AE47B
-    COP [BranchIfFlagByte] ( #70, #00, &code_0AE47B )
+    COP [BranchOnFlagByte] ( #70, #00, &code_0AE47B )
     COP [Die]
 } >
 ]
@@ -26,12 +26,12 @@ sp5C_slipper [
 code_0AE473 {
     LDA #$2000
     TSB $10
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     RTL 
 }
 
 code_0AE47B {
-    COP [AddPosition] ( #F8, #00 )
+    COP [NudgePosition] ( #F8, #00 )
     LDA #$0080
     TSB $12
     COP [WaitWhileOffscreen] ( #08 )
@@ -49,7 +49,7 @@ code_0AE492 {
     COP [AnimOnce]
     LDA #$0300
     TSB $10
-    COP [SetEntryExitNow] ( @code_0AE487 )
+    COP [JumpNextFrame] ( @code_0AE487 )
 }
 
 code_0AE4A5 {
@@ -111,12 +111,12 @@ code_0AE50B {
 }
 
 code_0AE515 {
-    COP [CallScript] ( &code_0AE5C8 )
+    COP [CallNear] ( &code_0AE5C8 )
     BRA code_0AE4AF
 }
 
 code_0AE51B {
-    COP [CallScript] ( &code_0AE611 )
+    COP [CallNear] ( &code_0AE611 )
     BRA code_0AE4AF
 }
 
@@ -125,17 +125,17 @@ code_0AE521 {
 }
 
 code_0AE52B {
-    COP [CallScript] ( &code_0AE641 )
+    COP [CallNear] ( &code_0AE641 )
     JMP $&code_0AE4AF
 }
 
 code_0AE532 {
-    COP [CallScript] ( &code_0AE692 )
+    COP [CallNear] ( &code_0AE692 )
     JMP $&code_0AE4AF
 }
 
 code_0AE539 {
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     COP [AnimOnce]
     COP [BranchIfPlayerNear] ( #04, &code_0AE545 )
     JMP $&code_0AE4AF
@@ -145,65 +145,65 @@ code_0AE545 {
     COP [CardinalToPlayer]
     CMP #$0000
     BNE loc_0AE56C
-    COP [LoopInit] ( #02 )
+    COP [LoopStart] ( #02 )
     COP [BranchIfSolidSouth] ( &code_0AE562 )
     COP [BranchIfSolidOffset] ( #FF, #01, &code_0AE562 )
-    COP [StageForceMoveY] ( #11 )
-    COP [SetEntryContinue]
+    COP [StageMoveY] ( #11 )
+    COP [SetEntryHere]
     COP [AnimOnce]
-    COP [LoopNext]
+    COP [LoopEnd]
 }
 
 code_0AE562 {
     COP [StageSprAndHitbox] ( #27 )
-    COP [CallScript] ( &code_0AE674 )
+    COP [CallNear] ( &code_0AE674 )
     JMP $&code_0AE4AF
 
   loc_0AE56C:
     DEC 
     BNE loc_0AE58B
-    COP [LoopInit] ( #02 )
+    COP [LoopStart] ( #02 )
     COP [BranchIfSolidOffset] ( #FE, #00, &code_0AE581 )
-    COP [StageForceMoveX] ( #12 )
-    COP [SetEntryContinue]
+    COP [StageMoveX] ( #12 )
+    COP [SetEntryHere]
     COP [AnimOnce]
-    COP [LoopNext]
+    COP [LoopEnd]
 }
 
 code_0AE581 {
     COP [StageSprAndHitbox] ( #27 )
-    COP [CallScript] ( &code_0AE629 )
+    COP [CallNear] ( &code_0AE629 )
     JMP $&code_0AE4AF
 
   loc_0AE58B:
     DEC 
     BNE loc_0AE5AE
-    COP [LoopInit] ( #02 )
+    COP [LoopStart] ( #02 )
     COP [BranchIfSolidNorth] ( &code_0AE5A4 )
     COP [BranchIfSolidOffset] ( #FF, #FF, &code_0AE5A4 )
-    COP [StageForceMoveY] ( #12 )
-    COP [SetEntryContinue]
+    COP [StageMoveY] ( #12 )
+    COP [SetEntryHere]
     COP [AnimOnce]
-    COP [LoopNext]
+    COP [LoopEnd]
 }
 
 code_0AE5A4 {
     COP [StageSprAndHitbox] ( #27 )
-    COP [CallScript] ( &code_0AE6B0 )
+    COP [CallNear] ( &code_0AE6B0 )
     JMP $&code_0AE4AF
 
   loc_0AE5AE:
-    COP [LoopInit] ( #02 )
+    COP [LoopStart] ( #02 )
     COP [BranchIfSolidEast] ( &code_0AE5BE )
-    COP [StageForceMoveX] ( #11 )
-    COP [SetEntryContinue]
+    COP [StageMoveX] ( #11 )
+    COP [SetEntryHere]
     COP [AnimOnce]
-    COP [LoopNext]
+    COP [LoopEnd]
 }
 
 code_0AE5BE {
     COP [StageSprAndHitbox] ( #27 )
-    COP [CallScript] ( &code_0AE5F7 )
+    COP [CallNear] ( &code_0AE5F7 )
     JMP $&code_0AE4AF
 }
 
@@ -211,8 +211,8 @@ code_0AE5C8 {
     LDA $24
     BNE code_0AE5F7
     COP [BranchIfSolidOffset] ( #FE, #00, &code_0AE5E0 )
-    COP [StageForceMoveX] ( #12 )
-    COP [SetEntryContinue]
+    COP [StageMoveX] ( #12 )
+    COP [SetEntryHere]
     COP [AnimOnce]
     COP [BranchIfPlayerNear] ( #04, &code_0AE5C8 )
     COP [RestoreSavedPtr]
@@ -220,7 +220,7 @@ code_0AE5C8 {
 
 code_0AE5E0 {
     STZ $2C
-    COP [SetEntryExit]
+    COP [SetEntryHereAndYield]
     COP [RngByte]
     AND #$0003
     BEQ loc_0AE5F5
@@ -232,13 +232,13 @@ code_0AE5E0 {
 
 code_0AE5F7 {
     STZ $24
-    COP [SetEntryExit]
-    COP [StageForceMoveX] ( #08 )
-    COP [LoopInit] ( #04 )
+    COP [SetEntryHereAndYield]
+    COP [StageMoveX] ( #08 )
+    COP [LoopStart] ( #04 )
     COP [BranchIfSolidOffset] ( #FE, #00, &code_0AE60D )
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     COP [AnimOneFrame]
-    COP [LoopNext]
+    COP [LoopEnd]
 }
 
 code_0AE60D {
@@ -250,8 +250,8 @@ code_0AE611 {
     LDA $24
     BNE code_0AE629
     COP [BranchIfSolidEast] ( &code_0AE627 )
-    COP [StageForceMoveX] ( #11 )
-    COP [SetEntryContinue]
+    COP [StageMoveX] ( #11 )
+    COP [SetEntryHere]
     COP [AnimOnce]
     COP [BranchIfPlayerNear] ( #04, &code_0AE611 )
     COP [RestoreSavedPtr]
@@ -263,13 +263,13 @@ code_0AE627 {
 
 code_0AE629 {
     STZ $24
-    COP [SetEntryExit]
-    COP [StageForceMoveX] ( #07 )
-    COP [LoopInit] ( #04 )
+    COP [SetEntryHereAndYield]
+    COP [StageMoveX] ( #07 )
+    COP [LoopStart] ( #04 )
     COP [BranchIfSolidEast] ( &code_0AE63D )
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     COP [AnimOneFrame]
-    COP [LoopNext]
+    COP [LoopEnd]
 }
 
 code_0AE63D {
@@ -282,8 +282,8 @@ code_0AE641 {
     BNE code_0AE674
     COP [BranchIfSolidNorth] ( &code_0AE65D )
     COP [BranchIfSolidOffset] ( #FF, #FF, &code_0AE65D )
-    COP [StageForceMoveY] ( #12 )
-    COP [SetEntryContinue]
+    COP [StageMoveY] ( #12 )
+    COP [SetEntryHere]
     COP [AnimOnce]
     COP [BranchIfPlayerNear] ( #04, &code_0AE641 )
     COP [RestoreSavedPtr]
@@ -291,7 +291,7 @@ code_0AE641 {
 
 code_0AE65D {
     STZ $2E
-    COP [SetEntryExit]
+    COP [SetEntryHereAndYield]
     COP [RngByte]
     AND #$0003
     BEQ loc_0AE672
@@ -303,14 +303,14 @@ code_0AE65D {
 
 code_0AE674 {
     STZ $24
-    COP [SetEntryExit]
-    COP [StageForceMoveY] ( #08 )
-    COP [LoopInit] ( #04 )
+    COP [SetEntryHereAndYield]
+    COP [StageMoveY] ( #08 )
+    COP [LoopStart] ( #04 )
     COP [BranchIfSolidNorth] ( &code_0AE68E )
     COP [BranchIfSolidOffset] ( #FF, #FF, &code_0AE68E )
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     COP [AnimOneFrame]
-    COP [LoopNext]
+    COP [LoopEnd]
 }
 
 code_0AE68E {
@@ -323,8 +323,8 @@ code_0AE692 {
     BNE code_0AE6B0
     COP [BranchIfSolidSouth] ( &code_0AE6AE )
     COP [BranchIfSolidOffset] ( #FF, #01, &code_0AE6AE )
-    COP [StageForceMoveY] ( #11 )
-    COP [SetEntryContinue]
+    COP [StageMoveY] ( #11 )
+    COP [SetEntryHere]
     COP [AnimOnce]
     COP [BranchIfPlayerNear] ( #04, &code_0AE692 )
     COP [RestoreSavedPtr]
@@ -336,13 +336,13 @@ code_0AE6AE {
 
 code_0AE6B0 {
     STZ $24
-    COP [StageForceMoveY] ( #07 )
-    COP [LoopInit] ( #04 )
+    COP [StageMoveY] ( #07 )
+    COP [LoopStart] ( #04 )
     COP [BranchIfSolidSouth] ( &code_0AE6C8 )
     COP [BranchIfSolidOffset] ( #FF, #01, &code_0AE6C8 )
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     COP [AnimOneFrame]
-    COP [LoopNext]
+    COP [LoopEnd]
 }
 
 code_0AE6C8 {

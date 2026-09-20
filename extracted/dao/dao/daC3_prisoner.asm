@@ -12,7 +12,7 @@ daC3_prisoner [
   actor-def < #0A, #00, #10, {
 
   code_08AC52:
-    COP [SetOnInteract] ( &code_08AC8D )
+    COP [SetInteractHandler] ( &code_08AC8D )
 
   code_08AC56:
     COP [BranchOnPlayerX] ( #$0008, &code_08AC67, &code_08AC60, &code_08AC7A )
@@ -27,7 +27,7 @@ code_08AC60 {
 
 code_08AC67 {
     COP [BranchIfSolidOffset] ( #FE, #00, &code_08AC72 )
-    COP [SetEntryExitNow] ( @code_08AC56 )
+    COP [JumpNextFrame] ( @code_08AC56 )
 }
 
 code_08AC72 {
@@ -38,7 +38,7 @@ code_08AC72 {
 
 code_08AC7A {
     COP [BranchIfSolidOffset] ( #03, #00, &code_08AC85 )
-    COP [SetEntryExitNow] ( @code_08AC56 )
+    COP [JumpNextFrame] ( @code_08AC56 )
 }
 
 code_08AC85 {

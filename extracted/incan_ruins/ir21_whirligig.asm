@@ -21,10 +21,10 @@ ir21_whirligig [
   actor-def < #1B, #00, #00, {
 
   code_0A98BF:
-    COP [OrActorFlags] ( #$0020 )
-    COP [AddPosition] ( #08, #08 )
+    COP [OrExtraFlags] ( #$0020 )
+    COP [NudgePosition] ( #08, #08 )
     COP [WaitWhileOffscreen] ( #10 )
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     COP [BranchIfPlayerNear] ( #06, &code_0A98D2 )
     RTL 
 } >
@@ -33,8 +33,8 @@ ir21_whirligig [
 code_0A98D2 {
     COP [StageSpriteLoopMoveY] ( #1B, #40, #14 )
     COP [AnimLoop]
-    COP [CollPrioritySetMax]
-    COP [SpawnMarkedAfter] ( @code_0A98E9, #$2300 )
+    COP [SetPriorityMax]
+    COP [SpawnAfterMarked] ( @code_0A98E9, #$2300 )
 
   loc_0A98E2:
     COP [StageSpriteFrame] ( #1C )
@@ -54,7 +54,7 @@ code_0A98E9 {
     STA $orbitAngle, X
     LDA $0016, Y
     STA $orbitDiameter, X
-    COP [SetEntryExit]
+    COP [SetEntryHereAndYield]
     PHX 
     LDX $04
     TXY 

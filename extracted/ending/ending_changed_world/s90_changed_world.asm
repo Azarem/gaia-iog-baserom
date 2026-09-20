@@ -70,7 +70,7 @@ s90_changed_world [
     LDA #$0404
     STA $gfxCacheIdxB
     COP [QueueMapChange] ( #E5, #$0000, #$0000, #00, #$1100 )
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     RTL 
 } >
 ]

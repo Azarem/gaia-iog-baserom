@@ -18,7 +18,7 @@ btE1_light_elevator [
 
   code_099589:
     COP [BranchIfPlayerAt] ( #$0180, #$07A0, &code_099625 )
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     COP [BranchIfPlayerInAbsTiles] ( #07, #7B, #0A, #7D, &code_09959C )
     RTL 
 } >
@@ -33,7 +33,7 @@ code_09959C {
     COP [WaitWord] ( #$0167 )
     COP [SetFlagByte] ( #01 )
     COP [SpawnAfterFlags] ( @py_death_particle, #$1002 )
-    COP [SetEntryExit]
+    COP [SetEntryHereAndYield]
     LDY $playerActor
     LDA $000E, Y
     EOR #$2000
@@ -42,7 +42,7 @@ code_09959C {
     CLC 
     ADC #$0190
     STA $0014, Y
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     LDY $playerActor
     LDA $0016, Y
     SEC 
@@ -67,14 +67,14 @@ code_09959C {
     COP [WaitByte] ( #07 )
     LDA #$CFF0
     TRB $joypadMaskStd
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     RTL 
 }
 
 code_099618 {
     COP [PaletteStart] ( #6D )
     COP [PaletteStep]
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     COP [PaletteStart] ( #6F )
     COP [PaletteStep]
     RTL 
@@ -86,7 +86,7 @@ code_099625 {
 }
 
 code_09962C {
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     COP [PaletteStart] ( #6E )
     COP [PaletteStep]
     RTL 

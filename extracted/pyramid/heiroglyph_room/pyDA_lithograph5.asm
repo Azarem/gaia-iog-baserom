@@ -15,12 +15,12 @@ pyDA_lithograph5 [
   actor-def < #00, #00, #30, {
 
   code_08CA47:
-    COP [BranchIfFlagByte] ( #C6, #01, &code_08CA5E )
+    COP [BranchOnFlagByte] ( #C6, #01, &code_08CA5E )
     LDA #$0200
     TSB $12
-    COP [AddPosition] ( #00, #02 )
-    COP [SetOnInteract] ( &code_08CA65 )
-    COP [ExitIfFlagByte] ( #C6, #01 )
+    COP [NudgePosition] ( #00, #02 )
+    COP [SetInteractHandler] ( &code_08CA65 )
+    COP [WaitOnFlagByte] ( #C6, #01 )
 } >
 ]
 
@@ -31,7 +31,7 @@ code_08CA5E {
 }
 
 code_08CA65 {
-    COP [BranchIfFlagByte] ( #C6, #01, &code_08CA83 )
+    COP [BranchOnFlagByte] ( #C6, #01, &code_08CA83 )
     COP [PrintDialogString] ( &pyDA_lithograph1.dialogstring_08C7C9 )
     COP [GiveItem] ( #22, &pyDA_lithograph1.pyDA_lithograph_full )
     COP [SetFlagByte] ( #C6 )

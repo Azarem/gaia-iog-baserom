@@ -6,7 +6,7 @@
 
 This page documents the engine routines that compute 8-way facing directions, query tile solidity against the live map, read/write the dynamic collision overlay at `$7FC000`, and index camera pan step tables. These functions sit between COP script handlers and bank `$03` map lookup code; almost every movement, spawn, and branch-on-wall COP in the `$00`–`$1E` and `$96`–`$98` ranges depends on them.
 
-**Related:** [`event-flags.md`](event-flags.md), [`actor-management.md`](actor-management.md), [`readme.md`](readme.md), [`../../cop-commands-reference.md`](../../cop-commands-reference.md)
+**Related:** [`event-flags.md`](event-flags.md), [`actor-management.md`](actor-management.md), [`readme.md`](readme.md), [`../../cop/index.md`](../../cop/index.md)
 
 ---
 

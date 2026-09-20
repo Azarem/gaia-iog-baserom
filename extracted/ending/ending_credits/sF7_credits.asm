@@ -92,11 +92,11 @@ sF7_credits [
     COP [StartMusic] ( #14 )
     STZ $cameraTargetX
     STZ $cameraTargetY
-    COP [SpawnLastRel] ( @code_09E9D2, #00, #00, #$2000 )
-    COP [SpawnLastRel] ( @code_09E919, #00, #00, #$2000 )
+    COP [SpawnListAppend] ( @code_09E9D2, #00, #00, #$2000 )
+    COP [SpawnListAppend] ( @code_09E919, #00, #00, #$2000 )
     STZ $00E4
-    COP [CallScript] ( &code_09E934 )
-    COP [HaltIfCounterGte] ( #$00C8 )
+    COP [CallNear] ( &code_09E934 )
+    COP [HaltIfMaxFrames] ( #$00C8 )
     SEP #$20
     LDA #$10
     STA $TM
@@ -112,26 +112,26 @@ sF7_credits [
     COP [AdhocVramDma] ( $7EE000, #$1180, #$0200 )
     COP [AdhocVramDma] ( $7EE200, #$1980, #$0200 )
     COP [CopyPalette] ( @palette_1E094C, #00, #00, #80 )
-    COP [HaltIfCounterGte] ( #$0CA8 )
-    COP [SpawnLastRel] ( @code_09F4AA, #00, #00, #$2000 )
-    COP [HaltIfCounterGte] ( #$11BC )
-    COP [SpawnLastRel] ( @code_09F4ED, #00, #00, #$2000 )
-    COP [HaltIfCounterGte] ( #$1FF4 )
+    COP [HaltIfMaxFrames] ( #$0CA8 )
+    COP [SpawnListAppend] ( @code_09F4AA, #00, #00, #$2000 )
+    COP [HaltIfMaxFrames] ( #$11BC )
+    COP [SpawnListAppend] ( @code_09F4ED, #00, #00, #$2000 )
+    COP [HaltIfMaxFrames] ( #$1FF4 )
     COP [AdhocVramDma] ( $7EE400, #$1180, #$0200 )
     COP [AdhocVramDma] ( $7EE600, #$1980, #$0200 )
-    COP [SpawnLastRel] ( @code_09F4AA, #00, #00, #$2000 )
-    COP [HaltIfCounterGte] ( #$251C )
-    COP [SpawnLastRel] ( @code_09F4ED, #00, #00, #$2000 )
-    COP [HaltIfCounterGte] ( #$2710 )
+    COP [SpawnListAppend] ( @code_09F4AA, #00, #00, #$2000 )
+    COP [HaltIfMaxFrames] ( #$251C )
+    COP [SpawnListAppend] ( @code_09F4ED, #00, #00, #$2000 )
+    COP [HaltIfMaxFrames] ( #$2710 )
     COP [AdhocVramDma] ( $7EE800, #$1180, #$0200 )
     COP [AdhocVramDma] ( $7EEA00, #$1980, #$0200 )
-    COP [SpawnLastRel] ( @code_09F4AA, #00, #00, #$2000 )
-    COP [HaltIfCounterGte] ( #$2CEC )
-    COP [SpawnLastRel] ( @code_09F4ED, #00, #00, #$2000 )
-    COP [HaltIfCounterGte] ( #$2FA8 )
+    COP [SpawnListAppend] ( @code_09F4AA, #00, #00, #$2000 )
+    COP [HaltIfMaxFrames] ( #$2CEC )
+    COP [SpawnListAppend] ( @code_09F4ED, #00, #00, #$2000 )
+    COP [HaltIfMaxFrames] ( #$2FA8 )
     COP [AdhocVramDma] ( $7EEC00, #$1180, #$0200 )
     COP [AdhocVramDma] ( $7EEE00, #$1980, #$0200 )
-    COP [SpawnLastRel] ( @code_09F4AA, #00, #00, #$2000 )
+    COP [SpawnListAppend] ( @code_09F4AA, #00, #00, #$2000 )
     COP [WaitByte] ( #3F )
     SEP #$20
     LDA #$41
@@ -139,30 +139,30 @@ sF7_credits [
     LDA #$02
     STA $TS
     REP #$20
-    COP [HaltIfCounterGte] ( #$3200 )
-    COP [SpawnLastRel] ( @code_09F4ED, #00, #00, #$2000 )
+    COP [HaltIfMaxFrames] ( #$3200 )
+    COP [SpawnListAppend] ( @code_09F4ED, #00, #00, #$2000 )
     SEP #$20
     LDA #$83
     STA $CGADSUB
     LDA #$00
     STA $TS
     REP #$20
-    COP [HaltIfCounterGte] ( #$3264 )
-    COP [SpawnLastRel] ( @code_09E62F, #00, #00, #$0500 )
-    COP [HaltIfCounterGte] ( #$32E4 )
-    COP [SpawnLastRel] ( @code_09E637, #00, #00, #$0500 )
-    COP [HaltIfCounterGte] ( #$32FC )
-    COP [SpawnLastRel] ( @code_09E62F, #00, #00, #$0500 )
-    COP [HaltIfCounterGte] ( #$3396 )
-    COP [SpawnLastRel] ( @code_09E62F, #00, #00, #$0500 )
-    COP [HaltIfCounterGte] ( #$344A )
-    COP [SpawnLastRel] ( @code_09E637, #00, #00, #$0500 )
-    COP [HaltIfCounterGte] ( #$37B4 )
-    COP [SpawnLastRel] ( @sF7_credits_misc_timeline.code_09E65D, #00, #00, #$0500 )
-    COP [HaltIfCounterGte] ( #$39FC )
-    COP [SpawnLastRel] ( @sF7_credits_misc_timeline.code_09E67C, #00, #00, #$2500 )
-    COP [HaltIfCounterGte] ( #$3C8C )
-    COP [CallScript] ( &code_09E9A4 )
+    COP [HaltIfMaxFrames] ( #$3264 )
+    COP [SpawnListAppend] ( @code_09E62F, #00, #00, #$0500 )
+    COP [HaltIfMaxFrames] ( #$32E4 )
+    COP [SpawnListAppend] ( @code_09E637, #00, #00, #$0500 )
+    COP [HaltIfMaxFrames] ( #$32FC )
+    COP [SpawnListAppend] ( @code_09E62F, #00, #00, #$0500 )
+    COP [HaltIfMaxFrames] ( #$3396 )
+    COP [SpawnListAppend] ( @code_09E62F, #00, #00, #$0500 )
+    COP [HaltIfMaxFrames] ( #$344A )
+    COP [SpawnListAppend] ( @code_09E637, #00, #00, #$0500 )
+    COP [HaltIfMaxFrames] ( #$37B4 )
+    COP [SpawnListAppend] ( @sF7_credits_misc_timeline.code_09E65D, #00, #00, #$0500 )
+    COP [HaltIfMaxFrames] ( #$39FC )
+    COP [SpawnListAppend] ( @sF7_credits_misc_timeline.code_09E67C, #00, #00, #$2500 )
+    COP [HaltIfMaxFrames] ( #$3C8C )
+    COP [CallNear] ( &code_09E9A4 )
     COP [AdhocVramDma] ( $7EA000, #$2000, #$0800 )
     COP [AdhocVramDma] ( $7EA800, #$2400, #$0800 )
     COP [AdhocVramDma] ( $7EB000, #$2800, #$0800 )
@@ -174,96 +174,96 @@ sF7_credits [
     COP [AdhocVramDma] ( $7EF000, #$1180, #$0200 )
     COP [AdhocVramDma] ( $7EF200, #$1980, #$0200 )
     COP [CopyPalette] ( @palette_1E0A6C, #00, #00, #80 )
-    COP [HaltIfCounterGte] ( #$3CF0 )
-    COP [SpawnLastRel] ( @code_09F4AA, #00, #00, #$2000 )
-    COP [HaltIfCounterGte] ( #$3D46 )
-    COP [SpawnLastRel] ( @func_09F69F, #00, #00, #$2000 )
-    COP [SetEntryExit]
+    COP [HaltIfMaxFrames] ( #$3CF0 )
+    COP [SpawnListAppend] ( @code_09F4AA, #00, #00, #$2000 )
+    COP [HaltIfMaxFrames] ( #$3D46 )
+    COP [SpawnListAppend] ( @func_09F69F, #00, #00, #$2000 )
+    COP [SetEntryHereAndYield]
     SEP #$20
     LDA #$01
     STA $CGADSUB
     LDA #$02
     STA $TS
     REP #$20
-    COP [HaltIfCounterGte] ( #$3F48 )
+    COP [HaltIfMaxFrames] ( #$3F48 )
     SEP #$20
     LDA #$83
     STA $CGADSUB
     LDA #$00
     STA $TS
     REP #$20
-    COP [SpawnLastRel] ( @code_09F4ED, #00, #00, #$2000 )
-    COP [HaltIfCounterGte] ( #$4920 )
-    COP [CallScript] ( &code_09E962 )
+    COP [SpawnListAppend] ( @code_09F4ED, #00, #00, #$2000 )
+    COP [HaltIfMaxFrames] ( #$4920 )
+    COP [CallNear] ( &code_09E962 )
     COP [AdhocVramDma] ( $7EF400, #$1180, #$0200 )
     COP [AdhocVramDma] ( $7EF600, #$1980, #$0200 )
-    COP [HaltIfCounterGte] ( #$4AA1 )
-    COP [SpawnLastRel] ( @code_09F4AA, #00, #00, #$2000 )
-    COP [HaltIfCounterGte] ( #$4CF9 )
-    COP [SpawnLastRel] ( @code_09F4ED, #00, #00, #$2000 )
-    COP [HaltIfCounterGte] ( #$500C )
-    COP [SpawnLastRel] ( @sF7_credits_misc_timeline.code_09E68D, #00, #00, #$0500 )
-    COP [HaltIfCounterGte] ( #$5208 )
-    COP [SpawnLastRel] ( @sF7_credits_misc_timeline.code_09E6A5, #00, #00, #$0500 )
-    COP [HaltIfCounterGte] ( #$526C )
+    COP [HaltIfMaxFrames] ( #$4AA1 )
+    COP [SpawnListAppend] ( @code_09F4AA, #00, #00, #$2000 )
+    COP [HaltIfMaxFrames] ( #$4CF9 )
+    COP [SpawnListAppend] ( @code_09F4ED, #00, #00, #$2000 )
+    COP [HaltIfMaxFrames] ( #$500C )
+    COP [SpawnListAppend] ( @sF7_credits_misc_timeline.code_09E68D, #00, #00, #$0500 )
+    COP [HaltIfMaxFrames] ( #$5208 )
+    COP [SpawnListAppend] ( @sF7_credits_misc_timeline.code_09E6A5, #00, #00, #$0500 )
+    COP [HaltIfMaxFrames] ( #$526C )
     COP [AdhocVramDma] ( $7EF800, #$1180, #$0200 )
     COP [AdhocVramDma] ( $7EFA00, #$1980, #$0200 )
-    COP [HaltIfCounterGte] ( #$52D0 )
-    COP [SpawnLastRel] ( @code_09F4AA, #00, #00, #$2000 )
-    COP [HaltIfCounterGte] ( #$5366 )
-    COP [SpawnLastRel] ( @code_09F4ED, #00, #00, #$2000 )
-    COP [HaltIfCounterGte] ( #$5398 )
-    COP [SpawnLastRel] ( @sF7_credits_misc_timeline.code_09E6C0, #00, #00, #$0500 )
-    COP [HaltIfCounterGte] ( #$53A8 )
-    COP [SpawnLastRel] ( @sF7_credits_misc_timeline.code_09E6DB, #00, #00, #$0500 )
-    COP [HaltIfCounterGte] ( #$5528 )
-    COP [SpawnLastRel] ( @sF7_credits_misc_timeline.code_09E6F6, #00, #00, #$0500 )
-    COP [HaltIfCounterGte] ( #$5538 )
-    COP [SpawnLastRel] ( @sF7_credits_misc_timeline.code_09E711, #00, #00, #$0500 )
-    COP [HaltIfCounterGte] ( #$56B8 )
-    COP [SpawnLastRel] ( @sF7_credits_misc_timeline.code_09E72C, #00, #00, #$0500 )
-    COP [HaltIfCounterGte] ( #$5848 )
-    COP [SpawnLastRel] ( @sF7_credits_misc_timeline.code_09E747, #00, #00, #$0500 )
-    COP [HaltIfCounterGte] ( #$5860 )
-    COP [SpawnLastRel] ( @sF7_credits_misc_timeline.code_09E762, #00, #00, #$0500 )
-    COP [HaltIfCounterGte] ( #$59CE )
-    COP [CallScript] ( &code_09E990 )
-    COP [HaltIfCounterGte] ( #$59D8 )
-    COP [SpawnLastRel] ( @sF7_credits_misc_timeline.code_09E77D, #00, #00, #$0500 )
-    COP [HaltIfCounterGte] ( #$59F0 )
-    COP [SpawnLastRel] ( @sF7_credits_misc_timeline.code_09E798, #00, #00, #$0500 )
-    COP [HaltIfCounterGte] ( #$5B68 )
-    COP [SpawnLastRel] ( @sF7_credits_misc_timeline.code_09E7B3, #00, #00, #$0500 )
-    COP [HaltIfCounterGte] ( #$5CF8 )
-    COP [SpawnLastRel] ( @sF7_credits_misc_timeline.code_09E7CE, #00, #00, #$0500 )
-    COP [HaltIfCounterGte] ( #$5D10 )
-    COP [SpawnLastRel] ( @sF7_credits_misc_timeline.code_09E7E9, #00, #00, #$0500 )
-    COP [HaltIfCounterGte] ( #$5E88 )
-    COP [SpawnLastRel] ( @sF7_credits_misc_timeline.code_09E804, #00, #00, #$0500 )
-    COP [HaltIfCounterGte] ( #$5EA0 )
-    COP [SpawnLastRel] ( @sF7_credits_misc_timeline.code_09E81F, #00, #00, #$0500 )
-    COP [HaltIfCounterGte] ( #$600E )
-    COP [CallScript] ( &code_09E99A )
-    COP [HaltIfCounterGte] ( #$6018 )
-    COP [SpawnLastRel] ( @sF7_credits_misc_timeline.code_09E83A, #00, #00, #$0500 )
-    COP [HaltIfCounterGte] ( #$6038 )
-    COP [SpawnLastRel] ( @sF7_credits_misc_timeline.code_09E855, #00, #00, #$0500 )
-    COP [HaltIfCounterGte] ( #$6198 )
-    COP [SpawnLastRel] ( @sF7_credits_misc_timeline.code_09E870, #00, #00, #$0500 )
-    COP [HaltIfCounterGte] ( #$61C8 )
-    COP [SpawnLastRel] ( @sF7_credits_misc_timeline.code_09E88B, #00, #00, #$0500 )
-    COP [HaltIfCounterGte] ( #$6338 )
-    COP [SpawnLastRel] ( @sF7_credits_misc_timeline.code_09E8A6, #00, #00, #$0500 )
-    COP [HaltIfCounterGte] ( #$6400 )
+    COP [HaltIfMaxFrames] ( #$52D0 )
+    COP [SpawnListAppend] ( @code_09F4AA, #00, #00, #$2000 )
+    COP [HaltIfMaxFrames] ( #$5366 )
+    COP [SpawnListAppend] ( @code_09F4ED, #00, #00, #$2000 )
+    COP [HaltIfMaxFrames] ( #$5398 )
+    COP [SpawnListAppend] ( @sF7_credits_misc_timeline.code_09E6C0, #00, #00, #$0500 )
+    COP [HaltIfMaxFrames] ( #$53A8 )
+    COP [SpawnListAppend] ( @sF7_credits_misc_timeline.code_09E6DB, #00, #00, #$0500 )
+    COP [HaltIfMaxFrames] ( #$5528 )
+    COP [SpawnListAppend] ( @sF7_credits_misc_timeline.code_09E6F6, #00, #00, #$0500 )
+    COP [HaltIfMaxFrames] ( #$5538 )
+    COP [SpawnListAppend] ( @sF7_credits_misc_timeline.code_09E711, #00, #00, #$0500 )
+    COP [HaltIfMaxFrames] ( #$56B8 )
+    COP [SpawnListAppend] ( @sF7_credits_misc_timeline.code_09E72C, #00, #00, #$0500 )
+    COP [HaltIfMaxFrames] ( #$5848 )
+    COP [SpawnListAppend] ( @sF7_credits_misc_timeline.code_09E747, #00, #00, #$0500 )
+    COP [HaltIfMaxFrames] ( #$5860 )
+    COP [SpawnListAppend] ( @sF7_credits_misc_timeline.code_09E762, #00, #00, #$0500 )
+    COP [HaltIfMaxFrames] ( #$59CE )
+    COP [CallNear] ( &code_09E990 )
+    COP [HaltIfMaxFrames] ( #$59D8 )
+    COP [SpawnListAppend] ( @sF7_credits_misc_timeline.code_09E77D, #00, #00, #$0500 )
+    COP [HaltIfMaxFrames] ( #$59F0 )
+    COP [SpawnListAppend] ( @sF7_credits_misc_timeline.code_09E798, #00, #00, #$0500 )
+    COP [HaltIfMaxFrames] ( #$5B68 )
+    COP [SpawnListAppend] ( @sF7_credits_misc_timeline.code_09E7B3, #00, #00, #$0500 )
+    COP [HaltIfMaxFrames] ( #$5CF8 )
+    COP [SpawnListAppend] ( @sF7_credits_misc_timeline.code_09E7CE, #00, #00, #$0500 )
+    COP [HaltIfMaxFrames] ( #$5D10 )
+    COP [SpawnListAppend] ( @sF7_credits_misc_timeline.code_09E7E9, #00, #00, #$0500 )
+    COP [HaltIfMaxFrames] ( #$5E88 )
+    COP [SpawnListAppend] ( @sF7_credits_misc_timeline.code_09E804, #00, #00, #$0500 )
+    COP [HaltIfMaxFrames] ( #$5EA0 )
+    COP [SpawnListAppend] ( @sF7_credits_misc_timeline.code_09E81F, #00, #00, #$0500 )
+    COP [HaltIfMaxFrames] ( #$600E )
+    COP [CallNear] ( &code_09E99A )
+    COP [HaltIfMaxFrames] ( #$6018 )
+    COP [SpawnListAppend] ( @sF7_credits_misc_timeline.code_09E83A, #00, #00, #$0500 )
+    COP [HaltIfMaxFrames] ( #$6038 )
+    COP [SpawnListAppend] ( @sF7_credits_misc_timeline.code_09E855, #00, #00, #$0500 )
+    COP [HaltIfMaxFrames] ( #$6198 )
+    COP [SpawnListAppend] ( @sF7_credits_misc_timeline.code_09E870, #00, #00, #$0500 )
+    COP [HaltIfMaxFrames] ( #$61C8 )
+    COP [SpawnListAppend] ( @sF7_credits_misc_timeline.code_09E88B, #00, #00, #$0500 )
+    COP [HaltIfMaxFrames] ( #$6338 )
+    COP [SpawnListAppend] ( @sF7_credits_misc_timeline.code_09E8A6, #00, #00, #$0500 )
+    COP [HaltIfMaxFrames] ( #$6400 )
     COP [CopyPalette] ( @palette_1E0B8C, #00, #00, #80 )
     COP [AdhocVramDma] ( $7EFC00, #$1180, #$0200 )
     COP [AdhocVramDma] ( $7EFE00, #$1980, #$0200 )
-    COP [SpawnLastRel] ( @code_09F4AA, #00, #00, #$2000 )
-    COP [HaltIfCounterGte] ( #$64C8 )
-    COP [SpawnLastRel] ( @sF7_credits_misc_timeline.code_09E8C1, #00, #00, #$0500 )
-    COP [HaltIfCounterGte] ( #$652C )
-    COP [SpawnLastRel] ( @code_09F4ED, #00, #00, #$2000 )
-    COP [HaltIfCounterGte] ( #$7068 )
+    COP [SpawnListAppend] ( @code_09F4AA, #00, #00, #$2000 )
+    COP [HaltIfMaxFrames] ( #$64C8 )
+    COP [SpawnListAppend] ( @sF7_credits_misc_timeline.code_09E8C1, #00, #00, #$0500 )
+    COP [HaltIfMaxFrames] ( #$652C )
+    COP [SpawnListAppend] ( @code_09F4ED, #00, #00, #$2000 )
+    COP [HaltIfMaxFrames] ( #$7068 )
     STZ $066D
     STZ $0670
     STZ $0673
@@ -274,7 +274,7 @@ sF7_credits [
     STZ $0682
     STZ $0685
     COP [QueueMapChange] ( #F0, #$0090, #$0178, #06, #$1201 )
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     RTL 
 } >
 ]
@@ -321,7 +321,7 @@ code_09E637 {
 ---------------------------------------------
 
 code_09E919 {
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     INC $00E4
     SED 
     LDA $00E6
@@ -378,122 +378,122 @@ code_09E9D2 {
     RTL 
 
   loc_09E9D8:
-    COP [HaltIfCounterGte] ( #$01F4 )
+    COP [HaltIfMaxFrames] ( #$01F4 )
     LDA #$&dialogstring_09ECBF
     STA $26
-    COP [CallScript] ( &code_09EB64 )
+    COP [CallNear] ( &code_09EB64 )
     COP [WaitByte] ( #4A )
     LDA #$&dialogstring_09ECE7
     STA $26
-    COP [CallScript] ( &code_09EB64 )
+    COP [CallNear] ( &code_09EB64 )
     COP [WaitByte] ( #4A )
     LDA #$&dialogstring_09ED10
     STA $26
-    COP [CallScript] ( &code_09EB64 )
+    COP [CallNear] ( &code_09EB64 )
     COP [WaitByte] ( #4A )
     LDA #$&dialogstring_09ED3C
     STA $26
-    COP [CallScript] ( &code_09EB64 )
+    COP [CallNear] ( &code_09EB64 )
     COP [WaitByte] ( #4A )
     LDA #$&dialogstring_09ED68
     STA $26
-    COP [CallScript] ( &code_09EB64 )
+    COP [CallNear] ( &code_09EB64 )
     COP [WaitByte] ( #4A )
     LDA #$&dialogstring_09ED96
     STA $26
-    COP [CallScript] ( &code_09EB64 )
+    COP [CallNear] ( &code_09EB64 )
     COP [WaitByte] ( #4A )
     LDA #$&dialogstring_09EDC3
     STA $26
-    COP [CallScript] ( &code_09EB64 )
+    COP [CallNear] ( &code_09EB64 )
     COP [WaitByte] ( #4A )
     LDA #$&dialogstring_09EDF1
     STA $26
-    COP [CallScript] ( &code_09EB64 )
+    COP [CallNear] ( &code_09EB64 )
     COP [WaitByte] ( #4A )
     LDA #$&dialogstring_09EE2D
     STA $26
-    COP [CallScript] ( &code_09EB64 )
+    COP [CallNear] ( &code_09EB64 )
     COP [WaitByte] ( #4A )
     LDA #$&dialogstring_09EE7D
     STA $26
-    COP [CallScript] ( &code_09EB64 )
+    COP [CallNear] ( &code_09EB64 )
     COP [WaitByte] ( #4A )
     LDA #$&dialogstring_09EEAA
     STA $26
-    COP [CallScript] ( &code_09EB64 )
+    COP [CallNear] ( &code_09EB64 )
     COP [WaitByte] ( #4A )
     LDA #$&dialogstring_09EEF7
     STA $26
-    COP [CallScript] ( &code_09EB64 )
+    COP [CallNear] ( &code_09EB64 )
     COP [WaitByte] ( #4A )
     LDA #$&dialogstring_09EF22
     STA $26
-    COP [CallScript] ( &code_09EB64 )
+    COP [CallNear] ( &code_09EB64 )
     COP [WaitByte] ( #4A )
     LDA #$&dialogstring_09EF75
     STA $26
-    COP [CallScript] ( &code_09EB64 )
+    COP [CallNear] ( &code_09EB64 )
     COP [WaitByte] ( #4A )
     LDA #$&dialogstring_09EFB1
     STA $26
-    COP [CallScript] ( &code_09EB64 )
+    COP [CallNear] ( &code_09EB64 )
     COP [WaitByte] ( #4A )
     LDA #$&dialogstring_09EFFB
     STA $26
-    COP [CallScript] ( &code_09EB64 )
+    COP [CallNear] ( &code_09EB64 )
     COP [WaitByte] ( #4A )
     LDA #$&dialogstring_09F038
     STA $26
-    COP [CallScript] ( &code_09EB64 )
+    COP [CallNear] ( &code_09EB64 )
     COP [WaitByte] ( #4A )
     LDA #$&dialogstring_09F073
     STA $26
-    COP [CallScript] ( &code_09EB64 )
+    COP [CallNear] ( &code_09EB64 )
     COP [WaitByte] ( #4A )
     LDA #$&dialogstring_09F0B2
     STA $26
-    COP [CallScript] ( &code_09EB64 )
+    COP [CallNear] ( &code_09EB64 )
     COP [WaitByte] ( #4A )
     LDA #$&dialogstring_09F0F2
     STA $26
-    COP [CallScript] ( &code_09EB64 )
+    COP [CallNear] ( &code_09EB64 )
     COP [WaitByte] ( #4A )
     LDA #$&dialogstring_09F12C
     STA $26
-    COP [CallScript] ( &code_09EB64 )
+    COP [CallNear] ( &code_09EB64 )
     COP [WaitByte] ( #4A )
     LDA #$&dialogstring_09F18A
     STA $26
-    COP [CallScript] ( &code_09EB64 )
+    COP [CallNear] ( &code_09EB64 )
     COP [WaitByte] ( #4A )
     LDA #$&dialogstring_09F1C8
     STA $26
-    COP [CallScript] ( &code_09EB64 )
+    COP [CallNear] ( &code_09EB64 )
     COP [WaitByte] ( #4A )
     LDA #$&dialogstring_09F1F2
     STA $26
-    COP [CallScript] ( &code_09EB64 )
+    COP [CallNear] ( &code_09EB64 )
     COP [WaitByte] ( #4A )
     LDA #$&dialogstring_09F220
     STA $26
-    COP [CallScript] ( &code_09EB64 )
+    COP [CallNear] ( &code_09EB64 )
     COP [WaitByte] ( #4A )
     LDA #$&dialogstring_09F248
     STA $26
-    COP [CallScript] ( &code_09EB64 )
+    COP [CallNear] ( &code_09EB64 )
     COP [WaitByte] ( #4A )
     LDA #$&dialogstring_09F273
     STA $26
-    COP [CallScript] ( &code_09EB64 )
+    COP [CallNear] ( &code_09EB64 )
     COP [WaitByte] ( #4A )
     LDA #$&dialogstring_09F2A9
     STA $26
-    COP [CallScript] ( &code_09EB64 )
+    COP [CallNear] ( &code_09EB64 )
     COP [WaitByte] ( #4A )
     LDA #$&dialogstring_09F2FA
     STA $26
-    COP [CallScript] ( &code_09EB64 )
+    COP [CallNear] ( &code_09EB64 )
     COP [WaitByte] ( #4A )
     SEP #$20
     LDA #$79
@@ -509,7 +509,7 @@ code_09E9D2 {
     LDA #$00
     STA $TS
     REP #$20
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     RTL 
 }
 
@@ -541,7 +541,7 @@ code_09EB64 {
     LDA $09F7
     STA $TS
     REP #$20
-    COP [LoopInit] ( #80 )
+    COP [LoopStart] ( #80 )
     LDA $0726
     SEC 
     SEC 
@@ -563,18 +563,18 @@ code_09EB64 {
     STA $072A, Y
 
   loc_09EBDB:
-    COP [LoopNext]
+    COP [LoopEnd]
     COP [WaitWord] ( #$0257 )
     SEP #$20
     LDA #$7A
     STA $BG3SC
     REP #$20
-    COP [LoopInit] ( #80 )
+    COP [LoopStart] ( #80 )
     LDA $0720
     CLC 
     ADC #$0001
     STA $0720
-    COP [LoopNext]
+    COP [LoopEnd]
     SEP #$20
     LDA #$10
     ORA $09F6
@@ -768,7 +768,7 @@ code_09F4AA {
     AND #$00FF
     STA $24
     STZ $00FE
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     LDA $00FE
     CMP #$003F
     BCS loc_09F4EB
@@ -799,7 +799,7 @@ code_09F4AA {
 code_09F4ED {
     LDA #$00E0
     STA $24
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     LDA $24
     CMP #$00FF
     BEQ loc_09F508

@@ -29,22 +29,22 @@ pyCC_blaster [
 ]
 
 code_0BC7B4 {
-    COP [SpawnAfterRelFlags] ( @code_0BC7CE, #$FFF4, #$FFF0, #$0200 )
+    COP [SpawnAfterOffsetFlags] ( @code_0BC7CE, #$FFF4, #$FFF0, #$0200 )
     BRA loc_0BC7A4
 }
 
 code_0BC7C1 {
-    COP [SpawnAfterRelFlags] ( @code_0BC7CE, #$000C, #$FFF0, #$0200 )
+    COP [SpawnAfterOffsetFlags] ( @code_0BC7CE, #$000C, #$FFF0, #$0200 )
     BRA loc_0BC7A4
 }
 
 code_0BC7CE {
-    COP [OrActorFlags] ( #$0010 )
+    COP [OrExtraFlags] ( #$0010 )
     COP [SetMetasprite] ( @spriteset_enemies )
-    COP [AddPosition] ( #00, #02 )
+    COP [NudgePosition] ( #00, #02 )
     COP [StageSpriteFrame] ( #2A )
     COP [AnimOnce]
-    COP [AddPosition] ( #00, #FA )
+    COP [NudgePosition] ( #00, #FA )
     COP [StageSpriteFrame] ( #08 )
     COP [AnimOnce]
     LDA $playerActor
@@ -75,13 +75,13 @@ code_0BC816 {
     COP [StageSprAndHitbox] ( #9A )
 
   loc_0BC819:
-    COP [LoopInit] ( #1E )
+    COP [LoopStart] ( #1E )
     LDA #$2000
     TSB $10
-    COP [SetEntryExit]
+    COP [SetEntryHereAndYield]
     LDA #$2000
     TRB $10
-    COP [LoopNext]
+    COP [LoopEnd]
 
   loc_0BC82A:
     COP [WaitWhileOffscreen] ( #0D )
@@ -89,26 +89,26 @@ code_0BC816 {
 }
 
 code_0BC837 {
-    COP [SpawnAfterRelFlags] ( @code_0BC85D, #$FFF4, #$FFF0, #$0200 )
+    COP [SpawnAfterOffsetFlags] ( @code_0BC85D, #$FFF4, #$FFF0, #$0200 )
     COP [StageSpriteLoop] ( #1A, #04 )
     COP [AnimLoop]
     BRA loc_0BC82A
 }
 
 code_0BC84A {
-    COP [SpawnAfterRelFlags] ( @code_0BC85D, #$000C, #$FFF0, #$0200 )
+    COP [SpawnAfterOffsetFlags] ( @code_0BC85D, #$000C, #$FFF0, #$0200 )
     COP [StageSpriteLoop] ( #9A, #04 )
     COP [AnimLoop]
     BRA loc_0BC82A
 }
 
 code_0BC85D {
-    COP [OrActorFlags] ( #$0010 )
+    COP [OrExtraFlags] ( #$0010 )
     COP [SetMetasprite] ( @spriteset_enemies )
-    COP [AddPosition] ( #00, #02 )
+    COP [NudgePosition] ( #00, #02 )
     COP [StageSpriteFrame] ( #2A )
     COP [AnimOnce]
-    COP [AddPosition] ( #00, #FA )
+    COP [NudgePosition] ( #00, #FA )
     COP [StageSpriteFrame] ( #03 )
     COP [AnimOnce]
     LDA $playerActor

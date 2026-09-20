@@ -43,9 +43,9 @@ code_06DC5D {
     COP [SetTilePos] ( #00, #71 )
 
   loc_06DC89:
-    COP [SolidHighHere]
-    COP [SetOnInteract] ( &code_06DC92 )
-    COP [SetEntryContinue]
+    COP [MarkSolidHere]
+    COP [SetInteractHandler] ( &code_06DC92 )
+    COP [SetEntryHere]
     RTL 
 }
 

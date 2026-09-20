@@ -438,7 +438,7 @@ MovementVelocityCompute {
 
 - [`cop-dispatch.md`](cop-dispatch.md) — COP `$22`, `$52`, `$53` handler entries
 - [`utility-tiles-animation.md`](utility-tiles-animation.md) — `ProcessAnimFlag` called during movement init
-- [`cop-commands-reference.md`](../../cop-commands-reference.md) — Full MoveToward/StageMove/TickMove operand docs
+- [`../../cop/index.md`](../../cop/index.md) — Full MoveToward/StageMove/TickMove operand docs
 - Bank $02 `UnsignedDivide` — Step count division in InitSmoothMovement
 
 *Source: [`extracted/system/engine/cop_handlers_movement.asm`](../../../extracted/system/engine/cop_handlers_movement.asm)*

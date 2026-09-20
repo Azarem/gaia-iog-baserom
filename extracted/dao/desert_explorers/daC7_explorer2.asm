@@ -11,9 +11,9 @@ daC7_explorer2 [
   actor-def < #02, #00, #10, {
 
   code_08A9E0:
-    COP [SetOnInteract] ( &code_08A9E9 )
-    COP [SolidHighHere]
-    COP [SetEntryContinue]
+    COP [SetInteractHandler] ( &code_08A9E9 )
+    COP [MarkSolidHere]
+    COP [SetEntryHere]
     RTL 
 } >
 ]

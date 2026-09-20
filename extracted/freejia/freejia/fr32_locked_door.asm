@@ -24,9 +24,9 @@ fr32_locked_door [
   loc_05CFD1:
     COP [StageSpriteFrame] ( #01 )
     COP [AnimOnce]
-    COP [SolidHighHere]
-    COP [SetOnInteract] ( &code_05CFF8 )
-    COP [SetEntryContinue]
+    COP [MarkSolidHere]
+    COP [SetInteractHandler] ( &code_05CFF8 )
+    COP [SetEntryHere]
     RTL 
 } >
 ]

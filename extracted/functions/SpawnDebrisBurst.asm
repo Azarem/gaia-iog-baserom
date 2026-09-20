@@ -8,10 +8,10 @@
 ---------------------------------------------
 
 SpawnDebrisBurst {
-    COP [LoopInit] ( #08 ) ; SpawnDebrisBurst entry — particle burst actor at range boundary
+    COP [LoopStart] ( #08 ) ; SpawnDebrisBurst entry — particle burst actor at range boundary
     COP [WaitByte] ( #03 )
     COP [SpawnAfterFlags] ( @DebrisBurstParticle, #$0302 )
-    COP [LoopNext]
+    COP [LoopEnd]
     COP [Die]
 }
 

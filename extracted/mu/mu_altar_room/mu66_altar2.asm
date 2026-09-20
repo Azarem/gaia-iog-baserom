@@ -10,13 +10,13 @@ mu66_altar2 [
   actor-def < #2D, #00, #30, {
 
   code_069C70:
-    COP [AddPosition] ( #00, #F8 )
-    COP [ExitIfFlagByte] ( #81, #01 )
+    COP [NudgePosition] ( #00, #F8 )
+    COP [WaitOnFlagByte] ( #81, #01 )
     LDA #$2000
     TRB $10
     COP [StageSpriteFrame] ( #2D )
     COP [AnimOnce]
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     RTL 
 } >
 ]

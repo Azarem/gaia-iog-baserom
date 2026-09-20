@@ -48,7 +48,7 @@ sp58_red_eye [
     COP [AnimLoop]
 
   loc_0681E3:
-    COP [BranchIfFlagByte] ( #01, #01, &code_0681F0 )
+    COP [BranchOnFlagByte] ( #01, #01, &code_0681F0 )
     COP [StageSpriteFrame] ( #07 )
     COP [AnimOnce]
     BRA loc_0681E3

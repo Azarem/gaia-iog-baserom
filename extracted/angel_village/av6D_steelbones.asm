@@ -60,38 +60,38 @@ code_list_0AEAA1 [
 ]
 
 code_0AEAA9 {
-    COP [CallScript] ( &code_0AEBC7 )
+    COP [CallNear] ( &code_0AEBC7 )
     BRA code_0AEA54
 }
 
 code_0AEAAF {
-    COP [CallScript] ( &code_0AEBD3 )
+    COP [CallNear] ( &code_0AEBD3 )
     BRA code_0AEA54
 }
 
 code_0AEAB5 {
     COP [StageSpriteLoop] ( #82, #1E )
     COP [AnimLoop]
-    COP [CallScript] ( &code_0AEC0A )
+    COP [CallNear] ( &code_0AEC0A )
     BRA code_0AEA54
 }
 
 code_0AEAC1 {
     COP [StageSpriteLoop] ( #02, #1E )
     COP [AnimLoop]
-    COP [CallScript] ( &code_0AEBFE )
+    COP [CallNear] ( &code_0AEBFE )
     BRA code_0AEA54
 }
 
 code_0AEACD {
-    COP [CallScript] ( &code_0AEC0A )
-    COP [CallScript] ( &code_0AED06 )
+    COP [CallNear] ( &code_0AEC0A )
+    COP [CallNear] ( &code_0AED06 )
     BRA code_0AEA93
 }
 
 code_0AEAD7 {
-    COP [CallScript] ( &code_0AEBFE )
-    COP [CallScript] ( &code_0AED2C )
+    COP [CallNear] ( &code_0AEBFE )
+    COP [CallNear] ( &code_0AED2C )
     BRA code_0AEA93
 }
 
@@ -114,7 +114,7 @@ code_0AEAF7 {
     COP [AnimLoop]
     COP [StageSpriteFrame] ( #06 )
     COP [AnimOnce]
-    COP [CallScript] ( &code_0AEC38 )
+    COP [CallNear] ( &code_0AEC38 )
     JMP $&code_0AEA54
 }
 
@@ -123,7 +123,7 @@ code_0AEB09 {
     COP [AnimLoop]
     COP [StageSpriteFrame] ( #04 )
     COP [AnimOnce]
-    COP [CallScript] ( &code_0AEC66 )
+    COP [CallNear] ( &code_0AEC66 )
     JMP $&code_0AEA54
 }
 
@@ -132,7 +132,7 @@ code_0AEB1B {
     COP [AnimLoop]
     COP [StageSpriteFrame] ( #88 )
     COP [AnimOnce]
-    COP [CallScript] ( &code_0AECC2 )
+    COP [CallNear] ( &code_0AECC2 )
     JMP $&code_0AEA54
 }
 
@@ -141,7 +141,7 @@ code_0AEB2D {
     COP [AnimLoop]
     COP [StageSpriteFrame] ( #08 )
     COP [AnimOnce]
-    COP [CallScript] ( &code_0AEC94 )
+    COP [CallNear] ( &code_0AEC94 )
     JMP $&code_0AEA54
 }
 
@@ -220,7 +220,7 @@ code_0AEBD3 {
 }
 
 code_0AEBDF {
-    COP [SetEntryExit]
+    COP [SetEntryHereAndYield]
     COP [RngByte]
     AND #$0003
     BNE loc_0AEBF4
@@ -269,12 +269,12 @@ code_0AEC2C {
 
 code_0AEC38 {
     COP [StageSprAndHitbox] ( #05 )
-    COP [LoopInit] ( #02 )
+    COP [LoopStart] ( #02 )
     COP [BranchIfSolidNorth] ( &code_0AEC62 )
-    COP [StageForceMoveY] ( #04 )
+    COP [StageMoveY] ( #04 )
     LDA #$0001
     STA $26
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     COP [AnimOneFrame]
     LDA #$0003
     STA $08
@@ -283,8 +283,8 @@ code_0AEC38 {
     RTL 
 
   loc_0AEC58:
-    COP [LoopNext]
-    COP [SetEntryExit]
+    COP [LoopEnd]
+    COP [SetEntryHereAndYield]
     DEC $24
     BPL code_0AEC38
     STZ $24
@@ -297,12 +297,12 @@ code_0AEC62 {
 
 code_0AEC66 {
     COP [StageSprAndHitbox] ( #03 )
-    COP [LoopInit] ( #02 )
+    COP [LoopStart] ( #02 )
     COP [BranchIfSolidSouth] ( &code_0AEC90 )
-    COP [StageForceMoveY] ( #03 )
+    COP [StageMoveY] ( #03 )
     LDA #$0001
     STA $26
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     COP [AnimOneFrame]
     LDA #$0003
     STA $08
@@ -311,8 +311,8 @@ code_0AEC66 {
     RTL 
 
   loc_0AEC86:
-    COP [LoopNext]
-    COP [SetEntryExit]
+    COP [LoopEnd]
+    COP [SetEntryHereAndYield]
     DEC $24
     BPL code_0AEC66
     STZ $24
@@ -325,12 +325,12 @@ code_0AEC90 {
 
 code_0AEC94 {
     COP [StageSprAndHitbox] ( #07 )
-    COP [LoopInit] ( #02 )
+    COP [LoopStart] ( #02 )
     COP [BranchIfSolidWest] ( &code_0AECBE )
-    COP [StageForceMoveX] ( #04 )
+    COP [StageMoveX] ( #04 )
     LDA #$0001
     STA $26
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     COP [AnimOneFrame]
     LDA #$0003
     STA $08
@@ -339,8 +339,8 @@ code_0AEC94 {
     RTL 
 
   loc_0AECB4:
-    COP [LoopNext]
-    COP [SetEntryExit]
+    COP [LoopEnd]
+    COP [SetEntryHereAndYield]
     DEC $24
     BPL code_0AEC94
     STZ $24
@@ -353,12 +353,12 @@ code_0AECBE {
 
 code_0AECC2 {
     COP [StageSprAndHitbox] ( #87 )
-    COP [LoopInit] ( #02 )
+    COP [LoopStart] ( #02 )
     COP [BranchIfSolidEast] ( &code_0AECEC )
-    COP [StageForceMoveX] ( #03 )
+    COP [StageMoveX] ( #03 )
     LDA #$0001
     STA $26
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     COP [AnimOneFrame]
     LDA #$0003
     STA $08
@@ -367,8 +367,8 @@ code_0AECC2 {
     RTL 
 
   loc_0AECE2:
-    COP [LoopNext]
-    COP [SetEntryExit]
+    COP [LoopEnd]
+    COP [SetEntryHereAndYield]
     DEC $24
     BPL code_0AECC2
     STZ $24
@@ -381,9 +381,9 @@ code_0AECEC {
 
 code_0AECF0 {
     COP [SnapToGrid]
-    COP [StageForceMoveXY] ( #00, #00 )
+    COP [StageMoveXY] ( #00, #00 )
     COP [SetHitCallback] ( #$0000 )
-    COP [SetEntryExit]
+    COP [SetEntryHereAndYield]
     COP [BranchOnPlayerX] ( #$0000, &code_0AED06, &code_0AED06, &code_0AED2C )
 }
 
@@ -394,7 +394,7 @@ code_0AED06 {
     COP [StageSpriteFrame] ( #0C )
     COP [AnimOnce]
     COP [WaitByte] ( #1D )
-    COP [SpawnMarkedAfterRel] ( @code_0AED52, #F8, #F0, #$0202 )
+    COP [SpawnAfterOffsetMarked] ( @code_0AED52, #F8, #F0, #$0202 )
     COP [StageSpriteFrame] ( #0D )
     COP [AnimOnce]
     LDA #$0001
@@ -409,7 +409,7 @@ code_0AED2C {
     COP [StageSpriteFrame] ( #8C )
     COP [AnimOnce]
     COP [WaitByte] ( #1D )
-    COP [SpawnMarkedAfterRel] ( @code_0AEDA9, #08, #F0, #$0202 )
+    COP [SpawnAfterOffsetMarked] ( @code_0AEDA9, #08, #F0, #$0202 )
     COP [StageSpriteFrame] ( #8D )
     COP [AnimOnce]
     LDA #$0001
@@ -421,7 +421,7 @@ code_0AED52 {
     COP [PlaySoundCh1] ( #1E )
     LDA $24
     STA $7F100C, X
-    COP [OrActorFlags] ( #$0010 )
+    COP [OrExtraFlags] ( #$0010 )
     LDA $14
     SEC 
     SBC $playerXPos
@@ -472,7 +472,7 @@ code_0AEDA9 {
     COP [PlaySoundCh1] ( #1E )
     LDA $24
     STA $7F100C, X
-    COP [OrActorFlags] ( #$0010 )
+    COP [OrExtraFlags] ( #$0010 )
     LDA $playerXPos
     SEC 
     SBC $14
@@ -525,7 +525,7 @@ code_0AEDA9 {
     STZ $08
     INC 
     STA $24
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     LDA $2A
     BEQ code_0AEE00
     LDY $26

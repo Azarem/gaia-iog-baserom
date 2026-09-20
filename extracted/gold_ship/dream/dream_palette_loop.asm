@@ -14,7 +14,7 @@ dream_palette_loop [
     COP [PaletteStart] ( #35 )
     COP [PaletteStep]
     COP [SetFlagByte] ( #FF )
-    COP [ExitIfFlagByte] ( #FF, #00 )
+    COP [WaitOnFlagByte] ( #FF, #00 )
     BRA loc_00B6D4
 
   loc_00B6E2:

@@ -26,14 +26,14 @@ eu91_merchant [
     ADC #$0012
     STA $28
     STZ $2A
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     COP [AnimOneFrame]
     JSL $@ActorDisplayModeSwap
     LDA #$6000
     STA $0E
-    COP [SetOnInteract] ( &code_07C2DF )
-    COP [SolidHighHere]
-    COP [SetEntryContinue]
+    COP [SetInteractHandler] ( &code_07C2DF )
+    COP [MarkSolidHere]
+    COP [SetEntryHere]
     RTL 
 } >
 ]
@@ -54,12 +54,12 @@ eu91_merchant2 [
     ADC #$0012
     STA $28
     STZ $2A
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     COP [AnimOneFrame]
     JSL $@ActorDisplayModeSwap
-    COP [SetOnInteract] ( &code_07C2DF )
-    COP [SolidHighHere]
-    COP [SetEntryContinue]
+    COP [SetInteractHandler] ( &code_07C2DF )
+    COP [MarkSolidHere]
+    COP [SetEntryHere]
     RTL 
 } >
 ]
@@ -167,10 +167,10 @@ eu91_merchant3 [
   code_07C378:
     LDA #$0200
     TSB $12
-    COP [SolidHighHere]
-    COP [SetOnInteract] ( &code_07C38A )
-    COP [SetEntryContinue]
-    COP [SetEntryContinue]
+    COP [MarkSolidHere]
+    COP [SetInteractHandler] ( &code_07C38A )
+    COP [SetEntryHere]
+    COP [SetEntryHere]
     COP [AnimOnce]
     RTL 
 } >
@@ -189,9 +189,9 @@ eu91_merchant4 [
   code_07C3BC:
     LDA #$0200
     TSB $12
-    COP [SetOnInteract] ( &code_07C3CF )
-    COP [SolidHighHere]
-    COP [SetEntryContinue]
+    COP [SetInteractHandler] ( &code_07C3CF )
+    COP [MarkSolidHere]
+    COP [SetEntryHere]
     COP [StageSpriteFrame] ( #97 )
     COP [AnimOnce]
     RTL 

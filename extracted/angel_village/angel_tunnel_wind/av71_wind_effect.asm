@@ -17,7 +17,7 @@ av71_wind_effect [
 
   code_06D690:
     COP [SpawnAfterFlags] ( @code_06D6A0, #$2800 )
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     LDA #$FFF7
     STA $extVelocityX
     RTL 
@@ -61,8 +61,8 @@ code_06D6C0 {
     STA $moveYAlt, X
 
   loc_06D6E3:
-    COP [ReloadForceMove]
-    COP [SetEntryContinue]
+    COP [ReloadMoveDurations]
+    COP [SetEntryHere]
     COP [AnimOnce]
     LDA $14
     BPL loc_06D6E3

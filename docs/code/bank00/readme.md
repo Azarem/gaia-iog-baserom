@@ -8,7 +8,7 @@
 
 Bank $00 is the **primary system bank** for Illusion of Gaia. It contains the CPU reset vector, the NMI/VBlank handler, the COP bytecode dispatch engine, the main game loop, and the entire core utility library. The upper half houses thinkers (background processes for palette/HDMA effects), scene infrastructure actors, combat mechanics, NPC AI, and specialized systems like stair climbing and camera scrolling.
 
-> **COP handler documentation** lives in [`cop-commands-reference.md`](../../cop-commands-reference.md) and `db-us/copdef.json`. This index covers the system architecture, utility subroutines, actors, thinkers, and functions.
+> **COP handler documentation** lives in [`docs/cop/`](../../cop/index.md) and `db-us/copdef.json`. This index covers the system architecture, utility subroutines, actors, thinkers, and functions.
 
 ---
 
@@ -48,7 +48,7 @@ Bank $00 is the **primary system bank** for Illusion of Gaia. It contains the CP
 |-------|---------|------------|----------|
 | `$8000`–`$846C` | System init, main loop, NMI, frame updates | [`system_core.asm`](../../../extracted/system/engine/system_core.asm) | [system-core](system-core.md), [nmi-handler](nmi-handler.md) |
 | `$846D`–`$864E` | COP bytecode dispatch engine + tables | [`cop_dispatch.asm`](../../../extracted/system/engine/cop_dispatch.asm) | [cop-dispatch](cop-dispatch.md) |
-| `$864E`–`$B520` | COP handlers ($00–$6D, $80–$E2) — 172 opcodes | [`cop_handlers_*.asm`](../../../extracted/system/engine/) | [cop-commands-reference](../../cop-commands-reference.md) |
+| `$864E`–`$B520` | COP handlers ($00–$6D, $80–$E2) — 172 opcodes | [`cop_handlers_*.asm`](../../../extracted/system/engine/) | [COP families](../../cop/index.md) |
 | `$B520`–`$B87B` | Palette thinkers: cycling, flashes, scene-specific | [18 thinker files](#palette-thinkers) | [thinkers-palette](thinkers-palette.md) |
 | `$B87B`–`$BF78` | HDMA thinkers: sine waves, DMA setup, scene-specific | [18 thinker files](#hdma--dma-thinkers) | [thinkers-hdma](thinkers-hdma.md) |
 | `$BF78`–`$C1AA` | System thinkers: HW config, boot, menus, dispatcher | [4 thinker files](#system-thinkers) | [thinkers-system](thinkers-system.md) |

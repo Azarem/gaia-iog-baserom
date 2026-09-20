@@ -13,9 +13,9 @@ sg4C_platform1 [
 
   code_05F507:
     COP [SpawnAfterAbsFlags] ( @code_05F522, #$0168, #$00E0, #$2301 )
-    COP [BranchIfFlagByte] ( #60, #01, &code_05F556 )
-    COP [AddPosition] ( #08, #00 )
-    COP [ExitIfFlagByte] ( #60, #01 )
+    COP [BranchOnFlagByte] ( #60, #01, &code_05F556 )
+    COP [NudgePosition] ( #08, #00 )
+    COP [WaitOnFlagByte] ( #60, #01 )
     BRA loc_05F54F
 } >
 ]
@@ -23,10 +23,10 @@ sg4C_platform1 [
 code_05F522 {
     COP [StageSpriteFrame] ( #36 )
     COP [AnimOnce]
-    COP [ExitIfFlagByte] ( #60, #01 )
+    COP [WaitOnFlagByte] ( #60, #01 )
     LDA #$2000
     TRB $10
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     RTL 
 }
 
@@ -35,9 +35,9 @@ sg4C_platform2 [
 
   code_05F536:
     COP [SpawnAfterAbsFlags] ( @code_05F560, #$0168, #$0120, #$2301 )
-    COP [BranchIfFlagByte] ( #61, #01, &code_05F556 )
-    COP [AddPosition] ( #08, #00 )
-    COP [ExitIfFlagByte] ( #61, #01 )
+    COP [BranchOnFlagByte] ( #61, #01, &code_05F556 )
+    COP [NudgePosition] ( #08, #00 )
+    COP [WaitOnFlagByte] ( #61, #01 )
 
   loc_05F54F:
     COP [StageSpriteLoopMoveX] ( #35, #80, #12 )
@@ -48,18 +48,18 @@ sg4C_platform2 [
 code_05F556 {
     LDA #$0100
     STA $14
-    COP [ClearAllHere]
-    COP [SetEntryContinue]
+    COP [ClearCollisionHere]
+    COP [SetEntryHere]
     RTL 
 }
 
 code_05F560 {
     COP [StageSpriteFrame] ( #36 )
     COP [AnimOnce]
-    COP [ExitIfFlagByte] ( #61, #01 )
+    COP [WaitOnFlagByte] ( #61, #01 )
     LDA #$2000
     TRB $10
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     RTL 
 }
 
@@ -68,9 +68,9 @@ sg4C_platform3 [
 
   code_05F574:
     COP [SpawnAfterAbsFlags] ( @code_05F58F, #$0098, #$00C0, #$2301 )
-    COP [BranchIfFlagByte] ( #62, #01, &code_05F5C3 )
-    COP [AddPosition] ( #08, #00 )
-    COP [ExitIfFlagByte] ( #62, #01 )
+    COP [BranchOnFlagByte] ( #62, #01, &code_05F5C3 )
+    COP [NudgePosition] ( #08, #00 )
+    COP [WaitOnFlagByte] ( #62, #01 )
     BRA loc_05F5BC
 } >
 ]
@@ -78,10 +78,10 @@ sg4C_platform3 [
 code_05F58F {
     COP [StageSpriteFrame] ( #36 )
     COP [AnimOnce]
-    COP [ExitIfFlagByte] ( #62, #01 )
+    COP [WaitOnFlagByte] ( #62, #01 )
     LDA #$2000
     TRB $10
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     RTL 
 }
 
@@ -90,9 +90,9 @@ sg4C_platform4 [
 
   code_05F5A3:
     COP [SpawnAfterAbsFlags] ( @code_05F5CD, #$0098, #$0100, #$2301 )
-    COP [BranchIfFlagByte] ( #63, #01, &code_05F5C3 )
-    COP [AddPosition] ( #08, #00 )
-    COP [ExitIfFlagByte] ( #63, #01 )
+    COP [BranchOnFlagByte] ( #63, #01, &code_05F5C3 )
+    COP [NudgePosition] ( #08, #00 )
+    COP [WaitOnFlagByte] ( #63, #01 )
 
   loc_05F5BC:
     COP [StageSpriteLoopMoveX] ( #35, #80, #11 )
@@ -103,17 +103,17 @@ sg4C_platform4 [
 code_05F5C3 {
     LDA #$0100
     STA $14
-    COP [ClearAllHere]
-    COP [SetEntryContinue]
+    COP [ClearCollisionHere]
+    COP [SetEntryHere]
     RTL 
 }
 
 code_05F5CD {
     COP [StageSpriteFrame] ( #36 )
     COP [AnimOnce]
-    COP [ExitIfFlagByte] ( #63, #01 )
+    COP [WaitOnFlagByte] ( #63, #01 )
     LDA #$2000
     TRB $10
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     RTL 
 }

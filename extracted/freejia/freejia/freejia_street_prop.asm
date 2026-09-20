@@ -16,7 +16,7 @@ freejia_street_prop [
     COP [SetMetasprite] ( @spriteset_npc_props )
     COP [StageSpriteFrame] ( #07 )
     COP [AnimOnce]
-    COP [SolidHighHere]
+    COP [MarkSolidHere]
     COP [BranchIfPlayerNear] ( #01, &FreejiaPropHiddenState )
     COP [WaitWhileOffscreen] ( #0A )
 
@@ -27,20 +27,20 @@ freejia_street_prop [
 ]
 
 FreejiaPropInteractLoop {
-    COP [LoopInit] ( #08 )
-    COP [BranchIfButton] ( #$0800, &FreejiaPropToggleAnim )
-    COP [SetEntryExitNow] ( @code_00C644 )
+    COP [LoopStart] ( #08 )
+    COP [BranchIfPressed] ( #$0800, &FreejiaPropToggleAnim )
+    COP [JumpNextFrame] ( @code_00C644 )
 }
 
 FreejiaPropToggleAnim {
-    COP [LoopNext]
+    COP [LoopEnd]
     COP [PlaySoundCh2] ( #01 )
 }
 
 FreejiaPropHiddenState {
-    COP [ClearLowHere]
+    COP [ClearSolidHere]
     COP [StageSpriteFrame] ( #00 )
     COP [AnimOnce]
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     RTL 
 }

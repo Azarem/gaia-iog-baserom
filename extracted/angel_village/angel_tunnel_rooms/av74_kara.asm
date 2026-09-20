@@ -22,20 +22,20 @@ av74_kara [
   actor-def < #16, #00, #10, {
 
   code_06D151:
-    COP [BranchIfFlagByte] ( #8C, #01, &code_06D258 )
-    COP [AddPosition] ( #08, #FD )
+    COP [BranchOnFlagByte] ( #8C, #01, &code_06D258 )
+    COP [NudgePosition] ( #08, #FD )
     COP [SetSpritePriority] ( #10 )
-    COP [SpawnAfterRelFlags] ( @code_06D251, #$0000, #$0010, #$3000 )
-    COP [SetEntryContinue]
-    COP [BranchIfNoItem] ( #14, &code_06D171 )
+    COP [SpawnAfterOffsetFlags] ( @code_06D251, #$0000, #$0010, #$3000 )
+    COP [SetEntryHere]
+    COP [BranchIfMissingItem] ( #14, &code_06D171 )
     RTL 
 } >
 ]
 
 code_06D171 {
-    COP [SolidHighAbs] ( #0B, #0C )
-    COP [ExitIfFlagByte] ( #01, #01 )
-    COP [ExitIfFlagByte] ( #8A, #01 )
+    COP [MarkSolidAbs] ( #0B, #0C )
+    COP [WaitOnFlagByte] ( #01, #01 )
+    COP [WaitOnFlagByte] ( #8A, #01 )
     LDA #$FFF0
     TSB $joypadMaskStd
     SEP #$20
@@ -79,7 +79,7 @@ code_06D171 {
     COP [PrintDialogString] ( &dialogstring_06D339 )
     LDA #$0003
     JSL $@InitPlayerScriptVariant
-    COP [SetEntryExit]
+    COP [SetEntryHereAndYield]
     COP [PrintDialogString] ( &dialogstring_06D364 )
     COP [StageSpriteMoveX] ( #20, #02 )
     COP [AnimOnce]
@@ -90,13 +90,13 @@ code_06D171 {
     LDA #$0404
     STA $gfxCacheIdxB
     COP [QueueMapChange] ( #6A, #$01A0, #$00B0, #03, #$1200 )
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     RTL 
 }
 
 code_06D251 {
-    COP [SetOnInteract] ( &code_06D25A )
-    COP [SetEntryContinue]
+    COP [SetInteractHandler] ( &code_06D25A )
+    COP [SetEntryHere]
     RTL 
 }
 
@@ -105,8 +105,8 @@ code_06D258 {
 }
 
 code_06D25A {
-    COP [BranchIfFlagByte] ( #89, #00, &code_06D273 )
-    COP [BranchIfFlagByte] ( #01, #01, &code_06D26B )
+    COP [BranchOnFlagByte] ( #89, #00, &code_06D273 )
+    COP [BranchOnFlagByte] ( #01, #01, &code_06D26B )
     COP [PrintDialogString] ( &dialogstring_06D278 )
     RTL 
 }

@@ -430,7 +430,7 @@ are still bank 3 by address range.
 
 ## 11. Related Resources
 
-- [COP Commands Reference](../../cop-commands-reference.md) — COP opcode definitions used throughout bank $03
+- [COP System Overview](../../cop/index.md) — COP opcode definitions used throughout bank $03
 - [Actor Organization Analysis](../../actor-organization-analysis.md) — bank-wide actor classification
 - [Assembler Syntax](../../../../gaia-knowledge/curated/gaialabs/assembler-syntax.md) — `$&`/`$@` reference conventions
 - [Reference Model](../../../../gaia-knowledge/curated/gaialabs/reference-model.md) — `blocks.json` / `overrides.json` / `names.json` database triad

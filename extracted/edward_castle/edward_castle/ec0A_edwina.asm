@@ -11,11 +11,11 @@ ec0A_edwina [
   code_04C571:
     LDA #$0200
     TSB $12
-    COP [AddPosition] ( #08, #00 )
-    COP [SetOnInteract] ( &code_04C588 )
-    COP [ExitIfFlagByte] ( #0B, #01 )
+    COP [NudgePosition] ( #08, #00 )
+    COP [SetInteractHandler] ( &code_04C588 )
+    COP [WaitOnFlagByte] ( #0B, #01 )
     COP [SetFlagByte] ( #0C )
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     RTL 
 } >
 ]

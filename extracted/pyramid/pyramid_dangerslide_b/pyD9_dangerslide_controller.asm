@@ -22,7 +22,7 @@ pyD9_dangerslide_controller [
 
   loc_08C5D4:
     COP [WaitByte] ( #3B )
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     LDY #$1060
     LDA $0026, Y
     CMP #$0060
@@ -33,7 +33,7 @@ pyD9_dangerslide_controller [
 
   loc_08C5E9:
     COP [WaitByte] ( #3B )
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     LDY #$1060
     LDA $0026, Y
     BEQ loc_08C5FB

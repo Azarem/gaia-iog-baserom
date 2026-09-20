@@ -16,9 +16,9 @@ av70_hidden_passage [
     LDA $sceneCurrent
     CMP #$0073
     BEQ loc_06D5C7
-    COP [BranchIfFlagWord] ( #$0143, #01, &code_06D5C5 )
-    COP [SetOnInteract] ( &code_06D5E5 )
-    COP [ExitIfFlagByte] ( #01, #01 )
+    COP [BranchOnFlagWord] ( #$0143, #01, &code_06D5C5 )
+    COP [SetInteractHandler] ( &code_06D5E5 )
+    COP [WaitOnFlagByte] ( #01, #01 )
     COP [PlaySoundBoth] ( #$0F0F )
     COP [StageBgChange] ( #43 )
     COP [ApplyBgChange]
@@ -30,9 +30,9 @@ code_06D5C5 {
     COP [Die]
 
   loc_06D5C7:
-    COP [BranchIfFlagWord] ( #$0144, #01, &code_06D5E3 )
-    COP [SetOnInteract] ( &code_06D5E5 )
-    COP [ExitIfFlagByte] ( #01, #01 )
+    COP [BranchOnFlagWord] ( #$0144, #01, &code_06D5E3 )
+    COP [SetInteractHandler] ( &code_06D5E5 )
+    COP [WaitOnFlagByte] ( #01, #01 )
     COP [PlaySoundBoth] ( #$0F0F )
     COP [StageBgChange] ( #44 )
     COP [ApplyBgChange]

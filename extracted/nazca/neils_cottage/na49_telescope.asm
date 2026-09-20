@@ -16,8 +16,8 @@ na49_telescope [
     COP [SetMetasprite] ( @spriteset_enemies )
     COP [StageSpriteFrame] ( #00 )
     COP [AnimOnce]
-    COP [SetOnInteract] ( &code_05E4EB )
-    COP [SetEntryContinue]
+    COP [SetInteractHandler] ( &code_05E4EB )
+    COP [SetEntryHere]
     RTL 
 } >
 ]

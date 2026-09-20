@@ -17,8 +17,8 @@ sc02_card [
 
   code_04AFB5:
     COP [SetSpritePriority] ( #30 )
-    COP [AddPosition] ( #08, #00 )
-    COP [SetEntryContinue]
+    COP [NudgePosition] ( #08, #00 )
+    COP [SetEntryHere]
     RTL 
 } >
 ]
@@ -26,7 +26,7 @@ sc02_card [
 code_04AFBF {
     COP [StageSprAndHitbox] ( #38 )
     STZ $08
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     LDA $playerXPos
     CLC 
     ADC #$0008
@@ -51,15 +51,15 @@ code_04AFBF {
   loc_04AFEB:
     CMP #$0008
     BCS loc_04AFF6
-    COP [BranchIfButton] ( #$8001, &code_04B000 )
+    COP [BranchIfPressed] ( #$8001, &code_04B000 )
 
   loc_04AFF6:
-    COP [BranchIfFlagByte] ( #08, #01, &code_04AFFD )
+    COP [BranchOnFlagByte] ( #08, #01, &code_04AFFD )
     RTL 
 }
 
 code_04AFFD {
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     RTL 
 }
 

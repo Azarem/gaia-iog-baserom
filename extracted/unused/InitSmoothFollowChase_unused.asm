@@ -10,12 +10,12 @@
 ---------------------------------------------
 
 InitSmoothFollowChase_unused {
-    COP [SpawnMarkedAfter] ( @smooth_follow.InitFollowAndChase, #$2000 )
+    COP [SpawnAfterMarked] ( @smooth_follow.InitFollowAndChase, #$2000 )
     CPY #$1FC0
     BEQ loc_00E681
     LDA $24
     STA $0024, Y
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     COP [AnimOnce]
     LDA $animScratch2, X
     DEC 
@@ -24,7 +24,7 @@ InitSmoothFollowChase_unused {
     RTL 
 
   loc_00E676:
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     COP [AnimOnce]
     LDA $10
     BIT #$4000

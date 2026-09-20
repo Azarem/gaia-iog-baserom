@@ -24,13 +24,13 @@ sg51_statue [
     STA $statsPtr, X
     LDA #$0031
     TSB $12
-    COP [OrActorFlags] ( #$0008 )
-    COP [SolidHighHere]
-    COP [SpawnMarkedAfter] ( @interaction_handlers.push_handler_solid, #$2300 )
+    COP [OrExtraFlags] ( #$0008 )
+    COP [MarkSolidHere]
+    COP [SpawnAfterMarked] ( @interaction_handlers.push_handler_solid, #$2300 )
 
   loc_05F8DC:
     COP [SetHitCallback] ( &code_05F8EA )
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     LDA #$00FF
     STA $currentHp, X
     RTL 
@@ -41,5 +41,5 @@ code_05F8EA {
     LDA $playerFlags
     BIT #$0002
     BEQ loc_05F8DC
-    COP [JumpScript] ( @StandardEnemyDefeatHandler )
+    COP [JumpFar] ( @StandardEnemyDefeatHandler )
 }

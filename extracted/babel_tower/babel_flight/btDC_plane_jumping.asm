@@ -47,7 +47,7 @@ btDC_plane_jumping [
     COP [AnimLoop]
 
   loc_098196:
-    COP [BranchIfFlagByte] ( #01, #01, &code_0981A3 )
+    COP [BranchOnFlagByte] ( #01, #01, &code_0981A3 )
     COP [StageSpriteFrame] ( #06 )
     COP [AnimOnce]
     BRA loc_098196
@@ -66,7 +66,7 @@ code_0981A3 {
     LDA #$0404
     STA $gfxCacheIdxB
     COP [QueueMapChange] ( #DE, #$0078, #$00C0, #00, #$1100 )
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     RTL 
 }
 

@@ -16,7 +16,7 @@ gw82_wall_spear [
     STA $08
     LDA #$2000
     STA $0E
-    COP [SetEntryExit]
+    COP [SetEntryHereAndYield]
 
   loc_0B8C3E:
     COP [WaitByte] ( #3B )
@@ -28,11 +28,11 @@ gw82_wall_spear [
   loc_0B8C4B:
     COP [StageSpriteFrame] ( #1F )
     COP [AnimOnce]
-    COP [SolidHighHere]
-    COP [SolidHighOffset] ( #00, #03 )
+    COP [MarkSolidHere]
+    COP [MarkSolidOffset] ( #00, #03 )
     COP [WaitByte] ( #3B )
-    COP [ClearLowHere]
-    COP [ClearLowOffset] ( #00, #03 )
+    COP [ClearSolidHere]
+    COP [ClearSolidOffset] ( #00, #03 )
     LDA #$0100
     TSB $10
     COP [StageSpriteFrame] ( #20 )

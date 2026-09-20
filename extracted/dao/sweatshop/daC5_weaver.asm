@@ -27,16 +27,16 @@ daC5_weaver [
     STA $0E
 
   loc_08B482:
-    COP [SetOnInteract] ( &code_08B49C )
-    COP [SolidHighHere]
-    COP [SetEntryContinue]
+    COP [SetInteractHandler] ( &code_08B49C )
+    COP [MarkSolidHere]
+    COP [SetEntryHere]
     COP [AnimOnce]
     COP [RngByte]
     AND #$001F
     STA $08
-    COP [SetEntryExit]
-    COP [SetEntryContinue]
-    COP [SetEntryContinue]
+    COP [SetEntryHereAndYield]
+    COP [SetEntryHere]
+    COP [SetEntryHere]
     COP [AnimOnce]
     RTL 
 } >

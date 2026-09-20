@@ -14,10 +14,10 @@ wa7A_lance [
   actor-def < #15, #00, #10, {
 
   code_07AAF8:
-    COP [BranchIfFlagByte] ( #90, #01, &code_07AB69 )
-    COP [SetOnInteract] ( &code_07AB6B )
-    COP [SolidHighHere]
-    COP [ExitIfFlagByte] ( #02, #01 )
+    COP [BranchOnFlagByte] ( #90, #01, &code_07AB69 )
+    COP [SetInteractHandler] ( &code_07AB6B )
+    COP [MarkSolidHere]
+    COP [WaitOnFlagByte] ( #02, #01 )
     LDA #$EFF0
     TSB $joypadMaskStd
     COP [StartMusic] ( #1B )
@@ -26,9 +26,9 @@ wa7A_lance [
     COP [PrintDialogString] ( &dialogstring_07AB82 )
     LDA #$EFF0
     TRB $joypadMaskStd
-    COP [SetOnInteract] ( &code_07AB6F )
-    COP [ExitIfFlagByte] ( #90, #01 )
-    COP [SetEntryContinue]
+    COP [SetInteractHandler] ( &code_07AB6F )
+    COP [WaitOnFlagByte] ( #90, #01 )
+    COP [SetEntryHere]
     COP [BranchIfPlayerInAbsTiles] ( #07, #07, #08, #0A, &code_07AB34 )
     RTL 
 } >
@@ -37,7 +37,7 @@ wa7A_lance [
 code_07AB34 {
     LDA #$CFF0
     TSB $joypadMaskStd
-    COP [ClearLowHere]
+    COP [ClearSolidHere]
     COP [StageSpriteMoveX] ( #18, #02 )
     COP [AnimOnce]
     COP [StageSpriteMoveY] ( #17, #02 )
@@ -65,7 +65,7 @@ code_07AB6B {
 }
 
 code_07AB6F {
-    COP [BranchIfFlagByte] ( #01, #01, &code_07AB7A )
+    COP [BranchOnFlagByte] ( #01, #01, &code_07AB7A )
     COP [PrintDialogString] ( &dialogstring_07AB82 )
     RTL 
 }

@@ -58,12 +58,12 @@ DarkSpacePortalInit {
     TSB $12
     COP [SetMetasprite] ( @spriteset_enemies )
     COP [StageSprAndHitbox] ( #24 ) ; Portal closed frame
-    COP [SolidHighHere]   ; Block player from walking through
+    COP [MarkSolidHere]   ; Block player from walking through
     LDA #$2000            ; Clear walk-through flag
     TRB $10
     LDA #$0B00            ; Set portal display priority bits
     TSB $10
-    COP [OrActorFlags] ( #$0200 )
+    COP [OrExtraFlags] ( #$0200 )
     COP [SpawnAfterFlags] ( @DarkSpaceInteractionMonitor, #$2300 ) ; Spawn interaction monitor child
     LDA $24               ; Pass variant param to child
     STA $0024, Y
@@ -73,9 +73,9 @@ DarkSpacePortalInit {
 
   loc_08D6E1:
     COP [BranchIfPlayerNear] ( #05, &DarkSpacePortalOpen ) ; Player within 5 tiles?
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     COP [AnimOneFrame]
-    COP [SetEntryExit]
+    COP [SetEntryHereAndYield]
     BRA loc_08D6E1
 }
 
@@ -101,9 +101,9 @@ DarkSpacePortalOpen {
 ; Portal open idle loop
 
 DarkSpacePortalOpenIdle {
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     COP [AnimOneFrame]
-    COP [SetEntryExit]
+    COP [SetEntryHereAndYield]
     BRA loc_08D6FD
 
   loc_08D70C:
@@ -116,7 +116,7 @@ DarkSpacePortalOpenIdle {
 ; Interaction monitor — child actor that checks if player is standing on portal
 
 DarkSpaceInteractionMonitor {
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     NOP 
     NOP 
     LDA $displayModeFlags ; Skip during screen transitions
@@ -133,7 +133,7 @@ DarkSpaceInteractionMonitor {
 ; Button check — player must press Up ($0801) to enter dark space
 
 DarkSpaceButtonCheck {
-    COP [BranchIfButton] ( #$0801, &DarkSpaceEnterWarp ) ; Up button
+    COP [BranchIfPressed] ( #$0801, &DarkSpaceEnterWarp ) ; Up button
     RTL 
 }
 
@@ -191,6 +191,6 @@ DarkSpaceEnterWarp {
     TSB $layerPriorityFlag
     LDA $24               ; Store dark space variant ID
     STA $0AAC
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     RTL 
 }

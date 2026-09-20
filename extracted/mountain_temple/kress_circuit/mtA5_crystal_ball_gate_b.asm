@@ -13,8 +13,8 @@ mtA5_crystal_ball_gate_b [
   actor-def < #00, #00, #30, {
 
   code_07E899:
-    COP [BranchIfFlagWord] ( #$0167, #01, &f_mtA5_actor_07E896_destroy )
-    COP [ExitIfFlagByte] ( #02, #01 )
+    COP [BranchOnFlagWord] ( #$0167, #01, &f_mtA5_actor_07E896_destroy )
+    COP [WaitOnFlagByte] ( #02, #01 )
     LDA #$EFF0
     TSB $joypadMaskStd
     COP [RemoveItem] ( #1A )

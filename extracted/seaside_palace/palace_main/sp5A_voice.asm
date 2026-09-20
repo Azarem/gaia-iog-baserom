@@ -11,8 +11,8 @@ sp5A_voice [
   actor-def < #00, #00, #30, {
 
   code_069538:
-    COP [SetEntryContinue]
-    COP [BranchIfFlagByte] ( #70, #01, &code_069568 )
+    COP [SetEntryHere]
+    COP [BranchOnFlagByte] ( #70, #01, &code_069568 )
     COP [BranchIfPlayerInAbsTiles] ( #37, #28, #38, #29, &code_069569 )
     COP [BranchIfPlayerInAbsTiles] ( #0E, #38, #0F, #39, &code_069577 )
     COP [BranchIfPlayerInAbsTiles] ( #2B, #59, #2C, #5A, &code_069585 )
@@ -26,35 +26,35 @@ code_069568 {
 }
 
 code_069569 {
-    COP [BranchIfFlagByte] ( #71, #01, &code_069568 )
+    COP [BranchOnFlagByte] ( #71, #01, &code_069568 )
     COP [SetFlagByte] ( #71 )
     COP [PrintDialogString] ( &dialogstring_0695AF )
     RTL 
 }
 
 code_069577 {
-    COP [BranchIfFlagByte] ( #72, #01, &code_069568 )
+    COP [BranchOnFlagByte] ( #72, #01, &code_069568 )
     COP [SetFlagByte] ( #72 )
     COP [PrintDialogString] ( &dialogstring_069612 )
     RTL 
 }
 
 code_069585 {
-    COP [BranchIfFlagByte] ( #73, #01, &code_069568 )
+    COP [BranchOnFlagByte] ( #73, #01, &code_069568 )
     COP [SetFlagByte] ( #73 )
     COP [PrintDialogString] ( &dialogstring_069672 )
     RTL 
 }
 
 code_069593 {
-    COP [BranchIfFlagByte] ( #83, #01, &code_069568 )
+    COP [BranchOnFlagByte] ( #83, #01, &code_069568 )
     COP [SetFlagByte] ( #83 )
     COP [PrintDialogString] ( &dialogstring_0696A5 )
     RTL 
 }
 
 code_0695A1 {
-    COP [BranchIfFlagByte] ( #84, #01, &code_069568 )
+    COP [BranchOnFlagByte] ( #84, #01, &code_069568 )
     COP [SetFlagByte] ( #84 )
     COP [PrintDialogString] ( &dialogstring_0696D5 )
     RTL 

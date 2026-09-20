@@ -20,10 +20,10 @@ sp5C_key_coffin [
   actor-def < #00, #02, #30, {
 
   code_068FEE:
-    COP [BranchIfFlagWord] ( #$013A, #01, &code_069092 )
-    COP [AddPosition] ( #08, #00 )
-    COP [SetOnInteract] ( &code_069094 )
-    COP [ExitIfFlagByte] ( #01, #01 )
+    COP [BranchOnFlagWord] ( #$013A, #01, &code_069092 )
+    COP [NudgePosition] ( #08, #00 )
+    COP [SetInteractHandler] ( &code_069094 )
+    COP [WaitOnFlagByte] ( #01, #01 )
     LDA #$CFF0
     TSB $joypadMaskStd
     LDA #$2000
@@ -81,7 +81,7 @@ code_069092 {
 }
 
 code_069094 {
-    COP [BranchIfFlagByte] ( #6F, #01, &code_06909F )
+    COP [BranchOnFlagByte] ( #6F, #01, &code_06909F )
     COP [PrintDialogString] ( &dialogstring_0690A7 )
     RTL 
 }

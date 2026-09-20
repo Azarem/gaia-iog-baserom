@@ -22,29 +22,29 @@ daC6_snake_panic [
   code_08AE4C:
     LDA #$0200
     TSB $12
-    COP [SpawnAfterRelFlags] ( @code_08B0D4, #$FFD0, #$0010, #$0300 )
-    COP [SpawnAfterRelFlags] ( @code_08B0D4, #$0000, #$0010, #$0300 )
-    COP [SpawnAfterRelFlags] ( @code_08B0D4, #$0030, #$0010, #$0300 )
-    COP [SolidHighHere]
+    COP [SpawnAfterOffsetFlags] ( @code_08B0D4, #$FFD0, #$0010, #$0300 )
+    COP [SpawnAfterOffsetFlags] ( @code_08B0D4, #$0000, #$0010, #$0300 )
+    COP [SpawnAfterOffsetFlags] ( @code_08B0D4, #$0030, #$0010, #$0300 )
+    COP [MarkSolidHere]
     COP [ClearFlagByte] ( #04 )
-    COP [SetOnInteract] ( &code_08AEA4 )
-    COP [ExitIfFlagByte] ( #01, #01 )
-    COP [SetOnInteract] ( &code_08AECA )
+    COP [SetInteractHandler] ( &code_08AEA4 )
+    COP [WaitOnFlagByte] ( #01, #01 )
+    COP [SetInteractHandler] ( &code_08AECA )
     COP [SpawnAfterFlags] ( @code_08AFB4, #$2000 )
     COP [ClearFlagByte] ( #03 )
 
   loc_08AE8D:
-    COP [BranchIfFlagByte] ( #04, #01, &code_08AE99 )
-    COP [SetEntryContinue]
+    COP [BranchOnFlagByte] ( #04, #01, &code_08AE99 )
+    COP [SetEntryHere]
     COP [AnimOnce]
     BRA loc_08AE8D
 } >
 ]
 
 code_08AE99 {
-    COP [SetOnInteract] ( &code_08AECF )
-    COP [SetEntryContinue]
-    COP [SetEntryContinue]
+    COP [SetInteractHandler] ( &code_08AECF )
+    COP [SetEntryHere]
+    COP [SetEntryHere]
     COP [AnimOnce]
     RTL 
 }
@@ -93,7 +93,7 @@ dialogstring_08AF16 `[CLR]The rules are simple. [N]Hit as many snakes as [N]you 
 dialogstring_08AF94 `[DEF]Hey, hey. There's[N]plenty of them.[END]`
 
 code_08AFB4 {
-    COP [ExitIfFlagByte] ( #02, #01 )
+    COP [WaitOnFlagByte] ( #02, #01 )
     PHX 
     LDX #$0000
 
@@ -116,7 +116,7 @@ code_08AFB4 {
     COP [RngByte]
     COP [RngByte]
     STZ $24
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     LDA $24
     CMP #$0E10
     BEQ loc_08AFED
@@ -124,7 +124,7 @@ code_08AFB4 {
     RTL 
 
   loc_08AFED:
-    COP [BranchIfFlagByte] ( #E7, #01, &code_08AFFB )
+    COP [BranchOnFlagByte] ( #E7, #01, &code_08AFFB )
     LDA $0AAC
     CMP #$0051
     BCS loc_08B010
@@ -164,17 +164,17 @@ code_08B0D4 {
     STA $statsPtr, X
     LDA #$0031
     TSB $12
-    COP [SolidHighHere]
+    COP [MarkSolidHere]
 
   loc_08B0E2:
     COP [StageSprAndHitbox] ( #24 )
-    COP [ExitIfFlagByte] ( #01, #01 )
+    COP [WaitOnFlagByte] ( #01, #01 )
     LDA #$0200
     TRB $10
     LDA #$00FF
     STA $currentHp, X
     COP [SetHitCallback] ( &code_08B0FD )
-    COP [ExitIfFlagByte] ( #02, #01 )
+    COP [WaitOnFlagByte] ( #02, #01 )
 }
 
 code_08B0FD {
@@ -182,7 +182,7 @@ code_08B0FD {
     COP [SetHitCallback] ( &code_08B138 )
 
   loc_08B104:
-    COP [BranchIfFlagByte] ( #03, #01, &code_08B133 )
+    COP [BranchOnFlagByte] ( #03, #01, &code_08B133 )
     LDA #$00FF
     STA $currentHp, X
     COP [RngByte]
@@ -191,7 +191,7 @@ code_08B0FD {
     ASL 
     ASL 
     STA $08
-    COP [SetEntryExit]
+    COP [SetEntryHereAndYield]
     LDA #$0200
     TRB $10
     COP [StageSpriteFrame] ( #24 )

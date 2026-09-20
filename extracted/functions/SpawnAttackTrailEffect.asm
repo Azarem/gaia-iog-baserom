@@ -19,7 +19,7 @@ SpawnAttackTrailEffect {
     STA $20
     LDA $0016, Y
     STA $22
-    COP [LoopInit] ( #10 )
+    COP [LoopStart] ( #10 )
     LDY $24
     LDA $0014, Y
     SEC 
@@ -42,6 +42,6 @@ SpawnAttackTrailEffect {
     LDA $28
     STA $0000
     JSL $@oam_digit_compose.ComposeDigitSprites
-    COP [LoopNext]
+    COP [LoopEnd]
     COP [Die]
 }

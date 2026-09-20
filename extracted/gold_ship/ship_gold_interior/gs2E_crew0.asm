@@ -11,11 +11,11 @@ gs2E_crew0 [
   actor-def < #03, #00, #10, {
 
   code_05878F:
-    COP [AddPosition] ( #00, #F8 )
+    COP [NudgePosition] ( #00, #F8 )
     LDA #$0200
     TSB $12
-    COP [SetOnInteract] ( &code_05879F )
-    COP [SetEntryContinue]
+    COP [SetInteractHandler] ( &code_05879F )
+    COP [SetEntryHere]
     RTL 
 } >
 ]

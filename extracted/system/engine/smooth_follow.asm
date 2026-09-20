@@ -126,7 +126,7 @@ InitFollowAndChase {
     JMP $&SelectFallbackDirection ; Direction blocked → rotate through fallback directions
 
   FollowChaseMoveDiagSW:
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     JSR $&ComputeFollowStep ; ComputeFollowStep: sine-table walk → sub-pixel deltas
     LDA $0000             ; Negate X delta (flip to SW direction)
     EOR #$FFFF
@@ -147,7 +147,7 @@ InitFollowAndChase {
     JMP $&SelectFallbackDirection
 
   FollowChaseMoveDiagNW:
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     JSR $&ComputeFollowStep
     LDA $0002
     EOR #$FFFF
@@ -166,7 +166,7 @@ FollowChaseMoveWest {
     JMP $&SelectFallbackDirection
 
   FollowChaseApplyWest:
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     JSR $&ComputeFollowStep
     JMP $&ApplyFollowMovement
 }
@@ -181,7 +181,7 @@ FollowChaseMoveEast {
     JMP $&SelectFallbackDirection
 
   FollowChaseApplyEast:
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     JSR $&ComputeFollowStep
     LDA $0000
     TAY 
@@ -201,7 +201,7 @@ FollowChaseMoveNorth {
     JMP $&SelectFallbackDirection
 
   FollowChaseApplyNorth:
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     JSR $&ComputeFollowStep
     LDA $0002
     EOR #$FFFF            ; Negate Y for northward movement
@@ -223,7 +223,7 @@ FollowChaseMoveSouth {
     JMP $&SelectFallbackDirection
 
   FollowChaseApplySouth:
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     JSR $&ComputeFollowStep
     LDA $0000
     EOR #$FFFF            ; Negate for southward (positive Y delta → negative step)
@@ -242,7 +242,7 @@ FollowChaseMoveDiagNE {
     JMP $&SelectFallbackDirection
 
   FollowChaseApplyDiagNE:
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     JSR $&ComputeFollowStep
     LDA $0000
     EOR #$FFFF            ; Negate both X and Y for NE quadrant
@@ -265,7 +265,7 @@ FollowChaseMoveDiagSE {
     JMP $&SelectFallbackDirection
 
   FollowChaseApplyDiagSE:
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     JSR $&ComputeFollowStep
     LDA $0000
     EOR #$FFFF            ; Negate both for SE quadrant direction
@@ -302,7 +302,7 @@ ApplyFollowMovement {
   FollowChaseRequeueLoop:
     LDA #$0000            ; orbitDiameter≥8 triggers SetEntryExitNow re-queue to FollowChaseMainLoop
     STA $orbitDiameter, X
-    COP [SetEntryExitNow] ( @FollowChaseMainLoop )
+    COP [JumpNextFrame] ( @FollowChaseMainLoop )
 }
 
 SelectFallbackDirection {

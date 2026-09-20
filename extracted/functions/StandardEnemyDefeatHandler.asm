@@ -59,7 +59,7 @@ EnemyDefeatFlashAndDrop {
     STA $moveScratch1, X
     STA $moveScratch2, X
     COP [PlaySoundCh1] ( #06 )
-    COP [SpawnLastRel] ( @EnemyDeathFlash, #00, #00, #$0302 )
+    COP [SpawnListAppend] ( @EnemyDeathFlash, #00, #00, #$0302 )
     LDA $0012, Y
     ORA #$1000
     STA $0012, Y
@@ -94,7 +94,7 @@ EnemyDefeatFlashAndDrop {
     LDA $extendedFlags, X
     BIT #$0008
     BEQ loc_00DC23
-    COP [ClearLowHere]
+    COP [ClearSolidHere]
 
   loc_00DC23:
     LDA $deathActionIdx, X
@@ -103,7 +103,7 @@ EnemyDefeatFlashAndDrop {
     BCS loc_00DC54
     LDA $deathActionIdx, X
     JSL $@cop_handlers_flags.SetFlag_0100
-    COP [SpawnLastRel] ( @SpawnFieldRevealEffect, #00, #00, #$0342 )
+    COP [SpawnListAppend] ( @SpawnFieldRevealEffect, #00, #00, #$0342 )
     LDA $0012, Y
     ORA #$1000
     STA $0012, Y
@@ -129,7 +129,7 @@ EnemyDefeatBossCleanup {
     LDA $extendedFlags, X
     BIT #$0008
     BEQ loc_00DC72
-    COP [ClearLowHere]
+    COP [ClearSolidHere]
 
   loc_00DC72:
     COP [WaitByte] ( #05 )
@@ -149,15 +149,15 @@ EnemyGemDropRouter {
     BRA loc_00DD7B
 
   loc_00DD63:
-    COP [SpawnLastRel] ( @DarkGemDropSystem.SpawnDarkGemType1, #00, #00, #$0420 )
+    COP [SpawnListAppend] ( @DarkGemDropSystem.SpawnDarkGemType1, #00, #00, #$0420 )
     JMP $&code_00DC13
 
   loc_00DD6F:
-    COP [SpawnLastRel] ( @DarkGemDropSystem.DarkGemDropAnimVariantB, #00, #00, #$0420 )
+    COP [SpawnListAppend] ( @DarkGemDropSystem.DarkGemDropAnimVariantB, #00, #00, #$0420 )
     JMP $&code_00DC13
 
   loc_00DD7B:
-    COP [SpawnLastRel] ( @DarkGemDropSystem.DarkGemDropTierPicker, #00, #00, #$0420 )
+    COP [SpawnListAppend] ( @DarkGemDropSystem.DarkGemDropTierPicker, #00, #00, #$0420 )
     JMP $&code_00DC13
 }
 
@@ -187,21 +187,21 @@ EnemyStatBonusReward {
     COP [Die]
 
   loc_00DDB6:
-    COP [SpawnLastRel] ( @reward_actors.e_hp_increase, #00, #00, #$1000 )
+    COP [SpawnListAppend] ( @reward_actors.e_hp_increase, #00, #00, #$1000 )
     LDA $0012, Y
     ORA #$1000
     STA $0012, Y
     COP [Die]
 
   loc_00DDCA:
-    COP [SpawnLastRel] ( @reward_actors.e_str_increase, #00, #00, #$1000 )
+    COP [SpawnListAppend] ( @reward_actors.e_str_increase, #00, #00, #$1000 )
     LDA $0012, Y
     ORA #$1000
     STA $0012, Y
     COP [Die]
 
   loc_00DDDE:
-    COP [SpawnLastRel] ( @reward_actors.e_def_increase, #00, #00, #$1000 )
+    COP [SpawnListAppend] ( @reward_actors.e_def_increase, #00, #00, #$1000 )
     LDA $0012, Y
     ORA #$1000
     STA $0012, Y

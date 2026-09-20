@@ -31,22 +31,22 @@ sp5A_monologue [
     COP [Die]
 
   loc_0684B9:
-    COP [BranchIfFlagByte] ( #6E, #01, &code_0684B1 )
+    COP [BranchOnFlagByte] ( #6E, #01, &code_0684B1 )
     COP [SetFlagByte] ( #6E )
     COP [WaitByte] ( #1D )
     COP [PrintDialogString] ( &dialogstring_0684F5 )
     BRA code_0684B1
 
   loc_0684CB:
-    COP [BranchIfFlagByte] ( #77, #01, &code_0684B1 )
+    COP [BranchOnFlagByte] ( #77, #01, &code_0684B1 )
     COP [SetFlagByte] ( #77 )
     COP [WaitByte] ( #1D )
     COP [PrintDialogString] ( &dialogstring_06856E )
     BRA code_0684B1
 
   loc_0684DD:
-    COP [BranchIfFlagByte] ( #7C, #01, &code_0684B1 )
-    COP [BranchIfFlagByte] ( #7B, #00, &code_0684B1 )
+    COP [BranchOnFlagByte] ( #7C, #01, &code_0684B1 )
+    COP [BranchOnFlagByte] ( #7B, #00, &code_0684B1 )
     COP [SetFlagByte] ( #7C )
     COP [WaitByte] ( #1D )
     COP [PrintDialogString] ( &dialogstring_0685D3 )

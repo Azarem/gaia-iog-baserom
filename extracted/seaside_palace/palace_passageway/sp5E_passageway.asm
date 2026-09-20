@@ -11,8 +11,8 @@ sp5E_passageway [
   actor-def < #00, #00, #30, {
 
   code_069739:
-    COP [BranchIfFlagByte] ( #7D, #01, &code_069751 )
-    COP [SetEntryContinue]
+    COP [BranchOnFlagByte] ( #7D, #01, &code_069751 )
+    COP [SetEntryHere]
     COP [BranchIfPlayerInAbsTiles] ( #14, #08, #16, #0C, &code_06974A )
     RTL 
 } >

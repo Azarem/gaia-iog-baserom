@@ -17,11 +17,11 @@ dm45_key [
   actor-def < #02, #01, #10, {
 
   code_05D4B2:
-    COP [BranchIfFlagByte] ( #5D, #01, &code_05D4E4 )
+    COP [BranchOnFlagByte] ( #5D, #01, &code_05D4E4 )
     COP [SetMetasprite] ( @spriteset_enemies )
     LDA #$0200
     TSB $12
-    COP [SetOnInteract] ( &code_05D4D0 )
+    COP [SetInteractHandler] ( &code_05D4D0 )
 
   loc_05D4C6:
     COP [StageSpriteFrame] ( #02 )

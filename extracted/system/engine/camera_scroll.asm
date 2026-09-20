@@ -53,12 +53,12 @@ ScrollCameraInit [
     SBC #$0010            ; Subtract 16px to center camera Y above player sprite top
     JSR $&TileAlignCoord
     STA $16
-    COP [LoopInit] ( #03 ) ; Initialize 3-iteration scroll ramp-up loop via COP LoopInit
+    COP [LoopStart] ( #03 ) ; Initialize 3-iteration scroll ramp-up loop via COP LoopInit
     JSR $&ComputeScrollDeltas
     LDA $cameraDeltaY     ; Load initial Y scroll delta to savedCameraDelta before entering per-frame loop
     STA $savedCameraDelta
-    COP [LoopNext]
-    COP [SetEntryContinue] ; Set actor re-entry point; yields then continues computing deltas each frame
+    COP [LoopEnd]
+    COP [SetEntryHere]    ; Set actor re-entry point; yields then continues computing deltas each frame
     JSR $&ComputeScrollDeltas
     LDA $cameraDeltaX
     ORA #$8000            ; Bit 15 marks this value as a forced scroll override
@@ -82,7 +82,7 @@ ScrollCameraTrack [
     LDA #$1000
     TSB $12               ; Set camera-active flag (bit 12) in actor status word
     JSR $&TileAlignPosition
-    COP [SetEntryContinue] ; Set re-entry point; actor recomputes both scroll deltas every frame from here
+    COP [SetEntryHere]    ; Set re-entry point; actor recomputes both scroll deltas every frame from here
     JSR $&ComputeScrollDeltas
     RTL 
 } >
@@ -100,7 +100,7 @@ ScrollCameraVertical [
     LDA #$1000
     TSB $12
     JSR $&TileAlignPosition
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     LDA $16               ; Check Y scroll speed parameter at DP $16; zero means no vertical scrolling needed
     BEQ loc_00EAC2
     LDY $cameraTargetY
@@ -127,7 +127,7 @@ ScrollCameraAccumulate [
     STA $24
     STA $26
     JSR $&TileAlignPosition
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     JSR $&ComputeScrollDeltas
     LDA $cameraDeltaX     ; Add running accumulated X offset ($24) to computed horizontal scroll delta
     CLC 

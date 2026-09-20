@@ -22,11 +22,11 @@ btDE_kara_missing [
   actor-def < #1A, #00, #0B, {
 
   code_098623:
-    COP [BranchIfFlagByte] ( #D4, #00, &btDE_kara_missing_destroy )
+    COP [BranchOnFlagByte] ( #D4, #00, &btDE_kara_missing_destroy )
     LDA $sceneCurrent
     CMP #$00E0
     BNE code_09865A
-    COP [BranchIfFlagWord] ( #$0178, #00, &code_09865A )
+    COP [BranchOnFlagWord] ( #$0178, #00, &code_09865A )
     COP [ClearFlagByte] ( #D4 )
     LDA #$2000
     TSB $10
@@ -57,22 +57,22 @@ code_09865A {
     STA $orbitAngle, X
     CMP #$0001
     BEQ loc_098687
-    COP [AddPosition] ( #00, #F0 )
+    COP [NudgePosition] ( #00, #F0 )
     BRA loc_09868B
 
   loc_098687:
-    COP [AddPosition] ( #00, #10 )
+    COP [NudgePosition] ( #00, #10 )
 
   loc_09868B:
     LDA #$001A
     STA $orbitDiameter, X
     PLX 
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     COP [AnimOnce]
 
   loc_098697:
-    COP [SetEntryContinue]
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
+    COP [SetEntryHere]
     COP [AnimOneFrame]
     LDY $playerActor
     LDA $000E, Y
@@ -83,9 +83,9 @@ code_09865A {
   loc_0986A9:
     LDA #$2000
     TSB $10
-    COP [SpawnLastRel] ( @code_09870C, #00, #00, #$1002 )
-    COP [SetEntryContinue]
-    COP [SetEntryContinue]
+    COP [SpawnListAppend] ( @code_09870C, #00, #00, #$1002 )
+    COP [SetEntryHere]
+    COP [SetEntryHere]
     COP [AnimOneFrame]
     LDY $playerActor
     LDA $000E, Y
@@ -95,7 +95,7 @@ code_09865A {
 
   loc_0986C9:
     COP [WaitByte] ( #07 )
-    COP [SpawnLastRel] ( @code_09870C, #00, #00, #$1002 )
+    COP [SpawnListAppend] ( @code_09870C, #00, #00, #$1002 )
     COP [WaitByte] ( #0F )
     LDA #$2000
     TRB $10

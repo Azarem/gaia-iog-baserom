@@ -10,17 +10,17 @@ sc01_girl2 [
   actor-def < #1C, #00, #10, {
 
   code_048137:
-    COP [SetOnInteract] ( &code_048166 )
+    COP [SetInteractHandler] ( &code_048166 )
 
   loc_04813B:
-    COP [SolidHighHere]
+    COP [MarkSolidHere]
 
   loc_04813D:
-    COP [ExitIfFlagByte] ( #02, #01 )
-    COP [ClearLowHere]
+    COP [WaitOnFlagByte] ( #02, #01 )
+    COP [ClearSolidHere]
     COP [StageSpriteLoopMoveX] ( #20, #02, #14 )
     COP [AnimLoop]
-    COP [SolidHighHere]
+    COP [MarkSolidHere]
     COP [BranchIfSolidWest] ( &code_048152 )
     BRA loc_04813D
 } >
@@ -28,7 +28,7 @@ sc01_girl2 [
 
 code_048152 {
     COP [SetFlagByte] ( #03 )
-    COP [ClearLowHere]
+    COP [ClearSolidHere]
     COP [StageSpriteLoopMoveX] ( #21, #06, #11 )
     COP [AnimLoop]
     COP [ClearFlagByte] ( #02 )

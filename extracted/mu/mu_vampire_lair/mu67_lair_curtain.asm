@@ -10,7 +10,7 @@ mu67_lair_curtain [
   actor-def < #03, #00, #30, {
 
   code_06A82B:
-    COP [ExitIfFlagByte] ( #88, #01 )
+    COP [WaitOnFlagByte] ( #88, #01 )
     COP [WaitByte] ( #1D )
     LDA #$2000
     TRB $10
@@ -18,7 +18,7 @@ mu67_lair_curtain [
     COP [AnimLoop]
     COP [StageSpriteFrame] ( #03 )
     COP [AnimOnce]
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     RTL 
 } >
 ]

@@ -14,7 +14,7 @@ ir1D_monologue [
   actor-def < #00, #00, #30, {
 
   code_09D02E:
-    COP [BranchIfFlagByte] ( #6C, #01, &code_09D04A )
+    COP [BranchOnFlagByte] ( #6C, #01, &code_09D04A )
     COP [SetFlagByte] ( #6C )
     LDA #$CFF0
     TSB $joypadMaskStd

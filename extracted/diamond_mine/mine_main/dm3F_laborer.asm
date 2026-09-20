@@ -44,9 +44,9 @@ dm3F_laborer [
     LDA #$0200
     TSB $12
     COP [SpawnAfterFlags] ( @code_0AA9E0, #$0100 )
-    COP [SolidHighHere]
-    COP [SetOnInteract] ( &code_0AA733 )
-    COP [SetEntryContinue]
+    COP [MarkSolidHere]
+    COP [SetInteractHandler] ( &code_0AA733 )
+    COP [SetEntryHere]
     LDY $06
     LDA $0010, Y
     BIT #$0040
@@ -54,17 +54,17 @@ dm3F_laborer [
     RTL 
 
   loc_0AA6F9:
-    COP [SetOnInteract] ( &code_0AA738 )
-    COP [SetEntryContinue]
+    COP [SetInteractHandler] ( &code_0AA738 )
+    COP [SetEntryHere]
     RTL 
 } >
 ]
 
 code_0AA700 {
-    COP [SetOnInteract] ( #$0000 )
+    COP [SetInteractHandler] ( #$0000 )
     LDA #$0800
     TSB $10
-    COP [ClearLowHere]
+    COP [ClearSolidHere]
     LDA #$0080
     TSB $displayModeFlags
     COP [StageSpriteLoopMoveY] ( #0D, #08, #01 )
@@ -169,6 +169,6 @@ code_0AA9E0 {
     JSL $@EnemyInitBasic
     COP [StageSpriteFrame] ( #33 )
     COP [AnimOnce]
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     RTL 
 }

@@ -23,10 +23,10 @@ ec0B_cell [
   actor-def < #23, #00, #38, {
 
   code_04D205:
-    COP [BranchIfFlagByte] ( #24, #01, &code_04D30E )
-    COP [SpawnLastRel] ( @code_04DB00, #00, #00, #$2000 )
-    COP [SolidHighAbs] ( #0E, #11 )
-    COP [SolidHighAbs] ( #0F, #11 )
+    COP [BranchOnFlagByte] ( #24, #01, &code_04D30E )
+    COP [SpawnListAppend] ( @code_04DB00, #00, #00, #$2000 )
+    COP [MarkSolidAbs] ( #0E, #11 )
+    COP [MarkSolidAbs] ( #0F, #11 )
     LDA #$0800
     TRB $10
     LDA #$CFF0
@@ -35,12 +35,12 @@ ec0B_cell [
     COP [PrintDialogString] ( &dialogstring_04D42F )
     LDA #$CFF0
     TRB $joypadMaskStd
-    COP [ExitIfFlagByte] ( #02, #01 )
-    COP [ExitIfFlagByte] ( #03, #01 )
-    COP [ExitIfFlagByte] ( #04, #01 )
+    COP [WaitOnFlagByte] ( #02, #01 )
+    COP [WaitOnFlagByte] ( #03, #01 )
+    COP [WaitOnFlagByte] ( #04, #01 )
     LDA #$1000
     TRB $10
-    COP [SetEntryDelayExit] ( @code_04D251, #$04B0 )
+    COP [JumpAfterDelay] ( @code_04D251, #$04B0 )
     LDA #$1000
     TSB $10
 } >
@@ -49,10 +49,10 @@ ec0B_cell [
 code_04D251 {
     COP [PrintDialogString] ( &dialogstring_04D60A )
     COP [SpawnAfterAbsFlags] ( @code_04D346, #$0108, #$FFD0, #$1002 )
-    COP [ExitIfFlagByte] ( #01, #01 )
+    COP [WaitOnFlagByte] ( #01, #01 )
     LDA #$1000
     TRB $10
-    COP [SetEntryDelayExit] ( @code_04D275, #$0258 )
+    COP [JumpAfterDelay] ( @code_04D275, #$0258 )
     LDA #$1000
     TSB $10
 }
@@ -82,7 +82,7 @@ code_list_04D2A6 [
 code_04D2AC {
     COP [PrintDialogString] ( &dialogstring_04D87D )
     COP [SpawnAfterAbsFlags] ( @code_04D408, #$00B8, #$FF70, #$0020 )
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     LDA $gemCount
     BNE loc_04D2C3
     RTL 
@@ -92,7 +92,7 @@ code_04D2AC {
     COP [PrintDialogString] ( &dialogstring_04D8D2 )
     LDA #$1000
     TRB $10
-    COP [SetEntryDelayExit] ( @code_04D2D6, #$012C )
+    COP [JumpAfterDelay] ( @code_04D2D6, #$012C )
 }
 
 code_04D2D6 {
@@ -107,8 +107,8 @@ code_04D2D6 {
     COP [AnimLoop]
     COP [StageSpriteMoveY] ( #27, #12 )
     COP [AnimOnce]
-    COP [SpawnAfterRelFlags] ( @code_04D310, #$0000, #$FFF0, #$1000 )
-    COP [ExitIfFlagByte] ( #23, #01 )
+    COP [SpawnAfterOffsetFlags] ( @code_04D310, #$0000, #$FFF0, #$1000 )
+    COP [WaitOnFlagByte] ( #23, #01 )
     COP [StageSpriteLoopMoveY] ( #26, #0E, #01 )
     COP [AnimLoop]
 }
@@ -121,10 +121,10 @@ code_04D310 {
     LDA #$0200
     TSB $12
     COP [SetMetasprite] ( @spriteset_enemies )
-    COP [SetOnInteract] ( &code_04D329 )
+    COP [SetInteractHandler] ( &code_04D329 )
     COP [StageSpriteFrame] ( #00 )
     COP [AnimOnce]
-    COP [ExitIfFlagByte] ( #23, #01 )
+    COP [WaitOnFlagByte] ( #23, #01 )
     COP [Die]
 }
 
@@ -145,7 +145,7 @@ code_04D342 {
 code_04D346 {
     LDA #$0800
     TRB $10
-    COP [SetOnInteract] ( #$0000 )
+    COP [SetInteractHandler] ( #$0000 )
     LDA #$0200
     TSB $12
     COP [StageSpriteLoopMoveY] ( #2A, #03, #07 )
@@ -153,17 +153,17 @@ code_04D346 {
     COP [PlaySoundCh1] ( #1D )
     COP [StageSpriteMoveY] ( #2A, #35 )
     COP [AnimOnce]
-    COP [CollPriorityClearMax]
-    COP [SolidHighHere]
-    COP [SetOnInteract] ( &code_04D36F )
-    COP [SetEntryContinue]
+    COP [ClearPriorityMax]
+    COP [MarkSolidHere]
+    COP [SetInteractHandler] ( &code_04D36F )
+    COP [SetEntryHere]
     RTL 
 }
 
 code_04D36F {
     COP [PrintDialogString] ( &dialogstring_04D37A )
     COP [SetFlagByte] ( #01 )
-    COP [ClearLowHere]
+    COP [ClearSolidHere]
     COP [Die]
 }
 
@@ -175,10 +175,10 @@ code_04D408 {
     STA $chatPtr, X
     COP [StageSpriteMoveY] ( #06, #07 )
     COP [AnimOnce]
-    COP [SpawnMarkedAfter] ( @interaction_handlers.collect_handler_gem, #$2300 )
+    COP [SpawnAfterMarked] ( @interaction_handlers.collect_handler_gem, #$2300 )
     COP [StageSpriteMoveY] ( #06, #35 )
     COP [AnimOnce]
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     COP [StageSpriteFrame] ( #06 )
     COP [AnimOnce]
     RTL 
@@ -206,7 +206,7 @@ dialogstring_04D8D2 `[DEF][TPL:0]Will: [N]...This? [FIN][TPL:4]Flute: Have you[N
 
 code_04DB00 {
     COP [AdhocVramDma] ( @gfx_000000+A00, #$4700, #$0200 )
-    COP [SetEntryExit]
-    COP [BranchIfFlagByte] ( #00, #00, &code_04DB00 )
+    COP [SetEntryHereAndYield]
+    COP [BranchOnFlagByte] ( #00, #00, &code_04DB00 )
     RTL 
 }

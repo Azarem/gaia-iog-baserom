@@ -387,7 +387,7 @@ HandleChestInteraction {
     PHY 
     PHX 
     LDX #$0000
-    COP [SpawnLastRel] ( @ChestOpeningActor, #00, #00, #$2000 ) ; Spawn ChestOpeningActor via SpawnLastRel — animated music open
+    COP [SpawnListAppend] ( @ChestOpeningActor, #00, #00, #$2000 ) ; Spawn ChestOpeningActor via SpawnLastRel — animated music open
     LDA $0012, Y          ; Set actor $0012 bit 12 ($1000) — lock actor during sequence
     ORA #$1000
     STA $0012, Y
@@ -426,13 +426,13 @@ HandleChestInteraction {
 ; 4. Saves actor references: X = self, Y = music child
 ; 5. Suppresses joypad ($CFF0 → joypadMaskStd) and locks player in idle animation via SetAnimStatePointer (pointing to player_transition_handlers.PlayerIdleAnimLoop)
 ; 6. Sets playerFlags $0800 (special mode)
-; 7. COP [SetEntryContinue] — yields until musicTransitionState == $FFFF
+; 7. COP [SetEntryHere] — yields until musicTransitionState == $FFFF
 ; 8. Spawns ChestDialogueActor (forwards $24 dialogue string and $1000 flag, stores render bank $20)
-; 9. COP [SetEntryContinue] — polls APUIO1 for $FF (SPC ready)
+; 9. COP [SetEntryHere] — polls APUIO1 for $FF (SPC ready)
 ; 10. Unlocks player (clear $1000 from actor flags, restore idle animation to RestorePlayerControlDirect), unmasks joypad ($CFF0 TRB)
 ; 11. Spawns second SpcTransferMusicData for follow-up data, guards $1FC0
 ; 12. Forwards musicParentActor (via orbitAngle) and $1000 flag to the second child
-; 13. COP [SetEntryContinue] — waits for second transfer ($FFFF)
+; 13. COP [SetEntryHere] — waits for second transfer ($FFFF)
 ; 14. COP [WaitByte] ($0B) — 11-frame final sync
 ; 
 ; code_02A88B: Cleanup — clears displayModeFlags bit 7 ($0080) and COP [Die].
@@ -470,7 +470,7 @@ ChestOpeningActor {
     JSR $&SetAnimStatePointer
     LDA #$0800            ; TSB playerFlags $0800 — special chest-open player mode
     TSB $playerFlags
-    COP [SetEntryContinue] ; COP SetEntryContinue — yield until musicTransitionState == $FFFF
+    COP [SetEntryHere]    ; COP SetEntryContinue — yield until musicTransitionState == $FFFF
     LDA $musicTransitionState
     CMP #$FFFF
     BEQ loc_02A813
@@ -485,7 +485,7 @@ ChestOpeningActor {
     STA $0012, Y
     LDA $20               ; Forward render context bank ($20) to dialogue actor
     STA $0020, Y
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     SEP #$20              ; Poll APUIO1 — wait for SPC700 ready signal ($FF)
     LDA $APUIO1
     REP #$20
@@ -516,7 +516,7 @@ ChestOpeningActor {
     ORA #$1000
     STA $0012, X
     PLX 
-    COP [SetEntryContinue] ; COP SetEntryContinue — wait for second music transfer complete
+    COP [SetEntryHere]    ; COP SetEntryContinue — wait for second music transfer complete
     LDA $musicTransitionState
     CMP #$FFFF
     BEQ loc_02A888

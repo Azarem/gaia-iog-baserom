@@ -28,12 +28,12 @@ eu91_merchant_counter [
     ADC #$001B
     STA $28
     STZ $2A
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     COP [AnimOneFrame]
     LDA #$3000
     STA $0E
-    COP [SetOnInteract] ( &code_07C08B )
-    COP [SetEntryContinue]
+    COP [SetInteractHandler] ( &code_07C08B )
+    COP [SetEntryHere]
     RTL 
 } >
 ]
@@ -60,7 +60,7 @@ code_07C0A6 {
 }
 
 code_07C0A7 {
-    COP [BranchIfNoItem] ( #28, &code_07C0B6 )
+    COP [BranchIfMissingItem] ( #28, &code_07C0B6 )
     COP [PrintDialogString] ( &dialogstring_07C0F3 )
     COP [GiveItem] ( #28, &code_07C0BB )
     RTL 

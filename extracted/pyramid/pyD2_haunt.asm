@@ -24,7 +24,7 @@ pyD2_haunt [
 
   code_0BC187:
     COP [SetDeathCallback] ( @code_0BC2C2 )
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     COP [BranchIfPlayerNear] ( #03, &code_0BC194 )
     RTL 
 } >
@@ -49,7 +49,7 @@ pyD5_haunt2 [
     COP [SetDeathCallback] ( @code_0BC2C2 )
 
   loc_0BC1AF:
-    COP [SetEntryExit]
+    COP [SetEntryHereAndYield]
     COP [WaitWhileOffscreen] ( #08 )
 
   code_0BC1B4:
@@ -82,7 +82,7 @@ code_0BC1DC {
 }
 
 code_0BC1E6 {
-    COP [LoopInit] ( #03 )
+    COP [LoopStart] ( #03 )
     COP [BranchIfSolidWest] ( &code_0BC276 )
     COP [StageSpriteMoveX] ( #0C, #02 )
     COP [AnimOnce]
@@ -93,12 +93,12 @@ code_0BC1E6 {
 }
 
 code_0BC203 {
-    COP [LoopNext]
+    COP [LoopEnd]
     BRA code_0BC1B4
 }
 
 code_0BC207 {
-    COP [LoopInit] ( #03 )
+    COP [LoopStart] ( #03 )
     COP [BranchIfSolidEast] ( &code_0BC276 )
     COP [StageSpriteMoveX] ( #8C, #01 )
     COP [AnimOnce]
@@ -109,7 +109,7 @@ code_0BC207 {
 }
 
 code_0BC224 {
-    COP [LoopNext]
+    COP [LoopEnd]
     BRA code_0BC1B4
 }
 
@@ -118,7 +118,7 @@ code_0BC228 {
 }
 
 code_0BC232 {
-    COP [LoopInit] ( #03 )
+    COP [LoopStart] ( #03 )
     COP [BranchIfSolidNorth] ( &code_0BC276 )
     COP [StageSpriteMoveY] ( #0B, #02 )
     COP [AnimOnce]
@@ -129,12 +129,12 @@ code_0BC232 {
 }
 
 code_0BC24F {
-    COP [LoopNext]
+    COP [LoopEnd]
     JMP $&code_0BC1B4
 }
 
 code_0BC254 {
-    COP [LoopInit] ( #03 )
+    COP [LoopStart] ( #03 )
     COP [BranchIfSolidSouth] ( &code_0BC276 )
     COP [StageSpriteMoveY] ( #0A, #01 )
     COP [AnimOnce]
@@ -145,12 +145,12 @@ code_0BC254 {
 }
 
 code_0BC271 {
-    COP [LoopNext]
+    COP [LoopEnd]
     JMP $&code_0BC1B4
 }
 
 code_0BC276 {
-    COP [SetEntryExit]
+    COP [SetEntryHereAndYield]
     COP [RngByte]
     AND #$0003
     STA $0000
@@ -196,7 +196,7 @@ code_0BC2C2 {
     COP [SpawnAfterFlags] ( @code_0BC2E4, #$0000 )
     COP [StageSpriteFrame] ( #0E )
     COP [AnimOnce]
-    COP [JumpScript] ( @StandardEnemyDefeatHandler )
+    COP [JumpFar] ( @StandardEnemyDefeatHandler )
 
   loc_0BC2D3:
     ORA $0000
@@ -208,7 +208,7 @@ code_0BC2C2 {
 }
 
 code_0BC2E4 {
-    COP [OrActorFlags] ( #$0090 )
+    COP [OrExtraFlags] ( #$0090 )
     LDA #$&enemy_stats_table+134
     STA $statsPtr, X
     LDA $&enemy_stats_table+134
@@ -221,23 +221,23 @@ code_0BC2E4 {
     COP [StageSprAndHitbox] ( #0D )
     COP [WaitByte] ( #17 )
     COP [PlaySoundBoth] ( #$0606 )
-    COP [LoopInit] ( #03 )
-    COP [StageForceMoveY] ( #0C )
-    COP [LoopNext]
-    COP [LoopInit] ( #03 )
-    COP [StageForceMoveY] ( #08 )
-    COP [LoopNext]
-    COP [LoopInit] ( #03 )
-    COP [StageForceMoveY] ( #04 )
-    COP [LoopNext]
-    COP [LoopInit] ( #03 )
-    COP [StageForceMoveY] ( #02 )
-    COP [LoopNext]
+    COP [LoopStart] ( #03 )
+    COP [StageMoveY] ( #0C )
+    COP [LoopEnd]
+    COP [LoopStart] ( #03 )
+    COP [StageMoveY] ( #08 )
+    COP [LoopEnd]
+    COP [LoopStart] ( #03 )
+    COP [StageMoveY] ( #04 )
+    COP [LoopEnd]
+    COP [LoopStart] ( #03 )
+    COP [StageMoveY] ( #02 )
+    COP [LoopEnd]
     COP [StageSpriteFrame] ( #0D )
     COP [AnimOnce]
 
   loc_0BC334:
-    COP [BranchIfOffscreen] ( &code_0BC342 )
+    COP [BranchIfOffCamera] ( &code_0BC342 )
 
   loc_0BC338:
     COP [WaitWhileOffscreen] ( #15 )

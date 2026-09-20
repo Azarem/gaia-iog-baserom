@@ -13,27 +13,27 @@ pyCD_explorer [
   code_08C200:
     LDA #$0200
     TSB $12
-    COP [SetOnInteract] ( &code_08C254 )
-    COP [SolidHighHere]
-    COP [BranchIfFlagByte] ( #C2, #01, &code_08C250 )
-    COP [BranchIfFlagByte] ( #C3, #01, &code_08C250 )
-    COP [BranchIfFlagByte] ( #C4, #01, &code_08C250 )
-    COP [BranchIfFlagByte] ( #C5, #01, &code_08C250 )
-    COP [BranchIfFlagByte] ( #C6, #01, &code_08C250 )
-    COP [BranchIfFlagByte] ( #C7, #01, &code_08C250 )
-    COP [BranchIfNoItem] ( #1E, &code_08C250 )
-    COP [BranchIfNoItem] ( #1F, &code_08C250 )
-    COP [BranchIfNoItem] ( #20, &code_08C250 )
-    COP [BranchIfNoItem] ( #21, &code_08C250 )
-    COP [BranchIfNoItem] ( #22, &code_08C250 )
-    COP [BranchIfNoItem] ( #23, &code_08C250 )
-    COP [SetEntryContinue]
+    COP [SetInteractHandler] ( &code_08C254 )
+    COP [MarkSolidHere]
+    COP [BranchOnFlagByte] ( #C2, #01, &code_08C250 )
+    COP [BranchOnFlagByte] ( #C3, #01, &code_08C250 )
+    COP [BranchOnFlagByte] ( #C4, #01, &code_08C250 )
+    COP [BranchOnFlagByte] ( #C5, #01, &code_08C250 )
+    COP [BranchOnFlagByte] ( #C6, #01, &code_08C250 )
+    COP [BranchOnFlagByte] ( #C7, #01, &code_08C250 )
+    COP [BranchIfMissingItem] ( #1E, &code_08C250 )
+    COP [BranchIfMissingItem] ( #1F, &code_08C250 )
+    COP [BranchIfMissingItem] ( #20, &code_08C250 )
+    COP [BranchIfMissingItem] ( #21, &code_08C250 )
+    COP [BranchIfMissingItem] ( #22, &code_08C250 )
+    COP [BranchIfMissingItem] ( #23, &code_08C250 )
+    COP [SetEntryHere]
     RTL 
 } >
 ]
 
 code_08C250 {
-    COP [ClearLowHere]
+    COP [ClearSolidHere]
     COP [Die]
 }
 

@@ -12,9 +12,9 @@ it19_inca_statue_a [
   actor-def < #00, #00, #30, {
 
   code_04F35C:
-    COP [AddPosition] ( #08, #00 )
-    COP [SetOnInteract] ( &code_04F373 )
-    COP [ExitIfFlagByte] ( #2D, #01 )
+    COP [NudgePosition] ( #08, #00 )
+    COP [SetInteractHandler] ( &code_04F373 )
+    COP [WaitOnFlagByte] ( #2D, #01 )
     COP [StageBgChange] ( #1B )
     COP [ApplyBgChange]
     COP [SetFlagWord] ( #$011B )

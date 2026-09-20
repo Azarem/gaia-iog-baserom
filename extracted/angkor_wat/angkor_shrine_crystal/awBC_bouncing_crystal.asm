@@ -20,7 +20,7 @@ awBC_bouncing_crystal [
     LDA #$FFFF
     STA $24
     STA $26
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     LDA $14
     BMI loc_089F60
     CMP $cameraBoundsX

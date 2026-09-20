@@ -26,15 +26,15 @@ code_list_06B84F [
 code_06B855 {
     LDA #$0200
     TSB $12
-    COP [SolidHighHere]
-    COP [SetOnInteract] ( &code_06B863 )
-    COP [SetEntryContinue]
+    COP [MarkSolidHere]
+    COP [SetInteractHandler] ( &code_06B863 )
+    COP [SetEntryHere]
     RTL 
 }
 
 code_06B863 {
     COP [PrintDialogString] ( &dialogstring_06B86E )
-    COP [ClearLowHere]
+    COP [ClearSolidHere]
     COP [SetFlagByte] ( #02 )
 }
 

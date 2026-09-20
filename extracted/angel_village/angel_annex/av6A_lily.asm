@@ -11,20 +11,20 @@ av6A_lily [
   actor-def < #23, #00, #10, {
 
   code_06C291:
-    COP [BranchIfFlagByte] ( #8D, #01, &av6A_lily_destroy )
-    COP [BranchIfFlagByte] ( #8C, #01, &code_06C2A6 )
-    COP [SetOnInteract] ( &code_06C2B8 )
-    COP [SolidHighHere]
-    COP [SetEntryContinue]
+    COP [BranchOnFlagByte] ( #8D, #01, &av6A_lily_destroy )
+    COP [BranchOnFlagByte] ( #8C, #01, &code_06C2A6 )
+    COP [SetInteractHandler] ( &code_06C2B8 )
+    COP [MarkSolidHere]
+    COP [SetEntryHere]
     RTL 
 } >
 ]
 
 code_06C2A6 {
     COP [SetTilePos] ( #1A, #0E )
-    COP [SolidHighHere]
-    COP [SetOnInteract] ( &code_06C2B3 )
-    COP [SetEntryContinue]
+    COP [MarkSolidHere]
+    COP [SetInteractHandler] ( &code_06C2B3 )
+    COP [SetEntryHere]
     RTL 
 }
 

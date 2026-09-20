@@ -23,29 +23,29 @@ mu66_rama_spirits [
   actor-def < #00, #00, #30, {
 
   code_069E3F:
-    COP [BranchIfFlagWord] ( #$0139, #01, &code_069F1D )
-    COP [AddPosition] ( #08, #02 )
-    COP [SetOnInteract] ( &code_069F1F )
-    COP [ExitIfFlagByte] ( #01, #01 )
-    COP [SpawnMarkedAfterAbs] ( @code_06A01E, #$00B8, #$0080, #$1000 )
+    COP [BranchOnFlagWord] ( #$0139, #01, &code_069F1D )
+    COP [NudgePosition] ( #08, #02 )
+    COP [SetInteractHandler] ( &code_069F1F )
+    COP [WaitOnFlagByte] ( #01, #01 )
+    COP [SpawnAfterAbsMarked] ( @code_06A01E, #$00B8, #$0080, #$1000 )
     LDA #$0000
     STA $0024, Y
-    COP [SpawnMarkedAfterAbs] ( @code_06A01E, #$0148, #$00A0, #$1000 )
+    COP [SpawnAfterAbsMarked] ( @code_06A01E, #$0148, #$00A0, #$1000 )
     LDA #$0001
     STA $0024, Y
-    COP [SpawnMarkedAfterAbs] ( @code_06A01E, #$0188, #$00E0, #$1000 )
+    COP [SpawnAfterAbsMarked] ( @code_06A01E, #$0188, #$00E0, #$1000 )
     LDA #$0002
     STA $0024, Y
-    COP [SpawnMarkedAfterAbs] ( @code_06A01E, #$0138, #$0120, #$1000 )
+    COP [SpawnAfterAbsMarked] ( @code_06A01E, #$0138, #$0120, #$1000 )
     LDA #$0003
     STA $0024, Y
-    COP [SpawnMarkedAfterAbs] ( @code_06A01E, #$00D8, #$0100, #$1000 )
+    COP [SpawnAfterAbsMarked] ( @code_06A01E, #$00D8, #$0100, #$1000 )
     LDA #$0004
     STA $0024, Y
-    COP [SpawnMarkedAfterAbs] ( @code_06A01E, #$0078, #$0140, #$1000 )
+    COP [SpawnAfterAbsMarked] ( @code_06A01E, #$0078, #$0140, #$1000 )
     LDA #$0005
     STA $0024, Y
-    COP [ExitIfFlagByte] ( #0F, #01 )
+    COP [WaitOnFlagByte] ( #0F, #01 )
     LDA #$EFF0
     TSB $joypadMaskStd
     SEP #$20
@@ -88,7 +88,7 @@ code_069F1F {
     AND #$00FF
     CMP #$00FE
     BEQ loc_069F3D
-    COP [BranchIfFlagByte] ( #01, #01, &code_069F38 )
+    COP [BranchOnFlagByte] ( #01, #01, &code_069F38 )
     COP [PrintDialogString] ( &dialogstring_069F45 )
     COP [SetFlagByte] ( #01 )
     RTL 
@@ -115,25 +115,25 @@ code_06A01E {
     TSB $12
     COP [SetMetasprite] ( @spriteset_npc_props )
     COP [StageSprAndHitbox] ( #04 )
-    COP [SolidHighHere]
-    COP [LoopInit] ( #1E )
+    COP [MarkSolidHere]
+    COP [LoopStart] ( #1E )
     LDA #$2000
     TSB $10
-    COP [SetEntryExit]
+    COP [SetEntryHereAndYield]
     LDA #$2000
     TRB $10
-    COP [LoopNext]
-    COP [LoopInit] ( #0F )
+    COP [LoopEnd]
+    COP [LoopStart] ( #0F )
     LDA #$2000
     TSB $10
-    COP [SetEntryExit]
-    COP [SetEntryExit]
+    COP [SetEntryHereAndYield]
+    COP [SetEntryHereAndYield]
     LDA #$2000
     TRB $10
-    COP [SetEntryExit]
-    COP [LoopNext]
-    COP [SetOnInteract] ( &code_06A05F )
-    COP [SetEntryContinue]
+    COP [SetEntryHereAndYield]
+    COP [LoopEnd]
+    COP [SetInteractHandler] ( &code_06A05F )
+    COP [SetEntryHere]
     COP [StageSpriteFrame] ( #04 )
     COP [AnimOnce]
     RTL 

@@ -34,7 +34,7 @@ sE5_epilogue [
     COP [SpawnThinkerParam] ( #0B, @actor_pool.PaletteResetAndKillThinker )
     LDA #$1062
     STA $cgramPalette
-    COP [BranchIfFlagByte] ( #DB, #01, &code_0BD374 )
+    COP [BranchOnFlagByte] ( #DB, #01, &code_0BD374 )
     COP [WaitByte] ( #B3 )
     COP [PrintDialogString] ( &dialogstring_0BD558 )
     COP [SpawnAfterAbsFlags] ( @code_0BD4DE, #$0088, #$0080, #$1800 )
@@ -44,13 +44,13 @@ sE5_epilogue [
     COP [PrintDialogString] ( &dialogstring_0BD70E )
     COP [SetFlagByte] ( #02 )
     COP [SpawnAfterAbsFlags] ( @code_0BD539, #$00A0, #$FFF0, #$1800 )
-    COP [ExitIfFlagByte] ( #02, #00 )
+    COP [WaitOnFlagByte] ( #02, #00 )
     COP [PrintDialogString] ( &dialogstring_0BD740 )
     COP [SetFlagByte] ( #DB )
     LDA #$0202
     STA $gfxCacheIdxB
     COP [QueueMapChange] ( #90, #$0000, #$0000, #00, #$1100 )
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     RTL 
 } >
 ]
@@ -62,7 +62,7 @@ code_0BD374 {
     COP [PrintDialogString] ( &dialogstring_0BD9FA )
     COP [SetFlagByte] ( #03 )
     COP [FadeThenStartMusic] ( #13 )
-    COP [ExitIfFlagByte] ( #03, #00 )
+    COP [WaitOnFlagByte] ( #03, #00 )
     COP [WaitByte] ( #EF )
     COP [WaitByte] ( #77 )
     COP [StageSpriteFrame] ( #1D )
@@ -79,7 +79,7 @@ code_0BD374 {
     COP [WaitByte] ( #4F )
     COP [PrintDialogString] ( &dialogstring_0BDC95 )
     COP [SetFlagByte] ( #04 )
-    COP [ExitIfFlagByte] ( #04, #00 )
+    COP [WaitOnFlagByte] ( #04, #00 )
     COP [PrintDialogString] ( &dialogstring_0BDD34 )
     COP [WaitByte] ( #77 )
     COP [PrintDialogString] ( &dialogstring_0BDDE5 )
@@ -111,7 +111,7 @@ code_0BD374 {
     COP [MoveToward] ( #1F, #01 )
     LDA #$2000
     TSB $10
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     LDA $playerFlags
     BIT #$0800
     BEQ loc_0BD437
@@ -127,7 +127,7 @@ code_0BD374 {
     STA $0008, Y
     LDA #$0800
     TSB $playerFlags
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     LDA $playerFlags
     BIT #$0800
     BEQ loc_0BD45D
@@ -154,16 +154,16 @@ code_0BD374 {
   loc_0BD494:
     COP [StagePlayerSprite] ( #02 )
     COP [AnimOnce]
-    COP [ExitIfFlagByte] ( #04, #01 )
+    COP [WaitOnFlagByte] ( #04, #01 )
     COP [StagePlayerMoveX] ( #0A, #12 )
     COP [AnimOnce]
     COP [StagePlayerSprite] ( #02 )
     COP [AnimOnce]
     COP [ClearFlagByte] ( #04 )
-    COP [ExitIfFlagByte] ( #05, #01 )
+    COP [WaitOnFlagByte] ( #05, #01 )
     COP [StagePlayerSprite] ( #01 )
     COP [AnimOnce]
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     RTL 
 }
 
@@ -172,7 +172,7 @@ code_0BD4B7 {
     TRB $10
     COP [StagePlayerSprite] ( #1C )
     COP [AnimOnce]
-    COP [ToggleVFlip]
+    COP [ToggleVMirror]
 
   loc_0BD4C3:
     COP [StagePlayerMoveY] ( #1B, #08 )
@@ -184,38 +184,38 @@ code_0BD4B7 {
     TRB $playerFlags
     LDA #$2000
     TSB $10
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     RTL 
 }
 
 code_0BD4DE {
     COP [SetMetasprite] ( @spriteset_npc_props )
     COP [StageSprAndHitbox] ( #04 )
-    COP [LoopInit] ( #1E )
+    COP [LoopStart] ( #1E )
     LDA #$2000
     TSB $10
-    COP [SetEntryExit]
+    COP [SetEntryHereAndYield]
     LDA #$2000
     TRB $10
-    COP [LoopNext]
+    COP [LoopEnd]
 }
 
 code_0BD4F7 {
     COP [SetMetasprite] ( @spriteset_npc_props )
     COP [StageSprAndHitbox] ( #04 )
-    COP [SetEntryContinue]
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
+    COP [SetEntryHere]
     COP [AnimOnce]
-    COP [BranchIfFlagByte] ( #03, #01, &code_0BD51F )
-    COP [BranchIfFlagByte] ( #02, #01, &code_0BD512 )
+    COP [BranchOnFlagByte] ( #03, #01, &code_0BD51F )
+    COP [BranchOnFlagByte] ( #02, #01, &code_0BD512 )
     RTL 
 }
 
 code_0BD512 {
     COP [StageSpriteMoveX] ( #04, #02 )
     COP [AnimOnce]
-    COP [SetEntryContinue]
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
+    COP [SetEntryHere]
     COP [AnimOnce]
     RTL 
 }
@@ -237,10 +237,10 @@ code_0BD539 {
     COP [StageSpriteLoopMoveY] ( #04, #06, #01 )
     COP [AnimLoop]
     COP [ClearFlagByte] ( #02 )
-    COP [SetEntryContinue]
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
+    COP [SetEntryHere]
     COP [AnimOnce]
-    COP [BranchIfFlagByte] ( #03, #01, &code_0BD51F )
+    COP [BranchOnFlagByte] ( #03, #01, &code_0BD51F )
     RTL 
 }
 

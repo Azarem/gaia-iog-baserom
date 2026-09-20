@@ -14,7 +14,7 @@ pyDD_mystic_statue [
   actor-def < #00, #00, #30, {
 
   code_08CE15:
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     LDA $0AEC
     BEQ loc_08CE1D
     RTL 

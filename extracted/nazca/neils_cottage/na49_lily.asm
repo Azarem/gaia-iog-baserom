@@ -14,9 +14,9 @@ na49_lily [
   actor-def < #23, #00, #10, {
 
   code_05DD3F:
-    COP [SolidHighHere]
-    COP [SetOnInteract] ( &code_05DDBB )
-    COP [ExitIfFlagByte] ( #01, #01 )
+    COP [MarkSolidHere]
+    COP [SetInteractHandler] ( &code_05DDBB )
+    COP [WaitOnFlagByte] ( #01, #01 )
     COP [StageSpriteLoopMoveY] ( #27, #05, #12 )
     COP [AnimLoop]
     COP [StageSpriteMoveX] ( #28, #12 )
@@ -24,26 +24,26 @@ na49_lily [
     COP [StageSpriteFrame] ( #23 )
     COP [AnimOnce]
     COP [ClearFlagByte] ( #01 )
-    COP [ExitIfFlagByte] ( #02, #01 )
+    COP [WaitOnFlagByte] ( #02, #01 )
     COP [PrintDialogString] ( &dialogstring_05DDC0 )
     COP [StageSpriteFrame] ( #25 )
     COP [AnimOnce]
     COP [PrintDialogString] ( &dialogstring_05DDDF )
     COP [ClearFlagByte] ( #02 )
-    COP [ExitIfFlagByte] ( #05, #01 )
+    COP [WaitOnFlagByte] ( #05, #01 )
     COP [SetSpritePriority] ( #30 )
     COP [StageSpriteLoopMoveX] ( #28, #03, #12 )
     COP [AnimLoop]
     COP [StageSpriteFrame] ( #23 )
     COP [AnimOnce]
-    COP [SolidHighHere]
-    COP [ExitIfFlagByte] ( #07, #01 )
-    COP [ClearLowHere]
+    COP [MarkSolidHere]
+    COP [WaitOnFlagByte] ( #07, #01 )
+    COP [ClearSolidHere]
     COP [StageSpriteLoopMoveX] ( #29, #02, #11 )
     COP [AnimLoop]
     COP [StageSpriteFrame] ( #25 )
     COP [AnimOnce]
-    COP [SolidHighHere]
+    COP [MarkSolidHere]
     COP [PrintDialogString] ( &dialogstring_05DE46 )
 
   loc_05DD9F:
@@ -65,7 +65,7 @@ code_05DDAB {
 code_05DDB1 {
     COP [PrintDialogString] ( &dialogstring_05DFC3 )
     COP [SetFlagByte] ( #08 )
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     RTL 
 }
 

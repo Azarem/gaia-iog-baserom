@@ -13,11 +13,11 @@ eu95_neil [
   actor-def < #1A, #00, #10, {
 
   code_07E37D:
-    COP [BranchIfFlagByte] ( #AA, #01, &code_07E390 )
-    COP [SolidHighHere]
-    COP [SetOnInteract] ( &code_07E392 )
-    COP [AddPosition] ( #00, #FE )
-    COP [SetEntryContinue]
+    COP [BranchOnFlagByte] ( #AA, #01, &code_07E390 )
+    COP [MarkSolidHere]
+    COP [SetInteractHandler] ( &code_07E392 )
+    COP [NudgePosition] ( #00, #FE )
+    COP [SetEntryHere]
     RTL 
 } >
 ]
@@ -27,7 +27,7 @@ code_07E390 {
 }
 
 code_07E392 {
-    COP [BranchIfFlagByte] ( #A8, #01, &code_07E39D )
+    COP [BranchOnFlagByte] ( #A8, #01, &code_07E39D )
     COP [PrintDialogString] ( &dialogstring_07E3B5 )
     RTL 
 }

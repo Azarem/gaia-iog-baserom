@@ -285,4 +285,4 @@ Dead entry stub between `ApplyOrbitalOffsetFromRef` (`$F3C9`) and `ApplyOrbitalO
 
 ---
 
-*Source: `extracted/functions/camera_drift.asm`, `extracted/functions/SpawnDebrisBurst.asm`, `extracted/functions/ApplyOrbitalOffsetFromRef.asm`, `extracted/functions/ApplyOrbitalOffsetXY.asm`, `docs/cop-commands-reference.md` §3.15.*
+*Source: `extracted/functions/camera_drift.asm`, `extracted/functions/SpawnDebrisBurst.asm`, `extracted/functions/ApplyOrbitalOffsetFromRef.asm`, `extracted/functions/ApplyOrbitalOffsetXY.asm`, `docs/cop/index.md`.*

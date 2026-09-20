@@ -15,7 +15,7 @@ dream_zoom_controller [
   actor-def < #00, #00, #28, {
 
   code_00C1AD:
-    COP [ExitIfFlagByte] ( #0E, #01 )
+    COP [WaitOnFlagByte] ( #0E, #01 )
     LDA #$0088
     SEC 
     SBC $bg1ScrollH
@@ -26,7 +26,7 @@ dream_zoom_controller [
     STA $00FA
     LDA #$00A0
     STA $00FE
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     LDA $00FE
     SEC 
     SBC #$0002

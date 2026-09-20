@@ -16,7 +16,7 @@ ir1D_mudpit [
     COP [WaitWhileOffscreen] ( #10 )
 
   code_0A8B21:
-    COP [SetEntryExit]
+    COP [SetEntryHereAndYield]
 
   code_0A8B23:
     COP [BranchNearerAxis] ( &code_0A8B29, &code_0A8B33 )
@@ -36,7 +36,7 @@ code_0A8B3D {
 }
 
 code_0A8B3E {
-    COP [SetEntryExit]
+    COP [SetEntryHereAndYield]
     COP [RngByte]
     AND #$0003
     STA $0000

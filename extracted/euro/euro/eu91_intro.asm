@@ -19,7 +19,7 @@ eu91_intro [
   actor-def < #00, #00, #38, {
 
   code_07BE25:
-    COP [BranchIfFlagByte] ( #A5, #01, &code_07BEB2 )
+    COP [BranchOnFlagByte] ( #A5, #01, &code_07BEB2 )
     LDA #$0008
     TSB $12
     LDA #$CFF0
@@ -37,7 +37,7 @@ eu91_intro [
     COP [WaitByte] ( #01 )
     LDA #$0800
     TSB $10
-    COP [SpawnLastRel] ( @code_07BED1, #00, #00, #$2000 )
+    COP [SpawnListAppend] ( @code_07BED1, #00, #00, #$2000 )
     COP [SpawnAfterFlags] ( @code_07BEB4, #$2800 )
     COP [WaitByte] ( #27 )
     COP [StageSpriteLoopMoveX] ( #08, #10, #02 )
@@ -60,7 +60,7 @@ eu91_intro [
     COP [QueueMapChange] ( #96, #$00A0, #$0090, #03, #$1100 )
     LDA #$CFF0
     TRB $joypadMaskStd
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     RTL 
 } >
 ]

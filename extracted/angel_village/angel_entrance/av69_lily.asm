@@ -13,9 +13,9 @@ av69_lily [
   actor-def < #23, #00, #10, {
 
   code_06C1B5:
-    COP [BranchIfFlagByte] ( #8D, #01, &av69_lily_destroy )
-    COP [BranchIfFlagByte] ( #75, #01, &av69_lily_destroy )
-    COP [ExitIfFlagByte] ( #01, #01 )
+    COP [BranchOnFlagByte] ( #8D, #01, &av69_lily_destroy )
+    COP [BranchOnFlagByte] ( #75, #01, &av69_lily_destroy )
+    COP [WaitOnFlagByte] ( #01, #01 )
     COP [StageSpriteMoveY] ( #27, #12 )
     COP [AnimOnce]
     COP [StageSpriteMoveX] ( #28, #12 )
@@ -24,12 +24,12 @@ av69_lily [
     COP [AnimOnce]
     COP [PrintDialogString] ( &dialogstring_06C224 )
     COP [SetFlagByte] ( #02 )
-    COP [ExitIfFlagByte] ( #03, #01 )
+    COP [WaitOnFlagByte] ( #03, #01 )
     COP [StageSpriteFrame] ( #24 )
     COP [AnimOnce]
     COP [PrintDialogString] ( &dialogstring_06C23C )
     COP [SetFlagByte] ( #04 )
-    COP [LoopInit] ( #02 )
+    COP [LoopStart] ( #02 )
     COP [StageSpriteLoop] ( #24, #04 )
     COP [AnimLoop]
     COP [StageSpriteLoop] ( #23, #04 )
@@ -38,7 +38,7 @@ av69_lily [
     COP [AnimLoop]
     COP [StageSpriteLoop] ( #22, #04 )
     COP [AnimLoop]
-    COP [LoopNext]
+    COP [LoopEnd]
     COP [StageSpriteLoop] ( #33, #04 )
     COP [AnimLoop]
     LDA #$02A8

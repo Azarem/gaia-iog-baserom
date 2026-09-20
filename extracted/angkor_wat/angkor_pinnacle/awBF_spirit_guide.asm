@@ -24,18 +24,18 @@ awBF_spirit_guide [
   actor-def < #00, #00, #10, {
 
   code_089AA6:
-    COP [BranchIfFlagByte] ( #BE, #01, &code_089B6B )
+    COP [BranchOnFlagByte] ( #BE, #01, &code_089B6B )
     LDA #$0200
     TSB $12
     COP [SetMetasprite] ( @spriteset_npc_props )
     COP [StageSprAndHitbox] ( #04 )
-    COP [SolidHighHere]
-    COP [SolidHighOffset] ( #01, #00 )
-    COP [SetOnInteract] ( &code_089B6D )
-    COP [AddPosition] ( #08, #00 )
-    COP [BranchIfFlagByte] ( #BD, #01, &code_089AD4 )
-    COP [SetEntryContinue]
-    COP [SetEntryContinue]
+    COP [MarkSolidHere]
+    COP [MarkSolidOffset] ( #01, #00 )
+    COP [SetInteractHandler] ( &code_089B6D )
+    COP [NudgePosition] ( #08, #00 )
+    COP [BranchOnFlagByte] ( #BD, #01, &code_089AD4 )
+    COP [SetEntryHere]
+    COP [SetEntryHere]
     COP [AnimOnce]
     RTL 
 } >
@@ -54,8 +54,8 @@ code_089AD4 {
     COP [WaitByte] ( #EF )
     LDA #$2000
     TSB $10
-    COP [ClearLowAbs] ( #0F, #0A )
-    COP [ClearLowAbs] ( #10, #0A )
+    COP [ClearSolidAbs] ( #0F, #0A )
+    COP [ClearSolidAbs] ( #10, #0A )
     COP [SpawnThinker] ( @oneshot_palette_flash_19.FlashPalette19 )
     COP [WaitByte] ( #EF )
     COP [PrintDialogString] ( &dialogstring_089E2E )
@@ -74,8 +74,8 @@ code_089AD4 {
 }
 
 code_089B27 {
-    COP [BranchIfNoItem] ( #01, &code_089B31 )
-    COP [BranchIfNoItem] ( #06, &code_089B54 )
+    COP [BranchIfMissingItem] ( #01, &code_089B31 )
+    COP [BranchIfMissingItem] ( #06, &code_089B54 )
 }
 
 code_089B31 {

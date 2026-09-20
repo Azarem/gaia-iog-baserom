@@ -17,8 +17,8 @@ gw83_switch [
   actor-def < #00, #00, #30, {
 
   code_07BDA7:
-    COP [BranchIfFlagWord] ( #$0152, #01, &code_07BDE6 )
-    COP [ExitIfFlagByte] ( #01, #01 )
+    COP [BranchOnFlagWord] ( #$0152, #01, &code_07BDE6 )
+    COP [WaitOnFlagByte] ( #01, #01 )
     COP [SetMetasprite] ( @spriteset_enemies )
     COP [StageSpriteFrame] ( #29 )
     COP [AnimOnce]

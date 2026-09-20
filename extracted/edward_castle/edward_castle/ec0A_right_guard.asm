@@ -11,8 +11,8 @@ ec0A_right_guard [
   actor-def < #1C, #00, #10, {
 
   code_04C1B5:
-    COP [BranchIfFlagByte] ( #21, #01, &code_04C1F4 )
-    COP [SetOnInteract] ( &code_04C1FF )
+    COP [BranchOnFlagByte] ( #21, #01, &code_04C1F4 )
+    COP [SetInteractHandler] ( &code_04C1FF )
     COP [StageSpriteLoopMoveX] ( #20, #07, #12 )
     COP [AnimLoop]
     COP [StageSpriteLoop] ( #1C, #08 )
@@ -27,16 +27,16 @@ ec0A_right_guard [
     COP [AnimLoop]
     COP [StageSpriteLoopMoveX] ( #20, #03, #12 )
     COP [AnimLoop]
-    COP [SetOnInteract] ( &code_04C204 )
-    COP [SetEntryContinue]
+    COP [SetInteractHandler] ( &code_04C204 )
+    COP [SetEntryHere]
     RTL 
 } >
 ]
 
 code_04C1F4 {
     COP [SetTilePos] ( #38, #29 )
-    COP [SetOnInteract] ( &code_04C224 )
-    COP [SetEntryContinue]
+    COP [SetInteractHandler] ( &code_04C224 )
+    COP [SetEntryHere]
     RTL 
 }
 
@@ -46,7 +46,7 @@ code_04C1FF {
 }
 
 code_04C204 {
-    COP [BranchIfFlagByte] ( #D8, #01, &code_04C21F )
+    COP [BranchOnFlagByte] ( #D8, #01, &code_04C21F )
     COP [PrintDialogString] ( &dialogstring_04C271 )
     COP [GiveItem] ( #01, &code_04C21B )
     COP [PrintDialogString] ( &dialogstring_04C299 )

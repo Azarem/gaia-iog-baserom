@@ -11,9 +11,9 @@ daC3_freedom_man [
   actor-def < #05, #00, #10, {
 
   code_08AB26:
-    COP [SolidHighHere]
-    COP [SetOnInteract] ( &code_08AB2F )
-    COP [SetEntryContinue]
+    COP [MarkSolidHere]
+    COP [SetInteractHandler] ( &code_08AB2F )
+    COP [SetEntryHere]
     RTL 
 } >
 ]

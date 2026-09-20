@@ -14,15 +14,15 @@ fr32_creep [
   actor-def < #1A, #00, #10, {
 
   code_05B6C3:
-    COP [SetOnInteract] ( &code_05B6CC )
-    COP [SolidHighHere]
-    COP [SetEntryContinue]
+    COP [SetInteractHandler] ( &code_05B6CC )
+    COP [MarkSolidHere]
+    COP [SetEntryHere]
     RTL 
 } >
 ]
 
 code_05B6CC {
-    COP [BranchIfFlagByte] ( #E1, #01, &code_05B6E3 )
+    COP [BranchOnFlagByte] ( #E1, #01, &code_05B6E3 )
     COP [PrintDialogString] ( &dialogstring_05B6E8 )
     COP [GiveItem] ( #01, &code_05B6DF )
     COP [SetFlagByte] ( #E1 )

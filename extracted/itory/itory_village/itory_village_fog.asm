@@ -12,8 +12,8 @@ itory_village_fog [
   thinker-def < #00, #08, {
 
   code_00B81A:
-    COP [ExitIfFlagByte] ( #2B, #01 )
-    COP [SetEntryContinue]
+    COP [WaitOnFlagByte] ( #2B, #01 )
+    COP [SetEntryHere]
     LDY $playerActor
     LDA $0014, Y
     CMP #$01B0

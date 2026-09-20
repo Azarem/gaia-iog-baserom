@@ -26,7 +26,7 @@ sg4D_knight_armor1 [
 
   code_0AC101:
     JSR $&code_0AC506
-    COP [SolidHighHere]
+    COP [MarkSolidHere]
 
   loc_0AC106:
     COP [StageSpriteFrame] ( #17 )
@@ -35,7 +35,7 @@ sg4D_knight_armor1 [
   code_0AC10B:
     COP [WaitWhileOffscreen] ( #1E )
     COP [BranchIfPlayerNear] ( #04, &code_0AC118 )
-    COP [SetEntryExitNow] ( @code_0AC10B )
+    COP [JumpNextFrame] ( @code_0AC10B )
 } >
 ]
 
@@ -53,9 +53,9 @@ code_0AC118 {
     STA $orbitAngle, X
     COP [StageSpriteFrame] ( #18 )
     COP [AnimOnce]
-    COP [CallScript] ( &code_0AD9D2 )
+    COP [CallNear] ( &code_0AD9D2 )
     COP [StageSprAndHitbox] ( #19 )
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     COP [AnimOneFrame]
     LDA $orbitAngle, X
     BMI loc_0AC1A1
@@ -63,7 +63,7 @@ code_0AC118 {
     RTL 
 
   loc_0AC14A:
-    COP [CallScript] ( &code_0ADA12 )
+    COP [CallNear] ( &code_0ADA12 )
     BRA loc_0AC106
 }
 
@@ -72,7 +72,7 @@ sg4F_knight_armor2 [
 
   code_0AC153:
     JSR $&code_0AC506
-    COP [SolidHighHere]
+    COP [MarkSolidHere]
 
   loc_0AC158:
     COP [StageSpriteFrame] ( #17 )
@@ -81,7 +81,7 @@ sg4F_knight_armor2 [
 
   code_0AC161:
     COP [WaitWhileOffscreen] ( #1E )
-    COP [SetEntryExitNow] ( @code_0AC161 )
+    COP [JumpNextFrame] ( @code_0AC161 )
 } >
 ]
 
@@ -99,9 +99,9 @@ code_0AC169 {
     STA $orbitAngle, X
     COP [StageSpriteFrame] ( #18 )
     COP [AnimOnce]
-    COP [CallScript] ( &code_0AD9D2 )
+    COP [CallNear] ( &code_0AD9D2 )
     COP [StageSprAndHitbox] ( #19 )
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     COP [AnimOneFrame]
     LDA $orbitAngle, X
     BMI loc_0AC1A1
@@ -109,20 +109,20 @@ code_0AC169 {
     RTL 
 
   loc_0AC19B:
-    COP [CallScript] ( &code_0ADA12 )
+    COP [CallNear] ( &code_0ADA12 )
     BRA loc_0AC158
 
   loc_0AC1A1:
     COP [StageSpriteFrame] ( #18 )
     COP [AnimOnce]
-    COP [CallScript] ( &code_0ADA12 )
-    COP [SpawnMarkedAfter] ( @interaction_handlers.push_handler_solid, #$2300 )
-    COP [SetEntryContinue]
+    COP [CallNear] ( &code_0ADA12 )
+    COP [SpawnAfterMarked] ( @interaction_handlers.push_handler_solid, #$2300 )
+    COP [SetEntryHere]
     RTL 
 }
 
 code_0AC1B4 {
-    COP [AddPosition] ( #FF, #DC )
+    COP [NudgePosition] ( #FF, #DC )
     LDA #$2000
     TRB $10
     JSR $&sub_0ADD59
@@ -150,7 +150,7 @@ code_0AC1B4 {
   loc_0AC1EE:
     COP [SetSavedPtr] ( &code_0AC1E8 )
     COP [BranchIfPlayerNear] ( #07, &code_0AC294 )
-    COP [CollPrioritySetMax]
+    COP [SetPriorityMax]
 
   loc_0AC1F9:
     LDA $7F100C, X
@@ -190,14 +190,14 @@ code_0AC23D {
     COP [SpawnAfter] ( @code_0AC35A )
     LDA #$0200
     TSB $10
-    COP [LoopInit] ( #0A )
+    COP [LoopStart] ( #0A )
     LDA #$2000
     TSB $10
-    COP [SetEntryExit]
+    COP [SetEntryHereAndYield]
     LDA #$2000
     TRB $10
     COP [WaitByte] ( #01 )
-    COP [LoopNext]
+    COP [LoopEnd]
     LDA #$0200
     TRB $10
     JMP $&code_0AC1E4
@@ -210,7 +210,7 @@ code_0AC23D {
     STA $orbitAngle, X
     PLX 
     COP [PlaySoundCh1] ( #06 )
-    COP [SpawnLastRel] ( @EnemyDeathFlash, #00, #00, #$0302 )
+    COP [SpawnListAppend] ( @EnemyDeathFlash, #00, #00, #$0302 )
     COP [WaitByte] ( #03 )
     COP [Die]
 }
@@ -235,9 +235,9 @@ code_list_0AC2A5 [
 ]
 
 code_0AC2B5 {
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     COP [AnimOneFrame]
-    COP [SetEntryExit]
+    COP [SetEntryHereAndYield]
     COP [StageSpriteLoop] ( #1A, #1E )
     COP [AnimLoop]
     COP [StageSpriteLoopMoveY] ( #1A, #18, #08 )
@@ -246,8 +246,8 @@ code_0AC2B5 {
 }
 
 code_0AC2CA {
-    COP [SetEntryContinue]
-    COP [ContinueIfFrame] ( #02 )
+    COP [SetEntryHere]
+    COP [WaitForAnimFrame] ( #02 )
     COP [StageSpriteLoop] ( #1B, #1E )
     COP [AnimLoop]
     COP [StageSpriteLoopMoveXY] ( #1B, #18, #05, #06 )
@@ -256,8 +256,8 @@ code_0AC2CA {
 }
 
 code_0AC2DF {
-    COP [SetEntryContinue]
-    COP [ContinueIfFrame] ( #03 )
+    COP [SetEntryHere]
+    COP [WaitForAnimFrame] ( #03 )
     COP [StageSpriteLoop] ( #1C, #1E )
     COP [AnimLoop]
     COP [StageSpriteLoopMoveX] ( #1C, #18, #07 )
@@ -266,8 +266,8 @@ code_0AC2DF {
 }
 
 code_0AC2F3 {
-    COP [SetEntryContinue]
-    COP [ContinueIfFrame] ( #04 )
+    COP [SetEntryHere]
+    COP [WaitForAnimFrame] ( #04 )
     COP [StageSpriteLoop] ( #1D, #1E )
     COP [AnimLoop]
     COP [StageSpriteLoopMoveXY] ( #1D, #18, #05, #05 )
@@ -276,8 +276,8 @@ code_0AC2F3 {
 }
 
 code_0AC308 {
-    COP [SetEntryContinue]
-    COP [ContinueIfFrame] ( #05 )
+    COP [SetEntryHere]
+    COP [WaitForAnimFrame] ( #05 )
     COP [StageSpriteLoop] ( #1E, #1E )
     COP [AnimLoop]
     COP [StageSpriteLoopMoveY] ( #1E, #18, #07 )
@@ -286,8 +286,8 @@ code_0AC308 {
 }
 
 code_0AC31C {
-    COP [SetEntryContinue]
-    COP [ContinueIfFrame] ( #06 )
+    COP [SetEntryHere]
+    COP [WaitForAnimFrame] ( #06 )
     COP [StageSpriteLoop] ( #1F, #1E )
     COP [AnimLoop]
     COP [StageSpriteLoopMoveXY] ( #1F, #18, #06, #05 )
@@ -296,8 +296,8 @@ code_0AC31C {
 }
 
 code_0AC331 {
-    COP [SetEntryContinue]
-    COP [ContinueIfFrame] ( #07 )
+    COP [SetEntryHere]
+    COP [WaitForAnimFrame] ( #07 )
     COP [StageSpriteLoop] ( #20, #1E )
     COP [AnimLoop]
     COP [StageSpriteLoopMoveX] ( #20, #18, #08 )
@@ -306,8 +306,8 @@ code_0AC331 {
 }
 
 code_0AC345 {
-    COP [SetEntryContinue]
-    COP [ContinueIfFrame] ( #08 )
+    COP [SetEntryHere]
+    COP [WaitForAnimFrame] ( #08 )
     COP [StageSpriteLoop] ( #21, #1E )
     COP [AnimLoop]
     COP [StageSpriteLoopMoveXY] ( #21, #18, #06, #06 )
@@ -332,40 +332,40 @@ code_0AC35A {
   loc_0AC372:
     LDA #$6000
     TRB $12
-    COP [StageForceMoveY] ( #22 )
+    COP [StageMoveY] ( #22 )
     RTS 
 
   loc_0AC37B:
     LDA #$6000
     TRB $12
-    COP [SetForceBoth] ( #01 )
-    COP [StageForceMoveX] ( #22 )
+    COP [ForceDirBoth] ( #01 )
+    COP [StageMoveX] ( #22 )
     RTS 
 
   loc_0AC387:
     LDA #$6000
     TRB $12
-    COP [SetForceBoth] ( #01 )
-    COP [StageForceMoveY] ( #22 )
+    COP [ForceDirBoth] ( #01 )
+    COP [StageMoveY] ( #22 )
     RTS 
 
   loc_0AC393:
     LDA #$6000
     TRB $12
-    COP [StageForceMoveX] ( #22 )
+    COP [StageMoveX] ( #22 )
     RTS 
 }
 
 code_0AC39C {
-    COP [SetEntryExit]
-    COP [LoopInit] ( #14 )
+    COP [SetEntryHereAndYield]
+    COP [LoopStart] ( #14 )
     LDY $04
     LDY $24
     LDA $14
     STA $0014, Y
     LDA $16
     STA $0016, Y
-    COP [LoopNext]
+    COP [LoopEnd]
     COP [Die]
 }
 
@@ -374,7 +374,7 @@ sg4F_knight_armor3 [
 
   code_0AC3B6:
     JSR $&code_0AC506
-    COP [SolidHighHere]
+    COP [MarkSolidHere]
 
   loc_0AC3BB:
     COP [StageSpriteFrame] ( #17 )
@@ -383,12 +383,12 @@ sg4F_knight_armor3 [
   code_0AC3C0:
     COP [WaitWhileOffscreen] ( #1E )
     COP [BranchIfPlayerNear] ( #04, &code_0AC3CD )
-    COP [SetEntryExitNow] ( @code_0AC3C0 )
+    COP [JumpNextFrame] ( @code_0AC3C0 )
 } >
 ]
 
 code_0AC3CD {
-    COP [SpawnAfterRelFlags] ( @code_0AC471, #$FFFF, #$FFDC, #$0212 )
+    COP [SpawnAfterOffsetFlags] ( @code_0AC471, #$FFFF, #$FFDC, #$0212 )
     TXA 
     TYX 
     TAY 
@@ -401,9 +401,9 @@ code_0AC3CD {
     STA $orbitAngle, X
     COP [StageSpriteFrame] ( #18 )
     COP [AnimOnce]
-    COP [CallScript] ( &code_0AD9F2 )
+    COP [CallNear] ( &code_0AD9F2 )
     COP [StageSprAndHitbox] ( #19 )
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     COP [AnimOneFrame]
     LDA $orbitAngle, X
     BMI loc_0AC45E
@@ -411,7 +411,7 @@ code_0AC3CD {
     RTL 
 
   loc_0AC403:
-    COP [CallScript] ( &code_0ADA12 )
+    COP [CallNear] ( &code_0ADA12 )
     BRA loc_0AC3BB
 }
 
@@ -420,7 +420,7 @@ sg4F_knight_armor4 [
 
   code_0AC40C:
     JSR $&code_0AC506
-    COP [SolidHighHere]
+    COP [MarkSolidHere]
 
   loc_0AC411:
     COP [SetHitCallback] ( &code_0AC422 )
@@ -429,12 +429,12 @@ sg4F_knight_armor4 [
 
   code_0AC41A:
     COP [WaitWhileOffscreen] ( #1E )
-    COP [SetEntryExitNow] ( @code_0AC41A )
+    COP [JumpNextFrame] ( @code_0AC41A )
 } >
 ]
 
 code_0AC422 {
-    COP [SpawnAfterRelFlags] ( @code_0AC471, #$FFFF, #$FFDC, #$0212 )
+    COP [SpawnAfterOffsetFlags] ( @code_0AC471, #$FFFF, #$FFDC, #$0212 )
     TXA 
     TYX 
     TAY 
@@ -447,9 +447,9 @@ code_0AC422 {
     STA $orbitAngle, X
     COP [StageSpriteFrame] ( #18 )
     COP [AnimOnce]
-    COP [CallScript] ( &code_0AD9F2 )
+    COP [CallNear] ( &code_0AD9F2 )
     COP [StageSprAndHitbox] ( #19 )
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     COP [AnimOneFrame]
     LDA $orbitAngle, X
     BMI loc_0AC45E
@@ -457,15 +457,15 @@ code_0AC422 {
     RTL 
 
   loc_0AC458:
-    COP [CallScript] ( &code_0ADA12 )
+    COP [CallNear] ( &code_0ADA12 )
     BRA loc_0AC411
 
   loc_0AC45E:
     COP [StageSpriteFrame] ( #18 )
     COP [AnimOnce]
-    COP [CallScript] ( &code_0ADA32 )
-    COP [SpawnMarkedAfter] ( @interaction_handlers.push_handler_solid, #$2300 )
-    COP [SetEntryContinue]
+    COP [CallNear] ( &code_0ADA32 )
+    COP [SpawnAfterMarked] ( @interaction_handlers.push_handler_solid, #$2300 )
+    COP [SetEntryHere]
     RTL 
 }
 
@@ -478,7 +478,7 @@ code_0AC471 {
     LDA #$0200
     TRB $10
     COP [StageSprAndHitbox] ( #22 )
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     COP [AnimOneFrame]
     BRA loc_0AC499
 
@@ -493,13 +493,13 @@ code_0AC471 {
     STA $chatPtr, X
     LDA #$0002
     STA $loopCounter, X
-    COP [SpawnMarkedAfter] ( @smooth_follow.InitFollowAndChase, #$2000 )
+    COP [SpawnAfterMarked] ( @smooth_follow.InitFollowAndChase, #$2000 )
     LDA $playerActor
     STA $0024, Y
-    COP [SetEntryExit]
+    COP [SetEntryHereAndYield]
     LDA #$0030
     STA $24
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     COP [AnimOneFrame]
     DEC $24
     BMI loc_0AC4C8
@@ -533,7 +533,7 @@ code_0AC4CE {
     STA $orbitAngle, X
     PLX 
     COP [PlaySoundCh1] ( #06 )
-    COP [SpawnLastRel] ( @EnemyDeathFlash, #00, #00, #$0302 )
+    COP [SpawnListAppend] ( @EnemyDeathFlash, #00, #00, #$0302 )
     COP [WaitByte] ( #03 )
     COP [Die]
 }
@@ -566,61 +566,61 @@ sub_0ADD59 {
 ---------------------------------------------
 
 code_0AD9D2 {
-    COP [LoopInit] ( #19 )
+    COP [LoopStart] ( #19 )
     COP [SetSpritePalette] ( #02 )
-    COP [SetEntryExit]
+    COP [SetEntryHereAndYield]
     COP [SetSpritePalette] ( #00 )
-    COP [LoopNext]
-    COP [LoopInit] ( #0F )
+    COP [LoopEnd]
+    COP [LoopStart] ( #0F )
     COP [SetSpritePalette] ( #02 )
     COP [WaitByte] ( #01 )
     COP [SetSpritePalette] ( #00 )
-    COP [LoopNext]
+    COP [LoopEnd]
     COP [SetSpritePalette] ( #02 )
     COP [RestoreSavedPtr]
 }
 
 code_0AD9F2 {
-    COP [LoopInit] ( #19 )
+    COP [LoopStart] ( #19 )
     COP [SetSpritePalette] ( #04 )
-    COP [SetEntryExit]
+    COP [SetEntryHereAndYield]
     COP [SetSpritePalette] ( #00 )
-    COP [LoopNext]
-    COP [LoopInit] ( #0F )
+    COP [LoopEnd]
+    COP [LoopStart] ( #0F )
     COP [SetSpritePalette] ( #04 )
     COP [WaitByte] ( #01 )
     COP [SetSpritePalette] ( #00 )
-    COP [LoopNext]
+    COP [LoopEnd]
     COP [SetSpritePalette] ( #04 )
     COP [RestoreSavedPtr]
 }
 
 code_0ADA12 {
-    COP [LoopInit] ( #19 )
+    COP [LoopStart] ( #19 )
     COP [SetSpritePalette] ( #00 )
-    COP [SetEntryExit]
+    COP [SetEntryHereAndYield]
     COP [SetSpritePalette] ( #02 )
-    COP [LoopNext]
-    COP [LoopInit] ( #0F )
+    COP [LoopEnd]
+    COP [LoopStart] ( #0F )
     COP [SetSpritePalette] ( #00 )
     COP [WaitByte] ( #01 )
     COP [SetSpritePalette] ( #02 )
-    COP [LoopNext]
+    COP [LoopEnd]
     COP [SetSpritePalette] ( #00 )
     COP [RestoreSavedPtr]
 }
 
 code_0ADA32 {
-    COP [LoopInit] ( #19 )
+    COP [LoopStart] ( #19 )
     COP [SetSpritePalette] ( #00 )
-    COP [SetEntryExit]
+    COP [SetEntryHereAndYield]
     COP [SetSpritePalette] ( #04 )
-    COP [LoopNext]
-    COP [LoopInit] ( #0F )
+    COP [LoopEnd]
+    COP [LoopStart] ( #0F )
     COP [SetSpritePalette] ( #00 )
     COP [WaitByte] ( #01 )
     COP [SetSpritePalette] ( #04 )
-    COP [LoopNext]
+    COP [LoopEnd]
     COP [SetSpritePalette] ( #00 )
     COP [RestoreSavedPtr]
 }

@@ -13,10 +13,10 @@ na4B_lance [
   actor-def < #03, #00, #10, {
 
   code_05EEA4:
-    COP [SolidHighHere]
-    COP [ExitIfFlagByte] ( #01, #01 )
-    COP [SetOnInteract] ( &code_05EF23 )
-    COP [ClearLowHere]
+    COP [MarkSolidHere]
+    COP [WaitOnFlagByte] ( #01, #01 )
+    COP [SetInteractHandler] ( &code_05EF23 )
+    COP [ClearSolidHere]
     COP [StageSpriteLoopMoveY] ( #06, #0B, #11 )
     COP [AnimLoop]
     COP [StageSpriteLoop] ( #02, #20 )
@@ -27,19 +27,19 @@ na4B_lance [
     COP [AnimLoop]
     COP [StageSpriteFrame] ( #02 )
     COP [AnimOnce]
-    COP [SolidHighHere]
-    COP [ExitIfFlagByte] ( #02, #01 )
-    COP [ClearLowHere]
+    COP [MarkSolidHere]
+    COP [WaitOnFlagByte] ( #02, #01 )
+    COP [ClearSolidHere]
     COP [SetTilePos] ( #11, #09 )
     COP [StageSpriteFrame] ( #03 )
     COP [AnimOnce]
-    COP [SolidHighHere]
-    COP [ExitIfFlagByte] ( #08, #01 )
+    COP [MarkSolidHere]
+    COP [WaitOnFlagByte] ( #08, #01 )
     COP [StageSpriteFrame] ( #04 )
     COP [AnimOnce]
-    COP [ExitIfFlagByte] ( #09, #01 )
-    COP [SetOnInteract] ( &code_05EF28 )
-    COP [ClearLowHere]
+    COP [WaitOnFlagByte] ( #09, #01 )
+    COP [SetInteractHandler] ( &code_05EF28 )
+    COP [ClearSolidHere]
     COP [StageSpriteLoopMoveY] ( #06, #0B, #01 )
     COP [AnimLoop]
     COP [StageSpriteLoopMoveX] ( #09, #05, #01 )
@@ -50,11 +50,11 @@ na4B_lance [
     COP [AnimOnce]
     COP [StageSpriteFrame] ( #05 )
     COP [AnimOnce]
-    COP [SolidHighHere]
-    COP [ExitIfFlagByte] ( #0C, #01 )
+    COP [MarkSolidHere]
+    COP [WaitOnFlagByte] ( #0C, #01 )
     COP [StageSpriteFrame] ( #02 )
     COP [AnimOnce]
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     RTL 
 } >
 ]

@@ -11,11 +11,11 @@ eu97_dark_medicine [
   actor-def < #00, #00, #30, {
 
   code_07CDDD:
-    COP [BranchIfFlagByte] ( #F1, #01, &code_07CE21 )
-    COP [AddPosition] ( #08, #00 )
-    COP [SpawnMarkedAfterRel] ( @code_07CEF4, #00, #EC, #$1000 )
-    COP [SetOnInteract] ( &code_07CDF7 )
-    COP [SetEntryContinue]
+    COP [BranchOnFlagByte] ( #F1, #01, &code_07CE21 )
+    COP [NudgePosition] ( #08, #00 )
+    COP [SpawnAfterOffsetMarked] ( @code_07CEF4, #00, #EC, #$1000 )
+    COP [SetInteractHandler] ( &code_07CDF7 )
+    COP [SetEntryHere]
     RTL 
 } >
 ]

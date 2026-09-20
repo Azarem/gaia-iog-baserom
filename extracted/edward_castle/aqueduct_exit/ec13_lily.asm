@@ -18,11 +18,11 @@ ec13_lily [
   actor-def < #22, #00, #10, {
 
   code_09BF93:
-    COP [BranchIfFlagByte] ( #3A, #01, &code_09C037 )
+    COP [BranchOnFlagByte] ( #3A, #01, &code_09C037 )
     COP [WaitByte] ( #01 )
     COP [StartMusic] ( #1B )
     COP [WaitByte] ( #3B )
-    COP [AddPosition] ( #08, #00 )
+    COP [NudgePosition] ( #08, #00 )
     LDA $characterForm
     BEQ loc_09BFD9
     LDA #$CFF0
@@ -42,7 +42,7 @@ ec13_lily [
     TSB $playerFlags
 
   loc_09BFD9:
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     COP [BranchIfPlayerNear] ( #03, &code_09BFE1 )
     RTL 
 } >

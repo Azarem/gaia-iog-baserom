@@ -10,11 +10,11 @@ dm3F_elevator_sign [
   actor-def < #36, #01, #10, {
 
   code_05D6AB:
-    COP [SolidHighHere]
+    COP [MarkSolidHere]
     LDA #$0200
     TSB $12
-    COP [SetOnInteract] ( &code_05D6B9 )
-    COP [SetEntryContinue]
+    COP [SetInteractHandler] ( &code_05D6B9 )
+    COP [SetEntryHere]
     RTL 
 } >
 ]

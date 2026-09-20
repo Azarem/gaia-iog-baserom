@@ -15,16 +15,16 @@ fr32_slaver2 [
   actor-def < #1C, #00, #10, {
 
   code_05B855:
-    COP [BranchIfFlagByte] ( #5A, #01, &code_05B87E )
-    COP [SolidHighHere]
-    COP [SetOnInteract] ( &code_05B880 )
+    COP [BranchOnFlagByte] ( #5A, #01, &code_05B87E )
+    COP [MarkSolidHere]
+    COP [SetInteractHandler] ( &code_05B880 )
     COP [WaitByte] ( #07 )
 
   code_05B864:
     COP [StageSpriteFrame] ( #20 )
     COP [AnimOnce]
-    COP [BranchIfFlagByte] ( #5A, #00, &code_05B864 )
-    COP [ClearLowHere]
+    COP [BranchOnFlagByte] ( #5A, #00, &code_05B864 )
+    COP [ClearSolidHere]
     COP [StageSpriteLoopMoveX] ( #20, #04, #02 )
     COP [AnimLoop]
     LDA #$EFF0
@@ -69,7 +69,7 @@ code_05B8A5 {
 }
 
 code_05B8AA {
-    COP [BranchIfFlagByte] ( #59, #01, &code_05B8B5 )
+    COP [BranchOnFlagByte] ( #59, #01, &code_05B8B5 )
     COP [PrintDialogString] ( &dialogstring_05B9AF )
     RTL 
 }

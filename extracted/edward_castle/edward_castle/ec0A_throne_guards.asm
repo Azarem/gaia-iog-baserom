@@ -17,12 +17,12 @@ ec0A_throne_guard1 [
   actor-def < #1D, #00, #18, {
 
   code_04C61D:
-    COP [SetOnInteract] ( &code_04C66A )
+    COP [SetInteractHandler] ( &code_04C66A )
     COP [SetSpritePriority] ( #30 )
-    COP [SolidHighHere]
-    COP [ExitIfFlagByte] ( #0A, #01 )
-    COP [ClearLowHere]
-    COP [SetOnInteract] ( #$0000 )
+    COP [MarkSolidHere]
+    COP [WaitOnFlagByte] ( #0A, #01 )
+    COP [ClearSolidHere]
+    COP [SetInteractHandler] ( #$0000 )
     COP [StageSpriteLoopMoveX] ( #21, #04, #11 )
     COP [AnimLoop]
     COP [StageSpriteLoopMoveY] ( #1F, #03, #12 )
@@ -35,12 +35,12 @@ ec0A_throne_guard1 [
     COP [AnimOnce]
     LDA #$0800
     TRB $10
-    COP [ExitIfFlagByte] ( #0C, #01 )
+    COP [WaitOnFlagByte] ( #0C, #01 )
     COP [StageSpriteLoopMoveX] ( #21, #03, #11 )
     COP [AnimLoop]
     COP [StageSpriteLoopMoveY] ( #1E, #05, #11 )
     COP [AnimLoop]
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     RTL 
 } >
 ]
@@ -56,12 +56,12 @@ ec0A_throne_guard2 [
   actor-def < #1C, #00, #18, {
 
   code_04C6A2:
-    COP [SetOnInteract] ( &code_04C765 )
+    COP [SetInteractHandler] ( &code_04C765 )
     COP [SetSpritePriority] ( #30 )
-    COP [SolidHighHere]
-    COP [ExitIfFlagByte] ( #0A, #01 )
-    COP [ClearLowHere]
-    COP [SetOnInteract] ( #$0000 )
+    COP [MarkSolidHere]
+    COP [WaitOnFlagByte] ( #0A, #01 )
+    COP [ClearSolidHere]
+    COP [SetInteractHandler] ( #$0000 )
     COP [StageSpriteLoopMoveX] ( #20, #04, #12 )
     COP [AnimLoop]
     COP [StageSpriteLoopMoveY] ( #1F, #04, #12 )
@@ -74,12 +74,12 @@ ec0A_throne_guard2 [
     TRB $10
     COP [PrintDialogString] ( &dialogstring_04C76A )
     COP [SetFlagByte] ( #0B )
-    COP [ExitIfFlagByte] ( #0C, #01 )
+    COP [WaitOnFlagByte] ( #0C, #01 )
     COP [WaitByte] ( #0B )
     COP [SpawnAfterFlags] ( @code_04C6F2, #$2000 )
     COP [StageSpriteLoopMoveY] ( #1E, #05, #11 )
     COP [AnimLoop]
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     RTL 
 } >
 ]
@@ -91,19 +91,19 @@ code_04C6F2 {
     BEQ loc_04C707
     INC 
     STA $0014, Y
-    COP [SetEntryExit]
-    COP [SetEntryExit]
+    COP [SetEntryHereAndYield]
+    COP [SetEntryHereAndYield]
     BRA code_04C6F2
 
   loc_04C707:
     COP [SpawnAfterFlags] ( @code_04C721, #$2000 )
-    COP [LoopInit] ( #50 )
+    COP [LoopStart] ( #50 )
     LDY $playerActor
     LDA $0016, Y
     INC 
     STA $0016, Y
-    COP [SetEntryExit]
-    COP [LoopNext]
+    COP [SetEntryHereAndYield]
+    COP [LoopEnd]
     COP [Die]
 }
 
@@ -120,7 +120,7 @@ code_04C721 {
     SEP #$20
     STA $INIDISP
     REP #$20
-    COP [SetEntryDelayExit] ( @code_04C72B, #$0004 )
+    COP [JumpAfterDelay] ( @code_04C72B, #$0004 )
 
   loc_04C744:
     COP [SetFlagByte] ( #21 )

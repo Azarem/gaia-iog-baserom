@@ -23,14 +23,14 @@ pyD0_breakable_wall [
     LDA $0E
     STA $26
     BEQ loc_08B5A9
-    COP [BranchIfFlagWord] ( #$0171, #01, &code_08B666 )
+    COP [BranchOnFlagWord] ( #$0171, #01, &code_08B666 )
     BRA loc_08B5B0
 
   loc_08B5A9:
-    COP [BranchIfFlagWord] ( #$0170, #01, &code_08B666 )
+    COP [BranchOnFlagWord] ( #$0170, #01, &code_08B666 )
 
   loc_08B5B0:
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     PHX 
     LDX $playerActor
     LDA $7F0008, X
@@ -51,7 +51,7 @@ pyD0_breakable_wall [
 
   loc_08B5D1:
     PLX 
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     COP [BranchIfPlayerNear] ( #01, &code_08B5DA )
     RTL 
 } >
@@ -83,7 +83,7 @@ code_08B5DA {
     STA $14
     LDA $orbitDiameter, X
     STA $16
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     COP [BranchIfPlayerNear] ( #01, &code_08B616 )
     BRA loc_08B5B0
 }

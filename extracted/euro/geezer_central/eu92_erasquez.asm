@@ -11,16 +11,16 @@ eu92_erasquez [
   actor-def < #2D, #00, #10, {
 
   code_07D7A1:
-    COP [SolidHighHere]
-    COP [SetOnInteract] ( &code_07D7AA )
-    COP [SetEntryContinue]
+    COP [MarkSolidHere]
+    COP [SetInteractHandler] ( &code_07D7AA )
+    COP [SetEntryHere]
     RTL 
 } >
 ]
 
 code_07D7AA {
-    COP [BranchIfNoItem] ( #19, &code_07D7C2 )
-    COP [BranchIfFlagByte] ( #9F, #01, &code_07D7BD )
+    COP [BranchIfMissingItem] ( #19, &code_07D7C2 )
+    COP [BranchOnFlagByte] ( #9F, #01, &code_07D7BD )
     COP [SetFlagByte] ( #9F )
     COP [PrintDialogString] ( &dialogstring_07D7C7 )
     RTL 

@@ -30,14 +30,14 @@ dm3E_intro [
     COP [Die]
 
   loc_05F9BA:
-    COP [BranchIfFlagByte] ( #6A, #01, &code_05F9B2 )
+    COP [BranchOnFlagByte] ( #6A, #01, &code_05F9B2 )
     COP [SetFlagByte] ( #6A )
     COP [WaitByte] ( #1D )
     COP [PrintDialogString] ( &dialogstring_05F9DE )
     BRA code_05F9B2
 
   loc_05F9CC:
-    COP [BranchIfFlagByte] ( #6B, #01, &code_05F9B2 )
+    COP [BranchOnFlagByte] ( #6B, #01, &code_05F9B2 )
     COP [SetFlagByte] ( #6B )
     COP [WaitByte] ( #1D )
     COP [PrintDialogString] ( &dialogstring_05FA59 )

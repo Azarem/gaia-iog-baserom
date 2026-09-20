@@ -41,14 +41,14 @@ mtA1_fire_sprite [
     BNE loc_0B984F
     LDA #$000A
     STA $24
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     COP [BranchIfPlayerNear] ( #06, &code_0B9880 )
     DEC $24
     BMI loc_0B986A
     RTL 
 
   loc_0B986A:
-    COP [CallScript] ( &code_0B9901 )
+    COP [CallNear] ( &code_0B9901 )
     BRA code_0B9852
 
   code_0B9870:
@@ -56,17 +56,17 @@ mtA1_fire_sprite [
     STA $14
     LDA $moveYAlt, X
     STA $16
-    COP [SetEntryExit]
+    COP [SetEntryHereAndYield]
     BRA loc_0B9893
 } >
 ]
 
 code_0B9880 {
-    COP [AndActorFlags] ( #$FFFD )
+    COP [AndExtraFlags] ( #$FFFD )
     LDA #$0200
     TRB $12
-    COP [SpawnMarkedAfter] ( @code_0B992B, #$2200 )
-    COP [LoopInit] ( #06 )
+    COP [SpawnAfterMarked] ( @code_0B992B, #$2200 )
+    COP [LoopStart] ( #06 )
 
   loc_0B9893:
     LDA $14
@@ -87,7 +87,7 @@ code_0B9880 {
     CLC 
     ADC #$0010
     STA $16
-    COP [BranchIfSolid] ( &code_0B9870 )
+    COP [BranchIfSolidHere] ( &code_0B9870 )
     LDA $14
     PHA 
     LDA $16
@@ -103,11 +103,11 @@ code_0B9880 {
     COP [MoveToward] ( #00, #01 )
     COP [StageSpriteLoop] ( #00, #04 )
     COP [AnimLoop]
-    COP [LoopNext]
+    COP [LoopEnd]
     COP [SetHitCallback] ( #$0000 )
 
   code_0B98EF:
-    COP [AndActorFlags] ( #$FFFD )
+    COP [AndExtraFlags] ( #$FFFD )
     LDA #$0200
     TSB $12
     COP [StageSpriteLoop] ( #00, #0C )
@@ -135,12 +135,12 @@ code_0B9901 {
 }
 
 code_0B992B {
-    COP [LoopInit] ( #04 )
+    COP [LoopStart] ( #04 )
     COP [SpawnAfterFlags] ( @code_0B994D, #$0300 )
     LDA $24
     STA $0024, Y
     COP [WaitByte] ( #3F )
-    COP [LoopNext]
+    COP [LoopEnd]
     PHX 
     PHD 
     LDA $24
@@ -180,12 +180,12 @@ code_0B994D {
     TRB $10
 
   loc_0B998D:
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     COP [AnimOneFrame]
     LDA $2A
     BEQ loc_0B996A
     JSR $&code_0B9B9A
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     DEC $26
     BMI loc_0B998D
     LDY $24
@@ -208,14 +208,14 @@ code_0B994D {
 }
 
 code_0B99C6 {
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     COP [AnimOneFrame]
     LDA $2A
     BEQ code_0B99C6
     JSR $&code_0B9B9A
 
   loc_0B99D1:
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     DEC $26
     BMI code_0B99C6
     LDA $orbitDiameter, X
@@ -237,12 +237,12 @@ code_0B99C6 {
     RTL 
 
   loc_0B9A01:
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     COP [AnimOneFrame]
     LDA $2A
     BEQ loc_0B9A01
     JSR $&code_0B9B9A
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     DEC $26
     BMI loc_0B9A01
     LDY $24
@@ -274,12 +274,12 @@ code_0B99C6 {
     RTL 
 
   loc_0B9A5C:
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     COP [AnimOneFrame]
     LDA $2A
     BEQ loc_0B9A5C
     JSR $&code_0B9B9A
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     DEC $26
     BMI loc_0B9A5C
     LDA $moveXAlt, X
@@ -312,14 +312,14 @@ code_0B9A9D {
     BRA loc_0B9ABA
 
   loc_0B9AAF:
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     COP [AnimOneFrame]
     LDA $2A
     BEQ loc_0B9AAF
     JSR $&code_0B9B9A
 
   loc_0B9ABA:
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     DEC $26
     BMI loc_0B9AAF
     LDA $orbitDiameter, X
@@ -344,12 +344,12 @@ code_0B9A9D {
     RTL 
 
   loc_0B9AF4:
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     COP [AnimOneFrame]
     LDA $2A
     BEQ loc_0B9AF4
     JSR $&code_0B9B9A
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     DEC $26
     BMI loc_0B9AF4
     LDA $animScratch, X
@@ -384,12 +384,12 @@ code_0B9A9D {
     RTL 
 
   loc_0B9B59:
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     COP [AnimOneFrame]
     LDA $2A
     BEQ loc_0B9B59
     JSR $&code_0B9B9A
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     DEC $26
     BMI loc_0B9B59
     LDA $moveXAlt, X

@@ -16,7 +16,7 @@ town_door [
     COP [SetMetasprite] ( @spriteset_npc_props )
     COP [StageSpriteFrame] ( #01 ) ; Closed door frame
     COP [AnimOnce]
-    COP [SolidHighHere]   ; Mark high collision tile at door position
+    COP [MarkSolidHere]   ; Mark high collision tile at door position
     COP [BranchIfPlayerNear] ( #01, &TownDoorOpenIdle ) ; Already nearby → skip to open
     COP [WaitWhileOffscreen] ( #0A ) ; Wait until onscreen before proximity polling
 
@@ -32,16 +32,16 @@ town_door [
 ; 8-frame A-button hold loop. If the button is pressed, branches to open animation. If the player walks away (loop expires), returns to proximity check.
 
 TownDoorInteractLoop {
-    COP [LoopInit] ( #08 ) ; 8 frames to hold A before door opens
-    COP [BranchIfButton] ( #$0800, &TownDoorOpenAnim ) ; A button → open
-    COP [SetEntryExitNow] ( @TownDoorProximityCheck ) ; Not pressed → back to proximity poll
+    COP [LoopStart] ( #08 ) ; 8 frames to hold A before door opens
+    COP [BranchIfPressed] ( #$0800, &TownDoorOpenAnim ) ; A button → open
+    COP [JumpNextFrame] ( @TownDoorProximityCheck ) ; Not pressed → back to proximity poll
 }
 
 ---------------------------------------------
 ; Play door open sound then fall through to TownDoorOpenIdle.
 
 TownDoorOpenAnim {
-    COP [LoopNext]
+    COP [LoopEnd]
     COP [PlaySoundCh2] ( #0E ) ; Door open SFX
 }
 
@@ -49,9 +49,9 @@ TownDoorOpenAnim {
 ; Clear collision tile and display open door frame. Stays in idle loop forever (door cannot close once opened).
 
 TownDoorOpenIdle {
-    COP [ClearLowHere]    ; Remove solid collision at door position
+    COP [ClearSolidHere]  ; Remove solid collision at door position
     COP [StageSpriteFrame] ( #00 ) ; Open door frame
     COP [AnimOnce]
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     RTL 
 }

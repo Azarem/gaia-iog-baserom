@@ -11,8 +11,8 @@ ec0B_door [
   code_04DB15:
     LDA #$0200
     TSB $12
-    COP [SetOnInteract] ( &code_04DB24 )
-    COP [ExitIfFlagByte] ( #24, #01 )
+    COP [SetInteractHandler] ( &code_04DB24 )
+    COP [WaitOnFlagByte] ( #24, #01 )
     COP [Die]
 } >
 ]

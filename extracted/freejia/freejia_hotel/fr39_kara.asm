@@ -17,14 +17,14 @@ fr39_kara [
   actor-def < #1B, #00, #10, {
 
   code_05C459:
-    COP [BranchIfFlagByte] ( #65, #01, &code_05C4B7 )
-    COP [BranchIfFlagByte] ( #58, #01, &code_05C4B7 )
+    COP [BranchOnFlagByte] ( #65, #01, &code_05C4B7 )
+    COP [BranchOnFlagByte] ( #58, #01, &code_05C4B7 )
     LDY $playerActor
     LDA $0014, Y
     SEC 
     SBC #$0008
     STA $0014, Y
-    COP [ExitIfFlagByte] ( #01, #01 )
+    COP [WaitOnFlagByte] ( #01, #01 )
     COP [StageSpriteMoveY] ( #1F, #12 )
     COP [AnimOnce]
     COP [StageSpriteFrame] ( #1B )
@@ -45,9 +45,9 @@ fr39_kara [
   loc_05C4A9:
     COP [StageSpriteFrame] ( #1D )
     COP [AnimOnce]
-    COP [SolidHighHere]
-    COP [SetOnInteract] ( &code_05C4BD )
-    COP [SetEntryContinue]
+    COP [MarkSolidHere]
+    COP [SetInteractHandler] ( &code_05C4BD )
+    COP [SetEntryHere]
     RTL 
 } >
 ]
@@ -58,7 +58,7 @@ code_05C4B7 {
 }
 
 code_05C4BD {
-    COP [BranchIfFlagByte] ( #68, #01, &code_05C4C8 )
+    COP [BranchOnFlagByte] ( #68, #01, &code_05C4C8 )
     COP [PrintDialogString] ( &dialogstring_05C571 )
     RTL 
 }

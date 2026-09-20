@@ -9,14 +9,14 @@ flag_gated_palette_cool [
   thinker-def < #00, #08, {
 
   code_00B5E1:
-    COP [BranchIfFlagByte] ( #1C, #01, &FlagGatedPaletteCoolKill )
-    COP [BranchIfFlagByte] ( #16, #00, &FlagGatedPaletteCoolKill )
+    COP [BranchOnFlagByte] ( #1C, #01, &FlagGatedPaletteCoolKill )
+    COP [BranchOnFlagByte] ( #16, #00, &FlagGatedPaletteCoolKill )
 
   loc_00B5ED:
     COP [PaletteStart] ( #4C )
     COP [PaletteStep]
     COP [SetFlagByte] ( #FF )
-    COP [ExitIfFlagByte] ( #FF, #00 )
+    COP [WaitOnFlagByte] ( #FF, #00 )
     BRA loc_00B5ED
 } >
 ]

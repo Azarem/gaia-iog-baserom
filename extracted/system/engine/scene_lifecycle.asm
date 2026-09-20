@@ -507,8 +507,8 @@ ApplyScrollWaveEffect {
     STA $7E8803
     LDA #$00
     STA $7E8806
-    COP [QueueHdmaChannel] ( #06, #$8800, #$0D7E ) ; Queue HDMA ch6 → BG1 H-scroll, ch7 → BG2 H-scroll
-    COP [QueueHdmaChannel] ( #07, #$8800, #$0F7E )
+    COP [QueueHdmaChannel] ( #06, $7E8800, #0D ) ; Queue HDMA ch6 → BG1 H-scroll, ch7 → BG2 H-scroll
+    COP [QueueHdmaChannel] ( #07, $7E8800, #0F )
     JSL $@system_core.UpdateFrameDialogue ; UpdateFrameDialogue — one frame sync
     PLA 
     RTS 

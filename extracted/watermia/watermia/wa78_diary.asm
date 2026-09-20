@@ -11,8 +11,8 @@ wa78_diary [
   actor-def < #00, #00, #30, {
 
   code_079BF8:
-    COP [SetOnInteract] ( &code_079BFF )
-    COP [SetEntryContinue]
+    COP [SetInteractHandler] ( &code_079BFF )
+    COP [SetEntryHere]
     RTL 
 } >
 ]

@@ -25,7 +25,7 @@ parallax_thinker [
     JSR $&ParallaxClearHdmaScratch ; Parallax thinker: clear HDMA scratch, SetEntryContinue, bind channel
     LDA #$0000
     STA $chatPtr, X
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     LDA $chatPtr, X
     STA $0012
     INC 

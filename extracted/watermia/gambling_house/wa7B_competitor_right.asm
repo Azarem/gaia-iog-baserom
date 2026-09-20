@@ -12,13 +12,13 @@ wa7B_competitor_right [
   code_07A149:
     LDA #$0200
     TSB $12
-    COP [SpawnAfterRelFlags] ( @code_07A192, #$FFEE, #$FFF4, #$1000 )
-    COP [SpawnAfterRelFlags] ( @code_07A192, #$FFF4, #$0008, #$1000 )
-    COP [SpawnAfterRelFlags] ( @code_07A192, #$FFE8, #$0000, #$1000 )
-    COP [SpawnAfterRelFlags] ( @code_07A192, #$FFE0, #$FFF6, #$1000 )
-    COP [SolidHighHere]
-    COP [SetOnInteract] ( &code_07A183 )
-    COP [SetEntryContinue]
+    COP [SpawnAfterOffsetFlags] ( @code_07A192, #$FFEE, #$FFF4, #$1000 )
+    COP [SpawnAfterOffsetFlags] ( @code_07A192, #$FFF4, #$0008, #$1000 )
+    COP [SpawnAfterOffsetFlags] ( @code_07A192, #$FFE8, #$0000, #$1000 )
+    COP [SpawnAfterOffsetFlags] ( @code_07A192, #$FFE0, #$FFF6, #$1000 )
+    COP [MarkSolidHere]
+    COP [SetInteractHandler] ( &code_07A183 )
+    COP [SetEntryHere]
     RTL 
 } >
 ]
@@ -33,7 +33,7 @@ dialogstring_07A188 `[TPL:A]Uhnn...[END]`
 code_07A192 {
     COP [StageSpriteFrame] ( #23 )
     COP [AnimOnce]
-    COP [SolidHighHere]
-    COP [SetEntryContinue]
+    COP [MarkSolidHere]
+    COP [SetEntryHere]
     RTL 
 }

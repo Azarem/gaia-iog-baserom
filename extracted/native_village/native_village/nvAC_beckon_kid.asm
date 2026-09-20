@@ -15,31 +15,31 @@ nvAC_beckon_kid [
   actor-def < #24, #00, #18, {
 
   code_08908D:
-    COP [BranchIfFlagByte] ( #AF, #00, &code_089102 )
-    COP [SetOnInteract] ( &code_089104 )
-    COP [SolidHighHere]
-    COP [BranchIfFlagByte] ( #B2, #01, &code_0890C1 )
-    COP [ExitIfFlagByte] ( #03, #01 )
-    COP [ClearLowHere]
+    COP [BranchOnFlagByte] ( #AF, #00, &code_089102 )
+    COP [SetInteractHandler] ( &code_089104 )
+    COP [MarkSolidHere]
+    COP [BranchOnFlagByte] ( #B2, #01, &code_0890C1 )
+    COP [WaitOnFlagByte] ( #03, #01 )
+    COP [ClearSolidHere]
     COP [StageSpriteMoveX] ( #28, #02 )
     COP [AnimOnce]
     COP [StageSpriteFrame] ( #24 )
     COP [AnimOnce]
-    COP [ExitIfFlagByte] ( #04, #01 )
+    COP [WaitOnFlagByte] ( #04, #01 )
     COP [StageSpriteMoveX] ( #28, #03 )
     COP [AnimOnce]
     COP [StageSpriteFrame] ( #24 )
     COP [AnimOnce]
-    COP [SolidHighHere]
+    COP [MarkSolidHere]
 } >
 ]
 
 code_0890C1 {
-    COP [ExitIfFlagByte] ( #06, #01 )
-    COP [SetOnInteract] ( #$0000 )
+    COP [WaitOnFlagByte] ( #06, #01 )
+    COP [SetInteractHandler] ( #$0000 )
     LDA #$0800
     TRB $10
-    COP [ClearLowHere]
+    COP [ClearSolidHere]
     LDA #$0148
     STA $moveXAlt, X
     LDA #$0120
@@ -50,11 +50,11 @@ code_0890C1 {
     LDA #$0140
     STA $moveYAlt, X
     COP [MoveToward] ( #29, #01 )
-    COP [SolidHighHere]
-    COP [SetOnInteract] ( &code_089121 )
+    COP [MarkSolidHere]
+    COP [SetInteractHandler] ( &code_089121 )
     LDA #$0200
     TSB $12
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     RTL 
 }
 

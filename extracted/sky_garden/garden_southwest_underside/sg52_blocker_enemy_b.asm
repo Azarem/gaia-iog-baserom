@@ -22,7 +22,7 @@ sg52_blocker_enemy_b [
     LDA #$0031
     TSB $12
     COP [SetMetasprite] ( @spriteset_enemies )
-    COP [BranchIfFlagWord] ( #$0127, #01, &code_05F68C )
+    COP [BranchOnFlagWord] ( #$0127, #01, &code_05F68C )
     BRA loc_05F6BB
 
   code_05F672:
@@ -40,11 +40,11 @@ sg52_blocker_enemy_b [
 code_05F68C {
     COP [StageSpriteFrame] ( #0F )
     COP [AnimOnce]
-    COP [SolidHighHere]
+    COP [MarkSolidHere]
     LDA #$00FF
     STA $currentHp, X
     COP [SetHitCallback] ( &code_05F6A1 )
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     RTL 
 }
 
@@ -61,10 +61,10 @@ code_05F6A1 {
   loc_05F6BB:
     COP [StageSpriteFrame] ( #10 )
     COP [AnimOnce]
-    COP [SolidHighHere]
+    COP [MarkSolidHere]
     LDA #$00FF
     STA $currentHp, X
     COP [SetHitCallback] ( &code_05F672 )
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     RTL 
 }

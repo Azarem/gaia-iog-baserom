@@ -50,9 +50,9 @@ code_099641 {
     LDA #$07A0
     STA $moveYAlt, X
     COP [MoveToward] ( #01, #01 )
-    COP [SolidHighHere]
-    COP [SetOnInteract] ( &code_099746 )
-    COP [ExitIfFlagByte] ( #02, #01 )
+    COP [MarkSolidHere]
+    COP [SetInteractHandler] ( &code_099746 )
+    COP [WaitOnFlagByte] ( #02, #01 )
     LDA #$EFF0
     TSB $joypadMaskStd
     LDY $playerActor
@@ -99,7 +99,7 @@ code_099641 {
     TRB $joypadMaskStd
     COP [StageSpriteLoopMoveXY] ( #01, #0A, #02, #04 )
     COP [AnimLoop]
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     RTL 
 }
 
@@ -112,7 +112,7 @@ code_099746 {
 dialogstring_09974E `[DEF]The comet will soon be[N]entering Earth's orbit.[N]We must go to the top of[N]the Tower of Babel...[END]`
 
 code_09979D {
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     PHX 
     LDX $24
     LDY $playerActor
@@ -130,7 +130,7 @@ code_0997B7 {
     COP [SetSpritePriority] ( #30 )
     COP [StagePlayerSprite] ( #19 )
     COP [AnimOnce]
-    COP [BranchIfFlagByte] ( #04, #00, &code_0997B7 )
+    COP [BranchOnFlagByte] ( #04, #00, &code_0997B7 )
     COP [SetSpritePriority] ( #20 )
     JML $@player_character.PlayerIdleEntry
 }

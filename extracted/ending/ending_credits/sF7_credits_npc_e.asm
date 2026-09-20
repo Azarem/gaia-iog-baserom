@@ -15,7 +15,7 @@ sF7_actor_09E607 [
     COP [SpawnBefore] ( @func_09E5DE )
 
   code_09E60F:
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     RTL 
 } >
 ]
@@ -47,14 +47,14 @@ func_09E5DE {
     RTL 
 
   loc_09E5E4:
-    COP [HaltIfCounterGte] ( #$0564 )
-    COP [SetLinkedActorScript] ( &code_09E612 )
-    COP [HaltIfCounterGte] ( #$0624 )
-    COP [SetLinkedActorScript] ( &code_09E628 )
-    COP [HaltIfCounterGte] ( #$099C )
-    COP [SetLinkedActorScript] ( &code_09E620 )
-    COP [HaltIfCounterGte] ( #$0A74 )
-    COP [SetLinkedActorScript] ( &code_09E60F )
-    COP [SetEntryContinue]
+    COP [HaltIfMaxFrames] ( #$0564 )
+    COP [SetLinkedEntryPtr] ( &code_09E612 )
+    COP [HaltIfMaxFrames] ( #$0624 )
+    COP [SetLinkedEntryPtr] ( &code_09E628 )
+    COP [HaltIfMaxFrames] ( #$099C )
+    COP [SetLinkedEntryPtr] ( &code_09E620 )
+    COP [HaltIfMaxFrames] ( #$0A74 )
+    COP [SetLinkedEntryPtr] ( &code_09E60F )
+    COP [SetEntryHere]
     RTL 
 }

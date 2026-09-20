@@ -21,9 +21,9 @@ gs2D_lily [
   actor-def < #23, #00, #18, {
 
   code_058CA5:
-    COP [SolidHighHere]
-    COP [SetOnInteract] ( &code_058DB1 )
-    COP [BranchIfFlagByte] ( #50, #01, &code_058CFF )
+    COP [MarkSolidHere]
+    COP [SetInteractHandler] ( &code_058DB1 )
+    COP [BranchOnFlagByte] ( #50, #01, &code_058CFF )
     COP [SetFlagByte] ( #50 )
     LDA #$CFF0
     TSB $joypadMaskStd
@@ -56,8 +56,8 @@ gs2D_lily [
 code_058CFF {
     LDA #$0800
     TSB $10
-    COP [ExitIfFlagByte] ( #01, #01 )
-    COP [ClearLowHere]
+    COP [WaitOnFlagByte] ( #01, #01 )
+    COP [ClearSolidHere]
     COP [SetTilePos] ( #1D, #0D )
     COP [StageSpriteLoopMoveX] ( #29, #02, #01 )
     COP [AnimLoop]
@@ -71,10 +71,10 @@ code_058CFF {
     COP [AnimLoop]
     COP [StageSpriteFrame] ( #23 )
     COP [AnimOnce]
-    COP [SolidHighHere]
+    COP [MarkSolidHere]
     LDA #$0800
     TRB $10
-    COP [ExitIfFlagByte] ( #02, #01 )
+    COP [WaitOnFlagByte] ( #02, #01 )
     COP [PrintDialogString] ( &dialogstring_058E4A )
     COP [StartMusic] ( #1B )
     COP [WaitByte] ( #3B )
@@ -83,23 +83,23 @@ code_058CFF {
     LDA #$FFFF
     STA $0024, Y
     COP [WaitByte] ( #3B )
-    COP [LoopInit] ( #02 )
+    COP [LoopStart] ( #02 )
     COP [PlaySoundBoth] ( #$1515 )
     COP [SpawnAfterFlags] ( @camera_drift.CameraDriftLoopShip, #$2000 )
     LDA #$FFFF
     STA $0024, Y
     COP [WaitByte] ( #17 )
-    COP [LoopNext]
+    COP [LoopEnd]
     COP [PrintDialogString] ( &dialogstring_058F44 )
     COP [StartMusic] ( #06 )
     COP [WriteApuIo1] ( #0A )
     COP [WaitByte] ( #77 )
     LDA #$0001
     STA $musicRoomGroup
-    COP [SetOnInteract] ( &code_058DB6 )
+    COP [SetInteractHandler] ( &code_058DB6 )
     LDA #$EFF0
     TRB $joypadMaskStd
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     COP [RngByte]
     AND #$00E0
     BNE loc_058D9D

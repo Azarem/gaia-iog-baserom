@@ -13,13 +13,13 @@ na4B_spirit [
   actor-def < #32, #00, #30, {
 
   code_05F2F2:
-    COP [ExitIfFlagByte] ( #06, #01 )
-    COP [ExitIfFlagByte] ( #07, #01 )
+    COP [WaitOnFlagByte] ( #06, #01 )
+    COP [WaitOnFlagByte] ( #07, #01 )
     LDA #$2000
     TRB $10
     LDA #$0200
     TSB $12
-    COP [LoopInit] ( #03 )
+    COP [LoopStart] ( #03 )
 
   loc_05F307:
     COP [StageSpriteFrame] ( #32 )
@@ -30,8 +30,8 @@ na4B_spirit [
 ]
 
 code_05F313 {
-    COP [AddPosition] ( #70, #00 )
-    COP [LoopNext]
+    COP [NudgePosition] ( #70, #00 )
+    COP [LoopEnd]
     LDA #$FFF0
     TSB $joypadMaskStd
     COP [WaitByte] ( #13 )

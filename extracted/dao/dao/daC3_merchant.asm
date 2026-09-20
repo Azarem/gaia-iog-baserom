@@ -11,10 +11,10 @@ daC3_merchant [
   actor-def < #05, #00, #10, {
 
   code_08A89E:
-    COP [SetOnInteract] ( &code_08A8B2 )
-    COP [SolidHighHere]
+    COP [SetInteractHandler] ( &code_08A8B2 )
+    COP [MarkSolidHere]
     COP [WaitByte] ( #EF )
-    COP [ClearLowHere]
+    COP [ClearSolidHere]
     COP [StageSpriteLoopMoveX] ( #08, #40, #12 )
     COP [AnimLoop]
     COP [Die]

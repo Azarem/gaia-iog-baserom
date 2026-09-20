@@ -23,7 +23,7 @@ gs2C_descent [
   actor-def < #00, #00, #20, {
 
   code_05817C:
-    COP [BranchIfFlagByte] ( #4C, #01, &code_0581FD )
+    COP [BranchOnFlagByte] ( #4C, #01, &code_0581FD )
     LDA #$EFF0
     TSB $joypadMaskStd
     COP [SetFlagWord] ( #$0185 )
@@ -53,17 +53,17 @@ gs2C_descent [
     LDA #$0000
     STA $0008, Y
     STA $002A, Y
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     COP [BranchIfPlayerAt] ( #$00D0, #$0240, &code_0581DD )
     RTL 
 } >
 ]
 
 code_0581DD {
-    COP [LoopInit] ( #3C )
+    COP [LoopStart] ( #3C )
     LDA #$EFF0
     TSB $joypadMaskStd
-    COP [LoopNext]
+    COP [LoopEnd]
     COP [SpawnThinker] ( @oneshot_palette_flash_1C.FlashPalette1C )
     COP [WaitByte] ( #BF )
     COP [SetFlagByte] ( #4C )

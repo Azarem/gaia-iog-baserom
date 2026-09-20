@@ -23,7 +23,7 @@ mu5F_flasher [
   actor-def < #0D, #00, #20, {
 
   code_0AE271:
-    COP [BranchIfSolid] ( &code_0AE28E )
+    COP [BranchIfSolidHere] ( &code_0AE28E )
     LDA #$0011
     TSB $12
     LDA $14
@@ -32,7 +32,7 @@ mu5F_flasher [
     STA $7F100E, X
 
   loc_0AE286:
-    COP [SetEntryExit]
+    COP [SetEntryHereAndYield]
     COP [BranchIfPlayerNear] ( #0A, &code_0AE296 )
     RTL 
 } >
@@ -41,7 +41,7 @@ mu5F_flasher [
 code_0AE28E {
     LDA #$2000
     TSB $10
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     RTL 
 }
 
@@ -92,9 +92,9 @@ code_0AE296 {
   loc_0AE2E8:
     CMP #$0100
     BCS loc_0AE286
-    COP [BranchIfSolid] ( &code_0AE301 )
+    COP [BranchIfSolidHere] ( &code_0AE301 )
     COP [BranchIfPlayerNear] ( #01, &code_0AE301 )
-    COP [CallScript] ( &code_0AE302 )
+    COP [CallNear] ( &code_0AE302 )
     LDA #$2100
     TSB $10
     BRA code_0AE296
@@ -105,7 +105,7 @@ code_0AE301 {
 }
 
 code_0AE302 {
-    COP [SetEntryExit]
+    COP [SetEntryHereAndYield]
     LDA #$2000
     TRB $10
     COP [BranchNearerAxis] ( &code_0AE30F, &code_0AE373 )
@@ -123,10 +123,10 @@ code_0AE319 {
     COP [AnimOnce]
     COP [StageSpriteFrame] ( #12 )
     COP [AnimOnce]
-    COP [SpawnLastRel] ( @code_0AE3D7, #F0, #F0, #$0202 )
+    COP [SpawnListAppend] ( @code_0AE3D7, #F0, #F0, #$0202 )
     LDA #$000C
     STA $0026, Y
-    COP [ForceMoveLastChild] ( #06, #00 )
+    COP [ApplyMoveToChild] ( #06, #00 )
 }
 
 code_0AE33F {
@@ -143,10 +143,10 @@ code_0AE346 {
     COP [AnimOnce]
     COP [StageSpriteFrame] ( #92 )
     COP [AnimOnce]
-    COP [SpawnLastRel] ( @code_0AE3D7, #10, #F0, #$0202 )
+    COP [SpawnListAppend] ( @code_0AE3D7, #10, #F0, #$0202 )
     LDA #$0004
     STA $0026, Y
-    COP [ForceMoveLastChild] ( #05, #00 )
+    COP [ApplyMoveToChild] ( #05, #00 )
 }
 
 code_0AE36C {
@@ -167,10 +167,10 @@ code_0AE37D {
     COP [AnimOnce]
     COP [StageSpriteFrame] ( #11 )
     COP [AnimOnce]
-    COP [SpawnLastRel] ( @code_0AE3D7, #00, #F0, #$0200 )
+    COP [SpawnListAppend] ( @code_0AE3D7, #00, #F0, #$0200 )
     LDA #$0000
     STA $0026, Y
-    COP [ForceMoveLastChild] ( #00, #06 )
+    COP [ApplyMoveToChild] ( #00, #06 )
 }
 
 code_0AE3A3 {
@@ -187,10 +187,10 @@ code_0AE3AA {
     COP [AnimOnce]
     COP [StageSpriteFrame] ( #10 )
     COP [AnimOnce]
-    COP [SpawnLastRel] ( @code_0AE3D7, #00, #F0, #$0202 )
+    COP [SpawnListAppend] ( @code_0AE3D7, #00, #F0, #$0202 )
     LDA #$0008
     STA $0026, Y
-    COP [ForceMoveLastChild] ( #00, #05 )
+    COP [ApplyMoveToChild] ( #00, #05 )
 }
 
 code_0AE3D0 {
@@ -201,12 +201,12 @@ code_0AE3D0 {
 
 code_0AE3D7 {
     COP [PlaySoundCh1] ( #20 )
-    COP [OrActorFlags] ( #$0010 )
+    COP [OrExtraFlags] ( #$0010 )
     LDA #$0080
     TSB $12
     COP [StageSpriteFrame] ( #21 )
     COP [AnimOnce]
-    COP [SpawnMarkedAfter] ( @smooth_follow.CopySiblingFollowState, #$2000 )
+    COP [SpawnAfterMarked] ( @smooth_follow.CopySiblingFollowState, #$2000 )
     LDA #$8021
     STA $chatPtr, X
     LDA #$0003
@@ -234,12 +234,12 @@ code_0AE3D7 {
     COP [KillNext]
 
   loc_0AE432:
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     COP [AnimOneFrame]
     LDA $08
     STA $24
     STZ $08
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     LDA $7F100C, X
     STA $moveScratch1, X
     LDA $7F100E, X

@@ -15,9 +15,9 @@ nvAD_kara [
   actor-def < #0B, #00, #10, {
 
   code_088ACA:
-    COP [BranchIfFlagByte] ( #B2, #01, &code_088B18 )
-    COP [BranchIfFlagByte] ( #AE, #01, &code_088B06 )
-    COP [BranchIfFlagByte] ( #AD, #00, &code_088B18 )
+    COP [BranchOnFlagByte] ( #B2, #01, &code_088B18 )
+    COP [BranchOnFlagByte] ( #AE, #01, &code_088B06 )
+    COP [BranchOnFlagByte] ( #AD, #00, &code_088B18 )
     LDY $playerActor
     LDA $0014, Y
     CLC 
@@ -39,9 +39,9 @@ code_088B06 {
     COP [SetTilePos] ( #07, #08 )
     COP [StageSpriteFrame] ( #0A )
     COP [AnimOnce]
-    COP [SetOnInteract] ( &code_088B1A )
-    COP [SolidHighHere]
-    COP [SetEntryContinue]
+    COP [SetInteractHandler] ( &code_088B1A )
+    COP [MarkSolidHere]
+    COP [SetEntryHere]
     RTL 
 }
 

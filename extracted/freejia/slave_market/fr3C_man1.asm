@@ -11,9 +11,9 @@ fr3C_man1 [
   actor-def < #03, #00, #10, {
 
   code_05C231:
-    COP [SolidHighHere]
-    COP [SetOnInteract] ( &code_05C23A )
-    COP [SetEntryContinue]
+    COP [MarkSolidHere]
+    COP [SetInteractHandler] ( &code_05C23A )
+    COP [SetEntryHere]
     RTL 
 } >
 ]

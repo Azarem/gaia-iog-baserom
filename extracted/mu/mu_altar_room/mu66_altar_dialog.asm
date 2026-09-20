@@ -15,7 +15,7 @@ mu66_altar_dialog [
 
   code_069C88:
     COP [BranchIfPlayerInAbsTiles] ( #20, #00, #30, #10, &code_069CAF )
-    COP [BranchIfFlagByte] ( #82, #01, &code_069CAC )
+    COP [BranchOnFlagByte] ( #82, #01, &code_069CAC )
     COP [SetFlagByte] ( #82 )
     LDA #$CFF0
     TSB $joypadMaskStd
@@ -27,7 +27,7 @@ mu66_altar_dialog [
 ]
 
 code_069CAC {
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     RTL 
 }
 

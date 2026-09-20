@@ -13,7 +13,7 @@ eu92_rofsky [
   actor-def < #24, #00, #10, {
 
   code_07D5EA:
-    COP [BranchIfFlagByte] ( #9E, #01, &code_07D606 )
+    COP [BranchOnFlagByte] ( #9E, #01, &code_07D606 )
     COP [SetFlagByte] ( #9E )
     LDA #$CFF0
     TSB $joypadMaskStd
@@ -25,14 +25,14 @@ eu92_rofsky [
 ]
 
 code_07D606 {
-    COP [SolidHighHere]
-    COP [SetOnInteract] ( &code_07D60F )
-    COP [SetEntryContinue]
+    COP [MarkSolidHere]
+    COP [SetInteractHandler] ( &code_07D60F )
+    COP [SetEntryHere]
     RTL 
 }
 
 code_07D60F {
-    COP [BranchIfNoItem] ( #19, &code_07D619 )
+    COP [BranchIfMissingItem] ( #19, &code_07D619 )
     COP [PrintDialogString] ( &dialogstring_07D61E )
     RTL 
 }

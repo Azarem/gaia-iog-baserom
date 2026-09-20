@@ -32,7 +32,7 @@ particle_rain_spawner [
   loc_0BD2BC:
     LDA $24               ; Wait $24 frames via SetEntryExit
     STA $08
-    COP [SetEntryExit]
+    COP [SetEntryHereAndYield]
     COP [SpawnAfterFlags] ( @ParticleRainChild, #$1802 ) ; Spawn falling particle child
     BRA loc_0BD2B3
 } >
@@ -63,8 +63,8 @@ ParticleRainChild {
     STA $moveYAlt, X      ; Y velocity: 3, 5, 7, or 9
 
   loc_0BD2F7:
-    COP [ReloadForceMove] ; Apply velocity
-    COP [SetEntryContinue]
+    COP [ReloadMoveDurations] ; Apply velocity
+    COP [SetEntryHere]
     COP [AnimOnce]
     LDA $16               ; Die when Y ≥ $200 (off bottom of screen)
     CMP #$0200

@@ -42,7 +42,7 @@ code_089937 {
     STA $002A, Y
     LDA #$0800
     TSB $playerFlags
-    COP [BranchIfFlagByte] ( #B5, #01, &code_089988 )
+    COP [BranchOnFlagByte] ( #B5, #01, &code_089988 )
     COP [SetFlagByte] ( #B5 )
     SEP #$20
     LDA #$15
@@ -57,8 +57,8 @@ code_089937 {
 }
 
 code_089988 {
-    COP [SetEntryContinue]
-    COP [BranchIfButton] ( #$0F01, &code_089991 )
+    COP [SetEntryHere]
+    COP [BranchIfPressed] ( #$0F01, &code_089991 )
     RTL 
 }
 

@@ -46,7 +46,7 @@ unused_debug_mode [
     STA $28
 
   loc_09BABC:
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     COP [AnimOneFrame]
     LDA $joypadCurrent
     BIT #$0080
@@ -65,7 +65,7 @@ unused_debug_mode [
     STZ $2A
     LDA #$0080
     TSB $joypadHeld
-    COP [SetEntryExit]
+    COP [SetEntryHereAndYield]
     BRA loc_09BABC
 
   loc_09BAE2:

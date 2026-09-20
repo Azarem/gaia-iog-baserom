@@ -15,7 +15,7 @@ ir28_ceiling_trap_trigger [
   actor-def < #00, #00, #20, {
 
   code_09C6AC:
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
 
   code_09C6AE:
     COP [BranchIfPlayerInAbsTiles] ( #1A, #0C, #1C, #0E, &code_09C6E8 )
@@ -32,32 +32,32 @@ ir28_ceiling_trap_trigger [
 
 code_09C6DF {
     COP [PlaySoundBoth] ( #$2C2C )
-    COP [SetEntryExitNow] ( @code_09C6AE )
+    COP [JumpNextFrame] ( @code_09C6AE )
 }
 
 code_09C6E8 {
-    COP [BranchIfFlagByte] ( #01, #01, &code_09C6DE )
+    COP [BranchOnFlagByte] ( #01, #01, &code_09C6DE )
     COP [SetFlagByte] ( #01 )
     COP [SpawnAfterAbsFlags] ( @ec_proximity_door_toggle.code_09C2DB, #$01A8, #$0130, #$2300 )
     BRA code_09C6DF
 }
 
 code_09C6FE {
-    COP [BranchIfFlagByte] ( #02, #01, &code_09C6DE )
+    COP [BranchOnFlagByte] ( #02, #01, &code_09C6DE )
     COP [SetFlagByte] ( #02 )
     COP [SpawnAfterAbsFlags] ( @ec_proximity_door_toggle.code_09C2DB, #$01C8, #$01C0, #$2300 )
     BRA code_09C6DF
 }
 
 code_09C714 {
-    COP [BranchIfFlagByte] ( #03, #01, &code_09C6DE )
+    COP [BranchOnFlagByte] ( #03, #01, &code_09C6DE )
     COP [SetFlagByte] ( #03 )
     COP [SpawnAfterAbsFlags] ( @ec_proximity_door_toggle.code_09C2DB, #$00E8, #$0260, #$2300 )
     BRA code_09C6DF
 }
 
 code_09C72A {
-    COP [BranchIfFlagByte] ( #04, #01, &code_09C6DE )
+    COP [BranchOnFlagByte] ( #04, #01, &code_09C6DE )
     COP [SetFlagByte] ( #04 )
     COP [SpawnAfterAbsFlags] ( @ec_proximity_door_toggle.code_09C2E4, #$0088, #$0220, #$2300 )
     COP [WaitByte] ( #0E )
@@ -66,7 +66,7 @@ code_09C72A {
 }
 
 code_09C74E {
-    COP [BranchIfFlagByte] ( #05, #01, &code_09C6DE )
+    COP [BranchOnFlagByte] ( #05, #01, &code_09C6DE )
     COP [SetFlagByte] ( #05 )
     COP [SpawnAfterAbsFlags] ( @ec_proximity_door_toggle.code_09C2E4, #$0088, #$01C0, #$2300 )
     COP [WaitByte] ( #0E )
@@ -75,7 +75,7 @@ code_09C74E {
 }
 
 code_09C773 {
-    COP [BranchIfFlagByte] ( #06, #01, &code_09C6DE )
+    COP [BranchOnFlagByte] ( #06, #01, &code_09C6DE )
     COP [SetFlagByte] ( #06 )
     COP [SpawnAfterAbsFlags] ( @ec_proximity_door_toggle.code_09C2E4, #$0128, #$0160, #$2300 )
     COP [WaitByte] ( #0E )

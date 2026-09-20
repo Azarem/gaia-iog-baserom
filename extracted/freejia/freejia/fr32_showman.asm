@@ -15,16 +15,16 @@ fr32_showman [
   actor-def < #02, #00, #10, {
 
   code_05BD7E:
-    COP [SolidHighHere]
-    COP [SetOnInteract] ( &code_05BDB6 )
-    COP [ExitIfFlagByte] ( #0F, #01 )
+    COP [MarkSolidHere]
+    COP [SetInteractHandler] ( &code_05BDB6 )
+    COP [WaitOnFlagByte] ( #0F, #01 )
     LDA #$CFF0
     TSB $joypadMaskStd
     COP [StageSpriteLoop] ( #04, #3C )
     COP [AnimLoop]
-    COP [SpawnMarkedAfter] ( @code_05BDEB, #$1002 )
+    COP [SpawnAfterMarked] ( @code_05BDEB, #$1002 )
     COP [WaitByte] ( #B3 )
-    COP [ClearLowHere]
+    COP [ClearSolidHere]
     COP [StageSpriteLoopMoveY] ( #06, #02, #03 )
     COP [AnimLoop]
     COP [StageSpriteLoopMoveX] ( #08, #04, #04 )
@@ -51,7 +51,7 @@ code_05BDEB {
     COP [AnimLoop]
     COP [StageSpriteFrame] ( #34 )
     COP [AnimOnce]
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     LDY $04
     LDA $0014, Y
     STA $14

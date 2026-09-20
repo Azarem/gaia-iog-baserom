@@ -40,7 +40,7 @@ sp58_monologue [
     STA $002E, Y
 
   loc_0683B4:
-    COP [AddPosition] ( #00, #B0 )
+    COP [NudgePosition] ( #00, #B0 )
 
   loc_0683B8:
     COP [StageSpriteMoveY] ( #05, #13 )
@@ -63,7 +63,7 @@ code_0683C2 {
     STA $gfxCacheIdxA
     STA $0688
     COP [QueueMapChange] ( #5A, #$0090, #$0070, #83, #$1400 )
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     RTL 
 }
 

@@ -32,7 +32,7 @@ code_08C4FC {
     STA $24
 
   loc_08C504:
-    COP [AddPosition] ( #00, #FE )
+    COP [NudgePosition] ( #00, #FE )
     LDA $0E
     XBA 
     STA $orbitAngle, X
@@ -43,7 +43,7 @@ code_08C4FC {
   loc_08C518:
     COP [StageSpriteFrame] ( #1D )
     COP [AnimOnce]
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     COP [BranchIfPlayerNear] ( #01, &code_08C525 )
     RTL 
 }
@@ -53,11 +53,11 @@ code_08C525 {
     COP [AnimOnce]
     COP [PlaySoundBoth] ( #$2C2C )
     JSR $&code_08C58A
-    COP [CallScript] ( &code_08C549 )
-    COP [SetEntryExit]
+    COP [CallNear] ( &code_08C549 )
+    COP [SetEntryHereAndYield]
     JSL $@CollisionLayerRenderer
     COP [PlaySoundBoth] ( #$1515 )
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     COP [BranchIfPlayerNear] ( #01, &code_08C548 )
     BRA loc_08C518
 }
@@ -71,7 +71,7 @@ code_08C549 {
     STA $26
     LDA $24
     BPL loc_08C564
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     LDY #$1060
     LDA $0026, Y
     DEC 
@@ -81,7 +81,7 @@ code_08C549 {
     RTL 
 
   loc_08C564:
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     LDY #$1060
     LDA $0026, Y
     INC 

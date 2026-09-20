@@ -77,7 +77,7 @@ SpawnFieldRevealEffect {
     COP [WaitByte] ( #01 )
     LDA #$2000
     TSB $10
-    COP [LoopInit] ( #0A ) ; Spawn 10 scatter particles
+    COP [LoopStart] ( #0A ) ; Spawn 10 scatter particles
     COP [SpawnAfterFlags] ( @field_reveal_scatter, #$0302 )
     LDA $0012, Y
     ORA #$1000
@@ -89,7 +89,7 @@ SpawnFieldRevealEffect {
     AND #$00FF
     STA $0022, Y
     COP [WaitByte] ( #03 )
-    COP [LoopNext]
+    COP [LoopEnd]
     COP [StageBgChangeFromDeathIdx] ; Apply tile change from event table
     COP [ApplyBgChange]
     COP [Die]

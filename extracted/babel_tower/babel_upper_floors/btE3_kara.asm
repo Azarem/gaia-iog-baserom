@@ -17,14 +17,14 @@ btE3_kara [
   actor-def < #1C, #00, #03, {
 
   code_098518:
-    COP [BranchIfFlagByte] ( #D4, #01, &btE3_kara_destroy )
+    COP [BranchOnFlagByte] ( #D4, #01, &btE3_kara_destroy )
     COP [BranchIfPlayerAt] ( #$0080, #$01A0, &code_098529 )
     JMP $&btE3_kara_destroy
 } >
 ]
 
 code_098529 {
-    COP [AddPosition] ( #08, #00 )
+    COP [NudgePosition] ( #08, #00 )
     LDA #$CFF0
     TSB $joypadMaskStd
     COP [StageSpriteMoveX] ( #20, #12 )
@@ -50,8 +50,8 @@ code_098529 {
     LDA #$0B00
     TSB $10
     COP [SetFlagByte] ( #D4 )
-    COP [SetEntryContinue]
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
+    COP [SetEntryHere]
     COP [AnimOnce]
     RTL 
 }

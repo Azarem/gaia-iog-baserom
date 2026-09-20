@@ -15,12 +15,12 @@ fr32_alley_guard [
   actor-def < #04, #00, #10, {
 
   code_05B79C:
-    COP [SetOnInteract] ( &code_05B7B6 )
+    COP [SetInteractHandler] ( &code_05B7B6 )
 
   loc_05B7A0:
-    COP [SolidHighHere]
-    COP [ExitIfFlagByte] ( #01, #01 )
-    COP [ClearLowHere]
+    COP [MarkSolidHere]
+    COP [WaitOnFlagByte] ( #01, #01 )
+    COP [ClearSolidHere]
     LDA #$FFFB
     STA $playerSpeedEw
     COP [WaitByte] ( #1D )

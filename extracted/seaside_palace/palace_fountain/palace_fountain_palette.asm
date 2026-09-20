@@ -19,8 +19,8 @@ palace_fountain_palette [
     REP #$20
 
   code_00B72C:
-    COP [BranchIfFlagByte] ( #0F, #01, &PalaceFountainPaletteRestore )
-    COP [BranchIfFlagByte] ( #70, #00, &PalaceFountainPaletteAlt )
+    COP [BranchOnFlagByte] ( #0F, #01, &PalaceFountainPaletteRestore )
+    COP [BranchOnFlagByte] ( #70, #00, &PalaceFountainPaletteAlt )
     COP [PaletteStart] ( #1A )
     COP [PaletteStep]
     BRA loc_00B746
@@ -33,11 +33,11 @@ PalaceFountainPaletteAlt {
     BRA loc_00B746
 
   loc_00B746:
-    COP [BranchIfFlagByte] ( #FF, #01, &code_00B72C )
+    COP [BranchOnFlagByte] ( #FF, #01, &code_00B72C )
     BRA loc_00B720
 }
 
 PalaceFountainPaletteRestore {
-    COP [ExitIfFlagByte] ( #0F, #00 )
+    COP [WaitOnFlagByte] ( #0F, #00 )
     BRA code_00B72C
 }

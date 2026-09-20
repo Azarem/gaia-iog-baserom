@@ -63,7 +63,7 @@
 ; Freeze/orb gate: skips slope detection if actor flags $00C0 set (freeze $0080 + orb $0040) with no active iframes.
 
 SlopePhysicsEntry {
-    COP [SetEntryContinue] ; Slope physics companion: runs each frame after player_move_controller
+    COP [SetEntryHere]    ; Slope physics companion: runs each frame after player_move_controller
     PHX                   ; Check player actor flags $00C0 = freeze ($0080) + orb ($0040)
     LDX $playerActor
     LDA $0010, X

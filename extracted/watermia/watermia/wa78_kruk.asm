@@ -13,8 +13,8 @@ wa78_kruk [
   code_079AD6:
     LDA #$0200
     TSB $12
-    COP [SetOnInteract] ( &code_079AEA )
-    COP [SolidHighHere]
+    COP [SetInteractHandler] ( &code_079AEA )
+    COP [MarkSolidHere]
     COP [WaitWhileOffscreen] ( #0F )
     COP [StageSpriteFrame] ( #1C )
     COP [AnimOnce]

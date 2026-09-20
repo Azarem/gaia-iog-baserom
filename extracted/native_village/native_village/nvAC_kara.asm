@@ -21,13 +21,13 @@ nvAC_kara [
   code_08805A:
     LDA #$0220
     STA $cameraBoundsY
-    COP [BranchIfFlagByte] ( #B6, #01, &code_0880D4 )
-    COP [BranchIfFlagByte] ( #CF, #01, &code_0880D4 )
-    COP [BranchIfFlagByte] ( #B2, #01, &code_0881BE )
-    COP [BranchIfFlagByte] ( #AF, #01, &code_088152 )
-    COP [BranchIfFlagByte] ( #B0, #01, &code_0880D6 )
-    COP [BranchIfFlagByte] ( #AD, #01, &code_0880D4 )
-    COP [BranchIfFlagByte] ( #AC, #01, &code_0880B8 )
+    COP [BranchOnFlagByte] ( #B6, #01, &code_0880D4 )
+    COP [BranchOnFlagByte] ( #CF, #01, &code_0880D4 )
+    COP [BranchOnFlagByte] ( #B2, #01, &code_0881BE )
+    COP [BranchOnFlagByte] ( #AF, #01, &code_088152 )
+    COP [BranchOnFlagByte] ( #B0, #01, &code_0880D6 )
+    COP [BranchOnFlagByte] ( #AD, #01, &code_0880D4 )
+    COP [BranchOnFlagByte] ( #AC, #01, &code_0880B8 )
     LDA #$CFF0
     TSB $joypadMaskStd
     COP [WaitByte] ( #1D )
@@ -49,10 +49,10 @@ code_0880B8 {
     COP [SetTilePos] ( #0B, #0E )
     COP [StageSpriteFrame] ( #0B )
     COP [AnimOnce]
-    COP [SolidHighHere]
-    COP [SetOnInteract] ( &code_0881D0 )
-    COP [ExitIfFlagByte] ( #AD, #01 )
-    COP [ClearLowHere]
+    COP [MarkSolidHere]
+    COP [SetInteractHandler] ( &code_0881D0 )
+    COP [WaitOnFlagByte] ( #AD, #01 )
+    COP [ClearSolidHere]
     COP [StageSpriteLoopMoveY] ( #0F, #03, #02 )
     COP [AnimLoop]
 }
@@ -76,22 +76,22 @@ code_0880D6 {
     COP [SpawnAfterAbsFlags] ( @code_088A60, #$0158, #$0040, #$1000 )
     COP [SpawnAfterAbsFlags] ( @code_088A90, #$0018, #$00C0, #$1000 )
     COP [SpawnAfterAbsFlags] ( @code_088AAF, #$00B8, #$0180, #$1000 )
-    COP [ExitIfFlagByte] ( #01, #01 )
+    COP [WaitOnFlagByte] ( #01, #01 )
     COP [PrintDialogString] ( &dialogstring_08830F )
-    COP [LoopInit] ( #02 )
+    COP [LoopStart] ( #02 )
     COP [WaitByte] ( #27 )
     COP [PlaySoundBoth] ( #$0505 )
-    COP [LoopNext]
+    COP [LoopEnd]
     COP [WaitByte] ( #27 )
-    COP [LoopInit] ( #04 )
+    COP [LoopStart] ( #04 )
     COP [PlaySoundBoth] ( #$0505 )
     COP [WaitByte] ( #18 )
-    COP [LoopNext]
+    COP [LoopEnd]
     LDA #$0404
     STA $gfxCacheIdxB
     COP [QueueMapChange] ( #AC, #$0080, #$00F0, #03, #$2200 )
     COP [SetFlagByte] ( #AF )
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     RTL 
 }
 
@@ -102,22 +102,22 @@ code_088152 {
     COP [SetTilePos] ( #06, #10 )
     COP [StageSpriteFrame] ( #2E )
     COP [AnimOnce]
-    COP [SolidHighHere]
+    COP [MarkSolidHere]
     COP [WaitByte] ( #1D )
     COP [PrintDialogString] ( &dialogstring_08839D )
     COP [SetFlagByte] ( #01 )
-    COP [ExitIfFlagByte] ( #02, #01 )
+    COP [WaitOnFlagByte] ( #02, #01 )
     COP [PrintDialogString] ( &dialogstring_0887C6 )
     COP [ClearFlagByte] ( #02 )
-    COP [ExitIfFlagByte] ( #03, #01 )
+    COP [WaitOnFlagByte] ( #03, #01 )
     COP [PrintDialogString] ( &dialogstring_088811 )
     COP [ClearFlagByte] ( #03 )
-    COP [ExitIfFlagByte] ( #05, #01 )
+    COP [WaitOnFlagByte] ( #05, #01 )
     COP [SpawnAfterFlags] ( @nv_village_event_sprite.code_0881AE, #$1002 )
     COP [StageSpriteFrame] ( #0A )
     COP [AnimOnce]
-    COP [SetOnInteract] ( &code_0881DD )
-    COP [SetEntryContinue]
+    COP [SetInteractHandler] ( &code_0881DD )
+    COP [SetEntryHere]
     RTL 
 }
 ---------------------------------------------
@@ -126,9 +126,9 @@ code_0881BE {
     COP [SetTilePos] ( #12, #0C )
     COP [StageSpriteFrame] ( #0C )
     COP [AnimOnce]
-    COP [SolidHighHere]
-    COP [SetOnInteract] ( &code_0881D8 )
-    COP [SetEntryContinue]
+    COP [MarkSolidHere]
+    COP [SetInteractHandler] ( &code_0881D8 )
+    COP [SetEntryHere]
     RTL 
 }
 

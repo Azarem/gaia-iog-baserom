@@ -27,9 +27,9 @@ dm40_trapped_slave [
   actor-def < #00, #00, #01, {
 
   code_05D739:
-    COP [BranchIfFlagByte] ( #D9, #01, &code_05D796 )
+    COP [BranchOnFlagByte] ( #D9, #01, &code_05D796 )
     COP [SpawnAfterFlags] ( @code_05D7CB, #$1000 )
-    COP [AddPosition] ( #08, #08 )
+    COP [NudgePosition] ( #08, #08 )
     COP [SetMetasprite] ( @spriteset_enemies )
     COP [StageSpriteFrame] ( #00 )
     COP [AnimOnce]
@@ -41,7 +41,7 @@ dm40_trapped_slave [
   loc_05D760:
     LDA #$00FF
     STA $currentHp, X
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     LDA $currentHp, X
     CMP #$00FF
     BNE loc_05D782
@@ -77,18 +77,18 @@ code_05D796 {
     COP [DrawMetatileAbs] ( #09, #13, #E4 )
     COP [DrawMetatileAbs] ( #08, #14, #02 )
     COP [DrawMetatileAbs] ( #09, #14, #02 )
-    COP [SolidHighAbs] ( #08, #13 )
-    COP [SolidHighAbs] ( #09, #13 )
+    COP [MarkSolidAbs] ( #08, #13 )
+    COP [MarkSolidAbs] ( #09, #13 )
     COP [Die]
 }
 
 code_05D7CB {
-    COP [AddPosition] ( #08, #00 )
+    COP [NudgePosition] ( #08, #00 )
     LDA #$2000
     TSB $10
     COP [StageSpriteFrame] ( #0C )
     COP [AnimOnce]
-    COP [ExitIfFlagByte] ( #D9, #01 )
+    COP [WaitOnFlagByte] ( #D9, #01 )
     LDA #$2000
     TRB $10
     SED 

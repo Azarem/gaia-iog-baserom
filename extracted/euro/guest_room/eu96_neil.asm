@@ -15,10 +15,10 @@ eu96_neil [
   actor-def < #13, #00, #10, {
 
   code_07DB28:
-    COP [BranchIfFlagByte] ( #AC, #01, &code_07DB5D )
-    COP [BranchIfFlagByte] ( #AB, #01, &code_07DBD2 )
-    COP [BranchIfFlagByte] ( #AA, #01, &code_07DB5F )
-    COP [BranchIfFlagByte] ( #A4, #01, &code_07DB5D )
+    COP [BranchOnFlagByte] ( #AC, #01, &code_07DB5D )
+    COP [BranchOnFlagByte] ( #AB, #01, &code_07DBD2 )
+    COP [BranchOnFlagByte] ( #AA, #01, &code_07DB5F )
+    COP [BranchOnFlagByte] ( #A4, #01, &code_07DB5D )
     COP [SetFlagByte] ( #A4 )
     LDA #$CFF0
     TSB $joypadMaskStd
@@ -46,29 +46,29 @@ code_07DB5F {
     COP [AnimLoop]
     COP [StageSpriteFrame] ( #13 )
     COP [AnimOnce]
-    COP [SolidHighHere]
+    COP [MarkSolidHere]
     COP [PrintDialogString] ( &dialogstring_07DC63 )
     COP [WaitByte] ( #27 )
     COP [StartMusic] ( #1B )
     COP [WaitByte] ( #3B )
     COP [PrintDialogString] ( &dialogstring_07DD70 )
     COP [SetFlagByte] ( #01 )
-    COP [ExitIfFlagByte] ( #01, #00 )
+    COP [WaitOnFlagByte] ( #01, #00 )
     COP [StageSpriteLoop] ( #14, #10 )
     COP [AnimLoop]
     COP [StageSpriteLoop] ( #12, #10 )
     COP [AnimLoop]
     COP [PrintDialogString] ( &dialogstring_07DDBF )
-    COP [SpawnAfterRelFlags] ( @code_07DECB, #$0000, #$0020, #$1800 )
-    COP [ExitIfFlagByte] ( #02, #01 )
+    COP [SpawnAfterOffsetFlags] ( @code_07DECB, #$0000, #$0020, #$1800 )
+    COP [WaitOnFlagByte] ( #02, #01 )
     COP [StartMusic] ( #02 )
     COP [WaitByte] ( #77 )
     COP [PrintDialogString] ( &dialogstring_07DDD2 )
     COP [SetFlagByte] ( #AB )
-    COP [SetOnInteract] ( &code_07DBE4 )
+    COP [SetInteractHandler] ( &code_07DBE4 )
     LDA #$EFF0
     TRB $joypadMaskStd
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     RTL 
 }
 
@@ -76,9 +76,9 @@ code_07DBD2 {
     COP [SetTilePos] ( #0A, #0A )
     COP [StageSpriteFrame] ( #12 )
     COP [AnimOnce]
-    COP [SolidHighHere]
-    COP [SetOnInteract] ( &code_07DBE4 )
-    COP [SetEntryContinue]
+    COP [MarkSolidHere]
+    COP [SetInteractHandler] ( &code_07DBE4 )
+    COP [SetEntryHere]
     RTL 
 }
 
@@ -110,12 +110,12 @@ code_07DECB {
     COP [AnimOnce]
     COP [StageSpriteLoopMoveX] ( #30, #02, #12 )
     COP [AnimLoop]
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     COP [AnimOneFrame]
-    COP [SolidHighHere]
-    COP [SetOnInteract] ( &code_07DEF4 )
+    COP [MarkSolidHere]
+    COP [SetInteractHandler] ( &code_07DEF4 )
     COP [SetFlagByte] ( #02 )
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     RTL 
 }
 

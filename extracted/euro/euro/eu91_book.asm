@@ -14,8 +14,8 @@ eu91_book [
     LDA #$0200
     TSB $12
     COP [SetSpritePriority] ( #30 )
-    COP [SetOnInteract] ( &code_07E4CE )
-    COP [SetEntryContinue]
+    COP [SetInteractHandler] ( &code_07E4CE )
+    COP [SetEntryHere]
     RTL 
 } >
 ]

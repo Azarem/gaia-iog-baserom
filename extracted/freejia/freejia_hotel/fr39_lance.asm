@@ -17,9 +17,9 @@ fr39_lance [
   actor-def < #02, #00, #10, {
 
   code_05C781:
-    COP [SolidHighHere]
-    COP [SetOnInteract] ( &code_05C7E7 )
-    COP [ExitIfFlagByte] ( #0F, #01 )
+    COP [MarkSolidHere]
+    COP [SetInteractHandler] ( &code_05C7E7 )
+    COP [WaitOnFlagByte] ( #0F, #01 )
     LDA #$CFF0
     TSB $joypadMaskStd
     COP [WaitByte] ( #3B )
@@ -46,13 +46,13 @@ fr39_lance [
     COP [SetFlagByte] ( #68 )
     LDA #$CFF0
     TRB $joypadMaskStd
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     RTL 
 } >
 ]
 
 code_05C7E7 {
-    COP [BranchIfFlagByte] ( #68, #01, &code_05C7F5 )
+    COP [BranchOnFlagByte] ( #68, #01, &code_05C7F5 )
     COP [SetFlagByte] ( #02 )
     COP [PrintDialogString] ( &dialogstring_05C7FA )
     RTL 
@@ -79,8 +79,8 @@ code_05CD16 {
     ASL 
     ASL 
     STA $08
-    COP [SetEntryExit]
-    COP [BranchIfFlagByte] ( #0F, #01, &code_05CD16 )
+    COP [SetEntryHereAndYield]
+    COP [BranchOnFlagByte] ( #0F, #01, &code_05CD16 )
     COP [Die]
 }
 

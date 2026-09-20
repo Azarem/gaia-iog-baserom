@@ -11,7 +11,7 @@ sE7_space_bg_scroll [
   thinker-def < #04, #08, {
 
   code_0CEB5D:
-    COP [SetEntryExit]
+    COP [SetEntryHereAndYield]
     LDA $0720
     CLC 
     ADC #$FFF8

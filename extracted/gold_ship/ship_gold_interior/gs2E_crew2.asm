@@ -13,10 +13,10 @@ gs2E_crew2 [
   actor-def < #04, #00, #10, {
 
   code_0588E8:
-    COP [SolidHighHere]
-    COP [SetOnInteract] ( &code_05893B )
-    COP [SetEntryContinue]
-    COP [BranchIfNoItem] ( #38, &code_0588F6 )
+    COP [MarkSolidHere]
+    COP [SetInteractHandler] ( &code_05893B )
+    COP [SetEntryHere]
+    COP [BranchIfMissingItem] ( #38, &code_0588F6 )
     RTL 
 } >
 ]
@@ -42,7 +42,7 @@ code_0588F6 {
     LDA #$2310
     STA $0B10
     COP [QueueMapChange] ( #FD, #$0000, #$0000, #00, #$1100 )
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     RTL 
 }
 

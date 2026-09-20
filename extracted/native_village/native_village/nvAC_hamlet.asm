@@ -19,13 +19,13 @@ nvAC_hamlet [
   code_08865C:
     LDA #$0200
     TSB $12
-    COP [BranchIfFlagByte] ( #B3, #01, &code_0886BD )
-    COP [BranchIfFlagByte] ( #CF, #01, &code_0886BD )
-    COP [BranchIfFlagByte] ( #B2, #01, &code_08873E )
-    COP [BranchIfFlagByte] ( #AF, #01, &code_0886BF )
-    COP [BranchIfFlagByte] ( #AD, #01, &code_0886BD )
-    COP [BranchIfFlagByte] ( #AC, #01, &code_0886A5 )
-    COP [ExitIfFlagByte] ( #AC, #01 )
+    COP [BranchOnFlagByte] ( #B3, #01, &code_0886BD )
+    COP [BranchOnFlagByte] ( #CF, #01, &code_0886BD )
+    COP [BranchOnFlagByte] ( #B2, #01, &code_08873E )
+    COP [BranchOnFlagByte] ( #AF, #01, &code_0886BF )
+    COP [BranchOnFlagByte] ( #AD, #01, &code_0886BD )
+    COP [BranchOnFlagByte] ( #AC, #01, &code_0886A5 )
+    COP [WaitOnFlagByte] ( #AC, #01 )
     COP [StageSpriteMoveY] ( #17, #12 )
     COP [AnimOnce]
     COP [StageSpriteLoopMoveXY] ( #18, #10, #02, #14 )
@@ -41,9 +41,9 @@ code_0886A5 {
     COP [SetTilePos] ( #0B, #0F )
     COP [StageSpriteFrame] ( #13 )
     COP [AnimOnce]
-    COP [SolidHighHere]
-    COP [ExitIfFlagByte] ( #AD, #01 )
-    COP [ClearLowHere]
+    COP [MarkSolidHere]
+    COP [WaitOnFlagByte] ( #AD, #01 )
+    COP [ClearSolidHere]
     COP [StageSpriteLoopMoveY] ( #17, #07, #02 )
     COP [AnimLoop]
 }
@@ -59,7 +59,7 @@ code_0886BF {
     COP [SetTilePos] ( #0B, #12 )
     COP [StageSpriteFrame] ( #14 )
     COP [AnimOnce]
-    COP [ExitIfFlagByte] ( #01, #01 )
+    COP [WaitOnFlagByte] ( #01, #01 )
     COP [WaitByte] ( #3B )
     COP [StageSpriteLoopMoveX] ( #18, #0A, #12 )
     COP [AnimLoop]
@@ -68,7 +68,7 @@ code_0886BF {
     COP [StageSpriteFrame] ( #13 )
     COP [AnimOnce]
     COP [SetFlagByte] ( #02 )
-    COP [ExitIfFlagByte] ( #02, #00 )
+    COP [WaitOnFlagByte] ( #02, #00 )
     COP [WaitByte] ( #3B )
     COP [StageSpriteLoopMoveY] ( #16, #02, #01 )
     COP [AnimLoop]
@@ -82,7 +82,7 @@ code_0886BF {
     COP [AnimLoop]
     COP [StageSpriteFrame] ( #AD )
     COP [AnimOnce]
-    COP [ExitIfFlagByte] ( #03, #00 )
+    COP [WaitOnFlagByte] ( #03, #00 )
     LDA #$0800
     TRB $10
     COP [StartMusic] ( #11 )
@@ -90,8 +90,8 @@ code_0886BF {
     COP [PrintDialogString] ( &dialogstring_08885C )
     COP [WaitByte] ( #3B )
     COP [SpawnAfterFlags] ( @code_088755, #$1002 )
-    COP [SetOnInteract] ( &code_088750 )
-    COP [SetEntryContinue]
+    COP [SetInteractHandler] ( &code_088750 )
+    COP [SetEntryHere]
     RTL 
 }
 
@@ -99,9 +99,9 @@ code_08873E {
     COP [SetTilePos] ( #08, #13 )
     COP [StageSpriteFrame] ( #AD )
     COP [AnimOnce]
-    COP [SolidHighHere]
-    COP [SetOnInteract] ( &code_088750 )
-    COP [SetEntryContinue]
+    COP [MarkSolidHere]
+    COP [SetInteractHandler] ( &code_088750 )
+    COP [SetEntryHere]
     RTL 
 }
 
@@ -131,7 +131,7 @@ code_088755 {
     TSB $10
 
   loc_08878F:
-    COP [BranchIfFlagByte] ( #05, #01, &code_08879C )
+    COP [BranchOnFlagByte] ( #05, #01, &code_08879C )
     COP [StageSpriteFrame] ( #2A )
     COP [AnimOnce]
     BRA loc_08878F

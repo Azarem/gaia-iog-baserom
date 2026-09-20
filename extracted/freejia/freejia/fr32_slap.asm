@@ -13,8 +13,8 @@ fr32_slap [
 
   code_05B57F:
     COP [SetSpritePriority] ( #10 )
-    COP [AddPosition] ( #08, #04 )
-    COP [SetOnInteract] ( &code_05B58E )
+    COP [NudgePosition] ( #08, #04 )
+    COP [SetInteractHandler] ( &code_05B58E )
     COP [WaitWhileOffscreen] ( #08 )
     RTL 
 } >

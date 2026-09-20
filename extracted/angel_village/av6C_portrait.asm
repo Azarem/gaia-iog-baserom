@@ -28,9 +28,9 @@ av6C_portrait3 [
   actor-def < #17, #00, #10, {
 
   loc_06D144:
-    COP [AddPosition] ( #08, #FD )
+    COP [NudgePosition] ( #08, #FD )
     COP [SetSpritePriority] ( #10 )
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     RTL 
 } >
 ]

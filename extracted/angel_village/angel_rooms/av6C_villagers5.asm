@@ -14,7 +14,7 @@ av6C_villagers5 [
 
   code_06CD4A:
     JSL $@ActorDisplayModeSwap
-    COP [SetOnInteract] ( &code_06CD7A )
+    COP [SetInteractHandler] ( &code_06CD7A )
     LDA #$0200
     TSB $12
 

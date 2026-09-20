@@ -18,7 +18,7 @@ it19_breakable_wall [
   actor-def < #00, #00, #01, {
 
   code_04F3D0:
-    COP [BranchIfFlagWord] ( #$011A, #01, &code_04F3FE )
+    COP [BranchOnFlagWord] ( #$011A, #01, &code_04F3FE )
     COP [SpawnAfterFlags] ( @code_04F400, #$2000 )
     LDA #$&enemy_stats_table
     STA $statsPtr, X
@@ -29,7 +29,7 @@ it19_breakable_wall [
     COP [AnimOnce]
     LDA #$0030
     TSB $12
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     RTL 
 } >
 ]
@@ -45,7 +45,7 @@ code_04F400 {
     CMP #$00FF
     BNE loc_04F412
     PLX 
-    COP [SetEntryExitNow] ( @code_04F400 )
+    COP [JumpNextFrame] ( @code_04F400 )
 
   loc_04F412:
     PLX 
@@ -57,7 +57,7 @@ code_04F400 {
     LDA #$00FF
     STA $currentHp, X
     PLX 
-    COP [SetEntryExitNow] ( @code_04F400 )
+    COP [JumpNextFrame] ( @code_04F400 )
 
   loc_04F42B:
     COP [SpawnAfterAbsFlags] ( @SpawnDebrisBurst, #$0098, #$0060, #$2000 )

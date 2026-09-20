@@ -71,7 +71,7 @@ MusicPlaybackActor {
     TAY 
     LDA #$FFF0            ; Suppress D-pad input during music loading ($FFF0 = all D-pad + shoulder)
     TSB $joypadMaskStd
-    COP [SetEntryContinue] ; Yield — resume next frame to poll transfer state
+    COP [SetEntryHere]    ; Yield — resume next frame to poll transfer state
     LDA $musicTransitionState ; Check if music transfer has completed ($FFFF = done)
     CMP #$FFFF
     BEQ loc_02A07D        ; Transfer complete: proceed to render sync phase
@@ -86,7 +86,7 @@ MusicPlaybackActor {
     LDA $0012, Y
     ORA #$1000            ; Set bit 12 ($1000) on render sync actor flags
     STA $0012, Y
-    COP [SetEntryContinue] ; Yield — resume to poll SPC readiness
+    COP [SetEntryHere]    ; Yield — resume to poll SPC readiness
     SEP #$20
     LDA $APUIO1           ; Read SPC status from APUIO1 — $FF means sound engine is ready
     REP #$20
@@ -109,7 +109,7 @@ MusicPlaybackActor {
     ORA #$1000
     STA $0012, X
     PLX 
-    COP [SetEntryContinue] ; Yield — resume to poll second transfer completion
+    COP [SetEntryHere]    ; Yield — resume to poll second transfer completion
     LDA $musicTransitionState ; Poll musicTransitionState for second transfer completion
     CMP #$FFFF
     BEQ loc_02A0DA

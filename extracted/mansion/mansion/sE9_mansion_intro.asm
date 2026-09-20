@@ -17,7 +17,7 @@ sE9_mansion_intro [
   actor-def < #00, #00, #30, {
 
   code_08FC6D:
-    COP [BranchIfFlagByte] ( #29, #01, &code_08FC92 )
+    COP [BranchOnFlagByte] ( #29, #01, &code_08FC92 )
     SEP #$20
     LDA #$21
     STA $CGADSUB
@@ -33,7 +33,7 @@ sE9_mansion_intro [
 ]
 
 code_08FC92 {
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     COP [BranchIfPlayerInRelTiles] ( #32, #3E, #34, #3F, &code_08FCA6 )
     SEP #$20
     LDA #$21

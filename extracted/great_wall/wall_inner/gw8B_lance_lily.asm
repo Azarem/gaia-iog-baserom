@@ -21,9 +21,9 @@ gw8B_lance [
   actor-def < #05, #00, #10, {
 
   code_07B776:
-    COP [BranchIfFlagByte] ( #C8, #01, &code_07B7FA )
-    COP [SolidHighHere]
-    COP [SetEntryContinue]
+    COP [BranchOnFlagByte] ( #C8, #01, &code_07B7FA )
+    COP [MarkSolidHere]
+    COP [SetEntryHere]
     COP [BranchIfPlayerInAbsTiles] ( #07, #17, #09, #1B, &code_07B789 )
     RTL 
 } >
@@ -31,9 +31,9 @@ gw8B_lance [
 
 code_07B789 {
     COP [SpawnAfterFlags] ( @e_gw8B_lily, #$1000 )
-    COP [SetOnInteract] ( &code_07B7FC )
-    COP [ExitIfFlagByte] ( #02, #01 )
-    COP [SetEntryContinue]
+    COP [SetInteractHandler] ( &code_07B7FC )
+    COP [WaitOnFlagByte] ( #02, #01 )
+    COP [SetEntryHere]
     COP [BranchIfPlayerInAbsTiles] ( #12, #17, #14, #1B, &code_07B7A3 )
     RTL 
 }
@@ -52,7 +52,7 @@ code_07B7A3 {
     COP [WaitByte] ( #3B )
     COP [PrintDialogString] ( &dialogstring_07B9B1 )
     COP [SetFlagByte] ( #03 )
-    COP [ExitIfFlagByte] ( #04, #01 )
+    COP [WaitOnFlagByte] ( #04, #01 )
     COP [WaitByte] ( #3B )
     COP [PrintDialogString] ( &dialogstring_07BA2E )
     COP [SetFlagByte] ( #05 )
@@ -63,7 +63,7 @@ code_07B7A3 {
     LDA #$0404
     STA $gfxCacheIdxB
     COP [QueueMapChange] ( #79, #$0070, #$00B0, #80, #$1100 )
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     RTL 
 }
 
@@ -72,7 +72,7 @@ code_07B7FA {
 }
 
 code_07B7FC {
-    COP [BranchIfFlagByte] ( #02, #01, &code_07B81F )
+    COP [BranchOnFlagByte] ( #02, #01, &code_07B81F )
     COP [RemoveItem] ( #17 )
     COP [PrintDialogString] ( &dialogstring_07B8AD )
     COP [SetFlagByte] ( #02 )
@@ -125,13 +125,13 @@ e_gw8B_lily {
     COP [AnimLoop]
     COP [StageSpriteLoop] ( #24, #1E )
     COP [AnimLoop]
-    COP [SolidHighHere]
+    COP [MarkSolidHere]
     COP [PrintDialogString] ( &dialogstring_07B824 )
     COP [SetFlagByte] ( #01 )
-    COP [SetOnInteract] ( &code_07BB84 )
+    COP [SetInteractHandler] ( &code_07BB84 )
     LDA #$CFF0
     TRB $joypadMaskStd
-    COP [ExitIfFlagByte] ( #03, #01 )
+    COP [WaitOnFlagByte] ( #03, #01 )
     COP [WaitByte] ( #3B )
     COP [StageSpriteMoveX] ( #28, #11 )
     COP [AnimOnce]
@@ -163,10 +163,10 @@ e_gw8B_lily {
     COP [WaitByte] ( #EF )
     COP [PrintDialogString] ( &dialogstring_07BCAA )
     COP [SetFlagByte] ( #04 )
-    COP [ExitIfFlagByte] ( #05, #01 )
+    COP [WaitOnFlagByte] ( #05, #01 )
     COP [StageSpriteLoopMoveX] ( #29, #0A, #01 )
     COP [AnimLoop]
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     RTL 
 }
 

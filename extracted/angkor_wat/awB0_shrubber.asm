@@ -13,16 +13,16 @@ awB0_shrubber [
   code_0BB1B7:
     LDA #$0018
     TSB $12
-    COP [OrActorFlags] ( #$0008 )
+    COP [OrExtraFlags] ( #$0008 )
     COP [SetHitCallback] ( &code_0BB1C9 )
-    COP [SolidHighHere]
-    COP [SetEntryContinue]
+    COP [MarkSolidHere]
+    COP [SetEntryHere]
     RTL 
 } >
 ]
 
 code_0BB1C9 {
-    COP [ClearLowHere]
+    COP [ClearSolidHere]
     LDA #$0100
     TRB $10
     LDA #$0110

@@ -10,9 +10,9 @@ sc01_sprint_man [
   actor-def < #02, #00, #10, {
 
   code_04922F:
-    COP [SetOnInteract] ( &code_049238 )
-    COP [SolidHighHere]
-    COP [SetEntryContinue]
+    COP [SetInteractHandler] ( &code_049238 )
+    COP [MarkSolidHere]
+    COP [SetEntryHere]
     RTL 
 } >
 ]

@@ -14,8 +14,8 @@
 
 collect_handler_gem {
     COP [SetSavedPtr] ( &collect_handler_gem )
-    COP [SetEntryExit]
-    COP [BranchIfButton] ( #$0031, &CollectGemOnButton )
+    COP [SetEntryHereAndYield]
+    COP [BranchIfPressed] ( #$0031, &CollectGemOnButton )
 
   CollectGemIdleRtl:
     RTL 
@@ -46,7 +46,7 @@ CollectGemAlignWest {
     JSL $@GetPlayerFacingDirection
     CMP #$0000
     BNE CollectGemRestoreWest
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     LDY $04
     LDA $0016, Y
     SEC 
@@ -69,7 +69,7 @@ CollectGemAlignWest {
     JSL $@GetPlayerFacingDirection
     CMP #$0001
     BNE CollectGemRestoreEast
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     LDY $04
     LDA $0016, Y
     CLC 
@@ -107,7 +107,7 @@ CollectGemAlignNorth {
     JSL $@GetPlayerFacingDirection
     CMP #$0003
     BNE CollectGemRestoreNorth
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     LDY $04
     LDA $0014, Y
     SEC 
@@ -130,7 +130,7 @@ CollectGemAlignNorth {
     JSL $@GetPlayerFacingDirection
     CMP #$0002
     BNE CollectGemRestoreSouth
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     LDY $04
     LDA $0014, Y
     CLC 
@@ -149,8 +149,8 @@ CollectGemAlignNorth {
 
   push_handler_solid:
     COP [SetSavedPtr] ( &push_handler_solid ) ; push_handler_solid: BranchIfButton A, BranchIfPlayerNear radius $0F
-    COP [SetEntryExit]
-    COP [BranchIfButton] ( #$0031, &PushSolidOnButton )
+    COP [SetEntryHereAndYield]
+    COP [BranchIfPressed] ( #$0031, &PushSolidOnButton )
 
   PushSolidIdleRtl:
     RTL 
@@ -195,20 +195,20 @@ PushSolidMoveWest {
     CMP #$0000
     BNE PushSolidRestoreWest
     COP [BranchIfSolidOffset] ( #00, #FF, &PushSolidRestoreWest )
-    COP [ClearLowHere]
+    COP [ClearSolidHere]
     LDA $16
     SEC 
     SBC #$0010
     STA $16
-    COP [SolidHighHere]
+    COP [MarkSolidHere]
     COP [PlaySoundCh1] ( #2C )
     JSR $&PushSolidSetPushingFlag
-    COP [LoopInit] ( #10 )
+    COP [LoopStart] ( #10 )
     LDY $04
     LDA $0016, Y
     DEC 
     STA $0016, Y
-    COP [LoopNext]
+    COP [LoopEnd]
     JSR $&PushSolidClearPushingFlag
 }
 
@@ -222,20 +222,20 @@ PushSolidRestoreWest {
     CMP #$0001
     BNE PushSolidRestoreEast
     COP [BranchIfSolidOffset] ( #00, #01, &PushSolidRestoreEast )
-    COP [ClearLowHere]
+    COP [ClearSolidHere]
     LDA $16
     CLC 
     ADC #$0010
     STA $16
-    COP [SolidHighHere]
+    COP [MarkSolidHere]
     COP [PlaySoundCh1] ( #2C )
     JSR $&PushSolidSetPushingFlag
-    COP [LoopInit] ( #10 )
+    COP [LoopStart] ( #10 )
     LDY $04
     LDA $0016, Y
     INC 
     STA $0016, Y
-    COP [LoopNext]
+    COP [LoopEnd]
     JSR $&PushSolidClearPushingFlag
 }
 
@@ -264,20 +264,20 @@ PushSolidMoveNorth {
     CMP #$0003
     BNE PushSolidRestoreNorth
     COP [BranchIfSolidOffset] ( #FF, #00, &PushSolidRestoreNorth )
-    COP [ClearLowHere]
+    COP [ClearSolidHere]
     LDA $14
     SEC 
     SBC #$0010
     STA $14
-    COP [SolidHighHere]
+    COP [MarkSolidHere]
     COP [PlaySoundCh1] ( #2C )
     JSR $&PushSolidSetPushingFlag
-    COP [LoopInit] ( #10 )
+    COP [LoopStart] ( #10 )
     LDY $04
     LDA $0014, Y
     DEC 
     STA $0014, Y
-    COP [LoopNext]
+    COP [LoopEnd]
     JSR $&PushSolidClearPushingFlag
 }
 
@@ -291,20 +291,20 @@ PushSolidRestoreNorth {
     CMP #$0002
     BNE PushSolidRestoreSouth
     COP [BranchIfSolidOffset] ( #01, #00, &PushSolidRestoreSouth )
-    COP [ClearLowHere]
+    COP [ClearSolidHere]
     LDA $14
     CLC 
     ADC #$0010
     STA $14
-    COP [SolidHighHere]
+    COP [MarkSolidHere]
     COP [PlaySoundCh1] ( #2C )
     JSR $&PushSolidSetPushingFlag
-    COP [LoopInit] ( #10 )
+    COP [LoopStart] ( #10 )
     LDY $04
     LDA $0014, Y
     INC 
     STA $0014, Y
-    COP [LoopNext]
+    COP [LoopEnd]
     JSR $&PushSolidClearPushingFlag
 }
 
@@ -335,8 +335,8 @@ PushSolidClearPushingFlag {
 
 push_handler_forceball {
     COP [SetSavedPtr] ( &push_handler_forceball ) ; push_handler_forceball: requires player anim $3A–$3D matching direction
-    COP [SetEntryExit]
-    COP [BranchIfButton] ( #$0031, &PushForceballOnButton )
+    COP [SetEntryHereAndYield]
+    COP [BranchIfPressed] ( #$0031, &PushForceballOnButton )
     LDY $04
     LDA $0014, Y
     STA $14
@@ -376,14 +376,14 @@ PushForceballMoveWest {
     CMP #$0000
     BNE PushForceballRestoreWest
     COP [BranchIfSolidOffset] ( #00, #FF, &PushForceballRestoreWest )
-    COP [AddPosition] ( #00, #F0 )
+    COP [NudgePosition] ( #00, #F0 )
     COP [PlaySoundCh1] ( #2C )
-    COP [LoopInit] ( #10 )
+    COP [LoopStart] ( #10 )
     LDY $04
     LDA $0016, Y
     DEC 
     STA $0016, Y
-    COP [LoopNext]
+    COP [LoopEnd]
 }
 
 PushForceballRestoreWest {
@@ -399,14 +399,14 @@ PushForceballRestoreWest {
     CMP #$0001
     BNE PushForceballRestoreEast
     COP [BranchIfSolidOffset] ( #00, #01, &PushForceballRestoreEast )
-    COP [AddPosition] ( #00, #10 )
+    COP [NudgePosition] ( #00, #10 )
     COP [PlaySoundCh1] ( #2C )
-    COP [LoopInit] ( #10 )
+    COP [LoopStart] ( #10 )
     LDY $04
     LDA $0016, Y
     INC 
     STA $0016, Y
-    COP [LoopNext]
+    COP [LoopEnd]
 }
 
 PushForceballRestoreEast {
@@ -437,14 +437,14 @@ PushForceballMoveNorth {
     CMP #$0003
     BNE PushForceballRestoreNorth
     COP [BranchIfSolidOffset] ( #FF, #00, &PushForceballRestoreNorth )
-    COP [AddPosition] ( #F0, #00 )
+    COP [NudgePosition] ( #F0, #00 )
     COP [PlaySoundCh1] ( #2C )
-    COP [LoopInit] ( #10 )
+    COP [LoopStart] ( #10 )
     LDY $04
     LDA $0014, Y
     DEC 
     STA $0014, Y
-    COP [LoopNext]
+    COP [LoopEnd]
 }
 
 PushForceballRestoreNorth {
@@ -460,14 +460,14 @@ PushForceballRestoreNorth {
     CMP #$0002
     BNE PushForceballRestoreSouth
     COP [BranchIfSolidOffset] ( #01, #00, &PushForceballRestoreSouth )
-    COP [AddPosition] ( #10, #00 )
+    COP [NudgePosition] ( #10, #00 )
     COP [PlaySoundCh1] ( #2C )
-    COP [LoopInit] ( #10 )
+    COP [LoopStart] ( #10 )
     LDY $04
     LDA $0014, Y
     INC 
     STA $0014, Y
-    COP [LoopNext]
+    COP [LoopEnd]
 }
 
 PushForceballRestoreSouth {

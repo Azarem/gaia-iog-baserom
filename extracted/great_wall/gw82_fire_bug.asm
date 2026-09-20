@@ -17,7 +17,7 @@ gw82_fire_bug [
   actor-def < #18, #00, #00, {
 
   code_0B8C73:
-    COP [OrActorFlags] ( #$0020 )
+    COP [OrExtraFlags] ( #$0020 )
     COP [SetDeathCallback] ( @code_0B8DB9 )
     LDA $14
     STA $7F100C, X
@@ -25,7 +25,7 @@ gw82_fire_bug [
     STA $26
 
   loc_0B8C86:
-    COP [BranchIfOffscreen] ( &code_0B8C94 )
+    COP [BranchIfOffCamera] ( &code_0B8C94 )
     COP [WaitWhileOffscreen] ( #05 )
 
   code_0B8C8D:
@@ -100,9 +100,9 @@ code_0B8CF4 {
     STZ $08
     INC 
     STA $24
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     COP [TickGravity]
-    COP [StageForceMoveX] ( #02 )
+    COP [StageMoveX] ( #02 )
     LDA $16
     CMP $26
     BCC loc_0B8D28
@@ -148,7 +148,7 @@ code_0B8D65 {
 }
 
 code_0B8D73 {
-    COP [LoopInit] ( #04 )
+    COP [LoopStart] ( #04 )
     COP [StageSpriteMoveY] ( #04, #01 )
     COP [AnimOnce]
     COP [BranchIfSolidSouth] ( &code_0B8D82 )
@@ -156,7 +156,7 @@ code_0B8D73 {
 }
 
 code_0B8D82 {
-    COP [LoopNext]
+    COP [LoopEnd]
     COP [Die]
 
   loc_0B8D86:
@@ -190,5 +190,5 @@ code_0B8D99 {
 }
 
 code_0B8DB9 {
-    COP [JumpScript] ( @EnemyDefeatDispatch )
+    COP [JumpFar] ( @EnemyDefeatDispatch )
 }

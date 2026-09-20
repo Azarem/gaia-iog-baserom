@@ -23,8 +23,8 @@ ec0E_lily [
   code_09A918:
     LDA #$0008
     TSB $12
-    COP [BranchIfFlagByte] ( #DE, #01, &code_09A99F )
-    COP [SetEntryContinue]
+    COP [BranchOnFlagByte] ( #DE, #01, &code_09A99F )
+    COP [SetEntryHere]
     COP [BranchIfPlayerNear] ( #01, &code_09A92B )
     RTL 
 } >
@@ -32,7 +32,7 @@ ec0E_lily [
 
 code_09A92B {
     COP [SetFlagByte] ( #DE )
-    COP [SpawnMarkedAfter] ( @code_09A9A1, #$0102 )
+    COP [SpawnAfterMarked] ( @code_09A9A1, #$0102 )
     LDA #$04B0
     STA $24
 
@@ -99,7 +99,7 @@ code_09A977 {
   loc_09A97D:
     DEC $24
     BEQ loc_09A986
-    COP [SetEntryExitNow] ( @code_09A93A )
+    COP [JumpNextFrame] ( @code_09A93A )
 
   loc_09A986:
     COP [PrintDialogString] ( &dialogstring_09AA1B )
@@ -147,7 +147,7 @@ code_09A9A1 {
     LDA $orbitAngle, X
     INC 
     STA $orbitAngle, X
-    COP [SetEntryExit]
+    COP [SetEntryHereAndYield]
     DEC $26
     BPL loc_09A9DE
     BRA loc_09A9D2

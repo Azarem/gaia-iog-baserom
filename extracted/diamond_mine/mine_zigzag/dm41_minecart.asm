@@ -39,7 +39,7 @@ dm41_actor_0AA4F5 [
   actor-def < #34, #02, #10, {
 
   code_0AA4F8:
-    COP [AddPosition] ( #05, #00 )
+    COP [NudgePosition] ( #05, #00 )
     LDA #$0000
     STA $moveXAlt, X
     LDA #$0001
@@ -62,7 +62,7 @@ dm41_actor_0AA50C [
     STA $orbitAngle, X
     LDA $16
     STA $orbitDiameter, X
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     LDA $orbitAngle, X
     CLC 
     ADC $moveXAlt, X

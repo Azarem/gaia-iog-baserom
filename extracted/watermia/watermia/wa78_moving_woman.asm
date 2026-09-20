@@ -17,15 +17,15 @@ wa78_moving_woman [
 
   code_0783F0:
     JSL $@ActorDisplayModeSwap
-    COP [SetOnInteract] ( &code_07840F )
+    COP [SetInteractHandler] ( &code_07840F )
     LDA #$000A
     STA $currentHp, X
     JSL $@npc_wander_ai.SyncActorPosFromDP
 
   loc_078403:
     JSL $@npc_wander_ai.NpcRandomWanderAI
-    COP [SetEntryExit]
-    COP [SetEntryContinue]
+    COP [SetEntryHereAndYield]
+    COP [SetEntryHere]
     COP [AnimOnce]
     BRA loc_078403
 } >
@@ -42,7 +42,7 @@ code_list_07841A [
 ]
 
 code_07841C {
-    COP [BranchIfFlagByte] ( #96, #01, &code_078427 )
+    COP [BranchOnFlagByte] ( #96, #01, &code_078427 )
     COP [PrintDialogString] ( &dialogstring_07842C )
     RTL 
 }
