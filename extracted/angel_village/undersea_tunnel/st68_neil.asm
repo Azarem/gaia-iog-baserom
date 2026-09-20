@@ -1,3 +1,10 @@
+; Neil in the undersea tunnel — narrates the long journey.
+; 
+; Extended NPC (~83 lines). "Five days have passed since we
+; entered the tunnel. The same scenery..." Tracks the passage
+; of time during the tunnel journey. Multi-day dialog changes.
+---------------------------------------------
+
 !joypadMaskStd                  065A
 
 ---------------------------------------------

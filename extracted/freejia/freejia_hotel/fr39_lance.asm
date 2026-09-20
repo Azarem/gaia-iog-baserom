@@ -1,3 +1,11 @@
+; Lance at the Freejia hotel — amnesia subplot after Incan ship escape.
+; 
+; Complex NPC (~117 lines). Says: "They say I don't know who I am.
+; Kind of strange..." Later: "What is this place?" — Lance has
+; amnesia from hitting his head. Kara comments: "Somehow I feel
+; a little..." Dialog tracks the Memory Melody quest to cure him.
+---------------------------------------------
+
 ?INCLUDE 'actor_pool'
 ?INCLUDE 'spriteset_enemies'
 

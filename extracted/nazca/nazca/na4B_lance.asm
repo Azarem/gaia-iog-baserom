@@ -1,3 +1,12 @@
+; Lance at Nazca — reflects on life's purpose.
+; 
+; NPC: "Up until now all I've done is go to school, study, and
+; play. Sometimes I wonder if my life has meaning." Lance's
+; philosophical moment. Later: "We're working on a puzzle that
+; explorers and archeologists have never solved..." Character
+; growth through the adventure.
+---------------------------------------------
+
 ---------------------------------------------
 
 na4B_lance [

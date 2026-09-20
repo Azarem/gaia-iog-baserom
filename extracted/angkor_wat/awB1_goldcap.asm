@@ -1,3 +1,11 @@
+; Goldcap enemy — mushroom creature in Angkor Wat (~200 lines).
+; 
+; Mushroom-type enemy with a defensive golden cap that
+; blocks attacks from above. Must be hit from the sides.
+; Releases spore projectiles when damaged. Uses directional
+; defense checks in hit callbacks.
+---------------------------------------------
+
 ?BANK 0B
 
 ?INCLUDE 'ApplyOrbitalOffsetXY'

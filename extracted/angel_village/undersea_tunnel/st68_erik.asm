@@ -1,3 +1,10 @@
+; Erik in the undersea tunnel — embarrassed reaction.
+; 
+; NPC. Says: "Hey, don't look!" Part of the party interactions
+; during the long tunnel journey. Erik's reaction to being
+; observed doing something embarrassing.
+---------------------------------------------
+
 !gfxCacheIdxB                   064A
 
 ---------------------------------------------

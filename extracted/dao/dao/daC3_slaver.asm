@@ -1,3 +1,10 @@
+; Slave trader guard in Dao — hostile to spectators.
+; 
+; NPC: "Hey, hey. This isn't a show!! Get out of here!"
+; Guards the slave area and prevents the player from
+; interfering with the labor trade.
+---------------------------------------------
+
 ---------------------------------------------
 
 daC3_slaver [

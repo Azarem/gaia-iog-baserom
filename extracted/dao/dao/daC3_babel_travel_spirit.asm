@@ -1,3 +1,10 @@
+; Tower of Babel travel spirit in Dao — teleport service.
+; 
+; Interactive NPC with choice: "Go to Tower of Babel? Quit/Return"
+; Provides fast travel between Dao and the Tower of Babel.
+; Standard travel spirit pattern with confirmation dialog.
+---------------------------------------------
+
 ?INCLUDE 'spriteset_npc_props'
 
 !gfxCacheIdxA                   0648

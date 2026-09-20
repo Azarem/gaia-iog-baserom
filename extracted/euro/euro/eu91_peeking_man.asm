@@ -1,3 +1,10 @@
+; Peeking man in Euro — hides between buildings.
+; 
+; Animated NPC that peeks out from behind a building.
+; No direct dialog. Suspicious character adding to Euro's
+; atmosphere of hidden activity.
+---------------------------------------------
+
 ---------------------------------------------
 
 eu91_peeking_man [

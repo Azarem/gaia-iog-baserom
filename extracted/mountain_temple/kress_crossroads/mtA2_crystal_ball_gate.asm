@@ -1,3 +1,10 @@
+; Crystal ball gate in the Kress crossroads.
+; 
+; Central gate at the crossroads area. Opens when the
+; crystal ball puzzle is solved, connecting the temple
+; sections.
+---------------------------------------------
+
 !joypadMaskStd                  065A
 
 ---------------------------------------------

@@ -1,3 +1,19 @@
+; Flayzer enemy — fireball-launching bat that patrols and dive-bombs.
+; 
+; Two main actor defs: dm3D_flayzer (with H-flip) and dm3D_flayzer2
+; (without). Both share the same AI loop: wait offscreen, do 2 idle
+; flutter cycles, then check player proximity. If hit or player is
+; within 4 tiles, enters attack state. A third variant (dm3D_flayzer3)
+; patrols in a fixed S/N/W/E cycle with flutter pauses.
+; 
+; Attack mode: determines nearest axis, picks a direction toward the
+; player, moves to a position offset ~$50-$60 pixels past the player,
+; then fires a spread of 6 child projectile actors (fireball + trail)
+; with SFX #23. Projectiles track back toward the original actor
+; position using ActorMidpointCalc. After firing, waits $4F frames
+; then kills all child projectiles and returns to patrol.
+---------------------------------------------
+
 ?INCLUDE 'ActorMidpointCalc'
 
 !playerXPos                     09A2

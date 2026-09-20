@@ -1,3 +1,10 @@
+; Freedom movement NPC in Dao — mentions Rolek's role.
+; 
+; Says: "A freedom movement has started recently. The president
+; of Rolek started the labor trade from this town."
+; Connects the Rolek Company to the slavery subplot.
+---------------------------------------------
+
 ---------------------------------------------
 
 daC3_freedom_man [

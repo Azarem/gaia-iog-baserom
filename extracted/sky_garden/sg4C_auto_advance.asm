@@ -1,3 +1,10 @@
+; Auto-advance trigger for Sky Garden level transitions.
+; 
+; Invisible actor that checks position/flag conditions and
+; automatically advances the player to the next garden section
+; without interaction. Used for seamless area transitions.
+---------------------------------------------
+
 !joypadRaw                      0660
 !joypadInject                   09AC
 

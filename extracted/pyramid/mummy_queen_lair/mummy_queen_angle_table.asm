@@ -1,3 +1,10 @@
+; Angle lookup data table for the Mummy Queen's orbital attacks.
+; 
+; Small data table (10 lines) containing pre-computed angles
+; used by the queen's orb projectiles for their circular
+; movement patterns.
+---------------------------------------------
+
 ?BANK 0B
 
 ---------------------------------------------

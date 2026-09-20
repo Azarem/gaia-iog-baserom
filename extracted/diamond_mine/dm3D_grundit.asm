@@ -1,3 +1,13 @@
+; Grundit enemy — burrowing ground creature that spawns tracking mines.
+; 
+; Waits offscreen, wakes when player is within 4 tiles. Plays digging
+; SFX (#2C), animates emerging from ground, then spawns 4 directional
+; mine projectiles and a marker child. Also spawns a dm_follower_behavior
+; child that chases the player using the smooth_follow system. After
+; spawning, displays above-ground sprite and waits $77 frames before
+; returning to sleep. Mine projectiles move in diagonal pairs.
+---------------------------------------------
+
 ?INCLUDE 'dm_follower_behavior'
 
 !orbitAngle                     7F0010

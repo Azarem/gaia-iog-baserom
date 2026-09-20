@@ -1,3 +1,15 @@
+; Trapped laborer in the collapsed tunnel — breaks free when attacked.
+; 
+; Displays as a solid enemy sprite (spriteset_enemies frame #00) with
+; $FF HP and stat entry 118. Cannot actually be killed — HP resets
+; each frame. When the player is in tiles 8-14 range, sets a proximity
+; flag. When finally freed (player uses Freedan's Dark Friar, checked
+; via playerFlags bit $0002), spawns debris burst and opens passage.
+; After rescue, flag $D9 is set and the actor redraws 6 background
+; metatiles to show the cleared rubble, then gives 3 Red Jewels
+; (BCD add to jewelsCollected) with thank-you dialog.
+---------------------------------------------
+
 ?INCLUDE 'enemy_stats_table'
 ?INCLUDE 'SpawnDebrisBurst'
 ?INCLUDE 'spriteset_enemies'

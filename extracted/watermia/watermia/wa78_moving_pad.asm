@@ -1,3 +1,11 @@
+; Moving lily pad platform in Watermia — rideable water transport.
+; 
+; Complex movement actor (~336 lines). A large lily pad that
+; the player can stand on and ride across the water canals.
+; Handles player attachment, path following, and automatic
+; return cycles. Core navigation mechanic for Watermia.
+---------------------------------------------
+
 !playerActor                    09AA
 !metaspritePtr                  7F000C
 

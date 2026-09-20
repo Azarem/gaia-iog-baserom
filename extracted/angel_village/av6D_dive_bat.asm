@@ -1,3 +1,10 @@
+; Dive Bat enemy in the Angel Village tunnels.
+; 
+; Flying enemy that hangs from the ceiling, then swoops down
+; toward the player when in range. Quick strike-and-return
+; pattern. Common tunnel enemy alongside Steelbones.
+---------------------------------------------
+
 ?INCLUDE 'EnemyDefeatDispatch'
 
 !playerXPos                     09A2

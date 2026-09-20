@@ -1,3 +1,12 @@
+; Neil in the Euro guest room — wants to talk to his parents.
+; 
+; Extended NPC (~123 lines). "Well, make yourself at home.
+; I want to talk to my parents. It's been three years."
+; Major character moment — Neil's reunion with his family.
+; "The next morning. Disappointment awaits..." — leads
+; to the discovery about Neil's parents.
+---------------------------------------------
+
 !joypadMaskStd                  065A
 
 ---------------------------------------------

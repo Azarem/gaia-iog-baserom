@@ -1,3 +1,11 @@
+; Light elevator mechanism in the Tower of Babel (~90 lines).
+; 
+; Automated elevator that carries the player upward using
+; a beam of light. Handles player attachment, vertical
+; movement, and the visual light shaft effect. Unique
+; transport mechanic for the tower.
+---------------------------------------------
+
 ?INCLUDE 'py_death_particle'
 
 !joypadMaskStd                  065A

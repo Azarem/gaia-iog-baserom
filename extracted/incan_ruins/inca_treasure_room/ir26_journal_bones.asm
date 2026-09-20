@@ -1,3 +1,11 @@
+; Explorer skeleton with journal — hints at Melody of the Wind puzzle.
+; 
+; Solid interactable prop. When examined, shows a journal about
+; deciphering the Incan Melody of the Wind and the clue:
+; "Chant in the Golden Room. Does that mean to play the Melody
+; of the Wind...?" This hints at the Wind Melody puzzle solution.
+---------------------------------------------
+
 ---------------------------------------------
 
 ir26_journal_bones [

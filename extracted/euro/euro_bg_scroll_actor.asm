@@ -1,3 +1,9 @@
+; Background scroll controller for Euro town.
+; 
+; Technical actor that manages parallax background scrolling
+; in the Euro town map. Provides the visual depth effect.
+---------------------------------------------
+
 ---------------------------------------------
 
 euro_bg_scroll_actor [

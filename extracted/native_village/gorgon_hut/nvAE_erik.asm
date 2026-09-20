@@ -1,3 +1,10 @@
+; Erik in the Gorgon Hut — comments on the labor traders.
+; 
+; NPC: "The traders knew there was no food here, and led the
+; children away. A terrible story." Erik's reaction to the
+; Native Village's exploitation by slavers.
+---------------------------------------------
+
 ---------------------------------------------
 
 nvAE_erik [

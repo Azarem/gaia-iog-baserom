@@ -1,3 +1,10 @@
+; Woman near the hotel — hints about the kidnapped worker.
+; 
+; NPC who says: "A man working at the hotel was caught by
+; a labor trader." Hints at the slave trade infiltrating
+; everyday life in Freejia.
+---------------------------------------------
+
 ---------------------------------------------
 
 fr32_hotel_hint [

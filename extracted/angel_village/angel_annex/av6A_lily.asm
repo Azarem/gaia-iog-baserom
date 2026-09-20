@@ -1,3 +1,10 @@
+; Lilly in the Angel Village annex — questions the dark environment.
+; 
+; NPC. Lilly: "Why do angels live in such a dark place? Feels
+; so gloomy." Provides atmosphere commentary about the
+; underground village.
+---------------------------------------------
+
 ---------------------------------------------
 
 av6A_lily [

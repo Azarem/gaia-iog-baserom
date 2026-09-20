@@ -1,3 +1,10 @@
+; Gold Ship deck crew member 5 — variant NPC with conditional placement.
+; 
+; Checks flags $4E and $F8 for placement — if both set, shifts
+; position +$20 X. Reuses gs2C_crew4 dialog setup. Says: "Look,
+; look! The King has returned! And he's much shorter!"
+---------------------------------------------
+
 ?INCLUDE 'gs2C_crew4'
 
 ---------------------------------------------

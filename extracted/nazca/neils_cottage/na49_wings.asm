@@ -1,3 +1,11 @@
+; Airplane wings in Neil's cottage — the flying machine.
+; 
+; Interactive object. Neil: "Those are airplane wings. It's part
+; of a machine that will fulfill man's dream of flying."
+; Foreshadows Neil's airplane used in the Sky Garden descent
+; and the Tower of Babel approach.
+---------------------------------------------
+
 ?INCLUDE 'spriteset_enemies'
 
 ---------------------------------------------

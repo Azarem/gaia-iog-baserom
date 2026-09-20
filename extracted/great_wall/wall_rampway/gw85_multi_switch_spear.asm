@@ -1,3 +1,10 @@
+; Multi-switch spear on the Great Wall rampway.
+; 
+; Wall spear that responds to multiple switch states.
+; Coordinated with other switches in the rampway for
+; complex timing puzzles.
+---------------------------------------------
+
 ---------------------------------------------
 
 gw85_multi_switch_spear [

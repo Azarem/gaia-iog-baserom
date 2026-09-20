@@ -1,3 +1,12 @@
+; Cyclops enemy — one-eyed giant in Mu (~619 lines).
+; 
+; Large enemy with charge attacks. Patrols slowly, then
+; accelerates toward the player when in range. Has a
+; vulnerability window after charge attacks. Uses directional
+; sprite animation for 4-way movement with attack wind-up
+; sequences.
+---------------------------------------------
+
 !moveXAlt                       7F0018
 !moveYAlt                       7F001A
 !free101C                       7F101C

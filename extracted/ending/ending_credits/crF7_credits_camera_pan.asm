@@ -1,3 +1,11 @@
+; Credits camera pan controller (~195 lines).
+; 
+; Manages the smooth camera scrolling during the end credits
+; town walkthrough. Pans across the revisited locations as
+; character farewells play. Coordinates movement speed and
+; timing with the credits text display.
+---------------------------------------------
+
 !cameraDeltaX                   06C0
 
 ---------------------------------------------

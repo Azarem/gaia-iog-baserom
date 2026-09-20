@@ -1,3 +1,9 @@
+; Right-side flame decoration in the Angel Village tunnels.
+; 
+; Static torch sprite on the right wall. Paired with
+; flame_left for symmetrical corridor lighting.
+---------------------------------------------
+
 ---------------------------------------------
 
 av6D_flame_right [

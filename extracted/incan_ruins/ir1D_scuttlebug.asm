@@ -1,3 +1,11 @@
+; Scuttlebug enemy — fast insect with erratic multi-direction movement.
+; 
+; Waits offscreen. When player is within 4 tiles, activates and
+; enters an aggressive chase loop. Uses DirToPlayer for 4-way
+; movement with random directional variation. Alternates between
+; pursuing and random patrol. Faster movement speed than Slugger.
+---------------------------------------------
+
 ---------------------------------------------
 
 ir1D_scuttlebug [

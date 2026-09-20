@@ -1,3 +1,10 @@
+; Red Eye event — Neil comments on the close call and heads to Mu.
+; 
+; Multi-dialog NPC. Neil: "That was a close one!" Kara cries.
+; Then Neil suggests: "Well, to the ocean! Mu lies somewhere
+; in this ocean." Transitions the story toward the Mu chapter.
+---------------------------------------------
+
 ?INCLUDE 'cop_handlers_flags'
 
 !gfxCacheIdxB                   064A

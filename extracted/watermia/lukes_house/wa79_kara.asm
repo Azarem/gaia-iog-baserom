@@ -1,3 +1,10 @@
+; Kara at Luke's house — shares a terrible rumor about Watermia.
+; 
+; Extended NPC (~145 lines). "Watermia is very pretty, but
+; I've heard a terrible rumor..." Multi-phase dialog revealing
+; dark secrets about the town. Extensive character dialog.
+---------------------------------------------
+
 !joypadMaskStd                  065A
 !jewelsCollected                0AB0
 

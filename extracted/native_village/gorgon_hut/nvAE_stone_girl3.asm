@@ -1,3 +1,9 @@
+; Stone girl statue 3 in the Gorgon Hut — can be restored.
+; 
+; Same dual-state as stone_girl2. Silent statue that becomes
+; a crying human girl when the Gorgon's curse is broken.
+---------------------------------------------
+
 ---------------------------------------------
 
 nvAE_stone_girl3 [

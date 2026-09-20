@@ -1,3 +1,10 @@
+; Shop clerk 2 in the Euro flea market — recognizes Neil.
+; 
+; NPC: "Aren't you Neil, from this village?! Rolek manages
+; this store." Connects Neil to his family's Rolek Company
+; and his hometown of Euro.
+---------------------------------------------
+
 ?INCLUDE 'EscortFollowPathTracker'
 
 !joypadMaskStd                  065A

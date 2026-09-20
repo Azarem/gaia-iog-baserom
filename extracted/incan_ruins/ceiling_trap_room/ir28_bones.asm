@@ -1,3 +1,9 @@
+; Explorer skeleton in the ceiling trap room — flavor text object.
+; 
+; Solid interactable prop. When examined, displays: "An explorer who
+; sought the Incan Gold Ship...? He lost his life in a trap..."
+---------------------------------------------
+
 ---------------------------------------------
 
 ir28_bones [

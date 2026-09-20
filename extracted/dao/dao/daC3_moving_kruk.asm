@@ -1,3 +1,9 @@
+; Walking kruk bird in Dao — animated roaming animal.
+; 
+; NPC with walking animation: "Kiaaa... kiaaa..." A kruk
+; that patrols through the town streets.
+---------------------------------------------
+
 ---------------------------------------------
 
 daC3_moving_kruk [

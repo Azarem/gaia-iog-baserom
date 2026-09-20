@@ -1,3 +1,10 @@
+; Neil at the Rolek mansion — philosophical reflection.
+; 
+; NPC: "To live for yourself or for others, that's the
+; question..." Later: "I finally realize how important my
+; parents are to me." Neil's character arc about family values.
+---------------------------------------------
+
 !gfxCacheIdxB                   064A
 
 ---------------------------------------------

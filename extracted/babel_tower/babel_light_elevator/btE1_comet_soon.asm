@@ -1,3 +1,11 @@
+; Comet arrival warning in the light elevator area.
+; 
+; Extended NPC (~133 lines): "The comet will soon be entering
+; Earth's orbit. We must go to the top of the Tower of Babel..."
+; Urgent story exposition driving the player toward the
+; final confrontation.
+---------------------------------------------
+
 ?INCLUDE 'player_character'
 
 !joypadMaskStd                  065A

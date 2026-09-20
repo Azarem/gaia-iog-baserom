@@ -1,3 +1,10 @@
+; Snake Panic training man — mini-game referral.
+; 
+; NPC: "Have you ever played Snake Panic? I'm still in
+; training for it." Points to the Snake Panic mini-game
+; and hints at its difficulty.
+---------------------------------------------
+
 ---------------------------------------------
 
 daC3_training_man [

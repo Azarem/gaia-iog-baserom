@@ -1,3 +1,10 @@
+; Blocking enemy B on the garden southwest underside — variant with extra logic.
+; 
+; Similar to blocker_enemy_a but with additional behavior:
+; more HP or different attack pattern. Guards a different
+; passage on the underside.
+---------------------------------------------
+
 ?INCLUDE 'enemy_stats_table'
 ?INCLUDE 'spriteset_enemies'
 

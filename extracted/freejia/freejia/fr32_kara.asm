@@ -1,3 +1,12 @@
+; Kara in Freejia town — excited about the city, story progression.
+; 
+; Multi-state NPC with extensive dialog branching. Initial state:
+; "Oh, it's nice!! What a great city!!!" — enthusiastic about
+; Freejia. Later: "Don't you like it, Will!! Let's go!!"
+; Manages flag-based story progression as the party explores
+; the city together.
+---------------------------------------------
+
 !joypadMaskStd                  065A
 
 ---------------------------------------------

@@ -1,3 +1,11 @@
+; Credits player character controller (~407 lines).
+; 
+; Manages Will's movement and animation during the credits
+; walkthrough sequence. Handles auto-walk paths, form
+; changes, idle poses at key locations, and the final
+; walk into the sunset. Complex movement scripting.
+---------------------------------------------
+
 ?INCLUDE 'CreditPositionLookup'
 
 !characterForm                  0AD4

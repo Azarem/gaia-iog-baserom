@@ -1,3 +1,9 @@
+; Kara at the Angel Village entrance — excited and teasing.
+; 
+; NPC. Says: "What! Will! Come with me! What are you grinning
+; about?" Playful dialog as the party arrives at the village.
+---------------------------------------------
+
 ---------------------------------------------
 
 av69_kara [

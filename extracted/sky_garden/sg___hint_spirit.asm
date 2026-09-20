@@ -1,3 +1,10 @@
+; Moon Tribe hint spirit in Sky Garden — combat advice.
+; 
+; Simple NPC that appears and gives the hint: "Attack when the
+; Crystal Bird cries." Provides the key strategy for the
+; Viper boss fight.
+---------------------------------------------
+
 ---------------------------------------------
 
 sg___hint_spirit [

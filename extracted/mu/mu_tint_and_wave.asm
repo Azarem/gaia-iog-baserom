@@ -1,6 +1,9 @@
-; Combined color tint and dual-channel sine HDMA for Mu continent rooms.
+; Mu underwater visual effects — tint and HDMA wave.
 ; 
-; Selects green COLDATA tint (#$2A/#$44) or alternate tint (#$28/#$41) based on flag #7B, writing directly to COLDATA ($2132) each frame. Then runs sine HDMA with counter #$0001, amplitude 8 at $7E8800, tick speed #03, binding $7E8800 to channel #0D and $7E8C00 to channel #0E. Produces the eerie green Mu atmosphere with simultaneous background scroll oscillation on BG1 and BG2.
+; Thinker/actor that applies the underwater visual atmosphere:
+; green-blue color tint via COLDATA and a wavy HDMA effect
+; to simulate looking through water. Active in all Mu
+; dungeon rooms.
 ---------------------------------------------
 
 !COLDATA                        2132

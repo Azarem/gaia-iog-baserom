@@ -1,3 +1,9 @@
+; Right competitor in the Watermia gambling house.
+; 
+; NPC who groans: "Uhnn..." Reacts to losing during the
+; Russian Glass gambling mini-game.
+---------------------------------------------
+
 ---------------------------------------------
 
 wa7B_competitor_right [

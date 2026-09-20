@@ -1,3 +1,10 @@
+; Erik in the Native Village — moved by the tribe's suffering.
+; 
+; Extended NPC (~75 lines). "This tribe is so small. They have
+; lost so many to starvation. Brothers, sisters..." Erik's
+; empathy for the village's losses.
+---------------------------------------------
+
 ?INCLUDE 'nv_village_event_sprite'
 
 ---------------------------------------------

@@ -1,3 +1,12 @@
+; Snake Panic mini-game controller in Dao (~223 lines).
+; 
+; Interactive mini-game: "Play the game with the snakes? Yes/No"
+; Player navigates between moving snakes to reach the goal.
+; Includes game setup, snake movement patterns, collision
+; detection, win/lose outcomes, and reward dialog.
+; "Too bad. Come back if you change your mind."
+---------------------------------------------
+
 ?INCLUDE 'enemy_stats_table'
 
 !playerFlags                    09AE

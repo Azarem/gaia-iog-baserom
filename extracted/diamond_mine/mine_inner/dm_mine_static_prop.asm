@@ -1,3 +1,6 @@
+; Static decorative prop in the Diamond Mine inner area. Non-interactive scene element.
+---------------------------------------------
+
 ---------------------------------------------
 
 dm_mine_static_prop {

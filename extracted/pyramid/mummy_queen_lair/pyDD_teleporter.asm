@@ -1,3 +1,11 @@
+; Teleporter pads in the Mummy Queen lair (~204 lines).
+; 
+; Interactive warp points that move the player between
+; different positions in the boss arena. The queen also
+; uses these to reposition during the fight. Manages
+; both player-initiated and script-triggered teleportation.
+---------------------------------------------
+
 ?INCLUDE 'sprite_composition'
 ?INCLUDE 'spriteset_enemies'
 

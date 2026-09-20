@@ -1,3 +1,9 @@
+; Crystal gate D in the Babel middle floors.
+; 
+; Fourth crystal-locked gate. All four must be opened
+; to reach the upper floors.
+---------------------------------------------
+
 ?INCLUDE 'bt_static_sprite'
 
 ---------------------------------------------

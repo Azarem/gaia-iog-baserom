@@ -1,3 +1,11 @@
+; Necklace stone drop — Lance's necklace piece on the Great Wall.
+; 
+; Collectible event item. Dialog: "A small stone falls." Then:
+; "Ha! This is part of the necklace Lance made for Lilly."
+; Key plot item that connects to Lance's story and his
+; relationship with Lilly.
+---------------------------------------------
+
 ?INCLUDE 'cop_handlers_flags'
 ?INCLUDE 'f_inventory_full'
 ?INCLUDE 'spriteset_enemies'

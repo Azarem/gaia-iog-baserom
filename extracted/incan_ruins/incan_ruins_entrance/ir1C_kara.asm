@@ -1,3 +1,12 @@
+; Kara at the Incan Ruins entrance — chases after the party.
+; 
+; Before flag $4B: waits for player to reach tiles (1A,0F)-(1B,11),
+; then locks joypad, plays music #1B, Kara walks in from the side
+; and scolds Will for leaving her behind. Two dialog states: initial
+; scolding, then asks if he found what he was looking for.
+; After flag $4B: repositions and waits with different dialog.
+---------------------------------------------
+
 !joypadMaskStd                  065A
 
 ---------------------------------------------

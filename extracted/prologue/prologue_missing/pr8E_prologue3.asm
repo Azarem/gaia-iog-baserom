@@ -1,3 +1,10 @@
+; Prologue 3: the missing (~124 lines).
+; 
+; Third prologue segment about Will's father's disappearance
+; at the Tower of Babel. Establishes Will's motivation to
+; search for his father. Transitions to the game's opening.
+---------------------------------------------
+
 ?INCLUDE 'pr_text_placement_calc'
 ?INCLUDE 'pr_thinkers'
 

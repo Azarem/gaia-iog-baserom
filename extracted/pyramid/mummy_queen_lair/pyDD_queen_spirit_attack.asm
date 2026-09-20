@@ -1,3 +1,10 @@
+; Mummy Queen spirit summon attack (~109 lines).
+; 
+; Spirit projectile that emerges from the queen and flies
+; toward the player. Passes through walls. Used in the
+; queen's later phases as a harder-to-dodge attack type.
+---------------------------------------------
+
 ?BANK 0B
 
 ?INCLUDE 'ApplyOrbitalOffsetFromRef'

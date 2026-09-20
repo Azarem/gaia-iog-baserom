@@ -1,3 +1,9 @@
+; Kruk bird 2 in Dao — ambient animal.
+; 
+; Decorative NPC. Says: "Kiaaa... Kiaaa..." Second kruk
+; for atmosphere.
+---------------------------------------------
+
 ---------------------------------------------
 
 daC3_kruk2 [

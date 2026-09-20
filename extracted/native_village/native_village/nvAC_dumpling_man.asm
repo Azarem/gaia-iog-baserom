@@ -1,3 +1,11 @@
+; Man offering food in the Native Village — insect dumplings.
+; 
+; Interactive NPC (~112 lines). "The man holds out some food...
+; Eat some? Yes/No" On Yes: "It tastes like dumplings made
+; of insects... My heart was filled. It seemed as if we
+; understood each other." Cultural exchange through food.
+---------------------------------------------
+
 ---------------------------------------------
 
 nvAC_dumpling_man1 [

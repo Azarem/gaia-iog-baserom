@@ -1,3 +1,10 @@
+; Angel villager group 4 — dance culture NPC.
+; 
+; NPC who says: "People here love to dance." Part of the
+; village's cultural exposition, showing how the Angel Tribe
+; preserves their identity through art.
+---------------------------------------------
+
 ?INCLUDE 'ActorDisplayModeSwap'
 
 ---------------------------------------------

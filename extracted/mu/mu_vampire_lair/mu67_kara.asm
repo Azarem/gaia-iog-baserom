@@ -1,3 +1,10 @@
+; Kara in the vampire lair — pragmatic about escaping.
+; 
+; Says: "It doesn't matter! Let's think about how to leave Mu!"
+; Focused on survival rather than the drama. Brief NPC
+; during the vampire lair escape.
+---------------------------------------------
+
 !gfxCacheIdxB                   064A
 
 ---------------------------------------------

@@ -1,3 +1,12 @@
+; Splop enemy — rising blob that emerges and tracks the player.
+; 
+; Starts hidden. Waits offscreen with flags $0080 (invisible to combat).
+; When player is within 8 tiles, plays emergence SFX (#26) and rises
+; with sprite animation. Once emerged, enters a counter-based pursuit
+; loop using chatPtr as a frame timer ($0F), moving in the nearest
+; direction toward the player. Re-submerges when timer expires.
+---------------------------------------------
+
 !chatPtr                        7F000A
 
 ---------------------------------------------

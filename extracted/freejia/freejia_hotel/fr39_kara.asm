@@ -1,3 +1,11 @@
+; Kara at the Freejia hotel — reunites with Lilly, reflects on events.
+; 
+; Multi-dialog NPC. Initial: "Lilly? Is it Lilly?!" — emotional
+; reunion with the spirit companion. Later: "I am glad everyone
+; is safe, but..." — hints at lingering concerns about the
+; slave trade.
+---------------------------------------------
+
 ?BANK 05
 
 !joypadMaskStd                  065A

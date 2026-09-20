@@ -1,3 +1,10 @@
+; Moon Tribe spirit at Nazca — ominous appearance.
+; 
+; NPC: "Ku ku ku..." The Moon Tribe's characteristic laugh.
+; Brief mysterious appearance hinting at the alien connection
+; to the Nazca lines and Sky Garden.
+---------------------------------------------
+
 !joypadMaskStd                  065A
 
 ---------------------------------------------

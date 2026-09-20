@@ -1,3 +1,11 @@
+; Skuddle enemy — aquatic creature in the Seaside Palace (~364 lines).
+; 
+; Multi-directional enemy that navigates the palace halls.
+; Uses directional movement with wall collision, attacking
+; the player on proximity. Moderate speed with changing
+; patrol patterns. Common palace enemy paired with Slipper.
+---------------------------------------------
+
 ?INCLUDE 'spriteset_enemies'
 
 !sceneCurrent                   0644

@@ -1,3 +1,10 @@
+; Lithograph 2 in the hieroglyph room — removable panel.
+; 
+; Second hieroglyph wall panel. Same mechanics as lithograph1:
+; interactable, removable, part of the 6-piece hieroglyph
+; collection puzzle.
+---------------------------------------------
+
 ?BANK 08
 
 ?INCLUDE 'pyDA_lithograph1'

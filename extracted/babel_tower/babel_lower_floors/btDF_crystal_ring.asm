@@ -1,3 +1,11 @@
+; Crystal Ring discovery in the Babel lower floors.
+; 
+; Event item (~138 lines): "Something seemed to fall from the
+; Flute..." Then: "It's King Edward's Crystal Ring!! I thought
+; it was a decoration, but it had been hidden there."
+; Key plot item connecting Edward Castle to the tower's secrets.
+---------------------------------------------
+
 ?INCLUDE 'bt_static_sprite'
 ?INCLUDE 'spriteset_enemies'
 

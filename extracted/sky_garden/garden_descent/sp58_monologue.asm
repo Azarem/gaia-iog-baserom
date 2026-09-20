@@ -1,3 +1,10 @@
+; Will's monologue after escaping the Sky Garden.
+; 
+; Narration: "We got out of the airplane in the nick of time...
+; Neil's amazing." Reflective text as the party leaves the
+; Sky Garden chapter behind. Locks joypad during playback.
+---------------------------------------------
+
 !gfxCacheIdxA                   0648
 !gfxCacheIdxB                   064A
 

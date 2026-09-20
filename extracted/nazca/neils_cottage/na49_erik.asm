@@ -1,3 +1,10 @@
+; Erik at Neil's cottage — mentions Seth.
+; 
+; NPC: "Seth will be pleased when he sees this invention..."
+; Erik's reaction to Neil's camera invention. References
+; Seth from the Gold Ship chapter.
+---------------------------------------------
+
 ---------------------------------------------
 
 na49_erik [

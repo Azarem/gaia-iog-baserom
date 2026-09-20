@@ -1,3 +1,10 @@
+; Mummy Queen floor portal — deeper Pyramid access.
+; 
+; Interactive warp: "The mummified queen of the Pyramid appears.
+; Quit/Jump in" — portal leading to the Mummy Queen's domain.
+; Appears after sufficient Pyramid exploration.
+---------------------------------------------
+
 ?INCLUDE 'py_death_particle'
 
 !gfxCacheIdxA                   0648

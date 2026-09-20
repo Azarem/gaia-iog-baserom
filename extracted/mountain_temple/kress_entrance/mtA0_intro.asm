@@ -1,3 +1,11 @@
+; Mountain Temple entrance narration — describes Mt. Kress.
+; 
+; Story text: "There's a strange place at the summit of
+; Mt. Kress. There are mushrooms many times bigger than
+; a person." Establishes the oversized mushroom theme
+; of the Mountain Temple dungeon.
+---------------------------------------------
+
 !joypadMaskStd                  065A
 
 ---------------------------------------------

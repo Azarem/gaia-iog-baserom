@@ -1,3 +1,11 @@
+; Hotel guide man — leads Will and Kara to the hotel.
+; 
+; Multi-phase NPC: approaches when player is nearby, comments
+; "What a cute couple," then offers to show them to a hotel.
+; Walks the player through town with escort movement. Sets
+; accommodation flags for the hotel scene.
+---------------------------------------------
+
 ?INCLUDE 'spriteset_npc_props'
 ?INCLUDE 'town_door'
 

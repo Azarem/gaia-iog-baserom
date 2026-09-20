@@ -1,3 +1,11 @@
+; Kara at the Dao hotel — arrival narration.
+; 
+; Multi-dialog NPC. "A town shining in the desert. We went
+; to Dao." Later: "This place is supposed to be famous for
+; labor merchants. It doesn't look like it." Kara's
+; observations about Dao's deceptive appearance.
+---------------------------------------------
+
 !joypadMaskStd                  065A
 
 ---------------------------------------------

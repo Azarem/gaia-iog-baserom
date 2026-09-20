@@ -1,3 +1,9 @@
+; Crystal gate A in the Babel middle floors.
+; 
+; Gate that opens when the corresponding crystal is collected.
+; Small script that checks crystal flag and toggles passage.
+---------------------------------------------
+
 ?INCLUDE 'bt_static_sprite'
 
 ---------------------------------------------

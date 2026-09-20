@@ -1,3 +1,10 @@
+; Erasquez the violinist in Euro — senses Will's power.
+; 
+; NPC: "Hey, you! I feel a strange power coming from you..."
+; Erasquez can perceive Will's psychic abilities. Adds to
+; Euro's artistic and spiritual character.
+---------------------------------------------
+
 ---------------------------------------------
 
 eu92_erasquez [

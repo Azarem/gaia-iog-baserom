@@ -1,3 +1,10 @@
+; Black Crystal Glasses pickup in the Angkor Wat inner courtyard.
+; 
+; Collectible item: "There's something shiny on the ground."
+; Then: "You've found the Black Crystal Glasses!" Key item
+; needed for seeing hidden spirits and puzzle solutions.
+---------------------------------------------
+
 ?INCLUDE 'f_inventory_full'
 ?INCLUDE 'spriteset_enemies'
 

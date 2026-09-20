@@ -1,3 +1,11 @@
+; Bird flight pattern data and behavior for Sky Garden crystal birds.
+; 
+; Defines the flight paths and animation cycles for the
+; crystal bird actors that circle the Sky Garden. Used by
+; the garden_crash_cutscene and visual atmosphere actors.
+; Contains path tables and movement speed parameters.
+---------------------------------------------
+
 ?INCLUDE 'spriteset_enemies'
 
 ---------------------------------------------

@@ -1,3 +1,9 @@
+; Credits NPC group B — mid-game farewell characters (~155 lines).
+; 
+; Second batch of credits NPCs. Characters from Freejia,
+; the Gold Ship, and other mid-game locations.
+---------------------------------------------
+
 ?INCLUDE 'CreditPositionLookup'
 
 ---------------------------------------------

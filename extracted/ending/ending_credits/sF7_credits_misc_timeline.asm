@@ -1,3 +1,11 @@
+; Credits miscellaneous timeline events (~300 lines).
+; 
+; Coordinates timed events during the credits: camera
+; transitions, palette changes, special effect triggers,
+; and scene switches between revisited locations.
+; The timeline backbone for the credits sequence.
+---------------------------------------------
+
 ?INCLUDE 'CreditPositionLookup'
 
 !decompressedTilesets           7E4000

@@ -1,3 +1,10 @@
+; Kara in the vacant hut — suggests resting.
+; 
+; Multi-dialog NPC. "No one here... The village looks abandoned.
+; Erik: That's good. We can rest." Later: "Let's rest today."
+; Party decision to recuperate in the empty hut.
+---------------------------------------------
+
 !gfxCacheIdxB                   064A
 !joypadMaskStd                  065A
 !playerActor                    09AA

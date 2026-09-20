@@ -1,3 +1,11 @@
+; Breakable wall segments in the Pyramid — destroyable barriers.
+; 
+; Multi-instance destructible walls (~136 lines). Each wall
+; section has HP and breaks when hit enough times, spawning
+; debris and applying a BG change to remove the wall tiles.
+; Used extensively in the Pyramid's maze-like corridors.
+---------------------------------------------
+
 ?INCLUDE 'player_character'
 
 !playerActor                    09AA

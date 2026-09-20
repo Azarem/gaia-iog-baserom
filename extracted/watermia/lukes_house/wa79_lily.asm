@@ -1,3 +1,10 @@
+; Lilly at Luke's house — heard about Lance seeing someone.
+; 
+; Extended NPC (~107 lines). "I heard that Lance saw someone
+; he knew in town." Provides story context about Lance
+; recognizing his father in Watermia.
+---------------------------------------------
+
 !gfxCacheIdxB                   064A
 
 ---------------------------------------------

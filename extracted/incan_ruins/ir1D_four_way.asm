@@ -1,3 +1,13 @@
+; Four Way statue trap — fires projectiles in 4 diagonal directions.
+; 
+; Solid enemy on a tile, waits offscreen. When visible and not already
+; hit ($4000), plays an idle loop (#28), then checks player axis.
+; Fires 4 projectile children at diagonal offsets with SFX #1E.
+; Projectiles fly diagonally until hitting a wall. After firing,
+; plays cooldown animation and repeats. Also has a variant that
+; fires only 2 directional projectiles based on player position.
+---------------------------------------------
+
 ---------------------------------------------
 
 ir1D_four_way [

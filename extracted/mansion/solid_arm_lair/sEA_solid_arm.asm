@@ -1,3 +1,13 @@
+; Solid Arm boss fight — Jeweler Gem's true form (~356 lines).
+; 
+; Optional boss: "Welcome to my home. The Jeweler Gem is a
+; temporary form. The true form is called Solid Arm." Multi-phase
+; boss with extending arm attacks and area sweeps. After defeat:
+; "I was defeated again... Blazer was strong, but you are
+; stronger." Rewards completion of the Red Jewel collection
+; quest. References the game's predecessor, Soul Blazer.
+---------------------------------------------
+
 ?INCLUDE 'enemy_stats_table'
 ?INCLUDE 'smooth_follow'
 

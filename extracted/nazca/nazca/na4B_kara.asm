@@ -1,3 +1,12 @@
+; Kara at Nazca — appreciates the artistry.
+; 
+; Extended NPC (~105 lines). "It must be great to paint such a
+; huge painting on a natural canvas." Later: "When you look at
+; it this way, it's like the white lines at an athletic event.
+; Maybe they're running lanes?" Kara's artistic perspective
+; on the Nazca lines.
+---------------------------------------------
+
 ---------------------------------------------
 
 na4B_kara [

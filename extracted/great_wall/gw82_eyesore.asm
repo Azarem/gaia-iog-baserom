@@ -1,3 +1,11 @@
+; Eyesore enemy — floating eye creature on the Great Wall.
+; 
+; Flying enemy that tracks the player and fires projectile
+; attacks. Uses BranchOnPlayer* for directional aiming.
+; Moves erratically with aerial movement patterns, making
+; it difficult to hit consistently.
+---------------------------------------------
+
 !moveXAlt                       7F0018
 !moveYAlt                       7F001A
 

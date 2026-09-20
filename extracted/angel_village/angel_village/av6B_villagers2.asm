@@ -1,3 +1,10 @@
+; Angel villager group 2 — emotionless existence.
+; 
+; NPC: "We have no emotions... I've neither laughed nor cried
+; since the day I was born." Reveals the Angel Tribe's
+; emotional numbness — a key theme of their devolution.
+---------------------------------------------
+
 ?INCLUDE 'ActorDisplayModeSwap'
 ?INCLUDE 'npc_wander_ai'
 

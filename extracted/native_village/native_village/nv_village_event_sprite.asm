@@ -1,3 +1,10 @@
+; Event sprite controller for Native Village cutscenes.
+; 
+; Technical actor that manages sprite changes during village
+; event sequences. Handles costume/appearance transitions
+; for cutscene characters.
+---------------------------------------------
+
 ?INCLUDE 'spriteset_enemies'
 
 ---------------------------------------------

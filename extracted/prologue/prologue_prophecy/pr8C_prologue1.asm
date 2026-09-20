@@ -1,3 +1,11 @@
+; Prologue 1: the prophecy (~137 lines).
+; 
+; Opening narrative establishing the ancient prophecy about
+; the comet's cyclical return. Animated text sequences with
+; the game's first visual storytelling. Sets the mythological
+; foundation for the entire plot.
+---------------------------------------------
+
 ?INCLUDE 'mode7_perspective'
 ?INCLUDE 'pr_text_placement_calc'
 ?INCLUDE 'pr_thinkers'

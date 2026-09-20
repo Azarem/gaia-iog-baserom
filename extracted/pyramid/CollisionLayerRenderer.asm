@@ -1,3 +1,11 @@
+; Collision layer tile renderer for the Pyramid trap rooms.
+; 
+; Technical actor (~116 lines) that draws the collision layer
+; tiles visible in the Pyramid's trap corridors. Reads collision
+; data and renders walkable/hazard tiles as visible sprites,
+; allowing the player to see which tiles are safe to walk on.
+---------------------------------------------
+
 ?INCLUDE 'hardware_math'
 
 !collisionLayer                 7FC000

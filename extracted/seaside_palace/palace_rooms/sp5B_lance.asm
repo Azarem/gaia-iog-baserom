@@ -1,3 +1,9 @@
+; Lance trapped in the palace rooms — unconscious groaning.
+; 
+; NPC: "Uhhhn. Uhhhn." Lance is barely conscious in his
+; room. Minimal dialog showing his weakened state.
+---------------------------------------------
+
 ?INCLUDE 'ToggleActorVisibilityFlag'
 
 ---------------------------------------------

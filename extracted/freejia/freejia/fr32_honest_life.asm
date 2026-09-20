@@ -1,3 +1,9 @@
+; Philosopher NPC in Freejia — reflects on honest living.
+; 
+; Simple NPC. Says: "A life lived honestly. A life of fun and
+; laughter." Provides moral contrast to the corruption theme.
+---------------------------------------------
+
 ---------------------------------------------
 
 fr32_honest_life [

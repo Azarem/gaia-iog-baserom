@@ -1,3 +1,9 @@
+; Rudy (Friezer's companion) — enthusiastic about ruins.
+; 
+; NPC: "The ruins are a great place. They just take my breath
+; away." Contrasts with Max's nervousness. The eager explorer.
+---------------------------------------------
+
 ---------------------------------------------
 
 eu9A_rudy [

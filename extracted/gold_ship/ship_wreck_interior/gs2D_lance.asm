@@ -1,3 +1,11 @@
+; Lance on the Gold Ship interior — triggers a cutscene on approach.
+; 
+; Before flag $01: positioned at tile (0F, 0D) facing south with
+; ClearLowHere. When player is within 3 tiles, triggers a cutscene
+; with camera_drift screen shake. Uses joypadMaskStd for joypad
+; locking during the scene. After flag $01: solid with interaction.
+---------------------------------------------
+
 ?INCLUDE 'camera_drift'
 
 !joypadMaskStd                  065A

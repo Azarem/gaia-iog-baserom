@@ -1,3 +1,11 @@
+; Ambient bubble effect in the undersea tunnel.
+; 
+; Visual actor (~105 lines) that spawns floating bubble
+; sprites at random positions. Creates the underwater
+; atmosphere for the long tunnel passage. Uses RngByte
+; for random bubble placement.
+---------------------------------------------
+
 !cameraTargetX                  06BE
 !cameraTargetY                  06C2
 

@@ -1,3 +1,10 @@
+; Woman commenting on Freejia's city flower.
+; 
+; Simple NPC. Says: "The Freejia is the city flower. Smells
+; good, doesn't it?" Lighthearted contrast to the slave trade
+; happening behind the scenes.
+---------------------------------------------
+
 ---------------------------------------------
 
 fr32_fragrance [

@@ -1,3 +1,15 @@
+; Homing mine child actor spawned by Grundit and bat spawner.
+; 
+; Not a generic follower module — this is the projectile that chases
+; the player through the mine. Uses smooth_follow to track the player
+; actor. Starts by marking its initial position, enters a pursue loop
+; that checks BranchIfBehindWall each tick and animates one frame per
+; tick. After 30 ticks ($1E), reads the parent's velocity and continues
+; independently. If it crosses a 16px tile boundary (checked by XOR of
+; old and new positions bit $0010), it validates wall collision. Dies
+; when statusWord bit $4000 is set (hit something or killed externally).
+---------------------------------------------
+
 ?INCLUDE 'smooth_follow'
 ?INCLUDE 'spriteset_enemies'
 

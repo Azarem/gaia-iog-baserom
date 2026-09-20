@@ -1,3 +1,10 @@
+; Explorer bones in the Angkor Wat outer courtyard.
+; 
+; Another skeleton with a journal fragment: "The bones of a
+; lost explorer fascinated by something..." Contains additional
+; research notes. Provides temple lore.
+---------------------------------------------
+
 ---------------------------------------------
 
 awB6_bones [

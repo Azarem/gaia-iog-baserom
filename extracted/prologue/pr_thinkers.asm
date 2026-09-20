@@ -1,3 +1,6 @@
+; Prologue thinker sprites. Animated character sprites used during the prologue historical narrative sequences.
+---------------------------------------------
+
 ---------------------------------------------
 
 e_pr_thinker_0BD031 {

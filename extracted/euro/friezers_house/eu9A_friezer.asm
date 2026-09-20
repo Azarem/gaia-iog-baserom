@@ -1,3 +1,10 @@
+; Friezer the explorer in Euro — introduces himself.
+; 
+; NPC: "I am the explorer, Friezer. I, too, plan on leaving
+; my name in history." The explorer who later appears at
+; Angkor Wat. Establishes his character.
+---------------------------------------------
+
 ---------------------------------------------
 
 eu9A_friezer [

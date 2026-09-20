@@ -1,3 +1,11 @@
+; Lilly at the Great Wall dive entrance — offers to accompany Will.
+; 
+; Lilly calls: "Wait!" Then: "Are you looking for Lance? I'll go
+; with you!" Story moment where Lilly joins as companion for
+; the Great Wall dungeon. Sets escort flag and manages
+; the party transition.
+---------------------------------------------
+
 ?INCLUDE 'spriteset_enemies'
 
 !joypadMaskStd                  065A

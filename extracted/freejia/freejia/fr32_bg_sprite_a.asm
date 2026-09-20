@@ -1,3 +1,8 @@
+; Background decorative sprite A in Freejia town.
+; 
+; Non-interactive animated sprite for street ambiance. No dialog.
+---------------------------------------------
+
 ---------------------------------------------
 
 fr32_bg_sprite_a [

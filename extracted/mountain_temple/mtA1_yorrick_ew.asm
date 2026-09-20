@@ -1,3 +1,10 @@
+; Yorrick enemy (east-west variant) in the Mountain Temple (~201 lines).
+; 
+; Skull enemy that patrols east-west corridors. Bounces
+; off walls and reverses direction. Damages on contact.
+; The east-west variant has horizontal movement priority.
+---------------------------------------------
+
 ---------------------------------------------
 
 mtA1_yorrick_3 [

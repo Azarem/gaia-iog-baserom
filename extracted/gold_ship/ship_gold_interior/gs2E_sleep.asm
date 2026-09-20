@@ -1,3 +1,12 @@
+; Sleep event in the freed ship — triggers the dream and Freedan form.
+; 
+; Interactable bed/rest point. If flags $4E and $4F are not set,
+; offers to sleep. Sets musicRoomGroup to 2 for the dream music.
+; Checks flag $F8 for the dream state. When sleeping, triggers
+; the Shira dream scene (gs2A_shira) and manages the Freedan
+; form transition via player_transition_handlers.
+---------------------------------------------
+
 ?INCLUDE 'player_transition_handlers'
 
 !gfxCacheIdxA                   0648

@@ -1,3 +1,10 @@
+; New Babel overview — the transformed world.
+; 
+; Brief scene: "The Earth's look had changed, but, glowing in
+; the sky, it was as beautiful as ever. Buildings and cities..."
+; Shows the post-comet world with rebuilt civilization.
+---------------------------------------------
+
 !gfxCacheIdxB                   064A
 !joypadMaskStd                  065A
 !displayModeFlags               09EC

@@ -1,3 +1,11 @@
+; Nitropede enemy — explosive centipede variant in Sky Garden (~549 lines).
+; 
+; Aggressive multi-phase enemy that patrols and attacks.
+; Similar segmented structure to Dynapede but with faster
+; movement and explosive death mechanics. Complex
+; directional AI with wall collision checks.
+---------------------------------------------
+
 ?INCLUDE 'EnemyDeathFlash'
 ?INCLUDE 'sg4D_dynapede'
 ?INCLUDE 'spriteset_enemies'

@@ -1,3 +1,8 @@
+; Decorative flower in Watermia — ambient visual.
+; 
+; Non-interactable animated flower sprite for town decoration.
+---------------------------------------------
+
 ---------------------------------------------
 
 wa78_flower [

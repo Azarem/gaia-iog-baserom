@@ -1,3 +1,10 @@
+; Chained slave in the Freejia labor cells — lost faith dialog.
+; 
+; Static NPC. Says: "I don't believe in the spirits. If there
+; were spirits, things like this wouldn't happen." Challenges
+; the game's spiritual themes through hopelessness.
+---------------------------------------------
+
 ---------------------------------------------
 
 fr35_slave3 [

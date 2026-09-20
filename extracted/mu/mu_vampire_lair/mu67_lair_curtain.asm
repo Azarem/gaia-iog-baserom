@@ -1,3 +1,9 @@
+; Curtain decoration in the vampire lair entrance.
+; 
+; Visual prop that reveals the lair behind it. No dialog.
+; Animated curtain sprite for atmosphere.
+---------------------------------------------
+
 ---------------------------------------------
 
 mu67_lair_curtain [

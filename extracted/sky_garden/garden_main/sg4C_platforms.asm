@@ -1,3 +1,11 @@
+; Floating platform controller for the Sky Garden main area.
+; 
+; Manages the moving platforms that the player rides between
+; garden sections (~116 lines). Handles platform spawn,
+; movement paths, player attachment/detachment, and the
+; rhythmic movement cycle of each platform.
+---------------------------------------------
+
 ---------------------------------------------
 
 sg4C_platform1 [

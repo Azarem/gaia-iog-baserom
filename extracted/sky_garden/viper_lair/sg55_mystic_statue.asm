@@ -1,3 +1,11 @@
+; Mystic Statue reward after defeating Viper.
+; 
+; Post-boss reward actor. Displays: "You have defeated the huge
+; demon! Look! A Mystic Statue!!" Then: "A strange noise fills
+; the air around you..." Grants the Mystic Statue collectible
+; and triggers the Sky Garden descent sequence.
+---------------------------------------------
+
 ?INCLUDE 'sE6_gaia'
 ?INCLUDE 'sg55_viper_arena'
 ?INCLUDE 'visual_effect_pipeline'

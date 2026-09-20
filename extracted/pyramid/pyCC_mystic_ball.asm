@@ -1,3 +1,11 @@
+; Mystic Ball enemy — floating magical sphere in the Pyramid.
+; 
+; Hovering enemy (~257 lines) that orbits through rooms and
+; fires energy projectiles. When defeated, can trigger a
+; field reveal effect if deathActionIdx is set. Uses movement
+; patterns with direction switching on wall collision.
+---------------------------------------------
+
 ?INCLUDE 'cop_handlers_flags'
 ?INCLUDE 'field_reveal_object'
 ?INCLUDE 'sg_bird_flight_patterns'

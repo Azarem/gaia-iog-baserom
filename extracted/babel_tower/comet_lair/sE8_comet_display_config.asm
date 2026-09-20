@@ -1,3 +1,11 @@
+; Comet lair display configuration (~132 lines).
+; 
+; Initializes the full display setup for the Dark Gaia boss
+; arena: palette loading, HDMA channel configuration, BG
+; layer priorities, and the cosmic background starfield.
+; Must execute before the boss fight begins.
+---------------------------------------------
+
 ?BANK 0C
 
 !BG1SC                          2107

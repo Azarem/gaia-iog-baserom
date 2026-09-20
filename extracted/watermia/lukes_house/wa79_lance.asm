@@ -1,3 +1,10 @@
+; Lance at Luke's house — proposes Lilly's birthday party.
+; 
+; Extended NPC (~109 lines). "Let's have Lilly's birthday party
+; while we're all together." Initiates the birthday celebration
+; subplot. Heartwarming party scene setup.
+---------------------------------------------
+
 ?INCLUDE 'hidden_red_jewel'
 
 !joypadMaskStd                  065A

@@ -1,3 +1,12 @@
+; Kara in the Pyramid puzzle room — emotional breakdown.
+; 
+; Extended NPC (~137 lines). "Will... Why must everyone hate
+; each other...? I... I..." Kara breaks down emotionally.
+; Later: "I'm sorry... I got upset... You are doing your best
+; to save the world." Character development moment showing
+; the toll of the journey on Kara.
+---------------------------------------------
+
 !gfxCacheIdxB                   064A
 !joypadMaskStd                  065A
 !playerActor                    09AA

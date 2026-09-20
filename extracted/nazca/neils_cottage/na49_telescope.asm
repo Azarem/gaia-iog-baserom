@@ -1,3 +1,10 @@
+; Telescope in Neil's cottage — stargazing invention.
+; 
+; Interactive object: "That's a telescope. You can see stars
+; as if they were in your hand." Shows Neil's scientific
+; instruments. Connects to the comet observation theme.
+---------------------------------------------
+
 ?INCLUDE 'spriteset_enemies'
 
 ---------------------------------------------

@@ -1,3 +1,10 @@
+; Rofsky's book in Euro — readable object.
+; 
+; Interactive: "This is the book that Rofsky wrote about the
+; future of mankind." Provides intellectual context for
+; Rofsky's character and his predictions about the comet.
+---------------------------------------------
+
 ---------------------------------------------
 
 eu91_book [

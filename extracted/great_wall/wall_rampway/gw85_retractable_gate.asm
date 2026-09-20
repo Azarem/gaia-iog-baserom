@@ -1,3 +1,10 @@
+; Retractable gate on the Great Wall rampway.
+; 
+; Gate that opens/closes based on switch states. When
+; the corresponding switch is hit, retracts to allow passage.
+; Returns to blocking state when switch resets.
+---------------------------------------------
+
 ---------------------------------------------
 
 gw85_retractable_gate [

@@ -1,3 +1,19 @@
+; Chained laborers in the mine main area — 4 instances via index lookup.
+; 
+; Uses displayModeFlags ($0E) as an index into byte_0AA72F to select
+; which flag byte (#A0-#A3) tracks this laborer. If already freed,
+; despawns. Otherwise shows as a chain sprite (enemy frame #33) with
+; solid collision and interaction.
+; 
+; Before freed: "I beg you! Cut this chain!!" After Freedan breaks
+; the chain (status bit $0040), interaction varies by laborer index:
+; Index 0: tells about 8 laborers forced to work, asks you to save them.
+; Index 1: reveals the secret room with wind blowing through wall cracks.
+; Index 2: gives the Mine Key (#0C) with music+text fanfare.
+; Index 3: gives the Elevator Key (#0F) and asks you to save the inner
+; prisoners. Each freed laborer walks offscreen and sets their flag.
+---------------------------------------------
+
 ?INCLUDE 'cop_handlers_flags'
 ?INCLUDE 'EnemyInitBasic'
 

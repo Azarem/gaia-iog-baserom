@@ -1,3 +1,10 @@
+; Boyfriend NPC in the Adequacy Manor — caught in a comic scene.
+; 
+; NPC with flag-gated dialog. Says: "She, uh, was just helping
+; me... Ha ha ha." Part of the couple joke sequence with the
+; girlfriend NPC.
+---------------------------------------------
+
 ---------------------------------------------
 
 fr38_boyfriend [

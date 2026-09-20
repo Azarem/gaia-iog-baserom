@@ -1,3 +1,9 @@
+; Woman in the Adequacy Manor — apologizes for the mess.
+; 
+; Simple NPC. Says: "The upstairs is a mess... I'm ashamed..."
+; One of the manor residents.
+---------------------------------------------
+
 ---------------------------------------------
 
 fr38_ashamed [

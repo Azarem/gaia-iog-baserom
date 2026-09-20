@@ -1,3 +1,11 @@
+; Slave market guard — alternates between threatening and inviting.
+; 
+; Multi-state NPC (~52 lines). Initially: "Hey, boy! Kids can't
+; come here! Go home!" Later: "I like your courage! I don't know
+; what you'd do here, but have a look around." Controls access
+; to the market area and shifts tone with story progression.
+---------------------------------------------
+
 ---------------------------------------------
 
 fr3C_slaver [

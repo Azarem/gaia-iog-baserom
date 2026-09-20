@@ -1,3 +1,11 @@
+; Lilly at Neil's cottage — Kara insults Neil's smell.
+; 
+; Extended NPC (~84 lines). Kara: "This person stinks..."
+; Lilly: "What are you saying! You shouldn't talk like that!!
+; There's a wonderful smell in this house." Lilly defends
+; Neil against Kara's rudeness. Character dynamics.
+---------------------------------------------
+
 ?BANK 05
 
 ---------------------------------------------

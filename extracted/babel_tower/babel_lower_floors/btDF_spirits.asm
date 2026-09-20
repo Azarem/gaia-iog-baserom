@@ -1,3 +1,12 @@
+; Tower spirits in the Babel lower floors — time distortion lore.
+; 
+; Multi-spirit NPCs (~88 lines). "The light released from the
+; comet has a profound effect on the growth of living things."
+; Also: "The passage of time is different inside the Tower
+; of Babel... Time races by..." Exposition about the tower's
+; temporal anomalies and the comet's biological effects.
+---------------------------------------------
+
 ?INCLUDE 'spriteset_npc_props'
 
 ---------------------------------------------

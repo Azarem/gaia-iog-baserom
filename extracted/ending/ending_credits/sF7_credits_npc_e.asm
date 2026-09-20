@@ -1,3 +1,9 @@
+; Credits NPC group E — final farewell characters (~59 lines).
+; 
+; Last batch of NPCs. The Tower of Babel and ending-specific
+; characters.
+---------------------------------------------
+
 ?INCLUDE 'CreditPositionLookup'
 
 ---------------------------------------------

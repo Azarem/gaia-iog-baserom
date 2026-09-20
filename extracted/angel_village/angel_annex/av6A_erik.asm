@@ -1,3 +1,10 @@
+; Erik in the Angel Village annex — remarks on sunlight.
+; 
+; Multi-dialog NPC. Says: "The sun is really bright. I never
+; noticed that before." Reflects on the contrast between
+; the dark underground village and the surface world.
+---------------------------------------------
+
 !joypadMaskStd                  065A
 
 ---------------------------------------------

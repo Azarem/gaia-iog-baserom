@@ -1,3 +1,11 @@
+; Flame statue trap in the Pyramid puzzle room.
+; 
+; Animated flame-shooting statue (~75 lines). Fires periodic
+; flame projectiles from a fixed position. Part of the
+; puzzle room hazards that the player must avoid while
+; solving the arrangement puzzle.
+---------------------------------------------
+
 ?INCLUDE 'camera_drift'
 ?INCLUDE 'pyCD_jackal'
 

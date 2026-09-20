@@ -1,3 +1,10 @@
+; Mummy Queen phase transition animation controller (~101 lines).
+; 
+; Manages the visual effects and timing between boss phases.
+; Handles the queen's teleportation, invulnerability flash,
+; and arena environment changes between phases.
+---------------------------------------------
+
 ?BANK 0B
 
 ?INCLUDE 'pyDD_queen_debris'

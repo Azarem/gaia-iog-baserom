@@ -1,3 +1,14 @@
+; Dark Gaia — the final boss of the game (~1,005 lines).
+; 
+; Multi-form final boss with the game's largest boss script.
+; Phase 1: Dark Gaia's face attacks with energy beams and
+; summoned projectiles. Phase 2: transformation into the
+; comet form with new attack patterns. Phase 3: final
+; desperate assault. Uses extensive camera control, palette
+; manipulation, and spawned child actors for attacks.
+; Defeat triggers the ending sequence.
+---------------------------------------------
+
 ?BANK 0C
 
 ?INCLUDE 'enemy_stats_table'

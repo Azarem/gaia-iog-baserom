@@ -1,3 +1,9 @@
+; Dark Space portal at the Pyramid main entrance.
+; 
+; Hidden Dark Space access point near the Pyramid entrance.
+; Standard Dark Space spawn with flag checks for visibility.
+---------------------------------------------
+
 ?INCLUDE 'cop_handlers_flags'
 ?INCLUDE 'dark_space'
 

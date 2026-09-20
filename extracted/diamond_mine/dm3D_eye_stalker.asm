@@ -1,3 +1,19 @@
+; Eye Stalker enemy — three actor variants used in different mine rooms.
+; 
+; Variant 1 (dm3D_eye_stalker1): starts closed on a solid tile, opens eye
+; when player approaches within 3 tiles, then enters patrol mode.
+; Variant 2 (sE9_eye_stalker2): same as variant 1 but uses palette #04
+; for the Solid Arm mansion recolor. Variant 3 (dm3D_eye_stalker3):
+; simpler version that waits offscreen, activates when visible and
+; player is nearby. All variants share a 4-directional patrol AI that
+; checks wall collisions and tracks the player by nearest axis.
+; When close enough, switches to attack mode: moves to a grid-aligned
+; offset from the player, fires a directional projectile (up/down/left/
+; right), waits, then returns to patrol. Projectiles are separate
+; child actors with animated sprites that travel in a straight line
+; until hitting a wall.
+---------------------------------------------
+
 !sceneCurrent                   0644
 !playerXPos                     09A2
 !playerYPos                     09A4

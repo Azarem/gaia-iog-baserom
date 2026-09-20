@@ -1,3 +1,10 @@
+; Dark Space portal in the Great Wall tomb area.
+; 
+; Hidden Dark Space access point in the tomb section.
+; Checks visibility/flag conditions before spawning the
+; Dark Space portal. Provides a save/heal point mid-dungeon.
+---------------------------------------------
+
 ?INCLUDE 'dark_space'
 
 ---------------------------------------------

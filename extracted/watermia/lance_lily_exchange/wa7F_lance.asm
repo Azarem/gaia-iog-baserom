@@ -1,3 +1,11 @@
+; Lance in the lance/lily exchange scene — emotional dialog.
+; 
+; Extended NPC (~104 lines). Says: "Yes, the words are harder
+; to say than a tongue twister." Part of the emotional scene
+; where Lance tries to express his feelings for Lilly.
+; Major character development moment.
+---------------------------------------------
+
 !gfxCacheIdxA                   0648
 !gfxCacheIdxB                   064A
 !moveXAlt                       7F0018

@@ -1,3 +1,10 @@
+; Dark Medicine vendor in the Euro flea market.
+; 
+; Interactive NPC: "That's called Dark Medicine. Try some?
+; Yes/No" — offers a mysterious medicine with choice dialog.
+; The medicine may have negative effects.
+---------------------------------------------
+
 ---------------------------------------------
 
 eu97_dark_medicine [

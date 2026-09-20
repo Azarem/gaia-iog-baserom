@@ -1,3 +1,9 @@
+; Snake pit visual effects.
+; 
+; Ambient effects for the snake pit area. Provides
+; the dark, confined atmosphere of the pit.
+---------------------------------------------
+
 ?INCLUDE 'spriteset_particle_fx'
 
 ---------------------------------------------

@@ -1,3 +1,12 @@
+; Will's mother Shira in the dream sequence on the Gold Ship.
+; 
+; Emotional dream cutscene where Will sees his mother. Spawns a
+; background star effect actor, configures window masking (W12SEL,
+; WOBJSEL) for the dream visual effect, and plays the mother's
+; dialog about the comet: "Look in the sky. The comet is so
+; beautiful." Key early story moment establishing the comet theme.
+---------------------------------------------
+
 ?BANK 05
 
 !gfxCacheIdxA                   0648

@@ -1,3 +1,10 @@
+; Fire Bug enemy — flame-carrying insect on the Great Wall.
+; 
+; Fast-moving enemy with contact fire damage. Moves in erratic
+; patterns with directional sprite animation. Burns the player
+; on contact. Common enemy in the wall corridor sections.
+---------------------------------------------
+
 ?INCLUDE 'EnemyDefeatDispatch'
 
 !moveXAlt                       7F0018

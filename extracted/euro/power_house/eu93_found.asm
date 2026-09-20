@@ -1,3 +1,10 @@
+; Power-up discovery in Euro's power house.
+; 
+; NPC: "You found it here. I understand your wishes. I'll give
+; you the power at once." Grants an ability upgrade.
+; "Well, go." — brief and direct power acquisition.
+---------------------------------------------
+
 !playerStr                      0ADE
 
 ---------------------------------------------

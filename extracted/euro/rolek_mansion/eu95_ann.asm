@@ -1,3 +1,12 @@
+; Ann at the Rolek mansion — warns about the Jackal.
+; 
+; Extended NPC (~97 lines). "A few days ago, a man wearing
+; a cloak came around. He asked if anyone named Kara had
+; come here." The Jackal is hunting Kara. Also: "I don't
+; like that Kara. She acts like some kind of princess."
+; Jealousy subplot between Ann and Kara.
+---------------------------------------------
+
 ?INCLUDE 'hidden_red_jewel'
 
 ---------------------------------------------

@@ -1,3 +1,10 @@
+; Pyramid treasure NPC — warns about the Pyramid.
+; 
+; Says: "There's a huge pyramid near here. Many explorers
+; have come for the treasure, but no one's found it."
+; Foreshadows the Pyramid dungeon chapter.
+---------------------------------------------
+
 ---------------------------------------------
 
 daC3_treasure_man [

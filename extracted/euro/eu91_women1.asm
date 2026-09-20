@@ -1,3 +1,10 @@
+; Female townspeople group 1 in Euro — mentions Rofsky and Erasquez.
+; 
+; Multi-NPC (~106 lines). "This is where the world-famous
+; Rofsky and the violinist Erasquez live." Establishes
+; Euro's cultural figures and their significance.
+---------------------------------------------
+
 ?INCLUDE 'ActorDisplayModeSwap'
 
 ---------------------------------------------

@@ -1,3 +1,10 @@
+; Lilly's hint in Mu south — thinking about the dungeon.
+; 
+; Lilly speaks from Will's pocket: "Will. I've been thinking..."
+; Provides a gameplay hint for navigating the Mu dungeon.
+; Uses the "speaks from pocket" framing for spirit companion.
+---------------------------------------------
+
 ---------------------------------------------
 
 mu61_hint [

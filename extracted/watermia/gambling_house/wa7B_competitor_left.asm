@@ -1,3 +1,9 @@
+; Left competitor in the Watermia gambling house.
+; 
+; NPC who cheers: "You can still do it!!" During the Russian
+; Glass gambling mini-game. Reacts to the game's progress.
+---------------------------------------------
+
 ?INCLUDE 'wa7B_competitor_right'
 
 ---------------------------------------------

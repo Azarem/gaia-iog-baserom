@@ -1,3 +1,10 @@
+; Desert explorer 2 — shares the Pyramid legend.
+; 
+; NPC: "There's a strange legend around here. 'The Pyramid
+; is not for the living. Only those who've...'" Hints at the
+; Pyramid's supernatural nature and entry requirements.
+---------------------------------------------
+
 ---------------------------------------------
 
 daC7_explorer2 [

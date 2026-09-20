@@ -1,3 +1,11 @@
+; Flasher enemy — electrical enemy in Mu that blinks in and out.
+; 
+; Phase-shifting enemy that alternates between visible/tangible
+; and invisible/intangible states. Can only be damaged while
+; visible. Fires electrical projectile attacks during the
+; visible phase. Uses orbitAngle for timing the phase shifts.
+---------------------------------------------
+
 ?INCLUDE 'smooth_follow'
 
 !playerXPos                     09A2

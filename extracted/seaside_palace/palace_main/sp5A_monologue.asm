@@ -1,3 +1,11 @@
+; Will's monologue arriving at the Seaside Palace.
+; 
+; Narration: "The next thing he knew, Will was standing in a
+; huge palace." Will: "I couldn't remember anything..." Also
+; references Lilly and Mu. Sets the disorienting atmosphere
+; of the vampire palace.
+---------------------------------------------
+
 !sceneCurrent                   0644
 !joypadMaskStd                  065A
 

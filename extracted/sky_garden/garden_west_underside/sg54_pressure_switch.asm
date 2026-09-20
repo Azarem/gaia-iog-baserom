@@ -1,3 +1,10 @@
+; Pressure switch on the garden west underside — opens gate while held.
+; 
+; Invisible trigger that detects player standing on it. While
+; active, opens or maintains an associated gate. Returns when
+; the player steps off. Used in the underside passage puzzles.
+---------------------------------------------
+
 ---------------------------------------------
 
 sg54_pressure_switch [

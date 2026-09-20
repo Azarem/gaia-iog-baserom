@@ -1,3 +1,9 @@
+; Kruk bird 1 in Dao — ambient animal.
+; 
+; Decorative NPC. Says: "Kiaaa... Kiaaa..." Simple bird
+; call for the desert town atmosphere.
+---------------------------------------------
+
 ---------------------------------------------
 
 daC3_kruk1 [

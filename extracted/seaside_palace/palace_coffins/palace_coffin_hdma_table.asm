@@ -1,6 +1,7 @@
-; Custom static HDMA scroll table builder for Seaside Palace coffin room, slot #00.
+; HDMA table data for the Seaside Palace coffin room effects.
 ; 
-; Constructs 16 three-byte HDMA entries at tileStagingBuffer ($7E7000) targeting register $2171 (BG2 vertical scroll), zeroes 16 data words at $7E7100, then queues HDMA on channel #21. Uses SetEntryExit/SetEntryContinue to rebuild and re-queue each frame when flag #FF is clear. Provides per-scanline scroll control for the coffin room layout rather than using the engine's sine generator.
+; Lookup table providing HDMA gradient parameters for the
+; eerie lighting in the coffin examination rooms.
 ---------------------------------------------
 
 !tileStagingBuffer              7E7000

@@ -1,3 +1,10 @@
+; Strange voice in the Seaside Palace — the vampire's warning.
+; 
+; Mysterious NPC: "This is the Palace of Vampires... The fountain
+; in this palace produces demons. The stone is there..."
+; Provides cryptic guidance about the palace's puzzle mechanics.
+---------------------------------------------
+
 ---------------------------------------------
 
 sp5A_voice [

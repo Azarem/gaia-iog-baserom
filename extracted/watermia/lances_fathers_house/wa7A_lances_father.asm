@@ -1,3 +1,10 @@
+; Lance's father — expedition partner of Olman.
+; 
+; NPC: "I went on an expedition with Olman." Provides
+; backstory about the Tower of Babel expedition that
+; connects Lance and Will's fathers. Key lore NPC.
+---------------------------------------------
+
 ---------------------------------------------
 
 wa7A_lances_father [

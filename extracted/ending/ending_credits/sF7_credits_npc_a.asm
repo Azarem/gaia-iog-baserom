@@ -1,3 +1,10 @@
+; Credits NPC group A — first farewell characters (~211 lines).
+; 
+; First batch of NPCs appearing during the credits walkthrough.
+; Each character plays a brief farewell animation or poses
+; as Will passes by. South Cape and early-game characters.
+---------------------------------------------
+
 ?INCLUDE 'CreditPositionLookup'
 
 ---------------------------------------------

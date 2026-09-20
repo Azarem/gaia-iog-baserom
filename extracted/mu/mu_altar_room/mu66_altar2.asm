@@ -1,3 +1,9 @@
+; Altar object 2 in the Mu altar room — smaller puzzle element.
+; 
+; Second altar piece in the room. Works in conjunction with
+; altar1 to complete the altar room puzzle sequence.
+---------------------------------------------
+
 ---------------------------------------------
 
 mu66_altar2 [

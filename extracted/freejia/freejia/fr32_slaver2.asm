@@ -1,3 +1,12 @@
+; Slave trader 2 in Freejia — interrogates Will about the escapee.
+; 
+; Interactive NPC (~97 lines). Asks: "A laborer escaped. Have you
+; seen him? Yes/No" — dialog branches based on player choice.
+; If Yes, says "Where?!"; if No: "Hmm. Tell me if you see him."
+; Multi-state with flag progression tracking the escaped
+; laborer subplot.
+---------------------------------------------
+
 !joypadMaskStd                  065A
 
 ---------------------------------------------

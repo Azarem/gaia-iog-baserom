@@ -1,3 +1,10 @@
+; Space background parallax scroll for the space flight.
+; 
+; Manages the scrolling starfield background during
+; the approach to the comet. Multi-layer parallax
+; for depth effect in space.
+---------------------------------------------
+
 ---------------------------------------------
 
 sE7_space_bg_scroll [

@@ -1,3 +1,10 @@
+; Spirit at the Babel exterior — explains Will's purpose.
+; 
+; NPC: "You were brought back to save Earth. I'll take you to
+; the top floor." Provides transport to the tower's upper
+; levels after story conditions are met.
+---------------------------------------------
+
 ?INCLUDE 'btE1_comet_soon'
 
 !joypadMaskStd                  065A

@@ -1,3 +1,13 @@
+; Main credits sequence orchestrator (~822 lines).
+; 
+; The game's full end credits controller. Displays:
+; "The Illusion of GAIA — STAFF" followed by "Original Story:
+; MARIKO OHARA" and all development credits. Coordinates
+; NPC farewell appearances, location revisits, music changes,
+; and the player character's final walkthrough. The second
+; largest script in the game after Dark Gaia.
+---------------------------------------------
+
 ?BANK 09
 
 ?INCLUDE 'CreditPositionLookup'

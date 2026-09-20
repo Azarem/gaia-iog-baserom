@@ -1,3 +1,10 @@
+; Street performer/showman in Freejia — entertainment NPC.
+; 
+; NPC who boasts: "No one can put on a show like I can.
+; Have a look!" Interactable with an animation sequence showing
+; his performance. Town color/atmosphere character.
+---------------------------------------------
+
 ?BANK 05
 
 !joypadMaskStd                  065A

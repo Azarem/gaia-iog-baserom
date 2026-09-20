@@ -1,3 +1,12 @@
+; Cliff slide event — triggers the falling/sliding sequence on Larai Cliff.
+; 
+; Monitors player Y position: if Y < $110, sets proximity flag;
+; if Y >= $110, clears it. Waits until flags $30 and $31 are both
+; set. Then locks joypad, forces the player into a downward
+; slide movement using playerSpeedEw and staged forced movement,
+; making Will slide down the cliff face in a scripted sequence.
+---------------------------------------------
+
 !joypadMaskStd                  065A
 !playerYPos                     09A4
 !playerSpeedEw                  09B2

@@ -1,3 +1,13 @@
+; Vampire boss duo fight — Mu chapter's climactic boss (~1,342 lines).
+; 
+; Two-phase boss: first the Vampire, then the Vampiress.
+; Vampire taunts: "You've found the Mystic Statue! I thought
+; that guy who stole it would never come here." Vampiress:
+; "I'm glad he's gone. It's your turn next!!" Complex dual
+; boss with teleportation, bat summons, energy attacks, and
+; phase transitions. One of the longer boss scripts.
+---------------------------------------------
+
 ?INCLUDE 'actor_pool'
 ?INCLUDE 'cop_handlers_flags'
 ?INCLUDE 'enemy_stats_table'

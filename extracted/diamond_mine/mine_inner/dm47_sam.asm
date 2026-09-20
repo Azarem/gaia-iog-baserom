@@ -1,3 +1,14 @@
+; Sam — chained slave who teaches the Memory Melody after rescue.
+; 
+; Before freed: "Cut the chain!" interaction. After freed: tells Will
+; about a song that restores lost memories, then hums the Memory Melody.
+; Waits for the SPC music track #1E to finish (polls APUIO1 for $FF),
+; then checks inventory: if Will has the Prison Key (#08) and Wind
+; Melody, Sam takes both as souvenirs and teaches the Memory Melody
+; (item #0D, music+text display #17). If only the Prison Key, takes
+; just that. Sets flag $5E when all three slaves are freed.
+---------------------------------------------
+
 ?INCLUDE 'dm_mine_static_prop'
 ?INCLUDE 'f_inventory_full'
 

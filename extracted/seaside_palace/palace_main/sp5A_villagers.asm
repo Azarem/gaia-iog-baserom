@@ -1,3 +1,11 @@
+; Rescued villagers in the Seaside Palace — freed from demon form.
+; 
+; Multi-NPC group (~184 lines). "Saved!! Thank you!! I was
+; brought to this palace from Freejia and changed to a demon..."
+; Lilly helps translate. The villagers were transformed by
+; the vampire's fountain. Connects to the Freejia slave trade.
+---------------------------------------------
+
 ?INCLUDE 'ActorDisplayModeSwap'
 ?INCLUDE 'music_actors'
 ?INCLUDE 'npc_wander_ai'

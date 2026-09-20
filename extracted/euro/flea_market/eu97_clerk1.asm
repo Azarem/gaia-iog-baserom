@@ -1,3 +1,9 @@
+; Shop clerk 1 in the Euro flea market — farewell dialog.
+; 
+; NPC: "Going home? Thank you very much." Friendly shopkeeper
+; who acknowledges the player leaving the store.
+---------------------------------------------
+
 !joypadMaskStd                  065A
 !playerActor                    09AA
 

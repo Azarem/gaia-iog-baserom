@@ -1,3 +1,10 @@
+; Sympathetic woman harboring the laborer — begs for secrecy.
+; 
+; NPC pleading: "Please! Don't tell! I don't care about myself,
+; I just don't want to get this man in trouble." Emotional
+; scene showing civilians resisting the slave trade.
+---------------------------------------------
+
 ---------------------------------------------
 
 fr3A_sympathetic [

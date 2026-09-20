@@ -1,3 +1,12 @@
+; Archer enemy — ranged attacker on the Great Wall (~719 lines).
+; 
+; Fires arrows at the player from fixed positions. Complex AI
+; with firing angle calculations based on player position.
+; Multiple arrow types with different speeds and trajectories.
+; Patrols along wall sections and shoots when player enters
+; range. Includes arrow child actors for the projectiles.
+---------------------------------------------
+
 ?INCLUDE 'ApplyPlayerHitstun'
 ?INCLUDE 'enemy_stats_table'
 ?INCLUDE 'GetPlayerFacingDirection'

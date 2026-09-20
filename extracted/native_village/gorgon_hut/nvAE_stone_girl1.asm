@@ -1,3 +1,10 @@
+; Stone girl statue 1 in the Gorgon Hut — silent, waiting.
+; 
+; Interactive object: "The statue of a girl stands silently."
+; One of three petrified villagers turned to stone by the
+; Gorgon. Can be restored later in the story.
+---------------------------------------------
+
 ---------------------------------------------
 
 nvAE_stone_girl1 [

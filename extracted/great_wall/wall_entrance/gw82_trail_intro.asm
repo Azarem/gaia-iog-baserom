@@ -1,3 +1,10 @@
+; Will's monologue entering the Great Wall — following Lance.
+; 
+; Narration: "I followed Lance's trail to the Great Wall.
+; A corridor stretches..." Sets the scene for the Great Wall
+; dungeon chapter. Plays once on first entry with flag check.
+---------------------------------------------
+
 !joypadMaskStd                  065A
 
 ---------------------------------------------

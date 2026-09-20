@@ -1,3 +1,12 @@
+; Knight Armor enemy — heavy armored enemy in Sky Garden (~622 lines).
+; 
+; Large enemy with directional shield mechanics similar to
+; Stone Guard. Patrols in cardinal directions, charges at
+; the player with lunging attacks. Vulnerable only from
+; specific angles when the shield is lowered. Uses hit
+; callbacks to track damage through shield phases.
+---------------------------------------------
+
 ?INCLUDE 'EnemyDeathFlash'
 ?INCLUDE 'interaction_handlers'
 ?INCLUDE 'smooth_follow'

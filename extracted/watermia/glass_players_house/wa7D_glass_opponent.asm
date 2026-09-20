@@ -1,3 +1,10 @@
+; Russian Glass opponent in the glass player's house.
+; 
+; NPC (~92 lines). Says: "Cough, cough. I seem to have caught
+; a little cold." The glass game champion who Will can
+; challenge. Multi-state dialog based on game progression.
+---------------------------------------------
+
 !joypadMaskStd                  065A
 !jewelsCollected                0AB0
 

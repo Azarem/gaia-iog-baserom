@@ -1,3 +1,11 @@
+; Plane jumping scene — Neil flies Will to the tower.
+; 
+; Cutscene (~92 lines). Neil: "We'll be there soon, Will.
+; Say hello to your father for me." Will: "Thanks. I know you
+; mean that." The airplane approach and Will's jump into
+; the tower. Emotional farewell with Neil.
+---------------------------------------------
+
 !gfxCacheIdxB                   064A
 !joypadMaskStd                  065A
 !playerActor                    09AA

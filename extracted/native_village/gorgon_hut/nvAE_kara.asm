@@ -1,3 +1,11 @@
+; Kara in the Gorgon Hut — used sign language with villagers.
+; 
+; Extended NPC (~94 lines). "I used sign language to talk to
+; the villagers. The animals have returned to the forest."
+; Kara bridges the language barrier. Multi-phase dialog
+; about the labor traders taking villagers.
+---------------------------------------------
+
 !gfxCacheIdxB                   064A
 !joypadMaskStd                  065A
 

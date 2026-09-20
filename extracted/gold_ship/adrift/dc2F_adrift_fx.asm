@@ -1,3 +1,10 @@
+; Ocean wave visual effects during the adrift sequence.
+; 
+; Loads spriteset_field_fx misc data and plays a looping wave
+; animation overlay using ResetSpriteInit and LoadSpriteAnimGlobal.
+; Provides the atmospheric ocean surface effect during the drift.
+---------------------------------------------
+
 ?INCLUDE 'spriteset_field_fx'
 
 ---------------------------------------------

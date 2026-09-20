@@ -1,3 +1,13 @@
+; Viper boss fight — Sky Garden area boss (~1,146 lines).
+; 
+; Large serpent boss with lunging strike attacks, poison
+; mechanics, and phase-based AI. The fight takes place on
+; a platform with falling tile hazards. Uses complex
+; directional tracking to coil and strike at the player.
+; Multiple phases with increasing aggression. Crystal Bird
+; cry is the vulnerability window (hinted by Moon Tribe spirit).
+---------------------------------------------
+
 ?INCLUDE 'cop_handlers_flags'
 ?INCLUDE 'hardware_math'
 ?INCLUDE 'sE6_gaia'

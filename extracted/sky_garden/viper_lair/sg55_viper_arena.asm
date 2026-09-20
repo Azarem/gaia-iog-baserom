@@ -1,3 +1,11 @@
+; Viper boss arena setup and boundary management.
+; 
+; Configures the arena boundaries, falling tile triggers,
+; and environmental hazards for the Viper boss fight.
+; Manages the floor tiles that crumble during the battle
+; and the arena edge collision walls.
+---------------------------------------------
+
 ?INCLUDE 'gs2B_wreck_wave_motion'
 ?INCLUDE 'visual_effect_pipeline'
 

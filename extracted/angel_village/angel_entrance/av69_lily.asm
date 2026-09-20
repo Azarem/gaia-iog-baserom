@@ -1,3 +1,9 @@
+; Lilly at the Angel Village entrance — urges the party forward.
+; 
+; NPC. Lilly: "Will, let's go." Brief encouragement to
+; explore the village.
+---------------------------------------------
+
 !moveXAlt                       7F0018
 !moveYAlt                       7F001A
 

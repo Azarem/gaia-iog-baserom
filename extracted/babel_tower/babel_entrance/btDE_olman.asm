@@ -1,3 +1,12 @@
+; Will's father Olman at the Babel entrance — emotional reunion.
+; 
+; Major story scene (~118 lines). "One worn-out body is quietly
+; laid down... In his head, a familiar voice speaks. Will.
+; It's me..." Will: "Father! Why are you in that form!!!"
+; Olman explains the strange room in the tower. Pivotal
+; reunion that drives the endgame plot.
+---------------------------------------------
+
 ?INCLUDE 'InitPlayerScriptVariant'
 ?INCLUDE 'music_actors'
 ?INCLUDE 'spriteset_npc_props'

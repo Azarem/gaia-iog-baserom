@@ -1,3 +1,10 @@
+; Children NPCs in Watermia — snake bite remedies.
+; 
+; NPC: "If you're bitten by a snake, you should run around like
+; crazy..." Humorous child wisdom about snake encounters.
+; Multi-child dialog with different advice.
+---------------------------------------------
+
 ?INCLUDE 'ActorDisplayModeSwap'
 
 ---------------------------------------------

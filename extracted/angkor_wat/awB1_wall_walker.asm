@@ -1,3 +1,12 @@
+; Wall Walker enemy — wall-traversing creature in Angkor Wat (~543 lines).
+; 
+; Unique enemy that walks along walls and ceilings, ignoring
+; normal collision. Drops down from above to attack. Complex
+; pathfinding that follows wall surfaces. When killed, can
+; trigger field reveals via deathActionIdx. Large script
+; with wall-following navigation logic.
+---------------------------------------------
+
 ?INCLUDE 'cop_handlers_flags'
 ?INCLUDE 'EnemyDeathFlash'
 ?INCLUDE 'field_reveal_object'

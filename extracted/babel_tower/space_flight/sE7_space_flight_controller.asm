@@ -1,3 +1,11 @@
+; Space flight sequence controller (~212 lines).
+; 
+; Controls the Mode 7-style space flight sequence as Will
+; travels from the Tower of Babel to the comet. Manages
+; sprite scaling, camera movement, star particle spawning,
+; and the dramatic approach to the comet's surface.
+---------------------------------------------
+
 ?INCLUDE 'spriteset_enemies'
 
 !playerActor                    09AA

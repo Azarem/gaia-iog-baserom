@@ -1,3 +1,10 @@
+; Gold Ship deck crew member 4 — static NPC with King reaction.
+; 
+; Solid NPC. Dialog: "It's the King! You're safe!" followed by
+; Will's inner thought: "(I'm the King???)" — showing Will's
+; confusion about being mistaken for royalty.
+---------------------------------------------
+
 ---------------------------------------------
 
 gs2C_crew4 [

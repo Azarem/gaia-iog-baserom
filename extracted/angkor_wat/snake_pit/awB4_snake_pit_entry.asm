@@ -1,3 +1,10 @@
+; Snake pit entry mechanism in Angkor Wat (~78 lines).
+; 
+; Manages the transition into the snake pit hazard area.
+; Detects player entry and handles the fall animation
+; into the pit. Checks for escape conditions.
+---------------------------------------------
+
 ?INCLUDE 'oneshot_palette_flash_1C'
 ?INCLUDE 'player_character'
 

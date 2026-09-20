@@ -1,3 +1,10 @@
+; Villager longing for the ocean in Angel Village.
+; 
+; NPC: "I don't know when we started living here. But when
+; I look at the ocean, I feel an ache..." Expresses the
+; Angel Tribe's yearning for the surface world they left.
+---------------------------------------------
+
 ?INCLUDE 'ActorDisplayModeSwap'
 ?INCLUDE 'npc_wander_ai'
 

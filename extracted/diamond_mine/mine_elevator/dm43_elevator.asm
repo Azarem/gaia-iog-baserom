@@ -1,3 +1,16 @@
+; Mine elevator — moves player between upper and lower mine levels.
+; 
+; Checks player X position to determine which floor: X < $30 means
+; upper floor (tile pos 4,8), otherwise lower floor (tile pos $5C,$34).
+; Waits for player to step onto the platform at specific coordinates.
+; During ride: locks joypad, animates cage sprite moving frame by frame,
+; physically repositions the player actor each tick to match, plays
+; ratchet SFX (#0C) every 16 frames. D-pad during ride triggers
+; InitPlayerScriptVariant for facing direction. Two child actors
+; (elevator_stop_y, elevator_stop_x) handle edge scrolling limits
+; by ping-ponging between map bounds.
+---------------------------------------------
+
 ?INCLUDE 'InitPlayerScriptVariant'
 
 !joypadMaskStd                  065A

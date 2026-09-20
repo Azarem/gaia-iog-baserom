@@ -1,3 +1,13 @@
+; Double-locked cell door in the mine foyer — requires both mine keys.
+; 
+; Displays as a door sprite with interaction. When examined, checks
+; inventory for items #0B (Mine Key) and #0C (second key). If neither
+; key is present, shows "There are two keyholes" text. If only one key,
+; shows "Without both keys" message. If both keys present, offers a
+; Yes/No choice to use them. On Yes, removes both keys from inventory,
+; sets flags $5B and $5C, applies BG change #7A to open the door.
+---------------------------------------------
+
 ---------------------------------------------
 
 dm44_cell_door [

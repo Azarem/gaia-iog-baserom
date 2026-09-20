@@ -1,3 +1,9 @@
+; Bones decoration in the Euro dark chapel.
+; 
+; Non-interactive prop in the chapel. Visual atmosphere
+; element suggesting the chapel's dark history.
+---------------------------------------------
+
 ?INCLUDE 'spriteset_npc_props'
 
 ---------------------------------------------

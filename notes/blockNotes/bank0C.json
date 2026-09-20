@@ -1,4 +1,8 @@
 {
     "scene_thinkers": "Per-scene thinker spawn lists indexed by scene ID.\n\nEach scene entry defines which background AI thinkers (palette cyclers,\nHDMA effects, ambient handlers) spawn when the scene loads.\nRead by SpawnSceneThinkers during scene transitions.",
+    "sE7_space_bg_scroll": "Space background parallax scroll for the space flight.\n\nManages the scrolling starfield background during\nthe approach to the comet. Multi-layer parallax\nfor depth effect in space.",
+    "sE7_space_flight_controller": "Space flight sequence controller (~212 lines).\n\nControls the Mode 7-style space flight sequence as Will\ntravels from the Tower of Babel to the comet. Manages\nsprite scaling, camera movement, star particle spawning,\nand the dramatic approach to the comet's surface.",
+    "sE8_comet_display_config": "Comet lair display configuration (~132 lines).\n\nInitializes the full display setup for the Dark Gaia boss\narena: palette loading, HDMA channel configuration, BG\nlayer priorities, and the cosmic background starfield.\nMust execute before the boss fight begins.",
+    "sE8_dark_gaia": "Dark Gaia — the final boss of the game (~1,005 lines).\n\nMulti-form final boss with the game's largest boss script.\nPhase 1: Dark Gaia's face attacks with energy beams and\nsummoned projectiles. Phase 2: transformation into the\ncomet form with new attack patterns. Phase 3: final\ndesperate assault. Uses extensive camera control, palette\nmanipulation, and spawned child actors for attacks.\nDefeat triggers the ending sequence.",
     "unused_null_actor": "Unused null actor — single actor-def with immediate RTL.\n\nEmpty placeholder actor at $0CF622. No references."
 }

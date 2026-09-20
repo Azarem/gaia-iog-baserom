@@ -1,3 +1,11 @@
+; Jackal warning girl in Dao — delivers a threatening drawing.
+; 
+; NPC: "The girl silently offers one sheet of paper." The paper
+; has a picture of a jackal: "A shiver ran down my spine.
+; It was a warning from the Jackal." The Jackal antagonist
+; uses a child as an intimidation messenger.
+---------------------------------------------
+
 ---------------------------------------------
 
 daC3_jackal_girl [

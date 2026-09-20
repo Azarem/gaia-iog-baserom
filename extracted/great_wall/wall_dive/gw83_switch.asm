@@ -1,3 +1,10 @@
+; Switch mechanism at the Great Wall dive entrance.
+; 
+; Hittable switch that toggles a gate or passage. When struck,
+; changes sprite state and sets the corresponding flag.
+; Used to open the path deeper into the wall.
+---------------------------------------------
+
 ?INCLUDE 'SpawnDebrisBurst'
 ?INCLUDE 'spriteset_enemies'
 

@@ -1,3 +1,11 @@
+; Kara missing at the Babel entrance — search begins.
+; 
+; Event NPC (~113 lines): "Kara's not here... Where did she go..."
+; Triggers the search for Kara in the tower. Multi-phase
+; scene with joypad lock and party member reactions.
+; Sets up the Kara rescue subplot for the tower ascent.
+---------------------------------------------
+
 ?INCLUDE 'EscortFollowPathTracker'
 ?INCLUDE 'GetPlayerFacingDirection'
 ?INCLUDE 'spriteset_enemies'

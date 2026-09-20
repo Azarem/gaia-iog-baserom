@@ -1,3 +1,11 @@
+; Kara in the Oakton interior — wakes Will after the shipwreck rescue.
+; 
+; Long cutscene NPC (~85 lines). Kara shouts: "Will! Will!! Wake up!
+; We've reached land!! We're saved!" Will responds groggily.
+; Kara explains they're at the home of a man who rescued them.
+; Multi-phase scene with joypad lock and music changes.
+---------------------------------------------
+
 ?INCLUDE 'InitPlayerScriptVariant'
 ?INCLUDE 'player_transition_handlers'
 

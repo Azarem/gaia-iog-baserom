@@ -1,3 +1,11 @@
+; Hittable switch in the wind tunnel room (map $21) — triggers flag on hit.
+; 
+; Enemy-type actor with stat entry 118, $FF HP (never dies). When hit,
+; shows pressed sprite frame #10, sets flag byte #0F, waits $3B frames,
+; then resets to unpressed frame #0F and becomes hittable again.
+; Used to activate wind tunnel mechanisms.
+---------------------------------------------
+
 ?INCLUDE 'enemy_stats_table'
 ?INCLUDE 'spriteset_enemies'
 

@@ -1,3 +1,10 @@
+; Slave trader 1 in Freejia — searching for escaped laborer.
+; 
+; Patrolling NPC who says: "Where'd he go..." Part of the
+; labor escape subplot. Walks a route searching for the
+; laborer who escaped.
+---------------------------------------------
+
 ---------------------------------------------
 
 fr32_slaver1 [

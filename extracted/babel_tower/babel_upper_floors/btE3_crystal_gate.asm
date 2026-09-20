@@ -1,3 +1,9 @@
+; Crystal gate in the Babel upper floors.
+; 
+; Upper-level gate with crystal key requirement. Same
+; mechanics as the middle floor gates.
+---------------------------------------------
+
 ?INCLUDE 'bt_static_sprite'
 
 ---------------------------------------------

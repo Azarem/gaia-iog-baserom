@@ -1,3 +1,12 @@
+; Ancient spirit guide on the Angkor Wat pinnacle (~130 lines).
+; 
+; Major story NPC. "Will... I've been waiting for you to come
+; for thousands of years..." Will: "What?! Who are you?"
+; The spirit shows Will a vision of the new world and
+; explains the coming transformation. Key story revelation
+; about the comet's true purpose.
+---------------------------------------------
+
 ?INCLUDE 'oneshot_palette_flash_18'
 ?INCLUDE 'oneshot_palette_flash_19'
 ?INCLUDE 'spriteset_npc_props'

@@ -1,3 +1,12 @@
+; Kara on the Tower of Babel rooftop — the climactic fusion.
+; 
+; Major endgame scene (~190 lines). Kara: "..............." Then:
+; "When Will and Kara joined and became one with the Light
+; Knight, a great power was born..." The climactic moment
+; where Will and Kara merge with the Light Knight to
+; confront Dark Gaia. The game's emotional peak.
+---------------------------------------------
+
 ?INCLUDE 'ApplyOrbitalOffsetFromRef'
 ?INCLUDE 'GetPlayerFacingDirection'
 ?INCLUDE 'sE6_gaia'

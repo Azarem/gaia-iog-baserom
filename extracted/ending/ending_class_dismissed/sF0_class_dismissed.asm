@@ -1,3 +1,12 @@
+; Class dismissed — the game's final scene (~208 lines).
+; 
+; Returns to South Cape school where the game began.
+; "Class is over. Please be careful crossing the street."
+; Will walks out of school into the sunlight. The bookend
+; moment that closes the game's narrative loop. Includes
+; the mysterious final encounter on the street.
+---------------------------------------------
+
 !joypadMaskStd                  065A
 !displayModeFlags               09EC
 !TM                             212C

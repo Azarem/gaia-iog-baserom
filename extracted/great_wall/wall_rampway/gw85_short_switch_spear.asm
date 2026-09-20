@@ -1,3 +1,10 @@
+; Short-delay switch spear on the Great Wall rampway.
+; 
+; Wall spear trap with a shorter timer cycle. Faster
+; extend/retract rhythm than the long variant. Creates
+; tighter timing windows on the rampway.
+---------------------------------------------
+
 ---------------------------------------------
 
 gw85_short_switch_spear [

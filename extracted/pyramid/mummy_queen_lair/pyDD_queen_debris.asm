@@ -1,3 +1,10 @@
+; Mummy Queen debris hazard — falling rubble during the fight.
+; 
+; Environmental hazard spawned during boss phase transitions.
+; Debris falls from above and damages the player on contact.
+; Creates visual chaos and movement pressure.
+---------------------------------------------
+
 ?BANK 0B
 
 !cameraTargetY                  06C2

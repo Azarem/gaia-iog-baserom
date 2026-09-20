@@ -1,3 +1,12 @@
+; Seth on the wrecked Gold Ship — gives a Red Jewel.
+; 
+; Before flag $51: solid NPC with interaction. On first talk
+; (flag $E0 not set): Seth found a strange jewel on board and
+; gives it to Will (hidden_red_jewel). After giving the jewel,
+; dialog changes to: "It's the first time I've ever given you
+; anything. Take care of it." Despawns after flag $51.
+---------------------------------------------
+
 ?INCLUDE 'hidden_red_jewel'
 
 ---------------------------------------------

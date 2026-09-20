@@ -1,3 +1,10 @@
+; Prize Kruk display in Watermia — Russian Glass reward.
+; 
+; NPC: "These are the Kruks I was given. I have to let everyone
+; know." Displays the Kruk birds won from the Russian Glass
+; game. Shows the game's reward/stakes.
+---------------------------------------------
+
 ---------------------------------------------
 
 wa78_prize_kruk [

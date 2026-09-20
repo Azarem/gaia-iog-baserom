@@ -1,3 +1,10 @@
+; Waterfall ambient sound effect in the Angel Village tunnel.
+; 
+; Audio actor that plays flowing water sounds near waterfalls
+; in the tunnel. Adjusts volume based on player distance
+; for spatial audio effect.
+---------------------------------------------
+
 !playerXTile                    09A6
 !APUIO0                         2140
 

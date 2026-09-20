@@ -1,3 +1,6 @@
+; Credit text position lookup table. Maps staff credit entries to screen X/Y positions during the credits roll.
+---------------------------------------------
+
 ---------------------------------------------
 
 CreditPositionLookup {

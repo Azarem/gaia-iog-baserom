@@ -1,3 +1,10 @@
+; Neil at Luke's house — inspired by raft houses for invention.
+; 
+; NPC. Says: "The house on this raft gives me an idea for
+; a new invention." Character-consistent dialog — Neil always
+; thinking about inventions.
+---------------------------------------------
+
 !gfxCacheIdxB                   064A
 
 ---------------------------------------------

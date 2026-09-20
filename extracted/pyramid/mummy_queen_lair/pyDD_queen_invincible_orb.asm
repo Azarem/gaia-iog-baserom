@@ -1,3 +1,10 @@
+; Mummy Queen invincible orb — shields the boss.
+; 
+; Small child actor (16 lines) that orbits the queen during
+; invulnerability phases. Cannot be destroyed. Blocks player
+; attacks and deals contact damage.
+---------------------------------------------
+
 ---------------------------------------------
 
 pyDD_queen_invincible_orb [

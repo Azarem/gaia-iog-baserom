@@ -1,3 +1,10 @@
+; Sliding gate mechanism in the Angkor Wat inner area.
+; 
+; Gate that slides open/closed based on switch or flag state
+; (~58 lines). Controls access between courtyard sections.
+; Standard sliding gate pattern with sprite animation.
+---------------------------------------------
+
 ---------------------------------------------
 
 awB7_sliding_gate [

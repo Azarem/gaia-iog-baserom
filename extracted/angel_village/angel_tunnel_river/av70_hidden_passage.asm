@@ -1,3 +1,10 @@
+; Hidden passage discovery in the Angel Village river tunnel.
+; 
+; Interactable wall crack: "The wind blows through a crack
+; in the wall. I found a hidden passage!" Reveals a secret
+; path to a treasure or alternate route.
+---------------------------------------------
+
 !sceneCurrent                   0644
 
 ---------------------------------------------

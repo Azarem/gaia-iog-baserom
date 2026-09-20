@@ -1,3 +1,10 @@
+; Altar room dialog — describes the ancient burial ground of Mu.
+; 
+; Text object: "This looks like an ancient burial ground for
+; the people of Mu." Provides context about the altar room's
+; significance as a sacred space for the ancient Mu civilization.
+---------------------------------------------
+
 !joypadMaskStd                  065A
 !cameraBoundsY                  06DC
 

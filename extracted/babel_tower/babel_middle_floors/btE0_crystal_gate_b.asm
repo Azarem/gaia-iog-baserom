@@ -1,3 +1,9 @@
+; Crystal gate B in the Babel middle floors.
+; 
+; Second crystal-locked gate. Same mechanics as gate A
+; with a different flag condition.
+---------------------------------------------
+
 ?INCLUDE 'bt_static_sprite'
 
 ---------------------------------------------

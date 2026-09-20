@@ -1,3 +1,11 @@
+; Dao travel spirit in the Babel upper floors — point of no return.
+; 
+; Offers return travel: "If you proceed, you will not be able
+; to turn back... If you want to go to Dao, I'll transport you."
+; Last chance to return to Dao before the final boss. Serves
+; as the point-of-no-return warning.
+---------------------------------------------
+
 ?INCLUDE 'spriteset_npc_props'
 
 !gfxCacheIdxA                   0648

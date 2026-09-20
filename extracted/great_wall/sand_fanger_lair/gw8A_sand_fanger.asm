@@ -1,3 +1,14 @@
+; Sand Fanger boss fight — Great Wall area boss (~1,610 lines).
+; 
+; The largest boss script in the game. Multi-phase sand worm
+; boss that burrows underground and surfaces to attack.
+; Uses position prediction to emerge near the player. Multiple
+; attack types: sand spray, lunging bite, tail sweep. Phase
+; transitions increase speed and attack variety. The arena
+; has shifting sand terrain. Defeat triggers Mystic Statue
+; reward: "You've defeated the Sand Fanger! Look! A Mystic Statue!"
+---------------------------------------------
+
 ?INCLUDE 'ApplyOrbitalOffsetXY'
 ?INCLUDE 'cop_handlers_flags'
 ?INCLUDE 'enemy_stats_table'

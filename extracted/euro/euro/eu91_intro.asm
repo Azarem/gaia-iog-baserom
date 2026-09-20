@@ -1,3 +1,10 @@
+; Euro arrival narration — town introduction.
+; 
+; Extended narration (~93 lines): "We crossed the desert and
+; finally arrived in the village of Euro." Multi-phase arrival
+; cutscene establishing the European setting.
+---------------------------------------------
+
 !gfxCacheIdxB                   064A
 !joypadMaskStd                  065A
 !cameraTargetX                  06BE

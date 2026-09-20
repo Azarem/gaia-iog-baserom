@@ -1,3 +1,11 @@
+; Guard blocking the Freejia back alley — denies access to children.
+; 
+; Positioned to block passage. Two dialog states based on flags:
+; initially warns "Children don't come here. Go home.", later
+; becomes more aggressive: "This kid! Where did you come from?!"
+; Prevents access to the slave market area until story progression.
+---------------------------------------------
+
 !playerXPos                     09A2
 !playerSpeedEw                  09B2
 

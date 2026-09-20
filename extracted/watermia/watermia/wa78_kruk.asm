@@ -1,3 +1,10 @@
+; Kruk bird in Watermia — ambient animal.
+; 
+; Decorative NPC. Says: "Kyaah!! kyaah!!" — the Kruk call.
+; Animated animal for town atmosphere. Referenced by several
+; NPCs discussing Kruks as pets.
+---------------------------------------------
+
 ---------------------------------------------
 
 wa78_kruk [

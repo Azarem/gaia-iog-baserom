@@ -1,3 +1,10 @@
+; Town greeter NPC in Dao — introduces the desert village.
+; 
+; Says: "This is Dao, the desert village. Children don't come
+; to places like this very often." Establishes the remote,
+; adult-oriented nature of the desert trade town.
+---------------------------------------------
+
 ?INCLUDE 'npc_wander_ai'
 
 !currentHp                      7F0026

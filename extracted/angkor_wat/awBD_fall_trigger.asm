@@ -1,3 +1,11 @@
+; Fall trigger in Angkor Wat — floor collapse event.
+; 
+; Invisible trigger (~65 lines) that detects player position
+; over weak floor sections. When triggered, the floor
+; collapses and the player falls to a lower area. One-way
+; progression mechanic.
+---------------------------------------------
+
 ?INCLUDE 'player_transition_handlers'
 
 !sceneCurrent                   0644

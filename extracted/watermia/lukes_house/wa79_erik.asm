@@ -1,3 +1,10 @@
+; Erik at Luke's house in Watermia — found something behind the house.
+; 
+; NPC. Says: "Heh heh. I've found something good. Go outside
+; and look behind the house." Hints at a hidden item or
+; secret area accessible from behind the building.
+---------------------------------------------
+
 ---------------------------------------------
 
 wa79_erik [

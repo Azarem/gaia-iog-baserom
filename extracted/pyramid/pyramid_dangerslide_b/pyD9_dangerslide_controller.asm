@@ -1,3 +1,11 @@
+; Danger slide controller — automated slide section in the Pyramid (~159 lines).
+; 
+; Manages the dangerous slide passages where the player is
+; carried along a path at speed. Handles slide direction,
+; speed acceleration, branching paths, and obstacle collision.
+; Player must make timed directional inputs to avoid hazards.
+---------------------------------------------
+
 ?INCLUDE 'camera_drift'
 ?INCLUDE 'spriteset_enemies'
 

@@ -1,3 +1,11 @@
+; Statue of Hope pickup in Mu west area.
+; 
+; Collectible item actor. When touched: "You've found the Statue
+; of Hope! The Statue of Hope grants increased defense." If
+; inventory full, shows the full-inventory message. Grants a
+; permanent stat boost. Uses standard item pickup pattern.
+---------------------------------------------
+
 ?INCLUDE 'music_actors'
 
 !displayModeFlags               09EC

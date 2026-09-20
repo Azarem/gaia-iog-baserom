@@ -1,3 +1,10 @@
+; Explorer NPC in the Pyramid puzzle room — warning about traps.
+; 
+; Interactable NPC: "There are traps scattered around to
+; prevent entry. There's a booby trap in this room too."
+; Warns the player about the puzzle room's dangers.
+---------------------------------------------
+
 ---------------------------------------------
 
 pyCD_explorer [

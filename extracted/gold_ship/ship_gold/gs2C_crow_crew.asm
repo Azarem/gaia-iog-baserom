@@ -1,3 +1,14 @@
+; Crow's nest lookout — triggers the ship departure storm sequence.
+; 
+; Multi-phase actor: before flag $4F, spawns a child thinker that
+; handles the storm palette flash (oneshot_palette_flash_1C).
+; Interaction triggers the "set sail" sequence with flag $4C.
+; When the storm event flag $4F is set, manages the transition
+; to the adrift sequence. Uses vblank_joypad for timing and
+; hardware register writes (TM, CGADSUB, COLDATA) for the
+; storm visual effects.
+---------------------------------------------
+
 ?INCLUDE 'oneshot_palette_flash_1C'
 ?INCLUDE 'vblank_joypad'
 

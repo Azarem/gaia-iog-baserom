@@ -1,3 +1,8 @@
+; Lithograph 4 in the hieroglyph room.
+; 
+; Fourth hieroglyph panel in the puzzle sequence.
+---------------------------------------------
+
 ?BANK 08
 
 ?INCLUDE 'pyDA_lithograph1'

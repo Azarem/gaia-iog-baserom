@@ -1,3 +1,11 @@
+; Falling ceiling tile trap in the Inca entryway — shakes then falls.
+; 
+; Waits for flag $2F to not yet be set. Locks joypad, waits $3B frames,
+; plays rumble SFX ($1515), spawns camera_drift for screen shake,
+; waits $B3 frames, then drops the tile: teleports Y position up by
+; $100 pixels and falls with TRB $2000. Triggers on ceiling event.
+---------------------------------------------
+
 ?INCLUDE 'camera_drift'
 
 !joypadMaskStd                  065A

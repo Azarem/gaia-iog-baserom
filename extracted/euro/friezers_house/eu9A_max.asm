@@ -1,3 +1,9 @@
+; Max (Friezer's companion) — nervous about the next expedition.
+; 
+; NPC: "I wonder where you're taking us exploring this time...
+; I'm afraid it might be dangerous." Shows the team's dynamic.
+---------------------------------------------
+
 ---------------------------------------------
 
 eu9A_max [

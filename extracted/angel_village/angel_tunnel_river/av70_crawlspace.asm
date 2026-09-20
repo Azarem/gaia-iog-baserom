@@ -1,3 +1,10 @@
+; Crawlspace passage in the Angel Village river tunnel.
+; 
+; Interactive passageway with size check. Text: "The entrance
+; is too small!" Blocks passage for Will's normal form —
+; requires a smaller form (Shadow) to pass through.
+---------------------------------------------
+
 !sceneCurrent                   0644
 !playerYPos                     09A4
 !playerFlags                    09AE

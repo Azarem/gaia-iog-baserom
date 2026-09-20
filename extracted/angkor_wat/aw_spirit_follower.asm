@@ -1,3 +1,11 @@
+; Spirit follower companion in Angkor Wat (~97 lines).
+; 
+; Spirit entity that follows the player through the temple.
+; Floats behind Will and provides ambient company during
+; the dungeon exploration. Uses smooth follow mechanics
+; to track player movement.
+---------------------------------------------
+
 ?BANK 0B
 
 ?INCLUDE 'smooth_follow'

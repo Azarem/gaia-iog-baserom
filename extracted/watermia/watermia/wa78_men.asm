@@ -1,3 +1,11 @@
+; Male NPCs in Watermia — extensive town exposition.
+; 
+; Multi-NPC group (~175 lines). "This is Watermia. The houses
+; are built on rafts. We like to move around." Various male
+; townspeople providing information about Watermia's culture,
+; raft-house lifestyle, and the Russian Glass tradition.
+---------------------------------------------
+
 ?INCLUDE 'ActorDisplayModeSwap'
 
 !gfxCacheIdxB                   064A

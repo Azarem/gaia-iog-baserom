@@ -1,3 +1,11 @@
+; Draco enemy — dragon creature in the Angel Village tunnels (~263 lines).
+; 
+; Medium enemy with breath attack projectiles. Moves through
+; tunnels with directional sprite animation, periodically
+; stopping to fire a breath weapon toward the player. Uses
+; BranchOnPlayer* for aiming direction.
+---------------------------------------------
+
 ?INCLUDE 'ActorMidpointCalc'
 ?INCLUDE 'spriteset_enemies'
 ?INCLUDE 'StandardEnemyDefeatHandler'

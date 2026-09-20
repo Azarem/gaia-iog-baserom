@@ -1,3 +1,11 @@
+; Pyramid entrance portal — choice to enter.
+; 
+; Interactive warp: "The door to the Pyramid appears in the
+; light... Quit/Jump in" — gives the player the choice to
+; enter the Pyramid or back out. Standard dungeon entrance
+; portal with confirmation dialog.
+---------------------------------------------
+
 ?INCLUDE 'py_death_particle'
 
 !gfxCacheIdxA                   0648

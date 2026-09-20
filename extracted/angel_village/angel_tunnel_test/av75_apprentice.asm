@@ -1,3 +1,10 @@
+; Ishtar's apprentice — explains the puzzle room test.
+; 
+; NPC: "When you solve the puzzle of the room you may pass."
+; Guards the entrance to Ishtar's test chambers and provides
+; the rules for the puzzle sequence.
+---------------------------------------------
+
 !playerSpeedNs                  09B4
 
 ---------------------------------------------

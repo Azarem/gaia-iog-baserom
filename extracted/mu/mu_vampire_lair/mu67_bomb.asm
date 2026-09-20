@@ -1,3 +1,12 @@
+; Bomb defusal puzzle in the vampire lair — red or blue wire.
+; 
+; Interactive puzzle (~185 lines): "There's a red wire and a blue
+; wire sticking out of the bomb... Cut which wire?" Player
+; must choose the correct wire. Wrong choice has consequences.
+; "The red wire is cut!" is the success path. Part of the
+; tense vampire lair rescue sequence.
+---------------------------------------------
+
 ?INCLUDE 'oam_digit_compose'
 ?INCLUDE 'sE6_gaia'
 

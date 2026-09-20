@@ -1,3 +1,12 @@
+; Changed world overview — continents have shifted.
+; 
+; Story scene (~76 lines). Will: "Somehow the land has taken on
+; a strange shape." Will's father: "That's the new world."
+; Kara observes the transformed globe. Visual scene showing
+; the continents rearranging into their modern positions
+; after the comet's influence.
+---------------------------------------------
+
 !gfxCacheIdxB                   064A
 !joypadMaskStd                  065A
 !displayModeFlags               09EC

@@ -1,3 +1,10 @@
+; Erik at the Angel Village entrance — ambient party member.
+; 
+; NPC at the tunnel entrance. No direct dialog in initial
+; state — positioned as part of the party formation entering
+; the village.
+---------------------------------------------
+
 ---------------------------------------------
 
 av69_erik [

@@ -1,3 +1,11 @@
+; Ishtar (angel leader) in the tunnel rooms — guards Kara.
+; 
+; Boss-gating NPC. Says: "I wonder if you're here to get Kara.
+; Go into this room..." Ishtar controls access to the puzzle
+; test rooms and later becomes the area boss. Sets up the
+; Ishtar's test sequence.
+---------------------------------------------
+
 ---------------------------------------------
 
 av74_ishtar [

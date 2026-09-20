@@ -1,3 +1,10 @@
+; Altar in the Euro dark chapel — hidden passage clue.
+; 
+; Interactive object. Will: "What? The wind is blowing from
+; behind the statue... Look?" Reveals a secret passage in
+; the chapel. Important exploration discovery.
+---------------------------------------------
+
 ---------------------------------------------
 
 eu9D_altar [

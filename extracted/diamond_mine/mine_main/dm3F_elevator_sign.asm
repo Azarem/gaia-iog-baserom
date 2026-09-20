@@ -1,3 +1,9 @@
+; Elevator entrance sign — readable wall sign in the mine main area.
+; 
+; Solid interactable sprite. When examined, displays:
+; "(Elevator Entrance) Use that door to get to the elevator."
+---------------------------------------------
+
 ---------------------------------------------
 
 dm3F_elevator_sign [

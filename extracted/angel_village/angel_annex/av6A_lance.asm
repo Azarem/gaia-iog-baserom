@@ -1,3 +1,10 @@
+; Lance in the Angel Village annex — confides something important.
+; 
+; Extended NPC (~104 lines). Says: "Will. I want to talk to you
+; about something. It's hard to say..." Part of the emotional
+; subplot about Lance's growing feelings and his necklace.
+---------------------------------------------
+
 ---------------------------------------------
 
 av6A_lance [

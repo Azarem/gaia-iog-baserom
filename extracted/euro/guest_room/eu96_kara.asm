@@ -1,3 +1,10 @@
+; Kara in the Euro guest room — impressed by the town's wealth.
+; 
+; Multi-dialog NPC. "What a big house! The townspeople seem
+; to be richer than the King." Later mentions Angkor Wat
+; ruins to the west. Story progression dialog.
+---------------------------------------------
+
 !gfxCacheIdxB                   064A
 
 ---------------------------------------------

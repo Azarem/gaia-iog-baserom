@@ -1,3 +1,11 @@
+; Hamlet the pig in the Native Village — emotional subplot.
+; 
+; Major subplot NPC (~162 lines). Erik: "Poor Hamlet... To eat
+; or not to eat...?" Kara: "Hamlet...! (Sob)" The party faces
+; the moral dilemma of whether to eat their pet pig to
+; survive. One of the game's most memorable emotional scenes.
+---------------------------------------------
+
 ?INCLUDE 'spriteset_enemies'
 
 !joypadMaskStd                  065A

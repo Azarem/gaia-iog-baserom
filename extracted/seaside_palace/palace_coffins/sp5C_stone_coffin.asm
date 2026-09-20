@@ -1,3 +1,12 @@
+; Stone coffin puzzle in the Seaside Palace — Lilly investigates.
+; 
+; Extended coffin interaction (~151 lines). Will: "The coffins
+; are lined up..." Lilly speaks from pocket: "Isn't there a
+; hole in the coffin? I could get in through there."
+; Lilly enters to investigate, finding items or clues.
+; Multi-step puzzle with dialog progression.
+---------------------------------------------
+
 ?INCLUDE 'music_actors'
 ?INCLUDE 'spriteset_enemies'
 

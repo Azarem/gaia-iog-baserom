@@ -1,3 +1,11 @@
+; Demon fountain in the Seaside Palace — key puzzle (~112 lines).
+; 
+; Lilly: "What!! It's a strange fountain... Could there be a
+; connection between this and the room layout?" Central puzzle
+; element: the fountain produces demons. Understanding its
+; mechanics is key to navigating the palace safely.
+---------------------------------------------
+
 ?INCLUDE 'actor_pool'
 ?INCLUDE 'oneshot_palette_flash_40'
 ?INCLUDE 'spriteset_enemies'

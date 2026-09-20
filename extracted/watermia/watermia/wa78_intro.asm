@@ -1,3 +1,10 @@
+; Watermia arrival narration — town introduction.
+; 
+; Narration (~92 lines): "We went to the Water City, Watermia.
+; A beautiful town..." Multi-phase arrival cutscene with
+; party positioning and first impressions dialog.
+---------------------------------------------
+
 !gfxCacheIdxB                   064A
 !joypadMaskStd                  065A
 !cameraTargetX                  06BE

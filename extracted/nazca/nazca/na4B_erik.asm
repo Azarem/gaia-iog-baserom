@@ -1,3 +1,11 @@
+; Erik at Nazca — scared but curious.
+; 
+; Multi-state NPC. Initially: "It's scary... I'll stay with
+; Neil." Later: "What's going to happen? It's exciting!"
+; Erik's evolving reaction from fear to excitement about
+; the Nazca discoveries.
+---------------------------------------------
+
 ---------------------------------------------
 
 na4B_erik [

@@ -1,3 +1,11 @@
+; Ramskull enemy — charging skull in the Angel Village river tunnel.
+; 
+; Fast enemy that rushes toward the player in a straight line.
+; Short range but high speed. After charging, pauses briefly
+; before reorienting. Uses BranchIfPlayerNear to trigger
+; the charge attack.
+---------------------------------------------
+
 ?INCLUDE 'spriteset_enemies'
 
 ---------------------------------------------

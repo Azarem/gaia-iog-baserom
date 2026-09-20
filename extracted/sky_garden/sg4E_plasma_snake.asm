@@ -1,3 +1,11 @@
+; Plasma Snake enemy — electrical snake that moves through corridors.
+; 
+; Medium enemy that slithers along walls and floors. Fires
+; electrical projectiles at the player. Uses directional
+; movement with solid collision checks for wall-following
+; behavior.
+---------------------------------------------
+
 !chatPtr                        7F000A
 !orbitAngle                     7F0010
 !sprTimer                       7F0016

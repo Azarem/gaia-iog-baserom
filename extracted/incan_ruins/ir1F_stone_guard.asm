@@ -1,3 +1,15 @@
+; Stone Guard mini-boss — shielded enemy with complex attack AI (~770 lines).
+; 
+; Heavily armored enemy with shield that blocks attacks from certain
+; directions. Uses BranchOnPlayer* for directional decision-making.
+; Patrol state walks in cardinal directions checking wall collisions.
+; Attack state charges toward player, has shield-up and shield-down
+; phases affecting vulnerability. Uses hit callbacks to track damage
+; and switch between defensive and aggressive stances. Spawns
+; projectile children for ranged attacks. Includes dungeon kill
+; counter tracking for room-clear progression.
+---------------------------------------------
+
 ?INCLUDE 'ApplyPlayerHitstun'
 ?INCLUDE 'interaction_handlers'
 

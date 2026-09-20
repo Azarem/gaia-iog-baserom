@@ -1,3 +1,12 @@
+; Epilogue cutscene after Dark Gaia's defeat (~261 lines).
+; 
+; The story conclusion. Kara: "What's happened to the comet...?"
+; Will's father: "The comet's power has disappeared. The evil
+; star has flown off to the other side..." Extended dialog
+; between Will, Kara, and Olman wrapping up the plot.
+; Transitions to the credits sequence.
+---------------------------------------------
+
 ?INCLUDE 'actor_pool'
 ?INCLUDE 'sE6_gaia'
 ?INCLUDE 'spriteset_enemies'

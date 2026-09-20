@@ -1,6 +1,8 @@
-; Watermia town palette controller for pre- and post-festival atmosphere.
+; Festival palette thinker for Watermia events.
 ; 
-; Default state loops palette bundle #42 for normal town ambient coloring. When flag #96 is set (festival begins), spawns a child thinker that loops bundle #72 with priority bit #$0800 OR'd into animScratch2, while the parent switches to bundle #48. Both parent and child run independent PaletteStart/PaletteStep loops, layering the festive palette animation over the town transition.
+; Controls palette cycling during the Watermia festival or
+; Russian Glass night event. Creates the moonlit atmosphere
+; with color shifts.
 ---------------------------------------------
 
 !animScratch2                   7F000E

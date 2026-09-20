@@ -1,6 +1,8 @@
-; One-shot hardware config thinker for the Babel Light Elevator shaft.
+; Color addition effect for the Babel light elevator.
 ; 
-; Uses SetEntryContinue to run every frame, writing #$02 to CGADSUB ($2131) to force subscreen-to-main color addition mode. Creates the bright ethereal additive glow as elevator subscreen graphics blend onto the main layer. No palette bundles or HDMA — a fixed PPU color-math register write only.
+; Technical thinker that applies additive color blending
+; during the light elevator ride. Creates the ethereal
+; glow effect as the elevator ascends.
 ---------------------------------------------
 
 !CGADSUB                        2131

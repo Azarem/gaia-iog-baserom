@@ -1,3 +1,12 @@
+; Slugger enemy — slug creature on Larai Cliff with 4-direction chase AI.
+; 
+; Waits offscreen, then uses DirToPlayer to pick a cardinal direction
+; toward the player. Moves in that direction with animated sprite
+; movement, periodically reassessing direction and checking wall
+; collisions (BranchIfSolid*). If direction is ambiguous, picks
+; randomly. Used in the Larai Cliff area (map $1B).
+---------------------------------------------
+
 ---------------------------------------------
 
 ir1B_slugger [

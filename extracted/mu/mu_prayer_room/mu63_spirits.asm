@@ -1,3 +1,11 @@
+; Spirit NPCs in the Mu prayer room — scattered lore fragments.
+; 
+; Multiple spirits that provide fragmented lore: "The Sun god...
+; Rama... The ocean holds a power..." Each spirit gives a
+; short cryptic message about Mu's history and the ocean's
+; connection to the comet.
+---------------------------------------------
+
 ?INCLUDE 'oneshot_palette_flash_1B'
 ?INCLUDE 'oneshot_palette_flash_1C'
 ?INCLUDE 'spriteset_npc_props'

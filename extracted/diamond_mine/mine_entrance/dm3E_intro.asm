@@ -1,3 +1,12 @@
+; Will's inner monologue upon entering the Diamond Mine and Sky Garden.
+; 
+; Locks joypad, checks which scene is active: scene $3E (mine entrance)
+; shows the "Diamond Mine was quiet as a tomb" narration with flag $6A;
+; scene $4C (Sky Garden return) shows the "strange garden floating in
+; the sky" narration with flag $6B. Each plays once per visit. Flags
+; prevent repeat showings.
+---------------------------------------------
+
 !sceneCurrent                   0644
 !joypadMaskStd                  065A
 

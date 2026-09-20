@@ -1,34 +1,10 @@
-; Angkor Wat future vision cutscene — Mode 7 rotating zoom with brightness fade (238074–238321, Bank 03).
+; Future vision cutscene at Angkor Wat (~201 lines).
 ; 
-; Scene $C0 (future_vision) actor that plays a prophetic Mode 7 vision of Angkor Wat's future. Shares the same Mode 7 setup pattern as garden_crash_cutscene (identical PPU register config and Mode7PerspectiveUpdate thinker spawn with $0804 params), but drives a completely different camera choreography through FutureVisionController.
-; 
-; === ACTOR ARCHITECTURE ===
-; 
-; Two routines:
-; - FutureVisionCutscene: minimal actor-def — Mode 7 init, thinker spawns, immediate yield
-; - FutureVisionController: companion thinker (SpawnBefore) driving the entire 5-phase vision sequence
-; 
-; === RENDERING SETUP ===
-; 
-; Identical Mode 7 color math to garden_crash_cutscene:
-; - M7SEL = $00, TM = $01, CGADSUB = $01, CGWSEL = $82
-; - Joypad masked ($FFF0)
-; - Also spawns oneshot_palette_flash_19 for an initial palette flash effect
-; 
-; === CUTSCENE TIMELINE ===
-; 
-; 1. Zoom in + rotate (~200 frames): camera at ($0170,$01D0), M7 center at ($01F0,$0250). Scale from $1C→$80 at half speed (even frames only). Perspective ($BC) increments every frame from $0130.
-; 2. Complete rotation: continue incrementing $BC until ($BC & $01FF) == 0, completing a full 512-step rotation cycle.
-; 3. Pause + zoom out + scroll (119 + ~32 frames): WaitByte $77 (119 frames), then zoom out $80→$60 while INC rotation ($B6) and scrolling camera/center down by 2px/frame.
-; 4. Long scroll up (255 + 128 + 127 = 510 frames): three consecutive loops scrolling cameraTargetY and $CC up by 1px/frame. The final 127-frame loop adds a 16-step brightness fade via INIDISP = (loopCounter & $78) >> 3.
-; 5. Scene transition: QueueMapChange to scene $BF at ($00F8,$00C0) with flags $2200. gfxCacheIdxA = $01 (instant blank transition), gfxCacheIdxB = $0400.
-; 
-; === BRIGHTNESS FADE ALGORITHM ===
-; 
-; During the final 127-frame loop, INIDISP brightness is computed from the loop counter:
-; - loopCounter AND $0078: extracts bits 3–6 (8-frame granularity)
-; - LSR×3: shifts to bits 0–3 → brightness values 15→0
-; - Each brightness level is held for 8 frames, creating a smooth 16-step fade to black
+; Major story cutscene showing Will a vision of the future
+; world. The spirit guide reveals the new world's geography
+; and the comet's role in reshaping Earth. Uses Mode 7
+; or multi-layer effects for the vision display.
+; Key narrative moment before the endgame.
 ---------------------------------------------
 
 ?INCLUDE 'mode7_perspective'

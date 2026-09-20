@@ -1,3 +1,13 @@
+; Lilly (the spirit guide) at the Incan Ruins entrance — long escort scene.
+; 
+; Before flag $4B: locks joypad, Lilly introduces the ruins entrance,
+; warns that "this is where the puzzle of the Incan" begins. Sets
+; a solid tile at (6,19) to block backtracking. After initial dialog,
+; Lilly follows the player as an escort using EscortFollowPathTracker.
+; On re-entry after flag $4B: manages Freedan form check and Dark Space
+; availability. Scene $4C variant (Sky Garden) has different behavior.
+---------------------------------------------
+
 ?INCLUDE 'EscortFollowPathTracker'
 ?INCLUDE 'InitPlayerScriptVariant'
 ?INCLUDE 'sE6_gaia'

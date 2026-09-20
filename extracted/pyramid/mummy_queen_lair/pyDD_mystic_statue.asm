@@ -1,3 +1,10 @@
+; Mystic Statue reward after defeating the Mummy Queen.
+; 
+; Post-boss reward: "Defeating the spirit of the Pyramid,
+; he obtained a Mystic Statue!!" Grants the collectible
+; and triggers the Pyramid exit sequence.
+---------------------------------------------
+
 !joypadMaskStd                  065A
 !characterForm                  0AD4
 

@@ -1,3 +1,10 @@
+; Spin Dash gate on the Great Wall rampway.
+; 
+; Gate that can only be opened by using the Spin Dash ability.
+; Checks the player form (Freedan with Spin Dash) and opens
+; when the attack connects. Blocks non-Freedan access.
+---------------------------------------------
+
 !playerActor                    09AA
 !abilityBitmask                 0AA2
 !characterForm                  0AD4

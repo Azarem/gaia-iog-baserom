@@ -1,3 +1,9 @@
+; Erik in the vacant hut — exhausted from the journey.
+; 
+; NPC: "I'm exhausted. I feel like sleeping for days."
+; Simple rest dialog as the party recuperates.
+---------------------------------------------
+
 ---------------------------------------------
 
 nvAD_erik [

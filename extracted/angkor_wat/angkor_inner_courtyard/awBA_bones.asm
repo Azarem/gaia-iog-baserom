@@ -1,3 +1,11 @@
+; Explorer bones in the Angkor Wat inner courtyard — Friezer's journal.
+; 
+; Interactable skeleton with journal: "The bones of a lost
+; explorer fascinated by something...? There's some kind of
+; journal... Angkor Wat Research Record — Friezer." Links to
+; Friezer from Euro. Contains temple exploration notes.
+---------------------------------------------
+
 ---------------------------------------------
 
 awBA_bones [

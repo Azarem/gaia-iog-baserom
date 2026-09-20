@@ -1,3 +1,11 @@
+; Remus in the Freejia slave market — tells about famine and hunting.
+; 
+; Multi-state NPC. Says: "I am Remus. Our game disappeared and
+; we had nothing to eat. We had no choice." Later: "How can
+; things like this happen?" Provides context about why people
+; were vulnerable to the slavers.
+---------------------------------------------
+
 ---------------------------------------------
 
 fr3C_remus [

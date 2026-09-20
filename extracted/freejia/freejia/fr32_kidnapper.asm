@@ -1,3 +1,11 @@
+; Kidnapper encounter in Freejia — threatens Will in the alley.
+; 
+; Complex event actor (~104 lines). Voice from above warns:
+; "If you don't want to lose your lives, go home!!" Will
+; responds defiantly. Multi-phase encounter with flag tracking
+; and joypad lock during the confrontation cutscene.
+---------------------------------------------
+
 ?INCLUDE 'EnemyInitBasic'
 ?INCLUDE 'spriteset_npc_props'
 

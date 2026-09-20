@@ -1,3 +1,10 @@
+; Crystal ball gate B in the Kress circuit.
+; 
+; Second crystal ball-controlled gate. Requires a different
+; crystal activation. More complex timing or conditional
+; logic than gate A.
+---------------------------------------------
+
 !joypadMaskStd                  065A
 
 ---------------------------------------------

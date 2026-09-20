@@ -1,3 +1,11 @@
+; Lilly in the undersea tunnel — philosophical about human nature.
+; 
+; Extended NPC (~87 lines). "People are strange... I am afraid
+; the longer we travel in the darkness..." Lilly worries that
+; prolonged darkness is changing the party. Foreshadows
+; the Angel Tribe's condition.
+---------------------------------------------
+
 ?INCLUDE 'InitPlayerScriptVariant'
 
 !gfxCacheIdxB                   064A

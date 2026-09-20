@@ -1,3 +1,10 @@
+; Gold Ship deck crew member 3 — another pacing NPC.
+; 
+; Similar patrol animation to crew2 but uses different sprite
+; frames (#0C-#11). Walks a route and pauses at solid positions.
+; Provides crew dialog.
+---------------------------------------------
+
 ---------------------------------------------
 
 gs2C_crew3 [

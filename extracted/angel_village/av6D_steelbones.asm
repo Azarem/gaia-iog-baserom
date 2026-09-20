@@ -1,3 +1,12 @@
+; Steelbones enemy — armored skeleton in the Angel tunnels (~611 lines).
+; 
+; Heavy melee enemy with high defense. Patrols tunnel corridors
+; with 4-directional movement and charges at the player when
+; in range. Uses hit callbacks for damage tracking. Complex
+; AI with patrol, alert, and attack states. One of the
+; tougher regular enemies in the Angel Village dungeon.
+---------------------------------------------
+
 !playerXPos                     09A2
 !playerYPos                     09A4
 !moveXAlt                       7F0018

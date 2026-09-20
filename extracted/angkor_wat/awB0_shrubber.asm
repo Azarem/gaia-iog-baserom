@@ -1,3 +1,10 @@
+; Shrubber enemy — plant creature in Angkor Wat (~118 lines).
+; 
+; Camouflaged enemy that hides in vegetation and attacks
+; when the player walks nearby. Surprise attack pattern
+; with brief visibility before striking.
+---------------------------------------------
+
 ---------------------------------------------
 
 awB0_shrubber [

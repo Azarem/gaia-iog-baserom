@@ -1,3 +1,10 @@
+; Rofsky the philosopher in Euro — disputes about the teapot.
+; 
+; NPC: "There is a dispute about the teapot enshrined at
+; Mt. Kress temple." Introduces the Mt. Kress subplot
+; and the philosophical debates between Euro's intellectuals.
+---------------------------------------------
+
 !joypadMaskStd                  065A
 
 ---------------------------------------------

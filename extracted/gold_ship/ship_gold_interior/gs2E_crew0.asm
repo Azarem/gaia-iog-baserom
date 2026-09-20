@@ -1,3 +1,10 @@
+; Freed ship crew member — narrates the cave exit and freedom.
+; 
+; Solid NPC at offset (0, -8). Dialog reflects on the darkness
+; and the bright light at the cave exit: "As the ship set sail,
+; that light represented the freedom we had just won."
+---------------------------------------------
+
 ---------------------------------------------
 
 gs2E_crew0 [

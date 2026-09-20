@@ -1,3 +1,11 @@
+; Lance at his father's house — reveals family connection.
+; 
+; Major NPC (~80 lines). Says: "Will, do you recognize this
+; person? He's my father." Story revelation that Lance's father
+; was part of Olman's expedition. Strengthens the party's
+; shared connection to the Tower of Babel mystery.
+---------------------------------------------
+
 !joypadMaskStd                  065A
 
 ---------------------------------------------

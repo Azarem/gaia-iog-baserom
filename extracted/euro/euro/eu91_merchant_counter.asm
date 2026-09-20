@@ -1,3 +1,10 @@
+; Merchant counter NPC in Euro — sells food.
+; 
+; Extended NPC (~120 lines). "How about a sweet apple?"
+; Operates a street stall with purchase dialog and
+; inventory management for food items.
+---------------------------------------------
+
 ?INCLUDE 'f_inventory_full'
 
 ---------------------------------------------

@@ -1,3 +1,10 @@
+; Female NPCs in Watermia — water philosophy.
+; 
+; Multi-NPC group (~97 lines). "Water never stays in the same
+; place. It's always moving and cleansing." Women provide
+; philosophical commentary on water as a metaphor for life.
+---------------------------------------------
+
 ?INCLUDE 'ActorDisplayModeSwap'
 
 ---------------------------------------------

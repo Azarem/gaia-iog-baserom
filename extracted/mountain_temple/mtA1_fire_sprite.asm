@@ -1,3 +1,11 @@
+; Fire Sprite enemy in the Mountain Temple (~429 lines).
+; 
+; Floating flame enemy with complex orbital movement patterns.
+; Circles around fixed points and fires projectile attacks
+; at the player. Uses math_lookup_tables for sine/cosine
+; movement. Leaves fire trail hazards.
+---------------------------------------------
+
 ?INCLUDE 'ApplyOrbitalOffsetFromRef'
 
 !playerXPos                     09A2

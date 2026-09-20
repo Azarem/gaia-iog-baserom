@@ -1,3 +1,9 @@
+; Desert explorer 3 — seeking the Pyramid treasure.
+; 
+; NPC: "We're explorers. I hear there's a treasure inside
+; the Pyramid." Standard explorer motivation dialog.
+---------------------------------------------
+
 ---------------------------------------------
 
 daC7_explorer3 [

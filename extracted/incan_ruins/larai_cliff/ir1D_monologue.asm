@@ -1,3 +1,11 @@
+; Will's monologue about the wind at Larai Cliff — plays once.
+; 
+; On first visit (flag $6C not set): locks joypad, waits, then shows
+; Will's narration about the tremendous wind at Larai Cliff and the
+; old man's warning. Sets flag $6C to prevent repeat. Despawns on
+; subsequent visits.
+---------------------------------------------
+
 !joypadMaskStd                  065A
 
 ---------------------------------------------

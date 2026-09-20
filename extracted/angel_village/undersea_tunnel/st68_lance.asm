@@ -1,3 +1,9 @@
+; Lance in the undersea tunnel — wonders about the distance.
+; 
+; NPC. Says: "I wonder how far this tunnel goes..." Reflects
+; the party's uncertainty during the long underground trek.
+---------------------------------------------
+
 ---------------------------------------------
 
 st68_lance [

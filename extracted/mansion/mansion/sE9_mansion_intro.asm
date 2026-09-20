@@ -1,3 +1,11 @@
+; Mansion entrance narration — awakening in a strange place.
+; 
+; Story text: "When I awoke, I was standing in the entrance
+; to a strange mansion." Introduces the optional Solid Arm
+; boss area. Sets the unsettling atmosphere of the Jeweler
+; Gem's true domain.
+---------------------------------------------
+
 !gfxCacheIdxA                   0648
 !gfxCacheIdxB                   064A
 !joypadMaskStd                  065A

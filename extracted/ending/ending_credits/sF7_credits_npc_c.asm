@@ -1,3 +1,8 @@
+; Credits NPC group C — later farewell characters (~113 lines).
+; 
+; Third batch from Watermia, Euro, and other locations.
+---------------------------------------------
+
 ?INCLUDE 'CreditPositionLookup'
 
 ---------------------------------------------

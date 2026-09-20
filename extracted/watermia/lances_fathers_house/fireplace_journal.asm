@@ -1,3 +1,10 @@
+; Hidden journal in the fireplace at Lance's father's house.
+; 
+; Interactive object: "There's a journal in a crack in the
+; fireplace." Reveals backstory about Lance's father's
+; expedition — key lore item connecting to Will's father Olman.
+---------------------------------------------
+
 ---------------------------------------------
 
 fireplace_journal [

@@ -1,3 +1,10 @@
+; Blinding crystal light event in the Angkor shrine.
+; 
+; Story event (~55 lines): "Setting one foot inside, the floating
+; crystal started to glow!" The shrine crystal activates when
+; Will enters. Dramatic visual effect with palette flash.
+---------------------------------------------
+
 ?INCLUDE 'oneshot_palette_flash_18'
 ?INCLUDE 'oneshot_palette_flash_19'
 

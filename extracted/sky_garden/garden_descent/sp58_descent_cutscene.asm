@@ -1,3 +1,11 @@
+; Descent cutscene — the party escapes the falling Sky Garden.
+; 
+; Scripted sequence where Neil's airplane attempts to catch
+; the falling party. Manages character sprite movement,
+; camera control, and the transition to the ocean scenes.
+; Leads into the Mu chapter.
+---------------------------------------------
+
 !gfxCacheIdxB                   064A
 !joypadMaskStd                  065A
 !playerActor                    09AA

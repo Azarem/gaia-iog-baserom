@@ -1,3 +1,12 @@
+; Acid Spider — major enemy in the Mountain Temple (~735 lines).
+; 
+; Large spider enemy with acid spit ranged attacks. Patrols
+; temple corridors and clings to walls. Complex multi-phase
+; AI with web mechanics, ceiling traversal, and acid
+; projectile patterns. One of the game's largest regular
+; enemy scripts.
+---------------------------------------------
+
 ?INCLUDE 'ActorMidpointCalc'
 
 !moveXAlt                       7F0018

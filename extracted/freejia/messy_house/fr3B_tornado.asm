@@ -1,3 +1,10 @@
+; Messy house resident — humorous dialog about the mess.
+; 
+; NPC in a cluttered house. Says: "It's not like a tornado came
+; through here. Maybe you'd be more comfortable elsewhere."
+; Light humor scene.
+---------------------------------------------
+
 ---------------------------------------------
 
 fr3B_tornado [

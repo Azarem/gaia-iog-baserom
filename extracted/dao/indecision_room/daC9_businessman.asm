@@ -1,3 +1,11 @@
+; Indecisive businessman in Dao — labor trade moral dilemma.
+; 
+; NPC: "You've come all the way to this town to buy labor...
+; I can't make up my mind if I should do business here."
+; Represents the moral conflict of participating in
+; the slave trade for profit.
+---------------------------------------------
+
 ?INCLUDE 'npc_wander_ai'
 
 !currentHp                      7F0026

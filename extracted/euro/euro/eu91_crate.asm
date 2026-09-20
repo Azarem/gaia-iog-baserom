@@ -1,3 +1,9 @@
+; Crate object in Euro — interactable or obstacle.
+; 
+; Environmental object in the Euro streets. May contain
+; a hidden item or serve as a pushable obstacle.
+---------------------------------------------
+
 ---------------------------------------------
 
 eu91_crate [

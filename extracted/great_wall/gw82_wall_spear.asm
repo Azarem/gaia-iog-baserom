@@ -1,3 +1,11 @@
+; Wall spear trap — retractable spear hazard on the Great Wall.
+; 
+; Environmental trap that extends from the wall at timed
+; intervals. Damages the player on contact during extension.
+; Timer-based cycle. Common corridor hazard throughout
+; the Great Wall dungeon.
+---------------------------------------------
+
 ---------------------------------------------
 
 gw82_wall_spear [

@@ -1,3 +1,9 @@
+; Center flame decoration in the Angel Village river tunnel.
+; 
+; Animated torch sprite in the center of a tunnel room.
+; Ambient visual element.
+---------------------------------------------
+
 ---------------------------------------------
 
 av70_flame_center [

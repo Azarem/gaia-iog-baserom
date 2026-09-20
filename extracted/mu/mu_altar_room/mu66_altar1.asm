@@ -1,3 +1,10 @@
+; Altar object 1 in the Mu altar room — puzzle element.
+; 
+; Interactive altar that the player can activate as part of
+; the altar room puzzle. No dialog — activates by proximity
+; or interaction, setting flags for the puzzle state.
+---------------------------------------------
+
 !gfxCacheIdxA                   0648
 !gfxCacheIdxB                   064A
 !joypadMaskStd                  065A

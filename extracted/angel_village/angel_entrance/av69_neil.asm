@@ -1,3 +1,9 @@
+; Neil at the Angel Village entrance — ambient party member.
+; 
+; NPC at the entrance. Positioned as part of the arriving
+; party formation.
+---------------------------------------------
+
 ---------------------------------------------
 
 av69_neil [

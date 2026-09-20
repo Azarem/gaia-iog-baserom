@@ -1,3 +1,10 @@
+; Bystander 1 in the slave market — uncomfortable observer.
+; 
+; NPC who says: "When I think of myself in your position, I
+; shudder. I've no time to worry about others." Shows the
+; moral compromises of Freejia's citizens.
+---------------------------------------------
+
 ---------------------------------------------
 
 fr3C_man1 [

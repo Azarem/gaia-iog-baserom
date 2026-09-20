@@ -1,3 +1,9 @@
+; Walking town resident in Freejia — ambient patrol NPC.
+; 
+; Non-interactable NPC with a walk animation loop. No dialog.
+; Provides street life ambiance.
+---------------------------------------------
+
 ---------------------------------------------
 
 fr32_walking_npc [

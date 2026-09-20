@@ -1,3 +1,10 @@
+; Ground object hint on Larai Cliff — gold statue clue.
+; 
+; Solid interactable prop. When examined: "There's something on the
+; ground there... If I can move that gold statue, I can pass..."
+; Hints that the player needs to push the gold statue to proceed.
+---------------------------------------------
+
 ---------------------------------------------
 
 ir1D_bones [

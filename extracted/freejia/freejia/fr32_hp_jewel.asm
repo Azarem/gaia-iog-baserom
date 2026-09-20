@@ -1,3 +1,9 @@
+; HP Jewel pickup in Freejia town.
+; 
+; Stat-boosting collectible. Displays: "You found the HP jewel!"
+; Grants a permanent HP increase. Standard jewel pickup pattern.
+---------------------------------------------
+
 !playerMaxHp                    0ACA
 
 ---------------------------------------------

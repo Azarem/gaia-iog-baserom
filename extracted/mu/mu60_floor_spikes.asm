@@ -1,3 +1,10 @@
+; Floor spike trap in Mu — timed hazard on the floor.
+; 
+; Environmental trap that extends spikes at timed intervals.
+; Damages the player on contact during the extended phase.
+; Uses a simple timer loop for the extend/retract cycle.
+---------------------------------------------
+
 ?INCLUDE 'enemy_stats_table'
 
 !statsPtr                       7F0020

@@ -1,3 +1,11 @@
+; Erik imprisoned in Freejia — rescue cutscene.
+; 
+; Erik is held captive. On first interaction: "Impossible! You've
+; come to rescue me!!" Triggers the rescue sequence with flag
+; checks and joypad lock. Key story event where the party
+; reunites with Erik after his capture.
+---------------------------------------------
+
 !joypadMaskStd                  065A
 
 ---------------------------------------------

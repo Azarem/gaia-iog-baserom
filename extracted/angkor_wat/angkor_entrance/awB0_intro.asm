@@ -1,3 +1,10 @@
+; Angkor Wat entrance narration — sets the scene.
+; 
+; Text: "Through the jungle, three days journey from the native
+; village, there is a huge temple." Establishes the remote,
+; ancient setting of Angkor Wat on first entry.
+---------------------------------------------
+
 !joypadMaskStd                  065A
 
 ---------------------------------------------

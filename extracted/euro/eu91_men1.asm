@@ -1,3 +1,10 @@
+; Male townspeople group 1 in Euro — town introduction.
+; 
+; Multi-NPC (~134 lines). "This is Euro. It's a crowded merchant
+; town." Various male NPCs providing exposition about Euro's
+; mercantile culture and the Rolek Company's influence.
+---------------------------------------------
+
 ?INCLUDE 'ActorDisplayModeSwap'
 
 ---------------------------------------------

@@ -1,3 +1,10 @@
+; Worried mother NPC in Freejia.
+; 
+; Says: "Mothers are always worrying about things. I was afraid
+; you'd been kidnapped." Reflects the town's awareness of the
+; labor trade threat to children.
+---------------------------------------------
+
 ---------------------------------------------
 
 fr36_mother [

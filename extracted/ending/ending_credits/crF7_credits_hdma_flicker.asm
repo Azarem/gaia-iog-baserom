@@ -1,3 +1,10 @@
+; Credits HDMA flicker effect.
+; 
+; Subtle screen brightness pulsing via HDMA during the
+; credits. Creates gentle lighting transitions between
+; credit scenes.
+---------------------------------------------
+
 ---------------------------------------------
 
 crF7_credits_hdma_flicker [

@@ -1,3 +1,17 @@
+; Castoth — first major boss of the game (~1,150 lines).
+; 
+; Two variants: btF2_neo_castoth (Tower of Babel rematch, scene $F2)
+; and ir29_castoth (original, scene $29). Both share the same combat
+; logic. Boss has rotating arm segments using ApplyOrbitalOffsetFromRef
+; with orbit angle/diameter for circular motion. Vulnerable only at
+; the central face. Arms cycle through open/closed states, blocking
+; attacks when closed. Phase transitions increase attack speed and
+; arm pattern complexity. Spawns camera_drift for screen shake on
+; impacts. On defeat, triggers the Freedan transformation cutscene
+; (flag word $011F) or the Babel Tower post-fight (scene $F2 variant).
+; Uses StandardEnemyDefeatHandler for the win sequence.
+---------------------------------------------
+
 ?INCLUDE 'ApplyOrbitalOffsetFromRef'
 ?INCLUDE 'camera_drift'
 ?INCLUDE 'cop_handlers_flags'

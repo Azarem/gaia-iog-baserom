@@ -1,3 +1,11 @@
+; Slipper enemy — fast sliding creature in the Seaside Palace (~349 lines).
+; 
+; High-speed enemy that slides along floors and walls.
+; Rapid direction changes make it unpredictable. Uses
+; momentum-based movement with quick turns. Complements
+; the slower Skuddle as a speed-based threat.
+---------------------------------------------
+
 !sceneCurrent                   0644
 
 ---------------------------------------------

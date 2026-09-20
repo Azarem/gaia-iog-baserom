@@ -1,3 +1,11 @@
+; Russian Glass mini-game controller in Watermia (~625 lines).
+; 
+; The most dangerous game in Watermia: "On full moon nights
+; they play Russian Glass." Complex mini-game with glass
+; selection, poisoned glass mechanics, NPC reactions, and
+; win/lose outcomes. One of the longest non-combat scripts.
+---------------------------------------------
+
 ?INCLUDE 'npc_wander_ai'
 
 !gfxCacheIdxA                   0648

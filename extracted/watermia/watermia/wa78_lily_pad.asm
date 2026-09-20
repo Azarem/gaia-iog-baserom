@@ -1,3 +1,9 @@
+; Moving lily pad in Watermia — small decorative platform.
+; 
+; Non-interactive floating pad on the water surface.
+; Visual decoration for the canal areas.
+---------------------------------------------
+
 ---------------------------------------------
 
 wa78_lily_pad [

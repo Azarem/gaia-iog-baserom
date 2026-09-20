@@ -1,3 +1,11 @@
+; Erik trapped in the vampire lair — screaming for help.
+; 
+; Multi-state NPC: before rescue, Erik shouts: "Heeeeelp!!
+; Someone save me!!" During the bomb sequence: "First, defuse
+; the bomb! Hurry! Hurry!" Part of the climactic rescue in
+; the vampire lair.
+---------------------------------------------
+
 !joypadMaskStd                  065A
 !characterForm                  0AD4
 

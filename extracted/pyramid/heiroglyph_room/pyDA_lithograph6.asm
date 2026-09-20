@@ -1,3 +1,9 @@
+; Lithograph 6 in the hieroglyph room.
+; 
+; Sixth and final hieroglyph panel. Completing all 6 opens
+; a passage deeper into the Pyramid.
+---------------------------------------------
+
 ?BANK 08
 
 ?INCLUDE 'pyDA_lithograph1'

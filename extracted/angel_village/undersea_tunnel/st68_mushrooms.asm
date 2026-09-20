@@ -1,3 +1,10 @@
+; Mushroom food source in the undersea tunnel — interactable.
+; 
+; NPC object: "These mushrooms grow all over in the tunnel.
+; It's our only food." Can be examined. Establishes the
+; survival conditions during the tunnel passage.
+---------------------------------------------
+
 ---------------------------------------------
 
 st68_mushrooms [

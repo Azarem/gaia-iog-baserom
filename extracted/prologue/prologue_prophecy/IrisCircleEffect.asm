@@ -1,32 +1,9 @@
-; HDMA iris/circle window effect — per-scanline window generator using hardware multiply (239290–239678, Bank 03).
+; Iris circle visual effect for the prologue (~300 lines).
 ; 
-; Thinker (type $04, priority $08) that generates circular window HDMA tables each frame. Double-buffered: odd frames write to $7E8D00, even frames to $7E8E00. Used in the prologue prophecy scene (scene $8C) and the world map (scene $FE) for spotlight/iris transitions.
-; 
-; === CIRCLE ALGORITHM ===
-; 
-; The circle radius is controlled by actor field $B6:
-; - Base radius = $0400 − ($B6 / 2)
-; - Step decrement per band: base_radius × 2 → $0E
-; - Initial circle value: base_radius × 32 → $00 (fixed-point scaled)
-; 
-; For each of 16 scanline bands (X from $1E down to $00, 2 bytes per entry):
-; 1. Perform 16×8 hardware multiply: circle_value × $60 (96) using WRMPYA/WRMPYB
-; 2. Two 8×8 multiplies (low byte then high byte) with NOP delays for hardware latency
-; 3. Combined 24-bit result: high byte ($04) = scanline count (window half-width at this band)
-; 4. Write HDMA entry: scanline count at $8D00,X / window right edge at $8D01,X
-; 5. Accumulate scanline count into running total ($08); handle overflow past 255
-; 6. Right edge ($06) starts at $E0 and increments by 1 per band
-; 7. Subtract step ($0E) from circle_value — each successive band is narrower
-; 
-; The result is a per-scanline window position gradient that approximates a circle cross-section. As $B6 increases, the radius shrinks and the iris closes.
-; 
-; === HDMA TABLE FORMAT ===
-; 
-; Each 2-byte entry: byte 0 = scanline count, byte 1 = window right edge position. Terminated by $E07F sentinel at end+2 and $0000 padding at end+4. The table is passed to SetupHdmaChannel_Direct with register $32 and bank $7E.
-; 
-; === OVERFLOW HANDLING ===
-; 
-; When the accumulated scanline count exceeds 255 (BCS after ADC $08), the final entry is adjusted: the excess is subtracted from the scanline count, and the right edge is written without incrementing. This ensures the table doesn't specify more than 256 total scanlines.
+; Creates the expanding/contracting circle wipe effect used
+; for prologue scene transitions. Manages the circle radius,
+; expansion speed, and the masking of the screen outside
+; the circle. Also used in other cutscenes throughout the game.
 ---------------------------------------------
 
 ?INCLUDE 'hdma_dma_spc'

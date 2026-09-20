@@ -1,3 +1,10 @@
+; Desert explorer 1 — marvels at the Pyramid's construction.
+; 
+; NPC: "The Pyramid is made of huge stones. Strange that it
+; doesn't sink into the desert." Flavor dialog about the
+; Pyramid's engineering mystery.
+---------------------------------------------
+
 ---------------------------------------------
 
 daC7_explorer1 [

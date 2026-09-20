@@ -1,3 +1,9 @@
+; Girlfriend NPC in the Adequacy Manor — matching comic scene.
+; 
+; Counterpart to the boyfriend NPC. Says: "He had something in
+; his eye... Ha ha ha." Both give excuses when found together.
+---------------------------------------------
+
 ---------------------------------------------
 
 fr38_girlfriend [

@@ -1,3 +1,8 @@
+; Lithograph 5 in the hieroglyph room.
+; 
+; Fifth hieroglyph panel in the puzzle sequence.
+---------------------------------------------
+
 ?BANK 08
 
 ?INCLUDE 'pyDA_lithograph1'

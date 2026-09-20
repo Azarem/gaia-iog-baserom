@@ -1,3 +1,9 @@
+; Welcome signs at the Angel Village entrance.
+; 
+; Readable sign objects. Text: "Travellers, Please use this room.
+; Angel Tribe." Establishes the village's hospitality.
+---------------------------------------------
+
 ?INCLUDE 'ActorDisplayModeSwap'
 ?INCLUDE 'spriteset_npc_props'
 

@@ -1,3 +1,9 @@
+; Torch flame in Angel Village — animated fire decoration.
+; 
+; Looping flame sprite on a wall sconce. Provides ambient
+; lighting in the dim underground village.
+---------------------------------------------
+
 ?INCLUDE 'spriteset_npc_props'
 
 ---------------------------------------------

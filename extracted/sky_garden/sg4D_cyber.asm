@@ -1,3 +1,13 @@
+; Cyber enemy — the largest regular enemy in Sky Garden (~1,469 lines).
+; 
+; Massive flying enemy AI with multiple movement phases,
+; projectile attacks, and complex directional behavior trees.
+; Uses BranchOnPlayer* and BranchNearerAxis extensively for
+; 4-directional pursuit. Fires projectile children from
+; multiple offsets. One of the most complex non-boss enemies
+; in the game.
+---------------------------------------------
+
 ?INCLUDE 'sg_bird_flight_patterns'
 ?INCLUDE 'StandardEnemyDefeatHandler'
 

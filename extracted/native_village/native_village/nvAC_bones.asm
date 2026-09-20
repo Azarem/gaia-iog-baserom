@@ -1,3 +1,10 @@
+; Bleached bones in the Native Village — recent death.
+; 
+; Interactable: "They're not weathered yet... Only recently
+; bleached white." Grim evidence of recent starvation in
+; the village. Establishes the desperate conditions.
+---------------------------------------------
+
 ?INCLUDE 'spriteset_npc_props'
 
 ---------------------------------------------

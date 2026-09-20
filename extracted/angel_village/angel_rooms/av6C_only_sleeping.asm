@@ -1,3 +1,10 @@
+; Sleeping angel villager — Will's observation.
+; 
+; Interactable NPC. Will remarks: "She appears to be sleeping.
+; It's like the spirit's drawn out..." Hints at the Angel
+; Tribe's declining vitality and connection to the comet.
+---------------------------------------------
+
 ---------------------------------------------
 
 av6C_only_sleeping [

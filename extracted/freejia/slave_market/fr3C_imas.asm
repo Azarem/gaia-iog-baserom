@@ -1,3 +1,11 @@
+; Imas in the Freejia slave market — enslaved villager from Asia.
+; 
+; Says: "I am Imas. I was brought here by boat from far-off Asia.
+; We are a hunting people..." Provides backstory about the
+; international scope of the labor trade. One of three named
+; slaves (with Remus and Sam) from the Diamond Mine.
+---------------------------------------------
+
 ---------------------------------------------
 
 fr3C_imas [

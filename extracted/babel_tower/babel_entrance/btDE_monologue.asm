@@ -1,3 +1,11 @@
+; Will's monologue entering the Tower of Babel.
+; 
+; Narration: "The Tower of Babel was deathly quiet. Time stood
+; still..." Also: "The Flute I had was discovered here."
+; Atmospheric text establishing the tower's eerie silence.
+; Plays once on first entry.
+---------------------------------------------
+
 ?INCLUDE 'InitPlayerScriptVariant'
 
 !sceneCurrent                   0644

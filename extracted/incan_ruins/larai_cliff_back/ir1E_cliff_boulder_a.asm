@@ -1,3 +1,10 @@
+; Decorative boulder on the Larai Cliff back side (variant A).
+; 
+; Simple sprite prop at priority #30. Checks flag $30 — if set,
+; hides display and idles. Otherwise shows boulder sprite.
+; Used for visual dressing on the cliff.
+---------------------------------------------
+
 ---------------------------------------------
 
 ir1E_cliff_boulder_a [

@@ -1,3 +1,10 @@
+; Skeleton on the wrecked ship — with dialog about the shipwreck.
+; 
+; Solid NPC using spriteset_npc_props frame #02 (bone sprite).
+; Positioned at (0, +4). When examined, provides flavor text
+; about the wrecked ship's history.
+---------------------------------------------
+
 ?INCLUDE 'spriteset_npc_props'
 
 ---------------------------------------------

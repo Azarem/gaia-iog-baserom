@@ -1,3 +1,13 @@
+; Whirligig — spinning blade trap that fires projectile when player nears.
+; 
+; Starts at position (+8,+8) with actor flags $0020. Waits offscreen,
+; then when player is within 6 tiles, plays rising animation with
+; Y movement loop (#1B, 64 frames), sets collision priority max, then
+; spawns a rotating projectile child that orbits using sin/cos tables
+; from math_lookup_tables. Projectile child reads orbitAngle to rotate
+; in a circle around the parent position.
+---------------------------------------------
+
 ?INCLUDE 'math_lookup_tables'
 
 !chatPtr                        7F000A

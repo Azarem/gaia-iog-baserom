@@ -1,3 +1,13 @@
+; Buried tile discovery at Nazca — the ground painting puzzle.
+; 
+; Key story event (~128 lines). "There's a tile buried in the
+; sand... When Will's Flute touched it, there was a rumbling
+; sound." Neil: "Will! Don't look yet! You don't know what's
+; in there!!" The Flute reveals a buried tile that is part
+; of the Nazca ground painting discovery. Triggers the
+; Sky Garden revelation sequence.
+---------------------------------------------
+
 ?INCLUDE 'spriteset_enemies'
 
 !gfxCacheIdxB                   064A

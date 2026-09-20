@@ -1,3 +1,10 @@
+; Tuts enemy — mummy warrior in the Pyramid (~282 lines).
+; 
+; Melee enemy that patrols corridors and charges at the player.
+; Uses 4-directional movement with animated wrapping attacks.
+; Moderately armored with pursuit AI based on player proximity.
+---------------------------------------------
+
 !playerActor                    09AA
 !moveXAlt                       7F0018
 !moveYAlt                       7F001A

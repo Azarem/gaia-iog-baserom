@@ -1,3 +1,10 @@
+; Credits DMA scroll effect (~130 lines).
+; 
+; Handles hardware DMA-based background scrolling for the
+; credits sequence. Manages the tilemap scroll that reveals
+; the credits text as it rolls up the screen.
+---------------------------------------------
+
 ---------------------------------------------
 
 crF7_credits_dma_scroll [

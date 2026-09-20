@@ -1,3 +1,10 @@
+; Bouncing crystal object in the Angkor Wat shrine.
+; 
+; Animated crystal that bounces with physics-based movement
+; (~62 lines). Part of the shrine visual effects. Creates
+; the mystical atmosphere of the crystal shrine room.
+---------------------------------------------
+
 ?INCLUDE 'sp5D_fountain'
 
 !cameraBoundsX                  06DA

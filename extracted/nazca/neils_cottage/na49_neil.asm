@@ -1,3 +1,12 @@
+; Neil at his cottage — reunion and expedition planning.
+; 
+; Major NPC (~135 lines). "It's open, come in. Will: Neil.
+; It's me. Will from South Cape." Neil: "Oh! Will! You've
+; gotten strong! Are all of these people your friends?"
+; The reunion at Neil's cottage. Leads to planning the
+; Nazca expedition and eventually the Sky Garden trip.
+---------------------------------------------
+
 ?INCLUDE 'player_character'
 
 !joypadMaskStd                  065A

@@ -1,3 +1,13 @@
+; Wind Melody puzzle — statue singing event on Larai Cliff.
+; 
+; Before flag $32: waits for player at exact position ($50, $170).
+; When reached, locks joypad (all buttons), plays music #1B,
+; triggers singing SFX (#16). Shows narration: "The wind in the
+; valley plays a melody. The statue seems to be singing..."
+; then grants the Melody of the Wind item with fanfare.
+; After flag $32: shows a shortened version or despawns.
+---------------------------------------------
+
 !joypadMaskStd                  065A
 !APUIO1                         2141
 

@@ -1,3 +1,11 @@
+; Movable statue puzzle in the garden southwest area.
+; 
+; Interactive statue that can be pushed by the player. Uses
+; position tracking and flag checks to determine when the
+; statue is in the correct slot. No dialog — purely physical
+; puzzle.
+---------------------------------------------
+
 ?INCLUDE 'enemy_stats_table'
 ?INCLUDE 'interaction_handlers'
 ?INCLUDE 'StandardEnemyDefeatHandler'

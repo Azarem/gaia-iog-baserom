@@ -1,3 +1,12 @@
+; Shop queue system in Euro (~386 lines).
+; 
+; Complex NPC queue management: "You can buy the best goods
+; in this shop." Simulates a line of customers waiting.
+; Player must wait their turn. Manages NPC positions,
+; turn order, and customer dialog. One of the more
+; elaborate town mechanics.
+---------------------------------------------
+
 ?INCLUDE 'ActorDisplayModeSwap'
 
 !playerXPos                     09A2

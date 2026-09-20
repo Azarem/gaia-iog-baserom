@@ -1,3 +1,6 @@
+; Static sprite prop in Tower of Babel. Non-interactive decorative sprite for scene dressing.
+---------------------------------------------
+
 ?INCLUDE 'spriteset_enemies'
 
 ---------------------------------------------

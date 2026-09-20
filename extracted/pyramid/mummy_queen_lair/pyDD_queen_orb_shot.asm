@@ -1,3 +1,11 @@
+; Mummy Queen orb projectile — homing energy attack (~151 lines).
+; 
+; Projectile child spawned by the queen. Launches from the
+; boss position and tracks toward the player using movement
+; prediction. Can be blocked by Shadow form's special ability.
+; Multiple orbs spawn simultaneously during attack phases.
+---------------------------------------------
+
 ?BANK 0B
 
 ?INCLUDE 'ApplyOrbitalOffsetFromRef'

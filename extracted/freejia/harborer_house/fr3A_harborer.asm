@@ -1,3 +1,10 @@
+; Man harboring the escaped laborer — afraid of being discovered.
+; 
+; NPC in the harborer's house. Says: "There was nothing he could
+; do about being found. He's the laborer who ran away..." Links
+; to the escaped laborer subplot from the slave traders.
+---------------------------------------------
+
 ---------------------------------------------
 
 fr3A_harborer [

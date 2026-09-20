@@ -1,3 +1,9 @@
+; Life Medicine vendor in the Euro flea market.
+; 
+; Interactive NPC: "This is Life Medicine. Try some? Yes/No"
+; Offers healing medicine with purchase choice.
+---------------------------------------------
+
 !playerMaxHp                    0ACA
 !playerHp                       0ACE
 

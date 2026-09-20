@@ -1,3 +1,11 @@
+; Neil at Nazca — the scientist's excitement.
+; 
+; Extended NPC (~114 lines). "It was a long way, but you did a
+; good job. This is the most famous of the ground paintings."
+; Later: "Ha ha ha. Don't be in such a hurry. Wait for everyone
+; else." Neil's scientific enthusiasm about the Nazca lines.
+---------------------------------------------
+
 !joypadMaskStd                  065A
 
 ---------------------------------------------

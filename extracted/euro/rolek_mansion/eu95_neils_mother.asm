@@ -1,3 +1,11 @@
+; Neil's mother at the Rolek mansion — questions their lifestyle.
+; 
+; NPC: "We've made money and wish to spend our remaining years
+; enjoying life. Why does Neil still want to travel?" Shows
+; the gap between Neil's adventurous spirit and his parents'
+; comfortable retirement.
+---------------------------------------------
+
 !moveXAlt                       7F0018
 !moveYAlt                       7F001A
 

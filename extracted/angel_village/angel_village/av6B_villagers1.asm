@@ -1,3 +1,11 @@
+; Angel villager group 1 — introduces the village and sun weakness.
+; 
+; Extended NPC (~111 lines). "This is the Angel Village.
+; If our bodies are exposed to the sun for long..." Explains
+; the Angel Tribe's vulnerability to sunlight and why they
+; live underground.
+---------------------------------------------
+
 ?INCLUDE 'ActorDisplayModeSwap'
 
 ---------------------------------------------

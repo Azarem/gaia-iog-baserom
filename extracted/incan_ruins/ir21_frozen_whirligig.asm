@@ -1,3 +1,11 @@
+; Frozen Whirligig — static decorative obstacle in the wind tunnel (map $21).
+; 
+; Non-moving solid actor. Sets collision flag $0010, offsets position
+; by (+8,+8), displays sprite frame #1B, then idles. Represents a
+; whirligig blade that has stopped spinning (contrast with the active
+; ir21_whirligig that spins and spawns projectiles).
+---------------------------------------------
+
 ---------------------------------------------
 
 ir21_frozen_whirligig [

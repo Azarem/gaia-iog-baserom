@@ -1,3 +1,12 @@
+; Key coffin in the Seaside Palace — puzzle with Lilly.
+; 
+; Interactive coffin (~95 lines). Will: "The coffins are lined
+; up..." Later: "I can't seem to open the lid..." Lilly speaks
+; from Will's pocket: "Wait a minute. Isn't there a hole in
+; the coffin?" Lilly enters through a small hole to retrieve
+; the key from inside. Uses the spirit companion mechanic.
+---------------------------------------------
+
 ?INCLUDE 'spriteset_enemies'
 
 !joypadMaskStd                  065A

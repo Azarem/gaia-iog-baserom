@@ -1,3 +1,10 @@
+; Angel villager group 5 — dancing to feel human.
+; 
+; NPC: "I dance to remember what it feels like to be human.
+; But..." Melancholy reflection on the Angel Tribe's lost
+; humanity. Ties into the game's evolution/devolution theme.
+---------------------------------------------
+
 ?INCLUDE 'ActorDisplayModeSwap'
 
 ---------------------------------------------

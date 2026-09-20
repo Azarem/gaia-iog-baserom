@@ -1,3 +1,11 @@
+; Kara in the Angel Village tunnel rooms — rescue scene.
+; 
+; Extended scene (~132 lines). Will: "If I don't spread magic
+; dust..." — part of the Kara rescue sequence in the angel
+; tunnels. Multi-phase cutscene with flag progression and
+; character movement.
+---------------------------------------------
+
 ?INCLUDE 'InitPlayerScriptVariant'
 ?INCLUDE 'oneshot_palette_flash_40'
 

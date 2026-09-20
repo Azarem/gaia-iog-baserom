@@ -1,3 +1,11 @@
+; Kara at Neil's cottage — conflicts with Neil.
+; 
+; Extended NPC (~60 lines). "I can't believe it! I don't want to
+; breathe the same air as him!" Later: "Cygnus?! Neil: That's
+; the Tower of Babel..." Kara's personality clashes with Neil's
+; analytical nature. Also references the Tower of Babel.
+---------------------------------------------
+
 ?BANK 05
 
 !joypadMaskStd                  065A

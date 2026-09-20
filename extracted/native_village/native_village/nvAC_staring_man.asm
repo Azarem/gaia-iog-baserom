@@ -1,3 +1,12 @@
+; Staring man — intense eye contact communication.
+; 
+; Interactive NPC (~99 lines). "The man looks deeply into
+; Will's eyes. Stare back? Yes/No" On Yes: "The man seems
+; to look right into your heart..." Another non-verbal
+; communication scene emphasizing human connection
+; beyond language.
+---------------------------------------------
+
 ---------------------------------------------
 
 nvAC_staring_man1 [

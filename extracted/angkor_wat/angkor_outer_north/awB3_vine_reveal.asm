@@ -1,3 +1,10 @@
+; Vine growth reveal in the Angkor Wat outer north area.
+; 
+; Environmental effect that grows vines to create a new
+; path when a condition is met. Applies BG changes to
+; draw the vine tiles. Opens a previously blocked passage.
+---------------------------------------------
+
 ?INCLUDE 'player_character'
 
 !joypadMaskStd                  065A

@@ -1,3 +1,10 @@
+; Locked door in Freejia — blocks access to interior.
+; 
+; Interactable door. Will says: "It's locked from the inside..."
+; Checks flag for unlock state; applies BG change to open when
+; conditions are met. Guards access to a story-important room.
+---------------------------------------------
+
 ?INCLUDE 'spriteset_npc_props'
 
 !joypadMaskStd                  065A

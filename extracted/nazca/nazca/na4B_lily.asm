@@ -1,3 +1,11 @@
+; Lilly at Nazca — wonders about the ancient builders.
+; 
+; Extended NPC (~110 lines). "The ancients were amazing. I wonder
+; why they made this..." Later: "Doesn't there seem to be a
+; pattern in the way the rocks are scattered around?" Lilly
+; provides the clue for the puzzle solution.
+---------------------------------------------
+
 ?INCLUDE 'InitPlayerScriptVariant'
 
 !joypadMaskStd                  065A

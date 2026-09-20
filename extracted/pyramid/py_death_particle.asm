@@ -1,3 +1,10 @@
+; Death particle effect for Pyramid enemies.
+; 
+; Small visual particle spawned on enemy death. Quick
+; fade-out animation. Spawned by the dungeon kill system
+; when Pyramid enemies are defeated.
+---------------------------------------------
+
 ?INCLUDE 'spriteset_enemies'
 
 ---------------------------------------------

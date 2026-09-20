@@ -1,3 +1,9 @@
+; Female townspeople group 2 in Euro — back alley warning.
+; 
+; NPC: "There are many back alleys between the houses in town."
+; Hints at hidden areas and the labyrinthine Euro streets.
+---------------------------------------------
+
 ?INCLUDE 'ActorDisplayModeSwap'
 ?INCLUDE 'npc_wander_ai'
 

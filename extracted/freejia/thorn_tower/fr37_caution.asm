@@ -1,3 +1,10 @@
+; Cautious townsperson near Thorn Tower — warns about back streets.
+; 
+; NPC who warns: "Listen to me carefully. You'd better not go
+; on the back streets." Foreshadows the danger of the slave
+; trade area behind Freejia's pleasant facade.
+---------------------------------------------
+
 ---------------------------------------------
 
 fr37_caution [

@@ -1,3 +1,10 @@
+; Mummy Queen arena boundary walls — invisible collision.
+; 
+; Defines the boss arena's playable area by creating
+; invisible collision barriers. Prevents the player from
+; leaving the fight zone during the battle.
+---------------------------------------------
+
 !playerYPos                     09A4
 !playerActor                    09AA
 

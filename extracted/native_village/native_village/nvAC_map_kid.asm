@@ -1,3 +1,11 @@
+; Map-drawing child — shows the temple location.
+; 
+; Interactive NPC (~64 lines). "The boy points to the northeast...
+; Show him the map? Yes/No" On Yes: "He drew a picture of the
+; temple on the map!" Non-verbal exchange that adds the
+; Angkor Wat temple to the player's world map.
+---------------------------------------------
+
 ---------------------------------------------
 
 nvAC_map_kid [

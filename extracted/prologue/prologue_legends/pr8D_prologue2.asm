@@ -1,3 +1,11 @@
+; Prologue 2: the legends (~237 lines).
+; 
+; Second prologue segment. Continues the opening narrative
+; with animated text and character silhouettes showing the
+; legends of past civilizations affected by the comet's
+; cyclical return. Extensive scripted text sequences.
+---------------------------------------------
+
 ?INCLUDE 'pr_text_placement_calc'
 ?INCLUDE 'pr_thinkers'
 

@@ -1,3 +1,10 @@
+; Carpet sweatshop overseer in Dao — explains the 40-year weaving.
+; 
+; NPC: "These women are weaving carpets. This will take almost
+; 40 years to weave. This woman has worked her entire life."
+; Shows the human cost of the luxury carpet trade.
+---------------------------------------------
+
 ---------------------------------------------
 
 daC5_slaver [

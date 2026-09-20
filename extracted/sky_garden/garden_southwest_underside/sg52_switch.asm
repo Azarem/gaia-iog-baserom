@@ -1,3 +1,10 @@
+; Floor switch on the garden southwest underside — makes a sound on step.
+; 
+; Interactable tile. When stepped on: "When you step on this
+; tile it makes a sound..." Used as part of a puzzle sequence
+; to open a passage on the underside area.
+---------------------------------------------
+
 ---------------------------------------------
 
 sg52_switch [

@@ -1,3 +1,12 @@
+; Zombie enemy — undead with resurrection in Angkor Wat (~684 lines).
+; 
+; Complex undead enemy that rises from the ground when the
+; player approaches. Can resurrect after being defeated
+; unless destroyed quickly enough. Multi-phase AI with
+; shambling patrol, lunge attack, and death/resurrection
+; mechanics. One of the largest regular enemy scripts.
+---------------------------------------------
+
 ?INCLUDE 'ActorMidpointCalc'
 ?INCLUDE 'enemy_stats_table'
 ?INCLUDE 'EnemyDeathFlash'

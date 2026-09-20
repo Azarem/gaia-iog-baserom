@@ -1,3 +1,10 @@
+; Short wall spear trap in the Great Wall tomb area.
+; 
+; Variant of wall_spear with modified timing for the tomb
+; rooms. Shorter extension period creating quick-fire hazards
+; in the narrow tomb corridors.
+---------------------------------------------
+
 ---------------------------------------------
 
 gw88_short_wall_spear [

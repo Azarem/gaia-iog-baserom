@@ -1,3 +1,9 @@
+; Full lily pad in Watermia — static platform.
+; 
+; Non-interactive lily pad decoration on the water surface.
+; Visual element of Watermia's water-town aesthetic.
+---------------------------------------------
+
 ?INCLUDE 'wa78_men'
 
 ---------------------------------------------

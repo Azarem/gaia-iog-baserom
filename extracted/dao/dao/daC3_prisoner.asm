@@ -1,3 +1,11 @@
+; Prisoner in Dao — language barrier encounter.
+; 
+; NPC: "I guess he didn't understand what I said. His eyes
+; were expressive..." A captive who cannot communicate
+; verbally with Will. Similar to the Native Village
+; non-verbal communication theme.
+---------------------------------------------
+
 ---------------------------------------------
 
 daC3_prisoner [

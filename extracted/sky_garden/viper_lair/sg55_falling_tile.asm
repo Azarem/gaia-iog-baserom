@@ -1,3 +1,10 @@
+; Falling tile hazard in the Viper boss lair.
+; 
+; Floor tile that crumbles and falls a short time after the
+; player steps on it. Timer-based — gives the player a brief
+; window to cross before it collapses.
+---------------------------------------------
+
 ---------------------------------------------
 
 sg55_falling_tile [

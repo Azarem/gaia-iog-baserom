@@ -1,6 +1,8 @@
-; Freejia variant of the town door actor with metasprite frame #07 and open sound #$01 instead of #$0E.
+; Decorative street props in Freejia — animated scenery objects.
 ; 
-; Same near-player detection, A-button loop, solid-to-open collision transition pattern as town_door. Used for street doors and interactive props in Freejia town scenes.
+; Multi-instance prop actor (44 lines). Spawns visual elements
+; like market stalls or decorations. No dialog or interaction.
+; Pure scene dressing for the Freejia town map.
 ---------------------------------------------
 
 ?INCLUDE 'spriteset_npc_props'

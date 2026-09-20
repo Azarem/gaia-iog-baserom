@@ -1,3 +1,8 @@
+; Idle animated NPC B in Freejia — ambient town resident.
+; 
+; Non-interactable NPC with looping idle animation. No dialog.
+---------------------------------------------
+
 ---------------------------------------------
 
 fr32_idle_npc_b [

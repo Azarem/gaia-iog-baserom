@@ -1,3 +1,11 @@
+; Lithograph 1 in the hieroglyph room — removable puzzle piece.
+; 
+; Interactable wall panel: "There's a lithograph on this wall.
+; I heard in Dao that it's a hieroglyph..." Can be removed to
+; obtain the Hieroglyph Stone. First of 6 lithograph puzzle
+; pieces in the room.
+---------------------------------------------
+
 ?BANK 08
 
 ?INCLUDE 'f_inventory_full'

@@ -1,3 +1,12 @@
+; Ceiling trap controller — triggers spike traps in 6 rectangular zones.
+; 
+; Invisible actor that checks player position against 6 tile-rectangle
+; regions using BranchIfPlayerInAbsTiles. Each zone triggers a
+; different ceiling trap sequence. Uses ec_proximity_door_toggle
+; mechanics for the trap activation. Plays rumble SFX ($2C2C)
+; on each trap trigger.
+---------------------------------------------
+
 ?INCLUDE 'ec_proximity_door_toggle'
 
 ---------------------------------------------

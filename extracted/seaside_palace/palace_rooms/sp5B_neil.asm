@@ -1,3 +1,9 @@
+; Neil trapped in the palace rooms — unconscious groaning.
+; 
+; NPC: "Uhhhn. Uhhhn." Neil is barely conscious like Lance.
+; The party members are all weakened by the palace.
+---------------------------------------------
+
 ?INCLUDE 'ToggleActorVisibilityFlag'
 
 ---------------------------------------------

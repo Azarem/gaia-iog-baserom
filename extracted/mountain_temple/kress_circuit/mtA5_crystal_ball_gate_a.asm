@@ -1,3 +1,10 @@
+; Crystal ball gate A in the Kress circuit.
+; 
+; Gate controlled by a crystal ball switch. Opens when
+; the corresponding crystal ball is activated. Part of
+; the temple's interconnected puzzle system.
+---------------------------------------------
+
 !joypadMaskStd                  065A
 
 ---------------------------------------------

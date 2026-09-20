@@ -1,3 +1,10 @@
+; Erik trapped in the palace rooms — frightened in darkness.
+; 
+; NPC: "What is this place? Dark and lonely. Mother, save me..."
+; Erik's vulnerability in the palace. Each party member is
+; separated and trapped in different rooms.
+---------------------------------------------
+
 ?INCLUDE 'ToggleActorVisibilityFlag'
 
 ---------------------------------------------

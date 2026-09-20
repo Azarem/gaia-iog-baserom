@@ -1,6 +1,8 @@
-; Jungle canopy sway sine HDMA for Native Village / Amazon area.
+; Sine wave HDMA effect for the Native Village heat haze.
 ; 
-; Initializes counter #$0004, builds sine table at $7E8800 with amplitude 20, ticks at speed #04. Binds $7E8C00 to both HDMA channel #0E and channel #10 simultaneously, doubling the effective oscillation amplitude on the same table. Creates visible background sway suggesting wind through the jungle canopy.
+; Technical thinker that applies a wavy heat distortion
+; effect to the screen. Creates the tropical heat shimmer
+; atmosphere for the village area.
 ---------------------------------------------
 
 ---------------------------------------------

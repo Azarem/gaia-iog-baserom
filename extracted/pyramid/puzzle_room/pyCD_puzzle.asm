@@ -1,3 +1,12 @@
+; Pyramid arrangement puzzle controller (~169 lines).
+; 
+; Tile/object arrangement puzzle. "Nothing happened... Maybe
+; they're arranged wrong. Try it again from the beginning."
+; Success: "There was a sound from over the entrance!"
+; Player must arrange elements in the correct order.
+; Tracks attempt state and validates the solution.
+---------------------------------------------
+
 ?INCLUDE 'inventory_mgmt'
 
 !joypadMaskStd                  065A

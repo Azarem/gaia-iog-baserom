@@ -1,3 +1,10 @@
+; Blaster enemy — ranged Pyramid defender.
+; 
+; Stationary enemy that fires projectiles at the player
+; when in range. Uses directional aiming with BranchOnPlayer*
+; to target shots. Standard Pyramid corridor enemy.
+---------------------------------------------
+
 ?INCLUDE 'smooth_follow_child'
 ?INCLUDE 'spriteset_enemies'
 

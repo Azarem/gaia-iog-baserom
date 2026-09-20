@@ -1,3 +1,9 @@
+; Freed ship crew member — laments the invasion.
+; 
+; Simple solid NPC. Dialog: "Why must we flee? It is our home."
+; Reflects on being driven from their homeland by invaders.
+---------------------------------------------
+
 ---------------------------------------------
 
 gs2E_crew3 [

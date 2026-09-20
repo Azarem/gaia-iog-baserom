@@ -1,3 +1,8 @@
+; Credits NPC group D — late-game farewell characters (~95 lines).
+; 
+; Fourth batch from Dao, the Pyramid area, and beyond.
+---------------------------------------------
+
 ?INCLUDE 'CreditPositionLookup'
 
 ---------------------------------------------

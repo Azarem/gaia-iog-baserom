@@ -1,3 +1,10 @@
+; Walking woman in Watermia — town exposition NPC.
+; 
+; Animated walking NPC. Says: "This is Watermia. The houses
+; are built on rafts. We like to move around." Provides the
+; same raft-house info as wa78_men but while walking a patrol.
+---------------------------------------------
+
 ?INCLUDE 'ActorDisplayModeSwap'
 ?INCLUDE 'npc_wander_ai'
 

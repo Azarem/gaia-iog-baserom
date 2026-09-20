@@ -1,3 +1,11 @@
+; Conveyor belt controller in the Solid Arm lair (~133 lines).
+; 
+; Manages automated conveyor movement that carries the player
+; through the boss approach corridor. Handles belt speed,
+; direction, player attachment, and obstacle timing. Creates
+; the mechanical atmosphere of the lair.
+---------------------------------------------
+
 !extVelocityX                   0408
 !extVelocityY                   040A
 !sceneCurrent                   0644

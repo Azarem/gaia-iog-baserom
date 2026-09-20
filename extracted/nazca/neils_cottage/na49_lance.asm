@@ -1,3 +1,11 @@
+; Lance at Neil's cottage — short hair joke.
+; 
+; Extended NPC (~73 lines). "I've only had mine on for three
+; weeks. I guess I lose!" Later: "We're going, too! We don't
+; want Will to be the only one having a good time."
+; The group decides to join the expedition.
+---------------------------------------------
+
 !gfxCacheIdxB                   064A
 
 ---------------------------------------------

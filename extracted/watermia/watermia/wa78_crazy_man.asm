@@ -1,3 +1,10 @@
+; Crazy old man in Watermia — talks about the Tower of Babel.
+; 
+; NPC: "A crazy old man came here two years ago. He just talked
+; on about the Tower of Babel." Reference to someone who may
+; have returned from the Babel expedition.
+---------------------------------------------
+
 ---------------------------------------------
 
 wa78_crazy_man [

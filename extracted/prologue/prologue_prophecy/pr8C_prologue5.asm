@@ -1,3 +1,10 @@
+; Prologue 5: return to the prophecy (~115 lines).
+; 
+; Concluding prologue segment that loops back to the prophecy
+; theme and transitions into the game's opening at South Cape.
+; Bridges the mythological backstory to Will's personal story.
+---------------------------------------------
+
 ?INCLUDE 'mode7_perspective'
 ?INCLUDE 'pr_text_placement_calc'
 ?INCLUDE 'pr_thinkers'

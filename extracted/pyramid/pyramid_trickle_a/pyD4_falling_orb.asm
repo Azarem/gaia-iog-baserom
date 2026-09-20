@@ -1,3 +1,10 @@
+; Falling orb hazard in the Pyramid trickle area (~93 lines).
+; 
+; Environmental trap: energy orbs fall from above in timed
+; patterns. Player must dodge between falling orbs.
+; Uses position timing with spawn intervals.
+---------------------------------------------
+
 ?INCLUDE 'cop_handlers_flags'
 ?INCLUDE 'spriteset_enemies'
 

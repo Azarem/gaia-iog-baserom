@@ -1,3 +1,11 @@
+; Stone Lord enemy — advanced variant of Stone Guard with ranged attacks.
+; 
+; Similar structure to Stone Guard but with added projectile spawning
+; and wider attack patterns. Uses MoveToward for homing behavior
+; and SpawnMarkedAfterRel for firing directional projectiles.
+; Harder enemy found in the deeper rooms of the ruins.
+---------------------------------------------
+
 ?INCLUDE 'interaction_handlers'
 
 !orbitAngle                     7F0010

@@ -1,3 +1,12 @@
+; Moon Tribe spirits in the Sky Garden main area — exposition NPCs.
+; 
+; Moon Tribe aliens who provide story context: "We meet again.
+; Ku ku ku. You're a strong boy to have come this far." and
+; "This Sky Garden is our mode of transportation. There are
+; four Crystal Birds..." Explain the Crystal Bird boss mechanic
+; and the Sky Garden's purpose.
+---------------------------------------------
+
 ---------------------------------------------
 
 sg4C_spirit1 [

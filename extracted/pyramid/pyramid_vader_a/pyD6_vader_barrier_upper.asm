@@ -1,3 +1,9 @@
+; Upper Vader barrier in Pyramid — Shadow form gate (~110 lines).
+; 
+; Similar to lower barrier but in the upper Pyramid area.
+; More complex timing or additional conditions for passage.
+---------------------------------------------
+
 ?INCLUDE 'enemy_stats_table'
 ?INCLUDE 'spriteset_enemies'
 

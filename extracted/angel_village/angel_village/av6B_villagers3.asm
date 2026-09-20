@@ -1,3 +1,10 @@
+; Angel villager group 3 — evolution theory.
+; 
+; NPC: "It's been said that we are the form into which humans
+; evolve." Presents the Angel Tribe as humanity's potential
+; future — or a warning about devolution.
+---------------------------------------------
+
 ?INCLUDE 'ActorDisplayModeSwap'
 
 ---------------------------------------------

@@ -1,3 +1,11 @@
+; Kara in the undersea tunnel — complains about conditions.
+; 
+; Extended NPC (~152 lines). "I want a steak! And a salad!
+; My skin has gone dry from eating nothing but mushrooms."
+; Multi-phase dialog showing Kara's frustration during the
+; long tunnel journey. Character development through humor.
+---------------------------------------------
+
 ?INCLUDE 'camera_drift'
 ?INCLUDE 'cop_handlers_flags'
 

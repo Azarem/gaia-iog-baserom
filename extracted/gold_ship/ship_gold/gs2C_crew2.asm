@@ -1,3 +1,11 @@
+; Gold Ship deck crew member 2 — animated patrol NPC.
+; 
+; Crew member who paces back and forth on deck with a multi-step
+; walk animation (frames #05-#09, alternating Y and X movement).
+; Pauses at solid positions with idle loop, then resumes patrol.
+; Interactable with celebratory dialog about the happy occasion.
+---------------------------------------------
+
 ---------------------------------------------
 
 gs2C_crew2 [

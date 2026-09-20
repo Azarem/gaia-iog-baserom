@@ -1,3 +1,10 @@
+; Turbo the dog in Oakton — Kara's dog companion.
+; 
+; Simple NPC. Says: "Woof woof!!" Kara introduces him:
+; "This dog's name is Turbo. Isn't he cute?" Part of the
+; Oakton landing scene after the Gold Ship drift.
+---------------------------------------------
+
 ---------------------------------------------
 
 dc30_dog [

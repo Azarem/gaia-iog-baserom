@@ -1,3 +1,11 @@
+; Asp enemy — snake enemy on the Great Wall (~573 lines).
+; 
+; Ground-based serpent with fast strike attacks. Coils and
+; lunges toward the player. Complex multi-phase AI with
+; patrol, alert, and attack states. Uses directional movement
+; with solid collision checks. Found in the wall's inner rooms.
+---------------------------------------------
+
 ?INCLUDE 'ApplyPlayerHitstun'
 ?INCLUDE 'StandardEnemyDefeatHandler'
 

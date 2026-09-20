@@ -1,3 +1,10 @@
+; Sam in the Freejia slave market — mentions Erik's rescue attempt.
+; 
+; NPC who says: "I am Sam. We were rescued last night by a man
+; named Erik who was working here..." Links the slave market
+; to Erik's capture subplot. Key information NPC.
+---------------------------------------------
+
 ---------------------------------------------
 
 fr3C_sam [

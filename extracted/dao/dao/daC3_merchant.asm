@@ -1,3 +1,10 @@
+; Carpet merchant in Dao — sells fine goods.
+; 
+; NPC: "I have fine goods for sale today. You've never seen
+; carpets this nice." Standard merchant dialog for the
+; desert trading town.
+---------------------------------------------
+
 ---------------------------------------------
 
 daC3_merchant [

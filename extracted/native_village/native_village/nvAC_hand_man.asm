@@ -1,3 +1,11 @@
+; Hand-offering man — non-verbal trust building.
+; 
+; Interactive NPC (~94 lines). "The man timidly held out his
+; hand... Take his hand? Yes/No" — cross-cultural trust
+; moment. "We don't understand each other's language, but
+; I think we agree..." Communication beyond words.
+---------------------------------------------
+
 ---------------------------------------------
 
 nvAC_hand_man1 [

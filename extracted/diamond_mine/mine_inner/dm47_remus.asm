@@ -1,3 +1,11 @@
+; Remus — chained slave in the mine inner room (map $47).
+; 
+; Same structure as Imas: chain sprite prop, "Cut the chain!" before
+; rescue, thank-you dialog after. Asks Will to visit his home village
+; across the ocean and help the villagers regain their strength.
+; Destroyed when flag $5E is set.
+---------------------------------------------
+
 ?INCLUDE 'dm_mine_static_prop'
 
 ---------------------------------------------

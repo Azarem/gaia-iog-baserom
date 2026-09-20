@@ -1,3 +1,12 @@
+; Haunt enemy — ghost in the Pyramid (~294 lines).
+; 
+; Phase-shifting ghost that alternates between solid and
+; translucent states. Can only be damaged while solid.
+; Teleports to random positions near the player and fires
+; projectiles during the solid phase. Complex AI with
+; timing-based vulnerability windows.
+---------------------------------------------
+
 ?INCLUDE 'enemy_stats_table'
 ?INCLUDE 'StandardEnemyDefeatHandler'
 

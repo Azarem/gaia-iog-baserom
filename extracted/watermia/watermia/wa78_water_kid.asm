@@ -1,3 +1,9 @@
+; Water-drinking child in Watermia — daily life dialog.
+; 
+; NPC: "We drink this water, cook with it, wash with it."
+; Shows how central water is to Watermia's daily life.
+---------------------------------------------
+
 ?INCLUDE 'ActorDisplayModeSwap'
 ?INCLUDE 'npc_wander_ai'
 

@@ -1,3 +1,11 @@
+; Erik at the Freejia hotel — reunited, suggests visiting the inventor.
+; 
+; After rescue: "It is good to be among friends again." Later:
+; "Well, there's an eccentric inventor in the woods nearby.
+; Shall we visit?" — hints at Neil's cottage and the Nazca
+; area. Flag-gated dialog progression.
+---------------------------------------------
+
 !gfxCacheIdxB                   064A
 
 ---------------------------------------------

@@ -1,3 +1,11 @@
+; Stone girl statue 2 in the Gorgon Hut — can be restored.
+; 
+; Dual-state object. Before: "The statue of the girl stands
+; silently." After restoration: "Somehow the statue has become
+; a human girl! A tear comes to the girl's eyes..." Emotional
+; scene when the petrification is reversed.
+---------------------------------------------
+
 ?INCLUDE 'hidden_red_jewel'
 
 ---------------------------------------------

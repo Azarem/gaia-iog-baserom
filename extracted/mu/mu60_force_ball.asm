@@ -1,3 +1,11 @@
+; Force Ball hazard — bouncing energy projectile in Mu.
+; 
+; Moving hazard that bounces off walls in a predictable pattern.
+; Damages the player on contact. Uses velocity vectors with
+; wall collision reversal for the bounce physics. Spawned
+; by room setup and persists until the player leaves.
+---------------------------------------------
+
 ?INCLUDE 'interaction_handlers'
 
 !playerXPos                     09A2

@@ -1,3 +1,10 @@
+; Stair climb trigger in the Angkor Wat outer east area.
+; 
+; Automated stair-climbing actor that forces the player
+; into a scripted ascending movement when entering the
+; stairway zone.
+---------------------------------------------
+
 ?INCLUDE 'stair_climb'
 
 ---------------------------------------------

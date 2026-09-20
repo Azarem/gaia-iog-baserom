@@ -1,3 +1,11 @@
+; Skulker enemy in the Mountain Temple (~228 lines).
+; 
+; Stealthy enemy that hides in dark areas and ambushes the
+; player. Uses visibility detection based on player distance.
+; Lunges from hiding with a quick melee attack, then retreats
+; to a new hiding position.
+---------------------------------------------
+
 ?INCLUDE 'hardware_math'
 ?INCLUDE 'math_lookup_tables'
 

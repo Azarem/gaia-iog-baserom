@@ -1,3 +1,10 @@
+; Harp-playing woman in Angel Village — dialog about music.
+; 
+; NPC: "Music is the best medicine for the soul. The right
+; sound can heal any wound." Reflects the Angel Tribe's
+; belief in music's spiritual power.
+---------------------------------------------
+
 ---------------------------------------------
 
 av6B_musician [

@@ -1,6 +1,7 @@
-; Late-game sine HDMA wave used across Comet approach, Dark Space, and Dark Castoth Lair.
+; Sine wave HDMA effect for the Tower of Babel ending scenes.
 ; 
-; Initializes counter #$0008, builds sine table at $7E8800 with amplitude 40, ticks at speed #01, and binds to HDMA channel #0F. Includes an auxiliary path that sets animScratch2 bit 0, calls GenHdmaSine, and queues HDMA — a one-shot regen path. Produces slow, wide-amplitude background distortion for pre-final-boss and comet-approach areas.
+; Creates a wavy screen distortion effect during the
+; post-boss sequences and ending transitions.
 ---------------------------------------------
 
 !animScratch2                   7F000E

@@ -1,3 +1,12 @@
+; Freedan transformation cutscene after defeating Castoth.
+; 
+; Waits until dungeon enemy count ($0AEC) reaches 0 (Castoth dead).
+; Locks joypad, applies BG change #1F, fades to transformation music
+; (#1B), then checks the player's current form. If Will: triggers
+; the Dark Space Gaia dialogue for the Freedan transformation.
+; Sets flag word $011F and plays the full cutscene sequence.
+---------------------------------------------
+
 ?INCLUDE 'sE6_gaia'
 
 !joypadMaskStd                  065A

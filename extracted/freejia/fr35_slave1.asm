@@ -1,3 +1,9 @@
+; Chained slave in the Freejia labor cells — resigned dialog.
+; 
+; Static NPC. Says: "Soon we will be sent away..." Represents
+; one of the laborers awaiting sale in the slave market.
+---------------------------------------------
+
 ---------------------------------------------
 
 fr35_slave1 [

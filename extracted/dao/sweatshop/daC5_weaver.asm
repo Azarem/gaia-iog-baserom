@@ -1,3 +1,11 @@
+; Carpet weaver in Dao — cannot communicate.
+; 
+; Multi-state NPC (~81 lines). "She didn't understand. She just
+; kept working." The weaver is too absorbed in her lifelong
+; task to respond. Repeated interaction yields the same
+; result. Powerful commentary on dehumanization.
+---------------------------------------------
+
 ?INCLUDE 'ActorDisplayModeSwap'
 
 ---------------------------------------------

@@ -1,3 +1,11 @@
+; Slap scene — NPC reacts to someone falling from the ceiling.
+; 
+; Event NPC: "I was startled... Someone dropped from the ceiling."
+; After: "Slap!!!!!! Kids! If you do something this dangerous
+; again..." — an adult NPC catches and scolds Will for a
+; dangerous stunt. Physical comedy scene.
+---------------------------------------------
+
 ---------------------------------------------
 
 fr32_slap [

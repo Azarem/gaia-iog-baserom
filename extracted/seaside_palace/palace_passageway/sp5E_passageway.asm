@@ -1,3 +1,10 @@
+; Passageway discovery in the Seaside Palace.
+; 
+; Lilly speaks from pocket: "A passageway... I wonder if it
+; goes clear to Mu?" Reveals a connection between the
+; palace and Mu. Links the two underwater locations.
+---------------------------------------------
+
 ---------------------------------------------
 
 sp5E_passageway [

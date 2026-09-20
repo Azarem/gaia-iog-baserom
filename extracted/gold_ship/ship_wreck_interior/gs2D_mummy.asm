@@ -1,3 +1,10 @@
+; Mummy prop on the Gold Ship interior — interactable object.
+; 
+; Solid NPC at (+8, 0) using spriteset_enemies frame #00.
+; Interactable — provides dialog about the mummified remains
+; found aboard the ancient ship.
+---------------------------------------------
+
 ?INCLUDE 'spriteset_enemies'
 
 !joypadMaskStd                  065A

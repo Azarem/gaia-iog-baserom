@@ -1,3 +1,10 @@
+; Neil's father at the Rolek mansion — business advice.
+; 
+; NPC: "You can't go wrong by taking over the Rolek Company."
+; Later: a Moon Tribe spirit appears with ominous dialog about
+; darkness. Contrasts mundane business with cosmic threat.
+---------------------------------------------
+
 !joypadMaskStd                  065A
 !moveXAlt                       7F0018
 !moveYAlt                       7F001A

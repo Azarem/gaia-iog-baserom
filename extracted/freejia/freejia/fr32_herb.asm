@@ -1,3 +1,10 @@
+; Herb pickup item in Freejia town.
+; 
+; Collectible item actor. When interacted: "You found the herbs!"
+; If inventory is full: shows the full-inventory message.
+; Standard item pickup pattern with flag tracking.
+---------------------------------------------
+
 ---------------------------------------------
 
 fr32_herb [

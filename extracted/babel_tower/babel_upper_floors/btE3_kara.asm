@@ -1,3 +1,10 @@
+; Kara in the Babel upper floors — concerned about the vampire woman.
+; 
+; NPC. Will: "Kara! Where did you go?!" Kara: "There was talk
+; that the vampire woman had come..." Kara's reason for
+; wandering off. Story continuity with the Mu vampires.
+---------------------------------------------
+
 ?INCLUDE 'EscortFollowPathTracker'
 
 !joypadMaskStd                  065A

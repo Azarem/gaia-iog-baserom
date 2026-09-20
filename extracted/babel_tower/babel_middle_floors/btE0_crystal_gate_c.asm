@@ -1,3 +1,8 @@
+; Crystal gate C in the Babel middle floors.
+; 
+; Third crystal-locked gate.
+---------------------------------------------
+
 ?INCLUDE 'bt_static_sprite'
 
 ---------------------------------------------

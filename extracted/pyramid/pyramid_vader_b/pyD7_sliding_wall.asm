@@ -1,3 +1,10 @@
+; Sliding wall trap in the Pyramid (~150 lines).
+; 
+; Moving wall segment that pushes the player or blocks passages.
+; Slides horizontally or vertically on a timed cycle. Player
+; must time their movement to pass through gaps between slides.
+---------------------------------------------
+
 ?INCLUDE 'CollisionLayerRenderer'
 
 !mapBoundsX                     0692

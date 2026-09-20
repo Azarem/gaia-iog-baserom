@@ -1,3 +1,10 @@
+; Camera pan controller for Watermia events.
+; 
+; Manages smooth camera panning during story cutscenes
+; in the Watermia area (~114 lines). Coordinates camera
+; target positions with dialog timing.
+---------------------------------------------
+
 !cameraTargetY                  06C2
 !cameraDeltaY                   06C4
 !cameraBoundsY                  06DC

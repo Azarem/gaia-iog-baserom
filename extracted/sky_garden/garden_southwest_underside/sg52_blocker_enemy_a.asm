@@ -1,3 +1,10 @@
+; Blocking enemy A on the garden southwest underside.
+; 
+; Enemy that blocks a passage until defeated. Simpler AI
+; than the main garden enemies — guards a specific position
+; and must be killed to proceed.
+---------------------------------------------
+
 ?INCLUDE 'enemy_stats_table'
 ?INCLUDE 'spriteset_enemies'
 

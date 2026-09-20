@@ -1,3 +1,10 @@
+; Kara in Oakton — introduces Turbo and suggests exploring.
+; 
+; NPC at the Oakton exterior. Says: "This dog's name is Turbo.
+; Isn't he cute? Well, let's go. Maybe we can find out where
+; we are." Transitions from the adrift rescue to Freejia.
+---------------------------------------------
+
 !gfxCacheIdxB                   064A
 
 ---------------------------------------------

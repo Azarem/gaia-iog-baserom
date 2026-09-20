@@ -1,3 +1,10 @@
+; Doomsday prophet in Freejia — warns about the comet.
+; 
+; NPC who says: "Soon a great power will come from above...
+; Then mankind will die out." Foreshadows the comet threat
+; that drives the main plot.
+---------------------------------------------
+
 ---------------------------------------------
 
 fr32_doomsday [

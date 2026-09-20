@@ -1,3 +1,11 @@
+; Plasma Chain enemy — linked energy orbs that sweep across rooms.
+; 
+; Chain of connected energy projectiles that rotate or sweep
+; in an arc pattern. The chain links follow the head node
+; using offset calculations. Damages on contact with any
+; segment. Used in the corridor rooms of Mu.
+---------------------------------------------
+
 ?INCLUDE 'enemy_stats_table'
 
 !playerActor                    09AA

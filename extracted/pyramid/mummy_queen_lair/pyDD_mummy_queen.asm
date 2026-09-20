@@ -1,3 +1,14 @@
+; Mummy Queen boss fight — Pyramid area boss (~627 lines).
+; 
+; Multi-phase boss with orbital energy orb attacks, spirit
+; summons, teleportation across the arena, and invulnerability
+; phases. Uses multiple child actors: queen_orb_shot for
+; projectile orbs, queen_spirit_attack for spirit summons,
+; queen_debris for environmental hazards, and queen_phase_transition
+; for phase shift animations. Arena boundaries managed by
+; queen_arena_boundary. Defeat grants the Mystic Statue.
+---------------------------------------------
+
 ?BANK 0B
 
 ?INCLUDE 'actor_pool'

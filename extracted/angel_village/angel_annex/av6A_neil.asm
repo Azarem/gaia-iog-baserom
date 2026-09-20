@@ -1,3 +1,10 @@
+; Neil in the Angel Village annex — theorizes about the Angel Tribe.
+; 
+; Extended NPC (~95 lines). Neil: "I think the Angels are
+; descendants of the Mu people." Provides lore speculation
+; connecting the Mu and Angel civilizations.
+---------------------------------------------
+
 !gfxCacheIdxB                   064A
 
 ---------------------------------------------

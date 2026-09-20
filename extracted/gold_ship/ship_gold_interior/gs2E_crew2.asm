@@ -1,3 +1,10 @@
+; Freed ship crew member — manages an item exchange.
+; 
+; Solid NPC. Checks if player has item #38 — if so, locks joypad,
+; removes the item, and plays an exchange sequence. Provides
+; dialog about the crew's situation.
+---------------------------------------------
+
 !joypadMaskStd                  065A
 
 ---------------------------------------------

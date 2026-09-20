@@ -1,3 +1,11 @@
+; Kara in the Native Village — extensive multi-phase dialog.
+; 
+; The longest NPC in Native Village (~208 lines). Covers the
+; arrival, heat observation, skeleton discoveries, and the
+; decision to enter the hut. Kara drives much of the
+; village exploration narrative.
+---------------------------------------------
+
 ?INCLUDE 'nv_village_event_sprite'
 
 !gfxCacheIdxB                   064A

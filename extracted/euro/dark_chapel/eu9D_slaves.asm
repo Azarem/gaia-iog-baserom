@@ -1,3 +1,10 @@
+; Slave NPCs in the Euro dark chapel — disease exposition.
+; 
+; NPC: "Near our homes, various diseases are increasing...
+; Terrible diseases..." Connects Euro's dark chapel to the
+; broader themes of comet-related illness affecting the world.
+---------------------------------------------
+
 ?INCLUDE 'ActorDisplayModeSwap'
 
 ---------------------------------------------

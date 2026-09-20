@@ -1,3 +1,11 @@
+; Creepy man in Freejia — sinister dialog about understanding the city.
+; 
+; NPC with flag-gated states. Initial dialog: "Ha ha ha. You
+; understand this place. Sometimes what you think is unimportant."
+; Later: shorter "Ha ha ha." Hints at the dark underbelly of
+; Freejia's slave trade.
+---------------------------------------------
+
 ?INCLUDE 'hidden_red_jewel'
 
 ---------------------------------------------

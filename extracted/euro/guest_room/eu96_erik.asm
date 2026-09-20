@@ -1,3 +1,10 @@
+; Erik in the Euro guest room — scared of the big house.
+; 
+; NPC: "I'm scared! What if I have to go to the bathroom
+; and I can't find it?" Comic relief — Erik overwhelmed
+; by the Rolek mansion's size.
+---------------------------------------------
+
 ---------------------------------------------
 
 eu96_erik [

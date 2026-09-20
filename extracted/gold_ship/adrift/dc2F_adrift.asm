@@ -1,3 +1,14 @@
+; Adrift at sea — multi-day starvation sequence after the ship is set adrift.
+; 
+; The longest cutscene script in the game (~608 lines). Covers the
+; crew's days of drifting: day-by-day text transitions, starvation
+; mechanics that damage the player's HP, enemy stat changes for
+; the weakening crew, palette fades to represent passing time,
+; and the eventual rescue. Uses damageFlashTimer for visual HP
+; drain effects. Includes the Freedan transformation check and
+; player_transition_handlers for cutscene movement control.
+---------------------------------------------
+
 ?BANK 05
 
 ?INCLUDE 'enemy_stats_table'

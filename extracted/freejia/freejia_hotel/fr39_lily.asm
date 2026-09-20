@@ -1,3 +1,11 @@
+; Lilly at the Freejia hotel — manages the party reunion scene.
+; 
+; Multi-state NPC (~95 lines). Initial: "Come in... Will and Kara?!"
+; Later explains: "Lance hit his head escaping from the Incan
+; ship... The doctor says..." — establishes Lance's amnesia
+; and the need for the Memory Melody.
+---------------------------------------------
+
 ?BANK 05
 
 ?INCLUDE 'fr39_kara'

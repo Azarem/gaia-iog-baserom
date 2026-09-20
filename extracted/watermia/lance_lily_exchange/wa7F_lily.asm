@@ -1,3 +1,10 @@
+; Lilly in the lance/lily exchange scene — encourages Lance.
+; 
+; NPC (~77 lines). "What? You're not yourself. Relax."
+; Lance: "You're right..." Lilly supports Lance during his
+; confession scene. Emotional character development.
+---------------------------------------------
+
 !joypadMaskStd                  065A
 !playerActor                    09AA
 

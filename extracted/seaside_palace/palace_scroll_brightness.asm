@@ -1,6 +1,7 @@
-; Scroll-linked brightness thinker for the Seaside Palace coffin maze.
+; Scroll-linked brightness thinker for the Seaside Palace.
 ; 
-; Reads cameraTargetY ($06C2), adds #$0080, shifts right 8 bits, masks to #$F8, then adds base #$E0 and writes the result to COLDATA ($2132). Screen brightness dims or brightens smoothly as the player scrolls vertically through the coffin room. Runs every frame via SetEntryContinue with no palette or HDMA involvement.
+; Adjusts screen brightness based on scroll position to
+; create the dim, underwater atmosphere of the palace.
 ---------------------------------------------
 
 !cameraTargetY                  06C2

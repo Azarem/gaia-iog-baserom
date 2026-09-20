@@ -1,3 +1,11 @@
+; Ishtar's voice — room puzzle sequence controller (~246 lines).
+; 
+; Major puzzle controller. "Learn well the condition of that
+; room. When you've memorized it..." Manages the full sequence
+; of Ishtar's test rooms where the player must observe and
+; recall room states. The longest puzzle script in the game.
+---------------------------------------------
+
 !joypadMaskStd                  065A
 !playerXPos                     09A2
 !playerYPos                     09A4

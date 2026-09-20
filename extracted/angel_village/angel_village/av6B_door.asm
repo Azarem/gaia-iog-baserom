@@ -1,3 +1,10 @@
+; Door mechanism in Angel Village — opens/closes passage.
+; 
+; Interactive or auto-triggered door. Manages the open/close
+; state with BG change and flag tracking. Used for village
+; interior access.
+---------------------------------------------
+
 ---------------------------------------------
 
 av6B_door [

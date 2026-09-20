@@ -1,3 +1,10 @@
+; Switch-activated spike trap in the Mu connector area.
+; 
+; Floor spikes that toggle state when a switch is hit. Unlike
+; timed floor_spikes, these respond to puzzle switches.
+; Used in the connector passages between Mu rooms.
+---------------------------------------------
+
 ?INCLUDE 'enemy_stats_table'
 
 !statsPtr                       7F0020

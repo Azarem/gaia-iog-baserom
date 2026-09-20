@@ -1,3 +1,10 @@
+; Yorrick enemy (north-south variant) in the Mountain Temple (~192 lines).
+; 
+; Skull enemy that patrols north-south corridors. Same
+; mechanics as the east-west variant but with vertical
+; movement priority. Used in vertical passages.
+---------------------------------------------
+
 ---------------------------------------------
 
 mtA1_yorrick_1 [

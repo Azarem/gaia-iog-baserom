@@ -1,3 +1,10 @@
+; Kara on the Gold Ship interior — story dialog about the ship.
+; 
+; Solid NPC with two dialog states: before and after flag $02.
+; Initial dialog varies; after flag $02, dialog changes to
+; story progression content.
+---------------------------------------------
+
 ---------------------------------------------
 
 gs2D_kara [

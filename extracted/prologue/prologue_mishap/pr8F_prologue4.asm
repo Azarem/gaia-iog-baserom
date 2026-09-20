@@ -1,3 +1,10 @@
+; Prologue 4: the mishap.
+; 
+; Brief narrative (~38 lines) about the Tower of Babel
+; expedition's tragic outcome. Will's father Olman and
+; the exploration party vanished during the expedition.
+---------------------------------------------
+
 ?INCLUDE 'pr_text_placement_calc'
 ?INCLUDE 'pr_thinkers'
 

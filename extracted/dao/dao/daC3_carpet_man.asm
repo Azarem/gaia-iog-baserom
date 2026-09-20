@@ -1,3 +1,10 @@
+; Carpet merchant NPC in Dao — town exposition.
+; 
+; Says: "This town is famous for spices and carpet. It's said
+; the carpets of Edward Castle took 40 years to weave."
+; Establishes Dao's cultural identity as a trade hub.
+---------------------------------------------
+
 ---------------------------------------------
 
 daC3_carpet_man [

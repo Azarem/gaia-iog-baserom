@@ -1,3 +1,9 @@
+; Campfire in the undersea tunnel — rest stop decoration.
+; 
+; Animated campfire sprite at a rest area in the tunnel.
+; Provides visual warmth and marks a safe zone.
+---------------------------------------------
+
 ?INCLUDE 'spriteset_npc_props'
 
 ---------------------------------------------

@@ -1,3 +1,11 @@
+; Rolek Company employee — dismissive of children.
+; 
+; NPC: "What?!! A child... The old guys are talking about work.
+; Go over there!" Guards the business conversation. Overheard:
+; "I hear if I do business with this company..." — hints at
+; Rolek's commercial dealings.
+---------------------------------------------
+
 ---------------------------------------------
 
 eu94_employee [

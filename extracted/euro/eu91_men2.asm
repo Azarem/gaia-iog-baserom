@@ -1,3 +1,10 @@
+; Male townspeople group 2 in Euro — Jackal warning.
+; 
+; NPC: "The other day, a man called the Jackal was asking
+; questions. He had the face of a killer." Warning about
+; the mysterious Jackal antagonist lurking in Euro.
+---------------------------------------------
+
 ?INCLUDE 'ActorDisplayModeSwap'
 ?INCLUDE 'npc_wander_ai'
 

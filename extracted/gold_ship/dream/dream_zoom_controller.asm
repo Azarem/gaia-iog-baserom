@@ -1,6 +1,9 @@
-; Gold Ship dream sequence actor that performs a slow zoom-out by decrementing an internal scroll value from $A0 toward $40 each frame.
+; Camera zoom controller for Will's dream about his mother.
 ; 
-; Captures initial BG1/BG2 scroll offsets on entry and exits (dies) once the threshold is reached, unless flag byte $0E is already set. Spawned on Gold Ship dream scene. Creates the dreamy pull-back camera effect during the ship dream cutscene.
+; Manages the visual zoom effect during the Shira dream scene.
+; Computes offset between camera position and fixed points
+; ($0088 for BG1, $0180 for BG2) and writes to HDMA scroll
+; registers ($00F6/$00FA/$00FE). Waits for flag $0E to end.
 ---------------------------------------------
 
 !bg1ScrollH                     068A

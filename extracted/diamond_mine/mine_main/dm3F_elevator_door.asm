@@ -1,3 +1,12 @@
+; Elevator entrance door in the mine main area — requires Elevator Key.
+; 
+; Interactable door sprite. If player has the Elevator Key (#0F)
+; equipped, consumes it, sets flag $69, and shows "You used the
+; elevator key!" text. Otherwise shows "There's one keyhole in this
+; door." Once flag $69 is set, applies BG change #7B to open the
+; passage and sets flag word $017B.
+---------------------------------------------
+
 ---------------------------------------------
 
 dm3F_elevator_door [

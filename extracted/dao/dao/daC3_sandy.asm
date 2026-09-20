@@ -1,3 +1,9 @@
+; Sandy-eyed NPC in Dao — desert discomfort.
+; 
+; Simple NPC: "I got sand in my eyes. It started to sting..."
+; Flavor text establishing the harsh desert environment.
+---------------------------------------------
+
 ---------------------------------------------
 
 daC3_sandy [

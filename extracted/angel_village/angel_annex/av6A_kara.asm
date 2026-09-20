@@ -1,3 +1,10 @@
+; Kara in the Angel Village annex — compares to a floating city.
+; 
+; NPC. Says: "In the Floating City, many houses are built
+; on rafts. Kind of like Watermia." Draws connections between
+; the locations the party has visited.
+---------------------------------------------
+
 ---------------------------------------------
 
 av6A_kara [

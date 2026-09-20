@@ -1,3 +1,9 @@
+; Bonfire in the Native Village — central gathering fire.
+; 
+; Animated fire sprite. No dialog. Central visual element
+; of the village that the NPCs gather around.
+---------------------------------------------
+
 ---------------------------------------------
 
 nvAC_bonfire [

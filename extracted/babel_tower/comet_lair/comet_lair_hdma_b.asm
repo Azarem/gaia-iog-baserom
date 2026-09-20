@@ -1,6 +1,7 @@
-; Secondary Comet Lair sine HDMA distortion layer, slot #04.
+; HDMA effect B for the comet lair arena.
 ; 
-; Uses counter init #$0008 and a distinct WRAM table base at $7E8400 (amplitude 8), re-initing when flag #FF is clear. Ticks at speed #05 and binds $7E8400 to HDMA channel #0F, creating a second independent scroll/window oscillation. Combined with variant A on channel #10, produces overlapping dual-layer background warp in the Comet Lair.
+; Second HDMA layer. Combined with layer A for the full
+; atmospheric distortion in the boss arena.
 ---------------------------------------------
 
 ---------------------------------------------

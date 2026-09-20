@@ -1,3 +1,9 @@
+; Erik at the Dao hotel — can't go outside in sandstorm.
+; 
+; NPC: "I can't go outside in a sandstorm like this."
+; Erik is stuck indoors during the desert weather.
+---------------------------------------------
+
 ---------------------------------------------
 
 daC4_erik [

@@ -1,3 +1,11 @@
+; Camera object in Neil's cottage — invention description.
+; 
+; Interactive object: "That's a camera. It will burn a copy of a
+; scene onto printing paper. The problem is that it takes too
+; long." Shows Neil's invention progress. Early photography
+; concept in the game's pseudo-historical setting.
+---------------------------------------------
+
 ?INCLUDE 'spriteset_enemies'
 
 ---------------------------------------------

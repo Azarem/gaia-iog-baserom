@@ -1,3 +1,10 @@
+; Chained slave in the Freejia labor cells — broken spirit dialog.
+; 
+; Static NPC. Says: "I've tried not to think. The more I think,
+; the more empty I become..." One of the emotionally heavy NPCs
+; in the slavery theme.
+---------------------------------------------
+
 ---------------------------------------------
 
 fr35_slave2 [

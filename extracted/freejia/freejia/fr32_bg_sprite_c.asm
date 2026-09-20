@@ -1,3 +1,9 @@
+; Background decorative sprite C in Freejia town.
+; 
+; Non-interactive animated sprite with different frame count.
+; No dialog.
+---------------------------------------------
+
 ---------------------------------------------
 
 fr32_bg_sprite_c [

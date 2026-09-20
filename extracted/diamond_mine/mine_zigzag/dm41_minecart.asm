@@ -1,3 +1,15 @@
+; Minecart decoration actors that scroll across the mine background.
+; 
+; Three actor variants with different initial velocity vectors.
+; dm41_minecart: velocity (2, 1). dm41_actor_0AA4F5: velocity (0, 1)
+; with +5 X offset. dm41_actor_0AA50C: velocity (1, 0).
+; Each saves its absolute position in orbitAngle/orbitDiameter and
+; moves by adding velocity each frame. Screen position is computed
+; relative to camera (subtracts cameraDelta, adds cameraTarget).
+; Bounces off screen edges by negating the velocity component
+; that went out of bounds.
+---------------------------------------------
+
 !effectBoundsX                  0694
 !effectBoundsY                  0698
 !cameraTargetX                  06BE

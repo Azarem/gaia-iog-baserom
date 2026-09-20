@@ -1,41 +1,10 @@
-; Sky Garden crash cutscene actor — Mode 7 falling sequence with camera scroll and scene transition (237738–238074, Bank 03).
+; Sky Garden crash landing cutscene — the garden falls from the sky.
 ; 
-; Scene $59 (garden_crash) actor that orchestrates the dramatic moment where the Sky Garden plummets from the sky. Uses the active mode7_perspective thinker for per-scanline rotation/scaling and drives the entire sequence through a companion camera controller thinker.
-; 
-; === ACTOR ARCHITECTURE ===
-; 
-; Three cooperating routines plus one SFX spawner:
-; - GardenCrashCutscene: main actor-def, sets up Mode 7 rendering and spawns companions
-; - CrashCameraController: companion thinker (SpawnBefore), drives camera scroll + gravity + scene transition
-; - GardenCrashExitPhase: terminal animation phase after camera signals completion
-; - CrashDebrisSfx: 6-frame random sound effect burst spawned during gravity phase
-; 
-; === RENDERING SETUP ===
-; 
-; The actor init configures Mode 7 color math for the crash visual:
-; - M7SEL = $00: no horizontal/vertical flip
-; - TS = $01: BG1 on main screen only
-; - CGADSUB = $01: color math addition on BG1
-; - CGWSEL = $82: sub screen = fixed color, math on BG & OBJ always
-; - Joypad masked ($FFF0 → joypadMaskStd): disables Start/Select/Y/B during cutscene
-; 
-; === CUTSCENE TIMELINE ===
-; 
-; 1. Init: spawn Mode7PerspectiveUpdate thinker with params $0804 (rotation/scale speed), spawn CrashCameraController, position at camera center
-; 2. Approach phase (600 frames): camera scrolls up by 2px/frame (garden rising), Mode 7 rotation at angle $0200, scale starts at $0032 (50)
-; 3. Signal: CrashCameraController sets flag byte #01 after timer expires, 60 more frames of continued scroll
-; 4. Gravity phase: InitGravity(0, 5, 0) accelerates scale via TickGravity — garden appears to rush closer
-; 5. Impact: when scale ≥ $0500, sets game flag $0AA6 (garden crash occurred), loads post-crash graphics ($0404 → gfxCacheIdxB), QueueMapChange to scene $58
-; 6. Post-transition: continued gravity + camera scroll for smooth exit
-; 7. Debris SFX: 6 random sound bursts (sound #15) with random animation offsets
-; 
-; === MODE 7 THINKER PARAMS ===
-; 
-; The spawned Mode7PerspectiveUpdate thinker receives $0804 in animScratch2,X:
-; - High byte $08: likely rotation-related parameter
-; - Low byte $04: likely scale step parameter
-; 
-; Camera Y center ($00CC) tracks (cameraTargetY & $03FF) + $70, providing the rotation center offset.
+; Major cutscene (~258 lines) that plays when the Sky Garden
+; descends after defeating all four Crystal Birds. Manages
+; the dramatic crash sequence with screen shake, Mode 7-style
+; effects, palette fades, and the party's escape. Transitions
+; to the garden_descent scene.
 ---------------------------------------------
 
 ?INCLUDE 'mode7_perspective'

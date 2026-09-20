@@ -1,3 +1,11 @@
+; Oxygen tank in Neil's cottage — invention display.
+; 
+; Interactive object. Neil: "That's an oxygen tank. There's air
+; inside. With this you can breathe underwater, but it only
+; works for a short time." Foreshadows the undersea tunnel
+; and Mu underwater exploration.
+---------------------------------------------
+
 ?INCLUDE 'spriteset_enemies'
 
 ---------------------------------------------

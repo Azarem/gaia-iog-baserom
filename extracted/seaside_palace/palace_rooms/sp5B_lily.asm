@@ -1,3 +1,11 @@
+; Lilly in the palace rooms — startled then relieved.
+; 
+; NPC (~72 lines). "Waaah!!" Lilly is scared. Then: "Hey...
+; You scared me!! I practically had a heart attack!!"
+; Lilly's relief at seeing Will. Comic moment in the
+; otherwise tense palace.
+---------------------------------------------
+
 !joypadMaskStd                  065A
 
 ---------------------------------------------

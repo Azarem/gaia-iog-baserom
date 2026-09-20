@@ -1,3 +1,11 @@
+; Cave-in trigger in the mine main area — collapses tunnel on 4th laborer.
+; 
+; Checks flag word $0121 each frame. When RAM $0A01 reaches 4 (four
+; laborers freed), sets the flag, applies BG change #21 to redraw
+; the collapsed tunnel entrance, and plays rumble SFX #0E on both
+; channels. After triggering, marks self for death.
+---------------------------------------------
+
 ?BANK 05
 
 ---------------------------------------------

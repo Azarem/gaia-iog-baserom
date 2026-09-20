@@ -1,3 +1,9 @@
+; Shop door in Euro — access point to interior.
+; 
+; Interactive door that transitions to a shop interior.
+; Standard door mechanic with flag-based open/close state.
+---------------------------------------------
+
 ---------------------------------------------
 
 eu91_shop_door [

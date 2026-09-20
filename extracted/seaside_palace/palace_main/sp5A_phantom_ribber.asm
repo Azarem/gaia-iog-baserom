@@ -1,3 +1,11 @@
+; Phantom Ribber in the Seaside Palace — harmless ghost.
+; 
+; Ghost NPC. Will: "That's odd. Even if I touch it no damage
+; occurs..." A phantom version of the Edward Castle enemy
+; that is intangible. Establishes the palace's supernatural
+; nature where normal threats don't apply.
+---------------------------------------------
+
 ?INCLUDE 'enemy_stats_table'
 ?INCLUDE 'ToggleActorVisibilityFlag'
 

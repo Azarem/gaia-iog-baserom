@@ -1,6 +1,7 @@
-; Dual-channel sine HDMA thinker for the Ending Comet flight sequence, paired with ending_comet_dma_setup.
+; Sine HDMA effect for the ending comet scene.
 ; 
-; Initializes an 8-frame counter, builds a sine table at $7E8800 with amplitude 8 via InitSineHdma, and zeroes auxiliary offsets $7E8C30/$7E8E30. Each frame ticks at speed #05 and binds $7E8800 to HDMA channel #0F and $7E8C00 to channel #10, oscillating BG scroll/window registers for the starfield distortion. Fast dual-layer wave motion creates the comet-approach visual warp during Tim's flight cutscene.
+; Screen distortion during the comet's final moments.
+; Creates a warping visual as the comet's power dissipates.
 ---------------------------------------------
 
 ---------------------------------------------

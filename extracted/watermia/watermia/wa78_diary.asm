@@ -1,3 +1,10 @@
+; Kara's diary in Watermia — optional secret read.
+; 
+; Interactive object with choice: "Kara's diary is secret.
+; Read it? Yes/No" — player can choose to read Kara's
+; private thoughts. Character development item.
+---------------------------------------------
+
 ---------------------------------------------
 
 wa78_diary [

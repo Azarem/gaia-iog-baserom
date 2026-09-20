@@ -1,3 +1,9 @@
+; Decorative boulder on the Larai Cliff back side (variant B).
+; 
+; Identical to variant A but placed at a different position.
+; Same flag $30 check and sprite priority #30.
+---------------------------------------------
+
 ---------------------------------------------
 
 ir1E_cliff_boulder_b [

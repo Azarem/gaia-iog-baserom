@@ -1,3 +1,9 @@
+; Walking laborer NPC in Freejia — animated background character.
+; 
+; Non-interactable NPC that walks a patrol route through town.
+; No dialog. Represents the laborers visible in Freejia's streets.
+---------------------------------------------
+
 ?INCLUDE 'spriteset_town_objects'
 
 !cameraBoundsY                  06DC

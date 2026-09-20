@@ -1,3 +1,9 @@
+; Kara trapped in the palace rooms — lost and confused.
+; 
+; NPC: "Will... Where... Where is it...??" Kara can't find
+; her way in the dark palace. Part of the separated party.
+---------------------------------------------
+
 ?INCLUDE 'ToggleActorVisibilityFlag'
 
 ---------------------------------------------

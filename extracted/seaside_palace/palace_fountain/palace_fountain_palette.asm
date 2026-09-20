@@ -1,6 +1,7 @@
-; Seaside Palace fountain room effect for Kara's fountain scene.
+; Fountain palette animation for the Seaside Palace.
 ; 
-; Each loop sets CGADSUB ($2131) to #$03, enabling color-math addition of the subscreen onto the main screen for a luminous water glow. Alternates palette bundles #1A and #25 based on flags #70 and #0F, stepping one palette frame per tick to animate the fountain's shimmering colors. Flag #0F triggers an exit branch; flag #FF gates loop restart after each palette step.
+; Thinker that cycles palette colors for the demon fountain's
+; water effect. Creates the shimmering water visual.
 ---------------------------------------------
 
 !CGADSUB                        2131

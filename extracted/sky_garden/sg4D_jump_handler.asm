@@ -1,3 +1,11 @@
+; Platform jump handler for Sky Garden floating platforms.
+; 
+; Manages the gap-jumping mechanic unique to Sky Garden. When
+; the player reaches a platform edge, handles the jump arc,
+; landing detection, and fall-off logic for the floating
+; garden platforms.
+---------------------------------------------
+
 ?INCLUDE 'player_transition_handlers'
 
 !sceneCurrent                   0644

@@ -1,3 +1,11 @@
+; Zip Fly enemy — fast darting insect in Angkor Wat (~337 lines).
+; 
+; Extremely fast flying enemy with erratic flight patterns.
+; Darts at the player in quick bursts, pauses briefly, then
+; darts again. Difficult to hit due to speed. Complex
+; directional AI with random movement variation.
+---------------------------------------------
+
 ---------------------------------------------
 
 awB0_zip_fly [

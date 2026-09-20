@@ -1,3 +1,12 @@
+; Mud Pit enemy — underground hazard that emerges to attack.
+; 
+; Waits offscreen, then determines nearest axis to player. Picks
+; a direction (N/S/E/W) with random fallback, emerges with sprite
+; animation, moves toward the player in the chosen direction with
+; solid collision checks, then dives back underground. Repeats
+; the emerge-attack-submerge cycle.
+---------------------------------------------
+
 ---------------------------------------------
 
 ir1D_mudpit [

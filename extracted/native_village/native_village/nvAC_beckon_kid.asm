@@ -1,3 +1,11 @@
+; Beckoning child in the Native Village — leads Will somewhere.
+; 
+; Interactive NPC (~95 lines): "He tugs on Will's sleeve, as if
+; he wants to take him somewhere. Go with him? Yes/No"
+; The child guides Will to an important location if the
+; player agrees. Non-verbal communication scene.
+---------------------------------------------
+
 !moveXAlt                       7F0018
 !moveYAlt                       7F001A
 

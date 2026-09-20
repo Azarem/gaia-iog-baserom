@@ -1,3 +1,11 @@
+; Ishtar's voice — door puzzle instructions.
+; 
+; Multi-phase puzzle guide (~129 lines). "Ishtar's voice resounds.
+; Don't hurry. Open the doors in order from the left."
+; Provides step-by-step instructions for the door sequence
+; puzzle. Tracks player progress through each door.
+---------------------------------------------
+
 ?INCLUDE 'spriteset_enemies'
 
 !playerYPos                     09A4

@@ -1,3 +1,12 @@
+; Erik on the wrecked Gold Ship — scared reaction and dungeon event.
+; 
+; Before flag $51: solid NPC with interaction dialog about being
+; surprised. After flag $51: involved in a longer sequence using
+; camera_drift for screen shake and cameraTargetY adjustments.
+; Uses chatPtr, orbitAngle, orbitDiameter for state tracking.
+; Dialog: "I was surprised!! Oh, it's you, Will."
+---------------------------------------------
+
 ?INCLUDE 'camera_drift'
 
 !gfxCacheIdxB                   064A

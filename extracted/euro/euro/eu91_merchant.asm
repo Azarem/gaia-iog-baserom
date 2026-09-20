@@ -1,3 +1,11 @@
+; Street merchant in Euro — directs and warns the player.
+; 
+; Extended NPC (~203 lines). "Hey! Don't ever go over there.
+; Cross over to the other side!" Multi-phase merchant who
+; initially blocks passage, then opens up dialog about
+; Euro's commerce and dangers.
+---------------------------------------------
+
 ?INCLUDE 'ActorDisplayModeSwap'
 
 ---------------------------------------------

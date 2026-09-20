@@ -1,3 +1,10 @@
+; Wind visual effect in the Angel Village wind tunnel.
+; 
+; Animated wind particle effect. Creates visible air currents
+; that blow through the tunnel passage. Indicates direction
+; and strength of the wind.
+---------------------------------------------
+
 !extVelocityX                   0408
 !cameraTargetX                  06BE
 !moveXAlt                       7F0018

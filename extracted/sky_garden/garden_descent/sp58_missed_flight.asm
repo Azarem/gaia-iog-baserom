@@ -1,3 +1,10 @@
+; Neil's failed catch — comic relief during the descent.
+; 
+; Neil: "Shoot!! I dropped a contact!!" Kara: "You what!!!"
+; Brief comedic interlude during the tense descent sequence
+; where Neil fumbles the rescue attempt.
+---------------------------------------------
+
 ---------------------------------------------
 
 sp58_missed_flight [

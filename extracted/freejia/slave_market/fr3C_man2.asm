@@ -1,3 +1,10 @@
+; Bystander 2 in the slave market — admonishes Will to remember.
+; 
+; NPC: "These laborers are the same age as you. Remember.
+; There are people everywhere in worse situations." One of
+; the game's moral messaging NPCs.
+---------------------------------------------
+
 ---------------------------------------------
 
 fr3C_man2 [

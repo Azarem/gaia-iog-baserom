@@ -1,3 +1,11 @@
+; Prologue text placement calculator (~138 lines).
+; 
+; Computes screen positions for the prologue's scrolling
+; and fading text display. Handles centering, line spacing,
+; character-by-character reveal timing, and fade effects
+; for the opening narrative.
+---------------------------------------------
+
 ---------------------------------------------
 
 pr_text_placement_calc {

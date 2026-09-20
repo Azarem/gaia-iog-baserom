@@ -1,3 +1,12 @@
+; King Rama's spirit council — major exposition scene in Mu (~199 lines).
+; 
+; Rama introduces himself: "I am Rama, King of Mu. My body
+; passed on long ago, but my spirit lives on." Then: "Hear
+; the words of spirits awakened." Extended multi-spirit dialog
+; revealing the history of Mu, the ocean's power, and hints
+; about the comet. Key lore dump for the Mu chapter.
+---------------------------------------------
+
 ?INCLUDE 'oneshot_palette_flash_18'
 ?INCLUDE 'oneshot_palette_flash_19'
 ?INCLUDE 'spriteset_npc_props'

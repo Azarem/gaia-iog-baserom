@@ -1,3 +1,10 @@
+; Lance at the Angel Village entrance — Neil comments on the journey.
+; 
+; Multi-speaker NPC (~57 lines). Neil: "We're here at last.
+; We've walked through the tunnel for almost..." Establishes
+; the long journey through the undersea tunnel.
+---------------------------------------------
+
 !joypadMaskStd                  065A
 
 ---------------------------------------------

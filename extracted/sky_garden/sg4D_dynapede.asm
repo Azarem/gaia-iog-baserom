@@ -1,3 +1,12 @@
+; Dynapede enemy — multi-segment centipede in Sky Garden.
+; 
+; Segmented enemy where body pieces follow the head in a
+; chain. Head navigates using directional movement with wall
+; collision checks. Body segments track the previous segment's
+; position. Attack involves the full chain sweeping across
+; the player's path.
+---------------------------------------------
+
 ?INCLUDE 'EnemyDeathFlash'
 ?INCLUDE 'StandardEnemyDefeatHandler'
 

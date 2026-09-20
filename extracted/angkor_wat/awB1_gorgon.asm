@@ -1,3 +1,12 @@
+; Gorgon enemy — petrification creature in Angkor Wat (~397 lines).
+; 
+; The source of the stone girl curse in the Native Village.
+; Can petrify the player briefly on eye contact. Uses
+; directional facing checks to determine when the petrify
+; gaze connects. Multi-phase with standard melee and the
+; special gaze attack. Defeating all Gorgons lifts the curse.
+---------------------------------------------
+
 ?INCLUDE 'camera_drift'
 ?INCLUDE 'spriteset_enemies'
 

@@ -1,3 +1,10 @@
+; Hotel clerk in Dao — manages merchant accommodation.
+; 
+; Multi-state NPC (~94 lines). "This is a hotel for travelling
+; merchants." Later: "Would you happen to be Will? Yes/No"
+; Recognizes Will and provides a room or information.
+---------------------------------------------
+
 !displayModeFlags               09EC
 !inventorySlots                 0AB4
 

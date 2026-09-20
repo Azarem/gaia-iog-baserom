@@ -1,3 +1,10 @@
+; Long-delay switch spear on the Great Wall rampway.
+; 
+; Wall spear trap with a longer timer cycle. Extends and
+; retracts more slowly than the standard wall_spear. Used
+; to create timing puzzles on the rampway section.
+---------------------------------------------
+
 ---------------------------------------------
 
 gw85_long_switch_spear [

@@ -1,6 +1,8 @@
-; Timed transition sine HDMA for Comet Lair story beats, slot #05.
+; Timed HDMA effect C for the comet lair.
 ; 
-; Phase 1: standard sine on $7E8400 bound to HDMA channel #0D (BG1 horizontal scroll) at tick speed #05, waiting for flag #01. Phase 2: reloads with amplitude 4, counts down 112 frames while continuing TickSineHdma/BindSineHdma each frame. At countdown zero, calls SetEntryContinue and stops — gradually dampening the wave distortion during a Lair cutscene event.
+; Time-varying HDMA distortion that pulses during the
+; Dark Gaia fight. Creates dynamic visual intensity changes
+; during boss phase transitions.
 ---------------------------------------------
 
 ---------------------------------------------

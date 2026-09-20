@@ -1,3 +1,11 @@
+; Explorer skeleton in the Inca treasure room — charm with family letter.
+; 
+; Solid interactable prop. When examined, shows a multi-page dialog:
+; "An explorer who sought the Incan Gold Ship..." then reveals a
+; charm containing notes from family members Nana and Sabas, asking
+; their father to return alive and buy a Kruk.
+---------------------------------------------
+
 ---------------------------------------------
 
 ir26_bones [

@@ -1,3 +1,11 @@
+; Rescuer in the Oakton interior — the man who saved Will and Kara.
+; 
+; NPC who wakes Will: "You can wake him up now. He'll be fine
+; if he takes vitamins." Then: "This is the south outskirts of
+; Oakton. The city of Freejia is to the north." Establishes
+; the geographic context and sends the party toward Freejia.
+---------------------------------------------
+
 ?INCLUDE 'player_transition_handlers'
 
 !joypadMaskStd                  065A

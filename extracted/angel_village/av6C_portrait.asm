@@ -1,3 +1,10 @@
+; Portrait interactive object in the Angel Village rooms.
+; 
+; Examinable painting on the wall. When interacted with,
+; may reveal hidden content or provide visual detail about
+; the Angel Tribe's history.
+---------------------------------------------
+
 ---------------------------------------------
 
 av6C_portrait [

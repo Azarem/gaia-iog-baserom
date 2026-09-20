@@ -1,3 +1,11 @@
+; Kara in the Babel lower floors — fears permanent separation.
+; 
+; Emotional NPC (~82 lines). "Wait..." Then: "Will: Kara!!!?
+; Kara: I'm sorry. I just feel that, if we part now, we'll
+; never meet again..." Kara's fear drives her to follow Will.
+; Character moment before the final ascent.
+---------------------------------------------
+
 ?INCLUDE 'EscortFollowPathTracker'
 ?INCLUDE 'InitPlayerScriptVariant'
 

@@ -1,3 +1,9 @@
+; Centipede man NPC in Watermia — mentions the Sand Fanger.
+; 
+; Says: "I heard that a huge centipede called a Sand Fanger
+; lives in the Great Wall." Foreshadows the Great Wall boss.
+---------------------------------------------
+
 ?INCLUDE 'ActorDisplayModeSwap'
 ?INCLUDE 'npc_wander_ai'
 

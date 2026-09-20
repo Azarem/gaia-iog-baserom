@@ -1,3 +1,11 @@
+; Neil in the Dao dormitory — surprise reunion.
+; 
+; Extended NPC (~66 lines). "Will!! I never thought I'd meet
+; you in a place like this!" Neil has become the Rolek Company
+; representative: "I came to Dao to replace the labor trade
+; with pepper imports." Shows Neil's growth and initiative.
+---------------------------------------------
+
 !gfxCacheIdxB                   064A
 !joypadMaskStd                  065A
 

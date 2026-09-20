@@ -1,3 +1,12 @@
+; Jackal puzzle encounter in the Pyramid — stealth challenge (~255 lines).
+; 
+; Major puzzle: "Walk to the left without a sound!!" The player
+; must navigate silently past the Jackal. Detection triggers
+; a restart. Multi-phase puzzle with different walking rules.
+; Also includes dialog: "It says to walk to the left!!"
+; One of the more unique puzzle mechanics in the game.
+---------------------------------------------
+
 ?INCLUDE 'sE6_gaia'
 ?INCLUDE 'spriteset_npc_props'
 

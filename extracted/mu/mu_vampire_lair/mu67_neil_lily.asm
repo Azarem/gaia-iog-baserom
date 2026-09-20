@@ -1,3 +1,11 @@
+; Neil and Lilly in the vampire lair — reunion after the battle.
+; 
+; Two-character NPC (~95 lines). Neil: "Will! Are you OK?!"
+; Lance: "Will! I don't see Lilly." Lilly reassures: "Sorry
+; I worried you. Will was protecting me, so I was OK."
+; Multi-speaker dialog sequence after the vampire defeat.
+---------------------------------------------
+
 !joypadMaskStd                  065A
 !playerActor                    09AA
 !decompressedTilesets           7E4000

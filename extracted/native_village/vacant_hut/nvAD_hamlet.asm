@@ -1,3 +1,9 @@
+; Hamlet in the vacant hut — happy oinking.
+; 
+; NPC: "Oink oink." Hamlet is content in the hut.
+; Light moment after the emotional village scenes.
+---------------------------------------------
+
 ---------------------------------------------
 
 nvAD_hamlet [

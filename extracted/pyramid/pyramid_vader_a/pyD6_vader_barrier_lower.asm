@@ -1,3 +1,10 @@
+; Lower Vader barrier in Pyramid — Shadow form gate (~96 lines).
+; 
+; Barrier that requires Shadow form to pass. Detects player
+; form and opens only for Shadow's low-profile ability.
+; Part of the form-switching puzzle design.
+---------------------------------------------
+
 ?INCLUDE 'enemy_stats_table'
 ?INCLUDE 'spriteset_enemies'
 

@@ -1,3 +1,12 @@
+; Lance and Lilly reunion inside the Great Wall (~180 lines).
+; 
+; Major story scene. Lilly scolds Lance: "You're crazy! I've
+; been worried sick! What if you'd been..." Lance: "Oh.
+; That stone..." Will: "If you follow the stone..." Multi-phase
+; cutscene with character movement, dialog exchanges, and the
+; necklace subplot resolution.
+---------------------------------------------
+
 !gfxCacheIdxB                   064A
 !joypadCurrent                  0656
 !joypadMaskStd                  065A

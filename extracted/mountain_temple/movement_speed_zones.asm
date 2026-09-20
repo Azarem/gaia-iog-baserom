@@ -1,6 +1,9 @@
-; Invisible zone actors that override player movement speed when the player enters a 16×16 pixel area.
+; Movement speed zone controller for Mountain Temple (~145 lines).
 ; 
-; speed_zone_ew_slow/fast set playerSpeedEw to $FFF9 or $0007; speed_zone_ns_slow sets playerSpeedNs to $FFF9. Placed extensively in Mountain Temple and related dungeon scenes to create slow walkways and fast current lanes.
+; Defines zones with different player movement speeds.
+; Some areas slow the player (mushroom spore effect, thick
+; vegetation) while others are normal. Checks player
+; position against zone boundaries each frame.
 ---------------------------------------------
 
 !playerActor                    09AA

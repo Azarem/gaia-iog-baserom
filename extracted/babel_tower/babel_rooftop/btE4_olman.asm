@@ -1,3 +1,13 @@
+; Olman on the Tower of Babel rooftop — final exposition (~257 lines).
+; 
+; The game's largest exposition scene. Will's father explains:
+; "The ancients worshipped the comet as a spirit. Those who
+; bathed in the comet's light..." Covers the comet's cyclical
+; return, the ancient civilization's evolution and corruption,
+; and the true nature of Light and Dark Gaia. Essential lore
+; for understanding the game's mythology.
+---------------------------------------------
+
 ?INCLUDE 'spriteset_enemies'
 ?INCLUDE 'spriteset_npc_props'
 
