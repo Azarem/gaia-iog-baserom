@@ -321,7 +321,7 @@ sequenceDiagram
 
 **Key Design Patterns:**
 - **Stack-trampoline dispatch:** `PHK`/`PEA`/`PHA`/`RTL` creates indirect actor calls
-- **Dual text engines:** Wide-string (16×16 glyphs, 25 commands) + ASCII (8×8 tiles, 18 commands)
+- **Dual text engines:** Dialog (16×16 glyphs, 25 commands) + Console (8×8 tiles, 18 commands)
 - **Axis-separated collision:** X movement resolved first, then Y independently
 
 ---

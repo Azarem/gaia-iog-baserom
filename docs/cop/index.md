@@ -153,6 +153,225 @@ Families are grouped by **shared handlers / purpose / WRAM**, not by jump-table 
 
 ---
 
+## Opcode roster (`$00`–`$E2`)
+
+Every valid COP opcode with its parameters, family link, and a short description of what it does.
+
+| Op | Name | Params | Family | Description |
+|----|------|--------|--------|-------------|
+| `$00` | `GenHdmaSine` | — | [hdma_dma](families/hdma_dma.md) | Generate sine-wave HDMA table for wavy screen effects |
+| `$01` | `QueueHdma` | `@dma_data, Byte` | [hdma_dma](families/hdma_dma.md) | Queue an HDMA transfer from a far pointer |
+| `$02` | `QueueDma` | `@dma_data, Byte` | [hdma_dma](families/hdma_dma.md) | Queue a general DMA transfer from a far pointer |
+| `$03` | `QueueHdmaChannel` | `Byte, Address, Byte` | [hdma_dma](families/hdma_dma.md) | Configure a specific HDMA channel with register and source |
+| `$04` | `StartMusic` | `Byte` | [audio](families/audio.md) | Begin playing a music track by ID |
+| `$05` | `FadeThenStartMusic` | `Byte` | [audio](families/audio.md) | Fade out current music, then start a new track |
+| `$06` | `PlaySoundCh2` | `Byte` | [audio](families/audio.md) | Play a sound effect on APU channel 2 |
+| `$07` | `PlaySoundCh1` | `Byte` | [audio](families/audio.md) | Play a sound effect on APU channel 1 |
+| `$08` | `PlaySoundBoth` | `Word` | [audio](families/audio.md) | Play sound effects on both APU channels simultaneously |
+| `$09` | `WriteApuIo1` | `Byte` | [audio](families/audio.md) | Write a raw byte to APU I/O port 1 (`$2141`) |
+| `$0A` | `WriteApuIo0` | `Byte` | [audio](families/audio.md) | Write a raw byte to APU I/O port 0 (`$2140`) |
+| `$0B` | `MarkSolidHere` | — | [collision_paint](families/collision_paint.md) | Set the collision tile at actor's position to solid |
+| `$0C` | `ClearSolidHere` | — | [collision_paint](families/collision_paint.md) | Clear the solid bit at actor's current tile |
+| `$0D` | `MarkSolidOffset` | `Byte dX, Byte dY` | [collision_paint](families/collision_paint.md) | Set solid at a tile offset from actor |
+| `$0E` | `ClearSolidOffset` | `Byte dX, Byte dY` | [collision_paint](families/collision_paint.md) | Clear solid at a tile offset from actor |
+| `$0F` | `MarkSolidAbs` | `Byte tileX, Byte tileY` | [collision_paint](families/collision_paint.md) | Set solid at an absolute tile coordinate |
+| `$10` | `ClearSolidAbs` | `Byte tileX, Byte tileY` | [collision_paint](families/collision_paint.md) | Clear solid at an absolute tile coordinate |
+| `$11` | `ClearCollisionHere` | — | [collision_paint](families/collision_paint.md) | Zero the full collision byte at actor's tile |
+| `$12` | `ClearTypeAbs` | `Byte tileX, Byte tileY` | [collision_paint](families/collision_paint.md) | Zero the collision type nibble at absolute coords |
+| `$13` | `BranchIfSolidHere` | `&Code` | [collision_branch](families/collision_branch.md) | Branch if actor's current tile is solid |
+| `$14` | `BranchIfSolidOffset` | `Byte dX, Byte dY, &Code` | [collision_branch](families/collision_branch.md) | Branch if tile at offset from actor is solid |
+| `$15` | `BranchIfSolidNorth` | `&Code` | [collision_branch](families/collision_branch.md) | Branch if tile one step north of actor is solid |
+| `$16` | `BranchIfSolidSouth` | `&Code` | [collision_branch](families/collision_branch.md) | Branch if tile one step south of actor is solid |
+| `$17` | `BranchIfSolidWest` | `&Code` | [collision_branch](families/collision_branch.md) | Branch if tile one step west of actor is solid |
+| `$18` | `BranchIfSolidEast` | `&Code` | [collision_branch](families/collision_branch.md) | Branch if tile one step east of actor is solid |
+| `$19` | `MusicAndText` | `Byte, @DialogString` | [audio](families/audio.md) | Start a music track and display a dialog string |
+| `$1A` | `BranchIfTypeHere` | `Byte Type, &Code` | [collision_branch](families/collision_branch.md) | Branch if collision type at actor's tile matches |
+| `$1B` | `BranchIfTypeNorth` | `Byte Type, &Code` | [collision_branch](families/collision_branch.md) | Branch if collision type one tile north matches |
+| `$1C` | `BranchIfTypeSouth` | `Byte Type, &Code` | [collision_branch](families/collision_branch.md) | Branch if collision type one tile south matches |
+| `$1D` | `BranchIfTypeWest` | `Byte Type, &Code` | [collision_branch](families/collision_branch.md) | Branch if collision type one tile west matches |
+| `$1E` | `BranchIfTypeEast` | `Byte Type, &Code` | [collision_branch](families/collision_branch.md) | Branch if collision type one tile east matches |
+| `$1F` | `BranchIfNotOnGridline` | `&Code` | [proximity](families/proximity.md) | Branch if actor is not aligned to a 16×16 tile grid |
+| `$20` | `BranchIfActorNear` | `Byte AcNum, Byte Dist, &Code` | [proximity](families/proximity.md) | Branch if another actor is within distance |
+| `$21` | `BranchIfPlayerNear` | `Byte Dist, &Code` | [proximity](families/proximity.md) | Branch if the player is within distance |
+| `$22` | `MoveToward` | `Byte SpriteId, Byte Speed` | [movement](families/movement.md) | Move actor toward another sprite at given speed |
+| `$23` | `RngByte` | — | [rng](families/rng.md) | Store a random byte (0–255) into accumulator |
+| `$24` | `RngMod` | `Byte Max` | [rng](families/rng.md) | Store a random value modulo Max into accumulator |
+| `$25` | `SetTilePos` | `Byte tileX, Byte tileY` | [position](families/position.md) | Teleport actor to an absolute tile position |
+| `$26` | `QueueMapChange` | `Byte, Word, Word, Byte, Word` | [map_transition](families/map_transition.md) | Queue a map/scene transition with coordinates and flags |
+| `$27` | `WaitWhileOffscreen` | `Byte Delay` | [offscreen](families/offscreen.md) | Pause script while actor is off-camera, with min delay |
+| `$28` | `BranchIfPlayerAt` | `Word PosX, Word PosY, &Code` | [player_query](families/player_query.md) | Branch if player is at exact pixel position |
+| `$29` | `BranchIfActorAt` | `Byte AcNum, Word PosX, Word PosY, &Code` | [player_query](families/player_query.md) | Branch if an actor is at exact pixel position |
+| `$2A` | `BranchOnPlayerX` | `Word Dist, &Code W, &Code E, &Code H` | [player_query](families/player_query.md) | Three-way branch by player X distance (west/east/here) |
+| `$2B` | `BranchOnPlayerY` | `Word Dist, &Code N, &Code S, &Code H` | [player_query](families/player_query.md) | Three-way branch by player Y distance (north/south/here) |
+| `$2C` | `BranchNearerAxis` | `&Code NearY, &Code NearX` | [player_query](families/player_query.md) | Branch on whether player is nearer on X or Y axis |
+| `$2D` | `DirToPlayer` | — | [player_query](families/player_query.md) | Compute 4-way direction to player, store in `$12` |
+| `$2E` | `DirToPlayerFrom` | `Byte OffsX, Byte OffsY` | [player_query](families/player_query.md) | Compute direction to player from an offset position |
+| `$2F` | `BranchIfDirToPlayer` | `Byte Dir, &Code` | [player_query](families/player_query.md) | Branch if direction to player matches Dir |
+| `$30` | `BranchIfDirToPlayerFrom` | `Byte OffsX, Byte OffsY, Byte Dir, &Code` | [player_query](families/player_query.md) | Branch if direction to player from offset matches Dir |
+| `$31` | `BranchOnPlayerFacing` | `&Code S, &Code N, &Code W, &Code E` | [player_query](families/player_query.md) | Four-way branch on which direction the player faces |
+| `$32` | `StageBgChange` | `Byte BgChg` | [bg_rearrange](families/bg_rearrange.md) | Queue a background rearrangement by index |
+| `$33` | `ApplyBgChange` | — | [bg_rearrange](families/bg_rearrange.md) | Execute any queued background rearrangement |
+| `$34` | `StageBgChangeFromDeathIdx` | — | [bg_rearrange](families/bg_rearrange.md) | Queue a BG change using actor's own death index |
+| `$35` | `CardinalToPlayer` | — | [player_query](families/player_query.md) | Compute cardinal direction to player, store to A |
+| `$36` | `PaletteRestart` | — | [palette](families/palette.md) | Restart an in-progress palette animation from step 0 |
+| `$37` | `PaletteStart` | `Byte Bundle` | [palette](families/palette.md) | Start a one-shot palette animation bundle |
+| `$38` | `PaletteStartLoop` | `Byte Bundle, Byte Iters` | [palette](families/palette.md) | Start a palette animation that loops N times |
+| `$39` | `PaletteStep` | — | [palette](families/palette.md) | Advance one step of a running palette animation |
+| `$3A` | `PaletteStepLoop` | — | [palette](families/palette.md) | Advance palette animation, yielding each step |
+| `$3B` | `SpawnThinkerParam` | `Byte Param, @Code Entry` | [thinkers](families/thinkers.md) | Spawn a background thinker process with a parameter |
+| `$3C` | `SpawnThinker` | `@Code Entry` | [thinkers](families/thinkers.md) | Spawn a background thinker process |
+| `$3D` | `KillThinker` | — | [thinkers](families/thinkers.md) | Kill the thinker associated with this actor |
+| `$3E` | `WaitForButton` | `Word Mask` | [input](families/input.md) | Halt script until player presses any button in mask |
+| `$3F` | `WaitForRelease` | `Word Mask` | [input](families/input.md) | Halt script until player releases all buttons in mask |
+| `$40` | `BranchIfPressed` | `Word Mask, &Code` | [input](families/input.md) | Branch if any button in mask is currently pressed |
+| `$41` | `BranchIfNotPressed` | `Word Mask, &Code` | [input](families/input.md) | Branch if no button in mask is pressed |
+| `$42` | `SetCollisionAbs` | `Byte tileX, Byte tileY, Byte Type` | [collision_paint](families/collision_paint.md) | Write a specific collision type at absolute coords |
+| `$43` | `SnapToGrid` | — | [movement](families/movement.md) | Align actor position to nearest 16×16 grid cell |
+| `$44` | `BranchIfPlayerInRelTiles` | `Byte×4, &Code` | [proximity](families/proximity.md) | Branch if player is within a relative tile rectangle |
+| `$45` | `BranchIfPlayerInAbsTiles` | `Byte×4, &Code` | [proximity](families/proximity.md) | Branch if player is within an absolute tile rectangle |
+| `$46` | `CopyPosToPrev` | — | [position](families/position.md) | Copy actor position to the previous actor in list |
+| `$47` | `CopyPosToNext` | — | [position](families/position.md) | Copy actor position to the next actor in list |
+| `$48` | `GetPlayerFacing` | — | [player_query](families/player_query.md) | Read player facing direction into accumulator |
+| `$49` | `BranchIfBodyNe` | `Byte Body, &Code` | [player_query](families/player_query.md) | Branch if active player body ≠ Body |
+| `$4A` | `ResumeAfterSnap` | — | [movement](families/movement.md) | Resume script execution after a SnapToGrid completes |
+| `$4B` | `DrawMetatileAbs` | `Byte tileX, Byte tileY, Byte Metatile` | [metatile](families/metatile.md) | Draw a 2×2 metatile at absolute tile coords |
+| `$4C` | `DrawMetatileHere` | `Byte Metatile` | [metatile](families/metatile.md) | Draw a 2×2 metatile at actor's current position |
+| `$4D` | `WorldMapStream3` | `Word DataOffset` | [metatile](families/metatile.md) | Stream metatile data for world map (variant 3) |
+| `$4E` | `WorldMapStream4` | `Word DataOffset` | [metatile](families/metatile.md) | Stream metatile data for world map (variant 4) |
+| `$4F` | `AdhocVramDma` | `Address Src, Word Size, Word VramWord` | [vram_memory](families/vram_memory.md) | DMA arbitrary data into VRAM at a word address |
+| `$50` | `CopyPalette` | `Address Src, Byte OffsW, Byte PalWord, Byte SizeW` | [vram_memory](families/vram_memory.md) | Copy palette colors from ROM into CGRAM mirror |
+| `$51` | `Decompress` | `Address Src, Address Dest` | [vram_memory](families/vram_memory.md) | Decompress (or copy) data from ROM to RAM/VRAM |
+| `$52` | `StageMove` | `Byte SpriteId, Byte Speed, Byte MaxTime` | [movement](families/movement.md) | Begin a timed movement toward another sprite |
+| `$53` | `TickMove` | — | [movement](families/movement.md) | Advance one frame of a staged movement |
+| `$54` | `SetScratchPointer` | `Address` | [vram_memory](families/vram_memory.md) | Set the scratch/work pointer for later DMA ops |
+| `$55` | `ResetSpriteState` | `Byte Spr, Word New24` | [sprite_state](families/sprite_state.md) | Reset sprite index and control word `$24` |
+| `$56` | `AdvanceSpriteAnim` | — | [sprite_state](families/sprite_state.md) | Step the current sprite animation one frame forward |
+| `$57` | `SetDeathCallback` | `@Code OnDeath` | [callbacks](families/callbacks.md) | Register a far handler called when actor dies |
+| `$58` | `SetHitCallback` | `&Code OnHit` | [callbacks](families/callbacks.md) | Register a near handler called when actor is hit |
+| `$59` | `SetDodgeCallback` | `&Code Dodge` | [callbacks](families/callbacks.md) | Register a near handler called when actor dodges |
+| `$5A` | `SetCollideCallback` | `&Code OnCollide` | [callbacks](families/callbacks.md) | Register a near handler for player collision |
+| `$5B` | `OrExtraFlags` | `Word Mask` | [actor_flags](families/actor_flags.md) | Set bits in actor's extra-flags word (`$10`) |
+| `$5C` | `AndExtraFlags` | `Word Mask` | [actor_flags](families/actor_flags.md) | Clear bits in actor's extra-flags word (`$10`) |
+| `$5D` | `BranchIfBehindWall` | `&Code` | [actor_flags](families/actor_flags.md) | Branch if actor is behind a wall overlay |
+| `$5E` | `SetCustomCallback` | `&Code` | [callbacks](families/callbacks.md) | Register a near handler for custom event dispatch |
+| `$5F` | `InitSineHdma` | `Word Base, Byte BytesPerPeriod` | [sine_hdma](families/sine_hdma.md) | Initialize sine-wave HDMA parameters |
+| `$60` | `TickSineHdma` | `Byte Delay, Byte ScrollLayer` | [sine_hdma](families/sine_hdma.md) | Advance sine HDMA one step and apply to BG layer |
+| `$61` | `BindSineHdma` | `Address Src, Byte Reg` | [sine_hdma](families/sine_hdma.md) | Bind a sine HDMA source address to a PPU register |
+| `$62` | `BranchIfCollisionTypeNe` | `Byte Nibble, &Code` | [collision_branch](families/collision_branch.md) | Branch if collision type nibble ≠ Nibble |
+| `$63` | `InitGravity` | `Byte InitSpeed, Byte NegLogA, Byte GndTilePos` | [gravity](families/gravity.md) | Initialize gravity simulation with speed and ground |
+| `$64` | `TickGravity` | — | [gravity](families/gravity.md) | Advance one frame of gravity (fall/bounce) |
+| `$65` | `StageWorldMapMove` | `Word PosX, Word PosY, Byte Dummy, Byte WMapMoveId` | [map_transition](families/map_transition.md) | Stage a world-map move to a position |
+| `$66` | `StageWorldMapChoice` | `Word PosX, Word PosY, Byte WMapOptsId` | [map_transition](families/map_transition.md) | Stage a world-map branch point with player choice |
+| `$67` | `StageWorldMapMoveIds` | `Byte Dummy, Byte WMapMoveId` | [map_transition](families/map_transition.md) | Stage a world-map move using IDs only |
+| `$68` | `BranchIfOffCamera` | `&Code` | [offscreen](families/offscreen.md) | Branch if actor is currently off-camera |
+| `$69` | `HaltIfMaxFrames` | `Word Min` | [offscreen](families/offscreen.md) | Halt actor permanently if global frame count ≥ Min |
+| `$6A` | `SetLinkedEntryPtr` | `&Code` | [linked_actor](families/linked_actor.md) | Set the entry pointer for the linked child actor |
+| `$6B` | `PrintDialogStringAlt` | `&DialogString` | [dialog](families/dialog.md) | Print a dialog string (alternate entry point) |
+| `$6C` | `InitSpiral` | `Byte Angle, Byte Diameter` | [spiral](families/spiral.md) | Initialize spiral motion with start angle and radius |
+| `$6D` | `SpiralStep` | `Byte DiameterSpeed, Byte AngleSpeed` | [spiral](families/spiral.md) | Advance one step of spiral motion |
+| | | | | |
+| `$80` | `StageSpr` | `Byte Spr` | [sprite_staging](families/sprite_staging.md) | Stage a single sprite frame (no movement) |
+| `$81` | `StageSprX` | `Byte Spr, Byte XMove` | [sprite_staging](families/sprite_staging.md) | Stage sprite with horizontal movement |
+| `$82` | `StageSprY` | `Byte Spr, Byte YMove` | [sprite_staging](families/sprite_staging.md) | Stage sprite with vertical movement |
+| `$83` | `StageSprXY` | `Byte Spr, Byte XMove, Byte YMove` | [sprite_staging](families/sprite_staging.md) | Stage sprite with both X and Y movement |
+| `$84` | `StageSprLoop` | `Byte Spr, Byte Iters` | [sprite_staging](families/sprite_staging.md) | Stage sprite for N iterations (no movement) |
+| `$85` | `StageSprLoopX` | `Byte Spr, Byte Iters, Byte XMove` | [sprite_staging](families/sprite_staging.md) | Stage sprite for N iterations with X movement |
+| `$86` | `StageSprLoopY` | `Byte Spr, Byte Iters, Byte YMove` | [sprite_staging](families/sprite_staging.md) | Stage sprite for N iterations with Y movement |
+| `$87` | `StageSprLoopXY` | `Byte Spr, Byte Iters, Byte XMove, Byte YMove` | [sprite_staging](families/sprite_staging.md) | Stage sprite for N iterations with X+Y movement |
+| `$88` | `SetMetasprite` | `@&sprite_set` | [sprite_anim](families/sprite_anim.md) | Load a metasprite definition set (far pointer to bank-local table) |
+| `$89` | `AnimOnce` | — | [sprite_anim](families/sprite_anim.md) | Play the current metasprite animation once |
+| `$8A` | `AnimLoop` | — | [sprite_anim](families/sprite_anim.md) | Play the current metasprite animation in a loop |
+| `$8B` | `AnimOneFrame` | — | [sprite_anim](families/sprite_anim.md) | Advance one frame of metasprite animation |
+| `$8C` | `WaitForAnimFrame` | `Byte SprFrame` | [sprite_anim](families/sprite_anim.md) | Halt script until animation reaches frame N |
+| `$8D` | `StageSprAndHitbox` | `Byte Spr` | [sprite_staging](families/sprite_staging.md) | Stage sprite and attach a hitbox for collision |
+| `$8E` | `SetPlayerSpriteDirect` | `Byte PlayerSpr` | [player_sprite](families/player_sprite.md) | Set the player sprite index directly |
+| `$8F` | `StagePlayerSpr` | `Byte BodySpr` | [player_sprite](families/player_sprite.md) | Stage a player body sprite frame |
+| `$90` | `StagePlayerSprX` | `Byte BodySpr, Byte XMove` | [player_sprite](families/player_sprite.md) | Stage player sprite with horizontal movement |
+| `$91` | `StagePlayerSprY` | `Byte BodySpr, Byte YMove` | [player_sprite](families/player_sprite.md) | Stage player sprite with vertical movement |
+| `$92` | `StagePlayerSprXY` | `Byte BodySpr, Byte XMove, Byte YMove` | [player_sprite](families/player_sprite.md) | Stage player sprite with X+Y movement |
+| `$93` | `RunPlayerAnim` | — | [player_sprite](families/player_sprite.md) | Run the full player animation sequence |
+| `$94` | `StagePlayerSprWall` | `…, Byte WallType` | [player_sprite](families/player_sprite.md) | Stage player sprite and activate a wall-type animation |
+| `$95` | `StagePlayerSprFromDP` | — | [player_sprite](families/player_sprite.md) | Stage player sprite using values from direct page |
+| `$96` | `WallAnimHere` | `Word` | [player_sprite](families/player_sprite.md) | Trigger wall-type animation at actor's tile |
+| `$97` | `WallAnimNorth` | `Word` | [player_sprite](families/player_sprite.md) | Trigger wall-type animation one tile north |
+| `$98` | `WallAnimSouth` | `Word` | [player_sprite](families/player_sprite.md) | Trigger wall-type animation one tile south |
+| `$99` | `SpawnBefore` | `@Code` | [actor_spawn](families/actor_spawn.md) | Spawn a new actor before this one in the list |
+| `$9A` | `SpawnBeforeFlags` | `@Code, Word New10` | [actor_spawn](families/actor_spawn.md) | Spawn before with initial extra-flags |
+| `$9B` | `SpawnAfter` | `@Code` | [actor_spawn](families/actor_spawn.md) | Spawn a new actor after this one in the list |
+| `$9C` | `SpawnAfterFlags` | `@Code, Word New10` | [actor_spawn](families/actor_spawn.md) | Spawn after with initial extra-flags |
+| `$9D` | `SpawnAfterOffset` | `@Code, Word OffsX, Word OffsY` | [actor_spawn](families/actor_spawn.md) | Spawn after at a pixel offset from this actor |
+| `$9E` | `SpawnAfterOffsetFlags` | `@Code, Word OffsX, Word OffsY, Word New10` | [actor_spawn](families/actor_spawn.md) | Spawn after at offset with initial extra-flags |
+| `$9F` | `SpawnAfterAbs` | `@Code, Word AbsX, Word AbsY` | [actor_spawn](families/actor_spawn.md) | Spawn after at absolute pixel coordinates |
+| `$A0` | `SpawnAfterAbsFlags` | `@Code, Word AbsX, Word AbsY, Word New10` | [actor_spawn](families/actor_spawn.md) | Spawn after at absolute coords with extra-flags |
+| `$A1` | `SpawnBeforeMarked` | `@Code, Word New10` | [actor_spawn](families/actor_spawn.md) | Spawn before with death-flag tracking |
+| `$A2` | `SpawnAfterMarked` | `@Code, Word New10` | [actor_spawn](families/actor_spawn.md) | Spawn after with death-flag tracking |
+| `$A3` | `SpawnAfterAbsMarked` | `@Code, Word AbsX, Word AbsY, Word New10` | [actor_spawn](families/actor_spawn.md) | Spawn after at absolute coords, death-flag tracked |
+| `$A4` | `SpawnAfterOffsetMarked` | `@Code, Byte OffsX, Byte OffsY, Word New10` | [actor_spawn](families/actor_spawn.md) | Spawn after at offset, death-flag tracked |
+| `$A5` | `SpawnListAppend` | `@Code, Byte OffsX, Byte OffsY, Word New10` | [actor_spawn](families/actor_spawn.md) | Append an actor to the deferred spawn list |
+| `$A6` | `SpawnListAppendSpr` | `@Code, Byte bank, Byte Spr, Byte OffsX, Byte OffsY, Word New10` | [actor_spawn](families/actor_spawn.md) | Append to spawn list with a pre-set sprite |
+| `$A7` | `MarkDeath` | — | [actor_death](families/actor_death.md) | Set this actor's dungeon death flag bit |
+| `$A8` | `KillPrev` | — | [actor_death](families/actor_death.md) | Remove the previous actor in the linked list |
+| `$A9` | `KillNext` | — | [actor_death](families/actor_death.md) | Remove the next actor in the linked list |
+| `$AA` | `StageMoveX` | `Byte XMove` | [force_move](families/force_move.md) | Stage horizontal forced movement |
+| `$AB` | `StageMoveY` | `Byte YMove` | [force_move](families/force_move.md) | Stage vertical forced movement |
+| `$AC` | `StageMoveXY` | `Byte XMove, Byte YMove` | [force_move](families/force_move.md) | Stage both X and Y forced movement |
+| `$AD` | `ForceDirSW` | `Byte` | [force_move](families/force_move.md) | Force movement direction bits (south/west) |
+| `$AE` | `ForceDirNE` | `Byte` | [force_move](families/force_move.md) | Force movement direction bits (north/east) |
+| `$AF` | `ForceDirBoth` | `Byte` | [force_move](families/force_move.md) | Force both direction bytes simultaneously |
+| `$B0` | `ApplyMoveToChild` | `Byte XMove, Byte YMove` | [force_move](families/force_move.md) | Apply forced movement to the linked child actor |
+| `$B1` | `ReloadMoveDurations` | — | [force_move](families/force_move.md) | Re-read move duration table for current speed index |
+| `$B2` | `SetPriorityMax` | — | [oam_attribs](families/oam_attribs.md) | Force actor sprites to highest OAM priority |
+| `$B3` | `SetPriorityMin` | — | [oam_attribs](families/oam_attribs.md) | Force actor sprites to lowest OAM priority |
+| `$B4` | `ClearPriorityMax` | — | [oam_attribs](families/oam_attribs.md) | Remove forced highest priority |
+| `$B5` | `ClearPriorityMin` | — | [oam_attribs](families/oam_attribs.md) | Remove forced lowest priority |
+| `$B6` | `SetOamPriority` | `Byte` | [oam_attribs](families/oam_attribs.md) | Set OAM BG priority bits (0–3) |
+| `$B7` | `SetOamPalette` | `Byte` | [oam_attribs](families/oam_attribs.md) | Set OAM palette index for actor sprites |
+| `$B8` | `ToggleHMirror` | — | [oam_attribs](families/oam_attribs.md) | Toggle horizontal mirror on actor sprites |
+| `$B9` | `ToggleVMirror` | — | [oam_attribs](families/oam_attribs.md) | Toggle vertical mirror on actor sprites |
+| `$BA` | `ClearHMirror` | — | [oam_attribs](families/oam_attribs.md) | Clear horizontal mirror flag |
+| `$BB` | `SetHMirror` | — | [oam_attribs](families/oam_attribs.md) | Set horizontal mirror flag |
+| `$BC` | `NudgePosition` | `Byte dX, Byte dY` | [position](families/position.md) | Add signed delta to actor's pixel position |
+| `$BD` | `RunBg3Script` | `Address Script` | [dialog](families/dialog.md) | Execute a BG3 text rendering script |
+| `$BE` | `DialogueOptions` | `Byte OptCounts, Byte SkipLines, &&Code` | [dialog](families/dialog.md) | Present a player choice menu and branch on result |
+| `$BF` | `PrintDialogString` | `&DialogString` | [dialog](families/dialog.md) | Print a dialog string to the text window |
+| `$C0` | `SetInteractHandler` | `&Code` | [script_control](families/script_control.md) | Register a handler for player interaction events |
+| `$C1` | `SetEntryHere` | — | [script_control](families/script_control.md) | Set actor's resume point to current script position |
+| `$C2` | `SetEntryHereAndYield` | — | [script_control](families/script_control.md) | Set resume point here and yield until next frame |
+| `$C3` | `JumpAfterDelay` | `@Code, Word Delay` | [script_control](families/script_control.md) | Wait N frames then jump to a far address |
+| `$C4` | `JumpNextFrame` | `@Code` | [script_control](families/script_control.md) | Yield one frame then jump to a far address |
+| `$C5` | `RestoreSavedPtr` | — | [script_control](families/script_control.md) | Jump to the address stored by `SetSavedPtr` |
+| `$C6` | `SetSavedPtr` | `&Code` | [script_control](families/script_control.md) | Save a near pointer for later `RestoreSavedPtr` |
+| `$C7` | `JumpFar` | `@Code` | [script_control](families/script_control.md) | Unconditional far jump (cross-bank) |
+| `$C8` | `CallNear` | `&Code` | [script_control](families/script_control.md) | Near call subroutine (pushes return address) |
+| `$C9` | `CallNearDeferred` | `&Code` | [script_control](families/script_control.md) | Near call that yields before entering the subroutine |
+| `$CA` | `LoopStart` | `Byte` | [script_control](families/script_control.md) | Begin a counted loop (N iterations) |
+| `$CB` | `LoopEnd` | — | [script_control](families/script_control.md) | End of counted loop; decrement and branch back |
+| `$CC` | `SetFlagByte` | `Byte Flag` | [scene_flags](families/scene_flags.md) | Set a scene flag by byte-sized index |
+| `$CD` | `SetFlagWord` | `Word Flag` | [scene_flags](families/scene_flags.md) | Set a scene flag by word-sized index |
+| `$CE` | `ClearFlagByte` | `Byte Flag` | [scene_flags](families/scene_flags.md) | Clear a scene flag by byte-sized index |
+| `$CF` | `ClearFlagWord` | `Word Flag` | [scene_flags](families/scene_flags.md) | Clear a scene flag by word-sized index |
+| `$D0` | `BranchOnFlagByte` | `Byte Flag, Byte Val, &Code` | [scene_flags](families/scene_flags.md) | Branch if byte-indexed flag equals Val |
+| `$D1` | `BranchOnFlagWord` | `Word Flag, Byte Val, &Code` | [scene_flags](families/scene_flags.md) | Branch if word-indexed flag equals Val |
+| `$D2` | `WaitOnFlagByte` | `Byte Flag, Byte Val` | [scene_flags](families/scene_flags.md) | Halt until byte-indexed flag equals Val |
+| `$D3` | `WaitOnFlagWord` | `Word Flag, Byte Val` | [scene_flags](families/scene_flags.md) | Halt until word-indexed flag equals Val |
+| `$D4` | `GiveItem` | `Byte ItemId, &Code OnFail` | [inventory](families/inventory.md) | Add item to inventory; branch if inventory full |
+| `$D5` | `RemoveItem` | `Byte ItemId` | [inventory](families/inventory.md) | Remove an item from inventory |
+| `$D6` | `BranchIfMissingItem` | `Byte ItemId, &Code` | [inventory](families/inventory.md) | Branch if player does not have an item |
+| `$D7` | `BranchIfItemEquipped` | `Byte ItemId, &Code` | [inventory](families/inventory.md) | Branch if player has item equipped |
+| `$D8` | `SetDungeonKillFlag` | — | [dungeon_switch](families/dungeon_switch.md) | Set the room-clear kill flag for this scene |
+| `$D9` | `SwitchCase` | `Word IndexAddr, &&Code JmpList` | [dungeon_switch](families/dungeon_switch.md) | Read a RAM byte and branch via jump table |
+| `$DA` | `WaitByte` | `Byte` | [wait](families/wait.md) | Wait a byte-sized number of frames |
+| `$DB` | `WaitWord` | `Word` | [wait](families/wait.md) | Wait a word-sized number of frames |
+| `$DC` | `CameraPanDown` | — | [camera](families/camera.md) | Smoothly pan camera downward until settled |
+| `$DD` | `CameraPanUp` | — | [camera](families/camera.md) | Smoothly pan camera upward until settled |
+| `$DE` | `CameraPanRight` | — | [camera](families/camera.md) | Smoothly pan camera rightward until settled |
+| `$DF` | `CameraPanLeft` | — | [camera](families/camera.md) | Smoothly pan camera leftward until settled |
+| `$E0` | `Die` | — | [actor_death](families/actor_death.md) | Remove this actor immediately |
+| `$E1` | `ReturnWithSignal` | — | [script_control](families/script_control.md) | Return from near call and signal completion |
+| `$E2` | `SetEntryFar` | `@Code` | [script_control](families/script_control.md) | Set actor's resume point to a far address |
+
+---
+
 ## Important actor memory (COP-related)
 
 | Addr | Role |
@@ -328,223 +547,6 @@ Screen Y increases downward: `$15` probes `Y−$10` = **north**, `$16` probes `Y
 3. **Tooling schema:** `db-us/copdef.json`
 4. **Secondary:** [Data Crystal — Illusion of Gaia / Notes § Actor code](https://datacrystal.tcrf.net/wiki/Illusion_of_Gaia/Notes#Actor_code)
 5. **Patches:** `baserom/patches/Cop51Patch.patch.asm` (`$51` extended decompress/copy)
-
----
-
-## Opcode roster (`$00`–`$E2`)
-
-| Op | Name | Params | Family |
-|----|------|--------|--------|
-| `$00` | `GenHdmaSine` | — | [hdma_dma](families/hdma_dma.md) |
-| `$01` | `QueueHdma` | `@dma_data, Byte` | [hdma_dma](families/hdma_dma.md) |
-| `$02` | `QueueDma` | `@dma_data, Byte` | [hdma_dma](families/hdma_dma.md) |
-| `$03` | `QueueHdmaChannel` | `Byte, Address, Byte` | [hdma_dma](families/hdma_dma.md) |
-| `$04` | `StartMusic` | `Byte` | [audio](families/audio.md) |
-| `$05` | `FadeThenStartMusic` | `Byte` | [audio](families/audio.md) |
-| `$06` | `PlaySoundCh2` | `Byte` | [audio](families/audio.md) |
-| `$07` | `PlaySoundCh1` | `Byte` | [audio](families/audio.md) |
-| `$08` | `PlaySoundBoth` | `Word` | [audio](families/audio.md) |
-| `$09` | `WriteApuIo1` | `Byte` | [audio](families/audio.md) |
-| `$0A` | `WriteApuIo0` | `Byte` | [audio](families/audio.md) |
-| `$0B` | `MarkSolidHere` | — | [collision_paint](families/collision_paint.md) |
-| `$0C` | `ClearSolidHere` | — | [collision_paint](families/collision_paint.md) |
-| `$0D` | `MarkSolidOffset` | `Byte dX, Byte dY` | [collision_paint](families/collision_paint.md) |
-| `$0E` | `ClearSolidOffset` | `Byte dX, Byte dY` | [collision_paint](families/collision_paint.md) |
-| `$0F` | `MarkSolidAbs` | `Byte tileX, Byte tileY` | [collision_paint](families/collision_paint.md) |
-| `$10` | `ClearSolidAbs` | `Byte tileX, Byte tileY` | [collision_paint](families/collision_paint.md) |
-| `$11` | `ClearCollisionHere` | — | [collision_paint](families/collision_paint.md) |
-| `$12` | `ClearTypeAbs` | `Byte tileX, Byte tileY` | [collision_paint](families/collision_paint.md) |
-| `$13` | `BranchIfSolidHere` | `&Code` | [collision_branch](families/collision_branch.md) |
-| `$14` | `BranchIfSolidOffset` | `Byte dX, Byte dY, &Code` | [collision_branch](families/collision_branch.md) |
-| `$15` | `BranchIfSolidNorth` | `&Code` | [collision_branch](families/collision_branch.md) |
-| `$16` | `BranchIfSolidSouth` | `&Code` | [collision_branch](families/collision_branch.md) |
-| `$17` | `BranchIfSolidWest` | `&Code` | [collision_branch](families/collision_branch.md) |
-| `$18` | `BranchIfSolidEast` | `&Code` | [collision_branch](families/collision_branch.md) |
-| `$19` | `MusicAndText` | `Byte, @DialogString` | [audio](families/audio.md) |
-| `$1A` | `BranchIfTypeHere` | `Byte Type, &Code` | [collision_branch](families/collision_branch.md) |
-| `$1B` | `BranchIfTypeNorth` | `Byte Type, &Code` | [collision_branch](families/collision_branch.md) |
-| `$1C` | `BranchIfTypeSouth` | `Byte Type, &Code` | [collision_branch](families/collision_branch.md) |
-| `$1D` | `BranchIfTypeWest` | `Byte Type, &Code` | [collision_branch](families/collision_branch.md) |
-| `$1E` | `BranchIfTypeEast` | `Byte Type, &Code` | [collision_branch](families/collision_branch.md) |
-| `$1F` | `BranchIfNotOnGridline` | `&Code` | [proximity](families/proximity.md) |
-| `$20` | `BranchIfActorNear` | `Byte AcNum, Byte Dist, &Code` | [proximity](families/proximity.md) |
-| `$21` | `BranchIfPlayerNear` | `Byte Dist, &Code` | [proximity](families/proximity.md) |
-| `$22` | `MoveToward` | `Byte SpriteId, Byte Speed` | [movement](families/movement.md) |
-| `$23` | `RngByte` | — | [rng](families/rng.md) |
-| `$24` | `RngMod` | `Byte Max` | [rng](families/rng.md) |
-| `$25` | `SetTilePos` | `Byte tileX, Byte tileY` | [position](families/position.md) |
-| `$26` | `QueueMapChange` | `Byte, Word, Word, Byte, Word` | [map_transition](families/map_transition.md) |
-| `$27` | `WaitWhileOffscreen` | `Byte Delay` | [offscreen](families/offscreen.md) |
-| `$28` | `BranchIfPlayerAt` | `Word PosX, Word PosY, &Code` | [player_query](families/player_query.md) |
-| `$29` | `BranchIfActorAt` | `Byte AcNum, Word PosX, Word PosY, &Code` | [player_query](families/player_query.md) |
-| `$2A` | `BranchOnPlayerX` | `Word Dist, &Code W, &Code E, &Code H` | [player_query](families/player_query.md) |
-| `$2B` | `BranchOnPlayerY` | `Word Dist, &Code N, &Code S, &Code H` | [player_query](families/player_query.md) |
-| `$2C` | `BranchNearerAxis` | `&Code NearY, &Code NearX` | [player_query](families/player_query.md) |
-| `$2D` | `DirToPlayer` | — | [player_query](families/player_query.md) |
-| `$2E` | `DirToPlayerFrom` | `Byte OffsX, Byte OffsY` | [player_query](families/player_query.md) |
-| `$2F` | `BranchIfDirToPlayer` | `Byte Dir, &Code` | [player_query](families/player_query.md) |
-| `$30` | `BranchIfDirToPlayerFrom` | `Byte OffsX, Byte OffsY, Byte Dir, &Code` | [player_query](families/player_query.md) |
-| `$31` | `BranchOnPlayerFacing` | `&Code S, &Code N, &Code W, &Code E` | [player_query](families/player_query.md) |
-| `$32` | `StageBgChange` | `Byte BgChg` | [bg_rearrange](families/bg_rearrange.md) |
-| `$33` | `ApplyBgChange` | — | [bg_rearrange](families/bg_rearrange.md) |
-| `$34` | `StageBgChangeFromDeathIdx` | — | [bg_rearrange](families/bg_rearrange.md) |
-| `$35` | `CardinalToPlayer` | — | [player_query](families/player_query.md) |
-| `$36` | `PaletteRestart` | — | [palette](families/palette.md) |
-| `$37` | `PaletteStart` | `Byte Bundle` | [palette](families/palette.md) |
-| `$38` | `PaletteStartLoop` | `Byte Bundle, Byte Iters` | [palette](families/palette.md) |
-| `$39` | `PaletteStep` | — | [palette](families/palette.md) |
-| `$3A` | `PaletteStepLoop` | — | [palette](families/palette.md) |
-| `$3B` | `SpawnThinkerParam` | `Byte Param, @Code Entry` | [thinkers](families/thinkers.md) |
-| `$3C` | `SpawnThinker` | `@Code Entry` | [thinkers](families/thinkers.md) |
-| `$3D` | `KillThinker` | — | [thinkers](families/thinkers.md) |
-| `$3E` | `WaitForButton` | `Word Mask` | [input](families/input.md) |
-| `$3F` | `WaitForRelease` | `Word Mask` | [input](families/input.md) |
-| `$40` | `BranchIfPressed` | `Word Mask, &Code` | [input](families/input.md) |
-| `$41` | `BranchIfNotPressed` | `Word Mask, &Code` | [input](families/input.md) |
-| `$42` | `SetCollisionAbs` | `Byte tileX, Byte tileY, Byte Type` | [collision_paint](families/collision_paint.md) |
-| `$43` | `SnapToGrid` | — | [movement](families/movement.md) |
-| `$44` | `BranchIfPlayerInRelTiles` | `Byte×4, &Code` | [proximity](families/proximity.md) |
-| `$45` | `BranchIfPlayerInAbsTiles` | `Byte×4, &Code` | [proximity](families/proximity.md) |
-| `$46` | `CopyPosToPrev` | — | [position](families/position.md) |
-| `$47` | `CopyPosToNext` | — | [position](families/position.md) |
-| `$48` | `GetPlayerFacing` | — | [player_query](families/player_query.md) |
-| `$49` | `BranchIfBodyNe` | `Byte Body, &Code` | [player_query](families/player_query.md) |
-| `$4A` | `ResumeAfterSnap` | — | [movement](families/movement.md) |
-| `$4B` | `DrawMetatileAbs` | `Byte tileX, Byte tileY, Byte Metatile` | [metatile](families/metatile.md) |
-| `$4C` | `DrawMetatileHere` | `Byte Metatile` | [metatile](families/metatile.md) |
-| `$4D` | `WorldMapStream3` | `Word DataOffset` | [metatile](families/metatile.md) |
-| `$4E` | `WorldMapStream4` | `Word DataOffset` | [metatile](families/metatile.md) |
-| `$4F` | `AdhocVramDma` | `Address Src, Word Size, Word VramWord` | [vram_memory](families/vram_memory.md) |
-| `$50` | `CopyPalette` | `Address Src, Byte OffsW, Byte PalWord, Byte SizeW` | [vram_memory](families/vram_memory.md) |
-| `$51` | `Decompress` | `Address Src, Address Dest` | [vram_memory](families/vram_memory.md) |
-| `$52` | `StageMove` | `Byte SpriteId, Byte Speed, Byte MaxTime` | [movement](families/movement.md) |
-| `$53` | `TickMove` | — | [movement](families/movement.md) |
-| `$54` | `SetScratchPointer` | `Address` | [vram_memory](families/vram_memory.md) |
-| `$55` | `ResetSpriteState` | `Byte Spr, Word New24` | [sprite_state](families/sprite_state.md) |
-| `$56` | `AdvanceSpriteAnim` | — | [sprite_state](families/sprite_state.md) |
-| `$57` | `SetDeathCallback` | `@Code OnDeath` | [callbacks](families/callbacks.md) |
-| `$58` | `SetHitCallback` | `&Code OnHit` | [callbacks](families/callbacks.md) |
-| `$59` | `SetDodgeCallback` | `&Code Dodge` | [callbacks](families/callbacks.md) |
-| `$5A` | `SetCollideCallback` | `&Code OnCollide` | [callbacks](families/callbacks.md) |
-| `$5B` | `OrExtraFlags` | `Word Mask` | [actor_flags](families/actor_flags.md) |
-| `$5C` | `AndExtraFlags` | `Word Mask` | [actor_flags](families/actor_flags.md) |
-| `$5D` | `BranchIfBehindWall` | `&Code` | [actor_flags](families/actor_flags.md) |
-| `$5E` | `SetCustomCallback` | `&Code` | [callbacks](families/callbacks.md) |
-| `$5F` | `InitSineHdma` | `Word Base, Byte BytesPerPeriod` | [sine_hdma](families/sine_hdma.md) |
-| `$60` | `TickSineHdma` | `Byte Delay, Byte ScrollLayer` | [sine_hdma](families/sine_hdma.md) |
-| `$61` | `BindSineHdma` | `Address Src, Byte Reg` | [sine_hdma](families/sine_hdma.md) |
-| `$62` | `BranchIfCollisionTypeNe` | `Byte Nibble, &Code` | [collision_branch](families/collision_branch.md) |
-| `$63` | `InitGravity` | `Byte InitSpeed, Byte NegLogA, Byte GndTilePos` | [gravity](families/gravity.md) |
-| `$64` | `TickGravity` | — | [gravity](families/gravity.md) |
-| `$65` | `StageWorldMapMove` | `Word PosX, Word PosY, Byte Dummy, Byte WMapMoveId` | [map_transition](families/map_transition.md) |
-| `$66` | `StageWorldMapChoice` | `Word PosX, Word PosY, Byte WMapOptsId` | [map_transition](families/map_transition.md) |
-| `$67` | `StageWorldMapMoveIds` | `Byte Dummy, Byte WMapMoveId` | [map_transition](families/map_transition.md) |
-| `$68` | `BranchIfOffCamera` | `&Code` | [offscreen](families/offscreen.md) |
-| `$69` | `HaltIfMaxFrames` | `Word Min` | [offscreen](families/offscreen.md) |
-| `$6A` | `SetLinkedEntryPtr` | `&Code` | [linked_actor](families/linked_actor.md) |
-| `$6B` | `PrintDialogStringAlt` | `&DialogString` | [dialog](families/dialog.md) |
-| `$6C` | `InitSpiral` | `Byte Angle, Byte Diameter` | [spiral](families/spiral.md) |
-| `$6D` | `SpiralStep` | `Byte DiameterSpeed, Byte AngleSpeed` | [spiral](families/spiral.md) |
-| | | | |
-| `$80` | `StageSpr` | `Byte Spr` | [sprite_staging](families/sprite_staging.md) |
-| `$81` | `StageSprX` | `Byte Spr, Byte XMove` | [sprite_staging](families/sprite_staging.md) |
-| `$82` | `StageSprY` | `Byte Spr, Byte YMove` | [sprite_staging](families/sprite_staging.md) |
-| `$83` | `StageSprXY` | `Byte Spr, Byte XMove, Byte YMove` | [sprite_staging](families/sprite_staging.md) |
-| `$84` | `StageSprLoop` | `Byte Spr, Byte Iters` | [sprite_staging](families/sprite_staging.md) |
-| `$85` | `StageSprLoopX` | `Byte Spr, Byte Iters, Byte XMove` | [sprite_staging](families/sprite_staging.md) |
-| `$86` | `StageSprLoopY` | `Byte Spr, Byte Iters, Byte YMove` | [sprite_staging](families/sprite_staging.md) |
-| `$87` | `StageSprLoopXY` | `Byte Spr, Byte Iters, Byte XMove, Byte YMove` | [sprite_staging](families/sprite_staging.md) |
-| `$88` | `SetMetasprite` | `@&sprite_set` | [sprite_anim](families/sprite_anim.md) |
-| `$89` | `AnimOnce` | — | [sprite_anim](families/sprite_anim.md) |
-| `$8A` | `AnimLoop` | — | [sprite_anim](families/sprite_anim.md) |
-| `$8B` | `AnimOneFrame` | — | [sprite_anim](families/sprite_anim.md) |
-| `$8C` | `WaitForAnimFrame` | `Byte SprFrame` | [sprite_anim](families/sprite_anim.md) |
-| `$8D` | `StageSprAndHitbox` | `Byte Spr` | [sprite_staging](families/sprite_staging.md) |
-| `$8E` | `SetPlayerSpriteDirect` | `Byte PlayerSpr` | [player_sprite](families/player_sprite.md) |
-| `$8F` | `StagePlayerSpr` | `Byte BodySpr` | [player_sprite](families/player_sprite.md) |
-| `$90` | `StagePlayerSprX` | `Byte BodySpr, Byte XMove` | [player_sprite](families/player_sprite.md) |
-| `$91` | `StagePlayerSprY` | `Byte BodySpr, Byte YMove` | [player_sprite](families/player_sprite.md) |
-| `$92` | `StagePlayerSprXY` | `Byte BodySpr, Byte XMove, Byte YMove` | [player_sprite](families/player_sprite.md) |
-| `$93` | `RunPlayerAnim` | — | [player_sprite](families/player_sprite.md) |
-| `$94` | `StagePlayerSprWall` | `…, Byte WallType` | [player_sprite](families/player_sprite.md) |
-| `$95` | `StagePlayerSprFromDP` | — | [player_sprite](families/player_sprite.md) |
-| `$96` | `WallAnimHere` | `Word` | [player_sprite](families/player_sprite.md) |
-| `$97` | `WallAnimNorth` | `Word` | [player_sprite](families/player_sprite.md) |
-| `$98` | `WallAnimSouth` | `Word` | [player_sprite](families/player_sprite.md) |
-| `$99` | `SpawnBefore` | `@Code` | [actor_spawn](families/actor_spawn.md) |
-| `$9A` | `SpawnBeforeFlags` | `@Code, Word New10` | [actor_spawn](families/actor_spawn.md) |
-| `$9B` | `SpawnAfter` | `@Code` | [actor_spawn](families/actor_spawn.md) |
-| `$9C` | `SpawnAfterFlags` | `@Code, Word New10` | [actor_spawn](families/actor_spawn.md) |
-| `$9D` | `SpawnAfterOffset` | `@Code, Word OffsX, Word OffsY` | [actor_spawn](families/actor_spawn.md) |
-| `$9E` | `SpawnAfterOffsetFlags` | `@Code, Word OffsX, Word OffsY, Word New10` | [actor_spawn](families/actor_spawn.md) |
-| `$9F` | `SpawnAfterAbs` | `@Code, Word AbsX, Word AbsY` | [actor_spawn](families/actor_spawn.md) |
-| `$A0` | `SpawnAfterAbsFlags` | `@Code, Word AbsX, Word AbsY, Word New10` | [actor_spawn](families/actor_spawn.md) |
-| `$A1` | `SpawnBeforeMarked` | `@Code, Word New10` | [actor_spawn](families/actor_spawn.md) |
-| `$A2` | `SpawnAfterMarked` | `@Code, Word New10` | [actor_spawn](families/actor_spawn.md) |
-| `$A3` | `SpawnAfterAbsMarked` | `@Code, Word AbsX, Word AbsY, Word New10` | [actor_spawn](families/actor_spawn.md) |
-| `$A4` | `SpawnAfterOffsetMarked` | `@Code, Byte OffsX, Byte OffsY, Word New10` | [actor_spawn](families/actor_spawn.md) |
-| `$A5` | `SpawnListAppend` | `@Code, Byte OffsX, Byte OffsY, Word New10` | [actor_spawn](families/actor_spawn.md) |
-| `$A6` | `SpawnListAppendSpr` | `@Code, Byte bank, Byte Spr, Byte OffsX, Byte OffsY, Word New10` | [actor_spawn](families/actor_spawn.md) |
-| `$A7` | `MarkDeath` | — | [actor_death](families/actor_death.md) |
-| `$A8` | `KillPrev` | — | [actor_death](families/actor_death.md) |
-| `$A9` | `KillNext` | — | [actor_death](families/actor_death.md) |
-| `$AA` | `StageMoveX` | `Byte XMove` | [force_move](families/force_move.md) |
-| `$AB` | `StageMoveY` | `Byte YMove` | [force_move](families/force_move.md) |
-| `$AC` | `StageMoveXY` | `Byte XMove, Byte YMove` | [force_move](families/force_move.md) |
-| `$AD` | `ForceDirSW` | `Byte` | [force_move](families/force_move.md) |
-| `$AE` | `ForceDirNE` | `Byte` | [force_move](families/force_move.md) |
-| `$AF` | `ForceDirBoth` | `Byte` | [force_move](families/force_move.md) |
-| `$B0` | `ApplyMoveToChild` | `Byte XMove, Byte YMove` | [force_move](families/force_move.md) |
-| `$B1` | `ReloadMoveDurations` | — | [force_move](families/force_move.md) |
-| `$B2` | `SetPriorityMax` | — | [oam_attribs](families/oam_attribs.md) |
-| `$B3` | `SetPriorityMin` | — | [oam_attribs](families/oam_attribs.md) |
-| `$B4` | `ClearPriorityMax` | — | [oam_attribs](families/oam_attribs.md) |
-| `$B5` | `ClearPriorityMin` | — | [oam_attribs](families/oam_attribs.md) |
-| `$B6` | `SetOamPriority` | `Byte` | [oam_attribs](families/oam_attribs.md) |
-| `$B7` | `SetOamPalette` | `Byte` | [oam_attribs](families/oam_attribs.md) |
-| `$B8` | `ToggleHMirror` | — | [oam_attribs](families/oam_attribs.md) |
-| `$B9` | `ToggleVMirror` | — | [oam_attribs](families/oam_attribs.md) |
-| `$BA` | `ClearHMirror` | — | [oam_attribs](families/oam_attribs.md) |
-| `$BB` | `SetHMirror` | — | [oam_attribs](families/oam_attribs.md) |
-| `$BC` | `NudgePosition` | `Byte dX, Byte dY` | [position](families/position.md) |
-| `$BD` | `RunBg3Script` | `Address Script` | [dialog](families/dialog.md) |
-| `$BE` | `DialogueOptions` | `Byte OptCounts, Byte SkipLines, &&Code` | [dialog](families/dialog.md) |
-| `$BF` | `PrintDialogString` | `&DialogString` | [dialog](families/dialog.md) |
-| `$C0` | `SetInteractHandler` | `&Code` | [script_control](families/script_control.md) |
-| `$C1` | `SetEntryHere` | — | [script_control](families/script_control.md) |
-| `$C2` | `SetEntryHereAndYield` | — | [script_control](families/script_control.md) |
-| `$C3` | `JumpAfterDelay` | `@Code, Word Delay` | [script_control](families/script_control.md) |
-| `$C4` | `JumpNextFrame` | `@Code` | [script_control](families/script_control.md) |
-| `$C5` | `RestoreSavedPtr` | — | [script_control](families/script_control.md) |
-| `$C6` | `SetSavedPtr` | `&Code` | [script_control](families/script_control.md) |
-| `$C7` | `JumpFar` | `@Code` | [script_control](families/script_control.md) |
-| `$C8` | `CallNear` | `&Code` | [script_control](families/script_control.md) |
-| `$C9` | `CallNearDeferred` | `&Code` | [script_control](families/script_control.md) |
-| `$CA` | `LoopStart` | `Byte` | [script_control](families/script_control.md) |
-| `$CB` | `LoopEnd` | — | [script_control](families/script_control.md) |
-| `$CC` | `SetFlagByte` | `Byte Flag` | [scene_flags](families/scene_flags.md) |
-| `$CD` | `SetFlagWord` | `Word Flag` | [scene_flags](families/scene_flags.md) |
-| `$CE` | `ClearFlagByte` | `Byte Flag` | [scene_flags](families/scene_flags.md) |
-| `$CF` | `ClearFlagWord` | `Word Flag` | [scene_flags](families/scene_flags.md) |
-| `$D0` | `BranchOnFlagByte` | `Byte Flag, Byte Val, &Code` | [scene_flags](families/scene_flags.md) |
-| `$D1` | `BranchOnFlagWord` | `Word Flag, Byte Val, &Code` | [scene_flags](families/scene_flags.md) |
-| `$D2` | `WaitOnFlagByte` | `Byte Flag, Byte Val` | [scene_flags](families/scene_flags.md) |
-| `$D3` | `WaitOnFlagWord` | `Word Flag, Byte Val` | [scene_flags](families/scene_flags.md) |
-| `$D4` | `GiveItem` | `Byte ItemId, &Code OnFail` | [inventory](families/inventory.md) |
-| `$D5` | `RemoveItem` | `Byte ItemId` | [inventory](families/inventory.md) |
-| `$D6` | `BranchIfMissingItem` | `Byte ItemId, &Code` | [inventory](families/inventory.md) |
-| `$D7` | `BranchIfItemEquipped` | `Byte ItemId, &Code` | [inventory](families/inventory.md) |
-| `$D8` | `SetDungeonKillFlag` | — | [dungeon_switch](families/dungeon_switch.md) |
-| `$D9` | `SwitchCase` | `Word IndexAddr, &&Code JmpList` | [dungeon_switch](families/dungeon_switch.md) |
-| `$DA` | `WaitByte` | `Byte` | [wait](families/wait.md) |
-| `$DB` | `WaitWord` | `Word` | [wait](families/wait.md) |
-| `$DC` | `CameraPanDown` | — | [camera](families/camera.md) |
-| `$DD` | `CameraPanUp` | — | [camera](families/camera.md) |
-| `$DE` | `CameraPanRight` | — | [camera](families/camera.md) |
-| `$DF` | `CameraPanLeft` | — | [camera](families/camera.md) |
-| `$E0` | `Die` | — | [actor_death](families/actor_death.md) |
-| `$E1` | `ReturnWithSignal` | — | [script_control](families/script_control.md) |
-| `$E2` | `SetEntryFar` | `@Code` | [script_control](families/script_control.md) |
 
 ---
 

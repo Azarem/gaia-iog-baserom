@@ -1,4 +1,4 @@
-; ASCII string renderer — bytecode-driven HUD/UI text and widget system (256610–257943, Bank 03).
+; Console string renderer — bytecode-driven HUD/UI text and widget system (256610–257943, Bank 03).
 ; 
 ; Implements a complete rendering engine for non-dialogue text output: inventory screens, status displays, HP bars, equipment icons, and bordered UI boxes. Separate from the wide-string dialogue renderer (DialogStringRenderer at 254549) — this system uses a simpler 8-bit character set where bytes >= $12 are literal tile indices written directly to the VRAM staging buffer, and bytes $00–$11 are command opcodes dispatched through an 18-entry command table.
 ; 
@@ -60,9 +60,9 @@
 
 ---------------------------------------------
 
-; Main entry point for the ASCII string rendering engine.
+; Main entry point for the Console string rendering engine.
 ; 
-; Called via JSL with Y = string data pointer, X = VRAM buffer byte offset into $7F0200. Saves processor state and data bank (restored by AsciiCmd_End). Processes the bytecode stream in a loop:
+; Called via JSL with Y = string data pointer, X = VRAM buffer byte offset into $7F0200. Saves processor state and data bank (restored by ConsoleCmd_End). Processes the bytecode stream in a loop:
 ; - Bytes >= $12: literal tile characters — written to VRAM buffer as a 16-bit tilemap word (low byte = tile index, high byte = palette from sceneStateHelper $099F)
 ; - Bytes $00–$11: command opcodes — dispatched via indexed indirect JSR through ConsoleStringCommandTable
 ; 
@@ -98,29 +98,29 @@ ConsoleStringRenderer {
 }
 
 ---------------------------------------------
-; 18-entry word table of command handler addresses for the ASCII string renderer.
+; 18-entry word table of command handler addresses for the Console string renderer.
 ; 
 ; Indexed by command byte (0–$11), each entry is a 16-bit JSR target. Commands are dispatched via JSR ($addr,X) indirect indexed through this table. Entries cover text positioning, string insertion, number formatting, HP bars, equipment icons, and UI box drawing.
 
 ConsoleStringCommandTable [
-  &AsciiCmd_End   ;00
-  &AsciiCmd_SetVramAddr   ;01
-  &AsciiCmd_InsertRemoteString   ;02
-  &AsciiCmd_SetPalette   ;03
-  &AsciiCmd_IndirectString   ;04
-  &AsciiCmd_PrintBcdNumber   ;05
-  &AsciiCmd_DrawBox   ;06
-  &AsciiCmd_ClearColumn   ;07
-  &AsciiCmd_FillTile   ;08
-  &AsciiCmd_PrintEquipIcons   ;09
-  &AsciiCmd_DrawPlayerHpBar   ;0A
-  &AsciiCmd_DrawEnemyHpBar   ;0B
-  &AsciiCmd_PrintRawBytes   ;0C
-  &AsciiCmd_AdvanceRow4   ;0D
-  &AsciiCmd_Print3DigitNumber   ;0E
-  &AsciiCmd_ClearRect   ;0F
-  &AsciiCmd_InsertItemName   ;10
-  &AsciiCmd_AdvanceRow2   ;11
+  &ConsoleCmd_End   ;00
+  &ConsoleCmd_SetVramAddr   ;01
+  &ConsoleCmd_InsertRemoteString   ;02
+  &ConsoleCmd_SetPalette   ;03
+  &ConsoleCmd_IndirectString   ;04
+  &ConsoleCmd_PrintBcdNumber   ;05
+  &ConsoleCmd_DrawBox   ;06
+  &ConsoleCmd_ClearColumn   ;07
+  &ConsoleCmd_FillTile   ;08
+  &ConsoleCmd_PrintEquipIcons   ;09
+  &ConsoleCmd_DrawPlayerHpBar   ;0A
+  &ConsoleCmd_DrawEnemyHpBar   ;0B
+  &ConsoleCmd_PrintRawBytes   ;0C
+  &ConsoleCmd_AdvanceRow4   ;0D
+  &ConsoleCmd_Print3DigitNumber   ;0E
+  &ConsoleCmd_ClearRect   ;0F
+  &ConsoleCmd_InsertItemName   ;10
+  &ConsoleCmd_AdvanceRow2   ;11
 ]
 
 ---------------------------------------------
@@ -130,7 +130,7 @@ ConsoleStringCommandTable [
 ; 
 ; No operand bytes consumed.
 
-AsciiCmd_AdvanceRow2 {
+ConsoleCmd_AdvanceRow2 {
     LDA $09A0
     CLC 
     ADC #$0040            ; +$0040 = advance 2 tilemap rows (32 words × 2 bytes per row)
@@ -144,7 +144,7 @@ AsciiCmd_AdvanceRow2 {
 ; 
 ; 1-byte operand: item index. Multiplies by 2 (ASL) for word table offset, switches data bank to itemcomp_table_01EB0F's bank, looks up the item name string pointer, and recursively calls ConsoleStringRenderer to render the name. Updates the VRAM cursor through the stack on return.
 
-AsciiCmd_InsertItemName {
+ConsoleCmd_InsertItemName {
     PHY 
     PHB 
     LDA $06, S
@@ -177,7 +177,7 @@ AsciiCmd_InsertItemName {
 ; 
 ; Note: height is loaded as a 16-bit word from the operand stream, incorporating the following byte in the high byte. The BMI exit condition depends on the overall 16-bit value going negative.
 
-AsciiCmd_ClearRect {
+ConsoleCmd_ClearRect {
     PHY 
     LDA $05, S
     STA $00
@@ -226,7 +226,7 @@ AsciiCmd_ClearRect {
 ; 
 ; Sets palette offset to $0800 (player color) and calls DrawHpBar to render.
 
-AsciiCmd_DrawPlayerHpBar {
+ConsoleCmd_DrawPlayerHpBar {
     PHY 
     STZ $08
     LDA $playerMaxHp
@@ -396,9 +396,9 @@ HpBar_AdvanceRow {
 ---------------------------------------------
 ; Draw the enemy's HP bar using the same segment algorithm as player HP.
 ; 
-; No operand. Uses $09E6 as current HP and enemyHpDisplay ($09E4) as max HP. Same clamping (max 40) and segment calculation as AsciiCmd_DrawPlayerHpBar. Sets palette offset to $0400 (enemy color) and calls DrawHpBar.
+; No operand. Uses $09E6 as current HP and enemyHpDisplay ($09E4) as max HP. Same clamping (max 40) and segment calculation as ConsoleCmd_DrawPlayerHpBar. Sets palette offset to $0400 (enemy color) and calls DrawHpBar.
 
-AsciiCmd_DrawEnemyHpBar {
+ConsoleCmd_DrawEnemyHpBar {
     PHY 
     STZ $0008
     LDA $enemyHpDisplay
@@ -450,11 +450,11 @@ AsciiCmd_DrawEnemyHpBar {
 }
 
 ---------------------------------------------
-; Terminate the ASCII string renderer and return to the caller.
+; Terminate the Console string renderer and return to the caller.
 ; 
 ; Pops saved X (VRAM position), data bank, and processor status that were pushed by ConsoleStringRenderer's entry (PHP/PHB), then returns via RTL. This is the only way to cleanly exit the rendering loop.
 
-AsciiCmd_End {
+ConsoleCmd_End {
     PLA 
     PLX 
     PLB 
@@ -467,7 +467,7 @@ AsciiCmd_End {
 ; 
 ; Adds $0080 (128 bytes = 4 rows × 32 words/row × 2 bytes/word) to $09A0 and updates the stack. Double the stride of AdvanceRow2.
 
-AsciiCmd_AdvanceRow4 {
+ConsoleCmd_AdvanceRow4 {
     LDA $09A0
     CLC 
     ADC #$0080            ; +$0080 = advance 4 tilemap rows
@@ -479,20 +479,20 @@ AsciiCmd_AdvanceRow4 {
 ---------------------------------------------
 ; Format and print a decimal number as up to 3 digits.
 ; 
-; 2-byte operand: pointer to a 16-bit source value. Extracts hundreds, tens, and ones digits via repeated subtraction (÷100, ÷10, ÷1). Each digit is OR'd with $099E palette + $30 tile base (ASCII '0').
+; 2-byte operand: pointer to a 16-bit source value. Extracts hundreds, tens, and ones digits via repeated subtraction (÷100, ÷10, ÷1). Each digit is OR'd with $099E palette + $30 tile base (Console '0').
 ; 
 ; Leading zero suppression: hundreds digit is replaced with blank tile $2000 if zero. Tens digit is blank only if hundreds was also zero (tracked via $0006 flag). Ones digit is always displayed.
 ; 
 ; Values are capped at 999 (hundreds clamped to 9). Updates VRAM position on the stack after writing 3 tiles.
 
-AsciiCmd_Print3DigitNumber {
+ConsoleCmd_Print3DigitNumber {
     PHY 
     LDA $05, S
     TAX 
     STZ $0006
     STZ $0000
     LDA $099E
-    ORA #$0030            ; ORA #$0030 = ASCII '0' tile base for digit rendering
+    ORA #$0030            ; ORA #$0030 = Console '0' tile base for digit rendering
     STA $0004
     LDA $0000, Y          ; 2-byte operand: pointer to 16-bit source value
     TAY 
@@ -578,7 +578,7 @@ AsciiCmd_Print3DigitNumber {
 ; 
 ; Reads a 16-bit VRAM address from the string data, stores it in both $09A0 (persistent cursor) and on the stack ($03,S), which becomes X when the command returns. Advances Y past the 2-byte operand.
 
-AsciiCmd_SetVramAddr {
+ConsoleCmd_SetVramAddr {
     LDA $0000, Y          ; 2-byte operand: new VRAM buffer write position
     INY 
     INY 
@@ -592,7 +592,7 @@ AsciiCmd_SetVramAddr {
 ; 
 ; 3-byte operand: 2-byte address + 1-byte bank. Saves the current VRAM position from the stack, pushes the bank byte via PHB/PLB to set the data bank register, then calls ConsoleStringRenderer recursively via JSL with the new string address in Y. After return, restores the original bank and advances Y past the 3-byte operand.
 
-AsciiCmd_InsertRemoteString {
+ConsoleCmd_InsertRemoteString {
     LDA $03, S
     TAX 
     PHY 
@@ -621,7 +621,7 @@ AsciiCmd_InsertRemoteString {
 ; 
 ; 1-byte operand: palette bits. Reads sceneStateHelper ($099F), masks off bits 2-4 (AND $E3), OR's the operand value into those bits, and writes back. This controls the palette field in the high byte of all subsequently rendered tile words.
 
-AsciiCmd_SetPalette {
+ConsoleCmd_SetPalette {
     SEP #$20
     LDA $sceneStateHelper
     AND #$E3              ; AND $E3 clears palette bits 2-4 in attribute byte
@@ -639,7 +639,7 @@ AsciiCmd_SetPalette {
 ; 
 ; Used for dynamic string selection — e.g., selecting text based on a game variable that indexes into a string pointer table.
 
-AsciiCmd_IndirectString {
+ConsoleCmd_IndirectString {
     PHY 
     PHB 
     LDX $0003, Y          ; 5-byte operand: base addr (2) + bank (1) + index addr (2)
@@ -680,7 +680,7 @@ AsciiCmd_IndirectString {
 ; 
 ; After printing all digits, a suppression pass replaces leading '0' tiles ($30) with space tiles ($20), stopping at the first non-zero digit. VRAM position is updated on the stack after writing.
 
-AsciiCmd_PrintBcdNumber {
+ConsoleCmd_PrintBcdNumber {
     LDA $03, S
     TAX 
     PHY 
@@ -732,7 +732,7 @@ AsciiCmd_PrintBcdNumber {
     LDA $7F0200, X
     CMP #$30
     BNE loc_03EDD8
-    LDA #$20              ; Replace ASCII '0' ($30) with space tile ($20)
+    LDA #$20              ; Replace Console '0' ($30) with space tile ($20)
     STA $7F0200, X
     INX 
     INX 
@@ -761,7 +761,7 @@ AsciiCmd_PrintBcdNumber {
 ; 
 ; Draws top row (corner + edges + corner), then height rows of (border + fill + border), then bottom row. After drawing, positions the cursor at the first interior content cell by adding $0082 to the box start address.
 
-AsciiCmd_DrawBox {
+ConsoleCmd_DrawBox {
     PHY 
     LDA $0000, Y
     AND #$00FF
@@ -858,7 +858,7 @@ AsciiCmd_DrawBox {
 ; 
 ; Used to erase a column of UI content whose width is determined dynamically from the existing tile data.
 
-AsciiCmd_ClearColumn {
+ConsoleCmd_ClearColumn {
     PHY 
     LDA $0000, Y
     TAX 
@@ -913,7 +913,7 @@ AsciiCmd_ClearColumn {
 ; 
 ; 3-byte operand: 1-byte tile index + 2-byte address of repeat count. The tile byte is OR'd with $099E palette to form a VRAM word, and the 16-bit value at the count address determines how many times to write it. Updates cursor on the stack after writing.
 
-AsciiCmd_FillTile {
+ConsoleCmd_FillTile {
     PHY 
     LDA $0001, Y
     TAX                   ; 2-byte address operand → load tile value from that address
@@ -950,7 +950,7 @@ AsciiCmd_FillTile {
 ; 
 ; Variable-length operand terminated by $FF. Each byte is zero-extended to 16 bits, OR'd with $099E palette, and written as a tile word to the VRAM buffer. The $FF terminator is consumed but not written. Updates cursor on the stack.
 
-AsciiCmd_PrintRawBytes {
+ConsoleCmd_PrintRawBytes {
     LDA $03, S
     TAX 
 
@@ -982,7 +982,7 @@ AsciiCmd_PrintRawBytes {
 ; 
 ; The 4 tiles of each metatile are written using VRAM offsets: upper-left = tile N at row−1, upper-right = N+1, lower-left = N+$10 at current row, lower-right = N+$11. A counter on the stack tracks total icons drawn to compute the final Y advancement past the operand data.
 
-AsciiCmd_PrintEquipIcons {
+ConsoleCmd_PrintEquipIcons {
     LDA $03, S
     TAX 
     LDA #$0000

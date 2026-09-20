@@ -163,7 +163,7 @@ All `?INCLUDE` directives observed in bank `$00` system and upper-half code:
 | `ComposeDigits_Continuation` | Bank `$03` extended (music, facing, animation helpers) |
 | `ApplyOrbitalOffsetFromRef` | Orbital/spiral movement math (`ApplyOrbitalOffsetFromRef`) |
 | `EnemyPositionSnap` | Grid-snap walk helper (deferred resume target, bank `$0A`) |
-| `system_strings` | System ASCII strings (BG3 HUD overlays) |
+| `system_strings` | System Console strings (BG3 HUD overlays) |
 | `movement_delta_table` | Animation frame duration/speed lookup table |
 
 **Additional includes in upper-half blocks** (not in system core chunk):

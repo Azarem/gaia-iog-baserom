@@ -140,7 +140,7 @@ mode7_perspective_unused — standalone dead code (no references)
 | [actor-thinker-runtime.md](actor-thinker-runtime.md) | Actor execution (5 contexts), thinker scheduling, pool management, spawning | 2 |
 | [movement-and-collision.md](movement-and-collision.md) | Tile collision physics, combat/interaction collision, damage, knockback | 2 |
 | [sprite-rendering.md](sprite-rendering.md) | Depth sort, metasprite decomposition, OAM packing, damage digit sprites | 2 |
-| [text-and-menus.md](text-and-menus.md) | Dialogue renderer (wide-string), console renderer (ASCII), menu cursor | 3 |
+| [text-and-menus.md](text-and-menus.md) | DialogString renderer, ConsoleString renderer, menu cursor | 3 |
 | [scene-and-hardware.md](scene-and-hardware.md) | Scene transitions, DMA/HDMA/SPC utilities, SRAM save/load | 3 |
 
 ### Document Relationship Map
@@ -322,8 +322,8 @@ then Y, each independently checking leading-edge tiles and snapping to boundarie
 This avoids diagonal corner-cutting artifacts.
 See [movement-and-collision.md](movement-and-collision.md).
 
-**Dual text engines:** `DialogStringRenderer` (wide-string, 16x16 glyphs, 25
-commands) and `ConsoleStringRenderer` (ASCII, 8x8 tiles, 18 commands) share the
+**Dual text engines:** `DialogStringRenderer` (DialogString, 16x16 glyphs, 25
+commands) and `ConsoleStringRenderer` (ConsoleString, 8x8 tiles, 18 commands) share the
 VRAM staging buffer at `$7F0200` but use completely independent bytecode formats,
 command tables, and rendering paths.
 See [text-and-menus.md](text-and-menus.md).

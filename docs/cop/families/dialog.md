@@ -6,7 +6,7 @@ _Deep-audited ops: `[6B]`, `[BD]`, `[BE]`, `[BF]`_ · _Source: [`cop_handlers_in
 
 ## Overview
 
-Text output and branching choice menus. **`PrintDialogString` (`$BF`)** is the default wide-string dialogue box (via `DialogStringRenderer`). **`DialogueOptions` (`$BE`)** runs `MenuSelectionHandler` and **`RTI`s into a jump table** keyed by the player’s selection. **`PrintDialogStringAlt` (`$6B`)** renders the same string format but skips dialogue-mode setup and the pre-text **`UpdateFrameRender`** — suited to menu overlays that refresh often. **`RunBg3Script` (`$BD`)** executes **ASCII / console command streams** through `ConsoleStringRenderer` on BG3 (title text, diary chrome, credits).
+Text output and branching choice menus. **`PrintDialogString` (`$BF`)** is the default wide-string dialogue box (via `DialogStringRenderer`). **`DialogueOptions` (`$BE`)** runs `MenuSelectionHandler` and **`RTI`s into a jump table** keyed by the player’s selection. **`PrintDialogStringAlt` (`$6B`)** renders the same string format but skips dialogue-mode setup and the pre-text **`UpdateFrameRender`** — suited to menu overlays that refresh often. **`RunBg3Script` (`$BD`)** executes **Console / console command streams** through `ConsoleStringRenderer` on BG3 (title text, diary chrome, credits).
 
 ## Shared state
 
@@ -223,7 +223,7 @@ COP [PrintDialogStringAlt] ( &dialogstring_0BF437 )  ; system/diary_menu/sFA_dia
 
 ---
 
-#### COP [BD] — `RunBg3Script` (BG3 console / ASCII overlay)
+#### COP [BD] — `RunBg3Script` (BG3 console / Console overlay)
 
 - **Preferred name:** `RunBg3Script`
 - **Handler:** `RunBg3Script` @ [`cop_handlers_input.asm`](../../../extracted/system/engine/cop_handlers_input.asm)

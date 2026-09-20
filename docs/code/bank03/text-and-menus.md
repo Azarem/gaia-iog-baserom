@@ -35,14 +35,14 @@ flowchart TD
         WideLoop --> WideCmd
     end
 
-    subgraph ConsoleEngine["ConsoleStringRenderer (ASCII)"]
-        AsciiEntry["JSL ConsoleStringRenderer"]
-        AsciiLoop["Character loop"]
-        AsciiChar["Byte >= $12:\nrender 8x8 tile"]
-        AsciiCmd["Byte $00-$11:\n18 command opcodes"]
-        AsciiEntry --> AsciiLoop
-        AsciiLoop --> AsciiChar
-        AsciiLoop --> AsciiCmd
+    subgraph ConsoleEngine["ConsoleStringRenderer (Console)"]
+        ConsoleEntry["JSL ConsoleStringRenderer"]
+        ConsoleLoop["Character loop"]
+        ConsoleChar["Byte >= $12:\nrender 8x8 tile"]
+        ConsoleCmd["Byte $00-$11:\n18 command opcodes"]
+        ConsoleEntry --> ConsoleLoop
+        ConsoleLoop --> ConsoleChar
+        ConsoleLoop --> ConsoleCmd
     end
 
     subgraph SharedVRAM["Shared VRAM Staging"]
@@ -318,26 +318,26 @@ segments (`$02`, `(maxHP−HP)/2`, tile `$20FF`).
 |---------|-------|------|
 | `$03EA62` | `ConsoleStringRenderer` | entry (`JSL`): Y=string ptr, X=VRAM offset |
 | `$03EA8C` | `ConsoleStringCommandTable` | 18-entry word table ($00–$11 → handlers) |
-| `$03EAB0` | `AsciiCmd_AdvanceRow2` | cursor += `$0040` (2 rows) |
-| `$03EABD` | `AsciiCmd_InsertItemName` | item name from `itemcomp_table` (1B index) |
-| `$03EAE2` | `AsciiCmd_ClearRect` | clear rectangle (1B width + coords) |
-| `$03EB1B` | `AsciiCmd_DrawPlayerHpBar` | player HP → `DrawHpBar` |
+| `$03EAB0` | `ConsoleCmd_AdvanceRow2` | cursor += `$0040` (2 rows) |
+| `$03EABD` | `ConsoleCmd_InsertItemName` | item name from `itemcomp_table` (1B index) |
+| `$03EAE2` | `ConsoleCmd_ClearRect` | clear rectangle (1B width + coords) |
+| `$03EB1B` | `ConsoleCmd_DrawPlayerHpBar` | player HP → `DrawHpBar` |
 | `$03EB71` | `DrawHpBar` | shared HP bar rendering: full/half/empty segments |
 | `$03EBE6` | `HpBar_AdvanceRow` | advance cursor by one tilemap row within bar |
-| `$03EBFC` | `AsciiCmd_DrawEnemyHpBar` | enemy HP → `DrawHpBar` |
-| `$03EC52` | `AsciiCmd_End` | pop state, RTL — exit renderer |
-| `$03EC57` | `AsciiCmd_AdvanceRow4` | cursor += `$0080` (4 rows) |
-| `$03EC64` | `AsciiCmd_Print3DigitNumber` | 3-digit decimal number (2B address) |
-| `$03ED00` | `AsciiCmd_SetVramAddr` | set VRAM cursor (2B absolute offset) |
-| `$03ED0B` | `AsciiCmd_InsertRemoteString` | recursive render from another bank (2B addr + 1B bank) |
-| `$03ED2B` | `AsciiCmd_SetPalette` | set palette bits 2–4 from `$099F` (1B) |
-| `$03ED3C` | `AsciiCmd_IndirectString` | indexed table lookup + render (2B + 1B + 2B) |
-| `$03ED6F` | `AsciiCmd_PrintBcdNumber` | packed BCD right-to-left (1B digits + 2B addr) |
-| `$03EDE3` | `AsciiCmd_DrawBox` | bordered rectangle (1B w + 1B h + 2B pos) |
-| `$03EEA5` | `AsciiCmd_ClearColumn` | clear a column region (2B) |
-| `$03EEF5` | `AsciiCmd_FillTile` | load tile from 2B address, repeat 1B count times |
-| `$03EF1F` | `AsciiCmd_PrintRawBytes` | raw tile bytes until `$FF` terminator |
-| `$03EF3E` | `AsciiCmd_PrintEquipIcons` | 2×2 equipment metatiles (variable, `$80+` terminator) |
+| `$03EBFC` | `ConsoleCmd_DrawEnemyHpBar` | enemy HP → `DrawHpBar` |
+| `$03EC52` | `ConsoleCmd_End` | pop state, RTL — exit renderer |
+| `$03EC57` | `ConsoleCmd_AdvanceRow4` | cursor += `$0080` (4 rows) |
+| `$03EC64` | `ConsoleCmd_Print3DigitNumber` | 3-digit decimal number (2B address) |
+| `$03ED00` | `ConsoleCmd_SetVramAddr` | set VRAM cursor (2B absolute offset) |
+| `$03ED0B` | `ConsoleCmd_InsertRemoteString` | recursive render from another bank (2B addr + 1B bank) |
+| `$03ED2B` | `ConsoleCmd_SetPalette` | set palette bits 2–4 from `$099F` (1B) |
+| `$03ED3C` | `ConsoleCmd_IndirectString` | indexed table lookup + render (2B + 1B + 2B) |
+| `$03ED6F` | `ConsoleCmd_PrintBcdNumber` | packed BCD right-to-left (1B digits + 2B addr) |
+| `$03EDE3` | `ConsoleCmd_DrawBox` | bordered rectangle (1B w + 1B h + 2B pos) |
+| `$03EEA5` | `ConsoleCmd_ClearColumn` | clear a column region (2B) |
+| `$03EEF5` | `ConsoleCmd_FillTile` | load tile from 2B address, repeat 1B count times |
+| `$03EF1F` | `ConsoleCmd_PrintRawBytes` | raw tile bytes until `$FF` terminator |
+| `$03EF3E` | `ConsoleCmd_PrintEquipIcons` | 2×2 equipment metatiles (variable, `$80+` terminator) |
 
 ### Cross-references
 
@@ -347,7 +347,7 @@ segments (`$02`, `(maxHP−HP)/2`, tile `$20FF`).
 
 ### `DrawBox` tile construction
 
-`AsciiCmd_DrawBox` renders a bordered rectangle using 4 tile types, all OR'd with
+`ConsoleCmd_DrawBox` renders a bordered rectangle using 4 tile types, all OR'd with
 the `$099E` palette attribute:
 
 | Tile | Meaning | Flip variants |
@@ -362,7 +362,7 @@ After drawing, the cursor is positioned at the first interior content cell
 
 ### Equipment-icon metatile format
 
-`AsciiCmd_PrintEquipIcons` renders variable-length equipment icon lists as 2×2
+`ConsoleCmd_PrintEquipIcons` renders variable-length equipment icon lists as 2×2
 tile groups. Each icon occupies 4 tiles:
 
 | Position | Tile value |
@@ -395,15 +395,15 @@ the staging buffer to hardware VRAM.
 
 ## Category-wide notes
 
-### Dialogue (wide) vs. console (ASCII) usage
+### Dialogue vs. Console usage
 
 The two renderers serve different UI contexts and are never mixed within a single
 text stream:
 
 | Renderer | Charset | Tile size | Used for |
 |----------|---------|-----------|----------|
-| `DialogStringRenderer` | wide-string (`$00`–`$BF`) | 16×16 (2×2 tiles) | story dialogue, NPC speech, narration, cutscene text |
-| `ConsoleStringRenderer` | ASCII (`$12`+) | 8×8 (1 tile) | inventory, status, HP bars, equipment, shop, HUD labels |
+| `DialogStringRenderer` | DialogString (`$00`–`$BF`) | 16×16 (2×2 tiles) | story dialogue, NPC speech, narration, cutscene text |
+| `ConsoleStringRenderer` | ConsoleString (`$12`+) | 8×8 (1 tile) | inventory, status, HP bars, equipment, shop, HUD labels |
 
 Dialogue strings are stored with custom encoding where each byte maps to a 16×16
 character glyph (paired top/bottom tiles). Console strings use a more compact

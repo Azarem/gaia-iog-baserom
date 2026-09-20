@@ -464,7 +464,7 @@ Gem hundreds digit: `$0AD8 = $0AD6 / 100` for three-digit display.
 | Called by | `UpdateFrameRender` | Overlay frames |
 | Inline COP | `PlaySoundCh2 #0D` | Damage tick sound |
 | Inline COP | `RunBg3Script` | `consolestring_01E7F6`, `consolestring_01E818` |
-| Data | `system_strings` include | HUD ASCII templates |
+| Data | `system_strings` include | HUD Console templates |
 
 ---
 
