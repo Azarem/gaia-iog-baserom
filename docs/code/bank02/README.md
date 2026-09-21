@@ -219,7 +219,7 @@ These are included from other compilation units outside bank 02:
 
 ```mermaid
 graph TB
-    indexHub["readme.md"]
+    indexHub["README.md"]
 
     subgraph engineGroup["System Engine"]
         hwInit["hardware-and-init"]
@@ -551,7 +551,7 @@ All 29 bank 02 ASM files in ROM address order:
 
 ## 12. Related Resources
 
-- **[COP System Overview](../../cop/index.md)** — full list of COP opcodes used in actor code
+- **[COP System Overview](../../cop/README.md)** — full list of COP opcodes used in actor code
 - **[Actor Organization](../../docs/actor-organization-analysis.md)** — how actors are structured across the ROM
 - **[Assembler Syntax](../../../gaia-knowledge/curated/gaialabs/assembler-syntax.md)** — `$&` / `$@` label rules
 - **`us/blocks.json`** — block/part structure definitions

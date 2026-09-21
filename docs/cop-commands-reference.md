@@ -1,6 +1,6 @@
 # Illusion of Gaia — COP Command Reference (ARCHIVED)
 
-> ⚠ **This document is archived.** The canonical COP documentation now lives in [`docs/cop/`](cop/index.md), split into 38 focused family pages.
+> ⚠ **This document is archived.** The canonical COP documentation now lives in [`docs/cop/`](cop/README.md), split into 38 focused family pages.
 > This monolith is preserved for historical reference only. All new edits should go to the family docs.
 
 ---

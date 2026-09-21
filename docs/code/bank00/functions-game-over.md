@@ -7,7 +7,7 @@
 
 These functions implement the full player death flow: halting movement, fading the palette, reloading the saved scene, displaying post-death cutscene sprites, and presenting the character-specific wake-up monologue.
 
-**Related:** [`actors-combat-interaction.md`](actors-combat-interaction.md) (`ApplyPlayerHitstun` precedes death) · [`readme.md`](readme.md)
+**Related:** [`actors-combat-interaction.md`](actors-combat-interaction.md) (`ApplyPlayerHitstun` precedes death) · [`README.md`](README.md)
 
 ---
 

@@ -2,7 +2,7 @@
 
 _Ops: `[CC]`–`[D3]`_ · _Source: [`cop_handlers_scene_flags.asm`](../../../extracted/system/engine/cop_handlers_scene_flags.asm) (handlers), [`flag_helpers.asm`](../../../extracted/system/engine/flag_helpers.asm) (core routines)_
 
-[← COP index](../index.md)
+[← COP index](../README.md)
 
 ## Overview
 

@@ -2,7 +2,7 @@
 
 _Ops: `[D4]`, `[D5]`, `[D6]`, `[D7]`_ · _Source: [`cop_handlers_inventory.asm`](../../../extracted/system/engine/cop_handlers_inventory.asm)_
 
-[← COP index](../index.md)
+[← COP index](../README.md)
 
 ## Overview
 

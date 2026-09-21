@@ -1,6 +1,6 @@
 # Sprite Composition & OAM
 
-*Part of the [Bank $03 Documentation Suite](readme.md)*
+*Part of the [Bank $03 Documentation Suite](README.md)*
 
 ## Parts in this category
 
@@ -272,4 +272,4 @@ The sorted list at `$0C00` persists until the next frame's clear.
 - [movement-and-collision.md](movement-and-collision.md) — `FormatDamageDigits` produces packed BCD consumed by `ComposeDigitSprites`
 - [actor-thinker-runtime.md](actor-thinker-runtime.md) — actor linked list ($56 head) is the source for depth sorting
 - [scene-and-hardware.md](scene-and-hardware.md) — `DmaPlayerTilesToVram` transfers player tiles; `ClearSceneState` resets sprite state
-- [Bank $03 index](readme.md) — bank-wide memory map, OAM layout reference
+- [Bank $03 index](README.md) — bank-wide memory map, OAM layout reference

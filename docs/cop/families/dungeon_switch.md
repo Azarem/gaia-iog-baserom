@@ -2,7 +2,7 @@
 
 _Ops: `[D8]`, `[D9]`_ · _Source: [`cop_handlers_dungeon_switch.asm`](../../../extracted/system/engine/cop_handlers_dungeon_switch.asm)_
 
-[← COP index](../index.md)
+[← COP index](../README.md)
 
 ## Overview
 

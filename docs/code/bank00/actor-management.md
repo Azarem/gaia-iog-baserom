@@ -6,7 +6,7 @@
 
 This page documents how Illusion of Gaia **allocates**, **links**, **copies state between**, and **recycles** actor slots in the doubly-linked actor list. The actor pool, predecessor/successor pointers, and parent-child marking (`$7F001C`) underpin every spawn, death, and thinker COP in the engine.
 
-**Related:** [`direction-collision.md`](direction-collision.md), [`event-flags.md`](event-flags.md), [`readme.md`](readme.md), [`../../cop/index.md`](../../cop/index.md)
+**Related:** [`direction-collision.md`](direction-collision.md), [`event-flags.md`](event-flags.md), [`README.md`](README.md), [`../../cop/README.md`](../../cop/README.md)
 
 ---
 

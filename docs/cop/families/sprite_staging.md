@@ -2,7 +2,7 @@
 
 _Ops: `[80]`, `[81]`, `[82]`, `[83]`, `[84]`, `[85]`, `[86]`, `[87]`, `[8D]`_ · _Source: [`cop_handlers_sprite.asm`](../../../extracted/system/engine/cop_handlers_sprite.asm)_
 
-[← COP index](../index.md) · [Sprite animation (execute)](sprite_anim.md)
+[← COP index](../README.md) · [Sprite animation (execute)](sprite_anim.md)
 
 ## Overview
 

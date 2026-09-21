@@ -2,7 +2,7 @@
 
 _Ops: `[AA]`, `[AB]`, `[AC]`, `[AD]`, `[AE]`, `[AF]`, `[B0]`, `[B1]`_ · _Source: [`cop_handlers_force_move.asm`](../../../extracted/system/engine/cop_handlers_force_move.asm)_
 
-[← COP index](../index.md) · [Sprite staging](sprite_staging.md) · [Movement](movement.md)
+[← COP index](../README.md) · [Sprite staging](sprite_staging.md) · [Movement](movement.md)
 
 ## Overview
 

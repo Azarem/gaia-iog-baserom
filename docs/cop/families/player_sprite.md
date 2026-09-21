@@ -2,7 +2,7 @@
 
 _Deep-audited ops: `[8E]`, `[8F]`, `[90]`, `[91]`, `[92]`, `[93]`, `[94]`, `[95]`, `[96]`, `[97]`, `[98]`_ · _Source: [`cop_handlers_player_sprite.asm`](../../../extracted/system/engine/cop_handlers_player_sprite.asm)_
 
-[← COP index](../index.md)
+[← COP index](../README.md)
 
 ## Overview
 

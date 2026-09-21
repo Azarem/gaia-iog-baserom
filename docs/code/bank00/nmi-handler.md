@@ -1,6 +1,6 @@
 # Bank $00 — NMI/VBlank Handler & DMA
 
-*Part of the [Bank $00 Documentation Suite](readme.md)*
+*Part of the [Bank $00 Documentation Suite](README.md)*
 
 > The VBlank interrupt handler — the only place where OAM, CGRAM, VRAM DMA, HDMA enable, joypad sampling, and APU I/O are performed.
 

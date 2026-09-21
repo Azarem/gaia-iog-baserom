@@ -7,7 +7,7 @@
 
 These actors form the invisible infrastructure present on nearly every field scene. Most run every frame without COP-heavy scripting; they coordinate camera scroll, scene flag initialization, player speed modifiers, and ramp acceleration.
 
-**Related:** [`readme.md`](readme.md) · [`actors-combat-interaction.md`](actors-combat-interaction.md) (visual effect pipeline fed by `camera_scroll_controller`)
+**Related:** [`README.md`](README.md) · [`actors-combat-interaction.md`](actors-combat-interaction.md) (visual effect pipeline fed by `camera_scroll_controller`)
 
 ---
 

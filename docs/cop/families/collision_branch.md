@@ -2,7 +2,7 @@
 
 _Ops: `[13]`, `[14]`, `[15]`, `[16]`, `[17]`, `[18]`, `[1A]`, `[1B]`, `[1C]`, `[1D]`, `[1E]`, `[62]`_ · _Source: [`cop_handlers_collision.asm`](../../../extracted/system/engine/cop_handlers_collision.asm) (+ `[62]` in [`cop_handlers_actor_flags.asm`](../../../extracted/system/engine/cop_handlers_actor_flags.asm))_
 
-[← COP index](../index.md) · [Collision paint (write)](collision_paint.md)
+[← COP index](../README.md) · [Collision paint (write)](collision_paint.md)
 
 ## Overview
 

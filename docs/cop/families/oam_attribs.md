@@ -2,7 +2,7 @@
 
 _Ops: `[B2]`, `[B3]`, `[B4]`, `[B5]`, `[B6]`, `[B7]`, `[B8]`, `[B9]`, `[BA]`, `[BB]`_ · _Source: [`cop_handlers_oam_attribs.asm`](../../../extracted/system/engine/cop_handlers_oam_attribs.asm)_
 
-[← COP index](../index.md) · [Sprite staging](sprite_staging.md)
+[← COP index](../README.md) · [Sprite staging](sprite_staging.md)
 
 ## Overview
 

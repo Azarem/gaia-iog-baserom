@@ -2,7 +2,7 @@
 
 _Deep-audited ops: `[04]`, `[05]`, `[06]`, `[07]`, `[08]`, `[09]`, `[0A]`, `[19]`_ · _Source: [`cop_handlers_audio.asm`](../../../extracted/system/engine/cop_handlers_audio.asm)_
 
-[← COP index](../index.md)
+[← COP index](../README.md)
 
 ## Overview
 

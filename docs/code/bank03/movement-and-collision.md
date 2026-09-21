@@ -1,6 +1,6 @@
 # Movement & Combat Collision
 
-*Part of the [Bank $03 Documentation Suite](readme.md)*
+*Part of the [Bank $03 Documentation Suite](README.md)*
 
 > Tile-based actor movement (with and without collision) and the actor-vs-actor
 > combat/interaction collision + damage system.
@@ -382,4 +382,4 @@ to filter candidates.
 - [sprite-rendering.md](sprite-rendering.md) — `FormatDamageDigits` → `ComposeDigitSprites` → OAM compose buffer
 - [field-input-and-items.md](field-input-and-items.md) — `GetPlayerFacingDirection` used by `CalcKnockbackDirection` fallback
 - [scene-and-hardware.md](scene-and-hardware.md) — combat death triggers scene transitions
-- [Bank $03 index](readme.md) — bank-wide memory map, collision type reference, design patterns
+- [Bank $03 index](README.md) — bank-wide memory map, collision type reference, design patterns

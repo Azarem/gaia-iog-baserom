@@ -2,7 +2,7 @@
 
 _Deep-audited ops: `[6B]`, `[BD]`, `[BE]`, `[BF]`_ · _Source: [`cop_handlers_dialog.asm`](../../../extracted/system/engine/cop_handlers_dialog.asm)_
 
-[← COP index](../index.md)
+[← COP index](../README.md)
 
 ## Overview
 

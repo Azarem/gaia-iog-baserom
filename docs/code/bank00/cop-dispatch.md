@@ -2,7 +2,7 @@
 
 **Address range:** `$00846C`–`$00864D`  
 **Source files:** `extracted/system/engine/cop_dispatch.asm`, `extracted/system/engine/system_core.asm`  
-**Related:** [`../../cop/index.md`](../../cop/index.md), [`system-core.md`](system-core.md)
+**Related:** [`../../cop/README.md`](../../cop/README.md), [`system-core.md`](system-core.md)
 
 This document covers the native-mode COP (`$02`) dispatch machinery at the heart of IOG's actor and thinker scripting system. Every script instruction — movement, collision, spawning, dialogue, palette, DMA — routes through this 24-byte dispatcher and its associated jump tables.
 
@@ -170,7 +170,7 @@ JMP ($&cop_dispatch_table, X)    ; X = opcode × 2
 | `$9E` | SpawnAfterOffsetFlags | `$BE` | DialogueOptions | `$DE` | CameraPanRight | | |
 | `$9F` | SpawnAfterAbs | `$BF` | PrintDialogString | `$DF` | CameraPanLeft | | |
 
-Full per-opcode parameter documentation: [`docs/cop/index.md`](../../cop/index.md).
+Full per-opcode parameter documentation: [`docs/cop/README.md`](../../cop/README.md).
 
 ---
 
@@ -284,7 +284,7 @@ Invalid entries contain `#$0000`, causing a jump to `$0000` if dispatched.
 | Symbol | Relationship |
 |--------|--------------|
 | `CopDispatch` | Indexer — `JMP ($&cop_dispatch_table, X)` |
-| 209 handler routines | Targets across 30 `cop_handlers_*.asm` files (see [COP index](../../cop/index.md) for full list) |
+| 209 handler routines | Targets across 30 `cop_handlers_*.asm` files (see [COP index](../../cop/README.md) for full list) |
 | `db-us/copdef.json` | Declarative opcode metadata (names, operand types) |
 
 ---
@@ -339,7 +339,7 @@ This is padding/guard code, not a callable handler.
 
 ## See Also
 
-- [`../../cop/index.md`](../../cop/index.md) — Full handler catalog with operands
+- [`../../cop/README.md`](../../cop/README.md) — Full handler catalog with operands
 - [`utility-math-movement.md`](utility-math-movement.md) — Movement helpers called by `$22`/`$52`/`$53`
 - [`utility-tiles-animation.md`](utility-tiles-animation.md) — Tile/animation helpers called by `$4B`–`4E`, `$80`–`92`
 

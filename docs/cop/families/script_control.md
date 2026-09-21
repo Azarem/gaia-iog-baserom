@@ -2,7 +2,7 @@
 
 _Ops: `[C0]`–`[CB]`, `[E1]`, `[E2]`_ · _Source: [`cop_handlers_script_control.asm`](../../../extracted/system/engine/cop_handlers_script_control.asm)_
 
-[← COP index](../index.md)
+[← COP index](../README.md)
 
 ## Overview
 

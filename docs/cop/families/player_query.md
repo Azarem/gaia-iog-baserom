@@ -2,7 +2,7 @@
 
 _Deep-audited ops: `[28]`, `[29]`, `[2A]`, `[2B]`, `[2C]`, `[2D]`, `[2E]`, `[2F]`, `[30]`, `[31]`, `[35]`, `[48]`, `[49]`_ · _Source: [`cop_handlers_player_query.asm`](../../../extracted/system/engine/cop_handlers_player_query.asm), [`cop_handlers_actor_query.asm`](../../../extracted/system/engine/cop_handlers_actor_query.asm)_
 
-[← COP index](../index.md)
+[← COP index](../README.md)
 
 ## Overview
 

@@ -2,7 +2,7 @@
 
 _Ops: `[88]`, `[89]`, `[8A]`, `[8B]`, `[8C]`_ · _Source: [`cop_handlers_sprite.asm`](../../../extracted/system/engine/cop_handlers_sprite.asm)_
 
-[← COP index](../index.md) · [Sprite staging (configure)](sprite_staging.md)
+[← COP index](../README.md) · [Sprite staging (configure)](sprite_staging.md)
 
 ## Overview
 

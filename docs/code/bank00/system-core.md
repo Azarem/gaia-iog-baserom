@@ -95,7 +95,7 @@ None.
 | Direction | Symbol | Notes |
 |-----------|--------|-------|
 | Called by | SNES COP opcode | All actor/thinker script instructions |
-| Calls | `CopDispatch` (`$00846D`) | 24-byte dispatch engine; see `docs/cop/index.md` |
+| Calls | `CopDispatch` (`$00846D`) | 24-byte dispatch engine; see `docs/cop/README.md` |
 
 ---
 

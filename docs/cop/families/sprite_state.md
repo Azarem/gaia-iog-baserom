@@ -2,7 +2,7 @@
 
 _Ops: `[55]`, `[56]`_ · _Source: [`cop_handlers_sprite.asm`](../../../extracted/system/engine/cop_handlers_sprite.asm)_
 
-[← COP index](../index.md) · [Sprite animation](sprite_anim.md) · [Sprite staging](sprite_staging.md)
+[← COP index](../README.md) · [Sprite animation](sprite_anim.md) · [Sprite staging](sprite_staging.md)
 
 ## Overview
 

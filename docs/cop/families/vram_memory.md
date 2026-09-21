@@ -2,7 +2,7 @@
 
 _Ops: `[4F]`, `[50]`, `[51]`, `[54]`_ · _Source: [`cop_handlers_vram.asm`](../../../extracted/system/engine/cop_handlers_vram.asm)_
 
-[← COP index](../index.md)
+[← COP index](../README.md)
 
 ## Overview
 

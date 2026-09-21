@@ -1,6 +1,6 @@
 # Bank $02 — Camera Scrolling & Tilemap DMA
 
-*Part of the [Bank $02 Documentation Suite](readme.md)*
+*Part of the [Bank $02 Documentation Suite](README.md)*
 
 **Bank:** `$02` (FastROM; accessed via `$@` long calls from other banks)  
 **Document scope:** Incremental tilemap scrolling, dirty-strip buffering, and VBlank DMA upload to BG nametables.  
@@ -11,7 +11,7 @@ This document covers **`camera_tilemap.asm`**, which implements Illusion of Gaia
 
 Companion docs: [`map-coordinates.md`](map-coordinates.md) (tile/index helpers) · [`tile-collision.md`](tile-collision.md) (collision probing)
 
-**Related:** [`scene-script.md`](scene-script.md) · [`../bank00/camera-scroll-system.md`](../bank00/camera-scroll-system.md) · [`readme.md`](readme.md) · [`../../cop/index.md`](../../cop/index.md)
+**Related:** [`scene-script.md`](scene-script.md) · [`../bank00/camera-scroll-system.md`](../bank00/camera-scroll-system.md) · [`README.md`](README.md) · [`../../cop/README.md`](../../cop/README.md)
 
 ## Block Layout (camera_tilemap)
 

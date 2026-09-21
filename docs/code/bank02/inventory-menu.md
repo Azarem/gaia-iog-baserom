@@ -1,6 +1,6 @@
 # Inventory Menu — `inventory_menu.asm`
 
-*Part of the [Bank $02 Documentation Suite](readme.md)*
+*Part of the [Bank $02 Documentation Suite](README.md)*
 
 > Actor-based 4-tab inventory UI with 16-slot grid navigation
 

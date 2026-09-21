@@ -2,7 +2,7 @@
 
 _Ops: `$6E`–`$7F`, `$E3`_ · _Source: none (null / unmapped dispatch)_
 
-[← COP index](../index.md)
+[← COP index](../README.md)
 
 ## Overview
 

@@ -2,7 +2,7 @@
 
 _Deep-audited ops: `[3B]`, `[3C]`, `[3D]`_ · _Source: [`cop_handlers_thinker.asm`](../../../extracted/system/engine/cop_handlers_thinker.asm)_
 
-[← COP index](../index.md)
+[← COP index](../README.md)
 
 ## Overview
 

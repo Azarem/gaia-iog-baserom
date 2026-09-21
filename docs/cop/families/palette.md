@@ -2,7 +2,7 @@
 
 _Deep-audited ops: `[36]`, `[37]`, `[38]`, `[39]`, `[3A]`_ · _Source: [`cop_handlers_palette.asm`](../../../extracted/system/engine/cop_handlers_palette.asm)_
 
-[← COP index](../index.md)
+[← COP index](../README.md)
 
 ## Overview
 

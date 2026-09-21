@@ -2,7 +2,7 @@
 
 _Ops: `[4B]`, `[4C]`, `[4D]`, `[4E]`_ · _Source: [`cop_handlers_metatile.asm`](../../../extracted/system/engine/cop_handlers_metatile.asm)_
 
-[← COP index](../index.md)
+[← COP index](../README.md)
 
 ## Overview
 

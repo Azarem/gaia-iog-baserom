@@ -2,7 +2,7 @@
 
 _Deep-audited ops: `[00]`, `[01]`, `[02]`, `[03]`_ · _Source: [`cop_handlers_hdma_dma.asm`](../../../extracted/system/engine/cop_handlers_hdma_dma.asm)_
 
-[← COP index](../index.md)
+[← COP index](../README.md)
 
 ## Overview
 

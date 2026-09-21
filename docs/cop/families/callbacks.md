@@ -2,7 +2,7 @@
 
 _Ops: `[57]`, `[58]`, `[59]`, `[5A]`, `[5E]`_ · _Source: [`cop_handlers_callbacks.asm`](../../../extracted/system/engine/cop_handlers_callbacks.asm)_
 
-[← COP index](../index.md) · [Actor death](actor_death.md)
+[← COP index](../README.md) · [Actor death](actor_death.md)
 
 ## Overview
 

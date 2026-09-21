@@ -554,7 +554,7 @@ Screen Y increases downward: `$15` probes `Y−$10` = **north**, `$16` probes `Y
 
 | Doc | Role |
 |-----|------|
-| [index.md](index.md) | This overview |
+| [README.md](README.md) | This overview |
 | [families/](families/) | Per-family deep dives (39 docs) |
 | [`../code/bank00/cop-dispatch.md`](../code/bank00/cop-dispatch.md) | Dispatch engine documentation |
 | `db-us/copdef.json` | Operand layouts for assembler |

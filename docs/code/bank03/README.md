@@ -147,7 +147,7 @@ mode7_perspective_unused — standalone dead code (no references)
 
 ```mermaid
 graph TD
-    Index["readme.md"]
+    Index["README.md"]
     FieldInput["field-input-and-items"]
     Radar["radar-and-world-map"]
     Mode7["mode7-and-cutscenes"]
@@ -430,8 +430,8 @@ are still bank 3 by address range.
 
 ## 11. Related Resources
 
-- [COP System Overview](../../cop/index.md) — COP opcode definitions used throughout bank $03
+- [COP System Overview](../../cop/README.md) — COP opcode definitions used throughout bank $03
 - [Actor Organization Analysis](../../actor-organization-analysis.md) — bank-wide actor classification
 - [Assembler Syntax](../../../../gaia-knowledge/curated/gaialabs/assembler-syntax.md) — `$&`/`$@` reference conventions
 - [Reference Model](../../../../gaia-knowledge/curated/gaialabs/reference-model.md) — `blocks.json` / `overrides.json` / `names.json` database triad
-- [Bank $02 Documentation](../bank02/readme.md) — `system_core`, player character, movement physics (primary caller of bank $03)
+- [Bank $02 Documentation](../bank02/README.md) — `system_core`, player character, movement physics (primary caller of bank $03)

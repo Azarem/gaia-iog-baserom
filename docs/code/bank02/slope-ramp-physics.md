@@ -1,6 +1,6 @@
 # Slope & Ramp Physics — `slope_ramp_physics.asm`
 
-*Part of the [Bank $02 Documentation Suite](readme.md)*
+*Part of the [Bank $02 Documentation Suite](README.md)*
 
 > Terrain-based movement physics with slope detection, speed curves, and deceleration
 
@@ -107,5 +107,5 @@ Flat-ground north-south deceleration, structurally identical to `DecelerateEW` b
 
 - [`player-movement.md`](player-movement.md) — `PlayerMovementTick` (`$02CFD0`), tile collision (`$02E102`)
 - [`tile-collision.md`](tile-collision.md) — tile probing for slopes and shimmy
-- [`../../cop/index.md`](../../cop/index.md) — COP command semantics
+- [`../../cop/README.md`](../../cop/README.md) — COP command semantics
 - [`../../actor-organization-analysis.md`](../../actor-organization-analysis.md) — global actor linked list

@@ -1,6 +1,6 @@
 # Bank $02 — Scene Script Engine
 
-*Part of the [Bank $02 Documentation Suite](readme.md)*
+*Part of the [Bank $02 Documentation Suite](README.md)*
 
 **Bank:** `$02` (FastROM; accessed via `$@` long calls from other banks)
 **Document scope:** Scene script interpreter, graphics loading commands, VRAM DMA helpers, and source-pointer caching in the `engine` scene.
@@ -1099,7 +1099,7 @@ Reloads layer 1 map strip from the cached source pointer at `$06AC` into `$7F:00
 
 - [spc-transfer.md](spc-transfer.md) — SPC700 music upload protocol (`SpcMusicLoadCmd`, IPL handshake, embedded sound engine)
 - [hardware-and-init.md](hardware-and-init.md) — Hardware math, VBlank, decompression, system init
-- [index.md](readme.md) — Full bank `$02` overview
+- [README.md](README.md) — Full bank `$02` overview
 - [bank00/system-core.md](../bank00/system-core.md) — Main game loop triggering scene loads
 
 ---

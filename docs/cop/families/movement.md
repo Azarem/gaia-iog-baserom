@@ -2,7 +2,7 @@
 
 _Deep-audited ops: `[22]`, `[43]`, `[4A]`, `[52]`, `[53]`_ · _Source: [`cop_handlers_movement.asm`](../../../extracted/system/engine/cop_handlers_movement.asm)_
 
-[← COP index](../index.md)
+[← COP index](../README.md)
 
 ## Overview
 

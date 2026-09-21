@@ -2,7 +2,7 @@
 
 _Ops: `[6A]`_ · _Source: [`cop_handlers_linked_actor.asm`](../../../extracted/system/engine/cop_handlers_linked_actor.asm)_
 
-[← COP index](../index.md)
+[← COP index](../README.md)
 
 ## Overview
 

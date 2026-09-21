@@ -2,7 +2,7 @@
 
 _Deep-audited ops: `[1F]`, `[20]`, `[21]`, `[44]`, `[45]`_ · _Source: [`cop_handlers_collision.asm`](../../../extracted/system/engine/cop_handlers_collision.asm), [`cop_handlers_movement.asm`](../../../extracted/system/engine/cop_handlers_movement.asm), [`cop_handlers_actor_query.asm`](../../../extracted/system/engine/cop_handlers_actor_query.asm)_
 
-[← COP index](../index.md)
+[← COP index](../README.md)
 
 ## Overview
 

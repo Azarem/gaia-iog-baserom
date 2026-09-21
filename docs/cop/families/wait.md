@@ -2,7 +2,7 @@
 
 _Ops: `[DA]`, `[DB]`_ · _Source: [`cop_handlers_wait.asm`](../../../extracted/system/engine/cop_handlers_wait.asm)_
 
-[← COP index](../index.md)
+[← COP index](../README.md)
 
 ## Overview
 

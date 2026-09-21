@@ -2,7 +2,7 @@
 
 _Ops: `[5B]`, `[5C]`, `[5D]`_ · _Source: [`cop_handlers_callbacks.asm`](../../../extracted/system/engine/cop_handlers_callbacks.asm) + [`cop_handlers_actor_flags.asm`](../../../extracted/system/engine/cop_handlers_actor_flags.asm)_
 
-[← COP index](../index.md) · [Callbacks](callbacks.md) · [Collision branch](collision_branch.md)
+[← COP index](../README.md) · [Callbacks](callbacks.md) · [Collision branch](collision_branch.md)
 
 ## Overview
 

@@ -2,7 +2,7 @@
 
 _Ops: `[0B]`, `[0C]`, `[0D]`, `[0E]`, `[0F]`, `[10]`, `[11]`, `[12]`, `[42]`_ · _Source: [`cop_handlers_collision.asm`](../../../extracted/system/engine/cop_handlers_collision.asm)_
 
-[← COP index](../index.md) · [Collision branch (read/probe)](collision_branch.md)
+[← COP index](../README.md) · [Collision branch (read/probe)](collision_branch.md)
 
 ## Overview
 

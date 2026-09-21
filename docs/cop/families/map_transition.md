@@ -2,7 +2,7 @@
 
 _Deep-audited ops: `[26]`, `[65]`, `[66]`, `[67]`_ · _Source: [`cop_handlers_player_query.asm`](../../../extracted/system/engine/cop_handlers_player_query.asm), [`cop_handlers_world_map.asm`](../../../extracted/system/engine/cop_handlers_world_map.asm)_
 
-[← COP index](../index.md)
+[← COP index](../README.md)
 
 ## Overview
 

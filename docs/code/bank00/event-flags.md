@@ -6,7 +6,7 @@
 
 This page documents the complete **bitfield flag subsystem** used throughout Illusion of Gaia for scene progression, puzzle state, WRAM-scoped actor flags, and cross-bank event queries. All core routines share one indexing scheme; far-call wrappers add constant offsets before delegating to the core set/test/clear functions.
 
-**Related:** [`direction-collision.md`](direction-collision.md), [`actor-management.md`](actor-management.md), [`../../cop/index.md`](../../cop/index.md)
+**Related:** [`direction-collision.md`](direction-collision.md), [`actor-management.md`](actor-management.md), [`../../cop/README.md`](../../cop/README.md)
 
 ---
 

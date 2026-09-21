@@ -2,7 +2,7 @@
 
 _Deep-audited ops: `[5F]`, `[60]`, `[61]`_ · _Source: [`cop_handlers_effects.asm`](../../../extracted/system/engine/cop_handlers_effects.asm)_
 
-[← COP index](../index.md)
+[← COP index](../README.md)
 
 ## Overview
 

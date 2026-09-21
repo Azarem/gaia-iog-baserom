@@ -1,6 +1,6 @@
 # Text Rendering & Menus
 
-*Part of the [Bank $03 Documentation Suite](readme.md)*
+*Part of the [Bank $03 Documentation Suite](README.md)*
 
 ## Parts in this category
 
@@ -438,4 +438,4 @@ selection result via the A register.
 - [field-input-and-items.md](field-input-and-items.md) — item handlers embed inline dialogue strings via COP commands
 - [radar-and-world-map.md](radar-and-world-map.md) — radar uses BG3 console scripts; shares VRAM buffer region
 - [scene-and-hardware.md](scene-and-hardware.md) — `LoadHudTilemap` and DMA pipeline for VRAM flush
-- [Bank $03 index](readme.md) — bank-wide memory map, WRAM reference
+- [Bank $03 index](README.md) — bank-wide memory map, WRAM reference

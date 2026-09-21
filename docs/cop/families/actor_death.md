@@ -2,7 +2,7 @@
 
 _Deep-audited ops: `[A7]`, `[A8]`, `[A9]`, `[E0]`_ · _Source: [`cop_handlers_actor_death.asm`](../../../extracted/system/engine/cop_handlers_actor_death.asm)_
 
-[← COP index](../index.md)
+[← COP index](../README.md)
 
 ## Overview
 
