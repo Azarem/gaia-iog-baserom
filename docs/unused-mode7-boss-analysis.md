@@ -434,3 +434,334 @@ The patch adds substantial new systems with no basis in the original ROM:
 - Integrated the fight into the existing Dark Gaia sequence rather than keeping it standalone
 
 **The patch is best described as a "completion and integration" of an unfinished boss**, not a restoration. The author took the original framework — which was structurally complete but unpolished — and made it into a playable, balanced, visually polished boss fight that fits within the game's existing final boss sequence. Roughly 40–50% of the patch's code has direct correspondence to the vanilla unused code, while the rest is new.
+
+---
+
+## Part 4: Restoration Feasibility & Design Investigation
+
+This section investigates practical approaches to faithfully restoring the unused boss fight while solving its technical problems, adding optimizations, and exploring whether a true Mode 7 phase was intended and could be implemented.
+
+### 4.1 Was Mode 7 Ever Planned?
+
+**Evidence for Mode 7 intent:**
+
+1. **The variable name `!mode7Tilemap` at `$7EE000`** is strongly suggestive. This address sits in high WRAM bank `$7E`, the same region used by the game's decompression/tile staging buffers (`$7E7000`–`$7E9FFF`). The Mode 7 perspective thinker already uses `$7E7000`/`$7E7800`/`$7E8000` for its HDMA tables — there is no overlap with `$7EE000`.
+
+2. **The P2→P3 VRAM DMA writes to $5000–$5FFF.** This is 4 KB of VRAM tile data. In Mode 7, the tilemap occupies VRAM $0000–$3FFF (128×128 tile map + tile character data). Writing to $5000 doesn't correspond to the standard Mode 7 tilemap region, but it *could* be character (pixel) data for Mode 7 tiles. Mode 7 characters start at a configurable base. The data is loaded from `$7EE000`–`$7EF7FF`, which maps to the `!mode7Tilemap` and `!thinkerExtendedData` regions.
+
+3. **The boss's Phase 3 takes place on a separate "arena"** with a camera-controlled playfield — this is conceptually identical to how Mode 7 boss arenas work in other Quintet games and SNES titles (e.g., the perspective floor in Final Fantasy boss fights). The orbital cannon mechanics with 8-directional targeting make more visual sense on a rotating/scaling floor.
+
+4. **IOG already has a proven Mode 7 thinker** at `$03A940` (`Mode7PerspectiveUpdate`). It generates per-scanline HDMA tables for M7A/M7B/M7C/M7D from sine/cosine lookup tables, driven by three actor fields: `$B6` (rotation angle), `$B8` (scale), `$BC` (perspective index). This thinker is used by 4 existing scenes (world map, Sky Garden crash, Angkor Wat vision, prologue prophecy). The infrastructure is battle-tested.
+
+5. **Display preset `#07`** (`display_preset_0180A4`) is configured for Mode 7: `BGMODE = $17` which is Mode 1, but scene `$29` uses `display-mode < #07 >` (world map). The engine can switch BG modes mid-scene through direct register writes — no preset change needed.
+
+**Evidence against Mode 7 intent:**
+
+1. **No `M7SEL`, `M7A`–`M7D`, or `$211A`–`$211E` writes** anywhere in the unused boss code. If Mode 7 was planned, the actual register setup was never written.
+
+2. **The VRAM targets ($5000–$5FFF) don't align with standard Mode 7 layout.** Mode 7 characters typically start at $0000. However, the boss could have been designed for a hybrid approach where only BG1 uses Mode 7 while BG2 remains in a tiled mode (Mode 7 EXTBG, BGMODE $07, allows BG2 as a 4-color direct-color layer).
+
+3. **The boss uses `COP [StageSprAndHitbox]` and standard sprite rendering** — all phases reference normal sprite indices. Mode 7 would only affect backgrounds, not sprites.
+
+**Verdict:** Mode 7 was **likely planned for the Phase 3 arena background** but never implemented. The VRAM DMA at the P2→P3 transition was probably intended to load Mode 7 character data, and a thinker would have been spawned to drive the perspective effect. The phase 3 "floor" was meant to be a rotating/scaling surface beneath the Final Core fight. The orbital cannon mechanics — 8 directional angles, sine/cosine positioning — were designed to look dramatic against a rotating Mode 7 floor.
+
+### 4.2 Mode 7 Phase 3 — Feasibility and Design
+
+**A Mode 7 Phase 3 is absolutely feasible.** Here is the implementation path:
+
+#### PPU Configuration
+
+At the P2→P3 transition, after the existing VRAM DMA:
+
+1. **Switch BGMODE to $07** (Mode 7) or $47 (Mode 7 EXTBG for a BG2 status layer)
+2. **Set M7SEL = $80** (repeat character 0 outside playfield — matches existing Mode 7 setup)
+3. **Spawn `Mode7PerspectiveUpdate`** as a thinker with params `$0804` (deferred dispatch, same as garden crash/vision cutscenes)
+4. **Configure M7 scroll center** to track the boss arena center
+5. **Set color math**: `CGADSUB = $01`, `CGWSEL = $82` (same pattern used by garden crash and future vision)
+
+#### Arena Tilemap
+
+The Phase 3 VRAM DMA already copies 4 KB from `$7EE000`. This data would need to be:
+- **Prepared as Mode 7 character tiles** (8×8 pixels, 256 colors each, 64 bytes per tile)
+- **A Mode 7 tilemap** written to VRAM $0000 (128×128 tile indices)
+
+The existing DMA targets $5000–$5FFF. For Mode 7, this would need to be redirected to $0000 (tilemap) and the character base. A patch would modify the 4 `COP [AdhocVramDma]` calls to target the correct VRAM regions. The source data at `$7EE000` would need to contain actual Mode 7 tile art (a textured floor surface — perhaps a cosmic/comet surface).
+
+#### Dynamic Rotation During Combat
+
+The Brain actor (`code_09B5C7`) already uses `code_09BA59` for sine-based camera hover. During Phase 3, this could drive Mode 7 rotation:
+
+```
+; After spawning Mode7PerspectiveUpdate as thinker (slot in Y):
+; Each frame in the Brain's hover loop:
+LDA $orbitAngle,X     ; Brain's sine angle
+STA $00BC,Y           ; → thinker's perspective rotation
+LDA #$0200            ; Fixed scale for consistent arena size
+STA $00B8,Y           ; → thinker's base scale
+```
+
+The floor would gently rotate in sync with the Brain's hover, creating a dramatic swaying arena effect.
+
+#### Visual Impact
+
+- The comet surface rotates beneath the player during the Final Core fight
+- Orbital cannons spiraling around anchor points gain a parallax depth effect against the rotating floor
+- Nuke impacts could trigger brief scale pulses (zoom in/out)
+- The rain of fire from Phase 2 Bits appears to fall *onto* the rotating surface
+
+#### HDMA Channel Budget
+
+The Mode 7 thinker uses 4 HDMA channels (M7A/B/C/D). The existing Comet scene uses HDMA for:
+- BG2 shimmer (2 channels: H-scroll, scanline offsets)
+- Brightness ramp (1 channel, during eye beam only)
+
+During Phase 3, the BG2 shimmer can be disabled (Mode 7 doesn't use BG2 in standard mode), freeing channels. The 4 Mode 7 channels fit within the SNES's 8 HDMA channel limit.
+
+### 4.3 Sprite Management — Keeping On-Screen Counts Low
+
+The SNES enforces hard limits: **128 OAM entries total**, **32 sprites per scanline**, **34 tiles (8×8) per scanline**. The vanilla boss violates these constraints. Here are specific strategies:
+
+#### Strategy 1: Eliminate Body Segments, Use BG Tiles Instead
+
+The 12 body segment actors (5 Joints + 1 Tendon + 1 Root × 2 sides) each consume an actor slot and OAM entries for a single sprite ($28). **Replace them with a BG tile effect:**
+
+- Use the Brain thinker to compute segment positions mathematically (Bézier or linear interpolation between Helper and Cannon)
+- Write segment tile indices directly to the BG1 tilemap in WRAM each frame
+- The NMI handler's existing dirty-strip DMA system transfers tilemap changes to VRAM
+
+This trades 12 actor slots + 12 OAM sprites for zero sprites and a small per-frame tilemap write. The "tentacle arms" become background art that costs no sprite resources. The patch author's decision to simply remove them ("causes lag") confirms this is necessary — but BG rendering is the superior solution.
+
+#### Strategy 2: Time-Slice Projectile Spawning
+
+The Launchers fire 5 Bubbles each per volley (10 total). Each Bubble chases the player, and on death spawns 4 debris actors. Worst case: 10 Bubbles + 40 debris = 50 transient actors.
+
+**Optimization:** Stagger Launcher volleys — Left fires on even cycles, Right on odd. Cap active Bubbles at 3 per Launcher (6 total) by checking a counter before spawning. Remove the 4-debris death effect entirely (the patch already does this) or replace with a single-sprite explosion.
+
+#### Strategy 3: Phase-Based Actor Budgeting
+
+Assign strict actor budgets per phase:
+
+| Phase | Permanent Actors | Max Transient | Total Budget |
+|-------|-----------------|---------------|-------------|
+| P1 (Core + Bits + Launchers) | 7 (Core, Brain, 2 Bits, 2 Launchers, Beam Spawner) + Player | 6 Bubbles + 2 Beam sets | ~20 |
+| P2 (Core vulnerable) | 5 (Core, Brain, 2 dead Bits, Beam Spawner) + Player | 3 Nukes + 9 Nuke Pieces + 4 Bubbles + Fire Rain | ~25 |
+| P3 (Final Core) | 5 (Final Core, 2 Helpers, 2 Cannons) + Player | 2 Bullets + 3 Minis | ~13 |
+
+Phase 3 is actually the lightest on actors once body segments are removed. The orbital cannons fire one bullet at a time (the vanilla code already enforces this via the directional fire sequence), so max simultaneous bullets is 2.
+
+#### Strategy 4: Sprite Size Optimization
+
+Use **16×16 sprite mode** (OBSEL bit 5 set) for the boss Core and Final Core, which uses 1 OAM entry for 4× the pixel coverage of an 8×8 sprite. The game's spriteset system already supports this. Cannon bullets can use 8×8 mode since they're small.
+
+#### Strategy 5: Flicker Priority Rotation
+
+For the cannon's orbiting sprites, implement Y-priority-based OAM rotation. The engine's `SortActorsByDepth` + `ComposeAllSprites` already handles this, but the orbital actors should use `COP [SetSpritePriority]` to ensure the most important sprites (Core, Cannons, player) always have highest OAM priority.
+
+### 4.4 Useful Features from the Patch
+
+While the patch is not a faithful restoration, several of its additions solve real problems and could be adopted:
+
+#### Adopt: Game State Variable (`$00F0`)
+
+The patch's `$00F0` tracks fight progression (0 = idle, 1–5 = damage levels). This controls:
+- Cannon fire rate (faster as damage increases)
+- Music tempo
+- Mini-boss spawn count
+
+This is an excellent design pattern for difficulty scaling that the vanilla boss completely lacks. **Recommended for adoption** — it makes the fight progressively more intense.
+
+#### Adopt: Player Avoidance Movement
+
+The patch's `SR_FindPlayerAvoidanceCoordinates` is a significant AI improvement. The vanilla Final Core picks random positions or follows the player — both are dull. The avoidance algorithm places the boss *away* from the player, creating a chase dynamic where the player must pursue the Core. **Recommended for adoption** — it creates tactical gameplay.
+
+#### Adopt: Herb Preservation on Respawn
+
+`LR_SetupPlayerForComet` saves herb count and restores it if the player dies and restarts. This prevents the player from being softlocked with no healing items in a long multi-phase fight. **Recommended for adoption** — essential quality of life.
+
+#### Adopt: Music Tempo via SPC700
+
+Writing to `$2141` to dynamically change music tempo based on boss damage is a powerful atmospheric tool. As the Final Core takes damage, the music accelerates, building tension. **Recommended for adoption** — trivial to implement (single STA), high impact.
+
+#### Adopt: Coordinated P2 Attack Timing
+
+The patch's `P2WaitThenFireAll` / `P2FireAll` system coordinates Launcher bubbles with Bit fire rain, creating attack patterns instead of independent random fire. **Recommended for adoption** — transforms P2 from chaotic to strategic.
+
+#### Consider: Shield Minis (Modified)
+
+The patch's Shield Minis orbit the damaged Final Core, creating a protective barrier. This is not in the vanilla code, but it solves the problem of the vanilla Minis being pure damage sponges. **Consider as optional enhancement** — could replace the vanilla Mini behavior entirely, or be offered as a second Mini type that appears at higher damage levels.
+
+#### Skip: Dark Gaia Integration
+
+The patch weaves this boss into the Dark Gaia sequence. A faithful restoration should keep the boss **standalone** as originally designed. It needs its own scene, map entry, and trigger mechanism.
+
+#### Skip: VRAM Tile Push System
+
+The patch's `LR_PushAndUpdateAGBody` dynamically updates boss body tiles. This is an impressive technical achievement but has no basis in the vanilla code and adds complexity. The vanilla boss renders its body entirely through sprites. A faithful restoration should use sprites (with the body segment optimization described above using BG tiles instead).
+
+### 4.5 Mode 7 Phase Design Proposal
+
+Here is a concrete design for adding a Mode 7 Phase 3 arena:
+
+#### Visual Concept
+
+When the Core P2 dies and the VRAM transition occurs, the background transforms from the Comet Lair's static tiles into a **rotating cosmic surface** — a swirling nebula or comet surface pattern. The player stands on this rotating floor while the Final Core hovers above, its orbital cannons spiraling around it.
+
+#### Implementation Steps
+
+1. **Create Mode 7 tileset**: Design 8–16 unique 8×8 tiles (512–1024 bytes of character data) representing a cosmic/nebula pattern. Store compressed in ROM.
+
+2. **Create Mode 7 tilemap**: A 128×128 tile index map (16 KB) that tiles the surface pattern with variation. Can be generated procedurally or stored compressed.
+
+3. **P2→P3 transition**:
+   - Existing DMA copies character data to VRAM (redirect targets to Mode 7 char base)
+   - Write tilemap indices to VRAM $0000
+   - Switch BGMODE from Mode 1 ($09) to Mode 7 ($07)
+   - Set M7SEL = $80 (repeat playfield)
+   - Spawn `Mode7PerspectiveUpdate` thinker
+   - Initialize: `$B6 = 0` (no rotation), `$B8 = $0300` (moderate scale), `$BC = 0`
+
+4. **During Phase 3**:
+   - Brain's hover loop drives `$BC` (perspective rotation) at 1 unit/frame — slow, majestic rotation
+   - Canon fire events trigger brief `$B8` scale pulses (zoom in by $40, ease back over 16 frames)
+   - Final Core hit flashes: momentary `$B6` spike (adds rotation wobble)
+   - Nuke impact: larger scale pulse + brief rotation acceleration
+
+5. **IrisCircleEffect** (optional): Spawn the iris thinker during the P2→P3 transition for a dramatic spotlight-open effect as the new arena reveals itself. Already proven in the world map and prologue.
+
+#### Resource Costs
+
+| Resource | Cost | Available |
+|----------|------|-----------|
+| HDMA channels | 4 (M7A/B/C/D) | 8 total, ~4 free in Phase 3 |
+| VRAM | ~4 KB char + 16 KB map | Mode 7 uses dedicated VRAM layout; no conflict with sprites |
+| WRAM | 3 × 672 bytes for HDMA tables | $7E7000/$7E7800/$7E8000 already used by Mode 7 thinker |
+| ROM | ~2 KB tileset + ~4 KB tilemap (compressed) | Available in unmapped bank tails |
+| CPU per frame | ~40% of scanline period (224 divides) | Tight but proven viable in 4 existing scenes |
+
+### 4.6 Proposed Restoration Architecture
+
+#### Scene Integration
+
+The boss needs a **new scene** (or reuse an unused scene ID). Requirements:
+- Display preset supporting Mode 1 for P1/P2, switchable to Mode 7 for P3
+- Comet-themed tilemap and tileset for P1/P2 background
+- Player spawns at a fixed position
+- Music track assignment (could share existing Comet music or map to a specific boss track)
+- Scene thinker for background scroll/palette effects
+
+The Comet scene `$E8` is the natural fit — the boss could be triggered after Dark Gaia's defeat via a flag check, or placed in an alternative scene linked from the same area.
+
+#### Phase Flow
+
+```
+Scene Load → P1/P2 Display (Mode 1)
+  │
+  ├── Brain scrolls arena on-screen (2px/frame, vanilla behavior)
+  ├── Core P1: Timer + Bit/Launcher attacks
+  ├── Both Bits die → Core P2: Vulnerable, Nukes, coordinated fire
+  ├── Core P2 dies → VRAM transition
+  │     ├── DMA: Load Mode 7 tileset + tilemap
+  │     ├── Switch BGMODE to $07
+  │     ├── Spawn Mode7PerspectiveUpdate thinker
+  │     ├── Optional: IrisCircleEffect reveal
+  │     └── Spawn Final Core (P3)
+  │
+  ├── Final Core P3: Mode 7 rotating arena
+  │     ├── 2 Helpers + 2 Orbital Cannons (no body segments)
+  │     ├── Game state ($00F0) scales difficulty
+  │     ├── Player avoidance movement AI
+  │     ├── Minis spawn on hit (with optional shields at high damage)
+  │     └── Music tempo accelerates with damage
+  │
+  └── Victory → Map change to $E5 (credits)
+```
+
+#### Actor Budget Summary
+
+| Actor | P1 | P2 | P3 | Notes |
+|-------|:--:|:--:|:--:|-------|
+| Player | 1 | 1 | 1 | Always present |
+| Core | 1 | 1 | — | Dies at P2→P3 transition |
+| Final Core | — | — | 1 | Spawned at P3 start |
+| Brain | 1 | 1 | 1 | Persists through all phases |
+| Left Bit | 1 | 1† | — | †Dead but still an actor in P2 |
+| Right Bit | 1 | 1† | — | |
+| Left Launcher | 1 | 1 | — | Dies with Core P2 |
+| Right Launcher | 1 | 1 | — | |
+| Floor Beam | 1 | 1 | — | Enhanced with tracking |
+| Left Helper | — | — | 1 | Position anchor |
+| Right Helper | — | — | 1 | Position anchor |
+| Left Cannon | — | — | 1 | Orbital gun |
+| Right Cannon | — | — | 1 | Orbital gun |
+| BG Palette | 1 | 1 | 1 | Persists |
+| Sprite Palette | 1 | 1 | — | Dies at P2→P3 |
+| Mode 7 Thinker | — | — | 1 | Spawned at P3 |
+| **Permanent total** | **10** | **10** | **9** | |
+| Max Bubbles | 6 | 4 | — | Staggered spawning |
+| Max Beams | 10 | — | — | 5 per Bit attack |
+| Max Nuke Pieces | — | 9 | — | 3 per Nuke × 3 Nukes |
+| Max Bullets | — | — | 2 | 1 per Cannon |
+| Max Minis | — | — | 3 | Capped by game state |
+| Max Fire Rain | — | 6 | — | Capped |
+| **Peak transient** | **16** | **19** | **5** | |
+| **Peak total** | **26** | **29** | **14** | All within hardware limits |
+
+Phase 2 is the most demanding at ~29 actors. This is comparable to the Dark Gaia fight's peak actor count. Phase 3 with Mode 7 is actually very conservative at 14 actors — the Mode 7 thinker costs CPU time but no actor slots beyond its own.
+
+### 4.7 Enhancement Opportunities
+
+Beyond faithful restoration with optimizations, these additions would enhance the experience:
+
+#### A. Dynamic Arena Effects (Mode 7 Phase)
+
+- **Damage-reactive rotation**: Each hit on the Final Core adds angular velocity to the floor rotation, decaying over ~60 frames. Creates a visceral "the world shakes" feedback.
+- **Nuke impact craters**: When Nuke Pieces hit the floor, write darker tile indices to the Mode 7 tilemap at the impact point. The WRAM tilemap at `$7EE000` can be modified live, and a single DMA transfer per frame updates VRAM. Persistent battle scars on the arena floor.
+- **Scale breathing**: Gentle sine-wave scale oscillation (±$20 around base $0300) synchronized with the Brain's hover. The floor "breathes" with the boss.
+
+#### B. Enhanced Floor Beam Spawner
+
+The vanilla `code_09B747` is a stub. Replace with:
+- Beams telegraph via a BG tile flash at the target column 30 frames before firing
+- Beam targets the player's current column (not fixed position)
+- Multiple simultaneous beams during P2 at higher damage levels
+- In Mode 7 Phase 3: beams could be replaced by tilemap color changes (a "lava stripe" across the rotating floor)
+
+#### C. Cannon Trail Effects
+
+Instead of body segments, the Cannons could leave a **sprite trail** — spawn a fading after-image sprite every 8 frames at the Cannon's current position, with a short lifespan (16 frames). Uses 2–3 OAM entries at any time but creates the impression of a sweeping arm without the cost of 12 permanent actors.
+
+#### D. Phase Transition Cinematics
+
+- **P1→P2**: The Bits' death explosions could use the `IrisCircleEffect` thinker for a spotlight-zoom on the Core as it becomes vulnerable
+- **P2→P3**: A multi-step sequence: screen fades to white (`oneshot_palette_flash_19`), VRAM loads, Mode 7 initializes with extreme zoom-out (`$B8 = $0040`), then zooms in to combat scale (`$B8 = $0300`) over 120 frames while the floor rotation begins. The Final Core descends from above.
+
+#### E. Audio Integration
+
+- Assign specific music to each phase, or use tempo/instrument changes:
+  - P1: Standard boss music
+  - P2: Intensified variant (SPC700 tempo increase via `$2141`)
+  - P3 (Mode 7): A unique arrangement or further tempo increase
+- Sound effects for Mode 7 rotation events (floor tilt SFX on perspective changes)
+
+### 4.8 Technical Risk Assessment
+
+| Risk | Severity | Mitigation |
+|------|----------|------------|
+| Mode 7 CPU cost during P3 | High | The 224-iteration hardware divide loop consumes ~40% of scanline time. Combined with actor processing, this is tight. Mitigation: P3 has the lowest actor count (14); disable non-essential per-frame processing (BG2 shimmer off, reduce collision checks) |
+| VRAM layout conflict | Medium | Mode 7 uses VRAM differently from Mode 1. The transition must fully reconfigure VRAM. Mitigation: The existing 4× DMA transition already wipes $5000–$5FFF; extend to also set up $0000–$3FFF for Mode 7 |
+| Palette conflict | Low | Mode 7 uses 256-color direct palette. Sprites use separate palette entries. No conflict with existing sprite palettes |
+| Actor pool exhaustion | Medium | P2 peak of ~29 actors approaches engine limits. Mitigation: Strict transient caps with counter-based spawn gates |
+| Sprite-per-scanline overflow | Medium | During P1/P2, simultaneous Bubbles and Beams could exceed 32/scanline. Mitigation: Stagger Y-positions; use priority rotation; cap simultaneous active projectiles |
+| Body segment replacement via BG tiles | Low | The existing tilemap DMA infrastructure supports per-frame tile writes. The tentacle arms only need ~6 tile writes per frame per arm (12 total). Well within the dirty-strip DMA budget |
+| Integration with existing Comet scene | Medium | Scene $E8 is currently Dark Gaia only. Options: use a new scene ID, or add flag-gated spawn logic. The patch demonstrates the integration-after-DG approach, which works |
+
+### 4.9 Recommended Approach — Summary
+
+1. **Restore all vanilla code faithfully** as the baseline — keep all phases, actors, and behavior exactly as extracted
+2. **Replace body segments** with BG tile rendering (tentacle arm visual via tilemap writes, not actor sprites)
+3. **Add Mode 7 Phase 3** using the proven `Mode7PerspectiveUpdate` thinker — rotating arena floor with gentle dynamic effects
+4. **Adopt from the patch**: game state variable, player avoidance AI, music tempo, herb preservation, coordinated P2 attacks
+5. **Cap transient actors** with explicit spawn counters on Bubbles (max 3/Launcher), Beams (max 5 per Bit), and Minis (max 3)
+6. **Enhance the Floor Beam** with player-tracking and telegraph effects
+7. **Add phase transition cinematics** using existing engine effects (iris, palette flash, Mode 7 zoom)
+8. **Create new scene** or extend scene $E8 with flag-gated spawn logic for the boss trigger
