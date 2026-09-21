@@ -201,7 +201,7 @@ RTL                    ; RTL pops target+bank, jumps to script
 ```
 
 `RTL` adds 1 to the popped address, which is why `-1` is used. When the script
-yields (via `RTS` or `COP SetEntryContinue`), control returns to `PostTick`.
+yields (via `RTS` or `COP SetEntryHere`), control returns to `PostTick`.
 
 ### Actor/Thinker Entry State
 

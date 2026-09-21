@@ -22,7 +22,7 @@ parallax_thinker [
   thinker-def < #04, #08, {
 
   code_00B88D:
-    JSR $&ParallaxClearHdmaScratch ; Parallax thinker: clear HDMA scratch, SetEntryContinue, bind channel
+    JSR $&ParallaxClearHdmaScratch ; Parallax thinker: clear HDMA scratch, SetEntryHere, bind channel
     LDA #$0000
     STA $chatPtr, X
     COP [SetEntryHere]

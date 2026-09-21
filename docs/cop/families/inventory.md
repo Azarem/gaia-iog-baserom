@@ -207,7 +207,7 @@ COP [BranchIfMissingItem] ( #1E, &code_08C250 )
 COP [BranchIfMissingItem] ( #1F, &code_08C250 )
 ...
 COP [BranchIfMissingItem] ( #23, &code_08C250 )
-; all owned → fallthrough → ClearLowHere / Die
+; all owned → fallthrough → ClearSolidHere / Die
 ```
 
 **Payment branches** — `BranchIfMissingItem` on currency item sends script to alternate “cannot pay” dialog.

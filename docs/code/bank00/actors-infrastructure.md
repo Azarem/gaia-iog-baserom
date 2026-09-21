@@ -36,14 +36,14 @@ These actors form the invisible infrastructure present on nearly every field sce
 
 The most-used actor in Illusion of Gaia. Placed at actor slot `#01` in 220+ field scenes, it runs every frame to compute camera scroll deltas from the player's pixel position. It reads `$camera_offset_x/y` and `$camera_bounds_x/y` (scene-defined limits), clamps the desired scroll position, and writes pixel deltas to `$06E4` (X) and `$06E6` (Y). Those deltas feed the visual effect pipeline (`effect_velocity_init` → `effect_position_update` → `effect_subpixel_math`).
 
-On first entry, sets actor flag `$1000` via `TSB $12` and calls `SetEntryContinue`. If `$06EE` bit `$0200` is set (camera frozen), the actor returns immediately without updating scroll.
+On first entry, sets actor flag `$1000` via `TSB $12` and calls `SetEntryHere`. If `$06EE` bit `$0200` is set (camera frozen), the actor returns immediately without updating scroll.
 
 The main path uses `PHD`/`TCD` with `$09F4` (player actor DP base) to read player coords at `$14`/`$16`, derives tile coords into `$player_x_pos`, `$player_y_pos`, `$player_x_tile`, `$player_y_tile`, then applies a 128-pixel dead zone centered on the current scroll before clamping to bounds.
 
 #### Algorithm
 
 ```
-1. SetEntryContinue; exit if $06EE bit $0200 (camera lock)
+1. SetEntryHere; exit if $06EE bit $0200 (camera lock)
 2. Read player X/Y from actor WRAM ($14, $16)
 3. Derive sub-tile player positions and tile indices
 4. If $player_flags bit $0100 clear:
@@ -230,7 +230,7 @@ Gold Ship dream sequence (scene `$2A` / 42): drives a scroll/zoom countdown from
 ```
 1. ExitIfFlagByte (#0E, #01) — skip if dream already completed
 2. $F6 ← $88 − $068A;  $FA ← $180 − $068E;  $FE ← $A0
-3. SetEntryContinue loop:
+3. SetEntryHere loop:
      $FE ← $FE − 2
      If $FE ≥ $40: RTL (continue next frame)
      Die
@@ -267,7 +267,7 @@ Gold Ship dream sequence (scene `$2A` / 42): drives a scroll/zoom countdown from
 
 Accelerates player speed by ±1 when the player is within 2-tile proximity on an active ramp tile. Requires non-zero `$player_speed_ew` or `$player_speed_ns` (player must already be moving). Uses `BranchIfPlayerNear` with radius `#02` then `#03` in a loop: if E-W speed is negative, decrements; if positive, increments. Repeats while player remains near.
 
-Pure 65C816 for the speed adjustment path; minimal COP (`SetEntryContinue`, `BranchIfPlayerNear`). **Distinct from** the `ramps.asm` directional ramp system (`ramp_east` at `$D310`) which handles tile-based slope physics.
+Pure 65C816 for the speed adjustment path; minimal COP (`SetEntryHere`, `BranchIfPlayerNear`). **Distinct from** the `ramps.asm` directional ramp system (`ramp_east` at `$D310`) which handles tile-based slope physics.
 
 **Not movable.**
 
@@ -275,7 +275,7 @@ Pure 65C816 for the speed adjustment path; minimal COP (`SetEntryContinue`, `Bra
 
 ```
 1. If $player_speed_ew OR $player_speed_ns == 0: RTL
-2. SetEntryContinue
+2. SetEntryHere
 3. BranchIfPlayerNear (#02) → speed adjust code
 4. RTL if player left range
 5. Adjust $player_speed_ew ±1 based on sign

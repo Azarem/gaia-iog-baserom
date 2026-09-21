@@ -33,7 +33,7 @@
 ; 
 ; Runs a 3-iteration ramp-up loop (COP LoopInit with count 3) that computes scroll deltas each iteration via ComputeScrollDeltas. After the loop, saves the final Y delta to savedCameraDelta ($0690).
 ; 
-; Then sets the actor entry point (COP SetEntryContinue) for per-frame execution, computes deltas one more time, and forces the X scroll by writing cameraDeltaX with bit 15 set to forcedScrollOverride ($06C8). The normal cameraDeltaX is zeroed since the forced override takes precedence.
+; Then sets the actor entry point (COP SetEntryHere) for per-frame execution, computes deltas one more time, and forces the X scroll by writing cameraDeltaX with bit 15 set to forcedScrollOverride ($06C8). The normal cameraDeltaX is zeroed since the forced override takes precedence.
 ; 
 ; Used during scene transitions where the camera needs to snap to a position, ramp up smoothly, then maintain a forced horizontal scroll.
 
@@ -71,7 +71,7 @@ ScrollCameraInit [
 
 ; Simple continuous camera tracking actor.
 ; 
-; Sets the camera-active flag, aligns position parameters to the tile grid via TileAlignPosition, then enters a per-frame loop (COP SetEntryContinue). Each frame, both X and Y scroll deltas are recomputed by ComputeScrollDeltas using the current camera targets and speed parameters.
+; Sets the camera-active flag, aligns position parameters to the tile grid via TileAlignPosition, then enters a per-frame loop (COP SetEntryHere). Each frame, both X and Y scroll deltas are recomputed by ComputeScrollDeltas using the current camera targets and speed parameters.
 ; 
 ; The simplest scroll mode — used when the camera should smoothly follow the player with no special behavior.
 
@@ -91,7 +91,7 @@ ScrollCameraTrack [
 ---------------------------------------------
 ; Vertical-only camera tracking actor-def referenced from scene_actors in Edward's Castle, Itory, Incan Ruins, and Dao.
 ; 
-; Sets camera-active flag $1000, tile-aligns position via TileAlignPosition, then loops with SetEntryContinue computing only the Y scroll delta through MulDivide when speed parameter $16 is nonzero. Leaves cameraDeltaX unchanged from any prior scroll actor. X speed parameter $14 is ignored entirely.
+; Sets camera-active flag $1000, tile-aligns position via TileAlignPosition, then loops with SetEntryHere computing only the Y scroll delta through MulDivide when speed parameter $16 is nonzero. Leaves cameraDeltaX unchanged from any prior scroll actor. X speed parameter $14 is ignored entirely.
 
 ScrollCameraVertical [
   actor-def < #00, #00, #2C, {

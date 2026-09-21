@@ -39,7 +39,7 @@
 ; Opening animation ($0D58 = 0 or $0D5A ≠ 0):
 ; 1. 2-frame initial hold: update + DMA
 ; 2. 40-frame iris animation: increment $7F2104,X by 2 each frame (advances the sine table read offset), update + DMA
-; 3. SetEntryContinue: hold final state indefinitely, update + DMA each tick
+; 3. SetEntryHere: hold final state indefinitely, update + DMA each tick
 
 HdmaWindowEffect {
     LDA #$0000            ; Initialize HDMA frame offset to 0 for this actor

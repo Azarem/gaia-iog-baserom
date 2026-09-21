@@ -34,7 +34,7 @@ Sets `$CGADSUB` ← `#$02` each frame (color addition mode: add subscreen to mai
 #### Algorithm
 
 ```
-SetEntryContinue
+SetEntryHere
 CGADSUB ← #$02    ; fixed color math mode
 RTL               ; runs every frame
 ```
@@ -62,7 +62,7 @@ Dynamic brightness control for Palace Coffins based on vertical scroll position.
 #### Algorithm
 
 ```
-SetEntryContinue
+SetEntryHere
 brightness = ((scroll_Y + 0x80) >> 8) & 0xF8
 COLDATA ← brightness + 0xE0
 RTL
@@ -112,7 +112,7 @@ Position-dependent fog effect for Itory Village. Reads the player's X coordinate
 
 ```
 if flag #2B == 1 → exit thinker
-SetEntryContinue
+SetEntryHere
 player_X = [$player_actor + $14]
 if player_X >= $01B0 → CGADSUB = 0 (clear fog)
 else → CGADSUB = $50 (fog overlay)

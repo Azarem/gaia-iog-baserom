@@ -223,7 +223,7 @@ All four actors are identical in structure — **door controllers** that block p
 | `btE0_actor_098778` | `($49,$18)`, `($4A,$18)` | `$0177` | `($04AE,$0184)` / `($04AE,$0174)` |
 | `btE0_actor_0987A8` | `($15,$08)`, `($16,$08)` | `$0178` | `($016E,$0084)` / `($016E,$0074)` |
 
-Pattern: `SolidHighAbs` × 2 → `SpawnMarkedAfterAbs` (2× `bt_actor_099B1C`) → `ExitIfFlagWord` → `ClearLowAbs` × 2 → `Die`.
+Pattern: `MarkSolidAbs` × 2 → `SpawnMarkedAfterAbs` (2× `bt_actor_099B1C`) → `ExitIfFlagWord` → `ClearSolidAbs` × 2 → `Die`.
 
 ---
 
@@ -432,7 +432,7 @@ aqueduct puzzle sequence.
 
 | Part | Description |
 |------|-------------|
-| `ec_actor_09C2D0` | **Reusable falling ceiling-block trap.** Entry `code_09C2D3`: waits for player within 2 tiles (`BranchIfPlayerNear #02`). Entry `code_09C2DB`: sets `orbitAngle=0` (solid variant). Entry `code_09C2E4`: sets `orbitAngle=1` (pass-through variant). Core: adds +8 X offset, spawns `code_09C333` (dust animation, frame `#1F` ×3 loop). Teleports block 256px above current Y. Sets max collision priority, falls with `StageSpriteLoopMoveY(#18,#02,#0F)`, plays sound `$1515`. Clears max priority, drops to final Y with `StageSpriteMoveY(#18,#35)`, sets min priority. If `orbitAngle=0`: `SolidHighHere` (becomes solid). If `orbitAngle=1`: `ClearAllHere` (clears collision). |
+| `ec_actor_09C2D0` | **Reusable falling ceiling-block trap.** Entry `code_09C2D3`: waits for player within 2 tiles (`BranchIfPlayerNear #02`). Entry `code_09C2DB`: sets `orbitAngle=0` (solid variant). Entry `code_09C2E4`: sets `orbitAngle=1` (pass-through variant). Core: adds +8 X offset, spawns `code_09C333` (dust animation, frame `#1F` ×3 loop). Teleports block 256px above current Y. Sets max collision priority, falls with `StageSpriteLoopMoveY(#18,#02,#0F)`, plays sound `$1515`. Clears max priority, drops to final Y with `StageSpriteMoveY(#18,#35)`, sets min priority. If `orbitAngle=0`: `MarkSolidHere` (becomes solid). If `orbitAngle=1`: `ClearCollisionHere` (clears collision). |
 
 ---
 
@@ -512,7 +512,7 @@ hazards, NPC encounters, and lore.
 
 | Part | Description |
 |------|-------------|
-| `ir25_ceiling_tile` | **Falling ceiling trap.** Adds +8 X. If flag `#2F` set → skip to `code_09C38D` (clear collision + unlock). First visit: locks joypad, waits `$3B` frames, plays sound `$1515`, spawns `CameraDriftLoopSimple`, waits `$B3` frames, random byte → `$08`. Falls block from 256px above (same `StageSpriteLoopMoveY`/sound pattern as `ec_actor_09C2D0`). Ends: clears `$2000` visibility, sets min collision priority, `ClearAllHere`, unlocks joypad. |
+| `ir25_ceiling_tile` | **Falling ceiling trap.** Adds +8 X. If flag `#2F` set → skip to `code_09C38D` (clear collision + unlock). First visit: locks joypad, waits `$3B` frames, plays sound `$1515`, spawns `CameraDriftLoopSimple`, waits `$B3` frames, random byte → `$08`. Falls block from 256px above (same `StageSpriteLoopMoveY`/sound pattern as `ec_actor_09C2D0`). Ends: clears `$2000` visibility, sets min collision priority, `ClearCollisionHere`, unlocks joypad. |
 | `ir25_block_slot` | **Companion sound actor.** Frame `#1D`, adds +8 X. If flag `#2F` set → clear `$2000` and idle. Otherwise plays sound `#2C` on channel 2 via `PlaySoundCh2`. |
 
 ---

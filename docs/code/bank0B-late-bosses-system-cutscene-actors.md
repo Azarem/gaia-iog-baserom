@@ -174,7 +174,7 @@
 
 #### `gw8A_sand_fanger` / `btF5_neo_fanger` — Sand Fanger Boss (3,064 bytes)
 
-Multi-phase boss actor spawned in scene `$8A` (Sand Fanger Lair) and scene `$F5` (Dark Fanger Lair — Babel Tower rematch). The arena setup creates `SolidHighAbs` barrier tiles and triggers the fight when the player enters specific tile zones, playing music `#0F`. The boss cycles through RNG-weighted attack patterns including orbital swoops (`ApplyOrbitalOffsetXY`), horizontal sweeps toward the player, and minion spawns when the active actor count drops below threshold. The `btF5_neo_fanger` entry point provides an alternate intro for the Babel Tower rematch, hijacking the player script with different post-fight flow. On defeat, the standard boss reward sequence clears spawned helpers, prints *"You've defeated the Sand Fanger!"*, and transitions to scene `$FD`. A shared subroutine `sub_0B9CE8` at `$0B9CE8` (physically within the Skulker's address range) provides sine-scaled offset calculations used by the boss.
+Multi-phase boss actor spawned in scene `$8A` (Sand Fanger Lair) and scene `$F5` (Dark Fanger Lair — Babel Tower rematch). The arena setup creates `MarkSolidAbs` barrier tiles and triggers the fight when the player enters specific tile zones, playing music `#0F`. The boss cycles through RNG-weighted attack patterns including orbital swoops (`ApplyOrbitalOffsetXY`), horizontal sweeps toward the player, and minion spawns when the active actor count drops below threshold. The `btF5_neo_fanger` entry point provides an alternate intro for the Babel Tower rematch, hijacking the player script with different post-fight flow. On defeat, the standard boss reward sequence clears spawned helpers, prints *"You've defeated the Sand Fanger!"*, and transitions to scene `$FD`. A shared subroutine `sub_0B9CE8` at `$0B9CE8` (physically within the Skulker's address range) provides sine-scaled offset calculations used by the boss.
 
 Key sub-actors:
 - **Orbiting eye minions** — 4 attack modes each, flag-driven
@@ -183,11 +183,11 @@ Key sub-actors:
 
 #### `gw88_short_wall_spear` — Short Wall Spear Trap (56 bytes)
 
-**Scene:** `$88` (Tomb) only. A single-tile retractable spear trap that loops: waits `$3B` frames, plays sound `#1E`, extends with sprite `#1D` + `SolidHighHere`, then retracts. Shorter reach than the standard variant — no adjacent-tile collision.
+**Scene:** `$88` (Tomb) only. A single-tile retractable spear trap that loops: waits `$3B` frames, plays sound `#1E`, extends with sprite `#1D` + `MarkSolidHere`, then retracts. Shorter reach than the standard variant — no adjacent-tile collision.
 
 #### `gw82_wall_spear` — Standard Wall Spear Trap (64 bytes)
 
-**Scenes:** `$82`, `$83`, `$85`, `$87`, `$88`. Same extend/retract cycle as the short variant but **2 tiles tall**: extends with sprite `#1F`, sets `SolidHighHere` plus `SolidHighOffset(#00,#03)`, then retracts with matching clears.
+**Scenes:** `$82`, `$83`, `$85`, `$87`, `$88`. Same extend/retract cycle as the short variant but **2 tiles tall**: extends with sprite `#1F`, sets `MarkSolidHere` plus `MarkSolidOffset(#00,#03)`, then retracts with matching clears.
 
 #### `gw82_fire_bug` — Fire Bug Enemy (334 bytes)
 
@@ -225,7 +225,7 @@ Arrow projectiles travel until blocked and apply `ApplyPlayerHitstun` on impact.
 
 #### `mtA1_fire_sprite` — Fire Sprite Enemy (881 bytes)
 
-**Scenes:** `$A1`, `$A5`, `$A6`, `$A7`, `$A8`. Floating fire enemy that idles offscreen until `BranchIfPlayerNear` triggers combat. On aggro, spawns **four orbiting fire orbs** via `SpawnMarkedAfter` that orbit the parent with `ApplyOrbitalOffsetFromRef`, spiral inward/outward by adjusting orbit diameter, then home in on the player and self-destruct. The parent `MoveToward`s the player during combat and wanders randomly when not aggroed. Helper `sub_0BA5D5` provides a −31…+31 RNG offset.
+**Scenes:** `$A1`, `$A5`, `$A6`, `$A7`, `$A8`. Floating fire enemy that idles offscreen until `BranchIfPlayerNear` triggers combat. On aggro, spawns **four orbiting fire orbs** via `SpawnAfterMarked` that orbit the parent with `ApplyOrbitalOffsetFromRef`, spiral inward/outward by adjusting orbit diameter, then home in on the player and self-destruct. The parent `MoveToward`s the player during combat and wanders randomly when not aggroed. Helper `sub_0BA5D5` provides a −31…+31 RNG offset.
 
 #### `mtA0_skulker` — Skulker Enemy (365 bytes, 4 variants)
 
@@ -336,7 +336,7 @@ Pair of floor teleporter pads linking the room's left (`$04,27`) and right (`$27
 #### `awB0_shrubber` — Shrubber (193 bytes)
 
 **Scenes:** `$B0` (`shrubber2`), `$B6` (both), `$BA` (`shrubber`). Bush enemy with two roles:
-- **`awB0_shrubber`** — static solid bush (`SolidHighHere`, `SetHitCallback`); when hit, clears solidity and jumps into chase AI
+- **`awB0_shrubber`** — static solid bush (`MarkSolidHere`, `SetHitCallback`); when hit, clears solidity and jumps into chase AI
 - **`awB0_shrubber2`** — ambush variant; hides as bush until `BranchIfPlayerNear`, reveals with animation, then chases along nearer axis with wall-bounce via `BranchIfSolid*` checks and `StageSpriteMoveXY` lunges
 
 #### `awB0_zombie` — Zombie (1,442 bytes)
@@ -523,7 +523,7 @@ Pointer table mapping progress indices to named save-resume points. Each entry e
 **Scenes:** None (no spawn table entry)
 **Extracted file:** `actors/debug_man.asm`
 
-Developer debug NPC physically interleaved within the diary menu's address range. Sets `SolidHighHere` and `SetOnInteract`. On talk: **maxes player stats** (HP 40, STR/DEF 127, all abilities via `abilityBitmask = $FF`), then presents a **nested warp menu** via `DialogueOptions`. Six nested dialogue menus with 5 options each provide 20+ warp destinations across the game world (Great Wall `$82`, Pyramid `$CC`, Watermia `$78`, Babel `$B0`, Euro, Inca, Sky Garden, and more). Contains embedded dialog strings with location names in an English/Japanese mix.
+Developer debug NPC physically interleaved within the diary menu's address range. Sets `MarkSolidHere` and `SetOnInteract`. On talk: **maxes player stats** (HP 40, STR/DEF 127, all abilities via `abilityBitmask = $FF`), then presents a **nested warp menu** via `DialogueOptions`. Six nested dialogue menus with 5 options each provide 20+ warp destinations across the game world (Great Wall `$82`, Pyramid `$CC`, Watermia `$78`, Babel `$B0`, Euro, Inca, Sky Garden, and more). Contains embedded dialog strings with location names in an English/Japanese mix.
 
 ---
 

@@ -8,7 +8,7 @@
 ; 
 ; === PER-FRAME UPDATE (Mode7PerspectiveUpdate) ===
 ; 
-; Phase 1 — Table initialization: fills three 224-entry HDMA tables ($7E7000, $7E7800, $7E8000) with 1-scanline-per-entry defaults (3 bytes each: count=1, data=0). Yields via SetEntryContinue.
+; Phase 1 — Table initialization: fills three 224-entry HDMA tables ($7E7000, $7E7800, $7E8000) with 1-scanline-per-entry defaults (3 bytes each: count=1, data=0). Yields via SetEntryHere.
 ; 
 ; Phase 2 — Matrix computation (each tick after init):
 ; 1. Load scale ($B8 → $02), rotation angle ($B6 → $04), perspective rotation ($BC)
@@ -95,7 +95,7 @@ Mode7PerspectiveInit [
 ---------------------------------------------
 ; Per-frame Mode 7 HDMA table generator — computes rotation matrix for 224 scanlines.
 ; 
-; First tick (after SetEntryContinue yield): initializes three HDMA tables at $7E7000, $7E7800, $7E8000 with 224 entries × 3 bytes each (scanline count = 1, two zero data bytes), terminated by $00. This sets a neutral default before the first perspective computation.
+; First tick (after SetEntryHere yield): initializes three HDMA tables at $7E7000, $7E7800, $7E8000 with 224 entries × 3 bytes each (scanline count = 1, two zero data bytes), terminated by $00. This sets a neutral default before the first perspective computation.
 ; 
 ; Subsequent ticks: loads scale ($B8), rotation ($B6), and perspective angle ($BC). Looks up sine (sine_table_16bit) and cosine (cosine_table_16bit) from 512-entry tables using ($BC AND $01FF) × 2 as index. Pushes QueueMode7HdmaTables−1 as RTS-trick return address.
 ; 

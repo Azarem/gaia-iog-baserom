@@ -1,6 +1,6 @@
 ; Per-frame camera tracking actor placed at slot #01 in 220+ field scenes (Bank 00).
 ; 
-; On entry it sets actor flag $1000 and calls SetEntryContinue, then each tick computes BG scroll deltas from the player's pixel position unless layerPriorityFlag bit $0200 freezes the camera. It reads player coordinates through the player actor DP, derives tile indices, and applies a 128-pixel dead zone before clamping targets to scene-defined cameraOffset/cameraBounds limits.
+; On entry it sets actor flag $1000 and calls SetEntryHere, then each tick computes BG scroll deltas from the player's pixel position unless layerPriorityFlag bit $0200 freezes the camera. It reads player coordinates through the player actor DP, derives tile indices, and applies a 128-pixel dead zone before clamping targets to scene-defined cameraOffset/cameraBounds limits.
 ; 
 ; When playerFlags bit $0100 is clear it writes cameraTargetX/Y, then subtracts current bg1ScrollH/bg2ScrollH to produce effectDeltaX/Y ($06E4/$06E6). Those deltas feed the visual effect pipeline (effect_velocity_init → effect_position_update → effect_subpixel_math) for smooth subpixel scrolling.
 ---------------------------------------------

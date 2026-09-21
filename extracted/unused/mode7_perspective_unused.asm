@@ -37,7 +37,7 @@
 ; - Table B ($7E7800): headers → $7900/$79E0 (M7B data)
 ; - Table C ($7E8000): headers → $8100/$81E0 (M7C data)
 ; 
-; Yields via SetEntryContinue after header setup.
+; Yields via SetEntryHere after header setup.
 ; 
 ; Phase 2 — Per-frame computation: loads scale ($B8 → $02), rotation ($B6 → $04), perspective angle ($BC). Sine/cosine lookup from sine_table_16bit/01C695 with 4-quadrant dispatch. Starts from X=$01C0 and works downward. Pushes QueueMode7HdmaAlt−1 as RTS-trick return. Does NOT call NormalizeDivisor — divisor is used as-is.
 ; 

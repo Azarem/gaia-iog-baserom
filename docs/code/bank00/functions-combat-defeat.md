@@ -287,7 +287,7 @@ The `$chatPtr` values identify which stat the gem increases when collected:
 ### Algorithm (SpawnDarkGemWeighted)
 
 ```
-1. Setup: SetMetasprite, SetSpritePalette, SpawnMarkedAfter @collect_handler_gem
+1. Setup: SetMetasprite, SetSpritePalette, SpawnAfterMarked @collect_handler_gem
 2. Compare playerMaxHp to playerHp for tier selection:
      maxHp/4 ≥ currentHp → tier 2 (strong, offset $20)
      maxHp/2 ≥ currentHp → tier 1 (medium, offset $10)

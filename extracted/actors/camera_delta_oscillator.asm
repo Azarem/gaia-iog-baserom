@@ -1,6 +1,6 @@
 ; Camera oscillation actor — copies cameraTargetX to cameraDeltaX each frame and
 ; alternates cameraDeltaY ±1 based on bit 9 of the global frame counter ($0036).
-; Produces a subtle vertical camera wobble effect. Runs continuously via SetEntryContinue.
+; Produces a subtle vertical camera wobble effect. Runs continuously via SetEntryHere.
 ---------------------------------------------
 
 !cameraTargetX                  06BE

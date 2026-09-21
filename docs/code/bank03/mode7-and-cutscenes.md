@@ -416,7 +416,7 @@ frame: `INC $BC` (rotate). On even frames only (`$0036 & 1 == 0`): `INC $B8`
 (zoom in). Runs until scale reaches `$0080` — approximately 200 frames at
 half-speed (odd frames skip the zoom increment).
 
-**Phase 2 — Full rotation:** New yield via `SetEntryContinue`. Each frame:
+**Phase 2 — Full rotation:** New yield via `SetEntryHere`. Each frame:
 `INC $BC`. Exits when `($BC AND $01FF) == 0` — a complete 512-step rotation has
 been performed.
 
@@ -433,7 +433,7 @@ frame: `DEC $B8` (zoom out), `INC $B6` (spin), camera + M7 center scroll down at
 
 **Phase 5 — Scene transition:** `QueueMapChange` to scene `$BF` at
 (`$00F8`,`$00C0`), flags `$2200`. Graphics cache: `gfxCacheIdxA = $0001` (instant
-blank type), `gfxCacheIdxB = $0400`. Final `SetEntryContinue` + `RTL` ends the
+blank type), `gfxCacheIdxB = $0400`. Final `SetEntryHere` + `RTL` ends the
 controller.
 
 ---

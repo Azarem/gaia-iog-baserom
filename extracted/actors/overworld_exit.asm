@@ -96,7 +96,7 @@ overworld_exit [
 ]
 
 OverworldExitFinalize {
-    LDA #$0400            ; All warp paths converge: set gfxCacheIdxB=$0400, SetEntryContinue, RTL
+    LDA #$0400            ; All warp paths converge: set gfxCacheIdxB=$0400, SetEntryHere, RTL
     STA $gfxCacheIdxB
     COP [SetEntryHere]
     RTL 

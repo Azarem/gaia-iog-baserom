@@ -178,16 +178,16 @@ Manages Shadow's palette shimmer effect. Only active when `$0AD4 == 2`.
 | `$02B264` | ShadowShimmerGuard | Validate `$0AD4==2`, check `$0040` flag. If invalid, `PLA`; `COP [Die]`. |
 | `$02B28D` | ShadowShimmerCycleA | Infinite palette `#23` cycle (idle glow). |
 | `$02B294` | ShadowShimmerCycleB | Infinite palette `#24` cycle (active glow). |
-| `$02B29B` | ShadowShimmerNop | No-op: `COP [SetEntryContinue]`; `RTL`. |
+| `$02B29B` | ShadowShimmerNop | No-op: `COP [SetEntryHere]`; `RTL`. |
 
 ### ShadowShimmerInit
 
-SpawnLastRel companion spawned by `PlayerCharacterDef`. Verifies `$0AD4 == 2` (Shadow form) and immediately `COP [Die]`s if the player is Will or Freedan. On success, spawns a child palette actor via `SpawnMarkedAfter` pointed at `ShadowShimmerCycleA` (palette bundle `#23`) and falls through into `ShadowShimmerIdle`. This actor exists solely to drive Shadow's distinctive shimmer FX and never runs for other character forms.
+SpawnLastRel companion spawned by `PlayerCharacterDef`. Verifies `$0AD4 == 2` (Shadow form) and immediately `COP [Die]`s if the player is Will or Freedan. On success, spawns a child palette actor via `SpawnAfterMarked` pointed at `ShadowShimmerCycleA` (palette bundle `#23`) and falls through into `ShadowShimmerIdle`. This actor exists solely to drive Shadow's distinctive shimmer FX and never runs for other character forms.
 
 
 ### ShadowShimmerIdle
 
-Standing shimmer state, re-entered each frame with `COP [SetEntryContinue]`. Overwrites the child actor's function pointer to `ShadowShimmerCycleA` and resets its frame counter so palette `#23` cycles softly while Shadow is still. Each tick calls `ShadowShimmerGuard`, then ORs `$player_speed_ew | $player_speed_ns` — any nonzero speed (or flag byte `#00 == $01`) transitions to `ShadowShimmerActive`. When the player stops moving, Shadow keeps the idle glow rather than the brighter movement palette.
+Standing shimmer state, re-entered each frame with `COP [SetEntryHere]`. Overwrites the child actor's function pointer to `ShadowShimmerCycleA` and resets its frame counter so palette `#23` cycles softly while Shadow is still. Each tick calls `ShadowShimmerGuard`, then ORs `$player_speed_ew | $player_speed_ns` — any nonzero speed (or flag byte `#00 == $01`) transitions to `ShadowShimmerActive`. When the player stops moving, Shadow keeps the idle glow rather than the brighter movement palette.
 
 
 ### ShadowShimmerActive

@@ -56,7 +56,7 @@ sequence with PPU register manipulation for weather effects.
 | Address | End | Size | Block Name | Type | Description |
 |---------|-----|------|------------|------|-------------|
 | `$05813A` | `$05816E` | 53 | `ggs2C_rain_spawner` | actor-def | **Seagull spawner** — infinite loop: waits 15 frames, spawns a child seagull actor with RNG X-position relative to player, metasprite from `table_0EE000`; priority #30; child plays frame #02 then dies |
-| `$05816F` | `$058178` | 10 | `ggs2C_rain_particle` | actor-def | Barrel/rope prop — body #1E, adds position offset (-8, 0), `SetEntryContinue` idle loop. Static deck decoration |
+| `$05816F` | `$058178` | 10 | `ggs2C_rain_particle` | actor-def | Barrel/rope prop — body #1E, adds position offset (-8, 0), `SetEntryHere` idle loop. Static deck decoration |
 | `$058179` | `$058201` | 214 | `gs2C_descent` | actor-def | **Descent cutscene controller** — gates on `#4C`; locks joypad, sets flag word `#$0185`, configures PPU registers (`TM=#$15`, `CGADSUB=#$B1`, `COLDATA=#$FF` for color math whitewash), positions player at (D0, 20), forces player into walking code via `player_character.loc_02C63B`; waits until player reaches (D0, 240), fires palette flash `oneshot_palette_flash_1C`, sets `#4C`, prints "This is the Incan Gold Ship?!" dialogue |
 | `$058202` | `$058236` | 53 | `gs2C_crew1` | actor-def | Crew member — solid, interactable; says "King! You're safe! Now we can set sail." Static |
 | `$058237` | `$0582B7` | 129 | `gs2C_crew2` | actor-def | Patrolling crew — multi-leg walk loop (south, east, idle, north, west, idle); interactable: "It's a happy occasion! We have waited for you!" |

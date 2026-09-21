@@ -32,7 +32,7 @@
 ; 2. Configure Mode 7 color math: M7SEL=0, TM=$01 (BG1 main), CGADSUB=$01, CGWSEL=$82
 ; 3. SpawnThinker Mode7PerspectiveUpdate with $0804 in animScratch2
 ; 4. SpawnBefore FutureVisionController as companion
-; 5. Single SetEntryContinue + RTL — actor remains alive but idle; all work done by companion
+; 5. Single SetEntryHere + RTL — actor remains alive but idle; all work done by companion
 ; 
 ; Note: uses TM ($212C) instead of TS ($212D) compared to garden_crash — main screen layer enable rather than sub screen.
 
@@ -73,7 +73,7 @@ FutureVisionCutscene [
 ; - Zoom-in runs until scale reaches $0080 (~200 frames at half-speed)
 ; 
 ; Phase 2 — Full rotation wait (loc_03A277):
-; - New yield point via SetEntryContinue
+; - New yield point via SetEntryHere
 ; - Per-frame: check ($BC & $01FF) == 0 (full 512-step rotation)
 ; - INC $BC each frame until complete
 ; 

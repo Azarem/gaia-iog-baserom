@@ -785,7 +785,7 @@ EquipCursorActor {
 }
 
 ---------------------------------------------
-; Generic animated cursor actor. StageSprAndHitbox with sprite #40, SetEntryExit. Loop: SetEntryContinue + AnimOneFrame until $2A signals update.
+; Generic animated cursor actor. StageSprAndHitbox with sprite #40, SetEntryExit. Loop: SetEntryHere + AnimOneFrame until $2A signals update.
 
 SelectionCursorActor {
     COP [StageSprAndHitbox] ( #40 ) ; Stage cursor sprite #40 and register exit point

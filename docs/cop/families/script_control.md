@@ -29,7 +29,7 @@ Actor-script “VM” primitives: program counter (`$0A` script cursor, `$0C` ba
 - **`LoopStart` / `LoopEnd`** pick player vs scene storage by comparing actor index `X` to `$1000` (player slot range vs scene pool).
 - **`ReturnWithSignal`** is **`RestoreSavedPtr`** plus **`A = $FFFF`** on the RTI path so callers can use **`ASL`** (carry set) to detect “subroutine finished with signal” vs a plain return.
 - **`SetEntryFar`** lives in opcode slot `[E2]` (between `Die` and invalid `[E3]`) but is script control, not death handling.
-- Extracted ASM uses **preferred `copdef.json` names**; legacy names appear in comments (e.g. `SetEntryContinue` → `SetEntryHere`).
+- Extracted ASM uses **preferred `copdef.json` names**; legacy names appear in comments (e.g. `SetEntryHere` → `SetEntryHere`).
 
 ## Usage statistics
 
@@ -50,7 +50,7 @@ Actor-script “VM” primitives: program counter (`$0A` script cursor, `$0C` ba
 | `E1` | `ReturnWithSignal` | 4 | — | `ReturnWithSignal` | Halt / RTI |
 | `E2` | `SetEntryFar` | 1 | `@Code` | `SetEntryFar` | Continue |
 
-**Preferred names** are from `db-us/copdef.json`. **Legacy aliases:** `SetOnInteract`, `SetEntryContinue`, `SetEntryExit`, `SetEntryDelayExit`, `SetEntryExitNow`, `JumpScript`, `CallScript`, `CallScriptDeferred`, `LoopInit`, `LoopNext`, `RestoreSavedPtrFFFF`, `SetEntryContinueDeferred`.
+**Preferred names** are from `db-us/copdef.json`. **Legacy aliases:** `SetOnInteract`, `SetEntryHere`, `SetEntryExit`, `SetEntryDelayExit`, `SetEntryExitNow`, `JumpScript`, `CallScript`, `CallScriptDeferred`, `LoopInit`, `LoopNext`, `RestoreSavedPtrFFFF`, `SetEntryHereDeferred`.
 
 **Family call-site total:** 3544
 
@@ -123,7 +123,7 @@ Legacy name `SetOnInteract` does not appear in extracted COP lines; only the mod
 #### COP [C1] — `SetEntryHere` (save resume point, continue)
 
 - **Preferred name:** `SetEntryHere`
-- **Aliases:** `SetEntryContinue`
+- **Aliases:** `SetEntryHere`
 - **Handler:** `SetEntryHere` @ [`cop_handlers_script_control.asm:45-53`](../../../extracted/system/engine/cop_handlers_script_control.asm)
 - **Parameters:** (none)
 - **Usage count:** 1295
@@ -159,7 +159,7 @@ COP [SetEntryHere]
 RTL
 ```
 
-Comments and docs often say `SetEntryContinue`; extracted COP text is `SetEntryHere`.
+Comments and docs often say `SetEntryHere`; extracted COP text is `SetEntryHere`.
 
 ##### Parameters & contract
 
@@ -829,7 +829,7 @@ BCS code_0ADE6C
 #### COP [E2] — `SetEntryFar` (arm far entry, continue)
 
 - **Preferred name:** `SetEntryFar`
-- **Aliases:** `SetEntryContinueDeferred`
+- **Aliases:** `SetEntryHereDeferred`
 - **Handler:** `SetEntryFar` @ [`cop_handlers_script_control.asm:113-127`](../../../extracted/system/engine/cop_handlers_script_control.asm)
 - **Parameters:** `@Code`
 - **Usage count:** 1

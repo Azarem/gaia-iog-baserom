@@ -293,7 +293,7 @@ function directly. Cross-bank calls (to banks `$00`, `$03`, etc.) always use `JS
 | A=8-bit (`SEP #$20`) | MMIO register writes, tile collision checks |
 | `RTL` | Public (JSL-callable) entry points |
 | `RTS` | Internal subroutines (JSR-callable) |
-| COP opcodes | Actor coroutines: `COP [SpawnAfter]`, `COP [SetEntryContinue]`, etc. |
+| COP opcodes | Actor coroutines: `COP [SpawnAfter]`, `COP [SetEntryHere]`, etc. |
 
 ### 5.3 COP Actor Entrancy
 

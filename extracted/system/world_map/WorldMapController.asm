@@ -146,7 +146,7 @@ DeferSceneTransition {
 ; 
 ; === PHASE 2: ROUTE LAUNCH (if $0D58 ≠ 0) ===
 ; 
-; Wait 15 frames, spawn HdmaWindowEffect thinker for the iris transition. SetEntryContinue → poll $0D5A: when nonzero the route is active and this actor yields each frame. When $0D5A clears (route done), falls through to Phase 3.
+; Wait 15 frames, spawn HdmaWindowEffect thinker for the iris transition. SetEntryHere → poll $0D5A: when nonzero the route is active and this actor yields each frame. When $0D5A clears (route done), falls through to Phase 3.
 ; 
 ; === PHASE 3: LANDING AND LOCATION NAME ===
 ; 
@@ -287,7 +287,7 @@ ArrivalAndTravelSetup {
 ; 
 ; === SHARED ANIMATION LOOP (loc_03A497) ===
 ; 
-; SetEntryContinue → AnimOneFrame → capture frame counter from $08 into $26 (animation timer). Each tick: recompute position from $24 (low byte = X offset + cameraTargetX → $14, high byte via XBA = Y offset + cameraTargetY → $16).
+; SetEntryHere → AnimOneFrame → capture frame counter from $08 into $26 (animation timer). Each tick: recompute position from $24 (low byte = X offset + cameraTargetX → $14, high byte via XBA = Y offset + cameraTargetY → $16).
 ; 
 ; If route active ($0D5A ≠ 0): decrement $26 timer; when negative, loop back to loc_03A497 for another animation cycle. When timer still positive, yield (RTL).
 ; 
@@ -512,7 +512,7 @@ RouteAnimationEngine {
 ---------------------------------------------
 ; Start-button fast travel — immediately trigger the deferred scene transition.
 ; 
-; Restores $0D6E → sceneNext and $0D6C → $0652 (the values saved by DeferSceneTransition), calls ClearWorldMapState to zero the state block, then yields via SetEntryContinue + RTL. The scene transition takes effect on the next main loop iteration.
+; Restores $0D6E → sceneNext and $0D6C → $0652 (the values saved by DeferSceneTransition), calls ClearWorldMapState to zero the state block, then yields via SetEntryHere + RTL. The scene transition takes effect on the next main loop iteration.
 
 SkipToSceneTransition {
     LDA $0D6E             ; Start skip: restore deferred scene ID ($0D6E) → sceneNext
@@ -550,7 +550,7 @@ RouteSubroutineCall {
 ; 2. Spawn pr_actor_0BCF52 name display for destination area ($0D6E)
 ; 3. LookupMapName → store name into spawned actor
 ; 4. WaitByte #$3B (59 frames) for name display
-; 5. SetEntryContinue descent loop: decrement $00B6 by $10 per frame (player descends toward surface). Check Start button ($1000 in joypadRaw) → SkipToSceneTransition for fast travel.
+; 5. SetEntryHere descent loop: decrement $00B6 by $10 per frame (player descends toward surface). Check Start button ($1000 in joypadRaw) → SkipToSceneTransition for fast travel.
 ; 6. When $00B6 goes negative (landing complete): zero $00B6, SetEntryExit, clear $00DA, set $0800 flag in actor flags, InitGravity(#00, #06, #00), load gfxCacheIdxB = $0406, restore deferred scene ($0D6E → sceneNext, $0D6C → $0652), ClearWorldMapState, play gravity landing via TickGravity loop.
 
 RouteEndHandler {

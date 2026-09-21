@@ -57,7 +57,7 @@ Movable (move with `enemy_clear_reward_table`). High priority — boss reward sc
    For each scene in range: check $0300 flag, skip if collected, else grant stat and set flag
 6. Update $0B22 (HP recovery delta = playerMaxHp − playerHp)
 7. SetWramFlag_Offset100 — mark boss scene rewarded
-8. SetEntryContinue loop
+8. SetEntryHere loop
 ```
 
 #### Variables
@@ -160,7 +160,7 @@ Spawns a short-lived sparkle actor at `#00,#00` with flags `$0302`. Child script
 
 ### HoldPlayerSpriteLoop1 / HoldPlayerSpriteLoop11 (`$C432` / `$C43D`)
 
-Freezes the player on a specific sprite frame during cutscenes. `HoldPlayerSpriteLoop1` checks flag byte `#00`: if set, branches to frame `#11` path; otherwise loops frame `#01`. Both use `SetEntryContinue` + `AnimOnce` infinite loops.
+Freezes the player on a specific sprite frame during cutscenes. `HoldPlayerSpriteLoop1` checks flag byte `#00`: if set, branches to frame `#11` path; otherwise loops frame `#01`. Both use `SetEntryHere` + `AnimOnce` infinite loops.
 
 ---
 
@@ -437,7 +437,7 @@ On spawn: checks `$scene_current` against `enemy_clear_reward_table` to select H
 2. Animate Y rise (7 frames, solid-aware)
 3. MoveToward player + StageForceMoveXY
 4. Wait 11 frames
-5. SpawnMarkedAfter collect_handler_gem (#$2300)
+5. SpawnAfterMarked collect_handler_gem (#$2300)
 6. Loop anim until $28 < 8, then fade
 ```
 

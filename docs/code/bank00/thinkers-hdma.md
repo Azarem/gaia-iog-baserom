@@ -190,7 +190,7 @@ None.
 
 #### Purpose
 
-Timed transition HDMA for Comet Lair. Phase 1: standard sine on channel `#0D` at `$7E8400`. When flag `#01` is set, transitions to phase 2 (`CometLairHdmaCTimedBurst`): reloads with amplitude 4, counts down `#$0070` (112) frames from `$7F0008,X`, then calls `SetEntryContinue` and stops — producing a gradual dampening of the wave effect during a story beat.
+Timed transition HDMA for Comet Lair. Phase 1: standard sine on channel `#0D` at `$7E8400`. When flag `#01` is set, transitions to phase 2 (`CometLairHdmaCTimedBurst`): reloads with amplitude 4, counts down `#$0070` (112) frames from `$7F0008,X`, then calls `SetEntryHere` and stops — producing a gradual dampening of the wave effect during a story beat.
 
 #### Algorithm
 
@@ -198,7 +198,7 @@ Timed transition HDMA for Comet Lair. Phase 1: standard sine on channel `#0D` at
 Phase 1: sine wave on #0D, wait for flag #01
 Phase 2: reload amplitude 4, countdown 112 frames
          each frame: TickSineHdma #05 → BindSineHdma
-         at zero: SetEntryContinue (thinker goes idle)
+         at zero: SetEntryHere (thinker goes idle)
 ```
 
 #### Scene Usage
@@ -311,7 +311,7 @@ Builds a custom HDMA table at `$7E7000` rather than using the sine generator. Wr
 build 16×3-byte HDMA entries at $7E7000 → target $2171
 zero 16 words at $7E7100
 QueueHdma ($7E7000, #21)
-SetEntryExit → SetFlagByte #FF → SetEntryContinue
+SetEntryExit → SetFlagByte #FF → SetEntryHere
 QueueHdma again
 if flag #FF clear → rebuild from top
 ```

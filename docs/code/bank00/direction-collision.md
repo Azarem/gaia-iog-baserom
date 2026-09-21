@@ -230,7 +230,7 @@ Same as `MarkCollisionRect`, plus:
 | Direction | Symbol | Notes |
 |-----------|--------|-------|
 | Called by | COP `$0C` `ClearSolidHere` | `$00=0` partial clear at actor position |
-| Called by | COP `$11` `ClearAllHere` | Sets `$00≠0` for full-byte clear |
+| Called by | COP `$11` `ClearCollisionHere` | Sets `$00≠0` for full-byte clear |
 | Calls | `ClearCollisionRectFull` | When full clear requested |
 | Calls | `TileCoordsToMapIndex` | Shared with mark routine |
 
@@ -261,7 +261,7 @@ Row advancement matches `ClearCollisionRect`'s inline path (`+$10` / `$map_bound
 | Direction | Symbol | Notes |
 |-----------|--------|-------|
 | Called by | `ClearCollisionRect` | When `$00 ≠ 0` at entry |
-| Called by | COP `$11` `ClearAllHere` | Indirectly via `ClearCollisionRect` |
+| Called by | COP `$11` `ClearCollisionHere` | Indirectly via `ClearCollisionRect` |
 
 ---
 

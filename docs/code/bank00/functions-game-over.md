@@ -97,7 +97,7 @@ The sequence saves and restores scene persistence data from `$0AF0`–`$0AF8` (l
      - $0AF6–$0AF8: party / form state
 7. Trigger scene reload via scene script engine
 8. COP [SpawnAfter] @GameOverCutsceneSprites ($D718)
-9. RestoreSavedPtr / SetEntryContinue for wake-up phase
+9. RestoreSavedPtr / SetEntryHere for wake-up phase
 ```
 
 ### Variables
@@ -168,7 +168,7 @@ Uses `COP [SpawnAfter]` to create the child sprites relative to the player's pos
 5. Wait frames
 6. COP [SpawnAfter] child sprite 3 — offset (0, -16), marked flag
 7. Animate children (COP [AnimOnce] each)
-8. COP [Die] or SetEntryContinue for message phase
+8. COP [Die] or SetEntryHere for message phase
 ```
 
 ### Variables

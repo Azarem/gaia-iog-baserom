@@ -232,8 +232,8 @@ Spawned at runtime (~12 sites including `field_reveal_object`, `DarkGemDropSyste
 Heavy push for statues and blocks. Requires **≥32 pixel** (`$0020`) offset between player and object. On successful push:
 
 1. `BranchIfSolidOffset` — verify destination clear
-2. `ClearLowHere` at old position, move anchor ±16 px
-3. `SolidHighHere` at new position
+2. `ClearSolidHere` at old position, move anchor ±16 px
+3. `MarkSolidHere` at new position
 4. Sound `$2C` on channel 1
 5. 16-frame animated slide (`LoopInit #$10`)
 6. Toggle `$0012` bit `$0010` on linked actor (push-in-progress flag)
@@ -307,7 +307,7 @@ Child script (`SmoothFollowChildTick`) computes delta-X and delta-Y to target (t
 ```
 Parent:
   1. STZ $002A
-  2. SpawnMarkedAfter @SmoothFollowChildTick (#$2000)
+  2. SpawnAfterMarked @SmoothFollowChildTick (#$2000)
   3. Copy $24 → child $0024
   4. AnimOnce loop until $10 bit $4000
   5. Die
@@ -319,7 +319,7 @@ Child:
   4. ComputeFollowAngle(Alt) + ComputeFollowStep
   5. Apply $0000/$0002 step to $14/$16
   6. Sync position back to parent actor ($0004 link)
-  7. RTL (re-entered each frame via SetEntryContinue)
+  7. RTL (re-entered each frame via SetEntryHere)
 ```
 
 #### Variables
@@ -408,7 +408,7 @@ Sets `$06C8` with `$8000` OR — the high bit marks sub-pixel overflow pending i
 
 Multiply/divide helper for sub-pixel scroll values. Uses `$@MulDivide` from `hardware_math` (bank `$02`). For X: if `$14` bit `$8000` (negative sub-pixel), sign-extends and adds to `$06C8`; otherwise if high byte non-zero, multiplies by `$06BE` (target scroll). Y path at `$E9CA` mirrors for `$16`/`$06C4`/`$06C2`.
 
-`SetEntryContinue` + `PEA $&EffectUpdateCameraDeltaY-1` structure allows X and Y passes in one actor tick.
+`SetEntryHere` + `PEA $&EffectUpdateCameraDeltaY-1` structure allows X and Y passes in one actor tick.
 
 #### Variables
 
@@ -433,7 +433,7 @@ Multiply/divide helper for sub-pixel scroll values. Uses `$@MulDivide` from `har
 
 #### Description
 
-Integrates velocity each frame and clamps to effect bounds. Mirrors `effect_velocity_init` coordinate conversion, then in the `SetEntryContinue` loop:
+Integrates velocity each frame and clamps to effect bounds. Mirrors `effect_velocity_init` coordinate conversion, then in the `SetEntryHere` loop:
 
 - X: add `$2C` + `$06E4` to `$14`; clamp to `[$0000, $effect_bounds_x]`
 - Y: add `$2E` + `$06E6` to `$16`; clamp to `[$0000, $effect_bounds_y − 1]`

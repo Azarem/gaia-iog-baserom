@@ -92,7 +92,7 @@ effect_velocity_init [
 
 ; Per-frame subpixel scroll refinement actor spawned alongside effect_position_update.
 ; 
-; On entry calls SetEntryContinue and accumulates fractional scroll: when $14 has a nonzero high byte it scales through hardware_math.MulDivide against cameraTargetX into forcedScrollOverride; otherwise sign-extends and adds the low byte directly. Used in Sky Garden viper lair and mystic-statue sequences for smooth cinematic pans.
+; On entry calls SetEntryHere and accumulates fractional scroll: when $14 has a nonzero high byte it scales through hardware_math.MulDivide against cameraTargetX into forcedScrollOverride; otherwise sign-extends and adds the low byte directly. Used in Sky Garden viper lair and mystic-statue sequences for smooth cinematic pans.
 
 effect_subpixel_math {
     COP [SetEntryHere]

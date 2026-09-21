@@ -615,7 +615,7 @@ falling animation and spawns star particles streaming past.
 4. Clears player wait timer (`$0008,Y = 0`)
 5. Sets `playerFlags.$0800` (cutscene lock)
 
-**Main loop (`SetEntryContinue`):**
+**Main loop (`SetEntryHere`):**
 - RNG byte AND 7 → `SwitchCase` with 8 entries mapping to 4 star types
   (each type has 2 slots = 25% weight):
   - `code_0CEE0E` → spawns `code_0CEE3E` (sprite `#00`)
@@ -885,7 +885,7 @@ Triggered when Phase 1 HP depletes (death callback `code_0CEF88`):
 - Two states controlled by boss:
   - **Eye closed** (`loc_0CF4FF`): clears `$2000` on both children, loops frame `#00`
   - **Eye open** (`loc_0CF51E`): frame `#01`, sets `$2000` on both children (hidden),
-    frame `#02`, `SetEntryContinue` loop
+    frame `#02`, `SetEntryHere` loop
 
 #### Final Death Sequence (`code_0CF154`)
 

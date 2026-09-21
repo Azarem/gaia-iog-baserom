@@ -148,7 +148,7 @@ Parent thinker for bundle `#03` that spawns a child thinker when flag `#01` is s
 ```
 parent (loc_00B600):
   PaletteStart #03
-  SetEntryContinue
+  SetEntryHere
   if flag #01 == 1 → spawn child @PaletteParentChildWaveLoop
   RTL
 

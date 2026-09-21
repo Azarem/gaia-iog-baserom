@@ -240,7 +240,7 @@ East-facing stair trigger. Detects player approaching from the east (walking eas
 All four climb functions share the same pattern:
 
 1. Set actor flags: `TSB $10` with `$2200` (invisible + priority), `TRB $10` with `$0008`
-2. `COP [SetEntryContinue]` — allow multi-frame execution
+2. `COP [SetEntryHere]` — allow multi-frame execution
 3. Move position 4 pixels per frame in the climb direction
 4. Decrement `$7F0020,X` (frame counter); if non-zero → `RTL` (continue next frame)
 5. At zero: clear `$2000` from `$10`, stage a sprite frame, `COP [AnimOnce]`, call `UnlockPlayerAfterClimb`
