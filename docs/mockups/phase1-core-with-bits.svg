@@ -1,0 +1,131 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 448" width="512" height="448">
+  <defs>
+    <radialGradient id="cometBg" cx="50%" cy="60%" r="65%">
+      <stop offset="0%" stop-color="#3a2255"/>
+      <stop offset="50%" stop-color="#1a0a33"/>
+      <stop offset="100%" stop-color="#050011"/>
+    </radialGradient>
+    <radialGradient id="coreGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#ff6644" stop-opacity="0.8"/>
+      <stop offset="60%" stop-color="#cc2200" stop-opacity="0.4"/>
+      <stop offset="100%" stop-color="#880000" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="bitGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#44aaff" stop-opacity="0.6"/>
+      <stop offset="100%" stop-color="#2266cc" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="3" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <filter id="softGlow">
+      <feGaussianBlur stdDeviation="6" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <linearGradient id="cometSurface" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#4a3060"/>
+      <stop offset="40%" stop-color="#6b4488"/>
+      <stop offset="100%" stop-color="#8855aa"/>
+    </linearGradient>
+    <pattern id="stars" width="64" height="64" patternUnits="userSpaceOnUse">
+      <rect width="64" height="64" fill="none"/>
+      <circle cx="5" cy="12" r="0.8" fill="#ffffff" opacity="0.7"/>
+      <circle cx="23" cy="4" r="0.5" fill="#ffffff" opacity="0.5"/>
+      <circle cx="41" cy="18" r="0.6" fill="#ffffff" opacity="0.6"/>
+      <circle cx="55" cy="8" r="0.4" fill="#ffffff" opacity="0.4"/>
+      <circle cx="12" cy="35" r="0.7" fill="#ffffff" opacity="0.8"/>
+      <circle cx="33" cy="42" r="0.5" fill="#ffffff" opacity="0.5"/>
+      <circle cx="48" cy="30" r="0.6" fill="#ffffff" opacity="0.6"/>
+      <circle cx="60" cy="50" r="0.4" fill="#ffffff" opacity="0.3"/>
+      <circle cx="8" cy="55" r="0.5" fill="#ffffff" opacity="0.5"/>
+      <circle cx="28" cy="60" r="0.7" fill="#ffffff" opacity="0.6"/>
+      <circle cx="50" cy="58" r="0.5" fill="#ffffff" opacity="0.4"/>
+    </pattern>
+  </defs>
+
+  <!-- Background: space -->
+  <rect width="512" height="448" fill="url(#cometBg)"/>
+  <rect width="512" height="448" fill="url(#stars)"/>
+
+  <!-- Comet surface (bottom) -->
+  <path d="M0 340 Q128 310 256 320 Q384 330 512 315 L512 448 L0 448 Z" fill="url(#cometSurface)" opacity="0.9"/>
+  <path d="M0 355 Q128 340 256 345 Q384 350 512 340 L512 448 L0 448 Z" fill="#7b55a0" opacity="0.5"/>
+
+  <!-- Title -->
+  <text x="256" y="28" text-anchor="middle" font-family="monospace" font-size="14" fill="#ffcc66" font-weight="bold">PHASE 1 — Core with Bits &amp; Launchers</text>
+
+  <!-- Core (center, large boss body) -->
+  <ellipse cx="256" cy="160" rx="48" ry="40" fill="#882222" stroke="#cc4444" stroke-width="2" filter="url(#glow)"/>
+  <ellipse cx="256" cy="160" rx="80" ry="65" fill="url(#coreGlow)"/>
+  <!-- Core eye -->
+  <ellipse cx="256" cy="152" rx="18" ry="14" fill="#220000" stroke="#ff4422" stroke-width="1.5"/>
+  <ellipse cx="256" cy="150" rx="8" ry="10" fill="#ff4422" opacity="0.8"/>
+  <circle cx="256" cy="148" r="3" fill="#ffaa66"/>
+  <!-- Core detail -->
+  <ellipse cx="244" cy="172" rx="6" ry="4" fill="#aa3333" opacity="0.7"/>
+  <ellipse cx="268" cy="172" rx="6" ry="4" fill="#aa3333" opacity="0.7"/>
+  <text x="256" y="210" text-anchor="middle" font-family="monospace" font-size="10" fill="#ff8866">CORE (idle, invulnerable)</text>
+
+  <!-- Left Bit (offset $C8,$33 from core) -->
+  <ellipse cx="96" cy="100" rx="28" ry="24" fill="url(#bitGlow)"/>
+  <rect x="78" y="82" width="36" height="36" rx="6" fill="#224488" stroke="#4488cc" stroke-width="1.5" filter="url(#glow)"/>
+  <circle cx="90" cy="95" r="4" fill="#66ccff"/>
+  <circle cx="102" cy="95" r="4" fill="#66ccff"/>
+  <line x1="86" y1="106" x2="106" y2="106" stroke="#44aaff" stroke-width="2"/>
+  <text x="96" y="132" text-anchor="middle" font-family="monospace" font-size="9" fill="#88bbff">LEFT BIT</text>
+
+  <!-- Right Bit (offset $38,$33 from core, H-mirrored) -->
+  <ellipse cx="416" cy="100" rx="28" ry="24" fill="url(#bitGlow)"/>
+  <rect x="398" y="82" width="36" height="36" rx="6" fill="#224488" stroke="#4488cc" stroke-width="1.5" filter="url(#glow)"/>
+  <circle cx="410" cy="95" r="4" fill="#66ccff"/>
+  <circle cx="422" cy="95" r="4" fill="#66ccff"/>
+  <line x1="406" y1="106" x2="426" y2="106" stroke="#44aaff" stroke-width="2"/>
+  <text x="416" y="132" text-anchor="middle" font-family="monospace" font-size="9" fill="#88bbff">RIGHT BIT</text>
+
+  <!-- Left Launcher (offset $BF,$0B) -->
+  <rect x="52" y="180" width="24" height="32" rx="4" fill="#553388" stroke="#8855cc" stroke-width="1.5"/>
+  <rect x="56" y="176" width="16" height="8" rx="2" fill="#7744aa"/>
+  <circle cx="64" cy="190" r="5" fill="#aa66dd" opacity="0.6"/>
+  <text x="64" y="226" text-anchor="middle" font-family="monospace" font-size="8" fill="#aa88dd">LAUNCHER L</text>
+
+  <!-- Right Launcher (offset $41,$0B, H-mirrored) -->
+  <rect x="436" y="180" width="24" height="32" rx="4" fill="#553388" stroke="#8855cc" stroke-width="1.5"/>
+  <rect x="440" y="176" width="16" height="8" rx="2" fill="#7744aa"/>
+  <circle cx="448" cy="190" r="5" fill="#aa66dd" opacity="0.6"/>
+  <text x="448" y="226" text-anchor="middle" font-family="monospace" font-size="8" fill="#aa88dd">LAUNCHER R</text>
+
+  <!-- Bubbles in flight (from launchers) -->
+  <circle cx="110" cy="240" r="8" fill="#aa44ee" opacity="0.5" filter="url(#glow)"/>
+  <circle cx="110" cy="240" r="5" fill="#cc66ff" opacity="0.7"/>
+  <circle cx="145" cy="265" r="7" fill="#aa44ee" opacity="0.4" filter="url(#glow)"/>
+  <circle cx="145" cy="265" r="4" fill="#cc66ff" opacity="0.6"/>
+  <circle cx="390" cy="250" r="8" fill="#aa44ee" opacity="0.5" filter="url(#glow)"/>
+  <circle cx="390" cy="250" r="5" fill="#cc66ff" opacity="0.7"/>
+
+  <!-- Floor beam (from below) -->
+  <rect x="310" y="320" width="4" height="40" fill="#ffdd44" opacity="0.6"/>
+  <rect x="308" y="316" width="8" height="8" rx="2" fill="#ffee88" opacity="0.8" filter="url(#glow)"/>
+  <text x="314" y="375" text-anchor="middle" font-family="monospace" font-size="7" fill="#ffdd88">BEAM</text>
+
+  <!-- Player (Will) -->
+  <g transform="translate(240, 290)">
+    <!-- Shadow -->
+    <ellipse cx="0" cy="20" rx="10" ry="4" fill="#000000" opacity="0.4"/>
+    <!-- Body -->
+    <rect x="-6" y="-4" width="12" height="18" rx="2" fill="#4466aa"/>
+    <!-- Head -->
+    <circle cx="0" cy="-10" r="7" fill="#ffcc99"/>
+    <!-- Hair -->
+    <path d="M-7 -14 Q0 -22 7 -14" fill="#5533aa"/>
+    <rect x="-8" y="-16" width="16" height="5" rx="2" fill="#5533aa"/>
+    <!-- Sword -->
+    <line x1="8" y1="-2" x2="22" y2="-12" stroke="#ccddff" stroke-width="2.5"/>
+    <line x1="22" y1="-12" x2="24" y2="-14" stroke="#ffffff" stroke-width="1.5"/>
+  </g>
+  <text x="240" y="325" text-anchor="middle" font-family="monospace" font-size="9" fill="#88aadd">PLAYER</text>
+
+  <!-- Info panel -->
+  <rect x="8" y="400" width="496" height="40" rx="4" fill="#000000" opacity="0.7"/>
+  <text x="256" y="416" text-anchor="middle" font-family="monospace" font-size="10" fill="#cccccc">Core spawns 7 children: Brain, 2 Bits, 2 Launchers, Beam Spawner, Palette Cyclers</text>
+  <text x="256" y="430" text-anchor="middle" font-family="monospace" font-size="10" fill="#888888">Bits attack on Core's timer ($021C frames). Kill both Bits to advance to Phase 2.</text>
+</svg>

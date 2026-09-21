@@ -1,0 +1,153 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 448" width="512" height="448">
+  <defs>
+    <radialGradient id="whiteBurst" cx="50%" cy="45%" r="50%">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.95"/>
+      <stop offset="30%" stop-color="#ffddbb" stop-opacity="0.7"/>
+      <stop offset="60%" stop-color="#ff8844" stop-opacity="0.3"/>
+      <stop offset="100%" stop-color="#000000" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="irisReveal" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#110033" stop-opacity="0"/>
+      <stop offset="60%" stop-color="#110033" stop-opacity="0"/>
+      <stop offset="75%" stop-color="#000011" stop-opacity="0.8"/>
+      <stop offset="100%" stop-color="#000000" stop-opacity="1"/>
+    </radialGradient>
+    <filter id="bloom">
+      <feGaussianBlur stdDeviation="12" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <filter id="glitch">
+      <feGaussianBlur stdDeviation="1.5"/>
+    </filter>
+    <linearGradient id="scanline" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.15"/>
+      <stop offset="50%" stop-color="#ffffff" stop-opacity="0"/>
+      <stop offset="100%" stop-color="#ffffff" stop-opacity="0.15"/>
+    </linearGradient>
+    <pattern id="m7emerge" width="40" height="40" patternUnits="userSpaceOnUse" patternTransform="skewX(-8) scale(1, 0.5)">
+      <rect width="40" height="40" fill="#0a0422"/>
+      <rect x="0" y="0" width="20" height="20" fill="#150a33" opacity="0.8"/>
+      <rect x="20" y="20" width="20" height="20" fill="#150a33" opacity="0.8"/>
+    </pattern>
+  </defs>
+
+  <!-- Title -->
+  <text x="256" y="24" text-anchor="middle" font-family="monospace" font-size="13" fill="#ffddaa" font-weight="bold">P2 DEATH TRANSITION — VRAM DMA + Mode 7 Reveal</text>
+
+  <!-- ====== FRAME 1: Core P2 Death Flash ====== -->
+  <rect x="10" y="40" width="236" height="180" rx="4" fill="#000000" stroke="#444444" stroke-width="1"/>
+  <text x="128" y="56" text-anchor="middle" font-family="monospace" font-size="9" fill="#ffaa66">STEP 1: Core Death Flash</text>
+
+  <!-- White explosion over dark bg -->
+  <rect x="12" y="60" width="232" height="155" fill="#080016"/>
+  <ellipse cx="128" cy="120" rx="100" ry="70" fill="url(#whiteBurst)" filter="url(#bloom)"/>
+  <!-- Core silhouette dissolving -->
+  <ellipse cx="128" cy="115" rx="30" ry="25" fill="#ffffff" opacity="0.7" filter="url(#glitch)"/>
+  <ellipse cx="128" cy="115" rx="24" ry="20" fill="#ffddaa" opacity="0.5"/>
+  <!-- Particles flying out -->
+  <circle cx="90" cy="90" r="3" fill="#ffcc44" opacity="0.8"/>
+  <circle cx="165" cy="85" r="2.5" fill="#ffaa22" opacity="0.7"/>
+  <circle cx="80" cy="140" r="2" fill="#ff8800" opacity="0.6"/>
+  <circle cx="170" cy="145" r="3" fill="#ffcc44" opacity="0.7"/>
+  <circle cx="105" cy="75" r="2" fill="#ffffff" opacity="0.9"/>
+  <circle cx="155" cy="155" r="2.5" fill="#ffaa22" opacity="0.6"/>
+
+  <text x="128" y="205" text-anchor="middle" font-family="monospace" font-size="7" fill="#666666">palette_flash_19 + sprite $04</text>
+
+  <!-- ====== FRAME 2: VRAM DMA (screen locked) ====== -->
+  <rect x="266" y="40" width="236" height="180" rx="4" fill="#000000" stroke="#444444" stroke-width="1"/>
+  <text x="384" y="56" text-anchor="middle" font-family="monospace" font-size="9" fill="#44aaff">STEP 2: VRAM DMA Transfer</text>
+
+  <rect x="268" y="60" width="232" height="155" fill="#020008"/>
+  <!-- Scanline-style loading bars representing DMA -->
+  <g opacity="0.8">
+    <rect x="280" y="80" width="208" height="3" fill="#2244aa" opacity="0.5"/>
+    <rect x="280" y="80" width="160" height="3" fill="#4488ff"/>
+    <text x="285" y="78" font-family="monospace" font-size="7" fill="#4488ff">$7EE000 → VRAM $5000</text>
+
+    <rect x="280" y="100" width="208" height="3" fill="#2244aa" opacity="0.5"/>
+    <rect x="280" y="100" width="120" height="3" fill="#4488ff"/>
+    <text x="285" y="98" font-family="monospace" font-size="7" fill="#4488ff">$7EE800 → VRAM $5400</text>
+
+    <rect x="280" y="120" width="208" height="3" fill="#2244aa" opacity="0.5"/>
+    <rect x="280" y="120" width="80" height="3" fill="#4488ff"/>
+    <text x="285" y="118" font-family="monospace" font-size="7" fill="#4488ff">$7EF000 → VRAM $5800</text>
+
+    <rect x="280" y="140" width="208" height="3" fill="#2244aa" opacity="0.5"/>
+    <rect x="280" y="140" width="40" height="3" fill="#4488ff"/>
+    <text x="285" y="138" font-family="monospace" font-size="7" fill="#4488ff">$7EF800 → VRAM $5C00</text>
+  </g>
+
+  <!-- BGMODE switch indicator -->
+  <rect x="290" y="160" width="180" height="20" rx="3" fill="#002244" stroke="#2266aa" stroke-width="1"/>
+  <text x="380" y="174" text-anchor="middle" font-family="monospace" font-size="8" fill="#44aaff">BGMODE: $09 → $07 (Mode 7)</text>
+
+  <!-- M7 thinker spawn -->
+  <rect x="290" y="185" width="180" height="14" rx="3" fill="#003322" stroke="#22aa66" stroke-width="1"/>
+  <text x="380" y="196" text-anchor="middle" font-family="monospace" font-size="8" fill="#44ffaa">Spawn Mode7PerspectiveUpdate</text>
+
+  <text x="384" y="208" text-anchor="middle" font-family="monospace" font-size="7" fill="#666666">Joypad locked during transfer</text>
+
+  <!-- ====== FRAME 3: Iris reveal of Mode 7 arena ====== -->
+  <rect x="10" y="234" width="236" height="200" rx="4" fill="#000000" stroke="#444444" stroke-width="1"/>
+  <text x="128" y="250" text-anchor="middle" font-family="monospace" font-size="9" fill="#aa66ff">STEP 3: Iris Circle Reveal</text>
+
+  <!-- Mode 7 floor peeking through iris -->
+  <rect x="12" y="256" width="232" height="172" fill="#020010"/>
+  <!-- M7 floor -->
+  <polygon points="48,410 208,410 230,428 26,428" fill="url(#m7emerge)" opacity="0.7"/>
+  <polygon points="68,390 188,390 208,410 48,410" fill="url(#m7emerge)" opacity="0.6"/>
+  <polygon points="85,374 171,374 188,390 68,390" fill="url(#m7emerge)" opacity="0.5"/>
+  <polygon points="98,362 158,362 171,374 85,374" fill="url(#m7emerge)" opacity="0.4"/>
+  <polygon points="108,352 148,352 158,362 98,362" fill="url(#m7emerge)" opacity="0.3"/>
+
+  <!-- Iris circle mask effect -->
+  <ellipse cx="128" cy="360" rx="80" ry="65" fill="url(#irisReveal)"/>
+  <ellipse cx="128" cy="360" rx="120" ry="100" fill="none" stroke="#000000" stroke-width="60" opacity="0.85"/>
+
+  <!-- IrisCircleEffect label -->
+  <path d="M80 330 A55 45 0 0 1 176 330" stroke="#aa66ff" stroke-width="1" fill="none" stroke-dasharray="4 3" opacity="0.6"/>
+  <text x="128" y="310" text-anchor="middle" font-family="monospace" font-size="7" fill="#aa66ff">IrisCircleEffect thinker</text>
+
+  <text x="128" y="424" text-anchor="middle" font-family="monospace" font-size="7" fill="#666666">HDMA window circle opens to reveal arena</text>
+
+  <!-- ====== FRAME 4: Final Core descends ====== -->
+  <rect x="266" y="234" width="236" height="200" rx="4" fill="#000000" stroke="#444444" stroke-width="1"/>
+  <text x="384" y="250" text-anchor="middle" font-family="monospace" font-size="9" fill="#22ffaa">STEP 4: Final Core Descends</text>
+
+  <rect x="268" y="256" width="232" height="172" fill="#060018"/>
+  <!-- Full M7 floor revealed -->
+  <polygon points="280,408 486,408 500,428 268,428" fill="url(#m7emerge)" opacity="0.8"/>
+  <polygon points="296,386 470,386 486,408 280,408" fill="url(#m7emerge)" opacity="0.7"/>
+  <polygon points="312,368 454,368 470,386 296,386" fill="url(#m7emerge)" opacity="0.6"/>
+  <polygon points="326,354 440,354 454,368 312,368" fill="url(#m7emerge)" opacity="0.5"/>
+  <polygon points="338,343 428,343 440,354 326,354" fill="url(#m7emerge)" opacity="0.4"/>
+  <polygon points="348,335 418,335 428,343 338,343" fill="url(#m7emerge)" opacity="0.3"/>
+
+  <!-- Vanishing lines -->
+  <line x1="384" y1="330" x2="268" y2="428" stroke="#332255" stroke-width="0.5" opacity="0.3"/>
+  <line x1="384" y1="330" x2="384" y2="428" stroke="#332255" stroke-width="0.5" opacity="0.3"/>
+  <line x1="384" y1="330" x2="500" y2="428" stroke="#332255" stroke-width="0.5" opacity="0.3"/>
+
+  <!-- Final Core descending from top with zoom effect -->
+  <line x1="384" y1="260" x2="384" y2="290" stroke="#22ffaa" stroke-width="1" stroke-dasharray="3 3" opacity="0.3"/>
+  <ellipse cx="384" cy="300" rx="28" ry="22" fill="#00aa55" opacity="0.15" filter="url(#bloom)"/>
+  <ellipse cx="384" cy="300" rx="18" ry="14" fill="#115533" stroke="#22ffaa" stroke-width="1.5"/>
+  <circle cx="380" cy="297" r="3" fill="#22ffaa" opacity="0.6"/>
+  <circle cx="388" cy="297" r="3" fill="#22ffaa" opacity="0.6"/>
+
+  <!-- Scale zoom indicator -->
+  <text x="430" y="280" font-family="monospace" font-size="7" fill="#22aa66" opacity="0.7">$B8: $0040</text>
+  <text x="430" y="290" font-family="monospace" font-size="7" fill="#22aa66" opacity="0.7">→ $0300</text>
+  <text x="430" y="300" font-family="monospace" font-size="7" fill="#555555">(zoom in</text>
+  <text x="430" y="310" font-family="monospace" font-size="7" fill="#555555"> 120 frames)</text>
+
+  <!-- Player waiting -->
+  <g transform="translate(340, 390)">
+    <rect x="-5" y="-3" width="10" height="14" rx="2" fill="#4466aa"/>
+    <circle cx="0" cy="-8" r="5" fill="#ffcc99"/>
+    <rect x="-6" y="-12" width="12" height="4" rx="2" fill="#5533aa"/>
+  </g>
+
+  <text x="384" y="420" text-anchor="middle" font-family="monospace" font-size="7" fill="#666666">M7 scale: extreme zoom-out → combat scale</text>
+</svg>

@@ -1,0 +1,156 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 520" width="640" height="520">
+  <defs>
+    <linearGradient id="goodBar" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#22aa66"/>
+      <stop offset="100%" stop-color="#44dd88"/>
+    </linearGradient>
+    <linearGradient id="warnBar" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#cc8800"/>
+      <stop offset="100%" stop-color="#ffaa22"/>
+    </linearGradient>
+    <linearGradient id="hotBar" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#cc2222"/>
+      <stop offset="100%" stop-color="#ff4444"/>
+    </linearGradient>
+    <linearGradient id="spriteBar" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#2266cc"/>
+      <stop offset="100%" stop-color="#4488ff"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="640" height="520" rx="8" fill="#0c0c16"/>
+
+  <!-- Title -->
+  <text x="320" y="30" text-anchor="middle" font-family="monospace" font-size="16" fill="#ffffff" font-weight="bold">Actor &amp; Sprite Budget by Phase</text>
+  <text x="320" y="48" text-anchor="middle" font-family="monospace" font-size="10" fill="#888888">SNES Limits: 16 actor slots, 128 OAM entries, 32 sprites/scanline</text>
+
+  <!-- ====== PHASE 1 ====== -->
+  <text x="20" y="80" font-family="monospace" font-size="13" fill="#ff8866" font-weight="bold">Phase 1 — Core + Bits</text>
+
+  <!-- Actor count bar -->
+  <text x="20" y="100" font-family="monospace" font-size="9" fill="#aaaaaa">Actors:</text>
+  <rect x="100" y="90" width="400" height="14" rx="2" fill="#1a1a2e"/>
+  <!-- 12/16 actors -->
+  <rect x="100" y="90" width="300" height="14" rx="2" fill="url(#warnBar)"/>
+  <text x="505" y="101" font-family="monospace" font-size="9" fill="#ffaa44">12 / 16</text>
+
+  <!-- Legend for actors -->
+  <g transform="translate(100, 110)">
+    <rect x="0" y="0" width="38" height="8" fill="#cc4422"/> <text x="42" y="8" font-family="monospace" font-size="7" fill="#cc8866">Core(1)</text>
+    <rect x="80" y="0" width="50" height="8" fill="#4488cc"/> <text x="134" y="8" font-family="monospace" font-size="7" fill="#6699cc">Bits(2)</text>
+    <rect x="175" y="0" width="50" height="8" fill="#8855cc"/> <text x="229" y="8" font-family="monospace" font-size="7" fill="#aa88dd">Launchers(2)</text>
+    <rect x="290" y="0" width="38" height="8" fill="#aa44ee"/> <text x="332" y="8" font-family="monospace" font-size="7" fill="#cc66ff">Bubbles(2)</text>
+    <rect x="385" y="0" width="25" height="8" fill="#44aa88"/> <text x="414" y="8" font-family="monospace" font-size="7" fill="#66cc99">Brain+Beam+Pal(5)</text>
+  </g>
+
+  <!-- Sprite count bar -->
+  <text x="20" y="138" font-family="monospace" font-size="9" fill="#aaaaaa">OAM sprites:</text>
+  <rect x="100" y="128" width="400" height="14" rx="2" fill="#1a1a2e"/>
+  <!-- ~45/128 sprites -->
+  <rect x="100" y="128" width="140" height="14" rx="2" fill="url(#spriteBar)"/>
+  <text x="505" y="139" font-family="monospace" font-size="9" fill="#4488ff">~45 / 128</text>
+
+  <!-- Scanline concern -->
+  <text x="20" y="156" font-family="monospace" font-size="9" fill="#aaaaaa">Scanline peak:</text>
+  <rect x="100" y="146" width="400" height="14" rx="2" fill="#1a1a2e"/>
+  <!-- ~22/32 -->
+  <rect x="100" y="146" width="275" height="14" rx="2" fill="url(#warnBar)"/>
+  <text x="505" y="157" font-family="monospace" font-size="9" fill="#ffaa44">~22 / 32</text>
+  <text x="380" y="157" font-family="monospace" font-size="7" fill="#000000" font-weight="bold">CAUTION</text>
+
+  <!-- ====== PHASE 2 ====== -->
+  <text x="20" y="190" font-family="monospace" font-size="13" fill="#ff4422" font-weight="bold">Phase 2 — Core Vulnerable + Nukes</text>
+
+  <!-- Actor count -->
+  <text x="20" y="210" font-family="monospace" font-size="9" fill="#aaaaaa">Actors:</text>
+  <rect x="100" y="200" width="400" height="14" rx="2" fill="#1a1a2e"/>
+  <!-- 14/16 at peak (nuke+pieces) -->
+  <rect x="100" y="200" width="350" height="14" rx="2" fill="url(#hotBar)"/>
+  <text x="505" y="211" font-family="monospace" font-size="9" fill="#ff4444">14 / 16 (peak)</text>
+
+  <g transform="translate(100, 220)">
+    <rect x="0" y="0" width="38" height="8" fill="#cc4422"/> <text x="42" y="8" font-family="monospace" font-size="7" fill="#cc8866">Core(1)</text>
+    <rect x="80" y="0" width="50" height="8" fill="#334455"/> <text x="134" y="8" font-family="monospace" font-size="7" fill="#556677">DeadBits(2)</text>
+    <rect x="190" y="0" width="50" height="8" fill="#8855cc"/> <text x="244" y="8" font-family="monospace" font-size="7" fill="#aa88dd">Launchers(2)</text>
+    <rect x="300" y="0" width="38" height="8" fill="#ff8800"/> <text x="342" y="8" font-family="monospace" font-size="7" fill="#ffaa44">Nuke+Pieces(4)</text>
+    <rect x="408" y="0" width="30" height="8" fill="#44aa88"/> <text x="442" y="8" font-family="monospace" font-size="7" fill="#66cc99">Other(5)</text>
+  </g>
+
+  <!-- Sprite count -->
+  <text x="20" y="248" font-family="monospace" font-size="9" fill="#aaaaaa">OAM sprites:</text>
+  <rect x="100" y="238" width="400" height="14" rx="2" fill="#1a1a2e"/>
+  <!-- ~55/128 -->
+  <rect x="100" y="238" width="172" height="14" rx="2" fill="url(#spriteBar)"/>
+  <text x="505" y="249" font-family="monospace" font-size="9" fill="#4488ff">~55 / 128</text>
+
+  <!-- Scanline concern -->
+  <text x="20" y="266" font-family="monospace" font-size="9" fill="#aaaaaa">Scanline peak:</text>
+  <rect x="100" y="256" width="400" height="14" rx="2" fill="#1a1a2e"/>
+  <!-- ~28/32 -->
+  <rect x="100" y="256" width="350" height="14" rx="2" fill="url(#hotBar)"/>
+  <text x="505" y="267" font-family="monospace" font-size="9" fill="#ff4444">~28 / 32</text>
+  <text x="455" y="267" font-family="monospace" font-size="7" fill="#000000" font-weight="bold">HIGH</text>
+
+  <!-- ====== PHASE 3 (Proposed Mode 7) ====== -->
+  <text x="20" y="300" font-family="monospace" font-size="13" fill="#22ffaa" font-weight="bold">Phase 3 — Final Core (Mode 7 Proposed)</text>
+
+  <!-- Actor count -->
+  <text x="20" y="320" font-family="monospace" font-size="9" fill="#aaaaaa">Actors:</text>
+  <rect x="100" y="310" width="400" height="14" rx="2" fill="#1a1a2e"/>
+  <!-- 14/16 actors at peak -->
+  <rect x="100" y="310" width="350" height="14" rx="2" fill="url(#hotBar)"/>
+  <text x="505" y="321" font-family="monospace" font-size="9" fill="#ff4444">14 / 16 (peak)</text>
+
+  <g transform="translate(100, 330)">
+    <rect x="0" y="0" width="48" height="8" fill="#115533"/> <text x="52" y="8" font-family="monospace" font-size="7" fill="#44ffaa">FinalCore(1)</text>
+    <rect x="120" y="0" width="40" height="8" fill="#885500"/> <text x="164" y="8" font-family="monospace" font-size="7" fill="#ffaa44">Cannons(2)</text>
+    <rect x="228" y="0" width="40" height="8" fill="#664400"/> <text x="272" y="8" font-family="monospace" font-size="7" fill="#cc8844">Helpers(2)</text>
+    <rect x="328" y="0" width="30" height="8" fill="#ffdd44"/> <text x="362" y="8" font-family="monospace" font-size="7" fill="#ffee88">Bullets(4)</text>
+    <rect x="418" y="0" width="30" height="8" fill="#443366"/> <text x="452" y="8" font-family="monospace" font-size="7" fill="#8866cc">Minis(3)</text>
+  </g>
+
+  <!-- Sprite count - LOWER because body segments moved to BG -->
+  <text x="20" y="358" font-family="monospace" font-size="9" fill="#aaaaaa">OAM sprites:</text>
+  <rect x="100" y="348" width="400" height="14" rx="2" fill="#1a1a2e"/>
+  <!-- ~30/128 - much lower! -->
+  <rect x="100" y="348" width="94" height="14" rx="2" fill="url(#goodBar)"/>
+  <text x="505" y="359" font-family="monospace" font-size="9" fill="#44dd88">~30 / 128 ✓</text>
+
+  <!-- Scanline -->
+  <text x="20" y="376" font-family="monospace" font-size="9" fill="#aaaaaa">Scanline peak:</text>
+  <rect x="100" y="366" width="400" height="14" rx="2" fill="#1a1a2e"/>
+  <!-- ~16/32 -->
+  <rect x="100" y="366" width="200" height="14" rx="2" fill="url(#goodBar)"/>
+  <text x="505" y="377" font-family="monospace" font-size="9" fill="#44dd88">~16 / 32 ✓</text>
+  <text x="305" y="377" font-family="monospace" font-size="7" fill="#000000" font-weight="bold">SAFE</text>
+
+  <!-- Annotation: BG optimization note -->
+  <rect x="100" y="388" width="440" height="20" rx="3" fill="#003322" stroke="#22aa66" stroke-width="1"/>
+  <text x="320" y="401" text-anchor="middle" font-family="monospace" font-size="8" fill="#44ffaa">★ Body segments rendered as BG tiles → 0 OAM sprites for arms (saves ~20 sprites)</text>
+
+  <!-- ====== COMPARISON SUMMARY ====== -->
+  <line x1="20" y1="420" x2="620" y2="420" stroke="#333333" stroke-width="1"/>
+  <text x="320" y="440" text-anchor="middle" font-family="monospace" font-size="11" fill="#ffffff" font-weight="bold">Optimization Summary</text>
+
+  <!-- Three columns -->
+  <g transform="translate(40, 450)">
+    <rect x="0" y="0" width="170" height="55" rx="4" fill="#1a1a2e" stroke="#ffaa44" stroke-width="1"/>
+    <text x="85" y="16" text-anchor="middle" font-family="monospace" font-size="9" fill="#ffaa44" font-weight="bold">P1-P2 (Sprites Only)</text>
+    <text x="85" y="30" text-anchor="middle" font-family="monospace" font-size="8" fill="#aaaaaa">22-28 sprites/scanline</text>
+    <text x="85" y="42" text-anchor="middle" font-family="monospace" font-size="8" fill="#ff8844">Risk of flickering</text>
+  </g>
+
+  <g transform="translate(235, 450)">
+    <rect x="0" y="0" width="170" height="55" rx="4" fill="#1a1a2e" stroke="#22ffaa" stroke-width="1"/>
+    <text x="85" y="16" text-anchor="middle" font-family="monospace" font-size="9" fill="#22ffaa" font-weight="bold">P3 (BG + Sprites)</text>
+    <text x="85" y="30" text-anchor="middle" font-family="monospace" font-size="8" fill="#aaaaaa">~16 sprites/scanline</text>
+    <text x="85" y="42" text-anchor="middle" font-family="monospace" font-size="8" fill="#44dd88">No flickering risk</text>
+  </g>
+
+  <g transform="translate(430, 450)">
+    <rect x="0" y="0" width="170" height="55" rx="4" fill="#1a1a2e" stroke="#4488ff" stroke-width="1"/>
+    <text x="85" y="16" text-anchor="middle" font-family="monospace" font-size="9" fill="#4488ff" font-weight="bold">HDMA Budget</text>
+    <text x="85" y="30" text-anchor="middle" font-family="monospace" font-size="8" fill="#aaaaaa">P1-P2: 2 channels</text>
+    <text x="85" y="42" text-anchor="middle" font-family="monospace" font-size="8" fill="#aaaaaa">P3: 4-5 channels (M7)</text>
+  </g>
+</svg>

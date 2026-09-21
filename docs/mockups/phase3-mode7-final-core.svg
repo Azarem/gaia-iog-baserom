@@ -1,0 +1,176 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 448" width="512" height="448">
+  <defs>
+    <radialGradient id="spaceBg" cx="50%" cy="40%" r="70%">
+      <stop offset="0%" stop-color="#110033"/>
+      <stop offset="100%" stop-color="#000008"/>
+    </radialGradient>
+    <radialGradient id="fcoreGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#22ffaa" stop-opacity="0.7"/>
+      <stop offset="50%" stop-color="#00aa66" stop-opacity="0.3"/>
+      <stop offset="100%" stop-color="#005533" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="cannonGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#ffaa00" stop-opacity="0.6"/>
+      <stop offset="100%" stop-color="#ff6600" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="m7floor" cx="50%" cy="65%" r="55%">
+      <stop offset="0%" stop-color="#332255"/>
+      <stop offset="40%" stop-color="#221144"/>
+      <stop offset="70%" stop-color="#110833"/>
+      <stop offset="100%" stop-color="#080422"/>
+    </radialGradient>
+    <filter id="glow3">
+      <feGaussianBlur stdDeviation="3" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <filter id="bigGlow">
+      <feGaussianBlur stdDeviation="8" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <pattern id="stars3" width="80" height="80" patternUnits="userSpaceOnUse">
+      <rect width="80" height="80" fill="none"/>
+      <circle cx="8" cy="15" r="0.8" fill="#ffffff" opacity="0.6"/>
+      <circle cx="30" cy="5" r="0.5" fill="#aaccff" opacity="0.4"/>
+      <circle cx="55" cy="22" r="0.6" fill="#ffffff" opacity="0.5"/>
+      <circle cx="70" cy="10" r="0.4" fill="#88aaff" opacity="0.3"/>
+      <circle cx="15" cy="45" r="0.7" fill="#ffffff" opacity="0.7"/>
+      <circle cx="42" cy="55" r="0.5" fill="#aaccff" opacity="0.4"/>
+      <circle cx="65" cy="40" r="0.6" fill="#ffffff" opacity="0.4"/>
+      <circle cx="10" cy="70" r="0.5" fill="#88aaff" opacity="0.5"/>
+      <circle cx="38" cy="75" r="0.7" fill="#ffffff" opacity="0.5"/>
+      <circle cx="60" cy="68" r="0.4" fill="#aaccff" opacity="0.3"/>
+    </pattern>
+    <!-- Mode 7 grid pattern for perspective floor -->
+    <pattern id="m7grid" width="32" height="32" patternUnits="userSpaceOnUse" patternTransform="skewX(-5) scale(1, 0.6)">
+      <rect width="32" height="32" fill="#1a0a33"/>
+      <rect x="0" y="0" width="16" height="16" fill="#221244" opacity="0.8"/>
+      <rect x="16" y="16" width="16" height="16" fill="#221244" opacity="0.8"/>
+      <line x1="0" y1="0" x2="32" y2="0" stroke="#332255" stroke-width="0.5" opacity="0.6"/>
+      <line x1="0" y1="16" x2="32" y2="16" stroke="#332255" stroke-width="0.5" opacity="0.6"/>
+      <line x1="0" y1="0" x2="0" y2="32" stroke="#332255" stroke-width="0.5" opacity="0.6"/>
+      <line x1="16" y1="0" x2="16" y2="32" stroke="#332255" stroke-width="0.5" opacity="0.6"/>
+    </pattern>
+  </defs>
+
+  <!-- Background: deep space -->
+  <rect width="512" height="448" fill="url(#spaceBg)"/>
+  <rect width="512" height="448" fill="url(#stars3)"/>
+
+  <!-- Title -->
+  <text x="256" y="24" text-anchor="middle" font-family="monospace" font-size="14" fill="#44ffaa" font-weight="bold">PHASE 3 — Final Core on Mode 7 Arena</text>
+
+  <!-- MODE 7 PERSPECTIVE FLOOR -->
+  <!-- Simulated perspective grid (trapezoid) -->
+  <polygon points="50,420 462,420 512,448 0,448" fill="url(#m7grid)"/>
+  <polygon points="80,380 432,380 462,420 50,420" fill="url(#m7grid)" opacity="0.9"/>
+  <polygon points="120,345 392,345 432,380 80,380" fill="url(#m7grid)" opacity="0.8"/>
+  <polygon points="155,315 357,315 392,345 120,345" fill="url(#m7grid)" opacity="0.7"/>
+  <polygon points="185,290 327,290 357,315 155,315" fill="url(#m7grid)" opacity="0.6"/>
+  <polygon points="210,270 302,270 327,290 185,290" fill="url(#m7grid)" opacity="0.5"/>
+  <polygon points="228,255 284,255 302,270 210,270" fill="url(#m7grid)" opacity="0.4"/>
+  <polygon points="240,245 272,245 284,255 228,255" fill="url(#m7grid)" opacity="0.3"/>
+
+  <!-- Perspective grid lines (vanishing point effect) -->
+  <line x1="256" y1="240" x2="0" y2="448" stroke="#443377" stroke-width="0.5" opacity="0.3"/>
+  <line x1="256" y1="240" x2="128" y2="448" stroke="#443377" stroke-width="0.5" opacity="0.3"/>
+  <line x1="256" y1="240" x2="256" y2="448" stroke="#443377" stroke-width="0.5" opacity="0.3"/>
+  <line x1="256" y1="240" x2="384" y2="448" stroke="#443377" stroke-width="0.5" opacity="0.3"/>
+  <line x1="256" y1="240" x2="512" y2="448" stroke="#443377" stroke-width="0.5" opacity="0.3"/>
+
+  <!-- Rotation indicator -->
+  <g transform="translate(256, 380)" opacity="0.3">
+    <path d="M-60 0 A60 20 0 0 1 60 0" stroke="#6644aa" stroke-width="1.5" fill="none" stroke-dasharray="6 3"/>
+    <polygon points="58,-4 66,0 58,4" fill="#6644aa"/>
+  </g>
+  <text x="256" y="405" text-anchor="middle" font-family="monospace" font-size="8" fill="#6644aa" opacity="0.6">MODE 7 ROTATION</text>
+
+  <!-- Left Helper (anchor point) -->
+  <circle cx="130" cy="165" r="8" fill="#335577" stroke="#5588aa" stroke-width="1.5" opacity="0.7"/>
+  <text x="130" y="185" text-anchor="middle" font-family="monospace" font-size="7" fill="#5588aa">HELPER L</text>
+
+  <!-- Right Helper (anchor point) -->
+  <circle cx="382" cy="165" r="8" fill="#335577" stroke="#5588aa" stroke-width="1.5" opacity="0.7"/>
+  <text x="382" y="185" text-anchor="middle" font-family="monospace" font-size="7" fill="#5588aa">HELPER R</text>
+
+  <!-- Left Cannon orbit path -->
+  <ellipse cx="130" cy="165" rx="55" ry="55" fill="none" stroke="#ffaa44" stroke-width="1" stroke-dasharray="4 6" opacity="0.3"/>
+  <!-- Left Cannon (orbiting) -->
+  <g transform="translate(92, 120)" filter="url(#glow3)">
+    <ellipse cx="0" cy="0" rx="18" ry="15" fill="url(#cannonGlow)"/>
+    <rect x="-8" y="-8" width="16" height="16" rx="3" fill="#885500" stroke="#ffaa44" stroke-width="1.5"/>
+    <circle cx="0" cy="0" r="4" fill="#ffcc44"/>
+    <!-- Direction indicator (pointing toward player) -->
+    <line x1="6" y1="6" x2="16" y2="16" stroke="#ffcc00" stroke-width="2"/>
+    <polygon points="14,14 20,18 16,12" fill="#ffcc00"/>
+  </g>
+  <text x="92" y="148" text-anchor="middle" font-family="monospace" font-size="7" fill="#ffaa44">CANNON L</text>
+
+  <!-- Right Cannon orbit path -->
+  <ellipse cx="382" cy="165" rx="55" ry="55" fill="none" stroke="#ffaa44" stroke-width="1" stroke-dasharray="4 6" opacity="0.3"/>
+  <!-- Right Cannon (orbiting, different position) -->
+  <g transform="translate(420, 205)" filter="url(#glow3)">
+    <ellipse cx="0" cy="0" rx="18" ry="15" fill="url(#cannonGlow)"/>
+    <rect x="-8" y="-8" width="16" height="16" rx="3" fill="#885500" stroke="#ffaa44" stroke-width="1.5"/>
+    <circle cx="0" cy="0" r="4" fill="#ffcc44"/>
+    <line x1="-6" y1="4" x2="-16" y2="12" stroke="#ffcc00" stroke-width="2"/>
+    <polygon points="-14,10 -20,14 -14,16" fill="#ffcc00"/>
+  </g>
+  <text x="420" y="233" text-anchor="middle" font-family="monospace" font-size="7" fill="#ffaa44">CANNON R</text>
+
+  <!-- Bullet from left cannon -->
+  <g filter="url(#glow3)">
+    <circle cx="140" cy="168" r="4" fill="#ffdd44" opacity="0.9"/>
+    <circle cx="140" cy="168" r="2" fill="#ffffff"/>
+    <line x1="140" y1="168" x2="180" y2="220" stroke="#ffdd44" stroke-width="1.5" stroke-dasharray="3 3" opacity="0.4"/>
+  </g>
+
+  <!-- Final Core (center, floating above arena) -->
+  <ellipse cx="256" cy="130" rx="60" ry="50" fill="url(#fcoreGlow)" filter="url(#bigGlow)"/>
+  <ellipse cx="256" cy="130" rx="32" ry="26" fill="#115533" stroke="#22ffaa" stroke-width="2" filter="url(#glow3)"/>
+  <!-- Core face/details -->
+  <ellipse cx="248" cy="124" rx="6" ry="8" fill="#003322"/>
+  <ellipse cx="264" cy="124" rx="6" ry="8" fill="#003322"/>
+  <ellipse cx="248" cy="122" rx="3" ry="5" fill="#22ffaa" opacity="0.8"/>
+  <ellipse cx="264" cy="122" rx="3" ry="5" fill="#22ffaa" opacity="0.8"/>
+  <path d="M244 140 Q256 146 268 140" stroke="#22ffaa" stroke-width="1.5" fill="none"/>
+  <!-- HP bar -->
+  <rect x="224" y="164" width="64" height="5" rx="2" fill="#002211" stroke="#005533" stroke-width="1"/>
+  <rect x="225" y="165" width="40" height="3" rx="1" fill="#22ff88"/>
+  <text x="256" y="180" text-anchor="middle" font-family="monospace" font-size="9" fill="#44ffaa">FINAL CORE</text>
+
+  <!-- Mini-boss (spawned from hit) -->
+  <g transform="translate(330, 250)">
+    <circle cx="0" cy="0" r="14" fill="#443366" stroke="#8866cc" stroke-width="1.5" filter="url(#glow3)" opacity="0.8"/>
+    <circle cx="-3" cy="-3" r="3" fill="#aa88ee"/>
+    <circle cx="4" cy="-3" r="3" fill="#aa88ee"/>
+    <ellipse cx="0" cy="4" rx="5" ry="3" fill="#553388"/>
+  </g>
+  <text x="330" y="275" text-anchor="middle" font-family="monospace" font-size="7" fill="#8866cc">MINI-BOSS</text>
+
+  <!-- Player on the Mode 7 floor -->
+  <g transform="translate(220, 340)">
+    <ellipse cx="0" cy="16" rx="10" ry="5" fill="#000000" opacity="0.5"/>
+    <rect x="-6" y="-4" width="12" height="18" rx="2" fill="#4466aa"/>
+    <circle cx="0" cy="-10" r="7" fill="#ffcc99"/>
+    <path d="M-7 -14 Q0 -22 7 -14" fill="#5533aa"/>
+    <rect x="-8" y="-16" width="16" height="5" rx="2" fill="#5533aa"/>
+    <line x1="8" y1="-2" x2="22" y2="-12" stroke="#ccddff" stroke-width="2.5"/>
+    <line x1="22" y1="-12" x2="24" y2="-14" stroke="#ffffff" stroke-width="1.5"/>
+  </g>
+  <text x="220" y="370" text-anchor="middle" font-family="monospace" font-size="9" fill="#88aadd">PLAYER</text>
+
+  <!-- Body segment BG effect (connecting lines representing tentacle arms on BG layer) -->
+  <path d="M130 165 Q115 155 100 148 Q92 135 92 120" stroke="#557788" stroke-width="4" fill="none" opacity="0.4" stroke-linecap="round"/>
+  <circle cx="115" cy="155" r="3" fill="#557788" opacity="0.3"/>
+  <circle cx="105" cy="145" r="3" fill="#557788" opacity="0.3"/>
+
+  <path d="M382 165 Q400 175 412 190 Q418 198 420 205" stroke="#557788" stroke-width="4" fill="none" opacity="0.4" stroke-linecap="round"/>
+  <circle cx="395" cy="178" r="3" fill="#557788" opacity="0.3"/>
+  <circle cx="408" cy="192" r="3" fill="#557788" opacity="0.3"/>
+  <text x="155" y="147" text-anchor="middle" font-family="monospace" font-size="7" fill="#557788" opacity="0.6">BG TILE ARMS</text>
+
+  <!-- Info panel -->
+  <rect x="8" y="415" width="496" height="28" rx="4" fill="#000000" opacity="0.7"/>
+  <text x="256" y="428" text-anchor="middle" font-family="monospace" font-size="9" fill="#cccccc">Mode 7 floor rotates via proven Mode7PerspectiveUpdate thinker. Body segments rendered as BG tiles.</text>
+  <text x="256" y="440" text-anchor="middle" font-family="monospace" font-size="9" fill="#888888">Only 14 actors at peak — CPU budget freed for per-scanline HDMA matrix computation.</text>
+</svg>

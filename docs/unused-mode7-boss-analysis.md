@@ -765,3 +765,39 @@ Instead of body segments, the Cannons could leave a **sprite trail** — spawn a
 6. **Enhance the Floor Beam** with player-tracking and telegraph effects
 7. **Add phase transition cinematics** using existing engine effects (iris, palette flash, Mode 7 zoom)
 8. **Create new scene** or extend scene $E8 with flag-gated spawn logic for the boss trigger
+
+---
+
+## Part 5: Visual Mockups
+
+Visual mockups are available in `docs/mockups/` showing what the restored boss fight would look like at each stage:
+
+### Phase 1 — Core with Bits & Launchers
+![Phase 1](mockups/phase1-core-with-bits.svg)
+
+The Core sits center-screen on the Comet Lair arena, flanked by two Bits (blue, protective) and two Launchers below them firing Bubbles. The Brain actor manages difficulty behind the scenes. Player must destroy both Bits while dodging Bubbles and floor Beams.
+
+### Phase 2 — Core Vulnerable + Nuke Attack
+![Phase 2](mockups/phase2-core-vulnerable.svg)
+
+With both Bits destroyed, the Core becomes vulnerable and pulses red. Dead Bits remain on-screen firing converging energy beams that rain fire from above. Nukes drop from the top and split into 3 spiraling Nuke Pieces at 120° intervals. This is the most intense phase for sprite density.
+
+### Phase Transition — VRAM DMA + Mode 7 Reveal
+![Transition](mockups/phase-transition-p2-to-p3.svg)
+
+Four-step cinematic sequence: (1) Core death flash with `palette_flash_19`, (2) joypad-locked VRAM DMA transfers new tileset/tilemap and switches BGMODE from $09 to $07, (3) `IrisCircleEffect` thinker opens a window circle to reveal the new Mode 7 arena, (4) Final Core descends as M7 scale zooms from extreme distance ($0040) to combat range ($0300).
+
+### Phase 3 — Final Core on Mode 7 Arena
+![Phase 3](mockups/phase3-mode7-final-core.svg)
+
+The Final Core floats above a perspective-corrected Mode 7 floor that slowly rotates via the `Mode7PerspectiveUpdate` thinker. Two Cannons orbit Helper anchor points, firing directional Bullets toward the player. Mini-bosses spawn when the Core is hit. Body segment "arms" connecting Helpers to Cannons are rendered as BG tiles (zero sprite cost). Only ~30 OAM entries used vs. ~55 in Phase 2.
+
+### Actor & Sprite Budget
+![Budget](mockups/actor-budget-overview.svg)
+
+Comparative analysis of resource usage across all three phases, showing how the BG tile optimization in Phase 3 dramatically reduces sprite pressure from 28/scanline to ~16/scanline despite having more visual complexity.
+
+### Full Fight Flow
+![Flow](mockups/full-fight-flow.svg)
+
+Complete encounter flow diagram showing phase progression, transition triggers, and victory/game-over conditions with miniature scene previews and technical stats for each phase.

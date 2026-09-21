@@ -1,0 +1,139 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 448" width="512" height="448">
+  <defs>
+    <radialGradient id="cometBg2" cx="50%" cy="55%" r="65%">
+      <stop offset="0%" stop-color="#441133"/>
+      <stop offset="50%" stop-color="#220822"/>
+      <stop offset="100%" stop-color="#080011"/>
+    </radialGradient>
+    <radialGradient id="coreGlow2" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#ff2200" stop-opacity="0.9"/>
+      <stop offset="40%" stop-color="#ff4400" stop-opacity="0.5"/>
+      <stop offset="100%" stop-color="#880000" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="nukeGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#ffaa00" stop-opacity="0.9"/>
+      <stop offset="50%" stop-color="#ff6600" stop-opacity="0.5"/>
+      <stop offset="100%" stop-color="#ff2200" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="glow2">
+      <feGaussianBlur stdDeviation="4" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <linearGradient id="cometSurface2" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#552244"/>
+      <stop offset="100%" stop-color="#773366"/>
+    </linearGradient>
+    <linearGradient id="fireRain" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#ffcc00"/>
+      <stop offset="50%" stop-color="#ff6600"/>
+      <stop offset="100%" stop-color="#cc2200"/>
+    </linearGradient>
+    <pattern id="stars2" width="64" height="64" patternUnits="userSpaceOnUse">
+      <rect width="64" height="64" fill="none"/>
+      <circle cx="5" cy="12" r="0.8" fill="#ff8866" opacity="0.5"/>
+      <circle cx="23" cy="4" r="0.5" fill="#ffaa88" opacity="0.4"/>
+      <circle cx="41" cy="18" r="0.6" fill="#ffffff" opacity="0.4"/>
+      <circle cx="55" cy="8" r="0.4" fill="#ff9977" opacity="0.3"/>
+      <circle cx="12" cy="35" r="0.7" fill="#ffffff" opacity="0.5"/>
+      <circle cx="33" cy="42" r="0.5" fill="#ffbb99" opacity="0.4"/>
+      <circle cx="48" cy="30" r="0.6" fill="#ffffff" opacity="0.3"/>
+      <circle cx="8" cy="55" r="0.5" fill="#ff8866" opacity="0.4"/>
+      <circle cx="28" cy="60" r="0.7" fill="#ffffff" opacity="0.4"/>
+    </pattern>
+  </defs>
+
+  <!-- Background: heated space -->
+  <rect width="512" height="448" fill="url(#cometBg2)"/>
+  <rect width="512" height="448" fill="url(#stars2)"/>
+
+  <!-- Comet surface -->
+  <path d="M0 345 Q128 320 256 330 Q384 340 512 325 L512 448 L0 448 Z" fill="url(#cometSurface2)" opacity="0.9"/>
+
+  <!-- Title -->
+  <text x="256" y="28" text-anchor="middle" font-family="monospace" font-size="14" fill="#ff6644" font-weight="bold">PHASE 2 — Core Vulnerable + Nuke Attack</text>
+
+  <!-- Dead Bits (dark, dormant, sprite $0B) -->
+  <rect x="78" y="105" width="36" height="36" rx="6" fill="#112233" stroke="#334455" stroke-width="1" opacity="0.5"/>
+  <text x="96" y="155" text-anchor="middle" font-family="monospace" font-size="8" fill="#556677">DEAD BIT (P2)</text>
+  <rect x="398" y="105" width="36" height="36" rx="6" fill="#112233" stroke="#334455" stroke-width="1" opacity="0.5"/>
+  <text x="416" y="155" text-anchor="middle" font-family="monospace" font-size="8" fill="#556677">DEAD BIT (P2)</text>
+
+  <!-- Core (now vulnerable, pulsing red) -->
+  <ellipse cx="256" cy="140" rx="90" ry="75" fill="url(#coreGlow2)" filter="url(#glow2)"/>
+  <ellipse cx="256" cy="140" rx="52" ry="44" fill="#aa2211" stroke="#ff4433" stroke-width="2.5" filter="url(#glow2)"/>
+  <!-- Core eye - angry -->
+  <ellipse cx="256" cy="132" rx="22" ry="12" fill="#110000" stroke="#ff2200" stroke-width="2"/>
+  <ellipse cx="256" cy="130" rx="12" ry="9" fill="#ff2200"/>
+  <circle cx="256" cy="128" r="4" fill="#ffcc44"/>
+  <!-- HP bar -->
+  <rect x="216" y="192" width="80" height="6" rx="2" fill="#220000" stroke="#660000" stroke-width="1"/>
+  <rect x="217" y="193" width="55" height="4" rx="1" fill="#ff4422"/>
+  <text x="256" y="210" text-anchor="middle" font-family="monospace" font-size="9" fill="#ff6644">VULNERABLE — HIT ME!</text>
+
+  <!-- Nuke falling from top -->
+  <g transform="translate(180, 60)">
+    <ellipse cx="0" cy="0" rx="30" ry="25" fill="url(#nukeGlow)" filter="url(#glow2)"/>
+    <circle cx="0" cy="0" r="12" fill="#ff8800" stroke="#ffcc00" stroke-width="2"/>
+    <circle cx="0" cy="0" r="5" fill="#ffee44"/>
+    <!-- Motion lines -->
+    <line x1="-8" y1="-20" x2="-8" y2="-35" stroke="#ffaa44" stroke-width="1.5" opacity="0.6"/>
+    <line x1="0" y1="-22" x2="0" y2="-40" stroke="#ffaa44" stroke-width="1.5" opacity="0.5"/>
+    <line x1="8" y1="-20" x2="8" y2="-35" stroke="#ffaa44" stroke-width="1.5" opacity="0.6"/>
+  </g>
+  <text x="180" y="100" text-anchor="middle" font-family="monospace" font-size="8" fill="#ffaa44">NUKE</text>
+
+  <!-- Nuke pieces (3, spiraling out at 120 degree offsets) -->
+  <g filter="url(#glow2)">
+    <circle cx="340" cy="180" r="6" fill="#ff6600"/>
+    <circle cx="340" cy="180" r="3" fill="#ffcc00"/>
+    <circle cx="370" cy="210" r="6" fill="#ff6600"/>
+    <circle cx="370" cy="210" r="3" fill="#ffcc00"/>
+    <circle cx="310" cy="215" r="6" fill="#ff6600"/>
+    <circle cx="310" cy="215" r="3" fill="#ffcc00"/>
+    <!-- Spiral trails -->
+    <path d="M350 190 Q345 185 340 180" stroke="#ff8844" stroke-width="1.5" fill="none" opacity="0.5"/>
+    <path d="M375 200 Q373 205 370 210" stroke="#ff8844" stroke-width="1.5" fill="none" opacity="0.5"/>
+    <path d="M320 210 Q315 212 310 215" stroke="#ff8844" stroke-width="1.5" fill="none" opacity="0.5"/>
+  </g>
+  <text x="340" y="235" text-anchor="middle" font-family="monospace" font-size="8" fill="#ff8844">NUKE PIECES (spiral)</text>
+
+  <!-- Fire rain from dead Bits converging -->
+  <line x1="96" y1="145" x2="256" y2="85" stroke="#ff4400" stroke-width="3" opacity="0.4" stroke-dasharray="4 4"/>
+  <line x1="416" y1="145" x2="256" y2="85" stroke="#ff4400" stroke-width="3" opacity="0.4" stroke-dasharray="4 4"/>
+  <!-- Fire rain drops falling -->
+  <rect x="130" y="38" width="3" height="12" rx="1" fill="url(#fireRain)" opacity="0.8"/>
+  <rect x="200" y="18" width="3" height="14" rx="1" fill="url(#fireRain)" opacity="0.7"/>
+  <rect x="290" y="28" width="3" height="12" rx="1" fill="url(#fireRain)" opacity="0.9"/>
+  <rect x="370" y="12" width="3" height="16" rx="1" fill="url(#fireRain)" opacity="0.6"/>
+  <rect x="440" y="35" width="3" height="10" rx="1" fill="url(#fireRain)" opacity="0.7"/>
+  <rect x="80" y="22" width="3" height="13" rx="1" fill="url(#fireRain)" opacity="0.8"/>
+  <text x="440" y="55" text-anchor="end" font-family="monospace" font-size="8" fill="#ff8844">FIRE RAIN</text>
+
+  <!-- Launchers still active -->
+  <rect x="52" y="200" width="24" height="32" rx="4" fill="#553388" stroke="#8855cc" stroke-width="1.5" opacity="0.7"/>
+  <rect x="436" y="200" width="24" height="32" rx="4" fill="#553388" stroke="#8855cc" stroke-width="1.5" opacity="0.7"/>
+
+  <!-- Bubble from launcher -->
+  <circle cx="120" cy="270" r="9" fill="#aa44ee" opacity="0.5" filter="url(#glow2)"/>
+  <circle cx="120" cy="270" r="5" fill="#dd77ff" opacity="0.8"/>
+
+  <!-- Player (Will) dodging -->
+  <g transform="translate(350, 290)">
+    <ellipse cx="0" cy="20" rx="10" ry="4" fill="#000000" opacity="0.4"/>
+    <rect x="-6" y="-4" width="12" height="18" rx="2" fill="#4466aa"/>
+    <circle cx="0" cy="-10" r="7" fill="#ffcc99"/>
+    <path d="M-7 -14 Q0 -22 7 -14" fill="#5533aa"/>
+    <rect x="-8" y="-16" width="16" height="5" rx="2" fill="#5533aa"/>
+    <!-- Sword swinging -->
+    <line x1="-8" y1="0" x2="-24" y2="-8" stroke="#ccddff" stroke-width="2.5"/>
+    <line x1="-24" y1="-8" x2="-26" y2="-10" stroke="#ffffff" stroke-width="1.5"/>
+    <!-- Motion blur -->
+    <path d="M-10 6 Q-22 0 -26 -10" stroke="#aaccff" stroke-width="1" fill="none" opacity="0.4"/>
+  </g>
+  <text x="350" y="325" text-anchor="middle" font-family="monospace" font-size="9" fill="#88aadd">PLAYER (attacking)</text>
+
+  <!-- Info panel -->
+  <rect x="8" y="400" width="496" height="40" rx="4" fill="#000000" opacity="0.7"/>
+  <text x="256" y="416" text-anchor="middle" font-family="monospace" font-size="10" fill="#cccccc">Core P2: HP from enemy_stats_table+$15C. Nukes spiral into 3 pieces (120 apart).</text>
+  <text x="256" y="430" text-anchor="middle" font-family="monospace" font-size="10" fill="#888888">Dead Bits fire converging energy beams that rain fire. Launchers continue bubbles.</text>
+</svg>
