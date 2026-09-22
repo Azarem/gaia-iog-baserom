@@ -1,0 +1,94 @@
+; === IoG SPC Engine — Pitch Calculation Routine ===
+; ARAM --580–--61A (engine binary offset --180–--21A)
+; Disassembled from spc_sound_engine.bin
+
+0580: a8 34       SBC A,# #$34
+0582: b0 09       BCS $058d
+0584: e4 11       MOV A,dp $11
+0586: 80          SETC
+0587: a8 13       SBC A,# #$13
+0589: b0 06       BCS $0591
+058b: dc          DEC Y
+058c: 1c          ASL A
+058d: 7a 10       ADDW YA,dp $10
+058f: da 10       MOVW dp,YA $10
+0591: 4d          PUSH X
+0592: e4 11       MOV A,dp $11
+0594: 1c          ASL A
+0595: 8d 00       MOV Y,# #$00
+0597: cd 18       MOV X,# #$18
+0599: 9e          DIV YA,X
+059a: 5d          MOV X,A
+059b: f6 5a 0e    MOV A,abs+Y $0e5a
+059e: c4 15       MOV dp,A $15
+05a0: f6 59 0e    MOV A,abs+Y $0e59
+05a3: c4 14       MOV dp,A $14
+05a5: f6 5c 0e    MOV A,abs+Y $0e5c
+05a8: 2d          PUSH A
+05a9: f6 5b 0e    MOV A,abs+Y $0e5b
+05ac: ee          POP Y
+05ad: 9a 14       SUBW YA,dp $14
+05af: eb 10       MOV Y,dp $10
+05b1: cf          MUL YA
+05b2: dd          MOV A,Y
+05b3: 8d 00       MOV Y,# #$00
+05b5: 7a 14       ADDW YA,dp $14
+05b7: cb 15       MOV dp,Y $15
+05b9: 1c          ASL A
+05ba: 2b 15       ROL dp $15
+05bc: c4 14       MOV dp,A $14
+05be: 2f 04       BRA $05c4
+05c0: 4b 15       LSR dp $15
+05c2: 7c          ROR A
+05c3: 3d          INC X
+05c4: c8 06       CMP X,# #$06
+05c6: d0 f8       BNE $05c0
+05c8: c4 14       MOV dp,A $14
+05ca: ce          POP X
+05cb: f5 28 02    MOV A,abs+X $0228
+05ce: eb 15       MOV Y,dp $15
+05d0: cf          MUL YA
+05d1: da 16       MOVW dp,YA $16
+05d3: f5 28 02    MOV A,abs+X $0228
+05d6: eb 14       MOV Y,dp $14
+05d8: cf          MUL YA
+05d9: 6d          PUSH Y
+05da: f5 29 02    MOV A,abs+X $0229
+05dd: eb 14       MOV Y,dp $14
+05df: cf          MUL YA
+05e0: 7a 16       ADDW YA,dp $16
+05e2: da 16       MOVW dp,YA $16
+05e4: f5 29 02    MOV A,abs+X $0229
+05e7: eb 15       MOV Y,dp $15
+05e9: cf          MUL YA
+05ea: fd          MOV Y,A
+05eb: ae          POP A
+05ec: 7a 16       ADDW YA,dp $16
+05ee: da 16       MOVW dp,YA $16
+05f0: f5 73 0e    MOV A,abs+X $0e73
+05f3: 08 02       OR A,# #$02
+05f5: fd          MOV Y,A
+05f6: e4 16       MOV A,dp $16
+05f8: 3f fe 05    CALL abs $05fe
+05fb: fc          INC Y
+05fc: e4 17       MOV A,dp $17
+05fe: 2d          PUSH A
+05ff: e4 47       MOV A,dp $47
+0601: 24 1a       AND A,dp $1a
+0603: ae          POP A
+0604: d0 04       BNE $060a
+0606: cb f2       MOV dp,Y $f2
+0608: c4 f3       MOV dp,A $f3
+060a: 6f          RET
+060b: 8d 00       MOV Y,# #$00
+060d: f7 40       MOV A,[dp]+Y $40
+060f: 3a 40       INCW dp $40
+0611: 2d          PUSH A
+0612: f7 40       MOV A,[dp]+Y $40
+0614: 3a 40       INCW dp $40
+0616: fd          MOV Y,A
+0617: ae          POP A
+0618: 6f          RET
+0619: 8f ff 30    MOV dp,# $30,#$ff
+061c: 8f ff 31    MOV dp,# $31,#$ff
+061f: c4 04       MOV dp,A $04
