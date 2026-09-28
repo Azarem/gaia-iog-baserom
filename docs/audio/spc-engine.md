@@ -351,40 +351,50 @@ All opcodes in the range `$E0`–`$FF`. Parameter bytes follow the opcode byte.
 
 | Opcode | Size | Name | Parameters | Description |
 |--------|------|------|------------|-------------|
-| `$EC` | 2 | **ADSR Attack Override** | `rate` | Override the attack rate for this channel's current instrument. |
-| `$F1` | 3 | **ADSR Override** | `adsr1`, `adsr2` | Override both ADSR registers for this channel. |
+| `$EC` | 1 | **ADSR Attack Override** | — | Override the attack rate for this channel's current instrument. Takes no additional parameter bytes (uses a pre-loaded value). |
+| `$F1` | 4 | **ADSR Override** | `adsr1`, `adsr2`, `gain` | Override ADSR registers and GAIN for this channel. |
 
 ### Echo / Reverb
 
 | Opcode | Size | Name | Parameters | Description |
 |--------|------|------|------------|-------------|
 | `$F5` | 4 | **Echo On** | `enabled`, `volume`, `feedback` | Enable echo effect. `volume` controls echo level, `feedback` controls decay. |
-| `$F6` | 2 | **Echo Off/Param** | `value` | Disable echo or adjust echo parameter. |
+| `$F6` | 1 | **Echo Off** | — | Disable echo effect on this channel. No additional parameter bytes. |
 | `$F7` | 4 | **Echo FIR Filter** | `c0`, `c1`, `c2` | Set echo FIR filter coefficients (affects echo timbre). |
 
 ### Pitch Effects
 
 | Opcode | Size | Name | Parameters | Description |
 |--------|------|------|------------|-------------|
-| `$F2` | 3 | **Pitch Envelope** | `delay`, `speed` | Pitch slide/bend effect (portamento-like). |
+| `$F2` | 4 | **Pitch Envelope** | `delay`, `speed`, `depth` | Pitch slide/bend effect (portamento-like) with delay before onset, slide speed, and depth. |
 | `$F3` | 1 | **Pitch Envelope Off** | — | Disable pitch envelope effect. |
 | `$F0` | 2 | **Amplitude Modulation** | `param` | Enable tremolo / amplitude modulation. |
+
+### Modulation / Tremolo
+
+| Opcode | Size | Name | Parameters | Description |
+|--------|------|------|------------|-------------|
+| `$EB` | 4 | **Tremolo** | `delay`, `rate`, `depth` | Amplitude modulation LFO. Analogous to `$E3` (Vibrato) but for volume. `delay` ticks before onset, `rate` oscillation speed, `depth` amplitude. Handler at ARAM `$099D`. |
+
+### Channel Volume Fade
+
+| Opcode | Size | Name | Parameters | Description |
+|--------|------|------|------------|-------------|
+| `$EE` | 3 | **Channel Volume Fade** | `speed`, `target` | Gradual per-channel volume transition. Unlike `$E6` (global main volume fade), this fades the per-channel volume set by `$ED`. Handler at ARAM `$09D9` computes a 16-bit per-tick increment and stores it in the channel's fade state. |
 
 ### Flow Control and Misc
 
 | Opcode | Size | Name | Parameters | Description |
 |--------|------|------|------------|-------------|
-| `$EE` | 3 | **Unknown (3 bytes)** | `p1`, `p2` | Purpose unidentified. Consumed and ignored. |
-| `$EF` | 2 | **Subcommand** | `param` | Miscellaneous sub-command dispatch. |
-| `$EB` | 2 | **Reserved** | `param` | Unused/reserved. Consumed and ignored. |
-| `$F8` | 3 | **Subroutine Call** | `addr_lo`, `addr_hi` | Call a subroutine pattern at the given ARAM address. |
-| `$F9` | 3 | **Subroutine Return / Loop** | `count`, `addr` | Loop or return from subroutine. |
-| `$FA` | 2 | **Conditional** | `param` | Conditional execution flag. |
-| `$FB` | 5 | **Repeat Block** | `count`, `addr_lo`, `addr_hi`, `end` | Repeat a section of sequence data. |
-| `$FC` | 2 | **Unknown** | `param` | Purpose unidentified. |
-| `$FD` | 3 | **Unknown** | `p1`, `p2` | Purpose unidentified. |
-| `$FE` | 2 | **Unknown** | `param` | Purpose unidentified. |
-| `$FF` | 2 | **Unknown** | `param` | Purpose unidentified. |
+| `$EF` | 4 | **Subcommand** | `sub`, `p1`, `p2` | Miscellaneous sub-command dispatch. The first byte selects the sub-function. Handler at ARAM `$09F6`. |
+| `$F8` | 4 | **Subroutine Call** | `addr_lo`, `addr_hi`, `count` | Save current track pointer, set repeat count, and jump to subroutine at the given ARAM address. Handler at ARAM `$0A2D`. |
+| `$F9` | 4 | **Subroutine Return / Loop** | `addr_lo`, `addr_hi`, `count` | Decrement repeat counter; if not zero, loop to address; otherwise continue. Handler at ARAM `$0AFB`. |
+| `$FA` | 2 | **Conditional** | `param` | Conditional execution flag. Handler at ARAM `$0AE1`. |
+| `$FF` | 2 | **DSP Register Write** | `value` | Write a value to a calculated DSP register (based on current channel number). Handler at ARAM `$0AB9`. Likely used for per-channel noise clock or special DSP features. |
+| `$FB` | 1 | — | — | **UNUSED** — Handler address is invalid ($0001). Not used by any IoG track. |
+| `$FC` | 1 | — | — | **UNUSED** — Handler address is invalid. |
+| `$FD` | 1 | — | — | **UNUSED** — Handler address is invalid. |
+| `$FE` | 1 | — | — | **UNUSED** — Handler address is invalid. |
 
 ---
 
@@ -680,6 +690,56 @@ The 6-byte block at ARAM `$0FE0` contains the SRCN (source number) for each slot
 
 ---
 
+## Opcode Dispatch Architecture
+
+The SPC engine uses two distinct passes for processing sequence data:
+
+### 1. Scan-Ahead Pass (ARAM `$0C88`–`$0CAA`)
+
+Scans the track data to find the next note, tie, or end marker, skipping all control opcodes. Uses a **parameter count table** at ARAM `$0B89` (indexed by `opcode − $E0`) to advance past each opcode's parameters without executing them. This pass determines timing/event boundaries.
+
+### 2. Execution Pass (ARAM `$0881`–`$089C`)
+
+Actually executes control opcodes when encountered during tick-by-tick playback. Uses a **handler address table** at ARAM `$0B49` (32 × u16, indexed by `(opcode << 1) & $FF`) and pushes the handler address onto the stack. A single parameter byte is pre-read via `$0893` (track pointer increment) and passed in A/Y. Additional parameters are read inside each handler.
+
+The RET instruction at `$089C` pops the handler address from the stack, effecting a computed jump — a common SPC700 dispatch pattern.
+
+### Opcode Handler Addresses (Verified from SPC Binary)
+
+| Opcode | Handler | Params | Name |
+|--------|---------|--------|------|
+| `$E0` | `$089E` | 1 | Set Instrument |
+| `$E1` | `$090A` | 1 | Pan |
+| `$E2` | `$0918` | 2 | Pan Fade |
+| `$E3` | `$0931` | 3 | Vibrato |
+| `$E4` | `$093D` | 0 | Vibrato Off |
+| `$E5` | `$0958` | 1 | Main Volume |
+| `$E6` | `$0969` | 2 | Volume Fade (global) |
+| `$E7` | `$097B` | 1 | Tempo |
+| `$E8` | `$0984` | 2 | Tempo Fade |
+| `$E9` | `$0996` | 1 | Global Transpose |
+| `$EA` | `$0999` | 1 | Per-voice Transpose |
+| `$EB` | `$099D` | 3 | Tremolo |
+| `$EC` | `$09A9` | 0 | ADSR Attack Override |
+| `$ED` | `$09CA` | 1 | Channel Volume |
+| `$EE` | `$09D9` | 2 | Channel Volume Fade |
+| `$EF` | `$09F6` | 3 | Subcommand |
+| `$F0` | `$0948` | 1 | Amplitude Modulation |
+| `$F1` | `$09AC` | 3 | ADSR Override |
+| `$F2` | `$09B0` | 3 | Pitch Envelope |
+| `$F3` | `$09C6` | 0 | Pitch Envelope Off |
+| `$F4` | `$09F2` | 1 | Tuning |
+| `$F5` | `$0A1A` | 3 | Echo On |
+| `$F6` | `$0A4E` | 0 | Echo Off |
+| `$F7` | `$0A55` | 3 | Echo FIR Filter |
+| `$F8` | `$0A2D` | 3 | Subroutine Call |
+| `$F9` | `$0AFB` | 3 | Loop/Return |
+| `$FA` | `$0AE1` | 1 | Conditional |
+| `$FB`–`$FE` | — | 0 | UNUSED (invalid handler) |
+| `$FF` | `$0AB9` | 1 | DSP Register Write |
+
+---
+
 ## Known Quirks and Discoveries
 
 ### 1. Per-voice transpose in intro patterns
@@ -721,7 +781,10 @@ IoG songs use one of two velocity table variants (A or B). Each song uploads its
 
 ## See Also
 
+- [SPC700 Full Disassembly](spc-disassembly.md) — Complete disassembly of the engine binary (ARAM $0400–$0FC9)
+- [MIDI + SF2 Pipeline](midi-sf2-pipeline.md) — How the engine knowledge is applied to generate MIDI/SF2
+- [Gap Analysis](gap-analysis.md) — What's implemented vs. missing in the conversion pipeline
 - [SPC Transfer Protocol](../code/bank02/spc-transfer.md) — How the 65C816 uploads data to the SPC700
-- [COP Audio Family](../../docs/cop/families/audio.md) — COP handlers for music/SFX commands
+- [COP Audio Family](../cop/families/audio.md) — COP handlers for music/SFX commands
 - [SNES DSP Reference](https://wiki.superfamicom.org/spc700-reference) — Hardware register documentation
 - [N-SPC Format (SNESmusic.org)](https://snesmusic.org/files/spc700.html) — General N-SPC format reference

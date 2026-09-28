@@ -9,12 +9,23 @@ When working on assembly, patches, or ROM metadata in this repo:
 
 1. Prefer the **gaia-snes** multi-root workspace (`c:/Work/gaia-snes.code-workspace`) so `gaia-knowledge` is indexed
 2. Read `gaia-knowledge/curated/gaialabs/assembler-syntax.md` before editing `.asm`
-3. IOG-specific docs: `docs/cop/index.md` (COP system overview + family links), `docs/actor-organization-analysis.md` (also in knowledge corpus after ingest)
-4. Rebuild to validate: `npm run rebuild`
+3. Read `gaia-core/docs/patch-development.md` for patch structure, tag rules, and common pitfalls
+4. IOG-specific docs: `docs/cop/index.md` (COP system overview + family links), `docs/actor-organization-analysis.md` (also in knowledge corpus after ingest)
+5. Rebuild to validate: `npm run rebuild`
 
 ## Label rules
 
 `$&` = same-bank (2 bytes), `$@` = cross-bank (3 bytes). Do not guess.
+
+## COP register hazard
+
+**X must = actor slot ID before every COP instruction.** If X is clobbered by loop counters or scratch code, wrap it in `PHX`/`PLX`. The COP dispatch uses X for actor context — a wrong X causes corrupt spawns, linked list damage, or crashes. See `gaia-core/docs/patch-development.md` §"COP Commands Require X = Actor Slot ID".
+
+**$00/$01 is the actor re-entry address** (saved by SetEntryHere). In looping actors (SetEntryHere + RTL), never overwrite `$00` via `STA $0000` without save/restore. See `gaia-core/docs/patch-development.md` §"Actor Entry Point".
+
+## Persistent DP hazard
+
+DP `$80`–`$82` is the **collision tile map pointer** (`[$80], Y` in `tile_collision_physics.asm`). DP `$30`/`$34` are SPC transfer state, `$36` is the frame parity counter. Any patch/overlay code that uses these as scratch must save/restore engine low DP ($00-$94). See `gaia-core/docs/patch-development.md` §"Persistent Engine DP State Must Be Preserved".
 
 ## Database triad
 

@@ -53,8 +53,10 @@ transition markers, friendly actors (blue dots) and enemy actors (red dots).
 4. Plot scene-transition markers from `table_01ADA8` within the viewport
    (tile `$2EE6`).
 5. Convert the viewport to pixel coordinates (×16) for actor plotting.
-6. Iterate the actor list — friendly (`extendedFlags` bit 8) as blue dots
-   (`$2AE7`), enemies (bit 9) as red dots (`$280D`).
+6. Iterate the actor list — stat-bearing enemies (`extendedFlags` bit 8,
+   `$0100`) as blue dots (`$2AE7`), bit 9 (`$0200`) actors as red dots
+   (`$280D`). Note: bit 8 is set by `actor_execution.asm` during enemy
+   spawn; the "friendly" label in auto-docs refers to dot color, not semantics.
 7. Draw BCD marker count and actor count as digit tiles (base `$34F0`).
 8. Check enemy-clear reward eligibility (flag `$0300` + `enemy_clear_reward_table`)
    and draw a chest icon if applicable.
@@ -411,6 +413,27 @@ current area's tilemap data, actor list, and scene markers. The world map is a
 full scene (`$FE`) with its own actor, thinkers, and route system. The radar never
 activates on the world-map scene (Start on the world map is consumed by the
 controller's joypad mask `$FFF0`).
+
+**Minimap V2 replacement (IOG Retranslated):** The `minimap-v2` module replaces the
+original radar with a compact 4×4-per-metatile collision-based minimap. Key
+architectural differences from the original radar:
+
+- Reads collision data from `$7FC000` directly (not the tilemap) via
+  `BuildViewportCollision`, classifying tiles as floor (color 1) or wall (color 2).
+- Uses a viewport-relative packed color array (stride 32) supporting rooms of any
+  size, with D-pad scrolling for large rooms.
+- Stamps colored markers for warps, chests, dark spaces, enemies, and player via
+  `StampQuadrant` (ORA-based quadrant assembly into the packed array).
+- Uploads custom CHR tiles to VRAM `$6800` via adhoc DMA, writes to the engine
+  staging buffer at `$7F0200`, and triggers NMI flush via `displayModeFlags` bit 0.
+- **Must save/restore engine low DP ($00-$94) across rendering** because
+  `StampWarpMarkers` uses DP `$80`–`$82` as a long pointer to the warp table,
+  which overwrites the engine's collision tile map pointer. Without the
+  save/restore, all collision checks read garbage after the minimap closes,
+  causing actors to freeze.
+- The original `RadarScreenSetup` uses only DPs `$02`, `$18`–`$1E` as scratch,
+  avoiding this conflict entirely — the minimap's wider DP usage is the reason
+  the save/restore pattern was necessary.
 
 ---
 

@@ -40,6 +40,14 @@ Complete inventory of all 60 IoG audio samples with instrument pitch, root key, 
 
 All 30 background music tracks with instrumentation, channel count, tempo, and layout type.
 
+### [SPC700 Full Disassembly](spc-disassembly.md)
+
+Complete disassembly of the 3,018-byte SPC700 engine binary (ARAM $0400–$0FC9). Includes auto-generated labels for all branch/call targets and annotated data tables (frequency table, envelope curves).
+
+### [Gap Analysis & Sanity Check](gap-analysis.md)
+
+Comprehensive audit of the audio pipeline: what is fully implemented, partially implemented, not implemented, and still unknown. Includes priority recommendations for future work.
+
 ## Related Documentation
 
 - [SPC Transfer Protocol](../code/bank02/spc-transfer.md) — 65C816 ↔ SPC700 upload protocol

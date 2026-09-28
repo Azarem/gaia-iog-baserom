@@ -44,6 +44,8 @@ The **VBlank interrupt service routine**. Runs at ~60 Hz with interrupts masked.
 
 Must complete within ~20,000 CPU cycles (one VBlank period at NTSC). Heavy work is delegated to bank `$02`/`$03` helpers; same-bank scroll and DMA helpers stay minimal.
 
+> ⚠ **NMI does NOT save/restore the DP register.** The handler pushes PHB/PHA/PHX/PHY but **not PHD**. It accesses `$36` (frame parity), `$66` (HDMA mask), and `$B2` (VRAM DMA size) via DP-relative addressing, assuming DP=0. This is safe because NMI is only enabled (`$81` → NMITIMEN) when the main loop has DP=0. Custom hold loops that enable NMI must ensure DP=0 during VBlank sync calls.
+
 ### 19-Step Execution Flow
 
 | Step | Call | Purpose |

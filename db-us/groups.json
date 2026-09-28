@@ -274,7 +274,7 @@
     "scenes": {
       "angkor_entrance": { "id": 176, "description": "Angkor Wat - Entrance" },
       "angkor_outer_gate": { "id": 177, "description": "Angkor Wat - Outer Gate" },
-      "angkor_outer_east": { "id": 178, "description": "Mt. Temple - Outer East" },
+      "angkor_outer_east": { "id": 178, "description": "Angkor Wat - Outer East" },
       "angkor_outer_north": { "id": 179, "description": "Angkor Wat - Outer North" },
       "snake_pit": { "id": 180, "description": "Angkor Wat - Snake Pit" },
       "angkor_outer_west": { "id": 181, "description": "Angkor Wat - Outer West" },

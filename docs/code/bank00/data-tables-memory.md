@@ -283,6 +283,20 @@ Extended fields use `(actor_id − $1000)` as the X index into WRAM `$7F0000+`. 
 
 Global variables use direct-page addressing with `D=$0000` (or absolute `$xxxx` when DBR=$81). Grouped by functional region:
 
+#### SPC Transfer & Collision State (Low DP)
+
+These low DP addresses are **persistent engine state** — they must not be overwritten by overlay code (menus, minimaps, etc.) without save/restore.
+
+| Address | Size | Name | Used By |
+|---------|------|------|---------|
+| `$0030` | 1 | SPC transfer continuation counter | `spc_transfer.asm` — handshake counter initialized to `$CC`, preserved across sub-blocks |
+| `$0034` | 2 | SPC transfer state | `spc_transfer.asm` — block size tracking |
+| `$0036` | 2 | Frame parity counter | NMI handler `INC $36`; SPC I/O timing (odd frames), HDMA double-buffer select |
+| `$0080` | 2 | Collision tile map pointer (low word) | `tile_collision_physics.asm` — `[$80], Y` indirect long reads. Points into `$7FC000` collision layer |
+| `$0082` | 1 | Collision tile map pointer (bank byte) | `tile_collision_physics.asm` — bank byte for `[$80]`, normally `$7F` |
+
+> ⚠ **DP $80-$82 is critical.** The entire tile collision system reads collision data via `LDA [$80], Y`. Corrupting this pointer causes all collision checks to read from the wrong address, making actors freeze in place or walk through walls. Any overlay code that uses DP $80-$82 as scratch (e.g., indirect long pointers for data table iteration) must save before and restore after.
+
 #### System & Actor List Management
 
 | Address | Size | Name | Used By |

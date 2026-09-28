@@ -142,6 +142,8 @@ Start uses `$1000`, Select uses `$2000`, and on inventory return, Select+L
 is consumed by `ItemUseEpilogue`, which ends with `PLP` / `RTL` — returning
 directly to `system_core`.
 
+**Retranslation replacement:** In the IOG Retranslated project, `GlobalInputHandler` is replaced by the `minimap-v2` module (`MinimapV2.patch.asm` with `GlobalInputHandler!`). The replacement preserves the original guard conditions, Select→inventory, and Y→item dispatch, but replaces the Start→radar path with a minimap-v2 setup (`JSL MinimapScreenSetup`). The hold-to-view loop adds D-pad viewport scrolling and player blink animation. On exit, `MinimapTeardown` restores CGRAM and engine DP state before the common teardown path. The original radar code (`RadarScreenSetup`, `RadarBorderAnimate`) is unused when this module is active.
+
 ---
 
 ## item_use_system — `$038410`–`$03A0AA`

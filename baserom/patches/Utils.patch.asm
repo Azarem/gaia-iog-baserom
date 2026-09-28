@@ -214,6 +214,17 @@ loc_02B078! {
     STX $A1T0L
 }
 
+---------------------------------------------
+
+ClearVramBufferPartial! {
+    PHX 
+    PHP 
+    REP #$20
+    LDA #$0000
+    LDX #$00C0
+    BRA loc_02F07E
+}
+
 consolestring_01E7F6! |[CUR:42,0][NHM:8][HP][CUR:5A,0][NHM:14][BCD:1,AD8][CUR:64,0][NUM:AD6]|
 
 consolestring_01E818! |[NHM:4][CUR:6A,0][HE]|
