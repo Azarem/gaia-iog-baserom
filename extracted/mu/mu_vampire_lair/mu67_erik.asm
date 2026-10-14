@@ -35,7 +35,7 @@ mu67_erik [
 ]
 
 code_06A2EF {
-    LDA #$EFF0
+    LDA #$EFFC
     TSB $joypadMaskStd
     COP [WaitByte] ( #17 )
     COP [StartMusic] ( #1B )

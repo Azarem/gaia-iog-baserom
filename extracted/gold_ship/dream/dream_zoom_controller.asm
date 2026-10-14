@@ -7,7 +7,7 @@
 ---------------------------------------------
 
 !bg1ScrollH                     068A
-!bg2ScrollH                     068E
+!mapScrollV                     068E
 
 ---------------------------------------------
 
@@ -22,7 +22,7 @@ dream_zoom_controller [
     STA $00F6
     LDA #$0180
     SEC 
-    SBC $bg2ScrollH
+    SBC $mapScrollV
     STA $00FA
     LDA #$00A0
     STA $00FE

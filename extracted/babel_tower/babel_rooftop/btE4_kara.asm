@@ -71,7 +71,7 @@ btE4_kara [
   loc_098DA2:
     COP [PrintDialogString] ( &dialogstring_098EB8 )
     COP [SetFlagByte] ( #0A )
-    LDA #$CFF0
+    LDA #$CFFC
     TSB $joypadMaskStd
     COP [WaitByte] ( #3B )
     LDY $playerActor

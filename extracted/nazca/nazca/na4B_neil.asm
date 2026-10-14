@@ -15,12 +15,12 @@ na4B_neil [
 
   code_05E844:
     COP [MarkSolidHere]
-    LDA #$CFF0
+    LDA #$CFFC
     TSB $joypadMaskStd
     COP [WaitByte] ( #1D )
     COP [PrintDialogString] ( &dialogstring_05E8F7 )
     COP [SetFlagByte] ( #01 )
-    LDA #$CFF0
+    LDA #$CFFC
     TRB $joypadMaskStd
     COP [SetInteractHandler] ( &code_05E8BE )
     COP [WaitOnFlagByte] ( #02, #01 )
@@ -31,7 +31,7 @@ na4B_neil [
     COP [WaitOnFlagByte] ( #0A, #01 )
     COP [StageSpriteFrame] ( #12 )
     COP [AnimOnce]
-    LDA #$CFF0
+    LDA #$CFFC
     TRB $joypadMaskStd
     COP [CallNear] ( &code_05E8CB )
     COP [SetInteractHandler] ( &code_05E8F2 )

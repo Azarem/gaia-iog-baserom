@@ -29,7 +29,7 @@ gs2D_mummy [
 
 code_058B38 {
     COP [BranchOnFlagByte] ( #01, #01, &code_058B47 )
-    LDA #$CFF0
+    LDA #$CFFC
     TSB $joypadMaskStd
     COP [SetFlagByte] ( #01 )
 }

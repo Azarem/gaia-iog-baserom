@@ -27,7 +27,7 @@ ir29_transform [
     RTL 
 
   loc_09CF98:
-    LDA #$EFF0
+    LDA #$EFFC
     TSB $joypadMaskStd
     COP [StageBgChange] ( #1F )
     COP [ApplyBgChange]
@@ -36,11 +36,11 @@ ir29_transform [
     COP [WaitByte] ( #77 )
     LDA $characterForm
     BEQ loc_09CFE5
-    LDA #$CFF0
+    LDA #$CFFC
     TSB $joypadMaskStd
     COP [WaitByte] ( #59 )
     COP [PrintDialogString] ( &dialogstring_09CFED )
-    LDA #$CFF0
+    LDA #$CFFC
     TRB $joypadMaskStd
     LDY $playerActor
     LDA #$*sE6_gaia.Transform_FreedanToWill
@@ -56,7 +56,7 @@ ir29_transform [
     RTL 
 
   loc_09CFE5:
-    LDA #$EFF0
+    LDA #$EFFC
     TRB $joypadMaskStd
 } >
 ]

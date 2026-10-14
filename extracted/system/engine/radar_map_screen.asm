@@ -36,6 +36,7 @@
 ?INCLUDE 'vblank_joypad'
 ?INCLUDE 'vram_buffer_clear'
 
+!frameCounter                   0036
 !sceneCurrent                   0644
 !cameraOffsetX                  06D6
 !cameraOffsetY                  06D8
@@ -234,7 +235,7 @@ RadarScreenSetup {
 ; Produces a shimmering/pulsing animation effect on the radar border that cycles through 29 distinct tile patterns at half the frame rate.
 
 RadarBorderAnimate {
-    LDA $0036             ; Animate on odd frames only (frame parity check on $0036)
+    LDA $frameCounter     ; Animate on odd frames only (frame parity check on $0036)
     LSR 
     BCS loc_038260
     RTS 

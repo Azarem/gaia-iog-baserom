@@ -47,7 +47,7 @@ code_07DF2E {
 
 code_07DF33 {
     COP [BranchOnFlagByte] ( #E5, #01, &code_07DF75 )
-    COP [BranchIfMissingItem] ( #28, &code_07DF43 )
+    COP [BranchIfHasItem] ( #28, &code_07DF43 )
     COP [PrintDialogString] ( &dialogstring_07E0DE )
     RTL 
 }

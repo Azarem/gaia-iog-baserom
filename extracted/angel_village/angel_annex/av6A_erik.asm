@@ -26,7 +26,7 @@ av6A_erik [
 code_06C4D7 {
     COP [SetTilePos] ( #0F, #0C )
     COP [MarkSolidHere]
-    LDA #$CFF0
+    LDA #$CFFC
     TSB $joypadMaskStd
     COP [SetInteractHandler] ( &code_06C525 )
     COP [ClearSolidHere]
@@ -41,7 +41,7 @@ code_06C4D7 {
     COP [MarkSolidHere]
     COP [PrintDialogString] ( &dialogstring_06C568 )
     COP [SetFlagByte] ( #A9 )
-    LDA #$CFF0
+    LDA #$CFFC
     TRB $joypadMaskStd
     COP [SetEntryHere]
     RTL 

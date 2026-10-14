@@ -19,7 +19,7 @@ sc06_lily [
     COP [BranchOnFlagByte] ( #25, #01, &code_04AB95 )
     COP [BranchOnFlagByte] ( #21, #00, &code_04ABDA )
     COP [WaitOnFlagByte] ( #01, #01 )
-    LDA #$CFF0
+    LDA #$CFFC
     TSB $joypadMaskStd
     LDA #$2000
     TRB $10
@@ -55,7 +55,7 @@ sc06_lily [
     COP [PrintDialogString] ( &dialogstring_04AC77 )
     COP [MarkSolidHere]
     COP [SetInteractHandler] ( &code_04ABDC )
-    LDA #$FFF0
+    LDA #$FFFC
     TRB $joypadMaskStd
     COP [WaitOnFlagByte] ( #04, #01 )
     COP [SetInteractHandler] ( &code_04ABE4 )
@@ -126,7 +126,7 @@ code_04ABF9 {
 }
 
 code_04ABFE {
-    LDA #$EFF0
+    LDA #$EFFC
     TSB $joypadMaskStd
     COP [PrintDialogString] ( &dialogstring_04AE61 )
     COP [SetFlagByte] ( #04 )

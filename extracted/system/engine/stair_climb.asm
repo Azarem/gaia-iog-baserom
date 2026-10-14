@@ -372,13 +372,13 @@ LockPlayerForClimb {
 
 UnlockPlayerAfterClimb {
     STZ $climbStateData   ; Clear climbStateData — climb is complete
-    LDA #$CFF0            ; Unmask joypad: clear all suppression bits ($CFF0)
+    LDA #$CFFC            ; Unmask joypad: clear all suppression bits ($CFF0)
     TRB $joypadMaskStd
     LDA #$0008            ; Restore grounded flag $0008 on status
     TSB $10
     LDA #$0200            ; Clear status $0200 (climb-in-progress flag)
     TRB $10
-    LDA #$8000            ; Set joypadHeld $8000 to consume B button (prevent attack on exit)
+    LDA #$0080            ; Set joypadHeld $8000 to consume B button (prevent attack on exit)
     TSB $joypadHeld
     LDA #$0002            ; Clear playerFlags $0002 (secondary climb flag)
     TRB $playerFlags

@@ -97,6 +97,7 @@
 !scrollModeFlags                06EF
 !musicParentActor               06F2
 !musicRoomGroup                 06F6
+!hudDisableFlag                 09ED
 !S_metatileMapLayer             2000
 !BGMODE                         2105
 !BG1SC                          2107
@@ -1243,11 +1244,11 @@ SceneCmd_ConfigDisplay {
 
   loc_028B52:
     LDA #$40              ; Manage $09ED bit 6 based on byte 9 bit 7 (sprite DMA suppress control)
-    TRB $09ED
+    TRB $hudDisableFlag
     PLA 
     BPL loc_028B5F
     LDA #$40
-    TSB $09ED
+    TSB $hudDisableFlag
 
   loc_028B5F:
     LDA $@display_preset_table+8, X

@@ -22,7 +22,7 @@ eu97_clerk1 [
 ]
 
 code_07CBA9 {
-    LDA #$CFF0
+    LDA #$CFFC
     TSB $joypadMaskStd
     COP [StageSpriteMoveX] ( #08, #02 )
     COP [AnimOnce]

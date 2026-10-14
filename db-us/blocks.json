@@ -867,16 +867,16 @@
             }
         },
         "mtA0_intro": { "start": 517981, "end": 518128, "type": "actor-def", "scene": "kress_entrance", "movable": true },
-        "mtA2_crystal_ball_gate": { "scene": "kress_crossroads", "movable": true, "parts": {
-            "mtA2_crystal_ball_gate": { "start": 518128, "end": 518209, "type": "actor-def" },
+        "mtA2_mushroom_drop_gate": { "scene": "kress_crossroads", "movable": true, "parts": {
+            "mtA2_mushroom_drop_gate": { "start": 518128, "end": 518209, "type": "actor-def" },
             "f_mtA2_actor_07E7F0_destroy": { "start": 518209, "end": 518211, "type": "Code" }
         } },
-        "mtA5_crystal_ball_gate_a": { "scene": "kress_circuit", "movable": true, "parts": {
-            "mtA5_crystal_ball_gate_a": { "start": 518211, "end": 518294, "type": "actor-def" },
+        "mtA5_mushroom_drop_gate_a": { "scene": "kress_circuit", "movable": true, "parts": {
+            "mtA5_mushroom_drop_gate_a": { "start": 518211, "end": 518294, "type": "actor-def" },
             "f_mtA5_actor_07E843_destroy": { "start": 518209, "end": 518211, "order": 518215, "type": "Code" }
         } },
-        "mtA5_crystal_ball_gate_b": { "scene": "kress_circuit", "movable": true, "parts": {
-            "mtA5_crystal_ball_gate_b": { "start": 518294, "end": 518401, "type": "actor-def" },
+        "mtA5_mushroom_drop_gate_b": { "scene": "kress_circuit", "movable": true, "parts": {
+            "mtA5_mushroom_drop_gate_b": { "start": 518294, "end": 518401, "type": "actor-def" },
             "f_mtA5_actor_07E896_destroy": { "start": 518209, "end": 518211, "order": 518298, "type": "Code" }
         } },
         "mtA1_fire_sprite": { "movable": true, "parts": {

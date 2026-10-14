@@ -22,6 +22,20 @@
 ; 
 ; 3 = Status: View character abilities. 3-row vertical cursor ($22 = 0/1/2). For each row, TestAbilityFlag checks whether the ability is unlocked for the current characterForm. Unlocked abilities show their name via ComputeAbilityIndex → RunBg3Script.
 ; 
+; === MYSTIC STATUE PEDESTALS ===
+; 
+; The inventory menu does NOT spawn or manage the mystic statue pedestal actors directly. Six inventory_statue_slot actors (Bank 00) are spawned independently by SpawnSceneActors from the scene $FF actor list. They share the screen with the inventory menu but operate as autonomous actors.
+; 
+; The pedestals are arranged symmetrically around the 4×4 item grid: 3 on the left (X ~24–40) and 3 on the right (X ~200–216), at three vertical positions (Y ~48, ~88, ~136). Each pedestal checks one of six event flags ($F8–$FD at $0A1F) via TestFlagRaw. If the flag is set (statue collected), the pedestal shows its inventory_spritemap sprite ($3A–$3F). If not set, the actor immediately dies (no display).
+; 
+; The statues auto-hide when inventoryTabIndex == 3 (Status tab) and show on all other tabs (Use/Arrange/Discard), matching the item grid visibility.
+; 
+; Flags are set by the statue_inventory_reward ceremony (scene $FD), triggered after defeating bosses:
+;   $F8 = Gold Ship event, $F9 = Viper (Sky Garden), $FA = Vampires (Mu),
+;   $FB = Sand Fanger (Great Wall), $FC = Mummy Queen (Pyramid), $FD = Olman (Babel Tower).
+; 
+; See inventory_statue_slot and statue_inventory_reward block notes (Bank 00) for complete data flow.
+; 
 ; === GRID LAYOUT ===
 ; 
 ; 16 inventory slots arranged in a 4×4 grid. Slot index bits: low 2 bits = column (0-3), bits 2-3 = row (0-3). GridColumnPositions provides X positions for columns ($005C, $0074, $008C, $00A4). Y position = row × $10 + base ($0030 for grid, $0031 for slot actors). SlotPositionTable stores all 16 pre-computed screen positions.
@@ -207,7 +221,7 @@ UseItemTab {
     STA $itemAbilityIndex ; itemAbilityIndex for BG3 item detail strings
     COP [RunBg3Script] ( @system_strings.consolestring_01E9D0 )
     COP [SetEntryHereAndYield]
-    COP [BranchIfPressed] ( #$C040, &UseItemConfirm ) ; B, Y, or X ($C040) confirms equip selection
+    COP [BranchIfPressed] ( #$C000, &UseItemConfirm ) ; B, Y, or X ($C040) confirms equip selection
     COP [BranchIfPressed] ( #$0800, &UseItemCursorUp )
     COP [BranchIfPressed] ( #$0400, &UseItemCursorDown )
     COP [BranchIfPressed] ( #$0200, &UseItemCursorLeft )
@@ -277,7 +291,7 @@ UseItemCursorRight {
 ; Confirm item selection in Use tab. Stores $1A → inventoryEquippedIndex. If slot is empty (item byte = 0): sets inventoryEquippedIndex = $FFFF, clears inventoryEquippedType. If non-empty: stores item type to inventoryEquippedType. Both paths return to InventoryMainLoop.
 
 UseItemConfirm {
-    LDA #$C040            ; Equip confirm: mask B+Y+X held
+    LDA #$C000            ; Equip confirm: mask B+Y+X held
     TSB $joypadHeld
     COP [PlaySoundCh2] ( #11 )
     LDA $1A
@@ -315,7 +329,7 @@ ArrangeItemsTab {
   code_02E555:
     JSR $&PositionGridCursor ; Position grid selection cursor at slot $22
     COP [SetEntryHereAndYield]
-    COP [BranchIfPressed] ( #$4040, &ArrangeCancelTab ) ; Y or X ($4040) cancels Arrange tab
+    COP [BranchIfPressed] ( #$4000, &ArrangeCancelTab ) ; Y or X ($4040) cancels Arrange tab
     COP [BranchIfPressed] ( #$8000, &ArrangePickTarget ) ; B picks source slot for swap
     PEA $&code_02E555-1   ; Push resume address for shared grid navigation
     COP [BranchIfPressed] ( #$0800, &GridCursorUp )
@@ -346,8 +360,8 @@ ArrangePickTarget {
   code_02E5AC:
     JSR $&PositionGridCursor ; Position target cursor during swap pick
     COP [SetEntryHereAndYield]
-    COP [BranchIfPressed] ( #$4040, &ArrangeCancelTarget ) ; Cancel target pick (Y/X)
-    COP [BranchIfPressed] ( #$8000, &ArrangePerformSwap ) ; B confirms swap destination slot
+    COP [BranchIfPressed] ( #$4000, &ArrangeCancelTarget ) ; Cancel target pick (Y/X)
+    COP [BranchIfPressed] ( #$8044, &ArrangePerformSwap ) ; B confirms swap destination slot
     PEA $&code_02E5AC-1
     COP [BranchIfPressed] ( #$0800, &GridCursorUp )
     COP [BranchIfPressed] ( #$0400, &GridCursorDown )
@@ -433,7 +447,7 @@ ArrangeCancelTarget {
 
 ArrangeCancelTab {
     COP [KillNext]        ; Cancel Arrange tab — kill cursor, return to main loop
-    LDA #$4040
+    LDA #$4000
     TSB $joypadHeld
     JMP $&InventoryMainLoop
 }
@@ -458,7 +472,7 @@ DiscardItemTab {
   code_02E67C:
     JSR $&PositionGridCursor
     COP [SetEntryHereAndYield]
-    COP [BranchIfPressed] ( #$4040, &DiscardCancelTab ) ; Y/X exits Discard tab
+    COP [BranchIfPressed] ( #$4000, &DiscardCancelTab ) ; Y/X exits Discard tab
     COP [BranchIfPressed] ( #$8000, &code_02E6AA ) ; B selects slot to discard
     PEA $&code_02E67C-1
     COP [BranchIfPressed] ( #$0800, &GridCursorUp )
@@ -523,7 +537,7 @@ code_02E6AA {
 ; Cancel Discard tab. Consumes B/Y, kills cursor, shows equip cursor, returns to InventoryMainLoop.
 
 DiscardCancelTab {
-    LDA #$4040            ; Discard cancel: mask Y+X, kill cursor, show equip cursor
+    LDA #$4000            ; Discard cancel: mask Y+X, kill cursor, show equip cursor
     TSB $joypadHeld
     COP [KillNext]
     JSR $&ShowEquipCursor
@@ -558,7 +572,7 @@ StatusViewTab {
     COP [SetEntryHereAndYield] ; Status view input poll entry point
     COP [BranchIfPressed] ( #$0800, &StatusCursorUp ) ; Up moves status cursor (wrap row 0 → 2)
     COP [BranchIfPressed] ( #$0400, &StatusCursorDown )
-    COP [BranchIfPressed] ( #$C040, &StatusConfirmExit )
+    COP [BranchIfPressed] ( #$C000, &StatusConfirmExit )
     RTL 
 }
 
@@ -602,7 +616,7 @@ StatusCursorDown {
 
 StatusConfirmExit {
     COP [PlaySoundCh2] ( #11 ) ; A confirms exit from Status view
-    LDA #$C040
+    LDA #$C000
     TSB $joypadHeld
     COP [KillNext]
     JMP $&InventoryMainLoop
@@ -1387,7 +1401,7 @@ TabSelectionLoop {
     COP [BranchIfPressed] ( #$8000, &TabConfirm ) ; Tab selection loop — poll A/Up/Down/B/Y/X
     COP [BranchIfPressed] ( #$0800, &TabSelectUp )
     COP [BranchIfPressed] ( #$0400, &TabSelectDown )
-    COP [BranchIfPressed] ( #$6040, &TabCancel ) ; Y/Select/X ($6040) cancels tab hover
+    COP [BranchIfPressed] ( #$6000, &TabCancel ) ; Y/Select/X ($6040) cancels tab hover
     LDA $1C               ; Tab cursor blink counter increment
     INC $1C
     BIT #$000F

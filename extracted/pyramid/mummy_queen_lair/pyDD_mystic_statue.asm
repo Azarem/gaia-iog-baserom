@@ -6,7 +6,9 @@
 ---------------------------------------------
 
 !joypadMaskStd                  065A
+!globalScriptIndex              0AAC
 !characterForm                  0AD4
+!sourceSceneId                  0B12
 
 ---------------------------------------------
 
@@ -20,14 +22,14 @@ pyDD_mystic_statue [
     RTL 
 
   loc_08CE1D:
-    LDA #$FFF0
+    LDA #$FFFC
     TSB $joypadMaskStd
     COP [WaitByte] ( #3B )
     COP [PrintDialogString] ( &dialogstring_08CE60 )
     LDA #$0004
-    STA $0AAC
+    STA $globalScriptIndex
     LDA #$00CD
-    STA $0B12
+    STA $sourceSceneId
     LDA #$0007
     STA $0B08
     STA $0B0A

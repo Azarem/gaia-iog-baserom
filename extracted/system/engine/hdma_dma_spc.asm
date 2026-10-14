@@ -31,6 +31,7 @@
 ?INCLUDE 'spc_transfer'
 ?INCLUDE 'vblank_joypad'
 
+!hdmaEnableMask                 0066
 !sfxQueueCh1                    06F8
 !musicTransitionState           06FA
 !displayModeFlags               09EC
@@ -351,7 +352,7 @@ SetupHdmaChannel_Direct {
     PLA 
     STA $A1B0, X
     LDA $0068             ; Enable this channel bit in HDMA mask ($0066)
-    TSB $0066
+    TSB $hdmaEnableMask
     ASL $0068
     LDA $006A             ; Advance register offset +$10 to next DMA channel block
     ADC #$10

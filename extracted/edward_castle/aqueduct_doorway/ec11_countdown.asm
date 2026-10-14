@@ -28,13 +28,13 @@ ec11_countdown [
 ]
 
 code_09BDCB {
-    LDA #$CFF0
+    LDA #$CFFC
     TSB $joypadMaskStd
     COP [WaitByte] ( #1D )
     COP [PrintDialogString] ( &dialogstring_09BE70 )
     COP [StartMusic] ( #1B )
     COP [WaitByte] ( #3B )
-    LDA #$CFF0
+    LDA #$CFFC
     TRB $joypadMaskStd
 
   code_09BDE4:

@@ -3,6 +3,7 @@
 ; Runs 8 frames at original Y, then 16 frames drifting upward. Spawned during inventory-screen hit feedback. Lightweight spark burst without full actor overhead.
 ---------------------------------------------
 
+!oamWriteOffset                 00D8
 !oamComposeBuffer               7F3100
 
 ---------------------------------------------
@@ -23,7 +24,7 @@ SpawnHitSparkSprites {
 
 AppendHitSparkOamEntry {
     PHX 
-    LDX $00D8
+    LDX $oamWriteOffset
     LDA #$327A
     STA $7F3104, X
     LDA $14
@@ -40,10 +41,10 @@ AppendHitSparkOamEntry {
     STA $7F3106, X
     LDA $16
     STA $7F3108, X
-    LDA $00D8
+    LDA $oamWriteOffset
     CLC 
     ADC #$000C
-    STA $00D8
+    STA $oamWriteOffset
     PLX 
     RTS 
 }

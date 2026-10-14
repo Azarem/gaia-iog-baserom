@@ -27,7 +27,7 @@ sc06_main_soldier [
 ]
 
 code_04A386 {
-    LDA #$CFF0
+    LDA #$CFFC
     TSB $joypadMaskStd
     COP [WaitByte] ( #1D )
     COP [StageSpriteMoveX] ( #21, #11 )

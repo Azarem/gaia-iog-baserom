@@ -10,6 +10,7 @@
 ?INCLUDE 'spriteset_enemies'
 ?INCLUDE 'StandardEnemyDefeatHandler'
 
+!frameCounter                   0036
 !playerXPos                     09A2
 !playerActor                    09AA
 !moveXAlt                       7F0018
@@ -131,7 +132,7 @@ code_0AEFF0 {
     LDA $0010, Y
     BIT #$0080
     BEQ loc_0AEFF9
-    LDA $0036
+    LDA $frameCounter
     LSR 
     BCC loc_0AF02D
     LDA $26
@@ -167,7 +168,7 @@ code_0AF032 {
     LDA $0010, Y
     BIT #$0080
     BEQ loc_0AF03B
-    LDA $0036
+    LDA $frameCounter
     LSR 
     BCC loc_0AF066
     LDA $26

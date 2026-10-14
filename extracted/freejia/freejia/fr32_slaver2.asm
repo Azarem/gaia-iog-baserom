@@ -27,7 +27,7 @@ fr32_slaver2 [
     COP [ClearSolidHere]
     COP [StageSpriteLoopMoveX] ( #20, #04, #02 )
     COP [AnimLoop]
-    LDA #$EFF0
+    LDA #$EFFC
     TRB $joypadMaskStd
 } >
 ]
@@ -78,7 +78,7 @@ code_05B8B5 {
     COP [GiveItem] ( #01, &code_05B8C8 )
     COP [PrintDialogString] ( &dialogstring_05B94D )
     COP [SetFlagByte] ( #5A )
-    LDA #$EFF0
+    LDA #$EFFC
     TSB $joypadMaskStd
     RTL 
 }

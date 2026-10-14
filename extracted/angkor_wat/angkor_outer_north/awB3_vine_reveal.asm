@@ -26,7 +26,7 @@ awB3_vine_reveal [
 
 code_0898EF {
     COP [LoopStart] ( #14 )
-    LDA #$CFF0
+    LDA #$CFFC
     TSB $joypadMaskStd
     COP [LoopEnd]
     COP [PlaySoundBoth] ( #$0F0F )

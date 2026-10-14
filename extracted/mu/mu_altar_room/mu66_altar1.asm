@@ -23,7 +23,7 @@ mu66_altar1 [
     COP [AnimOnce]
     COP [WaitOnFlagByte] ( #81, #01 )
     COP [BranchIfPlayerInAbsTiles] ( #00, #00, #20, #20, &code_069C6A )
-    LDA #$CFF0
+    LDA #$CFFC
     TSB $joypadMaskStd
     COP [WaitByte] ( #1D )
     LDA #$0404

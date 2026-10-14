@@ -43,7 +43,7 @@ code_04E5F2 {
 }
 
 code_04E5F4 {
-    COP [BranchIfMissingItem] ( #03, &code_04E609 )
+    COP [BranchIfHasItem] ( #03, &code_04E609 )
     COP [BranchOnFlagByte] ( #47, #01, &code_04E604 )
     COP [PrintDialogString] ( &dialogstring_04E62C )
     RTL 
@@ -73,7 +73,7 @@ code_04E619 {
 code_04E61E {
     COP [PrintDialogString] ( &dialogstring_04E778 )
     COP [SetFlagByte] ( #01 )
-    LDA #$CFF0
+    LDA #$CFFC
     TSB $joypadMaskStd
     RTL 
 }

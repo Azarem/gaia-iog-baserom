@@ -32,11 +32,11 @@ na4B_spirit [
 code_05F313 {
     COP [NudgePosition] ( #70, #00 )
     COP [LoopEnd]
-    LDA #$FFF0
+    LDA #$FFFC
     TSB $joypadMaskStd
     COP [WaitByte] ( #13 )
     COP [PrintDialogString] ( &dialogstring_05F349 )
-    LDA #$FFF0
+    LDA #$FFFC
     TRB $joypadMaskStd
     COP [SetFlagByte] ( #02 )
     COP [StageSpriteLoopMoveXY] ( #32, #02, #11, #12 )

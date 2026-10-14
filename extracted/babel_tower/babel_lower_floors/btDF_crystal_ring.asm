@@ -39,7 +39,7 @@ code_09999B {
     COP [PlaySoundBoth] ( #$1D1D )
     LDA #$0006
     STA $playerSpeedNs
-    COP [BranchIfMissingItem] ( #27, &code_09999A )
+    COP [BranchIfHasItem] ( #27, &code_09999A )
     COP [BranchOnFlagByte] ( #01, #01, &code_0999BF )
     COP [SetFlagByte] ( #01 )
     COP [SpawnAfterFlags] ( @code_0999CC, #$3802 )
@@ -56,7 +56,7 @@ code_0999CB {
 }
 
 code_0999CC {
-    LDA #$CFF0
+    LDA #$CFFC
     TSB $joypadMaskStd
     COP [WaitByte] ( #0F )
     LDY $playerActor
@@ -102,7 +102,7 @@ code_0999CC {
     COP [PrintDialogString] ( &dialogstring_099A70 )
     LDA #$0800
     TSB $10
-    LDA #$CFF0
+    LDA #$CFFC
     TRB $joypadMaskStd
     COP [SetInteractHandler] ( &code_099A49 )
     COP [SetEntryHere]

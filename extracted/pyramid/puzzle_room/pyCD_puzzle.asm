@@ -74,11 +74,11 @@ pyCD_puzzle [
     BNE loc_08CBE2
     COP [SetFlagByte] ( #D1 )
     COP [PlaySoundBoth] ( #$0F0F )
-    LDA #$CFF0
+    LDA #$CFFC
     TSB $joypadMaskStd
     COP [WaitByte] ( #3B )
     COP [PrintDialogString] ( &dialogstring_08CD0B )
-    LDA #$CFF0
+    LDA #$CFFC
     TRB $joypadMaskStd
 } >
 ]
@@ -88,7 +88,7 @@ code_08CC09 {
 
   loc_08CC0B:
     COP [PlaySoundCh1] ( #12 )
-    LDA #$EFF0
+    LDA #$EFFC
     TSB $joypadMaskStd
     COP [WaitByte] ( #1D )
     COP [PrintDialogString] ( &dialogstring_08CCC4 )
@@ -143,14 +143,14 @@ code_08CC09 {
     LDA #$FFFF
     STA $0B32
     COP [DrawMetatileAbs] ( #0A, #06, #87 )
-    LDA #$EFF0
+    LDA #$EFFC
     TRB $joypadMaskStd
     JMP $&code_08CBC2
 }
 
 code_08CCB7 {
     COP [PrintDialogString] ( &dialogstring_08CD37 )
-    LDA #$EFF0
+    LDA #$EFFC
     TRB $joypadMaskStd
     JMP $&code_08CBC2
 }

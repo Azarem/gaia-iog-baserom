@@ -69,7 +69,7 @@ MusicPlaybackActor {
     TXA 
     TYX 
     TAY 
-    LDA #$FFF0            ; Suppress D-pad input during music loading ($FFF0 = all D-pad + shoulder)
+    LDA #$FFFC            ; Suppress D-pad input during music loading ($FFF0 = all D-pad + shoulder)
     TSB $joypadMaskStd
     COP [SetEntryHere]    ; Yield — resume next frame to poll transfer state
     LDA $musicTransitionState ; Check if music transfer has completed ($FFFF = done)
@@ -96,7 +96,7 @@ MusicPlaybackActor {
     RTL 
 
   loc_02A0A9:
-    LDA #$FFF0            ; Music engine ready: unmask D-pad input
+    LDA #$FFFC            ; Music engine ready: unmask D-pad input
     TRB $joypadMaskStd
     COP [SpawnAfterFlags] ( @hdma_dma_spc.SpcTransferMusicData, #$2000 ) ; Spawn second SpcTransferMusicData for follow-up data block
     CPY #$1FC0            ; Check spawn success ($1FC0 = pool exhausted)

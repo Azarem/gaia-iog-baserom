@@ -22,7 +22,7 @@ mu63_spirits [
     COP [BranchOnFlagByte] ( #7B, #01, &code_069AAE )
     COP [WaitOnFlagByte] ( #7B, #01 )
     COP [SpawnAfterAbsFlags] ( @code_069ABB, #$0080, #$0058, #$1000 )
-    LDA #$CFF0
+    LDA #$CFFC
     TSB $joypadMaskStd
     COP [WaitByte] ( #0F )
     COP [StartMusic] ( #1B )
@@ -57,7 +57,7 @@ mu63_spirits [
     COP [SpawnThinker] ( @oneshot_palette_flash_1C.FlashPalette1C )
     COP [WaitByte] ( #7F )
     STZ $0688
-    LDA #$CFF0
+    LDA #$CFFC
     TRB $joypadMaskStd
     COP [Die]
 } >
@@ -78,7 +78,7 @@ code_069AC1 {
     COP [BranchOnFlagByte] ( #7E, #01, &code_069B9D )
     COP [WaitOnFlagByte] ( #7E, #01 )
     COP [SpawnAfterAbsFlags] ( @code_069ABB, #$0180, #$0058, #$1000 )
-    LDA #$CFF0
+    LDA #$CFFC
     TSB $joypadMaskStd
     COP [WaitByte] ( #0F )
     COP [StartMusic] ( #1B )
@@ -113,7 +113,7 @@ code_069AC1 {
     COP [SpawnThinker] ( @oneshot_palette_flash_1C.FlashPalette1C )
     COP [WaitByte] ( #7F )
     STZ $0688
-    LDA #$CFF0
+    LDA #$CFFC
     TRB $joypadMaskStd
     COP [Die]
 }

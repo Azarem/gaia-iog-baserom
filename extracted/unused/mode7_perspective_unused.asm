@@ -127,10 +127,10 @@ Mode7PerspectiveAlt {
 QueueMode7HdmaAlt {
     PLD 
     PLX 
-    COP [QueueHdma] ( $7E7000, #1B ) ; Table A → HDMA channel $1B (M7A) via QueueHdma (not QueueDma)
+    COP [QueueHdma] ( $tileStagingBuffer, #1B ) ; Table A → HDMA channel $1B (M7A) via QueueHdma (not QueueDma)
     COP [QueueHdma] ( $7E7800, #1C ) ; Table B → HDMA channel $1C (M7B)
     COP [QueueHdma] ( $7E8000, #1D ) ; Table C → HDMA channel $1D (M7C)
-    COP [QueueHdma] ( $7E7000, #1E ) ; Table A reused → channel $1E (M7D = A for rotation matrix)
+    COP [QueueHdma] ( $tileStagingBuffer, #1E ) ; Table A reused → channel $1E (M7D = A for rotation matrix)
     RTL 
 }
 

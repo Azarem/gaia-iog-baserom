@@ -9,6 +9,7 @@
 ?INCLUDE 'pr_text_placement_calc'
 ?INCLUDE 'pr_thinkers'
 
+!frameCounter                   0036
 !gfxCacheIdxA                   0648
 !gfxCacheIdxB                   064A
 !cameraTargetX                  06BE
@@ -82,7 +83,7 @@ code_0BCC08 {
 code_0BCC2B {
     JSR $&code_0BCD26
     COP [SetEntryHere]
-    LDA $0036
+    LDA $frameCounter
     AND #$0003
     BNE loc_0BCC3E
     DEC $00CA
@@ -109,7 +110,7 @@ code_0BCC2B {
 code_0BCC5B {
     JSR $&code_0BCD26
     COP [SetEntryHere]
-    LDA $0036
+    LDA $frameCounter
     AND #$0003
     BNE loc_0BCC6E
     INC $00CA
@@ -132,7 +133,7 @@ code_0BCC5B {
 code_0BCC85 {
     JSR $&code_0BCD26
     COP [SetEntryHere]
-    LDA $0036
+    LDA $frameCounter
     AND #$0003
     BNE loc_0BCC98
     INC $00CC
@@ -155,7 +156,7 @@ code_0BCC85 {
 code_0BCCAE {
     JSR $&code_0BCD26
     COP [SetEntryHere]
-    LDA $0036
+    LDA $frameCounter
     AND #$0003
     BNE loc_0BCCC1
     DEC $00CC

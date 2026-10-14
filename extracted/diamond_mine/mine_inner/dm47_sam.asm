@@ -37,7 +37,7 @@ dm47_sam [
   loc_05D24B:
     COP [SetInteractHandler] ( &code_05D29E )
     COP [WaitOnFlagByte] ( #5E, #01 )
-    LDA #$FFF0
+    LDA #$FFFC
     TSB $joypadMaskStd
     COP [StartMusic] ( #1E )
     COP [WaitByte] ( #77 )
@@ -51,10 +51,10 @@ dm47_sam [
     RTL 
 
   loc_05D271:
-    COP [BranchIfMissingItem] ( #08, &code_05D286 )
+    COP [BranchIfHasItem] ( #08, &code_05D286 )
     COP [PrintDialogString] ( &dialogstring_05D40C )
     COP [RemoveItem] ( #02 )
-    LDA #$FFF0
+    LDA #$FFFC
     TRB $joypadMaskStd
     COP [SetEntryHere]
     RTL 
@@ -65,7 +65,7 @@ code_05D286 {
     COP [PrintDialogString] ( &dialogstring_05D377 )
     COP [RemoveItem] ( #02 )
     COP [RemoveItem] ( #08 )
-    LDA #$FFF0
+    LDA #$FFFC
     TRB $joypadMaskStd
     COP [SetEntryHere]
     RTL 

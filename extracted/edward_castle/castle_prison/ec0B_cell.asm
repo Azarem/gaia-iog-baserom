@@ -29,11 +29,11 @@ ec0B_cell [
     COP [MarkSolidAbs] ( #0F, #11 )
     LDA #$0800
     TRB $10
-    LDA #$CFF0
+    LDA #$CFFC
     TSB $joypadMaskStd
     COP [WaitByte] ( #1D )
     COP [PrintDialogString] ( &dialogstring_04D42F )
-    LDA #$CFF0
+    LDA #$CFFC
     TRB $joypadMaskStd
     COP [WaitOnFlagByte] ( #02, #01 )
     COP [WaitOnFlagByte] ( #03, #01 )
@@ -58,7 +58,7 @@ code_04D251 {
 }
 
 code_04D275 {
-    LDA #$CFF0
+    LDA #$CFFC
     TSB $joypadMaskStd
     COP [PrintDialogString] ( &dialogstring_04D679 )
     COP [WaitByte] ( #1D )
@@ -67,7 +67,7 @@ code_04D275 {
     COP [PrintDialogString] ( &dialogstring_04D732 )
     COP [SpawnThinker] ( @oneshot_palette_flash_1C.FlashPalette1C )
     COP [WaitByte] ( #BF )
-    LDA #$CFF0
+    LDA #$CFFC
     TRB $joypadMaskStd
     COP [PrintDialogString] ( &dialogstring_04D78A )
     COP [DialogueOptions] ( #02, #02, &code_list_04D2A6 )

@@ -37,7 +37,7 @@ code_04F0C6 {
 
 code_04F0CC {
     COP [SetFlagByte] ( #3B )
-    LDA #$CFF0
+    LDA #$CFFC
     TSB $joypadMaskStd
     LDA #$0003
     JSL $@InitPlayerScriptVariant

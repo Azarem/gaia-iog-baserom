@@ -20,7 +20,7 @@ nvAE_kara [
     COP [WaitOnFlagByte] ( #BF, #01 )
     COP [WaitOnFlagByte] ( #C0, #01 )
     COP [WaitOnFlagByte] ( #C1, #01 )
-    LDA #$CFF0
+    LDA #$CFFC
     TSB $joypadMaskStd
     COP [WaitByte] ( #3B )
     LDA #$2000
@@ -33,7 +33,7 @@ nvAE_kara [
     COP [WaitByte] ( #3B )
     COP [PrintDialogString] ( &dialogstring_0895C9 )
     COP [SetFlagByte] ( #CF )
-    LDA #$CFF0
+    LDA #$CFFC
     TRB $joypadMaskStd
     COP [SetInteractHandler] ( &code_089585 )
     COP [SetEntryHere]

@@ -52,8 +52,8 @@ code_04E96A {
 
 code_04E97A {
     COP [BranchOnFlagByte] ( #44, #01, &code_04E9F1 )
-    COP [BranchIfMissingItem] ( #04, &code_04E9DC )
-    COP [BranchIfMissingItem] ( #03, &code_04E9E1 )
+    COP [BranchIfHasItem] ( #04, &code_04E9DC )
+    COP [BranchIfHasItem] ( #03, &code_04E9E1 )
     COP [BranchOnFlagByte] ( #47, #01, &code_04E9D4 )
     COP [BranchOnFlagByte] ( #0E, #01, &code_04E9BC )
     COP [BranchOnFlagByte] ( #0F, #01, &code_04E9A0 )

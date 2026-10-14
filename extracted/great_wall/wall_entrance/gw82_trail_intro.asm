@@ -15,11 +15,11 @@ gw82_trail_intro [
   code_07B532:
     COP [BranchOnFlagByte] ( #9D, #01, &code_07B54E )
     COP [SetFlagByte] ( #9D )
-    LDA #$CFF0
+    LDA #$CFFC
     TSB $joypadMaskStd
     COP [WaitByte] ( #1D )
     COP [PrintDialogString] ( &dialogstring_07B550 )
-    LDA #$CFF0
+    LDA #$CFFC
     TRB $joypadMaskStd
 } >
 ]

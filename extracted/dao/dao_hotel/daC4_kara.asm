@@ -39,11 +39,11 @@ code_08A4D1 {
 
 code_08A4D6 {
     COP [SetFlagByte] ( #B6 )
-    LDA #$CFF0
+    LDA #$CFFC
     TSB $joypadMaskStd
     COP [WaitByte] ( #1D )
     COP [PrintDialogString] ( &dialogstring_08A4EF )
-    LDA #$CFF0
+    LDA #$CFFC
     TRB $joypadMaskStd
     COP [SetEntryHere]
     RTL 

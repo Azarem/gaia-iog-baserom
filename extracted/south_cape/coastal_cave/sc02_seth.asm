@@ -51,13 +51,13 @@ sc02_seth [
 ]
 
 code_04B4BD {
-    LDA #$CFF0
+    LDA #$CFFC
     TSB $joypadMaskStd
     LDA #$0000
     JSL $@InitPlayerScriptVariant
     COP [SetEntryHereAndYield]
     COP [PrintDialogString] ( &dialogstring_04B652 )
-    LDA #$CFF0
+    LDA #$CFFC
     TRB $joypadMaskStd
     COP [SetFlagByte] ( #05 )
     COP [SetInteractHandler] ( &code_04B5AC )

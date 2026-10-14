@@ -20,19 +20,19 @@ AttackSystemEntry
        │
        ├─ Tap / short hold → basic attack (if $0AA2 bit 0 or 6)
        └─ Charge hold → extended charge → release or L/R selects special
-            Will:   release → Psycho Dash    |  L/R → Psycho Slider
+            Will:   release → Psycho Dash    |  L/R → Spin Dash
             Freedan: release → Dark Friar     |  L/R → Aura Barrier
 ```
 
 | `$0AD4` | Form | Attack path | Special abilities (charge release / L·R) |
 |---------|------|-------------|-------------------------------------------|
-| `0` | Will | `WillAttackDispatch` | Psycho Dash / Psycho Slider |
+| `0` | Will | `WillAttackDispatch` | Psycho Dash / Spin Dash |
 | `1` | Freedan | `FreedanAttackDispatch` | Dark Friar / Aura Barrier |
 | `2+` | Shadow | *(immediate RTL)* | — |
 
-Ability availability is gated by `$0AA2`: Will's dispatch requires bit 0 (`$0001`, basic attack) or bit 2 (`$0004`, Psycho Slider); Freedan's dispatch requires bit 4 (`$0010`, Dark Friar) or bit 6 (`$0040`, Earthquaker) — without either, the dispatch returns immediately without attacking. Aura Barrier additionally requires bit 5 (`$0020`).
+Ability availability is gated by `$0AA2`: Will's dispatch requires bit 0 (`$0001`, Psycho Dash) or bit 2 (`$0004`, Spin Dash); Freedan's dispatch requires bit 4 (`$0010`, Dark Friar) or bit 6 (`$0040`, Earthquaker) — without either, the dispatch returns immediately without attacking. Aura Barrier additionally requires bit 5 (`$0020`).
 
-**Two-phase charge model:** Both characters share a **40-frame initial hold** (`LoopInit #28`). Only after that threshold does the extended-charge window open — **120 frames** (`$0078`) for Will, **100 frames** (`$0064`) for Freedan. During extended charge, L/R shoulder input selects the alternate special; releasing the attack button fires the default special (Dash or Dark Friar). Validation helpers (`ValidateAttackReady`, `CheckAttackChargeable`) block charging during hitstun, death, or mid-combo.
+**Two-phase charge model:** Both characters share a **40-frame initial hold** (`LoopInit #28`). Only after that threshold does the extended-charge window open — **120 frames** (`$0078`) for Will, **100 frames** (`$0064`) for Freedan. During extended charge, L/R shoulder input selects the alternate special (Spin Dash or Aura Barrier); releasing the attack button fires the default special (Psycho Dash or Dark Friar). Validation helpers (`ValidateAttackReady`, `CheckAttackChargeable`) block charging during hitstun, death, or mid-combo.
 
 **Trail followers:** Psycho Dash and Dark Friar spawn companion trail actors that lag behind the parent projectile. Each follower maintains a **3-slot position FIFO** (`TrailPositionCascade`): each frame the parent's `$14`/`$16` shifts through slot 0 → slot 1 → slot 2, and the follower renders at the oldest slot — producing a smooth motion trail without re-simulating physics. Parent offset helpers (`ComputeParentOffset` / `ApplyParentOffset`) keep fragments and trails aligned when the player moves during an ability.
 
@@ -47,9 +47,9 @@ Attack/ability companion actor — runs **before** movement controller via `Spaw
 | Address | Name | Description |
 |---------|------|-------------|
 | `$02B7B3` | AttackSystemEntry | Entry. Check dead → die. Each frame check `$2A00` → skip. Check `$0AD4 < 2` → listen for attack (`$8001`). |
-| `$02B7DE` | WillAttackDispatch | Will's attack. Check `$0AA2` bits `$0005` (0+2). 40-frame hold, 120-frame charge. L/R → Slider, release → Dash. |
+| `$02B7DE` | WillAttackDispatch | Will's attack. Check `$0AA2` bits `$0005` (0+2). 40-frame hold, 120-frame charge. L/R → Spin Dash, release → Psycho Dash. |
 | `$02B855` | LaunchPsychoDash | Validate facing, set func to `PsychoDashMain`. |
-| `$02B861` | LaunchPsychoSlider | Set func to `PsychoSliderMain`. |
+| `$02B861` | LaunchSpinDash | Set func to `SpinDashMain`. |
 | `$02B86D` | FreedanAttackDispatch | Freedan attack. Check `$0AA2` bits `$0050` (4+6). 40-frame hold, 100-frame charge. Release → Dark Friar; L/R → Aura Barrier. |
 | `$02B8D6` | LaunchDarkFriar | Set `$00EA=1`, func to `DarkFriarMain`. |
 | `$02B8E7` | LaunchAuraBarrier | Require stopped. Set `$00EA=2`, func to `AuraBarrierMain`. |
@@ -99,15 +99,15 @@ Attack/ability companion actor — runs **before** movement controller via `Spaw
 | `$02BF71` | PsychoDashTrailNorth | Inverted Y deltas. |
 | `$02BFD9` | PsychoDashTrailWest | X-axis deltas. |
 | `$02C041` | PsychoDashTrailEast | Inverted X deltas. |
-| `$02C0A9` | PsychoSliderMain | Set `$2002`, spawn guided projectile. Charge loop, L/R direction. |
-| `$02C17C` | PsychoSliderRelease | Clear `$2800`. Check `$0B1A`: return 12 or 24 frames. |
-| `$02C199` | PsychoSliderLaunch | Set sprite timer, anim set 1. Check joypad for direction. |
-| `$02C1BE` | PsychoSliderDirEW | Horizontal launch. |
-| `$02C1D0` | PsychoSliderDirNS | Vertical launch. |
-| `$02C1E4` | PsychoSliderAbort | Clear `$0200`, restore. |
-| `$02C1EB` | PsychoSliderChargeTick | Per-frame: alternate L/R shoulder check. |
+| `$02C0A9` | SpinDashMain | Set `$2002`, spawn guided projectile. Charge loop, L/R direction. |
+| `$02C17C` | SpinDashRelease | Clear `$2800`. Check `$0B1A`: return 12 or 24 frames. |
+| `$02C199` | SpinDashLaunch | Set sprite timer, anim set 1. Check joypad for direction. |
+| `$02C1BE` | SpinDashDirEW | Horizontal launch. |
+| `$02C1D0` | SpinDashDirNS | Vertical launch. |
+| `$02C1E4` | SpinDashAbort | Clear `$0200`, restore. |
+| `$02C1EB` | SpinDashChargeTick | Per-frame: alternate L/R shoulder check. |
 | `$02C21C` | KillSpawnedProjectile | Read stored actor ID, `COP [MarkDeath]`. |
-| `$02C232` | GuidedProjectileActor | Sprite priority `#30`, joypad-directed. 4 directions with hitbox. |
+| `$02C232` | GuidedProjectileActor | Spin Dash steerable orb. Sprite priority `#30`, joypad-directed. 4 directions with hitbox. |
 | `$02C288` | ProjectileMoveRight | Right: sprite `#3D`. |
 | `$02C2A8` | ProjectileMoveLeft | Left: `#3C`. |
 | `$02C2C8` | ProjectileMoveUp | Up: `#3B`. |
@@ -142,11 +142,11 @@ Companion actor entry point that runs every frame before the movement controller
 
 ### WillAttackDispatch
 
-Entered from `AttackSystemEntry` when Will presses attack and `$0AA2` has basic attack or Psycho Slider unlocked. Sets the attack-in-progress flag, enforces a 40-frame hold commitment, then opens a 120-frame extended charge window with palette FX. Releasing attack fires Psycho Dash; if Psycho Slider is unlocked, `CheckAttackChargeable` gates continued charging and L/R shoulder input launches the steerable Slider instead.
+Entered from `AttackSystemEntry` when Will presses attack and `$0AA2` has Psycho Dash or Spin Dash unlocked. Sets the attack-in-progress flag, enforces a 40-frame hold commitment, then opens a 120-frame extended charge window with palette FX. Releasing attack fires Psycho Dash; if Spin Dash is unlocked, `CheckAttackChargeable` gates continued charging and L/R shoulder input launches the steerable Spin Dash instead.
 
 ### FreedanAttackDispatch
 
-Branched from `WillAttackDispatch` when `characterForm` is 1. Requires Dark Friar or basic-attack bits in `$0AA2`, then runs the same 40-frame hold followed by a shorter 100-frame charge. Pressing Y, A, or shoulders during charge aborts to prevent accidental inputs. Without Aura Barrier unlocked, releasing attack fires Dark Friar; with it, D-pad input cancels selection, L/R launches the stationary Aura Barrier, and release still defaults to Dark Friar.
+Branched from `WillAttackDispatch` when `characterForm` is 1. Requires Dark Friar or Earthquaker bits in `$0AA2`, then runs the same 40-frame hold followed by a shorter 100-frame charge. Pressing Y, A, or shoulders during charge aborts to prevent accidental inputs. Without Aura Barrier unlocked, releasing attack fires Dark Friar; with it, D-pad input cancels selection, L/R launches the stationary Aura Barrier, and release still defaults to Dark Friar.
 
 ### AttackCleanup
 
@@ -156,11 +156,11 @@ Called by all launch routines and by `ValidateAttackReady` on abort. Kills the c
 
 ### ValidateAttackReady
 
-Gate called by `LaunchPsychoDash`, `LaunchPsychoSlider`, `LaunchDarkFriar`, and `LaunchAuraBarrier` immediately before hijacking the player actor. Blocks launch if the player is hurt, in knockback, transforming, or in a dialogue transition, or if facing is not a cardinal direction. On failure it pops the return address and falls through to `AttackCleanup` rather than starting the ability.
+Gate called by `LaunchPsychoDash`, `LaunchSpinDash`, `LaunchDarkFriar`, and `LaunchAuraBarrier` immediately before hijacking the player actor. Blocks launch if the player is hurt, in knockback, transforming, or in a dialogue transition, or if facing is not a cardinal direction. On failure it pops the return address and falls through to `AttackCleanup` rather than starting the ability.
 
 ### CheckAttackChargeable
 
-Called each frame during Will's extended charge when Psycho Slider is unlocked. Returns carry set (not chargeable) if the player is recovering from hitstun, locked in a special animation, or mid-combo — preventing indefinite charge farming. When carry is clear, charge continues and the L/R shoulder check for Psycho Slider can proceed.
+Called each frame during Will's extended charge when Spin Dash is unlocked. Returns carry set (not chargeable) if the player is recovering from hitstun, locked in a special animation, or mid-combo — preventing indefinite charge farming. When carry is clear, charge continues and the L/R shoulder check for Spin Dash can proceed.
 
 #### Aura Barrier Orbitals
 
@@ -244,25 +244,25 @@ West variant spawned by `PsychoDashWest`. Records 8 frames of X-position deltas 
 
 East mirror of `PsychoDashTrailWest`, spawned by `PsychoDashEast`. Inverts the X delta subtraction (baseline minus current instead of current minus baseline) to match eastward motion direction. Same 8-frame record and reverse-playback lifecycle as the west trail.
 
-#### Psycho Slider
+#### Spin Dash
 
-### PsychoSliderMain
+### SpinDashMain
 
-Will's alternate charged ability, reached from `LaunchPsychoSlider`. Sets Psycho Slider state flags, runs a contact-damage charge animation loop, and aborts via `PsychoSliderAbort` on wall collision. When charge completes, spawns `GuidedProjectileActor` for D-pad steering during the hold phase, then uses an RTS trick to chain into directional speed setup and the launch sequence. Enters the L/R charge-tick phase when charge level reaches 12 or higher.
+Will's alternate charged ability, reached from `LaunchSpinDash`. Sets Spin Dash state flags, runs a contact-damage charge animation loop, and aborts via `SpinDashAbort` on wall collision. When charge completes, spawns `GuidedProjectileActor` for D-pad steering during the hold phase, then uses an RTS trick to chain into directional speed setup and the launch sequence. Enters the L/R charge-tick phase when charge level reaches 12 or higher.
 
-### PsychoSliderRelease
+### SpinDashRelease
 
-Intermediate hop in the launch chain, reached via RTS trick after the guided projectile phase ends. Clears Psycho Slider state flags from `$playerFlags` and sets up `PsychoSliderLaunchLoop` as the return target. Returns a frame count for the launch animation delay: 12 frames at base level, 24 frames if the Slider upgrade flag (`$0B1A`) is set.
+Intermediate hop in the launch chain, reached via RTS trick after the guided projectile phase ends. Clears Spin Dash state flags from `$playerFlags` and sets up `SpinDashLaunchLoop` as the return target. Returns a frame count for the launch animation delay: 12 frames at base level, 24 frames if the Spin Dash upgrade flag (`$0B1A`) is set.
 
-### PsychoSliderLaunch
+### SpinDashLaunch
 
-Runs the launch animation loop stored in `retPtr2`, then checks D-pad input for direction. Routes to `PsychoSliderDirEW` or `PsychoSliderDirNS` for facing-specific player sprites; if no direction is held, aborts via `PsychoSliderAbort`. Clears the charge state flag when the launch animation completes.
+Runs the launch animation loop stored in `retPtr2`, then checks D-pad input for direction. Routes to `SpinDashDirEW` or `SpinDashDirNS` for facing-specific player sprites; if no direction is held, aborts via `SpinDashAbort`. Clears the charge state flag when the launch animation completes.
 
-### PsychoSliderDirNS
+### SpinDashDirNS
 
-Vertical launch sprite selection called from `PsychoSliderLaunch` when up or down is held on the D-pad. Up selects player sprite #01 (north launch pose), down selects sprite #00 (south launch pose), then animates one frame before returning to the caller chain.
+Vertical launch sprite selection called from `SpinDashLaunch` when up or down is held on the D-pad. Up selects player sprite #01 (north launch pose), down selects sprite #00 (south launch pose), then animates one frame before returning to the caller chain.
 
-### PsychoSliderChargeTick
+### SpinDashChargeTick
 
 Called each frame during Will's extended charge when charge level is 12 or above. Checks L shoulder on odd frames and R shoulder on even frames — each press decrements the charge level for intensity tuning. Merges consumed shoulder button state into `joypadHeld` to prevent the same press from triggering again next frame.
 
@@ -270,15 +270,15 @@ Called each frame during Will's extended charge when charge level is 12 or above
 
 ### GuidedProjectileActor
 
-Steerable Psycho Slider orb spawned at Will's position during the charge phase. Stores its offset from the player and responds to D-pad input, switching among directional sprites (#3A–#3D) each with an active hitbox. Calls `RecomputeProjectilePos` each steering frame to stay relative to Will's position; shows neutral sprite #39 when no direction is held.
+Steerable Spin Dash orb spawned at Will's position during the charge phase. Stores its offset from the player and responds to D-pad input, switching among directional sprites (#3A–#3D) each with an active hitbox. Calls `RecomputeProjectilePos` each steering frame to stay relative to Will's position; shows neutral sprite #39 when no direction is held.
 
 ### RecomputeProjectilePos
 
-Called each steering frame by `GuidedProjectileActor` and the four `ProjectileMove*` routines. Adds the stored spawn offset to Will's current world position so the slider orb maintains its relative placement even while Will animates during charge and release.
+Called each steering frame by `GuidedProjectileActor` and the four `ProjectileMove*` routines. Adds the stored spawn offset to Will's current world position so the Spin Dash orb maintains its relative placement even while Will animates during charge and release.
 
 ### LoadAbilityAnimTableA
 
-Indexes Will's ability animation table (`table_01D9A7`) by the value in A. Resolves the pointer chain and stores a configuration byte to `climbStateData` (`$09E0`) for the engine's sprite and hitbox setup. Called by `PsychoDashMain` and `PsychoSliderMain` to load the correct ability visuals before dispatch.
+Indexes Will's ability animation table (`table_01D9A7`) by the value in A. Resolves the pointer chain and stores a configuration byte to `climbStateData` (`$09E0`) for the engine's sprite and hitbox setup. Called by `PsychoDashMain` and `SpinDashMain` to load the correct ability visuals before dispatch.
 
 ### LoadAbilityAnimTableB
 

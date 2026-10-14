@@ -54,8 +54,8 @@ code_07A5A0 {
 }
 
 code_07A5AD {
-    COP [BranchIfMissingItem] ( #01, &code_07A5B7 )
-    COP [BranchIfMissingItem] ( #06, &code_07A5E8 )
+    COP [BranchIfHasItem] ( #01, &code_07A5B7 )
+    COP [BranchIfHasItem] ( #06, &code_07A5E8 )
 }
 
 code_07A5B7 {
@@ -73,11 +73,11 @@ code_07A5B7 {
 
 code_07A5CB {
     COP [SetFlagByte] ( #92 )
-    LDA #$CFF0
+    LDA #$CFFC
     TSB $joypadMaskStd
     COP [WaitByte] ( #1D )
     COP [PrintDialogString] ( &dialogstring_07A79C )
-    LDA #$CFF0
+    LDA #$CFFC
     TRB $joypadMaskStd
 }
 

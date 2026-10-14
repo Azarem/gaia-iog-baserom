@@ -4,7 +4,7 @@
 ; crew's days of drifting: day-by-day text transitions, starvation
 ; mechanics that damage the player's HP, enemy stat changes for
 ; the weakening crew, palette fades to represent passing time,
-; and the eventual rescue. Uses damageFlashTimer for visual HP
+; and the eventual rescue. Uses hpToHeal for visual HP
 ; drain effects. Includes the Freedan transformation check and
 ; player_transition_handlers for cutscene movement control.
 ---------------------------------------------
@@ -22,7 +22,7 @@
 !displayModeFlags               09EC
 !playerMaxHp                    0ACA
 !playerHp                       0ACE
-!damageFlashTimer               0B22
+!hpToHeal                       0B22
 !animScratch2                   7F000E
 !orbitAngle                     7F0010
 !statsPtr                       7F0020
@@ -250,7 +250,7 @@ code_059805 {
 code_05992A {
     COP [PlaySoundCh1] ( #22 )
     LDA #$0001
-    STA $damageFlashTimer
+    STA $hpToHeal
     COP [Die]
 }
 
@@ -352,12 +352,12 @@ code_059ABA {
     COP [SpawnAfterFlags] ( @code_0597EB, #$2800 )
     LDA #$0001
     STA $playerHp
-    LDA #$CFF0
+    LDA #$CFFC
     TSB $joypadMaskStd
     COP [WaitByte] ( #01 )
     COP [PrintDialogString] ( &dialogstring_059D07 )
     COP [PrintDialogString] ( &dialogstring_05A291 )
-    LDA #$CFF0
+    LDA #$CFFC
     TRB $joypadMaskStd
     COP [SetInteractHandler] ( &code_059B26 )
     COP [MarkSolidHere]
@@ -397,7 +397,7 @@ code_059B26 {
 code_059B3B {
     LDA #$4001
     TSB $displayModeFlags
-    LDA #$EFF0
+    LDA #$EFFC
     TSB $joypadMaskStd
     COP [SpawnThinker] ( @code_059BAF )
     TXA 
@@ -529,7 +529,7 @@ code_059C7A {
     COP [SetInteractHandler] ( &code_059CE3 )
     COP [MarkSolidHere]
     COP [WaitOnFlagByte] ( #01, #01 )
-    LDA #$CFF0
+    LDA #$CFFC
     TSB $joypadMaskStd
     COP [StageSpriteFrame] ( #12 )
     COP [AnimOnce]

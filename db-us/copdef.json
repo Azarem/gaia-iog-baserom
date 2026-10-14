@@ -195,7 +195,7 @@
   "WaitOnFlagWord": { "id": 211, "parts": [ "Word", "Byte" ] },
   "GiveItem": { "id": 212, "parts": [ "Byte", "&Code" ] },
   "RemoveItem": { "id": 213, "parts": [ "Byte" ] },
-  "BranchIfMissingItem": { "id": 214, "parts": [ "Byte", "&Code" ] },
+  "BranchIfHasItem": { "id": 214, "parts": [ "Byte", "&Code" ] },
   "BranchIfItemEquipped": { "id": 215, "parts": [ "Byte", "&Code" ] },
   "SetDungeonKillFlag": { "id": 216, "parts": [] },
   "SwitchCase": { "id": 217, "parts": [ "Word", "&&Code" ], "halt": true },

@@ -46,15 +46,15 @@ RemoveItem {
 }
 
 ---------------------------------------------
-; COP #D6 with one byte (item ID) and one &Code operand. Calls CheckInventoryForItem; branches to the &Code offset when the item is absent (carry clear).
+; COP #D6 with one byte (item ID) and one &Code operand. Calls CheckInventoryForItem; branches to the &Code offset when the item is present (carry clear = found).
 
-BranchIfMissingItem {
+BranchIfHasItem {
     TYX 
     LDA [$0A]             ; Read item ID for inventory check
     INC $0A
     AND #$00FF
-    JSL $@inventory_mgmt.CheckInventoryForItem ; CheckInventoryForItem; carry clear = absent
-    BCC loc_00AC51        ; Item absent (carry clear): branch to &Code target
+    JSL $@inventory_mgmt.CheckInventoryForItem ; CheckInventoryForItem; carry clear = found
+    BCC loc_00AC51        ; Item found (carry clear): branch to &Code target
     LDA [$0A]
     INC $0A
     INC $0A
@@ -63,7 +63,7 @@ BranchIfMissingItem {
     RTI 
 
   loc_00AC51:
-    LDA [$0A]             ; Item absent: read &Code branch target and jump
+    LDA [$0A]             ; Item found: read &Code branch target and jump
     INC $0A
     INC $0A
     STA $02, S

@@ -15,7 +15,7 @@ sp5A_monologue [
   actor-def < #00, #00, #30, {
 
   code_068499:
-    LDA #$CFF0
+    LDA #$CFFC
     TSB $joypadMaskStd
     LDA $sceneCurrent
     CMP #$005A
@@ -26,7 +26,7 @@ sp5A_monologue [
     BEQ loc_0684DD
 
   code_0684B1:
-    LDA #$CFF0
+    LDA #$CFFC
     TRB $joypadMaskStd
     COP [Die]
 

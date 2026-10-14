@@ -11,7 +11,7 @@
 ?INCLUDE 'spriteset_enemies'
 
 !bg1ScrollH                     068A
-!bg2ScrollH                     068E
+!mapScrollV                     068E
 !moveXAlt                       7F0018
 !moveYAlt                       7F001A
 
@@ -239,7 +239,7 @@ code_0BB9FC {
     STA $moveXAlt, X
     COP [RngByte]
     CLC 
-    ADC $bg2ScrollH
+    ADC $mapScrollV
     STA $16
     STA $moveYAlt, X
     COP [BranchIfSolidHere] ( &code_0BBA54 )
@@ -247,7 +247,7 @@ code_0BB9FC {
     COP [WaitByte] ( #3B )
     LDA #$2000
     TRB $10
-    LDA $bg2ScrollH
+    LDA $mapScrollV
     SEC 
     SBC #$0020
     STA $16
@@ -392,7 +392,7 @@ code_0BBB46 {
     STA $moveXAlt, X
     LDA $16
     STA $moveYAlt, X
-    LDA $bg2ScrollH
+    LDA $mapScrollV
     SEC 
     SBC #$0010
     STA $16

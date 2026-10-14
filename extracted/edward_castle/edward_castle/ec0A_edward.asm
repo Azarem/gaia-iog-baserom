@@ -18,7 +18,7 @@ ec0A_edward [
     COP [NudgePosition] ( #08, #00 )
     COP [SetInteractHandler] ( &code_04C3EC )
     COP [WaitOnFlagByte] ( #05, #01 )
-    LDA #$CFF0
+    LDA #$CFFC
     TSB $joypadMaskStd
     COP [SetFlagByte] ( #0A )
     COP [PrintDialogString] ( &dialogstring_04C556 )

@@ -14,9 +14,9 @@ run_button_main:
   LDA $09AE
   BIT #$3800
   BNE run_button_end    ;Skip if movement is disabled or on a ladder or ramp
-  LDA $0656
-  BIT #$0080
-  BEQ run_button_end    ;Skip if not pressing (A/Y)
+  LDA $joypadCurrent
+  BIT #$0040
+  BEQ run_button_end    ;Skip if not pressing run
   XBA
   LSR
   BCS run_button_e
@@ -56,24 +56,6 @@ run_store_ew:
   RTL
 
 --------------------------------------
-
-;Fix Y button mapping for style 1
-loc_0BE695! {
-    LDA #$0040
-    STA $0DB0
-    LDA $0B26
-    BNE loc_0BE6B3
-    LDA #$8000
-    STA $0DAC
-    LDA #$4000
-    STA $0DAA
-    LDA #$0080   ;This
-    STA $0DAE
-}
-
-loc_0BE6B3! {
-    RTS 
-}
 
 dialogstring_0BF538! `[DLG:6,8][SIZ:A,8][SKP:2]Change Snd/Buttons[N]End Changes[N]Sound[N][LU2:2]Type[N][SKP:5]   :Attack/Talk[N][SKP:5]   :Item/Cancel[N][SKP:5]   :Item Menu[N][SKP:5]   :Sprint`
 dialogstring_0BF5AD! `[DLG:6,8][SIZ:A,8]Arrangement  OK?[N]Start Journey[N]Sound[N][LU2:2]Type[N][SKP:5]   :Attack/Talk[N][SKP:5]   :Item/Cancel[N][SKP:5]   :Item Menu[N][SKP:5]   :Sprint`

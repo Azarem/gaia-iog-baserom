@@ -5,6 +5,7 @@
 ; and strength of the wind.
 ---------------------------------------------
 
+!frameCounter                   0036
 !extVelocityX                   0408
 !cameraTargetX                  06BE
 !moveXAlt                       7F0018
@@ -25,7 +26,7 @@ av71_wind_effect [
 ]
 
 code_06D6A0 {
-    LDA $0036
+    LDA $frameCounter
     AND #$000F
     BEQ loc_06D6A9
     RTL 

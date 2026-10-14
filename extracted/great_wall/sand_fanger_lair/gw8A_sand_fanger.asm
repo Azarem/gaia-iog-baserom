@@ -22,6 +22,8 @@
 ?INCLUDE 'smooth_follow_child'
 ?INCLUDE 'spriteset_enemies'
 
+!frameCounter                   0036
+!actorListFirst                 0056
 !gfxCacheIdxA                   0648
 !gfxCacheIdxB                   064A
 !joypadMaskStd                  065A
@@ -30,7 +32,9 @@
 !playerXTile                    09A6
 !playerActor                    09AA
 !playerFlags                    09AE
+!globalScriptIndex              0AAC
 !characterForm                  0AD4
+!sourceSceneId                  0B12
 !activeActorCount               0DBC
 !animScratch                    7F0000
 !chatPtr                        7F000A
@@ -103,14 +107,14 @@ code_0B8060 {
 
   loc_0B8073:
     COP [WaitOnFlagWord] ( #$016A, #01 )
-    LDA #$FFF0
+    LDA #$FFFC
     TSB $joypadMaskStd
     COP [WaitByte] ( #3B )
     COP [PrintDialogString] ( &dialogstring_0B80B5 )
     LDA #$0003
-    STA $0AAC
+    STA $globalScriptIndex
     LDA #$008A
-    STA $0B12
+    STA $sourceSceneId
     LDA #$0016
     STA $0B08
     STA $0B0A
@@ -216,12 +220,12 @@ code_0B81BE {
     COP [ClearSolidAbs] ( #10, #2A )
     COP [ClearSolidAbs] ( #0F, #2B )
     COP [ClearSolidAbs] ( #10, #2B )
-    LDA #$EFF0
+    LDA #$EFFC
     TSB $joypadMaskStd
     COP [WaitByte] ( #1F )
     COP [StartMusic] ( #0F )
     COP [WaitByte] ( #3B )
-    LDA #$EFF0
+    LDA #$EFFC
     TRB $joypadMaskStd
 }
 
@@ -756,7 +760,7 @@ code_0B8582 {
     DEC $0000
     BPL loc_0B85AA
     PHX 
-    LDX $0056
+    LDX $actorListFirst
 
   loc_0B85DA:
     LDA $extendedFlags, X
@@ -1376,7 +1380,7 @@ code_0B8A09 {
     STA $000E, Y
     LDA $0004
     BEQ loc_0B8A7D
-    LDA $0036
+    LDA $frameCounter
     LSR 
     BCC loc_0B8A7D
     LDA $000E, Y

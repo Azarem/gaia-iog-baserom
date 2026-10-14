@@ -49,14 +49,14 @@ dc31_kara [
 
   loc_05AFE7:
     COP [WaitOnFlagByte] ( #56, #01 )
-    LDA #$CFF0
+    LDA #$CFFC
     TSB $joypadMaskStd
     COP [ClearSolidHere]
     COP [StageSpriteLoopMoveX] ( #30, #02, #02 )
     COP [AnimLoop]
     COP [StageSpriteLoopMoveY] ( #2E, #04, #01 )
     COP [AnimLoop]
-    LDA #$CFF0
+    LDA #$CFFC
     TRB $joypadMaskStd
 } >
 ]

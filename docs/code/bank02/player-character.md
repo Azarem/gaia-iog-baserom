@@ -47,23 +47,23 @@ flowchart TB
 
 ### Player State Machine
 
-`PlayerIdleEntry` is the hub state. Input priority from `PlayerIdleDispatchTable` is: attack button → D-pad cardinal → L/R run → idle stand. Residual `player_speed_ew/ns` routes to `MovingEastWest` / `MovingNorthSouth` for inertial deceleration. Ladder, vine climb, and wall shimmy are entered from tile-collision redirects during movement (tiles `$02`, `$08`, `$07`).
+`PlayerIdleEntry` is the hub state. Input priority from `PlayerIdleDispatchTable` is: attack button → D-pad cardinal → L/R block → idle stand. Residual `player_speed_ew/ns` routes to `MovingEastWest` / `MovingNorthSouth` for inertial deceleration. Ladder, vine climb, and wall shimmy are entered from tile-collision redirects during movement (tiles `$02`, `$08`, `$07`).
 
 ```mermaid
 stateDiagram-v2
     [*] --> Idle: PlayerIdleEntry
 
     Idle --> Walk: D-pad cardinal
-    Idle --> Run: L/R shoulder ($0300)
+    Idle --> Block: L/R shoulder ($0030)
     Idle --> Attack: B button ($8000)
     Idle --> InertialMove: Residual player_speed
 
-    Walk --> Run: L/R during walk
+    Walk --> Block: L/R during walk
     Walk --> Attack: B / CheckAttackWhileWalking
     Walk --> Idle: Stop moving
 
-    Run --> Idle: RunStopToIdle
-    Run --> Attack: B during run
+    Block --> Idle: BlockStopToIdle
+    Block --> Attack: B during block
 
     InertialMove --> Idle: Speed decays to zero
 
@@ -149,20 +149,20 @@ player_character.asm
 
 | `$0AD4` | Form | Attack Dispatcher | Primary Abilities |
 |---------|------|-------------------|-------------------|
-| `0` | Will | `WillAttackDispatch` | Basic attack, Psycho Dash, Psycho Slider, running attack |
+| `0` | Will | `WillAttackDispatch` | Basic attack, Psycho Dash, Spin Dash, running attack (Psycho Slider) |
 | `1` | Freedan | `FreedanAttackDispatch` | Basic attack, Dark Friar, Aura Barrier, vine drop-attack |
 | `2` | Shadow | `FreedanAttackDispatch` + `shadow_shimmer` | Same as Freedan + Shadow palette shimmer |
 
 | `$0AA2` Bit | Hex | Character | Ability |
 |-------------|-----|-----------|---------|
-| 0 | `$0001` | All | Basic attack |
-| 1 | `$0002` | Will | Running attack (Psycho Dash prerequisite) |
-| 2 | `$0004` | Will | Psycho Slider |
+| 0 | `$0001` | Will | Psycho Dash (charge release attack) |
+| 1 | `$0002` | Will | Psycho Slider (running slide attack) |
+| 2 | `$0004` | Will | Spin Dash (L/R charge alternate) |
 | 4 | `$0010` | Freedan | Dark Friar |
 | 5 | `$0020` | Freedan | Aura Barrier |
 | 6 | `$0040` | Freedan/Shadow | Earthquaker (vine drop-attack) |
 
-**Charge timing:** Both Will and Freedan/Shadow share a **40-frame initial hold** (`#$28`). After the initial hold, Will has a **120-frame** extended charge window (`#$0078`) and Freedan/Shadow has **100 frames** (`#$0064`). L/R shoulder buttons during charge select alternate abilities (Slider vs Dash; Aura vs Dark Friar).
+**Charge timing:** Both Will and Freedan/Shadow share a **40-frame initial hold** (`#$28`). After the initial hold, Will has a **120-frame** extended charge window (`#$0078`) and Freedan/Shadow has **100 frames** (`#$0064`). L/R shoulder buttons during charge select alternate abilities (Spin Dash vs Psycho Dash; Aura Barrier vs Dark Friar).
 
 ---
 
@@ -272,7 +272,7 @@ Converts joypad state (`$0657`) to 2D velocity. 8 directions: pure cardinal = ±
 
 ## player_character.asm
 
-Master actor definition and state machine for idle, walk, run, climb, ladder, shimmy, and attack.
+Master actor definition and state machine for idle, walk, block, climb, ladder, shimmy, and attack.
 
 | Address | Name | Description |
 |---------|------|-------------|
@@ -329,23 +329,23 @@ Master actor definition and state machine for idle, walk, run, climb, ladder, sh
 | `$02C9CA` | ShimmyDetachLeft | Detach left: sprite `#30`/`#34`. |
 | `$02C9D8` | ShimmyDetachLeftShadow | Shadow: `#34`. |
 | `$02CA19` | ShimmyTopCorner | Corner reached. |
-| `$02CA22` | AttackFromWalkSouth | Merge `$0400` joypad. |
-| `$02CA28` | RunSouth | Running south: sprite `#3A`. |
-| `$02CA30` | AttackFromWalkNorth | Merge `$0800`. |
-| `$02CA36` | RunNorth | Sprite `#3B`. |
-| `$02CA3E` | AttackFromWalkWest | Merge `$0200`. |
-| `$02CA44` | RunWest | Sprite `#3C`. |
-| `$02CA4C` | AttackFromWalkEast | Merge `$0100`. |
-| `$02CA52` | RunEast | Sprite `#3D`. Sets `$2000` in `$player_flags`. |
-| `$02CA82` | RunStopToIdle | `COP [RestoreSavedPtr]`. |
+| `$02CA22` | BlockFromWalkSouth | Merge `$0400` joypad. |
+| `$02CA28` | BlockSouth | Blocking south: sprite `#3A`. |
+| `$02CA30` | BlockFromWalkNorth | Merge `$0800`. |
+| `$02CA36` | BlockNorth | Sprite `#3B`. |
+| `$02CA3E` | BlockFromWalkWest | Merge `$0200`. |
+| `$02CA44` | BlockWest | Sprite `#3C`. |
+| `$02CA4C` | BlockFromWalkEast | Merge `$0100`. |
+| `$02CA52` | BlockEast | Sprite `#3D`. Sets `$2000` in `$player_flags`. |
+| `$02CA82` | BlockStopToIdle | `COP [RestoreSavedPtr]`. |
 | `$02CA84` | MovingEastWest | EW walking with full state machine. Sprite `#0F` (right) / `#0E` (left). |
 | `$02CB0C` | MovingNorthSouth | NS walking. Sprite `#0D` (north) / `#0C` (south). |
-| `$02CB92` | CheckRunAttack | Conditions: not hitstun, Will only, has ability `$0002`, not slope. |
-| `$02CBB5` | RunAttackSpeedCheck | Checks if player speed exceeds threshold for running attack — absolute EW ≥ 3 → `RunAttackEW`, else absolute NS ≥ 3 → `RunAttackNS`. |
+| `$02CB92` | CheckRunAttack | Psycho Slider gate: not hitstun, Will only, has ability `$0002` (Psycho Slider), not slope. |
+| `$02CBB5` | RunAttackSpeedCheck | Psycho Slider speed gate: absolute EW ≥ 3 → `RunAttackEW`, else absolute NS ≥ 3 → `RunAttackNS`. |
 | `$02CBD9` | SpeedThresholdEW | Takes absolute value of `player_speed_ew` and falls through to shared speed ≥ 4 threshold check. |
 | `$02CBE4` | SpeedThresholdNS | NS check. |
-| `$02CBFF` | RunAttackNS | NS running attack with anim table 1. |
-| `$02CC52` | RunAttackEW | EW running attack. |
+| `$02CBFF` | RunAttackNS | NS Psycho Slider with anim table A entry 1. |
+| `$02CC52` | RunAttackEW | EW Psycho Slider. |
 | `$02CCA5` | DisableStatusForAttack | Clears `$0100`, sets `$0200` in `$06EE`. |
 | `$02CCB0` | RunAttackFlagSetup | Sets `$0200` in `$10`, `$8000` in `$0658`, `$0802` in `$player_flags`. |
 | `$02CCC2` | RestoreStatusDisplay | Clears `$0200` from `$06EE`. |
@@ -435,11 +435,11 @@ Single-frame idle loops and Shadow palette variants — no separate routine sect
 | Standing idle | `IdleStandSouth/North/West/East` + `*Shadow` | 5–16 B | Directional idle sprite (`#00`–`#03` / `#10`–`#13`) |
 | Ladder idle | `LadderIdleSouth/North` + `*Shadow` | 3–16 B | Ladder idle sprites (`#2A`–`#2F`) |
 | Shimmy probes | `ShimmyRightUpCheck`, `ShimmyRightDownCheck`, `ShimmyLeftUpCheck`, `ShimmyLeftDownCheck` | 7 B each | Single-probe wall checks during shimmy |
-| Run entry | `RunSouth/North/West`, `AttackFromWalk*` | 6–14 B | Joypad merge + running sprite redirect |
-| Walk helpers | `WalkAbortToIdle`, `WalkRestoreSaved`, `SetAutoWalkTimer`, `RunStopToIdle` | 1–7 B | Stack/pointer restore and auto-walk timer |
+| Block entry | `BlockSouth/North/West`, `BlockFromWalk*` | 6–14 B | Joypad merge + blocking sprite redirect |
+| Walk helpers | `WalkAbortToIdle`, `WalkRestoreSaved`, `SetAutoWalkTimer`, `BlockStopToIdle` | 1–7 B | Stack/pointer restore and auto-walk timer |
 | Ranged stubs | `RangedAttack*`, `RangedSetForceX/Y`, `Projectile*` | 5–26 B | Force-move staging and projectile spawn (see summary table) |
 
-#### Walk & Running States
+#### Walk & Blocking States
 
 ### WalkSouth
 
@@ -456,7 +456,7 @@ Walking south, sprite `#08`. Auto-walk timer, L/R attack check.
 
 ### WalkNorth
 
-Entered when `PlayerIdleDispatchTable` detects D-pad up (or a northward direction change during walk). On first entry from a different facing (`$24 == 1`), initializes `$player_speed_ns = -3`, clears slope/decel counters, clears the invincibility timer, and seeds a 13-frame auto-walk guarantee via `SetAutoWalkTimer`. Stages walk animation sprite set `#09` (north-facing) and loops `AnimOneFrame` each COP tick. Each frame checks whether up was released (`BranchIfNoButton #$0800` → `WalkRestoreSaved` / idle), calls `CheckAttackWhileWalking` for B-button or zero-speed aborts, and offers L/R shoulder (`#$0030`) transition to `RunNorth`. Actual displacement comes from the `PlayerMoveController` companion, which merges joypad velocity or `$player_speed_* × 4` with external knockback and delegates collision to `PlayerMovementTick`.
+Entered when `PlayerIdleDispatchTable` detects D-pad up (or a northward direction change during walk). On first entry from a different facing (`$24 == 1`), initializes `$player_speed_ns = -3`, clears slope/decel counters, clears the invincibility timer, and seeds a 13-frame auto-walk guarantee via `SetAutoWalkTimer`. Stages walk animation sprite set `#09` (north-facing) and loops `AnimOneFrame` each COP tick. Each frame checks whether up was released (`BranchIfNoButton #$0800` → `WalkRestoreSaved` / idle), calls `CheckAttackWhileWalking` for B-button or zero-speed aborts, and offers L/R shoulder (`#$0030`) transition to `BlockNorth`. Actual displacement comes from the `PlayerMoveController` companion, which merges joypad velocity or `$player_speed_* × 4` with external knockback and delegates collision to `PlayerMovementTick`.
 
 
 **Variables:**
@@ -469,7 +469,7 @@ Entered when `PlayerIdleDispatchTable` detects D-pad up (or a northward directio
 
 ### WalkWest
 
-West-facing walk state — same loop structure as `WalkNorth` but keyed on left D-pad (`#$0200`) and sprite `#0A`. First entry from facing west (`$24 == 2`) sets `$player_speed_ew = -3` and resets slope/decel state before staging the animation. Per-frame: auto-walk timer refresh, attack interrupt via `CheckAttackWhileWalking`, and L/R run promotion to `RunWest`. Releasing left returns through `WalkRestoreSaved` to `PlayerIdleEntry`; movement physics are handled externally by `PlayerMoveController`.
+West-facing walk state — same loop structure as `WalkNorth` but keyed on left D-pad (`#$0200`) and sprite `#0A`. First entry from facing west (`$24 == 2`) sets `$player_speed_ew = -3` and resets slope/decel state before staging the animation. Per-frame: auto-walk timer refresh, attack interrupt via `CheckAttackWhileWalking`, and L/R block promotion to `BlockWest`. Releasing left returns through `WalkRestoreSaved` to `PlayerIdleEntry`; movement physics are handled externally by `PlayerMoveController`.
 
 
 **Variables:**
@@ -482,7 +482,7 @@ West-facing walk state — same loop structure as `WalkNorth` but keyed on left 
 
 ### WalkEast
 
-East-facing walk state — mirror of `WalkWest` for right D-pad (`#$0100`) and sprite `#0B`. First entry from facing east (`$24 == 3`) seeds `$player_speed_ew = +3` plus the standard slope/decel reset and 13-frame auto-walk timer. Each COP frame advances the walk animation, monitors for direction release, attack button, or L/R shoulder run transition to `RunEast`. Position integration and tile collision remain in `PlayerMoveController` → `PlayerMovementTick`, not in this state handler.
+East-facing walk state — mirror of `WalkWest` for right D-pad (`#$0100`) and sprite `#0B`. First entry from facing east (`$24 == 3`) seeds `$player_speed_ew = +3` plus the standard slope/decel reset and 13-frame auto-walk timer. Each COP frame advances the walk animation, monitors for direction release, attack button, or L/R shoulder block transition to `BlockEast`. Position integration and tile collision remain in `PlayerMoveController` → `PlayerMovementTick`, not in this state handler.
 
 
 **Variables:**
@@ -595,7 +595,7 @@ West-wall counterpart to `ShimmyRightLoop`. Uses sprite `#32` with `StageForceMo
 | `$player_actor` | R | Player WRAM slot index |
 
 
-#### Run & Attack-from-Walk
+#### Block & Block-from-Walk
 
 #### Directional Walk State Machine
 
@@ -625,11 +625,11 @@ NS walking. Sprite `#0D` (north) / `#0C` (south).
 | `$player_actor` | R | Player WRAM slot index |
 
 
-#### Running Attack Check
+#### Psycho Slider (Running Slide Attack)
 
 ### CheckRunAttack
 
-Will-only running attack eligibility gate, called from `MovingEastWest` / `MovingNorthSouth` during inertial movement. Requires all of: actor flag `$0080` clear (not frozen), `$0AD4 == 0` (Will form), ability bitmask bit `$0002` set (Psycho Dash learned), `$player_flags` bit `$1000` clear (not already in walk-attack), and B button (`#$8000`) held. If every condition passes, branches to `RunAttackSpeedCheck` to verify sufficient axis speed before launching the dash attack. Returns immediately on any failed check, allowing normal attack or run transitions to proceed.
+Will-only Psycho Slider eligibility gate, called from `MovingEastWest` / `MovingNorthSouth` during inertial movement. The Psycho Slider is Will's running slide attack — acquired in Mu West (scene `$62`). Requires all of: actor flag `$0080` clear (not frozen), `$0AD4 == 0` (Will form), ability bitmask bit 1 (`$0002`) set (Psycho Slider learned), `$player_flags` bit `$1000` clear (not already in walk-attack), and attack button (`#$8000`) held. If every condition passes, branches to `RunAttackSpeedCheck` to verify sufficient axis speed before launching the slide attack. Returns immediately on any failed check, allowing normal attack or block transitions to proceed.
 
 
 **Variables:**
@@ -642,7 +642,7 @@ Will-only running attack eligibility gate, called from `MovingEastWest` / `Movin
 
 ### RunAttackSpeedCheck
 
-Checks if the player is moving fast enough for a running attack. Takes absolute value of `player_speed_ew` — if ≥ 3, pops return address and jumps to `RunAttackEW`. Otherwise checks `player_speed_ns` — if ≥ 3, pops and jumps to `RunAttackNS`. If neither axis exceeds the threshold, returns without launching.
+Checks if the player is moving fast enough for a Psycho Slider. Takes absolute value of `player_speed_ew` — if ≥ 3, pops return address and jumps to `RunAttackEW`. Otherwise checks `player_speed_ns` — if ≥ 3, pops and jumps to `RunAttackNS`. If neither axis exceeds the threshold, returns without launching.
 
 
 **Variables:**
@@ -655,7 +655,7 @@ Checks if the player is moving fast enough for a running attack. Takes absolute 
 
 ### RunAttackNS
 
-Will's north-south Psycho Dash, entered when `RunAttackSpeedCheck` finds absolute `$player_speed_ns` ≥ 3. Loads ability animation table A entry 1 and sets body sprite `#04`. Positive NS speed: south dash using sprites `#0C` → `#0D` (Y force-move loop) → `#0E` finish, zeroing NS speed. Negative speed: north path via `SetForceNE` with sprites `#0F` → `#10` → `#11`. Both paths call `RunAttackFlagSetup` (sets actor `$0200`, consumes attack input, sets `$0802` on `$player_flags`), run the dash distance through `AnimLoop`, then `RunAttackCleanup` and `RestoreSavedPtr` back to idle.
+Will's north-south Psycho Slider (running slide attack), entered when `RunAttackSpeedCheck` finds absolute `$player_speed_ns` ≥ 3. Loads ability animation table A entry 1 and sets body sprite `#04`. Positive NS speed: south slide using sprites `#0C` → `#0D` (Y force-move loop) → `#0E` finish, zeroing NS speed. Negative speed: north path via `SetForceNE` with sprites `#0F` → `#10` → `#11`. Both paths call `RunAttackFlagSetup` (sets actor `$0200`, consumes attack input, sets `$0802` on `$player_flags`), run the slide distance through `AnimLoop`, then `RunAttackCleanup` and `RestoreSavedPtr` back to idle.
 
 
 **Variables:**
@@ -668,7 +668,7 @@ Will's north-south Psycho Dash, entered when `RunAttackSpeedCheck` finds absolut
 
 ### RunAttackEW
 
-Horizontal Psycho Dash — same structure as `RunAttackNS` but routed on `$player_speed_ew` sign after absolute speed ≥ 3 threshold. West (negative): `SetForceSW`, sprites `#12` → `#13` X-loop → `#14`. East (positive): `#15` → `#16` → `#17`. Zeros EW speed on entry, applies `RunAttackFlagSetup` / `RunAttackCleanup` bookends, and restores saved pointer when the dash animation completes. This is Will's signature running attack and requires the Psycho Dash ability bit in `$0AA2`.
+Horizontal Psycho Slider — same structure as `RunAttackNS` but routed on `$player_speed_ew` sign after absolute speed ≥ 3 threshold. West (negative): `SetForceSW`, sprites `#12` → `#13` X-loop → `#14`. East (positive): `#15` → `#16` → `#17`. Zeros EW speed on entry, applies `RunAttackFlagSetup` / `RunAttackCleanup` bookends, and restores saved pointer when the slide animation completes. This is Will's sliding attack — acquired in Mu West — and requires the Psycho Slider ability bit (`$0002`) in `$0AA2`.
 
 
 **Variables:**

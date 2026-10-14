@@ -48,9 +48,9 @@
 
 !sceneCurrent                   0644
 !bg1ScrollH                     068A
-!bg1ScrollV                     068C
-!bg2ScrollH                     068E
-!savedCameraDelta               0690
+!effectScrollH                  068C
+!mapScrollV                     068E
+!effectScrollV                  0690
 !dmaSkipFlag                    0800
 !tileQueryResult                0902
 !VMAIN                          2115
@@ -487,10 +487,10 @@ AnimateEventBlock {
     CLC 
     ADC #$0010
     SEC 
-    SBC $bg1ScrollV
+    SBC $effectScrollH
     CMP #$0111
     BCS loc_02A4DF
-    LDA $savedCameraDelta ; Viewport Y origin: (savedCameraDelta − 16) aligned to 16px ($FFF0 mask)
+    LDA $effectScrollV    ; Viewport Y origin: (savedCameraDelta − 16) aligned to 16px ($FFF0 mask)
     SEC 
     SBC #$0010
     AND #$FFF0
@@ -592,7 +592,7 @@ QueueVisibleTileVram {
     SBC $bg1ScrollH
     CMP #$0111
     BCS loc_02A588
-    LDA $bg2ScrollH       ; Vertical scroll baseline: bg2ScrollH − 16, snapped to 16px grid
+    LDA $mapScrollV       ; Vertical scroll baseline: bg2ScrollH − 16, snapped to 16px grid
     SEC 
     SBC #$0010
     AND #$FFF0

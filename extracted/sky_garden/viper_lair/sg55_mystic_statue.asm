@@ -16,7 +16,9 @@
 !playerYTile                    09A8
 !playerActor                    09AA
 !playerFlags                    09AE
+!globalScriptIndex              0AAC
 !characterForm                  0AD4
+!sourceSceneId                  0B12
 
 ---------------------------------------------
 
@@ -31,14 +33,14 @@ sg55_mystic_statue [
 
   loc_0ACE3F:
     COP [BranchOnFlagByte] ( #F9, #01, &code_0ACE81 )
-    LDA #$FFF0
+    LDA #$FFFC
     TSB $joypadMaskStd
     COP [WaitByte] ( #3B )
     COP [PrintDialogString] ( &dialogstring_0ACF0E )
     LDA #$0001
-    STA $0AAC
+    STA $globalScriptIndex
     LDA #$0055
-    STA $0B12
+    STA $sourceSceneId
     LDA #$0010
     STA $0B08
     STA $0B0A

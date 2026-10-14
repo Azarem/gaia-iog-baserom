@@ -1,11 +1,11 @@
-; Debug stat setter — forces STR, DEF, MaxHP, and damageFlashTimer all to $40 (64), then dies.
+; Debug stat setter — forces STR, DEF, MaxHP, and hpToHeal all to $40 (64), then dies.
 ; One-shot actor used for development testing. Never spawned in normal gameplay.
 ---------------------------------------------
 
 !playerMaxHp                    0ACA
 !playerDef                      0ADC
 !playerStr                      0ADE
-!damageFlashTimer               0B22
+!hpToHeal                       0B22
 
 ---------------------------------------------
 
@@ -20,7 +20,7 @@ debug_stat_setter [
     LDA #$0040
     STA $playerMaxHp
     LDA #$0040
-    STA $damageFlashTimer ; Triggers HP bar flash
+    STA $hpToHeal         ; Triggers HP bar flash
     COP [Die]
 } >
 ]

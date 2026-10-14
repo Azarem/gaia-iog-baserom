@@ -42,7 +42,7 @@ gw82_necklace_stone [
 
 code_07B5D2 {
     COP [PrintDialogString] ( &dialogstring_07B611 )
-    COP [BranchIfMissingItem] ( #17, &code_07B5E0 )
+    COP [BranchIfHasItem] ( #17, &code_07B5E0 )
     COP [GiveItem] ( #17, &code_07B5F1 )
 }
 

@@ -8,6 +8,7 @@
 ?INCLUDE 'oneshot_palette_flash_1C'
 ?INCLUDE 'player_character'
 
+!frameCounter                   0036
 !playerActor                    09AA
 !playerFlags                    09AE
 !TM                             212C
@@ -69,7 +70,7 @@ code_089991 {
 }
 
 code_0899A2 {
-    LDA $0036
+    LDA $frameCounter
     AND #$0007
     BEQ loc_0899AB
     RTL 

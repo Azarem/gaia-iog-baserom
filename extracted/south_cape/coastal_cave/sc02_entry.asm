@@ -17,11 +17,11 @@ sc02_entry [
   code_04BE3B:
     COP [BranchOnFlagByte] ( #15, #01, &code_04BE57 )
     COP [SetFlagByte] ( #15 )
-    LDA #$CFF0
+    LDA #$CFFC
     TSB $joypadMaskStd
     COP [WaitByte] ( #1D )
     COP [PrintDialogString] ( &dialogstring_04BE87 )
-    LDA #$CFF0
+    LDA #$CFFC
     TRB $joypadMaskStd
 } >
 ]

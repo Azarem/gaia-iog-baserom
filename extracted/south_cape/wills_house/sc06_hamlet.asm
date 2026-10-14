@@ -17,14 +17,14 @@ sc06_hamlet [
     COP [BranchOnFlagByte] ( #3D, #01, &code_04A2ED )
     COP [BranchOnFlagByte] ( #16, #00, &code_04A2EB )
     COP [SetInteractHandler] ( &code_04A30C )
-    LDA #$CFF0
+    LDA #$CFFC
     TSB $joypadMaskStd
     COP [StageSpriteLoop] ( #27, #02 )
     COP [AnimLoop]
     COP [StageSpriteFrame] ( #23 )
     COP [AnimOnce]
     COP [PrintDialogString] ( &dialogstring_04A311 )
-    LDA #$CFF0
+    LDA #$CFFC
     TRB $joypadMaskStd
     COP [MarkSolidHere]
     COP [SetEntryHere]
@@ -38,7 +38,7 @@ sc06_hamlet [
 ]
 
 code_04A238 {
-    LDA #$CFF0
+    LDA #$CFFC
     TSB $joypadMaskStd
     COP [ClearSolidHere]
     COP [LoopStart] ( #1E )

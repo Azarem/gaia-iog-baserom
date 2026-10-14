@@ -49,6 +49,7 @@
 
 !sceneNext                      0642
 !gfxCacheIdxB                   064A
+!warpScrollParams               0652
 !joypadMaskStd                  065A
 !joypadRaw                      0660
 !cameraTargetX                  06BE
@@ -92,7 +93,7 @@ WorldMapController [
     JSL $@flag_helpers.ClearAllWramFlags ; Clear all WRAM event flags for clean world map state
     COP [SpawnThinkerParam] ( #0B, @actor_pool.PaletteResetAndKillThinker ) ; Second palette reset thinker for double-buffer coverage
     COP [SpawnAfterFlags] ( @ArrivalAndTravelSetup, #$3800 ) ; Spawn ArrivalAndTravelSetup as linked child with flags $3800
-    LDA #$FFF0            ; Mask D-pad bits ($FFF0) from standard joypad — disable player movement on map
+    LDA #$FFFC            ; Mask D-pad bits ($FFF0) from standard joypad — disable player movement on map
     TSB $joypadMaskStd
     LDA $0D58             ; Check destination ID — zero means no travel selected
     BEQ loc_03A35C        ; No destination → skip to Die (idle arrival only)
@@ -126,9 +127,9 @@ DeferSceneTransition {
     LDA $sceneNext        ; Save pending sceneNext to $0D6E — defer scene transition
     STA $0D6E
     REP #$20
-    LDA $0652             ; Save auxiliary scene data ($0652) to $0D6C
+    LDA $warpScrollParams ; Save auxiliary scene data ($0652) to $0D6C
     STA $0D6C
-    STZ $0652             ; Clear $0652 to prevent immediate transition
+    STZ $warpScrollParams ; Clear $0652 to prevent immediate transition
     STZ $sceneNext        ; Clear sceneNext — transition is now deferred until route completes
 
   loc_03A35C:
@@ -519,7 +520,7 @@ SkipToSceneTransition {
     AND #$00FF
     STA $sceneNext
     LDA $0D6C             ; Restore auxiliary data ($0D6C) → $0652
-    STA $0652
+    STA $warpScrollParams
     JSR $&ClearWorldMapState ; Clear entire world map state block
     COP [SetEntryHere]
     RTL 
@@ -597,7 +598,7 @@ RouteEndHandler {
     AND #$00FF
     STA $sceneNext
     LDA $0D6C             ; Restore auxiliary data ($0D6C) → $0652
-    STA $0652
+    STA $warpScrollParams
     JSR $&ClearWorldMapState ; Clear world map state block
     COP [SetEntryHere]
     COP [TickGravity]

@@ -16,11 +16,11 @@ ir1D_monologue [
   code_09D02E:
     COP [BranchOnFlagByte] ( #6C, #01, &code_09D04A )
     COP [SetFlagByte] ( #6C )
-    LDA #$CFF0
+    LDA #$CFFC
     TSB $joypadMaskStd
     COP [WaitByte] ( #1D )
     COP [PrintDialogString] ( &dialogstring_09D04C )
-    LDA #$CFF0
+    LDA #$CFFC
     TRB $joypadMaskStd
 } >
 ]

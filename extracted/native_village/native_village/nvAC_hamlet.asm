@@ -145,7 +145,7 @@ code_08879C {
     COP [StageSpriteLoopMoveY] ( #2A, #08, #02 )
     COP [AnimLoop]
     COP [SetFlagByte] ( #B2 )
-    LDA #$CFF0
+    LDA #$CFFC
     TRB $joypadMaskStd
     COP [Die]
 }

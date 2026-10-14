@@ -22,6 +22,7 @@
 ?INCLUDE 'spriteset_enemies'
 ?INCLUDE 'StandardEnemyDefeatHandler'
 
+!frameCounter                   0036
 !rngModuloResult                0420
 !sceneCurrent                   0644
 !gfxCacheIdxA                   0648
@@ -185,7 +186,7 @@ ir29_castoth [
     LDA #$&binary_0A9C0F
     STA $0AF4
     JSL $@func_0AA37B
-    LDA #$EFF0
+    LDA #$EFFC
     TSB $joypadMaskStd
     COP [WaitByte] ( #1D )
     COP [PlaySoundBoth] ( #$0E0E )
@@ -194,7 +195,7 @@ ir29_castoth [
     COP [WaitByte] ( #27 )
     COP [StartMusic] ( #0F )
     COP [WaitByte] ( #3B )
-    LDA #$EFF0
+    LDA #$EFFC
     TRB $joypadMaskStd
     JSL $@func_0AA391
     COP [SpawnListAppend] ( @camera_drift.CameraDriftLoopSimple, #00, #00, #$2000 )
@@ -629,7 +630,7 @@ code_list_0A9F22 [
 code_0A9F2A {
     LDA #$2000
     TRB $10
-    LDA $0036
+    LDA $frameCounter
     LSR 
     BCC code_0A9F37
     BRA code_0A9F5B

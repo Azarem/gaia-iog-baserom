@@ -76,7 +76,7 @@ dialogstring_0595B4 `[CLR]All right...[N]Then hope that the bad[N]luck doesn't c
 dialogstring_0595E6 `[CLR]All right...[N]Then hope that happiness[N]doesn't slip away....[FIN][::]Will. I am always [N]watching over you.[PAL:0][END]`
 
 code_059637 {
-    LDA #$7000
+    LDA #$3008
     TSB $joypadMaskStd
     RTL 
 }

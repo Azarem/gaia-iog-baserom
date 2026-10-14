@@ -27,13 +27,18 @@ When working on assembly, patches, or ROM metadata in this repo:
 
 DP `$80`–`$82` is the **collision tile map pointer** (`[$80], Y` in `tile_collision_physics.asm`). DP `$30`/`$34` are SPC transfer state, `$36` is the frame parity counter. Any patch/overlay code that uses these as scratch must save/restore engine low DP ($00-$94). See `gaia-core/docs/patch-development.md` §"Persistent Engine DP State Must Be Preserved".
 
-## Database triad
+## Database files
 
 - `us/blocks.json` — block/part structure (engine auto-discovers unmapped pieces)
 - `us/overrides.json` — per-address register state and type corrections (do **not** use `"name"` key — deprecated; use `names.json` for naming)
 - `us/names.json` — human-readable address labels
+- `db-us/transforms.json` — per-block regex replacements applied during extraction (e.g., button mask changes)
 
-All three files are needed for the complete picture. See `gaia-knowledge/curated/gaialabs/reference-model.md`.
+All four files are needed for the complete picture. See `gaia-knowledge/curated/gaialabs/reference-model.md`.
+
+## Label override hazards
+
+**Flat namespace:** All labels (`{`, `:`, `[`, `|`) create separate `AsmBlock` entries in a flat array. Braces are cosmetic. `Label!` replaces exactly ONE block — internal colon labels persist unchanged (sub-label orphaning). Override sub-labels too, or use `transforms.json` for simple constant changes. See `gaia-core/docs/patch-development.md` §"Sub-Label Orphaning".
 
 ## 65C816 Reference
 

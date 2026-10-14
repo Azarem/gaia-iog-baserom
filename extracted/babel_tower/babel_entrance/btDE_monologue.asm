@@ -28,11 +28,11 @@ btDE_monologue [
   loc_0998C6:
     COP [BranchOnFlagByte] ( #D2, #01, &code_0998E2 )
     COP [SetFlagByte] ( #D2 )
-    LDA #$CFF0
+    LDA #$CFFC
     TSB $joypadMaskStd
     COP [WaitByte] ( #3B )
     COP [PrintDialogString] ( &dialogstring_099914 )
-    LDA #$CFF0
+    LDA #$CFFC
     TRB $joypadMaskStd
 } >
 ]
@@ -48,14 +48,14 @@ code_0998E2 {
 }
 
 code_0998F5 {
-    LDA #$CFF0
+    LDA #$CFFC
     TSB $joypadMaskStd
     COP [WaitByte] ( #1D )
     LDA #$0001
     JSL $@InitPlayerScriptVariant
     COP [SetFlagByte] ( #D3 )
     COP [PrintDialogString] ( &dialogstring_099952 )
-    LDA #$CFF0
+    LDA #$CFFC
     TRB $joypadMaskStd
 }
 

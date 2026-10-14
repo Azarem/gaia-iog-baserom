@@ -125,7 +125,7 @@ ProcessDodgeCallbacks {
     PHP 
     REP #$20
     LDA $joypadCurrent
-    BIT #$8000            ; $8000 = B button (attack/dodge input)
+    BIT #$0080            ; $0080 = B button (attack/dodge input)
     BEQ loc_03BBB2
     LDY #$0000
 

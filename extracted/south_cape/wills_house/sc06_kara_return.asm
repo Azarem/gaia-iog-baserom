@@ -19,7 +19,7 @@ sc06_kara_return [
     COP [BranchOnFlagByte] ( #26, #01, &code_04A693 )
     COP [BranchOnFlagByte] ( #25, #01, &code_04A695 )
     COP [BranchOnFlagByte] ( #21, #00, &code_04A734 )
-    LDA #$CFF0
+    LDA #$CFFC
     TSB $joypadMaskStd
     LDY $playerActor
     LDA $0014, Y
@@ -37,7 +37,7 @@ sc06_kara_return [
     COP [StageSpriteFrame] ( #1B )
     COP [AnimOnce]
     COP [PrintDialogString] ( &dialogstring_04A7A8 )
-    LDA #$CFF0
+    LDA #$CFFC
     TRB $joypadMaskStd
     COP [StageSpriteMoveX] ( #20, #02 )
     COP [AnimOnce]
@@ -120,7 +120,7 @@ code_04A695 {
     COP [StageSpriteFrame] ( #1A )
     COP [AnimOnce]
     COP [SetFlagByte] ( #26 )
-    LDA #$CFF0
+    LDA #$CFFC
     TRB $joypadMaskStd
     COP [PrintDialogString] ( &dialogstring_04AA20 )
     COP [DialogueOptions] ( #02, #00, &code_list_04A6F7 )

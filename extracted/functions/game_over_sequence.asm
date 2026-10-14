@@ -10,6 +10,10 @@
 !sceneNext                      0642
 !sceneCurrent                   0644
 !gfxCacheIdxB                   064A
+!warpDestX                      064C
+!warpDestY                      064E
+!warpFacing                     0650
+!warpScrollParams               0652
 !worldReadyFlag                 0654
 !joypadMaskStd                  065A
 !wramFlags                      0A80
@@ -26,7 +30,7 @@
 GameOverSequence {
     LDA #$0040            ; GameOver: mask joypad $FFF0, spawn DeathPaletteFadeThinker and cutscene sprites
     TSB $10
-    LDA #$FFF0
+    LDA #$FFFC
     TSB $joypadMaskStd
     COP [WaitByte] ( #20 )
     COP [SpawnThinker] ( @DeathPaletteFadeThinker )
@@ -109,14 +113,14 @@ GameOverSequence {
     STA $sceneNext
     LDA $0005, Y
     AND #$7F
-    STA $0650
+    STA $warpFacing
     REP #$20
     LDA $0001, Y
-    STA $064C
+    STA $warpDestX
     LDA $0003, Y
-    STA $064E
+    STA $warpDestY
     LDA $0006, Y
-    STA $0652
+    STA $warpScrollParams
     PLB 
     LDA #$0404
     STA $gfxCacheIdxB
@@ -173,7 +177,7 @@ GameOverSparkleDriftB {
     BRA GameOverSparkleDriftB
 
   DeathWakeupMessage:
-    LDA #$CFF0            ; DeathWakeupMessage: characterForm selects Will/Freedan/Shadow dialog variant
+    LDA #$CFFC            ; DeathWakeupMessage: characterForm selects Will/Freedan/Shadow dialog variant
     TSB $joypadMaskStd
     STZ $0AF8
     COP [WaitByte] ( #02 )
@@ -192,7 +196,7 @@ GameOverSparkleDriftB {
     COP [PrintDialogString] ( &dialogstring_00D848 )
 
   loc_00D7BA:
-    LDA #$CFF0
+    LDA #$CFFC
     TRB $joypadMaskStd
     COP [Die]
 }

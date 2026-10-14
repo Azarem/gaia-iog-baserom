@@ -24,13 +24,13 @@ sc01_jar_door [
 
 code_048A12 {
     COP [SetFlagByte] ( #11 )
-    LDA #$CFF0
+    LDA #$CFFC
     TSB $joypadMaskStd
     COP [WaitByte] ( #1D )
     COP [PlaySoundCh1] ( #1E )
     COP [StageSpriteMoveY] ( #3F, #21 )
     COP [AnimOnce]
-    LDA #$CFF0
+    LDA #$CFFC
     TRB $joypadMaskStd
     COP [ClearPriorityMax]
     COP [PrintDialogString] ( &dialogstring_048A48 )

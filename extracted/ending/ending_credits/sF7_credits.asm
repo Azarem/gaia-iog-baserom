@@ -13,6 +13,8 @@
 ?INCLUDE 'CreditPositionLookup'
 ?INCLUDE 'sF7_credits_misc_timeline'
 
+!frameCounter                   0036
+!actorLimitThreshold            00E4
 !joypadMaskStd                  065A
 !cameraTargetX                  06BE
 !cameraTargetY                  06C2
@@ -50,7 +52,7 @@ sF7_credits [
     DEC $00FE
     STZ $09F6
     LDA #$FFFF
-    STA $00E4
+    STA $actorLimitThreshold
     LDA #$4001
     TSB $displayModeFlags
     SEP #$20
@@ -64,22 +66,22 @@ sF7_credits [
     REP #$20
     LDA #$0000
     STA $cgramPalette
-    LDA #$FFF0
+    LDA #$FFFC
     TSB $joypadMaskStd
-    COP [Decompress] ( @gfx_sc02_main_characters, $7EE000 )
+    COP [Decompress] ( @gfx_sc02_main_characters, $mode7Tilemap )
     LDY #$4000
     JSR $&code_09DB4B
-    COP [Decompress] ( @gfx_credits_actors1, $7EE000 )
+    COP [Decompress] ( @gfx_credits_actors1, $mode7Tilemap )
     LDY #$6000
     JSR $&code_09DB4B
-    COP [Decompress] ( @gfx_credits_actors2, $7EE000 )
+    COP [Decompress] ( @gfx_credits_actors2, $mode7Tilemap )
     LDY #$8000
     JSR $&code_09DB4B
-    COP [Decompress] ( @gfx_credits_actors3, $7EA000 )
+    COP [Decompress] ( @gfx_credits_actors3, $mapLayerTilemap )
     LDY #$C000
     JSR $&code_09DB59
-    COP [Decompress] ( @gfx_credits_scenery, $7EA000 )
-    COP [Decompress] ( @file_002380, $7EE000 )
+    COP [Decompress] ( @gfx_credits_scenery, $mapLayerTilemap )
+    COP [Decompress] ( @file_002380, $mode7Tilemap )
     STZ $0084
     STZ $0086
     STZ $0088
@@ -94,22 +96,22 @@ sF7_credits [
     STZ $cameraTargetY
     COP [SpawnListAppend] ( @code_09E9D2, #00, #00, #$2000 )
     COP [SpawnListAppend] ( @code_09E919, #00, #00, #$2000 )
-    STZ $00E4
+    STZ $actorLimitThreshold
     COP [CallNear] ( &code_09E934 )
     COP [HaltIfMaxFrames] ( #$00C8 )
     SEP #$20
     LDA #$10
     STA $TM
     REP #$20
-    COP [AdhocVramDma] ( $7FC000, #$2000, #$0800 )
+    COP [AdhocVramDma] ( $collisionLayer, #$2000, #$0800 )
     COP [AdhocVramDma] ( $7FC800, #$2400, #$0800 )
     COP [AdhocVramDma] ( $7FD000, #$2800, #$0800 )
     COP [AdhocVramDma] ( $7FD800, #$2C00, #$0800 )
-    COP [AdhocVramDma] ( $7FE000, #$3000, #$0800 )
+    COP [AdhocVramDma] ( $invBackupActors, #$3000, #$0800 )
     COP [AdhocVramDma] ( $7FE800, #$3400, #$0800 )
-    COP [AdhocVramDma] ( $7FF000, #$3800, #$0800 )
+    COP [AdhocVramDma] ( $invBackupSystem, #$3800, #$0800 )
     COP [AdhocVramDma] ( $7FF800, #$3C00, #$0800 )
-    COP [AdhocVramDma] ( $7EE000, #$1180, #$0200 )
+    COP [AdhocVramDma] ( $mode7Tilemap, #$1180, #$0200 )
     COP [AdhocVramDma] ( $7EE200, #$1980, #$0200 )
     COP [CopyPalette] ( @palette_1E094C, #00, #00, #80 )
     COP [HaltIfMaxFrames] ( #$0CA8 )
@@ -163,15 +165,15 @@ sF7_credits [
     COP [SpawnListAppend] ( @sF7_credits_misc_timeline.code_09E67C, #00, #00, #$2500 )
     COP [HaltIfMaxFrames] ( #$3C8C )
     COP [CallNear] ( &code_09E9A4 )
-    COP [AdhocVramDma] ( $7EA000, #$2000, #$0800 )
+    COP [AdhocVramDma] ( $mapLayerTilemap, #$2000, #$0800 )
     COP [AdhocVramDma] ( $7EA800, #$2400, #$0800 )
     COP [AdhocVramDma] ( $7EB000, #$2800, #$0800 )
     COP [AdhocVramDma] ( $7EB800, #$2C00, #$0800 )
-    COP [AdhocVramDma] ( $7EC000, #$3000, #$0800 )
+    COP [AdhocVramDma] ( $effectLayerTilemap, #$3000, #$0800 )
     COP [AdhocVramDma] ( $7EC800, #$3400, #$0800 )
     COP [AdhocVramDma] ( $7ED000, #$3800, #$0800 )
     COP [AdhocVramDma] ( $7ED800, #$3C00, #$0800 )
-    COP [AdhocVramDma] ( $7EF000, #$1180, #$0200 )
+    COP [AdhocVramDma] ( $thinkerExtendedData, #$1180, #$0200 )
     COP [AdhocVramDma] ( $7EF200, #$1980, #$0200 )
     COP [CopyPalette] ( @palette_1E0A6C, #00, #00, #80 )
     COP [HaltIfMaxFrames] ( #$3CF0 )
@@ -322,7 +324,7 @@ code_09E637 {
 
 code_09E919 {
     COP [SetEntryHere]
-    INC $00E4
+    INC $actorLimitThreshold
     SED 
     LDA $00E6
     CLC 
@@ -338,7 +340,7 @@ code_09E919 {
 code_09E934 {
     COP [AdhocVramDma] ( $7F6000, #$5000, #$0800 )
     COP [AdhocVramDma] ( $7F6800, #$5400, #$0800 )
-    COP [AdhocVramDma] ( $7F7000, #$5800, #$0800 )
+    COP [AdhocVramDma] ( $decompressStaging, #$5800, #$0800 )
     COP [AdhocVramDma] ( $7F7800, #$5C00, #$0800 )
     COP [CopyPalette] ( @palette_1F3333, #00, #90, #40 )
     COP [RestoreSavedPtr]
@@ -364,7 +366,7 @@ code_09E99A {
 }
 
 code_09E9A4 {
-    COP [AdhocVramDma] ( $7F4000, #$5000, #$0800 )
+    COP [AdhocVramDma] ( $vramCacheRing, #$5000, #$0800 )
     COP [AdhocVramDma] ( $7F4800, #$5400, #$0800 )
     COP [AdhocVramDma] ( $7F5000, #$5800, #$0800 )
     COP [AdhocVramDma] ( $7F5800, #$5C00, #$0800 )
@@ -373,7 +375,7 @@ code_09E9A4 {
 }
 
 code_09E9D2 {
-    LDA $00E4
+    LDA $actorLimitThreshold
     BPL loc_09E9D8
     RTL 
 
@@ -551,7 +553,7 @@ code_09EB64 {
     CLC 
     ADC #$0002
     STA $0728
-    LDA $0036
+    LDA $frameCounter
     LSR 
     BCC loc_09EBDB
     LDY $074A

@@ -356,7 +356,7 @@ Every valid COP opcode with its parameters, family link, and a short description
 | `$D3` | `WaitOnFlagWord` | `Word Flag, Byte Val` | [scene_flags](families/scene_flags.md) | Halt until word-indexed flag equals Val |
 | `$D4` | `GiveItem` | `Byte ItemId, &Code OnFail` | [inventory](families/inventory.md) | Add item to inventory; branch if inventory full |
 | `$D5` | `RemoveItem` | `Byte ItemId` | [inventory](families/inventory.md) | Remove an item from inventory |
-| `$D6` | `BranchIfMissingItem` | `Byte ItemId, &Code` | [inventory](families/inventory.md) | Branch if player does not have an item |
+| `$D6` | `BranchIfHasItem` | `Byte ItemId, &Code` | [inventory](families/inventory.md) | Branch if player has an item |
 | `$D7` | `BranchIfItemEquipped` | `Byte ItemId, &Code` | [inventory](families/inventory.md) | Branch if player has item equipped |
 | `$D8` | `SetDungeonKillFlag` | — | [dungeon_switch](families/dungeon_switch.md) | Set the room-clear kill flag for this scene |
 | `$D9` | `SwitchCase` | `Word IndexAddr, &&Code JmpList` | [dungeon_switch](families/dungeon_switch.md) | Read a RAM byte and branch via jump table |

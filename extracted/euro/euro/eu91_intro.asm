@@ -22,7 +22,7 @@ eu91_intro [
     COP [BranchOnFlagByte] ( #A5, #01, &code_07BEB2 )
     LDA #$0008
     TSB $12
-    LDA #$CFF0
+    LDA #$CFFC
     TSB $joypadMaskStd
     LDY $playerActor
     LDA $0010, Y
@@ -58,7 +58,7 @@ eu91_intro [
     LDA #$0404
     STA $gfxCacheIdxB
     COP [QueueMapChange] ( #96, #$00A0, #$0090, #03, #$1100 )
-    LDA #$CFF0
+    LDA #$CFFC
     TRB $joypadMaskStd
     COP [SetEntryHere]
     RTL 

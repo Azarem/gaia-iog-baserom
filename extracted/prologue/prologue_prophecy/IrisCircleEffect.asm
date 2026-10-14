@@ -8,6 +8,7 @@
 
 ?INCLUDE 'hdma_dma_spc'
 
+!frameCounter                   0036
 !WRMPYA                         4202
 !WRMPYB                         4203
 !RDMPYL                         4216
@@ -51,7 +52,7 @@ IrisCircleEffect [
     PHD                   ; Save direct page; will zero DP so $00–$FF act as absolute addresses
     LDA #$0000            ; Set DP = $0000 for absolute zero-page access to scratch variables
     TCD 
-    LDA $0036             ; Frame counter parity check: odd → inline path, even → IrisCircleEvenFrame
+    LDA $frameCounter     ; Frame counter parity check: odd → inline path, even → IrisCircleEvenFrame
     LSR 
     BCS loc_03A6CA
     JMP $&IrisCircleEvenFrame ; Even frame → jump to second buffer path ($7E8E00)

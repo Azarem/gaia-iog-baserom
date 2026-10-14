@@ -20,13 +20,13 @@ eu96_neil [
     COP [BranchOnFlagByte] ( #AA, #01, &code_07DB5F )
     COP [BranchOnFlagByte] ( #A4, #01, &code_07DB5D )
     COP [SetFlagByte] ( #A4 )
-    LDA #$CFF0
+    LDA #$CFFC
     TSB $joypadMaskStd
     COP [WaitByte] ( #1D )
     COP [PrintDialogString] ( &dialogstring_07DBE9 )
     COP [StageSpriteLoopMoveY] ( #16, #02, #01 )
     COP [AnimLoop]
-    LDA #$CFF0
+    LDA #$CFFC
     TRB $joypadMaskStd
 } >
 ]
@@ -36,7 +36,7 @@ code_07DB5D {
 }
 
 code_07DB5F {
-    LDA #$EFF0
+    LDA #$EFFC
     TSB $joypadMaskStd
     COP [SetTilePos] ( #0A, #11 )
     COP [WaitByte] ( #1D )
@@ -66,7 +66,7 @@ code_07DB5F {
     COP [PrintDialogString] ( &dialogstring_07DDD2 )
     COP [SetFlagByte] ( #AB )
     COP [SetInteractHandler] ( &code_07DBE4 )
-    LDA #$EFF0
+    LDA #$EFFC
     TRB $joypadMaskStd
     COP [SetEntryHere]
     RTL 

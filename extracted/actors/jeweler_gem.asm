@@ -4,7 +4,7 @@
 ; player's current Red Jewel count and checks thresholds against event flags:
 ;   Flag $E9: 3 jewels → Herb (item #06)
 ;   Flag $EA: 5 jewels → DEF +1
-;   Flag $EB: 8 jewels → MaxHP +1 (+ damageFlashTimer for HP bar flash)
+;   Flag $EB: 8 jewels → MaxHP +1 (+ hpToHeal for HP bar flash)
 ;   Flag $EC: 12 jewels → STR +1
 ;   Flag $ED: 20 jewels → Psycho Dash upgrade ($0B16 = 1)
 ;   Flag $EE: 30 jewels → Dark Friar upgrade ($0B1C = 2)
@@ -25,7 +25,7 @@
 !playerMaxHp                    0ACA
 !playerDef                      0ADC
 !playerStr                      0ADE
-!damageFlashTimer               0B22
+!hpToHeal                       0B22
 
 ---------------------------------------------
 
@@ -144,7 +144,7 @@ code_08CF59 {
 ; "Give you Red Jewels" — check if player has jewels, then collect them
 
 code_08CF5E {
-    COP [BranchIfMissingItem] ( #01, &JewelerCountJewels ) ; Has jewel items?
+    COP [BranchIfHasItem] ( #01, &JewelerCountJewels ) ; Has jewel items?
     COP [PrintDialogString] ( &dialogstring_08D1E0 ) ; "But you don't have any"
     RTL 
 }
@@ -182,7 +182,7 @@ JewelerCountJewels {
 
   code_08CF97:
     COP [RemoveItem] ( #01 ) ; Remove all jewel items from inventory
-    COP [BranchIfMissingItem] ( #01, &code_08CF97 )
+    COP [BranchIfHasItem] ( #01, &code_08CF97 )
     COP [PrintDialogString] ( &dialogstring_08D20F ) ; "This is a rare jewel"
     JMP $&code_08CED6     ; Re-check reward thresholds
 }
@@ -271,7 +271,7 @@ JewelerRewardDef {
 JewelerRewardHp {
     INC $playerMaxHp
     LDA #$0001
-    STA $damageFlashTimer ; Trigger HP bar flash effect
+    STA $hpToHeal         ; Trigger HP bar flash effect
     COP [SetFlagByte] ( #EB )
     COP [PrintDialogString] ( &dialogstring_08D395 )
     JMP $&JewelerCheck12

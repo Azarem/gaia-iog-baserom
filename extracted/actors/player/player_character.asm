@@ -6,7 +6,7 @@
 ; 
 ; 1. CORE IDLE + WALKING (181132–181790)
 ;    PlayerCharacterDef, PlayerIdleEntry, PlayerIdleDispatchTable, IdleStand* (8 directional × Shadow variants), WalkSouth/North/West/East, CheckAttackWhileWalking, WalkAbortToIdle, WalkRestoreSaved, SetAutoWalkTimer.
-;    The idle dispatch uses a facing × input matrix: GetPlayerFacing (0–3) × SignedMultiply by 14 selects a row of 7 entries in PlayerIdleDispatchTable. Input priority: attack button > D-pad cardinal > L/R run > idle stand. Walk pieces initialize speed (±3), manage invincibility timer, and transition to running on L/R shoulder press.
+;    The idle dispatch uses a facing × input matrix: GetPlayerFacing (0–3) × SignedMultiply by 14 selects a row of 7 entries in PlayerIdleDispatchTable. Input priority: attack button > D-pad cardinal > L/R block > idle stand. Walk pieces initialize speed (±3), manage invincibility timer, and transition to blocking on L/R shoulder press.
 ; 
 ; 2. VINE CLIMBING (181790–182198)
 ;    ClimbVineEntry, ClimbVineLand, CheckClimbFrame, CheckClimbAttack, ClimbDropAttack, ClimbDropLand, ImpactTerrainShake, CameraShakeActor, CameraShakeFrame.
@@ -20,13 +20,13 @@
 ;    ShimmyRightEntry, ShimmyRightCheckWall, ShimmyRightLoop, ShimmyRightUpCheck, ShimmyRightDownCheck, ShimmyLeftEntry, ShimmyLeftCheckWall, ShimmyLeftLoop, ShimmyLeftUpCheck, ShimmyLeftDownCheck, ShimmyDetachRight/Left (+ Shadow variants), ShimmyTopCorner.
 ;    Horizontal wall shimmy with wall-contact detection at 8-pixel intervals. CheckWall verifies east/west solid tiles before allowing movement. Detach states listen for L/R to re-enter shimmy or up/down for corner transitions. ShimmyTopCorner restores normal movement and returns to idle.
 ; 
-; 5. RUNNING + INERTIAL MOVEMENT (182818–183186)
-;    AttackFromWalkSouth/North/West/East, RunSouth/North/West/East, RunStopToIdle, MovingEastWest, MovingNorthSouth.
-;    L/R shoulder triggers run (bit 13 $2000 in playerFlags, bit 5 $0020 in actor flags). AttackFromWalk* pieces inject the appropriate D-pad direction into joypadHeld before falling into Run*. MovingEastWest/NorthSouth handle inertial deceleration animations — entered from PlayerIdleEntry when speed is nonzero but no matching D-pad is held.
+; 5. BLOCKING + INERTIAL MOVEMENT (182818–183186)
+;    BlockFromWalkSouth/North/West/East, BlockSouth/North/West/East, BlockStopToIdle, MovingEastWest, MovingNorthSouth.
+;    L/R shoulder triggers block stance (bit 13 $2000 in playerFlags, bit 5 $0020 in actor flags). BlockFromWalk* pieces inject the appropriate D-pad direction into joypadHeld before falling into Block*. MovingEastWest/NorthSouth handle inertial deceleration animations — entered from PlayerIdleEntry when speed is nonzero but no matching D-pad is held.
 ; 
-; 6. RUN ATTACK (183186–183514)
+; 6. PSYCHO SLIDER / RUN ATTACK (183186–183514)
 ;    CheckRunAttack, RunAttackSpeedCheck, SpeedThresholdEW, SpeedThresholdNS, RunAttackNS, RunAttackEW, DisableStatusForAttack, RunAttackFlagSetup, RestoreStatusDisplay, RunAttackCleanup.
-;    Will-only (form 0) dash attack requiring abilityBitmask bit 1 ($0002) and speed >= 3. RunAttackSpeedCheck routes to EW or NS based on which axis has sufficient speed. Both directions use LoadAbilityAnimTableA entry 1, stage a looping sprite move, then clean up flags.
+;    The Psycho Slider — Will's running slide attack (abilityBitmask bit 1, $0002). Acquired in Mu West (scene $62). While running at speed >= 3, pressing attack initiates a damaging slide that can pass through narrow passages. RunAttackSpeedCheck routes to EW or NS based on which axis has sufficient speed. Both directions use LoadAbilityAnimTableA entry 1, stage a looping sprite move, then clean up flags.
 ; 
 ; 7. BASIC MELEE ATTACK (183514–184138)
 ;    AttackSouth/North/West/East, AttackRedirect, AttackFinish, AttackInit.
@@ -107,22 +107,22 @@ PlayerCharacterDef [
 ---------------------------------------------
 ; Main idle state entry and input dispatch loop.
 ; 
-; Clears transient flags: D-pad held bits ($F0FF mask on joypadHeld), run/slider flags ($2800 on playerFlags), run-attack flag ($0020), and climb data. Checks for ability-hijacked state ($2000 in actor flags) — returns immediately if set (attack system controls player).
+; Clears transient flags: D-pad held bits ($F0FF mask on joypadHeld), block/Spin Dash flags ($2800 on playerFlags), Psycho Slider flag ($0020), and climb data. Checks for ability-hijacked state ($2000 in actor flags) — returns immediately if set (attack system controls player).
 ; 
 ; Saves itself as the return point via SetSavedPtr, clears force movement. Checks for residual speed — if nonzero, jumps to MovingEastWest or MovingNorthSouth for inertial deceleration.
 ; 
-; If no residual speed, computes a dispatch index: GetPlayerFacing (0=S, 1=N, 2=W, 3=E) × 14 via SignedMultiply → row offset into PlayerIdleDispatchTable. Then scans joypad input in priority order: attack button > D-pad cardinal (S/N/W/E) > L/R run > idle stand. The resulting 2-byte address is loaded from the table and executed via the DEC+PHA+RTS trick.
+; If no residual speed, computes a dispatch index: GetPlayerFacing (0=S, 1=N, 2=W, 3=E) × 14 via SignedMultiply → row offset into PlayerIdleDispatchTable. Then scans joypad input in priority order: attack button > D-pad cardinal (S/N/W/E) > L/R block > idle stand. The resulting 2-byte address is loaded from the table and executed via the DEC+PHA+RTS trick.
 
 PlayerIdleEntry {
-    COP [SetEntryHere]    ; Main idle entry — clears transient flags and dispatches to walk/run/attack/stand based on input
+    COP [SetEntryHere]    ; Main idle entry — clears transient flags and dispatches to walk/block/attack/stand based on input
     LDA $joypadHeld       ; Clear directional held bits ($0F00) from joypadHeld — prevents stale D-pad state from previous frame
     AND #$F0FF
     STA $joypadHeld
-    LDA #$2800            ; Clear bits 11+13 ($2800) from playerFlags — end run state and slider state
+    LDA #$2800            ; Clear bits 11+13 ($2800) from playerFlags — end block state and Spin Dash state
     TRB $playerFlags
     LDA #$0100            ; Restore visibility flag ($0100) in actor flags
     TSB $10
-    LDA #$0020            ; Clear run-attack flag ($0020) from actor flags
+    LDA #$0020            ; Clear Psycho Slider flag ($0020) from actor flags
     TRB $10
     STZ $climbStateData
     LDA $10               ; Check bit 13 ($2000) of actor flags — ability-hijacked state (attack system controls player)
@@ -153,8 +153,8 @@ PlayerIdleEntry {
     JSL $@hardware_math.SignedMultiply
     REP #$20
     TAX 
-    LDA $joypadCurrent    ; Read joypad state; scan input priority: attack > D-pad (S/N/W/E) > L/R run > idle stand
-    BIT #$8000
+    LDA $joypadCurrent    ; Read joypad state; scan input priority: attack > D-pad (S/N/W/E) > L/R block > idle stand
+    BIT #$0080
     BNE loc_02C43F
     INX 
     INX 
@@ -191,7 +191,7 @@ PlayerIdleEntry {
 ---------------------------------------------
 ; 7-entry × 4-direction idle dispatch table (28 entries, 56 bytes).
 ; 
-; Indexed by (facing × 7 + input_priority). Each row of 7 entries: [Attack, WalkEast, WalkWest, WalkSouth, WalkNorth, Run, IdleStand]. The facing direction determines which row is used, and the input scan priority determines the column.
+; Indexed by (facing × 7 + input_priority). Each row of 7 entries: [Attack, WalkEast, WalkWest, WalkSouth, WalkNorth, Block, IdleStand]. The facing direction determines which row is used, and the input scan priority determines the column.
 
 PlayerIdleDispatchTable [
   &AttackSouth   ;00
@@ -199,28 +199,28 @@ PlayerIdleDispatchTable [
   &WalkWest   ;02
   &WalkSouth   ;03
   &WalkNorth   ;04
-  &RunSouth   ;05
+  &BlockSouth   ;05
   &IdleStandSouth   ;06
   &AttackNorth   ;07
   &WalkEast   ;08
   &WalkWest   ;09
   &WalkSouth   ;0A
   &WalkNorth   ;0B
-  &RunNorth   ;0C
+  &BlockNorth   ;0C
   &IdleStandNorth   ;0D
   &AttackWest   ;0E
   &WalkEast   ;0F
   &WalkWest   ;10
   &WalkSouth   ;11
   &WalkNorth   ;12
-  &RunWest   ;13
+  &BlockWest   ;13
   &IdleStandWest   ;14
   &AttackEast   ;15
   &WalkEast   ;16
   &WalkWest   ;17
   &WalkSouth   ;18
   &WalkNorth   ;19
-  &RunEast   ;1A
+  &BlockEast   ;1A
   &IdleStandEast   ;1B
 ]
 
@@ -276,7 +276,7 @@ IdleStandEastShadow {
     LDA $playerSpeedEw    ; Check if player has started moving (speed nonzero) → restore saved ptr to re-dispatch
     ORA $playerSpeedNs
     BNE IdleAnimReturn
-    COP [BranchIfPressed] ( #$8F30, &IdleAnimReturn ) ; Any gameplay button ($8F30 = attack + D-pad + L/R) → exit idle and re-dispatch
+    COP [BranchIfPressed] ( #$0FB0, &IdleAnimReturn ) ; Any gameplay button ($8F30 = attack + D-pad + L/R) → exit idle and re-dispatch
     DEC $24
     BMI loc_02C4BD
     RTL 
@@ -315,7 +315,7 @@ WalkSouth {
     COP [BranchIfNotPressed] ( #$0400, &WalkRestoreSaved )
     JSR $&CheckAttackWhileWalking
     BNE loc_02C51F
-    COP [BranchIfPressed] ( #$0030, &RunSouth )
+    COP [BranchIfPressed] ( #$0030, &BlockSouth )
 
   loc_02C51F:
     DEC $24
@@ -353,7 +353,7 @@ WalkNorth {
     COP [BranchIfNotPressed] ( #$0800, &WalkRestoreSaved )
     JSR $&CheckAttackWhileWalking
     BNE loc_02C567
-    COP [BranchIfPressed] ( #$0030, &RunNorth )
+    COP [BranchIfPressed] ( #$0030, &BlockNorth )
 
   loc_02C567:
     DEC $24
@@ -392,7 +392,7 @@ WalkWest {
     COP [BranchIfNotPressed] ( #$0200, &WalkRestoreSaved )
     JSR $&CheckAttackWhileWalking
     BNE loc_02C5B0
-    COP [BranchIfPressed] ( #$0030, &RunWest )
+    COP [BranchIfPressed] ( #$0030, &BlockWest )
 
   loc_02C5B0:
     DEC $24
@@ -432,7 +432,7 @@ WalkEast {
     COP [BranchIfNotPressed] ( #$0100, &WalkRestoreSaved )
     JSR $&CheckAttackWhileWalking
     BNE loc_02C5FA
-    COP [BranchIfPressed] ( #$0030, &RunEast )
+    COP [BranchIfPressed] ( #$0030, &BlockEast )
 
   loc_02C5FA:
     DEC $24
@@ -448,10 +448,10 @@ WalkEast {
 ; 2. Both EW and NS speed zeroed (external stop) → WalkAbortToIdle
 ; 3. If neither: check playerFlags bit 12 ($1000 walk-attack flag), return Z flag to caller
 ; 
-; Returns: Z flag = 0 means walk-attack is active (caller should check for run transition).
+; Returns: Z flag = 0 means walk-attack is active (caller should check for block transition).
 
 CheckAttackWhileWalking {
-    COP [BranchIfPressed] ( #$8000, &WalkAbortToIdle ) ; Check for attack button ($8000) or zero speed while walking → abort walk to idle
+    COP [BranchIfPressed] ( #$0080, &WalkAbortToIdle ) ; Check for attack button ($8000) or zero speed while walking → abort walk to idle
     LDA $playerSpeedEw
     ORA $playerSpeedNs
     BNE WalkAbortToIdle
@@ -486,7 +486,7 @@ ClimbVineEntry {
     TRB $10
     LDA #$0200
     TSB $10
-    LDA #$4000
+    LDA #$0008
     TSB $joypadMaskStd
     COP [StagePlayerMoveXY] ( #18, #00, #18 )
     COP [AnimOnce]
@@ -553,7 +553,7 @@ ClimbVineLand {
     TRB $10
     LDA #$0008
     TSB $10
-    LDA #$4000
+    LDA #$0008
     TRB $joypadMaskStd
     JMP $&PlayerIdleEntry
 }
@@ -585,7 +585,7 @@ CheckClimbAttack {
     RTS 
 
   loc_02C6CE:
-    COP [BranchIfPressed] ( #$8000, &ClimbDropAttack )
+    COP [BranchIfPressed] ( #$0080, &ClimbDropAttack )
     RTS 
 }
 
@@ -640,7 +640,7 @@ ClimbDropLand {
     TRB $10
     LDA #$0008
     TSB $10
-    LDA #$4000
+    LDA #$0008
     TRB $joypadMaskStd
     JMP $&PlayerIdleEntry
 }
@@ -722,7 +722,7 @@ CameraShakeFrame {
     TSB $10
     LDA #$0800
     TSB $playerFlags
-    LDA #$CFF0
+    LDA #$CFFC
     TSB $joypadMaskStd    ; Ladder entry animation, then check up/down buttons to begin movement or idle
     COP [StagePlayerMoveXY] ( #26, #00, #1B )
     COP [AnimOnce]
@@ -738,7 +738,7 @@ LadderClimbNorth {
     TSB $10
     LDA #$0800
     TSB $playerFlags
-    LDA #$CFF0
+    LDA #$CFFC
     TSB $joypadMaskStd
     COP [StagePlayerMoveXY] ( #28, #00, #19 )
     COP [AnimOnce]
@@ -835,7 +835,7 @@ LadderIdleNorthShadow {
 LadderLandBottom {
     COP [StagePlayerMoveY] ( #29, #1A ) ; Ladder bottom landing: animate exit #29, unmask joypad, restore ground flag, return to saved ptr
     COP [AnimOnce]
-    LDA #$CFF0
+    LDA #$CFFC
     TRB $joypadMaskStd
     LDA #$0008
     TSB $10
@@ -845,7 +845,7 @@ LadderLandBottom {
 LadderReachTop {
     COP [StagePlayerMoveY] ( #27, #1C ) ; Ladder top exit: animate exit #27, unmask joypad, restore ground flag, return to saved ptr
     COP [AnimOnce]
-    LDA #$CFF0
+    LDA #$CFFC
     TRB $joypadMaskStd
     LDA #$0008
     TSB $10
@@ -1039,48 +1039,48 @@ ShimmyTopCorner {
     TSB $10
     COP [RestoreSavedPtr]
 
-  AttackFromWalkSouth:
-    LDA #$0400            ; Attack-from-walk south: inject south D-pad ($0400) into joypadHeld, fall through to RunSouth
+  BlockFromWalkSouth:
+    LDA #$0400            ; Block-from-walk south: inject south D-pad ($0400) into joypadHeld, fall through to BlockSouth
     TSB $joypadHeld
 }
 
-RunSouth {
-    STZ $invincibilityTimer ; Run south: clear invincibility, sprite #3A, enter shared run loop
+BlockSouth {
+    STZ $invincibilityTimer ; Block south: clear invincibility, sprite #3A, enter shared block loop
     COP [StagePlayerSprite] ( #3A )
     BRA loc_02CA58
 
-  AttackFromWalkNorth:
-    LDA #$0800            ; Attack-from-walk north: inject north D-pad ($0800)
+  BlockFromWalkNorth:
+    LDA #$0800            ; Block-from-walk north: inject north D-pad ($0800)
     TSB $joypadHeld
 }
 
-RunNorth {
-    STZ $invincibilityTimer ; Run north: sprite #3B
+BlockNorth {
+    STZ $invincibilityTimer ; Block north: sprite #3B
     COP [StagePlayerSprite] ( #3B )
     BRA loc_02CA58
 
-  AttackFromWalkWest:
-    LDA #$0200            ; Attack-from-walk west: inject west D-pad ($0200)
+  BlockFromWalkWest:
+    LDA #$0200            ; Block-from-walk west: inject west D-pad ($0200)
     TSB $joypadHeld
 }
 
-RunWest {
-    STZ $invincibilityTimer ; Run west: sprite #3C
+BlockWest {
+    STZ $invincibilityTimer ; Block west: sprite #3C
     COP [StagePlayerSprite] ( #3C )
     BRA loc_02CA58
 
-  AttackFromWalkEast:
-    LDA #$0100            ; Attack-from-walk east: inject east D-pad ($0100)
+  BlockFromWalkEast:
+    LDA #$0100            ; Block-from-walk east: inject east D-pad ($0100)
     TSB $joypadHeld
 }
 
-RunEast {
-    STZ $invincibilityTimer ; Run east: sprite #3D
+BlockEast {
+    STZ $invincibilityTimer ; Block east: sprite #3D
     COP [StagePlayerSprite] ( #3D )
 
   loc_02CA58:
     LDA #$2000
-    TSB $playerFlags      ; Shared run loop: set run flag ($2000 playerFlags, $0020 actor), clear visibility, animate per frame
+    TSB $playerFlags      ; Shared block loop: set block flag ($2000 playerFlags, $0020 actor), clear visibility, animate per frame
     LDA #$0020
     TSB $10
     LDA #$0100
@@ -1095,20 +1095,20 @@ RunEast {
     COP [SetEntryHere]
     LDA $2A
     BEQ loc_02CA68
-    COP [BranchIfNotPressed] ( #$0030, &RunStopToIdle )
+    COP [BranchIfNotPressed] ( #$0030, &BlockStopToIdle )
     DEC $24
     BMI loc_02CA68
     RTL 
 }
 
-RunStopToIdle {
-    COP [RestoreSavedPtr] ; Run stop: restore saved ptr → return to PlayerIdleEntry
+BlockStopToIdle {
+    COP [RestoreSavedPtr] ; Block stop: restore saved ptr → return to PlayerIdleEntry
 }
 
 ---------------------------------------------
 ; Inertial east-west movement handler — entered when player has residual EW speed.
 ; 
-; Entered from PlayerIdleEntry when playerSpeedEw is nonzero but no matching D-pad input. Two sub-states based on speed sign: positive → east-facing sprite (#0F), negative → west-facing (#0E). Each frame: animate, check for speed zeroing → restore saved ptr; check for direction reversal → switch sprite; check for run attack; check speed threshold for melee attack; check L/R for run transition.
+; Entered from PlayerIdleEntry when playerSpeedEw is nonzero but no matching D-pad input. Two sub-states based on speed sign: positive → east-facing sprite (#0F), negative → west-facing (#0E). Each frame: animate, check for speed zeroing → restore saved ptr; check for direction reversal → switch sprite; check for Psycho Slider (running slide attack); check speed threshold for melee attack; check L/R for block transition.
 ; 
 ; Mirrors MovingNorthSouth for the vertical axis.
 
@@ -1123,7 +1123,7 @@ MovingEastWest {
   loc_02CA93:
     LDA $playerSpeedEw
     BMI loc_02CAD4
-    BRA loc_02CA9C        ; East-facing inertial movement: sprite #0F, animation loop with attack/run checks
+    BRA loc_02CA9C        ; East-facing inertial movement: sprite #0F, animation loop with attack/block checks
 
   MovingToEast:
     COP [SetEntryHereAndYield] ; Direction switch to east: re-enter with SetEntryExit
@@ -1146,8 +1146,8 @@ MovingEastWest {
     JSR $&CheckRunAttack
     JSR $&SpeedThresholdEW
     BCS loc_02CACD
-    COP [BranchIfPressed] ( #$8000, &AttackEast )
-    COP [BranchIfPressed] ( #$0030, &AttackFromWalkEast )
+    COP [BranchIfPressed] ( #$0080, &AttackEast )
+    COP [BranchIfPressed] ( #$0030, &BlockFromWalkEast )
 
   loc_02CACD:
     DEC $24
@@ -1176,8 +1176,8 @@ MovingToWest {
     JSR $&CheckRunAttack
     JSR $&SpeedThresholdEW
     BCS loc_02CB05
-    COP [BranchIfPressed] ( #$8000, &AttackWest )
-    COP [BranchIfPressed] ( #$0030, &AttackFromWalkWest )
+    COP [BranchIfPressed] ( #$0080, &AttackWest )
+    COP [BranchIfPressed] ( #$0030, &BlockFromWalkWest )
 
   loc_02CB05:
     DEC $24
@@ -1227,8 +1227,8 @@ MovingNorthSouth {
     JSR $&CheckRunAttack
     JSR $&SpeedThresholdNS
     BCS loc_02CB55
-    COP [BranchIfPressed] ( #$8000, &AttackNorth )
-    COP [BranchIfPressed] ( #$0030, &AttackFromWalkNorth )
+    COP [BranchIfPressed] ( #$0080, &AttackNorth )
+    COP [BranchIfPressed] ( #$0030, &BlockFromWalkNorth )
 
   loc_02CB55:
     DEC $24
@@ -1257,8 +1257,8 @@ MovingToSouth {
     JSR $&CheckRunAttack
     JSR $&SpeedThresholdNS
     BCS loc_02CB8D
-    COP [BranchIfPressed] ( #$8000, &AttackSouth )
-    COP [BranchIfPressed] ( #$0030, &AttackFromWalkSouth )
+    COP [BranchIfPressed] ( #$0080, &AttackSouth )
+    COP [BranchIfPressed] ( #$0030, &BlockFromWalkSouth )
 
   loc_02CB8D:
     DEC $24
@@ -1267,12 +1267,14 @@ MovingToSouth {
 }
 
 ---------------------------------------------
-; Run attack eligibility gate — Will-only (form 0) ability check.
+; Psycho Slider eligibility gate — Will-only (form 0) running slide attack.
 ; 
-; Conditions (all must be true): actor flag $0080 clear (not frozen), characterForm == 0 (Will), abilityBitmask bit 1 ($0002) set (dash ability learned), playerFlags bit 12 ($1000) clear (not in walk-attack state). If all pass and attack button ($8000) pressed, branches to RunAttackSpeedCheck.
+; The Psycho Slider is Will's sliding attack ability (abilityBitmask bit 1, $0002), acquired in Mu West. When running, pressing the attack button initiates a damaging slide that can pass through narrow passages.
+; 
+; Conditions (all must be true): actor flag $0080 clear (not frozen), characterForm == 0 (Will), abilityBitmask bit 1 ($0002) set (Psycho Slider learned), playerFlags bit 12 ($1000) clear (not in walk-attack state). If all pass and attack button ($8000) pressed, branches to RunAttackSpeedCheck.
 
 CheckRunAttack {
-    LDA $10               ; Check run attack gate: actor flag $0080 clear, Will only (form 0), abilityBitmask bit 1 ($0002), not flagged $1000
+    LDA $10               ; Psycho Slider gate: actor flag $0080 clear, Will only (form 0), abilityBitmask bit 1 ($0002) = Psycho Slider, not flagged $1000
     BIT #$0080
     BNE loc_02CBB4
     LDA $characterForm
@@ -1281,21 +1283,21 @@ CheckRunAttack {
     BIT #$0002
     BEQ loc_02CBB4
     LDA $playerFlags
-    BIT #$1000            ; Attack button pressed during run → RunAttackSpeedCheck
+    BIT #$1000            ; Attack button pressed during inertial movement → RunAttackSpeedCheck (Psycho Slider)
     BNE loc_02CBB4
-    COP [BranchIfPressed] ( #$8000, &RunAttackSpeedCheck )
+    COP [BranchIfPressed] ( #$0080, &RunAttackSpeedCheck )
 
   loc_02CBB4:
     RTS 
 }
 
 ---------------------------------------------
-; Route run attack to EW or NS based on which axis has sufficient speed.
+; Route Psycho Slider to EW or NS based on which axis has sufficient speed.
 ; 
-; Computes |playerSpeedEw| — if >= 3, pops return and jumps to RunAttackEW. Otherwise computes |playerSpeedNs| — if >= 3, pops return and jumps to RunAttackNS. If neither axis has sufficient speed, returns to caller (no run attack).
+; Computes |playerSpeedEw| — if >= 3, pops return and jumps to RunAttackEW. Otherwise computes |playerSpeedNs| — if >= 3, pops return and jumps to RunAttackNS. If neither axis has sufficient speed, returns to caller (no slide attack).
 
 RunAttackSpeedCheck {
-    LDA $playerSpeedEw    ; Speed check: absolute EW speed >= 3 → RunAttackEW; else check NS speed >= 3 → RunAttackNS
+    LDA $playerSpeedEw    ; Psycho Slider speed check: absolute EW speed >= 3 → RunAttackEW; else NS speed >= 3 → RunAttackNS
     BPL loc_02CBBE
     EOR #$FFFF
     INC 
@@ -1353,22 +1355,22 @@ SpeedThresholdNS {
 }
 
 ---------------------------------------------
-; North-south run attack animation — Will's dash attack along vertical axis.
+; North-south Psycho Slider animation — Will's running slide attack along vertical axis.
 ; 
 ; Loads anim table A entry 1, sets body sprite #04. Branches by speed sign:
 ; - South (positive): sprites #0C → #0D loop → #0E finish, zeros NS speed
 ; - North (negative): SetForceNE, sprites #0F → #10 loop → #11 finish
 ; 
-; Both paths: RunAttackFlagSetup (set $0200 actor flag, consume attack, set $0802 playerFlags), loop with AnimLoop for dash distance, RunAttackCleanup, restore saved ptr.
+; Both paths: RunAttackFlagSetup (set $0200 actor flag, consume attack, set $0802 playerFlags), loop with AnimLoop for slide distance, RunAttackCleanup, restore saved ptr.
 
 RunAttackNS {
-    LDA #$0001            ; Run attack NS: load anim table A entry 1, set body sprite #04; south or north by speed sign
+    LDA #$0001            ; Psycho Slider NS: load anim table A entry 1, set body sprite #04; south or north by speed sign
     JSR $&attack_ability_system.LoadAbilityAnimTableA
     COP [SetPlayerSpriteDirect] ( #04 )
     LDA $playerSpeedNs
     BMI loc_02CC2E
     JSR $&RunAttackFlagSetup
-    LDA #$0100            ; South run attack: flag setup, sprite #0C→#0D loop→#0E finish, zero NS speed, cleanup
+    LDA #$0100            ; South Psycho Slider: flag setup, sprite #0C→#0D loop→#0E finish, zero NS speed, cleanup
     TRB $10
     COP [StageSpriteFrame] ( #0C )
     COP [AnimOnce]
@@ -1378,7 +1380,7 @@ RunAttackNS {
     COP [StageSpriteFrame] ( #0E )
     COP [AnimOnce]
     JSR $&RunAttackCleanup
-    COP [RestoreSavedPtr] ; North run attack: flag setup, SetForceNE, sprite #0F→#10 loop→#11 finish
+    COP [RestoreSavedPtr] ; North Psycho Slider: flag setup, SetForceNE, sprite #0F→#10 loop→#11 finish
 
   loc_02CC2E:
     JSR $&RunAttackFlagSetup
@@ -1397,7 +1399,7 @@ RunAttackNS {
 }
 
 RunAttackEW {
-    LDA #$0001            ; Run attack EW: same structure for horizontal axis
+    LDA #$0001            ; Psycho Slider EW: same structure for horizontal axis
     JSR $&attack_ability_system.LoadAbilityAnimTableA
     COP [SetPlayerSpriteDirect] ( #04 )
     LDA $playerSpeedEw
@@ -1439,9 +1441,9 @@ DisableStatusForAttack {
 }
 
 RunAttackFlagSetup {
-    LDA #$0200            ; Run attack flag setup: set $0200 actor flag, consume attack button, set $0802 playerFlags
+    LDA #$0200            ; Psycho Slider flag setup: set $0200 actor flag, consume attack button, set $0802 playerFlags
     TSB $10
-    LDA #$8000
+    LDA #$0080
     TSB $joypadHeld
     LDA #$0802
     TSB $playerFlags
@@ -1454,9 +1456,9 @@ RestoreStatusDisplay {
 }
 
 RunAttackCleanup {
-    LDA #$0200            ; Run attack cleanup: clear $0200 actor flag, consume attack button, clear $0002 playerFlags
+    LDA #$0200            ; Psycho Slider cleanup: clear $0200 actor flag, consume attack button, clear $0002 playerFlags
     TRB $10
-    LDA #$8000
+    LDA #$0080
     TSB $joypadHeld
     LDA #$0002
     TRB $playerFlags
@@ -1531,7 +1533,7 @@ AttackSouthWallPush {
     RTL 
 
   loc_02CD52:
-    COP [BranchIfPressed] ( #$8000, &AttackSouth )
+    COP [BranchIfPressed] ( #$0080, &AttackSouth )
     JMP $&AttackFinish
 }
 
@@ -1594,7 +1596,7 @@ AttackNorthWallPush {
     RTL 
 
   loc_02CDD3:
-    COP [BranchIfPressed] ( #$8000, &AttackNorth )
+    COP [BranchIfPressed] ( #$0080, &AttackNorth )
     JMP $&AttackFinish
 }
 
@@ -1656,7 +1658,7 @@ AttackWestWallPush {
     RTL 
 
   loc_02CE51:
-    COP [BranchIfPressed] ( #$8000, &AttackWest )
+    COP [BranchIfPressed] ( #$0080, &AttackWest )
     JMP $&AttackFinish
 }
 
@@ -1718,7 +1720,7 @@ AttackEastWallPush {
     RTL 
 
   loc_02CECF:
-    COP [BranchIfPressed] ( #$8000, &AttackEast )
+    COP [BranchIfPressed] ( #$0080, &AttackEast )
     JMP $&AttackFinish
 }
 
@@ -1731,7 +1733,7 @@ AttackRedirect {
     LDA $joypadCurrent    ; Attack redirect: check D-pad ($0F00) for perpendicular direction change mid-attack; clear if none
     BIT #$0F00
     BEQ AttackFinish
-    LDA #$8000
+    LDA #$0080
     TRB $joypadHeld
 }
 
@@ -1750,7 +1752,7 @@ AttackInit {
     LDA $joypadCurrent    ; Attack init: strip D-pad from joypadCurrent, set joypadHeld, clear visibility flag, play SFX
     AND #$0F00
     STA $joypadCurrent
-    ORA #$8000
+    ORA #$0080
     STA $joypadHeld
     LDA #$0100
     TRB $10

@@ -56,7 +56,7 @@ pyCD_kara [
     COP [AnimOnce]
     COP [LoopEnd]
     COP [WaitOnFlagByte] ( #06, #01 )
-    LDA #$CFF0
+    LDA #$CFFC
     TSB $joypadMaskStd
     LDY $playerActor
     LDA $0014, Y
@@ -83,7 +83,7 @@ pyCD_kara [
     COP [PrintDialogString] ( &dialogstring_08BEA9 )
     COP [StageSpriteFrame] ( #05 )
     COP [AnimOnce]
-    LDA #$CFF0
+    LDA #$CFFC
     TRB $joypadMaskStd
     COP [SetInteractHandler] ( &code_08BE61 )
     COP [SetEntryHere]
@@ -104,7 +104,7 @@ code_08BE0F {
     COP [MarkSolidHere]
     COP [SetInteractHandler] ( &code_08BE61 )
     COP [WaitOnFlagByte] ( #FC, #01 )
-    LDA #$CFF0
+    LDA #$CFFC
     TSB $joypadMaskStd
     COP [WaitByte] ( #1D )
     COP [StageSpriteFrame] ( #05 )

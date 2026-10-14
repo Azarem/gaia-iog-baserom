@@ -15,39 +15,37 @@
 !herb_count                     0B55
 !jewel_count                    0B56
 !crystal_count                  0B57
+!key_item_flags                 0B58
 
---------------------------------------------------------
+------------------------------------------------
+;Checks for an available inventory slot
+;Assumes: M == 1, preserves A and X and Y
+;Accepts: A = item ID
+;Returns: carry set = no slot found
 
-inv_check_pages {
+InventoryCheckAndStore {
+    PHY
     PHA
-    LDY #inventory_slots
+    LDY #$0000
 
-  inv_check_page_1:
-    LDA $0000, Y
-    BEQ inv_give_item
+  icas_check_loop:
+    LDA $inventory_slots, Y
+    BEQ icas_check_found
     INY
-    CPY #$inventory_slots+10
-    BNE inv_check_page_1
+    CPY #$0010
+    BCC icas_check_loop
 
-    ;LDY #$page_2
-
-  ;inv_check_page_2:
-    ;LDA $0000, Y
-    ;BEQ inv_give_item
-    ;INY
-    ;CPY #$page_2+10
-    ;BNE inv_check_page_2
-
-  inv_no_room:
     PLA
+    PLY
     SEC
-    RTS
-
-  inv_give_item:
+    RTL
+  
+  icas_check_found:
     PLA
-    STA $0000, Y
+    STA $inventory_slots, Y
+    PLY
     CLC
-    RTS
+    RTL
 }
 
 ------------------------------------------------
@@ -177,51 +175,29 @@ GiveItemToPlayer! {
     SEP #$20
     BIT #$80
     BNE loc_03EFB3
-
-  inv_give_item_handler:
-    CMP #$01
-    BEQ inv_give_jewel
-    CMP #$06
-    BEQ inv_give_herb
-    CMP #$0E
-    BEQ inv_give_crystal
-
-    JSR inv_check_pages
-    BCS inv_exit_fail
+    JSL $@KeyItemCheckAndStore
+    BCC inv_give_item_normal
     JMP GiveItem_StoreInSlot+4
 
-  inv_exit_fail:
+  inv_give_item_full:
     JMP GiveItem_InventoryFull+1
-
-  inv_give_jewel:
-    LDA $jewel_count
-    BNE $05
-    LDA #01
-    JSR inv_check_pages
-    INC $jewel_count
-    LDA #01
-    JMP GiveItem_StoreInSlot+4 
-
-  inv_give_herb:
-    LDA $herb_count
-    BNE $07
-    LDA #$06
-    JSR inv_check_pages
-    BCS inv_exit_fail
-    INC $herb_count
-    LDA #06
-    JMP GiveItem_StoreInSlot+4
-  
-  inv_give_crystal:
-    LDA $crystal_count
-    BNE $07
-    LDA #$0E
-    JSR inv_check_pages
-    BCS inv_exit_fail
-    INC $crystal_count
-    LDA #0E
+    
+  inv_give_item_normal:
+    CPY #$0001
+    BEQ inv_give_item_full
+    JSL $@InventoryCountersCheckAndStore
+    BCC inv_give_item_continue
     JMP GiveItem_StoreInSlot+4
 
+  inv_give_item_continue:
+    CPY #$0001
+    BEQ inv_give_item_full
+    JSL $@InventoryCheckAndStore
+    BCS inv_give_item_full
+    JMP GiveItem_StoreInSlot+4
+
+  loc_03EFA2!:
+  loc_03EFAA!:
 }
 
 ---------------------------------------------

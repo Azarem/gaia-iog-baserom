@@ -22,13 +22,13 @@ it1A_lily [
     COP [SpawnAfterFlags] ( @code_04F77B, #$2000 )
     COP [SpawnAfterFlags] ( @code_04F828, #$2000 )
     COP [BranchOnFlagByte] ( #49, #01, &code_04F4C0 )
-    LDA #$CFF0
+    LDA #$CFFC
     TSB $joypadMaskStd
     COP [StageSpriteFrame] ( #1C )
     COP [AnimOnce]
     COP [WaitByte] ( #1D )
     COP [PrintDialogString] ( &dialogstring_04F53C )
-    LDA #$CFF0
+    LDA #$CFFC
     TRB $joypadMaskStd
     LDA #$1000
     TRB $10
@@ -91,7 +91,7 @@ code_04F4EB {
 }
 
 code_04F4F0 {
-    COP [BranchIfMissingItem] ( #04, &code_04F4FA )
+    COP [BranchIfHasItem] ( #04, &code_04F4FA )
     COP [PrintDialogString] ( &dialogstring_04F591 )
     RTL 
 }

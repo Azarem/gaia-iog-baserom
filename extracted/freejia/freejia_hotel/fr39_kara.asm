@@ -33,7 +33,7 @@ fr39_kara [
     COP [PrintDialogString] ( &dialogstring_05C4CD )
     COP [StageSpriteLoopMoveX] ( #21, #04, #01 )
     COP [AnimLoop]
-    LDA #$CFF0
+    LDA #$CFFC
     TRB $joypadMaskStd
     COP [StageSpriteLoopMoveX] ( #21, #03, #01 )
     COP [AnimLoop]

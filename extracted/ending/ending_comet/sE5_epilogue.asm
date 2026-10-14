@@ -27,7 +27,7 @@ sE5_epilogue [
   actor-def < #1B, #00, #10, {
 
   code_0BD309:
-    LDA #$FFF0
+    LDA #$FFFC
     TSB $joypadMaskStd
     LDA #$4001
     TSB $displayModeFlags

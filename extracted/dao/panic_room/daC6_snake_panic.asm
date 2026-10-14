@@ -10,6 +10,7 @@
 ?INCLUDE 'enemy_stats_table'
 
 !playerFlags                    09AE
+!globalScriptIndex              0AAC
 !jewelsCollected                0AB0
 !statsPtr                       7F0020
 !currentHp                      7F0026
@@ -68,7 +69,7 @@ code_08AEB4 {
 code_08AEB9 {
     COP [PrintDialogString] ( &dialogstring_08AF16 )
     COP [SetFlagByte] ( #01 )
-    STZ $0AAC
+    STZ $globalScriptIndex
     LDA #$0008
     TRB $playerFlags
     RTL 
@@ -125,7 +126,7 @@ code_08AFB4 {
 
   loc_08AFED:
     COP [BranchOnFlagByte] ( #E7, #01, &code_08AFFB )
-    LDA $0AAC
+    LDA $globalScriptIndex
     CMP #$0051
     BCS loc_08B010
 }
@@ -213,10 +214,10 @@ code_08B133 {
 code_08B138 {
     COP [PlaySoundCh1] ( #0D )
     SED 
-    LDA $0AAC
+    LDA $globalScriptIndex
     CLC 
     ADC #$0001
-    STA $0AAC
+    STA $globalScriptIndex
     CLD 
     LDA #$0200
     TSB $10

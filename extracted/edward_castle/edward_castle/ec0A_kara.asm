@@ -53,7 +53,7 @@ code_04CBAA {
 }
 
 code_04CBBD {
-    LDA #$CFF0
+    LDA #$CFFC
     TSB $joypadMaskStd
     COP [PrintDialogString] ( &dialogstring_04CC96 )
     COP [WaitByte] ( #1D )
@@ -71,7 +71,7 @@ code_04CBBD {
     COP [WaitOnFlagByte] ( #03, #00 )
     COP [PrintDialogString] ( &dialogstring_04CDC0 )
     COP [SetFlagByte] ( #19 )
-    LDA #$CFF0
+    LDA #$CFFC
     TRB $joypadMaskStd
 }
 
@@ -168,7 +168,7 @@ code_04CF7D {
 
 code_04CF88 {
     COP [BranchOnFlagByte] ( #01, #00, &code_04CF95 )
-    COP [BranchIfMissingItem] ( #0A, &code_04CFA7 )
+    COP [BranchIfHasItem] ( #0A, &code_04CFA7 )
     BRA loc_04CF9E
 }
 

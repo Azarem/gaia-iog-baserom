@@ -6,7 +6,7 @@
 ---------------------------------------------
 
 !bg1ScrollH                     068A
-!bg2ScrollH                     068E
+!mapScrollV                     068E
 !cameraTargetX                  06BE
 !cameraTargetY                  06C2
 !cameraOffsetX                  06D6
@@ -126,7 +126,7 @@ camera_scroll_controller [
     STA $effectDeltaX
     LDA $cameraTargetY    ; Delta Y = target - current BG2 scroll
     SEC 
-    SBC $bg2ScrollH
+    SBC $mapScrollV
     STA $effectDeltaY
     PLD 
     RTL 

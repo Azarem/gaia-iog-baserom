@@ -31,6 +31,7 @@
 
 ?BANK 03
 
+!oamWriteOffset                 00D8
 !oamComposeBuffer               7F3100
 
 ---------------------------------------------
@@ -122,7 +123,7 @@ ComposeDigitSprites {
 ; Digit value in A (0–9). Adds $70 to convert to tile index (digit font starts at tile $70), ORs with palette/priority from DP $0002. Writes X position ($0018), Y position ($001C), and tile word to the buffer at $7F3100 + $00D8. Advances the buffer cursor by 6 bytes.
 
 EmitDigitOamEntry {
-    LDX $00D8
+    LDX $oamWriteOffset
     CLC 
     ADC #$0070            ; $70 = digit font base tile; digit 0 → tile $70, etc.
     ORA $0002
@@ -131,9 +132,9 @@ EmitDigitOamEntry {
     STA $oamComposeBuffer, X
     LDA $001C
     STA $7F3102, X
-    LDA $00D8
+    LDA $oamWriteOffset
     CLC 
     ADC #$0006            ; 6 bytes per OAM entry
-    STA $00D8
+    STA $oamWriteOffset
     RTS 
 }

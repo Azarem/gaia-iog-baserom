@@ -57,7 +57,7 @@ code_078FEB {
     BIT #$0004
     BNE loc_0790D0
     COP [WaitOnFlagByte] ( #02, #01 )
-    LDA #$CFF0
+    LDA #$CFFC
     TSB $joypadMaskStd
     COP [StartMusic] ( #06 )
     COP [WaitByte] ( #1D )
@@ -80,7 +80,7 @@ code_078FEB {
     COP [AnimOnce]
     COP [StageSpriteFrame] ( #2B )
     COP [AnimOnce]
-    LDA #$CFF0
+    LDA #$CFFC
     TRB $joypadMaskStd
     COP [SetInteractHandler] ( &code_079244 )
     COP [SetFlagByte] ( #0F )
@@ -90,7 +90,7 @@ code_078FEB {
     LDA $0AA6
     BIT #$0010
     BNE loc_079125
-    LDA #$CFF0
+    LDA #$CFFC
     TSB $joypadMaskStd
     COP [StageSpriteMoveX] ( #30, #12 )
     COP [AnimOnce]
@@ -110,7 +110,7 @@ code_078FEB {
     COP [AnimOnce]
     COP [StageSpriteFrame] ( #2B )
     COP [AnimOnce]
-    LDA #$CFF0
+    LDA #$CFFC
     TRB $joypadMaskStd
     COP [SetInteractHandler] ( &code_079252 )
     COP [SetFlagByte] ( #0F )
@@ -120,7 +120,7 @@ code_078FEB {
     LDA $0AA6
     BIT #$0002
     BNE loc_07917E
-    LDA #$CFF0
+    LDA #$CFFC
     TSB $joypadMaskStd
     COP [StageSpriteLoopMoveX] ( #31, #02, #11 )
     COP [AnimLoop]
@@ -140,7 +140,7 @@ code_078FEB {
     COP [AnimLoop]
     COP [StageSpriteFrame] ( #2B )
     COP [AnimOnce]
-    LDA #$CFF0
+    LDA #$CFFC
     TRB $joypadMaskStd
     COP [SetInteractHandler] ( &code_079260 )
     COP [SetFlagByte] ( #0F )
@@ -150,7 +150,7 @@ code_078FEB {
     LDA $0AA6
     BIT #$0008
     BNE loc_0791C9
-    LDA #$CFF0
+    LDA #$CFFC
     TSB $joypadMaskStd
     COP [StageSpriteLoopMoveY] ( #2F, #02, #12 )
     COP [AnimLoop]
@@ -166,7 +166,7 @@ code_078FEB {
     COP [AnimLoop]
     COP [StageSpriteFrame] ( #2B )
     COP [AnimOnce]
-    LDA #$CFF0
+    LDA #$CFFC
     TRB $joypadMaskStd
     COP [SetInteractHandler] ( &code_07926E )
     COP [SetFlagByte] ( #0F )
@@ -176,7 +176,7 @@ code_078FEB {
     LDA $0AA6
     BIT #$0001
     BNE loc_07922F
-    LDA #$CFF0
+    LDA #$CFFC
     TSB $joypadMaskStd
     COP [StageSpriteLoopMoveX] ( #31, #03, #11 )
     COP [AnimLoop]
@@ -202,7 +202,7 @@ code_078FEB {
     COP [QueueMapChange] ( #7D, #$0070, #$0080, #00, #$1100 )
     COP [ClearFlagByte] ( #96 )
     COP [SetFlagByte] ( #97 )
-    LDA #$CFF0
+    LDA #$CFFC
     TRB $joypadMaskStd
 
   loc_07922F:
@@ -325,7 +325,7 @@ code_079637 {
     COP [MarkSolidOffset] ( #01, #00 )
     COP [SetInteractHandler] ( &code_079677 )
     COP [WaitOnFlagByte] ( #01, #01 )
-    LDA #$EFF0
+    LDA #$EFFC
     TSB $joypadMaskStd
     COP [ClearSolidHere]
     COP [ClearSolidOffset] ( #01, #00 )
@@ -337,7 +337,7 @@ code_079637 {
     COP [StageSpriteFrame] ( #04 )
     COP [AnimOnce]
     COP [MarkSolidHere]
-    LDA #$EFF0
+    LDA #$EFFC
     TRB $joypadMaskStd
     COP [SetEntryHere]
     RTL 

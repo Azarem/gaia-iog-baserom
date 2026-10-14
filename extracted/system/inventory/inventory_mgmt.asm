@@ -12,9 +12,9 @@
 ;   - $83: 1 gem
 ;   - $84: 2 gems
 ;   - $85: 5 gems (gem cap: 999/$03E7)
-;   - $86+: Damage flash effect (adds 5 to damageFlashTimer, spawns hit spark sprites, plays SFX $22)
+;   - $86+: Damage flash effect (adds 5 to hpToHeal, spawns hit spark sprites, plays SFX $22)
 ; 
-; Stat-up items ($80–$82) clear displayModeFlags bit $80 (disables HUD during the stat-up animation), play SFX $25, and set damageFlashTimer = (newMaxHp - currentHp) for the healing flash effect.
+; Stat-up items ($80–$82) clear displayModeFlags bit $80 (disables HUD during the stat-up animation), play SFX $25, and set hpToHeal = (newMaxHp - currentHp) for the healing flash effect.
 ; 
 ; GiveItemToPlayer returns: carry clear = success (Y = item-get dialogue string pointer), carry set = inventory full (Y = full-inventory dialogue string pointer). The item ID is stored at $0DB8 for dialogue display.
 ; 
@@ -37,7 +37,7 @@
 !gemCount                       0AD6
 !playerDef                      0ADC
 !playerStr                      0ADE
-!damageFlashTimer               0B22
+!hpToHeal                       0B22
 
 ---------------------------------------------
 
@@ -45,11 +45,11 @@
 ; 
 ; Item ID encoding:
 ;   $00–$7F: Regular item → scan inventorySlots ($0AB4, 16 entries) for first empty slot
-;   $80: HP Max Up (+1, cap $55) → set damageFlashTimer for heal flash, SFX $25
+;   $80: HP Max Up (+1, cap $55) → set hpToHeal for heal flash, SFX $25
 ;   $81: STR Up (+1, cap $55) → SFX $25
 ;   $82: DEF Up (+1, cap $55) → branches to GiveItem_DefUp
 ;   $83/$84/$85: Add 1/2/5 gems (cap 999), SFX $22
-;   $86+: Damage effect → damageFlashTimer += 5, spawn hit spark sprites, SFX $22
+;   $86+: Damage effect → hpToHeal += 5, spawn hit spark sprites, SFX $22
 ; 
 ; Stat-up items clear displayModeFlags bit $80 (suppress HUD during animation).
 ; Return: carry clear = success, carry set = inventory full. Y = dialogue string pointer.
@@ -91,10 +91,10 @@ GiveItemToPlayer {
     DEC 
     BEQ loc_03EFF1        ; Effect index 5 (item $85) → add 5 gems
     REP #$20
-    LDA #$0005            ; Effect index ≥6 (item $86+): damageFlashTimer += 5
+    LDA #$0005            ; Effect index ≥6 (item $86+): hpToHeal += 5
     CLC 
-    ADC $damageFlashTimer
-    STA $damageFlashTimer
+    ADC $hpToHeal
+    STA $hpToHeal
     PHD 
     TXA 
     TCD 
@@ -143,8 +143,8 @@ GiveItemToPlayer {
   loc_03F023:
     STA $playerMaxHp
     SEC 
-    SBC $playerHp         ; damageFlashTimer = newMaxHp − currentHp (green heal flash duration)
-    STA $damageFlashTimer
+    SBC $playerHp         ; hpToHeal = newMaxHp − currentHp (green heal flash duration)
+    STA $hpToHeal
     LDY #$0000
     BRA GiveItem_Success
 

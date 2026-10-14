@@ -29,11 +29,11 @@ town_door [
 ]
 
 ---------------------------------------------
-; 8-frame A-button hold loop. If the button is pressed, branches to open animation. If the player walks away (loop expires), returns to proximity check.
+; 8-frame Up-button hold loop. If the button is pressed, branches to open animation. If the player walks away (loop expires), returns to proximity check.
 
 TownDoorInteractLoop {
-    COP [LoopStart] ( #08 ) ; 8 frames to hold A before door opens
-    COP [BranchIfPressed] ( #$0800, &TownDoorOpenAnim ) ; A button → open
+    COP [LoopStart] ( #08 ) ; 8 frames to hold Up before door opens
+    COP [BranchIfPressed] ( #$0800, &TownDoorOpenAnim ) ; Up button → open
     COP [JumpNextFrame] ( @TownDoorProximityCheck ) ; Not pressed → back to proximity poll
 }
 

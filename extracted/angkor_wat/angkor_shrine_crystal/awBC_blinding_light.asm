@@ -18,11 +18,11 @@ awBC_blinding_light [
   code_089A1F:
     COP [BranchOnFlagByte] ( #B7, #01, &code_089A3B )
     COP [SetFlagByte] ( #B7 )
-    LDA #$CFF0
+    LDA #$CFFC
     TSB $joypadMaskStd
     COP [WaitByte] ( #1D )
     COP [PrintDialogString] ( &dialogstring_089A65 )
-    LDA #$CFF0
+    LDA #$CFFC
     TRB $joypadMaskStd
 } >
 ]

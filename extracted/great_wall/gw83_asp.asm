@@ -215,7 +215,7 @@ code_0B959C {
 }
 
 code_0B95BE {
-    LDA #$8000
+    LDA #$0080
     TSB $joypadMaskStd
     COP [SetDeathCallback] ( @code_0B962D )
 
@@ -273,7 +273,7 @@ code_0B9613 {
 }
 
 code_0B962D {
-    LDA #$8000
+    LDA #$0080
     TRB $joypadMaskStd
     COP [JumpFar] ( @StandardEnemyDefeatHandler )
 }
@@ -530,7 +530,7 @@ code_0B97CF {
     STA $0026, Y
 
   loc_0B97F0:
-    LDA #$8000
+    LDA #$0080
     TRB $joypadMaskStd
     COP [Die]
 }

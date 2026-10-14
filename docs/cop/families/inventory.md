@@ -20,7 +20,7 @@ Script-facing inventory primitives: grant or remove items, branch on possession,
 ## Family notes
 
 - **`GiveItem` branches on failure** (inventory full, carry set), not on success — success is fallthrough after skipping the `&Code` operand.
-- **`BranchIfMissingItem` branches when absent** (carry clear from `CheckInventoryForItem`); “player has item” is fallthrough.
+- **`BranchIfHasItem` branches when present** (carry clear from `CheckInventoryForItem` = found); "player lacks item" is fallthrough.
 - **`BranchIfItemEquipped`** compares the operand byte to `inventorySlots[inventoryEquippedIndex]`, not a direct “equipped item ID” field.
 - **`RemoveItem`** always continues; missing items are a no-op in `RemoveItemFromInventory`.
 - Extracted US scripts emit **preferred `copdef.json` names**; legacy **`BranchIfNoItem`** / **`BranchIfEquipped`** appear only in `extracted-jp/` and older notes.
@@ -31,10 +31,10 @@ Script-facing inventory primitives: grant or remove items, branch on possession,
 |----|------|-----:|--------|---------|---------|
 | `D4` | `GiveItem` | 49 | `Byte`, `&Code` | `GiveItem` | Continue / Branch |
 | `D5` | `RemoveItem` | 34 | `Byte` | `RemoveItem` | Continue |
-| `D6` | `BranchIfMissingItem` | 35 | `Byte`, `&Code` | `BranchIfMissingItem` | Branch / Continue |
+| `D6` | `BranchIfHasItem` | 35 | `Byte`, `&Code` | `BranchIfHasItem` | Branch / Continue |
 | `D7` | `BranchIfItemEquipped` | 5 | `Byte`, `&Code` | `BranchIfItemEquipped` | Branch / Continue |
 
-**Preferred names** from `db-us/copdef.json`. **Legacy aliases:** `BranchIfNoItem` → `BranchIfMissingItem`; `BranchIfEquipped` → `BranchIfItemEquipped`.
+**Preferred names** from `db-us/copdef.json`. **Legacy aliases:** `BranchIfNoItem` / `BranchIfMissingItem` → `BranchIfHasItem`; `BranchIfEquipped` → `BranchIfItemEquipped`.
 
 **Family call-site total:** 123
 
@@ -142,7 +142,7 @@ RemoveItem {
 
 ##### How it is used
 
-Payment gates (spirit guide takes Red Jewel or Herb), key consumption in `item_use_system.asm`, and puzzle scripts that delete quest items after use. Often chained: `BranchIfMissingItem` guard → gameplay → `RemoveItem`.
+Payment gates (spirit guide takes Red Jewel or Herb), key consumption in `item_use_system.asm`, and puzzle scripts that delete quest items after use. Often chained: `BranchIfHasItem` guard → gameplay → `RemoveItem`.
 
 ##### Parameters & contract
 
@@ -155,12 +155,12 @@ Payment gates (spirit guide takes Red Jewel or Herb), key consumption in `item_u
 
 ---
 
-#### COP [D6] — `BranchIfMissingItem` (branch if player lacks item)
+#### COP [D6] — `BranchIfHasItem` (branch if player has item)
 
 - **Confidence:** high
-- **Preferred name:** `BranchIfMissingItem`
-- **Aliases:** `BranchIfNoItem`
-- **Handler:** `BranchIfMissingItem` @ [`cop_handlers_inventory.asm:502-522`](../../../extracted/system/engine/cop_handlers_inventory.asm)
+- **Preferred name:** `BranchIfHasItem`
+- **Aliases:** `BranchIfNoItem` (legacy, inverted name), `BranchIfMissingItem` (legacy, inverted name)
+- **Handler:** `BranchIfHasItem` @ [`cop_handlers_inventory.asm:502-522`](../../../extracted/system/engine/cop_handlers_inventory.asm)
 - **Parameters:** `Byte ItemId`, `&Code`
 - **Usage count:** 35
 
@@ -175,7 +175,7 @@ Polarity matches legacy name **`BranchIfNoItem`**: branch runs when the item is 
 ##### Handler excerpt
 
 ```asm
-BranchIfMissingItem {
+BranchIfHasItem {
     TYX
     LDA [$0A]
     INC $0A
@@ -203,14 +203,14 @@ BranchIfMissingItem {
 
 ```asm
 ; extracted/pyramid/puzzle_room/pyCD_explorer.asm
-COP [BranchIfMissingItem] ( #1E, &code_08C250 )
-COP [BranchIfMissingItem] ( #1F, &code_08C250 )
+COP [BranchIfHasItem] ( #1E, &code_08C250 )
+COP [BranchIfHasItem] ( #1F, &code_08C250 )
 ...
-COP [BranchIfMissingItem] ( #23, &code_08C250 )
+COP [BranchIfHasItem] ( #23, &code_08C250 )
 ; all owned → fallthrough → ClearSolidHere / Die
 ```
 
-**Payment branches** — `BranchIfMissingItem` on currency item sends script to alternate “cannot pay” dialog.
+**Payment branches** — `BranchIfHasItem` on currency item sends script to the payment/exchange handler; fallthrough goes to “cannot pay” dialog.
 
 ##### Parameters & contract
 

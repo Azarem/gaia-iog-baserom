@@ -11,6 +11,7 @@
 ?INCLUDE 'forced_walk_sequence_table'
 ?INCLUDE 'movement_delta_table'
 
+!warpFacing                     0650
 !joypadCurrent                  0656
 !joypadMaskStd                  065A
 !scrollStepTableBase            06E0
@@ -178,8 +179,8 @@ ForcedWalkSouth {
 ; Increments the stream pointer at $0650, reads the next direction byte, looks up a base sprite frame in direction_velocity_table (stored to $0000), and fetches a movement-delta index into movement_delta_table (stored to $2E as frame duration). Has a sibling ReadDirSprite_XVelocity for east/west walks.
 
 ReadDirSprite_YVelocity {
-    LDY $0650             ; ReadDirSprite_YVelocity: pull step delta from direction_velocity_table to $2E
-    INC $0650             ; Advance data stream pointer to next walk-step entry
+    LDY $warpFacing       ; ReadDirSprite_YVelocity: pull step delta from direction_velocity_table to $2E
+    INC $warpFacing       ; Advance data stream pointer to next walk-step entry
     LDA $0000, Y          ; Read direction byte from current walk data position
     AND #$00FF            ; Mask to 8-bit direction index
     ASL 
@@ -196,8 +197,8 @@ ReadDirSprite_YVelocity {
 }
 
 ReadDirSprite_XVelocity {
-    LDY $0650
-    INC $0650
+    LDY $warpFacing
+    INC $warpFacing
     LDA $0000, Y
     AND #$00FF
     ASL 
@@ -214,11 +215,11 @@ ReadDirSprite_XVelocity {
 }
 
 ApplyScrollOffset {
-    LDA $0650             ; Load current data stream position
+    LDA $warpFacing       ; Load current data stream position
     TAY 
     CLC 
     ADC #$0004            ; Advance past 4-byte (X word + Y word) scroll offset record
-    STA $0650
+    STA $warpFacing
     LDA $0000, Y          ; Read and add X scroll offset to actor X
     CLC 
     ADC $14               ; Add X scroll offset to actor X position

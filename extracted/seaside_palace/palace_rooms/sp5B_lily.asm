@@ -22,7 +22,7 @@ sp5B_lily [
 ]
 
 code_068696 {
-    LDA #$CFF0
+    LDA #$CFFC
     TSB $joypadMaskStd
     COP [WaitByte] ( #0F )
     COP [StartMusic] ( #1B )
@@ -56,7 +56,7 @@ code_068696 {
     COP [SetFlagByte] ( #6F )
     LDA #$0000
     STA $0688
-    LDA #$CFF0
+    LDA #$CFFC
     TRB $joypadMaskStd
 }
 

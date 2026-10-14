@@ -19,9 +19,9 @@
 ?INCLUDE 'system_init'
 
 !bg1ScrollH                     068A
-!bg1ScrollV                     068C
-!bg2ScrollH                     068E
-!savedCameraDelta               0690
+!effectScrollH                  068C
+!mapScrollV                     068E
+!effectScrollV                  0690
 !mapBoundsX                     0692
 !mapBoundsY                     0696
 !mapTilemapBaseA                069E
@@ -34,6 +34,7 @@
 !layerPriorityFlag              06EE
 !scrollModeFlags                06EF
 !displayModeFlags               09EC
+!hudDisableFlag                 09ED
 !VMAIN                          2115
 !VMADDL                         2116
 !MDMAEN                         420B
@@ -87,7 +88,7 @@ CameraFullRefresh {
     STA $cameraTargetY, X
 
   loc_02ABC3:
-    STA $bg2ScrollH, X    ; Copy clamped Y to BG vertical scroll register ($068E+X)
+    STA $mapScrollV, X    ; Copy clamped Y to BG vertical scroll register ($068E+X)
     AND #$FFF0
     STA $1C
     SEP #$20
@@ -163,7 +164,7 @@ CameraSmoothScroll {
     LDA $cameraTargetX, X ; Direct mode: copy camera targets straight to scroll position registers (no smoothing)
     STA $bg1ScrollH, X
     LDA $cameraTargetY, X
-    STA $bg2ScrollH, X
+    STA $mapScrollV, X
     PLP 
     RTL 
 
@@ -174,9 +175,9 @@ CameraSmoothScroll {
     BIT #$0400
     BEQ loc_02AC62
     LDA $cameraDeltaX     ; Layer 1 priority: store deltas directly to bg1ScrollV and savedCameraDelta
-    STA $bg1ScrollV
+    STA $effectScrollH
     LDA $cameraDeltaY
-    STA $savedCameraDelta
+    STA $effectScrollV
     PLP 
     RTL 
 
@@ -209,11 +210,11 @@ CameraSmoothScroll {
 
   loc_02AC95:
     PLA 
-    LDA $bg2ScrollH, X    ; Begin vertical scroll processing — same delta/clamp/XOR logic as horizontal
+    LDA $mapScrollV, X    ; Begin vertical scroll processing — same delta/clamp/XOR logic as horizontal
     PHA 
     LDA $cameraTargetY, X
     SEC 
-    SBC $bg2ScrollH, X
+    SBC $mapScrollV, X
     BPL loc_02ACAD
     CMP #$FFF0
     BCS loc_02ACB5
@@ -228,8 +229,8 @@ CameraSmoothScroll {
   loc_02ACB5:
     STA $scrollDeltaYClamped, X ; Store clamped vertical delta
     CLC 
-    ADC $bg2ScrollH, X
-    STA $bg2ScrollH, X
+    ADC $mapScrollV, X
+    STA $mapScrollV, X
     EOR $01, S
     BIT #$0010            ; Test vertical tile boundary crossing via XOR on bit 4
     BEQ loc_02ACC9
@@ -260,7 +261,7 @@ UpdateScrollRow {
 
   loc_02ACDC:
     CLC 
-    ADC $bg2ScrollH, X    ; Compute actual row Y = current vertical scroll + edge offset
+    ADC $mapScrollV, X    ; Compute actual row Y = current vertical scroll + edge offset
 
   loc_02ACE0:
     STA $1C               ; Wrap Y against map height: subtract mapBoundsY until within valid range
@@ -292,7 +293,7 @@ UpdateScrollColumn {
     CLC 
     ADC $bg1ScrollH, X    ; Compute column X = current horizontal scroll + edge offset
     STA $18
-    LDA $bg2ScrollH, X
+    LDA $mapScrollV, X
     STA $1C
     JSR $&RenderScrollRow ; Render the computed column as a vertical tilemap strip
     RTS 
@@ -874,7 +875,7 @@ DmaVerticalStrip {
 ; After transfer, clears the request flags (bits 0,4,5 via TRB with $31) to prevent re-triggering. Sets VMAIN=$80, DMAP0=$01, BBAD0=$18, source bank=$7F, then triggers DMA channel 0.
 
 SpriteVramDma {
-    LDA $09ED             ; Check $09ED bit 7 — if set, sprite VRAM DMA is globally suppressed
+    LDA $hudDisableFlag   ; Check $09ED bit 7 — if set, sprite VRAM DMA is globally suppressed
     BPL loc_02B03E
     RTL 
 

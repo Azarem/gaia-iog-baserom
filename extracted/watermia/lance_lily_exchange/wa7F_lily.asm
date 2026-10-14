@@ -15,7 +15,7 @@ wa7F_lily [
 
   code_07B1DB:
     COP [NudgePosition] ( #08, #00 )
-    LDA #$CFF0
+    LDA #$CFFC
     TSB $joypadMaskStd
     LDY $playerActor
     LDA $0010, Y

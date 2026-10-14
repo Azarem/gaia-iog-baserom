@@ -31,11 +31,11 @@ it15_lily [
 
 code_04E2B9 {
     COP [BranchOnFlagByte] ( #26, #00, &code_04E3CC )
-    LDA #$CFF0
+    LDA #$CFFC
     TSB $joypadMaskStd
     COP [WaitByte] ( #1D )
     COP [PrintDialogString] ( &dialogstring_04E3D5 )
-    LDA #$6000
+    LDA #$2008
     TRB $joypadMaskStd
     LDA #$1000
     TRB $10
@@ -50,7 +50,7 @@ code_04E2B9 {
 code_04E2E6 {
     LDA #$1000
     TSB $10
-    LDA #$EFF0
+    LDA #$EFFC
     TSB $joypadMaskStd
     SEP #$20
     LDA #$80
@@ -86,7 +86,7 @@ code_04E2E6 {
     COP [PrintDialogString] ( &dialogstring_04E46F )
     COP [SetFlagByte] ( #02 )
     COP [WaitOnFlagByte] ( #03, #01 )
-    LDA #$EFF0
+    LDA #$EFFC
     TRB $joypadMaskStd
     COP [SetFlagByte] ( #2B )
     LDA #$0800
@@ -97,7 +97,7 @@ code_04E2E6 {
     COP [AnimOnce]
     COP [StageSpriteLoopMoveY] ( #1E, #02, #01 )
     COP [AnimLoop]
-    LDA #$CFF0
+    LDA #$CFFC
     TRB $joypadMaskStd
     COP [StageSpriteLoopMoveX] ( #21, #06, #01 )
     COP [AnimLoop]

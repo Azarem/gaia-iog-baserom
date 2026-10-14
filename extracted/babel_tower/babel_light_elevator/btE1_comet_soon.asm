@@ -28,16 +28,16 @@ btE1_comet_soon [
 ]
 
 code_099641 {
-    LDA #$FFF0
+    LDA #$FFFC
     TSB $joypadMaskStd
-    COP [Decompress] ( @gfx_vampires, $7E7000 )
-    COP [AdhocVramDma] ( $7E7000, #$5000, #$0800 )
+    COP [Decompress] ( @gfx_vampires, $tileStagingBuffer )
+    COP [AdhocVramDma] ( $tileStagingBuffer, #$5000, #$0800 )
     COP [AdhocVramDma] ( $7E7800, #$5400, #$0800 )
     COP [AdhocVramDma] ( $7E8000, #$5800, #$0800 )
     COP [AdhocVramDma] ( $7E8800, #$5C00, #$0800 )
     COP [CopyPalette] ( @pal_vampires, #10, #B0, #40 )
-    COP [Decompress] ( @spm_vampires, $7E4000 )
-    LDA #$DFF0
+    COP [Decompress] ( @spm_vampires, $decompressedTilesets )
+    LDA #$DFFC
     TRB $joypadMaskStd
     STZ $0676
     STZ $0685
@@ -53,7 +53,7 @@ code_099641 {
     COP [MarkSolidHere]
     COP [SetInteractHandler] ( &code_099746 )
     COP [WaitOnFlagByte] ( #02, #01 )
-    LDA #$EFF0
+    LDA #$EFFC
     TSB $joypadMaskStd
     LDY $playerActor
     LDA $0014, Y
@@ -95,7 +95,7 @@ code_099641 {
     COP [WaitByte] ( #31 )
     COP [SetFlagByte] ( #04 )
     COP [KillPrev]
-    LDA #$CFF0
+    LDA #$CFFC
     TRB $joypadMaskStd
     COP [StageSpriteLoopMoveXY] ( #01, #0A, #02, #04 )
     COP [AnimLoop]

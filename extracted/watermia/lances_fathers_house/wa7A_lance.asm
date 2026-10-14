@@ -18,13 +18,13 @@ wa7A_lance [
     COP [SetInteractHandler] ( &code_07AB6B )
     COP [MarkSolidHere]
     COP [WaitOnFlagByte] ( #02, #01 )
-    LDA #$EFF0
+    LDA #$EFFC
     TSB $joypadMaskStd
     COP [StartMusic] ( #1B )
     STZ $0688
     COP [WaitByte] ( #3B )
     COP [PrintDialogString] ( &dialogstring_07AB82 )
-    LDA #$EFF0
+    LDA #$EFFC
     TRB $joypadMaskStd
     COP [SetInteractHandler] ( &code_07AB6F )
     COP [WaitOnFlagByte] ( #90, #01 )
@@ -35,7 +35,7 @@ wa7A_lance [
 ]
 
 code_07AB34 {
-    LDA #$CFF0
+    LDA #$CFFC
     TSB $joypadMaskStd
     COP [ClearSolidHere]
     COP [StageSpriteMoveX] ( #18, #02 )
@@ -51,7 +51,7 @@ code_07AB34 {
     COP [AnimOnce]
     COP [StageSpriteMoveY] ( #17, #11 )
     COP [AnimOnce]
-    LDA #$CFF0
+    LDA #$CFFC
     TRB $joypadMaskStd
 }
 

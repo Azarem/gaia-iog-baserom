@@ -26,7 +26,7 @@ na4B_buried_tile [
     COP [WaitOnFlagByte] ( #09, #01 )
     COP [SetInteractHandler] ( &code_05E6AD )
     COP [WaitOnFlagByte] ( #0F, #01 )
-    LDA #$EFF0
+    LDA #$EFFC
     TSB $joypadMaskStd
     LDA #$00E0
     STA $orbitAngle, X

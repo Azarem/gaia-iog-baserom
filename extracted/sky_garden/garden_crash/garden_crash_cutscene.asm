@@ -38,7 +38,7 @@ GardenCrashCutscene [
   actor-def < #00, #00, #18, {
 
   code_03A0AD:
-    LDA #$FFF0            ; Mask joypad $FFF0 — disable Start/Select/Y/B during crash cutscene
+    LDA #$FFFC            ; Mask joypad $FFF0 — disable Start/Select/Y/B during crash cutscene
     TSB $joypadMaskStd
     SEP #$20              ; Switch to 8-bit A for PPU register writes
     STZ $M7SEL            ; M7SEL = $00: no Mode 7 flip

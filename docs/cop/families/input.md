@@ -300,7 +300,7 @@ BranchIfNotPressed {
 COP [BranchIfNotPressed] ( #$0400, &WalkRestoreSaved )     ; actors/player/player_character.asm:315 — left released
 COP [BranchIfNotPressed] ( #$8001, &AttackCleanup )        ; actors/player/attack_ability_system.asm:160 — B released (raw)
 COP [BranchIfNotPressed] ( #$8001, &LaunchPsychoDash )      ; actors/player/attack_ability_system.asm:171
-COP [BranchIfNotPressed] ( #$0030, &RunStopToIdle )         ; actors/player/player_character.asm:1098 — L/R released
+COP [BranchIfNotPressed] ( #$0030, &BlockStopToIdle )       ; actors/player/player_character.asm:1098 — L/R released
 ```
 
 ##### Parameters & contract

@@ -12,7 +12,7 @@
 !playerHp                       0ACE
 !playerDef                      0ADC
 !playerStr                      0ADE
-!damageFlashTimer               0B22
+!hpToHeal                       0B22
 
 ---------------------------------------------
 
@@ -59,7 +59,7 @@ boss_clear_reward_handler [
     LDA $playerMaxHp      ; Flash HP bar: timer = maxHP - currentHP
     SEC 
     SBC $playerHp
-    STA $damageFlashTimer
+    STA $hpToHeal
     LDA $20
     LSR 
     LSR 

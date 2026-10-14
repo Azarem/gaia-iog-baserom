@@ -66,7 +66,7 @@ mu67_bomb [
     COP [StageSpriteFrame] ( #24 )
     COP [AnimOnce]
     COP [BranchOnFlagByte] ( #01, #00, &code_06A478 )
-    LDA #$CFF0
+    LDA #$CFFC
     TSB $joypadMaskStd
     COP [StartMusic] ( #1B )
     COP [WaitByte] ( #77 )
@@ -87,7 +87,7 @@ mu67_bomb [
     COP [SetFlagByte] ( #03 )
     COP [StageBgChange] ( #93 )
     COP [ApplyBgChange]
-    LDA #$CFF0
+    LDA #$CFFC
     TRB $joypadMaskStd
     COP [Die]
 } >

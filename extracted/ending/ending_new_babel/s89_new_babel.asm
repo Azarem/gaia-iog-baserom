@@ -19,7 +19,7 @@ s89_new_babel [
   actor-def < #00, #00, #30, {
 
   code_0BE02C:
-    LDA #$FFF0
+    LDA #$FFFC
     TSB $joypadMaskStd
     LDA #$4001
     TSB $displayModeFlags

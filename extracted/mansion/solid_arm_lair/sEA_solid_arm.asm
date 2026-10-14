@@ -42,7 +42,7 @@ sEA_solid_arm [
     STA $0AF6
     LDA #$&binary_08F9EA
     STA $0AF4
-    LDA #$EFF0
+    LDA #$EFFC
     TSB $joypadMaskStd
     COP [WaitByte] ( #13 )
     COP [PlaySoundCh1] ( #0E )
@@ -60,7 +60,7 @@ code_08F754 {
     COP [WaitByte] ( #0F )
     COP [StartMusic] ( #0F )
     COP [WaitByte] ( #31 )
-    LDA #$EFF0
+    LDA #$EFFC
     TRB $joypadMaskStd
 
   loc_08F763:
@@ -341,7 +341,7 @@ code_08F9F2 {
     RTL 
 
   loc_08FA06:
-    LDA #$EFF0
+    LDA #$EFFC
     TSB $joypadMaskStd
     COP [FadeThenStartMusic] ( #1B )
     COP [WaitWord] ( #$0120 )

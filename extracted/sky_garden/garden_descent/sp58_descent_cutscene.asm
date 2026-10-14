@@ -27,7 +27,7 @@ sp58_descent_cutscene [
     LDA $0010, Y
     ORA #$2000
     STA $0010, Y
-    LDA #$EFF0
+    LDA #$EFFC
     TSB $joypadMaskStd
     LDA $0AA6
     BNE loc_068183

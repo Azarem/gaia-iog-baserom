@@ -370,9 +370,9 @@
 ?INCLUDE 'mtA1_fire_sprite'
 ?INCLUDE 'mtA1_yorrick_ew'
 ?INCLUDE 'mtA1_yorrick_ns'
-?INCLUDE 'mtA2_crystal_ball_gate'
-?INCLUDE 'mtA5_crystal_ball_gate_a'
-?INCLUDE 'mtA5_crystal_ball_gate_b'
+?INCLUDE 'mtA2_mushroom_drop_gate'
+?INCLUDE 'mtA5_mushroom_drop_gate_a'
+?INCLUDE 'mtA5_mushroom_drop_gate_b'
 ?INCLUDE 'mu5F_cyclops'
 ?INCLUDE 'mu5F_flasher'
 ?INCLUDE 'mu60_floor_spikes'
@@ -3403,7 +3403,7 @@ scene_event_0CC335 [
   actor-spawn < #00, #00, #00, @camera_scroll_controller >   ;01
   actor-spawn < #DF, #DF, #00, @camera_scroll.ScrollCameraInit >   ;02
   actor-spawn < #0C, #2D, #09, @ramps.ramp_north >   ;03
-  actor-spawn < #00, #01, #00, @mtA2_crystal_ball_gate >   ;04
+  actor-spawn < #00, #01, #00, @mtA2_mushroom_drop_gate >   ;04
   enemy-spawn < #0D, #1C, #30, @mtA0_acid_spider.mtA0_acid_spider5, #3C, #30, #00 >   ;05
   enemy-spawn < #0D, #18, #30, @mtA0_acid_spider.mtA0_acid_spider5, #3C, #31, #00 >   ;06
   enemy-spawn < #07, #09, #30, @mtA0_acid_spider.mtA0_acid_spider5, #3C, #32, #00 >   ;07
@@ -3495,8 +3495,8 @@ scene_event_0CC5F8 [
   actor-spawn < #00, #00, #00, @camera_scroll_controller >   ;01
   actor-spawn < #DF, #DF, #00, @camera_scroll.ScrollCameraInit >   ;02
   actor-spawn < #14, #0F, #11, @ramps.ramp_south >   ;03
-  actor-spawn < #00, #01, #00, @mtA5_crystal_ball_gate_a >   ;04
-  actor-spawn < #00, #01, #00, @mtA5_crystal_ball_gate_b >   ;05
+  actor-spawn < #00, #01, #00, @mtA5_mushroom_drop_gate_a >   ;04
+  actor-spawn < #00, #01, #00, @mtA5_mushroom_drop_gate_b >   ;05
   enemy-spawn < #23, #3D, #30, @mtA1_fire_sprite, #3F, #80, #00 >   ;06
   enemy-spawn < #15, #23, #30, @mtA1_fire_sprite, #3F, #81, #00 >   ;07
   enemy-spawn < #0A, #19, #30, @mtA1_fire_sprite, #3F, #82, #00 >   ;08

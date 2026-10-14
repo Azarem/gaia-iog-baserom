@@ -28,11 +28,11 @@ nvAC_kara [
     COP [BranchOnFlagByte] ( #B0, #01, &code_0880D6 )
     COP [BranchOnFlagByte] ( #AD, #01, &code_0880D4 )
     COP [BranchOnFlagByte] ( #AC, #01, &code_0880B8 )
-    LDA #$CFF0
+    LDA #$CFFC
     TSB $joypadMaskStd
     COP [WaitByte] ( #1D )
     COP [PrintDialogString] ( &dialogstring_0881E2 )
-    LDA #$CFF0
+    LDA #$CFFC
     TRB $joypadMaskStd
     COP [SetFlagByte] ( #AC )
     COP [SetFlagByte] ( #01 )
@@ -62,7 +62,7 @@ code_0880D4 {
 }
 
 code_0880D6 {
-    LDA #$CFF0
+    LDA #$CFFC
     TSB $joypadMaskStd
     LDY $playerActor
     LDA $0010, Y
@@ -97,7 +97,7 @@ code_0880D6 {
 
 code_088152 {
     COP [SpawnAfterAbsFlags] ( @nv_village_event_sprite, #$0088, #$00FE, #$1002 )
-    LDA #$CFF0
+    LDA #$CFFC
     TSB $joypadMaskStd
     COP [SetTilePos] ( #06, #10 )
     COP [StageSpriteFrame] ( #2E )

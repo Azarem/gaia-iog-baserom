@@ -15,6 +15,8 @@
 ?INCLUDE 'body_table'
 ?INCLUDE 'movement_delta_table'
 
+!actorListFirst                 0056
+!actorListLast                  0058
 !sceneCurrent                   0644
 !playerFlags                    09AE
 !characterForm                  0AD4
@@ -43,7 +45,7 @@ UnlinkActor {
     LDY $0004, X          ; Load prev pointer of actor being removed
     BNE loc_00AF55        ; No prev → actor is the list head; update $0056
     LDY $0006, X          ; Load next pointer to become new head
-    STY $0056             ; New list head = removed actor's next
+    STY $actorListFirst   ; New list head = removed actor's next
     BEQ loc_00AF69
     LDA #$0000            ; New head has no prev → zero its $0004
     STA $0004, Y
@@ -53,7 +55,7 @@ UnlinkActor {
     LDA $0006, X          ; Mid/tail removal: get removed actor's next
     STA $0006, Y          ; Patch: prev.next → removed.next (splice around removed)
     BNE loc_00AF62        ; If removed.next is null, prev becomes the new tail
-    STY $0058             ; Update list tail ($0058) to prev actor
+    STY $actorListLast    ; Update list tail ($0058) to prev actor
     BRA loc_00AF69
 
   loc_00AF62:
@@ -109,7 +111,7 @@ AllocateActorBefore {
     PHX 
     LDX $0004, Y          ; Check if new actor's prev exists (was current's prev)
     BNE loc_00B180        ; Prev exists → patch prev.next = new actor
-    STY $0056             ; No prev → new actor is the new list head ($0056)
+    STY $actorListFirst   ; No prev → new actor is the new list head ($0056)
     BRA loc_00B184
 
   loc_00B180:
@@ -145,7 +147,7 @@ AllocateActorAfter {
     BRA loc_00B1B0
 
   loc_00B1AD:
-    STY $0058             ; Update list tail to new actor
+    STY $actorListLast    ; Update list tail to new actor
 
   loc_00B1B0:
     PLX 

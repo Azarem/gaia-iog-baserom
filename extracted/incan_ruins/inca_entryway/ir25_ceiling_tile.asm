@@ -19,7 +19,7 @@ ir25_ceiling_tile [
     COP [NudgePosition] ( #08, #00 )
     COP [BranchOnFlagByte] ( #2F, #01, &code_09C38D )
     COP [WaitOnFlagByte] ( #2F, #01 )
-    LDA #$CFF0
+    LDA #$CFFC
     TSB $joypadMaskStd
     COP [WaitByte] ( #3B )
     COP [PlaySoundBoth] ( #$1515 )
@@ -50,7 +50,7 @@ code_09C38D {
     TRB $10
     COP [SetPriorityMin]
     COP [ClearCollisionHere]
-    LDA #$CFF0
+    LDA #$CFFC
     TRB $joypadMaskStd
     COP [SetEntryHere]
     RTL 

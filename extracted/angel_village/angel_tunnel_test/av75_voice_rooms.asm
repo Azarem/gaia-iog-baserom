@@ -35,17 +35,17 @@ av75_voice_rooms [
     AND #$0010
     BNE loc_06D90B
     INC $0AA6
-    LDA #$CFF0
+    LDA #$CFFC
     TSB $joypadMaskStd
     COP [WaitByte] ( #1D )
     COP [PrintDialogString] ( &dialogstring_06DA14 )
-    LDA #$CFF0
+    LDA #$CFFC
     TRB $joypadMaskStd
     COP [SetEntryHere]
     RTL 
 
   loc_06D90B:
-    LDA #$CFF0
+    LDA #$CFFC
     TSB $joypadMaskStd
     COP [WaitByte] ( #1D )
     COP [PrintDialogString] ( &dialogstring_06DA6B )
@@ -171,7 +171,7 @@ code_06D9DE {
 }
 
 code_06DA0C {
-    LDA #$CFF0
+    LDA #$CFFC
     TRB $joypadMaskStd
     COP [Die]
 }

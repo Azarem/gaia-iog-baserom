@@ -19,13 +19,13 @@ fr33_erik [
     COP [SetInteractHandler] ( &code_05CDA5 )
     COP [WaitOnFlagByte] ( #65, #01 )
     COP [ClearSolidHere]
-    LDA #$CFF0
+    LDA #$CFFC
     TSB $joypadMaskStd
     COP [StageSpriteLoopMoveX] ( #10, #03, #12 )
     COP [AnimLoop]
     COP [StageSpriteLoopMoveY] ( #0E, #06, #01 )
     COP [AnimLoop]
-    LDA #$CFF0
+    LDA #$CFFC
     TRB $joypadMaskStd
 } >
 ]

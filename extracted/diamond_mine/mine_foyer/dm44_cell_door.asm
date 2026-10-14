@@ -28,12 +28,12 @@ dm44_cell_door [
 ]
 
 code_05D54B {
-    COP [BranchIfMissingItem] ( #0B, &code_05D552 )
+    COP [BranchIfHasItem] ( #0B, &code_05D552 )
     BRA loc_05D557
 }
 
 code_05D552 {
-    COP [BranchIfMissingItem] ( #0C, &code_05D56D )
+    COP [BranchIfHasItem] ( #0C, &code_05D56D )
 
   loc_05D557:
     COP [BranchOnFlagByte] ( #5B, #01, &code_05D568 )

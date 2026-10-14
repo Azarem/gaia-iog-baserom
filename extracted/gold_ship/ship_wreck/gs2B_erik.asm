@@ -66,7 +66,7 @@ code_0591F8 {
     TSB $12
     LDA #$0200
     TSB $layerPriorityFlag
-    LDA #$EFF0
+    LDA #$EFFC
     TSB $joypadMaskStd
     LDY $playerActor
     LDA $0014, Y
@@ -100,7 +100,7 @@ code_05923B {
 dialogstring_059240 `[DEF][TPL:3]Erik: [N]I was surprised!! [FIN]Oh, it's you, Will. [N]Don't scare me!![PAL:0][END]`
 
 code_05927E {
-    LDA #$EFF0
+    LDA #$EFFC
     TSB $joypadMaskStd
     COP [StageSpriteMoveX] ( #08, #02 )
     COP [AnimOnce]

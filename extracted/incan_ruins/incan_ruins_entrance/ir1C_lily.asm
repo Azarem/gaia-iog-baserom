@@ -26,13 +26,13 @@ ir1C_lily [
 
   code_09CA02:
     COP [BranchOnFlagByte] ( #4B, #01, &code_09CAB1 )
-    LDA #$CFF0
+    LDA #$CFFC
     TSB $joypadMaskStd
     COP [WaitByte] ( #1D )
     COP [PrintDialogString] ( &dialogstring_09CAE5 )
     COP [MarkSolidAbs] ( #06, #19 )
     COP [MarkSolidAbs] ( #07, #19 )
-    LDA #$CFF0
+    LDA #$CFFC
     TRB $joypadMaskStd
     COP [SpawnAfterFlags] ( @EscortFollowPathTracker, #$2000 )
     TXA 
@@ -83,7 +83,7 @@ code_09CA54 {
     COP [AnimLoop]
     COP [PrintDialogString] ( &dialogstring_09CE01 )
     COP [SetFlagByte] ( #4B )
-    LDA #$CFF0
+    LDA #$CFFC
     TRB $joypadMaskStd
     COP [StageSpriteLoopMoveX] ( #20, #04, #12 )
     COP [AnimLoop]

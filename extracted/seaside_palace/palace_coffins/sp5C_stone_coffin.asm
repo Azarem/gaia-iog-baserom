@@ -29,7 +29,7 @@ sp5C_stone_coffin [
 
   code_0691BE:
     COP [WaitOnFlagByte] ( #02, #01 )
-    LDA #$CFF0
+    LDA #$CFFC
     TSB $joypadMaskStd
     LDA #$2000
     TRB $10
@@ -72,7 +72,7 @@ sp5C_stone_coffin [
     COP [MusicAndText] ( #17, @dialogstring_06939E )
     COP [WaitByte] ( #03 )
     COP [SetEntryHere]
-    LDA #$CFF0
+    LDA #$CFFC
     TSB $joypadMaskStd
     SEP #$20
     LDA $APUIO1
@@ -83,11 +83,11 @@ sp5C_stone_coffin [
     RTL 
 
   loc_06925B:
-    LDA #$CFF0
+    LDA #$CFFC
     TSB $joypadMaskStd
     COP [StageSpriteLoop] ( #33, #04 )
     COP [AnimLoop]
-    LDA #$CFF0
+    LDA #$CFFC
     TSB $joypadMaskStd
     LDY $playerActor
     LDA $0014, Y
@@ -99,7 +99,7 @@ sp5C_stone_coffin [
     COP [MoveToward] ( #33, #01 )
     LDA #$2000
     TSB $10
-    LDA #$CFF0
+    LDA #$CFFC
     TRB $joypadMaskStd
 } >
 ]
@@ -126,7 +126,7 @@ code_069293 {
     COP [MoveToward] ( #33, #01 )
     LDA #$2000
     TSB $10
-    LDA #$CFF0
+    LDA #$CFFC
     TRB $joypadMaskStd
     COP [SetTilePos] ( #2B, #0A )
     JMP $&code_0691BE

@@ -27,7 +27,7 @@ av74_kara [
     COP [SetSpritePriority] ( #10 )
     COP [SpawnAfterOffsetFlags] ( @code_06D251, #$0000, #$0010, #$3000 )
     COP [SetEntryHere]
-    COP [BranchIfMissingItem] ( #14, &code_06D171 )
+    COP [BranchIfHasItem] ( #14, &code_06D171 )
     RTL 
 } >
 ]
@@ -36,7 +36,7 @@ code_06D171 {
     COP [MarkSolidAbs] ( #0B, #0C )
     COP [WaitOnFlagByte] ( #01, #01 )
     COP [WaitOnFlagByte] ( #8A, #01 )
-    LDA #$FFF0
+    LDA #$FFFC
     TSB $joypadMaskStd
     SEP #$20
     LDA #$00
@@ -52,13 +52,13 @@ code_06D171 {
     COP [WaitByte] ( #3B )
     LDA #$2000
     TSB $10
-    COP [Decompress] ( @gfx_nazca_sprites, $7E7000 )
-    COP [AdhocVramDma] ( $7E7000, #$5000, #$0800 )
+    COP [Decompress] ( @gfx_nazca_sprites, $tileStagingBuffer )
+    COP [AdhocVramDma] ( $tileStagingBuffer, #$5000, #$0800 )
     COP [AdhocVramDma] ( $7E7800, #$5400, #$0800 )
     COP [AdhocVramDma] ( $7E8000, #$5800, #$0800 )
     COP [AdhocVramDma] ( $7E8800, #$5C00, #$0800 )
     COP [CopyPalette] ( @pal_nazca_sprites, #00, #A0, #50 )
-    COP [Decompress] ( @spm_nazca_sprites, $7E4000 )
+    COP [Decompress] ( @spm_nazca_sprites, $decompressedTilesets )
     COP [SetTilePos] ( #0B, #10 )
     COP [SetSpritePriority] ( #20 )
     LDA #$2000

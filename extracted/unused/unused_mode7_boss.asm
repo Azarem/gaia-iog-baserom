@@ -15,6 +15,7 @@
 ?INCLUDE 'SetPlayerGameOverFlag'
 ?INCLUDE 'spriteset_enemies'
 
+!frameCounter                   0036
 !gfxCacheIdxB                   064A
 !joypadMaskStd                  065A
 !cameraTargetX                  06BE
@@ -215,14 +216,14 @@ code_09ABF5 {
     RTL 
 
   loc_09AC17:
-    LDA #$FFF0
+    LDA #$FFFC
     TSB $joypadMaskStd
     COP [SetFlagByte] ( #F5 )
-    COP [AdhocVramDma] ( $7EE000, #$5000, #$0800 )
+    COP [AdhocVramDma] ( $mode7Tilemap, #$5000, #$0800 )
     COP [AdhocVramDma] ( $7EE800, #$5400, #$0800 )
-    COP [AdhocVramDma] ( $7EF000, #$5800, #$0800 )
+    COP [AdhocVramDma] ( $thinkerExtendedData, #$5800, #$0800 )
     COP [AdhocVramDma] ( $7EF800, #$5C00, #$0800 )
-    LDA #$FFF0
+    LDA #$FFFC
     TRB $joypadMaskStd
     COP [SpawnListAppend] ( @code_09AC55, #00, #00, #$0012 )
     COP [Die]
@@ -253,7 +254,7 @@ code_09AC55 {
   code_09ACA2:
     COP [SetHitCallback] ( &code_09AD11 )
     COP [SetEntryHere]
-    LDA $0036
+    LDA $frameCounter
     LSR 
     BCS loc_09ACBF
     LDA $playerActor
@@ -818,7 +819,7 @@ code_09B178 {
   loc_09B17B:
     COP [RngByte]
     STA $7F100C, X
-    LDA $0036
+    LDA $frameCounter
     LSR 
     BCC loc_09B1AE
 
@@ -1056,7 +1057,7 @@ code_09B31E {
     LDA $0024, Y
     CMP #$0001
     BEQ loc_09B32E
-    LDA $0036
+    LDA $frameCounter
     LSR 
     BCC loc_09B316
 
@@ -1100,7 +1101,7 @@ code_09B37A {
     LDA $0024, Y
     CMP #$0001
     BEQ loc_09B38A
-    LDA $0036
+    LDA $frameCounter
     LSR 
     BCS loc_09B372
 
@@ -1219,7 +1220,7 @@ code_09B479 {
 
   loc_09B481:
     COP [RngByte]
-    LDA $0036
+    LDA $frameCounter
     LSR 
     BCS loc_09B492
     COP [SpawnAfterFlags] ( @code_09B4C9, #$0302 )

@@ -5,6 +5,10 @@
 ?INCLUDE 'GetPlayerFacingDirection'
 
 !sceneNext                      0642
+!warpDestX                      064C
+!warpDestY                      064E
+!warpFacing                     0650
+!warpScrollParams               0652
 !playerActor                    09AA
 !sceneSaveData                  0AF0
 
@@ -49,20 +53,20 @@ QueueMapChange {
     LDA [$0A]             ; Read destination X pixel position (word operand)
     INC $0A
     INC $0A
-    STA $064C             ; Store spawn X to $064C
+    STA $warpDestX        ; Store spawn X to $064C
     LDA [$0A]             ; Read destination Y pixel position (word operand)
     INC $0A
     INC $0A
-    STA $064E             ; Store spawn Y to $064E
+    STA $warpDestY        ; Store spawn Y to $064E
     LDA [$0A]             ; Read transition flags byte
     INC $0A
     AND #$00FF
-    STA $0650             ; Store flags to $0650
+    STA $warpFacing       ; Store flags to $0650
     LDA [$0A]             ; Read extra transition data word
     INC $0A
     INC $0A
-    STA $0652             ; Store extra data to $0652
-    LDA $0650
+    STA $warpScrollParams ; Store extra data to $0652
+    LDA $warpFacing
     BIT #$0080            ; Test bit 7 = save-restore flag (resume script after map change)
     BNE loc_0090AF
     LDA $0A
@@ -71,7 +75,7 @@ QueueMapChange {
 
   loc_0090AF:
     AND #$FF7F            ; Clear save-game flag after capturing script PC
-    STA $0650             ; Clear bit 7 after capturing the save flag
+    STA $warpFacing       ; Clear bit 7 after capturing the save flag
     LDA $0A
     SEC 
     SBC #$0008            ; Rewind $0A by 8 bytes to start of QueueMapChange operands

@@ -33,13 +33,15 @@
 ?INCLUDE 'vblank_joypad'
 ?INCLUDE 'warps_interaction'
 
+!frameCounter                   0036
+!oamWriteOffset                 00D8
 !invincibilityTimer             040C
 !globalFrameTimer               040E
 !sceneNext                      0642
 !worldReadyFlag                 0654
 !joypadRaw                      0660
 !bg1ScrollH                     068A
-!bg2ScrollH                     068E
+!mapScrollV                     068E
 !scrollOverrideH                06C6
 !scrollOverrideV                06CA
 !layerPriorityFlag              06EE
@@ -48,6 +50,7 @@
 !musicTransitionState           06FA
 !dmaSkipFlag                    0800
 !sceneStateHelper               099F
+!playerStateByte                09AF
 !slopeCurvePtrA                 09BA
 !slopeCurvePtrB                 09BC
 !decelCurvePtr                  09C2
@@ -56,6 +59,7 @@
 !enemyHpDisplay                 09E4
 !enemyHpPending                 09EA
 !displayModeFlags               09EC
+!hudDisableFlag                 09ED
 !abilityBitmask                 0AA2
 !playerMaxHp                    0ACA
 !cachedPrevMaxHp                0ACC
@@ -67,7 +71,7 @@
 !playerDef                      0ADC
 !playerStr                      0ADE
 !enemyHealthTimer               0AE4
-!damageFlashTimer               0B22
+!hpToHeal                       0B22
 !BG1HOFS                        210D
 !BG1VOFS                        210E
 !VMAIN                          2115
@@ -220,7 +224,7 @@ SystemInit {
     JSL $@GlobalInputHandler ; Process global input (menu, ability shortcuts)
     JSR $&UpdateFrameCounters
     JSL $@actor_execution.RunActors_Normal ; Run all active actor AI scripts
-    LDX $00D8             ; OAM write index — terminate sprite list with $FF sentinels
+    LDX $oamWriteOffset   ; OAM write index — terminate sprite list with $FF sentinels
     LDA #$FF
     STA $oamComposeBuffer, X ; $FF sentinels terminate OAM composition buffer
     STA $7F3101, X
@@ -263,7 +267,7 @@ SystemInit {
     PHA 
     PLB 
     JSL $@actor_execution.RunActors_CutsceneOnly ; Run cutscene-only actors (skip full AI pass)
-    LDX $00D8
+    LDX $oamWriteOffset
     LDA #$FF
     STA $oamComposeBuffer, X
     STA $7F3101, X
@@ -346,7 +350,7 @@ UpdateFrameFull {
     JSL $@vblank_joypad.VBlankPartial
     JSL $@thinker_execution.RunThinkers_TypeC
     JSL $@actor_execution.RunActors_OverlayOnly ; Run overlay actors during music fade
-    LDX $00D8
+    LDX $oamWriteOffset
     LDA #$FF
     STA $oamComposeBuffer, X
     STA $7F3101, X
@@ -371,7 +375,7 @@ UpdateFrameFull {
 ; 
 ; HP recovery animation:
 ; - Skipped if secondary lock ($09AF bit 1) is set or not on an 8-frame boundary
-; - Decrements damageFlashTimer and increments displayed HP (playerHp) toward max (playerMaxHp)
+; - Decrements hpToHeal and increments displayed HP (playerHp) toward max (playerMaxHp)
 ; - Plays sound effect $0D on each recovery tick
 ; - Stops when current HP equals max HP
 ; 
@@ -386,7 +390,7 @@ UpdateFrameFull {
 ; Finally caches all stat values for next-frame dirty detection and restores the original status bar visibility flag.
 
 UpdateHUD {
-    LDA $09ED
+    LDA $hudDisableFlag
     BIT #$40              ; Bit 6 = HUD suppression; if set, skip entire update
     BEQ loc_00820E
     RTL 
@@ -398,20 +402,20 @@ UpdateHUD {
     LDA $displayModeFlags ; Load current status bar visibility (bit 0) on stack
     AND #$01              ; Save displayModeFlags bit 0 (status bar visibility)
     PHA 
-    LDA $09AF
+    LDA $playerStateByte
     BIT #$02              ; Bit 1 = secondary HUD lock; skip HP recovery anim if set
     BNE loc_008244
-    LDA $0036
+    LDA $frameCounter
     BIT #$07              ; Throttle HP recovery to every 8 frames (BIT #$07)
     BNE loc_008244
-    LDA $damageFlashTimer ; Check damageFlashTimer: 0 = no recovery animation
+    LDA $hpToHeal         ; Check hpToHeal: 0 = no recovery animation
     BEQ loc_008244
     DEC 
-    STA $damageFlashTimer
+    STA $hpToHeal
     LDA $playerHp
     CMP $playerMaxHp
     BNE loc_00823E
-    STZ $damageFlashTimer
+    STZ $hpToHeal
     BRA loc_008244
 
   loc_00823E:
@@ -651,7 +655,7 @@ UploadScrollRegisters {
     LDA $068B
     AND #$7F
     STA $BG1HOFS
-    LDA $bg2ScrollH
+    LDA $mapScrollV
     STA $BG1VOFS
     LDA $068F
     AND #$7F
@@ -694,7 +698,7 @@ WriteBgScroll {
     BRA loc_00840B
 
   loc_008402:
-    LDA $bg2ScrollH, X
+    LDA $mapScrollV, X
     STA $BG1VOFS, Y
     LDA $068F, X
 

@@ -3,6 +3,7 @@
 ; Produces a subtle vertical camera wobble effect. Runs continuously via SetEntryHere.
 ---------------------------------------------
 
+!frameCounter                   0036
 !cameraTargetX                  06BE
 !cameraDeltaX                   06C0
 !cameraDeltaY                   06C4
@@ -16,7 +17,7 @@ camera_delta_oscillator [
     COP [SetEntryHere]
     LDA $cameraTargetX    ; Sync horizontal delta to camera target
     STA $cameraDeltaX
-    LDA $0036             ; Global frame counter
+    LDA $frameCounter     ; Global frame counter
     AND #$0200            ; Bit 9: toggles every 512 frames
     BEQ loc_08B58E
     INC $cameraDeltaY     ; Odd half: nudge camera down

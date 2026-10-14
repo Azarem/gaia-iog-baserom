@@ -42,7 +42,7 @@ awBF_spirit_guide [
 ]
 
 code_089AD4 {
-    LDA #$FFF0
+    LDA #$FFFC
     TSB $joypadMaskStd
     COP [WaitByte] ( #1D )
     COP [PrintDialogString] ( &dialogstring_089C5B )
@@ -68,18 +68,18 @@ code_089AD4 {
     COP [SetFlagByte] ( #BE )
 
   code_089B1F:
-    LDA #$FFF0
+    LDA #$FFFC
     TRB $joypadMaskStd
     COP [Die]
 }
 
 code_089B27 {
-    COP [BranchIfMissingItem] ( #01, &code_089B31 )
-    COP [BranchIfMissingItem] ( #06, &code_089B54 )
+    COP [BranchIfHasItem] ( #01, &code_089B31 )
+    COP [BranchIfHasItem] ( #06, &code_089B54 )
 }
 
 code_089B31 {
-    LDA #$FFF0
+    LDA #$FFFC
     TSB $joypadMaskStd
     COP [WaitByte] ( #1D )
     COP [PrintDialogString] ( &dialogstring_089EAB )
@@ -95,7 +95,7 @@ code_089B31 {
 }
 
 code_089B54 {
-    LDA #$FFF0
+    LDA #$FFFC
     TSB $joypadMaskStd
     COP [WaitByte] ( #1D )
     COP [PrintDialogString] ( &dialogstring_089EFC )

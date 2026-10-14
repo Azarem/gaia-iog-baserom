@@ -11,7 +11,7 @@ item_swapping_main:
   LDA $09AA
   BEQ item_swapping_end    ;Skip if player has no actor
   LDA $0656
-  BIT #$0040
+  BIT #$0004
   BEQ item_swapping_reset    ;Skip if not pressing X
   BIT #$0010
   BNE item_swapping_right

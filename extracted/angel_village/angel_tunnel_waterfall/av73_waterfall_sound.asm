@@ -5,6 +5,7 @@
 ; for spatial audio effect.
 ---------------------------------------------
 
+!frameCounter                   0036
 !playerXTile                    09A6
 !APUIO0                         2140
 
@@ -17,7 +18,7 @@ av73_waterfall_sound [
     COP [BranchIfPlayerInAbsTiles] ( #00, #00, #40, #10, &code_06D72E )
     COP [SpawnAfterFlags] ( @code_06D733, #$2000 )
     COP [SetEntryHere]
-    LDA $0036
+    LDA $frameCounter
     AND #$0003
     BEQ loc_06D711
     RTL 

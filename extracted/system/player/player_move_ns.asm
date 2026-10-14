@@ -50,6 +50,7 @@
 ?INCLUDE 'tile_collision'
 
 !playerActor                    09AA
+!playerStateByte                09AF
 !playerSpeedNs                  09B4
 !slopeFracAccum                 09C6
 
@@ -226,7 +227,7 @@ NorthSlopeRight {
 
   loc_02D11A:
     LDA #$10              ; Distance ≥ $08: set slope snap flag bit $10 in $09AF, then apply movement
-    TSB $09AF
+    TSB $playerStateByte
     JMP $&tile_collision.ApplyMovementDeltas
 }
 
@@ -270,7 +271,7 @@ NorthSlopeLeft {
 
   loc_02D14E:
     LDA #$10              ; Slope snap flag bit $10 when sub-tile in lower half
-    TSB $09AF
+    TSB $playerStateByte
     REP #$20
     LDA $slopeFracAccum   ; Left-slope fractional step: clamp positive $slopeFracAccum to zero (north = negative velocity)
     BMI loc_02D15D

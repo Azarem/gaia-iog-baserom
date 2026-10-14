@@ -45,7 +45,7 @@ code_06B501 {
 
 code_06B51F {
     COP [SetTilePos] ( #11, #1C )
-    LDA #$CFF0
+    LDA #$CFFC
     TSB $joypadMaskStd
     COP [WaitByte] ( #1D )
     COP [PrintDialogString] ( &dialogstring_06B606 )

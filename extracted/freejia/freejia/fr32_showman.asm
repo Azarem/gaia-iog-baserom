@@ -18,7 +18,7 @@ fr32_showman [
     COP [MarkSolidHere]
     COP [SetInteractHandler] ( &code_05BDB6 )
     COP [WaitOnFlagByte] ( #0F, #01 )
-    LDA #$CFF0
+    LDA #$CFFC
     TSB $joypadMaskStd
     COP [StageSpriteLoop] ( #04, #3C )
     COP [AnimLoop]
@@ -29,7 +29,7 @@ fr32_showman [
     COP [AnimLoop]
     COP [StageSpriteLoopMoveX] ( #08, #04, #04 )
     COP [AnimLoop]
-    LDA #$CFF0
+    LDA #$CFFC
     TRB $joypadMaskStd
     COP [Die]
 } >

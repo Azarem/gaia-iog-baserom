@@ -7,11 +7,11 @@
 
 ; 3 fixed ConsoleString entries displayed at boot: region lockout warning ('This game pak is not designed for your SUPER FAMICOM...'), 'PUSH START BUTTON', and copyright notice ('© 1994 QUINTET/ENIX, MARIKO OHARA/MOTO HAGIO, YASUHIRO KAWASAKI, LICENSED TO NINTENDO').
 
-consolestring_01D9D8 |[NHM:4][CUR:18,2]WARNING![DBL][DBL][NHM:0][CUR:0,3] This game pak is not designed[DBL] for your SUPER FAMICOM or[DBL] Super NES.[DBL][DBL][CUR:DC,4]ENIX CORPORATION|
+consolestring_01D9D8 |[PAL:4][POS:18,2]WARNING![DBL][DBL][PAL:0][POS:0,3] This game pak is not designed[DBL] for your SUPER FAMICOM or[DBL] Super NES.[DBL][DBL][POS:DC,4]ENIX CORPORATION|
 
-consolestring_01DA47 |[NHM:4][CUR:D0,4]PUSH START BUTTON|
+consolestring_01DA47 |[PAL:4][POS:D0,4]PUSH START BUTTON|
 
-consolestring_01DA5E |[NHM:0][CUR:C8,5](C) 1994  QUINTET⸓ENIX[CUR:8,6]MARIKO OHARA⸓MOTO HAGIO[CUR:4E,6]YASUHIRO KAWASAKI[CUR:8C,6]LICENSED TO NINTENDO|
+consolestring_01DA5E |[PAL:0][POS:C8,5](C) 1994  QUINTET⸓ENIX[POS:8,6]MARIKO OHARA⸓MOTO HAGIO[POS:4E,6]YASUHIRO KAWASAKI[POS:8C,6]LICENSED TO NINTENDO|
 ---------------------------------------------
 
 ; Pointer table of 64 item display names used in inventory screens and item acquisition dialogs. Entries include: Red Jewel, Herb, Incan Statue A/B, Crystal Ball, Wind Melody, Lola's Melody, Mine Key A/B, Memory Melody, Elevator Key, Palace Key, Purify Stone, Rama Statue, Magic Dust, Black Glasses, Gorgon Flower, Hieroglyphs, Aura, Crystal Ring, etc. Blank entries ($2A–$38) are unused slots. Entries $39–$3F are 'Mystic Statue' variants.
@@ -684,35 +684,35 @@ consolestring_01E7E6 | Shadow|
 
 consolestring_01E7EE | Shadow|
 
-consolestring_01E7F6 |[CUR:48,0][NHM:14][ESC:1,2,3,4,5][CUR:84,0][NHM:8][HP][CUR:9C,0][NHM:14][BCD:1,AD8][CUR:A2,0][NUM:AD6]|
+consolestring_01E7F6 |[POS:48,0][PAL:14][ESC:1,2,3,4,5][POS:84,0][PAL:8][HP][POS:9C,0][PAL:14][BCD:1,AD8][POS:A2,0][NUM:AD6]|
 
-consolestring_01E818 |[NHM:14][CUR:6C,0][ESC:8,9,A,B,C][NHM:4][CUR:A8,0][HE]|
+consolestring_01E818 |[PAL:14][POS:6C,0][ESC:8,9,A,B,C][PAL:4][POS:A8,0][HE]|
 
-consolestring_01E82B |[CUR:DE,1][NHM:14]1[NHM:0]|
+consolestring_01E82B |[POS:DE,1][PAL:14]1[PAL:0]|
 
-consolestring_01E834 |[CUR:DE,1][NHM:14]2[NHM:0]|
+consolestring_01E834 |[POS:DE,1][PAL:14]2[PAL:0]|
 
-consolestring_01E83D |[CUR:DE,1][NHM:14]3[NHM:0]|
+consolestring_01E83D |[POS:DE,1][PAL:14]3[PAL:0]|
 
-consolestring_01E846 |[CUR:DE,1][NHM:14][ESC:0][NHM:0]|
+consolestring_01E846 |[POS:DE,1][PAL:14][ESC:0][PAL:0]|
 
-consolestring_01E851 |[CUR:9E,1][NHM:14][NUM:8][NHM:0]|
+consolestring_01E851 |[POS:9E,1][PAL:14][NUM:8][PAL:0]|
 
-consolestring_01E85C |[CUR:9E,1][ESC:0][CUR:DE,1][ESC:0]|
+consolestring_01E85C |[POS:9E,1][ESC:0][POS:DE,1][ESC:0]|
 
-consolestring_01E869 |[CUR:0,0][RCC:1F,4]|
+consolestring_01E869 |[POS:0,0][RCC:1F,4]|
 
-consolestring_01E870 |[CUR:46,1][NHM:14]STYLE[NHM:0][PTR:@character_name_table,AD4][NHM:14][CUR:C6,1]HP[CUR:6,2]DP[CUR:46,2]STR[CUR:86,2]DEF[CUR:CE,1][NHM:0][NUM:ACE]⸓[NUM:ACA][CUR:E,2][NUM:AD6][CUR:4E,2][NUM:ADE][CUR:8E,2][NUM:ADC][CUR:14,2][NUM:AD8][NHM:14][CUR:14,2]S[NHM:0][CUR:6,3]Items[CUR:8C,3][PTR:@item_name_table,AC6][CUR:64,1][LU:2]Power|
+consolestring_01E870 |[POS:46,1][PAL:14]STYLE[PAL:0][TBL:@character_name_table,AD4][PAL:14][POS:C6,1]HP[POS:6,2]DP[POS:46,2]STR[POS:86,2]DEF[POS:CE,1][PAL:0][NUM:ACE]⸓[NUM:ACA][POS:E,2][NUM:AD6][POS:4E,2][NUM:ADE][POS:8E,2][NUM:ADC][POS:14,2][NUM:AD8][PAL:14][POS:14,2]S[PAL:0][POS:6,3]Items[POS:8C,3][TBL:@item_name_table,AC6][POS:64,1][LU:2]Power|
 
-consolestring_01E8E2 |[CUR:4,1][RCC:1C,B]|
+consolestring_01E8E2 |[POS:4,1][RCC:1C,B]|
 
-consolestring_01E8E9 |[NHM:0][CUR:84,5] Items[DBL] Order[DBL] Remove[DBL] Cond.|
+consolestring_01E8E9 |[PAL:0][POS:84,5] Items[DBL] Order[DBL] Remove[DBL] Cond.|
 
-consolestring_01E90B |[CUR:44,5][RCC:1C,7]|
+consolestring_01E90B |[POS:44,5][RCC:1C,7]|
 
-consolestring_01E912 |[CUR:56,5][RCC:13,7]|
+consolestring_01E912 |[POS:56,5][RCC:13,7]|
 
-consolestring_01E919 |[NHM:0][CUR:96,5]Equipped.[DBL]Equipment[DBL][NHM:14][PTR:@misc_ui_strings,B26][NHM:0] button to use.|
+consolestring_01E919 |[PAL:0][POS:96,5]Equipped.[DBL]Equipment[DBL][PAL:14][TBL:@misc_ui_strings,B26][PAL:0] button to use.|
 ---------------------------------------------
 
 ; Pointer table of miscellaneous UI strings: status labels, menu headers, save/load prompts, game over text, and other system messages.
@@ -726,42 +726,42 @@ consolestring_01E950 |B|
 
 consolestring_01E952 |Y|
 
-consolestring_01E954 |[NHM:0][CUR:96,5][LU:A]items.|
+consolestring_01E954 |[PAL:0][POS:96,5][LU:A]items.|
 
-consolestring_01E962 |[NHM:0][CUR:96,5]Discard item.|
+consolestring_01E962 |[PAL:0][POS:96,5]Discard item.|
 
-consolestring_01E975 |[NHM:0][CUR:96,5][LU:B]item[DBL]and enter.|
+consolestring_01E975 |[PAL:0][POS:96,5][LU:B]item[DBL]and enter.|
 
-consolestring_01E98C |[NHM:0][CUR:96,5][LU:A]items?[DBL][LU:B]1st item.|
+consolestring_01E98C |[PAL:0][POS:96,5][LU:A]items?[DBL][LU:B]1st item.|
 
-consolestring_01E9A6 |[NHM:0][CUR:96,5][LU:B]2nd item.|
+consolestring_01E9A6 |[PAL:0][POS:96,5][LU:B]2nd item.|
 
-consolestring_01E9B7 |[NHM:0][CUR:96,5]Discard which[DBL]item?|
+consolestring_01E9B7 |[PAL:0][POS:96,5]Discard which[DBL]item?|
 
-consolestring_01E9D0 |[NHM:0][CUR:96,5][PTR:@item_menu_table,AE8][PTR:@item_description_table,AE8]|
+consolestring_01E9D0 |[PAL:0][POS:96,5][TBL:@item_menu_table,AE8][TBL:@item_description_table,AE8]|
 
-consolestring_01E9E2 |[NHM:0][CUR:96,5][PTR:@item_menu_table,AE8][DBL]Discard?[DBL]  No[DBL]  Yes|
+consolestring_01E9E2 |[PAL:0][POS:96,5][TBL:@item_menu_table,AE8][DBL]Discard?[DBL]  No[DBL]  Yes|
 
-consolestring_01EA02 |[NHM:0][CUR:84,5]Gather[DBL]Items|
+consolestring_01EA02 |[PAL:0][POS:84,5]Gather[DBL]Items|
 
-consolestring_01EA14 |[NHM:0][CUR:84,5]Arrange[DBL]Items|
+consolestring_01EA14 |[PAL:0][POS:84,5]Arrange[DBL]Items|
 
-consolestring_01EA27 |[NHM:0][CUR:84,5]Discard[DBL]Item|
+consolestring_01EA27 |[PAL:0][POS:84,5]Discard[DBL]Item|
 
-consolestring_01EA39 |[NHM:0][CUR:84,5]Dark[DBL]Power|
+consolestring_01EA39 |[PAL:0][POS:84,5]Dark[DBL]Power|
 
-consolestring_01EA49 |[NHM:0][CUR:28,2]:[PTR:@ability_name_table,AE8]|
+consolestring_01EA49 |[PAL:0][POS:28,2]:[TBL:@ability_name_table,AE8]|
 
-consolestring_01EA56 |[NHM:0][CUR:E8,2]:[PTR:@ability_name_table,AE8]|
+consolestring_01EA56 |[PAL:0][POS:E8,2]:[TBL:@ability_name_table,AE8]|
 
-consolestring_01EA63 |[NHM:0][CUR:A8,3]:[PTR:@ability_name_table,AE8]|
+consolestring_01EA63 |[PAL:0][POS:A8,3]:[TBL:@ability_name_table,AE8]|
 
-consolestring_01EA70 |[NHM:0][CUR:96,5][PTR:@character_name_table,AD4]'s cond. [DBL]Use Attack Button [DBL]for explanation of[DBL][LU:2]Power.|
+consolestring_01EA70 |[PAL:0][POS:96,5][TBL:@character_name_table,AD4]'s cond. [DBL]Use Attack Button [DBL]for explanation of[DBL][LU:2]Power.|
 
-consolestring_01EAB4 |[NHM:0][CUR:96,5][PTR:@ability_menu_table,AE8][PTR:@ability_description_table,AE8]|
+consolestring_01EAB4 |[PAL:0][POS:96,5][TBL:@ability_menu_table,AE8][TBL:@ability_description_table,AE8]|
 
-consolestring_01EAC6 |[CUR:1A,3][NHM:14]PAUSE|
+consolestring_01EAC6 |[POS:1A,3][PAL:14]PAUSE|
 
-consolestring_01EAD1 |[CUR:C6,1][NHM:14]FORCE|
+consolestring_01EAD1 |[POS:C6,1][PAL:14]FORCE|
 
-consolestring_01EADC |[NHM:0][RCT:B,4,A4][CUR:E6,0]Ạ█Ḇṵṯṯōṉ█˭[N]███Ḛṉṯḛṟ[N]Ḃ█Ḇṵṯṯōṉ█˭[N]███Ĉāṉĉḛḻ|
+consolestring_01EADC |[PAL:0][BOX:B,4,A4][POS:E6,0]Ạ█Ḇṵṯṯōṉ█˭[N]███Ḛṉṯḛṟ[N]Ḃ█Ḇṵṯṯōṉ█˭[N]███Ĉāṉĉḛḻ|

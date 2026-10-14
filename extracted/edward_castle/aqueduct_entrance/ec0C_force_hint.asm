@@ -23,11 +23,11 @@ ec0C_force_hint [
     RTL 
 
   loc_04DCA8:
-    LDA #$CFF0
+    LDA #$CFFC
     TSB $joypadMaskStd
     COP [WaitByte] ( #27 )
     COP [PrintDialogString] ( &dialogstring_04DCBD )
-    LDA #$CFF0
+    LDA #$CFFC
     TRB $joypadMaskStd
 
   loc_04DCBB:

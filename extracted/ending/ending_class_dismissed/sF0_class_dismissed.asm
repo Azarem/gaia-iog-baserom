@@ -7,6 +7,7 @@
 ; the mysterious final encounter on the street.
 ---------------------------------------------
 
+!actorLimitThreshold            00E4
 !joypadMaskStd                  065A
 !displayModeFlags               09EC
 !TM                             212C
@@ -28,8 +29,8 @@ sF0_class_dismissed [
     LDA #$FF
     STA $backdropColors
     REP #$20
-    STZ $00E4
-    LDA #$FFF0
+    STZ $actorLimitThreshold
+    LDA #$FFFC
     TSB $joypadMaskStd
     COP [SpawnAfter] ( @code_09DC2D )
     COP [SpawnAfterAbsFlags] ( @code_09DC63, #$0098, #$0078, #$1000 )
@@ -39,9 +40,9 @@ sF0_class_dismissed [
     COP [SpawnAfterAbsFlags] ( @code_09DCD5, #$0000, #$0078, #$1000 )
     COP [SpawnAfterAbsFlags] ( @code_09DCF4, #$0088, #$0040, #$3000 )
     COP [WaitByte] ( #0F )
-    INC $00E4
+    INC $actorLimitThreshold
     COP [WaitWord] ( #$00B3 )
-    INC $00E4
+    INC $actorLimitThreshold
     COP [WaitWord] ( #$00B3 )
     COP [LoopStart] ( #06 )
     COP [PlaySoundBoth] ( #$0909 )
@@ -56,17 +57,17 @@ code_09DBF3 {
     COP [WaitWord] ( #$003B )
     COP [StartMusic] ( #02 )
     COP [WaitWord] ( #$0077 )
-    INC $00E4
+    INC $actorLimitThreshold
     COP [WaitByte] ( #13 )
-    INC $00E4
+    INC $actorLimitThreshold
     COP [WaitByte] ( #13 )
-    INC $00E4
+    INC $actorLimitThreshold
     COP [WaitByte] ( #27 )
-    INC $00E4
+    INC $actorLimitThreshold
     COP [WaitByte] ( #27 )
-    INC $00E4
+    INC $actorLimitThreshold
     COP [WaitWord] ( #$0077 )
-    INC $00E4
+    INC $actorLimitThreshold
     COP [SetEntryHere]
     RTL 
 }
@@ -74,7 +75,7 @@ code_09DBF3 {
 code_09DC2D {
     LDA #$1000
     TSB $12
-    LDA $00E4
+    LDA $actorLimitThreshold
     CMP #$0001
     BEQ loc_09DC3B
     RTL 
@@ -83,7 +84,7 @@ code_09DC2D {
     COP [PaletteStart] ( #6A )
     COP [PaletteStep]
     COP [SetEntryHere]
-    LDA $00E4
+    LDA $actorLimitThreshold
     CMP #$0002
     BEQ loc_09DC4B
     RTL 
@@ -92,7 +93,7 @@ code_09DC2D {
     COP [PaletteStart] ( #1C )
     COP [PaletteStep]
     COP [SetEntryHere]
-    LDA $00E4
+    LDA $actorLimitThreshold
     CMP #$0007
     BEQ loc_09DC5B
     RTL 
@@ -111,7 +112,7 @@ code_09DC63 {
   loc_09DC68:
     COP [StageSpriteFrame] ( #08 )
     COP [AnimOnce]
-    LDA $00E4
+    LDA $actorLimitThreshold
     CMP #$0007
     BNE loc_09DC68
     COP [SetEntryHere]
@@ -121,7 +122,7 @@ code_09DC63 {
 code_09DC78 {
     LDA #$1000
     TSB $12
-    LDA $00E4
+    LDA $actorLimitThreshold
     CMP #$0003
     BEQ loc_09DC86
     RTL 
@@ -129,7 +130,7 @@ code_09DC78 {
   loc_09DC86:
     COP [StageSpriteMoveX] ( #00, #01 )
     COP [AnimOnce]
-    LDA $00E4
+    LDA $actorLimitThreshold
     CMP #$0007
     BNE loc_09DC86
     COP [SetEntryHere]
@@ -139,7 +140,7 @@ code_09DC78 {
 code_09DC97 {
     LDA #$1000
     TSB $12
-    LDA $00E4
+    LDA $actorLimitThreshold
     CMP #$0004
     BEQ loc_09DCA5
     RTL 
@@ -147,7 +148,7 @@ code_09DC97 {
   loc_09DCA5:
     COP [StageSpriteMoveX] ( #01, #01 )
     COP [AnimOnce]
-    LDA $00E4
+    LDA $actorLimitThreshold
     CMP #$0007
     BNE loc_09DCA5
     COP [SetEntryHere]
@@ -157,7 +158,7 @@ code_09DC97 {
 code_09DCB6 {
     LDA #$1000
     TSB $12
-    LDA $00E4
+    LDA $actorLimitThreshold
     CMP #$0005
     BEQ loc_09DCC4
     RTL 
@@ -165,7 +166,7 @@ code_09DCB6 {
   loc_09DCC4:
     COP [StageSpriteMoveX] ( #02, #01 )
     COP [AnimOnce]
-    LDA $00E4
+    LDA $actorLimitThreshold
     CMP #$0007
     BNE loc_09DCC4
     COP [SetEntryHere]
@@ -175,7 +176,7 @@ code_09DCB6 {
 code_09DCD5 {
     LDA #$1000
     TSB $12
-    LDA $00E4
+    LDA $actorLimitThreshold
     CMP #$0006
     BEQ loc_09DCE3
     RTL 
@@ -183,7 +184,7 @@ code_09DCD5 {
   loc_09DCE3:
     COP [StageSpriteMoveX] ( #03, #01 )
     COP [AnimOnce]
-    LDA $00E4
+    LDA $actorLimitThreshold
     CMP #$0007
     BNE loc_09DCE3
     COP [SetEntryHere]
@@ -193,7 +194,7 @@ code_09DCD5 {
 code_09DCF4 {
     LDA #$1000
     TSB $12
-    LDA $00E4
+    LDA $actorLimitThreshold
     CMP #$0008
     BEQ loc_09DD02
     RTL 

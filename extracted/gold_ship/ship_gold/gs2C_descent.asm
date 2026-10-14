@@ -24,7 +24,7 @@ gs2C_descent [
 
   code_05817C:
     COP [BranchOnFlagByte] ( #4C, #01, &code_0581FD )
-    LDA #$EFF0
+    LDA #$EFFC
     TSB $joypadMaskStd
     COP [SetFlagWord] ( #$0185 )
     SEP #$20
@@ -61,14 +61,14 @@ gs2C_descent [
 
 code_0581DD {
     COP [LoopStart] ( #3C )
-    LDA #$EFF0
+    LDA #$EFFC
     TSB $joypadMaskStd
     COP [LoopEnd]
     COP [SpawnThinker] ( @oneshot_palette_flash_1C.FlashPalette1C )
     COP [WaitByte] ( #BF )
     COP [SetFlagByte] ( #4C )
     COP [PrintDialogString] ( &dialogstring_0581FF )
-    LDA #$EFF0
+    LDA #$EFFC
     TRB $joypadMaskStd
 }
 

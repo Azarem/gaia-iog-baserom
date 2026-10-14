@@ -5,6 +5,7 @@
 ?INCLUDE 'hdma_dma_spc'
 ?INCLUDE 'hdma_ramp_tables'
 
+!hdmaEnableMask                 0066
 !DMAP0                          4300
 !BBAD0                          4301
 !A1T0L                          4302
@@ -96,7 +97,7 @@ QueueHdmaChannel {
     LDX $0002
     SEP #$20
     LDA $@flag_helpers.bitmasks_bit_position, X ; Look up single-bit channel mask from position table
-    TSB $0066             ; OR channel bit into cached HDMA enable mask ($0066)
+    TSB $hdmaEnableMask   ; OR channel bit into cached HDMA enable mask ($0066)
     REP #$20
     LDA [$0A]             ; Read HDMA A-bus table address word from script
     INC $0A

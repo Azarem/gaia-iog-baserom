@@ -60,7 +60,7 @@ code_07C0A6 {
 }
 
 code_07C0A7 {
-    COP [BranchIfMissingItem] ( #28, &code_07C0B6 )
+    COP [BranchIfHasItem] ( #28, &code_07C0B6 )
     COP [PrintDialogString] ( &dialogstring_07C0F3 )
     COP [GiveItem] ( #28, &code_07C0BB )
     RTL 

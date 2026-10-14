@@ -129,7 +129,7 @@ code_04C721 {
     LDA #$0301
     STA $gfxCacheIdxA
     COP [QueueMapChange] ( #0B, #$00E8, #$00A0, #83, #$3200 )
-    LDA #$CFF0
+    LDA #$CFFC
     TRB $joypadMaskStd
     COP [Die]
 }

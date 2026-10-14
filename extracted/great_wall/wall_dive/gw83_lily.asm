@@ -33,7 +33,7 @@ code_07B68B {
     COP [SetFlagByte] ( #93 )
     LDA #$2000
     TRB $10
-    LDA #$EFF0
+    LDA #$EFFC
     TSB $joypadMaskStd
     COP [PrintDialogString] ( &dialogstring_07B6FF )
     COP [SetMetasprite] ( @spriteset_enemies )
@@ -60,7 +60,7 @@ code_07B68B {
     TSB $10
     COP [WaitByte] ( #1D )
     COP [PrintDialogString] ( &dialogstring_07B731 )
-    LDA #$EFF0
+    LDA #$EFFC
     TRB $joypadMaskStd
     LDA #$0080
     TRB $displayModeFlags

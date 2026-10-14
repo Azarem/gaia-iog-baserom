@@ -37,7 +37,7 @@ crF7_thinker_05FB16 [
     LDA $chatPtr, X       ; Double-buffer select: odd/even frame
     LSR 
     BCC loc_05FB2B
-    COP [QueueHdma] ( $7E7000, #26 ) ; Queue buffer A
+    COP [QueueHdma] ( $tileStagingBuffer, #26 ) ; Queue buffer A
     RTL 
 
   loc_05FB2B:
@@ -61,7 +61,7 @@ thinker_def_05FB32 [
     LDA $chatPtr, X       ; Double-buffer select
     LSR 
     BCC loc_05FB52
-    COP [QueueHdma] ( $7E7000, #26 ) ; Queue buffer A
+    COP [QueueHdma] ( $tileStagingBuffer, #26 ) ; Queue buffer A
     RTL 
 
   loc_05FB52:

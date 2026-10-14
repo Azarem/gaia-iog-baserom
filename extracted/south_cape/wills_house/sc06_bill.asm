@@ -53,7 +53,7 @@ code_0492A3 {
     COP [AnimLoop]
     COP [PrintDialogString] ( &dialogstring_04956D )
     COP [SetInteractHandler] ( #$0000 )
-    LDA #$CFF0
+    LDA #$CFFC
     TRB $joypadMaskStd
     COP [SetFlagByte] ( #06 )
     LDA #$0800
@@ -83,7 +83,7 @@ code_0492A3 {
     COP [StageSpriteFrame] ( #02 )
     COP [AnimOnce]
     COP [WaitByte] ( #EF )
-    LDA #$CFF0
+    LDA #$CFFC
     TRB $joypadMaskStd
 }
 
@@ -114,7 +114,7 @@ code_049349 {
 }
 
 code_04938C {
-    LDA #$CFF0
+    LDA #$CFFC
     TSB $joypadMaskStd
     LDA #$0800
     TSB $10
@@ -139,7 +139,7 @@ code_04938C {
     LDA #$0001
     STA $gfxCacheIdxA
     COP [QueueMapChange] ( #06, #$0000, #$0200, #00, #$3120 )
-    LDA #$CFF0
+    LDA #$CFFC
     TRB $joypadMaskStd
     RTL 
 }
@@ -170,7 +170,7 @@ code_0493F0 {
 code_0493F5 {
     COP [PrintDialogString] ( &dialogstring_0494B1 )
     COP [SetFlagByte] ( #03 )
-    LDA #$CFF0
+    LDA #$CFFC
     TSB $joypadMaskStd
     RTL 
 }

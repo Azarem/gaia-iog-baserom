@@ -10,6 +10,7 @@
 ?INCLUDE 'oneshot_palette_flash_40'
 ?INCLUDE 'spriteset_enemies'
 
+!frameCounter                   0036
 !joypadMaskStd                  065A
 !playerActor                    09AA
 !CGADSUB                        2131
@@ -25,20 +26,20 @@ sp5D_fountain [
     STZ $066D
     COP [BranchOnFlagByte] ( #70, #01, &code_0694A8 )
     COP [BranchOnFlagByte] ( #6F, #00, &code_0694A8 )
-    COP [BranchIfMissingItem] ( #11, &code_069412 )
+    COP [BranchIfHasItem] ( #11, &code_069412 )
     JMP $&code_0694A8
 } >
 ]
 
 code_069412 {
-    LDA #$CFF0
+    LDA #$CFFC
     TSB $joypadMaskStd
     COP [WaitByte] ( #1D )
     COP [PrintDialogString] ( &dialogstring_0694AA )
-    LDA #$CFF0
+    LDA #$CFFC
     TRB $joypadMaskStd
     COP [WaitOnFlagByte] ( #0E, #01 )
-    LDA #$EFF0
+    LDA #$EFFC
     TSB $joypadMaskStd
     LDY $playerActor
     LDA $0014, Y
@@ -76,7 +77,7 @@ code_069412 {
     COP [ClearFlagByte] ( #0F )
     COP [SetFlagByte] ( #70 )
     COP [ClearSolidAbs] ( #0D, #0F )
-    LDA #$EFF0
+    LDA #$EFFC
     TRB $joypadMaskStd
 }
 
@@ -87,7 +88,7 @@ code_0694A8 {
 dialogstring_0694AA `[DEF][TPL:2]Lilly: What!! It's a [N]strange fountain... [FIN]Could there be a[N]connection between this[N]and the rock...?[PAL:0][END]`
 
 code_069502 {
-    LDA $0036
+    LDA $frameCounter
     AND #$0003
     BNE loc_06951D
     LDY $04

@@ -231,7 +231,7 @@ suppresses Start re-entry.
 | `$0AC4` | `inventoryEquippedIndex` — equipped slot index (`$FFFF` = none) |
 | `$0AC6` | `inventoryEquippedType` — equipped item type ID |
 | `$0AD4` | `characterForm` — current player form (0=Will, 1=Freedan, 2=Shadow) |
-| `$0B22` | `damageFlashTimer` — screen flash timer (set by stat-up items) |
+| `$0B22` | `hpToHeal` — HP recovery counter (set by stat-up items) |
 | `$0B28` | hieroglyph slot table (6 words; `$FFFF` = empty) |
 | `$0BF`–`$0C1` | petal flags (Gorgon Flower: 3 flag bytes at `$BF`/`$C0`/`$C1`) |
 
@@ -362,7 +362,7 @@ returns the displaced plate here).
 | `$0AD6` | `gemCount` | gem count (capped at 999 / `$03E7`) |
 | `$0ADC` | `playerDef` | defense stat (capped at `$55`) |
 | `$0ADE` | `playerStr` | strength stat (capped at `$55`) |
-| `$0B22` | `damageFlashTimer` | damage/heal flash timer |
+| `$0B22` | `hpToHeal` | HP recovery counter |
 
 ### Key routines
 
@@ -389,7 +389,7 @@ stripped (`SBC #$80`) and the value selects a stat/reward path:
 | `$83` | 3 | Gem +1: `gemCount += 1` (cap 999), sound #22 |
 | `$84` | 4 | Gem +2: `gemCount += 2` (cap 999), sound #22 |
 | `$85` | 5 | Gem +5: `gemCount += 5` (cap 999), sound #22 |
-| `$86+` | 6+ | Damage flash: `damageFlashTimer += 5`, spawn `SpawnHitSparkSprites`, sound #22 |
+| `$86+` | 6+ | Damage flash: `hpToHeal += 5`, spawn `SpawnHitSparkSprites`, sound #22 |
 
 For HP/STR/DEF ups, `displayModeFlags` bit 7 (`$0080`) is cleared before the stat
 write, enabling the HUD update on the next frame.

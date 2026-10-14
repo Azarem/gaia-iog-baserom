@@ -13,6 +13,7 @@
 
 ?INCLUDE 'InitPlayerScriptVariant'
 
+!frameCounter                   0036
 !joypadMaskStd                  065A
 !mapBoundsX                     0692
 !mapBoundsY                     0696
@@ -43,7 +44,7 @@ dm43_elevator [
 ]
 
 code_0AA5CE {
-    LDA #$CFF0
+    LDA #$CFFC
     TSB $joypadMaskStd
     COP [SetEntryHere]
 
@@ -62,7 +63,7 @@ code_0AA5CE {
     BRA loc_0AA5D6
 
   loc_0AA5F5:
-    LDA #$CFF0
+    LDA #$CFFC
     TRB $joypadMaskStd
     COP [SetEntryHere]
     RTL 
@@ -75,7 +76,7 @@ code_0AA5CE {
 }
 
 code_0AA60D {
-    LDA #$CFF0
+    LDA #$CFFC
     TSB $joypadMaskStd
     COP [SetEntryHere]
 
@@ -94,14 +95,14 @@ code_0AA60D {
     BRA loc_0AA615
 
   loc_0AA634:
-    LDA #$CFF0
+    LDA #$CFFC
     TRB $joypadMaskStd
     COP [SetEntryHere]
     RTL 
 }
 
 code_0AA63D {
-    LDA $0036
+    LDA $frameCounter
     AND #$000F
     BNE loc_0AA648
     COP [PlaySoundCh2] ( #0C )

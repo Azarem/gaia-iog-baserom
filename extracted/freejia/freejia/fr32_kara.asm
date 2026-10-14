@@ -18,7 +18,7 @@ fr32_kara [
     COP [BranchOnFlagByte] ( #65, #01, &code_05B0F6 )
     COP [BranchOnFlagByte] ( #57, #01, &code_05B0F6 )
     COP [BranchOnFlagByte] ( #64, #01, &code_05B0B8 )
-    LDA #$CFF0
+    LDA #$CFFC
     TSB $joypadMaskStd
     COP [StageSpriteMoveY] ( #2F, #12 )
     COP [AnimOnce]
@@ -33,7 +33,7 @@ fr32_kara [
     COP [PrintDialogString] ( &dialogstring_05B14B )
     COP [SetFlagByte] ( #64 )
     COP [SetFlagByte] ( #03 )
-    LDA #$CFF0
+    LDA #$CFFC
     TRB $joypadMaskStd
     COP [WaitByte] ( #1F )
     COP [StageSpriteMoveX] ( #31, #11 )
@@ -54,7 +54,7 @@ code_05B0B8 {
     COP [MarkSolidHere]
     COP [SetInteractHandler] ( &code_05B0F8 )
     COP [WaitOnFlagByte] ( #04, #01 )
-    LDA #$CFF0
+    LDA #$CFFC
     TSB $joypadMaskStd
     COP [ClearSolidHere]
     COP [StageSpriteMoveY] ( #2F, #12 )
@@ -67,7 +67,7 @@ code_05B0B8 {
     COP [StageSpriteMoveY] ( #2F, #12 )
     COP [AnimOnce]
     COP [SetFlagByte] ( #57 )
-    LDA #$CFF0
+    LDA #$CFFC
     TRB $joypadMaskStd
 }
 

@@ -15,12 +15,83 @@
 ?INCLUDE 'math_lookup_tables'
 ?INCLUDE 'scene_meta'
 
+!gfxCacheIdxA                   0648
+!gfxCacheIdxB                   064A
+!mapTilemapBaseA                069E
+!mapTilemapBaseB                06A0
+!inventoryEquippedIndex         0AC4
+!remapR                         0DA6
+!remapL                         0DA8
+!remapB                         0DAA
+!remapA                         0DAC
+!remapY                         0DAE
+!remapX                         0DB0
+!remapStart                     0DB2
+!remapSelect                    0DB4
+!INIDISP                        2100
+!OBJSEL                         2101
 !OAMADDL                        2102
+!OAMADDH                        2103
+!BGMODE                         2105
+!MOSAIC                         2106
+!BG1SC                          2107
+!BG2SC                          2108
+!BG3SC                          2109
+!BG4SC                          210A
+!BG12NBA                        210B
+!BG34NBA                        210C
+!BG1HOFS                        210D
+!BG1VOFS                        210E
+!BG2HOFS                        210F
+!BG2VOFS                        2110
+!BG3HOFS                        2111
+!BG3VOFS                        2112
+!BG4HOFS                        2113
+!BG4VOFS                        2114
+!VMAIN                          2115
+!VMADDL                         2116
+!VMADDH                         2117
+!M7SEL                          211A
+!M7A                            211B
+!M7B                            211C
+!M7C                            211D
+!M7D                            211E
+!M7X                            211F
+!M7Y                            2120
 !CGADD                          2121
+!W12SEL                         2123
+!W34SEL                         2124
+!WOBJSEL                        2125
+!WH0                            2126
+!WH1                            2127
+!WH2                            2128
+!WH3                            2129
+!WBGLOG                         212A
+!WOBJLOG                        212B
+!TM                             212C
+!TS                             212D
+!TMW                            212E
+!TSW                            212F
+!CGWSEL                         2130
+!CGADSUB                        2131
 !COLDATA                        2132
+!SETINI                         2133
 !WMADDL                         2181
 !WMADDH                         2183
+!NMITIMEN                       4200
+!WRIO                           4201
+!WRMPYA                         4202
+!WRMPYB                         4203
+!WRDIVL                         4204
+!WRDIVH                         4205
+!WRDIVB                         4206
+!HTIMEL                         4207
+!HTIMEH                         4208
+!VTIMEL                         4209
+!VTIMEH                         420A
 !MDMAEN                         420B
+!HDMAEN                         420C
+!MEMSEL                         420D
 !DMAP0                          4300
 !BBAD0                          4301
 !A1T0L                          4302
@@ -140,40 +211,40 @@ InitSystemVariables {
 ; Sets up critical system variables including: VRAM layout addresses, BG tilemap/charset pointers, DMA channel defaults, actor system base addresses, scene metadata pointer, input configuration, and various engine parameters.
 
 SystemInitConstants [
-  wram-init < #$069E, #$A000 >   ;00
-  wram-init < #$06A0, #$C000 >   ;01
-  wram-init < #$0080, #$C000 >   ;02
-  wram-init < #$0082, #$007F >   ;03
-  wram-init < #$06BA, #$1000 >   ;04
-  wram-init < #$06BC, #$1800 >   ;05
-  wram-init < #$06AE, #$2000 >   ;06
-  wram-init < #$06B0, #$2800 >   ;07
-  wram-init < #$06B2, #$3100 >   ;08
-  wram-init < #$06B4, #$3288 >   ;09
-  wram-init < #$06B6, #$3184 >   ;0A
-  wram-init < #$06B8, #$330C >   ;0B
-  wram-init < #$06AA, #$0000 >   ;0C
-  wram-init < #$06AC, #$0100 >   ;0D
-  wram-init < #$003A, &scene_meta >   ;0E
-  wram-init < #$003C, *scene_meta >   ;0F
-  wram-init < #$0402, #$548B >   ;10
-  wram-init < #$0406, #$60AB >   ;11
-  wram-init < #$005E, #$0000 >   ;12
-  wram-init < #$0060, #$0081 >   ;13
-  wram-init < #$0062, #$0000 >   ;14
-  wram-init < #$064A, #$0001 >   ;15
-  wram-init < #$0648, #$0404 >   ;16
-  wram-init < #$0DA8, #$0020 >   ;17
-  wram-init < #$0DA6, #$0010 >   ;18
-  wram-init < #$0DAA, #$8000 >   ;19
-  wram-init < #$0DAC, #$0080 >   ;1A
-  wram-init < #$0DAE, #$4000 >   ;1B
-  wram-init < #$0DB0, #$0040 >   ;1C
-  wram-init < #$0DB4, #$2000 >   ;1D
-  wram-init < #$0DB2, #$1000 >   ;1E
-  wram-init < #$0B14, #$003C >   ;1F
-  wram-init < #$0AC4, #$FFFF >   ;20
-  wram-init < #$0B04, #$0000 >   ;21
+  wram-init < $mapTilemapBaseA, #$A000 >   ;00
+  wram-init < $mapTilemapBaseB, #$C000 >   ;01
+  wram-init < $0080, #$C000 >   ;02
+  wram-init < $0082, #$007F >   ;03
+  wram-init < $06BA, #$1000 >   ;04
+  wram-init < $06BC, #$1800 >   ;05
+  wram-init < $06AE, #$2000 >   ;06
+  wram-init < $06B0, #$2800 >   ;07
+  wram-init < $06B2, #$3100 >   ;08
+  wram-init < $06B4, #$3288 >   ;09
+  wram-init < $06B6, #$3184 >   ;0A
+  wram-init < $06B8, #$330C >   ;0B
+  wram-init < $06AA, #$0000 >   ;0C
+  wram-init < $06AC, #$0100 >   ;0D
+  wram-init < $003A, &scene_meta >   ;0E
+  wram-init < $003C, *scene_meta >   ;0F
+  wram-init < $0402, #$548B >   ;10
+  wram-init < $0406, #$60AB >   ;11
+  wram-init < $005E, #$0000 >   ;12
+  wram-init < $0060, #$0081 >   ;13
+  wram-init < $0062, #$0000 >   ;14
+  wram-init < $gfxCacheIdxB, #$0001 >   ;15
+  wram-init < $gfxCacheIdxA, #$0404 >   ;16
+  wram-init < $remapL, #$0020 >   ;17
+  wram-init < $remapR, #$0010 >   ;18
+  wram-init < $remapB, #$4008 >   ;19
+  wram-init < $remapA, #$8080 >   ;1A
+  wram-init < $remapY, #$0040 >   ;1B
+  wram-init < $remapX, #$0004 >   ;1C
+  wram-init < $remapSelect, #$2000 >   ;1D
+  wram-init < $remapStart, #$1000 >   ;1E
+  wram-init < $0B14, #$003C >   ;1F
+  wram-init < $inventoryEquippedIndex, #$FFFF >   ;20
+  wram-init < $0B04, #$0000 >   ;21
 ]
 
 ---------------------------------------------
@@ -243,80 +314,80 @@ CacheSlotIndices #000000010000020000030000
 ; Terminated by a negative address sentinel. Total: 76 entries.
 
 PpuRegisterInitTable [
-  register-init < #$420B, #00 >   ;00
-  register-init < #$420C, #00 >   ;01
-  register-init < #$2100, #80 >   ;02
-  register-init < #$2101, #02 >   ;03
-  register-init < #$2102, #00 >   ;04
-  register-init < #$2103, #00 >   ;05
-  register-init < #$2105, #09 >   ;06
-  register-init < #$2106, #00 >   ;07
-  register-init < #$2107, #11 >   ;08
-  register-init < #$2108, #19 >   ;09
-  register-init < #$2109, #78 >   ;0A
-  register-init < #$210A, #00 >   ;0B
-  register-init < #$210B, #22 >   ;0C
-  register-init < #$210C, #06 >   ;0D
-  register-init < #$210D, #00 >   ;0E
-  register-init < #$210D, #00 >   ;0F
-  register-init < #$210E, #00 >   ;10
-  register-init < #$210E, #00 >   ;11
-  register-init < #$210F, #00 >   ;12
-  register-init < #$210F, #00 >   ;13
-  register-init < #$2110, #00 >   ;14
-  register-init < #$2110, #00 >   ;15
-  register-init < #$2111, #00 >   ;16
-  register-init < #$2111, #00 >   ;17
-  register-init < #$2112, #00 >   ;18
-  register-init < #$2112, #00 >   ;19
-  register-init < #$2113, #00 >   ;1A
-  register-init < #$2113, #00 >   ;1B
-  register-init < #$2114, #00 >   ;1C
-  register-init < #$2114, #00 >   ;1D
-  register-init < #$2115, #80 >   ;1E
-  register-init < #$2116, #00 >   ;1F
-  register-init < #$2117, #00 >   ;20
-  register-init < #$211A, #80 >   ;21
-  register-init < #$211B, #01 >   ;22
-  register-init < #$211B, #00 >   ;23
-  register-init < #$211C, #00 >   ;24
-  register-init < #$211C, #00 >   ;25
-  register-init < #$211D, #00 >   ;26
-  register-init < #$211D, #00 >   ;27
-  register-init < #$211E, #00 >   ;28
-  register-init < #$211E, #00 >   ;29
-  register-init < #$211F, #00 >   ;2A
-  register-init < #$211F, #00 >   ;2B
-  register-init < #$2120, #00 >   ;2C
-  register-init < #$2120, #00 >   ;2D
-  register-init < #$2121, #00 >   ;2E
-  register-init < #$2123, #33 >   ;2F
-  register-init < #$2124, #33 >   ;30
-  register-init < #$2125, #33 >   ;31
-  register-init < #$2126, #00 >   ;32
-  register-init < #$2127, #FF >   ;33
-  register-init < #$2128, #00 >   ;34
-  register-init < #$2129, #00 >   ;35
-  register-init < #$212A, #00 >   ;36
-  register-init < #$212B, #00 >   ;37
-  register-init < #$212C, #04 >   ;38
-  register-init < #$212D, #00 >   ;39
-  register-init < #$212E, #00 >   ;3A
-  register-init < #$212F, #00 >   ;3B
-  register-init < #$2130, #82 >   ;3C
-  register-init < #$2131, #00 >   ;3D
-  register-init < #$2132, #E0 >   ;3E
-  register-init < #$2133, #00 >   ;3F
-  register-init < #$4200, #00 >   ;40
-  register-init < #$4201, #FF >   ;41
-  register-init < #$4202, #00 >   ;42
-  register-init < #$4203, #00 >   ;43
-  register-init < #$4204, #00 >   ;44
-  register-init < #$4205, #00 >   ;45
-  register-init < #$4206, #00 >   ;46
-  register-init < #$4207, #00 >   ;47
-  register-init < #$4208, #00 >   ;48
-  register-init < #$4209, #00 >   ;49
-  register-init < #$420A, #00 >   ;4A
-  register-init < #$420D, #00 >   ;4B
+  register-init < $MDMAEN, #00 >   ;00
+  register-init < $HDMAEN, #00 >   ;01
+  register-init < $INIDISP, #80 >   ;02
+  register-init < $OBJSEL, #02 >   ;03
+  register-init < $OAMADDL, #00 >   ;04
+  register-init < $OAMADDH, #00 >   ;05
+  register-init < $BGMODE, #09 >   ;06
+  register-init < $MOSAIC, #00 >   ;07
+  register-init < $BG1SC, #11 >   ;08
+  register-init < $BG2SC, #19 >   ;09
+  register-init < $BG3SC, #78 >   ;0A
+  register-init < $BG4SC, #00 >   ;0B
+  register-init < $BG12NBA, #22 >   ;0C
+  register-init < $BG34NBA, #06 >   ;0D
+  register-init < $BG1HOFS, #00 >   ;0E
+  register-init < $BG1HOFS, #00 >   ;0F
+  register-init < $BG1VOFS, #00 >   ;10
+  register-init < $BG1VOFS, #00 >   ;11
+  register-init < $BG2HOFS, #00 >   ;12
+  register-init < $BG2HOFS, #00 >   ;13
+  register-init < $BG2VOFS, #00 >   ;14
+  register-init < $BG2VOFS, #00 >   ;15
+  register-init < $BG3HOFS, #00 >   ;16
+  register-init < $BG3HOFS, #00 >   ;17
+  register-init < $BG3VOFS, #00 >   ;18
+  register-init < $BG3VOFS, #00 >   ;19
+  register-init < $BG4HOFS, #00 >   ;1A
+  register-init < $BG4HOFS, #00 >   ;1B
+  register-init < $BG4VOFS, #00 >   ;1C
+  register-init < $BG4VOFS, #00 >   ;1D
+  register-init < $VMAIN, #80 >   ;1E
+  register-init < $VMADDL, #00 >   ;1F
+  register-init < $VMADDH, #00 >   ;20
+  register-init < $M7SEL, #80 >   ;21
+  register-init < $M7A, #01 >   ;22
+  register-init < $M7A, #00 >   ;23
+  register-init < $M7B, #00 >   ;24
+  register-init < $M7B, #00 >   ;25
+  register-init < $M7C, #00 >   ;26
+  register-init < $M7C, #00 >   ;27
+  register-init < $M7D, #00 >   ;28
+  register-init < $M7D, #00 >   ;29
+  register-init < $M7X, #00 >   ;2A
+  register-init < $M7X, #00 >   ;2B
+  register-init < $M7Y, #00 >   ;2C
+  register-init < $M7Y, #00 >   ;2D
+  register-init < $CGADD, #00 >   ;2E
+  register-init < $W12SEL, #33 >   ;2F
+  register-init < $W34SEL, #33 >   ;30
+  register-init < $WOBJSEL, #33 >   ;31
+  register-init < $WH0, #00 >   ;32
+  register-init < $WH1, #FF >   ;33
+  register-init < $WH2, #00 >   ;34
+  register-init < $WH3, #00 >   ;35
+  register-init < $WBGLOG, #00 >   ;36
+  register-init < $WOBJLOG, #00 >   ;37
+  register-init < $TM, #04 >   ;38
+  register-init < $TS, #00 >   ;39
+  register-init < $TMW, #00 >   ;3A
+  register-init < $TSW, #00 >   ;3B
+  register-init < $CGWSEL, #82 >   ;3C
+  register-init < $CGADSUB, #00 >   ;3D
+  register-init < $COLDATA, #E0 >   ;3E
+  register-init < $SETINI, #00 >   ;3F
+  register-init < $NMITIMEN, #00 >   ;40
+  register-init < $WRIO, #FF >   ;41
+  register-init < $WRMPYA, #00 >   ;42
+  register-init < $WRMPYB, #00 >   ;43
+  register-init < $WRDIVL, #00 >   ;44
+  register-init < $WRDIVH, #00 >   ;45
+  register-init < $WRDIVB, #00 >   ;46
+  register-init < $HTIMEL, #00 >   ;47
+  register-init < $HTIMEH, #00 >   ;48
+  register-init < $VTIMEL, #00 >   ;49
+  register-init < $VTIMEH, #00 >   ;4A
+  register-init < $MEMSEL, #00 >   ;4B
 ]

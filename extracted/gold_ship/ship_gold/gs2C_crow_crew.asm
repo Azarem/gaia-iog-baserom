@@ -33,7 +33,7 @@ gs2C_crow_crew [
     LDA #$2000
     TRB $10
     COP [WaitOnFlagByte] ( #4F, #01 )
-    LDA #$EFF0
+    LDA #$EFFC
     TSB $joypadMaskStd
     COP [StartMusic] ( #03 )
     COP [WaitByte] ( #01 )
@@ -58,7 +58,7 @@ gs2C_crow_crew [
     REP #$20
     COP [WaitByte] ( #77 )
     COP [PrintDialogString] ( &dialogstring_0584FB )
-    LDA #$EFF0
+    LDA #$EFFC
     TRB $joypadMaskStd
 } >
 ]

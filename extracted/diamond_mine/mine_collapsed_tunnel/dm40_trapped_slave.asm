@@ -97,12 +97,12 @@ code_05D7CB {
     ADC #$0003
     STA $jewelsCollected
     CLD 
-    LDA #$EFF0
+    LDA #$EFFC
     TSB $joypadMaskStd
     COP [WaitByte] ( #77 )
     COP [ClearFlagByte] ( #00 )
     COP [PrintDialogString] ( &dialogstring_05D819 )
-    LDA #$EFF0
+    LDA #$EFFC
     TRB $joypadMaskStd
     LDA #$0080
     TSB $displayModeFlags

@@ -14,8 +14,8 @@
 ; The D-pad (bits 8–11, $0F00) always passes through directly. Then each physical button is checked against its remap entry: if pressed in joypadRaw and the remap value is nonzero, those bits are TSB'd into joypadRemapped.
 ; 
 ; Remap variable → physical button checked:
-;   remapL→Start($1000)  remapR→Select($2000)  remapB→B($8000)  remapY→Y($4000)
-;   remapA→A($0080)  remapStart→X($0040)  remapX→L($0020)  remapSelect→R($0010)
+;   remapStart→Start($1000)  remapSelect→Select($2000)  remapB→B($8000)  remapY→Y($4000)
+;   remapA→A($0080)  remapX→X($0040)  remapL→L($0020)  remapR→R($0010)
 ; 
 ; SNES joypad bit layout (16-bit auto-read from $4218/$4219):
 ;   $8000=B  $4000=Y  $2000=Sel  $1000=Start  $0800=Up  $0400=Dn
@@ -55,14 +55,14 @@
 !joypadRepeatCounter            0662
 !scrollModeFlags                06EF
 !joypadInject                   09AC
-!remapSelect                    0DA6
-!remapX                         0DA8
+!remapR                         0DA6
+!remapL                         0DA8
 !remapB                         0DAA
 !remapA                         0DAC
 !remapY                         0DAE
-!remapStart                     0DB0
-!remapL                         0DB2
-!remapR                         0DB4
+!remapX                         0DB0
+!remapStart                     0DB2
+!remapSelect                    0DB4
 !M7A                            211B
 !M7B                            211C
 !M7C                            211D
@@ -157,21 +157,21 @@ VBlankWaitAndJoypad {
     LDA $joypadRaw        ; Begin remapping: extract D-pad ($0F00) from raw input as base remapped state
     AND #$0F00
     STA $joypadRemapped
-    LDA $remapL           ; L remap: if target defined and physical Start ($1000) pressed, TSB into remapped
+    LDA $remapStart       ; Start remap: if target defined and physical Start ($1000) pressed, TSB into remapped
     BEQ loc_0280D2
     LDA $joypadRaw
     BIT #$1000
     BEQ loc_0280D2
-    LDA $remapL
+    LDA $remapStart
     TSB $joypadRemapped
 
   loc_0280D2:
-    LDA $remapR           ; R remap: physical Select ($2000) — same check-and-merge pattern
+    LDA $remapSelect      ; Select remap: physical Select ($2000) — same check-and-merge pattern
     BEQ loc_0280E5
     LDA $joypadRaw
     BIT #$2000
     BEQ loc_0280E5
-    LDA $remapR
+    LDA $remapSelect
     TSB $joypadRemapped
 
   loc_0280E5:
@@ -202,30 +202,30 @@ VBlankWaitAndJoypad {
     TSB $joypadRemapped
 
   loc_02811E:
-    LDA $remapStart       ; Start remap: physical X ($0040)
+    LDA $remapX           ; X remap: physical X ($0040)
     BEQ loc_028131
     LDA $joypadRaw
     BIT #$0040
     BEQ loc_028131
-    LDA $remapStart
+    LDA $remapX
     TSB $joypadRemapped
 
   loc_028131:
-    LDA $remapX           ; X remap: physical L ($0020)
+    LDA $remapL           ; L remap: physical L ($0020)
     BEQ loc_028144
     LDA $joypadRaw
     BIT #$0020
     BEQ loc_028144
-    LDA $remapX
+    LDA $remapL
     TSB $joypadRemapped
 
   loc_028144:
-    LDA $remapSelect      ; Select remap: physical R ($0010)
+    LDA $remapR           ; R remap: physical R ($0010)
     BEQ loc_028157
     LDA $joypadRaw
     BIT #$0010
     BEQ loc_028157
-    LDA $remapSelect
+    LDA $remapR
     TSB $joypadRemapped
 
   loc_028157:

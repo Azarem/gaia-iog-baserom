@@ -68,7 +68,7 @@ code_09E68D {
 }
 
 code_09E6A5 {
-    COP [SetMetasprite] ( $7E4000 )
+    COP [SetMetasprite] ( $decompressedTilesets )
     LDA #$0021
     JSL $@CreditPositionLookup
     COP [StageSpriteLoopMoveX] ( #0D, #C8, #01 )
@@ -79,7 +79,7 @@ code_09E6A5 {
 }
 
 code_09E6C0 {
-    COP [SetMetasprite] ( $7E4000 )
+    COP [SetMetasprite] ( $decompressedTilesets )
     LDA #$0021
     JSL $@CreditPositionLookup
     COP [StageSpriteLoopMoveX] ( #09, #C8, #01 )
@@ -90,7 +90,7 @@ code_09E6C0 {
 }
 
 code_09E6DB {
-    COP [SetMetasprite] ( $7E4000 )
+    COP [SetMetasprite] ( $decompressedTilesets )
     LDA #$0021
     JSL $@CreditPositionLookup
     COP [StageSpriteLoopMoveX] ( #0A, #C8, #01 )
@@ -101,7 +101,7 @@ code_09E6DB {
 }
 
 code_09E6F6 {
-    COP [SetMetasprite] ( $7E4000 )
+    COP [SetMetasprite] ( $decompressedTilesets )
     LDA #$0021
     JSL $@CreditPositionLookup
     COP [StageSpriteLoopMoveX] ( #0B, #C8, #01 )
@@ -112,7 +112,7 @@ code_09E6F6 {
 }
 
 code_09E711 {
-    COP [SetMetasprite] ( $7E4000 )
+    COP [SetMetasprite] ( $decompressedTilesets )
     LDA #$0021
     JSL $@CreditPositionLookup
     COP [StageSpriteLoopMoveX] ( #0C, #C8, #01 )
@@ -123,7 +123,7 @@ code_09E711 {
 }
 
 code_09E72C {
-    COP [SetMetasprite] ( $7E4000 )
+    COP [SetMetasprite] ( $decompressedTilesets )
     LDA #$0021
     JSL $@CreditPositionLookup
     COP [StageSpriteLoopMoveX] ( #11, #C8, #01 )
@@ -134,7 +134,7 @@ code_09E72C {
 }
 
 code_09E747 {
-    COP [SetMetasprite] ( $7E4000 )
+    COP [SetMetasprite] ( $decompressedTilesets )
     LDA #$0021
     JSL $@CreditPositionLookup
     COP [StageSpriteLoopMoveX] ( #15, #C8, #01 )
@@ -145,7 +145,7 @@ code_09E747 {
 }
 
 code_09E762 {
-    COP [SetMetasprite] ( $7E4000 )
+    COP [SetMetasprite] ( $decompressedTilesets )
     LDA #$0021
     JSL $@CreditPositionLookup
     COP [StageSpriteLoopMoveX] ( #16, #C8, #01 )
@@ -156,7 +156,7 @@ code_09E762 {
 }
 
 code_09E77D {
-    COP [SetMetasprite] ( $7E4000 )
+    COP [SetMetasprite] ( $decompressedTilesets )
     LDA #$0021
     JSL $@CreditPositionLookup
     COP [StageSpriteLoopMoveX] ( #1B, #C8, #01 )
@@ -167,7 +167,7 @@ code_09E77D {
 }
 
 code_09E798 {
-    COP [SetMetasprite] ( $7E4000 )
+    COP [SetMetasprite] ( $decompressedTilesets )
     LDA #$0021
     JSL $@CreditPositionLookup
     COP [StageSpriteLoopMoveX] ( #1C, #C8, #01 )
@@ -178,7 +178,7 @@ code_09E798 {
 }
 
 code_09E7B3 {
-    COP [SetMetasprite] ( $7E4000 )
+    COP [SetMetasprite] ( $decompressedTilesets )
     LDA #$0021
     JSL $@CreditPositionLookup
     COP [StageSpriteLoopMoveX] ( #17, #C8, #01 )
@@ -189,7 +189,7 @@ code_09E7B3 {
 }
 
 code_09E7CE {
-    COP [SetMetasprite] ( $7E4000 )
+    COP [SetMetasprite] ( $decompressedTilesets )
     LDA #$0021
     JSL $@CreditPositionLookup
     COP [StageSpriteLoopMoveX] ( #0E, #C8, #01 )
@@ -200,7 +200,7 @@ code_09E7CE {
 }
 
 code_09E7E9 {
-    COP [SetMetasprite] ( $7E4000 )
+    COP [SetMetasprite] ( $decompressedTilesets )
     LDA #$0021
     JSL $@CreditPositionLookup
     COP [StageSpriteLoopMoveX] ( #0F, #C8, #01 )
@@ -211,7 +211,7 @@ code_09E7E9 {
 }
 
 code_09E804 {
-    COP [SetMetasprite] ( $7E4000 )
+    COP [SetMetasprite] ( $decompressedTilesets )
     LDA #$0021
     JSL $@CreditPositionLookup
     COP [StageSpriteLoopMoveX] ( #12, #C8, #01 )
@@ -222,7 +222,7 @@ code_09E804 {
 }
 
 code_09E81F {
-    COP [SetMetasprite] ( $7E4000 )
+    COP [SetMetasprite] ( $decompressedTilesets )
     LDA #$0021
     JSL $@CreditPositionLookup
     COP [StageSpriteLoopMoveX] ( #13, #C8, #01 )
@@ -233,7 +233,7 @@ code_09E81F {
 }
 
 code_09E83A {
-    COP [SetMetasprite] ( $7E4000 )
+    COP [SetMetasprite] ( $decompressedTilesets )
     LDA #$0021
     JSL $@CreditPositionLookup
     COP [StageSpriteLoopMoveX] ( #18, #C8, #01 )
@@ -244,7 +244,7 @@ code_09E83A {
 }
 
 code_09E855 {
-    COP [SetMetasprite] ( $7E4000 )
+    COP [SetMetasprite] ( $decompressedTilesets )
     LDA #$0021
     JSL $@CreditPositionLookup
     COP [StageSpriteLoopMoveX] ( #14, #C8, #01 )
@@ -255,7 +255,7 @@ code_09E855 {
 }
 
 code_09E870 {
-    COP [SetMetasprite] ( $7E4000 )
+    COP [SetMetasprite] ( $decompressedTilesets )
     LDA #$0020
     JSL $@CreditPositionLookup
     COP [StageSpriteLoopMoveX] ( #1A, #C8, #01 )
@@ -266,7 +266,7 @@ code_09E870 {
 }
 
 code_09E88B {
-    COP [SetMetasprite] ( $7E4000 )
+    COP [SetMetasprite] ( $decompressedTilesets )
     LDA #$0021
     JSL $@CreditPositionLookup
     COP [StageSpriteLoopMoveX] ( #19, #C8, #01 )
@@ -277,7 +277,7 @@ code_09E88B {
 }
 
 code_09E8A6 {
-    COP [SetMetasprite] ( $7E4000 )
+    COP [SetMetasprite] ( $decompressedTilesets )
     LDA #$0021
     JSL $@CreditPositionLookup
     COP [StageSpriteLoopMoveX] ( #10, #C8, #01 )

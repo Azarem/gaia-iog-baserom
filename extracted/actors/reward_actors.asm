@@ -13,7 +13,7 @@
 !playerHp                       0ACE
 !playerDef                      0ADC
 !playerStr                      0ADE
-!damageFlashTimer               0B22
+!hpToHeal                       0B22
 !moveXAlt                       7F0018
 !moveYAlt                       7F001A
 
@@ -34,7 +34,7 @@ e_hp_increase {
     STA $playerMaxHp
     SEC 
     SBC $playerHp
-    STA $damageFlashTimer
+    STA $hpToHeal
     COP [PrintDialogString] ( &dialogstring_00E058 )
     COP [Die]
 }

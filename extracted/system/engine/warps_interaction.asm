@@ -87,6 +87,10 @@
 
 !sceneNext                      0642
 !sceneCurrent                   0644
+!warpDestX                      064C
+!warpDestY                      064E
+!warpFacing                     0650
+!warpScrollParams               0652
 !joypadCurrent                  0656
 !joypadMaskStd                  065A
 !cameraOffsetX                  06D6
@@ -110,6 +114,7 @@
 !playerSpeedNs                  09B4
 !displayModeFlags               09EC
 !sceneSaveData                  0AF0
+!sourceSceneId                  0B12
 !APUIO1                         2141
 !mapLayerTilemap                7EA000
 !chatPtr                        7F000A
@@ -458,7 +463,7 @@ ChestOpeningActor {
     TXA 
     TYX 
     TAY 
-    LDA #$CFF0            ; TSB joypadMaskStd $CFF0 — mask D-pad and action buttons during open
+    LDA #$CFFC            ; TSB joypadMaskStd $CFF0 — mask D-pad and action buttons during open
     TSB $joypadMaskStd
     LDY $playerActor      ; Lock player actor: set $1000, idle anim via SetAnimStatePointer
     LDA $0012, Y
@@ -503,7 +508,7 @@ ChestOpeningActor {
     STA $0002, Y
     LDA #$&player_transition_handlers.RestorePlayerControlDirect
     JSR $&SetAnimStatePointer
-    LDA #$CFF0            ; TRB joypadMaskStd $CFF0 — restore normal input
+    LDA #$CFFC            ; TRB joypadMaskStd $CFF0 — restore normal input
     TRB $joypadMaskStd
     COP [SpawnAfterFlags] ( @hdma_dma_spc.SpcTransferMusicData, #$2000 ) ; Second SpcTransferMusicData spawn — follow-up SPC data transfer
     CPY #$1FC0
@@ -875,15 +880,15 @@ ExecuteWarp {
     LDA $0004, X          ; Load destination scene, coords, direction from warp entry bytes 4–11
     STA $sceneNext
     LDY $0005, X
-    STY $064C
+    STY $warpDestX
     LDY $0007, X
-    STY $064E
+    STY $warpDestY
     LDA $0009, X
-    STA $0650
+    STA $warpFacing
     LDY $000A, X
-    STY $0652
+    STY $warpScrollParams
     LDY $sceneCurrent     ; Snapshot source scene ID and warp rectangle bounds → $0B08–$0B12
-    STY $0B12
+    STY $sourceSceneId
     LDA $0000, X
     STA $0B08
     LDA $0001, X
@@ -912,7 +917,7 @@ ExecuteWarp {
     ASL 
     ORA $0B11
     STA $0B11
-    LDA $0650             ; Direction byte 9 bit 7 ($80): deferred vs immediate transition mode
+    LDA $warpFacing       ; Direction byte 9 bit 7 ($80): deferred vs immediate transition mode
     BIT #$80
     BNE loc_02AADA
     PLP 
@@ -921,7 +926,7 @@ ExecuteWarp {
 
   loc_02AADA:
     AND #$7F              ; Deferred mode: mask bit 7, save entry+4 pointer to sceneSaveData/$0AF2
-    STA $0650
+    STA $warpFacing
     REP #$20
     TXA 
     CLC 
@@ -957,13 +962,13 @@ code_02AAF2 {
     TXA                   ; Extended warp: store entry+7 pointer → $0650 (scroll/direction data)
     CLC 
     ADC #$0007
-    STA $0650
+    STA $warpFacing
     LDA #$0000            ; Zero playerSpeedEw/playerSpeedNs — halt player during forced walk
     STA $playerSpeedEw
     STA $playerSpeedNs
     SEP #$20
     LDY $0004, X          ; Entry bytes 4–5 → destination position $0652
-    STY $0652
+    STY $warpScrollParams
     LDA $0006, X          ; Entry byte 6 → scrollStepTableBase (direction + step config)
     STA $scrollStepTableBase
     JSL $@scene_lifecycle.InitCameraBounds ; InitCameraBounds — configure camera for destination area
@@ -988,7 +993,7 @@ StartForcedWalk {
     REP #$20
     LDA #$0100            ; TSB playerFlags $0100 — mark forced-walk warp in progress
     TSB $playerFlags
-    LDY $playerActor      ; Set player actor $0010 bit 13 ($2000) — run-mode during auto-walk
+    LDY $playerActor      ; Set player actor $0010 bit 13 ($2000) — block-mode during auto-walk
     LDA $0010, Y
     ORA #$2000
     STA $0010, Y

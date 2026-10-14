@@ -65,7 +65,7 @@ code_04E08B {
     COP [PrintDialogString] ( &dialogstring_04E175 )
     COP [StageSpriteLoopMoveY] ( #17, #04, #02 )
     COP [AnimLoop]
-    LDA #$CFF0
+    LDA #$CFFC
     TRB $joypadMaskStd
 }
 

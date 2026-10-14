@@ -15,7 +15,7 @@ ec0A_left_guard [
     COP [BranchOnFlagByte] ( #21, #01, &code_04C04B )
     COP [SetInteractHandler] ( &code_04C05D )
     COP [BranchOnFlagByte] ( #3F, #01, &code_04BFFD )
-    LDA #$CFF0
+    LDA #$CFFC
     TSB $joypadMaskStd
 } >
 ]
@@ -30,7 +30,7 @@ code_04BFFD {
     COP [BranchOnFlagByte] ( #3F, #01, &code_04C023 )
     COP [PrintDialogString] ( &dialogstring_04C115 )
     COP [SetFlagByte] ( #3F )
-    LDA #$CFF0
+    LDA #$CFFC
     TRB $joypadMaskStd
 }
 

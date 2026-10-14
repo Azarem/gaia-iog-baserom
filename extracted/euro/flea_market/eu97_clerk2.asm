@@ -18,14 +18,14 @@ eu97_clerk2 [
 
   code_07CC3C:
     COP [BranchIfPlayerAt] ( #$0170, #$00D0, &code_07CC86 )
-    LDA #$CFF0
+    LDA #$CFFC
     TSB $joypadMaskStd
     COP [StageSpriteMoveX] ( #30, #14 )
     COP [AnimOnce]
     COP [StageSpriteFrame] ( #2C )
     COP [AnimOnce]
     COP [PrintDialogString] ( &dialogstring_07CC88 )
-    LDA #$CFF0
+    LDA #$CFFC
     TRB $joypadMaskStd
     COP [SpawnAfterFlags] ( @EscortFollowPathTracker, #$2000 )
     TXA 

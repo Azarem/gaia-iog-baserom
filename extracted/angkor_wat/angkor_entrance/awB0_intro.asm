@@ -16,11 +16,11 @@ awB0_intro [
     COP [BranchOnFlagByte] ( #BE, #01, &code_089805 )
     COP [BranchOnFlagByte] ( #B3, #01, &code_089805 )
     COP [SetFlagByte] ( #B3 )
-    LDA #$CFF0
+    LDA #$CFFC
     TSB $joypadMaskStd
     COP [WaitByte] ( #1D )
     COP [PrintDialogString] ( &dialogstring_089807 )
-    LDA #$CFF0
+    LDA #$CFFC
     TRB $joypadMaskStd
 } >
 ]

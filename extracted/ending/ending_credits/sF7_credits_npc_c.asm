@@ -5,6 +5,8 @@
 
 ?INCLUDE 'CreditPositionLookup'
 
+!actorLimitThreshold            00E4
+
 ---------------------------------------------
 
 sF7_actor_09E4DD [
@@ -75,7 +77,7 @@ code_09E4E8 {
 ---------------------------------------------
 
 e_actor_09E464 {
-    LDA $00E4
+    LDA $actorLimitThreshold
     BPL loc_09E46A
     RTL 
 

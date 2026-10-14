@@ -24,7 +24,7 @@ sp5C_key_coffin [
     COP [NudgePosition] ( #08, #00 )
     COP [SetInteractHandler] ( &code_069094 )
     COP [WaitOnFlagByte] ( #01, #01 )
-    LDA #$CFF0
+    LDA #$CFFC
     TSB $joypadMaskStd
     LDA #$2000
     TRB $10
@@ -71,7 +71,7 @@ sp5C_key_coffin [
     COP [MoveToward] ( #33, #01 )
     LDA #$2000
     TSB $10
-    LDA #$CFF0
+    LDA #$CFFC
     TRB $joypadMaskStd
 } >
 ]

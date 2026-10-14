@@ -4,7 +4,7 @@
   "route-step": { "types": [ "Byte", "Byte", "Byte", "Byte" ], "delimiter": 255 },
   "map-label": { "types": [ "Byte", "&SpriteString" ], "delimiter": 0 },
   "boss-reward-range": { "types": [ "Byte", "Byte", "Byte" ], "tail": 1 },
-  "register-init": { "types": [ "Word", "Byte" ], "delimiter": 65535 },
+  "register-init": { "types": [ "Offset", "Byte" ], "delimiter": 65535 },
   "display-preset": { "types": [ "Byte", "Byte", "Byte", "Byte", "Byte", "Byte", "Byte", "Byte", "Byte", "Byte" ] },
   "delta-node": { "types": [ "Word", "&delta-node" ] },
   "spawn-trigger": { "types": [ "Word", "Word", "Word" ], "delimiter": 65535 },
@@ -95,7 +95,7 @@
   "warp-def": { "types": [ "scene-warp", "stair-warp" ] },
   "scene-warp": { "types": [ "Byte", "Byte", "Byte", "Byte", "Byte", "Word", "Word", "Byte", "Word" ], "delimiter": 255 },
   "stair-warp": { "types": [ "Byte", "Byte", "Byte", "Byte", "Word", "Word", "Word", "Byte", "Word" ], "delimiter": 255 },
-  "wram-init": { "types": [ "Word", "Word" ], "delimiter": 65535 },
+  "wram-init": { "types": [ "Offset", "Word" ], "delimiter": 65535 },
   "direction-velocity": { "types": [ "Byte", "Byte" ] },
   "enemy-stats": { "types": [ "Byte", "Byte", "Byte", "Byte" ] },
   "conveyor-index": { "types": [ "Byte", "&conveyor-zone" ], "delimiter": 0 },
@@ -103,5 +103,7 @@
   "thinker-def": { "types": [ "Byte", "Byte", "Code" ] },
   "actor-def": { "types": [ "Byte", "Byte", "Byte", "Code" ] },
   "camera-keyframe": { "types": [ "Byte", "Byte" ] },
-  "statue-reward": { "types": [ "Byte", "Byte", "Byte" ], "tail": 1 }
+  "statue-reward": { "types": [ "Byte", "Byte", "Byte" ], "tail": 1 },
+  "option-entry": { "types": [  ], "delimiter": 65535 },
+  "key-entry": { "types": [ "Byte", "Byte" ], "delimiter": 255 }
 }

@@ -25,7 +25,7 @@ sc08_priest [
 ]
 
 code_048AA3 {
-    LDA #$CFF0
+    LDA #$CFFC
     TSB $joypadMaskStd
     LDA #$0400
     STA $gfxCacheIdxB

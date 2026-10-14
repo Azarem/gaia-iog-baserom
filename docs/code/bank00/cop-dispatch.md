@@ -159,7 +159,7 @@ JMP ($&cop_dispatch_table, X)    ; X = opcode × 2
 | `$93` | RunPlayerAnim | `$B3` | SetPriorityMin | `$D3` | WaitOnFlagWord | | |
 | `$94` | StagePlayerSprWall | `$B4` | ClearPriorityMax | `$D4` | GiveItem | | |
 | `$95` | StagePlayerSprFromDP | `$B5` | ClearPriorityMin | `$D5` | RemoveItem | | |
-| `$96` | WallAnimHere | `$B6` | SetOamPriority | `$D6` | BranchIfMissingItem | | |
+| `$96` | WallAnimHere | `$B6` | SetOamPriority | `$D6` | BranchIfHasItem | | |
 | `$97` | WallAnimNorth | `$B7` | SetOamPalette | `$D7` | BranchIfItemEquipped | | |
 | `$98` | WallAnimSouth | `$B8` | ToggleHMirror | `$D8` | SetDungeonKillFlag | | |
 | `$99` | SpawnBefore | `$B9` | ToggleVMirror | `$D9` | SwitchCase | | |

@@ -24,6 +24,7 @@
 ; Sets DBR to $7E, selects buffer by frame parity (Y = $0000 or $0100). Writes 7-byte HDMA parameter blocks from two templates (hdma_window1/2_template) into $8800,Y and $8A00,Y. Adds the actor's HDMA frame offset ($7F2104,X) to byte 2 of each template to animate the scanline source. Terminates with $0000 sentinel.
 ---------------------------------------------
 
+!frameCounter                   0036
 !sineTableA                     7E8900
 !sineTableB                     7E8B00
 !S_sineTableB                   8B00
@@ -79,7 +80,7 @@ HdmaWindowEffect {
 ; Double-buffered by frame parity (frame counter $0036 bit 0): even frames transfer from $7E8800 (channels 5+$32), odd frames from $7E8900. Each call queues two DMA operations via COP QueueDma to push the HDMA scanline data to the PPU during the next VBlank.
 
 QueueHdmaSineBuffers {
-    LDA $0036             ; Frame parity check: even → buffer A ($8800/$8A00), odd → buffer B ($8900/$8B00)
+    LDA $frameCounter     ; Frame parity check: even → buffer A ($8800/$8A00), odd → buffer B ($8900/$8B00)
     LSR 
     BCS loc_03A899
     COP [QueueDma] ( $7E8800, #05 ) ; Even frame: queue DMA from $7E8800 (HDMA channel 5)
@@ -87,8 +88,8 @@ QueueHdmaSineBuffers {
     RTS 
 
   loc_03A899:
-    COP [QueueDma] ( $7E8900, #05 ) ; Odd frame: queue DMA from $7E8900 (HDMA channel 5)
-    COP [QueueDma] ( $7E8B00, #32 ) ; Odd frame: queue DMA from $7E8B00 (HDMA channel $32)
+    COP [QueueDma] ( $sineTableA, #05 ) ; Odd frame: queue DMA from $7E8900 (HDMA channel 5)
+    COP [QueueDma] ( $sineTableB, #32 ) ; Odd frame: queue DMA from $7E8B00 (HDMA channel $32)
     RTS 
 }
 

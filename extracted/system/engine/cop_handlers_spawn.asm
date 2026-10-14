@@ -11,6 +11,8 @@
 
 ?INCLUDE 'actor_pool'
 
+!actorListLast                  0058
+
 ---------------------------------------------
 
 ; COP #99 with one Address operand (word+bank entry pointer). Calls AllocateActorBefore (which inserts a list slot and CopyActorState from the spawner), then writes the script entry address to the new actor $0000/$0002.
@@ -364,10 +366,10 @@ SpawnListAppend {
     JSL $@actor_pool.ActorPoolAllocator ; Allocate from LIFO free list; Y=new WRAM base, carry set=pool exhausted
     BCS loc_00A50A        ; Pool full → skip all operand bytes without spawning
     TYX 
-    LDY $0058             ; Load current actor list tail pointer ($0058)
+    LDY $actorListLast    ; Load current actor list tail pointer ($0058)
     TXA 
     STA $0006, Y          ; Link: old tail.next ($0006) → new actor
-    STA $0058             ; Update global list tail to new actor
+    STA $actorListLast    ; Update global list tail to new actor
     TYA 
     STA $0004, X          ; Link: new actor.prev ($0004) → old tail
     STZ $0006, X          ; New actor.next = null (is the new list tail)
@@ -448,10 +450,10 @@ SpawnListAppendSpr {
     JSL $@actor_pool.ActorPoolAllocator ; Allocate slot; carry set on pool exhaustion
     BCS loc_00A5AE        ; Pool full → skip all operands (including extra anim index byte)
     TYX 
-    LDY $0058
+    LDY $actorListLast
     TXA 
     STA $0006, Y
-    STA $0058
+    STA $actorListLast
     TYA 
     STA $0004, X
     STZ $0006, X

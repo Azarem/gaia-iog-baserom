@@ -1,15 +1,14 @@
-; Crystal ball gate B in the Kress circuit.
+; Mushroom Drop gate B in the Kress circuit.
 ; 
-; Second crystal ball-controlled gate. Requires a different
-; crystal activation. More complex timing or conditional
-; logic than gate A.
+; Second Mushroom Drop-controlled gate. Requires a different
+; Mushroom Drop activation flag. Longer reveal sequence than gate A.
 ---------------------------------------------
 
 !joypadMaskStd                  065A
 
 ---------------------------------------------
 
-mtA5_crystal_ball_gate_b [
+mtA5_mushroom_drop_gate_b [
   actor-def < #00, #00, #30, {
 
   code_07E899:

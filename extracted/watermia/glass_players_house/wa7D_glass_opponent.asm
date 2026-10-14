@@ -29,12 +29,12 @@ code_078D8F {
     LDA #$2000
     TSB $10
     COP [SetTilePos] ( #00, #01 )
-    LDA #$CFF0
+    LDA #$CFFC
     TSB $joypadMaskStd
     COP [WaitByte] ( #1D )
     COP [PrintDialogString] ( &dialogstring_078E2D )
     COP [GiveItem] ( #18, &code_078DB5 )
-    LDA #$CFF0
+    LDA #$CFFC
     TRB $joypadMaskStd
 }
 
@@ -43,12 +43,12 @@ code_078DB3 {
 }
 
 code_078DB5 {
-    COP [BranchIfMissingItem] ( #01, &code_078DBF )
-    COP [BranchIfMissingItem] ( #06, &code_078DE8 )
+    COP [BranchIfHasItem] ( #01, &code_078DBF )
+    COP [BranchIfHasItem] ( #06, &code_078DE8 )
 }
 
 code_078DBF {
-    LDA #$CFF0
+    LDA #$CFFC
     TSB $joypadMaskStd
     COP [WaitByte] ( #1D )
     COP [RemoveItem] ( #01 )
@@ -63,7 +63,7 @@ code_078DBF {
 
 code_078DDC {
     COP [PrintDialogString] ( &dialogstring_078F0B )
-    LDA #$CFF0
+    LDA #$CFFC
     TRB $joypadMaskStd
     COP [Die]
 }
@@ -75,7 +75,7 @@ code_078DE8 {
 
 code_078DF0 {
     COP [PrintDialogString] ( &dialogstring_078F69 )
-    LDA #$CFF0
+    LDA #$CFFC
     TRB $joypadMaskStd
     COP [Die]
 }

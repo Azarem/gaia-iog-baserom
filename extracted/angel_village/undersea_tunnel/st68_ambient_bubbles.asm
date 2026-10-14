@@ -6,6 +6,7 @@
 ; for random bubble placement.
 ---------------------------------------------
 
+!frameCounter                   0036
 !cameraTargetX                  06BE
 !cameraTargetY                  06C2
 
@@ -17,7 +18,7 @@ st68_ambient_bubbles [
   code_06B93A:
     LDA #$1000
     TSB $12
-    LDA $0036
+    LDA $frameCounter
     AND #$003F
     BEQ loc_06B948
     RTL 

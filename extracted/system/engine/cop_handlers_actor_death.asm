@@ -2,6 +2,8 @@
 
 ?INCLUDE 'actor_pool'
 
+!actorListFirst                 0056
+!actorListLast                  0058
 !parentId                       7F001C
 
 ---------------------------------------------
@@ -97,7 +99,7 @@ DieNow_UnlinkChildren {
     STX $0004             ; Store forward boundary to $0004
     LDX $0002             ; Start at backward boundary, return all child slots to pool
     BNE loc_00A64F
-    LDX $0056             ; Backward boundary is null: start from list head ($0056)
+    LDX $actorListFirst   ; Backward boundary is null: start from list head ($0056)
     JSR $&actor_pool.ReturnActorSlot
 
   loc_00A64F:
@@ -112,7 +114,7 @@ DieNow_UnlinkChildren {
     LDA $0002             ; Patch linked list: handle head-removed, tail-removed, or mid-splice
     BNE loc_00A675
     LDX $0004             ; Head removed: forward boundary becomes new list head ($0056)
-    STX $0056
+    STX $actorListFirst
     STZ $0004, X          ; Clear new head's prev pointer
     LDA $03, S
     TAX 
@@ -125,7 +127,7 @@ DieNow_UnlinkChildren {
     LDA $0004
     BNE loc_00A68A
     LDX $0002             ; Tail removed: backward boundary becomes new tail ($0058)
-    STX $0058
+    STX $actorListLast
     STZ $0006, X          ; Clear new tail's next pointer
     LDA $03, S
     TAX 

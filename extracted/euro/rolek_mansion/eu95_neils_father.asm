@@ -22,7 +22,7 @@ eu95_neils_father [
     COP [SetInteractHandler] ( &code_07E21C )
     COP [NudgePosition] ( #00, #FE )
     COP [WaitOnFlagByte] ( #A8, #01 )
-    LDA #$EFF0
+    LDA #$EFFC
     TSB $joypadMaskStd
     COP [WaitByte] ( #03 )
     COP [StartMusic] ( #1B )
@@ -41,7 +41,7 @@ eu95_neils_father [
     COP [MoveToward] ( #2F, #01 )
     COP [StartMusic] ( #04 )
     COP [WaitByte] ( #77 )
-    LDA #$EFF0
+    LDA #$EFFC
     TRB $joypadMaskStd
 } >
 ]

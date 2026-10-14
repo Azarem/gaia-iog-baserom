@@ -15,6 +15,7 @@
 ?INCLUDE 'tile_collision'
 
 !playerActor                    09AA
+!playerStateByte                09AF
 !playerSpeedNs                  09B4
 !slopeFracAccum                 09C6
 !collisionLayer                 7FC000
@@ -183,7 +184,7 @@ SnapYSouthCollision {
 
   loc_02D434:
     LDA #$08              ; Set vine-climb flag bit 8 in $09AF
-    TSB $09AF
+    TSB $playerStateByte
     PHY 
     LDY $playerActor
     REP #$20
@@ -227,7 +228,7 @@ SouthSlopeRight {
 
   loc_02D477:
     LDA #$10              ; Sub-tile ≥ $08: set slope snap flag bit $10 in $09AF, then apply movement
-    TSB $09AF
+    TSB $playerStateByte
     JMP $&tile_collision.ApplyMovementDeltas
 }
 
@@ -269,7 +270,7 @@ SouthSlopeLeft {
 
   loc_02D4A8:
     LDA #$10              ; Slope snap flag bit $10 when sub-tile in lower half
-    TSB $09AF
+    TSB $playerStateByte
     REP #$20
     LDA $slopeFracAccum   ; Left-slope fractional step: clamp negative $slopeFracAccum to zero
     BPL loc_02D4B7

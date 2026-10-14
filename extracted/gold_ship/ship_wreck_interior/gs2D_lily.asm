@@ -25,7 +25,7 @@ gs2D_lily [
     COP [SetInteractHandler] ( &code_058DB1 )
     COP [BranchOnFlagByte] ( #50, #01, &code_058CFF )
     COP [SetFlagByte] ( #50 )
-    LDA #$CFF0
+    LDA #$CFFC
     TSB $joypadMaskStd
     LDY $playerActor
     LDA #$*player_transition_handlers.PlayerFreedanRevealIdle
@@ -48,7 +48,7 @@ gs2D_lily [
     LDA #$0000
     STA $0008, Y
     STA $002A, Y
-    LDA #$EFF0
+    LDA #$EFFC
     TRB $joypadMaskStd
 } >
 ]
@@ -97,7 +97,7 @@ code_058CFF {
     LDA #$0001
     STA $musicRoomGroup
     COP [SetInteractHandler] ( &code_058DB6 )
-    LDA #$EFF0
+    LDA #$EFFC
     TRB $joypadMaskStd
     COP [SetEntryHere]
     COP [RngByte]

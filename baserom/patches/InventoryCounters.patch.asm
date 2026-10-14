@@ -1,6 +1,6 @@
 ?BANK 02
 
-!num_xoffset                      01
+!num_xoffset                      00
 !num_yoffset                      F7
 !scene_current                  0644
 !inventory_slots                0AB4
@@ -10,84 +10,201 @@
 
 ---------------------------------------------
 
-generate_number_sprites {
-    ;BRK #$70
-    PHX
-    LDA #$0000
-    STZ $00DA
+;InventoryCountersGenerateSprites {
+;    PHX
+;    STZ $00DA
+;    LDA #$1000
+;    TSB $06EE
+;    LDA $7F0010, X
+;    TAY
+;    SEP #$20
+;    LDA #$0F
+;    STA $0002
+
+;  icgs_loop:
+;    TYX
+;    LDA $7F0012, X
+;    BEQ icgs_continue
+
+;    PHA
+    
+;    LDA $0014, Y
+;    CLC
+;    ADC #$num_xoffset
+;    STA $0000
+    
+;    LDA $0016, Y
+;    CLC
+;    ADC #$num_yoffset
+;    STA $0001
+
+;    PLA
+;    CMP #$0A
+;    BCC icgs_single
+;    LDY #$0000
+
+;  icgs_multi_top:
+;    ;SEC
+;    SBC #$0A
+;    INY
+;    CMP #$0A
+;    BCS icgs_multi_top
+
+;    PHA
+;    TYA
+;    TXY
+;    JSR $&push_number_sprite
+;    LDA $0000
+;    CLC
+;    ADC #$04
+;    STA $0000
+;    PLA
+    
+;  icgs_single:
+;    JSR $&push_number_sprite
+
+;  icgs_continue:
+;    LDX $0006, Y
+;    DEC $0002
+;    BPL icgs_loop
+
+;    REP #$20
+;    PLX
+;    RTS
+;}
+
+---------------------------------------------
+
+;generate_number_sprites {
+;    ;BRK #$70
+;    PHX
+;    LDA #$0000
+;    STZ $00DA
+;    SEP #$20
+
+;    LDY #$0010
+
+;  generate_number_top:
+;    DEY
+;    BMI generate_number_quit
+;    LDA $inventory_slots, Y
+;    CMP #$01
+;    BEQ generate_number_jewels
+;    CMP #$06
+;    BEQ generate_number_herbs
+;    CMP #$0E
+;    BEQ generate_number_crystals
+;    BRA generate_number_top
+    
+;  generate_number_herbs:
+;    LDA $herb_count
+;    BRA generate_number_next
+
+;  generate_number_jewels:
+;    LDA $jewel_count
+;    BRA generate_number_next
+
+;  generate_number_crystals:
+;    LDA $crystal_count
+
+;  generate_number_next:
+;    PHA
+    
+;    TYA
+;    ASL
+;    ASL
+;    TAX
+;    LDA @SlotPositionTable, X
+;    CLC
+;    ADC #$num_xoffset
+;    STA $25
+
+;    LDA @SlotPositionTable+2, X
+;    CLC
+;    ADC #$num_yoffset
+;    STA $26
+
+;    PLA
+;    CMP #$0A
+;    BCC generate_process_single
+;    STZ $24
+
+;  generate_process_top:
+;    ;SEC
+;    SBC #$0A
+;    INC $24
+;    CMP #$0A
+;    BCS generate_process_top
+
+;    PHA
+;    LDA $24
+;    JSR &push_number_sprite
+;    LDA $25
+;    CLC
+;    ADC #$04
+;    STA $25
+;    PLA
+    
+;  generate_process_single:
+;    JSR &push_number_sprite
+
+;    JMP generate_number_top
+
+;  generate_number_quit:
+;    REP #$20
+;    PLX
+;    RTS
+;}
+
+----------------------------------------------
+
+InventoryCountersGenerateSprite {
+    ;LDA $7F0012, X
+    CMP #$0002
+    BCS $01
+    RTS
+
+    TXY
     SEP #$20
-
-    LDY #$0010
-
-  generate_number_top:
-    DEY
-    BMI generate_number_quit
-    LDA $inventory_slots, Y
-    CMP #$01
-    BEQ generate_number_jewels
-    CMP #$06
-    BEQ generate_number_herbs
-    CMP #$0E
-    BEQ generate_number_crystals
-    BRA generate_number_top
-    
-  generate_number_herbs:
-    LDA $herb_count
-    BRA generate_number_next
-
-  generate_number_jewels:
-    LDA $jewel_count
-    BRA generate_number_next
-
-  generate_number_crystals:
-    LDA $crystal_count
-
-  generate_number_next:
     PHA
-    
-    TYA
-    ASL
-    ASL
-    TAX
-    LDA @SlotPositionTable, X
+
+    LDA $0014, Y
     CLC
     ADC #$num_xoffset
-    STA $25
-
-    LDA @SlotPositionTable+2, X
+    STA $0000
+    
+    LDA $0016, Y
     CLC
     ADC #$num_yoffset
-    STA $26
-
+    STA $0001
+    
     PLA
     CMP #$0A
-    BCC generate_process_single
-    STZ $24
+    BCC icgs_single
+    LDY #$0000
 
-  generate_process_top:
+  icgs_multi_top:
     ;SEC
     SBC #$0A
-    INC $24
+    INY
     CMP #$0A
-    BCS generate_process_top
-
+    BCS icgs_multi_top
+    
     PHA
-    LDA $24
-    JSR &push_number_sprite
-    LDA $25
+    TYA
+    TXY
+    JSR $&push_number_sprite
+    LDA $0000
     CLC
     ADC #$04
-    STA $25
+    STA $0000
     PLA
     
-  generate_process_single:
-    JSR &push_number_sprite
+  icgs_single:
+    JSR $&push_number_sprite
 
-    JMP generate_number_top
-
-  generate_number_quit:
     REP #$20
-    PLX
+    TYX
     RTS
 }
 
@@ -96,14 +213,13 @@ generate_number_sprites {
 push_number_sprite {
     LDX $00DA
 
-  push_number_next:
     ORA #$80                   ;Bottom half
     STA $7F1FC2, X
 
-    LDA $25
+    LDA $0000
     STA $7F1FC0, X
 
-    LDA $26
+    LDA $0001
     STA $7F1FC1, X
 
     LDA #$21
@@ -114,8 +230,133 @@ push_number_sprite {
     INX
     INX
     STX $00DA
-
     RTS
+}
+
+---------------------------------------------
+
+InventoryCountersAddressMap [
+    #FF
+    #01
+    #FF
+    #FF
+    #FF
+    #FF
+    #00
+    #FF
+    #FF
+    #FF
+    #FF
+    #FF
+    #FF
+    #FF
+    #02
+    #FF
+    #FF  ;10
+    #FF
+    #FF
+    #FF
+    #FF
+    #FF
+    #FF
+    #FF
+    #FF
+    #FF
+    #FF
+    #FF
+    #FF
+    #FF
+    #FF
+    #FF
+    #FF  ;20
+    #FF
+    #FF
+    #FF
+    #FF
+    #FF
+    #FF
+    #FF
+    #FF
+    #FF
+    #FF
+    #FF
+    #FF
+    #FF
+    #FF
+    #FF
+    #FF  ;30
+    #FF
+    #FF
+    #FF
+    #FF
+    #FF
+    #FF
+    #FF
+    #FF
+    #FF
+    #FF
+    #FF
+    #FF
+    #FF
+    #FF
+    #FF
+]
+
+---------------------------------------------
+
+InventoryCountersGetCount {
+    PHX
+    TAX
+    LDA $@InventoryCountersAddressMap, X
+    PLX
+    BIT #$0080
+    BEQ icgc_continue
+    LDA #$0000
+    RTS
+
+  icgc_continue:
+    AND #$00FF
+    TAY
+    LDA $herb_count, Y
+    AND #$00FF
+    RTS
+}
+
+---------------------------------------------
+
+InventoryCountersCheckAndStore {
+    PHX
+    TAX
+    LDA $@InventoryCountersAddressMap, X
+    BPL iccas_get_count
+
+    LDY #$0000
+    PLX
+    CLC
+    RTL
+    
+  icaas_inventory_full:
+    LDY #$0001
+    PLX
+    CLC
+    RTL
+
+  iccas_get_count:
+    TAY
+    LDA $herb_count, Y
+    BNE iccas_increment
+    
+    TXA
+    JSL $@InventoryCheckAndStore
+    BCS icaas_inventory_full
+    LDA #$00
+
+  iccas_increment:
+    INC
+    STA $herb_count, Y
+    PLX
+    SEC
+    RTL
 }
 
 ---------------------------------------------
@@ -123,61 +364,61 @@ push_number_sprite {
 ?INCLUDE 'system_strings'
 ---------------------------------------------
 
-InventoryMenuInit! {
-    COP [88] ( @inventory_spritemap )
-    COP [BD] ( @consolestring_01E869 )
-    LDA #$1000
-    TSB $06EE
-    JSR generate_number_sprites
-    STZ $0AFA
-    LDA #$000F
-    STA $24
-}
+;InventoryMenuInit! {
+;    COP [88] ( @inventory_spritemap )
+;    COP [BD] ( @consolestring_01E869 )
+;    LDA #$1000
+;    TSB $06EE
+;    JSR generate_number_sprites
+;    STZ $0AFA
+;    LDA #$000F
+;    STA $24
+;}
 
 loc_02E63D! {
-    JSR generate_number_sprites
+    ;JSR InventoryCountersGenerateSprites
     PHX 
     PHD 
     LDA $2C
     TAX 
     TCD 
-    COP [A7]
+    COP [MarkDeath]
     PLD 
     PLX 
     JMP $&code_02E544
 }
 
-loc_02E6FC! {
-    JSR generate_number_sprites
-    COP [06] ( #13 )
-    JMP $&code_02E66B
-}
+;loc_02E6FC! {
+;    JSR InventoryCountersGenerateSprites
+;    COP [PlaySoundCh2] ( #13 )
+;    JMP $&code_02E66B
+;}
 
 ;Enable direct sprites 
-loc_02EB22! {
-    LDA #$1000
-    TSB $06EE
+;loc_02EB22! {
+;    LDA #$1000
+;    TSB $06EE
 
-    LDA #$1000
-    TSB $10
-    LDA #$000F
-    STA $0000
-    LDA $7F0010, X
-    TAY 
-}
+;    LDA #$1000
+;    TSB $10
+;    LDA #$000F
+;    STA $0000
+;    LDA $7F0010, X
+;    TAY 
+;}
 
 ;Disable direct sprites for status menu
-loc_02EB4D! {
-    LDA #$1000
-    TRB $06EE
+;loc_02EB4D! {
+;    LDA #$1000
+;    TRB $06EE
 
-    LDA #$1000
-    TRB $10
-    LDA #$000F
-    STA $0000
-    LDA $7F0010, X
-    TAY 
-}
+;    LDA #$1000
+;    TRB $10
+;    LDA #$000F
+;    STA $0000
+;    LDA $7F0010, X
+;    TAY 
+;}
 
 
 ---------------------------------------------
@@ -290,3 +531,6 @@ loc_03C82D! {
     PLA
     RTS 
 }
+
+;loc_02E3AB+:
+    ;JSR $&InventoryCountersGenerateSprites

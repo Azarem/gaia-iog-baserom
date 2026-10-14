@@ -42,7 +42,7 @@ ir1E_cliff_slide_trigger [
 ]
 
 code_09C4ED {
-    LDA #$EFF0
+    LDA #$EFFC
     TSB $joypadMaskStd
     COP [PlaySoundBoth] ( #$1616 )
     COP [LoopStart] ( #28 )
@@ -54,7 +54,7 @@ code_09C508 {
     COP [LoopEnd]
     LDA #$FFF8
     STA $playerSpeedEw
-    LDA #$EFF0
+    LDA #$EFFC
     TRB $joypadMaskStd
     COP [WaitByte] ( #3B )
     BRA loc_09C4DA

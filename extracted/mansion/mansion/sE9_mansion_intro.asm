@@ -23,11 +23,11 @@ sE9_mansion_intro [
     STA $CGADSUB
     REP #$20
     COP [SetFlagByte] ( #29 )
-    LDA #$EFF0
+    LDA #$EFFC
     TSB $joypadMaskStd
     COP [WaitByte] ( #1D )
     COP [PrintDialogString] ( &dialogstring_08FCBE )
-    LDA #$EFF0
+    LDA #$EFFC
     TRB $joypadMaskStd
 } >
 ]

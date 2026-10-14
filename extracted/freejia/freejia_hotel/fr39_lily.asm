@@ -20,7 +20,7 @@ fr39_lily [
   code_05C5B6:
     COP [BranchOnFlagByte] ( #65, #01, &code_05C629 )
     COP [BranchOnFlagByte] ( #58, #01, &code_05C629 )
-    LDA #$CFF0
+    LDA #$CFFC
     TSB $joypadMaskStd
     COP [StageSpriteLoopMoveY] ( #26, #02, #11 )
     COP [AnimLoop]
@@ -49,7 +49,7 @@ fr39_lily [
     COP [StageSpriteLoop] ( #22, #1E )
     COP [AnimLoop]
     COP [PrintDialogString] ( &dialogstring_05C67C )
-    LDA #$CFF0
+    LDA #$CFFC
     TRB $joypadMaskStd
 
   loc_05C620:

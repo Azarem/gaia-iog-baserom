@@ -78,7 +78,7 @@ PlayerFreedanRevealExit {
 }
 
 PlayerFallFromHeight {
-    LDA #$CFF0            ; Player fall: mask joypad $CFF0, set playerFlags $0800, force layer priority $0200
+    LDA #$CFFC            ; Player fall: mask joypad $CFF0, set playerFlags $0800, force layer priority $0200
     TSB $joypadMaskStd
     LDA #$0800
     TSB $playerFlags
@@ -105,7 +105,7 @@ PlayerFallFromHeight {
     TRB $10
     LDA #$0200
     TRB $layerPriorityFlag
-    LDA #$CFF0
+    LDA #$CFFC
     TRB $joypadMaskStd
     STZ $08
     JML $@player_character.PlayerIdleEntry

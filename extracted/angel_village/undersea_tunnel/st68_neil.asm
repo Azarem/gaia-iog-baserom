@@ -27,12 +27,12 @@ code_list_06AAE4 [
 
 code_06AAEA {
     COP [MarkSolidHere]
-    LDA #$CFF0
+    LDA #$CFFC
     TSB $joypadMaskStd
     COP [WaitByte] ( #1D )
     COP [PrintDialogString] ( &dialogstring_06AB53 )
     COP [SetFlagByte] ( #01 )
-    LDA #$CFF0
+    LDA #$CFFC
     TRB $joypadMaskStd
     COP [WaitByte] ( #3F )
     COP [StageSpriteFrame] ( #14 )
@@ -45,7 +45,7 @@ code_06AAEA {
 }
 
 code_06AB1D {
-    LDA #$CFF0
+    LDA #$CFFC
     TSB $joypadMaskStd
     COP [SetFlagByte] ( #03 )
     COP [StageSpriteFrame] ( #12 )
@@ -60,7 +60,7 @@ code_06AB2E {
 
 code_06AB30 {
     COP [SetTilePos] ( #18, #1A )
-    LDA #$CFF0
+    LDA #$CFFC
     TSB $joypadMaskStd
     COP [WaitByte] ( #1D )
     COP [PrintDialogString] ( &dialogstring_06AD22 )

@@ -3,7 +3,7 @@
 ?INCLUDE 'map_coords'
 
 !bg1ScrollH                     068A
-!bg2ScrollH                     068E
+!mapScrollV                     068E
 !sfxQueueCh2                    06F9
 !tileQueryResult                0902
 !metatileMapLayer               7E2000
@@ -319,7 +319,7 @@ ResolveTileData {
     SBC $bg1ScrollH
     CMP #$0111            ; Off-screen if distance ≥ $0111 pixels (beyond visible width)
     BCS loc_0098A8
-    LDA $bg2ScrollH       ; Compare pixel Y against BG2 vertical scroll window
+    LDA $mapScrollV       ; Compare pixel Y against BG2 vertical scroll window
     SEC 
     SBC #$0010
     AND #$FFF0

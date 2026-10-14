@@ -24,6 +24,7 @@
 !playerYTile                    09A8
 !playerActor                    09AA
 !displayModeFlags               09EC
+!globalScriptIndex              0AAC
 
 ---------------------------------------------
 
@@ -141,7 +142,7 @@ DarkSpaceButtonCheck {
 ; Dark space entry — lock controls, animate warp, reposition player, configure tileset
 
 DarkSpaceEnterWarp {
-    LDA #$CFF0            ; Mask most joypad input
+    LDA #$CFFC            ; Mask most joypad input
     TSB $joypadMaskStd
     PHX 
     LDX $playerActor
@@ -190,7 +191,7 @@ DarkSpaceEnterWarp {
     LDA #$0200            ; Enable dark space layer priority
     TSB $layerPriorityFlag
     LDA $24               ; Store dark space variant ID
-    STA $0AAC
+    STA $globalScriptIndex
     COP [SetEntryHere]
     RTL 
 }

@@ -26,7 +26,7 @@ sc06_monologue [
 ]
 
 code_04A47B {
-    LDA #$EFF0
+    LDA #$EFFC
     TSB $joypadMaskStd
     SEP #$20
     LDA #$04
@@ -47,12 +47,12 @@ code_04A47B {
 }
 
 code_04A4B4 {
-    LDA #$CFF0
+    LDA #$CFFC
     TSB $joypadMaskStd
     COP [WaitByte] ( #3B )
     COP [SetFlagByte] ( #1D )
     COP [PrintDialogString] ( &dialogstring_04A582 )
-    LDA #$CFF0
+    LDA #$CFFC
     TRB $joypadMaskStd
 }
 

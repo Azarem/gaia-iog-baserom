@@ -31,7 +31,7 @@ ec0A_kara_guard [
     COP [PrintDialogString] ( &dialogstring_04CA41 )
     COP [ClearSolidHere]
     COP [ClearSolidOffset] ( #00, #01 )
-    LDA #$CFF0
+    LDA #$CFFC
     TRB $joypadMaskStd
 } >
 ]
@@ -72,7 +72,7 @@ code_04C9CC {
 code_04C9D7 {
     COP [PrintDialogString] ( &dialogstring_04CA0D )
     COP [SetFlagByte] ( #01 )
-    LDA #$CFF0
+    LDA #$CFFC
     TSB $joypadMaskStd
     RTL 
 }

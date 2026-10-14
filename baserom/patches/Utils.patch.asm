@@ -57,7 +57,7 @@ global_thinkers {
 
 ------------------------------------------------------------
 
-pause_debug_print |[NHM:14][CUR:C0,6]S:[BCD:2,644] X:[BCD:3,9A2] Y:[BCD:3,9A4] C:[BCD:4,E6]|
+pause_debug_print |[PAL:14][POS:C0,6]S:[BCD:2,644] X:[BCD:3,9A2] Y:[BCD:3,9A4] C:[BCD:4,E6]|
 
 ------------------------------------------------------------
 ;Hook for global thinkers
@@ -225,9 +225,9 @@ ClearVramBufferPartial! {
     BRA loc_02F07E
 }
 
-consolestring_01E7F6! |[CUR:42,0][NHM:8][HP][CUR:5A,0][NHM:14][BCD:1,AD8][CUR:64,0][NUM:AD6]|
+consolestring_01E7F6! |[POS:42,0][PAL:8][HP][POS:5A,0][PAL:14][BCD:1,AD8][POS:64,0][NUM:AD6]|
 
-consolestring_01E818! |[NHM:4][CUR:6A,0][HE]|
+consolestring_01E818! |[PAL:4][POS:6A,0][HE]|
 
 -------------------------------------------------
 ;Print debug string on radar screen
@@ -275,7 +275,7 @@ RunActors_Normal! {
     LDA $player_flags
     BIT #$0008
     BEQ loc_03CB07
-    LDA #$8000
+    LDA #$0080
     TRB $0656
 }
 

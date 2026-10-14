@@ -57,9 +57,11 @@
 
 ?INCLUDE 'body_table'
 
+!actorListLast                  0058
+!oamWriteOffset                 00D8
 !deathFlag                      0200
 !bg1ScrollH                     068A
-!bg2ScrollH                     068E
+!mapScrollV                     068E
 !layerPriorityFlag              06EE
 !playerFlags                    09AE
 !displayModeFlags               09EC
@@ -112,7 +114,7 @@ SortActorsByDepth {
     PHD 
     REP #$20
     LDY #$0000
-    LDA $0058             ; Head of actor linked list → TAX/TCD sets DP per actor
+    LDA $actorListLast    ; Head of actor linked list → TAX/TCD sets DP per actor
 
   code_03C609:
     TAX 
@@ -145,7 +147,7 @@ SortActorsByDepth {
     SEC 
     SBC $1A
     SEC 
-    SBC $bg2ScrollH
+    SBC $mapScrollV
     CMP #$00E0
     BCC loc_03C64F
     BPL SortActors_OffScreen
@@ -153,7 +155,7 @@ SortActorsByDepth {
     CLC 
     ADC $1E
     SEC 
-    SBC $bg2ScrollH
+    SBC $mapScrollV
     CMP #$00E0
     BCS SortActors_OffScreen
 
@@ -171,7 +173,7 @@ SortActorsByDepth {
   loc_03C665:
     LDA $16               ; Y-based key: compute from screen Y position
     SEC 
-    SBC $bg2ScrollH
+    SBC $mapScrollV
     CMP #$0100
     BCC loc_03C673
 
@@ -323,7 +325,7 @@ ComposeAllSprites {
     SEC 
     SBC #$0010
     STA $1A
-    LDA $bg2ScrollH
+    LDA $mapScrollV
     SEC 
     SBC #$0010
     STA $1E
@@ -360,7 +362,7 @@ ComposeAllSprites {
     LDA $00
     TCS 
     JSR $&RenderComposeBuffer
-    STZ $00D8             ; Clear compose buffer cursor before actor sprite processing
+    STZ $oamWriteOffset   ; Clear compose buffer cursor before actor sprite processing
     LDX #$0000
 
   loc_03C76C:
@@ -415,7 +417,7 @@ RenderComposeBuffer {
   loc_03C79E:
     LDA $7F3102, X        ; Screen Y = bufferY − bg2ScrollH; skip if ≥ $F0
     SEC 
-    SBC $bg2ScrollH
+    SBC $mapScrollV
     CMP #$00F0
     BCS loc_03C7E8
     STA $0423, Y

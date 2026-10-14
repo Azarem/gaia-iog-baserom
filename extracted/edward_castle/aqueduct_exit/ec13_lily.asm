@@ -25,11 +25,11 @@ ec13_lily [
     COP [NudgePosition] ( #08, #00 )
     LDA $characterForm
     BEQ loc_09BFD9
-    LDA #$CFF0
+    LDA #$CFFC
     TSB $joypadMaskStd
     COP [WaitByte] ( #1D )
     COP [PrintDialogString] ( &dialogstring_09C06C )
-    LDA #$CFF0
+    LDA #$CFFC
     TRB $joypadMaskStd
     LDY $playerActor
     LDA #$*sE6_gaia.Transform_FreedanToWill
@@ -50,7 +50,7 @@ ec13_lily [
 
 code_09BFE1 {
     COP [SetFlagByte] ( #3A )
-    LDA #$CFF0
+    LDA #$CFFC
     TSB $joypadMaskStd
     COP [PrintDialogString] ( &dialogstring_09C0A8 )
     COP [PlaySoundBoth] ( #$1616 )
@@ -73,7 +73,7 @@ code_09BFE1 {
     COP [AnimLoop]
     COP [StageSpriteLoopMoveY] ( #36, #06, #02 )
     COP [AnimLoop]
-    LDA #$CFF0
+    LDA #$CFFC
     TRB $joypadMaskStd
     COP [Die]
 }
@@ -81,11 +81,11 @@ code_09BFE1 {
 code_09C037 {
     LDA $characterForm
     BEQ loc_09C06A
-    LDA #$CFF0
+    LDA #$CFFC
     TSB $joypadMaskStd
     COP [WaitByte] ( #1D )
     COP [PrintDialogString] ( &dialogstring_09C06C )
-    LDA #$CFF0
+    LDA #$CFFC
     TRB $joypadMaskStd
     LDY $playerActor
     LDA #$*sE6_gaia.Transform_FreedanToWill

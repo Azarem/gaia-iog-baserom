@@ -20,7 +20,7 @@ daC8_neil [
     COP [SetInteractHandler] ( &code_08A5EF )
     COP [BranchOnFlagByte] ( #B4, #01, &code_08A5EA )
     COP [SetFlagByte] ( #B4 )
-    LDA #$CFF0
+    LDA #$CFFC
     TSB $joypadMaskStd
     COP [WaitByte] ( #0F )
     COP [ClearSolidHere]
@@ -31,7 +31,7 @@ daC8_neil [
     COP [AnimOneFrame]
     COP [WaitByte] ( #1D )
     COP [PrintDialogString] ( &dialogstring_08A61D )
-    LDA #$CFF0
+    LDA #$CFFC
     TRB $joypadMaskStd
 } >
 ]

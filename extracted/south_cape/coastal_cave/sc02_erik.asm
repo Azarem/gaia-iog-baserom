@@ -21,7 +21,7 @@ sc02_erik [
     COP [WaitOnFlagByte] ( #02, #01 )
     COP [SetFlagByte] ( #16 )
     COP [SetFlagByte] ( #04 )
-    LDA #$CFF0
+    LDA #$CFFC
     TSB $joypadMaskStd
     COP [StartMusic] ( #1B )
     COP [WaitByte] ( #59 )
@@ -31,10 +31,10 @@ sc02_erik [
     COP [StageSpriteFrame] ( #0B )
     COP [AnimOnce]
     COP [WaitByte] ( #3B )
-    LDA #$CFF0
+    LDA #$CFFC
     TRB $joypadMaskStd
     COP [PrintDialogString] ( &dialogstring_04B9F2 )
-    LDA #$CFF0
+    LDA #$CFFC
     TSB $joypadMaskStd
     COP [SetFlagByte] ( #03 )
     COP [WaitByte] ( #B3 )
@@ -42,7 +42,7 @@ sc02_erik [
     COP [PrintDialogString] ( &dialogstring_04BA55 )
     COP [StartMusic] ( #1C )
     COP [WaitByte] ( #77 )
-    LDA #$CFF0
+    LDA #$CFFC
     TRB $joypadMaskStd
     COP [StageSpriteLoopMoveX] ( #11, #02, #11 )
     COP [AnimLoop]

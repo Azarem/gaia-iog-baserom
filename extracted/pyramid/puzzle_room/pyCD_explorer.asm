@@ -21,12 +21,12 @@ pyCD_explorer [
     COP [BranchOnFlagByte] ( #C5, #01, &code_08C250 )
     COP [BranchOnFlagByte] ( #C6, #01, &code_08C250 )
     COP [BranchOnFlagByte] ( #C7, #01, &code_08C250 )
-    COP [BranchIfMissingItem] ( #1E, &code_08C250 )
-    COP [BranchIfMissingItem] ( #1F, &code_08C250 )
-    COP [BranchIfMissingItem] ( #20, &code_08C250 )
-    COP [BranchIfMissingItem] ( #21, &code_08C250 )
-    COP [BranchIfMissingItem] ( #22, &code_08C250 )
-    COP [BranchIfMissingItem] ( #23, &code_08C250 )
+    COP [BranchIfHasItem] ( #1E, &code_08C250 )
+    COP [BranchIfHasItem] ( #1F, &code_08C250 )
+    COP [BranchIfHasItem] ( #20, &code_08C250 )
+    COP [BranchIfHasItem] ( #21, &code_08C250 )
+    COP [BranchIfHasItem] ( #22, &code_08C250 )
+    COP [BranchIfHasItem] ( #23, &code_08C250 )
     COP [SetEntryHere]
     RTL 
 } >

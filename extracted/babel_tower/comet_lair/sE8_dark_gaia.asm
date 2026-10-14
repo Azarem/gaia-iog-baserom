@@ -20,9 +20,10 @@
 ?INCLUDE 'smooth_follow'
 ?INCLUDE 'spriteset_enemies'
 
+!actorListFirst                 0056
 !gfxCacheIdxB                   064A
 !joypadMaskStd                  065A
-!bg2ScrollH                     068E
+!mapScrollV                     068E
 !cameraTargetX                  06BE
 !cameraDeltaX                   06C0
 !cameraTargetY                  06C2
@@ -193,11 +194,11 @@ code_0CEF88 {
     AND #$FFF7
     STA $0010, Y
     COP [LoopStart] ( #80 )
-    LDA $bg2ScrollH
+    LDA $mapScrollV
     CLC 
     ADC #$0002
     STA $cameraTargetY
-    LDY $0056
+    LDY $actorListFirst
 
   loc_0CF004:
     LDA $0010, Y
@@ -329,7 +330,7 @@ code_0CF13B {
 
 code_0CF154 {
     COP [SetFlagByte] ( #04 )
-    LDA #$FFF0
+    LDA #$FFFC
     TSB $joypadMaskStd
     COP [SpawnListAppend] ( @SetPlayerGameOverFlag, #00, #00, #$2000 )
     COP [SpawnListAppend] ( @code_0CF201, #00, #E0, #$2300 )

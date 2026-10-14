@@ -15,7 +15,7 @@ av69_lance [
   code_06BA88:
     COP [BranchOnFlagByte] ( #8D, #01, &av69_lance_destroy )
     COP [BranchOnFlagByte] ( #75, #01, &av69_lance_destroy )
-    LDA #$CFF0
+    LDA #$CFFC
     TSB $joypadMaskStd
     COP [WaitByte] ( #1D )
     COP [PrintDialogString] ( &dialogstring_06BAFA )
@@ -41,7 +41,7 @@ av69_lance [
     COP [AnimOnce]
     COP [StageSpriteMoveX] ( #09, #11 )
     COP [AnimOnce]
-    LDA #$CFF0
+    LDA #$CFFC
     TRB $joypadMaskStd
     COP [StageSpriteMoveY] ( #06, #11 )
     COP [AnimOnce]

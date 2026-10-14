@@ -1,48 +1,49 @@
-; Crystal ball gate in the Kress crossroads.
+; Mushroom Drop gate A in the Kress circuit.
 ; 
-; Central gate at the crossroads area. Opens when the
-; crystal ball puzzle is solved, connecting the temple
-; sections.
+; Gate controlled by a Mushroom Drop switch. Opens when
+; the corresponding Mushroom Drop is activated. Part of
+; the temple's interconnected puzzle system.
 ---------------------------------------------
 
 !joypadMaskStd                  065A
 
 ---------------------------------------------
 
-mtA2_crystal_ball_gate [
+mtA5_mushroom_drop_gate_a [
   actor-def < #00, #00, #30, {
 
-  code_07E7F3:
-    COP [BranchOnFlagWord] ( #$0159, #01, &f_mtA2_actor_07E7F0_destroy )
+  code_07E846:
+    COP [BranchOnFlagWord] ( #$015F, #01, &f_mtA5_actor_07E843_destroy )
     COP [WaitOnFlagByte] ( #01, #01 )
     LDA #$EFF0
     TSB $joypadMaskStd
     COP [RemoveItem] ( #1A )
     COP [PlaySoundCh1] ( #0F )
-    COP [StageBgChange] ( #54 )
+    COP [StageBgChange] ( #5A )
     COP [ApplyBgChange]
     COP [PlaySoundCh1] ( #0F )
-    COP [StageBgChange] ( #55 )
+    COP [StageBgChange] ( #5B )
     COP [ApplyBgChange]
     COP [PlaySoundCh1] ( #0F )
-    COP [StageBgChange] ( #56 )
+    COP [StageBgChange] ( #5C )
     COP [ApplyBgChange]
     COP [PlaySoundCh1] ( #0F )
-    COP [StageBgChange] ( #57 )
+    COP [StageBgChange] ( #5D )
     COP [ApplyBgChange]
     COP [PlaySoundCh1] ( #0F )
-    COP [StageBgChange] ( #58 )
+    COP [StageBgChange] ( #5E )
     COP [ApplyBgChange]
     COP [PlaySoundCh1] ( #0F )
-    COP [StageBgChange] ( #59 )
+    COP [StageBgChange] ( #5F )
     COP [ApplyBgChange]
-    COP [SetFlagWord] ( #$0159 )
+    COP [SetFlagWord] ( #$015F )
     LDA #$EFF0
     TRB $joypadMaskStd
+    COP [Die]
 } >
 ]
 ---------------------------------------------
 
-f_mtA2_actor_07E7F0_destroy {
+f_mtA5_actor_07E843_destroy {
     COP [Die]
 }

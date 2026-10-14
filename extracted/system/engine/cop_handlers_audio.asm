@@ -13,6 +13,7 @@
 ?INCLUDE 'music_actors'
 ?INCLUDE 'system_core'
 
+!actorListLast                  0058
 !joypadMaskStd                  065A
 !sfxQueueCh1                    06F8
 !sfxQueueCh2                    06F9
@@ -167,10 +168,10 @@ MusicAndText {
     JSL $@actor_pool.ActorPoolAllocator ; ActorPoolAllocator — get free slot for music+text thinker
     BCS loc_008836        ; Pool exhausted → jump to inline fallback path
     TYX 
-    LDY $0058             ; Load thinker list tail pointer ($0058)
+    LDY $actorListLast    ; Load thinker list tail pointer ($0058)
     TXA 
     STA $0006, Y          ; Link new actor as next of current tail
-    STA $0058             ; Update thinker list tail to new actor
+    STA $actorListLast    ; Update thinker list tail to new actor
     TYA 
     STA $0004, X          ; Set new actor's prev pointer to old tail
     STZ $0006, X          ; New actor is now tail: clear next pointer (null terminator)

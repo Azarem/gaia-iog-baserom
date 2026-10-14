@@ -42,7 +42,7 @@ code_05864F {
 
 code_05865A {
     COP [LoopStart] ( #1E )
-    LDA #$CFF0
+    LDA #$CFFC
     TSB $joypadMaskStd
     COP [LoopEnd]
     COP [PrintDialogString] ( &dialogstring_0586CC )

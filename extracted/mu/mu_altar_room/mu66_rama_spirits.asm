@@ -14,6 +14,8 @@
 !gfxCacheIdxB                   064A
 !joypadMaskStd                  065A
 !eventFlags                     0A00
+!globalScriptIndex              0AAC
+!sourceSceneId                  0B12
 !CGWSEL                         2130
 !CGADSUB                        2131
 
@@ -46,7 +48,7 @@ mu66_rama_spirits [
     LDA #$0005
     STA $0024, Y
     COP [WaitOnFlagByte] ( #0F, #01 )
-    LDA #$EFF0
+    LDA #$EFFC
     TSB $joypadMaskStd
     SEP #$20
     LDA #$80
@@ -62,9 +64,9 @@ mu66_rama_spirits [
     COP [SpawnThinker] ( @oneshot_palette_flash_19.FlashPalette19 )
     COP [WaitByte] ( #7F )
     LDA #$0002
-    STA $0AAC
+    STA $globalScriptIndex
     LDA #$0066
-    STA $0B12
+    STA $sourceSceneId
     LDA #$000F
     STA $0B08
     STA $0B0A

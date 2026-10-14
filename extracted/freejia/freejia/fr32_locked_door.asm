@@ -34,11 +34,11 @@ fr32_locked_door [
 code_05CFDF {
     COP [StageSpriteFrame] ( #00 )
     COP [AnimOnce]
-    LDA #$CFF0
+    LDA #$CFFC
     TSB $joypadMaskStd
     COP [WaitByte] ( #1D )
     COP [PlaySoundCh2] ( #0E )
-    LDA #$CFF0
+    LDA #$CFFC
     TRB $joypadMaskStd
     BRA loc_05CFD1
 }

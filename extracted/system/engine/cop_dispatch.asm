@@ -282,7 +282,7 @@ cop_dispatch_table [
   &cop_handlers_scene_flags.WaitOnFlagWord   ;D3
   &cop_handlers_inventory.GiveItem   ;D4
   &cop_handlers_inventory.RemoveItem   ;D5
-  &cop_handlers_inventory.BranchIfMissingItem   ;D6
+  &cop_handlers_inventory.BranchIfHasItem   ;D6
   &cop_handlers_inventory.BranchIfItemEquipped   ;D7
   &cop_handlers_dungeon_switch.SetDungeonKillFlag   ;D8
   &cop_handlers_dungeon_switch.SwitchCase   ;D9

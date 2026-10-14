@@ -23,7 +23,7 @@ na49_neil [
     COP [SpawnAfterFlags] ( @code_05DCED, #$2000 )
     COP [MarkSolidHere]
     COP [SetInteractHandler] ( &code_05D96F )
-    LDA #$CFF0
+    LDA #$CFFC
     TSB $joypadMaskStd
     LDY $playerActor
     LDA #$0098
@@ -68,7 +68,7 @@ na49_neil [
     LDA #$0000
     STA $0AA6
     COP [SetFlagByte] ( #05 )
-    LDA #$CFF0
+    LDA #$CFFC
     TRB $joypadMaskStd
     COP [SetEntryHere]
     RTL 

@@ -30,7 +30,7 @@ gs2D_lance [
 ]
 
 code_058FE0 {
-    LDA #$EFF0
+    LDA #$EFFC
     TSB $joypadMaskStd
     COP [PrintDialogString] ( &dialogstring_05913D )
     COP [WaitByte] ( #3B )
@@ -46,7 +46,7 @@ code_058FE0 {
     COP [AnimLoop]
     COP [StageSpriteMoveY] ( #07, #02 )
     COP [AnimOnce]
-    LDA #$EFF0
+    LDA #$EFFC
     TRB $joypadMaskStd
     COP [StageSpriteLoopMoveX] ( #08, #04, #02 )
     COP [AnimLoop]

@@ -37,11 +37,11 @@ palace_coffin_hdma_table [
     DEY 
     BPL loc_00BE5C
     PLX 
-    COP [QueueHdma] ( $7E7000, #21 )
+    COP [QueueHdma] ( $tileStagingBuffer, #21 )
     COP [SetEntryHereAndYield]
     COP [SetFlagByte] ( #FF )
     COP [SetEntryHere]
-    COP [QueueHdma] ( $7E7000, #21 )
+    COP [QueueHdma] ( $tileStagingBuffer, #21 )
     COP [BranchOnFlagByte] ( #FF, #00, &code_00BE3B )
     RTL 
 } >

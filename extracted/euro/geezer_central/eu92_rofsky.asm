@@ -15,11 +15,11 @@ eu92_rofsky [
   code_07D5EA:
     COP [BranchOnFlagByte] ( #9E, #01, &code_07D606 )
     COP [SetFlagByte] ( #9E )
-    LDA #$CFF0
+    LDA #$CFFC
     TSB $joypadMaskStd
     COP [WaitByte] ( #1D )
     COP [PrintDialogString] ( &dialogstring_07D6C2 )
-    LDA #$CFF0
+    LDA #$CFFC
     TRB $joypadMaskStd
 } >
 ]
@@ -32,7 +32,7 @@ code_07D606 {
 }
 
 code_07D60F {
-    COP [BranchIfMissingItem] ( #19, &code_07D619 )
+    COP [BranchIfHasItem] ( #19, &code_07D619 )
     COP [PrintDialogString] ( &dialogstring_07D61E )
     RTL 
 }

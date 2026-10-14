@@ -26,7 +26,7 @@ btE1_light_elevator [
 
 code_09959C {
     COP [SpawnThinker] ( @code_099618 )
-    LDA #$CFF0
+    LDA #$CFFC
     TSB $joypadMaskStd
     COP [WaitWord] ( #$00EF )
     COP [SetFlagByte] ( #00 )
@@ -65,7 +65,7 @@ code_09959C {
     EOR #$2000
     STA $000E, Y
     COP [WaitByte] ( #07 )
-    LDA #$CFF0
+    LDA #$CFFC
     TRB $joypadMaskStd
     COP [SetEntryHere]
     RTL 

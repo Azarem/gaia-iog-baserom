@@ -19,6 +19,7 @@
 ?INCLUDE 'hdma_dma_spc'
 ?INCLUDE 'math_lookup_tables'
 
+!frameCounter                   0036
 !cameraTargetX                  06BE
 !cameraTargetY                  06C2
 !cameraOffsetX                  06D6
@@ -203,7 +204,7 @@ BindSineHdma {
     INC $0A
     INC $0A
     TAY 
-    LDA $0036             ; $0036 bit 0 = frame parity; odd frames offset table +$0200 for double-buffer
+    LDA $frameCounter     ; $0036 bit 0 = frame parity; odd frames offset table +$0200 for double-buffer
     LSR 
     BCC loc_009CA5
     TYA 
@@ -569,7 +570,7 @@ BuildSineHdmaTable {
     CLC 
     ADC #$0400            ; +$0400: second table data region for vertical
     STA $005E
-    LDA $0036             ; Frame parity ($0036 bit 0): offset both pointers for ping-pong buffer swap
+    LDA $frameCounter     ; Frame parity ($0036 bit 0): offset both pointers for ping-pong buffer swap
     LSR                   ; Frame parity bit 0: swap buffers for flicker-free HDMA
     BCC loc_00ADFA
     LDA $0062

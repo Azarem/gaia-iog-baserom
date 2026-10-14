@@ -23,7 +23,7 @@ ir1C_kara [
 ]
 
 code_09CEB7 {
-    LDA #$CFF0
+    LDA #$CFFC
     TSB $joypadMaskStd
     COP [SetFlagByte] ( #01 )
     COP [StartMusic] ( #1B )

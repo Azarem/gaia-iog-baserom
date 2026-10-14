@@ -94,7 +94,7 @@ code_049934 {
     COP [WaitOnFlagByte] ( #0B, #01 )
     COP [PrintDialogString] ( &dialogstring_049B82 )
     COP [SetFlagByte] ( #3E )
-    LDA #$CFF0
+    LDA #$CFFC
     TRB $joypadMaskStd
 
   loc_049954:
@@ -119,12 +119,12 @@ code_049968 {
     COP [AnimOnce]
     COP [BranchOnFlagByte] ( #35, #01, &code_0499B6 )
     COP [SetEntryHere]
-    COP [BranchIfMissingItem] ( #09, &code_049985 )
+    COP [BranchIfHasItem] ( #09, &code_049985 )
     RTL 
 }
 
 code_049985 {
-    LDA #$FFF0
+    LDA #$FFFC
     TSB $joypadMaskStd
     COP [SetFlagByte] ( #35 )
     COP [StartMusic] ( #19 )
@@ -142,7 +142,7 @@ code_049985 {
   loc_0499AA:
     COP [StartMusic] ( #1C )
     COP [WaitByte] ( #59 )
-    LDA #$FFF0
+    LDA #$FFFC
     TRB $joypadMaskStd
 }
 
@@ -167,7 +167,7 @@ code_0499C0 {
 
 code_0499C5 {
     COP [PrintDialogString] ( &dialogstring_049B18 )
-    LDA #$CFF0
+    LDA #$CFFC
     TSB $joypadMaskStd
     COP [SetFlagByte] ( #0A )
     RTL 

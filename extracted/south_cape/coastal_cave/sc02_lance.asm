@@ -45,7 +45,7 @@ sc02_lance [
     COP [CallNear] ( &code_04B16A )
     COP [SetInteractHandler] ( &code_04B1BB )
     COP [WaitOnFlagByte] ( #07, #01 )
-    LDA #$CFF0
+    LDA #$CFFC
     TSB $joypadMaskStd
     COP [StageSpriteMoveX] ( #08, #12 )
     COP [AnimOnce]
@@ -69,7 +69,7 @@ sc02_lance [
     COP [AnimOnce]
     COP [PrintDialogString] ( &dialogstring_04B2F0 )
     COP [SetInteractHandler] ( &code_04B1C3 )
-    LDA #$CFF0
+    LDA #$CFFC
     TRB $joypadMaskStd
     COP [WaitOnFlagByte] ( #08, #01 )
     COP [SetInteractHandler] ( #$0000 )
@@ -84,7 +84,7 @@ sc02_lance [
     COP [PrintDialogString] ( &dialogstring_04B386 )
     COP [SetFlagByte] ( #0B )
     COP [ClearFlagByte] ( #04 )
-    LDA #$CFF0
+    LDA #$CFFC
     TRB $joypadMaskStd
 } >
 ]

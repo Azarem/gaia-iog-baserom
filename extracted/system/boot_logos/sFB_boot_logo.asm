@@ -39,7 +39,7 @@ sFB_boot_logo [
     LDA #$10              ; BG1 on main screen for logo sprites
     STA $TM
     REP #$20
-    LDA #$FFF0            ; Mask all joypad input during logos
+    LDA #$FFFC            ; Mask all joypad input during logos
     TSB $joypadMaskStd
     SEP #$20
     LDA $STAT78           ; PPU status register

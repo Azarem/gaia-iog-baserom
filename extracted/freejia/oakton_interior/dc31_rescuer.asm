@@ -21,7 +21,7 @@ dc31_rescuer [
     COP [SetInteractHandler] ( &code_05ABC1 )
     COP [BranchOnFlagByte] ( #56, #01, &code_05ABBE )
     COP [BranchOnFlagByte] ( #76, #01, &code_05ABBE )
-    LDA #$CFF0
+    LDA #$CFFC
     TSB $joypadMaskStd
     LDY $playerActor
     LDA #$*player_transition_handlers.PlayerFreedanRevealIdle
@@ -44,7 +44,7 @@ dc31_rescuer [
     COP [AnimLoop]
     COP [PrintDialogString] ( &dialogstring_05AEA3 )
     COP [SetFlagByte] ( #76 )
-    LDA #$CFF0
+    LDA #$CFFC
     TRB $joypadMaskStd
 } >
 ]

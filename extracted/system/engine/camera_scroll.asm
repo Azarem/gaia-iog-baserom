@@ -18,7 +18,7 @@
 
 ?INCLUDE 'hardware_math'
 
-!savedCameraDelta               0690
+!effectScrollV                  0690
 !cameraTargetX                  06BE
 !cameraDeltaX                   06C0
 !cameraTargetY                  06C2
@@ -56,7 +56,7 @@ ScrollCameraInit [
     COP [LoopStart] ( #03 ) ; Initialize 3-iteration scroll ramp-up loop via COP LoopInit
     JSR $&ComputeScrollDeltas
     LDA $cameraDeltaY     ; Load initial Y scroll delta to savedCameraDelta before entering per-frame loop
-    STA $savedCameraDelta
+    STA $effectScrollV
     COP [LoopEnd]
     COP [SetEntryHere]    ; Set actor re-entry point; yields then continues computing deltas each frame
     JSR $&ComputeScrollDeltas

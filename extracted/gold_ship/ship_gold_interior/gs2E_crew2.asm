@@ -6,6 +6,8 @@
 ---------------------------------------------
 
 !joypadMaskStd                  065A
+!globalScriptIndex              0AAC
+!sourceSceneId                  0B12
 
 ---------------------------------------------
 
@@ -16,13 +18,13 @@ gs2E_crew2 [
     COP [MarkSolidHere]
     COP [SetInteractHandler] ( &code_05893B )
     COP [SetEntryHere]
-    COP [BranchIfMissingItem] ( #38, &code_0588F6 )
+    COP [BranchIfHasItem] ( #38, &code_0588F6 )
     RTL 
 } >
 ]
 
 code_0588F6 {
-    LDA #$FFF0
+    LDA #$FFFC
     TSB $joypadMaskStd
     LDA #$1000
     TRB $10
@@ -30,9 +32,9 @@ code_0588F6 {
     COP [RemoveItem] ( #38 )
     COP [WriteApuIo0] ( #7F )
     LDA #$0000
-    STA $0AAC
+    STA $globalScriptIndex
     LDA #$002E
-    STA $0B12
+    STA $sourceSceneId
     LDA #$0025
     STA $0B08
     STA $0B0A

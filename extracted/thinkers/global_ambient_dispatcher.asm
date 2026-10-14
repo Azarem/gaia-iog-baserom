@@ -10,6 +10,7 @@
 ?INCLUDE 'GetPlayerFacingDirection'
 ?INCLUDE 'sprite_composition'
 
+!actorListFirst                 0056
 !joypadCurrent                  0656
 !joypadHeld                     0658
 !playerActor                    09AA
@@ -281,7 +282,7 @@ GlobalAmbientFindActorInFront {
     STA $02
     STZ $00
     STZ $04
-    LDA $0056
+    LDA $actorListFirst
     BRA GlobalAmbientScanLoop
 
   GlobalAmbientScanNextActor:

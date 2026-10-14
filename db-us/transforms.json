@@ -3,13 +3,15 @@
     {
       "key": "COP \\[WaitByte\\] \\( #\\d7 \\)\\s+COP \\[FadeThenStartMusic\\] \\( #1B \\)\\s+COP \\[WaitByte\\] \\( #B3 \\)",
       "value": "COP [FadeThenStartMusic] ( #1B )\r\n    COP [WaitWord] ( #$0120 )"
-    }
+    },
+    { "key": "LDA #\\$EFF0([^\\r\\n]*\\s+T[SR]B \\$joypadMaskStd)", "value": "LDA #$$EFFC$1" }
   ],
   "btE1_comet_soon": [
     {
       "key": "COP \\[CopyPalette\\] \\( @pal_vampires, #00, #A0, #50 \\)",
       "value": "COP [CopyPalette] ( @pal_vampires, #10, #B0, #40 )"
-    }
+    },
+    { "key": "LDA #\\$([CDEF])FF0([^\\r\\n]*\\s+T[SR]B \\$joypadMaskStd)", "value": "LDA #$$$1FFC$2" }
   ],
   "cop_handlers_audio": [
     {
@@ -84,170 +86,73 @@
     }
   ],
   "CreditPositionLookup": [
-    {
-      "key": "RTS",
-      "value": "RTL"
-    }
+    { "key": "RTS", "value": "RTL" }
   ],
   "sF7_credits_player": [
-    {
-      "key": "JSR \\$&CreditPositionLookup",
-      "value": "JSL $$@CreditPositionLookup"
-    }
+    { "key": "JSR \\$&CreditPositionLookup", "value": "JSL $$@CreditPositionLookup" }
   ],
   "sF7_credits_misc_timeline": [
-    {
-      "key": "JSR \\$&CreditPositionLookup",
-      "value": "JSL $$@CreditPositionLookup"
-    }
+    { "key": "JSR \\$&CreditPositionLookup", "value": "JSL $$@CreditPositionLookup" }
   ],
   "sF7_credits_npc_a": [
-    {
-      "key": "JSR \\$&CreditPositionLookup",
-      "value": "JSL $$@CreditPositionLookup"
-    }
+    { "key": "JSR \\$&CreditPositionLookup", "value": "JSL $$@CreditPositionLookup" }
   ],
   "sF7_credits_npc_b": [
-    {
-      "key": "JSR \\$&CreditPositionLookup",
-      "value": "JSL $$@CreditPositionLookup"
-    }
+    { "key": "JSR \\$&CreditPositionLookup", "value": "JSL $$@CreditPositionLookup" }
   ],
   "sF7_credits_npc_c": [
-    {
-      "key": "JSR \\$&CreditPositionLookup",
-      "value": "JSL $$@CreditPositionLookup"
-    }
+    { "key": "JSR \\$&CreditPositionLookup", "value": "JSL $$@CreditPositionLookup" }
   ],
   "sF7_credits_npc_d": [
-    {
-      "key": "JSR \\$&CreditPositionLookup",
-      "value": "JSL $$@CreditPositionLookup"
-    }
+    { "key": "JSR \\$&CreditPositionLookup", "value": "JSL $$@CreditPositionLookup" }
   ],
   "sF7_credits_npc_e": [
-    {
-      "key": "JSR \\$&CreditPositionLookup",
-      "value": "JSL $$@CreditPositionLookup"
-    }
+    { "key": "JSR \\$&CreditPositionLookup", "value": "JSL $$@CreditPositionLookup" }
   ],
   "sF7_credits": [
-    {
-      "key": "JSR \\$&CreditPositionLookup",
-      "value": "JSL $$@CreditPositionLookup"
-    }
+    { "key": "JSR \\$&CreditPositionLookup", "value": "JSL $$@CreditPositionLookup" },
+    { "key": "LDA #\\$FFF0([^\\r\\n]*\\s+T[SR]B \\$joypadMaskStd)", "value": "LDA #$$FFFC$1" }
   ],
   "mtA0_skulker": [
-    {
-      "key": "sub_0B9CE8",
-      "value": "sub2_0B9CE8"
-    },
-    {
-      "key": "loc_0B9CF9",
-      "value": "loc2_0B9CF9"
-    },
-    {
-      "key": "loc_0B9D0E",
-      "value": "loc2_0B9D0E"
-    }
+    { "key": "sub_0B9CE8", "value": "sub2_0B9CE8" },
+    { "key": "loc_0B9CF9", "value": "loc2_0B9CF9" },
+    { "key": "loc_0B9D0E", "value": "loc2_0B9D0E" }
   ],
   "pyDA_lithograph2": [
-    {
-      "key": "&dialogstring_08C88C",
-      "value": "&pyDA_lithograph1.dialogstring_08C7C9"
-    },
-    {
-      "key": "dialogstring_08C88C `[^`]*`\r?\n?",
-      "value": ""
-    }
+    { "key": "&dialogstring_08C88C", "value": "&pyDA_lithograph1.dialogstring_08C7C9" },
+    { "key": "dialogstring_08C88C `[^`]*`\r?\n?", "value": "" }
   ],
   "pyDA_lithograph3": [
-    {
-      "key": "&dialogstring_08C934",
-      "value": "&pyDA_lithograph1.dialogstring_08C7C9"
-    },
-    {
-      "key": "dialogstring_08C934 `[^`]*`\r?\n?",
-      "value": ""
-    }
+    { "key": "&dialogstring_08C934", "value": "&pyDA_lithograph1.dialogstring_08C7C9" },
+    { "key": "dialogstring_08C934 `[^`]*`\r?\n?", "value": "" }
   ],
   "pyDA_lithograph4": [
-    {
-      "key": "&dialogstring_08C9DC",
-      "value": "&pyDA_lithograph1.dialogstring_08C7C9"
-    },
-    {
-      "key": "dialogstring_08C9DC `[^`]*`\r?\n?",
-      "value": ""
-    }
+    { "key": "&dialogstring_08C9DC", "value": "&pyDA_lithograph1.dialogstring_08C7C9" },
+    { "key": "dialogstring_08C9DC `[^`]*`\r?\n?", "value": "" }
   ],
   "pyDA_lithograph5": [
-    {
-      "key": "&dialogstring_08CA84",
-      "value": "&pyDA_lithograph1.dialogstring_08C7C9"
-    },
-    {
-      "key": "dialogstring_08CA84 `[^`]*`\r?\n?",
-      "value": ""
-    }
+    { "key": "&dialogstring_08CA84", "value": "&pyDA_lithograph1.dialogstring_08C7C9" },
+    { "key": "dialogstring_08CA84 `[^`]*`\r?\n?", "value": "" }
   ],
   "pyDA_lithograph6": [
-    {
-      "key": "&dialogstring_08CB2C",
-      "value": "&pyDA_lithograph1.dialogstring_08C7C9"
-    },
-    {
-      "key": "dialogstring_08CB2C `[^`]*`\r?\n?",
-      "value": ""
-    }
+    { "key": "&dialogstring_08CB2C", "value": "&pyDA_lithograph1.dialogstring_08C7C9" },
+    { "key": "dialogstring_08CB2C `[^`]*`\r?\n?", "value": "" }
   ],
   "pyDD_teleporter": [
-    {
-      "key": "LDA \\$00\\s+PHA",
-      "value": "$&\r\n    LDA $$02\r\n    PHA"
-    },
-    {
-      "key": "PLA\\s+STA \\$00",
-      "value": "PLA\r\n    STA $$02\r\n    $&"
-    }
+    { "key": "LDA \\$00\\s+PHA", "value": "$&\r\n    LDA $$02\r\n    PHA" },
+    { "key": "PLA\\s+STA \\$00", "value": "PLA\r\n    STA $$02\r\n    $&" },
+    { "key": "LDA #\\$CFF0([^\\r\\n]*\\s+T[SR]B \\$joypadMaskStd)", "value": "LDA #$$CFFC$1" }
   ],
   "scene_actors": [
-    {
-      "key": "`Erik's House `",
-      "value": "`Erik's House`"
-    },
-    {
-      "key": "`Seth's House `",
-      "value": "`Seth's House`"
-    },
-    {
-      "key": "`Will's House `",
-      "value": "`Will's House`"
-    },
-    {
-      "key": "`Edward's Castle `",
-      "value": "`Edward's Castle`"
-    },
-    {
-      "key": "`Edward's Prison `",
-      "value": "`Edward's Prison`"
-    },
-    {
-      "key": "`City of Freejia `",
-      "value": "`City of Freejia`"
-    },
-    {
-      "key": "`Neil's Cottage `",
-      "value": "`Neil's Cottage`"
-    },
-    {
-      "key": "`Nazca Plain `",
-      "value": "`Nazca Plain`"
-    },
-    {
-      "key": "`Shrine `",
-      "value": "`Shrine`"
-    }
+    { "key": "`Erik's House `", "value": "`Erik's House`" },
+    { "key": "`Seth's House `", "value": "`Seth's House`" },
+    { "key": "`Will's House `", "value": "`Will's House`" },
+    { "key": "`Edward's Castle `", "value": "`Edward's Castle`" },
+    { "key": "`Edward's Prison `", "value": "`Edward's Prison`" },
+    { "key": "`City of Freejia `", "value": "`City of Freejia`" },
+    { "key": "`Neil's Cottage `", "value": "`Neil's Cottage`" },
+    { "key": "`Nazca Plain `", "value": "`Nazca Plain`" },
+    { "key": "`Shrine `", "value": "`Shrine`" }
   ],
   "scene_meta": [
     {
@@ -284,5 +189,560 @@
   ],
   "item_component_table": [
     { "key": "█", "value": " "}
+  ],
+  "player_character": [
+    { "key": "#\\$8000, &(Attack(?:North|South|East|West)|WalkAbortToIdle|ClimbDropAttack|RunAttackSpeedCheck)", "value": "#$$0080, &$1" },
+    { "key": "#\\$8F30, &IdleAnimReturn", "value": "#$$0FB0, &IdleAnimReturn" },
+    { "key": "LDA #\\$8000([^\\r\\n]*\\s+TSB \\$joypadHeld)", "value": "LDA #$$0080$1" },
+    { "key": "BIT #\\$8000", "value": "BIT #$$0080" },
+    { "key": "LDA #\\$8000([^\\r\\n]*\\s+TRB \\$joypadHeld)", "value": "LDA #$$0080$1" },
+    { "key": "ORA #\\$8000([^\\r\\n]*\\s+STA \\$joypadHeld)", "value": "ORA #$$0080$1" },
+    { "key": "LDA #\\$4000([^\\r\\n]*\\s+T[SR]B \\$joypadMaskStd)", "value": "LDA #$$0008$1" },
+    { "key": "LDA #\\$CFF0([^\\r\\n]*\\s+T[SR]B \\$joypadMaskStd)", "value": "LDA #$$CFFC$1" }
+  ],
+  "dark_space": [
+    { "key": "LDA #\\$CFF0([^\\r\\n]*\\s+T[SR]B \\$joypadMaskStd)", "value": "LDA #$$CFFC$1" }
+  ],
+  "av6A_erik": [
+    { "key": "LDA #\\$CFF0([^\\r\\n]*\\s+T[SR]B \\$joypadMaskStd)", "value": "LDA #$$CFFC$1" }
+  ],
+  "av69_lance": [
+    { "key": "LDA #\\$CFF0([^\\r\\n]*\\s+T[SR]B \\$joypadMaskStd)", "value": "LDA #$$CFFC$1" }
+  ],
+  "av74_kara": [
+    { "key": "LDA #\\$FFF0([^\\r\\n]*\\s+T[SR]B \\$joypadMaskStd)", "value": "LDA #$$FFFC$1" }
+  ],
+  "av75_voice_rooms": [
+    { "key": "LDA #\\$CFF0([^\\r\\n]*\\s+T[SR]B \\$joypadMaskStd)", "value": "LDA #$$CFFC$1" }
+  ],
+  "st68_lily": [
+    { "key": "LDA #\\$CFF0([^\\r\\n]*\\s+T[SR]B \\$joypadMaskStd)", "value": "LDA #$$CFFC$1" }
+  ],
+  "st68_neil": [
+    { "key": "LDA #\\$CFF0([^\\r\\n]*\\s+T[SR]B \\$joypadMaskStd)", "value": "LDA #$$CFFC$1" }
+  ],
+  "awB0_intro": [
+    { "key": "LDA #\\$CFF0([^\\r\\n]*\\s+T[SR]B \\$joypadMaskStd)", "value": "LDA #$$CFFC$1" }
+  ],
+  "awB3_vine_reveal": [
+    { "key": "LDA #\\$CFF0([^\\r\\n]*\\s+T[SR]B \\$joypadMaskStd)", "value": "LDA #$$CFFC$1" }
+  ],
+  "awBF_spirit_guide": [
+    { "key": "LDA #\\$FFF0([^\\r\\n]*\\s+T[SR]B \\$joypadMaskStd)", "value": "LDA #$$FFFC$1" }
+  ],
+  "awBC_blinding_light": [
+    { "key": "LDA #\\$CFF0([^\\r\\n]*\\s+T[SR]B \\$joypadMaskStd)", "value": "LDA #$$CFFC$1" }
+  ],
+  "player_transition_handlers": [
+    { "key": "LDA #\\$CFF0([^\\r\\n]*\\s+T[SR]B \\$joypadMaskStd)", "value": "LDA #$$CFFC$1" }
+  ],
+  "future_vision_cutscene": [
+    { "key": "LDA #\\$FFF0([^\\r\\n]*\\s+T[SR]B \\$joypadMaskStd)", "value": "LDA #$$FFFC$1" }
+  ],
+  "btDE_kara_missing": [
+    { "key": "LDA #\\$CFF0([^\\r\\n]*\\s+T[SR]B \\$joypadMaskStd)", "value": "LDA #$$CFFC$1" }
+  ],
+  "btDE_monologue": [
+    { "key": "LDA #\\$CFF0([^\\r\\n]*\\s+T[SR]B \\$joypadMaskStd)", "value": "LDA #$$CFFC$1" }
+  ],
+  "btDE_olman": [
+    { "key": "LDA #\\$EFF0([^\\r\\n]*\\s+T[SR]B \\$joypadMaskStd)", "value": "LDA #$$EFFC$1" }
+  ],
+  "btE2_brought_back": [
+    { "key": "LDA #\\$CFF0([^\\r\\n]*\\s+T[SR]B \\$joypadMaskStd)", "value": "LDA #$$CFFC$1" }
+  ],
+  "btDC_plane_jumping": [
+    { "key": "LDA #\\$EFF0([^\\r\\n]*\\s+T[SR]B \\$joypadMaskStd)", "value": "LDA #$$EFFC$1" }
+  ],
+  "btE1_light_elevator": [
+    { "key": "LDA #\\$CFF0([^\\r\\n]*\\s+T[SR]B \\$joypadMaskStd)", "value": "LDA #$$CFFC$1" }
+  ],
+  "btDF_crystal_ring": [
+    { "key": "LDA #\\$CFF0([^\\r\\n]*\\s+T[SR]B \\$joypadMaskStd)", "value": "LDA #$$CFFC$1" }
+  ],
+  "btDF_kara": [
+    { "key": "LDA #\\$CFF0([^\\r\\n]*\\s+T[SR]B \\$joypadMaskStd)", "value": "LDA #$$CFFC$1" }
+  ],
+  "btE4_kara": [
+    { "key": "LDA #\\$CFF0([^\\r\\n]*\\s+T[SR]B \\$joypadMaskStd)", "value": "LDA #$$CFFC$1" }
+  ],
+  "btE4_olman": [
+    { "key": "LDA #\\$CFF0([^\\r\\n]*\\s+T[SR]B \\$joypadMaskStd)", "value": "LDA #$$CFFC$1" }
+  ],
+  "btE3_kara": [
+    { "key": "LDA #\\$CFF0([^\\r\\n]*\\s+T[SR]B \\$joypadMaskStd)", "value": "LDA #$$CFFC$1" }
+  ],
+  "sE8_dark_gaia": [
+    { "key": "LDA #\\$FFF0([^\\r\\n]*\\s+T[SR]B \\$joypadMaskStd)", "value": "LDA #$$FFFC$1" }
+  ],
+  "daC8_neil": [
+    { "key": "LDA #\\$CFF0([^\\r\\n]*\\s+T[SR]B \\$joypadMaskStd)", "value": "LDA #$$CFFC$1" }
+  ],
+  "daC4_kara": [
+    { "key": "LDA #\\$CFF0([^\\r\\n]*\\s+T[SR]B \\$joypadMaskStd)", "value": "LDA #$$CFFC$1" }
+  ],
+  "dm40_trapped_slave": [
+    { "key": "LDA #\\$EFF0([^\\r\\n]*\\s+T[SR]B \\$joypadMaskStd)", "value": "LDA #$$EFFC$1" }
+  ],
+  "dm43_elevator": [
+    { "key": "LDA #\\$CFF0([^\\r\\n]*\\s+T[SR]B \\$joypadMaskStd)", "value": "LDA #$$CFFC$1" }
+  ],
+  "dm3E_intro": [
+    { "key": "LDA #\\$CFF0([^\\r\\n]*\\s+T[SR]B \\$joypadMaskStd)", "value": "LDA #$$CFFC$1" }
+  ],
+  "dm47_sam": [
+    { "key": "LDA #\\$FFF0([^\\r\\n]*\\s+T[SR]B \\$joypadMaskStd)", "value": "LDA #$$FFFC$1" }
+  ],
+  "ec11_countdown": [
+    { "key": "LDA #\\$CFF0([^\\r\\n]*\\s+T[SR]B \\$joypadMaskStd)", "value": "LDA #$$CFFC$1" }
+  ],
+  "ec0C_force_hint": [
+    { "key": "LDA #\\$CFF0([^\\r\\n]*\\s+T[SR]B \\$joypadMaskStd)", "value": "LDA #$$CFFC$1" }
+  ],
+  "ec13_lily": [
+    { "key": "LDA #\\$CFF0([^\\r\\n]*\\s+T[SR]B \\$joypadMaskStd)", "value": "LDA #$$CFFC$1" }
+  ],
+  "ec0B_cell": [
+    { "key": "LDA #\\$CFF0([^\\r\\n]*\\s+T[SR]B \\$joypadMaskStd)", "value": "LDA #$$CFFC$1" }
+  ],
+  "ec0A_edward": [
+    { "key": "LDA #\\$CFF0([^\\r\\n]*\\s+T[SR]B \\$joypadMaskStd)", "value": "LDA #$$CFFC$1" }
+  ],
+  "ec0A_kara_guard": [
+    { "key": "LDA #\\$CFF0([^\\r\\n]*\\s+T[SR]B \\$joypadMaskStd)", "value": "LDA #$$CFFC$1" }
+  ],
+  "ec0A_kara": [
+    { "key": "LDA #\\$CFF0([^\\r\\n]*\\s+T[SR]B \\$joypadMaskStd)", "value": "LDA #$$CFFC$1" }
+  ],
+  "ec0A_left_guard": [
+    { "key": "LDA #\\$CFF0([^\\r\\n]*\\s+T[SR]B \\$joypadMaskStd)", "value": "LDA #$$CFFC$1" }
+  ],
+  "ec0A_throne_guards": [
+    { "key": "LDA #\\$CFF0([^\\r\\n]*\\s+T[SR]B \\$joypadMaskStd)", "value": "LDA #$$CFFC$1" }
+  ],
+  "s90_changed_world": [
+    { "key": "LDA #\\$FFF0([^\\r\\n]*\\s+T[SR]B \\$joypadMaskStd)", "value": "LDA #$$FFFC$1" }
+  ],
+  "sF0_class_dismissed": [
+    { "key": "LDA #\\$FFF0([^\\r\\n]*\\s+T[SR]B \\$joypadMaskStd)", "value": "LDA #$$FFFC$1" }
+  ],
+  "sE5_epilogue": [
+    { "key": "LDA #\\$FFF0([^\\r\\n]*\\s+T[SR]B \\$joypadMaskStd)", "value": "LDA #$$FFFC$1" }
+  ],
+  "s89_new_babel": [
+    { "key": "LDA #\\$FFF0([^\\r\\n]*\\s+T[SR]B \\$joypadMaskStd)", "value": "LDA #$$FFFC$1" }
+  ],
+  "eu91_intro": [
+    { "key": "LDA #\\$CFF0([^\\r\\n]*\\s+T[SR]B \\$joypadMaskStd)", "value": "LDA #$$CFFC$1" }
+  ],
+  "eu97_clerk1": [
+    { "key": "LDA #\\$CFF0([^\\r\\n]*\\s+T[SR]B \\$joypadMaskStd)", "value": "LDA #$$CFFC$1" }
+  ],
+  "eu97_clerk2": [
+    { "key": "LDA #\\$CFF0([^\\r\\n]*\\s+T[SR]B \\$joypadMaskStd)", "value": "LDA #$$CFFC$1" }
+  ],
+  "eu92_rofsky": [
+    { "key": "LDA #\\$CFF0([^\\r\\n]*\\s+T[SR]B \\$joypadMaskStd)", "value": "LDA #$$CFFC$1" }
+  ],
+  "eu96_neil": [
+    { "key": "LDA #\\$([CE])FF0([^\\r\\n]*\\s+T[SR]B \\$joypadMaskStd)", "value": "LDA #$$$1FFC$2" }
+  ],
+  "eu95_neils_father": [
+    { "key": "LDA #\\$EFF0([^\\r\\n]*\\s+T[SR]B \\$joypadMaskStd)", "value": "LDA #$$EFFC$1" }
+  ],
+  "fr33_erik": [
+    { "key": "LDA #\\$CFF0([^\\r\\n]*\\s+T[SR]B \\$joypadMaskStd)", "value": "LDA #$$CFFC$1" }
+  ],
+  "fr33_kara": [
+    { "key": "LDA #\\$CFF0([^\\r\\n]*\\s+T[SR]B \\$joypadMaskStd)", "value": "LDA #$$CFFC$1" }
+  ],
+  "fr32_locked_door": [
+    { "key": "LDA #\\$CFF0([^\\r\\n]*\\s+T[SR]B \\$joypadMaskStd)", "value": "LDA #$$CFFC$1" }
+  ],
+  "fr32_showman": [
+    { "key": "LDA #\\$CFF0([^\\r\\n]*\\s+T[SR]B \\$joypadMaskStd)", "value": "LDA #$$CFFC$1" }
+  ],
+  "fr32_slaver2": [
+    { "key": "LDA #\\$EFF0([^\\r\\n]*\\s+T[SR]B \\$joypadMaskStd)", "value": "LDA #$$EFFC$1" }
+  ],
+  "fr39_kara": [
+    { "key": "LDA #\\$CFF0([^\\r\\n]*\\s+T[SR]B \\$joypadMaskStd)", "value": "LDA #$$CFFC$1" }
+  ],
+  "fr39_lance": [
+    { "key": "LDA #\\$CFF0([^\\r\\n]*\\s+T[SR]B \\$joypadMaskStd)", "value": "LDA #$$CFFC$1" }
+  ],
+  "fr39_lily": [
+    { "key": "LDA #\\$CFF0([^\\r\\n]*\\s+T[SR]B \\$joypadMaskStd)", "value": "LDA #$$CFFC$1" }
+  ],
+  "dc31_kara": [
+    { "key": "LDA #\\$CFF0([^\\r\\n]*\\s+T[SR]B \\$joypadMaskStd)", "value": "LDA #$$CFFC$1" }
+  ],
+  "dc31_rescuer": [
+    { "key": "LDA #\\$CFF0([^\\r\\n]*\\s+T[SR]B \\$joypadMaskStd)", "value": "LDA #$$CFFC$1" }
+  ],
+  "game_over_sequence": [
+    { "key": "LDA #\\$([CF])FF0([^\\r\\n]*\\s+T[SR]B \\$joypadMaskStd)", "value": "LDA #$$$1FFC$2" }
+  ],
+  "dc2F_adrift": [
+    { "key": "LDA #\\$([CE])FF0([^\\r\\n]*\\s+T[SR]B \\$joypadMaskStd)", "value": "LDA #$$$1FFC$2" }
+  ],
+  "gs2A_shira": [
+    { "key": "LDA #\\$7000([^\\r\\n]*\\s+T[SR]B \\$joypadMaskStd)", "value": "LDA #$$3008$1" }
+  ],
+  "gs2C_crow_crew": [
+    { "key": "LDA #\\$EFF0([^\\r\\n]*\\s+T[SR]B \\$joypadMaskStd)", "value": "LDA #$$EFFC$1" }
+  ],
+  "gs2C_descent": [
+    { "key": "LDA #\\$EFF0([^\\r\\n]*\\s+T[SR]B \\$joypadMaskStd)", "value": "LDA #$$EFFC$1" }
+  ],
+  "gs2E_crew2": [
+    { "key": "LDA #\\$FFF0([^\\r\\n]*\\s+T[SR]B \\$joypadMaskStd)", "value": "LDA #$$FFFC$1" }
+  ],
+  "gs2E_sleep": [
+    { "key": "LDA #\\$CFF0([^\\r\\n]*\\s+T[SR]B \\$joypadMaskStd)", "value": "LDA #$$CFFC$1" }
+  ],
+  "gs2B_erik": [
+    { "key": "LDA #\\$EFF0([^\\r\\n]*\\s+T[SR]B \\$joypadMaskStd)", "value": "LDA #$$EFFC$1" }
+  ],
+  "gs2D_lance": [
+    { "key": "LDA #\\$EFF0([^\\r\\n]*\\s+T[SR]B \\$joypadMaskStd)", "value": "LDA #$$EFFC$1" }
+  ],
+  "gs2D_lily": [
+    { "key": "LDA #\\$([CE])FF0([^\\r\\n]*\\s+T[SR]B \\$joypadMaskStd)", "value": "LDA #$$$1FFC$2" }
+  ],
+  "gs2D_mummy": [
+    { "key": "LDA #\\$CFF0([^\\r\\n]*\\s+T[SR]B \\$joypadMaskStd)", "value": "LDA #$$CFFC$1" }
+  ],
+  "gw83_asp": [
+    { "key": "LDA #\\$8000([^\\r\\n]*\\s+T[SR]B \\$joypadMaskStd)", "value": "LDA #$$0080$1" }
+  ],
+  "gw8A_sand_fanger": [
+    { "key": "LDA #\\$([EF])FF0([^\\r\\n]*\\s+T[SR]B \\$joypadMaskStd)", "value": "LDA #$$$1FFC$2" }
+  ],
+  "gw83_lily": [
+    { "key": "LDA #\\$EFF0([^\\r\\n]*\\s+T[SR]B \\$joypadMaskStd)", "value": "LDA #$$EFFC$1" }
+  ],
+  "gw82_trail_intro": [
+    { "key": "LDA #\\$CFF0([^\\r\\n]*\\s+T[SR]B \\$joypadMaskStd)", "value": "LDA #$$CFFC$1" }
+  ],
+  "na4B_neil": [
+    { "key": "LDA #\\$CFF0([^\\r\\n]*\\s+T[SR]B \\$joypadMaskStd)", "value": "LDA #$$CFFC$1" }
+  ],
+  "na4B_spirit": [
+    { "key": "LDA #\\$FFF0([^\\r\\n]*\\s+T[SR]B \\$joypadMaskStd)", "value": "LDA #$$FFFC$1" }
+  ],
+  "na49_kara": [
+    { "key": "LDA #\\$EFF0([^\\r\\n]*\\s+T[SR]B \\$joypadMaskStd)", "value": "LDA #$$EFFC$1" }
+  ],
+  "na49_neil": [
+    { "key": "LDA #\\$CFF0([^\\r\\n]*\\s+T[SR]B \\$joypadMaskStd)", "value": "LDA #$$CFFC$1" }
+  ],
+  "pyDD_mystic_statue": [
+    { "key": "LDA #\\$FFF0([^\\r\\n]*\\s+T[SR]B \\$joypadMaskStd)", "value": "LDA #$$FFFC$1" }
+  ],
+  "pyCD_jackal": [
+    { "key": "LDA #\\$([CE])FF0([^\\r\\n]*\\s+T[SR]B \\$joypadMaskStd)", "value": "LDA #$$$1FFC$2" }
+  ],
+  "pyCD_kara": [
+    { "key": "LDA #\\$CFF0([^\\r\\n]*\\s+T[SR]B \\$joypadMaskStd)", "value": "LDA #$$CFFC$1" }
+  ],
+  "pyCD_puzzle": [
+    { "key": "LDA #\\$([CE])FF0([^\\r\\n]*\\s+T[SR]B \\$joypadMaskStd)", "value": "LDA #$$$1FFC$2" }
+  ],
+  "sp5C_key_coffin": [
+    { "key": "LDA #\\$CFF0([^\\r\\n]*\\s+T[SR]B \\$joypadMaskStd)", "value": "LDA #$$CFFC$1" }
+  ],
+  "sp5C_stone_coffin": [
+    { "key": "LDA #\\$CFF0([^\\r\\n]*\\s+T[SR]B \\$joypadMaskStd)", "value": "LDA #$$CFFC$1" }
+  ],
+  "sp5D_fountain": [
+    { "key": "LDA #\\$([CE])FF0([^\\r\\n]*\\s+T[SR]B \\$joypadMaskStd)", "value": "LDA #$$$1FFC$2" }
+  ],
+  "sp5A_monologue": [
+    { "key": "LDA #\\$CFF0([^\\r\\n]*\\s+T[SR]B \\$joypadMaskStd)", "value": "LDA #$$CFFC$1" }
+  ],
+  "sp5B_lily": [
+    { "key": "LDA #\\$CFF0([^\\r\\n]*\\s+T[SR]B \\$joypadMaskStd)", "value": "LDA #$$CFFC$1" }
+  ],
+  "garden_crash_cutscene": [
+    { "key": "LDA #\\$FFF0([^\\r\\n]*\\s+T[SR]B \\$joypadMaskStd)", "value": "LDA #$$FFFC$1" }
+  ],
+  "sp58_descent_cutscene": [
+    { "key": "LDA #\\$EFF0([^\\r\\n]*\\s+T[SR]B \\$joypadMaskStd)", "value": "LDA #$$EFFC$1" }
+  ],
+  "sp58_red_eye": [
+    { "key": "LDA #\\$EFF0([^\\r\\n]*\\s+T[SR]B \\$joypadMaskStd)", "value": "LDA #$$EFFC$1" }
+  ],
+  "sg55_mystic_statue": [
+    { "key": "LDA #\\$FFF0([^\\r\\n]*\\s+T[SR]B \\$joypadMaskStd)", "value": "LDA #$$FFFC$1" }
+  ],
+  "sg55_viper": [
+    { "key": "LDA #\\$EFF0([^\\r\\n]*\\s+T[SR]B \\$joypadMaskStd)", "value": "LDA #$$EFFC$1" }
+  ],
+  "attack_ability_system": [
+    { "key": "#\\$8001, &(WillAttackDispatch|DarkFriarDisableCollide|AttackCleanup|code_02B7BD|LaunchPsychoDash|LaunchDarkFriar|SpinDashAbort)", "value": "#$$0081, &$1" },
+    { "key": "#\\$40B0, &AttackCleanup", "value": "#$$0030, &AttackCleanup" },
+    { "key": "LDA #\\$8000([^\\r\\n]*\\s+TSB \\$joypadHeld)", "value": "LDA #$$0080$1" }
+  ],
+  "DialogStringRenderer": [
+    { "key": "\\$C080", "value": "$$C040" },
+    { "key": "\\$CFF[0F]", "value": "$$C040" }
+  ],
+  "combat_collision": [
+    { "key": "\\$8000", "value": "$$0080" }
+  ],
+  "actor_execution": [
+    { "key": "\\$8000", "value": "$$0080" }
+  ],
+  "inventory_menu": [
+    { "key": "#\\$4040", "value": "#$$4000" },
+    { "key": "#\\$6040, &TabCancel", "value": "#$$6000, &TabCancel" },
+    { "key": "#\\$C040", "value": "#$$C000" },
+    { "key": "#\\$8000, &ArrangePerformSwap", "value": "#$$8044, &ArrangePerformSwap" }
+  ],
+  "stair_climb": [
+    { "key": "LDA #\\$8000", "value": "LDA #$$0080" },
+    { "key": "LDA #\\$CFF0([^\\r\\n]*\\s+T[SR]B \\$joypadMaskStd)", "value": "LDA #$$CFFC$1" }
+  ],
+  "sFA_diary_menu": [
+    { "key": "#\\$0080, &(DiaryTabConfirm|DiaryStartLoadConfirm|DiaryNewGameStart|DiarySndBtnSlotConfirm|DiarySndBtnSaveConfirm|DiaryCopySourceConfirm|DiaryCopyExecute|DiaryEraseSlotConfirm)", "value": "#$$8000, &$1" },
+    { "key": "#\\$0380, &(DiarySndBtnOptionToggle|DiarySettingsToggle)", "value": "#$$8300, &$1" },
+    { "key": "#\\$8000, &(DiaryStartCancel|DiaryNewGameCancel|DiarySndBtnCancel|DiarySndBtnEditCancel|DiaryCopyCancel|DiaryCopyTargetCancel|DiaryEraseCancel)", "value": "#$$4000, &$1" },
+    { "key": "#\\$6040, &DiaryCursorCancel", "value": "#$$0020, &DiaryCursorCancel" },
+    { "key": "LDA #\\$8000(\\s+TSB \\$joypadHeld)", "value": "LDA #$$4000$1" },
+    { "key": "LDA #\\$0380(\\s+TSB \\$joypadHeld)", "value": "LDA #$$8300$1" },
+    { "key": "\\s+LDA #\\$8000\\s+STA \\$remapB\\s+LDA #\\$4000\\s+STA \\$remapY", "value": "" },
+    { "key": "\\s+LDA #\\$4000\\s+STA \\$remapB\\s+STZ \\$remapY", "value": "" }
+  ],
+  "MenuSelectionHandler": [
+    { "key": "\\$CF80", "value": "$$CF00" },
+    { "key": "\\$CFF0", "value": "$$CFFC" },
+    { "key": "\\$8080", "value": "$$8000" }
+  ],
+  "item_use_system": [
+    { "key": "LDA #\\$4000", "value": "LDA #$$0008" },
+    { "key": "LDA #\\$CFF0([^\\r\\n]*\\s+T[SR]B \\$joypadMaskStd)", "value": "LDA #$$CFFC$1" }
+  ],
+  "GlobalInputHandler": [
+    { "key": "BIT #\\$4000", "value": "BIT #$$0008" }
+  ],
+  "sFC_title_start_handler": [
+    { "key": "LDA #\\$FFF0([^\\r\\n]*\\s+T[SR]B \\$joypadMaskStd)", "value": "LDA #$$FFFC$1" }
+  ],
+  "sFB_boot_logo": [
+    { "key": "LDA #\\$FFF0([^\\r\\n]*\\s+T[SR]B \\$joypadMaskStd)", "value": "LDA #$$FFFC$1" }
+  ],
+  "sE6_gaia": [
+    { "key": "LDA #\\$FFF0([^\\r\\n]*\\s+T[SR]B \\$joypadMaskStd)", "value": "LDA #$$FFFC$1" }
+  ],
+  "WorldMapController": [
+    { "key": "LDA #\\$FFF0([^\\r\\n]*\\s+T[SR]B \\$joypadMaskStd)", "value": "LDA #$$FFFC$1" }
+  ],
+  "music_actors": [
+    { "key": "LDA #\\$FFF0([^\\r\\n]*\\s+T[SR]B \\$joypadMaskStd)", "value": "LDA #$$FFFC$1" }
+  ],
+  "statue_inventory_reward": [
+    { "key": "LDA #\\$FFF0([^\\r\\n]*\\s+T[SR]B \\$joypadMaskStd)", "value": "LDA #$$FFFC$1" }
+  ],
+  "warps_interaction": [
+    { "key": "LDA #\\$CFF0([^\\r\\n]*\\s+T[SR]B \\$joypadMaskStd)", "value": "LDA #$$CFFC$1" }
+  ],
+  "unused_mode7_boss": [
+    { "key": "LDA #\\$FFF0([^\\r\\n]*\\s+T[SR]B \\$joypadMaskStd)", "value": "LDA #$$FFFC$1" }
+  ],
+
+  "ir29_castoth": [
+    { "key": "LDA #\\$EFF0([^\\r\\n]*\\s+T[SR]B \\$joypadMaskStd)", "value": "LDA #$$EFFC$1" }
+  ],
+  "ir1D_monologue": [
+    { "key": "LDA #\\$CFF0([^\\r\\n]*\\s+T[SR]B \\$joypadMaskStd)", "value": "LDA #$$CFFC$1" }
+  ],
+  "ir1C_kara": [
+    { "key": "LDA #\\$CFF0([^\\r\\n]*\\s+T[SR]B \\$joypadMaskStd)", "value": "LDA #$$CFFC$1" }
+  ],
+  "ir29_transform": [
+    { "key": "LDA #\\$([CE])FF0([^\\r\\n]*\\s+T[SR]B \\$joypadMaskStd)", "value": "LDA #$$$1FFC$2" }
+  ],
+  "ir1C_lily": [
+    { "key": "LDA #\\$CFF0([^\\r\\n]*\\s+T[SR]B \\$joypadMaskStd)", "value": "LDA #$$CFFC$1" }
+  ],
+  "ir1D_wind_melody": [
+    { "key": "LDA #\\$EFF0([^\\r\\n]*\\s+T[SR]B \\$joypadMaskStd)", "value": "LDA #$$EFFC$1" }
+  ],
+  "ir1E_cliff_slide_trigger": [
+    { "key": "LDA #\\$EFF0([^\\r\\n]*\\s+T[SR]B \\$joypadMaskStd)", "value": "LDA #$$EFFC$1" }
+  ],
+  "ir25_ceiling_tile": [
+    { "key": "LDA #\\$CFF0([^\\r\\n]*\\s+T[SR]B \\$joypadMaskStd)", "value": "LDA #$$CFFC$1" }
+  ],
+
+  "mu67_vampires": [
+    { "key": "LDA #\\$EFF0([^\\r\\n]*\\s+T[SR]B \\$joypadMaskStd)", "value": "LDA #$$EFFC$1" }
+  ],
+  "mu67_neil_lily": [
+    { "key": "LDA #\\$FFF0([^\\r\\n]*\\s+T[SR]B \\$joypadMaskStd)", "value": "LDA #$$FFFC$1" }
+  ],
+  "mu67_bomb": [
+    { "key": "LDA #\\$CFF0([^\\r\\n]*\\s+T[SR]B \\$joypadMaskStd)", "value": "LDA #$$CFFC$1" }
+  ],
+  "mu67_erik": [
+    { "key": "LDA #\\$EFF0([^\\r\\n]*\\s+T[SR]B \\$joypadMaskStd)", "value": "LDA #$$EFFC$1" }
+  ],
+  "mu66_rama_spirits": [
+    { "key": "LDA #\\$EFF0([^\\r\\n]*\\s+T[SR]B \\$joypadMaskStd)", "value": "LDA #$$EFFC$1" }
+  ],
+  "mu66_altar_dialog": [
+    { "key": "LDA #\\$CFF0([^\\r\\n]*\\s+T[SR]B \\$joypadMaskStd)", "value": "LDA #$$CFFC$1" }
+  ],
+  "mu66_altar1": [
+    { "key": "LDA #\\$CFF0([^\\r\\n]*\\s+T[SR]B \\$joypadMaskStd)", "value": "LDA #$$CFFC$1" }
+  ],
+  "mu63_spirits": [
+    { "key": "LDA #\\$CFF0([^\\r\\n]*\\s+T[SR]B \\$joypadMaskStd)", "value": "LDA #$$CFFC$1" }
+  ],
+
+  "sE9_mansion_intro": [
+    { "key": "LDA #\\$EFF0([^\\r\\n]*\\s+T[SR]B \\$joypadMaskStd)", "value": "LDA #$$EFFC$1" }
+  ],
+
+  "nvAE_kara": [
+    { "key": "LDA #\\$CFF0([^\\r\\n]*\\s+T[SR]B \\$joypadMaskStd)", "value": "LDA #$$CFFC$1" }
+  ],
+  "nvAD_kara": [
+    { "key": "LDA #\\$CFF0([^\\r\\n]*\\s+T[SR]B \\$joypadMaskStd)", "value": "LDA #$$CFFC$1" }
+  ],
+  "nvAC_hamlet": [
+    { "key": "LDA #\\$CFF0([^\\r\\n]*\\s+T[SR]B \\$joypadMaskStd)", "value": "LDA #$$CFFC$1" }
+  ],
+  "nvAC_kara": [
+    { "key": "LDA #\\$CFF0([^\\r\\n]*\\s+T[SR]B \\$joypadMaskStd)", "value": "LDA #$$CFFC$1" }
+  ],
+
+  "mtA5_crystal_ball_gate_a": [
+    { "key": "LDA #\\$EFF0([^\\r\\n]*\\s+T[SR]B \\$joypadMaskStd)", "value": "LDA #$$EFFC$1" }
+  ],
+  "mtA5_crystal_ball_gate_b": [
+    { "key": "LDA #\\$EFF0([^\\r\\n]*\\s+T[SR]B \\$joypadMaskStd)", "value": "LDA #$$EFFC$1" }
+  ],
+  "mtA0_intro": [
+    { "key": "LDA #\\$CFF0([^\\r\\n]*\\s+T[SR]B \\$joypadMaskStd)", "value": "LDA #$$CFFC$1" }
+  ],
+  "mtA2_crystal_ball_gate": [
+    { "key": "LDA #\\$EFF0([^\\r\\n]*\\s+T[SR]B \\$joypadMaskStd)", "value": "LDA #$$EFFC$1" }
+  ],
+
+  "gw8B_lance_lily": [
+    { "key": "LDA #\\$CFF0([^\\r\\n]*\\s+T[SR]B \\$joypadMaskStd)", "value": "LDA #$$CFFC$1" }
+  ],
+
+  "wa7F_lily": [
+    { "key": "LDA #\\$CFF0([^\\r\\n]*\\s+T[SR]B \\$joypadMaskStd)", "value": "LDA #$$CFFC$1" }
+  ],
+  "wa79_lance": [
+    { "key": "LDA #\\$CFF0([^\\r\\n]*\\s+T[SR]B \\$joypadMaskStd)", "value": "LDA #$$CFFC$1" }
+  ],
+  "wa7A_lance": [
+    { "key": "LDA #\\$([CE])FF0([^\\r\\n]*\\s+T[SR]B \\$joypadMaskStd)", "value": "LDA #$$$1FFC$2" }
+  ],
+  "wa79_kara": [
+    { "key": "LDA #\\$CFF0([^\\r\\n]*\\s+T[SR]B \\$joypadMaskStd)", "value": "LDA #$$CFFC$1" }
+  ],
+  "wa78_glass_game": [
+    { "key": "LDA #\\$([CE])FF0([^\\r\\n]*\\s+T[SR]B \\$joypadMaskStd)", "value": "LDA #$$$1FFC$2" }
+  ],
+  "wa7D_glass_opponent": [
+    { "key": "LDA #\\$CFF0([^\\r\\n]*\\s+T[SR]B \\$joypadMaskStd)", "value": "LDA #$$CFFC$1" }
+  ],
+  "wa78_intro": [
+    { "key": "LDA #\\$CFF0([^\\r\\n]*\\s+T[SR]B \\$joypadMaskStd)", "value": "LDA #$$CFFC$1" }
+  ],
+
+  "na4B_lily": [
+    { "key": "LDA #\\$CFF0([^\\r\\n]*\\s+T[SR]B \\$joypadMaskStd)", "value": "LDA #$$CFFC$1" }
+  ],
+  "na4B_buried_tile": [
+    { "key": "LDA #\\$EFF0([^\\r\\n]*\\s+T[SR]B \\$joypadMaskStd)", "value": "LDA #$$EFFC$1" }
+  ],
+
+  "fr32_kara": [
+    { "key": "LDA #\\$CFF0([^\\r\\n]*\\s+T[SR]B \\$joypadMaskStd)", "value": "LDA #$$CFFC$1" }
+  ],
+
+  "it1B_trial": [
+    { "key": "LDA #\\$([CF])FF0([^\\r\\n]*\\s+T[SR]B \\$joypadMaskStd)", "value": "LDA #$$$1FFC$2" }
+  ],
+  "it1A_lily": [
+    { "key": "LDA #\\$CFF0([^\\r\\n]*\\s+T[SR]B \\$joypadMaskStd)", "value": "LDA #$$CFFC$1" }
+  ],
+  "it15_lola": [
+    { "key": "LDA #\\$CFF0([^\\r\\n]*\\s+T[SR]B \\$joypadMaskStd)", "value": "LDA #$$CFFC$1" }
+  ],
+  "it17_lily": [
+    { "key": "LDA #\\$CFF0([^\\r\\n]*\\s+T[SR]B \\$joypadMaskStd)", "value": "LDA #$$CFFC$1" }
+  ],
+  "it15_lily": [
+    { "key": "LDA #\\$6000([^\\r\\n]*\\s+T[SR]B \\$joypadMaskStd)", "value": "LDA #$$2008$1" },
+    { "key": "LDA #\\$([CE])FF0([^\\r\\n]*\\s+T[SR]B \\$joypadMaskStd)", "value": "LDA #$$$1FFC$2" }
+  ],
+  "it15_kara": [
+    { "key": "LDA #\\$CFF0([^\\r\\n]*\\s+T[SR]B \\$joypadMaskStd)", "value": "LDA #$$CFFC$1" }
+  ],
+
+  "sc01_house_intro": [
+    { "key": "LDA #\\$CFF0([^\\r\\n]*\\s+T[SR]B \\$joypadMaskStd)", "value": "LDA #$$CFFC$1" }
+  ],
+  "sc02_entry": [
+    { "key": "LDA #\\$CFF0([^\\r\\n]*\\s+T[SR]B \\$joypadMaskStd)", "value": "LDA #$$CFFC$1" }
+  ],
+  "sc02_erik": [
+    { "key": "LDA #\\$CFF0([^\\r\\n]*\\s+T[SR]B \\$joypadMaskStd)", "value": "LDA #$$CFFC$1" }
+  ],
+  "sc02_seth": [
+    { "key": "LDA #\\$CFF0([^\\r\\n]*\\s+T[SR]B \\$joypadMaskStd)", "value": "LDA #$$CFFC$1" }
+  ],
+  "sc02_lance": [
+    { "key": "LDA #\\$CFF0([^\\r\\n]*\\s+T[SR]B \\$joypadMaskStd)", "value": "LDA #$$CFFC$1" }
+  ],
+  "sc06_lily": [
+    { "key": "LDA #\\$([CEF])FF0([^\\r\\n]*\\s+T[SR]B \\$joypadMaskStd)", "value": "LDA #$$$1FFC$2" }
+  ],
+  "sc02_card": [
+    { "key": "LDA #\\$CFF0([^\\r\\n]*\\s+T[SR]B \\$joypadMaskStd)", "value": "LDA #$$CFFC$1" }
+  ],
+  "sc06_kara_return": [
+    { "key": "LDA #\\$CFF0([^\\r\\n]*\\s+T[SR]B \\$joypadMaskStd)", "value": "LDA #$$CFFC$1" }
+  ],
+  "sc06_monologue": [
+    { "key": "LDA #\\$([CE])FF0([^\\r\\n]*\\s+T[SR]B \\$joypadMaskStd)", "value": "LDA #$$$1FFC$2" }
+  ],
+  "sc06_main_soldier": [
+    { "key": "LDA #\\$CFF0([^\\r\\n]*\\s+T[SR]B \\$joypadMaskStd)", "value": "LDA #$$CFFC$1" }
+  ],
+  "sc06_hamlet": [
+    { "key": "LDA #\\$CFF0([^\\r\\n]*\\s+T[SR]B \\$joypadMaskStd)", "value": "LDA #$$CFFC$1" }
+  ],
+  "sc06_kara": [
+    { "key": "LDA #\\$CFF0([^\\r\\n]*\\s+T[SR]B \\$joypadMaskStd)", "value": "LDA #$$CFFC$1" }
+  ],
+  "sc06_lola": [
+    { "key": "LDA #\\$([CF])FF0([^\\r\\n]*\\s+T[SR]B \\$joypadMaskStd)", "value": "LDA #$$$1FFC$2" }
+  ],
+  "sc06_bill": [
+    { "key": "LDA #\\$CFF0([^\\r\\n]*\\s+T[SR]B \\$joypadMaskStd)", "value": "LDA #$$CFFC$1" }
+  ],
+  "sc08_erik": [
+    { "key": "LDA #\\$CFF0([^\\r\\n]*\\s+T[SR]B \\$joypadMaskStd)", "value": "LDA #$$CFFC$1" }
+  ],
+  "sc01_jar_door": [
+    { "key": "LDA #\\$CFF0([^\\r\\n]*\\s+T[SR]B \\$joypadMaskStd)", "value": "LDA #$$CFFC$1" }
+  ],
+  "sc08_priest": [
+    { "key": "LDA #\\$CFF0([^\\r\\n]*\\s+T[SR]B \\$joypadMaskStd)", "value": "LDA #$$CFFC$1" }
+  ],
+  "system_init": [
+    { "key": "\\$remapB, #\\$8000", "value": "$$remapB, #$$4008" },
+    { "key": "\\$remapA, #\\$0080", "value": "$$remapA, #$$8080" },
+    { "key": "\\$remapY, #\\$4000", "value": "$$remapY, #$$0040" },
+    { "key": "\\$remapX, #\\$0040", "value": "$$remapX, #$$0004" }
   ]
 }

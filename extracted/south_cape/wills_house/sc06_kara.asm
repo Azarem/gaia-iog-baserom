@@ -64,7 +64,7 @@ sc06_kara [
     COP [AnimLoop]
     COP [MarkSolidHere]
     COP [PrintDialogString] ( &dialogstring_04A04C )
-    LDA #$CFF0
+    LDA #$CFFC
     TRB $joypadMaskStd
     COP [SetFlagByte] ( #3D )
 

@@ -27,7 +27,7 @@ btE2_brought_back [
     COP [WaitOnFlagByte] ( #01, #01 )
     LDA #$0001
     TSB $10
-    LDA #$CFF0
+    LDA #$CFFC
     TSB $joypadMaskStd
     LDY $playerActor
     LDA $0014, Y
@@ -62,7 +62,7 @@ btE2_brought_back [
     COP [MoveToward] ( #00, #01 )
     COP [KillPrev]
     COP [SetFlagByte] ( #04 )
-    LDA #$CFF0
+    LDA #$CFFC
     TRB $joypadMaskStd
     COP [StageSpriteLoopMoveY] ( #00, #0A, #04 )
     COP [AnimLoop]

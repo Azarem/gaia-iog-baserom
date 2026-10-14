@@ -97,7 +97,7 @@ GlobalInputHandler {
     LDA $joypadCurrent    ; Check Select ($2000) → inventory screen
     BIT #$2000
     BNE loc_03803B
-    BIT #$4000            ; Check Y ($4000) → use equipped item
+    BIT #$0008            ; Check Y ($4000) → use equipped item
     BEQ loc_038039
     JMP $&item_use_system.ItemUseDispatch ; JMP to ItemUseDispatch — control transfers without return address push
 

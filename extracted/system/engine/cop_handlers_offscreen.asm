@@ -1,5 +1,6 @@
 ?BANK 00
 
+!actorLimitThreshold            00E4
 !cameraOffsetX                  06D6
 !cameraOffsetY                  06D8
 !cameraBoundsX                  06DA
@@ -45,7 +46,7 @@ HaltIfMaxFrames {
     LDA [$0A]             ; Read max frame count threshold (word)
     INC $0A
     INC $0A
-    CMP $00E4             ; Compare threshold against global frame counter $00E4
+    CMP $actorLimitThreshold ; Compare threshold against global frame counter $00E4
     BCC loc_009E01        ; Counter ≥ threshold → yield has expired, resume script
     LDA $0A               ; Counter < threshold: rewind script and yield RTL
     SEC 

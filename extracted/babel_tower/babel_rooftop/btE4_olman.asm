@@ -27,11 +27,11 @@ btE4_olman [
     COP [SetMetasprite] ( @spriteset_npc_props )
     COP [StageSprAndHitbox] ( #04 )
     COP [MarkSolidHere]
-    LDA #$CFF0
+    LDA #$CFFC
     TSB $joypadMaskStd
     COP [WaitByte] ( #1D )
     COP [PrintDialogString] ( &dialogstring_099068 )
-    LDA #$CFF0
+    LDA #$CFFC
     TRB $joypadMaskStd
     COP [SpawnAfterAbsFlags] ( @code_0991F4, #$00D8, #$00F0, #$1000 )
     COP [PlaySoundCh1] ( #1D )
@@ -83,7 +83,7 @@ code_099050 {
     TRB $10
     COP [PrintDialogString] ( &dialogstring_0991A9 )
     COP [SetFlagByte] ( #0F )
-    LDA #$CFF0
+    LDA #$CFFC
     TSB $joypadMaskStd
     LDA #$0800
     TSB $10
@@ -149,7 +149,7 @@ code_0992A0 {
     LDA $0016, Y
     STA $moveYAlt, X
     COP [MoveToward] ( #04, #01 )
-    LDA #$CFF0
+    LDA #$CFFC
     TRB $joypadMaskStd
     COP [Die]
 }

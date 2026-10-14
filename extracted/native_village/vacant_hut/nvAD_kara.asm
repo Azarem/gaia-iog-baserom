@@ -23,11 +23,11 @@ nvAD_kara [
     CLC 
     ADC #$0008
     STA $0014, Y
-    LDA #$CFF0
+    LDA #$CFFC
     TSB $joypadMaskStd
     COP [WaitByte] ( #1D )
     COP [PrintDialogString] ( &dialogstring_088B32 )
-    LDA #$CFF0
+    LDA #$CFFC
     TRB $joypadMaskStd
     COP [SetFlagByte] ( #AE )
     COP [StageSpriteLoopMoveY] ( #0F, #05, #12 )

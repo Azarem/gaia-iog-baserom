@@ -20,7 +20,7 @@ fr39_lance [
     COP [MarkSolidHere]
     COP [SetInteractHandler] ( &code_05C7E7 )
     COP [WaitOnFlagByte] ( #0F, #01 )
-    LDA #$CFF0
+    LDA #$CFFC
     TSB $joypadMaskStd
     COP [WaitByte] ( #3B )
     COP [SpawnAfterFlags] ( @code_05CD16, #$2800 )
@@ -44,7 +44,7 @@ fr39_lance [
     COP [WaitWord] ( #$012B )
     COP [PrintDialogString] ( &dialogstring_05CA69 )
     COP [SetFlagByte] ( #68 )
-    LDA #$CFF0
+    LDA #$CFFC
     TRB $joypadMaskStd
     COP [SetEntryHere]
     RTL 

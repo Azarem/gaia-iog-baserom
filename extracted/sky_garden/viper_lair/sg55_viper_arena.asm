@@ -9,8 +9,9 @@
 ?INCLUDE 'gs2B_wreck_wave_motion'
 ?INCLUDE 'visual_effect_pipeline'
 
+!frameCounter                   0036
 !bg1ScrollH                     068A
-!bg2ScrollH                     068E
+!mapScrollV                     068E
 !orbitAngle                     7F0010
 !moveXAlt                       7F0018
 !moveYAlt                       7F001A
@@ -76,7 +77,7 @@ code_0AD07A {
     ASL 
     STA $moveYAlt, X
     COP [SetSpritePriority] ( #20 )
-    LDA $0036
+    LDA $frameCounter
     LSR 
     BCS loc_0AD098
 
@@ -100,7 +101,7 @@ code_0AD07A {
 code_0AD0A5 {
     LDA #$0000
     STA $moveXAlt, X
-    LDA $bg2ScrollH
+    LDA $mapScrollV
     CLC 
     ADC #$00FF
     STA $16

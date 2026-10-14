@@ -30,7 +30,7 @@
 ; === GAIA DIALOGUE FLOW ===
 ; 
 ; 1. First visit: intro lore (flag $DC tracks first encounter)
-; 2. HP check: if hurt, Gaia heals via damageFlashTimer = $28
+; 2. HP check: if hurt, Gaia heals via hpToHeal = $28
 ; 3. Location hint: GaiaHintSceneTable maps sceneIDs to a 34-entry hint dispatch table
 ; 4. Save prompt: yes/no → SaveGameState_Scene → continue/rest prompt
 ; 
@@ -68,16 +68,22 @@
 !sceneNext                      0642
 !gfxCacheIdxA                   0648
 !gfxCacheIdxB                   064A
+!warpDestX                      064C
+!warpDestY                      064E
+!warpFacing                     0650
+!warpScrollParams               0652
 !joypadMaskStd                  065A
 !sfxQueueCh1                    06F8
 !playerActor                    09AA
 !playerFlags                    09AE
 !displayModeFlags               09EC
 !abilityBitmask                 0AA2
+!globalScriptIndex              0AAC
 !playerMaxHp                    0ACA
 !playerHp                       0ACE
 !characterForm                  0AD4
-!damageFlashTimer               0B22
+!sourceSceneId                  0B12
+!hpToHeal                       0B22
 !APUIO1                         2141
 !orbitAngle                     7F0010
 !moveXAlt                       7F0018
@@ -92,14 +98,14 @@ sE6_gaia [
     COP [SpawnAfterFlags] ( @FireflySpawnerLoop, #$2800 ) ; Firefly particle spawner
     COP [SpawnAfterAbsFlags] ( @GaiaNpcSprite, #$0080, #$0040, #$1800 ) ; Gaia NPC sprite at (128,64)
     COP [SpawnAfterAbsFlags] ( @GaiaVoiceSparkle, #$0080, #$0058, #$1800 ) ; Voice sparkle reactor at (128,88)
-    LDA $0AAC             ; Dark Space layout variant
+    LDA $globalScriptIndex ; Dark Space layout variant
     CMP #$0004            ; Cap at 3 (valid range 0–3)
     BCC loc_08D7D3
     LDA #$0000            ; Invalid → default to layout 0
 
   loc_08D7D3:
     STA $0AB2             ; Store validated layout
-    STZ $0AAC             ; Reset selection state
+    STZ $globalScriptIndex ; Reset selection state
     STA $0000
     COP [SwitchCase] ( #$0000, &code_list_08D7E2 ) ; Dispatch to room layout handler
 } >
@@ -118,7 +124,7 @@ code_list_08D7E2 [
 ; Uses mosaic transition (gfxCacheIdxA=$0002) with brightness fade ($0101).
 
 DarkSpaceExit {
-    LDA #$FFF0            ; Mask all joypad input
+    LDA #$FFFC            ; Mask all joypad input
     TSB $joypadMaskStd
     LDY $playerActor
     LDA $0010, Y          ; Hide player sprite (bit 13)
@@ -135,14 +141,14 @@ DarkSpaceExit {
     COP [StageSpriteFrame] ( #1C ) ; Exit dissolve frame
     COP [AnimOnce]
     COP [WaitByte] ( #1D ) ; Wait 29 frames for dissolve
-    LDA $0B12             ; Return scene ID
+    LDA $sourceSceneId    ; Return scene ID
     STA $sceneNext
     LDA $0B08             ; Return camera X (tile coords)
     ASL                   ; ×16: tile → pixel
     ASL 
     ASL 
     ASL 
-    STA $064C             ; Camera target X
+    STA $warpDestX        ; Camera target X
     LDA $0B0C             ; Return camera Y (tile coords)
     INC                   ; +2 tile offset
     INC 
@@ -150,12 +156,12 @@ DarkSpaceExit {
     ASL 
     ASL 
     ASL 
-    STA $064E             ; Camera target Y
+    STA $warpDestY        ; Camera target Y
     LDA #$0003            ; Transition flags
-    STA $0650
+    STA $warpFacing
     LDA $0B10             ; Transition auxiliary data
-    STA $0652
-    STZ $0AAC             ; Reset selection state
+    STA $warpScrollParams
+    STZ $globalScriptIndex ; Reset selection state
     LDA #$0101            ; Brightness fade speed 1/1
     STA $gfxCacheIdxB
     LDA #$0002            ; Mosaic dissolve transition
@@ -372,7 +378,7 @@ DS_LayoutAbility {
     LDA $@AbilitySceneTable, X ; Search scene→ability table
     BEQ loc_08DA44        ; End of table → no ability for this scene
     AND #$00FF
-    CMP $0B12             ; Match current scene ID?
+    CMP $sourceSceneId    ; Match current scene ID?
     BEQ loc_08D9E7
     INX 
     INX 
@@ -450,7 +456,7 @@ DS_AbilityTalkGaia {
 
 DS_LayoutSpecial {
     LDA #$0001            ; Force selection state to 1
-    STA $0AAC
+    STA $globalScriptIndex
     JMP $&DS_LayoutTransform ; Redirect to form-dependent layout
 }
 
@@ -505,14 +511,14 @@ DS_AuraToShadow {
 
 ---------------------------------------------
 ; Gaia dialogue entry — first-visit intro (flag $DC), HP healing, then location-specific hint.
-; After the intro, heals player via damageFlashTimer loop, then looks up the current scene
+; After the intro, heals player via hpToHeal loop, then looks up the current scene
 ; in GaiaHintSceneTable to dispatch to one of 34 hint entries (GaiaHint_00–GaiaHint_TempShape).
 
 GaiaDialogueEntry {
-    LDA #$FFF0            ; Brief input mask
+    LDA #$FFFC            ; Brief input mask
     TSB $joypadMaskStd
     COP [WaitByte] ( #05 ) ; 5-frame delay
-    LDA #$FFF0            ; Unmask input
+    LDA #$FFFC            ; Unmask input
     TRB $joypadMaskStd
     LDY $06               ; Get Gaia NPC actor link
     LDA #$FFFF            ; Disable NPC interaction
@@ -524,7 +530,7 @@ GaiaDialogueEntry {
 
 ---------------------------------------------
 ; HP healing and location-specific hint dispatch.
-; If HP < max, shows healing dialogue and loops damageFlashTimer until full.
+; If HP < max, shows healing dialogue and loops hpToHeal until full.
 ; Then searches GaiaHintSceneTable for the current scene to dispatch a location hint.
 
 GaiaHealAndHints {
@@ -532,10 +538,10 @@ GaiaHealAndHints {
     CMP $playerMaxHp      ; Already at full HP?
     BEQ loc_08DB37        ; Yes → skip healing
     COP [PrintDialogString] ( &dialogstring_08DE4D ) ; "It looks like you're hurt..."
-    LDA #$FFF0            ; Mask input during heal
+    LDA #$FFFC            ; Mask input during heal
     TSB $joypadMaskStd
     LDA #$0028            ; 40 damage flash ticks = full heal
-    STA $damageFlashTimer
+    STA $hpToHeal
     COP [SetEntryHere]    ; Loop each frame until healed
     LDA $playerHp
     CMP $playerMaxHp
@@ -550,7 +556,7 @@ GaiaHealAndHints {
     LDA $@GaiaHintSceneTable, X ; Scene→hint lookup table
     AND #$00FF
     BEQ loc_08DB9A        ; End of table → no hint for this scene
-    CMP $0B12             ; Match current scene?
+    CMP $sourceSceneId    ; Match current scene?
     BEQ loc_08DB4C
     INX 
     BRA loc_08DB3B
@@ -606,7 +612,7 @@ loc_08DB9A {
     PLX 
 
   GaiaSavePrompt:
-    LDA #$FFF0            ; Unmask input for menu navigation
+    LDA #$FFFC            ; Unmask input for menu navigation
     TRB $joypadMaskStd
     COP [PrintDialogString] ( &dialogstring_08DDCB ) ; "Record what's happened so far?"
     COP [DialogueOptions] ( #02, #02, &code_list_08DBAB ) ; 2 options, cursor at 2nd
@@ -625,10 +631,10 @@ GaiaSaveConfirm {
     LDA $0D8C             ; Current save slot number
     JSL $@save_system.SaveGameState_Scene ; Write event flags to SRAM
     COP [PlaySoundCh1] ( #29 ) ; Save confirmation jingle
-    LDA #$FFF0            ; Mask input during jingle
+    LDA #$FFFC            ; Mask input during jingle
     TSB $joypadMaskStd
     COP [WaitByte] ( #3B ) ; Wait 59 frames for jingle
-    LDA #$FFF0
+    LDA #$FFFC
     TRB $joypadMaskStd
     COP [PrintDialogString] ( &dialogstring_08DDFE ) ; "Continue your journey?"
     COP [DialogueOptions] ( #02, #01, &code_list_08DBD4 ) ; Yes/No
@@ -660,7 +666,7 @@ GaiaContinueJourney {
     LDY $06
     LDA #$0000            ; Re-enable NPC interaction
     STA $0024, Y
-    LDA #$FFF0            ; Mask input during animation
+    LDA #$FFFC            ; Mask input during animation
     TSB $joypadMaskStd
     LDY $playerActor
     LDA $0010, Y          ; Hide player sprite
@@ -811,15 +817,15 @@ GaiaHint_1D {
 }
 
 GaiaHint_AuraItem {
-    LDA $0AAC
+    LDA $globalScriptIndex
     BNE loc_08DCAF
     JMP $&GaiaSavePrompt
 
   loc_08DCAF:
-    COP [BranchIfMissingItem] ( #24, &GaiaHint_AuraDesc )
+    COP [BranchIfHasItem] ( #24, &GaiaHint_AuraDesc )
     COP [GiveItem] ( #24, &GaiaHint_AuraFull )
     COP [PrintDialogString] ( &dialogstring_08E66C )
-    LDA #$FFF0
+    LDA #$FFFC
     TSB $joypadMaskStd
     COP [StartMusic] ( #18 )
     COP [WaitByte] ( #59 )
@@ -945,7 +951,7 @@ AbilityOrbActor {
     LDA $@AbilitySceneTable, X ; Search for current scene
     BEQ loc_08E9EE        ; End of table → no ability here
     AND #$00FF
-    CMP $0B12             ; Match scene ID?
+    CMP $sourceSceneId    ; Match scene ID?
     BEQ loc_08E9F1
     INX 
     INX 
@@ -963,7 +969,7 @@ AbilityOrbActor {
     AND $abilityBitmask   ; Already have this ability?
     BNE loc_08E9EE        ; Yes → die
     TYA                   ; Store table index for dialogue lookup
-    STA $0AAC
+    STA $globalScriptIndex
     PLX 
     COP [StageSprAndHitbox] ( #0A )
     LDA #$2000
@@ -980,7 +986,7 @@ AbilityOrbActor {
 ; form-specific transformation. LookupStatueType returns 0 for Will/Freedan statue, 1 for Shadow.
 
 AbilityAcquisitionDispatch {
-    LDA #$FFF0            ; Mask input
+    LDA #$FFFC            ; Mask input
     TSB $joypadMaskStd
     COP [WaitByte] ( #05 ) ; Brief pause
     JSR $&LookupStatueType ; Check statue type for current scene
@@ -1046,7 +1052,7 @@ AbilityAcquisitionDispatch {
 
   loc_08EAAA:
     COP [LoopStart] ( #08 ) ; 8-frame delay for transform
-    LDA #$FFF0
+    LDA #$FFFC
     TSB $joypadMaskStd
     COP [SetEntryHere]
     COP [AnimOneFrame]
@@ -1092,7 +1098,7 @@ AbilityAcquisitionDispatch {
     STA $0024, Y
     COP [StartMusic] ( #16 )
     COP [WaitByte] ( #3B )
-    LDA #$FFF0
+    LDA #$FFFC
     TRB $joypadMaskStd
     COP [Die]
 }
@@ -1110,7 +1116,7 @@ LookupStatueType {
     LDA $@AbilitySceneTable, X
     BEQ loc_08EB57
     AND #$00FF
-    CMP $0B12
+    CMP $sourceSceneId
     BEQ loc_08EB45
     INX 
     INX 
@@ -1192,7 +1198,7 @@ dialogstring_08EE8B `The Earthquaker is a[N]Dark Power that can only[N]be used b
 ; After acquiring Aura, plays SFX music and shows description text.
 
 AuraItemInteraction {
-    COP [BranchIfMissingItem] ( #24, &AuraItemDie ) ; Already have Aura? → die
+    COP [BranchIfHasItem] ( #24, &AuraItemDie ) ; Already have Aura? → die
     COP [StageSprAndHitbox] ( #0A )
     LDA #$2000
     TRB $10
@@ -1206,7 +1212,7 @@ AuraItemInteraction {
 }
 
 AuraItemGrant {
-    LDA #$FFF0
+    LDA #$FFFC
     TSB $joypadMaskStd
     COP [WaitByte] ( #05 )
     COP [GiveItem] ( #24, &AuraItemInventoryFull )
@@ -1247,7 +1253,7 @@ AuraItemGrant {
     LDY $26
     LDA #$0000
     STA $0024, Y
-    LDA #$FFF0
+    LDA #$FFFC
     TRB $joypadMaskStd
 }
 
@@ -1261,7 +1267,7 @@ AuraItemInventoryFull {
     COP [PrintDialogString] ( &dialogstring_08F060 )
     LDA #$0800
     TSB $10
-    LDA #$FFF0
+    LDA #$FFFC
     TRB $joypadMaskStd
     COP [SetEntryHere]
     COP [SetEntryHere]
@@ -1288,10 +1294,10 @@ FreedanTransformDialogue {
     LDA $characterForm
     CMP #$0001            ; Already Freedan?
     BEQ loc_08F0CA        ; Yes → skip (return to caller)
-    LDA #$FFF0
+    LDA #$FFFC
     TSB $joypadMaskStd
     COP [WaitByte] ( #05 )
-    LDA #$FFF0
+    LDA #$FFFC
     TRB $joypadMaskStd
     COP [BranchOnFlagByte] ( #F7, #01, &FreedanTransformPrompt )
     COP [SetFlagByte] ( #F7 )
@@ -1455,10 +1461,10 @@ WillRevertDialogue {
     COP [RestoreSavedPtr] ; Already Will → nothing to do
 
   loc_08F2E6:
-    LDA #$FFF0
+    LDA #$FFFC
     TSB $joypadMaskStd
     COP [WaitByte] ( #05 )
-    LDA #$FFF0
+    LDA #$FFFC
     TRB $joypadMaskStd
     COP [PrintDialogString] ( &dialogstring_08F357 )
     COP [DialogueOptions] ( #02, #01, &code_list_08F2FF )
@@ -1574,10 +1580,10 @@ ShadowTransformDialogue {
     LDA $characterForm
     CMP #$0002            ; Already Shadow?
     BEQ ShadowTransformLocked ; Yes → nothing to do
-    LDA #$FFF0
+    LDA #$FFFC
     TSB $joypadMaskStd
     COP [WaitByte] ( #05 )
-    LDA #$FFF0
+    LDA #$FFFC
     TRB $joypadMaskStd
     COP [BranchOnFlagByte] ( #DD, #01, &ShadowTransformPrompt )
     COP [SetFlagByte] ( #DD )

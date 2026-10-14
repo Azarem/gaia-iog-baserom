@@ -25,7 +25,7 @@ ir1D_wind_melody [
 ]
 
 code_09C58D {
-    LDA #$EFF0
+    LDA #$EFFC
     TSB $joypadMaskStd
     COP [WaitByte] ( #1D )
     COP [StartMusic] ( #1B )
@@ -49,7 +49,7 @@ code_09C58D {
     COP [SetFlagByte] ( #32 )
 
   loc_09C5C7:
-    LDA #$EFF0
+    LDA #$EFFC
     TRB $joypadMaskStd
 }
 

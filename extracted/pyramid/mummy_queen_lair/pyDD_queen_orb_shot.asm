@@ -11,6 +11,7 @@
 ?INCLUDE 'ApplyOrbitalOffsetFromRef'
 ?INCLUDE 'mummy_queen_angle_table'
 
+!frameCounter                   0036
 !animScratch                    7F0000
 !orbitAngle                     7F0010
 !orbitDiameter                  7F0012
@@ -95,7 +96,7 @@ pyDD_queen_orb_shot {
     CLC 
     ADC $0B02
     STA $orbitAngle, X
-    LDA $0036
+    LDA $frameCounter
     LSR 
     BCC loc_0BAB59
     LDA #$2000

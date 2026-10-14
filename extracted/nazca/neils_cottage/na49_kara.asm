@@ -38,7 +38,7 @@ na49_kara [
     COP [AnimOnce]
     COP [MarkSolidHere]
     COP [WaitOnFlagByte] ( #06, #01 )
-    LDA #$EFF0
+    LDA #$EFFC
     TSB $joypadMaskStd
     COP [ClearSolidHere]
     COP [StageSpriteLoopMoveX] ( #21, #02, #01 )

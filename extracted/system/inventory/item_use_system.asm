@@ -61,12 +61,13 @@
 !playerSpeedEw                  09B2
 !playerSpeedNs                  09B4
 !displayModeFlags               09EC
+!globalScriptIndex              0AAC
 !jewelsCollected                0AB0
 !inventorySlots                 0AB4
 !inventoryEquippedIndex         0AC4
 !inventoryEquippedType          0AC6
 !characterForm                  0AD4
-!damageFlashTimer               0B22
+!hpToHeal                       0B22
 !APUIO1                         2141
 !chatPtr                        7F000A
 !orbitAngle                     7F0010
@@ -90,7 +91,7 @@ ItemUseDispatch {
     AND #$003F
     ASL 
     TAX 
-    LDA #$4000            ; Suppress Start ($4000) to prevent menu re-open during item use
+    LDA #$0008            ; Suppress Use Item ($4000) to prevent re-activation during item use
     TSB $joypadHeld
     JMP ($&ItemHandlerJumpTable, X) ; Dispatch to item handler via indirect JMP through the 64-entry table
 }
@@ -102,7 +103,7 @@ ItemUseEpilogue {
     SEP #$20
     JSL $@system_core.UpdateFrameDialogue ; Run one dialogue/UI frame between item handler and menu return
     REP #$20
-    LDA #$4000            ; Re-suppress Start in case dialogue processing cleared the flag
+    LDA #$0008            ; Re-suppress Use Item in case dialogue processing cleared the flag
     TSB $joypadHeld
     PLP 
     RTL 
@@ -484,7 +485,7 @@ dialogstring_03887A `But nothing happened.[END]`
 ---------------------------------------------
 ; Herb — healing item with yes/no confirmation.
 ; 
-; Prints 'Take the medicine?' and presents a 2-choice dialogue (Yes/No). Selecting Yes triggers damageFlashTimer = 8 (initiates HP restoration flash effect), removes the herb from inventory. Selecting No cancels with a message.
+; Prints 'Take the medicine?' and presents a 2-choice dialogue (Yes/No). Selecting Yes triggers hpToHeal = 8 (initiates HP restoration flash effect), removes the herb from inventory. Selecting No cancels with a message.
 
 UseItem_Herb {
     COP [PrintDialogString] ( &dialogstring_0388AD )
@@ -499,8 +500,8 @@ code_list_038894 [
 
 code_03889A {
     COP [PrintDialogString] ( &dialogstring_0388E9 )
-    LDA #$0008            ; damageFlashTimer = 8 triggers the HP restoration flash effect
-    STA $damageFlashTimer
+    LDA #$0008            ; hpToHeal = 8 triggers the HP restoration flash effect
+    STA $hpToHeal
     JSR $&RemoveEquippedItem ; Consume the herb — remove from equipped slot
     RTS 
 }
@@ -589,7 +590,7 @@ UseItem_WindFlute {
     JMP $&code_0389D9
 
   loc_0389D3:
-    LDA #$CFF0            ; Lock all buttons ($CFF0) except D-pad/Select during melody
+    LDA #$CFFC            ; Lock all buttons ($CFF0) except D-pad/Select during melody
     TSB $joypadMaskStd
 }
 
@@ -701,7 +702,7 @@ UseItem_LolaMelody {
     JMP $&code_038C14
 
   loc_038C0E:
-    LDA #$CFF0
+    LDA #$CFFC
     TSB $joypadMaskStd
 }
 
@@ -1477,37 +1478,37 @@ code_039ADA {
 
 code_039ADF {
     LDA #$0000
-    STA $0AAC
+    STA $globalScriptIndex
     BRA loc_039B0F
 }
 
 code_039AE7 {
     LDA #$0001
-    STA $0AAC
+    STA $globalScriptIndex
     BRA loc_039B0F
 }
 
 code_039AEF {
     LDA #$0002
-    STA $0AAC
+    STA $globalScriptIndex
     BRA loc_039B0F
 }
 
 code_039AF7 {
     LDA #$0003
-    STA $0AAC
+    STA $globalScriptIndex
     BRA loc_039B0F
 }
 
 code_039AFF {
     LDA #$0004
-    STA $0AAC
+    STA $globalScriptIndex
     BRA loc_039B0F
 }
 
 code_039B07 {
     LDA #$0005
-    STA $0AAC
+    STA $globalScriptIndex
     BRA loc_039B0F
 
   loc_039B0F:
@@ -1523,14 +1524,14 @@ code_039B07 {
     COP [SpawnListAppend] ( @code_039B70, #00, #00, #$2000 )
     LDA $0AA6
     STA $0024, Y          ; Pass plate ID to spawned actor via DP $24 for metatile selection
-    LDA $0AAC
+    LDA $globalScriptIndex
     CLC                   ; Slot position ($0AAC + 5) = X tile for spawned metatile actor
     ADC #$0005
     STA $0014, Y
     LDA #$0006
     STA $0016, Y          ; Y tile = 6 for all six hieroglyph slots
     PLX 
-    LDA $0AAC
+    LDA $globalScriptIndex
     ASL                   ; Check slot table ($0B28): negative ($FFFF) = empty, else plate already placed
     TAY 
     LDA $0B28, Y
@@ -1673,13 +1674,13 @@ UseItem_CrystalRing {
 dialogstring_039F35 `[DEF]This is the Crystal Ring [N]that King Edward  [N]is looking for. [END]`
 
 ---------------------------------------------
-; Apple — consumable healing item. Removes from inventory and sets damageFlashTimer to 1, triggering a brief HP restoration effect. Unlike Herb, no confirmation dialogue.
+; Apple — consumable healing item. Removes from inventory and sets hpToHeal to 1, triggering a brief HP restoration effect. Unlike Herb, no confirmation dialogue.
 
 UseItem_Apple {
     COP [PrintDialogString] ( &dialogstring_039F6B )
     COP [RemoveItem] ( #28 )
     LDA #$0001
-    STA $damageFlashTimer
+    STA $hpToHeal
     RTS 
 }
 
@@ -1757,7 +1758,7 @@ FluteMusicActorController {
     JSR $&SetPlayerTransition
     LDA #$0800            ; playerFlags $0800 = special movement lock, prevents walking
     TSB $playerFlags
-    LDA #$CFF0            ; Mask all buttons ($CFF0 = everything except D-pad and Select)
+    LDA #$CFFC            ; Mask all buttons ($CFF0 = everything except D-pad and Select)
     TSB $joypadMaskStd
     COP [SetEntryHere]    ; Yield — re-enter each frame to poll music upload state
     LDA $musicTransitionState ; Wait for musicTransitionState == $FFFF (music upload complete, track started)
@@ -1784,7 +1785,7 @@ FluteMusicActorController {
     STA $0002, Y
     LDA #$&player_transition_handlers.PlayerWalkingIdlePose
     JSR $&SetPlayerTransition
-    LDA #$CFF0            ; Unlock buttons — remove $CFF0 mask from joypadMaskStd
+    LDA #$CFFC            ; Unlock buttons — remove $CFF0 mask from joypadMaskStd
     TRB $joypadMaskStd
     COP [SetSavedPtr] ( &code_03A06E ) ; Set return point for after the melody-specific effect handler runs
     LDA $20               ; Dispatch to effect handler: DP $20 = melody index (0=Wind, 1=Lola, 2=Memory)

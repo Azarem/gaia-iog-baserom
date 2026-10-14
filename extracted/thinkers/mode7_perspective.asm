@@ -196,10 +196,10 @@ Mode7PerspectiveUpdate {
 QueueMode7HdmaTables {
     PLD 
     PLX 
-    COP [QueueDma] ( $7E7000, #1B ) ; Table A → HDMA channel $1B (M7A register $211B: cos/scale)
+    COP [QueueDma] ( $tileStagingBuffer, #1B ) ; Table A → HDMA channel $1B (M7A register $211B: cos/scale)
     COP [QueueDma] ( $7E7800, #1C ) ; Table B → HDMA channel $1C (M7B register $211C: sin/scale)
     COP [QueueDma] ( $7E8000, #1D ) ; Table C → HDMA channel $1D (M7C register $211D: −sin/scale)
-    COP [QueueDma] ( $7E7000, #1E ) ; Table A reused → HDMA channel $1E (M7D register $211E: D=A for rotation)
+    COP [QueueDma] ( $tileStagingBuffer, #1E ) ; Table A reused → HDMA channel $1E (M7D register $211E: D=A for rotation)
     RTL 
 }
 

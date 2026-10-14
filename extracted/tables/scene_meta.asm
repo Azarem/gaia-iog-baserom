@@ -7,7 +7,7 @@
 
 ---------------------------------------------
 
-scene-meta_list [
+scene_meta_list [
   &scene_meta_0000   ;00
   &scene_meta_0001   ;01
   &scene_meta_0002   ;02

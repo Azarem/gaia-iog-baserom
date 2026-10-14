@@ -998,7 +998,7 @@ Slots start at `$AB4`; equipped index in `$AC4`. `GiveItemToPlayer` handles both
 |---|---|---|---|---|
 | `$D4` | `GiveItem` | `$00AC05` | `Byte ItemId`, `&Code OnFail` | Try to **give**; branch on SEC (full / failed) |
 | `$D5` | `RemoveItem` | `$00AC27` | `Byte ItemId` | Remove matching slot |
-| `$D6` | `BranchIfMissingItem` | `$00AC38` | `Byte ItemId`, `&Code` | Branch if player **does not** have it |
+| `$D6` | `BranchIfHasItem` | `$00AC38` | `Byte ItemId`, `&Code` | Branch if player **has** the item |
 | `$D7` | `BranchIfItemEquipped` | `$00AC5A` | `Byte ItemId`, `&Code` | Branch if that item is **equipped** |
 
 ```asm
@@ -1344,7 +1344,7 @@ Every valid COP opcode, its canonical name, handler SNES address, and parameter 
 | `$D3` | `WaitOnFlagWord` | `$00ABD7` | `Word Flag`, `Byte Val` |
 | `$D4` | `GiveItem` | `$00AC05` | `Byte ItemId`, `&Code OnFail` |
 | `$D5` | `RemoveItem` | `$00AC27` | `Byte ItemId` |
-| `$D6` | `BranchIfMissingItem` | `$00AC38` | `Byte ItemId`, `&Code` |
+| `$D6` | `BranchIfHasItem` | `$00AC38` | `Byte ItemId`, `&Code` |
 | `$D7` | `BranchIfItemEquipped` | `$00AC5A` | `Byte ItemId`, `&Code` |
 | `$D8` | `SetDungeonKillFlag` | `$00AC82` | — |
 | `$D9` | `SwitchCase` | `$00AC94` | `Word IndexAddr`, `&&Code JmpList` |

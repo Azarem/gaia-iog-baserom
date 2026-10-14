@@ -47,7 +47,7 @@
 ; 2. FREEZE CHECK: Skip if actor flag $0080 (freeze) set AND iframeCounter non-negative
 ; 3. CLIMB/SPECIAL GATE: If playerFlags $0A00 ($0200 climb + $0800 special), zero external velocities and skip
 ; 4. POSITION SYNC: If local position differs from player actor (teleported), re-sync
-; 5. VELOCITY CALC: Combine joypad D-pad velocity (from JoypadToVelocity) OR speed × 4 with external velocity ($0408/$040A). Attack/run flags ($3000) force zero joypad velocity
+; 5. VELOCITY CALC: Combine joypad D-pad velocity (from JoypadToVelocity) OR speed × 4 with external velocity ($0408/$040A). Attack/block flags ($3000) force zero joypad velocity
 ; 6. COLLISION: Grounded ($0008) → PlayerMovementTick (full tile collision). Airborne → direct position add
 ; 7. WRITEBACK: Store sub-pixel and pixel positions back to actor, sync flag bit 2 (solid contact)
 ; 
@@ -106,7 +106,7 @@ PlayerMoveController {
     STA $16
 
   loc_02B2F3:
-    LDA $playerFlags      ; Check attack/run flags ($3000 = $1000 attack-walk + $2000 run) — if either set, zero joypad velocity
+    LDA $playerFlags      ; Check attack/block flags ($3000 = $1000 attack-walk + $2000 block) — if either set, zero joypad velocity
     BIT #$3000
     BEQ loc_02B300
     LDA #$0000
@@ -140,7 +140,7 @@ PlayerMoveController {
     CLC 
     ADC $extVelocityX
     STA $0020
-    LDA #$1000            ; Clear walk-attack flag ($1000) — active running overrides walk-attack state
+    LDA #$1000            ; Clear walk-attack flag ($1000) — active blocking overrides walk-attack state
     TRB $playerFlags
 
   loc_02B336:

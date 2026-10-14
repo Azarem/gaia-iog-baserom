@@ -19,7 +19,7 @@ eu92_erasquez [
 ]
 
 code_07D7AA {
-    COP [BranchIfMissingItem] ( #19, &code_07D7C2 )
+    COP [BranchIfHasItem] ( #19, &code_07D7C2 )
     COP [BranchOnFlagByte] ( #9F, #01, &code_07D7BD )
     COP [SetFlagByte] ( #9F )
     COP [PrintDialogString] ( &dialogstring_07D7C7 )

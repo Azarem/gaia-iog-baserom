@@ -56,10 +56,15 @@
 ?INCLUDE 'sprite_composition'
 ?INCLUDE 'tile_collision_physics'
 
+!actorListFirst                 0056
+!actorListLast                  0058
 !sceneCurrent                   0644
+!warpDestX                      064C
+!warpDestY                      064E
+!warpFacing                     0650
 !joypadCurrent                  0656
 !bg1ScrollH                     068A
-!bg2ScrollH                     068E
+!mapScrollV                     068E
 !cameraTargetX                  06BE
 !cameraTargetY                  06C2
 !playerXPos                     09A2
@@ -88,7 +93,7 @@
 ; Standard actor execution loop — primary gameplay processing mode.
 ; 
 ; Entry point for actor updates during normal gameplay. Saves processor state (PHP/PHD), switches to 16-bit mode, then checks game state flags to determine processing mode:
-; - playerFlags bit 3 ($0008): Input lock — clears B button ($8000) from joypadCurrent
+; - playerFlags bit 3 ($0008): Input lock — clears B button ($0080) from joypadCurrent
 ; - playerFlags bit 4 ($0010): Game paused — redirects to RunActors_PauseFiltered
 ; - displayModeFlags bit 7 ($0080): Display filter — redirects to RunActors_DisplayFiltered
 ; 
@@ -108,9 +113,9 @@ RunActors_Normal {
     PHD 
     REP #$20
     LDA $playerFlags
-    BIT #$0008            ; Bit 3 ($0008) = input lock; suppress B button ($8000) when set
+    BIT #$0008            ; Bit 3 ($0008) = input lock; suppress B button ($0080) when set
     BEQ loc_03CB07
-    LDA #$8000
+    LDA #$0080
     TRB $joypadCurrent
 
   loc_03CB07:
@@ -801,8 +806,8 @@ ThinkerPoolAlloc {
 SpawnSceneActors {
     PHP 
     REP #$20
-    STZ $0056             ; Clear actor list head ($56) and tail ($58)
-    STZ $0058
+    STZ $actorListFirst   ; Clear actor list head ($56) and tail ($58)
+    STZ $actorListLast
     LDA #$*scene_actors   ; Build long pointer [$3E]: scene_actors bank → $40
     STA $40
     LDX $0646
@@ -814,7 +819,7 @@ SpawnSceneActors {
     CMP #$00FF            ; $FF = end-of-actor-list marker
     BEQ loc_03CEEC
     JSL $@actor_pool.ActorPoolAllocator ; Allocate first actor slot
-    STY $0056             ; Store as linked list head ($56)
+    STY $actorListFirst   ; Store as linked list head ($56)
     BRA loc_03CEE3
 
   loc_03CECD:
@@ -834,7 +839,7 @@ SpawnSceneActors {
     BCC loc_03CECD        ; Carry clear = success; carry set = enemy defeated, slot freed
 
   loc_03CEE9:
-    STX $0058
+    STX $actorListLast
 
   loc_03CEEC:
     LDA #$1000            ; Set playerActorDp ($09F4) to $1000 — first actor slot
@@ -1048,7 +1053,7 @@ InitActorFromSceneData {
     TSB $playerFlags
 
   loc_03D03B:
-    LDA $0650             ; Facing direction from $0650 → direction sprite table → $28
+    LDA $warpFacing       ; Facing direction from $0650 → direction sprite table → $28
     AND #$00FF
     ASL 
     TAY 
@@ -1068,19 +1073,19 @@ InitActorFromSceneData {
     LDA $&body_table+2, Y
     AND #$00FF
     STA $7F0008, X
-    LDA $064C             ; Check spawn position override ($064C/$064E)
-    ORA $064E
+    LDA $warpDestX        ; Check spawn position override ($064C/$064E)
+    ORA $warpDestY
     BEQ loc_03D092
-    LDA $064C             ; Override: +8 X centering, +16 Y centering
+    LDA $warpDestX        ; Override: +8 X centering, +16 Y centering
     CLC 
     ADC #$0008
     STA $14
-    LDA $064E
+    LDA $warpDestY
     CLC 
     ADC #$0010
     STA $16
-    STZ $064C             ; Clear override values after use
-    STZ $064E
+    STZ $warpDestX        ; Clear override values after use
+    STZ $warpDestY
     JSL $@sprite_composition.UpdateActorAnimation
     STZ $08
     BRA loc_03D09A
@@ -1125,7 +1130,7 @@ InitActorFromSceneData {
 
   loc_03D0D2:
     STA $cameraTargetY    ; Initialize both cameraTargetY and bg2ScrollH
-    STA $bg2ScrollH
+    STA $mapScrollV
     PLD 
     CLC 
     RTS 

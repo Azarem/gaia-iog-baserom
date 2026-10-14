@@ -473,7 +473,7 @@ Not scene-bound — shared palette-effect thinkers:
 
 #### `debug_stat_setter` — Stat Init Bootstrap (29 bytes)
 
-**Scenes:** None (no spawn table entry). One-shot stub that sets all player combat stats to `$0040` (64): `playerStr`, `playerDef`, `playerMaxHp`, and `damageFlashTimer`, then immediately dies. **Development/testing actor** for stat initialization.
+**Scenes:** None (no spawn table entry). One-shot stub that sets all player combat stats to `$0040` (64): `playerStr`, `playerDef`, `playerMaxHp`, and `hpToHeal`, then immediately dies. **Development/testing actor** for stat initialization.
 
 ### 4.9 Ending — Cutscene Actors
 

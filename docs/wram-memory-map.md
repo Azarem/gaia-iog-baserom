@@ -348,7 +348,7 @@ Two bitfield arrays provide the primary persistence mechanism for game state.
 | `$0AFA` | 2 | `inventoryTabIndex` | Tab index (0–3: Use, Arrange, Discard, Status); also slot spawn counter during init | Inventory menu, statue display |
 | `$0B04` | 2 | (init `$0000`) | Gameplay flag | `InitSystemVariables` |
 | `$0B14` | 2 | (init `$003C`) | System flag (60 decimal) | `InitSystemVariables` |
-| `$0B22` | 2 | `damageFlashTimer` | Non-zero triggers DEF display animation every 8 frames | `UpdateHUD` |
+| `$0B22` | 2 | `hpToHeal` | Non-zero triggers HP recovery animation every 8 frames | `UpdateHUD` |
 | `$0B28`–`$0B32` | 11 | `saveWarpMetadata` | Save and warp state metadata | System init |
 
 > **ASM example** — Stat reward actor incrementing HP (`actors-combat-interaction.md`):

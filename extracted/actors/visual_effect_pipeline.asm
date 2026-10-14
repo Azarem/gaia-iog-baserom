@@ -5,8 +5,8 @@
 
 ?INCLUDE 'hardware_math'
 
-!bg1ScrollV                     068C
-!savedCameraDelta               0690
+!effectScrollH                  068C
+!effectScrollV                  0690
 !effectBoundsX                  0694
 !effectBoundsY                  0698
 !cameraTargetX                  06BE
@@ -58,10 +58,10 @@ effect_velocity_init [
     STA $2E
     LDA #$0000            ; ComputeFollowStep: orbitAngle × 32 = sine table row offset
     STA $14
-    STA $bg1ScrollV       ; ASL ×5 = multiply angle by 32 for SmoothFollowLookup row stride
+    STA $effectScrollH    ; ASL ×5 = multiply angle by 32 for SmoothFollowLookup row stride
     STA $cameraDeltaX
     STA $16               ; Add orbitDiameter as column offset within the table row
-    STA $savedCameraDelta
+    STA $effectScrollV
     STA $cameraDeltaY
     COP [WaitByte] ( #01 )
     LDA $14
@@ -83,7 +83,7 @@ effect_velocity_init [
     STA $06E8             ; Angle $05–$0C → diagonal movement (both axes)
     LDA $cameraDeltaY     ; Angle < $05 → move along the other single axis only
     SEC 
-    SBC $savedCameraDelta ; X-only: zero Y delta in $0002
+    SBC $effectScrollV    ; X-only: zero Y delta in $0002
     STA $06EA
     RTL 
 } >
@@ -204,7 +204,7 @@ effect_position_update [
     BPL loc_00EA43
     LDA $effectBoundsX    ; orbitAngle × 32 = table byte offset for sine lookup
     STA $cameraDeltaX
-    STA $bg1ScrollV
+    STA $effectScrollH
     STA $14
     BRA loc_00EA53
 
@@ -214,7 +214,7 @@ effect_position_update [
     LDA #$0000
     STA $cameraDeltaX
     STA $14
-    STA $bg1ScrollV
+    STA $effectScrollH
 
   loc_00EA53:
     LDA $16
@@ -228,7 +228,7 @@ effect_position_update [
     LDA $effectBoundsY
     DEC 
     STA $cameraDeltaY
-    STA $savedCameraDelta
+    STA $effectScrollV
     STA $16
     BRA loc_00EA81
 
@@ -238,16 +238,16 @@ effect_position_update [
     LDA #$0000            ; Increment step counter within table entry
     STA $cameraDeltaY
     STA $16               ; BIT $FFF0: check for 16-entry boundary wrap
-    STA $savedCameraDelta
+    STA $effectScrollV
 
   loc_00EA81:
     LDA $cameraDeltaX
     SEC 
-    SBC $bg1ScrollV
+    SBC $effectScrollH
     STA $06E8
     LDA $cameraDeltaY
     SEC 
-    SBC $savedCameraDelta
+    SBC $effectScrollV
     STA $06EA
     RTL 
 } >

@@ -79,9 +79,9 @@
 !joypadMaskStd                  065A
 !joypadMaskInv                  065C
 !bg1ScrollH                     068A
-!bg1ScrollV                     068C
-!bg2ScrollH                     068E
-!savedCameraDelta               0690
+!effectScrollH                  068C
+!mapScrollV                     068E
+!effectScrollV                  0690
 !cameraTargetX                  06BE
 !cameraDeltaX                   06C0
 !cameraTargetY                  06C2
@@ -199,9 +199,9 @@ OpenInventoryScreen {
     STX $cameraDeltaX
     STX $cameraDeltaY
     STX $bg1ScrollH       ; Zero bg1/bg2 scroll positions and savedCameraDelta
-    STX $bg2ScrollH
-    STX $bg1ScrollV
-    STX $savedCameraDelta
+    STX $mapScrollV
+    STX $effectScrollH
+    STX $effectScrollV
     STX $scrollOverrideH
     STX $forcedScrollOverride
     STX $scrollOverrideV
@@ -240,11 +240,11 @@ OpenInventoryScreen {
     LDX $cameraTargetX    ; cameraTargetX → bg1ScrollH
     STX $bg1ScrollH
     LDX $cameraTargetY    ; cameraTargetY → bg2ScrollH
-    STX $bg2ScrollH
+    STX $mapScrollV
     LDX $cameraDeltaX     ; cameraDeltaX → bg1ScrollV
-    STX $bg1ScrollV
+    STX $effectScrollH
     LDX $cameraDeltaY     ; cameraDeltaY → savedCameraDelta
-    STX $savedCameraDelta
+    STX $effectScrollV
     REP #$20              ; Pop overlay stack: sceneCurrent, eventFlags, displayModeFlags, effectDeltaX
     PLA 
     STA $sceneCurrent

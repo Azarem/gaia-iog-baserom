@@ -36,7 +36,7 @@ na4B_lily [
     COP [MarkSolidHere]
     COP [SetInteractHandler] ( &code_05F0B6 )
     COP [WaitOnFlagByte] ( #03, #01 )
-    LDA #$CFF0
+    LDA #$CFFC
     TSB $joypadMaskStd
     COP [WaitByte] ( #27 )
     COP [PrintDialogString] ( &dialogstring_05F148 )

@@ -26,7 +26,7 @@ sc08_erik [
     COP [AnimOnce]
     COP [StageSpriteLoopMoveX] ( #11, #02, #01 )
     COP [AnimLoop]
-    LDA #$CFF0
+    LDA #$CFFC
     TRB $joypadMaskStd
 } >
 ]

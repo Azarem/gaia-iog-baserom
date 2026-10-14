@@ -16,11 +16,11 @@ mtA0_intro [
   code_07E760:
     COP [BranchOnFlagByte] ( #A7, #01, &code_07E77C )
     COP [SetFlagByte] ( #A7 )
-    LDA #$CFF0
+    LDA #$CFFC
     TSB $joypadMaskStd
     COP [WaitByte] ( #1D )
     COP [PrintDialogString] ( &dialogstring_07E77E )
-    LDA #$CFF0
+    LDA #$CFFC
     TRB $joypadMaskStd
 } >
 ]

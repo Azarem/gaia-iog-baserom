@@ -809,16 +809,16 @@ DialogCmd_ClearBox {
 ---------------------------------------------
 ; Wait for the player to press A, B, or Start with a blinking cursor indicator.
 ; 
-; Sets $C080 in joypadHeld to suppress auto-repeat. Loops calling WaitOneFrame until $C080 is detected in joypadCurrent. During the wait, draws a blinking cursor via DrawDialogueCursor (carry set = animate). On button press, clears the cursor (carry clear) and calls DialogCmd_ClearBox to prepare for the next page.
+; Sets $C040 in joypadHeld to suppress auto-repeat. Loops calling WaitOneFrame until $C040 is detected in joypadCurrent. During the wait, draws a blinking cursor via DrawDialogueCursor (carry set = animate). On button press, clears the cursor (carry clear) and calls DialogCmd_ClearBox to prepare for the next page.
 
 DialogCmd_WaitForButton {
-    LDA #$C080            ; Suppress A/B/Start auto-repeat ($C080 in joypadHeld)
+    LDA #$C040            ; Suppress A/B/Start auto-repeat ($C040 in joypadHeld)
     TSB $joypadHeld
 
   loc_03E6AA:
     JSR $&WaitOneFrame
     LDA $joypadCurrent
-    AND #$C080            ; $C080 mask: A ($0080), B ($8000), or Y ($4000)
+    AND #$C040            ; $C040 mask: A ($0080), B ($8000), or Y ($4000)
     BNE loc_03E6C1
     SEC                   ; SEC = animate blinking cursor, CLC = erase cursor
     JSR $&DrawDialogueCursor
@@ -839,16 +839,16 @@ DialogCmd_WaitForButton {
 ---------------------------------------------
 ; Wait for any button press.
 ; 
-; Sets $CFF0 in joypadHeld to suppress all auto-repeat. Loops calling WaitOneFrame until any button in $CFFF is pressed. Stores the pressed button to joypadHeld and returns.
+; Sets $C040 in joypadHeld to suppress all auto-repeat. Loops calling WaitOneFrame until any button in $C040 is pressed. Stores the pressed button to joypadHeld and returns.
 
 DialogCmd_WaitForAnyInput {
-    LDA #$CFF0            ; Suppress all button auto-repeat ($CFF0)
+    LDA #$C040            ; Suppress all button auto-repeat ($C040)
     TSB $joypadHeld
 
   loc_03E6D8:
     JSR $&WaitOneFrame
     LDA $joypadCurrent
-    AND #$CFFF            ; $CFFF mask — poll for any button press
+    AND #$C040            ; $C040 mask — poll for any button press
     BEQ loc_03E6D8
     STA $joypadHeld
     RTS 

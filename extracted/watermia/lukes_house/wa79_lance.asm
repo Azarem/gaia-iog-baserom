@@ -20,7 +20,7 @@ wa79_lance [
     COP [BranchOnFlagByte] ( #96, #01, &code_07ACD6 )
     COP [BranchOnFlagByte] ( #91, #01, &code_07ACD4 )
     COP [BranchOnFlagByte] ( #90, #00, &code_07ACD4 )
-    LDA #$CFF0
+    LDA #$CFFC
     TSB $joypadMaskStd
     LDY $playerActor
     LDA $0016, Y

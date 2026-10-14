@@ -27,17 +27,17 @@ mu67_neil [
 ]
 
 code_06A757 {
-    LDA #$FFF0
+    LDA #$FFFC
     TSB $joypadMaskStd
     COP [WaitByte] ( #1D )
     COP [SetFlagByte] ( #04 )
-    COP [Decompress] ( @gfx_nazca_sprites, $7E7000 )
-    COP [AdhocVramDma] ( $7E7000, #$5000, #$0800 )
+    COP [Decompress] ( @gfx_nazca_sprites, $tileStagingBuffer )
+    COP [AdhocVramDma] ( $tileStagingBuffer, #$5000, #$0800 )
     COP [AdhocVramDma] ( $7E7800, #$5400, #$0800 )
     COP [AdhocVramDma] ( $7E8000, #$5800, #$0800 )
     COP [AdhocVramDma] ( $7E8800, #$5C00, #$0800 )
     COP [CopyPalette] ( @pal_nazca_sprites, #00, #A0, #50 )
-    COP [Decompress] ( @spm_nazca_sprites, $7E4000 )
+    COP [Decompress] ( @spm_nazca_sprites, $decompressedTilesets )
     COP [SetFlagByte] ( #88 )
     COP [StartMusic] ( #01 )
     LDA #$2000

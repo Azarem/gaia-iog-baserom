@@ -28,7 +28,7 @@ sp58_red_eye [
     LDA $0010, Y
     ORA #$2000
     STA $0010, Y
-    LDA #$EFF0
+    LDA #$EFFC
     TSB $joypadMaskStd
     LDY #$1000
     TYA 

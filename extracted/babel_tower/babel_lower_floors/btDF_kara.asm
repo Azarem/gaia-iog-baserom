@@ -34,7 +34,7 @@ code_099EA0 {
 }
 
 code_099EA2 {
-    LDA #$CFF0
+    LDA #$CFFC
     TSB $joypadMaskStd
     COP [StartMusic] ( #1B )
     COP [WaitByte] ( #3B )
@@ -59,7 +59,7 @@ code_099EA2 {
     COP [MoveToward] ( #20, #01 )
     COP [StartMusic] ( #04 )
     COP [WaitByte] ( #77 )
-    LDA #$CFF0
+    LDA #$CFFC
     TRB $joypadMaskStd
     COP [SpawnAfterFlags] ( @EscortFollowPathTracker, #$2000 )
     TXA 

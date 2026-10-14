@@ -59,15 +59,16 @@
 !sceneCurrent                   0644
 !gfxCacheIdxA                   0648
 !gfxCacheIdxB                   064A
+!warpScrollParams               0652
 !worldReadyFlag                 0654
 !joypadCurrent                  0656
 !joypadMaskStd                  065A
 !joypadMaskInv                  065C
 !joypadRaw                      0660
 !bg1ScrollH                     068A
-!bg1ScrollV                     068C
-!bg2ScrollH                     068E
-!savedCameraDelta               0690
+!effectScrollH                  068C
+!mapScrollV                     068E
+!effectScrollV                  0690
 !mapBoundsX                     0692
 !mapBoundsY                     0696
 !cameraTargetX                  06BE
@@ -93,6 +94,7 @@
 !playerSpeedNs                  09B4
 !climbStateData                 09E0
 !displayModeFlags               09EC
+!hudDisableFlag                 09ED
 !eventFlags                     0A00
 !cachedPrevMaxHp                0ACC
 !cachedPrevHp                   0AD0
@@ -188,9 +190,9 @@ ExecuteSceneTransition {
     LDA $0D52
     STA $0D54
     STZ $0D52
-    LDA $0652
+    LDA $warpScrollParams
     STA $0D6C
-    STZ $0652
+    STZ $warpScrollParams
     LDA #$0000
     SEP #$20
     LDA $sceneNext        ; Record source scene in $0D6E, current in $0D6F
@@ -790,10 +792,10 @@ ClearSceneState {
     STX $forcedScrollOverride
     STX $scrollOverrideV
     STX $06CC
-    STX $bg2ScrollH
-    STX $savedCameraDelta
+    STX $mapScrollV
+    STX $effectScrollV
     STX $bg1ScrollH
-    STX $bg1ScrollV
+    STX $effectScrollH
     STX $playerSpeedEw    ; Clear player speeds, external velocities, enemy timer
     STX $playerSpeedNs
     STX $extVelocityX
@@ -918,7 +920,7 @@ ClearSceneState {
 ; After loading, sets displayModeFlags bit 0 ($0001) to signal that the VRAM buffer has pending data for the next VBlank transfer.
 
 LoadHudTilemap {
-    LDA $09ED             ; Check $09ED bit 6 — HUD suppressed (cutscene/menu)?
+    LDA $hudDisableFlag   ; Check $09ED bit 6 — HUD suppressed (cutscene/menu)?
     BIT #$40
     BEQ loc_03DED5
     RTL                   ; HUD suppressed — return without loading
@@ -1177,7 +1179,7 @@ LoadPlayerGraphics {
 ; Clears low bytes of cameraBoundsY and cameraLowerYBound. Zeroes $0652 (consumed). Applies visible height correction: cameraBoundsY += $0100 − $06EC (adjusts for the playable viewport height vs. the full map).
 
 InitCameraBounds {
-    LDX $0652             ; Load $0652 — custom camera bounds override?
+    LDX $warpScrollParams ; Load $0652 — custom camera bounds override?
     BNE loc_03E06F        ; Custom bounds → decode packed nibble format
     LDX $mapBoundsX       ; Normal: copy mapBoundsX/Y directly to cameraBounds
     STX $cameraBoundsX
@@ -1190,7 +1192,7 @@ InitCameraBounds {
     BRA loc_03E094
 
   loc_03E06F:
-    LDA $0652             ; $0652 low nibble → cameraOffsetX high byte
+    LDA $warpScrollParams ; $0652 low nibble → cameraOffsetX high byte
     PHA 
     AND #$0F
     STA $cameraOffsetX+1
@@ -1216,7 +1218,7 @@ InitCameraBounds {
     STZ $cameraBoundsY    ; Clear Y bound low bytes
     STZ $cameraLowerYBound
     REP #$20
-    STZ $0652             ; Consume $0652, apply viewport correction: bounds += $100 − $06EC
+    STZ $warpScrollParams ; Consume $0652, apply viewport correction: bounds += $100 − $06EC
     LDA #$0100
     SEC 
     SBC $06EC

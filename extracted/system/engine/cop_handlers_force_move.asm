@@ -2,6 +2,7 @@
 
 ?INCLUDE 'actor_pool'
 
+!actorListLast                  0058
 !moveXAlt                       7F0018
 !moveYAlt                       7F001A
 
@@ -134,7 +135,7 @@ ForceDirBoth {
 
 ApplyMoveToChild {
     PHY 
-    LDX $0058             ; Load child actor tail pointer ($0058) for movement propagation
+    LDX $actorListLast    ; Load child actor tail pointer ($0058) for movement propagation
     LDA [$0A]
     INC $0A
     AND #$00FF

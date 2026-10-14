@@ -10,6 +10,7 @@
 ?INCLUDE 'mode7_perspective'
 ?INCLUDE 'oneshot_palette_flash_19'
 
+!frameCounter                   0036
 !gfxCacheIdxA                   0648
 !gfxCacheIdxB                   064A
 !joypadMaskStd                  065A
@@ -40,7 +41,7 @@ FutureVisionCutscene [
   actor-def < #00, #00, #18, {
 
   code_03A1FD:
-    LDA #$FFF0            ; Mask joypad $FFF0 — disable UI buttons during vision cutscene
+    LDA #$FFFC            ; Mask joypad $FFF0 — disable UI buttons during vision cutscene
     TSB $joypadMaskStd
     SEP #$20              ; Switch to 8-bit A for PPU register writes
     STZ $M7SEL            ; M7SEL = $00: no Mode 7 flip
@@ -110,7 +111,7 @@ FutureVisionController {
     COP [SpawnThinker] ( @oneshot_palette_flash_19.FlashPalette19 ) ; Spawn palette flash thinker for dramatic visual entrance
     COP [SetEntryHere]
     INC $00BC             ; Phase 1: rotate perspective every frame
-    LDA $0036             ; Check frame parity ($0036 & 1)
+    LDA $frameCounter     ; Check frame parity ($0036 & 1)
     AND #$0001
     BEQ loc_03A26A        ; Even frame → also zoom in; odd frame → rotation only (RTL)
     RTL 

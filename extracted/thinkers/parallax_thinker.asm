@@ -9,9 +9,9 @@
 ?INCLUDE 'parallax_scroll_table'
 
 !bg1ScrollH                     068A
-!bg1ScrollV                     068C
-!bg2ScrollH                     068E
-!savedCameraDelta               0690
+!effectScrollH                  068C
+!mapScrollV                     068E
+!effectScrollV                  0690
 !effectDeltaX                   06E4
 !animScratch                    7F0000
 !chatPtr                        7F000A
@@ -82,16 +82,16 @@ ParallaxBuildHdmaTable {
     STA $1A
 
   loc_00B8FD:
-    LDA $savedCameraDelta ; Config bit $40: left-shift effectDeltaX×4 before adding to scroll accumulator
+    LDA $effectScrollV    ; Config bit $40: left-shift effectDeltaX×4 before adding to scroll accumulator
     STA $1C
     LDA $bg1ScrollH
     STA $18
     LDA $0003, X
     BIT #$0080
     BEQ loc_00B919
-    LDA $bg2ScrollH
+    LDA $mapScrollV
     STA $1C
-    LDA $bg1ScrollV
+    LDA $effectScrollH
     STA $18
 
   loc_00B919:
@@ -216,7 +216,7 @@ ParallaxBuildHdmaTable {
   loc_00B9D6:
     LDA $0004, X
     SEC 
-    SBC $bg2ScrollH
+    SBC $mapScrollV
     BMI loc_00B9E9
     CMP #$00FF
     BCS loc_00B9F9
@@ -258,7 +258,7 @@ ParallaxBuildHdmaTable {
 ParallaxWriteWindowHdmaEntry {
     LDA $0004, X
     SEC 
-    SBC $bg2ScrollH
+    SBC $mapScrollV
     BCS loc_00BA2E
     CLC 
     ADC $0006, X

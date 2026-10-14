@@ -8,7 +8,7 @@
 ; - Up ($0800): Decrement selection with wraparound
 ; - Down ($0400): Increment selection with wraparound
 ; - L/R ($0300): Page left/right (add/subtract column count)
-; - A/Start ($8080): Confirm selection — play sound #11, increment result by 1, return with carry set
+; - A/Start ($8000): Confirm selection — play sound #11, increment result by 1, return with carry set
 ; - B ($4000): Cancel — call ReadMenuSelection, return result = 0
 ; 
 ; DrawMenuCursor (256387) handles cursor animation: a 16-frame blink cycle alternates between highlight tiles ($212C/$213C) and dim tiles ($21AC). It saves/restores the tile under the cursor via $0990/$0992.
@@ -37,7 +37,7 @@
 ; - Up ($0800): Decrement index with row-aware wrapping
 ; - Down ($0400): Increment index with row-aware wrapping
 ; - L/R ($0300): Add/subtract column count for page navigation
-; - A/Start ($8080): Confirm — play sound #11, restore tiles under cursor, increment selection by 1, return carry set
+; - A/Start ($8000): Confirm — play sound #11, restore tiles under cursor, increment selection by 1, return carry set
 ; - B ($4000): Cancel — call ReadMenuSelection to restore tiles, return A = 0, carry set
 ; 
 ; All navigation plays sound #10 and resets cursor blink. Returns: A = 1-based selection index (0 = cancelled), carry set.
@@ -55,10 +55,10 @@ MenuSelectionHandler {
     JSR $&DrawMenuCursor
     JSR $&DialogStringRenderer.WaitOneFrame
     LDA $joypadCurrent
-    BIT #$CF80            ; $CF80 mask = any navigation or action button
+    BIT #$CF00            ; $CF00 mask = any navigation or action button
     BEQ MenuSelection_PollLoop
     PHA 
-    LDA #$CFF0            ; Suppress all auto-repeat ($CFF0) once any input detected
+    LDA #$CFFC            ; Suppress all auto-repeat ($CFFC) once any input detected
     TSB $joypadHeld
     PLA 
     BIT #$0800            ; Input priority chain: Up → Down → L/R → A/Start → B
@@ -73,7 +73,7 @@ MenuSelectionHandler {
     JMP $&MenuSelection_LeftRight
 
   loc_03E87F:
-    BIT #$8080
+    BIT #$8000
     BNE loc_03E892
     BIT #$4000
     BEQ MenuSelection_PollLoop

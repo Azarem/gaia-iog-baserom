@@ -22,7 +22,7 @@ wa78_intro [
     COP [BranchOnFlagByte] ( #8D, #01, &code_07808E )
     LDA #$0008
     TSB $12
-    LDA #$CFF0
+    LDA #$CFFC
     TSB $joypadMaskStd
     LDY $playerActor
     LDA $0010, Y
@@ -57,7 +57,7 @@ wa78_intro [
     LDA #$0404
     STA $gfxCacheIdxB
     COP [QueueMapChange] ( #79, #$0070, #$00B0, #00, #$1100 )
-    LDA #$CFF0
+    LDA #$CFFC
     TRB $joypadMaskStd
     COP [SetEntryHere]
     RTL 

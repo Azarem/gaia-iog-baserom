@@ -32,11 +32,11 @@ btDE_kara_missing [
     TSB $10
     LDA #$0800
     TRB $10
-    LDA #$CFF0
+    LDA #$CFFC
     TSB $joypadMaskStd
     COP [WaitByte] ( #1D )
     COP [PrintDialogString] ( &dialogstring_0986E1 )
-    LDA #$CFF0
+    LDA #$CFFC
     TRB $joypadMaskStd
     COP [Die]
 } >

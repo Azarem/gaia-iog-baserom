@@ -66,7 +66,7 @@ code_04AFFD {
 code_04B000 {
     COP [PrintDialogString] ( &dialogstring_04B00F )
     COP [SetFlagByte] ( #08 )
-    LDA #$CFF0
+    LDA #$CFFC
     TSB $joypadMaskStd
     COP [Die]
 }

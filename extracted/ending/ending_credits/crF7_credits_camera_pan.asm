@@ -6,6 +6,7 @@
 ; timing with the credits text display.
 ---------------------------------------------
 
+!actorLimitThreshold            00E4
 !cameraDeltaX                   06C0
 
 ---------------------------------------------
@@ -14,7 +15,7 @@ crF7_credits_camera_pan [
   thinker-def < #04, #08, {
 
   code_09F512:
-    LDA $00E4
+    LDA $actorLimitThreshold
     BPL loc_09F518
     RTL 
 

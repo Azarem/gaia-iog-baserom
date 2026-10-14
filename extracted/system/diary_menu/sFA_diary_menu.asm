@@ -56,6 +56,10 @@
 ?INCLUDE 'vram_buffer_clear'
 
 !sceneNext                      0642
+!warpDestX                      064C
+!warpDestY                      064E
+!warpFacing                     0650
+!warpScrollParams               0652
 !worldReadyFlag                 0654
 !joypadCurrent                  0656
 !joypadHeld                     0658
@@ -65,7 +69,7 @@
 !joypadRaw                      0660
 !joypadRepeatCounter            0662
 !bg1ScrollH                     068A
-!bg2ScrollH                     068E
+!mapScrollV                     068E
 !cameraTargetX                  06BE
 !cameraTargetY                  06C2
 !scrollModeFlags                06EF
@@ -73,14 +77,15 @@
 !joypadInject                   09AC
 !playerFlags                    09AE
 !displayModeFlags               09EC
-!remapSelect                    0DA6
-!remapX                         0DA8
+!globalScriptIndex              0AAC
+!remapR                         0DA6
+!remapL                         0DA8
 !remapB                         0DAA
 !remapA                         0DAC
 !remapY                         0DAE
-!remapStart                     0DB0
-!remapL                         0DB2
-!remapR                         0DB4
+!remapX                         0DB0
+!remapStart                     0DB2
+!remapSelect                    0DB4
 !M7A                            211B
 !M7B                            211C
 !M7C                            211D
@@ -143,7 +148,7 @@ sFA_diary_menu [
     STA $bg1ScrollH
     STA $cameraTargetX
     LDA #$0300            ; Camera Y = 768 (Mode 7 perspective)
-    STA $bg2ScrollH
+    STA $mapScrollV
     STA $cameraTargetY
     LDA #$3000            ; Mask L+R shoulder buttons
     TSB $joypadMaskStd
@@ -183,7 +188,7 @@ DiaryMainMenuEntry {
     COP [SetEntryHere]
     COP [BranchIfPressed] ( #$0800, &DiaryTabCursorUp ) ; Up → previous tab
     COP [BranchIfPressed] ( #$0400, &DiaryTabCursorDown ) ; Down → next tab
-    COP [BranchIfPressed] ( #$0080, &DiaryTabConfirm ) ; A → confirm selection
+    COP [BranchIfPressed] ( #$8000, &DiaryTabConfirm ) ; A → confirm selection
     RTL 
 }
 
@@ -270,8 +275,8 @@ DiaryStartJourney {
     COP [SetEntryFar] ( @DiaryStartSlotLoop )
     COP [BranchIfPressed] ( #$0800, &DiaryStartSlotUp ) ; Up → previous slot
     COP [BranchIfPressed] ( #$0400, &DiaryStartSlotDown ) ; Down → next slot
-    COP [BranchIfPressed] ( #$0080, &DiaryStartLoadConfirm ) ; A → confirm slot
-    COP [BranchIfPressed] ( #$8000, &DiaryStartCancel ) ; B → cancel, return to main menu
+    COP [BranchIfPressed] ( #$8000, &DiaryStartLoadConfirm ) ; A → confirm slot
+    COP [BranchIfPressed] ( #$4000, &DiaryStartCancel ) ; B → cancel, return to main menu
     RTL 
 }
 
@@ -333,17 +338,17 @@ DiaryStartLoadConfirm {
     BCS loc_0BE433        ; Carry set → corrupt/empty slot
     JSR $&ApplySoundAndRemap ; Apply sound mode + button remap
     LDA $0AB2             ; Restore Dark Space layout variant
-    STA $0AAC
+    STA $globalScriptIndex
     LDA #$00E6            ; Scene $E6 = Dark Space
     STA $sceneNext
     LDA #$0078            ; Camera X = 120px
-    STA $064C
+    STA $warpDestX
     LDA #$0090            ; Camera Y = 144px
-    STA $064E
+    STA $warpDestY
     LDA #$0003            ; Transition flags
-    STA $0650
+    STA $warpFacing
     LDA #$1100            ; Transition auxiliary data
-    STA $0652
+    STA $warpScrollParams
     LDA #$2800            ; Clear running + ability flags
     TRB $playerFlags
     COP [Die]             ; Kill menu actor → scene transition fires
@@ -369,10 +374,10 @@ DiaryStartLoadConfirm {
 
   DiaryNewGameSettingsLoop:
     COP [SetEntryHereAndYield]
-    COP [BranchIfPressed] ( #$0380, &DiarySettingsToggle )
+    COP [BranchIfPressed] ( #$8300, &DiarySettingsToggle )
     COP [BranchIfPressed] ( #$0800, &DiarySettingsUp )
     COP [BranchIfPressed] ( #$0400, &DiarySettingsDown )
-    COP [BranchIfPressed] ( #$8000, &DiaryNewGameCancel )
+    COP [BranchIfPressed] ( #$4000, &DiaryNewGameCancel )
     RTL 
 }
 
@@ -389,7 +394,7 @@ DiaryNewGameCancel {
 }
 
 DiarySettingsToggle {
-    LDA #$0380
+    LDA #$8300
     TSB $joypadHeld
     LDA $0D98
     BEQ loc_0BE4E7
@@ -402,7 +407,7 @@ DiarySettingsToggle {
     STA $0D90
     COP [PrintDialogStringAlt] ( &dialogstring_0BF625 )
     COP [RunBg3Script] ( @system_strings.consolestring_01EADC )
-    LDA #$0380
+    LDA #$8300
     TSB $joypadHeld
     JMP $&DiaryNewGameSettingsLoop
 
@@ -416,12 +421,12 @@ DiarySettingsToggle {
     STA $0D8E
     COP [PrintDialogStringAlt] ( &dialogstring_0BF630 )
     COP [RunBg3Script] ( @system_strings.consolestring_01EADC )
-    LDA #$0380
+    LDA #$8300
     TSB $joypadHeld
     JMP $&DiaryNewGameSettingsLoop
 
   loc_0BE4E7:
-    COP [BranchIfPressed] ( #$0080, &DiaryNewGameStart )
+    COP [BranchIfPressed] ( #$8000, &DiaryNewGameStart )
     RTL 
 }
 
@@ -637,14 +642,14 @@ ApplySoundAndRemap {
     LDA #$4000            ; Layout A: remap B→Y (cancel=$4000)
     STA $remapB
     LDA #$0000
-    STA $remapStart
+    STA $remapX
     LDA #$0040            ; Layout A: remap Y→X (item palette=$0040)
     STA $remapY
     RTS 
 
   loc_0BE6B3:
     LDA #$0000            ; Layout B: clear Start remap only
-    STA $remapStart
+    STA $remapX
     RTS 
 }
 ---------------------------------------------
@@ -664,8 +669,8 @@ DiarySndBtnTab {
     COP [SetEntryHereAndYield]
     COP [BranchIfPressed] ( #$0800, &DiaryEraseSlotUp )
     COP [BranchIfPressed] ( #$0400, &DiaryEraseSlotDown )
-    COP [BranchIfPressed] ( #$0080, &DiarySndBtnSlotConfirm )
-    COP [BranchIfPressed] ( #$8000, &DiarySndBtnCancel )
+    COP [BranchIfPressed] ( #$8000, &DiarySndBtnSlotConfirm )
+    COP [BranchIfPressed] ( #$4000, &DiarySndBtnCancel )
     RTL 
 }
 
@@ -707,10 +712,10 @@ DiarySndBtnSlotConfirm {
 
   DiarySndBtnEditLoop:
     COP [SetEntryHereAndYield]
-    COP [BranchIfPressed] ( #$0380, &DiarySndBtnOptionToggle )
+    COP [BranchIfPressed] ( #$8300, &DiarySndBtnOptionToggle )
     COP [BranchIfPressed] ( #$0800, &DiarySettingsUp )
     COP [BranchIfPressed] ( #$0400, &DiarySettingsDown )
-    COP [BranchIfPressed] ( #$8000, &DiarySndBtnEditCancel )
+    COP [BranchIfPressed] ( #$4000, &DiarySndBtnEditCancel )
     RTL 
 }
 
@@ -767,7 +772,7 @@ DiarySndBtnOptionToggle {
     STA $0D90
     COP [PrintDialogStringAlt] ( &dialogstring_0BF625 )
     COP [RunBg3Script] ( @system_strings.consolestring_01EADC )
-    LDA #$0380
+    LDA #$8300
     TSB $joypadHeld
     JMP $&DiarySndBtnEditLoop
 
@@ -781,12 +786,12 @@ DiarySndBtnOptionToggle {
     STA $0D8E
     COP [PrintDialogStringAlt] ( &dialogstring_0BF630 )
     COP [RunBg3Script] ( @system_strings.consolestring_01EADC )
-    LDA #$0380
+    LDA #$8300
     TSB $joypadHeld
     JMP $&DiarySndBtnEditLoop
 
   loc_0BE7EE:
-    COP [BranchIfPressed] ( #$0080, &DiarySndBtnSaveConfirm )
+    COP [BranchIfPressed] ( #$8000, &DiarySndBtnSaveConfirm )
     RTL 
 }
 
@@ -926,8 +931,8 @@ DiaryCopyTab {
     COP [SetEntryHereAndYield]
     COP [BranchIfPressed] ( #$0800, &DiaryCopySourceUp )
     COP [BranchIfPressed] ( #$0400, &DiaryCopySourceDown )
-    COP [BranchIfPressed] ( #$0080, &DiaryCopySourceConfirm )
-    COP [BranchIfPressed] ( #$8000, &DiaryCopyCancel )
+    COP [BranchIfPressed] ( #$8000, &DiaryCopySourceConfirm )
+    COP [BranchIfPressed] ( #$4000, &DiaryCopyCancel )
     RTL 
 }
 
@@ -964,7 +969,7 @@ DiaryCopySourceDown {
 
 DiaryCopyCancel {
     COP [PlaySoundCh2] ( #0D )
-    LDA #$8000
+    LDA #$4000
     TSB $joypadHeld
     JSR $&DiaryMenuClearVram
     JMP $&DiaryMainMenuEntry
@@ -1002,8 +1007,8 @@ DiaryCopySourceConfirm {
     COP [SetEntryHereAndYield]
     COP [BranchIfPressed] ( #$0800, &DiaryCopyTargetUp )
     COP [BranchIfPressed] ( #$0400, &DiaryCopyTargetDown )
-    COP [BranchIfPressed] ( #$0080, &DiaryCopyExecute )
-    COP [BranchIfPressed] ( #$8000, &DiaryCopyTargetCancel )
+    COP [BranchIfPressed] ( #$8000, &DiaryCopyExecute )
+    COP [BranchIfPressed] ( #$4000, &DiaryCopyTargetCancel )
     RTL 
 }
 
@@ -1130,8 +1135,8 @@ DiaryEraseTab {
     COP [SetEntryHereAndYield]
     COP [BranchIfPressed] ( #$0800, &DiaryEraseSlotUp )
     COP [BranchIfPressed] ( #$0400, &DiaryEraseSlotDown )
-    COP [BranchIfPressed] ( #$0080, &DiaryEraseSlotConfirm )
-    COP [BranchIfPressed] ( #$8000, &DiaryEraseCancel )
+    COP [BranchIfPressed] ( #$8000, &DiaryEraseSlotConfirm )
+    COP [BranchIfPressed] ( #$4000, &DiaryEraseCancel )
     RTL 
 }
 
@@ -1218,9 +1223,6 @@ DiaryEraseSlotConfirm {
     STA $0D9C
     COP [PrintDialogStringAlt] ( &dialogstring_0BF6A4 )
     COP [RunBg3Script] ( @system_strings.consolestring_01EADC )
-    LDA #$4000
-    STA $remapB
-    STZ $remapY
     COP [DialogueOptions] ( #02, #03, &code_list_0BEB46 )
 }
 
@@ -1231,20 +1233,12 @@ code_list_0BEB46 [
 ]
 
 DiaryEraseDecline {
-    LDA #$8000
-    TSB $joypadHeld
-    LDA #$8000
-    STA $remapB
     LDA #$4000
-    STA $remapY
+    TSB $joypadHeld
     JMP $&DiaryEraseTab
 }
 
 DiaryEraseExecute {
-    LDA #$8000
-    STA $remapB
-    LDA #$4000
-    STA $remapY
     COP [PlaySoundCh2] ( #13 )
     COP [SetEntryHere]
     LDA $0D94
@@ -1326,7 +1320,7 @@ DiaryMenuClearVram {
 
 DiaryCursorNav_noref {
     COP [BranchIfPressed] ( #$8000, &DiaryCursorConfirm )
-    COP [BranchIfPressed] ( #$6040, &DiaryCursorCancel )
+    COP [BranchIfPressed] ( #$0020, &DiaryCursorCancel )
     COP [BranchIfPressed] ( #$0800, &DiaryCursorMoveUp )
     COP [BranchIfPressed] ( #$0400, &DiaryCursorMoveDown )
     LDA $14
@@ -1704,7 +1698,7 @@ DiaryDigitDisplay_noref {
     CLC 
     ADC #$0010
     STA $0018
-    LDA $bg2ScrollH
+    LDA $mapScrollV
     CLC 
     ADC #$0070
     STA $001C
@@ -1913,21 +1907,21 @@ DiaryMenuVBlankHandler {
     LDA $joypadRaw
     AND #$0F00
     STA $joypadRemapped
-    LDA $remapL
+    LDA $remapStart
     BEQ loc_0BF335
     LDA $joypadRaw
     BIT #$1000
     BEQ loc_0BF335
-    LDA $remapL
+    LDA $remapStart
     TSB $joypadRemapped
 
   loc_0BF335:
-    LDA $remapR
+    LDA $remapSelect
     BEQ loc_0BF348
     LDA $joypadRaw
     BIT #$2000
     BEQ loc_0BF348
-    LDA $remapR
+    LDA $remapSelect
     TSB $joypadRemapped
 
   loc_0BF348:
@@ -1958,30 +1952,30 @@ DiaryMenuVBlankHandler {
     TSB $joypadRemapped
 
   loc_0BF381:
-    LDA $remapStart
+    LDA $remapX
     BEQ loc_0BF394
     LDA $joypadRaw
     BIT #$0040
     BEQ loc_0BF394
-    LDA $remapStart
+    LDA $remapX
     TSB $joypadRemapped
 
   loc_0BF394:
-    LDA $remapX
+    LDA $remapL
     BEQ loc_0BF3A7
     LDA $joypadRaw
     BIT #$0020
     BEQ loc_0BF3A7
-    LDA $remapX
+    LDA $remapL
     TSB $joypadRemapped
 
   loc_0BF3A7:
-    LDA $remapSelect
+    LDA $remapR
     BEQ loc_0BF3BA
     LDA $joypadRaw
     BIT #$0010
     BEQ loc_0BF3BA
-    LDA $remapSelect
+    LDA $remapR
     TSB $joypadRemapped
 
   loc_0BF3BA:

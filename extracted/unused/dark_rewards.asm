@@ -8,6 +8,7 @@
 ?INCLUDE 'hint_npc'
 
 !abilityBitmask                 0AA2
+!sourceSceneId                  0B12
 
 ---------------------------------------------
 
@@ -52,7 +53,7 @@ dark_rewards2 [
 code_09A42B {
     LDA #$FFFF
     STA $24
-    LDA $0B12
+    LDA $sourceSceneId
     CMP #$0015
     BNE loc_09A43B
     JMP $&code_09A479
@@ -201,7 +202,7 @@ code_09A77F {
 dialogstring_09A79E `[DEF]You receive the [N]Aura Barrier! [FIN][::][DEF]It puts a protective[N]barrier around you.[FIN]Use the Attack Button[N]power and push the LR[N]Buttons alternately.[END]`
 
 code_09A81B {
-    COP [BranchIfMissingItem] ( #24, &code_09A82C )
+    COP [BranchIfHasItem] ( #24, &code_09A82C )
     COP [GiveItem] ( #24, &code_09A833 )
     COP [PrintDialogString] ( &dialogstring_09A83A )
     JMP $&code_09A473

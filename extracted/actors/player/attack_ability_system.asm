@@ -6,11 +6,11 @@
 ; 
 ; Will's attack system (WillAttackDispatch):
 ; - Extended charge timer: 120 frames ($0078)
-; - Ability gate: abilityBitmask bit 2 ($0004) unlocks Psycho Slider
+; - Ability gate: abilityBitmask bit 2 ($0004) unlocks Spin Dash
 ; - Without bit 2: release after charge → Psycho Dash
-; - With bit 2: CheckAttackChargeable gates continued charge; L/R ($0030) → Psycho Slider; release → Psycho Dash
+; - With bit 2: CheckAttackChargeable gates continued charge; L/R ($0030) → Spin Dash; release → Psycho Dash
 ; - Psycho Dash: directional fast dash with trail afterimage actors (4 directions)
-; - Psycho Slider: spawns a GuidedProjectileActor the player steers with D-pad; charge tick via L/R
+; - Spin Dash: spawns a GuidedProjectileActor the player steers with D-pad; charge tick via L/R
 ; 
 ; Freedan's attack system (FreedanAttackDispatch):
 ; - Extended charge timer: 100 frames ($0064)
@@ -22,11 +22,12 @@
 ; - Aura Barrier: requires standing still; rotating orbital projectiles with VRAM DMA, custom palette, expand/shrink lifecycle
 ; 
 ; Ability bitmask ($0AA2) gates:
-; - Bit 0 ($0001): Basic attack enabled (Will)
-; - Bit 2 ($0004): Psycho Slider (Will extended charge)
-; - Bit 4 ($0010): Dark Friar (Freedan)
-; - Bit 5 ($0020): Aura Barrier (Freedan extended selection)
-; - Bit 6 ($0040): Basic attack enabled (Freedan)
+; - Bit 0 ($0001): Psycho Dash (Will attack gate + charge release)
+; - Bit 1 ($0002): Psycho Slider (Will run attack)
+; - Bit 2 ($0004): Spin Dash (Will L/R alternate ability)
+; - Bit 4 ($0010): Dark Friar (Freedan attack gate + charge release)
+; - Bit 5 ($0020): Aura Barrier (Freedan L/R alternate ability)
+; - Bit 6 ($0040): Earthquaker (Freedan attack gate)
 ; 
 ; The system hijacks the player actor function pointer via SetPlayerActorFunc during ability execution, then restores it through AttackCleanup which kills spawned FX actors and plays form-specific palette restoration (Will=#0B, Freedan=#0C).
 ; 
@@ -48,7 +49,7 @@
 ; 
 ; Part 1 (AttackSystemEntry, 178099–179702): Attack dispatch, both character dispatch paths, all Freedan abilities (Dark Friar + Aura Barrier), and shared helper routines.
 ; Part 2 (TrailFollowerSprA, 179702–179872): Trail follower actors, position FIFO system, and parent offset helpers.
-; Part 3 (PsychoDashMain, 179872–181132): All Will abilities (Psycho Dash, Psycho Slider, Guided Projectile), palette FX actors, and animation table loaders.
+; Part 3 (PsychoDashMain, 179872–181132): All Will abilities (Psycho Dash, Spin Dash, Guided Projectile), palette FX actors, and animation table loaders.
 ---------------------------------------------
 
 ?BANK 02
@@ -95,7 +96,7 @@
 ; 
 ; Major sections within this part:
 ; 
-; 1. Attack Dispatcher (178099–178432): AttackSystemEntry checks player state each frame and listens for the attack button. WillAttackDispatch handles Will's 40-frame hold + 120-frame charge with ability bitmask gating for Psycho Dash/Slider. FreedanAttackDispatch handles Freedan's 40-frame hold + 100-frame charge with Dark Friar/Aura Barrier selection. LaunchPsychoDash, LaunchPsychoSlider, LaunchDarkFriar, and LaunchAuraBarrier validate and hijack the player actor function pointer.
+; 1. Attack Dispatcher (178099–178432): AttackSystemEntry checks player state each frame and listens for the attack button. WillAttackDispatch handles Will's 40-frame hold + 120-frame charge with ability bitmask gating for Psycho Dash/Spin Dash. FreedanAttackDispatch handles Freedan's 40-frame hold + 100-frame charge with Dark Friar/Aura Barrier selection. LaunchPsychoDash, LaunchSpinDash, LaunchDarkFriar, and LaunchAuraBarrier validate and hijack the player actor function pointer.
 ; 
 ; 2. Attack Helpers (178433–178558): AttackCleanup kills spawned FX and restores palette. SetPlayerActorFunc overwrites the player actor's entry point. ValidateAttackReady checks $3A00 flags and facing direction. ValidateAttackContinue does per-frame $2B00 checks. SavePlayerPosition snapshots position. CheckAttackChargeable gates charge progression via hitstun/death/combo state.
 ; 
@@ -127,14 +128,14 @@ AttackSystemEntry {
     RTL 
 
   loc_02B7D7:
-    COP [BranchIfPressed] ( #$8001, &WillAttackDispatch ) ; Listen for attack button ($8001 = B + secondary bit); branch to dispatch on press
+    COP [BranchIfPressed] ( #$0081, &WillAttackDispatch ) ; Listen for attack button ($8001 = B + secondary bit); branch to dispatch on press
     RTL 
 }
 
 WillAttackDispatch {
     LDA #$0001            ; Set attack-in-progress flag ($0001) to lock player into the attack flow
     TSB $playerFlags
-    LDA #$8000            ; Mark attack button as consumed in joypad held tracker to prevent re-trigger
+    LDA #$0080            ; Mark attack button as consumed in joypad held tracker to prevent re-trigger
     TSB $joypadHeld
     LDA $characterForm    ; Check character form — Will (0) continues here, Freedan (1) jumps to FreedanAttackDispatch
     BEQ loc_02B7F2
@@ -142,13 +143,13 @@ WillAttackDispatch {
 
   loc_02B7F2:
     LDA $abilityBitmask   ; Check Will's ability bitmask for available attacks
-    BIT #$0005            ; Bits 0+2 ($0005) = basic attack OR Psycho Slider unlocked; need at least one
+    BIT #$0005            ; Bits 0+2 ($0005) = Psycho Dash OR Spin Dash unlocked; need at least one
     BNE loc_02B7FB
     RTL 
 
   loc_02B7FB:
     COP [LoopStart] ( #28 ) ; Begin 40-frame ($28 hex) button-hold detection loop — must hold to commit
-    COP [BranchIfNotPressed] ( #$8001, &code_02B7BD ) ; Attack released during hold period → cancel back to idle (code_02B7BD)
+    COP [BranchIfNotPressed] ( #$0081, &code_02B7BD ) ; Attack released during hold period → cancel back to idle (code_02B7BD)
     COP [LoopEnd]         ; Hold period complete — player committed to charged attack
     JSR $&SavePlayerPosition ; Snapshot player position for palette FX actor reference point
     COP [SpawnListAppend] ( @WillAttackPaletteFX, #00, #00, #$2C00 ) ; Spawn Will's charge-up palette FX actor (cycles palettes #2A → #2B)
@@ -157,30 +158,30 @@ WillAttackDispatch {
     STA $24
     COP [SetEntryHere]    ; COP re-entry for per-frame charge loop
     JSR $&ValidateAttackContinue ; Per-frame abort check: hurt, knockback, transition interrupts the charge
-    COP [BranchIfNotPressed] ( #$8001, &AttackCleanup ) ; Attack released during charge → clean up and return to idle
+    COP [BranchIfNotPressed] ( #$0081, &AttackCleanup ) ; Attack released during charge → clean up and return to idle
     DEC $24               ; Decrement charge timer each frame
     BMI loc_02B829        ; Timer expired (negative) → proceed to ability selection phase
     RTL 
 
   loc_02B829:
-    LDA $abilityBitmask   ; Check if Psycho Slider ability (bit 2, $0004) is unlocked
+    LDA $abilityBitmask   ; Check if Spin Dash ability (bit 2, $0004) is unlocked
     BIT #$0004
-    BNE loc_02B83D        ; Psycho Slider unlocked → enter extended charge with L/R selection
-    COP [SetEntryHere]    ; Without Psycho Slider: simple hold loop — release fires Psycho Dash
+    BNE loc_02B83D        ; Spin Dash unlocked → enter extended charge with L/R selection
+    COP [SetEntryHere]    ; Without Spin Dash: simple hold loop — release fires Psycho Dash
     JSR $&ValidateAttackContinue
-    COP [BranchIfNotPressed] ( #$8001, &LaunchPsychoDash ) ; Attack released → launch Psycho Dash (default Will charged ability)
+    COP [BranchIfNotPressed] ( #$0081, &LaunchPsychoDash ) ; Attack released → launch Psycho Dash (default Will charged ability)
     RTL 
 
   loc_02B83D:
-    COP [SetEntryHere]    ; With Psycho Slider: extended charge with chargeable gate check
+    COP [SetEntryHere]    ; With Spin Dash: extended charge with chargeable gate check
     JSR $&ValidateAttackContinue
-    COP [BranchIfNotPressed] ( #$8001, &LaunchPsychoDash ) ; Attack released → launch Psycho Dash (still the default on release)
+    COP [BranchIfNotPressed] ( #$0081, &LaunchPsychoDash ) ; Attack released → launch Psycho Dash (still the default on release)
     JSR $&CheckAttackChargeable ; Gate check: can the player continue charging? (not in hitstun/death/mid-combo)
     BCC loc_02B84E        ; Not chargeable (carry clear) → fall through to L/R shoulder check
     RTL 
 
   loc_02B84E:
-    COP [BranchIfPressed] ( #$0030, &LaunchPsychoSlider ) ; L/R shoulder ($0030) pressed → launch Psycho Slider (alternate ability)
+    COP [BranchIfPressed] ( #$0030, &LaunchSpinDash ) ; L/R shoulder ($0030) pressed → launch Spin Dash (alternate ability)
     RTL 
 }
 
@@ -191,22 +192,22 @@ LaunchPsychoDash {
     JMP $&AttackCleanup
 }
 
-LaunchPsychoSlider {
-    JSR $&ValidateAttackReady ; Validate and set up Psycho Slider — same pattern as Psycho Dash launch
-    LDA #$&PsychoSliderMain ; Load PsychoSliderMain entry point for player actor hijack
+LaunchSpinDash {
+    JSR $&ValidateAttackReady ; Validate and set up Spin Dash — same pattern as Psycho Dash launch
+    LDA #$&SpinDashMain   ; Load SpinDashMain entry point for player actor hijack
     JSR $&SetPlayerActorFunc
     JMP $&AttackCleanup
 }
 
 FreedanAttackDispatch {
     LDA $abilityBitmask   ; Check Freedan's ability bitmask for available attacks
-    BIT #$0050            ; Bits 4+6 ($0050) = Dark Friar OR basic Freedan attack unlocked
+    BIT #$0050            ; Bits 4+6 ($0050) = Dark Friar OR Earthquaker unlocked
     BNE loc_02B876
     RTL 
 
   loc_02B876:
     COP [LoopStart] ( #28 ) ; Begin 40-frame ($28 hex) button-hold period — same duration as Will
-    COP [BranchIfNotPressed] ( #$8001, &code_02B7BD ) ; Released during hold → cancel back to idle
+    COP [BranchIfNotPressed] ( #$0081, &code_02B7BD ) ; Released during hold → cancel back to idle
     COP [LoopEnd]
     JSR $&SavePlayerPosition ; Snapshot player position for Freedan palette FX reference
     COP [SpawnListAppend] ( @FreedanAttackPaletteFX, #00, #00, #$2C00 ) ; Spawn Freedan's charge-up palette FX actor (cycles palettes #4B → #2C)
@@ -215,8 +216,8 @@ FreedanAttackDispatch {
     STA $24
     COP [SetEntryHere]    ; COP re-entry for Freedan per-frame charge loop
     JSR $&ValidateAttackContinue
-    COP [BranchIfNotPressed] ( #$8001, &AttackCleanup ) ; Attack released during charge → abort to cleanup
-    COP [BranchIfPressed] ( #$40B0, &AttackCleanup ) ; Y/A/L/R ($40B0) pressed during charge → abort (prevents accidental input)
+    COP [BranchIfNotPressed] ( #$0081, &AttackCleanup ) ; Attack released during charge → abort to cleanup
+    COP [BranchIfPressed] ( #$0030, &AttackCleanup ) ; Y/A/L/R ($40B0) pressed during charge → abort (prevents accidental input)
     DEC $24               ; Decrement Freedan charge timer each frame
     BMI loc_02B8AA
     RTL 
@@ -227,13 +228,13 @@ FreedanAttackDispatch {
     BNE loc_02B8BE
     COP [SetEntryHere]    ; Without Aura Barrier: simple wait-for-release loop
     JSR $&ValidateAttackContinue
-    COP [BranchIfNotPressed] ( #$8001, &LaunchDarkFriar ) ; Release → launch Dark Friar (only available Freedan ability)
+    COP [BranchIfNotPressed] ( #$0081, &LaunchDarkFriar ) ; Release → launch Dark Friar (only available Freedan ability)
     RTL 
 
   loc_02B8BE:
     COP [SetEntryHere]    ; With Aura Barrier: extended selection with D-pad guard and L/R trigger
     JSR $&ValidateAttackContinue
-    COP [BranchIfNotPressed] ( #$8001, &LaunchDarkFriar ) ; Release → launch Dark Friar (still the default ability on release)
+    COP [BranchIfNotPressed] ( #$0081, &LaunchDarkFriar ) ; Release → launch Dark Friar (still the default ability on release)
     COP [BranchIfPressed] ( #$0F00, &AttackChargeReturn ) ; D-pad ($0F00) during charge → return without action (prevents Aura trigger while moving)
     COP [BranchIfPressed] ( #$0030, &LaunchAuraBarrier ) ; L/R shoulder ($0030) → launch Aura Barrier (alternate Freedan ability)
 }
@@ -739,7 +740,7 @@ DarkFriarTrailEastWest {
     LDA $0B1C             ; $0B1C = Dark Friar upgrade level: 2 = fully upgraded with player redirect
     CMP #$0002
     BNE loc_02BCE4
-    COP [BranchIfPressed] ( #$8001, &DarkFriarDisableCollide ) ; Level 2 + attack button held → DarkFriarDisableCollide (player can redirect trail)
+    COP [BranchIfPressed] ( #$0081, &DarkFriarDisableCollide ) ; Level 2 + attack button held → DarkFriarDisableCollide (player can redirect trail)
 
   loc_02BCE4:
     COP [SetEntryHereAndYield] ; Set re-entry and yield — continue bounce/travel loop next frame
@@ -949,7 +950,7 @@ TrailPositionInit {
 ---------------------------------------------
 ; Will ability implementations, projectile actors, palette FX, and utility routines (179826–181132).
 ; 
-; This part contains all of Will's ability code plus shared helper routines. Despite being named after its first piece (ComputeParentOffset), the part spans offset helpers, the complete Psycho Dash and Psycho Slider implementations, the guided projectile actor, all palette FX actors, and animation table loaders.
+; This part contains all of Will's ability code plus shared helper routines. Despite being named after its first piece (ComputeParentOffset), the part spans offset helpers, the complete Psycho Dash and Spin Dash implementations, the guided projectile actor, all palette FX actors, and animation table loaders.
 ; 
 ; Major sections within this part:
 ; 
@@ -957,7 +958,7 @@ TrailPositionInit {
 ; 
 ; 2. Psycho Dash (179872–180392): PsychoDashMain loads animation table A entry 0, disables status display, dispatches by facing. Each directional handler (South/North/West/East) spawns a trail afterimage actor, sets the movement direction via force flags, stages a ~54-pixel dash movement, then returns to idle. The four PsychoDashTrail actors (South/North/West/East) record 8 position deltas during the dash and replay them in reverse as afterimage segments.
 ; 
-; 3. Psycho Slider (180393–180763): PsychoSliderMain sets $2002 flags, enters a charge loop checking for wall collision ($0080), then transitions to either the charge tick phase (L/R shoulder decrement charge level) or projectile launch. On launch, spawns GuidedProjectileActor, kills it on completion, and uses an RTS-trick (PEA label-1) to chain through directional speed setup → PsychoSliderRelease → PsychoSliderLaunch. PsychoSliderChargeTick alternates L/R shoulder checks on odd/even frames. PsychoSliderAbort clears flags and restores state.
+; 3. Spin Dash (180393–180763): SpinDashMain sets $2002 flags, enters a charge loop checking for wall collision ($0080), then transitions to either the charge tick phase (L/R shoulder decrement charge level) or projectile launch. On launch, spawns GuidedProjectileActor, kills it on completion, and uses an RTS-trick (PEA label-1) to chain through directional speed setup → SpinDashRelease → SpinDashLaunch. SpinDashChargeTick alternates L/R shoulder checks on odd/even frames. SpinDashAbort clears flags and restores state.
 ; 
 ; 4. Guided Projectile (180764–180999): KillSpawnedProjectile cleans up a stored actor reference via MarkDeath. GuidedProjectileActor stores its offset from the player, responds to D-pad input for 4-directional steering (Right=#3D, Left=#3C, Up=#3B, Down=#3A sprites), and runs a per-frame animation/collision loop.
 ; 
@@ -1238,16 +1239,16 @@ PsychoDashTrailEast {
     PLX 
     COP [Die]             ; Self-destruct — east trail lifecycle complete
 
-  PsychoSliderMain:
-    LDA #$8000            ; Mark attack button as consumed in joypad held tracker
+  SpinDashMain:
+    LDA #$0080            ; Mark attack button as consumed in joypad held tracker
     TSB $joypadHeld
-    LDA #$2002            ; Set bits 1+13 ($2002) in player flags — Psycho Slider active + attack state
+    LDA #$2002            ; Set bits 1+13 ($2002) in player flags — Spin Dash active + attack state
     TSB $playerFlags
-    LDA #$000F            ; Initialize charge parameter $26 to $000F — controls slider charge intensity
+    LDA #$000F            ; Initialize charge parameter $26 to $000F — controls Spin Dash charge intensity
     STA $26
     STA $orbitAngle, X    ; Store charge parameter in orbitAngle,X for per-frame access
     COP [SetPlayerSpriteDirect] ( #04 ) ; Set player body to attack pose (sprite #04)
-    COP [StageSprAndHitbox] ( #22 ) ; Set sprite #22 with active hitbox — Psycho Slider contact damage during charge
+    COP [StageSprAndHitbox] ( #22 ) ; Set sprite #22 with active hitbox — Spin Dash contact damage during charge
     LDA #$0000
     STA $7F102E, X
 
@@ -1260,7 +1261,7 @@ PsychoDashTrailEast {
     LDA $10               ; Check bit 7 ($0080) of actor flags — wall collision during charge
     BIT #$0080
     BEQ loc_02C0DF
-    JMP $&PsychoSliderAbort ; Wall hit → abort Psycho Slider entirely
+    JMP $&SpinDashAbort   ; Wall hit → abort Spin Dash entirely
 
   loc_02C0DF:
     LDA $26               ; Check charge level — negative means already fired; >= $000C enters L/R tick phase
@@ -1270,8 +1271,8 @@ PsychoDashTrailEast {
     LSR 
     STA $24
     COP [SetEntryHere]    ; Re-entry for button-hold monitoring during charge tick phase
-    COP [BranchIfNotPressed] ( #$8001, &PsychoSliderAbort ) ; Release during tick → abort Psycho Slider
-    JSR $&PsychoSliderChargeTick ; Process charge tick: L/R shoulder buttons decrement charge level alternately
+    COP [BranchIfNotPressed] ( #$0081, &SpinDashAbort ) ; Release during tick → abort Spin Dash
+    JSR $&SpinDashChargeTick ; Process charge tick: L/R shoulder buttons decrement charge level alternately
     DEC $24
     BMI loc_02C0CB
     RTL 
@@ -1291,7 +1292,7 @@ PsychoDashTrailEast {
     COP [StageSpriteLoop] ( #1D, #04 )
     COP [AnimLoop]
     JSR $&KillSpawnedProjectile ; Kill spawned projectile when charge phase completes
-    PEA $&PsychoSliderRelease-1 ; RTS trick: push PsychoSliderRelease-1 onto stack — RTS will jump there
+    PEA $&SpinDashRelease-1 ; RTS trick: push SpinDashRelease-1 onto stack — RTS will jump there
     STZ $playerSpeedEw    ; Zero both movement speed axes before applying directional input
     STZ $playerSpeedNs
     LDA $joypadCurrent
@@ -1334,13 +1335,13 @@ PsychoDashTrailEast {
     RTS 
 }
 
-PsychoSliderRelease {
-    LDA #$2800            ; Clear bits 11+13 ($2800) from player flags — end Psycho Slider state
+SpinDashRelease {
+    LDA #$2800            ; Clear bits 11+13 ($2800) from player flags — end Spin Dash state
     TRB $playerFlags
-    PEA $&PsychoSliderLaunch-1
-    LDA #$&PsychoSliderLaunchLoop
+    PEA $&SpinDashLaunch-1
+    LDA #$&SpinDashLaunchLoop
     STA $retPtr2, X
-    LDA $0B1A             ; Check $0B1A (Slider upgrade flag): standard=12 frames, upgraded=24 frames launch delay
+    LDA $0B1A             ; Check $0B1A (Spin Dash upgrade flag): standard=12 frames, upgraded=24 frames launch delay
     BNE loc_02C195
     LDA #$000C
     RTS 
@@ -1350,23 +1351,23 @@ PsychoSliderRelease {
     RTS 
 }
 
-PsychoSliderLaunch {
+SpinDashLaunch {
     STA $loopCounter, X   ; Store frame count as loop counter for launch animation sequence
-    LDA #$0001            ; Load animation table A entry 1 for slider launch sprite set
+    LDA #$0001            ; Load animation table A entry 1 for Spin Dash launch sprite set
     JSR $&LoadAbilityAnimTableA
 
-  PsychoSliderLaunchLoop:
+  SpinDashLaunchLoop:
     COP [StageSpriteFrame] ( #1D ) ; Launch animation re-entry point — stored in retPtr2 for COP loop
     COP [AnimOnce]
     COP [LoopEnd]
-    LDA #$0002            ; Clear bit 1 ($0002) from player flags — end Slider charge state
+    LDA #$0002            ; Clear bit 1 ($0002) from player flags — end Spin Dash charge state
     TRB $playerFlags
-    COP [BranchIfPressed] ( #$0300, &PsychoSliderDirEW ) ; Check D-pad left/right ($0300) for horizontal launch direction
-    COP [BranchIfPressed] ( #$0C00, &PsychoSliderDirNS ) ; Check D-pad up/down ($0C00) for vertical launch direction
-    BRA PsychoSliderAbort ; No direction held → abort Psycho Slider (no launch without directional input)
+    COP [BranchIfPressed] ( #$0300, &SpinDashDirEW ) ; Check D-pad left/right ($0300) for horizontal launch direction
+    COP [BranchIfPressed] ( #$0C00, &SpinDashDirNS ) ; Check D-pad up/down ($0C00) for vertical launch direction
+    BRA SpinDashAbort     ; No direction held → abort Spin Dash (no launch without directional input)
 }
 
-PsychoSliderDirEW {
+SpinDashDirEW {
     LDA $joypadCurrent    ; Check left button ($0200) to determine east vs west sprite
     BIT #$0200
     BNE loc_02C1CB
@@ -1378,28 +1379,28 @@ PsychoSliderDirEW {
     BRA loc_02C1E0
 }
 
-PsychoSliderDirNS {
+SpinDashDirNS {
     LDA $joypadCurrent    ; Check up button ($0800) to determine north vs south launch sprite
     BIT #$0800
     BNE loc_02C1DD
-    COP [StagePlayerSprite] ( #00 ) ; South: set player sprite #00 for downward slider launch
+    COP [StagePlayerSprite] ( #00 ) ; South: set player sprite #00 for downward Spin Dash launch
     BRA loc_02C1E0
 
   loc_02C1DD:
-    COP [StagePlayerSprite] ( #01 ) ; North: set player sprite #01 for upward slider launch
+    COP [StagePlayerSprite] ( #01 ) ; North: set player sprite #01 for upward Spin Dash launch
 
   loc_02C1E0:
     COP [AnimOneFrame]    ; Animate one frame of directional launch, then clear frame counter
     STZ $08
 }
 
-PsychoSliderAbort {
+SpinDashAbort {
     LDA #$0200            ; Clear bit 9 ($0200) — end guided projectile state
     TRB $10
     COP [RestoreSavedPtr]
 }
 
-PsychoSliderChargeTick {
+SpinDashChargeTick {
     LDA $26               ; Read charge level from $26; LSR checks odd/even for alternating L/R check
     LSR 
     BCC loc_02C202
@@ -1455,7 +1456,7 @@ GuidedProjectileActor {
     SEC 
     SBC $playerYPos       ; Compute initial Y offset = projectile Y − player Y → $7F100E,X
     STA $7F100E, X
-    COP [SetMetasprite] ( @spriteset_enemies ) ; Set metasprite to table_0EE000 — Psycho Slider projectile graphics
+    COP [SetMetasprite] ( @spriteset_enemies ) ; Set metasprite to table_0EE000 — Spin Dash projectile graphics
 
   code_02C24E:
     COP [BranchIfPressed] ( #$0100, &ProjectileMoveRight ) ; D-pad direction dispatch: right=$0100, left=$0200, up=$0800, down=$0400

@@ -39,7 +39,7 @@ pyCD_jackal [
 ]
 
 code_08B853 {
-    LDA #$EFF0
+    LDA #$EFFC
     TSB $joypadMaskStd
     COP [StartMusic] ( #1B )
     COP [WaitByte] ( #3B )
@@ -49,7 +49,7 @@ code_08B853 {
     COP [MarkSolidAbs] ( #09, #09 )
     COP [MarkSolidAbs] ( #09, #0A )
     COP [PrintDialogString] ( &dialogstring_08BA11 )
-    LDA #$EFF0
+    LDA #$EFFC
     TRB $joypadMaskStd
     COP [SetEntryHere]
     COP [BranchIfPlayerInAbsTiles] ( #03, #09, #04, #0D, &code_08B893 )
@@ -71,7 +71,7 @@ code_08B893 {
     COP [MarkSolidAbs] ( #05, #09 )
     COP [MarkSolidAbs] ( #05, #0A )
     COP [PrintDialogString] ( &dialogstring_08BA5A )
-    LDA #$CFF0
+    LDA #$CFFC
     TSB $joypadMaskStd
     LDA #$2000
     TRB $10
@@ -112,7 +112,7 @@ code_08B893 {
     TSB $playerFlags
 
   loc_08B921:
-    LDA #$CFF0
+    LDA #$CFFC
     TRB $joypadMaskStd
     LDA #$000F
     STA $musicParentActor
@@ -140,7 +140,7 @@ code_08B951 {
 }
 
 code_08B956 {
-    LDA #$EFF0
+    LDA #$EFFC
     TSB $joypadMaskStd
     COP [ClearFlagByte] ( #0E )
     COP [WaitByte] ( #1D )
@@ -185,7 +185,7 @@ code_08B956 {
     COP [SetFlagByte] ( #06 )
     COP [SetFlagByte] ( #BB )
     COP [ClearFlagByte] ( #0F )
-    LDA #$EFF0
+    LDA #$EFFC
     TRB $joypadMaskStd
     COP [SetEntryHere]
     RTL 

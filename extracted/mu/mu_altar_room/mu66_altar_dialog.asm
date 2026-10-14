@@ -17,11 +17,11 @@ mu66_altar_dialog [
     COP [BranchIfPlayerInAbsTiles] ( #20, #00, #30, #10, &code_069CAF )
     COP [BranchOnFlagByte] ( #82, #01, &code_069CAC )
     COP [SetFlagByte] ( #82 )
-    LDA #$CFF0
+    LDA #$CFFC
     TSB $joypadMaskStd
     COP [WaitByte] ( #1D )
     COP [PrintDialogString] ( &dialogstring_069CB7 )
-    LDA #$CFF0
+    LDA #$CFFC
     TRB $joypadMaskStd
 } >
 ]

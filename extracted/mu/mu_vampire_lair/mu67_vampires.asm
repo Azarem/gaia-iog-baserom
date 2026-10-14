@@ -20,7 +20,7 @@
 !gfxCacheIdxA                   0648
 !gfxCacheIdxB                   064A
 !joypadMaskStd                  065A
-!bg2ScrollH                     068E
+!mapScrollV                     068E
 !playerYPos                     09A4
 !playerActor                    09AA
 !playerFlags                    09AE
@@ -171,7 +171,7 @@ code_0AF27E {
     LDA $sceneCurrent
     CMP #$0067
     BNE loc_0AF2A2
-    LDA #$EFF0
+    LDA #$EFFC
     TSB $joypadMaskStd
     COP [PlaySoundCh1] ( #0E )
     COP [WaitByte] ( #0E )
@@ -183,7 +183,7 @@ code_0AF27E {
     COP [WaitByte] ( #27 )
 
   loc_0AF2A2:
-    LDA #$EFF0
+    LDA #$EFFC
     TRB $joypadMaskStd
     COP [WaitByte] ( #77 )
     COP [SetFlagByte] ( #02 )
@@ -680,7 +680,7 @@ sub_0AF6D7 {
     STA $00F6
     LDA $16
     SEC 
-    SBC $bg2ScrollH
+    SBC $mapScrollV
     STA $00FA
     RTS 
 }

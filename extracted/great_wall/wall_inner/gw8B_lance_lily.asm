@@ -39,7 +39,7 @@ code_07B789 {
 }
 
 code_07B7A3 {
-    LDA #$CFF0
+    LDA #$CFFC
     TSB $joypadMaskStd
     COP [FadeThenStartMusic] ( #15 )
     COP [WaitWord] ( #$0167 )
@@ -103,7 +103,7 @@ dialogstring_07BA2E `[TPL:A][TPL:4][DLY:0]Lance: Wow!! I've never [N][DLY:1]felt
 ---------------------------------------------
 
 e_gw8B_lily {
-    LDA #$CFF0
+    LDA #$CFFC
     TSB $joypadMaskStd
     LDY $playerActor
     LDA $0014, Y
@@ -129,7 +129,7 @@ e_gw8B_lily {
     COP [PrintDialogString] ( &dialogstring_07B824 )
     COP [SetFlagByte] ( #01 )
     COP [SetInteractHandler] ( &code_07BB84 )
-    LDA #$CFF0
+    LDA #$CFFC
     TRB $joypadMaskStd
     COP [WaitOnFlagByte] ( #03, #01 )
     COP [WaitByte] ( #3B )

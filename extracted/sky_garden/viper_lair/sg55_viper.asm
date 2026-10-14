@@ -17,6 +17,7 @@
 ?INCLUDE 'spriteset_enemies'
 ?INCLUDE 'StandardEnemyDefeatHandler'
 
+!frameCounter                   0036
 !extVelocityX                   0408
 !extVelocityY                   040A
 !rngModuloResult                0420
@@ -130,12 +131,12 @@ sg55_viper [
     STA $0AF6
     LDA #$&binary_0AD93D
     STA $0AF4
-    LDA #$EFF0
+    LDA #$EFFC
     TSB $joypadMaskStd
     COP [WaitByte] ( #01 )
     COP [StartMusic] ( #0F )
     COP [WaitByte] ( #27 )
-    LDA #$EFF0
+    LDA #$EFFC
     TRB $joypadMaskStd
     COP [SetEntryHere]
     LDA $playerYPos
@@ -685,7 +686,7 @@ code_0AD543 {
     EOR #$FFFF
     INC 
     STA $scratch1010+2, X
-    LDA $0036
+    LDA $frameCounter
     LSR 
     BCC loc_0AD629
     COP [SetSpritePalette] ( #08 )

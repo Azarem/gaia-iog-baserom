@@ -16,7 +16,7 @@ dm3E_intro [
   actor-def < #00, #00, #30, {
 
   code_05F99F:
-    LDA #$CFF0
+    LDA #$CFFC
     TSB $joypadMaskStd
     LDA $sceneCurrent
     CMP #$003E
@@ -25,7 +25,7 @@ dm3E_intro [
     BEQ loc_05F9CC
 
   code_05F9B2:
-    LDA #$CFF0
+    LDA #$CFFC
     TRB $joypadMaskStd
     COP [Die]
 

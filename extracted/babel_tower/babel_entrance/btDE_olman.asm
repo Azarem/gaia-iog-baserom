@@ -15,6 +15,8 @@
 !gfxCacheIdxB                   064A
 !joypadMaskStd                  065A
 !playerActor                    09AA
+!globalScriptIndex              0AAC
+!sourceSceneId                  0B12
 
 ---------------------------------------------
 
@@ -30,7 +32,7 @@ btDE_olman [
     COP [MarkSolidHere]
     COP [SetInteractHandler] ( &code_0988D2 )
     COP [WaitOnFlagByte] ( #01, #01 )
-    LDA #$EFF0
+    LDA #$EFFC
     TSB $joypadMaskStd
     COP [SetInteractHandler] ( #$0000 )
     COP [SpawnAfterOffsetFlags] ( @code_0988DA, #$0000, #$FFE0, #$1800 )
@@ -47,9 +49,9 @@ btDE_olman [
   loc_098857:
     COP [WaitByte] ( #1D )
     LDA #$0005
-    STA $0AAC
+    STA $globalScriptIndex
     LDA #$00DE
-    STA $0B12
+    STA $sourceSceneId
     LDA #$0017
     STA $0B08
     STA $0B0A
@@ -73,7 +75,7 @@ code_098891 {
     LDY $playerActor
     LDA #$0001
     STA $0028, Y
-    LDA #$EFF0
+    LDA #$EFFC
     TSB $joypadMaskStd
     COP [WaitByte] ( #1D )
     COP [PrintDialogString] ( &dialogstring_098CAA )

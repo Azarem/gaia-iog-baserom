@@ -20,11 +20,11 @@ it1B_trial [
 
   code_04F898:
     COP [BranchOnFlagWord] ( #$011C, #01, &code_04F902 )
-    LDA #$CFF0
+    LDA #$CFFC
     TSB $joypadMaskStd
     COP [WaitByte] ( #1D )
     COP [PrintDialogString] ( &dialogstring_04F941 )
-    LDA #$CFF0
+    LDA #$CFFC
     TRB $joypadMaskStd
     LDA #$2200
     STA $0E
@@ -77,11 +77,11 @@ code_04F902 {
     RTL 
 
   loc_04F91E:
-    LDA #$FFF0
+    LDA #$FFFC
     TSB $joypadMaskStd
     COP [WaitByte] ( #1D )
     COP [PrintDialogString] ( &dialogstring_04FA65 )
-    LDA #$FFF0
+    LDA #$FFFC
     TRB $joypadMaskStd
     COP [PlaySoundBoth] ( #$0F0F )
     COP [StageBgChange] ( #1C )

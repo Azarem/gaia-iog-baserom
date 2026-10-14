@@ -22,7 +22,7 @@ sFC_title_start_handler [
   actor-def < #00, #00, #38, {
 
   TitleStartDelayedInit:
-    LDA #$FFF0            ; Mask all joypad input except Start/Select/L/R
+    LDA #$FFFC            ; Mask all joypad input except Start/Select/L/R
     TSB $joypadMaskStd
     COP [WaitWord] ( #$021B ) ; Wait 539 frames (~9 sec) before accepting input
     BRA loc_0BC9C6        ; Fall through to shared button poll
@@ -33,7 +33,7 @@ sFC_actor_0BC9BD [
   actor-def < #00, #00, #38, {
 
   TitleStartPollInit:
-    LDA #$FFF0            ; Mask all joypad input except Start/Select/L/R
+    LDA #$FFFC            ; Mask all joypad input except Start/Select/L/R
     TSB $joypadMaskStd
 
   loc_0BC9C6:

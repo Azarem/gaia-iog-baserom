@@ -25,14 +25,14 @@ btE3_kara [
 
 code_098529 {
     COP [NudgePosition] ( #08, #00 )
-    LDA #$CFF0
+    LDA #$CFFC
     TSB $joypadMaskStd
     COP [StageSpriteMoveX] ( #20, #12 )
     COP [AnimOnce]
     COP [StageSpriteFrame] ( #1C )
     COP [AnimOnce]
     COP [PrintDialogString] ( &dialogstring_098577 )
-    LDA #$CFF0
+    LDA #$CFFC
     TRB $joypadMaskStd
     COP [SpawnAfterFlags] ( @EscortFollowPathTracker, #$2000 )
     TXA 

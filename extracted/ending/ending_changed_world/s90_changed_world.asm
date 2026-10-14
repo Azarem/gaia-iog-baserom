@@ -19,7 +19,7 @@ s90_changed_world [
   actor-def < #00, #00, #30, {
 
   code_0BDE43:
-    LDA #$FFF0
+    LDA #$FFFC
     TSB $joypadMaskStd
     LDA #$4001
     TSB $displayModeFlags

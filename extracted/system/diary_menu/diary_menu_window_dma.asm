@@ -3,6 +3,7 @@
 ; Queues 26-byte HDMA/DMA setups that configure window layers for the diary UI panels. Spawned on scene $FA (diary menu scene). Updates window masking as the player navigates diary pages.
 ---------------------------------------------
 
+!frameCounter                   0036
 !WH0                            2126
 
 ---------------------------------------------
@@ -13,7 +14,7 @@ diary_menu_window_dma [
   code_00BBB1:
     LDA $0D96
     BMI loc_00BBBC
-    LDA $0036
+    LDA $frameCounter
     LSR 
     BCC loc_00BBC7
 

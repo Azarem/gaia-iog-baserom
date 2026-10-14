@@ -17,7 +17,7 @@ btDC_plane_jumping [
   actor-def < #06, #00, #18, {
 
   code_098149:
-    LDA #$EFF0
+    LDA #$EFFC
     TSB $joypadMaskStd
     SEP #$20
     LDA #$15

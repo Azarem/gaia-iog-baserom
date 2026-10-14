@@ -79,11 +79,11 @@ code_04BCF4 {
     COP [BranchOnFlagByte] ( #17, #01, &code_04BD16 )
     COP [BranchOnFlagByte] ( #16, #00, &code_04BD16 )
     COP [SetFlagByte] ( #17 )
-    LDA #$CFF0
+    LDA #$CFFC
     TSB $joypadMaskStd
     COP [WaitByte] ( #1D )
     COP [PrintDialogString] ( &dialogstring_04BE05 )
-    LDA #$CFF0
+    LDA #$CFFC
     TRB $joypadMaskStd
 }
 
