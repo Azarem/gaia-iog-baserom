@@ -23,12 +23,15 @@ code_04DB15!:
     COP [BranchOnFlagByte] ( #24, #01, &ec0B_door_die )
     LDA #$0200
     TSB $12
-    JSL $@ActorDisplayModeSwap
     COP [SetInteractHandler] ( &code_04DB24 )
     COP [WaitOnFlagByte] ( #02, #01 )
-    
-    LDA $24
-    BEQ ec0B_door_die
+
+    LDA $14
+    CMP #$00F9
+    BCS ec0B_door_die
+    CMP #$00E8
+    BCC ec0B_door_die
+
     COP [SetInteractHandler] ( &ec0B_door_interact_key )
     COP [WaitOnFlagByte] ( #24, #01 )
 
@@ -38,8 +41,6 @@ ec0B_door_die:
 code_04DB24! {
     COP [PrintDialogString] ( &dialogstring_04DB2D )
     COP [SetFlagByte] ( #02 )
-    LDA $24
-    BEQ ec0B_door_die
     RTL
 }
 
@@ -48,7 +49,7 @@ ec0B_door_interact_key {
     BIT #$0001
     BNE ec0B_door_use_key
     COP [BranchIfHasItem] ( #02, &ec0B_door_use_key )
-    COP [PrintDialogString] ( &dialogstring_04DB2D )
+    ;COP [PrintDialogString] ( &dialogstring_04DB2D )
     RTL
 }
 

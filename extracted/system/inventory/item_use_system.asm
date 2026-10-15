@@ -337,14 +337,14 @@ UseItem_IncaStatueA {
     CMP #$0012
     BEQ loc_0386A6
     CMP #$0013
-    BNE loc_0386EA
+    BNE UseItem_IncaStatueA_CheckAlt
 
   loc_0386A6:
     LDA $playerXTile
     CMP #$0037
     BEQ loc_0386B3
     CMP #$0038
-    BNE loc_0386EA
+    BNE UseItem_IncaStatueA_CheckAlt
 
   loc_0386B3:
     COP [PrintDialogString] ( &dialogstring_0386BE )
@@ -371,11 +371,13 @@ UseItem_IncaStatueA_CheckAlt {
     LDA $playerXTile
     CMP #$0026
     BNE loc_0386F5
+
+  loc_0386F2:
     JMP $&code_03876D
 
   loc_0386F5:
     CMP #$0027
-    BNE loc_0386FA
+    BEQ loc_0386F2
 
   loc_0386FA:
     COP [BranchOnFlagByte] ( #44, #00, &code_038705 )
@@ -412,14 +414,14 @@ UseItem_IncaStatueB {
     CMP #$0015
     BEQ loc_0387BC
     CMP #$0016
-    BNE loc_038800
+    BNE UseItem_IncaStatueB_CheckAlt
 
   loc_0387BC:
     LDA $playerXTile
     CMP #$0026
     BEQ loc_0387C9
     CMP #$0027
-    BNE loc_038800
+    BNE UseItem_IncaStatueB_CheckAlt
 
   loc_0387C9:
     COP [PrintDialogString] ( &dialogstring_0387D4 )
@@ -445,7 +447,7 @@ UseItem_IncaStatueB_CheckAlt {
     CMP #$0037
     BEQ loc_038818
     CMP #$0038
-    BNE loc_03880D
+    BEQ loc_038818
 
   loc_03880D:
     COP [BranchOnFlagByte] ( #44, #00, &code_038705 )

@@ -521,7 +521,11 @@
   ],
   "item_use_system": [
     { "key": "LDA #\\$4000", "value": "LDA #$$0008" },
-    { "key": "LDA #\\$CFF0([^\\r\\n]*\\s+T[SR]B \\$joypadMaskStd)", "value": "LDA #$$CFFC$1" }
+    { "key": "LDA #\\$CFF0([^\\r\\n]*\\s+T[SR]B \\$joypadMaskStd)", "value": "LDA #$$CFFC$1" },
+    { "key": "BNE loc_0386EA", "value": "BNE UseItem_IncaStatueA_CheckAlt" },
+    { "key": "BNE loc_038800", "value": "BNE UseItem_IncaStatueB_CheckAlt" },
+    { "key": "(CMP #\\$0027[\\s]+)BNE loc_0386FA", "value": "$1BEQ loc_0386F2" },
+    { "key": "(CMP #\\$0038[\\s]+)BNE loc_03880D", "value": "$1BEQ loc_038818" }
   ],
   "GlobalInputHandler": [
     { "key": "BIT #\\$4000", "value": "BIT #$$0008" }
