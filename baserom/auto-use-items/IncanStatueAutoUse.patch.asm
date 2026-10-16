@@ -13,7 +13,7 @@ code_09C550! {
 }
 
 isau_interact_a {
-    LDA #$0B58
+    LDA $0B58
     BIT #$0004
     BNE isau_use_a
     COP [BranchIfHasItem] ( #03, &isau_use_a )
@@ -27,7 +27,7 @@ isau_use_a {
     RTL
 }
 
-isau_interact_str_a `[DEF]There is a strange[N]pedestal here. It's as if[N]something were missing...[END]`
+isau_interact_str_a `[DEF]There is a strange[N]mantel here. It's as if[N]something were missing...[END]`
 
 ------------------------------------------------
 
@@ -44,7 +44,7 @@ code_09C566! {
 }
 
 isau_interact_b {
-    LDA #$0B58
+    LDA $0B58
     BIT #$0008
     BNE isau_use_b
     COP [BranchIfHasItem] ( #04, &isau_use_b )
@@ -58,4 +58,4 @@ isau_use_b {
     RTL
 }
 
-isau_interact_str_b `[DEF]There is a strange[N]pedestal here. It's as if[N]something were missing...[END]`
+isau_interact_str_b `[DEF]There is a strange[N]mantel here. It's as if[N]something were missing...[END]`

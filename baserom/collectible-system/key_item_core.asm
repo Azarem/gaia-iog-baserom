@@ -29,24 +29,6 @@ KeyItemRevoke #00
 
 ; 00111111 = Hieroglyphs
 
-KeyItemDescriptions [
-    #02
-    #0A
-    #03
-    #07
-    #0F
-    #0B
-    #0E
-    #11
-    #10
-    #12
-    #13
-    #14
-    #1A
-    #19
-    #1D
-    #1E
-]
 
 KeyItemFlagIndex [
     #FF
@@ -314,6 +296,13 @@ KeyItemTestFlag {
     PLX
     CLC
     RTS
+}
+
+KeyItemTestFlagWrapper {
+    SEP #$20
+    JSR $&KeyItemTestFlag
+    REP #$20
+    RTL
 }
 
 ---------------------------------------------

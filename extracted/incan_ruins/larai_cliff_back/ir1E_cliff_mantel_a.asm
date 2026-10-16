@@ -1,18 +1,18 @@
-; Decorative boulder on the Larai Cliff back side (variant B).
+; Statue manel on the Larai Cliff back side (variant A).
 ; 
-; Identical to variant A but placed at a different position.
-; Same flag $30 check and sprite priority #30.
+; Simple sprite prop at priority #30. Checks flag $30 — if set,
+; hides display and idles. Otherwise shows incan statue sprite.
 ---------------------------------------------
 
 ---------------------------------------------
 
-ir1E_cliff_boulder_b [
+ir1E_cliff_mantel_a [
   actor-def < #19, #02, #30, {
 
-  code_09C566:
+  code_09C550:
     COP [NudgePosition] ( #08, #FE )
     COP [SetSpritePriority] ( #30 )
-    COP [WaitOnFlagByte] ( #31, #01 )
+    COP [WaitOnFlagByte] ( #30, #01 )
     LDA #$2000
     TRB $10
     COP [SetEntryHere]

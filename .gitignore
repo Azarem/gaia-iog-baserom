@@ -2,4 +2,7 @@ node_modules
 dist
 rebuilt
 package-lock.json
+extracted/**/*.bin
+extracted/**/*.bgm
+extracted/**/*.sfx
 .env

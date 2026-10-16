@@ -319,8 +319,8 @@
 ?INCLUDE 'ir1D_mudpit'
 ?INCLUDE 'ir1D_scuttlebug'
 ?INCLUDE 'ir1D_wind_melody'
-?INCLUDE 'ir1E_cliff_boulder_a'
-?INCLUDE 'ir1E_cliff_boulder_b'
+?INCLUDE 'ir1E_cliff_mantel_a'
+?INCLUDE 'ir1E_cliff_mantel_b'
 ?INCLUDE 'ir1E_cliff_slide_trigger'
 ?INCLUDE 'ir1F_gold_tile'
 ?INCLUDE 'ir1F_plate_gate_opener'
@@ -1324,8 +1324,8 @@ scene_event_0C8D85 [
   actor-spawn < #00, #00, #00, @camera_scroll_controller >   ;01
   actor-spawn < #11, #11, #00, @camera_scroll.ScrollCameraTrack >   ;02
   actor-spawn < #00, #01, #00, @ir1E_cliff_slide_trigger >   ;03
-  actor-spawn < #37, #14, #00, @ir1E_cliff_boulder_a >   ;04
-  actor-spawn < #26, #17, #00, @ir1E_cliff_boulder_b >   ;05
+  actor-spawn < #37, #14, #00, @ir1E_cliff_mantel_a >   ;04
+  actor-spawn < #26, #17, #00, @ir1E_cliff_mantel_b >   ;05
   actor-spawn < #19, #12, #03, @ramps.ramp_east >   ;06
   actor-spawn < #2C, #05, #03, @dark_space.dark_space2 >   ;07
 ]

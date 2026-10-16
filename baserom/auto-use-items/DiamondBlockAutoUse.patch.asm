@@ -16,7 +16,7 @@ code_09C3A2! {
 }
 
 ir25_block_slot_interact {
-    LDA #$0B58
+    LDA $0B58
     BIT #$0010
     BNE ir25_block_slot_use
     COP [BranchIfHasItem] ( #07, &ir25_block_slot_use )

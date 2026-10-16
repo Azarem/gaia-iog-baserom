@@ -31,8 +31,6 @@
 ;   Bit 2  ($0004): ACTION_CYCLE_ITEM
 ;   Bits 1-0: Reserved
 
-?BANK 03
-
 !btnMapA                        0B34
 !btnMapB                        0B35
 !btnMapX                        0B36

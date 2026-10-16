@@ -200,7 +200,7 @@ loc_03ED90! {
 loc_02B06D! {
     AND #$DF
     STA $09EC
-    LDX #$0080  ;Two lines of tiles
+    LDX #$00C0  ;Three lines of tiles
     STX $DAS0L
 }
 

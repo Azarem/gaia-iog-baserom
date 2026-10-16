@@ -99,7 +99,7 @@ ClearActorRenderList {
 
 ; Depth-sort all on-screen actors into the render list at $0C00 using bucket sort.
 ; 
-; Iterates the actor linked list ($0058 head → $04 next). For each actor, performs screen-bounds culling on both axes (X range 0–$100 against bg1ScrollH, Y range 0–$E0 against bg2ScrollH), accounting for actor dimensions ($18/$1C offset, $1A/$1E size). Off-screen actors get flag $4000 set in $10 via SortActors_OffScreen.
+; Iterates the actor linked list ($0058 head → $04 next). For each actor, performs screen-bounds culling on both axes (X range 0–$100 against bg1ScrollH, Y range 0–$E0 against mapScrollV), accounting for actor dimensions ($18/$1C offset, $1A/$1E size). Off-screen actors get flag $4000 set in $10 via SortActors_OffScreen.
 ; 
 ; On-screen actors receive a depth sort key based on flags ($10):
 ; - Bit 13 ($2000): hidden — skipped, no buffer entry
@@ -143,7 +143,7 @@ SortActorsByDepth {
     BCS SortActors_OffScreen
 
   loc_03C631:
-    LDA $16               ; Top-edge screen Y = posY − originY − bg2ScrollH
+    LDA $16               ; Top-edge screen Y = posY − originY − mapScrollV
     SEC 
     SBC $1A
     SEC 
@@ -415,7 +415,7 @@ RenderComposeBuffer {
     RTS 
 
   loc_03C79E:
-    LDA $7F3102, X        ; Screen Y = bufferY − bg2ScrollH; skip if ≥ $F0
+    LDA $7F3102, X        ; Screen Y = bufferY − mapScrollV; skip if ≥ $F0
     SEC 
     SBC $mapScrollV
     CMP #$00F0

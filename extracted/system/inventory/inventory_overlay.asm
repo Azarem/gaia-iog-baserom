@@ -239,7 +239,7 @@ OpenInventoryScreen {
     JSR $&RestoreGameState ; RestoreGameState — copy all backup WRAM regions back to live
     LDX $cameraTargetX    ; cameraTargetX → bg1ScrollH
     STX $bg1ScrollH
-    LDX $cameraTargetY    ; cameraTargetY → bg2ScrollH
+    LDX $cameraTargetY    ; cameraTargetY → mapScrollV
     STX $mapScrollV
     LDX $cameraDeltaX     ; cameraDeltaX → bg1ScrollV
     STX $effectScrollH

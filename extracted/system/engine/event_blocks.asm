@@ -31,7 +31,7 @@
 ; 
 ; === VISIBILITY CHECK ===
 ; 
-; QueueVisibleTileVram tests whether a tile's pixel position falls within the camera viewport by comparing against bg1ScrollH/bg2ScrollH and bg1ScrollV/savedCameraDelta. Tiles outside the visible area are skipped — only on-screen tiles get queued for VRAM update. Returns carry set if off-screen, carry clear + Z flag for queue full ($0100 bytes = 16 metatiles), or carry clear + NZ for successful queue.
+; QueueVisibleTileVram tests whether a tile's pixel position falls within the camera viewport by comparing against bg1ScrollH/mapScrollV and bg1ScrollV/savedCameraDelta. Tiles outside the visible area are skipped — only on-screen tiles get queued for VRAM update. Returns carry set if off-screen, carry clear + Z flag for queue full ($0100 bytes = 16 metatiles), or carry clear + NZ for successful queue.
 ; 
 ; === HELPER ROUTINES ===
 ; 
@@ -576,7 +576,7 @@ AnimateEventBlock {
 ; 
 ; Tests whether a tile at pixel position ($1A, $1E) is within the camera viewport:
 ; - X check: ($1A + 16 − bg1ScrollH) must be < $0111 (visible horizontal range)
-; - Y check: ($1E − (bg2ScrollH − 16, aligned to 16px)) must be >= 0 and < $00F1
+; - Y check: ($1E − (mapScrollV − 16, aligned to 16px)) must be >= 0 and < $00F1
 ; 
 ; If off-screen: returns carry set (PLP restores processor state). If on-screen: reads the mapLayerTilemap byte at map index X, multiplies by 8 (ASL×3) to index metatileMapLayer ($7E2000). Copies four 16-bit tile words from the metatile definition to the VRAM write queue at $0802+Y (top-left, top-right at +$02/+$06; bottom-left, bottom-right at +$0A/+$0E). Calls PixelToVramAddress to compute the VRAM nametable address, stores to dmaSkipFlag+Y.
 ; 
@@ -592,7 +592,7 @@ QueueVisibleTileVram {
     SBC $bg1ScrollH
     CMP #$0111
     BCS loc_02A588
-    LDA $mapScrollV       ; Vertical scroll baseline: bg2ScrollH − 16, snapped to 16px grid
+    LDA $mapScrollV       ; Vertical scroll baseline: mapScrollV − 16, snapped to 16px grid
     SEC 
     SBC #$0010
     AND #$FFF0

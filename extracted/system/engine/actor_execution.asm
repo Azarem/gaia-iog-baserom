@@ -1129,7 +1129,7 @@ InitActorFromSceneData {
     LDA #$0000
 
   loc_03D0D2:
-    STA $cameraTargetY    ; Initialize both cameraTargetY and bg2ScrollH
+    STA $cameraTargetY    ; Initialize both cameraTargetY and mapScrollV
     STA $mapScrollV
     PLD 
     CLC 

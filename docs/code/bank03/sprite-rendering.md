@@ -151,7 +151,7 @@ off-screen flag and skips tile processing entirely.
 Before computing a sort key, each actor undergoes a 2-axis screen-bounds check:
 - **X axis:** `(posX − originX − bg1ScrollH)` against `$0100` (256px). Both
   edges (left = pos − width, right = pos + width) are tested.
-- **Y axis:** `(posY − originY − bg2ScrollH)` against `$00E0` (224px). Same
+- **Y axis:** `(posY − originY − mapScrollV)` against `$00E0` (224px). Same
   edge testing.
 
 Actors failing both edges on either axis receive `$4000` in flags `$10` via

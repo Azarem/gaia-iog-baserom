@@ -212,7 +212,7 @@ When a COP handler or game code sets `TCD #$0000`, offsets `$00`–`$FF` access 
 | Address | Size | Name | Description | Primary Users |
 |---------|------|------|-------------|---------------|
 | `$068A`–`$068D` | 4 | `bg1ScrollHv` | BG1 horizontal (H) and vertical (V) scroll positions (16-bit each) | `UploadScrollRegisters`, `WriteBgScroll`, `CameraSmoothScroll` |
-| `$068E`–`$068F` | 2 | `bg2ScrollHv` | BG2 scroll values (low bytes; extended via `$06C6`+ overrides) | `UploadScrollRegisters` |
+| `$068E`–`$068F` | 2 | `mapScrollVv` | BG2 scroll values (low bytes; extended via `$06C6`+ overrides) | `UploadScrollRegisters` |
 | `$0690` | 2 | `savedCameraDelta` | Saved camera delta for `ScrollCameraInit` | `ScrollCameraInit` |
 | `$0692` | 2 | `mapBoundsX` | Map width in pixels | Camera bounds clamping |
 | `$0693` | 1 | `mapRowStrideL0` | Map row width in columns (layer 0) — byte stride for index math | `AdvanceMapY`, collision iterators, `map_coords.asm` |

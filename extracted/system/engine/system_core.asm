@@ -623,7 +623,7 @@ NmiHandler {
 ; 
 ; Two modes based on scrollModeFlags bit 3:
 ; - Normal mode: Uses WriteBgScroll with indexed layer data. Respects layerPriorityFlag — when negative, swaps the order BG1/BG2 are written to handle layer priority changes.
-; - Direct mode (bit 3 set): Writes bg1ScrollH/bg2ScrollH directly to BG1HOFS/BG1VOFS registers, masking high bytes to 7 bits.
+; - Direct mode (bit 3 set): Writes bg1ScrollH/mapScrollV directly to BG1HOFS/BG1VOFS registers, masking high bytes to 7 bits.
 
 UploadScrollRegisters {
     LDA $scrollModeFlags
