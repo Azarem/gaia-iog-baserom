@@ -17,14 +17,15 @@ isau_interact_a {
     BIT #$0004
     BNE isau_use_a
     COP [BranchIfHasItem] ( #03, &isau_use_a )
+
+  isau_interact_a_stub:
     COP [PrintDialogString] ( &isau_interact_str_a )
     RTL
 }
 
 isau_use_a {
     LDA #&loc_0386B3
-    JSL $@ItemUseStub
-    RTL
+    JML $@ItemUseStub
 }
 
 isau_interact_str_a `[DEF]There is a strange[N]mantel here. It's as if[N]something were missing...[END]`
@@ -48,14 +49,10 @@ isau_interact_b {
     BIT #$0008
     BNE isau_use_b
     COP [BranchIfHasItem] ( #04, &isau_use_b )
-    COP [PrintDialogString] ( &isau_interact_str_b )
-    RTL
+    JML $@isau_interact_a_stub
 }
 
 isau_use_b {
     LDA #&loc_0387C9
-    JSL $@ItemUseStub
-    RTL
+    JML $@ItemUseStub
 }
-
-isau_interact_str_b `[DEF]There is a strange[N]mantel here. It's as if[N]something were missing...[END]`

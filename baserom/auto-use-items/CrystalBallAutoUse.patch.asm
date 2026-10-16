@@ -74,8 +74,7 @@ sg4C_slot1_interact {
 
 sg4C_slot1_use {
     LDA #&code_039020
-    JSL $@ItemUseStub
-    RTL
+    JML $@ItemUseStub
 }
 
 -----------------------------------------------
@@ -88,8 +87,7 @@ sg4C_slot2_interact {
 
 sg4C_slot2_use {
     LDA #&code_03902B
-    JSL $@ItemUseStub
-    RTL
+    JML $@ItemUseStub
 }
 
 -----------------------------------------------
@@ -102,8 +100,7 @@ sg4C_slot3_interact {
 
 sg4C_slot3_use {
     LDA #&code_039036
-    JSL $@ItemUseStub
-    RTL
+    JML $@ItemUseStub
 }
 
 -----------------------------------------------
@@ -116,8 +113,7 @@ sg4C_slot4_interact {
 
 sg4C_slot4_use {
     LDA #&code_039041
-    JSL $@ItemUseStub
-    RTL
+    JML $@ItemUseStub
 }
 
 -----------------------------------------------

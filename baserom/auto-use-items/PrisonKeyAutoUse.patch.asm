@@ -1,10 +1,7 @@
 
 
-ec0B_side_door [
-  actor-def < #00, #00, #10, {
+ec0B_side_door {
     COP [BranchOnFlagByte] ( #42, #01, &ec0B_side_door_die )
-    LDA #$0200
-    TSB $12
     COP [SetInteractHandler] ( &ec0B_side_door_interact )
     COP [WaitOnFlagByte] ( #42, #01 )
 
@@ -13,13 +10,13 @@ ec0B_side_door [
 
   ec0B_side_door_interact:
     LDA #&code_0385FF
-    JSL $@ItemUseStub
-    COP [Die]
-  } >
-]
+    JML $@ItemUseStub
+}
 
+----------------------------------------------
 
 code_04DB15!:
+    COP [SpawnAfterAbsFlags] ( @ec0B_side_door, #$0090, #$0180, #$7000 )
     COP [BranchOnFlagByte] ( #24, #01, &ec0B_door_die )
     LDA #$0200
     TSB $12
@@ -55,11 +52,10 @@ ec0B_door_interact_key {
 
 ec0B_door_use_key {
     LDA #&code_0385DC
-    JSL $@ItemUseStub
-    COP [Die]
+    JML $@ItemUseStub
 }
 
-scene_event_0C8612+ [
-  actor-spawn < #09, #18, #00, @ec0B_side_door >   ;09
-]
+;scene_event_0C8612+ [
+;  actor-spawn < #09, #18, #00, @ec0B_side_door >   ;09
+;]
 

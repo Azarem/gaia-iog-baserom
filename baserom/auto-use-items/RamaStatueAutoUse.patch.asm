@@ -8,21 +8,10 @@ mu66_altar1_activator {
 }
 
 mu66_altar1_interact {
-    COP [BranchIfHasItem] ( #13, &mu66_altar1_use )
-    COP [PrintDialogString] ( &mu66_altar_interact_str )
-    RTL
-}
-
-mu66_altar1_use {
-    COP [PrintDialogString] ( &mu66_altar_use_str )
-    LDA #&code_039349
-    JSL $@ItemUseStub
-    RTL
+    JML $@mu66_altar1_use_stub
 }
 
 mu66_altar_interact_str `[DEF]Looks like an empty[N]shrine...[END]`
-
-mu66_altar_use_str `[DEF]He raises the[N]Rama Statue.[FIN]`
 
 -----------------------------------------
 
@@ -39,11 +28,9 @@ mu66_altar2_interact {
 }
 
 mu66_altar2_use {
-    COP [PrintDialogString] ( &mu66_altar_use_str )
-    LDA #&code_03935A
-    JSL $@ItemUseStub
-    RTL
+    JML $@mu66_altar2_use_stub
 }
+
 
 -----------------------------------------
 
@@ -93,4 +80,18 @@ code_03935A! {
     COP [PrintDialogString] ( &dialogstring_03939F )
     COP [SetFlagByte] ( #81 )
     RTS 
+}
+
+-----------------------------------------
+
+code_03936B+ {
+  mu66_altar1_use_stub:
+    COP [PrintDialogString] ( &dialogstring_039370 )
+    JSR code_039349
+    RTL
+
+  mu66_altar2_use_stub:
+    COP [PrintDialogString] ( &dialogstring_039370 )
+    JSR code_03935A
+    RTL
 }
