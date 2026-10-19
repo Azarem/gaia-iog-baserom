@@ -1,4 +1,8 @@
 
+!key_item_flags      0B58
+
+------------------------------------------------
+
 sp5A_door [
   actor-def < #00, #00, #30, {
     COP [BranchOnFlagWord] ( #0138, #01, &sp5A_door_die )
@@ -10,8 +14,8 @@ sp5A_door [
     COP [Die]
 
   sp5A_door_interact:
-    LDA $0B58
-    BIT #$2000
+    LDA $key_item_flags+1
+    BIT #$0020
     BNE sp5A_door_use
     COP [BranchIfHasItem] ( #10, &sp5A_door_use )
     COP [PrintDialogString] ( &sp5A_door_interact_str )

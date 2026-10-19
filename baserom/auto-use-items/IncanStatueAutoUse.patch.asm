@@ -1,4 +1,7 @@
 
+!key_item_flags      0B58
+
+------------------------------------------------
 
 code_09C550! {
     COP [NudgePosition] ( #08, #FE )
@@ -13,7 +16,7 @@ code_09C550! {
 }
 
 isau_interact_a {
-    LDA $0B58
+    LDA $key_item_flags
     BIT #$0004
     BNE isau_use_a
     COP [BranchIfHasItem] ( #03, &isau_use_a )
@@ -45,7 +48,7 @@ code_09C566! {
 }
 
 isau_interact_b {
-    LDA $0B58
+    LDA $key_item_flags
     BIT #$0008
     BNE isau_use_b
     COP [BranchIfHasItem] ( #04, &isau_use_b )

@@ -1,4 +1,7 @@
 
+!key_item_flags      0B58
+
+------------------------------------------------
 
 ec0B_side_door {
     COP [BranchOnFlagByte] ( #42, #01, &ec0B_side_door_die )
@@ -42,7 +45,7 @@ code_04DB24! {
 }
 
 ec0B_door_interact_key {
-    LDA $0B58
+    LDA $key_item_flags
     BIT #$0001
     BNE ec0B_door_use_key
     COP [BranchIfHasItem] ( #02, &ec0B_door_use_key )

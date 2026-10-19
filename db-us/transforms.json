@@ -437,6 +437,10 @@
   "na49_neil": [
     { "key": "LDA #\\$CFF0([^\\r\\n]*\\s+T[SR]B \\$joypadMaskStd)", "value": "LDA #$$CFFC$1" }
   ],
+  "na49_lily": [
+    { "key": "COP \\[StageSpriteLoopMoveX] \\( #28, #03, #12 \\)", "value": "COP [StageSpriteLoopMoveX] ( #28, #04, #12 )" },
+    { "key": "COP \\[StageSpriteLoopMoveX] \\( #29, #02, #11 \\)", "value": "COP [StageSpriteLoopMoveX] ( #29, #03, #11 )" }
+  ],
   "pyDD_mystic_statue": [
     { "key": "LDA #\\$FFF0([^\\r\\n]*\\s+T[SR]B \\$joypadMaskStd)", "value": "LDA #$$FFFC$1" }
   ],

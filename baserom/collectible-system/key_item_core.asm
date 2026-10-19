@@ -3,9 +3,6 @@
 
 -------------------------------------------
 
-KeyItemRevoke #00
-
-
 --KeyItemCounters
 ; 00000001 = Prison Key
 ; 00000010 = Meat
@@ -216,6 +213,10 @@ KeyBucketSizes [
     #06
 ]
 
+KeyItemRevokeFlags [
+    #0000003F
+]
+
 ---------------------------------------------
 ;Resolves a bucket index to the next avilable in the bucket
 ;Accepts: A = item slot index, Y = bucket entry index
@@ -379,8 +380,21 @@ KeyItemCheckAndStore {
 
   kic_check_revoke:
     PHA
-    LDA $@KeyItemRevoke
+    LSR
+    LSR
+    LSR
+    TAX
+    LDA $@KeyItemRevokeFlags, X
+    TAY
+    LDA $01, S
+    AND #$07
+    TAX
+    TYA
+    AND $@BitMaskTable, X
     BNE kic_scan_flags
+
+    ;LDA $@KeyItemRevoke
+    ;BNE kic_scan_flags
     
     LDA $02, S
     JSL $@InventoryCheckAndStore

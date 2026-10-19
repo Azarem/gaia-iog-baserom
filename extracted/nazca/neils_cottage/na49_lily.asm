@@ -32,14 +32,14 @@ na49_lily [
     COP [ClearFlagByte] ( #02 )
     COP [WaitOnFlagByte] ( #05, #01 )
     COP [SetSpritePriority] ( #30 )
-    COP [StageSpriteLoopMoveX] ( #28, #03, #12 )
+    COP [StageSpriteLoopMoveX] ( #28, #04, #12 )
     COP [AnimLoop]
     COP [StageSpriteFrame] ( #23 )
     COP [AnimOnce]
     COP [MarkSolidHere]
     COP [WaitOnFlagByte] ( #07, #01 )
     COP [ClearSolidHere]
-    COP [StageSpriteLoopMoveX] ( #29, #02, #11 )
+    COP [StageSpriteLoopMoveX] ( #29, #03, #11 )
     COP [AnimLoop]
     COP [StageSpriteFrame] ( #25 )
     COP [AnimOnce]

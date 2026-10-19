@@ -1,8 +1,11 @@
 
+!key_item_flags      0B58
+
+----------------------------------------------
 ;eu95_neils_mother
 
 code_07E316! {
-    LDA $0B5A
+    LDA $key_item_flags+2
     BIT #$0040
     BNE eu95_neils_mother_use
     COP [BranchIfHasItem] ( #19, &eu95_neils_mother_use )

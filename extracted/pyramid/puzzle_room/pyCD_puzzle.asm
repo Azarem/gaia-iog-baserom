@@ -25,7 +25,7 @@ pyCD_puzzle [
     BMI loc_08CBBA
     TAX 
     SEP #$20
-    LDA $@byte_08CB94, X
+    LDA $@hieroglyphMetatiles, X
     PHX 
     PHA 
     TYA 
@@ -162,7 +162,7 @@ dialogstring_08CD0B `[DEF][TPL:0]There was a sound from[N]over the entrance![PAL
 dialogstring_08CD37 `[DEF][CLR]Oh, no! Your inventory[N]is full, you can't take[N]all of it![END]`
 ---------------------------------------------
 
-byte_08CB94 [
+hieroglyphMetatiles [
   #84   ;00
   #85   ;01
   #86   ;02
