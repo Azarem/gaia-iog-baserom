@@ -7,6 +7,10 @@
 code_00C672! {
     LDA $0E
     AND #$001F
+    STA $24
+    LDA #$2000
+    STA $0E
+    LDA $24
     CLC 
     ADC #$0080
     JSL $@flag_helpers.TestEventFlag_0200
@@ -42,16 +46,14 @@ hidden_red_jewel_destroy {
 }
 
 HiddenRedJewelInteract! {
-    LDA $0E
-    AND #$001F
+    LDA $24
     CLC 
     ADC #$0080
     JSL $@flag_helpers.TestEventFlag_0200
     BCS hidden_red_jewel_destroy
     COP [GiveItem] ( #01, &HiddenRedJewelInventoryFull )
     COP [PrintDialogString] ( &dialogstring_00C6A6 )
-    LDA $0E
-    AND #$001F
+    LDA $24
     CLC 
     ADC #$0080
     JSL $@flag_helpers.SetEventFlag_0200
