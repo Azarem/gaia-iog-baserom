@@ -699,6 +699,9 @@
   "sc01_house_intro": [
     { "key": "LDA #\\$CFF0([^\\r\\n]*\\s+T[SR]B \\$joypadMaskStd)", "value": "LDA #$$CFFC$1" }
   ],
+  "sc01_fisherman": [
+    { "key": "CMP #\\$00F8", "value": "CMP #$$00F0" }
+  ],
   "sc02_entry": [
     { "key": "LDA #\\$CFF0([^\\r\\n]*\\s+T[SR]B \\$joypadMaskStd)", "value": "LDA #$$CFFC$1" }
   ],

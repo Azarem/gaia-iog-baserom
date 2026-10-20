@@ -1364,7 +1364,7 @@
         "pyDA_lithograph6": { "start": 576236, "end": 576404, "type": "actor-def", "scene": "heiroglyph_room", "movable": false },
         "pyCD_puzzle": { "scene": "puzzle_room", "movable": true, "parts": {
             "pyCD_puzzle": { "start": 576410, "end": 576876, "type": "actor-def" },
-            "byte_08CB94": { "start": 576404, "end": 576410, "order": 576414, "type": "Byte" }
+            "hieroglyphMetatiles": { "start": 576404, "end": 576410, "order": 576414, "type": "Byte" }
         } },
         "pyCC_portal": { "start": 576876, "end": 577042, "type": "actor-def", "scene": "pyramid_main", "movable": true },
         "pyDD_mystic_statue": { "start": 577042, "end": 577184, "type": "actor-def", "scene": "mummy_queen_lair", "movable": true },

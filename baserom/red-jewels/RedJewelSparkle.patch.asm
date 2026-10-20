@@ -4,56 +4,29 @@
 -----------------------------------
 ;hidden_red_jewel
 
-code_00C672! {
+code_00C672- {
     LDA $0E
-    AND #$001F
-    STA $24
-    LDA #$2000
-    STA $0E
-    LDA $24
     CLC 
     ADC #$0080
     JSL $@flag_helpers.TestEventFlag_0200
     BCS hidden_red_jewel_destroy
-    COP [SetInteractHandler] ( &HiddenRedJewelInteract )
-    COP [SetMetasprite] ( @spriteset_enemies )
-    COP [StageSprAndHitbox] ( #02 )
-    COP [SetSpritePriority] ( #30 )
-
-  hidden_red_jewel_normal_loop:
-    LDA #$2000
-    TSB $10
-    COP [SetEntryHere]
-    LDA $inventoryEquippedType
-    CMP #$activator_type
-    BEQ hidden_red_jewel_sparkle_loop
-    RTL 
+    COP [SpawnAfterOffset] ( @generic_sparkle, #$0000, #$FFFC )
+    STY $26
 }
 
-hidden_red_jewel_sparkle_loop {
-    LDA #$2000
-    TRB $10
-    COP [SetEntryHere]
-    LDA $inventoryEquippedType
-    CMP #$activator_type
-    BNE hidden_red_jewel_normal_loop
-    COP [AnimOneFrame]
-    RTL 
-}
-
-hidden_red_jewel_destroy {
+code_00C672+ {
+  hidden_red_jewel_destroy:
     COP [Die]
+    
 }
 
 HiddenRedJewelInteract! {
-    LDA $24
-    CLC 
-    ADC #$0080
-    JSL $@flag_helpers.TestEventFlag_0200
-    BCS hidden_red_jewel_destroy
     COP [GiveItem] ( #01, &HiddenRedJewelInventoryFull )
+    LDY $26
+    LDA #$0001
+    STA $0026, Y
     COP [PrintDialogString] ( &dialogstring_00C6A6 )
-    LDA $24
+    LDA $0E
     CLC 
     ADC #$0080
     JSL $@flag_helpers.SetEventFlag_0200

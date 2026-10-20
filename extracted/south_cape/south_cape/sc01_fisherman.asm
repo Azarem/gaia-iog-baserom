@@ -18,7 +18,7 @@ sc01_fisherman [
     LDA #$0200
     TSB $12
     COP [RngByte]
-    CMP #$00F8
+    CMP #$00F0
     BCS loc_0483AA
     CMP #$00C8
     BCS code_048393
