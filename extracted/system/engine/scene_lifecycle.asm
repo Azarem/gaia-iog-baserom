@@ -1063,7 +1063,7 @@ HudTilemapData [
 ; For non-skipped scenes:
 ; 1. Loads fx_palette_198040 to palette slot 1 (COP CopyPalette: source=@198040, start=1, dest=1, count=23). This is the standard HUD/UI palette.
 ; 2. Loads fx_palette_198020 to palette slot 0 (source=@198020, start=0, dest=$90, count=16). This is the standard game palette.
-; 3. If playerFlags bit 3 ($0008) is set (Shadow form or transformation state): loads an additional palette from fx_palette_198000 (31 entries) via a manual DMA setup through $0402/$0405. This palette provides Shadow's distinctive color scheme.
+; 3. If playerFlags bit 3 ($0008) is set (combat lock — non-combat scene): loads an additional palette from fx_palette_198000 (31 entries) via a manual DMA setup through $0402/$0405.
 
 LoadScenePalettes {
     PHP 
@@ -1085,11 +1085,11 @@ LoadScenePalettes {
     BEQ loc_03DFF6
     COP [CopyPalette] ( @fx_palette_198020, #00, #90, #10 ) ; COP CopyPalette: 16 game colors from @198020 to CGRAM $90
     LDY #$0B40
-    LDA $playerFlags      ; playerFlags bit 3 — Shadow/ability form?
+    LDA $playerFlags      ; playerFlags bit 3 — combat lock (non-combat scene)?
     BIT #$0008
-    BEQ loc_03DFF6        ; Normal form — skip Shadow palette
+    BEQ loc_03DFF6        ; Combat allowed — skip the non-combat palette
     SEP #$20
-    LDA #$^fx_palette_198000 ; Shadow form: DMA 31 entries from @198000 via $0402 helper
+    LDA #$^fx_palette_198000 ; Non-combat scene: DMA 31 entries from @198000 via $0402 helper
     LDX #$&fx_palette_198000
     STA $0405
     REP #$20
@@ -1109,7 +1109,7 @@ LoadScenePalettes {
 ; For normal scenes:
 ; 1. Sets VMADDL to $4200 and DMA transfers $1C00 bytes (7168 bytes = 112 tiles) from gfx_000000 to VRAM. This is the main player character spriteset.
 ; 
-; 2. If playerFlags bit 3 ($08) is set: loads $0800 bytes (2048 bytes = 32 tiles) of special FX graphics from misc_fx_1CD580 to VRAM $4400. These are ability-related sprite tiles (Dark Friar projectiles, Aura Barrier orbitals, etc.).
+; 2. If playerFlags bit 3 ($08, combat lock — non-combat scene) is set: loads $0800 bytes (2048 bytes = 32 tiles) of FX graphics from misc_fx_1CD580 to VRAM $4400. Combat-allowed scenes skip this; their ability tiles are uploaded on demand by the ability VRAM DMA loaders.
 ; 
 ; 3. If scene is $E8 (Dark Gaia boss fight) and playerFlags bit 3 is NOT set: loads $0600 bytes (1536 bytes = 24 tiles) of alternative FX graphics from misc_fx_1CCA80 to VRAM $4400. These are the ranged projectile tiles used during the final boss.
 ; 
@@ -1130,10 +1130,10 @@ LoadPlayerGraphics {
     LDA #$^gfx_000000
     LDY #$1C00
     JSL $@DmaWordToVram
-    LDA $playerFlags      ; playerFlags bit 3 — ability form?
+    LDA $playerFlags      ; playerFlags bit 3 — combat lock (non-combat scene)?
     BIT #$08
     BEQ loc_03E035
-    LDX #$4400            ; Shadow: $0800 bytes FX tiles (misc_fx_1CD580) → VRAM $4400
+    LDX #$4400            ; Non-combat scene: $0800 bytes FX tiles (misc_fx_1CD580) → VRAM $4400
     STX $VMADDL
     LDX #$&misc_fx_1CD580
     LDA #$^misc_fx_1CD580

@@ -151,13 +151,13 @@ ProcessDodgeCallbacks {
 ---------------------------------------------
 ; Check if the player has died and trigger game over sequence.
 ; 
-; Guards: returns immediately if playerFlags bit 5 ($0020) is set (death already processing) or bit 9 ($0200) is set (game over sequence active). If playerHp ($0ACE) is zero and neither guard is set, sets $0200 in playerFlags, overwrites the player actor's entry point to GameOverSequence, and calls StopPlayerOnDeathAssign to halt all movement.
+; Guards: returns immediately if playerFlags bit 5 ($0020) is set (boss-defeat latch) or bit 9 ($0200) is set (game over sequence active). If playerHp ($0ACE) is zero and neither guard is set, sets $0200 in playerFlags, overwrites the player actor's entry point to GameOverSequence, and calls StopPlayerOnDeathAssign to halt all movement.
 
 CheckPlayerDeath {
     PHP 
     REP #$20
     LDA $playerFlags
-    BIT #$0020            ; $0020 = death sequence already processing
+    BIT #$0020            ; $0020 = boss-defeat latch (player cannot die during the victory sequence)
     BNE loc_03BBE2
     BIT #$0200            ; $0200 = game over already active
     BNE loc_03BBE2
@@ -568,7 +568,7 @@ PlayerAttackHitTest {
   loc_03BE77:
     LDA #$0080            ; $0080 = iframe state
     TSB $10
-    LDA $playerFlags      ; $0010 in playerFlags = debug/auto-kill mode
+    LDA $playerFlags      ; $0010 in playerFlags = terrain shake: any enemy hit dies outright
     BIT #$0010
     BNE loc_03BE8B
     LDA $12               ; $0010 in $12 = stagger-immune
@@ -1154,7 +1154,7 @@ InteractionCollision_Exit {
 ; 
 ; Constructs a player interaction bounding box: X ± 4px from position, Y range from (Y−14) to (Y−4). This smaller box is centered higher than the combat hitbox, matching the player's interaction hotspot.
 ; 
-; Checks player flags: $2040 (COP mode or orb) → exit immediately. $0280 (climb or special) → InteractionCollision_FriendlyMode (restricted to friendly NPCs).
+; Checks the player actor's flags ($10, not playerFlags): $2040 (COP mode or orb) → exit immediately. $0280 (iframe/stagger or climb) → InteractionCollision_FriendlyMode (restricted to friendly NPCs).
 ; 
 ; Normal mode: iterates render list, skipping $35C0 flagged actors. For each candidate: sets data bank to actor's sprite bank, reads metasprite hitbox, accounts for H-mirror, and tests AABB overlap. On overlap: checks extendedFlags $0010 for collision callback. If callback exists, dispatches it; otherwise sets actor to smooth_follow_child default handler. Then calls ApplyInteractionDamage.
 ; 
@@ -1381,7 +1381,7 @@ InteractionCollision_FriendlyMode {
 ; 
 ; For combat actors: computes the interaction hitbox center (with H-mirror), loads enemy attack power from stats table offset 1. Damage = max(1, enemyAtk − playerDef). Subtracts from playerHp (clamped to 0). Sets $0080 (iframe) flag, assigns 60-frame ($003C) iframe counter.
 ; 
-; If playerFlags bits 11|12 ($1800) are clear (not in special state): spawns HitStaggerMain ($2400 priority), copies extendedFlags $0020 to the stagger actor, masks joypad ($0F00), computes knockback direction via CalcKnockbackFromActorCenters.
+; If playerFlags bits 11|12 ($1800) are clear (no script/ability lock and not on a slope): spawns HitStaggerMain ($2400 priority), copies extendedFlags $0020 to the stagger actor, masks joypad ($0F00), computes knockback direction via CalcKnockbackFromActorCenters.
 ; 
 ; Plays character-form-specific hit sound: Freedan/Shadow = #08, Will = #07.
 

@@ -981,7 +981,7 @@ code_02AAF2 {
 ---------------------------------------------
 ; Spawn a direction-specific forced walk actor on the player.
 ; 
-; Sets playerFlags $0100 (forced walk active) and player actor flag $2000 (run mode). Clears scrollStepIndex. Decodes the walk direction from scrollStepTableBase:
+; Sets playerFlags $0100 (forced walk active) and player actor flag $2000 (COP-script mode). Clears scrollStepIndex. Decodes the walk direction from scrollStepTableBase:
 ;   Bit 5 ($0020): West → ForcedWalkWest
 ;   Bit 4 ($0010): East → ForcedWalkEast
 ;   Bit 7 ($0080): North → ForcedWalkNorth
@@ -993,7 +993,7 @@ StartForcedWalk {
     REP #$20
     LDA #$0100            ; TSB playerFlags $0100 — mark forced-walk warp in progress
     TSB $playerFlags
-    LDY $playerActor      ; Set player actor $0010 bit 13 ($2000) — block-mode during auto-walk
+    LDY $playerActor      ; Set player actor $0010 bit 13 ($2000) — COP-script mode during auto-walk
     LDA $0010, Y
     ORA #$2000
     STA $0010, Y

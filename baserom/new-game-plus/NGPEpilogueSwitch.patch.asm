@@ -34,11 +34,5 @@ h_epilogue_thinker [
 ?INCLUDE 'scene_thinkers'
 ------------------------------------------
 
-thinker_spawn_0CEA9B! [
-  thinker-spawn < #74, @ambient_palette_cycler >   ;00
-  thinker-spawn < #00, @ending_comet_dma_setup >   ;01
-  thinker-spawn < #00, @ending_comet_sine_hdma >   ;02
-  thinker-spawn < #24, @parallax_thinker >   ;03
-  thinker-spawn < #00, @h_epilogue_thinker >   ;04
-]
+thinker_spawn_0CEA9B+: thinker-spawn < #00, @h_epilogue_thinker >
 

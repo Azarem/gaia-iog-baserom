@@ -1,7 +1,7 @@
 ; Pushable gold statue in the Inca secret hallway — blocks passage.
 ; 
 ; Solid enemy-type actor with $FF HP and push_handler_solid interaction.
-; Can be shoved by Freedan (playerFlags bit $0002). Once pushed far
+; Can be shoved by a body slam/charge attack (playerFlags bit $0002). Once pushed far
 ; enough (checked via position), sets flag $B9 and applies
 ; StandardEnemyDefeatHandler. Before being pushed, takes hits but
 ; resets HP each frame. Uses enemy_stats_table entry 0.

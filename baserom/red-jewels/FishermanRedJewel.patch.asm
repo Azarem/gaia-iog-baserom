@@ -26,8 +26,6 @@ e_sc01_pot! {
     COP [SpawnAfterOffset] ( @generic_sparkle, #$0001, #$FFF7 )
     STY $26
     COP [SetInteractHandler] ( &code_048462 )
-
-  ;;sc01_pot_exit:
     COP [SetEntryHere]
     RTL 
 }

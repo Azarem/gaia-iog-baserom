@@ -38,6 +38,9 @@
 !btnMapL                        0B38
 !btnMapR                        0B39
 
+; 6-byte preview buffer used by the options menu (WRAM scratch, not saved in any meaningful way).
+!optMapPreview                   0BEA
+
 ; Remap variables — variable name vs physical button is non-obvious:
 ;   remapA      ($0DAC) -> physical A  ($0080)
 ;   remapB      ($0DAA) -> physical B  ($8000)
@@ -255,3 +258,132 @@ DetectAndInitButtonMap {
     RTL
 }
 
+---------------------------------------------
+; DetectPreset — compare the live mapping ($0B34-$0B39) with the two
+; built-in presets.
+;
+; Exit:  A (16-bit) = 0 if identical to DefaultButtonMap   (Classic A)
+;                     1 if identical to AlternateButtonMap (Classic B)
+;                     2 if neither (Custom)
+; Called via JSL. Preserves X, Y, P.
+
+DetectPreset {
+    PHP
+    PHX
+    SEP #$20
+    LDX #$0000
+
+  detpre_cmp_default:
+    LDA $btnMapA, X
+    CMP $@DefaultButtonMap, X
+    BNE detpre_try_alt
+    INX
+    CPX #$0006
+    BNE detpre_cmp_default
+    LDA #$00
+    BRA detpre_done
+
+  detpre_try_alt:
+    LDX #$0000
+
+  detpre_cmp_alt:
+    LDA $btnMapA, X
+    CMP $@AlternateButtonMap, X
+    BNE detpre_custom
+    INX
+    CPX #$0006
+    BNE detpre_cmp_alt
+    LDA #$01
+    BRA detpre_done
+
+  detpre_custom:
+    LDA #$02
+
+  detpre_done:
+    REP #$20
+    AND #$00FF
+    PLX
+    PLP
+    RTL
+}
+
+---------------------------------------------
+; LoadButtonMapPreview — copy one 6-byte button map into the preview buffer
+; ($0BEA-$0BEF) so the options menu can display it without touching the
+; player's real mapping.
+;
+; Entry: A (16-bit) = source: 0 = live mapping ($0B34-$0B39)
+;                             1 = DefaultButtonMap   (Classic A)
+;                             2 = AlternateButtonMap (Classic B)
+; Called via JSL. Preserves X, Y, P.
+
+LoadButtonMapPreview {
+    PHP
+    PHX
+    REP #$20
+    LDX #$0000
+    CMP #$0001
+    BEQ lbmp_default
+    CMP #$0002
+    BEQ lbmp_alt
+    SEP #$20
+
+  lbmp_live_loop:
+    LDA $btnMapA, X
+    STA $optMapPreview, X
+    INX
+    CPX #$0006
+    BNE lbmp_live_loop
+    BRA lbmp_done
+
+  lbmp_default:
+    SEP #$20
+
+  lbmp_default_loop:
+    LDA $@DefaultButtonMap, X
+    STA $optMapPreview, X
+    INX
+    CPX #$0006
+    BNE lbmp_default_loop
+    BRA lbmp_done
+
+  lbmp_alt:
+    SEP #$20
+
+  lbmp_alt_loop:
+    LDA $@AlternateButtonMap, X
+    STA $optMapPreview, X
+    INX
+    CPX #$0006
+    BNE lbmp_alt_loop
+
+  lbmp_done:
+    PLX
+    PLP
+    RTL
+}
+
+---------------------------------------------
+; SetButtonPreset — overwrite the live mapping ($0B34-$0B39) with a preset.
+; The caller must follow up with ApplyButtonMapping to rebuild the remap words.
+;
+; Entry: A (16-bit) = 0 -> Classic A (DefaultButtonMap), otherwise Classic B.
+; Called via JSL. Preserves X, Y, P.
+
+SetButtonPreset {
+    PHP
+    PHX
+    REP #$20
+    CMP #$0000
+    BNE sbp_alt
+    JSR $&InitDefaultButtonMap
+    BRA sbp_done
+
+  sbp_alt:
+    JSR $&InitAltButtonMap
+
+  sbp_done:
+    PLX
+    PLP
+    RTL
+}

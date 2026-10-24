@@ -13,7 +13,6 @@
 !camera_offset_y                06D8
 !camera_bounds_x                06DA
 !camera_bounds_y                06DC
-!player_flags                   09AE
 !VMADDL                         2116
 !A1T0L                          4302
 !DAS0L                          4305
@@ -36,42 +35,6 @@
 
 
 ---------------------------------------------------------
-;Global scripts
-global_scripts {
-    JSL @RunButton
-    JSL @ItemSwapping
-    RTS
-}
-
------------------------------------------------------------
-
-global_thinkers {
-    PHX
-    PHY
-    ;JSL @PixelConverter
-
-    PLY
-    PLX
-    RTS
-}
-
-------------------------------------------------------------
-
-pause_debug_print |[PAL:14][POS:C0,6]S:[BCD:2,644] X:[BCD:3,9A2] Y:[BCD:3,9A4] C:[BCD:4,E6]|
-
-------------------------------------------------------------
-;Hook for global thinkers
-
-RunThinkers_TypeD! {
-    PHP 
-    PHD 
-    REP #$20
-    JSR global_thinkers
-    LDA $5A
-    BEQ loc_03D1F2
-}
-
-----------------------------------------------------------
 
 ;Prevent drawing of HUD BG layers
 ;code_03DED5 {
@@ -143,56 +106,6 @@ HudTilemapData! [
 ]
 
 
-----------------------------------------------------------
-
-;Fix for string code 05 BCD processing to include hex chars
-loc_03ED90! {
-    LDA $0000, Y
-    AND #$0F
-    CMP #$0A
-    BMI bcd_numeric1
-
-    CLC
-    ADC #$37
-    BRA bcd_store1
-
-  bcd_numeric1:
-    ORA #$30
-
-  bcd_store1:
-    REP #$20
-    DEX 
-    DEX 
-    STA $7F0200, X
-    SEP #$20
-    DEC $000E
-    BEQ loc_03EDC1
-    LDA $0000, Y
-    INY 
-    ;AND #$F0
-    LSR 
-    LSR 
-    LSR 
-    LSR
-    CMP #$0A
-    BMI bcd_numeric2
-
-    CLC
-    ADC #$37
-    BRA bcd_store2
-
-  bcd_numeric2:
-    ORA #$30
-
-  bcd_store2:
-    REP #$20
-    DEX 
-    DEX 
-    STA $7F0200, X
-    SEP #$20
-    DEC $000E
-    BNE loc_03ED90
-}
 
 ------------------------------------------------
 
@@ -229,54 +142,11 @@ consolestring_01E7F6! |[POS:42,0][PAL:8][HP][POS:5A,0][PAL:14][BCD:1,AD8][POS:64
 
 consolestring_01E818! |[PAL:4][POS:6A,0][HE]|
 
--------------------------------------------------
-;Print debug string on radar screen
-
-loc_03808B! {
-    LDA $camera_offset_x+1
-    AND #$0F
-    STA $token
-    LDA $camera_offset_y+1
-    ASL 
-    ASL 
-    ASL 
-    ASL 
-    ORA $token
-    STA $token
-    LDA $camera_bounds_x+1
-    AND #$0F
-    STA $token+1
-    LDA $camera_bounds_y+1
-    ASL 
-    ASL 
-    ASL 
-    ASL 
-    ORA $token+1
-    STA $token+1
-
-    COP [BD] ( @pause_debug_print )
-    LDX #$0000
-    PHX 
-}
 
 -------------------------------------------------
 ;Prevent unequipped message
 UseItem_None! {
     RTS 
-}
-
-------------------------------------------------
-;Hook into global actor code
-RunActors_Normal! {
-    PHP 
-    PHD 
-    REP #$20
-    JSR global_scripts
-    LDA $player_flags
-    BIT #$0008
-    BEQ loc_03CB07
-    LDA #$0080
-    TRB $0656
 }
 
 ------------------------------------------------
@@ -308,77 +178,6 @@ BootLogoPalTextFallback! {
 
 dialogstring_09F2FA! `[PAL:0][DLG:44,1]     Built With GaiaLabs[N][PAL:4]         By Kassiven[N][PAL:0]            Ǫįņţ[N]            ęťĔŇ[END]`!
 
-
------------------------------------------------
-?INCLUDE 'text_measure'
-
-;Auto-size and center scene titles
-
-loc_02A12C! {
-    PHP 
-    PHB 
-    
-    PEA #$CA01
-    INC
-    LSR
-    PHA
-    PEA #$C707
-
-    CLC
-    SBC #$10
-    EOR #$FF
-    PHA
-
-    LDA #$C1
-    PHA
-
-    TSC
-    LDY $3E
-    PHY 
-    TAY
-    INY
-
-    LDA $40
-    PHA
-    
-    LDA #$E0
-    STA $00B4
-    STZ $00B5
-    
-    REP #$20
-    JSL $@DialogStringRenderer
-    PLB
-    PLY
-
-    PLA
-    PLA
-    PLA
-    JSL $@DialogStringRenderer
-
-    PLB
-    PLB
-    PLP
-    RTL
-}
-
-loc_02A17E! {
-    LDA [$3E], Y
-    CMP #$CA
-    BEQ loc_02A1A7
-    CMP #$E0
-    BCS loc_02A1A2
-    CMP #$C0
-    BCC loc_02A1A2
-    CMP #$CC
-    BNE loc_02A197
-    INY 
-    LDA [$3E], Y
-    INY 
-    CLC 
-    ADC $00
-    STA $00
-    BRA loc_02A17E
-}
 
 --------------------------------------------
 ?INCLUDE 'inventory_menu'

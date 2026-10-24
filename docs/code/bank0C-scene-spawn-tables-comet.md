@@ -613,7 +613,7 @@ falling animation and spawns star particles streaming past.
 3. Hijacks player actor's script pointer to `code_0CED4C` (falling script).
    Uses `$&` (bank-local) + `$*` (bank byte) for the two-part long address.
 4. Clears player wait timer (`$0008,Y = 0`)
-5. Sets `playerFlags.$0800` (cutscene lock)
+5. Sets `playerFlags.$0800` (script/ability lock)
 
 **Main loop (`SetEntryHere`):**
 - RNG byte AND 7 → `SwitchCase` with 8 entries mapping to 4 star types
@@ -729,7 +729,7 @@ transformation sequence. It is the largest code block in bank 0C.
 - Hijacks player actor script to `loc_0CF5EF` (player arena entry — falls from
   above at X=136, Y=−64, descends at speed 7 until Y ≥ 224, landing sound
   `#2C`, re-enables attack, returns to `PlayerIdleEntry`)
-- Sets `playerFlags.$0800` (cutscene lock), waits for player to land
+- Sets `playerFlags.$0800` (script/ability lock), waits for player to land
 - Spawns palette transition (palette `#7D`)
 - Switches thinker to Phase 1 (`code_0CEBA1`)
 - Starts boss music (`#10`)

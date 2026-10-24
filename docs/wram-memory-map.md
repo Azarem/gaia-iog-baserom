@@ -297,18 +297,46 @@ When a COP handler or game code sets `TCD #$0000`, offsets `$00`–`$FF` access 
 
 #### Player Flags Reference (`$09AE`)
 
-| Bit | Hex | Meaning |
-|-----|-----|---------|
-| 0 | `$0001` | Attack system active / attack lock |
-| 1 | `$0002` | Attack in progress (combo state) |
-| 3 | `$0008` | Player disabled / dead |
-| 4 | `$0010` | Terrain shake active |
-| 8 | `$0100` | Skip scroll computation in camera controller |
-| 9 | `$0200` | Blocked movement flag |
-| 11 | `$0800` | Ability FX active (Aura/charge) |
-| 12 | `$1000` | On-slope flag (set by ramp physics) |
-| 14 | `$4000` | Running / auto-walk |
-| 15 | `$8000` | Damage state / hitstun |
+| Bit | Hex | Name | Meaning | Set by | Cleared by | Tested by |
+|-----|-----|------|---------|--------|-----------|-----------|
+| 0 | `$0001` | attack request | Attack button accepted; the attack/ability flow is running. Briefly set, then cleared as soon as the ability hands control back | `WillAttackDispatch` | `AttackSystemEntry` (every frame), `AuraBarrier` sustain, `EquippedIcon` | Aura orbital spawner (re-press = shrink); `ValidateAttackContinue` (`$2B00`) |
+| 1 | `$0002` | body slam/charge attack | Body slam / charge attack (applied during Psycho Dash). This is the state that makes breakable walls and statues get destroyed. Written as `$0802` by `RunAttackFlagSetup` and `$2002` by `SpinDashMain` (the disassembly labels these Psycho Slider and Spin Dash) | `RunAttackFlagSetup`, `SpinDashMain` | `RunAttackCleanup`, Spin Dash cleanup, `UnlockPlayerAfterClimb` | `ir20_statue`, `ir26_statue`, `sg51_statue`, `dm3D_breakable_wall`, `dm40_trapped_slave`, `it19_breakable_wall`, `av70_crawlspace`, `pyDD_teleporter` |
+| 2 | `$0004` | sprite redraw | Player sprite must be re-uploaded: set when the player is off-screen, cleared when the sprite cache is refreshed | `PlayerSprite_OffScreen` | `CheckPlayerSpriteCache` | `CheckPlayerSpriteCache` |
+| 3 | `$0008` | **combat lock** | Combat is disabled (non-combat area or scripted lock): `RunActors_Normal` strips the attack button (`$0080`) from `joypadCurrent` every frame, `AttackSystemEntry` kills the attack companion at spawn time, the Start button shows a PAUSE overlay instead of the radar, and the scene loaders pick the non-combat FX palette/VRAM set. **Not** a death or "disabled" flag | `InitActorFromSceneData` (player spawn type bit `$02`), cutscene/minigame scripts (`daC6_snake_panic`, `dc2F_adrift`, `mu67_vampires`, `sp5A_villagers`) | `ClearSceneState` (all flags), `daC6_snake_panic`, `fr32_kidnapper` | `RunActors_Normal`, `AttackSystemEntry`, `GlobalInputHandler`, `LoadScenePalettes`, `LoadPlayerGraphics`, overlay patches |
+| 4 | `$0010` | terrain shake | Freedan's vine-drop landing shake (479 frames): actors without immunity flags are frozen (`RunActors_PauseFiltered`) and enemies that get hit die outright | `ImpactTerrainShake` | `ImpactTerrainShake` | `RunActors_Normal`, `combat_collision` damage code |
+| 5 | `$0020` | boss defeated | Boss-defeat sequence latch: stops `CheckPlayerDeath` from killing the player and arms `BossClearRewardHandler` | boss death scripts (`sg55_viper`, `gw8A_sand_fanger`, `ir29_castoth`, `pyDD_mummy_queen`, `mu67_vampires`) | `mu67_vampires`, `ClearSceneState` | `CheckPlayerDeath`, `BossClearRewardHandler` |
+| 6 | `$0040` | unused | Never read or written | | | |
+| 7 | `$0080` | sprite priority | Behind-wall rendering mode for the Dark Friar trail. Player spawn type bit `$04` would set it, but no shipped scene does | `InitActorFromSceneData` | `InitActorFromSceneData` (cleared with `$0008` at spawn) | `DarkFriarTrail*` |
+| 8 | `$0100` | forced walk | Extended-warp forced walk (camera pan + automatic walking) in progress. Locks the camera target, pauses camera drift, aborts an attack in progress, guards against re-entering the warp | `StartForcedWalk` | `CheckWarpRectangles` (no warp hit) | `camera_scroll_controller`, camera drift, `code_02AAF2`, attack validation (`$2B00`) |
+| 9 | `$0200` | game over | Player HP reached zero; the game-over sequence owns the player. Suppresses UI input and movement | `CheckPlayerDeath` | `ClearSceneState` (all flags are zeroed on scene reset) | `GlobalInputHandler`, `PlayerMoveController` (`$0A00`), `HitStaggerReturnAI`, attack validation, boss scripts |
+| 10 | `$0400` | unused | Never read or written | | | |
+| 11 | `$0800` | script/ability lock | Player controller suspended by a script or special move: cutscenes, stair/ladder/vine climbs, chest opening, Psycho Slider, Aura Barrier, Dark Space. Blocks movement, menus (Select/Y), run button and further hit stagger | ~110 sites: cutscene scripts, stair/ladder climbs, `ChestOpeningActor`, `RunAttackFlagSetup`, `AuraBarrierMain`, ramps | cutscene scripts, `UnlockPlayerAfterClimb`, `AuraBarrierEnd` | `PlayerMoveController` (`$0A00`), `GlobalInputHandler` (`$2800`), `ApplyPlayerHitstun`, attack validation, run button |
+| 12 | `$1000` | on slope | Player is traversing or has stopped on a slope/ramp tile; slope physics owns the motion | `slope_ramp_physics`, `player_move_ramps`, `player_move_diag` | `SlopeFlatDecelerate`, `PlayerMoveController` (blocking overrides it) | `PlayerMoveController` (`$3000`), `slope_ramp_physics`, Psycho Slider gate, attack validation (`$3A00`), run button |
+| 13 | `$2000` | guard/channel stance | Standing still in a channelled stance: blocking, Dark Friar cast, Spin Dash charge. D-pad velocity is zeroed | block loop (`loc_02CA58`), `DarkFriarMain`, `SpinDashMain` | `PlayerIdleEntry` (`$2800`) | `PlayerMoveController` (`$3000`), `GlobalInputHandler` (`$2800`), attack validation, run button |
+| 14 | `$4000` | unused | Never read or written | | | |
+| 15 | `$8000` | sprite override | The body sprite was set directly with `SetPlayerSpriteDirect` (COP `$8E`): transformations and ability poses. The sprite decomposer reads the body index from `animScratch2` instead of the form table | `SetPlayerSpriteDirect` | `SetActorBody` (`actor_pool`), `ClearSceneState` | `DecomposePlayerSprites`, `GetPlayerFacingDirection`, `CheckAttackChargeable` |
+
+**Composite masks** used in combined tests:
+
+| Mask | Bits | Used by | Meaning |
+|------|------|---------|---------|
+| `$0088` | 7, 3 | `InitActorFromSceneData` | Cleared at every player spawn before the scene bits are applied |
+| `$0802` | 11, 1 | `RunAttackFlagSetup` | Body slam/charge attack with script lock |
+| `$2002` | 13, 1 | `SpinDashMain` | Body slam/charge attack with stance |
+| `$0A00` | 11, 9 | `PlayerMoveController`, `HitStaggerReturnAI` | Script lock or game over: movement controller skips the frame |
+| `$1800` | 12, 11 | `ApplyInteractionDamage` | Slope or script lock: no new hit stagger |
+| `$2800` | 13, 11 | `PlayerIdleEntry`, `GlobalInputHandler` | Cleared on idle; blocks Select/Y while set (Start still works) |
+| `$2A00` | 13, 11, 9 | `AttackSystemEntry` | Stance, script lock or game over: no attack polling |
+| `$2B00` | 13, 11, 9, 8 | `ValidateAttackContinue` | As `$2A00` plus forced walk: aborts an attack in progress |
+| `$3000` | 13, 12 | `PlayerMoveController` | Stance or slope: D-pad velocity forced to zero |
+| `$3800` | 13, 12, 11 | `run_button_main` | No sprinting while in a stance, on a slope or script-locked |
+| `$3A00` | 13, 12, 11, 9 | `ValidateAttackReady` | Pre-attack check: stance, slope, script lock or game over |
+
+**How `$0008` gets set at spawn.** `InitActorFromSceneData` builds the player's actor flags as `((typeByte & $F6) << 8) | WRAM[$06F0]`; the `$0200`/`$0400` bits of the result are then copied to `playerFlags` `$0008`/`$0080`. The type byte comes from the player's `actor-spawn` entry in `scene_actors.asm`: bit `$02` selects the combat lock. Of the 239 scenes, 109 (towns, cutscene rooms, overworld: types `$02`/`$32`) lock combat and 130 (dungeons, boss lairs, types `$00`/`$30`) allow it. `$06F0` ("default actor properties") is never written by extracted code.
+
+**Quirk:** in `RunActors_Normal` the `$0008` branch loads `$0080` into A, so the following `BIT #$0010` pause test reads `$0080` rather than `playerFlags`. The terrain-shake freeze therefore only works in combat-allowed scenes (it is never triggered in the others).
+
+**Hook placement.** Anything that must run in every scene (e.g. the run button and item swapping) cannot live in `AttackSystemEntry`: the attack companion kills itself at spawn when `$0008` is set. Use the player input host actor (`baserom/player-input/player_input_core.asm`).
 
 ### 2.7 Event & WRAM Flags ($0A00–$0A9F)
 

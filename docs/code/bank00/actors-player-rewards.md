@@ -38,7 +38,7 @@ These actors handle player-facing progression: boss-triggered catchup stat rewar
 
 After a boss is defeated, this handler retroactively awards all **uncollected** per-scene enemy-clear stat rewards within a range. The embedded range table `boss_reward_range_00C312` maps `$scene_current` to a `<sceneCurrent, sceneMin, sceneMax>` triplet. The helper at `$C33E` then walks `enemy_clear_reward_table` from `sceneMin` to `sceneMax`, granting every reward the player missed.
 
-Only activates when `$player_flags` bit `$0020` is set (boss defeated, reward-eligible state). Uses WRAM flag offset `$0100` range to prevent duplicate boss catchup per scene. Individual scene rewards are tracked via `$0300` flags.
+Only activates when `$player_flags` bit `$0020` is set (boss-defeat latch set by the boss death script). Uses WRAM flag offset `$0100` range to prevent duplicate boss catchup per scene. Individual scene rewards are tracked via `$0300` flags.
 
 The helper at `$C33E` walks the reward table byte-by-byte: value `1` → increment `$0ACA` (HP), `2` → increment `$0ADE` (STR), `3` → increment `$0ADC` (DEF). Each scene's reward sets a `$0300` flag before applying, so already-collected rewards are skipped.
 

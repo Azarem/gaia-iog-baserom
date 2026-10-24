@@ -150,7 +150,7 @@ on `$0AA6`. Each phase reloads the same scene with incremented state.
 
 **Phase 5 (Day 18, `$059BB7`):** Day 18 banner. Will sits idle, Kara interactable. Spawns two shark actors (frames #45/#C5, alternating directions) that circle but don't attack. After two shark passes: Kara's music starts (#06), extended dialogue about sharks not being hungry, Kara's revelation about humans. Timer-based: after ~1200 frames auto-advances with `FadeThenStartMusic(#15)`, Kara's insight, sets `#03`/`#4D`. Advances.
 
-**Phase 6 (Day 21, `$059C7A`):** Sets player flags `$0008`. Prints "Day 21". Extended sunset dialogue — Kara's most emotional speech about watching sunrises together. Will collapses unconscious. Kara screams "Wake up!! Don't leave me here alone!" Music starts (#06). `QueueMapChange` to scene `#31` (Oakton) at (A0,60).
+**Phase 6 (Day 21, `$059C7A`):** Sets `playerFlags` `$0008` (combat lock). Prints "Day 21". Extended sunset dialogue — Kara's most emotional speech about watching sunrises together. Will collapses unconscious. Kara screams "Wake up!! Don't leave me here alone!" Music starts (#06). `QueueMapChange` to scene `#31` (Oakton) at (A0,60).
 
 **Subtotal:** 2 pieces, 4,978 bytes
 
@@ -362,7 +362,7 @@ pre-rescue (chained) and post-rescue (freed).
 | Address | End | Size | Block Name | Type | Description |
 |---------|-----|------|------------|------|-------------|
 | `$05D552` | `$05D555` | 36 | `dm40_hidden_dark_space` | actor-def | **Hidden Dark Space** — body #24; gates on word flag `#$0132`. Waits until `#$0132` is set, then spawns `dark_space.DarkSpacePortalInit` (Dark Space portal) at the actor's position with Y-offset +1 and flags `#$2000`, then dies. Not movable |
-| `$05D62E` | `$05D8A5` | 356 | `dm40_trapped_slave` | actor-def | **Trapped slave — enemy-type breakable.** Body #00, enemy-type (`$12=#$0031`), metasprite from `table_0EE000` frame #00, HP=255 from `enemy_stats_table+118`. Monitors player area (08,14)–(0A,17), sets/clears `#00`. When attacked (`playerFlags` bit #02): spawns `SpawnDebrisBurst` debris. On destruction (sets `#D9`): redraws 6 metatiles to open a passage, places collision tiles. Spawns child actor (frame #0C) that adds 3 Red Jewels to `jewelsCollected` (BCD addition), locks joypad, prints "Thank you. I was buried in the cave-in... We want to give you a present. I'm sending 3 Red Jewels to the Jeweler." Child walks north and dies |
+| `$05D62E` | `$05D8A5` | 356 | `dm40_trapped_slave` | actor-def | **Trapped slave — enemy-type breakable.** Body #00, enemy-type (`$12=#$0031`), metasprite from `table_0EE000` frame #00, HP=255 from `enemy_stats_table+118`. Monitors player area (08,14)–(0A,17), sets/clears `#00`. When hit by a body slam/charge attack (`playerFlags` bit #02): spawns `SpawnDebrisBurst` debris. On destruction (sets `#D9`): redraws 6 metatiles to open a passage, places collision tiles. Spawns child actor (frame #0C) that adds 3 Red Jewels to `jewelsCollected` (BCD addition), locks joypad, prints "Thank you. I was buried in the cave-in... We want to give you a present. I'm sending 3 Red Jewels to the Jeweler." Child walks north and dies |
 
 **Subtotal:** 2 pieces, 392 bytes
 
@@ -469,7 +469,7 @@ Toggle switches that apply BG changes to open/close paths via word flags.
 
 | Address | End | Size | Block Name | Type | Description |
 |---------|-----|------|------------|------|-------------|
-| `$05F8F7` | `$05F92A` | 55 | `sg51_statue` | actor-def | **Pushable enemy statue** — body #3D, enemy-type (`$12=#$0031`), solid. Has push handler spawned from `interaction_handlers.push_handler_solid`. Hit callback: only dies when `playerFlags` bit #02 (attack connecting) is set; jumps to `StandardEnemyDefeatHandler`. Otherwise re-arms. A statue that must be attacked to destroy |
+| `$05F8F7` | `$05F92A` | 55 | `sg51_statue` | actor-def | **Pushable enemy statue** — body #3D, enemy-type (`$12=#$0031`), solid. Has push handler spawned from `interaction_handlers.push_handler_solid`. Hit callback: only dies when `playerFlags` bit #02 (body slam/charge attack active) is set; jumps to `StandardEnemyDefeatHandler`. Otherwise re-arms. A statue that must be attacked to destroy |
 
 **Subtotal:** 1 piece, 55 bytes
 

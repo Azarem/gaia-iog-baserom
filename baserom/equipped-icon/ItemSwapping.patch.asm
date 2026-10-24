@@ -1,9 +1,5 @@
 ﻿
 
--------------------------------------------------
-?INCLUDE 'chunk_03BAE1'
--------------------------------------------------
-
 item_swapping_main:
   LDA $09EC
   BIT #$4000
@@ -50,7 +46,9 @@ item_swap_store:
   LDA #$0002
   TSB $09EC
   COP [07] ( #10 )
+  PHX                      ;EquippedIcon clobbers X, hooks must keep X = actor id
   JSL @EquippedIcon
+  PLX
   RTL
 
 
@@ -78,3 +76,11 @@ item_swap_right_top:
 item_swap_right_nothing:
   LDY #$FFFF
   BRA item_swap_store
+
+----------------------------------------------------------------------
+;Registration with the player input chain (registry: player_input_core.asm)
+;Must stay at the END of this file
+
+PlayerInputHooks+ {
+  JSL $@item_swapping_main
+}

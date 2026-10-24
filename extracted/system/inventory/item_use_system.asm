@@ -1615,10 +1615,10 @@ dialogstring_039C8B `[DEF]There's no place to put[N]the hieroglyph plate.[PAL:0]
 ---------------------------------------------
 ; Aura — Shadow's transformation ability.
 ; 
-; Multiple guard conditions must pass: playerFlags bits $1000 (cutscene lock) and $0100 (dialogue active) must be clear, both playerSpeedEw and playerSpeedNs must be zero (standing still), and characterForm must be 2 (Shadow). On success, overwrites the player actor's function pointer to PlayerAuraTransformEntry via SetPlayerTransition, initiating the Aura transformation sequence. If not Shadow or any guard fails, prints failure message or returns silently.
+; Multiple guard conditions must pass: playerFlags bits $1000 (on a slope) and $0100 (forced walk) must be clear, both playerSpeedEw and playerSpeedNs must be zero (standing still), and characterForm must be 2 (Shadow). On success, overwrites the player actor's function pointer to PlayerAuraTransformEntry via SetPlayerTransition, initiating the Aura transformation sequence. If not Shadow or any guard fails, prints failure message or returns silently.
 
 UseItem_Aura {
-    LDA $playerFlags      ; Guard: $1000 = cutscene lock, $0100 = dialogue active — both block Aura
+    LDA $playerFlags      ; Guard: $1000 = on a slope, $0100 = forced walk — both block Aura
     BIT #$1000
     BNE loc_039CE0
     BIT #$0100

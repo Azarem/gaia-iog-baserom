@@ -123,27 +123,38 @@ player_character.asm
 
 ### Player Flags Reference (`$player_flags` at `$09AE`)
 
+Full table (setters, clearers, readers, scene-spawn derivation) lives in [wram-memory-map.md](../../wram-memory-map.md) §"Player Flags Reference". Summary:
+
 | Bit | Hex | Meaning |
 |-----|-----|---------|
-| 0 | `$0001` | Attack system active / attack lock |
-| 1 | `$0002` | Attack in progress (combo state) |
-| 3 | `$0008` | Player disabled / dead |
-| 4 | `$0010` | Terrain shake active |
-| 9 | `$0200` | Blocked movement flag |
-| 11 | `$0800` | Ability FX active (Aura/charge) |
-| 12 | `$1000` | On-slope flag (set by ramp physics) |
-| 13 | `$2000` | Special action lock (ability/climb) |
-| 15 | `$8000` | Damage state / hitstun |
+| 0 | `$0001` | Attack request — attack/ability flow running (cleared every frame by `AttackSystemEntry`) |
+| 1 | `$0002` | Body slam / charge attack (Psycho Dash) — the state that smashes breakable walls and statues |
+| 2 | `$0004` | Player sprite needs re-upload (off-screen / cache refresh) |
+| 3 | `$0008` | **Combat lock** — attack button stripped, attack companion dies at spawn, PAUSE overlay instead of radar. Set at spawn in non-combat scenes (spawn type bit `$02`), toggled by cutscenes. *Not* a death flag |
+| 4 | `$0010` | Terrain shake (Freedan vine-drop landing): world frozen, hit enemies die |
+| 5 | `$0020` | Boss defeated — suppresses death check, arms `BossClearRewardHandler` |
+| 7 | `$0080` | Dark Friar trail drawn behind walls (never set by shipped scenes) |
+| 8 | `$0100` | Forced walk (extended warp pan) — camera target locked, drift paused |
+| 9 | `$0200` | Game over — HP reached zero (`CheckPlayerDeath`) |
+| 11 | `$0800` | Script/ability lock — cutscene, climb, chest, Psycho Slider, Aura Barrier |
+| 12 | `$1000` | On a slope/ramp (set by slope physics) |
+| 13 | `$2000` | Guard/channel stance — block, Dark Friar cast, Spin Dash charge |
+| 15 | `$8000` | Body sprite overridden via `SetPlayerSpriteDirect` (COP `$8E`) |
 
-**Composite masks** used as combined flag tests throughout the attack and movement code:
+Bits 6, 10 and 14 (`$0040`, `$0400`, `$4000`) are never used.
 
-| Mask | Hex | Meaning |
-|------|-----|---------|
-| combo | `$0A00` | Ability FX + blocked movement (`$0800 \| $0200`) |
-| combo | `$2A00` | Movement-blocking composite (`$2000 \| $0800 \| $0200`) |
-| combo | `$2B00` | Movement + action blocking composite |
-| combo | `$3000` | Both movement blocks (`$2000 \| $1000`) |
-| combo | `$3A00` | Extended movement block (`$2000 \| $1000 \| $0800 \| $0200`) |
+**Composite masks** used as combined flag tests:
+
+| Mask | Bits | Meaning |
+|------|------|---------|
+| `$0A00` | 11, 9 | Script lock or game over — `PlayerMoveController` skips the frame |
+| `$1800` | 12, 11 | Slope or script lock — no new hit stagger |
+| `$2800` | 13, 11 | Cleared by `PlayerIdleEntry`; blocks Select/Y in `GlobalInputHandler` |
+| `$2A00` | 13, 11, 9 | `AttackSystemEntry`: no attack polling |
+| `$2B00` | 13, 11, 9, 8 | `ValidateAttackContinue`: abort an attack in progress |
+| `$3000` | 13, 12 | `PlayerMoveController`: D-pad velocity forced to zero |
+| `$3800` | 13, 12, 11 | `run_button_main`: no sprinting |
+| `$3A00` | 13, 12, 11, 9 | `ValidateAttackReady`: no attack launch |
 
 ### Ability System (`$0AD4` + `$0AA2`)
 
@@ -206,12 +217,12 @@ Central per-frame movement pipeline. Scales positions to ×4 sub-pixel resolutio
 
 | Address | Name | Description |
 |---------|------|-------------|
-| `$02B29E` | PlayerMoveController | Each frame: reads player actor slot, checks paralysis (`$0080`) and death. If `$player_flags` `$0A00` (blocked), zeroes velocity. Otherwise reads joypad, combines with speed accumulators, applies velocity. Calls `PlayerMovementTick` for collision. Writes back positions. |
+| `$02B29E` | PlayerMoveController | Each frame: reads player actor slot, checks the actor freeze flag (`$0080` in `$10`). If `$player_flags` `$0A00` (script lock or game over), zeroes external velocity and skips the frame. Otherwise reads joypad, combines with speed accumulators, applies velocity. Calls `PlayerMovementTick` for collision. Writes back positions. |
 | `$02B3C6` | JoypadToVelocity | Converts joypad state (`$0657`) to 2D velocity. 8 directions: pure cardinal = ±8, diagonals = (±6, ±6) or (6, ±10). |
 
 ### PlayerMoveController
 
-Each frame: reads player actor slot, checks paralysis (`$0080`) and death. If `$player_flags` `$0A00` (blocked), zeroes velocity. Otherwise reads joypad, combines with speed accumulators, applies velocity. Calls `PlayerMovementTick` for collision. Writes back positions.
+Each frame: reads player actor slot, checks the actor freeze flag (`$0080` in `$10`). If `$player_flags` `$0A00` (script lock or game over), zeroes external velocity and skips the frame. Otherwise reads joypad, combines with speed accumulators, applies velocity. Calls `PlayerMovementTick` for collision. Writes back positions.
 
 **Algorithm:**
 - Scale `$14`/`$16` to ×4 sub-pixel resolution
@@ -347,7 +358,7 @@ Master actor definition and state machine for idle, walk, block, climb, ladder, 
 | `$02CBFF` | RunAttackNS | NS Psycho Slider with anim table A entry 1. |
 | `$02CC52` | RunAttackEW | EW Psycho Slider. |
 | `$02CCA5` | DisableStatusForAttack | Clears `$0100`, sets `$0200` in `$06EE`. |
-| `$02CCB0` | RunAttackFlagSetup | Sets `$0200` in `$10`, `$8000` in `$0658`, `$0802` in `$player_flags`. |
+| `$02CCB0` | RunAttackFlagSetup | Sets `$0200` in `$10`, `$0080` in `$0658` (joypadHeld: attack consumed), `$0802` in `$player_flags` (Psycho Slider). |
 | `$02CCC2` | RestoreStatusDisplay | Clears `$0200` from `$06EE`. |
 | `$02CCC8` | RunAttackCleanup | Clears flags. |
 | `$02CCDA` | AttackSouth | South attack. Freedan wall-slash variant. |

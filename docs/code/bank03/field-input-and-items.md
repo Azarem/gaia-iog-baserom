@@ -81,12 +81,12 @@ and actor execution. Five guard conditions gate button dispatch:
 3. `IsMusicPlaying` returns carry set — a melody item is playing (SPC transfer).
 4. Start (`$1000`) is checked here — if pressed, branches directly to map/radar
    path, bypassing the remaining guards.
-5. `playerFlags` bits 13|11 (`$2800`) — running or ability active; blocks **Select
+5. `playerFlags` bits 13|11 (`$2800`) — guard/channel stance or script/ability lock; blocks **Select
    and Y only** (Start already dispatched above).
 6. No recognized button pressed.
 
 Button dispatch: **Start** (`$1000`) → map/radar (normal radar overlay, or a
-dimmed `PAUSE` text overlay when the input-lock flag `$0008` is set); **Select**
+dimmed `PAUSE` text overlay when the combat-lock flag `$0008` is set, i.e. non-combat scenes); **Select**
 (`$2000`) → `OpenInventoryScreen`; **Y** (`$4000`) → `ItemUseDispatch`. Start is
 checked before the run/ability guard, so the map is accessible while running.
 
@@ -102,8 +102,8 @@ checked before the run/ability guard, so the map is accessible while running.
 | `$038000` | `GlobalInputHandler` | entry: PHP, guard checks, button priority dispatch |
 | `$038039` | *(exit)* | guard-fail path: `PLP` / `RTL` |
 | `$03803B` | *(Select path)* | mark Select consumed → `VBlankWait` → `OpenInventoryScreen` → mark Select+L consumed |
-| `$038055` | *(Start path)* | mark Start consumed → check input-lock bit → branch to radar or pause |
-| `$03806D` | *(pause overlay)* | input-locked: `COP RunBg3Script` for PAUSE text → dim to `INIDISP $09` |
+| `$038055` | *(Start path)* | mark Start consumed → check combat-lock bit → branch to radar or pause |
+| `$03806D` | *(pause overlay)* | non-combat scene (`$0008`): `COP RunBg3Script` for PAUSE text → dim to `INIDISP $09` |
 | `$03808B` | *(hold-to-view init)* | push border animation index X=0 |
 | `$03808F` | *(hold-to-view loop)* | `EnableNmiAndJoypad` → `VBlankWait` → `EnableNmiOnly` → `RadarBorderAnimate` → poll Start |
 
@@ -121,11 +121,11 @@ checked before the run/ability guard, so the map is accessible while running.
 | `JSL` | `inventory_overlay.OpenInventoryScreen` | Select → full inventory UI |
 | `JSL` | `vram_buffer_clear.ClearVramBufferPartial` | overlay teardown |
 | `JSL` | `system_core.UpdateFrameDialogue` | restore normal display after radar |
-| `COP` | `RunBg3Script(consolestring_01EAC6)` | PAUSE text overlay (input-locked mode) |
+| `COP` | `RunBg3Script(consolestring_01EAC6)` | PAUSE text overlay (combat-lock mode) |
 
 ### Notes
 
-**Pause overlay:** When `playerFlags` bit 3 (`$0008`, input lock) is set, Start
+**Pause overlay:** When `playerFlags` bit 3 (`$0008`, combat lock — set in non-combat scenes) is set, Start
 displays a simple "PAUSE" text via `COP RunBg3Script` targeting
 `consolestring_01EAC6`, rather than the full radar minimap. Before showing the
 text, `displayModeFlags` bit 15 (`$8000`) is cleared. The screen brightness is
@@ -453,7 +453,7 @@ restores the saved X register (via `PLY`) and joins the normal lookup path.
 ### Notes
 
 **BMI transformed-form branch:** The main entry reads `playerFlags` and checks the
-sign bit (`BMI` at `$03F0D4`). If negative (bit 15 set = **transformed form**), the
+sign bit (`BMI` at `$03F0D4`). If negative (bit 15 set = body sprite overridden via `SetPlayerSpriteDirect`, i.e. **transformed form**), the
 code enters the form-aware path at `$03F0F1` instead of the simple
 lookup. This path reads `$0AC8` (form index), subtracts 4, and if the result is
 negative, falls through to `GetPlayerFacing_AltEntry`. Otherwise it uses

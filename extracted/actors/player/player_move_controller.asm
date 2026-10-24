@@ -8,13 +8,13 @@
 ; 
 ; 2. FREEZE CHECK: If player actor flag $0080 (freeze) is set AND iframeCounter is non-negative (no active invincibility), skip the entire frame. If iframes are active (negative counter), movement continues even while frozen.
 ; 
-; 3. CLIMB/SPECIAL GATE: If playerFlags bits 9+11 ($0A00 = $0200 climb + $0800 special) are set, zero external velocities and skip — position is controlled by the traversal system (vine/ladder/shimmy) directly.
+; 3. SCRIPT/GAME-OVER GATE: If playerFlags bits 9+11 ($0A00 = $0200 game over + $0800 script/ability lock) are set, zero external velocities and skip — position is controlled by the script or traversal system (stairs/vine/ladder/cutscene) directly.
 ; 
 ; 4. POSITION SYNC: Compare local position with player actor position. If they differ (e.g. player was teleported by a script or COP command), re-sync local to match the player actor.
 ; 
 ; 5. VELOCITY CALCULATION: Two mutually exclusive paths per axis:
 ;    a. Speed == 0 (idle/walking): Use D-pad velocity from JoypadToVelocity + external velocity ($0408/$040A)
-;    b. Speed != 0 (running/inertial): Use playerSpeed × 4 + external velocity, then clear playerFlags bit 12 ($1000 walk-attack)
+;    b. Speed != 0 (running/inertial): Use playerSpeed × 4 + external velocity, then clear playerFlags bit 12 ($1000 on-slope latch)
 ; 
 ; 6. COLLISION: If player is grounded (flag $0008), call player_move_main.PlayerMovementTick for full tile collision. If airborne, directly add delta to position (no collision).
 ; 
@@ -45,7 +45,7 @@
 ; Seven-stage pipeline executed every frame after the player character:
 ; 1. SUBPIXEL SCALING: Local coords ($14,$16) × 4 for 2-bit fractional precision (0.25 px resolution)
 ; 2. FREEZE CHECK: Skip if actor flag $0080 (freeze) set AND iframeCounter non-negative
-; 3. CLIMB/SPECIAL GATE: If playerFlags $0A00 ($0200 climb + $0800 special), zero external velocities and skip
+; 3. SCRIPT/GAME-OVER GATE: If playerFlags $0A00 ($0200 game over + $0800 script/ability lock), zero external velocities and skip
 ; 4. POSITION SYNC: If local position differs from player actor (teleported), re-sync
 ; 5. VELOCITY CALC: Combine joypad D-pad velocity (from JoypadToVelocity) OR speed × 4 with external velocity ($0408/$040A). Attack/block flags ($3000) force zero joypad velocity
 ; 6. COLLISION: Grounded ($0008) → PlayerMovementTick (full tile collision). Airborne → direct position add
@@ -75,7 +75,7 @@ PlayerMoveController {
 
   loc_02B2C0:
     PLX 
-    LDA $playerFlags      ; Check climb/special flags ($0A00 = $0200 climb + $0800 special state)
+    LDA $playerFlags      ; Check game-over/script-lock flags ($0A00 = $0200 game over + $0800 script/ability lock)
     BIT #$0A00
     BEQ loc_02B2D0
     STZ $extVelocityX     ; Climbing or special traversal active → zero external velocities and skip (traversal controls position directly)
@@ -106,7 +106,7 @@ PlayerMoveController {
     STA $16
 
   loc_02B2F3:
-    LDA $playerFlags      ; Check attack/block flags ($3000 = $1000 attack-walk + $2000 block) — if either set, zero joypad velocity
+    LDA $playerFlags      ; Check slope/stance flags ($3000 = $1000 on slope + $2000 guard/channel stance) — if either set, zero joypad velocity
     BIT #$3000
     BEQ loc_02B300
     LDA #$0000
@@ -140,7 +140,7 @@ PlayerMoveController {
     CLC 
     ADC $extVelocityX
     STA $0020
-    LDA #$1000            ; Clear walk-attack flag ($1000) — active blocking overrides walk-attack state
+    LDA #$1000            ; Clear on-slope latch ($1000) — active blocking overrides the slope state
     TRB $playerFlags
 
   loc_02B336:
@@ -165,7 +165,7 @@ PlayerMoveController {
     BRA loc_02B36F
 
   loc_02B360:
-    ASL                   ; Running NS: speed × 4, add external velocity, clear walk-attack flag
+    ASL                   ; Running NS: speed × 4, add external velocity, clear on-slope latch
     ASL 
     CLC 
     ADC $extVelocityY

@@ -46,7 +46,7 @@ Attack/ability companion actor — runs **before** movement controller via `Spaw
 
 | Address | Name | Description |
 |---------|------|-------------|
-| `$02B7B3` | AttackSystemEntry | Entry. Check dead → die. Each frame check `$2A00` → skip. Check `$0AD4 < 2` → listen for attack (`$8001`). |
+| `$02B7B3` | AttackSystemEntry | Entry. Combat lock (`$0008`) at spawn → die. Each frame check `$2A00` → skip. Check `$0AD4 < 2` → listen for attack (`$8001`). |
 | `$02B7DE` | WillAttackDispatch | Will's attack. Check `$0AA2` bits `$0005` (0+2). 40-frame hold, 120-frame charge. L/R → Spin Dash, release → Psycho Dash. |
 | `$02B855` | LaunchPsychoDash | Validate facing, set func to `PsychoDashMain`. |
 | `$02B861` | LaunchSpinDash | Set func to `SpinDashMain`. |
@@ -123,12 +123,12 @@ Attack/ability companion actor — runs **before** movement controller via `Spaw
 
 ### AttackSystemEntry
 
-Companion actor entry point that runs every frame before the movement controller. If the player is dead, the companion dies with them; otherwise it clears the attack-in-progress bit and polls for a valid attack-button press. Shadow and other late forms (`characterForm ≥ 2`) are excluded entirely — only Will and Freedan can enter the charge-and-launch flow from here.
+Companion actor entry point that runs every frame before the movement controller. In non-combat scenes (`playerFlags` `$0008` combat lock set) the companion dies immediately at spawn; otherwise it clears the attack-in-progress bit and polls for a valid attack-button press. Shadow and other late forms (`characterForm ≥ 2`) are excluded entirely — only Will and Freedan can enter the charge-and-launch flow from here.
 
 **Algorithm:**
-- Die if player dead (`$0008` in flags)
+- Die at spawn if the combat lock is set (`$0008` in `playerFlags`: non-combat scene, see [wram-memory-map.md](../../wram-memory-map.md) §Player Flags Reference). This is a one-time check before `SetEntryHere`, so scripts that set `$0008` later only disable the attack button, not this actor
 - Clear attack lock bit, set continue
-- Skip if movement blocked (`$2A00`)
+- Skip while in a stance, script lock or game over (`$2A00`)
 - If `characterForm >= 2`: return (Shadow and other forms cannot attack here)
 - Else listen for attack button → `WillAttackDispatch` (form 1 jumps to `FreedanAttackDispatch`)
 
@@ -156,7 +156,7 @@ Called by all launch routines and by `ValidateAttackReady` on abort. Kills the c
 
 ### ValidateAttackReady
 
-Gate called by `LaunchPsychoDash`, `LaunchSpinDash`, `LaunchDarkFriar`, and `LaunchAuraBarrier` immediately before hijacking the player actor. Blocks launch if the player is hurt, in knockback, transforming, or in a dialogue transition, or if facing is not a cardinal direction. On failure it pops the return address and falls through to `AttackCleanup` rather than starting the ability.
+Gate called by `LaunchPsychoDash`, `LaunchSpinDash`, `LaunchDarkFriar`, and `LaunchAuraBarrier` immediately before hijacking the player actor. Blocks launch if the player is in a guard/channel stance, on a slope, script/ability locked or game over (`$3A00`), or if facing is not a cardinal direction. On failure it pops the return address and falls through to `AttackCleanup` rather than starting the ability.
 
 ### CheckAttackChargeable
 

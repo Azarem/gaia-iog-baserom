@@ -446,9 +446,9 @@ WalkEast {
 ; Called via JSR from WalkSouth/North/West/East per-frame loops. Checks:
 ; 1. Attack button ($8000) pressed → WalkAbortToIdle (pop return, restore saved ptr)
 ; 2. Both EW and NS speed zeroed (external stop) → WalkAbortToIdle
-; 3. If neither: check playerFlags bit 12 ($1000 walk-attack flag), return Z flag to caller
+; 3. If neither: check playerFlags bit 12 ($1000 on-slope flag), return Z flag to caller
 ; 
-; Returns: Z flag = 0 means walk-attack is active (caller should check for block transition).
+; Returns: Z flag = 0 means the on-slope flag is set (caller should check for block transition).
 
 CheckAttackWhileWalking {
     COP [BranchIfPressed] ( #$0080, &WalkAbortToIdle ) ; Check for attack button ($8000) or zero speed while walking → abort walk to idle
@@ -1271,7 +1271,7 @@ MovingToSouth {
 ; 
 ; The Psycho Slider is Will's sliding attack ability (abilityBitmask bit 1, $0002), acquired in Mu West. When running, pressing the attack button initiates a damaging slide that can pass through narrow passages.
 ; 
-; Conditions (all must be true): actor flag $0080 clear (not frozen), characterForm == 0 (Will), abilityBitmask bit 1 ($0002) set (Psycho Slider learned), playerFlags bit 12 ($1000) clear (not in walk-attack state). If all pass and attack button ($8000) pressed, branches to RunAttackSpeedCheck.
+; Conditions (all must be true): actor flag $0080 clear (not frozen), characterForm == 0 (Will), abilityBitmask bit 1 ($0002) set (Psycho Slider learned), playerFlags bit 12 ($1000) clear (not on a slope). If all pass and attack button ($8000) pressed, branches to RunAttackSpeedCheck.
 
 CheckRunAttack {
     LDA $10               ; Psycho Slider gate: actor flag $0080 clear, Will only (form 0), abilityBitmask bit 1 ($0002) = Psycho Slider, not flagged $1000

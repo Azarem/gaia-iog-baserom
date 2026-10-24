@@ -67,7 +67,7 @@ Spawned via `COP [SpawnAfterFlags]` from scene thinker/actor scripts that want c
 
 #### Description
 
-Camera drift variant gated by `$player_flags`. Only applies random nudges when `$player_flags` bit `$0100` is clear (player not in a special state like cutscene or menu). Used on the Gold Ship and similar moving-platform scenes where camera drift should pause during transitions.
+Camera drift variant gated by `$player_flags`. Only applies random nudges when `$player_flags` bit `$0100` is clear (no forced-walk warp pan in progress). Used on the Gold Ship and similar moving-platform scenes where camera drift should pause during transitions.
 
 Same ±1..±2 pixel random offset as `CameraDriftLoopSimple` but with an additional flag check each frame and an infinite loop (no 120-frame limit) — runs until the hosting actor dies.
 
@@ -76,7 +76,7 @@ Same ±1..±2 pixel random offset as `CameraDriftLoopSimple` but with an additio
 ```
 1. Loop:
      a. LDA $player_flags
-     b. BIT #$0100 → skip if set (special state active)
+     b. BIT #$0100 → skip if set (forced walk active)
      c. JSR random → apply ±1..±2 to $06C0/$06C4
      d. COP [WaitFrame]
      e. BRA Loop
@@ -86,7 +86,7 @@ Same ±1..±2 pixel random offset as `CameraDriftLoopSimple` but with an additio
 
 | Symbol | Role |
 |--------|------|
-| `$player_flags` bit `$0100` | Gate — drift paused when set |
+| `$player_flags` bit `$0100` (forced walk) | Gate — drift paused when set |
 | `$06C0`, `$06C4` | Camera scroll deltas |
 
 ---

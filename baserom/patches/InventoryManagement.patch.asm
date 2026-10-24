@@ -17,6 +17,21 @@
 !crystal_count                  0B57
 !key_item_flags                 0B58
 
+;Options menu setting (registry format: options_menu_core.asm)
+;Storage: $0B3A bit 4 (set = Auto-Jewels off). Temp (TBL switch) word: $0BE4
+!auto_jewels_setting            0B3A
+
+AutoJewelsChoices [
+  &auto_jewels_on
+  &auto_jewels_off
+]
+
+auto_jewels_on  |On|
+auto_jewels_off |Off|
+
+optstr_auto_jewels |[PAL:0]Auto-Jewels[N] [PAL:14][TBL:@AutoJewelsChoices,BE4][PAL:0]|
+optstr_auto_jewels_desc |[PAL:0][POS:96,5]Red Jewels are used[DBL]automatically when[DBL]they are picked up.|
+
 ------------------------------------------------
 ;Checks for an available inventory slot
 ;Assumes: M == 1, preserves A and X and Y
@@ -124,22 +139,25 @@ InventoryCheckAndStore {
 ------------------------------------------------
 ;Entry point for gem use (prevent increase, this is done elsewhere)
 UseItem_RedJewel! {
-    COP [BF] ( &dialogstring_038517 )
+    COP [PrintDialogString] ( &dialogstring_038517 )
     JSR $&RemoveEquippedItem
+    BRA UseItem_SpawnSparkle
 
-;    SED 
-;    LDA $jewels_collected
-;    CLC 
-;    ADC #$0001
-;    STA $jewels_collected
-;    CLD 
+  UseItem_AddAndSpawn:
+    SED 
+    LDA $jewels_collected
+    CLC 
+    ADC #$0001
+    STA $jewels_collected
+    CLD 
 
+  UseItem_SpawnSparkle:
     PHX 
     PHD 
     LDA $player_actor
     TCD 
     TAX 
-    COP [A5] ( @code_038566, #00, #00, #$2000 )
+    COP [SpawnListAppend] ( @code_038566, #00, #00, #$2000 )
     TYX 
     LDA #$0000
     STA $0012, X
@@ -167,6 +185,30 @@ RemoveEquippedItem! {
     RTS
 }
 
+---------------------------------------------
+
+AutoUseRedJewelHandler {
+    CMP #$01
+    BEQ aurjh_continue
+    RTS
+
+  aurjh_continue:
+    PHA
+    LDA $auto_jewels_setting
+    AND #$10
+    BNE aurjh_disabled
+    PLA
+    REP #$20
+    JSR $&UseItem_AddAndSpawn
+    PLA           ;Pull the last JSR from the stack
+    SEP #$20
+    JMP GiveItem_StoreInSlot+4
+
+  aurjh_disabled:
+    PLA           ;Restore the item ID and let it go to the inventory normally
+    RTS
+}
+
 --------------------------------------------------
 ;Entry point for adding an item to the inventory
 
@@ -175,6 +217,7 @@ GiveItemToPlayer! {
     SEP #$20
     BIT #$80
     BNE loc_03EFB3
+    JSR $&AutoUseRedJewelHandler
     JSL $@KeyItemCheckAndStore
     BCC inv_give_item_normal
     JMP GiveItem_StoreInSlot+4
@@ -298,3 +341,20 @@ loc_08CF74! {
 
 loc_08CF84! {
 }
+
+------------------------------------------------
+;Registration of the Auto-Jewels setting (must stay after the overrides above)
+
+OptionSettingPreset- [
+  @optstr_auto_jewels       ;+00 render
+  @optstr_auto_jewels_desc  ;+03 desc
+  #$0BE4                    ;+06 temp
+  #$0B3A                    ;+08 store
+  #$0004                    ;+0A shift
+  #$0001                    ;+0C mask
+  #$0000                    ;+0E xor
+  #$0002                    ;+10 count
+  #$0000                    ;+12 load   (packed bits)
+  #$0000                    ;+14 change
+  #$0000                    ;+16 commit (packed bits)
+]

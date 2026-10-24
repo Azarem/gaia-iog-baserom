@@ -107,17 +107,17 @@
 ; 5. Dark Friar (179003–179701): DarkFriarMain sets flags, spawns VRAM DMA, loads palette, spawns a palette reset thinker (#4A), and dispatches by facing direction. Each directional handler (South/North/West/East) spawns a projectile and trail at character-appropriate offsets. DarkFriarProjectile is the initial flash sprite. DarkFriarTrailSouth and DarkFriarTrailEastWest are the growing trail actors with optional collision (enabled by upgrade level $0B1C). DarkFriarBounceLoop handles wall-bounce animation and level-2 redirect. DarkFriarOnHit spawns 4 fragment actors at 90° intervals. DarkFriarFragmentInit sets up spiraling outward motion, DarkFriarFragmentLoop applies velocity until wall contact.
 
 AttackSystemEntry {
-    LDA $playerFlags      ; Check player flags for death state — companion actor must die with the player
-    BIT #$0008            ; Bit 3 ($0008) = player dead flag
+    LDA $playerFlags      ; Combat lock check (one-time, at spawn): $0008 is set in non-combat scenes, where no attack companion is wanted
+    BIT #$0008            ; Bit 3 ($0008) = combat lock (set at spawn by non-combat scenes, toggled by cutscenes) — not a death flag
     BEQ code_02B7BD
-    COP [Die]             ; Player is dead — kill this attack companion actor
+    COP [Die]             ; Combat locked (non-combat scene) — kill this attack companion actor
 
   code_02B7BD:
-    LDA #$0001            ; Clear attack-in-progress bit ($0001) each frame before re-evaluation
+    LDA #$0001            ; Clear attack-request bit ($0001) each frame before re-evaluation
     TRB $playerFlags
     COP [SetEntryHere]    ; COP re-entry point — companion actor resumes here each frame to poll for attacks
     LDA $playerFlags
-    BIT #$2A00            ; Bits 9+11+13 ($2A00) = hurt, knockback, or dialogue transition active — blocks attacking
+    BIT #$2A00            ; Bits 9+11+13 ($2A00) = game over, script/ability lock, or guard/channel stance — blocks attacking
     BEQ loc_02B7CE
     RTL 
 
@@ -133,7 +133,7 @@ AttackSystemEntry {
 }
 
 WillAttackDispatch {
-    LDA #$0001            ; Set attack-in-progress flag ($0001) to lock player into the attack flow
+    LDA #$0001            ; Set attack-request flag ($0001) — attack button accepted, ability flow starting
     TSB $playerFlags
     LDA #$0080            ; Mark attack button as consumed in joypad held tracker to prevent re-trigger
     TSB $joypadHeld
@@ -157,7 +157,7 @@ WillAttackDispatch {
     LDA #$0078            ; Set extended charge timer to 120 frames ($0078)
     STA $24
     COP [SetEntryHere]    ; COP re-entry for per-frame charge loop
-    JSR $&ValidateAttackContinue ; Per-frame abort check: hurt, knockback, transition interrupts the charge
+    JSR $&ValidateAttackContinue ; Per-frame abort check: game over, script lock, stance or forced walk interrupts the charge
     COP [BranchIfNotPressed] ( #$0081, &AttackCleanup ) ; Attack released during charge → clean up and return to idle
     DEC $24               ; Decrement charge timer each frame
     BMI loc_02B829        ; Timer expired (negative) → proceed to ability selection phase
@@ -301,7 +301,7 @@ SetPlayerActorFunc {
 
 ValidateAttackReady {
     LDA $playerFlags      ; Pre-attack validation — checks blocking states before ability launch
-    BIT #$3A00            ; Bits 9+11+12+13 ($3A00) = hurt, knockback, transform, or transition active
+    BIT #$3A00            ; Bits 9+11+12+13 ($3A00) = game over, script/ability lock, on a slope, or guard/channel stance
     BNE loc_02B943
     COP [GetPlayerFacing] ; Get player facing direction via COP (returns 0–3 in A)
     CMP #$0004            ; Facing must be cardinal (< 4); diagonal or invalid facings abort the attack
@@ -315,7 +315,7 @@ ValidateAttackReady {
 
 ValidateAttackContinue {
     LDA $playerFlags      ; Per-frame validation — lighter check than ValidateAttackReady
-    BIT #$2B00            ; Bits 0+8+9+11 ($2B00) = attack lock + hurt + knockback + transition
+    BIT #$2B00            ; Bits 8+9+11+13 ($2B00) = forced walk + game over + script/ability lock + guard/channel stance
     BNE loc_02B943
     RTS 
 }
@@ -331,7 +331,7 @@ SavePlayerPosition {
 
 CheckAttackChargeable {
     LDA $playerFlags      ; Check whether the in-progress attack can continue charging
-    BIT #$8000            ; Bit 15 ($8000) = player in invincibility recovery from hit → not chargeable
+    BIT #$8000            ; Bit 15 ($8000) = body sprite overridden via SetPlayerSpriteDirect → not chargeable
     BEQ loc_02B967
 
   loc_02B965:
@@ -357,7 +357,7 @@ CheckAttackChargeable {
 AuraBarrierMain {
     LDA #$0200            ; Set bit 9 ($0200) in actor flags — marks ability FX active on this actor
     TSB $10
-    LDA #$0800            ; Set bit 11 ($0800) in player flags — Aura Barrier active state
+    LDA #$0800            ; Set bit 11 ($0800) in player flags — script/ability lock (Aura Barrier active)
     TSB $playerFlags
     COP [SpawnListAppend] ( @AuraVramDmaLoader, #00, #00, #$2600 ) ; Spawn VRAM DMA loader to upload Aura Barrier tile graphics to VRAM
     CPY #$1FC0            ; Check spawn result — $1FC0 = actor pool exhausted, spawn failed
@@ -393,7 +393,7 @@ AuraBarrierMain {
     STA $orbitDiameter, X ; Store palette FX actor ID in orbitDiameter for KillSpawnedProjectile cleanup
     COP [StageSpriteLoop] ( #03, #02 ) ; Stage Aura casting animation loop: sprite #03, 2 iterations
     COP [AnimLoop]
-    LDA #$0001            ; Clear attack-in-progress bit — player can now move during Aura Barrier
+    LDA #$0001            ; Clear attack-request bit — player can now move during Aura Barrier
     TRB $playerFlags
     COP [SpawnListAppend] ( @AuraOrbitalSpawner, #00, #F0, #$2600 ) ; Spawn the orbital child spawner at Y offset -16 (above player head)
     COP [StageSpriteLoop] ( #03, #0A ) ; Stage orbital sustain animation: sprite #03, 10 iterations
@@ -436,7 +436,7 @@ AuraOrbitalSpawner {
     LDA #$00F0            ; Set orbital lifetime to 240 frames ($00F0)
     STA $20
     COP [SetEntryHere]    ; COP re-entry for per-frame orbital management loop
-    LDA $playerFlags      ; Check attack-in-progress flag — set means player released button → begin shrink
+    LDA $playerFlags      ; Check attack-request flag ($0001) — set means the attack button was pressed again → begin shrink
     BIT #$0001
     BNE loc_02BA7D
     LDA $26               ; Advance orbit angle by 2 units per frame (smooth rotation speed)
@@ -558,7 +558,7 @@ AuraProjectileChild {
 }
 
 DarkFriarMain {
-    LDA #$2000            ; Set bit 13 ($2000) in player flags — Dark Friar active state marker
+    LDA #$2000            ; Set bit 13 ($2000) in player flags — guard/channel stance (Dark Friar casting)
     TSB $playerFlags
     COP [SpawnListAppend] ( @DarkFriarVramDma, #00, #00, #$2600 ) ; Spawn VRAM DMA loader for Dark Friar tile graphics
     CPY #$1FC0            ; Check spawn result — $1FC0 = pool exhausted
@@ -662,7 +662,7 @@ DarkFriarTrailSouth {
     LDA #$0000            ; Load animation table B entry 0 — Dark Friar trail sprite configuration
     JSR $&LoadAbilityAnimTableB
     COP [SetMetasprite] ( @spriteset_dark_friar )
-    LDA $playerFlags      ; Check player flags bit 7 ($0080) for behind-wall rendering mode
+    LDA $playerFlags      ; Check player flags bit 7 ($0080) for behind-wall rendering mode (never set by shipped scenes)
     BIT #$0080
     BEQ loc_02BC42
     COP [SetSpritePriority] ( #30 ) ; Behind wall: lower sprite priority (#30) to render behind foreground tiles
@@ -697,7 +697,7 @@ DarkFriarTrailEastWest {
     LDA #$0000            ; Shared trail code for east and west directions — uses X-axis movement instead of Y
     JSR $&LoadAbilityAnimTableB
     COP [SetMetasprite] ( @spriteset_dark_friar )
-    LDA $playerFlags      ; Check player flags bit 7 ($0080) for behind-wall rendering mode
+    LDA $playerFlags      ; Check player flags bit 7 ($0080) for behind-wall rendering mode (never set by shipped scenes)
     BIT #$0080
     BEQ loc_02BC8F
     COP [SetSpritePriority] ( #30 ) ; Behind wall: lower sprite priority (#30) to render behind foreground tiles
@@ -1242,7 +1242,7 @@ PsychoDashTrailEast {
   SpinDashMain:
     LDA #$0080            ; Mark attack button as consumed in joypad held tracker
     TSB $joypadHeld
-    LDA #$2002            ; Set bits 1+13 ($2002) in player flags — Spin Dash active + attack state
+    LDA #$2002            ; Set bits 1+13 ($2002) in player flags — body slam/charge attack active ($0002) + guard/channel stance ($2000)
     TSB $playerFlags
     LDA #$000F            ; Initialize charge parameter $26 to $000F — controls Spin Dash charge intensity
     STA $26

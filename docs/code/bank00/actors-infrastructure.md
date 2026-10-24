@@ -46,7 +46,7 @@ The main path uses `PHD`/`TCD` with `$09F4` (player actor DP base) to read playe
 1. SetEntryHere; exit if $06EE bit $0200 (camera lock)
 2. Read player X/Y from actor WRAM ($14, $16)
 3. Derive sub-tile player positions and tile indices
-4. If $player_flags bit $0100 clear:
+4. If $player_flags bit $0100 (forced walk) clear:
      a. Compute target scroll X: player X − $80, clamp to [$camera_offset_x, $camera_bounds_x − $100]
      b. Store in $06BE
      c. Same for Y into $06C2 using $camera_offset_y / $camera_bounds_y
@@ -62,7 +62,7 @@ The main path uses `PHD`/`TCD` with `$09F4` (player actor DP base) to read playe
 | `$14`, `$16` | Player pixel X/Y (via actor DP) |
 | `$player_x_pos`, `$player_y_pos` | Player position minus sprite anchor offset |
 | `$player_x_tile`, `$player_y_tile` | Tile coordinates (÷16) |
-| `$player_flags` | Bit `$0100` skips scroll computation |
+| `$player_flags` | Bit `$0100` (forced walk / camera lock) skips scroll computation |
 | `$camera_offset_x/y` | Minimum scroll position |
 | `$camera_bounds_x/y` | Maximum scroll position |
 | `$06BE`, `$06C2` | Computed target scroll |

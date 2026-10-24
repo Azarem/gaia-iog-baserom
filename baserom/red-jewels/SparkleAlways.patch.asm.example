@@ -1,0 +1,12 @@
+
+
+generic_sparkle_normal_loop! {
+}
+
+generic_sparkle_loop! {
+    COP [SetEntryHere]
+    LDA $26
+    BNE generic_sparkle_destroy
+    COP [AnimOneFrame]
+    RTL 
+}

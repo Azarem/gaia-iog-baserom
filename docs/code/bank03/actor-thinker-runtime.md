@@ -227,10 +227,17 @@ addresses with `$30`-byte stride (84 entries); the thinker free list at `$7E3000
 has `$10`-byte stride (16 entries). Head pointers: actors at `$4E`/`$50`, thinkers
 at `$52`/`$54` (long pointer).
 
-**Input lock handling:** `RunActors_Normal` checks `playerFlags` bit 3 (`$0008`)
-before any actor dispatch. When set, it clears the B button (`$8000`) from
-`joypadCurrent`, preventing attacks while input is locked (cutscene guidance,
-NPC walks, etc.).
+**Combat lock handling:** `RunActors_Normal` checks `playerFlags` bit 3 (`$0008`,
+combat lock) before any actor dispatch. When set, it clears the attack button
+(`$0080` in this baserom; `$8000` in the vanilla mapping) from `joypadCurrent`
+every frame, so the player cannot attack in non-combat scenes (towns, cutscene
+rooms) or during scripted combat locks. The flag is set at player spawn from the
+scene's player `actor-spawn` type byte (bit `$02`); see
+[wram-memory-map.md](../../wram-memory-map.md) §Player Flags Reference.
+
+> **Quirk:** the `$0008` branch loads `$0080` into A, so the `BIT #$0010` pause
+> test that follows sees `$0080` instead of `playerFlags`. Terrain-shake
+> (`$0010`) freezing therefore only applies in combat-allowed scenes.
 
 ---
 

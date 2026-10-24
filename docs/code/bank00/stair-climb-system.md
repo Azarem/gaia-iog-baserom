@@ -60,7 +60,7 @@ Called by all five stair triggers when activation conditions are met. Locks the 
 1. `$0E << 2` → compute climb frame count, store to `$7F0020,X` (player actor)
 2. Zero velocity `$002C`/`$002E` and wait counter `$0008` on the player
 3. Set joypad mask `$0F00` to block D-pad
-4. Set `$player_flags` bit `$0800` (climbing)
+4. Set `$player_flags` bit `$0800` (script lock)
 
 #### Algorithm
 
@@ -94,7 +94,7 @@ Called when the climb animation finishes (frame counter reaches zero). Restores 
 2. `TRB $joypad_mask_std` with `$CFF0` — unmask D-pad inputs
 3. Set actor flags `$10` bit `$0008`, clear bit `$0200`
 4. Set `$0658` bit `$8000`
-5. Clear `$player_flags` bit `$0002`
+5. Clear `$player_flags` bit `$0002` (body slam/charge attack)
 6. Call `RestorePlayerControl`
 
 #### Cross-References

@@ -366,7 +366,7 @@ LockPlayerForClimb {
     LDA #$0F00            ; Mask D-pad buttons ($0F00) in joypadMaskStd — no input during climb
     TSB $joypadMaskStd
     LDA #$0800
-    TSB $playerFlags      ; Set playerFlags $0800 (climb/special movement active)
+    TSB $playerFlags      ; Set playerFlags $0800 (script/ability lock — climb active)
     RTS 
 }
 
@@ -380,7 +380,7 @@ UnlockPlayerAfterClimb {
     TRB $10
     LDA #$0080            ; Set joypadHeld $8000 to consume B button (prevent attack on exit)
     TSB $joypadHeld
-    LDA #$0002            ; Clear playerFlags $0002 (secondary climb flag)
+    LDA #$0002            ; Clear playerFlags $0002 (body slam/charge attack flag)
     TRB $playerFlags
     JSR $&RestorePlayerControl ; Restore normal player entry point and movement state
     RTS 
@@ -408,7 +408,7 @@ RestorePlayerControl {
     STA $0010, X
     LDA #$0F00            ; Unmask D-pad ($0F00) in joypadMaskStd
     TRB $joypadMaskStd
-    LDA #$0800            ; Clear playerFlags $0800 (special movement active)
+    LDA #$0800            ; Clear playerFlags $0800 (script/ability lock released)
     TRB $playerFlags
     PLX 
     RTS 

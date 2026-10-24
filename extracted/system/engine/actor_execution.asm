@@ -6,11 +6,11 @@
 ; 
 ; Five actor processing modes selected by game state flags:
 ; 
-; 1. RunActors_Normal (248565): Standard gameplay. Checks playerFlags for pause ($0010) → PauseFiltered, or displayModeFlags ($0080) → DisplayFiltered. Processes each actor in the linked list ($56 head → $06 next). For each actor: sets DP/X to slot, checks COP script timer ($08), manages iframe countdown via $7F0028,X, dispatches to actor's COP script via the RTL trick ($00:$02), then applies post-tick movement.
+; 1. RunActors_Normal (248565): Standard gameplay. Checks playerFlags for terrain shake ($0010) → PauseFiltered, or displayModeFlags ($0080) → DisplayFiltered. Processes each actor in the linked list ($56 head → $06 next). For each actor: sets DP/X to slot, checks COP script timer ($08), manages iframe countdown via $7F0028,X, dispatches to actor's COP script via the RTL trick ($00:$02), then applies post-tick movement.
 ; 
 ; 2. RunActors_DisplayFiltered (248739): Active when displayModeFlags bit 7 set. Only processes actors with bit 12 ($1000) set in primary ($10) or secondary ($12) flags.
 ; 
-; 3. RunActors_PauseFiltered (248893): Active when playerFlags bit 4 set. Only processes actors with $12 bits 12|2 ($1004) or $10 bits 12|10 ($1400). Has a special iframe-only tail for non-immune actors.
+; 3. RunActors_PauseFiltered (248893): Active when playerFlags bit 4 ($0010, terrain shake) set. Only processes actors with $12 bits 12|2 ($1004) or $10 bits 12|10 ($1400). Has a special iframe-only tail for non-immune actors.
 ; 
 ; 4. RunActors_CutsceneOnly (249087): Cutscene playback. Only processes actors with $10 bit 11 ($0800). Clears bit 2 each frame.
 ; 
@@ -93,8 +93,8 @@
 ; Standard actor execution loop — primary gameplay processing mode.
 ; 
 ; Entry point for actor updates during normal gameplay. Saves processor state (PHP/PHD), switches to 16-bit mode, then checks game state flags to determine processing mode:
-; - playerFlags bit 3 ($0008): Input lock — clears B button ($0080) from joypadCurrent
-; - playerFlags bit 4 ($0010): Game paused — redirects to RunActors_PauseFiltered
+; - playerFlags bit 3 ($0008): Combat lock — clears the attack button ($0080) from joypadCurrent every frame
+; - playerFlags bit 4 ($0010): Terrain shake (Freedan vine-drop landing) — redirects to RunActors_PauseFiltered
 ; - displayModeFlags bit 7 ($0080): Display filter — redirects to RunActors_DisplayFiltered
 ; 
 ; If no filter is active, processes the actor linked list starting from $56. For each actor:
@@ -113,13 +113,13 @@ RunActors_Normal {
     PHD 
     REP #$20
     LDA $playerFlags
-    BIT #$0008            ; Bit 3 ($0008) = input lock; suppress B button ($0080) when set
+    BIT #$0008            ; Bit 3 ($0008) = combat lock; suppress attack button ($0080) when set (NB: A is left = $0080 afterwards, so the pause test below only works when the lock is clear)
     BEQ loc_03CB07
     LDA #$0080
     TRB $joypadCurrent
 
   loc_03CB07:
-    BIT #$0010            ; Bit 4 ($0010) = game paused → PauseFiltered
+    BIT #$0010            ; Bit 4 ($0010) = terrain shake active → PauseFiltered
     BEQ loc_03CB0F
     JMP $&RunActors_PauseFiltered
 
@@ -347,7 +347,7 @@ RunActors_DisplayFiltered_CopPostTick {
 ---------------------------------------------
 ; Pause-filtered actor execution — processes only pause-immune actors.
 ; 
-; Active when playerFlags bit 4 ($0010) is set (game paused). Two paths to qualify:
+; Active when playerFlags bit 4 ($0010) is set (terrain shake: Freedan vine-drop landing freezes the world). Two paths to qualify:
 ; 1. Secondary flags ($12) bits 12|2 ($1004) set — secondary pause immunity
 ; 2. Primary flags ($10) bits 12|10 ($1400) set — primary pause immunity
 ; 
@@ -900,7 +900,7 @@ AdvanceSceneDataAndFree {
 ; 
 ; Then parses the code header at [$42]: byte 0 = animation state ($0028,X), bytes 1-2 = initial flags (ORed with $4000 for visibility → $0010,X), computed entry point → $0000,X/$0002,X.
 ; 
-; Player path (bit 15 of $10 set): Clears playerFlags $0088, parses direction sprite for initial facing, loads character form body table for spriteset, computes initial camera position with centering offsets (X-8, Y-$80 for camera, Y-$10 for playerYPos), and initializes scroll registers.
+; Player path (bit 15 of $10 set): Clears playerFlags $0088 (sprite priority | combat lock), then re-derives them from the spawn record's type byte: bit $02 sets the combat lock ($0008) and bit $04 sets the sprite-priority flag ($0080) — both bits are stripped from $0E afterwards. Non-combat scenes (towns, cutscene rooms) use type $02/$32; combat scenes use $00/$30. Parses direction sprite for initial facing, loads character form body table for spriteset, computes initial camera position with centering offsets (X-8, Y-$80 for camera, Y-$10 for playerYPos), and initializes scroll registers.
 ; 
 ; Normal path: Sets default spriteset ($4000 bank $7E), calls UpdateActorAnimation, adds 8px X offset, then resolves stats table if present (index × 4 + base → statsPtr, first byte → currentHp).
 
@@ -1032,7 +1032,7 @@ InitActorFromSceneData {
 
   loc_03D00F:
     LDA #$0088
-    TRB $playerFlags      ; Clear playerFlags $0088 (freeze | input lock)
+    TRB $playerFlags      ; Clear playerFlags $0088 (sprite priority | combat lock)
     LDA $0E
     BIT #$0600            ; Bits 9|10 ($0600) = scene-defined player state overrides
     BEQ loc_03D03B
@@ -1040,14 +1040,14 @@ InitActorFromSceneData {
     AND #$F9FF
     STA $0E
     LDA $01, S
-    BIT #$0200            ; Bit 9 ($0200) → set input lock ($0008 in playerFlags)
+    BIT #$0200            ; Bit 9 ($0200) → set combat lock ($0008 in playerFlags; set for non-combat scenes)
     BEQ loc_03D02F
     LDA #$0008
     TSB $playerFlags
 
   loc_03D02F:
     PLA 
-    BIT #$0400            ; Bit 10 ($0400) → set freeze ($0080 in playerFlags)
+    BIT #$0400            ; Bit 10 ($0400) → set sprite priority flag ($0080 in playerFlags; unused by shipped scenes)
     BEQ loc_03D03B
     LDA #$0080
     TSB $playerFlags

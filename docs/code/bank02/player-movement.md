@@ -68,8 +68,8 @@ $02E102 └─ tile_collision (see tile-collision.md) ──────┘
 | `$AA` | 2 | **Movement direction flags** — bit `$0040` = EW active; `$0400` suppresses north; `$0800` suppresses south. |
 | `$AB` | 2 | **Approach / wall flags** — `$02` south nudge; `$04`/`$08` wall sub-variants; `$80` diagonal wall active. |
 | `$09C6` | 2 | **Slope accumulator** — fractional Y for tiles `$03` / `$0C`. |
-| `$09AE` | 2 | `player_flags` — bit `$0010` slope; bit `$1000` ramp. |
-| `$09AF` | 1 | Player state — bit `$08` stair entry. |
+| `$09AE` | 2 | `player_flags` — bit `$1000` = on a slope/ramp (see [wram-memory-map.md](../../wram-memory-map.md) §Player Flags Reference). |
+| `$09AF` | 1 | High byte of `player_flags` — bit `$08` = `$0800` script/ability lock (set while climbing stairs). |
 | `$09B2` | 2 | `player_speed_ew` — cleared by `ClearSpeedEW_*`. |
 | `$09B4` | 2 | `player_speed_ns` — cleared by `ClearSpeedNS_*`. |
 | `$7FC000`+ | — | Runtime collision overlay (see [`tile-collision.md`](tile-collision.md)). |

@@ -107,6 +107,7 @@ DialogCmd_WaitForAnyInput! {
 
 AttackInit! {
     LDA $joypadCurrent
+    AND #$CF88
     TSB $joypadHeld
     AND #$0F00
     STA $joypadCurrent

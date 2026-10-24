@@ -25,7 +25,7 @@
 ; 
 ; When the tile directly under the player is type $06 or $09 (transition tiles), the system checks the right and left adjacent cells for actual slope types ($05 or $0A). This handles edge cases where the player stands between a slope and flat ground.
 ; 
-; === WALK-ATTACK MULTI-CELL PROBE ===
+; === STOPPED-ON-SLOPE MULTI-CELL PROBE ===
 ; 
 ; When the player has zero speed but the $1000 flag is set (stopped on slope), a 4-cell adjacency probe searches Current, Down, Right, and Down-Right cells for any slope tile. If found, the appropriate slope handler is called. If none found, the slope state is cleared via SlopeFlatExit.
 ---------------------------------------------
@@ -78,7 +78,7 @@ SlopePhysicsEntry {
     PLX 
     LDA $playerSpeedEw    ; Check if player has any active speed (EW or NS nonzero)
     ORA $playerSpeedNs
-    BEQ loc_02B4C0        ; No speed → check walk-attack flag for stopped-on-slope multi-cell probe
+    BEQ loc_02B4C0        ; No speed → check the on-slope flag ($1000) for stopped-on-slope multi-cell probe
     PHX                   ; Has speed → begin slope tile detection
     PHD 
     LDA #$0000            ; Set DP to $0000 for tile_collision work area access ($1A, $1E)
@@ -242,7 +242,7 @@ SlopeFlatExit {
 
 SlopeFlatDecelerate {
     LDA $playerSpeedEw    ; Flat deceleration entry: check EW speed first, then NS
-    BEQ loc_02B564        ; No EW speed → check for walk-attack flag before NS deceleration
+    BEQ loc_02B564        ; No EW speed → check for the on-slope flag before NS deceleration
     JSR $&DecelerateEW
     RTL 
 

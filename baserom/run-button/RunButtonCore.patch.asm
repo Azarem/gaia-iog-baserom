@@ -1,6 +1,6 @@
-﻿?BANK 03
-
-?INCLUDE 'sFA_diary_menu'
+﻿
+;Options menu setting: bits 2-3 = Run Button mode (0 Run, 1 Walk, 2 Auto)
+!run_button_setting             0B3A
 
 ---------------------------------
 
@@ -13,10 +13,24 @@ run_button_main:
   BNE run_button_end    ;Skip if running already
   LDA $09AE
   BIT #$3800
-  BNE run_button_end    ;Skip if movement is disabled or on a ladder or ramp
+  BNE run_button_end    ;Skip if in a stance, on a slope or script/ability locked
+  LDA $run_button_setting
+  AND #$000C
+  BEQ run_mode_hold     ;Run: sprint while the run button is held
+  CMP #$0008
+  BEQ run_button_dirs   ;Auto: always sprint, the run button has no effect
+  LDA $joypadCurrent    ;Walk: sprint unless the run button is held
+  BIT #$0040
+  BNE run_button_end
+  BRA run_button_dirs
+
+run_mode_hold:
   LDA $joypadCurrent
   BIT #$0040
   BEQ run_button_end    ;Skip if not pressing run
+
+run_button_dirs:
+  LDA $joypadCurrent
   XBA
   LSR
   BCS run_button_e
@@ -55,7 +69,8 @@ run_store_ew:
   STZ $09B8  ;Reset brake counter
   RTL
 
---------------------------------------
+--------------------------------------------------
 
-dialogstring_0BF538! `[DLG:6,8][SIZ:A,8][SKP:2]Change Snd/Buttons[N]End Changes[N]Sound[N][LU2:2]Type[N][SKP:5]   :Attack/Talk[N][SKP:5]   :Item/Cancel[N][SKP:5]   :Item Menu[N][SKP:5]   :Sprint`
-dialogstring_0BF5AD! `[DLG:6,8][SIZ:A,8]Arrangement  OK?[N]Start Journey[N]Sound[N][LU2:2]Type[N][SKP:5]   :Attack/Talk[N][SKP:5]   :Item/Cancel[N][SKP:5]   :Item Menu[N][SKP:5]   :Sprint`
+PlayerInputHooks+ {
+    JSL $@run_button_main
+}

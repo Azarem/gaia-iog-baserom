@@ -101,7 +101,7 @@ Bank $7e
 09A8-09A9 Player's Y Position (left side of sprite, center height, in tiles)
 09AA-09AB Current address of Player actor in actor tables
 09AC-09AD ?
-09AE-09AF Player attack and control flags
+09AE-09AF Player state flags (combat lock, attack, slope, script lock, game over; see wram-memory-map.md)
            & $0001 Attack button pressed
            & $0002 Player's body destroys obstacles
            & $0004 ?
