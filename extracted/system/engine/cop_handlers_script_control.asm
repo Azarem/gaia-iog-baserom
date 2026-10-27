@@ -1,3 +1,14 @@
+; COP script-control handlers (Bank $00): interaction handler, resume entry, jumps, calls and loops (COP #C0–#CB, #E1, #E2).
+; 
+; An actor script resumes from the entry pointer in its DP: $00/$01 = offset, $02 = bank. SetEntryHere and SetEntryHereAndYield save the position after themselves; JumpAfterDelay, JumpNextFrame, SetEntryFar and JumpFar write a target. Yielding handlers pop the COP frame and RTL (the actor resumes next frame at $00/$02); the others RTI back into the stream. SetEntryFar only changes the entry and keeps running; JumpFar also jumps.
+; 
+; Call/return uses a single slot, retPtr1 ($7F0004), so calls do not nest. SetSavedPtr stores an explicit &Code operand; CallNear and CallNearDeferred store the address after their own operand and jump to the target. RestoreSavedPtr and ReturnWithSignal jump back to the slot and clear it, or yield when it is empty (ReturnWithSignal also returns A = $FFFF).
+; 
+; Loops: LoopStart saves the count and the loop-head PC, LoopEnd decrements the count and, until it reaches zero, sets $00 to the loop head and yields (so at least one frame per iteration). A count of 0 would wrap to 65536 iterations (no guard). Pooled actors (X ≥ $1000) keep the count and head in their own fields loopCounter ($7F0014) and retPtr2 ($7F001E). Thinkers (X < $1000) use the arrays loopCounterActor ($7F2102) and loopStartPcActor ($7F2100) indexed by X; those two mnemonic names say 'Actor' but they are the thinker variants (rename proposal 90).
+; 
+; SetInteractHandler (#C0, 322 uses in scripts) stores a &Code pointer in chatPtr ($7F000A), the routine the interaction system runs when the player talks to or touches the actor.
+---------------------------------------------
+
 ?BANK 00
 
 !retPtr1                        7F0004
@@ -9,7 +20,7 @@
 
 ---------------------------------------------
 
-; COP #C0 (script name SetOnInteract) NPC interaction handler setter taking one &Code operand. Stores the script pointer in the actor chatPtr field ($7F000A), which the interaction system invokes when the player talks to or touches the actor. Used by virtually all NPCs, chests, and inspectable objects.
+; COP #C0 with one &Code operand. Stores it in the actor's chatPtr ($7F000A), the routine the interaction system runs when the player talks to or touches the actor. Used by NPCs, chests and inspectable objects (322 uses). The copdef name is SetInteractHandler; 'SetOnInteract' is only a stale name in the docs.
 
 SetInteractHandler {
     TYX 
@@ -28,7 +39,7 @@ SetInteractHandler {
 SetEntryHere {
     TYX 
     LDA $0C               ; Load current script bank to actor $02 (entry bank byte)
-    STA $02
+    STA $02               ; Entry bank → $02 (16-bit store: $03 also receives stack junk from $0D, OQ-69)
     LDA $0A               ; Load script PC to actor $00 (entry resume address)
     STA $00
     STA $02, S
@@ -41,7 +52,7 @@ SetEntryHere {
 SetEntryHereAndYield {
     TYX 
     LDA $0C               ; SetEntryHereAndYield: save bank to $02
-    STA $02
+    STA $02               ; Entry bank → $02 (16-bit store, see SetEntryHere)
     LDA $0A               ; Load PC to $00 as resume entry
     STA $00
     PLA                   ; Pop COP frame and yield RTL — resume next frame at saved $00/$02
@@ -91,7 +102,7 @@ JumpNextFrame {
 }
 
 ---------------------------------------------
-; COP #E2 with one Address operand (word+bank). Writes the far entry pointer to $00/$02, zeroes $08, and RTI-continues immediately without yielding.
+; COP #E2 with one Address operand (word + bank). Writes the far entry pointer to $00/$02 and zeroes $08, then RTI-continues in the current stream without yielding. Unlike JumpFar it does not jump: the new entry only takes effect the next time the actor resumes.
 
 SetEntryFar {
     TYX 
@@ -211,18 +222,20 @@ CallNearDeferred {
 }
 
 ---------------------------------------------
-; COP #CA with one byte operand (iteration count). For the player actor (X≥$1000) stores the count in loopCounter ($7F0014) and saves the loop-head PC in retPtr2; for scene actors uses loopCounterActor ($7F2102) and loopStartPcActor ($7F2100).
+; COP #CA with one byte operand (iteration count). Stores the count and the loop-head PC (the address after the operand) and sets $00 to the loop head.
+; 
+; Pooled actors (X ≥ $1000) use loopCounter ($7F0014) and retPtr2 ($7F001E); thinkers (X < $1000) use loopCounterActor ($7F2102) and loopStartPcActor ($7F2100).
 
 LoopStart {
     TYX 
-    CPX #$1000            ; X ≥ $1000 → player actor (uses loopCounter/$7F0014 and retPtr2)
+    CPX #$1000            ; X ≥ $1000 = pooled actor (fields $7F0014/$7F001E); X < $1000 = thinker (arrays $7F2100/$7F2102)
     BCC loc_00AAF6
     LDA [$0A]             ; Read iteration count byte
     INC $0A
     AND #$00FF
-    STA $loopCounter, X   ; Store count in player loopCounter ($7F0014)
+    STA $loopCounter, X   ; Pooled actor: count in loopCounter ($7F0014)
     LDA $0A
-    STA $retPtr2, X       ; Save loop-head PC in retPtr2 for LoopEnd to jump back
+    STA $retPtr2, X       ; Pooled actor: loop-head PC in retPtr2 for LoopEnd
     STA $00
     LDA $0A
     STA $02, S
@@ -232,9 +245,9 @@ LoopStart {
     LDA [$0A]
     INC $0A
     AND #$00FF
-    STA $loopCounterActor, X ; Scene actor: store count in loopCounterActor ($7F2102)
+    STA $loopCounterActor, X ; Thinker: count in loopCounterActor ($7F2102)
     LDA $0A
-    STA $loopStartPcActor, X ; Save loop-head PC in loopStartPcActor ($7F2100)
+    STA $loopStartPcActor, X ; Thinker: loop-head PC in loopStartPcActor ($7F2100)
     STA $00
     LDA $0A
     STA $02, S
@@ -242,13 +255,13 @@ LoopStart {
 }
 
 ---------------------------------------------
-; COP #CB with no operands. Decrements the active loop counter (player or actor variant); if non-zero, restores the saved loop-head PC and yields RTL, otherwise falls through and RTI-continues past the loop.
+; COP #CB with no operands. Decrements the loop counter (pooled-actor or thinker variant). At zero it continues past the loop with RTI; otherwise it stores the count, sets $00 to the saved loop head and yields via RTL, so each iteration ends with a yield.
 
 LoopEnd {
     TYX 
-    CPX #$1000            ; X ≥ $1000 = player (loopCounter/$7F0014); else scene actor (loopCounterActor/$7F2102)
+    CPX #$1000            ; X ≥ $1000 = pooled actor (loopCounter/retPtr2); else thinker (loopCounterActor/loopStartPcActor)
     BCC loc_00AB2D
-    LDA $loopCounter, X   ; Read player loop counter
+    LDA $loopCounter, X   ; Pooled actor: read loopCounter
     DEC                   ; Decrement; zero → loop exhausted
     BEQ loc_00AB28        ; Counter reached zero: exit loop and continue script
     STA $loopCounter, X   ; Counter nonzero: store decremented count
@@ -264,11 +277,11 @@ LoopEnd {
     RTI 
 
   loc_00AB2D:
-    LDA $loopCounterActor, X ; Scene actor: read loopCounterActor
+    LDA $loopCounterActor, X ; Thinker: read loopCounterActor
     DEC 
     BEQ loc_00AB28
     STA $loopCounterActor, X
-    LDA $loopStartPcActor, X ; Restore scene actor loop-head PC from loopStartPcActor
+    LDA $loopStartPcActor, X ; Thinker: restore the loop-head PC from loopStartPcActor
     STA $00
     PLA 
     PLA 

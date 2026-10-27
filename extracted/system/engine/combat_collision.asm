@@ -35,7 +35,7 @@
 ;   enemyHP = max(0, enemyHP − damage)
 ;   chainDamage stored at $7F101E,X accumulates across consecutive hits
 ; 
-; Phase-2 hit (EnemyHitPlayerHandler — the name is misleading: it uses the PLAYER's strength and reduces the overlapped actor's HP):
+; Phase-2 hit (ApplyHitDamageToVictim: uses the PLAYER's strength and reduces the overlapped actor's HP):
 ;   totalStr = playerStr + bonus + climbStateData      (bonus = $09E2, 0 when the hitter is actor slot $1000)
 ;   rawDamage = max(1, totalStr − victimStats[2])      (stats table: [0] max HP, [1] ATK, [2] DEF)
 ;   damage = rawDamage + characterForm
@@ -211,10 +211,10 @@ RunCombatCollision {
 ; 
 ; Phase 2 (enemy-hits-player test): After phase 1, constructs the current enemy's AABB from metasprite hitbox fields ($0004–$0007), accounting for H-mirror via the carry flag from ASL on $000E. Then iterates the render list again (inner loop at CombatCollision_InnerLoop), testing each actor's hitbox ($0020–$0023) for AABB overlap against the enemy's box.
 ; 
-; The $20 DP flag distinguishes normal mode (exclusion mask $76E0) from friendly/interaction mode ($74E0 + extendedFlags $0010 check). On overlap, calls EnemyHitPlayerHandler.
+; The $20 DP flag distinguishes normal mode (exclusion mask $76E0) from friendly/interaction mode ($74E0 + extendedFlags $0010 check). On overlap, calls ApplyHitDamageToVictim.
 
 CombatCollision_EnemyLoop {
-    BIT #$0080            ; $0080 must be set (same bit later set on victims as "iframe-active"; exact role here is unresolved, see open-questions OQ-8)
+    BIT #$0080            ; $0080 must be set (same bit later set on victims as "iframe-active"; exact role here is unresolved, see OQ-8 in questions/I001-I020_open-questions.md)
     BEQ loc_03BC26
     BIT #$0040            ; $0040 = orb protection on this actor
     BNE loc_03BC26
@@ -404,10 +404,13 @@ CombatCollision_EnemyLoop {
 
   loc_03BD52:
     PHX 
-    JSR $&EnemyHitPlayerHandler
+    JSR $&ApplyHitDamageToVictim
     PLX 
     JMP $&CombatCollision_InnerLoop
 }
+
+---------------------------------------------
+; Common exit of the combat pipeline: PLB, PLP, RTL.
 
 CombatCollision_Exit {
     PLB 
@@ -660,6 +663,9 @@ PlayerAttackHitTest {
     REP #$20
 }
 
+---------------------------------------------
+; Tail of PlayerAttackHitTest: resets the direct page to 0 (TCD) and returns with RTS.
+
 PlayerAttackHitTest_End {
     LDA #$0000            ; Reset DP to 0
     TCD 
@@ -667,13 +673,13 @@ PlayerAttackHitTest_End {
 }
 
 ---------------------------------------------
-; Resolve one phase-2 overlap: apply player-strength damage to the overlapped actor (X = victim, $08 = box owner / hitter). NOTE: despite the name this reduces the victim actor's HP; contact damage to the player is ApplyInteractionDamage. Name kept pending an approved rename (see rename-proposals.md).
+; Resolve one phase-2 overlap: apply player-strength damage to the overlapped actor (X = victim, $08 = box owner / hitter). It reduces the victim actor's HP; contact damage to the player is ApplyInteractionDamage.
 ; 
 ; Two main paths based on $24 flag (set by the friendly/interaction detection in the outer loop):
 ; 
 ; Path 1 ($24 nonzero — interaction/push hit): Checks the enemy's scratch1010+6 ($7F1016,X) for a custom interaction handler. If present, overwrites the enemy's entry point. Otherwise, sets the enemy to player_transition_handlers, marks $0040 (death flag), and dispatches knockback velocity by player facing direction (±4 to extVelocityX/Y).
 ; 
-; Path 2 ($24 zero — combat damage): Checks if the victim has $0010 in flags10 (invincible) → routes to InvinciblePlayerHit. Otherwise computes damage:
+; Path 2 ($24 zero — combat damage, the code under ApplyHitDamageToVictim_DamagePath): Checks if the victim has $0010 in flags10 (invincible) → routes to HitInvincibleVictim. Otherwise computes damage:
 ;   totalStr = playerStr + bonus ($09E2, 0 for hitter slot $1000) + climbStateData
 ;   rawDamage = max(1, totalStr − victimStats[2])   (stats[2] = DEF)
 ;   netDamage = rawDamage + characterForm
@@ -681,7 +687,7 @@ PlayerAttackHitTest_End {
 ; 
 ; After damage: checks and dispatches onHitCallback ($7F1000,X). Assigns iframes ($0011 or $FFEF). Updates HUD HP display. Finally checks extendedFlags $0050 for collision callback processing — clears $FFAF bits, toggles $6000 in $12, and dispatches onCollideCallback.
 
-EnemyHitPlayerHandler {
+ApplyHitDamageToVictim {
     SEP #$20
     LDA #$81
     PHA 
@@ -708,7 +714,7 @@ EnemyHitPlayerHandler {
     TSB $10
     PLD 
     JSL $@GetPlayerFacingDirection
-    PEA $&EnemyHitPlayer_Epilogue-1 ; PEA epilogue−1 for RTS-trick directional knockback dispatch
+    PEA $&ApplyHitDamageToVictim_DamagePath-1 ; PEA damage-path label−1: the RTS trick below returns onto its TXY/RTS landing pad after the directional knockback
     BCC loc_03BF5D
     RTS 
 
@@ -739,7 +745,12 @@ EnemyHitPlayerHandler {
     RTS 
 }
 
-EnemyHitPlayer_Epilogue {
+---------------------------------------------
+; Second half of ApplyHitDamageToVictim. Its first two instructions (TXY, RTS) are the landing pad of the PEA label−1 RTS trick that finishes the push/knockback path of the handler (Y = X on return). The rest of the part, entered at loc_03BF86 when $24 is zero, is the combat-damage path: totalStr = playerStr + bonus + climbStateData, rawDamage = max(1, totalStr − victim DEF), netDamage = rawDamage + characterForm, victim HP clamped at 0.
+; 
+; Then it spawns the damage digits (skipped for $12 bit 5 bosses), marks the victim $0080, resolves death inline (onDeathCallback or StandardEnemyDefeatHandler) or spawns HitStaggerMain, dispatches and clears onHitCallback, sets the iframe counter ($FFEF or $0011), plays hit sound #05, updates the HUD HP registers and finally handles the onCollideCallback of the attacker. A player with the invincible flag ($10 bit 4) is diverted to HitInvincibleVictim.
+
+ApplyHitDamageToVictim_DamagePath {
     TXY 
     RTS 
 
@@ -747,9 +758,9 @@ EnemyHitPlayer_Epilogue {
     TYX 
     STX $3E
     LDA $0010, X
-    BIT #$0010            ; $0010 = invincible → route to InvinciblePlayerHit
+    BIT #$0010            ; $0010 = invincible → route to HitInvincibleVictim
     BEQ loc_03BF94
-    JMP $&InvinciblePlayerHit
+    JMP $&HitInvincibleVictim
 
   loc_03BF94:
     STZ $20               ; $20 = bonus term: 0, or $09E2 unless the hitter ($08) is actor slot $1000; totalStr = playerStr + bonus + climbStateData
@@ -948,7 +959,7 @@ EnemyHitPlayer_Epilogue {
 ; 
 ; Sets $0080 (iframe) in actor flags, assigns iframe counter $FFEF (recovery), checks onHitCallback for custom response. Plays invincible-hit sound #09 instead of normal damage sound. Then falls through to the enemy post-collision cleanup (loc_03C0E2) which handles extendedFlags $0050 and onCollideCallback processing.
 
-InvinciblePlayerHit {
+HitInvincibleVictim {
     TXA 
     TCD 
     LDA $10
@@ -1151,6 +1162,9 @@ CalcKnockbackDirection {
     RTS 
 }
 
+---------------------------------------------
+; Common exit of the interaction pipeline: PLB, PLP, RTL.
+
 InteractionCollision_Exit {
     PLB 
     PLP 
@@ -1313,6 +1327,9 @@ RunInteractionCollision {
     PLP 
     RTL 
 }
+
+---------------------------------------------
+; Interaction pass for friendly NPCs: walks actorRenderList and skips every actor with any of $3540 set in $10, requires $0020 (friendly) to be set, then tests the probe box in $18–$1E against the actor's hitbox bytes (metasprite +4..+7) without horizontal mirroring. The first overlap calls ApplyInteractionDamage and returns, so at most one actor is processed per call.
 
 InteractionCollision_FriendlyMode {
     LDY #$0000

@@ -1,3 +1,10 @@
+; Actor-death COP handlers (Bank $00): MarkDeath (#A7), Die (#E0), KillPrev (#A8) and KillNext (#A9).
+; 
+; All of them remove an actor from the doubly linked actor list ($04 = prev, $06 = next, list ends in $0056/$0058) through actor_pool.UnlinkActor, which also returns the slot to the free list. MarkDeath and Die first test $12 bit $0040 ("this actor has marked children", set by the Marked spawn COPs): when it is set they take the shared cascade at UnlinkChildrenCascade, which removes the actor together with every adjacent actor whose parentId ($7F001C) equals its slot address. MarkDeath then resumes the script (RTI through MarkDeathResumeHandler); Die ends it (RTL).
+; 
+; KillPrev and KillNext switch context to the neighbouring actor ($04 / $06) and unlink that actor instead. Neither checks for a null link, so the neighbour must exist.
+---------------------------------------------
+
 ?BANK 00
 
 ?INCLUDE 'actor_pool'
@@ -14,10 +21,10 @@ MarkDeath {
     TYX 
     PHD                   ; Save direct page before potential child-cascade path
     LDA $12               ; Load actor flags for child-flag test ($0040)
-    BIT #$0040            ; Child flag $0040: route through DieNow_UnlinkChildren to cascade-remove children
+    BIT #$0040            ; Child flag $0040: route through DieExit to cascade-remove children
     BEQ loc_00A5EC
     PEA $&MarkDeathResumeHandler-1 ; Push MarkDeathResumeHandler−1 for RTS-trick return from child cascade
-    BRA loc_00A60E
+    BRA UnlinkChildrenCascade
 
   loc_00A5EC:
     JSR $&actor_pool.UnlinkActor ; UnlinkActor: direct removal when no children
@@ -26,7 +33,7 @@ MarkDeath {
 ---------------------------------------------
 ; PEA/RTS return target reached from MarkDeath when the dying actor has child flag $0040 set.
 ; 
-; Restores the actor's direct page (TCD) and index register (TAX) from the stack after the child-unlinking code in loc_00A60E completes, then RTIs to resume the calling script. Separated from MarkDeath because the child-unlinking path is shared with Die via BRA loc_00A60E.
+; Restores the actor's direct page (TCD) and index register (TAX) from the stack after the child-unlinking code in UnlinkChildrenCascade completes, then RTIs to resume the calling script. Separated from MarkDeath because the child-unlinking path is shared with Die via BRA UnlinkChildrenCascade.
 
 MarkDeathResumeHandler {
     PLA                   ; Resume handler: restore DP/X after child-unlinking and continue script
@@ -38,7 +45,7 @@ MarkDeathResumeHandler {
 }
 
 ---------------------------------------------
-; COP #E0 with no operands. If actor flag bit $0040 on $12 is set, routes through DieNow_UnlinkChildren to cascade-remove linked child actors by parentId match; otherwise calls UnlinkActor directly. Returns via RTL to terminate the script.
+; COP #E0 with no operands. If actor flag bit $0040 on $12 is set, routes through DieExit to cascade-remove linked child actors by parentId match; otherwise calls UnlinkActor directly. Returns via RTL to terminate the script.
 
 Die {
     TYX 
@@ -46,8 +53,8 @@ Die {
     LDA $12               ; Test for child flag $0040 on dying actor
     BIT #$0040
     BEQ loc_00A605        ; No children: direct unlink path
-    PEA $&DieNow_UnlinkChildren-1 ; Push DieNow_UnlinkChildren−1 for RTS-trick (RTL exit after cascade)
-    BRA loc_00A60E
+    PEA $&DieExit-1       ; Push DieExit−1 for RTS-trick (RTL exit after cascade)
+    BRA UnlinkChildrenCascade
 
   loc_00A605:
     JSR $&actor_pool.UnlinkActor
@@ -56,9 +63,9 @@ Die {
 ---------------------------------------------
 ; Cascade child-actor removal for Die/MarkDeath when actor flag $0040 is set.
 ; 
-; The entry point (PLA/TAX/TCD/PLA/PLA/RTL) is the normal non-child Die exit. The shared child-removal code at loc_00A60E walks the doubly-linked actor list both backward ($04 pointers) and forward ($06 pointers) from the dying actor, collecting contiguous runs of actors whose parentId matches the dying actor. It then returns all collected child slots via ReturnActorSlot and patches the list pointers with three cases: head-removed (new head = forward boundary), tail-removed (new tail = backward boundary), or mid-list splice (link boundaries to each other).
+; The entry point (PLA/TAX/TCD/PLA/PLA/RTL) is the normal non-child Die exit. The shared cascade at UnlinkChildrenCascade walks the doubly-linked actor list backward ($04 pointers) and forward ($06 pointers) from the dying actor, stopping at the first actor on each side whose parentId does not match the dying actor (the backward and forward boundaries). It then returns every slot strictly between the two boundaries (the children and the dying actor itself) via ReturnActorSlot and patches the list pointers with three cases: head-removed (new head = forward boundary), tail-removed (new tail = backward boundary), or mid-list splice (link the boundaries to each other). Finally it points the dying actor's own next pointer ($06) at the forward boundary so the actor run loop continues past the removed span.
 
-DieNow_UnlinkChildren {
+DieExit {
     PLA 
     TAX 
     TCD 
@@ -66,7 +73,9 @@ DieNow_UnlinkChildren {
     PLA 
     RTL 
 
-  loc_00A60E:
+; Entry of the child-removal cascade (X = dying actor, reached when actor flag $0040 is set): walks the doubly-linked actor list backward and forward from the dying actor while parentId matches it, returns every slot in that span to the pool with ReturnActorSlot, and patches the list links around the removed span.
+
+  UnlinkChildrenCascade:
     STX $0000             ; Save dying actor pointer to $0000 for parentId matching
     LDA $0004, X          ; Start backward walk: load prev pointer ($04)
     TAX 
@@ -100,7 +109,7 @@ DieNow_UnlinkChildren {
     LDX $0002             ; Start at backward boundary, return all child slots to pool
     BNE loc_00A64F
     LDX $actorListFirst   ; Backward boundary is null: start from list head ($0056)
-    JSR $&actor_pool.ReturnActorSlot
+    JSR $&actor_pool.ReturnActorSlot ; Return the head first (it belongs to the removed span)
 
   loc_00A64F:
     LDA $0006, X          ; Walk forward through next pointers returning each child
@@ -116,11 +125,11 @@ DieNow_UnlinkChildren {
     LDX $0004             ; Head removed: forward boundary becomes new list head ($0056)
     STX $actorListFirst
     STZ $0004, X          ; Clear new head's prev pointer
-    LDA $03, S
+    LDA $03, S            ; Saved D (the dying actor, pushed by PHD in Die/MarkDeath) under the RTS target
     TAX 
     TCD 
     LDA $0004
-    STA $06
+    STA $06               ; Dying actor's next ($06) = forward boundary: the run loop skips the removed span
     RTS 
 
   loc_00A675:
@@ -132,7 +141,7 @@ DieNow_UnlinkChildren {
     LDA $03, S
     TAX 
     TCD 
-    STZ $06
+    STZ $06               ; No next actor: the run loop ends after this actor
     RTS 
 
   loc_00A68A:
@@ -147,12 +156,12 @@ DieNow_UnlinkChildren {
     TAX 
     TCD 
     TYA 
-    STA $06
+    STA $06               ; Dying actor's next ($06) = forward boundary
     RTS 
 }
 
 ---------------------------------------------
-; COP #A8 with no operands. Switches context to the previous linked actor ($04) and unlinks it via UnlinkActor.
+; COP #A8 with no operands. Switches context to the previous linked actor ($04) and unlinks it via UnlinkActor. There is no null check, so the actor must have a prev link.
 
 KillPrev {
     PHY 
@@ -169,7 +178,7 @@ KillPrev {
 }
 
 ---------------------------------------------
-; COP #A9 with no operands. Switches context to the next linked actor ($06) and unlinks it via UnlinkActor.
+; COP #A9 with no operands. Switches context to the next linked actor ($06) and unlinks it via UnlinkActor. There is no null check, so the actor must have a next link.
 
 KillNext {
     PHY 

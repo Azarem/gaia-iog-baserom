@@ -68,6 +68,7 @@
 !inventoryEquippedType          0AC6
 !characterForm                  0AD4
 !hpToHeal                       0B22
+!hieroglyphSlots                0B28
 !APUIO1                         2141
 !chatPtr                        7F000A
 !orbitAngle                     7F0010
@@ -1536,7 +1537,7 @@ code_039B07 {
     LDA $globalScriptIndex
     ASL                   ; Check slot table ($0B28): negative ($FFFF) = empty, else plate already placed
     TAY 
-    LDA $0B28, Y
+    LDA $hieroglyphSlots, Y
     BMI loc_039B65
     CLC 
     ADC #$001E            ; Occupied slot: reconstruct old plate as item ID (+$1E), return to inventory
@@ -1544,13 +1545,13 @@ code_039B07 {
     JSL $@inventory_mgmt.GiveItemToPlayer
     PLY 
     LDA $0AA6
-    STA $0B28, Y          ; Store new plate ID in slot, print swap message
+    STA $hieroglyphSlots, Y ; Store new plate ID in slot, print swap message
     COP [PrintDialogString] ( &dialogstring_039C19 )
     RTS 
 
   loc_039B65:
     LDA $0AA6             ; Empty slot: store plate ID and print first-time placement message
-    STA $0B28, Y
+    STA $hieroglyphSlots, Y
     COP [PrintDialogString] ( &dialogstring_039C39 )
     RTS 
 }

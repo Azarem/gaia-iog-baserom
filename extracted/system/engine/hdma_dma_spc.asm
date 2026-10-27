@@ -52,6 +52,9 @@
 !chatPtr                        7F000A
 !metaspritePtr                  7F000C
 !adhocVramDma                   7F0C03
+!adhocVramDmaBank               7F0C05
+!adhocVramDmaDest               7F0C07
+!adhocVramDmaSize               7F0C09
 
 ---------------------------------------------
 
@@ -403,11 +406,11 @@ SpcCheckMusicReady {
 ---------------------------------------------
 ; Transfer music data to the SPC700 audio processor.
 ; 
-; Continues the handshake from SpcCheckMusicReady. Sends $F0 (transfer-start), yields, and verifies zero echo. Then sends $FF (ready-for-data) and loads the music data pointer from chatPtr into musicTransitionState ($06FA).
+; Continues the handshake from SpcCheckMusicReady. Sends $F0 (transfer-start), yields, and verifies zero echo. Then sends $FF (ready-for-data) and copies the music ID from chatPtr into musicTransitionState ($06FA).
 ; 
-; Waits for musicTransitionState to become $FFFF (set by the NMI handler’s LoadMusicFromTransitionState after the actual block transfer completes). Once confirmed, sends a final $01 acknowledgment, yields, clears sfxQueueCh1 and musicTransitionState, and terminates via COP Die.
+; Waits for musicTransitionState to become $FFFF, which the main loop's LoadMusicFromTransitionState writes after the blocking block transfer completes. Once confirmed, sends a final $01 acknowledgment, yields, clears sfxQueueCh1 and musicTransitionState, and terminates via COP Die.
 ; 
-; The actor-based architecture allows the multi-frame SPC transfer protocol to run without blocking gameplay.
+; The actor yields between protocol steps, so only the block transfer itself blocks the main loop.
 
 SpcTransferMusicData {
     SEP #$20
@@ -431,7 +434,7 @@ SpcTransferMusicData {
     STA $musicTransitionState
     COP [SetEntryHereAndYield]
     LDA $musicTransitionState
-    CMP #$FFFF            ; Wait for musicTransitionState = $FFFF (NMI completed transfer)
+    CMP #$FFFF            ; Wait for $FFFF (written by the main loop's LoadMusicFromTransitionState after the SPC upload)
     BEQ loc_03E208
     RTL 
 
@@ -448,13 +451,13 @@ SpcTransferMusicData {
 }
 
 ---------------------------------------------
-; Resolve a music ID and initiate SPC block transfer.
+; Resolve a music ID and start the SPC block transfer.
 ; 
-; Called from the NMI handler when musicTransitionState is nonzero and positive. Returns immediately if zero or negative (no pending music change).
+; Called once per main-loop iteration from SystemInit's loop, after UpdateHUD. Returns at once if musicTransitionState is zero or negative (no pending music change).
 ; 
-; Computes the music_array index as musicTransitionState × 3 (3-byte entries: 2-byte address + 1-byte bank). Loads the music data address and bank from music_array_01CBA6 into both direct page ($46/$47) and shadow registers ($0687/$0688).
+; For a positive value (the track ID staged by SpcTransferMusicData) it computes the music_array index as ID × 3 (3-byte entries: 2-byte address + 1-byte bank) and loads the address and bank into direct page ($46/$47) and the shadow registers ($0687/$0688).
 ; 
-; Enables NMI and joypad, calls SpcBlockTransfer to DMA the music data to the SPC700, then re-enables NMI-only mode. Sets musicTransitionState to $FFFF to signal completion to the waiting SpcTransferMusicData actor.
+; Enables NMI and joypad, calls SpcBlockTransfer to send the music data to the SPC700, then re-enables NMI-only mode and sets musicTransitionState to $FFFF to signal completion to the waiting SpcTransferMusicData actor. The transfer blocks the main loop; during it the NMI runs UpdateFrameFull each frame (musicTransitionState is positive).
 
 LoadMusicFromTransitionState {
     LDX $musicTransitionState
@@ -498,17 +501,17 @@ LoadMusicFromTransitionState {
 DmaAdhocVramBlock {
     PHP 
     REP #$20
-    LDA $7F0C07           ; Check $7F0C07 for pending VRAM destination address
+    LDA $adhocVramDmaDest ; Check $7F0C07 for pending VRAM destination address
     BEQ loc_03F1FF        ; No pending transfer — skip
     STA $VMADDL           ; Set VRAM destination, clear pending flag
     LDA #$0000
-    STA $7F0C07
-    LDA $7F0C09
+    STA $adhocVramDmaDest
+    LDA $adhocVramDmaSize
     STA $DAS0L
     LDA $adhocVramDma     ; Source address from ad-hoc DMA parameter block ($7F0C03)
     STA $A1T0L
     SEP #$20
-    LDA $7F0C05
+    LDA $adhocVramDmaBank
     STA $A1B0
     LDA #$01
     STA $MDMAEN           ; Trigger DMA channel 0

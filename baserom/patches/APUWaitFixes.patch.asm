@@ -10,7 +10,7 @@
 ?INCLUDE 'warps_interaction'
 -----------------------------------------
 
-loc_02A07D! {
+MusicJingleRenderSync! {
     COP [9C] ( @MusicRenderSync, #$2000 )
     LDA $20
     STA $0020, Y
@@ -34,7 +34,7 @@ loc_02A07D! {
     LDA $2000
     AND #$10
     REP #$20
-    BEQ loc_02A0A9
+    BEQ MusicJingleSpcReady
     RTL
 
   chunk_halt_test:
@@ -44,7 +44,7 @@ loc_02A07D! {
     REP #$20
     AND #$00FF
     CMP #$00FF
-    BEQ loc_02A0A9
+    BEQ MusicJingleSpcReady
     RTL 
 }
 

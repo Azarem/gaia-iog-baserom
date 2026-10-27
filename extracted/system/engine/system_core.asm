@@ -1,17 +1,17 @@
 ; Core system loop and CPU interrupt vectors.
 ; 
-; Contains the SNES reset vector (emulation → native mode switch), COP/NMI/IRQ dispatchers, the full hardware initialization and boot sequence (SystemInit), and the main game loop that orchestrates all per-frame subsystems: VBlank sync, scene management, actor processing, sprite composition, camera scrolling, HUD updates, and display list flushing.
+; Contains the SNES reset vector (emulation → native mode switch), the COP/NMI/IRQ vectors, the hardware initialization and boot sequence (SystemInit), and the main game loop that runs the per-frame subsystems: VBlank sync, scene management, actor processing, sprite composition, camera scrolling, HUD update and the music-upload hook.
 ; 
-; Also provides three context-specific frame update variants:
+; Also provides three context-specific frame update variants (all re-entrant, callable from COP handlers and from the NMI):
 ; - UpdateFrameDialogue: lightweight update during text/dialogue display
-; - UpdateFrameRender: minimal render-only update for menus/transitions
-; - UpdateFrameFull: complete subsystem tick during music transitions
+; - UpdateFrameRender: render-only update (sprite sort/compose, HDMA reset, HUD, cutscene thinkers) for menus and transitions
+; - UpdateFrameFull: complete subsystem tick run from inside the NMI handler while the main loop is blocked in a music upload (musicTransitionState > 0)
 ; 
-; The NMI handler manages all VRAM DMA transfers (scroll registers, tilemap strips, CGRAM, OAM, sprite tiles, event blocks) and handles joypad polling and SPC audio I/O.
+; The NMI handler manages VRAM DMA (scroll registers, dirty tilemap strips, CGRAM, OAM, the partial BG3 upload, then either the player tiles or the normal queued writes), reads the joypad auto-read result and sends the queued SFX byte to the SPC.
 ; 
-; UpdateHUD manages the in-game heads-up display — HP recovery animation with 8-frame tick throttling, stat display dirty-checking (HP, max HP, gems) with BG3 redraw via BCD conversion, and a three-phase enemy health bar timer chain (25-frame display, 60-frame hold, 30-frame fadeout). UpdateFrameCounters maintains the invincibility timer and global frame counter.
+; UpdateHUD runs the heads-up display: HP recovery animation (every 8th frame), stat dirty-checking (HP, max HP, gems) with a BG3 redraw, and the enemy health bar timer (a 60-frame hold, then the bar is cleared; the 25- and 30-frame values stored along the way are overwritten at once). UpdateFrameCounters maintains the invincibility timer and the capped global frame timer.
 ; 
-; Utility routines include scroll register upload with layer priority support, VRAM DMA execution, and WRAM block fill for OAM clearing.
+; Utility routines: scroll register upload with layer priority support and the one-shot VRAM DMA (ExecuteVramDma). OamFillE0_unused/OamFillConstant_unused (an OAM fill) have no caller in extracted/.
 ---------------------------------------------
 
 ?BANK 00
@@ -73,6 +73,7 @@
 !playerStr                      0ADE
 !enemyHealthTimer               0AE4
 !hpToHeal                       0B22
+!hieroglyphSlots                0B28
 !BG1HOFS                        210D
 !BG1VOFS                        210E
 !VMAIN                          2115
@@ -135,22 +136,23 @@ IrqHandler {
 ; Full system boot sequence and main game loop.
 ; 
 ; Boot phase:
-; 1. Sets native 65816 mode with 16-bit registers
-; 2. Initializes direct page ($0000), stack ($01FF), data bank ($81)
-; 3. Enables FastROM access speed
-; 4. Calls hardware register init, system variable init, SPC engine load
-; 5. Enables display and sets world-ready flag
-; 6. Checks warmboot signature at $000100 for scene selection
-; 7. Initializes gameplay defaults: movement speeds, defense, HP, slope curves, ability slots
-; 8. Sets starting scene to $FB (title screen)
+; 1. Native 65816 mode, 16-bit registers
+; 2. Direct page $0000, stack $01FF, data bank $81
+; 3. FastROM access (MEMSEL = 1)
+; 4. InitHardwareRegisters, InitSystemVariables, SpcLoadBuiltinEngine, EnterForcedBlank (the display stays off until the first scene transition)
+; 5. Sets worldReadyFlag bit 7 (permits scene loading)
+; 6. Reads the byte at $000100 and compares it with $83, but both outcomes leave Y = 0, so sceneNext = 0 for the first ExecuteSceneTransition: no scene is selected. No writer of $83 at $0100 was found (dialog_string_scanner uses $0100 as scratch).
+; 7. Gameplay defaults: max speed 9 per axis, HP 8/8, Str 1, Def 0, slope curve pointers, the six hieroglyph plate slots ($0B28-$0B32) = $FFFF, abilityBitmask = 0
+; 8. sceneNext = $FB (title screen), then falls into the main loop
 ; 
 ; Main loop (infinite):
-; 1. VBlank wait and joypad read
-; 2. Scene management and warp/chest checks
-; 3. Actor AI processing and sprite composition
-; 4. Camera scrolling for both BG layers
-; 5. HUD update and display list flush
-; 6. Enable NMI and loop
+; 1. VBlankWaitAndJoypad, EnableNmiOnly
+; 2. Type-A thinkers, scene transition check, warp/chest check, global input, UpdateFrameCounters
+; 3. RunActors_Normal, OAM terminator, depth sort, combat/interaction collision, death check, dodge callbacks
+; 4. CameraSmoothScroll for layer 0 (BG1), then layer 1 (BG2)
+; 5. ResetHdmaState, type-B thinkers, ComposeAllSprites, UpdateHUD
+; 6. LoadMusicFromTransitionState (blocking SPC upload when a track ID is staged)
+; 7. EnableNmiAndJoypad and loop
 
 SystemInit {
     CLD 
@@ -171,15 +173,15 @@ SystemInit {
     JSL $@vblank_joypad.EnterForcedBlank
     SEC 
     ROR $worldReadyFlag   ; Bit 7 = world-ready flag; permits scene loading
-    LDA $000100           ; Check warmboot signature byte at $000100
+    LDA $000100           ; Read the byte at $000100 (the 'warmboot signature'); no writer of $83 there was found (OQ-50)
     LDY #$0000
-    CMP #$83              ; Warmboot marker = $83; Y = starting scene if match
+    CMP #$83              ; Compare with $83: both outcomes leave Y = 0 (the second LDY #$0000 is identical), so no scene is selected
     BEQ loc_00804C
-    LDY #$0000
+    LDY #$0000            ; Non-warmboot path: Y = 0 again, identical to the matching path
 
   loc_00804C:
     TYA 
-    STA $sceneNext        ; Store initial scene ID from warmboot result (Y=0 default)
+    STA $sceneNext        ; sceneNext = 0 (low byte of Y) for the first ExecuteSceneTransition
     JSL $@scene_lifecycle.ExecuteSceneTransition ; Execute initial scene transition
     STZ $worldReadyFlag
     LDA #$20              ; Default sceneStateHelper: $20 palette bits
@@ -195,28 +197,32 @@ SystemInit {
     STA $playerStr
     LDA #$0000
     STA $playerDef
-    LDA #$&math_lookup_tables.scene_flag_table ; Default slope acceleration curve pointer
+    LDA #$&math_lookup_tables.slope_curve_table ; Default slope acceleration curve pointer
     STA $slopeCurvePtrA
     STA $slopeCurvePtrB
-    LDA #$&math_lookup_tables.scene_flag_table+20 ; Default slope deceleration curve pointer (+$14 offset)
-    STA $09C0
+    LDA #$&math_lookup_tables.slope_curve_table+20 ; Deceleration curve pointer = same table + $20 (the +20 operand is hexadecimal)
+    STA $09C0             ; $09C0, $09BE, $09C4 get the same pointer; no other reference to them was found (OQ-52)
     STA $09BE
     STA $09C4
     STA $decelCurvePtr
-    LDA #$FFFF            ; $FFFF sentinel — clear all 6 ability slot registers
-    STA $0B28
+    LDA #$FFFF            ; $FFFF = empty: clear the six hieroglyph plate slots $0B28-$0B32
+    STA $hieroglyphSlots
     STA $0B2A
     STA $0B2C
     STA $0B2E
     STA $0B30
     STA $0B32
-    SEP #$20              ; Scene $FB = title screen startup
+    SEP #$20
     LDA #$FB              ; Scene $FB = title screen / initial game startup
     STA $sceneNext
-    LDA #$00              ; Clear ability bitmask — no abilities unlocked
+    LDA #$00
     STA $abilityBitmask   ; Clear ability bitmask — no abilities unlocked at start
 
-  loc_0080B5:
+; The main game loop: one pass per frame, entered after SystemInit and never left (the last instruction is BRL MainLoop).
+; 
+; Order of one pass: VBlankWaitAndJoypad (frame sync and joypad read), EnableNmiOnly, RunThinkers_TypeA, CheckSceneTransition, CheckWarpAndChest, GlobalInputHandler, UpdateFrameCounters, RunActors_Normal, the $FF terminator for the OAM compose buffer, SortActorsByDepth, the four collision passes (RunCombatCollision, RunInteractionCollision, CheckPlayerDeath, ProcessDodgeCallbacks), CameraSmoothScroll for layer 0 and layer 1, ResetHdmaState, RunThinkers_TypeB, ComposeAllSprites, UpdateHUD, LoadMusicFromTransitionState, EnableNmiAndJoypad.
+
+  MainLoop:
     JSL $@vblank_joypad.VBlankWaitAndJoypad ; === Main game loop entry: VBlank sync + joypad read ===
     JSL $@vblank_joypad.EnableNmiOnly
     JSL $@thinker_execution.RunThinkers_TypeA ; Run general-purpose thinkers (ambient effects, palette cycling)
@@ -234,23 +240,21 @@ SystemInit {
     JSL $@combat_collision.RunInteractionCollision ; Interaction collision: NPC/object touch triggers
     JSL $@combat_collision.CheckPlayerDeath ; Check if player HP is zero → game over
     JSL $@combat_collision.ProcessDodgeCallbacks ; Process B-button dodge callbacks
-    LDX #$0000            ; Scroll camera BG1 (X=0 selects horizontal layer)
+    LDX #$0000            ; Scroll layer 0 (BG1); X is the layer index and each call handles both axes
     JSL $@camera_tilemap.CameraSmoothScroll
-    LDX #$0002            ; Scroll camera BG2 (X=2 selects vertical layer)
+    LDX #$0002            ; Scroll layer 1 (BG2)
     JSL $@camera_tilemap.CameraSmoothScroll
     JSL $@hdma_dma_spc.ResetHdmaState ; Reset HDMA state for this frame
     JSL $@thinker_execution.RunThinkers_TypeB ; Run deferred thinkers (secondary effects)
     JSL $@sprite_composition.ComposeAllSprites ; Compose all sprites into OAM buffer
     JSL $@UpdateHUD       ; Update HUD: HP bar, stats, enemy health
-    JSL $@hdma_dma_spc.LoadMusicFromTransitionState ; Process music fade/transition state
+    JSL $@hdma_dma_spc.LoadMusicFromTransitionState ; Start a pending music change: blocking SPC upload while musicTransitionState > 0 (NMI runs UpdateFrameFull meanwhile)
     JSL $@vblank_joypad.EnableNmiAndJoypad ; Enable NMI + joypad auto-read
-    BRL loc_0080B5        ; Branch always — infinite main loop
+    BRL MainLoop          ; Branch always — infinite main loop
 
 ; Lightweight frame update called during dialogue and text display.
 ; 
-; Saves and restores full register context (B, A, X, Y, D) for safe re-entrant calling from within COP script handlers. Runs actor rendering (RunActors_CutsceneOnly variant), OAM termination, sprite composition, camera scrolling, HDMA updates, display sync, and scene tick — but skips the full actor AI pass and warp/chest checks that the main loop performs.
-; 
-; Clears bit 3 of displayModeFlags after rendering to signal dialogue frame completion.
+; Saves and restores the full register context (B, A, X, Y, D) so it can be called re-entrantly from COP script handlers. Runs RunActors_CutsceneOnly, the OAM terminator, depth sort, camera scroll for both layers, ResetHdmaState, the type-D thinkers and sprite composition, then clears displayModeFlags bit 3 (player-tile DMA pending) so the NMI of this frame does the normal VRAM path, waits for VBlank and runs the type-C thinkers. It skips the full actor AI pass and the warp/chest checks of the main loop.
 
   UpdateFrameDialogue:
     PHB                   ; Full register save for re-entrant dialogue frame update
@@ -280,7 +284,7 @@ SystemInit {
     JSL $@hdma_dma_spc.ResetHdmaState
     JSL $@thinker_execution.RunThinkers_TypeD
     JSL $@sprite_composition.ComposeAllSprites
-    LDA #$08              ; Clear bit 3 — dialogue frame rendering complete
+    LDA #$08              ; Clear bit 3 (player-tile DMA pending) so this frame's NMI does the normal VRAM path, not DmaPlayerTilesToVram
     TRB $displayModeFlags
     JSL $@vblank_joypad.EnableNmiAndJoypad
     JSL $@vblank_joypad.VBlankWaitAndJoypad
@@ -299,7 +303,7 @@ SystemInit {
 ---------------------------------------------
 ; Minimal frame update for render-only contexts such as menus and screen transitions.
 ; 
-; Saves full register context. Runs only sprite composition, palette/display processing, HDMA updates, HUD update, VBlank sync, and scene tick. Does not run actor AI, camera scrolling, or OAM termination — assumes those are handled by the caller's context.
+; Saves the full register context. Runs only SortActorsByDepth, ComposeAllSprites, ResetHdmaState, the type-D thinkers, UpdateHUD, the VBlank sync and the type-C thinkers. Does not run actor AI, camera scrolling or the OAM terminator; the caller is expected to have handled those.
 
 UpdateFrameRender {
     PHB 
@@ -336,9 +340,9 @@ UpdateFrameRender {
 }
 
 ---------------------------------------------
-; Complete single-frame update used during music transitions.
+; Complete single-frame update run from inside the NMI handler while the main loop is blocked in a music upload.
 ; 
-; Runs all subsystems including VBlank partial wait, scene tick, actor AI (RunActors_OverlayOnly variant), OAM termination, sprite composition, camera scrolling for both BG layers, HDMA updates, and display list processing. Called from within the NMI handler when musicTransitionState is positive, allowing visual animation to continue during music fade sequences.
+; NmiHandler calls it when musicTransitionState is positive, i.e. while LoadMusicFromTransitionState is running SpcBlockTransfer with NMI enabled. Runs the type-C thinkers, RunActors_OverlayOnly, the OAM terminator, depth sort, camera scroll for both layers, ResetHdmaState, the type-D thinkers and sprite composition, between EnableNmiOnly/VBlankPartial and EnableNmiAndJoypad, so the screen keeps animating during the transfer.
 
 UpdateFrameFull {
     PHP 
@@ -350,7 +354,7 @@ UpdateFrameFull {
     PLB 
     JSL $@vblank_joypad.VBlankPartial
     JSL $@thinker_execution.RunThinkers_TypeC
-    JSL $@actor_execution.RunActors_OverlayOnly ; Run overlay actors during music fade
+    JSL $@actor_execution.RunActors_OverlayOnly ; Run the overlay-only actor pass; UpdateFrameFull is driven from the NMI while the blocking SPC music upload runs
     LDX $oamWriteOffset
     LDA #$FF
     STA $oamComposeBuffer, X
@@ -370,41 +374,41 @@ UpdateFrameFull {
 }
 
 ---------------------------------------------
-; Manages the in-game heads-up display for HP, gems, and enemy health.
+; Manages the in-game heads-up display for HP, gems and enemy health.
 ; 
-; First checks $09ED bit 6 (HUD suppression flag) — returns immediately if set.
+; Returns at once if $09ED bit 6 (HUD off) is set. displayModeFlags bit 0 (full BG3 upload request) is saved on entry and restored on exit, so the BG3 redraw scripts below do not leave a full upload pending; the HUD uses the partial upload (bit 4) instead.
 ; 
 ; HP recovery animation:
-; - Skipped if secondary lock ($09AF bit 1) is set or not on an 8-frame boundary
-; - Decrements hpToHeal and increments displayed HP (playerHp) toward max (playerMaxHp)
-; - Plays sound effect $0D on each recovery tick
-; - Stops when current HP equals max HP
+; - Skipped when playerStateByte bit 1 (game over, playerFlags bit 9) is set, off an 8-frame boundary, or when hpToHeal is 0
+; - Decrements hpToHeal and increments playerHp (the displayed HP) toward playerMaxHp, playing sound $0D on each tick; stops when HP equals max HP
 ; 
 ; Stat display update:
-; - Compares current HP, max HP, and gem count against cached values
-; - If any changed: sets VRAM dirty flag (bit 4), converts gem count to decimal via repeated /100, redraws stat counters via BG3 script
+; - Compares HP, max HP and gem count with the cached previous values
+; - On any change: sets displayModeFlags bit 4 (partial BG3 upload), counts the hundreds digit of the gem count by repeated subtraction of 100, and redraws the counters with a BG3 console script
 ; 
-; Enemy health display:
-; - When enemyHpPending is nonzero, sets display timer and redraws
-; - Timer chain: 25 frames (display) → 60 frames (hold) → 30 frames (fadeout) → clear
+; Enemy health bar:
+; - When enemyHpPending is nonzero: draws the bar and sets enemyHealthTimer to 60 (the $19 stored first is overwritten)
+; - Otherwise the timer counts down; at 0 the displayed enemy HP is cleared and the bar redrawn at once (the $1E stored first is overwritten by the STZ, so there is no separate fadeout phase)
 ; 
-; Finally caches all stat values for next-frame dirty detection and restores the original status bar visibility flag.
+; Finally caches HP, max HP and gems for the next frame's change detection and restores displayModeFlags bit 0.
 
 UpdateHUD {
     LDA $hudDisableFlag
     BIT #$40              ; Bit 6 = HUD suppression; if set, skip entire update
-    BEQ loc_00820E
+    BEQ UpdateHUD_Active
     RTL 
 
-  loc_00820E:
+; Body of UpdateHUD, entered when hudDisableFlag bit 6 (HUD off) is clear: it saves displayModeFlags bit 0 and runs the HP recovery animation, the stat-change redraw, the enemy health bar timer and the cache update described in the UpdateHUD note.
+
+  UpdateHUD_Active:
     PHP 
     LDX #$0000
     SEP #$20
-    LDA $displayModeFlags ; Load current status bar visibility (bit 0) on stack
-    AND #$01              ; Save displayModeFlags bit 0 (status bar visibility)
+    LDA $displayModeFlags ; Save displayModeFlags bit 0 (full BG3 upload request); restored at exit
+    AND #$01              ; Isolate bit 0; the HUD redraw scripts set it and it is put back below
     PHA 
     LDA $playerStateByte
-    BIT #$02              ; Bit 1 = secondary HUD lock; skip HP recovery anim if set
+    BIT #$02              ; playerStateByte bit 1 = playerFlags bit 9 ($0200, game over): no HP recovery animation
     BNE loc_008244
     LDA $frameCounter
     BIT #$07              ; Throttle HP recovery to every 8 frames (BIT #$07)
@@ -435,7 +439,7 @@ UpdateHUD {
     BEQ loc_008279
 
   loc_00825C:
-    LDA #$10              ; Set bit 4 — flag HUD VRAM data as dirty for redraw
+    LDA #$10              ; Bit 4: request the partial BG3 upload ($0140 bytes to VRAM $7840, camera_tilemap.Bg3TilemapVramDma)
     TSB $displayModeFlags
     REP #$20
     STZ $gemHundredsDigit ; Zero the hundreds digit accumulator
@@ -455,23 +459,23 @@ UpdateHUD {
     REP #$20
     LDA $enemyHpPending   ; Enemy HP pending? nonzero → refresh display
     BEQ loc_008299
-    LDA #$0019            ; Enemy HP display timer = 25 frames when damage is pending
+    LDA #$0019            ; Timer preset $19 (25); overwritten with $3C below, so it never takes effect (OQ-53)
     STA $enemyHealthTimer
     COP [RunBg3Script] ( @system_strings.consolestring_01E818 )
     LDA #$0010
     TSB $displayModeFlags
-    LDA #$003C            ; Enemy HP hold timer = 60 frames after bar display
+    LDA #$003C            ; Timer = 60 frames: the real hold time before the bar is cleared
     STA $enemyHealthTimer
     BRA loc_0082BD
 
   loc_008299:
     LDA $enemyHealthTimer
     BEQ loc_0082BD
-    DEC $enemyHealthTimer ; Decrement hold; 0 → begin 30-frame fadeout
+    DEC $enemyHealthTimer ; Count the hold down; at 0 the bar is cleared at once (no fadeout phase)
     BNE loc_0082BD
-    LDA #$001E            ; Enemy HP fadeout timer = 30 frames
+    LDA #$001E            ; $1E (30) is overwritten by the STZ enemyHealthTimer below: no 30-frame fadeout exists (OQ-53)
     STA $enemyHealthTimer
-    STZ $enemyHpCurrentDisplay ; Clear pending enemy HP accumulator after display period expires
+    STZ $enemyHpCurrentDisplay ; Clear the displayed enemy HP values (enemyHpCurrentDisplay, enemyHpDisplay)
     STZ $enemyHpDisplay
     COP [RunBg3Script] ( @system_strings.consolestring_01E818 )
     LDA #$0010
@@ -487,7 +491,7 @@ UpdateHUD {
     STA $cachedPrevGems
     SEP #$20
     LDA $displayModeFlags
-    AND #$FE              ; Restore original bit 0 of displayModeFlags from stack
+    AND #$FE              ; Restore bit 0 as saved on entry (drops full-upload requests raised by the HUD scripts)
     ORA $01, S
     STA $displayModeFlags
     PLA 
@@ -521,24 +525,23 @@ UpdateFrameCounters {
 }
 
 ---------------------------------------------
-; V-Blank interrupt handler — the critical per-frame DMA orchestration routine.
+; V-Blank interrupt handler — the per-frame DMA orchestration routine.
 ; 
-; Execution order during V-Blank:
-; 1. Save registers and set data bank to $81
-; 2. Disable HDMA to prevent bus conflicts
-; 3. Upload scroll registers to PPU
-; 4. DMA tilemap strip updates (dirty column/row data)
-; 5. DMA CGRAM palette (512 bytes from $7F0A00)
-; 6. DMA OAM table (544 bytes from $0422)
-; 7. DMA sprite VRAM tiles
-; 8. Configure VRAM DMA mode ($80 word-access, $18 target, $01 two-reg)
-; 9. Conditional: full tilemap DMA or skip based on displayModeFlags bit 3
-; 10. Execute queued VRAM writes and pending DMA
-; 11. Re-enable HDMA channels
-; 12. Poll joypad (spin-wait for auto-read completion)
-; 13. Handle music transition state (run full frame update if fading)
-; 14. Send audio commands to SPC on alternate frames
-; 15. Increment frame parity counter and restore registers
+; Execution order:
+; 1. Save registers, data bank = $81
+; 2. Disable HDMA (HDMAEN = 0) to avoid bus conflicts
+; 3. UploadScrollRegisters
+; 4. FlushDirtyTilemapStrips (dirty column/row data)
+; 5. UploadCgramPalette (512 bytes from $7F0A00)
+; 6. UploadOamTable (544 bytes from $0422)
+; 7. Bg3TilemapVramDma: partial BG3 upload when displayModeFlags bit 4/5 is set
+; 8. VMAIN = $80, BBAD0 = $18, DMAP0 = $01 (word writes to VRAM)
+; 9. If displayModeFlags bit 3 is set: DmaPlayerTilesToVram only. Otherwise DmaAdhocVramBlock, FlushVramWriteQueue and ExecuteVramDma; with dmaSkipFlag set, only FlushVramWriteQueue
+; 10. Re-enable the HDMA channels from the mask in $66
+; 11. Spin until the joypad auto-read finishes, store JOY1L in joypadRaw
+; 12. If musicTransitionState is positive (SPC music upload in progress in the main loop): run UpdateFrameFull
+; 13. Otherwise write APUIO2: 0 on odd frames, the dequeued sfxQueueCh1 byte on even frames
+; 14. Increment the frame parity counter ($36) and restore registers
 
 NmiHandler {
     PHP 
@@ -557,7 +560,7 @@ NmiHandler {
     JSL $@camera_tilemap.FlushDirtyTilemapStrips ; DMA dirty tilemap strip columns/rows to VRAM
     JSL $@system_init.UploadCgramPalette ; Upload 512-byte CGRAM palette from $7F0A00
     JSL $@system_init.UploadOamTable ; Upload 544-byte OAM table from $0422
-    JSL $@camera_tilemap.SpriteVramDma ; DMA sprite tile data to VRAM
+    JSL $@camera_tilemap.Bg3TilemapVramDma ; Bg3TilemapVramDma: partial BG3 upload when displayModeFlags bit 4/5 is set
     LDA #$80              ; VMAIN=$80: word-mode VRAM access, auto-increment high byte
     STA $VMAIN
     LDA #$18              ; BBAD0=$18: VRAM data write port target
@@ -565,9 +568,9 @@ NmiHandler {
     LDA #$01              ; DMAP0=$01: two-register DMA (word increment mode)
     STA $DMAP0
     LDA $displayModeFlags
-    BIT #$08              ; Bit 3 of displayModeFlags = dialogue mode: skip full tilemap DMA
+    BIT #$08              ; Bit 3 = player-tile DMA pending: do DmaPlayerTilesToVram instead of the normal VRAM path
     BNE loc_00834A
-    LDA $dmaSkipFlag      ; Secondary DMA skip flag for partial VRAM bypass
+    LDA $dmaSkipFlag      ; dmaSkipFlag nonzero: skip adhoc DMA and ExecuteVramDma, still flush the write queue
     BNE loc_008344
     JSL $@hdma_dma_spc.DmaAdhocVramBlock
     JSL $@event_blocks.FlushVramWriteQueue
@@ -592,15 +595,15 @@ NmiHandler {
     BCS loc_008355
     LDA $JOY1L            ; Latch hardware joypad register to joypadRaw
     STA $joypadRaw
-    LDA $musicTransitionState ; Music state: 0=idle, positive=fading, negative=complete
+    LDA $musicTransitionState ; musicTransitionState: 0 idle, > 0 SPC upload in progress, $FFFF finished
     BEQ loc_00836E
     BMI loc_00837F
-    JSL $@UpdateFrameFull ; Run full frame update during music fade for visual continuity
+    JSL $@UpdateFrameFull ; SPC upload in progress in the main loop: run a full frame update from NMI so the game keeps animating
     BRA loc_00837F
 
   loc_00836E:
     LDA $36
-    LSR                   ; Frame parity bit — SPC I/O writes on odd frames only
+    LSR                   ; Frame parity bit: odd frames write 0 to APUIO2, even frames send the dequeued SFX ID
     LDA #$0000
     BCS loc_00837C
     LDA $sfxQueueCh1      ; Dequeue pending sound effect for SPC transfer
@@ -740,13 +743,13 @@ ExecuteVramDma {
 }
 
 ---------------------------------------------
-; Fills the OAM staging buffer at WRAM $0422 with the byte value $E0 via DMA.
+; Fills the OAM staging buffer at WRAM $0422 with the byte $E0 via DMA.
 ; 
-; Uses DMA fixed-source mode ($08) to repeat a single byte across 512 bytes of the OAM buffer. The fill value $E0 sets all sprite Y positions to 224 (off the bottom of the visible 224-line display), effectively hiding all OAM entries before sprite composition begins each frame.
+; Uses DMA fixed-source mode ($08) to repeat one byte across 512 bytes (128 OAM entries × 4 bytes) through the WRAM data port ($2180). $E0 puts every sprite Y at 224, below the visible area.
 ; 
-; Target: WRAM data port ($2180), size: $0200 (512 bytes = 128 OAM entries × 4 bytes).
+; Unreferenced: no caller of OamFillE0_unused was found in extracted/.
 
-FillWramBlock {
+OamFillE0_unused {
     PHP 
     SEP #$20
     LDA #$00
@@ -761,9 +764,9 @@ FillWramBlock {
     STA $DMAP0
     LDA #$80              ; B-bus $80 = WRAM data port ($2180)
     STA $BBAD0
-    LDA #$^WramFillConstant
+    LDA #$^OamFillConstant_unused
     STA $A1B0
-    LDX #$&WramFillConstant
+    LDX #$&OamFillConstant_unused
     STX $A1T0L
     LDA #$01
     STA $MDMAEN
@@ -772,6 +775,6 @@ FillWramBlock {
 }
 
 ---------------------------------------------
-; Single-byte constant ($E0) used as the fixed DMA source for OAM buffer clearing. Value $E0 = 224 decimal places sprites at the bottom screen edge (offscreen in 224-line mode).
+; Single-byte constant ($E0) used as the fixed DMA source by OamFillE0_unused (which has no caller). $E0 = 224 puts a sprite just below the 224-line display.
 
-WramFillConstant #E0
+OamFillConstant_unused #E0

@@ -5,9 +5,9 @@
 
 ---------------------------------------------
 
-; Per-scene table of barrier tile and treasure chest placement data. Indexed by scene ID, each entry points to a variable-length list of 4-byte records: X tile, Y tile, content (item ID or tile index), flags (event flag ID, bit 7 = end sentinel). Most scenes point to $FF (no barriers/chests). Used by PlaceBarrierTiles (blocking tiles tied to event flags), HandleChestInteraction (treasure by player position), and radar_map_screen (transition markers on world map).
+; Per-scene table of barrier tile and treasure chest placement data. Indexed by scene ID, each entry points to a variable-length list of 4-byte records: X tile, Y tile, content (item ID or tile index), flags (event flag ID, bit 7 = end sentinel). Most scenes point to $FF (no barriers/chests). Used by PlaceOpenedChestTiles (blocking tiles tied to event flags), HandleChestInteraction (treasure by player position), and radar_map_screen (transition markers on world map).
 
-scene_barrier_chest_table [
+scene_chest_table [
   &chest_entry_01AFA6   ;00
   &chest_entry_01AFA6   ;01
   &chest_entry_01AFA6   ;02

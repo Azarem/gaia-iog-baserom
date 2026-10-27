@@ -8,7 +8,7 @@
 ; 
 ; === OAM ATTRIBUTE MASK ($B6–$BB) ===
 ; 
-; Actor word $0E is an XOR mask that DecomposeActorMetasprites applies to every sub-sprite's tile/attribute word (UpdateActorAnimation also reads its flip bits): $3000 = OAM priority (BG layer order), $0E00 = palette, $4000 = H-flip, $8000 = V-flip. SetOamPriority and SetOamPalette clear their field, then merge the operand (0–3 / 0–7) shifted into the high byte. The mirror handlers EOR (Toggle), TRB (Clear) or TSB (Set) the flip bit. Script-side names in copdef.json are SetSpritePriority and SetSpritePalette.
+; Actor word $0E is an XOR mask that DecomposeActorMetasprites applies to every sub-sprite's tile/attribute word (UpdateActorAnimation also reads its flip bits): $3000 = OAM priority (BG layer order), $0E00 = palette, $4000 = H-flip, $8000 = V-flip. SetSpritePriority and SetSpritePalette clear their field, then merge the operand (0–3 / 0–7) shifted into the high byte. The mirror handlers EOR (Toggle), TRB (Clear) or TSB (Set) the flip bit. Script-side names in copdef.json are SetSpritePriority and SetSpritePalette.
 ; 
 ; === NUDGE ($BC) ===
 ; 
@@ -69,7 +69,7 @@ ClearPriorityMin {
 ---------------------------------------------
 ; COP #B6 with one byte operand (0–3). Clears OAM priority bits $3000 in attribute word $0E, then XBA/TSB to pack the value into the high byte.
 
-SetOamPriority {
+SetSpritePriority {
     TYX 
     LDA #$3000            ; TRB #$3000: clear OAM priority bits 12–13 before set
     TRB $0E
@@ -86,7 +86,7 @@ SetOamPriority {
 ---------------------------------------------
 ; COP #B7 with one byte operand (0–7). Clears palette bits $0E00 in $0E, then XBA/TSB to set the 4-bit OAM palette subfield.
 
-SetOamPalette {
+SetSpritePalette {
     TYX 
     LDA #$0E00
     TRB $0E               ; Clear existing palette bits $0E00 before setting

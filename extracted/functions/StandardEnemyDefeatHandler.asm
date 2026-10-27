@@ -1,6 +1,6 @@
 ; Central enemy death resolution pipeline invoked when any standard field enemy's HP reaches zero (Bank $00, ~360 bytes).
 ; 
-; Assigned as the default OnDeath callback ($7F1004) by ComposeDigits_Continuation during enemy setup; also reached from hit_stagger_controller when an enemy has no saved AI script. Referenced by ~20 enemy actor scripts across Pyramid, Angkor Wat, Sky Garden, Incan Ruins, Great Wall, Mu, and other regions.
+; Assigned as the default OnDeath callback ($7F1004) by ComposeDigitSprites_AtCursor during enemy setup; also reached from hit_stagger_controller when an enemy has no saved AI script. Referenced by ~20 enemy actor scripts across Pyramid, Angkor Wat, Sky Garden, Incan Ruins, Great Wall, Mu, and other regions.
 ; 
 ; Entry path decrements BCD kill counters ($0AEE/$0AEC) for non-boss enemies, then runs a shared defeat sequence: play death SFX, spawn EnemyDeathFlash, wait, and optionally SetDungeonKillFlag.
 ; 

@@ -1,4 +1,4 @@
-; Math utility that offsets an actor's $14/$16 position using orbitAngle and orbitDiameter with sine_table_8bit lookups and SignedMultiply.
+; Math utility that offsets an actor's $14/$16 position using orbitAngle and orbitDiameter with sine_table_8bit lookups and Multiply8x8Unsigned.
 ; 
 ; Produces circular/arc motion around the current position. Called by Sand Fanger boss attacks, Angkor goldcap, and statue_inventory_reward orbital particles. General-purpose orbital positioning helper used by VFX and boss patterns.
 ---------------------------------------------
@@ -26,7 +26,7 @@ ApplyOrbitalOffsetXY {
   loc_00F446:
     XBA 
     LDA $orbitDiameter, X
-    JSL $@hardware_math.SignedMultiply
+    JSL $@hardware_math.Multiply8x8Unsigned
     REP #$20
     XBA 
     AND #$00FF
@@ -43,7 +43,7 @@ ApplyOrbitalOffsetXY {
     CLC 
     LDA $7F0011, X
     TAY 
-    LDA $&math_lookup_tables.signed_sine_table, Y
+    LDA $&math_lookup_tables.signed_cosine_table_8bit, Y
     BPL loc_00F474
     EOR #$FF
     INC 
@@ -52,7 +52,7 @@ ApplyOrbitalOffsetXY {
   loc_00F474:
     XBA 
     LDA $7F0013, X
-    JSL $@hardware_math.SignedMultiply
+    JSL $@hardware_math.Multiply8x8Unsigned
     REP #$20
     XBA 
     AND #$00FF

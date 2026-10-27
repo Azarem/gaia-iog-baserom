@@ -1,31 +1,31 @@
 ; Scene title display system — centered area name overlay during scene transitions (172315–172521, Bank 02).
 ; 
-; Called during ClearSceneState immediately after actor/thinker spawning and before palette loading. Displays the current scene's area name (e.g., 'South Cape', 'Edward's Castle') in a centered dialogue box overlay, giving the player a visual cue of the new location.
+; Called from ClearSceneState after actor spawning and before thinker spawning and palette loading. Displays the current scene's area name (e.g. 'South Cape', 'Edward's Castle') in a one-row dialogue box, giving the player a visual cue of the new location.
 ; 
 ; === DISPLAY PIPELINE (DisplaySceneTitle) ===
 ; 
-; 1. Scene change guard: Compares the source scene ($0D6E, recorded during ExecuteSceneTransition) against sceneCurrent ($0644). If identical, the player is re-entering the same scene (e.g., returning from a sub-area) and the title is suppressed.
+; 1. Scene change guard: compares $0D6E (the scene just left, recorded by ExecuteSceneTransition; for a world-map entry it is the deferred destination) against sceneCurrent ($0644). If they are equal (a reload of the same scene ID) the title is suppressed.
 ; 
-; 2. Width measurement: CountTitleGlyphs walks the scene title wide-string at [$3E], counting visible characters while expanding dictionary references ($D6/$D7) and cursor advances ($CC). Returns the total glyph width in $00.
+; 2. Width measurement: CountTitleGlyphs walks the scene title wide-string at [$3E], counting visible characters while expanding dictionary references ($D6/$D7) and cursor advances ($CC). Returns the glyph count in $00.
 ; 
-; 3. Empty title guard: If glyph count is zero, the scene has no title string and the routine returns immediately.
+; 3. Empty title guard: if the count is zero the routine returns immediately.
 ; 
-; 4. Centering calculation: Computes (18 − glyphCount), negates, AND $FE to produce an even-aligned left padding offset. This centers the title text within the 10-column dialogue box.
+; 4. Centering: (18 − glyphCount), forced even by AND $FE, used as a byte offset into the VRAM write buffer, i.e. (18 − N) / 2 tile cells. 18 is presumably the interior of the 10-column box if a column is 2 tiles wide (inferred; there is no clamp for N > 18, OQ-58).
 ; 
-; 5. Box setup: Sets $00B4 = $E0 (wait-for-input flag checked by the scene transition epilogue). Opens a 10×1 dialogue box at position (7, 7) via scene_title_box_format — the DialogStringRenderer $C7 (OpenDialogueBox) command.
+; 5. Box setup: sets $00B4 = $E0 (nonzero flag that makes ExecuteSceneTransition wait for a button press) and clears $00B5. Opens the box via scene_title_box_format ([DLG:7,7][SIZ:A,1]), i.e. a DialogStringRenderer OpenDialogueBox command with width $0A and height 1 at position (7, 7).
 ; 
-; 6. Centered render: Adds the computed padding to the VRAM write cursor ($0998) to offset the text start, then calls DialogStringRenderer a second time with the actual title string pointer to render the area name.
+; 6. Centered render: adds the padding to the VRAM write cursor ($0998), then calls DialogStringRenderer a second time with the title string pointer.
 ; 
 ; === GLYPH COUNTING (CountTitleGlyphs) ===
 ; 
-; A specialized wide-string character counter that handles the subset of commands found in scene title strings:
-; - Literal tiles (< $C0): counted as 1 glyph each
-; - $CA (Return): terminates counting
+; A specialized wide-string character counter for the commands found in scene title strings:
+; - Literal tiles (< $C0): 1 glyph each
+; - $CA (Return): ends the count
 ; - $CC (AdvanceCursor): adds the operand byte to the count
-; - $D6/$D7 (DictionaryA/B): resolves the compressed word from dictionary_01EBA8 or dictionary_01F54D and counts each expanded character
-; - Other commands (≥ $C0): skips the operand byte without counting
+; - $D6/$D7 (DictionaryA/B): looks up the word in dialog_dictionary_a/b and counts each expanded character up to its $CA terminator
+; - Other commands (≥ $C0): skips one operand byte without counting
 ; 
-; The title string pointer is at [$3E] + 1 (INC $3E skips a leading type/length byte before the character data begins).
+; The scan starts at [$3E] + 1; the first string byte is skipped (assumed to be a type/length byte).
 ---------------------------------------------
 
 ?BANK 02
@@ -39,22 +39,21 @@
 
 ; Display the current scene's area name in a centered dialogue box overlay.
 ; 
-; Called during ClearSceneState after actor spawning. Compares source scene ($0D6E) against sceneCurrent to suppress the title when re-entering the same area.
+; Called from ClearSceneState after actor spawning. Compares $0D6E (scene just left) with sceneCurrent and returns when they are equal.
 ; 
 ; Pipeline:
-; 1. CountTitleGlyphs measures the visible character width of the title string at [$3E]
-; 2. If zero glyphs, returns immediately (no title for this scene)
-; 3. Computes centering offset: (18 − glyphCount), negated, AND $FE for even alignment
-; 4. Sets $00B4 = $E0 (wait-for-input flag for the scene transition epilogue), clears $00B5
-; 5. Saves current string state ($40, $3E/Y), sets DBR to current bank
-; 6. Calls DialogStringRenderer with scene_title_box_format to open a 10×1 dialogue box at position (7, 7)
-; 7. Restores string state, adds centering offset to VRAM cursor ($0998)
-; 8. Calls DialogStringRenderer again with the scene title string to render the centered area name
-; 9. Restores DBR and processor state
+; 1. CountTitleGlyphs measures the title string at [$3E]
+; 2. Returns if the count is zero (no title for this scene)
+; 3. Centering offset: (18 − count) forced even, pushed for later
+; 4. $00B4 = $E0 (wait-for-button flag for ExecuteSceneTransition), $00B5 = 0
+; 5. Saves $40 and the title pointer $3E (in Y), sets DBR to this bank
+; 6. DialogStringRenderer with scene_title_box_format opens the box
+; 7. Restores the pointer, adds the offset to the VRAM cursor ($0998)
+; 8. DialogStringRenderer again renders the title, then restores DBR and flags
 
 DisplaySceneTitle {
-    LDA $0D6E             ; Scene change guard: load source scene ($0D6E, recorded during transition)
-    CMP $sceneCurrent     ; Compare against current scene — same scene = suppress title
+    LDA $0D6E             ; $0D6E = scene just left (set by ExecuteSceneTransition)
+    CMP $sceneCurrent     ; Equal to the new scene ID: suppress the title
     BNE loc_02A124
     RTL 
 
@@ -67,15 +66,15 @@ DisplaySceneTitle {
   loc_02A12C:
     PHP                   ; Save processor state and data bank for DialogStringRenderer calls
     PHB 
-    SEC                   ; Centering: (18 − glyphCount), negate, AND $FE → even-aligned left padding
+    SEC                   ; A = glyph count − 18; negated below to 18 − N, forced even: a byte offset = (18 − N) / 2 tile cells
     SBC #$12
     EOR #$FF
     INC 
     AND #$FE
     PHA                   ; Push centering offset for later retrieval
     LDA #$E0              ; $E0 → $00B4: wait-for-input flag checked by scene transition epilogue
-    STA $00B4
-    STZ $00B5             ; Clear $00B5 (secondary display control byte)
+    STA $00B4             ; Nonzero flag: ExecuteSceneTransition waits for a button while $00B4 is set
+    STZ $00B5             ; Clear $00B5 (only ExecuteSceneTransition also clears it; no reader found)
     LDA $0040             ; Load current $40 (string bank) — DialogStringRenderer may overwrite it
     PHA 
     LDY $3E               ; Load scene title pointer $3E/Y on stack
@@ -119,7 +118,7 @@ scene_title_box_format `[DLG:7,7][SIZ:A,1][SFX:0]`
 CountTitleGlyphs {
     PHP                   ; Save processor state; will use mixed 8/16-bit
     REP #$20
-    INC $3E               ; INC $3E: skip leading type/length byte before character data
+    INC $3E               ; Skip the first string byte (assumed type/length byte)
     STZ $00               ; Zero glyph counter ($00)
     SEP #$20
     LDY #$0000

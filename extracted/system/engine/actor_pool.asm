@@ -1,12 +1,12 @@
-; Actor pool infrastructure — slot allocation, linked-list management, and state copying (Bank $00, 11 internal routines).
+; Actor pool infrastructure — slot allocation, linked-list management and state copying (Bank $00, 11 routines).
 ; 
-; ActorPoolAllocator is the core JSL allocator that pops the next free actor slot from the LIFO free list at ($4E). Returns carry clear with Y = new WRAM base ($1000 + index×$30); carry set with Y = $1FC0 on exhaustion. Increments activeActorCount.
+; ActorPoolAllocator (JSL; needs D = 0 because it reads the DP pointer ($4E)) pops the next free slot from a LIFO free list of slot addresses. The list lives in page $0E (InitActorPool builds it at $0E00, 84 entries of $30-byte slots from $1000). Carry clear + Y = new slot base ($1000 + index×$30), or carry set + Y = $1FC0 when exhausted (a negative entry marks the end). It increments activeActorCount.
 ; 
-; AllocateActorBefore/After insert a new slot into the doubly-linked actor list before or after the current actor, then call CopyActorState. UnlinkActor removes an actor from the list, patching head/tail pointers, and calls ReturnActorSlot. ReturnActorSlot decrements activeActorCount and pushes the slot back onto the free list.
+; AllocateActorBefore/After allocate with D temporarily 0, splice the new slot into the doubly-linked actor list ($04 = prev, $06 = next, head/tail in $56/$58) before or after the current actor (X = D = current), then call CopyActorState. UnlinkActor removes the actor at X from the list and calls ReturnActorSlot, which pushes the slot back on the free list and decrements the counters. It must be entered with D = X (the actor being freed); Die, MarkDeath, KillPrev and KillNext all arrange that.
 ; 
-; CopyActorState copies position, animation state, spriteset/metasprite/stats pointers, and flags from the spawning actor. It preserves the thinker bit ($2000), clears render-active ($EFFF), and zeroes callback and movement fields.
+; CopyActorState (spawner X = D, new actor Y) copies $0E, $10, $12, the X/Y position, animation index and frame counter, the spriteset/metasprite/stats pointers and the spriteset bank. It forces $2000 on in $10 and clears $0803 there, clears $1000 in $12 (the display-filter flag), and stores the spawner's slot in $0024 (OQ-65). It zeroes parentId, the $2C/$2E movement chain pointers, moveScratch1/2, the $08 timer and chatPtr, and, except in scene $FF (inventory), also extendedFlags and the callback fields.
 ; 
-; SetActorBody applies the current characterForm's body_table entry to spriteset and bank fields. AnimFrameLookup indexes movement_delta_table to convert animation step indices to frame durations. MarkChildActor sets the parentId link. AllocateSpecialActor allocates from the thinker pool. PaletteResetAndKillThinker is a COP macro that chains PaletteRestart, PaletteStep, and KillThinker.
+; MarkChildActor sets the new actor's parentId to the spawner's parentId, or to the spawner's own slot if it has none. SetActorBody applies the current characterForm's body_table entry (6 bytes per form) to the actor's spriteset pointer and bank and clears playerFlags bit $8000 (sprite override). AnimFrameLookup returns the word at movement_delta_table[A×2], the head pointer of a movement delta chain; its callers are the force-move COP handlers. AllocateSpecialActor appends a slot from the thinker pool to the thinker list (tail in $5C). PaletteResetAndKillThinker is a thinker script body: COP PaletteRestart, PaletteStep, KillThinker.
 ---------------------------------------------
 
 ?BANK 00
@@ -39,7 +39,9 @@
 
 ---------------------------------------------
 
-; Internal JSR helper that removes the actor at X from the scene doubly-linked list ($04 previous, $06 next). Patches head/tail pointers at $56/$58 when removing list ends, then calls ReturnActorSlot to push the WRAM slot back onto the free list and decrement activeActorCount. Called by Die, MarkDeath, KillPrev, and KillNext COP handlers.
+; Internal JSR helper that removes the actor at X from the scene's doubly-linked list ($04 previous, $06 next).
+; 
+; Patches the neighbours and the head/tail pointers at $56/$58, then calls ReturnActorSlot. Must be entered with D = X: ReturnActorSlot zeroes D and then sets D = X again. Callers: Die and MarkDeath (the actor itself), KillPrev and KillNext (they switch D and X to the victim first). Removing a sole list entry leaves actorListLast ($58) stale (OQ-66).
 
 UnlinkActor {
     LDY $0004, X          ; Load prev pointer of actor being removed
@@ -68,6 +70,11 @@ UnlinkActor {
     RTS 
 }
 
+---------------------------------------------
+; Apply the current characterForm's body_table entry to actor X (JSR helper).
+; 
+; Index = form × 6 (each body_table entry is 6 bytes). Writes the spriteset pointer ($7F0006) and bank ($7F0008), then clears playerFlags bit $8000, the sprite-override flag (set by SetPlayerSpriteDirect, see GetPlayerFacingDirection).
+
 SetActorBody {
     LDA $characterForm    ; Load characterForm (0=Will, 1=Freedan, 2=Shadow)
     ASL                   ; Index = form × 6 (each body_table entry is 6 bytes: ptr+bank+pad)
@@ -86,14 +93,21 @@ SetActorBody {
 }
 ---------------------------------------------
 
-; Internal JSR helper that maps an animation step index in A to a frame duration. Doubles A to index movement_delta_table and loads the duration byte. Called by StageSprX, StageSprY, StageSprXY, and their loop variants to convert COP animation operands into frame counts stored in $2C/$2E.
+; Internal JSR helper: A = movement index → A = movement_delta_table[A×2].
+; 
+; The returned word is the head pointer of a movement delta chain (a linked list of signed per-frame deltas), not a frame duration. Callers store it in $2C (X chain) or $2E (Y chain): StageMoveX/Y/XY, ForceDirSW/NE/Both and ReloadMoveDurations in cop_handlers_force_move.
 
 AnimFrameLookup {
     ASL                   ; Double index for word-sized table access (movement_delta_table)
     TAY 
-    LDA $&movement_delta_table, Y ; Load frame duration from movement_delta_table[index]
+    LDA $&movement_delta_table, Y ; Load the movement delta chain head pointer from movement_delta_table[index] (not a frame duration)
     RTS 
 }
+
+---------------------------------------------
+; Allocate a slot and insert it before the current actor (X = D = current), then CopyActorState.
+; 
+; Returns Y = new actor. If the pool is exhausted (carry set from the allocator) nothing is linked and the routine returns at once.
 
 AllocateActorBefore {
     PHD 
@@ -126,6 +140,11 @@ AllocateActorBefore {
     RTS 
 }
 
+---------------------------------------------
+; Allocate a slot and insert it after the current actor (X = D = current), then CopyActorState.
+; 
+; Returns Y = new actor; if the new actor has no next it becomes the list tail ($58). If the pool is exhausted nothing is linked.
+
 AllocateActorAfter {
     PHD 
     LDA #$0000
@@ -157,19 +176,29 @@ AllocateActorAfter {
     RTS 
 }
 
+---------------------------------------------
+; Push actor slot X back on the free list and decrement the counters (JSR; D must equal X).
+; 
+; Zeroes D so the free-list pointer ($4E) can be used as [$4E], backs the pointer up by 2 with an 8-bit DEC (no borrow; safe because the whole list sits inside page $0E), decrements activeActorCount, stores X into the freed entry and finally sets D = X again, undoing its own TCD #0.
+
 ReturnActorSlot {
     LDA #$0000            ; Zero DP for free list field access
     TCD 
     SEP #$20
-    DEC $004E             ; Decrement free list pointer by 2 (push entry onto LIFO stack)
+    DEC $004E             ; Back up the free list pointer by 2 (8-bit DEC; the list sits inside page $0E, so no borrow)
     DEC $004E
     DEC $activeActorCount ; Decrement global active actor count
     REP #$20
     TXA 
     STA [$4E]             ; Push freed actor address back onto free list
-    TCD                   ; Restore DP to caller's actor base
+    TCD                   ; D = X again: undo TCD #0 above (D was the freed actor on entry)
     RTS 
 }
+
+---------------------------------------------
+; Set the new actor's (Y) parentId: the spawner's (X) parentId if non-zero, otherwise the spawner's own slot (TDC).
+; 
+; Returns with X = D = the spawner again.
 
 MarkChildActor {
     LDA $parentId, X      ; Load spawner's parentId — inherit parent chain if spawner is already a child
@@ -184,16 +213,21 @@ MarkChildActor {
     RTS 
 }
 
+---------------------------------------------
+; Initialise the new actor Y from the spawner X (= D). See the file header for the field list.
+; 
+; $10: ORA #$2000 forces that bit on and AND #$F7FC clears $0803 (bit meanings: OQ-60). $12: clears $1000 (runs in display-filter mode). $0024 receives the spawner's slot (OQ-65). Zeroes parentId, $2C/$2E, moveScratch1/2, $08 and chatPtr; extendedFlags and the callback block are zeroed only when sceneCurrent ≠ $FF.
+
 CopyActorState {
     PHX 
     LDA $0E
     STA $000E, Y
     LDA $10
-    ORA #$2000            ; Preserve thinker bit ($2000) and mask out bits $0803
+    ORA #$2000            ; Force $2000 on (not 'preserve'); AND #$F7FC below clears $0803 (OQ-60)
     AND #$F7FC            ; Clear bits on new actor: movement flags and animation-active bits
     STA $0010, Y
     LDA $12
-    AND #$EFFF            ; Clear render-active bit $1000 on copied secondary flags ($12)
+    AND #$EFFF            ; Clear $1000 in $12: the new actor does not inherit the display-filter run flag
     STA $0012, Y
     LDA $14               ; Copy X pixel position from spawner to new actor
     STA $0014, Y
@@ -204,7 +238,7 @@ CopyActorState {
     LDA $2A               ; Copy frame counter ($2A)
     STA $002A, Y
     TXA 
-    STA $0024, Y          ; Store spawner actor ID as reference in new actor $0024 (parent link)
+    STA $0024, Y          ; $0024 = spawner's slot (scripts later use $24 as scratch; reader of the initial value unknown, OQ-65)
     LDA $statsPtr, X      ; Copy statsPtr, metaspritePtr, spritesetPtr via stack (cross-actor copy)
     PHA 
     LDA $metaspritePtr, X
@@ -228,7 +262,7 @@ CopyActorState {
     STA $moveScratch2, X
     STA $0008, X
     STA $chatPtr, X
-    LDA $sceneCurrent     ; Skip callback zeroing on inventory scene ($FF) — inventory actors keep callbacks
+    LDA $sceneCurrent     ; Scene $FF (inventory): keep extendedFlags and callbacks (inferred, see InitActorPool note)
     CMP #$00FF
     BEQ loc_00B279
     LDA #$0000
@@ -245,6 +279,11 @@ CopyActorState {
     PLX 
     RTS 
 }
+
+---------------------------------------------
+; Allocate a thinker slot (ThinkerPoolAlloc) and append it to the thinker list (tail in $5C); returns Y = new thinker.
+; 
+; No CopyActorState: only prev/next are linked and $06/$08 are zeroed. Allocation failure (carry set) returns without linking.
 
 AllocateSpecialActor {
     PHD 
@@ -271,14 +310,14 @@ AllocateSpecialActor {
 ; Internal JSL/JSR allocator that pops the next free actor slot from the LIFO free list at ($4E). On success returns carry clear with Y = new actor WRAM base ($1000 + index×$30) and zeroes the free-list entry; on pool exhaustion returns carry set with Y = $1FC0. Increments activeActorCount on allocation. Called by SpawnSceneActors, AllocateActorBefore/After, and SpawnBefore/After COP handlers.
 
 ActorPoolAllocator {
-    LDA ($4E)
+    LDA ($4E)             ; Next free entry; a negative word is the end sentinel (pool exhausted)
     BMI loc_00B514
     TAY 
-    LDA #$0000
+    LDA #$0000            ; Zero the popped entry (the slot is now taken)
     STA ($4E)
     INC $4E
     INC $4E
-    INC $activeActorCount
+    INC $activeActorCount ; One more active actor
     CLC 
     RTL 
 
@@ -287,6 +326,11 @@ ActorPoolAllocator {
     SEC 
     RTL 
 }
+
+---------------------------------------------
+; Thinker script body (spawned with COP SpawnThinkerParam, about a dozen callers): COP PaletteRestart, PaletteStep, then KillThinker.
+; 
+; Resets the palette fade machinery for one frame and removes the thinker.
 
 PaletteResetAndKillThinker {
     COP [PaletteRestart]

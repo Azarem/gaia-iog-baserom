@@ -13,9 +13,9 @@
 ; 
 ; FacingDirectionLookup (88 bytes): maps each animation frame of the normal body sprite to a direction 0–4.
 ; 
-; FacingFormOffsetTable: 4 pointers, indexed by body_table index − 4, i.e. will_alt, ability_fx, freedan_fx, shadow_fx (body_table 4–7). The FacingData_* labels (Will, Freedan, Shadow_A, Shadow_B) do not match those body names; see the audit rename proposals.
+; FacingFormOffsetTable: 4 pointers, indexed by body_table index − 4, i.e. will_alt, ability_fx, freedan_fx, shadow_fx (body_table 4–7). The FacingData_* labels follow the same order (WillAlt, AbilityFx, FreedanFx, ShadowFx).
 ; 
-; FacingData_Will (27 bytes) is the first table (body 4), FacingData_Freedan (44 bytes, all zero) the second (body 5), FacingData_Shadow_A (4 bytes, all zero) the third (body 6), FacingData_Shadow_B (6 bytes, all zero) the fourth (body 7). All entries of the last three are 0, i.e. those poses always report direction 0 (down in the COP operand order).
+; FacingData_WillAlt (27 bytes) is the first table (body 4), FacingData_AbilityFx (44 bytes, all zero) the second (body 5), FacingData_FreedanFx (4 bytes, all zero) the third (body 6), FacingData_ShadowFx (6 bytes, all zero) the fourth (body 7). All entries of the last three are 0, i.e. those poses always report direction 0 (down in the COP operand order).
 ---------------------------------------------
 
 ?BANK 03
@@ -59,7 +59,7 @@ GetPlayerFacingDirection {
 ---------------------------------------------
 ; Fallback target for the sprite-override path (not an external entry point; the only reference is the BMI at 258301). Reached when playerFlags bit 15 is set but $0AC8 − 4 is negative (body_table index 0–3, the base bodies): it discards the extra pushed Y and rejoins the normal FacingDirectionLookup path at loc_03F0D6. The form-table code that follows it (loc_03F0F1) is the real sprite-override path, entered by the BMI at 258260.
 
-GetPlayerFacing_AltEntry {
+GetPlayerFacing_BaseBodyFallback {
     PLY                   ; Drop the extra Y pushed at loc_03F0F1 (Y again = caller X), then use the normal lookup
     BRA loc_03F0D6
 
@@ -70,7 +70,7 @@ GetPlayerFacing_AltEntry {
     AND #$00FF
     SEC 
     SBC #$0004            ; body index − 4 → entry in FacingFormOffsetTable (body 4–7)
-    BMI GetPlayerFacing_AltEntry ; Body 0–3 → fall back to the standard FacingDirectionLookup
+    BMI GetPlayerFacing_BaseBodyFallback ; Body 0–3 → fall back to the standard FacingDirectionLookup
     ASL 
     TAX 
     LDA $@FacingFormOffsetTable, X ; Load form-specific facing data table pointer
@@ -93,16 +93,16 @@ GetPlayerFacing_AltEntry {
 FacingDirectionLookup #00010203000102030001020300010203000102030001020300000000000101010202020303030101000001000100010002030203020300010203000102030001020302030001020300010404040404040001020304040404
 
 FacingFormOffsetTable [
-  &FacingData_Will   ;00
-  &FacingData_Freedan   ;01
-  &FacingData_Shadow_A   ;02
-  &FacingData_Shadow_B   ;03
+  &FacingData_WillAlt   ;00
+  &FacingData_AbilityFx   ;01
+  &FacingData_FreedanFx   ;02
+  &FacingData_ShadowFx   ;03
 ]
 
-FacingData_Will #000102030001020300010203000000010101020202030303040404
+FacingData_WillAlt #000102030001020300010203000000010101020202030303040404
 
-FacingData_Freedan #0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+FacingData_AbilityFx #0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 
-FacingData_Shadow_A #00000000
+FacingData_FreedanFx #00000000
 
-FacingData_Shadow_B #000000000000
+FacingData_ShadowFx #000000000000

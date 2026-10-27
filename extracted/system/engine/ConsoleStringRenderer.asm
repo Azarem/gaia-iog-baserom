@@ -8,7 +8,7 @@
 ; 
 ; Display state: $099E/$099F form one 16-bit attribute word (the low byte is always 0 in the vanilla game, the high byte is sceneStateHelper). The multi-tile commands (numbers, boxes, fills, raw bytes) OR $099E into each tile word. $09A0 is the line-start cursor: SetVramAddr and DrawBox set it, and the two row-advance commands move it by a whole row and make it the new cursor, so a line break returns to the column of the last position command, not the current column.
 ; 
-; The command dispatch uses JSR ($addr,X) — indirect indexed JSR through ConsoleStringCommandTable. Commands may recursively call ConsoleStringRenderer (InsertRemoteString, IndirectString, InsertItemName) and return the new X by writing it to the saved-X slot on the stack ($03,S, or $05,S after one extra PHY).
+; The command dispatch uses JSR ($addr,X) — indirect indexed JSR through ConsoleStringCommandTable. Commands may recursively call ConsoleStringRenderer (InsertRemoteString, IndirectString, InsertSharedWord) and return the new X by writing it to the saved-X slot on the stack ($03,S, or $05,S after one extra PHY).
 ; 
 ; Operand addresses (digit sources, counts, index variables) are 16-bit offsets in the CURRENT data bank, so they only reach RAM because banks $00–$3F mirror WRAM $0000–$1FFF. Callers set the data bank to the string's bank.
 ; 
@@ -31,11 +31,11 @@
 ; | $0A | HP | DrawPlayerHpBar | — | Player HP as full/half/empty segments |
 ; | $0B | HE | DrawEnemyHpBar | — | Enemy HP bar (same algorithm, different palette) |
 ; | $0C | ESC | PrintRawBytes | var (term $FF) | Raw tile bytes until terminator |
-; | $0D | DBL | AdvanceRow4 | — | Line break of 2 tilemap rows: cursor = line start + $0080 |
+; | $0D | DBL | DoubleNewLine | — | Line break of 2 tilemap rows: cursor = line start + $0080 |
 ; | $0E | NUM | Print3DigitNumber | 2B addr | 16-bit value at addr as up to 3 decimal digits |
 ; | $0F | RCC | ClearRect | 1B width + 1B height | Blank (width+1) × (height+1) tiles; must be the last command before the end byte |
-; | $10 | LU | InsertItemName | 1B index | Insert entry N of item_component_table (shared words such as 'Crystal ', 'Psycho '; used by item and ability names alike) |
-; | $11 | N | AdvanceRow2 | — | Line break of 1 tilemap row: cursor = line start + $0040 |
+; | $10 | LU | InsertSharedWord | 1B index | Insert entry N of shared_word_table (shared words such as 'Crystal ', 'Psycho '; used by item and ability names alike) |
+; | $11 | N | NewLine | — | Line break of 1 tilemap row: cursor = line start + $0040 |
 ; 
 ; === HP BAR SYSTEM ===
 ; 
@@ -57,7 +57,7 @@
 
 ?BANK 03
 
-?INCLUDE 'item_component_table'
+?INCLUDE 'shared_word_table'
 
 !consoleAttrWord                099E
 !sceneStateHelper               099F
@@ -126,21 +126,21 @@ ConsoleStringCommandTable [
   &ConsoleCmd_DrawPlayerHpBar   ;0A
   &ConsoleCmd_DrawEnemyHpBar   ;0B
   &ConsoleCmd_PrintRawBytes   ;0C
-  &ConsoleCmd_AdvanceRow4   ;0D
+  &ConsoleCmd_DoubleNewLine   ;0D
   &ConsoleCmd_Print3DigitNumber   ;0E
   &ConsoleCmd_ClearRect   ;0F
-  &ConsoleCmd_InsertItemName   ;10
-  &ConsoleCmd_AdvanceRow2   ;11
+  &ConsoleCmd_InsertSharedWord   ;10
+  &ConsoleCmd_NewLine   ;11
 ]
 
 ---------------------------------------------
 ; Line break of one tilemap row (text tag [N]).
 ; 
-; Adds $0040 (64 bytes = 32 words = one 32-tile tilemap row) to the line start in $09A0 and writes the result to both $09A0 and the saved X on the stack ($03,S). The old cursor column is discarded: text continues in the column of the last position command. The name says "2 rows" but the step is one row; ConsoleCmd_AdvanceRow4 below is two rows.
+; Adds $0040 (64 bytes = 32 words = one 32-tile tilemap row) to the line start in $09A0 and writes the result to both $09A0 and the saved X on the stack ($03,S). The old cursor column is discarded: text continues in the column of the last position command. The step is one tilemap row; ConsoleCmd_DoubleNewLine below advances two.
 ; 
 ; No operand bytes consumed.
 
-ConsoleCmd_AdvanceRow2 {
+ConsoleCmd_NewLine {
     LDA $consoleLineStart
     CLC 
     ADC #$0040            ; +$0040 = one tilemap row (32 words × 2 bytes)
@@ -150,11 +150,11 @@ ConsoleCmd_AdvanceRow2 {
 }
 
 ---------------------------------------------
-; Insert a shared word from item_component_table (text tag [LU:n]).
+; Insert a shared word from shared_word_table (text tag [LU:n]).
 ; 
-; 1-byte operand: entry index 0–$E. Multiplies by 2 (ASL) for the word table offset, switches the data bank to item_component_table's bank, loads the string pointer and recursively calls ConsoleStringRenderer to render it (e.g. [LU:C] = 'Statue ', [LU:8] = 'Psycho '). Used by item names, item and ability descriptions and the ability menu, so "item name" in the label is a misnomer. Returns the new cursor in the saved X on the stack.
+; 1-byte operand: entry index 0–$E. Multiplies by 2 (ASL) for the word table offset, switches the data bank to shared_word_table's bank, loads the string pointer and recursively calls ConsoleStringRenderer to render it (e.g. [LU:C] = 'Statue ', [LU:8] = 'Psycho '). Used by item names, item and ability descriptions and the ability menu. Returns the new cursor in the saved X on the stack.
 
-ConsoleCmd_InsertItemName {
+ConsoleCmd_InsertSharedWord {
     PHY 
     PHB 
     LDA $06, S
@@ -164,12 +164,12 @@ ConsoleCmd_InsertItemName {
     ASL 
     PHA 
     SEP #$20
-    LDA #$^item_component_table
+    LDA #$^shared_word_table
     PHA 
     PLB 
     REP #$20
     PLY 
-    LDA $&item_component_table, Y ; Pointer to the shared-word string
+    LDA $&shared_word_table, Y ; Pointer to the shared-word string
     TAY 
     JSL $@ConsoleStringRenderer ; Recursively render the shared word (X = cursor)
     TXA 
@@ -475,9 +475,9 @@ ConsoleCmd_End {
 ---------------------------------------------
 ; Line break of two tilemap rows (text tag [DBL]).
 ; 
-; Adds $0080 (128 bytes = 2 rows × 32 words/row × 2 bytes/word) to the line start in $09A0 and writes the result to $09A0 and the saved X on the stack. Double the step of AdvanceRow2; the name's "4 rows" is wrong, it is two.
+; Adds $0080 (128 bytes = 2 rows × 32 words/row × 2 bytes/word) to the line start in $09A0 and writes the result to $09A0 and the saved X on the stack. Double the step of ConsoleCmd_NewLine.
 
-ConsoleCmd_AdvanceRow4 {
+ConsoleCmd_DoubleNewLine {
     LDA $consoleLineStart
     CLC 
     ADC #$0080            ; +$0080 = two tilemap rows

@@ -187,7 +187,7 @@
     { "key": "\\| Will \\|", "value": "| Will|"},
     { "key": "(?<=consolestring_01EADC \\|[^|]*) (?=[^|]*\\|)", "value": "█"}
   ],
-  "item_component_table": [
+  "shared_word_table": [
     { "key": "█", "value": " "}
   ],
   "player_character": [

@@ -1,3 +1,10 @@
+; COP handlers that query the player or linked actors (Bank 00, COP #44-#49 in hex = copdef ids 68-73).
+; 
+; #44 BranchIfPlayerInRelTiles and #45 BranchIfPlayerInAbsTiles test whether the player actor is inside a tile rectangle and branch (four bytes: minX, minY, maxX, maxY, then a &Code target). #46/#47 copy this actor's position to its previous/next linked actor. #48 GetPlayerFacing returns the player's facing in A. #49 BranchIfBodyNe branches when characterForm differs from a byte.
+; 
+; Rectangle tests use unsigned compares with an exclusive lower bound and an inclusive upper bound (minX < player.X ≤ maxX, same for Y). Uses in extracted/: #44 44, #45 140, #48 6; #46, #47 and #49 have no users.
+---------------------------------------------
+
 ?BANK 00
 
 ?INCLUDE 'GetPlayerFacingDirection'
@@ -7,7 +14,9 @@
 
 ---------------------------------------------
 
-; COP #44 relative tile-region branch taking four signed byte offsets (minX, maxX, minY, maxY) plus one &Code operand. Builds a pixel rectangle relative to the current actor position and tests whether the player actor falls inside it on both axes. If the player is inside, the script jumps to the branch target; otherwise it skips the six-byte operand block.
+; COP #44 (copdef id 68): relative tile-rectangle branch. Operands: four signed bytes in the order minX, minY, maxX, maxY (tiles, relative to this actor) plus a &Code target.
+; 
+; Each byte is sign-extended, multiplied by 16 (ASL ×4) and added to the actor's own X ($14) or Y ($16). The player is inside when minX < player.X ≤ maxX and minY < player.Y ≤ maxY (unsigned compares on the player actor's $14/$16). Inside → jump to the target; otherwise skip the six-byte operand block (4 bytes + &Code).
 
 BranchIfPlayerInRelTiles {
     PHY 
@@ -27,7 +36,7 @@ BranchIfPlayerInRelTiles {
     ASL 
     CLC 
     ADC $14               ; minX = actor.X + signed tile offset × 16
-    CMP $0014, X          ; Test player.X ≥ minX (BCS = player below minimum → outside)
+    CMP $0014, X          ; minX vs player X: BCS (minX ≥ player.X) = outside; inside needs player.X > minX
     BCS loc_0095E0
     LDA [$0A], Y
     INY 
@@ -43,7 +52,7 @@ BranchIfPlayerInRelTiles {
     ASL 
     CLC 
     ADC $16               ; minY = actor.Y + signed tile offset × 16
-    CMP $0016, X          ; Test player.Y ≥ minY
+    CMP $0016, X          ; minY vs player Y: BCS (minY ≥ player.Y) = outside; inside needs player.Y > minY
     BCS loc_0095E0
     LDA [$0A], Y
     INY 
@@ -92,14 +101,16 @@ BranchIfPlayerInRelTiles {
 }
 
 ---------------------------------------------
-; COP #45 with four byte operands (min tile X, max tile X, min tile Y, max tile Y) plus one &Code branch. Converts tile coords to pixels (×16) and branches if the player actor's position falls inside the rectangle (Y compared against player Y minus 8).
+; COP #45 (copdef id 69): absolute tile-rectangle branch. Operands: four bytes in the order minX, minY, maxX, maxY (absolute tile coordinates) plus a &Code target.
+; 
+; Each byte is multiplied by 16 and compared with the player actor's position. The tested point is (player.X, player.Y − 8): inside when minX×16 < X ≤ maxX×16 and minY×16 < Y−8 ≤ maxY×16. The adjusted Y is kept in scratch $0000. Inside → jump to the target; otherwise skip the six-byte operand block.
 
 BranchIfPlayerInAbsTiles {
     PHY 
     LDX $playerActor      ; Load player actor pointer for absolute tile test
     LDY #$0000
-    LDA $0016, X          ; Get player Y, subtract 8 for sprite center offset
-    SEC                   ; Player Y - 8 for sprite center offset
+    LDA $0016, X          ; Test point Y = player Y − 8 (kept in scratch $0000); X is compared unadjusted
+    SEC 
     SBC #$0008
     STA $0000
     LDA [$0A]             ; Read first tile X byte (no sign extension, absolute coordinates)
@@ -109,7 +120,7 @@ BranchIfPlayerInAbsTiles {
     ASL 
     ASL 
     ASL 
-    CMP $0014, X          ; Compare minX × 16 against player X
+    CMP $0014, X          ; minX×16 vs player X: BCS = outside (inside needs player.X > minX×16)
     BCS loc_00963D
     LDA [$0A], Y
     INY 
@@ -118,7 +129,7 @@ BranchIfPlayerInAbsTiles {
     ASL 
     ASL 
     ASL 
-    CMP $0000             ; minY x 16 vs player Y
+    CMP $0000             ; minY×16 vs player Y−8: BCS = outside
     BCS loc_00963D
     LDA [$0A], Y
     INY 
@@ -153,7 +164,7 @@ BranchIfPlayerInAbsTiles {
 }
 
 ---------------------------------------------
-; COP #46 with no operands. Copies the current actor's pixel position ($14/$16) to the previous linked actor at offset $04.
+; COP #46 (id 70), no operands, no users. Copies this actor's pixel position ($14/$16) to its previous linked actor ($04). No null check: with no previous actor ($04 = 0) it would write to WRAM $0014/$0016.
 
 CopyPosToPrev {
     TYX 
@@ -162,7 +173,7 @@ CopyPosToPrev {
 }
 
 ---------------------------------------------
-; COP #47 with no operands. Copies the current actor's pixel position ($14/$16) to the next linked actor at offset $06.
+; COP #47 (id 71), no operands, no users. Copies this actor's pixel position ($14/$16) to its next linked actor ($06); shares the copy code with CopyPosToPrev. No null check.
 
 CopyPosToNext {
     TYX 
@@ -190,7 +201,7 @@ GetPlayerFacing {
 }
 
 ---------------------------------------------
-; COP #49 with one byte (expected form ID) plus one &Code branch. Branches to the target offset when characterForm ($0AD4) does not match the operand; if the form matches, skips the branch.
+; COP #49 (id 73), no users. One byte (form ID) plus a &Code target: branches when characterForm ($0AD4) is not equal to the byte; when equal it skips the 2-byte target.
 
 BranchIfBodyNe {
     TYX 

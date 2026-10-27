@@ -29,7 +29,7 @@
 ; - SceneScriptMain: parse scene definition (tileset, tilemap, music, display config)
 ; - InitCameraBounds: set camera limits from map geometry or custom packed bounds
 ; - ApplyAllEventBlocks: apply persistent tile modifications from event flags
-; - PlaceBarrierTiles: place barrier collision tiles
+; - PlaceOpenedChestTiles: place barrier collision tiles
 ; - Actor/thinker spawning and initialization via actor_execution
 ; - LoadScenePalettes / LoadPlayerGraphics: character/form-dependent resource loading
 ; - CameraFullRefresh or RenderPaletteTiles: initial tilemap rendering depending on scroll mode
@@ -533,7 +533,7 @@ ApplyScrollWaveEffect {
 ; Build per-scanline horizontal scroll offset tables for HDMA wave effect.
 ; 
 ; For each of 256 entries ($0200 bytes = 256 words per table):
-; 1. Reads a signed sine value from sine_table_8bit, indexed by Y (starts at 0 and advances by the spatial frequency $0070 per entry). sine_table_8bit holds only the 64-entry first quarter, so Y ≥ 64 reads on into the adjacent signed_sine_table; together they form a full 256-step signed sine cycle (see the math_lookup_tables block note)
+; 1. Reads a signed sine value from sine_table_8bit, indexed by Y (starts at 0 and advances by the spatial frequency $0070 per entry). sine_table_8bit holds only the 64-entry first quarter, so Y ≥ 64 reads on into the adjacent signed_cosine_table_8bit; together they form a full 256-step signed sine cycle (see the math_lookup_tables block note)
 ; 2. Multiplies the sine value by the wave amplitude ($006E) using the SNES hardware multiplier ($4202/$4203 → $4216/$4217)
 ; 3. For negative sine values: performs sign-extended multiplication using $FF multiply + carry-based addition of the low byte
 ; 4. Adds the base BG1 horizontal scroll ($bg1ScrollH) to the offset
@@ -764,7 +764,7 @@ ScreenEnterTransition {
 ; 2. SceneScriptMain — parse scene script (loads tileset, tilemap, music, display config)
 ; 3. InitCameraBounds — set camera limits from map bounds or custom $0652 data
 ; 4. ApplyAllEventBlocks — apply persistent event-driven tile changes
-; 5. PlaceBarrierTiles — write barrier collision tiles to map
+; 5. PlaceOpenedChestTiles — write barrier collision tiles to map
 ; 6. InitActorPool — reset actor/thinker pools
 ; 7. SpawnSceneActors — instantiate actors from scene definition table
 ; 8. DisplaySceneTitle — display centered area name overlay if entering a new scene
@@ -863,7 +863,7 @@ ClearSceneState {
     JSL $@scene_script.SceneScriptMain
     JSL $@InitCameraBounds ; Init camera bounds, apply event blocks, place barriers
     JSL $@event_blocks.ApplyAllEventBlocks
-    JSL $@warps_interaction.PlaceBarrierTiles
+    JSL $@warps_interaction.PlaceOpenedChestTiles
     LDX #$0000            ; Clear joypad state before actor spawning
     STX $joypadMaskStd
     STX $joypadCurrent

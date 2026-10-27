@@ -23,7 +23,7 @@ SceneCmd_LoadCharTiles! {
     INC $3E
     INC $3E
     SEP #$20
-    JSL $@SignedMultiply
+    JSL $@Multiply8x8Unsigned
     REP #$20
     STA $00
     XBA 

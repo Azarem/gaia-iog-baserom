@@ -1,6 +1,6 @@
 ; Orbital position math helper (Bank 00) called via JSL from 15+ boss, projectile, and VFX actors including Castoth, Mummy Queen, Mountain Temple fire sprites, Lily orbit effects, player attack orbs, and item_use_system.
 ; 
-; Given reference actor Y in Y register and angle/radius in the caller's $7F0010/$7F0012 WRAM fields, it first copies the reference actor's $14/$16 into its own DP position, then applies sine/cosine offsets using math_lookup_tables (sine_table_8bit and signed_sine_table) multiplied by orbitDiameter through hardware_math.SignedMultiply.
+; Given reference actor Y in Y register and angle/radius in the caller's $7F0010/$7F0012 WRAM fields, it first copies the reference actor's $14/$16 into its own DP position, then applies sine/cosine offsets using math_lookup_tables (sine_table_8bit and signed_cosine_table_8bit) multiplied by orbitDiameter through hardware_math.Multiply8x8Unsigned.
 ; 
 ; A secondary entry label skips the initial copy so callers can reapply rotation from an already-positioned base point. Result updates actor $14/$16 for circular or elliptical motion around a parent actor or anchor — used for satellites, orbiting flames, and spinning attack visuals.
 ---------------------------------------------
@@ -34,7 +34,7 @@ ApplyOrbitalOffsetFromRef {
   loc_00F3E7:
     XBA 
     LDA $orbitDiameter, X
-    JSL $@hardware_math.SignedMultiply
+    JSL $@hardware_math.Multiply8x8Unsigned
     REP #$20
     XBA 
     AND #$00FF
@@ -48,7 +48,7 @@ ApplyOrbitalOffsetFromRef {
     STA $14
     SEP #$20
     CLC 
-    LDA $&math_lookup_tables.signed_sine_table, Y
+    LDA $&math_lookup_tables.signed_cosine_table_8bit, Y
     BPL loc_00F40D
     EOR #$FF
     INC 
@@ -57,7 +57,7 @@ ApplyOrbitalOffsetFromRef {
   loc_00F40D:
     XBA 
     LDA $orbitDiameter, X
-    JSL $@hardware_math.SignedMultiply
+    JSL $@hardware_math.Multiply8x8Unsigned
     REP #$20
     XBA 
     AND #$00FF
@@ -66,7 +66,7 @@ ApplyOrbitalOffsetFromRef {
     INC 
 
   loc_00F422:
-    CLC                   ; Second pass uses signed_sine_table for Y offset; add results to $14/$16
+    CLC                   ; Second pass uses signed_cosine_table_8bit for Y offset; add results to $14/$16
     ADC $16
     STA $16
     RTL 

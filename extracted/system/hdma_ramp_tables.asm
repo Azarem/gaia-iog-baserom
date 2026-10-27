@@ -97,10 +97,16 @@ parallax_speed_config [
 ; Per-frame vertical offset arcs for ramp motion — 2 ramp-motion entries (3 bytes each: curve pointer, frame count), each pointing to a run of signed bytes. ramp_motion_curve_step in ramps.asm sign-extends one byte per frame and adds it to the Y position ($16) of the actor linked through the ramp actor's $04 field (the player, inferred), so the values are pixel deltas, not accelerations. Entry 0: 64 frames, −16 rising to 0 and on to +16, net 0 (returns to the starting height). Entry 1: 32 frames, −8 to +8, net +8 (ends 8 pixels lower). Curve 0 repeats most values twice in a row.
 
 ramp_motion_curves [
-  ramp-motion < &binary_01D911, #40 >   ;00
-  ramp-motion < &binary_01D951, #20 >   ;01
+  ramp-motion < &ramp_curve_arc_64, #40 >   ;00
+  ramp-motion < &ramp_curve_arc_32, #20 >   ;01
 ]
 
-binary_01D911 #F0F0F2F2F4F4F5F5F6F6F7F7F8F8FAFAFBFBFCFCFDFDFEFEFFFFFFFF00000000000000000101010102020303040405050606080809090A0A0B0B0C0C0E0E1010
+---------------------------------------------
+; Entry 0 of ramp_motion_curves: 64 signed Y deltas in pixels, one per frame, running from $F0 (−16) through 0 to $10 (+16): the slow arc.
 
-binary_01D951 #F8F8FAFAFCFCFDFDFEFEFFFFFFFF000000010101010202030304040606080808
+ramp_curve_arc_64 #F0F0F2F2F4F4F5F5F6F6F7F7F8F8FAFAFBFBFCFCFDFDFEFEFFFFFFFF00000000000000000101010102020303040405050606080809090A0A0B0B0C0C0E0E1010
+
+---------------------------------------------
+; Entry 1 of ramp_motion_curves: 32 signed Y deltas in pixels, one per frame, running from $F8 (−8) through 0 to $08 (+8): the fast arc.
+
+ramp_curve_arc_32 #F8F8FAFAFCFCFDFDFEFEFFFFFFFF000000010101010202030304040606080808

@@ -6,7 +6,7 @@
 ; 
 ; 1. CORE IDLE + WALKING (181132–181790)
 ;    PlayerCharacterDef, PlayerIdleEntry, PlayerIdleDispatchTable, IdleStand* (8 directional × Shadow variants), WalkSouth/North/West/East, CheckAttackWhileWalking, WalkAbortToIdle, WalkRestoreSaved, SetAutoWalkTimer.
-;    The idle dispatch uses a facing × input matrix: GetPlayerFacing (0–3) × SignedMultiply by 14 selects a row of 7 entries in PlayerIdleDispatchTable. Input priority: attack button > D-pad cardinal > L/R block > idle stand. Walk pieces initialize speed (±3), manage invincibility timer, and transition to blocking on L/R shoulder press.
+;    The idle dispatch uses a facing × input matrix: GetPlayerFacing (0–3) × Multiply8x8Unsigned by 14 selects a row of 7 entries in PlayerIdleDispatchTable. Input priority: attack button > D-pad cardinal > L/R block > idle stand. Walk pieces initialize speed (±3), manage invincibility timer, and transition to blocking on L/R shoulder press.
 ; 
 ; 2. VINE CLIMBING (181790–182198)
 ;    ClimbVineEntry, ClimbVineLand, CheckClimbFrame, CheckClimbAttack, ClimbDropAttack, ClimbDropLand, ImpactTerrainShake, CameraShakeActor, CameraShakeFrame.
@@ -112,7 +112,7 @@ PlayerCharacterDef [
 ; 
 ; Saves itself as the return point via SetSavedPtr, clears force movement. Checks for residual speed — if nonzero, jumps to MovingEastWest or MovingNorthSouth for inertial deceleration.
 ; 
-; If no residual speed, computes a dispatch index: GetPlayerFacing (0=S, 1=N, 2=W, 3=E) × 14 via SignedMultiply → row offset into PlayerIdleDispatchTable. Then scans joypad input in priority order: attack button > D-pad cardinal (S/N/W/E) > L/R block > idle stand. The resulting 2-byte address is loaded from the table and executed via the DEC+PHA+RTS trick.
+; If no residual speed, computes a dispatch index: GetPlayerFacing (0=S, 1=N, 2=W, 3=E) × 14 via Multiply8x8Unsigned → row offset into PlayerIdleDispatchTable. Then scans joypad input in priority order: attack button > D-pad cardinal (S/N/W/E) > L/R block > idle stand. The resulting 2-byte address is loaded from the table and executed via the DEC+PHA+RTS trick.
 
 PlayerIdleEntry {
     COP [SetEntryHere]    ; Main idle entry — clears transient flags and dispatches to walk/block/attack/stand based on input
@@ -151,7 +151,7 @@ PlayerIdleEntry {
     SEP #$20              ; Switch to 8-bit; multiply facing by 14 (7 entries × 2 bytes) via hardware math to get row offset
     XBA 
     LDA #$0E
-    JSL $@hardware_math.SignedMultiply
+    JSL $@hardware_math.Multiply8x8Unsigned
     REP #$20
     TAX 
     LDA $joypadCurrent    ; Read joypad state; scan input priority: attack > D-pad (S/N/W/E) > L/R block > idle stand

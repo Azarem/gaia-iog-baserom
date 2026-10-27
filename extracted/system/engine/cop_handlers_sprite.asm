@@ -2,7 +2,7 @@
 ; 
 ; ResetSpriteState initializes animation index ($28), frame counter ($2A), and spriteset pointer ($24). AdvanceSpriteAnim steps through animation frames using the spriteset table.
 ; 
-; StageSpr and its axis variants (StageSprX/Y/XY) set the animation frame and optionally compute movement durations via AnimFrameLookup. StageSprLoop variants add a repeat timer via sprTimer. ProcessAnimFlag is the shared internal helper that interprets the animation flag byte, handles direction-based flip ($4000), and writes to the animation index.
+; StageSpriteFrame and its axis variants (StageSpriteMoveX/Y/XY) set the animation frame and optionally compute movement durations via AnimFrameLookup. StageSpriteLoop variants add a repeat timer via sprTimer. ProcessAnimFlag is the shared internal helper that interprets the animation flag byte, handles direction-based flip ($4000), and writes to the animation index.
 ; 
 ; SetMetasprite points the actor at a metasprite table entry with bank byte. AnimOnce/AnimLoop/AnimOneFrame/WaitForAnimFrame control animation playback — AnimOnce yields until complete, AnimLoop repeats with a timer, WaitForAnimFrame yields until a specific frame index is reached. StageSprAndHitbox combines sprite staging with hitbox update via UpdateActorAnimation.
 ---------------------------------------------
@@ -20,7 +20,7 @@
 
 ---------------------------------------------
 
-; COP #55 (script name ResetSpriteInit) sprite/animation reset taking one byte and one word operand. Stores the animation index in $28, clears the frame counter $2A, and sets the spriteset/script bank pointer $24. Does not advance animation itself — it reinitializes state before StageSpr/AnimOnce sequences.
+; COP #55 (script name ResetSpriteInit) sprite/animation reset taking one byte and one word operand. Stores the animation index in $28, clears the frame counter $2A, and sets the spriteset/script bank pointer $24. Does not advance animation itself — it reinitializes state before StageSpriteFrame/AnimOnce sequences.
 
 ResetSpriteState {
     TYX 
@@ -115,7 +115,7 @@ AdvanceSpriteAnim {
 
 ; COP #80 with one byte operand (animation index). Calls ProcessAnimFlag to set $28 (with optional horizontal flip on $0E) and refreshes script bank/pointer fields from $0C/$0A.
 
-StageSpr {
+StageSpriteFrame {
     TYX 
     LDA [$0A]             ; Read animation index byte operand
     INC $0A
@@ -132,10 +132,10 @@ StageSpr {
 ---------------------------------------------
 ; COP #81 with two byte operands (animation index, X distance). Runs ProcessAnimFlag, stores X distance in moveXAlt, and sets frame duration $2C via AnimFrameLookup.
 
-StageSprX {
+StageSpriteMoveX {
     TYX 
     LDA [$0A]
-    INC $0A               ; StageSprX: read anim byte
+    INC $0A               ; StageSpriteMoveX: read anim byte
     AND #$00FF
     JSR $&ProcessAnimFlag
     LDA [$0A]
@@ -155,10 +155,10 @@ StageSprX {
 ---------------------------------------------
 ; COP #82 with two byte operands (animation index, Y distance). Runs ProcessAnimFlag, stores Y distance in moveYAlt, and sets frame duration $2E via AnimFrameLookup.
 
-StageSprY {
+StageSpriteMoveY {
     TYX 
     LDA [$0A]
-    INC $0A               ; StageSprY: read anim byte
+    INC $0A               ; StageSpriteMoveY: read anim byte
     AND #$00FF
     JSR $&ProcessAnimFlag
     LDA [$0A]
@@ -178,10 +178,10 @@ StageSprY {
 ---------------------------------------------
 ; COP #83 with three byte operands (animation index, X distance, Y distance). Runs ProcessAnimFlag and AnimFrameLookup for both axes, setting $2C and $2E.
 
-StageSprXY {
+StageSpriteMoveXY {
     TYX 
     LDA [$0A]
-    INC $0A               ; StageSprXY: read anim byte
+    INC $0A               ; StageSpriteMoveXY: read anim byte
     AND #$00FF
     JSR $&ProcessAnimFlag
     LDA [$0A]
@@ -207,10 +207,10 @@ StageSprXY {
 ---------------------------------------------
 ; COP #84 with two byte operands (animation index, loop count). Runs ProcessAnimFlag and stores the loop count in sprTimer for use by AnimLoop.
 
-StageSprLoop {
+StageSpriteLoop {
     TYX 
     LDA [$0A]
-    INC $0A               ; StageSprLoop: read anim byte
+    INC $0A               ; StageSpriteLoop: read anim byte
     AND #$00FF
     JSR $&ProcessAnimFlag
     LDA [$0A]
@@ -228,10 +228,10 @@ StageSprLoop {
 ---------------------------------------------
 ; COP #85 with three byte operands (animation index, loop count, X distance). Runs ProcessAnimFlag, sets sprTimer, stores moveXAlt, and computes $2C via AnimFrameLookup.
 
-StageSprLoopX {
+StageSpriteLoopMoveX {
     TYX 
     LDA [$0A]
-    INC $0A               ; StageSprLoopX: read anim byte + loop + X distance
+    INC $0A               ; StageSpriteLoopMoveX: read anim byte + loop + X distance
     AND #$00FF
     JSR $&ProcessAnimFlag
     LDA [$0A]
@@ -255,10 +255,10 @@ StageSprLoopX {
 ---------------------------------------------
 ; COP #86 with three byte operands (animation index, loop count, Y distance). Runs ProcessAnimFlag, sets sprTimer, stores moveYAlt, and computes $2E via AnimFrameLookup.
 
-StageSprLoopY {
+StageSpriteLoopMoveY {
     TYX 
     LDA [$0A]
-    INC $0A               ; StageSprLoopY: read anim byte + loop + Y distance
+    INC $0A               ; StageSpriteLoopMoveY: read anim byte + loop + Y distance
     AND #$00FF
     JSR $&ProcessAnimFlag
     LDA [$0A]
@@ -282,10 +282,10 @@ StageSprLoopY {
 ---------------------------------------------
 ; COP #87 with four byte operands (animation index, loop count, X distance, Y distance). Runs ProcessAnimFlag, sets sprTimer, and computes both $2C and $2E via AnimFrameLookup.
 
-StageSprLoopXY {
+StageSpriteLoopMoveXY {
     TYX 
     LDA [$0A]
-    INC $0A               ; StageSprLoopXY: all four operands
+    INC $0A               ; StageSpriteLoopMoveXY: all four operands
     AND #$00FF
     JSR $&ProcessAnimFlag
     LDA [$0A]
@@ -313,7 +313,7 @@ StageSprLoopXY {
 }
 
 ---------------------------------------------
-; Internal JSR helper shared by all StageSpr variants. Clears frame counter $2A, then interprets the animation index byte: $FF leaves $28 unchanged (no-op), bit $80 set masks to the low 7 bits and conditionally sets horizontal flip ($4000 on $0E) based on actor flag $0002, and all other values store directly to $28 while clearing the flip bit. Returns via RTS.
+; Internal JSR helper shared by all StageSpriteFrame variants. Clears frame counter $2A, then interprets the animation index byte: $FF leaves $28 unchanged (no-op), bit $80 set masks to the low 7 bits and conditionally sets horizontal flip ($4000 on $0E) based on actor flag $0002, and all other values store directly to $28 while clearing the flip bit. Returns via RTS.
 
 ProcessAnimFlag {
     STZ $2A               ; Clear frame counter — new stage always starts at frame 0

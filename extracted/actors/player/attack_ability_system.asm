@@ -87,6 +87,7 @@
 !retPtr2                        7F001E
 !moveScratch1                   7F002C
 !moveScratch2                   7F002E
+!adhocVramDmaDest               7F0C07
 
 ---------------------------------------------
 
@@ -370,7 +371,7 @@ AuraBarrierMain {
     BNE loc_02B9B4
     COP [SetEntryHereAndYield]
     COP [LoopStart] ( #08 )
-    LDA $7F0C07           ; $7F0C07 = adhoc VRAM destination cache; $4400 means DMA still pending
+    LDA $adhocVramDmaDest ; $7F0C07 = adhoc VRAM destination cache; $4400 means DMA still pending
     CMP #$4400
     BNE loc_02B9C0
     COP [LoopEnd]
@@ -378,7 +379,7 @@ AuraBarrierMain {
 
   loc_02B9B4:
     COP [SetEntryHere]    ; DMA still pending — yield each frame until transfer completes
-    LDA $7F0C07
+    LDA $adhocVramDmaDest
     CMP #$4400
     BNE loc_02B9C0
     RTL 
@@ -571,7 +572,7 @@ DarkFriarMain {
     BNE loc_02BB6B
     COP [SetEntryHereAndYield]
     COP [LoopStart] ( #08 )
-    LDA $7F0C07
+    LDA $adhocVramDmaDest
     CMP #$4400
     BNE loc_02BB77
     COP [LoopEnd]
@@ -579,7 +580,7 @@ DarkFriarMain {
 
   loc_02BB6B:
     COP [SetEntryHere]
-    LDA $7F0C07
+    LDA $adhocVramDmaDest
     CMP #$4400
     BNE loc_02BB77
     RTL 

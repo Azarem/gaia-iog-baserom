@@ -1,43 +1,43 @@
-; Event block tile swap system — runtime map modification triggered by event flags (172521–173533, Bank 02).
+; Event block tile system — runtime map edits (doors, bridges, barriers) driven by event flags (172521–173533, Bank 02).
 ; 
-; Manages event-triggered tile modifications on the game map: doors opening, bridges appearing, barriers being removed, and other scripted tile changes. Each event block defines a rectangular region of tiles to swap between a source and destination position on the map.
+; An event block copies a rectangle of map tiles from a source position over a destination position, either instantly (CopyEventBlockTiles) or animated with VRAM updates (AnimateEventBlock). Despite its name CopyEventBlockTiles does not exchange the two rectangles: the source is left unchanged.
 ; 
 ; === EVENT FLAG INDEXING ===
 ; 
-; ApplyAllEventBlocks iterates through event flags stored as bitfields at $0A20. Each byte contains 8 flag bits, processed via LSR+BCC per bit. When a flag bit is set, the corresponding event block index ($04) is looked up via LookupEventBlock. The loop processes all 256 event indices (counter wraps at zero).
+; ApplyAllEventBlocks walks the 32-byte event flag bitfield at $0A20 (LSR per bit). For every set flag the event index ($04, 8-bit, wraps after 256 indices) goes through LookupEventBlock; when the scene matches, CopyEventBlockTiles runs. Callers: scene_lifecycle and inventory_overlay. Defeated-enemy blocks call LookupEventBlock + CopyEventBlockTiles from actor_execution; COP #32 StageBgChange calls LookupEventBlock and COP #33 ApplyBgChange loops AnimateEventBlock.
 ; 
 ; === EVENT BLOCK TABLE FORMAT ===
 ; 
-; LookupEventBlock reads 8-byte entries from event_block_table (index × 8):
+; LookupEventBlock reads 8-byte entries from event_block_table (index × 8) into WRAM $0096-$00A8 (absolute addresses, used as DP with D = 0):
 ;   Byte 0: Scene ID — must match sceneCurrent or the entry is skipped (carry set = no match)
-;   Bytes 1-2: Source tile X/Y coordinates ($96/$98)
-;   Bytes 3-4: Width ($A2/$9E) and height ($A0) of the rectangle
-;   Bytes 5-6: Destination tile X/Y coordinates ($9A/$9C)
-;   Byte 7: Layer flag ($A4) — 0 = layer 0 (mapLayerTilemap), nonzero = layer 1 (effectLayerTilemap)
+;   Bytes 1-2: Source tile X/Y ($96/$98)
+;   Byte 3: Width ($A2, and $9E as the column counter); byte 4: height ($A0)
+;   Bytes 5-6: Destination tile X/Y ($9A/$9C)
+;   Byte 7: Layer flag ($A4) — 0 = layer 0 (mapLayerTilemap + collisionLayer), nonzero = layer 1 (effectLayerTilemap)
+; $A8 keeps the entry's byte offset so AdvanceEventRow can reload the start X coordinates.
 ; 
-; === TILE SWAP OPERATIONS ===
+; === TILE COPY OPERATIONS ===
 ; 
-; Two modes of tile swapping:
+; 1. CopyEventBlockTiles (instant): nested row/column loop using map_coords.MapIndexMoveRight/MapIndexMoveDown. Layer 0 copies the mapLayerTilemap and collisionLayer bytes. Layer 1 copies effectLayerTilemap and looks the collision byte up through the [$3E] pointer (base $06AC, low byte replaced by the tile ID, bank $7F); the collision byte is written only when the lookup is non-zero.
 ; 
-; 1. SwapEventBlockTiles (instant): Copies tiles from source to destination in a nested row/column loop using map_coords.MapIndexMoveRight and MapIndexMoveDown for traversal. Layer 0 path swaps both mapLayerTilemap and collisionLayer bytes directly. Layer 1 path additionally resolves collision via indirect pointer [$3E] in bank $7F — only writes collision if the resolved byte is non-zero.
+; 2. AnimateEventBlock (animated): same copy, but each copied tile that is inside the camera window also queues a 2×2 metatile VRAM update. Layer 0 queues through QueueVisibleTileVram (BG1 nametable) and, when the queue is full, flushes inside the routine (UpdateFrameDialogue) and restarts; layer 1 has its own inline copy of the visibility and queue code (BG2 nametable, $0800 offset) and instead returns carry clear when the queue is full so the caller (COP #33) flushes a frame and calls again. Carry set = all tiles done.
 ; 
-; 2. AnimateEventBlock (visual): Same tile-swapping logic but with per-tile VRAM updates. For each swapped tile within the camera viewport, QueueVisibleTileVram expands the metatile index into four 8×8 VRAM tilemap words and queues them to the VRAM write buffer ($0800+Y). Calls UpdateFrameDialogue between batches to allow the display to refresh, producing a visible animation of tiles changing.
+; === VRAM WRITE QUEUE ($0800-$08FF) ===
 ; 
-; === VRAM WRITE QUEUE ===
-; 
-; FlushVramWriteQueue processes queued tile updates during VBlank. Two paths:
-; - Queued mode (dmaSkipFlag nonzero): Switches SP to $07FF and POPs address/data pairs (PLA → VMADDL, PLA → VMDATAL) until a zero sentinel. This bulk-flushes all queued metatile updates in a single VBlank.
-; - Direct mode (dmaSkipFlag zero): Writes tileQueryResult entries directly to VRAM — four words at $0902/$0904/$0906/$0908/$090A/$090C for interactive tile probe results.
+; A queue entry is a pair of words (VRAM word address, tile word); one 2×2 metatile is four entries = $10 bytes, so the queue holds 16 metatiles (Y = $0100 = full). The queue's first word is dmaSkipFlag ($0800): nonzero means entries are pending. A zero address word terminates the list; both animate paths write that terminator at $0800+Y.
+; FlushVramWriteQueue (called twice from system_core's frame update) has two modes:
+; - Queued mode (dmaSkipFlag nonzero): SP is pointed at $07FF so PLA pops address/tile pairs straight into VMADDL/VMDATAL until the zero terminator; dmaSkipFlag is cleared afterwards.
+; - Direct mode (dmaSkipFlag zero): if tileQueryResult ($0902, really the VRAM address of a pending 2×2 metatile update staged by cop_handlers_metatile) is nonzero, writes its two tile rows ($0904/$0906 at $0902, $090A/$090C at $0908), then clears it.
 ; 
 ; === VISIBILITY CHECK ===
 ; 
-; QueueVisibleTileVram tests whether a tile's pixel position falls within the camera viewport by comparing against bg1ScrollH/mapScrollV and bg1ScrollV/savedCameraDelta. Tiles outside the visible area are skipped — only on-screen tiles get queued for VRAM update. Returns carry set if off-screen, carry clear + Z flag for queue full ($0100 bytes = 16 metatiles), or carry clear + NZ for successful queue.
+; A tile is queued only when its pixel position is inside the camera window: (pixelX + 16 − scrollH) < $0111 and (pixelY − ((scrollV − 16) AND $FFF0)) in 0..$F0. Layer 0 and QueueVisibleTileVram use bg1ScrollH / mapScrollV; the layer 1 path uses effectScrollH / effectScrollV.
+; QueueVisibleTileVram contract: carry set = off-screen (nothing queued); carry clear and Z set = queue full (the LDX #0 exists only to force Z); carry clear on success, where Z is whatever the caller's flags were (PLP restores them, OQ-62). DrawChestTiles in warps_interaction is its other caller and ignores the result.
 ; 
 ; === HELPER ROUTINES ===
 ; 
-; AdvanceEventColumn: Decrements the column counter ($9E), advances pixel X by 16, increments source and destination tile X coordinates, and moves both map indices right. Returns carry set when all columns in the current row are done.
-; 
-; AdvanceEventRow: Decrements the row counter ($A0), advances pixel Y by 16, increments tile Y coordinates, reloads the source X coordinate from the original event_block_table entry ($A8 = table offset), and resets the column counter from $A2. Returns carry set when all rows are done.
+; AdvanceEventColumn: decrements the column counter ($9E); carry set when the row is done, otherwise pixel X += 16, source/destination tile X += 1 and both map indices step right.
+; AdvanceEventRow: decrements the row counter ($A0); carry set when all rows are done, otherwise pixel Y += 16, tile Y += 1 (both), source X and destination X are reloaded from the original table entry ($A8) and the column counter is reset from $A2.
 ---------------------------------------------
 
 ?BANK 02
@@ -65,13 +65,11 @@
 
 ---------------------------------------------
 
-; Apply all active event block tile swaps for the current scene.
+; Apply every active event block for the current scene.
 ; 
-; Iterates through the event flag bitfield at $0A20 in 8-bit chunks. Each byte contains 8 flag bits — LSR shifts each bit into carry. When carry is set, the current event index ($04) is looked up via LookupEventBlock. If the lookup succeeds (scene matches, carry clear), SwapEventBlockTiles performs the tile swap.
+; Walks the event flag bitfield at $0A20 in 8-bit chunks (LSR shifts each flag into carry). For each set flag the event index ($04) goes through LookupEventBlock; when the scene matches (carry clear), CopyEventBlockTiles copies the rectangle instantly. The outer loop ends when $04 wraps to zero (256 indices, 32 bytes).
 ; 
-; The event index counter ($04) increments for every bit position. After processing 8 bits per byte ($0E counts down from 8), the byte index Y advances. The outer loop terminates when $04 wraps to zero (all 256 event indices processed).
-; 
-; Saves and restores processor state (PHP/PLP). Operates in 8-bit accumulator mode for the bitfield iteration, switching to 16-bit for the lookup call.
+; Saves and restores processor state (PHP/PLP). The bitfield loop is 8-bit; the lookup call switches to 16-bit.
 
 ApplyAllEventBlocks {
     PHP 
@@ -97,7 +95,7 @@ ApplyAllEventBlocks {
     PLY 
     SEP #$20
     BCS loc_02A214        ; Lookup failed (wrong scene) — skip tile swap for this index
-    JSL $@SwapEventBlockTiles ; Scene match — instantly copy source rectangle to destination on map
+    JSL $@CopyEventBlockTiles ; Scene match — instantly copy source rectangle to destination on map
 
   loc_02A214:
     INC $04
@@ -110,17 +108,15 @@ ApplyAllEventBlocks {
 }
 
 ---------------------------------------------
-; Swap a rectangular region of tiles between source and destination map positions.
+; Copy a rectangle of tiles from the source position over the destination position (the source is not modified, so this is a copy, not a swap).
 ; 
-; Entry: DP $96/$98 = source X/Y tile coordinates, $9A/$9C = destination X/Y tile coordinates, $9E = width (columns remaining), $A0 = height (rows remaining), $A2 = original width, $A4 = layer flag (0 = layer 0, nonzero = layer 1).
+; Entry: parameters at WRAM $0096-$00A4 as loaded by LookupEventBlock, read through DP with D = 0: $96/$98 source X/Y tile, $9A/$9C destination X/Y tile, $9E columns remaining, $A0 rows remaining, $A2 original width, $A4 layer flag (0 = layer 0, nonzero = layer 1).
 ; 
-; Layer 0 path (loc_02A264): For each tile in the rectangle, copies mapLayerTilemap and collisionLayer bytes from source index ($02) to destination index ($00). Uses MapIndexMoveRight for column traversal and MapIndexMoveDown for row traversal.
+; Layer 0 path (loc_02A264): per tile, copies mapLayerTilemap and collisionLayer bytes from the source map index ($02) to the destination index ($00); MapIndexMoveRight/MapIndexMoveDown traverse the rectangle.
 ; 
-; Layer 1 path (loc_02A2B9): Similar structure but operates on effectLayerTilemap instead of mapLayerTilemap. Collision is resolved through an indirect pointer: the effectLayerTilemap byte is stored to $3E, then LDA [$3E] reads the resolved collision value from bank $7F ($06AC). Only writes collision if the resolved byte is non-zero (BEQ skips the write), preserving existing collision for empty overlay tiles.
-; 
-; For both layers, sets up the collision bank pointer ($3E/$40) from $06AC and $7F at entry.
+; Layer 1 path (loc_02A2B9): same traversal on effectLayerTilemap. The collision byte comes from an indirect lookup: $3E/$40 hold the collision flag table pointer ($06AC, bank $7F) and the tile ID replaces the low byte of $3E, so [$3E] returns the table entry for that tile. The collision byte is written only if the entry is non-zero (empty overlay tiles keep the existing collision).
 
-SwapEventBlockTiles {
+CopyEventBlockTiles {
     PHP 
     PHY 
     REP #$20
@@ -156,7 +152,7 @@ SwapEventBlockTiles {
     BNE loc_02A2B9
 
   loc_02A264:
-    LDX $02               ; L0 row loop: swap mapLayerTilemap + collisionLayer source→dest
+    LDX $02               ; L0 row loop: copy mapLayerTilemap + collisionLayer from source ($02) to destination ($00)
     SEP #$20
     LDA $mapLayerTilemap, X ; Read source map tile and collision bytes at index $02
     PHA 
@@ -200,7 +196,7 @@ SwapEventBlockTiles {
     RTL 
 
   loc_02A2B9:
-    LDX $02               ; L1 row loop: swap effectLayerTilemap with indirect collision resolve
+    LDX $02               ; L1 row loop: copy effectLayerTilemap source→dest; collision via [$3E] lookup
     SEP #$20
     LDA $effectLayerTilemap, X ; Read effect overlay tile at source map index
     PHA 
@@ -249,20 +245,18 @@ SwapEventBlockTiles {
 }
 
 ---------------------------------------------
-; Process queued VRAM tile updates during VBlank.
+; Write queued tile updates to VRAM during VBlank.
 ; 
-; Two operating modes based on dmaSkipFlag ($0800):
+; 1. Queued mode (dmaSkipFlag nonzero): saves SP, sets SP = $07FF so the first PLA reads word $0800 (dmaSkipFlag itself, the first queued VRAM address). Pops address/tile pairs (PLA → VMADDL, PLA → VMDATAL) until a zero address word, then restores SP and clears dmaSkipFlag.
 ; 
-; 1. Queued mode (dmaSkipFlag nonzero): Saves the current stack pointer, switches SP to $07FF (the VRAM write queue region). Pops address/data pairs in a loop: PLA → VMADDL (VRAM address), PLA → VMDATAL (tile data), until a zero sentinel is reached. Restores SP and clears dmaSkipFlag.
-; 
-; 2. Direct mode (dmaSkipFlag zero): Sets VMAIN to $80 (word-access sequential increment). Checks tileQueryResult ($0902) — if nonzero, writes two pairs of VRAM address/data words from $0902–$090C to update a single interactive tile query result (4 words = one 2×2 metatile). Clears tileQueryResult after writing.
+; 2. Direct mode (dmaSkipFlag zero): VMAIN = $80 (word access, increment after the high byte). If $0902 (tileQueryResult) is nonzero it is the VRAM address of the top row of a 2×2 metatile: tile words $0904/$0906 go there, then $090A/$090C go to the address in $0908. $0902 is cleared afterwards (it is also cleared when it was already zero).
 
 FlushVramWriteQueue {
     TSX 
     LDY $dmaSkipFlag      ; dmaSkipFlag ($0800) nonzero → stack holds queued VRAM writes
     BEQ loc_02A32F
     REP #$20
-    LDA #$07FF            ; TCS: repoint stack to $07FF (VRAM write queue at top of stack page)
+    LDA #$07FF            ; SP = $07FF: the first PLA reads word $0800 (dmaSkipFlag = first queued VRAM address)
     TCS 
 
   loc_02A31C:
@@ -284,9 +278,9 @@ FlushVramWriteQueue {
     LDA #$80              ; Direct path: VMAIN=$80 — word write, auto-increment VRAM addr
     STA $VMAIN
     REP #$20
-    LDA $tileQueryResult  ; tileQueryResult ($0902) pending — single interactive 2×2 tile probe
+    LDA $tileQueryResult  ; $0902 nonzero = a 2×2 metatile update is pending (VRAM address of its top row; staged by cop_handlers_metatile)
     BEQ loc_02A35D
-    STA $VMADDL           ; Write VRAM addr from $0902 + first two tile words ($0904/$0906)
+    STA $VMADDL           ; Top row: VRAM address = $0902, then two tile words ($0904, $0906) with auto-increment
     LDA $0904
     STA $VMDATAL
     LDA $0906
@@ -360,20 +354,13 @@ LookupEventBlock {
 }
 
 ---------------------------------------------
-; Animated event block tile swap with per-tile VRAM updates.
+; Animated event block copy: same rectangle copy as CopyEventBlockTiles, but every copied tile inside the camera window also queues a 2×2 metatile VRAM update so the change appears progressively.
 ; 
-; Same rectangular tile swap as SwapEventBlockTiles, but queues VRAM updates for each visible tile so the change is visually animated rather than instant.
+; Layer 0 path (loc_02A3EF): copies mapLayerTilemap + collisionLayer, calls QueueVisibleTileVram with pixel positions $1A (X) / $1E (Y). Carry set (off-screen) advances to the next tile. Z set with carry clear (queue full) advances, writes the zero terminator at $0800+Y, calls UpdateFrameDialogue so the NMI flushes the queue, and restarts from the current tile with Y = 0.
 ; 
-; The loop structure is more complex than the instant swap:
-; - For each tile, after swapping map data, calls QueueVisibleTileVram to check visibility and queue the 2×2 metatile VRAM data
-; - When the queue fills up ($0100 bytes = 16 metatiles, indicated by Z flag), writes a zero sentinel to the queue, calls UpdateFrameDialogue to flush the display, then restarts the loop from the current position
-; - When a tile is off-screen (carry set from QueueVisibleTileVram), advances to the next tile without queuing
+; Layer 1 path (code_02A443): copies effectLayerTilemap, resolves collision through [$3E] like CopyEventBlockTiles, and has its own inline visibility test (effectScrollH / effectScrollV) and queue code (metatileEffectLayer, VRAM address + $0800). When its queue fills and tiles remain it writes the terminator and returns carry clear: the caller must flush a frame and call again.
 ; 
-; Layer 0 path: Swaps mapLayerTilemap + collisionLayer, calls QueueVisibleTileVram. Uses pixel positions $1A (X) and $1E (Y) for visibility testing.
-; 
-; Layer 1 path (code_02A443): Swaps effectLayerTilemap, resolves collision via [$3E] indirect (same as SwapEventBlockTiles). Visibility check compares pixel positions against bg1ScrollV and savedCameraDelta. On-screen tiles have their metatile data expanded from metatileEffectLayer ($7E2800) and queued to the VRAM write buffer with $0800 VRAM offset (BG2 nametable).
-; 
-; Returns carry set when all tiles are processed, carry clear if interrupted by queue full (caller should retry).
+; Returns carry set when every tile has been processed (terminator written), carry clear when interrupted by a full layer 1 queue. Uses DP = 0 and keeps all progress in $96-$A8, so a repeated call resumes where it stopped.
 
 AnimateEventBlock {
     PHX 
@@ -431,8 +418,8 @@ AnimateEventBlock {
     PLA 
     STA $mapLayerTilemap, X
     JSR $&QueueVisibleTileVram ; If tile visible, queue 2×2 metatile VRAM data for BG1 nametable
-    BCS loc_02A40E        ; Queue full (carry set) — must flush before continuing
-    BEQ loc_02A41C        ; Off-screen (BEQ) — skip VRAM queue, advance to next tile
+    BCS loc_02A40E        ; Carry set = tile off-screen, nothing queued: just advance to the next tile
+    BEQ loc_02A41C        ; Z set (carry clear) = queue full after queuing this tile: advance, then flush and restart
 
   loc_02A40E:
     REP #$20
@@ -484,14 +471,14 @@ AnimateEventBlock {
     PLA 
     STA $effectLayerTilemap, X
     REP #$20
-    LDA $1A               ; Viewport X: (pixelX+16 − bg1ScrollV) must be < $0111 (273px)
+    LDA $1A               ; L1 viewport X: (pixelX + 16 − effectScrollH) must be < $0111 (273 px)
     CLC 
     ADC #$0010
     SEC 
     SBC $effectScrollH
     CMP #$0111
     BCS loc_02A4DF
-    LDA $effectScrollV    ; Viewport Y origin: (savedCameraDelta − 16) aligned to 16px ($FFF0 mask)
+    LDA $effectScrollV    ; L1 viewport Y baseline: (effectScrollV − 16) AND $FFF0
     SEC 
     SBC #$0010
     AND #$FFF0
@@ -520,7 +507,7 @@ AnimateEventBlock {
     JSL $@map_coords.PixelToVramAddress ; PixelToVramAddress + $0800 → BG2 nametable VRAM write address
     CLC 
     ADC #$0800
-    STA $dmaSkipFlag, Y   ; Store VRAM addr to dmaSkipFlag slot; derive +1, +$1F, +$20 sibling addrs
+    STA $dmaSkipFlag, Y   ; VRAM address into queue slot $0800+Y; the other three entries get +1, +$20, +$21 (2×2 on a 32-wide nametable)
     INC 
     STA $0804, Y
     CLC 
@@ -556,7 +543,7 @@ AnimateEventBlock {
     BCS loc_02A503
 
   loc_02A4F9:
-    LDA #$0000            ; Animation complete — zero dmaSkipFlag sentinel, CLC return
+    LDA #$0000            ; L1 queue full, tiles remain: write the zero terminator and return CLC (caller flushes a frame and calls again)
     STA $dmaSkipFlag, Y
     PLD 
     PLX 
@@ -573,15 +560,13 @@ AnimateEventBlock {
 }
 
 ---------------------------------------------
-; Check tile visibility and queue metatile VRAM data for DMA update.
+; Queue the 2×2 metatile VRAM update for the tile at pixel position ($1A, $1E) if it is inside the camera window. Layer 0 only: X = map index of the tile in mapLayerTilemap, Y = queue offset (JSR, same bank).
 ; 
-; Tests whether a tile at pixel position ($1A, $1E) is within the camera viewport:
-; - X check: ($1A + 16 − bg1ScrollH) must be < $0111 (visible horizontal range)
-; - Y check: ($1E − (mapScrollV − 16, aligned to 16px)) must be >= 0 and < $00F1
+; Window test: (pixelX + 16 − bg1ScrollH) < $0111, and (pixelY − ((mapScrollV − 16) AND $FFF0)) in 0..$F0.
 ; 
-; If off-screen: returns carry set (PLP restores processor state). If on-screen: reads the mapLayerTilemap byte at map index X, multiplies by 8 (ASL×3) to index metatileMapLayer ($7E2000). Copies four 16-bit tile words from the metatile definition to the VRAM write queue at $0802+Y (top-left, top-right at +$02/+$06; bottom-left, bottom-right at +$0A/+$0E). Calls PixelToVramAddress to compute the VRAM nametable address, stores to dmaSkipFlag+Y.
+; On-screen: reads the mapLayerTilemap byte, ×8 indexes metatileMapLayer ($7E2000), copies its four tile words to $0802/$0806/$080A/$080E + Y, and stores PixelToVramAddress (BG1 nametable) and the +1 / +$20 / +$21 neighbours as the four address words ($0800/$0804/$0808/$080C + Y). Y advances by $10 per metatile.
 ; 
-; Queue index Y advances by $10 per metatile. Returns carry clear with Z flag set if queue is full ($0100), carry clear with NZ if successfully queued.
+; Returns: carry set = off-screen; carry clear + Z set = queue full (Y reached $0100, LDX #0 forces Z); carry clear otherwise (Z is inherited from the caller's flags, OQ-62). Also used by DrawChestTiles in warps_interaction.
 
 QueueVisibleTileVram {
     PHP 
@@ -620,7 +605,7 @@ QueueVisibleTileVram {
     LDA $7E2006, X
     STA $080E, Y
     JSL $@map_coords.PixelToVramAddress ; PixelToVramAddress → BG1 nametable VRAM destination
-    STA $dmaSkipFlag, Y   ; Queue VRAM addr + compute three adjacent row addresses for 2×2 write
+    STA $dmaSkipFlag, Y   ; VRAM address into queue slot $0800+Y; the other three entries get +1, +$20, +$21
     INC 
     STA $0804, Y
     CLC 
@@ -632,7 +617,7 @@ QueueVisibleTileVram {
     CLC 
     ADC #$0010
     TAY 
-    CMP #$0100            ; Queue full at Y=$0100 — return Z=1, X=0 (signals flush to caller)
+    CMP #$0100            ; Y reached $0100 = queue full (16 metatiles)
     BEQ loc_02A582
     PLP 
     CLC 
@@ -640,7 +625,7 @@ QueueVisibleTileVram {
 
   loc_02A582:
     PLP 
-    LDX #$0000            ; Queue full exit: reset X=0 for AnimateEventBlock restart path
+    LDX #$0000            ; Queue full: LDX #0 forces Z=1 for the caller's BEQ (X is not used afterwards; restart recomputes map indices) (inferred)
     RTS 
 
   loc_02A587:
@@ -683,9 +668,9 @@ AdvanceEventColumn {
 }
 
 ---------------------------------------------
-; Advance to the next row within an event block rectangle.
+; Advance to the next row of the event block rectangle.
 ; 
-; Decrements the row counter ($A0). If it reaches zero, returns carry set (SEC, all rows done). Otherwise: advances pixel Y ($1E) by 16, increments both source ($98) and destination ($9C) tile Y coordinates. Reloads the source X coordinate from the original event_block_table entry (indexed by $A8) to reset to the left edge of the rectangle. Resets the column counter ($9E) from the stored width ($A2). Returns carry clear (CLC, more rows remain).
+; Decrements the row counter ($A0); carry set (SEC) when all rows are done. Otherwise: pixel Y ($1E) += 16, source ($98) and destination ($9C) tile Y += 1, source X ($96) and destination X ($9A) are reloaded from the original event_block_table entry (offset kept in $A8, bytes +1 and +5), and the column counter ($9E) is reset from the width ($A2). Returns carry clear (more rows).
 
 AdvanceEventRow {
     SEC                   ; AdvanceEventRow: SEC preset — carry set when $A0 reaches 0

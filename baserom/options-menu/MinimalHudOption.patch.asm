@@ -79,7 +79,7 @@ LoadHudTilemap! {
 ;
 ; Entry: M = 8-bit (same as the original routine)
 ; Exit:  RTL without touching the HUD when suppressed; otherwise falls into the
-;        original body at loc_00820E, which immediately follows this block.
+;        original body at UpdateHUD_Active, which immediately follows this block.
 
 UpdateHUD! {
     LDA $hud_disable_flag
@@ -87,10 +87,10 @@ UpdateHUD! {
     BNE hud_update_suppress
     LDA $minimal_hud_setting
     BIT #$minimal_hud_off_bit
-    BNE loc_00820E              ; Minimal HUD off → proceed with HUD update
+    BNE UpdateHUD_Active              ; Minimal HUD off → proceed with HUD update
     LDA $playerFlags
     BIT #$combat_lock_bit       ; Bit 3 = combat lock (non-combat area)
-    BEQ loc_00820E              ; Combat area → proceed with HUD update
+    BEQ UpdateHUD_Active              ; Combat area → proceed with HUD update
 
   hud_update_suppress:
     RTL

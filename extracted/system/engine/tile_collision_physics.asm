@@ -29,7 +29,7 @@
 ; - High nibble ($F0): nonzero = immediately solid (wall)
 ; - Low nibble ($0F): tile type for dispatch table (0 = passable/check-adjacent, 1–F = solid)
 ; 
-; The map is stored as 256-byte pages of 16×16 tiles (a tile is 16×16 pixels). CalcTileMapOffset builds the offset as: high byte = page = (tileY >> 4) × mapRowStrideL0 ($0693) + (tileX >> 4); low byte = (tileY & $F) << 4 | (tileX & $F). So +$10 in the low byte steps one tile DOWN (+Y) and +1 steps one tile RIGHT (+X). AdvanceTileOffsetRight actually steps +Y and AdvanceTileOffsetDown steps +X: the names are swapped relative to their behavior (rename proposed).
+; The map is stored as 256-byte pages of 16×16 tiles (a tile is 16×16 pixels). CalcTileMapOffset builds the offset as: high byte = page = (tileY >> 4) × mapRowStrideL0 ($0693) + (tileX >> 4); low byte = (tileY & $F) << 4 | (tileX & $F). So +$10 in the low byte steps one tile DOWN (+Y) and +1 steps one tile RIGHT (+X). AdvanceTileOffsetY actually steps +Y and AdvanceTileOffsetX steps +X: the names are swapped relative to their behavior (rename proposed).
 ; 
 ; === HITBOX DATA ===
 ; 
@@ -371,7 +371,7 @@ CollisionY_Setup {
 ; 
 ; Switches DBR to the actor's sprite-data bank ($7F0008,X, the bank byte next to spritesetPtr, via PHA/PLB) so that $0000,Y reads the hitbox header; the collision map itself is read through the long pointer [$80]. Reads hitbox from metasprite header: height ($0003,Y) = vertical tile span, X offset ($0000,Y) = left edge (always negative, see header). Computes left-edge pixel X and validates against camera bounds; out-of-bounds positions are treated as type $0F (unconditional solid).
 ; 
-; Converts pixel coordinates to tile indices (>>4) and calls CalcTileMapOffset. Scans down the leading edge (+Y, via AdvanceTileOffsetRight) through $0E tiles: for each, reads the collision byte via [$80],Y. High nibble ($F0) nonzero = immediate solid → BlockH. Low nibble = tile type; type 0 with rows remaining → advance and continue. Otherwise (a nonzero type, or type 0 on the last row) dispatch through TileTypeJumpTable_Horizontal; type 0 then lands in CheckAdjacentH, which looks one row further when the actor is not tile-aligned in Y.
+; Converts pixel coordinates to tile indices (>>4) and calls CalcTileMapOffset. Scans down the leading edge (+Y, via AdvanceTileOffsetY) through $0E tiles: for each, reads the collision byte via [$80],Y. High nibble ($F0) nonzero = immediate solid → BlockH. Low nibble = tile type; type 0 with rows remaining → advance and continue. Otherwise (a nonzero type, or type 0 on the last row) dispatch through TileTypeJumpTable_Horizontal; type 0 then lands in CheckAdjacentH, which looks one row further when the actor is not tile-aligned in Y.
 ; 
 ; The PHA before the Y-to-tile conversion pushes the raw pixel Y for use by CheckAdjacentH's sub-tile alignment test.
 
@@ -438,7 +438,7 @@ TileCollision_MoveLeft {
     BNE loc_03D413
     DEC $0E
     BEQ loc_03D413
-    JSR $&AdvanceTileOffsetRight
+    JSR $&AdvanceTileOffsetY
     STY $00
     BRA loc_03D3F9
 
@@ -533,7 +533,7 @@ TileCollision_MoveRight {
     BNE loc_03D4A7
     DEC $0E
     BEQ loc_03D4A7
-    JSR $&AdvanceTileOffsetRight
+    JSR $&AdvanceTileOffsetY
     STY $00
     BRA loc_03D490
 
@@ -664,14 +664,14 @@ TileCollision_PassH {
 ; 
 ; Reads the stacked pixel Y ($01,S, pushed by MoveLeft/MoveRight) and tests the low 4 bits. If exactly on a tile boundary (bits = 0), passes through — the actor's edge covers only the scanned rows.
 ; 
-; If misaligned, the edge also overlaps one more row: AdvanceTileOffsetRight (+Y, one tile down) and test that byte via [$80],Y. If it is zero (empty), passes. If nonzero, jumps to BlockH.
+; If misaligned, the edge also overlaps one more row: AdvanceTileOffsetY (+Y, one tile down) and test that byte via [$80],Y. If it is zero (empty), passes. If nonzero, jumps to BlockH.
 
 TileCollision_CheckAdjacentH {
     TYX 
     LDA $01, S            ; Read pixel Y from stack (pushed in MoveLeft/Right)
     BIT #$000F            ; Low 4 bits = 0 → on exact tile boundary → pass through
     BEQ TileCollision_PassH
-    JSR $&AdvanceTileOffsetRight ; Misaligned in Y: also check the next row down (+Y)
+    JSR $&AdvanceTileOffsetY ; Misaligned in Y: also check the next row down (+Y)
     LDA [$80], Y
     AND #$00FF
     BEQ TileCollision_PassH
@@ -683,7 +683,7 @@ TileCollision_CheckAdjacentH {
 ; 
 ; Same structure as TileCollision_MoveLeft but for vertical movement. Uses hitbox width ($0002,Y) as the horizontal tile span to scan, and Y offset ($0001,Y) for the top edge. Computes X from $0000,Y + actor X.
 ; 
-; Scans along the top edge (+X, via AdvanceTileOffsetDown, whose name is misleading) through $0E tiles. Out-of-bounds Y positions are treated as type $0F (solid).
+; Scans along the top edge (+X, via AdvanceTileOffsetX) through $0E tiles. Out-of-bounds Y positions are treated as type $0F (solid).
 
 TileCollision_MoveUp {
     PHB                   ; Same pattern as MoveLeft but for upward Y movement
@@ -734,7 +734,7 @@ TileCollision_MoveUp {
     LSR 
     LSR 
     STA $1C
-    JSL $@CalcTileMapOffset ; CalcTileMapOffset; scan horizontally via AdvanceTileOffsetDown
+    JSL $@CalcTileMapOffset ; CalcTileMapOffset; scan horizontally via AdvanceTileOffsetX
     STY $00
 
   loc_03D5B2:
@@ -748,7 +748,7 @@ TileCollision_MoveUp {
     BNE loc_03D5CC
     DEC $0E
     BEQ loc_03D5CC
-    JSR $&AdvanceTileOffsetDown
+    JSR $&AdvanceTileOffsetX
     STY $00
     BRA loc_03D5B2
 
@@ -836,7 +836,7 @@ TileCollision_MoveDown {
     BNE loc_03D656
     DEC $0E
     BEQ loc_03D656
-    JSR $&AdvanceTileOffsetDown
+    JSR $&AdvanceTileOffsetX
     STY $00
     BRA loc_03D63F
 
@@ -955,14 +955,14 @@ TileCollision_PassV {
 ---------------------------------------------
 ; Sub-tile boundary check for vertical type-0 tiles.
 ; 
-; Same logic as TileCollision_CheckAdjacentH but for vertical movement: tests low 4 bits of the stacked pixel X (pushed by MoveUp/MoveDown). If misaligned, also checks the tile to the right (+X, AdvanceTileOffsetDown). Nonzero → BlockV, zero → pass.
+; Same logic as TileCollision_CheckAdjacentH but for vertical movement: tests low 4 bits of the stacked pixel X (pushed by MoveUp/MoveDown). If misaligned, also checks the tile to the right (+X, AdvanceTileOffsetX). Nonzero → BlockV, zero → pass.
 
 TileCollision_CheckAdjacentV {
     TYX 
     LDA $01, S            ; Stacked pixel X: sub-tile alignment test
     BIT #$000F
     BEQ TileCollision_PassV
-    JSR $&AdvanceTileOffsetDown ; Misaligned in X: also check the next tile to the right (+X)
+    JSR $&AdvanceTileOffsetX ; Misaligned in X: also check the next tile to the right (+X)
     LDA [$80], Y
     AND #$00FF
     BEQ TileCollision_PassV
@@ -1021,9 +1021,9 @@ CheckActorOnSpecialTile {
     BEQ loc_03D758
     CMP #$0006            ; Type $06 → verify right + down diagonal also $06
     BNE loc_03D782
-    JSR $&AdvanceTileOffsetRight ; +Y (one tile down)
+    JSR $&AdvanceTileOffsetY ; +Y (one tile down)
     STY $00
-    JSR $&AdvanceTileOffsetDown
+    JSR $&AdvanceTileOffsetX
     LDA [$80], Y
     AND #$00FF
     CMP #$0006
@@ -1033,14 +1033,14 @@ CheckActorOnSpecialTile {
   loc_03D758:
     LDA $00               ; Type $00: save offset, check right (+X) for $09, then below (+Y) for $09
     STA $02
-    JSR $&AdvanceTileOffsetDown
+    JSR $&AdvanceTileOffsetX
     LDA [$80], Y
     AND #$00FF
     CMP #$0009
     BNE loc_03D782
     LDA $02
     STA $00
-    JSR $&AdvanceTileOffsetRight
+    JSR $&AdvanceTileOffsetY
     LDA [$80], Y
     AND #$00FF
     CMP #$0009
@@ -1066,7 +1066,7 @@ CheckActorOnSpecialTile {
 ---------------------------------------------
 ; Convert tile coordinates ($18 = X, $1C = Y) to a tile map byte offset in Y.
 ; 
-; The map is stored as 256-byte pages of 16×16 tiles. The offset's low byte is (tileY & $F) << 4 | (tileX & $F) (row-major inside the page); its high byte is the page number = (tileY >> 4) × mapRowStrideL0 + (tileX >> 4), where the product comes from hardware SignedMultiply (A low byte = stride, B = tileY >> 4 left over from the shift). Returns the 16-bit offset in Y.
+; The map is stored as 256-byte pages of 16×16 tiles. The offset's low byte is (tileY & $F) << 4 | (tileX & $F) (row-major inside the page); its high byte is the page number = (tileY >> 4) × mapRowStrideL0 + (tileX >> 4), where the product comes from hardware Multiply8x8Unsigned (A low byte = stride, B = tileY >> 4 left over from the shift). Returns the 16-bit offset in Y.
 ; 
 ; The tile map is accessed via long pointer [$80] which points to the current scene's collision data.
 
@@ -1079,8 +1079,8 @@ CalcTileMapOffset {
     ASL 
     PHA 
     SEP #$20
-    LDA $mapRowStrideL0   ; A = stride, B = page row → SignedMultiply gives stride × page row (the high byte of the offset)
-    JSL $@hardware_math.SignedMultiply
+    LDA $mapRowStrideL0   ; A = stride, B = page row → Multiply8x8Unsigned gives stride × page row (the high byte of the offset)
+    JSL $@hardware_math.Multiply8x8Unsigned
     STA $02, S
     LDA $18               ; X tile low nibble = column inside the page; add to low byte
     AND #$0F
@@ -1101,11 +1101,11 @@ CalcTileMapOffset {
 }
 
 ---------------------------------------------
-; Advance the tile map offset one tile DOWN (+Y) despite the name (rename proposed: AdvanceTileOffsetY).
+; Advance the tile map offset one tile DOWN (+Y).
 ; 
 ; Adds $10 to the low byte of $00 — the next row inside the 16×16 page. If the addition carries (crossed the page's bottom edge), adds mapRowStrideL0 to the high byte to reach the same column of the next page row. Result in Y. Same operation as map_coords.MapIndexMoveDown.
 
-AdvanceTileOffsetRight {
+AdvanceTileOffsetY {
     PHP 
     LDA $00               ; Add $10 to the low byte: next tile row (+Y)
     SEP #$20
@@ -1127,11 +1127,11 @@ AdvanceTileOffsetRight {
 }
 
 ---------------------------------------------
-; Advance the tile map offset one tile RIGHT (+X) despite the name (rename proposed: AdvanceTileOffsetX).
+; Advance the tile map offset one tile RIGHT (+X).
 ; 
 ; Increments the low nibble of $00 — the next column inside the 16×16 page. If the low nibble wraps to zero, the page's right edge was crossed: the carry has bumped the row nibble, so +$F0 undoes it, and the high byte is incremented (next page column). Result in Y. Same operation as map_coords.MapIndexMoveRight.
 
-AdvanceTileOffsetDown {
+AdvanceTileOffsetX {
     PHP 
     SEP #$20
     LDA $00               ; Increment the low nibble: next column (+X) inside the page

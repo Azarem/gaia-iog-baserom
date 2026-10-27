@@ -1,3 +1,18 @@
+; Event-flag and WRAM-flag bit helpers (Bank $00).
+; 
+; All flags live in one bit array starting at eventFlags ($0A00): flag N is bit (N AND 7) of byte $0A00 + N÷8 (masks from bitmasks_bit_position). Flag indices are 16-bit. The helper names carry the base that is added to the index in A:
+;   $0000 (…Raw: TestFlagRaw/SetFlagRaw/ClearFlagRaw) — bytes $0A00–$0A1F; the index is masked to a byte
+;   $0100 (…_0100) — bytes $0A20–$0A3F, event/trigger flags: StandardEnemyDefeatHandler, EnemyDefeatDispatch and some boss/puzzle actors; this is the 32-byte field that event_blocks.ApplyAllEventBlocks scans, so flag $0100+n triggers event block n
+;   $0200 (…_0200) — bytes $0A40–$0A5F, persistent world events: chests opened (byte 3 of scene_chest_table records) and hidden Red Jewels
+;   $0300 (…_0300) — bytes $0A60–$0A7F, one flag per scene ID: the scene's clear reward has been claimed (radar, StandardEnemyDefeatHandler, boss_clear_reward_handler)
+;   $0400 (SetWramFlag/TestWramFlag) — bytes $0A80–$0A9F = wramFlags, 256 flags indexed by enemy number (SetDungeonKillFlag, CheckEnemyDefeatedFlag); ClearAllWramFlags zero-fills exactly this block
+;   $0500 (TestWramFlag_Offset100/SetWramFlag_Offset100 with index 0–7, and TestFlag_0510) — bytes $0AA0 and up: boss reward flags $0500–$0507 and ability unlock flags $0510+ (TestAbilityFlag: characterForm×4 + slot)
+; 
+; wramFlags is therefore just the $0400–$04FF slice of the event flag array, accessed with its own base. ClearAllWramFlags is called only by WorldMapController (on entering the world map) and by the scripts st68_kara and sp58_red_eye, and game_over_sequence clears the same block inline on a true death; no reset at ordinary scene changes was found, so these flags outlive a single scene (OQ-67). The _Offset100 variants add $0100 to the index and so land at $0AA0, outside the cleared block (OQ-68).
+; 
+; Calling convention: the flag index is in A (16-bit); the core routines (SetEventFlag, ClearEventFlag, TestEventFlag, SetWramFlag, TestWramFlag) are JSR-only, preserve X, clobber Y and WRAM scratch $0000, and the Test routines return carry = flag set and A = the isolated bit. The JSL wrappers add the base and call the cores. TestWramFlag has no caller outside this file (CheckEnemyDefeatedFlag in actor_execution repeats the logic inline with its own BitMaskTable_Wram).
+---------------------------------------------
+
 ?BANK 00
 
 !L_wramFlags                    000A80
@@ -6,23 +21,25 @@
 
 ---------------------------------------------
 
-; JSL helper (not COP-dispatched) that tests a WRAM flag in the $0100–$0107 bit-flag range. Expects the flag index (0–7) in A, masks to three bits, adds base $0100, and calls TestWramFlag; returns carry set if the flag is set, carry clear otherwise. Used by boss and dungeon scripts to check defeat/reward flags.
+; JSL helper (not COP-dispatched) that tests wramFlags bit $0100 + (A AND 7) and returns carry set when the flag is set.
+; 
+; Index $0100–$0107 gives byte index $20, so it reads $0A80 + $20 = $0AA0 (event flags $0500–$0507) — outside the $20-byte block that ClearAllWramFlags clears (OQ-68). Callers: boss_clear_reward_handler and the boss lair scripts (castoth, sand fanger, vampires, mummy queen, viper) to check a boss's reward/defeat flag.
 
 TestWramFlag_Offset100 {
     AND #$0007            ; Mask to 3-bit flag index (0–7)
     CLC 
-    ADC #$0100            ; Add $0100 base for boss/dungeon flag region
+    ADC #$0100            ; Index $0100+n → byte wramFlags+$20 = $0AA0 (flags $0500-$0507), outside the block ClearAllWramFlags clears (OQ-68)
     JSR $&TestWramFlag    ; Call TestWramFlag to check flag in $0A80 bitfield
     RTL 
 }
 
 ---------------------------------------------
-; JSL helper that sets a WRAM flag at base $0100. Masks the index to 3 bits, adds $0100, and calls SetWramFlag. Pairs with TestWramFlag_Offset100 for boss/dungeon defeat flags.
+; JSL helper that sets wramFlags bit $0100 + (A AND 7) (byte $0AA0, event flags $0500–$0507). Pairs with TestWramFlag_Offset100; the only caller is boss_clear_reward_handler, which marks a boss as rewarded.
 
 SetWramFlag_Offset100 {
     AND #$0007
     CLC 
-    ADC #$0100
+    ADC #$0100            ; Index $0100+n → byte $0AA0 (flags $0500-$0507), see TestWramFlag_Offset100
     JSR $&SetWramFlag
     RTL 
 }
@@ -166,7 +183,7 @@ bitmasks_bit_position [
 ]
 ---------------------------------------------
 
-; JSL helper (not COP-dispatched) that sets a persistent event flag in the $0200+ eventFlags array. Expects the flag index in A, adds base $0200, and calls SetEventFlag to OR the corresponding bit. Called from warps_interaction chest handling and hidden_red_jewel to permanently mark one-shot world events.
+; JSL helper that sets persistent event flag $0200 + A (bytes $0A40–$0A5F) via SetEventFlag. A is not masked, so callers must pass a 0–$FF index. Callers: warps_interaction (chest opened) and hidden_red_jewel.
 
 SetEventFlag_0200 {
     CLC 
@@ -188,34 +205,34 @@ TestEventFlag_0200 {
 }
 
 ---------------------------------------------
-; JSL helper that tests an event flag at base $0300 (scene-scoped flags). Masks to byte, adds $0300, and calls TestEventFlag.
+; JSL helper that tests event flag $0300 + (A AND $FF), bytes $0A60–$0A7F. Most callers pass a scene ID: the flag means this scene's clear reward was already claimed.
 
 TestFlag_0300 {
     AND #$00FF
     CLC 
-    ADC #$0300            ; Add $0300 base: scene-scoped state flags
+    ADC #$0300            ; $0300 + scene ID → bytes $0A60-$0A7F (one flag per scene)
     JSR $&TestEventFlag
     RTL 
 }
 
 ---------------------------------------------
-; JSL helper that sets an event flag at base $0300 (scene-scoped flags). Masks to byte, adds $0300, and calls SetEventFlag.
+; JSL helper that sets event flag $0300 + (A AND $FF); used to mark a scene's clear reward as claimed (reward_actors, boss_clear_reward_handler).
 
 SetFlag_0300 {
     AND #$00FF
     CLC 
-    ADC #$0300            ; Add $0300 base: set scene-scoped flag
+    ADC #$0300            ; $0300 + scene ID → bytes $0A60-$0A7F
     JSR $&SetEventFlag
     RTL 
 }
 
 ---------------------------------------------
-; JSL helper that tests an event flag at base $0510 (late-game progression). Masks to byte, adds $0510, and calls TestEventFlag.
+; JSL helper that tests event flag $0510 + (A AND $FF). inventory_menu's TestAbilityFlag is the only caller: index = characterForm×4 + slot, so these are the ability unlock flags.
 
 TestFlag_0510 {
     AND #$00FF
     CLC 
-    ADC #$0510            ; Add $0510 base: late-game progression flags
+    ADC #$0510            ; $0510+: ability unlock flags (characterForm×4 + slot)
     JSR $&TestEventFlag
     RTL 
 }
@@ -248,7 +265,9 @@ ClearFlagRaw {
 }
 
 ---------------------------------------------
-; JSL helper that zero-fills the entire $20-byte wramFlags region at $0A80. Uses a word-wide STA loop (16 iterations × 2 bytes = 32 bytes). Called on scene transitions to reset all temporary WRAM flags.
+; JSL helper that zero-fills the $20-byte wramFlags block ($0A80–$0A9F, event flags $0400–$04FF) with a word loop (16 iterations).
+; 
+; Callers: WorldMapController (twice, when the world map is entered), st68_kara and sp58_red_eye; game_over_sequence clears the same $20 bytes inline on a true death. No call at ordinary scene changes was found (OQ-67).
 
 ClearAllWramFlags {
     PHX 
@@ -266,34 +285,34 @@ ClearAllWramFlags {
 }
 
 ---------------------------------------------
-; JSL helper that sets an event flag at base $0100 (boss/dungeon defeat flags). Masks to byte, adds $0100, and calls SetEventFlag.
+; JSL helper that sets event/trigger flag $0100 + (A AND $FF), bytes $0A20–$0A3F (callers: StandardEnemyDefeatHandler, EnemyDefeatDispatch, wall walker, mystic ball).
 
 SetFlag_0100 {
     AND #$00FF
     CLC 
-    ADC #$0100            ; Add $0100 base: boss/dungeon defeat flags
+    ADC #$0100            ; $0100+n: event/trigger flags (bytes $0A20-$0A3F)
     JSR $&SetEventFlag
     RTL 
 }
 
 ---------------------------------------------
-; JSL helper that clears an event flag at base $0100. Masks to byte, adds $0100, and calls ClearEventFlag.
+; JSL helper that clears event/trigger flag $0100 + (A AND $FF). No caller was found in the extracted code.
 
 ClearFlag_0100 {
     AND #$00FF
     CLC 
-    ADC #$0100            ; Add $0100 base: clear boss/dungeon defeat flag
+    ADC #$0100            ; $0100+n: clear an event/trigger flag
     JSR $&ClearEventFlag
     RTL 
 }
 
 ---------------------------------------------
-; JSL helper that tests an event flag at base $0100. Masks to byte, adds $0100, and calls TestEventFlag.
+; JSL helper that tests event/trigger flag $0100 + (A AND $FF), bytes $0A20–$0A3F (callers include StandardEnemyDefeatHandler, EnemyDefeatDispatch, wall walker, mystic ball and the pyramid Dark Space portal).
 
 TestFlag_0100 {
     AND #$00FF
     CLC 
-    ADC #$0100            ; Add $0100 base: test boss/dungeon flag
+    ADC #$0100            ; $0100+n: test an event/trigger flag
     JSR $&TestEventFlag
     RTL 
 }

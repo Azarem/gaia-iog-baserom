@@ -1608,7 +1608,7 @@ sub_0B9CE8 {
   loc_0B9CF9:
     XBA 
     LDA $orbitDiameter, X
-    JSL $@hardware_math.SignedMultiply
+    JSL $@hardware_math.Multiply8x8Unsigned
     REP #$20
     XBA 
     AND #$00FF

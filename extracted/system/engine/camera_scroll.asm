@@ -1,17 +1,19 @@
 ; Camera scroll actor definitions and shared subroutines (Bank 00).
 ; 
-; Defines four actor-based camera scroll behaviors used during gameplay and cutscenes. Each scroll actor sets bit 12 ($1000) in the actor status word as a camera-active flag, then computes per-frame scroll deltas using the hardware multiply/divide unit (MulDivide).
+; Defines four actor-based camera scroll behaviors used during gameplay and cutscenes. Each actor sets bit 12 ($1000) of its status word ($12; the meaning of that bit was not verified) and then computes per-frame scroll deltas with the hardware multiply/divide unit (MulDivide).
+; 
+; Spawn parameters: the X/Y bytes of the actor-spawn entry are not positions. The spawner makes them pixel coordinates (tile × 16); TileAlignCoord then packs each into (page << 8 | tile) and ComputeScrollDeltas passes it to MulDivide as the packed operand: low byte = multiplier, high byte = divisor. Zero skips the axis. Spawn bytes seen in extracted/: #11 (most common), #21, #41, #00, #DF (Init only). The −8 px X offset makes the X multiplier one less than the Y one for the same spawn byte (OQ-57).
 ; 
 ; The four scroll modes are:
-; - ScrollCameraInit: Initialization mode — aligns camera to tile grid with centering offsets, runs a 3-iteration ramp-up loop computing deltas, saves the initial Y delta, then sets a forced X scroll override (bit 15 set) and clears the normal X delta.
-; - ScrollCameraTrack: Continuous tracking — aligns position to tile grid each frame, then recomputes both X and Y scroll deltas via MulDivide.
-; - ScrollCameraVertical: Vertical-only tracking — aligns position but only computes the Y axis delta, leaving horizontal scrolling unchanged.
-; - ScrollCameraAccumulate: Additive accumulation mode — computes deltas and adds running accumulated offsets from DP $24/$26 to both axes.
+; - ScrollCameraInit: aligns both coordinates, runs the delta computation 3 times (identical inputs), copies the Y delta to effectScrollV, then computes once more and moves cameraDeltaX (bit 15 set) into forcedScrollOverride, zeroing cameraDeltaX. Used only with spawn #DF, #DF.
+; - ScrollCameraTrack: aligns once, then recomputes both deltas every frame.
+; - ScrollCameraVertical: aligns once, then recomputes only the Y delta every frame (X ignored).
+; - ScrollCameraAccumulate: recomputes both deltas every frame and adds the accumulators in DP $24/$26 (zeroed at start, writable by other actors).
 ; 
 ; Shared subroutines:
-; - TileAlignCoord: Converts a pixel coordinate to a tile-grid-aligned value by shifting right 4 bits and masking to $0F0F.
-; - TileAlignPosition: Applies TileAlignCoord to both X ($14, with −8px centering offset) and Y ($16) parameters.
-; - ComputeScrollDeltas: Uses JSL to hardware_math.MulDivide to compute scroll velocity for each axis from the camera target positions and speed parameters.
+; - TileAlignCoord: packs a pixel coordinate into (page << 8 | tile): LSR ×4 in 8-bit mode shifts only the low byte, the high byte is kept, then AND #$0F0F. Result in Y.
+; - TileAlignPosition: applies TileAlignCoord to X ($14, after subtracting 8) and Y ($16).
+; - ComputeScrollDeltas: for each axis, MulDivide(A = packed ratio from $14/$16, Y = cameraTargetX/Y) → cameraDeltaX/Y; an axis whose packed value is 0 is skipped and keeps its previous delta.
 ---------------------------------------------
 
 ?BANK 00
@@ -27,15 +29,13 @@
 
 ---------------------------------------------
 
-; Camera initialization scroll actor.
+; Camera initialization scroll actor (spawn #DF, #DF; Mt. Kress scenes).
 ; 
-; Sets bit 12 ($1000) in actor status as a camera-active flag. Subtracts centering offsets (−8px X, −16px Y) from position parameters and aligns both axes to the 16×16 tile grid via TileAlignCoord.
+; Sets bit 12 ($1000) in the actor status word, subtracts 8 px (X) and 16 px (Y) from the position parameters and packs both with TileAlignCoord into the multiplier/divisor words $14/$16.
 ; 
-; Runs a 3-iteration ramp-up loop (COP LoopInit with count 3) that computes scroll deltas each iteration via ComputeScrollDeltas. After the loop, saves the final Y delta to savedCameraDelta ($0690).
+; Runs COP LoopStart with count 3 around ComputeScrollDeltas; all three passes use the same inputs, so they give the same result. After the loop, copies cameraDeltaY to effectScrollV ($0690).
 ; 
-; Then sets the actor entry point (COP SetEntryHere) for per-frame execution, computes deltas one more time, and forces the X scroll by writing cameraDeltaX with bit 15 set to forcedScrollOverride ($06C8). The normal cameraDeltaX is zeroed since the forced override takes precedence.
-; 
-; Used during scene transitions where the camera needs to snap to a position, ramp up smoothly, then maintain a forced horizontal scroll.
+; Then sets the re-entry point (COP SetEntryHere), computes the deltas again each frame, ORs bit 15 into cameraDeltaX and stores it in forcedScrollOverride ($06C8), and zeroes cameraDeltaX. Outside visual_effect_pipeline no reader of $06C8 was found in extracted/ (OQ-57).
 
 ScrollCameraInit [
   actor-def < #00, #00, #2C, {
@@ -50,20 +50,20 @@ ScrollCameraInit [
     STA $14
     LDA $16
     SEC 
-    SBC #$0010            ; Subtract 16px to center camera Y above player sprite top
+    SBC #$0010            ; Subtract 16 px (Y offset) before packing
     JSR $&TileAlignCoord
     STA $16
-    COP [LoopStart] ( #03 ) ; Initialize 3-iteration scroll ramp-up loop via COP LoopInit
+    COP [LoopStart] ( #03 ) ; COP LoopStart(3): repeat the next block 3 times (same inputs each pass)
     JSR $&ComputeScrollDeltas
-    LDA $cameraDeltaY     ; Load initial Y scroll delta to savedCameraDelta before entering per-frame loop
+    LDA $cameraDeltaY     ; Copy the Y delta to effectScrollV ($0690, layer-1 vertical effect scroll)
     STA $effectScrollV
     COP [LoopEnd]
-    COP [SetEntryHere]    ; Set actor re-entry point; yields then continues computing deltas each frame
+    COP [SetEntryHere]    ; Set the re-entry point: later frames resume here
     JSR $&ComputeScrollDeltas
     LDA $cameraDeltaX
-    ORA #$8000            ; Bit 15 marks this value as a forced scroll override
-    STA $forcedScrollOverride ; Store to forcedScrollOverride ($06C8); engine applies this directly instead of normal delta
-    STZ $cameraDeltaX     ; Clear normal cameraDeltaX since forced override takes precedence
+    ORA #$8000            ; Set bit 15 on the X delta
+    STA $forcedScrollOverride ; Store in forcedScrollOverride ($06C8); no reader outside visual_effect_pipeline was found (OQ-57)
+    STZ $cameraDeltaX     ; Zero cameraDeltaX after moving its value into the override word
     RTL 
 } >
 ]
@@ -71,9 +71,9 @@ ScrollCameraInit [
 
 ; Simple continuous camera tracking actor.
 ; 
-; Sets the camera-active flag, aligns position parameters to the tile grid via TileAlignPosition, then enters a per-frame loop (COP SetEntryHere). Each frame, both X and Y scroll deltas are recomputed by ComputeScrollDeltas using the current camera targets and speed parameters.
+; Sets bit 12 of the status word, packs the spawn position via TileAlignPosition, then re-runs ComputeScrollDeltas every frame (after COP SetEntryHere) with the current camera targets.
 ; 
-; The simplest scroll mode — used when the camera should smoothly follow the player with no special behavior.
+; The default camera actor: about 100 scene spawns use it (87 of them with #11, #11).
 
 ScrollCameraTrack [
   actor-def < #00, #00, #2C, {
@@ -89,9 +89,9 @@ ScrollCameraTrack [
 ]
 
 ---------------------------------------------
-; Vertical-only camera tracking actor-def referenced from scene_actors in Edward's Castle, Itory, Incan Ruins, and Dao.
+; Vertical-only camera tracking actor-def referenced from scene_actors in Edward's Castle, Itory, Incan Ruins and Dao.
 ; 
-; Sets camera-active flag $1000, tile-aligns position via TileAlignPosition, then loops with SetEntryHere computing only the Y scroll delta through MulDivide when speed parameter $16 is nonzero. Leaves cameraDeltaX unchanged from any prior scroll actor. X speed parameter $14 is ignored entirely.
+; Sets bit 12, packs the position via TileAlignPosition, then every frame computes only the Y delta through MulDivide when $16 is nonzero. cameraDeltaX is left unchanged and the X parameter ($14) is ignored. Three of its spawns use #21, #00, whose Y parameter is 0, so they compute nothing (OQ-57).
 
 ScrollCameraVertical [
   actor-def < #00, #00, #2C, {
@@ -101,10 +101,10 @@ ScrollCameraVertical [
     TSB $12
     JSR $&TileAlignPosition
     COP [SetEntryHere]
-    LDA $16               ; Check Y scroll speed parameter at DP $16; zero means no vertical scrolling needed
+    LDA $16               ; $16 = packed Y ratio; zero means this actor computes no vertical delta
     BEQ loc_00EAC2
     LDY $cameraTargetY
-    JSL $@hardware_math.MulDivide ; Compute vertical scroll delta = cameraTargetY × speed / scale via MulDivide
+    JSL $@hardware_math.MulDivide ; MulDivide: cameraDeltaY = cameraTargetY × multiplier ÷ divisor
     STA $cameraDeltaY
 
   loc_00EAC2:
@@ -115,7 +115,7 @@ ScrollCameraVertical [
 ---------------------------------------------
 ; Accumulative camera scroll actor-def used in Pyramid interior scenes.
 ; 
-; Initializes X/Y accumulator registers at DP $24 and $26 to zero, tile-aligns position, then each frame calls ComputeScrollDeltas and adds the accumulators to cameraDeltaX and cameraDeltaY. External actors can pre-load $24/$26 to inject extra drift on top of standard tracking.
+; Zeroes the accumulators at DP $24 (X) and $26 (Y), packs the position via TileAlignPosition, then each frame calls ComputeScrollDeltas and adds the accumulators to cameraDeltaX and cameraDeltaY. Other actors can write $24/$26 to add drift on top of the standard tracking.
 
 ScrollCameraAccumulate [
   actor-def < #00, #00, #24, {
@@ -142,30 +142,26 @@ ScrollCameraAccumulate [
 ]
 ---------------------------------------------
 
-; Converts a pixel coordinate to a tile-grid-aligned value.
+; Packs a pixel coordinate into (page << 8 | tile).
 ; 
-; Switches to 8-bit accumulator, shifts right 4 times (divides by 16 — the metatile width), then restores 16-bit mode and masks with $0F0F to isolate valid 4-bit tile indices in both the high and low bytes. The result is transferred to Y for the caller to store.
-; 
-; The 8-bit shift is key: by operating in 8-bit mode, the LSR operations independently divide the high and low bytes of the 16-bit value, producing two separate 4-bit tile indices packed into a word.
+; In 8-bit accumulator mode LSR ×4 shifts only the low byte (÷ 16, the tile index within a 256-px page); the hidden high byte (the page) is untouched. After returning to 16-bit mode, AND #$0F0F keeps the low nibble of each byte, and the result is transferred to Y for the caller to store.
 
 TileAlignCoord {
     SEP #$20              ; 8-bit mode: LSR operates independently on high and low bytes of the coordinate
-    LSR                   ; Shift right ×4: divide by 16 to convert pixel position to metatile grid index
+    LSR                   ; LSR ×4 on the low byte only: ÷ 16 = tile index within the 256-px page
     LSR 
     LSR 
     LSR 
-    REP #$20
-    AND #$0F0F            ; Mask $0F0F isolates 4-bit tile indices from both packed bytes
+    REP #$20              ; Back to 16-bit; the high byte (page) is unchanged
+    AND #$0F0F            ; Keep the low nibble of each byte: (page << 8 | tile)
     TAY 
     RTS 
 }
 
 ---------------------------------------------
-; Applies tile-grid alignment to both camera position parameters.
+; Applies TileAlignCoord to both position parameters.
 ; 
-; Subtracts 8 pixels from the X position ($14) to center the camera horizontally on the player sprite midpoint before aligning. The Y position ($16) is aligned without any centering offset.
-; 
-; Both axes are processed through TileAlignCoord, and the aligned results (in Y register) are stored back to their respective DP locations.
+; Subtracts 8 px from X ($14) before packing; Y ($16) is packed as is. The packed words are stored back to $14/$16, where ComputeScrollDeltas uses them as the multiplier (low byte) and divisor (high byte) for MulDivide.
 
 TileAlignPosition {
     LDA $14
@@ -180,24 +176,24 @@ TileAlignPosition {
 }
 
 ---------------------------------------------
-; Computes scroll velocity for both axes using the hardware multiply/divide unit.
+; Computes the scroll delta for both axes with the hardware multiply/divide unit.
 ; 
-; For each axis: loads the speed parameter ($14 for X, $16 for Y) and camera target position (cameraTargetX $06BE or cameraTargetY $06C2), then calls hardware_math.MulDivide via JSL. The result is stored to cameraDeltaX ($06C0) or cameraDeltaY ($06C4).
+; For each axis: A = the packed ratio in $14 (X) or $16 (Y), Y = cameraTargetX ($06BE) or cameraTargetY ($06C2); calls hardware_math.MulDivide via JSL, which returns (A low byte × Y) ÷ A high byte, and stores it in cameraDeltaX ($06C0) or cameraDeltaY ($06C4).
 ; 
-; If a speed parameter is zero, the corresponding MulDivide call and delta store are skipped entirely (the axis remains at its previous value). This allows selective axis computation — e.g., ScrollCameraVertical only sets $16 nonzero.
+; If the packed value is 0 the MulDivide call and the store are skipped and that axis keeps its previous delta.
 
 ComputeScrollDeltas {
     LDA $14               ; Load X scroll speed parameter; zero skips horizontal delta computation entirely
-    BEQ loc_00ED19
+    BEQ loc_00ED19        ; $14 = packed X ratio; zero skips the X delta
     LDY $cameraTargetX
-    JSL $@hardware_math.MulDivide ; MulDivide: cameraDeltaX = cameraTargetX × speed parameter / scale factor
+    JSL $@hardware_math.MulDivide ; MulDivide: cameraDeltaX = cameraTargetX × multiplier ÷ divisor
     STA $cameraDeltaX
 
   loc_00ED19:
     LDA $16               ; Load Y scroll speed parameter; zero skips vertical delta computation
     BEQ loc_00ED27
     LDY $cameraTargetY
-    JSL $@hardware_math.MulDivide ; MulDivide: cameraDeltaY = cameraTargetY × speed parameter / scale factor
+    JSL $@hardware_math.MulDivide ; MulDivide: cameraDeltaY = cameraTargetY × multiplier ÷ divisor
     STA $cameraDeltaY
 
   loc_00ED27:

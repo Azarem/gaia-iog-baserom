@@ -25,7 +25,7 @@
 ; | $15 | SkipScriptCommands | Skip remaining commands in current scene block |
 ; | $17 | SceneCmd_LoadCharTiles | Load character/object tiles with flexible VRAM targeting |
 ; 
-; Opcodes $00-$01, $07-$0D, $0F, $12, $16 all map to code_02845C (RTS, no-op).
+; Opcodes $00-$01, $07-$0D, $0F, $12, $16 all map to SceneCmd_Default (RTS, no-op).
 ; 
 ; === GRAPHICS PIPELINE ===
 ; 
@@ -40,7 +40,7 @@
 ; Three tile data formats:
 ; - Standard 2bpp/4bpp tiles (SceneCmd_LoadBgTiles mode 0)
 ; - Full 4bpp page load (Load4bppPage, mode 3)
-; - Priority-interleaved tiles (DeinterleavePlanarTiles → code_0285F3, used when layerPriorityFlag bit $0800 is set)
+; - Priority-interleaved tiles (DeinterleavePlanarTiles → InterleaveTilesPriority, used when layerPriorityFlag bit $0800 is set)
 ; 
 ; === GRAPHICS CACHE SYSTEM ===
 ; 
@@ -56,13 +56,13 @@
 ; 
 ; SceneCmd_FullGraphics handles complete scene setup including map dimensions:
 ; - Reads width ($00/$01) and height ($02/$03) from script data
-; - StoreMapAndDecompress sets map row stride, computes total map byte count via SignedMultiply, and decompresses tilemap data to the layer's tilemap base address
+; - StoreMapAndDecompress sets map row stride, computes total map byte count via Multiply8x8Unsigned, and decompresses tilemap data to the layer's tilemap base address
 ; - WriteMapBounds stores computed dimensions to mapBoundsX/mapBoundsY for the camera system
 ; - Dual-layer support: flag bit 0 selects layer 0 (primary tilemap at $7E:A000), flag bit 1 selects layer 1 (overlay at $7E:C000); bit 7 alone means "tileset only" (DmaLowVramTileset)
 ; 
 ; === TILEMAP ATTRIBUTE SYSTEM ===
 ; 
-; RebuildTilemapAttrs post-processes a loaded metatile definition table (4 tilemap words per metatile). For each metatile it lifts bit 9 out of the four words, clears it, merges the layer's priority/offset word ($06A2+X), and packs the four lifted bits into one flag byte in a bank-$7F table. ReloadMapData then uses that table, indexed by each map cell's metatile number, to fill the collision layer ($7F:C000).
+; BuildMetatileFlagTable post-processes a loaded metatile definition table (4 tilemap words per metatile). For each metatile it lifts bit 9 out of the four words, clears it, merges the layer's priority/offset word ($06A2+X), and packs the four lifted bits into one flag byte in a bank-$7F table. RebuildCollisionLayer then uses that table, indexed by each map cell's metatile number, to fill the collision layer ($7F:C000).
 ; 
 ; BuildAttributeTable creates a lookup table mapping metatile indices to their attribute bytes, referenced during deinterleaved tile rendering.
 ; 
@@ -151,7 +151,7 @@
 
 ---------------------------------------------
 
-; Main scene script interpreter. Saves processor state, calls FindCurrentScene to locate the current scene's command block, then enters a dispatch loop: ReadScriptByte → opcode $00 ends the scene (ReloadMapData unless sceneCurrent == $F7, then return) → otherwise index scene_script_jump_table and dispatch via the RTS trick (PEA return-1, load handler address, DEC, PHA, RTS). Script pointer lives at [$3A],Y throughout.
+; Main scene script interpreter. Saves processor state, calls FindCurrentScene to locate the current scene's command block, then enters a dispatch loop: ReadScriptByte → opcode $00 ends the scene (RebuildCollisionLayer unless sceneCurrent == $F7, then return) → otherwise index scene_script_jump_table and dispatch via the RTS trick (PEA return-1, load handler address, DEC, PHA, RTS). Script pointer lives at [$3A],Y throughout.
 
 SceneScriptMain {
     PHP                   ; Save processor state for scene script execution
@@ -177,7 +177,7 @@ SceneScriptMain {
     LDA $sceneCurrent     ; Check for scene $F7 (special case — skip map reload)
     CMP #$F7
     BEQ loc_0283E5
-    JSR $&ReloadMapData   ; Reload map data for normal scene transitions
+    JSR $&RebuildCollisionLayer ; Reload map data for normal scene transitions
 
   loc_0283E5:
     PLP 
@@ -185,7 +185,7 @@ SceneScriptMain {
 }
 
 ---------------------------------------------
-; Variant of SceneScriptMain used when reloading scene graphics without restarting music. Same dispatch loop, but after jump-table lookup compares the handler address against SpcMusicLoadCmd — on match, skips 5 operand bytes (INY ×5) instead of executing. Does not call ReloadMapData on scene end; simply restores state and returns.
+; Variant of SceneScriptMain used when reloading scene graphics without restarting music. Same dispatch loop, but after jump-table lookup compares the handler address against SpcMusicLoadCmd — on match, skips 5 operand bytes (INY ×5) instead of executing. Does not call RebuildCollisionLayer on scene end; simply restores state and returns.
 
 SceneScriptNoMusic {
     PHP                   ; Music-filtered variant — skips SpcMusicLoadCmd during scene load
@@ -224,32 +224,32 @@ SceneScriptNoMusic {
 }
 
 ---------------------------------------------
-; 24-entry word jump table mapping scene opcode indices ($00–$17) to handler addresses. Unused slots ($00–$01, $07–$0D, $0F, $12, $16) point to code_02845C (RTS no-op). Active handlers: $02=ConfigDisplay, $03=LoadBgTiles, $04=LoadTilemap, $05=LoadDualTilemap, $06=FullGraphics, $0E=Skip3, $10=LoadSpriteTiles, $11=SpcMusicLoad, $13=ConditionalLoad, $14=Nop, $15=SkipScriptCommands, $17=LoadCharTiles.
+; 24-entry word jump table mapping scene opcode indices ($00–$17) to handler addresses. Unused slots ($00–$01, $07–$0D, $0F, $12, $16) point to SceneCmd_Default (RTS no-op). Active handlers: $02=ConfigDisplay, $03=LoadBgTiles, $04=LoadTilemap, $05=LoadDualTilemap, $06=FullGraphics, $0E=Skip3, $10=LoadSpriteTiles, $11=SpcMusicLoad, $13=ConditionalLoad, $14=Nop, $15=SkipScriptCommands, $17=LoadCharTiles.
 
 scene_script_jump_table [
-  &code_02845C   ;00
-  &code_02845C   ;01
+  &SceneCmd_Default   ;00
+  &SceneCmd_Default   ;01
   &SceneCmd_ConfigDisplay   ;02
   &SceneCmd_LoadBgTiles   ;03
   &SceneCmd_LoadTilemap   ;04
   &SceneCmd_LoadDualTilemap   ;05
   &SceneCmd_FullGraphics   ;06
-  &code_02845C   ;07
-  &code_02845C   ;08
-  &code_02845C   ;09
-  &code_02845C   ;0A
-  &code_02845C   ;0B
-  &code_02845C   ;0C
-  &code_02845C   ;0D
+  &SceneCmd_Default   ;07
+  &SceneCmd_Default   ;08
+  &SceneCmd_Default   ;09
+  &SceneCmd_Default   ;0A
+  &SceneCmd_Default   ;0B
+  &SceneCmd_Default   ;0C
+  &SceneCmd_Default   ;0D
   &SceneCmd_Skip3   ;0E
-  &code_02845C   ;0F
+  &SceneCmd_Default   ;0F
   &SceneCmd_LoadSpriteTiles   ;10
   &SpcMusicLoadCmd   ;11
-  &code_02845C   ;12
+  &SceneCmd_Default   ;12
   &SceneCmd_ConditionalLoad   ;13
   &SceneCmd_Nop   ;14
   &SkipScriptCommands   ;15
-  &code_02845C   ;16
+  &SceneCmd_Default   ;16
   &SceneCmd_LoadCharTiles   ;17
 ]
 
@@ -283,7 +283,7 @@ SceneCmd_Nop {
 ---------------------------------------------
 ; Default scene-command handler: single RTS instruction. Jump-table target for all unimplemented opcode slots; consumes no operands.
 
-code_02845C {
+SceneCmd_Default {
     RTS 
 }
 
@@ -422,19 +422,19 @@ SceneCmd_LoadBgTiles {
 }
 
 ---------------------------------------------
-; Entry wrapper for DmaTileStripToVram. Saves processor state and BRA branches into DmaTileStripToVram. CheckInterleavedFlag is an alternate entry in the same block: if layerPriorityFlag bit $0800 is set, jumps to code_0285F3 for priority deinterleaving instead of a direct DMA.
+; Entry wrapper for DmaTileStripToVram. Saves processor state and BRA branches into DmaTileStripToVram. CheckInterleavedFlag is an alternate entry in the same block: if layerPriorityFlag bit $0800 is set, jumps to InterleaveTilesPriority for priority deinterleaving instead of a direct DMA.
 
 SceneDmaTileShim {
     PHP                   ; Entry shim: save state, branch to DMA routine
     BRA DmaTileStripToVram
 
-; Alternate entry within SceneDmaTileShim. Tests layerPriorityFlag bit $0800 — if set, jumps to code_0285F3 for planar-to-priority tile conversion; if clear, falls through to DmaTileStripToVram for a normal WRAM→VRAM tile strip transfer.
+; Alternate entry within SceneDmaTileShim. Tests layerPriorityFlag bit $0800 — if set, jumps to InterleaveTilesPriority for planar-to-priority tile conversion; if clear, falls through to DmaTileStripToVram for a normal WRAM→VRAM tile strip transfer.
 
   CheckInterleavedFlag:
     LDA $layerPriorityFlag ; Check layerPriorityFlag $0800 for interleaved tile mode
     BIT #$0800
     BEQ DmaTileStripToVram
-    JMP $&code_0285F3     ; Priority interleave active — jump to code_0285F3 for deinterleaving
+    JMP $&InterleaveTilesPriority ; Priority interleave active — jump to InterleaveTilesPriority for deinterleaving
 
 ; DMA a tile data strip from WRAM ($3E+$0664, bank $40) to VRAM. Sets VMADDL from $0668 (XBA for page alignment), transfer size = $0666 − $0664. Configures channel 0: mode $01 (two-register word write), B-bus $18 (VMDATAL), triggers MDMAEN.
 
@@ -502,7 +502,7 @@ Load4bppPage {
 }
 
 ---------------------------------------------
-; Initialize priority-deinterleave path: invalidates source-cache slots $066F, $067E, $0681, $0678 and $067B (zeroing addr-hi + bank at $0670/$067F/$0682/$0679/$067C), presumably because the interleaved $4000-byte upload to VRAM $0000 replaces what they describe, then decompresses tile data via QuintetLZ to $7000. Falls through into code_0285F3 for the actual bitplane interleaving pass.
+; Initialize priority-deinterleave path: invalidates source-cache slots $066F, $067E, $0681, $0678 and $067B (zeroing addr-hi + bank at $0670/$067F/$0682/$0679/$067C), presumably because the interleaved $4000-byte upload to VRAM $0000 replaces what they describe, then decompresses tile data via QuintetLZ to $7000. Falls through into InterleaveTilesPriority for the actual bitplane interleaving pass.
 
 DeinterleavePlanarTiles {
     STZ $srcCacheBgB+1    ; Invalidate source-cache slots $066F/$067E/$0681/$0678/$067B (zero addr-hi + bank of each)
@@ -518,7 +518,7 @@ DeinterleavePlanarTiles {
 ---------------------------------------------
 ; Deinterleave planar SNES 4bpp tiles into priority-split VRAM format. Sets data bank $7E, calls BuildAttributeTable, then processes $2000 bytes from $7000 in 8-byte chunks (one tile row per inner loop). For each of 8 pixel rows, ROL-cascades four bitplanes plus a per-pixel attribute bit from the lookup table into interleaved bytes at $7E:A000. Finishes with a $4000-byte DMA from $7E:A000 to VRAM $0000 via VMDATAH (mode $00, VMAIN=$80).
 
-code_0285F3 {
+InterleaveTilesPriority {
     PHY                   ; Save Y and switch bank to $7E for direct WRAM access
     PHB 
     SEP #$20
@@ -684,7 +684,7 @@ SceneCmd_LoadTilemap {
 }
 
 ---------------------------------------------
-; Load tilemaps for both BG layers from shared compressed source data. Reads three size operands (XBA + LSR×2 for >>2 scaling) plus flags byte $066A (bit 0 = layer 0, bit 1 = layer 1). Each active layer is checked against its source cache slot ($0678/$067B); cache hits clear that layer bit. If any layers remain: decompress once to $7000, then for each active layer DMA to $7E:2000 (layer 0) or $7E:2800 (layer 1) and call RebuildTilemapAttrs.
+; Load tilemaps for both BG layers from shared compressed source data. Reads three size operands (XBA + LSR×2 for >>2 scaling) plus flags byte $066A (bit 0 = layer 0, bit 1 = layer 1). Each active layer is checked against its source cache slot ($0678/$067B); cache hits clear that layer bit. If any layers remain: decompress once to $7000, then for each active layer DMA to $7E:2000 (layer 0) or $7E:2800 (layer 1) and call BuildMetatileFlagTable.
 
 SceneCmd_LoadDualTilemap {
     PHP 
@@ -752,7 +752,7 @@ SceneCmd_LoadDualTilemap {
     STA $44
     JSR $&DmaRomToWram
     LDX #$0000
-    JSR $&RebuildTilemapAttrs
+    JSR $&BuildMetatileFlagTable
 
   loc_0287A2:
     LSR $gfxLayerFlags    ; Shift to test layer 1 (bit 1 → carry)
@@ -763,7 +763,7 @@ SceneCmd_LoadDualTilemap {
     STA $44
     JSR $&DmaRomToWram
     LDX #$0002
-    JSR $&RebuildTilemapAttrs
+    JSR $&BuildMetatileFlagTable
 
   loc_0287BA:
     PLP 
@@ -873,7 +873,7 @@ SceneCmd_FullGraphics {
     XBA 
     LDA $03
     STA $0699
-    JSL $@hardware_math.SignedMultiply ; Compute layer 1 total byte count via SignedMultiply
+    JSL $@hardware_math.Multiply8x8Unsigned ; Compute layer 1 total byte count via Multiply8x8Unsigned
     STA $069D
     BRA loc_028894
 
@@ -886,7 +886,7 @@ SceneCmd_FullGraphics {
 }
 
 ---------------------------------------------
-; Store map parameters and decompress one layer's tilemap. X selects layer (0 = primary, 2 = secondary): stores row stride ($01) and column count ($03) to mapRowStrideL0+X / $0697+X, computes total byte count via SignedMultiply → $069B+X, then decompresses map data via QuintetLZ directly to mapTilemapBaseA+X. HandleEmptyGeometry is the alternate entry for zero-size compressed maps.
+; Store map parameters and decompress one layer's tilemap. X selects layer (0 = primary, 2 = secondary): stores row stride ($01) and column count ($03) to mapRowStrideL0+X / $0697+X, computes total byte count via Multiply8x8Unsigned → $069B+X, then decompresses map data via QuintetLZ directly to mapTilemapBaseA+X. HandleEmptyGeometry is the alternate entry for zero-size compressed maps.
 
 StoreMapAndDecompress {
     LDA $01               ; Load map row stride from data byte $01 to mapRowStrideL0+X
@@ -894,7 +894,7 @@ StoreMapAndDecompress {
     XBA 
     LDA $03               ; Load column count from $03 to $0697+X
     STA $0697, X
-    JSL $@hardware_math.SignedMultiply ; Compute total map byte count = stride × columns
+    JSL $@hardware_math.Multiply8x8Unsigned ; Compute total map byte count = stride × columns
     STA $069B, X
     REP #$20
     LDA $mapTilemapBaseA, X ; Load tilemap base address for this layer
@@ -903,14 +903,14 @@ StoreMapAndDecompress {
     SEP #$20
     RTS 
 
-; Handle scenes with empty (uncompressed/zero-size) map geometry. Computes map byte count from $01×$03 via SignedMultiply into $0666/$0667. For each active layer flag: DMAs raw map data via WriteMapBounds/DmaRomToWram. Layer 0 → $7E:A000; layer 1 only → $7E:C000; both layers → layer 0 first, then copies primary to overlay at $C000 and stores effectBoundsX/Y from map dimensions.
+; Handle scenes with empty (uncompressed/zero-size) map geometry. Computes map byte count from $01×$03 via Multiply8x8Unsigned into $0666/$0667. For each active layer flag: DMAs raw map data via WriteMapBounds/DmaRomToWram. Layer 0 → $7E:A000; layer 1 only → $7E:C000; both layers → layer 0 first, then copies primary to overlay at $C000 and stores effectBoundsX/Y from map dimensions.
 
   HandleEmptyGeometry:
     SEP #$20              ; Compute map byte count from dimensions without actual geometry data
     LDA $01
     XBA 
     LDA $03
-    JSL $@hardware_math.SignedMultiply
+    JSL $@hardware_math.Multiply8x8Unsigned
     STZ $gfxSrcEnd        ; Clear compressed size — no compressed data to transfer
     STA $0667
     LDA $gfxLayerFlags    ; Check layer 0 flag for DMA destination routing
@@ -1398,7 +1398,7 @@ SceneCmd_LoadSpriteTiles {
 }
 
 ---------------------------------------------
-; Load character/object tiles with flexible VRAM targeting. Reads flags $066A and source pointer; reads width×height words, SignedMultiply, then ×8 for tile byte size in $0666. Decompresses to $7000 if compressed pointer non-null. VRAM destination from flags: bit 7 = (flags & $7F)×4 absolute address; bit 0 = $1000 (PEA+RTS chains to bit 1 check); bit 1 = $1800; neither bit → return without DMA. Transfer: mode $01, B-bus $18, size $0666.
+; Load character/object tiles with flexible VRAM targeting. Reads flags $066A and source pointer; reads width×height words, Multiply8x8Unsigned, then ×8 for tile byte size in $0666. Decompresses to $7000 if compressed pointer non-null. VRAM destination from flags: bit 7 = (flags & $7F)×4 absolute address; bit 0 = $1000 (PEA+RTS chains to bit 1 check); bit 1 = $1800; neither bit → return without DMA. Transfer: mode $01, B-bus $18, size $0666.
 
 SceneCmd_LoadCharTiles {
     PHP 
@@ -1417,7 +1417,7 @@ SceneCmd_LoadCharTiles {
     INC $3E
     INC $3E
     SEP #$20
-    JSL $@hardware_math.SignedMultiply ; Compute tile byte count via SignedMultiply
+    JSL $@hardware_math.Multiply8x8Unsigned ; Compute tile byte count via Multiply8x8Unsigned
     REP #$20
     STA $00
     XBA 
@@ -2038,9 +2038,9 @@ DmaWramToVram {
 }
 
 ---------------------------------------------
-; Post-process a freshly loaded metatile definition table in WRAM bank $7E. X selects layer (0 or 2). Walks the tilemap words at $06AE+X (256 metatiles x 4 words; $0E starts at 0 so DEC wraps to 256 passes): for each word, lifts bit 9 out into a packed flag table and rewrites the word with bit 9 cleared (AND #$FDFF) and the layer merge word $06A2+X OR'd in (priority bit / tile offset from SceneCmd_ConfigDisplay). The four lifted bits of each group are combined via ASL/ORA/LSR into one byte stored through [$42] (pointer from $06AA+X, bank $7F), so the flag table holds one byte (low nibble = the four bit-9 flags, first tile in bit 0) per 2x2 metatile; ReloadMapLayer0/1 later index it by metatile number to fill the collision layer.
+; Post-process a freshly loaded metatile definition table in WRAM bank $7E. X selects layer (0 or 2). Walks the tilemap words at $06AE+X (256 metatiles x 4 words; $0E starts at 0 so DEC wraps to 256 passes): for each word, lifts bit 9 out into a packed flag table and rewrites the word with bit 9 cleared (AND #$FDFF) and the layer merge word $06A2+X OR'd in (priority bit / tile offset from SceneCmd_ConfigDisplay). The four lifted bits of each group are combined via ASL/ORA/LSR into one byte stored through [$42] (pointer from $06AA+X, bank $7F), so the flag table holds one byte (low nibble = the four bit-9 flags, first tile in bit 0) per 2x2 metatile; FillCollisionFromLayer0/OverlayCollisionFromLayer1 later index it by metatile number to fill the collision layer.
 
-RebuildTilemapAttrs {
+BuildMetatileFlagTable {
     PHP 
     SEP #$20              ; Switch to 8-bit for byte-level tilemap attribute extraction
     PHB 
@@ -2096,33 +2096,33 @@ RebuildTilemapAttrs {
 }
 
 ---------------------------------------------
-; Rebuild the collision layer after the scene script ends (skipped for scene $F7). Always runs ReloadMapLayer0; when scrollModeFlags bit 0 (dual-layer scene) is set, ReloadMapLayer1 overlays layer 1's flags.
+; Rebuild the collision layer after the scene script ends (skipped for scene $F7). Always runs FillCollisionFromLayer0; when scrollModeFlags bit 0 (dual-layer scene) is set, OverlayCollisionFromLayer1 overlays layer 1's flags.
 
-ReloadMapData {
+RebuildCollisionLayer {
     LDX #$0000            ; Reload layer 0 map data from external storage
-    JSR $&ReloadMapLayer0
+    JSR $&FillCollisionFromLayer0
     LDA $scrollModeFlags  ; Check scrollModeFlags bit 0 — dual-layer mode enables layer 1 reload
     BIT #$01
     BEQ loc_029033
     LDX #$0002            ; Reload layer 1 map data
-    JSR $&ReloadMapLayer1
+    JSR $&OverlayCollisionFromLayer1
 
   loc_029033:
     RTS 
 }
 
 ---------------------------------------------
-; Rebuild the collision layer ($7F:C000 = collisionLayer) from layer 0's metatile map. [$3E] = $7F:$06AA is the per-metatile flag table written by RebuildTilemapAttrs (page-aligned, one byte per metatile index). Cell count = mapRowStrideL0 x $0697 (SignedMultiply). For each cell: the metatile index byte at $7E:A000+i replaces the low byte of $3E, and the flag byte [$3E] is stored to $7F:2000+X = $7F:C000+i when X starts at mapTilemapBaseA ($A000).
+; Rebuild the collision layer ($7F:C000 = collisionLayer) from layer 0's metatile map. [$3E] = $7F:$06AA is the per-metatile flag table written by BuildMetatileFlagTable (page-aligned, one byte per metatile index). Cell count = mapRowStrideL0 x $0697 (Multiply8x8Unsigned). For each cell: the metatile index byte at $7E:A000+i replaces the low byte of $3E, and the flag byte [$3E] is stored to $7F:2000+X = $7F:C000+i when X starts at mapTilemapBaseA ($A000).
 
-ReloadMapLayer0 {
+FillCollisionFromLayer0 {
     LDY $collisionFlagTableL0 ; $3E/$3F = flag-table page for layer 0 (bank $7F via $40)
     STY $3E
     LDA #$7F
     STA $40
-    LDA $mapRowStrideL0   ; Cell count = row stride x $0697 (SignedMultiply)
+    LDA $mapRowStrideL0   ; Cell count = row stride x $0697 (Multiply8x8Unsigned)
     XBA 
     LDA $0697
-    JSL $@hardware_math.SignedMultiply
+    JSL $@hardware_math.Multiply8x8Unsigned
     XBA 
     TAY 
     BEQ loc_02905F
@@ -2142,17 +2142,17 @@ ReloadMapLayer0 {
 }
 
 ---------------------------------------------
-; Overlay layer 1's collision flags onto the same collision layer. Same structure as ReloadMapLayer0 but with the flag table at $06AC, mapRowStrideL1 x $0699 cells, start index from word $0080 (= $C000 via wram-init, equal to mapTilemapBaseB) and stores through animScratch ($7F:0000+X), which for X >= $C000 is again $7F:C000+i. Zero flag bytes are skipped so layer 0's collision value survives where layer 1 has nothing.
+; Overlay layer 1's collision flags onto the same collision layer. Same structure as FillCollisionFromLayer0 but with the flag table at $06AC, mapRowStrideL1 x $0699 cells, start index from word $0080 (= $C000 via wram-init, equal to mapTilemapBaseB) and stores through animScratch ($7F:0000+X), which for X >= $C000 is again $7F:C000+i. Zero flag bytes are skipped so layer 0's collision value survives where layer 1 has nothing.
 
-ReloadMapLayer1 {
+OverlayCollisionFromLayer1 {
     LDY $collisionFlagTableL1 ; $3E/$3F = flag-table page for layer 1 (bank $7F via $40)
     STY $3E
     LDA #$7F
     STA $40
-    LDA $mapRowStrideL1   ; Cell count = row stride x $0699 (SignedMultiply)
+    LDA $mapRowStrideL1   ; Cell count = row stride x $0699 (Multiply8x8Unsigned)
     XBA 
     LDA $0699
-    JSL $@hardware_math.SignedMultiply
+    JSL $@hardware_math.Multiply8x8Unsigned
     XBA 
     TAY 
     BEQ loc_02908D

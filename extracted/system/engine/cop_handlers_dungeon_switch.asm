@@ -1,6 +1,6 @@
 ; Dungeon kill-tracking and switch-case COP handlers (44162–44225, Bank 00).
 ; 
-; - SetDungeonKillFlag (COP #D8): records the current enemy's defeat in the scene-local wramFlags bitfield ($0A80).
+; - SetDungeonKillFlag (COP #D8): records the current enemy's defeat in the wramFlags bitfield ($0A80). That field is cleared only on world map entry, by two scripts and on game over, so a kill can outlive the room (OQ-67).
 ; - SwitchCase (COP #D9): computed jump through a word table in the script bank.
 ; 
 ; Both handlers return to the script by storing the next script address in the saved COP stack frame ($02,S) and executing RTI.
@@ -14,7 +14,7 @@
 
 ---------------------------------------------
 
-; COP #D8 with no script operands. Reads the actor's enemyNum ($7F:0022,X — the dungeon enemy number used for kill tracking) as a flag index and, when its low byte is non-zero, calls SetWramFlag to set that bit in the scene-local wramFlags bitfield ($0A80, cleared at scene boundaries), recording the kill. Index 0 is ignored.
+; COP #D8 with no script operands. Reads the actor's enemyNum ($7F:0022,X — the dungeon enemy number used for kill tracking) as a flag index and, when its low byte is non-zero, calls SetWramFlag to set that bit in the wramFlags bitfield ($0A80), recording the kill (cleared only as described in flag_helpers, OQ-67). Index 0 is ignored.
 
 SetDungeonKillFlag {
     TYX                   ; X = actor slot (CopDispatch left it in Y)

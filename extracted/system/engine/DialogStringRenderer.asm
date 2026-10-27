@@ -285,6 +285,9 @@ DialogCmd_SetPalette {
     RTS 
 }
 
+---------------------------------------------
+; Command that spins on a BRA to itself, deliberately halting the dialogue engine (NOPs pad the loop).
+
 DialogCmd_InfiniteLoop {
     NOP 
     NOP 
@@ -693,6 +696,9 @@ DialogCmd_ClearDialogueBox {
     RTS 
 }
 
+---------------------------------------------
+; Command with a 1-byte operand: waits that many frames through WaitNFrames_Entry, then skips the operand byte.
+
 DialogCmd_WaitFrames {
     PHY 
     LDA $0000, Y          ; 1-byte frame count operand → WaitNFrames_Entry
@@ -730,6 +736,9 @@ DialogCmd_NewLine {
     RTS 
 }
 
+---------------------------------------------
+; Command with a 1-byte operand: the amount is rounded down to an even byte count (whole tile words) and added to the VRAM buffer cursor X, which is also stored to $0998. An amount of 0 or 1 does nothing.
+
 DialogCmd_AdvanceCursor {
     PHY 
     LDA $0000, Y
@@ -750,6 +759,9 @@ DialogCmd_AdvanceCursor {
     INY 
     RTS 
 }
+
+---------------------------------------------
+; Command with a 3-byte operand (address, bank): saves the cursor to $0998, switches DBR to the operand bank, calls DialogStringRenderer recursively on that string, then restores the cursor and DBR and skips the operand.
 
 DialogCmd_InsertRemoteString {
     PHY 
@@ -869,11 +881,17 @@ DialogCmd_WaitForAnyInput {
     RTS 
 }
 
+---------------------------------------------
+; Command with a 2-byte operand: loads it into Y so the character loop continues at that address in the current bank.
+
 DialogCmd_JumpToAddress {
     LDA $0000, Y          ; 2-byte operand → set Y to new string address
     TAY 
     RTS 
 }
+
+---------------------------------------------
+; Command with a 1-byte operand: stores it as the per-character sound effect ID in $0996.
 
 DialogCmd_SetSfx {
     LDA $0000, Y
@@ -1064,6 +1082,9 @@ WaitNFrames_PerChar {
     PLP 
     RTS 
 }
+
+---------------------------------------------
+; Counts A down, calling UpdateFrameDialogue once per frame (the lightweight tick: audio and display, no game logic).
 
 WaitNFrames_Loop {
     PHA 

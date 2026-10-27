@@ -7,7 +7,7 @@
         "cop_handlers_thinker": { "start": 37888, "end": 38021, "type": "Code", "scene": "engine" },
         "cop_handlers_sprite": { "scene": "engine", "parts": {
             "ResetSpriteState": { "start": 39386, "end": 39527, "type": "Code" },
-            "StageSpr": { "start": 40483, "end": 41014, "type": "Code" }
+            "StageSpriteFrame": { "start": 40483, "end": 41014, "type": "Code" }
         } },
         "cop_handlers_player_sprite": { "start": 41014, "end": 41547, "type": "Code", "scene": "engine" },
         "cop_handlers_spawn": { "start": 41547, "end": 42462, "type": "Code", "scene": "engine" },
@@ -76,7 +76,7 @@
         } },
         "hardware_math": { "scene": "engine", "parts": {
             "MulDivide": { "start": 163840, "end": 163899, "type": "Code" },
-            "SignedMultiply": { "start": 164305, "end": 164464, "type": "Code" }
+            "Multiply8x8Unsigned": { "start": 164305, "end": 164464, "type": "Code" }
         } },
         "vblank_joypad": { "start": 163899, "end": 164305, "type": "Code", "scene": "engine" },
         "QuintetLzDecompress": { "start": 164464, "end": 164770, "type": "Code", "scene": "engine" },
@@ -142,13 +142,13 @@
         "inventory_statue_slot": { "start": 53033, "end": 53134, "type": "actor-def", "scene": "inventory", "movable": true },
         "math_lookup_tables": {
             "parts": {
-                "scene_flag_table": { "start": 115588, "end": 115797, "type": "Byte" },
+                "slope_curve_table": { "start": 115588, "end": 115797, "type": "Byte" },
                 "sine_table_8bit": { "start": 115797, "end": 115861, "type": "Byte" },
-                "signed_sine_table": { "start": 115861, "end": 116117, "type": "Byte" },
+                "signed_cosine_table_8bit": { "start": 115861, "end": 116117, "type": "Byte" },
                 "sine_table_16bit": { "start": 116117, "end": 116373, "type": "Word" },
                 "cosine_table_16bit": { "start": 116373, "end": 116629, "type": "Word" },
-                "signed_sine_table_16bit": { "start": 116629, "end": 117141, "type": "Word" },
-                "sine_table_16bit_quarter": { "start": 117141, "end": 117397, "type": "Word" }
+                "neg_sine_halfwave_16bit": { "start": 116629, "end": 117141, "type": "Word" },
+                "cosine_table_16bit_tail": { "start": 117141, "end": 117397, "type": "Word" }
             }
         },
         "music_pointer_array": { "start": 117670, "end": 117760, "type": "@Binary" },
@@ -1006,7 +1006,7 @@
         "enemy_clear_reward_table": { "start": 109278, "end": 109534, "type": "Byte" },
         "direction_velocity_table": { "start": 109534, "end": 109552, "type": "direction-velocity" },
         "enemy_stats_table": { "start": 109552, "end": 109992, "type": "enemy-stats" },
-        "scene_barrier_chest_table": { "start": 109992, "end": 110726, "type": "&chest-entry" },
+        "scene_chest_table": { "start": 109992, "end": 110726, "type": "&chest-entry" },
         "movement_delta_table": { "start": 110726, "end": 115588, "type": "&delta-node" },
         "dialog_template_table": { "start": 117397, "end": 117670, "type": "&DialogString" },
         "parallax_scroll_table": { "start": 117760, "end": 119758, "type": "&Binary" },
@@ -1031,7 +1031,7 @@
                 "misc_ui_strings": { "start": 125260, "end": 125711, "type": "&ConsoleString" }
             }
         },
-        "item_component_table": { "start": 125711, "end": 125864, "type": "&ConsoleString", "movable": true },
+        "shared_word_table": { "start": 125711, "end": 125864, "type": "&ConsoleString", "movable": true },
         "dialog_dictionaries": {
             "movable": true,
             "parts": {

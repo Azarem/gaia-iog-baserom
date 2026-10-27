@@ -1,3 +1,12 @@
+; Force-move COP handlers ($AA–$B1, 8 opcodes): stage movement delta chains and flip movement direction.
+; 
+; A movement index (0-$54) selects a delta chain in movement_delta_table: a linked list of nodes, each a signed per-frame delta plus a link to the next node. StageMoveX/Y/XY store the index in moveXAlt/moveYAlt ($7F:0018/$7F:001A + actor slot) and put the chain pointer that AnimFrameLookup returns in actor field $2C (X chain) or $2E (Y chain); ApplyMovement and the collision-checked move in tile_collision_physics consume one node per frame from each chain.
+; 
+; ForceDirSW/NE/Both set (operand nonzero) or clear (operand 0) $12 bit $4000 (negate the X delta), bit $2000 (negate the Y delta), or both ($6000). ApplyMoveToChild stages both indices on the newest actor in the list ($0058, actorListLast) instead of the caller. ReloadMoveDurations re-runs the lookup for the current indices, which rewinds $2C/$2E to the start of their chains.
+; 
+; Each handler reads its operand bytes through the script pointer [$0A], advances $0A, and writes it back into the stacked return address ($02,S) before RTI. Entry has Y = actor slot (TYX).
+---------------------------------------------
+
 ?BANK 00
 
 ?INCLUDE 'actor_pool'
@@ -8,61 +17,61 @@
 
 ---------------------------------------------
 
-; COP #AA with one byte operand (movement index). Stores it in moveXAlt and sets animation frame duration at actor+$2C via AnimFrameLookup.
+; COP #AA with one byte operand (X movement index). Stores it in moveXAlt and puts the X delta chain pointer for that index (AnimFrameLookup into movement_delta_table) in actor field $2C.
 
 StageMoveX {
     TYX 
     LDA [$0A]             ; Read X movement index byte
     INC $0A
     AND #$00FF
-    STA $moveXAlt, X      ; Store to moveXAlt ($7F0018)
-    JSR $&actor_pool.AnimFrameLookup ; Compute frame duration from movement delta table
-    STA $2C               ; Store X frame duration to $2C
+    STA $moveXAlt, X      ; moveXAlt = X movement index (movement_delta_table entry, $7F0018 + slot)
+    JSR $&actor_pool.AnimFrameLookup ; A = pointer to the delta chain for the index
+    STA $2C               ; Actor field $2C = X delta chain pointer
     LDA $0A
     STA $02, S
     RTI 
 }
 
 ---------------------------------------------
-; COP #AB with one byte operand (movement index). Stores it in moveYAlt and sets animation frame duration at actor+$2E via AnimFrameLookup.
+; COP #AB with one byte operand (Y movement index). Stores it in moveYAlt and puts the Y delta chain pointer for that index in actor field $2E.
 
 StageMoveY {
     TYX 
     LDA [$0A]             ; Read Y movement index byte
     INC $0A               ; Advance script pointer past Y index byte
     AND #$00FF
-    STA $moveYAlt, X      ; Store to moveYAlt ($7F001A)
-    JSR $&actor_pool.AnimFrameLookup ; Compute Y frame duration
-    STA $2E               ; Store to $2E
+    STA $moveYAlt, X      ; moveYAlt = Y movement index ($7F001A + slot)
+    JSR $&actor_pool.AnimFrameLookup ; A = pointer to the Y delta chain
+    STA $2E               ; Actor field $2E = Y delta chain pointer
     LDA $0A
     STA $02, S
     RTI 
 }
 
 ---------------------------------------------
-; COP #AC with two byte operands (X index, Y index). Stages both moveXAlt/moveYAlt and refreshes frame durations at $2C and $2E via AnimFrameLookup.
+; COP #AC with two byte operands (X index, Y index). Does StageMoveX then StageMoveY: stores moveXAlt/moveYAlt and loads the delta chain pointers into $2C and $2E.
 
 StageMoveXY {
     TYX 
     LDA [$0A]
     INC $0A               ; Advance script pointer past X index byte
     AND #$00FF
-    STA $moveXAlt, X
-    JSR $&actor_pool.AnimFrameLookup ; AnimFrameLookup for X -> $2C
-    STA $2C
+    STA $moveXAlt, X      ; moveXAlt = X movement index
+    JSR $&actor_pool.AnimFrameLookup ; A = X delta chain pointer
+    STA $2C               ; $2C = X chain
     LDA [$0A]
     INC $0A               ; Advance script pointer past Y index byte
     AND #$00FF
-    STA $moveYAlt, X
-    JSR $&actor_pool.AnimFrameLookup ; AnimFrameLookup for Y -> $2E
-    STA $2E
+    STA $moveYAlt, X      ; moveYAlt = Y movement index
+    JSR $&actor_pool.AnimFrameLookup ; A = Y delta chain pointer
+    STA $2E               ; $2E = Y chain
     LDA $0A
     STA $02, S
     RTI 
 }
 
 ---------------------------------------------
-; COP #AD with one byte operand (nonzero sets, zero clears). TSB or TRB bit $4000 on actor flags $12 to force or release southwest-facing direction.
+; COP #AD with one byte operand (nonzero sets, zero clears). TSB or TRB bit $4000 on actor flags $12: while set, ApplyMovement and the collision-checked move negate the actor's X delta (the copdef name says SW; the effect is an X flip).
 
 ForceDirSW {
     TYX 
@@ -70,7 +79,7 @@ ForceDirSW {
     INC $0A               ; Advance script pointer past facing flag operand
     AND #$00FF
     BEQ loc_00A727
-    LDA #$4000
+    LDA #$4000            ; $4000: negate the X delta
     TSB $12
     LDA $0A
     STA $02, S
@@ -85,7 +94,7 @@ ForceDirSW {
 }
 
 ---------------------------------------------
-; COP #AE with one byte operand (nonzero sets, zero clears). TSB or TRB bit $2000 on actor flags $12 to force or release northeast-facing direction.
+; COP #AE with one byte operand (nonzero sets, zero clears). TSB or TRB bit $2000 on actor flags $12: while set, the Y delta is negated (the copdef name says NE; the effect is a Y flip).
 
 ForceDirNE {
     TYX 
@@ -93,7 +102,7 @@ ForceDirNE {
     INC $0A               ; Advance script pointer past NE facing flag operand
     AND #$00FF
     BEQ loc_00A745
-    LDA #$2000
+    LDA #$2000            ; $2000: negate the Y delta
     TSB $12
     LDA $0A
     STA $02, S
@@ -108,7 +117,7 @@ ForceDirNE {
 }
 
 ---------------------------------------------
-; COP #AF with one byte operand (nonzero sets, zero clears). TSB or TRB bits $6000 on actor flags $12 to force or release both diagonal direction bits.
+; COP #AF with one byte operand (nonzero sets, zero clears). TSB or TRB bits $6000 on actor flags $12: negates both the X and Y deltas (reverses the staged movement).
 
 ForceDirBoth {
     TYX 
@@ -116,7 +125,7 @@ ForceDirBoth {
     INC $0A               ; Advance script pointer past diagonal flag operand
     AND #$00FF
     BEQ loc_00A763
-    LDA #$6000
+    LDA #$6000            ; $6000: negate both deltas
     TSB $12
     LDA $0A
     STA $02, S
@@ -131,40 +140,40 @@ ForceDirBoth {
 }
 
 ---------------------------------------------
-; COP #B0 with two byte operands (X index, Y index). Stages movement indices and AnimFrameLookup durations on the tail child actor referenced by $0058.
+; COP #B0 with two byte operands (X index, Y index). Same staging as StageMoveXY, but written to the newest actor in the list (actorListLast, $0058) rather than the caller, so spawn the child immediately before it. The caller's slot is saved with PHY and restored with PLX.
 
 ApplyMoveToChild {
-    PHY 
-    LDX $actorListLast    ; Load child actor tail pointer ($0058) for movement propagation
+    PHY                   ; Save the caller's slot (Y = actor at COP entry)
+    LDX $actorListLast    ; X = newest actor in the list (actorListLast, $0058), not the caller
     LDA [$0A]
     INC $0A
     AND #$00FF
-    STA $moveXAlt, X      ; Store X move to child's moveXAlt
-    JSR $&actor_pool.AnimFrameLookup ; Compute child's X frame duration
-    STA $002C, X
+    STA $moveXAlt, X      ; Child's moveXAlt = X index
+    JSR $&actor_pool.AnimFrameLookup ; A = X delta chain pointer
+    STA $002C, X          ; Child's $2C = X chain
     LDA [$0A]
     INC $0A
     AND #$00FF
-    STA $moveYAlt, X      ; Store Y move to child's moveYAlt
-    JSR $&actor_pool.AnimFrameLookup ; Compute child's Y frame duration
-    STA $002E, X
-    PLX 
+    STA $moveYAlt, X      ; Child's moveYAlt = Y index
+    JSR $&actor_pool.AnimFrameLookup ; A = Y delta chain pointer
+    STA $002E, X          ; Child's $2E = Y chain
+    PLX                   ; Restore X = caller slot (the PHY value)
     LDA $0A
     STA $02, S
     RTI 
 }
 
 ---------------------------------------------
-; COP #B1 with no operands. Re-runs AnimFrameLookup for the current moveXAlt and moveYAlt values, refreshing frame durations at actor+$2C and +$2E.
+; COP #B1 with no operands. Re-runs AnimFrameLookup for the current moveXAlt and moveYAlt and stores the chain pointers in $2C and $2E again, rewinding both chains to their first node.
 
 ReloadMoveDurations {
     TYX 
-    LDA $moveXAlt, X      ; Re-read current moveXAlt (index unchanged)
-    JSR $&actor_pool.AnimFrameLookup ; Recompute X frame duration
-    STA $002C, X
-    LDA $moveYAlt, X      ; Re-read current moveYAlt
-    JSR $&actor_pool.AnimFrameLookup ; Recompute Y frame duration
-    STA $002E, X
+    LDA $moveXAlt, X      ; Current X index (unchanged)
+    JSR $&actor_pool.AnimFrameLookup ; A = pointer to the first node of the X chain
+    STA $002C, X          ; $2C = rewound X chain
+    LDA $moveYAlt, X      ; Current Y index (unchanged)
+    JSR $&actor_pool.AnimFrameLookup ; A = pointer to the first node of the Y chain
+    STA $002E, X          ; $2E = rewound Y chain
     LDA $0A
     STA $02, S
     RTI 

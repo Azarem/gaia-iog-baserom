@@ -1,8 +1,12 @@
 ; COP handlers for SPC700 audio communication and music playback (Bank $00, 8 COP handlers).
 ; 
-; StartMusic allocates a thinker actor via AllocateActorAfter and sets its entry to SpcTransferMusicData for asynchronous SPC handshake. FadeThenStartMusic uses SpcCheckMusicReady for fade-before-play. PlaySoundCh1/Ch2/Both queue sound effects to APU channels via sfxQueueCh1/Ch2. WriteApuIo0/1 write directly to SPC I/O ports $2140/$2141.
+; StartMusic (#04) allocates a thinker with AllocateActorAfter and sets its entry to SpcTransferMusicData for the asynchronous SPC upload. FadeThenStartMusic (#05) does the same but enters at SpcCheckMusicReady, an $F1/$01 handshake before the upload; no fade logic is in that routine (the name's 'fade' is unverified, OQ-61). Both OR $1000 into the thinker's $12 (it keeps running while the world is frozen, as in MusicJingleActor), clear $1000 in its $10 and store the track in chatPtr.
 ; 
-; MusicAndText is the most complex handler: it allocates a pooled actor via ActorPoolAllocator, copies actor state, sets it to MusicPlaybackActor, and reads three operands (track ID, text pointer, bank byte). On pool exhaustion it falls back to inline DialogStringRenderer rendering with temporary data bank.
+; PlaySoundCh2 (#06), PlaySoundCh1 (#07) and PlaySoundBoth (#08) write the sfx queue bytes sfxQueueCh1/Ch2 ($06F8/$06F9); WriteApuIo1 (#09) and WriteApuIo0 (#0A) write APUIO1/APUIO0 ($2141/$2140) directly.
+; 
+; MusicAndText (#19) allocates a pooled actor with ActorPoolAllocator, appends it to the list tail, CopyActorState, sets it to MusicJingleActor and stores the three operands ($0026 track, $0020 text pointer, $0022 text bank). On pool exhaustion the track is dropped and only the text is shown inline through DialogStringRenderer, then displayModeFlags bit 7 is cleared.
+; 
+; Uses in extracted/: PlaySoundCh1 244, PlaySoundCh2 92, PlaySoundBoth 72, StartMusic 57, MusicAndText 22, FadeThenStartMusic 14, WriteApuIo0 7, WriteApuIo1 4.
 ---------------------------------------------
 
 ?BANK 00
@@ -24,7 +28,7 @@
 
 ---------------------------------------------
 
-; COP #04 music-start handler taking one byte operand: the music bundle ID. Allocates a new actor slot via AllocateActorAfter, sets its entry point to SpcTransferMusicData, sets status bit $1000 and clears $0800, and stores the music ID in chatPtr. The spawned transfer actor handles the SPC handshake asynchronously. Used in cutscenes throughout the game.
+; COP #04 with one byte operand (music bundle ID). Allocates a thinker with AllocateActorAfter, sets its entry to SpcTransferMusicData, ORs $1000 into its $12 and clears $1000 in its $10 (the mask is $EFFF; it is not the $0800 render bit), and stores the music ID in chatPtr. The thinker runs the SPC handshake and upload asynchronously.
 
 StartMusic {
     TYX 
@@ -36,10 +40,10 @@ StartMusic {
     LDA #$*hdma_dma_spc.SpcTransferMusicData
     STA $0002, X
     LDA $0012, X
-    ORA #$1000            ; Thinker flag — SPC music transfer in progress
+    ORA #$1000            ; Set $1000 in the child's $12 so it keeps running in display-filter mode (as MusicJingleActor does)
     STA $0012, X
     LDA $0010, X
-    AND #$EFFF            ; Clear $0800 on new thinker (suppress actor render)
+    AND #$EFFF            ; Clear $1000 in the child's $10 (mask $EFFF clears bit 12, not $0800); meaning of that bit: OQ-60
     STA $0010, X
     LDA [$0A]             ; Read music bundle ID byte from script
     INC $0A
@@ -52,7 +56,7 @@ StartMusic {
 }
 
 ---------------------------------------------
-; COP #05 with one byte operand (music bundle ID). Allocates a thinker actor after the current one via AllocateActorAfter, sets entry to SpcCheckMusicReady (fade-before-play path), sets thinker flag #$1000, clears render flag #$0800, and stores the music ID in chatPtr.
+; COP #05 with one byte operand (music bundle ID). Same allocation, $12/$10 flag handling and chatPtr as StartMusic, but the thinker's entry is SpcCheckMusicReady: it sends $F1 on APUIO0, waits for the echo, sends $01, and falls into SpcTransferMusicData when the SPC answers zero. That routine contains no fade step (OQ-61).
 
 FadeThenStartMusic {
     TYX 
@@ -87,7 +91,7 @@ PlaySoundCh2 {
     LDA [$0A]             ; Read SFX ID byte for channel 2
     INC $0A
     AND #$00FF
-    SEP #$20              ; Switch to 8-bit for byte-size I/O register write
+    SEP #$20              ; 8-bit store: sfxQueueCh2 is a one-byte WRAM queue slot, not an I/O register
     STA $sfxQueueCh2      ; Queue SFX byte to channel 2 ($06F9)
     REP #$20
     LDA $0A
@@ -103,7 +107,7 @@ PlaySoundCh1 {
     LDA [$0A]             ; Read SFX ID byte for channel 1
     INC $0A
     AND #$00FF
-    SEP #$20
+    SEP #$20              ; 8-bit store: sfxQueueCh1 is a one-byte WRAM queue slot
     STA $sfxQueueCh1      ; Queue SFX byte to channel 1 ($06F8)
     REP #$20
     LDA $0A
@@ -158,7 +162,7 @@ WriteApuIo0 {
 }
 
 ---------------------------------------------
-; COP #19 with one byte (track ID), one word (text pointer), and one byte (data bank). On pool success, allocates via ActorPoolAllocator, copies actor state, sets MusicPlaybackActor, and stores operands in $0026/$0020/$0022. On pool exhaustion, falls back to inline DialogStringRenderer with temporary data bank, joypad input suppressed, and displayModeFlags bit $80 cleared.
+; COP #19 with one byte (track ID), one word (text pointer), and one byte (data bank). On pool success, allocates via ActorPoolAllocator, copies actor state, sets MusicJingleActor, and stores operands in $0026/$0020/$0022. On pool exhaustion, falls back to inline DialogStringRenderer with temporary data bank, joypad input suppressed, and displayModeFlags bit $80 cleared.
 
 MusicAndText {
     TYX 
@@ -180,11 +184,11 @@ MusicAndText {
     TCD 
     TAX 
     JSR $&actor_pool.CopyActorState ; Copy actor state from parent to new music+text thinker
-    LDA #$&music_actors.MusicPlaybackActor ; Set entry point to MusicPlaybackActor for async playback
+    LDA #$&music_actors.MusicJingleActor ; Set entry point to MusicJingleActor for async playback
     STA $0000, Y
-    LDA #$*music_actors.MusicPlaybackActor
+    LDA #$*music_actors.MusicJingleActor
     STA $0002, Y
-    LDA #$1000            ; Set thinker status $1000 (active music/text actor)
+    LDA #$1000            ; $12 = $1000 (overwrites): keeps running in display-filter mode
     STA $0012, Y
     LDA [$0A]             ; Read track ID byte → store in new actor $0026
     INC $0A
@@ -231,7 +235,7 @@ MusicAndText {
     STA $joypadMaskStd
     PLB 
     PLP 
-    LDA #$0080            ; Clear displayModeFlags bit $80 (dialogue overlay complete)
+    LDA #$0080            ; Leave display-filter mode (bit 7, set by the calling script); the track is not played on this path
     TRB $displayModeFlags
     LDA $0A
     STA $02, S

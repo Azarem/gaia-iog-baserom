@@ -6,6 +6,7 @@ import { DbRootUtils } from '@gaialabs/core';
 import type { DbAddressingMode, DbConfig, DbGameRomModule } from '@gaialabs/core';
 import { snes } from '@gaialabs/core';
 import { ingest } from './ingest.ts';
+import { annotate } from './annotate.ts';
 
 const __pkgRoot = join(dirname(fileURLToPath(import.meta.url)), '..');
 
@@ -22,7 +23,7 @@ import strings from '../db-us/stringTypes.json' with { type: 'json' };
 import structs from '../db-us/structs.json' with { type: 'json' };
 import transforms from '../db-us/transforms.json' with { type: 'json' };
 import fileTypes from '../db-us/fileTypes.json' with { type: 'json' };
-import names from '../db-us/names.json' with { type: 'json' };
+import { names } from './names.ts';
 import types from '../db-us/types.json' with { type: 'json' };
 
 function loadNotesDir(subdir: string): Record<string, string> {
@@ -234,9 +235,22 @@ if (isMainModule) {
                         verbose: flags.includes('verbose'),
                     });
                     break;
+                case 'annotate': {
+                    if (args.length === 0) {
+                        console.error('Usage: annotate <spec.json> [--dry-run] [--no-ingest] [--verbose]');
+                        process.exit(1);
+                    }
+                    const annotateResult = annotate(__pkgRoot, args[0], {
+                        dryRun: flags.includes('dry-run') || flags.includes('dryrun'),
+                        noIngest: flags.includes('no-ingest'),
+                        verbose: flags.includes('verbose'),
+                    });
+                    if (!annotateResult.ok) process.exit(1);
+                    break;
+                }
                 default:
                     console.error('Unknown command:', command);
-                    console.log('Available commands: extract, extract-jp, rebuild, rebuild-jp, ingest');
+                    console.log('Available commands: extract, extract-jp, rebuild, rebuild-jp, ingest, annotate');
                     process.exit(1);
             }
         } catch (error) {

@@ -49,7 +49,7 @@
 ; 
 ; 12. POP STACK STATE: Restore sceneCurrent, eventFlags, displayModeFlags, effectDeltaX.
 ; 
-; 13. RELOAD ORIGINAL SCENE: SceneScriptNoMusic (reloads the prior scene's graphics), ApplyAllEventBlocks (re-applies any active event tile changes), PlaceBarrierTiles.
+; 13. RELOAD ORIGINAL SCENE: SceneScriptNoMusic (reloads the prior scene's graphics), ApplyAllEventBlocks (re-applies any active event tile changes), PlaceOpenedChestTiles.
 ; 
 ; 14. RESTORE VISUALS: RestorePaletteBuffer (palette from backup), LoadScenePalettes, LoadPlayerGraphics, ReloadAbilityFX (ability tile/palette reload based on $00EA).
 ; 
@@ -133,7 +133,7 @@
 ; 6. Run actors twice (layout settle), compose sprites, render one dialogue frame
 ; 7. Enable display at full brightness ($0F)
 ; 8. Main loop: UpdateFrameDialogue + copy bg1ConfigMode→BG1SC each frame; loops until flag byte #00 ≠ 0
-; 9. On exit: restore game state, pop stack, SceneScriptNoMusic for original scene, ApplyAllEventBlocks, PlaceBarrierTiles
+; 9. On exit: restore game state, pop stack, SceneScriptNoMusic for original scene, ApplyAllEventBlocks, PlaceOpenedChestTiles
 ; 10. Restore palettes, player graphics, ability FX, HUD, drain actor queue, reset HDMA
 ; 11. SetFlagByte $FF, render two frames, full brightness, return
 
@@ -265,7 +265,7 @@ OpenInventoryScreen {
     SEP #$20
     JSL $@scene_script.SceneScriptNoMusic ; SceneScriptNoMusic — reload original scene graphics (no BGM)
     JSL $@event_blocks.ApplyAllEventBlocks ; ApplyAllEventBlocks — re-apply persistent scene event tile swaps
-    JSL $@warps_interaction.PlaceBarrierTiles ; PlaceBarrierTiles — redraw warp/barrier collision markers
+    JSL $@warps_interaction.PlaceOpenedChestTiles ; PlaceOpenedChestTiles — redraw warp/barrier collision markers
     JSR $&RestorePaletteBuffer ; RestorePaletteBuffer — copy saved palette $7E:38B4 → $7F:0A00
     JSL $@scene_lifecycle.LoadScenePalettes ; LoadScenePalettes — upload scene CGRAM from restored buffer
     JSL $@scene_lifecycle.LoadPlayerGraphics ; LoadPlayerGraphics — restore player sprite tiles to VRAM

@@ -1,6 +1,6 @@
 ; OAM digit sprite composition (244449–244613, Bank 03).
 ; 
-; Converts a packed BCD number into individual digit sprites in the OAM compose buffer ($7F3100). Callers: SpawnAttackTrailEffect (floating damage numbers, via ComposeDigitSprites), the three-two-one countdown digits in ec11_countdown, mu67_bomb and it1B_trial (ComposeDigitSprites), the diary counter (ComposeDigits_Continuation) and the unused AttackTrailShort.
+; Converts a packed BCD number into individual digit sprites in the OAM compose buffer ($7F3100). Callers: SpawnAttackTrailEffect (floating damage numbers, via ComposeDigitSprites), the three-two-one countdown digits in ec11_countdown, mu67_bomb and it1B_trial (ComposeDigitSprites), the diary counter (ComposeDigitSprites_AtCursor) and the unused AttackTrailShort.
 ; 
 ; === PACKED BCD FORMAT ===
 ; 
@@ -28,7 +28,7 @@
 ; - DP $000E: tile attribute word (copied to DP $0002)
 ; - $00D8: OAM compose buffer write cursor
 ; 
-; Scratch used: DP $0002 (attribute), $0018 (digit X cursor), $001C (digit Y). ComposeDigits_Continuation instead expects the caller to have set $0018, $001C and $0002 itself.
+; Scratch used: DP $0002 (attribute), $0018 (digit X cursor), $001C (digit Y). ComposeDigitSprites_AtCursor instead expects the caller to have set $0018, $001C and $0002 itself.
 ---------------------------------------------
 
 ?BANK 03
@@ -42,7 +42,7 @@
 ; 
 ; The caller supplies the digit X cursor ($0018), Y ($001C) and attribute ($0002) itself; the diary counter does this from the BG1 scroll position. The routine copies $0018 to $001A (not read anywhere in this file), moves the cursor left by 6px, and joins ComposeDigitSprites at its hundreds-digit step (loc_03BB0D). Purpose of the 6px shift: not documented (inferred as a fixed alignment offset for the diary counter, the only user).
 
-ComposeDigits_Continuation {
+ComposeDigitSprites_AtCursor {
     PHX 
     LDA $0018
     STA $001A

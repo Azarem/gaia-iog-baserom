@@ -146,7 +146,7 @@ GlobalInputHandler {
     JSL $@vblank_joypad.EnableNmiAndJoypad ; Display loop: enable NMI+joypad, wait for VBlank (joypad is read), back to NMI-only
     JSL $@vblank_joypad.VBlankWaitAndJoypad
     JSL $@vblank_joypad.EnableNmiOnly
-    JSR $&radar_map_screen.RadarBorderAnimate ; Animate radar border tiles (cycling pattern on odd frames)
+    JSR $&radar_map_screen.RadarBorderAnimate ; Animate the radar border color (BGR555 palette cycle on odd frames)
     LDA $joypadCurrent+1  ; joypadCurrent high byte: consumed Start is hidden, so bit $10 appears only on a fresh press
     BIT #$10              ; Bit $10 in high byte = Start ($1000); zero = still held → loop
     BEQ loc_03808F

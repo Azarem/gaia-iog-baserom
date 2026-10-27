@@ -37,14 +37,14 @@ CheckInterleavedFlag! {
     LDA $06EE
     BIT #$0800
     BEQ DmaTileStripToVram
-    JMP $&code_0285F3
+    JMP $&InterleaveTilesPriority
 }
 
 -------------------------------------------
 ;First pass, copy palette information into VRAM from tileset
 
 
-code_0285F3! {
+InterleaveTilesPriority! {
     PHY				-- Y will be our read offset
     PHB				-- data bank will be changed
 

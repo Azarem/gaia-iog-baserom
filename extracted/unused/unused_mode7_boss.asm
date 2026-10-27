@@ -1985,7 +1985,7 @@ code_09BA59 {
   loc_09BA6A:
     XBA 
     LDA $orbitDiameter, X
-    JSL $@hardware_math.SignedMultiply
+    JSL $@hardware_math.Multiply8x8Unsigned
     REP #$20
     XBA 
     AND #$00FF

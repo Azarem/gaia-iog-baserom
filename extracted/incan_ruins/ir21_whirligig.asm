@@ -141,7 +141,7 @@ code_0A995D {
     SEP #$20
     LDA #$00
     XBA 
-    LDA $&math_lookup_tables.signed_sine_table, X
+    LDA $&math_lookup_tables.signed_cosine_table_8bit, X
     BPL loc_0A99A0
     XBA 
     DEC 

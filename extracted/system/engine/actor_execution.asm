@@ -14,7 +14,7 @@
 ; 
 ; 4. RunActors_CutsceneOnly (249087): Cutscene playback. Only processes actors with $10 bit 11 ($0800). Clears bit 2 each frame. Called only from system_core's re-entrant frame helper (used by COP handlers that must keep the screen alive).
 ; 
-; 5. RunActors_OverlayOnly (249198): Overlay rendering. Checks display filter first. Only processes actors with $12 bit 12 ($1000). Always uses simple ApplyMovement (no collision). Called only from system_core's music-fade tick (NMI path while musicTransitionState is positive).
+; 5. RunActors_OverlayOnly (249198): Overlay rendering. Checks display filter first. Only processes actors with $12 bit 12 ($1000). Always uses simple ApplyMovement (no collision). Called only from system_core's UpdateFrameFull, which the NMI runs while the blocking SPC music upload is in progress (so overlay actors keep animating during the upload).
 ; 
 ; === COP SCRIPT DISPATCH ===
 ; 
@@ -42,7 +42,7 @@
 ; 
 ; Variable-length record: 7 bytes without stats, 9 bytes when byte 6 is nonzero. Byte 0-1 = X/Y tile (×16→pixels), byte 2 = type flags (bit 0 = addressing mode), bytes 3-4 = code pointer, byte 5 = bank, byte 6 = stats index (0 = no stats, record ends here), byte 7 = enemy number, byte 8 = event-block index (stored as deathActionIdx; the name is historical — see CheckEnemyDefeatedFlag and StageBgChangeFromDeathIdx). Player actors (bit 15 of $10) get special init: load character form body table, set spriteset, compute camera centering.
 ; 
-; Enemies with nonzero enemyNum are checked against the scene-local WRAM flags (CheckEnemyDefeatedFlag). Already-defeated actors are freed via AdvanceSceneDataAndFree and their event block tiles are swapped.
+; Enemies with nonzero enemyNum are checked against the enemy-defeat flags in wramFlags (CheckEnemyDefeatedFlag). The flags are cleared only when the world map is entered, at a few scripted points and on game over, not at every scene change (see flag_helpers, OQ-67). Already-defeated actors are freed via AdvanceSceneDataAndFree and their event block tiles are swapped.
 ---------------------------------------------
 
 ?BANK 03
@@ -313,6 +313,9 @@ RunActors_DisplayFiltered {
     RTL 
 }
 
+---------------------------------------------
+; Post-tick of the display-filtered pass: clears $10 bit 2 (per-frame solid-contact flag), then moves the actor with ApplyMovementWithCollision when $10 bit 3 is set, else plain ApplyMovement. Loops to the next actor while $06 is non-zero, otherwise falls into _Exit.
+
 RunActors_DisplayFiltered_PostTick {
     LDA $10
     AND #$FFFB
@@ -330,11 +333,17 @@ RunActors_DisplayFiltered_PostTick {
     BNE loc_03CBAA
 }
 
+---------------------------------------------
+; Common exit of the display-filtered pass: PLD, PLP, RTL.
+
 RunActors_DisplayFiltered_Exit {
     PLD 
     PLP 
     RTL 
 }
+
+---------------------------------------------
+; Post-tick entry for script-driven actors ($10 bit 13): they skip the movement step unless $12 bit 3 (movement request) is set; all others take RunActors_DisplayFiltered_PostTick.
 
 RunActors_DisplayFiltered_CopPostTick {
     LDA $10
@@ -431,6 +440,9 @@ RunActors_PauseFiltered {
     RTL 
 }
 
+---------------------------------------------
+; Post-tick of the pause-filtered pass: same bit-2 clear and movement choice as the other passes, then ends the pass when $06 is zero or re-enters the list body for the next actor.
+
 RunActors_PauseFiltered_PostTick {
     LDA $10
     AND #$FFFB
@@ -449,6 +461,9 @@ RunActors_PauseFiltered_PostTick {
     BEQ RunActors_PauseFiltered_Exit
     JMP $&RunActors_PauseFiltered_Body
 }
+
+---------------------------------------------
+; Exit of the pause-filtered pass (PLD, PLP, RTL). The code after the RTL (loc_03CCCD) is the iframe-only tail for non-immune paused actors: a positive iframeCounter is decremented, a negative one incremented toward zero, and when it reaches zero $10 bit 7 ($0080) is cleared, so recovery keeps ticking while the world is paused.
 
 RunActors_PauseFiltered_Exit {
     PLD 
@@ -475,6 +490,9 @@ RunActors_PauseFiltered_Exit {
     TRB $10
     BRA loc_03CCC3
 }
+
+---------------------------------------------
+; Post-tick entry for script-driven actors in the pause-filtered pass: movement only when $12 bit 3 is set, otherwise straight to the loop tail.
 
 RunActors_PauseFiltered_CopPostTick {
     LDA $10
@@ -541,6 +559,9 @@ RunActors_CutsceneOnly {
     RTL 
 }
 
+---------------------------------------------
+; Post-tick of the cutscene pass: movement via ApplyMovementWithCollision ($10 bit 3 set) or ApplyMovement; the bit-2 clear already happened at the top of the actor loop. Ends at $06 = 0.
+
 RunActors_CutsceneOnly_PostTick {
     LDA $10
     BIT #$0008
@@ -560,6 +581,9 @@ RunActors_CutsceneOnly_PostTick {
     PLP 
     RTL 
 }
+
+---------------------------------------------
+; Post-tick entry for script-driven actors in the cutscene pass: movement only when $12 bit 3 is set.
 
 RunActors_CutsceneOnly_CopPostTick {
     LDA $10
@@ -632,6 +656,9 @@ RunActors_OverlayOnly {
     RTL 
 }
 
+---------------------------------------------
+; Post-tick of the overlay pass: always the plain ApplyMovement (no tile collision), then the next actor while $06 is non-zero.
+
 RunActors_OverlayOnly_PostTick {
     JSR $&tile_collision_physics.ApplyMovement ; Overlay: always simple ApplyMovement (no collision)
 
@@ -644,6 +671,9 @@ RunActors_OverlayOnly_PostTick {
     PLP 
     RTL 
 }
+
+---------------------------------------------
+; Post-tick entry for script-driven actors in the overlay pass: movement only when $12 bit 3 is set.
 
 RunActors_OverlayOnly_CopPostTick {
     LDA $10
@@ -1141,11 +1171,11 @@ InitActorFromSceneData {
 }
 
 ---------------------------------------------
-; Check if an enemy was already defeated, via its scene-local WRAM flag bit (wramFlags, cleared by ClearAllWramFlags at scene boundaries — see docs/wram-memory-map.md; the flags are set by SetDungeonKillFlag/SetWramFlag when the enemy dies).
+; Check if an enemy was already defeated, via its enemy-defeat flag bit (wramFlags at $0A80; set by SetDungeonKillFlag/SetWramFlag when the enemy dies). The flags persist until ClearAllWramFlags runs (world map entry, st68_kara, sp58_red_eye) or game over clears them, so whether they survive a room change is still open (OQ-67).
 ; 
 ; Converts enemy number A to a byte index (÷8 → Y) and bit position (AND #$07 → X). Looks up a bitmask from BitMaskTable_Wram ($01/$02/$04/$08/$10/$20/$40/$80) and ANDs it with the WRAM flag byte at $0A80,Y.
 ; 
-; If the bit is set (enemy defeated): checks for an associated event block swap. Reads the event block index (record byte 8) from the scene data at the saved Y offset. If nonzero, calls event_blocks.LookupEventBlock and event_blocks.SwapEventBlockTiles to update the tilemap for the defeated enemy's area (e.g., removing a barrier or revealing a passage). Returns carry set.
+; If the bit is set (enemy defeated): checks for an associated event block swap. Reads the event block index (record byte 8) from the scene data at the saved Y offset. If nonzero, calls event_blocks.LookupEventBlock and event_blocks.CopyEventBlockTiles to update the tilemap for the defeated enemy's area (e.g., removing a barrier or revealing a passage). Returns carry set.
 ; 
 ; If the bit is clear (enemy alive): returns carry clear.
 
@@ -1185,7 +1215,7 @@ CheckEnemyDefeatedFlag {
     PHY 
     LDY $40
     PHY 
-    JSL $@event_blocks.SwapEventBlockTiles
+    JSL $@event_blocks.CopyEventBlockTiles
     PLY 
     STY $40
     PLY 

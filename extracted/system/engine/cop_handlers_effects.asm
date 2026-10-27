@@ -1,14 +1,14 @@
-; COP handlers for sine-wave HDMA effects, gravity physics, spiral orbits, and camera panning (Bank $00, 11 COP handlers + 2 internal subroutines).
+; COP handlers for sine-wave HDMA effects, gravity, spiral orbits and camera panning (Bank $00, 11 COP handlers + 2 internal subroutines).
 ; 
-; InitSineHdma builds four interleaved HDMA tables at a specified WRAM base, computing sine amplitudes via UnsignedDivide. TickSineHdma advances the sine table offset each frame, rebuilding from camera position. BindSineHdma binds a sine table to an HDMA channel via SetupHdmaChannel_Indirect.
+; Sine HDMA. InitSineHdma (COP #5F) takes a WRAM base and a wave period n (scanlines per HDMA entry; #08–#40 observed) and builds four indirect-HDMA tables at base, +$0200, +$0400 and +$0600. Each table holds 256/n three-byte entries (line count n | $80 = repeat mode, data pointer) that all point at the same n data words at table + $0100, so one sine period repeats down the 256 scanlines. Tables 1 and 2 are the even/odd frame buffers for the horizontal scroll and tables 3 and 4 those for the vertical scroll; one BindSineHdma per axis binds the pair. TickSineHdma (COP #60) advances a delay counter and the sine phase and rebuilds the data of the current frame's buffers from a camera coordinate (BuildSineHdmaTable). BindSineHdma (COP #61) binds a table (+$0200 on odd frames) to an HDMA channel through SetupHdmaChannel_Indirect. The effect actor keeps its table base in spritesetPtr, the amplitude in $7F0008 (the spriteset bank field, unused by these non-sprite actors), the phase in retPtr1 and the delay counter in animScratch+2.
 ; 
-; InitGravity sets up gravity state: initial velocity, acceleration factor, and a target Y from a tile offset. TickGravity applies quadratic acceleration (tick×(tick/2), right-shifted by factor) via hardware multiply to update velocity, returning A=$FFFF when the actor reaches its Y target.
+; Gravity. InitGravity (COP #63) seeds the initial upward speed v0, a shift factor f and a target Y (moveYAlt = Y + tile offset × 16). TickGravity (COP #64) increments a tick counter t and sets the Y delta moveScratch2 = ((t × (t >> 1)) >> f) − v0 (ApplyMovement consumes it), returning A = $FFFF once the actor has moved down past the target Y and A = $0000 otherwise.
 ; 
-; InitSpiral stores orbit diameter and angle. SpiralStep applies signed delta operands to diameter/angle and calls ApplyOrbitalOffsetFromRef for circular motion.
+; Spiral. InitSpiral (COP #6C) stores orbitDiameter and orbitAngle (256 angle units = one turn). SpiralStep (COP #6D) adds signed deltas to both and calls ApplyOrbitalOffsetFromRef with the reference actor in $0000 (the script stores it there first), so the actor circles or spirals around that actor. Only mu67_vampires uses them.
 ; 
-; CameraPanDown/Up/Right/Left scroll cameraTargetX/Y by a step value from CameraScrollStepLookup each frame, yielding via RTL until the camera reaches bounds.
+; Camera pan. CameraPanDown/Up/Right/Left (COP #DC–#DF) move cameraTargetY/X by the step in the low nibble of $2B every call. $2A counts the calls left on the current step; when it underflows the next table word is fetched with CameraScrollStepLookup (low byte = delay → $2A, high byte = step → $2B; a zero high byte ends the table and the script resumes). They yield with PLA PLA RTL until the target reaches cameraBoundsY/X (down/right) or passes cameraOffsetY/X (up/left).
 ; 
-; Internal: BuildSineHdmaTable generates per-scanline scroll offsets from sine_table_8bit via hardware multiply into double-buffered WRAM tables. BuildSineLookupTable fills the 512-entry sineTableA/B arrays with amplitude-scaled sine values, guarded by displayModeFlags/animScratch2 trigger bits.
+; Internal: BuildSineHdmaTable generates per-scanline scroll offsets from sine_table_8bit via hardware multiply into the double-buffered WRAM tables. BuildSineLookupTable fills the two 256-word arrays sineTableA/B with amplitude-scaled sine values, guarded by displayModeFlags/animScratch2 trigger bits.
 ---------------------------------------------
 
 ?BANK 00
@@ -51,19 +51,21 @@
 
 ---------------------------------------------
 
-; COP #5F with one word (WRAM base for four interleaved HDMA tables) and one byte (scanline count). Builds four staggered HDMA channel tables, scales amplitude via UnsignedDivide, and initializes sine-HDMA state in animScratch/retPtr1.
+; COP #5F with one word (WRAM table base) and one byte (wave period n, scanlines per HDMA entry). Builds the four indirect-HDMA tables described in the block note: 256/n entries each, line count n | $80 (repeat mode), every entry pointing at the same n data words at table + $0100. Scales the entry count with UnsignedDivide, caches the base in spritesetPtr and resets the delay counter (animScratch+2) and phase (retPtr1) to 0.
+; 
+; In this build the handler also stores the post-operand script pointer in the actor's $00/$02 entry fields before RTI (the two untagged LDA $0C / STA $02 / LDA $0A / STA $00 lines come from a transforms.json patch).
 
 InitSineHdma {
     PHY 
     PHB 
-    TYX                   ; InitSineHdma: read WRAM base for four $0200-byte HDMA tables
+    TYX                   ; X = actor slot (Y and DBR were pushed above)
     LDA [$0A]             ; Read WRAM base operand — root of four $0200-byte HDMA indirect tables
     INC $0A
     INC $0A
     STA $0062
-    STA $spritesetPtr, X  ; Cache base in spritesetPtr for TickSineHdma
+    STA $spritesetPtr, X  ; Cache the table base in spritesetPtr (repurposed) for BuildSineHdmaTable
     CLC 
-    ADC #$0200            ; Compute four table bases spaced $0200 apart at DP $62/$5E/$06/$08
+    ADC #$0200            ; Table 2 at base+$0200; the four bases go to the global scratch $0062, $005E, $0006, $0008
     STA $005E
     CLC 
     ADC #$0200            ; Table 3 at base+$0400
@@ -71,25 +73,25 @@ InitSineHdma {
     CLC 
     ADC #$0200            ; Table 4 at base+$0600
     STA $0008
-    LDA [$0A]             ; Read scanline count byte — determines HDMA table rows
+    LDA [$0A]             ; Read the wave period n: scanlines per HDMA entry (#08–#40 observed)
     INC $0A
     AND #$00FF
     STA $0E
-    ORA #$0080            ; Set HDMA repeat bit — each scanline group replays the same data values
+    ORA #$0080            ; Line-count byte = n | $80: repeat mode, each of the n lines reads its own data word
     STA $0004
     LDA $0E
     ASL 
-    STA $0E
+    STA $0E               ; $0E = 2n: byte length of one data table (n words)
     LSR 
     DEC 
-    STA $animScratch, X   ; Max frame index = scanline count − 1; stored in animScratch
+    STA $animScratch, X   ; animScratch = n − 1 (not read by these handlers)
     LDA $0E
     LSR 
-    LDY #$0100            ; $0100 ÷ scanlines = entries per table; ×3 below for 3-byte HDMA entry stride
-    JSL $@hardware_math.UnsignedDivide ; UnsignedDivide for HDMA table spacing
+    LDY #$0100            ; Y = $0100 (dividend), A = n (divisor)
+    JSL $@hardware_math.UnsignedDivide ; A = $0100 / n = HDMA entries per table (covers 256 scanlines)
     AND #$00FF
     STA $000E
-    ASL                   ; ×3: each HDMA indirect entry is 3 bytes (control + pointer word)
+    ASL                   ; ×3: each entry is 3 bytes (line count + data pointer word); $000E = header bytes per table
     CLC 
     ADC $000E
     STA $000E
@@ -102,7 +104,7 @@ InitSineHdma {
     TCD 
     LDA $62
     CLC 
-    ADC #$0100
+    ADC #$0100            ; Data words sit at table base + $0100; table 2 data is $0200 further (STA $02 below)
     STA $00
     CLC 
     ADC #$0200
@@ -110,7 +112,7 @@ InitSineHdma {
     LDY #$0000
 
   loc_009BFD:
-    LDA $04               ; Fill loop: write 3-byte HDMA indirect entries (control + pointer) to all four tables
+    LDA $04               ; Fill loop: write 3-byte HDMA entries (line count + data pointer) to all four tables; every entry points at the same n data words, so the wave repeats every n lines
     STA ($62), Y
     STA ($5E), Y
     STA ($06), Y
@@ -147,7 +149,7 @@ InitSineHdma {
 }
 
 ---------------------------------------------
-; COP #60 with one byte (delay) and one byte (camera-reference index). Decrements/reloads the delay counter in animScratch+2, advances retPtr1, selects camera X/Y from cameraTarget arrays, and rebuilds the sine HDMA table via BuildSineHdmaTable.
+; COP #60 with one byte (delay) and one byte (camera offset). Counts down animScratch+2; on underflow it reloads the delay from the first operand and adds 1 to the sine phase (retPtr1), so the phase advances once every delay + 1 calls. Then reads the second operand as a byte offset into the camera scroll words (cameraTargetX/Y + offset; #02 in every observed call; bit 7 set masks the offset to its low nibble) and rebuilds the HDMA data with BuildSineHdmaTable.
 
 TickSineHdma {
     TYX 
@@ -175,9 +177,9 @@ TickSineHdma {
     BEQ loc_009C7C
     AND #$000F
     TAY 
-    LDA $cameraTargetX, Y ; Load cameraTargetX for horizontal sine offset
+    LDA $cameraTargetX, Y ; Camera X (cameraTargetX + offset) → $0018
     STA $0018
-    LDA $cameraTargetY, Y ; Load cameraTargetY for vertical sine offset
+    LDA $cameraTargetY, Y ; Camera Y (cameraTargetY + offset) → $001C
     STA $001C
     BRA loc_009C89
 
@@ -196,7 +198,7 @@ TickSineHdma {
 }
 
 ---------------------------------------------
-; COP #61 with two word operands: HDMA table address and channel configuration. Ping-pongs the table pointer by +$0200 based on $0036 bit 0, then registers the channel through SetupHdmaChannel_Indirect.
+; COP #61 with a long Address (table base word + bank byte, e.g. $7E8800) and a byte channel-config index (hdma_channel_config entry, #0D–#10 observed). Adds $0200 to the table address on odd frames ($0036 bit 0, the double buffer), then calls SetupHdmaChannel_Indirect with Y = table address and A = bank byte | index << 8.
 
 BindSineHdma {
     TYX 
@@ -213,21 +215,21 @@ BindSineHdma {
     TAY 
 
   loc_009CA5:
-    LDA [$0A]
+    LDA [$0A]             ; Second operand word: bank byte (low) + hdma_channel_config index (high) → A
     INC $0A
     INC $0A
-    JSL $@hdma_dma_spc.SetupHdmaChannel_Indirect ; Register HDMA channel with indirect table address
+    JSL $@hdma_dma_spc.SetupHdmaChannel_Indirect ; Y = table address, A low = indirect bank, A high = channel-config index
     LDA $0A
     STA $02, S
     RTI 
 }
 
 ---------------------------------------------
-; COP #63 with one signed byte (initial velocity), one byte (acceleration factor), and one signed byte (target Y tile offset). Seeds scratch1010 gravity state and computes the absolute target Y in moveYAlt from the actor's current $16 position.
+; COP #63 with one signed byte (initial upward speed v0, sign-extended), one byte (shift factor f) and one byte (target Y tile offset). Stores v0 in scratch1010+2, f in scratch1010 and zeroes the tick counter scratch1010+4. The target Y is moveYAlt = $16 + offset × 16 (here moveYAlt holds a pixel Y, not a movement index, so a later StageMoveY on the same actor overwrites it). A negative offset byte ($80–$FF) is not sign-extended: the result is $16 − byte × 16. Every observed call uses offset #00.
 
 InitGravity {
     TYX 
-    LDA [$0A]             ; Read signed velocity byte; sign-extend negative ($80+) to 16-bit
+    LDA [$0A]             ; Read the signed initial speed v0; sign-extend negative ($80+) to 16-bit
     INC $0A
     AND #$00FF
     BIT #$0080
@@ -235,7 +237,7 @@ InitGravity {
     ORA #$FF00
 
   loc_009CC4:
-    STA $scratch1010+2, X ; Store initial velocity in scratch1010+2
+    STA $scratch1010+2, X ; scratch1010+2 = v0 (initial upward speed, px/frame)
     LDA [$0A]             ; Read acceleration factor (right-shift count for curve attenuation)
     INC $0A
     AND #$00FF
@@ -243,11 +245,11 @@ InitGravity {
     LDA [$0A]             ; Read signed target Y tile offset byte
     INC $0A
     AND #$00FF
-    ASL                   ; Tile→pixel: ASL ×4 (×16); BIT #$0800 tests original sign bit for negation
+    ASL                   ; Tile offset × 16 = pixels (ASL ×4); the original bit 7 lands in $0800
     ASL 
     ASL 
     ASL 
-    BIT #$0800            ; BIT $0800: test original sign for signed tile offset
+    BIT #$0800            ; Original bit 7 set: negate the product (−(byte × 16), not a sign extension)
     BEQ loc_009CE7
     EOR #$FFFF
     INC 
@@ -255,8 +257,8 @@ InitGravity {
   loc_009CE7:
     CLC                   ; Absolute target Y = current position ($16) + signed pixel offset
     ADC $16
-    STA $moveYAlt, X
-    LDA #$0000            ; Zero tick counter; gravity acceleration grows quadratically over time
+    STA $moveYAlt, X      ; moveYAlt = target Y pixel (not a movement index here)
+    LDA #$0000            ; Zero the tick counter (scratch1010+4); the Y delta grows with its square
     STA $scratch1010+4, X
     LDA $0A
     STA $02, S
@@ -264,7 +266,7 @@ InitGravity {
 }
 
 ---------------------------------------------
-; COP #64 with no operands. Increments a tick counter and applies quadratic acceleration (tick² × factor) via hardware multiply to update velocity; RTI returns A=$FFFF when the actor reaches moveYAlt target, otherwise A=$0000.
+; COP #64 with no operands. Increments the tick counter t and sets the Y delta moveScratch2 = ((t × (t >> 1)) >> f) − v0 using the hardware multiplier (positive = down; v0 is never updated, the curve is recomputed from t each call). RTI returns A = $FFFF once the delta is not negative, the actor's Y is not negative and Y has moved past the target in moveYAlt; otherwise A = $0000.
 
 TickGravity {
     TYX 
@@ -289,22 +291,22 @@ TickGravity {
     BRA loc_009D1A
 
   loc_009D20:
-    PHA                   ; Push gravity delta for velocity computation below
-    LDA $scratch1010+2, X ; Load current velocity from scratch1010+2
+    PHA                   ; Push g = (t × t/2) >> f
+    LDA $scratch1010+2, X ; v0 = initial speed (never updated)
     SEC 
-    SBC $01, S
+    SBC $01, S            ; Stack = v0 − g
     STA $01, S
     PLA 
-    EOR #$FFFF            ; Invert gravity delta for upward bounce boundary check
+    EOR #$FFFF            ; Negate: Y delta = g − v0 (negative = up)
     INC 
-    STA $moveScratch2, X  ; Store inverted gravity as Y movement delta in moveScratch2
-    BMI loc_009D4A        ; Delta still negative → actor above target, continue falling
+    STA $moveScratch2, X  ; moveScratch2 = Y delta for ApplyMovement
+    BMI loc_009D4A        ; Delta negative: still rising, not landed yet
     LDA $16
-    BMI loc_009D4A
-    LDA $moveYAlt, X      ; Target − current: borrow means actor passed target → return $FFFF done
+    BMI loc_009D4A        ; Actor Y negative (above the playfield): not landed
+    LDA $moveYAlt, X      ; target − Y: a borrow means the actor is below the target → return $FFFF
     SEC 
     SBC $16
-    BCS loc_009D4A
+    BCS loc_009D4A        ; No borrow: target not reached yet
     LDA $0A
     STA $02, S
     LDA #$FFFF            ; A=$FFFF: signal target reached to caller
@@ -318,7 +320,7 @@ TickGravity {
 }
 ---------------------------------------------
 
-; COP #6C spiral-orbit initializer taking two byte operands: starting orbitDiameter and orbitAngle. Stores both values into the corresponding actor WRAM fields ($7F0010/$7F0012) for use by the paired SpiralStep COP handler. Does not move the actor itself; it only seeds orbital motion state. Used by Mu vampires bat-spawn patterns.
+; COP #6C spiral-orbit initializer taking two byte operands: starting orbitDiameter and orbitAngle (256 units = one full turn). Stores them in the actor fields $7F0012/$7F0010 for the paired SpiralStep. Does not move the actor. mu67_vampires seeds quarter-turn angles #00/#40/#80/#C0 with diameter 0, then SpiralStep (#03, #02) grows the spiral until orbitDiameter ≥ $80.
 
 InitSpiral {
     TYX 
@@ -336,7 +338,7 @@ InitSpiral {
 }
 
 ---------------------------------------------
-; COP #6D with two signed byte operands (diameter delta, angle delta). Adds them to orbitDiameter and orbitAngle, then calls ApplyOrbitalOffsetFromRef using the actor reference in $0000 to reposition orbitally.
+; COP #6D with two signed byte operands (diameter delta, angle delta). Adds them to orbitDiameter and orbitAngle, then calls ApplyOrbitalOffsetFromRef with Y = the reference actor read from the global scratch $0000, which the calling script must set first (mu67_vampires does LDA $24 / STA $0000). The actor is placed at the reference actor's position plus the angle/diameter offset.
 
 SpiralStep {
     TYX 
@@ -362,15 +364,15 @@ SpiralStep {
     CLC 
     ADC $orbitAngle, X    ; Accumulate angle delta into orbitAngle
     STA $orbitAngle, X
-    LDY $0000             ; Load reference actor pointer from $0000
-    JSL $@ApplyOrbitalOffsetFromRef ; Apply orbital offset: sine/cosine of angle × diameter → position
+    LDY $0000             ; Y = reference actor from $0000 (the script stores it there first)
+    JSL $@ApplyOrbitalOffsetFromRef ; Place the actor at the reference actor + (angle, diameter) offset
     LDA $0A
     STA $02, S
     RTI 
 }
 ---------------------------------------------
 
-; COP #DC (script name PanCameraDown) southward camera pan with no operands. Decrements the per-actor frame counter at $2A each invocation; when it underflows, reloads from CameraScrollStepLookup using the speed index in $2B low nibble, then adds that step to cameraTargetY. Yields via RTL until cameraTargetY reaches cameraBoundsY, then resumes the script. Called from forced_walk and other cutscene scroll actors.
+; COP #DC (script name PanCameraDown) southward camera pan with no operands. Decrements the frame counter $2A each call; when it underflows, loads the next scroll-table word with CameraScrollStepLookup (low byte → $2A, high byte → $2B; a zero high byte ends the table and the script resumes). Each call adds the low nibble of $2B to cameraTargetY. Yields via PLA PLA RTL until cameraTargetY reaches cameraBoundsY, then resumes the script. Called from forced_walk and other cutscene scroll actors.
 
 CameraPanDown {
     TYX 
@@ -385,14 +387,14 @@ CameraPanDown {
 
   loc_00ACF0:
     REP #$20
-    JSR $&cop_handlers_movement.CameraScrollStepLookup ; CameraScrollStepLookup: fetch speed from scroll table
-    BCC loc_00ACFC        ; Carry clear = valid step; carry set = end of table → resume script
+    JSR $&cop_handlers_movement.CameraScrollStepLookup ; Fetch the next table word: A = delay (low byte) | step (high byte)
+    BCC loc_00ACFC        ; Carry clear = valid word; carry set = zero step byte (end of table) → resume script
     LDA $0A
     STA $02, S
     RTI 
 
   loc_00ACFC:
-    STA $2A               ; Reload frame delay from scroll step entry
+    STA $2A               ; Reload $2A (delay) and $2B (step) from the table word (16-bit store)
 
   loc_00ACFE:
     LDA $2B               ; $2B low nibble = pixel step added to cameraTargetY each pan tick
@@ -413,7 +415,7 @@ CameraPanDown {
 }
 
 ---------------------------------------------
-; COP #DD with no operands. Mirrors CameraPanDown: decrements $2A, reloads scroll step from CameraScrollStepLookup via $2B low nibble, subtracts from cameraTargetY, and yields RTL until cameraTargetY reaches cameraOffsetY.
+; COP #DD with no operands. Mirrors CameraPanDown: decrements $2A, reloads the step word with CameraScrollStepLookup, subtracts the step in $2B (low nibble) from cameraTargetY, and yields until cameraTargetY drops below cameraOffsetY. If the step would exceed the current cameraTargetY the script resumes without storing it.
 
 CameraPanUp {
     TYX 
@@ -462,7 +464,7 @@ CameraPanUp {
 }
 
 ---------------------------------------------
-; COP #DE with no operands. Decrements $2A, fetches scroll step from CameraScrollStepLookup, adds to cameraTargetX, and yields RTL until cameraTargetX reaches cameraBoundsX.
+; COP #DE with no operands. Decrements $2A, reloads the step word with CameraScrollStepLookup, adds the step in $2B (low nibble) to cameraTargetX, and yields until cameraTargetX reaches cameraBoundsX.
 
 CameraPanRight {
     TYX 
@@ -477,7 +479,7 @@ CameraPanRight {
 
   loc_00AD68:
     REP #$20
-    JSR $&cop_handlers_movement.CameraScrollStepLookup ; CameraScrollStepLookup: fetch next scroll speed from table
+    JSR $&cop_handlers_movement.CameraScrollStepLookup ; Fetch the next table word: A = delay | step << 8
     BCC loc_00AD74
     LDA $0A
     STA $02, S
@@ -505,7 +507,7 @@ CameraPanRight {
 }
 
 ---------------------------------------------
-; COP #DF with no operands. Decrements $2A, fetches scroll step from CameraScrollStepLookup, subtracts from cameraTargetX, and yields RTL until cameraTargetX reaches cameraOffsetX.
+; COP #DF with no operands. Decrements $2A, reloads the step word with CameraScrollStepLookup, subtracts the step in $2B (low nibble) from cameraTargetX, and yields until cameraTargetX drops below cameraOffsetX. If the step would exceed the current cameraTargetX the script resumes without storing it.
 
 CameraPanLeft {
     TYX 
@@ -556,7 +558,7 @@ CameraPanLeft {
 ---------------------------------------------
 ; Internal JSR helper that fills two interleaved HDMA indirect-data tables with per-scanline scroll offsets derived from sine_table_8bit.
 ; 
-; Computes a double-buffered WRAM table base from spritesetPtr + $0100, ping-ponging by $0200 on $0036 bit 0 (frame parity). Divides $0100 by half the scanline count to compute a per-scanline sine table step size, then iterates through all scanlines: looks up sine_table_8bit at the current angle, multiplies by actor amplitude ($7F0008) via SNES hardware multiply, handles sign correction for negative sine values, and writes camera-offset scroll values into both horizontal ($62) and vertical ($5E) HDMA data regions.
+; Computes a double-buffered WRAM table base from spritesetPtr + $0100, ping-ponging by $0200 on $0036 bit 0 (frame parity). Divides $0100 by the wave period n (half of the byte count in actor $0E) to get the sine angle step per scanline, then iterates over the n scanlines of one period: looks up sine_table_8bit at the current angle, multiplies by actor amplitude ($7F0008) via SNES hardware multiply, handles sign correction for negative sine values, and writes camera-offset scroll values into both horizontal ($62) and vertical ($5E) HDMA data regions.
 ; 
 ; Called by TickSineHdma with camera coordinates in DP $18 (X) and $1C (Y). Operates in data bank $7E with DP zeroed. Returns via RTS.
 
@@ -638,7 +640,7 @@ BuildSineHdmaTable {
     NOP 
     NOP 
     NOP 
-    LDA $L_RDMPYH         ; Negative sine: RDMPYH × $FF correction then combine with RDMPYL
+    LDA $L_RDMPYH         ; Negative sample: signed fix-up. result = RDMPYH + low byte of (amplitude × $FF) = RDMPYH − amplitude, sign-extended (B = $FF)
     PHA 
     LDA #$FF
     STA $L_WRMPYB
@@ -739,7 +741,7 @@ BuildSineLookupTable {
     NOP 
     NOP 
     NOP 
-    LDA $RDMPYH           ; Negative sine: RDMPYH × $FF then ADC RDMPYL for sign-extended product
+    LDA $RDMPYH           ; Negative sample: same signed fix-up as BuildSineHdmaTable (RDMPYH − amplitude, B = $FF)
     PHA 
     LDA #$FF
     STA $WRMPYB

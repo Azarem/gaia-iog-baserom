@@ -1,3 +1,10 @@
+; COP handlers for BG3 console scripts and dialogue text (Bank $00).
+; 
+; RunBg3Script (COP #BD), DialogueOptions (COP #BE), PrintDialogString (COP #BF) and PrintDialogStringAlt (COP #6B). Each reads its operands through [$0A] and returns to the actor script by writing the advanced $0A into the return frame ($02,S) and executing RTI.
+; 
+; The three dialogue handlers save and clear two pieces of state while the renderer runs and restore them afterwards: actor $10 bit 11 ($0800, cutscene-active; cleared so that RunActors_CutsceneOnly, run by the renderer's frame updates, does not re-run this actor — inferred) and joypadMaskStd (the buttons suppressed from joypadCurrent; cleared so the renderer sees every button).
+---------------------------------------------
+
 ?BANK 00
 
 ?INCLUDE 'ConsoleStringRenderer'
@@ -14,7 +21,9 @@
 
 ---------------------------------------------
 
-; COP #BD BG3 console-script runner taking one Address operand: a far pointer to a BG3 tilemap command stream. Switches data bank, calls ConsoleStringRenderer with direct page zeroed, then sets displayModeFlags bit 0 to mark HUD/console rendering active. Used by the diary menu, title screen, and boot-logo actors for text and menu drawing.
+; COP #BD BG3 console-script runner taking one Address operand: a far pointer to a BG3 tilemap command stream.
+; 
+; Switches the data bank, calls ConsoleStringRenderer with the direct page zeroed, then sets displayModeFlags bit 0 (full BG3 staging-buffer upload request). Used by the diary menu, title screen and boot-logo actors, and by UpdateHUD for the HUD counters.
 
 RunBg3Script {
     PHY 
@@ -38,14 +47,16 @@ RunBg3Script {
     TAX 
     TCD 
     LDA #$0001
-    TSB $displayModeFlags ; Set displayModeFlags bit 0 (BG3 console overlay active)
+    TSB $displayModeFlags ; Set displayModeFlags bit 0: request a full BG3 staging-buffer upload
     LDA $0A
     STA $02, S
     RTI 
 }
 
 ---------------------------------------------
-; COP #BE with one word (option layout pointer) plus one word (branch table base). Requires worldReadyFlag == $000F; sets dialogue mode ($2000), masks inventory input ($0F00), calls MenuSelectionHandler, and branches into the table entry for the chosen option.
+; COP #BE with two byte operands (read together as one word and passed to MenuSelectionHandler as its menu parameters, e.g. the grid encoding; not a pointer) plus one word (branch table base).
+; 
+; Requires worldReadyFlag == $000F (otherwise it rewinds the script pointer and yields). Sets displayModeFlags bit 13 ($2000; no reader of this bit was found), sets joypadMaskInv = $0F00 (the D-pad buttons are the auto-repeat ones while the menu is open), clears joypadMaskStd and actor $10 bit 11 for the duration, calls MenuSelectionHandler, and branches through the table entry for the chosen option (table base + choice × 2).
 
 DialogueOptions {
     TYX 
@@ -61,25 +72,25 @@ DialogueOptions {
     RTL 
 
   loc_00A8A6:
-    LDA #$2000            ; Set dialogue mode $2000 on displayModeFlags
+    LDA #$2000            ; Set displayModeFlags bit 13 ($2000); no reader of this bit was found (OQ-51)
     TSB $displayModeFlags
     LDA #$0F00
-    STA $joypadMaskInv    ; Mask inventory input ($0F00) during menu navigation
+    STA $joypadMaskInv    ; joypadMaskInv = $0F00: D-pad directions are the auto-repeat buttons during menu navigation
     PHB 
     SEP #$20
     LDA $0C               ; Load script bank for PLB to set text data bank
     PHA 
     PLB 
     REP #$20
-    LDA $joypadMaskStd    ; Load and clear standard joypad mask — menu handles input
-    STZ $joypadMaskStd    ; Save and clear standard joypad mask — menu controls its own input
+    LDA $joypadMaskStd    ; Save joypadMaskStd (the buttons suppressed from joypadCurrent)
+    STZ $joypadMaskStd    ; Clear it so the menu handler sees every button
     PHA 
     LDA $10
-    AND #$0800            ; Save and clear status bar bit $0800 during menu
+    AND #$0800            ; Save actor $10 bit 11 ($0800, cutscene-active)
     PHA 
     LDA #$0800
-    TRB $10
-    LDA [$0A]             ; Read menu layout pointer word
+    TRB $10               ; Clear it so RunActors_CutsceneOnly skips this actor while the menu runs (inferred, OQ-54)
+    LDA [$0A]             ; Read the two byte operands as one word: menu parameters for MenuSelectionHandler (not a pointer)
     INC $0A
     INC $0A
     JSL $@MenuSelectionHandler ; Returns chosen option index in A; ASL doubles for word table
@@ -93,10 +104,10 @@ DialogueOptions {
     TAY                   ; Y = address of chosen entry in branch table
     PLA 
     PLA 
-    TSB $10
+    TSB $10               ; Restore the saved bit
     PLA 
     STA $joypadMaskStd    ; Restore standard joypad mask
-    STZ $joypadMaskInv    ; Clear inventory input mask
+    STZ $joypadMaskInv    ; Clear the auto-repeat mask
     LDA #$2000            ; Clear dialogue mode $2000
     TRB $displayModeFlags
     LDA $0000, Y          ; Read branch target from table and RTI to chosen path
@@ -106,11 +117,13 @@ DialogueOptions {
 }
 
 ---------------------------------------------
-; COP #BF with one word operand (text pointer). Sets dialogue mode ($2000), calls UpdateFrameRender, hides the status bar ($0800), renders via DialogStringRenderer, then clears directional joypad state in joypadCurrent and joypadHeld.
+; COP #BF with one word operand (text pointer).
+; 
+; Sets displayModeFlags bit 13 ($2000; no reader found), calls UpdateFrameRender to sync the display, clears actor $10 bit 11 and joypadMaskStd, renders the text via DialogStringRenderer, then restores the mask, re-applies it to joypadCurrent (TRB) and clears the D-pad bits ($0F00) in joypadHeld.
 
 PrintDialogString {
     TYX 
-    LDA #$2000            ; Set dialogue mode ($2000) — suppress HUD updates during text
+    LDA #$2000            ; Set displayModeFlags bit 13 ($2000); no reader found (HUD suppression is hudDisableFlag, not this bit)
     TSB $displayModeFlags
     LDA $0A               ; Load script pointer — UpdateFrameRender clobbers DP
     PHA                   ; Save script state — UpdateFrameRender clobbers direct page
@@ -124,12 +137,12 @@ PrintDialogString {
     PLA 
     STA $0A
     LDA $10
-    AND #$0800            ; Save status bar state and hide it ($0800) during dialogue
+    AND #$0800            ; Save actor $10 bit 11 ($0800, cutscene-active)
     PHA 
     LDA #$0800
-    TRB $10               ; Hide status bar ($0800) during text rendering
-    LDA $joypadMaskStd    ; Load and clear joypad mask — input blocked during text
-    STZ $joypadMaskStd    ; Block standard joypad input during text rendering
+    TRB $10               ; Clear it for the duration of the text (inferred reason, OQ-54)
+    LDA $joypadMaskStd    ; Save joypadMaskStd (suppressed buttons)
+    STZ $joypadMaskStd    ; Clear it so the text renderer sees every button (A/B to advance)
     PHA 
     PHB 
     SEP #$20
@@ -144,11 +157,11 @@ PrintDialogString {
     JSL $@DialogStringRenderer ; Render dialogue text via DialogStringRenderer
     PLB 
     PLA 
-    STA $joypadMaskStd    ; Restore joypad mask after text complete
-    TRB $joypadCurrent    ; Clear directional D-pad in joypadCurrent (prevent input leak)
+    STA $joypadMaskStd    ; Restore the suppress mask
+    TRB $joypadCurrent    ; A = restored mask: re-suppress those buttons in joypadCurrent so the dialogue's presses do not leak out
     LDA #$0F00
-    TRB $joypadHeld       ; Clear held D-pad in joypadHeld
-    LDA #$2000            ; Clear dialogue mode $2000
+    TRB $joypadHeld       ; Clear the D-pad bits in joypadHeld
+    LDA #$2000            ; Clear displayModeFlags bit 13
     TRB $displayModeFlags
     PLA 
     TSB $10
@@ -158,17 +171,19 @@ PrintDialogString {
 }
 
 ---------------------------------------------
-; COP #6B with one word operand (text pointer). Like PrintDialogString but omits dialogue-mode setup and UpdateFrameRender; still hides the status bar, renders text, and clears joypadHeld directions.
+; COP #6B with one word operand (text pointer).
+; 
+; Like PrintDialogString but without the bit 13 set/clear and the UpdateFrameRender sync, and it does not re-apply the mask to joypadCurrent; it still clears actor $10 bit 11 and joypadMaskStd while rendering and clears the D-pad bits in joypadHeld afterwards.
 
 PrintDialogStringAlt {
     TYX 
     LDA $10
-    AND #$0800
+    AND #$0800            ; Save actor $10 bit 11 ($0800, cutscene-active)
     PHA 
     LDA #$0800            ; Hide status bar ($0800) during alt text render
-    TRB $10
-    LDA $joypadMaskStd    ; Load and clear joypad mask
-    STZ $joypadMaskStd
+    TRB $10               ; Clear it while the text renders
+    LDA $joypadMaskStd    ; Save joypadMaskStd (suppressed buttons)
+    STZ $joypadMaskStd    ; Clear it so the text renderer sees every button
     PHA 
     PHB 
     SEP #$20
@@ -184,7 +199,7 @@ PrintDialogStringAlt {
     PLB 
     PLA 
     STA $joypadMaskStd
-    LDA #$0F00            ; Clear D-pad held state in joypadHeld after rendering
+    LDA #$0F00            ; Clear the D-pad bits in joypadHeld
     TRB $joypadHeld
     PLA 
     TSB $10

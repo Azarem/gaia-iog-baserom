@@ -2,7 +2,7 @@
 ; 
 ; Both load a frame count into the actor's waitCounter ($08), save the resume address (script cursor $0A/$0C → entryPtr $00/$02, i.e. the byte after the operand) and yield with RTL. The actor loop (RunActors_*, actor_execution.asm) runs DEC $08 once per actor tick and resumes the script at entryPtr when the result goes negative, so a count of N resumes N+1 ticks later (0 = next tick).
 ; 
-; WaitByte reads a 1-byte count; WaitWord reads a 2-byte count (delays over 255 ticks) and jumps into WaitByte's shared tail, loc_00ACC9.
+; WaitByte reads a 1-byte count; WaitWord reads a 2-byte count (delays over 255 ticks) and jumps into WaitByte's shared tail, WaitStoreAndYield.
 ; 
 ; Contrast: JumpAfterDelay continues at a new script address after its delay, and SetEntryHereAndYield yields one tick with no count (both in cop_handlers_script_control).
 ---------------------------------------------
@@ -13,7 +13,7 @@
 
 ; COP $DA with a 1-byte operand (frame count): sleep the actor for N+1 ticks, then resume after the operand.
 ; 
-; Reads the count (the 16-bit read also pulls in the next script byte, hence the AND), then falls into the shared tail loc_00ACC9, which stores it in waitCounter ($08), saves the resume address to entryPtr ($00/$02) and yields by discarding the COP stack frame and returning with RTL to the actor loop.
+; Reads the count (the 16-bit read also pulls in the next script byte, hence the AND), then falls into the shared tail WaitStoreAndYield, which stores it in waitCounter ($08), saves the resume address to entryPtr ($00/$02) and yields by discarding the COP stack frame and returning with RTL to the actor loop.
 
 WaitByte {
     TYX 
@@ -21,7 +21,9 @@ WaitByte {
     INC $0A
     AND #$00FF            ; Drop the following script byte picked up by the 16-bit read
 
-  loc_00ACC9:
+; Shared tail of WaitByte and WaitWord (A = frame count): stores the count in waitCounter ($08), copies the resume bank and PC from the COP frame ($0C/$0A) into the entry pointer ($02/$00), then discards the COP stack frame with two PLA and returns with RTL to the actor loop, which resumes the actor when the counter goes negative.
+
+  WaitStoreAndYield:
     STA $08               ; Shared tail: arm waitCounter; RunActors decrements it each tick and resumes when it goes negative
     LDA $0C               ; Resume bank → $02 (16-bit copy; $03 is padding)
     STA $02
@@ -35,12 +37,12 @@ WaitByte {
 ---------------------------------------------
 ; COP $DB with a 2-byte operand (frame count): same wait as WaitByte for delays over 255 ticks.
 ; 
-; Reads the 16-bit count and branches into WaitByte's shared tail (loc_00ACC9).
+; Reads the 16-bit count and branches into WaitByte's shared tail (WaitStoreAndYield).
 
 WaitWord {
     TYX 
     LDA [$0A]             ; 2-byte operand: frame count (up to 65535 ticks)
     INC $0A
     INC $0A
-    BRA loc_00ACC9
+    BRA WaitStoreAndYield
 }

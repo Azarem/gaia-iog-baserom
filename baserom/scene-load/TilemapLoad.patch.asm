@@ -49,7 +49,7 @@ loc_02883D! {
     XBA 
     LDA $03
     STA $0699
-    JSL $@SignedMultiply
+    JSL $@Multiply8x8Unsigned
     STA $069D
     BRA loc_028894
 }

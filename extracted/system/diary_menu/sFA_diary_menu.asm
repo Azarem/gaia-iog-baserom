@@ -1706,7 +1706,7 @@ DiaryDigitDisplay_noref {
     STA $001C
     LDA #$3200
     STA $0002
-    JSL $@oam_digit_compose.ComposeDigits_Continuation
+    JSL $@oam_digit_compose.ComposeDigitSprites_AtCursor
     RTL 
 }
 ---------------------------------------------

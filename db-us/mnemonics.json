@@ -195,6 +195,7 @@
   "2810": "inventoryTabIndex",
   "2834": "sourceSceneId",
   "2850": "hpToHeal",
+  "2856": "hieroglyphSlots",
   "3072": "actorRenderList",
   "3074": "actorRenderList+2",
   "3410": "worldMapStagedX",
@@ -262,6 +263,9 @@
   "8325632": "cgramPalette",
   "8326144": "backdropColors",
   "8326147": "adhocVramDma",
+  "8326149": "adhocVramDmaBank",
+  "8326151": "adhocVramDmaDest",
+  "8326153": "adhocVramDmaSize",
 
   "8327168": "onHitCallback",
   "8327170": "onDodgeCallback",

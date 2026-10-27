@@ -1,10 +1,12 @@
-; COP handlers for actor spawning — the full SpawnBefore/After/Abs/Offset/Marked family plus list append (Bank $00, 14 COP handlers).
+; COP handlers for actor spawning — the SpawnBefore/After/Abs/Offset/Marked family plus list append (Bank $00, 14 COP handlers, ids $99-$A6).
 ; 
-; All spawn handlers allocate a new actor slot via AllocateActorBefore or AllocateActorAfter, then read script operands for entry pointer (word + bank byte), optional position offsets or absolute coordinates, and optional status flags ($0010).
+; SpawnBefore*/SpawnAfter* call AllocateActorBefore/AllocateActorAfter, which link a new actor beside the spawner and CopyActorState (clones $0E, $10 with $2000 set, $12 without bit 12, position and more from the spawner). The handler then writes the entry address (word at $0000, bank at $0002) and any operands: position offsets are added to the inherited $14/$16, absolute positions replace them, a flags word replaces $0010.
 ; 
-; The Marked variants (SpawnBeforeMarked, SpawnAfterMarked, SpawnAfterAbsMarked, SpawnAfterOffsetMarked) additionally set actor flag $0040 and call MarkChildActor to establish parent–child links for group lifecycle management.
+; The Marked variants (SpawnBeforeMarked, SpawnAfterMarked, SpawnAfterAbsMarked, SpawnAfterOffsetMarked) set $0040 in the spawner's own $12 (Die cascades to marked children) and call MarkChildActor, which sets the new actor's parentId to the spawner's parentId, or to the spawner itself when it has none.
 ; 
-; SpawnListAppend/SpawnListAppendSpr use ActorPoolAllocator to add actors to the tail of the active list. On pool exhaustion they skip all operand bytes without spawning. SpawnListAppendSpr additionally reads an animation index operand for the spawned actor.
+; SpawnListAppend/SpawnListAppendSpr use ActorPoolAllocator and append at the tail of the actor list ($0058); on pool exhaustion they skip all operand bytes without spawning. SpawnListAppendSpr also reads an animation index (stored at $0028).
+; 
+; Uses in extracted/: SpawnListAppend 256, SpawnAfterFlags 231, SpawnAfterOffsetFlags 126, SpawnAfterAbsFlags 106, SpawnAfterMarked 101, SpawnAfterOffsetMarked 77; SpawnAfterOffset, SpawnAfterAbs and SpawnListAppendSpr have no users.
 ---------------------------------------------
 
 ?BANK 00
@@ -99,7 +101,7 @@ SpawnAfterFlags {
 }
 
 ---------------------------------------------
-; COP #9D with one Address plus two word operands (X/Y offset). Spawns after the current actor and adds the 16-bit offset words to the new actor $0014/$0016.
+; COP #9D with one Address plus two word operands (X/Y offset), no users. Spawns after the current actor and adds the 16-bit offset words to the new actor's $0014/$0016.
 
 SpawnAfterOffset {
     TYX 
@@ -165,7 +167,7 @@ SpawnAfterOffsetFlags {
 }
 
 ---------------------------------------------
-; COP #9F with one Address plus two word operands (absolute X/Y). Spawns after the current actor and assigns $0014/$0016 directly from the operand words.
+; COP #9F with one Address plus two word operands (absolute X/Y), no users. Spawns after the current actor and assigns $0014/$0016 directly from the operand words.
 
 SpawnAfterAbs {
     TYX 
@@ -241,7 +243,7 @@ SpawnBeforeMarked {
     INC $0A
     STA $0010, Y
     LDA #$0040            ; Flag $0040 = parent has marked children (enables cascade death in Die)
-    TSB $12               ; Set child flag on spawner's own status word $12
+    TSB $12               ; Set $0040 in the spawner's own $12 (DP = spawner), marking it as a parent
     JSR $&actor_pool.MarkChildActor ; Link parentId from spawner to new actor for group lifecycle
     LDA $0A
     STA $02, S
@@ -267,7 +269,7 @@ SpawnAfterMarked {
     INC $0A
     STA $0010, Y
     LDA #$0040
-    TSB $12               ; Mark spawned actor as child node ($0040 on spawner flags)
+    TSB $12               ; Set $0040 in the spawner's own $12 (it becomes a parent; Die cascades to its marked children)
     JSR $&actor_pool.MarkChildActor
     LDA $0A
     STA $02, S
@@ -320,7 +322,7 @@ SpawnAfterOffsetMarked {
     STA $0000, Y
     LDA [$0A]
     INC $0A
-    AND #$00FF            ; Zero-extend signed byte offset to 16-bit for arithmetic
+    AND #$00FF            ; Mask the entry bank byte
     STA $0002, Y
     LDA [$0A]
     INC $0A
@@ -441,7 +443,7 @@ SpawnListAppend {
 }
 
 ---------------------------------------------
-; COP #A6 with one Address, one byte (animation index), two signed bytes (X/Y offset), and one word (flags). Like SpawnListAppend but also stores an animation index byte in the spawned actor $0028; skips one extra operand byte on pool exhaustion.
+; COP #A6 with one Address, one byte (animation index), two signed bytes (X/Y offset) and one word (flags), no users. Like SpawnListAppend but also stores the animation index in the spawned actor's $0028; the pool-exhaustion path skips one more operand byte (8 operand bytes in total).
 
 SpawnListAppendSpr {
     PHY 
@@ -473,7 +475,7 @@ SpawnListAppendSpr {
     LDA [$0A]
     INC $0A
     AND #$00FF            ; Mask animation index byte from operand
-    STA $0028, Y          ; Store animation index to new actor $0028 (sprite frame)
+    STA $0028, Y          ; Store animation index to new actor $0028
     LDA [$0A]
     INC $0A
     AND #$00FF

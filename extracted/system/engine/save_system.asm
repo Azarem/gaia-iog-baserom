@@ -1,22 +1,24 @@
-; SRAM save/load system — event flag persistence with dual-checksum validation (252182–252392, Bank 03).
+; SRAM save/load system — game-state persistence with dual-checksum validation (252182–252392, Bank 03).
 ; 
-; Provides the complete save slot infrastructure for IOG’s game state persistence. Four save slots are supported, each occupying 512 bytes of SRAM at $306200 + (slot × 512).
+; Provides the save slot infrastructure. Four save slots are supported, each occupying 512 bytes of SRAM at $306200 + (slot × 512): 508 bytes of data followed by two checksum words at +$1FC and +$1FE.
 ; 
 ; === SAVE/LOAD ===
 ; 
-; SaveGameState_Scene copies 508 bytes of event flags ($0A00–$0BFC) to SRAM after storing the current scene ID at $0B06. LoadGameState_Scene reverses the process, restoring event flags from SRAM after verifying data integrity. Both routines mask the slot number to 0–3 and compute the SRAM offset via XBA + ASL (slot × 256 × 2 = slot × 512).
+; SaveGameState_Scene copies 508 bytes of WRAM ($0A00–$0BFB) to SRAM after storing the current scene ID at $0B06. LoadGameState_Scene reverses the process after verifying integrity. Both routines mask the slot number to 0–3 and compute the SRAM offset via XBA + ASL (slot × 256 × 2 = slot × 512).
+; 
+; The saved range is named eventFlags ($0A00) but holds more than event flags: it also contains the player stats and inventory state the engine keeps in that page (e.g. abilityBitmask $0AA2, playerMaxHp $0ACA, playerHp $0ACE, gemCount $0AD6) and the hieroglyph plate slots ($0B28–$0B32).
 ; 
 ; === INTEGRITY VERIFICATION ===
 ; 
-; ComputeSaveChecksum generates two independent checksums over each slot’s 508 bytes (254 words):
+; ComputeSaveChecksum generates two checksums over each slot's 508 bytes (254 words):
 ; - Additive checksum ($0018): running sum of all data words
 ; - XOR checksum ($001C): running XOR of all data words
 ; 
-; Both are seeded with the magic constant $3652, which prevents blank (all-zero) SRAM from accidentally passing validation. The dual-checksum approach catches both stuck bits (detected by XOR) and value-preserving transpositions (detected by sum).
+; Both are seeded with the constant $3652, so a zeroed slot computes $3652/$3652 and never matches the stored zeros. Both are order-independent, so swapped words go undetected; the pair mainly guards against corrupted or missing data.
 ; 
 ; === SLOT MANAGEMENT ===
 ; 
-; ClearSaveSlot fills an entire 512-byte slot with zeros, erasing both the event flag data and stored checksums. This makes the slot appear empty to LoadGameState_Scene (checksum mismatch → carry set → load failure).
+; ClearSaveSlot fills an entire 512-byte slot with zeros, erasing both the data and the stored checksums, so LoadGameState_Scene fails the checksum compare (carry set).
 ; 
 ; Load returns carry CLEAR on success, carry SET on failure (corrupt or empty). ClearSaveSlot returns carry SET to match the empty-slot convention.
 ---------------------------------------------
@@ -28,13 +30,13 @@
 
 ---------------------------------------------
 
-; Save current game state (event flags + scene ID) to an SRAM save slot.
+; Save current game state (WRAM $0A00–$0BFB plus the scene ID) to an SRAM save slot.
 ; 
-; Slot number passed in A (masked to 0–3). Computes SRAM offset as (slot & 3) × 512 via XBA + ASL.
+; Slot number passed in A (masked to 0–3). Computes the SRAM offset as (slot & 3) × 512 via XBA + ASL.
 ; 
-; First stores the current scene number ($sceneCurrent → $0B06) so it's included in the saved data. Then copies 508 bytes ($01FC) of event flags from $0A00 to SRAM at $306200 + offset.
+; First stores the current scene number (sceneCurrent → $0B06) so it is part of the saved data. Then copies 508 bytes ($01FC) from $0A00 to SRAM at $306200 + offset.
 ; 
-; Calls ComputeSaveChecksum to generate dual checksums over the saved data, and stores them at $3063FC and $3063FE for the slot. The checksums are verified on load to detect SRAM corruption.
+; Calls ComputeSaveChecksum and stores the additive checksum at $3063FC and the XOR checksum at $3063FE (+ slot offset). Both are verified on load.
 
 SaveGameState_Scene {
     PHP 
@@ -165,11 +167,11 @@ ClearSaveSlot {
 ; 
 ; Operates on $00FE words (254 entries = 508 bytes) starting at $306200,X where X is the pre-computed slot offset.
 ; 
-; Two running accumulators, both seeded with $3652 (a non-zero constant to distinguish valid saves from blank SRAM):
-; - $0018: Additive checksum — sum of all data words
+; Two running accumulators, both seeded with $3652 (non-zero, so a zeroed slot does not match its stored zero checksums):
+; - $0018: additive checksum — sum of all data words
 ; - $001C: XOR checksum — running XOR of all data words
 ; 
-; The dual-checksum approach catches both stuck bits (XOR) and value-preserving transpositions (sum). The $3652 seed ensures a fully-zeroed slot doesn't accidentally pass validation.
+; Both are order-independent, so swapping two words is not detected. Uses DP $0018, $001C and $000E as scratch.
 
 ComputeSaveChecksum {
     PHP 

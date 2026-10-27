@@ -56,7 +56,7 @@ CollisionLayerRenderer {
     LDA $1D
     XBA 
     LDA $0695
-    JSL $@hardware_math.SignedMultiply
+    JSL $@hardware_math.Multiply8x8Unsigned
     CLC 
     ADC $19
     XBA 
@@ -67,7 +67,7 @@ CollisionLayerRenderer {
     ADC $1C
     XBA 
     LDA $0693
-    JSL $@hardware_math.SignedMultiply
+    JSL $@hardware_math.Multiply8x8Unsigned
     CLC 
     ADC $19
     CLC 

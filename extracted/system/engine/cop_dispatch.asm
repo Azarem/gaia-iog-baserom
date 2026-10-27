@@ -1,14 +1,12 @@
 ; Central COP bytecode dispatch engine for IOG's actor and thinker scripting system (Bank $00).
 ; 
-; Contains CopDispatch, a 24-byte native-mode entry reached from the COP interrupt vector (CopVector → JML CopDispatch). On each COP ($02) instruction it reads the opcode byte from the script stream, doubles it, and indirect-jumps through cop_dispatch_table to the matching handler across 13 handler blocks.
+; CopDispatch is a 24-byte native-mode entry reached from the COP interrupt vector (CopVector → JML CopDispatch). The byte after the COP opcode ($02) is the handler opcode (the pushed PC − 1). The dispatcher caches the bank in $0C and the operand pointer in $0A, doubles the opcode and jumps through cop_dispatch_table.
 ; 
-; The 227-entry table maps 209 valid opcodes ($00–$6D and $80–$E2) to short-address handler labels; opcodes $6E–$7F are an 18-entry #$0000 gap that would crash if executed. A cop_table_sentinel (NOP/BRA loop) guards the table end.
+; The table has 227 word entries: 209 valid opcodes ($00–$6D and $80–$E2) pointing at short-address handler labels, and an 18-entry gap of #$0000 for $6E–$7F that would jump to address 0 (RAM) if executed. cop_table_sentinel follows the table; it is not a real guard (see its note). All 209 table ids match db-us/copdef.json ids, but 19 handler labels differ from the script-side copdef names (listed in the table note).
 ; 
-; Every actor and thinker script in the game routes through this dispatcher—movement, collision, spawning, dialogue, palette, and DMA all depend on it. Handlers receive Actor ID in X/Y, DBR=$81, an argument pointer in $0A, and exit via RTI (continue/branch) or RTL (yield/halt).
+; Every actor and thinker script routes through this dispatcher. Handlers receive the actor slot in X and Y (and D), DBR = $81 and the operand pointer in $0A. They exit with RTI (continue or branch, new PC stored at $02,S) or RTL after popping the COP frame (yield or halt).
 ; 
-; Dispatch target blocks: cop_handlers_audio, cop_handlers_effects, cop_handlers_flow, cop_handlers_input, cop_handlers_lifecycle, cop_handlers_map, cop_handlers_movement, cop_handlers_palette, cop_handlers_player_sprite, cop_handlers_solid, cop_handlers_spatial, cop_handlers_spawn, cop_handlers_sprite.
-; 
-; Support blocks (called internally by handlers, not dispatch targets): actor_pool, cop_handlers_flags.
+; Dispatch targets: the 30 cop_handlers_* blocks included below. Support blocks called by handlers but not dispatch targets: actor_pool and flag_helpers.
 ---------------------------------------------
 
 ?BANK 00
@@ -46,15 +44,17 @@
 
 ---------------------------------------------
 
-; Central COP bytecode dispatcher reached from CopVector. Reads the opcode byte from the script stream at [$0A], doubles it as a word index, and indirect-jumps through cop_dispatch_table to the matching handler. Sets up X=Y=ActorID, script pointer $0A, and bank byte $0C from the COP interrupt stack frame.
+; Central COP dispatcher reached from CopVector.
+; 
+; Sets X = Y = actor ID (Y keeps it for handlers), $0C = bank byte from the COP stack frame and $0A = pushed PC − 1 (the COP signature byte, which is the opcode), reads the opcode, advances $0A past it, and jumps through cop_dispatch_table[opcode × 2].
 
 CopDispatch {
     REP #$20              ; Native 16-bit mode for opcode fetch and table indexing
     TXY                   ; Preserve actor ID in Y — restored by handlers that need it
     LDA $04, S
-    STA $0C               ; Cache script bank byte from stack frame $04,S into $0C
+    STA $0C               ; $0C = PBR pushed by COP ($04,S); 16-bit load, so $0D gets an unrelated stack byte (unused)
     LDA $02, S
-    DEC                   ; Return PC − 1 → points at COP opcode byte on stack
+    DEC                   ; Pushed PC = byte after the COP signature; −1 = the signature byte, which is the handler opcode
     STA $0A               ; Script arg pointer $0A — first byte is opcode, then operands
     LDA [$0A]             ; Fetch COP opcode byte via indirect long [$0A]
     INC $0A               ; Advance $0A past opcode into operand stream
@@ -65,7 +65,9 @@ CopDispatch {
 }
 
 ---------------------------------------------
-; 227-entry handler pointer table mapping COP opcodes $00–$6D and $80–$E2 (209 valid) to short-address handler labels across 13 handler blocks. Opcodes $6E–$7F are an 18-entry #$0000 gap that would crash if executed.
+; 227-entry handler pointer table: COP opcodes $00–$6D and $80–$E2 (209 valid, ids match copdef.json) to short-address handler labels in 30 handler blocks. Opcodes $6E–$7F are an 18-entry #$0000 gap.
+; 
+; Handler labels that differ from the copdef script names: $1A–$1E BranchIfType* = BranchIfSolidType*; $80–$87 StageSpriteFrame* = StageSprite* (Frame, MoveX/Y/XY, Loop, LoopMoveX/Y/XY); $8F–$92 StagePlayerSprite/MoveX/MoveY/MoveXY = StagePlayerSprite and StagePlayerMoveX/Y/XY; $B6/$B7 SetSpritePriority/SetSpritePalette = SetSpritePriority/SetSpritePalette.
 
 cop_dispatch_table [
   &cop_handlers_hdma_dma.GenHdmaSine   ;00
@@ -94,11 +96,11 @@ cop_dispatch_table [
   &cop_handlers_collision.BranchIfSolidWest   ;17
   &cop_handlers_collision.BranchIfSolidEast   ;18
   &cop_handlers_audio.MusicAndText   ;19
-  &cop_handlers_collision.BranchIfTypeHere   ;1A
-  &cop_handlers_collision.BranchIfTypeNorth   ;1B
-  &cop_handlers_collision.BranchIfTypeSouth   ;1C
-  &cop_handlers_collision.BranchIfTypeWest   ;1D
-  &cop_handlers_collision.BranchIfTypeEast   ;1E
+  &cop_handlers_collision.BranchIfSolidType   ;1A
+  &cop_handlers_collision.BranchIfSolidTypeNorth   ;1B
+  &cop_handlers_collision.BranchIfSolidTypeSouth   ;1C
+  &cop_handlers_collision.BranchIfSolidTypeWest   ;1D
+  &cop_handlers_collision.BranchIfSolidTypeEast   ;1E
   &cop_handlers_collision.BranchIfNotOnGridline   ;1F
   &cop_handlers_movement.BranchIfActorNear   ;20
   &cop_handlers_movement.BranchIfPlayerNear   ;21
@@ -196,14 +198,14 @@ cop_dispatch_table [
   #$0000   ;7D
   #$0000   ;7E
   #$0000   ;7F
-  &cop_handlers_sprite.StageSpr   ;80
-  &cop_handlers_sprite.StageSprX   ;81
-  &cop_handlers_sprite.StageSprY   ;82
-  &cop_handlers_sprite.StageSprXY   ;83
-  &cop_handlers_sprite.StageSprLoop   ;84
-  &cop_handlers_sprite.StageSprLoopX   ;85
-  &cop_handlers_sprite.StageSprLoopY   ;86
-  &cop_handlers_sprite.StageSprLoopXY   ;87
+  &cop_handlers_sprite.StageSpriteFrame   ;80
+  &cop_handlers_sprite.StageSpriteMoveX   ;81
+  &cop_handlers_sprite.StageSpriteMoveY   ;82
+  &cop_handlers_sprite.StageSpriteMoveXY   ;83
+  &cop_handlers_sprite.StageSpriteLoop   ;84
+  &cop_handlers_sprite.StageSpriteLoopMoveX   ;85
+  &cop_handlers_sprite.StageSpriteLoopMoveY   ;86
+  &cop_handlers_sprite.StageSpriteLoopMoveXY   ;87
   &cop_handlers_sprite.SetMetasprite   ;88
   &cop_handlers_sprite.AnimOnce   ;89
   &cop_handlers_sprite.AnimLoop   ;8A
@@ -211,10 +213,10 @@ cop_dispatch_table [
   &cop_handlers_sprite.WaitForAnimFrame   ;8C
   &cop_handlers_sprite.StageSprAndHitbox   ;8D
   &cop_handlers_player_sprite.SetPlayerSpriteDirect   ;8E
-  &cop_handlers_player_sprite.StagePlayerSpr   ;8F
-  &cop_handlers_player_sprite.StagePlayerSprX   ;90
-  &cop_handlers_player_sprite.StagePlayerSprY   ;91
-  &cop_handlers_player_sprite.StagePlayerSprXY   ;92
+  &cop_handlers_player_sprite.StagePlayerSprite   ;8F
+  &cop_handlers_player_sprite.StagePlayerSpriteMoveX   ;90
+  &cop_handlers_player_sprite.StagePlayerSpriteMoveY   ;91
+  &cop_handlers_player_sprite.StagePlayerSpriteMoveXY   ;92
   &cop_handlers_player_sprite.RunPlayerAnim   ;93
   &cop_handlers_player_sprite.StagePlayerSprWall   ;94
   &cop_handlers_player_sprite.StagePlayerSprFromDP   ;95
@@ -250,8 +252,8 @@ cop_dispatch_table [
   &cop_handlers_oam_attribs.SetPriorityMin   ;B3
   &cop_handlers_oam_attribs.ClearPriorityMax   ;B4
   &cop_handlers_oam_attribs.ClearPriorityMin   ;B5
-  &cop_handlers_oam_attribs.SetOamPriority   ;B6
-  &cop_handlers_oam_attribs.SetOamPalette   ;B7
+  &cop_handlers_oam_attribs.SetSpritePriority   ;B6
+  &cop_handlers_oam_attribs.SetSpritePalette   ;B7
   &cop_handlers_oam_attribs.ToggleHMirror   ;B8
   &cop_handlers_oam_attribs.ToggleVMirror   ;B9
   &cop_handlers_oam_attribs.ClearHMirror   ;BA
@@ -298,7 +300,7 @@ cop_dispatch_table [
 ]
 
 ---------------------------------------------
-; End-of-table guard: a NOP/BRA infinite loop that catches any opcode past $E2, preventing execution from falling into unmapped ROM.
+; NOP/BRA loop placed right after the table. It is not an effective guard: an opcode ≥ $E3 would index past the table and JMP (table,X) would read the sentinel's own code bytes as a pointer (opcode $E3 reads EA 80 = $80EA) instead of jumping to the loop. No script is known to use such opcodes.
 
 cop_table_sentinel {
     NOP                   ; cop_table_sentinel: NOP/BRA loop guards past opcode $E2

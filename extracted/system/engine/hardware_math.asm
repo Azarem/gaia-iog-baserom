@@ -1,18 +1,18 @@
-; Hardware math utilities — SNES multiplication and division using PPU math registers (163840–164464, Bank 02).
+; Hardware math utilities — SNES multiplication and division using the 5A22 math registers (163840–164464, Bank 02).
 ; 
-; Provides wrappers around the SNES hardware multiplier ($4202/$4203/$4216/$4217) and divider ($4204/$4205/$4206/$4214) registers. The SNES 5A22 CPU has built-in 8×8 unsigned multiply and 16÷8 unsigned divide units, but they require careful setup and timing (NOP delays for result latency).
+; Wrappers around the hardware multiplier ($4202/$4203 → $4216/$4217, unsigned 8×8) and divider ($4204/$4205/$4206 → $4214/$4216, unsigned 16÷8). Results need NOP delays (8 machine cycles after a multiply, 16 after a divide).
 ; 
 ; === ROUTINES ===
 ; 
-; MulDivide: Cascaded 16×8 multiply then 8-bit divide. Splits the 16-bit accumulator into A_high (divisor) and A_low (multiplicand), performs A_low × Y (16-bit) using two cascaded 8×8 hardware multiplies with cross-product accumulation, then divides the 32-bit intermediate by A_high using the hardware divider. Returns the 16-bit quotient. Used for scaled arithmetic (e.g., proportional coordinate calculations).
+; MulDivide: (A low × Y) ÷ A high. A low = multiplier, A high = divisor, Y = 16-bit multiplicand. Two 8×8 multiplies (A low × Y low, A low × Y high) are combined into the 16-bit dividend: the product's low 16 bits only — anything above bit 15 is discarded, so the product must fit in 16 bits. A divisor of 0 gives $FFFF. Returns the 16-bit quotient. Users: camera_scroll, parallax_thinker, visual_effect_pipeline.
 ; 
-; SignedMultiply: 8×8 signed multiply using long-address hardware registers ($80:4202/$80:4203). Returns 16-bit signed result in A (high:low via XBA). Uses long addresses to access the hardware registers from any data bank.
+; Multiply8x8Unsigned: 8×8 multiply with the operands in the two bytes of A (low = first, high = second), through long addresses ($80:4202/4203/4216/4217) so any data bank works. Returns the 16-bit product in A. The hardware multiplier is unsigned, so despite the name this is an unsigned multiply (see rename proposal 84). Used for index × $30 actor addressing, map index calculation, orbital offsets and others.
 ; 
-; UnsignedDivide: 16÷8 unsigned divide. Y = dividend (16-bit), A = divisor (8-bit). Returns quotient in A low byte ($4214), remainder in A high byte ($4216). 8 NOP delay for divide completion.
+; UnsignedDivide: 16÷8 divide. Y = 16-bit dividend, A = 8-bit divisor. Returns the quotient's low byte in A low and the remainder in A high (the quotient's high byte is dropped).
 ; 
-; SoftDivide_Unused: Software long division (unused). Implements bit-by-bit division using DP scratch space. Likely a fallback or development artifact.
+; SoftDivide_Unused: software long division, no callers.
 ; 
-; IncrementCounter_Unused: Adds 16 bytes from $0410 to the RNG state at $040F (unused). Appears to be a counter-based RNG seeding function.
+; RngStep_Unused: standalone copy of the generator step that RngByte (cop_handlers_movement) runs inline; no callers.
 ---------------------------------------------
 
 ?BANK 02
@@ -32,12 +32,12 @@
 
 ---------------------------------------------
 
-; Cascaded 16×8 multiply-then-divide using SNES hardware math registers.
+; Multiply then divide with the hardware registers: (A low × Y) ÷ A high.
 ; 
-; Input: A = packed operand (A_high = divisor, A_low = multiplicand), Y = 16-bit multiplier.
-; Algorithm: Splits A into high/low bytes. Performs A_low × Y using two cascaded 8×8 hardware multiplies with cross-product accumulation to produce a 24-bit intermediate. Then divides by A_high using the hardware divider.
-; Output: 16-bit quotient in A.
-; Timing: 3 NOPs after multiply, 8 NOPs after divide (hardware latency).
+; Input: A = packed operand (low byte = multiplier, high byte = divisor), Y = 16-bit multiplicand.
+; Algorithm: P1 = A low × Y low and P2 = A low × Y high (two 8×8 multiplies). The dividend is the 16-bit value P1 + (P2 low byte << 8): the carry out and P2's high byte are discarded, so only the low 16 bits of A low × Y are divided. The divisor is A high; WRDIVB triggers the divide.
+; Output: 16-bit quotient in A (RDDIVL/RDDIVH). Divisor 0 returns $FFFF (hardware behaviour).
+; Timing: 3 NOPs after the multiplies (plus the instructions between), 8 NOPs (16 cycles) after the divide.
 
 MulDivide {
     SEP #$20              ; MulDivide: cascaded 16×8 hardware multiply, then divide by A high byte
@@ -47,20 +47,20 @@ MulDivide {
     REP #$20
     TYA 
     SEP #$20
-    STA $WRMPYB           ; WRMPYB = Y; hardware 8×8 multiply (A_low × Y)
+    STA $WRMPYB           ; WRMPYB = Y low byte → P1 = A low × Y low
     XBA 
     NOP                   ; Wait for multiply result (hardware latency)
     NOP 
     NOP 
-    LDY $RDMPYL
-    STA $WRMPYB           ; Second 8×8 multiply for high-byte cross product term
+    LDY $RDMPYL           ; Y = P1 (16-bit read of RDMPYL/RDMPYH)
+    STA $WRMPYB           ; WRMPYB = Y high byte (XBA moved it into A low) → P2 = A low × Y high
     REP #$20
     TYA 
     SEP #$20
-    STA $WRDIVL           ; WRDIVL = low byte of combined 16×8 product (dividend)
+    STA $WRDIVL           ; WRDIVL = P1 low byte
     XBA 
     CLC 
-    ADC $RDMPYL           ; WRDIVH += high byte of cross product (finish dividend)
+    ADC $RDMPYL           ; WRDIVH = P1 high + P2 low; the carry and P2 high are discarded (16-bit dividend)
     STA $WRDIVH
     PLA 
     STA $WRDIVB           ; WRDIVB = divisor (A high); triggers 16÷8 hardware divide
@@ -78,21 +78,21 @@ MulDivide {
 }
 ---------------------------------------------
 
-; 8×8 signed multiply using long-address hardware registers.
+; 8×8 multiply through long-address hardware registers (named Multiply8x8Unsigned, but the $4202/$4203 multiplier is unsigned).
 ; 
-; Input: A = 8-bit multiplicand, stored via STA $80:4202 (WRMPYA). Second operand from XBA stored to $80:4203 (WRMPYB).
-; Output: 16-bit signed result in A (high byte from $80:4217, low byte from $80:4216, assembled via XBA).
-; Uses long addresses ($80:xxxx) to access hardware registers regardless of current data bank.
+; Input: A low = first operand, A high = second operand (8-bit accumulator). STA $80:4202, XBA, STA $80:4203.
+; Output: 16-bit product in A (high byte from $80:4217 via XBA, low byte from $80:4216).
+; Long addresses make it independent of the current data bank.
 
-SignedMultiply {
-    STA $L_WRMPYA         ; SignedMultiply: 8×8 signed via long-address WRMPYA/WRMPYB ($80:4202/$80:4203)
+Multiply8x8Unsigned {
+    STA $L_WRMPYA         ; WRMPYA = A low byte (the hardware multiply is unsigned)
     XBA 
-    STA $L_WRMPYB         ; WRMPYB = second signed operand (from B via XBA)
+    STA $L_WRMPYB         ; WRMPYB = second operand (A high byte, moved down by XBA)
     NOP                   ; Wait for multiply result (hardware latency)
     NOP 
     NOP 
     NOP 
-    LDA $L_RDMPYH         ; Load signed product high byte; XBA assembles 16-bit result in A
+    LDA $L_RDMPYH         ; Product high byte, XBA, then product low byte: A = 16-bit unsigned product
     XBA 
     LDA $L_RDMPYL
     RTL 
@@ -101,9 +101,9 @@ SignedMultiply {
 ---------------------------------------------
 ; 16÷8 unsigned hardware divide.
 ; 
-; Input: Y = 16-bit dividend (stored to WRDIVL/WRDIVH), A = 8-bit divisor (stored to WRDIVB).
-; Output: A = quotient (low byte from $4214/RDDIVL) | remainder (high byte from $4216/RDMPYL), assembled via XBA.
-; 8 NOP delay for hardware divide completion.
+; Input: Y = 16-bit dividend (WRDIVL/WRDIVH), A = 8-bit divisor (WRDIVB, which starts the divide).
+; Output: A low = quotient low byte (RDDIVL), A high = remainder (RDMPYL), assembled with XBA. The quotient's high byte is not returned.
+; 8 NOPs (16 cycles) cover the divide latency.
 
 UnsignedDivide {
     STY $WRDIVL           ; UnsignedDivide: Y = 16-bit dividend, A = 8-bit divisor
@@ -116,14 +116,16 @@ UnsignedDivide {
     NOP 
     NOP 
     NOP 
-    LDA $RDMPYL           ; Return A = quotient|remainder (RDDIVL low, RDMPYL high via XBA)
+    LDA $RDMPYL           ; Remainder (RDMPYL) → A high via XBA, then quotient low byte (RDDIVL) → A low
     XBA 
     LDA $RDDIVL
     RTL 
 }
 
 ---------------------------------------------
-; Software long division (unused). Implements bit-by-bit binary division using direct page scratch ($00–$06). Sets up a temporary DP at $0000, normalizes the dividend by left-shifting until MSB is set, then performs two 16-iteration division loops to produce a 32-bit quotient in $04:$06. Likely a development fallback before the hardware divider wrapper was finalized.
+; Software long division (no callers). Uses DP = 0 scratch $00-$06. A = divisor, Y = dividend.
+; 
+; The divisor is normalized by shifting left until its MSB is set (shift count in $00, normalized divisor in $02). The dividend then acts as a running remainder through two trial-subtraction loops: the first collects the integer quotient bits into $06 (shift count + 1 iterations, at most 16), the second 16 further bits into $04 (a 16.16 fixed-point quotient, inferred). Probably a development fallback before the hardware divider wrapper.
 
 SoftDivide_Unused {
     PHD 
@@ -145,8 +147,8 @@ SoftDivide_Unused {
 
   loc_028217:
     STA $02
-    TYA                   ; Store normalized divisor in $02; Y holds the dividend
-    LDY #$0010            ; Build high quotient word ($06): 16-iteration bit-by-bit trial subtract
+    TYA                   ; Dividend (Y) becomes the running remainder in A; $02 holds the normalized divisor
+    LDY #$0010            ; Integer-part quotient bits → $06: shift count + 1 trial subtractions (at most 16)
     CLC 
 
   loc_02821E:
@@ -168,7 +170,7 @@ SoftDivide_Unused {
 
   loc_028231:
     ASL 
-    LDY #$0010            ; Build low quotient word ($04): second 16-iteration divide pass
+    LDY #$0010            ; Further 16 trial subtractions: fraction bits → $04 (16.16 fixed-point result, inferred)
     CLC 
 
   loc_028236:
@@ -190,26 +192,28 @@ SoftDivide_Unused {
 }
 
 ---------------------------------------------
-; Counter/RNG state increment (unused). Adds 16 bytes from $0410 to the RNG state array at $040F with carry propagation across all bytes, then increments the first non-$FF byte in the state array. Appears to be an entropy accumulation function.
+; Generator step (no callers); the same loops as the inline step in RngByte (cop_handlers_movement), without the output byte.
+; 
+; For X = 15..1: byte[$040F+X] += byte[$0410+X] + carry (one carry chain, $041E first). Then a ripple counter at $041F is incremented, carrying toward lower addresses until a byte does not wrap. The state array is $0410-$041F; rngState ($040F) is only the base used for the X offset.
 
-IncrementCounter_Unused {
+RngStep_Unused {
     PHP 
     SEP #$20
     PHA 
     PHX 
     PHY 
-    LDX #$000F            ; IncrementCounter (unused): add $0410[0..F] into rngState with carry
+    LDX #$000F            ; Same step as RngByte: for X = 15..1, byte[$040F+X] += byte[$0410+X] + carry
     LDA #$00
     XBA 
     CLC 
 
   loc_028254:
-    LDA $0410, X          ; 16-byte ripple add: rngState[i] += $0410[i]
+    LDA $0410, X          ; state[X-1] += state[X] + carry (one carry chain; $041E is updated first)
     ADC $rngState, X
     STA $rngState, X
     DEX 
     BNE loc_028254
-    LDX #$0010            ; Propagate carry — increment next rngState byte until no wrap
+    LDX #$0010            ; Ripple counter: INC from $041F downward until a byte does not wrap
 
   loc_028263:
     INC $rngState, X

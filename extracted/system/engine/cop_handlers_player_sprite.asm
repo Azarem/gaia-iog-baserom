@@ -1,6 +1,6 @@
 ; COP handlers for player-specific sprite staging, body-form switching, and wall-collision animation (Bank $00, 11 COP handlers).
 ; 
-; SetPlayerSpriteDirect writes a body sprite index directly to spriteset/bank fields and sets playerFlags bit $8000. StagePlayerSpr and its axis variants (X/Y/XY) call SetActorBody to apply the current characterForm's body_table entry before staging. RunPlayerAnim runs a single animation pass via UpdateActorAnimation.
+; SetPlayerSpriteDirect writes a body sprite index directly to spriteset/bank fields and sets playerFlags bit $8000. StagePlayerSprite and its axis variants (X/Y/XY) call SetActorBody to apply the current characterForm's body_table entry before staging. RunPlayerAnim runs a single animation pass via UpdateActorAnimation.
 ; 
 ; StagePlayerSprWall adds a wall-type operand stored in playerWallType for wall-slide detection. StagePlayerSprFromDP reads the animation index from DP $0000 instead of a script operand.
 ; 
@@ -55,9 +55,9 @@ SetPlayerSpriteDirect {
 ---------------------------------------------
 ; COP #8F with one byte operand (animation index). Stores the anim in actor $28, clears $2A, calls SetActorBody to apply the current characterForm body, then saves the script PC/bank in $00/$02 for deferred animation staging.
 
-StagePlayerSpr {
+StagePlayerSprite {
     TYX 
-    LDA [$0A]             ; StagePlayerSpr: read animation index byte
+    LDA [$0A]             ; StagePlayerSprite: read animation index byte
     INC $0A
     AND #$00FF
     STA $28               ; Store anim index to $28; clear frame counter $2A
@@ -72,12 +72,12 @@ StagePlayerSpr {
 }
 
 ---------------------------------------------
-; COP #90 with two byte operands (animation index, X step). Same SetActorBody staging as StagePlayerSpr, stores X distance in moveXAlt ($7F0018), and uses AnimFrameLookup to resolve the X frame duration into $2C.
+; COP #90 with two byte operands (animation index, X step). Same SetActorBody staging as StagePlayerSprite, stores X distance in moveXAlt ($7F0018), and uses AnimFrameLookup to resolve the X frame duration into $2C.
 
-StagePlayerSprX {
+StagePlayerSpriteMoveX {
     TYX 
     LDA [$0A]
-    INC $0A               ; StagePlayerSprX: read anim index, stage X axis
+    INC $0A               ; StagePlayerSpriteMoveX: read anim index, stage X axis
     AND #$00FF
     STA $28
     STZ $2A
@@ -97,12 +97,12 @@ StagePlayerSprX {
 }
 
 ---------------------------------------------
-; COP #91 with two byte operands (animation index, Y step). Like StagePlayerSprX but stores Y distance in moveYAlt ($7F001A) and writes the looked-up Y frame duration to $2E.
+; COP #91 with two byte operands (animation index, Y step). Like StagePlayerSpriteMoveX but stores Y distance in moveYAlt ($7F001A) and writes the looked-up Y frame duration to $2E.
 
-StagePlayerSprY {
+StagePlayerSpriteMoveY {
     TYX 
     LDA [$0A]
-    INC $0A               ; StagePlayerSprY: read anim index, stage Y axis
+    INC $0A               ; StagePlayerSpriteMoveY: read anim index, stage Y axis
     AND #$00FF
     STA $28
     STZ $2A
@@ -124,10 +124,10 @@ StagePlayerSprY {
 ---------------------------------------------
 ; COP #92 with three byte operands (animation index, X distance, Y distance). Combines both axis staging: SetActorBody, then AnimFrameLookup for X→$2C and Y→$2E, with moveXAlt/moveYAlt updated.
 
-StagePlayerSprXY {
+StagePlayerSpriteMoveXY {
     TYX 
     LDA [$0A]
-    INC $0A               ; StagePlayerSprXY: read anim index, stage both axes
+    INC $0A               ; StagePlayerSpriteMoveXY: read anim index, stage both axes
     AND #$00FF
     STA $28
     STZ $2A
@@ -173,7 +173,7 @@ RunPlayerAnim {
 }
 
 ---------------------------------------------
-; COP #94 with four byte operands (animation index, X distance, Y distance, wall type). Identical XY staging to StagePlayerSprXY, plus a fourth byte stored in playerWallType ($09B0) for subsequent wall-collision checks.
+; COP #94 with four byte operands (animation index, X distance, Y distance, wall type). Identical XY staging to StagePlayerSpriteMoveXY, plus a fourth byte stored in playerWallType ($09B0) for subsequent wall-collision checks.
 
 StagePlayerSprWall {
     TYX 
@@ -208,7 +208,7 @@ StagePlayerSprWall {
 }
 
 ---------------------------------------------
-; COP #95 with no script operands. Reads the animation index from direct-page $0000 instead of the script stream, then runs SetActorBody and saves $00/$02 like StagePlayerSpr.
+; COP #95 with no script operands. Reads the animation index from direct-page $0000 instead of the script stream, then runs SetActorBody and saves $00/$02 like StagePlayerSprite.
 
 StagePlayerSprFromDP {
     TYX 

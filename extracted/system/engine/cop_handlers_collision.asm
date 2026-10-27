@@ -4,7 +4,7 @@
 ; 
 ; Paint ops (script call sites): MarkSolidHere #0B (462), ClearSolidHere #0C (163), MarkSolidOffset #0D (20), ClearSolidOffset #0E (11), MarkSolidAbs #0F (86), ClearSolidAbs #10 (60), ClearCollisionHere #11 (9), ClearTypeAbs #12 (27), SetCollisionAbs #42 (1). "Here" ops cover the actor's metasprite hitbox rectangle; Offset and Abs ops touch a single tile.
 ; 
-; Probe ops: BranchIfSolidHere/Offset/North/South/West/East #13–#18 (27/160/75/78/67/71), the type probes #1A–#1E (9/4/6/4/4), BranchIfNotOnGridline #1F. The type probes appear as BranchIfSolidType* in copdef.json; the handler labels here (BranchIfTypeHere ... BranchIfTypeEast) use different names. All probes go through TileCollisionQuery, which returns $000F for a blocked (high nibble set) or out-of-bounds probe and the tile's own low-nibble type otherwise, so a type operand of $0F cannot tell a solid tile from a non-solid tile of type $0F. Handlers return by writing the next script address to the COP frame ($02,S) and RTI.
+; Probe ops: BranchIfSolidHere/Offset/North/South/West/East #13–#18 (27/160/75/78/67/71), the type probes #1A–#1E (9/4/6/4/4), BranchIfNotOnGridline #1F. The type probes appear as BranchIfSolidType* in copdef.json; the handler labels here (BranchIfSolidType ... BranchIfSolidTypeEast) use different names. All probes go through TileCollisionQuery, which returns $000F for a blocked (high nibble set) or out-of-bounds probe and the tile's own low-nibble type otherwise, so a type operand of $0F cannot tell a solid tile from a non-solid tile of type $0F. Handlers return by writing the next script address to the COP frame ($02,S) and RTI.
 ; 
 ; Helpers: ParseSignedTileOffset (used by MarkSolidOffset, ClearSolidOffset), ComputeDirectionToPlayer (used by cop_handlers_player_query), MarkCollisionRect / ClearCollisionRect / ClearCollisionRectFull / AdvanceMapY (rectangle paint), and TileCollisionQuery (used by every probe here and by the WallAnim handlers in cop_handlers_player_sprite). The Offset and Abs handlers do not range-check the index returned by TileCoordsToMapIndex (the rectangle helpers do).
 ---------------------------------------------
@@ -414,7 +414,7 @@ BranchIfSolidEast {
 ---------------------------------------------
 ; COP #1A (copdef name BranchIfSolidType) with one byte (expected type) plus one &Code operand. TileCollisionQuery at the actor position; branches if the low byte of the result equals the operand. Blocked and out-of-bounds probes return $0F, so they match an operand of $0F. On a mismatch the pushed result is popped into Y (Y is clobbered; X and D still hold the slot).
 
-BranchIfTypeHere {
+BranchIfSolidType {
     TYX 
     LDA $14               ; Type query: probe at actor position
     STA $0018
@@ -448,7 +448,7 @@ BranchIfTypeHere {
 ---------------------------------------------
 ; COP #1B with one byte type and one &Code operand. Compares the collision type at Y − $10 against the operand and branches on equality.
 
-BranchIfTypeNorth {
+BranchIfSolidTypeNorth {
     TYX 
     LDA $14               ; TypeNorth: probe Y − $10
     STA $0018
@@ -482,9 +482,9 @@ BranchIfTypeNorth {
 }
 
 ---------------------------------------------
-; COP #1C with one byte type and one &Code operand. Same type comparison as BranchIfTypeHere but samples the tile at Y + $10.
+; COP #1C with one byte type and one &Code operand. Same type comparison as BranchIfSolidType but samples the tile at Y + $10.
 
-BranchIfTypeSouth {
+BranchIfSolidTypeSouth {
     TYX 
     LDA $14               ; TypeSouth: probe Y + $10
     STA $0018
@@ -520,7 +520,7 @@ BranchIfTypeSouth {
 ---------------------------------------------
 ; COP #1D with one byte type and one &Code operand. Compares collision type at X − $10 and branches to &Code on match.
 
-BranchIfTypeWest {
+BranchIfSolidTypeWest {
     TYX 
     LDA $14               ; TypeWest: probe X − $10
     SEC 
@@ -556,7 +556,7 @@ BranchIfTypeWest {
 ---------------------------------------------
 ; COP #1E with one byte type and one &Code operand. Compares collision type at X + $10 and branches to &Code on match.
 
-BranchIfTypeEast {
+BranchIfSolidTypeEast {
     TYX 
     LDA $14               ; TypeEast: probe X + $10
     CLC 

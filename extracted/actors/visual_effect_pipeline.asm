@@ -60,7 +60,7 @@ effect_velocity_init [
     STA $2E
     LDA #$0000            ; ComputeFollowStep: orbitAngle × 32 = sine table row offset
     STA $14
-    STA $effectScrollH    ; ASL ×5 = multiply angle by 32 for SmoothFollowLookup row stride
+    STA $effectScrollH    ; ASL ×5 = multiply angle by 32 for FollowSlopeDitherTable row stride
     STA $cameraDeltaX
     STA $16               ; Add orbitDiameter as column offset within the table row
     STA $effectScrollV
@@ -70,7 +70,7 @@ effect_velocity_init [
     CLC 
     ADC $2C
     CLC 
-    ADC $effectDeltaX     ; SmoothFollowLookup[angle×32 + col]: read sine-based movement delta
+    ADC $effectDeltaX     ; FollowSlopeDitherTable[angle×32 + col]: read sine-based movement delta
     STA $14
     ORA #$8000
     STA $forcedScrollOverride

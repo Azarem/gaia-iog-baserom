@@ -1,6 +1,6 @@
 ; Warp system, treasure chest interaction, and opened-chest redraw (173533–174986, Bank 02).
 ; 
-; Combines three related subsystems: scene-transition warps, treasure chest opening, and redrawing already-opened chests when a scene is built (PlaceBarrierTiles; the "barrier" name is a misnomer, see its note). The chest code reads per-scene records from scene_barrier_chest_table, the warp code reads warp rectangles from scene_warps. CheckWarpAndChest is called every frame from the main loop (system_core); InitWarpTable and PlaceBarrierTiles run while a scene is set up (scene_lifecycle; PlaceBarrierTiles again when inventory_overlay rebuilds the scene).
+; Combines three related subsystems: scene-transition warps, treasure chest opening, and redrawing already-opened chests when a scene is built (PlaceOpenedChestTiles). The chest code reads per-scene records from scene_chest_table, the warp code reads warp rectangles from scene_warps. CheckWarpAndChest is called every frame from the main loop (system_core); InitWarpTable and PlaceOpenedChestTiles run while a scene is set up (scene_lifecycle; PlaceOpenedChestTiles again when inventory_overlay rebuilds the scene).
 ; 
 ; === WARP SYSTEM ===
 ; 
@@ -12,13 +12,13 @@
 ; 
 ; CheckWarpRectangles tests the player's tile and pixel position against both tables:
 ; 1. Standard warps: tile-level AABB check (playerXTile/playerYTile vs entry bytes 0-3), then sub-tile pixel refinement via ConvertWarpToPixels. Hit → ExecuteWarp.
-; 2. Extended warps: same AABB structure but 13-byte entries (bytes 4–5 camera window, byte 6 direction/sequence, bytes 7–12 walk steps). Hit → code_02AAF2 for forced-walk warp.
+; 2. Extended warps: same AABB structure but 13-byte entries (bytes 4–5 camera window, byte 6 direction/sequence, bytes 7–12 walk steps). Hit → ExecuteForcedWalkWarp for forced-walk warp.
 ; 
 ; ConvertWarpToPixels converts tile coordinates to pixel coordinates (×16) and computes the bounding box size (width/height × 16 − 15) for sub-tile precision checking.
 ; 
 ; ExecuteWarp copies the standard entry into the transition parameters: destination scene ($0642, byte 4), player spawn X/Y ($064C/$064E, bytes 5–8), facing ($0650, byte 9 with bit 7 masked off) and the packed camera window read by InitCameraBounds ($0652, bytes 10–11). It also records the source scene ($0B12), the source rectangle bytes 0–3 ($0B08/$0B0C/$0B0A/$0B0E) and two camera bytes ($0B10/$0B11) holding bits 8–11 of the camera offset X/Y and of the camera bounds X/Y. Every warp stores a pointer to entry+4 and the scene_warps bank in $0AF4/$0AF6: GameOverSequence reloads from it when the player dies with 100 or more gems (revive). If bit 7 of entry byte 9 is set the same pointer is also stored in sceneSaveData ($0AF0/$0AF2), which GameOverSequence uses for a real game over (fewer than 100 gems). Both variants return carry set.
 ; 
-; code_02AAF2 handles extended (forced-walk) warps: checks the $0100 re-entry guard in playerFlags, stores the camera window, direction/sequence byte and walk-step pointer, calls InitCameraBounds, and spawns a direction-specific forced walk actor via StartForcedWalk.
+; ExecuteForcedWalkWarp handles extended (forced-walk) warps: checks the $0100 re-entry guard in playerFlags, stores the camera window, direction/sequence byte and walk-step pointer, calls InitCameraBounds, and spawns a direction-specific forced walk actor via StartForcedWalk.
 ; 
 ; StartForcedWalk decodes the direction from scrollStepTableBase: bit 5 = West, bit 4 = East, bit 7 = North, default = South. Spawns the corresponding ForcedWalk actor (ForcedWalkSouth/West/East/North) as a SpawnBefore on the player actor. Sets playerFlags $0100 (forced walk active) and bit 13 ($2000, script-driven tick) in the player actor's flags word $10.
 ; 
@@ -32,7 +32,7 @@
 ; 
 ; The chest tile search reads mapLayerTilemap at the tile in front of the player. Tile $F8 = chest bottom-left, $F9 = chest bottom-right (the 2×2 closed chest uses base $F8: bottom $F8/$F9, top $FA/$FB). If the tile is $F9 the left neighbour must be $F8, and the origin X is decremented, so the origin is always the bottom-left cell.
 ; 
-; The routine then walks the scene's records in scene_barrier_chest_table (scene index $0646) comparing byte 0/1 (X, Y of the bottom-left cell) with the origin. No match: the chest is shown the message dialogstring_01FF48 ("The jewel box is tightly closed.").
+; The routine then walks the scene's records in scene_chest_table (scene index $0646) comparing byte 0/1 (X, Y of the bottom-left cell) with the origin. No match: the chest is shown the message dialogstring_01FF48 ("The jewel box is tightly closed.").
 ; 
 ; A matching record is processed according to its byte 2 (contents):
 ; - Nonzero: item chest. displayModeFlags bit 7 is set (display-filter mode: only actors flagged $1000 keep running), the open chest tiles (base $FC) are drawn, then GiveItemToPlayer runs. Success without record byte 3 bit 7: clear the display filter, SFX #$2A, ShowDialogueFrame with dialogstring_01FF2D (prints the item name held in $0DB8), SetEventFlag. Success with byte 3 bit 7: spawn ChestOpeningActor (fanfare with music transition) and SetEventFlag. Inventory full: show the dialogue string GiveItemToPlayer returned in Y (dialogstring_01FF02, "Your inventory's full!"), redraw the closed tiles (base $F8) and do not set the flag.
@@ -53,9 +53,9 @@
 ; 
 ; ChestDialogueActor: waits 72 frames, clears its own $1000 flag, restores the item ID from $20 to $0DB8 (the dialogue string prints the item name from there), shows the dialogue pointer stored in $24 with ShowDialogueFrame, and dies.
 ; 
-; === OPENED-CHEST REDRAW (PlaceBarrierTiles) ===
+; === OPENED-CHEST REDRAW (PlaceOpenedChestTiles) ===
 ; 
-; PlaceBarrierTiles walks the scene's records in scene_barrier_chest_table. For each record whose event flag (byte 3 AND $7F, TestEventFlag_0200) is set, it writes the OPEN-chest 2×2 pattern at the record position:
+; PlaceOpenedChestTiles walks the scene's records in scene_chest_table. For each record whose event flag (byte 3 AND $7F, TestEventFlag_0200) is set, it writes the OPEN-chest 2×2 pattern at the record position:
 ;   Top-left: $FE, Top-right: $FF (row Y−1)
 ;   Bottom-left: $FC, Bottom-right: $FD (row Y)
 ; These are exactly the tiles DrawChestTiles draws with base $FC, and the records are the chest records, so the routine restores chests the player has already opened whenever the scene map is rebuilt (scene load, and inventory_overlay's scene reload). The earlier "closed door/barrier" reading is not supported by the code. Only the map is written; no VRAM update is queued.
@@ -76,7 +76,7 @@
 ?INCLUDE 'item_get_dialog_table'
 ?INCLUDE 'map_coords'
 ?INCLUDE 'player_transition_handlers'
-?INCLUDE 'scene_barrier_chest_table'
+?INCLUDE 'scene_chest_table'
 ?INCLUDE 'scene_lifecycle'
 ?INCLUDE 'scene_warps'
 ?INCLUDE 'ShowDialogueFrame'
@@ -145,20 +145,20 @@ CheckWarpAndChest {
 }
 
 ---------------------------------------------
-; Redraw already-opened chests into the tile map when a scene is built (despite the name, not barriers).
+; Redraw already-opened chests into the tile map when a scene is built.
 ; 
-; Walks the scene's records in scene_barrier_chest_table (the scene index at $0646 selects the list). Each 4-byte record is: byte 0 = X tile (bit 7 set = end of list), byte 1 = Y tile of the chest's bottom row, byte 2 = contents (item ID, 0 = flag-only), byte 3 = event flag in bits 0–6 (bit 7 = open with the music fanfare).
+; Walks the scene's records in scene_chest_table (the scene index at $0646 selects the list). Each 4-byte record is: byte 0 = X tile (bit 7 set = end of list), byte 1 = Y tile of the chest's bottom row, byte 2 = contents (item ID, 0 = flag-only), byte 3 = event flag in bits 0–6 (bit 7 = open with the music fanfare).
 ; 
 ; For each record the event flag (byte 3 AND $7F, TestEventFlag_0200) is tested. If it is set the chest was opened, so the open 2×2 pattern is written to mapLayerTilemap:
 ;   $FE at (X, Y−1), $FF at (X+1, Y−1): top row
 ;   $FC at (X, Y), $FD at (X+1, Y): bottom row
 ; MapIndexMoveRight/MapIndexMoveDown step between the four cells. Only the tile map is written (no VRAM update).
 
-PlaceBarrierTiles {
+PlaceOpenedChestTiles {
     PHP 
     REP #$20
     LDY $sceneTableIndex  ; Scene index ($0646) → this scene's chest record list
-    LDX $&scene_barrier_chest_table, Y ; X = first 4-byte chest record
+    LDX $&scene_chest_table, Y ; X = first 4-byte chest record
 
   loc_02A5F9:
     LDA $0000, X          ; Entry byte 0 bit 7 ($0080) = end-of-table sentinel
@@ -222,7 +222,7 @@ PlaceBarrierTiles {
 ; 
 ; Chest detection: the tile in front of the player is X = round((pos X − 8) / 16), Y = (pos Y − $20) >> 4. $F8 = chest bottom-left, $F9 = chest bottom-right (then the left neighbour must be $F8 and the origin X is decremented), anything else returns.
 ; 
-; Record search: walks the scene's scene_barrier_chest_table records comparing bytes 0/1 with the origin; no match shows dialogstring_01FF48 ("The jewel box is tightly closed.").
+; Record search: walks the scene's scene_chest_table records comparing bytes 0/1 with the origin; no match shows dialogstring_01FF48 ("The jewel box is tightly closed.").
 ; 
 ; Matched record, by byte 2: nonzero = item chest (displayModeFlags bit 7 set, open tiles drawn, GiveItemToPlayer; success shows dialogstring_01FF2D with SFX #$2A, or spawns ChestOpeningActor when byte 3 bit 7 is set; inventory full shows GiveItemToPlayer's Y string and redraws the closed tiles with no flag); zero = flag-only chest ("It is empty!", dialogstring_01FF36). The event flag set is byte 3 AND $7F.
 
@@ -305,7 +305,7 @@ HandleChestInteraction {
 
   loc_02A6E4:
     LDY $sceneTableIndex  ; Walk this scene's chest records, comparing bytes 0/1 with the bottom-left cell
-    LDX $&scene_barrier_chest_table, Y
+    LDX $&scene_chest_table, Y
 
   loc_02A6EA:
     LDA $0000, X          ; Byte 0 bit 7 set = end of list → no record for this chest
@@ -551,7 +551,7 @@ SetAnimStatePointer {
 ---------------------------------------------
 ; Draw 2×2 chest tiles on the map and queue VRAM updates.
 ; 
-; Entry: X = chest record pointer (scene_barrier_chest_table), $06 = base tile ID ($FC open, $F8 closed).
+; Entry: X = chest record pointer (scene_chest_table), $06 = base tile ID ($FC open, $F8 closed).
 ; 
 ; Reads the record's X/Y tile (bytes 0-1; Y is the bottom row, so the top row is Y−1) and keeps the pixel position of the top-left cell (×16) in $1A/$1E for QueueVisibleTileVram, which only queues the tile if that position is on screen. The map index comes from TileCoordsToMapIndex.
 ; 
@@ -679,7 +679,7 @@ InitWarpTable {
 ; Each pass performs:
 ; 1. Tile-level AABB test: playerXTile minus entry X, compared against entry width; playerYTile minus entry Y, compared against entry height. Uses unsigned comparison (BCS = outside range).
 ; 2. Sub-tile pixel refinement: ConvertWarpToPixels converts tile coords to pixel bounding box. playerXPos/playerYPos minus origin, compared against extent.
-; 3. On hit: standard warps → ExecuteWarp; extended warps → code_02AAF2.
+; 3. On hit: standard warps → ExecuteWarp; extended warps → ExecuteForcedWalkWarp.
 ; 
 ; Entry stride: standard = $000C (12 bytes), extended = $000D (13 bytes). Both terminate on $FF sentinel byte.
 ; 
@@ -771,7 +771,7 @@ CheckWarpRectangles {
     SBC $02
     CMP $06
     BCS loc_02AA17
-    JMP $&code_02AAF2     ; Extended warp hit — JMP code_02AAF2 (forced-walk pan)
+    JMP $&ExecuteForcedWalkWarp ; Extended warp hit — JMP ExecuteForcedWalkWarp (forced-walk pan)
 
   loc_02AA17:
     REP #$20
@@ -928,7 +928,7 @@ ExecuteWarp {
 ; 
 ; Calls InitCameraBounds to configure camera limits for the destination area, then StartForcedWalk to spawn the appropriate directional walk actor. Returns carry set.
 
-code_02AAF2 {
+ExecuteForcedWalkWarp {
     LDA $playerFlags      ; Re-entry guard: skip if playerFlags bit 8 ($0100) already set
     BIT #$0100
     BEQ loc_02AAFB

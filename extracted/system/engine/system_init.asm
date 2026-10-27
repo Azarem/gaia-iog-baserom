@@ -266,7 +266,7 @@ DmaFixedByteFill {
     STA $DMAP0
     LDA #$80              ; B-bus $80 = WRAM data port ($2180)
     STA $BBAD0
-    LDA #$^math_lookup_tables.sine_table_8bit ; Source: known zero byte in ROM (scene_flag_table)
+    LDA #$^math_lookup_tables.sine_table_8bit ; Source: known zero byte in ROM (slope_curve_table)
     STA $A1B0
     LDX #$&math_lookup_tables.sine_table_8bit
     STX $A1T0L

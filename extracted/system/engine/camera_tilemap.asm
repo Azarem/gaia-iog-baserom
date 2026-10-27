@@ -2,17 +2,17 @@
 ; 
 ; Implements the complete pipeline for updating SNES background layer tilemaps in response to camera scrolling. The system manages two BG layers (indexed by X=0 for layer 0, X=2 for layer 1) with independent scroll positions, using four staging buffers from $7E3100 (a column strip and a row strip per layer; initial pointers $06B2/$06B4 = column strips, $06B6/$06B8 = row strips, set by system_init) to prepare tilemap data for DMA transfer during V-Blank.
 ; 
-; Naming: RenderScrollRow, DmaHorizontalStrip and the $06B2/$06B4 buffers deal with COLUMN strips (a vertical run of 16 metatiles, DMA'd with VRAM increment 32), while RenderScrollColumn, DmaVerticalStrip and the $06B6/$06B8 buffers deal with ROW strips. UpdateScrollRow/UpdateScrollColumn and the Fill*TilemapSeg routines use the geometric meaning, so the two vocabularies meet inside this file.
+; Naming: RenderColumnStrip, DmaColumnStrip and the $06B2/$06B4 buffers deal with COLUMN strips (a vertical run of 16 metatiles, DMA'd with VRAM increment 32), while RenderRowStrip, DmaRowStrip and the $06B6/$06B8 buffers deal with ROW strips. UpdateScrollRow/UpdateScrollColumn and the Fill*TilemapSeg routines use the geometric meaning, so the two vocabularies meet inside this file.
 ; 
 ; Two primary modes:
-; - CameraFullRefresh: Redraws the whole 64-tile-wide tilemap of one layer: wraps the camera target into the map bounds, then renders 32 metatile columns 16px apart via RenderScrollRow and immediately DMA-transfers each one to VRAM. Called on scene load.
+; - CameraFullRefresh: Redraws the whole 64-tile-wide tilemap of one layer: wraps the camera target into the map bounds, then renders 32 metatile columns 16px apart via RenderColumnStrip and immediately DMA-transfers each one to VRAM. Called on scene load.
 ; - CameraSmoothScroll: Per-frame incremental scroll. Deltas are clamped to ±16px per frame for smooth motion. When scrolling crosses a 16px tile boundary (detected by XOR of old/new positions on bit 4), the newly-visible row or column is rendered into the staging buffer for DMA during V-Blank.
 ; 
-; The rendering pipeline (RenderScrollRow, RenderScrollColumn) converts map tile indices to 2×2 VRAM tilemap entries (16×16 metatiles → four 8×8 tiles), handles nametable wrapping via WrapMapIndex, and writes to the staging buffer. FillHorizTilemapSeg and FillVertTilemapSeg are the inner loops that expand metatile indices into VRAM-format tilemap words.
+; The rendering pipeline (RenderColumnStrip, RenderRowStrip) converts map tile indices to 2×2 VRAM tilemap entries (16×16 metatiles → four 8×8 tiles), handles nametable wrapping via WrapMapIndex, and writes to the staging buffer. FillHorizTilemapSeg and FillVertTilemapSeg are the inner loops that expand metatile indices into VRAM-format tilemap words.
 ; 
-; FlushDirtyTilemapStrips is called during V-Blank (NMI) to DMA any staged horizontal and vertical strips to VRAM using DmaHorizontalStrip (column strips: two 64-byte tile columns) and DmaVerticalStrip (row strips: two 128-byte halves, one per nametable).
+; FlushDirtyTilemapStrips is called during V-Blank (NMI) to DMA any staged horizontal and vertical strips to VRAM using DmaColumnStrip (column strips: two 64-byte tile columns) and DmaRowStrip (row strips: two 128-byte halves, one per nametable).
 ; 
-; SpriteVramDma (misnamed — it does not touch sprites) uploads the BG3 tilemap staging buffer at $7F0200 (bg3TilemapBuffer, used by the console string renderer) to the BG3 tilemap at VRAM $7800 during V-Blank: a full transfer ($0800 bytes = the whole 32×32 map, displayModeFlags bit 0) or a partial one ($0140 bytes = five tile rows starting at row 2, bits 4/5). BG3SC is initialised to $78, which places the BG3 tilemap at $7800.
+; Bg3TilemapVramDma uploads the BG3 tilemap staging buffer at $7F0200 (bg3TilemapBuffer, used by the console string renderer) to the BG3 tilemap at VRAM $7800 during V-Blank: a full transfer ($0800 bytes = the whole 32×32 map, displayModeFlags bit 0) or a partial one ($0140 bytes = five tile rows starting at row 2, bits 4/5). BG3SC is initialised to $78, which places the BG3 tilemap at $7800.
 ---------------------------------------------
 
 ?BANK 02
@@ -58,7 +58,7 @@
 ; 
 ; Sets up VRAM DMA registers: VMAIN=$81 (word-access, column-mode auto-increment), DMAP0=$01 (two-register), BBAD0=$18 (VRAM data port), source bank=$7E.
 ; 
-; Iterates 32 metatile columns (32 × 16px = 512px, the full two-nametable width): for each column, calls RenderScrollRow to build a 16-metatile vertical strip in the column staging buffer, then immediately DMA-transfers it via DmaHorizontalStrip. After each column, advances the X position ($18) by 16px and wraps it against the map width.
+; Iterates 32 metatile columns (32 × 16px = 512px, the full two-nametable width): for each column, calls RenderColumnStrip to build a 16-metatile vertical strip in the column staging buffer, then immediately DMA-transfers it via DmaColumnStrip. After each column, advances the X position ($18) by 16px and wraps it against the map width.
 ; 
 ; After all columns are rendered, clears the four staging buffer VRAM address words to prevent re-triggering, then calls UploadCgramPalette to sync the color palette.
 ; 
@@ -110,13 +110,13 @@ CameraFullRefresh {
 
   loc_02ABE6:
     PHA                   ; === Column loop: one 16px-wide metatile column per iteration (32×) ===
-    JSR $&RenderScrollRow ; Render one metatile column (16 metatiles tall) at X=$18 into the column staging buffer ($06B2+X)
+    JSR $&RenderColumnStrip ; Render one metatile column (16 metatiles tall) at X=$18 into the column staging buffer ($06B2+X)
     PHX 
     LDA $colStripStagingPtr, X
     TAX 
     LDA $7E0000, X
     TAY 
-    JSR $&DmaHorizontalStrip ; DMA the rendered column to VRAM right away (two tile columns, VRAM +32 per word); runs from scene load, not NMI
+    JSR $&DmaColumnStrip  ; DMA the rendered column to VRAM right away (two tile columns, VRAM +32 per word); runs from scene load, not NMI
     PLX 
     LDA $18
     CLC 
@@ -254,7 +254,7 @@ CameraSmoothScroll {
 ; 
 ; The Y position is added to the current vertical scroll and then wrapped against mapBoundsY via a subtraction loop to handle maps that wrap vertically.
 ; 
-; Finally calls RenderScrollColumn to render that row of tiles into the staging buffer for V-Blank DMA.
+; Finally calls RenderRowStrip to render that row of tiles into the staging buffer for V-Blank DMA.
 
 UpdateScrollRow {
     LDA $bg1ScrollH, X    ; Copy current horizontal scroll to $18 (full X extent for the row being rendered)
@@ -277,7 +277,7 @@ UpdateScrollRow {
     BRA loc_02ACE0
 
   loc_02ACED:
-    JSR $&RenderScrollColumn ; Render the computed row position as a horizontal tilemap strip
+    JSR $&RenderRowStrip  ; Render the computed row position as a horizontal tilemap strip
     RTS 
 }
 
@@ -286,7 +286,7 @@ UpdateScrollRow {
 ; 
 ; Computes the X position of the newly-visible column based on scroll direction: if scrolling left (negative delta), uses offset 0 (left screen edge); if scrolling right (positive delta), uses +256 ($0100, the screen width) for the right edge.
 ; 
-; Sets $18 = computed X position, $1C = current vertical scroll, then calls RenderScrollRow to render that column of tiles into the staging buffer.
+; Sets $18 = computed X position, $1C = current vertical scroll, then calls RenderColumnStrip to render that column of tiles into the staging buffer.
 
 UpdateScrollColumn {
     LDA #$0000            ; Default column offset = 0: left screen edge for leftward scrolling
@@ -300,20 +300,20 @@ UpdateScrollColumn {
     STA $18
     LDA $mapScrollV, X
     STA $1C
-    JSR $&RenderScrollRow ; Render the computed column as a vertical tilemap strip
+    JSR $&RenderColumnStrip ; Render the computed column as a vertical tilemap strip
     RTS 
 }
 
 ---------------------------------------------
-; Renders one ROW strip (a horizontal run of 32 metatiles = 512px, two 256px map pages) into the row staging buffer ($06B6+X) for V-Blank DMA (DmaVerticalStrip).
+; Renders one ROW strip (a horizontal run of 32 metatiles = 512px, two 256px map pages) into the row staging buffer ($06B6+X) for V-Blank DMA (DmaRowStrip).
 ; 
-; Computes the map data offset from the Y position ($1C/$1D) using the map width in pages ($0693+X, the high byte of mapBoundsX) and the tilemap base address via SignedMultiply. The strip always starts at the left edge of a map page: the Y metatile row (×64 VRAM words) selects the VRAM row, and bit 8 of X ($18) selects which nametable receives the first page.
+; Computes the map data offset from the Y position ($1C/$1D) using the map width in pages ($0693+X, the high byte of mapBoundsX) and the tilemap base address via Multiply8x8Unsigned. The strip always starts at the left edge of a map page: the Y metatile row (×64 VRAM words) selects the VRAM row, and bit 8 of X ($18) selects which nametable receives the first page.
 ; 
 ; Always makes two passes: each calls FillHorizTilemapSeg to expand 16 metatile indices (one map page) into VRAM-format 2×2 tile entries. Between the passes the map index advances one page (+$100) and is wrapped via WrapMapIndex. The two passes use staging slot 0 and the slot at +$82, with their VRAM addresses ordered by the nametable bit.
 ; 
 ; Operates in bank $7E (data bank set via PHB) for direct access to the map and staging buffers.
 
-RenderScrollColumn {
+RenderRowStrip {
     PHP 
     PHB 
     PHX 
@@ -326,7 +326,7 @@ RenderScrollColumn {
     LDA $1D               ; Load high byte of Y position ($1D = map page component)
     XBA 
     LDA $0693, X          ; Load map width in 256px pages for this layer ($0693+X = high byte of mapBoundsX)
-    JSL $@hardware_math.SignedMultiply ; SignedMultiply: compute map page offset = Y_page × map width in pages
+    JSL $@hardware_math.Multiply8x8Unsigned ; Multiply8x8Unsigned: compute map page offset = Y_page × map width in pages
     CLC 
     ADC $19               ; Add X position page component ($19 = high byte of $18)
     CLC 
@@ -393,7 +393,7 @@ RenderScrollColumn {
 ; 
 ; Subtracts the tilemap base address ($069E+X) and the map data size ($069A+X; inferred from the arithmetic — it is the wrap modulus) from the current index. If no borrow occurs (carry set), the index has overflowed past the end of the map data — the base is re-added, leaving index − size, and the check repeats until the index normalizes.
 ; 
-; Stores the wrapped index to DP $04 and Y register. Called by both RenderScrollColumn and RenderScrollRow whenever map access indices might exceed the allocated tilemap region.
+; Stores the wrapped index to DP $04 and Y register. Called by both RenderRowStrip and RenderColumnStrip whenever map access indices might exceed the allocated tilemap region.
 
 WrapMapIndex {
     SEC                   ; Subtract tilemap base address and map data size to test for overflow
@@ -412,9 +412,9 @@ WrapMapIndex {
 }
 
 ---------------------------------------------
-; Renders one COLUMN strip (a vertical run of 16 metatiles = 256px, one tile-column pair) into the column staging buffer ($06B2+X) for V-Blank DMA (DmaHorizontalStrip).
+; Renders one COLUMN strip (a vertical run of 16 metatiles = 256px, one tile-column pair) into the column staging buffer ($06B2+X) for V-Blank DMA (DmaColumnStrip).
 ; 
-; The most complex rendering routine. Computes the map data index from the pixel position: page = Y_page × map width in pages (SignedMultiply) + X_page + base page, then metatile row ×16 + metatile column within the page. The tile column (X >> 3, forced even) is the VRAM word offset in the 64-wide ring; bit 5 of it selects the left or right nametable, which changes only the VRAM address ($400 higher for the right one).
+; The most complex rendering routine. Computes the map data index from the pixel position: page = Y_page × map width in pages (Multiply8x8Unsigned) + X_page + base page, then metatile row ×16 + metatile column within the page. The tile column (X >> 3, forced even) is the VRAM word offset in the 64-wide ring; bit 5 of it selects the left or right nametable, which changes only the VRAM address ($400 higher for the right one).
 ; 
 ; The strip is filled in VRAM order (buffer row = VRAM metatile row), starting at the current Y row, in up to two segments:
 ; 1. First segment: 16 − Y_row metatiles, from the current row to the bottom of the map page
@@ -424,7 +424,7 @@ WrapMapIndex {
 ; 
 ; The buffer holds two tile columns: [VRAM addr][32 words] at +0 and [VRAM addr+1][32 words] at +$42 (the right tile column of each 2-wide metatile).
 
-RenderScrollRow {
+RenderColumnStrip {
     PHP 
     PHB 
     PHX 
@@ -444,7 +444,7 @@ RenderScrollRow {
     LDA $1D               ; Load Y position page (high byte of $1C) for row page calculation
     XBA 
     LDA $1B               ; Load map width page (high byte of mapBoundsX)
-    JSL $@hardware_math.SignedMultiply ; SignedMultiply: map page offset = Y_page × mapWidth_page
+    JSL $@hardware_math.Multiply8x8Unsigned ; Multiply8x8Unsigned: map page offset = Y_page × mapWidth_page
     CLC 
     ADC $19               ; Add X position page ($19 = high byte of $18)
     CLC 
@@ -457,7 +457,7 @@ RenderScrollRow {
     LSR 
     XBA 
     LDA #$10              ; Each map page is 16 metatiles wide
-    JSL $@hardware_math.SignedMultiply ; SignedMultiply: row offset = metatile_row_index × 16
+    JSL $@hardware_math.Multiply8x8Unsigned ; Multiply8x8Unsigned: row offset = metatile_row_index × 16
     STA $04               ; Store row offset in map data at DP $04
     LDA $18               ; Load X position low byte for metatile column index
     LSR                   ; LSR ×4: divide by 16 to convert pixel X → metatile column index
@@ -634,7 +634,7 @@ RenderScrollRow {
 }
 
 ---------------------------------------------
-; Inner loop that expands metatile indices into VRAM tilemap entries for a horizontal run of metatiles (a ROW strip segment; used by RenderScrollColumn).
+; Inner loop that expands metatile indices into VRAM tilemap entries for a horizontal run of metatiles (a ROW strip segment; used by RenderRowStrip).
 ; 
 ; Reads $0E consecutive metatile index bytes from map data (pointed to by Y=$04). For each byte: masks to 8 bits, multiplies by 8 (ASL ×3) to index into the tile definition table at $02+offset. Copies 4 words (8 bytes) from the tile definition — the four 8×8 tile entries that compose one 16×16 metatile — into the staging buffer:
 ; - Words 0,1 → buffer+$02/+$04 (top-left, top-right)
@@ -676,7 +676,7 @@ FillHorizTilemapSeg {
 }
 
 ---------------------------------------------
-; Inner loop that expands metatile indices into VRAM tilemap entries for a vertical run of metatiles (a COLUMN strip segment; used by RenderScrollRow).
+; Inner loop that expands metatile indices into VRAM tilemap entries for a vertical run of metatiles (a COLUMN strip segment; used by RenderColumnStrip).
 ; 
 ; Reads $0E consecutive metatile index bytes from map data, advancing the source Y pointer by $10 (16 bytes = one map row) per iteration to traverse vertically through the map.
 ; 
@@ -727,10 +727,10 @@ FillVertTilemapSeg {
 ; Called during the NMI handler after scroll updates have been computed. Sets up common DMA registers: VMAIN=$81 (word-access, 32-word increment for column-mode), DMAP0=$01 (two-register), source bank=$7E.
 ; 
 ; Processes four staging buffer slots in order:
-; 1. Column strip, layer 0 ($06B2 → $7E3100): DMA via DmaHorizontalStrip
-; 2. Column strip, layer 1 ($06B4 → $7E3288): DMA via DmaHorizontalStrip
-; 3. Row strip, layer 0 ($06B6 → $7E3184): DMA via DmaVerticalStrip (VMAIN switched to $80 for sequential access)
-; 4. Row strip, layer 1 ($06B8 → $7E330C): DMA via DmaVerticalStrip
+; 1. Column strip, layer 0 ($06B2 → $7E3100): DMA via DmaColumnStrip
+; 2. Column strip, layer 1 ($06B4 → $7E3288): DMA via DmaColumnStrip
+; 3. Row strip, layer 0 ($06B6 → $7E3184): DMA via DmaRowStrip (VMAIN switched to $80 for sequential access)
+; 4. Row strip, layer 1 ($06B8 → $7E330C): DMA via DmaRowStrip
 ; (The $06B2/$06B4 and $06B6/$06B8 pairs are the pointers initialised by system_init. "Horizontal"/"Vertical" in the routine names refers to the scroll direction that produces the strip, not to its shape.)
 ; 
 ; Each slot is skipped (BEQ) if its VRAM address word is zero (no pending update). After all transfers, clears all four staging buffer VRAM address words and the related staging areas to prevent re-triggering.
@@ -751,14 +751,14 @@ FlushDirtyTilemapStrips {
     LDA $7E0000, X
     TAY 
     BEQ loc_02AF85
-    JSR $&DmaHorizontalStrip
+    JSR $&DmaColumnStrip
 
   loc_02AF85:
     LDX $colStripStagingPtr+2 ; Check and DMA column strip 1 ($06B4) — pending column for BG layer 1
     LDA $7E0000, X
     TAY 
     BEQ loc_02AF92
-    JSR $&DmaHorizontalStrip
+    JSR $&DmaColumnStrip
 
   loc_02AF92:
     LDA #$0080            ; Switch VMAIN to $80: word-access with sequential increment for row strips
@@ -767,14 +767,14 @@ FlushDirtyTilemapStrips {
     LDA $7E0000, X
     TAY 
     BEQ loc_02AFA5
-    JSR $&DmaVerticalStrip
+    JSR $&DmaRowStrip
 
   loc_02AFA5:
     LDX $rowStripStagingPtr+2 ; Check and DMA row strip 1 ($06B8) — pending row for BG layer 1
     LDA $7E0000, X
     TAY 
     BEQ loc_02AFB2
-    JSR $&DmaVerticalStrip
+    JSR $&DmaRowStrip
 
   loc_02AFB2:
     LDA #$0000            ; Zero the VRAM-address word at the head of each of the four strip buffers ($7E3100/$7E3184/$7E3288/$7E330C) so nothing re-fires next frame
@@ -787,7 +787,7 @@ FlushDirtyTilemapStrips {
 }
 
 ---------------------------------------------
-; Transfers one COLUMN strip (a 16px-wide metatile column = two adjacent tile columns) from the staging buffer to VRAM via DMA. Despite the name this is the "horizontal scroll" strip: the caller sets VMAIN=$81, so each word lands 32 words (one tile row) after the previous one.
+; Transfers one COLUMN strip (a 16px-wide metatile column = two adjacent tile columns) from the staging buffer to VRAM via DMA. This is the strip used for horizontal scrolling: the caller sets VMAIN=$81, so each word lands 32 words (one tile row) after the previous one.
 ; 
 ; The staging buffer layout for each strip: [VRAM_addr:u16, data:64_bytes, VRAM_addr:u16, data:64_bytes]. The two halves are the left and right tile columns of the metatile column (VRAM address and address+1) — not two nametables.
 ; 
@@ -795,7 +795,7 @@ FlushDirtyTilemapStrips {
 ; 
 ; Second DMA: Advances the source pointer by $40 bytes, reads the second column's VRAM address, and transfers another $40 bytes.
 
-DmaHorizontalStrip {
+DmaColumnStrip {
     PHP 
     SEP #$20
     INX                   ; Skip past 2-byte VRAM destination address word to reach tilemap data in staging buffer
@@ -828,13 +828,13 @@ DmaHorizontalStrip {
 }
 
 ---------------------------------------------
-; Transfers one ROW strip (a 16px-tall metatile row = two adjacent tile rows) from the staging buffer to VRAM via DMA. Despite the name this is the "vertical scroll" strip.
+; Transfers one ROW strip (a 16px-tall metatile row = two adjacent tile rows) from the staging buffer to VRAM via DMA. This is the strip used for vertical scrolling.
 ; 
-; Same buffer layout as DmaHorizontalStrip but each half is $80 bytes (128 bytes = 64 words): with VRAM increment 1 the first 32 words fill one tile row of a nametable and the next 32 words fill the tile row below it. The two halves are the two nametables (the 512px strip is split across them); the second half's header is at source+$80.
+; Same buffer layout as DmaColumnStrip but each half is $80 bytes (128 bytes = 64 words): with VRAM increment 1 the first 32 words fill one tile row of a nametable and the next 32 words fill the tile row below it. The two halves are the two nametables (the 512px strip is split across them); the second half's header is at source+$80.
 ; 
 ; VMAIN must be set to $80 (word-access, increment by 1) by the caller, unlike column strips, which need increment 32.
 
-DmaVerticalStrip {
+DmaRowStrip {
     PHP 
     SEP #$20
     INX 
@@ -866,7 +866,7 @@ DmaVerticalStrip {
 }
 
 ---------------------------------------------
-; Uploads the BG3 tilemap staging buffer (bg3TilemapBuffer, WRAM $7F0200) to the BG3 tilemap in VRAM during V-Blank. The name is a misnomer: BG3SC is initialised to $78, so VRAM $7800 is the BG3 tilemap (32×32 words = $0800 bytes), not sprite graphics; the buffer is the one the console string renderer writes. Called every NMI from system_core.
+; Uploads the BG3 tilemap staging buffer (bg3TilemapBuffer, WRAM $7F0200) to the BG3 tilemap in VRAM during V-Blank. BG3SC is initialised to $78, so VRAM $7800 is the BG3 tilemap (32×32 words = $0800 bytes), not sprite graphics; the buffer is the one the console string renderer writes. Called every NMI from system_core.
 ; 
 ; First checks hudDisableFlag ($09ED) bit 7 — if set, the upload is suppressed (returns immediately). Then checks displayModeFlags ($09EC) for bits $31 — if none are set, nothing is pending.
 ; 
@@ -876,7 +876,7 @@ DmaVerticalStrip {
 ; 
 ; After the transfer, clears the request flags (bits 0,4,5 via TRB with $31). Sets VMAIN=$80, DMAP0=$01, BBAD0=$18, source bank=$7F, then triggers DMA channel 0. (displayModeFlags bit 3 is the separate player-tile DMA request handled in system_core.)
 
-SpriteVramDma {
+Bg3TilemapVramDma {
     LDA $hudDisableFlag   ; Check hudDisableFlag ($09ED) bit 7 — if set, the BG3 tilemap upload is suppressed
     BPL loc_02B03E
     RTL 

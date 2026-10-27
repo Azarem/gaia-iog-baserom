@@ -66,20 +66,24 @@ interface ParsedAnnotations {
 }
 
 /**
- * Build a name → bank lookup from names.json for bank detection fallback.
+ * Build a name → bank lookup from the per-bank names files
+ * (db-us/names/bankNN.json) for bank detection fallback.
  */
-function loadNamesBankLookup(namesPath: string): Map<string, number> {
+function loadNamesBankLookup(namesDir: string): Map<string, number> {
     const lookup = new Map<string, number>();
-    if (!existsSync(namesPath)) return lookup;
-    try {
-        const names: Record<string, string> = JSON.parse(readFileSync(namesPath, 'utf-8'));
-        for (const [addr, name] of Object.entries(names)) {
-            const address = parseInt(addr, 10);
-            if (!isNaN(address)) {
-                lookup.set(name, Math.floor(address / 65536));
+    if (!existsSync(namesDir)) return lookup;
+    for (const file of readdirSync(namesDir)) {
+        if (!file.endsWith('.json')) continue;
+        try {
+            const names: Record<string, string> = JSON.parse(readFileSync(join(namesDir, file), 'utf-8'));
+            for (const [addr, name] of Object.entries(names)) {
+                const address = parseInt(addr, 10);
+                if (!isNaN(address)) {
+                    lookup.set(name, Math.floor(address / 65536));
+                }
             }
-        }
-    } catch { /* ignore parse errors */ }
+        } catch { /* ignore parse errors */ }
+    }
     return lookup;
 }
 
@@ -110,12 +114,12 @@ function detectBank(lines: string[], fileName: string, namesLookup: Map<string, 
         }
     }
 
-    // Strategy 4: File name or top-level label in names.json
+    // Strategy 4: File name or top-level label in db-us/names/
     if (namesLookup.has(fileName)) {
         return namesLookup.get(fileName)!;
     }
 
-    // Strategy 5: First top-level label found in names.json
+    // Strategy 5: First top-level label found in db-us/names/
     for (const line of lines) {
         const match = line.match(/^(\w+)\s+[\[{]/);
         if (match && namesLookup.has(match[1])) {
@@ -221,8 +225,8 @@ function parseFile(filePath: string, namesLookup: Map<string, number>): ParsedAn
             continue;
         }
 
-        // Top-level label: "Name {" or "Name ["
-        const topLevelMatch = line.match(/^(\w+)\s+[\[{]/);
+        // Top-level label: "Name {", "Name [", or data parts ("Name #hex", "Name `string", "Name ~string", "Name |string")
+        const topLevelMatch = line.match(/^(\w+)\s+[\[{#`~|]/);
         // Internal label: "  Label:"
         const internalMatch = line.match(/^\s{2}(\w+):$/);
 
@@ -372,7 +376,7 @@ function formatChanges(n: number, u: number, d: number): string {
 export function ingest(projectRoot: string, targetFiles?: string[], options?: IngestOptions): IngestStats {
     const extractedDir = join(projectRoot, 'extracted');
     const notesDir = join(projectRoot, 'notes');
-    const namesPath = join(projectRoot, 'db-us', 'names.json');
+    const namesDir = join(projectRoot, 'db-us', 'names');
 
     const stats: IngestStats = {
         filesProcessed: 0,
@@ -392,8 +396,8 @@ export function ingest(projectRoot: string, targetFiles?: string[], options?: In
         hasLineTracking: false,
     };
 
-    // Load names.json for bank detection fallback
-    const namesLookup = loadNamesBankLookup(namesPath);
+    // Load db-us/names/bankNN.json for bank detection fallback
+    const namesLookup = loadNamesBankLookup(namesDir);
 
     // Find files to process
     const asmFiles = targetFiles && targetFiles.length > 0

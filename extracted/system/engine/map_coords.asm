@@ -4,7 +4,7 @@
 ; 
 ; === COORDINATE CONVERSION ===
 ; 
-; TileCoordsToMapIndex: Converts tile coordinates ($18 = X tile, $1C = Y tile) to a linear map data index. Y is multiplied by mapRowStride (per-layer: mapRowStrideL0 or mapRowStrideL1 selected by X register = 0 or 2) via SignedMultiply. X is split into low nibble (column within page) and high nibble (page offset), added to the Y product. Returns map index in X.
+; TileCoordsToMapIndex: Converts tile coordinates ($18 = X tile, $1C = Y tile) to a linear map data index. Y is multiplied by mapRowStride (per-layer: mapRowStrideL0 or mapRowStrideL1 selected by X register = 0 or 2) via Multiply8x8Unsigned. X is split into low nibble (column within page) and high nibble (page offset), added to the Y product. Returns map index in X.
 ; 
 ; PixelToVramAddress: Converts pixel coordinates ($1A = X, $1E = Y) to a VRAM tilemap nametable address. Y bits 3-7 provide the row (×32 via ASL×2), X bits 3-7 provide the column (÷8 via LSR×3). X bit 8 selects the second nametable half (+$0400 via ASL×2). Base offset $1000 is added for BG1 nametable base.
 ; 
@@ -46,7 +46,7 @@
 ; 
 ; Entry: $18 = X tile coordinate, $1C = Y tile coordinate, X register = layer selector (0 = layer 0, 2 = layer 1).
 ; 
-; Computation: Y tile is multiplied by 16 (ASL×4), then the map row stride (mapRowStrideL0 or mapRowStrideL1, selected by X) is applied via SignedMultiply. X tile is split: low nibble (AND $0F) adds the intra-page column offset, high nibble (LSR×4) adds the page offset to the high byte. The combined result is returned in X as the map index.
+; Computation: Y tile is multiplied by 16 (ASL×4), then the map row stride (mapRowStrideL0 or mapRowStrideL1, selected by X) is applied via Multiply8x8Unsigned. X tile is split: low nibble (AND $0F) adds the intra-page column offset, high nibble (LSR×4) adds the page offset to the high byte. The combined result is returned in X as the map index.
 ; 
 ; Uses the stack for intermediate results (PHA/PLA). Returns with X = map index, preserves processor state via PHP/PLP.
 
@@ -61,7 +61,7 @@ TileCoordsToMapIndex {
     PHA 
     SEP #$20
     LDA $mapRowStrideL0, X ; mapRowStrideL0+X: layer 0 (X=0) or layer 1 (X=2) row page stride
-    JSL $@hardware_math.SignedMultiply ; SignedMultiply: Y×16 × row stride → row page offset; store high byte at $02,S
+    JSL $@hardware_math.Multiply8x8Unsigned ; Multiply8x8Unsigned: Y×16 × row stride → row page offset; store high byte at $02,S
     STA $02, S
     LDA $18               ; X tile coordinate ($18) — split into intra-page column and page index
     AND #$0F              ; Low nibble of X tile = column offset within 16-tile metatile page

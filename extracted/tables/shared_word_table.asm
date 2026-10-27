@@ -1,11 +1,11 @@
-; Item name prefix components for compositional text rendering. 15 shared word prefixes ('Crystal', 'Diamond', 'Psycho', etc.) indexed by the $10 InsertItemName console string control code to reduce string storage.
+; Item name prefix components for compositional text rendering. 15 shared word prefixes ('Crystal', 'Diamond', 'Psycho', etc.) indexed by the $10 InsertSharedWord console string control code to reduce string storage.
 ---------------------------------------------
 
 ---------------------------------------------
 
-; 15 item name prefix component strings used for compositional rendering. When the ConsoleStringRenderer encounters $10 InsertItemName, it indexes this table: 'Crystal ', 'Diamond ', 'Dark ', 'Hieroglyph ', 'Inca ', 'Mystery ', 'Prison ', 'Plate ', 'Psycho ', 'Restores ', etc. Shared prefixes reduce string storage.
+; 15 item name prefix component strings used for compositional rendering. When the ConsoleStringRenderer encounters $10 InsertSharedWord, it indexes this table: 'Crystal ', 'Diamond ', 'Dark ', 'Hieroglyph ', 'Inca ', 'Mystery ', 'Prison ', 'Plate ', 'Psycho ', 'Restores ', etc. Shared prefixes reduce string storage.
 
-item_component_table [
+shared_word_table [
   &consolestring_01EB2D   ;00
   &consolestring_01EB36   ;01
   &consolestring_01EB3F   ;02

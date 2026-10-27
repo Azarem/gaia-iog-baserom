@@ -10,6 +10,7 @@
 ?INCLUDE 'inventory_mgmt'
 
 !joypadMaskStd                  065A
+!hieroglyphSlots                0B28
 
 ---------------------------------------------
 
@@ -21,7 +22,7 @@ pyCD_puzzle [
     LDY #$0000
 
   loc_08CBA1:
-    LDA $0B28, Y
+    LDA $hieroglyphSlots, Y
     BMI loc_08CBBA
     TAX 
     SEP #$20
@@ -49,7 +50,7 @@ pyCD_puzzle [
     LDY #$0000
 
   loc_08CBCD:
-    LDA $0B28, Y
+    LDA $hieroglyphSlots, Y
     BMI loc_08CBDB
     INY 
     INY 
@@ -65,7 +66,7 @@ pyCD_puzzle [
     LDA #$0000
 
   loc_08CBE2:
-    CMP $0B28, Y
+    CMP $hieroglyphSlots, Y
     BNE loc_08CC0B
     INY 
     INY 
@@ -92,7 +93,7 @@ code_08CC09 {
     TSB $joypadMaskStd
     COP [WaitByte] ( #1D )
     COP [PrintDialogString] ( &dialogstring_08CCC4 )
-    LDA $0B28
+    LDA $hieroglyphSlots
     CLC 
     ADC #$001E
     JSL $@inventory_mgmt.GiveItemToPlayer
@@ -101,7 +102,7 @@ code_08CC09 {
 
   loc_08CC2B:
     LDA #$FFFF
-    STA $0B28
+    STA $hieroglyphSlots
     COP [DrawMetatileAbs] ( #05, #06, #87 )
     LDA $0B2A
     CLC 
