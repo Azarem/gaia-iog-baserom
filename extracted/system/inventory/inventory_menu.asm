@@ -1388,7 +1388,7 @@ YesNoDrawCursor {
 YesNoClearCursor {
     LDA #$0001            ; Clear Yes/No cursor tile positions
     TSB $displayModeFlags ; Mark BG3 tilemap dirty (displayModeFlags bit 0)
-    LDA #$2040            ; Blank tile $2040 at Yes ($0896) and No ($0916)
+    LDA #$2060            ; Blank tile $2040 at Yes ($0896) and No ($0916)
     STA $7F0896
     STA $7F0916
     RTS 
@@ -1501,7 +1501,7 @@ TabDrawCursor {
 TabClearCursor {
     LDA #$0001            ; Clear all four tab cursor positions on BG3
     TSB $displayModeFlags
-    LDA #$2040            ; Blank tile $2040 at each tab column ($0784…$0904)
+    LDA #$2060            ; Blank tile $2040 at each tab column ($0784…$0904)
     STA $7F0784
     STA $7F0804
     STA $7F0884

@@ -4,18 +4,18 @@ h_it17_kara [
   actor-def < #13, #00, #10, {
 
   code_04DAEC:
-    COP [BranchIfFlagByte] ( #37, #01, &code_04DB25 )
-    COP [SetOnInteract] ( &code_04DB27 )
-    COP [SolidHighHere]
-    COP [ExitIfFlagByte] ( #01, #01 )
-    COP [ClearLowHere]
+    COP [BranchOnFlagByte] ( #37, #01, &code_04DB25 )
+    COP [SetInteractHandler] ( &code_04DB27 )
+    COP [MarkSolidHere]
+    COP [WaitOnFlagByte] ( #01, #01 )
+    COP [ClearSolidHere]
     COP [StageSpriteLoopMoveX] ( #19, #02, #11 )
     COP [AnimLoop]
     COP [StageSpriteFrame] ( #13 )
     COP [AnimOnce]
     COP [PrintDialogString] ( &dialogstring_04DB5B )
     COP [SetFlagByte] ( #02 )
-    COP [ExitIfFlagByte] ( #02, #00 )
+    COP [WaitOnFlagByte] ( #02, #00 )
     COP [StageSpriteMoveX] ( #19, #01 )
     COP [AnimOnce]
     COP [StageSpriteLoopMoveY] ( #16, #02, #01 )

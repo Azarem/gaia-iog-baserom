@@ -13,13 +13,13 @@ h_ir1C_lily [
   actor-def < #1D, #00, #10, {
 
   code_0585D0:
-    COP [BranchIfFlagByte] ( #4B, #01, &code_05867F )
+    COP [BranchOnFlagByte] ( #4B, #01, &code_05867F )
     LDA #$CFF0
     TSB $joypadMaskStd
     COP [WaitByte] ( #1D )
     COP [PrintDialogString] ( &dialogstring_0586B3 )
-    COP [SolidHighAbs] ( #06, #19 )
-    COP [SolidHighAbs] ( #07, #19 )
+    COP [MarkSolidAbs] ( #06, #19 )
+    COP [MarkSolidAbs] ( #07, #19 )
     LDA #$CFF0
     TRB $joypadMaskStd
     COP [SpawnAfterFlags] ( @chunk_008000.code_00C94B, #$2000 )
@@ -33,13 +33,13 @@ h_ir1C_lily [
     TXA 
     TYX 
     TAY 
-    COP [SetOnInteract] ( #$0000 )
+    COP [SetInteractHandler] ( #$0000 )
     LDA #$0800
     TSB $10
-    COP [SetEntryContinue]
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
+    COP [SetEntryHere]
     COP [AnimOneFrame]
-    COP [BranchIfFlagByte] ( #01, #01, &code_058622 )
+    COP [BranchOnFlagByte] ( #01, #01, &code_058622 )
     RTL 
 } >
 ]
@@ -48,16 +48,16 @@ code_058622 {
     LDA #$0800
     TRB $10
     COP [KillNext]
-    COP [ClearLowAbs] ( #06, #19 )
-    COP [ClearLowAbs] ( #07, #19 )
-    COP [ExitIfFlagByte] ( #03, #01 )
+    COP [ClearSolidAbs] ( #06, #19 )
+    COP [ClearSolidAbs] ( #07, #19 )
+    COP [WaitOnFlagByte] ( #03, #01 )
     LDA #$0000
     JSL $@chunk_008000.dialogstring_00C829
     COP [StageSpriteFrame] ( #1A )
     COP [AnimOnce]
     COP [PrintDialogString] ( &dialogstring_0588A5 )
     COP [SetFlagByte] ( #02 )
-    COP [ExitIfFlagByte] ( #02, #00 )
+    COP [WaitOnFlagByte] ( #02, #00 )
     LDA $16
     AND #$FFF0
     STA $16
@@ -81,8 +81,8 @@ code_05867F {
     COP [StageSpriteFrame] ( #1A )
     COP [AnimOnce]
     COP [SetTilePos] ( #16, #13 )
-    COP [SolidHighHere]
-    COP [SetOnInteract] ( &code_0586AE )
+    COP [MarkSolidHere]
+    COP [SetInteractHandler] ( &code_0586AE )
     LDA $characterForm
     BEQ loc_0586AB
     LDY $decelStepCounter
@@ -96,7 +96,7 @@ code_05867F {
     TSB $slopeCurvePtrB
 
   loc_0586AB:
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     RTL 
 }
 

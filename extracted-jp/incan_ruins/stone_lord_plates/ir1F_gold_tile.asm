@@ -6,13 +6,13 @@ h_ir1F_gold_tile [
   actor-def < #00, #00, #23, {
 
   code_058003:
-    COP [BranchIfFlagByte] ( #3C, #01, &code_058053 )
-    COP [AddPosition] ( #08, #08 )
+    COP [BranchOnFlagByte] ( #3C, #01, &code_058053 )
+    COP [NudgePosition] ( #08, #08 )
 } >
 ]
 
 code_05800D {
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     COP [BranchIfPlayerNear] ( #01, &code_058033 )
     COP [BranchIfActorNear] ( #02, #01, &code_05804C )
     COP [BranchIfActorNear] ( #03, #01, &code_05804C )
@@ -24,15 +24,15 @@ code_05800D {
 }
 
 code_058033 {
-    COP [BranchIfFlagByte] ( #0F, #01, &code_058040 )
+    COP [BranchOnFlagByte] ( #0F, #01, &code_058040 )
     COP [PrintDialogString] ( &dialogstring_058055 )
     COP [SetFlagByte] ( #0F )
 }
 
 code_058040 {
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     COP [BranchIfPlayerNear] ( #01, &code_05804C )
-    COP [SetEntryExitNow] ( @code_05800D )
+    COP [JumpNextFrame] ( @code_05800D )
 }
 
 code_05804C {

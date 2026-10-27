@@ -4,9 +4,9 @@ h_it15_running_man [
   actor-def < #02, #00, #10, {
 
   code_04D781:
-    COP [SolidHighHere]
-    COP [SetOnInteract] ( &code_04D78A )
-    COP [SetEntryContinue]
+    COP [MarkSolidHere]
+    COP [SetInteractHandler] ( &code_04D78A )
+    COP [SetEntryHere]
     RTL 
 } >
 ]

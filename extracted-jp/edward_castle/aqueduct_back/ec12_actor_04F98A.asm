@@ -9,7 +9,7 @@ h_ec12_actor_04F98A [
   actor-def < #0F, #01, #01, {
 
   code_04F98D:
-    COP [AddPosition] ( #02, #00 )
+    COP [NudgePosition] ( #02, #00 )
     LDA #$ACF0
     STA $statsPtr, X
     LDA #$0031
@@ -22,14 +22,14 @@ h_ec12_actor_04F98A [
     COP [SetHitCallback] ( &code_04F9B7 )
     COP [StageSpriteFrame] ( #0F )
     COP [AnimOnce]
-    COP [SetEntryExitNow] ( @code_04F9A9 )
+    COP [JumpNextFrame] ( @code_04F9A9 )
 } >
 ]
 
 code_04F9B7 {
     COP [StageSpriteFrame] ( #11 )
     COP [AnimOnce]
-    COP [BranchIfFlagWord] ( #$0114, #01, &code_04F9D9 )
+    COP [BranchOnFlagWord] ( #$0114, #01, &code_04F9D9 )
     COP [PlaySoundBoth] ( #$0F0F )
     COP [StageBgChange] ( #14 )
     COP [ApplyBgChange]
@@ -40,6 +40,6 @@ code_04F9B7 {
 }
 
 code_04F9D9 {
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     RTL 
 }

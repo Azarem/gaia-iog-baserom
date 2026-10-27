@@ -11,10 +11,10 @@ h_it1A_lily [
   actor-def < #1B, #00, #10, {
 
   code_04EBE5:
-    COP [BranchIfFlagByte] ( #4A, #01, &code_04EC8A )
+    COP [BranchOnFlagByte] ( #4A, #01, &code_04EC8A )
     COP [SpawnAfterFlags] ( @code_04EEF4, #$2000 )
     COP [SpawnAfterFlags] ( @code_04EFA5, #$2000 )
-    COP [BranchIfFlagByte] ( #49, #01, &code_04EC61 )
+    COP [BranchOnFlagByte] ( #49, #01, &code_04EC61 )
     LDA #$CFF0
     TSB $joypadMaskStd
     COP [StageSpriteFrame] ( #1C )
@@ -38,11 +38,11 @@ h_it1A_lily [
     TXA 
     TYX 
     TAY 
-    COP [SetOnInteract] ( #$0000 )
-    COP [SetEntryContinue]
-    COP [SetEntryContinue]
+    COP [SetInteractHandler] ( #$0000 )
+    COP [SetEntryHere]
+    COP [SetEntryHere]
     COP [AnimOneFrame]
-    COP [BranchIfFlagByte] ( #49, #01, &code_04EC4D )
+    COP [BranchOnFlagByte] ( #49, #01, &code_04EC4D )
     RTL 
 } >
 ]
@@ -51,10 +51,10 @@ code_04EC4D {
     COP [KillNext]
     LDA #$0000
     STA $2A
-    COP [SetEntryExit]
+    COP [SetEntryHereAndYield]
     COP [PrintDialogString] ( &dialogstring_04ED09 )
-    COP [SetOnInteract] ( &code_04EC8C )
-    COP [SetEntryContinue]
+    COP [SetInteractHandler] ( &code_04EC8C )
+    COP [SetEntryHere]
     RTL 
 }
 
@@ -62,10 +62,10 @@ code_04EC61 {
     COP [SetTilePos] ( #0D, #1A )
     COP [StageSpriteFrame] ( #1A )
     COP [AnimOnce]
-    COP [SolidHighHere]
-    COP [SetOnInteract] ( &code_04EC91 )
-    COP [ExitIfFlagByte] ( #4A, #01 )
-    COP [ClearLowHere]
+    COP [MarkSolidHere]
+    COP [SetInteractHandler] ( &code_04EC91 )
+    COP [WaitOnFlagByte] ( #4A, #01 )
+    COP [ClearSolidHere]
     COP [StageSpriteMoveY] ( #1E, #11 )
     COP [AnimOnce]
     COP [StageSpriteLoopMoveX] ( #21, #04, #01 )
@@ -84,7 +84,7 @@ code_04EC8C {
 }
 
 code_04EC91 {
-    COP [BranchIfNoItem] ( #04, &code_04EC9B )
+    COP [BranchIfHasItem] ( #04, &code_04EC9B )
     COP [PrintDialogString] ( &dialogstring_04ED2A )
     RTL 
 }
@@ -115,7 +115,7 @@ code_04ECB2 {
     STA $gfxCacheIdxB
     COP [StageWorldMapMove] ( #$0094, #$0254, #00, #06 )
     COP [QueueMapChange] ( #1C, #$0070, #$0160, #00, #$2200 )
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     RTL 
 }
 
@@ -132,35 +132,35 @@ dialogstring_04EDD8 `[CLR][TPL:2]リリィ:[N]うそ. あたし わかるもん.
 dialogstring_04EE12 `[CLR][TPL:0]テム:[N]うん.[N]とうさんに 呼ばれたんだ···[FIN]すい星の光をあびた 化物たちと[N]戦うのは ちょっと こわいけど,[N]でも とうさんが 生きてるなら[N]危険をおかしてでも 会いたいんだ.[FIN]この気持ちは 両親を なくして[N]みなきゃ わからないさ···[FIN][TPL:2]リリィ:[N]やっぱり 男の子ねぇ···[FIN]わかったわ.[N]じゃ イセキへ 向かいましょ.[FIN][PAL:0][SFX:10]二人は インカのイセキへ[N]向かうのであった.[END]`
 
 code_04EEF4 {
-    COP [SolidHighAbs] ( #15, #1C )
-    COP [SolidHighAbs] ( #16, #1C )
+    COP [MarkSolidAbs] ( #15, #1C )
+    COP [MarkSolidAbs] ( #16, #1C )
 
   code_04EEFC:
-    COP [SetEntryContinue]
-    COP [BranchIfFlagByte] ( #4A, #01, &code_04EF30 )
+    COP [SetEntryHere]
+    COP [BranchOnFlagByte] ( #4A, #01, &code_04EF30 )
     COP [BranchIfPlayerInAbsTiles] ( #15, #1B, #17, #1C, &code_04EF0D )
     RTL 
 }
 
 code_04EF0D {
-    COP [BranchIfButton] ( #$0400, &code_04EF18 )
-    COP [SetEntryExitNow] ( @code_04EEFC )
+    COP [BranchIfPressed] ( #$0400, &code_04EF18 )
+    COP [JumpNextFrame] ( @code_04EEFC )
 }
 
 code_04EF18 {
-    COP [BranchIfFlagByte] ( #49, #01, &code_04EF27 )
+    COP [BranchOnFlagByte] ( #49, #01, &code_04EF27 )
     COP [PrintDialogString] ( &dialogstring_04EF3A )
-    COP [SetEntryExitNow] ( @code_04EEFC )
+    COP [JumpNextFrame] ( @code_04EEFC )
 }
 
 code_04EF27 {
     COP [PrintDialogString] ( &dialogstring_04EF73 )
-    COP [SetEntryExitNow] ( @code_04EEFC )
+    COP [JumpNextFrame] ( @code_04EEFC )
 }
 
 code_04EF30 {
-    COP [ClearLowAbs] ( #15, #1C )
-    COP [ClearLowAbs] ( #16, #1C )
+    COP [ClearSolidAbs] ( #15, #1C )
+    COP [ClearSolidAbs] ( #16, #1C )
     COP [Die]
 }
 
@@ -169,29 +169,29 @@ dialogstring_04EF3A `[DLG:3,6][SIZ:D,3,0][TPL:2]リリィ: ちょっとぉ![N]�
 dialogstring_04EF73 `[DLG:3,6][SIZ:D,3,0][TPL:0]テム:[N](インカの像を 手に入れなきゃ[N] かえれないな···)[PAL:0][END]`
 
 code_04EFA5 {
-    COP [SolidHighAbs] ( #0C, #18 )
-    COP [BranchIfFlagByte] ( #2A, #01, &code_04EFD4 )
+    COP [MarkSolidAbs] ( #0C, #18 )
+    COP [BranchOnFlagByte] ( #2A, #01, &code_04EFD4 )
 
   code_04EFAF:
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     COP [BranchIfPlayerInAbsTiles] ( #0C, #19, #0D, #1A, &code_04EFBA )
     RTL 
 }
 
 code_04EFBA {
-    COP [BranchIfButton] ( #$0800, &code_04EFC5 )
-    COP [SetEntryExitNow] ( @code_04EFAF )
+    COP [BranchIfPressed] ( #$0800, &code_04EFC5 )
+    COP [JumpNextFrame] ( @code_04EFAF )
 }
 
 code_04EFC5 {
-    COP [BranchIfFlagByte] ( #2A, #01, &code_04EFD4 )
+    COP [BranchOnFlagByte] ( #2A, #01, &code_04EFD4 )
     COP [PrintDialogString] ( &dialogstring_04EFDD )
-    COP [SetEntryExitNow] ( @code_04EFAF )
+    COP [JumpNextFrame] ( @code_04EFAF )
 }
 
 code_04EFD4 {
     COP [SetFlagByte] ( #49 )
-    COP [ClearLowAbs] ( #0C, #18 )
+    COP [ClearSolidAbs] ( #0C, #18 )
     COP [Die]
 }
 

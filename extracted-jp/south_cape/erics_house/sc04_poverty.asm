@@ -11,12 +11,12 @@ h_sc04_poverty [
     LDA #$0012
     STA $currentHp, X
     JSL $@chunk_008000.code_00C85D
-    COP [SetOnInteract] ( &code_048E90 )
+    COP [SetInteractHandler] ( &code_048E90 )
 
   loc_048E84:
     JSL $@chunk_008000.code_00C86A
-    COP [SetEntryExit]
-    COP [SetEntryContinue]
+    COP [SetEntryHereAndYield]
+    COP [SetEntryHere]
     COP [AnimOnce]
     BRA loc_048E84
 } >

@@ -4,9 +4,9 @@ h_sc05_seths_father [
   actor-def < #05, #00, #10, {
 
   code_04903C:
-    COP [SetOnInteract] ( &code_049045 )
-    COP [SolidHighHere]
-    COP [SetEntryContinue]
+    COP [SetInteractHandler] ( &code_049045 )
+    COP [MarkSolidHere]
+    COP [SetEntryHere]
     RTL 
 } >
 ]

@@ -1,7 +1,7 @@
 ; Breakable wall in Promise Passage — opens path when destroyed.
 ; 
 ; Displays as a solid sprite (frame #00) with stat entry 0 and $FF HP.
-; HP resets each frame so it requires Freedan's Dark Friar (playerFlags
+; HP resets each frame so it requires a body slam/charge attack (playerFlags
 ; bit $0002) to actually break it. Tracks player proximity in an 8×14
 ; to 7×7 tile rectangle and sets a proximity flag. When broken: spawns
 ; debris burst VFX, applies BG change #33 to remove the wall tiles,

@@ -4,12 +4,12 @@ h_ec0A_throne_guard1 [
   actor-def < #1D, #00, #18, {
 
   code_04C196:
-    COP [SetOnInteract] ( &code_04C1E3 )
+    COP [SetInteractHandler] ( &code_04C1E3 )
     COP [SetSpritePriority] ( #30 )
-    COP [SolidHighHere]
-    COP [ExitIfFlagByte] ( #0A, #01 )
-    COP [ClearLowHere]
-    COP [SetOnInteract] ( #$0000 )
+    COP [MarkSolidHere]
+    COP [WaitOnFlagByte] ( #0A, #01 )
+    COP [ClearSolidHere]
+    COP [SetInteractHandler] ( #$0000 )
     COP [StageSpriteLoopMoveX] ( #21, #04, #11 )
     COP [AnimLoop]
     COP [StageSpriteLoopMoveY] ( #1F, #03, #12 )
@@ -22,12 +22,12 @@ h_ec0A_throne_guard1 [
     COP [AnimOnce]
     LDA #$0800
     TRB $10
-    COP [ExitIfFlagByte] ( #0C, #01 )
+    COP [WaitOnFlagByte] ( #0C, #01 )
     COP [StageSpriteLoopMoveX] ( #21, #03, #11 )
     COP [AnimLoop]
     COP [StageSpriteLoopMoveY] ( #1E, #05, #11 )
     COP [AnimLoop]
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     RTL 
 } >
 ]

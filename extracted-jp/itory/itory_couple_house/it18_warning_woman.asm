@@ -4,9 +4,9 @@ h_it18_warning_woman [
   actor-def < #0C, #00, #10, {
 
   code_04D7BE:
-    COP [SolidHighHere]
-    COP [SetOnInteract] ( &code_04D7C7 )
-    COP [SetEntryContinue]
+    COP [MarkSolidHere]
+    COP [SetInteractHandler] ( &code_04D7C7 )
+    COP [SetEntryHere]
     RTL 
 } >
 ]

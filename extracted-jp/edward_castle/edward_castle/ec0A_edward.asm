@@ -8,14 +8,14 @@ h_ec0A_edward [
   code_04BF49:
     LDA #$0200
     TSB $12
-    COP [AddPosition] ( #08, #00 )
-    COP [SetOnInteract] ( &code_04BF6A )
-    COP [ExitIfFlagByte] ( #05, #01 )
+    COP [NudgePosition] ( #08, #00 )
+    COP [SetInteractHandler] ( &code_04BF6A )
+    COP [WaitOnFlagByte] ( #05, #01 )
     LDA #$CFF0
     TSB $joypadMaskStd
     COP [SetFlagByte] ( #0A )
     COP [PrintDialogString] ( &dialogstring_04C0D5 )
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     RTL 
 } >
 ]

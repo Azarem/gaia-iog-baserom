@@ -6,8 +6,8 @@ h_ec12_actor_04F9DC [
   actor-def < #00, #00, #23, {
 
   code_04F9DF:
-    COP [BranchIfFlagWord] ( #$0116, #01, &code_04F9EE )
-    COP [ExitIfFlagWord] ( #$0116, #01 )
+    COP [BranchOnFlagWord] ( #$0116, #01, &code_04F9EE )
+    COP [WaitOnFlagWord] ( #$0116, #01 )
     COP [WaitByte] ( #B3 )
 } >
 ]

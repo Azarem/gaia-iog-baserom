@@ -6,8 +6,8 @@ h_ec0B_moss [
   code_04D4ED:
     LDA #$0200
     TSB $12
-    COP [SetOnInteract] ( &code_04D4F9 )
-    COP [SetEntryContinue]
+    COP [SetInteractHandler] ( &code_04D4F9 )
+    COP [SetEntryHere]
     RTL 
 } >
 ]

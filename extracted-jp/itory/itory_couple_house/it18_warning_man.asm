@@ -4,9 +4,9 @@ h_it18_warning_man [
   actor-def < #02, #00, #10, {
 
   code_04D716:
-    COP [SolidHighHere]
-    COP [SetOnInteract] ( &code_04D71F )
-    COP [SetEntryContinue]
+    COP [MarkSolidHere]
+    COP [SetInteractHandler] ( &code_04D71F )
+    COP [SetEntryHere]
     RTL 
 } >
 ]

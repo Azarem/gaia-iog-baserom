@@ -8,57 +8,57 @@ h_ec0A_kara_guard [
 
   code_04C48C:
     COP [SetSpritePriority] ( #30 )
-    COP [BranchIfFlagByte] ( #21, #01, &code_04C50E )
-    COP [BranchIfFlagByte] ( #19, #01, &code_04C4D3 )
-    COP [BranchIfFlagByte] ( #1A, #01, &code_04C4D3 )
-    COP [SolidHighHere]
-    COP [SolidHighOffset] ( #00, #FF )
-    COP [SolidHighOffset] ( #00, #01 )
-    COP [SetOnInteract] ( &code_04C519 )
-    COP [ExitIfFlagByte] ( #01, #01 )
-    COP [SetOnInteract] ( #$0000 )
-    COP [ExitIfFlagByte] ( #02, #01 )
+    COP [BranchOnFlagByte] ( #21, #01, &code_04C50E )
+    COP [BranchOnFlagByte] ( #19, #01, &code_04C4D3 )
+    COP [BranchOnFlagByte] ( #1A, #01, &code_04C4D3 )
+    COP [MarkSolidHere]
+    COP [MarkSolidOffset] ( #00, #FF )
+    COP [MarkSolidOffset] ( #00, #01 )
+    COP [SetInteractHandler] ( &code_04C519 )
+    COP [WaitOnFlagByte] ( #01, #01 )
+    COP [SetInteractHandler] ( #$0000 )
+    COP [WaitOnFlagByte] ( #02, #01 )
     COP [StageSpriteFrame] ( #1C )
     COP [AnimOnce]
     COP [WaitByte] ( #1D )
     COP [PrintDialogString] ( &dialogstring_04C57D )
-    COP [ClearLowHere]
-    COP [ClearLowOffset] ( #00, #01 )
+    COP [ClearSolidHere]
+    COP [ClearSolidOffset] ( #00, #01 )
     LDA #$CFF0
     TRB $joypadMaskStd
 } >
 ]
 
 code_04C4D3 {
-    COP [SetOnInteract] ( &code_04C527 )
+    COP [SetInteractHandler] ( &code_04C527 )
     COP [StageSpriteMoveY] ( #1F, #12 )
     COP [AnimOnce]
     COP [StageSpriteFrame] ( #1A )
     COP [AnimOnce]
-    COP [SolidHighHere]
-    COP [ExitIfFlagByte] ( #03, #01 )
+    COP [MarkSolidHere]
+    COP [WaitOnFlagByte] ( #03, #01 )
     COP [StageSpriteMoveY] ( #1E, #11 )
     COP [AnimOnce]
     COP [StageSpriteFrame] ( #1C )
     COP [AnimOnce]
     COP [PrintDialogString] ( &dialogstring_04C64C )
     COP [ClearFlagByte] ( #03 )
-    COP [ExitIfFlagByte] ( #19, #01 )
+    COP [WaitOnFlagByte] ( #19, #01 )
 
   loc_04C4FE:
     COP [StageSpriteMoveY] ( #1F, #12 )
     COP [AnimOnce]
     COP [StageSpriteFrame] ( #1A )
     COP [AnimOnce]
-    COP [SolidHighHere]
-    COP [SetEntryContinue]
+    COP [MarkSolidHere]
+    COP [SetEntryHere]
     RTL 
 }
 
 code_04C50E {
     LDA #$0200
     TSB $12
-    COP [SetOnInteract] ( &code_04C54A )
+    COP [SetInteractHandler] ( &code_04C54A )
     BRA loc_04C4FE
 }
 
@@ -71,20 +71,20 @@ code_04C519 {
 }
 
 code_04C527 {
-    COP [BranchIfFlagByte] ( #19, #01, &code_04C532 )
+    COP [BranchOnFlagByte] ( #19, #01, &code_04C532 )
     COP [PrintDialogString] ( &dialogstring_04C619 )
     RTL 
 }
 
 code_04C532 {
     COP [PrintDialogString] ( &dialogstring_04C62C )
-    COP [ClearLowHere]
+    COP [ClearSolidHere]
     LDA #$0008
     STA $09C0
     LDA $joypadCurrent
     ORA #$0100
     STA $joypadCurrent
-    COP [SolidHighHere]
+    COP [MarkSolidHere]
     RTL 
 }
 

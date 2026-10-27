@@ -48,16 +48,7 @@ code_069C70- {
 
 code_039349! {
     COP [BranchOnFlagByte] ( #80, #01, &code_03936B )
-    LDA $inventoryEquippedType
-    CMP #$0013
-    BEQ use_rama1_equipped
     COP [RemoveItem] ( #13 )
-    BRA use_rama1_continue
-
-  use_rama1_equipped:
-    JSR $&RemoveEquippedItem
-
-  use_rama1_continue:
     COP [PrintDialogString] ( &dialogstring_03939F )
     COP [SetFlagByte] ( #80 )
     RTS 
@@ -67,16 +58,7 @@ code_039349! {
 
 code_03935A! {
     COP [BranchOnFlagByte] ( #81, #01, &code_03936B )
-    LDA $inventoryEquippedType
-    CMP #$0013
-    BEQ use_rama2_equipped
     COP [RemoveItem] ( #13 )
-    BRA use_rama2_continue
-
-  use_rama2_equipped:
-    JSR $&RemoveEquippedItem
-    
-  use_rama2_continue:
     COP [PrintDialogString] ( &dialogstring_03939F )
     COP [SetFlagByte] ( #81 )
     RTS 

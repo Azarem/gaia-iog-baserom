@@ -6,8 +6,8 @@ h_it15_elder [
   code_04E1BD:
     LDA #$0200
     TSB $12
-    COP [BranchIfFlagByte] ( #41, #01, &code_04E1E9 )
-    COP [SetEntryContinue]
+    COP [BranchOnFlagByte] ( #41, #01, &code_04E1E9 )
+    COP [SetEntryHere]
     COP [BranchIfPlayerInAbsTiles] ( #04, #1C, #07, #1E, &code_04E1D3 )
     RTL 
 } >
@@ -16,7 +16,7 @@ h_it15_elder [
 code_04E1D3 {
     COP [PrintDialogString] ( &dialogstring_04E290 )
     COP [SetFlagByte] ( #41 )
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     COP [BranchIfPlayerInAbsTiles] ( #08, #19, #0D, #1A, &code_04E1E5 )
     RTL 
 }
@@ -26,29 +26,29 @@ code_04E1E5 {
 }
 
 code_04E1E9 {
-    COP [SetOnInteract] ( &code_04E20B )
-    COP [SpawnAfterRelFlags] ( @code_04E1FB, #$0000, #$0004, #$0B00 )
-    COP [SetEntryContinue]
+    COP [SetInteractHandler] ( &code_04E20B )
+    COP [SpawnAfterOffsetFlags] ( @code_04E1FB, #$0000, #$0004, #$0B00 )
+    COP [SetEntryHere]
     RTL 
 }
 
 code_04E1FB {
-    COP [SolidHighHere]
+    COP [MarkSolidHere]
     COP [StageSpriteLoop] ( #22, #14 )
     COP [AnimLoop]
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     COP [StageSpriteFrame] ( #23 )
     COP [AnimOnce]
     RTL 
 }
 
 code_04E20B {
-    COP [BranchIfFlagByte] ( #44, #01, &code_04E282 )
-    COP [BranchIfNoItem] ( #04, &code_04E26D )
-    COP [BranchIfNoItem] ( #03, &code_04E272 )
-    COP [BranchIfFlagByte] ( #47, #01, &code_04E265 )
-    COP [BranchIfFlagByte] ( #0E, #01, &code_04E24D )
-    COP [BranchIfFlagByte] ( #0F, #01, &code_04E231 )
+    COP [BranchOnFlagByte] ( #44, #01, &code_04E282 )
+    COP [BranchIfHasItem] ( #04, &code_04E26D )
+    COP [BranchIfHasItem] ( #03, &code_04E272 )
+    COP [BranchOnFlagByte] ( #47, #01, &code_04E265 )
+    COP [BranchOnFlagByte] ( #0E, #01, &code_04E24D )
+    COP [BranchOnFlagByte] ( #0F, #01, &code_04E231 )
     COP [PrintDialogString] ( &dialogstring_04E306 )
 }
 
@@ -145,8 +145,8 @@ dialogstring_04E556 `[DEF][CLR][TPL:4]長老: よかろう.[N]ならば おま�
 
 dialogstring_04E607 `[DEF][TPL:4]長老:[N]おおっ それこそ インカの神像![N]よくぞ 見つけ出した![FIN]おまえは インカのナゾを[N]とくために この世に生まれたのかも[N]しれんな···[FIN]では この村に伝わる[N]伝說を ひとつ おしえよう.[FIN][::]遺跡の地下の┌ラライのガケ┘にて[N]神の息のとどかぬところへ[N]インカの神をおさめよ.[FIN]谷風が その者を 黄金の船のもとへ[N]導くであろう.[FIN]わかったかな?[N][PAL:0] はい[N] いいえ`
 
-dialogstring_04E6E9 `[DEF][CLR][TPL:4][JMP:&it15_elder.dialogstring_04E607+M]`
+dialogstring_04E6E9 `[DEF][CLR][TPL:4][JMP:&dialogstring_04E607+M]`
 
 dialogstring_04E6F0 `[CLR][TPL:4]長老:[N]もうーつは 月の種族が もつと[N]言われておる.[FIN]そこへは リリィに 道案内[N]してもらうがよい.[N]気をつけてな.[PAL:0][END]`
 
-dialogstring_04E73E `[DEF][CLR][JMP:&it15_elder.dialogstring_04E6F0]`
+dialogstring_04E73E `[DEF][CLR][JMP:&dialogstring_04E6F0]`

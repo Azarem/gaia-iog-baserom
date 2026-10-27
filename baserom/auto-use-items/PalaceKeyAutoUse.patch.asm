@@ -29,6 +29,6 @@ sp5A_door [
 
 sp5A_door_interact_str `[DEF]What a strange door...[END]`
 
-scene_event_0CA55D+ [
+scene_event_0CA55D+= [
   actor-spawn < #2F, #19, #3B, @sp5A_door >
 ]

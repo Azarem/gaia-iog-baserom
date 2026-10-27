@@ -6,12 +6,12 @@ h_sc02_erik [
   actor-def < #0A, #00, #10, {
 
   code_04B543:
-    COP [BranchIfFlagByte] ( #4C, #01, &code_04B5FE )
-    COP [SetOnInteract] ( &code_04B624 )
-    COP [BranchIfFlagByte] ( #20, #01, &code_04B5EE )
-    COP [BranchIfFlagByte] ( #16, #01, &code_04B5F1 )
-    COP [ExitIfFlagByte] ( #01, #01 )
-    COP [ExitIfFlagByte] ( #02, #01 )
+    COP [BranchOnFlagByte] ( #4C, #01, &code_04B5FE )
+    COP [SetInteractHandler] ( &code_04B624 )
+    COP [BranchOnFlagByte] ( #20, #01, &code_04B5EE )
+    COP [BranchOnFlagByte] ( #16, #01, &code_04B5F1 )
+    COP [WaitOnFlagByte] ( #01, #01 )
+    COP [WaitOnFlagByte] ( #02, #01 )
     COP [SetFlagByte] ( #16 )
     COP [SetFlagByte] ( #04 )
     LDA #$CFF0
@@ -45,28 +45,28 @@ h_sc02_erik [
     COP [AnimLoop]
     COP [StageSpriteFrame] ( #0A )
     COP [AnimOnce]
-    COP [SolidHighHere]
-    COP [ExitIfFlagByte] ( #05, #01 )
-    COP [SetOnInteract] ( &code_04B629 )
-    COP [ExitIfFlagByte] ( #06, #01 )
-    COP [CallScript] ( &code_04B600 )
-    COP [SetOnInteract] ( &code_04B62E )
-    COP [ExitIfFlagByte] ( #08, #01 )
-    COP [CallScript] ( &code_04B600 )
+    COP [MarkSolidHere]
+    COP [WaitOnFlagByte] ( #05, #01 )
+    COP [SetInteractHandler] ( &code_04B629 )
+    COP [WaitOnFlagByte] ( #06, #01 )
+    COP [CallNear] ( &code_04B600 )
+    COP [SetInteractHandler] ( &code_04B62E )
+    COP [WaitOnFlagByte] ( #08, #01 )
+    COP [CallNear] ( &code_04B600 )
     COP [PrintDialogString] ( &dialogstring_04B84E )
     COP [SetFlagByte] ( #09 )
 } >
 ]
 
 code_04B5EE {
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     RTL 
 }
 
 code_04B5F1 {
     COP [SetTilePos] ( #08, #09 )
-    COP [SolidHighHere]
-    COP [SetOnInteract] ( &code_04B62E )
+    COP [MarkSolidHere]
+    COP [SetInteractHandler] ( &code_04B62E )
     JMP $&code_04B5EE
 }
 
@@ -99,7 +99,7 @@ code_04B629 {
 }
 
 code_04B62E {
-    COP [BranchIfFlagByte] ( #21, #01, &code_04B639 )
+    COP [BranchOnFlagByte] ( #21, #01, &code_04B639 )
     COP [PrintDialogString] ( &dialogstring_04B7FC )
     RTL 
 }

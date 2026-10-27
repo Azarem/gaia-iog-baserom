@@ -269,6 +269,18 @@ loc_03F0B9! {
 ---------------------------------------------
 ;Route COP item removal through common process
 
+RemoveItemFromInventory! {
+    PHP
+    SEP #$20
+    CMP $inventoryEquippedType
+    BEQ rifi_normal
+    LDY $inventoryEquippedIndex
+    BRA loc_03F0A0
+
+  rifi_normal:
+    LDY #$0000
+}
+
 loc_03F0A0! {
     PHX
     TYX

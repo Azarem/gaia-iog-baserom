@@ -4,10 +4,10 @@ h_ec0A_caring_maid [
   actor-def < #25, #00, #10, {
 
   code_04C42D:
-    COP [AddPosition] ( #10, #00 )
-    COP [SolidHighHere]
-    COP [SetOnInteract] ( &code_04C43A )
-    COP [SetEntryContinue]
+    COP [NudgePosition] ( #10, #00 )
+    COP [MarkSolidHere]
+    COP [SetInteractHandler] ( &code_04C43A )
+    COP [SetEntryHere]
     RTL 
 } >
 ]

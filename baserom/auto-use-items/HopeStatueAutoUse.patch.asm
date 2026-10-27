@@ -44,13 +44,6 @@ mu63_pedestal2 {
 
 --------------------------------------------------
 
-;scene_event_0CAB28+ [
-;  actor-spawn < #07, #07, #00, @mu63_pedestal1 >
-;  actor-spawn < #17, #07, #00, @mu63_pedestal2 >
-;]
-
---------------------------------------------------
-
 code_0699CA- {
     COP [SpawnAfterAbsFlags] ( @mu63_pedestal1, #$0078, #$0070, #$7000 )
     COP [SpawnAfterAbsFlags] ( @mu63_pedestal2, #$0178, #$0070, #$7000 )

@@ -4,10 +4,10 @@ h_sc01_sympathetic_woman [
   actor-def < #14, #00, #10, {
 
   code_0488D0:
-    COP [SetOnInteract] ( &code_04892C )
-    COP [SolidHighHere]
+    COP [SetInteractHandler] ( &code_04892C )
+    COP [MarkSolidHere]
     COP [WaitByte] ( #EF )
-    COP [ClearLowHere]
+    COP [ClearSolidHere]
     COP [StageSpriteLoopMoveX] ( #19, #0C, #11 )
     COP [AnimLoop]
     COP [StageSpriteMoveY] ( #17, #12 )
@@ -34,8 +34,8 @@ h_sc01_sympathetic_woman [
     COP [DrawMetatileAbs] ( #09, #25, #F8 )
     COP [StageSpriteFrame] ( #14 )
     COP [AnimOnce]
-    COP [SolidHighHere]
-    COP [SetEntryContinue]
+    COP [MarkSolidHere]
+    COP [SetEntryHere]
     RTL 
 } >
 ]

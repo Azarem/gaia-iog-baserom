@@ -8,153 +8,6 @@
 !jewel_count                    0B56
 !crystal_count                  0B57
 
----------------------------------------------
-
-;InventoryCountersGenerateSprites {
-;    PHX
-;    STZ $00DA
-;    LDA #$1000
-;    TSB $06EE
-;    LDA $7F0010, X
-;    TAY
-;    SEP #$20
-;    LDA #$0F
-;    STA $0002
-
-;  icgs_loop:
-;    TYX
-;    LDA $7F0012, X
-;    BEQ icgs_continue
-
-;    PHA
-    
-;    LDA $0014, Y
-;    CLC
-;    ADC #$num_xoffset
-;    STA $0000
-    
-;    LDA $0016, Y
-;    CLC
-;    ADC #$num_yoffset
-;    STA $0001
-
-;    PLA
-;    CMP #$0A
-;    BCC icgs_single
-;    LDY #$0000
-
-;  icgs_multi_top:
-;    ;SEC
-;    SBC #$0A
-;    INY
-;    CMP #$0A
-;    BCS icgs_multi_top
-
-;    PHA
-;    TYA
-;    TXY
-;    JSR $&push_number_sprite
-;    LDA $0000
-;    CLC
-;    ADC #$04
-;    STA $0000
-;    PLA
-    
-;  icgs_single:
-;    JSR $&push_number_sprite
-
-;  icgs_continue:
-;    LDX $0006, Y
-;    DEC $0002
-;    BPL icgs_loop
-
-;    REP #$20
-;    PLX
-;    RTS
-;}
-
----------------------------------------------
-
-;generate_number_sprites {
-;    ;BRK #$70
-;    PHX
-;    LDA #$0000
-;    STZ $00DA
-;    SEP #$20
-
-;    LDY #$0010
-
-;  generate_number_top:
-;    DEY
-;    BMI generate_number_quit
-;    LDA $inventory_slots, Y
-;    CMP #$01
-;    BEQ generate_number_jewels
-;    CMP #$06
-;    BEQ generate_number_herbs
-;    CMP #$0E
-;    BEQ generate_number_crystals
-;    BRA generate_number_top
-    
-;  generate_number_herbs:
-;    LDA $herb_count
-;    BRA generate_number_next
-
-;  generate_number_jewels:
-;    LDA $jewel_count
-;    BRA generate_number_next
-
-;  generate_number_crystals:
-;    LDA $crystal_count
-
-;  generate_number_next:
-;    PHA
-    
-;    TYA
-;    ASL
-;    ASL
-;    TAX
-;    LDA @SlotPositionTable, X
-;    CLC
-;    ADC #$num_xoffset
-;    STA $25
-
-;    LDA @SlotPositionTable+2, X
-;    CLC
-;    ADC #$num_yoffset
-;    STA $26
-
-;    PLA
-;    CMP #$0A
-;    BCC generate_process_single
-;    STZ $24
-
-;  generate_process_top:
-;    ;SEC
-;    SBC #$0A
-;    INC $24
-;    CMP #$0A
-;    BCS generate_process_top
-
-;    PHA
-;    LDA $24
-;    JSR &push_number_sprite
-;    LDA $25
-;    CLC
-;    ADC #$04
-;    STA $25
-;    PLA
-    
-;  generate_process_single:
-;    JSR &push_number_sprite
-
-;    JMP generate_number_top
-
-;  generate_number_quit:
-;    REP #$20
-;    PLX
-;    RTS
-;}
 
 ----------------------------------------------
 
@@ -331,6 +184,7 @@ InventoryCountersCheckAndStore {
     BPL iccas_get_count
 
     LDY #$0000
+    TXA
     PLX
     CLC
     RTL
@@ -354,6 +208,7 @@ InventoryCountersCheckAndStore {
   iccas_increment:
     INC
     STA $herb_count, Y
+    TXA
     PLX
     SEC
     RTL

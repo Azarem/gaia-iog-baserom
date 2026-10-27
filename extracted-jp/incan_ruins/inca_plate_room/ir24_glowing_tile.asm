@@ -6,16 +6,16 @@ h_ir24_glowing_tile [
   actor-def < #00, #00, #23, {
 
   code_058273:
-    COP [BranchIfFlagWord] ( #$0112, #01, &code_0582A9 )
+    COP [BranchOnFlagWord] ( #$0112, #01, &code_0582A9 )
 } >
 ]
 
 code_05827A {
     LDA #$0258
     STA $orbitAngle, X
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     COP [BranchIfPlayerInAbsTiles] ( #14, #17, #17, #1A, &code_058290 )
-    COP [SetEntryExitNow] ( @code_05827A )
+    COP [JumpNextFrame] ( @code_05827A )
 }
 
 code_058290 {

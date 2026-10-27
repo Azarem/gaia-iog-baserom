@@ -9,11 +9,11 @@ h_ec13_lily [
   actor-def < #22, #00, #10, {
 
   code_04FA04:
-    COP [BranchIfFlagByte] ( #3A, #01, &code_04FAA8 )
+    COP [BranchOnFlagByte] ( #3A, #01, &code_04FAA8 )
     COP [WaitByte] ( #01 )
     COP [StartMusic] ( #1B )
     COP [WaitByte] ( #3B )
-    COP [AddPosition] ( #08, #00 )
+    COP [NudgePosition] ( #08, #00 )
     LDA $characterForm
     BEQ loc_04FA4A
     LDA #$CFF0
@@ -33,7 +33,7 @@ h_ec13_lily [
     TSB $slopeCurvePtrB
 
   loc_04FA4A:
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     COP [BranchIfPlayerNear] ( #03, &code_04FA52 )
     RTL 
 } >

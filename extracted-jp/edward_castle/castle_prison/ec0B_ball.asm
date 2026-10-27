@@ -6,8 +6,8 @@ h_ec0B_ball [
   code_04D565:
     LDA #$0200
     TSB $12
-    COP [SetOnInteract] ( &code_04D571 )
-    COP [SetEntryContinue]
+    COP [SetInteractHandler] ( &code_04D571 )
+    COP [SetEntryHere]
     RTL 
 } >
 ]

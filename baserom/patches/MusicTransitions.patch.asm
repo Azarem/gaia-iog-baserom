@@ -1,5 +1,4 @@
-﻿?BANK 03
-
+﻿
 ?INCLUDE 'cop_handlers_audio'
 ?INCLUDE 'chunk_03BAE1'
 ?INCLUDE 'scene_script'
@@ -89,7 +88,7 @@ count_check {
 
   count_ret:
     PLA
-    RTS
+    RTL
 }
 
 ---------------------------------------
@@ -231,7 +230,7 @@ loc_03DADC! {
     BPL loc_03DADC
     STA $INIDISP
 
-    JSR count_check
+    JSL count_check
     DEC 
     STA $0DB6
     BPL loc_03DAD5
@@ -277,7 +276,7 @@ loc_03DB05! {
     STA $MOSAIC
     PLA
 
-    JSR count_check
+    JSL count_check
     DEC 
     BPL loc_03DAFC    ;This loops through 0
     RTS 
@@ -302,7 +301,7 @@ loc_03DB6F! {
     BNE loc_03DB6F
     LDA $01, S
     
-    JSR count_check
+    JSL count_check
     DEC 
     STA $01, S
     STA $INIDISP
@@ -336,7 +335,7 @@ loc_03DBBC! {
     STA $01, S
     LDA $02, S
 
-    JSR count_check
+    JSL count_check
     DEC 
     STA $02, S
     STA $INIDISP

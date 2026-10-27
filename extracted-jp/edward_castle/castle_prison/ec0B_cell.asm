@@ -11,10 +11,10 @@ h_ec0B_cell [
   actor-def < #23, #00, #38, {
 
   code_04CCD2:
-    COP [BranchIfFlagByte] ( #24, #01, &code_04CDDB )
-    COP [SpawnLastRel] ( @code_04D49C, #00, #00, #$2000 )
-    COP [SolidHighAbs] ( #0E, #11 )
-    COP [SolidHighAbs] ( #0F, #11 )
+    COP [BranchOnFlagByte] ( #24, #01, &code_04CDDB )
+    COP [SpawnListAppend] ( @code_04D49C, #00, #00, #$2000 )
+    COP [MarkSolidAbs] ( #0E, #11 )
+    COP [MarkSolidAbs] ( #0F, #11 )
     LDA #$0800
     TRB $10
     LDA #$CFF0
@@ -23,12 +23,12 @@ h_ec0B_cell [
     COP [PrintDialogString] ( &dialogstring_04CEEC )
     LDA #$CFF0
     TRB $joypadMaskStd
-    COP [ExitIfFlagByte] ( #02, #01 )
-    COP [ExitIfFlagByte] ( #03, #01 )
-    COP [ExitIfFlagByte] ( #04, #01 )
+    COP [WaitOnFlagByte] ( #02, #01 )
+    COP [WaitOnFlagByte] ( #03, #01 )
+    COP [WaitOnFlagByte] ( #04, #01 )
     LDA #$1000
     TRB $10
-    COP [SetEntryDelayExit] ( @code_04CD1E, #$04B0 )
+    COP [JumpAfterDelay] ( @code_04CD1E, #$04B0 )
     LDA #$1000
     TSB $10
 } >
@@ -37,10 +37,10 @@ h_ec0B_cell [
 code_04CD1E {
     COP [PrintDialogString] ( &dialogstring_04D0A7 )
     COP [SpawnAfterAbsFlags] ( @code_04CE13, #$0108, #$FFD0, #$1002 )
-    COP [ExitIfFlagByte] ( #01, #01 )
+    COP [WaitOnFlagByte] ( #01, #01 )
     LDA #$1000
     TRB $10
-    COP [SetEntryDelayExit] ( @code_04CD42, #$0258 )
+    COP [JumpAfterDelay] ( @code_04CD42, #$0258 )
     LDA #$1000
     TSB $10
 }
@@ -70,7 +70,7 @@ code_list_04CD73 [
 code_04CD79 {
     COP [PrintDialogString] ( &dialogstring_04D284 )
     COP [SpawnAfterAbsFlags] ( @code_04CEC5, #$00B8, #$FF70, #$0020 )
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     LDA $gemCount
     BNE loc_04CD90
     RTL 
@@ -80,7 +80,7 @@ code_04CD79 {
     COP [PrintDialogString] ( &dialogstring_04D2E0 )
     LDA #$1000
     TRB $10
-    COP [SetEntryDelayExit] ( @code_04CDA3, #$012C )
+    COP [JumpAfterDelay] ( @code_04CDA3, #$012C )
 }
 
 code_04CDA3 {
@@ -95,8 +95,8 @@ code_04CDA3 {
     COP [AnimLoop]
     COP [StageSpriteMoveY] ( #27, #12 )
     COP [AnimOnce]
-    COP [SpawnAfterRelFlags] ( @code_04CDDD, #$0000, #$FFF0, #$1000 )
-    COP [ExitIfFlagByte] ( #23, #01 )
+    COP [SpawnAfterOffsetFlags] ( @code_04CDDD, #$0000, #$FFF0, #$1000 )
+    COP [WaitOnFlagByte] ( #23, #01 )
     COP [StageSpriteLoopMoveY] ( #26, #0E, #01 )
     COP [AnimLoop]
 }
@@ -109,10 +109,10 @@ code_04CDDD {
     LDA #$0200
     TSB $12
     COP [SetMetasprite] ( @table_0EE000 )
-    COP [SetOnInteract] ( &code_04CDF6 )
+    COP [SetInteractHandler] ( &code_04CDF6 )
     COP [StageSpriteFrame] ( #00 )
     COP [AnimOnce]
-    COP [ExitIfFlagByte] ( #23, #01 )
+    COP [WaitOnFlagByte] ( #23, #01 )
     COP [Die]
 }
 
@@ -133,7 +133,7 @@ code_04CE0F {
 code_04CE13 {
     LDA #$0800
     TRB $10
-    COP [SetOnInteract] ( #$0000 )
+    COP [SetInteractHandler] ( #$0000 )
     LDA #$0200
     TSB $12
     COP [StageSpriteLoopMoveY] ( #2A, #03, #07 )
@@ -141,17 +141,17 @@ code_04CE13 {
     COP [PlaySoundCh1] ( #1D )
     COP [StageSpriteMoveY] ( #2A, #35 )
     COP [AnimOnce]
-    COP [CollPriorityClearMax]
-    COP [SolidHighHere]
-    COP [SetOnInteract] ( &code_04CE3C )
-    COP [SetEntryContinue]
+    COP [ClearPriorityMax]
+    COP [MarkSolidHere]
+    COP [SetInteractHandler] ( &code_04CE3C )
+    COP [SetEntryHere]
     RTL 
 }
 
 code_04CE3C {
     COP [PrintDialogString] ( &dialogstring_04CE47 )
     COP [SetFlagByte] ( #01 )
-    COP [ClearLowHere]
+    COP [ClearSolidHere]
     COP [Die]
 }
 
@@ -163,10 +163,10 @@ code_04CEC5 {
     STA $chatPtr, X
     COP [StageSpriteMoveY] ( #06, #07 )
     COP [AnimOnce]
-    COP [SpawnMarkedAfter] ( @chunk_008000.code_00E24C, #$2300 )
+    COP [SpawnAfterMarked] ( @chunk_008000.code_00E24C, #$2300 )
     COP [StageSpriteMoveY] ( #06, #35 )
     COP [AnimOnce]
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     COP [StageSpriteFrame] ( #06 )
     COP [AnimOnce]
     RTL 
@@ -194,7 +194,7 @@ dialogstring_04D2E0 `[DEF][TPL:0]テム:[N]···これは?[FIN][TPL:4]笛:[N]�
 
 code_04D49C {
     COP [AdhocVramDma] ( @gfx_000000+A00, #$4700, #$0200 )
-    COP [SetEntryExit]
-    COP [BranchIfFlagByte] ( #00, #00, &code_04D49C )
+    COP [SetEntryHereAndYield]
+    COP [BranchOnFlagByte] ( #00, #00, &code_04D49C )
     RTL 
 }

@@ -7,10 +7,10 @@ h_sc06_hamlet [
   actor-def < #23, #00, #10, {
 
   code_049F8B:
-    COP [BranchIfFlagByte] ( #1B, #01, &code_04A08C )
-    COP [BranchIfFlagByte] ( #3D, #01, &code_04A08E )
-    COP [BranchIfFlagByte] ( #16, #00, &code_04A08C )
-    COP [SetOnInteract] ( &code_04A0AD )
+    COP [BranchOnFlagByte] ( #1B, #01, &code_04A08C )
+    COP [BranchOnFlagByte] ( #3D, #01, &code_04A08E )
+    COP [BranchOnFlagByte] ( #16, #00, &code_04A08C )
+    COP [SetInteractHandler] ( &code_04A0AD )
     LDA #$CFF0
     TSB $joypadMaskStd
     COP [StageSpriteLoop] ( #27, #02 )
@@ -20,8 +20,8 @@ h_sc06_hamlet [
     COP [PrintDialogString] ( &dialogstring_04A0B2 )
     LDA #$CFF0
     TRB $joypadMaskStd
-    COP [SolidHighHere]
-    COP [SetEntryContinue]
+    COP [MarkSolidHere]
+    COP [SetEntryHere]
     COP [BranchIfPlayerAt] ( #$0038, #$01A0, &code_049FD9 )
     COP [BranchIfPlayerAt] ( #$0038, #$019F, &code_049FD9 )
     COP [BranchIfPlayerAt] ( #$0038, #$019E, &code_049FD9 )
@@ -32,14 +32,14 @@ h_sc06_hamlet [
 code_049FD9 {
     LDA #$CFF0
     TSB $joypadMaskStd
-    COP [ClearLowHere]
-    COP [LoopInit] ( #1E )
+    COP [ClearSolidHere]
+    COP [LoopStart] ( #1E )
     LDY $decelStepCounter
     LDA #$0038
     STA $0014, Y
     LDA #$01A0
     STA $0016, Y
-    COP [LoopNext]
+    COP [LoopEnd]
     COP [StageSpriteMoveY] ( #26, #01 )
     COP [AnimOnce]
     COP [StageSpriteLoopMoveX] ( #28, #06, #02 )
@@ -60,7 +60,7 @@ code_049FD9 {
   code_04A029:
     COP [StageSpriteFrame] ( #25 )
     COP [AnimOnce]
-    COP [BranchIfFlagByte] ( #02, #00, &code_04A029 )
+    COP [BranchOnFlagByte] ( #02, #00, &code_04A029 )
     COP [StageSpriteMoveY] ( #27, #12 )
     COP [AnimOnce]
     COP [StageSpriteLoopMoveX] ( #29, #06, #11 )
@@ -71,19 +71,19 @@ code_049FD9 {
     COP [AnimLoop]
     COP [StageSpriteMoveY] ( #27, #12 )
     COP [AnimOnce]
-    COP [SolidHighHere]
+    COP [MarkSolidHere]
 
   code_04A056:
     COP [StageSpriteFrame] ( #28 )
     COP [AnimOnce]
-    COP [BranchIfFlagByte] ( #04, #00, &code_04A056 )
-    COP [ClearLowHere]
+    COP [BranchOnFlagByte] ( #04, #00, &code_04A056 )
+    COP [ClearSolidHere]
     COP [SetTilePos] ( #0D, #1A )
 
   code_04A067:
     COP [StageSpriteFrame] ( #28 )
     COP [AnimOnce]
-    COP [BranchIfFlagByte] ( #09, #00, &code_04A067 )
+    COP [BranchOnFlagByte] ( #09, #00, &code_04A067 )
     LDA #$0800
     TSB $10
     COP [StageSpriteLoopMoveY] ( #26, #03, #11 )
@@ -100,19 +100,19 @@ code_04A08C {
 
 code_04A08E {
     COP [SetTilePos] ( #0B, #19 )
-    COP [SolidHighHere]
-    COP [SetOnInteract] ( &code_04A0AD )
+    COP [MarkSolidHere]
+    COP [SetInteractHandler] ( &code_04A0AD )
     BRA code_04A056
 }
 
 code_04A09A {
-    COP [LoopInit] ( #40 )
+    COP [LoopStart] ( #40 )
     LDY $decelStepCounter
     LDA $0014, Y
     INC 
     STA $0014, Y
-    COP [SetEntryExit]
-    COP [LoopNext]
+    COP [SetEntryHereAndYield]
+    COP [LoopEnd]
     COP [Die]
 }
 

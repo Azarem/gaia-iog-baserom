@@ -110,7 +110,7 @@ AttackSystemEntry {
     LDA $playerFlags      ; Combat lock check (one-time, at spawn): $0008 is set in non-combat scenes, where no attack companion is wanted
     BIT #$0008            ; Bit 3 ($0008) = combat lock (set at spawn by non-combat scenes, toggled by cutscenes) — not a death flag
     BEQ code_02B7BD
-    COP [Die]             ; Combat locked (non-combat scene) — kill this attack companion actor
+    COP [Die]             ; Player is dead — kill this attack companion actor
 
   code_02B7BD:
     LDA #$0001            ; Clear attack-request bit ($0001) each frame before re-evaluation

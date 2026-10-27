@@ -13,6 +13,10 @@
 ?INCLUDE 'scene_thinkers'
 ?INCLUDE 'string_templates'
 
+!actorListFirst                 0056
+!actorListLast                  0058
+!hdmaEnableMask                 0066
+!oamWriteOffset                 00D8
 !deathFlag                      0200
 !extVelocityX                   0408
 !extVelocityY                   040A
@@ -21,15 +25,19 @@
 !sceneCurrent                   0644
 !gfxCacheIdxA                   0648
 !gfxCacheIdxB                   064A
+!warpDestX                      064C
+!warpDestY                      064E
+!warpFacing                     0650
+!warpScrollParams               0652
 !worldReadyFlag                 0654
 !joypadCurrent                  0656
 !joypadMaskStd                  065A
 !joypadMaskInv                  065C
 !joypadRaw                      0660
 !bg1ScrollH                     068A
-!bg1ScrollV                     068C
-!bg2ScrollH                     068E
-!savedCameraDelta               0690
+!effectScrollH                  068C
+!mapScrollV                     068E
+!effectScrollV                  0690
 !mapBoundsX                     0692
 !mapRowStrideL0                 0693
 !mapBoundsY                     0696
@@ -78,7 +86,7 @@
 !playerDef                      0ADC
 !playerStr                      0ADE
 !enemyHealthTimer               0AE4
-!damageFlashTimer               0B22
+!hpToHeal                       0B22
 !INIDISP                        2100
 !MOSAIC                         2106
 !BG3SC                          2109
@@ -211,7 +219,7 @@ code_03B7ED {
 }
 
 code_03B85A {
-    LDX $00D8
+    LDX $oamWriteOffset
     CLC 
     ADC #$0070
     ORA $0002
@@ -220,10 +228,10 @@ code_03B85A {
     STA $oamComposeBuffer, X
     LDA $001C
     STA $7F3102, X
-    LDA $00D8
+    LDA $oamWriteOffset
     CLC 
     ADC #$0006
-    STA $00D8
+    STA $oamWriteOffset
     RTS 
 }
 
@@ -634,7 +642,7 @@ code_03BA59 {
     JSR $&code_03C298
     BCS loc_03BB7C
     PHA 
-    COP [SpawnLastRel] ( @chunk_008000.code_00DDD3, #00, #00, #$2F00 )
+    COP [SpawnListAppend] ( @chunk_008000.code_00DDD3, #00, #00, #$2F00 )
     PLA 
     STA $0028, Y
     BRA loc_03BB7C
@@ -678,7 +686,7 @@ code_03BA59 {
     BRA loc_03BC0D
 
   loc_03BBC3:
-    COP [SpawnLastRel] ( @chunk_008000.code_00D996, #00, #00, #$2000 )
+    COP [SpawnListAppend] ( @chunk_008000.code_00D996, #00, #00, #$2000 )
     LDA #$0000
     STA $002C, Y
     STA $002E, Y
@@ -864,7 +872,7 @@ code_03BC89 {
     JSR $&code_03C298
     BCS loc_03BD2C
     PHA 
-    COP [SpawnLastRel] ( @chunk_008000.code_00DDD3, #00, #00, #$2B00 )
+    COP [SpawnListAppend] ( @chunk_008000.code_00DDD3, #00, #00, #$2B00 )
     LDA $0012, Y
     ORA #$1000
     STA $0012, Y
@@ -913,7 +921,7 @@ code_03BC89 {
   loc_03BD73:
     TXA 
     TCD 
-    COP [SpawnLastRel] ( @chunk_008000.code_00D996, #00, #00, #$2000 )
+    COP [SpawnListAppend] ( @chunk_008000.code_00D996, #00, #00, #$2000 )
     LDA #$0000
     STA $002C, Y
     STA $002E, Y
@@ -1511,7 +1519,7 @@ code_03C0EE {
     LDA $slopeCurvePtrB
     BIT #$1800
     BNE loc_03C1CB
-    COP [SpawnLastRel] ( @chunk_008000.code_00D996, #00, #00, #$2400 )
+    COP [SpawnListAppend] ( @chunk_008000.code_00D996, #00, #00, #$2400 )
     LDA $extendedFlags, X
     AND #$0020
     PHX 
@@ -1731,7 +1739,7 @@ code_03C308 {
     PHD 
     REP #$20
     LDY #$0000
-    LDA $0058
+    LDA $actorListLast
 
   code_03C312:
     TAX 
@@ -1764,7 +1772,7 @@ code_03C308 {
     SEC 
     SBC $1A
     SEC 
-    SBC $bg2ScrollH
+    SBC $mapScrollV
     CMP #$00E0
     BCC loc_03C358
     BPL code_03C39A
@@ -1772,7 +1780,7 @@ code_03C308 {
     CLC 
     ADC $1E
     SEC 
-    SBC $bg2ScrollH
+    SBC $mapScrollV
     CMP #$00E0
     BCS code_03C39A
 
@@ -1790,7 +1798,7 @@ code_03C308 {
   loc_03C36E:
     LDA $16
     SEC 
-    SBC $bg2ScrollH
+    SBC $mapScrollV
     CMP #$0100
     BCC loc_03C37C
 
@@ -1916,7 +1924,7 @@ code_03C41D {
     SEC 
     SBC #$0010
     STA $1A
-    LDA $bg2ScrollH
+    LDA $mapScrollV
     SEC 
     SBC #$0010
     STA $1E
@@ -1953,7 +1961,7 @@ code_03C41D {
     LDA $00
     TCS 
     JSR $&code_03C494
-    STZ $00D8
+    STZ $oamWriteOffset
     LDX #$0000
 
   loc_03C475:
@@ -1999,7 +2007,7 @@ code_03C494 {
   loc_03C4A7:
     LDA $7F3102, X
     SEC 
-    SBC $bg2ScrollH
+    SBC $mapScrollV
     CMP #$00F0
     BCS loc_03C4F1
     STA $0423, Y
@@ -3112,8 +3120,8 @@ code_03CB9B {
 code_03CBAD {
     PHP 
     REP #$20
-    STZ $0056
-    STZ $0058
+    STZ $actorListFirst
+    STZ $actorListLast
     LDA #$008C
     STA $40
     LDX $0646
@@ -3125,7 +3133,7 @@ code_03CBAD {
     CMP #$00FF
     BEQ loc_03CBF8
     JSL $@chunk_008000.code_00B5AF
-    STY $0056
+    STY $actorListFirst
     BRA loc_03CBEF
 
   loc_03CBD9:
@@ -3145,7 +3153,7 @@ code_03CBAD {
     BCC loc_03CBD9
 
   loc_03CBF5:
-    STX $0058
+    STX $actorListLast
 
   loc_03CBF8:
     LDA #$1000
@@ -3326,7 +3334,7 @@ code_03CC24 {
     TSB $slopeCurvePtrB
 
   loc_03CD44:
-    LDA $0650
+    LDA $warpFacing
     AND #$00FF
     ASL 
     TAY 
@@ -3346,19 +3354,19 @@ code_03CC24 {
     LDA $&body_table+2, Y
     AND #$00FF
     STA $7F0008, X
-    LDA $064C
-    ORA $064E
+    LDA $warpDestX
+    ORA $warpDestY
     BEQ loc_03CD9B
-    LDA $064C
+    LDA $warpDestX
     CLC 
     ADC #$0008
     STA $14
-    LDA $064E
+    LDA $warpDestY
     CLC 
     ADC #$0010
     STA $16
-    STZ $064C
-    STZ $064E
+    STZ $warpDestX
+    STZ $warpDestY
     JSL $@code_03C761
     STZ $08
     BRA loc_03CDA3
@@ -3403,7 +3411,7 @@ code_03CC24 {
 
   loc_03CDDB:
     STA $cameraTargetY
-    STA $bg2ScrollH
+    STA $mapScrollV
     PLD 
     CLC 
     RTS 
@@ -4883,9 +4891,9 @@ code_03D6FF {
     LDA $0D52
     STA $0D54
     STZ $0D52
-    LDA $0652
+    LDA $warpScrollParams
     STA $0D6C
-    STZ $0652
+    STZ $warpScrollParams
     LDA #$0000
     SEP #$20
     LDA $sceneNext
@@ -5166,8 +5174,8 @@ code_03D8FF {
     STA $7E8803
     LDA #$00
     STA $7E8806
-    COP [QueueHdmaChannel] ( #06, #$8800, #$0D7E )
-    COP [QueueHdmaChannel] ( #07, #$8800, #$0F7E )
+    COP [QueueHdmaChannel] ( #06, $7E8800, #0D )
+    COP [QueueHdmaChannel] ( #07, $7E8800, #0F )
     JSL $@chunk_008000.code_008122
     PLA 
     RTS 
@@ -5381,10 +5389,10 @@ code_03DA5F {
     STX $forcedScrollOverride
     STX $scrollOverrideV
     STX $06CC
-    STX $bg2ScrollH
-    STX $savedCameraDelta
+    STX $mapScrollV
+    STX $effectScrollV
     STX $bg1ScrollH
-    STX $bg1ScrollV
+    STX $effectScrollH
     STX $09C0
     STX $decelCurvePtr
     STX $extVelocityX
@@ -5682,7 +5690,7 @@ code_03DCE9 {
 }
 
 code_03DD39 {
-    LDX $0652
+    LDX $warpScrollParams
     BNE loc_03DD58
     LDX $mapBoundsX
     STX $cameraBoundsX
@@ -5695,7 +5703,7 @@ code_03DD39 {
     BRA loc_03DD7D
 
   loc_03DD58:
-    LDA $0652
+    LDA $warpScrollParams
     PHA 
     AND #$0F
     STA $cameraOffsetX+1
@@ -5721,7 +5729,7 @@ code_03DD39 {
     STZ $cameraBoundsY
     STZ $cameraLowerYBound
     REP #$20
-    STZ $0652
+    STZ $warpScrollParams
     LDA #$0100
     SEC 
     SBC $06EC
@@ -5870,7 +5878,7 @@ code_03DE5C {
     PLA 
     STA $A1B0, X
     LDA $0068
-    TSB $0066
+    TSB $hdmaEnableMask
     ASL $0068
     LDA $006A
     ADC #$10
@@ -5885,7 +5893,7 @@ code_03DE93 {
     LDA #$F1
     STA $APUIO0
     REP #$20
-    COP [SetEntryExit]
+    COP [SetEntryHereAndYield]
     LDA $APUIO0
     AND #$00FF
     CMP #$00F1
@@ -5897,7 +5905,7 @@ code_03DE93 {
     LDA #$01
     STA $APUIO0
     REP #$20
-    COP [SetEntryExit]
+    COP [SetEntryHereAndYield]
     SEP #$20
     LDA $APUIO0
     REP #$20
@@ -5910,7 +5918,7 @@ code_03DEBF {
     LDA #$F0
     STA $APUIO0
     REP #$20
-    COP [SetEntryExit]
+    COP [SetEntryHereAndYield]
     SEP #$20
     LDA $APUIO0
     REP #$20
@@ -5918,14 +5926,14 @@ code_03DEBF {
     RTL 
 
   loc_03DED4:
-    COP [SetEntryExit]
+    COP [SetEntryHereAndYield]
     SEP #$20
     LDA #$FF
     STA $APUIO0
     REP #$20
     LDA $chatPtr, X
     STA $musicTransitionState
-    COP [SetEntryExit]
+    COP [SetEntryHereAndYield]
     LDA $musicTransitionState
     CMP #$FFFF
     BEQ loc_03DEF1
@@ -5937,7 +5945,7 @@ code_03DEBF {
     LDA #$01
     STA $APUIO0
     REP #$20
-    COP [SetEntryExit]
+    COP [SetEntryHereAndYield]
     STZ $sfxQueueCh1
     STZ $musicTransitionState
     COP [Die]
@@ -6817,12 +6825,12 @@ code_03E458 {
     REP #$20
     LDA #$0005
     CLC 
-    ADC $damageFlashTimer
-    STA $damageFlashTimer
+    ADC $hpToHeal
+    STA $hpToHeal
     PHD 
     TXA 
     TCD 
-    COP [SpawnLastRel] ( @chunk_008000.code_00DE22, #00, #00, #$2F00 )
+    COP [SpawnListAppend] ( @chunk_008000.code_00DE22, #00, #00, #$2F00 )
     PLD 
     COP [PlaySoundCh2] ( #22 )
     JMP $&code_03E53E
@@ -6868,7 +6876,7 @@ code_03E458 {
     STA $playerMaxHp
     SEC 
     SBC $playerHp
-    STA $damageFlashTimer
+    STA $hpToHeal
     LDY #$0000
     BRA code_03E53E
 
@@ -7040,7 +7048,7 @@ code_03E5AF {
 
 code_03E5E0 {
     BRK #$01
-    COP [QueueHdmaChannel] ( #00, #$0201, #$0003 )
+    COP [QueueHdmaChannel] ( #00, $030201, #00 )
     ORA ($02, X)
     ORA $00, S
     ORA ($02, X)

@@ -6,9 +6,9 @@ h_it15_fable_man [
   code_04D7FF:
     LDA #$0200
     TSB $12
-    COP [SetOnInteract] ( &code_04D80D )
-    COP [SolidHighHere]
-    COP [SetEntryContinue]
+    COP [SetInteractHandler] ( &code_04D80D )
+    COP [MarkSolidHere]
+    COP [SetEntryHere]
     RTL 
 } >
 ]

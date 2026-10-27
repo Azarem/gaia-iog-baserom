@@ -3,19 +3,13 @@
 ?INCLUDE 'array_01D3F7'
 ?INCLUDE 'binary_01C36C'
 ?INCLUDE 'chunk_008000'
-?INCLUDE 'chunk_038000'
-?INCLUDE 'chunk_058000'
-?INCLUDE 'chunk_078000'
 ?INCLUDE 'chunk_088000'
 ?INCLUDE 'chunk_098000'
 ?INCLUDE 'chunk_0A8000'
 ?INCLUDE 'chunk_3B7DD'
-?INCLUDE 'ec0A_caring_maid'
-?INCLUDE 'music_array'
 ?INCLUDE 'palette_bundles'
 ?INCLUDE 'sc03_lances_mother'
 ?INCLUDE 'scene_warps'
-?INCLUDE 'stats_table'
 ?INCLUDE 'string_templates'
 ?INCLUDE 'table_018000'
 ?INCLUDE 'table_01A946'
@@ -33,6 +27,10 @@
 !rngState                       040F
 !sceneNext                      0642
 !sceneCurrent                   0644
+!warpDestX                      064C
+!warpDestY                      064E
+!warpFacing                     0650
+!warpScrollParams               0652
 !worldReadyFlag                 0654
 !joypadCurrent                  0656
 !joypadHeld                     0658
@@ -42,9 +40,9 @@
 !joypadRaw                      0660
 !joypadRepeatCounter            0662
 !bg1ScrollH                     068A
-!bg1ScrollV                     068C
-!bg2ScrollH                     068E
-!savedCameraDelta               0690
+!effectScrollH                  068C
+!mapScrollV                     068E
+!effectScrollV                  0690
 !mapBoundsX                     0692
 !mapRowStrideL0                 0693
 !mapRowStrideL1                 0695
@@ -103,21 +101,21 @@
 !itemAbilityIndex               0AE8
 !sceneSaveData                  0AF0
 !inventoryTabIndex              0AFA
-!remapSelect                    0DA6
-!remapX                         0DA8
+!sourceSceneId                  0B12
+!remapR                         0DA6
+!remapL                         0DA8
 !remapB                         0DAA
 !remapA                         0DAC
 !remapY                         0DAE
-!remapStart                     0DB0
-!remapL                         0DB2
-!remapR                         0DB4
+!remapX                         0DB0
+!remapStart                     0DB2
+!remapSelect                    0DB4
 !S_metatileMapLayer             2000
 !INIDISP                        2100
 !OAMADDL                        2102
 !BG1SC                          2107
 !BG2SC                          2108
 !BG3SC                          2109
-!BG34NBA                        210C
 !BG3HOFS                        2111
 !BG3VOFS                        2112
 !VMAIN                          2115
@@ -479,21 +477,21 @@ code_028168 {
     LDA $joypadRaw
     AND #$0F00
     STA $joypadRemapped
-    LDA $remapL
+    LDA $remapStart
     BEQ loc_0281F7
     LDA $joypadRaw
     BIT #$1000
     BEQ loc_0281F7
-    LDA $remapL
+    LDA $remapStart
     TSB $joypadRemapped
 
   loc_0281F7:
-    LDA $remapR
+    LDA $remapSelect
     BEQ loc_02820A
     LDA $joypadRaw
     BIT #$2000
     BEQ loc_02820A
-    LDA $remapR
+    LDA $remapSelect
     TSB $joypadRemapped
 
   loc_02820A:
@@ -524,30 +522,30 @@ code_028168 {
     TSB $joypadRemapped
 
   loc_028243:
-    LDA $remapStart
+    LDA $remapX
     BEQ loc_028256
     LDA $joypadRaw
     BIT #$0040
     BEQ loc_028256
-    LDA $remapStart
+    LDA $remapX
     TSB $joypadRemapped
 
   loc_028256:
-    LDA $remapX
+    LDA $remapL
     BEQ loc_028269
     LDA $joypadRaw
     BIT #$0020
     BEQ loc_028269
-    LDA $remapX
+    LDA $remapL
     TSB $joypadRemapped
 
   loc_028269:
-    LDA $remapSelect
+    LDA $remapR
     BEQ loc_02827C
     LDA $joypadRaw
     BIT #$0010
     BEQ loc_02827C
-    LDA $remapSelect
+    LDA $remapR
     TSB $joypadRemapped
 
   loc_02827C:
@@ -2001,10 +1999,10 @@ code_028B8B {
     REP #$20
     LDA $06A2
     CMP $06A6
-    BEQ code_028C0A
+    BEQ loc_028C0A
     STZ $0679
 
-  code_028C0A:
+  loc_028C0A:
     STA $06A6
     LDA $06A4
     CMP $06A8
@@ -3078,8 +3076,6 @@ code_02925C {
     JSL $@code_0282C7
     CPX #$0001
     LDA #$00
-
-  loc_0292B0:
     ROL 
     STA $APUIO1
     ADC #$7F
@@ -3100,1422 +3096,9 @@ code_02925C {
     PLP 
     RTS 
 }
+---------------------------------------------
 
-code_0292D1 {
-    STA [$0B], Y
-    BRK #$04
-    JSR $&code_02CFCD
-    LDA $00E8, X
-    EOR $&binary_01C36C.binary_01C77D+132, X
-    BEQ loc_0292B0
-    XCE 
-    LDY $&01E93F, X
-    ORA #$A2
-    PHA 
-    INX 
-    RTS 
-}
-
-code_0292E9 {
-    STA $3F0C
-    LDA $@palette_1B4166+14B9F, X
-    AND $@2805BF, X
-    BPL loc_029283
-    EOR $&table_01B06E.delta_node_01BF3C+3, X
-    ORA $E8
-    BMI loc_0292C1
-    SBC ($E8), Y
-    BPL loc_0292C5
-    PLX 
-    CPY $53
-    INX 
-    ORA ($C4, X)
-    SBC ($E4), Y
-    ROL $48, X
-    SBC $@gfx_ruins+17EF, X
-    SEC 
-    STA $&stats_table+132
-    ORA $F0
-    ORA [$B0]
-    PHP 
-    ADC #$4D
-    JMP $0FD0
-    SBC $4C, S
-    TSB $&table_01AD90+66
-    ORA $&01F2C4
-    INC $B7, X
-    ORA $&01E65D
-    CPY $F3
-    INC $&music_array+4D, X
-    EOR $CB
-    LSR $EB
-    SBC $&01FCF0, X
-    ADC $40E8
-    CMP $@chunk_038000.code_list_038431+2F
-    CPY $43
-    BCC loc_029352
-    SBC $FD
-    ORA $@301468
-    ORA $3F, S
-    BEQ loc_029358
-    ADC #$4D
-    JMP $02F0
-    PLB 
-    JMP $53E4
-    RTS 
-}
-
-code_029355 {
-    STY $F5
-    INC $60CF
-    STY $51
-    CPY $51
-    BCC loc_029379
-    AND $@2406B2, X
-    BMI loc_029356
-    ASL 
-    PHB 
-    AND ($D0), Y
-    ASL $8F
-    BRK #$04
-    AND $@gfx_credits_actors2+5EF, X
-    BRK #$3F
-    LDA $5F04, X
-    AND ($04, S), Y
-
-  loc_029379:
-    CPX $04
-    BEQ loc_02938F
-    CMP $&208F00
-    ORA ($47, X)
-    PEA $&code_02F0D6-1
-    ORA $3F, S
-    STA ($0C, X)
-    AND $0B3D, X
-    EOR [$D0]
-    SBC ($5F, S), Y
-    AND ($04, S), Y
-    PEA $&code_02D405-1
-    PEA $&code_02F4F5-1
-    STZ $F4, X
-    BNE loc_029396
-    PEI ($00)
-
-  loc_02939E:
-    ADC $@gfx_pyramid+54C
-    ORA $3F
-    ORA $&208D08, X
-    LDY $AD
-    INY 
-    BCS loc_02939E
-
-  loc_0293AC:
-    CPX $1A
-    BIT $47
-    BNE loc_02939E
-    CMP $7F28, X
-    RTS 
-}
-
-code_0293B6 {
-    STY $50
-    RTS 
-}
-
-code_0293B9 {
-    STA $F0, X
-    COP [RemoveItem] ( #7D )
-    ORA $F5, S
-    LDA $03
-    CMP $7C, X
-    ORA $F5, S
-    LDA ($02, X)
-    JML $@code_3C00E8
-}
-
-code_0293CC {
-    CMP $8C, X
-    COP #$E8
-    BRK #$D4
-    LDY $00D5
-    ORA ($D5, X)
-    INY 
-    COP [GiveItem] ( #C0, $4709 )
-    LSR $4709, X
-    EOR $F5
-    STZ $02
-    PEI ($98)
-    BEQ loc_029406
-    SBC $65, X
-    COP [GiveItem] ( #99, $78F5 )
-    COP [BranchIfFlagByte] ( #0A, #F5, $037D )
-    BRA loc_0293AC
-
-  loc_0293F7:
-    ADC $&20D502, Y
-    ADC $&20F503, X
-    ADC $6002, Y
-    STA $7D, X
-    ORA $3F, S
-    EOR $0A, X
-
-  loc_029406:
-    AND $8D0A6D, X
-    BRK #$E4
-    ORA ($80), Y
-    TAY 
-
-  loc_02940F:
-    BIT $B0, X
-    ORA #$E4
-    ORA ($80), Y
-    TAY 
-    ORA ($B0, S), Y
-    ASL $DC
-    TRB $107A
-    PHX 
-    BPL loc_02946D
-    CPX $11
-    TRB $008D
-    CMP $&209E18
-    EOR $&20C3F6, X
-    ORA $15C4
-    INC $C2, X
-    ORA $14C4
-    INC $C5, X
-    ORA $&20F62D
-    CPY $0D
-    INC $149A
-    XBA 
-    BPL loc_02940F
-    CMP $008D, X
-    PLY 
-    TRB $CB
-    ORA $1C, X
-    PLD 
-    ORA $C4, X
-    TRB $2F
-    TSB $4B
-    ORA $7C, X
-    AND $forcedScrollOverride, X
-    BNE loc_02944E
-    CPY $14
-    DEC $28F5
-    COP #$EB
-    ORA $CF, X
-    PHX 
-    ASL $F5, X
-    PLP 
-    COP #$EB
-    TRB $CF
-    ADC $29F5
-    COP #$EB
-    TRB $CF
-    PLY 
-    ASL $DA, X
-    ASL $F5, X
-    AND #$EB02
-    ORA $CF, X
-    SBC $7AAE, X
-    ASL $DA, X
-    ASL $F5, X
-    JML [$080D]
-    COP #$FD
-    CPX $16
-    AND $@3C05B7, X
-    CPX $17
-    AND $47E4
-    BIT $1A
-    LDX $04D0
-    WAI 
-    SBC ($C4)
-    SBC ($6F, S), Y
-    STA $&20F700
-    RTI 
-    DEC 
-    RTI 
-    AND $40F7
-    DEC 
-    RTI 
-    SBC $6FAE, X
-    STA $8F30FF
-    ADC $@ec0A_caring_maid.h_ec0A_caring_maid+7, X
-    ADC $@3EE52D
-    ORA $@map_gs2F+34
-    PHX 
-    TSC 
-    INX 
-    BRK #$5D
-
-  loc_0294BC:
-    CMP [$3B]
-    DEC 
-    TSC 
-    BNE loc_0294BC
-    LDX $&208F6F
-    SBC $@chunk_008000.loc_008F41+5, X
-    TSB $A2
-    PHA 
-    REP #$48
-    INX 
-    BRK #$C4
-    SBC $C4
-    SBC [$E8]
-    ORA ($3F, X)
-    SBC #$6F09
-    REP #$48
-    ADC $0F563F
-    CPY $08
-    CPY $04
-    ADC $@30F068
-    STP 
-    PLA 
-    SBC ($F0), Y
-    TSX 
-    PLA 
-    SBC ($F0)
-    SBC #$FF68
-    BEQ loc_0294DD
-    ADC $@28F4E4
-    BCC loc_0294EB
-    ORA ($68)
-    STA ($F0), Y
-    ORA ($80)
-    TAY 
-    BPL loc_02956C
-    BVS loc_0294B6
-    ASL $1C
-    CPY $3E
-    STA $@2F5EFF
-    STA $@2F3201
-    STA $@2F3200
-    CPY $04
-    TRB $2EF0
-    PLA 
-    COP [BranchIfFlagByte] ( #D7, #3F, $05DB )
-    SBC $FC
-    ORA $@gfx_ending_credits+1067
-    PHX 
-    RTI 
-    DEC 
-    RTI 
-    DEC 
-    RTI 
-    STA $@280C02
-    BRK #$C4
-    BMI loc_0294FA
-    EOR $@gfx_ruins+78F, X
-    AND $C4, X
-    ROL $C4, X
-    SBC $C4
-    SBC [$C4]
-    AND $3EC4, X
-    CPY $F5
-    CMP ($48)
-    CPX $1A
-    PHA 
-    SBC $00460E, X
-    ADC $8F0ECD
-    BRA loc_02959D
-
-  loc_029556:
-    INX 
-    SBC $0305D5, X
-    INX 
-    ASL 
-    AND $@bgm_golden_road+889, X
-    ORA $02, X
-    CMP $A5, X
-    ORA $D5, S
-    BEQ loc_02956B
-    CMP $64, X
-
-  loc_02956B:
-    COP [GiveItem] ( #AD, &code_02C1D4 )
-    ORA $4B1D, X
-    EOR [$D0]
-    CPX #$5AC4
-    CPY $68
-    CPY $54
-    CPY $50
-    CPY $42
-    STA $8F59C0
-    JSR $6F53
-    XBA 
-    PHP 
-    CPX $00
-    PLA 
-    BEQ loc_02951E
-    ORA $5F, S
-    BPL loc_029598
-    CPY $08
-    ROR $&20F000, X
-    ORA $5F, S
-    EOR ($06, X)
-    CPX $04
-
-  loc_02959D:
-    BEQ loc_029586
-    CMP ($48)
-    CPX $0C
-    BEQ loc_029603
-    ROR $&20A90C
-
-  loc_0295A8:
-    PLX 
-    AND $3FF5, X
-    CPY $05
-    BNE loc_0295D0
-    SBC $09D0, X
-    STA $8F3DFF
-    SBC $@gfx_dao+58D, X
-    ASL $8B
-    WDM 
-    BPL loc_0295C5
-    CPY $42
-    STA $3F3D00
-    CPY $05
-    SED 
-    WDM 
-    BEQ loc_0295A8
-    PHX 
-    RTI 
-    AND $@3DABD8
-    PHX 
-    ASL $8D, X
-    ORA $@map_pyramid_vader_a+6B3
-    PEI ($00)
-    JML [$&code_02F810]
-    CMP $&208F00
-    ORA ($47, X)
-
-  loc_0295E3:
-    PEA $&code_02F0D6-1
-    ASL 
-    SBC $15, X
-    COP [BranchIfFlagByte] ( #05, #E8, $3F00 )
-    ORA $&20E808, X
-    BRK #$D5
-    CLV 
-    ORA $D4, S
-    STY $D4
-    STA $BC
-    PEI ($70)
-    AND $0B3D, X
-    EOR [$D0]
-    CPX #$00CD
-    CLD 
-    LSR $018F, X
-    EOR [$D8]
-    MVP #$F4, #$D5
-    BEQ loc_02967C
-    TXY 
-    BVS loc_0295E3
-    PER loc_02A955
-    PHP 
-    BNE loc_029636
-    SBC $B8, X
-    ORA $F0, S
-    TXA 
-    AND $@350981, X
-    CLV 
-    ORA $9C, S
-    CMP $B8, X
-    ORA $D0, S
-    NOP 
-    SBC $3C, X
-    COP [GiveItem] ( #D4, $3DF5 )
-    COP [GiveItem] ( #D5, &code_02DE2F )
-
-  loc_029636:
-    BMI loc_029658
-    CMP $00, X
-    COP [WaitUntilNoButton] ( #$0813 )
-    BMI loc_029658
-    AND $289F
-    ORA [$FD]
-    INC $00, X
-    ORA ($D5, S), Y
-    ORA ($02, X)
-    LDX $0F28
-    SBC $08F6, X
-    ORA ($D5, S), Y
-    TRB $02
-    AND $@280813, X
-    CPX #$0590
-    AND $2F0801, X
-    LDA ($3F, S), Y
-    DEX 
-    TSB $F5
-    BRK #$02
-    PEI ($70)
-    SBC $01F5, X
-    COP [ClearFlagWord] ( #$D0DD )
-    ORA ($BC, X)
-    PEI ($71)
-    AND $A93F03
-    PHD 
-    AND $3D0A35, X
-    AND $470B, X
-    BNE loc_02960A
-    CPX $30
-    BEQ loc_029689
-    STA $@245EFF
-    MVN #$F0, #$0B
-    TSX 
-    LSR $7A, X
-    EOR ($6E)
-    MVN #$02, #$BA
-    MVN #$DA, #$52
-    CPX $68
-    BEQ loc_0296B1
-    TSX 
-    STZ $7A
-    RTS 
-}
-
-code_0296A0 {
-    PHX 
-    RTS 
-}
-
-code_0296A2 {
-    TSX 
-    ROR $7A
-    PER loc_02FF16
-    ASL $BA
-    PLA 
-    PHX 
-    RTS 
-}
-
-code_0296AD {
-    XBA 
-    ROR 
-    PHX 
-    PER code_02F197
-    BEQ loc_0296C3
-    TSX 
-    JML $@code_2E587A
-}
-
-code_0296BA {
-    PHY 
-    COP [ClearHFlip]
-    PHY 
-    PHX 
-    CLI 
-    STA $@gfx_southcape_effect+33D
-    BRK #$8F
-    ORA ($47, X)
-    PEA $&code_02F0D6-1
-    ORA $3F, S
-    SBC $0A
-    AND $0B3D, X
-    EOR [$D0]
-    SBC ($6F, S), Y
-    TRB $&20F6FD
-    CMP $09, X
-    AND $&20D4F6
-    ORA #$DD2D
-    JML $@code_2AF6FD
-}
-
-code_0296E5 {
-    ASL 
-    BEQ loc_0296F0
-    SBC [$D4]
-    TYX 
-    PEI ($D0)
-    COP [SetHFlip]
-    CMP $FD, X
-    ADC $0215D5
-    XBA 
-    BIT $D0, X
-    ORA ($FD), Y
-    BPL loc_029702
-    BRA loc_0296A6
-
-  loc_0296FE:
-    DEX 
-    RTS 
-}
-
-code_029700 {
-    STY $5F
-
-  loc_029702:
-    EOR $&20F55D
-    CPX #$CE0F
-    AND $@map_ir1E+17E
-    ASL $80
-    TAY 
-    DEX 
-    RTS 
-}
-
-code_029711 {
-    STY $39
-    STA $&20CF06
-    PHX 
-    TRB $60
-    TYA 
-    BRK #$14
-    TYA 
-    ORA ($15)
-    CPX $1A
-    BIT $47
-    BNE loc_02975D
-    EOR $&20DCF5
-    ORA $extVelocityX
-    EOR $008D, X
-    SBC [$14], Y
-    BPL loc_029740
-    PLP 
-    ORA $@sfx2C+361, X
-    ASL $0048
-    ORA #$4947
-    CMP $072F, X
-
-  loc_029740:
-    CPX $47
-    LSR $0049
-
-  loc_029745:
-    SBC [$14], Y
-    CLD 
-    SBC ($C4)
-    SBC ($3D, S), Y
-    JSR ($04AD, X)
-    BNE loc_029745
-    DEC $14F7
-    CMP $29, X
-    COP #$FC
-    SBC [$14], Y
-    CMP $28, X
-    COP #$6F
-    CMP $69, X
-    ORA $28, S
-    ORA $0341D5, X
-    INX 
-    BRK #$D5
-    RTI 
-    ORA $6F, S
-    PEI ($85)
-    AND $133F
-    PHP 
-    CMP $68, X
-    ORA $80, S
-    LDA $41, X
-    ORA $CE, S
-    AND $@spm_angkor_interior_sprites+130, X
-    MVN #$03, #$DD
-    CMP $55, X
-    ORA $6F, S
-    CMP $A0, X
-    COP [WaitUntilNoButton] ( #$0813 )
-    CMP $8D, X
-    COP [WaitUntilNoButton] ( #$0813 )
-    PEI ($AD)
-    CMP $B5, X
-    COP #$E8
-    BRK #$D5
-    LDA ($02, X)
-    ADC $@code_02A1D5
-    AND $008D
-    PEA $&code_02CEAE-1
-    STZ $44F8, X
-    CMP $B4, X
-    COP #$6F
-    CMP $&20A880, X
-    BRK #$FD
-    INX 
-    BRK #$DA
-    CLI 
-    ADC $3F5AC4
-    ORA ($08, S), Y
-    CPY $5B
-    BRA loc_029763
-
-  loc_0297BF:
-    EOR $5AF8, Y
-    AND $@set_babel_upper+464, X
-    JML $@code_34E46F
-}
-
-code_0297CA {
-    BNE loc_0297D0
-    INX 
-    BRK #$DA
-    EOR ($6F)
-    CPY $54
-    AND $@gfx_darkspace+813, X
-    EOR $80, X
-    LDY $53
-    SED 
-    MVN #$3F, #$78
-    ASL 
-    PHX 
-    LSR $6F, X
-    CPY $50
-    ADC $@code_02F0C1+14
-    ADC $@loc_02DCCA+B
-    AND $@bgm_golden_road+813, X
-    CMP #$3F02
-    ORA ($08, S), Y
-    PEI ($C1)
-    ADC $2F01E8
-    COP #$E8
-    BRK #$D5
-    SEI 
-    COP [PanCameraUp]
-    CMP $65, X
-    COP [WaitUntilNoButton] ( #$0813 )
-    CMP $64, X
-    COP [WaitUntilNoButton] ( #$0813 )
-    CMP $79, X
-    COP #$6F
-    CMP $64, X
-    COP #$6F
-    CMP $05, X
-    ORA $E8, S
-    BRK #$D5
-    TSB $03
-    ADC $@2D84D4
-    AND $@bgm_golden_road+813, X
-    BIT $&208003
-    LDA $05, X
-    ORA $CE, S
-    AND $@spm_angkor_interior_sprites+130, X
-    CLC 
-    ORA $DD, S
-    CMP $19, X
-    ORA $6F, S
-    CMP $A5, X
-    ORA $6F, S
-    CMP $50, X
-    COP [WaitUntilNoButton] ( #$0813 )
-    CMP $51, X
-    COP [WaitUntilNoButton] ( #$0813 )
-    CMP $B8, X
-    ORA $F4, S
-    PEI ($D5)
-    BIT $&20F402, X
-    CMP $D5, X
-    AND $&20F502, X
-    BVC loc_02985B
-    PEI ($D4)
-
-  loc_02985B:
-    SBC $51, X
-    COP [GiveItem] ( #D5, &code_02C46F )
-    LSR 
-    AND $@280813, X
-    BRK #$DA
-    RTS 
-}
-
-code_02986A {
-    AND $@280813, X
-    BRK #$DA
-    PER loc_02E125
-    ADC $3F68C4
-    ORA ($08, S), Y
-    CPY $69
-    BRA loc_029821
-
-  loc_02987D:
-    ADC ($F8, X)
-    PLA 
-    AND $@set_babel_upper+464, X
-    STZ $3F
-    ORA ($08, S), Y
-    CPY $6A
-    BRA loc_029830
-
-  loc_02988C:
-    ADC $F8, S
-    PLA 
-    AND $@set_babel_upper+464, X
-    ROR $6F
-    PHX 
-    RTS 
-}
-
-code_029897 {
-    PHX 
-    PER loc_02E13D
-    ADC $@09E93F
-    AND $@gfx_darkspace+813, X
-    LSR $133F
-    PHP 
-    STA $&20CF08
-    EOR $0F8D, X
-
-  loc_0298AD:
-    SBC $8E, X
-    ORA $&20BF3F
-    ORA $3D
-    CMP $&208860, X
-    BPL loc_0298B6
-    BPL loc_0298AD
-    SED 
-    MVP #$6F, #$C4
-    EOR $7D8D
-    WAI 
-    SBC ($E4)
-    SBC ($64, S), Y
-    EOR $29F0
-    PLP 
-    ORA $@33FF48
-    JMP $6003
-    STY $4C
-    CPY $4C
-    STA $&20F604
-    LDA $&20C40D
-    SBC ($E8)
-    BRK #$C4
-    SBC ($FE, S), Y
-    SBC $E4, X
-    PHA 
-    PHP 
-    JSR $6C8D
-    AND $@2405BF, X
-    EOR $7D8D
-    AND $1C05BF, X
-    TRB $481C
-    SBC $@3F8880, X
-    STA $5F6D
-    LDA $@34EB05, X
-    BNE loc_029907
-    CPY $5F
-    ADC $@2F39C4
-    PEA $&code_02D099-1
-    AND ($E7, S), Y
-    PEI ($68)
-    SBC $2DD0, Y
-    AND $3F0815, X
-    ORA ($08, S), Y
-    PEI ($99)
-    AND $@map_babel_middle+813, X
-    TYA 
-    AND $@200813, X
-    STY $50
-    STA $F0, X
-    COP [BranchIfPlayerAt] ( #$D57F, #$03A4, &code_02B580 )
-    ADC $&20FB03, X
-    TYA 
-    ADC $3FCE
-    SEI 
-    ASL 
-    CMP $90, X
-    ORA $DD, S
-    CMP $91, X
-    ORA $6F, S
-    SBC $7D, X
-    ORA $C4, S
-    ORA ($F5), Y
-    JMP ($&code_list_02C403, X)
-}
-
-code_02994B {
-    BPL loc_0299BC
-    SBC $126B
-    BPL loc_029955
-    PHA 
-    SBC $@chunk_008000.loc_008DB2+A, X
-    STZ $&20E82D, X
-    BRK #$9E
-    INC $44F8
-    SBC ($12, S), Y
-    ASL $DA
-    TRB $BA
-    ASL $149A
-    ADC $89081D
-    PHP 
-    STA [$08], Y
-    BCS loc_029979
-    LDY $&20D708, X
-    PHP 
-    SBC ($08, X)
-    SBC ($08, S), Y
-
-  loc_029979:
-    JSR ($0E08, X)
-    ORA #$0911
-    ORA $09, X
-    AND ($09, X)
-    WDM 
-    ORA #$094B
-    PLA 
-    ORA #$08C7
-    BIT $09
-    PLP 
-    ORA #$093E
-    STZ $09
-    STY $&20C009
-    ORA #$09C7
-    STA $0A4509, X
-    PLD 
-    ASL 
-    ORA ($01, X)
-    COP [QueueHdmaChannel] ( #00, #$0201, #$0201 )
-    ORA ($01, X)
-    ORA $00, S
-    ORA ($02, X)
-    ORA $01, S
-    ORA $03, S
-    BRK #$01
-    ORA $00, S
-    ORA $03, S
-    ORA $01, S
-    PEA $&code_02F085-1
-    ORA #$04E8
-    STA $&209B03
-    STY $3F
-    STA $0B
-    XCE 
-    CMP ($F0, X)
-    AND $F5, S
-    JML [$&code_02DE02]
-    CPY #$091B
-    EOR [$5E]
-    SBC $C8, X
-    COP [ClearLowAbs] ( #07, #FC )
-    BNE loc_0299E0
-    INX 
-    BRA loc_029A0E
-
-  loc_0299DF:
-    TSB $60
-    STA $C9, X
-    COP [RemoveItem] ( #C8 )
-    COP [WaitUntilNoButton] ( #$0D0D )
-    AND $@chunk_008000.code_00BB01+6
-    INX 
-    SBC $0D183F, X
-    PEA $&code_02F086-1
-    ORA #$40E8
-    STA $&209B03
-
-  loc_0299FC:
-    STA $3F
-    STA $0B
-
-  loc_029A00:
-    CPX $47
-    BIT $5E
-    BEQ loc_029A59
-    SBC $41, X
-    ORA $FD, S
-    SBC $40, X
-    ORA $DA, S
-
-  loc_029A0E:
-    BPL loc_029A05
-    JML [$&code_02C40D]
-    ORA ($E4)
-    AND ($F0)
-    ORA #$0A8F
-    ORA ($8F), Y
-    BRK #$10
-    STA $@2B110A
-    ORA ($F6), Y
-    DEC 
-    ORA $&20B680
-    AND $&20EB0D, Y
-    BPL loc_0299FC
-
-  loc_029A2D:
-    CMP $11EB, X
-    RTS 
-}
-
-code_029A31 {
-    STX $39, Y
-    ORA $&20F5FD
-    AND $&20CF03
-    SBC $69, X
-    ORA $1C, S
-    ORA ($12, S), Y
-    ORA ($1C, X)
-    CMP $0390, X
-    PHA 
-    SBC $@gfx_sc02_main_characters+A09, X
-    AND $8D05B7, X
-    TRB $E8
-    BRK #$9A
-    BPL loc_029A2D
-    BPL loc_029A00
-    ORA ($33)
-    ORA ($C8)
-
-  loc_029A59:
-    ADC $@map_ir29+64
-    PHX 
-    TRB $DA
-    ASL $4D, X
-    INC $&20D060
-    ASL 
-    TYA 
-    AND [$16]
-    INX 
-    BRK #$D7
-    TRB $FC
-    AND $@149809
-    ASL $3F, X
-    LDX #$FC0B
-    SBC [$14], Y
-    STA [$16], Y
-    CMP [$14], Y
-    ADC $@3071F4
-    STZ $9B
-    ADC ($F0), Y
-    ORA $E8
-    COP [PanCameraRight]
-    BVS code_029AE6
-    SBC $B8, X
-    ORA $C4, S
-    ORA [$F4], Y
-    PEI ($FB)
-    CMP $DA, X
-    TRB $8D
-    BRK #$F7
-    TRB $F0
-    TRB $0530
-
-  loc_029A9E:
-    JSR ($14F7, X)
-    BPL loc_029A9E
-    PLA 
-    INY 
-    BEQ code_029AE6
-    PLA 
-    SBC $@2829F0
-    CPX #$3090
-    ADC $&20AEFD
-    STX $EA, Y
-    ORA #$2FFD
-    CPX #$17E4
-    BEQ loc_029ADF
-    PHB 
-    ORA [$D0], Y
-    ASL 
-    SBC $3D, X
-    COP [DirToPlayer]
-    SBC $3C, X
-    COP #$EE
-    AND $@gfx_euro_geezers_sprites+E8B
-    COP [DirToPlayer]
-    SBC $50, X
-    COP #$EE
-    AND $@37FCC0
-    TRB $2D
-    JSR ($14F7, X)
-    SBC $2FAE, X
-    LDA $E4, X
-    EOR [$8D]
-    JML $@chunk_058000.code_05B73F
-}
-
-code_029AE6 {
-    SBC ($13)
-    PEA $&code_02F099-1
-    ORA ($F4, S), Y
-    STA $04F0, Y
-    TXY 
-    STA $0B2F, Y
-    SEP #$13
-    INX 
-    JMP ($038D, X)
-    TXY 
-    TYA 
-    AND $3F0B88, X
-    ADC $&20F40A
-    LDA $4CF0
-    SBC $A0, X
-    COP [PanCameraRight]
-    LDY $&20F544
-    BRK #$01
-    ADC $A1, X
-    COP [BranchIfFlagByte] ( #05, #F5, $02B5 )
-    AND $BB400D
-    BRK #$20
-    SBC $02F0, X
-    PEA $60AE
-    STA $B4, X
-    COP [GiveItem] ( #AD, &code_028CF5 )
-    COP [TickSineHdma] ( #95, #8D )
-    COP [RemoveItem] ( #8C )
-    COP [SetEntryExitNow] ( $1C1C12 )
-
-  loc_029B36:
-    BCC loc_029B3A
-    PHA 
-    SBC $@2DF4FD, X
-    PLA 
-    SBC ($90), Y
-    ORA $28
-    ORA $042FCF
-    CMP $@chunk_008000.loc_008DBF+1E
-    AND $@pal_kress+B8, X
-    BIT $05, X
-    TYX 
-    LDY $13E3
-    SED 
-    ADC $@3413F2
-    CMP ($F0, X)
-    ORA #$DCF5
-    COP [PanCameraRight]
-    CPY #$03
-    AND $@350D00, X
-    EOR ($03, X)
-    SBC $40F5, X
-    ORA $DA, S
-    BPL loc_029B63
-    STA $F0
-    ASL 
-    SBC $55, X
-    ORA $FD, S
-    SBC $54, X
-    ORA $3F, S
-    SEP #$0C
-    SBC ($13, S), Y
-    ORA $3F, S
-    DEC 
-    PHD 
-
-  loc_029B82:
-    SBC ($13)
-    SBC $7D, X
-    ORA $FD, S
-    SBC $7C, X
-    ORA $DA, S
-    BPL loc_029B82
-    TYA 
-    BEQ loc_029B9F
-    PEA $&code_02D09A-1
-    ASL 
-    SBC $91, X
-    ORA $FD, S
-    SBC $90, X
-    ORA $3F, S
-    SEP #$0C
-
-  loc_029B9F:
-    PEA $&code_02F0AE-1
-    LDA $@loc_02A0EB+A
-    DEC $&20A9AC, X
-    XBA 
-    EOR ($F5), Y
-    STA $&20CF02
-    CMP $&209560, X
-    STY $5F02
-    EOR $&20E20C, X
-    ORA ($CB, S), Y
-    ORA ($3F)
-    TXA 
-    ASL 
-    ADC $51EB
-    CMP $8F14CB
-    BRK #$15
-    XBA 
-    EOR ($AE), Y
-    CMP $3F147A
-    TXA 
-    ASL 
-    PLY 
-    BPL loc_029BAD
-    BPL loc_029C44
-    SEP #$13
-    XBA 
-    EOR ($F5), Y
-    CMP #$CF02
-    CMP $&209560, X
-    INY 
-    COP [BranchIfSolidTypeSouth] ( #90, $4802 )
-    SBC $@map_tunnel_waterfall+4D5, X
-    CMP $&20FF48, X
-    XBA 
-    BIT $D0, X
-    ASL $80
-    LDY $3E
-    XBA 
-    EOR $&20F5CF, Y
-    TRB $02
-    CMP $0305F5
-    CMP $@3030E4
-    TSB $E4
-    AND ($1C), Y
-    CMP $@gfx_mine+16BF
-    CMP $2D, X
-    ORA $6F, S
-    BRK #$01
-    ORA $07, S
-    ORA $1E15
-    AND #$4234
-    EOR ($5E), Y
-    ADC [$6E]
-    ADC ($77, S), Y
-    PLY 
-    JMP ($7E7D, X)
-    ADC $0C0B0A, X
-    ORA $0F0E
-    BPL loc_029C3C
-    ORA ($12), Y
-    ORA ($13)
-    ORA ($13, S), Y
-    TRB $14
-    TRB $14
-    TRB $13
-    ORA ($13, S), Y
-    ORA ($12)
-    ORA ($11), Y
-    BPL loc_029C4E
-    ASL $0C0D
-    PHD 
-    ASL 
-
-  loc_029C44:
-    ORA #$0708
-    ASL $05
-    TSB $03
-    ORA $02, S
-    COP [QueueHdma] ( $000101, #00 )
-    BRK #$00
-    BRK #$01
-    ORA ($01, X)
-    COP [QueueDma] ( $040303, #05 )
-    ASL $07
-    PHP 
-    ORA #$007F
-    BRK #$00
-    BRK #$00
-    BRK #$00
-    CLI 
-    LDA $@3EF0DB, X
-    ORA [$0C]
-    TSB $BG34NBA
-    PLD 
-    PLD 
-    ORA ($FE, S), Y
-    SBC ($F9, S), Y
-    BIT $33, X
-    BRK #$D9
-    SBC $01
-    JSR ($2CEB, X)
-    BIT $4D0D, X
-    JMP ($5C4C)
-    AND $5C2D, X
-    ADC ($63, X)
-    LSR $4838
-    EOR $0E
-    EOR #$464B
-    EOR $@chunk_088000.dialogstring_08DDD2+M, X
-    ADC $09
-    PEA $&code_028C0A-1
-    ASL 
-    BIT $&20D60B
-    PHD 
-    PHB 
-    TSB $0D4A
-    TRB $0E
-    NOP 
-    ASL $0FCD
-    LDX $0010, Y
-    BRK #$10
-    BRK #$20
-    BRK #$30
-    BRK #$40
-    BRK #$50
-    BRK #$60
-    BRK #$70
-    BRK #$60
-    BRK #$70
-    BRK #$FA
-    INC 
-    AND [$38], Y
-    AND $@3F8F1A, X
-    BIT $8F, X
-    BRK #$5E
-    STA $@binary_0D44DB+265
-    BPL loc_029CBB
-    INC $F0, X
-    AND $0430, Y
-    XBA 
-    AND $D0, X
-    AND ($2D, S), Y
-    ORA $4709
-    LSR $09
-    EOR [$37]
-    ORA #$3647
-    AND $8E0E64, X
-    BPL loc_029D12
-    AND $8F0EC9, X
-    SBC $@chunk_008000.code_008F32+3, X
-    AND $@chunk_078000.code_07808E+1, X
-    CMP $&20AE12
-    ORA #$4647
-    ORA #$3747
-    ORA #$3647
-    AND $@280E64, X
-    ORA $D4, S
-    BVS loc_029D40
-    ORA $3FAE, X
-    CMP #$8F0E
-    BRA loc_029D60
-
-  loc_029D19:
-    CMP $&20E412
-    AND $D0, X
-    BPL loc_029D04
-    SBC [$F0], Y
-    TSB $4709
-    LSR $09
-    EOR [$37]
-    ORA #$3647
-    AND $3F0E64, X
-    CMP #$8F0E
-    BRK #$34
-    PLX 
-    AND [$1A], Y
-    ADC $@map_sc04+75
-    SBC $01, X
-    TRB $FD
-
-  loc_029D40:
-    SBC $00, X
-    TRB $CE
-    PEI ($D4)
-    STP 
-    CMP $E8, X
-    JML [$05D5]
-    ORA $E8, S
-    ASL 
-    AND $@280889, X
-    BRK #$D5
-    ORA $02, X
-    CMP $A5, X
-    ORA $D5, S
-    BEQ loc_029D5F
-    CMP $64, X
-
-  loc_029D5F:
-    COP [GiveItem] ( #AD, &code_02C1D4 )
-    CMP $B8, X
-    ORA $D4, S
-    STY $D4
-    STA $E8
-    COP [GiveItem] ( #70, &code_02E46F )
-    EOR [$48]
-    SBC $3724FD, X
-    CPY $37
-    CMP $3624, X
-    CPY $36
-    ORA #$5E47
-    PLX 
-    EOR [$5C]
-    STA $@gfx_mine_sprites+617
-    ADC $&20A880, X
-    TSB $5D
-    SBC $15, X
-    COP [WaitUntilNoButton] ( #$081D )
-    DEC $&20FF8F
-    BIT $E8, X
-    BRK #$D4
-    CMP $C4, X
-    AND $6F, X
-    PEA $&code_02D0D6-1
-    ORA ($6F, X)
-    CPX $35
-    BEQ loc_029DCF
-    ORA #$5E47
-    INY 
-    ORA ($D0)
-    ORA ($E4)
-    AND $@map_angkor_shrine_main+50, X
-    PLP 
-    AND $@table_0EE000.sprite_group_0EF6F5+8, X
-    ORA $&20C008
-    AND $2F0889, X
-    ORA $@083FE4
-    SBC $285CBC, X
-    AND $@table_0EE000.sprite_group_0EF6F5+8, X
-    ORA $&20893F
-    PHP 
-
-  loc_029DCF:
-    CLD 
-    MVP #$9B, #$70
-    BNE loc_029E1A
-    AND $@300813, X
-    STX $30, Y
-    JSR $00D5
-    COP [WaitUntilNoButton] ( #$0813 )
-    BMI loc_029DFC
-    AND $289F
-    ORA [$FD]
-    INC $00, X
-    ORA ($D5, S), Y
-    ORA ($02, X)
-    LDX $0F28
-    SBC $08F6, X
-    ORA ($D5, S), Y
-    TRB $02
-    AND $@280813, X
-    CPX #$90
-    ORA $3F
-    ORA ($08, X)
-    AND $@gfx_prologue_prophecy+E32
-    TSB $F5
-    BRK #$02
-    PEI ($70)
-
-  loc_029E0D:
-    SBC $01F5, X
-    COP [ClearFlagWord] ( #$D0DD )
-    ORA ($BC, X)
-    PEI ($71)
-    AND $A93F03
-    PHD 
-    AND $@240A35, X
-    BMI loc_029E13
-    ORA $09, S
-    EOR [$5E]
-    AND $@2F0AE5, X
-    STA $&20E8BB
-    TAX 
-    PHX 
-    PEA $&code_02F4E5-1
-    PLA 
-    CPY $&20FAD0
-    AND $@34EB1E
-    BNE loc_029E39
-
-  loc_029E3D:
-    ROR $&20D0F4, X
-    BPL loc_029E0D
-    PEA $&code_02F5E5-1
-    DEC $00, X
-    BRK #$FC
-    BNE loc_029E3D
-    LDY $0F72
-    EOR $100F68, X
-    NOP 
-    ROR $10F4, X
-    INC $BA
-    INC $C5, X
-    ADC ($0F), Y
-    CPY $0F72
-    XBA 
-    PEA $&code_02F5E5-1
-    WAI 
-    PEA $&code_02D2D1-1
-    CMP $&20D831
-    SBC ($6F), Y
-    BRK #$00
-    BRK #$04
-}
+spc_0292D1 #970B000420CDCFBDE8005DAFC8F0D0FBBC3FE909A248E8608D0C3FBF058D1C3FBF05E8108D5D3FBF05E830C4F1E810C4FAC453E801C4F1E43648FF244AC4388D0AAD05F007B008694D4CD00FE34C0CF6AD0DC4F2F6B70D5DE6C4F3FEE4CB45CB46EBFDF0FC6DE840CF608443C4439011E5FD0F6814F0033FF00D694D4CF002AB4CE4536084F5EECF608451C45190193FB206E430F00A8B31D0068F00043FEF05CD003FBD045F3304E404F012CD008F0147F4D5F0033F810C3D3D0B47D0F35F3304F404D4F4F4F474F4D0FAD4006FADCA90053F1D088DA4ADC8B0F2E41A2447D0ECDD287F6084506095F002D57D03F5A503D57C03F5A1025CE8007CD58C02E800D4ACD50001D5C802D4C009475E094745F56402D498F01EF56502D499F57802D00AF57D0380B57902D57D03F5790260957D033F550A3F6D0A8D00E41180A834B009E41180A813B006DC1C7A10DA104DE4111C8D00CD189E5DF6C30DC415F6C20DC414F6C50D2DF6C40DEE9A14EB10CFDD8D007A14CB151C2B15C4142F044B157C3DC806D0F8C414CEF52802EB15CFDA16F52802EB14CF6DF52902EB14CF7A16DA16F52902EB15CFFDAE7A16DA16F5DC0D0802FDE4163FB705FCE4172DE447241AAED004CBF2C4F36F8D00F7403A402DF7403A40FDAE6F8FFF308F7F31C4046F2DE5FE0FECFF0FDA3BE8005DC73B3A3BD0FAAE6F8FFF468F0004A248C248E800C4E5C4E7E8013FE9096FC2486F3F560FC408C4046F68F0F0DB68F1F0BA68F2F0E968FFF0E86FE4F46890F0126891F01280A8106870B0061CC43E8FFF5E6F8F01326F8F00326FC4041CF02E6802D0D73FDB05E5FC0FECFD0FDA403A403A408F020CE800C430C45FC439C435C436C4E5C4E7C43DC43EC4F5D248E41A48FF0E46006FCD0E8F8047E8FFD50503E80A3F8908D51502D5A503D5F002D56402D4ADD4C11D1D4B47D0E0C45AC468C454C450C4428FC0598F20536FEB08E40068F090035F1006C4087E00F0035F4106E404F0E7D248E40CF05E6E0CA9FA3DF53FC405D020FDD0098FFF3D8FFFF55F41068B421005C4428F003D3FC405F842F0DCDA402FD8AB3DDA168D0FF716D6D400DC10F8CD008F0147F4D5F00AF51502D005E8003F1D08E800D5B803D484D485BCD4703D3D0B47D0E0CD00D85E8F0147D844F4D5F06C9B70D0623F1308D01DF5B803F08A3F8109F5B8039CD5B803D0EAF53C02D4D4F53D02D4D52FDE3020D500023F130830182D9F2807FDF60013D50102AE280FFDF60813D514023F130868E090053F01082FB33FCA04F50002D470FDF50102CFDDD001BCD4712F033FA90B3F350A3D3D0B47D088E430F0038FFF5EE454F00BBA567A526E5402BA54DA52E468F015BA647A60DA60BA667A626E6806BA68DA60EB6ADA62E45AF00EBA5C7A586E5A02BA5ADA588FFF5ECD008F0147F4D5F0033FE50A3D3D0B47D0F36F1CFDF6D5092DF6D4092DDD5CFDF66A0AF008E7D4BBD4D002BBD5FD6FD51502EB34D011FD100680A8CA60845F4D5DF5E00FCE2F09FD100680A8CA6084398D06CFDA1460980014981215E41A2447D0384DF5DC0D08045D8D00F714100E281F3820480E4800094749DD2F07E4474E4900F714D8F2C4F33DFCAD04D0F4CEF714D52902FCF714D528026FD56903281FD54103E800D540036FD4852D3F1308D5680380B54103CE3F780AD55403DDD555036FD5A0023F1308D58D023F1308D4ADD5B502E800D5A1026FD5A1022D8D00F4ADCE9EF844D5B4026FDD80A800FDE800DA586FC45A3F1308C45B80A459F85A3F780ADA5C6FE434D004E800DA526FC4543F1308C45580A453F8543F780ADA566FC4506FD5F0026FD5DC023F1308D5C9023F1308D4C16FE8012F02E800D57802DDD565023F1308D564023F1308D579026FD564026FD50503E800D504036FD4842D3F1308D52C0380B50503CE3F780AD51803DDD519036FD5A5036FD550023F1308D551023F1308D5B803F4D4D53C02F4D5D53D02F55002D4D4F55102D4D56FC44A3F1308E800DA603F1308E800DA62B2486FC4683F1308C46980A461F8683F780ADA643F1308C46A80A463F8683F780ADA666FDA60DA62A2486F3FE9093F1308C44E3F13088D08CF5D8D0FF58E0D3FBF053DDD608810FD10F2F8446FC44D8D7DCBF2E4F3644DF029280F48FFF34C0360844CC44C8D04F6AD0DC4F2E800C4F3FEF5E44808208D6C3FBF05E44D8D7D3FBF051C1C1C48FF8088FF8D6D5FBF05EB34D003C45F6FC4396FF498D033E7D468F9D02D3F15083F1308D4993F1308D4983F130860845095F002287FD5A40380B57D03FB986DCE3F780AD59003DDD591036FF57D03C411F57C03C4106FED6B12100348FFBC8D009E2DE8009EEEF844F31206DA14BA0E9A146F1D0889089708B008BC08D708E108F308FC080E0911091509210942094B096809C708240928093E0964098C09C009C7099F09450A2B0A010102030001020102010103000102030103030001030003030301F484F009E8048D039B843F850BFBC1F023F5DC02DEC01B09475EF5C8021007FCD004E8802F046095C902D5C8023F0D0D2F07BBC0E8FF3F180DF485F009E8408D039B853F850BE447245EF053F54103FDF54003DA10F5DC0DC412E432F0098F0A118F00108F0A11EB11F63A0D80B6390DEB10CFDDEB116096390DFDF52D03CFF569031C1312011CDD900348FFBCEB123FB7058D14E8009A10DA10AB123312C86F09475EDA14DA164DEE60D00A982716E800D714FC2F099814163FA20BFCF7149716D7146FF471F0649B71F005E802DE705BF5B803C417F4D4FBD5DA148D00F714F01C3005FCF71410FB68C8F03F68EFF02968E090306DFDAE96EA09FD2FE0E417F0238B17D00AF53D022DF53C02EE2FCAF551022DF55002EE2FC0FCF7142DFCF714FDAE2FB5E4478D5C3FB705F213F498F013F499F0049B992F0BE213E87C8D039B983F880B3F6D0AF4ADF04CF5A002DEAC44F5000175A102D005F5B5022F0D40BB0020FDF002F4AD6095B402D4ADF58C0260958D02D58C02C4121C1C900248FFFDF4AD68F19005280FCF2F04CFDD8D003FF80C5F3405BBACE313F86FF213F4C1F009F5DC02DEC0033F000DF54103FDF54003DA10F485F00AF55503FDF554033FE20CF313033F3A0BF213F57D03FDF57C03DA10F498F00EF499D00AF59103FDF590033FE20CF4ADF0AFF5A002DEACA9EB51F58D02CFDD60958C025F5D0CE213CB123F8A0A6DEB51CFCB148F0015EB51AECF7A143F8A0A7A10DA106FE213EB51F5C902CFDD6095C8021C900248FFFBC1CFDD48FFEB34D00680A43EEB59CFF51402CFF50503CFE430F004E4311CCFDDCFDDD52D036F000103070D151E293442515E676E73777A7C7D7E7F0A0B0C0D0E0F1011111212131313141414141413131312121111100F0E0D0C0B0A090807060504030302020101010000000000010101020203030405060708097F0000000000000058BFDBF0FE070C0C0C212B2B13FEF3F9343300D9E501FCEB2C3C0D4D6C4C5C3D2D5C61634E3848450E494B465F08DE086509F4098C0A2C0BD60B8B0C4A0D140EEA0ECD0FBE100000100020003000400050006000700060007000FA1A37383F1A8FFF348F005E8F4047CD10E4F6F0393004EB35D0332D0D0947460947370947363F640E8E10213FC90E8FFF358F003F8F8047CD12AE0947460947370947363F640EE803D4702F1DAE3FC90E8F8047CD12E435D010E4F7F00C0947460947370947363F640E3FC90E8F0034FA371A6F1C4D5DF50114FDF50014CED4D4DBD5E8DCD50503E80A3F8908E800D51502D5A503D5F002D56402D4ADD4C1D5B803D484D485E802D4706FE44748FFFD2437C437DD2436C43609475EFA475C8F00344D7D80A8045DF515023F1D08CE8FFF34E800D4D5C4356FF4D5D0016FE435F02809475EC812D012E43FAB3F5C283FFDF64E0D08C03F89082F0FE43F48FFBC5C283FFDF64E0D3F8908D8449B70D0453F1308F0963020D500023F130830182D9F2807FDF60013D50102AE280FFDF60813D514023F130868E090053F01082FD03FCA04F50002D470FDF50102CFDDD001BCD4712F033FA90B3F350AE430F00309475E3FE50A6F8DBBE8AADAF4E4F468CCD0FA2F1EEBF4D0FC7EF4D010CBF4E4F5D60000FCD0F2AC720F5F680F10EA7EF410E6BAF6C5710FCC720FEBF4E4F5CBF4D0D2CD31D8F16F00000004
 
 code_029E70 {
     PHP 
@@ -4846,7 +3429,7 @@ code_029FBC {
     TAY 
     LDA #$FFF0
     TSB $joypadMaskStd
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     LDA $musicTransitionState
     CMP #$FFFF
     BEQ loc_02A0EB
@@ -4861,7 +3444,7 @@ code_029FBC {
     LDA $0012, Y
     ORA #$1000
     STA $0012, Y
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     SEP #$20
     LDA $APUIO1
     REP #$20
@@ -4884,7 +3467,7 @@ code_029FBC {
     ORA #$1000
     STA $0012, X
     PLX 
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     LDA $musicTransitionState
     CMP #$FFFF
     BEQ loc_02A148
@@ -5394,10 +3977,10 @@ code_02A3D8 {
     CLC 
     ADC #$0010
     SEC 
-    SBC $bg1ScrollV
+    SBC $effectScrollH
     CMP #$0111
     BCS loc_02A50F
-    LDA $savedCameraDelta
+    LDA $effectScrollV
     SEC 
     SBC #$0010
     AND #$FFF0
@@ -5488,7 +4071,7 @@ code_02A53D {
     SBC $bg1ScrollH
     CMP #$0111
     BCS loc_02A5B8
-    LDA $bg2ScrollH
+    LDA $mapScrollV
     SEC 
     SBC #$0010
     AND #$FFF0
@@ -5823,7 +4406,7 @@ code_02A68D {
     PHY 
     PHX 
     LDX #$0000
-    COP [SpawnLastRel] ( @code_02A7DF, #00, #00, #$2000 )
+    COP [SpawnListAppend] ( @code_02A7DF, #00, #00, #$2000 )
     LDA $0012, Y
     ORA #$1000
     STA $0012, Y
@@ -5870,8 +4453,6 @@ code_02A7DF {
     ORA #$1000
     STA $0012, X
     TXA 
-
-  code_02A809:
     TYX 
     TAY 
     LDA #$CFF0
@@ -5886,7 +4467,7 @@ code_02A7DF {
     JSR $&code_02A8CF
     LDA #$0800
     TSB $slopeCurvePtrB
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     LDA $musicTransitionState
     CMP #$FFFF
     BEQ loc_02A83A
@@ -5901,7 +4482,7 @@ code_02A7DF {
     STA $0012, Y
     LDA $20
     STA $0020, Y
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     SEP #$20
     LDA $APUIO1
     REP #$20
@@ -5932,7 +4513,7 @@ code_02A7DF {
     ORA #$1000
     STA $0012, X
     PLX 
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     LDA $musicTransitionState
     CMP #$FFFF
     BEQ loc_02A8AF
@@ -6217,15 +4798,15 @@ code_02AA81 {
     LDA $0004, X
     STA $sceneNext
     LDY $0005, X
-    STY $064C
+    STY $warpDestX
     LDY $0007, X
-    STY $064E
+    STY $warpDestY
     LDA $0009, X
-    STA $0650
+    STA $warpFacing
     LDY $000A, X
-    STY $0652
+    STY $warpScrollParams
     LDY $sceneCurrent
-    STY $0B12
+    STY $sourceSceneId
     LDA $0000, X
     STA $0B08
     LDA $0001, X
@@ -6254,7 +4835,7 @@ code_02AA81 {
     ASL 
     ORA $0B11
     STA $0B11
-    LDA $0650
+    LDA $warpFacing
     BIT #$80
     BNE loc_02AB01
     PLP 
@@ -6263,7 +4844,7 @@ code_02AA81 {
 
   loc_02AB01:
     AND #$7F
-    STA $0650
+    STA $warpFacing
     REP #$20
     TXA 
     CLC 
@@ -6286,13 +4867,13 @@ code_02AB19 {
     TXA 
     CLC 
     ADC #$0007
-    STA $0650
+    STA $warpFacing
     LDA #$0000
     STA $09C0
     STA $decelCurvePtr
     SEP #$20
     LDY $0004, X
-    STY $0652
+    STY $warpScrollParams
     LDA $0006, X
     STA $scrollStepTableBase
     JSL $@chunk_3B7DD.code_03DD39
@@ -6387,7 +4968,7 @@ code_02ABB1 {
     STA $cameraTargetY, X
 
   loc_02ABEA:
-    STA $bg2ScrollH, X
+    STA $mapScrollV, X
     AND #$FFF0
     STA $1C
     SEP #$20
@@ -6447,7 +5028,7 @@ code_02AC55 {
     LDA $cameraTargetX, X
     STA $bg1ScrollH, X
     LDA $cameraTargetY, X
-    STA $bg2ScrollH, X
+    STA $mapScrollV, X
     PLP 
     RTL 
 
@@ -6458,9 +5039,9 @@ code_02AC55 {
     BIT #$0400
     BEQ loc_02AC89
     LDA $cameraDeltaX
-    STA $bg1ScrollV
+    STA $effectScrollH
     LDA $cameraDeltaY
-    STA $savedCameraDelta
+    STA $effectScrollV
     PLP 
     RTL 
 
@@ -6493,11 +5074,11 @@ code_02AC55 {
 
   loc_02ACBC:
     PLA 
-    LDA $bg2ScrollH, X
+    LDA $mapScrollV, X
     PHA 
     LDA $cameraTargetY, X
     SEC 
-    SBC $bg2ScrollH, X
+    SBC $mapScrollV, X
     BPL loc_02ACD4
     CMP #$FFF0
     BCS loc_02ACDC
@@ -6512,8 +5093,8 @@ code_02AC55 {
   loc_02ACDC:
     STA $scrollDeltaYClamped, X
     CLC 
-    ADC $bg2ScrollH, X
-    STA $bg2ScrollH, X
+    ADC $mapScrollV, X
+    STA $mapScrollV, X
     EOR $01, S
     BIT #$0010
     BEQ loc_02ACF0
@@ -6535,7 +5116,7 @@ code_02ACF3 {
 
   loc_02AD03:
     CLC 
-    ADC $bg2ScrollH, X
+    ADC $mapScrollV, X
 
   loc_02AD07:
     STA $1C
@@ -6560,7 +5141,7 @@ code_02AD18 {
     CLC 
     ADC $bg1ScrollH, X
     STA $18
-    LDA $bg2ScrollH, X
+    LDA $mapScrollV, X
     STA $1C
     JSR $&code_02ADC9
     RTS 
@@ -7831,9 +6412,8 @@ code_02B56A {
     BEQ loc_02B5A9
     LDX #$0000
     LDY #$FFFF
-}
 
-code_02B580 {
+  loc_02B580:
     LDA $092A, X
     AND #$F0F0
     STA $091A, X
@@ -7849,7 +6429,7 @@ code_02B580 {
     INX 
     INX 
     CPX #$0010
-    BNE code_02B580
+    BNE loc_02B580
     BRA loc_02B5F4
 
   loc_02B5A9:
@@ -9373,7 +7953,7 @@ code_02BF1A {
     LDA $09C0
     ORA $decelCurvePtr
     BNE code_02BF4D
-    COP [BranchIfFlagByte] ( #00, #01, &code_02BF4D )
+    COP [BranchOnFlagByte] ( #00, #01, &code_02BF4D )
     RTL 
 }
 
@@ -9395,7 +7975,7 @@ code_02BF4D {
     RTL 
 
   loc_02BF69:
-    COP [BranchIfFlagByte] ( #00, #00, &code_02BF2B )
+    COP [BranchOnFlagByte] ( #00, #00, &code_02BF2B )
     RTL 
 }
 
@@ -9434,7 +8014,7 @@ code_02BF70 {
     BRA loc_02BFA0
 
   loc_02BFA7:
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     RTL 
 }
 
@@ -9447,7 +8027,7 @@ code_02BFAA {
     ASL 
     ASL 
     STA $16
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     LDA $slopeCurvePtrB
     BIT #$00
     ASL 
@@ -9680,7 +8260,7 @@ code_02C0BD {
 }
 
 code_02C122 {
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     PHX 
     LDX $decelStepCounter
     LDA $0010, X
@@ -10098,14 +8678,11 @@ code_02C3F8 {
 
   loc_02C402:
     CLC 
+    ADC $09D0
+    TAY 
+    LDA $0000, Y
+    RTS 
 }
-
-code_list_02C403 [
-  &code_02D06D   ;00
-  &code_02A809   ;01
-  $#00B9   ;02
-  $#6000   ;03
-]
 
 code_02C40B {
     LDA $slopeCurvePtrB
@@ -10166,9 +8743,6 @@ code_02C426 {
     BIT #$00
     PHP 
     BEQ loc_02C470
-}
-
-code_02C46F {
     RTS 
 
   loc_02C470:
@@ -10214,7 +8788,7 @@ code_02C4AA {
     BRK #$F0
     COP [QueueDma] ( @table_01A946.dma_channel_01A9E0, #00 )
     TRB $slopeCurvePtrB
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     LDA $slopeCurvePtrB
     BIT #$00
     ROL 
@@ -10226,7 +8800,7 @@ code_02C4AA {
     CMP #$02
     BRK #$90
     ORA ($6B, X)
-    COP [BranchIfButton] ( #$8001, &code_02C4D5 )
+    COP [BranchIfPressed] ( #$8001, &code_02C4D5 )
     RTL 
 }
 
@@ -10248,18 +8822,18 @@ code_02C4D5 {
 code_02C4EE {
     BRK #$D0
     ORA ($6B, X)
-    COP [LoopInit] ( #28 )
-    COP [BranchIfNoButton] ( #$8001, &code_02C4B4 )
-    COP [LoopNext]
+    COP [LoopStart] ( #28 )
+    COP [BranchIfNotPressed] ( #$8001, &code_02C4B4 )
+    COP [LoopEnd]
     JSR $&code_02C63D
-    COP [SpawnLastRel] ( @code_02CF5B, #00, #00, #$2C00 )
+    COP [SpawnListAppend] ( @code_02CF5B, #00, #00, #$2C00 )
     STY $22
     LDA #$78
     BRK #$85
     BIT $02
     CMP ($20, X)
     BIT $C6, X
-    COP [BranchIfNoButton] ( #$8001, &code_02C5EF )
+    COP [BranchIfNotPressed] ( #$8001, &code_02C5EF )
     DEC $24
     BMI loc_02C520
     RTL 
@@ -10270,20 +8844,20 @@ code_02C4EE {
     BRK #$D0
     TSB $&table_01B06E.delta_node_01C100+2
     JSR $&code_02C634
-    COP [BranchIfNoButton] ( #$8001, &code_02C54C )
+    COP [BranchIfNotPressed] ( #$8001, &code_02C54C )
     RTL 
 }
 
 code_02C534 {
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     JSR $&code_02C634
-    COP [BranchIfNoButton] ( #$8001, &code_02C54C )
+    COP [BranchIfNotPressed] ( #$8001, &code_02C54C )
     JSR $&code_02C64B
     BCC loc_02C545
     RTL 
 
   loc_02C545:
-    COP [BranchIfButton] ( #$0030, &code_02C558 )
+    COP [BranchIfPressed] ( #$0030, &code_02C558 )
     RTL 
 }
 
@@ -10305,19 +8879,19 @@ code_02C558 {
     BIT #$50
     BRK #$D0
     ORA ($6B, X)
-    COP [LoopInit] ( #28 )
-    COP [BranchIfNoButton] ( #$8001, &code_02C4B4 )
-    COP [LoopNext]
+    COP [LoopStart] ( #28 )
+    COP [BranchIfNotPressed] ( #$8001, &code_02C4B4 )
+    COP [LoopEnd]
     JSR $&code_02C63D
-    COP [SpawnLastRel] ( @code_02CF68, #00, #00, #$2C00 )
+    COP [SpawnListAppend] ( @code_02CF68, #00, #00, #$2C00 )
     STY $22
     LDA #$64
     BRK #$85
     BIT $02
     CMP ($20, X)
     BIT $C6, X
-    COP [BranchIfNoButton] ( #$8001, &code_02C5EF )
-    COP [BranchIfButton] ( #$40B0, &code_02C5EF )
+    COP [BranchIfNotPressed] ( #$8001, &code_02C5EF )
+    COP [BranchIfPressed] ( #$40B0, &code_02C5EF )
     DEC $24
     BMI loc_02C5A1
     RTL 
@@ -10328,16 +8902,16 @@ code_02C558 {
     BRK #$D0
     TSB $&table_01B06E.delta_node_01C100+2
     JSR $&code_02C634
-    COP [BranchIfNoButton] ( #$8001, &code_02C5CD )
+    COP [BranchIfNotPressed] ( #$8001, &code_02C5CD )
     RTL 
 }
 
 code_02C5B5 {
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     JSR $&code_02C634
-    COP [BranchIfNoButton] ( #$8001, &code_02C5CD )
-    COP [BranchIfButton] ( #$0F00, &code_02C5CC )
-    COP [BranchIfButton] ( #$0030, &code_02C5DE )
+    COP [BranchIfNotPressed] ( #$8001, &code_02C5CD )
+    COP [BranchIfPressed] ( #$0F00, &code_02C5CC )
+    COP [BranchIfPressed] ( #$0030, &code_02C5DE )
 }
 
 code_02C5CC {
@@ -10384,12 +8958,12 @@ code_02C5EF {
     BNE loc_02C60A
     COP [PaletteStart] ( #0B )
     COP [PaletteStep]
-    COP [SetEntryExitNow] ( @code_02C4B4 )
+    COP [JumpNextFrame] ( @code_02C4B4 )
 
   loc_02C60A:
     COP [PaletteStart] ( #0C )
     COP [PaletteStep]
-    COP [SetEntryExitNow] ( @code_02C4B4 )
+    COP [JumpNextFrame] ( @code_02C4B4 )
 }
 
 code_02C614 {
@@ -10464,10 +9038,10 @@ code_02C66D {
     LDA #$00
     PHP 
     TSB $slopeCurvePtrB
-    COP [SetPlayerBodySprite] ( #06 )
+    COP [SetPlayerSpriteDirect] ( #06 )
     COP [StageSpriteFrame] ( #02 )
     COP [AnimOnce]
-    COP [SpawnLastRel] ( @code_02CF75, #00, #00, #$2000 )
+    COP [SpawnListAppend] ( @code_02CF75, #00, #00, #$2000 )
     TYA 
     STA $orbitDiameter, X
     COP [StageSpriteLoop] ( #03, #02 )
@@ -10492,15 +9066,15 @@ code_02C66D {
     STA $orbitDiameter, X
     LDA $0B1E
     BEQ loc_02C6E6
-    COP [SpawnMarkedAfter] ( @code_02C7AB, #$0600 )
+    COP [SpawnAfterMarked] ( @code_02C7AB, #$0600 )
     INC $24
-    COP [SpawnMarkedAfter] ( @code_02C7AB, #$0600 )
+    COP [SpawnAfterMarked] ( @code_02C7AB, #$0600 )
     INC $24
 
   loc_02C6E6:
-    COP [SpawnMarkedAfter] ( @code_02C7AB, #$0600 )
+    COP [SpawnAfterMarked] ( @code_02C7AB, #$0600 )
     INC $24
-    COP [SpawnMarkedAfter] ( @code_02C7AB, #$0600 )
+    COP [SpawnAfterMarked] ( @code_02C7AB, #$0600 )
     LDA #$F0
     BRK #$85
     JSR $&code_02C102
@@ -10542,7 +9116,7 @@ code_02C66D {
     TAY 
     DEC $0000
     BPL loc_02C731
-    COP [LoopInit] ( #1E )
+    COP [LoopStart] ( #1E )
     LDA $26
     CLC 
     ADC #$02
@@ -10556,7 +9130,7 @@ code_02C66D {
 
   loc_02C763:
     JSR $&code_02C76A
-    COP [LoopNext]
+    COP [LoopEnd]
     COP [Die]
 }
 
@@ -10620,7 +9194,7 @@ code_02C7AB {
     COP [AnimOnce]
     LDA #$00
     JSR $1004
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     RTL 
 }
 
@@ -10650,32 +9224,32 @@ code_list_02C7FE [
 ]
 
 code_02C806 {
-    COP [SpawnLastRel] ( @code_02C86D, #FE, #1A, #$2600 )
-    COP [SpawnLastRel] ( @code_02C88C, #FE, #1A, #$2600 )
+    COP [SpawnListAppend] ( @code_02C86D, #FE, #1A, #$2600 )
+    COP [SpawnListAppend] ( @code_02C88C, #FE, #1A, #$2600 )
     COP [StagePlayerSprite] ( #36 )
     COP [AnimOnce]
     BRA loc_02C868
 }
 
 code_02C81F {
-    COP [SpawnLastRel] ( @code_02C86D, #00, #C0, #$2600 )
-    COP [SpawnLastRel] ( @code_02C887, #00, #C0, #$2600 )
+    COP [SpawnListAppend] ( @code_02C86D, #00, #C0, #$2600 )
+    COP [SpawnListAppend] ( @code_02C887, #00, #C0, #$2600 )
     COP [StagePlayerSprite] ( #37 )
     COP [AnimOnce]
     BRA loc_02C868
 }
 
 code_02C838 {
-    COP [SpawnLastRel] ( @code_02C86D, #CC, #EA, #$2600 )
-    COP [SpawnLastRel] ( @code_02C8D4, #CC, #EA, #$2600 )
+    COP [SpawnListAppend] ( @code_02C86D, #CC, #EA, #$2600 )
+    COP [SpawnListAppend] ( @code_02C8D4, #CC, #EA, #$2600 )
     COP [StagePlayerSprite] ( #38 )
     COP [AnimOnce]
     BRA loc_02C868
 }
 
 code_02C851 {
-    COP [SpawnLastRel] ( @code_02C86D, #34, #EA, #$2600 )
-    COP [SpawnLastRel] ( @code_02C8D9, #34, #EA, #$2600 )
+    COP [SpawnListAppend] ( @code_02C86D, #34, #EA, #$2600 )
+    COP [SpawnListAppend] ( @code_02C8D9, #34, #EA, #$2600 )
     COP [StagePlayerSprite] ( #39 )
     COP [AnimOnce]
 
@@ -10723,7 +9297,7 @@ code_02C88C {
     JSR $1014
     LDA $0B1C
     BEQ loc_02C8BD
-    COP [OrActorFlags] ( #$0010 )
+    COP [OrExtraFlags] ( #$0010 )
     COP [SetCollideCallback] ( &code_02C952 )
 
   loc_02C8BD:
@@ -10732,7 +9306,7 @@ code_02C88C {
     COP [StageSpriteLoopMoveY] ( #02, #03, #03 )
     COP [AnimLoop]
     COP [StageSprAndHitbox] ( #03 )
-    COP [StageForceMoveXY] ( #00, #05 )
+    COP [StageMoveXY] ( #00, #05 )
     BRA loc_02C92A
 }
 
@@ -10762,7 +9336,7 @@ code_02C8D9 {
     JSR $1014
     LDA $0B1C
     BEQ loc_02C90A
-    COP [OrActorFlags] ( #$0010 )
+    COP [OrExtraFlags] ( #$0010 )
     COP [SetCollideCallback] ( &code_02C952 )
 
   loc_02C90A:
@@ -10771,7 +9345,7 @@ code_02C8D9 {
     COP [StageSpriteLoopMoveX] ( #02, #03, #03 )
     COP [AnimLoop]
     COP [StageSprAndHitbox] ( #03 )
-    COP [StageForceMoveXY] ( #05, #00 )
+    COP [StageMoveXY] ( #05, #00 )
     BRA loc_02C92A
 
   loc_02C921:
@@ -10779,7 +9353,7 @@ code_02C8D9 {
     BIT #$00
     RTI 
     BNE loc_02C94C
-    COP [ReloadForceMove]
+    COP [ReloadMoveDurations]
 
   loc_02C92A:
     COP [AnimOneFrame]
@@ -10835,8 +9409,8 @@ code_02C971 {
     BRK #$7F
     LDA $16
     STA $moveYAlt, X
-    COP [SpawnMarkedAfter] ( @code_02CA5B, #$0600 )
-    COP [SpawnMarkedAfter] ( @code_02CA56, #$0600 )
+    COP [SpawnAfterMarked] ( @code_02CA5B, #$0600 )
+    COP [SpawnAfterMarked] ( @code_02CA56, #$0600 )
     LDA #$01
     BRK #$9F
     ASL $7F10
@@ -10852,7 +9426,7 @@ code_02C971 {
     STA $26
 
   loc_02C9BE:
-    COP [SetEntryExit]
+    COP [SetEntryHereAndYield]
     SEP #$20
     LDA $orbitAngle, X
     CLC 
@@ -10908,7 +9482,7 @@ code_02C971 {
     STA $26
 
   loc_02CA35:
-    COP [SetEntryExit]
+    COP [SetEntryHereAndYield]
 
   loc_02CA37:
     LDA $7F100C, X
@@ -10946,7 +9520,7 @@ code_02CA5B {
     STA $26
 
   loc_02CA6D:
-    COP [SetEntryExit]
+    COP [SetEntryHereAndYield]
     LDY $04
     JSR $&code_02CA7A
     DEC $26
@@ -11033,7 +9607,7 @@ code_list_02CB17 [
 
 code_02CB1F {
     COP [SpawnAfter] ( @code_02CB69 )
-    COP [SetPlayerBodySprite] ( #04 )
+    COP [SetPlayerSpriteDirect] ( #04 )
     COP [StageSpriteMoveY] ( #04, #36 )
     COP [AnimOnce]
     BRA loc_02CB63
@@ -11041,8 +9615,8 @@ code_02CB1F {
 
 code_02CB2F {
     COP [SpawnAfter] ( @code_02CBD1 )
-    COP [SetForceNE] ( #01 )
-    COP [SetPlayerBodySprite] ( #04 )
+    COP [ForceDirNE] ( #01 )
+    COP [SetPlayerSpriteDirect] ( #04 )
     COP [StageSpriteMoveY] ( #05, #36 )
     COP [AnimOnce]
     BRA loc_02CB63
@@ -11050,8 +9624,8 @@ code_02CB2F {
 
 code_02CB42 {
     COP [SpawnAfter] ( @code_02CC39 )
-    COP [SetForceBoth] ( #01 )
-    COP [SetPlayerBodySprite] ( #04 )
+    COP [ForceDirBoth] ( #01 )
+    COP [SetPlayerSpriteDirect] ( #04 )
     COP [StageSpriteMoveX] ( #06, #36 )
     COP [AnimOnce]
     BRA loc_02CB63
@@ -11059,7 +9633,7 @@ code_02CB42 {
 
 code_02CB55 {
     COP [SpawnAfter] ( @code_02CCA1 )
-    COP [SetPlayerBodySprite] ( #04 )
+    COP [SetPlayerSpriteDirect] ( #04 )
     COP [StageSpriteMoveX] ( #07, #36 )
     COP [AnimOnce]
 
@@ -11092,7 +9666,7 @@ code_02CB69 {
     LDY $04
     LDA $0016, Y
     STA $14
-    COP [LoopNext]
+    COP [LoopEnd]
     LDA #$03
     BRK #$85
     PHP 
@@ -11113,8 +9687,8 @@ code_02CB69 {
     LDA $0000, Y
     STA $moveScratch2, X
     PLX 
-    COP [LoopNext]
-    COP [SetEntryExit]
+    COP [LoopEnd]
+    COP [SetEntryHereAndYield]
     PHX 
     LDX $04
     LDA #$00
@@ -11148,7 +9722,7 @@ code_02CBD1 {
     LDY $04
     LDA $0016, Y
     STA $14
-    COP [LoopNext]
+    COP [LoopEnd]
     LDA #$03
     BRK #$85
     PHP 
@@ -11169,8 +9743,8 @@ code_02CBD1 {
     LDA $0000, Y
     STA $moveScratch2, X
     PLX 
-    COP [LoopNext]
-    COP [SetEntryExit]
+    COP [LoopEnd]
+    COP [SetEntryHereAndYield]
     PHX 
     LDX $04
     LDA #$00
@@ -11204,7 +9778,7 @@ code_02CC39 {
     LDY $04
     LDA $0014, Y
     STA $14
-    COP [LoopNext]
+    COP [LoopEnd]
     LDA #$03
     BRK #$85
     PHP 
@@ -11225,8 +9799,8 @@ code_02CC39 {
     LDA $0000, Y
     STA $moveScratch1, X
     PLX 
-    COP [LoopNext]
-    COP [SetEntryExit]
+    COP [LoopEnd]
+    COP [SetEntryHereAndYield]
     PHX 
     LDX $04
     LDA #$00
@@ -11260,7 +9834,7 @@ code_02CCA1 {
     LDY $04
     LDA $0014, Y
     STA $14
-    COP [LoopNext]
+    COP [LoopEnd]
     LDA #$03
     BRK #$85
     PHP 
@@ -11281,8 +9855,8 @@ code_02CCA1 {
     LDA $0000, Y
     STA $moveScratch1, X
     PLX 
-    COP [LoopNext]
-    COP [SetEntryExit]
+    COP [LoopEnd]
+    COP [SetEntryHereAndYield]
     PHX 
     LDX $04
     LDA #$00
@@ -11310,7 +9884,7 @@ code_02CCA1 {
     COP [StageSprAndHitbox] ( #22 )
 
   loc_02CD24:
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     COP [AnimOneFrame]
     LDA $2A
     BEQ loc_02CD24
@@ -11326,8 +9900,8 @@ code_02CCA1 {
     BRK #$90
     ORA ($4A, S), Y
     STA $24
-    COP [SetEntryContinue]
-    COP [BranchIfNoButton] ( #$8001, &code_02CE37 )
+    COP [SetEntryHere]
+    COP [BranchIfNotPressed] ( #$8001, &code_02CE37 )
     JSR $&code_02CE3E
     DEC $24
     BMI loc_02CD24
@@ -11342,7 +9916,7 @@ code_02CCA1 {
     BPL loc_02CD09
     BRK #$02
     TSB $10
-    COP [SpawnLastRel] ( @code_02CE85, #00, #00, #$0302 )
+    COP [SpawnListAppend] ( @code_02CE85, #00, #00, #$0302 )
     TYA 
     STA $orbitDiameter, X
     COP [StageSpriteFrame] ( #1C )
@@ -11424,18 +9998,18 @@ code_02CDF2 {
     STA ($CF), Y
     COP [StageSpriteFrame] ( #1D )
     COP [AnimOnce]
-    COP [LoopNext]
+    COP [LoopEnd]
 
   loc_02CE03:
-    COP [BranchIfButton] ( #$0300, &code_02CE11 )
-    COP [BranchIfButton] ( #$0C00, &code_02CE23 )
+    COP [BranchIfPressed] ( #$0300, &code_02CE11 )
+    COP [BranchIfPressed] ( #$0C00, &code_02CE23 )
     BRA code_02CE37
 }
 
 code_02CE11 {
     LDA $joypadCurrent
     BIT #$00
-    COP [BranchIfFlagByte] ( #05, #02, $038F )
+    COP [BranchOnFlagByte] ( #05, #02, $038F )
     BRA loc_02CE33
 
   loc_02CE1E:
@@ -11518,11 +10092,11 @@ code_02CE85 {
     COP [SetMetasprite] ( @table_0EE000 )
 
   code_02CEA1:
-    COP [BranchIfButton] ( #$0100, &code_02CEDB )
-    COP [BranchIfButton] ( #$0200, &code_02CEFB )
-    COP [BranchIfButton] ( #$0800, &code_02CF1B )
-    COP [BranchIfButton] ( #$0400, &code_02CF3B )
-    COP [SetEntryContinue]
+    COP [BranchIfPressed] ( #$0100, &code_02CEDB )
+    COP [BranchIfPressed] ( #$0200, &code_02CEFB )
+    COP [BranchIfPressed] ( #$0800, &code_02CF1B )
+    COP [BranchIfPressed] ( #$0400, &code_02CF3B )
+    COP [SetEntryHere]
     COP [StageSprAndHitbox] ( #39 )
 
   loc_02CEBE:
@@ -11531,10 +10105,10 @@ code_02CE85 {
     STZ $08
     INC 
     STA $24
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     LDA $2A
     BEQ loc_02CEBE
-    COP [BranchIfButton] ( #$0F00, &code_02CEA1 )
+    COP [BranchIfPressed] ( #$0F00, &code_02CEA1 )
     JSR $&code_02CF7C
     DEC $24
     BMI loc_02CEBE
@@ -11550,10 +10124,10 @@ code_02CEDB {
     STZ $08
     INC 
     STA $24
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     LDA $2A
     BEQ loc_02CEDE
-    COP [BranchIfNoButton] ( #$0100, &code_02CEA1 )
+    COP [BranchIfNotPressed] ( #$0100, &code_02CEA1 )
     JSR $&code_02CF7C
     DEC $24
     BMI loc_02CEDE
@@ -11569,10 +10143,10 @@ code_02CEFB {
     STZ $08
     INC 
     STA $24
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     LDA $2A
     BEQ loc_02CEFE
-    COP [BranchIfNoButton] ( #$0200, &code_02CEA1 )
+    COP [BranchIfNotPressed] ( #$0200, &code_02CEA1 )
     JSR $&code_02CF7C
     DEC $24
     BMI loc_02CEFE
@@ -11588,10 +10162,10 @@ code_02CF1B {
     STZ $08
     INC 
     STA $24
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     LDA $2A
     BEQ loc_02CF1E
-    COP [BranchIfNoButton] ( #$0800, &code_02CEA1 )
+    COP [BranchIfNotPressed] ( #$0800, &code_02CEA1 )
     JSR $&code_02CF7C
     DEC $24
     BMI loc_02CF1E
@@ -11607,10 +10181,10 @@ code_02CF3B {
     STZ $08
     INC 
     STA $24
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     LDA $2A
     BEQ loc_02CF3E
-    COP [BranchIfNoButton] ( #$0400, &code_02CEA1 )
+    COP [BranchIfNotPressed] ( #$0400, &code_02CEA1 )
     JSR $&code_02CF7C
     DEC $24
     BMI loc_02CF3E
@@ -11691,9 +10265,6 @@ code_02CFB8 {
     CMP $&scene_warps.warp_def_01A868+19, Y
     LDA $0000, Y
     PHA 
-}
-
-code_02CFCD {
     TXA 
     CLC 
     ADC $01, S
@@ -11731,12 +10302,12 @@ actor_def_02CFDF [
     COP [SpawnBefore] ( @code_02C4AA )
     COP [SpawnAfter] ( @code_02BFAA )
     COP [SpawnAfter] ( @code_02C122 )
-    COP [SpawnLastRel] ( @code_02BF1A, #00, #00, #$2800 )
+    COP [SpawnListAppend] ( @code_02BF1A, #00, #00, #$2800 )
 } >
 ]
 
 code_02D01B {
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     LDA $joypadHeld
     AND #$F0FF
     STA $joypadHeld
@@ -11754,7 +10325,7 @@ code_02D01B {
 
   loc_02D041:
     COP [SetSavedPtr] ( &code_02D01B )
-    COP [SetForceBoth] ( #00 )
+    COP [ForceDirBoth] ( #00 )
     LDA $09C0
     BEQ loc_02D050
     JMP $&code_02D6CC
@@ -11809,9 +10380,6 @@ code_02D01B {
     PLX 
     DEC 
     PHA 
-}
-
-code_02D099 {
     RTS 
 }
 
@@ -11855,7 +10423,7 @@ code_02D09A {
     BRA loc_02D110
 
   loc_02D0E2:
-    COP [BranchIfFlagByte] ( #00, #01, &code_02D0ED )
+    COP [BranchOnFlagByte] ( #00, #01, &code_02D0ED )
     COP [StagePlayerSprite] ( #01 )
     BRA loc_02D110
 }
@@ -11865,7 +10433,7 @@ code_02D0ED {
     BRA loc_02D110
 
   loc_02D0F2:
-    COP [BranchIfFlagByte] ( #00, #01, &code_02D0FD )
+    COP [BranchOnFlagByte] ( #00, #01, &code_02D0FD )
     COP [StagePlayerSprite] ( #02 )
     BRA loc_02D110
 }
@@ -11875,7 +10443,7 @@ code_02D0FD {
     BRA loc_02D110
 
   loc_02D102:
-    COP [BranchIfFlagByte] ( #00, #01, &code_02D10D )
+    COP [BranchOnFlagByte] ( #00, #01, &code_02D10D )
     COP [StagePlayerSprite] ( #03 )
     BRA loc_02D110
 }
@@ -11889,11 +10457,11 @@ code_02D10D {
     STZ $08
     INC 
     STA $24
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     LDA $09C0
     ORA $decelCurvePtr
     BNE code_02D12E
-    COP [BranchIfButton] ( #$8F30, &code_02D12E )
+    COP [BranchIfPressed] ( #$8F30, &code_02D12E )
     DEC $24
     BMI loc_02D110
     RTL 
@@ -11912,7 +10480,7 @@ code_02D12E {
     STA $decelCurvePtr
     STZ $09C4
     STZ $slopeFracAccum
-    COP [SetEntryExit]
+    COP [SetEntryHereAndYield]
     COP [RestoreSavedPtr]
 
   loc_02D14C:
@@ -11925,13 +10493,13 @@ code_02D12E {
     STZ $08
     INC 
     STA $24
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     LDA $2A
     BEQ loc_02D152
-    COP [BranchIfNoButton] ( #$0400, &code_02D268 )
+    COP [BranchIfNotPressed] ( #$0400, &code_02D268 )
     JSR $&code_02D252
     BNE loc_02D172
-    COP [BranchIfButton] ( #$0030, &code_02D670 )
+    COP [BranchIfPressed] ( #$0030, &code_02D670 )
 
   loc_02D172:
     DEC $24
@@ -11950,7 +10518,7 @@ code_02D177 {
     STA $decelCurvePtr
     STZ $09C4
     STZ $slopeFracAccum
-    COP [SetEntryExit]
+    COP [SetEntryHereAndYield]
     COP [RestoreSavedPtr]
 
   loc_02D194:
@@ -11963,13 +10531,13 @@ code_02D177 {
     STZ $08
     INC 
     STA $24
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     LDA $2A
     BEQ loc_02D19A
-    COP [BranchIfNoButton] ( #$0800, &code_02D268 )
+    COP [BranchIfNotPressed] ( #$0800, &code_02D268 )
     JSR $&code_02D252
     BNE loc_02D1BA
-    COP [BranchIfButton] ( #$0030, &code_02D67E )
+    COP [BranchIfPressed] ( #$0030, &code_02D67E )
 
   loc_02D1BA:
     DEC $24
@@ -11989,7 +10557,7 @@ code_02D1BF {
     STA $09C0
     STZ $09C4
     STZ $slopeFracAccum
-    COP [SetEntryExit]
+    COP [SetEntryHereAndYield]
     COP [RestoreSavedPtr]
 
   loc_02D1DD:
@@ -12002,13 +10570,13 @@ code_02D1BF {
     STZ $08
     INC 
     STA $24
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     LDA $2A
     BEQ loc_02D1E3
-    COP [BranchIfNoButton] ( #$0200, &code_02D268 )
+    COP [BranchIfNotPressed] ( #$0200, &code_02D268 )
     JSR $&code_02D252
     BNE loc_02D203
-    COP [BranchIfButton] ( #$0030, &code_02D68C )
+    COP [BranchIfPressed] ( #$0030, &code_02D68C )
 
   loc_02D203:
     DEC $24
@@ -12029,7 +10597,7 @@ code_02D208 {
     STA $09C0
     STZ $09C4
     STZ $slopeFracAccum
-    COP [SetEntryExit]
+    COP [SetEntryHereAndYield]
     COP [RestoreSavedPtr]
 
   loc_02D227:
@@ -12042,13 +10610,13 @@ code_02D208 {
     STZ $08
     INC 
     STA $24
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     LDA $2A
     BEQ loc_02D22D
-    COP [BranchIfNoButton] ( #$0100, &code_02D268 )
+    COP [BranchIfNotPressed] ( #$0100, &code_02D268 )
     JSR $&code_02D252
     BNE loc_02D24D
-    COP [BranchIfButton] ( #$0030, &code_02D69A )
+    COP [BranchIfPressed] ( #$0030, &code_02D69A )
 
   loc_02D24D:
     DEC $24
@@ -12057,7 +10625,7 @@ code_02D208 {
 }
 
 code_02D252 {
-    COP [BranchIfButton] ( #$8000, &code_02D267 )
+    COP [BranchIfPressed] ( #$8000, &code_02D267 )
     LDA $09C0
     ORA $decelCurvePtr
     BNE code_02D267
@@ -12095,7 +10663,7 @@ code_02D271 {
   loc_02D28E:
     COP [BranchIfSolidType] ( #00, &code_02D2E5 )
     COP [StagePlayerSprite] ( #1A )
-    COP [StageForceMoveY] ( #07 )
+    COP [StageMoveY] ( #07 )
 
   loc_02D299:
     COP [AnimOneFrame]
@@ -12104,7 +10672,7 @@ code_02D271 {
 
   loc_02D2A0:
     JSR $&code_02D30F
-    COP [SetEntryExit]
+    COP [SetEntryHereAndYield]
     DEC $24
     BPL loc_02D2A0
     BRA loc_02D299
@@ -12112,7 +10680,7 @@ code_02D271 {
   loc_02D2AB:
     COP [BranchIfSolidType] ( #00, &code_02D2E5 )
     COP [StagePlayerSprite] ( #1B )
-    COP [StageForceMoveY] ( #07 )
+    COP [StageMoveY] ( #07 )
 
   loc_02D2B6:
     COP [AnimOneFrame]
@@ -12121,7 +10689,7 @@ code_02D271 {
 
   loc_02D2BD:
     JSR $&code_02D30F
-    COP [SetEntryExit]
+    COP [SetEntryHereAndYield]
     DEC $24
     BPL loc_02D2BD
     BRA loc_02D2B6
@@ -12129,7 +10697,7 @@ code_02D271 {
   loc_02D2C8:
     COP [BranchIfSolidType] ( #00, &code_02D2E5 )
     COP [StagePlayerSprite] ( #19 )
-    COP [StageForceMoveY] ( #07 )
+    COP [StageMoveY] ( #07 )
 
   loc_02D2D3:
     COP [AnimOneFrame]
@@ -12138,7 +10706,7 @@ code_02D271 {
 
   loc_02D2DA:
     JSR $&code_02D30F
-    COP [SetEntryExit]
+    COP [SetEntryHereAndYield]
     DEC $24
     BPL loc_02D2DA
     BRA loc_02D2D3
@@ -12184,17 +10752,17 @@ code_02D30F {
     RTS 
 
   loc_02D321:
-    COP [BranchIfButton] ( #$8000, &code_02D328 )
+    COP [BranchIfPressed] ( #$8000, &code_02D328 )
     RTS 
 }
 
 code_02D328 {
     PLA 
-    COP [SetPlayerBodySprite] ( #06 )
+    COP [SetPlayerSpriteDirect] ( #06 )
     COP [StageSprAndHitbox] ( #00 )
 
   loc_02D32F:
-    COP [StageForceMoveY] ( #07 )
+    COP [StageMoveY] ( #07 )
 
   loc_02D332:
     COP [AnimOneFrame]
@@ -12208,7 +10776,7 @@ code_02D328 {
     COP [BranchIfSolidType] ( #00, &code_02D34D )
 
   loc_02D345:
-    COP [SetEntryExit]
+    COP [SetEntryHereAndYield]
     DEC $24
     BPL loc_02D339
     BRA loc_02D332
@@ -12217,8 +10785,8 @@ code_02D328 {
 code_02D34D {
     LDA #$0002
     JSR $&code_02CFB8
-    COP [SpawnLastRel] ( @code_02D387, #00, #00, #$2400 )
-    COP [SpawnLastRel] ( @code_02D399, #00, #00, #$2400 )
+    COP [SpawnListAppend] ( @code_02D387, #00, #00, #$2400 )
+    COP [SpawnListAppend] ( @code_02D399, #00, #00, #$2400 )
     LDA #$003C
     STA $0026, Y
     COP [StageSpriteMoveY] ( #01, #00 )
@@ -12307,8 +10875,8 @@ code_02D3A6 {
     TSB $joypadMaskStd
     COP [StagePlayerMoveXY] ( #26, #00, #1B )
     COP [AnimOnce]
-    COP [BranchIfButton] ( #$0801, &code_02D479 )
-    COP [BranchIfButton] ( #$0401, &code_02D455 )
+    COP [BranchIfPressed] ( #$0801, &code_02D479 )
+    COP [BranchIfPressed] ( #$0401, &code_02D455 )
     JMP $&code_02D4AD
 }
 
@@ -12323,8 +10891,8 @@ code_02D42A {
     TSB $joypadMaskStd
     COP [StagePlayerMoveXY] ( #28, #00, #19 )
     COP [AnimOnce]
-    COP [BranchIfButton] ( #$0401, &code_02D455 )
-    COP [BranchIfButton] ( #$0801, &code_02D479 )
+    COP [BranchIfPressed] ( #$0401, &code_02D455 )
+    COP [BranchIfPressed] ( #$0801, &code_02D479 )
     BRA code_02D49D
 }
 
@@ -12332,7 +10900,7 @@ code_02D455 {
     COP [StagePlayerSprite] ( #2D )
 
   loc_02D458:
-    COP [StageForceMoveY] ( #1D )
+    COP [StageMoveY] ( #1D )
 
   loc_02D45B:
     LDA $16
@@ -12341,12 +10909,12 @@ code_02D455 {
     COP [BranchIfSolidTypeSouth] ( #00, &code_02D4DF )
 
   loc_02D467:
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     COP [AnimOneFrame]
     LDA $2A
     BEQ loc_02D458
-    COP [BranchIfNoButton] ( #$0401, &code_02D49D )
-    COP [SetEntryExit]
+    COP [BranchIfNotPressed] ( #$0401, &code_02D49D )
+    COP [SetEntryHereAndYield]
     BRA loc_02D45B
 }
 
@@ -12354,7 +10922,7 @@ code_02D479 {
     COP [StagePlayerSprite] ( #2C )
 
   loc_02D47C:
-    COP [StageForceMoveY] ( #1E )
+    COP [StageMoveY] ( #1E )
 
   loc_02D47F:
     LDA $16
@@ -12363,17 +10931,17 @@ code_02D479 {
     COP [BranchIfSolidTypeNorth] ( #00, &code_02D4F2 )
 
   loc_02D48B:
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     COP [AnimOneFrame]
     LDA $2A
     BEQ loc_02D47C
-    COP [BranchIfNoButton] ( #$0801, &code_02D4AD )
-    COP [SetEntryExit]
+    COP [BranchIfNotPressed] ( #$0801, &code_02D4AD )
+    COP [SetEntryHereAndYield]
     BRA loc_02D47F
 }
 
 code_02D49D {
-    COP [BranchIfFlagByte] ( #00, #01, &code_02D4A8 )
+    COP [BranchOnFlagByte] ( #00, #01, &code_02D4A8 )
     COP [StagePlayerSprite] ( #2B )
     BRA loc_02D4BB
 }
@@ -12384,7 +10952,7 @@ code_02D4A8 {
 }
 
 code_02D4AD {
-    COP [BranchIfFlagByte] ( #00, #01, &code_02D4B8 )
+    COP [BranchOnFlagByte] ( #00, #01, &code_02D4B8 )
     COP [StagePlayerSprite] ( #2A )
     BRA loc_02D4BB
 }
@@ -12405,9 +10973,9 @@ code_02D4B8 {
     STA $24
 
   loc_02D4CB:
-    COP [SetEntryExit]
-    COP [BranchIfButton] ( #$0401, &code_02D455 )
-    COP [BranchIfButton] ( #$0801, &code_02D479 )
+    COP [SetEntryHereAndYield]
+    COP [BranchIfPressed] ( #$0401, &code_02D455 )
+    COP [BranchIfPressed] ( #$0801, &code_02D479 )
     DEC $24
     BPL loc_02D4CB
     BRA loc_02D4BF
@@ -12457,7 +11025,7 @@ code_02D534 {
     COP [StagePlayerSprite] ( #33 )
 
   loc_02D537:
-    COP [StageForceMoveX] ( #51 )
+    COP [StageMoveX] ( #51 )
 
   loc_02D53A:
     LDA $14
@@ -12466,8 +11034,8 @@ code_02D534 {
     AND #$000F
     BNE code_02D563
     COP [BranchIfSolidType] ( #00, &code_02D661 )
-    COP [BranchIfButton] ( #$0801, &code_02D575 )
-    COP [BranchIfButton] ( #$0401, &code_02D57C )
+    COP [BranchIfPressed] ( #$0801, &code_02D575 )
+    COP [BranchIfPressed] ( #$0401, &code_02D57C )
 
   loc_02D556:
     COP [BranchIfSolidTypeEast] ( #07, &code_02D563 )
@@ -12476,12 +11044,12 @@ code_02D534 {
 }
 
 code_02D563 {
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     COP [AnimOneFrame]
     LDA $2A
     BEQ loc_02D537
-    COP [BranchIfNoButton] ( #$0101, &code_02D5FF )
-    COP [SetEntryExit]
+    COP [BranchIfNotPressed] ( #$0101, &code_02D5FF )
+    COP [SetEntryHereAndYield]
     BRA loc_02D53A
 }
 
@@ -12519,7 +11087,7 @@ code_02D5B1 {
     COP [StagePlayerSprite] ( #32 )
 
   loc_02D5B4:
-    COP [StageForceMoveX] ( #52 )
+    COP [StageMoveX] ( #52 )
 
   loc_02D5B7:
     LDA $14
@@ -12528,8 +11096,8 @@ code_02D5B1 {
     AND #$000F
     BNE code_02D5DF
     COP [BranchIfSolidType] ( #00, &code_02D661 )
-    COP [BranchIfButton] ( #$0801, &code_02D5F1 )
-    COP [BranchIfButton] ( #$0401, &code_02D5F8 )
+    COP [BranchIfPressed] ( #$0801, &code_02D5F1 )
+    COP [BranchIfPressed] ( #$0401, &code_02D5F8 )
 
   loc_02D5D3:
     COP [BranchIfSolidTypeWest] ( #07, &code_02D5DF )
@@ -12538,12 +11106,12 @@ code_02D5B1 {
 }
 
 code_02D5DF {
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     COP [AnimOneFrame]
     LDA $2A
     BEQ loc_02D5B4
-    COP [BranchIfNoButton] ( #$0201, &code_02D612 )
-    COP [SetEntryExit]
+    COP [BranchIfNotPressed] ( #$0201, &code_02D612 )
+    COP [SetEntryHereAndYield]
     BRA loc_02D5B7
 }
 
@@ -12558,8 +11126,8 @@ code_02D5F8 {
 }
 
 code_02D5FF {
-    COP [StageForceMoveX] ( #00 )
-    COP [BranchIfFlagByte] ( #00, #01, &code_02D60D )
+    COP [StageMoveX] ( #00 )
+    COP [BranchOnFlagByte] ( #00, #01, &code_02D60D )
     COP [StagePlayerSprite] ( #31 )
     BRA loc_02D623
 }
@@ -12570,8 +11138,8 @@ code_02D60D {
 }
 
 code_02D612 {
-    COP [StageForceMoveX] ( #00 )
-    COP [BranchIfFlagByte] ( #00, #01, &code_02D620 )
+    COP [StageMoveX] ( #00 )
+    COP [BranchOnFlagByte] ( #00, #01, &code_02D620 )
     COP [StagePlayerSprite] ( #30 )
     BRA loc_02D623
 }
@@ -12592,11 +11160,11 @@ code_02D620 {
     STA $24
 
   loc_02D633:
-    COP [SetEntryExit]
-    COP [BranchIfButton] ( #$0801, &code_02D653 )
-    COP [BranchIfButton] ( #$0401, &code_02D65A )
-    COP [BranchIfButton] ( #$0201, &code_02D59A )
-    COP [BranchIfButton] ( #$0101, &code_02D51C )
+    COP [SetEntryHereAndYield]
+    COP [BranchIfPressed] ( #$0801, &code_02D653 )
+    COP [BranchIfPressed] ( #$0401, &code_02D65A )
+    COP [BranchIfPressed] ( #$0201, &code_02D59A )
+    COP [BranchIfPressed] ( #$0101, &code_02D51C )
 
   loc_02D64D:
     DEC $24
@@ -12673,10 +11241,10 @@ code_02D69A {
     STZ $08
     INC 
     STA $24
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     LDA $2A
     BEQ loc_02D6B0
-    COP [BranchIfNoButton] ( #$0030, &code_02D6CA )
+    COP [BranchIfNotPressed] ( #$0030, &code_02D6CA )
     DEC $24
     BMI loc_02D6B0
     RTL 
@@ -12700,7 +11268,7 @@ code_02D6CC {
     BRA loc_02D6E4
 
   code_02D6E2:
-    COP [SetEntryExit]
+    COP [SetEntryHereAndYield]
 
   loc_02D6E4:
     COP [StagePlayerSprite] ( #0F )
@@ -12711,17 +11279,17 @@ code_02D6CC {
     STZ $08
     INC 
     STA $24
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     LDA $2A
     BEQ loc_02D6E7
     LDA $09C0
     BEQ loc_02D752
-    COP [BranchIfButton] ( #$0200, &code_02D71A )
+    COP [BranchIfPressed] ( #$0200, &code_02D71A )
     JSR $&code_02D7DA
     JSR $&code_02D821
     BCS loc_02D715
-    COP [BranchIfButton] ( #$8000, &code_02DAA2 )
-    COP [BranchIfButton] ( #$0030, &code_02D694 )
+    COP [BranchIfPressed] ( #$8000, &code_02DAA2 )
+    COP [BranchIfPressed] ( #$0030, &code_02D694 )
 
   loc_02D715:
     DEC $24
@@ -12730,7 +11298,7 @@ code_02D6CC {
 }
 
 code_02D71A {
-    COP [SetEntryExit]
+    COP [SetEntryHereAndYield]
 
   loc_02D71C:
     COP [StagePlayerSprite] ( #0E )
@@ -12741,17 +11309,17 @@ code_02D71A {
     STZ $08
     INC 
     STA $24
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     LDA $2A
     BEQ loc_02D71F
     LDA $09C0
     BEQ loc_02D752
-    COP [BranchIfButton] ( #$0100, &code_02D6E2 )
+    COP [BranchIfPressed] ( #$0100, &code_02D6E2 )
     JSR $&code_02D7DA
     JSR $&code_02D821
     BCS loc_02D74D
-    COP [BranchIfButton] ( #$8000, &code_02DA24 )
-    COP [BranchIfButton] ( #$0030, &code_02D686 )
+    COP [BranchIfPressed] ( #$8000, &code_02DA24 )
+    COP [BranchIfPressed] ( #$0030, &code_02D686 )
 
   loc_02D74D:
     DEC $24
@@ -12776,7 +11344,7 @@ code_02D754 {
     BRA loc_02D7A4
 
   code_02D76A:
-    COP [SetEntryExit]
+    COP [SetEntryHereAndYield]
 
   loc_02D76C:
     COP [StagePlayerSprite] ( #0D )
@@ -12787,17 +11355,17 @@ code_02D754 {
     STZ $08
     INC 
     STA $24
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     LDA $2A
     BEQ loc_02D76F
     LDA $decelCurvePtr
     BEQ loc_02D752
-    COP [BranchIfButton] ( #$0400, &code_02D7A2 )
+    COP [BranchIfPressed] ( #$0400, &code_02D7A2 )
     JSR $&code_02D7DA
     JSR $&code_02D82C
     BCS loc_02D79D
-    COP [BranchIfButton] ( #$8000, &code_02D9A3 )
-    COP [BranchIfButton] ( #$0030, &code_02D678 )
+    COP [BranchIfPressed] ( #$8000, &code_02D9A3 )
+    COP [BranchIfPressed] ( #$0030, &code_02D678 )
 
   loc_02D79D:
     DEC $24
@@ -12806,7 +11374,7 @@ code_02D754 {
 }
 
 code_02D7A2 {
-    COP [SetEntryExit]
+    COP [SetEntryHereAndYield]
 
   loc_02D7A4:
     COP [StagePlayerSprite] ( #0C )
@@ -12817,17 +11385,17 @@ code_02D7A2 {
     STZ $08
     INC 
     STA $24
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     LDA $2A
     BEQ loc_02D7A7
     LDA $decelCurvePtr
     BEQ loc_02D752
-    COP [BranchIfButton] ( #$0800, &code_02D76A )
+    COP [BranchIfPressed] ( #$0800, &code_02D76A )
     JSR $&code_02D7DA
     JSR $&code_02D82C
     BCS loc_02D7D5
-    COP [BranchIfButton] ( #$8000, &code_02D922 )
-    COP [BranchIfButton] ( #$0030, &code_02D66A )
+    COP [BranchIfPressed] ( #$8000, &code_02D922 )
+    COP [BranchIfPressed] ( #$0030, &code_02D66A )
 
   loc_02D7D5:
     DEC $24
@@ -12847,7 +11415,7 @@ code_02D7DA {
     LDA $slopeCurvePtrB
     BIT #$1000
     BNE loc_02D7FC
-    COP [BranchIfButton] ( #$8000, &code_02D7FD )
+    COP [BranchIfPressed] ( #$8000, &code_02D7FD )
 
   loc_02D7FC:
     RTS 
@@ -12914,7 +11482,7 @@ code_02D82C {
 code_02D847 {
     LDA #$0001
     JSR $&code_02CF91
-    COP [SetPlayerBodySprite] ( #04 )
+    COP [SetPlayerSpriteDirect] ( #04 )
     LDA $decelCurvePtr
     BMI loc_02D876
     JSR $&code_02D8F8
@@ -12932,7 +11500,7 @@ code_02D847 {
 
   loc_02D876:
     JSR $&code_02D8F8
-    COP [SetForceNE] ( #01 )
+    COP [ForceDirNE] ( #01 )
     COP [StageSpriteFrame] ( #0F )
     COP [AnimOnce]
     STZ $decelCurvePtr
@@ -12949,11 +11517,11 @@ code_02D847 {
 code_02D89A {
     LDA #$0001
     JSR $&code_02CF91
-    COP [SetPlayerBodySprite] ( #04 )
+    COP [SetPlayerSpriteDirect] ( #04 )
     LDA $09C0
     BPL loc_02D8CC
     JSR $&code_02D8F8
-    COP [SetForceSW] ( #01 )
+    COP [ForceDirSW] ( #01 )
     COP [StageSpriteFrame] ( #12 )
     COP [AnimOnce]
     STZ $09C0
@@ -13056,7 +11624,7 @@ code_02D922 {
     COP [PlaySoundCh2] ( #02 )
     CMP ($02, X)
     PHB 
-    COP [SetEntryExit]
+    COP [SetEntryHereAndYield]
 
   loc_02D966:
     COP [AnimOneFrame]
@@ -13064,27 +11632,27 @@ code_02D922 {
     STZ $08
     INC 
     STA $24
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     LDA $2A
     BEQ loc_02D99A
     LDA $characterForm
     BNE loc_02D98D
-    COP [SetEntryContinue]
-    COP [BranchIfButton] ( #$0B00, &code_02DB20 )
-    COP [BranchIfButton] ( #$0400, &code_02DB57 )
+    COP [SetEntryHere]
+    COP [BranchIfPressed] ( #$0B00, &code_02DB20 )
+    COP [BranchIfPressed] ( #$0400, &code_02DB57 )
     DEC $24
     BMI loc_02D966
     RTL 
 
   loc_02D98D:
-    COP [SetEntryContinue]
-    COP [BranchIfButton] ( #$0B00, &code_02DB20 )
+    COP [SetEntryHere]
+    COP [BranchIfPressed] ( #$0B00, &code_02DB20 )
     DEC $24
     BMI loc_02D966
     RTL 
 
   loc_02D99A:
-    COP [BranchIfButton] ( #$8000, &code_02D922 )
+    COP [BranchIfPressed] ( #$8000, &code_02D922 )
     JMP $&code_02DB2E
 }
 
@@ -13125,7 +11693,7 @@ code_02D9C8 {
     COP [PlaySoundCh2] ( #02 )
     CMP ($02, X)
     PHB 
-    COP [SetEntryExit]
+    COP [SetEntryHereAndYield]
 
   loc_02D9E7:
     COP [AnimOneFrame]
@@ -13133,34 +11701,34 @@ code_02D9C8 {
     STZ $08
     INC 
     STA $24
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     LDA $2A
     BEQ loc_02DA1B
     LDA $characterForm
     BNE loc_02DA0E
-    COP [SetEntryContinue]
-    COP [BranchIfButton] ( #$0700, &code_02DB20 )
-    COP [BranchIfButton] ( #$0800, &code_02DB61 )
+    COP [SetEntryHere]
+    COP [BranchIfPressed] ( #$0700, &code_02DB20 )
+    COP [BranchIfPressed] ( #$0800, &code_02DB61 )
     DEC $24
     BMI loc_02D9E7
     RTL 
 
   loc_02DA0E:
-    COP [SetEntryContinue]
-    COP [BranchIfButton] ( #$0700, &code_02DB20 )
+    COP [SetEntryHere]
+    COP [BranchIfPressed] ( #$0700, &code_02DB20 )
     DEC $24
     BMI loc_02D9E7
     RTL 
 
   loc_02DA1B:
-    COP [BranchIfButton] ( #$8000, &code_02D9A3 )
+    COP [BranchIfPressed] ( #$8000, &code_02D9A3 )
     JMP $&code_02DB2E
 }
 
 code_02DA24 {
     JSR $&code_02DB36
     LDA #$00
-    COP [ClearLowHere]
+    COP [ClearSolidHere]
     CLI 
     ASL $AD
     PEI ($0A)
@@ -13195,7 +11763,7 @@ code_02DA24 {
     COP [PlaySoundCh2] ( #02 )
     CMP ($02, X)
     PHB 
-    COP [SetEntryExit]
+    COP [SetEntryHereAndYield]
 
   loc_02DA65:
     COP [AnimOneFrame]
@@ -13203,27 +11771,27 @@ code_02DA24 {
     STZ $08
     INC 
     STA $24
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     LDA $2A
     BEQ loc_02DA99
     LDA $characterForm
     BNE loc_02DA8C
-    COP [SetEntryContinue]
-    COP [BranchIfButton] ( #$0D00, &code_02DB20 )
-    COP [BranchIfButton] ( #$0200, &code_02DB70 )
+    COP [SetEntryHere]
+    COP [BranchIfPressed] ( #$0D00, &code_02DB20 )
+    COP [BranchIfPressed] ( #$0200, &code_02DB70 )
     DEC $24
     BMI loc_02DA65
     RTL 
 
   loc_02DA8C:
-    COP [SetEntryContinue]
-    COP [BranchIfButton] ( #$0D00, &code_02DB20 )
+    COP [SetEntryHere]
+    COP [BranchIfPressed] ( #$0D00, &code_02DB20 )
     DEC $24
     BMI loc_02DA65
     RTL 
 
   loc_02DA99:
-    COP [BranchIfButton] ( #$8000, &code_02DA24 )
+    COP [BranchIfPressed] ( #$8000, &code_02DA24 )
     JMP $&code_02DB2E
 }
 
@@ -13265,7 +11833,7 @@ code_02DAA2 {
     COP [PlaySoundCh2] ( #02 )
     CMP ($02, X)
     PHB 
-    COP [SetEntryExit]
+    COP [SetEntryHereAndYield]
 
   loc_02DAE3:
     COP [AnimOneFrame]
@@ -13273,27 +11841,27 @@ code_02DAA2 {
     STZ $08
     INC 
     STA $24
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     LDA $2A
     BEQ loc_02DB17
     LDA $characterForm
     BNE loc_02DB0A
-    COP [SetEntryContinue]
-    COP [BranchIfButton] ( #$0E00, &code_02DB20 )
-    COP [BranchIfButton] ( #$0100, &code_02DB7F )
+    COP [SetEntryHere]
+    COP [BranchIfPressed] ( #$0E00, &code_02DB20 )
+    COP [BranchIfPressed] ( #$0100, &code_02DB7F )
     DEC $24
     BMI loc_02DAE3
     RTL 
 
   loc_02DB0A:
-    COP [SetEntryContinue]
-    COP [BranchIfButton] ( #$0E00, &code_02DB20 )
+    COP [SetEntryHere]
+    COP [BranchIfPressed] ( #$0E00, &code_02DB20 )
     DEC $24
     BMI loc_02DAE3
     RTL 
 
   loc_02DB17:
-    COP [BranchIfButton] ( #$8000, &code_02DAA2 )
+    COP [BranchIfPressed] ( #$8000, &code_02DAA2 )
     JMP $&code_02DB2E
 }
 
@@ -13380,7 +11948,7 @@ code_02DB7F {
     INC $&scene_warps.warp_def_01A8B4+55
     BRK #$02
     TSB $10
-    COP [OrActorFlags] ( #$0040 )
+    COP [OrExtraFlags] ( #$0040 )
     RTS 
 }
 
@@ -13736,9 +12304,6 @@ code_02DDD0 {
     JSR $&code_02E855
     JSR $&code_02EEA5
     CMP #$06
-}
-
-code_02DE02 {
     BEQ loc_02DE0E
 
   loc_02DE04:
@@ -14229,20 +12794,20 @@ code_02E0C7 {
 
 code_02E122 {
     JSR $&code_02EDEB
+    CMP #$09
+    BNE loc_02E12C
+    JMP $&code_02ED96
 
-  loc_02E125:
-    CMP #$D009
-    ORA $4C, S
-    STX $ED, Y
+  loc_02E12C:
     JSR $&code_02EEC7
     JSR $&code_02EFCB
     BCC loc_02E14C
-    CMP #$D009
-    TRB $20
-    STA $EF
-    STX $00
+    CMP #$09
+    BNE loc_02E14C
 
-  loc_02E13D:
+  loc_02E138:
+    JSR $&code_02EF85
+    STX $00
     JSR $&code_02EF3E
     BNE loc_02E178
     JSR $&code_02EF6D
@@ -14254,8 +12819,9 @@ code_02E122 {
     JSR $&code_02E855
     JSR $&code_02EEC7
     BCC loc_02E164
-    CMP #$F001
-    TSB $09C9
+    CMP #$01
+    BEQ loc_02E164
+    CMP #$09
     BEQ loc_02E164
     REP #$20
 
@@ -16659,7 +15225,7 @@ actor_def_02EFD8 [
     COP [SpawnAfterFlags] ( @code_02F557, #$0800 )
     TYA 
     STA $moveYAlt, X
-    COP [SetEntryExit]
+    COP [SetEntryHereAndYield]
     STZ $inventoryTabIndex
     LDA #$00
     BPL loc_02F051
@@ -16672,7 +15238,7 @@ actor_def_02EFD8 [
     SBC $A91885, X
     BRK #$80
     TSB $joypadHeld
-    COP [SetEntryExit]
+    COP [SetEntryHereAndYield]
     JSR $&code_02F89A
     BCS loc_02F087
     LDA $inventoryTabIndex
@@ -16691,16 +15257,12 @@ code_list_02F07F [
   &code_02F409   ;00
   &code_02F428   ;01
   &code_02F439   ;02
+  &code_02F458   ;03
 ]
 
-code_02F085 {
-    CLI 
-}
-
-code_02F086 {
-    PEA $0603
-    ORA $&01FAAD
-    ASL 
+loc_02F087 {
+    COP [PlaySoundCh2] ( #0D )
+    LDA $inventoryTabIndex
     STA $18
     STA $0000
     COP [SwitchCase] ( #$0000, &code_list_02F098 )
@@ -16736,12 +15298,12 @@ code_02F0A0 {
     INX 
     ASL 
     COP [RunBg3Script] ( @01E682 )
-    COP [SetEntryExit]
-    COP [BranchIfButton] ( #$C040, &code_02F14D )
-    COP [BranchIfButton] ( #$0800, &code_02F0FA )
-    COP [BranchIfButton] ( #$0400, &code_02F110 )
-    COP [BranchIfButton] ( #$0200, &code_02F126 )
-    COP [BranchIfButton] ( #$0100, &code_02F139 )
+    COP [SetEntryHereAndYield]
+    COP [BranchIfPressed] ( #$C040, &code_02F14D )
+    COP [BranchIfPressed] ( #$0800, &code_02F0FA )
+    COP [BranchIfPressed] ( #$0400, &code_02F110 )
+    COP [BranchIfPressed] ( #$0200, &code_02F126 )
+    COP [BranchIfPressed] ( #$0100, &code_02F139 )
     RTL 
 }
 
@@ -16774,7 +15336,7 @@ code_02F110 {
 
 code_02F126 {
     LDA #$00
-    COP [ClearLowHere]
+    COP [ClearSolidHere]
     CLI 
     ASL $02
     ASL $10
@@ -16837,24 +15399,27 @@ code_02F178 {
 
   code_02F197:
     JSR $&code_02F67F
-    COP [SetEntryExit]
-    COP [BranchIfButton] ( #$4040, &code_02F28E )
-    COP [BranchIfButton] ( #$8000, &code_02F1C5 )
+    COP [SetEntryHereAndYield]
+    COP [BranchIfPressed] ( #$4040, &code_02F28E )
+    COP [BranchIfPressed] ( #$8000, &code_02F1C5 )
     PEA $&code_02F197-1
-    COP [BranchIfButton] ( #$0800, &code_02F5C3 )
-    COP [BranchIfButton] ( #$0400, &code_02F5D8 )
-    COP [BranchIfButton] ( #$0200, &code_02F5ED )
-    COP [BranchIfButton] ( #$0100, &code_02F5FF )
+    COP [BranchIfPressed] ( #$0800, &code_02F5C3 )
+    COP [BranchIfPressed] ( #$0400, &code_02F5D8 )
+    COP [BranchIfPressed] ( #$0200, &code_02F5ED )
+    COP [BranchIfPressed] ( #$0100, &code_02F5FF )
     PLA 
     RTL 
 }
 
 code_02F1C5 {
     COP [PlaySoundCh2] ( #11 )
-    LDA #$8000
-    TSB $joypadHeld
-    LDA $20
-    STA $2C
+    LDA #$00
+    BRA loc_02F1D8
+
+  loc_02F1CC:
+    CLI 
+    ASL $A5
+    JSR $2C85
     LDA $22
     STA $2E
     COP [SpawnAfterFlags] ( @code_02F533, #$0802 )
@@ -16865,25 +15430,28 @@ code_02F1C5 {
 
   code_02F1EE:
     JSR $&code_02F67F
-    COP [SetEntryExit]
-    COP [BranchIfButton] ( #$4040, &code_02F28C )
-    COP [BranchIfButton] ( #$8000, &code_02F21C )
+    COP [SetEntryHereAndYield]
+    COP [BranchIfPressed] ( #$4040, &code_02F28C )
+    COP [BranchIfPressed] ( #$8000, &code_02F21C )
     PEA $&code_02F1EE-1
-    COP [BranchIfButton] ( #$0800, &code_02F5C3 )
-    COP [BranchIfButton] ( #$0400, &code_02F5D8 )
-    COP [BranchIfButton] ( #$0200, &code_02F5ED )
-    COP [BranchIfButton] ( #$0100, &code_02F5FF )
+    COP [BranchIfPressed] ( #$0800, &code_02F5C3 )
+    COP [BranchIfPressed] ( #$0400, &code_02F5D8 )
+    COP [BranchIfPressed] ( #$0200, &code_02F5ED )
+    COP [BranchIfPressed] ( #$0100, &code_02F5FF )
     PLA 
     RTL 
 }
 
 code_02F21C {
-    LDA #$8000
-    TSB $joypadHeld
-    LDA $22
-    CMP $2E
-    BEQ code_02F1EE
-    COP [PlaySoundCh2] ( #11 )
+    LDA #$00
+    BRA loc_02F22C
+
+  loc_02F220:
+    CLI 
+    ASL $A5
+    JSL $@code_302EC5
+    DEC $02
+    ASL $11
     LDY $22
     SEP #$20
     LDA $inventorySlots, Y
@@ -16965,14 +15533,14 @@ code_02F299 {
 
   code_02F2BE:
     JSR $&code_02F67F
-    COP [SetEntryExit]
-    COP [BranchIfButton] ( #$4040, &code_02F34D )
-    COP [BranchIfButton] ( #$8000, &code_02F2EC )
+    COP [SetEntryHereAndYield]
+    COP [BranchIfPressed] ( #$4040, &code_02F34D )
+    COP [BranchIfPressed] ( #$8000, &code_02F2EC )
     PEA $&code_02F2BE-1
-    COP [BranchIfButton] ( #$0800, &code_02F5C3 )
-    COP [BranchIfButton] ( #$0400, &code_02F5D8 )
-    COP [BranchIfButton] ( #$0200, &code_02F5ED )
-    COP [BranchIfButton] ( #$0100, &code_02F5FF )
+    COP [BranchIfPressed] ( #$0800, &code_02F5C3 )
+    COP [BranchIfPressed] ( #$0400, &code_02F5D8 )
+    COP [BranchIfPressed] ( #$0200, &code_02F5ED )
+    COP [BranchIfPressed] ( #$0100, &code_02F5FF )
     PLA 
     RTL 
 }
@@ -16990,7 +15558,7 @@ code_02F2EC {
     COP [RunBg3Script] ( @01E59B )
     COP [RunBg3Script] ( @01E694 )
     STZ $28
-    COP [SetEntryExit]
+    COP [SetEntryHereAndYield]
     JSR $&code_02F808
     BCS loc_02F318
     RTL 
@@ -17054,10 +15622,10 @@ code_02F35B {
     COP [RunBg3Script] ( @01E758 )
 
   loc_02F395:
-    COP [SetEntryExit]
-    COP [BranchIfButton] ( #$0800, &code_02F3AA )
-    COP [BranchIfButton] ( #$0400, &code_02F3BF )
-    COP [BranchIfButton] ( #$C040, &code_02F3D7 )
+    COP [SetEntryHereAndYield]
+    COP [BranchIfPressed] ( #$0800, &code_02F3AA )
+    COP [BranchIfPressed] ( #$0400, &code_02F3BF )
+    COP [BranchIfPressed] ( #$C040, &code_02F3D7 )
     RTL 
 }
 
@@ -17223,7 +15791,7 @@ code_02F458 {
 code_02F509 {
     INC $inventoryTabIndex
     JSR $&code_02F7B2
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     LDA $28
     BNE loc_02F51B
     LDA #$2000
@@ -17235,7 +15803,7 @@ code_02F509 {
     TRB $10
 
   loc_02F520:
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     COP [AnimOneFrame]
     LDA $2A
     BEQ loc_02F520
@@ -17251,10 +15819,10 @@ code_02F529 {
 
 code_02F533 {
     COP [StageSprAndHitbox] ( #40 )
-    COP [SetEntryExit]
+    COP [SetEntryHereAndYield]
 
   loc_02F538:
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     COP [AnimOneFrame]
     LDA $2A
     BEQ loc_02F538
@@ -17269,7 +15837,7 @@ code_02F541 {
     LDA $inventoryEquippedType
     STA $28
     STZ $2A
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     COP [AnimOneFrame]
     RTL 
 }
@@ -17287,7 +15855,7 @@ code_02F557 {
     ADC #$0044
     STA $28
     STZ $2A
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     COP [AnimOneFrame]
     RTL 
 }
@@ -17305,7 +15873,7 @@ code_02F576 {
     ADC #$0045
     STA $28
     STZ $2A
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     COP [AnimOneFrame]
     RTL 
 }
@@ -17323,7 +15891,7 @@ code_02F595 {
     ADC #$0046
     STA $28
     STZ $2A
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     COP [AnimOneFrame]
     RTL 
 }
@@ -17445,7 +16013,7 @@ code_02F655 {
     AND #$07
     TAX 
     LDA $@code_02F677, X
-    AND $&20DD49, Y
+    AND $&binary_01D9FB+34E, Y
     SEC 
     BNE loc_02F673
     CLC 
@@ -17690,8 +16258,8 @@ code_02F7C8 {
     RTI 
     BRK #$80
     STZ $F8
-    COP [BranchIfButton] ( #$0800, &code_02F834 )
-    COP [BranchIfButton] ( #$0400, &code_02F84C )
+    COP [BranchIfPressed] ( #$0800, &code_02F834 )
+    COP [BranchIfPressed] ( #$0400, &code_02F84C )
     LDA $1C
     INC $1C
     BIT #$000F
@@ -17774,10 +16342,10 @@ code_02F888 {
 }
 
 code_02F89A {
-    COP [BranchIfButton] ( #$8000, &code_02F905 )
-    COP [BranchIfButton] ( #$0800, &code_02F8CC )
-    COP [BranchIfButton] ( #$0400, &code_02F8E6 )
-    COP [BranchIfButton] ( #$6040, &code_02F900 )
+    COP [BranchIfPressed] ( #$8000, &code_02F905 )
+    COP [BranchIfPressed] ( #$0800, &code_02F8CC )
+    COP [BranchIfPressed] ( #$0400, &code_02F8E6 )
+    COP [BranchIfPressed] ( #$6040, &code_02F900 )
     LDA $1C
     INC $1C
     BIT #$0F
@@ -17951,9 +16519,9 @@ code_02F92A {
     STX $cameraDeltaX
     STX $cameraDeltaY
     STX $bg1ScrollH
-    STX $bg2ScrollH
-    STX $bg1ScrollV
-    STX $savedCameraDelta
+    STX $mapScrollV
+    STX $effectScrollH
+    STX $effectScrollV
     STX $scrollOverrideH
     STX $forcedScrollOverride
     STX $scrollOverrideV
@@ -17982,7 +16550,7 @@ code_02F92A {
     JSL $@chunk_008000.code_008122
     LDA $bg1ConfigMode
     STA $BG1SC
-    COP [BranchIfFlagByte] ( #00, #00, &code_02FA59 )
+    COP [BranchOnFlagByte] ( #00, #00, &code_02FA59 )
     STZ $BG3VOFS
     STZ $BG3VOFS
     JSL $@code_0282C7
@@ -17992,11 +16560,11 @@ code_02F92A {
     LDX $cameraTargetX
     STX $bg1ScrollH
     LDX $cameraTargetY
-    STX $bg2ScrollH
+    STX $mapScrollV
     LDX $cameraDeltaX
-    STX $bg1ScrollV
+    STX $effectScrollH
     LDX $cameraDeltaY
-    STX $savedCameraDelta
+    STX $effectScrollV
     REP #$20
     PLA 
     STA $sceneCurrent

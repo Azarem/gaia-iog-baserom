@@ -502,7 +502,8 @@
     { "key": "#\\$4040", "value": "#$$4000" },
     { "key": "#\\$6040, &TabCancel", "value": "#$$6000, &TabCancel" },
     { "key": "#\\$C040", "value": "#$$C000" },
-    { "key": "#\\$8000, &ArrangePerformSwap", "value": "#$$8044, &ArrangePerformSwap" }
+    { "key": "#\\$8000, &ArrangePerformSwap", "value": "#$$8044, &ArrangePerformSwap" },
+    { "key": "LDA #\\$2040", "value": "LDA #$$2060" }
   ],
   "stair_climb": [
     { "key": "LDA #\\$8000", "value": "LDA #$$0080" },
@@ -755,5 +756,8 @@
     { "key": "\\$remapA, #\\$0080", "value": "$$remapA, #$$8080" },
     { "key": "\\$remapY, #\\$4000", "value": "$$remapY, #$$0040" },
     { "key": "\\$remapX, #\\$0040", "value": "$$remapX, #$$0004" }
+  ],
+  "pyD7_sliding_wall": [
+    { "key": "((DEC|INC)\\s+STA \\$0026, Y\\s+DEC \\$26[\\s]+BEQ \\S+\\s+)", "value": "$1$1" }
   ]
 }

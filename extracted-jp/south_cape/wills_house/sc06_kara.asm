@@ -8,10 +8,10 @@ h_sc06_kara [
   actor-def < #12, #00, #30, {
 
   code_049B8D:
-    COP [BranchIfFlagByte] ( #1B, #01, &code_049C7E )
-    COP [BranchIfFlagByte] ( #3D, #01, &code_049C80 )
-    COP [BranchIfFlagByte] ( #16, #00, &code_049C7E )
-    COP [ExitIfFlagByte] ( #01, #01 )
+    COP [BranchOnFlagByte] ( #1B, #01, &code_049C7E )
+    COP [BranchOnFlagByte] ( #3D, #01, &code_049C80 )
+    COP [BranchOnFlagByte] ( #16, #00, &code_049C7E )
+    COP [WaitOnFlagByte] ( #01, #01 )
     LDA #$2000
     TRB $10
     COP [StageSpriteLoopMoveY] ( #16, #02, #11 )
@@ -33,7 +33,7 @@ h_sc06_kara [
     COP [AnimLoop]
     LDA #$0001
     JSL $@chunk_008000.dialogstring_00C829
-    COP [SetEntryExit]
+    COP [SetEntryHereAndYield]
     COP [PrintDialogString] ( &dialogstring_049CE6 )
     COP [SetFlagByte] ( #02 )
     COP [StageSpriteLoopMoveX] ( #19, #03, #11 )
@@ -42,7 +42,7 @@ h_sc06_kara [
     COP [AnimOnce]
     LDA #$0003
     JSL $@chunk_008000.dialogstring_00C829
-    COP [SetEntryExit]
+    COP [SetEntryHereAndYield]
     COP [PrintDialogString] ( &dialogstring_049D33 )
     COP [StageSpriteLoop] ( #14, #10 )
     COP [AnimLoop]
@@ -55,20 +55,20 @@ h_sc06_kara [
     COP [AnimLoop]
     COP [StageSpriteLoop] ( #14, #1E )
     COP [AnimLoop]
-    COP [SolidHighHere]
+    COP [MarkSolidHere]
     COP [PrintDialogString] ( &dialogstring_049DF6 )
     LDA #$CFF0
     TRB $joypadMaskStd
     COP [SetFlagByte] ( #3D )
 
   loc_049C38:
-    COP [SetOnInteract] ( &code_049C8D )
-    COP [ExitIfFlagByte] ( #04, #01 )
-    COP [ClearLowHere]
+    COP [SetInteractHandler] ( &code_049C8D )
+    COP [WaitOnFlagByte] ( #04, #01 )
+    COP [ClearSolidHere]
     COP [SetTilePos] ( #0D, #19 )
     COP [StageSpriteFrame] ( #14 )
     COP [AnimOnce]
-    COP [ExitIfFlagByte] ( #07, #01 )
+    COP [WaitOnFlagByte] ( #07, #01 )
     COP [StageSpriteLoop] ( #15, #1E )
     COP [AnimLoop]
     COP [PrintDialogString] ( &dialogstring_049E86 )
@@ -92,7 +92,7 @@ code_049C7E {
 
 code_049C80 {
     COP [SetTilePos] ( #0A, #19 )
-    COP [SolidHighHere]
+    COP [MarkSolidHere]
     LDA #$2000
     TRB $10
     BRA loc_049C38
@@ -113,7 +113,7 @@ dialogstring_049D74 `[TPL:A][TPL:1]カレン: 知ってるわよ.[N]オールマ
 
 dialogstring_049DF6 `[TPL:A][TPL:1]カレン:[N]ところで この家,[N]ピアノも ないのね.[FIN][TPL:0]テム: ないよっ,そんなもの![N]でも,ローラおばあちゃんは[N]ものすごく歌が うまいんだぞ.[FIN][::][TPL:1]カレン:[N]歌なら 今 2階で歌ってるわよ.[N]二人とも声が大きいのなんの.[PAL:0][END]`
 
-dialogstring_049E81 `[TPL:A][JMP:&sc06_kara.dialogstring_049DF6+M]`
+dialogstring_049E81 `[TPL:A][JMP:&dialogstring_049DF6+M]`
 
 dialogstring_049E86 `[TPL:A][TPL:7]カレン: 人ちがいでしょっ.[N]あたしは 花売り娘のボボンゴって[N]いうのよ.[FIN][PAL:0]兵士: おひめさま![N]そんな [TPL:7]真っ赤な[PAL:0]ウソに[N]だまされると 思ってるんですかっ.[FIN]これは 国王の ご命皮なのです.[N]力づくでも 連れて帰りますよ![END]`
 

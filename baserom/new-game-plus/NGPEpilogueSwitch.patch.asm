@@ -34,5 +34,5 @@ h_epilogue_thinker [
 ?INCLUDE 'scene_thinkers'
 ------------------------------------------
 
-thinker_spawn_0CEA9B+: thinker-spawn < #00, @h_epilogue_thinker >
+thinker_spawn_0CEA9B+=: thinker-spawn < #00, @h_epilogue_thinker >
 

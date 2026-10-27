@@ -7,15 +7,15 @@ h_it17_lily [
   actor-def < #1C, #00, #10, {
 
   code_04DE65:
-    COP [BranchIfFlagByte] ( #37, #01, &code_04DEB3 )
-    COP [SetOnInteract] ( &code_04DEB5 )
-    COP [SolidHighHere]
-    COP [ExitIfFlagByte] ( #02, #01 )
+    COP [BranchOnFlagByte] ( #37, #01, &code_04DEB3 )
+    COP [SetInteractHandler] ( &code_04DEB5 )
+    COP [MarkSolidHere]
+    COP [WaitOnFlagByte] ( #02, #01 )
     COP [StageSpriteFrame] ( #1A )
     COP [AnimOnce]
     COP [PrintDialogString] ( &dialogstring_04E08C )
     COP [ClearFlagByte] ( #02 )
-    COP [ExitIfFlagByte] ( #03, #01 )
+    COP [WaitOnFlagByte] ( #03, #01 )
     COP [PrintDialogString] ( &dialogstring_04E126 )
     COP [SetFlagByte] ( #37 )
     LDA #$0000
@@ -26,7 +26,7 @@ h_it17_lily [
     STA $gfxCacheIdxB
     COP [StageWorldMapMove] ( #$00C4, #$02B4, #00, #05 )
     COP [QueueMapChange] ( #1A, #$0150, #$01A0, #00, #$2200 )
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     RTL 
 } >
 ]
@@ -36,8 +36,8 @@ code_04DEB3 {
 }
 
 code_04DEB5 {
-    COP [BranchIfNoItem] ( #03, &code_04DECA )
-    COP [BranchIfFlagByte] ( #47, #01, &code_04DEC5 )
+    COP [BranchIfHasItem] ( #03, &code_04DECA )
+    COP [BranchOnFlagByte] ( #47, #01, &code_04DEC5 )
     COP [PrintDialogString] ( &dialogstring_04DEED )
     RTL 
 }

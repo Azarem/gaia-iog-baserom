@@ -6,7 +6,7 @@ h_ec_actor_04FCFB [
   actor-def < #18, #00, #23, {
 
   code_04FCFE:
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     COP [BranchIfPlayerNear] ( #02, &code_04FD06 )
     RTL 
 } >
@@ -22,7 +22,7 @@ code_04FD06 {
     STA $orbitAngle, X
 
   loc_04FD16:
-    COP [AddPosition] ( #08, #00 )
+    COP [NudgePosition] ( #08, #00 )
     COP [SpawnAfterFlags] ( @code_04FD5E, #$0301 )
     LDA $16
     SEC 
@@ -30,28 +30,28 @@ code_04FD06 {
     STA $16
     LDA #$2000
     TRB $10
-    COP [CollPrioritySetMax]
+    COP [SetPriorityMax]
     COP [StageSpriteLoopMoveY] ( #18, #02, #0F )
     COP [AnimLoop]
     COP [PlaySoundBoth] ( #$1515 )
-    COP [CollPriorityClearMax]
+    COP [ClearPriorityMax]
     LDA #$0100
     TRB $10
     COP [StageSpriteMoveY] ( #18, #35 )
     COP [AnimOnce]
     LDA #$0100
     TSB $10
-    COP [CollPrioritySetMin]
+    COP [SetPriorityMin]
     LDA $orbitAngle, X
     BNE loc_04FD59
-    COP [SolidHighHere]
+    COP [MarkSolidHere]
     BRA loc_04FD5B
 
   loc_04FD59:
-    COP [ClearAllHere]
+    COP [ClearCollisionHere]
 
   loc_04FD5B:
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     RTL 
 }
 

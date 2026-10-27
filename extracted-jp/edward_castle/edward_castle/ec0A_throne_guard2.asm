@@ -13,12 +13,12 @@ h_ec0A_throne_guard2 [
   actor-def < #1C, #00, #18, {
 
   code_04C210:
-    COP [SetOnInteract] ( &code_04C2D3 )
+    COP [SetInteractHandler] ( &code_04C2D3 )
     COP [SetSpritePriority] ( #30 )
-    COP [SolidHighHere]
-    COP [ExitIfFlagByte] ( #0A, #01 )
-    COP [ClearLowHere]
-    COP [SetOnInteract] ( #$0000 )
+    COP [MarkSolidHere]
+    COP [WaitOnFlagByte] ( #0A, #01 )
+    COP [ClearSolidHere]
+    COP [SetInteractHandler] ( #$0000 )
     COP [StageSpriteLoopMoveX] ( #20, #04, #12 )
     COP [AnimLoop]
     COP [StageSpriteLoopMoveY] ( #1F, #04, #12 )
@@ -31,12 +31,12 @@ h_ec0A_throne_guard2 [
     TRB $10
     COP [PrintDialogString] ( &dialogstring_04C2D8 )
     COP [SetFlagByte] ( #0B )
-    COP [ExitIfFlagByte] ( #0C, #01 )
+    COP [WaitOnFlagByte] ( #0C, #01 )
     COP [WaitByte] ( #0B )
     COP [SpawnAfterFlags] ( @code_04C260, #$2000 )
     COP [StageSpriteLoopMoveY] ( #1E, #05, #11 )
     COP [AnimLoop]
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     RTL 
 } >
 ]
@@ -48,19 +48,19 @@ code_04C260 {
     BEQ loc_04C275
     INC 
     STA $0014, Y
-    COP [SetEntryExit]
-    COP [SetEntryExit]
+    COP [SetEntryHereAndYield]
+    COP [SetEntryHereAndYield]
     BRA code_04C260
 
   loc_04C275:
     COP [SpawnAfterFlags] ( @code_04C28F, #$2000 )
-    COP [LoopInit] ( #50 )
+    COP [LoopStart] ( #50 )
     LDY $decelStepCounter
     LDA $0016, Y
     INC 
     STA $0016, Y
-    COP [SetEntryExit]
-    COP [LoopNext]
+    COP [SetEntryHereAndYield]
+    COP [LoopEnd]
     COP [Die]
 }
 
@@ -77,7 +77,7 @@ code_04C28F {
     SEP #$20
     STA $INIDISP
     REP #$20
-    COP [SetEntryDelayExit] ( @code_04C299, #$0004 )
+    COP [JumpAfterDelay] ( @code_04C299, #$0004 )
 
   loc_04C2B2:
     COP [SetFlagByte] ( #21 )

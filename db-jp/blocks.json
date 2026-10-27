@@ -104,7 +104,8 @@
         },
         "chunk_028000": {
             "parts": {
-                "code_028000": { "start": 163840, "end": 176276, "type": "Code" },
+                "code_028000": { "start": 163840, "end": 168657, "type": "Code" },
+                "spc_0292D1": { "start": 168657, "end": 176276, "type": "Binary" },
                 "code_list_02B094": { "start": 176276, "end": 195821, "type": "&Code" }
             }
         },

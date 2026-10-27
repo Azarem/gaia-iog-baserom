@@ -6,11 +6,11 @@ h_ec0A_barrel_roast [
   actor-def < #00, #00, #30, {
 
   code_04CBB8:
-    COP [AddPosition] ( #08, #01 )
-    COP [BranchIfFlagByte] ( #46, #01, &code_04CBE1 )
-    COP [ExitIfFlagByte] ( #01, #01 )
-    COP [SetOnInteract] ( &code_04CBDC )
-    COP [SetEntryContinue]
+    COP [NudgePosition] ( #08, #01 )
+    COP [BranchOnFlagByte] ( #46, #01, &code_04CBE1 )
+    COP [WaitOnFlagByte] ( #01, #01 )
+    COP [SetInteractHandler] ( &code_04CBDC )
+    COP [SetEntryHere]
     COP [BranchIfPlayerInAbsTiles] ( #22, #37, #26, #3D, &code_04CBD5 )
     RTL 
 } >
@@ -18,7 +18,7 @@ h_ec0A_barrel_roast [
 
 code_04CBD5 {
     COP [PrintDialogString] ( &dialogstring_04CBF6 )
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     RTL 
 }
 

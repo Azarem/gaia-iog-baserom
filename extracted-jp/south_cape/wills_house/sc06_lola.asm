@@ -9,30 +9,30 @@ h_sc06_lola [
   actor-def < #0B, #00, #10, {
 
   code_049676:
-    COP [BranchIfFlagByte] ( #21, #01, &code_0497CA )
-    COP [BranchIfFlagByte] ( #1C, #01, &code_049779 )
-    COP [BranchIfFlagByte] ( #3E, #01, &code_04976C )
-    COP [BranchIfFlagByte] ( #1B, #01, &code_049745 )
-    COP [BranchIfFlagByte] ( #16, #01, &code_04969D )
-    COP [SetOnInteract] ( &code_0497CC )
-    COP [SolidHighHere]
-    COP [SetEntryContinue]
+    COP [BranchOnFlagByte] ( #21, #01, &code_0497CA )
+    COP [BranchOnFlagByte] ( #1C, #01, &code_049779 )
+    COP [BranchOnFlagByte] ( #3E, #01, &code_04976C )
+    COP [BranchOnFlagByte] ( #1B, #01, &code_049745 )
+    COP [BranchOnFlagByte] ( #16, #01, &code_04969D )
+    COP [SetInteractHandler] ( &code_0497CC )
+    COP [MarkSolidHere]
+    COP [SetEntryHere]
     RTL 
 } >
 ]
 
 code_04969D {
     COP [SetTilePos] ( #07, #09 )
-    COP [SolidHighHere]
+    COP [MarkSolidHere]
     COP [StageSpriteFrame] ( #0A )
     COP [AnimOnce]
-    COP [SetOnInteract] ( &code_0497D1 )
-    COP [ExitIfFlagByte] ( #03, #01 )
+    COP [SetInteractHandler] ( &code_0497D1 )
+    COP [WaitOnFlagByte] ( #03, #01 )
     COP [StageSpriteLoop] ( #0D, #1E )
     COP [AnimLoop]
     COP [PrintDialogString] ( &dialogstring_04983B )
     COP [SetFlagByte] ( #04 )
-    COP [ExitIfFlagByte] ( #05, #01 )
+    COP [WaitOnFlagByte] ( #05, #01 )
     COP [WaitByte] ( #0B )
     COP [StageSpriteLoop] ( #0D, #10 )
     COP [AnimLoop]
@@ -42,12 +42,12 @@ code_04969D {
     COP [AnimLoop]
     COP [StageSpriteLoop] ( #0A, #10 )
     COP [AnimLoop]
-    COP [SetOnInteract] ( #$0000 )
-    COP [ExitIfFlagByte] ( #06, #01 )
+    COP [SetInteractHandler] ( #$0000 )
+    COP [WaitOnFlagByte] ( #06, #01 )
     LDA #$0800
     TSB $10
     COP [WaitByte] ( #3F )
-    COP [ClearLowHere]
+    COP [ClearSolidHere]
     COP [StageSpriteMoveY] ( #0E, #11 )
     COP [AnimOnce]
     COP [StageSpriteLoopMoveX] ( #10, #04, #12 )
@@ -55,17 +55,17 @@ code_04969D {
     COP [StageSpriteMoveY] ( #0F, #12 )
     COP [AnimOnce]
     COP [SetTilePos] ( #03, #19 )
-    COP [LoopInit] ( #02 )
+    COP [LoopStart] ( #02 )
     COP [StageSpriteMoveY] ( #0E, #11 )
     COP [AnimOnce]
     COP [StageSpriteMoveX] ( #11, #11 )
     COP [AnimOnce]
-    COP [LoopNext]
+    COP [LoopEnd]
     COP [StageSpriteFrame] ( #0D )
     COP [AnimOnce]
     LDA #$0800
     TRB $10
-    COP [ExitIfFlagByte] ( #1B, #01 )
+    COP [WaitOnFlagByte] ( #1B, #01 )
     LDA #$1000
     TSB $12
     COP [StageSpriteLoopMoveX] ( #11, #03, #11 )
@@ -82,17 +82,17 @@ code_049745 {
     COP [StageSpriteFrame] ( #0C )
     COP [AnimOnce]
     COP [SetTilePos] ( #0C, #1B )
-    COP [SolidHighHere]
-    COP [SetOnInteract] ( &code_0497D6 )
-    COP [ExitIfFlagByte] ( #0B, #01 )
+    COP [MarkSolidHere]
+    COP [SetInteractHandler] ( &code_0497D6 )
+    COP [WaitOnFlagByte] ( #0B, #01 )
     COP [PrintDialogString] ( &dialogstring_049971 )
     COP [SetFlagByte] ( #3E )
     LDA #$CFF0
     TRB $joypadMaskStd
 
   loc_049765:
-    COP [SetOnInteract] ( &code_0497E4 )
-    COP [SetEntryContinue]
+    COP [SetInteractHandler] ( &code_0497E4 )
+    COP [SetEntryHere]
     RTL 
 }
 
@@ -100,19 +100,19 @@ code_04976C {
     COP [StageSpriteFrame] ( #0C )
     COP [AnimOnce]
     COP [SetTilePos] ( #0C, #1B )
-    COP [SolidHighHere]
+    COP [MarkSolidHere]
     BRA loc_049765
 }
 
 code_049779 {
     COP [SetTilePos] ( #0C, #1B )
-    COP [SetOnInteract] ( &code_0497E9 )
-    COP [SolidHighHere]
+    COP [SetInteractHandler] ( &code_0497E9 )
+    COP [MarkSolidHere]
     COP [StageSpriteFrame] ( #0C )
     COP [AnimOnce]
-    COP [BranchIfFlagByte] ( #35, #01, &code_0497C7 )
-    COP [SetEntryContinue]
-    COP [BranchIfNoItem] ( #09, &code_049796 )
+    COP [BranchOnFlagByte] ( #35, #01, &code_0497C7 )
+    COP [SetEntryHere]
+    COP [BranchIfHasItem] ( #09, &code_049796 )
     RTL 
 }
 
@@ -123,7 +123,7 @@ code_049796 {
     COP [StartMusic] ( #19 )
     COP [WaitByte] ( #59 )
     COP [PrintDialogString] ( &dialogstring_049B0E )
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     SEP #$20
     LDA $APUIO1
     REP #$20
@@ -140,7 +140,7 @@ code_049796 {
 }
 
 code_0497C7 {
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     RTL 
 }
 
@@ -172,7 +172,7 @@ code_0497E4 {
 }
 
 code_0497E9 {
-    COP [BranchIfFlagByte] ( #35, #01, &code_0497F9 )
+    COP [BranchOnFlagByte] ( #35, #01, &code_0497F9 )
     COP [PrintDialogString] ( &dialogstring_0499D7 )
     COP [GiveItem] ( #09, &code_0497FE )
     RTL 

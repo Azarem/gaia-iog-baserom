@@ -8,9 +8,9 @@ h_sc06_kara_return [
   actor-def < #1B, #00, #10, {
 
   code_04A341:
-    COP [BranchIfFlagByte] ( #26, #01, &code_04A422 )
-    COP [BranchIfFlagByte] ( #25, #01, &code_04A424 )
-    COP [BranchIfFlagByte] ( #21, #00, &code_04A4C3 )
+    COP [BranchOnFlagByte] ( #26, #01, &code_04A422 )
+    COP [BranchOnFlagByte] ( #25, #01, &code_04A424 )
+    COP [BranchOnFlagByte] ( #21, #00, &code_04A4C3 )
     LDA #$CFF0
     TSB $joypadMaskStd
     LDY $decelStepCounter
@@ -58,25 +58,25 @@ h_sc06_kara_return [
     COP [AnimOnce]
     COP [StageSpriteFrame] ( #1B )
     COP [AnimOnce]
-    COP [SolidHighHere]
+    COP [MarkSolidHere]
     COP [PrintDialogString] ( &dialogstring_04A58C )
-    COP [SetOnInteract] ( &code_04A4C5 )
-    COP [ExitIfFlagByte] ( #01, #01 )
-    COP [ExitIfFlagByte] ( #02, #01 )
-    COP [ClearLowHere]
+    COP [SetInteractHandler] ( &code_04A4C5 )
+    COP [WaitOnFlagByte] ( #01, #01 )
+    COP [WaitOnFlagByte] ( #02, #01 )
+    COP [ClearSolidHere]
     COP [StageSpriteMoveX] ( #20, #12 )
     COP [AnimOnce]
     COP [StageSpriteMoveY] ( #1E, #11 )
     COP [AnimOnce]
     COP [StageSpriteFrame] ( #1C )
     COP [AnimOnce]
-    COP [SolidHighHere]
+    COP [MarkSolidHere]
     COP [PrintDialogString] ( &dialogstring_04A6BA )
     COP [ClearFlagByte] ( #02 )
     COP [SetFlagByte] ( #25 )
     COP [ClearFlagWord] ( #$0119 )
-    COP [SetOnInteract] ( &code_04A4CD )
-    COP [SetEntryContinue]
+    COP [SetInteractHandler] ( &code_04A4CD )
+    COP [SetEntryHere]
     RTL 
 } >
 ]
@@ -87,24 +87,24 @@ code_04A422 {
 
 code_04A424 {
     COP [SetTilePos] ( #0C, #1B )
-    COP [SetOnInteract] ( &code_04A4CD )
+    COP [SetInteractHandler] ( &code_04A4CD )
     COP [StageSpriteFrame] ( #1C )
     COP [AnimOnce]
-    COP [SolidHighHere]
-    COP [ExitIfFlagByte] ( #04, #01 )
-    COP [ClearLowHere]
+    COP [MarkSolidHere]
+    COP [WaitOnFlagByte] ( #04, #01 )
+    COP [ClearSolidHere]
     COP [StageSpriteMoveY] ( #1F, #12 )
     COP [AnimOnce]
     COP [StageSpriteMoveX] ( #20, #12 )
     COP [AnimOnce]
     COP [PrintDialogString] ( &dialogstring_04A782 )
     COP [SetFlagByte] ( #02 )
-    COP [ExitIfFlagByte] ( #02, #00 )
+    COP [WaitOnFlagByte] ( #02, #00 )
     COP [StageSpriteMoveX] ( #20, #14 )
     COP [AnimOnce]
     COP [PrintDialogString] ( &dialogstring_04A79B )
     COP [SetFlagByte] ( #03 )
-    COP [ExitIfFlagByte] ( #03, #00 )
+    COP [WaitOnFlagByte] ( #03, #00 )
     COP [StageSpriteMoveY] ( #1F, #12 )
     COP [AnimOnce]
     COP [StageSpriteLoopMoveX] ( #20, #02, #12 )
@@ -143,7 +143,7 @@ code_04A492 {
     STA $gfxCacheIdxB
     COP [StageWorldMapMove] ( #$00D4, #$03A4, #00, #03 )
     COP [QueueMapChange] ( #15, #$02D8, #$0370, #00, #$4500 )
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     RTL 
 }
 
@@ -183,35 +183,35 @@ dialogstring_04A79B `[TPL:A][TPL:1]カレン:[N]なによ フーテン娘![END]`
 
 dialogstring_04A7B4 `[TPL:B][TPL:1]カレン: あら, テムは[N]あたしの おともだちよね?![N][PAL:0] うん,もちろんさ[N] よくわかんねえや···`
 
-dialogstring_04A7F1 `[CLR][TPL:1]カレン:[N]うれしいわ,テム.[N]さあさ,手をつないで行きましょ.[FIN][JMP:&sc06_kara_return.dialogstring_04A81D+M]`
+dialogstring_04A7F1 `[CLR][TPL:1]カレン:[N]うれしいわ,テム.[N]さあさ,手をつないで行きましょ.[FIN][JMP:&dialogstring_04A81D+M]`
 
 dialogstring_04A81D `[TPL:2][CLR]リリィ:[N]じゃあ,あたしと いっしょに[N]行きましょ. 行きましょ.[FIN][::][SFX:10][PAL:0]こうして 3人は[N]リリィの村へと 向かうのであった.[END]`
 ---------------------------------------------
 
 e_sc06_actor_04AC5A {
-    COP [SolidHighAbs] ( #05, #1D )
-    COP [SolidHighAbs] ( #06, #1D )
+    COP [MarkSolidAbs] ( #05, #1D )
+    COP [MarkSolidAbs] ( #06, #1D )
 
   code_04AC62:
-    COP [SetEntryContinue]
-    COP [BranchIfFlagByte] ( #25, #01, &code_04AC87 )
+    COP [SetEntryHere]
+    COP [BranchOnFlagByte] ( #25, #01, &code_04AC87 )
     COP [BranchIfPlayerInAbsTiles] ( #05, #1C, #07, #1D, &code_04AC73 )
     RTL 
 }
 
 code_04AC73 {
-    COP [BranchIfButton] ( #$0400, &code_04AC7E )
-    COP [SetEntryExitNow] ( @code_04AC62 )
+    COP [BranchIfPressed] ( #$0400, &code_04AC7E )
+    COP [JumpNextFrame] ( @code_04AC62 )
 }
 
 code_04AC7E {
     COP [PrintDialogString] ( &dialogstring_04AC91 )
-    COP [SetEntryExitNow] ( @code_04AC62 )
+    COP [JumpNextFrame] ( @code_04AC62 )
 }
 
 code_04AC87 {
-    COP [ClearLowAbs] ( #05, #1D )
-    COP [ClearLowAbs] ( #06, #1D )
+    COP [ClearSolidAbs] ( #05, #1D )
+    COP [ClearSolidAbs] ( #06, #1D )
     COP [Die]
 }
 

@@ -4,9 +4,9 @@ h_it15_friendly_woman [
   actor-def < #0A, #00, #10, {
 
   code_04D945:
-    COP [SetOnInteract] ( &code_04D94E )
-    COP [SolidHighHere]
-    COP [SetEntryContinue]
+    COP [SetInteractHandler] ( &code_04D94E )
+    COP [MarkSolidHere]
+    COP [SetEntryHere]
     RTL 
 } >
 ]

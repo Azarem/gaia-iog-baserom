@@ -10,9 +10,9 @@ h_sc06_monologue [
   actor-def < #00, #00, #30, {
 
   code_04A1F7:
-    COP [BranchIfFlagByte] ( #1D, #01, &code_04A25D )
-    COP [BranchIfFlagByte] ( #1C, #01, &code_04A247 )
-    COP [SetEntryContinue]
+    COP [BranchOnFlagByte] ( #1D, #01, &code_04A25D )
+    COP [BranchOnFlagByte] ( #1C, #01, &code_04A247 )
+    COP [SetEntryHere]
     COP [BranchIfPlayerAt] ( #$0008, #$0210, &code_04A20E )
     RTL 
 } >
@@ -35,7 +35,7 @@ code_04A20E {
     LDA #$0200
     STA $gfxCacheIdxA
     COP [QueueMapChange] ( #06, #$00A0, #$0078, #03, #$1100 )
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     RTL 
 }
 

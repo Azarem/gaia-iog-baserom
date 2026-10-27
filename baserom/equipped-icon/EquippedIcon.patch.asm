@@ -434,13 +434,13 @@ loc_03E04E! {
     JML item_icon_stub
 }
 
-LoadHudTilemap! {
-    LDA $09ED
-    BIT #$40
-    BEQ loc_03DED5
-    STZ $00DA             ; Full suppress (cutscene): clear icon too
-    RTL
-}
+;LoadHudTilemap! {
+;    LDA $09ED
+;    BIT #$40
+;    BEQ loc_03DED5
+;    STZ $00DA             ; Full suppress (cutscene): clear icon too
+;    RTL
+;}
 
 --------------------------------------------------------
 ?INCLUDE 'palette_bundles'

@@ -4,14 +4,14 @@ h_sc06_actor_04A1C2 [
   actor-def < #1A, #00, #30, {
 
   code_04A1C5:
-    COP [BranchIfFlagByte] ( #1B, #01, &code_04A1F2 )
-    COP [ExitIfFlagByte] ( #04, #01 )
+    COP [BranchOnFlagByte] ( #1B, #01, &code_04A1F2 )
+    COP [WaitOnFlagByte] ( #04, #01 )
     LDA #$2000
     TRB $10
     COP [SetTilePos] ( #09, #1A )
     COP [StageSpriteFrame] ( #1D )
     COP [AnimOnce]
-    COP [ExitIfFlagByte] ( #08, #01 )
+    COP [WaitOnFlagByte] ( #08, #01 )
     COP [WaitByte] ( #3F )
     COP [StageSpriteLoopMoveX] ( #20, #03, #12 )
     COP [AnimLoop]

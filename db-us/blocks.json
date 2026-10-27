@@ -1006,7 +1006,7 @@
         "enemy_clear_reward_table": { "start": 109278, "end": 109534, "type": "Byte" },
         "direction_velocity_table": { "start": 109534, "end": 109552, "type": "direction-velocity" },
         "enemy_stats_table": { "start": 109552, "end": 109992, "type": "enemy-stats" },
-        "scene_barrier_chest_table": { "start": 109992, "end": 110726, "type": "&Binary" },
+        "scene_barrier_chest_table": { "start": 109992, "end": 110726, "type": "&chest-entry" },
         "movement_delta_table": { "start": 110726, "end": 115588, "type": "&delta-node" },
         "dialog_template_table": { "start": 117397, "end": 117670, "type": "&DialogString" },
         "parallax_scroll_table": { "start": 117760, "end": 119758, "type": "&Binary" },

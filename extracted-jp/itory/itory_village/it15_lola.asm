@@ -8,23 +8,23 @@ h_it15_lola [
   actor-def < #32, #00, #10, {
 
   code_04E857:
-    COP [SetOnInteract] ( &code_04E8C5 )
-    COP [SolidHighHere]
-    COP [BranchIfFlagByte] ( #47, #01, &code_04E877 )
-    COP [BranchIfFlagByte] ( #3B, #01, &code_04E874 )
-    COP [SetEntryContinue]
+    COP [SetInteractHandler] ( &code_04E8C5 )
+    COP [MarkSolidHere]
+    COP [BranchOnFlagByte] ( #47, #01, &code_04E877 )
+    COP [BranchOnFlagByte] ( #3B, #01, &code_04E874 )
+    COP [SetEntryHere]
     COP [BranchIfPlayerInAbsTiles] ( #40, #26, #42, #28, &code_04E87D )
     RTL 
 } >
 ]
 
 code_04E874 {
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     RTL 
 }
 
 code_04E877 {
-    COP [SetOnInteract] ( &code_04E8CA )
+    COP [SetInteractHandler] ( &code_04E8CA )
     BRA code_04E874
 }
 
@@ -48,10 +48,10 @@ code_04E87D {
     COP [AnimLoop]
     COP [PrintDialogString] ( &dialogstring_04E9D5 )
     COP [SetFlagByte] ( #04 )
-    COP [ExitIfFlagByte] ( #05, #01 )
+    COP [WaitOnFlagByte] ( #05, #01 )
     COP [StageSpriteFrame] ( #32 )
     COP [AnimOnce]
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     RTL 
 }
 

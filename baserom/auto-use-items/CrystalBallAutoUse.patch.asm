@@ -15,6 +15,17 @@ code_05F522! {
     RTL 
 }
 
+sg4C_slot1_interact {
+    COP [BranchIfHasItem] ( #0E, &sg4C_slot1_use )
+    COP [PrintDialogString] ( &sg4C_interact_str )
+    RTL
+}
+
+sg4C_slot1_use {
+    LDA #&code_039020
+    JML $@ItemUseStub
+}
+
 -----------------------------------------------
 
 code_05F560! {
@@ -28,6 +39,17 @@ code_05F560! {
     TRB $10
     COP [SetEntryHere]
     RTL 
+}
+
+sg4C_slot2_interact {
+    COP [BranchIfHasItem] ( #0E, &sg4C_slot2_use )
+    COP [PrintDialogString] ( &sg4C_interact_str )
+    RTL
+}
+
+sg4C_slot2_use {
+    LDA #&code_03902B
+    JML $@ItemUseStub
 }
 
 -----------------------------------------------
@@ -45,6 +67,17 @@ code_05F58F! {
     RTL 
 }
 
+sg4C_slot3_interact {
+    COP [BranchIfHasItem] ( #0E, &sg4C_slot3_use )
+    COP [PrintDialogString] ( &sg4C_interact_str )
+    RTL
+}
+
+sg4C_slot3_use {
+    LDA #&code_039036
+    JML $@ItemUseStub
+}
+
 -----------------------------------------------
 
 code_05F5CD! {
@@ -60,51 +93,6 @@ code_05F5CD! {
     RTL 
 }
 
------------------------------------------------
-
-sg4C_interact_str `[DEF]There is an indentation[N]in this tile.[END]`
-
------------------------------------------------
-
-sg4C_slot1_interact {
-    COP [BranchIfHasItem] ( #0E, &sg4C_slot1_use )
-    COP [PrintDialogString] ( &sg4C_interact_str )
-    RTL
-}
-
-sg4C_slot1_use {
-    LDA #&code_039020
-    JML $@ItemUseStub
-}
-
------------------------------------------------
-
-sg4C_slot2_interact {
-    COP [BranchIfHasItem] ( #0E, &sg4C_slot2_use )
-    COP [PrintDialogString] ( &sg4C_interact_str )
-    RTL
-}
-
-sg4C_slot2_use {
-    LDA #&code_03902B
-    JML $@ItemUseStub
-}
-
------------------------------------------------
-
-sg4C_slot3_interact {
-    COP [BranchIfHasItem] ( #0E, &sg4C_slot3_use )
-    COP [PrintDialogString] ( &sg4C_interact_str )
-    RTL
-}
-
-sg4C_slot3_use {
-    LDA #&code_039036
-    JML $@ItemUseStub
-}
-
------------------------------------------------
-
 sg4C_slot4_interact {
     COP [BranchIfHasItem] ( #0E, &sg4C_slot4_use )
     COP [PrintDialogString] ( &sg4C_interact_str )
@@ -118,14 +106,13 @@ sg4C_slot4_use {
 
 -----------------------------------------------
 
-  loc_03904A!:
+sg4C_interact_str `[DEF]There is an indentation[N]in this tile.[END]`
+
+
+-----------------------------------------------
+
+loc_03904A! {
     COP [PrintDialogString] ( &dialogstring_039083 )
-    LDA $inventoryEquippedType
-    CMP #$000E
-    BEQ use_crystal_remove_equipped
     COP [RemoveItem] ( #0E )
     RTS
-
-  use_crystal_remove_equipped:
-    JSR $&RemoveEquippedItem
-    RTS 
+}

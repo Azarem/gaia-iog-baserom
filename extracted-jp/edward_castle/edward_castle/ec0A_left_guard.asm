@@ -6,9 +6,9 @@ h_ec0A_left_guard [
   actor-def < #1D, #00, #10, {
 
   code_04BBA7:
-    COP [BranchIfFlagByte] ( #21, #01, &code_04BC0B )
-    COP [SetOnInteract] ( &code_04BC1D )
-    COP [BranchIfFlagByte] ( #3F, #01, &code_04BBBD )
+    COP [BranchOnFlagByte] ( #21, #01, &code_04BC0B )
+    COP [SetInteractHandler] ( &code_04BC1D )
+    COP [BranchOnFlagByte] ( #3F, #01, &code_04BBBD )
     LDA #$CFF0
     TSB $joypadMaskStd
 } >
@@ -21,7 +21,7 @@ code_04BBBD {
     COP [AnimLoop]
     COP [StageSpriteLoop] ( #1A, #08 )
     COP [AnimLoop]
-    COP [BranchIfFlagByte] ( #3F, #01, &code_04BBE3 )
+    COP [BranchOnFlagByte] ( #3F, #01, &code_04BBE3 )
     COP [PrintDialogString] ( &dialogstring_04BCC8 )
     COP [SetFlagByte] ( #3F )
     LDA #$CFF0
@@ -45,12 +45,12 @@ code_04BBE3 {
 }
 
 code_04BC0B {
-    COP [SetOnInteract] ( &code_04BC22 )
+    COP [SetInteractHandler] ( &code_04BC22 )
     COP [SetTilePos] ( #06, #27 )
-    COP [SolidHighHere]
+    COP [MarkSolidHere]
     COP [StageSpriteFrame] ( #1A )
     COP [AnimOnce]
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     RTL 
 }
 

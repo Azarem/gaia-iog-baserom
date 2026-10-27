@@ -6,11 +6,11 @@ h_ec10_dp_hint_spirit [
   code_04D67F:
     LDA #$0200
     TSB $12
-    COP [SetOnInteract] ( &code_04D69A )
+    COP [SetInteractHandler] ( &code_04D69A )
     COP [SetMetasprite] ( @sprite_set_list_0EDA00 )
     COP [StageSprAndHitbox] ( #04 )
-    COP [SolidHighHere]
-    COP [SetEntryContinue]
+    COP [MarkSolidHere]
+    COP [SetEntryHere]
     COP [StageSpriteFrame] ( #04 )
     COP [AnimOnce]
     RTL 

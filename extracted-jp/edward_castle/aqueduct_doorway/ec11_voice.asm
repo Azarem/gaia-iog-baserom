@@ -20,7 +20,7 @@ h_ec11_voice [
     COP [SetMetasprite] ( @table_0EE000 )
     COP [StageSpriteFrame] ( #0F )
     COP [AnimOnce]
-    COP [SolidHighHere]
+    COP [MarkSolidHere]
 
   loc_04F73D:
     LDA #$00FF
@@ -30,7 +30,7 @@ h_ec11_voice [
     COP [SetHitCallback] ( &code_04F752 )
     COP [StageSpriteFrame] ( #0F )
     COP [AnimOnce]
-    COP [SetEntryExitNow] ( @code_04F744 )
+    COP [JumpNextFrame] ( @code_04F744 )
 } >
 ]
 
@@ -57,7 +57,7 @@ actor_def_04F768 [
     COP [SetMetasprite] ( @table_0EE000 )
     COP [StageSpriteFrame] ( #0F )
     COP [AnimOnce]
-    COP [SolidHighHere]
+    COP [MarkSolidHere]
 
   code_04F783:
     LDA #$00FF
@@ -65,7 +65,7 @@ actor_def_04F768 [
     COP [SetHitCallback] ( &code_04F796 )
     COP [StageSpriteFrame] ( #0F )
     COP [AnimOnce]
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     RTL 
 } >
 ]
@@ -73,9 +73,9 @@ actor_def_04F768 [
 code_04F796 {
     LDA #$0200
     TSB $10
-    COP [BranchIfFlagWord] ( #$0113, #01, &code_04F7BC )
-    COP [BranchIfFlagByte] ( #02, #00, &code_04F7BC )
-    COP [BranchIfFlagByte] ( #01, #01, &code_04F7D0 )
+    COP [BranchOnFlagWord] ( #$0113, #01, &code_04F7BC )
+    COP [BranchOnFlagByte] ( #02, #00, &code_04F7BC )
+    COP [BranchOnFlagByte] ( #01, #01, &code_04F7D0 )
     COP [StageSpriteFrame] ( #11 )
     COP [AnimOnce]
     COP [PrintDialogString] ( &dialogstring_04F7EF )
@@ -92,7 +92,7 @@ code_04F7BC {
     COP [AnimOnce]
     LDA #$0200
     TRB $10
-    COP [SetEntryExitNow] ( @code_04F783 )
+    COP [JumpNextFrame] ( @code_04F783 )
 }
 
 code_04F7D0 {
@@ -105,11 +105,11 @@ code_04F7D0 {
     COP [PlaySoundBoth] ( #$0F0F )
     COP [PrintDialogString] ( &dialogstring_04F819 )
     COP [PlaySoundCh1] ( #16 )
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     RTL 
 }
 
-dialogstring_04F7EF `[DEF][TPL:2]ちょっとぉ![N]同時に おさなきゃ ダメだって[N]言ったでしょ![FIN][JMP:&ec11_voice.dialogstring_04F8FC+M]`
+dialogstring_04F7EF `[DEF][TPL:2]ちょっとぉ![N]同時に おさなきゃ ダメだって[N]言ったでしょ![FIN][JMP:&dialogstring_04F8FC+M]`
 
 dialogstring_04F819 `[PAU:1E][DEF][TPL:2]やったぁ![N]トビラが 開いたわよっ![FIN]さあ 先へ 行って![END]`
 
@@ -117,9 +117,9 @@ actor_def_04F841 [
   actor-def < #00, #00, #23, {
 
   code_04F844:
-    COP [BranchIfFlagWord] ( #$0113, #01, &code_04F8F9 )
-    COP [ExitIfFlagByte] ( #02, #01 )
-    COP [SetEntryContinue]
+    COP [BranchOnFlagWord] ( #$0113, #01, &code_04F8F9 )
+    COP [WaitOnFlagByte] ( #02, #01 )
+    COP [SetEntryHere]
     COP [BranchIfPlayerNear] ( #03, &code_04F857 )
     RTL 
 } >
@@ -136,43 +136,43 @@ code_04F857 {
     TRB $joypadMaskStd
 
   code_04F870:
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     LDA #$2200
     STA $0E
-    COP [LoopInit] ( #78 )
-    COP [BranchIfFlagByte] ( #03, #01, &code_04F8F3 )
-    COP [LoopNext]
+    COP [LoopStart] ( #78 )
+    COP [BranchOnFlagByte] ( #03, #01, &code_04F8F3 )
+    COP [LoopEnd]
     COP [PlaySoundCh1] ( #10 )
-    COP [LoopInit] ( #3C )
-    COP [BranchIfFlagByte] ( #03, #01, &code_04F8F3 )
+    COP [LoopStart] ( #3C )
+    COP [BranchOnFlagByte] ( #03, #01, &code_04F8F3 )
     JSR $&code_04F977
     LDA #$0001
     STA $0000
     JSL $@chunk_3B7DD.code_03B7ED
-    COP [LoopNext]
-    COP [LoopInit] ( #78 )
-    COP [BranchIfFlagByte] ( #03, #01, &code_04F8F3 )
-    COP [LoopNext]
+    COP [LoopEnd]
+    COP [LoopStart] ( #78 )
+    COP [BranchOnFlagByte] ( #03, #01, &code_04F8F3 )
+    COP [LoopEnd]
     COP [PlaySoundCh1] ( #10 )
-    COP [LoopInit] ( #3C )
-    COP [BranchIfFlagByte] ( #03, #01, &code_04F8F3 )
+    COP [LoopStart] ( #3C )
+    COP [BranchOnFlagByte] ( #03, #01, &code_04F8F3 )
     JSR $&code_04F977
     LDA #$0002
     STA $0000
     JSL $@chunk_3B7DD.code_03B7ED
-    COP [LoopNext]
-    COP [LoopInit] ( #63 )
-    COP [BranchIfFlagByte] ( #03, #01, &code_04F8F3 )
-    COP [LoopNext]
+    COP [LoopEnd]
+    COP [LoopStart] ( #63 )
+    COP [BranchOnFlagByte] ( #03, #01, &code_04F8F3 )
+    COP [LoopEnd]
     COP [SetFlagByte] ( #01 )
     COP [PlaySoundCh1] ( #11 )
-    COP [LoopInit] ( #28 )
-    COP [BranchIfFlagByte] ( #02, #00, &code_04F8F9 )
+    COP [LoopStart] ( #28 )
+    COP [BranchOnFlagByte] ( #02, #00, &code_04F8F9 )
     JSR $&code_04F977
     LDA #$0003
     STA $0000
     JSL $@chunk_3B7DD.code_03B7ED
-    COP [LoopNext]
+    COP [LoopEnd]
     COP [ClearFlagByte] ( #01 )
     COP [PrintDialogString] ( &dialogstring_04F7EF )
 }
@@ -183,7 +183,7 @@ code_04F8F3 {
 }
 
 code_04F8F9 {
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     RTL 
 }
 

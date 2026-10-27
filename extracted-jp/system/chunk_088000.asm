@@ -8,10 +8,15 @@
 ?INCLUDE 'scene_warps'
 ?INCLUDE 'table_0EE000'
 
+!frameCounter                   0036
 !sceneNext                      0642
 !sceneCurrent                   0644
 !gfxCacheIdxA                   0648
 !gfxCacheIdxB                   064A
+!warpDestX                      064C
+!warpDestY                      064E
+!warpFacing                     0650
+!warpScrollParams               0652
 !joypadMaskStd                  065A
 !mapBoundsX                     0692
 !cameraBoundsX                  06DA
@@ -25,6 +30,7 @@
 !decelStepCounter               09B8
 !slopeCurvePtrB                 09BC
 !abilityBitmask                 0AA2
+!globalScriptIndex              0AAC
 !jewelsCollected                0AB0
 !inventorySlots                 0AB4
 !playerMaxHp                    0ACA
@@ -32,7 +38,8 @@
 !characterForm                  0AD4
 !playerDef                      0ADC
 !playerStr                      0ADE
-!damageFlashTimer               0B22
+!sourceSceneId                  0B12
+!hpToHeal                       0B22
 !TM                             212C
 !CGADSUB                        2131
 !COLDATA                        2132
@@ -61,9 +68,9 @@ actor_def_088000 [
     COP [SetMetasprite] ( @sprite_set_list_0EDA00 )
     COP [StageSpriteFrame] ( #02 )
     COP [AnimOnce]
-    COP [SolidHighHere]
-    COP [SetOnInteract] ( &code_08801B )
-    COP [SetEntryContinue]
+    COP [MarkSolidHere]
+    COP [SetInteractHandler] ( &code_08801B )
+    COP [SetEntryHere]
     RTL 
 } >
 ]
@@ -81,13 +88,13 @@ actor_def_08804D [
   code_088050:
     LDA #$0220
     STA $cameraBoundsY
-    COP [BranchIfFlagByte] ( #B6, #01, &code_0880CA )
-    COP [BranchIfFlagByte] ( #CF, #01, &code_0880CA )
-    COP [BranchIfFlagByte] ( #B2, #01, &code_0881B4 )
-    COP [BranchIfFlagByte] ( #AF, #01, &code_088148 )
-    COP [BranchIfFlagByte] ( #B0, #01, &code_0880CC )
-    COP [BranchIfFlagByte] ( #AD, #01, &code_0880CA )
-    COP [BranchIfFlagByte] ( #AC, #01, &code_0880AE )
+    COP [BranchOnFlagByte] ( #B6, #01, &code_0880CA )
+    COP [BranchOnFlagByte] ( #CF, #01, &code_0880CA )
+    COP [BranchOnFlagByte] ( #B2, #01, &code_0881B4 )
+    COP [BranchOnFlagByte] ( #AF, #01, &code_088148 )
+    COP [BranchOnFlagByte] ( #B0, #01, &code_0880CC )
+    COP [BranchOnFlagByte] ( #AD, #01, &code_0880CA )
+    COP [BranchOnFlagByte] ( #AC, #01, &code_0880AE )
     LDA #$CFF0
     TSB $joypadMaskStd
     COP [WaitByte] ( #1D )
@@ -109,10 +116,10 @@ code_0880AE {
     COP [SetTilePos] ( #0B, #0E )
     COP [StageSpriteFrame] ( #0B )
     COP [AnimOnce]
-    COP [SolidHighHere]
-    COP [SetOnInteract] ( &code_0881C6 )
-    COP [ExitIfFlagByte] ( #AD, #01 )
-    COP [ClearLowHere]
+    COP [MarkSolidHere]
+    COP [SetInteractHandler] ( &code_0881C6 )
+    COP [WaitOnFlagByte] ( #AD, #01 )
+    COP [ClearSolidHere]
     COP [StageSpriteLoopMoveY] ( #0F, #03, #02 )
     COP [AnimLoop]
 }
@@ -136,22 +143,22 @@ code_0880CC {
     COP [SpawnAfterAbsFlags] ( @code_0889D0, #$0158, #$0040, #$1000 )
     COP [SpawnAfterAbsFlags] ( @code_088A00, #$0018, #$00C0, #$1000 )
     COP [SpawnAfterAbsFlags] ( @code_088A1F, #$00B8, #$0180, #$1000 )
-    COP [ExitIfFlagByte] ( #01, #01 )
+    COP [WaitOnFlagByte] ( #01, #01 )
     COP [PrintDialogString] ( &dialogstring_0882E0 )
-    COP [LoopInit] ( #02 )
+    COP [LoopStart] ( #02 )
     COP [WaitByte] ( #27 )
     COP [PlaySoundBoth] ( #$0505 )
-    COP [LoopNext]
+    COP [LoopEnd]
     COP [WaitByte] ( #27 )
-    COP [LoopInit] ( #04 )
+    COP [LoopStart] ( #04 )
     COP [PlaySoundBoth] ( #$0505 )
     COP [WaitByte] ( #18 )
-    COP [LoopNext]
+    COP [LoopEnd]
     LDA #$0404
     STA $gfxCacheIdxB
     COP [QueueMapChange] ( #AC, #$0080, #$00F0, #03, #$2200 )
     COP [SetFlagByte] ( #AF )
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     RTL 
 }
 
@@ -162,34 +169,34 @@ code_088148 {
     COP [SetTilePos] ( #06, #10 )
     COP [StageSpriteFrame] ( #2E )
     COP [AnimOnce]
-    COP [SolidHighHere]
+    COP [MarkSolidHere]
     COP [WaitByte] ( #1D )
     COP [PrintDialogString] ( &dialogstring_088367 )
     COP [SetFlagByte] ( #01 )
-    COP [ExitIfFlagByte] ( #02, #01 )
+    COP [WaitOnFlagByte] ( #02, #01 )
     COP [PrintDialogString] ( &dialogstring_08876A )
     COP [ClearFlagByte] ( #02 )
-    COP [ExitIfFlagByte] ( #03, #01 )
+    COP [WaitOnFlagByte] ( #03, #01 )
     COP [PrintDialogString] ( &dialogstring_0887B1 )
     COP [ClearFlagByte] ( #03 )
-    COP [ExitIfFlagByte] ( #05, #01 )
+    COP [WaitOnFlagByte] ( #05, #01 )
     COP [SpawnAfterFlags] ( @code_0881A4, #$1002 )
     COP [StageSpriteFrame] ( #0A )
     COP [AnimOnce]
-    COP [SetOnInteract] ( &code_0881D3 )
-    COP [SetEntryContinue]
+    COP [SetInteractHandler] ( &code_0881D3 )
+    COP [SetEntryHere]
     RTL 
 }
 
 code_08819B {
     COP [StageSpriteFrame] ( #30 )
     COP [AnimOnce]
-    COP [ExitIfFlagByte] ( #05, #01 )
+    COP [WaitOnFlagByte] ( #05, #01 )
 }
 
 code_0881A4 {
     COP [SetMetasprite] ( @table_0EE000 )
-    COP [AddPosition] ( #00, #F6 )
+    COP [NudgePosition] ( #00, #F6 )
     COP [StageSpriteFrame] ( #07 )
     COP [AnimOnce]
     COP [Die]
@@ -199,9 +206,9 @@ code_0881B4 {
     COP [SetTilePos] ( #12, #0C )
     COP [StageSpriteFrame] ( #0C )
     COP [AnimOnce]
-    COP [SolidHighHere]
-    COP [SetOnInteract] ( &code_0881CE )
-    COP [SetEntryContinue]
+    COP [MarkSolidHere]
+    COP [SetInteractHandler] ( &code_0881CE )
+    COP [SetEntryHere]
     RTL 
 }
 
@@ -239,13 +246,13 @@ actor_def_0884F2 [
   actor-def < #04, #00, #10, {
 
   code_0884F5:
-    COP [BranchIfFlagByte] ( #B6, #01, &code_08854D )
-    COP [BranchIfFlagByte] ( #CF, #01, &code_08854D )
-    COP [BranchIfFlagByte] ( #B2, #01, &code_088571 )
-    COP [BranchIfFlagByte] ( #AF, #01, &code_08854F )
-    COP [BranchIfFlagByte] ( #AD, #01, &code_08854D )
-    COP [BranchIfFlagByte] ( #AC, #01, &code_088535 )
-    COP [ExitIfFlagByte] ( #AC, #01 )
+    COP [BranchOnFlagByte] ( #B6, #01, &code_08854D )
+    COP [BranchOnFlagByte] ( #CF, #01, &code_08854D )
+    COP [BranchOnFlagByte] ( #B2, #01, &code_088571 )
+    COP [BranchOnFlagByte] ( #AF, #01, &code_08854F )
+    COP [BranchOnFlagByte] ( #AD, #01, &code_08854D )
+    COP [BranchOnFlagByte] ( #AC, #01, &code_088535 )
+    COP [WaitOnFlagByte] ( #AC, #01 )
     COP [WaitByte] ( #1F )
     COP [StageSpriteLoopMoveXY] ( #08, #08, #02, #14 )
     COP [AnimLoop]
@@ -260,9 +267,9 @@ code_088535 {
     COP [SetTilePos] ( #0B, #11 )
     COP [StageSpriteFrame] ( #03 )
     COP [AnimOnce]
-    COP [SolidHighHere]
-    COP [ExitIfFlagByte] ( #AD, #01 )
-    COP [ClearLowHere]
+    COP [MarkSolidHere]
+    COP [WaitOnFlagByte] ( #AD, #01 )
+    COP [ClearSolidHere]
     COP [StageSpriteLoopMoveY] ( #07, #05, #02 )
     COP [AnimLoop]
 }
@@ -275,13 +282,13 @@ code_08854F {
     COP [SetTilePos] ( #0A, #10 )
     COP [StageSpriteFrame] ( #2F )
     COP [AnimOnce]
-    COP [SolidHighHere]
-    COP [ExitIfFlagByte] ( #05, #01 )
+    COP [MarkSolidHere]
+    COP [WaitOnFlagByte] ( #05, #01 )
     COP [SpawnAfterFlags] ( @code_0881A4, #$1002 )
     COP [StageSpriteFrame] ( #02 )
     COP [AnimOnce]
-    COP [SetOnInteract] ( &code_088583 )
-    COP [SetEntryContinue]
+    COP [SetInteractHandler] ( &code_088583 )
+    COP [SetEntryHere]
     RTL 
 }
 
@@ -289,9 +296,9 @@ code_088571 {
     COP [SetTilePos] ( #12, #0B )
     COP [StageSpriteFrame] ( #04 )
     COP [AnimOnce]
-    COP [SolidHighHere]
-    COP [SetOnInteract] ( &code_088583 )
-    COP [SetEntryContinue]
+    COP [MarkSolidHere]
+    COP [SetInteractHandler] ( &code_088583 )
+    COP [SetEntryHere]
     RTL 
 }
 
@@ -308,13 +315,13 @@ actor_def_0885FD [
   code_088600:
     LDA #$0200
     TSB $12
-    COP [BranchIfFlagByte] ( #B6, #01, &code_088661 )
-    COP [BranchIfFlagByte] ( #CF, #01, &code_088661 )
-    COP [BranchIfFlagByte] ( #B2, #01, &code_0886E2 )
-    COP [BranchIfFlagByte] ( #AF, #01, &code_088663 )
-    COP [BranchIfFlagByte] ( #AD, #01, &code_088661 )
-    COP [BranchIfFlagByte] ( #AC, #01, &code_088649 )
-    COP [ExitIfFlagByte] ( #AC, #01 )
+    COP [BranchOnFlagByte] ( #B6, #01, &code_088661 )
+    COP [BranchOnFlagByte] ( #CF, #01, &code_088661 )
+    COP [BranchOnFlagByte] ( #B2, #01, &code_0886E2 )
+    COP [BranchOnFlagByte] ( #AF, #01, &code_088663 )
+    COP [BranchOnFlagByte] ( #AD, #01, &code_088661 )
+    COP [BranchOnFlagByte] ( #AC, #01, &code_088649 )
+    COP [WaitOnFlagByte] ( #AC, #01 )
     COP [StageSpriteMoveY] ( #17, #12 )
     COP [AnimOnce]
     COP [StageSpriteLoopMoveXY] ( #18, #10, #02, #14 )
@@ -330,9 +337,9 @@ code_088649 {
     COP [SetTilePos] ( #0B, #0F )
     COP [StageSpriteFrame] ( #13 )
     COP [AnimOnce]
-    COP [SolidHighHere]
-    COP [ExitIfFlagByte] ( #AD, #01 )
-    COP [ClearLowHere]
+    COP [MarkSolidHere]
+    COP [WaitOnFlagByte] ( #AD, #01 )
+    COP [ClearSolidHere]
     COP [StageSpriteLoopMoveY] ( #17, #07, #02 )
     COP [AnimLoop]
 }
@@ -348,7 +355,7 @@ code_088663 {
     COP [SetTilePos] ( #0B, #12 )
     COP [StageSpriteFrame] ( #14 )
     COP [AnimOnce]
-    COP [ExitIfFlagByte] ( #01, #01 )
+    COP [WaitOnFlagByte] ( #01, #01 )
     COP [WaitByte] ( #3B )
     COP [StageSpriteLoopMoveX] ( #18, #0A, #12 )
     COP [AnimLoop]
@@ -357,7 +364,7 @@ code_088663 {
     COP [StageSpriteFrame] ( #13 )
     COP [AnimOnce]
     COP [SetFlagByte] ( #02 )
-    COP [ExitIfFlagByte] ( #02, #00 )
+    COP [WaitOnFlagByte] ( #02, #00 )
     COP [WaitByte] ( #3B )
     COP [StageSpriteLoopMoveY] ( #16, #02, #01 )
     COP [AnimLoop]
@@ -371,7 +378,7 @@ code_088663 {
     COP [AnimLoop]
     COP [StageSpriteFrame] ( #AD )
     COP [AnimOnce]
-    COP [ExitIfFlagByte] ( #03, #00 )
+    COP [WaitOnFlagByte] ( #03, #00 )
     LDA #$0800
     TRB $10
     COP [StartMusic] ( #11 )
@@ -379,8 +386,8 @@ code_088663 {
     COP [PrintDialogString] ( &dialogstring_088802 )
     COP [WaitByte] ( #3B )
     COP [SpawnAfterFlags] ( @code_0886F9, #$1002 )
-    COP [SetOnInteract] ( &code_0886F4 )
-    COP [SetEntryContinue]
+    COP [SetInteractHandler] ( &code_0886F4 )
+    COP [SetEntryHere]
     RTL 
 }
 
@@ -388,9 +395,9 @@ code_0886E2 {
     COP [SetTilePos] ( #08, #13 )
     COP [StageSpriteFrame] ( #AD )
     COP [AnimOnce]
-    COP [SolidHighHere]
-    COP [SetOnInteract] ( &code_0886F4 )
-    COP [SetEntryContinue]
+    COP [MarkSolidHere]
+    COP [SetInteractHandler] ( &code_0886F4 )
+    COP [SetEntryHere]
     RTL 
 }
 
@@ -420,7 +427,7 @@ code_0886F9 {
     TSB $10
 
   loc_088733:
-    COP [BranchIfFlagByte] ( #05, #01, &code_088740 )
+    COP [BranchOnFlagByte] ( #05, #01, &code_088740 )
     COP [StageSpriteFrame] ( #2A )
     COP [AnimOnce]
     BRA loc_088733
@@ -502,9 +509,9 @@ actor_def_088A37 [
   actor-def < #0B, #00, #10, {
 
   code_088A3A:
-    COP [BranchIfFlagByte] ( #B2, #01, &code_088A88 )
-    COP [BranchIfFlagByte] ( #AE, #01, &code_088A76 )
-    COP [BranchIfFlagByte] ( #AD, #00, &code_088A88 )
+    COP [BranchOnFlagByte] ( #B2, #01, &code_088A88 )
+    COP [BranchOnFlagByte] ( #AE, #01, &code_088A76 )
+    COP [BranchOnFlagByte] ( #AD, #00, &code_088A88 )
     LDY $decelStepCounter
     LDA $0014, Y
     CLC 
@@ -526,9 +533,9 @@ code_088A76 {
     COP [SetTilePos] ( #07, #08 )
     COP [StageSpriteFrame] ( #0A )
     COP [AnimOnce]
-    COP [SetOnInteract] ( &code_088A8A )
-    COP [SolidHighHere]
-    COP [SetEntryContinue]
+    COP [SetInteractHandler] ( &code_088A8A )
+    COP [MarkSolidHere]
+    COP [SetEntryHere]
     RTL 
 }
 
@@ -553,11 +560,11 @@ actor_def_088B15 [
   actor-def < #03, #00, #10, {
 
   code_088B18:
-    COP [BranchIfFlagByte] ( #B2, #01, &code_088B47 )
-    COP [BranchIfFlagByte] ( #AE, #01, &code_088B39 )
-    COP [BranchIfFlagByte] ( #AD, #00, &code_088B47 )
-    COP [SetOnInteract] ( &code_088B49 )
-    COP [ExitIfFlagByte] ( #AE, #01 )
+    COP [BranchOnFlagByte] ( #B2, #01, &code_088B47 )
+    COP [BranchOnFlagByte] ( #AE, #01, &code_088B39 )
+    COP [BranchOnFlagByte] ( #AD, #00, &code_088B47 )
+    COP [SetInteractHandler] ( &code_088B49 )
+    COP [WaitOnFlagByte] ( #AE, #01 )
     COP [StageSpriteLoopMoveY] ( #07, #04, #12 )
     COP [AnimLoop]
 } >
@@ -567,8 +574,8 @@ code_088B39 {
     COP [SetTilePos] ( #07, #0A )
     COP [StageSpriteFrame] ( #03 )
     COP [AnimOnce]
-    COP [SolidHighHere]
-    COP [SetEntryContinue]
+    COP [MarkSolidHere]
+    COP [SetEntryHere]
     RTL 
 }
 
@@ -587,11 +594,11 @@ actor_def_088B86 [
   actor-def < #13, #00, #10, {
 
   code_088B89:
-    COP [BranchIfFlagByte] ( #B2, #01, &code_088BB8 )
-    COP [BranchIfFlagByte] ( #AE, #01, &code_088BAA )
-    COP [BranchIfFlagByte] ( #AD, #00, &code_088BB8 )
-    COP [SetOnInteract] ( &code_088BBA )
-    COP [ExitIfFlagByte] ( #AE, #01 )
+    COP [BranchOnFlagByte] ( #B2, #01, &code_088BB8 )
+    COP [BranchOnFlagByte] ( #AE, #01, &code_088BAA )
+    COP [BranchOnFlagByte] ( #AD, #00, &code_088BB8 )
+    COP [SetInteractHandler] ( &code_088BBA )
+    COP [WaitOnFlagByte] ( #AE, #01 )
     COP [StageSpriteLoopMoveY] ( #17, #0C, #12 )
     COP [AnimLoop]
 } >
@@ -601,8 +608,8 @@ code_088BAA {
     COP [SetTilePos] ( #08, #08 )
     COP [StageSpriteFrame] ( #12 )
     COP [AnimOnce]
-    COP [SolidHighHere]
-    COP [SetEntryContinue]
+    COP [MarkSolidHere]
+    COP [SetEntryHere]
     RTL 
 }
 
@@ -621,13 +628,13 @@ actor_def_088BC9 [
   actor-def < #31, #00, #18, {
 
   code_088BCC:
-    COP [BranchIfFlagByte] ( #AF, #00, &code_088BE3 )
+    COP [BranchOnFlagByte] ( #AF, #00, &code_088BE3 )
     LDA #$1000
     TSB $12
     COP [StageSprAndHitbox] ( #31 )
-    COP [SolidHighHere]
-    COP [SetEntryContinue]
-    COP [SetEntryContinue]
+    COP [MarkSolidHere]
+    COP [SetEntryHere]
+    COP [SetEntryHere]
     COP [AnimOnce]
     RTL 
 } >
@@ -641,13 +648,13 @@ actor_def_088BE5 [
   actor-def < #1D, #00, #18, {
 
   code_088BE8:
-    COP [BranchIfFlagByte] ( #AF, #00, &code_088C3C )
+    COP [BranchOnFlagByte] ( #AF, #00, &code_088C3C )
     LDA #$1000
     TSB $12
-    COP [SetOnInteract] ( &code_088C3E )
+    COP [SetInteractHandler] ( &code_088C3E )
 
   loc_088BF7:
-    COP [BranchIfFlagByte] ( #03, #01, &code_088C17 )
+    COP [BranchOnFlagByte] ( #03, #01, &code_088C17 )
     COP [StageSpriteMoveX] ( #21, #01 )
     COP [AnimOnce]
     COP [StageSpriteMoveY] ( #1E, #01 )
@@ -667,13 +674,13 @@ code_088C17 {
     COP [AnimOnce]
     COP [StageSpriteFrame] ( #1D )
     COP [AnimOnce]
-    COP [ExitIfFlagByte] ( #04, #01 )
+    COP [WaitOnFlagByte] ( #04, #01 )
     COP [StageSpriteMoveX] ( #21, #04 )
     COP [AnimOnce]
     COP [StageSpriteFrame] ( #1D )
     COP [AnimOnce]
-    COP [SolidHighHere]
-    COP [SetEntryContinue]
+    COP [MarkSolidHere]
+    COP [SetEntryHere]
     RTL 
 }
 
@@ -712,13 +719,13 @@ actor_def_088CC9 [
   actor-def < #1C, #00, #18, {
 
   code_088CCC:
-    COP [BranchIfFlagByte] ( #AF, #00, &code_088D20 )
+    COP [BranchOnFlagByte] ( #AF, #00, &code_088D20 )
     LDA #$1000
     TSB $12
-    COP [SetOnInteract] ( &code_088D22 )
+    COP [SetInteractHandler] ( &code_088D22 )
 
   loc_088CDB:
-    COP [BranchIfFlagByte] ( #03, #01, &code_088CFB )
+    COP [BranchOnFlagByte] ( #03, #01, &code_088CFB )
     COP [StageSpriteMoveX] ( #20, #02 )
     COP [AnimOnce]
     COP [StageSpriteMoveY] ( #1F, #02 )
@@ -740,13 +747,13 @@ code_088CFB {
 
   code_088D0A:
     COP [AnimOnce]
-    COP [ExitIfFlagByte] ( #04, #01 )
+    COP [WaitOnFlagByte] ( #04, #01 )
     COP [StageSpriteMoveY] ( #1F, #03 )
     COP [AnimOnce]
     COP [StageSpriteFrame] ( #1B )
     COP [AnimOnce]
-    COP [SolidHighHere]
-    COP [SetEntryContinue]
+    COP [MarkSolidHere]
+    COP [SetEntryHere]
     RTL 
 }
 
@@ -785,24 +792,24 @@ actor_def_088DCF [
   actor-def < #1D, #00, #18, {
 
   code_088DD2:
-    COP [BranchIfFlagByte] ( #AF, #00, &code_088E09 )
-    COP [SolidHighHere]
-    COP [SetOnInteract] ( &code_088E0B )
-    COP [ExitIfFlagByte] ( #03, #01 )
-    COP [ClearLowHere]
+    COP [BranchOnFlagByte] ( #AF, #00, &code_088E09 )
+    COP [MarkSolidHere]
+    COP [SetInteractHandler] ( &code_088E0B )
+    COP [WaitOnFlagByte] ( #03, #01 )
+    COP [ClearSolidHere]
     COP [StageSpriteMoveY] ( #1E, #11 )
     COP [AnimOnce]
     COP [StageSpriteMoveX] ( #21, #01 )
     COP [AnimOnce]
     COP [StageSpriteFrame] ( #1D )
     COP [AnimOnce]
-    COP [ExitIfFlagByte] ( #04, #01 )
+    COP [WaitOnFlagByte] ( #04, #01 )
     COP [StageSpriteMoveX] ( #21, #04 )
     COP [AnimOnce]
     COP [StageSpriteFrame] ( #1D )
     COP [AnimOnce]
-    COP [SolidHighHere]
-    COP [SetEntryContinue]
+    COP [MarkSolidHere]
+    COP [SetEntryHere]
     RTL 
 } >
 ]
@@ -842,24 +849,24 @@ actor_def_088EBD [
   actor-def < #24, #00, #18, {
 
   code_088EC0:
-    COP [BranchIfFlagByte] ( #AF, #00, &code_088EF7 )
-    COP [SetOnInteract] ( &code_088EF9 )
-    COP [SolidHighHere]
-    COP [ExitIfFlagByte] ( #03, #01 )
-    COP [ClearLowHere]
+    COP [BranchOnFlagByte] ( #AF, #00, &code_088EF7 )
+    COP [SetInteractHandler] ( &code_088EF9 )
+    COP [MarkSolidHere]
+    COP [WaitOnFlagByte] ( #03, #01 )
+    COP [ClearSolidHere]
     COP [StageSpriteMoveY] ( #26, #11 )
     COP [AnimOnce]
     COP [StageSpriteMoveX] ( #28, #02 )
     COP [AnimOnce]
     COP [StageSpriteFrame] ( #24 )
     COP [AnimOnce]
-    COP [ExitIfFlagByte] ( #04, #01 )
+    COP [WaitOnFlagByte] ( #04, #01 )
     COP [StageSpriteMoveX] ( #28, #03 )
     COP [AnimOnce]
     COP [StageSpriteFrame] ( #24 )
     COP [AnimOnce]
-    COP [SolidHighHere]
-    COP [SetEntryContinue]
+    COP [MarkSolidHere]
+    COP [SetEntryHere]
     RTL 
 } >
 ]
@@ -900,31 +907,31 @@ actor_def_088FB0 [
   actor-def < #24, #00, #18, {
 
   code_088FB3:
-    COP [BranchIfFlagByte] ( #AF, #00, &code_089028 )
-    COP [SetOnInteract] ( &code_08902A )
-    COP [SolidHighHere]
-    COP [BranchIfFlagByte] ( #B2, #01, &code_088FE7 )
-    COP [ExitIfFlagByte] ( #03, #01 )
-    COP [ClearLowHere]
+    COP [BranchOnFlagByte] ( #AF, #00, &code_089028 )
+    COP [SetInteractHandler] ( &code_08902A )
+    COP [MarkSolidHere]
+    COP [BranchOnFlagByte] ( #B2, #01, &code_088FE7 )
+    COP [WaitOnFlagByte] ( #03, #01 )
+    COP [ClearSolidHere]
     COP [StageSpriteMoveX] ( #28, #02 )
     COP [AnimOnce]
     COP [StageSpriteFrame] ( #24 )
     COP [AnimOnce]
-    COP [ExitIfFlagByte] ( #04, #01 )
+    COP [WaitOnFlagByte] ( #04, #01 )
     COP [StageSpriteMoveX] ( #28, #03 )
     COP [AnimOnce]
     COP [StageSpriteFrame] ( #24 )
     COP [AnimOnce]
-    COP [SolidHighHere]
+    COP [MarkSolidHere]
 } >
 ]
 
 code_088FE7 {
-    COP [ExitIfFlagByte] ( #06, #01 )
-    COP [SetOnInteract] ( #$0000 )
+    COP [WaitOnFlagByte] ( #06, #01 )
+    COP [SetInteractHandler] ( #$0000 )
     LDA #$0800
     TRB $10
-    COP [ClearLowHere]
+    COP [ClearSolidHere]
     LDA #$0148
     STA $moveXAlt, X
     LDA #$0120
@@ -935,11 +942,11 @@ code_088FE7 {
     LDA #$0140
     STA $moveYAlt, X
     COP [MoveToward] ( #29, #01 )
-    COP [SolidHighHere]
-    COP [SetOnInteract] ( &code_089047 )
+    COP [MarkSolidHere]
+    COP [SetInteractHandler] ( &code_089047 )
     LDA #$0200
     TSB $12
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     RTL 
 }
 
@@ -986,11 +993,11 @@ actor_def_08910D [
   actor-def < #1A, #00, #18, {
 
   code_089110:
-    COP [BranchIfFlagByte] ( #AF, #00, &code_089153 )
-    COP [SolidHighHere]
-    COP [SetOnInteract] ( &code_088D22 )
-    COP [ExitIfFlagByte] ( #03, #01 )
-    COP [ClearLowHere]
+    COP [BranchOnFlagByte] ( #AF, #00, &code_089153 )
+    COP [MarkSolidHere]
+    COP [SetInteractHandler] ( &code_088D22 )
+    COP [WaitOnFlagByte] ( #03, #01 )
+    COP [ClearSolidHere]
     COP [StageSpriteMoveX] ( #21, #11 )
     COP [AnimOnce]
     COP [StageSpriteMoveY] ( #1E, #01 )
@@ -1001,13 +1008,13 @@ actor_def_08910D [
     COP [AnimOnce]
     COP [StageSpriteFrame] ( #1A )
     COP [AnimOnce]
-    COP [ExitIfFlagByte] ( #04, #01 )
+    COP [WaitOnFlagByte] ( #04, #01 )
     COP [StageSpriteMoveY] ( #1E, #04 )
     COP [AnimOnce]
     COP [StageSpriteFrame] ( #1A )
     COP [AnimOnce]
-    COP [SolidHighHere]
-    COP [SetEntryContinue]
+    COP [MarkSolidHere]
+    COP [SetEntryHere]
     RTL 
 } >
 ]
@@ -1020,10 +1027,10 @@ actor_def_089155 [
   actor-def < #1A, #00, #18, {
 
   code_089158:
-    COP [BranchIfFlagByte] ( #AF, #00, &code_089167 )
-    COP [SolidHighHere]
-    COP [SetOnInteract] ( &code_088C3E )
-    COP [SetEntryContinue]
+    COP [BranchOnFlagByte] ( #AF, #00, &code_089167 )
+    COP [MarkSolidHere]
+    COP [SetInteractHandler] ( &code_088C3E )
+    COP [SetEntryHere]
     RTL 
 } >
 ]
@@ -1036,11 +1043,11 @@ actor_def_089169 [
   actor-def < #1A, #00, #18, {
 
   code_08916C:
-    COP [BranchIfFlagByte] ( #AF, #00, &code_088C3C )
-    COP [SolidHighHere]
-    COP [SetOnInteract] ( &code_088E0B )
-    COP [ExitIfFlagByte] ( #03, #01 )
-    COP [ClearLowHere]
+    COP [BranchOnFlagByte] ( #AF, #00, &code_088C3C )
+    COP [MarkSolidHere]
+    COP [SetInteractHandler] ( &code_088E0B )
+    COP [WaitOnFlagByte] ( #03, #01 )
+    COP [ClearSolidHere]
     COP [StageSpriteMoveX] ( #20, #12 )
     COP [AnimOnce]
     COP [StageSpriteMoveY] ( #1E, #01 )
@@ -1051,13 +1058,13 @@ actor_def_089169 [
     COP [AnimOnce]
     COP [StageSpriteFrame] ( #1A )
     COP [AnimOnce]
-    COP [ExitIfFlagByte] ( #04, #01 )
+    COP [WaitOnFlagByte] ( #04, #01 )
     COP [StageSpriteMoveY] ( #1E, #04 )
     COP [AnimOnce]
     COP [StageSpriteFrame] ( #1A )
     COP [AnimOnce]
-    COP [SolidHighHere]
-    COP [SetEntryContinue]
+    COP [MarkSolidHere]
+    COP [SetEntryHere]
     RTL 
 } >
 ]
@@ -1066,28 +1073,28 @@ actor_def_0891AF [
   actor-def < #36, #00, #10, {
 
   code_0891B2:
-    COP [SolidHighHere]
-    COP [BranchIfFlagByte] ( #BF, #01, &code_0891DB )
+    COP [MarkSolidHere]
+    COP [BranchOnFlagByte] ( #BF, #01, &code_0891DB )
     LDA #$0200
     TSB $12
-    COP [SetOnInteract] ( &code_0891E7 )
-    COP [ExitIfFlagByte] ( #BF, #01 )
-    COP [LoopInit] ( #1E )
+    COP [SetInteractHandler] ( &code_0891E7 )
+    COP [WaitOnFlagByte] ( #BF, #01 )
+    COP [LoopStart] ( #1E )
     COP [StageSpriteFrame] ( #36 )
     COP [AnimOnce]
     COP [StageSpriteFrame] ( #32 )
     COP [AnimOnce]
-    COP [LoopNext]
+    COP [LoopEnd]
     LDA #$0200
     TRB $12
 } >
 ]
 
 code_0891DB {
-    COP [SetOnInteract] ( &code_0891EC )
+    COP [SetInteractHandler] ( &code_0891EC )
     COP [StageSpriteFrame] ( #32 )
     COP [AnimOnce]
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     RTL 
 }
 
@@ -1111,28 +1118,28 @@ actor_def_08925D [
   actor-def < #36, #00, #10, {
 
   code_089260:
-    COP [SolidHighHere]
-    COP [BranchIfFlagByte] ( #C0, #01, &code_089289 )
+    COP [MarkSolidHere]
+    COP [BranchOnFlagByte] ( #C0, #01, &code_089289 )
     LDA #$0200
     TSB $12
-    COP [SetOnInteract] ( &code_089295 )
-    COP [ExitIfFlagByte] ( #C0, #01 )
-    COP [LoopInit] ( #1E )
+    COP [SetInteractHandler] ( &code_089295 )
+    COP [WaitOnFlagByte] ( #C0, #01 )
+    COP [LoopStart] ( #1E )
     COP [StageSpriteFrame] ( #36 )
     COP [AnimOnce]
     COP [StageSpriteFrame] ( #32 )
     COP [AnimOnce]
-    COP [LoopNext]
+    COP [LoopEnd]
     LDA #$0200
     TRB $12
 } >
 ]
 
 code_089289 {
-    COP [SetOnInteract] ( &code_08929A )
+    COP [SetInteractHandler] ( &code_08929A )
     COP [StageSpriteFrame] ( #32 )
     COP [AnimOnce]
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     RTL 
 }
 
@@ -1142,7 +1149,7 @@ code_089295 {
 }
 
 code_08929A {
-    COP [BranchIfFlagByte] ( #E6, #01, &code_0892B0 )
+    COP [BranchOnFlagByte] ( #E6, #01, &code_0892B0 )
     COP [PrintDialogString] ( &dialogstring_089321 )
     COP [GiveItem] ( #01, &code_0892AD )
     COP [SetFlagByte] ( #E6 )
@@ -1170,28 +1177,28 @@ actor_def_089365 [
   actor-def < #36, #00, #10, {
 
   code_089368:
-    COP [SolidHighHere]
-    COP [BranchIfFlagByte] ( #C1, #01, &code_089391 )
+    COP [MarkSolidHere]
+    COP [BranchOnFlagByte] ( #C1, #01, &code_089391 )
     LDA #$0200
     TSB $12
-    COP [SetOnInteract] ( &code_08939D )
-    COP [ExitIfFlagByte] ( #C1, #01 )
-    COP [LoopInit] ( #1E )
+    COP [SetInteractHandler] ( &code_08939D )
+    COP [WaitOnFlagByte] ( #C1, #01 )
+    COP [LoopStart] ( #1E )
     COP [StageSpriteFrame] ( #36 )
     COP [AnimOnce]
     COP [StageSpriteFrame] ( #32 )
     COP [AnimOnce]
-    COP [LoopNext]
+    COP [LoopEnd]
     LDA #$0200
     TRB $12
 } >
 ]
 
 code_089391 {
-    COP [SetOnInteract] ( &code_0893A2 )
+    COP [SetInteractHandler] ( &code_0893A2 )
     COP [StageSpriteFrame] ( #32 )
     COP [AnimOnce]
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     RTL 
 }
 
@@ -1215,11 +1222,11 @@ actor_def_089413 [
   actor-def < #0B, #00, #30, {
 
   code_089416:
-    COP [BranchIfFlagByte] ( #CF, #01, &code_089463 )
-    COP [BranchIfFlagByte] ( #B6, #01, &code_089461 )
-    COP [ExitIfFlagByte] ( #BF, #01 )
-    COP [ExitIfFlagByte] ( #C0, #01 )
-    COP [ExitIfFlagByte] ( #C1, #01 )
+    COP [BranchOnFlagByte] ( #CF, #01, &code_089463 )
+    COP [BranchOnFlagByte] ( #B6, #01, &code_089461 )
+    COP [WaitOnFlagByte] ( #BF, #01 )
+    COP [WaitOnFlagByte] ( #C0, #01 )
+    COP [WaitOnFlagByte] ( #C1, #01 )
     LDA #$CFF0
     TSB $joypadMaskStd
     COP [WaitByte] ( #3B )
@@ -1229,14 +1236,14 @@ actor_def_089413 [
     COP [AnimLoop]
     COP [StageSpriteFrame] ( #0B )
     COP [AnimOnce]
-    COP [SolidHighHere]
+    COP [MarkSolidHere]
     COP [WaitByte] ( #3B )
     COP [PrintDialogString] ( &dialogstring_0894BE )
     COP [SetFlagByte] ( #CF )
     LDA #$CFF0
     TRB $joypadMaskStd
-    COP [SetOnInteract] ( &code_08947A )
-    COP [SetEntryContinue]
+    COP [SetInteractHandler] ( &code_08947A )
+    COP [SetEntryHere]
     RTL 
 } >
 ]
@@ -1251,9 +1258,9 @@ code_089463 {
     COP [SetTilePos] ( #07, #0A )
     COP [StageSpriteFrame] ( #0B )
     COP [AnimOnce]
-    COP [SolidHighHere]
-    COP [SetOnInteract] ( &code_08947A )
-    COP [SetEntryContinue]
+    COP [MarkSolidHere]
+    COP [SetInteractHandler] ( &code_08947A )
+    COP [SetEntryHere]
     RTL 
 }
 
@@ -1300,11 +1307,11 @@ actor_def_0895F2 [
   actor-def < #03, #00, #30, {
 
   code_0895F5:
-    COP [BranchIfFlagByte] ( #CF, #01, &code_08961C )
-    COP [BranchIfFlagByte] ( #B6, #01, &code_089633 )
-    COP [ExitIfFlagByte] ( #BF, #01 )
-    COP [ExitIfFlagByte] ( #C0, #01 )
-    COP [ExitIfFlagByte] ( #C1, #01 )
+    COP [BranchOnFlagByte] ( #CF, #01, &code_08961C )
+    COP [BranchOnFlagByte] ( #B6, #01, &code_089633 )
+    COP [WaitOnFlagByte] ( #BF, #01 )
+    COP [WaitOnFlagByte] ( #C0, #01 )
+    COP [WaitOnFlagByte] ( #C1, #01 )
     COP [WaitByte] ( #59 )
     LDA #$2000
     TRB $10
@@ -1319,9 +1326,9 @@ code_08961C {
     TRB $10
     COP [StageSpriteFrame] ( #03 )
     COP [AnimOnce]
-    COP [SolidHighHere]
-    COP [SetOnInteract] ( &code_089635 )
-    COP [SetEntryContinue]
+    COP [MarkSolidHere]
+    COP [SetInteractHandler] ( &code_089635 )
+    COP [SetEntryHere]
     RTL 
 }
 
@@ -1340,10 +1347,10 @@ actor_def_08968A [
   actor-def < #00, #00, #28, {
 
   code_08968D:
-    COP [SetAnimScratch] ( @misc_fx_1CD380 )
+    COP [SetScratchPointer] ( @misc_fx_1CD380 )
     COP [SetMetasprite] ( @sprite_set_list_14C12C )
-    COP [ResetSpriteInit] ( #00, #$2020 )
-    COP [LoadSpriteAnimGlobal]
+    COP [ResetSpriteState] ( #00, #$2020 )
+    COP [AdvanceSpriteAnim]
     RTL 
 } >
 ]
@@ -1352,8 +1359,8 @@ actor_def_08969F [
   actor-def < #00, #00, #30, {
 
   code_0896A2:
-    COP [BranchIfFlagByte] ( #BE, #01, &code_0896C4 )
-    COP [BranchIfFlagByte] ( #B3, #01, &code_0896C4 )
+    COP [BranchOnFlagByte] ( #BE, #01, &code_0896C4 )
+    COP [BranchOnFlagByte] ( #B3, #01, &code_0896C4 )
     COP [SetFlagByte] ( #B3 )
     LDA #$CFF0
     TSB $joypadMaskStd
@@ -1425,10 +1432,10 @@ actor_def_08970A [
     COP #$F0
     ORA ($FF, X)
     SBC $230000, X
-    COP [ExitIfFlagWord] ( #$016B, #01 )
+    COP [WaitOnFlagWord] ( #$016B, #01 )
     LDA #$000A
     STA $0E
-    COP [JumpScript] ( @chunk_008000.code_00D2B3 )
+    COP [JumpFar] ( @chunk_008000.code_00D2B3 )
 } >
 ]
 
@@ -1436,10 +1443,10 @@ actor_def_089774 [
   actor-def < #00, #00, #23, {
 
   code_089777:
-    COP [ExitIfFlagWord] ( #$016B, #01 )
+    COP [WaitOnFlagWord] ( #$016B, #01 )
     LDA #$000A
     STA $0E
-    COP [JumpScript] ( @chunk_008000.code_00D2B3 )
+    COP [JumpFar] ( @chunk_008000.code_00D2B3 )
 } >
 ]
 
@@ -1447,18 +1454,18 @@ actor_def_089786 [
   actor-def < #00, #00, #30, {
 
   code_089789:
-    COP [BranchIfFlagWord] ( #$016E, #01, &code_0897D4 )
-    COP [SetEntryContinue]
+    COP [BranchOnFlagWord] ( #$016E, #01, &code_0897D4 )
+    COP [SetEntryHere]
     COP [BranchIfPlayerInAbsTiles] ( #6A, #0C, #6F, #0D, &code_08979B )
     RTL 
 } >
 ]
 
 code_08979B {
-    COP [LoopInit] ( #14 )
+    COP [LoopStart] ( #14 )
     LDA #$CFF0
     TSB $joypadMaskStd
-    COP [LoopNext]
+    COP [LoopEnd]
     COP [PlaySoundBoth] ( #$0F0F )
     COP [StageBgChange] ( #6E )
     COP [ApplyBgChange]
@@ -1507,7 +1514,7 @@ code_0897E3 {
     STA $002A, Y
     LDA #$0800
     TSB $slopeCurvePtrB
-    COP [BranchIfFlagByte] ( #B5, #01, &code_089834 )
+    COP [BranchOnFlagByte] ( #B5, #01, &code_089834 )
     COP [SetFlagByte] ( #B5 )
     SEP #$20
     LDA #$15
@@ -1522,8 +1529,8 @@ code_0897E3 {
 }
 
 code_089834 {
-    COP [SetEntryContinue]
-    COP [BranchIfButton] ( #$0F01, &code_08983D )
+    COP [SetEntryHere]
+    COP [BranchIfPressed] ( #$0F01, &code_08983D )
     RTL 
 }
 
@@ -1534,7 +1541,7 @@ code_08983D {
 }
 
 code_08984E {
-    LDA $0036
+    LDA $frameCounter
     AND #$0007
     BEQ loc_089857
     RTL 
@@ -1548,8 +1555,8 @@ actor_def_08985B [
   actor-def < #03, #00, #00, {
 
   code_08985E:
-    COP [AddPosition] ( #08, #00 )
-    COP [SetEntryContinue]
+    COP [NudgePosition] ( #08, #00 )
+    COP [SetEntryHere]
     COP [BranchIfPlayerInAbsTiles] ( #03, #10, #07, #18, &code_08986D )
     RTL 
 } >
@@ -1558,14 +1565,14 @@ actor_def_08985B [
 code_08986D {
     LDA #$0010
     TSB $10
-    COP [SolidHighAbs] ( #05, #0F )
-    COP [SolidHighAbs] ( #06, #0F )
+    COP [MarkSolidAbs] ( #05, #0F )
+    COP [MarkSolidAbs] ( #06, #0F )
     COP [SpawnAfterFlags] ( @code_089894, #$2000 )
     COP [StageSpriteMoveX] ( #85, #01 )
     COP [AnimOnce]
     COP [StageSpriteFrame] ( #07 )
     COP [AnimOnce]
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     COP [StageSpriteFrame] ( #08 )
     COP [AnimOnce]
     RTL 
@@ -1590,7 +1597,7 @@ actor_def_0898B5 [
   actor-def < #00, #00, #30, {
 
   code_0898B8:
-    COP [BranchIfFlagByte] ( #B7, #01, &code_0898D4 )
+    COP [BranchOnFlagByte] ( #B7, #01, &code_0898D4 )
     COP [SetFlagByte] ( #B7 )
     LDA #$CFF0
     TSB $joypadMaskStd
@@ -1602,14 +1609,14 @@ actor_def_0898B5 [
 ]
 
 code_0898D4 {
-    COP [BranchIfEquipped] ( #1C, &code_0898F4 )
+    COP [BranchIfItemEquipped] ( #1C, &code_0898F4 )
     COP [WaitByte] ( #13 )
 
   loc_0898DC:
     COP [SpawnThinker] ( @chunk_008000.code_00B879 )
     COP [WaitByte] ( #B3 )
-    COP [SetEntryContinue]
-    COP [BranchIfEquipped] ( #1C, &code_0898EC )
+    COP [SetEntryHere]
+    COP [BranchIfItemEquipped] ( #1C, &code_0898EC )
     RTL 
 }
 
@@ -1619,8 +1626,8 @@ code_0898EC {
 }
 
 code_0898F4 {
-    COP [SetEntryContinue]
-    COP [BranchIfEquipped] ( #1C, &code_0898FD )
+    COP [SetEntryHere]
+    COP [BranchIfItemEquipped] ( #1C, &code_0898FD )
     BRA loc_0898DC
 }
 
@@ -1634,18 +1641,18 @@ actor_def_08993B [
   actor-def < #00, #00, #10, {
 
   code_08993E:
-    COP [BranchIfFlagByte] ( #BE, #01, &code_089A04 )
+    COP [BranchOnFlagByte] ( #BE, #01, &code_089A04 )
     LDA #$0200
     TSB $12
     COP [SetMetasprite] ( @sprite_set_list_0EDA00 )
     COP [StageSprAndHitbox] ( #04 )
-    COP [SolidHighHere]
-    COP [SolidHighOffset] ( #01, #00 )
-    COP [SetOnInteract] ( &code_089A06 )
-    COP [AddPosition] ( #08, #00 )
-    COP [BranchIfFlagByte] ( #BD, #01, &code_08996C )
-    COP [SetEntryContinue]
-    COP [SetEntryContinue]
+    COP [MarkSolidHere]
+    COP [MarkSolidOffset] ( #01, #00 )
+    COP [SetInteractHandler] ( &code_089A06 )
+    COP [NudgePosition] ( #08, #00 )
+    COP [BranchOnFlagByte] ( #BD, #01, &code_08996C )
+    COP [SetEntryHere]
+    COP [SetEntryHere]
     COP [AnimOnce]
     RTL 
 } >
@@ -1664,8 +1671,8 @@ code_08996C {
     COP [WaitByte] ( #EF )
     LDA #$2000
     TSB $10
-    COP [ClearLowAbs] ( #0F, #0A )
-    COP [ClearLowAbs] ( #10, #0A )
+    COP [ClearSolidAbs] ( #0F, #0A )
+    COP [ClearSolidAbs] ( #10, #0A )
     COP [SpawnThinker] ( @chunk_008000.code_00B883 )
     COP [WaitByte] ( #EF )
     COP [PrintDialogString] ( &dialogstring_089C4D )
@@ -1680,13 +1687,13 @@ code_08996C {
   code_0899B7:
     LDA #$FFF0
     TRB $joypadMaskStd
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     RTL 
 }
 
 code_0899C0 {
-    COP [BranchIfNoItem] ( #01, &code_0899CA )
-    COP [BranchIfNoItem] ( #06, &code_0899ED )
+    COP [BranchIfHasItem] ( #01, &code_0899CA )
+    COP [BranchIfHasItem] ( #06, &code_0899ED )
 }
 
 code_0899CA {
@@ -1750,7 +1757,7 @@ actor_def_089D2E [
     LDA #$FFFF
     STA $24
     STA $26
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     LDA $14
     BMI loc_089D62
     CMP $cameraBoundsX
@@ -1797,11 +1804,11 @@ actor_def_089D7E [
   actor-def < #02, #01, #10, {
 
   code_089D81:
-    COP [BranchIfFlagByte] ( #BA, #01, &code_089DB7 )
+    COP [BranchOnFlagByte] ( #BA, #01, &code_089DB7 )
     LDA #$0200
     TSB $12
     COP [SetMetasprite] ( @table_0EE000 )
-    COP [SetOnInteract] ( &code_089D9F )
+    COP [SetInteractHandler] ( &code_089D9F )
 
   loc_089D95:
     COP [StageSpriteFrame] ( #02 )
@@ -1838,9 +1845,9 @@ actor_def_089DF3 [
   code_089DF6:
     LDA #$0200
     TSB $12
-    COP [SolidHighHere]
-    COP [SetOnInteract] ( &code_089E04 )
-    COP [SetEntryContinue]
+    COP [MarkSolidHere]
+    COP [SetInteractHandler] ( &code_089E04 )
+    COP [SetEntryHere]
     RTL 
 } >
 ]
@@ -1878,9 +1885,9 @@ actor_def_089FFD [
   code_08A000:
     LDA #$0200
     TSB $12
-    COP [SolidHighHere]
-    COP [SetOnInteract] ( &code_08A00E )
-    COP [SetEntryContinue]
+    COP [MarkSolidHere]
+    COP [SetInteractHandler] ( &code_08A00E )
+    COP [SetEntryHere]
     RTL 
 } >
 ]
@@ -1916,11 +1923,11 @@ actor_def_08A225 [
   actor-def < #1A, #00, #10, {
 
   code_08A228:
-    COP [BranchIfFlagByte] ( #D2, #01, &code_08A23D )
-    COP [SolidHighHere]
-    COP [SetOnInteract] ( &code_08A23F )
-    COP [BranchIfFlagByte] ( #B6, #00, &code_08A244 )
-    COP [SetEntryContinue]
+    COP [BranchOnFlagByte] ( #D2, #01, &code_08A23D )
+    COP [MarkSolidHere]
+    COP [SetInteractHandler] ( &code_08A23F )
+    COP [BranchOnFlagByte] ( #B6, #00, &code_08A244 )
+    COP [SetEntryHere]
     RTL 
 } >
 ]
@@ -1942,7 +1949,7 @@ code_08A244 {
     COP [PrintDialogString] ( &dialogstring_08A25D )
     LDA #$CFF0
     TRB $joypadMaskStd
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     RTL 
 }
 
@@ -1954,10 +1961,10 @@ actor_def_08A2D5 [
   actor-def < #0A, #00, #10, {
 
   code_08A2D8:
-    COP [BranchIfFlagByte] ( #D2, #01, &code_08A2E7 )
-    COP [SolidHighHere]
-    COP [SetOnInteract] ( &code_08A2E9 )
-    COP [SetEntryContinue]
+    COP [BranchOnFlagByte] ( #D2, #01, &code_08A2E7 )
+    COP [MarkSolidHere]
+    COP [SetInteractHandler] ( &code_08A2E9 )
+    COP [SetEntryHere]
     RTL 
 } >
 ]
@@ -1977,19 +1984,19 @@ actor_def_08A31F [
   actor-def < #12, #00, #10, {
 
   code_08A322:
-    COP [BranchIfFlagByte] ( #D2, #01, &code_08A35E )
-    COP [SolidHighHere]
-    COP [SetOnInteract] ( &code_08A360 )
-    COP [BranchIfFlagByte] ( #B4, #01, &code_08A35B )
+    COP [BranchOnFlagByte] ( #D2, #01, &code_08A35E )
+    COP [MarkSolidHere]
+    COP [SetInteractHandler] ( &code_08A360 )
+    COP [BranchOnFlagByte] ( #B4, #01, &code_08A35B )
     COP [SetFlagByte] ( #B4 )
     LDA #$CFF0
     TSB $joypadMaskStd
     COP [WaitByte] ( #0F )
-    COP [ClearLowHere]
+    COP [ClearSolidHere]
     COP [StageSpriteMoveY] ( #16, #01 )
     COP [AnimOnce]
-    COP [SolidHighHere]
-    COP [SetEntryContinue]
+    COP [MarkSolidHere]
+    COP [SetEntryHere]
     COP [AnimOneFrame]
     COP [WaitByte] ( #1D )
     COP [PrintDialogString] ( &dialogstring_08A38E )
@@ -1999,7 +2006,7 @@ actor_def_08A31F [
 ]
 
 code_08A35B {
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     RTL 
 }
 
@@ -2008,7 +2015,7 @@ code_08A35E {
 }
 
 code_08A360 {
-    COP [BranchIfFlagByte] ( #D0, #01, &code_08A36B )
+    COP [BranchOnFlagByte] ( #D0, #01, &code_08A36B )
     COP [PrintDialogString] ( &dialogstring_08A465 )
     RTL 
 }
@@ -2034,15 +2041,15 @@ actor_def_08A561 [
   actor-def < #02, #00, #10, {
 
   code_08A564:
-    COP [SetOnInteract] ( &code_08A57F )
+    COP [SetInteractHandler] ( &code_08A57F )
     LDA #$0002
     STA $currentHp, X
     JSL $@chunk_008000.code_00C85D
 
   loc_08A573:
     JSL $@chunk_008000.code_00C86A
-    COP [SetEntryExit]
-    COP [SetEntryContinue]
+    COP [SetEntryHereAndYield]
+    COP [SetEntryHere]
     COP [AnimOnce]
     BRA loc_08A573
 } >
@@ -2063,10 +2070,10 @@ actor_def_08A5E4 [
   actor-def < #05, #00, #10, {
 
   code_08A5E7:
-    COP [SetOnInteract] ( &code_08A5FB )
-    COP [SolidHighHere]
+    COP [SetInteractHandler] ( &code_08A5FB )
+    COP [MarkSolidHere]
     COP [WaitByte] ( #EF )
-    COP [ClearLowHere]
+    COP [ClearSolidHere]
     COP [StageSpriteLoopMoveX] ( #08, #40, #12 )
     COP [AnimLoop]
     COP [Die]
@@ -2084,15 +2091,15 @@ actor_def_08A63C [
   actor-def < #02, #00, #10, {
 
   code_08A63F:
-    COP [SetOnInteract] ( &code_08A65A )
+    COP [SetInteractHandler] ( &code_08A65A )
     LDA #$0002
     STA $currentHp, X
     JSL $@chunk_008000.code_00C85D
 
   loc_08A64E:
     JSL $@chunk_008000.code_00C86A
-    COP [SetEntryExit]
-    COP [SetEntryContinue]
+    COP [SetEntryHereAndYield]
+    COP [SetEntryHere]
     COP [AnimOnce]
     BRA loc_08A64E
 } >
@@ -2109,9 +2116,9 @@ actor_def_08A6BC [
   actor-def < #05, #00, #10, {
 
   code_08A6BF:
-    COP [SetOnInteract] ( &code_08A6C8 )
-    COP [SolidHighHere]
-    COP [SetEntryContinue]
+    COP [SetInteractHandler] ( &code_08A6C8 )
+    COP [MarkSolidHere]
+    COP [SetEntryHere]
     RTL 
 } >
 ]
@@ -2127,9 +2134,9 @@ actor_def_08A715 [
   actor-def < #02, #00, #10, {
 
   code_08A718:
-    COP [SetOnInteract] ( &code_08A721 )
-    COP [SolidHighHere]
-    COP [SetEntryContinue]
+    COP [SetInteractHandler] ( &code_08A721 )
+    COP [MarkSolidHere]
+    COP [SetEntryHere]
     RTL 
 } >
 ]
@@ -2145,9 +2152,9 @@ actor_def_08A7CC [
   actor-def < #04, #00, #10, {
 
   code_08A7CF:
-    COP [SetOnInteract] ( &code_08A7D8 )
-    COP [SolidHighHere]
-    COP [SetEntryContinue]
+    COP [SetInteractHandler] ( &code_08A7D8 )
+    COP [MarkSolidHere]
+    COP [SetEntryHere]
     RTL 
 } >
 ]
@@ -2165,10 +2172,10 @@ actor_def_08A814 [
   code_08A817:
     LDA #$0200
     TSB $12
-    COP [SetOnInteract] ( &code_08A841 )
-    COP [SolidHighHere]
+    COP [SetInteractHandler] ( &code_08A841 )
+    COP [MarkSolidHere]
     COP [WaitByte] ( #EF )
-    COP [ClearLowHere]
+    COP [ClearSolidHere]
     COP [SpawnAfterFlags] ( @code_08A838, #$1001 )
     COP [StageSpriteLoopMoveXY] ( #1B, #40, #53, #54 )
     COP [AnimLoop]
@@ -2193,9 +2200,9 @@ actor_def_08A855 [
   actor-def < #05, #00, #10, {
 
   code_08A858:
-    COP [SolidHighHere]
-    COP [SetOnInteract] ( &code_08A861 )
-    COP [SetEntryContinue]
+    COP [MarkSolidHere]
+    COP [SetInteractHandler] ( &code_08A861 )
+    COP [SetEntryHere]
     RTL 
 } >
 ]
@@ -2211,9 +2218,9 @@ actor_def_08A8BC [
   actor-def < #04, #00, #10, {
 
   code_08A8BF:
-    COP [SolidHighHere]
-    COP [SetOnInteract] ( &code_08A8C8 )
-    COP [SetEntryContinue]
+    COP [MarkSolidHere]
+    COP [SetInteractHandler] ( &code_08A8C8 )
+    COP [SetEntryHere]
     RTL 
 } >
 ]
@@ -2231,10 +2238,10 @@ actor_def_08A92C [
   code_08A92F:
     LDA #$0200
     TSB $12
-    COP [SetOnInteract] ( &code_08A941 )
-    COP [SolidHighHere]
-    COP [SetEntryContinue]
-    COP [SetEntryContinue]
+    COP [SetInteractHandler] ( &code_08A941 )
+    COP [MarkSolidHere]
+    COP [SetEntryHere]
+    COP [SetEntryHere]
     COP [AnimOnce]
     RTL 
 } >
@@ -2253,10 +2260,10 @@ actor_def_08A955 [
   code_08A958:
     LDA #$0200
     TSB $12
-    COP [SetOnInteract] ( &code_08A96A )
-    COP [SolidHighHere]
-    COP [SetEntryContinue]
-    COP [SetEntryContinue]
+    COP [SetInteractHandler] ( &code_08A96A )
+    COP [MarkSolidHere]
+    COP [SetEntryHere]
+    COP [SetEntryHere]
     COP [AnimOnce]
     RTL 
 } >
@@ -2273,7 +2280,7 @@ actor_def_08A97E [
   actor-def < #0A, #00, #10, {
 
   code_08A981:
-    COP [SetOnInteract] ( &code_08A9BC )
+    COP [SetInteractHandler] ( &code_08A9BC )
 
   code_08A985:
     COP [BranchOnPlayerX] ( #$0008, &code_08A996, &code_08A98F, &code_08A9A9 )
@@ -2288,7 +2295,7 @@ code_08A98F {
 
 code_08A996 {
     COP [BranchIfSolidOffset] ( #FE, #00, &code_08A9A1 )
-    COP [SetEntryExitNow] ( @code_08A985 )
+    COP [JumpNextFrame] ( @code_08A985 )
 }
 
 code_08A9A1 {
@@ -2299,7 +2306,7 @@ code_08A9A1 {
 
 code_08A9A9 {
     COP [BranchIfSolidOffset] ( #03, #00, &code_08A9B4 )
-    COP [SetEntryExitNow] ( @code_08A985 )
+    COP [JumpNextFrame] ( @code_08A985 )
 }
 
 code_08A9B4 {
@@ -2319,9 +2326,9 @@ actor_def_08A9FA [
   actor-def < #14, #00, #10, {
 
   code_08A9FD:
-    COP [SolidHighHere]
-    COP [SetOnInteract] ( &code_08AA06 )
-    COP [SetEntryContinue]
+    COP [MarkSolidHere]
+    COP [SetInteractHandler] ( &code_08AA06 )
+    COP [SetEntryHere]
     RTL 
 } >
 ]
@@ -2344,23 +2351,23 @@ actor_def_08AA97 [
   code_08AA9A:
     LDA #$0200
     TSB $12
-    COP [SpawnAfterRelFlags] ( @code_08AAFB, #$FFE0, #$0020, #$1000 )
-    COP [SpawnAfterRelFlags] ( @code_08AAFB, #$FFF0, #$0020, #$1000 )
+    COP [SpawnAfterOffsetFlags] ( @code_08AAFB, #$FFE0, #$0020, #$1000 )
+    COP [SpawnAfterOffsetFlags] ( @code_08AAFB, #$FFF0, #$0020, #$1000 )
     LDA #$0008
     STA $0008, Y
-    COP [SpawnAfterRelFlags] ( @code_08AAFB, #$0000, #$0020, #$1000 )
+    COP [SpawnAfterOffsetFlags] ( @code_08AAFB, #$0000, #$0020, #$1000 )
     LDA #$0010
     STA $0008, Y
-    COP [SpawnAfterRelFlags] ( @code_08AAFB, #$0010, #$0020, #$1000 )
+    COP [SpawnAfterOffsetFlags] ( @code_08AAFB, #$0010, #$0020, #$1000 )
     LDA #$0018
     STA $0008, Y
-    COP [SpawnAfterRelFlags] ( @code_08AAFB, #$0020, #$0020, #$1000 )
+    COP [SpawnAfterOffsetFlags] ( @code_08AAFB, #$0020, #$0020, #$1000 )
     LDA #$0020
     STA $0008, Y
-    COP [SolidHighHere]
-    COP [SetOnInteract] ( &code_08AB11 )
-    COP [SetEntryContinue]
-    COP [SetEntryContinue]
+    COP [MarkSolidHere]
+    COP [SetInteractHandler] ( &code_08AB11 )
+    COP [SetEntryHere]
+    COP [SetEntryHere]
     COP [AnimOnce]
     RTL 
 } >
@@ -2368,7 +2375,7 @@ actor_def_08AA97 [
 
 code_08AAFB {
     COP [StageSprAndHitbox] ( #20 )
-    COP [SolidHighHere]
+    COP [MarkSolidHere]
 
   loc_08AB00:
     COP [StageSpriteFrame] ( #24 )
@@ -2393,22 +2400,22 @@ actor_def_08AB3F [
   code_08AB42:
     LDA #$0200
     TSB $12
-    COP [SpawnAfterRelFlags] ( @code_08AD77, #$FFD0, #$0010, #$0300 )
-    COP [SpawnAfterRelFlags] ( @code_08AD77, #$0000, #$0010, #$0300 )
-    COP [SpawnAfterRelFlags] ( @code_08AD77, #$0030, #$0010, #$0300 )
-    COP [SolidHighHere]
+    COP [SpawnAfterOffsetFlags] ( @code_08AD77, #$FFD0, #$0010, #$0300 )
+    COP [SpawnAfterOffsetFlags] ( @code_08AD77, #$0000, #$0010, #$0300 )
+    COP [SpawnAfterOffsetFlags] ( @code_08AD77, #$0030, #$0010, #$0300 )
+    COP [MarkSolidHere]
 
   code_08AB6A:
     COP [ClearFlagByte] ( #04 )
-    COP [SetOnInteract] ( &code_08AB8F )
-    COP [ExitIfFlagByte] ( #01, #01 )
-    COP [SetOnInteract] ( &code_08ABB5 )
+    COP [SetInteractHandler] ( &code_08AB8F )
+    COP [WaitOnFlagByte] ( #01, #01 )
+    COP [SetInteractHandler] ( &code_08ABB5 )
     COP [SpawnAfterFlags] ( @code_08AC77, #$2000 )
     COP [ClearFlagByte] ( #03 )
 
   loc_08AB83:
-    COP [BranchIfFlagByte] ( #04, #01, &code_08AB6A )
-    COP [SetEntryContinue]
+    COP [BranchOnFlagByte] ( #04, #01, &code_08AB6A )
+    COP [SetEntryHere]
     COP [AnimOnce]
     BRA loc_08AB83
 } >
@@ -2433,7 +2440,7 @@ code_08AB9F {
 code_08ABA4 {
     COP [PrintDialogString] ( &dialogstring_08ABFE )
     COP [SetFlagByte] ( #01 )
-    STZ $0AAC
+    STZ $globalScriptIndex
     LDA #$0008
     TRB $slopeCurvePtrB
     RTL 
@@ -2453,7 +2460,7 @@ dialogstring_08ABFE `[CLR]ルールは かんたん.[N]出てくる ヘビを �
 dialogstring_08AC5F `[DEF]おいおい.[N]ずいぶんと よゆうがあるんだな.[END]`
 
 code_08AC77 {
-    COP [ExitIfFlagByte] ( #02, #01 )
+    COP [WaitOnFlagByte] ( #02, #01 )
     PHX 
     LDX #$0000
 
@@ -2478,7 +2485,7 @@ code_08AC77 {
     COP [RngByte]
     COP [RngByte]
     STZ $24
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     LDA $24
     CMP #$0E10
     BEQ loc_08ACB0
@@ -2486,8 +2493,8 @@ code_08AC77 {
     RTL 
 
   loc_08ACB0:
-    COP [BranchIfFlagByte] ( #E7, #01, &code_08ACBE )
-    LDA $0AAC
+    COP [BranchOnFlagByte] ( #E7, #01, &code_08ACBE )
+    LDA $globalScriptIndex
     CMP #$0051
     BCS loc_08ACD3
 }
@@ -2524,17 +2531,17 @@ code_08AD77 {
     STA $statsPtr, X
     LDA #$0031
     TSB $12
-    COP [SolidHighHere]
+    COP [MarkSolidHere]
 
   loc_08AD85:
     COP [StageSprAndHitbox] ( #24 )
-    COP [ExitIfFlagByte] ( #01, #01 )
+    COP [WaitOnFlagByte] ( #01, #01 )
     LDA #$0200
     TRB $10
     LDA #$00FF
     STA $currentHp, X
     COP [SetHitCallback] ( &code_08ADA0 )
-    COP [ExitIfFlagByte] ( #02, #01 )
+    COP [WaitOnFlagByte] ( #02, #01 )
 }
 
 code_08ADA0 {
@@ -2542,7 +2549,7 @@ code_08ADA0 {
     COP [SetHitCallback] ( &code_08ADDB )
 
   loc_08ADA7:
-    COP [BranchIfFlagByte] ( #03, #01, &code_08ADD6 )
+    COP [BranchOnFlagByte] ( #03, #01, &code_08ADD6 )
     LDA #$00FF
     STA $currentHp, X
     COP [RngByte]
@@ -2551,7 +2558,7 @@ code_08ADA0 {
     ASL 
     ASL 
     STA $08
-    COP [SetEntryExit]
+    COP [SetEntryHereAndYield]
     LDA #$0200
     TRB $10
     COP [StageSpriteFrame] ( #24 )
@@ -2573,10 +2580,10 @@ code_08ADD6 {
 code_08ADDB {
     COP [PlaySoundCh1] ( #0D )
     SED 
-    LDA $0AAC
+    LDA $globalScriptIndex
     CLC 
     ADC #$0001
-    STA $0AAC
+    STA $globalScriptIndex
     CLD 
     LDA #$0200
     TSB $10
@@ -2590,17 +2597,17 @@ actor_def_08ADF5 [
   code_08ADF8:
     LDA #$0200
     TSB $12
-    COP [SolidHighHere]
-    COP [SetOnInteract] ( &code_08AE0A )
-    COP [SetEntryContinue]
-    COP [SetEntryContinue]
+    COP [MarkSolidHere]
+    COP [SetInteractHandler] ( &code_08AE0A )
+    COP [SetEntryHere]
+    COP [SetEntryHere]
     COP [AnimOnce]
     RTL 
 } >
 ]
 
 code_08AE0A {
-    COP [BranchIfFlagByte] ( #B8, #00, &code_08AE15 )
+    COP [BranchOnFlagByte] ( #B8, #00, &code_08AE15 )
     COP [PrintDialogString] ( &dialogstring_08AE70 )
     RTL 
 }
@@ -2675,10 +2682,10 @@ actor_def_08AF6E [
   code_08AF71:
     LDA #$0200
     TSB $12
-    COP [SolidHighHere]
-    COP [SetOnInteract] ( &code_08AF83 )
-    COP [SetEntryContinue]
-    COP [SetEntryContinue]
+    COP [MarkSolidHere]
+    COP [SetInteractHandler] ( &code_08AF83 )
+    COP [SetEntryHere]
+    COP [SetEntryHere]
     COP [AnimOnce]
     RTL 
 } >
@@ -2697,10 +2704,10 @@ actor_def_08AFAE [
   code_08AFB1:
     LDA #$0200
     TSB $12
-    COP [SolidHighHere]
-    COP [SetOnInteract] ( &code_08AFC3 )
-    COP [SetEntryContinue]
-    COP [SetEntryContinue]
+    COP [MarkSolidHere]
+    COP [SetInteractHandler] ( &code_08AFC3 )
+    COP [SetEntryHere]
+    COP [SetEntryHere]
     COP [AnimOnce]
     RTL 
 } >
@@ -2719,10 +2726,10 @@ actor_def_08B019 [
   code_08B01C:
     LDA #$0200
     TSB $12
-    COP [SolidHighHere]
-    COP [SetOnInteract] ( &code_08B02E )
-    COP [SetEntryContinue]
-    COP [SetEntryContinue]
+    COP [MarkSolidHere]
+    COP [SetInteractHandler] ( &code_08B02E )
+    COP [SetEntryHere]
+    COP [SetEntryHere]
     COP [AnimOnce]
     RTL 
 } >
@@ -2752,16 +2759,16 @@ actor_def_08B0E1 [
     STA $0E
 
   loc_08B0FF:
-    COP [SetOnInteract] ( &code_08B119 )
-    COP [SolidHighHere]
-    COP [SetEntryContinue]
+    COP [SetInteractHandler] ( &code_08B119 )
+    COP [MarkSolidHere]
+    COP [SetEntryHere]
     COP [AnimOnce]
     COP [RngByte]
     AND #$001F
     STA $08
-    COP [SetEntryExit]
-    COP [SetEntryContinue]
-    COP [SetEntryContinue]
+    COP [SetEntryHereAndYield]
+    COP [SetEntryHere]
+    COP [SetEntryHere]
     COP [AnimOnce]
     RTL 
 } >
@@ -2821,14 +2828,14 @@ actor_def_08B21B [
     LDA $0E
     STA $26
     BEQ loc_08B232
-    COP [BranchIfFlagWord] ( #$0171, #01, &code_08B2EF )
+    COP [BranchOnFlagWord] ( #$0171, #01, &code_08B2EF )
     BRA loc_08B239
 
   loc_08B232:
-    COP [BranchIfFlagWord] ( #$0170, #01, &code_08B2EF )
+    COP [BranchOnFlagWord] ( #$0170, #01, &code_08B2EF )
 
   loc_08B239:
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     PHX 
     LDX $decelStepCounter
     LDA $7F0008, X
@@ -2849,7 +2856,7 @@ actor_def_08B21B [
 
   loc_08B25A:
     PLX 
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     COP [BranchIfPlayerNear] ( #01, &code_08B263 )
     RTL 
 } >
@@ -2881,7 +2888,7 @@ code_08B263 {
     STA $14
     LDA $orbitDiameter, X
     STA $16
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     COP [BranchIfPlayerNear] ( #01, &code_08B29F )
     BRA loc_08B239
 }
@@ -2942,7 +2949,7 @@ actor_def_08B2F1 [
     LDA $0E
     JSL $@chunk_008000.code_00B5A4
     BCS loc_08B307
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     LDA $0E
     JSL $@chunk_008000.code_00B5A4
     BCS loc_08B307
@@ -2974,8 +2981,8 @@ actor_def_08B32B [
   code_08B32E:
     LDA #$0200
     TSB $12
-    COP [SetOnInteract] ( &code_08B33A )
-    COP [SetEntryContinue]
+    COP [SetInteractHandler] ( &code_08B33A )
+    COP [SetEntryHere]
     RTL 
 } >
 ]
@@ -3035,9 +3042,9 @@ actor_def_08B3D3 [
     STA $cameraBoundsY
     COP [StageSpriteFrame] ( #1C )
     COP [AnimOnce]
-    COP [SolidHighHere]
-    COP [AddPosition] ( #F8, #00 )
-    COP [ExitIfFlagByte] ( #01, #01 )
+    COP [MarkSolidHere]
+    COP [NudgePosition] ( #F8, #00 )
+    COP [WaitOnFlagByte] ( #01, #01 )
     COP [WaitByte] ( #1D )
     COP [PlaySoundBoth] ( #$1919 )
     COP [SpawnAfterFlags] ( @chunk_008000.code_00D0E8, #$2000 )
@@ -3048,11 +3055,11 @@ actor_def_08B3D3 [
     TSB $10
     COP [StageSpriteFrame] ( #1D )
     COP [AnimOnce]
-    COP [SpawnAfterRelFlags] ( @code_08B456, #$0004, #$FFF0, #$2800 )
+    COP [SpawnAfterOffsetFlags] ( @code_08B456, #$0004, #$FFF0, #$2800 )
     LDA #$0008
     STA $0026, Y
     COP [SetFlagByte] ( #03 )
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     RTL 
 } >
 ]
@@ -3063,31 +3070,31 @@ actor_def_08B423 [
   code_08B426:
     COP [StageSpriteFrame] ( #9C )
     COP [AnimOnce]
-    COP [SolidHighHere]
-    COP [AddPosition] ( #08, #00 )
-    COP [ExitIfFlagByte] ( #01, #01 )
+    COP [MarkSolidHere]
+    COP [NudgePosition] ( #08, #00 )
+    COP [WaitOnFlagByte] ( #01, #01 )
     COP [WaitByte] ( #59 )
     LDA #$0800
     TSB $10
     COP [StageSpriteFrame] ( #9D )
     COP [AnimOnce]
-    COP [SpawnAfterRelFlags] ( @code_08B456, #$FFFC, #$FFF0, #$2800 )
+    COP [SpawnAfterOffsetFlags] ( @code_08B456, #$FFFC, #$FFF0, #$2800 )
     LDA #$FFF8
     STA $0026, Y
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     RTL 
 } >
 ]
 
 code_08B456 {
-    COP [LoopInit] ( #05 )
+    COP [LoopStart] ( #05 )
     COP [SpawnAfterFlags] ( @code_08B48A, #$0B02 )
     COP [WaitByte] ( #03 )
     LDA $14
     CLC 
     ADC $26
     STA $14
-    COP [LoopNext]
+    COP [LoopEnd]
     COP [Die]
 
   code_08B46E:
@@ -3109,10 +3116,10 @@ code_08B456 {
 
 code_08B48A {
     COP [PlaySoundBoth] ( #$0505 )
-    COP [AddPosition] ( #00, #FC )
+    COP [NudgePosition] ( #00, #FC )
     COP [StageSpriteLoop] ( #11, #02 )
     COP [AnimLoop]
-    COP [AddPosition] ( #00, #04 )
+    COP [NudgePosition] ( #00, #04 )
     COP [StageSpriteLoop] ( #12, #10 )
     COP [AnimLoop]
     COP [Die]
@@ -3123,16 +3130,16 @@ actor_def_08B4A4 [
 
   code_08B4A7:
     COP [SetFlagByte] ( #0E )
-    COP [ExitIfFlagByte] ( #C2, #01 )
-    COP [ExitIfFlagByte] ( #C3, #01 )
-    COP [ExitIfFlagByte] ( #C4, #01 )
-    COP [ExitIfFlagByte] ( #C5, #01 )
-    COP [ExitIfFlagByte] ( #C6, #01 )
-    COP [ExitIfFlagByte] ( #C7, #01 )
-    COP [BranchIfFlagByte] ( #BB, #01, &code_08B672 )
+    COP [WaitOnFlagByte] ( #C2, #01 )
+    COP [WaitOnFlagByte] ( #C3, #01 )
+    COP [WaitOnFlagByte] ( #C4, #01 )
+    COP [WaitOnFlagByte] ( #C5, #01 )
+    COP [WaitOnFlagByte] ( #C6, #01 )
+    COP [WaitOnFlagByte] ( #C7, #01 )
+    COP [BranchOnFlagByte] ( #BB, #01, &code_08B672 )
     COP [ClearFlagByte] ( #0E )
     COP [SetFlagByte] ( #0F )
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     COP [BranchIfPlayerInAbsTiles] ( #05, #09, #0A, #0B, &code_08B4D9 )
     RTL 
 } >
@@ -3143,17 +3150,17 @@ code_08B4D9 {
     TSB $joypadMaskStd
     COP [StartMusic] ( #1B )
     COP [WaitByte] ( #3B )
-    COP [SolidHighAbs] ( #06, #0C )
-    COP [SolidHighAbs] ( #07, #0C )
-    COP [SolidHighAbs] ( #08, #0C )
-    COP [SolidHighAbs] ( #09, #09 )
-    COP [SolidHighAbs] ( #09, #0A )
+    COP [MarkSolidAbs] ( #06, #0C )
+    COP [MarkSolidAbs] ( #07, #0C )
+    COP [MarkSolidAbs] ( #08, #0C )
+    COP [MarkSolidAbs] ( #09, #09 )
+    COP [MarkSolidAbs] ( #09, #0A )
     COP [PrintDialogString] ( &dialogstring_08B697 )
     LDA #$EFF0
     TRB $joypadMaskStd
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     COP [BranchIfPlayerInAbsTiles] ( #03, #09, #04, #0D, &code_08B519 )
-    COP [BranchIfButton] ( #$0501, &code_08B514 )
+    COP [BranchIfPressed] ( #$0501, &code_08B514 )
     RTL 
 }
 
@@ -3163,13 +3170,13 @@ code_08B514 {
 }
 
 code_08B519 {
-    COP [ClearLowAbs] ( #06, #0C )
-    COP [ClearLowAbs] ( #07, #0C )
-    COP [ClearLowAbs] ( #08, #0C )
-    COP [ClearLowAbs] ( #09, #09 )
-    COP [ClearLowAbs] ( #09, #0A )
-    COP [SolidHighAbs] ( #05, #09 )
-    COP [SolidHighAbs] ( #05, #0A )
+    COP [ClearSolidAbs] ( #06, #0C )
+    COP [ClearSolidAbs] ( #07, #0C )
+    COP [ClearSolidAbs] ( #08, #0C )
+    COP [ClearSolidAbs] ( #09, #09 )
+    COP [ClearSolidAbs] ( #09, #0A )
+    COP [MarkSolidAbs] ( #05, #09 )
+    COP [MarkSolidAbs] ( #05, #0A )
     COP [PrintDialogString] ( &dialogstring_08B6D8 )
     LDA #$CFF0
     TSB $joypadMaskStd
@@ -3217,9 +3224,9 @@ code_08B519 {
     LDA #$000F
     STA $musicParentActor
     COP [SetFlagByte] ( #0E )
-    COP [SetEntryContinue]
-    COP [BranchIfFlagByte] ( #03, #01, &code_08B5DC )
-    COP [BranchIfFlagByte] ( #0D, #01, &code_08B5D6 )
+    COP [SetEntryHere]
+    COP [BranchOnFlagByte] ( #03, #01, &code_08B5DC )
+    COP [BranchOnFlagByte] ( #0D, #01, &code_08B5D6 )
     LDY $decelStepCounter
     LDA $0014, Y
     CMP #$0048
@@ -3227,7 +3234,7 @@ code_08B519 {
     RTL 
 
   loc_08B5D0:
-    COP [BranchIfButton] ( #$0101, &code_08B5D7 )
+    COP [BranchIfPressed] ( #$0101, &code_08B5D7 )
 }
 
 code_08B5D6 {
@@ -3244,10 +3251,10 @@ code_08B5DC {
     TSB $joypadMaskStd
     COP [ClearFlagByte] ( #0E )
     COP [WaitByte] ( #1D )
-    COP [LoopInit] ( #0C )
+    COP [LoopStart] ( #0C )
     COP [SpawnAfterFlags] ( @code_08B46E, #$0B02 )
     COP [WaitByte] ( #09 )
-    COP [LoopNext]
+    COP [LoopEnd]
     LDA #$0800
     TSB $10
     COP [StageSprAndHitbox] ( #13 )
@@ -3280,14 +3287,14 @@ code_08B5DC {
     COP [AnimOnce]
     COP [FadeThenStartMusic] ( #11 )
     COP [WaitByte] ( #B3 )
-    COP [ClearLowAbs] ( #05, #09 )
-    COP [ClearLowAbs] ( #05, #0A )
+    COP [ClearSolidAbs] ( #05, #09 )
+    COP [ClearSolidAbs] ( #05, #0A )
     COP [SetFlagByte] ( #06 )
     COP [SetFlagByte] ( #BB )
     COP [ClearFlagByte] ( #0F )
     LDA #$EFF0
     TRB $joypadMaskStd
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     RTL 
 }
 
@@ -3298,8 +3305,8 @@ code_08B672 {
     COP [SetMetasprite] ( @sprite_set_list_0EDA00 )
     COP [StageSpriteFrame] ( #02 )
     COP [AnimOnce]
-    COP [SolidHighHere]
-    COP [SetEntryContinue]
+    COP [MarkSolidHere]
+    COP [SetEntryHere]
     RTL 
 }
 
@@ -3332,15 +3339,15 @@ actor_def_08B98E [
   actor-def < #03, #00, #30, {
 
   code_08B991:
-    COP [BranchIfFlagByte] ( #D0, #01, &code_08BA6B )
-    COP [ExitIfFlagByte] ( #C2, #01 )
-    COP [ExitIfFlagByte] ( #C3, #01 )
-    COP [ExitIfFlagByte] ( #C4, #01 )
-    COP [ExitIfFlagByte] ( #C5, #01 )
-    COP [ExitIfFlagByte] ( #C6, #01 )
-    COP [ExitIfFlagByte] ( #C7, #01 )
-    COP [BranchIfFlagByte] ( #BB, #01, &code_08BA6D )
-    COP [ExitIfFlagByte] ( #02, #01 )
+    COP [BranchOnFlagByte] ( #D0, #01, &code_08BA6B )
+    COP [WaitOnFlagByte] ( #C2, #01 )
+    COP [WaitOnFlagByte] ( #C3, #01 )
+    COP [WaitOnFlagByte] ( #C4, #01 )
+    COP [WaitOnFlagByte] ( #C5, #01 )
+    COP [WaitOnFlagByte] ( #C6, #01 )
+    COP [WaitOnFlagByte] ( #C7, #01 )
+    COP [BranchOnFlagByte] ( #BB, #01, &code_08BA6D )
+    COP [WaitOnFlagByte] ( #02, #01 )
     LDA #$2000
     TRB $10
     COP [StageSpriteLoopMoveY] ( #07, #03, #12 )
@@ -3351,24 +3358,24 @@ actor_def_08B98E [
     COP [AnimLoop]
     COP [StageSpriteFrame] ( #04 )
     COP [AnimOnce]
-    COP [ExitIfFlagByte] ( #04, #01 )
+    COP [WaitOnFlagByte] ( #04, #01 )
     LDA #$0800
     TSB $10
-    COP [LoopInit] ( #04 )
+    COP [LoopStart] ( #04 )
     COP [StageSpriteMoveX] ( #09, #14 )
     COP [AnimOnce]
     COP [StageSpriteFrame] ( #05 )
     COP [AnimOnce]
-    COP [LoopNext]
-    COP [ExitIfFlagByte] ( #05, #01 )
+    COP [LoopEnd]
+    COP [WaitOnFlagByte] ( #05, #01 )
     COP [WaitByte] ( #0F )
-    COP [LoopInit] ( #06 )
+    COP [LoopStart] ( #06 )
     COP [StageSpriteMoveX] ( #09, #14 )
     COP [AnimOnce]
     COP [StageSpriteFrame] ( #05 )
     COP [AnimOnce]
-    COP [LoopNext]
-    COP [ExitIfFlagByte] ( #06, #01 )
+    COP [LoopEnd]
+    COP [WaitOnFlagByte] ( #06, #01 )
     LDA #$CFF0
     TSB $joypadMaskStd
     LDY $decelStepCounter
@@ -3391,15 +3398,15 @@ actor_def_08B98E [
     COP [MoveToward] ( #08, #01 )
     COP [StageSpriteFrame] ( #04 )
     COP [AnimOnce]
-    COP [SolidHighHere]
+    COP [MarkSolidHere]
     COP [WaitByte] ( #3B )
     COP [PrintDialogString] ( &dialogstring_08BB03 )
     COP [StageSpriteFrame] ( #05 )
     COP [AnimOnce]
     LDA #$CFF0
     TRB $joypadMaskStd
-    COP [SetOnInteract] ( &code_08BABF )
-    COP [SetEntryContinue]
+    COP [SetInteractHandler] ( &code_08BABF )
+    COP [SetEntryHere]
     RTL 
 } >
 ]
@@ -3414,9 +3421,9 @@ code_08BA6D {
     COP [SetTilePos] ( #08, #0B )
     COP [StageSpriteFrame] ( #05 )
     COP [AnimOnce]
-    COP [SolidHighHere]
-    COP [SetOnInteract] ( &code_08BABF )
-    COP [ExitIfFlagByte] ( #FC, #01 )
+    COP [MarkSolidHere]
+    COP [SetInteractHandler] ( &code_08BABF )
+    COP [WaitOnFlagByte] ( #FC, #01 )
     LDA #$CFF0
     TSB $joypadMaskStd
     COP [WaitByte] ( #1D )
@@ -3433,7 +3440,7 @@ code_08BA6D {
     LDA #$0404
     STA $gfxCacheIdxB
     COP [QueueMapChange] ( #C8, #$0070, #$00A0, #00, #$1100 )
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     RTL 
 }
 
@@ -3458,27 +3465,27 @@ actor_def_08BDFC [
   code_08BDFF:
     LDA #$0200
     TSB $12
-    COP [SetOnInteract] ( &code_08BE53 )
-    COP [SolidHighHere]
-    COP [BranchIfFlagByte] ( #C2, #01, &code_08BE4F )
-    COP [BranchIfFlagByte] ( #C3, #01, &code_08BE4F )
-    COP [BranchIfFlagByte] ( #C4, #01, &code_08BE4F )
-    COP [BranchIfFlagByte] ( #C5, #01, &code_08BE4F )
-    COP [BranchIfFlagByte] ( #C6, #01, &code_08BE4F )
-    COP [BranchIfFlagByte] ( #C7, #01, &code_08BE4F )
-    COP [BranchIfNoItem] ( #1E, &code_08BE4F )
-    COP [BranchIfNoItem] ( #1F, &code_08BE4F )
-    COP [BranchIfNoItem] ( #20, &code_08BE4F )
-    COP [BranchIfNoItem] ( #21, &code_08BE4F )
-    COP [BranchIfNoItem] ( #22, &code_08BE4F )
-    COP [BranchIfNoItem] ( #23, &code_08BE4F )
-    COP [SetEntryContinue]
+    COP [SetInteractHandler] ( &code_08BE53 )
+    COP [MarkSolidHere]
+    COP [BranchOnFlagByte] ( #C2, #01, &code_08BE4F )
+    COP [BranchOnFlagByte] ( #C3, #01, &code_08BE4F )
+    COP [BranchOnFlagByte] ( #C4, #01, &code_08BE4F )
+    COP [BranchOnFlagByte] ( #C5, #01, &code_08BE4F )
+    COP [BranchOnFlagByte] ( #C6, #01, &code_08BE4F )
+    COP [BranchOnFlagByte] ( #C7, #01, &code_08BE4F )
+    COP [BranchIfHasItem] ( #1E, &code_08BE4F )
+    COP [BranchIfHasItem] ( #1F, &code_08BE4F )
+    COP [BranchIfHasItem] ( #20, &code_08BE4F )
+    COP [BranchIfHasItem] ( #21, &code_08BE4F )
+    COP [BranchIfHasItem] ( #22, &code_08BE4F )
+    COP [BranchIfHasItem] ( #23, &code_08BE4F )
+    COP [SetEntryHere]
     RTL 
 } >
 ]
 
 code_08BE4F {
-    COP [ClearLowHere]
+    COP [ClearSolidHere]
     COP [Die]
 }
 
@@ -3495,18 +3502,18 @@ actor_def_08BEBF [
   code_08BEC2:
     LDA #$0031
     TSB $12
-    COP [ClearHighAbs] ( #34, #2B )
-    COP [ClearHighAbs] ( #35, #2B )
-    COP [ClearHighAbs] ( #36, #2B )
-    COP [ClearHighAbs] ( #37, #2B )
-    COP [ClearHighAbs] ( #38, #2B )
-    COP [ClearHighAbs] ( #39, #2B )
-    COP [ClearHighAbs] ( #34, #2C )
-    COP [ClearHighAbs] ( #35, #2C )
-    COP [ClearHighAbs] ( #36, #2C )
-    COP [ClearHighAbs] ( #37, #2C )
-    COP [ClearHighAbs] ( #38, #2C )
-    COP [ClearHighAbs] ( #39, #2C )
+    COP [ClearTypeAbs] ( #34, #2B )
+    COP [ClearTypeAbs] ( #35, #2B )
+    COP [ClearTypeAbs] ( #36, #2B )
+    COP [ClearTypeAbs] ( #37, #2B )
+    COP [ClearTypeAbs] ( #38, #2B )
+    COP [ClearTypeAbs] ( #39, #2B )
+    COP [ClearTypeAbs] ( #34, #2C )
+    COP [ClearTypeAbs] ( #35, #2C )
+    COP [ClearTypeAbs] ( #36, #2C )
+    COP [ClearTypeAbs] ( #37, #2C )
+    COP [ClearTypeAbs] ( #38, #2C )
+    COP [ClearTypeAbs] ( #39, #2C )
     LDY #$1060
     LDA #$FE00
     STA $0026, Y
@@ -3515,23 +3522,23 @@ actor_def_08BEBF [
     COP [SetMetasprite] ( @table_0EE000 )
     COP [StageSpriteFrame] ( #0F )
     COP [AnimOnce]
-    COP [SolidHighHere]
-    COP [SolidHighAbs] ( #34, #2B )
-    COP [SolidHighAbs] ( #35, #2B )
-    COP [SolidHighAbs] ( #36, #2B )
-    COP [SolidHighAbs] ( #37, #2B )
-    COP [SolidHighAbs] ( #38, #2B )
-    COP [SolidHighAbs] ( #39, #2B )
-    COP [SolidHighAbs] ( #34, #2C )
-    COP [SolidHighAbs] ( #35, #2C )
-    COP [SolidHighAbs] ( #36, #2C )
-    COP [SolidHighAbs] ( #37, #2C )
-    COP [SolidHighAbs] ( #38, #2C )
-    COP [SolidHighAbs] ( #39, #2C )
+    COP [MarkSolidHere]
+    COP [MarkSolidAbs] ( #34, #2B )
+    COP [MarkSolidAbs] ( #35, #2B )
+    COP [MarkSolidAbs] ( #36, #2B )
+    COP [MarkSolidAbs] ( #37, #2B )
+    COP [MarkSolidAbs] ( #38, #2B )
+    COP [MarkSolidAbs] ( #39, #2B )
+    COP [MarkSolidAbs] ( #34, #2C )
+    COP [MarkSolidAbs] ( #35, #2C )
+    COP [MarkSolidAbs] ( #36, #2C )
+    COP [MarkSolidAbs] ( #37, #2C )
+    COP [MarkSolidAbs] ( #38, #2C )
+    COP [MarkSolidAbs] ( #39, #2C )
 
   code_08BF43:
     COP [SetHitCallback] ( &code_08BF51 )
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     LDA #$7FFF
     STA $currentHp, X
     RTL 
@@ -3539,27 +3546,27 @@ actor_def_08BEBF [
 ]
 
 code_08BF51 {
-    COP [BranchIfFlagByte] ( #0F, #00, &code_08BF5C )
-    COP [SetEntryExitNow] ( @code_08BF43 )
+    COP [BranchOnFlagByte] ( #0F, #00, &code_08BF5C )
+    COP [JumpNextFrame] ( @code_08BF43 )
 }
 
 code_08BF5C {
     COP [SetFlagByte] ( #0F )
     COP [StageSpriteFrame] ( #11 )
     COP [AnimOnce]
-    COP [SolidHighAbs] ( #34, #4B )
-    COP [SolidHighAbs] ( #35, #4B )
-    COP [SolidHighAbs] ( #36, #4B )
-    COP [SolidHighAbs] ( #37, #4B )
-    COP [SolidHighAbs] ( #38, #4B )
-    COP [SolidHighAbs] ( #39, #4B )
-    COP [SolidHighAbs] ( #34, #4C )
-    COP [SolidHighAbs] ( #35, #4C )
-    COP [SolidHighAbs] ( #36, #4C )
-    COP [SolidHighAbs] ( #37, #4C )
-    COP [SolidHighAbs] ( #38, #4C )
-    COP [SolidHighAbs] ( #39, #4C )
-    COP [SetEntryContinue]
+    COP [MarkSolidAbs] ( #34, #4B )
+    COP [MarkSolidAbs] ( #35, #4B )
+    COP [MarkSolidAbs] ( #36, #4B )
+    COP [MarkSolidAbs] ( #37, #4B )
+    COP [MarkSolidAbs] ( #38, #4B )
+    COP [MarkSolidAbs] ( #39, #4B )
+    COP [MarkSolidAbs] ( #34, #4C )
+    COP [MarkSolidAbs] ( #35, #4C )
+    COP [MarkSolidAbs] ( #36, #4C )
+    COP [MarkSolidAbs] ( #37, #4C )
+    COP [MarkSolidAbs] ( #38, #4C )
+    COP [MarkSolidAbs] ( #39, #4C )
+    COP [SetEntryHere]
     LDY #$1060
     LDA $0026, Y
     BEQ loc_08BFA3
@@ -3568,18 +3575,18 @@ code_08BF5C {
     RTL 
 
   loc_08BFA3:
-    COP [ClearLowAbs] ( #34, #2B )
-    COP [ClearLowAbs] ( #35, #2B )
-    COP [ClearLowAbs] ( #36, #2B )
-    COP [ClearLowAbs] ( #37, #2B )
-    COP [ClearLowAbs] ( #38, #2B )
-    COP [ClearLowAbs] ( #39, #2B )
-    COP [ClearLowAbs] ( #34, #2C )
-    COP [ClearLowAbs] ( #35, #2C )
-    COP [ClearLowAbs] ( #36, #2C )
-    COP [ClearLowAbs] ( #37, #2C )
-    COP [ClearLowAbs] ( #38, #2C )
-    COP [ClearLowAbs] ( #39, #2C )
+    COP [ClearSolidAbs] ( #34, #2B )
+    COP [ClearSolidAbs] ( #35, #2B )
+    COP [ClearSolidAbs] ( #36, #2B )
+    COP [ClearSolidAbs] ( #37, #2B )
+    COP [ClearSolidAbs] ( #38, #2B )
+    COP [ClearSolidAbs] ( #39, #2B )
+    COP [ClearSolidAbs] ( #34, #2C )
+    COP [ClearSolidAbs] ( #35, #2C )
+    COP [ClearSolidAbs] ( #36, #2C )
+    COP [ClearSolidAbs] ( #37, #2C )
+    COP [ClearSolidAbs] ( #38, #2C )
+    COP [ClearSolidAbs] ( #39, #2C )
     COP [PlaySoundBoth] ( #$1515 )
     COP [StageSpriteFrame] ( #12 )
     COP [AnimOnce]
@@ -3593,28 +3600,28 @@ actor_def_08BFE2 [
   code_08BFE5:
     LDA #$0031
     TSB $12
-    COP [ClearHighAbs] ( #34, #4B )
-    COP [ClearHighAbs] ( #35, #4B )
-    COP [ClearHighAbs] ( #36, #4B )
-    COP [ClearHighAbs] ( #37, #4B )
-    COP [ClearHighAbs] ( #38, #4B )
-    COP [ClearHighAbs] ( #39, #4B )
-    COP [ClearHighAbs] ( #34, #4C )
-    COP [ClearHighAbs] ( #35, #4C )
-    COP [ClearHighAbs] ( #36, #4C )
-    COP [ClearHighAbs] ( #37, #4C )
-    COP [ClearHighAbs] ( #38, #4C )
-    COP [ClearHighAbs] ( #39, #4C )
+    COP [ClearTypeAbs] ( #34, #4B )
+    COP [ClearTypeAbs] ( #35, #4B )
+    COP [ClearTypeAbs] ( #36, #4B )
+    COP [ClearTypeAbs] ( #37, #4B )
+    COP [ClearTypeAbs] ( #38, #4B )
+    COP [ClearTypeAbs] ( #39, #4B )
+    COP [ClearTypeAbs] ( #34, #4C )
+    COP [ClearTypeAbs] ( #35, #4C )
+    COP [ClearTypeAbs] ( #36, #4C )
+    COP [ClearTypeAbs] ( #37, #4C )
+    COP [ClearTypeAbs] ( #38, #4C )
+    COP [ClearTypeAbs] ( #39, #4C )
     LDA #$ACF0
     STA $statsPtr, X
     COP [SetMetasprite] ( @table_0EE000 )
     COP [StageSpriteFrame] ( #0F )
     COP [AnimOnce]
-    COP [SolidHighHere]
+    COP [MarkSolidHere]
 
   code_08C02D:
     COP [SetHitCallback] ( &code_08C03B )
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     LDA #$7FFF
     STA $currentHp, X
     RTL 
@@ -3622,27 +3629,27 @@ actor_def_08BFE2 [
 ]
 
 code_08C03B {
-    COP [BranchIfFlagByte] ( #0F, #00, &code_08C046 )
-    COP [SetEntryExitNow] ( @code_08C02D )
+    COP [BranchOnFlagByte] ( #0F, #00, &code_08C046 )
+    COP [JumpNextFrame] ( @code_08C02D )
 }
 
 code_08C046 {
     COP [SetFlagByte] ( #0F )
     COP [StageSpriteFrame] ( #11 )
     COP [AnimOnce]
-    COP [SolidHighAbs] ( #34, #2B )
-    COP [SolidHighAbs] ( #35, #2B )
-    COP [SolidHighAbs] ( #36, #2B )
-    COP [SolidHighAbs] ( #37, #2B )
-    COP [SolidHighAbs] ( #38, #2B )
-    COP [SolidHighAbs] ( #39, #2B )
-    COP [SolidHighAbs] ( #34, #2C )
-    COP [SolidHighAbs] ( #35, #2C )
-    COP [SolidHighAbs] ( #36, #2C )
-    COP [SolidHighAbs] ( #37, #2C )
-    COP [SolidHighAbs] ( #38, #2C )
-    COP [SolidHighAbs] ( #39, #2C )
-    COP [SetEntryContinue]
+    COP [MarkSolidAbs] ( #34, #2B )
+    COP [MarkSolidAbs] ( #35, #2B )
+    COP [MarkSolidAbs] ( #36, #2B )
+    COP [MarkSolidAbs] ( #37, #2B )
+    COP [MarkSolidAbs] ( #38, #2B )
+    COP [MarkSolidAbs] ( #39, #2B )
+    COP [MarkSolidAbs] ( #34, #2C )
+    COP [MarkSolidAbs] ( #35, #2C )
+    COP [MarkSolidAbs] ( #36, #2C )
+    COP [MarkSolidAbs] ( #37, #2C )
+    COP [MarkSolidAbs] ( #38, #2C )
+    COP [MarkSolidAbs] ( #39, #2C )
+    COP [SetEntryHere]
     LDY #$1060
     LDA $0026, Y
     CMP #$FE00
@@ -3652,18 +3659,18 @@ code_08C046 {
     RTL 
 
   loc_08C090:
-    COP [ClearLowAbs] ( #34, #4B )
-    COP [ClearLowAbs] ( #35, #4B )
-    COP [ClearLowAbs] ( #36, #4B )
-    COP [ClearLowAbs] ( #37, #4B )
-    COP [ClearLowAbs] ( #38, #4B )
-    COP [ClearLowAbs] ( #39, #4B )
-    COP [ClearLowAbs] ( #34, #4C )
-    COP [ClearLowAbs] ( #35, #4C )
-    COP [ClearLowAbs] ( #36, #4C )
-    COP [ClearLowAbs] ( #37, #4C )
-    COP [ClearLowAbs] ( #38, #4C )
-    COP [ClearLowAbs] ( #39, #4C )
+    COP [ClearSolidAbs] ( #34, #4B )
+    COP [ClearSolidAbs] ( #35, #4B )
+    COP [ClearSolidAbs] ( #36, #4B )
+    COP [ClearSolidAbs] ( #37, #4B )
+    COP [ClearSolidAbs] ( #38, #4B )
+    COP [ClearSolidAbs] ( #39, #4B )
+    COP [ClearSolidAbs] ( #34, #4C )
+    COP [ClearSolidAbs] ( #35, #4C )
+    COP [ClearSolidAbs] ( #36, #4C )
+    COP [ClearSolidAbs] ( #37, #4C )
+    COP [ClearSolidAbs] ( #38, #4C )
+    COP [ClearSolidAbs] ( #39, #4C )
     COP [PlaySoundBoth] ( #$1515 )
     COP [StageSpriteFrame] ( #12 )
     COP [AnimOnce]
@@ -3691,7 +3698,7 @@ code_08C0E1 {
     STA $24
 
   loc_08C0E9:
-    COP [AddPosition] ( #00, #FE )
+    COP [NudgePosition] ( #00, #FE )
     LDA $0E
     XBA 
     STA $orbitAngle, X
@@ -3702,7 +3709,7 @@ code_08C0E1 {
   loc_08C0FD:
     COP [StageSpriteFrame] ( #1D )
     COP [AnimOnce]
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     COP [BranchIfPlayerNear] ( #01, &code_08C10A )
     RTL 
 }
@@ -3712,11 +3719,11 @@ code_08C10A {
     COP [AnimOnce]
     COP [PlaySoundBoth] ( #$2C2C )
     JSR $&code_08C16F
-    COP [CallScript] ( &code_08C12E )
-    COP [SetEntryExit]
+    COP [CallNear] ( &code_08C12E )
+    COP [SetEntryHereAndYield]
     JSL $@chunk_0B8000.code_0BD922
     COP [PlaySoundBoth] ( #$1515 )
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     COP [BranchIfPlayerNear] ( #01, &code_08C12D )
     BRA loc_08C0FD
 }
@@ -3730,7 +3737,7 @@ code_08C12E {
     STA $26
     LDA $24
     BPL loc_08C149
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     LDY #$1060
     LDA $0026, Y
     DEC 
@@ -3740,7 +3747,7 @@ code_08C12E {
     RTL 
 
   loc_08C149:
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     LDY #$1060
     LDA $0026, Y
     INC 
@@ -3817,7 +3824,7 @@ actor_def_08C1AF [
 
   loc_08C1B9:
     COP [WaitByte] ( #3B )
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     LDY #$1060
     LDA $0026, Y
     CMP #$0060
@@ -3828,7 +3835,7 @@ actor_def_08C1AF [
 
   loc_08C1CE:
     COP [WaitByte] ( #3B )
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     LDY #$1060
     LDA $0026, Y
     BEQ loc_08C1E0
@@ -3974,14 +3981,14 @@ actor_def_08C2CF [
     STA $0E
     COP [SetMetasprite] ( @table_0EE000 )
     COP [StageSprAndHitbox] ( #1B )
-    COP [AddPosition] ( #08, #00 )
+    COP [NudgePosition] ( #08, #00 )
     LDA $24
     JSL $@chunk_008000.code_00B565
     BCC loc_08C2F2
     JMP $&code_08C34F
 
   loc_08C2F2:
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     PHX 
     LDX $decelStepCounter
     LDA $7F0008, X
@@ -4015,18 +4022,18 @@ code_08C31E {
     COP [WaitByte] ( #B3 )
     COP [RngByte]
     STA $08
-    COP [SetEntryExit]
+    COP [SetEntryHereAndYield]
     LDA $16
     SEC 
     SBC #$0100
     STA $16
     LDA #$2000
     TRB $10
-    COP [CollPrioritySetMax]
+    COP [SetPriorityMax]
     COP [StageSpriteLoopMoveY] ( #1B, #02, #0F )
     COP [AnimLoop]
     COP [PlaySoundBoth] ( #$1515 )
-    COP [CollPriorityClearMax]
+    COP [ClearPriorityMax]
     COP [StageSpriteMoveY] ( #1B, #35 )
     COP [AnimOnce]
 }
@@ -4036,9 +4043,9 @@ code_08C34F {
     TRB $10
     LDA #$0300
     TSB $10
-    COP [CollPrioritySetMin]
-    COP [ClearAllHere]
-    COP [SetEntryContinue]
+    COP [SetPriorityMin]
+    COP [ClearCollisionHere]
+    COP [SetEntryHere]
     RTL 
 }
 
@@ -4048,12 +4055,12 @@ actor_def_08C360 [
   code_08C363:
     LDA #$0100
     STA $cameraBoundsY
-    COP [BranchIfFlagByte] ( #C2, #01, &code_08C380 )
+    COP [BranchOnFlagByte] ( #C2, #01, &code_08C380 )
     LDA #$0200
     TSB $12
-    COP [AddPosition] ( #00, #02 )
-    COP [SetOnInteract] ( &code_08C387 )
-    COP [ExitIfFlagByte] ( #C2, #01 )
+    COP [NudgePosition] ( #00, #02 )
+    COP [SetInteractHandler] ( &code_08C387 )
+    COP [WaitOnFlagByte] ( #C2, #01 )
 } >
 ]
 
@@ -4064,7 +4071,7 @@ code_08C380 {
 }
 
 code_08C387 {
-    COP [BranchIfFlagByte] ( #C2, #01, &code_08C3A5 )
+    COP [BranchOnFlagByte] ( #C2, #01, &code_08C3A5 )
     COP [PrintDialogString] ( &dialogstring_08C3AA )
     COP [GiveItem] ( #1E, &code_08C3A6 )
     COP [SetFlagByte] ( #C2 )
@@ -4089,12 +4096,12 @@ actor_def_08C424 [
   actor-def < #00, #00, #30, {
 
   code_08C427:
-    COP [BranchIfFlagByte] ( #C3, #01, &code_08C43E )
+    COP [BranchOnFlagByte] ( #C3, #01, &code_08C43E )
     LDA #$0200
     TSB $12
-    COP [AddPosition] ( #00, #02 )
-    COP [SetOnInteract] ( &code_08C445 )
-    COP [ExitIfFlagByte] ( #C3, #01 )
+    COP [NudgePosition] ( #00, #02 )
+    COP [SetInteractHandler] ( &code_08C445 )
+    COP [WaitOnFlagByte] ( #C3, #01 )
 } >
 ]
 
@@ -4105,7 +4112,7 @@ code_08C43E {
 }
 
 code_08C445 {
-    COP [BranchIfFlagByte] ( #C3, #01, &code_08C463 )
+    COP [BranchOnFlagByte] ( #C3, #01, &code_08C463 )
     COP [PrintDialogString] ( &dialogstring_08C464 )
     COP [GiveItem] ( #1F, &code_08C3A6 )
     COP [SetFlagByte] ( #C3 )
@@ -4124,12 +4131,12 @@ actor_def_08C4BF [
   actor-def < #00, #00, #30, {
 
   code_08C4C2:
-    COP [BranchIfFlagByte] ( #C4, #01, &code_08C4D9 )
+    COP [BranchOnFlagByte] ( #C4, #01, &code_08C4D9 )
     LDA #$0200
     TSB $12
-    COP [AddPosition] ( #00, #02 )
-    COP [SetOnInteract] ( &code_08C4E0 )
-    COP [ExitIfFlagByte] ( #C4, #01 )
+    COP [NudgePosition] ( #00, #02 )
+    COP [SetInteractHandler] ( &code_08C4E0 )
+    COP [WaitOnFlagByte] ( #C4, #01 )
 } >
 ]
 
@@ -4140,7 +4147,7 @@ code_08C4D9 {
 }
 
 code_08C4E0 {
-    COP [BranchIfFlagByte] ( #C4, #01, &code_08C4FE )
+    COP [BranchOnFlagByte] ( #C4, #01, &code_08C4FE )
     COP [PrintDialogString] ( &dialogstring_08C4FF )
     COP [GiveItem] ( #20, &code_08C3A6 )
     COP [SetFlagByte] ( #C4 )
@@ -4159,12 +4166,12 @@ actor_def_08C55A [
   actor-def < #00, #00, #30, {
 
   code_08C55D:
-    COP [BranchIfFlagByte] ( #C5, #01, &code_08C574 )
+    COP [BranchOnFlagByte] ( #C5, #01, &code_08C574 )
     LDA #$0200
     TSB $12
-    COP [AddPosition] ( #00, #02 )
-    COP [SetOnInteract] ( &code_08C57B )
-    COP [ExitIfFlagByte] ( #C5, #01 )
+    COP [NudgePosition] ( #00, #02 )
+    COP [SetInteractHandler] ( &code_08C57B )
+    COP [WaitOnFlagByte] ( #C5, #01 )
 } >
 ]
 
@@ -4175,7 +4182,7 @@ code_08C574 {
 }
 
 code_08C57B {
-    COP [BranchIfFlagByte] ( #C5, #01, &code_08C599 )
+    COP [BranchOnFlagByte] ( #C5, #01, &code_08C599 )
     COP [PrintDialogString] ( &dialogstring_08C59A )
     COP [GiveItem] ( #21, &code_08C3A6 )
     COP [SetFlagByte] ( #C5 )
@@ -4194,12 +4201,12 @@ actor_def_08C5F5 [
   actor-def < #00, #00, #30, {
 
   code_08C5F8:
-    COP [BranchIfFlagByte] ( #C6, #01, &code_08C60F )
+    COP [BranchOnFlagByte] ( #C6, #01, &code_08C60F )
     LDA #$0200
     TSB $12
-    COP [AddPosition] ( #00, #02 )
-    COP [SetOnInteract] ( &code_08C616 )
-    COP [ExitIfFlagByte] ( #C6, #01 )
+    COP [NudgePosition] ( #00, #02 )
+    COP [SetInteractHandler] ( &code_08C616 )
+    COP [WaitOnFlagByte] ( #C6, #01 )
 } >
 ]
 
@@ -4210,7 +4217,7 @@ code_08C60F {
 }
 
 code_08C616 {
-    COP [BranchIfFlagByte] ( #C6, #01, &code_08C634 )
+    COP [BranchOnFlagByte] ( #C6, #01, &code_08C634 )
     COP [PrintDialogString] ( &dialogstring_08C635 )
     COP [GiveItem] ( #22, &code_08C3A6 )
     COP [SetFlagByte] ( #C6 )
@@ -4229,12 +4236,12 @@ actor_def_08C690 [
   actor-def < #00, #00, #30, {
 
   code_08C693:
-    COP [BranchIfFlagByte] ( #C7, #01, &code_08C6AA )
+    COP [BranchOnFlagByte] ( #C7, #01, &code_08C6AA )
     LDA #$0200
     TSB $12
-    COP [AddPosition] ( #00, #02 )
-    COP [SetOnInteract] ( &code_08C6B1 )
-    COP [ExitIfFlagByte] ( #C7, #01 )
+    COP [NudgePosition] ( #00, #02 )
+    COP [SetInteractHandler] ( &code_08C6B1 )
+    COP [WaitOnFlagByte] ( #C7, #01 )
 } >
 ]
 
@@ -4245,7 +4252,7 @@ code_08C6AA {
 }
 
 code_08C6B1 {
-    COP [BranchIfFlagByte] ( #C7, #01, &code_08C6CF )
+    COP [BranchOnFlagByte] ( #C7, #01, &code_08C6CF )
     COP [PrintDialogString] ( &dialogstring_08C6D0 )
     COP [GiveItem] ( #23, &code_08C3A6 )
     COP [SetFlagByte] ( #C7 )
@@ -4293,8 +4300,8 @@ actor_def_08C731 [
     PLX 
 
   code_08C759:
-    COP [BranchIfFlagByte] ( #D1, #01, &code_08C7A0 )
-    COP [SetEntryContinue]
+    COP [BranchOnFlagByte] ( #D1, #01, &code_08C7A0 )
+    COP [SetEntryHere]
     LDY #$0000
 
   loc_08C764:
@@ -4414,17 +4421,17 @@ actor_def_08C8D8 [
   actor-def < #1C, #01, #20, {
 
   code_08C8DB:
-    COP [BranchIfFlagByte] ( #FC, #01, &code_08C8FF )
-    COP [AddPosition] ( #08, #0C )
-    COP [ExitIfFlagByte] ( #D1, #01 )
+    COP [BranchOnFlagByte] ( #FC, #01, &code_08C8FF )
+    COP [NudgePosition] ( #08, #0C )
+    COP [WaitOnFlagByte] ( #D1, #01 )
     LDA #$1000
     TSB $10
     LDA #$2000
     TRB $10
     LDA #$0200
     TSB $12
-    COP [SetOnInteract] ( &code_08C901 )
-    COP [SetEntryContinue]
+    COP [SetInteractHandler] ( &code_08C901 )
+    COP [SetEntryHere]
     RTL 
 } >
 ]
@@ -4461,7 +4468,7 @@ code_08C916 {
     LDA #$0303
     STA $gfxCacheIdxB
     COP [QueueMapChange] ( #DD, #$00F8, #$01B0, #00, #$2200 )
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     RTL 
 }
 
@@ -4473,7 +4480,7 @@ actor_def_08C986 [
   actor-def < #00, #00, #30, {
 
   code_08C989:
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     LDA $0AEC
     BEQ loc_08C991
     RTL 
@@ -4484,9 +4491,9 @@ actor_def_08C986 [
     COP [WaitByte] ( #3B )
     COP [PrintDialogString] ( &dialogstring_08C9D4 )
     LDA #$0004
-    STA $0AAC
+    STA $globalScriptIndex
     LDA #$00CD
-    STA $0B12
+    STA $sourceSceneId
     LDA #$0007
     STA $0B08
     STA $0B0A
@@ -4508,7 +4515,7 @@ actor_def_08CA0A [
   actor-def < #02, #00, #10, {
 
   code_08CA0D:
-    COP [BranchIfFlagByte] ( #E8, #01, &code_08CBFC )
+    COP [BranchOnFlagByte] ( #E8, #01, &code_08CBFC )
     LDA $0E
     ASL 
     ASL 
@@ -4517,13 +4524,13 @@ actor_def_08CA0A [
     ADC #$0002
     STA $28
     STZ $002A
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     COP [AnimOneFrame]
     LDA #$3000
     STA $0E
-    COP [SolidHighHere]
-    COP [SetOnInteract] ( &code_08CA33 )
-    COP [SetEntryContinue]
+    COP [MarkSolidHere]
+    COP [SetInteractHandler] ( &code_08CA33 )
+    COP [SetEntryHere]
     RTL 
 } >
 ]
@@ -4535,7 +4542,7 @@ code_08CA33 {
     COP [PrintDialogString] ( &dialogstring_08CC20 )
 
   code_08CA40:
-    COP [BranchIfFlagByte] ( #E9, #01, &code_08CA51 )
+    COP [BranchOnFlagByte] ( #E9, #01, &code_08CA51 )
     LDA $jewelsCollected
     CMP #$0003
     BCC code_08CA51
@@ -4543,7 +4550,7 @@ code_08CA33 {
 }
 
 code_08CA51 {
-    COP [BranchIfFlagByte] ( #EA, #01, &code_08CA62 )
+    COP [BranchOnFlagByte] ( #EA, #01, &code_08CA62 )
     LDA $jewelsCollected
     CMP #$0005
     BCC code_08CA62
@@ -4551,7 +4558,7 @@ code_08CA51 {
 }
 
 code_08CA62 {
-    COP [BranchIfFlagByte] ( #EB, #01, &code_08CA73 )
+    COP [BranchOnFlagByte] ( #EB, #01, &code_08CA73 )
     LDA $jewelsCollected
     CMP #$0008
     BCC code_08CA73
@@ -4559,7 +4566,7 @@ code_08CA62 {
 }
 
 code_08CA73 {
-    COP [BranchIfFlagByte] ( #EC, #01, &code_08CA84 )
+    COP [BranchOnFlagByte] ( #EC, #01, &code_08CA84 )
     LDA $jewelsCollected
     CMP #$0012
     BCC code_08CA84
@@ -4567,7 +4574,7 @@ code_08CA73 {
 }
 
 code_08CA84 {
-    COP [BranchIfFlagByte] ( #ED, #01, &code_08CA95 )
+    COP [BranchOnFlagByte] ( #ED, #01, &code_08CA95 )
     LDA $jewelsCollected
     CMP #$0020
     BCC code_08CA95
@@ -4575,7 +4582,7 @@ code_08CA84 {
 }
 
 code_08CA95 {
-    COP [BranchIfFlagByte] ( #EE, #01, &code_08CAA6 )
+    COP [BranchOnFlagByte] ( #EE, #01, &code_08CAA6 )
     LDA $jewelsCollected
     CMP #$0030
     BCC code_08CAA6
@@ -4608,7 +4615,7 @@ code_08CAC3 {
 }
 
 code_08CAC8 {
-    COP [BranchIfNoItem] ( #01, &code_08CAD2 )
+    COP [BranchIfHasItem] ( #01, &code_08CAD2 )
     COP [PrintDialogString] ( &dialogstring_08CD0F )
     RTL 
 }
@@ -4643,7 +4650,7 @@ code_08CAD2 {
 
   code_08CB01:
     COP [RemoveItem] ( #01 )
-    COP [BranchIfNoItem] ( #01, &code_08CB01 )
+    COP [BranchIfHasItem] ( #01, &code_08CB01 )
     COP [PrintDialogString] ( &dialogstring_08CD40 )
     JMP $&code_08CA40
 }
@@ -4651,37 +4658,37 @@ code_08CAD2 {
 code_08CB10 {
     COP [PrintDialogString] ( &dialogstring_08CD96 )
     COP [PrintDialogString] ( &dialogstring_08D11E )
-    COP [BranchIfFlagByte] ( #E9, #00, &code_08CB22 )
+    COP [BranchOnFlagByte] ( #E9, #00, &code_08CB22 )
     COP [PrintDialogString] ( &dialogstring_08D118 )
 }
 
 code_08CB22 {
     COP [PrintDialogString] ( &dialogstring_08D129 )
-    COP [BranchIfFlagByte] ( #EA, #00, &code_08CB30 )
+    COP [BranchOnFlagByte] ( #EA, #00, &code_08CB30 )
     COP [PrintDialogString] ( &dialogstring_08D118 )
 }
 
 code_08CB30 {
     COP [PrintDialogString] ( &dialogstring_08D13C )
-    COP [BranchIfFlagByte] ( #EB, #00, &code_08CB3E )
+    COP [BranchOnFlagByte] ( #EB, #00, &code_08CB3E )
     COP [PrintDialogString] ( &dialogstring_08D118 )
 }
 
 code_08CB3E {
     COP [PrintDialogString] ( &dialogstring_08D14F )
-    COP [BranchIfFlagByte] ( #EC, #00, &code_08CB4C )
+    COP [BranchOnFlagByte] ( #EC, #00, &code_08CB4C )
     COP [PrintDialogString] ( &dialogstring_08D118 )
 }
 
 code_08CB4C {
     COP [PrintDialogString] ( &dialogstring_08D162 )
-    COP [BranchIfFlagByte] ( #ED, #00, &code_08CB5A )
+    COP [BranchOnFlagByte] ( #ED, #00, &code_08CB5A )
     COP [PrintDialogString] ( &dialogstring_08D118 )
 }
 
 code_08CB5A {
     COP [PrintDialogString] ( &dialogstring_08D175 )
-    COP [BranchIfFlagByte] ( #EE, #00, &code_08CB68 )
+    COP [BranchOnFlagByte] ( #EE, #00, &code_08CB68 )
     COP [PrintDialogString] ( &dialogstring_08D118 )
 }
 
@@ -4720,7 +4727,7 @@ code_08CB94 {
 code_08CBA1 {
     INC $playerMaxHp
     LDA #$0001
-    STA $damageFlashTimer
+    STA $hpToHeal
     COP [SetFlagByte] ( #EB )
     COP [PrintDialogString] ( &dialogstring_08CEB0 )
     JMP $&code_08CA73
@@ -4845,10 +4852,10 @@ actor_def_08D1B7 [
 code_08D1C3 {
     COP [SetMetasprite] ( @table_0EE000 )
     COP [StageSprAndHitbox] ( #24 )
-    COP [SolidHighHere]
+    COP [MarkSolidHere]
     LDA #$0B00
     TSB $10
-    COP [OrActorFlags] ( #$0200 )
+    COP [OrExtraFlags] ( #$0200 )
     COP [SpawnAfterFlags] ( @code_08D217, #$2B00 )
     LDA $24
     STA $0024, Y
@@ -4858,9 +4865,9 @@ code_08D1C3 {
 
   loc_08D1E5:
     COP [BranchIfPlayerNear] ( #05, &code_08D1F2 )
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     COP [AnimOneFrame]
-    COP [SetEntryExit]
+    COP [SetEntryHereAndYield]
     BRA loc_08D1E5
 }
 
@@ -4880,9 +4887,9 @@ code_08D1F2 {
 }
 
 code_08D208 {
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     COP [AnimOneFrame]
-    COP [SetEntryExit]
+    COP [SetEntryHereAndYield]
     BRA loc_08D201
 
   loc_08D210:
@@ -4892,7 +4899,7 @@ code_08D208 {
 }
 
 code_08D217 {
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     NOP 
     NOP 
     LDA $09FA
@@ -4906,7 +4913,7 @@ code_08D217 {
 }
 
 code_08D22D {
-    COP [BranchIfButton] ( #$0801, &code_08D234 )
+    COP [BranchIfPressed] ( #$0801, &code_08D234 )
     RTL 
 }
 
@@ -4960,8 +4967,8 @@ code_08D234 {
     LDA #$0200
     TSB $layerPriorityFlag
     LDA $24
-    STA $0AAC
-    COP [SetEntryContinue]
+    STA $globalScriptIndex
+    COP [SetEntryHere]
     RTL 
 }
 
@@ -4972,14 +4979,14 @@ actor_def_08D2AC [
     COP [SpawnAfterFlags] ( @code_08EF1A, #$2800 )
     COP [SpawnAfterAbsFlags] ( @chunk_098000.code_099E46, #$0080, #$0040, #$1800 )
     COP [SpawnAfterAbsFlags] ( @chunk_098000.code_099E4C, #$0080, #$0058, #$1800 )
-    LDA $0AAC
+    LDA $globalScriptIndex
     CMP #$0004
     BCC loc_08D2D7
     LDA #$0000
 
   loc_08D2D7:
     STA $0AB2
-    STZ $0AAC
+    STZ $globalScriptIndex
     STA $0000
     COP [SwitchCase] ( #$0000, &code_list_08D2E6 )
 } >
@@ -4992,7 +4999,7 @@ code_list_08D2E6 [
   &code_08D581   ;03
   &code_08F0A9   ;04
   $#0CFF   ;05
-  $#065A   ;06
+  $joypadMaskStd   ;06
   &code_08B8AC   ;07
   &code_08B909   ;08
   $#0010   ;09
@@ -5017,24 +5024,24 @@ code_list_08D2E6 [
   $#1DDA   ;1C
   $#12AD   ;1D
   &code_088D0B   ;1E
-  $#0642   ;1F
+  $sceneNext   ;1F
   $#08AD   ;20
   $#0A0B   ;21
   $#0A0A   ;22
   &code_088D0A   ;23
-  $#064C   ;24
+  $warpDestX   ;24
   $#0CAD   ;25
   $#1A0B   ;26
   $#0A1A   ;27
   $#0A0A   ;28
   &code_088D0A   ;29
-  $#064E   ;2A
+  $warpDestY   ;2A
   $#03A9   ;2B
   &code_088D00   ;2C
-  $#0650   ;2D
+  $warpFacing   ;2D
   $#10AD   ;2E
   &code_088D0B   ;2F
-  $#0652   ;30
+  $warpScrollParams   ;30
   &code_08AC9C   ;31
   &code_08A90A   ;32
   $#0101   ;33
@@ -5047,7 +5054,7 @@ code_list_08D2E6 [
 ]
 
 code_08D35A {
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     COP [BranchIfPlayerInAbsTiles] ( #07, #08, #09, #09, &code_08D366 )
     BRA loc_08D367
 }
@@ -5056,14 +5063,14 @@ code_08D366 {
     RTL 
 
   loc_08D367:
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     COP [BranchIfPlayerInAbsTiles] ( #07, #08, #09, #09, &code_08D37A )
     COP [BranchIfPlayerInAbsTiles] ( #05, #0D, #0B, #0F, &code_08D2EE )
     RTL 
 }
 
 code_08D37A {
-    COP [CallScript] ( &code_08D5F4 )
+    COP [CallNear] ( &code_08D5F4 )
     BRA code_08D35A
 }
 
@@ -5084,7 +5091,7 @@ code_08D392 {
     COP [ApplyBgChange]
     COP [StageBgChange] ( #8A )
     COP [ApplyBgChange]
-    COP [BranchIfFlagByte] ( #B4, #00, &code_08D3AC )
+    COP [BranchOnFlagByte] ( #B4, #00, &code_08D3AC )
     COP [StageBgChange] ( #8E )
     COP [ApplyBgChange]
     COP [StageBgChange] ( #8F )
@@ -5092,7 +5099,7 @@ code_08D392 {
 }
 
 code_08D3AC {
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     COP [BranchIfPlayerInAbsTiles] ( #07, #08, #09, #09, &code_08D3C8 )
     COP [BranchIfPlayerInAbsTiles] ( #03, #0A, #05, #0B, &code_08D3C8 )
     COP [BranchIfPlayerInAbsTiles] ( #0B, #0A, #0D, #0B, &code_08D3C8 )
@@ -5103,7 +5110,7 @@ code_08D3C8 {
     RTL 
 
   loc_08D3C9:
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     COP [BranchIfPlayerInAbsTiles] ( #07, #08, #09, #09, &code_08D3EC )
     COP [BranchIfPlayerInAbsTiles] ( #03, #0A, #05, #0B, &code_08D3F2 )
     COP [BranchIfPlayerInAbsTiles] ( #0B, #0A, #0D, #0B, &code_08D3F8 )
@@ -5112,17 +5119,17 @@ code_08D3C8 {
 }
 
 code_08D3EC {
-    COP [CallScript] ( &code_08D5F4 )
+    COP [CallNear] ( &code_08D5F4 )
     BRA code_08D3AC
 }
 
 code_08D3F2 {
-    COP [CallScript] ( &code_08E996 )
+    COP [CallNear] ( &code_08E996 )
     BRA code_08D3AC
 }
 
 code_08D3F8 {
-    COP [CallScript] ( &code_08ECD7 )
+    COP [CallNear] ( &code_08ECD7 )
     BRA code_08D3AC
 }
 
@@ -5131,7 +5138,7 @@ code_08D3FE {
     COP [ApplyBgChange]
     COP [StageBgChange] ( #8A )
     COP [ApplyBgChange]
-    COP [BranchIfFlagByte] ( #B4, #00, &code_08D418 )
+    COP [BranchOnFlagByte] ( #B4, #00, &code_08D418 )
     COP [StageBgChange] ( #8E )
     COP [ApplyBgChange]
     COP [StageBgChange] ( #8F )
@@ -5139,7 +5146,7 @@ code_08D3FE {
 }
 
 code_08D418 {
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     COP [BranchIfPlayerInAbsTiles] ( #07, #08, #09, #09, &code_08D434 )
     COP [BranchIfPlayerInAbsTiles] ( #03, #0A, #05, #0B, &code_08D434 )
     COP [BranchIfPlayerInAbsTiles] ( #0B, #0A, #0D, #0B, &code_08D434 )
@@ -5150,7 +5157,7 @@ code_08D434 {
     RTL 
 
   loc_08D435:
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     COP [BranchIfPlayerInAbsTiles] ( #07, #08, #09, #09, &code_08D458 )
     COP [BranchIfPlayerInAbsTiles] ( #03, #0A, #05, #0B, &code_08D45E )
     COP [BranchIfPlayerInAbsTiles] ( #0B, #0A, #0D, #0B, &code_08D464 )
@@ -5159,17 +5166,17 @@ code_08D434 {
 }
 
 code_08D458 {
-    COP [CallScript] ( &code_08D5F4 )
+    COP [CallNear] ( &code_08D5F4 )
     BRA code_08D418
 }
 
 code_08D45E {
-    COP [CallScript] ( &code_08EBD3 )
+    COP [CallNear] ( &code_08EBD3 )
     BRA code_08D418
 }
 
 code_08D464 {
-    COP [CallScript] ( &code_08ECD7 )
+    COP [CallNear] ( &code_08ECD7 )
     BRA code_08D418
 }
 
@@ -5184,7 +5191,7 @@ code_08D46A {
     COP [ApplyBgChange]
 
   loc_08D47E:
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     COP [BranchIfPlayerInAbsTiles] ( #07, #08, #09, #09, &code_08D49A )
     COP [BranchIfPlayerInAbsTiles] ( #03, #0A, #05, #0B, &code_08D49A )
     COP [BranchIfPlayerInAbsTiles] ( #0B, #0A, #0D, #0B, &code_08D49A )
@@ -5195,7 +5202,7 @@ code_08D49A {
     RTL 
 
   loc_08D49B:
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     COP [BranchIfPlayerInAbsTiles] ( #07, #08, #09, #09, &code_08D4BE )
     COP [BranchIfPlayerInAbsTiles] ( #03, #0A, #05, #0B, &code_08D4C4 )
     COP [BranchIfPlayerInAbsTiles] ( #0B, #0A, #0D, #0B, &code_08D4CA )
@@ -5204,17 +5211,17 @@ code_08D49A {
 }
 
 code_08D4BE {
-    COP [CallScript] ( &code_08D5F4 )
+    COP [CallNear] ( &code_08D5F4 )
     BRA loc_08D47E
 }
 
 code_08D4C4 {
-    COP [CallScript] ( &code_08EBD3 )
+    COP [CallNear] ( &code_08EBD3 )
     BRA loc_08D47E
 }
 
 code_08D4CA {
-    COP [CallScript] ( &code_08E996 )
+    COP [CallNear] ( &code_08E996 )
     BRA loc_08D47E
 }
 
@@ -5228,7 +5235,7 @@ code_08D4D0 {
     LDA $@code_08E4BF, X
     BEQ loc_08D548
     AND #$00FF
-    CMP $0B12
+    CMP $sourceSceneId
     BEQ loc_08D4EB
     INX 
     INX 
@@ -5244,7 +5251,7 @@ code_08D4D0 {
     COP [ApplyBgChange]
     LDA #$0000
     STA $orbitAngle, X
-    COP [SpawnLastRel] ( @code_08E339, #00, #00, #$3800 )
+    COP [SpawnListAppend] ( @code_08E339, #00, #00, #$3800 )
     LDA #$0040
     STA $0014, Y
     LDA #$006D
@@ -5258,7 +5265,7 @@ code_08D4D0 {
     COP [ApplyBgChange]
     LDA #$0001
     STA $orbitAngle, X
-    COP [SpawnLastRel] ( @code_08E339, #00, #00, #$3800 )
+    COP [SpawnListAppend] ( @code_08E339, #00, #00, #$3800 )
     LDA #$0040
     STA $0014, Y
     LDA #$0054
@@ -5271,7 +5278,7 @@ code_08D4D0 {
     PLX 
 
   loc_08D549:
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     COP [BranchIfPlayerInAbsTiles] ( #07, #08, #09, #09, &code_08D555 )
     BRA loc_08D556
 }
@@ -5280,30 +5287,30 @@ code_08D555 {
     RTL 
 
   loc_08D556:
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     COP [BranchIfPlayerInAbsTiles] ( #07, #08, #09, #09, &code_08D569 )
     COP [BranchIfPlayerInAbsTiles] ( #05, #0D, #0B, #0F, &code_08D2EE )
     RTL 
 }
 
 code_08D569 {
-    COP [CallScript] ( &code_08D5F4 )
+    COP [CallNear] ( &code_08D5F4 )
     BRA loc_08D549
 
   loc_08D56F:
     LDA $orbitAngle, X
     BNE loc_08D57B
-    COP [CallScript] ( &code_08EBD3 )
+    COP [CallNear] ( &code_08EBD3 )
     BRA loc_08D549
 
   loc_08D57B:
-    COP [CallScript] ( &code_08E996 )
+    COP [CallNear] ( &code_08E996 )
     BRA loc_08D549
 }
 
 code_08D581 {
     LDA #$0001
-    STA $0AAC
+    STA $globalScriptIndex
     JMP $&code_08D380
 }
 
@@ -5316,7 +5323,7 @@ code_08D58A {
     COP [ApplyBgChange]
     COP [StageBgChange] ( #8A )
     COP [ApplyBgChange]
-    COP [SpawnLastRel] ( @code_08E831, #00, #00, #$3800 )
+    COP [SpawnListAppend] ( @code_08E831, #00, #00, #$3800 )
     LDA #$00C0
     STA $0014, Y
     LDA #$0078
@@ -5325,7 +5332,7 @@ code_08D58A {
     STA $0026, Y
 
   loc_08D5B8:
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     COP [BranchIfPlayerInAbsTiles] ( #07, #08, #09, #09, &code_08D5CC )
     COP [BranchIfPlayerInAbsTiles] ( #03, #0A, #05, #0B, &code_08D5CC )
     BRA loc_08D5CD
@@ -5335,7 +5342,7 @@ code_08D5CC {
     RTL 
 
   loc_08D5CD:
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     COP [BranchIfPlayerInAbsTiles] ( #07, #08, #09, #09, &code_08D5E8 )
     COP [BranchIfPlayerInAbsTiles] ( #03, #0A, #05, #0B, &code_08D5EE )
     COP [BranchIfPlayerInAbsTiles] ( #05, #0D, #0B, #0F, &code_08D2EE )
@@ -5343,12 +5350,12 @@ code_08D5CC {
 }
 
 code_08D5E8 {
-    COP [CallScript] ( &code_08D5F4 )
+    COP [CallNear] ( &code_08D5F4 )
     BRA loc_08D5B8
 }
 
 code_08D5EE {
-    COP [CallScript] ( &code_08ECD7 )
+    COP [CallNear] ( &code_08ECD7 )
     BRA loc_08D5B8
 }
 
@@ -5361,7 +5368,7 @@ code_08D5F4 {
     LDY $06
     LDA #$FFFF
     STA $0024, Y
-    COP [BranchIfFlagByte] ( #DC, #01, &code_08D618 )
+    COP [BranchOnFlagByte] ( #DC, #01, &code_08D618 )
     COP [SetFlagByte] ( #DC )
     COP [PrintDialogString] ( &dialogstring_08D80F )
 }
@@ -5374,8 +5381,8 @@ code_08D618 {
     LDA #$FFF0
     TSB $joypadMaskStd
     LDA #$0028
-    STA $damageFlashTimer
-    COP [SetEntryContinue]
+    STA $hpToHeal
+    COP [SetEntryHere]
     LDA $playerHp
     CMP $playerMaxHp
     BEQ loc_08D63B
@@ -5389,7 +5396,7 @@ code_08D618 {
     LDA $@dialogstring_08D94B, X
     AND #$00FF
     BEQ loc_08D69E
-    CMP $0B12
+    CMP $sourceSceneId
     BEQ loc_08D650
     INX 
     BRA loc_08D63F
@@ -5501,7 +5508,7 @@ code_08D6EC {
     COP [StageSpriteFrame] ( #1C )
     COP [AnimOnce]
     COP [FadeThenStartMusic] ( #0E )
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     RTL 
 }
 
@@ -5636,12 +5643,12 @@ code_08D7A8 {
 }
 
 code_08D7AB {
-    LDA $0AAC
+    LDA $globalScriptIndex
     BNE loc_08D7B3
     JMP $&code_08D69F
 
   loc_08D7B3:
-    COP [BranchIfNoItem] ( #24, &code_08D7F0 )
+    COP [BranchIfHasItem] ( #24, &code_08D7F0 )
     COP [GiveItem] ( #24, &code_08D7F7 )
     COP [PrintDialogString] ( &dialogstring_08E03F )
     LDA #$FFF0
@@ -5649,7 +5656,7 @@ code_08D7AB {
     COP [StartMusic] ( #18 )
     COP [WaitByte] ( #59 )
     COP [PrintDialogString] ( &dialogstring_08E18F )
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     SEP #$20
     LDA $APUIO1
     REP #$20
@@ -5735,7 +5742,7 @@ dialogstring_08DD3A ``
 
 dialogstring_08DD3B `[PRT]ゃ[DLY:88]ムー大陸は そなたが 旅をはじめる[N]と 同時に 海面へ ふじょうした.[FIN]しかし 大陸の 多くの部分には[N]まだ 海水がたまっている.[FIN]この水が すべて なくなったとき[N]そなたは ムー大陸の王 ラ·ムーの[N]ねむる場所へ たどりつくだろう.[FIN]`
 
-dialogstring_08DDD2 `[PRT]ゃ[DLY:88]テムの力 サイコスライダーは[N]高さが低く せまい通路を[N]とおりぬけることができる.[::][FIN]とおれる 岩のすきまを[N]見落さないように あたりに[N]気をくばって歩くがいい.[FIN]`
+dialogstring_08DDD2 `[PRT]ゃ[DLY:88]テムの力 サイコスライダーは[N]高さが低く せまい通路を[N]とおりぬけることができる.[FIN]とおれる 岩のすきまを[N]見落さないように あたりに[N]気をくばって歩くがいい.[FIN]`
 
 dialogstring_08DE36 ``
 
@@ -5788,7 +5795,7 @@ code_08E339 {
     LDA $@code_08E4BF, X
     BEQ loc_08E353
     AND #$00FF
-    CMP $0B12
+    CMP $sourceSceneId
     BEQ loc_08E356
     INX 
     INX 
@@ -5806,13 +5813,13 @@ code_08E339 {
     AND $abilityBitmask
     BNE loc_08E353
     TYA 
-    STA $0AAC
+    STA $globalScriptIndex
     PLX 
     COP [StageSprAndHitbox] ( #0A )
     LDA #$2000
     TRB $10
-    COP [SetEntryContinue]
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
+    COP [SetEntryHere]
     COP [AnimOneFrame]
     COP [BranchIfPlayerInAbsTiles] ( #03, #0A, #05, #0B, &code_08E380 )
     RTL 
@@ -5875,8 +5882,8 @@ code_08E380 {
     TSB $slopeCurvePtrB
 
   loc_08E400:
-    COP [SetEntryContinue]
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
+    COP [SetEntryHere]
     COP [AnimOneFrame]
     LDA $slopeCurvePtrB
     BIT #$0800
@@ -5884,12 +5891,12 @@ code_08E380 {
     RTL 
 
   loc_08E40F:
-    COP [LoopInit] ( #08 )
+    COP [LoopStart] ( #08 )
     LDA #$FFF0
     TSB $joypadMaskStd
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     COP [AnimOneFrame]
-    COP [LoopNext]
+    COP [LoopEnd]
     LDA $24
     ORA $abilityBitmask
     STA $abilityBitmask
@@ -5912,7 +5919,7 @@ code_08E380 {
     COP [StartMusic] ( #18 )
     COP [WaitByte] ( #59 )
     COP [PrintDialogString] ( &dialogstring_08E4CD )
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     SEP #$20
     LDA $APUIO1
     REP #$20
@@ -5946,7 +5953,7 @@ code_08E494 {
     LDA $@code_08E4BF, X
     BEQ loc_08E4BC
     AND #$00FF
-    CMP $0B12
+    CMP $sourceSceneId
     BEQ loc_08E4AA
     INX 
     INX 
@@ -5979,9 +5986,9 @@ code_08E4BF {
     BRK #$00
 }
 
-dialogstring_08E4CD `[DEF][DLY:9]ヤミの力 [ADR:&chunk_088000.dialogstring_08E4F8,AAC]が[N]使えるようになった![PAU:78][FIN]`
+dialogstring_08E4CD `[DEF][DLY:9]ヤミの力 [ADR:&dialogstring_08E4F8,AAC]が[N]使えるようになった![PAU:78][FIN]`
 
-dialogstring_08E4EE `[DEF][CLR][DLY:2][ADR:&chunk_088000.dialogstring_08E542,AAC][END]`
+dialogstring_08E4EE `[DEF][CLR][DLY:2][ADR:&dialogstring_08E542,AAC][END]`
 
 dialogstring_08E4F8 `ご[E5]ど[E5]ぱ[E5]C[E5]N[E5]W[E5]サイコダッシュ`
 
@@ -6008,14 +6015,14 @@ dialogstring_08E73D `オーラバリアは[N]ヤミの戦士フリーダンだ�
 dialogstring_08E7B8 `アースクエイカーは[N]ヤミの戦士フリーダンだけが 使える[N]ヤミのちから.[FIN]これは じしんを おこして[N]敵を しばらくの間 動けなく[N]することできる.[FIN]飛びおりている最中に[N]こうげきボタンをおすがよい···`
 
 code_08E831 {
-    COP [BranchIfNoItem] ( #24, &code_08E8C6 )
+    COP [BranchIfHasItem] ( #24, &code_08E8C6 )
     COP [StageSprAndHitbox] ( #0A )
     LDA #$2000
     TRB $10
 
   code_08E83E:
-    COP [SetEntryContinue]
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
+    COP [SetEntryHere]
     COP [AnimOneFrame]
     COP [BranchIfPlayerInAbsTiles] ( #0B, #0A, #0D, #0B, &code_08E84D )
     RTL 
@@ -6046,7 +6053,7 @@ code_08E84D {
     TSB $09FA
     COP [MusicAndText] ( #17, @dialogstring_08E8EE )
     COP [WaitByte] ( #03 )
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     SEP #$20
     LDA $APUIO1
     REP #$20
@@ -6079,8 +6086,8 @@ code_08E8C8 {
     TSB $10
     LDA #$FFF0
     TRB $joypadMaskStd
-    COP [SetEntryContinue]
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
+    COP [SetEntryHere]
     COP [AnimOneFrame]
     COP [BranchIfPlayerInAbsTiles] ( #0B, #0A, #0D, #0B, &code_08E8ED )
     JMP $&code_08E83E
@@ -6105,7 +6112,7 @@ code_08E996 {
     COP [WaitByte] ( #05 )
     LDA #$FFF0
     TRB $joypadMaskStd
-    COP [BranchIfFlagByte] ( #F7, #01, &code_08E9DA )
+    COP [BranchOnFlagByte] ( #F7, #01, &code_08E9DA )
     COP [SetFlagByte] ( #F7 )
     COP [PrintDialogString] ( &dialogstring_08EA63 )
     LDY $decelStepCounter
@@ -6246,7 +6253,7 @@ dialogstring_08EC68 `[CLD]`
 dialogstring_08EC6A `ぐ[8E]ざぐ冒ぐ[89]ぐぜEEぐ先ぐ[89]ぐ行ぐ[89][9C]ダグ[TPL:2]アヂ[XXX][B5]手助グ[89]グ手グ[89]グ間グ[89]╳ワ[EF]ゥグ[8E]ザグ能グ[89]グゼeeグ左グ[89]グ入グ[89]グ力グ[89][9C]ダグ[TPL:2]アヂ[XXX][B5]手助グ[89]グ手グ[89]グ間グ[89]╳ワ[EF]ゥ`
 
 code_08ECD7 {
-    COP [BranchIfFlagByte] ( #B4, #00, &code_08ED08 )
+    COP [BranchOnFlagByte] ( #B4, #00, &code_08ED08 )
     LDA $characterForm
     CMP #$0002
     BEQ code_08ED08
@@ -6255,7 +6262,7 @@ code_08ECD7 {
     COP [WaitByte] ( #05 )
     LDA #$FFF0
     TRB $joypadMaskStd
-    COP [BranchIfFlagByte] ( #DD, #01, &code_08ED0A )
+    COP [BranchOnFlagByte] ( #DD, #01, &code_08ED0A )
     COP [SetFlagByte] ( #DD )
     COP [PrintDialogString] ( &dialogstring_08ED92 )
     LDA $characterForm
@@ -6326,7 +6333,7 @@ dialogstring_08ED92 `[TPL:B]頭の中で 声がこだまする.[FIN][TPL:4]私�
 dialogstring_08EE8C `ぐ[8E]ざぐ私ぐ[89]ぐぜEEぐ手ぐ[89]ぐ助ぐ[89]ぐあぇ[XXX][B5]手力ぐ[89]ぐ入ぐ[89]ぐ[A5]ぴ[BF]明ががH[A9]ぐが[8D]ダグ左グ[89]グ石グ[89]╳ワ[EF]ゥグ[8E]ザグ険グ[89]グゼeeグ先グ[89]グ行グ[89]グアェ[XXX][B5]手力グ[89]グ入グ[89]グ[A5]ピ[BF]明ガガh[A9]グガ[8D]ダグ左グ[89]グ石グ[89]╳ワ[EF]ゥグガh[A9]ガ►ゴ▲`
 
 code_08EF1A {
-    COP [SetEntryExit]
+    COP [SetEntryHereAndYield]
     COP [RngByte]
     AND #$000F
     ASL 
@@ -6356,8 +6363,8 @@ code_08EF2F {
     STA $moveYAlt, X
 
   loc_08EF57:
-    COP [ReloadForceMove]
-    COP [SetEntryContinue]
+    COP [ReloadMoveDurations]
+    COP [SetEntryHere]
     COP [AnimOnce]
     LDA $16
     CMP #$00FF
@@ -6407,7 +6414,7 @@ actor_def_08EF9C [
     COP [PlaySoundCh1] ( #0E )
     COP [StageBgChange] ( #9C )
     COP [ApplyBgChange]
-    COP [BranchIfFlagByte] ( #E8, #01, &code_08EFE7 )
+    COP [BranchOnFlagByte] ( #E8, #01, &code_08EFE7 )
     COP [WaitByte] ( #27 )
     COP [FadeThenStartMusic] ( #1B )
     COP [WaitByte] ( #B3 )
@@ -6440,9 +6447,9 @@ code_08EFE7 {
 code_08F010 {
     COP [StageSpriteFrame] ( #0E )
     COP [AnimOnce]
-    COP [SpawnAfterRelFlags] ( @code_08F147, #$0000, #$FFE8, #$0200 )
-    COP [SpawnAfterRelFlags] ( @code_08F179, #$0000, #$FFE8, #$0200 )
-    COP [SpawnAfterRelFlags] ( @code_08F193, #$0000, #$FFE8, #$0200 )
+    COP [SpawnAfterOffsetFlags] ( @code_08F147, #$0000, #$FFE8, #$0200 )
+    COP [SpawnAfterOffsetFlags] ( @code_08F179, #$0000, #$FFE8, #$0200 )
+    COP [SpawnAfterOffsetFlags] ( @code_08F193, #$0000, #$FFE8, #$0200 )
     COP [StageSpriteFrame] ( #16 )
     COP [AnimOnce]
     BRA loc_08EFF6
@@ -6463,12 +6470,12 @@ code_08F051 {
 code_08F05B {
     COP [StageSpriteFrame] ( #0D )
     COP [AnimOnce]
-    COP [SpawnAfterRelFlags] ( @code_08F1CA, #$FFF0, #$FFE6, #$0200 )
+    COP [SpawnAfterOffsetFlags] ( @code_08F1CA, #$FFF0, #$FFE6, #$0200 )
     COP [StageSpriteFrame] ( #17 )
     COP [AnimOnce]
     COP [StageSpriteFrame] ( #0D )
     COP [AnimOnce]
-    COP [SpawnAfterRelFlags] ( @code_08F1CA, #$FFF0, #$FFE6, #$0200 )
+    COP [SpawnAfterOffsetFlags] ( @code_08F1CA, #$FFF0, #$FFE6, #$0200 )
     COP [StageSpriteFrame] ( #17 )
     COP [AnimOnce]
     JMP $&code_08EFFB
@@ -6477,12 +6484,12 @@ code_08F05B {
 code_08F088 {
     COP [StageSpriteFrame] ( #0F )
     COP [AnimOnce]
-    COP [SpawnAfterRelFlags] ( @code_08F1EA, #$0010, #$FFE6, #$0200 )
+    COP [SpawnAfterOffsetFlags] ( @code_08F1EA, #$0010, #$FFE6, #$0200 )
     COP [StageSpriteFrame] ( #18 )
     COP [AnimOnce]
     COP [StageSpriteFrame] ( #0F )
     COP [AnimOnce]
-    COP [SpawnAfterRelFlags] ( @code_08F1EA, #$0010, #$FFE6, #$0200 )
+    COP [SpawnAfterOffsetFlags] ( @code_08F1EA, #$0010, #$FFE6, #$0200 )
     COP [StageSpriteFrame] ( #18 )
     COP [AnimOnce]
     JMP $&code_08EFFB
@@ -6559,8 +6566,8 @@ code_08F13E {
 }
 
 code_08F147 {
-    COP [OrActorFlags] ( #$0010 )
-    COP [CollPrioritySetMax]
+    COP [OrExtraFlags] ( #$0010 )
+    COP [SetPriorityMax]
     COP [SetSpritePriority] ( #30 )
     COP [StageSpriteFrame] ( #10 )
     COP [AnimOnce]
@@ -6578,8 +6585,8 @@ code_08F147 {
 }
 
 code_08F179 {
-    COP [OrActorFlags] ( #$0010 )
-    COP [CollPrioritySetMax]
+    COP [OrExtraFlags] ( #$0010 )
+    COP [SetPriorityMax]
     COP [SetSpritePriority] ( #30 )
     COP [PlaySoundCh1] ( #1E )
     COP [StageSpriteFrame] ( #10 )
@@ -6590,8 +6597,8 @@ code_08F179 {
 }
 
 code_08F193 {
-    COP [OrActorFlags] ( #$0010 )
-    COP [CollPrioritySetMax]
+    COP [OrExtraFlags] ( #$0010 )
+    COP [SetPriorityMax]
     COP [SetSpritePriority] ( #30 )
     COP [StageSpriteFrame] ( #10 )
     COP [AnimOnce]
@@ -6611,8 +6618,8 @@ code_08F193 {
 }
 
 code_08F1CA {
-    COP [OrActorFlags] ( #$0010 )
-    COP [CollPrioritySetMax]
+    COP [OrExtraFlags] ( #$0010 )
+    COP [SetPriorityMax]
     COP [SetSpritePriority] ( #30 )
     COP [PlaySoundCh1] ( #1E )
     COP [StageSpriteFrame] ( #11 )
@@ -6625,8 +6632,8 @@ code_08F1CA {
 }
 
 code_08F1EA {
-    COP [OrActorFlags] ( #$0010 )
-    COP [CollPrioritySetMax]
+    COP [OrExtraFlags] ( #$0010 )
+    COP [SetPriorityMax]
     COP [SetSpritePriority] ( #30 )
     COP [PlaySoundCh1] ( #1E )
     COP [StageSpriteFrame] ( #12 )
@@ -6639,7 +6646,7 @@ code_08F1EA {
 }
 
 code_08F20A {
-    COP [SpawnMarkedAfter] ( @chunk_008000.code_00E77A, #$2000 )
+    COP [SpawnAfterMarked] ( @chunk_008000.code_00E77A, #$2000 )
     LDA #$8013
     STA $chatPtr, X
     LDA #$0003
@@ -6666,12 +6673,12 @@ code_08F20A {
     COP [StageSprAndHitbox] ( #13 )
 
   loc_08F253:
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     COP [AnimOneFrame]
     LDA $08
     STA $24
     STZ $08
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     LDA $7F100C, X
     STA $moveScratch1, X
     LDA $7F100E, X
@@ -6731,7 +6738,7 @@ actor_def_08F487 [
     COP [PrintDialogString] ( &dialogstring_08F4C0 )
     LDA #$EFF0
     TRB $joypadMaskStd
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     COP [BranchIfPlayerInRelTiles] ( #32, #3E, #34, #3F, &code_08F4A8 )
     RTL 
 } >

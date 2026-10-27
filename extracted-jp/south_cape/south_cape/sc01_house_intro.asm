@@ -6,7 +6,7 @@ h_sc01_house_intro [
   actor-def < #00, #00, #30, {
 
   code_04B899:
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     COP [BranchIfPlayerAt] ( #$0208, #$00E0, &code_04B8D4 )
     COP [BranchIfPlayerAt] ( #$0208, #$00DF, &code_04B8D4 )
     COP [BranchIfPlayerAt] ( #$0208, #$00E8, &code_04B8F6 )
@@ -19,8 +19,8 @@ h_sc01_house_intro [
 ]
 
 code_04B8D4 {
-    COP [BranchIfFlagByte] ( #26, #01, &code_04B8E0 )
-    COP [BranchIfFlagByte] ( #21, #01, &code_04B8EB )
+    COP [BranchOnFlagByte] ( #26, #01, &code_04B8E0 )
+    COP [BranchOnFlagByte] ( #21, #01, &code_04B8EB )
 }
 
 code_04B8E0 {
@@ -34,7 +34,7 @@ code_04B8EB {
 }
 
 code_04B8F6 {
-    COP [BranchIfFlagByte] ( #12, #01, &code_04B903 )
+    COP [BranchOnFlagByte] ( #12, #01, &code_04B903 )
     COP [SetFlagByte] ( #12 )
     COP [PrintDialogString] ( &dialogstring_04B947 )
 }
@@ -44,7 +44,7 @@ code_04B903 {
 }
 
 code_04B904 {
-    COP [BranchIfFlagByte] ( #13, #01, &code_04B911 )
+    COP [BranchOnFlagByte] ( #13, #01, &code_04B911 )
     COP [SetFlagByte] ( #13 )
     COP [PrintDialogString] ( &dialogstring_04B986 )
 }
@@ -54,7 +54,7 @@ code_04B911 {
 }
 
 code_04B912 {
-    COP [BranchIfFlagByte] ( #14, #01, &code_04B91F )
+    COP [BranchOnFlagByte] ( #14, #01, &code_04B91F )
     COP [SetFlagByte] ( #14 )
     COP [PrintDialogString] ( &dialogstring_04B9BD )
 }
@@ -64,8 +64,8 @@ code_04B91F {
 }
 
 code_04B920 {
-    COP [BranchIfFlagByte] ( #17, #01, &code_04B942 )
-    COP [BranchIfFlagByte] ( #16, #00, &code_04B942 )
+    COP [BranchOnFlagByte] ( #17, #01, &code_04B942 )
+    COP [BranchOnFlagByte] ( #16, #00, &code_04B942 )
     COP [SetFlagByte] ( #17 )
     LDA #$CFF0
     TSB $joypadMaskStd
@@ -76,7 +76,7 @@ code_04B920 {
 }
 
 code_04B942 {
-    COP [SetEntryExitNow] ( @code_04B899 )
+    COP [JumpNextFrame] ( @code_04B899 )
 }
 
 dialogstring_04B947 `[TPL:10][TPL:0]ここは ぼくの家だ.[N][PAU:1E]祖母のローラが パイを燒いて[N]いるのか いいにおいが[N]ただよっている.[PAL:0][END]`

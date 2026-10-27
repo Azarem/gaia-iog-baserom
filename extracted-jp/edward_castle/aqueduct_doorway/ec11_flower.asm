@@ -6,9 +6,9 @@ h_ec11_flower [
   code_04F6DA:
     LDA #$0200
     TSB $12
-    COP [AddPosition] ( #00, #02 )
-    COP [SetOnInteract] ( &code_04F6EF )
-    COP [SetEntryContinue]
+    COP [NudgePosition] ( #00, #02 )
+    COP [SetInteractHandler] ( &code_04F6EF )
+    COP [SetEntryHere]
     COP [StageSpriteFrame] ( #3F )
     COP [AnimOnce]
     RTL 

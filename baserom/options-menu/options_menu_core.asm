@@ -55,8 +55,8 @@
 ;   +06  temp     WRAM word used as the TBL index (the "option value switch").
 ;                 Must equal <temp> in the render string and live in $0000-$1FFF.
 ;                 Allocation: $0BE0 Names, $0BE2 Text Speed, $0BE4 Auto-Jewels,
-;                 $0BE6 Run Button, $0BE8 Btn. Preset, $0BEA+ is reserved for
-;                 the button preview buffer.
+;                 $0BE6 Run Button, $0BE8 Btn. Preset, $0BEA-$0BEF is reserved
+;                 for the button preview buffer, $0BF6 Minimal HUD.
 ;   +08  store    WRAM address of the packed persistent byte (inside the save
 ;                 block $0A00-$0BFB), or 0 when the handlers manage storage
 ;   +0A  shift    bit position of the field inside the stored byte
@@ -100,7 +100,8 @@
 ; Persistent storage map (inside the saved WRAM block):
 ;   $0B24        Names (legacy, retranslation base): bit 0, 1 = English
 ;   $0B34-$0B39  button mapping
-;   $0B3A        Text Speed (bits 0-1), Run Button (bits 2-3), Auto-Jewels (bit 4)
+;   $0B3A        Text Speed (bits 0-1), Run Button (bits 2-3), Auto-Jewels (bit 4),
+;                Minimal HUD (bit 5)
 ;
 ; All BG3 rendering goes through ConsoleStringRenderer. No direct writes to the
 ; BG3 buffer except OptClearSetting, which blanks a setting's two rows.
@@ -136,6 +137,7 @@
 ;   $0BF0        byte offset of the currently selected record
 ;   $0BF2        number of choices of the current setting (opt_count)
 ;   $0BF4        bank byte of the string handed to OptRenderString
+;   $0BF6        Minimal HUD setting temp word (MinimalHudOption.patch.asm)
 !opt_wram_base                  0BD0
 !opt_temp_preset                0BE8
 !opt_map                        0BEA
@@ -443,21 +445,9 @@ OptionsCursorRight {
     LDA $22
     CMP #$0008
     BCS ocr_done
-    COP [PlaySoundCh2] ( #10 )
-    CLC
-    ADC #$0002
-    LSR
-    STA $0000
-    JSR $&OptCountSettings
-    DEC
-    CMP $0000
-    BCC ocr_clamp
-    LDA $0000
-
-  ocr_clamp:
-    CLC
-    ADC #$0008
+    LDA #$0008
     STA $22
+    COP [PlaySoundCh2] ( #10 )
 
   ocr_done:
     JMP opt_position
@@ -627,7 +617,7 @@ OptionsPositionCursor {
     ASL
     ASL
     CLC
-    ADC #$0035
+    ADC #$002D
     STA $0016, Y
     LDA #$0088
     STA $0014, Y
@@ -652,7 +642,7 @@ OptionsPositionEditCursor {
     ASL
     ASL
     CLC
-    ADC #$003D
+    ADC #$0035
     STA $0016, Y
     LDA #$0090
     STA $0014, Y
@@ -694,19 +684,6 @@ OptionsDrawAll {
     PLA
 
   oda_done:
-    JMP $&OptionDisplayPrologue
-}
-
----------------------------------------------
-; OptionDisplayPrologue / OptionDisplayEpilogue — display hook chain (see header).
-; Contiguous blocks: stubs spliced in with OptionDisplayPrologue+ execute in
-; order, and the epilogue returns to the caller of OptionsDrawAll.
-
-OptionDisplayPrologue {
-    REP #$20
-}
-
-OptionDisplayEpilogue {
     RTS
 }
 
@@ -787,7 +764,7 @@ OptRenderSetting {
     XBA
     LSR                         ; index * $80 (two tile rows)
     CLC
-    ADC #$0166                  ; row 5, col 19
+    ADC #$0126                  ; row 5, col 19
     TAY
     JSR $&OptClearSetting
     LDA #$ro_render
@@ -844,9 +821,9 @@ OptCountSettings {
 
   ocn_done:
     TYA
-    CMP #$0005
+    CMP #$0006
     BCC ocn_return
-    LDA #$0005
+    LDA #$0006
 
   ocn_return:
     PLY

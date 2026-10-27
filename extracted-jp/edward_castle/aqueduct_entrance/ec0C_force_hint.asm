@@ -10,7 +10,7 @@ h_ec0C_force_hint [
     LDA $playerMaxHp
     CMP #$0008
     BNE loc_04D63B
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     LDA $playerMaxHp
     CMP #$0008
     BNE loc_04D628

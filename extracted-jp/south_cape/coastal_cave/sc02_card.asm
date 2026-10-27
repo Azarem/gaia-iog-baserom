@@ -9,8 +9,8 @@ h_sc02_card [
 
   code_04ACC0:
     COP [SetSpritePriority] ( #30 )
-    COP [AddPosition] ( #08, #00 )
-    COP [SetEntryContinue]
+    COP [NudgePosition] ( #08, #00 )
+    COP [SetEntryHere]
     RTL 
 } >
 ]
@@ -18,7 +18,7 @@ h_sc02_card [
 code_04ACCA {
     COP [StageSprAndHitbox] ( #38 )
     STZ $08
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     LDA $playerWallType
     CLC 
     ADC #$0008
@@ -43,15 +43,15 @@ code_04ACCA {
   loc_04ACF6:
     CMP #$0008
     BCS loc_04AD01
-    COP [BranchIfButton] ( #$8001, &code_04AD0B )
+    COP [BranchIfPressed] ( #$8001, &code_04AD0B )
 
   loc_04AD01:
-    COP [BranchIfFlagByte] ( #08, #01, &code_04AD08 )
+    COP [BranchOnFlagByte] ( #08, #01, &code_04AD08 )
     RTL 
 }
 
 code_04AD08 {
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     RTL 
 }
 

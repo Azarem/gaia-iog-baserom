@@ -12,7 +12,7 @@ h_it1B_trial [
   actor-def < #00, #00, #30, {
 
   code_04F00F:
-    COP [BranchIfFlagWord] ( #$011C, #01, &code_04F079 )
+    COP [BranchOnFlagWord] ( #$011C, #01, &code_04F079 )
     LDA #$CFF0
     TSB $joypadMaskStd
     COP [WaitByte] ( #1D )
@@ -25,7 +25,7 @@ h_it1B_trial [
     STA $orbitAngle, X
     LDA #$003C
     STA $orbitDiameter, X
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     LDA $0AEC
     BEQ loc_04F07B
     LDA $orbitDiameter, X
@@ -66,7 +66,7 @@ code_04F079 {
     LDA $0AEC
     BEQ loc_04F095
     COP [PrintDialogString] ( &dialogstring_04F157 )
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     RTL 
 
   loc_04F095:
@@ -80,7 +80,7 @@ code_04F079 {
     COP [StageBgChange] ( #1C )
     COP [ApplyBgChange]
     COP [SetFlagWord] ( #$011C )
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     RTL 
 }
 

@@ -6,9 +6,9 @@ h_ir26_bones [
   code_05839D:
     LDA #$0200
     TSB $12
-    COP [SolidHighHere]
-    COP [SetOnInteract] ( &code_0583AB )
-    COP [SetEntryContinue]
+    COP [MarkSolidHere]
+    COP [SetInteractHandler] ( &code_0583AB )
+    COP [SetEntryHere]
     RTL 
 } >
 ]

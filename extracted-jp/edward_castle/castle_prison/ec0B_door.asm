@@ -6,8 +6,8 @@ h_ec0B_door [
   code_04D4B1:
     LDA #$0200
     TSB $12
-    COP [SetOnInteract] ( &code_04D4C0 )
-    COP [ExitIfFlagByte] ( #24, #01 )
+    COP [SetInteractHandler] ( &code_04D4C0 )
+    COP [WaitOnFlagByte] ( #24, #01 )
     COP [Die]
 } >
 ]

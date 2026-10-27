@@ -105,5 +105,6 @@
   "camera-keyframe": { "types": [ "Byte", "Byte" ] },
   "statue-reward": { "types": [ "Byte", "Byte", "Byte" ], "tail": 1 },
   "option-entry": { "types": [  ], "delimiter": 65535 },
-  "key-entry": { "types": [ "Byte", "Byte" ], "delimiter": 255 }
+  "key-entry": { "types": [ "Byte", "Byte" ], "delimiter": 255 },
+  "chest-entry": { "types": [ "Byte", "Byte", "Byte", "Byte" ], "delimiter": 255 }
 }

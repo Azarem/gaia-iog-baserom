@@ -7,7 +7,7 @@ h_ir1E_actor_09C4B2 [
   actor-def < #00, #00, #30, {
 
   code_0580CF:
-    COP [SetEntryExit]
+    COP [SetEntryHereAndYield]
     LDA $playerSpeedEw
     CMP #$0110
     BCS loc_0580DE
@@ -18,13 +18,13 @@ h_ir1E_actor_09C4B2 [
     COP [ClearFlagByte] ( #00 )
 
   loc_0580E1:
-    COP [BranchIfFlagByte] ( #30, #00, &code_0580CF )
-    COP [BranchIfFlagByte] ( #31, #00, &code_0580CF )
+    COP [BranchOnFlagByte] ( #30, #00, &code_0580CF )
+    COP [BranchOnFlagByte] ( #31, #00, &code_0580CF )
     COP [SetFlagByte] ( #00 )
     COP [PlaySoundBoth] ( #$1616 )
 
   loc_0580F4:
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     COP [BranchIfPlayerAt] ( #$01E8, #$0120, &code_058107 )
     COP [BranchIfPlayerAt] ( #$01E7, #$0120, &code_058107 )
     RTL 
@@ -35,13 +35,13 @@ code_058107 {
     LDA #$EFF0
     TSB $joypadMaskStd
     COP [PlaySoundBoth] ( #$1616 )
-    COP [LoopInit] ( #28 )
+    COP [LoopStart] ( #28 )
     COP [SpawnAfterFlags] ( @code_058135, #$1000 )
-    COP [SetEntryDelayExit] ( @code_058122, #$0008 )
+    COP [JumpAfterDelay] ( @code_058122, #$0008 )
 }
 
 code_058122 {
-    COP [LoopNext]
+    COP [LoopEnd]
     LDA #$FFF8
     STA $09C0
     LDA #$EFF0

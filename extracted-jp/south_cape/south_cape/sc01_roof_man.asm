@@ -11,12 +11,12 @@ h_sc01_roof_man [
     LDA #$000A
     STA $currentHp, X
     JSL $@chunk_008000.code_00C85D
-    COP [SetOnInteract] ( &code_048475 )
+    COP [SetInteractHandler] ( &code_048475 )
 
   loc_048469:
     JSL $@chunk_008000.code_00C86A
-    COP [SetEntryExit]
-    COP [SetEntryContinue]
+    COP [SetEntryHereAndYield]
+    COP [SetEntryHere]
     COP [AnimOnce]
     BRA loc_048469
 } >

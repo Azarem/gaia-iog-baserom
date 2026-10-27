@@ -93,7 +93,7 @@
 ; Standard actor execution loop — primary gameplay processing mode.
 ; 
 ; Entry point for actor updates during normal gameplay. Saves processor state (PHP/PHD), switches to 16-bit mode, then checks game state flags to determine processing mode:
-; - playerFlags bit 3 ($0008): Combat lock — clears the attack button ($0080) from joypadCurrent every frame
+; - playerFlags bit 3 ($0008): Input lock — clears B button ($0080) from joypadCurrent
 ; - playerFlags bit 4 ($0010): Terrain shake (Freedan vine-drop landing) — redirects to RunActors_PauseFiltered
 ; - displayModeFlags bit 7 ($0080): Display filter — redirects to RunActors_DisplayFiltered
 ; 
@@ -113,7 +113,7 @@ RunActors_Normal {
     PHD 
     REP #$20
     LDA $playerFlags
-    BIT #$0008            ; Bit 3 ($0008) = combat lock; suppress attack button ($0080) when set (NB: A is left = $0080 afterwards, so the pause test below only works when the lock is clear)
+    BIT #$0008            ; Bit 3 ($0008) = input lock; suppress B button ($0080) when set
     BEQ loc_03CB07
     LDA #$0080
     TRB $joypadCurrent

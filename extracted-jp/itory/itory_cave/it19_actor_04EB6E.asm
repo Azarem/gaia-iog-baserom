@@ -11,7 +11,7 @@ h_it19_actor_04EB6E [
   actor-def < #00, #00, #01, {
 
   code_04EB71:
-    COP [BranchIfFlagWord] ( #$011A, #01, &code_04EB9F )
+    COP [BranchOnFlagWord] ( #$011A, #01, &code_04EB9F )
     COP [SpawnAfterFlags] ( @code_04EBA1, #$2000 )
     LDA #$ABD8
     STA $statsPtr, X
@@ -22,7 +22,7 @@ h_it19_actor_04EB6E [
     COP [AnimOnce]
     LDA #$0030
     TSB $12
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     RTL 
 } >
 ]
@@ -38,7 +38,7 @@ code_04EBA1 {
     CMP #$00FF
     BNE loc_04EBB3
     PLX 
-    COP [SetEntryExitNow] ( @code_04EBA1 )
+    COP [JumpNextFrame] ( @code_04EBA1 )
 
   loc_04EBB3:
     PLX 
@@ -50,7 +50,7 @@ code_04EBA1 {
     LDA #$00FF
     STA $currentHp, X
     PLX 
-    COP [SetEntryExitNow] ( @code_04EBA1 )
+    COP [JumpNextFrame] ( @code_04EBA1 )
 
   loc_04EBCC:
     COP [SpawnAfterAbsFlags] ( @chunk_008000.dialogstring_00CB00, #$0098, #$0060, #$2000 )

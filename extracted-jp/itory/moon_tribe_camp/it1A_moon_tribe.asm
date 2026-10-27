@@ -8,7 +8,7 @@ h_it1A_moon_tribe1 [
   code_04F262:
     LDA #$0200
     TSB $12
-    COP [BranchIfFlagByte] ( #2A, #01, &code_04F2A1 )
+    COP [BranchOnFlagByte] ( #2A, #01, &code_04F2A1 )
     PHX 
     LDX #$00E0
     LDA #$0000
@@ -20,7 +20,7 @@ h_it1A_moon_tribe1 [
     CPX #$0100
     BNE loc_04F274
     PLX 
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     COP [BranchIfPlayerNear] ( #02, &code_04F288 )
     RTL 
 } >
@@ -48,9 +48,9 @@ code_04F2A1 {
     TRB $10
     COP [SetFlagByte] ( #2A )
     COP [SpawnThinker] ( @chunk_008000.code_00B8AB )
-    COP [SolidHighHere]
-    COP [SetOnInteract] ( &code_04F33D )
-    COP [SetEntryContinue]
+    COP [MarkSolidHere]
+    COP [SetInteractHandler] ( &code_04F33D )
+    COP [SetEntryHere]
     COP [StageSpriteMoveY] ( #27, #3B )
     COP [AnimOnce]
     RTL 
@@ -60,14 +60,14 @@ actor_def_04F2BD [
   actor-def < #00, #00, #30, {
 
   code_04F2C0:
-    COP [ExitIfFlagByte] ( #2A, #01 )
+    COP [WaitOnFlagByte] ( #2A, #01 )
     LDA #$2000
     TRB $10
-    COP [SolidHighHere]
+    COP [MarkSolidHere]
     LDA #$0200
     TSB $12
-    COP [SetOnInteract] ( &code_04F342 )
-    COP [SetEntryContinue]
+    COP [SetInteractHandler] ( &code_04F342 )
+    COP [SetEntryHere]
     COP [StageSpriteMoveY] ( #27, #3B )
     COP [AnimOnce]
     RTL 
@@ -78,14 +78,14 @@ actor_def_04F2DD [
   actor-def < #00, #00, #30, {
 
   code_04F2E0:
-    COP [ExitIfFlagByte] ( #2A, #01 )
+    COP [WaitOnFlagByte] ( #2A, #01 )
     LDA #$2000
     TRB $10
-    COP [SolidHighHere]
+    COP [MarkSolidHere]
     LDA #$0200
     TSB $12
-    COP [SetOnInteract] ( &code_04F347 )
-    COP [SetEntryContinue]
+    COP [SetInteractHandler] ( &code_04F347 )
+    COP [SetEntryHere]
     COP [StageSpriteMoveY] ( #27, #3B )
     COP [AnimOnce]
     RTL 
@@ -96,14 +96,14 @@ actor_def_04F2FD [
   actor-def < #00, #00, #30, {
 
   code_04F300:
-    COP [ExitIfFlagByte] ( #2A, #01 )
+    COP [WaitOnFlagByte] ( #2A, #01 )
     LDA #$2000
     TRB $10
-    COP [SolidHighHere]
+    COP [MarkSolidHere]
     LDA #$0200
     TSB $12
-    COP [SetOnInteract] ( &code_04F35C )
-    COP [SetEntryContinue]
+    COP [SetInteractHandler] ( &code_04F35C )
+    COP [SetEntryHere]
     COP [StageSpriteMoveY] ( #27, #3B )
     COP [AnimOnce]
     RTL 
@@ -114,14 +114,14 @@ actor_def_04F31D [
   actor-def < #00, #00, #30, {
 
   code_04F320:
-    COP [ExitIfFlagByte] ( #2A, #01 )
+    COP [WaitOnFlagByte] ( #2A, #01 )
     LDA #$2000
     TRB $10
-    COP [SolidHighHere]
+    COP [MarkSolidHere]
     LDA #$0200
     TSB $12
-    COP [SetOnInteract] ( &code_04F361 )
-    COP [SetEntryContinue]
+    COP [SetInteractHandler] ( &code_04F361 )
+    COP [SetEntryHere]
     COP [StageSpriteMoveY] ( #27, #3B )
     COP [AnimOnce]
     RTL 

@@ -13,15 +13,15 @@ h_it15_lily [
   actor-def < #1A, #00, #10, {
 
   code_04DBB8:
-    COP [BranchIfFlagByte] ( #2B, #00, &code_04DBCB )
-    COP [BranchIfFlagByte] ( #3B, #01, &code_04DCDE )
+    COP [BranchOnFlagByte] ( #2B, #00, &code_04DBCB )
+    COP [BranchOnFlagByte] ( #3B, #01, &code_04DCDE )
     COP [SetTilePos] ( #41, #26 )
     JMP $&code_04DCAA
 } >
 ]
 
 code_04DBCB {
-    COP [BranchIfFlagByte] ( #26, #00, &code_04DCDE )
+    COP [BranchOnFlagByte] ( #26, #00, &code_04DCDE )
     LDA #$CFF0
     TSB $joypadMaskStd
     COP [WaitByte] ( #1D )
@@ -32,9 +32,9 @@ code_04DBCB {
     TRB $10
 
   code_04DBE9:
-    COP [SetEntryContinue]
-    COP [BranchIfFlagByte] ( #40, #01, &code_04DBF8 )
-    COP [BranchIfButton] ( #$0F01, &code_04DCE0 )
+    COP [SetEntryHere]
+    COP [BranchOnFlagByte] ( #40, #01, &code_04DBF8 )
+    COP [BranchIfPressed] ( #$0F01, &code_04DCE0 )
     RTL 
 }
 
@@ -52,7 +52,7 @@ code_04DBF8 {
     COP [SpawnThinker] ( @chunk_008000.code_00B879 )
     COP [WaitByte] ( #7F )
     COP [SetFlagByte] ( #01 )
-    COP [LoopInit] ( #10 )
+    COP [LoopStart] ( #10 )
     LDA $cameraTargetY
     SEC 
     SBC #$0010
@@ -66,7 +66,7 @@ code_04DBF8 {
     SEC 
     SBC #$0010
     STA $16
-    COP [LoopNext]
+    COP [LoopEnd]
     LDA #$0300
     STA $cameraBoundsY
     COP [ClearFlagByte] ( #01 )
@@ -76,7 +76,7 @@ code_04DBF8 {
     COP [WaitByte] ( #59 )
     COP [PrintDialogString] ( &dialogstring_04DD7F )
     COP [SetFlagByte] ( #02 )
-    COP [ExitIfFlagByte] ( #03, #01 )
+    COP [WaitOnFlagByte] ( #03, #01 )
     LDA #$EFF0
     TRB $joypadMaskStd
     COP [SetFlagByte] ( #2B )
@@ -107,7 +107,7 @@ code_04DCAA {
     COP [AnimOnce]
     LDA #$0800
     TRB $10
-    COP [ExitIfFlagByte] ( #04, #01 )
+    COP [WaitOnFlagByte] ( #04, #01 )
     LDA #$0001
     JSL $@chunk_008000.dialogstring_00C829
     COP [StageSpriteFrame] ( #1A )

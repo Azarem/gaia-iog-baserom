@@ -6,7 +6,7 @@ h_ir28_actor_09C6A9 [
   actor-def < #00, #00, #20, {
 
   code_0582AE:
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
 } >
 ]
 
@@ -25,32 +25,32 @@ code_0582E0 {
 
 code_0582E1 {
     COP [PlaySoundBoth] ( #$2C2C )
-    COP [SetEntryExitNow] ( @code_0582B0 )
+    COP [JumpNextFrame] ( @code_0582B0 )
 }
 
 code_0582EA {
-    COP [BranchIfFlagByte] ( #01, #01, &code_0582E0 )
+    COP [BranchOnFlagByte] ( #01, #01, &code_0582E0 )
     COP [SetFlagByte] ( #01 )
     COP [SpawnAfterAbsFlags] ( @ec_actor_04FCFB.code_04FD06, #$01A8, #$0130, #$2300 )
     BRA code_0582E1
 }
 
 code_058300 {
-    COP [BranchIfFlagByte] ( #02, #01, &code_0582E0 )
+    COP [BranchOnFlagByte] ( #02, #01, &code_0582E0 )
     COP [SetFlagByte] ( #02 )
     COP [SpawnAfterAbsFlags] ( @ec_actor_04FCFB.code_04FD06, #$01C8, #$01C0, #$2300 )
     BRA code_0582E1
 }
 
 code_058316 {
-    COP [BranchIfFlagByte] ( #03, #01, &code_0582E0 )
+    COP [BranchOnFlagByte] ( #03, #01, &code_0582E0 )
     COP [SetFlagByte] ( #03 )
     COP [SpawnAfterAbsFlags] ( @ec_actor_04FCFB.code_04FD06, #$00E8, #$0260, #$2300 )
     BRA code_0582E1
 }
 
 code_05832C {
-    COP [BranchIfFlagByte] ( #04, #01, &code_0582E0 )
+    COP [BranchOnFlagByte] ( #04, #01, &code_0582E0 )
     COP [SetFlagByte] ( #04 )
     COP [SpawnAfterAbsFlags] ( @ec_actor_04FCFB.code_04FD0F, #$0088, #$0220, #$2300 )
     COP [WaitByte] ( #0E )
@@ -59,7 +59,7 @@ code_05832C {
 }
 
 code_058350 {
-    COP [BranchIfFlagByte] ( #05, #01, &code_0582E0 )
+    COP [BranchOnFlagByte] ( #05, #01, &code_0582E0 )
     COP [SetFlagByte] ( #05 )
     COP [SpawnAfterAbsFlags] ( @ec_actor_04FCFB.code_04FD0F, #$0088, #$01C0, #$2300 )
     COP [WaitByte] ( #0E )
@@ -68,7 +68,7 @@ code_058350 {
 }
 
 code_058375 {
-    COP [BranchIfFlagByte] ( #06, #01, &code_0582E0 )
+    COP [BranchOnFlagByte] ( #06, #01, &code_0582E0 )
     COP [SetFlagByte] ( #06 )
     COP [SpawnAfterAbsFlags] ( @ec_actor_04FCFB.code_04FD0F, #$0128, #$0160, #$2300 )
     COP [WaitByte] ( #0E )

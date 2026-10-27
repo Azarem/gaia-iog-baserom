@@ -6,9 +6,9 @@ h_ir1D_bones [
   code_04FC9B:
     LDA #$0200
     TSB $12
-    COP [SolidHighHere]
-    COP [SetOnInteract] ( &code_04FCA9 )
-    COP [SetEntryContinue]
+    COP [MarkSolidHere]
+    COP [SetInteractHandler] ( &code_04FCA9 )
+    COP [SetEntryHere]
     RTL 
 } >
 ]

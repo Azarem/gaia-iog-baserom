@@ -4,15 +4,15 @@ h_ec0A_stair_maid [
   actor-def < #24, #00, #10, {
 
   code_04C356:
-    COP [SetOnInteract] ( &code_04C35F )
-    COP [SolidHighHere]
-    COP [SetEntryContinue]
+    COP [SetInteractHandler] ( &code_04C35F )
+    COP [MarkSolidHere]
+    COP [SetEntryHere]
     RTL 
 } >
 ]
 
 code_04C35F {
-    COP [BranchIfFlagByte] ( #21, #01, &code_04C36A )
+    COP [BranchOnFlagByte] ( #21, #01, &code_04C36A )
     COP [PrintDialogString] ( &dialogstring_04C36F )
     RTL 
 }

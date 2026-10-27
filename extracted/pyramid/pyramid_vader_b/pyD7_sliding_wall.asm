@@ -78,12 +78,20 @@ code_08C549 {
     STA $0026, Y
     DEC $26
     BEQ loc_08C575
+    DEC 
+    STA $0026, Y
+    DEC $26
+    BEQ loc_08C575
     RTL 
 
   loc_08C564:
     COP [SetEntryHere]
     LDY #$1060
     LDA $0026, Y
+    INC 
+    STA $0026, Y
+    DEC $26
+    BEQ loc_08C575
     INC 
     STA $0026, Y
     DEC $26

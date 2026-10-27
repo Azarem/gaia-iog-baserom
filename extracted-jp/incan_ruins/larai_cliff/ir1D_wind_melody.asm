@@ -7,8 +7,8 @@ h_ir1D_wind_melody [
   actor-def < #00, #00, #30, {
 
   code_058196:
-    COP [BranchIfFlagByte] ( #32, #01, &code_0581E7 )
-    COP [SetEntryContinue]
+    COP [BranchOnFlagByte] ( #32, #01, &code_0581E7 )
+    COP [SetEntryHere]
     COP [BranchIfPlayerAt] ( #$0050, #$0170, &code_0581A7 )
     RTL 
 } >
@@ -24,7 +24,7 @@ code_0581A7 {
     COP [PrintDialogString] ( &dialogstring_0581EF )
     COP [StartMusic] ( #1A )
     COP [WaitByte] ( #77 )
-    COP [SetEntryContinue]
+    COP [SetEntryHere]
     SEP #$20
     LDA $APUIO1
     REP #$20

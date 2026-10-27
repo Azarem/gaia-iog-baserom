@@ -22,13 +22,15 @@ code_00C672+ {
 
 HiddenRedJewelInteract! {
     COP [GiveItem] ( #01, &HiddenRedJewelInventoryFull )
-    LDY $26
-    LDA #$0001
-    STA $0026, Y
-    COP [PrintDialogString] ( &dialogstring_00C6A6 )
     LDA $0E
     CLC 
     ADC #$0080
     JSL $@flag_helpers.SetEventFlag_0200
+
+  hrji_complete:
+    LDY $26
+    LDA #$0001
+    STA $0026, Y
+    COP [PrintDialogString] ( &dialogstring_00C6A6 )
     COP [Die]
 }

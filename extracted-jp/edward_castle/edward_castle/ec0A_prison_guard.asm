@@ -4,12 +4,12 @@ h_ec0A_prison_guard [
   actor-def < #1D, #00, #10, {
 
   code_04CC80:
-    COP [BranchIfFlagByte] ( #21, #01, &code_04CC97 )
-    COP [SetOnInteract] ( &code_04CC99 )
-    COP [SolidHighHere]
-    COP [SolidHighOffset] ( #00, #01 )
-    COP [AddPosition] ( #00, #08 )
-    COP [SetEntryContinue]
+    COP [BranchOnFlagByte] ( #21, #01, &code_04CC97 )
+    COP [SetInteractHandler] ( &code_04CC99 )
+    COP [MarkSolidHere]
+    COP [MarkSolidOffset] ( #00, #01 )
+    COP [NudgePosition] ( #00, #08 )
+    COP [SetEntryHere]
     RTL 
 } >
 ]
