@@ -1,10 +1,10 @@
-; COP handlers for input polling, button-wait loops, world-map staging, dialogue rendering, and BG3 UI (Bank $00, 11 handlers).
+; COP handlers for joypad polling (Bank $00, 4 handlers, COP #3E–#41; the Branch pair has about 190 call sites in the vanilla scripts, the Wait pair none).
 ; 
-; WaitForButton/WaitForRelease yield via RTL until a button mask matches joypadCurrent or joypadRaw. BranchIfPressed/BranchIfNotPressed branch based on current button state.
+; Every handler takes a 16-bit button mask operand (joypad bit layout: B $8000, Y $4000, Select $2000, Start $1000, Up $0800, Down $0400, Left $0200, Right $0100, A $0080, X $0040, L $0020, R $0010). Bit 0 of the mask is never a button, so it is used as the source selector:
+; - bit 0 clear: test joypadCurrent, the held buttons minus any consumed or masked ones (joypadHeld, joypadMaskStd; see vblank_joypad)
+; - bit 0 set: test joypadRaw, the remapped held state with no consumption or masking applied
 ; 
-; StageWorldMapMove/Choice/MoveIds write destination coordinates, scene IDs, and companion bytes into WRAM staging fields ($0D52–$0D5E) for the world-map transition system.
-; 
-; RunBg3Script switches data bank and calls ConsoleStringRenderer for BG3 overlay text, then sets displayModeFlags bit 0. DialogueOptions sets dialogue mode ($2000), masks inventory input, and calls MenuSelectionHandler for branching choices. PrintDialogString/PrintDialogStringAlt render dialogue text via DialogStringRenderer with status bar hiding and joypad cleanup; the Alt variant omits dialogue-mode setup and UpdateFrameRender.
+; WaitForButton/WaitForRelease (unused by the vanilla scripts) yield via RTL (re-running themselves next frame) until the test passes. BranchIfPressed/BranchIfNotPressed branch immediately on the same test. The world-map staging handlers are in cop_handlers_world_map; RunBg3Script and the dialogue handlers are in cop_handlers_dialog.
 ---------------------------------------------
 
 ?BANK 00
@@ -14,21 +14,21 @@
 
 ---------------------------------------------
 
-; COP #3E (script name WaitUntilButton) blocking input wait taking one word operand: a button mask. Bit 0 of the mask selects joypadRaw (held-edge) versus joypadCurrent (latched state); loops via RTL yield until any masked button is pressed. Used in actor dialogue and prompt scripts that must pause until the player confirms.
+; COP #3E blocking input wait taking one word operand: a button mask (bit 0 selects joypadRaw instead of joypadCurrent, see the block note). Yields via RTL, re-running the op every frame, until any masked button is down. No vanilla extracted script uses it (the dialogue renderer has its own wait command, DialogCmd_WaitForButton); only the dispatch table references it.
 
 WaitForButton {
     TYX 
     LDA [$0A]             ; Read button mask word operand
     INC $0A
     INC $0A
-    BIT #$0001            ; Bit 0 selects joypad source: 0=joypadCurrent, 1=joypadRaw
+    BIT #$0001            ; Bit 0 selects the source: 0 = joypadCurrent, 1 = joypadRaw
     BNE loc_009498
-    BIT $joypadCurrent    ; Test mask against joypadCurrent (latched state)
+    BIT $joypadCurrent    ; Test the mask against joypadCurrent (held, minus consumed/masked)
     BNE loc_00949D        ; Any masked button pressed → advance script via RTI
     BRA loc_0094A2
 
   loc_009498:
-    BIT $joypadRaw        ; Test mask against joypadRaw (held-edge state)
+    BIT $joypadRaw        ; Test the mask against joypadRaw (remapped held state)
     BEQ loc_0094A2
 
   loc_00949D:
@@ -37,17 +37,17 @@ WaitForButton {
     RTI 
 
   loc_0094A2:
-    LDA $0A               ; No button pressed: rewind script PC by 4 bytes (re-enter next frame)
+    LDA $0A               ; No button down: script PC − 4 (opcode + operand) → $00, so the op re-runs next frame
     SEC 
     SBC #$0004
     STA $00
-    PLA                   ; Pop COP frame and yield RTL until button detected
+    PLA                   ; Drop the COP frame and yield with RTL
     PLA 
     RTL 
 }
 
 ---------------------------------------------
-; COP #3F with one word operand (button mask). Bit 0 selects joypadRaw vs joypadCurrent; yields via RTL (rewinding script PC) until all masked buttons are released, then RTI-advances.
+; COP #3F with one word operand (button mask, bit 0 selects joypadRaw instead of joypadCurrent). Yields via RTL (rewinding the script PC) until none of the masked buttons is down, then advances with RTI. With bit 0 clear a consumed or masked button already counts as released.
 
 WaitForRelease {
     TYX 
@@ -56,8 +56,8 @@ WaitForRelease {
     INC $0A
     BIT #$0001            ; Bit 0 selects joypad source for release detection
     BNE loc_0094C0
-    BIT $joypadCurrent    ; Test mask against joypadCurrent — zero means all released
-    BEQ loc_0094C5        ; All masked buttons released → advance script
+    BIT $joypadCurrent    ; Test the mask against joypadCurrent — zero means released
+    BEQ loc_0094C5        ; Nothing masked is down → advance the script
     BRA loc_0094CA
 
   loc_0094C0:
@@ -70,7 +70,7 @@ WaitForRelease {
     RTI 
 
   loc_0094CA:
-    LDA $0A               ; Buttons still held: rewind PC and yield RTL
+    LDA $0A               ; Still down: rewind the PC by 4 and yield with RTL
     SEC 
     SBC #$0004
     STA $00
@@ -80,7 +80,7 @@ WaitForRelease {
 }
 
 ---------------------------------------------
-; COP #40 with one word (button mask) plus one &Code branch target. Bit 0 selects joypad source; jumps to the branch offset if any masked button is pressed, otherwise skips the two-byte branch operand.
+; COP #40 with one word (button mask, bit 0 selects joypadRaw) plus one &Code branch target (same bank as the script). Jumps to the target if any masked button is down, otherwise skips the two-byte target. Never yields; used heavily by the player actor (walk, ladder and shimmy state machines).
 
 BranchIfPressed {
     TYX 
@@ -114,7 +114,7 @@ BranchIfPressed {
 }
 
 ---------------------------------------------
-; COP #41 with one word (button mask) plus one &Code branch target. Jumps to the branch offset when no masked buttons are held in the selected joypad source, otherwise skips the branch operand.
+; COP #41 with one word (button mask, bit 0 selects joypadRaw) plus one &Code branch target. Jumps to the target when none of the masked buttons is down in the selected source, otherwise skips the target operand. Inverse of BranchIfPressed.
 
 BranchIfNotPressed {
     TYX 

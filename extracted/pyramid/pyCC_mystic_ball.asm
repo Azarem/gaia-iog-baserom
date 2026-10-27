@@ -13,6 +13,8 @@
 ?INCLUDE 'spriteset_enemies'
 ?INCLUDE 'StandardEnemyDefeatHandler'
 
+!enemiesRemaining               0AEC
+!enemiesRemainingBcd            0AEE
 !orbitAngle                     7F0010
 !deathActionIdx                 7F0024
 !extendedFlags                  7F002A
@@ -182,7 +184,7 @@ code_0BC6BF {
 code_0BC6E7 {
     COP [StageSpriteFrame] ( #19 )
     COP [AnimOnce]
-    LDA $0AEC
+    LDA $enemiesRemaining
     CMP #$0001
     BNE loc_0BC6F9
     COP [JumpFar] ( @StandardEnemyDefeatHandler )
@@ -221,14 +223,14 @@ code_0BC70D {
 code_0BC738 {
     COP [PlaySoundCh1] ( #06 )
     SED 
-    LDA $0AEE
+    LDA $enemiesRemainingBcd
     SEC 
     SBC #$0001
-    STA $0AEE
+    STA $enemiesRemainingBcd
     CLD 
-    LDA $0AEC
+    LDA $enemiesRemaining
     DEC 
-    STA $0AEC
+    STA $enemiesRemaining
     STA $orbitAngle, X
     COP [StageMoveXY] ( #00, #00 )
     LDA #$0000

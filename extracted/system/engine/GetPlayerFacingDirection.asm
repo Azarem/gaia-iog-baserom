@@ -1,23 +1,21 @@
 ; Player facing direction lookup — animation-frame-to-direction mapping with form support (258250–258512, Bank 03).
 ; 
-; Determines the player's current facing direction (0–3 = down/up/left/right) from the actor's animation frame index ($0028,X). Supports multiple character forms (Will, Freedan, Shadow A/B) with per-form lookup tables.
+; Determines the player's current facing direction (0–3 = down/up/left/right, the operand order of the facing COP ops) from the player actor's animation frame index ($0028,X), so scripts and enemy AI can ask which way the player is looking. Forms that replace the body sprite use their own per-form frame tables.
 ; 
 ; === ALGORITHM ===
 ; 
-; 1. Load playerActor and check playerFlags bit 15 (transformed flag).
-; 2. If not transformed: direct lookup via FacingDirectionLookup[$0028,X]. Returns 0–3 for cardinal directions, 4 for special/invalid.
-; 3. If transformed: reads form ID from $0AC8, subtracts 4 (base form offset), indexes FacingFormOffsetTable to get the form-specific data table offset, then looks up the direction from the form's table at the animation frame offset.
-; 4. Return: carry clear = valid direction (0–3 in A), carry set = special/invalid direction (≥4).
+; 1. Load playerActor and test playerFlags bit 15 ($8000). That bit is the sprite-override flag (set by SetPlayerSpriteDirect, the transformations and ability poses), not a "transformed" flag as such.
+; 2. Bit clear: look up FacingDirectionLookup[$0028,X]. Values 0–3 are cardinal directions; 4 means no facing for that frame.
+; 3. Bit set: take $0AC8 (the body_table index last written by SetPlayerSpriteDirect), subtract 4, and index FacingFormOffsetTable with it; the selected table is read at the same animation frame. If $0AC8 < 4 the subtraction is negative and the code falls back to FacingDirectionLookup (step 2).
+; 4. Return: carry clear = valid direction (0–3 in A), carry set = no facing (value ≥ 4).
 ; 
 ; === DATA TABLES ===
 ; 
-; FacingDirectionLookup (88 bytes): Master lookup for Will's base animation frames. Maps each frame index to direction 0–4.
+; FacingDirectionLookup (88 bytes): maps each animation frame of the normal body sprite to a direction 0–4.
 ; 
-; FacingFormOffsetTable: 4 pointers to per-form data: Will, Freedan, Shadow_A, Shadow_B.
+; FacingFormOffsetTable: 4 pointers, indexed by body_table index − 4, i.e. will_alt, ability_fx, freedan_fx, shadow_fx (body_table 4–7). The FacingData_* labels (Will, Freedan, Shadow_A, Shadow_B) do not match those body names; see the audit rename proposals.
 ; 
-; FacingData_Will (27 bytes): Will's direction mapping per animation frame.
-; FacingData_Freedan (44 bytes): Freedan's mapping (all zeros — Freedan always faces down? Or data is direction-independent).
-; FacingData_Shadow_A (4 bytes), FacingData_Shadow_B (6 bytes): Shadow form mappings.
+; FacingData_Will (27 bytes) is the first table (body 4), FacingData_Freedan (44 bytes, all zero) the second (body 5), FacingData_Shadow_A (4 bytes, all zero) the third (body 6), FacingData_Shadow_B (6 bytes, all zero) the fourth (body 7). All entries of the last three are 0, i.e. those poses always report direction 0 (down in the COP operand order).
 ---------------------------------------------
 
 ?BANK 03
@@ -29,14 +27,14 @@
 
 ; Get the player's facing direction from animation frame.
 ; 
-; Loads playerActor's animation frame ($0028,X), looks up direction in FacingDirectionLookup table. Returns 0–3 (down/up/left/right) with carry clear. Returns carry set if direction ≥ 4 (special/invalid). Saves and restores caller's X register via Y.
+; Loads the player actor's animation frame ($0028,X) and looks up its direction in FacingDirectionLookup (or the per-form table when playerFlags bit 15 is set). Returns 0–3 with carry clear, or carry set if the table value is ≥ 4 (no facing). The caller's X is parked in Y for the call and restored before RTL; P is saved and restored too.
 
 GetPlayerFacingDirection {
     PHP                   ; GetPlayerFacingDirection — save caller X in Y via TXY
     REP #$20
     TXY 
     LDX $playerActor      ; Load playerActor pointer into X
-    LDA $playerFlags      ; playerFlags bit 15 set → transformed form (AltEntry path)
+    LDA $playerFlags      ; Bit 15 ($8000) = sprite override → N flag → per-form table path
     BMI loc_03F0F1
 
   loc_03F0D6:
@@ -48,7 +46,7 @@ GetPlayerFacingDirection {
     BPL loc_03F0EA
     TYX 
     PLP 
-    CLC                   ; Valid direction 0–3: CLC, RTL (0=down, 1=up, 2=left, 3=right)
+    CLC                   ; Valid direction 0–3 (down, up, left, right order): carry clear, return
     RTL 
 
   loc_03F0EA:
@@ -59,22 +57,20 @@ GetPlayerFacingDirection {
 }
 
 ---------------------------------------------
-; Alternate entry point for transformed player forms.
-; 
-; Called when playerFlags bit 15 is set (transformed). Reads form ID from $0AC8, subtracts 4 (base form offset), indexes FacingFormOffsetTable to get the form-specific lookup table, then reads direction from the form's data at the animation frame offset. Falls through to the same return logic as GetPlayerFacingDirection.
+; Fallback target for the sprite-override path (not an external entry point; the only reference is the BMI at 258301). Reached when playerFlags bit 15 is set but $0AC8 − 4 is negative (body_table index 0–3, the base bodies): it discards the extra pushed Y and rejoins the normal FacingDirectionLookup path at loc_03F0D6. The form-table code that follows it (loc_03F0F1) is the real sprite-override path, entered by the BMI at 258260.
 
 GetPlayerFacing_AltEntry {
-    PLY                   ; Alt entry: restore saved X from stack, join normal lookup path
+    PLY                   ; Drop the extra Y pushed at loc_03F0F1 (Y again = caller X), then use the normal lookup
     BRA loc_03F0D6
 
   loc_03F0F1:
     PHY 
     TXY 
-    LDA $0AC8             ; Read player form ID from $0AC8
+    LDA $0AC8             ; body_table index last set by SetPlayerSpriteDirect
     AND #$00FF
     SEC 
-    SBC #$0004            ; Form ID − 4 → index into FacingFormOffsetTable (forms 4–7)
-    BMI GetPlayerFacing_AltEntry ; Form < 4 (Will) → fall back to standard FacingDirectionLookup
+    SBC #$0004            ; body index − 4 → entry in FacingFormOffsetTable (body 4–7)
+    BMI GetPlayerFacing_AltEntry ; Body 0–3 → fall back to the standard FacingDirectionLookup
     ASL 
     TAX 
     LDA $@FacingFormOffsetTable, X ; Load form-specific facing data table pointer

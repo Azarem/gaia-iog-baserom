@@ -74,10 +74,13 @@
 ?INCLUDE 'warps_interaction'
 
 !sceneCurrent                   0644
+!sceneTableIndex                0646
 !joypadCurrent                  0656
 !joypadHeld                     0658
 !joypadMaskStd                  065A
 !joypadMaskInv                  065C
+!srcCacheBgC                    0672
+!srcCacheBgD                    0675
 !bg1ScrollH                     068A
 !effectScrollH                  068C
 !mapScrollV                     068E
@@ -90,8 +93,11 @@
 !forcedScrollOverride           06C8
 !scrollOverrideV                06CA
 !effectDeltaX                   06E4
+!playerSpriteCachePtr           09CC
+!playerSpriteCacheBank          09CE
 !displayModeFlags               09EC
 !eventFlags                     0A00
+!eventFlagsF8toFF               0A1F
 !cachedPrevMaxHp                0ACC
 !cachedPrevHp                   0AD0
 !bg1ConfigMode                  0AE6
@@ -157,11 +163,11 @@ OpenInventoryScreen {
     LDA #$00FF
     STA $sceneCurrent
     ASL                   ; Scene table index = sceneCurrent × 2 → $0646
-    STA $0646
+    STA $sceneTableIndex
     SEP #$20
-    LDA $0A1F             ; Clear $0A1F bit 7 — disable gameplay flag during inventory overlay
+    LDA $eventFlagsF8toFF ; Clear $0A1F bit 7 — disable gameplay flag during inventory overlay
     AND #$7F
-    STA $0A1F
+    STA $eventFlagsF8toFF
     STZ $W12SEL           ; Zero all PPU window select and logic registers (disable windows)
     STZ $W34SEL
     STZ $WOBJSEL
@@ -191,8 +197,8 @@ OpenInventoryScreen {
     STA $7F0A05
     JSL $@system_init.UploadCgramPalette ; UploadCgramPalette — push inventory CGRAM from $7F:0A00 buffer
     LDX #$0000            ; Zero $0673/$0676 frame counters
-    STX $0673
-    STX $0676
+    STX $srcCacheBgC+1
+    STX $srcCacheBgD+1
     LDX #$0000            ; Zero camera targets/deltas and all scroll override state
     STX $cameraTargetX
     STX $cameraTargetY
@@ -217,7 +223,7 @@ OpenInventoryScreen {
     JSL $@sprite_composition.SortActorsByDepth ; SortActorsByDepth — Z-order overlapping menu sprites
     LDA #$FF              ; OAM compose sentinel $FF at $7F3100 (end-of-list marker)
     STA $oamComposeBuffer ; Duplicate sentinel at $7F3101 (second compose slot guard)
-    STA $7F3101
+    STA $oamComposeBuffer+1
     JSL $@sprite_composition.ComposeAllSprites
     JSL $@system_core.UpdateFrameDialogue ; Initial UpdateFrameDialogue — prime text engine for inventory
     JSL $@vblank_joypad.EnableNmiAndJoypad ; Enable NMI + joypad auto-read for interactive inventory loop
@@ -249,7 +255,7 @@ OpenInventoryScreen {
     PLA 
     STA $sceneCurrent
     ASL                   ; Recompute scene table index from restored sceneCurrent
-    STA $0646
+    STA $sceneTableIndex
     PLA 
     STA $eventFlags
     PLA 
@@ -270,8 +276,8 @@ OpenInventoryScreen {
     TSB $displayModeFlags
     JSL $@scene_lifecycle.LoadHudTilemap ; LoadHudTilemap — restore overworld status bar BG tilemap
     LDX #$0000            ; Clear status cache vars $09CC/$09CE and cached HP values
-    STX $09CC
-    STX $09CE
+    STX $playerSpriteCachePtr
+    STX $playerSpriteCacheBank
     STX $cachedPrevHp
     STX $cachedPrevMaxHp
     STX $joypadMaskInv    ; Clear inventory joypad mask and suppress bytes $00F4/$00F8

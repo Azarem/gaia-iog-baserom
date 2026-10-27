@@ -7,6 +7,7 @@
 
 !gfxCacheIdxA                   0648
 !gfxCacheIdxB                   064A
+!srcCacheMusic                  0687
 
 ---------------------------------------------
 
@@ -61,7 +62,7 @@ code_0683C2 {
     STA $gfxCacheIdxB
     LDA #$0200
     STA $gfxCacheIdxA
-    STA $0688
+    STA $srcCacheMusic+1
     COP [QueueMapChange] ( #5A, #$0090, #$0070, #83, #$1400 )
     COP [SetEntryHere]
     RTL 

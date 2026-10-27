@@ -57,6 +57,7 @@
 !maxSpeedEw                     09C8
 !maxSpeedNs                     09CA
 !enemyHpDisplay                 09E4
+!enemyHpCurrentDisplay          09E6
 !enemyHpPending                 09EA
 !displayModeFlags               09EC
 !hudDisableFlag                 09ED
@@ -227,7 +228,7 @@ SystemInit {
     LDX $oamWriteOffset   ; OAM write index — terminate sprite list with $FF sentinels
     LDA #$FF
     STA $oamComposeBuffer, X ; $FF sentinels terminate OAM composition buffer
-    STA $7F3101, X
+    STA $oamComposeBuffer+1, X
     JSL $@sprite_composition.SortActorsByDepth ; Sort actors by Y-depth for sprite layering
     JSL $@combat_collision.RunCombatCollision ; Combat collision: player attacks + enemy contact
     JSL $@combat_collision.RunInteractionCollision ; Interaction collision: NPC/object touch triggers
@@ -270,7 +271,7 @@ SystemInit {
     LDX $oamWriteOffset
     LDA #$FF
     STA $oamComposeBuffer, X
-    STA $7F3101, X
+    STA $oamComposeBuffer+1, X
     JSL $@sprite_composition.SortActorsByDepth
     LDX #$0000
     JSL $@camera_tilemap.CameraSmoothScroll
@@ -353,7 +354,7 @@ UpdateFrameFull {
     LDX $oamWriteOffset
     LDA #$FF
     STA $oamComposeBuffer, X
-    STA $7F3101, X
+    STA $oamComposeBuffer+1, X
     JSL $@sprite_composition.SortActorsByDepth
     LDX #$0000
     JSL $@camera_tilemap.CameraSmoothScroll
@@ -470,7 +471,7 @@ UpdateHUD {
     BNE loc_0082BD
     LDA #$001E            ; Enemy HP fadeout timer = 30 frames
     STA $enemyHealthTimer
-    STZ $09E6             ; Clear pending enemy HP accumulator after display period expires
+    STZ $enemyHpCurrentDisplay ; Clear pending enemy HP accumulator after display period expires
     STZ $enemyHpDisplay
     COP [RunBg3Script] ( @system_strings.consolestring_01E818 )
     LDA #$0010

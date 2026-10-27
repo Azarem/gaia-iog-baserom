@@ -25,6 +25,8 @@
 ---------------------------------------------
 
 !frameCounter                   0036
+!worldMapChoiceId               0D58
+!worldMapRouteId                0D5A
 !sineTableA                     7E8900
 !sineTableB                     7E8B00
 !S_sineTableB                   8B00
@@ -47,9 +49,9 @@ HdmaWindowEffect {
     STA $7F2104, X
     JSR $&InitSineTableBuffers ; Fill both sine table buffers with $01FF (fully open window)
     COP [SetEntryHere]
-    LDA $0D58             ; Check destination ($0D58): zero = no travel, go to opening animation
+    LDA $worldMapChoiceId ; Check destination ($0D58): zero = no travel, go to opening animation
     BEQ loc_03A85B
-    LDA $0D5A             ; Check route active ($0D5A): nonzero = arriving, go to opening animation
+    LDA $worldMapRouteId  ; Check route active ($0D5A): nonzero = arriving, go to opening animation
     BNE loc_03A85B
     JSR $&UpdateHdmaWindowParams ; Route in progress: update HDMA params + queue DMA, yield
     JSR $&QueueHdmaSineBuffers

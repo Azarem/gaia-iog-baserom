@@ -1,49 +1,66 @@
+; COP handlers for actor depth priority, OAM attribute mask and position nudging (42931–43111, Bank 00).
+; 
+; Ten COP opcodes ($B2–$BB) plus NudgePosition ($BC), all with the standard handler shape: TYX, change one field of the calling actor, then store the operand pointer $0A to the return address on the stack ($02,S) and RTI.
+; 
+; === DEPTH PRIORITY ($B2–$B5) ===
+; 
+; Set or clear bits of the actor flag word $10 that override the Y-based sort key of SortActorsByDepth. Bit 1 ($0002, SetPriorityMax) forces key $0000: first OAM index, drawn in front of every other actor. Bit 0 ($0001, SetPriorityMin) forces key $01FE: last OAM index, drawn behind every other actor. Max wins when both are set. Typical use: a falling or flying actor takes Max while airborne (ceiling tiles, seagulls, falling orbs) and drops to Min once it rests on the floor. The only reader of these two bits found in the extracted code is the depth sort; older docs call them 'collision priority', which the code does not support.
+; 
+; === OAM ATTRIBUTE MASK ($B6–$BB) ===
+; 
+; Actor word $0E is an XOR mask that DecomposeActorMetasprites applies to every sub-sprite's tile/attribute word (UpdateActorAnimation also reads its flip bits): $3000 = OAM priority (BG layer order), $0E00 = palette, $4000 = H-flip, $8000 = V-flip. SetOamPriority and SetOamPalette clear their field, then merge the operand (0–3 / 0–7) shifted into the high byte. The mirror handlers EOR (Toggle), TRB (Clear) or TSB (Set) the flip bit. Script-side names in copdef.json are SetSpritePriority and SetSpritePalette.
+; 
+; === NUDGE ($BC) ===
+; 
+; NudgePosition adds two signed byte operands to the actor's pixel position ($14/$16). It is a position operation that happens to sit with the attribute handlers.
+---------------------------------------------
+
 ?BANK 00
 
 ---------------------------------------------
 
-; COP #B2 with no operands. Sets bit $0002 on actor+$10 via TSB to assign maximum draw priority.
+; COP #B2 with no operands. Sets bit $0002 on actor+$10 via TSB: SortActorsByDepth then gives the actor key $0000 (first OAM index), so it draws in front of every other actor.
 
 SetPriorityMax {
     TYX 
     LDA #$0002
-    TSB $10               ; SetPriorityMax: TSB $0002 on $10
+    TSB $10               ; Bit 1 → depth key $0000: frontmost
     LDA $0A
     STA $02, S
     RTI 
 }
 
 ---------------------------------------------
-; COP #B3 with no operands. Sets bit $0001 on actor+$10 via TSB to assign minimum draw priority.
+; COP #B3 with no operands. Sets bit $0001 on actor+$10 via TSB: SortActorsByDepth then gives the actor key $01FE (last OAM index), so it draws behind every other actor unless SetPriorityMax is also set.
 
 SetPriorityMin {
     TYX 
     LDA #$0001
-    TSB $10               ; SetPriorityMin: TSB $0001 on $10
+    TSB $10               ; Bit 0 → depth key $01FE: rearmost
     LDA $0A
     STA $02, S
     RTI 
 }
 
 ---------------------------------------------
-; COP #B4 with no operands. Clears bit $0002 on actor+$10 via TRB to remove maximum-priority override.
+; COP #B4 with no operands. Clears bit $0002 on actor+$10 via TRB, removing the front-most override (Y-based sorting resumes unless bit $0001 is set).
 
 ClearPriorityMax {
     TYX 
     LDA #$0002
-    TRB $10               ; ClearPriorityMax: TRB $0002
+    TRB $10
     LDA $0A
     STA $02, S
     RTI 
 }
 
 ---------------------------------------------
-; COP #B5 with no operands. Clears bit $0001 on actor+$10 via TRB to remove minimum-priority override.
+; COP #B5 with no operands. Clears bit $0001 on actor+$10 via TRB, removing the rear-most override (Y-based sorting resumes unless bit $0002 is set).
 
 ClearPriorityMin {
     TYX 
     LDA #$0001
-    TRB $10               ; ClearPriorityMin: TRB $0001
+    TRB $10
     LDA $0A
     STA $02, S
     RTI 
@@ -88,8 +105,8 @@ SetOamPalette {
 
 ToggleHMirror {
     TYX 
-    LDA $0E               ; ToggleHMirror: EOR $4000 on $0E
-    EOR #$4000            ; EOR $4000: toggle horizontal mirror bit
+    LDA $0E
+    EOR #$4000            ; Toggle bit 14 (H-flip) of the attribute mask
     STA $0E
     LDA $0A
     STA $02, S
@@ -102,7 +119,7 @@ ToggleHMirror {
 ToggleVMirror {
     TYX 
     LDA $0E
-    EOR #$8000            ; EOR $8000: toggle vertical mirror bit
+    EOR #$8000            ; Toggle bit 15 (V-flip) of the attribute mask
     STA $0E
     LDA $0A
     STA $02, S
@@ -114,7 +131,7 @@ ToggleVMirror {
 
 ClearHMirror {
     TYX 
-    LDA #$4000            ; ClearHMirror: TRB $4000
+    LDA #$4000
     TRB $0E
     LDA $0A
     STA $02, S
@@ -127,7 +144,7 @@ ClearHMirror {
 SetHMirror {
     TYX 
     LDA #$4000
-    TSB $0E               ; SetHMirror: TSB $4000
+    TSB $0E
     LDA $0A
     STA $02, S
     RTI 

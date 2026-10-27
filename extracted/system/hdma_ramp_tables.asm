@@ -1,11 +1,11 @@
-; Composite block of HDMA configuration tables and ramp motion curves. Contains the DMA transfer mode lookup (64 bytes), parallax scroll speed parameters (13 bytes), and two pre-computed acceleration/deceleration curves for slope/stair movement.
+; Composite block of HDMA configuration tables and ramp motion curves (121022–121201, Bank 01). Contains the DMA transfer mode lookup (64 bytes), parallax scroll speed parameters (13 bytes), and two pre-computed per-frame Y-offset arcs (64 and 32 frames) used by the ramp actors. The three parts are unrelated except for sharing the block; the name hdma_ramp_tables only describes them as a group.
 ---------------------------------------------
 
 ?BANK 01
 
 ---------------------------------------------
 
-; DMA transfer mode lookup table for HDMA channel configuration — 64 byte entries. Each byte is a DMAP register value (transfer mode + direction bits): $00 = 1-byte single register, $01 = 2-byte register pair, $02 = 2-byte same register, $80/$81/$82 = same with indirect flag. Referenced by SetupHdmaChannel_Indirect/Direct in hdma_dma_spc.asm, parallax_thinker.asm, and cop_handlers_solid.asm.
+; DMAP transfer mode for each PPU B-bus register — 64 byte entries indexed by the register's low byte ($2100 + index; the HDMA COP ops pass that byte, e.g. #0F = BG2HOFS, #26 = WH0). The low 3 bits are the DMAP transfer mode: 0 = one register, 1 = two registers (p, p+1), 2 = one register written twice. Matches the PPU map: 2 for the scroll registers $0D–$14, the mode 7 registers $1B–$20 and CGDATA $22, 1 for the VRAM address/data pairs $16–$19 and the window pairs $26–$29. The indirect-HDMA flag ($40) is not stored here; SetupHdmaChannel_Indirect and QueueHdmaChannel OR it in. Entries $34–$3F cover the read-only PPU registers (MPY, SLHV, OAMDATAREAD, VMDATAREAD, CGDATAREAD, OPHCT/OPVCT, STAT77/78) and carry bit 7 ($80/$81/$82), the DMAP PPU-to-CPU direction bit. Referenced by SetupHdmaChannel_Indirect/Direct in hdma_dma_spc.asm, QueueHdmaChannel in cop_handlers_hdma_dma.asm, and parallax_thinker.asm (which masks with AND #$07).
 
 hdma_channel_config [
   #00   ;00
@@ -75,7 +75,7 @@ hdma_channel_config [
 ]
 ---------------------------------------------
 
-; Parallax scroll speed parameters — 13 bytes. Contains shift/scale values used by parallax_thinker to calculate per-layer scroll rates. Values include mode bytes, speed divisors, and $FF/$7F sentinel markers. Referenced alongside hdma_channel_config by parallax_thinker.asm.
+; Parallax scroll speed parameters — 13 bytes. ParallaxResolveChannelSpeed (parallax_thinker.asm) indexes this table with the low 3 bits of the hdma_channel_config byte for the layer's config ID and stores the byte as that layer's speed value (DP $04). Because every config byte has a low-3-bit value of 0–2, only entries 00–02 ($02, $03, $03) are reachable that way; entries 03–0C ($05, $05, $64, $00, then $FF/$7F pairs) have no reader (E1 analysis; the FF 7F pattern resembles HDMA line-count data, inferred).
 
 parallax_speed_config [
   #02   ;00
@@ -94,7 +94,7 @@ parallax_speed_config [
 ]
 ---------------------------------------------
 
-; Pre-computed acceleration/deceleration curves for ramp movement — 2 ramp-motion entries, each pointing to a binary curve. Entry 0: 64-frame curve (values $F0→$00→$10, slow ramp). Entry 1: 32-frame curve (values $F8→$00→$08, fast ramp). Used by ramps.asm to smoothly accelerate the player when stepping onto slopes/stairs.
+; Per-frame vertical offset arcs for ramp motion — 2 ramp-motion entries (3 bytes each: curve pointer, frame count), each pointing to a run of signed bytes. ramp_motion_curve_step in ramps.asm sign-extends one byte per frame and adds it to the Y position ($16) of the actor linked through the ramp actor's $04 field (the player, inferred), so the values are pixel deltas, not accelerations. Entry 0: 64 frames, −16 rising to 0 and on to +16, net 0 (returns to the starting height). Entry 1: 32 frames, −8 to +8, net +8 (ends 8 pixels lower). Curve 0 repeats most values twice in a row.
 
 ramp_motion_curves [
   ramp-motion < &binary_01D911, #40 >   ;00

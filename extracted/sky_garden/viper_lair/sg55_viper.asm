@@ -32,6 +32,10 @@
 !playerActor                    09AA
 !playerFlags                    09AE
 !characterForm                  0AD4
+!enemiesRemaining               0AEC
+!enemiesRemainingBcd            0AEE
+!reviveWarpPtr                  0AF4
+!reviveWarpBank                 0AF6
 !orbitAngle                     7F0010
 !orbitDiameter                  7F0012
 !sprTimer                       7F0016
@@ -81,7 +85,7 @@ btF3_neo_viper [
 
 code_0AD125 {
     COP [SetEntryHere]
-    LDA $0AEC
+    LDA $enemiesRemaining
     BEQ loc_0AD12D
     RTL 
 
@@ -118,8 +122,8 @@ sg55_viper [
     LDA #$0001
     JSL $@flag_helpers.TestWramFlag_Offset100
     BCC loc_0AD183
-    STZ $0AEC
-    STZ $0AEE
+    STZ $enemiesRemaining
+    STZ $enemiesRemainingBcd
     COP [Die]
 
   loc_0AD183:
@@ -128,9 +132,9 @@ sg55_viper [
     COP [SetDeathCallback] ( @code_0AD945 )
     LDA #$*binary_0AD93D
     AND #$00FF
-    STA $0AF6
+    STA $reviveWarpBank
     LDA #$&binary_0AD93D
-    STA $0AF4
+    STA $reviveWarpPtr
     LDA #$EFFC
     TSB $joypadMaskStd
     COP [WaitByte] ( #01 )

@@ -22,6 +22,10 @@
 !characterForm                  0AD4
 !gemCount                       0AD6
 !sceneSaveData                  0AF0
+!sceneSaveDataBank              0AF2
+!reviveWarpPtr                  0AF4
+!reviveWarpBank                 0AF6
+!gameOverWakeupFlag             0AF8
 !INIDISP                        2100
 !orbitAngle                     7F0010
 
@@ -71,10 +75,10 @@ GameOverSequence {
     LSR 
     STA $playerHp
     SEP #$20
-    LDA $0AF6
+    LDA $reviveWarpBank
     PHA 
     PLB 
-    LDY $0AF4
+    LDY $reviveWarpPtr
     BRA loc_00D6E6
 
   loc_00D6AD:
@@ -103,7 +107,7 @@ GameOverSequence {
     CPY #$0020
     BNE loc_00D6D2
     SEP #$20
-    LDA $0AF2
+    LDA $sceneSaveDataBank
     PHA 
     PLB 
     LDY $sceneSaveData
@@ -124,7 +128,7 @@ GameOverSequence {
     PLB 
     LDA #$0404
     STA $gfxCacheIdxB
-    INC $0AF8
+    INC $gameOverWakeupFlag
     STZ $worldReadyFlag
     COP [SetEntryHere]
     RTL 
@@ -179,7 +183,7 @@ GameOverSparkleDriftB {
   DeathWakeupMessage:
     LDA #$CFFC            ; DeathWakeupMessage: characterForm selects Will/Freedan/Shadow dialog variant
     TSB $joypadMaskStd
-    STZ $0AF8
+    STZ $gameOverWakeupFlag
     COP [WaitByte] ( #02 )
     LDA $characterForm
     BNE loc_00D7AD

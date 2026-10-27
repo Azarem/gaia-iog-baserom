@@ -25,6 +25,10 @@
 !playerActor                    09AA
 !playerFlags                    09AE
 !characterForm                  0AD4
+!enemiesRemaining               0AEC
+!enemiesRemainingBcd            0AEE
+!reviveWarpPtr                  0AF4
+!reviveWarpBank                 0AF6
 !WOBJSEL                        2125
 !CGWSEL                         2130
 !CGADSUB                        2131
@@ -87,7 +91,7 @@ btF4_neo_female_vampire [
 
 code_0AF1AD {
     COP [SetEntryHere]
-    LDA $0AEC
+    LDA $enemiesRemaining
     BEQ loc_0AF1B5
     RTL 
 
@@ -131,16 +135,16 @@ mu67_male_vampire [
     LDA #$0002
     JSL $@flag_helpers.TestWramFlag_Offset100
     BCC loc_0AF22F
-    STZ $0AEC
-    STZ $0AEE
+    STZ $enemiesRemaining
+    STZ $enemiesRemainingBcd
     COP [Die]
 
   loc_0AF22F:
     LDA #$*binary_0AFA51
     AND #$00FF
-    STA $0AF6
+    STA $reviveWarpBank
     LDA #$&binary_0AFA51
-    STA $0AF4
+    STA $reviveWarpPtr
 } >
 ]
 

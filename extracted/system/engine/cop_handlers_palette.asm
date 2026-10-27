@@ -1,10 +1,10 @@
-; COP handlers for background event-block transitions, palette animation, and thinker lifecycle (Bank $00, 11 COP handlers).
+; Palette-bundle animation COP handlers (37729–37887, Bank 00): five ops, #36–#3A (177 script sites). The block holds only these five handlers; the BG event-block ops live in cop_handlers_bg_rearrange and the thinker spawn/kill ops in cop_handlers_thinker.
 ; 
-; StageBgChange queues a BG tilemap/palette swap via event_blocks.LookupEventBlock without applying it. ApplyBgChange performs the animated transition loop calling AnimateEventBlock and UpdateFrameDialogue. StageBgChangeFromDeathIdx uses the actor's deathActionIdx as the event-block index.
+; A palette bundle (palette_bundles table, selected by a byte ID) is a list of 6-byte sub-entries, one per animation frame; LoadPaletteBundle (hdma_dma_spc) loads the next sub-entry into the actor's fields and DecompressGfxToVram applies it. Per-actor state: bundle ID in animScratch+2 ($7F0002), sub-entry index in DP $0E (reset to 0 when the bundle ends), frame hold counter in spritesetPtr ($7F0006, loaded from byte 0 of the sub-entry), current data pointer in animScratch ($7F0000), and the pass counter in retPtr1 ($7F0004) for the Loop variants.
 ; 
-; PaletteRestart/Start/StartLoop initialize palette animation sequences from bundle IDs. PaletteStep/StepLoop advance palette frames, with loop variants supporting repeat counts via retPtr1.
+; Start ops (#36–#38) load and apply sub-entry 0, store the address after the op in the actor entry point ($00) and YIELD (PLA, PLA, RTL), so on the next frame the script resumes right after the Start op. Step ops (#39, #3A) must therefore directly follow the Start op (the ambient thinkers do exactly this): each frame a Step either keeps yielding or, when the bundle (and, for #3A, every pass) is finished, continues the script with RTI.
 ; 
-; SpawnThinkerParam/SpawnThinker allocate special thinker actors via AllocateSpecialActor and set entry pointers from script operands. KillThinker unlinks the thinker from the doubly-linked list ($005A/$005C) and returns the slot to the actor free stack.
+; Typical use: ambient_palette_cycler (PaletteRestart + PaletteStep in a loop; the bundle ID is the thinker's spawn parameter), one-shot palette flash thinkers, boot logos, boss and ability palette effects. PaletteStartLoop/StepLoop have three sites (two attack_ability_system ability effects and one unused script).
 ---------------------------------------------
 
 ?BANK 00
@@ -17,7 +17,7 @@
 
 ---------------------------------------------
 
-; COP #36 with no operands. Clears frame index at actor+$0E, calls LoadPaletteBundle and DecompressGfxToVram to reload palette frame 0, then yields via RTL.
+; COP #36 with no operands. Restarts the bundle whose ID is already in animScratch+2: branches into the shared tail of PaletteStart (loc_009370), which zeroes the sub-entry index, loads and applies sub-entry 0, saves the resume address and yields. It does not set the bundle ID itself (not "bundle 0"): ambient thinkers get it from their spawn parameter, and the 2 sites are ambient_palette_cycler and PaletteResetAndKillThinker (actor_pool).
 
 PaletteRestart {
     TYX 
@@ -25,7 +25,7 @@ PaletteRestart {
 }
 
 ---------------------------------------------
-; COP #37 with one byte operand (palette bundle ID). Stores the ID in animScratch+2, loads and decompresses the bundle, then yields via RTL.
+; COP #37 with one byte operand (palette bundle ID, 84 sites). Stores the ID in animScratch+2, zeroes the sub-entry index ($0E), loads sub-entry 0 with LoadPaletteBundle and applies it with DecompressGfxToVram. Then stores the address after the operand in $00 (the actor entry point) and yields with PLA, PLA, RTL, so the next frame resumes at the following op (normally PaletteStep).
 
 PaletteStart {
     TYX 
@@ -35,18 +35,18 @@ PaletteStart {
     STA $animScratch+2, X ; Store bundle ID in animScratch+2 for LoadPaletteBundle
 
   loc_009370:
-    STZ $0E               ; Reset frame index to 0 (start from first palette frame)
-    JSL $@hdma_dma_spc.LoadPaletteBundle ; Load palette bundle header and frame data
-    JSL $@hdma_dma_spc.DecompressGfxToVram ; Decompress and apply first palette frame to CGRAM staging
+    STZ $0E               ; Sub-entry index ← 0 (first frame of the bundle)
+    JSL $@hdma_dma_spc.LoadPaletteBundle ; Fill the actor fields from sub-entry 0 (hold count, data pointer, ...)
+    JSL $@hdma_dma_spc.DecompressGfxToVram ; Apply it using those fields
     LDA $0A
-    STA $00               ; Save script pointer for deferred re-entry
-    PLA                   ; Pop COP frame and yield RTL (palette step next frame)
+    STA $00               ; Resume address = the op after this one (the Step op)
+    PLA                   ; Drop the COP frame and yield (RTL to the actor runner)
     PLA 
     RTL 
 }
 
 ---------------------------------------------
-; COP #38 with two byte operands (bundle ID, repeat count). Stores bundle ID in animScratch+2 and repeat count in retPtr1, loads/decompresses the first frame, then yields via RTL.
+; COP #38 with two byte operands (bundle ID, pass count). Stores the ID in animScratch+2 and the pass count in retPtr1, zeroes the sub-entry index, applies sub-entry 0 and yields exactly like PaletteStart. The count is the TOTAL number of passes PaletteStepLoop makes through the bundle (a count of 0 would give 65,536 passes, by the DEC in StepLoop). Only 3 sites use it: two attack_ability_system effects (#2A/#4B with 2 passes) and one unused script.
 
 PaletteStartLoop {
     TYX 
@@ -54,38 +54,38 @@ PaletteStartLoop {
     INC $0A
     AND #$00FF
     STA $animScratch+2, X ; Store bundle ID
-    STZ $000E, X
+    STZ $000E, X          ; Sub-entry index ← 0 (same field as DP $0E; D = X = slot)
     LDA [$0A]             ; Read repeat count byte
     INC $0A
     AND #$00FF
-    STA $retPtr1, X       ; Store repeat count in retPtr1 ($7F0004)
-    JSL $@hdma_dma_spc.LoadPaletteBundle ; Load and decompress first palette frame
-    JSL $@hdma_dma_spc.DecompressGfxToVram
+    STA $retPtr1, X       ; Store the pass count in retPtr1 ($7F0004)
+    JSL $@hdma_dma_spc.LoadPaletteBundle ; Load sub-entry 0
+    JSL $@hdma_dma_spc.DecompressGfxToVram ; Apply it
     LDA $0A
-    STA $00
+    STA $00               ; Resume address = the op after this one (PaletteStepLoop)
     PLA 
     PLA 
     RTL 
 }
 
 ---------------------------------------------
-; COP #39 with no operands. Decrements spritesetPtr frame counter each call; on zero calls LoadPaletteBundle and RTI-advances the script when the bundle is exhausted, otherwise updates animScratch and decompresses to VRAM before yielding.
+; COP #39 with no operands (85 sites). Decrements the hold counter in spritesetPtr once per call. While it is still nonzero the counter is stored back, the current data pointer (animScratch) is copied to $08 and DecompressGfxToVram runs again, then the actor yields (the entry point saved by PaletteStart makes the same Step op run next frame). When the counter reaches zero LoadPaletteBundle loads the next sub-entry: carry clear = another frame, which is applied and the actor yields; carry set = end of bundle, so the script continues past this op with RTI and the sub-entry index has been reset to 0.
 
 PaletteStep {
     TYX 
-    LDA $spritesetPtr, X  ; Decrement spritesetPtr frame delay counter
+    LDA $spritesetPtr, X  ; Hold counter (loaded from byte 0 of the sub-entry)
     DEC 
-    BNE loc_0093BD        ; Counter nonzero: not time to advance palette frame yet
-    JSL $@hdma_dma_spc.LoadPaletteBundle ; Counter reached zero: load next palette frame from bundle
-    BCC loc_0093C7        ; Carry clear = more frames remain in bundle
-    LDA $0A               ; Carry set = bundle exhausted: resume script
+    BNE loc_0093BD        ; Still holding: skip the load
+    JSL $@hdma_dma_spc.LoadPaletteBundle ; Hold elapsed: load the next sub-entry
+    BCC loc_0093C7        ; Carry clear = a sub-entry was loaded: apply it
+    LDA $0A               ; Carry set = end of bundle: continue the script
     STA $02, S
     RTI 
 
   loc_0093BD:
-    STA $spritesetPtr, X  ; Store decremented counter back to spritesetPtr
-    LDA $animScratch, X   ; Load current animation scratch (frame data pointer)
-    STA $08               ; Store to $08 for DecompressGfxToVram
+    STA $spritesetPtr, X  ; Store the decremented hold counter
+    LDA $animScratch, X   ; Sub-entry byte 5 (kept by LoadPaletteBundle in animScratch)
+    STA $08               ; Re-seed DP $08, the parameter the shared helper reads
 
   loc_0093C7:
     JSL $@hdma_dma_spc.DecompressGfxToVram
@@ -95,7 +95,7 @@ PaletteStep {
 }
 
 ---------------------------------------------
-; COP #3A with no operands. Like PaletteStep, but when a bundle completes it decrements retPtr1 and reloads from frame 0 if repeats remain; RTI-advances only when both bundle and repeat count are exhausted.
+; COP #3A with no operands. Same hold/frame logic as PaletteStep, but when LoadPaletteBundle reports the end of the bundle it decrements the pass counter in retPtr1: if nonzero it is stored and the bundle restarts at once (LoadPaletteBundle already reset the sub-entry index), and only when the counter reaches zero does the script continue with RTI. Pairs with PaletteStartLoop, which sets retPtr1.
 
 PaletteStepLoop {
     TYX 
@@ -106,10 +106,10 @@ PaletteStepLoop {
   loc_0093D6:
     JSL $@hdma_dma_spc.LoadPaletteBundle ; Load next frame from bundle
     BCC loc_0093F9        ; Carry clear = more frames in bundle
-    LDA $retPtr1, X       ; Bundle exhausted: check retPtr1 repeat counter
+    LDA $retPtr1, X       ; End of bundle: passes left
     DEC 
-    BEQ loc_0093E9        ; Counter reached zero: all repeats done → resume script
-    STA $retPtr1, X       ; Decremented counter still nonzero: reload bundle from frame 0
+    BEQ loc_0093E9        ; Last pass finished → continue the script
+    STA $retPtr1, X       ; Passes remain: store and load sub-entry 0 again
     BRA loc_0093D6
 
   loc_0093E9:

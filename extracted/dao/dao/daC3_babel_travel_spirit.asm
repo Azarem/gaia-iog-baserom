@@ -9,6 +9,7 @@
 
 !gfxCacheIdxA                   0648
 !gfxCacheIdxB                   064A
+!srcCacheBgB                    066F
 
 ---------------------------------------------
 
@@ -53,7 +54,7 @@ code_0980F8 {
 code_0980FD {
     COP [PrintDialogString] ( &dialogstring_098144 )
     STZ $066D
-    STZ $0670
+    STZ $srcCacheBgB+1
     LDA #$0404
     STA $gfxCacheIdxB
     LDA #$0202

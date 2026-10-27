@@ -38,6 +38,7 @@
 
 !frameCounter                   0036
 !sceneCurrent                   0644
+!sceneTableIndex                0646
 !cameraOffsetX                  06D6
 !cameraOffsetY                  06D8
 !cameraBoundsX                  06DA
@@ -45,7 +46,9 @@
 !playerXTile                    09A6
 !playerYTile                    09A8
 !displayModeFlags               09EC
+!enemiesRemainingBcd            0AEE
 !extendedFlags                  7F002A
+!bg3TilemapBuffer               7F0200
 !adhocVramDma                   7F0C03
 
 ---------------------------------------------
@@ -159,7 +162,7 @@ RadarScreenSetup {
     ASL 
     STA $001E
     JSR $&RadarPlotActors
-    LDA $0AEE
+    LDA $enemiesRemainingBcd
     AND #$00F0
     LSR 
     LSR 
@@ -170,7 +173,7 @@ RadarScreenSetup {
     STA $7F060C
 
   loc_0381AD:
-    LDA $0AEE
+    LDA $enemiesRemainingBcd
     AND #$000F
     ORA #$34F0
     STA $7F060E
@@ -272,7 +275,7 @@ RadarBorderAnimate {
 RadarPlotSceneMarkers {
     PHX 
     STZ $0002             ; Initialize BCD marker counter to zero
-    LDX $0646             ; Load current scene's marker table pointer from $0646
+    LDX $sceneTableIndex  ; Load current scene's marker table pointer from $0646
     LDA $@scene_barrier_chest_table, X
     SEC 
     SBC #$&scene_barrier_chest_table ; Convert scene table pointer to byte index into table_01ADA8
@@ -323,7 +326,7 @@ RadarPlotSceneMarkers {
     PHX 
     TAX 
     LDA #$2EE6            ; Tile $2EE6 = scene transition marker icon
-    STA $7F0200, X
+    STA $bg3TilemapBuffer, X
     PLX 
     SEP #$20
 
@@ -419,7 +422,7 @@ RadarPlotFriendlyActor {
     ADC #$0216            ; Add $0216 = radar interior base offset in VRAM buffer
     TAX 
     LDA #$2AE7            ; Tile $2AE7 = friendly actor dot (palette 2, blue)
-    STA $7F0200, X
+    STA $bg3TilemapBuffer, X
     PLX 
 
   loc_038377:
@@ -474,7 +477,7 @@ RadarPlotEnemyActor {
     ADC #$0216
     TAX 
     LDA #$280D            ; Tile $280D = enemy actor dot (palette 0, red)
-    STA $7F0200, X
+    STA $bg3TilemapBuffer, X
     PLX 
 
   loc_0383D5:

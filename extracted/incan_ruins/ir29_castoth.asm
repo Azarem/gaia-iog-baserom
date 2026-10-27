@@ -32,6 +32,10 @@
 !playerActor                    09AA
 !playerFlags                    09AE
 !characterForm                  0AD4
+!enemiesRemaining               0AEC
+!enemiesRemainingBcd            0AEE
+!reviveWarpPtr                  0AF4
+!reviveWarpBank                 0AF6
 !animScratch                    7F0000
 !orbitAngle                     7F0010
 !orbitDiameter                  7F0012
@@ -133,7 +137,7 @@ code_0A9A76 {
 
 code_0A9AB9 {
     COP [SetEntryHere]
-    LDA $0AEC
+    LDA $enemiesRemaining
     BEQ loc_0A9AC1
     RTL 
 
@@ -171,8 +175,8 @@ ir29_castoth [
     LDA #$0000
     JSL $@flag_helpers.TestWramFlag_Offset100
     BCC loc_0A9B17
-    STZ $0AEC
-    STZ $0AEE
+    STZ $enemiesRemaining
+    STZ $enemiesRemainingBcd
     COP [Die]
 
   loc_0A9B17:
@@ -182,9 +186,9 @@ ir29_castoth [
     COP [SetSpritePriority] ( #20 )
     LDA #$*binary_0A9C0F
     AND #$00FF
-    STA $0AF6
+    STA $reviveWarpBank
     LDA #$&binary_0A9C0F
-    STA $0AF4
+    STA $reviveWarpPtr
     JSL $@func_0AA37B
     LDA #$EFFC
     TSB $joypadMaskStd

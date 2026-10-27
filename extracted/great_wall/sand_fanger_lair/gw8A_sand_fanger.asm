@@ -34,6 +34,8 @@
 !playerFlags                    09AE
 !globalScriptIndex              0AAC
 !characterForm                  0AD4
+!enemiesRemaining               0AEC
+!enemiesRemainingBcd            0AEE
 !sourceSceneId                  0B12
 !activeActorCount               0DBC
 !animScratch                    7F0000
@@ -131,7 +133,7 @@ dialogstring_0B80B5 `[DEF][TPL:0]You've defeated the [N]Sand Fanger!  [N]Look! A
 
 code_0B80F0 {
     COP [SetEntryHere]
-    LDA $0AEC
+    LDA $enemiesRemaining
     BEQ loc_0B80F8
     RTL 
 
@@ -186,8 +188,8 @@ gw8A_sand_fanger [
     LDA #$0003
     JSL $@flag_helpers.TestWramFlag_Offset100
     BCC loc_0B8179
-    STZ $0AEC
-    STZ $0AEE
+    STZ $enemiesRemaining
+    STZ $enemiesRemainingBcd
     COP [Die]
 
   loc_0B8179:

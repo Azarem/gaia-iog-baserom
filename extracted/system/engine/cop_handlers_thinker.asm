@@ -1,3 +1,14 @@
+; Thinker spawn/kill COP handlers (37888–38020, Bank 00).
+; 
+; Thinkers are lightweight actors taken from a separate pool (16 slots of $10 bytes at $0F00–$0FFF, free list at $7E:3000 via the long pointer $52/$54) and kept in their own doubly-linked list ($5A head / $5C tail), distinct from the scene actor list ($56/$58).
+; 
+; - SpawnThinkerParam (COP #3B): allocate a thinker, store a byte parameter in its animScratch+2 and set its entry point (21 sites).
+; - SpawnThinker (COP #3C): same without the parameter byte (56 sites).
+; - KillThinker (COP #3D): unlink the calling thinker and return its slot to the free list (29 sites).
+; 
+; The spawn handlers copy the caller's animScratch2 ($7F000E,X) into the new thinker and clear its $0E. They do not test AllocateSpecialActor's carry: when the pool is exhausted Y still holds the caller's slot, so the entry-pointer stores would land on the caller (analysis only, unverified at runtime). Handlers return by writing the next script address into the COP stack frame ($02,S) and RTI.
+---------------------------------------------
+
 ?BANK 00
 
 ?INCLUDE 'actor_pool'
@@ -52,7 +63,7 @@ SpawnThinker {
 }
 
 ---------------------------------------------
-; COP #3D with no operands. Unlinks the current actor from the doubly-linked thinker list ($005A head / $005C tail), then pushes the freed slot onto the actor free stack at $0052.
+; COP #3D with no operands. Unlinks the calling thinker from the doubly-linked thinker list ($005A head / $005C tail), then returns its slot to the thinker free list (long pointer $52/$54): the pointer is backed up one word and the slot address stored there, the reverse of ThinkerPoolAlloc. When the removed thinker was the only one, $5C is not reset (it still names the freed slot).
 
 KillThinker {
     TYX 
@@ -78,15 +89,15 @@ KillThinker {
     STA $0004, Y
 
   loc_00946D:
-    PHD 
+    PHD                   ; Save D; it is forced to 0 below so $0052 / [$52] address the global free-list pointer
     LDA #$0000
     TCD 
     SEP #$20
-    DEC $0052             ; Pre-decrement thinker free-stack pointer by 2
+    DEC $0052             ; Back up the free-list pointer by one word (8-bit DEC of the low byte is safe: the list spans $7E:3000–$3021)
     DEC $0052
     REP #$20
-    TXA                   ; Push freed thinker slot address onto LIFO free stack
-    STA [$52]             ; Write freed actor slot address to top of free stack via indirect [$52]
+    TXA                   ; Return the freed thinker slot to the free list
+    STA [$52]             ; Store the slot address through the long pointer [$52]
     PLD 
     LDA $0A
     STA $02, S

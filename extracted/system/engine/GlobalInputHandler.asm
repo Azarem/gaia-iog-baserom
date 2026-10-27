@@ -1,6 +1,6 @@
 ; Main UI input dispatcher — menu, map, and item use button handling (229376–229567, Bank 03).
 ; 
-; Called once per frame from the main game loop (system_core) between warp/chest checks and actor execution. Handles the three primary UI buttons: Start (map/radar), Select (inventory), and Y (use equipped item).
+; Called once per frame from the main game loop (system_core) between warp/chest checks and actor execution. Handles the three primary UI buttons: Start (map/radar), Select (inventory), and the item-use button (Y $4000 in the vanilla game; this baserom's button-remap patch tests logical bit $0008 instead, applied through transforms.json).
 ; 
 ; === GUARD CONDITIONS ===
 ; 
@@ -15,9 +15,9 @@
 ; 
 ; === BUTTON DISPATCH ===
 ; 
-; - Start ($1000) → Map/Radar screen (hold-to-view with border animation)
+; - Start ($1000) → Map/Radar screen (toggle: stays up until Start is pressed again)
 ; - Select ($2000) → Inventory screen (OpenInventoryScreen)
-; - Y ($4000) → Use equipped item (ItemUseDispatch)
+; - Item use (vanilla Y $4000, logical $0008 here) → Use equipped item (ItemUseDispatch)
 ; 
 ; === MAP/RADAR SCREEN ===
 ; 
@@ -27,11 +27,11 @@
 ; 
 ; 2. Combat-lock mode (bit 3 set): Displays a 'PAUSE' text overlay via BG3 script (consolestring_01EAC6) with dimmed brightness (INIDISP = $09). Used in non-combat scenes (towns, cutscene rooms) where the full radar overlay is not appropriate.
 ; 
-; Both modes enter a shared hold-to-view loop: each frame enables NMI, waits for VBlank, animates the radar border tiles, and polls the Start button. When Start is released, the overlay is torn down: VRAM buffer is partially cleared, brightness restored to $0F, displayModeFlags bit 0 set to flush pending VRAM, and one UpdateFrameDialogue call restores the normal display.
+; Both modes enter a shared display loop: each frame enables NMI, waits for VBlank, animates the radar border tiles, and polls joypadCurrent for a fresh Start press. Start was marked consumed in joypadHeld on entry, so joypadCurrent hides it until the button is released and pressed again; the overlay therefore stays up until that second press (a toggle, not hold-to-view). Then the overlay is torn down: VRAM buffer is partially cleared, brightness restored to $0F, displayModeFlags bit 0 set to flush pending VRAM, and one UpdateFrameDialogue call restores the normal display.
 ; 
 ; === INVENTORY SCREEN ===
 ; 
-; Marks Select as consumed in joypadHeld ($2000 via TSB), syncs to VBlank, calls OpenInventoryScreen, then marks both Select and L ($6000) as consumed on return to prevent immediate re-trigger.
+; Marks Select as consumed in joypadHeld ($2000 via TSB), syncs to VBlank, calls OpenInventoryScreen, then marks both Select ($2000) and vanilla Y ($4000) as consumed on return ($6000) to prevent an immediate re-trigger of the inventory or item use. This constant is not covered by the baserom's button-remap transforms, so the logical item-use bit $0008 is not consumed here.
 ---------------------------------------------
 
 ?BANK 03
@@ -58,20 +58,20 @@
 ; 
 ; Called from the main game loop each frame. Five guard conditions suppress input: pending scene transition (sceneNext nonzero), game over active ($0200), melody playing (IsMusicPlaying carry set), and guard/channel stance or script/ability lock ($2800) — though Start bypasses the $2800 guard.
 ; 
-; Button priority: Start ($1000) is checked first → map/radar. Then $2800 guard. Then Select ($2000) → inventory. Then Y ($4000) → item use.
+; Button priority: Start ($1000) is checked first → map/radar. Then $2800 guard. Then Select ($2000) → inventory. Then the item-use button (vanilla Y $4000, logical $0008 here) → item use.
 ; 
 ; === MAP/RADAR PATH ===
 ; 
 ; Marks Start consumed in joypadHeld. Two sub-paths based on playerFlags bit 3 ($0008, combat lock):
 ; 
-; - Normal (clear): RadarScreenSetup renders the full minimap with actors, markers, and enemy clear status. Enters the hold loop at full brightness.
-; - Combat-locked (set): COP RunBg3Script displays 'PAUSE' text (consolestring_01EAC6). Clears displayModeFlags bit 15, enables NMI for one VBlank cycle, then sets INIDISP to $09 (dimmed). Enters the hold loop.
+; - Normal (clear): RadarScreenSetup renders the full minimap with actors, markers, and enemy clear status. Enters the display loop at full brightness.
+; - Combat-locked (set): COP RunBg3Script displays 'PAUSE' text (consolestring_01EAC6). Clears displayModeFlags bit 15, enables NMI for one VBlank cycle, then sets INIDISP to $09 (dimmed). Enters the display loop.
 ; 
-; Hold loop: EnableNmiAndJoypad → VBlankWait → EnableNmiOnly → RadarBorderAnimate → poll Start ($0657 bit $10). On release: clear overlay VRAM, restore brightness to $0F, set displayModeFlags bit 0 for VRAM flush, call UpdateFrameDialogue to restore display.
+; Display loop: EnableNmiAndJoypad → VBlankWait → EnableNmiOnly → RadarBorderAnimate (the animation index lives in a word pushed on the stack, read by RadarBorderAnimate as $03,S) → poll joypadCurrent's high byte ($0657) for bit $10 (Start), which only reappears after Start is released and pressed again. On that press: re-consume Start in joypadHeld ($0659) so the closing press cannot reopen the map, clear overlay VRAM, restore brightness to $0F, set displayModeFlags bit 0 for VRAM flush, call UpdateFrameDialogue to restore display.
 ; 
 ; === INVENTORY PATH ===
 ; 
-; Marks Select consumed ($2000). VBlankWait → OpenInventoryScreen → EnableNmiOnly. On return, marks Select+L ($6000) consumed to prevent re-trigger.
+; Marks Select consumed ($2000). VBlankWait → OpenInventoryScreen → EnableNmiOnly. On return, marks Select+Y ($6000, vanilla button values) consumed to prevent re-trigger.
 ; 
 ; === ITEM USE PATH ===
 ; 
@@ -97,7 +97,7 @@ GlobalInputHandler {
     LDA $joypadCurrent    ; Check Select ($2000) → inventory screen
     BIT #$2000
     BNE loc_03803B
-    BIT #$0008            ; Check Y ($4000) → use equipped item
+    BIT #$0008            ; Item-use button: logical $0008 here (vanilla Y $4000) → use equipped item
     BEQ loc_038039
     JMP $&item_use_system.ItemUseDispatch ; JMP to ItemUseDispatch — control transfers without return address push
 
@@ -111,7 +111,7 @@ GlobalInputHandler {
     JSL $@vblank_joypad.VBlankWaitAndJoypad ; Sync to VBlank before opening inventory overlay
     JSL $@inventory_overlay.OpenInventoryScreen ; Open the full inventory screen UI
     JSL $@vblank_joypad.EnableNmiOnly ; Restore NMI-only mode (disable joypad auto-read during inventory teardown)
-    LDA #$6000            ; Mark Select+L ($6000) consumed on return — prevents immediate re-open
+    LDA #$6000            ; $6000 = Select + vanilla Y: consume both on return so neither re-triggers at once (logical $0008 is not included)
     TSB $joypadHeld
     PLP 
     RTL 
@@ -125,7 +125,7 @@ GlobalInputHandler {
     BNE loc_03806D
     JSR $&radar_map_screen.RadarScreenSetup ; Normal mode: full radar minimap with actors, markers, and enemy status
     SEP #$20
-    BRA loc_03808B        ; Skip to shared hold-to-view loop
+    BRA loc_03808B        ; Skip to the shared display loop
 
   loc_03806D:
     COP [RunBg3Script] ( @system_strings.consolestring_01EAC6 ) ; Combat-lock mode: display 'PAUSE' text overlay via BG3 script
@@ -143,16 +143,16 @@ GlobalInputHandler {
     PHX 
 
   loc_03808F:
-    JSL $@vblank_joypad.EnableNmiAndJoypad ; Hold loop: enable NMI+joypad, wait for VBlank, disable joypad
+    JSL $@vblank_joypad.EnableNmiAndJoypad ; Display loop: enable NMI+joypad, wait for VBlank (joypad is read), back to NMI-only
     JSL $@vblank_joypad.VBlankWaitAndJoypad
     JSL $@vblank_joypad.EnableNmiOnly
     JSR $&radar_map_screen.RadarBorderAnimate ; Animate radar border tiles (cycling pattern on odd frames)
-    LDA $0657             ; Read joypad high byte — poll for Start button release
+    LDA $joypadCurrent+1  ; joypadCurrent high byte: consumed Start is hidden, so bit $10 appears only on a fresh press
     BIT #$10              ; Bit $10 in high byte = Start ($1000); zero = still held → loop
     BEQ loc_03808F
     PLX 
-    LDA #$10              ; Mark Start in joypad release tracker ($0659) to suppress re-trigger
-    TSB $0659
+    LDA #$10              ; Consume Start again (joypadHeld high byte, $0659) so this closing press cannot reopen the map
+    TSB $joypadHeld+1
     JSL $@vram_buffer_clear.ClearVramBufferPartial ; Clear overlay VRAM to remove radar/pause graphics
     LDA #$0F              ; Restore full brightness INIDISP = $0F
     STA $INIDISP

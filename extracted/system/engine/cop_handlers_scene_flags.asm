@@ -1,3 +1,20 @@
+; COP handlers for the persistent event-flag bitfield — set, clear, branch and wait (43841–44037, Bank 00).
+; 
+; Eight COP opcodes ($CC–$D3, copdef ids 204–211) operate on the 2048-bit eventFlags field at $0A00 through flag_helpers (SetEventFlag, ClearEventFlag, TestEventFlag). Every opcode comes in a Byte form (flag index 0–$FF, one operand byte) and a Word form (index 0–$7FF, two operand bytes). Script usage in the extracted code (COP [..] sites): SetFlagByte 475, SetFlagWord 62, ClearFlagByte 71, ClearFlagWord 22, BranchOnFlagByte 630, BranchOnFlagWord 40, WaitOnFlagByte 384, WaitOnFlagWord 9.
+; 
+; === SENSE BYTE ===
+; 
+; Branch and Wait take a sense byte after the flag index: 0 means 'act when the flag is clear', nonzero means 'act when the flag is set'. BranchOnFlag then reads a &Code word (the branch target within the script bank); WaitOnFlag has no target.
+; 
+; === SHARED TAILS ===
+; 
+; The Byte forms of Branch and Wait read their flag index, call TestEventFlag and then jump into the sense-byte tail that sits inside the Word form (BranchOnFlagByte uses loc_00AB9A / loc_00ABA5, WaitOnFlagByte uses loc_00ABE9 / loc_00ABF4). Those labels belong to the Word handlers' bodies, and the Byte forms reach them with relative branches, so the forms must stay within branch range of each other.
+; 
+; === RETURN CONVENTIONS ===
+; 
+; Set, Clear and Branch finish by storing the advanced operand pointer ($0A) over the return address ($02,S) and RTI. WaitOnFlag first stores the address of its own COP opcode (operand pointer − 2) in the actor's re-entry word ($00); while the flag does not match it yields with PLA PLA RTL, so the same COP re-runs next frame.
+---------------------------------------------
+
 ?BANK 00
 
 ?INCLUDE 'flag_helpers'
@@ -11,7 +28,7 @@ SetFlagByte {
     LDA [$0A]
     INC $0A
     AND #$00FF
-    JSR $&flag_helpers.SetEventFlag ; SetFlagByte: call SetEventFlag with byte-indexed flag
+    JSR $&flag_helpers.SetEventFlag
     LDA $0A
     STA $02, S
     RTI 
@@ -25,7 +42,7 @@ SetFlagWord {
     LDA [$0A]
     INC $0A
     INC $0A
-    JSR $&flag_helpers.SetEventFlag ; SetFlagWord: call SetEventFlag with word flag index
+    JSR $&flag_helpers.SetEventFlag
     LDA $0A
     STA $02, S
     RTI 
@@ -39,7 +56,7 @@ ClearFlagByte {
     LDA [$0A]
     INC $0A
     AND #$00FF
-    JSR $&flag_helpers.ClearEventFlag ; ClearFlagByte: call ClearEventFlag on byte flag
+    JSR $&flag_helpers.ClearEventFlag
     LDA $0A
     STA $02, S
     RTI 
@@ -53,7 +70,7 @@ ClearFlagWord {
     LDA [$0A]
     INC $0A
     INC $0A
-    JSR $&flag_helpers.ClearEventFlag ; ClearFlagWord: call ClearEventFlag on word flag
+    JSR $&flag_helpers.ClearEventFlag
     LDA $0A
     STA $02, S
     RTI 
@@ -64,10 +81,10 @@ ClearFlagWord {
 
 BranchOnFlagByte {
     TYX 
-    LDA [$0A]             ; BranchOnFlagByte: read byte flag index
+    LDA [$0A]             ; Byte flag index (0–$FF)
     INC $0A
     AND #$00FF
-    JSR $&flag_helpers.TestEventFlag ; Test flag state via TestEventFlag
+    JSR $&flag_helpers.TestEventFlag ; Carry = flag state; both branches below jump into BranchOnFlagWord's sense-byte tail
     BCS loc_00ABA5
     BCC loc_00AB9A
 }
@@ -77,21 +94,21 @@ BranchOnFlagByte {
 
 BranchOnFlagWord {
     TYX 
-    LDA [$0A]             ; BranchOnFlagWord: read word flag index
+    LDA [$0A]             ; Word flag index (0–$7FF)
     INC $0A
     INC $0A
-    JSR $&flag_helpers.TestEventFlag ; Test flag; BCS/BCC dispatch to sense-byte check below
+    JSR $&flag_helpers.TestEventFlag ; Carry = flag state; set → loc_00ABA5, clear → fall into loc_00AB9A
     BCS loc_00ABA5
 
   loc_00AB9A:
-    LDA [$0A]             ; Sense=0 branches when flag clear; sense≠0 branches when flag set
+    LDA [$0A]             ; Flag clear path: sense byte 0 = branch, nonzero = skip
     INC $0A
     AND #$00FF
     BNE loc_00ABB7
     BRA loc_00ABAE
 
   loc_00ABA5:
-    LDA [$0A]             ; Flag set path: read sense byte
+    LDA [$0A]             ; Flag set path: sense byte nonzero = branch, 0 = skip
     INC $0A
     AND #$00FF
     BEQ loc_00ABB7
@@ -104,7 +121,7 @@ BranchOnFlagWord {
     RTI 
 
   loc_00ABB7:
-    LDA [$0A]             ; Sense not met: skip &Code operand and continue
+    LDA [$0A]             ; Condition not met: step over the &Code operand (the load itself is not needed) and continue
     INC $0A
     INC $0A
     LDA $0A
@@ -117,14 +134,14 @@ BranchOnFlagWord {
 
 WaitOnFlagByte {
     TYX 
-    LDA $0A               ; Rewind entry 2 bytes before $0A to re-execute this COP handler each frame
+    LDA $0A               ; Re-entry word ($00) = address of this COP opcode ($0A − 2), so the COP re-runs each frame until the flag matches
     DEC 
     DEC 
     STA $00
     LDA [$0A]             ; Read byte flag index
     INC $0A
     AND #$00FF
-    JSR $&flag_helpers.TestEventFlag ; TestEventFlag: carry reflects flag state
+    JSR $&flag_helpers.TestEventFlag ; Carry = flag state; both branches jump into WaitOnFlagWord's sense-byte tail
     BCS loc_00ABF4
     BCC loc_00ABE9
 }
@@ -134,31 +151,31 @@ WaitOnFlagByte {
 
 WaitOnFlagWord {
     TYX 
-    LDA $0A               ; WaitOnFlagWord: save rewind PC
+    LDA $0A               ; Re-entry word ($00) = address of this COP opcode ($0A − 2)
     DEC 
     DEC 
     STA $00
     LDA [$0A]             ; Read word flag index
     INC $0A
     INC $0A
-    JSR $&flag_helpers.TestEventFlag ; TestEventFlag for word flag
+    JSR $&flag_helpers.TestEventFlag ; Carry = flag state; set → loc_00ABF4, clear → fall into loc_00ABE9
     BCS loc_00ABF4
 
   loc_00ABE9:
-    LDA [$0A]             ; Check sense byte for yield decision
+    LDA [$0A]             ; Flag clear path: sense byte 0 = condition met (continue), nonzero = keep waiting
     INC $0A
     AND #$00FF
-    BEQ loc_00AC00        ; Sense matched: advance past operand and RTI (flag condition satisfied)
+    BEQ loc_00AC00        ; Sense 0 and flag clear: condition met → loc_00AC00 (resume after operands)
     BRA loc_00ABFD
 
   loc_00ABF4:
-    LDA [$0A]
+    LDA [$0A]             ; Flag set path: sense byte nonzero = condition met, 0 = keep waiting
     INC $0A
     AND #$00FF
     BNE loc_00AC00
 
   loc_00ABFD:
-    PLA                   ; Sense not matched: yield RTL (recheck next frame)
+    PLA                   ; Not met: drop the COP frame (PLA PLA) and RTL to the actor loop; $00 makes the COP re-run next frame
     PLA 
     RTL 
 

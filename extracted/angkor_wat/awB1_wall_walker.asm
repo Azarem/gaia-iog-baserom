@@ -16,6 +16,8 @@
 ?INCLUDE 'StandardEnemyDefeatHandler'
 
 !playerActor                    09AA
+!enemiesRemaining               0AEC
+!enemiesRemainingBcd            0AEE
 !orbitAngle                     7F0010
 !loopCounter                    7F0014
 !moveXAlt                       7F0018
@@ -246,7 +248,7 @@ code_0BBD19 {
 }
 
 code_0BBD48 {
-    LDA $0AEC
+    LDA $enemiesRemaining
     CMP #$0001
     BNE loc_0BBD55
     COP [JumpFar] ( @StandardEnemyDefeatHandler )
@@ -507,14 +509,14 @@ code_0BC0EA {
 code_0BC11B {
     COP [PlaySoundCh1] ( #06 )
     SED 
-    LDA $0AEE
+    LDA $enemiesRemainingBcd
     SEC 
     SBC #$0001
-    STA $0AEE
+    STA $enemiesRemainingBcd
     CLD 
-    LDA $0AEC
+    LDA $enemiesRemaining
     DEC 
-    STA $0AEC
+    STA $enemiesRemaining
     STA $orbitAngle, X
     COP [StageMoveXY] ( #00, #00 )
     LDA #$0000

@@ -65,6 +65,7 @@
 !climbStateData                 09E0
 !abilityBitmask                 0AA2
 !characterForm                  0AD4
+!gameOverWakeupFlag             0AF8
 !free101C                       7F101C
 
 ---------------------------------------------
@@ -92,7 +93,7 @@ PlayerCharacterDef [
     STA $playerActor
     LDA #$0001
     STA $free101C, X      ; Set free101C marker — signals player actor is active
-    LDA $0AF8             ; Check $0AF8 (game-over wakeup flag) — spawn DeathWakeupMessage if set
+    LDA $gameOverWakeupFlag ; Check $0AF8 (game-over wakeup flag) — spawn DeathWakeupMessage if set
     BEQ loc_02C3B0
     COP [SpawnAfterFlags] ( @game_over_sequence.DeathWakeupMessage, #$2000 )
 

@@ -26,21 +26,21 @@ AppendHitSparkOamEntry {
     PHX 
     LDX $oamWriteOffset
     LDA #$327A
-    STA $7F3104, X
+    STA $oamComposeBuffer+4, X
     LDA $14
     SEC 
     SBC #$0004
     STA $oamComposeBuffer, X
     LDA $16
-    STA $7F3102, X
+    STA $oamComposeBuffer+2, X
     LDA #$327B
-    STA $7F310A, X
+    STA $oamComposeBuffer+A, X
     LDA $14
     CLC 
     ADC #$0004
-    STA $7F3106, X
+    STA $oamComposeBuffer+6, X
     LDA $16
-    STA $7F3108, X
+    STA $oamComposeBuffer+8, X
     LDA $oamWriteOffset
     CLC 
     ADC #$000C

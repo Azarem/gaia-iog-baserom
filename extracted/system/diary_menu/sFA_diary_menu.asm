@@ -55,6 +55,7 @@
 ?INCLUDE 'vblank_joypad'
 ?INCLUDE 'vram_buffer_clear'
 
+!menuModeFlag                   00EE
 !sceneNext                      0642
 !warpDestX                      064C
 !warpDestY                      064E
@@ -101,6 +102,7 @@
 !APUIO0                         2140
 !JOY2L                          421A
 !animScratch                    7F0000
+!bg3TilemapBuffer               7F0200
 !cgramPalette                   7F0A00
 !scratch1010                    7F1010
 !free101C                       7F101C
@@ -133,7 +135,7 @@ sFA_diary_menu [
     STA $cgramPalette
     STA $0B04             ; Clear saved frame delay
     LDA #$0001
-    STA $00EE             ; Enable menu mode flag
+    STA $menuModeFlag     ; Enable menu mode flag
     SEP #$20
     LDA #$01              ; BG1 on main screen
     STA $TM
@@ -619,7 +621,7 @@ DiaryCameraPan {
 ApplySoundAndRemap {
     LDA #$0000
     STA $0B04             ; Clear frame delay
-    STZ $00EE             ; Clear menu mode flag
+    STZ $menuModeFlag     ; Clear menu mode flag
     LDA $0B24             ; Sound mode from save
     BNE loc_0BE68C        ; Nonzero → mono
     SEP #$20
@@ -911,10 +913,10 @@ DiaryCopyTab {
     BEQ loc_0BE8D4        ; Slot 3 empty → proceed
     LDA #$0002
     STA $0D98
-    STZ $00EE
+    STZ $menuModeFlag
     COP [PrintDialogStringAlt] ( &dialogstring_0BF679 )
     LDA #$0001
-    STA $00EE
+    STA $menuModeFlag
     JSR $&DiaryMenuClearVram
     COP [PrintDialogStringAlt] ( &dialogstring_0BF3F4 )
     JMP $&DiaryTabSelectLoop
@@ -1436,7 +1438,7 @@ DiaryDrawCursorHighlight {
     LDA $@table_0BED3C+2, X
     TAX 
     LDA #$202B
-    STA $7F0200, X
+    STA $bg3TilemapBuffer, X
     PLX 
     LDA #$0001
     TSB $displayModeFlags
@@ -1462,7 +1464,7 @@ DiaryClearCursor {
     LDA $@table_0BED3C+2, X
     TAX 
     LDA #$2040
-    STA $7F0200, X
+    STA $bg3TilemapBuffer, X
     PLX 
     RTS 
 }
@@ -1504,7 +1506,7 @@ DiaryClearAllCursors {
     PHX 
     TAX 
     LDA #$2040
-    STA $7F0200, X
+    STA $bg3TilemapBuffer, X
     PLX 
     INX 
     INX 

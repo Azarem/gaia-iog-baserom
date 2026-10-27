@@ -13,6 +13,7 @@
 !playerActor                    09AA
 !playerFlags                    09AE
 !characterForm                  0AD4
+!enemiesRemaining               0AEC
 
 ---------------------------------------------
 
@@ -22,7 +23,7 @@ ir29_transform [
   code_09CF89:
     COP [BranchOnFlagWord] ( #$011F, #01, &code_09CFEB )
     COP [SetEntryHere]
-    LDA $0AEC
+    LDA $enemiesRemaining
     BEQ loc_09CF98
     RTL 
 

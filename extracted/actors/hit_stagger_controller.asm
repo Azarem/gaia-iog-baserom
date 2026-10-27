@@ -21,6 +21,7 @@
 !moveScratch2                   7F002E
 !onHitCallback                  7F1000
 !onDeathCallback                7F1004
+!onDeathCallbackBank            7F1006
 !free101C                       7F101C
 
 ---------------------------------------------
@@ -190,7 +191,7 @@ HitStaggerResolveHit {
     LDA $onDeathCallback, X
     BEQ loc_00D9BC
     STA $0000, X
-    LDA $7F1006, X
+    LDA $onDeathCallbackBank, X
     STA $0002, X
     LDA #$0000
     STA $0008, X

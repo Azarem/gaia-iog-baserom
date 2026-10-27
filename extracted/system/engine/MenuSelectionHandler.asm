@@ -24,6 +24,8 @@
 !joypadHeld                     0658
 !sfxQueueCh2                    06F9
 !displayModeFlags               09EC
+!bg3TilemapBuffer               7F0200
+!bg3TilemapRow1                 7F0240
 
 ---------------------------------------------
 
@@ -276,9 +278,9 @@ DrawMenuCursor {
     BEQ loc_03E9B8
     LDX $098E
     LDA $0990
-    STA $7F0200, X
+    STA $bg3TilemapBuffer, X
     LDA $0992
-    STA $7F0240, X
+    STA $bg3TilemapRow1, X
 
   loc_03E9B8:
     SEP #$20
@@ -328,14 +330,14 @@ DrawMenuCursor {
     CLC 
     ADC $18
     TAX 
-    LDA $7F0200, X        ; Load tiles under cursor to $0990/$0992, write cursor tiles over them
+    LDA $bg3TilemapBuffer, X ; Load tiles under cursor to $0990/$0992, write cursor tiles over them
     PHA 
     LDA $00
-    STA $7F0200, X
-    LDA $7F0240, X
+    STA $bg3TilemapBuffer, X
+    LDA $bg3TilemapRow1, X
     PHA 
     LDA $02
-    STA $7F0240, X
+    STA $bg3TilemapRow1, X
     STX $098E             ; Store cursor VRAM position to $098E for next-frame restore
     PLA 
     STA $0992
@@ -355,7 +357,7 @@ ReadMenuSelection {
     PHY 
     LDX $098E
     LDA $0990             ; Restore saved tiles ($0990/$0992) to original VRAM positions
-    STA $7F0200, X
+    STA $bg3TilemapBuffer, X
     AND #$03FF            ; Convert tile to OAM format: AND $03FF (strip palette), ASL×3, ORA $6000 (priority)
     ASL 
     ASL 
@@ -363,7 +365,7 @@ ReadMenuSelection {
     ORA #$6000
     STA $090E             ; Write OAM sprite data: $090E (top half), $0910 (bottom half)
     LDA $0992
-    STA $7F0240, X
+    STA $bg3TilemapRow1, X
     AND #$03FF
     ASL 
     ASL 

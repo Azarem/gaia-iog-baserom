@@ -1,11 +1,23 @@
-; Composite block of math lookup tables: a scene flag table, 8-bit and 16-bit sine/cosine LUTs (quarter-wave and full-cycle variants). Used by Mode 7 perspective rotation, actor circular motion, and screen transition effects.
+; Math lookup tables (115588–117397, Bank 01): the default slope speed curves followed by the engine's 8-bit and 16-bit sine/cosine tables. Used by Mode 7 perspective rotation, actor circular/orbital motion, slope physics and the scene-transition wave effect.
+; 
+; === ADJACENCY CONTRACT ===
+; Several consumers index past the end of one table and rely on the next table following it in ROM. Do not reorder, resize or relocate these parts independently:
+; 
+; - sine_table_8bit holds only the 64-entry first quarter (0°–90°), yet it is indexed 0–255 (ComputeSineScrollTable, ApplyOrbitalOffsetXY, ApplyOrbitalOffsetFromRef, actor spirals). Entries 64–255 come from signed_sine_table, which starts at the 90° peak, so the pair forms a 256-step signed sine (1.406° per step). signed_sine_table on its own is the matching 256-step signed cosine.
+; - sine_table_16bit + cosine_table_16bit + signed_sine_table_16bit form one 512-word sine cycle (0.703° per step): rising quarter, falling quarter, then a negated half-wave. thinkers/mode7_perspective reads it with index ($BC AND $01FF) × 2. Read from cosine_table_16bit the same index gives a 512-word cosine cycle: falling quarter, negated half-wave, then sine_table_16bit_quarter — a copy of the rising quarter that supplies the 270°–360° part (it is not a spare duplicate).
+; 
+; scene_flag_table is not a flag table: its first 64 bytes are the default slope acceleration and deceleration curves (see its part note).
 ---------------------------------------------
 
 ?BANK 01
 
 ---------------------------------------------
 
-; 209-byte lookup table at the start of the math_lookup_tables block. Indices $00–$3F show a sparse pattern with #01 at regular 8-entry intervals (flag-like). Indices $42–$C0 contain a smooth linear ramp from #01 to #10. Indices $C1–$D0 contain high values $E0–$EF. Exact purpose not fully determined — may be a scene-to-region mapping or scaling curve. Not directly referenced by actor code; included in the math_lookup_tables block due to physical contiguity with the trig tables.
+; 209-byte table at the start of the block. Despite its name it is not a scene-flag table: system_core's init code points slopeCurvePtrA/B ($09BA/$09BC) at its start and decelCurvePtr ($09C2, also $09BE/$09C0/$09C4) at +$20. slope_ramp_physics reads 16-bit values from those pointers indexed by (step counter & $0F) × 2, so the first 64 bytes are two 16-word curves:
+; - $00–$1F: default slope acceleration curve — word $0001 at steps 0, 4, 8 and 12, otherwise $0000.
+; - $20–$3F: default deceleration curve — word $0001 at steps 7 and 15, otherwise $0000.
+; 
+; The remaining bytes have no reference by name in the extracted code: $42–$C0 is a stepped ramp ($01 ×8, $02 ×8, … up to $10 ×7) and $C1–$D0 counts $E0–$EF. Their consumer is unknown (logged as an open question).
 
 scene_flag_table [
   #01   ;00
@@ -220,7 +232,7 @@ scene_flag_table [
 ]
 ---------------------------------------------
 
-; 8-bit sine lookup table — 64 entries covering one quarter-wave (0°–90°). Values range $00 to $7F. Used by actor code for circular/oscillating motion (whirligig, skulker, sand fanger spiral attacks) and by scene_lifecycle for screen wipe sine-wave effects. Also used by system_init as a known zero-byte source address for WRAM DMA clearing.
+; 8-bit sine lookup table — 64 entries covering one quarter-wave (0°–90°). Values range $00 to $7F. Entry i = round(127 × sin(i × 1.40625°)). Consumers index it with the full 0–255 range; entries 64–255 are read from the adjacent signed_sine_table (see the block note). Used by actor code for circular/oscillating motion (whirligig, skulker, sand fanger spiral attacks) and by scene_lifecycle for the screen-transition sine-wave effect. Also used by system_init as a known zero-byte source address (entry 0) for WRAM DMA clearing.
 
 sine_table_8bit [
   #00   ;00
@@ -290,7 +302,7 @@ sine_table_8bit [
 ]
 ---------------------------------------------
 
-; Full 360° signed 8-bit sine table — 256 entries. Values cycle: $7F (peak) → $00 (zero-crossing) → $81 (trough) → $00. Used by the incan ruins whirligig enemy for X/Y circular motion and for signed oscillation effects in various actors.
+; Full-cycle signed 8-bit cosine table — 256 entries, entry k = round(127 × cos(k × 1.40625°)): $7F at k=0, $00 at k=$40, $81 (−127) at k=$80, $00 at k=$C0. Because it starts at the 90° peak it is also the continuation of sine_table_8bit (sine index k+64). Used as the second axis of orbital motion with sine_table_8bit (ApplyOrbitalOffsetXY, ApplyOrbitalOffsetFromRef, the incan ruins whirligig).
 
 signed_sine_table [
   #7F   ;00
@@ -552,7 +564,7 @@ signed_sine_table [
 ]
 ---------------------------------------------
 
-; 16-bit high-precision sine table — 128 word entries covering one quarter-wave (0°–90°). Values range $0000 to $7FFF (fixed-point 0.0 to ~1.0). Used by the Mode 7 perspective system for rotation matrix calculations.
+; 16-bit high-precision sine table — 128 word entries covering one quarter-wave (0°–90°, 0.703125° per step): entry k ≈ 32767 × sin(k × 0.703125°), $0000 to $7FFD. Used by the Mode 7 perspective system for rotation matrix calculations, which index it up to 512 words so the read continues through cosine_table_16bit and signed_sine_table_16bit (see the block note).
 
 sine_table_16bit [
   #$0000   ;00
@@ -686,7 +698,7 @@ sine_table_16bit [
 ]
 ---------------------------------------------
 
-; 16-bit high-precision cosine table — 128 word entries covering one quarter-wave. Values range $7FFF (1.0) down to $0000 (0.0). Paired with sine_table_16bit for Mode 7 matrix computations in mode7_perspective.asm.
+; 16-bit high-precision cosine table — 128 word entries covering one quarter-wave. Values range $7FFF (1.0) down to $0000 (0.0) (its entries are also the falling quarter, 90°–180°, of the sine cycle read from sine_table_16bit). Paired with sine_table_16bit for Mode 7 matrix computations in mode7_perspective.asm, which indexes it up to 512 words so the read continues through signed_sine_table_16bit and sine_table_16bit_quarter.
 
 cosine_table_16bit [
   #$7FFF   ;00
@@ -820,7 +832,7 @@ cosine_table_16bit [
 ]
 ---------------------------------------------
 
-; Full-cycle 16-bit signed sine table — 256 word entries. Values range $0000 through $7FFF (positive peak) to $8001 (negative trough). Used by Mode 7 perspective with 4-quadrant dispatch for rotation at arbitrary angles (0°–360°).
+; Negated half-wave 16-bit sine — 256 word entries, entry k ≈ −32767 × sin(k × 0.703125°): $0000 at k=0, trough $8001 at k=$80, back to $FE6E (−402) at k=$FF; never positive. It supplies angles 180°–360° of the 512-word sine cycle that follows sine_table_16bit and cosine_table_16bit, and the 90°–270° part of the cosine cycle read from cosine_table_16bit. Reached only by running past the end of those tables (mode7_perspective index up to 511); no code names it directly.
 
 signed_sine_table_16bit [
   #$0000   ;00
@@ -1082,7 +1094,7 @@ signed_sine_table_16bit [
 ]
 ---------------------------------------------
 
-; Duplicate of sine_table_16bit — 128 word entries, identical values. Likely exists for bank-alignment purposes or to provide a separate addressing context for code that needs both sin and cos lookups simultaneously without address conflicts.
+; Copy of sine_table_16bit's 128 words (the rising quarter; entries $00–$09 and $70–$7F spot-checked identical). It follows signed_sine_table_16bit so that the 512-word cosine cycle read from cosine_table_16bit ends with the 270°–360° quarter — it is not a spare duplicate. No code names it directly.
 
 sine_table_16bit_quarter [
   #$0000   ;00

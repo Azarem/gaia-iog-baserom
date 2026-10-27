@@ -1639,7 +1639,7 @@ LoadAbilityAnimTableB {
     PLA 
     LDA $@ability_anim_tables.freedan_ability_anim_table+4, X
     AND #$00FF
-    STA $09E2
+    STA $climbStateData+2
     PLX 
     RTS 
 }

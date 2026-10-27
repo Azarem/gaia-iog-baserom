@@ -17,6 +17,9 @@
 !cameraBoundsY                  06DC
 !playerYPos                     09A4
 !playerActor                    09AA
+!enemiesRemaining               0AEC
+!reviveWarpPtr                  0AF4
+!reviveWarpBank                 0AF6
 !TM                             212C
 !CGADSUB                        2131
 !chatPtr                        7F000A
@@ -39,9 +42,9 @@ sEA_solid_arm [
     COP [SpawnBeforeFlags] ( @code_08F9F2, #$2000 )
     LDA #$*binary_08F9EA
     AND #$00FF
-    STA $0AF6
+    STA $reviveWarpBank
     LDA #$&binary_08F9EA
-    STA $0AF4
+    STA $reviveWarpPtr
     LDA #$EFFC
     TSB $joypadMaskStd
     COP [WaitByte] ( #13 )
@@ -336,7 +339,7 @@ code_08F9F2 {
     LDA #$21
     STA $CGADSUB
     REP #$20
-    LDA $0AEC
+    LDA $enemiesRemaining
     BEQ loc_08FA06
     RTL 
 

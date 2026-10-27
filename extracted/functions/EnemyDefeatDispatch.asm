@@ -13,6 +13,8 @@
 ?INCLUDE 'SpawnFieldRevealEffect'
 ?INCLUDE 'StandardEnemyDefeatHandler'
 
+!enemiesRemaining               0AEC
+!enemiesRemainingBcd            0AEE
 !orbitAngle                     7F0010
 !deathActionIdx                 7F0024
 !extendedFlags                  7F002A
@@ -22,7 +24,7 @@
 ---------------------------------------------
 
 EnemyDefeatDispatch {
-    LDA $0AEC             ; Remaining enemies in dungeon area
+    LDA $enemiesRemaining ; Remaining enemies in dungeon area
     CMP #$0001
     BNE loc_0AA460        ; Not last → normal death
     LDA #$6000            ; Last enemy: clear movement flags
@@ -47,14 +49,14 @@ EnemyDefeatDispatch {
 code_0AA474 {
     COP [PlaySoundCh1] ( #03 ) ; Death SFX
     SED                   ; BCD decrement of display counter
-    LDA $0AEE
+    LDA $enemiesRemainingBcd
     SEC 
     SBC #$0001
-    STA $0AEE
+    STA $enemiesRemainingBcd
     CLD 
-    LDA $0AEC             ; Decrement remaining enemy count
+    LDA $enemiesRemaining ; Decrement remaining enemy count
     DEC 
-    STA $0AEC
+    STA $enemiesRemaining
     STA $orbitAngle, X    ; Store for spawned actors
     COP [StageMoveXY] ( #00, #00 ) ; Halt movement
     LDA #$0000

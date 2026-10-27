@@ -10,6 +10,7 @@
 !joypadMaskStd                  065A
 !playerXPos                     09A2
 !playerYPos                     09A4
+!enemiesRemaining               0AEC
 !orbitAngle                     7F0010
 !orbitDiameter                  7F0012
 
@@ -33,7 +34,7 @@ it1B_trial [
     LDA #$003C
     STA $orbitDiameter, X
     COP [SetEntryHere]
-    LDA $0AEC
+    LDA $enemiesRemaining
     BEQ loc_04F904
     LDA $orbitDiameter, X
     DEC 
@@ -70,7 +71,7 @@ code_04F902 {
     LDA $orbitAngle, X
     STA $0000
     JSL $@oam_digit_compose.ComposeDigitSprites
-    LDA $0AEC
+    LDA $enemiesRemaining
     BEQ loc_04F91E
     COP [PrintDialogString] ( &dialogstring_04FA25 )
     COP [SetEntryHere]

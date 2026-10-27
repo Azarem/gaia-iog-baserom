@@ -11,6 +11,7 @@
 ?INCLUDE 'spriteset_npc_props'
 
 !joypadMaskStd                  065A
+!srcCacheMusic                  0687
 
 ---------------------------------------------
 
@@ -56,7 +57,7 @@ mu63_spirits [
     COP [WaitByte] ( #77 )
     COP [SpawnThinker] ( @oneshot_palette_flash_1C.FlashPalette1C )
     COP [WaitByte] ( #7F )
-    STZ $0688
+    STZ $srcCacheMusic+1
     LDA #$CFFC
     TRB $joypadMaskStd
     COP [Die]
@@ -112,7 +113,7 @@ code_069AC1 {
     COP [WaitByte] ( #77 )
     COP [SpawnThinker] ( @oneshot_palette_flash_1C.FlashPalette1C )
     COP [WaitByte] ( #7F )
-    STZ $0688
+    STZ $srcCacheMusic+1
     LDA #$CFFC
     TRB $joypadMaskStd
     COP [Die]

@@ -14,6 +14,7 @@
 !gfxCacheIdxA                   0648
 !gfxCacheIdxB                   064A
 !joypadMaskStd                  065A
+!transitionBrightness           0DB6
 !INIDISP                        2100
 
 ---------------------------------------------
@@ -48,7 +49,7 @@ sFC_actor_0BC9BD [
 ; Manually sets DP = $0000 for the VBlank call since actor DP points to the actor slot.
 
 TitleToDiaryTransition {
-    STZ $0DB6             ; Clear dialogue/state scratch
+    STZ $transitionBrightness ; Clear dialogue/state scratch
     LDA #$0000            ; Reset transition effect to none
     STA $gfxCacheIdxB
     LDA #$0001            ; Instant blank transition type

@@ -4,23 +4,23 @@
 ; 
 ; === RENDER LIST CLEARING (ClearActorRenderList, 252010) ===
 ; 
-; ClearActorRenderList zeroes the 512-byte depth-sort bucket array at $0200–$03FE and writes a $FFFF end sentinel at $0400, preparing it for the next frame's SortActorsByDepth pass. Called from the main game loop before actor processing begins.
+; ClearActorRenderList zeroes the 512-byte depth-sort bucket array at $0200–$03FE and writes a $FFFF end sentinel at $0400, preparing it for SortActorsByDepth. It is called at scene setup (scene_lifecycle, inventory_overlay), not every frame: SortActors_BuildFinalList re-zeroes each bucket it consumes (a PHA written over the popped bucket word), so the array is already clean at the start of the next frame's sort.
 ; 
 ; === DEPTH SORTING (SortActorsByDepth) ===
 ; 
-; Uses a bucket sort algorithm with the $0200–$03FE WRAM region as a bucket array indexed by sort key. Each actor's screen-space Y position is converted to an inverted sort key (higher Y = lower key = rendered first = behind). The stack pointer is repurposed to iterate the sort buffer efficiently via PLX/PLA.
+; Uses a bucket sort algorithm with the $0200–$03FE WRAM region as a bucket array indexed by sort key. Each actor's screen-space Y position is converted to an inverted sort key (lower on screen = lower key = emitted first = lowest OAM index, which the PPU draws in front of higher indexes). The stack pointer is repurposed to iterate the sort buffer efficiently via PLX/PLA.
 ; 
 ; Sort key assignment based on actor flags ($10):
 ; - Bit 13 ($2000): Actor hidden — skipped entirely
 ; - Bits 0+1 ($0003) both clear: Y-based depth key (screen Y inverted via EOR, doubled via ASL)
-; - Bit 0 only ($0001): Fixed key $01FE — always rendered in front
-; - Bit 1 ($0002): Fixed key $0000 — always rendered behind
+; - Bit 0 only ($0001): Fixed key $01FE — emitted last = highest OAM index = always behind (COP SetPriorityMin sets this bit)
+; - Bit 1 ($0002): Fixed key $0000 — emitted first = OAM index 0 = always in front (COP SetPriorityMax); wins when both bits are set
 ; 
 ; BuildFinalList reads the bucket array front-to-back via PLY (SP set to $01FF), producing the final depth-sorted actor list at $0C00.
 ; 
 ; === SPRITE COMPOSITION (ComposeAllSprites) ===
 ; 
-; Entry point called from the main game loop after actor execution. Pre-fills the entire 128-entry OAM table with off-screen values ($E080 = hidden), then processes two sprite sources:
+; Entry point called from the main game loop after actor execution. Pre-fills the entire 128-entry OAM table with the hidden value $E080 (X byte $80, Y byte $E0 — Y $E0 is below the 224-line screen), then processes two sprite sources:
 ; 1. Compose buffer at $7F3100 (pre-composed sprites from damage digits, VFX)
 ; 2. Sorted actor list at $0C00 (metasprite decomposition per actor)
 ; 
@@ -28,25 +28,25 @@
 ; 
 ; === OAM TABLE LAYOUT ===
 ; 
-; SNES OAM: 128 entries × 4 bytes at $0422–$0621, plus a 32-byte high table starting at ($06). Each low-table entry: byte 0 = X[7:0], byte 1 = Y, bytes 2-3 = tile/attribute. The high table packs 2 bits per sprite (X bit 8, size flag) into groups of 4 via a rolling shift register ($00) with a 4-sprite counter ($0E).
+; SNES OAM: 128 entries × 4 bytes at $0422–$0621, plus a 32-byte high table at $0622–$0641 (write pointer in $06). Each low-table entry: byte 0 = X[7:0], byte 1 = Y, bytes 2-3 = tile/attribute. The high table packs 2 bits per sprite (X bit 8, size flag) into groups of 4 via a rolling shift register ($00) with a 4-sprite counter ($0E).
 ; 
 ; === METASPRITE FORMAT ===
 ; 
 ; 7 bytes per sub-sprite in a metasprite definition:
 ; - Byte 0: Size/priority flags (bit 0 → OAM hi-table size bit)
 ; - Bytes 1-2: X offset pair (swapped via XBA when H-mirrored)
-; - Bytes 3-4: Y offset pair (swapped via XBA when H-mirrored)
+; - Bytes 3-4: Y offset pair (swapped via XBA when V-mirrored)
 ; - Bytes 5-6: Tile index + palette/priority attributes
 ; 
-; H-mirror is determined by the carry from ASL on sprite field $04 ($000E,X). When carry is set, X/Y offset bytes are swapped and tile flip bits are EOR'd.
+; Mirroring comes from the actor's OAM attribute word ($000E,X, copied to $04): bit 14 (H-flip) swaps the X offset pair and bit 15 (V-flip) swaps the Y offset pair, each tested via the carry from ASL. The whole word is also EOR'd into every sub-sprite's tile/attribute word, so $0E acts as an XOR mask for flips, palette and priority (see cop_handlers_oam_attribs).
 ; 
 ; === PLAYER SPRITE HANDLING ===
 ; 
-; DecomposePlayerSprites adds character-form body table lookups, VRAM tile index remapping (player tiles are dynamically DMA'd), and sprite cache validation ($09CC/$09CE) to avoid redundant VRAM updates when the metasprite pointer and bank haven't changed.
+; DecomposePlayerSprites adds character-form body table lookups (tile source address and bank), a per-sub-sprite list of tile source pointers at $06FF+ that DmaPlayerTilesToVram streams to VRAM, sequential OAM tile numbering, and sprite cache validation ($09CC/$09CE) to skip the re-upload when the metasprite pointer and bank haven't changed.
 ; 
 ; === COMPOSE BUFFER ($7F3100) ===
 ; 
-; Pre-composed sprite buffer for systems that generate sprites outside the metasprite pipeline (damage digits, visual effects). Each entry: X position (2B) + Y position (2B) + tile/attribute (2B). RenderComposeBuffer processes this before the actor metasprite loop.
+; Pre-composed sprite buffer for systems that generate sprites outside the metasprite pipeline (damage digits, visual effects). Each entry: X position (2B) + Y position (2B) + tile/attribute (2B), in world coordinates (RenderComposeBuffer subtracts the scroll). A word with bit 15 set ($FFFF, written by the main loop at oamWriteOffset) ends the buffer. RenderComposeBuffer runs before the actor metasprite loop, so these sprites take the lowest OAM indexes and draw in front of every actor.
 ; 
 ; === ANIMATION (UpdateActorAnimation) ===
 ; 
@@ -60,12 +60,18 @@
 !actorListLast                  0058
 !oamWriteOffset                 00D8
 !deathFlag                      0200
+!oamStaging                     0422
 !bg1ScrollH                     068A
 !mapScrollV                     068E
 !layerPriorityFlag              06EE
+!playerTileSrcBase              06FC
+!playerTileDmaBank              06FE
 !playerFlags                    09AE
+!playerSpriteCachePtr           09CC
+!playerSpriteCacheBank          09CE
 !displayModeFlags               09EC
 !characterForm                  0AD4
+!actorRenderList                0C00
 !spritesetPtr                   7F0006
 !metaspritePtr                  7F000C
 !animScratch2                   7F000E
@@ -76,7 +82,7 @@
 
 ; Clear the depth-sort bucket array at $0200 in preparation for the next frame.
 ; 
-; Zeroes 512 bytes ($0200–$03FE, 256 words) and writes $FFFF as an end sentinel at $0400. This array is used by SortActorsByDepth as bucket storage for the Y-position depth sort.
+; Zeroes 512 bytes ($0200–$03FE, 256 words) and writes $FFFF as an end sentinel at $0400. This array is used by SortActorsByDepth as bucket storage for the Y-position depth sort. Called only at scene setup (scene_lifecycle) and by inventory_overlay; during normal frames the sort leaves the buckets zeroed on its own.
 
 ClearActorRenderList {
     PHP                   ; Zero 512 bytes ($0200–$03FE) of depth-sort bucket array
@@ -99,13 +105,13 @@ ClearActorRenderList {
 
 ; Depth-sort all on-screen actors into the render list at $0C00 using bucket sort.
 ; 
-; Iterates the actor linked list ($0058 head → $04 next). For each actor, performs screen-bounds culling on both axes (X range 0–$100 against bg1ScrollH, Y range 0–$E0 against mapScrollV), accounting for actor dimensions ($18/$1C offset, $1A/$1E size). Off-screen actors get flag $4000 set in $10 via SortActors_OffScreen.
+; Iterates the actor linked list ($0058 head → $04 next). For each actor, performs screen-bounds culling on both axes (X range 0–$100 against bg1ScrollH, Y range 0–$E0 against mapScrollV), using the actor's left/right extents ($18/$1C, from the sign-extended X offset pair) and top/bottom extents ($1A/$1E, from the Y pair) that UpdateActorAnimation loads from the frame header. Off-screen actors get flag $4000 set in $10 via SortActors_OffScreen.
 ; 
 ; On-screen actors receive a depth sort key based on flags ($10):
 ; - Bit 13 ($2000): hidden — skipped, no buffer entry
-; - Bits 0-1 ($0003) both clear: Y-based key = (screenY EOR $FF) ASL → back-to-front order
-; - Bit 0 only: key $01FE → always rendered in front of Y-sorted actors
-; - Bit 1: key $00FF EOR $FF ASL = $0000 → always rendered behind
+; - Bits 0-1 ($0003) both clear: Y-based key = (screenY EOR $FF) ASL → actors lower on screen get lower keys and OAM indexes, so they draw in front of actors higher up
+; - Bit 0 only (COP SetPriorityMin): key $01FE → last in the list, behind every Y-sorted actor
+; - Bit 1 (COP SetPriorityMax): key $00FF EOR $FF ASL = $0000 → first in the list, in front of everything (also the result for a screen Y of $100 or more, which includes negative values)
 ; 
 ; Actor slot IDs and sort keys are written as 4-byte pairs to $0C00,Y. After all actors are processed, falls through to SortActors_BuildFinalList.
 
@@ -163,11 +169,11 @@ SortActorsByDepth {
     LDA $10               ; Sort key selection from actor flags ($10)
     BIT #$2000            ; $2000: hidden — skip without creating buffer entry
     BNE loc_03C687
-    BIT #$0003            ; $0003: depth override (0=Y-based, 1=front, 2=back)
+    BIT #$0003            ; $0003: depth override (0 = Y-based, 1 = SetPriorityMin → back, 2 = SetPriorityMax → front)
     BEQ loc_03C665
     BIT #$0002
     BNE loc_03C670
-    LDA #$01FE            ; Bit 0 only → key $01FE: always rendered in front
+    LDA #$01FE            ; Bit 0 only → key $01FE: last in the list = highest OAM index = behind all other actors
     BRA loc_03C677
 
   loc_03C665:
@@ -178,18 +184,18 @@ SortActorsByDepth {
     BCC loc_03C673
 
   loc_03C670:
-    LDA #$00FF            ; Bit 1 → $00FF → after EOR+ASL = $0000: always behind
+    LDA #$00FF            ; Bit 1, or screen Y ≥ $100 → $00FF → after EOR+ASL = $0000: first in the list = OAM index 0 = in front
 
   loc_03C673:
-    EOR #$00FF            ; Invert (high Y → low key = drawn first = behind) and double for word align
+    EOR #$00FF            ; Invert: lower on screen → lower key → emitted first → lower OAM index → drawn in front; ASL doubles the key for word-indexed buckets
     ASL 
 
   loc_03C677:
-    CMP #$0200            ; Guard: key < $0200 always holds given 8-bit Y clamping
+    CMP #$0200            ; Guard: would spin forever if key ≥ $0200; cannot happen (largest key is $01FE)
     BCS loc_03C677
-    STA $0C00, Y          ; Write 4-byte sort entry: key + actor slot ID to $0C00,Y
+    STA $actorRenderList, Y ; Write 4-byte sort entry: key + actor slot ID to $0C00,Y
     TXA 
-    STA $0C02, Y
+    STA $actorRenderList+2, Y
     INY 
     INY 
     INY 
@@ -219,13 +225,13 @@ SortActors_OffScreen {
 ; 
 ; Phase 1 — Bucket insertion: Sets SP to $0BFF to iterate the $0C00 sort buffer via PLX/PLA. For each entry, uses the sort key as an index into the $0200–$03FE bucket array. Each bucket holds a linked list of 4-byte nodes (actor slot word + next pointer word) allocated from a sequential pool starting at $0422.
 ; 
-; Phase 2 — Linearization: Sets SP to $01FF to iterate the bucket array front-to-back via PLY. Empty buckets (zero) are skipped. Each non-empty bucket's linked list is traversed and the actor slot IDs are written sequentially to $0C00,X, producing the final render-order list. Terminated with STZ.
+; Phase 2 — Linearization: Sets SP to $01FF to iterate the bucket array front-to-back via PLY. Empty buckets (zero) are skipped. Each non-empty bucket's linked list is traversed and the actor slot IDs are written sequentially to $0C00,X, producing the final render-order list. Terminated with STZ. Each chain is walked newest-node-first, so actors that share a key come out in reverse list order. After copying a chain, a PHA/PLA pair writes the zero end-of-chain word back over the bucket word just popped, which re-zeroes the bucket for the next frame's sort.
 ; 
 ; Restores original SP, DP, and processor state before returning via RTL.
 
 SortActors_BuildFinalList {
     LDA #$FFFF            ; $FFFF sentinel terminates sort buffer
-    STA $0C00, Y
+    STA $actorRenderList, Y
     LDA #$0000
     TCD 
     LDA #$0422            ; Node pool pointer — 4-byte nodes allocated from $0422 upward
@@ -274,7 +280,7 @@ SortActors_BuildFinalList {
     BRA loc_03C6F6
 
   loc_03C6F4:
-    PHA                   ; PHA+PLA no-op: timing delay between chain traversals
+    PHA                   ; End of chain (A = 0): PHA writes the zero over the bucket word PLY just popped, PLA re-reads it — re-zeroes the bucket for next frame
     PLA 
 
   loc_03C6F6:
@@ -284,7 +290,7 @@ SortActors_BuildFinalList {
 
   loc_03C6FB:
     LDA $0000, Y          ; Traverse chain: copy actor slot IDs to final $0C00 render list
-    STA $0C00, X
+    STA $actorRenderList, X
     INX 
     INX 
     LDA $0002, Y
@@ -293,7 +299,7 @@ SortActors_BuildFinalList {
     BRA loc_03C6FB
 
   loc_03C70B:
-    STZ $0C00, X          ; Zero-terminate render list
+    STZ $actorRenderList, X ; Zero-terminate render list
     LDA $00
     TCS 
     PLD 
@@ -304,23 +310,23 @@ SortActors_BuildFinalList {
 ---------------------------------------------
 ; Main per-frame sprite composition entry point — builds the complete OAM table.
 ; 
-; Pre-fills all 128 OAM entries with off-screen position ($E080) by pushing $E080 × 256 words onto a temporary stack at $0621. Then processes two sprite sources:
+; Pre-fills all 128 OAM entries with the hidden value $E080 (X $80, Y $E0 = below the screen) by pushing $E080 × 256 words onto a temporary stack at $0621. Then processes two sprite sources:
 ; 
 ; 1. RenderComposeBuffer: converts pre-composed sprites from $7F3100 to OAM entries
 ; 2. Sorted actor list ($0C00): for each actor, calls DecomposeActorMetasprites to expand metasprite definitions into individual OAM entries
 ; 
-; OAM state: $08 points to hi-table write position ($06FE), $06 points to current hi-table byte ($0622), $0E counts sprites within the current hi-table group (4 per byte). The compose buffer cursor ($00D8) is cleared before actor processing.
+; OAM state: $06 points to the current hi-table byte (starts at $0622), $0E counts sprites left in the current hi-table group (4 per byte) and $00 is the rolling hi-table shift register. $08 is not OAM state: it is the write pointer of the player tile-DMA list (starts at $06FE), and $14 is the sequential OAM tile counter for player sub-sprites. After the compose buffer has been consumed, the compose-buffer write offset ($00D8) is reset so the next frame's entries start at $7F3100.
 ; 
 ; When the actor list is exhausted (zero entry) or OAM is full (carry set from decomposition), finalizes the hi-table remainder by shifting and storing the last partial byte.
 
 ComposeAllSprites {
     PHP 
     REP #$20
-    LDA #$06FE            ; OAM hi-table staging pointer at $06FE
+    LDA #$06FE            ; $08 = player tile-DMA list pointer: $06FE = source bank byte, source pointers follow from $06FF
     STA $08
-    STZ $06FF
-    STZ $070F
-    STZ $14               ; Zero player tile DMA counter
+    STZ $playerTileDmaBank+1 ; Empty the tile-source list: a zero first pointer ends DmaPlayerTilesToVram's walk if the player is not drawn this frame
+    STZ $playerTileDmaBank+11 ; Also zero the ninth slot (start of the overflow pass); defensive — the list normally ends at its own $0000 terminator
+    STZ $14               ; Reset the sequential OAM tile counter used by DecomposePlayerSprites
     LDA $bg1ScrollH       ; Screen X origin = bg1ScrollH − 16px margin
     SEC 
     SBC #$0010
@@ -338,7 +344,7 @@ ComposeAllSprites {
     LDA #$0621            ; SP=$0621 for stack-based OAM pre-fill
     TCS 
     LDX #$0010            ; 16 outer × 16 inner PHA = 256 words fills all 128 OAM entries
-    LDA #$E080            ; $E080: off-screen default (X=$E0 wraps left, Y=$80 below visible)
+    LDA #$E080            ; $E080 = X byte $80, Y byte $E0: Y $E0 is below the 224-line screen, so unused entries stay hidden
 
   loc_03C74D:
     PHA 
@@ -362,11 +368,11 @@ ComposeAllSprites {
     LDA $00
     TCS 
     JSR $&RenderComposeBuffer
-    STZ $oamWriteOffset   ; Clear compose buffer cursor before actor sprite processing
+    STZ $oamWriteOffset   ; Compose buffer consumed: reset its write offset so next frame's entries restart at $7F3100
     LDX #$0000
 
   loc_03C76C:
-    LDA $0C00, X          ; Iterate sorted render list — zero entry = end of list
+    LDA $actorRenderList, X ; Iterate sorted render list — zero entry = end of list
     BEQ loc_03C77D
     INX 
     INX 
@@ -400,7 +406,7 @@ ComposeAllSprites {
 ; 
 ; Normal mode (bit clear): Iterates the compose buffer (6 bytes per entry). For each entry, subtracts scroll offsets to convert to screen coordinates, bounds-checks Y (< $F0) and X (< $110), and writes to OAM low table ($0422,Y) with hi-table bit packing. Entries are consumed in groups of 6 bytes (X += 6), OAM advances by 4 bytes (Y += 4).
 ; 
-; Layer priority mode (bit set): Block-copies compose buffer data directly to OAM via MVN $00,$7F. Copies min($00DA, $0200) bytes from $7F0600 to $0422. Then computes the hi-table byte count ($00DA >> 4) and packs the remaining hi-table state from the transfer count.
+; Layer priority mode (bit set): Block-copies compose buffer data directly to OAM via MVN $00,$7F. Copies min($00DA, $0200) bytes from $7F0600 to $0422 ($00DA is a byte count, 4 per sprite — pr_text_placement_calc builds the entries and doubles its sprite count twice). Then computes the hi-table byte count ($00DA >> 4), fills those bytes with $AA (every sprite large-size, X bit 8 clear) and sets the rolling register for the leftover sprites from OamHiTableMasks. Y is left at $00DA, so actor sprites follow the copied block. No setter for bit 12 of layerPriorityFlag was found in the extracted code, so what triggers this mode is unconfirmed.
 
 RenderComposeBuffer {
     LDX #$0000
@@ -415,21 +421,21 @@ RenderComposeBuffer {
     RTS 
 
   loc_03C79E:
-    LDA $7F3102, X        ; Screen Y = bufferY − mapScrollV; skip if ≥ $F0
+    LDA $oamComposeBuffer+2, X ; Screen Y = bufferY − mapScrollV; skip if ≥ $F0
     SEC 
     SBC $mapScrollV
     CMP #$00F0
     BCS loc_03C7E8
-    STA $0423, Y
-    LDA $7F3104, X
-    STA $0424, Y
+    STA $oamStaging+1, Y
+    LDA $oamComposeBuffer+4, X
+    STA $oamStaging+2, Y
     LDA $oamComposeBuffer, X ; Screen X = bufferX − bg1ScrollH; skip if ≥ $110
     SEC 
     SBC $bg1ScrollH
     CMP #$0110
     BCS loc_03C7E8
     SEP #$20
-    STA $0422, Y
+    STA $oamStaging, Y
     XBA                   ; Hi-table packing: X[8] via XBA+LSR+ROR, size=0 via CLC+ROR into $00
     LSR 
     ROR $00
@@ -463,7 +469,7 @@ RenderComposeBuffer {
     BRA loc_03C797
 
   loc_03C7F0:
-    LDA $00DA             ; Priority mode: block-copy $00DA sprites from $7F0600 to OAM
+    LDA $00DA             ; Priority mode: block-copy $00DA bytes (4 per sprite) from $7F0600 to OAM; zero = nothing to copy
     BNE loc_03C7F6
     RTS 
 
@@ -481,14 +487,14 @@ RenderComposeBuffer {
     MVN #$00, #$7F        ; MVN block transfer: $7F (WRAM upper) → $00 (main RAM)
     PLB 
     LDA $00DA
-    LSR                   ; Hi-table byte count = sprite count >> 4
+    LSR                   ; Hi-table byte count = byte count >> 4 (4 bytes per sprite, 4 sprites per hi-table byte)
     LSR 
     LSR 
     LSR 
     STA $0E
     LDA $00DA
     LSR 
-    AND #$0006
+    AND #$0006            ; Leftover sprites mod 4, doubled → OamHiTableMasks index
     STA $00
     SEP #$20
 
@@ -503,9 +509,9 @@ RenderComposeBuffer {
   loc_03C82D:
     LDY $00DA
     LDX $00
-    LDA $@OamHiTableMasks, X ; OamHiTableMasks: pre-computed partial-byte mask for leftover sprites
+    LDA $@OamHiTableMasks, X ; Table byte 0: initial rolling register ($00) holding the leftover sprites' hi bits
     STA $00
-    LDA $@OamHiTableMasks+1, X
+    LDA $@OamHiTableMasks+1, X ; Table byte 1: sprites still needed to fill the current hi-table byte → $0E
     STA $0E
     REP #$20
     RTS 
@@ -521,20 +527,20 @@ OamHiTableMasks #00048003A002A801
 ---------------------------------------------
 ; Expand a generic actor's metasprite definition into individual OAM entries.
 ; 
-; Switches DBR to the actor's sprite bank ($7F0008,X). Computes screen-relative position by subtracting scroll offsets ($1A, $1E) from the actor's world position minus origin ($14-$18, $16-$1A). Loads the sprite field ($000E,X → $04) for H-mirror detection.
+; Switches DBR to the actor's sprite bank ($7F0008,X). Computes screen-relative position by subtracting scroll offsets ($1A, $1E) from the actor's world position minus origin ($14-$18, $16-$1A). Loads the OAM attribute word ($000E,X → $04) for mirror detection.
 ; 
-; Iframe blinking: if the actor has a nonzero iframe counter ($7F0028,X) and it's an odd frame (LSR carry set), sets palette override $02 = $0E00 to produce the invincibility flash effect.
+; Iframe blinking: only when actor flag $0080 (iframe/hit-reaction active, set by ApplyPlayerHitstun together with the counter) is set and $0010 is clear: if the iframe counter ($7F0028,X) is nonzero and its low bit is set (LSR carry; the counter counts each frame, so the flash alternates — inferred), sets palette override $02 = $0E00 (palette 7) to produce the flash.
 ; 
 ; Dispatches to DecomposePlayerSprites if bit 15 ($8000) of $10 is set (player actor).
 ; 
 ; For generic actors: reads the metasprite pointer ($7F000C,X + 8), extracts the sub-sprite count from byte 0, then iterates each 7-byte sub-sprite entry. For each sub-sprite:
-; 1. Y offset: read bytes 3-4 (XBA if H-mirrored), add screen Y ($1C), bounds-check < $F0
-; 2. Tile/attribute: read bytes 5-6, EOR with flip field ($04), OR with palette override ($02)
+; 1. Y offset: read bytes 3-4 (XBA if V-mirrored), add screen Y ($1C), bounds-check < $F0
+; 2. Tile/attribute: read bytes 5-6, EOR with the attribute word ($04), OR with palette override ($02)
 ; 3. X offset: read bytes 1-2 (XBA if H-mirrored), add screen X ($18), bounds-check < $110
 ; 4. Write OAM low-table entry and pack hi-table bits
 ; 5. Advance to next sub-sprite (+7 bytes) or bail if OAM full (Y = $0200)
 ; 
-; Off-screen sub-sprites get $E080 written to their OAM slot (hidden).
+; Off-screen sub-sprites do not consume an OAM slot: $E080 is written over the current slot only to scrub any partly written entry, and the next sub-sprite reuses it. Returns carry set when OAM is full (128 entries), carry clear otherwise.
 
 DecomposeActorMetasprites {
     PHB 
@@ -555,19 +561,19 @@ DecomposeActorMetasprites {
     SEC 
     SBC $1E
     STA $1C
-    LDA $000E, X          ; Sprite field → $04: high bit carries H-mirror for ASL tests
+    LDA $000E, X          ; OAM attribute word → $04: bit 15 = V-flip, bit 14 = H-flip, tested later via ASL carry
     STA $04
     STZ $02               ; Clear palette override (set to $0E00 later if iframe-blinking)
     LDA $0010, X          ; Check actor flags for visibility and iframe state
-    BIT #$0080            ; $0080: actor visible — if clear, skip to player/generic dispatch
+    BIT #$0080            ; $0080: iframe/hit-reaction active (ApplyPlayerHitstun sets it with the counter) — if clear, skip the blink
     BEQ loc_03C896
-    BIT #$0010            ; $0010: damage-immune — skip iframe blink check
+    BIT #$0010            ; $0010 (bit 4 of $10): suppresses the blink; meaning not traced (damage immunity is bit 4 of $12, a different word)
     BNE loc_03C896
-    BIT #$0400
+    BIT #$0400            ; No-op test: both outcomes continue at the iframe check below
     BNE loc_03C885
 
   loc_03C885:
-    LDA $iframeCounter, X ; Iframe blink: nonzero counter + odd frame → flash palette $0E00
+    LDA $iframeCounter, X ; Iframe blink: nonzero counter with bit 0 set → OR palette 7 ($0E00) into every sub-sprite
     BEQ loc_03C893
     LSR 
     BCC loc_03C893
@@ -583,7 +589,7 @@ DecomposeActorMetasprites {
     JMP $&DecomposePlayerSprites
 
   loc_03C89E:
-    LDA $metaspritePtr, X ; Skip 8-byte metasprite header to sub-sprite array
+    LDA $metaspritePtr, X ; metaspritePtr + 8 → sub-sprite count byte (the 8 bytes after the pointer are skipped, not used here)
     CLC 
     ADC #$0008
     TAX 
@@ -593,7 +599,7 @@ DecomposeActorMetasprites {
     STA $10
 
   loc_03C8B0:
-    LDA $04               ; ASL $04 → carry = H-mirror: swap Y offset bytes 3-4 via XBA
+    LDA $04               ; ASL $04 → carry = bit 15 (V-flip): swap Y offset pair (bytes 3-4) via XBA
     ASL 
     LDA $0003, X
     BCC loc_03C8B9
@@ -605,13 +611,13 @@ DecomposeActorMetasprites {
     ADC $1C
     CMP #$00F0
     BCS loc_03C920
-    SBC #$0010            ; Subtract 16px for SNES sprite origin offset
-    STA $0423, Y
-    LDA $0005, X          ; Tile word: EOR flip flags ($04), OR iframe palette ($02)
+    SBC #$0010            ; Carry is clear, so this subtracts $11: the 16px margin added via $1E plus 1 (OAM Y shows one scanline low)
+    STA $oamStaging+1, Y
+    LDA $0005, X          ; Tile word: EOR the actor's attribute mask ($04), OR the iframe palette ($02)
     EOR $04
     ORA $02
-    STA $0424, Y
-    LDA $04               ; Double-ASL $04 → carry = H-mirror: swap X offset bytes 1-2
+    STA $oamStaging+2, Y
+    LDA $04               ; Double-ASL $04 → carry = bit 14 (H-flip): swap X offset pair (bytes 1-2)
     ASL 
     ASL 
     LDA $0001, X
@@ -624,9 +630,9 @@ DecomposeActorMetasprites {
     ADC $18
     CMP #$0110
     BCS loc_03C920
-    SBC #$000F
+    SBC #$000F            ; Carry is clear, so this subtracts $10: removes the 16px margin added via $1A
     SEP #$20
-    STA $0422, Y
+    STA $oamStaging, Y
     XBA                   ; Hi-table: X[8] via XBA+LSR+ROR, size from byte 0 LSR+ROR → $00
     LSR 
     ROR $00
@@ -663,8 +669,8 @@ DecomposeActorMetasprites {
     RTS 
 
   loc_03C920:
-    LDA #$E080            ; $E080: hide off-screen sub-sprite in OAM
-    STA $0422, Y
+    LDA #$E080            ; Off-screen sub-sprite: scrub the slot to hidden $E080 (Y was possibly written already); Y is not advanced, so the slot is reused
+    STA $oamStaging, Y
     BRA loc_03C914
 }
 
@@ -673,12 +679,12 @@ DecomposeActorMetasprites {
 ; 
 ; Calls CheckPlayerSpriteCache to detect metasprite/bank changes. Loads the character form ($0AD4) and computes a body table index (form × 6 via ASL+ADC+ASL). If playerFlags bit 15 is set (transformation/override), uses animScratch2 ($7F000E,X) directly as the body table index instead.
 ; 
-; From the body table: reads the VRAM tile base offset into $06FC and the tile count into ($08). Then reads the metasprite at the cached pointer ($09CC + 8) and iterates sub-sprites similarly to DecomposeActorMetasprites, with two additions:
+; From the body table (6 bytes per form): the word at +3 is the tile graphics source address, stored to $06FC; the byte at +5 is its bank, stored as the first byte of the tile-DMA list at $06FE (DmaPlayerTilesToVram reads it back as the DMA source bank). Then reads the metasprite at the cached pointer ($09CC + 8) and iterates sub-sprites similarly to DecomposeActorMetasprites, with two additions:
 ; 
-; 1. VRAM tile remapping: each sub-sprite's tile index is multiplied by 32 (AND $01FF, ASL ×5) and added to $06FC to produce the actual VRAM tile address, written to the ($08) tile pointer table for DMA.
-; 2. Tile counter tracking ($14): incremented by 2 per sub-sprite. When bit 4 ($0010) is set (16 tiles), adds $10 to skip to the overflow VRAM region.
+; 1. Tile source remapping: each sub-sprite's tile number is multiplied by 32 (AND $01FF, ASL ×5, 32 bytes per 4bpp tile) and added to $06FC to give the RAM address of that tile's graphics; the address is appended to the list at ($08) for DMA.
+; 2. Sequential OAM tile numbering ($14): the OAM tile written for each sub-sprite is $14, which grows by 2 per sub-sprite. When it reaches $10 it jumps by $10 more, skipping the tile rows $10–$1F that hold the lower halves of the first eight sprites (VRAM $4100); sprites 9 and up land in the $4200 overflow region.
 ; 
-; On completion, writes $0000 to ($08) as a tile list terminator.
+; On completion, writes $0000 to ($08) as the list terminator.
 
 DecomposePlayerSprites {
     JSR $&CheckPlayerSpriteCache
@@ -696,13 +702,13 @@ DecomposePlayerSprites {
 
   loc_03C93F:
     TAX 
-    LDA $@body_table+3, X ; Body table +3: VRAM tile base offset → $06FC
-    STA $06FC
-    LDA $@body_table+5, X ; Body table +5: tile DMA count → tile pointer list at ($08)
+    LDA $@body_table+3, X ; Body table +3: tile graphics source address → $06FC
+    STA $playerTileSrcBase
+    LDA $@body_table+5, X ; Body table +5: source bank → first byte of the DMA list at ($08) = $06FE
     AND #$00FF
     STA ($08)
     INC $08
-    LDA $09CC             ; Cached metasprite ($09CC) + 8 → sub-sprite array
+    LDA $playerSpriteCachePtr ; Cached metasprite ($09CC) + 8 → sub-sprite array
     CLC 
     ADC #$0008
     TAX 
@@ -728,26 +734,26 @@ DecomposePlayerSprites {
 
   loc_03C97A:
     SBC #$0010
-    STA $0423, Y
+    STA $oamStaging+1, Y
     LDA $0005, X
     EOR $04
     ORA $02
     PHA 
-    AND #$01FF            ; VRAM remap: (tile AND $01FF) × 32 + base → DMA list at ($08)
+    AND #$01FF            ; Source remap: (tile AND $01FF) × 32 + $06FC = RAM address of this tile's graphics → DMA list at ($08)
     ASL 
     ASL 
     ASL 
     ASL 
     ASL 
-    ADC $06FC
+    ADC $playerTileSrcBase
     STA ($08)
     INC $08
     INC $08
     PLA 
-    AND #$FE00            ; Recombine attribute bits (palette/priority) with sequential VRAM index
+    AND #$FE00            ; Keep the attribute bits ($FE00: flips, priority, palette, name table) and replace the tile number with the sequential counter $14
     ORA $14
-    STA $0424, Y
-    LDA $14               ; Tile counter +=2; at 16 tiles, skip +$10 to overflow VRAM region
+    STA $oamStaging+2, Y
+    LDA $14               ; Tile counter += 2 (one 16×16 sprite = two tile columns); at $10 add $10 more, skipping the lower-half rows
     INC 
     INC 
     BIT #$0010
@@ -772,7 +778,7 @@ DecomposePlayerSprites {
     BCS PlayerSprite_OffScreen
     SBC #$000F
     SEP #$20
-    STA $0422, Y
+    STA $oamStaging, Y
     XBA 
     LSR 
     ROR $00
@@ -815,15 +821,15 @@ DecomposePlayerSprites {
 ---------------------------------------------
 ; Handle player sprite being off-screen during decomposition.
 ; 
-; Sets bit 2 ($0004) in playerFlags to flag the player as off-screen, and bit 3 ($0008) in displayModeFlags to request a VRAM refresh on next visible frame. Writes $E080 to the current OAM slot to hide the sprite, then continues processing remaining sub-sprites.
+; Sets bit 2 ($0004) in playerFlags (sprite-redraw request: CheckPlayerSpriteCache bypasses its cache while it is set) and bit 3 ($0008) in displayModeFlags (player tile DMA pending). Writes $E080 to the current OAM slot to scrub it, without advancing Y, then continues with the remaining sub-sprites. Reached from the Y check before the sub-sprite's tile is queued, and from the X check after it was queued.
 
 PlayerSprite_OffScreen {
-    LDA #$0004            ; Set playerFlags bit 2: player off-screen
+    LDA #$0004            ; Set playerFlags bit 2: sprite-redraw request (a clipped sub-sprite means the tiles must be re-sent)
     TSB $playerFlags
-    LDA #$0008            ; Set displayModeFlags bit 3: request VRAM refresh on return
+    LDA #$0008            ; Set displayModeFlags bit 3: player tile DMA pending
     TSB $displayModeFlags
-    LDA #$E080            ; $E080: hide sprite in OAM
-    STA $0422, Y
+    LDA #$E080            ; Scrub the current slot to hidden $E080 (Y stays put; next sub-sprite reuses it)
+    STA $oamStaging, Y
     BRA loc_03C9F1
 }
 
@@ -839,12 +845,12 @@ CheckPlayerSpriteCache {
     BIT #$0004            ; Force-redraw flag (bit 2): bypass cache if set
     BNE loc_03CA37
     LDA $metaspritePtr, X ; Compare metasprite pointer and bank against $09CC/$09CE cache
-    CMP $09CC
+    CMP $playerSpriteCachePtr
     BNE loc_03CA37
     LDA $7F0008, X
-    CMP $09CE
+    CMP $playerSpriteCacheBank
     BNE loc_03CA37
-    LDA $09CC
+    LDA $playerSpriteCachePtr
     RTS 
 
   loc_03CA37:
@@ -852,9 +858,9 @@ CheckPlayerSpriteCache {
     AND #$FFFB
     STA $playerFlags
     LDA $7F0008, X
-    STA $09CE
+    STA $playerSpriteCacheBank
     LDA $metaspritePtr, X
-    STA $09CC
+    STA $playerSpriteCachePtr
     LDA #$0008            ; Set displayModeFlags bit 3: trigger player tile DMA in VBlank
     TSB $displayModeFlags
     RTS 
@@ -867,9 +873,9 @@ CheckPlayerSpriteCache {
 ; 
 ; If the frame data word is negative (BMI), the animation has ended: resets $2A to 0 and returns with carry SET to signal the caller.
 ; 
-; Otherwise, updates the metasprite pointer ($7F000C,X) to the frame's sprite data (+ 4 for the sub-sprite array). Reads X/Y bounding box offset pairs from the frame header, sign-extending bytes via $0080 check and ORA $FF00. The H-mirror flag from $0E (carry from ROL) swaps byte order in each offset pair via XBA.
+; Otherwise, updates the metasprite pointer ($7F000C,X) to the frame's sprite data (+ 4 for the sub-sprite array). Reads X/Y bounding box offset pairs from the frame header, sign-extending bytes via $0080 check and ORA $FF00. The mirror bits of $0E (ROL moves bit 15 into carry and bit 14 into N) swap the byte order of each offset pair via XBA: V-flip for the Y pair, H-flip for the X pair.
 ; 
-; Stores offsets to $18/$1C (origin offsets) and conditionally updates the collision box ($20/$22) based on $12 flags:
+; Stores the X pair as signed extents $18 (left) / $1C (right) and the Y pair as unsigned extents $1A (top) / $1E (bottom) — the values SortActorsByDepth uses for culling — and conditionally updates the collision box ($20 = X pair, $22 = Y pair) based on $12 flags:
 ; - Bit 8 ($0100): skip collision box update entirely
 ; - Bit 7 ($0080): copy raw offsets to $20/$22 (no ×8 centering adjustment)
 ; - Neither: apply -8px centering to $22 before storing
@@ -902,21 +908,21 @@ UpdateActorAnimation {
     CLC 
     ADC #$0004            ; Metasprite = frame sprite base + 4 (skip header to sub-sprites)
     STA $metaspritePtr, X
-    LDA $0E               ; ROL sprite field: C = bit15 (Y-flip), N = bit14 (X-flip); saved via PHP
+    LDA $0E               ; ROL attribute word: C = bit 15 (V-flip), N = bit 14 (H-flip); saved via PHP
     ROL 
     PHP 
-    LDA $0002, Y          ; Y bounding box offsets; XBA if Y-flipped (carry set)
+    LDA $0002, Y          ; Y extent pair; XBA if V-flipped (carry = bit 15)
     STA $0002
     BCC loc_03CA92
     XBA 
 
   loc_03CA92:
-    SEP #$20              ; Split offset pair: low → $1A, high → $1E
+    SEP #$20              ; Split the Y pair with 8-bit stores: low → $1A (top), high → $1E (bottom); their high bytes are not touched
     STA $1A
     XBA 
     STA $1E
     REP #$20
-    LDA $0000, Y          ; X bounding box offsets; PLP restores flip flags, BPL tests X-flip (N)
+    LDA $0000, Y          ; X extent pair; PLP restores the flip flags, BPL skips the swap unless N = bit 14 (H-flip)
     STA $0000
     PLP 
     BPL loc_03CAA5
@@ -930,8 +936,8 @@ UpdateActorAnimation {
     ORA #$FF00
 
   loc_03CAB3:
-    STA $18
-    LDA $0001
+    STA $18               ; $18 = left extent (signed)
+    LDA $0001             ; High byte of the X pair → sign-extend into $1C (right extent)
     AND #$00FF
     BIT #$0080
     BEQ loc_03CAC3

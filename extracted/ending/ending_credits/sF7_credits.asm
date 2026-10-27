@@ -16,9 +16,19 @@
 !frameCounter                   0036
 !actorLimitThreshold            00E4
 !joypadMaskStd                  065A
+!srcCacheBgB                    066F
+!srcCacheBgC                    0672
+!srcCacheBgD                    0675
+!srcCacheTilemapL0              0678
+!srcCacheTilemapL1              067B
+!srcCacheFullGfxL0              067E
+!srcCacheFullGfxL1              0681
+!srcCacheSprites                0684
 !cameraTargetX                  06BE
 !cameraTargetY                  06C2
+!consoleAttrWord                099E
 !sceneStateHelper               099F
+!consoleLineStart               09A0
 !displayModeFlags               09EC
 !BG3SC                          2109
 !W12SEL                         2123
@@ -31,6 +41,8 @@
 !effectLayerTilemap             7EC000
 !mode7Tilemap                   7EE000
 !thinkerExtendedData            7EF000
+!bg3TilemapBuffer               7F0200
+!bg3TilemapRow1                 7F0240
 !cgramPalette                   7F0A00
 !vramCacheRing                  7F4000
 !decompressStaging              7F7000
@@ -88,7 +100,7 @@ sF7_credits [
     STZ $008A
     STZ $0094
     COP [Decompress] ( @spm_credits, $7E6000 )
-    COP [AdhocVramDma] ( $7F0200, #$7C00, #$0800 )
+    COP [AdhocVramDma] ( $bg3TilemapBuffer, #$7C00, #$0800 )
     COP [PaletteStart] ( #0B )
     COP [PaletteStep]
     COP [StartMusic] ( #14 )
@@ -267,14 +279,14 @@ sF7_credits [
     COP [SpawnListAppend] ( @code_09F4ED, #00, #00, #$2000 )
     COP [HaltIfMaxFrames] ( #$7068 )
     STZ $066D
-    STZ $0670
-    STZ $0673
-    STZ $0676
-    STZ $0679
-    STZ $067C
-    STZ $067F
-    STZ $0682
-    STZ $0685
+    STZ $srcCacheBgB+1
+    STZ $srcCacheBgC+1
+    STZ $srcCacheBgD+1
+    STZ $srcCacheTilemapL0+1
+    STZ $srcCacheTilemapL1+1
+    STZ $srcCacheFullGfxL0+1
+    STZ $srcCacheFullGfxL1+1
+    STZ $srcCacheSprites+1
     COP [QueueMapChange] ( #F0, #$0090, #$0178, #06, #$1201 )
     COP [SetEntryHere]
     RTL 
@@ -503,7 +515,7 @@ code_09E9D2 {
     REP #$20
     LDY #$&dialogstring_09F315
     JSR $&code_09EC23
-    COP [AdhocVramDma] ( $7F0200, #$7800, #$0800 )
+    COP [AdhocVramDma] ( $bg3TilemapBuffer, #$7800, #$0800 )
     SEP #$20
     LDA #$14
     ORA $09F6
@@ -535,7 +547,7 @@ code_09EB64 {
     STZ $074A
     LDY $26
     JSR $&code_09EC23
-    COP [AdhocVramDma] ( $7F0200, #$7800, #$0800 )
+    COP [AdhocVramDma] ( $bg3TilemapBuffer, #$7800, #$0800 )
     SEP #$20
     LDA #$14
     ORA $09F6
@@ -588,12 +600,12 @@ code_09EB64 {
     LDX #$0400
 
   loc_09EC0F:
-    STA $7F0200, X
+    STA $bg3TilemapBuffer, X
     DEX 
     DEX 
     BPL loc_09EC0F
     PLX 
-    COP [AdhocVramDma] ( $7F0200, #$7800, #$0800 )
+    COP [AdhocVramDma] ( $bg3TilemapBuffer, #$7800, #$0800 )
     COP [RestoreSavedPtr]
 }
 
@@ -607,7 +619,7 @@ code_09EC23 {
     REP #$20
     STZ $0000
     LDA #$2100
-    STA $099E
+    STA $consoleAttrWord
 
   loc_09EC36:
     SEP #$20
@@ -618,11 +630,11 @@ code_09EC23 {
     LDX $0000
     REP #$20
     AND #$00FF
-    ORA $099E
-    STA $7F0200, X
+    ORA $consoleAttrWord
+    STA $bg3TilemapBuffer, X
     CLC 
     ADC #$0010
-    STA $7F0240, X
+    STA $bg3TilemapRow1, X
     INX 
     INX 
     STX $0000
@@ -672,7 +684,7 @@ code_09EC94 {
     INY 
     INY 
     STA $0000
-    STA $09A0
+    STA $consoleLineStart
     RTS 
 }
 
@@ -688,10 +700,10 @@ code_09ECA0 {
 }
 
 code_09ECB1 {
-    LDA $09A0
+    LDA $consoleLineStart
     CLC 
     ADC #$0080
-    STA $09A0
+    STA $consoleLineStart
     STA $0000
     RTS 
 }

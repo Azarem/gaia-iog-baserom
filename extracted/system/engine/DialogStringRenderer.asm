@@ -16,8 +16,12 @@
 ; - $0996: Per-character sound effect ID
 ; - $007E: Frame delay between characters (controls text speed)
 ; - $0B04: Saved frame delay value (restored on box open/close)
+; - $00EE: Menu-mode flag (written by the diary menu); when nonzero the box omits its extra prompt/scroll row
+; - $00DC: Cleared on every box open; no reader found (purpose unproven)
 ; 
-; Each character tile is written to two VRAM buffer rows: $7F0200,X (top half) and $7F0240,X (bottom half, offset +$10 from top). This produces 16×16 pixel characters from pairs of 8×8 tiles.
+; Strings are read through DBR (absolute LDA $0000,Y), so DBR must be the string's bank. The recursive commands (InsertTemplate, InsertRemoteString, DictionaryA/B) switch DBR themselves.
+; 
+; Each character tile is written to two VRAM buffer rows: $7F0200,X (top half) and $7F0240,X (bottom half). The bottom-half tile index is the top index + $10, the next row of 16 tiles in the font sheet (inferred). This produces 16×16 pixel characters from pairs of 8×8 tiles.
 ; 
 ; The command dispatch uses an RTS trick: PEA pushes the loop return address (DialogString_CharLoop − 1), then the command table address − 1 is pushed and RTS jumps to it. Commands return via RTS back to the character loop.
 ; 
@@ -26,11 +30,11 @@
 ; 25 commands indexed 0x00–0x18:
 ; - $C0 EndAndWait: Wait for input, clear box, restore frame delay
 ; - $C1 SetPosition: Set column/row from 2-byte operand
-; - $C2 InsertTemplate: Recursively render a template string from templates_01CA95
+; - $C2 InsertTemplate: Recursively render a template string from dialog_template_table
 ; - $C3 SetPalette: Set palette bits from 1-byte operand
 ; - $C4 InfiniteLoop: Halt (NOP NOP BRA self)
 ; - $C5 IndirectString: Read string pointer from an indirect table (4-byte operand)
-; - $C6 PrintNumber: Format and render a multi-digit number (4-byte operand: table pointer + column count)
+; - $C6 PrintNumber: Print a packed-BCD number as digit tiles (4-byte operand: digit-count word, then the address of the number data)
 ; - $C7 OpenDialogueBox: Open a custom-sized dialogue box (2-byte operand: width, height)
 ; - $C8 ClearDialogueBox: Clear box contents, reset palette to default, wait one frame
 ; - $C9 WaitFrames: Pause for N frames (1-byte operand)
@@ -39,15 +43,15 @@
 ; - $CC AdvanceCursor: Move cursor forward by N tiles (1-byte operand)
 ; - $CD InsertRemoteString: Render a string from another bank (3-byte operand: address + bank)
 ; - $CE ClearBox: Clear box interior (keep border), reset cursor
-; - $CF WaitForButton: Wait for A/B button with blinking cursor
-; - $D0 WaitForAnyInput: Wait for any button press
+; - $CF WaitForButton: Wait for a button in mask $C040 (logical $8000/$4000/$0040) with a blinking cursor, then clear the box
+; - $D0 WaitForAnyInput: Wait for a button in mask $C040
 ; - $D1 JumpToAddress: Set Y to new string address (2-byte operand)
 ; - $D2 SetSfx: Set per-character sound effect (1-byte operand)
 ; - $D3 OpenDefaultBox: Open standard 13×4 dialogue box at position (3, 17)
 ; - $D4 SetPaletteColor: Write a 15-bit color to CGRAM (3-byte operand: index + color)
 ; - $D5 SetFrameDelay: Set text speed (1-byte operand, +2 bias)
-; - $D6 DictionaryA: Insert a word from dictionary_01EBA8 (1-byte operand)
-; - $D7 DictionaryB: Insert a word from dictionary_01F54D (1-byte operand)
+; - $D6 DictionaryA: Insert a word from dialog_dictionary_a (1-byte operand)
+; - $D7 DictionaryB: Insert a word from dialog_dictionary_b (1-byte operand)
 ; - $D8 PrintRawTiles: Output raw tile bytes until zero terminator
 ; 
 ; === DIALOGUE BOX RENDERING ===
@@ -56,9 +60,9 @@
 ; 1. Set border tile pointer to DialogueBorderTiles (8 tiles: corners + edges)
 ; 2. DrawDialogueBorderRow renders top/bottom borders
 ; 3. DrawDialogueBodyRows fills interior rows with blank tiles ($2040) and side borders
-; 4. An optional prompt row is appended when worldReadyFlag is set and $00EE is zero
+; 4. An extra blank row (room for the continuation cursor and for scrolling) is appended when worldReadyFlag is set and the menu-mode flag $00EE is zero
 ; 
-; The VRAM staging buffer at $7F0200 uses a linear layout: each row is $40 words (64 tiles). Box position is computed as: base = (row × 32 + column) × 2, where the ×32 comes from XBA + LSR + LSR.
+; The VRAM staging buffer at $7F0200 mirrors the 32-tile-wide BG3 tilemap: one tile row is $40 bytes (32 words), so $7F0240 is the next tilemap row. A character is two rows tall, hence a text line is $80 bytes. Box position is computed as: base = (row × 32 + column) × 2 bytes; XBA + LSR + LSR turns row into row × $40.
 ---------------------------------------------
 
 ?BANK 03
@@ -67,19 +71,22 @@
 ?INCLUDE 'dialog_template_table'
 ?INCLUDE 'system_core'
 
+!menuModeFlag                   00EE
 !sceneCurrent                   0644
 !worldReadyFlag                 0654
 !joypadCurrent                  0656
 !joypadHeld                     0658
 !sfxQueueCh1                    06F8
 !displayModeFlags               09EC
+!bg3TilemapBuffer               7F0200
+!bg3TilemapRow1                 7F0240
 !cgramPalette                   7F0A00
 
 ---------------------------------------------
 
 ; Main bytecode interpreter for the wide-string dialogue format.
 ; 
-; Entry: JSL with Y = string data pointer, X = VRAM buffer cursor (saved to $0998). Sets DP = 0 for zero-page scratch access.
+; Entry: JSL with Y = string data pointer (read through DBR). The VRAM buffer cursor is taken from $0998, not from the caller's X, which is only saved and restored. Sets DP = 0 for zero-page scratch access.
 ; 
 ; The character loop (DialogString_CharLoop) reads one byte at a time from [Y]. Bytes < $C0 are treated as tile indices: masked to 8 bits, OR'd with palette bits ($0986) and priority ($2100), then written to both $7F0200,X (top tile row) and $7F0240,X (bottom row, +$10 offset). The cursor X advances by 2 per character.
 ; 
@@ -93,7 +100,7 @@ DialogStringRenderer {
     PHX 
     LDA #$0000
     TCD                   ; DP = 0 for scratch variables at $00–$FF
-    LDX $0998
+    LDX $0998             ; Cursor comes from $0998 (the caller's X was saved by PHX above)
 
   DialogString_CharLoop:
     SEP #$20
@@ -121,10 +128,10 @@ DialogStringRenderer {
     ORA $0986             ; Compose tile word: index | palette ($0986) | priority ($2100)
     ORA #$2100
     LDX $0998
-    STA $7F0200, X        ; Write to both VRAM rows: top at $0200,X and bottom at $0240,X (tile + $10)
+    STA $bg3TilemapBuffer, X ; Write to both VRAM rows: top at $0200,X and bottom at $0240,X (tile + $10)
     CLC 
     ADC #$0010
-    STA $7F0240, X
+    STA $bg3TilemapRow1, X
     INX 
     INX 
     STX $0998
@@ -132,7 +139,7 @@ DialogStringRenderer {
     BEQ DialogString_CharLoop
     LDA $00
     PHA 
-    LDA #$0001            ; TSB displayModeFlags triggers VRAM DMA on next VBlank
+    LDA #$0001            ; Set displayModeFlags bit 0 so the BG3 staging buffer is re-uploaded (consumer not traced; see audit OQ-23)
     TSB $displayModeFlags
     JSR $&WaitNFrames_PerChar
     PLA 
@@ -144,6 +151,9 @@ DialogStringRenderer {
     STA $sfxQueueCh1
     BRA DialogString_CharLoop
 }
+
+---------------------------------------------
+; Command handler table: 25 word offsets (bank $03), indexed by (opcode AND $1F) × 2. Opcodes $C0–$D8 map to entries 00–18. There is no range check, so opcodes $D9–$DF would read past the table into the code that follows; whether any string uses them was not checked.
 
 DialogStringCommandTable [
   &DialogCmd_EndAndWait   ;00
@@ -174,24 +184,24 @@ DialogStringCommandTable [
 ]
 
 ---------------------------------------------
-; End-of-dialogue command: waits for any input, clears the dialogue box, suppresses attack/start held flags ($0F00), and restores the saved frame delay from $0B04 to $007E.
+; End-of-dialogue command: waits for a button press, clears the dialogue box, clears the D-pad bits ($0F00) from the joypadHeld consumption mask so directional input is live again, and restores the saved frame delay from $0B04 to $007E.
 
 DialogCmd_EndAndWait {
     JSR $&DialogCmd_WaitForAnyInput
     JSR $&DialogCmd_ClearDialogueBox
-    LDA #$0F00            ; Clear $0F00 — release attack/start button suppression from joypadHeld
+    LDA #$0F00            ; $0F00 = D-pad bits (Up/Down/Left/Right): drop them from the joypadHeld consumption mask
     TRB $joypadHeld
     LDA $0B04             ; Restore frame delay from saved value ($0B04 → $007E)
     STA $007E
 }
 
 ---------------------------------------------
-; Exit the wide-string renderer. Saves the VRAM cursor back to $0998, pops the return address and saved registers (X, X, DP, P), then RTL returns to the caller. The double PLX discards the PEA'd loop return address from the command dispatch stack frame.
+; Exit the wide-string renderer. Saves the VRAM cursor back to $0998, unwinds the renderer's stack frame, then RTL returns to the caller. The first PLX discards the PEA'd loop return address left by the command dispatch; the second restores the caller's X (pushed at entry); PLD and PLP restore DP and flags. The updated cursor is handed back only through $0998.
 
 DialogCmd_Return {
     STX $0998
-    PLX                   ; Pop PEA'd loop return address — unwinding renderer stack frame
-    PLX 
+    PLX                   ; Discard the PEA'd loop return address (command-dispatch frame)
+    PLX                   ; Restore the caller's X pushed at renderer entry
     PLD 
     PLP 
     RTL 
@@ -200,7 +210,7 @@ DialogCmd_Return {
 ---------------------------------------------
 ; Set the dialogue cursor to a specific (column, row) position.
 ; 
-; Reads a 2-byte operand: low byte = column → $097A, high byte = row → $097C. Computes the VRAM buffer offset as: (row >> 2) + column + column = row×32×2 + column×2, matching the $7F0200 tilemap layout. Updates both X register and $0998.
+; Reads a 2-byte operand: low byte = column → $097A, high byte = row → $097C. Computes the VRAM buffer byte offset as row×$40 + column×2: XBA + LSR + LSR makes row×$40 (row << 8 >> 2), then the column is added twice. Updates both X register and $0998.
 
 DialogCmd_SetPosition {
     PHY 
@@ -212,7 +222,7 @@ DialogCmd_SetPosition {
     XBA 
     AND #$00FF
     STA $097C
-    XBA                   ; VRAM offset = row × 32 + column × 2 via XBA + LSR×2 + ADC column twice
+    XBA                   ; Byte offset = row × $40 + column × 2: XBA + LSR×2 gives row × $40, then ADC column twice
     LSR 
     LSR 
     CLC 
@@ -228,7 +238,7 @@ DialogCmd_SetPosition {
 }
 
 ---------------------------------------------
-; Recursively render a template string from the templates_01CA95 table.
+; Recursively render a template string from the dialog_template_table pointer table.
 ; 
 ; Reads a 1-byte operand (template index), multiplies by 2 for the word-sized pointer table, switches DBR to the template bank, and calls DialogStringRenderer recursively via JSL. Restores the VRAM cursor, string pointer, bank, and processor state on return.
 
@@ -309,11 +319,13 @@ DialogCmd_IndirectString {
 }
 
 ---------------------------------------------
-; Format and render a multi-digit number as tile characters.
+; Print a packed-BCD number as digit tiles.
 ; 
-; Reads a 4-byte operand: bytes 0-1 = number table address, bytes 2-3 = column/digit configuration. Uses a stack frame with 6 words for loop state: divider, table base, current digit position, iteration counter, digit index, and digits-printed flag.
+; Reads a 4-byte operand: word 0 = number of digits to print, word 1 = address of the number data. The data is little-endian 16-bit words holding four nibbles each (word 0 = lowest four digits); the digits are printed most-significant first.
 ; 
-; The algorithm divides the number into 4-pixel-wide digit groups, extracts each nibble by repeated LSR ×4, looks up the tile in HexDigitTileTable, and writes it to the VRAM buffer. Leading zeros are suppressed (skipped until the first nonzero digit or last position). Each digit triggers WaitNFrames_PerChar for the typing effect.
+; Stack frame (6 words above the saved Y): SP+1 = data address, SP+3 = digit count, SP+5 = nibble position within the current word (1–4, 4 = highest), SP+7 = digits already handled, SP+9 = word index, SP+B = digits-printed flag. Each pass derives the position from (count − handled): repeated subtraction of 4 gives the word index and position, the word is fetched from data + 2 × index, and LSR ×4 per position moves the nibble into the low bits.
+; 
+; The nibble is mapped through HexDigitTileTable and written to both tile rows. Leading zeros are suppressed until the first nonzero digit, except that a zero at position 1 is always printed (the last digit of the number, but also the lowest nibble of any higher word: with more than 4 digits that prints a leading zero — E1 analysis, unverified at runtime). Each digit calls WaitNFrames_PerChar for the typing effect.
 
 DialogCmd_PrintNumber {
     PHY 
@@ -323,13 +335,13 @@ DialogCmd_PrintNumber {
     PHA 
     PHA 
     STX $0998
-    LDA $0000, Y          ; Operand: bytes 0-1 = number table base, bytes 2-3 = column/digit config
+    LDA $0000, Y          ; Operand word 0 = digit count (pushed first, ends up at SP+3)
     PHA 
-    LDA $0002, Y
+    LDA $0002, Y          ; Operand word 1 = address of the packed number data (SP+1)
     PHA 
 
   loc_03E3A6:
-    LDA $03, S            ; Remaining columns = config(SP+3) − iteration counter(SP+7)
+    LDA $03, S            ; Digits left = digit count (SP+3) − digits handled (SP+7)
     SEC 
     SBC $07, S
     LDY #$0000
@@ -344,7 +356,7 @@ DialogCmd_PrintNumber {
 
   loc_03E3B9:
     CLC 
-    ADC #$0004            ; Remainder (0–3) = digit position within packed nibble word → SP+5
+    ADC #$0004            ; A = nibble position 1–4 within the packed word (4 = highest) → SP+5
     STA $05, S
     TYA 
     STA $09, S            ; Digit group index → SP+9, doubled to index into number table
@@ -372,7 +384,7 @@ DialogCmd_PrintNumber {
     TAX 
     BNE loc_03E3E7        ; Nonzero → always print; zero → check for last digit or leading zero
     LDA $05, S
-    DEC 
+    DEC                   ; Position 1 (last digit; also lowest nibble of any higher word) always prints, even a zero
     BEQ loc_03E3E7
     LDA $0B, S            ; Leading zero suppression: skip if no digits printed yet (SP+11 = 0)
     BEQ loc_03E40D
@@ -383,10 +395,10 @@ DialogCmd_PrintNumber {
     ORA $0986             ; Compose and write tile to both VRAM rows (same as character path)
     ORA #$2100
     LDX $0998
-    STA $7F0200, X
+    STA $bg3TilemapBuffer, X
     CLC 
     ADC #$0010
-    STA $7F0240, X
+    STA $bg3TilemapRow1, X
     INX 
     INX 
     STX $0998
@@ -429,7 +441,7 @@ HexDigitTileTable #20212223242526272829404142434445
 ---------------------------------------------
 ; Open a custom-sized dialogue box with border and interior.
 ; 
-; Reads 2-byte operand: byte 0 = width (columns), byte 1 = height (rows). Stores dimensions to $0982/$0984. Falls through to OpenDialogueBox_Body which constructs the box frame using DialogueBorderTiles, fills the interior via DrawDialogueBodyRows, and triggers a display update. Skips the WaitOneFrame at the end for scene $FA (title screen).
+; Reads 2-byte operand: byte 0 = width (columns), byte 1 = height (rows). Stores dimensions to $0982/$0984. Falls through to OpenDialogueBox_Body which constructs the box frame using DialogueBorderTiles, fills the interior via DrawDialogueBodyRows, and triggers a display update. Skips the WaitOneFrame at the end for scene $FA (the diary menu, sFA_diary_menu).
 
 DialogCmd_OpenDialogueBox {
     LDA $0000, Y          ; 2-byte operand: byte 0 = width (columns), byte 1 = height (rows)
@@ -448,7 +460,7 @@ DialogCmd_OpenDialogueBox {
     STA $007E
     LDA #$0010            ; Default per-character SFX = $10 (typing click)
     STA $0996
-    STZ $00DC             ; Clear overlay flag ($00DC) and reset line counter ($099C)
+    STZ $00DC             ; Clear $00DC (no reader found; purpose unproven) and reset the line counter ($099C)
     STZ $099C
     LDA $097A             ; Load column/row origins: $097A→$097E, $097C→$0980
     STA $097E
@@ -491,7 +503,7 @@ DialogCmd_OpenDialogueBox {
     JSR $&DrawDialogueBorderRow
     LDA #$0001
     TSB $displayModeFlags
-    LDA $sceneCurrent     ; Skip WaitOneFrame on scene $FA (title screen)
+    LDA $sceneCurrent     ; Skip WaitOneFrame on scene $FA (diary menu)
     AND #$00FF
     CMP #$00FA
     BEQ loc_03E4CB
@@ -502,6 +514,9 @@ DialogCmd_OpenDialogueBox {
     PLY 
     RTS 
 }
+
+---------------------------------------------
+; Border tile words for the dialogue box, in the order the draw routines consume them: top row (left corner, edge, right corner = H-flipped corner), body sides (left, right = H-flipped), bottom row (left corner V-flipped, edge V-flipped, right corner H+V-flipped). $2000 is the BG priority bit; $4000/$8000 are H/V flip.
 
 DialogueBorderTiles [
   #$2010   ;00
@@ -521,7 +536,7 @@ DialogueBorderTiles [
 
 DrawDialogueBorderRow {
     LDA [$3E]             ; Read left tile from [$3E], write to buffer; advance pointer by 2
-    STA $7F0200, X
+    STA $bg3TilemapBuffer, X
     INX 
     INX 
     INC $3E
@@ -529,7 +544,7 @@ DrawDialogueBorderRow {
     LDA [$3E]             ; Read middle tile, write it width-many times (inner loop)
 
   loc_03E4EC:
-    STA $7F0200, X
+    STA $bg3TilemapBuffer, X
     INX 
     INX 
     DEC $18
@@ -537,7 +552,7 @@ DrawDialogueBorderRow {
     INC $3E
     INC $3E
     LDA [$3E]             ; Read right tile, write; advance pointer past all 3 tiles (+6 bytes)
-    STA $7F0200, X
+    STA $bg3TilemapBuffer, X
     INC $3E
     INC $3E
     RTS 
@@ -546,7 +561,7 @@ DrawDialogueBorderRow {
 ---------------------------------------------
 ; Fill the interior rows of the dialogue box.
 ; 
-; For each row: draws the left border tile, fills the interior with blank tiles ($2040), and draws the right border tile. Decrements the height counter $1C. After all body rows, optionally draws an additional prompt row if worldReadyFlag is set and $00EE is zero (used for the continuation prompt area). Advances the tile pointer past the border data (+4 bytes).
+; For each row: draws the left border tile, fills the interior with blank tiles ($2040), and draws the right border tile. Decrements the height counter $1C. After all body rows, draws one more blank row (same left/fill/right pattern) if worldReadyFlag is set and the menu-mode flag $00EE is zero; this row holds the continuation cursor (DrawDialogueCursor) and supplies the blank source row when ScrollDialogueUp shifts the text. Advances the tile pointer past the border data (+4 bytes).
 
 DrawDialogueBodyRows {
     PHY 
@@ -559,7 +574,7 @@ DrawDialogueBodyRows {
     STA $00
     TAX 
     LDA [$3E]
-    STA $7F0200, X
+    STA $bg3TilemapBuffer, X
     INX 
     INX 
     LDA $18
@@ -567,39 +582,39 @@ DrawDialogueBodyRows {
     LDA #$2040            ; Interior fill tile = $2040 (blank with BG priority)
 
   loc_03E521:
-    STA $7F0200, X
+    STA $bg3TilemapBuffer, X
     INX 
     INX 
     DEC $EC
     BNE loc_03E521
     LDA [$3E], Y
-    STA $7F0200, X
+    STA $bg3TilemapBuffer, X
     DEC $1C
     BNE loc_03E509
-    LDA $00               ; After body rows: optional prompt row if worldReadyFlag set and $00EE = 0
+    LDA $00               ; After body rows: extra blank (cursor/scroll) row if worldReadyFlag is set and menu-mode flag $00EE = 0
     CLC 
     ADC #$0040
     STA $00
     TAX 
-    LDA $00EE
+    LDA $menuModeFlag
     BNE loc_03E56F
     LDA $worldReadyFlag
     AND #$00FF
     BEQ loc_03E56F
     LDA [$3E]
-    STA $7F0200, X
+    STA $bg3TilemapBuffer, X
     INX 
     INX 
     LDA #$2040
 
   loc_03E556:
-    STA $7F0200, X
+    STA $bg3TilemapBuffer, X
     INX 
     INX 
     DEC $18
     BNE loc_03E556
     LDA [$3E], Y
-    STA $7F0200, X
+    STA $bg3TilemapBuffer, X
     LDA $00
     CLC 
     ADC #$0040
@@ -618,7 +633,7 @@ DrawDialogueBodyRows {
 ---------------------------------------------
 ; Clear the entire dialogue box and reset rendering state.
 ; 
-; Resets the VRAM cursor to the box origin ($099A). Zeroes all tiles within the box boundaries (width+1 × height+1 doubled). Restores the default dialogue palette: writes $675D (white), $10F2 (shadow), $0000 (transparent) to CGRAM palette offset $22. Triggers display update, resets cursor and line counter ($099C).
+; Resets the VRAM cursor to the box origin ($099A). Zeroes every tile of the box including its border: 2w+2 columns by 2h+3 tile rows (w, h = $0982/$0984), starting one column left and one row above the content origin (the BPL loops run one extra pass). Restores the default dialogue palette: writes $675D (white), $10F2 (shadow), $0000 (transparent) to the CGRAM mirror at $7F0A22–$7F0A27 (CGRAM colors $11–$13). Triggers display update, resets cursor and line counter ($099C).
 
 DialogCmd_ClearDialogueBox {
     PHY 
@@ -626,7 +641,7 @@ DialogCmd_ClearDialogueBox {
     LDA $099A             ; Reset VRAM cursor to box origin $099A
     STA $0998
     LDA $0982
-    ASL                   ; Clear dimensions: (width×2+1) columns × (height+1)×2 tile rows
+    ASL                   ; Counters = 2w+1 columns and 2h+2 rows; DEC/BPL loops run count+1 passes, covering border + 2w interior columns and border + 2h interior + extra rows
     INC 
     STA $00
     STA $18
@@ -644,7 +659,7 @@ DialogCmd_ClearDialogueBox {
     LDA #$0000            ; Zero-fill all tiles within box boundaries row by row
 
   loc_03E59F:
-    STA $7F0200, X
+    STA $bg3TilemapBuffer, X
     INX 
     INX 
     DEC $18
@@ -691,7 +706,7 @@ DialogCmd_WaitFrames {
 ---------------------------------------------
 ; Advance to the next line within the dialogue box.
 ; 
-; Increments the line counter ($099C). If it equals the box height ($0984), scrolls the dialogue up twice (with WaitOneFrame between each scroll) to make room. Computes the new VRAM cursor position: base ($099A) + line × 32 tiles. Updates both X and $0998.
+; Increments the line counter ($099C). If it equals the box height ($0984), scrolls the dialogue up by two tile rows (two ScrollDialogueUp passes with a WaitOneFrame after each), the line counter then stays on the last line. Computes the new VRAM cursor position: base ($099A) + line × $80 bytes (two 32-tile BG3 rows per text line). Updates both X and $0998.
 
 DialogCmd_NewLine {
     LDA $099C
@@ -706,7 +721,7 @@ DialogCmd_NewLine {
 
   loc_03E610:
     STA $099C
-    XBA                   ; New cursor position = origin + line × 128 bytes (XBA + LSR for double-height rows)
+    XBA                   ; New cursor = origin + line × $80 bytes (XBA + LSR = line << 7; each text line is two 64-byte tile rows)
     LSR 
     CLC 
     ADC $099A
@@ -761,10 +776,10 @@ DialogCmd_InsertRemoteString {
 ---------------------------------------------
 ; Clear the box interior without removing borders.
 ; 
-; Fills the interior region with blank tiles ($2040) in both tile rows ($7F0200 and $7F0240). Uses dimensions ($0982−1 × $0984−1) with doubled row stride ($0080 per row = 64 tiles × 2 bytes for both top and bottom tile halves). Resets cursor to box origin and line counter to 0.
+; Fills the interior region with blank tiles ($2040) in both tile rows ($7F0200 and $7F0240). Clears 2w interior columns and h text lines (counters 2w−1 and h−1 with BPL loops, i.e. one extra pass each); each pass writes the top and bottom tile rows and advances $80 bytes (two 32-tile rows). Resets cursor to box origin and line counter to 0.
 
 DialogCmd_ClearBox {
-    LDA $0998
+    LDA $0998             ; Dead load: A is overwritten by the next instruction
     LDA $0982             ; Clear interior only: (width×2 − 1) × (height − 1), excluding borders
     ASL 
     DEC 
@@ -781,8 +796,8 @@ DialogCmd_ClearBox {
     LDA #$2040            ; Blank tile $2040 → write to both top ($0200) and bottom ($0240) VRAM rows
 
   loc_03E671:
-    STA $7F0200, X
-    STA $7F0240, X
+    STA $bg3TilemapBuffer, X
+    STA $bg3TilemapRow1, X
     INX 
     INX 
     DEC $18
@@ -807,18 +822,18 @@ DialogCmd_ClearBox {
 }
 
 ---------------------------------------------
-; Wait for the player to press A, B, or Start with a blinking cursor indicator.
+; Wait for a confirm/cancel press with a blinking cursor indicator.
 ; 
-; Sets $C040 in joypadHeld to suppress auto-repeat. Loops calling WaitOneFrame until $C040 is detected in joypadCurrent. During the wait, draws a blinking cursor via DrawDialogueCursor (carry set = animate). On button press, clears the cursor (carry clear) and calls DialogCmd_ClearBox to prepare for the next page.
+; Marks the button mask $C040 as consumed in joypadHeld (so a button already held when the command starts is ignored until released and pressed again), then loops WaitOneFrame until one of those bits appears in joypadCurrent. $C040 = logical bits $8000, $4000 and $0040, the confirm, cancel and item-palette buttons after the remap stage (see the diary-menu layouts and vblank_joypad); it excludes the attack bit $0080. While waiting it draws a blinking cursor via DrawDialogueCursor (carry set = animate). On a press, the pressed bits are stored in joypadHeld (consumed), the cursor is erased (carry clear), and DialogCmd_ClearBox prepares the next page.
 
 DialogCmd_WaitForButton {
-    LDA #$C040            ; Suppress A/B/Start auto-repeat ($C040 in joypadHeld)
+    LDA #$C040            ; Mark mask $C040 consumed in joypadHeld: a button already held must be released and pressed again
     TSB $joypadHeld
 
   loc_03E6AA:
     JSR $&WaitOneFrame
     LDA $joypadCurrent
-    AND #$C040            ; $C040 mask: A ($0080), B ($8000), or Y ($4000)
+    AND #$C040            ; $C040 = logical bits $8000 | $4000 | $0040 (confirm, cancel, item palette); not the attack bit $0080
     BNE loc_03E6C1
     SEC                   ; SEC = animate blinking cursor, CLC = erase cursor
     JSR $&DrawDialogueCursor
@@ -837,18 +852,18 @@ DialogCmd_WaitForButton {
 }
 
 ---------------------------------------------
-; Wait for any button press.
+; Wait for a press of any button in mask $C040 (see DialogCmd_WaitForButton).
 ; 
-; Sets $C040 in joypadHeld to suppress all auto-repeat. Loops calling WaitOneFrame until any button in $C040 is pressed. Stores the pressed button to joypadHeld and returns.
+; Marks $C040 as consumed in joypadHeld, then loops WaitOneFrame until one of those bits appears in joypadCurrent. The pressed bits are stored in joypadHeld (consumed) and the command returns without drawing a cursor or clearing the box.
 
 DialogCmd_WaitForAnyInput {
-    LDA #$C040            ; Suppress all button auto-repeat ($C040)
+    LDA #$C040            ; Mark mask $C040 consumed (needs a fresh press)
     TSB $joypadHeld
 
   loc_03E6D8:
     JSR $&WaitOneFrame
     LDA $joypadCurrent
-    AND #$C040            ; $C040 mask — poll for any button press
+    AND #$C040            ; Poll the same $C040 logical bits
     BEQ loc_03E6D8
     STA $joypadHeld
     RTS 
@@ -930,7 +945,7 @@ DialogCmd_SetFrameDelay {
 }
 
 ---------------------------------------------
-; Insert a word from dictionary A (dictionary_01EBA8).
+; Insert a word from dictionary A (dialog_dictionaries.dialog_dictionary_a).
 ; 
 ; Reads a 1-byte index, doubles it for the word pointer table, switches DBR to the dictionary bank, reads the string pointer, and recursively renders via JSL DialogStringRenderer. Used for common words to save space in dialogue scripts.
 
@@ -960,7 +975,7 @@ DialogCmd_DictionaryA {
 }
 
 ---------------------------------------------
-; Insert a word from dictionary B (dictionary_01F54D).
+; Insert a word from dictionary B (dialog_dictionaries.dialog_dictionary_b).
 ; 
 ; Identical to DictionaryA but reads from the second dictionary table. Two dictionaries allow more than 256 common words while keeping operands to 1 byte each.
 
@@ -995,16 +1010,16 @@ DialogCmd_DictionaryB {
 ; Reads bytes from the string stream one at a time. Each nonzero byte is OR'd with palette and priority bits and written to both VRAM buffer rows. Zero byte terminates. Used for rendering pre-composed tile sequences (icons, special characters).
 
 DialogCmd_PrintRawTiles {
-    LDA $0000, Y          ; Read byte → compose tile → write both rows; loop until zero terminator
+    LDA $0000, Y          ; Read byte, compose tile (palette | $2100), write both rows; loop until the zero terminator (the cursor is stored at the end)
     INY 
     AND #$00FF
     BEQ loc_03E7AE
     ORA $0986
     ORA #$2100
-    STA $7F0200, X
+    STA $bg3TilemapBuffer, X
     CLC 
     ADC #$0010
-    STA $7F0240, X
+    STA $bg3TilemapRow1, X
     INX 
     INX 
     BRA DialogCmd_PrintRawTiles
@@ -1065,16 +1080,16 @@ WaitNFrames_Loop {
 }
 
 ---------------------------------------------
-; Scroll all dialogue box content up by one line.
+; Scroll the dialogue box content up by one tile row (8 pixels).
 ; 
-; Copies each row from $7F0240 (bottom tile row) to $7F0200 (top tile row) across the full box width. Repeats for (height × 2 − 1) rows. Triggers display update when complete. Called twice (with WaitOneFrame between) by DialogCmd_NewLine for smooth visual scrolling.
+; Starting at the content origin ($099A), copies the tile row $40 bytes below into each row, 2w tiles wide, for 2h rows (the counter 2h−1 runs one extra pass because of the BPL loop). The last copy takes its source from the extra blank row below the text area, which therefore leaves the final row blank. Sets displayModeFlags bit 0 when done. Called twice by DialogCmd_NewLine (with a WaitOneFrame after each call) to move one full text line (two tile rows).
 
 ScrollDialogueUp {
     LDA $099A
     STA $00
     TAX 
     LDA $0984
-    ASL                   ; Scroll height×2 − 1 rows (last row left blank for new text)
+    ASL                   ; Row counter 2h−1; the BPL loop runs 2h passes (the last source row is the blank row below the text)
     DEC 
     STA $1C
 
@@ -1085,8 +1100,8 @@ ScrollDialogueUp {
     STA $18
 
   loc_03E7EA:
-    LDA $7F0240, X        ; Inner loop: copy each tile from bottom row ($0240) to top row ($0200)
-    STA $7F0200, X
+    LDA $bg3TilemapRow1, X ; Inner loop: copy the tile from the row below ($0240,X) into this row ($0200,X)
+    STA $bg3TilemapBuffer, X
     INX 
     INX 
     DEC $18
@@ -1104,18 +1119,18 @@ ScrollDialogueUp {
 }
 
 ---------------------------------------------
-; Draw or erase the blinking continuation cursor at the bottom-right of the dialogue box.
+; Draw or erase the blinking continuation cursor below the text area, horizontally centred in the dialogue box.
 ; 
-; Carry flag controls mode: SEC = animate (blink), CLC = erase. In animate mode, uses a frame counter ($0994) with a 16-frame period: odd frames show the cursor tile ($2091), even frames show blank ($2040). Computes the cursor position from box dimensions and origin.
+; Carry flag controls mode: SEC = animate (blink), CLC = erase. In animate mode $0994 is incremented once every 16 frames (whenever the low nibble of the global frame counter $36 is 0, assuming one call per frame) and its bit 0 selects the tile: odd = cursor tile ($2091), even = blank ($2040), so the cursor blinks with a 32-frame period. Erase mode writes the blank tile.
 ; 
-; The position formula: X = ((height×2 + row_origin) × 32 + width + column_origin) × 2, indexing into $7F0200.
+; The position formula: X = ((2h + row_origin) × 32 + w + column_origin) × 2 bytes into $7F0200, where w, h = $0982/$0984 and row/column origin = $0980/$097E. That is the extra blank row just below the 2h text rows, at the middle of the 2w-wide text area.
 
 DrawDialogueCursor {
     PHP                   ; Carry flag controls mode: SEC = animate (blink), CLC = erase
     LDA $0984
     ASL 
     CLC 
-    ADC $0980             ; Position at box bottom-right: (height×2 + row_origin) × 32 + width + col_origin
+    ADC $0980             ; Row index = 2h + row origin (the row below the text), × 32 below, + w + column origin = horizontal centre
     ASL 
     ASL 
     ASL 
@@ -1129,14 +1144,14 @@ DrawDialogueCursor {
     TAX 
     PLP 
     BCC loc_03E83F
-    LDA $36               ; 16-frame blink cycle: toggle via bit 4 of global frame counter $36
+    LDA $36               ; Every 16th frame (low nibble of frame counter $36 = 0) step the blink counter $0994
     BIT #$000F
     BNE loc_03E831
     INC $0994
 
   loc_03E831:
     LDA $0994
-    BIT #$0001            ; Blink counter bit 0: odd = cursor tile $2091, even = blank $2040
+    BIT #$0001            ; $0994 bit 0: odd = cursor tile $2091, even = blank $2040 (toggles every 16 frames)
     BEQ loc_03E83F
     LDA #$2091
     PHA 
@@ -1148,6 +1163,6 @@ DrawDialogueCursor {
 
   loc_03E843:
     PLA 
-    STA $7F0200, X
+    STA $bg3TilemapBuffer, X
     RTS 
 }

@@ -16,6 +16,8 @@
 !forcedScrollOverride           06C8
 !effectDeltaX                   06E4
 !effectDeltaY                   06E6
+!effectRenderDeltaX             06E8
+!effectRenderDeltaY             06EA
 
 ---------------------------------------------
 
@@ -80,11 +82,11 @@ effect_velocity_init [
     STA $16
     STA $cameraDeltaY
     LDA $2C
-    STA $06E8             ; Angle $05–$0C → diagonal movement (both axes)
+    STA $effectRenderDeltaX ; Angle $05–$0C → diagonal movement (both axes)
     LDA $cameraDeltaY     ; Angle < $05 → move along the other single axis only
     SEC 
     SBC $effectScrollV    ; X-only: zero Y delta in $0002
-    STA $06EA
+    STA $effectRenderDeltaY
     RTL 
 } >
 ]
@@ -244,11 +246,11 @@ effect_position_update [
     LDA $cameraDeltaX
     SEC 
     SBC $effectScrollH
-    STA $06E8
+    STA $effectRenderDeltaX
     LDA $cameraDeltaY
     SEC 
     SBC $effectScrollV
-    STA $06EA
+    STA $effectRenderDeltaY
     RTL 
 } >
 ]

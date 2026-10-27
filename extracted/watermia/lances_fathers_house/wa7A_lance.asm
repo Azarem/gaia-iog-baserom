@@ -7,6 +7,7 @@
 ---------------------------------------------
 
 !joypadMaskStd                  065A
+!srcCacheMusic                  0687
 
 ---------------------------------------------
 
@@ -21,7 +22,7 @@ wa7A_lance [
     LDA #$EFFC
     TSB $joypadMaskStd
     COP [StartMusic] ( #1B )
-    STZ $0688
+    STZ $srcCacheMusic+1
     COP [WaitByte] ( #3B )
     COP [PrintDialogString] ( &dialogstring_07AB82 )
     LDA #$EFFC

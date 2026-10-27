@@ -19,17 +19,18 @@
 ; Input: X = source address (16-bit), A = source bank byte, Y = transfer byte count.
 ; Configures: DMAP0 = $01 (word transfer mode, 2-register write to $2118/$2119), BBAD0 = $18 (VDATA port).
 ; Fires DMA via MDMAEN bit 0.
-; Caller must pre-set VMADDL ($2116) to the target VRAM word address.
+; Caller must pre-set VMADDL ($2116) to the target VRAM word address, and VMAIN ($2115) must already be configured (this routine does not touch it).
+; Register width on entry: A 8-bit (bank byte, `LDA #$01` immediates), X/Y 16-bit. Callers: LoadPlayerGraphics (scene_lifecycle) and the inventory overlay.
 
 DmaWordToVram {
-    STX $A1T0L            ; DmaWordToVram: configure DMA ch0 word transfer (caller sets VMADDL)
-    STA $A1B0             ; Source address: A1T0L=X, A1B0=bank in A
-    STY $DAS0L            ; Transfer byte count in DAS0L (Y)
+    STX $A1T0L            ; Source offset = X (A1T0L/A1T0H)
+    STA $A1B0             ; Source bank = A
+    STY $DAS0L            ; Transfer byte count = Y
     LDA #$01
-    STA $DMAP0            ; DMAP0=$01: fixed address, increment after word write
+    STA $DMAP0            ; DMAP0=$01: A-bus -> B-bus, A-bus address increments, two registers per unit ($2118 then $2119)
     LDA #$18
-    STA $BBAD0            ; BBAD0=$18: B-bus target VDATA ($2118/$2119)
+    STA $BBAD0            ; BBAD0=$18: B-bus base = VMDATAL ($2118)
     LDA #$01
-    STA $MDMAEN           ; MDMAEN=$01: start channel 0 DMA
+    STA $MDMAEN           ; Start channel 0 now (CPU halts until the transfer finishes)
     RTL 
 }

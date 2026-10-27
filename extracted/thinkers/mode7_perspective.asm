@@ -49,6 +49,8 @@
 
 !scrollOverrideH                06C6
 !scrollOverrideV                06CA
+!worldMapPlayerX                0D54
+!worldMapPlayerY                0D56
 !M7SEL                          211A
 !WRDIVL                         4204
 !WRDIVB                         4206
@@ -73,13 +75,13 @@ Mode7PerspectiveInit [
     STA $7F0B22
     LDA #$FFFF
     STA $7F0B24
-    LDA $0D54             ; Load initial X position from $0D54 → world X ($00CA)
+    LDA $worldMapPlayerX  ; Load initial X position from $0D54 → world X ($00CA)
     STA $00CA
     SEC 
     SBC #$0080            ; Camera X = world X − $80 (center 256px screen)
     ORA #$8000            ; Bit 15 = scroll override active (engine uses hardware scroll)
     STA $scrollOverrideH
-    LDA $0D56             ; Load initial Y position from $0D56 → world Y ($00CC)
+    LDA $worldMapPlayerY  ; Load initial Y position from $0D56 → world Y ($00CC)
     STA $00CC
     SEC 
     SBC #$0070            ; Camera Y = world Y − $70 (center 224px screen)

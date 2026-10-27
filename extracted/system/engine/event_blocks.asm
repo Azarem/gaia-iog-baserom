@@ -51,6 +51,7 @@
 !effectScrollH                  068C
 !mapScrollV                     068E
 !effectScrollV                  0690
+!collisionFlagTableL1           06AC
 !dmaSkipFlag                    0800
 !tileQueryResult                0902
 !VMAIN                          2115
@@ -123,7 +124,7 @@ SwapEventBlockTiles {
     PHP 
     PHY 
     REP #$20
-    LDA $06AC             ; Collision indirect pointer: $3E = $06AC base, $40 = bank $7F
+    LDA $collisionFlagTableL1 ; Collision indirect pointer: $3E = $06AC base, $40 = bank $7F
     STA $3E
     LDA #$007F
     STA $40
@@ -465,7 +466,7 @@ AnimateEventBlock {
     RTL 
 
   code_02A443:
-    LDA $06AC             ; L1 path: setup $3E/$40 collision bank and effect-layer swap loop
+    LDA $collisionFlagTableL1 ; L1 path: setup $3E/$40 collision bank and effect-layer swap loop
     STA $3E
     LDA #$007F
     STA $40

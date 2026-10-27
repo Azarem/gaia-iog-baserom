@@ -31,6 +31,7 @@
 
 !extVelocityX                   0408
 !extVelocityY                   040A
+!joypadCurrent                  0656
 !playerActor                    09AA
 !playerFlags                    09AE
 !playerSpeedEw                  09B2
@@ -230,7 +231,7 @@ PlayerMoveController {
 JoypadToVelocity {
     PHP                   ; Convert D-pad state to packed velocity: high byte = NS(Y), low byte = EW(X). Priority: L > R > U > D
     SEP #$20
-    LDA $0657             ; Read joypad high byte ($0657) in 8-bit mode — bits: ----UDLR
+    LDA $joypadCurrent+1  ; Read joypad high byte ($0657) in 8-bit mode — bits: ----UDLR
     BIT #$02              ; Left pressed → left handler (has priority over right)
     BNE loc_02B3E3
     BIT #$01              ; Right pressed → right handler

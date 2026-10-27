@@ -17,6 +17,7 @@
 !gfxCacheIdxA                   0648
 !gfxCacheIdxB                   064A
 !joypadMaskStd                  065A
+!srcCacheFullGfxL1              0681
 !playerActor                    09AA
 !playerFlags                    09AE
 !displayModeFlags               09EC
@@ -423,7 +424,7 @@ code_059B3B {
     COP [StageMoveX] ( #13 )
     COP [ClearFlagWord] ( #$0120 )
     LDA #$0000
-    STA $0682
+    STA $srcCacheFullGfxL1+1
     COP [ClearFlagByte] ( #52 )
     INC $0AA6
     LDA #$0408

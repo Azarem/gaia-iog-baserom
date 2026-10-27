@@ -8,6 +8,7 @@
 
 ?INCLUDE 'spriteset_enemies'
 
+!srcCacheFullGfxL0              067E
 !playerYPos                     09A4
 
 ---------------------------------------------
@@ -19,7 +20,7 @@ av75_voice_doors [
     LDA #$0200
     TSB $12
     COP [BranchOnFlagByte] ( #89, #01, &code_06D7BB )
-    STZ $067F
+    STZ $srcCacheFullGfxL0+1
     COP [SetMetasprite] ( @spriteset_enemies )
     COP [StageSpriteFrame] ( #00 )
     COP [AnimOnce]

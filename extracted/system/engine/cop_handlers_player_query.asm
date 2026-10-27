@@ -11,6 +11,9 @@
 !warpScrollParams               0652
 !playerActor                    09AA
 !sceneSaveData                  0AF0
+!sceneSaveDataBank              0AF2
+!reviveWarpPtr                  0AF4
+!reviveWarpBank                 0AF6
 
 ---------------------------------------------
 
@@ -80,10 +83,10 @@ QueueMapChange {
     SEC 
     SBC #$0008            ; Rewind $0A by 8 bytes to start of QueueMapChange operands
     STA $sceneSaveData    ; Save rewound script PC to sceneSaveData for post-transition resume
-    STA $0AF4
+    STA $reviveWarpPtr
     LDA $0C               ; Load script bank byte to sceneSaveData+2
-    STA $0AF2
-    STA $0AF6
+    STA $sceneSaveDataBank
+    STA $reviveWarpBank
     LDA $0A
     STA $02, S
     RTI 

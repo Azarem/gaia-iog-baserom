@@ -55,6 +55,12 @@
 !cameraTargetX                  06BE
 !cameraTargetY                  06C2
 !characterForm                  0AD4
+!worldMapStagedX                0D52
+!worldMapPlayerX                0D54
+!worldMapPlayerY                0D56
+!worldMapChoiceId               0D58
+!worldMapRouteId                0D5A
+!worldMapRouteReturnPtr         0D5C
 !animScratch2                   7F000E
 !orbitAngle                     7F0010
 !orbitDiameter                  7F0012
@@ -95,7 +101,7 @@ WorldMapController [
     COP [SpawnAfterFlags] ( @ArrivalAndTravelSetup, #$3800 ) ; Spawn ArrivalAndTravelSetup as linked child with flags $3800
     LDA #$FFFC            ; Mask D-pad bits ($FFF0) from standard joypad — disable player movement on map
     TSB $joypadMaskStd
-    LDA $0D58             ; Check destination ID — zero means no travel selected
+    LDA $worldMapChoiceId ; Check destination ID — zero means no travel selected
     BEQ loc_03A35C        ; No destination → skip to Die (idle arrival only)
     COP [SetEntryHereAndYield]
     PHX                   ; Save actor index, switch to child actor index (Y from SpawnAfterFlags)
@@ -104,7 +110,7 @@ WorldMapController [
     ORA #$0804            ; ORA $0804 into child's animScratch2: set rendering flags on arrival actor
     STA $animScratch2, X
     PLX 
-    LDA $0D58             ; Reload destination → $24 for option dispatch
+    LDA $worldMapChoiceId ; Reload destination → $24 for option dispatch
     STA $24
     AND #$001F            ; Mask to 5-bit index ($001F) for world_map_options table
     STA $0000
@@ -121,7 +127,7 @@ WorldMapController [
 ; Otherwise: saves sceneNext → $0D6E and $0652 → $0D6C (auxiliary scene data), then clears both to prevent an immediate transition. The deferred values are restored later by RouteEndHandler or SkipToSceneTransition after the travel animation finishes.
 
 DeferSceneTransition {
-    LDA $0D5A             ; Check route active flag — zero means player chose no destination
+    LDA $worldMapRouteId  ; Check route active flag — zero means player chose no destination
     BEQ loc_03A35C        ; No active route → Die
     SEP #$20
     LDA $sceneNext        ; Save pending sceneNext to $0D6E — defer scene transition
@@ -162,12 +168,12 @@ DeferSceneTransition {
 ; After spawning: store final position into orbitDiameter, play 2 animation frames, clear $00DA, spawn RouteAnimationEngine as predecessor, then fall through to the CompanionDotMovement shared animation loop at loc_03A497.
 
 ArrivalAndTravelSetup {
-    LDA $0D54             ; Load initial player X from $0D54 → sprite X ($14)
+    LDA $worldMapPlayerX  ; Load initial player X from $0D54 → sprite X ($14)
     STA $14
     SEC 
     SBC #$0080            ; Camera target X = player X − $80 (center 256px screen)
     STA $cameraTargetX
-    LDA $0D56             ; Load initial player Y from $0D56 → sprite Y ($16)
+    LDA $worldMapPlayerY  ; Load initial player Y from $0D56 → sprite Y ($16)
     STA $16
     SEC 
     SBC #$0070            ; Camera target Y = player Y − $70 (center 224px screen)
@@ -181,12 +187,12 @@ ArrivalAndTravelSetup {
     STA $00B8
     COP [SetEntryHereAndYield]
     COP [LoopEnd]
-    LDA $0D58             ; Check destination — zero means no route to play
+    LDA $worldMapChoiceId ; Check destination — zero means no route to play
     BEQ loc_03A3A4
     COP [WaitByte] ( #0F ) ; Wait 15 frames before HDMA effect starts
     COP [SpawnThinker] ( @HdmaWindowEffect ) ; Spawn HdmaWindowEffect thinker for iris transition during travel
     COP [SetEntryHere]
-    LDA $0D5A             ; Poll $0D5A (route active): nonzero = route still playing, skip ahead
+    LDA $worldMapRouteId  ; Poll $0D5A (route active): nonzero = route still playing, skip ahead
     BNE loc_03A3A4
     RTL                   ; RTL to yield — route animation engine handles movement each frame
 
@@ -330,7 +336,7 @@ CompanionDotMovement {
     CLC 
     ADC $cameraTargetY    ; Compute screen Y from extracted offset + cameraTargetY
     STA $16
-    LDA $0D5A             ; Route active? ($0D5A ≠ 0 → stay in animation loop)
+    LDA $worldMapRouteId  ; Route active? ($0D5A ≠ 0 → stay in animation loop)
     BEQ loc_03A4C6
     DEC $26               ; Decrement animation timer; negative = restart cycle
     BMI loc_03A4C4
@@ -414,7 +420,7 @@ binary_03A525 #80807090909068A098A0
 
 RouteAnimationEngine {
     PHX                   ; Load route pointer: world_map_routes[$0D5A × 2] → $2C/$2E
-    LDA $0D5A
+    LDA $worldMapRouteId
     ASL 
     TAX 
     LDA $@world_map_routes, X
@@ -535,7 +541,7 @@ RouteSubroutineCall {
     LDA $2C               ; Save return address ($2C + 2) → $0D5C for subroutine return
     INC 
     INC 
-    STA $0D5C
+    STA $worldMapRouteReturnPtr
     LDA [$2C]             ; Load 2-byte subroutine target from route data → $2C
     STA $2C
     JMP $&RouteStepLoop   ; Jump to RouteStepLoop to execute subroutine
@@ -555,15 +561,15 @@ RouteSubroutineCall {
 ; 6. When $00B6 goes negative (landing complete): zero $00B6, SetEntryExit, clear $00DA, set $0800 flag in actor flags, InitGravity(#00, #06, #00), load gfxCacheIdxB = $0406, restore deferred scene ($0D6E → sceneNext, $0D6C → $0652), ClearWorldMapState, play gravity landing via TickGravity loop.
 
 RouteEndHandler {
-    LDA $0D5C             ; Check subroutine return pointer ($0D5C)
+    LDA $worldMapRouteReturnPtr ; Check subroutine return pointer ($0D5C)
     BEQ loc_03A60B        ; Zero = no return pending → true end of route
-    STZ $0D5C             ; Clear return pointer, restore $2C, continue processing
+    STZ $worldMapRouteReturnPtr ; Clear return pointer, restore $2C, continue processing
     STA $2C
     JMP $&RouteStepLoop
 
   loc_03A60B:
-    STZ $0D5A             ; True route end: clear route active flag ($0D5A)
-    STZ $0D58             ; Clear destination ($0D58)
+    STZ $worldMapRouteId  ; True route end: clear route active flag ($0D5A)
+    STZ $worldMapChoiceId ; Clear destination ($0D58)
     LDA $0D6E             ; Load destination area ID from $0D6E for name display
     AND #$00FF
     STA $0000
@@ -619,7 +625,7 @@ ClearWorldMapState {
     LDY #$0000
 
   loc_03A687:
-    STA $0D52, Y
+    STA $worldMapStagedX, Y
     INY 
     INY 
     CPY #$001C

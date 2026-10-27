@@ -48,17 +48,21 @@
 ; 
 ; SaveVramToRingBuffer reads current VRAM back to WRAM after each load, rotating through ring buffer slots via ComputeRingBufferAddr. For tile data exceeding $2000 bytes, two consecutive ring buffer slots are used.
 ; 
+; A second, independent cache is the SOURCE-POINTER cache: ten 3-byte slots at $066C-$0689 (addr_lo, addr_hi, bank) remember which compressed source each command last loaded. CheckSourceCacheHit(X = slot) returns carry clear when the pointer in $3E/$40 matches the slot (skip the load) and otherwise stores the new pointer. Slots: $066C/$066F/$0672/$0675 = BG tiles (mode 0/1 by flag bit 4), $0678/$067B = dual-tilemap layers 0/1, $067E/$0681 = FullGraphics layers 0/1, $0684 = sprite tiles, $0687 = SPC music. Code invalidates a slot by zeroing its high byte + bank (`STZ slot+1`, 16-bit), which makes the next lookup a guaranteed miss.
+; 
+; Scratch used by every loader: $0664 = source window start, $0666 = source window end (DMA size = end - start, source = $3E + start), $0668 = destination (VRAM page = word address >> 8, or WRAM offset), $066A = layer/target flags from the script.
+; 
 ; === MAP GEOMETRY ===
 ; 
 ; SceneCmd_FullGraphics handles complete scene setup including map dimensions:
 ; - Reads width ($00/$01) and height ($02/$03) from script data
 ; - StoreMapAndDecompress sets map row stride, computes total map byte count via SignedMultiply, and decompresses tilemap data to the layer's tilemap base address
 ; - WriteMapBounds stores computed dimensions to mapBoundsX/mapBoundsY for the camera system
-; - Dual-layer support: bit 1 of flags loads layer 0 (primary tilemap at $A000), bit 2 loads layer 1 (overlay at $C000)
+; - Dual-layer support: flag bit 0 selects layer 0 (primary tilemap at $7E:A000), flag bit 1 selects layer 1 (overlay at $7E:C000); bit 7 alone means "tileset only" (DmaLowVramTileset)
 ; 
 ; === TILEMAP ATTRIBUTE SYSTEM ===
 ; 
-; RebuildTilemapAttrs processes loaded tilemap data to extract and rebuild SNES-format attribute bytes (palette, priority, flip). Reads 4 consecutive tilemap entries, extracts bit 1 (palette high bit) from each, packs them into a single attribute byte using ROL/ASL bit manipulation, and stores via indirect write.
+; RebuildTilemapAttrs post-processes a loaded metatile definition table (4 tilemap words per metatile). For each metatile it lifts bit 9 out of the four words, clears it, merges the layer's priority/offset word ($06A2+X), and packs the four lifted bits into one flag byte in a bank-$7F table. ReloadMapData then uses that table, indexed by each map cell's metatile number, to fill the collision layer ($7F:C000).
 ; 
 ; BuildAttributeTable creates a lookup table mapping metatile indices to their attribute bytes, referenced during deinterleaved tile rendering.
 ; 
@@ -86,6 +90,18 @@
 ?INCLUDE 'vblank_joypad'
 
 !sceneCurrent                   0644
+!gfxSrcStart                    0664
+!gfxSrcEnd                      0666
+!gfxDestPage                    0668
+!gfxLayerFlags                  066A
+!srcCacheBgA                    066C
+!srcCacheBgB                    066F
+!srcCacheBgC                    0672
+!srcCacheBgD                    0675
+!srcCacheTilemapL0              0678
+!srcCacheTilemapL1              067B
+!srcCacheFullGfxL0              067E
+!srcCacheFullGfxL1              0681
 !mapBoundsX                     0692
 !mapRowStrideL0                 0693
 !effectBoundsX                  0694
@@ -93,6 +109,13 @@
 !mapBoundsY                     0696
 !effectBoundsY                  0698
 !mapTilemapBaseA                069E
+!tilemapOrMaskL0                06A2
+!tilemapOrMaskL1                06A4
+!tilemapOrMaskPrevL0            06A6
+!tilemapOrMaskPrevL1            06A8
+!collisionFlagTableL0           06AA
+!collisionFlagTableL1           06AC
+!visibleHeight                  06EC
 !layerPriorityFlag              06EE
 !scrollModeFlags                06EF
 !musicParentActor               06F2
@@ -265,89 +288,89 @@ code_02845C {
 }
 
 ---------------------------------------------
-; Load BG tile graphics from ROM to VRAM. Reads four script operands into $0664 (VRAM start, word), $0666 (VRAM end, word), and $0668 (flags/mode). Mode byte selects one of four paths: 0 = standard 2bpp strip (+$20 to flags, cache slot $066C/$066F), 1 = double strip (+$40, slot $0672/$0675), 2 = triple strip (+$60), 3 = full 4bpp page via Load4bppPage. After mode setup, CheckSourceCacheHit — cache hit returns early. On miss: optionally DeinterleavePlanarTiles when layerPriorityFlag $0800 is set and slot $066C; else GraphicsCacheLookup → RestoreCachedVram on hit. Otherwise decompresses via QuintetLZ to $7000, DMAs through SceneDmaTileShim, and saves to the VRAM ring buffer.
+; Scene command $03: load BG tile graphics to VRAM. Script operands: start byte, end byte (each x$200 into $0664/$0666 = byte window inside the decompressed data), VRAM page byte ($0668), 3-byte source pointer, mode byte. The mode adds a fixed VRAM word-address base to the page (0 = +$2000 via slot $066C/$066F chosen by page bit 4, 1 = +$4000 via slot $0672/$0675, 2 = +$6000 with no source-cache check, 3 = whole $4000-byte 4bpp page via Load4bppPage). CheckSourceCacheHit returning a hit ends the command. On a miss: DeinterleavePlanarTiles when layerPriorityFlag $0800 is set and slot is $066C; else GraphicsCacheLookup -> RestoreCachedVram on a VRAM-cache hit; otherwise decompress via QuintetLZ to $7E:7000, DMA through SceneDmaTileShim, then SaveVramToRingBuffer.
 
 SceneCmd_LoadBgTiles {
     PHP 
     REP #$20
-    JSR $&ReadScriptByte  ; Read VRAM tile start offset (×256 via XBA, ×2 via ASL)
+    JSR $&ReadScriptByte  ; Read window start in $200-byte units (XBA = x$100, ASL = x2) -> byte offset into the decompressed data
     XBA 
     ASL 
-    STA $0664
-    JSR $&ReadScriptByte  ; Read VRAM tile end offset (same scaling)
+    STA $gfxSrcStart
+    JSR $&ReadScriptByte  ; Read window end (same scaling); DMA size = end - start
     XBA 
     ASL 
-    STA $0666
-    JSR $&ReadScriptByte  ; Read tile flags byte to $0668
-    STA $0668
+    STA $gfxSrcEnd
+    JSR $&ReadScriptByte  ; Read VRAM destination page (word address >> 8) to $0668
+    STA $gfxDestPage
     LDX #$003E            ; Load pointer register X=$003E for LoadScriptPointer destination
     JSR $&LoadScriptPointer
-    JSR $&ReadScriptByte  ; Read tile format/mode byte (0=standard, 1=double, 2=triple, 3=4bpp page)
+    JSR $&ReadScriptByte  ; Read mode byte: selects VRAM base region (0 = $2000, 1 = $4000, 2 = $6000) or 3 = full 4bpp page
     CMP #$0000
-    BEQ loc_02848D        ; Mode 0: standard 2bpp tile strip
+    BEQ loc_02848D        ; Mode 0: VRAM base $2000
     DEC 
-    BEQ loc_0284BC        ; Mode 1: double-size tile strip
+    BEQ loc_0284BC        ; Mode 1: VRAM base $4000
     DEC 
-    BEQ loc_0284E7        ; Mode 2: triple-size tile strip
+    BEQ loc_0284E7        ; Mode 2: VRAM base $6000 (no source-cache check)
     DEC 
     BEQ loc_0284F3        ; Mode 3: full 4bpp page load
 
   loc_02848D:
-    LDA $0668             ; Mode 0 entry: add $20 to flags for VRAM page offset
-    BIT #$0010            ; Bit 4 of flags: determines which cache slot to use ($066C or $066F)
+    LDA $gfxDestPage      ; Mode 0 entry: VRAM page += $20 (word base $2000)
+    BIT #$0010            ; Page bit 4 picks the source-cache slot ($066C when clear, $066F when set)
     BNE loc_0284B0
     CLC 
     ADC #$0020
-    STA $0668
+    STA $gfxDestPage
     LDX #$066C
-    LDA $0666             ; Check if tile data exceeds $2000 bytes
+    LDA $gfxSrcEnd        ; Check if tile data exceeds $2000 bytes
     SEC 
-    SBC $0664
+    SBC $gfxSrcStart
     CMP #$2001
     BMI loc_0284FC
-    STZ $0670             ; Large tile set — clear overflow tracking at $0670
+    STZ $srcCacheBgB+1    ; Window over $2000 bytes spills into slot $066F's VRAM: invalidate that slot (zero addr-hi + bank)
     BRA loc_0284FC
 
   loc_0284B0:
     CLC 
     ADC #$0020
-    STA $0668
+    STA $gfxDestPage
     LDX #$066F
     BRA loc_0284FC
 
   loc_0284BC:
-    LDA $0668             ; Mode 1 entry: add $40 to flags for double-page VRAM offset
+    LDA $gfxDestPage      ; Mode 1 entry: VRAM page += $40 (word base $4000)
     BIT #$0010
     BNE loc_0284DB
     CLC 
     ADC #$0040
-    STA $0668
-    BIT #$0028
+    STA $gfxDestPage
+    BIT #$0028            ; Page bits 3/5 set (inferred: this load overlaps slot $0675's VRAM)
     BEQ loc_0284D3
-    STZ $0676
+    STZ $srcCacheBgD+1    ; Invalidate slot $0675
 
   loc_0284D3:
-    STZ $0673
+    STZ $srcCacheBgC+1    ; Invalidate slot $0672 itself so the check below always misses (forced reload)
     LDX #$0672
     BRA loc_0284FC
 
   loc_0284DB:
     CLC 
     ADC #$0040
-    STA $0668
+    STA $gfxDestPage
     LDX #$0675
     BRA loc_0284FC
 
   loc_0284E7:
-    LDA $0668             ; Mode 2 entry: add $60 to flags for triple-page offset
+    LDA $gfxDestPage      ; Mode 2 entry: VRAM page += $60 (word base $6000)
     CLC 
     ADC #$0060
-    STA $0668
+    STA $gfxDestPage
     BRA loc_028503
 
   loc_0284F3:
-    LDA $0668             ; Mode 3 entry: store flags, jump to Load4bppPage
-    STA $0668
+    LDA $gfxDestPage      ; Mode 3 entry: store flags, jump to Load4bppPage
+    STA $gfxDestPage
     JMP $&Load4bppPage
 
   loc_0284FC:
@@ -382,7 +405,7 @@ SceneCmd_LoadBgTiles {
     LDA $78
     CMP #$2001
     BCC loc_028537
-    STZ $067F
+    STZ $srcCacheFullGfxL0+1 ; Large upload (compressed size > $2000): invalidate FullGraphics layer-0 slot $067E (inferred: shares VRAM)
 
   loc_028537:
     LDX #$7000            ; Decompress tile data via QuintetLZ to staging buffer $7000
@@ -416,16 +439,16 @@ SceneDmaTileShim {
 ; DMA a tile data strip from WRAM ($3E+$0664, bank $40) to VRAM. Sets VMADDL from $0668 (XBA for page alignment), transfer size = $0666 − $0664. Configures channel 0: mode $01 (two-register word write), B-bus $18 (VMDATAL), triggers MDMAEN.
 
   DmaTileStripToVram:
-    LDA $0668             ; Compute VRAM destination from tile page ($0668 XBA = ×256 word address)
+    LDA $gfxDestPage      ; Compute VRAM destination from tile page ($0668 XBA = ×256 word address)
     XBA 
     STA $VMADDL
     LDA $3E
     CLC 
-    ADC $0664             ; Compute DMA source = base pointer + start offset
+    ADC $gfxSrcStart      ; Compute DMA source = base pointer + start offset
     STA $A1T0L
-    LDA $0666             ; Compute transfer size = end offset − start offset
+    LDA $gfxSrcEnd        ; Compute transfer size = end offset − start offset
     SEC 
-    SBC $0664
+    SBC $gfxSrcStart
     STA $DAS0L
     SEP #$20
     LDA #$01              ; DMA mode $01: two-register word write to VMDATAL/VMDATAH
@@ -479,14 +502,14 @@ Load4bppPage {
 }
 
 ---------------------------------------------
-; Initialize priority-deinterleave path: clears cache invalidation slots $0670/$067F/$0682/$0679/$067C, then decompresses tile data via QuintetLZ to $7000. Falls through into code_0285F3 for the actual bitplane interleaving pass.
+; Initialize priority-deinterleave path: invalidates source-cache slots $066F, $067E, $0681, $0678 and $067B (zeroing addr-hi + bank at $0670/$067F/$0682/$0679/$067C), presumably because the interleaved $4000-byte upload to VRAM $0000 replaces what they describe, then decompresses tile data via QuintetLZ to $7000. Falls through into code_0285F3 for the actual bitplane interleaving pass.
 
 DeinterleavePlanarTiles {
-    STZ $0670             ; Clear all deinterleave tracking variables ($0670/$067F/$0682/$0679/$067C)
-    STZ $067F
-    STZ $0682
-    STZ $0679
-    STZ $067C
+    STZ $srcCacheBgB+1    ; Invalidate source-cache slots $066F/$067E/$0681/$0678/$067B (zero addr-hi + bank of each)
+    STZ $srcCacheFullGfxL0+1
+    STZ $srcCacheFullGfxL1+1
+    STZ $srcCacheTilemapL0+1
+    STZ $srcCacheTilemapL1+1
     LDX #$7000            ; Decompress tile data to staging buffer $7000
     STX $7A
     JSL $@QuintetLzDecompress
@@ -627,13 +650,13 @@ SceneCmd_LoadTilemap {
     REP #$20
     JSR $&ReadScriptByte  ; Read start offset from script (ASL for word addressing)
     ASL 
-    STA $0664
+    STA $gfxSrcStart
     JSR $&ReadScriptByte  ; Read end offset (ASL)
     ASL 
-    STA $0666
+    STA $gfxSrcEnd
     JSR $&ReadScriptByte  ; Read WRAM destination page (ASL)
     ASL 
-    STA $0668
+    STA $gfxDestPage
     CMP #$0020            ; Special case: destination $0020 = palette tilemap
     BEQ loc_0286F5
     LDX #$003E            ; Standard path: load pointer and DMA tilemap to WRAM $7F:0A00
@@ -670,42 +693,42 @@ SceneCmd_LoadDualTilemap {
     XBA 
     LSR 
     LSR 
-    STA $0664
+    STA $gfxSrcStart
     JSR $&ReadScriptByte
     XBA 
     LSR 
     LSR 
-    STA $0666
+    STA $gfxSrcEnd
     JSR $&ReadScriptByte
     XBA 
     LSR 
     LSR 
-    STA $0668
+    STA $gfxDestPage
     JSR $&ReadScriptByte  ; Read flags byte — bit 0 = layer 0, bit 1 = layer 1
-    STA $066A
+    STA $gfxLayerFlags
     LDX #$003E
     JSR $&LoadScriptPointer
     LDA #$0001            ; Check layer 0 bit against source cache slot $0678
-    AND $066A
+    AND $gfxLayerFlags
     BEQ loc_028752
     LDX #$0678
     JSR $&CheckSourceCacheHit
     BCS loc_028752
     LDA #$0001
-    TRB $066A
+    TRB $gfxLayerFlags
 
   loc_028752:
     LDA #$0002            ; Check layer 1 bit against source cache slot $067B
-    AND $066A
+    AND $gfxLayerFlags
     BEQ loc_028768
     LDX #$067B
     JSR $&CheckSourceCacheHit
     BCS loc_028768
     LDA #$0002
-    TRB $066A
+    TRB $gfxLayerFlags
 
   loc_028768:
-    LDA $066A             ; Check if any layers still need loading after cache checks
+    LDA $gfxLayerFlags    ; Check if any layers still need loading after cache checks
     BEQ loc_0287BA
     LDA [$3E]             ; Read compressed data pointer and decompress via QuintetLZ
     STA $78
@@ -721,7 +744,7 @@ SceneCmd_LoadDualTilemap {
     STA $40
 
   loc_02878A:
-    LSR $066A             ; Shift flag bits right to test layer 0 (bit 0 → carry)
+    LSR $gfxLayerFlags    ; Shift flag bits right to test layer 0 (bit 0 → carry)
     BCC loc_0287A2
     LDX #$2000            ; Layer 0: DMA tilemap to WRAM $2000, rebuild tilemap attributes
     STX $42
@@ -732,7 +755,7 @@ SceneCmd_LoadDualTilemap {
     JSR $&RebuildTilemapAttrs
 
   loc_0287A2:
-    LSR $066A             ; Shift to test layer 1 (bit 1 → carry)
+    LSR $gfxLayerFlags    ; Shift to test layer 1 (bit 1 → carry)
     BCC loc_0287BA
     LDX #$2800            ; Layer 1: DMA tilemap to WRAM $2800, rebuild tilemap attributes
     STX $42
@@ -751,17 +774,17 @@ SceneCmd_LoadDualTilemap {
 ; Complete scene graphics load — the most complex scene command. Reads flags $066A and source pointer; optionally clears layer bits on source cache hits ($067E layer 0, $0681 layer 1). Reads map width/height pairs into $00/$01 (X) and $02/$03 (Y). If no layers active after cache filtering, returns early. With active layers but zero geometry (compressed pointer $0000), HandleEmptyGeometry. With nonzero geometry: StoreMapAndDecompress per active layer; layer 1 also copies primary decompressed data from $A000 to $C000 and stores secondary map dimensions. If flags indicate no tilemap layers (AND #$7F == 0), DmaLowVramTileset loads tiles directly to low VRAM.
 
 SceneCmd_FullGraphics {
-    STZ $0664             ; Clear start offset accumulators
-    STZ $0665
+    STZ $gfxSrcStart      ; Source window start = 0 (low byte; 8-bit STZ)
+    STZ $0665             ; ...high byte
     JSR $&ReadScriptByte  ; Read combined flags byte ($066A)
-    STA $066A
+    STA $gfxLayerFlags
     LDX #$003E            ; Load script pointer for graphics data source
     JSR $&LoadScriptPointer
-    LDA $066A
+    LDA $gfxLayerFlags
     AND #$7F              ; Mask off high bit: check if any layer flags are set
     BEQ loc_02880D
     LDA #$01              ; Check layer 0 flag (bit 0)
-    AND $066A
+    AND $gfxLayerFlags
     BEQ loc_0287F0
     LDA $scrollModeFlags  ; Check scroll mode flag bit 3 — direct mode skips cache
     BIT #$08
@@ -770,29 +793,29 @@ SceneCmd_FullGraphics {
     JSR $&CheckSourceCacheHit
     BCS loc_0287F0
     LDA #$01
-    TRB $066A
+    TRB $gfxLayerFlags
 
   loc_0287F0:
     LDA #$02              ; Check layer 1 flag (bit 1)
-    AND $066A
+    AND $gfxLayerFlags
     BEQ loc_028804
     LDX #$0681            ; Layer 1 source cache check (slot $0681)
     JSR $&CheckSourceCacheHit
     BCS loc_028804
     LDA #$02
-    TRB $066A
+    TRB $gfxLayerFlags
 
   loc_028804:
-    LDA $066A             ; Recheck flags after cache culling — if none left, return
+    LDA $gfxLayerFlags    ; Recheck flags after cache culling — if none left, return
     AND #$7F
     BEQ loc_02883C
     BRA loc_028818
 
   loc_02880D:
-    LDA $066A             ; No layer flags: check high bit ($80) for DMA-only mode
+    LDA $gfxLayerFlags    ; No layer flags: check high bit ($80) for DMA-only mode
     BMI loc_028818
-    STZ $067F             ; Clear VRAM cache references $067F/$0680 for fresh load
-    STZ $0680
+    STZ $srcCacheFullGfxL0+1 ; Tileset-only load: invalidate FullGraphics layer-0 slot $067E (zero addr-hi $067F)
+    STZ $srcCacheFullGfxL0+2 ; ...and its bank byte $0680 (8-bit STZ)
 
   loc_028818:
     REP #$20              ; Read map width bytes ($00/$01 from stream) via paired byte reads
@@ -807,7 +830,7 @@ SceneCmd_FullGraphics {
     XBA 
     STA $02
     SEP #$20
-    LDA $066A             ; Check remaining layer flags to determine graphics path
+    LDA $gfxLayerFlags    ; Check remaining layer flags to determine graphics path
     AND #$7F
     BNE loc_02883A
     JMP $&DmaLowVramTileset ; No layers but data present → DmaLowVramTileset (direct VRAM load)
@@ -822,18 +845,18 @@ SceneCmd_FullGraphics {
     REP #$20              ; Main path: read compressed tilemap size
     LDA [$3E]
     STA $78
-    STA $0666
+    STA $gfxSrcEnd
     INC $3E
     INC $3E
     CMP #$0000            ; Zero size = empty geometry (handle without decompression)
     BEQ HandleEmptyGeometry
     SEP #$20
-    LDA $066A             ; Check layer 0 bit to decide which StoreMapAndDecompress call
+    LDA $gfxLayerFlags    ; Check layer 0 bit to decide which StoreMapAndDecompress call
     BIT #$01
     BEQ loc_02888E
     LDX #$0000            ; Layer 0: decompress to primary tilemap base
     JSR $&StoreMapAndDecompress
-    LDA $066A             ; Check layer 1 bit for secondary tilemap
+    LDA $gfxLayerFlags    ; Check layer 1 bit for secondary tilemap
     BIT #$02
     BEQ loc_028894
     LDX #$A000            ; Layer 1: set up source from decompressed layer 0 ($A000)
@@ -888,9 +911,9 @@ StoreMapAndDecompress {
     XBA 
     LDA $03
     JSL $@hardware_math.SignedMultiply
-    STZ $0666             ; Clear compressed size — no compressed data to transfer
+    STZ $gfxSrcEnd        ; Clear compressed size — no compressed data to transfer
     STA $0667
-    LDA $066A             ; Check layer 0 flag for DMA destination routing
+    LDA $gfxLayerFlags    ; Check layer 0 flag for DMA destination routing
     BIT #$01
     BEQ loc_028904
     LDX #$A000            ; Layer 0: DMA destination at $A000 for primary tilemap
@@ -899,7 +922,7 @@ StoreMapAndDecompress {
     STA $44
     LDX #$0000
     JSR $&WriteMapBounds  ; Write map bounds for layer 0 (X=0)
-    LDA $066A             ; Check layer 1 flag
+    LDA $gfxLayerFlags    ; Check layer 1 flag
     BIT #$02
     BEQ loc_028913
     LDX #$A000
@@ -1126,7 +1149,7 @@ RenderPaletteTiles {
 }
 
 ---------------------------------------------
-; Configure PPU display mode and engine scroll state from table_018000. Reads config index from script, loads a 10-byte entry, and applies: TM/TMW, TS/TSW, CGWSEL, CGADSUB, layer priority/size bitfield ($06F1, BG tilemap bases $06A2–$06A8 via ROR rotation), visible height ($06EC = $E0 or $100), layerPriorityFlag (bit 7 swaps BG1SC/BG2SC base assignment), BGMODE, scrollModeFlags (bit 3 clears $066E), sprite priority ($09ED bit 6), and invalidates tilemap cache slots when BG bases change.
+; Scene command $02: apply a display_preset_table record (10 bytes; index from script, record via pointer table). Record bytes: +0 TM and TMW, +1 TS and TSW, +2 CGWSEL, +3 CGADSUB, +4 layer flags, +5 layerPriorityFlag, +6 BGMODE, +7 scroll/HUD flags, +8/+9 unused (loaded and discarded). Byte +4: bits 4-5 -> $06F1; bit 0/1 -> tile-priority bit ($2000) OR'd into layer 0/1 tilemap entries via $06A2/$06A4; bit 6 -> visible height $06EC ($100 set, $E0 clear); bit 7 clear -> $06A5 bit 0 (+$100 tile-number offset for layer 1). Byte +5 low nibble gives BG1SC/BG2SC size bits (bit 7 swaps the $1000/$1800 bases). Byte +7: low 5 bits -> scrollModeFlags (bit 3 also invalidates the BG-tile source-cache slot $066C), bit 7 -> sets hudDisableFlag bit $40 (otherwise cleared). A changed $06A2/$06A4 invalidates tilemap source-cache slots $0678/$067B.
 
 SceneCmd_ConfigDisplay {
     JSR $&ReadScriptByte  ; Read configuration table index from script stream
@@ -1140,31 +1163,31 @@ SceneCmd_ConfigDisplay {
     SBC #$&display_preset_table
     TAX 
     SEP #$20
-    LDA $@display_preset_table, X ; Apply entry bytes 0-1: TM (main screen layers) + TMW (window mask)
+    LDA $@display_preset_table, X ; Record +0: main-screen layers, written to both TM and TMW
     STA $TM
     STA $TMW
-    LDA $@display_preset_table+1, X ; Apply bytes 2-3: TS (sub screen) + TSW (window mask)
+    LDA $@display_preset_table+1, X ; Record +1: sub-screen layers, written to both TS and TSW
     STA $TS
     STA $TSW
-    LDA $@display_preset_table+2, X ; Apply byte 4: CGWSEL (color math window selection)
+    LDA $@display_preset_table+2, X ; Record +2: CGWSEL (color math window selection)
     STA $CGWSEL
-    LDA $@display_preset_table+3, X ; Apply byte 5: CGADSUB (color add/subtract config)
+    LDA $@display_preset_table+3, X ; Record +3: CGADSUB (color add/subtract config)
     STA $CGADSUB
-    LDA $@display_preset_table+4, X ; Apply byte 6: extract bits 4-5 for $06F1 (layer priority tracking)
+    LDA $@display_preset_table+4, X ; Record +4 (layer flags): bits 4-5 kept in $06F1
     AND #$30
     STA $06F1
-    LDA $@display_preset_table+4, X ; Parse bitfield via ROR cascade: bit 0 → BG tilemap $06A2 (layer 0 size flag)
-    STZ $06A3
-    STZ $06A5
+    LDA $@display_preset_table+4, X ; Re-read +4 and ROR it bit by bit. Bit 0 set -> $06A2 = $2000 (tile-priority bit merged into layer 0 tilemap entries)
+    STZ $tilemapOrMaskL0+1
+    STZ $tilemapOrMaskL1+1
     LDY #$2000
     ROR 
     BCC loc_028AC1
-    STY $06A2
+    STY $tilemapOrMaskL0
 
   loc_028AC1:
-    ROR                   ; Bit 1 → BG tilemap $06A4 (layer 1 size flag)
+    ROR                   ; Bit 1 set -> $06A4 = $2000 (same priority bit for layer 1)
     BCC loc_028AC7
-    STY $06A4
+    STY $tilemapOrMaskL1
 
   loc_028AC7:
     ROR 
@@ -1172,35 +1195,35 @@ SceneCmd_ConfigDisplay {
     ROR 
     ROR 
     ROR 
-    LDY #$00E0            ; Bits 2-6 → screen height: $E0 (224 lines) or $100 (256 lines)
+    LDY #$00E0            ; Five RORs walk bits 2-6 through carry; only bit 6 matters: visible height $E0 (224 lines), or $100 if set
     BCC loc_028AD4
     LDY #$0100
 
   loc_028AD4:
-    STY $06EC
+    STY $visibleHeight
     ROR 
     BCS loc_028ADF
-    LDA #$01              ; Bit 7 → alternative layer flag ($06A5 bit 0)
-    TSB $06A5
+    LDA #$01              ; Bit 7 clear -> set $06A5 bit 0 (high byte of $06A4: +$100 merged into layer 1 tilemap entries)
+    TSB $tilemapOrMaskL1+1
 
   loc_028ADF:
     REP #$20
-    LDA $06A2             ; Compare new tilemap settings against previous — invalidate cache on change
-    CMP $06A6
+    LDA $tilemapOrMaskL0  ; If layer 0's merge word changed since last time ($06A6), its cached tilemap is stale: invalidate slot $0678
+    CMP $tilemapOrMaskPrevL0
     BEQ loc_028AEC
-    STZ $0679
+    STZ $srcCacheTilemapL0+1
 
   loc_028AEC:
-    STA $06A6
-    LDA $06A4
-    CMP $06A8
+    STA $tilemapOrMaskPrevL0
+    LDA $tilemapOrMaskL1
+    CMP $tilemapOrMaskPrevL1
     BEQ loc_028AFA
-    STZ $067C
+    STZ $srcCacheTilemapL1+1 ; Same for layer 1 ($06A4 vs $06A8): invalidate slot $067B
 
   loc_028AFA:
-    STA $06A8
+    STA $tilemapOrMaskPrevL1
     SEP #$20
-    LDA $@display_preset_table+5, X ; Apply byte 7: layerPriorityFlag (BG layer ordering and tilemap base config)
+    LDA $@display_preset_table+5, X ; Record +5: layerPriorityFlag (bits 0-1 BG1 size, bits 2-3 BG2 size, bit 7 swaps tilemap bases)
     STA $layerPriorityFlag
     BMI loc_028B22        ; Bit 7 of layerPriorityFlag: swap BG1SC/BG2SC base addresses
     LDA $layerPriorityFlag
@@ -1232,18 +1255,18 @@ SceneCmd_ConfigDisplay {
     STA $BG2SC
 
   loc_028B3A:
-    LDA $@display_preset_table+6, X ; Apply byte 8: BGMODE register (background mode 0-7 + tile size bits)
+    LDA $@display_preset_table+6, X ; Record +6: BGMODE (background mode + character size bits)
     STA $BGMODE
-    LDA $@display_preset_table+7, X ; Apply byte 9: scroll mode + sprite priority flags
+    LDA $@display_preset_table+7, X ; Record +7: low 5 bits = scrollModeFlags, bit 7 = HUD-disable request
     PHA 
     AND #$1F              ; Extract low 5 bits as scrollModeFlags
     STA $scrollModeFlags
-    BIT #$08              ; Bit 3 of scroll flags: clear $066E (camera following state)
+    BIT #$08              ; Scroll flag bit 3: zero $066E = bank byte of source-cache slot $066C, forcing the next BG-tile load to miss
     BEQ loc_028B52
-    STZ $066E
+    STZ $srcCacheBgA+2
 
   loc_028B52:
-    LDA #$40              ; Manage $09ED bit 6 based on byte 9 bit 7 (sprite DMA suppress control)
+    LDA #$40              ; Clear hudDisableFlag bit 6 (HUD off); re-set below if record +7 bit 7 is set
     TRB $hudDisableFlag
     PLA 
     BPL loc_028B5F
@@ -1251,8 +1274,8 @@ SceneCmd_ConfigDisplay {
     TSB $hudDisableFlag
 
   loc_028B5F:
-    LDA $@display_preset_table+8, X
-    LDA $@display_preset_table+9, X
+    LDA $@display_preset_table+8, X ; Record +8: reserved, loaded and discarded
+    LDA $@display_preset_table+9, X ; Record +9: reserved, loaded and discarded
     PLY 
     RTS 
 }
@@ -1336,7 +1359,7 @@ SceneCmd_LoadSpriteTiles {
     PHP 
     REP #$20
     LDA [$3A], Y          ; Read 16-bit tile data size directly from script ([$3A],Y)
-    STA $0666
+    STA $gfxSrcEnd
     SEP #$20              ; Switch to 8-bit for byte-level pointer parsing
     INY 
     INY 
@@ -1363,8 +1386,8 @@ SceneCmd_LoadSpriteTiles {
     RTS 
 
   loc_028C1B:
-    STZ $0664             ; Uncompressed path: DMA raw data to WRAM $7E:4000
-    STZ $0668
+    STZ $gfxSrcStart      ; Uncompressed path: DMA raw data to WRAM $7E:4000
+    STZ $gfxDestPage
     LDX #$4000
     STX $42
     LDA #$007E
@@ -1380,7 +1403,7 @@ SceneCmd_LoadSpriteTiles {
 SceneCmd_LoadCharTiles {
     PHP 
     JSR $&ReadScriptByte  ; Read VRAM target flags byte from script
-    STA $066A
+    STA $gfxLayerFlags
     LDX #$003E
     JSR $&LoadScriptPointer
     REP #$20              ; Read width and height from source data as paired bytes
@@ -1401,7 +1424,7 @@ SceneCmd_LoadCharTiles {
     ASL                   ; Convert to VRAM transfer size: XBA+ASL×3 → $0666
     ASL 
     ASL 
-    STA $0666
+    STA $gfxSrcEnd
     LDA [$3E]             ; Read compressed tile pointer from source
     INC $3E
     INC $3E
@@ -1423,7 +1446,7 @@ SceneCmd_LoadCharTiles {
     SEP #$20
 
   loc_028C87:
-    LDA $066A             ; Parse VRAM destination from flags byte
+    LDA $gfxLayerFlags    ; Parse VRAM destination from flags byte
     BPL loc_028C9A        ; Bit 7 set: absolute VRAM address = (flags & $7F) × 4
     AND #$7F
     XBA 
@@ -1446,9 +1469,12 @@ SceneCmd_LoadCharTiles {
     BRA loc_028CC4
 }
 
+---------------------------------------------
+; Continuation of SceneCmd_LoadCharTiles VRAM targeting (reached via PEA+RTS from bit-0 path). Tests flag bit 1 for VRAM $1800, else restores flags and returns without DMA; shared loc_028CC4 performs HDMA-style VRAM upload setup.
+
 code_028CB0 {
     REP #$20
-    LDA $066A
+    LDA $gfxLayerFlags
     BIT #$0002
     BEQ loc_028CC2
     LDA #$1800            ; Bit 1: VRAM $1800 (second character page)
@@ -1469,7 +1495,7 @@ code_028CB0 {
     STX $A1T0L
     LDA $40
     STA $A1B0
-    LDX $0666
+    LDX $gfxSrcEnd
     STX $DAS0L
     LDA #$01
     STA $MDMAEN
@@ -1492,13 +1518,13 @@ ReadScriptByte {
 }
 
 ---------------------------------------------
-; Locate the current scene's command block in script data. Starts at Y=0, reads scene ID byte at [$3A],Y, skips one byte, compares to sceneCurrent — match returns with Y at the first command opcode. On mismatch, scans forward: reads each opcode and advances Y by operand size using a fall-through INY cascade ($02/$14/$15 = +1, $13 = +2, $0E = +3, $06 = +4, $11 = +5, $04/$10 = +6, $03/$05 = +7). Repeats until the target scene is found.
+; Locate the current scene's command block in script data. Starts at Y=0, reads the low scene-ID byte at [$3A],Y, skips the high ID byte (u16 little-endian layout), and compares A to sceneCurrent. On match, returns with Y at the first command opcode. On mismatch, scans forward: reads each opcode and advances Y by operand size using a fall-through INY cascade ($02/$14/$15 = +1, $13 = +2, $0E = +3, $06 = +4, $11 = +5, $04/$10 = +6, $03/$05 = +7). Repeats until the target scene is found.
 
 FindCurrentScene {
     LDY #$0000            ; Start scanning at beginning of scene table (Y=0)
 
   loc_028CF5:
-    LDA [$3A], Y          ; Read 16-bit scene ID from script data
+    LDA [$3A], Y          ; Scene entry: read ID low byte (high byte skipped below)
     INY 
     INY 
     CMP $sceneCurrent     ; Compare against current scene — match returns immediately
@@ -1717,17 +1743,17 @@ DmaRomToWram {
 
   loc_028E01:
     REP #$20
-    LDA $0666             ; HiROM DMA: compute transfer size = end − start offset
+    LDA $gfxSrcEnd        ; HiROM DMA: compute transfer size = end − start offset
     SEC 
-    SBC $0664
+    SBC $gfxSrcStart
     STA $DAS0L
     LDA $3E
     CLC 
-    ADC $0664             ; Compute source address = pointer + start offset
+    ADC $gfxSrcStart      ; Compute source address = pointer + start offset
     STA $A1T0L
     LDA $42
     CLC 
-    ADC $0668             ; Compute WRAM destination = base + page offset
+    ADC $gfxDestPage      ; Compute WRAM destination = base + page offset
     STA $WMADDL
     SEP #$20
     LDA $44               ; Determine WMADDH: $7F bank → high WRAM page (bit 0 = 1)
@@ -1757,15 +1783,15 @@ DmaRomToWram {
     REP #$20
     LDA $3E
     CLC 
-    ADC $0664
+    ADC $gfxSrcStart
     TAX 
     LDA $42
     CLC 
-    ADC $0668
+    ADC $gfxDestPage
     TAY 
-    LDA $0666
+    LDA $gfxSrcEnd
     SEC 
-    SBC $0664
+    SBC $gfxSrcStart
     DEC 
     JSR $0402             ; Call software copy at $0402 for LoROM-to-WRAM transfer
     PLX 
@@ -1838,24 +1864,24 @@ GraphicsCacheStore {
 
 SaveVramToRingBuffer {
     PHY 
-    LDA $0668             ; Set VRAM read address from tile page ($0668 XBA for ×256 word addressing)
+    LDA $gfxDestPage      ; Set VRAM read address from tile page ($0668 XBA for ×256 word addressing)
     XBA 
     STA $VMADDL
-    LDA $0666             ; Check if tile data exceeds $2000 bytes (needs 2 ring buffer slots)
+    LDA $gfxSrcEnd        ; Check if tile data exceeds $2000 bytes (needs 2 ring buffer slots)
     CMP #$2001
     BMI loc_028ED4
     SEC 
     SBC #$2000            ; Large data: split first $2000, save remainder
-    STA $0666
+    STA $gfxSrcEnd
     LDA #$2000
     BRA loc_028ED7
 
   loc_028ED4:
-    STZ $0666             ; Small data: clear remainder tracking
+    STZ $gfxSrcEnd        ; Small data: clear remainder tracking
 
   loc_028ED7:
     JSR $&DmaVramToRam    ; DMA first block from VRAM to WRAM ring buffer
-    LDA $0666
+    LDA $gfxSrcEnd
     BEQ loc_028F16
     PHA 
     LDY $0094             ; Advance ring buffer index for second slot
@@ -1880,7 +1906,7 @@ SaveVramToRingBuffer {
     LDA #$FF
     STA $0086, Y
     REP #$20
-    LDA $0668
+    LDA $gfxDestPage
     XBA 
     CLC 
     ADC #$1000            ; Offset VRAM read address by $1000 for second block
@@ -1950,9 +1976,9 @@ RestoreCachedVram {
     CLC 
     ADC #$4000
     TAX 
-    LDA $0666             ; Check total restore size ($0666-$0664) against $2000 threshold
+    LDA $gfxSrcEnd        ; Check total restore size ($0666-$0664) against $2000 threshold
     SEC 
-    SBC $0664
+    SBC $gfxSrcStart
     CMP #$2001
     BCS loc_028F7B        ; Small data: single DmaWramToVram transfer
     TAY 
@@ -1968,10 +1994,10 @@ RestoreCachedVram {
     LDA #$2000
     TAY 
     JSR $&DmaWramToVram
-    LDA $0668
+    LDA $gfxDestPage
     CLC 
     ADC #$0010            ; Advance VRAM page offset by $10 for second transfer
-    STA $0668
+    STA $gfxDestPage
     LDA $03, S            ; Compute next ring buffer slot address for overflow data
     INC 
     ROR 
@@ -1993,7 +2019,7 @@ RestoreCachedVram {
 ; DMA from WRAM to VRAM. Sets VMADDL from $0668 (XBA), source address X, size Y. Mode $01, B-bus $18 (VMDATAL), source bank $7F. Returns in 16-bit mode (REP #$20).
 
 DmaWramToVram {
-    LDA $0668             ; Set VRAM destination from tile page ($0668 XBA for ×256 words)
+    LDA $gfxDestPage      ; Set VRAM destination from tile page ($0668 XBA for ×256 words)
     XBA 
     STA $VMADDL
     STX $A1T0L            ; Source address from X register, transfer size from Y
@@ -2012,7 +2038,7 @@ DmaWramToVram {
 }
 
 ---------------------------------------------
-; Rebuild SNES tilemap attribute bytes for a loaded tilemap layer. X selects layer (0 or 2). Loads tilemap pointer from $06AA+X and attribute table from $06AE+X. Processes entries in groups of 4: patches each tilemap word with layer base from $06A2+X, extracts palette high bit (AND #$02) from each high byte, packs four bits via ASL+ORA cascade into one attribute byte stored via [$42]. Repeats for the full tilemap extent in $0E outer loops.
+; Post-process a freshly loaded metatile definition table in WRAM bank $7E. X selects layer (0 or 2). Walks the tilemap words at $06AE+X (256 metatiles x 4 words; $0E starts at 0 so DEC wraps to 256 passes): for each word, lifts bit 9 out into a packed flag table and rewrites the word with bit 9 cleared (AND #$FDFF) and the layer merge word $06A2+X OR'd in (priority bit / tile offset from SceneCmd_ConfigDisplay). The four lifted bits of each group are combined via ASL/ORA/LSR into one byte stored through [$42] (pointer from $06AA+X, bank $7F), so the flag table holds one byte (low nibble = the four bit-9 flags, first tile in bit 0) per 2x2 metatile; ReloadMapLayer0/1 later index it by metatile number to fill the collision layer.
 
 RebuildTilemapAttrs {
     PHP 
@@ -2022,11 +2048,11 @@ RebuildTilemapAttrs {
     LDA #$7E              ; Set data bank to $7E for direct WRAM tilemap access
     PHA 
     PLB 
-    LDY $06AA, X          ; Load tilemap output pointer from layer-specific slot ($06AA+X)
+    LDY $06AA, X          ; [$42] = packed flag-table output (bank $7F), pointer from $06AA+X
     STY $42
     LDA #$7F
     STA $44
-    LDY $06AE, X          ; Load attribute source pointer from $06AE+X
+    LDY $06AE, X          ; Y = tilemap words to patch in place (bank $7E), from $06AE+X
     LDA #$00
     STA $0E
 
@@ -2035,11 +2061,11 @@ RebuildTilemapAttrs {
     STA $10
 
   loc_028FEA:
-    LDA $0001, Y          ; Read high byte of tilemap entry for attribute extraction
-    AND #$02              ; Isolate bit 1 (palette high bit) via AND #$02
+    LDA $0001, Y          ; Read high byte of tilemap entry (bits 8-15)
+    AND #$02              ; Isolate word bit 9 (top tile-number bit in SNES BG entry format)
     PHA                   ; Push attribute bit to stack (accumulate 4 bits)
     REP #$20
-    LDA $0000, Y          ; Clear bit 9 ($FDFF) and merge layer flags ($06A2+X) into tilemap entry
+    LDA $0000, Y          ; Clear bit 9 ($FDFF), OR in the layer merge word ($06A2+X), write back
     AND #$FDFF
     ORA $06A2, X
     STA $0000, Y
@@ -2070,7 +2096,7 @@ RebuildTilemapAttrs {
 }
 
 ---------------------------------------------
-; Reload map layer tilemaps after scene script end. Calls ReloadMapLayer0 for layer 0; if scrollModeFlags bit 0 is set, also calls ReloadMapLayer1 for the secondary layer.
+; Rebuild the collision layer after the scene script ends (skipped for scene $F7). Always runs ReloadMapLayer0; when scrollModeFlags bit 0 (dual-layer scene) is set, ReloadMapLayer1 overlays layer 1's flags.
 
 ReloadMapData {
     LDX #$0000            ; Reload layer 0 map data from external storage
@@ -2086,14 +2112,14 @@ ReloadMapData {
 }
 
 ---------------------------------------------
-; Reload layer 0 tilemap from runtime modification storage. Source pointer from $06AA (bank $7F); byte count = mapRowStrideL0 × $0697 via SignedMultiply. For each byte: reads indirection chain $7E0000,X → [$3E] → stores to $7F2000,X, re-applying runtime tilemap edits held in WRAM bank $7F.
+; Rebuild the collision layer ($7F:C000 = collisionLayer) from layer 0's metatile map. [$3E] = $7F:$06AA is the per-metatile flag table written by RebuildTilemapAttrs (page-aligned, one byte per metatile index). Cell count = mapRowStrideL0 x $0697 (SignedMultiply). For each cell: the metatile index byte at $7E:A000+i replaces the low byte of $3E, and the flag byte [$3E] is stored to $7F:2000+X = $7F:C000+i when X starts at mapTilemapBaseA ($A000).
 
 ReloadMapLayer0 {
-    LDY $06AA             ; Load source pointer from $06AA (layer 0 tilemap backup)
+    LDY $collisionFlagTableL0 ; $3E/$3F = flag-table page for layer 0 (bank $7F via $40)
     STY $3E
     LDA #$7F
     STA $40
-    LDA $mapRowStrideL0   ; Compute total byte count: mapRowStrideL0 × column count
+    LDA $mapRowStrideL0   ; Cell count = row stride x $0697 (SignedMultiply)
     XBA 
     LDA $0697
     JSL $@hardware_math.SignedMultiply
@@ -2103,10 +2129,10 @@ ReloadMapLayer0 {
     LDX $mapTilemapBaseA  ; Load tilemap base address as copy start index
 
   loc_02904F:
-    LDA $7E0000, X        ; Copy loop: read source byte, use as indirect pointer, store to $7F bank
+    LDA $7E0000, X        ; Metatile index at this map cell
     STA $3E
-    LDA [$3E]             ; Indirect read through [$3E] — re-applies runtime tilemap modifications
-    STA $7F2000, X
+    LDA [$3E]             ; Look up that metatile's flag byte in the table
+    STA $7F2000, X        ; Store to collision layer cell ($7F:2000 + $A000+i = $7F:C000+i)
     INX 
     DEY 
     BNE loc_02904F
@@ -2116,28 +2142,28 @@ ReloadMapLayer0 {
 }
 
 ---------------------------------------------
-; Reload layer 1 overlay tilemap — same structure as ReloadMapLayer0 but uses $06AC, mapRowStrideL1/$0699, map base $0080, and writes to animScratch ($7F:0000+X). Skips store when the resolved value is $0000 to preserve sparse overlay entries.
+; Overlay layer 1's collision flags onto the same collision layer. Same structure as ReloadMapLayer0 but with the flag table at $06AC, mapRowStrideL1 x $0699 cells, start index from word $0080 (= $C000 via wram-init, equal to mapTilemapBaseB) and stores through animScratch ($7F:0000+X), which for X >= $C000 is again $7F:C000+i. Zero flag bytes are skipped so layer 0's collision value survives where layer 1 has nothing.
 
 ReloadMapLayer1 {
-    LDY $06AC             ; Load source pointer from $06AC (layer 1 tilemap backup)
+    LDY $collisionFlagTableL1 ; $3E/$3F = flag-table page for layer 1 (bank $7F via $40)
     STY $3E
     LDA #$7F
     STA $40
-    LDA $mapRowStrideL1   ; Compute byte count: mapRowStrideL1 × column count
+    LDA $mapRowStrideL1   ; Cell count = row stride x $0699 (SignedMultiply)
     XBA 
     LDA $0699
     JSL $@hardware_math.SignedMultiply
     XBA 
     TAY 
     BEQ loc_02908D
-    LDX $0080             ; Load map base address from $0080
+    LDX $0080             ; Start index = word at $0080 (collisionLayerBase low word; wram-init sets it to $C000, equal to mapTilemapBaseB, which layer 0's twin reads as mapTilemapBaseA)
 
   loc_02907B:
     LDA $7E0000, X
     STA $3E
-    LDA [$3E]             ; Read through indirect pointer — check for zero
-    BEQ loc_029089        ; Zero check: skip store for null entries (preserve existing sparse overlay data)
-    STA $animScratch, X   ; Store non-null entry to animScratch (overlay animation layer)
+    LDA [$3E]             ; Flag byte for this layer-1 metatile
+    BEQ loc_029089        ; Zero: leave layer 0's collision value in place
+    STA $animScratch, X   ; Overlay onto collision layer ($7F:0000 + $C000+i = $7F:C000+i; label name animScratch is just the $7F0000 base)
 
   loc_029089:
     INX 

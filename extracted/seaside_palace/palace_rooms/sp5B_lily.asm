@@ -7,6 +7,7 @@
 ---------------------------------------------
 
 !joypadMaskStd                  065A
+!srcCacheMusic                  0687
 
 ---------------------------------------------
 
@@ -55,7 +56,7 @@ code_068696 {
     COP [PrintDialogString] ( &dialogstring_06885B )
     COP [SetFlagByte] ( #6F )
     LDA #$0000
-    STA $0688
+    STA $srcCacheMusic+1
     LDA #$CFFC
     TRB $joypadMaskStd
 }

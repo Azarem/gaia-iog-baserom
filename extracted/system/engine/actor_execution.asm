@@ -6,15 +6,15 @@
 ; 
 ; Five actor processing modes selected by game state flags:
 ; 
-; 1. RunActors_Normal (248565): Standard gameplay. Checks playerFlags for terrain shake ($0010) → PauseFiltered, or displayModeFlags ($0080) → DisplayFiltered. Processes each actor in the linked list ($56 head → $06 next). For each actor: sets DP/X to slot, checks COP script timer ($08), manages iframe countdown via $7F0028,X, dispatches to actor's COP script via the RTL trick ($00:$02), then applies post-tick movement.
+; 1. RunActors_Normal (248565): Standard gameplay. Strips the attack button ($0080) from joypadCurrent while playerFlags bit 3 (combat lock, $0008) is set, then checks playerFlags for terrain shake ($0010) → PauseFiltered, or displayModeFlags ($0080) → DisplayFiltered. Processes each actor in the linked list ($56 head → $06 next). For each actor: sets DP/X to slot, runs either the script-driven path ($10 bit 13 set) or the iframe-managed path (bit 13 clear), dispatches to the actor's script via the RTL trick ($00:$02), then applies post-tick movement. Callers: main loop (system_core), scene_lifecycle (two settle ticks) and inventory_overlay (two layout ticks).
 ; 
 ; 2. RunActors_DisplayFiltered (248739): Active when displayModeFlags bit 7 set. Only processes actors with bit 12 ($1000) set in primary ($10) or secondary ($12) flags.
 ; 
 ; 3. RunActors_PauseFiltered (248893): Active when playerFlags bit 4 ($0010, terrain shake) set. Only processes actors with $12 bits 12|2 ($1004) or $10 bits 12|10 ($1400). Has a special iframe-only tail for non-immune actors.
 ; 
-; 4. RunActors_CutsceneOnly (249087): Cutscene playback. Only processes actors with $10 bit 11 ($0800). Clears bit 2 each frame.
+; 4. RunActors_CutsceneOnly (249087): Cutscene playback. Only processes actors with $10 bit 11 ($0800). Clears bit 2 each frame. Called only from system_core's re-entrant frame helper (used by COP handlers that must keep the screen alive).
 ; 
-; 5. RunActors_OverlayOnly (249198): Overlay rendering. Checks display filter first. Only processes actors with $12 bit 12 ($1000). Always uses simple ApplyMovement (no collision).
+; 5. RunActors_OverlayOnly (249198): Overlay rendering. Checks display filter first. Only processes actors with $12 bit 12 ($1000). Always uses simple ApplyMovement (no collision). Called only from system_core's music-fade tick (NMI path while musicTransitionState is positive).
 ; 
 ; === COP SCRIPT DISPATCH ===
 ; 
@@ -22,27 +22,27 @@
 ; 
 ; === IFRAME COUNTER ($7F0028,X) ===
 ; 
-; Positive values count down (invincibility frames). Negative values count up toward zero (recovery/stagger). When zero, bit 7 ($0080) of $10 is cleared. The player actor (CPX $playerActor) is exempt from the next-actor skip — always gets full processing.
+; Signed hit counter, handled only when bit 7 ($0080) of $10 is set and (in RunActors_Normal/DisplayFiltered/PauseFiltered) bit 13 ($2000) is clear. Positive = hit-stun (set by ApplyPlayerHitstun to $3C and by combat_collision to $0011): each tick DECs it and every actor except the player skips the rest of its tick (no script, no wait-counter, no movement), so hit victims freeze; the player is exempt here (its own movement code applies the freeze). Negative = recovery/invincibility (written as $FFC4, $FFE2, $FFEF, $FFF4 by the hit code): each tick INCs it toward zero while the actor keeps running, and combat_collision skips victims whose counter is negative. When the counter is zero the tick clears $0080. docs/wram-memory-map.md describes the same sign convention ("positive = stunned, absolute value = frames remaining").
 ; 
 ; === ACTOR/THINKER POOL (InitActorPool, 249308) ===
 ; 
-; Initializes both pools. Actor pool: base $0E00, 84 slots of $30 bytes, free list at $4E/$50. Data regions: $1000–$1FBF (primary), $7F1000 (callbacks), $7F2000 (extended). Thinker pool: base $7E3000, 16 slots of $10 bytes, free list at $52/$54. Data at $0F00, $7F0E00, $7F3000. Scene $FF uses simplified clear (skips $7F2000/$7F3000).
+; Initializes both pools. Actor pool: 84 slots of $30 bytes at $1000–$1FBF (the slot address is the actor's direct page); free list at $0E00 addressed by the long pointer $4E/$50 ($50 = bank 0, not a count). Per-slot extended data is indexed by the slot address: $7F:0000+slot (= $7F1000–$7F1FBF; scratch, spriteset, stats, enemyNum, HP, iframes) and $7F:1000+slot (= $7F2000–$7F2FBF; onHit/onDeath/onCollide callbacks and scratch). Thinker pool: 16 slots of $10 bytes at $0F00–$0FFF; free list at $7E:3000 (long pointer $52/$54). Scene $FF (the inventory screen, see inventory_overlay) uses a simplified clear that skips $7F2000 and $7F3000.
 ; 
 ; ThinkerPoolAlloc reads the next free thinker slot via indirect long [$52], returns it in Y with carry clear, or returns carry set if the pool is exhausted. Called by SpawnSceneThinkers (thinker_execution) and COP handlers (SpawnThinker/SpawnThinkerParam).
 ; 
 ; === SCENE SPAWNING (SpawnSceneActors, 249505) ===
 ; 
-; Reads scene_actors table to spawn actors. Each actor: allocate slot via ActorPoolAllocator, link into doubly-linked list ($04/$06), call InitActorFromSceneData to parse the binary record.
+; Reads the scene_actors table (indexed by sceneTableIndex = scene × 2) to spawn actors. Each actor: allocate slot via ActorPoolAllocator, link into doubly-linked list ($04/$06), call InitActorFromSceneData to parse the binary record.
 ; 
 ; === DEFEATED ENEMY HANDLING (AdvanceSceneDataAndFree, 249588) ===
 ; 
-; Called when CheckEnemyDefeatedFlag determines an actor was already killed. Advances the scene data pointer past the remaining record bytes, then either continues the spawn loop (if more actors follow) or returns the allocated slot to the free list, unlinks it from the actor chain, and decrements activeActorCount.
+; Called when CheckEnemyDefeatedFlag determines an actor was already killed (flag set in wramFlags). Advances the scene data pointer past the 9-byte record, then either re-uses the same slot for the next record (if more actors follow: branches back into InitActorFromSceneData) or, when the list ends, returns the allocated slot to the free list, unlinks it from the actor chain, and decrements activeActorCount.
 ; 
 ; === ACTOR RECORD FORMAT (InitActorFromSceneData, 249627) ===
 ; 
-; Variable-length record: byte 0-1 = X/Y tile (×16→pixels), byte 2 = type flags (bit 0 = addressing mode), bytes 3-4 = code pointer, byte 5 = bank, byte 6 = stats index, byte 7 = enemy number, byte 8 = death action. Player actors (bit 15 of $10) get special init: load character form body table, set spriteset, compute camera centering.
+; Variable-length record: 7 bytes without stats, 9 bytes when byte 6 is nonzero. Byte 0-1 = X/Y tile (×16→pixels), byte 2 = type flags (bit 0 = addressing mode), bytes 3-4 = code pointer, byte 5 = bank, byte 6 = stats index (0 = no stats, record ends here), byte 7 = enemy number, byte 8 = event-block index (stored as deathActionIdx; the name is historical — see CheckEnemyDefeatedFlag and StageBgChangeFromDeathIdx). Player actors (bit 15 of $10) get special init: load character form body table, set spriteset, compute camera centering.
 ; 
-; Enemies with nonzero enemyNum are checked against WRAM defeat flags (CheckEnemyDefeatedFlag). Already-defeated actors are freed via AdvanceSceneDataAndFree and their event block tiles are swapped.
+; Enemies with nonzero enemyNum are checked against the scene-local WRAM flags (CheckEnemyDefeatedFlag). Already-defeated actors are freed via AdvanceSceneDataAndFree and their event block tiles are swapped.
 ---------------------------------------------
 
 ?BANK 03
@@ -59,6 +59,7 @@
 !actorListFirst                 0056
 !actorListLast                  0058
 !sceneCurrent                   0644
+!sceneTableIndex                0646
 !warpDestX                      064C
 !warpDestY                      064E
 !warpFacing                     0650
@@ -77,6 +78,8 @@
 !playerActorDp                  09F4
 !wramFlags                      0A80
 !characterForm                  0AD4
+!enemiesRemaining               0AEC
+!enemiesRemainingBcd            0AEE
 !activeActorCount               0DBC
 !thinkerPoolAddrs               7E3000
 !spritesetPtr                   7F0006
@@ -93,18 +96,17 @@
 ; Standard actor execution loop — primary gameplay processing mode.
 ; 
 ; Entry point for actor updates during normal gameplay. Saves processor state (PHP/PHD), switches to 16-bit mode, then checks game state flags to determine processing mode:
-; - playerFlags bit 3 ($0008): Input lock — clears B button ($0080) from joypadCurrent
+; - playerFlags bit 3 ($0008): Combat lock — clears the attack button ($0080) from joypadCurrent
 ; - playerFlags bit 4 ($0010): Terrain shake (Freedan vine-drop landing) — redirects to RunActors_PauseFiltered
 ; - displayModeFlags bit 7 ($0080): Display filter — redirects to RunActors_DisplayFiltered
 ; 
 ; If no filter is active, processes the actor linked list starting from $56. For each actor:
 ; 1. Sets DP and X to the actor's slot address (TCD/TAX)
-; 2. Checks COP script mode (bit 13 $2000 in $10) — if active, dispatches to the actor's COP script entry point
-; 3. Manages iframe counter ($7F0028,X): positive counts down (invincibility), negative counts up (recovery), zero clears the $0080 flag
-; 4. Non-player actors skip COP dispatch during active iframes (player always gets full processing)
-; 5. Dispatches to the actor's script via the RTL indirect call trick
-; 6. Post-tick: clears bit 2 of $10, then applies movement (collision-aware if grounded $0008, simple otherwise)
-; 7. Follows $06 link to next actor
+; 2. If bit 13 ($2000) of $10 is set: decrements the wait counter ($08) and, once it is negative, dispatches the script and continues at RunActors_CopScriptPostTick (no iframe handling on this path)
+; 3. Otherwise, if bit 7 ($0080) is set, manages the iframe counter ($7F0028,X): positive = hit-stun (DEC; non-player actors skip the rest of their tick), negative = recovery (INC toward zero, tick continues), zero clears $0080
+; 4. Decrements the wait counter ($08) and, once it is negative, dispatches the script via the RTL indirect call trick
+; 5. Post-tick: clears bit 2 of $10, then applies movement (collision-aware if bit 3 ($0008) of $10 is set, simple otherwise)
+; 6. Follows $06 link to next actor
 ; 
 ; The COP dispatch pattern (PHK/PEA/SEP/LDA/PHA/REP/LDA/DEC/PHA/RTL) constructs a 3-byte target address and 3-byte return address on the stack. RTL pops and jumps to the target; when the actor script returns via RTL, execution resumes at the PostTick handler.
 
@@ -113,7 +115,7 @@ RunActors_Normal {
     PHD 
     REP #$20
     LDA $playerFlags
-    BIT #$0008            ; Bit 3 ($0008) = input lock; suppress B button ($0080) when set
+    BIT #$0008            ; Bit 3 ($0008) = combat lock; strip the attack button ($0080) from joypadCurrent while set
     BEQ loc_03CB07
     LDA #$0080
     TRB $joypadCurrent
@@ -137,7 +139,7 @@ RunActors_Normal {
     TCD 
     TAX 
     LDA $10
-    BIT #$2000            ; Bit 13 ($2000) = COP script mode active
+    BIT #$2000            ; Bit 13 ($2000) set = script-driven path: own wait counter, no iframe handling
     BEQ loc_03CB3D
     DEC $08
     BPL RunActors_CopScriptPostTick
@@ -154,19 +156,19 @@ RunActors_Normal {
     RTL 
 
   loc_03CB3D:
-    BIT #$0080            ; Iframe state ($0080): positive → count down, negative → count up toward zero
+    BIT #$0080            ; Hit flag ($0080) set: counter > 0 = hit-stun (count down), < 0 = recovery (count up toward zero)
     BEQ loc_03CB62
     LDA $iframeCounter, X
     BEQ loc_03CB5D
     BMI loc_03CB56
     DEC 
     STA $iframeCounter, X
-    CPX $playerActor      ; Player actor always gets full COP dispatch despite iframes
+    CPX $playerActor      ; Player is exempt from the stun skip below; every other stunned actor skips its whole tick
     BEQ loc_03CB62
     BRA loc_03CB8C
 
   loc_03CB56:
-    INC                   ; Recovery: INC negative counter toward zero
+    INC                   ; Recovery: INC negative counter toward zero (actor keeps running; zero falls through to clear $0080)
     STA $iframeCounter, X
     BNE loc_03CB62
 
@@ -175,7 +177,7 @@ RunActors_Normal {
     TRB $10
 
   loc_03CB62:
-    DEC $08
+    DEC $08               ; Wait counter: still ≥ 0 after DEC = keep waiting, skip the script this frame
     BPL RunActors_PostTick
     STZ $08
     PHK 
@@ -193,15 +195,15 @@ RunActors_Normal {
 ---------------------------------------------
 ; Post-tick handler shared by Normal and CopScriptPostTick paths.
 ; 
-; Clears bit 2 ($0004) of $10 — the per-frame collision contact flag is reset before movement. Then checks bit 3 ($0008 = grounded): if set, calls ApplyMovementWithCollision for full tile collision-aware movement; otherwise calls ApplyMovement for simple delta application.
+; Clears bit 2 ($0004) of $10 — the per-frame solid-contact flag (set by tile_collision_physics BlockH/BlockV) is reset before movement. Then checks bit 3 ($0008 of $10): if set, calls ApplyMovementWithCollision for full tile collision-aware movement; otherwise calls ApplyMovement for simple delta application. (The flag's name is unverified: docs/wram-memory-map.md calls it "player-hit"; here it only selects collision-aware movement.)
 ; 
 ; After movement, reads $06 (next actor link). If nonzero, loops back to process the next actor. If zero (end of list), restores DP/flags via PLD/PLP/RTL.
 
 RunActors_PostTick {
     LDA $10
-    AND #$FFFB            ; Clear bit 2 ($0004) — per-frame collision contact reset
+    AND #$FFFB            ; Clear bit 2 ($0004) — per-frame solid-contact reset
     STA $10
-    BIT #$0008            ; Bit 3 ($0008) = grounded: collision-aware vs simple movement
+    BIT #$0008            ; Bit 3 ($0008) set = collision-aware movement, clear = plain ApplyMovement
     BEQ loc_03CB89
     JSR $&tile_collision_physics.ApplyMovementWithCollision
     BRA loc_03CB8C
@@ -222,14 +224,14 @@ RunActors_PostTick {
 ---------------------------------------------
 ; Post-tick handler for actors that just returned from COP script execution.
 ; 
-; Checks if the actor is still in COP mode (bit 13 $2000). If cleared (script completed this frame), falls through to normal PostTick. If still in COP mode, checks secondary flags ($12) bit 3 ($0008) — this flag requests collision movement even during COP execution. If set, performs PostTick; if clear, skips directly to the next actor.
+; Checks whether bit 13 ($2000) of $10 is still set (the script may have cleared it). If cleared, falls into the normal PostTick. If still set, checks secondary flags ($12) bit 3 ($0008) — a script-driven actor only gets movement when that bit requests it. If set, performs PostTick; if clear, skips directly to the next actor.
 
 RunActors_CopScriptPostTick {
     LDA $10
     BIT #$2000
     BEQ RunActors_PostTick
     LDA $12
-    BIT #$0008            ; Bit 3 of $12: COP movement request — collision movement during COP mode
+    BIT #$0008            ; Bit 3 of $12: movement request for a script-driven actor
     BEQ loc_03CB8C
     BRA RunActors_PostTick
 }
@@ -353,7 +355,9 @@ RunActors_DisplayFiltered_CopPostTick {
 ; 
 ; Actors failing both checks go to an iframe-only handler (loc_03CCCD) that still counts down iframe timers but skips COP dispatch entirely. This ensures invincibility timers don't freeze during pause.
 ; 
-; Pause-immune actors get full COP dispatch and collision movement, allowing cutscene actors, UI elements, and certain effects to continue running during pause.
+; Pause-immune actors get full script dispatch and collision movement, allowing cutscene actors, UI elements, and certain effects to continue running during pause.
+; 
+; Quirk: when an actor qualifies through the $12 test, A still holds $12 (it is not reloaded as DisplayFiltered does), so the following bit-13 and iframe ($0080) tests read the $12 word instead of $10 on that path. Both paths use the same code afterwards.
 
 RunActors_PauseFiltered {
     LDA $56
@@ -365,7 +369,7 @@ RunActors_PauseFiltered {
     TAX 
     LDA $12
     BIT #$1004            ; $1004 in $12: secondary pause-immunity (bits 12|2)
-    BNE loc_03CC54
+    BNE loc_03CC54        ; Qualified via $12: A still = $12 at loc_03CC54 (no reload)
     LDA $10
     BIT #$1400            ; $1400 in $10: primary pause-immunity (bits 12|10)
     BEQ loc_03CCCD        ; No immunity → iframe-only processing (no COP dispatch)
@@ -599,7 +603,7 @@ RunActors_OverlayOnly {
     BIT #$2000
     BEQ loc_03CDAC
     DEC $08
-    BPL loc_03CDC5
+    BPL loc_03CDC5        ; Timer still running: skip to next actor (unlike other modes, no CopPostTick/movement)
     STZ $08
     PHK 
     PEA $&RunActors_OverlayOnly_CopPostTick-1
@@ -656,23 +660,23 @@ RunActors_OverlayOnly_CopPostTick {
 ; 
 ; Actor pool:
 ; - Free list stored at $0E00 as word-sized entries
-; - Pool head pointer at $4E, count at $50
+; - Long pointer $4E (word = $0E00) / $50 (bank byte = 0) addresses the next free entry; ActorPoolAllocator reads it with ($4E), AdvanceSceneDataAndFree writes back through [$4E]
 ; - 84 actor slots, each $30 bytes, starting at $1000 ($1000, $1030, $1060, ... $1F90)
 ; - Free list built by storing ascending slot addresses, terminated by $FFFF sentinel
-; - Zeroes primary actor data ($1000–$1FBF), callback table ($7F1000), and extended data ($7F2000)
+; - Zeroes the actor direct-page area ($1000–$1FBF), the extended fields at $7F1000–$7F1FBF (statsPtr, enemyNum, HP, iframeCounter... addressed as $7F0000+slot) and the callback block at $7F2000–$7F2FBF (onHitCallback... addressed as $7F1000+slot)
 ; 
 ; Thinker pool:
-; - Free list at $7E3000 (long pointer $52/$54)
+; - Free list at $7E3000 (long pointer $52/$54, bank $7E)
 ; - 16 thinker slots, each $10 bytes, starting at $0F00
 ; - Free list built similarly with $FFFF sentinel
-; - Zeroes thinker data at $0F00, $7F0E00, and $7F3000
+; - Zeroes $0F00–$0FFF, $7F0E00–$7F0EFF and $7F3000–$7F30FF. The $7F0E00 range is one page below the $7F0F00 page that inventory_overlay saves as the thinkers' extended data; the role of $7F3000 is not traced (see audit OQ-15)
 ; 
-; Scene $FF (title screen) uses a simplified clear path that skips the $7F2000 actor range and the $7F3000 thinker range, preserving state needed for the title sequence.
+; Scene $FF (the inventory screen, loaded over the running game by inventory_overlay) uses a simplified clear path that skips the $7F2000 callback block and the $7F3000 range — inventory_overlay does not back these up (inferred reason: the paused field actors' callbacks must survive the overlay).
 
 InitActorPool {
     PHP 
     REP #$20
-    LDX #$0E00            ; Actor free list base at $0E00; head pointer → $4E, count → $50
+    LDX #$0E00            ; Free list at $0E00: word → $4E, bank (0) → $50 (long pointer, not a count)
     STX $4E
     LDA #$0000
     STA $50
@@ -690,13 +694,13 @@ InitActorPool {
     LDA #$FFFF            ; $FFFF sentinel terminates free list
     STA $0E00, X
     LDA $sceneCurrent
-    CMP #$00FF            ; Scene $FF: simplified clear — skip $7F2000 extended region
+    CMP #$00FF            ; Scene $FF (inventory screen): simplified clear — skip the $7F2000 callback block
     BEQ loc_03CE23
     LDX #$0000
     TXA 
 
   loc_03CE0F:
-    STA $1000, X          ; Zero three actor regions: $1000 primary, $7F1000 callbacks, $7F2000 extended
+    STA $1000, X          ; Zero three actor regions (X = 0..$0FBF): $1000 DP pages, $7F1000 extended fields, $7F2000 callbacks
     STA $onHitCallback, X
     STA $7F2000, X
     INX 
@@ -742,7 +746,7 @@ InitActorPool {
     TXA 
 
   loc_03CE67:
-    STA $0F00, X          ; Zero three thinker regions: $0F00, $7F0E00, $7F3000
+    STA $0F00, X          ; Zero three thinker regions: $0F00 slots, $7F0E00 (see note: extended data page is $7F0F00), $7F3000
     STA $7F0E00, X
     STA $7F3000, X
     INX 
@@ -753,7 +757,7 @@ InitActorPool {
     RTL 
 
   loc_03CE7B:
-    LDX #$0000            ; Scene $FF: skip $7F3000 thinker region
+    LDX #$0000            ; Scene $FF (inventory screen): skip the $7F3000 range
     TXA 
 
   loc_03CE7F:
@@ -793,15 +797,15 @@ ThinkerPoolAlloc {
 ---------------------------------------------
 ; Spawn all actors defined in the current scene's actor definition table.
 ; 
-; Clears the actor linked list head ($56) and tail ($58). Reads the scene_actors table using the current scene index ($0646) to find the scene's actor definition data.
+; Clears the actor linked list head ($56) and tail ($58). Reads the scene_actors table using sceneTableIndex ($0646 = sceneCurrent × 2) to find the scene's actor definition data.
 ; 
 ; For each actor entry in the table (terminated by $FF byte):
-; 1. Allocates a slot via actor_pool.ActorPoolAllocator
+; 1. Allocates a slot via actor_pool.ActorPoolAllocator (the pool-full result Y = $1FC0 is not checked)
 ; 2. Links the new slot into a doubly-linked list ($04=prev, $06=next)
 ; 3. Calls InitActorFromSceneData to parse the binary actor record
-; 4. If InitActorFromSceneData returns carry set (enemy was already defeated), the loop continues but the slot was freed internally
+; 4. Carry from InitActorFromSceneData: clear = actor created, loop continues; set = the LAST record was an already-defeated enemy (AdvanceSceneDataAndFree returned its slot and unlinked it), so the loop ends. A defeated enemy followed by more records never returns here: its slot is re-used for the next record inside AdvanceSceneDataAndFree
 ; 
-; After all actors are spawned, sets playerActorDp ($09F4) to $1000 (first actor slot).
+; The last live actor becomes the list tail ($58). After all actors are spawned, sets playerActorDp ($09F4) to $1000 (first actor slot; the player is expected to be the first record — inferred).
 
 SpawnSceneActors {
     PHP 
@@ -810,7 +814,7 @@ SpawnSceneActors {
     STZ $actorListLast
     LDA #$*scene_actors   ; Build long pointer [$3E]: scene_actors bank → $40
     STA $40
-    LDX $0646
+    LDX $sceneTableIndex
     LDA $@scene_actors, X ; Scene-indexed actor list pointer → $3E
     STA $3E
     BEQ loc_03CEEC        ; Null pointer = no actors for this scene
@@ -836,7 +840,7 @@ SpawnSceneActors {
   loc_03CEE3:
     TYX 
     JSR $&InitActorFromSceneData ; Parse binary record into allocated slot
-    BCC loc_03CECD        ; Carry clear = success; carry set = enemy defeated, slot freed
+    BCC loc_03CECD        ; Carry clear = actor created, next record; carry set = last record was a defeated enemy (slot freed, list ends)
 
   loc_03CEE9:
     STX $actorListLast
@@ -887,20 +891,20 @@ AdvanceSceneDataAndFree {
 ; 
 ; Reads sequentially from [$3E] with Y as the stream offset:
 ; - Bytes 0-1: X/Y tile coordinates → ×16 (ASL ×4) → pixel positions at $0014,X and $0016,X
-; - Byte 2: Type/flags byte. Bit 0 selects sprite addressing: 0=high-byte swap mode (mask $F6, XBA, ORA $06F0), 1=direct mode (mask $FF, LSR). Stored to $000E,X
+; - Byte 2: Type/flags byte. Bit 0 selects how $000E,X (oamXorFlags) is built: 0 = ((byte2 & $F6) << 8) | word at $06F0 (default actor properties; never written by extracted code), 1 = direct mode (byte2 >> 1)
 ; - Bytes 3-4: Code pointer → $42 (work area)
 ; - Byte 5: Bank byte → $44
 ; - Byte 6: Stats table index → $7F0020,X. Zero = no stats (skip enemy init)
 ; - Byte 7: Enemy number → $7F0022,X. Used for defeat flag check
-; - Byte 8: Death action index → $7F0024,X
+; - Byte 8: Event-block index → $7F0024,X (deathActionIdx; swapped at spawn if the enemy is already defeated, and used by scripts as the event-block/flag index of a field reveal)
 ; 
 ; If enemy number is nonzero, calls CheckEnemyDefeatedFlag. If already defeated (carry set), jumps to AdvanceSceneDataAndFree to skip this actor and free the pool slot.
 ; 
-; For live enemies, sets bit 8 ($0100) in extended flags ($7F002A,X) and increments both binary ($0AEC) and BCD ($0AEE via SED) enemy counters.
+; For actors with a stats index, sets bit 8 ($0100) in extended flags ($7F002A,X), reads byte 8, and increments the remaining-enemy counters enemiesRemaining ($0AEC, binary) and enemiesRemainingBcd ($0AEE, BCD via SED); the defeat handlers decrement them again.
 ; 
-; Then parses the code header at [$42]: byte 0 = animation state ($0028,X), bytes 1-2 = initial flags (ORed with $4000 for visibility → $0010,X), computed entry point → $0000,X/$0002,X.
+; Then parses the code header at [$42]: byte 0 = animation state ($0028,X), bytes 1-2 = initial flags (ORed with $4000 → $0010,X; bit 14 is the off-screen flag that the depth sort sets/clears, so a new actor starts flagged off-screen — reason inferred), computed entry point → $0000,X/$0002,X.
 ; 
-; Player path (bit 15 of $10 set): Clears playerFlags $0088 (sprite priority | combat lock), then re-derives them from the spawn record's type byte: bit $02 sets the combat lock ($0008) and bit $04 sets the sprite-priority flag ($0080) — both bits are stripped from $0E afterwards. Non-combat scenes (towns, cutscene rooms) use type $02/$32; combat scenes use $00/$30. Parses direction sprite for initial facing, loads character form body table for spriteset, computes initial camera position with centering offsets (X-8, Y-$80 for camera, Y-$10 for playerYPos), and initializes scroll registers.
+; Player path (bit 15 of $10 set): Clears playerFlags $0088 (sprite priority | combat lock), then re-derives them from the spawn record's type byte: bit $02 sets the combat lock ($0008) and bit $04 sets the sprite-priority flag ($0080) — both bits are stripped from $0E afterwards. Non-combat scenes (towns, cutscene rooms) use type $02/$32; combat scenes use $00/$30. Parses direction sprite for initial facing, loads character form body table for spriteset, computes initial camera position (actor X +8 centering; camera = position − $80 clamped at 0; playerYPos = Y − $10), and initializes scroll registers.
 ; 
 ; Normal path: Sets default spriteset ($4000 bank $7E), calls UpdateActorAnimation, adds 8px X offset, then resolves stats table if present (index × 4 + base → statsPtr, first byte → currentHp).
 
@@ -926,7 +930,7 @@ InitActorFromSceneData {
     INY 
     BIT #$0001
     BNE loc_03CF4C
-    AND #$00F6            ; Mode 0: mask $F6, XBA swap, OR base sprite $06F0
+    AND #$00F6            ; Mode 0: $0E = (byte2 & $F6) << 8 | word $06F0 (default actor properties)
     XBA 
     ORA $06F0
     STA $000E, X
@@ -964,16 +968,16 @@ InitActorFromSceneData {
     LDA $extendedFlags, X ; Set $0100 in extendedFlags — stat-bearing enemy
     ORA #$0100
     STA $extendedFlags, X
-    LDA [$3E], Y          ; Byte 8: death action index
+    LDA [$3E], Y          ; Byte 8: event-block index (stored as deathActionIdx)
     INY 
     AND #$00FF
     STA $deathActionIdx, X
-    INC $0AEC             ; Increment binary enemy count ($0AEC)
-    SED                   ; BCD increment: SED, add 1 to $0AEE, CLD
-    LDA $0AEE
+    INC $enemiesRemaining ; Increment remaining-enemy count (binary)
+    SED                   ; BCD increment of the display counter: SED, add 1, CLD
+    LDA $enemiesRemainingBcd
     CLC 
     ADC #$0001
-    STA $0AEE
+    STA $enemiesRemainingBcd
     CLD 
 
   loc_03CFA5:
@@ -989,7 +993,7 @@ InitActorFromSceneData {
     LDA [$42], Y          ; Code header bytes 1-2: initial flags
     INY 
     INY 
-    ORA #$4000            ; OR $4000: actor starts visible
+    ORA #$4000            ; OR $4000: bit 14 = off-screen flag (cleared/set by the depth sort), so new actors start flagged off-screen
     STA $0010, X
     TYA                   ; Code entry point = header base + header size
     CLC 
@@ -1053,7 +1057,7 @@ InitActorFromSceneData {
     TSB $playerFlags
 
   loc_03D03B:
-    LDA $warpFacing       ; Facing direction from $0650 → direction sprite table → $28
+    LDA $warpFacing       ; Facing direction from warpFacing ($0650) → low byte of direction_velocity_table entry → $28 (sprite index)
     AND #$00FF
     ASL 
     TAY 
@@ -1137,11 +1141,11 @@ InitActorFromSceneData {
 }
 
 ---------------------------------------------
-; Check if an enemy has been permanently defeated via WRAM flag bit.
+; Check if an enemy was already defeated, via its scene-local WRAM flag bit (wramFlags, cleared by ClearAllWramFlags at scene boundaries — see docs/wram-memory-map.md; the flags are set by SetDungeonKillFlag/SetWramFlag when the enemy dies).
 ; 
 ; Converts enemy number A to a byte index (÷8 → Y) and bit position (AND #$07 → X). Looks up a bitmask from BitMaskTable_Wram ($01/$02/$04/$08/$10/$20/$40/$80) and ANDs it with the WRAM flag byte at $0A80,Y.
 ; 
-; If the bit is set (enemy defeated): checks for an associated event block swap. Reads the event block index from the scene data at the saved Y offset. If nonzero, calls event_blocks.LookupEventBlock and event_blocks.SwapEventBlockTiles to update the tilemap for the defeated enemy's area (e.g., removing a barrier or revealing a passage). Returns carry set.
+; If the bit is set (enemy defeated): checks for an associated event block swap. Reads the event block index (record byte 8) from the scene data at the saved Y offset. If nonzero, calls event_blocks.LookupEventBlock and event_blocks.SwapEventBlockTiles to update the tilemap for the defeated enemy's area (e.g., removing a barrier or revealing a passage). Returns carry set.
 ; 
 ; If the bit is clear (enemy alive): returns carry clear.
 

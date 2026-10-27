@@ -8,6 +8,7 @@
 !joypadMaskStd                  065A
 !globalScriptIndex              0AAC
 !characterForm                  0AD4
+!enemiesRemaining               0AEC
 !sourceSceneId                  0B12
 
 ---------------------------------------------
@@ -17,7 +18,7 @@ pyDD_mystic_statue [
 
   code_08CE15:
     COP [SetEntryHere]
-    LDA $0AEC
+    LDA $enemiesRemaining
     BEQ loc_08CE1D
     RTL 
 

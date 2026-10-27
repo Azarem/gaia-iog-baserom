@@ -1,11 +1,11 @@
-; Scene music → SPC data ROM location mapping. 30 entries of 3-byte long pointers to compressed BGM track data. Used by the SPC transfer system for music loading.
+; Music ID → SPC data ROM location mapping (bank 01). 30 entries of 3-byte long pointers (addr_lo, addr_hi, bank) to compressed BGM track data. Indexed 1-based: music ID n selects entry n-1 (hdma_dma_spc.asm reads `music_pointer_array-3 + 3n`), so ID $00 never indexes the table. Used by LoadMusicFromTransitionState for ID-driven music loads.
 ---------------------------------------------
 
 ?BANK 01
 
 ---------------------------------------------
 
-; Maps scene music IDs to SPC music data ROM locations. 30 entries of 3-byte long pointers (address_lo, address_hi, bank). Covers all 30 BGM tracks: lively_city, blessing_of_nature, ominous_whispers, royal_anthem, etc. Referenced by hdma_dma_spc.asm — the SPC transfer system uses musicTransitionState × 3 as the index to load music data address and bank for DMA transfer.
+; 30 long-pointer entries covering 27 distinct BGM tracks (bgm_lively_city appears 4 times, at entries $00, $01, $0C, $16). Entry index = music ID - 1, so entry $1B (bgm_lively_city_by_the_sea) is music ID $1C, which matches the `music < #1C, ... @bgm_lively_city_by_the_sea >` scene records. The repeated lively_city entries sit at IDs $01, $02, $0D and $17; IDs $0D/$17 look like placeholders for unused IDs (inferred). The no-music track is entry $1A (ID $1B). Referenced by hdma_dma_spc.asm: LoadMusicFromTransitionState computes musicTransitionState x 3, reads the entry at `table-3 + index` into $46/$47 and the `srcCacheMusic` shadow ($0687/$0688), then calls SpcBlockTransfer.
 
 music_pointer_array [
   @bgm_lively_city   ;00

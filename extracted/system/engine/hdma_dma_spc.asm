@@ -32,8 +32,10 @@
 ?INCLUDE 'vblank_joypad'
 
 !hdmaEnableMask                 0066
+!srcCacheMusic                  0687
 !sfxQueueCh1                    06F8
 !musicTransitionState           06FA
+!playerTileDmaBank              06FE
 !displayModeFlags               09EC
 !VMAIN                          2115
 !VMADDL                         2116
@@ -82,7 +84,7 @@ DmaPlayerTilesToVram {
     STA $DMAP0
     LDA #$18
     STA $BBAD0
-    LDA $06FE             ; Source bank from $06FE tile pointer table header
+    LDA $playerTileDmaBank ; Source bank from $06FE tile pointer table header
     STA $A1B0
     LDY #$0001            ; Y=1 — first tile pointer (skip table header)
     LDX #$4000            ; Upper-half tiles → VRAM $4000
@@ -117,7 +119,7 @@ DmaPlayerTilesToVram {
 ; Called with VMADDL already set to the target VRAM address by the caller.
 
 DmaPlayerTiles_UpperHalf {
-    LDX $06FE, Y          ; Load next tile source pointer from $06FE,Y
+    LDX $playerTileDmaBank, Y ; Load next tile source pointer from $06FE,Y
     BEQ loc_03D8F1        ; Null pointer → end of tile list
     STX $A1T0L
     LDA #$40              ; $40 bytes per tile — one 16×16 upper half
@@ -140,7 +142,7 @@ DmaPlayerTiles_UpperHalf {
 
 DmaPlayerTiles_LowerHalf {
     REP #$20              ; 16-bit A — need to add $0200 for lower tile rows
-    LDA $06FE, Y
+    LDA $playerTileDmaBank, Y
     BEQ loc_03D913
     CLC 
     ADC #$0200            ; +$0200 offset → lower 8×8 rows in source buffer
@@ -466,10 +468,10 @@ LoadMusicFromTransitionState {
     TAX 
     LDA $@music_pointer_array-3, X ; Load music data address + bank from music_array table
     STA $46
-    STA $0687
+    STA $srcCacheMusic
     LDA $@music_pointer_array-2, X
     STA $47
-    STA $0688
+    STA $srcCacheMusic+1
     JSL $@vblank_joypad.EnableNmiAndJoypad
     JSL $@spc_transfer.SpcBlockTransfer ; DMA music data to SPC700 via block transfer
     JSL $@vblank_joypad.EnableNmiOnly

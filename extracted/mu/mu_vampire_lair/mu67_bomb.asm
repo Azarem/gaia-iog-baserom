@@ -11,11 +11,13 @@
 ?INCLUDE 'sE6_gaia'
 
 !joypadMaskStd                  065A
+!srcCacheMusic                  0687
 !playerActor                    09AA
 !playerFlags                    09AE
 !displayModeFlags               09EC
 !playerHp                       0ACE
 !characterForm                  0AD4
+!enemiesRemaining               0AEC
 !orbitAngle                     7F0010
 
 ---------------------------------------------
@@ -35,7 +37,7 @@ mu67_bomb [
   loc_06A431:
     COP [StageSpriteFrame] ( #24 )
     COP [AnimOnce]
-    LDA $0AEC
+    LDA $enemiesRemaining
     BNE loc_06A431
     LDA $characterForm
     BEQ loc_06A466
@@ -168,10 +170,10 @@ code_06A6F5 {
 }
 
 code_06A6F7 {
-    LDA $0AEC
+    LDA $enemiesRemaining
     BEQ loc_06A712
     COP [WriteApuIo0] ( #7F )
-    STZ $0688
+    STZ $srcCacheMusic+1
     COP [PlaySoundBoth] ( #$1515 )
     SEP #$20
     LDA #$00

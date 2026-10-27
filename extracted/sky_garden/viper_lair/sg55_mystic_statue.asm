@@ -12,12 +12,14 @@
 
 !gfxCacheIdxB                   064A
 !joypadMaskStd                  065A
+!srcCacheMusic                  0687
 !cameraBoundsY                  06DC
 !playerYTile                    09A8
 !playerActor                    09AA
 !playerFlags                    09AE
 !globalScriptIndex              0AAC
 !characterForm                  0AD4
+!enemiesRemaining               0AEC
 !sourceSceneId                  0B12
 
 ---------------------------------------------
@@ -27,7 +29,7 @@ sg55_mystic_statue [
 
   code_0ACE37:
     COP [SetEntryHere]
-    LDA $0AEC
+    LDA $enemiesRemaining
     BEQ loc_0ACE3F
     RTL 
 
@@ -99,7 +101,7 @@ code_0ACE81 {
   loc_0ACEF2:
     LDA #$0000
     STA $0AA6
-    STA $0688
+    STA $srcCacheMusic+1
     LDA #$0404
     STA $gfxCacheIdxB
     COP [QueueMapChange] ( #58, #$0000, #$0000, #03, #$1100 )

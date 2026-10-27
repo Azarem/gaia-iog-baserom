@@ -17,6 +17,8 @@
 
 !sceneCurrent                   0644
 !displayModeFlags               09EC
+!enemiesRemaining               0AEC
+!enemiesRemainingBcd            0AEE
 !orbitAngle                     7F0010
 !statsPtr                       7F0020
 !deathActionIdx                 7F0024
@@ -41,14 +43,14 @@ StandardEnemyDefeatHandler {
     BIT #$0080
     BNE EnemyDefeatFlashAndDrop
     SED 
-    LDA $0AEE
+    LDA $enemiesRemainingBcd
     SEC 
     SBC #$0001
-    STA $0AEE
+    STA $enemiesRemainingBcd
     CLD 
-    LDA $0AEC
+    LDA $enemiesRemaining
     DEC 
-    STA $0AEC
+    STA $enemiesRemaining
     STA $orbitAngle, X
 }
 

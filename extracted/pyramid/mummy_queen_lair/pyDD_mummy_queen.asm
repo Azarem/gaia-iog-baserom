@@ -30,6 +30,8 @@
 !playerActor                    09AA
 !playerFlags                    09AE
 !characterForm                  0AD4
+!enemiesRemaining               0AEC
+!enemiesRemainingBcd            0AEE
 !orbitAngle                     7F0010
 !loopCounter                    7F0014
 !moveXAlt                       7F0018
@@ -76,7 +78,7 @@ btF6_neo_queen [
 
 code_0BA65F {
     COP [SetEntryHere]
-    LDA $0AEC
+    LDA $enemiesRemaining
     BEQ loc_0BA667
     RTL 
 
@@ -120,8 +122,8 @@ pyDD_mummy_queen [
     LDA #$0004
     JSL $@flag_helpers.TestWramFlag_Offset100
     BCC loc_0BA6CA
-    STZ $0AEC
-    STZ $0AEE
+    STZ $enemiesRemaining
+    STZ $enemiesRemainingBcd
     COP [Die]
 
   loc_0BA6CA:

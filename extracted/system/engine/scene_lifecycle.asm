@@ -6,22 +6,22 @@
 ; 
 ; CheckSceneTransition → ExecuteSceneTransition orchestrates the full scene change:
 ; 1. Run ScreenExitTransition (if world is active)
-; 2. Disable NMI, clear world-ready flag
-; 3. Resolve target scene from $0D52 (special) or sceneNext (normal)
+; 2. Clear the world-ready flag, clear the HDMA enable mask, disable NMI (EnableNmiOnly leaves only joypad auto-read on) and enter forced blank
+; 3. Resolve target scene: a staged world-map entry ($0D52/$0D53 nonzero → scene $FE) or sceneNext (normal)
 ; 4. ClearSceneState: comprehensive reset of all game variables, followed by scene script execution, camera init, event blocks, actor spawning, collision setup, palette/graphics loading, and initial tilemap rendering
 ; 5. Run ScreenEnterTransition
-; 6. Optional: wait for player input (press-start screens via $00B4)
+; 6. Optional: wait for a button press while the scene-title box is shown ($00B4 set by DisplaySceneTitle)
 ; 
 ; === VISUAL TRANSITIONS ===
 ; 
-; ScreenExitTransition and ScreenEnterTransition each support 4–5 transition effect types selected by gfxCacheIdxA ($0648) and $0649 respectively:
-; - Type 0: Graduated brightness fade (speed controlled by gfxCacheIdxB / $064B)
+; ScreenExitTransition and ScreenEnterTransition each support 4–5 transition effect types. The exit type is the low byte of gfxCacheIdxA ($0648) and the enter type is its high byte ($0649); the speed (frame delay) is likewise the low byte of gfxCacheIdxB ($064A) for exit and its high byte ($064B) for enter. Cutscene scripts write these words before COP QueueMapChange and ExecuteSceneTransition clears them afterwards, so despite the names they are transition parameters, not graphics-cache indices (rename proposed in the audit log):
+; - Type 0: Graduated brightness fade (frame delay per brightness step = speed byte)
 ; - Type 1: Instant blank/display
 ; - Type 2: Mosaic dissolve with brightness fade
 ; - Type 3: Sine-wave HDMA scroll distortion with brightness fade
 ; - Type 4 (exit only): Alternative wave pattern (ScreenExitTransition_WaveAlt)
 ; 
-; Wave transitions use ApplyScrollWaveEffect and ComputeSineScrollTable to build per-scanline horizontal scroll offsets via hardware multiply, driving HDMA channels 6 and 7.
+; Wave transitions use ApplyScrollWaveEffect and ComputeSineScrollTable to build per-scanline horizontal scroll offsets via hardware multiply, driving HDMA channels 6 and 7. DP $006E is the wave amplitude (grows during exit, shrinks during enter) and $0070 the spatial frequency (6); the wave's motion over time comes from the NMI frame counter $36.
 ; 
 ; === SCENE RESOURCE LOADING (ClearSceneState) ===
 ; 
@@ -57,6 +57,7 @@
 !invincibilityTimer             040C
 !sceneNext                      0642
 !sceneCurrent                   0644
+!sceneTableIndex                0646
 !gfxCacheIdxA                   0648
 !gfxCacheIdxB                   064A
 !warpScrollParams               0652
@@ -85,6 +86,9 @@
 !cameraLowerYBound              06DE
 !effectDeltaX                   06E4
 !effectDeltaY                   06E6
+!effectRenderDeltaX             06E8
+!effectRenderDeltaY             06EA
+!visibleHeight                  06EC
 !scrollModeFlags                06EF
 !musicRoomGroup                 06F6
 !dmaSkipFlag                    0800
@@ -92,13 +96,21 @@
 !playerFlags                    09AE
 !playerSpeedEw                  09B2
 !playerSpeedNs                  09B4
+!playerSpriteCachePtr           09CC
+!playerSpriteCacheBank          09CE
 !climbStateData                 09E0
 !displayModeFlags               09EC
 !hudDisableFlag                 09ED
 !eventFlags                     0A00
+!eventFlagsF8toFF               0A1F
 !cachedPrevMaxHp                0ACC
 !cachedPrevHp                   0AD0
 !enemyHealthTimer               0AE4
+!enemiesRemaining               0AEC
+!enemiesRemainingBcd            0AEE
+!worldMapStagedX                0D52
+!worldMapPlayerX                0D54
+!transitionBrightness           0DB6
 !activeActorCount               0DBC
 !INIDISP                        2100
 !MOSAIC                         2106
@@ -122,6 +134,7 @@
 !RDMPYH                         4217
 !sineTableA                     7E8900
 !sineTableB                     7E8B00
+!bg3TilemapBuffer               7F0200
 !backdropColors                 7F0C00
 !oamComposeBuffer               7F3100
 !L_WRMPYA                       804202
@@ -132,15 +145,15 @@
 ; Quick test for pending scene transitions.
 ; 
 ; Checks two trigger sources:
-; 1. Special transition registers $0D52/$0D53 (nonzero = special transition pending)
+; 1. Staged world-map entry $0D52/$0D53 (the destination X word written by the world-map COP handlers; nonzero = pending)
 ; 2. sceneNext ($0642, nonzero = normal scene change pending)
 ; 
 ; If either is nonzero, falls through to ExecuteSceneTransition. Otherwise returns immediately via RTL. Called every frame from the main game loop.
 
 CheckSceneTransition {
-    LDA $0D52             ; Check $0D52/$0D53 — special transition pending?
+    LDA $worldMapStagedX  ; Check $0D52/$0D53 — world-map entry staged?
     ORA $0D53
-    BNE ExecuteSceneTransition ; Special transition → ExecuteSceneTransition
+    BNE ExecuteSceneTransition ; World-map entry staged → ExecuteSceneTransition
     LDA $sceneNext        ; Check sceneNext ($0642) — normal transition?
     BNE ExecuteSceneTransition
     RTL                   ; No transition queued — return to main loop
@@ -152,19 +165,19 @@ CheckSceneTransition {
 ; Three-phase operation:
 ; 
 ; === PHASE 1: EXIT ===
-; If worldReadyFlag is positive (world active and visible): runs ScreenExitTransition for the visual fade/dissolve effect. Then clears worldReadyFlag to 0. If worldReadyFlag is negative (bit 7 set), skips the exit transition entirely (used for initial boot or forced transitions). Disables NMI, enables display.
+; If worldReadyFlag is positive (world active and visible): runs ScreenExitTransition for the visual fade/dissolve effect, then clears worldReadyFlag to 0. If it is already 0 the exit transition is skipped. If it is negative (bit 7 set) both the exit and the enter transition are skipped and the flag is left unchanged — no writer of a negative value exists in the extracted code (only $0000 and $000F are stored), so this path looks unused (inferred). Then clears the HDMA enable mask ($66), disables NMI (joypad auto-read only) and enters forced blank.
 ; 
 ; === PHASE 2: RESOLVE TARGET SCENE ===
 ; Two paths:
-; - $0D52 nonzero (special transition): Saves $0D52 → $0D54, $0652 → $0D6C, clears both. Records the source scene in $0D6E and current scene in $0D6F. Sets scene ID to $FE (special marker).
-; - sceneNext nonzero (normal transition): Records source scene in $0D6E, clears $0D6F. Uses sceneNext as the new scene ID.
+; - $0D52/$0D53 nonzero (staged world-map entry): Archives the staged word $0D52 → $0D54 (the world-map player start X; start Y $0D56 is already staged) and $0652 → $0D6C (deferred auxiliary data), clearing both sources. Saves sceneNext in $0D6E (deferred destination scene) and sceneCurrent in $0D6F (the scene being left; WorldMapController reads $0D6F as the area ID). Sets the new scene ID to $FE (world map).
+; - sceneNext nonzero (normal transition): Records the scene being left (sceneCurrent) in $0D6E, clears $0D6F. Uses sceneNext as the new scene ID.
 ; 
 ; Stores the resolved scene to sceneCurrent and computes the doubled scene index ($0646) for table lookups.
 ; 
 ; === PHASE 3: LOAD ===
-; Calls ClearSceneState (the comprehensive scene setup), LoadHudTilemap, UpdateHUD, and a chain of VBlank sync/NMI enable calls. Sets worldReadyFlag to $000F (fully ready). Clears graphics cache indices.
+; Calls ClearSceneState (the comprehensive scene setup), LoadHudTilemap, UpdateHUD, and a chain of VBlank sync/NMI enable calls. Runs ScreenEnterTransition unless worldReadyFlag was already nonzero, then sets worldReadyFlag to $000F (fully ready). Clears gfxCacheIdxA/B (the transition parameters).
 ; 
-; If $00B4 is nonzero (press-start flag): enters a wait loop calling UpdateFrameDialogue until any button is pressed, then clears the flag, flushes the VRAM buffer, and enables display mode bit 0.
+; If $00B4 is nonzero (DisplaySceneTitle sets it to $E0 when it opens the scene-title box): enters a wait loop calling UpdateFrameDialogue until any button is pressed, then clears $00B4/$00B5, clears the staging buffer below the HUD rows (ClearVramBufferPartial, which removes the title box), and sets displayModeFlags bit 0 so the buffer is flushed.
 ; 
 ; Finally clears joypadInject and $09AD before returning.
 
@@ -178,32 +191,32 @@ ExecuteSceneTransition {
     STZ $worldReadyFlag   ; Clear worldReadyFlag
 
   loc_03DA03:
-    STZ $66
-    JSL $@vblank_joypad.EnableNmiOnly ; Enable NMI-only, then enable display
-    JSL $@vblank_joypad.EnterForcedBlank
+    STZ $66               ; Clear HDMA channel enable mask (DP $66 → HDMAEN in NMI)
+    JSL $@vblank_joypad.EnableNmiOnly ; NMITIMEN=$01: NMI off, joypad auto-read only
+    JSL $@vblank_joypad.EnterForcedBlank ; INIDISP=$80: forced blank for VRAM/OAM/CGRAM access
     LDA #$00
     XBA 
-    LDA $0D52             ; Check $0D52/$0D53 — special vs normal transition path
+    LDA $worldMapStagedX  ; Check $0D52/$0D53 — world-map entry vs normal transition path
     ORA $0D53
     BEQ loc_03DA41
-    REP #$20              ; Special: archive $0D52→$0D54, $0652→$0D6C, clear sources
-    LDA $0D52
-    STA $0D54
-    STZ $0D52
+    REP #$20              ; World-map entry: move $0D52→$0D54 and $0652→$0D6C, clearing the sources
+    LDA $worldMapStagedX
+    STA $worldMapPlayerX
+    STZ $worldMapStagedX
     LDA $warpScrollParams
     STA $0D6C
     STZ $warpScrollParams
     LDA #$0000
     SEP #$20
-    LDA $sceneNext        ; Record source scene in $0D6E, current in $0D6F
+    LDA $sceneNext        ; Save sceneNext (deferred destination) in $0D6E, sceneCurrent (scene being left) in $0D6F
     STA $0D6E
     LDA $sceneCurrent
     STA $0D6F
-    LDA #$FE              ; Special scene marker = $FE
+    LDA #$FE              ; Target scene = $FE (world map)
     BRA loc_03DA4D
 
   loc_03DA41:
-    LDA $sceneCurrent     ; Normal: record sceneCurrent → $0D6E
+    LDA $sceneCurrent     ; Normal: record the scene being left (sceneCurrent) → $0D6E
     STA $0D6E
     STZ $0D6F
     LDA $sceneNext        ; Load target from sceneNext
@@ -212,15 +225,15 @@ ExecuteSceneTransition {
     STZ $sceneNext        ; Clear sceneNext, commit to sceneCurrent
     STA $sceneCurrent
     REP #$20
-    ASL                   ; Double scene ID → $0646 for table lookups
-    STA $0646
+    ASL                   ; Double scene ID (16-bit; B was cleared by LDA #$00 / XBA) → $0646 for word-table lookups
+    STA $sceneTableIndex
     SEP #$20
     JSL $@ClearSceneState ; ClearSceneState — full world teardown and rebuild
     JSL $@LoadHudTilemap
     JSL $@system_core.UpdateHUD ; UpdateHUD for new scene
     JSL $@vblank_joypad.VBlankWaitAndJoypad
     JSL $@vblank_joypad.EnableNmiAndJoypad
-    JSL $@vblank_joypad.ScreenBlackout ; Force blank before enter transition
+    JSL $@vblank_joypad.ScreenBlackout ; INIDISP=$00: forced blank released, brightness 0 — dark start for the enter fade
     LDA $worldReadyFlag   ; Check if world was previously ready
     BNE loc_03DA81
     JSR $&ScreenEnterTransition ; Run enter transition, set worldReadyFlag=$000F
@@ -228,24 +241,24 @@ ExecuteSceneTransition {
     STX $worldReadyFlag
 
   loc_03DA81:
-    LDX #$0000            ; Clear gfxCacheIdxA/B
+    LDX #$0000            ; Clear gfxCacheIdxA/B (consume the transition parameters)
     STX $gfxCacheIdxB
     STX $gfxCacheIdxA
-    LDA $00B4             ; Check press-start wait flag ($00B4)
+    LDA $00B4             ; Check scene-title wait flag ($00B4, set by DisplaySceneTitle)
     BEQ loc_03DAB4
 
   loc_03DA8F:
     JSL $@system_core.UpdateFrameDialogue ; Wait loop: poll all joypad inputs for any button
     LDA $joypadCurrent
-    ORA $0657
+    ORA $joypadCurrent+1
     ORA $joypadRaw
     ORA $0661
     BEQ loc_03DA8F
-    STZ $00B4             ; Button pressed — clear wait, flush VRAM, enable display
+    STZ $00B4             ; Button pressed — clear the wait flag, remove the title box, request a BG3 flush
     STZ $00B5
-    JSL $@vram_buffer_clear.ClearVramBufferPartial
+    JSL $@vram_buffer_clear.ClearVramBufferPartial ; Clear everything below the HUD rows
     LDA #$01
-    TSB $displayModeFlags
+    TSB $displayModeFlags ; Bit 0: BG3 staging buffer pending upload
     JSL $@system_core.UpdateFrameDialogue
 
   loc_03DAB4:
@@ -257,7 +270,7 @@ ExecuteSceneTransition {
 ---------------------------------------------
 ; Visual exit transition effect dispatcher — selects from 5 effect types.
 ; 
-; Dispatches based on gfxCacheIdxA ($0648):
+; Dispatches on the low byte of gfxCacheIdxA ($0648):
 ; 
 ; - Type 0 (Graduated fade): Brightness ramps from $0F down to 0 over multiple frames. gfxCacheIdxB ($064A) controls the frame delay between brightness steps — higher values produce a slower fade. Each step writes the current brightness to INIDISP.
 ; 
@@ -265,14 +278,14 @@ ExecuteSceneTransition {
 ; 
 ; - Type 2 (Mosaic dissolve): Brightness ramps down from $0F to 0 while MOSAIC register increases (pixel size grows). The mosaic value is computed as (15 − brightness) << 4 | 3, creating a dissolve effect as the screen fades.
 ; 
-; - Type 3 (Wave scroll): Initializes the HDMA sine wave system ($0070 = wave frequency 6, $006E = wave phase 0 if not already running). Computes a wave amplitude from gfxCacheIdxB (clamped to 8 max). Two nested loops: inner loop advances the wave phase via ApplyScrollWaveEffect, outer loop decrements brightness from $0F to 0, producing a sine-wave screen distortion that increases as the screen fades out.
+; - Type 3 (Wave scroll): Initializes the HDMA sine wave ($0070 = spatial frequency 6, $006E = amplitude 0, if not already running). Clamps the speed byte B (gfxCacheIdxB) to 8. Stage 1 runs 128 − 16×B frames, raising the amplitude by 1 per frame. Stage 2 steps brightness $0F → 0, holding each level for B frames while the amplitude keeps rising each frame, so the distortion keeps growing as the screen fades out. Each frame runs ApplyScrollWaveEffect.
 ; 
 ; - Type 4 (Wave alternate): Jumps to ScreenExitTransition_WaveAlt for a variant wave pattern.
 ; 
 ; All types (except instant) call UpdateFrameDialogue each frame to keep audio and display sync running during the transition.
 
 ScreenExitTransition {
-    LDA $gfxCacheIdxA     ; Dispatch on gfxCacheIdxA: 0=fade, 1=instant, 2=mosaic, 3=wave, 4=waveAlt
+    LDA $gfxCacheIdxA     ; Dispatch on gfxCacheIdxA low byte: 0=fade, 1=instant, 2=mosaic, 3=wave, 4=waveAlt
     BEQ loc_03DAD0
     DEC 
     BEQ loc_03DAF2
@@ -289,23 +302,23 @@ ScreenExitTransition {
 
   loc_03DAD0:
     LDA #$0F              ; Type 0: brightness $0F → 0
-    STA $0DB6
+    STA $transitionBrightness
 
   loc_03DAD5:
     LDA #$00
     XBA 
-    LDA $gfxCacheIdxB     ; gfxCacheIdxB = frame delay between brightness steps
+    LDA $gfxCacheIdxB     ; gfxCacheIdxB low byte = frame delay between brightness steps
     TAX 
 
   loc_03DADC:
     JSL $@system_core.UpdateFrameDialogue ; Inner loop: UpdateFrameDialogue, wait delay frames
-    LDA $0DB6
+    LDA $transitionBrightness
     BEQ loc_03DAF1
     DEX 
     BPL loc_03DADC
     STA $INIDISP          ; Write brightness to INIDISP, decrement
     DEC 
-    STA $0DB6
+    STA $transitionBrightness
     BPL loc_03DAD5
 
   loc_03DAF1:
@@ -346,7 +359,7 @@ ScreenExitTransition {
     RTS 
 
   loc_03DB20:
-    PHA                   ; Type 3: init wave system ($0070=6 freq, $006E=0 phase)
+    PHA                   ; Type 3: reserve 2 stack bytes (brightness, delay); init wave ($0070=6 freq, $006E=0 amplitude)
     PHA 
     LDA $0070
     BNE loc_03DB2F
@@ -355,14 +368,14 @@ ScreenExitTransition {
     STZ $006E
 
   loc_03DB2F:
-    LDA $gfxCacheIdxB     ; Clamp gfxCacheIdxB to max 8 for amplitude
+    LDA $gfxCacheIdxB     ; Clamp the speed byte (gfxCacheIdxB) to max 8
     CMP #$08
     BCC loc_03DB3B
     LDA #$08
     STA $gfxCacheIdxB
 
   loc_03DB3B:
-    ASL                   ; Compute wave iteration count from clamped amplitude
+    ASL                   ; Ramp length = 128 − 16×B frames: B×16 − $80, negated
     ASL 
     ASL 
     ASL 
@@ -373,7 +386,7 @@ ScreenExitTransition {
     STA $01, S
 
   loc_03DB47:
-    LDA $006E             ; Inner loop: advance phase, ResetHdma, ApplyScrollWaveEffect
+    LDA $006E             ; Ramp loop: amplitude +1, ResetHdma, ApplyScrollWaveEffect
     INC 
     STA $006E
     STA $00
@@ -398,7 +411,7 @@ ScreenExitTransition {
     STA $02, S
 
   loc_03DB6F:
-    LDA $006E             ; Each frame: ResetHdma, apply wave, advance phase
+    LDA $006E             ; Each frame: ResetHdma, apply wave, amplitude +1
     STA $00
     PHA 
     JSL $@hdma_dma_spc.ResetHdmaState
@@ -429,9 +442,9 @@ ScreenExitTransition {
 ---------------------------------------------
 ; Alternative wave exit transition — variant loop structure.
 ; 
-; Similar to type 3 but with a different nesting pattern: the wave iteration count per brightness level is controlled by gfxCacheIdxB directly (rather than being computed from it). Brightness starts at $0F and decrements each outer iteration. Each inner iteration advances the wave phase and calls UpdateFrameDialogue for frame sync.
+; Similar to type 3 but with a different nesting pattern: the wave iteration count per brightness level is controlled by gfxCacheIdxB directly (rather than being computed from it). Brightness starts at $0F and decrements each outer iteration. Each inner iteration raises the wave amplitude ($006E) by 1, runs ApplyScrollWaveEffect (which syncs one frame) and then calls UpdateFrameDialogue again, so a pass takes two frames.
 ; 
-; Initializes the HDMA sine wave system ($0070/$006E) if not already running. Clears both on completion.
+; Initializes the HDMA sine wave system ($0070 = frequency 6, $006E = amplitude 0) if not already running. Clears both on completion.
 
 ScreenExitTransition_WaveAlt {
     PHA 
@@ -449,7 +462,7 @@ ScreenExitTransition_WaveAlt {
     STA $02, S
 
   loc_03DBBC:
-    INC $006E             ; Each iteration: advance phase, ResetHdma, apply wave, UpdateFrameDialogue
+    INC $006E             ; Each iteration: amplitude +1, ResetHdma, apply wave, UpdateFrameDialogue
     STA $00
     PHA 
     JSL $@hdma_dma_spc.ResetHdmaState
@@ -481,29 +494,29 @@ ScreenExitTransition_WaveAlt {
 ---------------------------------------------
 ; Apply one frame of sine-wave scroll distortion via HDMA.
 ; 
-; Calls ComputeSineScrollTable to fill the per-scanline scroll offset tables at $7E8900 (sineTableA) and $7E8B00 (sineTableB). Then configures HDMA indirect mode table at $7E8800:
-; - $7E8800: $FF (256 scanlines, transfer count)
-; - $7E8801: pointer to sineTableA (computed from wave phase $36)
-; - $7E8803: $E0 (scanline count for second segment)
-; - $7E8804: pointer to sineTableB (sineTableA + $FE)
+; Calls ComputeSineScrollTable to fill two identical back-to-back 256-word scroll-offset tables, sineTableA ($7E8900) and sineTableB ($7E8B00). Then builds a two-segment indirect HDMA table at $7E8800 whose window starts at word (($36 & $01FE) / 2) of that doubled table, so the wave moves with the NMI frame counter $36:
+; - $7E8800: $FF — HDMA line-count byte (bit 7 = repeat mode, bits 0–6 = 127 scanlines)
+; - $7E8801: data pointer = $8900 + ($36 & $01FE)
+; - $7E8803: $E0 — repeat mode, 96 scanlines
+; - $7E8804: data pointer = first pointer + $FE (127 words on, so the window continues without a gap)
 ; - $7E8806: $00 (end marker)
 ; 
-; Queues HDMA channels 6 and 7 via COP [QueueHdmaChannel] targeting BG1/BG2 horizontal scroll registers ($0D/$0F in register $7E). Then calls UpdateFrameDialogue for one frame of display sync.
+; Because the second table copy directly follows the first, a window starting anywhere in the first 256 words never wraps (223 scanlines in total). Queues HDMA channels 6 and 7 via COP [QueueHdmaChannel] with B-bus registers $0D (BG1HOFS, $210D) and $0F (BG2HOFS, $210F) and indirect data bank $7E, both reading the same table. Then calls UpdateFrameDialogue for one frame of display sync.
 
 ApplyScrollWaveEffect {
     PHA                   ; Save A, build sine tables, configure HDMA indirect table
     JSR $&ComputeSineScrollTable
     REP #$20
-    LDA $36               ; Wave phase from DP $36, masked to word boundary
+    LDA $36               ; NMI frame counter $36 → table window start, masked to an even offset
     AND #$01FE
     CLC 
     ADC #$8900            ; sineTableA pointer = $8900 + (phase & $01FE)
     STA $7E8801
     CLC 
-    ADC #$00FE            ; sineTableB pointer = sineTableA + $FE
+    ADC #$00FE            ; Second segment pointer = first + $FE (127 words on)
     STA $7E8804
     SEP #$20
-    LDA #$FF              ; HDMA table: $FF scanlines, $E0 scanlines, $00 end
+    LDA #$FF              ; HDMA line counts: $FF = repeat ×127, $E0 = repeat ×96, $00 = end
     STA $7E8800
     LDA #$E0
     STA $7E8803
@@ -519,26 +532,26 @@ ApplyScrollWaveEffect {
 ---------------------------------------------
 ; Build per-scanline horizontal scroll offset tables for HDMA wave effect.
 ; 
-; For each of 256 scanlines ($0200 bytes, 128 entries per table):
-; 1. Reads a signed sine value from the lookup table at sine_table_8bit, indexed by the current phase (Y)
+; For each of 256 entries ($0200 bytes = 256 words per table):
+; 1. Reads a signed sine value from sine_table_8bit, indexed by Y (starts at 0 and advances by the spatial frequency $0070 per entry). sine_table_8bit holds only the 64-entry first quarter, so Y ≥ 64 reads on into the adjacent signed_sine_table; together they form a full 256-step signed sine cycle (see the math_lookup_tables block note)
 ; 2. Multiplies the sine value by the wave amplitude ($006E) using the SNES hardware multiplier ($4202/$4203 → $4216/$4217)
 ; 3. For negative sine values: performs sign-extended multiplication using $FF multiply + carry-based addition of the low byte
 ; 4. Adds the base BG1 horizontal scroll ($bg1ScrollH) to the offset
-; 5. Stores the result to both sineTableA ($7E8900,X) and sineTableB ($7E8B00,X)
-; 6. Advances the phase by the wave frequency ($0070) per scanline
+; 5. Stores the result to both sineTableA ($7E8900,X) and sineTableB ($7E8B00,X) — identical copies, so ApplyScrollWaveEffect can read a window that runs past the end of the first copy
+; 6. Advances the sine index Y by the spatial frequency ($0070) per entry
 ; 
-; If $00 (amplitude parameter from caller) is zero, returns immediately without filling the tables.
+; If DP $00 is zero, returns immediately without filling the tables. Callers store a nonzero loop counter there (frame delay, brightness or ramp counter); the amplitude itself is $006E.
 ; 
-; The phase accumulation ($006E += $0070 per scanline) controls the spatial frequency of the wave. The $006E parameter from the caller controls the amplitude. Together they produce the characteristic 'wavy screen' effect seen during scene transitions.
+; The index step $0070 sets the spatial frequency (6 gives six full sine cycles across the 256 entries); $006E scales the peak offset (about amplitude / 2 pixels, from the high byte of amplitude × sine). Together they produce the 'wavy screen' effect seen during scene transitions.
 
 ComputeSineScrollTable {
-    PHP                   ; SEP #$20, zero X (table index) and Y (phase index)
+    PHP                   ; SEP #$20, zero X (table offset) and Y (sine index)
     SEP #$20
     LDX #$0000
     TXY 
-    LDA $00               ; Check amplitude ($00) — zero = skip table fill
+    LDA $00               ; Check guard counter ($00) — zero = skip table fill
     BEQ loc_03DC90
-    LDA $006E             ; Load wave phase to hardware multiplier WRMPYA ($4202)
+    LDA $006E             ; Load wave amplitude to hardware multiplier WRMPYA ($4202)
     STA $L_WRMPYA
     CLC 
 
@@ -577,7 +590,7 @@ ComputeSineScrollTable {
     TYA 
     SEP #$20
     CLC 
-    ADC $0070             ; Advance phase by frequency $0070, loop 256 scanlines
+    ADC $0070             ; Advance sine index by frequency $0070; loop over 256 entries
     TAY 
     INX 
     INX 
@@ -592,20 +605,20 @@ ComputeSineScrollTable {
 ---------------------------------------------
 ; Visual enter transition effect dispatcher — selects from 4 effect types.
 ; 
-; Dispatches based on $0649:
+; Dispatches on the high byte of gfxCacheIdxA ($0649):
 ; 
-; - Type 0 (Graduated fade-in): Brightness ramps from 1 up to $0F. $064B controls the frame delay between steps (same role as gfxCacheIdxB in exit transitions). Each step writes to INIDISP and increments until reaching full brightness ($10 comparison catches the >= $0F case).
+; - Type 0 (Graduated fade-in): Brightness ramps from 1 up to $0F. $064B (high byte of gfxCacheIdxB) controls the frame delay between steps, the enter-side counterpart of the exit speed byte $064A. Each step writes to INIDISP and increments until reaching full brightness ($10 comparison catches the >= $0F case).
 ; 
 ; - Type 1 (Instant display): Single UpdateFrameDialogue, then sets INIDISP to $0F. Fastest enter.
 ; 
 ; - Type 2 (Mosaic dissolve-in): Brightness ramps from 0 up to $0F while MOSAIC register decreases (pixel size shrinks from maximum to 1:1). Computed as (15 − brightness) << 4 | 3. The reverse of exit type 2 — large mosaic pixels dissolve into the sharp final image.
 ; 
-; - Type 3 (Wave scroll enter): Initializes HDMA sine wave with phase $80 ($006E) and frequency 6 ($0070). The wave phase is decremented each inner iteration (BEQ exits when phase reaches 0), causing the wave amplitude to shrink over time. Brightness ramps up as the wave settles, clamped at $0F. After the wave phase reaches 0, a wind-down loop steps brightness up to $0F with $064B-frame delays between steps.
+; - Type 3 (Wave scroll enter): Initializes the HDMA sine wave with amplitude $80 ($006E) and spatial frequency 6 ($0070). The amplitude is decremented each pass (the loop ends when it reaches 0), so the wave shrinks as the screen fades in. Brightness ramps up as the wave settles, clamped at $0F. After the amplitude reaches 0, a wind-down loop steps brightness up to $0F with $064B-frame delays between steps.
 ; 
 ; All types call UpdateFrameDialogue per frame for audio/display sync.
 
 ScreenEnterTransition {
-    LDA $0649             ; Dispatch on $0649: 0=fade, 1=instant, 2=mosaic, 3=wave
+    LDA $gfxCacheIdxA+1   ; Dispatch on $0649: 0=fade, 1=instant, 2=mosaic, 3=wave
     BEQ loc_03DCA1
     DEC 
     BEQ loc_03DCC5
@@ -617,23 +630,23 @@ ScreenEnterTransition {
 
   loc_03DCA1:
     LDA #$01              ; Type 0: brightness 1 → $0F
-    STA $0DB6
+    STA $transitionBrightness
 
   loc_03DCA6:
     LDA #$00
     XBA 
-    LDA $064B             ; $064B = frame delay between steps
+    LDA $gfxCacheIdxB+1   ; $064B = frame delay between steps
     TAX 
 
   loc_03DCAD:
     JSL $@system_core.UpdateFrameDialogue ; Inner loop: UpdateFrameDialogue, wait delay frames
-    LDA $0DB6
+    LDA $transitionBrightness
     BEQ loc_03DCC4
     DEX 
     BPL loc_03DCAD
     STA $INIDISP          ; Write INIDISP, increment brightness
     INC 
-    STA $0DB6
+    STA $transitionBrightness
     CMP #$10              ; Exit at brightness $10 (past full)
     BCC loc_03DCA6
 
@@ -653,7 +666,7 @@ ScreenEnterTransition {
     PHA 
     LDA #$00
     XBA 
-    LDA $064B
+    LDA $gfxCacheIdxB+1
     TAX 
     PLA 
 
@@ -677,7 +690,7 @@ ScreenEnterTransition {
     RTS 
 
   loc_03DCF7:
-    LDA $0070             ; Type 3: init wave ($0070=6, $006E=$80 max amplitude)
+    LDA $0070             ; Type 3: init wave if not running ($0070=6, $006E=$80 max amplitude)
     BNE loc_03DD06
     LDA #$06
     STA $0070
@@ -689,11 +702,11 @@ ScreenEnterTransition {
     PHA 
 
   loc_03DD09:
-    LDA $064B             ; Load frame delay from $064B
+    LDA $gfxCacheIdxB+1   ; Load frame delay from $064B
 
   loc_03DD0C:
-    DEC $006E             ; Decrement wave phase $006E — amplitude shrinks toward 0
-    BEQ loc_03DD36        ; Phase=0 → exit to wind-down
+    DEC $006E             ; Decrement wave amplitude $006E — wave shrinks toward 0
+    BEQ loc_03DD36        ; Amplitude 0 → exit to wind-down
     STA $00
     PHA 
     JSL $@hdma_dma_spc.ResetHdmaState
@@ -715,7 +728,7 @@ ScreenEnterTransition {
     BRA loc_03DD09
 
   loc_03DD33:
-    LDA $064B
+    LDA $gfxCacheIdxB+1
 
   loc_03DD36:
     JSL $@system_core.UpdateFrameDialogue ; Wind-down: UpdateFrameDialogue with delay frames
@@ -743,11 +756,11 @@ ScreenEnterTransition {
 ; Called by ExecuteSceneTransition after resolving the target scene. Performs a complete teardown and rebuild of the game world in a fixed sequence:
 ; 
 ; === PHASE 1: CLEAR STATE ===
-; Disables HDMA. Zeroes all critical game variables: joypad masks, cached HP, display mode, player flags, event flags, camera targets/deltas, scroll positions/overrides, player speeds, external velocities, enemy health timer, climb state, actor count, DMA skip flag. Sets invincibility timer to $FFFF (disabled). Clears backdrop colors and COLDATA. Resets BG3 tilemap ($78), character base ($22), MOSAIC, and all window mask/logic registers.
+; Disables HDMA. Zeroes all critical game variables: joypad masks, cached HP, display mode, player flags, the first event-flag word ($0A00 = flags $00–$0F only), camera targets/deltas, scroll positions/overrides, player speeds, external velocities, enemy health timer, climb state, actor count, DMA skip flag. Sets invincibility timer to $FFFF (disabled). Clears backdrop colors and COLDATA. Resets BG3 tilemap base ($78 = VRAM $7800), the BG1/BG2 character base ($22), MOSAIC, and all window mask/logic registers. Clears event flag $FF (bit 7 of the $0A1F flag byte), which phase 3 sets again.
 ; 
 ; === PHASE 2: LOAD SCENE ===
 ; Calls subsystems in order:
-; 1. ClearVramBufferFull — flush VRAM write buffer
+; 1. ClearVramBufferFull — zero the BG3 staging buffer
 ; 2. SceneScriptMain — parse scene script (loads tileset, tilemap, music, display config)
 ; 3. InitCameraBounds — set camera limits from map bounds or custom $0652 data
 ; 4. ApplyAllEventBlocks — apply persistent event-driven tile changes
@@ -801,13 +814,13 @@ ClearSceneState {
     STX $extVelocityX
     STX $extVelocityY
     STX $enemyHealthTimer
-    STX $0AEC
-    STX $0AEE
+    STX $enemiesRemaining
+    STX $enemiesRemainingBcd
     STX $climbStateData   ; Clear climb state, actor count, DMA flag
     STX $00DA
     STX $activeActorCount
-    STX $09CC
-    STX $09CE
+    STX $playerSpriteCachePtr
+    STX $playerSpriteCacheBank
     STX $00B2
     STX $0C07
     STX $dmaSkipFlag
@@ -826,12 +839,12 @@ ClearSceneState {
     STZ $BG3HOFS
     STZ $BG3VOFS
     STZ $BG3VOFS
-    LDA $0A1F             ; Clear bit 7 of scene status $0A1F
+    LDA $eventFlagsF8toFF ; Clear event flag $FF (bit 7 of the $0A1F flag byte) — set again by COP SetFlagByte #FF below
     AND #$7F
-    STA $0A1F
+    STA $eventFlagsF8toFF
     LDA #$01
     STA $enemyHealthTimer ; Enemy health timer = 1 (minimum display)
-    LDA #$22              ; BG12NBA=$22 — char bases $0000/$2000
+    LDA #$22              ; BG12NBA=$22 — BG1 and BG2 character base both at VRAM word $2000
     STA $BG12NBA
     STZ $MOSAIC           ; Clear MOSAIC, all window masks/logic/boundaries
     STZ $W12SEL
@@ -846,7 +859,7 @@ ClearSceneState {
     STA $WH1              ; Window 1 right = $FF (full width)
     LDA #$E0
     STA $COLDATA          ; Re-apply COLDATA=$E0 after window setup
-    JSL $@vram_buffer_clear.ClearVramBufferFull ; Flush VRAM buffer, parse scene script
+    JSL $@vram_buffer_clear.ClearVramBufferFull ; Zero the BG3 staging buffer, then parse the scene script
     JSL $@scene_script.SceneScriptMain
     JSL $@InitCameraBounds ; Init camera bounds, apply event blocks, place barriers
     JSL $@event_blocks.ApplyAllEventBlocks
@@ -870,10 +883,10 @@ ClearSceneState {
     JSL $@thinker_execution.RunThinkers_TypeB
     JSL $@hdma_dma_spc.ResetHdmaState
     STZ $HDMAEN           ; Disable HDMA before sprite composition
-    COP [SetFlagByte] ( #FF ) ; COP SetFlagByte $FF — mark all actors for compose
+    COP [SetFlagByte] ( #FF ) ; Set event flag $FF (bit 7 of $0A1F, cleared at the top of this routine): scene-setup-complete signal — init-phase thinkers that loop on flag $FF (e.g. sE8_comet_display_config) exit (inferred)
     LDA #$FF
     STA $oamComposeBuffer ; Write $FF sentinels to OAM compose buffer
-    STA $7F3101
+    STA $oamComposeBuffer+1
     JSL $@sprite_composition.SortActorsByDepth ; Sort actors by depth, compose sprites, DMA player tiles
     JSL $@sprite_composition.ComposeAllSprites
     JSL $@hdma_dma_spc.DmaPlayerTilesToVram
@@ -890,37 +903,37 @@ ClearSceneState {
     JSL $@camera_tilemap.CameraFullRefresh
 
   loc_03DEAE:
-    LDA $069D             ; Check $069D → CameraFullRefresh BG2 (layer 2)
+    LDA $069D             ; Check $069D → CameraFullRefresh BG2 (layer 1, X=2)
     BEQ loc_03DEBA
     LDX #$0002
     JSL $@camera_tilemap.CameraFullRefresh
 
   loc_03DEBA:
-    STZ $musicRoomGroup   ; Clear music room group, effect deltas, companion words
+    STZ $musicRoomGroup   ; Clear music room group, effect deltas and effect render deltas ($06E8/$06EA)
     LDX #$0000
     STX $effectDeltaX
     STX $effectDeltaY
-    STX $06E8
-    STX $06EA
+    STX $effectRenderDeltaX
+    STX $effectRenderDeltaY
     RTL 
 }
 
 ---------------------------------------------
-; Load the heads-up display tilemap into the VRAM staging buffer.
+; Load the heads-up display tilemap into the BG3 staging buffer ($7F:0200).
 ; 
-; First checks $09ED bit 6 — if set, the HUD is suppressed (returns immediately). This flag is set during cutscenes and special scenes where no status display should appear.
+; First checks hudDisableFlag ($09ED) bit 6 — if set, the HUD is suppressed (returns immediately). Scene command $02 (display_preset_table record byte +7 bit 7) sets or clears this bit for each scene.
 ; 
 ; Switches to 16-bit mode and sets data bank to current program bank (PHK/PLB) for direct access to HudTilemapData.
 ; 
 ; The data stream uses a simple format:
-; - Nonzero word: tile data — written directly to $7F0200,X (VRAM staging buffer)
+; - Nonzero word: tile data — written directly to $7F0200,X (BG3 staging buffer)
 ; - Zero word followed by nonzero word: skip command — the second word is a tile count to advance X by (×2 for word offset)
 ; - Zero word followed by zero word: end of stream
 ; 
-; After loading, sets displayModeFlags bit 0 ($0001) to signal that the VRAM buffer has pending data for the next VBlank transfer.
+; After loading, sets displayModeFlags bit 0 ($0001) to signal that the BG3 staging buffer has pending data for the next VBlank transfer. The stream expands to 159 words (318 bytes), so it fits the first $0140 bytes that ClearVramBufferPartial preserves.
 
 LoadHudTilemap {
-    LDA $hudDisableFlag   ; Check $09ED bit 6 — HUD suppressed (cutscene/menu)?
+    LDA $hudDisableFlag   ; Check hudDisableFlag bit 6 — HUD suppressed by the scene's display preset?
     BIT #$40
     BEQ loc_03DED5
     RTL                   ; HUD suppressed — return without loading
@@ -936,7 +949,7 @@ LoadHudTilemap {
 
   loc_03DEDF:
     LDA $&HudTilemapData, Y ; Parse loop: read HudTilemapData word
-    BNE loc_03DEF7        ; Nonzero → write tile word to VRAM staging $7F0200,X
+    BNE loc_03DEF7        ; Nonzero → write tile word to BG3 staging $7F0200,X
     LDA $&HudTilemapData+2, Y ; Zero word: check next word for skip count or end marker
     BEQ loc_03DF01        ; Double-zero = end of stream
     INY 
@@ -952,7 +965,7 @@ LoadHudTilemap {
     BRA loc_03DEDF
 
   loc_03DEF7:
-    STA $7F0200, X
+    STA $bg3TilemapBuffer, X
     INX 
     INX 
     INY 
@@ -960,7 +973,7 @@ LoadHudTilemap {
     BRA loc_03DEDF
 
   loc_03DF01:
-    LDA #$0001            ; Set displayModeFlags bit 0 — VRAM buffer pending
+    LDA #$0001            ; Set displayModeFlags bit 0 — BG3 staging buffer pending upload
     TSB $displayModeFlags
     PLB 
     PLP 
@@ -970,7 +983,7 @@ LoadHudTilemap {
 ---------------------------------------------
 ; Static tilemap data for the in-game HUD display.
 ; 
-; Contains 75 word entries (150 bytes) encoding the BG3 tilemap for the HP bar, gem counter, and defense/strength indicators. Entries include tile indices, palette bits, and priority flags in SNES tilemap word format.
+; Contains 75 word entries (150 bytes) in the LoadHudTilemap stream format: tilemap words (tile index, palette and priority bits) interleaved with skip commands. Expanded, it covers 159 BG3 tilemap words (41 tiles, 118 skipped positions). The individual HUD glyphs have not been decoded.
 ; 
 ; Embedded skip commands (zero words) advance the cursor past empty regions of the HUD layout, avoiding the need to store blank tiles explicitly.
 
@@ -1055,15 +1068,14 @@ HudTilemapData [
 ---------------------------------------------
 ; Load standard scene palettes with character-form-specific overrides.
 ; 
-; Operates in 16-bit mode. Checks the current scene against a skip list:
+; Operates in 16-bit mode. Skip rules, by sceneCurrent:
 ; - Scene $F7 (intro sequence): skip all palette loading
-; - Scene $F0, $FD: skip standard palettes
-; - Scene $FF (title screen): skip standard palettes
+; - Scenes $F0, $FD, $FF (title screen): load only the HUD/UI palette — skip the game palette and the non-combat palette
 ; 
-; For non-skipped scenes:
-; 1. Loads fx_palette_198040 to palette slot 1 (COP CopyPalette: source=@198040, start=1, dest=1, count=23). This is the standard HUD/UI palette.
-; 2. Loads fx_palette_198020 to palette slot 0 (source=@198020, start=0, dest=$90, count=16). This is the standard game palette.
-; 3. If playerFlags bit 3 ($0008) is set (combat lock — non-combat scene): loads an additional palette from fx_palette_198000 (31 entries) via a manual DMA setup through $0402/$0405.
+; Sequence:
+; 1. (all scenes except $F7) COP CopyPalette fx_palette_198040: source=@198040, start=1, dest=1, count=23. This is the standard HUD/UI palette.
+; 2. (all scenes except $F0, $FD, $FF) COP CopyPalette fx_palette_198020: start=0, dest=$90, count=16. This is the standard game palette.
+; 3. If playerFlags bit 3 ($0008, combat lock — non-combat scene): copies 32 bytes (16 colors) from fx_palette_198000 to $7F:0B40 (CGRAM mirror color $A0, 512-byte mirror at $7F0A00) with the block-move helper at $0402. That helper is a WRAM routine set up by wram-init as PHB / MVN / PLB / RTS; $0404 and $0405 are the MVN destination and source banks (A = byte count − 1; the destination bank is assumed to be $7F, left there by earlier setup).
 
 LoadScenePalettes {
     PHP 
@@ -1084,17 +1096,17 @@ LoadScenePalettes {
     CMP #$00FF
     BEQ loc_03DFF6
     COP [CopyPalette] ( @fx_palette_198020, #00, #90, #10 ) ; COP CopyPalette: 16 game colors from @198020 to CGRAM $90
-    LDY #$0B40
+    LDY #$0B40            ; Y = MVN destination offset in the CGRAM mirror ($7F:0B40 = color $A0)
     LDA $playerFlags      ; playerFlags bit 3 — combat lock (non-combat scene)?
     BIT #$0008
     BEQ loc_03DFF6        ; Combat allowed — skip the non-combat palette
     SEP #$20
-    LDA #$^fx_palette_198000 ; Non-combat scene: DMA 31 entries from @198000 via $0402 helper
+    LDA #$^fx_palette_198000 ; Non-combat scene: source bank of @198000 → $0405 (MVN source bank)
     LDX #$&fx_palette_198000
     STA $0405
     REP #$20
-    LDA #$001F
-    JSR $0402
+    LDA #$001F            ; A = byte count − 1 → 32 bytes (16 colors)
+    JSR $0402             ; WRAM helper: PHB / MVN / PLB / RTS
 
   loc_03DFF6:
     PLP 
@@ -1107,13 +1119,13 @@ LoadScenePalettes {
 ; Checks the current scene against a skip list — scenes $F7, $FE, $8C don't load player graphics (no visible player character).
 ; 
 ; For normal scenes:
-; 1. Sets VMADDL to $4200 and DMA transfers $1C00 bytes (7168 bytes = 112 tiles) from gfx_000000 to VRAM. This is the main player character spriteset.
+; 1. Sets VMADDL to $4200 and DMA transfers $1C00 bytes (7168 bytes = 224 4bpp tiles) from gfx_000000 to VRAM. This is the main player character spriteset.
 ; 
-; 2. If playerFlags bit 3 ($08, combat lock — non-combat scene) is set: loads $0800 bytes (2048 bytes = 32 tiles) of FX graphics from misc_fx_1CD580 to VRAM $4400. Combat-allowed scenes skip this; their ability tiles are uploaded on demand by the ability VRAM DMA loaders.
+; 2. If playerFlags bit 3 ($08, combat lock — non-combat scene) is set: loads $0800 bytes (2048 bytes = 64 tiles) of FX graphics from misc_fx_1CD580 to VRAM $4400, overwriting the part of the main spriteset just uploaded at byte offset $0400 (tiles 32–95). Combat-allowed scenes skip this; their ability tiles are uploaded on demand by the ability VRAM DMA loaders.
 ; 
-; 3. If scene is $E8 (Dark Gaia boss fight) and playerFlags bit 3 is NOT set: loads $0600 bytes (1536 bytes = 24 tiles) of alternative FX graphics from misc_fx_1CCA80 to VRAM $4400. These are the ranged projectile tiles used during the final boss.
+; 3. If scene is $E8 (Dark Gaia boss fight) and playerFlags bit 3 is NOT set: loads $0600 bytes (1536 bytes = 48 tiles) of alternative FX graphics from misc_fx_1CCA80 to VRAM $4400. These are the ranged projectile tiles used during the final boss.
 ; 
-; All DMA transfers use scene_script.DmaWordToVram for the actual transfer.
+; All transfers go through DmaWordToVram (extracted/system/engine/DmaWordToVram.asm); the caller presets VMADDL, X = source address, A = source bank, Y = byte count.
 
 LoadPlayerGraphics {
     PHP                   ; Scenes $F7, $FE, $8C — skip player graphics entirely
@@ -1124,7 +1136,7 @@ LoadPlayerGraphics {
     BEQ loc_03E04E
     CMP #$8C
     BEQ loc_03E04E
-    LDX #$4200            ; Main spritesheet: $1C00 bytes (112 tiles) → VRAM $4200
+    LDX #$4200            ; Main spritesheet: $1C00 bytes (224 tiles) → VRAM $4200
     STX $VMADDL
     LDX #$&gfx_000000
     LDA #$^gfx_000000
@@ -1171,12 +1183,12 @@ LoadPlayerGraphics {
 ; - $0652 low nibble → cameraOffsetX high byte (left edge, in 256-pixel units)
 ; - $0652 high nibble → cameraOffsetY high byte (top edge)
 ; - $0653 low nibble → cameraBoundsX high byte (right edge)
-; - $0653 high nibble → cameraBoundsY high byte (bottom edge), also stored to $06DF
+; - $0653 high nibble → cameraBoundsY high byte (bottom edge), also stored to the high byte of cameraLowerYBound ($06DF)
 ; 
 ; Used for scenes with camera-restricted areas (e.g., boss arenas, cutscene frames).
 ; 
 ; === Common finalization ===
-; Clears low bytes of cameraBoundsY and cameraLowerYBound. Zeroes $0652 (consumed). Applies visible height correction: cameraBoundsY += $0100 − $06EC (adjusts for the playable viewport height vs. the full map).
+; Clears low bytes of cameraBoundsY and cameraLowerYBound. Zeroes $0652 (consumed). Applies visible height correction: cameraBoundsY += $0100 − visibleHeight ($06EC) (adjusts for the playable viewport height vs. the full map).
 
 InitCameraBounds {
     LDX $warpScrollParams ; Load $0652 — custom camera bounds override?
@@ -1202,7 +1214,7 @@ InitCameraBounds {
     LSR 
     LSR 
     STA $cameraOffsetY+1
-    LDA $0653             ; $0653 low nibble → cameraBoundsX high byte
+    LDA $warpScrollParams+1 ; $0653 low nibble → cameraBoundsX high byte
     PHA 
     AND #$0F
     STA $cameraBoundsX+1
@@ -1212,16 +1224,16 @@ InitCameraBounds {
     LSR 
     LSR 
     STA $cameraBoundsY+1
-    STA $06DF
+    STA $cameraLowerYBound+1
 
   loc_03E094:
     STZ $cameraBoundsY    ; Clear Y bound low bytes
     STZ $cameraLowerYBound
     REP #$20
-    STZ $warpScrollParams ; Consume $0652, apply viewport correction: bounds += $100 − $06EC
+    STZ $warpScrollParams ; Consume $0652, apply viewport correction: bounds += $100 − visibleHeight
     LDA #$0100
     SEC 
-    SBC $06EC
+    SBC $visibleHeight
     CLC 
     ADC $cameraBoundsY
     STA $cameraBoundsY

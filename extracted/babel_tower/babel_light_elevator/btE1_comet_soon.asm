@@ -9,6 +9,8 @@
 ?INCLUDE 'player_character'
 
 !joypadMaskStd                  065A
+!srcCacheBgD                    0675
+!srcCacheSprites                0684
 !playerActor                    09AA
 !playerFlags                    09AE
 !decompressedTilesets           7E4000
@@ -39,8 +41,8 @@ code_099641 {
     COP [Decompress] ( @spm_vampires, $decompressedTilesets )
     LDA #$DFFC
     TRB $joypadMaskStd
-    STZ $0676
-    STZ $0685
+    STZ $srcCacheBgD+1
+    STZ $srcCacheSprites+1
     COP [SetFlagByte] ( #0F )
     LDA #$0200
     TSB $12

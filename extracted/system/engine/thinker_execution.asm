@@ -43,6 +43,7 @@
 ?INCLUDE 'actor_execution'
 ?INCLUDE 'scene_thinkers'
 
+!sceneTableIndex                0646
 !animScratch                    7F0000
 !animScratch2                   7F000E
 
@@ -64,7 +65,7 @@ SpawnSceneThinkers {
     REP #$20
     STZ $005A
     STZ $005C
-    LDX $0646             ; Scene index ($0646) → look up scene_thinkers table pointer
+    LDX $sceneTableIndex  ; Scene index ($0646) → look up scene_thinkers table pointer
     LDA $@scene_thinkers, X
     BEQ loc_03D82F        ; Zero pointer = no thinkers for this scene
     STA $3E

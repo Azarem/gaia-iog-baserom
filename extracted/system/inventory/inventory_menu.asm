@@ -93,6 +93,7 @@
 !orbitDiameter                  7F0012
 !moveXAlt                       7F0018
 !moveYAlt                       7F001A
+!bg3TilemapBuffer               7F0200
 
 ---------------------------------------------
 
@@ -1377,7 +1378,7 @@ YesNoDrawCursor {
     ADC #$0696
     TAX 
     LDA #$202B            ; Write cursor arrow tile $202B to $7F0200+X
-    STA $7F0200, X
+    STA $bg3TilemapBuffer, X
     PLX 
     RTS 
 }
@@ -1490,7 +1491,7 @@ TabDrawCursor {
     ADC #$0584
     TAX 
     LDA #$202B            ; Write cursor arrow tile $202B at active tab
-    STA $7F0200, X
+    STA $bg3TilemapBuffer, X
     PLX 
     RTS 
 }

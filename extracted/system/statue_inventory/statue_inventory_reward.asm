@@ -64,6 +64,7 @@
 !warpFacing                     0650
 !warpScrollParams               0652
 !joypadMaskStd                  065A
+!srcCacheBgD                    0675
 !globalScriptIndex              0AAC
 !sourceSceneId                  0B12
 !BG1SC                          2107
@@ -99,7 +100,7 @@ statue_inventory_reward [
     LDA #$02
     STA $CGADSUB
     REP #$20              ; LDA #$2000 → STA $0E; PHX; extract statue index from $24 AND $000F × 4
-    STZ $0676
+    STZ $srcCacheBgD+1
     LDA $0E
     STA $24
     BIT #$0010

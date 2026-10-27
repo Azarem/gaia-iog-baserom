@@ -1,6 +1,6 @@
-; Warp system, chest interaction, and barrier tiles (173533–174986, Bank 02).
+; Warp system, treasure chest interaction, and opened-chest redraw (173533–174986, Bank 02).
 ; 
-; Combines three related subsystems that manage scene transitions (warps), treasure chest opening, and event-flagged barrier tile placement. All three reference per-scene data from table_01ADA8 (barrier/chest entries) and scene_warps (warp rectangles).
+; Combines three related subsystems: scene-transition warps, treasure chest opening, and redrawing already-opened chests when a scene is built (PlaceBarrierTiles; the "barrier" name is a misnomer, see its note). The chest code reads per-scene records from scene_barrier_chest_table, the warp code reads warp rectangles from scene_warps. CheckWarpAndChest is called every frame from the main loop (system_core); InitWarpTable and PlaceBarrierTiles run while a scene is set up (scene_lifecycle; PlaceBarrierTiles again when inventory_overlay rebuilds the scene).
 ; 
 ; === WARP SYSTEM ===
 ; 
@@ -12,56 +12,53 @@
 ; 
 ; CheckWarpRectangles tests the player's tile and pixel position against both tables:
 ; 1. Standard warps: tile-level AABB check (playerXTile/playerYTile vs entry bytes 0-3), then sub-tile pixel refinement via ConvertWarpToPixels. Hit → ExecuteWarp.
-; 2. Extended warps: same AABB structure but 13-byte entries (extra byte for scroll step configuration). Hit → code_02AAF2 for forced-walk warp.
+; 2. Extended warps: same AABB structure but 13-byte entries (bytes 4–5 camera window, byte 6 direction/sequence, bytes 7–12 walk steps). Hit → code_02AAF2 for forced-walk warp.
 ; 
 ; ConvertWarpToPixels converts tile coordinates to pixel coordinates (×16) and computes the bounding box size (width/height × 16 − 15) for sub-tile precision checking.
 ; 
-; ExecuteWarp saves complete warp state: destination scene ($0642), player spawn coordinates ($064C/$064E/$0650/$0652), source scene ($0B12), source warp rectangle bounds ($0B08-$0B0E), and camera offset packing ($0B10/$0B11 = camera X/Y packed into nibbles). Bit 7 of entry byte 9 selects between immediate transition (clear) and deferred transition with save data pointer (set).
+; ExecuteWarp copies the standard entry into the transition parameters: destination scene ($0642, byte 4), player spawn X/Y ($064C/$064E, bytes 5–8), facing ($0650, byte 9 with bit 7 masked off) and the packed camera window read by InitCameraBounds ($0652, bytes 10–11). It also records the source scene ($0B12), the source rectangle bytes 0–3 ($0B08/$0B0C/$0B0A/$0B0E) and two camera bytes ($0B10/$0B11) holding bits 8–11 of the camera offset X/Y and of the camera bounds X/Y. Every warp stores a pointer to entry+4 and the scene_warps bank in $0AF4/$0AF6: GameOverSequence reloads from it when the player dies with 100 or more gems (revive). If bit 7 of entry byte 9 is set the same pointer is also stored in sceneSaveData ($0AF0/$0AF2), which GameOverSequence uses for a real game over (fewer than 100 gems). Both variants return carry set.
 ; 
-; code_02AAF2 handles extended (forced-walk) warps: checks the $0100 re-entry guard in playerFlags, configures scroll step parameters, calls InitCameraBounds, and spawns a direction-specific forced walk actor via StartForcedWalk.
+; code_02AAF2 handles extended (forced-walk) warps: checks the $0100 re-entry guard in playerFlags, stores the camera window, direction/sequence byte and walk-step pointer, calls InitCameraBounds, and spawns a direction-specific forced walk actor via StartForcedWalk.
 ; 
-; StartForcedWalk decodes the direction from scrollStepTableBase: bit 5 = West, bit 4 = East, bit 7 = North, default = South. Spawns the corresponding ForcedWalk actor (ForcedWalkSouth/West/East/North) as a SpawnBefore on the player actor. Sets playerFlags $0100 (forced walk active) and $2000 (run mode) on the player actor.
+; StartForcedWalk decodes the direction from scrollStepTableBase: bit 5 = West, bit 4 = East, bit 7 = North, default = South. Spawns the corresponding ForcedWalk actor (ForcedWalkSouth/West/East/North) as a SpawnBefore on the player actor. Sets playerFlags $0100 (forced walk active) and bit 13 ($2000, script-driven tick) in the player actor's flags word $10.
 ; 
 ; === CHEST INTERACTION SYSTEM ===
 ; 
-; HandleChestInteraction is called when the player presses the action button while facing north. It checks:
-; 1. layerPriorityFlag bit $0200 (interaction disabled) → reject
-; 2. Player actor flag $0004 (standing/facing valid) → reject if not set
-; 3. joypadCurrent bit $0800 (up button) → reject if not pressed
-; 4. GetPlayerFacingDirection == 1 (north) → reject if not facing north
+; HandleChestInteraction runs every frame (via CheckWarpAndChest) and opens a chest when the player pushes against it from below. All of these must hold, otherwise it returns at once:
+; 1. layerPriorityFlag bit $0200 clear (field interaction not disabled)
+; 2. Player actor flag $10 bit 2 ($0004) set: the solid-contact flag of the collision code, i.e. the player is touching a solid tile
+; 3. joypadCurrent bit $0800 (D-pad up) set
+; 4. GetPlayerFacingDirection == 1 (north; the same code order as the facing COP operands)
 ; 
-; The chest tile search reads the mapLayerTilemap at the player's computed facing position. Tile $F8 = chest left side, $F9 = chest right side. For $F9, it checks the left neighbor for $F8 to locate the chest origin.
+; The chest tile search reads mapLayerTilemap at the tile in front of the player. Tile $F8 = chest bottom-left, $F9 = chest bottom-right (the 2×2 closed chest uses base $F8: bottom $F8/$F9, top $FA/$FB). If the tile is $F9 the left neighbour must be $F8, and the origin X is decremented, so the origin is always the bottom-left cell.
 ; 
-; Once found, the routine walks table_01ADA8 entries for the current scene ($0646) to find a matching chest by X/Y coordinate. Unmatched chests show a default "nothing found" dialogue (dialogstring_01FF48).
+; The routine then walks the scene's records in scene_barrier_chest_table (scene index $0646) comparing byte 0/1 (X, Y of the bottom-left cell) with the origin. No match: the chest is shown the message dialogstring_01FF48 ("The jewel box is tightly closed.").
 ; 
-; Matched chests branch on entry byte 2:
-; - Nonzero: Item chest → GiveItemToPlayer. On success: ShowDialogueFrame with item-get dialogue, open chest tiles ($FC), SetEventFlag. On inventory full: play SFX #$2A, show "can't carry" dialogue (dialogstring_01FF2D). If entry byte 3 bit 7 is set: spawn ChestOpeningActor for animated opening with music transition.
-; - Zero: Flag-only chest → show "found" dialogue (dialogstring_01FF36), SetEventFlag.
+; A matching record is processed according to its byte 2 (contents):
+; - Nonzero: item chest. displayModeFlags bit 7 is set (display-filter mode: only actors flagged $1000 keep running), the open chest tiles (base $FC) are drawn, then GiveItemToPlayer runs. Success without record byte 3 bit 7: clear the display filter, SFX #$2A, ShowDialogueFrame with dialogstring_01FF2D (prints the item name held in $0DB8), SetEventFlag. Success with byte 3 bit 7: spawn ChestOpeningActor (fanfare with music transition) and SetEventFlag. Inventory full: show the dialogue string GiveItemToPlayer returned in Y (dialogstring_01FF02, "Your inventory's full!"), redraw the closed tiles (base $F8) and do not set the flag.
+; - Zero: flag-only chest: dialogstring_01FF36 ("It is empty!"), then SetEventFlag.
+; In both cases the event flag is record byte 3 AND $7F.
 ; 
-; DrawChestTiles places 4 tiles (2×2) for open/closed chest graphics at the chest's map position, queuing each to QueueVisibleTileVram for immediate VRAM update. Tile IDs: $06+2, $06+3 (top), $06, $06+1 (bottom), where $06 is the base tile ($FC for open, $F8 for closed).
+; DrawChestTiles places a 2×2 chest at the record's position, queuing each tile to QueueVisibleTileVram for an immediate VRAM update. Tile IDs: base+2, base+3 (top row, Y−1), base, base+1 (bottom row), where base is $FC for an open chest and $F8 for a closed one.
 ; 
 ; === CHEST OPENING ACTOR ===
 ; 
-; ChestOpeningActor manages animated chest opening with music transitions:
-; 1. Stores musicParentActor, spawns SpcTransferMusicData for music loading
-; 2. Guards against actor pool exhaustion ($1FC0)
-; 3. Forwards the dialogue string pointer and render state to the spawned child
-; 4. Suppresses joypad ($CFF0) and locks the player in an idle animation
-; 5. Waits for musicTransitionState == $FFFF (music loaded)
-; 6. Spawns ChestDialogueActor to show the item-get dialogue after a timed delay
-; 7. Polls APUIO1 for $FF (SPC ready), then unlocks player and unmasks joypad
-; 8. Spawns a second SpcTransferMusicData for follow-up data, waits again
-; 9. WaitByte(11) for final sync, then clears displayModeFlags bit 7
+; ChestOpeningActor runs the fanfare for chests whose record has byte 3 bit 7 set. The music value it handles is the one in musicParentActor ($06F2); other code calls that word the original music ID, so the name is a misnomer (see the audit rename proposals). The sequence:
+; 1. Saves $06F2 in orbitAngle (per-actor scratch) and spawns SpcTransferMusicData (async SPC upload) as a child; the pool-full result ($1FC0) jumps to the cleanup.
+; 2. Gives the child its track number (the $26 field set by HandleChestInteraction, #$17, plus 1) in chatPtr and flags it $1000 so it still runs while the world is frozen.
+; 3. Masks the joypad ($CFFC into joypadMaskStd: every button except Select/Start), flags the player $1000, points the player's state at PlayerIdleAnimLoop and sets playerFlags $0800 (script lock).
+; 4. Yields until musicTransitionState == $FFFF (upload finished), then spawns ChestDialogueActor with the dialogue pointer ($24) and the item ID ($20).
+; 5. Yields until APUIO1 reads $FF, then releases the player (RestorePlayerControlDirect, clears the $1000 flag) and unmasks the joypad.
+; 6. Spawns a second SpcTransferMusicData whose track value is the saved $06F2 (restoring the scene music), waits for $FFFF again, WaitByte 11 frames, clears displayModeFlags bit 7 and dies.
 ; 
-; ChestDialogueActor: waits 72 frames ($48), clears $1000 flag, stores render context ($20 → $0DB8), shows dialogue frame with stored string pointer, then dies.
+; ChestDialogueActor: waits 72 frames, clears its own $1000 flag, restores the item ID from $20 to $0DB8 (the dialogue string prints the item name from there), shows the dialogue pointer stored in $24 with ShowDialogueFrame, and dies.
 ; 
-; === BARRIER TILES ===
+; === OPENED-CHEST REDRAW (PlaceBarrierTiles) ===
 ; 
-; PlaceBarrierTiles walks the table_01ADA8 entries for the current scene. For each entry where the event flag (byte 3 AND $7F → TestEventFlag_0200) is set, it places a 2×2 barrier tile pattern on the map:
-;   Top-left: $FE, Top-right: $FF
-;   Bottom-left: $FC, Bottom-right: $FD
-; 
-; These tiles mark impassable terrain (closed doors, blocked passages). When the corresponding event flag is later set by gameplay, ApplyAllEventBlocks (in event_blocks) swaps the barrier tiles away.
+; PlaceBarrierTiles walks the scene's records in scene_barrier_chest_table. For each record whose event flag (byte 3 AND $7F, TestEventFlag_0200) is set, it writes the OPEN-chest 2×2 pattern at the record position:
+;   Top-left: $FE, Top-right: $FF (row Y−1)
+;   Bottom-left: $FC, Bottom-right: $FD (row Y)
+; These are exactly the tiles DrawChestTiles draws with base $FC, and the records are the chest records, so the routine restores chests the player has already opened whenever the scene map is rebuilt (scene load, and inventory_overlay's scene reload). The earlier "closed door/barrier" reading is not supported by the code. Only the map is written; no VRAM update is queued.
 ; 
 ; === UTILITY ===
 ; 
@@ -87,6 +84,7 @@
 
 !sceneNext                      0642
 !sceneCurrent                   0644
+!sceneTableIndex                0646
 !warpDestX                      064C
 !warpDestY                      064E
 !warpFacing                     0650
@@ -114,6 +112,9 @@
 !playerSpeedNs                  09B4
 !displayModeFlags               09EC
 !sceneSaveData                  0AF0
+!sceneSaveDataBank              0AF2
+!reviveWarpPtr                  0AF4
+!reviveWarpBank                 0AF6
 !sourceSceneId                  0B12
 !APUIO1                         2141
 !mapLayerTilemap                7EA000
@@ -124,7 +125,7 @@
 
 ; Top-level entry point for warp detection and chest interaction.
 ; 
-; Called during the main game loop to check if the player has entered a warp zone or is interacting with a chest. Saves processor state, switches to 16-bit mode, then calls CheckWarpRectangles first. If no warp hit (carry clear), calls HandleChestInteraction. Both routines return carry set on a hit. Four NOPs follow the carry check — likely patched-out debug or timing code. Restores processor state and returns.
+; Called once per frame from the main loop (system_core). Saves processor state, switches to 16-bit A, then calls CheckWarpRectangles first. Only if that reports no warp (carry clear) does it call HandleChestInteraction, so a warp takes priority over a chest. Both helpers return carry set on a hit, but the BCS after the chest call targets the very next instruction and PLP restores the caller's flags, so the routine returns no result; its effects are the staged warp parameters or the chest actions themselves. Four NOPs sit before the PLP (leftover padding, purpose unknown).
 
 CheckWarpAndChest {
     PHP 
@@ -135,7 +136,7 @@ CheckWarpAndChest {
     BCS loc_02A5EA
 
   loc_02A5EA:
-    NOP                   ; NOP sled (×4) — patch/debug padding after warp/chest carry check
+    NOP                   ; Four NOPs: both branches above land here, so the carry tests have no effect
     NOP 
     NOP 
     NOP 
@@ -144,34 +145,31 @@ CheckWarpAndChest {
 }
 
 ---------------------------------------------
-; Place 2×2 barrier tile patterns on the map for event-flagged entries.
+; Redraw already-opened chests into the tile map when a scene is built (despite the name, not barriers).
 ; 
-; Walks the table_01ADA8 entries for the current scene ($0646 indexes scene_warps → table pointer). Each 4-byte entry contains: byte 0 = X tile, byte 1 = Y tile, byte 2 = item/content, byte 3 = event flag (bit 7 = terminator).
+; Walks the scene's records in scene_barrier_chest_table (the scene index at $0646 selects the list). Each 4-byte record is: byte 0 = X tile (bit 7 set = end of list), byte 1 = Y tile of the chest's bottom row, byte 2 = contents (item ID, 0 = flag-only), byte 3 = event flag in bits 0–6 (bit 7 = open with the music fanfare).
 ; 
-; Termination: bit 7 set on byte 0 ($0080 test) ends the walk.
-; 
-; For each entry: tests the event flag (byte 3 AND $7F → TestEventFlag_0200). If the flag is set (carry set): computes the map index from tile coordinates (X, Y−1 for the top row), then writes four barrier tiles:
-;   $FE at (X, Y−1), $FF at (X+1, Y−1) — top row
-;   $FC at (X, Y), $FD at (X+1, Y) — bottom row
-; 
-; These tiles represent closed doors/barriers. Uses MapIndexMoveRight and MapIndexMoveDown for adjacent tile addressing.
+; For each record the event flag (byte 3 AND $7F, TestEventFlag_0200) is tested. If it is set the chest was opened, so the open 2×2 pattern is written to mapLayerTilemap:
+;   $FE at (X, Y−1), $FF at (X+1, Y−1): top row
+;   $FC at (X, Y), $FD at (X+1, Y): bottom row
+; MapIndexMoveRight/MapIndexMoveDown step between the four cells. Only the tile map is written (no VRAM update).
 
 PlaceBarrierTiles {
     PHP 
     REP #$20
-    LDY $0646             ; Scene index $0646 → table_01ADA8 pointer for barrier/chest entries
-    LDX $&scene_barrier_chest_table, Y ; Load 4-byte entry base for current scene barrier list
+    LDY $sceneTableIndex  ; Scene index ($0646) → this scene's chest record list
+    LDX $&scene_barrier_chest_table, Y ; X = first 4-byte chest record
 
   loc_02A5F9:
     LDA $0000, X          ; Entry byte 0 bit 7 ($0080) = end-of-table sentinel
     BIT #$0080
     BNE loc_02A65B
-    LDA $0003, X          ; Entry byte 3 AND $7F → event flag index (TestEventFlag_0200)
+    LDA $0003, X          ; Record byte 3 AND $7F → chest event flag
     AND #$007F
-    JSL $@flag_helpers.TestEventFlag_0200 ; Flag clear (BCC) — barrier removed; skip 2×2 tile placement
-    BCC loc_02A655
+    JSL $@flag_helpers.TestEventFlag_0200 ; Carry set = flag set = chest already opened
+    BCC loc_02A655        ; Flag clear: leave the closed chest as it is
     PHX 
-    SEP #$20              ; Entry +0/+1 = tile X/Y; DEC Y anchors top row at Y−1
+    SEP #$20              ; Record bytes 0/1 = tile X/Y (Y = bottom row); DEC Y gives the top row
     LDA $0000, X
     STA $18
     LDA $0001, X
@@ -183,24 +181,24 @@ PlaceBarrierTiles {
     JSL $@map_coords.TileCoordsToMapIndex
     STX $02
     STX $00
-    LDA #$FE              ; Load $FE — barrier top-left closed tile
+    LDA #$FE              ; $FE = open chest, top-left
     STA $mapLayerTilemap, X
-    JSL $@map_coords.MapIndexMoveRight ; MapIndexMoveRight → adjacent column
-    LDA #$FF              ; Load $FF — barrier top-right closed tile
+    JSL $@map_coords.MapIndexMoveRight ; One cell right
+    LDA #$FF              ; $FF = open chest, top-right
     STA $mapLayerTilemap, X
     LDX $00
     STX $02
     JSL $@map_coords.MapIndexMoveDown ; MapIndexMoveDown — advance to bottom row of 2×2
-    LDA #$FC              ; Load $FC — barrier bottom-left closed tile
+    LDA #$FC              ; $FC = open chest, bottom-left
     STA $mapLayerTilemap, X
-    JSL $@map_coords.MapIndexMoveRight ; MapIndexMoveRight
-    LDA #$FD              ; Load $FD — barrier bottom-right closed tile
+    JSL $@map_coords.MapIndexMoveRight ; One cell right
+    LDA #$FD              ; $FD = open chest, bottom-right
     STA $mapLayerTilemap, X
     REP #$20
     PLX 
 
   loc_02A655:
-    INX                   ; Next entry: INX×4 (4 bytes per barrier record)
+    INX                   ; Next record: +4 bytes
     INX 
     INX 
     INX 
@@ -214,24 +212,19 @@ PlaceBarrierTiles {
 ---------------------------------------------
 ; Detect and process treasure chest interactions.
 ; 
-; Guards (all must pass):
-; 1. layerPriorityFlag bit $0200 clear (interaction not disabled)
-; 2. Player actor ($09AA) flag $0004 set (valid standing state)
-; 3. joypadCurrent bit $0800 set (up button pressed)
-; 4. GetPlayerFacingDirection == 1 (facing north)
+; Open the chest in front of the player (called by CheckWarpAndChest each frame; see the block note for the full flow).
 ; 
-; Chest detection: Computes the tile position one cell north of the player. Reads mapLayerTilemap at that position:
-; - $F8 = chest left tile → origin found directly
-; - $F9 = chest right tile → checks left neighbor for $F8
-; - Other = no chest → returns
+; Guards (all must pass, else RTS):
+; 1. layerPriorityFlag bit $0200 clear (field interaction not disabled)
+; 2. Player actor ($09AA) flags $10 bit 2 ($0004) set: solid contact this frame, i.e. the player is pushing against a solid tile
+; 3. joypadCurrent bit $0800 set (D-pad up)
+; 4. GetPlayerFacingDirection == 1 (north)
 ; 
-; Table search: Walks table_01ADA8 for the current scene, comparing each entry's X/Y against the chest origin tile. Unmatched → dialogstring_01FF48 ("nothing found" default).
+; Chest detection: the tile in front of the player is X = round((pos X − 8) / 16), Y = (pos Y − $20) >> 4. $F8 = chest bottom-left, $F9 = chest bottom-right (then the left neighbour must be $F8 and the origin X is decremented), anything else returns.
 ; 
-; Matched chest processing (entry byte 2):
-; - Nonzero (item): Sets displayModeFlags $0080, draws open tiles ($FC base), calls GiveItemToPlayer. Success → ShowDialogueFrame, SetEventFlag. Inventory full → SFX #$2A, "can't carry" dialogue. If entry byte 3 bit 7 set → spawns ChestOpeningActor for animated music-transition opening.
-; - Zero (flag-only): dialogstring_01FF36 ("found" message), SetEventFlag.
+; Record search: walks the scene's scene_barrier_chest_table records comparing bytes 0/1 with the origin; no match shows dialogstring_01FF48 ("The jewel box is tightly closed.").
 ; 
-; The chest tile computation uses player position with offsets: X = ((pos−8) aligned to 16 + half-tile) >> 4, Y = (pos−32) >> 4.
+; Matched record, by byte 2: nonzero = item chest (displayModeFlags bit 7 set, open tiles drawn, GiveItemToPlayer; success shows dialogstring_01FF2D with SFX #$2A, or spawns ChestOpeningActor when byte 3 bit 7 is set; inventory full shows GiveItemToPlayer's Y string and redraws the closed tiles with no flag); zero = flag-only chest ("It is empty!", dialogstring_01FF36). The event flag set is byte 3 AND $7F.
 
 HandleChestInteraction {
     LDA $layerPriorityFlag ; Guard: layerPriorityFlag bit 9 ($0200) disables field interaction
@@ -240,7 +233,7 @@ HandleChestInteraction {
     RTS 
 
   loc_02A666:
-    LDY $playerActor      ; Guard: player actor $0010 bit 2 ($0004) = interactable standing state
+    LDY $playerActor      ; Guard: player actor $10 bit 2 ($0004) = solid contact this frame (pushing into the chest)
     LDA $0010, Y
     BIT #$0004
     BNE loc_02A672
@@ -260,12 +253,12 @@ HandleChestInteraction {
     RTS 
 
   loc_02A688:
-    LDY $playerActor      ; Compute tile coords one cell north of player pixel position
+    LDY $playerActor      ; Tile in front (north) of the player, from its pixel position
     LDA $0014, Y
     SEC 
     SBC #$0008
     STA $18
-    AND #$0008            ; X snap: ((X−8) & $08)<<1 + (X−8) then >>4 — 16px column alignment
+    AND #$0008            ; Round to nearest tile: add 16 when bit 3 of (X−8) is set, then >>4
     ASL 
     CLC 
     ADC $18
@@ -274,7 +267,7 @@ HandleChestInteraction {
     LSR 
     LSR 
     STA $18
-    LDA $0016, Y          ; Y snap: (Y − $20) >> 4 — tile row in front of player
+    LDA $0016, Y          ; Tile row = (Y − $20) >> 4, one row north of the player's collision row
     SEC 
     SBC #$0020
     LSR 
@@ -287,9 +280,9 @@ HandleChestInteraction {
     JSL $@map_coords.TileCoordsToMapIndex ; TileCoordsToMapIndex → read mapLayerTilemap at facing cell
     LDA $mapLayerTilemap, X
     STX $02
-    CMP #$F8              ; $F8 = chest left half — verify right neighbor is $F9
+    CMP #$F8              ; $F8 = closed chest, bottom-left: right neighbour must be $F9
     BEQ loc_02A6D8
-    CMP #$F9              ; $F9 = chest right half — verify left neighbor is $F8
+    CMP #$F9              ; $F9 = closed chest, bottom-right: left neighbour must be $F8
     BEQ loc_02A6C8
 
   loc_02A6C5:
@@ -297,7 +290,7 @@ HandleChestInteraction {
     RTS 
 
   loc_02A6C8:
-    JSL $@map_coords.MapIndexMoveLeft ; MapIndexMoveLeft; left tile must be $F8 for valid 2-wide chest
+    JSL $@map_coords.MapIndexMoveLeft ; One cell left: must be $F8 for a valid chest
     LDA $mapLayerTilemap, X
     CMP #$F8
     BNE loc_02A6C5
@@ -305,17 +298,17 @@ HandleChestInteraction {
     BRA loc_02A6E4
 
   loc_02A6D8:
-    JSL $@map_coords.MapIndexMoveRight ; MapIndexMoveRight; right tile must be $F9 for valid 2-wide chest
+    JSL $@map_coords.MapIndexMoveRight ; One cell right: must be $F9 for a valid chest
     LDA $mapLayerTilemap, X
     CMP #$F9
     BNE loc_02A6C5
 
   loc_02A6E4:
-    LDY $0646             ; Walk scene chest table — compare entry X/Y to computed origin
+    LDY $sceneTableIndex  ; Walk this scene's chest records, comparing bytes 0/1 with the bottom-left cell
     LDX $&scene_barrier_chest_table, Y
 
   loc_02A6EA:
-    LDA $0000, X          ; Negative entry byte 0 = table end → default empty-chest dialogue
+    LDA $0000, X          ; Byte 0 bit 7 set = end of list → no record for this chest
     BMI loc_02A700
     CMP $18
     BNE loc_02A6FA
@@ -332,16 +325,16 @@ HandleChestInteraction {
 
   loc_02A700:
     REP #$20
-    LDY #$&item_get_dialog_table.dialogstring_01FF48 ; No table match — ShowDialogueFrame dialogstring_01FF48
+    LDY #$&item_get_dialog_table.dialogstring_01FF48 ; No record: "The jewel box is tightly closed."
     JSL $@ShowDialogueFrame
     RTS 
 
   loc_02A70A:
     REP #$20
     PHX 
-    LDA #$0080            ; TSB displayModeFlags $0080 — hold sprite VRAM DMA during chest open
+    LDA #$0080            ; Set displayModeFlags bit 7: display-filter mode, only actors flagged $1000 run
     TSB $displayModeFlags
-    LDA #$00FC            ; $06 = $FC — open-chest tile base (top-left of 2×2)
+    LDA #$00FC            ; $06 = $FC: open-chest base tile (bottom-left cell)
     STA $06
     JSR $&DrawChestTiles  ; DrawChestTiles — swap map tiles to open-chest graphics
     LDA $01, S
@@ -351,10 +344,10 @@ HandleChestInteraction {
     BEQ loc_02A73D
     JSL $@inventory_mgmt.GiveItemToPlayer ; GiveItemToPlayer — carry set means inventory full
     BCC loc_02A753
-    JSL $@ShowDialogueFrame ; Inventory full dialogue; redraw closed tiles before exit
+    JSL $@ShowDialogueFrame ; Y = GiveItemToPlayer's string (dialogstring_01FF02, inventory full); then redraw the closed chest
     LDA $01, S
     TAX 
-    LDA #$00F8            ; $06 = $F8 — closed-chest tile base for restore draw
+    LDA #$00F8            ; $06 = $F8: closed-chest base tile, to undo the open draw
     STA $06
     JSR $&DrawChestTiles
     BRA loc_02A7B0
@@ -383,7 +376,7 @@ HandleChestInteraction {
     STA $sfxQueueCh2
     REP #$20
     PLX 
-    LDY #$&item_get_dialog_table.dialogstring_01FF2D ; ShowDialogueFrame dialogstring_01FF2D — item acquired message
+    LDY #$&item_get_dialog_table.dialogstring_01FF2D ; Overrides GiveItemToPlayer's Y: plain text of the item name from $0DB8, no pause
     JSL $@ShowDialogueFrame
     BRA loc_02A7A1
 
@@ -392,8 +385,8 @@ HandleChestInteraction {
     PHY 
     PHX 
     LDX #$0000
-    COP [SpawnListAppend] ( @ChestOpeningActor, #00, #00, #$2000 ) ; Spawn ChestOpeningActor via SpawnLastRel — animated music open
-    LDA $0012, Y          ; Set actor $0012 bit 12 ($1000) — lock actor during sequence
+    COP [SpawnListAppend] ( @ChestOpeningActor, #00, #00, #$2000 ) ; Spawn ChestOpeningActor (fanfare with music transition)
+    LDA $0012, Y          ; Flag it $1000 so it keeps running in display-filter mode
     ORA #$1000
     STA $0012, Y
     LDA #$0017            ; Load dialogue string ID in actor $0026 for child handoff
@@ -414,84 +407,69 @@ HandleChestInteraction {
     RTS 
 
   loc_02A7B0:
-    LDA #$0080            ; Exit path: TRB displayModeFlags $0080 — re-enable sprite DMA
+    LDA #$0080            ; Exit path: clear displayModeFlags bit 7 (leave display-filter mode)
     TRB $displayModeFlags
     PLX 
     RTS 
 }
 
 ---------------------------------------------
-; Animated chest opening actor with music transition.
+; Chest fanfare actor: item chests whose record has byte 3 bit 7 set are opened by this actor while the world is frozen (displayModeFlags bit 7), see the block note for the 6-step sequence.
 ; 
-; Manages a multi-frame chest opening sequence that includes music loading and dialogue display. Lifecycle:
+; Spawned by HandleChestInteraction with $26 = #$17 (track number), $24 = the dialogue string pointer from GiveItemToPlayer, $20 = the item ID, and flagged $1000. It spawns two SpcTransferMusicData children with SpawnAfterFlags: the first plays the track in $26 (+1) and the second restores the scene music saved from musicParentActor ($06F2) in orbitAngle. Registers are rotated with TXA/TYX/TAY so that X addresses the child while it is configured. Both spawns check for pool exhaustion (Y = $1FC0) and jump to code_02A88B. Yields use COP SetEntryHere with polling of musicTransitionState and APUIO1; the player is locked ($1000 flag, idle animation state, playerFlags $0800, joypad masked with $CFFC) until the SPC replies $FF.
 ; 
-; 1. Stores musicParentActor to orbitAngle scratch field for parent tracking
-; 2. Spawns SpcTransferMusicData via SpawnAfterFlags — guards $1FC0 (pool full → code_02A88B cleanup)
-; 3. Forwards the dialogue string ID ($26+1) and $1000 flag to the music child
-; 4. Saves actor references: X = self, Y = music child
-; 5. Suppresses joypad ($CFF0 → joypadMaskStd) and locks player in idle animation via SetAnimStatePointer (pointing to player_transition_handlers.PlayerIdleAnimLoop)
-; 6. Sets playerFlags $0800 (special mode)
-; 7. COP [SetEntryHere] — yields until musicTransitionState == $FFFF
-; 8. Spawns ChestDialogueActor (forwards $24 dialogue string and $1000 flag, stores render bank $20)
-; 9. COP [SetEntryHere] — polls APUIO1 for $FF (SPC ready)
-; 10. Unlocks player (clear $1000 from actor flags, restore idle animation to RestorePlayerControlDirect), unmasks joypad ($CFF0 TRB)
-; 11. Spawns second SpcTransferMusicData for follow-up data, guards $1FC0
-; 12. Forwards musicParentActor (via orbitAngle) and $1000 flag to the second child
-; 13. COP [SetEntryHere] — waits for second transfer ($FFFF)
-; 14. COP [WaitByte] ($0B) — 11-frame final sync
-; 
-; code_02A88B: Cleanup — clears displayModeFlags bit 7 ($0080) and COP [Die].
+; code_02A88B: cleanup, clears displayModeFlags bit 7 and dies.
 
 ChestOpeningActor {
-    LDA $musicParentActor ; Load musicParentActor to orbitAngle — parent tracking for child actors
+    LDA $musicParentActor ; Save the current music value ($06F2) in orbitAngle for the second upload
     STA $orbitAngle, X
-    COP [SpawnAfterFlags] ( @hdma_dma_spc.SpcTransferMusicData, #$2000 ) ; Spawn SpcTransferMusicData — async music load for chest fanfare
+    COP [SpawnAfterFlags] ( @hdma_dma_spc.SpcTransferMusicData, #$2000 ) ; Child 1: SpcTransferMusicData uploads the fanfare track
     CPY #$1FC0            ; Actor pool full ($1FC0) → code_02A88B cleanup (clear flag, Die)
     BNE loc_02A7CE
     JMP $&code_02A88B
 
   loc_02A7CE:
-    TXA                   ; Rotate registers TXA/TYX/TAY — self→X, music child→Y for setup
+    TXA                   ; Swap X and Y (TXA/TYX/TAY): X = new child while it is configured
     TYX 
     TAY 
-    LDA $26               ; Forward dialogue index ($26+1) to music child chatPtr
+    LDA $26               ; Track number from $26 (+1) → child's chatPtr (read by SpcTransferMusicData)
     INC 
     STA $chatPtr, X
-    LDA $0012, X          ; Set music child $0012 bit $1000 — suspend during transfer
+    LDA $0012, X          ; Flag the child $1000 so it keeps running in display-filter mode
     ORA #$1000
     STA $0012, X
     TXA 
     TYX 
     TAY 
-    LDA #$CFFC            ; TSB joypadMaskStd $CFF0 — mask D-pad and action buttons during open
+    LDA #$CFFC            ; Mask $CFFC in joypadMaskStd: every button except Select/Start
     TSB $joypadMaskStd
-    LDY $playerActor      ; Lock player actor: set $1000, idle anim via SetAnimStatePointer
+    LDY $playerActor      ; Player: flag $1000 (keeps running) and switch to the idle animation state
     LDA $0012, Y
     ORA #$1000
     STA $0012, Y
-    LDA #$*player_transition_handlers.PlayerIdleAnimLoop ; Player idle handler → player_transition_handlers.PlayerIdleAnimLoop
+    LDA #$*player_transition_handlers.PlayerIdleAnimLoop ; State pointer bank → PlayerIdleAnimLoop
     STA $0002, Y
     LDA #$&player_transition_handlers.PlayerIdleAnimLoop
     JSR $&SetAnimStatePointer
-    LDA #$0800            ; TSB playerFlags $0800 — special chest-open player mode
+    LDA #$0800            ; playerFlags $0800: script/ability lock
     TSB $playerFlags
-    COP [SetEntryHere]    ; COP SetEntryHere — yield until musicTransitionState == $FFFF
+    COP [SetEntryHere]    ; Re-entry point: yield until musicTransitionState == $FFFF (upload finished)
     LDA $musicTransitionState
     CMP #$FFFF
     BEQ loc_02A813
     RTL 
 
   loc_02A813:
-    COP [SpawnAfterFlags] ( @ChestDialogueActor, #$2000 ) ; Spawn ChestDialogueActor — delayed item-get dialogue after music
-    LDA $24               ; Forward stored dialogue string ($24) to dialogue actor
+    COP [SpawnAfterFlags] ( @ChestDialogueActor, #$2000 ) ; Spawn ChestDialogueActor (shows the item text after its 72-frame delay)
+    LDA $24               ; Pass the dialogue pointer ($24) to it
     STA $0024, Y
     LDA $0012, Y
     ORA #$1000
     STA $0012, Y
-    LDA $20               ; Forward render context bank ($20) to dialogue actor
+    LDA $20               ; Pass the item ID ($20) to it
     STA $0020, Y
     COP [SetEntryHere]
-    SEP #$20              ; Poll APUIO1 — wait for SPC700 ready signal ($FF)
+    SEP #$20              ; Poll APUIO1 until the SPC700 replies $FF
     LDA $APUIO1
     REP #$20
     AND #$00FF
@@ -500,20 +478,20 @@ ChestOpeningActor {
     RTL 
 
   loc_02A83F:
-    LDY $playerActor      ; Music ready — unlock player: clear actor $1000 lock bit
+    LDY $playerActor      ; SPC replied: release the player ($1000 flag cleared)
     LDA $0012, Y
     AND #$EFFF
     STA $0012, Y
-    LDA #$*player_transition_handlers.RestorePlayerControlDirect ; Restore player idle handler RestorePlayerControlDirect via SetAnimStatePointer
+    LDA #$*player_transition_handlers.RestorePlayerControlDirect ; State pointer bank → RestorePlayerControlDirect
     STA $0002, Y
     LDA #$&player_transition_handlers.RestorePlayerControlDirect
     JSR $&SetAnimStatePointer
-    LDA #$CFFC            ; TRB joypadMaskStd $CFF0 — restore normal input
+    LDA #$CFFC            ; Unmask the joypad ($CFFC)
     TRB $joypadMaskStd
-    COP [SpawnAfterFlags] ( @hdma_dma_spc.SpcTransferMusicData, #$2000 ) ; Second SpcTransferMusicData spawn — follow-up SPC data transfer
+    COP [SpawnAfterFlags] ( @hdma_dma_spc.SpcTransferMusicData, #$2000 ) ; Child 2: SpcTransferMusicData for the saved scene music
     CPY #$1FC0
     BEQ code_02A88B
-    PHX                   ; Restore musicParentActor from orbitAngle to second child chatPtr
+    PHX                   ; Saved music value (orbitAngle) → second child's chatPtr
     LDA $orbitAngle, X
     TYX 
     STA $chatPtr, X
@@ -521,18 +499,18 @@ ChestOpeningActor {
     ORA #$1000
     STA $0012, X
     PLX 
-    COP [SetEntryHere]    ; COP SetEntryHere — wait for second music transfer complete
+    COP [SetEntryHere]    ; Re-entry point: wait for the second upload ($FFFF)
     LDA $musicTransitionState
     CMP #$FFFF
     BEQ loc_02A888
     RTL 
 
   loc_02A888:
-    COP [WaitByte] ( #0B ) ; COP WaitByte #$0B — 11-frame final sync before actor exit
+    COP [WaitByte] ( #0B ) ; Wait 11 frames, then fall into the cleanup
 }
 
 code_02A88B {
-    LDA #$0080            ; code_02A88B: TRB displayModeFlags $0080 then COP Die — pool-full cleanup
+    LDA #$0080            ; Leave display-filter mode (clear displayModeFlags bit 7) and die
     TRB $displayModeFlags
     COP [Die]
 }
@@ -541,19 +519,19 @@ code_02A88B {
 ; Timed chest dialogue display actor.
 ; 
 ; One-shot actor spawned by ChestOpeningActor to show the item-get dialogue after a delay:
-; 1. COP [WaitByte] ($48) — waits 72 frames for the music transition to settle
+; 1. COP [WaitByte] ($48): waits 72 frames while the fanfare plays
 ; 2. Clears bit $1000 from its own actor flags ($12)
-; 3. Stores render context ($20 → $0DB8)
+; 3. Copies the item ID it was given ($20) to $0DB8, where the string reads the item name
 ; 4. Calls ShowDialogueFrame with the dialogue string pointer stored in $24
 ; 5. COP [Die]
 
 ChestDialogueActor {
     COP [WaitByte] ( #48 ) ; COP WaitByte #$48 — 72-frame delay before showing item dialogue
-    LDA #$1000            ; TRB actor $12 $1000 — release render lock on this actor
+    LDA #$1000            ; Clear this actor's own $1000 flag
     TRB $12
-    LDA $20               ; Load render bank $20 → $0DB8 for dialogue frame context
+    LDA $20               ; Item ID ($20) → $0DB8, where the dialogue string reads the item name
     STA $0DB8
-    LDY $24               ; ShowDialogueFrame with dialogue pointer from actor $24
+    LDY $24               ; Show the dialogue string pointer stored in $24
     JSL $@ShowDialogueFrame
     COP [Die]
 }
@@ -573,19 +551,19 @@ SetAnimStatePointer {
 ---------------------------------------------
 ; Draw 2×2 chest tiles on the map and queue VRAM updates.
 ; 
-; Entry: X = chest table entry pointer, $06 = base tile ID ($FC for open, $F8 for closed).
+; Entry: X = chest record pointer (scene_barrier_chest_table), $06 = base tile ID ($FC open, $F8 closed).
 ; 
-; Reads the chest's X/Y tile position from the table entry (bytes 0-1), converts to pixel coordinates (×16) for visibility checking. Computes the map index via TileCoordsToMapIndex.
+; Reads the record's X/Y tile (bytes 0-1; Y is the bottom row, so the top row is Y−1) and keeps the pixel position of the top-left cell (×16) in $1A/$1E for QueueVisibleTileVram, which only queues the tile if that position is on screen. The map index comes from TileCoordsToMapIndex.
 ; 
-; Writes four tiles in order, calling QueueVisibleTileVram after each for visible VRAM update:
-;   Top-left: $06+2, Top-right: $06+3
-;   Bottom-left: $06, Bottom-right: $06+1
+; Writes four tiles in order, calling QueueVisibleTileVram after each:
+;   Top-left: base+2, Top-right: base+3
+;   Bottom-left: base, Bottom-right: base+1
 ; 
-; Between tiles, advances the pixel X/Y coordinates by 16 and uses MapIndexMoveRight/MapIndexMoveDown for map traversal. After all four tiles, writes a zero sentinel to the VRAM queue and calls UpdateFrameRender to flush the display.
+; The pixel coordinates in $1A/$1E follow the cell being drawn (+16 for each step right or down); MapIndexMoveRight/MapIndexMoveDown step the map index. At the end it terminates the VRAM queue with a zero word (written at dmaSkipFlag,Y) and calls UpdateFrameRender to flush the display immediately.
 
 DrawChestTiles {
     PHP 
-    LDA $0000, X          ; Chest entry byte 0 → tile X; ×16 for pixel visibility coords ($1A)
+    LDA $0000, X          ; Record byte 0 = tile X; ×16 = pixel X of the top-left cell ($1A)
     AND #$00FF
     STA $18
     ASL 
@@ -594,7 +572,7 @@ DrawChestTiles {
     ASL 
     STA $1A
     LDA $0001, X
-    AND #$00FF            ; Entry byte 1 → tile Y; DEC then ×16 for pixel Y ($1E)
+    AND #$00FF            ; Record byte 1 = bottom-row tile Y; DEC = top row, ×16 = pixel Y ($1E)
     DEC 
     STA $1C
     ASL 
@@ -653,7 +631,7 @@ DrawChestTiles {
     SEP #$20
     JSR $&event_blocks.QueueVisibleTileVram
     REP #$20
-    LDA #$0000            ; Zero dmaSkipFlag sentinel — end VRAM queue batch
+    LDA #$0000            ; Zero word terminates the queued VRAM writes (stored at dmaSkipFlag + Y)
     STA $dmaSkipFlag, Y
     SEP #$20
     JSL $@system_core.UpdateFrameRender ; UpdateFrameRender — flush queued chest tile VRAM updates
@@ -670,7 +648,7 @@ DrawChestTiles {
 
 InitWarpTable {
     REP #$20
-    LDA $0646             ; Scene index $0646 → scene_warps table pointer for this map
+    LDA $sceneTableIndex  ; Scene index $0646 → scene_warps table pointer for this map
     TAX 
     LDA $&scene_warps, X
     STA $00D4             ; Store standard warp list start → $00D4
@@ -812,7 +790,7 @@ CheckWarpRectangles {
 ;   Byte 2 → $04: width (tile × 16 − 15 = pixel extent)
 ;   Byte 3 → $06: height (tile × 16 − 15)
 ; 
-; The −15 ($000F) on width/height converts from tile count to the maximum pixel offset within the rectangle. This provides sub-tile precision: the player's exact pixel position must be within the rectangle, not just the tile position.
+; The caller tests (player pixel − origin) < extent with an unsigned compare, so the player's pixel position must lie in [origin, origin + 16×size − 16]: the last 15 pixels of the rectangle (and anything left of or above it) do not trigger. This adds a pixel check on top of the tile check.
 
 ConvertWarpToPixels {
     LDA $0000, X          ; Origin X: entry byte 0 × 16 → pixel left edge ($00)
@@ -853,30 +831,28 @@ ConvertWarpToPixels {
 ---------------------------------------------
 ; Execute a standard scene-transition warp.
 ; 
-; Stores comprehensive warp state from the warp table entry:
-;   $0AF4/$0AF6: Warp data pointer (entry+4, with scene_warps bank byte)
+; Entry: X = pointer to the 12-byte standard warp entry. Copies it into the transition parameters:
+;   $0AF4/$0AF6: pointer to entry+4 and the scene_warps bank (GameOverSequence revive point, 100+ gems)
 ;   sceneNext ($0642): Destination scene ID (entry byte 4)
-;   $064C/$064E: Destination X/Y position (entry bytes 5-6, 7-8)
-;   $0650: Direction/flags (entry byte 9)
-;   $0652: Scroll parameters (entry bytes 10-11)
-;   $0B12: Source scene ID (sceneCurrent)
-;   $0B08/$0B0C/$0B0A/$0B0E: Source warp rectangle bounds (entry bytes 0-3)
+;   warpDestX/warpDestY ($064C/$064E): Destination X/Y words (entry bytes 5-6, 7-8)
+;   warpFacing ($0650): Facing/flags (entry byte 9)
+;   warpScrollParams ($0652): Scroll parameters (entry bytes 10-11)
+;   sourceSceneId ($0B12): sceneCurrent
+;   $0B08/$0B0C/$0B0A/$0B0E: Source warp rectangle (entry bytes 0-3)
 ; 
-; Camera state packing: $0B10 = (cameraOffsetX high nibble) | (cameraOffsetY high nibble << 4). $0B11 = (cameraBoundsX high nibble) | (cameraBoundsY high nibble << 4). Packs 4 camera values into 2 bytes.
+; Camera bytes: $0B10 = bits 8–11 of cameraOffsetX | (bits 8–11 of cameraOffsetY << 4); $0B11 = the same for cameraBoundsX/Y. Their consumer is not in this file.
 ; 
-; Direction byte 9 bit 7 selects transition mode:
-;   Bit 7 clear: immediate transition — returns carry set
-;   Bit 7 set: deferred transition — masks off bit 7, stores save data pointer ($0AF0 = entry+4 offset, $0AF2 = scene_warps bank pointer), returns carry set
+; Entry byte 9 bit 7 marks a save warp: when set it is cleared in warpFacing and the entry+4 pointer and bank are also stored in sceneSaveData ($0AF0/$0AF2), the reload point for a real game over. Both paths return carry set.
 
 ExecuteWarp {
     PHP 
-    TXA                   ; Save warp entry pointer+4 → $0AF4 (data offset for transition)
+    TXA                   ; Entry pointer + 4 → $0AF4 (with the bank at $0AF6: revive point for GameOverSequence)
     CLC 
     ADC #$0004
-    STA $0AF4
+    STA $reviveWarpPtr
     SEP #$20
     LDA #$^scene_warps    ; Load scene_warps bank byte → $0AF6
-    STA $0AF6
+    STA $reviveWarpBank
     LDA $0004, X          ; Load destination scene, coords, direction from warp entry bytes 4–11
     STA $sceneNext
     LDY $0005, X
@@ -917,7 +893,7 @@ ExecuteWarp {
     ASL 
     ORA $0B11
     STA $0B11
-    LDA $warpFacing       ; Direction byte 9 bit 7 ($80): deferred vs immediate transition mode
+    LDA $warpFacing       ; Byte 9 bit 7 ($80) = save warp (also record in sceneSaveData)
     BIT #$80
     BNE loc_02AADA
     PLP 
@@ -925,7 +901,7 @@ ExecuteWarp {
     RTS 
 
   loc_02AADA:
-    AND #$7F              ; Deferred mode: mask bit 7, save entry+4 pointer to sceneSaveData/$0AF2
+    AND #$7F              ; Save warp: drop bit 7 from the facing byte, store entry+4 and the bank in sceneSaveData/$0AF2
     STA $warpFacing
     REP #$20
     TXA 
@@ -933,7 +909,7 @@ ExecuteWarp {
     ADC #$0004
     STA $sceneSaveData
     LDA #$*scene_warps
-    STA $0AF2
+    STA $sceneSaveDataBank
     PLP 
     SEC 
     RTS 
@@ -942,13 +918,13 @@ ExecuteWarp {
 ---------------------------------------------
 ; Handle extended (forced-walk) warp — in-scene camera pan with player automation.
 ; 
-; Guard: checks playerFlags bit $0100 (forced walk already active). If set, returns immediately (RTS) to prevent re-triggering.
+; Entry: X = pointer to the 13-byte extended warp entry. Guard: if playerFlags bit $0100 (forced walk already active) is set it returns immediately (RTS) to prevent re-triggering.
 ; 
-; Setup:
-;   $0650: Data pointer (entry + 7, for scroll/direction parameters)
+; Setup (the fields are shared with ExecuteWarp but hold different data here):
+;   warpFacing ($0650): a 16-bit POINTER to entry+7, the stream of 6 walk-step bytes that the ForcedWalk actors advance one byte per step (ReadDirSprite_*Velocity); not a facing byte
 ;   playerSpeedEw/playerSpeedNs: zeroed (player movement stops)
-;   $0652: Destination position (entry bytes 4-5)
-;   scrollStepTableBase: Scroll step configuration (entry byte 6)
+;   warpScrollParams ($0652): entry bytes 4-5, packed camera window read by InitCameraBounds (0 = normal bounds)
+;   scrollStepTableBase: entry byte 6 (low nibble = walk sequence index into forced_walk_sequence_table, bits 4/5/7 = direction)
 ; 
 ; Calls InitCameraBounds to configure camera limits for the destination area, then StartForcedWalk to spawn the appropriate directional walk actor. Returns carry set.
 
@@ -959,7 +935,7 @@ code_02AAF2 {
     RTS 
 
   loc_02AAFB:
-    TXA                   ; Extended warp: store entry+7 pointer → $0650 (scroll/direction data)
+    TXA                   ; Pointer to entry+7 → $0650: walk-step byte stream read by the ForcedWalk actors
     CLC 
     ADC #$0007
     STA $warpFacing
@@ -967,9 +943,9 @@ code_02AAF2 {
     STA $playerSpeedEw
     STA $playerSpeedNs
     SEP #$20
-    LDY $0004, X          ; Entry bytes 4–5 → destination position $0652
+    LDY $0004, X          ; Entry bytes 4–5 → $0652 (packed camera window for InitCameraBounds)
     STY $warpScrollParams
-    LDA $0006, X          ; Entry byte 6 → scrollStepTableBase (direction + step config)
+    LDA $0006, X          ; Entry byte 6 → scrollStepTableBase (direction bits + walk sequence index)
     STA $scrollStepTableBase
     JSL $@scene_lifecycle.InitCameraBounds ; InitCameraBounds — configure camera for destination area
     JSR $&StartForcedWalk ; StartForcedWalk — spawn directional walk actor on player
@@ -987,7 +963,7 @@ code_02AAF2 {
 ;   Bit 7 ($0080): North → ForcedWalkNorth
 ;   Default: South → ForcedWalkSouth
 ; 
-; Extracts the low nibble of scrollStepTableBase ($000F) as the actual scroll step value. Each direction variant uses PHD to set the player actor as DP, spawns via COP [SpawnBefore], then restores DP.
+; Keeps only the low nibble of scrollStepTableBase ($000F), the walk sequence index the ForcedWalk actors use. Each direction variant uses PHD to set the player actor as DP, spawns via COP [SpawnBefore], then restores DP.
 
 StartForcedWalk {
     REP #$20
@@ -997,8 +973,8 @@ StartForcedWalk {
     LDA $0010, Y
     ORA #$2000
     STA $0010, Y
-    STZ $scrollStepIndex  ; Clear scrollStepIndex — restart scroll step table from head
-    LDA $scrollStepTableBase ; Extract scroll step count: low nibble of scrollStepTableBase → $000F
+    STZ $scrollStepIndex  ; Restart the walk sequence at its first step
+    LDA $scrollStepTableBase ; Keep only the low nibble (walk sequence index); direction bits are decoded below
     PHA 
     AND #$000F
     STA $scrollStepTableBase

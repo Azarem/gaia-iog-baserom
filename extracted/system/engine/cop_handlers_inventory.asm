@@ -1,3 +1,14 @@
+; Inventory COP handlers (44037–44161, Bank 00).
+; 
+; Script-level wrappers around inventory_mgmt:
+; - GiveItem (COP #D4): add an item, branch to an overflow target when the inventory is full (49 sites).
+; - RemoveItem (COP #D5): remove an item by ID (34 sites).
+; - BranchIfHasItem (COP #D6): branch when the item is in the inventory (35 sites).
+; - BranchIfItemEquipped (COP #D7): branch when the operand matches the equipped item (5 sites).
+; 
+; The branch operands are &Code offsets in the script bank. Handlers return by writing the resume address into the COP stack frame ($02,S) and RTI.
+---------------------------------------------
+
 ?BANK 00
 
 ?INCLUDE 'inventory_mgmt'
@@ -7,7 +18,7 @@
 
 ---------------------------------------------
 
-; COP #D4 with one byte (item ID) and one &Code (overflow handler). Calls GiveItemToPlayer; on success (carry clear) skips the overflow branch, on failure (carry set) jumps to the &Code overflow target.
+; COP #D4 with one byte (item ID) and one &Code (overflow handler). Calls GiveItemToPlayer; on success (carry clear) skips the overflow branch, on failure (carry set, inventory full) jumps to the &Code overflow target. Side effects of GiveItemToPlayer: the item ID is stored at $0DB8 for the dialogue text, and Y returns a dialogue string pointer that this handler ignores (scripts show their own dialogue).
 
 GiveItem {
     TYX 
@@ -32,7 +43,7 @@ GiveItem {
 }
 
 ---------------------------------------------
-; COP #D5 with one byte operand (item ID). Calls RemoveItemFromInventory and continues.
+; COP #D5 with one byte operand (item ID). Calls RemoveItemFromInventory (zeroes the matching slot and, as a side effect, resets the equipped state: inventoryEquippedType = 0, inventoryEquippedIndex = $FFFF) and continues.
 
 RemoveItem {
     TYX 
@@ -71,7 +82,7 @@ BranchIfHasItem {
 }
 
 ---------------------------------------------
-; COP #D7 with one byte (item ID) and one &Code operand. Compares the operand against inventorySlots[inventoryEquippedIndex]; branches to &Code when the equipped slot matches.
+; COP #D7 with one byte (item ID) and one &Code operand. Compares the operand against inventorySlots[inventoryEquippedIndex]; branches to &Code when they match. inventorySlots is a 16-byte array ($0AB4–$0AC3, one item ID per byte; CheckInventoryForItem steps it with INY), so the index is a plain byte index. When nothing is equipped (index $FFFF, e.g. after RemoveItem) the indexed read wraps to $0AB3 — the byte before the array — so the compare reads unrelated data (analysis only, unverified at runtime).
 
 BranchIfItemEquipped {
     TYX 

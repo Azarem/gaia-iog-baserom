@@ -14,7 +14,7 @@
 ; 
 ; Two-phase collision detection:
 ; 
-; Phase 1 (outer loop): For each enemy in the render list, checks if the player is attacking ($0080 in enemy $10 = hittable AND $0040 = not orb-protected AND $0010 in $12 = not damage-immune). If eligible, calls PlayerAttackHitTest.
+; Phase 1 (outer loop): For each enemy in the render list, for each actor WITHOUT $0400, requires $0080 set in $10 (role unresolved, OQ-8), $0040 clear (not dead/orb) and $12 $0010 clear (not damage-immune). If eligible, calls PlayerAttackHitTest.
 ; 
 ; Phase 2 (inner loop at CombatCollision_InnerLoop): After player attack processing, checks all actors against the current enemy's hitbox for enemy-hits-player collision. Uses AABB overlap testing on hitbox fields ($20–$23). Two paths based on $20 flag: normal ($76E0 exclusion mask) or friendly ($74E0 mask + extendedFlags $0010 check).
 ; 
@@ -35,15 +35,18 @@
 ;   enemyHP = max(0, enemyHP − damage)
 ;   chainDamage stored at $7F101E,X accumulates across consecutive hits
 ; 
-; Enemy attacks player (EnemyHitPlayerHandler):
-;   totalStr = playerStr + previousDamage($09E2) + climbStateData
-;   rawDamage = max(1, enemyAtk − totalStr)
-;   damage = rawDamage + chainDamage($08)
-;   enemyHP = max(0, enemyHP − damage)
+; Phase-2 hit (EnemyHitPlayerHandler — the name is misleading: it uses the PLAYER's strength and reduces the overlapped actor's HP):
+;   totalStr = playerStr + bonus + climbStateData      (bonus = $09E2, 0 when the hitter is actor slot $1000)
+;   rawDamage = max(1, totalStr − victimStats[2])      (stats table: [0] max HP, [1] ATK, [2] DEF)
+;   damage = rawDamage + characterForm
+;   victimHP = max(0, victimHP − damage)
+; 
+; Actor touches player (ApplyInteractionDamage):
+;   damage = max(1, attackerStats[1] − playerDef); playerHp = max(0, playerHp − damage)
 ; 
 ; === DEATH HANDLING ===
 ; 
-; When HP reaches 0: sets $0040 (death flag) in $10. If onDeathCallback ($7F1004,X) exists, uses it. Otherwise dispatches to StandardEnemyDefeatHandler and sets $0400 (standard defeat flag).
+; Normal victims get HitStaggerMain spawned and are resolved later in hit_stagger_controller's HitStaggerResolveHit (HP == 0: set $0040, run onDeathCallback ($7F1004,X) or StandardEnemyDefeatHandler). Only victims that skip the stagger (stagger-immune $12 $0010, or playerFlags $0010 terrain shake) are resolved inline here: HP == 0 sets $0040 and either uses onDeathCallback or dispatches StandardEnemyDefeatHandler and sets $0400 (standard defeat flag).
 ; 
 ; === IFRAME ASSIGNMENT ===
 ; 
@@ -95,11 +98,15 @@
 !playerFlags                    09AE
 !climbStateData                 09E0
 !enemyHpDisplay                 09E4
+!enemyHpCurrentDisplay          09E6
 !enemyHpPending                 09EA
 !playerHp                       0ACE
 !characterForm                  0AD4
 !playerDef                      0ADC
 !playerStr                      0ADE
+!hitVictimMaxHp                 0AE0
+!hitVictimHp                    0AE2
+!actorRenderList                0C00
 !chatPtr                        7F000A
 !metaspritePtr                  7F000C
 !statsPtr                       7F0020
@@ -109,13 +116,14 @@
 !onHitCallback                  7F1000
 !onDodgeCallback                7F1002
 !onDeathCallback                7F1004
+!onDeathCallbackBank            7F1006
 !onCollideCallback              7F1008
 !scratch1010                    7F1010
 !chainDamage                    7F101E
 
 ---------------------------------------------
 
-; Trigger dodge callbacks when the B button is pressed.
+; Trigger dodge callbacks when the attack/action button ($0080 bit of joypadCurrent) is pressed.
 ; 
 ; Iterates the actor render list ($0C00). For each actor without exclusion flags ($D460 = death|orb|COP|overlay|pause bits), checks if onDodgeCallback ($7F1002,X) is set. If so, overwrites the actor's entry point ($0000,X) with the callback address and clears the callback to prevent re-trigger.
 ; 
@@ -125,12 +133,12 @@ ProcessDodgeCallbacks {
     PHP 
     REP #$20
     LDA $joypadCurrent
-    BIT #$0080            ; $0080 = B button (attack/dodge input)
+    BIT #$0080            ; $0080 = "A"-position bit of the remapped joypadCurrent: the engine's attack/action button (docs/cop/families/input.md)
     BEQ loc_03BBB2
     LDY #$0000
 
   loc_03BB93:
-    LDX $0C00, Y
+    LDX $actorRenderList, Y
     BEQ loc_03BBB2
     INY 
     INY 
@@ -199,14 +207,14 @@ RunCombatCollision {
 ; 
 ; Two-phase collision detection per enemy:
 ; 
-; Phase 1 (player attack test): For each actor Y in the render list, checks eligibility: bit 7 ($0080) of $10 set (hittable), bit 6 ($0040) clear (not orb), and $12 bit 4 ($0010) clear (not damage-immune). If eligible and the enemy's iframe counter is non-negative, calls PlayerAttackHitTest.
+; Phase 1 (player attack test): For each actor Y in the render list, checks eligibility (actors without $0400 only): bit 7 ($0080) of $10 set (role unresolved, OQ-8), bit 6 ($0040) clear (not dead/orb), and $12 bit 4 ($0010) clear (not damage-immune). If eligible and the enemy's iframe counter is non-negative, calls PlayerAttackHitTest.
 ; 
 ; Phase 2 (enemy-hits-player test): After phase 1, constructs the current enemy's AABB from metasprite hitbox fields ($0004–$0007), accounting for H-mirror via the carry flag from ASL on $000E. Then iterates the render list again (inner loop at CombatCollision_InnerLoop), testing each actor's hitbox ($0020–$0023) for AABB overlap against the enemy's box.
 ; 
 ; The $20 DP flag distinguishes normal mode (exclusion mask $76E0) from friendly/interaction mode ($74E0 + extendedFlags $0010 check). On overlap, calls EnemyHitPlayerHandler.
 
 CombatCollision_EnemyLoop {
-    BIT #$0080            ; $0080 = hittable flag
+    BIT #$0080            ; $0080 must be set (same bit later set on victims as "iframe-active"; exact role here is unresolved, see open-questions OQ-8)
     BEQ loc_03BC26
     BIT #$0040            ; $0040 = orb protection on this actor
     BNE loc_03BC26
@@ -231,7 +239,7 @@ CombatCollision_EnemyLoop {
     STZ $24
 
   loc_03BC26:
-    LDY $0C00, X
+    LDY $actorRenderList, X
     BNE loc_03BC2E
     JMP $&CombatCollision_Exit
 
@@ -239,7 +247,7 @@ CombatCollision_EnemyLoop {
     INX 
     INX 
     LDA $0010, Y
-    BIT #$0400            ; $0400 = combat-eligible (enemies have this)
+    BIT #$0400            ; $0400 set: take the phase-2 path below; clear: phase-1 test above (docs call $0400 "combat-eligible / standard defeat")
     BEQ CombatCollision_EnemyLoop
     BIT #$0140            ; $0140 = dead or orb-protected
     BNE loc_03BC26
@@ -312,7 +320,7 @@ CombatCollision_EnemyLoop {
     LDX #$0000            ; Reset inner loop — test all actors against this enemy's box
 
   CombatCollision_InnerLoop:
-    LDY $0C00, X
+    LDY $actorRenderList, X
     BNE loc_03BCC4
     JMP $&CombatCollision_NextTarget
 
@@ -462,7 +470,7 @@ PlayerAttackHitTest {
     LDX #$0000
 
   code_03BDAF:
-    LDY $0C00, X
+    LDY $actorRenderList, X
     BNE loc_03BDB7
     JMP $&PlayerAttackHitTest_End
 
@@ -541,12 +549,12 @@ PlayerAttackHitTest {
 
   loc_03BE42:
     STA $currentHp, X
-    STA $0AE2
+    STA $hitVictimHp
     PHX 
     LDA $statsPtr, X
     TAX 
     LDA $810000, X        ; Max HP from stats table byte 0 (long $81xxxx)
-    STA $0AE0
+    STA $hitVictimMaxHp
     PLX 
     TXA                   ; TCD — set DP to target actor for field-relative access
     TCD 
@@ -566,9 +574,9 @@ PlayerAttackHitTest {
     PLA 
 
   loc_03BE77:
-    LDA #$0080            ; $0080 = iframe state
+    LDA #$0080            ; Mark the victim $0080 (docs: iframe-active; also set by ApplyPlayerHitstun)
     TSB $10
-    LDA $playerFlags      ; $0010 in playerFlags = terrain shake: any enemy hit dies outright
+    LDA $playerFlags      ; playerFlags $0010 = terrain shake. Shake or stagger-immune ($12 $0010) victims skip HitStaggerMain and resolve death inline; others die later in HitStaggerResolveHit
     BIT #$0010
     BNE loc_03BE8B
     LDA $12               ; $0010 in $12 = stagger-immune
@@ -576,14 +584,14 @@ PlayerAttackHitTest {
     BEQ loc_03BEBE
 
   loc_03BE8B:
-    LDA $0AE2
+    LDA $hitVictimHp
     BNE loc_03BEEE
     LDA #$0040            ; $0040 = dead; check onDeathCallback ($7F1004) else StandardEnemyDefeatHandler
     TSB $10
     LDA $onDeathCallback, X
     BEQ loc_03BEAB
     STA $00
-    LDA $7F1006, X
+    LDA $onDeathCallbackBank, X
     STA $02
     STZ $08
     STZ $2C
@@ -626,7 +634,7 @@ PlayerAttackHitTest {
 
   loc_03BEEE:
     LDA $12
-    BIT #$0001            ; $0001 in $12: set = recovery iframe ($FFEF), clear = invincibility ($0011)
+    BIT #$0001            ; $0001 in $12: set = negative counter $FFEF (recovery, victim keeps moving), clear = positive $0011 (hit-stun, victim frozen)
     BEQ loc_03BEFE
     LDA #$FFEF
     STA $iframeCounter, X
@@ -644,11 +652,11 @@ PlayerAttackHitTest {
     BIT #$0020
     BNE PlayerAttackHitTest_End
     SEP #$20
-    LDA $0AE0             ; Max HP → $09E4/$09EA; current HP → $09E6 for HUD
+    LDA $hitVictimMaxHp   ; Max HP → $09E4/$09EA; current HP → $09E6 for HUD
     STA $enemyHpDisplay
     STA $enemyHpPending
-    LDA $0AE2
-    STA $09E6
+    LDA $hitVictimHp
+    STA $enemyHpCurrentDisplay
     REP #$20
 }
 
@@ -659,16 +667,16 @@ PlayerAttackHitTest_End {
 }
 
 ---------------------------------------------
-; Handle an enemy actor making contact with the player.
+; Resolve one phase-2 overlap: apply player-strength damage to the overlapped actor (X = victim, $08 = box owner / hitter). NOTE: despite the name this reduces the victim actor's HP; contact damage to the player is ApplyInteractionDamage. Name kept pending an approved rename (see rename-proposals.md).
 ; 
 ; Two main paths based on $24 flag (set by the friendly/interaction detection in the outer loop):
 ; 
 ; Path 1 ($24 nonzero — interaction/push hit): Checks the enemy's scratch1010+6 ($7F1016,X) for a custom interaction handler. If present, overwrites the enemy's entry point. Otherwise, sets the enemy to player_transition_handlers, marks $0040 (death flag), and dispatches knockback velocity by player facing direction (±4 to extVelocityX/Y).
 ; 
-; Path 2 ($24 zero — combat damage): Checks if the enemy has $0010 in flags (invincible) → routes to InvinciblePlayerHit. Otherwise computes damage:
-;   totalStr = playerStr + previousDamage($09E2) + climbStateData
-;   rawDamage = max(1, enemyAtk(stats[2]) − totalStr)
-;   netDamage = rawDamage + chainDamage($08)
+; Path 2 ($24 zero — combat damage): Checks if the victim has $0010 in flags10 (invincible) → routes to InvinciblePlayerHit. Otherwise computes damage:
+;   totalStr = playerStr + bonus ($09E2, 0 for hitter slot $1000) + climbStateData
+;   rawDamage = max(1, totalStr − victimStats[2])   (stats[2] = DEF)
+;   netDamage = rawDamage + characterForm
 ; Subtracts from enemy HP, spawns damage digits (priority $2B00 with $1000 in spawned actor's $12), handles death (onDeathCallback or StandardEnemyDefeatHandler), and spawns HitStaggerMain for knockback.
 ; 
 ; After damage: checks and dispatches onHitCallback ($7F1000,X). Assigns iframes ($0011 or $FFEF). Updates HUD HP display. Finally checks extendedFlags $0050 for collision callback processing — clears $FFAF bits, toggles $6000 in $12, and dispatches onCollideCallback.
@@ -707,7 +715,7 @@ EnemyHitPlayerHandler {
   loc_03BF5D:
     AND #$000F
     BNE loc_03BF69
-    LDA #$FFFC            ; Knockback velocity ±4 by cardinal direction (0=N, 1=S, 2=E, 3=W)
+    LDA #$FFFC            ; Push the player 4 px/frame OPPOSITE its facing (facing 0=down -> Y-4, 1=up -> Y+4, 2=left -> X+4, 3=right -> X-4)
     STA $extVelocityY
     RTS 
 
@@ -744,15 +752,15 @@ EnemyHitPlayer_Epilogue {
     JMP $&InvinciblePlayerHit
 
   loc_03BF94:
-    STZ $20               ; totalStr = playerStr + bonus($09E2) + climbStateData
+    STZ $20               ; $20 = bonus term: 0, or $09E2 unless the hitter ($08) is actor slot $1000; totalStr = playerStr + bonus + climbStateData
     LDA $08
     CMP #$1000
     BEQ loc_03BFA2
-    LDA $09E2
+    LDA $climbStateData+2
     STA $20
 
   loc_03BFA2:
-    LDA $characterForm
+    LDA $characterForm    ; Overwrites $08 (hitter slot) with the character form; read back below as the damage add-on
     STA $08
     LDA $playerStr
     CLC 
@@ -766,11 +774,11 @@ EnemyHitPlayer_Epilogue {
     TAY 
     LDA $0000, Y
     AND #$00FF
-    STA $0AE0
+    STA $hitVictimMaxHp
     LDA $0002, Y
     AND #$00FF
     SEC 
-    SBC $0020             ; rawDamage = enemyAtk(stats[2]) − totalStr; min 1
+    SBC $0020             ; stats[2] (victim DEF) − totalStr, negated below: rawDamage = max(1, totalStr − DEF)
     EOR #$FFFF
     INC 
     CMP #$0001
@@ -779,7 +787,7 @@ EnemyHitPlayer_Epilogue {
 
   loc_03BFD9:
     CLC 
-    ADC $0008             ; netDamage = rawDamage + chainDamage($08)
+    ADC $0008             ; netDamage = rawDamage + characterForm ($0008 now holds the form, stored at 245669; DP is the victim here, so this is the absolute address)
     STA $chainDamage, X
     PHA 
     EOR #$FFFF
@@ -791,7 +799,7 @@ EnemyHitPlayer_Epilogue {
 
   loc_03BFF0:
     STA $currentHp, X
-    STA $0AE2
+    STA $hitVictimHp
     LDA $12
     BIT #$0020
     BNE loc_03C01D
@@ -811,7 +819,7 @@ EnemyHitPlayer_Epilogue {
     PLA 
 
   loc_03C01E:
-    LDA #$0080            ; $0080 = iframe state
+    LDA #$0080            ; Mark the victim $0080 (iframe-active)
     TSB $10
     LDA $playerFlags
     BIT #$0010
@@ -821,14 +829,14 @@ EnemyHitPlayer_Epilogue {
     BEQ loc_03C065
 
   loc_03C032:
-    LDA $0AE2
+    LDA $hitVictimHp
     BNE loc_03C097
     LDA #$0040            ; $0040 = dead; onDeathCallback or StandardEnemyDefeatHandler
     TSB $10
     LDA $onDeathCallback, X
     BEQ loc_03C052
     STA $00
-    LDA $7F1006, X
+    LDA $onDeathCallbackBank, X
     STA $02
     STZ $08
     STZ $2C
@@ -902,11 +910,11 @@ EnemyHitPlayer_Epilogue {
     BIT #$0020
     BNE loc_03C0E2
     SEP #$20
-    LDA $0AE0             ; Max/current HP → HUD display registers
+    LDA $hitVictimMaxHp   ; Max/current HP → HUD display registers
     STA $enemyHpDisplay
     STA $enemyHpPending
-    LDA $0AE2
-    STA $09E6
+    LDA $hitVictimHp
+    STA $enemyHpCurrentDisplay
     REP #$20
 
   loc_03C0E2:
@@ -1168,21 +1176,21 @@ RunInteractionCollision {
     LDA $0014, Y
     SEC                   ; Interaction box: X ± 4px, Y from (Y−14) to (Y−4)
     SBC #$0004
-    STA $18
+    STA $18               ; Box left = X − 4
     CLC 
     ADC #$0008
-    STA $1A
+    STA $1A               ; Box right = X + 4
     LDA $0016, Y
     SEC 
     SBC #$0004
-    STA $1E
+    STA $1E               ; Box bottom = Y − 4
     SEC 
     SBC #$000A
-    STA $1C               ; $2040 = COP active or orb → no interaction
+    STA $1C               ; Box top = Y − 14
     LDA $0010, Y
-    BIT #$2040            ; $0280 = climb/special → FriendlyMode (restricted)
+    BIT #$2040            ; $2040 = COP-script mode or orb → no interaction at all
     BNE InteractionCollision_Exit
-    BIT #$0280
+    BIT #$0280            ; $0200 game-over / $0080 iframe-active → friendly NPCs only (FriendlyMode)
     BEQ loc_03C293
     JMP $&InteractionCollision_FriendlyMode
 
@@ -1194,7 +1202,7 @@ RunInteractionCollision {
     LDY $0E
 
   loc_03C29A:
-    LDX $0C00, Y
+    LDX $actorRenderList, Y
     BEQ InteractionCollision_Exit
     INY 
     INY 
@@ -1314,7 +1322,7 @@ InteractionCollision_FriendlyMode {
     LDY $0E
 
   loc_03C369:
-    LDX $0C00, Y
+    LDX $actorRenderList, Y
     BEQ loc_03C35F
     INY 
     INY 
@@ -1485,7 +1493,7 @@ ApplyInteractionDamage {
     BIT #$1800
     BNE loc_03C4C2
     COP [SpawnListAppend] ( @hit_stagger_controller.HitStaggerMain, #00, #00, #$2400 ) ; Spawn HitStaggerMain; CalcKnockbackFromActorCenters for knockback
-    CPY #$1FC0
+    CPY #$1FC0            ; Y = $1FC0 means the actor pool is full and the HitStaggerMain spawn failed: skip configuring it (same guard used by attack_ability_system, item_use_system)
     BEQ loc_03C4C2
     LDA $extendedFlags, X
     AND #$0020

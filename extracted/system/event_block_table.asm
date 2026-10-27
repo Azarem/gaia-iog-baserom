@@ -5,7 +5,7 @@
 
 ---------------------------------------------
 
-; 158 entries of 8-byte event-block-def structs defining event-triggered tile copy operations. Fields: scene ID, source X/Y tile, width, height, dest X/Y tile, layer flag. Used for doors opening/closing, barriers appearing/disappearing, puzzle state changes. LookupEventBlock validates scene ID before execution; tile rectangles are copied between source and destination coordinates. Indexed by event_index × 8.
+; 158 entries of 8-byte event-block-def structs defining event-triggered tile copy operations. Fields: scene ID, source X/Y tile, width, height, dest X/Y tile, layer flag. Used for doors opening/closing, barriers appearing/disappearing, puzzle state changes. LookupEventBlock validates scene ID before execution (an entry whose scene differs from sceneCurrent is skipped); the rectangle is copied from the source to the destination coordinates. Coordinates and sizes are in 16×16 metatiles. Indexed by event_index × 8; the index comes from the COP event-block commands, an enemy's scene-record event byte (actor_execution) or an actor's deathActionIdx. Entry $07 is an all-zero 1×1 placeholder (scene 0); entries $06, $14 and $20 target layer 1 (layer flag 1), all others layer 0.
 
 event_block_table [
   event-block-def < #02, #07, #08, #02, #02, #07, #0B, #00 >   ;00

@@ -4,32 +4,38 @@
 ; 
 ; === RENDERING ARCHITECTURE ===
 ; 
-; Entry point: ConsoleStringRenderer, called via JSL. Y = string data pointer, X = VRAM buffer write position (byte offset into $7F0200). Each character writes a 16-bit VRAM tilemap word: low byte = tile index, high byte = palette/priority from sceneStateHelper ($099F).
+; Entry point: ConsoleStringRenderer, called via JSL. Y = string data pointer (in the current data bank), X = VRAM buffer write position (byte offset into $7F0200, one tilemap row = $40 bytes). Each character writes a 16-bit VRAM tilemap word: low byte = tile index, high byte = attribute (palette/priority/flip) from sceneStateHelper ($099F).
 ; 
-; The command dispatch uses JSR ($addr,X) — indirect indexed JSR through ConsoleStringCommandTable. Commands may recursively call ConsoleStringRenderer (InsertRemoteString, IndirectString, InsertItemName) and update X via the stack ($03,S or $05,S depending on stack depth).
+; Display state: $099E/$099F form one 16-bit attribute word (the low byte is always 0 in the vanilla game, the high byte is sceneStateHelper). The multi-tile commands (numbers, boxes, fills, raw bytes) OR $099E into each tile word. $09A0 is the line-start cursor: SetVramAddr and DrawBox set it, and the two row-advance commands move it by a whole row and make it the new cursor, so a line break returns to the column of the last position command, not the current column.
+; 
+; The command dispatch uses JSR ($addr,X) — indirect indexed JSR through ConsoleStringCommandTable. Commands may recursively call ConsoleStringRenderer (InsertRemoteString, IndirectString, InsertItemName) and return the new X by writing it to the saved-X slot on the stack ($03,S, or $05,S after one extra PHY).
+; 
+; Operand addresses (digit sources, counts, index variables) are 16-bit offsets in the CURRENT data bank, so they only reach RAM because banks $00–$3F mirror WRAM $0000–$1FFF. Callers set the data bank to the string's bank.
 ; 
 ; === COMMAND TABLE ($00–$11) ===
 ; 
-; | Cmd | Handler | Operand | Description |
-; |-----|---------|---------|-------------|
-; | $00 | End | — | Pop registers, RTL to caller |
-; | $01 | SetVramAddr | 2B addr | Set VRAM write cursor |
-; | $02 | InsertRemoteString | 2B addr + 1B bank | Recursive render from another bank |
-; | $03 | SetPalette | 1B bits | Set palette bits 2-4 in attribute byte |
-; | $04 | IndirectString | 2B base + 1B bank + 2B idx | Indexed string table lookup + render |
-; | $05 | PrintBcdNumber | 1B count + 2B addr | Print packed BCD digits right-to-left |
-; | $06 | DrawBox | 1B w + 1B h + 2B pos | Draw bordered rectangle with corners/edges/fill |
-; | $07 | ClearColumn | 2B addr | Clear tiles in a column region |
-; | $08 | FillTile | 1B tile + 2B count addr | Repeat a tile N times |
-; | $09 | PrintEquipIcons | var (term $80+) | Draw 2×2 equipment metatiles |
-; | $0A | DrawPlayerHpBar | — | Render player HP as filled/half/empty segments |
-; | $0B | DrawEnemyHpBar | — | Render enemy HP bar (same algorithm, different palette) |
-; | $0C | PrintRawBytes | var (term $FF) | Output raw tile bytes until terminator |
-; | $0D | AdvanceRow4 | — | Advance cursor +$0080 (4 rows) |
-; | $0E | Print3DigitNumber | 2B addr | Format and print a 3-digit decimal number |
-; | $0F | ClearRect | 1B w + (see notes) | Clear a rectangular area |
-; | $10 | InsertItemName | 1B index | Look up and render item name from itemcomp_table |
-; | $11 | AdvanceRow2 | — | Advance cursor +$0040 (2 rows) |
+; The "Tag" column is the name used in the ConsoleString text syntax (db-us/stringTypes.json). In the vanilla strings (tables/system_strings) the commands STR, CLR, CPY and UNK never occur, and BCD occurs once with one digit; the retranslation/patch strings may use more.
+; 
+; | Cmd | Tag | Handler | Operand | Description |
+; |-----|-----|---------|---------|-------------|
+; | $00 | (end) | End | — | Pop registers, RTL to caller |
+; | $01 | POS | SetVramAddr | 2B word | Set the cursor (and line start) to a buffer offset; the text form writes it as low byte, high byte |
+; | $02 | STR | InsertRemoteString | 2B addr + 1B bank | Recursive render from another bank |
+; | $03 | PAL | SetPalette | 1B bits | Set palette bits 2-4 in the attribute byte |
+; | $04 | TBL | IndirectString | 2B table + 1B bank + 2B index address | Render the string selected by a RAM index |
+; | $05 | BCD | PrintBcdNumber | 1B digit count + 2B addr | Packed BCD digits, low digit first in memory, printed right-to-left |
+; | $06 | BOX | DrawBox | 1B w + 1B h + 2B pos | Bordered rectangle with corners/edges/fill |
+; | $07 | CLR | ClearColumn | 2B pos | Blank a block whose width is measured from the existing tiles |
+; | $08 | CPY | FillTile | 1B tile + 2B count address | Write a tile N times (N read from RAM) |
+; | $09 | UNK | PrintEquipIcons | var (term $80+) | 2×2 equipment metatiles (no use found in the extracted strings) |
+; | $0A | HP | DrawPlayerHpBar | — | Player HP as full/half/empty segments |
+; | $0B | HE | DrawEnemyHpBar | — | Enemy HP bar (same algorithm, different palette) |
+; | $0C | ESC | PrintRawBytes | var (term $FF) | Raw tile bytes until terminator |
+; | $0D | DBL | AdvanceRow4 | — | Line break of 2 tilemap rows: cursor = line start + $0080 |
+; | $0E | NUM | Print3DigitNumber | 2B addr | 16-bit value at addr as up to 3 decimal digits |
+; | $0F | RCC | ClearRect | 1B width + 1B height | Blank (width+1) × (height+1) tiles; must be the last command before the end byte |
+; | $10 | LU | InsertItemName | 1B index | Insert entry N of item_component_table (shared words such as 'Crystal ', 'Psycho '; used by item and ability names alike) |
+; | $11 | N | AdvanceRow2 | — | Line break of 1 tilemap row: cursor = line start + $0040 |
 ; 
 ; === HP BAR SYSTEM ===
 ; 
@@ -38,35 +44,39 @@
 ; - Half segment ($08): 1 if HP is odd, tile $2007 (half-filled)
 ; - Empty segments ($02): (maxHP − HP)/2, tile $20FF (empty)
 ; 
-; Both HP values are clamped to max 40 ($28). Bars wrap to a second row via HpBar_AdvanceRow after 10 tiles. Player uses palette $0800, enemy uses $0400.
+; The bar is at most 40 half-units (20 segments). The clamp is written back to the source variable, and the current HP is only clamped when the maximum had to be clamped. Bars wrap to a second row via HpBar_AdvanceRow after 10 tiles. Player uses palette $0800 (palette 2), enemy uses $0400 (palette 1).
 ; 
 ; === DRAW BOX ===
 ; 
-; Constructs a bordered rectangle using 4 tile types: $10 (corners, with V/H flip bits for each corner), $11 (horizontal edges), $12 (vertical edges), $40 (interior fill). All OR'd with $099E palette. After drawing, cursor is positioned at first interior content cell (+$0082 from box start).
+; Constructs a bordered rectangle (width × height interior, so width+2 by height+2 tiles) using 4 tile types: $10 (corners, with V/H flip bits for each corner), $11 (horizontal edges), $12 (vertical edges), $40 (interior fill). All OR'd with the $099E attribute word. After drawing, the cursor is set to box start + $0082 (2 rows down, 1 column right).
 ; 
 ; === EQUIPMENT ICONS ===
 ; 
-; PrintEquipIcons renders variable-length equipment lists as 2×2 metatiles. Items 0-7 use tile base $01E0, items 8+ use $02E0. Each icon writes 4 tiles: upper-left (N), upper-right (N+1), lower-left (N+$10), lower-right (N+$11), using VRAM offsets to the current and previous tilemap rows.
+; PrintEquipIcons renders variable-length equipment lists as 2×2 metatiles, 2 tiles wide each. Items 0-7 use tile base $01E0, items 8+ use $02E0 (2 tiles per icon in the tile sheet). Each icon writes 4 tiles: upper-left (N), upper-right (N+1), lower-left (N+$10), lower-right (N+$11); the upper pair goes in the row above the cursor, the lower pair in the cursor row.
 ---------------------------------------------
 
 ?BANK 03
 
 ?INCLUDE 'item_component_table'
 
+!consoleAttrWord                099E
 !sceneStateHelper               099F
+!consoleLineStart               09A0
 !enemyHpDisplay                 09E4
+!enemyHpCurrentDisplay          09E6
 !playerMaxHp                    0ACA
 !playerHp                       0ACE
+!bg3TilemapBuffer               7F0200
 
 ---------------------------------------------
 
 ; Main entry point for the Console string rendering engine.
 ; 
-; Called via JSL with Y = string data pointer, X = VRAM buffer byte offset into $7F0200. Saves processor state and data bank (restored by ConsoleCmd_End). Processes the bytecode stream in a loop:
-; - Bytes >= $12: literal tile characters — written to VRAM buffer as a 16-bit tilemap word (low byte = tile index, high byte = palette from sceneStateHelper $099F)
+; Called via JSL with Y = string data pointer, X = VRAM buffer byte offset into $7F0200. Saves processor state and data bank (restored by ConsoleCmd_End); it never changes the data bank itself, only the commands that recurse do. Processes the bytecode stream in a loop:
+; - Bytes >= $12: literal tile characters — written to VRAM buffer as a 16-bit tilemap word (low byte = tile index, high byte = attribute from sceneStateHelper $099F)
 ; - Bytes $00–$11: command opcodes — dispatched via indexed indirect JSR through ConsoleStringCommandTable
 ; 
-; The X register (VRAM write position) is preserved across command calls via PHX/PLX in the main loop. Commands update X through the stack ($03,S) to reflect cursor advancement.
+; The X register (VRAM write position) is pushed around each command (PHX/PLX), so a command that moves the cursor writes the new position into the pushed copy ($03,S).
 
 ConsoleStringRenderer {
     PHP 
@@ -88,10 +98,10 @@ ConsoleStringRenderer {
     BRA loc_03EA64
 
   loc_03EA7C:
-    STA $7F0200, X        ; Write tile index to low byte of VRAM tilemap word
+    STA $bg3TilemapBuffer, X ; Write tile index to low byte of VRAM tilemap word
     XBA 
     LDA $sceneStateHelper ; Palette/priority attribute from sceneStateHelper ($099F)
-    STA $7F0201, X        ; Write attribute to high byte — completes 16-bit VRAM tile word
+    STA $bg3TilemapBuffer+1, X ; Write attribute to high byte — completes 16-bit VRAM tile word
     INX 
     INX 
     BRA loc_03EA64
@@ -100,7 +110,7 @@ ConsoleStringRenderer {
 ---------------------------------------------
 ; 18-entry word table of command handler addresses for the Console string renderer.
 ; 
-; Indexed by command byte (0–$11), each entry is a 16-bit JSR target. Commands are dispatched via JSR ($addr,X) indirect indexed through this table. Entries cover text positioning, string insertion, number formatting, HP bars, equipment icons, and UI box drawing.
+; Indexed by command byte (0–$11), each entry is a 16-bit JSR target (same bank). Entries cover text positioning, string insertion, number formatting, HP bars, equipment icons, and UI box drawing.
 
 ConsoleStringCommandTable [
   &ConsoleCmd_End   ;00
@@ -124,25 +134,25 @@ ConsoleStringCommandTable [
 ]
 
 ---------------------------------------------
-; Advance the VRAM cursor by 2 tilemap rows.
+; Line break of one tilemap row (text tag [N]).
 ; 
-; Adds $0040 (64 bytes = 32 words = 2 rows × 32 tiles/row) to the cursor position stored in $09A0, then writes the new position to both $09A0 and the stack ($03,S) to update X on return.
+; Adds $0040 (64 bytes = 32 words = one 32-tile tilemap row) to the line start in $09A0 and writes the result to both $09A0 and the saved X on the stack ($03,S). The old cursor column is discarded: text continues in the column of the last position command. The name says "2 rows" but the step is one row; ConsoleCmd_AdvanceRow4 below is two rows.
 ; 
 ; No operand bytes consumed.
 
 ConsoleCmd_AdvanceRow2 {
-    LDA $09A0
+    LDA $consoleLineStart
     CLC 
-    ADC #$0040            ; +$0040 = advance 2 tilemap rows (32 words × 2 bytes per row)
-    STA $09A0
+    ADC #$0040            ; +$0040 = one tilemap row (32 words × 2 bytes)
+    STA $consoleLineStart
     STA $03, S
     RTS 
 }
 
 ---------------------------------------------
-; Insert an item name string by item index.
+; Insert a shared word from item_component_table (text tag [LU:n]).
 ; 
-; 1-byte operand: item index. Multiplies by 2 (ASL) for word table offset, switches data bank to itemcomp_table_01EB0F's bank, looks up the item name string pointer, and recursively calls ConsoleStringRenderer to render the name. Updates the VRAM cursor through the stack on return.
+; 1-byte operand: entry index 0–$E. Multiplies by 2 (ASL) for the word table offset, switches the data bank to item_component_table's bank, loads the string pointer and recursively calls ConsoleStringRenderer to render it (e.g. [LU:C] = 'Statue ', [LU:8] = 'Psycho '). Used by item names, item and ability descriptions and the ability menu, so "item name" in the label is a misnomer. Returns the new cursor in the saved X on the stack.
 
 ConsoleCmd_InsertItemName {
     PHY 
@@ -150,7 +160,7 @@ ConsoleCmd_InsertItemName {
     LDA $06, S
     TAX 
     LDA $0000, Y
-    AND #$00FF            ; 1-byte item index operand (×2 for word table offset)
+    AND #$00FF            ; 1-byte component index operand (×2 for word table offset)
     ASL 
     PHA 
     SEP #$20
@@ -159,9 +169,9 @@ ConsoleCmd_InsertItemName {
     PLB 
     REP #$20
     PLY 
-    LDA $&item_component_table, Y ; Look up item name string from itemcomp_table_01EB0F
+    LDA $&item_component_table, Y ; Pointer to the shared-word string
     TAY 
-    JSL $@ConsoleStringRenderer ; Recursively render item name string via JSL
+    JSL $@ConsoleStringRenderer ; Recursively render the shared word (X = cursor)
     TXA 
     STA $06, S
     PLB 
@@ -173,9 +183,9 @@ ConsoleCmd_InsertItemName {
 ---------------------------------------------
 ; Clear a rectangular area of the VRAM staging buffer.
 ; 
-; 2-byte operand: byte 0 = width (tiles), byte 1 = height (rows). Fills the rectangle with blank tiles ($0000) starting at the current VRAM cursor position. The inner loop writes (width + 1) tiles per row (BPL loop from width down to 0), then advances to the next tilemap row (+$0040) and resets the width counter.
+; 2-byte operand: byte 0 = width, byte 1 = height. Fills (width + 1) × (height + 1) tiles with $0000 (blank, attribute 0) starting at the current cursor position: the inner loop writes width+1 tiles (BPL loop from width down to 0), and the row loop runs until the height counter goes negative. Rows are $0040 bytes apart.
 ; 
-; Note: height is loaded as a 16-bit word from the operand stream, incorporating the following byte in the high byte. The BMI exit condition depends on the overall 16-bit value going negative.
+; Hazard: the height counter is loaded as a 16-bit word, so the byte AFTER the operand becomes its high byte. This only works when that byte is $00, so every use in the game is the last command before the end byte (e.g. [POS:0,0][RCC:1F,4]). Any other following byte would make the loop run for hundreds of rows. It does not change the cursor on the stack.
 
 ConsoleCmd_ClearRect {
     PHY 
@@ -183,17 +193,17 @@ ConsoleCmd_ClearRect {
     STA $00
     TAX 
     LDA $0000, Y
-    AND #$00FF            ; Byte operand: rectangle width (tiles to clear per row)
+    AND #$00FF            ; Operand byte 0: width (the row loop writes width+1 tiles)
     STA $0E
     STA $10
     LDA $0001, Y
-    STA $12
+    STA $12               ; Height: 16-bit read, so the next string byte is the high byte (must be $00)
 
   loc_03EAF7:
     LDA #$0000
 
   loc_03EAFA:
-    STA $7F0200, X
+    STA $bg3TilemapBuffer, X
     INX 
     INX 
     DEC $10
@@ -202,7 +212,7 @@ ConsoleCmd_ClearRect {
     BMI loc_03EB17
     LDA $00
     CLC 
-    ADC #$0040            ; +$0040 = advance to next tilemap row
+    ADC #$0040            ; +$0040 = next tilemap row
     STA $00
     TAX 
     LDA $0E
@@ -219,18 +229,18 @@ ConsoleCmd_ClearRect {
 ---------------------------------------------
 ; Draw the player's HP bar using filled, half, and empty segments.
 ; 
-; No operand. Clamps both playerMaxHp ($0ACA) and playerHp ($0ACE) to a maximum of 40 ($28). Computes three segment counts:
+; No operand. If playerMaxHp ($0ACA) exceeds 40 ($28) it is clamped to 40 in RAM and playerHp ($0ACE) is then clamped the same way (HP is not checked when the maximum is already ≤ 40). Computes three segment counts in DP scratch:
 ; - $00 = full segments (playerHp / 2)
 ; - $08 = half-unit flag (1 if playerHp is odd)
-; - $02 = empty segments ((maxHP − HP) / 2, with rounding correction)
+; - $02 = empty segments ((maxHP − HP) / 2, plus one when the three counts do not cover maxHP, i.e. an odd maximum)
 ; 
-; Sets palette offset to $0800 (player color) and calls DrawHpBar to render.
+; Sets the palette word to $0800 (palette 2) in $04 and calls DrawHpBar with A = the cursor.
 
 ConsoleCmd_DrawPlayerHpBar {
     PHY 
     STZ $08
     LDA $playerMaxHp
-    CMP #$0029            ; Clamp player HP to max 40 ($28 = 20 full bar segments)
+    CMP #$0029            ; Max above 40 ($28 = 20 segments)? Clamp it, then clamp HP
     BMI loc_03EB3A
     LDA #$0028
     STA $playerMaxHp
@@ -269,7 +279,7 @@ ConsoleCmd_DrawPlayerHpBar {
     INC $02
 
   loc_03EB64:
-    LDA #$0800            ; Player HP palette offset $0800
+    LDA #$0800            ; Player bar attribute bits: palette 2
     STA $0004
     LDA $05, S
     JSR $&DrawHpBar
@@ -280,13 +290,13 @@ ConsoleCmd_DrawPlayerHpBar {
 ---------------------------------------------
 ; Shared HP bar rendering routine used by both player and enemy HP commands.
 ; 
-; Takes VRAM position from A, sets Y = 10 (max tiles per row). Draws segments in order:
-; 1. Full segments ($00 count): tile $2006 | palette
-; 2. Half segment ($08 flag): tile $2007 | palette (skipped if 0)
-; 3. Empty segments ($02 count): tile $20FF | palette
-; 4. Blank padding: tile $0000 to fill remaining row
+; Takes the cursor (buffer offset) in A, sets Y = 10 (tiles left in the row). Draws segments in order:
+; 1. Full segments ($00 count): tile $2006 | $04
+; 2. Half segment ($08 flag): tile $2007 | $04 (skipped if 0)
+; 3. Empty segments ($02 count): tile $20FF | $04
+; 4. Blank tiles ($0000): the rest of the first 10-tile row (unless the bar already wrapped), then the rest of the second row, so a shrinking bar erases its old tiles
 ; 
-; When Y depletes to 0 (10 tiles drawn), calls HpBar_AdvanceRow to move to the next tilemap row and reset Y. Palette in $04 ($0800 = player, $0400 = enemy) is OR'd into each segment tile.
+; When Y reaches 0 (10 tiles drawn), HpBar_AdvanceRow moves to the next tilemap row and resets Y. $04 ($0800 = player, $0400 = enemy) is OR'd into each segment tile. It does not return the cursor: the HP commands leave the caller's cursor unchanged, so text after [HP]/[HE] continues where the bar started.
 
 DrawHpBar {
     TAX 
@@ -298,7 +308,7 @@ DrawHpBar {
     ORA $0004
 
   loc_03EB81:
-    STA $7F0200, X
+    STA $bg3TilemapBuffer, X
     INX 
     INX 
     DEY 
@@ -315,7 +325,7 @@ DrawHpBar {
     BEQ loc_03EBA8
     LDA #$2007            ; Tile $2007 = half-filled bar segment (odd HP remainder)
     ORA $04
-    STA $7F0200, X
+    STA $bg3TilemapBuffer, X
     INX 
     INX 
     DEY 
@@ -329,7 +339,7 @@ DrawHpBar {
     ORA $04
 
   loc_03EBB1:
-    STA $7F0200, X
+    STA $bg3TilemapBuffer, X
     INX 
     INX 
     DEY 
@@ -344,10 +354,10 @@ DrawHpBar {
   loc_03EBC3:
     LDA $06
     BNE loc_03EBD9
-    LDA #$0000            ; Tile $0000 = blank padding (clear remainder of row)
+    LDA #$0000            ; Tile $0000 = blank padding for the rest of the first row
 
   loc_03EBCA:
-    STA $7F0200, X
+    STA $bg3TilemapBuffer, X
     INX 
     INX 
     DEY 
@@ -359,7 +369,7 @@ DrawHpBar {
     LDA #$0000
 
   loc_03EBDC:
-    STA $7F0200, X
+    STA $bg3TilemapBuffer, X
     INX 
     INX 
     DEY 
@@ -372,7 +382,7 @@ DrawHpBar {
 ; 
 ; Adds $002C to X, which combined with the 10 tiles × 2 bytes already drawn ($14) equals one full tilemap row stride ($0040 = 64 bytes). Saves the new position to $06 as a row-continuation flag. Resets Y to 10 for the new row.
 ; 
-; Guard: if the new X exceeds $0100, the bar has exceeded the display area — pops an extra return address (PLA) to exit DrawHpBar early instead of continuing to render.
+; Guard: if the new X is $0100 or more (past buffer row 3), it pops an extra return address (PLA, discarding the return into DrawHpBar) so the RTS returns straight to DrawHpBar's caller and the rest of the bar is skipped.
 
 HpBar_AdvanceRow {
     PHA 
@@ -381,7 +391,7 @@ HpBar_AdvanceRow {
     ADC #$002C            ; +$002C compensates for 10 tiles already drawn ($14) to reach next row ($0040)
     TAX 
     STA $06
-    CMP #$0100            ; Bail if VRAM position >= $0100 (bar exceeds display area)
+    CMP #$0100            ; Bail if buffer offset >= $0100 (past the first four rows)
     BCS loc_03EBF9
     PLA 
     LDY #$000A
@@ -389,14 +399,14 @@ HpBar_AdvanceRow {
 
   loc_03EBF9:
     PLA 
-    PLA                   ; Extra PLA pops DrawHpBar return address → force early exit
+    PLA                   ; Discard the return address into DrawHpBar → RTS exits DrawHpBar
     RTS 
 }
 
 ---------------------------------------------
 ; Draw the enemy's HP bar using the same segment algorithm as player HP.
 ; 
-; No operand. Uses $09E6 as current HP and enemyHpDisplay ($09E4) as max HP. Same clamping (max 40) and segment calculation as ConsoleCmd_DrawPlayerHpBar. Sets palette offset to $0400 (enemy color) and calls DrawHpBar.
+; No operand. Uses enemyHpCurrentDisplay ($09E6) as current HP and enemyHpDisplay ($09E4) as the maximum. Same clamp (max above 40 is clamped in place, then HP) and segment calculation as ConsoleCmd_DrawPlayerHpBar. Sets the palette word to $0400 (palette 1) and calls DrawHpBar.
 
 ConsoleCmd_DrawEnemyHpBar {
     PHY 
@@ -406,14 +416,14 @@ ConsoleCmd_DrawEnemyHpBar {
     BMI loc_03EC1C
     LDA #$0028
     STA $enemyHpDisplay
-    LDA $09E6
+    LDA $enemyHpCurrentDisplay
     CMP #$0029
     BMI loc_03EC1C
     LDA #$0028
-    STA $09E6
+    STA $enemyHpCurrentDisplay
 
   loc_03EC1C:
-    LDA $09E6
+    LDA $enemyHpCurrentDisplay
     LSR 
     STA $00
     BCC loc_03EC26
@@ -441,7 +451,7 @@ ConsoleCmd_DrawEnemyHpBar {
     INC $02
 
   loc_03EC46:
-    LDA #$0400            ; Enemy HP palette offset $0400
+    LDA #$0400            ; Enemy bar attribute bits: palette 1
     STA $04
     LDA $05, S
     JSR $&DrawHpBar
@@ -452,7 +462,7 @@ ConsoleCmd_DrawEnemyHpBar {
 ---------------------------------------------
 ; Terminate the Console string renderer and return to the caller.
 ; 
-; Pops saved X (VRAM position), data bank, and processor status that were pushed by ConsoleStringRenderer's entry (PHP/PHB), then returns via RTL. This is the only way to cleanly exit the rendering loop.
+; Command $00 (the string terminator). Called via JSR from the main loop, so it first pops that call's return address (PLA) and the pushed X (PLX), then restores the data bank and processor status pushed at ConsoleStringRenderer's entry (PLB/PLP) and returns to the JSL caller with RTL. This is the only exit from the rendering loop.
 
 ConsoleCmd_End {
     PLA 
@@ -463,15 +473,15 @@ ConsoleCmd_End {
 }
 
 ---------------------------------------------
-; Advance the VRAM cursor by 4 tilemap rows.
+; Line break of two tilemap rows (text tag [DBL]).
 ; 
-; Adds $0080 (128 bytes = 4 rows × 32 words/row × 2 bytes/word) to $09A0 and updates the stack. Double the stride of AdvanceRow2.
+; Adds $0080 (128 bytes = 2 rows × 32 words/row × 2 bytes/word) to the line start in $09A0 and writes the result to $09A0 and the saved X on the stack. Double the step of AdvanceRow2; the name's "4 rows" is wrong, it is two.
 
 ConsoleCmd_AdvanceRow4 {
-    LDA $09A0
+    LDA $consoleLineStart
     CLC 
-    ADC #$0080            ; +$0080 = advance 4 tilemap rows
-    STA $09A0
+    ADC #$0080            ; +$0080 = two tilemap rows
+    STA $consoleLineStart
     STA $03, S
     RTS 
 }
@@ -479,11 +489,11 @@ ConsoleCmd_AdvanceRow4 {
 ---------------------------------------------
 ; Format and print a decimal number as up to 3 digits.
 ; 
-; 2-byte operand: pointer to a 16-bit source value. Extracts hundreds, tens, and ones digits via repeated subtraction (÷100, ÷10, ÷1). Each digit is OR'd with $099E palette + $30 tile base (Console '0').
+; 2-byte operand: address of a 16-bit source value (in the current data bank, see the header). Extracts hundreds, tens, and ones digits via repeated subtraction (÷100, ÷10, ÷1). Each digit is OR'd with the $099E attribute word + $30 tile base (the '0' glyph).
 ; 
 ; Leading zero suppression: hundreds digit is replaced with blank tile $2000 if zero. Tens digit is blank only if hundreds was also zero (tracked via $0006 flag). Ones digit is always displayed.
 ; 
-; Values are capped at 999 (hundreds clamped to 9). Updates VRAM position on the stack after writing 3 tiles.
+; The hundreds digit is clamped to 9, but the tens and ones still come from value mod 100, so 1005 prints 905 (not 999). Always writes 3 tiles and moves the cursor past them.
 
 ConsoleCmd_Print3DigitNumber {
     PHY 
@@ -491,10 +501,10 @@ ConsoleCmd_Print3DigitNumber {
     TAX 
     STZ $0006
     STZ $0000
-    LDA $099E
-    ORA #$0030            ; ORA #$0030 = Console '0' tile base for digit rendering
+    LDA $consoleAttrWord
+    ORA #$0030            ; Tile $30 = '0' glyph; digit n = $30 + n
     STA $0004
-    LDA $0000, Y          ; 2-byte operand: pointer to 16-bit source value
+    LDA $0000, Y          ; 2-byte operand: address of the 16-bit source value
     TAY 
     LDA $0000, Y
     SEC 
@@ -548,7 +558,7 @@ ConsoleCmd_Print3DigitNumber {
 
   loc_03ECD4:
     STZ $0000
-    STA $7F0200, X
+    STA $bg3TilemapBuffer, X
     INX 
     INX 
     LDA $0002
@@ -562,7 +572,7 @@ ConsoleCmd_Print3DigitNumber {
     DEC 
     ORA $0004
     STZ $0000
-    STA $7F0200, X
+    STA $bg3TilemapBuffer, X
     INX 
     INX 
     TXA 
@@ -576,13 +586,13 @@ ConsoleCmd_Print3DigitNumber {
 ---------------------------------------------
 ; Set the VRAM buffer write position from a 2-byte operand.
 ; 
-; Reads a 16-bit VRAM address from the string data, stores it in both $09A0 (persistent cursor) and on the stack ($03,S), which becomes X when the command returns. Advances Y past the 2-byte operand.
+; Reads a 16-bit buffer offset from the string data (text tag [POS:lo,hi]), stores it in both $09A0 (line start, used by the line-break commands) and the saved X on the stack ($03,S), which becomes X when the command returns. Advances Y past the 2-byte operand.
 
 ConsoleCmd_SetVramAddr {
-    LDA $0000, Y          ; 2-byte operand: new VRAM buffer write position
+    LDA $0000, Y          ; 2-byte operand: new buffer offset (row × $40 + column × 2)
     INY 
     INY 
-    STA $09A0
+    STA $consoleLineStart
     STA $03, S
     RTS 
 }
@@ -590,14 +600,14 @@ ConsoleCmd_SetVramAddr {
 ---------------------------------------------
 ; Recursively render a string from another bank.
 ; 
-; 3-byte operand: 2-byte address + 1-byte bank. Saves the current VRAM position from the stack, pushes the bank byte via PHB/PLB to set the data bank register, then calls ConsoleStringRenderer recursively via JSL with the new string address in Y. After return, restores the original bank and advances Y past the 3-byte operand.
+; 3-byte operand (text tag [STR:@address]): 2-byte address + 1-byte bank. Takes the current cursor from the saved X on the stack, sets the data bank to the operand's bank (PHB, then PLB from a pushed byte), then calls ConsoleStringRenderer recursively via JSL with the new string address in Y. After return, restores the bank, advances Y past the 3-byte operand and stores the new cursor back.
 
 ConsoleCmd_InsertRemoteString {
     LDA $03, S
     TAX 
     PHY 
     PHB 
-    LDA $0000, Y          ; 3-byte operand: address (2) + bank (1) for remote string
+    LDA $0000, Y          ; 3-byte operand: address (2) + bank (1) of the string to insert
     PHA 
     SEP #$20
     LDA $0002, Y
@@ -605,7 +615,7 @@ ConsoleCmd_InsertRemoteString {
     PLB 
     REP #$20
     PLY 
-    JSL $@ConsoleStringRenderer ; Recursive JSL — render string from remote bank
+    JSL $@ConsoleStringRenderer ; Recursive JSL — render the inserted string (X = cursor)
     PLB 
     PLY 
     INY 
@@ -619,13 +629,13 @@ ConsoleCmd_InsertRemoteString {
 ---------------------------------------------
 ; Set the palette attribute for subsequent tile writes.
 ; 
-; 1-byte operand: palette bits. Reads sceneStateHelper ($099F), masks off bits 2-4 (AND $E3), OR's the operand value into those bits, and writes back. This controls the palette field in the high byte of all subsequently rendered tile words.
+; 1-byte operand (text tag [PAL:n], n is the already-shifted bit pattern, e.g. 4 = palette 1, 8 = palette 2, $14 = palette 5). Reads sceneStateHelper ($099F), clears the palette bits 2-4 (AND $E3), ORs the operand into them and writes back, so the priority bit (bit 5) and flips are kept. This sets the attribute byte of all following tiles.
 
 ConsoleCmd_SetPalette {
     SEP #$20
     LDA $sceneStateHelper
-    AND #$E3              ; AND $E3 clears palette bits 2-4 in attribute byte
-    ORA $0000, Y          ; 1-byte operand: new palette bits OR'd into sceneStateHelper
+    AND #$E3              ; $E3 clears palette bits 2-4 (keeps priority and flips)
+    ORA $0000, Y          ; 1-byte operand: new palette bits, ORed in
     INY 
     STA $sceneStateHelper
     REP #$20
@@ -635,9 +645,9 @@ ConsoleCmd_SetPalette {
 ---------------------------------------------
 ; Render a string selected by an indirect index lookup.
 ; 
-; 5-byte operand: 2-byte base address + 1-byte bank + 2-byte index pointer. Reads the index value from the index pointer address, multiplies by 2 for word offset, adds to the base address, reads the string pointer from that table entry, switches data bank, and recursively calls ConsoleStringRenderer.
+; 5-byte operand (text tag [TBL:@table,addr]): 2-byte table address + 1-byte bank + 2-byte address of the index variable. Reads the 16-bit index from that address (in the caller's data bank, so a RAM variable), multiplies by 2, adds it to the table address, sets the data bank to the table's bank, reads the string pointer from the entry and recursively calls ConsoleStringRenderer.
 ; 
-; Used for dynamic string selection — e.g., selecting text based on a game variable that indexes into a string pointer table.
+; Used for dynamic string selection, e.g. the item name or description for the item index in a RAM variable (item_name_table, item_description_table, ability_name_table, character_name_table, misc_ui_strings in system_strings).
 
 ConsoleCmd_IndirectString {
     PHY 
@@ -676,27 +686,27 @@ ConsoleCmd_IndirectString {
 ---------------------------------------------
 ; Print a packed BCD number with leading zero suppression.
 ; 
-; 3-byte operand: 1-byte digit count + 2-byte source address. Digits are extracted from packed BCD bytes (2 digits per byte: low nibble first, then high nibble) and printed right-to-left. Each digit is OR'd with $099E palette and $30 (tile base for '0').
+; 3-byte operand (text tag [BCD:count,addr]): 1-byte digit count + 2-byte source address (current data bank, so a RAM variable). Digits are read from packed BCD bytes (2 digits per byte, least significant byte first, low nibble first) and printed right-to-left from cursor + 2×count. Each tile is $30 + digit in the low byte with the attribute byte $099F as the high byte ($099E's low byte is overwritten, not ORed).
 ; 
-; After printing all digits, a suppression pass replaces leading '0' tiles ($30) with space tiles ($20), stopping at the first non-zero digit. VRAM position is updated on the stack after writing.
+; After printing all digits, a suppression pass replaces leading '0' tiles ($30) with tile $20, always leaving the last digit. The cursor is advanced past the number. Every vanilla use is a 1-digit number, so the suppression pass has no vanilla effect; the project's string map names tile $20 '.', which is probably a blank in the actual font (unverified).
 
 ConsoleCmd_PrintBcdNumber {
     LDA $03, S
     TAX 
     PHY 
     LDA $0000, Y
-    AND #$00FF            ; 3-byte operand: digit count (1) + BCD source address (2)
+    AND #$00FF            ; Operand byte 0: digit count (the source address follows)
     STA $000E
     STA $0010
     ASL 
     PHX 
     CLC 
     ADC $01, S
-    STA $01, S            ; Compute VRAM end position — BCD digits print right-to-left
+    STA $01, S            ; End position = cursor + 2 × digits: also the cursor returned to the caller
     TAX 
     LDA $0001, Y
     TAY 
-    LDA $099E
+    LDA $consoleAttrWord
     SEP #$20
 
   loc_03ED90:
@@ -706,7 +716,7 @@ ConsoleCmd_PrintBcdNumber {
     REP #$20
     DEX 
     DEX 
-    STA $7F0200, X
+    STA $bg3TilemapBuffer, X
     SEP #$20
     DEC $000E
     BEQ loc_03EDC1
@@ -721,7 +731,7 @@ ConsoleCmd_PrintBcdNumber {
     REP #$20
     DEX 
     DEX 
-    STA $7F0200, X
+    STA $bg3TilemapBuffer, X
     SEP #$20
     DEC $000E
     BNE loc_03ED90
@@ -729,11 +739,11 @@ ConsoleCmd_PrintBcdNumber {
   loc_03EDC1:
     DEC $0010             ; Leading zero suppression pass
     BEQ loc_03EDD8
-    LDA $7F0200, X
+    LDA $bg3TilemapBuffer, X
     CMP #$30
     BNE loc_03EDD8
-    LDA #$20              ; Replace Console '0' ($30) with space tile ($20)
-    STA $7F0200, X
+    LDA #$20              ; Replace a leading '0' ($30) with tile $20 (see note)
+    STA $bg3TilemapBuffer, X
     INX 
     INX 
     BRA loc_03EDC1
@@ -753,13 +763,13 @@ ConsoleCmd_PrintBcdNumber {
 ---------------------------------------------
 ; Draw a bordered UI rectangle with corners, edges, and interior fill.
 ; 
-; 4-byte operand: 1-byte width + 1-byte height + 2-byte VRAM position. Constructs the box using palette-OR'd tile types:
+; 4-byte operand (text tag [BOX:w,h,pos]): 1-byte interior width + 1-byte interior height + 2-byte buffer offset of the top-left corner. Constructs the box using tile types OR'd with the $099E attribute word:
 ; - $10: corner tiles (4 variants via V/H flip: $0010 TL, $4010 TR, $8010 BL, $C010 BR)
 ; - $11: horizontal edges (top $0011, bottom $8011)
 ; - $12: vertical edges (left $0012, right $4012)
 ; - $40: interior fill
 ; 
-; Draws top row (corner + edges + corner), then height rows of (border + fill + border), then bottom row. After drawing, positions the cursor at the first interior content cell by adding $0082 to the box start address.
+; Draws top row (corner + edges + corner), then height rows of (border + fill + border), then bottom row. After drawing, the cursor and line start become box start + $0082 (2 rows down, 1 column right of the top-left corner, which is the second interior row, not the first).
 
 ConsoleCmd_DrawBox {
     PHY 
@@ -772,23 +782,23 @@ ConsoleCmd_DrawBox {
     LDA $0002, Y
     TAX 
     PHA 
-    LDA $099E
+    LDA $consoleAttrWord
     ORA #$0010            ; Top-left corner tile ($0010 | palette)
-    STA $7F0200, X
+    STA $bg3TilemapBuffer, X
     LDA $0000
     STA $000E
-    LDA $099E
-    ORA #$0011            ; Horizontal border tile ($0011 | palette) — fill top edge
+    LDA $consoleAttrWord
+    ORA #$0011            ; Horizontal edge tile ($0011 | attribute) for the top edge
 
   loc_03EE11:
-    STA $7F0202, X
+    STA $bg3TilemapBuffer+2, X
     INX 
     INX 
     DEC $000E
     BNE loc_03EE11
-    LDA $099E
+    LDA $consoleAttrWord
     ORA #$4010
-    STA $7F0202, X
+    STA $bg3TilemapBuffer+2, X
     LDA $01, S
     CLC 
     ADC #$0040
@@ -798,51 +808,51 @@ ConsoleCmd_DrawBox {
 
   loc_03EE33:
     PHX 
-    LDA $099E
-    ORA #$0012            ; Vertical border tile ($0012 | palette) — left/right edges
-    STA $7F0200, X
+    LDA $consoleAttrWord
+    ORA #$0012            ; Vertical edge tile ($0012 | attribute) for the left edge (right edge uses $4012)
+    STA $bg3TilemapBuffer, X
     LDA $0000
     STA $0010
-    LDA $099E
-    ORA #$0040            ; Interior fill tile ($0040 | palette)
+    LDA $consoleAttrWord
+    ORA #$0040            ; Interior fill tile ($0040 | attribute)
 
   loc_03EE4A:
-    STA $7F0202, X
+    STA $bg3TilemapBuffer+2, X
     INX 
     INX 
     DEC $0010
     BNE loc_03EE4A
-    LDA $099E
+    LDA $consoleAttrWord
     ORA #$4012
-    STA $7F0202, X
+    STA $bg3TilemapBuffer+2, X
     PLA 
     CLC 
     ADC #$0040
     TAX 
     DEC $000E
     BNE loc_03EE33
-    LDA $099E
+    LDA $consoleAttrWord
     ORA #$8010
-    STA $7F0200, X
+    STA $bg3TilemapBuffer, X
     LDA $0000
     STA $000E
-    LDA $099E
+    LDA $consoleAttrWord
     ORA #$8011
 
   loc_03EE80:
-    STA $7F0202, X
+    STA $bg3TilemapBuffer+2, X
     INX 
     INX 
     DEC $000E
     BNE loc_03EE80
-    LDA $099E
+    LDA $consoleAttrWord
     ORA #$C010
-    STA $7F0202, X
+    STA $bg3TilemapBuffer+2, X
     PLA 
     PLY 
     CLC 
-    ADC #$0082            ; Position cursor after box: start + $0082 for first content cell
-    STA $09A0
+    ADC #$0082            ; Cursor = box start + $0082 (2 rows down, 1 column right)
+    STA $consoleLineStart
     STA $03, S
     INY 
     INY 
@@ -854,9 +864,9 @@ ConsoleCmd_DrawBox {
 ---------------------------------------------
 ; Clear a variable-width column region downward through the VRAM buffer.
 ; 
-; 2-byte operand: VRAM start address. First scans rightward from the start position in 8-bit mode, counting non-zero tiles to determine the column width. Then clears that width of tiles in each row, advancing down by $0040 per row, until encountering a row that starts with a zero tile (end of column).
+; 2-byte operand (text tag [CLR:pos], not used by any vanilla string): buffer offset of the top-left tile. First scans rightward from there, testing only the low byte of each tile word, counting words until one is zero; that count minus one is stored as the width. Then blanks width tiles plus the tile after them in each row (so the whole measured run), advancing down by $0040, and stops when the first tile of the next row is zero (word test). A run of one tile gives width 0, which makes the 16-bit counter wrap and clear 64K words, so it must not be used that way. The TAY after reading the trailing tile is dead (the result is never used).
 ; 
-; Used to erase a column of UI content whose width is determined dynamically from the existing tile data.
+; Erases a text block whose width is read from the tiles already on screen. It does not move the cursor.
 
 ConsoleCmd_ClearColumn {
     PHY 
@@ -867,7 +877,7 @@ ConsoleCmd_ClearColumn {
     PHX 
 
   loc_03EEB0:
-    LDA $7F0200, X        ; Scan rightward counting non-zero tiles to find column width
+    LDA $bg3TilemapBuffer, X ; Scan right while the tile's low byte is non-zero, counting tiles
     BEQ loc_03EEBD
     INX 
     INX 
@@ -880,27 +890,27 @@ ConsoleCmd_ClearColumn {
     PLX 
 
   loc_03EEC3:
-    LDA $0000             ; Clear width × N rows, advancing down until hitting a zero row
+    LDA $0000             ; Per row: clear width tiles (+1 after the loop); repeat while the next row starts non-zero
     STA $000E
     PHX 
     LDA #$0000
 
   loc_03EECD:
-    STA $7F0200, X
+    STA $bg3TilemapBuffer, X
     INX 
     INX 
     DEC $000E
     BNE loc_03EECD
-    LDA $7F0200, X
+    LDA $bg3TilemapBuffer, X
     TAY 
     LDA #$0000
-    STA $7F0200, X
+    STA $bg3TilemapBuffer, X
     PLX 
     TXA 
     CLC 
     ADC #$0040
     TAX 
-    LDA $7F0200, X
+    LDA $bg3TilemapBuffer, X
     BNE loc_03EEC3
     PLY 
     INY 
@@ -911,25 +921,25 @@ ConsoleCmd_ClearColumn {
 ---------------------------------------------
 ; Fill N tile positions with a single tile value.
 ; 
-; 3-byte operand: 1-byte tile index + 2-byte address of repeat count. The tile byte is OR'd with $099E palette to form a VRAM word, and the 16-bit value at the count address determines how many times to write it. Updates cursor on the stack after writing.
+; 3-byte operand (text tag [CPY:tile,addr], not used by any vanilla string): 1-byte tile index + 2-byte address of a 16-bit repeat count (current data bank). The tile byte replaces the low byte of the $099E attribute word to form the tile word, which is written count times (nothing if the count is 0). The cursor is advanced past the run.
 
 ConsoleCmd_FillTile {
     PHY 
     LDA $0001, Y
-    TAX                   ; 2-byte address operand → load tile value from that address
-    LDA $0000, X
+    TAX                   ; Operand bytes 1-2: address of the repeat count
+    LDA $0000, X          ; Repeat count (16-bit)
     PHA 
     LDA $07, S
     TAX 
-    LDA $099E
+    LDA $consoleAttrWord
     SEP #$20
-    LDA $0000, Y          ; 1-byte tile operand (read in 8-bit, OR'd with palette high byte)
+    LDA $0000, Y          ; Operand byte 0: tile index (replaces the low byte; the high byte stays $099F)
     REP #$20
     PLY 
     BEQ loc_03EF17
 
   loc_03EF0E:
-    STA $7F0200, X
+    STA $bg3TilemapBuffer, X
     INX 
     INX 
     DEY 
@@ -948,7 +958,7 @@ ConsoleCmd_FillTile {
 ---------------------------------------------
 ; Output raw tile bytes from the string until a $FF terminator.
 ; 
-; Variable-length operand terminated by $FF. Each byte is zero-extended to 16 bits, OR'd with $099E palette, and written as a tile word to the VRAM buffer. The $FF terminator is consumed but not written. Updates cursor on the stack.
+; Variable-length operand terminated by $FF (text tag [ESC:b1,b2,...]). Each byte is zero-extended to 16 bits, OR'd with the $099E attribute word, and written as a tile word to the VRAM buffer; this reaches tile indices below $12, which the main loop treats as commands (e.g. tiles 1–5 in the HUD string at consolestring_01E7F6). The $FF terminator is consumed but not written. The cursor is advanced past the run.
 
 ConsoleCmd_PrintRawBytes {
     LDA $03, S
@@ -957,10 +967,10 @@ ConsoleCmd_PrintRawBytes {
   loc_03EF22:
     LDA $0000, Y
     AND #$00FF
-    CMP #$00FF            ; $FF byte = end-of-data terminator for raw output
+    CMP #$00FF            ; $FF = terminator of the raw run
     BEQ loc_03EF39
-    ORA $099E             ; Each raw byte OR'd with $099E palette for tile attribute
-    STA $7F0200, X
+    ORA $consoleAttrWord  ; Raw byte OR'd with the $099E attribute word
+    STA $bg3TilemapBuffer, X
     INX 
     INX 
     INY 
@@ -976,11 +986,11 @@ ConsoleCmd_PrintRawBytes {
 ---------------------------------------------
 ; Print equipment item icons as 2×2 metatiles.
 ; 
-; Variable-length operand: a list of 1-byte equipment indices terminated by any byte with bit 7 set (>= $80). Each item produces a 2×2 tile icon:
-; - Items 0-7: tile base $01E0 (first equipment page)
-; - Items 8+: tile base $02E0 (second page, index offset by 8)
+; Variable-length operand (text tag [UNK], no use in any vanilla string): a list of 1-byte equipment indices terminated by any byte with bit 7 set (>= $80). Each item produces a 2×2 tile icon:
+; - Items 0-7: tile $01E0 + 2 × index (first equipment page)
+; - Items 8+: tile $02E0 + 2 × (index − 8) (second page)
 ; 
-; The 4 tiles of each metatile are written using VRAM offsets: upper-left = tile N at row−1, upper-right = N+1, lower-left = N+$10 at current row, lower-right = N+$11. A counter on the stack tracks total icons drawn to compute the final Y advancement past the operand data.
+; The 4 tiles of each icon are N and N+1 in the row above the cursor and N+$10 and N+$11 in the cursor row (the sheet is 16 tiles wide). The cursor advances 4 bytes (2 tiles) per icon. A counter on the stack tracks the number of icons so Y can skip the operand and its terminator.
 
 ConsoleCmd_PrintEquipIcons {
     LDA $03, S
@@ -992,11 +1002,11 @@ ConsoleCmd_PrintEquipIcons {
   loc_03EF46:
     SEP #$20
     LDA $0000, Y
-    BMI loc_03EF8A        ; Byte >= $80 = end of equipment list sentinel
+    BMI loc_03EF8A        ; Byte >= $80 ends the list
     REP #$20
     AND #$00FF
     CMP #$0008
-    BCS loc_03EF5D        ; Items 0-7 → tile base $01E0; items 8+ → base $02E0
+    BCS loc_03EF5D        ; Items 0-7 → tile $01E0 + 2×index; items 8+ → $02E0 + 2×(index−8)
     ASL 
     ORA #$01E0
     BRA loc_03EF65
@@ -1008,17 +1018,17 @@ ConsoleCmd_PrintEquipIcons {
     ORA #$02E0
 
   loc_03EF65:
-    ORA $099E
+    ORA $consoleAttrWord
     INX 
     INX 
-    STA $7F01BE, X        ; Upper-left tile of 2×2 metatile (VRAM row−1, col−1 offset)
+    STA $7F01BE, X        ; Upper-left tile: X − $42 = row above, same column as the cursor (X was advanced by 2)
     INC 
     STA $7F01C0, X
     CLC 
-    ADC #$000F            ; ADC #$000F = lower-half tile row offset (+$10 − 1 for preceding INC)
+    ADC #$000F            ; N+1 + $F = N+$10: lower-left tile (one sheet row below)
     STA $7F01FE, X
     INC 
-    STA $7F0200, X
+    STA $bg3TilemapBuffer, X
     INX 
     INX 
     INY 

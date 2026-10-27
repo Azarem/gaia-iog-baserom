@@ -19,6 +19,12 @@
 !gfxCacheIdxB                   064A
 !mapTilemapBaseA                069E
 !mapTilemapBaseB                06A0
+!collisionFlagTableL0           06AA
+!collisionFlagTableL1           06AC
+!metatileDefBase                06AE
+!colStripStagingPtr             06B2
+!rowStripStagingPtr             06B6
+!bgTilemapVramBase              06BA
 !inventoryEquippedIndex         0AC4
 !remapR                         0DA6
 !remapL                         0DA8
@@ -215,16 +221,16 @@ SystemInitConstants [
   wram-init < $mapTilemapBaseB, #$C000 >   ;01
   wram-init < $0080, #$C000 >   ;02
   wram-init < $0082, #$007F >   ;03
-  wram-init < $06BA, #$1000 >   ;04
-  wram-init < $06BC, #$1800 >   ;05
-  wram-init < $06AE, #$2000 >   ;06
+  wram-init < $bgTilemapVramBase, #$1000 >   ;04
+  wram-init < $bgTilemapVramBase+2, #$1800 >   ;05
+  wram-init < $metatileDefBase, #$2000 >   ;06
   wram-init < $06B0, #$2800 >   ;07
-  wram-init < $06B2, #$3100 >   ;08
-  wram-init < $06B4, #$3288 >   ;09
-  wram-init < $06B6, #$3184 >   ;0A
-  wram-init < $06B8, #$330C >   ;0B
-  wram-init < $06AA, #$0000 >   ;0C
-  wram-init < $06AC, #$0100 >   ;0D
+  wram-init < $colStripStagingPtr, #$3100 >   ;08
+  wram-init < $colStripStagingPtr+2, #$3288 >   ;09
+  wram-init < $rowStripStagingPtr, #$3184 >   ;0A
+  wram-init < $rowStripStagingPtr+2, #$330C >   ;0B
+  wram-init < $collisionFlagTableL0, #$0000 >   ;0C
+  wram-init < $collisionFlagTableL1, #$0100 >   ;0D
   wram-init < $003A, &scene_meta >   ;0E
   wram-init < $003C, *scene_meta >   ;0F
   wram-init < $0402, #$548B >   ;10
