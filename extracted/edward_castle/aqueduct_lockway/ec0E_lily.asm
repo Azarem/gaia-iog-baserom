@@ -6,7 +6,7 @@
 
 ?INCLUDE 'ApplyOrbitalOffsetFromRef'
 ?INCLUDE 'enemy_stats_table'
-?INCLUDE 'spriteset_enemies'
+?INCLUDE 'spriteset_pickups_effects'
 
 !orbitAngle                     7F0010
 !orbitDiameter                  7F0012
@@ -123,7 +123,7 @@ code_09A9A1 {
     LDA $@enemy_stats_table+190
     AND #$00FF
     STA $currentHp, X
-    COP [SetMetasprite] ( @spriteset_enemies )
+    COP [SetMetasprite] ( @spriteset_pickups_effects )
     COP [StageSprAndHitbox] ( #33 )
     LDA #$0000
     STA $orbitAngle, X

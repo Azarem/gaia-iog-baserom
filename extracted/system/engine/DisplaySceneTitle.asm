@@ -1,4 +1,4 @@
-; Scene title display system — centered area name overlay during scene transitions (172315–172521, Bank 02).
+; Scene title display system - centered area name overlay during scene transitions (172315-172521, Bank 02).
 ; 
 ; Called from ClearSceneState after actor spawning and before thinker spawning and palette loading. Displays the current scene's area name (e.g. 'South Cape', 'Edward's Castle') in a one-row dialogue box, giving the player a visual cue of the new location.
 ; 
@@ -6,11 +6,11 @@
 ; 
 ; 1. Scene change guard: compares $0D6E (the scene just left, recorded by ExecuteSceneTransition; for a world-map entry it is the deferred destination) against sceneCurrent ($0644). If they are equal (a reload of the same scene ID) the title is suppressed.
 ; 
-; 2. Width measurement: CountTitleGlyphs walks the scene title wide-string at [$3E], counting visible characters while expanding dictionary references ($D6/$D7) and cursor advances ($CC). Returns the glyph count in $00.
+; 2. Width measurement: CountTitleGlyphs walks the scene title wide-string, counting visible characters while expanding dictionary references ($D6/$D7) and cursor advances ($CC). The string is the one stored right after the scene's actor list: SpawnSceneActors leaves $3E on the list's $FF terminator and CountTitleGlyphs moves it one byte on, to the first title byte. Returns the glyph count in $00.
 ; 
-; 3. Empty title guard: if the count is zero the routine returns immediately.
+; 3. Empty title guard: if the count is zero the routine returns immediately (177 of the 241 scene records have an empty title, only $CA).
 ; 
-; 4. Centering: (18 − glyphCount), forced even by AND $FE, used as a byte offset into the VRAM write buffer, i.e. (18 − N) / 2 tile cells. 18 is presumably the interior of the 10-column box if a column is 2 tiles wide (inferred; there is no clamp for N > 18, OQ-58).
+; 4. Centering: (18 - glyphCount), forced even by AND $FE, used as a byte offset into the VRAM write buffer, i.e. (18 - N) / 2 tile cells. 18 is presumably the interior of the 10-column box if a column is 2 tiles wide (inferred; there is no clamp for N > 18, OQ-58).
 ; 
 ; 5. Box setup: sets $00B4 = $E0 (nonzero flag that makes ExecuteSceneTransition wait for a button press) and clears $00B5. Opens the box via scene_title_box_format ([DLG:7,7][SIZ:A,1]), i.e. a DialogStringRenderer OpenDialogueBox command with width $0A and height 1 at position (7, 7).
 ; 
@@ -23,9 +23,9 @@
 ; - $CA (Return): ends the count
 ; - $CC (AdvanceCursor): adds the operand byte to the count
 ; - $D6/$D7 (DictionaryA/B): looks up the word in dialog_dictionary_a/b and counts each expanded character up to its $CA terminator
-; - Other commands (≥ $C0): skips one operand byte without counting
+; - Other commands (>= $C0): skips one operand byte without counting
 ; 
-; The scan starts at [$3E] + 1; the first string byte is skipped (assumed to be a type/length byte).
+; The scan starts at [$3E] + 1. SpawnSceneActors ends with $3E pointing at the $FF that closes the scene's actor list (scene_lifecycle calls DisplaySceneTitle right after it), and the title string follows that terminator directly in the scene record (see scene_actors). INC $3E steps over the $FF; it is not a type or length byte, and the title's first byte is counted.
 ---------------------------------------------
 
 ?BANK 02
@@ -42,9 +42,9 @@
 ; Called from ClearSceneState after actor spawning. Compares $0D6E (scene just left) with sceneCurrent and returns when they are equal.
 ; 
 ; Pipeline:
-; 1. CountTitleGlyphs measures the title string at [$3E]
+; 1. CountTitleGlyphs measures the title string that follows the actor list ($3E = the list's $FF terminator on entry; CountTitleGlyphs advances it to the first title byte)
 ; 2. Returns if the count is zero (no title for this scene)
-; 3. Centering offset: (18 − count) forced even, pushed for later
+; 3. Centering offset: (18 - count) forced even, pushed for later
 ; 4. $00B4 = $E0 (wait-for-button flag for ExecuteSceneTransition), $00B5 = 0
 ; 5. Saves $40 and the title pointer $3E (in Y), sets DBR to this bank
 ; 6. DialogStringRenderer with scene_title_box_format opens the box
@@ -104,21 +104,21 @@ scene_title_box_format `[DLG:7,7][SIZ:A,1][SFX:0]`
 ---------------------------------------------
 ; Count visible character width of a scene title wide-string.
 ; 
-; Walks the byte stream at [$3E] + 1 (INC $3E skips a leading type byte). Accumulates glyph count in $00. Handles the command subset used in scene title strings:
+; Walks the byte stream at [$3E] + 1 (INC $3E steps over the $FF actor-list terminator that SpawnSceneActors left in $3E; the title string starts right after it). Accumulates glyph count in $00. Handles the command subset used in scene title strings:
 ; 
-; - Bytes < $C0: literal tile characters — increments count by 1
-; - $CA (Return): end of string — returns with count in $00
+; - Bytes < $C0: literal tile characters - increments count by 1
+; - $CA (Return): end of string - returns with count in $00
 ; - $CC (AdvanceCursor): reads 1-byte operand as additional glyph width, adds to count
-; - $D6 (DictionaryA): resolves compressed word from dictionary_01EBA8. Reads 1-byte index, looks up the word pointer (index × 2 + base), then counts each character until $CA terminator
+; - $D6 (DictionaryA): resolves compressed word from dictionary_01EBA8. Reads 1-byte index, looks up the word pointer (index x 2 + base), then counts each character until $CA terminator
 ; - $D7 (DictionaryB): same as $D6 but uses dictionary_01F54D
-; - Other commands (≥ $C0): skips one operand byte without counting
+; - Other commands (>= $C0): skips one operand byte without counting
 ; 
 ; The dictionary expansion switches DBR to the dictionary bank (PHA/PLB), saves/restores Y across the lookup, and returns to the main loop after counting all expanded characters.
 
 CountTitleGlyphs {
     PHP                   ; Save processor state; will use mixed 8/16-bit
     REP #$20
-    INC $3E               ; Skip the first string byte (assumed type/length byte)
+    INC $3E               ; Step over the $FF actor-list terminator left in $3E by SpawnSceneActors; $3E now points at the first title byte
     STZ $00               ; Zero glyph counter ($00)
     SEP #$20
     LDY #$0000

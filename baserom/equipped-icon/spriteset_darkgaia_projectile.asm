@@ -2,54 +2,54 @@
 
 ---------------------------------------------
 
-spriteset_will_projectile [
-  &sprite_set_17D010   ;00
-  &sprite_set_17D01E   ;01
-  &sprite_set_17D02C   ;02
-  &sprite_set_17D03A   ;03
-  &sprite_set_17D048   ;04
-  &sprite_set_17D04E   ;05
-  &sprite_set_17D054   ;06
-  &sprite_set_17D05A   ;07
+spriteset_darkgaia_projectile [
+  &projectile_launch_south   ;00
+  &projectile_launch_north   ;01
+  &projectile_launch_west   ;02
+  &projectile_launch_east   ;03
+  &projectile_travel_south   ;04
+  &projectile_travel_north   ;05
+  &projectile_travel_west   ;06
+  &projectile_travel_east   ;07
 ]
 
-sprite_set_17D010 [
+projectile_launch_south [
   sprite-set < #$0005, &sprite_group_17D30C >   ;00
   sprite-set < #$0002, &sprite_group_17D358 >   ;01
   sprite-set < #$0002, &sprite_group_17D3A4 >   ;02
 ]
 
-sprite_set_17D01E [
+projectile_launch_north [
   sprite-set < #$0005, &sprite_group_17D228 >   ;00
   sprite-set < #$0002, &sprite_group_17D274 >   ;01
   sprite-set < #$0002, &sprite_group_17D2C0 >   ;02
 ]
 
-sprite_set_17D02C [
+projectile_launch_west [
   sprite-set < #$0005, &sprite_group_17D144 >   ;00
   sprite-set < #$0002, &sprite_group_17D190 >   ;01
   sprite-set < #$0002, &sprite_group_17D1DC >   ;02
 ]
 
-sprite_set_17D03A [
+projectile_launch_east [
   sprite-set < #$0005, &sprite_group_17D060 >   ;00
   sprite-set < #$0002, &sprite_group_17D0AC >   ;01
   sprite-set < #$0002, &sprite_group_17D0F8 >   ;02
 ]
 
-sprite_set_17D048 [
+projectile_travel_south [
   sprite-set < #$0009, &sprite_group_17D3A4 >
 ]
 
-sprite_set_17D04E [
+projectile_travel_north [
   sprite-set < #$0009, &sprite_group_17D2C0 >
 ]
 
-sprite_set_17D054 [
+projectile_travel_west [
   sprite-set < #$0009, &sprite_group_17D1DC >
 ]
 
-sprite_set_17D05A [
+projectile_travel_east [
   sprite-set < #$0009, &sprite_group_17D0F8 >
 ]
 

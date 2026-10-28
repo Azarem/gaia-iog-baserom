@@ -6,14 +6,14 @@
 ; 
 ; CopyActorState (spawner X = D, new actor Y) copies $0E, $10, $12, the X/Y position, animation index and frame counter, the spriteset/metasprite/stats pointers and the spriteset bank. It forces $2000 on in $10 and clears $0803 there, clears $1000 in $12 (the display-filter flag), and stores the spawner's slot in $0024 (OQ-65). It zeroes parentId, the $2C/$2E movement chain pointers, moveScratch1/2, the $08 timer and chatPtr, and, except in scene $FF (inventory), also extendedFlags and the callback fields.
 ; 
-; MarkChildActor sets the new actor's parentId to the spawner's parentId, or to the spawner's own slot if it has none. SetActorBody applies the current characterForm's body_table entry (6 bytes per form) to the actor's spriteset pointer and bank and clears playerFlags bit $8000 (sprite override). AnimFrameLookup returns the word at movement_delta_table[A×2], the head pointer of a movement delta chain; its callers are the force-move COP handlers. AllocateSpecialActor appends a slot from the thinker pool to the thinker list (tail in $5C). PaletteResetAndKillThinker is a thinker script body: COP PaletteRestart, PaletteStep, KillThinker.
+; MarkChildActor sets the new actor's parentId to the spawner's parentId, or to the spawner's own slot if it has none. SetActorBody applies the current characterForm's body_table entry (6 bytes per form) to the actor's spriteset pointer and bank and clears playerFlags bit $8000 (sprite override). AnimFrameLookup returns the word at move_chain_table[A×2], the head pointer of a movement delta chain; its callers are the force-move COP handlers. AllocateSpecialActor appends a slot from the thinker pool to the thinker list (tail in $5C). PaletteResetAndKillThinker is a thinker script body: COP PaletteRestart, PaletteStep, KillThinker.
 ---------------------------------------------
 
 ?BANK 00
 
 ?INCLUDE 'actor_execution'
 ?INCLUDE 'body_table'
-?INCLUDE 'movement_delta_table'
+?INCLUDE 'move_chain_table'
 
 !actorListFirst                 0056
 !actorListLast                  0058
@@ -93,14 +93,14 @@ SetActorBody {
 }
 ---------------------------------------------
 
-; Internal JSR helper: A = movement index → A = movement_delta_table[A×2].
+; Internal JSR helper: A = movement index → A = move_chain_table[A×2].
 ; 
 ; The returned word is the head pointer of a movement delta chain (a linked list of signed per-frame deltas), not a frame duration. Callers store it in $2C (X chain) or $2E (Y chain): StageMoveX/Y/XY, ForceDirSW/NE/Both and ReloadMoveDurations in cop_handlers_force_move.
 
 AnimFrameLookup {
-    ASL                   ; Double index for word-sized table access (movement_delta_table)
+    ASL                   ; Double index for word-sized table access (move_chain_table)
     TAY 
-    LDA $&movement_delta_table, Y ; Load the movement delta chain head pointer from movement_delta_table[index] (not a frame duration)
+    LDA $&move_chain_table, Y ; Load the movement delta chain head pointer from move_chain_table[index] (not a frame duration)
     RTS 
 }
 

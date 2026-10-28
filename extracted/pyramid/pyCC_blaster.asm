@@ -6,7 +6,7 @@
 ---------------------------------------------
 
 ?INCLUDE 'smooth_follow_child'
-?INCLUDE 'spriteset_enemies'
+?INCLUDE 'spriteset_pickups_effects'
 
 !playerActor                    09AA
 !loopCounter                    7F0014
@@ -40,7 +40,7 @@ code_0BC7C1 {
 
 code_0BC7CE {
     COP [OrExtraFlags] ( #$0010 )
-    COP [SetMetasprite] ( @spriteset_enemies )
+    COP [SetMetasprite] ( @spriteset_pickups_effects )
     COP [NudgePosition] ( #00, #02 )
     COP [StageSpriteFrame] ( #2A )
     COP [AnimOnce]
@@ -104,7 +104,7 @@ code_0BC84A {
 
 code_0BC85D {
     COP [OrExtraFlags] ( #$0010 )
-    COP [SetMetasprite] ( @spriteset_enemies )
+    COP [SetMetasprite] ( @spriteset_pickups_effects )
     COP [NudgePosition] ( #00, #02 )
     COP [StageSpriteFrame] ( #2A )
     COP [AnimOnce]

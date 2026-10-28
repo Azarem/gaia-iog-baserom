@@ -8,7 +8,7 @@
 ---------------------------------------------
 
 ?INCLUDE 'enemy_stats_table'
-?INCLUDE 'spriteset_enemies'
+?INCLUDE 'spriteset_pickups_effects'
 
 !statsPtr                       7F0020
 !currentHp                      7F0026
@@ -23,7 +23,7 @@ dm3F_switch [
     STA $statsPtr, X
     LDA #$0030
     TSB $12
-    COP [SetMetasprite] ( @spriteset_enemies )
+    COP [SetMetasprite] ( @spriteset_pickups_effects )
     COP [StageSpriteFrame] ( #0F )
     COP [AnimOnce]
     COP [MarkSolidHere]

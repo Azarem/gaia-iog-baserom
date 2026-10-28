@@ -16,7 +16,7 @@
 ---------------------------------------------
 
 ?INCLUDE 'event_block_table'
-?INCLUDE 'spriteset_enemies'
+?INCLUDE 'spriteset_pickups_effects'
 
 !orbitAngle                     7F0010
 !orbitDiameter                  7F0012
@@ -34,7 +34,7 @@ SpawnFieldRevealEffect {
     STA $10
     LDA #$6000
     TRB $12               ; Clear the ForceDir bits ($6000 of $12)
-    COP [SetMetasprite] ( @spriteset_enemies )
+    COP [SetMetasprite] ( @spriteset_pickups_effects )
     COP [StageSpriteMoveY] ( #29, #02 ) ; Rise: anim $29 with Y chain $02, then $12, then $14 (three passes)
     COP [AnimOnce]
     COP [StageSpriteMoveY] ( #29, #12 )

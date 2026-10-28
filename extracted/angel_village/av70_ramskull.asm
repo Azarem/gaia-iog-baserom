@@ -6,7 +6,7 @@
 ; the charge attack.
 ---------------------------------------------
 
-?INCLUDE 'spriteset_enemies'
+?INCLUDE 'spriteset_pickups_effects'
 
 ---------------------------------------------
 
@@ -47,7 +47,7 @@ code_0AF102 {
     LDA #$0004
     STA $0008, Y
     COP [PlaySoundCh1] ( #1E )
-    COP [SetMetasprite] ( @spriteset_enemies )
+    COP [SetMetasprite] ( @spriteset_pickups_effects )
 
   loc_0AF128:
     COP [StageSpriteMoveX] ( #08, #04 )
@@ -59,7 +59,7 @@ code_0AF102 {
 }
 
 code_0AF137 {
-    COP [SetMetasprite] ( @spriteset_enemies )
+    COP [SetMetasprite] ( @spriteset_pickups_effects )
     COP [SetEntryHereAndYield]
     LDA #$2000
     TRB $10

@@ -1,0 +1,18 @@
+{
+    "sprite_group_0F8BCC": "Real group: header + 4 sub-sprites (41 bytes, rows ;00-;03). Rows ;04-;0D are NOT sub-sprites: the extractor kept reading and printed the next, unreferenced group (69 bytes: header at 0F8BF5 + 8 sub-sprites, a copy of sprite_group_0F8D7D) as sub-sprite rows, one byte too long.",
+    "sprite_group_0F8D7D": "Byte-identical to the unreferenced group hidden after sprite_group_0F8BCC.",
+    "sprite_group_0FCF27": "Real group: header + 7 sub-sprites (62 bytes, rows ;00-;06). Rows ;07-;10 are NOT sub-sprites: the extractor kept reading and printed the next, unreferenced group (69 bytes: header at 0FCF65 + 8 sub-sprites) as sub-sprite rows, one byte too long. The next printed group (0FCFAA) is correct.",
+    "sprite_group_0FD5AA": "Same extractor artefact as sprite_group_0FCF27, with identical rows: the first 7 are the real group, the trailing rows are an unreferenced 69-byte group that starts at 0FD5E8 (OQ-I067-5).",
+    "sprite_set_0F8076": "Animation $04, Psycho Dash south: the pose group 0F832C for 10 ticks, then nine one-tick frames alternating 0F852A, 0F855A and 0F858A. $05-$07 repeat the shape with their own groups.",
+    "sprite_set_0F8146": "Animation $0C, Psycho Slider south, start: 3 frames (holds 5, 5, 3). The last group is the first group of $0D (the loop).",
+    "sprite_set_0F8216": "Animation $1C, Spin Dash start: 12 records.",
+    "sprite_set_0F8248": "Animation $1D, Spin Dash guided-projectile loop and launch passes: 8 groups of hold 0, one per frame.",
+    "sprite_set_0F82BC": "Animation $1F, the flute pose: 2 records of 20 ticks.",
+    "sprite_set_0F82C6": "Animation $20, the hold pose: 4 records of 10 ticks over 0F9019, 0F9034, 0F904F and 0F9034, three groups of two identical sub-sprites.",
+    "sprite_set_0F8302": "Animation $22, the Spin Dash charge: 4 one-tick frames.",
+    "spriteset_transform_poses": "19 pointers to the animation frame lists ($00-$12). Index = the operand of StageSpriteFrame/StageSpriteLoop in the Transform_* scripts. Unused: $04 (transform_pose_04), $0C (transform_pose_0B), $11 (transform_pose_11).",
+    "spriteset_will_abilities": "39 pointers. $00-$03 poses (S, N, W, E), $04-$07 Psycho Dash, $0C-$17 Psycho Slider (start / loop / finish per direction), $1C-$1D and $22 Spin Dash, $1F flute pose, $20 hold pose; $08-$0B, $18-$1B copy the $00-$03 poses.",
+    "transform_pose_04": "Animation $04: not referenced by the Transform_* scripts (OQ-I067-4).",
+    "transform_pose_0B": "Animation $0C: not referenced by the Transform_* scripts (OQ-I067-4).",
+    "transform_pose_11": "Animation $11: not referenced by the Transform_* scripts (OQ-I067-4)."
+}

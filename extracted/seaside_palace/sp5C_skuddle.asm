@@ -6,7 +6,7 @@
 ; patrol patterns. Common palace enemy paired with Slipper.
 ---------------------------------------------
 
-?INCLUDE 'spriteset_enemies'
+?INCLUDE 'spriteset_pickups_effects'
 
 !sceneCurrent                   0644
 !cameraTargetY                  06C2
@@ -280,7 +280,7 @@ code_0AE89E {
 }
 
 code_0AE8B6 {
-    COP [SetMetasprite] ( @spriteset_enemies )
+    COP [SetMetasprite] ( @spriteset_pickups_effects )
 
   loc_0AE8BB:
     COP [StageSpriteFrame] ( #31 )

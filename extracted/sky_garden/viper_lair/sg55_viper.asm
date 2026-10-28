@@ -14,7 +14,7 @@
 ?INCLUDE 'SetPlayerGameOverFlag'
 ?INCLUDE 'sg55_viper_arena'
 ?INCLUDE 'sprite_composition'
-?INCLUDE 'spriteset_enemies'
+?INCLUDE 'spriteset_pickups_effects'
 ?INCLUDE 'StandardEnemyDefeatHandler'
 
 !frameCounter                   0036
@@ -1107,7 +1107,7 @@ code_0AD945 {
 }
 
 code_0AD970 {
-    COP [SetMetasprite] ( @spriteset_enemies )
+    COP [SetMetasprite] ( @spriteset_pickups_effects )
     COP [LoopStart] ( #0A )
     COP [SpawnListAppend] ( @code_0AD994, #00, #E0, #$0302 )
     COP [WaitByte] ( #01 )

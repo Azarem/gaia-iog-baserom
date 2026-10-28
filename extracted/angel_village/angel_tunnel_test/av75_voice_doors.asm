@@ -6,7 +6,7 @@
 ; puzzle. Tracks player progress through each door.
 ---------------------------------------------
 
-?INCLUDE 'spriteset_enemies'
+?INCLUDE 'spriteset_pickups_effects'
 
 !srcCacheFullGfxL0              067E
 !playerYPos                     09A4
@@ -21,7 +21,7 @@ av75_voice_doors [
     TSB $12
     COP [BranchOnFlagByte] ( #89, #01, &code_06D7BB )
     STZ $srcCacheFullGfxL0+1
-    COP [SetMetasprite] ( @spriteset_enemies )
+    COP [SetMetasprite] ( @spriteset_pickups_effects )
     COP [StageSpriteFrame] ( #00 )
     COP [AnimOnce]
     LDA $playerYPos

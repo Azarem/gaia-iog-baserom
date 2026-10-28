@@ -29,7 +29,7 @@
 ; 
 ; 6. PSYCHO SLIDER / RUN ATTACK (183186–183514)
 ;    CheckRunAttack, RunAttackSpeedCheck, SpeedThresholdEW, SpeedThresholdNS, RunAttackNS, RunAttackEW, FreezeCameraForAttack, RunAttackFlagSetup, UnfreezeCameraAfterAttack, RunAttackCleanup.
-;    The Psycho Slider — Will's running slide attack (abilityBitmask bit 1, $0002). Acquired in Mu West (scene $62). While moving at |speed| >= 3, pressing attack ($0080) initiates a damaging slide that can pass through narrow passages. RunAttackSpeedCheck routes to EW or NS based on which axis has sufficient speed. Both directions use LoadAbilityAnimTableA entry 1, stage a looping sprite move, then clean up flags. FreezeCameraForAttack / UnfreezeCameraAfterAttack are entered from attack_ability_system only; they set and clear layerPriorityFlag $0200, the bit that freezes camera_scroll_controller.
+;    The Psycho Slider — Will's running slide attack (abilityBitmask bit 1, $0002). Acquired in Mu West (scene $62). While moving at |speed| >= 3, pressing attack ($0080) initiates a damaging slide that can pass through narrow passages. RunAttackSpeedCheck routes to EW or NS based on which axis has sufficient speed. Both directions use LoadAbilityDamageA entry 1, stage a looping sprite move, then clean up flags. FreezeCameraForAttack / UnfreezeCameraAfterAttack are entered from attack_ability_system only; they set and clear layerPriorityFlag $0200, the bit that freezes camera_scroll_controller.
 ; 
 ; 7. BASIC MELEE ATTACK (183514–184138)
 ;    AttackSouth/North/West/East, AttackRedirect, AttackFinish, AttackInit.
@@ -37,7 +37,7 @@
 ; 
 ; 8. LUNGE + PROJECTILES (184138–184272)
 ;    RangedAttackSouth/North/West/East, RangedSetForceX/Y, ProjectileSouth/North/West/East.
-;    The Ranged* pieces are a Will-only follow-up lunge, not a projectile launch: RangedSetForce* stages force move #46 (six frames of 0, 19 of 3, 4 of 1, then 0), sets playerFlags $0800, climbStateData = 1 (the Will ability damage bonus combat_collision adds), actor flag $0200 and extendedFlags $0040 (the bounce flag tile_collision_physics reads); the exits clear $0200 and $0040 again. North and west add the direction-negate bits $2000 / $4000 to $12 so the same curve runs in the opposite direction. The Projectile* actors are spawned only by the Attack* pieces in scene $E8 (flags $0602); they use the spriteset_will_projectile metasprite with a two-phase animation (initial + looping) and die when bit $4000 of $10 (off-screen) is set (OQ-I025-5).
+;    The Ranged* pieces are a Will-only follow-up lunge, not a projectile launch: RangedSetForce* stages force move #46 (six frames of 0, 19 of 3, 4 of 1, then 0), sets playerFlags $0800, climbStateData = 1 (the Will ability damage bonus combat_collision adds), actor flag $0200 and extendedFlags $0040 (the bounce flag tile_collision_physics reads); the exits clear $0200 and $0040 again. North and west add the direction-negate bits $2000 / $4000 to $12 so the same curve runs in the opposite direction. The Projectile* actors are spawned only by the Attack* pieces in scene $E8 (flags $0602); they use the spriteset_darkgaia_projectile metasprite with a two-phase animation (initial + looping) and die when bit $4000 of $10 (off-screen) is set (OQ-I025-5).
 ---------------------------------------------
 
 ?BANK 02
@@ -48,7 +48,7 @@
 ?INCLUDE 'player_move_controller'
 ?INCLUDE 'shadow_shimmer'
 ?INCLUDE 'slope_ramp_physics'
-?INCLUDE 'spriteset_will_projectile'
+?INCLUDE 'spriteset_darkgaia_projectile'
 
 !invincibilityTimer             040C
 !sceneCurrent                   0644
@@ -626,7 +626,7 @@ ClimbDropAttack {
 
 ClimbDropLand {
     LDA #$0002            ; Drop landing: load anim table B entry 2, check scene $DD skip, spawn terrain shake + camera shake
-    JSR $&attack_ability_system.LoadAbilityAnimTableB
+    JSR $&attack_ability_system.LoadAbilityDamageB
     LDA $sceneCurrent
     AND #$00FF
     CMP #$00DD
@@ -1369,7 +1369,7 @@ SpeedThresholdNS {
 
 RunAttackNS {
     LDA #$0001            ; Psycho Slider NS: load anim table A entry 1, set body sprite #04; south or north by speed sign
-    JSR $&attack_ability_system.LoadAbilityAnimTableA
+    JSR $&attack_ability_system.LoadAbilityDamageA
     COP [SetPlayerSpriteDirect] ( #04 )
     LDA $playerSpeedNs
     BMI loc_02CC2E
@@ -1404,7 +1404,7 @@ RunAttackNS {
 
 RunAttackEW {
     LDA #$0001            ; Psycho Slider EW: same structure for horizontal axis
-    JSR $&attack_ability_system.LoadAbilityAnimTableA
+    JSR $&attack_ability_system.LoadAbilityDamageA
     COP [SetPlayerSpriteDirect] ( #04 )
     LDA $playerSpeedEw
     BPL loc_02CC84
@@ -1842,12 +1842,12 @@ RangedSetForceY {
 ---------------------------------------------
 ; Dark Gaia fight projectile actor — south direction.
 ; 
-; Spawned by AttackSouth only in scene $E8 (SpawnListAppend, flags $0602). Uses the spriteset_will_projectile metasprite. Two-phase animation: initial launch (sprite #00, MoveY #09), then looping travel (sprite #04, MoveY #0F). Dies when bit 14 ($4000) of its actor flags $10 is set — sprite_composition sets that bit for actors outside the screen bounds — so it flies until it leaves the screen.
+; Spawned by AttackSouth only in scene $E8 (SpawnListAppend, flags $0602). Uses the spriteset_darkgaia_projectile metasprite. Two-phase animation: initial launch (sprite #00, MoveY #09), then looping travel (sprite #04, MoveY #0F). Dies when bit 14 ($4000) of its actor flags $10 is set — sprite_composition sets that bit for actors outside the screen bounds — so it flies until it leaves the screen.
 ; 
 ; North/West/East variants use matching sprite pairs and MoveX/MoveY directions.
 
 ProjectileSouth {
-    COP [SetMetasprite] ( @spriteset_will_projectile ) ; Projectile south: metasprite from table_17D000, initial sprite #00 + MoveY #09, then loop #04 + #0F
+    COP [SetMetasprite] ( @spriteset_darkgaia_projectile ) ; Projectile south: metasprite from table_17D000, initial sprite #00 + MoveY #09, then loop #04 + #0F
     COP [StageSpriteMoveY] ( #00, #09 )
     COP [AnimOnce]
 
@@ -1861,7 +1861,7 @@ ProjectileSouth {
 }
 
 ProjectileNorth {
-    COP [SetMetasprite] ( @spriteset_will_projectile ) ; Projectile north: initial #01 + MoveY #0A, loop #05 + #10
+    COP [SetMetasprite] ( @spriteset_darkgaia_projectile ) ; Projectile north: initial #01 + MoveY #0A, loop #05 + #10
     COP [StageSpriteMoveY] ( #01, #0A )
     COP [AnimOnce]
 
@@ -1875,7 +1875,7 @@ ProjectileNorth {
 }
 
 ProjectileWest {
-    COP [SetMetasprite] ( @spriteset_will_projectile ) ; Projectile west: initial #02 + MoveX #0A, loop #06 + #10
+    COP [SetMetasprite] ( @spriteset_darkgaia_projectile ) ; Projectile west: initial #02 + MoveX #0A, loop #06 + #10
     COP [StageSpriteMoveX] ( #02, #0A )
     COP [AnimOnce]
 
@@ -1889,7 +1889,7 @@ ProjectileWest {
 }
 
 ProjectileEast {
-    COP [SetMetasprite] ( @spriteset_will_projectile ) ; Projectile east: initial #03 + MoveX #09, loop #07 + #0F
+    COP [SetMetasprite] ( @spriteset_darkgaia_projectile ) ; Projectile east: initial #03 + MoveX #09, loop #07 + #0F
     COP [StageSpriteMoveX] ( #03, #09 )
     COP [AnimOnce]
 

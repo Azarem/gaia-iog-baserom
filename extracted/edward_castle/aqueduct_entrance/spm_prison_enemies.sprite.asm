@@ -1,506 +1,506 @@
 ---------------------------------------------
 
 spm_prison_enemies [
-  &sprite_set_000080   ;00
-  &sprite_set_000086   ;01
-  &sprite_set_00008C   ;02
-  &sprite_set_000092   ;03
-  &sprite_set_0000A4   ;04
-  &sprite_set_0000AE   ;05
-  &sprite_set_0000C0   ;06
-  &sprite_set_0000CA   ;07
-  &sprite_set_0000DC   ;08
-  &sprite_set_0000E6   ;09
-  &sprite_set_000108   ;0A
-  &sprite_set_00012A   ;0B
-  &sprite_set_00014C   ;0C
-  &sprite_set_00016E   ;0D
-  &sprite_set_000178   ;0E
-  &sprite_set_00017E   ;0F
-  &sprite_set_000184   ;10
-  &sprite_set_00018A   ;11
-  &sprite_set_000190   ;12
-  &sprite_set_000196   ;13
-  &sprite_set_00019C   ;14
-  &sprite_set_0001A2   ;15
-  &sprite_set_0001A8   ;16
-  &sprite_set_0001B6   ;17
-  &sprite_set_0001C0   ;18
-  &sprite_set_0001CE   ;19
-  &sprite_set_0001D8   ;1A
-  &sprite_set_0001E6   ;1B
-  &sprite_set_0001F0   ;1C
-  &sprite_set_000212   ;1D
-  &sprite_set_00023C   ;1E
-  &sprite_set_00024E   ;1F
-  &sprite_set_000280   ;20
-  &sprite_set_0002B2   ;21
-  &sprite_set_0002E4   ;22
-  &sprite_set_000312   ;23
-  &sprite_set_000318   ;24
-  &sprite_set_00031E   ;25
-  &sprite_set_000324   ;26
-  &sprite_set_00032A   ;27
-  &sprite_set_000330   ;28
-  &sprite_set_000336   ;29
-  &sprite_set_00033C   ;2A
-  &sprite_set_000342   ;2B
-  &sprite_set_000354   ;2C
-  &sprite_set_000366   ;2D
-  &sprite_set_000378   ;2E
-  &sprite_set_00038A   ;2F
-  &sprite_set_00039C   ;30
-  &sprite_set_0003AE   ;31
-  &sprite_set_0003C0   ;32
-  &sprite_set_0003D2   ;33
-  &sprite_set_0003E4   ;34
-  &sprite_set_0003F6   ;35
-  &sprite_set_000430   ;36
-  &sprite_set_000436   ;37
-  &sprite_set_00043C   ;38
-  &sprite_set_000442   ;39
-  &sprite_set_000448   ;3A
-  &sprite_set_00048E   ;3B
-  &sprite_set_000494   ;3C
-  &sprite_set_00049A   ;3D
-  &sprite_set_0004A0   ;3E
-  &sprite_set_0004B2   ;3F
-]
-
-sprite_set_000080 [
-  sprite-set < #$0000, &sprite_group_0004C4 >
-]
-
-sprite_set_000086 [
-  sprite-set < #$0000, &sprite_group_000509 >
-]
-
-sprite_set_00008C [
-  sprite-set < #$0000, &sprite_group_00054E >
-]
-
-sprite_set_000092 [
-  sprite-set < #$0007, &sprite_group_0008F2 >   ;00
-  sprite-set < #$0007, &sprite_group_000937 >   ;01
-  sprite-set < #$0007, &sprite_group_0008F2 >   ;02
-  sprite-set < #$0007, &sprite_group_00097C >   ;03
-]
-
-sprite_set_0000A4 [
-  sprite-set < #$0007, &sprite_group_0008F2 >   ;00
-  sprite-set < #$0007, &sprite_group_00097C >   ;01
-]
-
-sprite_set_0000AE [
-  sprite-set < #$0007, &sprite_group_0009C1 >   ;00
-  sprite-set < #$0007, &sprite_group_000A06 >   ;01
-  sprite-set < #$0007, &sprite_group_0009C1 >   ;02
-  sprite-set < #$0007, &sprite_group_000A6E >   ;03
-]
-
-sprite_set_0000C0 [
-  sprite-set < #$0007, &sprite_group_0009C1 >   ;00
-  sprite-set < #$0007, &sprite_group_000A6E >   ;01
-]
+  &spm_prison_enemies_sprite_set_000080   ;00
+  &spm_prison_enemies_sprite_set_000086   ;01
+  &spm_prison_enemies_sprite_set_00008C   ;02
+  &spm_prison_enemies_sprite_set_000092   ;03
+  &spm_prison_enemies_sprite_set_0000A4   ;04
+  &spm_prison_enemies_sprite_set_0000AE   ;05
+  &spm_prison_enemies_sprite_set_0000C0   ;06
+  &spm_prison_enemies_sprite_set_0000CA   ;07
+  &spm_prison_enemies_sprite_set_0000DC   ;08
+  &spm_prison_enemies_sprite_set_0000E6   ;09
+  &spm_prison_enemies_sprite_set_000108   ;0A
+  &spm_prison_enemies_sprite_set_00012A   ;0B
+  &spm_prison_enemies_sprite_set_00014C   ;0C
+  &spm_prison_enemies_sprite_set_00016E   ;0D
+  &spm_prison_enemies_sprite_set_000178   ;0E
+  &spm_prison_enemies_sprite_set_00017E   ;0F
+  &spm_prison_enemies_sprite_set_000184   ;10
+  &spm_prison_enemies_sprite_set_00018A   ;11
+  &spm_prison_enemies_sprite_set_000190   ;12
+  &spm_prison_enemies_sprite_set_000196   ;13
+  &spm_prison_enemies_sprite_set_00019C   ;14
+  &spm_prison_enemies_sprite_set_0001A2   ;15
+  &spm_prison_enemies_sprite_set_0001A8   ;16
+  &spm_prison_enemies_sprite_set_0001B6   ;17
+  &spm_prison_enemies_sprite_set_0001C0   ;18
+  &spm_prison_enemies_sprite_set_0001CE   ;19
+  &spm_prison_enemies_sprite_set_0001D8   ;1A
+  &spm_prison_enemies_sprite_set_0001E6   ;1B
+  &spm_prison_enemies_sprite_set_0001F0   ;1C
+  &spm_prison_enemies_sprite_set_000212   ;1D
+  &spm_prison_enemies_sprite_set_00023C   ;1E
+  &spm_prison_enemies_sprite_set_00024E   ;1F
+  &spm_prison_enemies_sprite_set_000280   ;20
+  &spm_prison_enemies_sprite_set_0002B2   ;21
+  &spm_prison_enemies_sprite_set_0002E4   ;22
+  &spm_prison_enemies_sprite_set_000312   ;23
+  &spm_prison_enemies_sprite_set_000318   ;24
+  &spm_prison_enemies_sprite_set_00031E   ;25
+  &spm_prison_enemies_sprite_set_000324   ;26
+  &spm_prison_enemies_sprite_set_00032A   ;27
+  &spm_prison_enemies_sprite_set_000330   ;28
+  &spm_prison_enemies_sprite_set_000336   ;29
+  &spm_prison_enemies_sprite_set_00033C   ;2A
+  &spm_prison_enemies_sprite_set_000342   ;2B
+  &spm_prison_enemies_sprite_set_000354   ;2C
+  &spm_prison_enemies_sprite_set_000366   ;2D
+  &spm_prison_enemies_sprite_set_000378   ;2E
+  &spm_prison_enemies_sprite_set_00038A   ;2F
+  &spm_prison_enemies_sprite_set_00039C   ;30
+  &spm_prison_enemies_sprite_set_0003AE   ;31
+  &spm_prison_enemies_sprite_set_0003C0   ;32
+  &spm_prison_enemies_sprite_set_0003D2   ;33
+  &spm_prison_enemies_sprite_set_0003E4   ;34
+  &spm_prison_enemies_sprite_set_0003F6   ;35
+  &spm_prison_enemies_sprite_set_000430   ;36
+  &spm_prison_enemies_sprite_set_000436   ;37
+  &spm_prison_enemies_sprite_set_00043C   ;38
+  &spm_prison_enemies_sprite_set_000442   ;39
+  &spm_prison_enemies_sprite_set_000448   ;3A
+  &spm_prison_enemies_sprite_set_00048E   ;3B
+  &spm_prison_enemies_sprite_set_000494   ;3C
+  &spm_prison_enemies_sprite_set_00049A   ;3D
+  &spm_prison_enemies_sprite_set_0004A0   ;3E
+  &spm_prison_enemies_sprite_set_0004B2   ;3F
+]
+
+spm_prison_enemies_sprite_set_000080 [
+  sprite-set < #$0000, &spm_prison_enemies_sprite_group_0004C4 >
+]
+
+spm_prison_enemies_sprite_set_000086 [
+  sprite-set < #$0000, &spm_prison_enemies_sprite_group_000509 >
+]
+
+spm_prison_enemies_sprite_set_00008C [
+  sprite-set < #$0000, &spm_prison_enemies_sprite_group_00054E >
+]
+
+spm_prison_enemies_sprite_set_000092 [
+  sprite-set < #$0007, &spm_prison_enemies_sprite_group_0008F2 >   ;00
+  sprite-set < #$0007, &spm_prison_enemies_sprite_group_000937 >   ;01
+  sprite-set < #$0007, &spm_prison_enemies_sprite_group_0008F2 >   ;02
+  sprite-set < #$0007, &spm_prison_enemies_sprite_group_00097C >   ;03
+]
+
+spm_prison_enemies_sprite_set_0000A4 [
+  sprite-set < #$0007, &spm_prison_enemies_sprite_group_0008F2 >   ;00
+  sprite-set < #$0007, &spm_prison_enemies_sprite_group_00097C >   ;01
+]
+
+spm_prison_enemies_sprite_set_0000AE [
+  sprite-set < #$0007, &spm_prison_enemies_sprite_group_0009C1 >   ;00
+  sprite-set < #$0007, &spm_prison_enemies_sprite_group_000A06 >   ;01
+  sprite-set < #$0007, &spm_prison_enemies_sprite_group_0009C1 >   ;02
+  sprite-set < #$0007, &spm_prison_enemies_sprite_group_000A6E >   ;03
+]
+
+spm_prison_enemies_sprite_set_0000C0 [
+  sprite-set < #$0007, &spm_prison_enemies_sprite_group_0009C1 >   ;00
+  sprite-set < #$0007, &spm_prison_enemies_sprite_group_000A6E >   ;01
+]
 
-sprite_set_0000CA [
-  sprite-set < #$0007, &sprite_group_000AD6 >   ;00
-  sprite-set < #$0007, &sprite_group_000B22 >   ;01
-  sprite-set < #$0007, &sprite_group_000AD6 >   ;02
-  sprite-set < #$0007, &sprite_group_000B8A >   ;03
+spm_prison_enemies_sprite_set_0000CA [
+  sprite-set < #$0007, &spm_prison_enemies_sprite_group_000AD6 >   ;00
+  sprite-set < #$0007, &spm_prison_enemies_sprite_group_000B22 >   ;01
+  sprite-set < #$0007, &spm_prison_enemies_sprite_group_000AD6 >   ;02
+  sprite-set < #$0007, &spm_prison_enemies_sprite_group_000B8A >   ;03
 ]
 
-sprite_set_0000DC [
-  sprite-set < #$0007, &sprite_group_000AD6 >   ;00
-  sprite-set < #$0007, &sprite_group_000B8A >   ;01
+spm_prison_enemies_sprite_set_0000DC [
+  sprite-set < #$0007, &spm_prison_enemies_sprite_group_000AD6 >   ;00
+  sprite-set < #$0007, &spm_prison_enemies_sprite_group_000B8A >   ;01
 ]
 
-sprite_set_0000E6 [
-  sprite-set < #$0007, &sprite_group_0004C4 >   ;00
-  sprite-set < #$0007, &sprite_group_00059A >   ;01
-  sprite-set < #$0007, &sprite_group_0005DF >   ;02
-  sprite-set < #$0007, &sprite_group_00059A >   ;03
-  sprite-set < #$0007, &sprite_group_0004C4 >   ;04
-  sprite-set < #$0007, &sprite_group_000624 >   ;05
-  sprite-set < #$0007, &sprite_group_000669 >   ;06
-  sprite-set < #$0007, &sprite_group_000624 >   ;07
+spm_prison_enemies_sprite_set_0000E6 [
+  sprite-set < #$0007, &spm_prison_enemies_sprite_group_0004C4 >   ;00
+  sprite-set < #$0007, &spm_prison_enemies_sprite_group_00059A >   ;01
+  sprite-set < #$0007, &spm_prison_enemies_sprite_group_0005DF >   ;02
+  sprite-set < #$0007, &spm_prison_enemies_sprite_group_00059A >   ;03
+  sprite-set < #$0007, &spm_prison_enemies_sprite_group_0004C4 >   ;04
+  sprite-set < #$0007, &spm_prison_enemies_sprite_group_000624 >   ;05
+  sprite-set < #$0007, &spm_prison_enemies_sprite_group_000669 >   ;06
+  sprite-set < #$0007, &spm_prison_enemies_sprite_group_000624 >   ;07
 ]
 
-sprite_set_000108 [
-  sprite-set < #$0007, &sprite_group_000509 >   ;00
-  sprite-set < #$0007, &sprite_group_0006AE >   ;01
-  sprite-set < #$0007, &sprite_group_0006F3 >   ;02
-  sprite-set < #$0007, &sprite_group_0006AE >   ;03
-  sprite-set < #$0007, &sprite_group_000509 >   ;04
-  sprite-set < #$0007, &sprite_group_000738 >   ;05
-  sprite-set < #$0007, &sprite_group_00077D >   ;06
-  sprite-set < #$0007, &sprite_group_000738 >   ;07
+spm_prison_enemies_sprite_set_000108 [
+  sprite-set < #$0007, &spm_prison_enemies_sprite_group_000509 >   ;00
+  sprite-set < #$0007, &spm_prison_enemies_sprite_group_0006AE >   ;01
+  sprite-set < #$0007, &spm_prison_enemies_sprite_group_0006F3 >   ;02
+  sprite-set < #$0007, &spm_prison_enemies_sprite_group_0006AE >   ;03
+  sprite-set < #$0007, &spm_prison_enemies_sprite_group_000509 >   ;04
+  sprite-set < #$0007, &spm_prison_enemies_sprite_group_000738 >   ;05
+  sprite-set < #$0007, &spm_prison_enemies_sprite_group_00077D >   ;06
+  sprite-set < #$0007, &spm_prison_enemies_sprite_group_000738 >   ;07
 ]
 
-sprite_set_00012A [
-  sprite-set < #$0007, &sprite_group_00054E >   ;00
-  sprite-set < #$0007, &sprite_group_0007C2 >   ;01
-  sprite-set < #$0007, &sprite_group_00080E >   ;02
-  sprite-set < #$0007, &sprite_group_0007C2 >   ;03
-  sprite-set < #$0007, &sprite_group_00054E >   ;04
-  sprite-set < #$0007, &sprite_group_00085A >   ;05
-  sprite-set < #$0007, &sprite_group_0008A6 >   ;06
-  sprite-set < #$0007, &sprite_group_00085A >   ;07
+spm_prison_enemies_sprite_set_00012A [
+  sprite-set < #$0007, &spm_prison_enemies_sprite_group_00054E >   ;00
+  sprite-set < #$0007, &spm_prison_enemies_sprite_group_0007C2 >   ;01
+  sprite-set < #$0007, &spm_prison_enemies_sprite_group_00080E >   ;02
+  sprite-set < #$0007, &spm_prison_enemies_sprite_group_0007C2 >   ;03
+  sprite-set < #$0007, &spm_prison_enemies_sprite_group_00054E >   ;04
+  sprite-set < #$0007, &spm_prison_enemies_sprite_group_00085A >   ;05
+  sprite-set < #$0007, &spm_prison_enemies_sprite_group_0008A6 >   ;06
+  sprite-set < #$0007, &spm_prison_enemies_sprite_group_00085A >   ;07
 ]
 
-sprite_set_00014C [
-  sprite-set < #$0003, &sprite_group_001124 >   ;00
-  sprite-set < #$0003, &sprite_group_00113F >   ;01
-  sprite-set < #$0003, &sprite_group_00115A >   ;02
-  sprite-set < #$0003, &sprite_group_001175 >   ;03
-  sprite-set < #$0003, &sprite_group_001190 >   ;04
-  sprite-set < #$0003, &sprite_group_0011AB >   ;05
-  sprite-set < #$0003, &sprite_group_0011C6 >   ;06
-  sprite-set < #$0003, &sprite_group_0011E1 >   ;07
+spm_prison_enemies_sprite_set_00014C [
+  sprite-set < #$0003, &spm_prison_enemies_sprite_group_001124 >   ;00
+  sprite-set < #$0003, &spm_prison_enemies_sprite_group_00113F >   ;01
+  sprite-set < #$0003, &spm_prison_enemies_sprite_group_00115A >   ;02
+  sprite-set < #$0003, &spm_prison_enemies_sprite_group_001175 >   ;03
+  sprite-set < #$0003, &spm_prison_enemies_sprite_group_001190 >   ;04
+  sprite-set < #$0003, &spm_prison_enemies_sprite_group_0011AB >   ;05
+  sprite-set < #$0003, &spm_prison_enemies_sprite_group_0011C6 >   ;06
+  sprite-set < #$0003, &spm_prison_enemies_sprite_group_0011E1 >   ;07
 ]
 
-sprite_set_00016E [
-  sprite-set < #$0003, &sprite_group_001109 >   ;00
-  sprite-set < #$0003, &sprite_group_001124 >   ;01
+spm_prison_enemies_sprite_set_00016E [
+  sprite-set < #$0003, &spm_prison_enemies_sprite_group_001109 >   ;00
+  sprite-set < #$0003, &spm_prison_enemies_sprite_group_001124 >   ;01
 ]
 
-sprite_set_000178 [
-  sprite-set < #$0000, &sprite_group_0004C4 >
+spm_prison_enemies_sprite_set_000178 [
+  sprite-set < #$0000, &spm_prison_enemies_sprite_group_0004C4 >
 ]
 
-sprite_set_00017E [
-  sprite-set < #$0000, &sprite_group_0004C4 >
+spm_prison_enemies_sprite_set_00017E [
+  sprite-set < #$0000, &spm_prison_enemies_sprite_group_0004C4 >
 ]
 
-sprite_set_000184 [
-  sprite-set < #$0000, &sprite_group_0004C4 >
+spm_prison_enemies_sprite_set_000184 [
+  sprite-set < #$0000, &spm_prison_enemies_sprite_group_0004C4 >
 ]
 
-sprite_set_00018A [
-  sprite-set < #$0000, &sprite_group_0004C4 >
+spm_prison_enemies_sprite_set_00018A [
+  sprite-set < #$0000, &spm_prison_enemies_sprite_group_0004C4 >
 ]
 
-sprite_set_000190 [
-  sprite-set < #$0000, &sprite_group_0004C4 >
+spm_prison_enemies_sprite_set_000190 [
+  sprite-set < #$0000, &spm_prison_enemies_sprite_group_0004C4 >
 ]
 
-sprite_set_000196 [
-  sprite-set < #$0000, &sprite_group_0004C4 >
+spm_prison_enemies_sprite_set_000196 [
+  sprite-set < #$0000, &spm_prison_enemies_sprite_group_0004C4 >
 ]
 
-sprite_set_00019C [
-  sprite-set < #$0000, &sprite_group_0004C4 >
+spm_prison_enemies_sprite_set_00019C [
+  sprite-set < #$0000, &spm_prison_enemies_sprite_group_0004C4 >
 ]
 
-sprite_set_0001A2 [
-  sprite-set < #$0000, &sprite_group_0004C4 >
+spm_prison_enemies_sprite_set_0001A2 [
+  sprite-set < #$0000, &spm_prison_enemies_sprite_group_0004C4 >
 ]
 
-sprite_set_0001A8 [
-  sprite-set < #$0007, &sprite_group_0004C4 >   ;00
-  sprite-set < #$0003, &sprite_group_000BE4 >   ;01
-  sprite-set < #$000F, &sprite_group_000C53 >   ;02
+spm_prison_enemies_sprite_set_0001A8 [
+  sprite-set < #$0007, &spm_prison_enemies_sprite_group_0004C4 >   ;00
+  sprite-set < #$0003, &spm_prison_enemies_sprite_group_000BE4 >   ;01
+  sprite-set < #$000F, &spm_prison_enemies_sprite_group_000C53 >   ;02
 ]
 
-sprite_set_0001B6 [
-  sprite-set < #$0004, &sprite_group_000CA6 >   ;00
-  sprite-set < #$000F, &sprite_group_000D07 >   ;01
+spm_prison_enemies_sprite_set_0001B6 [
+  sprite-set < #$0004, &spm_prison_enemies_sprite_group_000CA6 >   ;00
+  sprite-set < #$000F, &spm_prison_enemies_sprite_group_000D07 >   ;01
 ]
 
-sprite_set_0001C0 [
-  sprite-set < #$0007, &sprite_group_000509 >   ;00
-  sprite-set < #$0003, &sprite_group_000D76 >   ;01
-  sprite-set < #$000F, &sprite_group_000DE5 >   ;02
+spm_prison_enemies_sprite_set_0001C0 [
+  sprite-set < #$0007, &spm_prison_enemies_sprite_group_000509 >   ;00
+  sprite-set < #$0003, &spm_prison_enemies_sprite_group_000D76 >   ;01
+  sprite-set < #$000F, &spm_prison_enemies_sprite_group_000DE5 >   ;02
 ]
 
-sprite_set_0001CE [
-  sprite-set < #$0004, &sprite_group_000E4D >   ;00
-  sprite-set < #$000F, &sprite_group_000EAE >   ;01
+spm_prison_enemies_sprite_set_0001CE [
+  sprite-set < #$0004, &spm_prison_enemies_sprite_group_000E4D >   ;00
+  sprite-set < #$000F, &spm_prison_enemies_sprite_group_000EAE >   ;01
 ]
 
-sprite_set_0001D8 [
-  sprite-set < #$0007, &sprite_group_00054E >   ;00
-  sprite-set < #$0003, &sprite_group_000F1D >   ;01
-  sprite-set < #$000F, &sprite_group_000F62 >   ;02
+spm_prison_enemies_sprite_set_0001D8 [
+  sprite-set < #$0007, &spm_prison_enemies_sprite_group_00054E >   ;00
+  sprite-set < #$0003, &spm_prison_enemies_sprite_group_000F1D >   ;01
+  sprite-set < #$000F, &spm_prison_enemies_sprite_group_000F62 >   ;02
 ]
 
-sprite_set_0001E6 [
-  sprite-set < #$0004, &sprite_group_000FAE >   ;00
-  sprite-set < #$000F, &sprite_group_001001 >   ;01
+spm_prison_enemies_sprite_set_0001E6 [
+  sprite-set < #$0004, &spm_prison_enemies_sprite_group_000FAE >   ;00
+  sprite-set < #$000F, &spm_prison_enemies_sprite_group_001001 >   ;01
 ]
 
-sprite_set_0001F0 [
-  sprite-set < #$0001, &sprite_group_00104D >   ;00
-  sprite-set < #$0001, &sprite_group_001068 >   ;01
-  sprite-set < #$0001, &sprite_group_00107C >   ;02
-  sprite-set < #$0001, &sprite_group_001097 >   ;03
-  sprite-set < #$0001, &sprite_group_0010AB >   ;04
-  sprite-set < #$0001, &sprite_group_0010C6 >   ;05
-  sprite-set < #$0001, &sprite_group_0010DA >   ;06
-  sprite-set < #$0001, &sprite_group_0010F5 >   ;07
+spm_prison_enemies_sprite_set_0001F0 [
+  sprite-set < #$0001, &spm_prison_enemies_sprite_group_00104D >   ;00
+  sprite-set < #$0001, &spm_prison_enemies_sprite_group_001068 >   ;01
+  sprite-set < #$0001, &spm_prison_enemies_sprite_group_00107C >   ;02
+  sprite-set < #$0001, &spm_prison_enemies_sprite_group_001097 >   ;03
+  sprite-set < #$0001, &spm_prison_enemies_sprite_group_0010AB >   ;04
+  sprite-set < #$0001, &spm_prison_enemies_sprite_group_0010C6 >   ;05
+  sprite-set < #$0001, &spm_prison_enemies_sprite_group_0010DA >   ;06
+  sprite-set < #$0001, &spm_prison_enemies_sprite_group_0010F5 >   ;07
 ]
 
-sprite_set_000212 [
-  sprite-set < #$0002, &sprite_group_001124 >   ;00
-  sprite-set < #$0002, &sprite_group_0011FC >   ;01
-  sprite-set < #$0002, &sprite_group_001217 >   ;02
-  sprite-set < #$0003, &sprite_group_001232 >   ;03
-  sprite-set < #$0003, &sprite_group_00124D >   ;04
-  sprite-set < #$0004, &sprite_group_001232 >   ;05
-  sprite-set < #$0005, &sprite_group_00124D >   ;06
-  sprite-set < #$0009, &sprite_group_001232 >   ;07
-  sprite-set < #$0002, &sprite_group_001217 >   ;08
-  sprite-set < #$0002, &sprite_group_0011FC >   ;09
+spm_prison_enemies_sprite_set_000212 [
+  sprite-set < #$0002, &spm_prison_enemies_sprite_group_001124 >   ;00
+  sprite-set < #$0002, &spm_prison_enemies_sprite_group_0011FC >   ;01
+  sprite-set < #$0002, &spm_prison_enemies_sprite_group_001217 >   ;02
+  sprite-set < #$0003, &spm_prison_enemies_sprite_group_001232 >   ;03
+  sprite-set < #$0003, &spm_prison_enemies_sprite_group_00124D >   ;04
+  sprite-set < #$0004, &spm_prison_enemies_sprite_group_001232 >   ;05
+  sprite-set < #$0005, &spm_prison_enemies_sprite_group_00124D >   ;06
+  sprite-set < #$0009, &spm_prison_enemies_sprite_group_001232 >   ;07
+  sprite-set < #$0002, &spm_prison_enemies_sprite_group_001217 >   ;08
+  sprite-set < #$0002, &spm_prison_enemies_sprite_group_0011FC >   ;09
 ]
 
-sprite_set_00023C [
-  sprite-set < #$0009, &sprite_group_0004C4 >   ;00
-  sprite-set < #$0009, &sprite_group_001268 >   ;01
-  sprite-set < #$0009, &sprite_group_0012EC >   ;02
-  sprite-set < #$0009, &sprite_group_001370 >   ;03
+spm_prison_enemies_sprite_set_00023C [
+  sprite-set < #$0009, &spm_prison_enemies_sprite_group_0004C4 >   ;00
+  sprite-set < #$0009, &spm_prison_enemies_sprite_group_001268 >   ;01
+  sprite-set < #$0009, &spm_prison_enemies_sprite_group_0012EC >   ;02
+  sprite-set < #$0009, &spm_prison_enemies_sprite_group_001370 >   ;03
 ]
 
-sprite_set_00024E [
-  sprite-set < #$0002, &sprite_group_00141D >   ;00
-  sprite-set < #$0001, &sprite_group_0013F4 >   ;01
-  sprite-set < #$0002, &sprite_group_00145B >   ;02
-  sprite-set < #$0002, &sprite_group_00141D >   ;03
-  sprite-set < #$0001, &sprite_group_0013F4 >   ;04
-  sprite-set < #$0002, &sprite_group_00145B >   ;05
-  sprite-set < #$0002, &sprite_group_00141D >   ;06
-  sprite-set < #$0001, &sprite_group_0013F4 >   ;07
-  sprite-set < #$0002, &sprite_group_00145B >   ;08
-  sprite-set < #$0002, &sprite_group_00141D >   ;09
-  sprite-set < #$0001, &sprite_group_0013F4 >   ;0A
-  sprite-set < #$0002, &sprite_group_00145B >   ;0B
+spm_prison_enemies_sprite_set_00024E [
+  sprite-set < #$0002, &spm_prison_enemies_sprite_group_00141D >   ;00
+  sprite-set < #$0001, &spm_prison_enemies_sprite_group_0013F4 >   ;01
+  sprite-set < #$0002, &spm_prison_enemies_sprite_group_00145B >   ;02
+  sprite-set < #$0002, &spm_prison_enemies_sprite_group_00141D >   ;03
+  sprite-set < #$0001, &spm_prison_enemies_sprite_group_0013F4 >   ;04
+  sprite-set < #$0002, &spm_prison_enemies_sprite_group_00145B >   ;05
+  sprite-set < #$0002, &spm_prison_enemies_sprite_group_00141D >   ;06
+  sprite-set < #$0001, &spm_prison_enemies_sprite_group_0013F4 >   ;07
+  sprite-set < #$0002, &spm_prison_enemies_sprite_group_00145B >   ;08
+  sprite-set < #$0002, &spm_prison_enemies_sprite_group_00141D >   ;09
+  sprite-set < #$0001, &spm_prison_enemies_sprite_group_0013F4 >   ;0A
+  sprite-set < #$0002, &spm_prison_enemies_sprite_group_00145B >   ;0B
 ]
 
-sprite_set_000280 [
-  sprite-set < #$0002, &sprite_group_0014AD >   ;00
-  sprite-set < #$0001, &sprite_group_001484 >   ;01
-  sprite-set < #$0002, &sprite_group_0014EB >   ;02
-  sprite-set < #$0002, &sprite_group_0014AD >   ;03
-  sprite-set < #$0001, &sprite_group_001484 >   ;04
-  sprite-set < #$0002, &sprite_group_0014EB >   ;05
-  sprite-set < #$0002, &sprite_group_0014AD >   ;06
-  sprite-set < #$0001, &sprite_group_001484 >   ;07
-  sprite-set < #$0002, &sprite_group_0014EB >   ;08
-  sprite-set < #$0002, &sprite_group_0014AD >   ;09
-  sprite-set < #$0001, &sprite_group_001484 >   ;0A
-  sprite-set < #$0002, &sprite_group_0014EB >   ;0B
+spm_prison_enemies_sprite_set_000280 [
+  sprite-set < #$0002, &spm_prison_enemies_sprite_group_0014AD >   ;00
+  sprite-set < #$0001, &spm_prison_enemies_sprite_group_001484 >   ;01
+  sprite-set < #$0002, &spm_prison_enemies_sprite_group_0014EB >   ;02
+  sprite-set < #$0002, &spm_prison_enemies_sprite_group_0014AD >   ;03
+  sprite-set < #$0001, &spm_prison_enemies_sprite_group_001484 >   ;04
+  sprite-set < #$0002, &spm_prison_enemies_sprite_group_0014EB >   ;05
+  sprite-set < #$0002, &spm_prison_enemies_sprite_group_0014AD >   ;06
+  sprite-set < #$0001, &spm_prison_enemies_sprite_group_001484 >   ;07
+  sprite-set < #$0002, &spm_prison_enemies_sprite_group_0014EB >   ;08
+  sprite-set < #$0002, &spm_prison_enemies_sprite_group_0014AD >   ;09
+  sprite-set < #$0001, &spm_prison_enemies_sprite_group_001484 >   ;0A
+  sprite-set < #$0002, &spm_prison_enemies_sprite_group_0014EB >   ;0B
 ]
 
-sprite_set_0002B2 [
-  sprite-set < #$0002, &sprite_group_001559 >   ;00
-  sprite-set < #$0001, &sprite_group_001522 >   ;01
-  sprite-set < #$0002, &sprite_group_001590 >   ;02
-  sprite-set < #$0002, &sprite_group_001559 >   ;03
-  sprite-set < #$0001, &sprite_group_001522 >   ;04
-  sprite-set < #$0002, &sprite_group_001590 >   ;05
-  sprite-set < #$0002, &sprite_group_001559 >   ;06
-  sprite-set < #$0001, &sprite_group_001522 >   ;07
-  sprite-set < #$0002, &sprite_group_001590 >   ;08
-  sprite-set < #$0002, &sprite_group_001559 >   ;09
-  sprite-set < #$0001, &sprite_group_001522 >   ;0A
-  sprite-set < #$0002, &sprite_group_001590 >   ;0B
+spm_prison_enemies_sprite_set_0002B2 [
+  sprite-set < #$0002, &spm_prison_enemies_sprite_group_001559 >   ;00
+  sprite-set < #$0001, &spm_prison_enemies_sprite_group_001522 >   ;01
+  sprite-set < #$0002, &spm_prison_enemies_sprite_group_001590 >   ;02
+  sprite-set < #$0002, &spm_prison_enemies_sprite_group_001559 >   ;03
+  sprite-set < #$0001, &spm_prison_enemies_sprite_group_001522 >   ;04
+  sprite-set < #$0002, &spm_prison_enemies_sprite_group_001590 >   ;05
+  sprite-set < #$0002, &spm_prison_enemies_sprite_group_001559 >   ;06
+  sprite-set < #$0001, &spm_prison_enemies_sprite_group_001522 >   ;07
+  sprite-set < #$0002, &spm_prison_enemies_sprite_group_001590 >   ;08
+  sprite-set < #$0002, &spm_prison_enemies_sprite_group_001559 >   ;09
+  sprite-set < #$0001, &spm_prison_enemies_sprite_group_001522 >   ;0A
+  sprite-set < #$0002, &spm_prison_enemies_sprite_group_001590 >   ;0B
 ]
 
-sprite_set_0002E4 [
-  sprite-set < #$0003, &sprite_group_0015C0 >   ;00
-  sprite-set < #$0003, &sprite_group_0015DB >   ;01
-  sprite-set < #$0003, &sprite_group_0015F6 >   ;02
-  sprite-set < #$0003, &sprite_group_00161F >   ;03
-  sprite-set < #$0003, &sprite_group_001680 >   ;04
-  sprite-set < #$0004, &sprite_group_0016DA >   ;05
-  sprite-set < #$0003, &sprite_group_001742 >   ;06
-  sprite-set < #$0003, &sprite_group_0017AA >   ;07
-  sprite-set < #$0003, &sprite_group_00180B >   ;08
-  sprite-set < #$0003, &sprite_group_001873 >   ;09
-  sprite-set < #$0003, &sprite_group_0018C6 >   ;0A
+spm_prison_enemies_sprite_set_0002E4 [
+  sprite-set < #$0003, &spm_prison_enemies_sprite_group_0015C0 >   ;00
+  sprite-set < #$0003, &spm_prison_enemies_sprite_group_0015DB >   ;01
+  sprite-set < #$0003, &spm_prison_enemies_sprite_group_0015F6 >   ;02
+  sprite-set < #$0003, &spm_prison_enemies_sprite_group_00161F >   ;03
+  sprite-set < #$0003, &spm_prison_enemies_sprite_group_001680 >   ;04
+  sprite-set < #$0004, &spm_prison_enemies_sprite_group_0016DA >   ;05
+  sprite-set < #$0003, &spm_prison_enemies_sprite_group_001742 >   ;06
+  sprite-set < #$0003, &spm_prison_enemies_sprite_group_0017AA >   ;07
+  sprite-set < #$0003, &spm_prison_enemies_sprite_group_00180B >   ;08
+  sprite-set < #$0003, &spm_prison_enemies_sprite_group_001873 >   ;09
+  sprite-set < #$0003, &spm_prison_enemies_sprite_group_0018C6 >   ;0A
 ]
 
-sprite_set_000312 [
-  sprite-set < #$0007, &sprite_group_00192E >
+spm_prison_enemies_sprite_set_000312 [
+  sprite-set < #$0007, &spm_prison_enemies_sprite_group_00192E >
 ]
 
-sprite_set_000318 [
-  sprite-set < #$0007, &sprite_group_0019E0 >
+spm_prison_enemies_sprite_set_000318 [
+  sprite-set < #$0007, &spm_prison_enemies_sprite_group_0019E0 >
 ]
 
-sprite_set_00031E [
-  sprite-set < #$0007, &sprite_group_001A92 >
+spm_prison_enemies_sprite_set_00031E [
+  sprite-set < #$0007, &spm_prison_enemies_sprite_group_001A92 >
 ]
 
-sprite_set_000324 [
-  sprite-set < #$0007, &sprite_group_001B44 >
+spm_prison_enemies_sprite_set_000324 [
+  sprite-set < #$0007, &spm_prison_enemies_sprite_group_001B44 >
 ]
 
-sprite_set_00032A [
-  sprite-set < #$0007, &sprite_group_001BF6 >
+spm_prison_enemies_sprite_set_00032A [
+  sprite-set < #$0007, &spm_prison_enemies_sprite_group_001BF6 >
 ]
 
-sprite_set_000330 [
-  sprite-set < #$0007, &sprite_group_001B44 >
+spm_prison_enemies_sprite_set_000330 [
+  sprite-set < #$0007, &spm_prison_enemies_sprite_group_001B44 >
 ]
 
-sprite_set_000336 [
-  sprite-set < #$0007, &sprite_group_001AEB >
+spm_prison_enemies_sprite_set_000336 [
+  sprite-set < #$0007, &spm_prison_enemies_sprite_group_001AEB >
 ]
 
-sprite_set_00033C [
-  sprite-set < #$0007, &sprite_group_0019E0 >
+spm_prison_enemies_sprite_set_00033C [
+  sprite-set < #$0007, &spm_prison_enemies_sprite_group_0019E0 >
 ]
 
-sprite_set_000342 [
-  sprite-set < #$0003, &sprite_group_001950 >   ;00
-  sprite-set < #$0003, &sprite_group_001987 >   ;01
-  sprite-set < #$0003, &sprite_group_0019A9 >   ;02
-  sprite-set < #$0003, &sprite_group_00192E >   ;03
+spm_prison_enemies_sprite_set_000342 [
+  sprite-set < #$0003, &spm_prison_enemies_sprite_group_001950 >   ;00
+  sprite-set < #$0003, &spm_prison_enemies_sprite_group_001987 >   ;01
+  sprite-set < #$0003, &spm_prison_enemies_sprite_group_0019A9 >   ;02
+  sprite-set < #$0003, &spm_prison_enemies_sprite_group_00192E >   ;03
 ]
 
-sprite_set_000354 [
-  sprite-set < #$0003, &sprite_group_001A17 >   ;00
-  sprite-set < #$0003, &sprite_group_001A39 >   ;01
-  sprite-set < #$0003, &sprite_group_001A70 >   ;02
-  sprite-set < #$0003, &sprite_group_0019E0 >   ;03
+spm_prison_enemies_sprite_set_000354 [
+  sprite-set < #$0003, &spm_prison_enemies_sprite_group_001A17 >   ;00
+  sprite-set < #$0003, &spm_prison_enemies_sprite_group_001A39 >   ;01
+  sprite-set < #$0003, &spm_prison_enemies_sprite_group_001A70 >   ;02
+  sprite-set < #$0003, &spm_prison_enemies_sprite_group_0019E0 >   ;03
 ]
 
-sprite_set_000366 [
-  sprite-set < #$0003, &sprite_group_001AB4 >   ;00
-  sprite-set < #$0003, &sprite_group_001AEB >   ;01
-  sprite-set < #$0003, &sprite_group_001B0D >   ;02
-  sprite-set < #$0003, &sprite_group_001A92 >   ;03
+spm_prison_enemies_sprite_set_000366 [
+  sprite-set < #$0003, &spm_prison_enemies_sprite_group_001AB4 >   ;00
+  sprite-set < #$0003, &spm_prison_enemies_sprite_group_001AEB >   ;01
+  sprite-set < #$0003, &spm_prison_enemies_sprite_group_001B0D >   ;02
+  sprite-set < #$0003, &spm_prison_enemies_sprite_group_001A92 >   ;03
 ]
 
-sprite_set_000378 [
-  sprite-set < #$0003, &sprite_group_001B7B >   ;00
-  sprite-set < #$0003, &sprite_group_001B9D >   ;01
-  sprite-set < #$0003, &sprite_group_001BD4 >   ;02
-  sprite-set < #$0003, &sprite_group_001B44 >   ;03
+spm_prison_enemies_sprite_set_000378 [
+  sprite-set < #$0003, &spm_prison_enemies_sprite_group_001B7B >   ;00
+  sprite-set < #$0003, &spm_prison_enemies_sprite_group_001B9D >   ;01
+  sprite-set < #$0003, &spm_prison_enemies_sprite_group_001BD4 >   ;02
+  sprite-set < #$0003, &spm_prison_enemies_sprite_group_001B44 >   ;03
 ]
 
-sprite_set_00038A [
-  sprite-set < #$0003, &sprite_group_001C18 >   ;00
-  sprite-set < #$0003, &sprite_group_001C4F >   ;01
-  sprite-set < #$0003, &sprite_group_001C71 >   ;02
-  sprite-set < #$0003, &sprite_group_001BF6 >   ;03
+spm_prison_enemies_sprite_set_00038A [
+  sprite-set < #$0003, &spm_prison_enemies_sprite_group_001C18 >   ;00
+  sprite-set < #$0003, &spm_prison_enemies_sprite_group_001C4F >   ;01
+  sprite-set < #$0003, &spm_prison_enemies_sprite_group_001C71 >   ;02
+  sprite-set < #$0003, &spm_prison_enemies_sprite_group_001BF6 >   ;03
 ]
 
-sprite_set_00039C [
-  sprite-set < #$0003, &sprite_group_001B7B >   ;00
-  sprite-set < #$0003, &sprite_group_001B9D >   ;01
-  sprite-set < #$0003, &sprite_group_001BD4 >   ;02
-  sprite-set < #$0003, &sprite_group_001B44 >   ;03
+spm_prison_enemies_sprite_set_00039C [
+  sprite-set < #$0003, &spm_prison_enemies_sprite_group_001B7B >   ;00
+  sprite-set < #$0003, &spm_prison_enemies_sprite_group_001B9D >   ;01
+  sprite-set < #$0003, &spm_prison_enemies_sprite_group_001BD4 >   ;02
+  sprite-set < #$0003, &spm_prison_enemies_sprite_group_001B44 >   ;03
 ]
 
-sprite_set_0003AE [
-  sprite-set < #$0003, &sprite_group_001B0D >   ;00
-  sprite-set < #$0003, &sprite_group_001A92 >   ;01
-  sprite-set < #$0003, &sprite_group_001AB4 >   ;02
-  sprite-set < #$0003, &sprite_group_001AEB >   ;03
+spm_prison_enemies_sprite_set_0003AE [
+  sprite-set < #$0003, &spm_prison_enemies_sprite_group_001B0D >   ;00
+  sprite-set < #$0003, &spm_prison_enemies_sprite_group_001A92 >   ;01
+  sprite-set < #$0003, &spm_prison_enemies_sprite_group_001AB4 >   ;02
+  sprite-set < #$0003, &spm_prison_enemies_sprite_group_001AEB >   ;03
 ]
 
-sprite_set_0003C0 [
-  sprite-set < #$0003, &sprite_group_001A17 >   ;00
-  sprite-set < #$0003, &sprite_group_001A39 >   ;01
-  sprite-set < #$0003, &sprite_group_001A70 >   ;02
-  sprite-set < #$0003, &sprite_group_0019E0 >   ;03
+spm_prison_enemies_sprite_set_0003C0 [
+  sprite-set < #$0003, &spm_prison_enemies_sprite_group_001A17 >   ;00
+  sprite-set < #$0003, &spm_prison_enemies_sprite_group_001A39 >   ;01
+  sprite-set < #$0003, &spm_prison_enemies_sprite_group_001A70 >   ;02
+  sprite-set < #$0003, &spm_prison_enemies_sprite_group_0019E0 >   ;03
 ]
 
-sprite_set_0003D2 [
-  sprite-set < #$0003, &sprite_group_001CA8 >   ;00
-  sprite-set < #$0003, &sprite_group_001CC3 >   ;01
-  sprite-set < #$0003, &sprite_group_001CDE >   ;02
-  sprite-set < #$0003, &sprite_group_001CF9 >   ;03
+spm_prison_enemies_sprite_set_0003D2 [
+  sprite-set < #$0003, &spm_prison_enemies_sprite_group_001CA8 >   ;00
+  sprite-set < #$0003, &spm_prison_enemies_sprite_group_001CC3 >   ;01
+  sprite-set < #$0003, &spm_prison_enemies_sprite_group_001CDE >   ;02
+  sprite-set < #$0003, &spm_prison_enemies_sprite_group_001CF9 >   ;03
 ]
 
-sprite_set_0003E4 [
-  sprite-set < #$0003, &sprite_group_001D14 >   ;00
-  sprite-set < #$0003, &sprite_group_001D4B >   ;01
-  sprite-set < #$0003, &sprite_group_001D74 >   ;02
-  sprite-set < #$0003, &sprite_group_001D9D >   ;03
+spm_prison_enemies_sprite_set_0003E4 [
+  sprite-set < #$0003, &spm_prison_enemies_sprite_group_001D14 >   ;00
+  sprite-set < #$0003, &spm_prison_enemies_sprite_group_001D4B >   ;01
+  sprite-set < #$0003, &spm_prison_enemies_sprite_group_001D74 >   ;02
+  sprite-set < #$0003, &spm_prison_enemies_sprite_group_001D9D >   ;03
 ]
 
-sprite_set_0003F6 [
-  sprite-set < #$0003, &sprite_group_0018C6 >   ;00
-  sprite-set < #$0003, &sprite_group_001873 >   ;01
-  sprite-set < #$0003, &sprite_group_00180B >   ;02
-  sprite-set < #$0003, &sprite_group_0017AA >   ;03
-  sprite-set < #$0003, &sprite_group_001742 >   ;04
-  sprite-set < #$0004, &sprite_group_001DC6 >   ;05
-  sprite-set < #$0003, &sprite_group_001E12 >   ;06
-  sprite-set < #$0003, &sprite_group_001E5E >   ;07
-  sprite-set < #$0003, &sprite_group_001EB1 >   ;08
-  sprite-set < #$0003, &sprite_group_001EF6 >   ;09
-  sprite-set < #$0003, &sprite_group_001D4B >   ;0A
-  sprite-set < #$0003, &sprite_group_001D74 >   ;0B
-  sprite-set < #$0003, &sprite_group_001D9D >   ;0C
-  sprite-set < #$0003, &sprite_group_001D14 >   ;0D
+spm_prison_enemies_sprite_set_0003F6 [
+  sprite-set < #$0003, &spm_prison_enemies_sprite_group_0018C6 >   ;00
+  sprite-set < #$0003, &spm_prison_enemies_sprite_group_001873 >   ;01
+  sprite-set < #$0003, &spm_prison_enemies_sprite_group_00180B >   ;02
+  sprite-set < #$0003, &spm_prison_enemies_sprite_group_0017AA >   ;03
+  sprite-set < #$0003, &spm_prison_enemies_sprite_group_001742 >   ;04
+  sprite-set < #$0004, &spm_prison_enemies_sprite_group_001DC6 >   ;05
+  sprite-set < #$0003, &spm_prison_enemies_sprite_group_001E12 >   ;06
+  sprite-set < #$0003, &spm_prison_enemies_sprite_group_001E5E >   ;07
+  sprite-set < #$0003, &spm_prison_enemies_sprite_group_001EB1 >   ;08
+  sprite-set < #$0003, &spm_prison_enemies_sprite_group_001EF6 >   ;09
+  sprite-set < #$0003, &spm_prison_enemies_sprite_group_001D4B >   ;0A
+  sprite-set < #$0003, &spm_prison_enemies_sprite_group_001D74 >   ;0B
+  sprite-set < #$0003, &spm_prison_enemies_sprite_group_001D9D >   ;0C
+  sprite-set < #$0003, &spm_prison_enemies_sprite_group_001D14 >   ;0D
 ]
 
-sprite_set_000430 [
-  sprite-set < #$000F, &sprite_group_001F49 >
+spm_prison_enemies_sprite_set_000430 [
+  sprite-set < #$000F, &spm_prison_enemies_sprite_group_001F49 >
 ]
 
-sprite_set_000436 [
-  sprite-set < #$0000, &sprite_group_001F79 >
+spm_prison_enemies_sprite_set_000436 [
+  sprite-set < #$0000, &spm_prison_enemies_sprite_group_001F79 >
 ]
 
-sprite_set_00043C [
-  sprite-set < #$0000, &sprite_group_001FA2 >
+spm_prison_enemies_sprite_set_00043C [
+  sprite-set < #$0000, &spm_prison_enemies_sprite_group_001FA2 >
 ]
 
-sprite_set_000442 [
-  sprite-set < #$001F, &sprite_group_001FCB >
+spm_prison_enemies_sprite_set_000442 [
+  sprite-set < #$001F, &spm_prison_enemies_sprite_group_001FCB >
 ]
 
-sprite_set_000448 [
-  sprite-set < #$0000, &sprite_group_002002 >   ;00
-  sprite-set < #$0000, &sprite_group_002032 >   ;01
-  sprite-set < #$0000, &sprite_group_002002 >   ;02
-  sprite-set < #$0000, &sprite_group_002062 >   ;03
-  sprite-set < #$0000, &sprite_group_002002 >   ;04
-  sprite-set < #$0000, &sprite_group_002032 >   ;05
-  sprite-set < #$0000, &sprite_group_002092 >   ;06
-  sprite-set < #$0000, &sprite_group_002032 >   ;07
-  sprite-set < #$0000, &sprite_group_002002 >   ;08
-  sprite-set < #$0000, &sprite_group_002062 >   ;09
-  sprite-set < #$0000, &sprite_group_0020C2 >   ;0A
-  sprite-set < #$0000, &sprite_group_002062 >   ;0B
-  sprite-set < #$0000, &sprite_group_002002 >   ;0C
-  sprite-set < #$0000, &sprite_group_002032 >   ;0D
-  sprite-set < #$0000, &sprite_group_002002 >   ;0E
-  sprite-set < #$0000, &sprite_group_002062 >   ;0F
-  sprite-set < #$0000, &sprite_group_002002 >   ;10
+spm_prison_enemies_sprite_set_000448 [
+  sprite-set < #$0000, &spm_prison_enemies_sprite_group_002002 >   ;00
+  sprite-set < #$0000, &spm_prison_enemies_sprite_group_002032 >   ;01
+  sprite-set < #$0000, &spm_prison_enemies_sprite_group_002002 >   ;02
+  sprite-set < #$0000, &spm_prison_enemies_sprite_group_002062 >   ;03
+  sprite-set < #$0000, &spm_prison_enemies_sprite_group_002002 >   ;04
+  sprite-set < #$0000, &spm_prison_enemies_sprite_group_002032 >   ;05
+  sprite-set < #$0000, &spm_prison_enemies_sprite_group_002092 >   ;06
+  sprite-set < #$0000, &spm_prison_enemies_sprite_group_002032 >   ;07
+  sprite-set < #$0000, &spm_prison_enemies_sprite_group_002002 >   ;08
+  sprite-set < #$0000, &spm_prison_enemies_sprite_group_002062 >   ;09
+  sprite-set < #$0000, &spm_prison_enemies_sprite_group_0020C2 >   ;0A
+  sprite-set < #$0000, &spm_prison_enemies_sprite_group_002062 >   ;0B
+  sprite-set < #$0000, &spm_prison_enemies_sprite_group_002002 >   ;0C
+  sprite-set < #$0000, &spm_prison_enemies_sprite_group_002032 >   ;0D
+  sprite-set < #$0000, &spm_prison_enemies_sprite_group_002002 >   ;0E
+  sprite-set < #$0000, &spm_prison_enemies_sprite_group_002062 >   ;0F
+  sprite-set < #$0000, &spm_prison_enemies_sprite_group_002002 >   ;10
 ]
 
-sprite_set_00048E [
-  sprite-set < #$0000, &sprite_group_0020F2 >
+spm_prison_enemies_sprite_set_00048E [
+  sprite-set < #$0000, &spm_prison_enemies_sprite_group_0020F2 >
 ]
 
-sprite_set_000494 [
-  sprite-set < #$000F, &sprite_group_002106 >
+spm_prison_enemies_sprite_set_000494 [
+  sprite-set < #$000F, &spm_prison_enemies_sprite_group_002106 >
 ]
 
-sprite_set_00049A [
-  sprite-set < #$0000, &sprite_group_002002 >
+spm_prison_enemies_sprite_set_00049A [
+  sprite-set < #$0000, &spm_prison_enemies_sprite_group_002002 >
 ]
 
-sprite_set_0004A0 [
-  sprite-set < #$0003, &sprite_group_00211A >   ;00
-  sprite-set < #$0003, &sprite_group_00212E >   ;01
-  sprite-set < #$0003, &sprite_group_002142 >   ;02
-  sprite-set < #$0003, &sprite_group_002156 >   ;03
+spm_prison_enemies_sprite_set_0004A0 [
+  sprite-set < #$0003, &spm_prison_enemies_sprite_group_00211A >   ;00
+  sprite-set < #$0003, &spm_prison_enemies_sprite_group_00212E >   ;01
+  sprite-set < #$0003, &spm_prison_enemies_sprite_group_002142 >   ;02
+  sprite-set < #$0003, &spm_prison_enemies_sprite_group_002156 >   ;03
 ]
 
-sprite_set_0004B2 [
-  sprite-set < #$000B, &sprite_group_00216A >   ;00
-  sprite-set < #$000B, &sprite_group_00218C >   ;01
-  sprite-set < #$000B, &sprite_group_00216A >   ;02
-  sprite-set < #$000B, &sprite_group_0021AE >   ;03
+spm_prison_enemies_sprite_set_0004B2 [
+  sprite-set < #$000B, &spm_prison_enemies_sprite_group_00216A >   ;00
+  sprite-set < #$000B, &spm_prison_enemies_sprite_group_00218C >   ;01
+  sprite-set < #$000B, &spm_prison_enemies_sprite_group_00216A >   ;02
+  sprite-set < #$000B, &spm_prison_enemies_sprite_group_0021AE >   ;03
 ]
 
-sprite_group_0004C4 [
+spm_prison_enemies_sprite_group_0004C4 [
   sprite-group < #10, #10, #2F, #07, #F8, #F0, #01, #01, #F5, #17, #E8, #17, #08, [
     sprite-part < #01, #08, #08, #00, #26, #$070C >   ;00
     sprite-part < #01, #00, #10, #07, #1F, #$0700 >   ;01
@@ -513,7 +513,7 @@ sprite_group_0004C4 [
   ] >
 ]
 
-sprite_group_000509 [
+spm_prison_enemies_sprite_group_000509 [
   sprite-group < #10, #10, #32, #06, #F8, #F0, #01, #01, #F5, #17, #E8, #17, #08, [
     sprite-part < #01, #10, #00, #0A, #1E, #$0704 >   ;00
     sprite-part < #01, #00, #10, #0A, #1E, #$4704 >   ;01
@@ -526,7 +526,7 @@ sprite_group_000509 [
   ] >
 ]
 
-sprite_group_00054E [
+spm_prison_enemies_sprite_group_00054E [
   sprite-group < #0B, #08, #2F, #06, #F8, #F0, #01, #01, #F5, #17, #E8, #17, #09, [
     sprite-part < #01, #00, #03, #00, #25, #$074C >   ;00
     sprite-part < #00, #09, #02, #0E, #1F, #$072A >   ;01
@@ -540,7 +540,7 @@ sprite_group_00054E [
   ] >
 ]
 
-sprite_group_00059A [
+spm_prison_enemies_sprite_group_00059A [
   sprite-group < #10, #10, #2F, #07, #F8, #F0, #01, #01, #F5, #17, #E8, #17, #08, [
     sprite-part < #01, #07, #09, #00, #26, #$074E >   ;00
     sprite-part < #01, #00, #10, #07, #1F, #$0700 >   ;01
@@ -553,7 +553,7 @@ sprite_group_00059A [
   ] >
 ]
 
-sprite_group_0005DF [
+spm_prison_enemies_sprite_group_0005DF [
   sprite-group < #10, #10, #2F, #07, #F8, #F0, #01, #01, #F5, #17, #E8, #17, #08, [
     sprite-part < #01, #06, #0A, #00, #26, #$074C >   ;00
     sprite-part < #01, #00, #10, #07, #1F, #$0700 >   ;01
@@ -566,7 +566,7 @@ sprite_group_0005DF [
   ] >
 ]
 
-sprite_group_000624 [
+spm_prison_enemies_sprite_group_000624 [
   sprite-group < #10, #10, #2F, #07, #F8, #F0, #01, #01, #F5, #17, #E8, #17, #08, [
     sprite-part < #01, #09, #07, #00, #26, #$474E >   ;00
     sprite-part < #01, #10, #00, #07, #1F, #$4700 >   ;01
@@ -579,7 +579,7 @@ sprite_group_000624 [
   ] >
 ]
 
-sprite_group_000669 [
+spm_prison_enemies_sprite_group_000669 [
   sprite-group < #10, #10, #2F, #07, #F8, #F0, #01, #01, #F5, #17, #E8, #17, #08, [
     sprite-part < #01, #0A, #06, #00, #26, #$474C >   ;00
     sprite-part < #01, #10, #00, #07, #1F, #$4700 >   ;01
@@ -592,7 +592,7 @@ sprite_group_000669 [
   ] >
 ]
 
-sprite_group_0006AE [
+spm_prison_enemies_sprite_group_0006AE [
   sprite-group < #10, #10, #31, #06, #F8, #F0, #01, #01, #F5, #17, #E8, #17, #08, [
     sprite-part < #01, #10, #00, #09, #1E, #$0704 >   ;00
     sprite-part < #01, #00, #10, #09, #1E, #$4704 >   ;01
@@ -605,7 +605,7 @@ sprite_group_0006AE [
   ] >
 ]
 
-sprite_group_0006F3 [
+spm_prison_enemies_sprite_group_0006F3 [
   sprite-group < #10, #10, #31, #06, #F8, #F0, #01, #01, #F5, #17, #E8, #17, #08, [
     sprite-part < #01, #10, #00, #09, #1E, #$0704 >   ;00
     sprite-part < #01, #00, #10, #09, #1E, #$4704 >   ;01
@@ -618,7 +618,7 @@ sprite_group_0006F3 [
   ] >
 ]
 
-sprite_group_000738 [
+spm_prison_enemies_sprite_group_000738 [
   sprite-group < #10, #10, #31, #06, #F8, #F0, #01, #01, #F5, #17, #E8, #17, #08, [
     sprite-part < #01, #00, #10, #09, #1E, #$4704 >   ;00
     sprite-part < #01, #10, #00, #09, #1E, #$0704 >   ;01
@@ -631,7 +631,7 @@ sprite_group_000738 [
   ] >
 ]
 
-sprite_group_00077D [
+spm_prison_enemies_sprite_group_00077D [
   sprite-group < #10, #10, #31, #06, #F8, #F0, #01, #01, #F5, #17, #E8, #17, #08, [
     sprite-part < #01, #00, #10, #09, #1E, #$4704 >   ;00
     sprite-part < #01, #10, #00, #09, #1E, #$0704 >   ;01
@@ -644,7 +644,7 @@ sprite_group_00077D [
   ] >
 ]
 
-sprite_group_0007C2 [
+spm_prison_enemies_sprite_group_0007C2 [
   sprite-group < #0B, #08, #2F, #06, #F8, #F0, #01, #01, #F5, #17, #E8, #17, #09, [
     sprite-part < #01, #00, #03, #00, #25, #$074E >   ;00
     sprite-part < #00, #09, #02, #0E, #1F, #$072A >   ;01
@@ -658,7 +658,7 @@ sprite_group_0007C2 [
   ] >
 ]
 
-sprite_group_00080E [
+spm_prison_enemies_sprite_group_00080E [
   sprite-group < #0B, #08, #2F, #06, #F8, #F0, #01, #01, #F5, #17, #E8, #17, #09, [
     sprite-part < #01, #00, #03, #00, #25, #$070C >   ;00
     sprite-part < #00, #09, #02, #0E, #1F, #$072A >   ;01
@@ -672,7 +672,7 @@ sprite_group_00080E [
   ] >
 ]
 
-sprite_group_00085A [
+spm_prison_enemies_sprite_group_00085A [
   sprite-group < #0B, #08, #2F, #06, #F8, #F0, #01, #01, #F5, #17, #E8, #17, #09, [
     sprite-part < #01, #00, #03, #00, #25, #$072C >   ;00
     sprite-part < #00, #09, #02, #0E, #1F, #$072A >   ;01
@@ -686,7 +686,7 @@ sprite_group_00085A [
   ] >
 ]
 
-sprite_group_0008A6 [
+spm_prison_enemies_sprite_group_0008A6 [
   sprite-group < #0A, #08, #30, #06, #F8, #F0, #01, #01, #F5, #17, #E8, #17, #09, [
     sprite-part < #01, #00, #02, #00, #26, #$072E >   ;00
     sprite-part < #00, #08, #02, #0F, #1F, #$072A >   ;01
@@ -700,7 +700,7 @@ sprite_group_0008A6 [
   ] >
 ]
 
-sprite_group_0008F2 [
+spm_prison_enemies_sprite_group_0008F2 [
   sprite-group < #10, #10, #30, #07, #F8, #F0, #01, #01, #F5, #17, #E8, #17, #08, [
     sprite-part < #01, #08, #08, #00, #27, #$070C >   ;00
     sprite-part < #01, #00, #10, #07, #20, #$0700 >   ;01
@@ -713,7 +713,7 @@ sprite_group_0008F2 [
   ] >
 ]
 
-sprite_group_000937 [
+spm_prison_enemies_sprite_group_000937 [
   sprite-group < #10, #10, #2F, #07, #F8, #F0, #01, #01, #F5, #17, #E8, #17, #08, [
     sprite-part < #01, #08, #08, #00, #26, #$070C >   ;00
     sprite-part < #01, #00, #10, #07, #1F, #$0750 >   ;01
@@ -726,7 +726,7 @@ sprite_group_000937 [
   ] >
 ]
 
-sprite_group_00097C [
+spm_prison_enemies_sprite_group_00097C [
   sprite-group < #10, #10, #2F, #07, #F8, #F0, #01, #01, #F5, #17, #E8, #17, #08, [
     sprite-part < #01, #08, #08, #00, #26, #$470C >   ;00
     sprite-part < #01, #10, #00, #07, #1F, #$4750 >   ;01
@@ -739,7 +739,7 @@ sprite_group_00097C [
   ] >
 ]
 
-sprite_group_0009C1 [
+spm_prison_enemies_sprite_group_0009C1 [
   sprite-group < #10, #10, #33, #06, #F8, #F0, #01, #01, #F5, #17, #E8, #17, #08, [
     sprite-part < #01, #10, #00, #0A, #1F, #$0704 >   ;00
     sprite-part < #01, #00, #10, #0A, #1F, #$4704 >   ;01
@@ -752,7 +752,7 @@ sprite_group_0009C1 [
   ] >
 ]
 
-sprite_group_000A06 [
+spm_prison_enemies_sprite_group_000A06 [
   sprite-group < #10, #10, #32, #06, #F8, #F0, #01, #01, #F5, #17, #E8, #17, #0D, [
     sprite-part < #01, #08, #08, #1A, #0E, #$0774 >   ;00
     sprite-part < #00, #10, #08, #2A, #06, #$0795 >   ;01
@@ -770,7 +770,7 @@ sprite_group_000A06 [
   ] >
 ]
 
-sprite_group_000A6E [
+spm_prison_enemies_sprite_group_000A6E [
   sprite-group < #10, #10, #32, #06, #F8, #F0, #01, #01, #F5, #17, #E8, #17, #0D, [
     sprite-part < #01, #08, #08, #1A, #0E, #$4774 >   ;00
     sprite-part < #00, #08, #10, #2A, #06, #$4795 >   ;01
@@ -788,7 +788,7 @@ sprite_group_000A6E [
   ] >
 ]
 
-sprite_group_000AD6 [
+spm_prison_enemies_sprite_group_000AD6 [
   sprite-group < #0B, #08, #30, #06, #F8, #F0, #01, #01, #F5, #17, #E8, #17, #09, [
     sprite-part < #01, #00, #03, #00, #26, #$074C >   ;00
     sprite-part < #00, #09, #02, #0E, #20, #$072A >   ;01
@@ -802,7 +802,7 @@ sprite_group_000AD6 [
   ] >
 ]
 
-sprite_group_000B22 [
+spm_prison_enemies_sprite_group_000B22 [
   sprite-group < #10, #10, #2F, #06, #F8, #F0, #01, #01, #F5, #17, #E8, #17, #0D, [
     sprite-part < #00, #13, #05, #0D, #20, #$072B >   ;00
     sprite-part < #00, #10, #08, #0D, #20, #$072A >   ;01
@@ -820,7 +820,7 @@ sprite_group_000B22 [
   ] >
 ]
 
-sprite_group_000B8A [
+spm_prison_enemies_sprite_group_000B8A [
   sprite-group < #11, #10, #2F, #06, #F8, #F0, #01, #01, #F5, #17, #E8, #17, #0B, [
     sprite-part < #01, #09, #08, #17, #0E, #$0728 >   ;00
     sprite-part < #01, #05, #0C, #0E, #17, #$070A >   ;01
@@ -836,7 +836,7 @@ sprite_group_000B8A [
   ] >
 ]
 
-sprite_group_000BE4 [
+spm_prison_enemies_sprite_group_000BE4 [
   sprite-group < #10, #10, #30, #07, #F8, #F0, #01, #01, #F5, #17, #E8, #17, #0E, [
     sprite-part < #00, #14, #04, #18, #17, #$C745 >   ;00
     sprite-part < #01, #08, #08, #00, #27, #$070E >   ;01
@@ -855,7 +855,7 @@ sprite_group_000BE4 [
   ] >
 ]
 
-sprite_group_000C53 [
+spm_prison_enemies_sprite_group_000C53 [
   sprite-group < #10, #10, #30, #07, #F8, #F0, #01, #01, #F5, #17, #E8, #17, #0A, [
     sprite-part < #01, #08, #08, #00, #27, #$070C >   ;00
     sprite-part < #00, #08, #10, #28, #07, #$0741 >   ;01
@@ -870,7 +870,7 @@ sprite_group_000C53 [
   ] >
 ]
 
-sprite_group_000CA6 [
+spm_prison_enemies_sprite_group_000CA6 [
   sprite-group < #10, #10, #2F, #08, #F8, #F0, #01, #01, #F5, #17, #E8, #17, #0C, [
     sprite-part < #00, #18, #00, #11, #1E, #$4740 >   ;00
     sprite-part < #00, #00, #18, #11, #1E, #$0740 >   ;01
@@ -887,7 +887,7 @@ sprite_group_000CA6 [
   ] >
 ]
 
-sprite_group_000D07 [
+spm_prison_enemies_sprite_group_000D07 [
   sprite-group < #1E, #1E, #2C, #0A, #F8, #F0, #01, #01, #F5, #17, #E8, #17, #0E, [
     sprite-part < #01, #16, #16, #00, #26, #$070C >   ;00
     sprite-part < #00, #16, #1E, #27, #07, #$0791 >   ;01
@@ -906,7 +906,7 @@ sprite_group_000D07 [
   ] >
 ]
 
-sprite_group_000D76 [
+spm_prison_enemies_sprite_group_000D76 [
   sprite-group < #10, #10, #33, #06, #F8, #F0, #01, #01, #F5, #17, #E8, #17, #0E, [
     sprite-part < #00, #17, #01, #17, #1A, #$073A >   ;00
     sprite-part < #00, #01, #17, #17, #1A, #$473A >   ;01
@@ -925,7 +925,7 @@ sprite_group_000D76 [
   ] >
 ]
 
-sprite_group_000DE5 [
+spm_prison_enemies_sprite_group_000DE5 [
   sprite-group < #10, #10, #32, #06, #F8, #F0, #01, #01, #F5, #17, #E8, #17, #0D, [
     sprite-part < #00, #10, #08, #2A, #06, #$0744 >   ;00
     sprite-part < #00, #10, #08, #22, #0E, #$0734 >   ;01
@@ -943,7 +943,7 @@ sprite_group_000DE5 [
   ] >
 ]
 
-sprite_group_000E4D [
+spm_prison_enemies_sprite_group_000E4D [
   sprite-group < #12, #12, #35, #04, #F8, #F0, #01, #01, #F5, #17, #E8, #17, #0C, [
     sprite-part < #00, #12, #0A, #2B, #06, #$0795 >   ;00
     sprite-part < #00, #0A, #12, #2B, #06, #$4794 >   ;01
@@ -960,7 +960,7 @@ sprite_group_000E4D [
   ] >
 ]
 
-sprite_group_000EAE [
+spm_prison_enemies_sprite_group_000EAE [
   sprite-group < #1C, #1C, #35, #03, #F8, #F0, #01, #01, #F5, #17, #E8, #17, #0E, [
     sprite-part < #00, #1C, #14, #2A, #06, #$0795 >   ;00
     sprite-part < #00, #14, #1C, #2A, #06, #$4794 >   ;01
@@ -979,7 +979,7 @@ sprite_group_000EAE [
   ] >
 ]
 
-sprite_group_000F1D [
+spm_prison_enemies_sprite_group_000F1D [
   sprite-group < #10, #08, #2F, #06, #F8, #F0, #01, #01, #F5, #17, #E8, #17, #08, [
     sprite-part < #01, #04, #04, #0E, #17, #$070A >   ;00
     sprite-part < #01, #05, #03, #00, #25, #$074A >   ;01
@@ -992,7 +992,7 @@ sprite_group_000F1D [
   ] >
 ]
 
-sprite_group_000F62 [
+spm_prison_enemies_sprite_group_000F62 [
   sprite-group < #0B, #08, #2F, #06, #F8, #F0, #01, #01, #F5, #17, #E8, #17, #09, [
     sprite-part < #00, #05, #06, #0E, #1F, #$070B >   ;00
     sprite-part < #01, #00, #03, #00, #25, #$074C >   ;01
@@ -1006,7 +1006,7 @@ sprite_group_000F62 [
   ] >
 ]
 
-sprite_group_000FAE [
+spm_prison_enemies_sprite_group_000FAE [
   sprite-group < #17, #0E, #2F, #06, #F8, #F0, #01, #01, #F5, #17, #E8, #17, #0A, [
     sprite-part < #00, #04, #19, #0E, #1F, #$0742 >   ;00
     sprite-part < #00, #0C, #11, #0E, #1F, #$0743 >   ;01
@@ -1021,7 +1021,7 @@ sprite_group_000FAE [
   ] >
 ]
 
-sprite_group_001001 [
+spm_prison_enemies_sprite_group_001001 [
   sprite-group < #13, #0D, #2F, #06, #F8, #F0, #01, #01, #F5, #17, #E8, #17, #09, [
     sprite-part < #00, #0D, #0B, #12, #1B, #$4740 >   ;00
     sprite-part < #00, #0C, #0C, #10, #1D, #$0773 >   ;01
@@ -1035,150 +1035,150 @@ sprite_group_001001 [
   ] >
 ]
 
-sprite_group_00104D [
+spm_prison_enemies_sprite_group_00104D [
   sprite-group < #08, #08, #00, #08, #F8, #F0, #01, #01, #FA, #0C, #FA, #0B, #02, [
     sprite-part < #00, #08, #00, #00, #00, #$89BB >   ;00
     sprite-part < #00, #00, #08, #00, #00, #$C9BB >   ;01
   ] >
 ]
 
-sprite_group_001068 [
+spm_prison_enemies_sprite_group_001068 [
   sprite-group < #09, #07, #06, #0A, #F8, #F0, #01, #01, #FA, #0C, #FA, #0B, #01, [
     sprite-part < #01, #00, #00, #00, #00, #$0948 >
   ] >
 ]
 
-sprite_group_00107C [
+spm_prison_enemies_sprite_group_00107C [
   sprite-group < #08, #00, #08, #08, #F8, #F0, #01, #01, #FA, #0C, #FA, #0B, #02, [
     sprite-part < #00, #00, #00, #00, #08, #$49AB >   ;00
     sprite-part < #00, #00, #00, #08, #00, #$C9AB >   ;01
   ] >
 ]
 
-sprite_group_001097 [
+spm_prison_enemies_sprite_group_001097 [
   sprite-group < #09, #07, #0A, #06, #F8, #F0, #01, #01, #FA, #0C, #FA, #0B, #01, [
     sprite-part < #01, #00, #00, #00, #00, #$8948 >
   ] >
 ]
 
-sprite_group_0010AB [
+spm_prison_enemies_sprite_group_0010AB [
   sprite-group < #08, #08, #08, #00, #F8, #F0, #01, #01, #FA, #0C, #FA, #0B, #02, [
     sprite-part < #00, #00, #08, #00, #00, #$49BB >   ;00
     sprite-part < #00, #08, #00, #00, #00, #$09BB >   ;01
   ] >
 ]
 
-sprite_group_0010C6 [
+spm_prison_enemies_sprite_group_0010C6 [
   sprite-group < #06, #0A, #0A, #06, #F8, #F0, #01, #01, #FA, #0C, #FA, #0B, #01, [
     sprite-part < #01, #00, #00, #00, #00, #$C948 >
   ] >
 ]
 
-sprite_group_0010DA [
+spm_prison_enemies_sprite_group_0010DA [
   sprite-group < #FF, #09, #08, #08, #F8, #F0, #01, #01, #FA, #0C, #FA, #0B, #02, [
     sprite-part < #00, #00, #00, #00, #08, #$09AB >   ;00
     sprite-part < #00, #00, #00, #08, #00, #$89AB >   ;01
   ] >
 ]
 
-sprite_group_0010F5 [
+spm_prison_enemies_sprite_group_0010F5 [
   sprite-group < #06, #0A, #06, #0A, #F8, #F0, #01, #01, #FA, #0C, #FA, #0B, #01, [
     sprite-part < #01, #00, #00, #00, #00, #$4948 >
   ] >
 ]
 
-sprite_group_001109 [
+spm_prison_enemies_sprite_group_001109 [
   sprite-group < #08, #08, #18, #03, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #02, [
     sprite-part < #01, #00, #00, #00, #0B, #$0B0E >   ;00
     sprite-part < #00, #04, #04, #13, #00, #$09C3 >   ;01
   ] >
 ]
 
-sprite_group_001124 [
+spm_prison_enemies_sprite_group_001124 [
   sprite-group < #08, #08, #18, #03, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #02, [
     sprite-part < #01, #00, #00, #00, #0B, #$0B0C >   ;00
     sprite-part < #00, #04, #04, #13, #00, #$09C3 >   ;01
   ] >
 ]
 
-sprite_group_00113F [
+spm_prison_enemies_sprite_group_00113F [
   sprite-group < #08, #08, #18, #03, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #02, [
     sprite-part < #01, #00, #00, #00, #0B, #$0B4E >   ;00
     sprite-part < #00, #04, #04, #13, #00, #$09C3 >   ;01
   ] >
 ]
 
-sprite_group_00115A [
+spm_prison_enemies_sprite_group_00115A [
   sprite-group < #08, #08, #18, #03, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #02, [
     sprite-part < #01, #00, #00, #00, #0B, #$0B4C >   ;00
     sprite-part < #00, #04, #04, #13, #00, #$09C3 >   ;01
   ] >
 ]
 
-sprite_group_001175 [
+spm_prison_enemies_sprite_group_001175 [
   sprite-group < #08, #08, #18, #03, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #02, [
     sprite-part < #01, #00, #00, #00, #0B, #$0B2C >   ;00
     sprite-part < #00, #04, #04, #13, #00, #$09C3 >   ;01
   ] >
 ]
 
-sprite_group_001190 [
+spm_prison_enemies_sprite_group_001190 [
   sprite-group < #08, #08, #18, #03, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #02, [
     sprite-part < #01, #00, #00, #00, #0B, #$0B2E >   ;00
     sprite-part < #00, #04, #04, #13, #00, #$09C3 >   ;01
   ] >
 ]
 
-sprite_group_0011AB [
+spm_prison_enemies_sprite_group_0011AB [
   sprite-group < #08, #08, #18, #03, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #02, [
     sprite-part < #01, #00, #00, #00, #0B, #$4B2C >   ;00
     sprite-part < #00, #04, #04, #13, #00, #$09C3 >   ;01
   ] >
 ]
 
-sprite_group_0011C6 [
+spm_prison_enemies_sprite_group_0011C6 [
   sprite-group < #08, #08, #18, #03, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #02, [
     sprite-part < #01, #00, #00, #00, #0B, #$4B4C >   ;00
     sprite-part < #00, #04, #04, #13, #00, #$09C3 >   ;01
   ] >
 ]
 
-sprite_group_0011E1 [
+spm_prison_enemies_sprite_group_0011E1 [
   sprite-group < #08, #08, #18, #03, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #02, [
     sprite-part < #01, #00, #00, #00, #0B, #$4B4E >   ;00
     sprite-part < #00, #04, #04, #13, #00, #$09C3 >   ;01
   ] >
 ]
 
-sprite_group_0011FC [
+spm_prison_enemies_sprite_group_0011FC [
   sprite-group < #08, #08, #16, #03, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #02, [
     sprite-part < #01, #00, #00, #00, #09, #$0B0C >   ;00
     sprite-part < #00, #04, #04, #11, #00, #$09C3 >   ;01
   ] >
 ]
 
-sprite_group_001217 [
+spm_prison_enemies_sprite_group_001217 [
   sprite-group < #08, #08, #13, #03, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #02, [
     sprite-part < #01, #00, #00, #00, #06, #$0B0C >   ;00
     sprite-part < #00, #04, #04, #0E, #00, #$09C3 >   ;01
   ] >
 ]
 
-sprite_group_001232 [
+spm_prison_enemies_sprite_group_001232 [
   sprite-group < #08, #08, #10, #03, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #02, [
     sprite-part < #01, #00, #00, #00, #03, #$0B0C >   ;00
     sprite-part < #00, #04, #04, #0B, #00, #$09C3 >   ;01
   ] >
 ]
 
-sprite_group_00124D [
+spm_prison_enemies_sprite_group_00124D [
   sprite-group < #08, #08, #12, #03, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #02, [
     sprite-part < #01, #00, #00, #00, #05, #$0B0C >   ;00
     sprite-part < #00, #04, #04, #0D, #00, #$09C3 >   ;01
   ] >
 ]
 
-sprite_group_001268 [
+spm_prison_enemies_sprite_group_001268 [
   sprite-group < #10, #10, #2F, #07, #F8, #F0, #01, #01, #F5, #17, #E8, #17, #11, [
     sprite-part < #00, #17, #01, #0A, #24, #$072A >   ;00
     sprite-part < #00, #01, #17, #0A, #24, #$472A >   ;01
@@ -1200,7 +1200,7 @@ sprite_group_001268 [
   ] >
 ]
 
-sprite_group_0012EC [
+spm_prison_enemies_sprite_group_0012EC [
   sprite-group < #14, #14, #2F, #07, #F8, #F0, #01, #01, #F5, #17, #E8, #17, #11, [
     sprite-part < #00, #20, #00, #08, #26, #$072B >   ;00
     sprite-part < #00, #00, #20, #08, #26, #$472B >   ;01
@@ -1222,7 +1222,7 @@ sprite_group_0012EC [
   ] >
 ]
 
-sprite_group_001370 [
+spm_prison_enemies_sprite_group_001370 [
   sprite-group < #15, #14, #2F, #07, #F8, #F0, #01, #01, #F5, #17, #E8, #17, #11, [
     sprite-part < #00, #20, #01, #0A, #24, #$872B >   ;00
     sprite-part < #00, #02, #1F, #0A, #24, #$C72B >   ;01
@@ -1244,7 +1244,7 @@ sprite_group_001370 [
   ] >
 ]
 
-sprite_group_0013F4 [
+spm_prison_enemies_sprite_group_0013F4 [
   sprite-group < #10, #10, #21, #05, #F8, #F0, #01, #01, #FC, #07, #E8, #0F, #04, [
     sprite-part < #01, #08, #08, #16, #00, #$0776 >   ;00
     sprite-part < #01, #08, #08, #00, #16, #$0968 >   ;01
@@ -1253,7 +1253,7 @@ sprite_group_0013F4 [
   ] >
 ]
 
-sprite_group_00141D [
+spm_prison_enemies_sprite_group_00141D [
   sprite-group < #08, #08, #24, #06, #F8, #F0, #01, #01, #FC, #07, #E8, #0F, #07, [
     sprite-part < #01, #00, #00, #1A, #00, #$0776 >   ;00
     sprite-part < #01, #00, #00, #01, #19, #$0968 >   ;01
@@ -1265,7 +1265,7 @@ sprite_group_00141D [
   ] >
 ]
 
-sprite_group_00145B [
+spm_prison_enemies_sprite_group_00145B [
   sprite-group < #10, #10, #28, #03, #F8, #F0, #01, #01, #FC, #07, #E8, #0F, #04, [
     sprite-part < #01, #08, #08, #1B, #00, #$0776 >   ;00
     sprite-part < #01, #08, #08, #08, #13, #$0968 >   ;01
@@ -1274,7 +1274,7 @@ sprite_group_00145B [
   ] >
 ]
 
-sprite_group_001484 [
+spm_prison_enemies_sprite_group_001484 [
   sprite-group < #10, #10, #26, #05, #F8, #F0, #01, #01, #FC, #07, #E8, #0F, #04, [
     sprite-part < #01, #08, #08, #1B, #00, #$0776 >   ;00
     sprite-part < #01, #00, #10, #08, #13, #$098E >   ;01
@@ -1283,7 +1283,7 @@ sprite_group_001484 [
   ] >
 ]
 
-sprite_group_0014AD [
+spm_prison_enemies_sprite_group_0014AD [
   sprite-group < #08, #08, #27, #06, #F8, #F0, #01, #01, #FC, #07, #E8, #0F, #07, [
     sprite-part < #01, #00, #00, #07, #16, #$0988 >   ;00
     sprite-part < #00, #08, #00, #16, #0F, #$098B >   ;01
@@ -1295,7 +1295,7 @@ sprite_group_0014AD [
   ] >
 ]
 
-sprite_group_0014EB [
+spm_prison_enemies_sprite_group_0014EB [
   sprite-group < #10, #10, #25, #04, #F8, #F0, #01, #01, #FC, #07, #E8, #0F, #06, [
     sprite-part < #01, #00, #10, #02, #17, #$09A0 >   ;00
     sprite-part < #01, #10, #00, #02, #17, #$49A0 >   ;01
@@ -1306,7 +1306,7 @@ sprite_group_0014EB [
   ] >
 ]
 
-sprite_group_001522 [
+spm_prison_enemies_sprite_group_001522 [
   sprite-group < #10, #09, #26, #05, #F8, #F0, #01, #01, #FB, #07, #E8, #13, #06, [
     sprite-part < #01, #00, #09, #03, #18, #$096C >   ;00
     sprite-part < #01, #08, #01, #00, #1B, #$09A4 >   ;01
@@ -1317,7 +1317,7 @@ sprite_group_001522 [
   ] >
 ]
 
-sprite_group_001559 [
+spm_prison_enemies_sprite_group_001559 [
   sprite-group < #10, #08, #24, #06, #F8, #F0, #01, #01, #FB, #07, #E8, #14, #06, [
     sprite-part < #00, #0A, #06, #1C, #06, #$0997 >   ;00
     sprite-part < #01, #00, #08, #00, #1A, #$096C >   ;01
@@ -1328,7 +1328,7 @@ sprite_group_001559 [
   ] >
 ]
 
-sprite_group_001590 [
+spm_prison_enemies_sprite_group_001590 [
   sprite-group < #10, #08, #2A, #04, #F8, #F0, #01, #01, #FB, #07, #E8, #13, #05, [
     sprite-part < #01, #08, #00, #00, #1E, #$09A8 >   ;00
     sprite-part < #00, #08, #08, #10, #16, #$09C8 >   ;01
@@ -1338,21 +1338,21 @@ sprite_group_001590 [
   ] >
 ]
 
-sprite_group_0015C0 [
+spm_prison_enemies_sprite_group_0015C0 [
   sprite-group < #06, #07, #04, #04, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #02, [
     sprite-part < #00, #00, #05, #00, #00, #$0BD0 >   ;00
     sprite-part < #00, #05, #00, #00, #00, #$4BD0 >   ;01
   ] >
 ]
 
-sprite_group_0015DB [
+spm_prison_enemies_sprite_group_0015DB [
   sprite-group < #08, #08, #04, #04, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #02, [
     sprite-part < #00, #00, #08, #00, #00, #$0BD0 >   ;00
     sprite-part < #00, #08, #00, #00, #00, #$4BD0 >   ;01
   ] >
 ]
 
-sprite_group_0015F6 [
+spm_prison_enemies_sprite_group_0015F6 [
   sprite-group < #08, #08, #0C, #04, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #04, [
     sprite-part < #00, #00, #08, #00, #08, #$0BC1 >   ;00
     sprite-part < #00, #08, #00, #00, #08, #$4BC1 >   ;01
@@ -1361,7 +1361,7 @@ sprite_group_0015F6 [
   ] >
 ]
 
-sprite_group_00161F [
+spm_prison_enemies_sprite_group_00161F [
   sprite-group < #0C, #0E, #18, #06, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #0C, [
     sprite-part < #00, #05, #0D, #11, #05, #$0BBE >   ;00
     sprite-part < #00, #0C, #06, #16, #00, #$4BBF >   ;01
@@ -1378,7 +1378,7 @@ sprite_group_00161F [
   ] >
 ]
 
-sprite_group_001680 [
+spm_prison_enemies_sprite_group_001680 [
   sprite-group < #13, #12, #20, #05, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #0B, [
     sprite-part < #00, #12, #0B, #1D, #00, #$4BDF >   ;00
     sprite-part < #00, #12, #0B, #16, #07, #$4BCF >   ;01
@@ -1394,7 +1394,7 @@ sprite_group_001680 [
   ] >
 ]
 
-sprite_group_0016DA [
+spm_prison_enemies_sprite_group_0016DA [
   sprite-group < #12, #12, #28, #06, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #0D, [
     sprite-part < #00, #12, #0A, #1E, #08, #$4BCF >   ;00
     sprite-part < #00, #0A, #12, #1E, #08, #$0BCF >   ;01
@@ -1412,7 +1412,7 @@ sprite_group_0016DA [
   ] >
 ]
 
-sprite_group_001742 [
+spm_prison_enemies_sprite_group_001742 [
   sprite-group < #09, #08, #30, #06, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #0D, [
     sprite-part < #00, #01, #08, #27, #07, #$0BCE >   ;00
     sprite-part < #00, #09, #00, #27, #07, #$4BCE >   ;01
@@ -1430,7 +1430,7 @@ sprite_group_001742 [
   ] >
 ]
 
-sprite_group_0017AA [
+spm_prison_enemies_sprite_group_0017AA [
   sprite-group < #0D, #0D, #30, #06, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #0C, [
     sprite-part < #00, #06, #0C, #29, #05, #$0BBE >   ;00
     sprite-part < #00, #0C, #06, #29, #05, #$4BBE >   ;01
@@ -1447,7 +1447,7 @@ sprite_group_0017AA [
   ] >
 ]
 
-sprite_group_00180B [
+spm_prison_enemies_sprite_group_00180B [
   sprite-group < #08, #09, #30, #05, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #0D, [
     sprite-part < #00, #07, #02, #26, #07, #$4BCF >   ;00
     sprite-part < #01, #00, #01, #18, #0D, #$0BE8 >   ;01
@@ -1465,7 +1465,7 @@ sprite_group_00180B [
   ] >
 ]
 
-sprite_group_001873 [
+spm_prison_enemies_sprite_group_001873 [
   sprite-group < #08, #08, #30, #06, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #0A, [
     sprite-part < #00, #00, #08, #26, #08, #$0BCF >   ;00
     sprite-part < #00, #08, #00, #26, #08, #$4BCF >   ;01
@@ -1480,7 +1480,7 @@ sprite_group_001873 [
   ] >
 ]
 
-sprite_group_0018C6 [
+spm_prison_enemies_sprite_group_0018C6 [
   sprite-group < #09, #08, #2F, #06, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #0D, [
     sprite-part < #00, #01, #08, #26, #07, #$0BCE >   ;00
     sprite-part < #00, #09, #00, #26, #07, #$4BCE >   ;01
@@ -1498,7 +1498,7 @@ sprite_group_0018C6 [
   ] >
 ]
 
-sprite_group_00192E [
+spm_prison_enemies_sprite_group_00192E [
   sprite-group < #08, #08, #30, #00, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #03, [
     sprite-part < #01, #00, #00, #20, #00, #$4BE8 >   ;00
     sprite-part < #01, #00, #00, #10, #10, #$0BE8 >   ;01
@@ -1506,7 +1506,7 @@ sprite_group_00192E [
   ] >
 ]
 
-sprite_group_001950 [
+spm_prison_enemies_sprite_group_001950 [
   sprite-group < #08, #09, #30, #00, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #06, [
     sprite-part < #01, #00, #01, #18, #08, #$0BE8 >   ;00
     sprite-part < #00, #00, #09, #28, #00, #$0BE8 >   ;01
@@ -1517,7 +1517,7 @@ sprite_group_001950 [
   ] >
 ]
 
-sprite_group_001987 [
+spm_prison_enemies_sprite_group_001987 [
   sprite-group < #08, #08, #30, #00, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #03, [
     sprite-part < #01, #00, #00, #20, #00, #$0BE8 >   ;00
     sprite-part < #01, #00, #00, #10, #10, #$4BE8 >   ;01
@@ -1525,7 +1525,7 @@ sprite_group_001987 [
   ] >
 ]
 
-sprite_group_0019A9 [
+spm_prison_enemies_sprite_group_0019A9 [
   sprite-group < #09, #08, #30, #00, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #06, [
     sprite-part < #01, #01, #00, #18, #08, #$4BE8 >   ;00
     sprite-part < #00, #09, #00, #28, #00, #$4BE8 >   ;01
@@ -1536,7 +1536,7 @@ sprite_group_0019A9 [
   ] >
 ]
 
-sprite_group_0019E0 [
+spm_prison_enemies_sprite_group_0019E0 [
   sprite-group < #08, #08, #30, #00, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #06, [
     sprite-part < #01, #00, #00, #18, #08, #$0BE8 >   ;00
     sprite-part < #00, #00, #08, #28, #00, #$0BE8 >   ;01
@@ -1547,7 +1547,7 @@ sprite_group_0019E0 [
   ] >
 ]
 
-sprite_group_001A17 [
+spm_prison_enemies_sprite_group_001A17 [
   sprite-group < #09, #08, #30, #00, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #03, [
     sprite-part < #01, #01, #00, #20, #00, #$0BE8 >   ;00
     sprite-part < #01, #01, #00, #10, #10, #$4BE8 >   ;01
@@ -1555,7 +1555,7 @@ sprite_group_001A17 [
   ] >
 ]
 
-sprite_group_001A39 [
+spm_prison_enemies_sprite_group_001A39 [
   sprite-group < #0A, #08, #30, #00, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #06, [
     sprite-part < #01, #02, #00, #18, #08, #$4BE8 >   ;00
     sprite-part < #00, #0A, #00, #28, #00, #$4BE8 >   ;01
@@ -1566,7 +1566,7 @@ sprite_group_001A39 [
   ] >
 ]
 
-sprite_group_001A70 [
+spm_prison_enemies_sprite_group_001A70 [
   sprite-group < #09, #08, #30, #00, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #03, [
     sprite-part < #01, #01, #00, #20, #00, #$4BE8 >   ;00
     sprite-part < #01, #01, #00, #10, #10, #$0BE8 >   ;01
@@ -1574,7 +1574,7 @@ sprite_group_001A70 [
   ] >
 ]
 
-sprite_group_001A92 [
+spm_prison_enemies_sprite_group_001A92 [
   sprite-group < #08, #08, #30, #00, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #03, [
     sprite-part < #01, #00, #00, #20, #00, #$0BE8 >   ;00
     sprite-part < #01, #00, #00, #10, #10, #$4BE8 >   ;01
@@ -1582,7 +1582,7 @@ sprite_group_001A92 [
   ] >
 ]
 
-sprite_group_001AB4 [
+spm_prison_enemies_sprite_group_001AB4 [
   sprite-group < #09, #08, #30, #00, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #06, [
     sprite-part < #01, #01, #00, #18, #08, #$4BE8 >   ;00
     sprite-part < #00, #09, #00, #28, #00, #$4BE8 >   ;01
@@ -1593,7 +1593,7 @@ sprite_group_001AB4 [
   ] >
 ]
 
-sprite_group_001AEB [
+spm_prison_enemies_sprite_group_001AEB [
   sprite-group < #08, #08, #30, #00, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #03, [
     sprite-part < #01, #00, #00, #20, #00, #$4BE8 >   ;00
     sprite-part < #01, #00, #00, #10, #10, #$0BE8 >   ;01
@@ -1601,7 +1601,7 @@ sprite_group_001AEB [
   ] >
 ]
 
-sprite_group_001B0D [
+spm_prison_enemies_sprite_group_001B0D [
   sprite-group < #08, #09, #30, #00, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #06, [
     sprite-part < #01, #00, #01, #18, #08, #$0BE8 >   ;00
     sprite-part < #00, #00, #09, #28, #00, #$0BE8 >   ;01
@@ -1612,7 +1612,7 @@ sprite_group_001B0D [
   ] >
 ]
 
-sprite_group_001B44 [
+spm_prison_enemies_sprite_group_001B44 [
   sprite-group < #0A, #08, #30, #00, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #06, [
     sprite-part < #01, #02, #00, #18, #08, #$4BE8 >   ;00
     sprite-part < #00, #0A, #00, #28, #00, #$4BE8 >   ;01
@@ -1623,7 +1623,7 @@ sprite_group_001B44 [
   ] >
 ]
 
-sprite_group_001B7B [
+spm_prison_enemies_sprite_group_001B7B [
   sprite-group < #09, #08, #30, #00, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #03, [
     sprite-part < #01, #01, #00, #20, #00, #$4BE8 >   ;00
     sprite-part < #01, #01, #00, #10, #10, #$0BE8 >   ;01
@@ -1631,7 +1631,7 @@ sprite_group_001B7B [
   ] >
 ]
 
-sprite_group_001B9D [
+spm_prison_enemies_sprite_group_001B9D [
   sprite-group < #08, #09, #30, #00, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #06, [
     sprite-part < #01, #00, #01, #18, #08, #$0BE8 >   ;00
     sprite-part < #00, #00, #09, #28, #00, #$0BE8 >   ;01
@@ -1642,7 +1642,7 @@ sprite_group_001B9D [
   ] >
 ]
 
-sprite_group_001BD4 [
+spm_prison_enemies_sprite_group_001BD4 [
   sprite-group < #08, #08, #30, #00, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #03, [
     sprite-part < #01, #00, #00, #20, #00, #$0BE8 >   ;00
     sprite-part < #01, #00, #00, #10, #10, #$4BE8 >   ;01
@@ -1650,7 +1650,7 @@ sprite_group_001BD4 [
   ] >
 ]
 
-sprite_group_001BF6 [
+spm_prison_enemies_sprite_group_001BF6 [
   sprite-group < #08, #08, #30, #00, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #03, [
     sprite-part < #01, #00, #00, #20, #00, #$4BE8 >   ;00
     sprite-part < #01, #00, #00, #10, #10, #$0BE8 >   ;01
@@ -1658,7 +1658,7 @@ sprite_group_001BF6 [
   ] >
 ]
 
-sprite_group_001C18 [
+spm_prison_enemies_sprite_group_001C18 [
   sprite-group < #08, #09, #30, #00, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #06, [
     sprite-part < #01, #00, #01, #18, #08, #$0BE8 >   ;00
     sprite-part < #00, #00, #09, #28, #00, #$0BE8 >   ;01
@@ -1669,7 +1669,7 @@ sprite_group_001C18 [
   ] >
 ]
 
-sprite_group_001C4F [
+spm_prison_enemies_sprite_group_001C4F [
   sprite-group < #08, #08, #30, #00, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #03, [
     sprite-part < #01, #00, #00, #20, #00, #$0BE8 >   ;00
     sprite-part < #01, #00, #00, #10, #10, #$4BE8 >   ;01
@@ -1677,7 +1677,7 @@ sprite_group_001C4F [
   ] >
 ]
 
-sprite_group_001C71 [
+spm_prison_enemies_sprite_group_001C71 [
   sprite-group < #09, #08, #30, #00, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #06, [
     sprite-part < #01, #01, #00, #18, #08, #$4BE8 >   ;00
     sprite-part < #00, #09, #00, #28, #00, #$4BE8 >   ;01
@@ -1688,35 +1688,35 @@ sprite_group_001C71 [
   ] >
 ]
 
-sprite_group_001CA8 [
+spm_prison_enemies_sprite_group_001CA8 [
   sprite-group < #05, #07, #01, #10, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #02, [
     sprite-part < #00, #00, #04, #09, #00, #$0BFE >   ;00
     sprite-part < #00, #04, #00, #00, #09, #$0BEF >   ;01
   ] >
 ]
 
-sprite_group_001CC3 [
+spm_prison_enemies_sprite_group_001CC3 [
   sprite-group < #06, #08, #02, #0D, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #02, [
     sprite-part < #00, #06, #00, #00, #07, #$0BEE >   ;00
     sprite-part < #00, #00, #06, #07, #00, #$0BFF >   ;01
   ] >
 ]
 
-sprite_group_001CDE [
+spm_prison_enemies_sprite_group_001CDE [
   sprite-group < #06, #09, #00, #10, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #02, [
     sprite-part < #00, #00, #07, #00, #08, #$0BEF >   ;00
     sprite-part < #00, #07, #00, #08, #00, #$4BFE >   ;01
   ] >
 ]
 
-sprite_group_001CF9 [
+spm_prison_enemies_sprite_group_001CF9 [
   sprite-group < #05, #09, #01, #0D, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #02, [
     sprite-part < #00, #06, #00, #06, #00, #$0BFF >   ;00
     sprite-part < #00, #00, #06, #00, #06, #$0BEE >   ;01
   ] >
 ]
 
-sprite_group_001D14 [
+spm_prison_enemies_sprite_group_001D14 [
   sprite-group < #08, #08, #09, #06, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #06, [
     sprite-part < #00, #01, #07, #02, #05, #$0BBE >   ;00
     sprite-part < #00, #07, #01, #02, #05, #$4BBE >   ;01
@@ -1727,7 +1727,7 @@ sprite_group_001D14 [
   ] >
 ]
 
-sprite_group_001D4B [
+spm_prison_enemies_sprite_group_001D4B [
   sprite-group < #07, #07, #0A, #05, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #04, [
     sprite-part < #00, #00, #06, #00, #07, #$0BCF >   ;00
     sprite-part < #00, #06, #00, #00, #07, #$4BCF >   ;01
@@ -1736,7 +1736,7 @@ sprite_group_001D4B [
   ] >
 ]
 
-sprite_group_001D74 [
+spm_prison_enemies_sprite_group_001D74 [
   sprite-group < #08, #08, #0A, #06, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #04, [
     sprite-part < #00, #00, #08, #00, #08, #$0BCF >   ;00
     sprite-part < #00, #08, #00, #00, #08, #$4BCF >   ;01
@@ -1745,7 +1745,7 @@ sprite_group_001D74 [
   ] >
 ]
 
-sprite_group_001D9D [
+spm_prison_enemies_sprite_group_001D9D [
   sprite-group < #08, #08, #09, #06, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #04, [
     sprite-part < #00, #00, #08, #00, #07, #$0BCE >   ;00
     sprite-part < #00, #08, #00, #00, #07, #$4BCE >   ;01
@@ -1754,7 +1754,7 @@ sprite_group_001D9D [
   ] >
 ]
 
-sprite_group_001DC6 [
+spm_prison_enemies_sprite_group_001DC6 [
   sprite-group < #08, #09, #28, #01, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #09, [
     sprite-part < #00, #01, #08, #21, #00, #$0BD0 >   ;00
     sprite-part < #00, #08, #01, #21, #00, #$4BD0 >   ;01
@@ -1768,7 +1768,7 @@ sprite_group_001DC6 [
   ] >
 ]
 
-sprite_group_001E12 [
+spm_prison_enemies_sprite_group_001E12 [
   sprite-group < #0B, #0B, #20, #02, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #09, [
     sprite-part < #00, #00, #0E, #1A, #00, #$0BD0 >   ;00
     sprite-part < #00, #0E, #00, #1A, #00, #$4BD0 >   ;01
@@ -1782,7 +1782,7 @@ sprite_group_001E12 [
   ] >
 ]
 
-sprite_group_001E5E [
+spm_prison_enemies_sprite_group_001E5E [
   sprite-group < #08, #09, #18, #02, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #0A, [
     sprite-part < #00, #08, #01, #0A, #08, #$4BC1 >   ;00
     sprite-part < #00, #00, #09, #0A, #08, #$0BC1 >   ;01
@@ -1797,7 +1797,7 @@ sprite_group_001E5E [
   ] >
 ]
 
-sprite_group_001EB1 [
+spm_prison_enemies_sprite_group_001EB1 [
   sprite-group < #0B, #0B, #0E, #06, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #08, [
     sprite-part < #00, #04, #0A, #08, #04, #$0BD0 >   ;00
     sprite-part < #00, #0A, #04, #08, #04, #$4BD0 >   ;01
@@ -1810,7 +1810,7 @@ sprite_group_001EB1 [
   ] >
 ]
 
-sprite_group_001EF6 [
+spm_prison_enemies_sprite_group_001EF6 [
   sprite-group < #10, #10, #0A, #06, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #0A, [
     sprite-part < #00, #0E, #0A, #04, #04, #$4BD0 >   ;00
     sprite-part < #00, #0A, #0E, #04, #04, #$0BD0 >   ;01
@@ -1825,7 +1825,7 @@ sprite_group_001EF6 [
   ] >
 ]
 
-sprite_group_001F49 [
+spm_prison_enemies_sprite_group_001F49 [
   sprite-group < #08, #08, #20, #00, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #05, [
     sprite-part < #01, #00, #00, #10, #00, #$0DAC >   ;00
     sprite-part < #00, #00, #08, #08, #10, #$0DBA >   ;01
@@ -1835,7 +1835,7 @@ sprite_group_001F49 [
   ] >
 ]
 
-sprite_group_001F79 [
+spm_prison_enemies_sprite_group_001F79 [
   sprite-group < #08, #08, #10, #00, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #04, [
     sprite-part < #00, #00, #08, #00, #08, #$05D4 >   ;00
     sprite-part < #00, #08, #00, #00, #08, #$45D4 >   ;01
@@ -1844,7 +1844,7 @@ sprite_group_001F79 [
   ] >
 ]
 
-sprite_group_001FA2 [
+spm_prison_enemies_sprite_group_001FA2 [
   sprite-group < #08, #08, #10, #00, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #04, [
     sprite-part < #00, #00, #08, #00, #08, #$05D2 >   ;00
     sprite-part < #00, #08, #00, #00, #08, #$45D2 >   ;01
@@ -1853,7 +1853,7 @@ sprite_group_001FA2 [
   ] >
 ]
 
-sprite_group_001FCB [
+spm_prison_enemies_sprite_group_001FCB [
   sprite-group < #04, #04, #37, #00, #F8, #F0, #01, #01, #FD, #04, #E8, #0F, #06, [
     sprite-part < #00, #00, #00, #10, #1F, #$0DD8 >   ;00
     sprite-part < #00, #00, #00, #18, #17, #$0DD8 >   ;01
@@ -1864,7 +1864,7 @@ sprite_group_001FCB [
   ] >
 ]
 
-sprite_group_002002 [
+spm_prison_enemies_sprite_group_002002 [
   sprite-group < #04, #04, #30, #00, #F8, #F0, #01, #01, #FD, #04, #E8, #10, #05, [
     sprite-part < #00, #00, #00, #10, #18, #$0DD8 >   ;00
     sprite-part < #00, #00, #00, #18, #10, #$0DD8 >   ;01
@@ -1874,7 +1874,7 @@ sprite_group_002002 [
   ] >
 ]
 
-sprite_group_002032 [
+spm_prison_enemies_sprite_group_002032 [
   sprite-group < #05, #04, #30, #00, #F8, #F0, #01, #01, #FD, #04, #E8, #10, #05, [
     sprite-part < #00, #01, #00, #10, #18, #$0DD8 >   ;00
     sprite-part < #00, #01, #00, #18, #10, #$0DD8 >   ;01
@@ -1884,7 +1884,7 @@ sprite_group_002032 [
   ] >
 ]
 
-sprite_group_002062 [
+spm_prison_enemies_sprite_group_002062 [
   sprite-group < #05, #04, #30, #00, #F8, #F0, #01, #01, #FD, #04, #E8, #10, #05, [
     sprite-part < #00, #00, #01, #10, #18, #$4DD8 >   ;00
     sprite-part < #00, #00, #01, #18, #10, #$4DD8 >   ;01
@@ -1894,7 +1894,7 @@ sprite_group_002062 [
   ] >
 ]
 
-sprite_group_002092 [
+spm_prison_enemies_sprite_group_002092 [
   sprite-group < #06, #04, #30, #00, #F8, #F0, #01, #01, #FD, #04, #E8, #10, #05, [
     sprite-part < #00, #01, #01, #10, #18, #$0DD8 >   ;00
     sprite-part < #00, #02, #00, #18, #10, #$0DD8 >   ;01
@@ -1904,7 +1904,7 @@ sprite_group_002092 [
   ] >
 ]
 
-sprite_group_0020C2 [
+spm_prison_enemies_sprite_group_0020C2 [
   sprite-group < #05, #05, #30, #00, #F8, #F0, #01, #01, #FD, #05, #E8, #10, #05, [
     sprite-part < #00, #01, #01, #10, #18, #$4DD8 >   ;00
     sprite-part < #00, #00, #02, #18, #10, #$4DD8 >   ;01
@@ -1914,43 +1914,43 @@ sprite_group_0020C2 [
   ] >
 ]
 
-sprite_group_0020F2 [
+spm_prison_enemies_sprite_group_0020F2 [
   sprite-group < #03, #05, #0C, #00, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #01, [
     sprite-part < #00, #00, #00, #00, #04, #$09C3 >
   ] >
 ]
 
-sprite_group_002106 [
+spm_prison_enemies_sprite_group_002106 [
   sprite-group < #08, #08, #10, #00, #F8, #F0, #01, #01, #F9, #0E, #F1, #0E, #01, [
     sprite-part < #01, #00, #00, #00, #00, #$09CA >
   ] >
 ]
 
-sprite_group_00211A [
+spm_prison_enemies_sprite_group_00211A [
   sprite-group < #08, #08, #10, #00, #F8, #F0, #01, #01, #F9, #0E, #F1, #0E, #01, [
     sprite-part < #01, #00, #00, #00, #00, #$09CA >
   ] >
 ]
 
-sprite_group_00212E [
+spm_prison_enemies_sprite_group_00212E [
   sprite-group < #08, #08, #10, #00, #F8, #F0, #01, #01, #F9, #0E, #F1, #0E, #01, [
     sprite-part < #01, #00, #00, #00, #00, #$09CC >
   ] >
 ]
 
-sprite_group_002142 [
+spm_prison_enemies_sprite_group_002142 [
   sprite-group < #08, #08, #10, #00, #F8, #F0, #01, #01, #F9, #0E, #F1, #0E, #01, [
     sprite-part < #01, #00, #00, #00, #00, #$49CC >
   ] >
 ]
 
-sprite_group_002156 [
+spm_prison_enemies_sprite_group_002156 [
   sprite-group < #08, #08, #10, #00, #F8, #F0, #01, #01, #F9, #0E, #F1, #0E, #01, [
     sprite-part < #01, #00, #00, #00, #00, #$49CA >
   ] >
 ]
 
-sprite_group_00216A [
+spm_prison_enemies_sprite_group_00216A [
   sprite-group < #08, #07, #0F, #00, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #03, [
     sprite-part < #00, #04, #03, #00, #07, #$09D2 >   ;00
     sprite-part < #00, #00, #07, #07, #00, #$0BD5 >   ;01
@@ -1958,7 +1958,7 @@ sprite_group_00216A [
   ] >
 ]
 
-sprite_group_00218C [
+spm_prison_enemies_sprite_group_00218C [
   sprite-group < #08, #08, #0E, #00, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #03, [
     sprite-part < #00, #03, #05, #00, #06, #$09D2 >   ;00
     sprite-part < #00, #00, #08, #06, #00, #$0BD3 >   ;01
@@ -1966,7 +1966,7 @@ sprite_group_00218C [
   ] >
 ]
 
-sprite_group_0021AE [
+spm_prison_enemies_sprite_group_0021AE [
   sprite-group < #09, #07, #0E, #00, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #03, [
     sprite-part < #00, #05, #03, #00, #06, #$49D2 >   ;00
     sprite-part < #00, #08, #00, #06, #00, #$4BD3 >   ;01

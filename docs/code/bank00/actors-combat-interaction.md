@@ -42,7 +42,7 @@ These actors are spawned at runtime rather than placed in most scenes. They impl
 
 Spawned when the player or an enemy takes a hit. Applies one-axis knockback for 16 frames by moving the controller actor (collision-checked) and syncing the victim's position, then either returns the **player** to `PlayerIdleEntry` (`HitStaggerReleasePlayer`) or resolves the **enemy** hit/death callbacks (`HitStaggerResolveHit`). Spawned by `ApplyPlayerHitstun` via `SpawnListAppend @HitStaggerMain` with flags `$2400` (`$2000` script-driven + `$0400` player victim).
 
-The block spans 7 linked parts with internal `$&` references. Entry point `HitStaggerMain` decodes the direction code in `$28` (from the spawner; not a stack) and loads a `movement_delta_table` curve from knockback tier `free101C`, then enters `HitStaggerSlideLoop`.
+The block spans 7 linked parts with internal `$&` references. Entry point `HitStaggerMain` decodes the direction code in `$28` (from the spawner; not a stack) and loads a `move_chain_table` curve from knockback tier `free101C`, then enters `HitStaggerSlideLoop`.
 
 #### Parts
 
@@ -53,7 +53,7 @@ The block spans 7 linked parts with internal `$&` references. Entry point `HitSt
 | Return | `$D9EB` | `HitStaggerReleasePlayer` | Player only: `PlayerIdleEntry`, shorten iframe counter, reveal D-pad |
 | Probe | `$DA13` | `HitStaggerCheckKnockbackDistance` | Distance threshold check ($30/$20/$40 based on `$7F101C`) |
 | Flag | `$DA41` | `HitStaggerZeroToCarry` | Carry set/clear from compare result |
-| Dir | `$DA47` | `HitStaggerApplyKnockbackDelta` | Map direction index → `movement_delta_table` offset |
+| Dir | `$DA47` | `HitStaggerApplyKnockbackDelta` | Map direction index → `move_chain_table` offset |
 | Apply | `$DA66` | `HitStaggerStoreMovementDelta` | Write `$2C`/`$2E` velocity; set axis flag `$26` |
 
 #### Algorithm (HitStaggerMain)
@@ -90,7 +90,7 @@ The block spans 7 linked parts with internal `$&` references. Entry point `HitSt
 | `$10` | Bit `$0008` on victim (collision movement); bit `$0400` = player victim |
 | `$2C`, `$2E` | Knockback velocity components |
 | `$26` | Axis selector (0=X, 1=Y) |
-| `movement_delta_table` | Direction → velocity lookup |
+| `move_chain_table` | Direction → velocity lookup |
 
 #### Scene Usage
 
@@ -109,7 +109,7 @@ Never scene-placed. Spawned at runtime from:
 | Spawned by | `ApplyPlayerHitstun`, `combat_collision` | `SpawnListAppend @HitStaggerMain`; flags `$2400` or `$2000` |
 | Returns to | `PlayerIdleEntry` | Via `HitStaggerReleasePlayer` only |
 | Falls through to | `StandardEnemyDefeatHandler` | Enemy death with no death callback |
-| Includes | `player_character`, `StandardEnemyDefeatHandler`, `movement_delta_table` | |
+| Includes | `player_character`, `StandardEnemyDefeatHandler`, `move_chain_table` | |
 
 ---
 

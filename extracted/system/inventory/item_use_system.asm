@@ -52,7 +52,7 @@
 ?INCLUDE 'inventory_mgmt'
 ?INCLUDE 'music_actors'
 ?INCLUDE 'player_transition_handlers'
-?INCLUDE 'spriteset_enemies'
+?INCLUDE 'spriteset_pickups_effects'
 ?INCLUDE 'system_core'
 
 !sceneCurrent                   0644
@@ -244,7 +244,7 @@ code_038566 {
 }
 
 code_038576 {
-    COP [SetMetasprite] ( @spriteset_enemies )
+    COP [SetMetasprite] ( @spriteset_pickups_effects )
     COP [StageSprAndHitbox] ( #02 )
     LDA #$0001            ; Initialize orbit parameters: angle = 1, diameter = 1
     STA $orbitAngle, X

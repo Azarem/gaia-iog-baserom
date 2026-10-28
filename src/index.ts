@@ -5,9 +5,8 @@ import { DbBlock, DbFile, DbGroup, DbStringType, DbStruct, CopDef, DbFileType, A
 import { DbRootUtils } from '@gaialabs/core';
 import type { DbAddressingMode, DbConfig, DbGameRomModule } from '@gaialabs/core';
 import { snes } from '@gaialabs/core';
-import { ingest } from './ingest.ts';
-import { annotate } from './annotate.ts';
 import { merge } from './merge.ts';
+import { applyNames, checkNames } from './names-merge.ts';
 
 const __pkgRoot = join(dirname(fileURLToPath(import.meta.url)), '..');
 
@@ -229,26 +228,6 @@ if (isMainModule) {
                     await rebuild(args[0], args[1], args[2]);
                     console.log('ROM rebuild completed successfully!');
                     break;
-                case 'ingest':
-                    console.log('Starting notes ingestion...\n');
-                    ingest(__pkgRoot, args.length > 0 ? args : undefined, {
-                        dryRun: flags.includes('dry-run') || flags.includes('dryrun'),
-                        verbose: flags.includes('verbose'),
-                    });
-                    break;
-                case 'annotate': {
-                    if (args.length === 0) {
-                        console.error('Usage: annotate <spec.json> [--dry-run] [--no-ingest] [--verbose]');
-                        process.exit(1);
-                    }
-                    const annotateResult = annotate(__pkgRoot, args[0], {
-                        dryRun: flags.includes('dry-run') || flags.includes('dryrun'),
-                        noIngest: flags.includes('no-ingest'),
-                        verbose: flags.includes('verbose'),
-                    });
-                    if (!annotateResult.ok) process.exit(1);
-                    break;
-                }
                 case 'merge': {
                     if (args.length === 0) {
                         console.error('Usage: merge <spec.json> [--dry-run]');
@@ -260,9 +239,25 @@ if (isMainModule) {
                     if (!mergeResult.ok) process.exit(1);
                     break;
                 }
+                case 'names': {
+                    if (flags.includes('check')) {
+                        if (!checkNames(__pkgRoot)) process.exit(1);
+                        break;
+                    }
+                    if (args.length === 0) {
+                        console.error('Usage: names <spec.json> [--dry-run] [--local-only] | names --check');
+                        process.exit(1);
+                    }
+                    const namesResult = applyNames(__pkgRoot, args[0], {
+                        dryRun: flags.includes('dry-run') || flags.includes('dryrun'),
+                        localOnly: flags.includes('local-only'),
+                    });
+                    if (!namesResult.ok) process.exit(1);
+                    break;
+                }
                 default:
                     console.error('Unknown command:', command);
-                    console.log('Available commands: extract, extract-jp, rebuild, rebuild-jp, ingest, annotate, merge');
+                    console.log('Available commands: extract, extract-jp, rebuild, rebuild-jp, merge, names');
                     process.exit(1);
             }
         } catch (error) {

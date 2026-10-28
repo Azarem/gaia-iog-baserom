@@ -35,7 +35,7 @@
 ; 
 ; Palette FX (bundle contents decoded from palette_bundles): WillAttackPaletteFX = #2A twice then #2B forever; FreedanAttackPaletteFX = #4B twice then #2C forever (both tint the 15 colors at CGRAM $81–$8F, which AttackCleanup restores with the single-frame bundles #0B/#0C); AuraBarrierPaletteFX = #5B forever (8 colors at CGRAM $A1–$A8, a blue-to-white ramp, 16 ticks per cycle). Dark Friar also starts bundle #4A through a thinker: a white flash on $81–$8F fading back to Freedan's normal colors over 36 ticks.
 ; 
-; Ability tables: LoadAbilityAnimTableA (will_ability_anim_table, Will) and LoadAbilityAnimTableB (freedan_ability_anim_table, Freedan) do not hold sprite or hitbox data. Each 6-byte record is { word 0, word pointer to the ability's upgrade-level word, then one damage byte per level }; the loader reads the level from that WRAM word ($0B16 Psycho Dash, $0B18 Psycho Slider, $0B1A Spin Dash; $0B1C Dark Friar, $0B1E Aura Barrier, $0B20 Earthquaker) and stores record[4 + level] to climbStateData ($09E0, Will) or $09E2 (Freedan), the damage bonus that combat_collision adds to the hit strength. Values by level: Psycho Dash 5/10, Psycho Slider 5/8, Spin Dash 4/7; Dark Friar 5/8/12, Aura Barrier 5/9, Earthquaker 0/7.
+; Ability tables: LoadAbilityDamageA (will_ability_damage_table, Will) and LoadAbilityDamageB (freedan_ability_damage_table, Freedan) do not hold sprite or hitbox data. Each 6-byte record is { word 0, word pointer to the ability's upgrade-level word, then one damage byte per level }; the loader reads the level from that WRAM word ($0B16 Psycho Dash, $0B18 Psycho Slider, $0B1A Spin Dash; $0B1C Dark Friar, $0B1E Aura Barrier, $0B20 Earthquaker) and stores record[4 + level] to climbStateData ($09E0, Will) or $09E2 (Freedan), the damage bonus that combat_collision adds to the hit strength. Values by level: Psycho Dash 5/10, Psycho Slider 5/8, Spin Dash 4/7; Dark Friar 5/8/12, Aura Barrier 5/9, Earthquaker 0/7.
 ; 
 ; === TRAIL FOLLOWERS (TrailFollowerSprA, 179702–179872) ===
 ; 
@@ -56,19 +56,19 @@
 ; 
 ; - Actor flags $10: bit 13 ($2000) = hidden for SortActorsByDepth and the script-only path of RunActors_Normal (no collision-aware movement, no iframe handling); bit 14 ($4000) = off-screen flag maintained by the depth sort; bit 7 ($0080) = hit/iframe marker.
 ; - $12 bits $2000 / $4000 negate the Y / X movement of staged movement chains (so one chain runs south or north, east or west).
-; - COP movement operands (StageMoveXY, StageSpriteMoveX/Y, StageSpriteLoopMoveX/Y) are indices into movement_delta_table, not distances: index 1/3/5/7 = constant +1/+2/+3/+4 per frame, 2/4/6 = the negatives, index $36 = 8 frames of 0, then 4,4,7,7,9,9,12,12, then 0,0, then eight frames of −8.
+; - COP movement operands (StageMoveXY, StageSpriteMoveX/Y, StageSpriteLoopMoveX/Y) are indices into move_chain_table, not distances: index 1/3/5/7 = constant +1/+2/+3/+4 per frame, 2/4/6 = the negatives, index $36 = 8 frames of 0, then 4,4,7,7,9,9,12,12, then 0,0, then eight frames of −8.
 ; - LoopStart/LoopEnd yield once per iteration, so LoopStart(#n) is an n-frame loop.
 ---------------------------------------------
 
 ?BANK 02
 
-?INCLUDE 'ability_anim_tables'
+?INCLUDE 'ability_damage_tables'
 ?INCLUDE 'actor_pool'
 ?INCLUDE 'ApplyOrbitalOffsetFromRef'
 ?INCLUDE 'player_character'
 ?INCLUDE 'spriteset_aura'
 ?INCLUDE 'spriteset_dark_friar'
-?INCLUDE 'spriteset_enemies'
+?INCLUDE 'spriteset_pickups_effects'
 
 !sceneCurrent                   0644
 !joypadCurrent                  0656
@@ -677,7 +677,7 @@ DarkFriarTrailNorthInit {
 
 DarkFriarTrailSouth {
     LDA #$0000            ; Load animation table B entry 0 — Dark Friar trail sprite configuration
-    JSR $&LoadAbilityAnimTableB
+    JSR $&LoadAbilityDamageB
     COP [SetMetasprite] ( @spriteset_dark_friar )
     LDA $playerFlags      ; Check player flags bit 7 ($0080) for behind-wall rendering mode (never set by shipped scenes)
     BIT #$0080
@@ -712,7 +712,7 @@ DarkFriarTrailWestInit {
 
 DarkFriarTrailEastWest {
     LDA #$0000            ; Shared trail code for east and west directions — uses X-axis movement instead of Y
-    JSR $&LoadAbilityAnimTableB
+    JSR $&LoadAbilityDamageB
     COP [SetMetasprite] ( @spriteset_dark_friar )
     LDA $playerFlags      ; Check player flags bit 7 ($0080) for behind-wall rendering mode (never set by shipped scenes)
     BIT #$0080
@@ -800,7 +800,7 @@ DarkFriarFragment3 {
   DarkFriarFragmentInit:
     STA $orbitAngle, X    ; Store initial orbit angle for this fragment's spiral expansion path
     LDA #$0000            ; Load animation table B entry 0 for fragment sprite set
-    JSR $&LoadAbilityAnimTableB
+    JSR $&LoadAbilityDamageB
     LDA #$0000            ; Initialize orbit diameter to 0 — fragments spiral outward from impact point
     STA $orbitDiameter, X
     LDA $14               ; Save current X position as spiral center reference (moveXAlt)
@@ -982,7 +982,7 @@ TrailPositionInit {
 ; 
 ; 4. Guided Projectile (180764–180999): KillSpawnedProjectile cleans up a stored actor reference via MarkDeath. GuidedProjectileActor stores its offset from the player, responds to D-pad input for 4-directional steering (Right=#3D, Left=#3C, Up=#3B, Down=#3A sprites), and runs a per-frame animation/collision loop.
 ; 
-; 5. Palette FX & Utilities (181000–181131): WillAttackPaletteFX cycles palettes #2A→#2B. FreedanAttackPaletteFX cycles #4B→#2C. AuraBarrierPaletteFX loops #5B infinitely. RecomputeProjectilePos adds stored offsets to current player position. LoadAbilityAnimTableA reads will_ability_anim_table (Will), LoadAbilityAnimTableB freedan_ability_anim_table (Freedan). Both store the damage byte for the current upgrade level to climbStateData ($09E0 Will, $09E2 Freedan); see the block note.
+; 5. Palette FX & Utilities (181000–181131): WillAttackPaletteFX cycles palettes #2A→#2B. FreedanAttackPaletteFX cycles #4B→#2C. AuraBarrierPaletteFX loops #5B infinitely. RecomputeProjectilePos adds stored offsets to current player position. LoadAbilityDamageA reads will_ability_damage_table (Will), LoadAbilityDamageB freedan_ability_damage_table (Freedan). Both store the damage byte for the current upgrade level to climbStateData ($09E0 Will, $09E2 Freedan); see the block note.
 
 ComputeParentOffset {
     LDY $24               ; Load parent actor ID from DP $24 for position reference
@@ -1012,7 +1012,7 @@ ApplyParentOffset {
 
 PsychoDashMain {
     LDA #$0000            ; Load animation table A entry 0 — Psycho Dash sprite configuration
-    JSR $&LoadAbilityAnimTableA
+    JSR $&LoadAbilityDamageA
     JSR $&player_character.FreezeCameraForAttack ; Disable status display during Psycho Dash execution (cross-file call)
     COP [GetPlayerFacing] ; Get player facing for directional dash dispatch (0=S, 1=N, 2=W, 3=E)
     AND #$0003
@@ -1299,7 +1299,7 @@ PsychoDashTrailEast {
 
   loc_02C0FB:
     LDA #$0002            ; Charge complete or minimum reached — transition to projectile launch phase
-    JSR $&LoadAbilityAnimTableA
+    JSR $&LoadAbilityDamageA
     LDA #$0100            ; Clear bit 8 ($0100) from actor flags — end charge visual state
     TRB $10
     LDA #$0200            ; Set bit 9 ($0200) — guided projectile active state marker
@@ -1374,7 +1374,7 @@ SpinDashRelease {
 SpinDashLaunch {
     STA $loopCounter, X   ; A (12 or 24) is the pass count for the LoopEnd below; retPtr2 was set to SpinDashLaunchLoop
     LDA #$0001            ; Load animation table A entry 1 for Spin Dash launch sprite set
-    JSR $&LoadAbilityAnimTableA
+    JSR $&LoadAbilityDamageA
 
   SpinDashLaunchLoop:
     COP [StageSpriteFrame] ( #1D ) ; Launch animation re-entry point — stored in retPtr2 for COP loop
@@ -1479,7 +1479,7 @@ GuidedProjectileActor {
     SEC 
     SBC $playerYPos       ; Compute initial Y offset = projectile Y − player Y → $7F100E,X
     STA $7F100E, X
-    COP [SetMetasprite] ( @spriteset_enemies ) ; Set metasprite to table_0EE000 — Spin Dash projectile graphics
+    COP [SetMetasprite] ( @spriteset_pickups_effects ) ; Set metasprite to table_0EE000 — Spin Dash projectile graphics
 
   code_02C24E:
     COP [BranchIfPressed] ( #$0100, &ProjectileMoveRight ) ; D-pad direction dispatch: right=$0100, left=$0200, up=$0800, down=$0400
@@ -1625,15 +1625,15 @@ RecomputeProjectilePos {
     RTS 
 }
 
-LoadAbilityAnimTableA {
+LoadAbilityDamageA {
     PHX                   ; A = ability index; the record points to the ability level word ($0B16/$0B18/$0B1A) and carries one damage byte per level
     ASL 
     TAX 
-    LDA $@ability_anim_tables.will_ability_anim_table, X
+    LDA $@ability_damage_tables.will_ability_damage_table, X
     SEC 
-    SBC #$&ability_anim_tables.will_ability_anim_table
+    SBC #$&ability_damage_tables.will_ability_damage_table
     TAX 
-    LDA $@ability_anim_tables.will_ability_anim_table+2, X
+    LDA $@ability_damage_tables.will_ability_damage_table+2, X
     TAY 
     LDA $0000, Y
     PHA 
@@ -1642,22 +1642,22 @@ LoadAbilityAnimTableA {
     ADC $01, S
     TAX 
     PLA 
-    LDA $@ability_anim_tables.will_ability_anim_table+4, X
+    LDA $@ability_damage_tables.will_ability_damage_table+4, X
     AND #$00FF
     STA $climbStateData   ; climbStateData ($09E0) = Will ability damage bonus for the current level (Psycho Dash 5/10, Slider 5/8, Spin Dash 4/7)
     PLX 
     RTS 
 }
 
-LoadAbilityAnimTableB {
+LoadAbilityDamageB {
     PHX                   ; A = ability index; the record points to the level word ($0B1C/$0B1E/$0B20) and carries one damage byte per level
     ASL 
     TAX 
-    LDA $@ability_anim_tables.freedan_ability_anim_table, X
+    LDA $@ability_damage_tables.freedan_ability_damage_table, X
     SEC 
-    SBC #$&ability_anim_tables.freedan_ability_anim_table
+    SBC #$&ability_damage_tables.freedan_ability_damage_table
     TAX 
-    LDA $@ability_anim_tables.freedan_ability_anim_table+2, X
+    LDA $@ability_damage_tables.freedan_ability_damage_table+2, X
     TAY 
     LDA $0000, Y
     PHA 
@@ -1666,7 +1666,7 @@ LoadAbilityAnimTableB {
     ADC $01, S
     TAX 
     PLA 
-    LDA $@ability_anim_tables.freedan_ability_anim_table+4, X
+    LDA $@ability_damage_tables.freedan_ability_damage_table+4, X
     AND #$00FF
     STA $climbStateData+2 ; $09E2 = Freedan ability damage bonus for the current level (Dark Friar 5/8/12, Aura Barrier 5/9, Earthquaker 0/7)
     PLX 

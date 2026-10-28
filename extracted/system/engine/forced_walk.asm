@@ -2,18 +2,18 @@
 ; 
 ; StartForcedWalk decodes the direction from scrollStepTableBase (bit 5 = west, bit 4 = east, bit 7 = north, default south), sets playerFlags $0100 and spawns the matching ForcedWalkSouth/North/West/East on the player actor (SpawnBefore).
 ; 
-; The warp entry gives two things: the walk-step stream pointed to by warpFacing ($0650, a pointer to warp entry +7) and the walk sequence index in scrollStepTableBase. Stream layout, 6 bytes: [direction byte][X offset word][Y offset word][direction byte]. A direction byte indexes direction_velocity_table, whose entry is (animation index, index into movement_delta_table); movement_delta_table entries are delta-node lists, so ReadDirSprite_*Velocity leaves a velocity-curve pointer in $2E (Y) or $2C (X).
+; The warp entry gives two things: the walk-step stream pointed to by warpFacing ($0650, a pointer to warp entry +7) and the walk sequence index in scrollStepTableBase. Stream layout, 6 bytes: [direction byte][X offset word][Y offset word][direction byte]. A direction byte indexes walk_step_table, whose entry is (animation index, index into move_chain_table); move_chain_table entries are delta-node lists, so ReadDirSprite_*Velocity leaves a velocity-curve pointer in $2E (Y) or $2C (X).
 ; 
-; Each ForcedWalk* actor: masks all joypad input, reads the first direction byte, stages the player sprite (StagePlayerSprFromDP, animation index from DP $0000), replaces scrollStepTableBase with the pointer to the word scroll-step list from forced_walk_sequence_table (read by CameraScrollStepLookup, ends at a zero word), pans the camera in the walk direction (CameraPan*), adds the stream's X/Y offset words to its own position (ApplyScrollOffset), reads the second direction byte, stages the final sprite, copies position and state to the player (SyncPlayerToCamera), unmasks the joypad and dies.
+; Each ForcedWalk* actor: masks all joypad input, reads the first direction byte, stages the player sprite (StagePlayerSprFromDP, animation index from DP $0000), replaces scrollStepTableBase with the pointer to the word scroll-step list from forced_walk_pan_table (read by CameraScrollStepLookup, ends at a zero word), pans the camera in the walk direction (CameraPan*), adds the stream's X/Y offset words to its own position (ApplyScrollOffset), reads the second direction byte, stages the final sprite, copies position and state to the player (SyncPlayerToCamera), unmasks the joypad and dies.
 ; 
 ; The direction variants differ only in the ReadDirSprite helper (Y velocity for south/north, X for west/east) and the CameraPan* COP.
 ---------------------------------------------
 
 ?BANK 00
 
-?INCLUDE 'direction_velocity_table'
-?INCLUDE 'forced_walk_sequence_table'
-?INCLUDE 'movement_delta_table'
+?INCLUDE 'forced_walk_pan_table'
+?INCLUDE 'move_chain_table'
+?INCLUDE 'walk_step_table'
 
 !warpFacing                     0650
 !joypadCurrent                  0656
@@ -26,7 +26,7 @@
 
 ; Cutscene auto-walk actor spawned on the player by StartForcedWalk during extended warp transitions (default direction when no west/east/north bit is set).
 ; 
-; Masks all joypad input, reads the first stream direction byte with ReadDirSprite_YVelocity, stages the player sprite, loads the walk sequence pointer from forced_walk_sequence_table into scrollStepTableBase, pans the camera down (CameraPanDown), applies the stream's position offset, reads the next direction byte, re-stages the sprite, syncs the player and dies. The North/West/East labels below follow the same sequence.
+; Masks all joypad input, reads the first stream direction byte with ReadDirSprite_YVelocity, stages the player sprite, loads the walk sequence pointer from forced_walk_pan_table into scrollStepTableBase, pans the camera down (CameraPanDown), applies the stream's position offset, reads the next direction byte, re-stages the sprite, syncs the player and dies. The North/West/East labels below follow the same sequence.
 
 ForcedWalkSouth {
     LDA #$6000            ; Clear direction flags $6000 from secondary status $12
@@ -47,7 +47,7 @@ ForcedWalkSouth {
     AND #$00FF
     ASL                   ; ×2 for word-sized table index
     TAX 
-    LDA $&forced_walk_sequence_table, X ; Look up walk sequence data pointer from forced_walk_sequence_table
+    LDA $&forced_walk_pan_table, X ; Look up walk sequence data pointer from forced_walk_pan_table
     STA $scrollStepTableBase ; scrollStepTableBase now = pointer to the word scroll-step list used by CameraScrollStepLookup
     STZ $2A
     TDC                   ; TDC/TAX: restore actor slot address to X register
@@ -86,7 +86,7 @@ ForcedWalkSouth {
     AND #$00FF
     ASL 
     TAX 
-    LDA $&forced_walk_sequence_table, X
+    LDA $&forced_walk_pan_table, X
     STA $scrollStepTableBase
     STZ $2A
     TDC 
@@ -125,7 +125,7 @@ ForcedWalkSouth {
     AND #$00FF
     ASL 
     TAX 
-    LDA $&forced_walk_sequence_table, X
+    LDA $&forced_walk_pan_table, X
     STA $scrollStepTableBase
     STZ $2A
     TDC 
@@ -164,7 +164,7 @@ ForcedWalkSouth {
     AND #$00FF
     ASL 
     TAX 
-    LDA $&forced_walk_sequence_table, X
+    LDA $&forced_walk_pan_table, X
     STA $scrollStepTableBase
     STZ $2A
     TDC 
@@ -186,7 +186,7 @@ ForcedWalkSouth {
 
 ; Read the next walk-step stream byte and set up the sprite and the Y velocity curve for it.
 ; 
-; Y = stream pointer (warpFacing, $0650), incremented by one. The byte indexes direction_velocity_table (word entries): the whole word goes to $0000 (low byte = animation index used by StagePlayerSprFromDP); its high byte indexes movement_delta_table, and that pointer (head of a delta-node velocity list) is stored in $2E. ReadDirSprite_XVelocity is identical but stores it in $2C.
+; Y = stream pointer (warpFacing, $0650), incremented by one. The byte indexes walk_step_table (word entries): the whole word goes to $0000 (low byte = animation index used by StagePlayerSprFromDP); its high byte indexes move_chain_table, and that pointer (head of a delta-node velocity list) is stored in $2E. ReadDirSprite_XVelocity is identical but stores it in $2C.
 
 ReadDirSprite_YVelocity {
     LDY $warpFacing       ; Y = walk-step stream pointer (warpFacing)
@@ -195,13 +195,13 @@ ReadDirSprite_YVelocity {
     AND #$00FF            ; Mask to 8-bit direction index
     ASL 
     TAY 
-    LDA $&direction_velocity_table, Y ; Entry = (animation index, movement_delta_table index)
+    LDA $&walk_step_table, Y ; Entry = (animation index, move_chain_table index)
     STA $0000             ; $0000 = entry word; low byte = animation index for StagePlayerSprFromDP
     XBA                   ; XBA: swap to high byte = movement delta index
     AND #$00FF
     ASL 
     TAY 
-    LDA $&movement_delta_table, Y ; Velocity-curve pointer from movement_delta_table (head of a delta-node list)
+    LDA $&move_chain_table, Y ; Velocity-curve pointer from move_chain_table (head of a delta-node list)
     STA $2E               ; $2E = Y velocity curve pointer (not a duration)
     RTS 
 }
@@ -216,13 +216,13 @@ ReadDirSprite_XVelocity {
     AND #$00FF
     ASL 
     TAY 
-    LDA $&direction_velocity_table, Y
+    LDA $&walk_step_table, Y
     STA $0000
     XBA 
     AND #$00FF
     ASL 
     TAY 
-    LDA $&movement_delta_table, Y
+    LDA $&move_chain_table, Y
     STA $2C               ; $2C = X velocity curve pointer
     RTS 
 }

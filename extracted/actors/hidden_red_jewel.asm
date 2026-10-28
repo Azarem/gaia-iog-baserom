@@ -27,7 +27,7 @@
 ; 
 ; === INTERACTION ===
 ; 
-; The init script sets the interact handler, the metasprite (spriteset_enemies), sprite and hitbox config #00 and idles with SetEntryHere + RTL. HiddenRedJewelInteract: A := $0E + $80, TestEventFlag_0200. Flag set: return silently. Flag clear: COP GiveItem ( #01, &HiddenRedJewelInventoryFull ); on success print HiddenRedJewelFoundString ('You found a Red Jewel!') and set the flag; if the inventory is full GiveItem branches to HiddenRedJewelInventoryFull, which prints HiddenRedJewelFullString and returns without setting the flag, so the jewel can be tried again later. GiveItem itself prints nothing; the dialog is this script's own.
+; The init script sets the interact handler, the metasprite (spriteset_pickups_effects), sprite and hitbox config #00 and idles with SetEntryHere + RTL. HiddenRedJewelInteract: A := $0E + $80, TestEventFlag_0200. Flag set: return silently. Flag clear: COP GiveItem ( #01, &HiddenRedJewelInventoryFull ); on success print HiddenRedJewelFoundString ('You found a Red Jewel!') and set the flag; if the inventory is full GiveItem branches to HiddenRedJewelInventoryFull, which prints HiddenRedJewelFullString and returns without setting the flag, so the jewel can be tried again later. GiveItem itself prints nothing; the dialog is this script's own.
 ; 
 ; === NPC JUMPS ===
 ; 
@@ -37,7 +37,7 @@
 ---------------------------------------------
 
 ?INCLUDE 'flag_helpers'
-?INCLUDE 'spriteset_enemies'
+?INCLUDE 'spriteset_pickups_effects'
 
 ---------------------------------------------
 
@@ -48,7 +48,7 @@ hidden_red_jewel [
 
   code_00C672:
     COP [SetInteractHandler] ( &HiddenRedJewelInteract ) ; Install the interact handler
-    COP [SetMetasprite] ( @spriteset_enemies ) ; Metasprite spriteset_enemies, sprite / hitbox config #00; $0E (spawn type >> 1) is left untouched for the flag index
+    COP [SetMetasprite] ( @spriteset_pickups_effects ) ; Metasprite spriteset_pickups_effects, sprite / hitbox config #00; $0E (spawn type >> 1) is left untouched for the flag index
     COP [StageSprAndHitbox] ( #00 )
     COP [SetEntryHere]    ; Idle: the actor only waits for the interact handler
     RTL 

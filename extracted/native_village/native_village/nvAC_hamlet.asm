@@ -6,7 +6,7 @@
 ; survive. One of the game's most memorable emotional scenes.
 ---------------------------------------------
 
-?INCLUDE 'spriteset_enemies'
+?INCLUDE 'spriteset_pickups_effects'
 
 !joypadMaskStd                  065A
 !spritesetPtr                   7F0006
@@ -111,7 +111,7 @@ code_088750 {
 }
 
 code_088755 {
-    COP [SetMetasprite] ( @spriteset_enemies )
+    COP [SetMetasprite] ( @spriteset_pickups_effects )
     COP [PlaySoundBoth] ( #$0F0F )
     COP [StageSpriteFrame] ( #25 )
     COP [AnimOnce]

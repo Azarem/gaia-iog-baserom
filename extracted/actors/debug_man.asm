@@ -9,7 +9,7 @@
 ; 
 ; The menu is 7 levels. Each level is PrintDialogString (one page of 4 rows) followed by COP DialogueOptions( #04, #00, table ): the two operand bytes form the menu-layout word handed to MenuSelectionHandler, which returns 0 for B (cancel) or the confirmed row + 1. DialogueOptions uses that as the index into the word table and resumes the script there. Every table therefore has 5 entries: [0] = DebugManQuit (B), [1] to [4] = rows 1 to 4.
 ; Row 1 of levels 1 to 6 is 'Others' and opens the next level; rows 2 to 4 are destinations. Level 7 has 'Quit' as row 1 (table entries 0 and 1 are both DebugManQuit) and three destinations.
-; A destination leaf prints 'Ok! See you again!', queues the scene change with COP QueueMapChange( scene, X px, Y px, facing, scroll params ) and returns with RTL. The facing byte is an index into direction_velocity_table (it selects the first sprite frame of the spawned player). The leaves change no stats and no flags.
+; A destination leaf prints 'Ok! See you again!', queues the scene change with COP QueueMapChange( scene, X px, Y px, facing, scroll params ) and returns with RTL. The facing byte is an index into walk_step_table (it selects the first sprite frame of the spawned player). The leaves change no stats and no flags.
 ; 
 ; === DESTINATIONS (scene id, then the leaf label) ===
 ; 

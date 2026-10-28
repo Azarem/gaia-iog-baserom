@@ -475,11 +475,11 @@ palette_bundle_16CE8F! [
 ------------------------------------------------------
 ;Enable engine flag 4000
 
-display_preset_01805E! [
+display_preset_00! [
   display-preset < #17, #00, #80, #00, #24, #85, #09, #80, #00, #00 >   ;Statue reward scene
 ]
 
-display_preset_0181D0! [
+display_preset_25! [
   display-preset < #17, #00, #80, #03, #E4, #80, #09, #80, #00, #00 >   ;Epilogue scene
 ]
 

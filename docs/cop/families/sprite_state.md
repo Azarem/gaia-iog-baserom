@@ -88,7 +88,7 @@ Does **not** call DMA or change `$7F0006` — `$88` (`SetMetasprite`) usually ru
 Snake pit FX (`extracted/angkor_wat/snake_pit/awB4_snake_pit_fx.asm`):
 
 ```asm
-COP [SetMetasprite] ( @spriteset_particle_fx )
+COP [SetMetasprite] ( @spriteset_snake_pit_fx )
 COP [ResetSpriteState] ( #00, #$2020 )
 COP [AdvanceSpriteAnim]
 RTL

@@ -1,0 +1,7 @@
+{
+    "inventory_spritemap": "77 pointers, animation index = item ID for $00-$3F (see the block note for $3A-$3F, the cursor $40 and the status rows $44-$4C). Most targets are a single static frame.",
+    "sprite_group_108B67": "Statue icon of animation $3F, followed by 2 unreferenced groups: the sub-sprites printed below the first ones are the headers and sub-sprites of those groups (67 bytes in all).",
+    "sprite_group_108BAA": "The cursor group of animations $40-$43, followed by 3 unreferenced groups: only the first sub-sprites printed are its own (80 bytes in all).",
+    "sprite_set_1082B6": "Animation $40: the selection cursor (SelectionCursorActor). $41, $42 and $43 point at the same group, 108BAA.",
+    "sprite_set_1082CE": "Animation $44: the first of the nine status-row sets (5 frames; $44 + characterForm x 3 + the row: 0 top, 1 middle, 2 bottom)."
+}

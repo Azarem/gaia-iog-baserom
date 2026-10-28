@@ -6,7 +6,7 @@
 ---------------------------------------------
 
 ?INCLUDE 'SpawnDebrisBurst'
-?INCLUDE 'spriteset_enemies'
+?INCLUDE 'spriteset_pickups_effects'
 
 !moveXAlt                       7F0018
 !moveYAlt                       7F001A
@@ -19,7 +19,7 @@ gw83_switch [
   code_07BDA7:
     COP [BranchOnFlagWord] ( #$0152, #01, &code_07BDE6 )
     COP [WaitOnFlagByte] ( #01, #01 )
-    COP [SetMetasprite] ( @spriteset_enemies )
+    COP [SetMetasprite] ( @spriteset_pickups_effects )
     COP [StageSpriteFrame] ( #29 )
     COP [AnimOnce]
     LDA #$2000

@@ -1,6 +1,6 @@
 ; Force-move COP handlers ($AA–$B1, 8 opcodes): stage movement delta chains and flip movement direction.
 ; 
-; A movement index (0-$54) selects a delta chain in movement_delta_table: a linked list of nodes, each a signed per-frame delta plus a link to the next node. StageMoveX/Y/XY store the index in moveXAlt/moveYAlt ($7F:0018/$7F:001A + actor slot) and put the chain pointer that AnimFrameLookup returns in actor field $2C (X chain) or $2E (Y chain); ApplyMovement and the collision-checked move in tile_collision_physics consume one node per frame from each chain.
+; A movement index (0-$54) selects a delta chain in move_chain_table: a linked list of nodes, each a signed per-frame delta plus a link to the next node. StageMoveX/Y/XY store the index in moveXAlt/moveYAlt ($7F:0018/$7F:001A + actor slot) and put the chain pointer that AnimFrameLookup returns in actor field $2C (X chain) or $2E (Y chain); ApplyMovement and the collision-checked move in tile_collision_physics consume one node per frame from each chain.
 ; 
 ; ForceDirSW/NE/Both set (operand nonzero) or clear (operand 0) $12 bit $4000 (negate the X delta), bit $2000 (negate the Y delta), or both ($6000). ApplyMoveToChild stages both indices on the newest actor in the list ($0058, actorListLast) instead of the caller. ReloadMoveDurations re-runs the lookup for the current indices, which rewinds $2C/$2E to the start of their chains.
 ; 
@@ -17,14 +17,14 @@
 
 ---------------------------------------------
 
-; COP #AA with one byte operand (X movement index). Stores it in moveXAlt and puts the X delta chain pointer for that index (AnimFrameLookup into movement_delta_table) in actor field $2C.
+; COP #AA with one byte operand (X movement index). Stores it in moveXAlt and puts the X delta chain pointer for that index (AnimFrameLookup into move_chain_table) in actor field $2C.
 
 StageMoveX {
     TYX 
     LDA [$0A]             ; Read X movement index byte
     INC $0A
     AND #$00FF
-    STA $moveXAlt, X      ; moveXAlt = X movement index (movement_delta_table entry, $7F0018 + slot)
+    STA $moveXAlt, X      ; moveXAlt = X movement index (move_chain_table entry, $7F0018 + slot)
     JSR $&actor_pool.AnimFrameLookup ; A = pointer to the delta chain for the index
     STA $2C               ; Actor field $2C = X delta chain pointer
     LDA $0A

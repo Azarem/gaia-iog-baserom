@@ -1,263 +1,302 @@
-; Full spriteset definitions for Freedan character sprites.
+; Freedan player spriteset (Bank 0E, 950272-969435): every frame the player can show in form 1. 76 animations ($00-$4B), 353 frame records, 186 sprite groups, 2147 sub-sprites (at most 14 per group). Chosen by body_table[1] (art free_sprites_1AC000); SetActorBody copies the table pointer and bank into the actor ($7F0006, $7F0008). The player scripts pick the animation with StagePlayerSprite and friends; the numbering is shared with spriteset_will and spriteset_shadow.
 ; 
-; Walking, idle, attack, and special animation frames for all 4 cardinal directions. Includes Dark Friar cast poses.
+; === FORMAT (the same in every spriteset_* file) ===
+; 
+; - Table: one word pointer per animation index ($28), relative to the spriteset bank.
+; - Frame list (sprite-set): 4-byte records < hold, &sprite_group >. A frame is shown for hold + 1 ticks. The list ends with a hidden $FFFF word that the extraction does not show (a list of n records is 4n + 2 bytes; this was checked for all 76 lists by label spacing and in the ROM). Any negative word works, AdvanceSpriteAnim tests the sign. docs/structs-reference.md says the terminator is $0000: that is wrong.
+; - Sprite group: 13-byte header, then 7-byte sub-sprites.
+;   - Header bytes 0-1: X extents (left, right); bytes 2-3: Y extents (top, bottom). UpdateActorAnimation loads them into $18/$1C and $1A/$1E (screen culling) and swaps each pair for a flipped actor.
+;   - Bytes 4-7: a tile-unit box read at metaspritePtr+0..3 by PlayerAttackHitTest (the attack's hit area) and by the solid-rectangle COP handlers (cop_handlers_collision): X offset and Y offset (the code ORs $FF00 into them, so they are always negative), width and height in 16-pixel units (shifted left four times). Default $F8 $F0 $01 $01 = a 16 x 16 box at (-8, -16).
+;   - Bytes 8-11: the body box, read at metaspritePtr+4..7 by CombatCollision (RunCombatCollision) and the interaction collision code: X offset (signed; mirrored for an H-flipped actor), width in pixels, Y offset (signed), height in pixels. Default $F8 $10 $F0 $10 = 16 x 16 at (-8, -16); some groups have other values.
+;   - Byte 12: the number of sub-sprites (equal to the real count in all 186 groups).
+; - Sub-sprite < size, x, x', y, y', tile word >: size 0 = 8x8, 1 = 16x16 (the OAM size bit); x / y is the offset inside the extent box and x' / y' the mirrored offset used for a flipped actor (x + x' = total width - size, checked by hand on three sub-sprites); the tile word is a normal OAM word (tile low byte, bit 8 name table, bits 9-11 palette, 12-13 priority, $4000 H flip, $8000 V flip).
+; - The same group is used by several frames and animations (353 records name 186 groups): animations $04-$07 reuse the four idle groups of $00-$03.
+; 
+; Tile art: the tile byte of a sub-sprite selects 32-byte tiles in free_sprites_1AC000; the player art is DMAed as the frames change (sprite_composition).
+; 
+; === PLAYER ANIMATION NUMBERS ===
+; 
+; See the part note of the table for the index map. The previous header claimed 'Dark Friar cast poses': the ability cast in attack_ability_system stages the ordinary attack animations $36-$39, no separate Dark Friar animation was identified.
 ---------------------------------------------
 
 ?BANK 0E
 
 ---------------------------------------------
 
+; 76 word pointers to frame lists, indexed by the actor animation index ($28). Indices the player scripts stage (player_character, attack_ability_system), with the shape of the Freedan data:
+; 
+; | Index | Use | Frames |
+; |-------|-----|--------|
+; | $00-$03 | idle south / north / west / east (the Spin Dash launch stages the same four) | 1 frame, hold $63 (101 ticks) |
+; | $04-$07 | the same four groups again; nothing found stages them | 1 frame |
+; | $08-$0B | walk south / north / west / east | 4 frames, hold 7 (8 ticks) |
+; | $0C-$0F | the 'Moving' cycles of the momentum code: MovingToSouth $0C, MovingNorthSouth $0D (north), MovingToWest $0E, MovingEastWest $0F (east) | |
+; | $10-$13 | idle south / north / west / east staged for Shadow (form 2) only; the table has entries as well | |
+; | $18 | first pose of the vine entry (StagePlayerMoveXY) | |
+; | $19, $1A, $1B | vine climb cycle $1A, $1B, $19, repeating | |
+; | $2A, $2B | ladder idle north, south ($2E, $2F: Shadow) | |
+; | $2C, $2D | ladder move up, down | |
+; | $30, $31 | detach from the shimmy left, right ($34, $35: Shadow) | |
+; | $32, $33 | shimmy left, right | |
+; | $36-$39 | melee attack south / north / west / east (the Freedan ability cast stages the same four) | |
+; | $3A-$3D | guard (block) south / north / west / east | |
+; | $42, $43 | attack against a wall west / east (forms 0 and 1) | |
+; | $44-$47 | Will's lunge south / north / west / east (form 0 only; the Freedan table still has entries) | |
+; | $48, $49 | attack against a wall south / north (Freedan only: the Will table stops at $47) | |
+; 
+; Not staged by the player scripts: $14-$17, $1C-$29, $3E-$41, $4A, $4B. Several of $1C-$29 are staged through StagePlayerMoveY/XY by other files (player_transition_handlers, ramps, credits) and were not resolved one by one (OQ-I063-2).
+
 spriteset_freedan [
-  &sprite_set_0E8098   ;00
-  &sprite_set_0E809E   ;01
-  &sprite_set_0E80A4   ;02
-  &sprite_set_0E80AA   ;03
-  &sprite_set_0E80B0   ;04
-  &sprite_set_0E80B6   ;05
-  &sprite_set_0E80BC   ;06
-  &sprite_set_0E80C2   ;07
-  &sprite_set_0E80C8   ;08
-  &sprite_set_0E80DA   ;09
-  &sprite_set_0E80EC   ;0A
-  &sprite_set_0E80FE   ;0B
-  &sprite_set_0E8110   ;0C
-  &sprite_set_0E8122   ;0D
-  &sprite_set_0E8134   ;0E
-  &sprite_set_0E8146   ;0F
-  &sprite_set_0E8158   ;10
-  &sprite_set_0E816A   ;11
-  &sprite_set_0E817C   ;12
-  &sprite_set_0E818E   ;13
-  &sprite_set_0E81A0   ;14
-  &sprite_set_0E81B2   ;15
-  &sprite_set_0E81C4   ;16
-  &sprite_set_0E81D6   ;17
-  &sprite_set_0E81E8   ;18
-  &sprite_set_0E81F6   ;19
-  &sprite_set_0E8208   ;1A
-  &sprite_set_0E821A   ;1B
-  &sprite_set_0E822C   ;1C
-  &sprite_set_0E8242   ;1D
-  &sprite_set_0E8250   ;1E
-  &sprite_set_0E8262   ;1F
-  &sprite_set_0E8274   ;20
-  &sprite_set_0E8282   ;21
-  &sprite_set_0E8294   ;22
-  &sprite_set_0E82A6   ;23
-  &sprite_set_0E82B4   ;24
-  &sprite_set_0E82C6   ;25
-  &sprite_set_0E82D8   ;26
-  &sprite_set_0E830A   ;27
-  &sprite_set_0E8334   ;28
-  &sprite_set_0E836A   ;29
-  &sprite_set_0E839C   ;2A
-  &sprite_set_0E83A2   ;2B
-  &sprite_set_0E83A8   ;2C
-  &sprite_set_0E83FA   ;2D
-  &sprite_set_0E844C   ;2E
-  &sprite_set_0E845E   ;2F
-  &sprite_set_0E8470   ;30
-  &sprite_set_0E8476   ;31
-  &sprite_set_0E847C   ;32
-  &sprite_set_0E8492   ;33
-  &sprite_set_0E84A8   ;34
-  &sprite_set_0E84BA   ;35
-  &sprite_set_0E84CC   ;36
-  &sprite_set_0E84EA   ;37
-  &sprite_set_0E8508   ;38
-  &sprite_set_0E8526   ;39
-  &sprite_set_0E8544   ;3A
-  &sprite_set_0E8556   ;3B
-  &sprite_set_0E8568   ;3C
-  &sprite_set_0E857A   ;3D
-  &sprite_set_0E858C   ;3E
-  &sprite_set_0E85AE   ;3F
-  &sprite_set_0E85D0   ;40
-  &sprite_set_0E85F2   ;41
-  &sprite_set_0E8614   ;42
-  &sprite_set_0E8632   ;43
-  &sprite_set_0E8650   ;44
-  &sprite_set_0E8656   ;45
-  &sprite_set_0E865C   ;46
-  &sprite_set_0E8662   ;47
-  &sprite_set_0E8668   ;48
-  &sprite_set_0E8686   ;49
-  &sprite_set_0E86A8   ;4A
-  &sprite_set_0E86AE   ;4B
+  &freedan_anim_00_idle_south   ;00
+  &freedan_anim_01_idle_north   ;01
+  &freedan_anim_02_idle_west   ;02
+  &freedan_anim_03_idle_east   ;03
+  &freedan_anim_04   ;04
+  &freedan_anim_05   ;05
+  &freedan_anim_06   ;06
+  &freedan_anim_07   ;07
+  &freedan_anim_08_walk_south   ;08
+  &freedan_anim_09_walk_north   ;09
+  &freedan_anim_0A_walk_west   ;0A
+  &freedan_anim_0B_walk_east   ;0B
+  &freedan_anim_0C_moving_south   ;0C
+  &freedan_anim_0D_moving_north   ;0D
+  &freedan_anim_0E_moving_west   ;0E
+  &freedan_anim_0F_moving_east   ;0F
+  &freedan_anim_10   ;10
+  &freedan_anim_11   ;11
+  &freedan_anim_12   ;12
+  &freedan_anim_13   ;13
+  &freedan_anim_14   ;14
+  &freedan_anim_15   ;15
+  &freedan_anim_16   ;16
+  &freedan_anim_17   ;17
+  &freedan_anim_18_vine_enter   ;18
+  &freedan_anim_19_vine_climb_3   ;19
+  &freedan_anim_1A_vine_climb_1   ;1A
+  &freedan_anim_1B_vine_climb_2   ;1B
+  &freedan_anim_1C   ;1C
+  &freedan_anim_1D   ;1D
+  &freedan_anim_1E   ;1E
+  &freedan_anim_1F   ;1F
+  &freedan_anim_20   ;20
+  &freedan_anim_21   ;21
+  &freedan_anim_22   ;22
+  &freedan_anim_23   ;23
+  &freedan_anim_24   ;24
+  &freedan_anim_25   ;25
+  &freedan_anim_26   ;26
+  &freedan_anim_27   ;27
+  &freedan_anim_28   ;28
+  &freedan_anim_29   ;29
+  &freedan_anim_2A_ladder_idle_north   ;2A
+  &freedan_anim_2B_ladder_idle_south   ;2B
+  &freedan_anim_2C_ladder_up   ;2C
+  &freedan_anim_2D_ladder_down   ;2D
+  &freedan_anim_2E   ;2E
+  &freedan_anim_2F   ;2F
+  &freedan_anim_30_shimmy_detach_left   ;30
+  &freedan_anim_31_shimmy_detach_right   ;31
+  &freedan_anim_32_shimmy_left   ;32
+  &freedan_anim_33_shimmy_right   ;33
+  &freedan_anim_34   ;34
+  &freedan_anim_35   ;35
+  &freedan_anim_36_attack_south   ;36
+  &freedan_anim_37_attack_north   ;37
+  &freedan_anim_38_attack_west   ;38
+  &freedan_anim_39_attack_east   ;39
+  &freedan_anim_3A_guard_south   ;3A
+  &freedan_anim_3B_guard_north   ;3B
+  &freedan_anim_3C_guard_west   ;3C
+  &freedan_anim_3D_guard_east   ;3D
+  &freedan_anim_3E   ;3E
+  &freedan_anim_3F   ;3F
+  &freedan_anim_40   ;40
+  &freedan_anim_41   ;41
+  &freedan_anim_42_wall_attack_west   ;42
+  &freedan_anim_43_wall_attack_east   ;43
+  &freedan_anim_44   ;44
+  &freedan_anim_45   ;45
+  &freedan_anim_46   ;46
+  &freedan_anim_47   ;47
+  &freedan_anim_48_wall_attack_south   ;48
+  &freedan_anim_49_wall_attack_north   ;49
+  &freedan_anim_4A   ;4A
+  &freedan_anim_4B   ;4B
 ]
 
-sprite_set_0E8098 [
+freedan_anim_00_idle_south [
   sprite-set < #$0063, &sprite_group_0E86B4 >
 ]
 
-sprite_set_0E809E [
+freedan_anim_01_idle_north [
   sprite-set < #$0063, &sprite_group_0E8838 >
 ]
 
-sprite_set_0E80A4 [
+freedan_anim_02_idle_west [
   sprite-set < #$0063, &sprite_group_0E8999 >
 ]
 
-sprite_set_0E80AA [
+freedan_anim_03_idle_east [
   sprite-set < #$0063, &sprite_group_0E8AF3 >
 ]
 
-sprite_set_0E80B0 [
+freedan_anim_04 [
   sprite-set < #$0063, &sprite_group_0E86B4 >
 ]
 
-sprite_set_0E80B6 [
+freedan_anim_05 [
   sprite-set < #$0063, &sprite_group_0E8838 >
 ]
 
-sprite_set_0E80BC [
+freedan_anim_06 [
   sprite-set < #$0063, &sprite_group_0E8999 >
 ]
 
-sprite_set_0E80C2 [
+freedan_anim_07 [
   sprite-set < #$0063, &sprite_group_0E8AF3 >
 ]
 
-sprite_set_0E80C8 [
+freedan_anim_08_walk_south [
   sprite-set < #$0007, &sprite_group_0E8C69 >   ;00
   sprite-set < #$0007, &sprite_group_0E8CCA >   ;01
   sprite-set < #$0007, &sprite_group_0E8D2B >   ;02
   sprite-set < #$0007, &sprite_group_0E8D8C >   ;03
 ]
 
-sprite_set_0E80DA [
+freedan_anim_09_walk_north [
   sprite-set < #$0007, &sprite_group_0E8EA8 >   ;00
   sprite-set < #$0007, &sprite_group_0E8F09 >   ;01
   sprite-set < #$0007, &sprite_group_0E8DED >   ;02
   sprite-set < #$0007, &sprite_group_0E8E40 >   ;03
 ]
 
-sprite_set_0E80EC [
+freedan_anim_0A_walk_west [
   sprite-set < #$0007, &sprite_group_0E8F6A >   ;00
   sprite-set < #$0007, &sprite_group_0E8FBD >   ;01
   sprite-set < #$0007, &sprite_group_0E9017 >   ;02
   sprite-set < #$0007, &sprite_group_0E906A >   ;03
 ]
 
-sprite_set_0E80FE [
+freedan_anim_0B_walk_east [
   sprite-set < #$0007, &sprite_group_0E9186 >   ;00
   sprite-set < #$0007, &sprite_group_0E91E0 >   ;01
   sprite-set < #$0007, &sprite_group_0E90C4 >   ;02
   sprite-set < #$0007, &sprite_group_0E911E >   ;03
 ]
 
-sprite_set_0E8110 [
+freedan_anim_0C_moving_south [
   sprite-set < #$0004, &sprite_group_0E9241 >   ;00
   sprite-set < #$0004, &sprite_group_0E929B >   ;01
   sprite-set < #$0004, &sprite_group_0E92F5 >   ;02
   sprite-set < #$0004, &sprite_group_0E934F >   ;03
 ]
 
-sprite_set_0E8122 [
+freedan_anim_0D_moving_north [
   sprite-set < #$0004, &sprite_group_0E93A9 >   ;00
   sprite-set < #$0004, &sprite_group_0E940A >   ;01
   sprite-set < #$0004, &sprite_group_0E9464 >   ;02
   sprite-set < #$0004, &sprite_group_0E94B7 >   ;03
 ]
 
-sprite_set_0E8134 [
+freedan_anim_0E_moving_west [
   sprite-set < #$0004, &sprite_group_0E9511 >   ;00
   sprite-set < #$0004, &sprite_group_0E9572 >   ;01
   sprite-set < #$0004, &sprite_group_0E95CC >   ;02
   sprite-set < #$0004, &sprite_group_0E961F >   ;03
 ]
 
-sprite_set_0E8146 [
+freedan_anim_0F_moving_east [
   sprite-set < #$0004, &sprite_group_0E9742 >   ;00
   sprite-set < #$0004, &sprite_group_0E979C >   ;01
   sprite-set < #$0004, &sprite_group_0E9679 >   ;02
   sprite-set < #$0004, &sprite_group_0E96E1 >   ;03
 ]
 
-sprite_set_0E8158 [
+freedan_anim_10 [
   sprite-set < #$0007, &sprite_group_0E86B4 >   ;00
   sprite-set < #$0007, &sprite_group_0E8715 >   ;01
   sprite-set < #$0007, &sprite_group_0E8776 >   ;02
   sprite-set < #$0007, &sprite_group_0E87D7 >   ;03
 ]
 
-sprite_set_0E816A [
+freedan_anim_11 [
   sprite-set < #$0007, &sprite_group_0E8838 >   ;00
   sprite-set < #$0007, &sprite_group_0E8884 >   ;01
   sprite-set < #$0007, &sprite_group_0E88E5 >   ;02
   sprite-set < #$0007, &sprite_group_0E893F >   ;03
 ]
 
-sprite_set_0E817C [
+freedan_anim_12 [
   sprite-set < #$0007, &sprite_group_0E8999 >   ;00
   sprite-set < #$0007, &sprite_group_0E89E5 >   ;01
   sprite-set < #$0007, &sprite_group_0E8A3F >   ;02
   sprite-set < #$0007, &sprite_group_0E8A99 >   ;03
 ]
 
-sprite_set_0E818E [
+freedan_anim_13 [
   sprite-set < #$0007, &sprite_group_0E8AF3 >   ;00
   sprite-set < #$0007, &sprite_group_0E8B46 >   ;01
   sprite-set < #$0007, &sprite_group_0E8BA7 >   ;02
   sprite-set < #$0007, &sprite_group_0E8C08 >   ;03
 ]
 
-sprite_set_0E81A0 [
+freedan_anim_14 [
   sprite-set < #$0007, &sprite_group_0E86B4 >   ;00
   sprite-set < #$0007, &sprite_group_0E8715 >   ;01
   sprite-set < #$0007, &sprite_group_0E8776 >   ;02
   sprite-set < #$0007, &sprite_group_0E87D7 >   ;03
 ]
 
-sprite_set_0E81B2 [
+freedan_anim_15 [
   sprite-set < #$0007, &sprite_group_0E8838 >   ;00
   sprite-set < #$0007, &sprite_group_0E8884 >   ;01
   sprite-set < #$0007, &sprite_group_0E88E5 >   ;02
   sprite-set < #$0007, &sprite_group_0E893F >   ;03
 ]
 
-sprite_set_0E81C4 [
+freedan_anim_16 [
   sprite-set < #$0007, &sprite_group_0E8999 >   ;00
   sprite-set < #$0007, &sprite_group_0E89E5 >   ;01
   sprite-set < #$0007, &sprite_group_0E8A3F >   ;02
   sprite-set < #$0007, &sprite_group_0E8A99 >   ;03
 ]
 
-sprite_set_0E81D6 [
+freedan_anim_17 [
   sprite-set < #$0007, &sprite_group_0E8AF3 >   ;00
   sprite-set < #$0007, &sprite_group_0E8B46 >   ;01
   sprite-set < #$0007, &sprite_group_0E8BA7 >   ;02
   sprite-set < #$0007, &sprite_group_0E8C08 >   ;03
 ]
 
-sprite_set_0E81E8 [
+freedan_anim_18_vine_enter [
   sprite-set < #$000B, &sprite_group_0E97FD >   ;00
   sprite-set < #$0009, &sprite_group_0E985E >   ;01
   sprite-set < #$0009, &sprite_group_0E98BF >   ;02
 ]
 
-sprite_set_0E81F6 [
+freedan_anim_19_vine_climb_3 [
   sprite-set < #$0000, &sprite_group_0E9CF0 >   ;00
   sprite-set < #$0000, &sprite_group_0E9CF0 >   ;01
   sprite-set < #$0000, &sprite_group_0E9D3C >   ;02
   sprite-set < #$0000, &sprite_group_0E9D3C >   ;03
 ]
 
-sprite_set_0E8208 [
+freedan_anim_1A_vine_climb_1 [
   sprite-set < #$0000, &sprite_group_0E9C58 >   ;00
   sprite-set < #$0000, &sprite_group_0E9C58 >   ;01
   sprite-set < #$0000, &sprite_group_0E9CA4 >   ;02
   sprite-set < #$0000, &sprite_group_0E9CA4 >   ;03
 ]
 
-sprite_set_0E821A [
+freedan_anim_1B_vine_climb_2 [
   sprite-set < #$0000, &sprite_group_0E9CF0 >   ;00
   sprite-set < #$0000, &sprite_group_0E9CF0 >   ;01
   sprite-set < #$0000, &sprite_group_0E9D3C >   ;02
   sprite-set < #$0000, &sprite_group_0E9D3C >   ;03
 ]
 
-sprite_set_0E822C [
+freedan_anim_1C [
   sprite-set < #$0001, &sprite_group_0E9D88 >   ;00
   sprite-set < #$0009, &sprite_group_0E9DE2 >   ;01
   sprite-set < #$0009, &sprite_group_0E9E3C >   ;02
@@ -265,67 +304,67 @@ sprite_set_0E822C [
   sprite-set < #$0001, &sprite_group_0E9EE9 >   ;04
 ]
 
-sprite_set_0E8242 [
+freedan_anim_1D [
   sprite-set < #$000B, &sprite_group_0E9920 >   ;00
   sprite-set < #$0009, &sprite_group_0E9973 >   ;01
   sprite-set < #$0009, &sprite_group_0E99DB >   ;02
 ]
 
-sprite_set_0E8250 [
+freedan_anim_1E [
   sprite-set < #$0001, &sprite_group_0E9F35 >   ;00
   sprite-set < #$0001, &sprite_group_0E9F96 >   ;01
   sprite-set < #$0001, &sprite_group_0E9FF0 >   ;02
   sprite-set < #$0001, &sprite_group_0EA043 >   ;03
 ]
 
-sprite_set_0E8262 [
+freedan_anim_1F [
   sprite-set < #$0004, &sprite_group_0EA09D >   ;00
   sprite-set < #$0009, &sprite_group_0EA0F7 >   ;01
   sprite-set < #$0006, &sprite_group_0EA14A >   ;02
   sprite-set < #$0009, &sprite_group_0EA19D >   ;03
 ]
 
-sprite_set_0E8274 [
+freedan_anim_20 [
   sprite-set < #$000B, &sprite_group_0E9A3C >   ;00
   sprite-set < #$0009, &sprite_group_0E9A8F >   ;01
   sprite-set < #$0009, &sprite_group_0E9AE9 >   ;02
 ]
 
-sprite_set_0E8282 [
+freedan_anim_21 [
   sprite-set < #$0001, &sprite_group_0EA1E9 >   ;00
   sprite-set < #$0001, &sprite_group_0EA243 >   ;01
   sprite-set < #$0001, &sprite_group_0EA296 >   ;02
   sprite-set < #$0001, &sprite_group_0EA2E9 >   ;03
 ]
 
-sprite_set_0E8294 [
+freedan_anim_22 [
   sprite-set < #$0003, &sprite_group_0EA2E9 >   ;00
   sprite-set < #$0005, &sprite_group_0EA2E9 >   ;01
   sprite-set < #$0008, &sprite_group_0EA2E9 >   ;02
   sprite-set < #$000C, &sprite_group_0EA2E9 >   ;03
 ]
 
-sprite_set_0E82A6 [
+freedan_anim_23 [
   sprite-set < #$000B, &sprite_group_0E9B3C >   ;00
   sprite-set < #$0009, &sprite_group_0E9B96 >   ;01
   sprite-set < #$0009, &sprite_group_0E9BFE >   ;02
 ]
 
-sprite_set_0E82B4 [
+freedan_anim_24 [
   sprite-set < #$0001, &sprite_group_0EA335 >   ;00
   sprite-set < #$0001, &sprite_group_0EA39D >   ;01
   sprite-set < #$0001, &sprite_group_0EA3FE >   ;02
   sprite-set < #$0001, &sprite_group_0EA45F >   ;03
 ]
 
-sprite_set_0E82C6 [
+freedan_anim_25 [
   sprite-set < #$0003, &sprite_group_0EA45F >   ;00
   sprite-set < #$0005, &sprite_group_0EA45F >   ;01
   sprite-set < #$0008, &sprite_group_0EA45F >   ;02
   sprite-set < #$000C, &sprite_group_0EA45F >   ;03
 ]
 
-sprite_set_0E82D8 [
+freedan_anim_26 [
   sprite-set < #$0001, &sprite_group_0EA4B9 >   ;00
   sprite-set < #$0001, &sprite_group_0EA50C >   ;01
   sprite-set < #$0001, &sprite_group_0EA55F >   ;02
@@ -340,7 +379,7 @@ sprite_set_0E82D8 [
   sprite-set < #$0001, &sprite_group_0EA8F0 >   ;0B
 ]
 
-sprite_set_0E830A [
+freedan_anim_27 [
   sprite-set < #$0003, &sprite_group_0EA7A4 >   ;00
   sprite-set < #$0001, &sprite_group_0EA7A4 >   ;01
   sprite-set < #$0003, &sprite_group_0EA84A >   ;02
@@ -353,7 +392,7 @@ sprite_set_0E830A [
   sprite-set < #$0003, &sprite_group_0EA605 >   ;09
 ]
 
-sprite_set_0E8334 [
+freedan_anim_28 [
   sprite-set < #$0003, &sprite_group_0EA605 >   ;00
   sprite-set < #$0000, &sprite_group_0EA651 >   ;01
   sprite-set < #$0001, &sprite_group_0EA651 >   ;02
@@ -369,7 +408,7 @@ sprite_set_0E8334 [
   sprite-set < #$0001, &sprite_group_0EA8F0 >   ;0C
 ]
 
-sprite_set_0E836A [
+freedan_anim_29 [
   sprite-set < #$0003, &sprite_group_0EA7F0 >   ;00
   sprite-set < #$0001, &sprite_group_0EA7F0 >   ;01
   sprite-set < #$0003, &sprite_group_0EA896 >   ;02
@@ -384,15 +423,15 @@ sprite_set_0E836A [
   sprite-set < #$0001, &sprite_group_0EA4B9 >   ;0B
 ]
 
-sprite_set_0E839C [
+freedan_anim_2A_ladder_idle_north [
   sprite-set < #$0000, &sprite_group_0EA896 >
 ]
 
-sprite_set_0E83A2 [
+freedan_anim_2B_ladder_idle_south [
   sprite-set < #$0000, &sprite_group_0EA74A >
 ]
 
-sprite_set_0E83A8 [
+freedan_anim_2C_ladder_up [
   sprite-set < #$0000, &sprite_group_0EA74A >   ;00
   sprite-set < #$0000, &sprite_group_0EA74A >   ;01
   sprite-set < #$0000, &sprite_group_0EA74A >   ;02
@@ -415,7 +454,7 @@ sprite_set_0E83A8 [
   sprite-set < #$0001, &sprite_group_0EA8F0 >   ;13
 ]
 
-sprite_set_0E83FA [
+freedan_anim_2D_ladder_down [
   sprite-set < #$0000, &sprite_group_0EA896 >   ;00
   sprite-set < #$0000, &sprite_group_0EA896 >   ;01
   sprite-set < #$0000, &sprite_group_0EA896 >   ;02
@@ -438,29 +477,29 @@ sprite_set_0E83FA [
   sprite-set < #$0001, &sprite_group_0EA7F0 >   ;13
 ]
 
-sprite_set_0E844C [
+freedan_anim_2E [
   sprite-set < #$0005, &sprite_group_0EA94A >   ;00
   sprite-set < #$0005, &sprite_group_0EAAD5 >   ;01
   sprite-set < #$0005, &sprite_group_0EAB3D >   ;02
   sprite-set < #$0005, &sprite_group_0EA896 >   ;03
 ]
 
-sprite_set_0E845E [
+freedan_anim_2F [
   sprite-set < #$0005, &sprite_group_0EA9AB >   ;00
   sprite-set < #$0005, &sprite_group_0EAA0C >   ;01
   sprite-set < #$0005, &sprite_group_0EAA74 >   ;02
   sprite-set < #$0005, &sprite_group_0EA74A >   ;03
 ]
 
-sprite_set_0E8470 [
+freedan_anim_30_shimmy_detach_left [
   sprite-set < #$0079, &sprite_group_0EAB9E >
 ]
 
-sprite_set_0E8476 [
+freedan_anim_31_shimmy_detach_right [
   sprite-set < #$0079, &sprite_group_0EAE6F >
 ]
 
-sprite_set_0E847C [
+freedan_anim_32_shimmy_left [
   sprite-set < #$0003, &sprite_group_0EAB9E >   ;00
   sprite-set < #$0003, &sprite_group_0EACCF >   ;01
   sprite-set < #$0003, &sprite_group_0EAD30 >   ;02
@@ -468,7 +507,7 @@ sprite_set_0E847C [
   sprite-set < #$0003, &sprite_group_0EAE0E >   ;04
 ]
 
-sprite_set_0E8492 [
+freedan_anim_33_shimmy_right [
   sprite-set < #$0003, &sprite_group_0EAE6F >   ;00
   sprite-set < #$0003, &sprite_group_0EAFA0 >   ;01
   sprite-set < #$0003, &sprite_group_0EB001 >   ;02
@@ -476,21 +515,21 @@ sprite_set_0E8492 [
   sprite-set < #$0003, &sprite_group_0EB0DF >   ;04
 ]
 
-sprite_set_0E84A8 [
+freedan_anim_34 [
   sprite-set < #$0005, &sprite_group_0EAB9E >   ;00
   sprite-set < #$0005, &sprite_group_0EABFF >   ;01
   sprite-set < #$0005, &sprite_group_0EAC67 >   ;02
   sprite-set < #$0005, &sprite_group_0EABFF >   ;03
 ]
 
-sprite_set_0E84BA [
+freedan_anim_35 [
   sprite-set < #$0005, &sprite_group_0EAE6F >   ;00
   sprite-set < #$0005, &sprite_group_0EAED0 >   ;01
   sprite-set < #$0005, &sprite_group_0EAF38 >   ;02
   sprite-set < #$0005, &sprite_group_0EAED0 >   ;03
 ]
 
-sprite_set_0E84CC [
+freedan_anim_36_attack_south [
   sprite-set < #$0001, &sprite_group_0EB140 >   ;00
   sprite-set < #$0001, &sprite_group_0EB1A1 >   ;01
   sprite-set < #$0002, &sprite_group_0EB210 >   ;02
@@ -500,7 +539,7 @@ sprite_set_0E84CC [
   sprite-set < #$0001, &sprite_group_0EB3C5 >   ;06
 ]
 
-sprite_set_0E84EA [
+freedan_anim_37_attack_north [
   sprite-set < #$0001, &sprite_group_0EB426 >   ;00
   sprite-set < #$0001, &sprite_group_0EB479 >   ;01
   sprite-set < #$0002, &sprite_group_0EB4DA >   ;02
@@ -510,7 +549,7 @@ sprite_set_0E84EA [
   sprite-set < #$0001, &sprite_group_0EB67A >   ;06
 ]
 
-sprite_set_0E8508 [
+freedan_anim_38_attack_west [
   sprite-set < #$0001, &sprite_group_0EB6CD >   ;00
   sprite-set < #$0001, &sprite_group_0EB720 >   ;01
   sprite-set < #$0002, &sprite_group_0EB77A >   ;02
@@ -520,7 +559,7 @@ sprite_set_0E8508 [
   sprite-set < #$0001, &sprite_group_0EB8C0 >   ;06
 ]
 
-sprite_set_0E8526 [
+freedan_anim_39_attack_east [
   sprite-set < #$0001, &sprite_group_0EB90C >   ;00
   sprite-set < #$0001, &sprite_group_0EB95F >   ;01
   sprite-set < #$0002, &sprite_group_0EB9B9 >   ;02
@@ -530,35 +569,35 @@ sprite_set_0E8526 [
   sprite-set < #$0001, &sprite_group_0EBAF8 >   ;06
 ]
 
-sprite_set_0E8544 [
+freedan_anim_3A_guard_south [
   sprite-set < #$0004, &sprite_group_0EBB4B >   ;00
   sprite-set < #$0004, &sprite_group_0EBBB3 >   ;01
   sprite-set < #$0004, &sprite_group_0EBC1B >   ;02
   sprite-set < #$0004, &sprite_group_0EBC83 >   ;03
 ]
 
-sprite_set_0E8556 [
+freedan_anim_3B_guard_north [
   sprite-set < #$0004, &sprite_group_0EBCEB >   ;00
   sprite-set < #$0004, &sprite_group_0EBD45 >   ;01
   sprite-set < #$0004, &sprite_group_0EBDA6 >   ;02
   sprite-set < #$0004, &sprite_group_0EBE0E >   ;03
 ]
 
-sprite_set_0E8568 [
+freedan_anim_3C_guard_west [
   sprite-set < #$0004, &sprite_group_0EBE6F >   ;00
   sprite-set < #$0004, &sprite_group_0EBED0 >   ;01
   sprite-set < #$0004, &sprite_group_0EBF31 >   ;02
   sprite-set < #$0004, &sprite_group_0EBF92 >   ;03
 ]
 
-sprite_set_0E857A [
+freedan_anim_3D_guard_east [
   sprite-set < #$0004, &sprite_group_0EBFF3 >   ;00
   sprite-set < #$0004, &sprite_group_0EC054 >   ;01
   sprite-set < #$0004, &sprite_group_0EC0B5 >   ;02
   sprite-set < #$0004, &sprite_group_0EC116 >   ;03
 ]
 
-sprite_set_0E858C [
+freedan_anim_3E [
   sprite-set < #$0003, &sprite_group_0EB1A1 >   ;00
   sprite-set < #$0001, &sprite_group_0EB210 >   ;01
   sprite-set < #$0008, &sprite_group_0EB210 >   ;02
@@ -569,7 +608,7 @@ sprite_set_0E858C [
   sprite-set < #$0003, &sprite_group_0EB3C5 >   ;07
 ]
 
-sprite_set_0E85AE [
+freedan_anim_3F [
   sprite-set < #$0003, &sprite_group_0EB479 >   ;00
   sprite-set < #$0004, &sprite_group_0EB4DA >   ;01
   sprite-set < #$0005, &sprite_group_0EB4DA >   ;02
@@ -580,7 +619,7 @@ sprite_set_0E85AE [
   sprite-set < #$0003, &sprite_group_0EB67A >   ;07
 ]
 
-sprite_set_0E85D0 [
+freedan_anim_40 [
   sprite-set < #$0003, &sprite_group_0EB720 >   ;00
   sprite-set < #$0004, &sprite_group_0EB77A >   ;01
   sprite-set < #$0005, &sprite_group_0EB77A >   ;02
@@ -591,7 +630,7 @@ sprite_set_0E85D0 [
   sprite-set < #$0003, &sprite_group_0EB8C0 >   ;07
 ]
 
-sprite_set_0E85F2 [
+freedan_anim_41 [
   sprite-set < #$0003, &sprite_group_0EB95F >   ;00
   sprite-set < #$0004, &sprite_group_0EB9B9 >   ;01
   sprite-set < #$0005, &sprite_group_0EB9B9 >   ;02
@@ -602,7 +641,7 @@ sprite_set_0E85F2 [
   sprite-set < #$0003, &sprite_group_0EBAF8 >   ;07
 ]
 
-sprite_set_0E8614 [
+freedan_anim_42_wall_attack_west [
   sprite-set < #$0001, &sprite_group_0EC177 >   ;00
   sprite-set < #$0001, &sprite_group_0EC1C3 >   ;01
   sprite-set < #$0002, &sprite_group_0EC216 >   ;02
@@ -612,7 +651,7 @@ sprite_set_0E8614 [
   sprite-set < #$0001, &sprite_group_0EC347 >   ;06
 ]
 
-sprite_set_0E8632 [
+freedan_anim_43_wall_attack_east [
   sprite-set < #$0001, &sprite_group_0EC393 >   ;00
   sprite-set < #$0001, &sprite_group_0EC3DF >   ;01
   sprite-set < #$0002, &sprite_group_0EC432 >   ;02
@@ -622,23 +661,23 @@ sprite_set_0E8632 [
   sprite-set < #$0001, &sprite_group_0EC56A >   ;06
 ]
 
-sprite_set_0E8650 [
+freedan_anim_44 [
   sprite-set < #$0000, &sprite_group_0EC177 >
 ]
 
-sprite_set_0E8656 [
+freedan_anim_45 [
   sprite-set < #$0000, &sprite_group_0EC177 >
 ]
 
-sprite_set_0E865C [
+freedan_anim_46 [
   sprite-set < #$0000, &sprite_group_0EC177 >
 ]
 
-sprite_set_0E8662 [
+freedan_anim_47 [
   sprite-set < #$0000, &sprite_group_0EC177 >
 ]
 
-sprite_set_0E8668 [
+freedan_anim_48_wall_attack_south [
   sprite-set < #$0001, &sprite_group_0EC5BD >   ;00
   sprite-set < #$0001, &sprite_group_0EC61E >   ;01
   sprite-set < #$0002, &sprite_group_0EC68D >   ;02
@@ -648,7 +687,7 @@ sprite_set_0E8668 [
   sprite-set < #$0001, &sprite_group_0EC7D3 >   ;06
 ]
 
-sprite_set_0E8686 [
+freedan_anim_49_wall_attack_north [
   sprite-set < #$0001, &sprite_group_0EC834 >   ;00
   sprite-set < #$0001, &sprite_group_0EC887 >   ;01
   sprite-set < #$0002, &sprite_group_0EC8E8 >   ;02
@@ -659,13 +698,16 @@ sprite_set_0E8686 [
   sprite-set < #$0001, &sprite_group_0ECA88 >   ;07
 ]
 
-sprite_set_0E86A8 [
+freedan_anim_4A [
   sprite-set < #$0000, &sprite_group_0EC177 >
 ]
 
-sprite_set_0E86AE [
+freedan_anim_4B [
   sprite-set < #$0000, &sprite_group_0EC393 >
 ]
+
+---------------------------------------------
+; Example group: Freedan idle south, animations $00 and $04 (the first group of the file). Header: extents X 27 / 20, Y 45 / 0, default boxes, 12 sub-sprites; the one with tile word $405F has the H flip bit set.
 
 sprite_group_0E86B4 [
   sprite-group < #1B, #14, #2D, #00, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #0C, [

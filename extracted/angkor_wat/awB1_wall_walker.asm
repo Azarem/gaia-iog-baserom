@@ -12,7 +12,7 @@
 ?INCLUDE 'flag_helpers'
 ?INCLUDE 'smooth_follow_child'
 ?INCLUDE 'SpawnFieldRevealEffect'
-?INCLUDE 'spriteset_enemies'
+?INCLUDE 'spriteset_pickups_effects'
 ?INCLUDE 'StandardEnemyDefeatHandler'
 
 !playerActor                    09AA
@@ -229,7 +229,7 @@ code_0BBD02 {
 code_0BBD19 {
     COP [PlaySoundCh1] ( #1E )
     COP [OrExtraFlags] ( #$0010 )
-    COP [SetMetasprite] ( @spriteset_enemies )
+    COP [SetMetasprite] ( @spriteset_pickups_effects )
     COP [StageSpriteFrame] ( #03 )
     COP [AnimOnce]
     LDA $playerActor

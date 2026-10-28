@@ -8,7 +8,7 @@
 ---------------------------------------------
 
 ?INCLUDE 'music_actors'
-?INCLUDE 'spriteset_enemies'
+?INCLUDE 'spriteset_pickups_effects'
 
 !joypadMaskStd                  065A
 !playerActor                    09AA
@@ -33,7 +33,7 @@ sp5C_stone_coffin [
     TSB $joypadMaskStd
     LDA #$2000
     TRB $10
-    COP [SetMetasprite] ( @spriteset_enemies )
+    COP [SetMetasprite] ( @spriteset_pickups_effects )
     LDY $playerActor
     LDA $0014, Y
     STA $14

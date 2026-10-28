@@ -8,7 +8,7 @@
 ---------------------------------------------
 
 ?INCLUDE 'camera_drift'
-?INCLUDE 'spriteset_enemies'
+?INCLUDE 'spriteset_pickups_effects'
 
 !bg1ScrollH                     068A
 !mapScrollV                     068E
@@ -271,7 +271,7 @@ code_0BBA54 {
 }
 
 code_0BBA56 {
-    COP [SetMetasprite] ( @spriteset_enemies )
+    COP [SetMetasprite] ( @spriteset_pickups_effects )
 
   loc_0BBA5B:
     COP [StageSpriteFrame] ( #31 )

@@ -20,7 +20,7 @@
 ?INCLUDE 'sE6_gaia'
 ?INCLUDE 'SetPlayerGameOverFlag'
 ?INCLUDE 'smooth_follow_child'
-?INCLUDE 'spriteset_enemies'
+?INCLUDE 'spriteset_pickups_effects'
 
 !frameCounter                   0036
 !actorListFirst                 0056
@@ -1171,7 +1171,7 @@ code_0B8896 {
 }
 
 code_0B88C1 {
-    COP [SetMetasprite] ( @spriteset_enemies )
+    COP [SetMetasprite] ( @spriteset_pickups_effects )
     COP [StageSpriteFrame] ( #07 )
     COP [AnimOnce]
     COP [Die]

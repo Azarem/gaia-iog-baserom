@@ -10,7 +10,7 @@
 
 ?INCLUDE 'enemy_stats_table'
 ?INCLUDE 'SpawnDebrisBurst'
-?INCLUDE 'spriteset_enemies'
+?INCLUDE 'spriteset_pickups_effects'
 
 !playerFlags                    09AE
 !statsPtr                       7F0020
@@ -24,7 +24,7 @@ dm3D_breakable_wall [
   code_0AA9EF:
     COP [BranchOnFlagWord] ( #$0133, #01, &code_0AAA52 )
     COP [NudgePosition] ( #08, #08 )
-    COP [SetMetasprite] ( @spriteset_enemies )
+    COP [SetMetasprite] ( @spriteset_pickups_effects )
     COP [StageSpriteFrame] ( #00 )
     COP [AnimOnce]
     LDA #$&enemy_stats_table

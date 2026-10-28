@@ -453,7 +453,7 @@ This section investigates practical approaches to faithfully restoring the unuse
 
 4. **IOG already has a proven Mode 7 thinker** at `$03A940` (`Mode7PerspectiveUpdate`). It generates per-scanline HDMA tables for M7A/M7B/M7C/M7D from sine/cosine lookup tables, driven by three **global low-RAM words** (absolute stores with D=0, not thinker slot fields): **`$00B6`** (per-scanline divisor increment), **`$00B8`** (starting divisor / scale), **`$00BC`** (rotation index into the sine/cosine tables). This thinker is used by 4 existing scenes (world map, Sky Garden crash, Angkor Wat vision, prologue prophecy). The infrastructure is battle-tested.
 
-5. **Display preset `#07`** (`display_preset_0180A4`) is configured for Mode 7: `BGMODE = $17` which is Mode 1, but scene `$29` uses `display-mode < #07 >` (world map). The engine can switch BG modes mid-scene through direct register writes — no preset change needed.
+5. **Display preset `#07`** (`display_preset_07`) is configured for Mode 7: `BGMODE = $17` which is Mode 1, but scene `$29` uses `display-mode < #07 >` (world map). The engine can switch BG modes mid-scene through direct register writes — no preset change needed.
 
 **Evidence against Mode 7 intent:**
 

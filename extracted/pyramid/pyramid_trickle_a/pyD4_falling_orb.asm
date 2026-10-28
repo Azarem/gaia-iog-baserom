@@ -6,7 +6,7 @@
 ---------------------------------------------
 
 ?INCLUDE 'flag_helpers'
-?INCLUDE 'spriteset_enemies'
+?INCLUDE 'spriteset_pickups_effects'
 
 !playerActor                    09AA
 !characterForm                  0AD4
@@ -23,7 +23,7 @@ pyD4_falling_orb [
     STA $24
     LDA #$2000
     STA $0E
-    COP [SetMetasprite] ( @spriteset_enemies )
+    COP [SetMetasprite] ( @spriteset_pickups_effects )
     COP [StageSprAndHitbox] ( #1B )
     COP [NudgePosition] ( #08, #00 )
     LDA $24

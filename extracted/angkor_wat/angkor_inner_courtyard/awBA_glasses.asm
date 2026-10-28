@@ -6,7 +6,7 @@
 ---------------------------------------------
 
 ?INCLUDE 'f_inventory_full'
-?INCLUDE 'spriteset_enemies'
+?INCLUDE 'spriteset_pickups_effects'
 
 !displayModeFlags               09EC
 
@@ -19,7 +19,7 @@ awBA_glasses [
     COP [BranchOnFlagByte] ( #BA, #01, &code_089FB5 )
     LDA #$0200
     TSB $12
-    COP [SetMetasprite] ( @spriteset_enemies )
+    COP [SetMetasprite] ( @spriteset_pickups_effects )
     COP [SetInteractHandler] ( &code_089F9D )
 
   loc_089F93:

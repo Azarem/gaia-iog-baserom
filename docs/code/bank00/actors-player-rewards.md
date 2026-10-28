@@ -262,7 +262,7 @@ Scene `$FD` only — statue inventory reward screen.
 
 | Direction | Symbol | Notes |
 |-----------|--------|-------|
-| Includes | `ApplyOrbitalOffsetFromRef`, `flag_helpers`, `inventory_spritemap`, `music_actors`, `sprite_composition`, `spriteset_enemies` | |
+| Includes | `ApplyOrbitalOffsetFromRef`, `flag_helpers`, `inventory_spritemap`, `music_actors`, `sprite_composition`, `spriteset_pickups_effects` | |
 | Shared data | `statue_reward_table` | Read by `inventory_statue_slot` |
 | Calls | `UpdateActorAnimation` | Advance animation frame |
 | Calls | `ApplyOrbitalOffsetFromRef` | Pickup child orbit motion |

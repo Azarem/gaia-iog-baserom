@@ -8,7 +8,7 @@
 ; === HitStaggerMain ===
 ; 
 ; $10 |= $0008 (collision-checked movement) unless the victim has extendedFlags $0020; $12 |= $0008 (movement request for a script-driven actor). If $12 bit $0010 is set (inherited from the victim: stagger-immune in combat_collision) or the direction code is 4 or more, there is no knockback: WaitByte #$0F (16 ticks), then HitStaggerReleasePlayer (player) or HitStaggerResolveHit. Otherwise the victim's pixel X / Y are saved in orbitAngle / orbitDiameter ($7F0010 / $7F0012: no orbit here, the words are reused as the START position), the tier is copied, and the direction code is decoded by chained DEC / BMI (the old note spoke of a '3-deep stack-encoded direction index'; there is no such stack): 0 = Y chain (carry set), 1 = Y chain with ForceDirBoth (negated), 2 = X chain with ForceDirBoth, 3 = X chain (carry clear). Each branch first clears the inherited ForceDir bits ($6000 of $12). The branches JSR HitStaggerApplyKnockbackDelta, which pushes HitStaggerStoreMovementDelta as a return address; that routine stores the movement chain head in $2E (carry set, $26 := 0, vertical) or $2C (carry clear, $26 := 1, horizontal; the old doc had the axis flag the other way round). The RTS chain ends in HitStaggerSlideLoop (pushed by Main).
-; Curves (movement_delta_table, one delta per frame, pixels): tier 0 uses entry $22 = 4 4 5 5 5 5 4 4 3 3 2 2 1 1 0 (sum 48 px = 3 tiles); tier 1 and above use entry $23 = 3 3 4 4 3 3 2 2 2 2 1 1 1 1 0 (sum 32 px = 2 tiles). The player is tier 1.
+; Curves (move_chain_table, one delta per frame, pixels): tier 0 uses entry $22 = 4 4 5 5 5 5 4 4 3 3 2 2 1 1 0 (sum 48 px = 3 tiles); tier 1 and above use entry $23 = 3 3 4 4 3 3 2 2 2 2 1 1 1 1 0 (sum 32 px = 2 tiles). The player is tier 1.
 ; 
 ; === HitStaggerSlideLoop (the 16-frame slide loop) ===
 ; 
@@ -26,10 +26,10 @@
 ; 
 ; HitStaggerCheckKnockbackDistance stores d in the absolute scratch $0000 and pushes HitStaggerZeroToCarry - 1, so the CMP's RTS lands in HitStaggerZeroToCarry, which turns Z into carry (CLC when equal, SEC otherwise). All operands written with four hex digits ($0000, $002C, $002E, $0008 ...) are absolute addresses; $0000 is the global scratch word, the others are the slot fields indexed by X.
 ; 
-; Everything here is UNVERIFIED-RUNTIME (no emulator trace); the arithmetic and flow are read from the code and the movement_delta_table nodes.
+; Everything here is UNVERIFIED-RUNTIME (no emulator trace); the arithmetic and flow are read from the code and the move_chain_table nodes.
 ---------------------------------------------
 
-?INCLUDE 'movement_delta_table'
+?INCLUDE 'move_chain_table'
 ?INCLUDE 'player_character'
 ?INCLUDE 'StandardEnemyDefeatHandler'
 
@@ -409,10 +409,10 @@ HitStaggerApplyKnockbackDelta {
 }
 
 ---------------------------------------------
-; Reads the chain head from movement_delta_table + Y. Carry set: Y chain in $2E and $26 := 0 (vertical). Carry clear: X chain in $2C and $26 := 1 (horizontal).
+; Reads the chain head from move_chain_table + Y. Carry set: Y chain in $2E and $26 := 0 (vertical). Carry clear: X chain in $2C and $26 := 1 (horizontal).
 
 HitStaggerStoreMovementDelta {
-    LDA $&movement_delta_table, Y ; Chain head from movement_delta_table; the carry is still the caller's
+    LDA $&move_chain_table, Y ; Chain head from move_chain_table; the carry is still the caller's
     BCS loc_00DA73
     STA $2C               ; Carry clear: X chain in $2C, axis flag $26 := 1
     LDA #$0001

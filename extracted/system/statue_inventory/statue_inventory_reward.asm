@@ -30,7 +30,7 @@
 ?INCLUDE 'inventory_spritemap'
 ?INCLUDE 'music_actors'
 ?INCLUDE 'sprite_composition'
-?INCLUDE 'spriteset_enemies'
+?INCLUDE 'spriteset_pickups_effects'
 
 !frameCounter                   0036
 !sceneNext                      0642
@@ -232,7 +232,7 @@ statue_reward_table [
 
 StatueRewardOrbitalSparkle {
     COP [SetSpritePriority] ( #30 )
-    COP [SetMetasprite] ( @spriteset_enemies )
+    COP [SetMetasprite] ( @spriteset_pickups_effects )
     COP [StageSprAndHitbox] ( #02 )
     LDA #$00FC            ; Start diameter $FC; start angle = the value the ceremony wrote into this actor's $26
     STA $orbitDiameter, X
@@ -286,7 +286,7 @@ StatueRewardConfettiBurst {
     SEC 
     SBC #$0008
     STA $16
-    COP [SetMetasprite] ( @spriteset_enemies )
+    COP [SetMetasprite] ( @spriteset_pickups_effects )
     COP [StageSpriteFrame] ( #02 ) ; Frame #02
     COP [AnimOnce]
 

@@ -5,7 +5,7 @@
 ---------------------------------------------
 
 ?INCLUDE 'enemy_stats_table'
-?INCLUDE 'spriteset_enemies'
+?INCLUDE 'spriteset_pickups_effects'
 
 !orbitAngle                     7F0010
 !statsPtr                       7F0020
@@ -122,7 +122,7 @@ code_0A853E {
 
 code_0A854C {
     COP [PlaySoundCh1] ( #06 )
-    COP [SetMetasprite] ( @spriteset_enemies )
+    COP [SetMetasprite] ( @spriteset_pickups_effects )
     COP [SetSpritePalette] ( #00 )
     LDA #$0002
     TSB $10

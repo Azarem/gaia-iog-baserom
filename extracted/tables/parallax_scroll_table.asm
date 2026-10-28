@@ -21,24 +21,24 @@ parallax_scroll_table [
   &parallax_type_06   ;06
   &parallax_type_07   ;07
   &parallax_type_08   ;08
-  &binary_01D124   ;09
+  &parallax_empty_09_19   ;09
   &parallax_type_0A   ;0A
   &parallax_type_0B   ;0B
-  &binary_01D128   ;0C
-  &binary_01D12A   ;0D
+  &parallax_empty_0C   ;0C
+  &parallax_empty_0D   ;0D
   &parallax_type_0E   ;0E
-  &binary_01D12C   ;0F
-  &binary_01D12E   ;10
-  &binary_01D130   ;11
-  &binary_01D132   ;12
-  &binary_01D120   ;13
-  &binary_01D122   ;14
-  &binary_01D134   ;15
-  &binary_01D136   ;16
-  &binary_01D138   ;17
-  &binary_01D13A   ;18
-  &binary_01D124   ;19
-  &binary_01D126   ;1A
+  &parallax_empty_0F   ;0F
+  &parallax_empty_10   ;10
+  &parallax_empty_11   ;11
+  &parallax_empty_12   ;12
+  &parallax_empty_13   ;13
+  &parallax_empty_14   ;14
+  &parallax_empty_15   ;15
+  &parallax_empty_16   ;16
+  &parallax_empty_17   ;17
+  &parallax_empty_18   ;18
+  &parallax_empty_09_19   ;19
+  &parallax_empty_1A   ;1A
   &parallax_type_1B   ;1B
   &parallax_type_1C   ;1C
   &parallax_type_1D   ;1D
@@ -111,33 +111,75 @@ parallax_type_0B #00787E4D08E2FC20070000000050FF220700000800C0FF24070000000080FF
 
 parallax_type_0E #00807E4F08B2FF200700001000FFFF2207000000000000
 
-binary_01D120 #FFFF
+---------------------------------------------
+; Bare $FFFF word, the entry of table index $13. No scene thinker list spawns this type (see the block note).
 
-binary_01D122 #FFFF
+parallax_empty_13 #FFFF
 
-binary_01D124 #FFFF
+---------------------------------------------
+; Bare $FFFF word, the entry of table index $14. Not spawned by any scene.
 
-binary_01D126 #FFFF
+parallax_empty_14 #FFFF
 
-binary_01D128 #FFFF
+---------------------------------------------
+; Bare $FFFF word shared by table indices $09 and $19. Not spawned by any scene.
 
-binary_01D12A #FFFF
+parallax_empty_09_19 #FFFF
 
-binary_01D12C #FFFF
+---------------------------------------------
+; Bare $FFFF word, the entry of table index $1A. Not spawned by any scene.
 
-binary_01D12E #FFFF
+parallax_empty_1A #FFFF
 
-binary_01D130 #FFFF
+---------------------------------------------
+; Bare $FFFF word, the entry of table index $0C. Not spawned by any scene.
 
-binary_01D132 #FFFF
+parallax_empty_0C #FFFF
 
-binary_01D134 #FFFF
+---------------------------------------------
+; Bare $FFFF word, the entry of table index $0D. Not spawned by any scene.
 
-binary_01D136 #FFFF
+parallax_empty_0D #FFFF
 
-binary_01D138 #FFFF
+---------------------------------------------
+; Bare $FFFF word, the entry of table index $0F. Not spawned by any scene.
 
-binary_01D13A #FFFF
+parallax_empty_0F #FFFF
+
+---------------------------------------------
+; Bare $FFFF word, the entry of table index $10. Not spawned by any scene.
+
+parallax_empty_10 #FFFF
+
+---------------------------------------------
+; Bare $FFFF word, the entry of table index $11. Not spawned by any scene.
+
+parallax_empty_11 #FFFF
+
+---------------------------------------------
+; Bare $FFFF word, the entry of table index $12. Not spawned by any scene.
+
+parallax_empty_12 #FFFF
+
+---------------------------------------------
+; Bare $FFFF word, the entry of table index $15. Not spawned by any scene.
+
+parallax_empty_15 #FFFF
+
+---------------------------------------------
+; Bare $FFFF word, the entry of table index $16. Not spawned by any scene.
+
+parallax_empty_16 #FFFF
+
+---------------------------------------------
+; Bare $FFFF word, the entry of table index $17. Not spawned by any scene.
+
+parallax_empty_17 #FFFF
+
+---------------------------------------------
+; Bare $FFFF word, the entry of table index $18. Not spawned by any scene.
+
+parallax_empty_18 #FFFF
 
 ---------------------------------------------
 ; Table type $1B: CGDATA: 2 constant bands, buffer $7800. Used by scenes 5C. Bands (lines:value): 239:$4162, 238:$2906.

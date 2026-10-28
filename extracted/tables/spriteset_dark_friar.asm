@@ -1,23 +1,38 @@
-; Spriteset definitions for the Dark Friar projectile and impact effects.
+; Sprite set of the Dark Friar ability effects (Bank 17, 1540096-1541149, 1053 bytes; tile graphics misc_fx_1CC000, uploaded to VRAM $4400 by DarkFriarVramDma, $0480 bytes). The Dark Friar is Freedan's ranged ability; the old note ('fireball travel frames and hit splash') does not fit the code: there is a cast flash, a trail that grows, and spiralling fragments with trail followers. Selected with SetMetasprite ( @spriteset_dark_friar ) in attack_ability_system.
 ; 
-; Sprite groups for Freedan's ranged attack including fireball travel frames and hit splash.
+; | Index | Set | Frames (hold) | Used by |
+; |-------|-----|---------------|---------|
+; | $00 | dark_friar_00_cast_flash | 9 (0, 0, 0, 1, 1, 3, 3, 3, 0) | DarkFriarProjectile: StageSpriteFrame #00, played once (about 20 ticks) |
+; | $01 | dark_friar_01_trail1 | 3 (0 each) | DarkFriarTrailSouth / DarkFriarTrailEastWest: first trail stage, 2 passes (StageSpriteLoopMoveY / MoveX #01) |
+; | $02 | dark_friar_02_trail2 | 3 (0 each) | second trail stage, 3 passes |
+; | $03 | dark_friar_03_trail3 | 4 (0 each) | final trail stage with an active hitbox (StageSprAndHitbox #03) |
+; | $04 | dark_friar_04_fragment | 4 (1 each; frames 0 1 2 1) | the fragments (DarkFriarFragmentInit: StageSprAndHitbox #04) |
+; | $05 | dark_friar_05_follower_a | 4 (1 each; frames 0 1 2 1) | TrailFollowerSprA (StageSprAndHitbox #05) |
+; | $06 | dark_friar_06_follower_b | 4 (1 each; frames 0 1 2 1) | TrailFollowerSprB (StageSprAndHitbox #06) |
+; 
+; Structure (format in the spriteset_freedan block note): 7 animations, 23 groups. 14 B pointer table + 138 B frame lists + 901 B groups = 1053 bytes. Sets $01 and $06 use the same two groups (1783B1, 1783C5), and 178128 is both frame 3 of $00 and frame 2 of $01. Appearance not viewed.
 ---------------------------------------------
 
 ?BANK 17
 
 ---------------------------------------------
 
+; 7 pointers to the animation frame lists: $00 cast flash, $01-$03 trail stages, $04 fragment, $05 and $06 trail followers.
+
 spriteset_dark_friar [
-  &sprite_set_17800E   ;00
-  &sprite_set_178034   ;01
-  &sprite_set_178042   ;02
-  &sprite_set_178050   ;03
-  &sprite_set_178062   ;04
-  &sprite_set_178074   ;05
-  &sprite_set_178086   ;06
+  &dark_friar_00_cast_flash   ;00
+  &dark_friar_01_trail1   ;01
+  &dark_friar_02_trail2   ;02
+  &dark_friar_03_trail3   ;03
+  &dark_friar_04_fragment   ;04
+  &dark_friar_05_follower_a   ;05
+  &dark_friar_06_follower_b   ;06
 ]
 
-sprite_set_17800E [
+---------------------------------------------
+; Animation $00, cast flash: 9 frames, hold 0, 0, 0, 1, 1, 3, 3, 3, 0 (about 20 ticks).
+
+dark_friar_00_cast_flash [
   sprite-set < #$0000, &sprite_group_178098 >   ;00
   sprite-set < #$0000, &sprite_group_1780C8 >   ;01
   sprite-set < #$0000, &sprite_group_1780F8 >   ;02
@@ -29,40 +44,58 @@ sprite_set_17800E [
   sprite-set < #$0000, &sprite_group_17820A >   ;08
 ]
 
-sprite_set_178034 [
+---------------------------------------------
+; Animation $01, first trail stage: 3 frames, hold 0.
+
+dark_friar_01_trail1 [
   sprite-set < #$0000, &sprite_group_1783B1 >   ;00
   sprite-set < #$0000, &sprite_group_1783C5 >   ;01
   sprite-set < #$0000, &sprite_group_178128 >   ;02
 ]
 
-sprite_set_178042 [
+---------------------------------------------
+; Animation $02, second trail stage: 3 frames, hold 0.
+
+dark_friar_02_trail2 [
   sprite-set < #$0000, &sprite_group_178375 >   ;00
   sprite-set < #$0000, &sprite_group_178389 >   ;01
   sprite-set < #$0000, &sprite_group_1783ED >   ;02
 ]
 
-sprite_set_178050 [
+---------------------------------------------
+; Animation $03, final trail stage (with hitbox): 4 frames, hold 0.
+
+dark_friar_03_trail3 [
   sprite-set < #$0000, &sprite_group_17821E >   ;00
   sprite-set < #$0000, &sprite_group_178247 >   ;01
   sprite-set < #$0000, &sprite_group_178270 >   ;02
   sprite-set < #$0000, &sprite_group_1782B5 >   ;03
 ]
 
-sprite_set_178062 [
+---------------------------------------------
+; Animation $04, fragment: 4 frames, hold 1, pulsing 0, 1, 2, 1.
+
+dark_friar_04_fragment [
   sprite-set < #$0001, &sprite_group_1782FA >   ;00
   sprite-set < #$0001, &sprite_group_178323 >   ;01
   sprite-set < #$0001, &sprite_group_17834C >   ;02
   sprite-set < #$0001, &sprite_group_178323 >   ;03
 ]
 
-sprite_set_178074 [
+---------------------------------------------
+; Animation $05, TrailFollowerSprA: 4 frames, hold 1, pulsing 0, 1, 2, 1.
+
+dark_friar_05_follower_a [
   sprite-set < #$0001, &sprite_group_178375 >   ;00
   sprite-set < #$0001, &sprite_group_178389 >   ;01
   sprite-set < #$0001, &sprite_group_17839D >   ;02
   sprite-set < #$0001, &sprite_group_178389 >   ;03
 ]
 
-sprite_set_178086 [
+---------------------------------------------
+; Animation $06, TrailFollowerSprB: 4 frames, hold 1, pulsing 0, 1, 2, 1 (the same groups as $01).
+
+dark_friar_06_follower_b [
   sprite-set < #$0001, &sprite_group_1783B1 >   ;00
   sprite-set < #$0001, &sprite_group_1783C5 >   ;01
   sprite-set < #$0001, &sprite_group_1783D9 >   ;02

@@ -1,49 +1,67 @@
-; Spriteset for Shadow-specific visual effects.
+; Sprite set of body_table row $07 (Bank 17, 1552384-1553318, 934 bytes; tile graphics shad_fx_1CA000). The old note ('Shadow-specific visual effects', 'attack trail sprites and liquify transformation overlays') is not supported: no frame list of this set is staged by any extracted script, because nothing selects body row $07 (SetPlayerSpriteDirect #07 does not occur; the only rows picked by number are $04, $05, $06 and $08). The word 'liquify' appears only in the old header text; no code or table supports it. GetPlayerFacingDirection would index FacingFormOffsetTable with row - 4 = 3 if row $07 were ever selected (OQ-I069-1).
 ; 
-; Attack trail sprites and liquify transformation overlays.
+; Structure (format in the spriteset_freedan block note): 14 animations, 16 groups of about 5 sub-sprites each (82 in total). 28 B pointer table + 124 B frame lists + 782 B groups = 934 bytes.
+; 
+; | Index | Set | Frames (hold) | Group |
+; |-------|-----|---------------|-------|
+; | $00 | shadow_fx_00 | 4 (9, 9, 9, 1) | 17B098, 17B0CF, 17B0FF, 17B12F |
+; | $01-$03 | shadow_fx_01, 17B034, 17B03A | 1 (3) each | the same group 17B15F |
+; | $04 | shadow_fx_04 | 8 (3, 3, 3, 6, 4, 3, 2, 0) | 17B18F ... 17B2D1 |
+; | $05, $07, $08, $0A, $0B, $0D | shadow_fx_05, 17B06E, 17B074, 17B080, 17B086, 17B092 | 1 (31) each | the same group 17B098 (also frame 0 of $00) |
+; | $06, $09, $0C | shadow_fx_06, 17B07A, 17B08C | 1 (7) each | 17B376, 17B308, 17B33F |
+; 
+; Twelve of the 14 animations are a single frame, and six of those are the identical 32-tick hold of group 17B098 (hold 31 + 1), which looks like placeholder entries (OQ-I069-1). The art was not viewed.
 ---------------------------------------------
 
 ?BANK 17
 
 ---------------------------------------------
 
+; 14 pointers to the animation frame lists ($00-$0D). Nothing stages any of them (see the block note).
+
 spriteset_shadow_fx [
-  &sprite_set_17B01C   ;00
-  &sprite_set_17B02E   ;01
-  &sprite_set_17B034   ;02
-  &sprite_set_17B03A   ;03
-  &sprite_set_17B040   ;04
-  &sprite_set_17B062   ;05
-  &sprite_set_17B068   ;06
-  &sprite_set_17B06E   ;07
-  &sprite_set_17B074   ;08
-  &sprite_set_17B07A   ;09
-  &sprite_set_17B080   ;0A
-  &sprite_set_17B086   ;0B
-  &sprite_set_17B08C   ;0C
-  &sprite_set_17B092   ;0D
+  &shadow_fx_00   ;00
+  &shadow_fx_01   ;01
+  &shadow_fx_02   ;02
+  &shadow_fx_03   ;03
+  &shadow_fx_04   ;04
+  &shadow_fx_05   ;05
+  &shadow_fx_06   ;06
+  &shadow_fx_07   ;07
+  &shadow_fx_08   ;08
+  &shadow_fx_09   ;09
+  &shadow_fx_0A   ;0A
+  &shadow_fx_0B   ;0B
+  &shadow_fx_0C   ;0C
+  &shadow_fx_0D   ;0D
 ]
 
-sprite_set_17B01C [
+---------------------------------------------
+; Animation $00: 4 frames (hold 9, 9, 9, 1).
+
+shadow_fx_00 [
   sprite-set < #$0009, &sprite_group_17B098 >   ;00
   sprite-set < #$0009, &sprite_group_17B0CF >   ;01
   sprite-set < #$0009, &sprite_group_17B0FF >   ;02
   sprite-set < #$0001, &sprite_group_17B12F >   ;03
 ]
 
-sprite_set_17B02E [
+shadow_fx_01 [
   sprite-set < #$0003, &sprite_group_17B15F >
 ]
 
-sprite_set_17B034 [
+shadow_fx_02 [
   sprite-set < #$0003, &sprite_group_17B15F >
 ]
 
-sprite_set_17B03A [
+shadow_fx_03 [
   sprite-set < #$0003, &sprite_group_17B15F >
 ]
 
-sprite_set_17B040 [
+---------------------------------------------
+; Animation $04: 8 frames (hold 3, 3, 3, 6, 4, 3, 2, 0), the longest list of the set.
+
+shadow_fx_04 [
   sprite-set < #$0003, &sprite_group_17B18F >   ;00
   sprite-set < #$0003, &sprite_group_17B1BF >   ;01
   sprite-set < #$0003, &sprite_group_17B1EF >   ;02
@@ -54,39 +72,42 @@ sprite_set_17B040 [
   sprite-set < #$0000, &sprite_group_17B2D1 >   ;07
 ]
 
-sprite_set_17B062 [
+---------------------------------------------
+; Animation $05: one frame, hold 31, group 17B098 (same as $07, $08, $0A, $0B, $0D).
+
+shadow_fx_05 [
   sprite-set < #$001F, &sprite_group_17B098 >
 ]
 
-sprite_set_17B068 [
+shadow_fx_06 [
   sprite-set < #$0007, &sprite_group_17B376 >
 ]
 
-sprite_set_17B06E [
+shadow_fx_07 [
   sprite-set < #$001F, &sprite_group_17B098 >
 ]
 
-sprite_set_17B074 [
+shadow_fx_08 [
   sprite-set < #$001F, &sprite_group_17B098 >
 ]
 
-sprite_set_17B07A [
+shadow_fx_09 [
   sprite-set < #$0007, &sprite_group_17B308 >
 ]
 
-sprite_set_17B080 [
+shadow_fx_0A [
   sprite-set < #$001F, &sprite_group_17B098 >
 ]
 
-sprite_set_17B086 [
+shadow_fx_0B [
   sprite-set < #$001F, &sprite_group_17B098 >
 ]
 
-sprite_set_17B08C [
+shadow_fx_0C [
   sprite-set < #$0007, &sprite_group_17B33F >
 ]
 
-sprite_set_17B092 [
+shadow_fx_0D [
   sprite-set < #$001F, &sprite_group_17B098 >
 ]
 

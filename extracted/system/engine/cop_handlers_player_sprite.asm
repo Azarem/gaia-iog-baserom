@@ -7,7 +7,7 @@
 ; The StagePlayerSprite family calls SetActorBody instead, which picks the body from characterForm, so one script works for Will, Freedan and Shadow.
 ; 
 ; === Staging ===
-; These ops store the raw animation operand in $28 (no ProcessAnimFlag, so no mirror handling), clear $2A, and save the next-op address in $00 and the script bank in $02 (the lines LDA $0C / STA $02 before each store are inserted by db-us/transforms.json and have no address tag). The movement operands of MoveX/MoveY/MoveXY are movement indices, not distances or durations: AnimFrameLookup turns each into the head of a delta chain (movement_delta_table) stored in $2C (X) or $2E (Y); moveXAlt/moveYAlt ($7F0018/$7F001A) keep the raw index. StagePlayerSprFromDP takes the animation index from the actor's $00 word, which the forced_walk helpers ReadDirSprite_* park there just before; the handler then overwrites $00 with the new entry address. RunPlayerAnim behaves exactly like AnimOnce (#89).
+; These ops store the raw animation operand in $28 (no ProcessAnimFlag, so no mirror handling), clear $2A, and save the next-op address in $00 and the script bank in $02 (the lines LDA $0C / STA $02 before each store are inserted by db-us/transforms.json and have no address tag). The movement operands of MoveX/MoveY/MoveXY are movement indices, not distances or durations: AnimFrameLookup turns each into the head of a delta chain (move_chain_table) stored in $2C (X) or $2E (Y); moveXAlt/moveYAlt ($7F0018/$7F001A) keep the raw index. StagePlayerSprFromDP takes the animation index from the actor's $00 word, which the forced_walk helpers ReadDirSprite_* park there just before; the handler then overwrites $00 with the new entry address. RunPlayerAnim behaves exactly like AnimOnce (#89).
 ; 
 ; === WallAnimHere/North/South (#96-#98, unused) ===
 ; Take a joypad mask word and compare it with joypadCurrent for equality; on mismatch they continue without waiting. Only the Y alignment is checked (Y low nibble must be 0); when misaligned they animate without probing. The probe tile is at the actor (Here), Y - $10 (North) or Y + $10 (South). TileCollisionQuery already folds solid tiles and out-of-bounds into $000F, so the BIT #$00F0 test never fires and only the $000F compare detects a block (the actor flag $0004 is then set and the op continues). Otherwise, when the tile type equals playerWallType ($09B0) they run UpdateActorAnimation (yield while it runs, continue when it finishes); a different type continues without animating. $0018/$001C are the page-0 scratch pair read by TileCollisionQuery.
@@ -92,7 +92,7 @@ StagePlayerSpriteMoveX {
     INC $0A
     AND #$00FF
     STA $moveXAlt, X      ; Movement index (not a distance); AnimFrameLookup converts it to a delta-chain head
-    JSR $&actor_pool.AnimFrameLookup ; A = movement index -> movement_delta_table chain head
+    JSR $&actor_pool.AnimFrameLookup ; A = movement index -> move_chain_table chain head
     STA $2C               ; $2C = X delta-chain head (applied per frame by the actor runner), not a duration
     LDA $0C
     STA $02
@@ -117,7 +117,7 @@ StagePlayerSpriteMoveY {
     INC $0A
     AND #$00FF
     STA $moveYAlt, X      ; Y movement index (not a distance), kept in moveYAlt
-    JSR $&actor_pool.AnimFrameLookup ; A = movement index -> movement_delta_table chain head
+    JSR $&actor_pool.AnimFrameLookup ; A = movement index -> move_chain_table chain head
     STA $2E               ; $2E = Y delta-chain head, not a duration
     LDA $0C
     STA $02

@@ -1,13 +1,13 @@
 ; Mine Key pickup in the morgue room (map $45).
 ; 
-; Displays as a key sprite (spriteset_enemies frame #02) that bobs
+; Displays as a key sprite (spriteset_pickups_effects frame #02) that bobs
 ; in a slow idle loop ($EF frame wait). Interactable — gives item
 ; #0B (Mine Key) with SFX and "You found the Mine Key!" fanfare.
 ; If inventory is full, shows the full-inventory message instead.
 ; Sets flag $5D after pickup; despawns if flag already set.
 ---------------------------------------------
 
-?INCLUDE 'spriteset_enemies'
+?INCLUDE 'spriteset_pickups_effects'
 
 !displayModeFlags               09EC
 
@@ -18,7 +18,7 @@ dm45_key [
 
   code_05D4B2:
     COP [BranchOnFlagByte] ( #5D, #01, &code_05D4E4 )
-    COP [SetMetasprite] ( @spriteset_enemies )
+    COP [SetMetasprite] ( @spriteset_pickups_effects )
     LDA #$0200
     TSB $12
     COP [SetInteractHandler] ( &code_05D4D0 )

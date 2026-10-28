@@ -1,0 +1,19 @@
+---
+description: Notes, comments and names are changed only with npm run merge and npm run names. Never write ad-hoc scripts for them.
+alwaysApply: true
+---
+
+# No Ad-hoc Scripts for Notes, Comments or Names
+
+Only two package scripts change notes, comments and names in the IOG baserom (`gaia-iog-baserom`):
+
+| Change | Command | Doc |
+|--------|---------|-----|
+| Block notes, part notes, inline comments | `npm run merge -- <spec.json> [--dry-run]` | `gaia-core/docs/notes-and-comments.md` §"Notes Merge" |
+| Names (`db-us/names/bankNN.json`): add, rename, move references | `npm run names -- <spec.json> [--dry-run] [--local-only]` | `gaia-core/docs/notes-and-comments.md` §"Names Merge" |
+
+The `ingest` and `annotate` commands were removed. Do not call, restore or recreate them (`src/*.donotuse` files are retired).
+
+**Never create** a throwaway `.py` / `.mjs` / `.js` / `.sh` / PowerShell script (in `temp/`, `/tmp`, or anywhere) to edit names, notes, comments, `blocks.json`/`files.json` references or docs in bulk, to rename a label, or to move a part-note key. If `merge` or `names` cannot do what is needed, **extend the tool in `src/`, document it, and tell the user**; do not work around it.
+
+Name spec: JSON array of `{ "address": <integer: the `; {n}` line-tracking number of the part's first instruction>, "old": "<label the extracted .asm prints now>", "new": "<new label>", "row": "<ledger id>" }`. Take `address` and `old` from the `extract:lt` asm files, never from `blocks.json` / `files.json`; no hex addresses. Put it under `plans/extracted-audit/renames/apply-<range>_names.json`, dry-run, apply, then `npm run extract:lt` and `npm run rebuild`. `npm run names -- --check` validates the names files.

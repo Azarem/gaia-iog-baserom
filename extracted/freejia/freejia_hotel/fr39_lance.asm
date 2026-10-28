@@ -7,7 +7,7 @@
 ---------------------------------------------
 
 ?INCLUDE 'actor_pool'
-?INCLUDE 'spriteset_enemies'
+?INCLUDE 'spriteset_pickups_effects'
 
 !joypadMaskStd                  065A
 
@@ -85,7 +85,7 @@ code_05CD16 {
 }
 
 code_05CD30 {
-    COP [SetMetasprite] ( @spriteset_enemies )
+    COP [SetMetasprite] ( @spriteset_pickups_effects )
     COP [SetSpritePriority] ( #30 )
     LDA #$0200
     STA $16

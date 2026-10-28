@@ -4,7 +4,7 @@
 ; No dialog. Represents the laborers visible in Freejia's streets.
 ---------------------------------------------
 
-?INCLUDE 'spriteset_town_objects'
+?INCLUDE 'spriteset_freejia_tilefx'
 
 !cameraBoundsY                  06DC
 
@@ -18,7 +18,7 @@ fr32_laborer_npc [
     STA $cameraBoundsY
     COP [SpawnAfter] ( @code_05B03E )
     COP [SetScratchPointer] ( @misc_fx_1CD080 )
-    COP [SetMetasprite] ( @spriteset_town_objects )
+    COP [SetMetasprite] ( @spriteset_freejia_tilefx )
     COP [ResetSpriteState] ( #00, #$3FE0 )
     COP [AdvanceSpriteAnim]
     RTL 
@@ -27,7 +27,7 @@ fr32_laborer_npc [
 
 code_05B03E {
     COP [SetScratchPointer] ( @misc_fx_1CD080 )
-    COP [SetMetasprite] ( @spriteset_town_objects )
+    COP [SetMetasprite] ( @spriteset_freejia_tilefx )
     COP [ResetSpriteState] ( #01, #$3FF0 )
     COP [AdvanceSpriteAnim]
     RTL 

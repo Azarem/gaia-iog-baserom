@@ -20,7 +20,7 @@
 ?INCLUDE 'enemy_clear_reward_table'
 ?INCLUDE 'flag_helpers'
 ?INCLUDE 'interaction_handlers'
-?INCLUDE 'spriteset_enemies'
+?INCLUDE 'spriteset_pickups_effects'
 
 !sceneCurrent                   0644
 !chatPtr                        7F000A
@@ -32,10 +32,10 @@
 
 ---------------------------------------------
 
-; Entry: metasprite spriteset_enemies, palette 0, clear the ForceDir bits ($6000 of $12). Choose the pickup: $26 nonzero or scene flag $0300 set -> FieldRevealFromActorStats; else the room's tier selects a stat item (0 -> FieldRevealFromActorStats). See the block note.
+; Entry: metasprite spriteset_pickups_effects, palette 0, clear the ForceDir bits ($6000 of $12). Choose the pickup: $26 nonzero or scene flag $0300 set -> FieldRevealFromActorStats; else the room's tier selects a stat item (0 -> FieldRevealFromActorStats). See the block note.
 
 field_reveal_object {
-    COP [SetMetasprite] ( @spriteset_enemies )
+    COP [SetMetasprite] ( @spriteset_pickups_effects )
     COP [SetSpritePalette] ( #00 )
     LDA #$6000
     TRB $12               ; Clear the ForceDir bits ($6000 of $12)

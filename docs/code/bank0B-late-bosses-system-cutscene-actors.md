@@ -411,7 +411,7 @@ On death, spawns a **smaller secondary ghost** with its own HP (`enemy_stats_tab
 
 #### `sFB_boot_logo` — Boot Sequence Controller (140 bytes)
 
-**Scene:** `$FB`. Sets fast-ROM mode (`MEMSEL`), display flags, and joypad mask. Checks `STAT78` bit 4 for ROM configuration. On standard path: animates the Enix logo sprite (`StageSpriteLoop`), toggles flag byte `#10`, and queues map change to `$FC` (title). Alternate path (`BootLogoPalLockout`): loads ending comet palette, runs BG3 boot text via `RunBg3Script` with `boot_screen_strings`.
+**Scene:** `$FB`. Sets fast-ROM mode (`MEMSEL`), display flags, and joypad mask. Checks `STAT78` bit 4 for ROM configuration. On standard path: animates the Enix logo sprite (`StageSpriteLoop`), toggles flag byte `#10`, and queues map change to `$FC` (title). Alternate path (`BootLogoPalLockout`): loads ending comet palette, runs BG3 boot text via `RunBg3Script` with `boot_title_strings`.
 
 #### `sFC_title_intro` — Title Screen Orchestrator (138 bytes)
 

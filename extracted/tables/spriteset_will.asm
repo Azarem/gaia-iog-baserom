@@ -1,182 +1,209 @@
-; Full spriteset definitions for Will character sprites.
+; Will player spriteset (Bank 15, 1409024-1426465): every frame the player can show in form 0. 72 animations ($00-$47), 398 frame records, 238 sprite groups, 1781 sub-sprites (at most 12 per group). Chosen by body_table[0] (art will_sprites_1A8000); SetActorBody copies the table pointer and bank into the actor ($7F0006, $7F0008). The animation numbering is shared with spriteset_freedan and spriteset_shadow; the struct format is described in the block note of spriteset_freedan.
 ; 
-; Walking, idle, attack, flute-play, and climbing animation frames for all 4 cardinal directions. The primary player character spriteset.
+; === WHAT DIFFERS FROM FREEDAN ===
+; 
+; - 72 animations against 76: Will's table ends at $47, the Freedan table has the extra $48-$4B (wall-push south / north exist for Freedan only).
+; - Idle south, west and east are two frames: hold $77 (120 ticks) then hold 4 (5 ticks, the short second pose); idle north is one frame, hold 9 (10 ticks). Freedan's idle is a single frame held 101 ticks.
+; - Walk is 4 frames of hold 5 (6 ticks); Freedan's is 7 (8 ticks). The 'Moving' cycles $0C-$0F are 4 frames of hold 4 (5 ticks).
+; - $44-$47 are Will's own lunge animations (player_character RangedAttack*, form 0 only).
+; 
+; === CHECKS ===
+; 
+; All 238 groups have a count byte equal to their number of sub-sprites, and all 72 frame lists are 4n + 2 bytes long with a $FFFF terminator in the ROM.
+; 
+; The previous header said 'flute-play' frames. FluteMusicActorController (item_use_system) puts the player into the static pose PlayerStaticBodyPose while a melody plays and no dedicated flute animation was found, so the claim was dropped (OQ-I064-3).
 ---------------------------------------------
 
 ?BANK 15
 
 ---------------------------------------------
 
+; 72 word pointers to frame lists, indexed by the actor animation index ($28). The staged indices are the same as in spriteset_freedan (see its table part note for the full list); the shapes of the Will data:
+; 
+; | Index | Use | Frames |
+; |-------|-----|--------|
+; | $00-$03 | idle south / north / west / east (the Spin Dash launch stages the same four) | south, west, east: hold $77 then 4; north: hold 9 |
+; | $04-$07 | the shapes of $00-$03 on a second set of groups ($14 repeats the groups of $04 in a 6-frame cycle); nothing found stages them | |
+; | $08-$0B | walk south / north / west / east | 4 frames, hold 5 |
+; | $0C-$0F | 'Moving' cycles (momentum code) | 4 frames, hold 4 |
+; | $10-$13 | staged for Shadow only; here 6/3/6/6-frame cycles on the idle groups of $00-$03, hold 7 | |
+; | $36-$39 | melee attack south / north / west / east | |
+; | $3A-$3D | guard (block) | |
+; | $42, $43 | attack against a wall west / east | |
+; | $44-$47 | lunge south / north / west / east (form 0 only) | |
+; 
+; The other indices have the same uses as in the Freedan table (vine, ladder, shimmy). Not staged by the player scripts: $14-$17, $1C-$29, $3E-$41 (OQ-I064-4).
+
 spriteset_will [
-  &sprite_set_158090   ;00
-  &sprite_set_15809A   ;01
-  &sprite_set_1580A0   ;02
-  &sprite_set_1580AA   ;03
-  &sprite_set_1580B4   ;04
-  &sprite_set_1580BE   ;05
-  &sprite_set_1580C4   ;06
-  &sprite_set_1580CE   ;07
-  &sprite_set_1580D8   ;08
-  &sprite_set_1580EA   ;09
-  &sprite_set_1580FC   ;0A
-  &sprite_set_15810E   ;0B
-  &sprite_set_158120   ;0C
-  &sprite_set_158132   ;0D
-  &sprite_set_158144   ;0E
-  &sprite_set_158156   ;0F
-  &sprite_set_158168   ;10
-  &sprite_set_158182   ;11
-  &sprite_set_158190   ;12
-  &sprite_set_1581AA   ;13
-  &sprite_set_1581C4   ;14
-  &sprite_set_1581DE   ;15
-  &sprite_set_1581EC   ;16
-  &sprite_set_158206   ;17
-  &sprite_set_158220   ;18
-  &sprite_set_15824A   ;19
-  &sprite_set_158254   ;1A
-  &sprite_set_15825E   ;1B
-  &sprite_set_158268   ;1C
-  &sprite_set_158282   ;1D
-  &sprite_set_158294   ;1E
-  &sprite_set_1582A2   ;1F
-  &sprite_set_1582BC   ;20
-  &sprite_set_1582CE   ;21
-  &sprite_set_1582DC   ;22
-  &sprite_set_1582F6   ;23
-  &sprite_set_158308   ;24
-  &sprite_set_158316   ;25
-  &sprite_set_158330   ;26
-  &sprite_set_158362   ;27
-  &sprite_set_15838C   ;28
-  &sprite_set_1583C2   ;29
-  &sprite_set_1583F4   ;2A
-  &sprite_set_1583FA   ;2B
-  &sprite_set_158400   ;2C
-  &sprite_set_158452   ;2D
-  &sprite_set_1584A4   ;2E
-  &sprite_set_1584B2   ;2F
-  &sprite_set_1584C0   ;30
-  &sprite_set_1584CA   ;31
-  &sprite_set_1584D4   ;32
-  &sprite_set_1584EA   ;33
-  &sprite_set_158500   ;34
-  &sprite_set_158526   ;35
-  &sprite_set_15854C   ;36
-  &sprite_set_15856A   ;37
-  &sprite_set_158588   ;38
-  &sprite_set_1585A6   ;39
-  &sprite_set_1585C4   ;3A
-  &sprite_set_1585D6   ;3B
-  &sprite_set_1585E8   ;3C
-  &sprite_set_1585FA   ;3D
-  &sprite_set_15860C   ;3E
-  &sprite_set_158626   ;3F
-  &sprite_set_158640   ;40
-  &sprite_set_15865A   ;41
-  &sprite_set_158674   ;42
-  &sprite_set_158692   ;43
-  &sprite_set_1586B0   ;44
-  &sprite_set_1586DA   ;45
-  &sprite_set_158704   ;46
-  &sprite_set_15872E   ;47
+  &will_anim_00_idle_south   ;00
+  &will_anim_01_idle_north   ;01
+  &will_anim_02_idle_west   ;02
+  &will_anim_03_idle_east   ;03
+  &will_anim_04   ;04
+  &will_anim_05   ;05
+  &will_anim_06   ;06
+  &will_anim_07   ;07
+  &will_anim_08_walk_south   ;08
+  &will_anim_09_walk_north   ;09
+  &will_anim_0A_walk_west   ;0A
+  &will_anim_0B_walk_east   ;0B
+  &will_anim_0C_moving_south   ;0C
+  &will_anim_0D_moving_north   ;0D
+  &will_anim_0E_moving_west   ;0E
+  &will_anim_0F_moving_east   ;0F
+  &will_anim_10   ;10
+  &will_anim_11   ;11
+  &will_anim_12   ;12
+  &will_anim_13   ;13
+  &will_anim_14   ;14
+  &will_anim_15   ;15
+  &will_anim_16   ;16
+  &will_anim_17   ;17
+  &will_anim_18_vine_enter   ;18
+  &will_anim_19_vine_climb_3   ;19
+  &will_anim_1A_vine_climb_1   ;1A
+  &will_anim_1B_vine_climb_2   ;1B
+  &will_anim_1C   ;1C
+  &will_anim_1D   ;1D
+  &will_anim_1E   ;1E
+  &will_anim_1F   ;1F
+  &will_anim_20   ;20
+  &will_anim_21   ;21
+  &will_anim_22   ;22
+  &will_anim_23   ;23
+  &will_anim_24   ;24
+  &will_anim_25   ;25
+  &will_anim_26   ;26
+  &will_anim_27   ;27
+  &will_anim_28   ;28
+  &will_anim_29   ;29
+  &will_anim_2A_ladder_idle_north   ;2A
+  &will_anim_2B_ladder_idle_south   ;2B
+  &will_anim_2C_ladder_up   ;2C
+  &will_anim_2D_ladder_down   ;2D
+  &will_anim_2E   ;2E
+  &will_anim_2F   ;2F
+  &will_anim_30_shimmy_detach_left   ;30
+  &will_anim_31_shimmy_detach_right   ;31
+  &will_anim_32_shimmy_left   ;32
+  &will_anim_33_shimmy_right   ;33
+  &will_anim_34   ;34
+  &will_anim_35   ;35
+  &will_anim_36_attack_south   ;36
+  &will_anim_37_attack_north   ;37
+  &will_anim_38_attack_west   ;38
+  &will_anim_39_attack_east   ;39
+  &will_anim_3A_guard_south   ;3A
+  &will_anim_3B_guard_north   ;3B
+  &will_anim_3C_guard_west   ;3C
+  &will_anim_3D_guard_east   ;3D
+  &will_anim_3E   ;3E
+  &will_anim_3F   ;3F
+  &will_anim_40   ;40
+  &will_anim_41   ;41
+  &will_anim_42_wall_attack_west   ;42
+  &will_anim_43_wall_attack_east   ;43
+  &will_anim_44_lunge_south   ;44
+  &will_anim_45_lunge_north   ;45
+  &will_anim_46_lunge_west   ;46
+  &will_anim_47_lunge_east   ;47
 ]
 
-sprite_set_158090 [
+will_anim_00_idle_south [
   sprite-set < #$0077, &sprite_group_158758 >   ;00
   sprite-set < #$0004, &sprite_group_158812 >   ;01
 ]
 
-sprite_set_15809A [
+will_anim_01_idle_north [
   sprite-set < #$0009, &sprite_group_158B38 >
 ]
 
-sprite_set_1580A0 [
+will_anim_02_idle_west [
   sprite-set < #$0077, &sprite_group_158EA3 >   ;00
   sprite-set < #$0004, &sprite_group_158F72 >   ;01
 ]
 
-sprite_set_1580AA [
+will_anim_03_idle_east [
   sprite-set < #$0077, &sprite_group_1592DE >   ;00
   sprite-set < #$0004, &sprite_group_1593AD >   ;01
 ]
 
-sprite_set_1580B4 [
+will_anim_04 [
   sprite-set < #$0077, &sprite_group_158850 >   ;00
   sprite-set < #$0004, &sprite_group_15891F >   ;01
 ]
 
-sprite_set_1580BE [
+will_anim_05 [
   sprite-set < #$0009, &sprite_group_158BF2 >
 ]
 
-sprite_set_1580C4 [
+will_anim_06 [
   sprite-set < #$0077, &sprite_group_158FB7 >   ;00
   sprite-set < #$0004, &sprite_group_159071 >   ;01
 ]
 
-sprite_set_1580CE [
+will_anim_07 [
   sprite-set < #$0077, &sprite_group_1593F2 >   ;00
   sprite-set < #$0004, &sprite_group_1594AC >   ;01
 ]
 
-sprite_set_1580D8 [
+will_anim_08_walk_south [
   sprite-set < #$0005, &sprite_group_158964 >   ;00
   sprite-set < #$0005, &sprite_group_15899B >   ;01
   sprite-set < #$0005, &sprite_group_1589D9 >   ;02
   sprite-set < #$0005, &sprite_group_158A10 >   ;03
 ]
 
-sprite_set_1580EA [
+will_anim_09_walk_north [
   sprite-set < #$0005, &sprite_group_158CC1 >   ;00
   sprite-set < #$0005, &sprite_group_158CFF >   ;01
   sprite-set < #$0005, &sprite_group_158D36 >   ;02
   sprite-set < #$0005, &sprite_group_158D74 >   ;03
 ]
 
-sprite_set_1580FC [
+will_anim_0A_walk_west [
   sprite-set < #$0005, &sprite_group_1590AF >   ;00
   sprite-set < #$0005, &sprite_group_1590F4 >   ;01
   sprite-set < #$0005, &sprite_group_159139 >   ;02
   sprite-set < #$0005, &sprite_group_15917E >   ;03
 ]
 
-sprite_set_15810E [
+will_anim_0B_walk_east [
   sprite-set < #$0005, &sprite_group_1594EA >   ;00
   sprite-set < #$0005, &sprite_group_15952F >   ;01
   sprite-set < #$0005, &sprite_group_159574 >   ;02
   sprite-set < #$0005, &sprite_group_1595B9 >   ;03
 ]
 
-sprite_set_158120 [
+will_anim_0C_moving_south [
   sprite-set < #$0004, &sprite_group_158A4E >   ;00
   sprite-set < #$0004, &sprite_group_158A85 >   ;01
   sprite-set < #$0004, &sprite_group_158AC3 >   ;02
   sprite-set < #$0004, &sprite_group_158AFA >   ;03
 ]
 
-sprite_set_158132 [
+will_anim_0D_moving_north [
   sprite-set < #$0004, &sprite_group_158DAB >   ;00
   sprite-set < #$0004, &sprite_group_158DE9 >   ;01
   sprite-set < #$0004, &sprite_group_158E27 >   ;02
   sprite-set < #$0004, &sprite_group_158E65 >   ;03
 ]
 
-sprite_set_158144 [
+will_anim_0E_moving_west [
   sprite-set < #$0004, &sprite_group_1591C3 >   ;00
   sprite-set < #$0004, &sprite_group_1591FA >   ;01
   sprite-set < #$0004, &sprite_group_159254 >   ;02
   sprite-set < #$0004, &sprite_group_15928B >   ;03
 ]
 
-sprite_set_158156 [
+will_anim_0F_moving_east [
   sprite-set < #$0004, &sprite_group_1595FE >   ;00
   sprite-set < #$0004, &sprite_group_159635 >   ;01
   sprite-set < #$0004, &sprite_group_15968F >   ;02
   sprite-set < #$0004, &sprite_group_1596C6 >   ;03
 ]
 
-sprite_set_158168 [
+will_anim_10 [
   sprite-set < #$0007, &sprite_group_158758 >   ;00
   sprite-set < #$0007, &sprite_group_158796 >   ;01
   sprite-set < #$0007, &sprite_group_1587D4 >   ;02
@@ -185,13 +212,13 @@ sprite_set_158168 [
   sprite-set < #$0007, &sprite_group_1587D4 >   ;05
 ]
 
-sprite_set_158182 [
+will_anim_11 [
   sprite-set < #$0007, &sprite_group_158B38 >   ;00
   sprite-set < #$0007, &sprite_group_158B76 >   ;01
   sprite-set < #$0007, &sprite_group_158BB4 >   ;02
 ]
 
-sprite_set_158190 [
+will_anim_12 [
   sprite-set < #$0007, &sprite_group_158EA3 >   ;00
   sprite-set < #$0007, &sprite_group_158EE8 >   ;01
   sprite-set < #$0007, &sprite_group_158F2D >   ;02
@@ -200,7 +227,7 @@ sprite_set_158190 [
   sprite-set < #$0007, &sprite_group_158F2D >   ;05
 ]
 
-sprite_set_1581AA [
+will_anim_13 [
   sprite-set < #$0007, &sprite_group_1592DE >   ;00
   sprite-set < #$0007, &sprite_group_159323 >   ;01
   sprite-set < #$0007, &sprite_group_159368 >   ;02
@@ -209,7 +236,7 @@ sprite_set_1581AA [
   sprite-set < #$0007, &sprite_group_159368 >   ;05
 ]
 
-sprite_set_1581C4 [
+will_anim_14 [
   sprite-set < #$0007, &sprite_group_158850 >   ;00
   sprite-set < #$0007, &sprite_group_158895 >   ;01
   sprite-set < #$0007, &sprite_group_1588DA >   ;02
@@ -218,13 +245,13 @@ sprite_set_1581C4 [
   sprite-set < #$0007, &sprite_group_1588DA >   ;05
 ]
 
-sprite_set_1581DE [
+will_anim_15 [
   sprite-set < #$0007, &sprite_group_158BF2 >   ;00
   sprite-set < #$0007, &sprite_group_158C37 >   ;01
   sprite-set < #$0007, &sprite_group_158C7C >   ;02
 ]
 
-sprite_set_1581EC [
+will_anim_16 [
   sprite-set < #$0007, &sprite_group_158FB7 >   ;00
   sprite-set < #$0007, &sprite_group_158FF5 >   ;01
   sprite-set < #$0007, &sprite_group_159033 >   ;02
@@ -233,7 +260,7 @@ sprite_set_1581EC [
   sprite-set < #$0007, &sprite_group_159033 >   ;05
 ]
 
-sprite_set_158206 [
+will_anim_17 [
   sprite-set < #$0007, &sprite_group_1593F2 >   ;00
   sprite-set < #$0007, &sprite_group_159430 >   ;01
   sprite-set < #$0007, &sprite_group_15946E >   ;02
@@ -242,7 +269,7 @@ sprite_set_158206 [
   sprite-set < #$0007, &sprite_group_15946E >   ;05
 ]
 
-sprite_set_158220 [
+will_anim_18_vine_enter [
   sprite-set < #$0005, &sprite_group_1597E1 >   ;00
   sprite-set < #$0009, &sprite_group_1598E0 >   ;01
   sprite-set < #$0001, &sprite_group_15991E >   ;02
@@ -255,22 +282,22 @@ sprite_set_158220 [
   sprite-set < #$0001, &sprite_group_15994E >   ;09
 ]
 
-sprite_set_15824A [
+will_anim_19_vine_climb_3 [
   sprite-set < #$0001, &sprite_group_159977 >   ;00
   sprite-set < #$0001, &sprite_group_1599A0 >   ;01
 ]
 
-sprite_set_158254 [
+will_anim_1A_vine_climb_1 [
   sprite-set < #$0001, &sprite_group_159977 >   ;00
   sprite-set < #$0001, &sprite_group_1599A0 >   ;01
 ]
 
-sprite_set_15825E [
+will_anim_1B_vine_climb_2 [
   sprite-set < #$0001, &sprite_group_159977 >   ;00
   sprite-set < #$0001, &sprite_group_1599A0 >   ;01
 ]
 
-sprite_set_158268 [
+will_anim_1C [
   sprite-set < #$0004, &sprite_group_1599C9 >   ;00
   sprite-set < #$0004, &sprite_group_159A44 >   ;01
   sprite-set < #$0004, &sprite_group_1599F2 >   ;02
@@ -279,20 +306,20 @@ sprite_set_158268 [
   sprite-set < #$0003, &sprite_group_1597E1 >   ;05
 ]
 
-sprite_set_158282 [
+will_anim_1D [
   sprite-set < #$0009, &sprite_group_159719 >   ;00
   sprite-set < #$0005, &sprite_group_15981F >   ;01
   sprite-set < #$0009, &sprite_group_159A6D >   ;02
   sprite-set < #$0005, &sprite_group_159AB2 >   ;03
 ]
 
-sprite_set_158294 [
+will_anim_1E [
   sprite-set < #$0001, &sprite_group_159AE2 >   ;00
   sprite-set < #$0002, &sprite_group_159B12 >   ;01
   sprite-set < #$0002, &sprite_group_159B42 >   ;02
 ]
 
-sprite_set_1582A2 [
+will_anim_1F [
   sprite-set < #$0004, &sprite_group_159B72 >   ;00
   sprite-set < #$0004, &sprite_group_159C02 >   ;01
   sprite-set < #$0004, &sprite_group_159BA2 >   ;02
@@ -301,20 +328,20 @@ sprite_set_1582A2 [
   sprite-set < #$0003, &sprite_group_159A6D >   ;05
 ]
 
-sprite_set_1582BC [
+will_anim_20 [
   sprite-set < #$0009, &sprite_group_159757 >   ;00
   sprite-set < #$0005, &sprite_group_15985D >   ;01
   sprite-set < #$0009, &sprite_group_159C32 >   ;02
   sprite-set < #$0005, &sprite_group_159C70 >   ;03
 ]
 
-sprite_set_1582CE [
+will_anim_21 [
   sprite-set < #$0001, &sprite_group_159CA7 >   ;00
   sprite-set < #$0002, &sprite_group_159CDE >   ;01
   sprite-set < #$0002, &sprite_group_159D15 >   ;02
 ]
 
-sprite_set_1582DC [
+will_anim_22 [
   sprite-set < #$0004, &sprite_group_159D4C >   ;00
   sprite-set < #$0004, &sprite_group_159D75 >   ;01
   sprite-set < #$0004, &sprite_group_159D9E >   ;02
@@ -323,20 +350,20 @@ sprite_set_1582DC [
   sprite-set < #$0003, &sprite_group_159DF0 >   ;05
 ]
 
-sprite_set_1582F6 [
+will_anim_23 [
   sprite-set < #$0009, &sprite_group_15979C >   ;00
   sprite-set < #$0005, &sprite_group_1598A2 >   ;01
   sprite-set < #$0009, &sprite_group_159E35 >   ;02
   sprite-set < #$0005, &sprite_group_159E73 >   ;03
 ]
 
-sprite_set_158308 [
+will_anim_24 [
   sprite-set < #$0001, &sprite_group_159EAA >   ;00
   sprite-set < #$0002, &sprite_group_159EEF >   ;01
   sprite-set < #$0002, &sprite_group_159F34 >   ;02
 ]
 
-sprite_set_158316 [
+will_anim_25 [
   sprite-set < #$0004, &sprite_group_159F79 >   ;00
   sprite-set < #$0004, &sprite_group_159FA2 >   ;01
   sprite-set < #$0004, &sprite_group_159FCB >   ;02
@@ -345,7 +372,7 @@ sprite_set_158316 [
   sprite-set < #$0003, &sprite_group_15A01D >   ;05
 ]
 
-sprite_set_158330 [
+will_anim_26 [
   sprite-set < #$0001, &sprite_group_15A062 >   ;00
   sprite-set < #$0001, &sprite_group_15A0A0 >   ;01
   sprite-set < #$0001, &sprite_group_15A0DE >   ;02
@@ -360,7 +387,7 @@ sprite_set_158330 [
   sprite-set < #$0001, &sprite_group_15A2BF >   ;0B
 ]
 
-sprite_set_158362 [
+will_anim_27 [
   sprite-set < #$0003, &sprite_group_15A21A >   ;00
   sprite-set < #$0001, &sprite_group_15A21A >   ;01
   sprite-set < #$0003, &sprite_group_15A251 >   ;02
@@ -373,7 +400,7 @@ sprite_set_158362 [
   sprite-set < #$0003, &sprite_group_15A14C >   ;09
 ]
 
-sprite_set_15838C [
+will_anim_28 [
   sprite-set < #$0003, &sprite_group_15A14C >   ;00
   sprite-set < #$0000, &sprite_group_15A18A >   ;01
   sprite-set < #$0001, &sprite_group_15A18A >   ;02
@@ -389,7 +416,7 @@ sprite_set_15838C [
   sprite-set < #$0001, &sprite_group_15A2BF >   ;0C
 ]
 
-sprite_set_1583C2 [
+will_anim_29 [
   sprite-set < #$0003, &sprite_group_15A288 >   ;00
   sprite-set < #$0001, &sprite_group_15A288 >   ;01
   sprite-set < #$0003, &sprite_group_15A251 >   ;02
@@ -404,15 +431,15 @@ sprite_set_1583C2 [
   sprite-set < #$0001, &sprite_group_15A062 >   ;0B
 ]
 
-sprite_set_1583F4 [
+will_anim_2A_ladder_idle_north [
   sprite-set < #$0000, &sprite_group_15A288 >
 ]
 
-sprite_set_1583FA [
+will_anim_2B_ladder_idle_south [
   sprite-set < #$0000, &sprite_group_15A21A >
 ]
 
-sprite_set_158400 [
+will_anim_2C_ladder_up [
   sprite-set < #$0000, &sprite_group_15A21A >   ;00
   sprite-set < #$0000, &sprite_group_15A21A >   ;01
   sprite-set < #$0000, &sprite_group_15A21A >   ;02
@@ -435,7 +462,7 @@ sprite_set_158400 [
   sprite-set < #$0001, &sprite_group_15A2BF >   ;13
 ]
 
-sprite_set_158452 [
+will_anim_2D_ladder_down [
   sprite-set < #$0000, &sprite_group_15A288 >   ;00
   sprite-set < #$0000, &sprite_group_15A288 >   ;01
   sprite-set < #$0000, &sprite_group_15A288 >   ;02
@@ -458,29 +485,29 @@ sprite_set_158452 [
   sprite-set < #$0001, &sprite_group_15A2BF >   ;13
 ]
 
-sprite_set_1584A4 [
+will_anim_2E [
   sprite-set < #$0005, &sprite_group_15A2F6 >   ;00
   sprite-set < #$0005, &sprite_group_15A39B >   ;01
   sprite-set < #$0005, &sprite_group_15A288 >   ;02
 ]
 
-sprite_set_1584B2 [
+will_anim_2F [
   sprite-set < #$0005, &sprite_group_15A32D >   ;00
   sprite-set < #$0005, &sprite_group_15A21A >   ;01
   sprite-set < #$0005, &sprite_group_15A364 >   ;02
 ]
 
-sprite_set_1584C0 [
+will_anim_30_shimmy_detach_left [
   sprite-set < #$0079, &sprite_group_15A3D2 >   ;00
   sprite-set < #$0005, &sprite_group_15A477 >   ;01
 ]
 
-sprite_set_1584CA [
+will_anim_31_shimmy_detach_right [
   sprite-set < #$0079, &sprite_group_15A58A >   ;00
   sprite-set < #$0005, &sprite_group_15A62F >   ;01
 ]
 
-sprite_set_1584D4 [
+will_anim_32_shimmy_left [
   sprite-set < #$0003, &sprite_group_15A3D2 >   ;00
   sprite-set < #$0003, &sprite_group_15A4AE >   ;01
   sprite-set < #$0003, &sprite_group_15A4E5 >   ;02
@@ -488,7 +515,7 @@ sprite_set_1584D4 [
   sprite-set < #$0003, &sprite_group_15A553 >   ;04
 ]
 
-sprite_set_1584EA [
+will_anim_33_shimmy_right [
   sprite-set < #$0003, &sprite_group_15A58A >   ;00
   sprite-set < #$0003, &sprite_group_15A666 >   ;01
   sprite-set < #$0003, &sprite_group_15A69D >   ;02
@@ -496,7 +523,7 @@ sprite_set_1584EA [
   sprite-set < #$0003, &sprite_group_15A70B >   ;04
 ]
 
-sprite_set_158500 [
+will_anim_34 [
   sprite-set < #$0005, &sprite_group_15A3D2 >   ;00
   sprite-set < #$0005, &sprite_group_15A409 >   ;01
   sprite-set < #$0005, &sprite_group_15A440 >   ;02
@@ -508,7 +535,7 @@ sprite_set_158500 [
   sprite-set < #$0005, &sprite_group_15A440 >   ;08
 ]
 
-sprite_set_158526 [
+will_anim_35 [
   sprite-set < #$0005, &sprite_group_15A58A >   ;00
   sprite-set < #$0005, &sprite_group_15A5C1 >   ;01
   sprite-set < #$0005, &sprite_group_15A5F8 >   ;02
@@ -520,7 +547,7 @@ sprite_set_158526 [
   sprite-set < #$0005, &sprite_group_15A5F8 >   ;08
 ]
 
-sprite_set_15854C [
+will_anim_36_attack_south [
   sprite-set < #$0002, &sprite_group_15ACAF >   ;00
   sprite-set < #$0001, &sprite_group_15ACF4 >   ;01
   sprite-set < #$0001, &sprite_group_15AD40 >   ;02
@@ -530,7 +557,7 @@ sprite_set_15854C [
   sprite-set < #$0001, &sprite_group_15AE62 >   ;06
 ]
 
-sprite_set_15856A [
+will_anim_37_attack_north [
   sprite-set < #$0002, &sprite_group_15A742 >   ;00
   sprite-set < #$0001, &sprite_group_15A787 >   ;01
   sprite-set < #$0001, &sprite_group_15A7CC >   ;02
@@ -540,7 +567,7 @@ sprite_set_15856A [
   sprite-set < #$0001, &sprite_group_15A787 >   ;06
 ]
 
-sprite_set_158588 [
+will_anim_38_attack_west [
   sprite-set < #$0002, &sprite_group_15A90A >   ;00
   sprite-set < #$0001, &sprite_group_15A941 >   ;01
   sprite-set < #$0001, &sprite_group_15A98D >   ;02
@@ -550,7 +577,7 @@ sprite_set_158588 [
   sprite-set < #$0001, &sprite_group_15A941 >   ;06
 ]
 
-sprite_set_1585A6 [
+will_anim_39_attack_east [
   sprite-set < #$0002, &sprite_group_15AAAF >   ;00
   sprite-set < #$0001, &sprite_group_15AAF4 >   ;01
   sprite-set < #$0001, &sprite_group_15AB39 >   ;02
@@ -560,35 +587,35 @@ sprite_set_1585A6 [
   sprite-set < #$0001, &sprite_group_15AAF4 >   ;06
 ]
 
-sprite_set_1585C4 [
+will_anim_3A_guard_south [
   sprite-set < #$0003, &sprite_group_15AEA7 >   ;00
   sprite-set < #$0003, &sprite_group_15AEFA >   ;01
   sprite-set < #$0003, &sprite_group_15AF46 >   ;02
   sprite-set < #$0003, &sprite_group_15AF99 >   ;03
 ]
 
-sprite_set_1585D6 [
+will_anim_3B_guard_north [
   sprite-set < #$0003, &sprite_group_15AFE5 >   ;00
   sprite-set < #$0003, &sprite_group_15B02A >   ;01
   sprite-set < #$0003, &sprite_group_15B06F >   ;02
   sprite-set < #$0003, &sprite_group_15B0BB >   ;03
 ]
 
-sprite_set_1585E8 [
+will_anim_3C_guard_west [
   sprite-set < #$0003, &sprite_group_15B100 >   ;00
   sprite-set < #$0003, &sprite_group_15B14C >   ;01
   sprite-set < #$0003, &sprite_group_15B198 >   ;02
   sprite-set < #$0003, &sprite_group_15B1E4 >   ;03
 ]
 
-sprite_set_1585FA [
+will_anim_3D_guard_east [
   sprite-set < #$0003, &sprite_group_15B230 >   ;00
   sprite-set < #$0003, &sprite_group_15B291 >   ;01
   sprite-set < #$0003, &sprite_group_15B2F2 >   ;02
   sprite-set < #$0003, &sprite_group_15B353 >   ;03
 ]
 
-sprite_set_15860C [
+will_anim_3E [
   sprite-set < #$0008, &sprite_group_15B3B4 >   ;00
   sprite-set < #$0005, &sprite_group_15B400 >   ;01
   sprite-set < #$0004, &sprite_group_15B44C >   ;02
@@ -597,7 +624,7 @@ sprite_set_15860C [
   sprite-set < #$0003, &sprite_group_15ACAF >   ;05
 ]
 
-sprite_set_158626 [
+will_anim_3F [
   sprite-set < #$0008, &sprite_group_15B498 >   ;00
   sprite-set < #$0005, &sprite_group_15B4EB >   ;01
   sprite-set < #$0004, &sprite_group_15B53E >   ;02
@@ -606,7 +633,7 @@ sprite_set_158626 [
   sprite-set < #$0003, &sprite_group_15A742 >   ;05
 ]
 
-sprite_set_158640 [
+will_anim_40 [
   sprite-set < #$0008, &sprite_group_15B591 >   ;00
   sprite-set < #$0005, &sprite_group_15B5DD >   ;01
   sprite-set < #$0004, &sprite_group_15B629 >   ;02
@@ -615,7 +642,7 @@ sprite_set_158640 [
   sprite-set < #$0003, &sprite_group_15A90A >   ;05
 ]
 
-sprite_set_15865A [
+will_anim_41 [
   sprite-set < #$0008, &sprite_group_15B675 >   ;00
   sprite-set < #$0005, &sprite_group_15B6D6 >   ;01
   sprite-set < #$0004, &sprite_group_15B737 >   ;02
@@ -624,7 +651,7 @@ sprite_set_15865A [
   sprite-set < #$0003, &sprite_group_15AAAF >   ;05
 ]
 
-sprite_set_158674 [
+will_anim_42_wall_attack_west [
   sprite-set < #$0002, &sprite_group_15B798 >   ;00
   sprite-set < #$0001, &sprite_group_15B7CF >   ;01
   sprite-set < #$0001, &sprite_group_15B81B >   ;02
@@ -634,7 +661,7 @@ sprite_set_158674 [
   sprite-set < #$0001, &sprite_group_15B7CF >   ;06
 ]
 
-sprite_set_158692 [
+will_anim_43_wall_attack_east [
   sprite-set < #$0002, &sprite_group_15B93D >   ;00
   sprite-set < #$0001, &sprite_group_15B982 >   ;01
   sprite-set < #$0001, &sprite_group_15B9C7 >   ;02
@@ -644,7 +671,7 @@ sprite_set_158692 [
   sprite-set < #$0001, &sprite_group_15B982 >   ;06
 ]
 
-sprite_set_1586B0 [
+will_anim_44_lunge_south [
   sprite-set < #$0005, &sprite_group_15BB3D >   ;00
   sprite-set < #$0002, &sprite_group_15BB82 >   ;01
   sprite-set < #$0002, &sprite_group_15BBC7 >   ;02
@@ -657,7 +684,7 @@ sprite_set_1586B0 [
   sprite-set < #$0003, &sprite_group_15BD34 >   ;09
 ]
 
-sprite_set_1586DA [
+will_anim_45_lunge_north [
   sprite-set < #$0005, &sprite_group_15BD80 >   ;00
   sprite-set < #$0002, &sprite_group_15BDC5 >   ;01
   sprite-set < #$0002, &sprite_group_15BDFC >   ;02
@@ -670,7 +697,7 @@ sprite_set_1586DA [
   sprite-set < #$0003, &sprite_group_15BF7E >   ;09
 ]
 
-sprite_set_158704 [
+will_anim_46_lunge_west [
   sprite-set < #$0005, &sprite_group_15BFC3 >   ;00
   sprite-set < #$0002, &sprite_group_15BFFA >   ;01
   sprite-set < #$0002, &sprite_group_15C03F >   ;02
@@ -683,7 +710,7 @@ sprite_set_158704 [
   sprite-set < #$0003, &sprite_group_15B7CF >   ;09
 ]
 
-sprite_set_15872E [
+will_anim_47_lunge_east [
   sprite-set < #$0005, &sprite_group_15C207 >   ;00
   sprite-set < #$0002, &sprite_group_15C24C >   ;01
   sprite-set < #$0002, &sprite_group_15C28A >   ;02
@@ -695,6 +722,9 @@ sprite_set_15872E [
   sprite-set < #$0007, &sprite_group_15C389 >   ;08
   sprite-set < #$0003, &sprite_group_15B982 >   ;09
 ]
+
+---------------------------------------------
+; Example group: Will idle south, first frame of animation $00 (also the first frame of $10). Header: extents X 11 / 14, Y 34 / 8, default boxes, 7 sub-sprites. The tile word $402A has the H flip bit set; the same $006E / $006F / $0060 tile words recur in the other idle groups.
 
 sprite_group_158758 [
   sprite-group < #0B, #0E, #22, #08, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #07, [

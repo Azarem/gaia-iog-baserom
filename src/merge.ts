@@ -2,10 +2,9 @@
  * Notes Merge
  *
  * Applies a JSON edit spec straight to the `notes/` JSON files: block notes,
- * part notes and inline comments can each be set, replaced or removed. It
- * replaces the annotate -> ingest round-trip (edit the .asm, parse it back into
- * JSON): the spec already says what to write and where, so the .asm is never
- * touched.
+ * part notes and inline comments can each be set, replaced or removed. The spec
+ * says what to write and where, so the .asm is never touched. This is the only
+ * supported way to change notes and comments (names: `npm run names`).
  *
  * The extracted .asm is only READ, to validate the spec before anything is
  * written: every label must exist exactly once, every comment address must
@@ -18,7 +17,7 @@
  *   3. `npm run merge -- <spec.json> [--dry-run]`  validate, write notes/*.json, verify
  *   4. `npm run extract:lt`                      the extractor re-reads notes/ -> check the output
  *
- * Spec format: identical to `annotate` (paths relative to extracted/):
+ * Spec format (paths relative to extracted/):
  *   {
  *     "system/engine/smooth_follow.asm": {
  *       "blockNote": "text, \n separates lines"  | ["line", "line"] | null,
@@ -31,23 +30,25 @@
  *     }
  *   }
  *
- * Where each entry lands (same keys and banks as ingest, so the JSON is identical):
+ * Partial edits: instead of the full text, a note may be { "edit": [ { "find": "...", "with": "..." } ] }
+ * (optionally "until": "..." to replace a whole section); see applyEditOps.
+ *
+ * Where each entry lands:
  *   - block note  -> notes/blockNotes/bankNN.json, key = file name without .asm
  *   - part note   -> notes/partNotes/bankNN.json,  key = label (bank = the file's bank, or the
  *                    bank that already holds that label, so a note is never duplicated)
  *   - comment     -> notes/comments/bankNN.json,   key = decimal address (bank = address / 65536)
  *
- * Because the .asm is not edited, `extracted/` is stale until the next extract. Never run
- * `npm run ingest` on it in between: ingest would read the old text back over the new notes.
+ * Because the .asm is not edited, `extracted/` is stale until the next extract.
  */
 
 import { readFileSync, existsSync, readdirSync } from 'fs';
 import { join, resolve, relative, sep } from 'path';
-import { detectBank, loadNamesBankLookup, loadJsonFile, saveJsonFile, bankFileName } from './ingest.ts';
 import {
+    detectBank, loadNamesBankLookup, loadDbBankLookup, loadJsonFile, saveJsonFile, bankFileName,
     TOP_LABEL, SUB_LABEL, TAG, normalizeNote, noteIsEmpty, loadTransformPatterns, resolveAsmPath,
     type NoteValue, type CommentValue, type FileEdit,
-} from './annotate.ts';
+} from './notes-common.ts';
 
 export interface MergeOptions {
     dryRun?: boolean;
@@ -167,6 +168,42 @@ function fmt(c: Counts): string {
     return `+${c.set} ~${c.updated} -${c.removed} =${c.unchanged}`;
 }
 
+/**
+ * Partial edit of an EXISTING note, so a long note does not have to be pasted again to change a sentence:
+ *   "blockNote": { "edit": [ { "find": "old text", "with": "new text" },
+ *                            { "find": "=== SECTION", "until": "=== NEXT", "with": "replacement section\n\n" } ] }
+ * `find` must occur exactly once in the stored note. With `until`, everything from the start of `find` up to
+ * (not including) the first `until` after it is replaced. `with` may be a string or an array of lines; "" deletes.
+ */
+interface NoteTextEdit { find: string; until?: string; with: string | string[] }
+interface NoteEditOps { edit: NoteTextEdit[] }
+
+function isEditOps(v: unknown): v is NoteEditOps {
+    return v !== null && typeof v === 'object' && !Array.isArray(v) && Array.isArray((v as NoteEditOps).edit);
+}
+
+function applyEditOps(current: string | undefined, ops: NoteEditOps, what: string, err: (msg: string) => void): string | null {
+    if (current === undefined) { err(`${what}: has no existing note to edit; give the full text instead`); return null; }
+    let text = current;
+    for (const [i, op] of ops.edit.entries()) {
+        const where = `${what} edit #${i + 1}`;
+        if (typeof op?.find !== 'string' || op.find === '') { err(`${where}: 'find' must be a non-empty string`); return null; }
+        if (op.with === undefined) { err(`${where}: 'with' is missing`); return null; }
+        const count = text.split(op.find).length - 1;
+        if (count !== 1) { err(`${where}: 'find' occurs ${count} times (need exactly 1): ${JSON.stringify(op.find.slice(0, 60))}`); return null; }
+        const start = text.indexOf(op.find);
+        let end = start + op.find.length;
+        if (op.until !== undefined) {
+            const u = text.indexOf(op.until, end);
+            if (op.until === '' || u < 0) { err(`${where}: 'until' text not found after 'find': ${JSON.stringify(op.until.slice(0, 60))}`); return null; }
+            end = u;
+        }
+        const repl = Array.isArray(op.with) ? op.with.join('\n') : op.with;
+        text = text.slice(0, start) + repl + text.slice(end);
+    }
+    return text;
+}
+
 export function merge(projectRoot: string, specPath: string, options: MergeOptions = {}): MergeResult {
     const result: MergeResult = { ok: false, errors: [], warnings: [], notesFilesChanged: [] };
 
@@ -193,6 +230,7 @@ export function merge(projectRoot: string, specPath: string, options: MergeOptio
         comments: new NoteStore(join(notesDir, 'comments')),
     };
     const namesLookup = loadNamesBankLookup(join(projectRoot, 'db-us', 'names'));
+    const dbLookup = loadDbBankLookup(join(projectRoot, 'db-us'));
     const transformPatterns = loadTransformPatterns(projectRoot);
 
     // What the notes JSON must contain afterwards (null = absent); checked again after the write.
@@ -222,8 +260,10 @@ export function merge(projectRoot: string, specPath: string, options: MergeOptio
 
         const label = relative(join(projectRoot, 'extracted'), abs).split(sep).join('/');
         const lines = readFileSync(abs, 'utf-8').split(/\r?\n/);
-        const baseName = label.split('/').pop()!.replace(/\.asm$/, '');
-        const fileBank = detectBank(lines, baseName, namesLookup);
+        // block name = file name without .asm; sprite maps are written as <block>.sprite.asm
+        const baseName = label.split('/').pop()!.replace(/\.asm$/, '').replace(/\.sprite$/, '');
+        // Bank: ?BANK, else the block's start in blocks.json / files.json, else labels, tags and names.
+        const fileBank = detectBank(lines, baseName, namesLookup, dbLookup);
         const err = (msg: string) => result.errors.push(`${label}: ${msg}`);
         const warn = (msg: string) => result.warnings.push(`${label}: ${msg}`);
 
@@ -240,32 +280,38 @@ export function merge(projectRoot: string, specPath: string, options: MergeOptio
         const cBlock = newCounts(), cPart = newCounts(), cComment = newCounts();
 
         // ---- block note ----
-        if (edit.blockNote !== undefined) {
-            if (claim('blockNotes', baseName)) {
-                const removing = noteIsEmpty(edit.blockNote);
-                if (!removing && fileBank === null) {
-                    err('block note: cannot determine the ROM bank of this file');
+        let blockValue: NoteValue | undefined = edit.blockNote;
+        if (blockValue !== undefined && claim('blockNotes', baseName)) {
+            if (isEditOps(blockValue)) {
+                const r = applyEditOps(stores.blockNotes.get(baseName), blockValue, 'block note', err);
+                blockValue = r === null ? undefined : r;
+            }
+        } else blockValue = undefined;
+        if (blockValue !== undefined) {
+            const removing = noteIsEmpty(blockValue);
+            if (!removing && fileBank === null) {
+                err('block note: cannot determine the ROM bank of this file');
+            } else {
+                const store = stores.blockNotes;
+                const cur = store.get(baseName);
+                if (removing) {
+                    tally(cBlock, cur !== undefined, false, true);
+                    store.remove(baseName);
+                    expected.blockNotes.set(baseName, null);
                 } else {
-                    const store = stores.blockNotes;
-                    const cur = store.get(baseName);
-                    if (removing) {
-                        tally(cBlock, cur !== undefined, false, true);
-                        store.remove(baseName);
-                        expected.blockNotes.set(baseName, null);
-                    } else {
-                        const text = normalizeNote(edit.blockNote as string | string[]);
-                        const bank = store.bankOf(baseName) ?? fileBank!;
-                        tally(cBlock, cur !== undefined, cur !== text, false);
-                        store.set(baseName, bank, text);
-                        expected.blockNotes.set(baseName, text);
-                    }
+                    const text = normalizeNote(blockValue as string | string[]);
+                    const bank = store.bankOf(baseName) ?? fileBank!;
+                    tally(cBlock, cur !== undefined, cur !== text, false);
+                    store.set(baseName, bank, text);
+                    expected.blockNotes.set(baseName, text);
                 }
             }
         }
 
         // ---- part notes ----
         const labels = collectLabels(lines);
-        for (const [name, value] of Object.entries(edit.partNotes ?? {} as Record<string, NoteValue>)) {
+        for (const [name, rawValue] of Object.entries(edit.partNotes ?? {} as Record<string, NoteValue>)) {
+            let value: NoteValue = rawValue;
             const hits = labels.get(name);
             if (!hits) {
                 err(`label '${name}' not found.${suggest([...labels.keys()], name)}`);
@@ -279,6 +325,11 @@ export function merge(projectRoot: string, specPath: string, options: MergeOptio
 
             const store = stores.partNotes;
             const cur = store.get(name);
+            if (isEditOps(value)) {
+                const r = applyEditOps(cur, value, `part note '${name}'`, err);
+                if (r === null) continue;
+                value = r;
+            }
             if (noteIsEmpty(value)) {
                 tally(cPart, cur !== undefined, false, true);
                 store.remove(name);

@@ -1,11 +1,22 @@
-; Per-scene enemy clear reward tier mapping (256 bytes, one per scene). Values 0–3 determine stat boost tier when all enemies in a Dark Space room are defeated.
+; Scene clear reward tier (Bank 01, 109278-109534, 256 bytes), one byte per scene ID ($00-$FF). It is not specific to Dark Space rooms (the old note said 'when all enemies in a Dark Space room are defeated'): any scene whose entry is nonzero pays a permanent stat point once. The tiers are not 'minor/medium/major'; they select the stat:
+; 
+; | Tier | Reward | Scenes |
+; |------|--------|--------|
+; | 0 | none | 169 |
+; | 1 | Max HP + 1 (item $80, pickup e_hp_increase, anim $0C of spriteset_pickups_effects) | 29: $0C $0F $22 $23 $27 $3D $3E $46 $4D $50 $53 $5F $62 $6E $71 $83 $85 $88 $A2 $A4 $A6 $B0 $B3 $B6 $B9 $BC $BE $D2 $D4 |
+; | 2 | STR + 1 (item $81, e_str_increase, anim $0D) | 27: $0D $1D $20 $26 $3F $45 $4F $52 $60 $65 $6D $6F $84 $87 $A0 $A3 $A8 $B1 $B5 $B7 $BB $CD $D1 $D5 $D7 $D9 $DB |
+; | 3 | DEF + 1 (item $82, e_def_increase, anim $0E) | 31: $0E $12 $21 $25 $28 $40 $41 $4E $51 $54 $61 $64 $70 $72 $82 $86 $A1 $A5 $A7 $B2 $B4 $B8 $BA $BD $CC $CE $CF $D0 $D3 $D6 $D8 |
+; 
+; Values above 3 do not occur; the readers treat 3 and above as DEF. Whether a scene's reward was already taken is the scene flag $0300 + scene (set when the reward is paid).
+; 
+; Readers: (1) StandardEnemyDefeatHandler.EnemyStatBonusReward: when the last enemy of the scene dies and the flag is clear, spawns the e_hp / e_str / e_def_increase pickup of reward_actors (this also makes the enemy drop a gem only while the reward is already taken or enemies remain, see enemy_stats_table). (2) field_reveal_object: tier & 3 picks the hidden stat item (anim $0C / $0D / $0E, item $80 / $81 / $82). (3) boss_clear_reward_handler.BossClearApplyStatReward: after a boss is defeated, walks a range of scenes and pays every unclaimed tier at once. (4) radar_map_screen: draws the reward frame and icon on the radar while the flag is clear and the tier is nonzero. (The old note's 'draws chest icons' is wrong: chests are drawn from a different list.)
 ---------------------------------------------
 
 ?BANK 01
 
 ---------------------------------------------
 
-; Maps each scene ID ($00–$FF) to its enemy-clear reward tier: $00 = no reward, $01–$03 = reward tiers (minor/medium/major stat boosts or items). When all enemies in a Dark Space room are defeated, this table determines what reward the player receives. Central to IOG's stat progression. Referenced by StandardEnemyDefeatHandler (on last enemy kill), field_reveal_object (reveals reward), and radar_map_screen (draws chest icons for rewarded scenes).
+; 256 tier bytes indexed by sceneCurrent: 0 none, 1 Max HP, 2 STR, 3 DEF. The extracted ;NN labels are the scene ID.
 
 enemy_clear_reward_table [
   #00   ;00

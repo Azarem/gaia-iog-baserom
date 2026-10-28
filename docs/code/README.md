@@ -234,12 +234,12 @@ sequenceDiagram
 |---|-------|---------|------|---------|
 | 1 | `display_preset_table` | `$18000` | 564 B | Scene PPU display mode presets (47 entries) |
 | 2 | `scene_warps` | `$18234` | 10,026 B | All scene warp/transition definitions |
-| 3 | `forced_walk_sequence_table` | `$1A95E` | 384 B | Cutscene forced-walk animation sequences |
+| 3 | `forced_walk_pan_table` | `$1A95E` | 384 B | Cutscene forced-walk animation sequences |
 | 4 | `enemy_clear_reward_table` | `$1AADE` | 256 B | Per-scene enemy clear stat rewards |
-| 5 | `direction_velocity_table` | `$1ABDE` | 18 B | Direction→sprite/velocity mapping |
+| 5 | `walk_step_table` | `$1ABDE` | 18 B | Direction→sprite/velocity mapping |
 | 6 | `enemy_stats_table` | `$1ABF0` | 440 B | Enemy HP/ATK/DEF/type (110 entries) |
 | 7 | `scene_chest_table` | `$1ADA8` | 734 B | Per-scene barrier/chest placement |
-| 8 | `movement_delta_table` | `$1B086` | 4,862 B | Pre-computed movement velocity curves |
+| 8 | `move_chain_table` | `$1B086` | 4,862 B | Pre-computed movement velocity curves |
 | 9 | `trig_and_level_tables` | `$1C384` | 1,809 B | Sine/cosine LUTs, level-up thresholds |
 | 10 | `dialog_template_table` | `$1CA95` | 273 B | Reusable dialog box templates |
 | 11 | `music_pointer_array` | `$1CBA6` | 90 B | Scene→BGM SPC music pointers |
@@ -247,13 +247,13 @@ sequenceDiagram
 | 13 | `event_block_table` | `$1D3CE` | 1,264 B | Event-triggered tile mutations |
 | 14 | `hdma_and_ramp_tables` | `$1D8BE` | 179 B | HDMA channel config + ramp curves |
 | 15 | `body_table` | `$1D971` | 54 B | Player form spriteset/tileset pointers |
-| 16 | `will_ability_anim_table` | `$1D9A7` | 24 B | Will's attack ability animations |
-| 17 | `freedan_ability_anim_table` | `$1D9BF` | 25 B | Freedan's attack ability animations |
+| 16 | `will_ability_damage_table` | `$1D9A7` | 24 B | Will's attack ability animations |
+| 17 | `freedan_ability_damage_table` | `$1D9BF` | 25 B | Freedan's attack ability animations |
 | 18 | `system_strings` | `$1D9D8` | 4,407 B | All UI/menu/item/ability text |
 | 19 | `shared_word_table` | `$1EB0F` | 153 B | Item name prefix components |
 | 20 | `dictionary_a` | `$1EBA8` | 2,469 B | Dialog word compression table A |
 | 21 | `dictionary_b` | `$1F54D` | 2,007 B | Dialog word compression table B |
-| 22 | `item_get_dialog_table` | `$1FD24` | 584 B | Item acquisition dialog messages |
+| 22 | `item_pickup_text_table` | `$1FD24` | 584 B | Item acquisition dialog messages |
 
 </details>
 

@@ -23,9 +23,9 @@ flowchart TD
     Loop -->|"opcode ≠ $00"| Dispatch["scene_script_jump_table"]
     Dispatch --> ConfigDisplay["SceneCmd_ConfigDisplay ($02)"]
     Dispatch --> LoadBg["SceneCmd_LoadBgTiles ($03)"]
-    Dispatch --> LoadTilemap["SceneCmd_LoadTilemap ($04)"]
-    Dispatch --> LoadDual["SceneCmd_LoadDualTilemap ($05)"]
-    Dispatch --> FullGfx["SceneCmd_FullGraphics ($06)"]
+    Dispatch --> LoadTilemap["SceneCmd_LoadPalette ($04)"]
+    Dispatch --> LoadDual["SceneCmd_LoadMetatileSets ($05)"]
+    Dispatch --> FullGfx["SceneCmd_LoadLayerMaps ($06)"]
     Dispatch --> LoadSprite["SceneCmd_LoadSpriteTiles ($10)"]
     Dispatch --> SpcMusic["SpcMusicLoadCmd ($11)"]
     Dispatch --> LoadChar["SceneCmd_LoadCharTiles ($17)"]
@@ -98,17 +98,17 @@ The 24-entry jump table at `$028416` maps command indices `$00`–`$17` to handl
 | `$00`–`01` | — | `SceneCmd_Default` | Unimplemented (NOP return) |
 | `$02` | `$02` | `SceneCmd_ConfigDisplay` | Read `table_018000` entry; configure TM/TS/TMW/TSW/CGWSEL/CGADSUB/BGMODE/BG1SC/BG2SC and scene flags |
 | `$03` | `$03` | `SceneCmd_LoadBgTiles` | Multi-mode BG tile loader (4 modes) |
-| `$04` | `$04` | `SceneCmd_LoadTilemap` | Single-layer tilemap DMA |
-| `$05` | `$05` | `SceneCmd_LoadDualTilemap` | Dual-layer tilemap with per-layer cache check |
-| `$06` | `$06` | `SceneCmd_FullGraphics` | Full scene graphics — map geometry + tileset + tilemap |
+| `$04` | `$04` | `SceneCmd_LoadPalette` | Single-layer tilemap DMA |
+| `$05` | `$05` | `SceneCmd_LoadMetatileSets` | Dual-layer tilemap with per-layer cache check |
+| `$06` | `$06` | `SceneCmd_LoadLayerMaps` | Full scene graphics — map geometry + tileset + tilemap |
 | `$07`–`0D` | — | `SceneCmd_Default` | Unimplemented (NOP return) |
 | `$0E` | `$0E` | `SceneCmd_Skip3` | Skip 3 script bytes (placeholder NOP) |
 | `$0F` | — | `SceneCmd_Default` | Unimplemented (NOP return) |
 | `$10` | `$10` | `SceneCmd_LoadSpriteTiles` | Sprite tile graphics → VRAM `$4000` |
 | `$11` | `$11` | `SpcMusicLoadCmd` | SPC music load (in `spc_transfer.asm`) |
 | `$12` | — | `SceneCmd_Default` | Unimplemented (NOP return) |
-| `$13` | `$13` | `SceneCmd_ConditionalLoad` | Test event flag → skip or execute command `$15` |
-| `$14` | `$14` | `SceneCmd_Nop` | Skip 1 script byte |
+| `$13` | `$13` | `SceneCmd_Branch` | Test event flag → skip or execute command `$15` |
+| `$14` | `$14` | `SceneCmd_Label` | Skip 1 script byte |
 | `$15` | `$15` | `SkipScriptCommands` | Skip N commands of varying sizes |
 | `$16` | — | `SceneCmd_Default` | Unimplemented (NOP return) |
 | `$17` | `$17` | `SceneCmd_LoadCharTiles` | Character-specific tile data to BG1/BG2 VRAM |
@@ -161,7 +161,7 @@ The ring-buffer slot index is tracked in `$0094` (round-robin, 4 slots). Slot-to
 
 ### Dual-Layer Partial Reload
 
-`SceneCmd_LoadDualTilemap` and `SceneCmd_FullGraphics` use bit flags in `$066A` to independently cache-check each layer. If layer 0 hits cache but layer 1 misses, only layer 1 reloads.
+`SceneCmd_LoadMetatileSets` and `SceneCmd_LoadLayerMaps` use bit flags in `$066A` to independently cache-check each layer. If layer 0 hits cache but layer 1 misses, only layer 1 reloads.
 
 ### Cache Tier Decision Tree
 
@@ -195,8 +195,8 @@ Tier 1 applies to all cached commands (`LoadBgTiles`, `LoadTilemap`, `LoadSprite
 | `$0283BB` | SceneScriptMain | `SceneScriptMain` is the primary scene script interpreter invoked during room loads. |
 | `$0283E7` | SceneScriptNoMusic | `SceneScriptNoMusic` is a variant interpreter identical to `SceneScriptMain` except that command `$11` (`SpcMusicLoadCmd`) is skipped inline. |
 | `$028416` | scene_script_jump_table | The 24-entry dispatch table maps scene script command indices `$00`–`$17` to handler addresses. |
-| `$028446` | SceneCmd_ConditionalLoad | Command `$13` implements conditional script execution based on event flags. |
-| `$02845B` | SceneCmd_Nop | Command `$14` is a minimal no-operation handler. |
+| `$028446` | SceneCmd_Branch | Command `$13` implements conditional script execution based on event flags. |
+| `$02845B` | SceneCmd_Label | Command `$14` is a minimal no-operation handler. |
 | `$02845D` | SceneCmd_LoadBgTiles | Command `$03` is the multi-mode BG tile loader — the most complex graphics command in the scene script. |
 | `$028552` | SceneDmaTileShim | A 3-byte entry shim consisting of `PHP` followed by `BRA DmaTileStripToVram`. |
 | `$028555` | CheckInterleavedFlag | Checks the interleaved graphics flag at `$06EE` bit `$0800`, set by `SceneCmd_ConfigDisplay` when the scene uses planar 2bpp+2bpp tile encoding instead of standard SNES 4bpp. |
@@ -204,9 +204,9 @@ Tier 1 applies to all cached commands (`LoadBgTiles`, `LoadTilemap`, `LoadSprite
 | `$028592` | Load4bppPage | Loads a full 4bpp tile page (4096 bytes) to VRAM address `$2000`. |
 | `$0285DB` | DeinterleavePlanarTiles | Converts interleaved 2bpp+2bpp planar tile data to SNES 4bpp format. |
 | `$02868C` | BuildAttributeTable | Builds a 256-byte palette-to-attribute lookup table at `$7E:2800` from tilemap metadata at `$7E:2000`. |
-| `$0286C3` | SceneCmd_LoadTilemap | Command `$04` loads a single-layer tilemap from ROM into WRAM buffer `$7F:0A00`. |
-| `$028712` | SceneCmd_LoadDualTilemap | Command `$05` loads tilemap data for both BG layers from a single compressed blob. |
-| `$0287BC` | SceneCmd_FullGraphics | Command `$06` is the comprehensive scene graphics loader — map geometry, tileset, and tilemap in one command. |
+| `$0286C3` | SceneCmd_LoadPalette | Command `$04` loads a single-layer tilemap from ROM into WRAM buffer `$7F:0A00`. |
+| `$028712` | SceneCmd_LoadMetatileSets | Command `$05` loads tilemap data for both BG layers from a single compressed blob. |
+| `$0287BC` | SceneCmd_LoadLayerMaps | Command `$06` is the comprehensive scene graphics loader — map geometry, tileset, and tilemap in one command. |
 | `$028895` | StoreMapAndDecompress | Stores map dimensions from inline geometry bytes (`$00`/`$02` = width/height) into the map bounds array at `$0693,X` ... |
 | `$0288B5` | HandleEmptyGeometry | Handles the case where the geometry size word read from the source stream is zero — meaning no compressed tileset follows inline. |
 | `$028914` | WriteMapBounds | Writes map width and height from `$00`/`$02` into the bounds arrays at `$0692,X` and `$0696,X`, then DMAs the first map row from the current source pointer via `DmaRomToWram`. |
@@ -540,7 +540,7 @@ Builds a 256-byte palette-to-attribute lookup table at `$7E:2800` from tilemap m
 
 #### Tilemap Loading
 
-### SceneCmd_LoadTilemap
+### SceneCmd_LoadPalette
 
 Command `$04` loads a single-layer tilemap from ROM into WRAM buffer `$7F:0A00`. Reads three offset bytes (each ×2 for word alignment) into `$0664` (start), `$0666` (end), and `$0668` (VRAM offset). Loads the 3-byte source pointer and DMAs the tilemap slice via `DmaRomToWram`. Special case: when VRAM offset equals `$0020`, after the DMA the routine copies one row from `$7F:0A20` to `$7F:0A00` — a single-row refresh used when only the top map row changed.
 
@@ -569,7 +569,7 @@ Command `$04` loads a single-layer tilemap from ROM into WRAM buffer `$7F:0A00`.
 | `LoadScriptPointer` | Reads 3-byte source |
 | `FillCollisionFromLayer0` | Uses cached map data at reload |
 
-### SceneCmd_LoadDualTilemap
+### SceneCmd_LoadMetatileSets
 
 Command `$05` loads tilemap data for both BG layers from a single compressed blob. Reads BG1 and BG2 offset parameters (each ÷4 from script bytes), a layer flag byte to `$066A`, and a 3-byte source pointer. Performs independent cache checks for layer 0 (slot `$0678`) and layer 1 (slot `$067B`), clearing bits in `$066A` for layers that hit cache. On cache miss, decompresses the combined blob to `$7E:7000`, then copies layer 0 to `$7E:2000` and layer 1 to `$7E:2800` via `DmaRomToWram`, calling `BuildMetatileFlagTable` for each loaded layer to apply priority bits from `$06A2`/`06A4`.
 
@@ -598,9 +598,9 @@ Command `$05` loads tilemap data for both BG layers from a single compressed blo
 |--------|--------------|
 | `CheckSourceCacheHit` | Per-layer cache |
 | `BuildMetatileFlagTable` | Priority bit application |
-| `SceneCmd_FullGraphics` | Shares layer flag pattern |
+| `SceneCmd_LoadLayerMaps` | Shares layer flag pattern |
 
-### SceneCmd_FullGraphics
+### SceneCmd_LoadLayerMaps
 
 Command `$06` is the comprehensive scene graphics loader — map geometry, tileset, and tilemap in one command. Reads a layer flag byte to `$066A` and a 3-byte source pointer. When layer flags are non-zero, performs per-layer cache checks at `$067E` (layer 0) and `$0681` (layer 1), with a Mode 7 palette bypass when `$06EF` bit `$08` is set. Reads inline geometry bytes (width/height) from the source stream. If no layers are flagged (`$066A AND #$7F = 0`), jumps to `DmaLowVramTileset` for tileset-only load. Otherwise calls `StoreMapAndDecompress` per layer to decompress tile data and store map bounds, with `HandleEmptyGeometry` for zero-size geometry blobs.
 
@@ -663,12 +663,12 @@ Handles the case where the geometry size word read from the source stream is zer
 | Symbol | Relationship |
 |--------|--------------|
 | `WriteMapBounds` | Bounds + first row DMA |
-| `SceneCmd_FullGraphics` | Entry when size word = 0 |
+| `SceneCmd_LoadLayerMaps` | Entry when size word = 0 |
 | `DmaRomToWram` | Raw tileset copy |
 
 ### DmaLowVramTileset
 
-Uploads a tileset to low VRAM at address `$2000` using byte-write mode, required for Mode 0 BG tile uploads. Reads the size word from the source stream; if non-zero, decompresses to `$7E:A000` before DMA. Temporarily sets `$2115` (`VMAIN`) to `$00` for byte increment, then restores `$80` after the transfer. Called from `SceneCmd_FullGraphics` when no layer flags are set (tileset-only reload).
+Uploads a tileset to low VRAM at address `$2000` using byte-write mode, required for Mode 0 BG tile uploads. Reads the size word from the source stream; if non-zero, decompresses to `$7E:A000` before DMA. Temporarily sets `$2115` (`VMAIN`) to `$00` for byte increment, then restores `$80` after the transfer. Called from `SceneCmd_LoadLayerMaps` when no layer flags are set (tileset-only reload).
 
 **Algorithm:**
 
@@ -691,7 +691,7 @@ Uploads a tileset to low VRAM at address `$2000` using byte-write mode, required
 
 | Symbol | Relationship |
 |--------|--------------|
-| `SceneCmd_FullGraphics` | Tileset-only path |
+| `SceneCmd_LoadLayerMaps` | Tileset-only path |
 | `Load4bppPage` | Similar full-page upload |
 | `QuintetLzDecompress` | Decompression |
 
@@ -849,7 +849,7 @@ Linearly scans the script stream at `($3A)` starting from `Y = 0` to find the en
 |--------|--------------|
 | `SceneScriptMain` | Called at interpreter entry |
 | `SkipScriptCommands` | Shares operand-size logic |
-| `SceneCmd_ConditionalLoad` | `$13` handled in skip path |
+| `SceneCmd_Branch` | `$13` handled in skip path |
 
 ### SkipScriptCommands
 
@@ -877,7 +877,7 @@ Advances `Y` past N commands in the script stream, where N is read from the firs
 
 | Symbol | Relationship |
 |--------|--------------|
-| `SceneCmd_ConditionalLoad` | Jumps here on flag clear |
+| `SceneCmd_Branch` | Jumps here on flag clear |
 | `scene_script_jump_table` | Entry `$15` |
 | `FindCurrentScene` | Parallel skip logic |
 
@@ -914,8 +914,8 @@ Transfers data from ROM (or any source at `$3E`/`$40`) to a WRAM destination at 
 
 | Symbol | Relationship |
 |--------|--------------|
-| `SceneCmd_LoadTilemap` | Tilemap to `$7F:0A00` |
-| `SceneCmd_LoadDualTilemap` | Layer copy |
+| `SceneCmd_LoadPalette` | Tilemap to `$7F:0A00` |
+| `SceneCmd_LoadMetatileSets` | Layer copy |
 | `WriteMapBounds` | First map row |
 
 ### GraphicsCacheLookup
@@ -1017,7 +1017,7 @@ Rebuilds tilemap attribute bytes for a 4×N tile region. For each group of 4 til
 
 | Symbol | Relationship |
 |--------|--------------|
-| `SceneCmd_LoadDualTilemap` | Called per loaded layer |
+| `SceneCmd_LoadMetatileSets` | Called per loaded layer |
 | `SceneCmd_ConfigDisplay` | Sets priority masks |
 | `BuildAttributeTable` | Related attribute logic |
 

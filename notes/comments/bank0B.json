@@ -1,7 +1,7 @@
 {
     "772248": "First 8 colours of pal_ending_comet into staging colours 0-7 (the text palette)",
     "772259": "Colour 0 of the palette staging buffer = black backdrop",
-    "772263": "Draw the region warning text (consolestring_01D9D8) on BG3",
+    "772263": "Draw the region warning text (boot_title_strings) on BG3",
     "772270": "BG3 only — text layer for PAL boot",
     "772277": "Re-entry point is the RTL below: yields every frame, the lockout screen is never left",
     "772285": "Bit 14 of displayModeFlags: no reader found (OQ-I034-1)",
@@ -72,7 +72,7 @@
     "774867": "OAM priority 3 (operand $30 = bits $3000)",
     "774870": "Start 32 px above the screen: Y = $FFE0",
     "774875": "Random byte: X = RNG * 2 + $C4 ($C4-$2C2, steps of 2); the same byte also picks the speed",
-    "774886": "Speed index = (RNG AND 3) * 2 + 4 = 4, 6, 8 or 10 into movement_delta_table",
+    "774886": "Speed index = (RNG AND 3) * 2 + 4 = 4, 6, 8 or 10 into move_chain_table",
     "774894": "X movement index (even = negative): -2, -3, -4 or -5 px per frame",
     "774899": "Y index = X index - 1 (odd = positive): +2, +3, +4 or +5 px per frame; equal magnitudes make the fall diagonal",
     "774903": "Re-arm both delta chains (AnimOnce zeroes $2C / $2E at the end of each pass)",

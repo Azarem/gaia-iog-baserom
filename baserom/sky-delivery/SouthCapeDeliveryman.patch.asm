@@ -45,4 +45,4 @@ skyd_str_confirm `[CLR][LU1:9]here, birds.[N][LU2:3F]taking [LU1:D6]person[N]to 
 
 ----------------------------------------
 
-scene_event_0C8221+=: actor-spawn < #0C, #2F, #00, @SouthCapeDeliveryman >
+scene_01_actors+=: actor-spawn < #0C, #2F, #00, @SouthCapeDeliveryman >

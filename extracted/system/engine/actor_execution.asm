@@ -49,12 +49,12 @@
 
 ?INCLUDE 'actor_pool'
 ?INCLUDE 'body_table'
-?INCLUDE 'direction_velocity_table'
 ?INCLUDE 'enemy_stats_table'
 ?INCLUDE 'event_blocks'
 ?INCLUDE 'scene_actors'
 ?INCLUDE 'sprite_composition'
 ?INCLUDE 'tile_collision_physics'
+?INCLUDE 'walk_step_table'
 
 !actorListFirst                 0056
 !actorListLast                  0058
@@ -1087,11 +1087,11 @@ InitActorFromSceneData {
     TSB $playerFlags
 
   loc_03D03B:
-    LDA $warpFacing       ; Facing direction from warpFacing ($0650) → low byte of direction_velocity_table entry → $28 (sprite index)
+    LDA $warpFacing       ; Facing direction from warpFacing ($0650) → low byte of walk_step_table entry → $28 (sprite index)
     AND #$00FF
     ASL 
     TAY 
-    LDA $&direction_velocity_table, Y
+    LDA $&walk_step_table, Y
     AND #$00FF
     STA $28
     LDA $characterForm    ; Body table index = characterForm × 6

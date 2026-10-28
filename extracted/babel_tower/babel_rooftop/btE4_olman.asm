@@ -8,8 +8,8 @@
 ; for understanding the game's mythology.
 ---------------------------------------------
 
-?INCLUDE 'spriteset_enemies'
 ?INCLUDE 'spriteset_npc_props'
+?INCLUDE 'spriteset_pickups_effects'
 
 !joypadMaskStd                  065A
 !playerActor                    09AA
@@ -99,7 +99,7 @@ dialogstring_0991A9 `[TPL:F][TPL:4][DLY:0]Will's father: At last [N]the time is 
 code_0991F4 {
     LDA #$0200
     TSB $12
-    COP [SetMetasprite] ( @spriteset_enemies )
+    COP [SetMetasprite] ( @spriteset_pickups_effects )
     COP [StageSpriteFrame] ( #1E )
     COP [AnimOnce]
     COP [SetMetasprite] ( @spriteset_npc_props )
@@ -131,7 +131,7 @@ dialogstring_09923A `[DEF][TPL:5]Seth: Ah, Will. [N]It's been a long time. [FIN]
 code_0992A0 {
     LDA #$0200
     TSB $12
-    COP [SetMetasprite] ( @spriteset_enemies )
+    COP [SetMetasprite] ( @spriteset_pickups_effects )
     COP [StageSpriteFrame] ( #1E )
     COP [AnimOnce]
     COP [SetMetasprite] ( @spriteset_npc_props )
@@ -165,7 +165,7 @@ dialogstring_0992EC `[DEF]Neil's father: [N]Neil... [N]What are you doing!! [FIN
 code_099347 {
     LDA #$0200
     TSB $12
-    COP [SetMetasprite] ( @spriteset_enemies )
+    COP [SetMetasprite] ( @spriteset_pickups_effects )
     COP [StageSpriteFrame] ( #1E )
     COP [AnimOnce]
     COP [SetMetasprite] ( @spriteset_npc_props )
@@ -197,7 +197,7 @@ dialogstring_09938D `[DEF]Neil's mother: Even if [N]I can see the real[N]world,[
 code_0993F8 {
     LDA #$0200
     TSB $12
-    COP [SetMetasprite] ( @spriteset_enemies )
+    COP [SetMetasprite] ( @spriteset_pickups_effects )
     COP [StageSpriteFrame] ( #1E )
     COP [AnimOnce]
     COP [SetMetasprite] ( @spriteset_npc_props )
@@ -229,7 +229,7 @@ dialogstring_09943E `[DEF]Hamlet: [N]Oink oink!! [FIN][SFX:0][TPL:0]Will: [N]Of 
 code_0994A0 {
     LDA #$0200
     TSB $12
-    COP [SetMetasprite] ( @spriteset_enemies )
+    COP [SetMetasprite] ( @spriteset_pickups_effects )
     COP [StageSpriteFrame] ( #1E )
     COP [AnimOnce]
     COP [SetMetasprite] ( @spriteset_npc_props )

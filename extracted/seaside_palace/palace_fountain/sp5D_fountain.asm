@@ -8,7 +8,7 @@
 
 ?INCLUDE 'actor_pool'
 ?INCLUDE 'oneshot_backdrop_fade_out_fast_40'
-?INCLUDE 'spriteset_enemies'
+?INCLUDE 'spriteset_pickups_effects'
 
 !frameCounter                   0036
 !joypadMaskStd                  065A
@@ -109,7 +109,7 @@ code_06951E {
     CLC 
     ADC $14
     STA $14
-    COP [SetMetasprite] ( @spriteset_enemies )
+    COP [SetMetasprite] ( @spriteset_pickups_effects )
     COP [StageSpriteFrame] ( #02 )
     COP [AnimOnce]
     COP [Die]

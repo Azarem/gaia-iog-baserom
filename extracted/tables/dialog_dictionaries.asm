@@ -1,9 +1,20 @@
-; Dual text compression dictionaries for dialog strings. Dictionary A ($D6 code, 256 common words) and Dictionary B ($D7 code, 256 extended words) provide ~512 compressed word slots for the dialog text system.
+; Word dictionaries of the dialogue system (Bank 01, 125864-130340, 4476 bytes): two pointer tables of words, each word a string that ends in the $CA return code and normally includes its trailing space (or punctuation and space), for example 'Attack ', 'Eric: ', 'you. '. A script writes tag $D6 (LU1, DialogCmd_DictionaryA) or $D7 (LU2, DialogCmd_DictionaryB) followed by a 1-byte index; the handler doubles the index, reads the word pointer from the table, and renders the word with a recursive JSL to DialogStringRenderer. DisplaySceneTitle does the same lookup to count characters.
+; 
+; The old note ('~512 compressed word slots', 'Dictionary B: 256 extended words') was wrong on the size: A has 256 words and B has 200 (the index $C7 is the last), 456 words in all (E1, counted in the extracted file). The tables use `&` short pointers and the words follow in address order:
+; 
+; | Part | Table | Words | Total |
+; |------|-------|-------|-------|
+; | dialog_dictionary_a | 01EBA8 (512 B) | 01EDA8-01F54C (1957 B) | 2469 B |
+; | dialog_dictionary_b | 01F54D (400 B) | 01F6DD-01FD23 (1607 B) | 2007 B |
+; 
+; Order (SAMPLED about 6%: the first and last words of each table and the section boundaries): each dictionary is a capitalised section (A $00-$6A, from 'Attack ' to 'Yes, '; B $00-$43, from '1994 ' and 'Actually, ' on) followed by a lowercase section (A $6B-$FF, 'about ' to 'you're '; B $44-$C7, 'always ' to 'you. '), each roughly alphabetical. The words include character names ('Eric: ', 'Erasquez: ', 'Elder ', 'Angel ', 'Ankor '), place and ability names ('Desert ', 'Aura ', 'Attack ') and common words and phrases. 'The most frequently used words (the, you, have)' of the old note was not checked and is dropped.
+; 
+; The extracted dialogue text contains no [LU1] / [LU2] tags (0 hits in extracted/), and db-us/stringTypes.json declares both tables as dictionaries, so the extractor expands the words and rebuild recompresses them; how the compressor decides which words to substitute was not traced (OQ-I070-1). Frequency of use of individual words was not measured.
 ---------------------------------------------
 
 ---------------------------------------------
 
-; First dialog text dictionary — pointer table of commonly used words/phrases for text compression. Control code $D6 DictionaryA reads a 1-byte index and recursively renders the string. Contains the most frequently used words (the, you, have, etc.). Part of IOG's dual-dictionary compression giving ~512 compressed word slots.
+; Dictionary A pointer table (256 short pointers, 512 bytes): tag $D6 (LU1), index $00-$FF. $00-$6A capitalised words (names, speaker labels), $6B-$FF lowercase words.
 
 dialog_dictionary_a [
   &dialogstring_01EDA8   ;00
@@ -777,7 +788,7 @@ dialogstring_01F53F `your `
 dialogstring_01F545 `you're `
 ---------------------------------------------
 
-; Second dialog text dictionary — extended word list for less frequently used words and longer phrases. Triggered by control code $D7 DictionaryB. Functions identically to dictionary A but covers the second 256-word bank.
+; Dictionary B pointer table (200 short pointers, 400 bytes): tag $D7 (LU2), index $00-$C7 (not 256; indexes above $C7 would read past the table into the first words). $00-$43 capitalised words, $44-$C7 lowercase words.
 
 dialog_dictionary_b [
   &dialogstring_01F6DD   ;00

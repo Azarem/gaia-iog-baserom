@@ -13,7 +13,7 @@
 ?INCLUDE 'hardware_math'
 ?INCLUDE 'math_lookup_tables'
 ?INCLUDE 'SetPlayerGameOverFlag'
-?INCLUDE 'spriteset_enemies'
+?INCLUDE 'spriteset_pickups_effects'
 
 !frameCounter                   0036
 !gfxCacheIdxB                   064A
@@ -867,7 +867,7 @@ code_09B1D5 {
 }
 
 code_09B1FA {
-    COP [SetMetasprite] ( @spriteset_enemies )
+    COP [SetMetasprite] ( @spriteset_pickups_effects )
     COP [LoopStart] ( #0A )
     COP [SpawnListAppend] ( @code_09B21E, #00, #C8, #$0302 )
     COP [WaitByte] ( #01 )
@@ -1253,7 +1253,7 @@ code_09B479 {
 }
 
 code_09B4C9 {
-    COP [SetMetasprite] ( @spriteset_enemies )
+    COP [SetMetasprite] ( @spriteset_pickups_effects )
     COP [PlaySoundCh1] ( #06 )
     COP [StageSpriteFrame] ( #07 )
     COP [AnimOnce]
@@ -1261,7 +1261,7 @@ code_09B4C9 {
 }
 
 code_09B4D8 {
-    COP [SetMetasprite] ( @spriteset_enemies )
+    COP [SetMetasprite] ( @spriteset_pickups_effects )
     COP [PlaySoundCh1] ( #06 )
     COP [StageSpriteFrame] ( #01 )
     COP [AnimOnce]
@@ -1715,7 +1715,7 @@ code_09B7A8 {
 }
 
 code_09B84F {
-    COP [SetMetasprite] ( @spriteset_enemies )
+    COP [SetMetasprite] ( @spriteset_pickups_effects )
     LDA $16
     SEC 
     SBC #$0008

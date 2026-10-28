@@ -1,20 +1,49 @@
-; All game UI text organized into 10 sub-tables: boot screen strings, item names, item menu text, item descriptions, ability menu/names/descriptions, character names, and miscellaneous UI strings. The core text data for menus, inventory, and status screens.
+; The console-string text of the menus (Bank 01, 121304-125711 = $01:D9D8): the boot and title strings, ten pointer tables and the loose strings between them, all drawn by ConsoleStringRenderer. It is read in two ways: RunBg3Script runs a loose string directly (a BG3 script), and the text tag [TBL:@table,addr] picks a table entry with a 16-bit RAM variable as the index (item_name_table by $0AC6, the other tables by $0AE8, character_name_table by $0AD4 and misc_ui_strings by $0B26). Text tags: [N] = line break of one tilemap row, [DBL] = two rows, [LU:n] = shared word n (shared_word_table), [POS:x,y] = cursor, [PAL:n] = palette, [RCC:w,h] = clear (w+1) x (h+1) tiles. The old note called the block 'all game UI text organized into 10 sub-tables'; the dialogue lines are DialogString data elsewhere, and seven of the ten part notes were wrong (see below).
+; 
+; === TABLES (the index variable decides what the number means) ===
+; 
+; | Part | Bytes | Entries | Index | Content |
+; |------|-------|---------|-------|---------|
+; | boot_title_strings | 121304-121535 | 3 loose strings | | The region lockout warning (sFB_boot_logo, @system_strings.boot_title_strings), then 'PUSH START BUTTON' and the copyright text (sFC_title_intro) |
+; | item_name_table | 121535-122398 | 64 | item ID ($0AC6 = equipped item) | The name with [N] line breaks for the two-row name areas (status screen: [TBL:@item_name_table,AC6] at (8C,3)). $00 empty, $29-$37 blank (8 spaces), $38-$3F 'Mystic Statue' |
+; | item_name_line_table | 122398-123178 | 64 | item ID ($0AE8) | The same names on ONE line, printed as the first part of the item description box: [TBL item_name_line_table][TBL item_description_table] (E9D0) and 'name, Discard?, No, Yes' (E9E2). $29-$37 blank, $38-$3F 'Mystery Doll' |
+; | non_discardable_item_bits | 123178-123186 | 8 bytes | item ID | Bit table: byte = ID >> 3, bit = BitMaskTable[ID & 7] (bit 0 = lowest ID of the byte); CheckItemDiscardable (inventory_menu) |
+; | item_description_table | 123186-124396 | 41 ($00-$28) | item ID ($0AE8) | Description text of two to four rows, each starting with [DBL] so it continues under the name; $00 = 'Nothing'. Items $29-$3F have no entry |
+; | ability_menu_table | 124396-124509 | 12 | ability index ($0AE8) | One-line ability name, header of the ability description box (EAB4) |
+; | ability_name_table | 124509-124636 | 12 | ability index ($0AE8) | The ability name with [N] line breaks, printed on the status rows (EA49, EA56, EA63) |
+; | ability_description_table | 124636-124878 | 13 ($00-$0C) | ability index ($0AE8) | Ability description text starting with [DBL]; $00 = 'Nothing' |
+; | character_name_table | 124878-125260 | 4 | characterForm ($0AD4) | ' Will', ' Freedan', ' Shadow' and ' Shadow' (form 3 repeats form 2), followed by 15 loose HUD and status-screen strings |
+; | misc_ui_strings | 125260-125711 | 2 | button layout ($0B26) | 'B' (layout 0 = Type 1) and 'Y' (layout 1 = Type 2), the item-use button name printed in E919; followed by 20 loose menu strings |
+; 
+; Ability index = characterForm x 4 + ability slot + 1 ($0AE8, ComputeAbilityIndex); entry 0 is the empty / 'Nothing' entry. Will: $01 Psycho Dash, $02 Psycho Slider, $03 Spin Dash, $04 empty; Freedan: $05 Dark Friar, $06 Aura Barrier, $07 Earthquaker, $08 empty; Shadow: $09-$0B are the placeholder strings DEFENCERK, DARKCOREK and BLACK4K (descriptions 'Dark 1' in $09-$0C), not real abilities.
+; 
+; Item IDs named here are the same IDs as in the chest table and the inventory icons: $01 Red Jewel, $02 Prison Key, $03-$04 Incan Statue A / B, $05 Incan Melody, $06 Herb, $07 Blue Block, $08 Wind Melody, $09 Lola's Melody, $0A Meat, $0B-$0C Mine Key A / B, $0D Memory Melody, $0E Crystal Ball, $0F Elevator Key, $10 Palace Key, $11 Purify Stone, $12 Statue of Hope, $13 Rama Statue, $14 Magic Dust, $15 Blue Journal, $16 Lance's Letter, $17 Necklace Stones, $18 Will, $19 Teapot, $1A Mushroom Drop, $1B Bag of Gold, $1C Black Glasses, $1D Gorgon Flower, $1E-$23 Hieroglyph (six), $24 Aura, $25 Lola's Letter, $26 Father's Journal, $27 Crystal Ring, $28 Red Apple.
+; 
+; === NON-DISCARDABLE BITS ===
+; 
+; The bytes are $BC $FF $FF $FE $DF $00 $00 $00. Discardable (bit clear): $00, $01 Red Jewel, $06 Herb, $18 Will, $25 Lola's Letter, $28-$3F. Protected: $02-$05, $07-$17, $19-$24, $26 and $27. $18 and $25 being discardable is unexplained (OQ-I072-2).
+; 
+; === WHAT WAS WRONG IN THE OLD NOTES ===
+; 
+; item_name_line_table was 'longer descriptions shown when hovering': it is the one-line NAME (the description is item_description_table). The blank item range was given as $2A-$38 and the 'Mystic Statue' range as $39-$3F; they are $29-$37 and $38-$3F (8 statues, as the 8 'Mystery Doll' tags of shared_word_table say). item_description_table was 'multi-line descriptions of function and lore': it has 41 entries of short function text. non_discardable_item_bits was 'padding / alignment data between two tables'; it is read by CheckItemDiscardable. misc_ui_strings was 'status labels, save/load prompts, game over text': the table is just 'B' and 'Y' and the loose strings are inventory-menu prompts, tab titles and three screen labels (PAUSE, FORCE, the button legend). The old part notes of item_name_table (blank and statue ranges) and boot_title_strings ('displayed at boot': two of the three are title-screen strings) were also off. character_name_table was 'Will, Kara, Lance, Erik, Seth and other story characters': it holds the three player forms.
+; 
+; Byte check: the ten parts add up to 4407 bytes = 125711 - 121304. Part addresses are from blocks.json; the strings between the tables are listed in the part notes.
 ---------------------------------------------
 
 ?BANK 01
 
 ---------------------------------------------
 
-; 3 fixed ConsoleString entries displayed at boot: region lockout warning ('This game pak is not designed for your SUPER FAMICOM...'), 'PUSH START BUTTON', and copyright notice ('© 1994 QUINTET/ENIX, MARIKO OHARA/MOTO HAGIO, YASUHIRO KAWASAKI, LICENSED TO NINTENDO').
+; 3 fixed strings, none of them printed by the menus: this one is the region lockout screen of sFB_boot_logo ('WARNING! This game pak is not designed for your SUPER FAMICOM or Super NES.' and the Enix line; a 50 Hz console never leaves it). The next two, consolestring_01DA47 'PUSH START BUTTON' and consolestring_01DA5E the copyright text, are drawn by sFC_title_intro (the copyright first). The names file calls address 121304 boot_title_strings, the label sFB_boot_logo uses.
 
-consolestring_01D9D8 |[PAL:4][POS:18,2]WARNING![DBL][DBL][PAL:0][POS:0,3] This game pak is not designed[DBL] for your SUPER FAMICOM or[DBL] Super NES.[DBL][DBL][POS:DC,4]ENIX CORPORATION|
+boot_title_strings |[PAL:4][POS:18,2]WARNING![DBL][DBL][PAL:0][POS:0,3] This game pak is not designed[DBL] for your SUPER FAMICOM or[DBL] Super NES.[DBL][DBL][POS:DC,4]ENIX CORPORATION|
 
 consolestring_01DA47 |[PAL:4][POS:D0,4]PUSH START BUTTON|
 
 consolestring_01DA5E |[PAL:0][POS:C8,5](C) 1994  QUINTET⸓ENIX[POS:8,6]MARIKO OHARA⸓MOTO HAGIO[POS:4E,6]YASUHIRO KAWASAKI[POS:8C,6]LICENSED TO NINTENDO|
 ---------------------------------------------
 
-; Pointer table of 64 item display names used in inventory screens and item acquisition dialogs. Entries include: Red Jewel, Herb, Incan Statue A/B, Crystal Ball, Wind Melody, Lola's Melody, Mine Key A/B, Memory Melody, Elevator Key, Palace Key, Purify Stone, Rama Statue, Magic Dust, Black Glasses, Gorgon Flower, Hieroglyphs, Aura, Crystal Ring, etc. Blank entries ($2A–$38) are unused slots. Entries $39–$3F are 'Mystic Statue' variants.
+; 64 pointers, index = item ID. The names carry [N] line breaks for the two-row status area; item_name_line_table has the same names on one line. Empty at $00, blank (8 spaces) at $29-$37, 'Mystic Statue' at $38-$3F (the old note put the blank range at $2A-$38 and the statues at $39-$3F). $00 points at consolestring_01DB3F, the empty string shared with ability_menu_table and ability_name_table.
 
 item_name_table [
   &consolestring_01DB3F   ;00
@@ -212,9 +241,9 @@ consolestring_01DE0A |Mystic [LU:C]|
 consolestring_01DE14 |Mystic [LU:C]|
 ---------------------------------------------
 
-; Pointer table of 64 item menu descriptions — longer text shown when hovering over items in the inventory menu. Each entry provides a one-line functional description of the item's purpose.
+; 64 pointers, index = item ID. One-line item names: the first half of the item description box (consolestring_01E9D0 = this table + item_description_table) and the Discard? prompt (consolestring_01E9E2). It is not a table of descriptions. $29-$37 are blank and $38-$3F read 'Mystery Doll', unlike the 'Mystic Statue' of item_name_table (OQ-I072-1).
 
-item_menu_table [
+item_name_line_table [
   &consolestring_01DE9E   ;00
   &consolestring_01DE9F   ;01
   &consolestring_01DEAA   ;02
@@ -410,12 +439,12 @@ consolestring_01E11C |[LU:5]Doll|
 consolestring_01E123 |[LU:5]Doll|
 ---------------------------------------------
 
-; 8-byte binary separator between the item menu table and item description table. Padding/alignment data.
+; 8 bytes $BC $FF $FF $FE $DF 0 0 0: one bit per item ID, set = cannot be discarded (byte = ID >> 3, bit = BitMaskTable[ID & 7]). Read by CheckItemDiscardable. Discardable: $00, $01, $06, $18, $25, $28-$3F.
 
 non_discardable_item_bits #BCFFFFFEDF000000
 ---------------------------------------------
 
-; Pointer table of detailed item help text strings displayed on the item selection screen. Provides multi-line descriptions of each item's function and lore.
+; 41 pointers ($00-$28), index = item ID; there is no entry for $29-$3F. Short descriptions of three or four rows, each starting with [DBL] so it continues below the name line; $00 = 'Nothing'.
 
 item_description_table [
   &consolestring_01E184   ;00
@@ -544,7 +573,7 @@ consolestring_01E5BC |[DBL]Ring hidden[DBL]in Flute.|
 consolestring_01E5D3 |[DBL]Apple from[DBL]Euro Market.|
 ---------------------------------------------
 
-; Pointer table of ability menu display entries for the ability tab in the inventory screen.
+; 12 pointers, index = ability index (characterForm x 4 + slot + 1). One-line ability names; slots 4 of Will and Freedan are empty and the three Shadow entries are the placeholders DEFENCERK, DARKCOREK and BLACK4K.
 
 ability_menu_table [
   &consolestring_01DB3F   ;00
@@ -584,7 +613,7 @@ consolestring_01E64B |DARKCOREK|
 consolestring_01E655 |BLACK4K|
 ---------------------------------------------
 
-; Pointer table of ability short names: Psycho Dash, Psycho Slider, Spin Dash (Will); Dark Friar, Aura Barrier, Earthquaker (Freedan).
+; 12 pointers, index = ability index. The same names with [N] line breaks, printed after ':' on the status rows (consolestring_01EA49 / 01EA56 / 01EA63).
 
 ability_name_table [
   &consolestring_01DB3F   ;00
@@ -624,7 +653,7 @@ consolestring_01E6CA |DARKCOREK|
 consolestring_01E6D4 |BLACK4K|
 ---------------------------------------------
 
-; Pointer table of ability description text providing detailed explanations of each ability's effect and usage.
+; 13 pointers ($00-$0C), index = ability index. $00 = 'Nothing'; $04 and $08 are empty; $09-$0C read 'Dark 1' (placeholders of the unused form-2 rows).
 
 ability_description_table [
   &consolestring_01E184   ;00
@@ -667,7 +696,7 @@ consolestring_01E7C8 |[LU:2]1 |
 consolestring_01E7CD ||
 ---------------------------------------------
 
-; Pointer table of character display names: Will, Kara, Lance, Erik, Seth, and other story characters. Used in dialog and status screens.
+; 4 pointers, index = characterForm ($0AD4): ' Will', ' Freedan', ' Shadow', ' Shadow' (form 3 repeats form 2; each name has a leading space). Used by the status screen (STYLE) and consolestring_01EA70 ('<name>'s cond.'). The part also holds the loose strings consolestring_01E7F6 to 01E919 (HUD, status screen and panel clears), see consolestring_01E7F6.
 
 character_name_table [
   &consolestring_01E7D6   ;00
@@ -683,6 +712,9 @@ consolestring_01E7DD | Freedan|
 consolestring_01E7E6 | Shadow|
 
 consolestring_01E7EE | Shadow|
+
+---------------------------------------------
+; HUD line redrawn by system_core: 5 raw tiles (ESC:1-5), the player HP bar [HP], the hundreds digit of DP ($0AD8, BCD) and the DP number ($0AD6). HudRedesign.patch.asm overrides it. consolestring_01E818 is the second HUD line (enemy bar [HE] with raw tiles 8-C, drawn by inventory_overlay and system_core). The six small strings consolestring_01E82B to 01E85C (digits 1-3 and raw tiles at (DE,1) / (9E,1)) have no label reference in the code or the patches (OQ-I072-3).
 
 consolestring_01E7F6 |[POS:48,0][PAL:14][ESC:1,2,3,4,5][POS:84,0][PAL:8][HP][POS:9C,0][PAL:14][BCD:1,AD8][POS:A2,0][NUM:AD6]|
 
@@ -702,6 +734,9 @@ consolestring_01E85C |[POS:9E,1][ESC:0][POS:DE,1][ESC:0]|
 
 consolestring_01E869 |[POS:0,0][RCC:1F,4]|
 
+---------------------------------------------
+; Status-tab screen of the inventory: STYLE and the form name ([TBL:@character_name_table,AD4]), HP, DP, STR and DEF labels with their numbers, 'Items' with the equipped item name ([TBL:@item_name_table,AC6]) and the 'Dark Power' label (inventory_menu, the Status tab hover).
+
 consolestring_01E870 |[POS:46,1][PAL:14]STYLE[PAL:0][TBL:@character_name_table,AD4][PAL:14][POS:C6,1]HP[POS:6,2]DP[POS:46,2]STR[POS:86,2]DEF[POS:CE,1][PAL:0][NUM:ACE]⸓[NUM:ACA][POS:E,2][NUM:AD6][POS:4E,2][NUM:ADE][POS:8E,2][NUM:ADC][POS:14,2][NUM:AD8][PAL:14][POS:14,2]S[PAL:0][POS:6,3]Items[POS:8C,3][TBL:@item_name_table,AC6][POS:64,1][LU:2]Power|
 
 consolestring_01E8E2 |[POS:4,1][RCC:1C,B]|
@@ -712,10 +747,13 @@ consolestring_01E90B |[POS:44,5][RCC:1C,7]|
 
 consolestring_01E912 |[POS:56,5][RCC:13,7]|
 
+---------------------------------------------
+; 'Equipped. Equipment <B or Y> button to use.': the button letter comes from misc_ui_strings through [TBL:@misc_ui_strings,B26], the button layout of the save ($0B26).
+
 consolestring_01E919 |[PAL:0][POS:96,5]Equipped.[DBL]Equipment[DBL][PAL:14][TBL:@misc_ui_strings,B26][PAL:0] button to use.|
 ---------------------------------------------
 
-; Pointer table of miscellaneous UI strings: status labels, menu headers, save/load prompts, game over text, and other system messages.
+; 2 pointers: 'B' and 'Y', index = button layout ($0B26: 0 = Type 1, 1 = Type 2). The part continues with the loose menu strings: the tab prompts ('Rearrange items.', 'Discard item.', 'Select item and enter.', 'Rearrange items? Select 1st item.', 'Select 2nd item.', 'Discard which item?'), the item and ability description boxes (consolestring_01E9D0, 01EAB4), the tab titles (Gather Items, Arrange Items, Discard Item, Dark Power), the ability rows (consolestring_01EA49 to 01EA63), the Status-tab hint (consolestring_01EA70), 'PAUSE' (consolestring_01EAC6, GlobalInputHandler), 'FORCE' (consolestring_01EAD1, radar_map_screen) and the button legend box (consolestring_01EADC, sFA_diary_menu).
 
 misc_ui_strings [
   &consolestring_01E950   ;00
@@ -738,9 +776,9 @@ consolestring_01E9A6 |[PAL:0][POS:96,5][LU:B]2nd item.|
 
 consolestring_01E9B7 |[PAL:0][POS:96,5]Discard which[DBL]item?|
 
-consolestring_01E9D0 |[PAL:0][POS:96,5][TBL:@item_menu_table,AE8][TBL:@item_description_table,AE8]|
+consolestring_01E9D0 |[PAL:0][POS:96,5][TBL:@item_name_line_table,AE8][TBL:@item_description_table,AE8]|
 
-consolestring_01E9E2 |[PAL:0][POS:96,5][TBL:@item_menu_table,AE8][DBL]Discard?[DBL]  No[DBL]  Yes|
+consolestring_01E9E2 |[PAL:0][POS:96,5][TBL:@item_name_line_table,AE8][DBL]Discard?[DBL]  No[DBL]  Yes|
 
 consolestring_01EA02 |[PAL:0][POS:84,5]Gather[DBL]Items|
 

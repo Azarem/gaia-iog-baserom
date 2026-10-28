@@ -1,11 +1,43 @@
-; Per-scene metadata records indexed by scene ID.
+; Scene resource scripts (Bank 0D, 884736-897023, movable): one command stream per scene id that tells the scene script interpreter which display preset, tile art, palettes, metatile sets, maps, sprite art and music to load for that scene. The old note ('tileset, tilemap, palette bundle, music track, collision layer and display configuration') described fixed fields and a collision layer; the records are command streams and hold no collision data (RebuildCollisionLayer builds it from the map layer after the script has run).
 ; 
-; Each entry defines the scene's tileset, tilemap, palette bundle, music track,
-; collision layer, and display configuration. Read by the scene lifecycle
-; system during scene loading.
+; === WHO READS IT ===
+; 
+; system_init sets DP $3A/$3C to the start of this block (wram-init). Loading a scene runs SceneScriptMain (ClearSceneState in scene_lifecycle): FindCurrentScene positions Y at the scene's first command, then each loop reads an opcode with ReadScriptByte and jumps through scene_script_jump_table until opcode $00 ends the script. SceneScriptNoMusic is the same loop that skips the music command (5 operand bytes); the inventory overlay uses it to load scene $FF and to reload the previous scene without restarting the BGM.
+; 
+; === LAYOUT: EXTRACTED / REBUILT vs THE ORIGINAL ROM ===
+; 
+; The original ROM packs the records back to back as [scene id word][commands][$00] and FindCurrentScene scans them. The extraction (post process Lookup(0,1) && Label(label,meta_label)) lifts the ids out into scene_meta_list (256 words indexed by scene id, $0000 = no record) and the label ids into meta_label_list (64 words), so every record starts directly with its first command. The baserom patch baserom/scene-load/SceneMetaLoad.patch.asm replaces FindCurrentScene (ASL the scene id, LDA [$3A],Y) and SkipScriptCommands (meta_label_list lookup) with the indexed versions, which the new layout needs. The scene_script.asm text still shows the original scanning routines because the patch is applied at rebuild, not at extraction.
+; 
+; 231 records ($0000-$00FF minus 25 ids without a record: $09 $48 $4A $57 $76 $77 $80 $81 $84 $9E $9F $AA $AB $AF $C1 $C2 $CA $CB $EB-$EF $F1 $F8). 15 of the 16 unused ids of scene_actors are in that list. Every record starts with display-mode (all 231). 2052 commands in all.
+; 
+; === COMMANDS (opcode, handler in scene_script, operands as shown in the extraction, count in this file) ===
+; 
+; | Opcode | Mnemonic | Handler | Operands and effect | Count |
+; |--------|----------|---------|---------------------|-------|
+; | $02 | display-mode < n > | SceneCmd_ConfigDisplay | index of a display_preset_table record (TM/TS, window and colour-math registers, BG mode, layer flags) | 231 |
+; | $03 | bitmap < start, end, page, @gfx, mode > | SceneCmd_LoadBgTiles | window [start x $200, end x $200) of the decompressed art goes to VRAM word page x $100 + a base chosen by mode: 0 = $2000 (255 uses), 1 = $4000 (62), 2 = $6000, no cache check (2), 3 = a whole 4bpp page (unused). A source already in the cache slot ends the command | 319 |
+; | $04 | palette < start, end, dest, @pal > | SceneCmd_LoadPalette (see R-I065-6) | colours [start, end) of the palette data go to CGRAM buffer colour dest ($7F0A00 + dest x 2). When dest is $10 the first colour just loaded is also copied to colour 0 (the backdrop). Typical: 00,70,10 = 112 colours for BG palettes 1-7 (197 uses), 00,60,A0 = 96 sprite colours (44) | 278 |
+; | $05 | tileset < start, end, dest, layers, @set > | SceneCmd_LoadMetatileSets | window [start x $40, end x $40) of the decompressed metatile table to WRAM $7E2000 (layer 0) and/or $7E2800 (layer 1) + dest x $40; layers bit 0 = layer 0, bit 1 = layer 1 ($01 167, $02 105, $03 28); then BuildMetatileFlagTable. 00,20 = the first $800 bytes | 300 |
+; | $06 | tilemap < layer, @map > | SceneCmd_LoadLayerMaps | the map of layer 1 or 2 (operand $01 225 times, $02 158 times) decompressed to mapTilemapBaseA $A000 / mapTilemapBaseB $C000 with its width and height | 383 |
+; | $10 | spritemap < size, 0, @spm > | SceneCmd_LoadSpriteTiles | the word is the data size (only used when the source is stored uncompressed), the next byte is skipped ($00 in all 56); the spm_* data is decompressed to $4000 in WRAM; source cache slot $0684 | 56 |
+; | $11 | music < track, group, @bgm > | SpcMusicLoadCmd | the SPC transfer runs only when the group equals musicRoomGroup ($06F6): group 0 in 225 uses, 1 in 5, 2 in 4 (scenes with two tracks, one per room group). The first byte is the BGM id (one id per @bgm_* pointer in all 234 uses), it is stored in $06F2 and a nonzero value writes $01 (play) to APUIO0 after the transfer | 234 |
+; | $13 | branch < flag, label > | SceneCmd_Branch | tests event flag (TestFlagRaw); set = continue at the label (SkipScriptCommands), clear = skip the label byte | 18 |
+; | $14 | meta_label_NN: | SceneCmd_Label | defines label NN; executed as a no-op that skips its id byte | 56 |
+; | $15 | jump < label > | SkipScriptCommands | continues at the label, which may be inside another scene's record; the commands from there run to that record's end | 176 |
+; | $17 | char-tiles < flags, @dmap > | SceneCmd_LoadCharTiles | tile art to VRAM; bit 7 = absolute word address (flags and $7F) x 4. One use: scene $FF (inventory), flags $80 = VRAM $0000 | 1 |
+; 
+; Opcode $0E (SceneCmd_Skip3, 3 operand bytes) and the terminator $00 do not appear in the extraction (the delimiter is hidden). Opcodes $01, $07-$0D, $0F, $12 and $16 map to SceneCmd_Default (a bare RTS).
+; 
+; === LABELS, JUMPS AND BRANCHES ===
+; 
+; A label is a position inside a record, so shared art is stored once: the first scene that needs it defines a label before its bitmap / tileset commands and the other scenes jump to it after their own palette and tilemap commands. The 56 labels use ids $01-$3F; the 8 ids $00 $0A $12 $13 $14 $21 $34 $35 are unused. The most used targets: $22 (18 jumps), $31 (14), $18 (14), $2C (11), $29 (9). A branch tests a story flag and picks one of two sprite sets (scene_meta_0006) or one of two tracks (scene_meta_00AC).
+; 
+; The sample records below are listed in the part notes. Scene id to place names was not decoded here (the asset names such as pal_southcape, gfx_palace and gfx_village hint at the places).
 ---------------------------------------------
 
 ---------------------------------------------
+
+; 256 pointers indexed by scene id ($00-$FF) to the scene_meta_XXXX records; $0000 marks the 25 ids without a record. Generated by the extraction (Lookup(0,1)); FindCurrentScene reads it as [$3A] + scene id x 2 (SceneMetaLoad patch).
 
 scene_meta_list [
   &scene_meta_0000   ;00
@@ -266,11 +298,17 @@ scene_meta_list [
   &scene_meta_00FF   ;FF
 ]
 
+---------------------------------------------
+; Scene $00, the smallest record: display preset 0, the font art (bitmap mode 2 = VRAM word base $6000, where the dialog font lives) and the sprite palette of South Cape at colour $80. No music, no maps.
+
 scene_meta_0000 [
   display-mode < #00 >   ;00
   bitmap < #00, #20, #00, @gfx_fonts, #02 >   ;01
   palette < #00, #80, #80, @pal_southcape_sprites >   ;02
 ]
+
+---------------------------------------------
+; Scene $01 (South Cape): display preset 3, music $1C, the town tiles and effect tiles, the palette, both metatile sets and both maps. The label meta_label_3E in front of the sprite part (bitmap mode 1, sprite palette at colour $A0, spritemap) is the shared South Cape sprite set: other scenes reach it through jump < #3E > (scene $03, for example).
 
 scene_meta_0001 [
   display-mode < #03 >   ;00
@@ -300,6 +338,9 @@ scene_meta_0002 [
   palette < #00, #60, #A0, @pal_sc02_main_characters >   ;08
   spritemap < #$1463, #00, @spm_sc02_main_characters >   ;09
 ]
+
+---------------------------------------------
+; Scene $03 (a South Cape interior): defines meta_label_01, the shared interior bitmaps and metatile sets, in the middle of its own record, then jumps to meta_label_3E for the sprites. Scenes $04, $05 and $07 load their own palette and maps and jump to meta_label_01.
 
 scene_meta_0003 [
   display-mode < #01 >   ;00
@@ -332,6 +373,9 @@ scene_meta_0005 [
   tilemap < #02, @map_southcape_interior_effect >   ;04
   jump < #01 >   ;05
 ]
+
+---------------------------------------------
+; Scene $06 (Will's house): two music commands (group 0 and group 1), then a branch pair that picks the sprite set from story flags: flag $4C set = meta_label_01 (the shared interior art of scene $03, which then jumps to the South Cape sprites); flag $21 set = meta_label_23 (the main characters, scene $02 art); otherwise it falls through to meta_label_07 (the castle actors) and jumps to meta_label_24 for the interior art.
 
 scene_meta_0006 [
   display-mode < #01 >   ;00
@@ -2165,6 +2209,9 @@ scene_meta_00A9 [
   jump < #29 >   ;08
 ]
 
+---------------------------------------------
+; Scene $AC (gfx_village): the branch on flag $B3 chooses the music. Flag set = meta_label_32 (bgm_blessing_of_nature); clear = bgm_ominous_whispers, then jump to meta_label_33 over the other track. The shared village art and sprite part follow.
+
 scene_meta_00AC [
   display-mode < #1A >   ;00
   branch < #B3, #32 >   ;01
@@ -3001,6 +3048,9 @@ scene_meta_00FE [
   spritemap < #$1238, #00, @spm_overworld_sprites >   ;09
 ]
 
+---------------------------------------------
+; Scene $FF (inventory), loaded with SceneScriptNoMusic: display preset 0, sprite art and palette, then meta_label_11 in front of the background palette, BG bitmap and the only char-tiles command of the file (flags $80 = VRAM $0000).
+
 scene_meta_00FF [
   display-mode < #00 >   ;00
   bitmap < #00, #20, #00, @gfx_inventory_sprites, #01 >   ;01
@@ -3011,6 +3061,8 @@ scene_meta_00FF [
   char-tiles < #80, @dmap_inventory_bg >   ;06
 ]
 ---------------------------------------------
+
+; 64 pointers indexed by label id ($00-$3F) to the meta_label_NN positions inside the records; $0000 for the 8 unused ids. Generated by the extraction (Label(label,meta_label)); SkipScriptCommands reads it for every jump and every set branch (SceneMetaLoad patch).
 
 meta_label_list [
   #$0000   ;00

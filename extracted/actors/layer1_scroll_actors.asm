@@ -2,8 +2,8 @@
 ; 
 ; === SPAWN ===
 ; 
-; - Layer1DriftWrapped: scene actor record < X byte $01, Y byte $82 > in scene_actors entries $09 and $32 (scene_event_0C84BC, scene_event_0C9572).
-; - Layer1DriftUnbounded: record < $02, $02 > in scene_actors entries $4E and $50 (scene_event_0C9E92, scene_event_0CA01A).
+; - Layer1DriftWrapped: scene actor record < X byte $01, Y byte $82 > in scene_actors entries $09 and $32 (scene_09_actors, scene_32_actors).
+; - Layer1DriftUnbounded: record < $02, $02 > in scene_actors entries $4E and $50 (scene_4E_actors, scene_50_actors).
 ; - Layer1ParallaxRatio: sg55_viper_arena (SpawnBeforeFlags #$2800, then $14 := $0201 and $16 := 0) and sg55_mystic_statue code_0ACE81 ($14 := $0201, $16 := $000C).
 ; 
 ; === SPAWN BYTES = VELOCITY (the first two actors) ===

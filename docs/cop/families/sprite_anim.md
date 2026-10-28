@@ -17,7 +17,7 @@ These handlers assume `$7F0006`/`$7F0008` point at valid sprite set data (usuall
 | `$28` / `$2A` | Animation index / in-sequence frame counter |
 | `$7F0006,X` / `$7F0008,X` | Metasprite set pointer + bank (`SetMetasprite`) |
 | `$7F0016,X` | Loop counter from `$84`–`$87`; decremented by `AnimLoop` |
-| `$2C` / `$2E` | Movement delta-chain heads (`movement_delta_table` indices from staging); cleared when anim completes (`$89`/`$8A`/`$8B`/`$8C` paths) |
+| `$2C` / `$2E` | Movement delta-chain heads (`move_chain_table` indices from staging); cleared when anim completes (`$89`/`$8A`/`$8B`/`$8C` paths) |
 | `UpdateActorAnimation` | Advances frames, movement, OAM; **carry set** = sequence completed this step |
 
 ## Family notes
@@ -78,7 +78,7 @@ Does not change `$28` / `$2A` — typically followed by staging ops on the new s
 Swap to enemy sheet before anim (`extracted/babel_tower/comet_lair/sE8_dark_gaia.asm`):
 
 ```asm
-COP [SetMetasprite] ( @spriteset_enemies )
+COP [SetMetasprite] ( @spriteset_pickups_effects )
 COP [StageSpriteFrame] ( #07 )
 COP [AnimOnce]
 ```
@@ -86,7 +86,7 @@ COP [AnimOnce]
 Epilogue prop sheet (`extracted/ending/ending_comet/sE5_epilogue.asm`):
 
 ```asm
-COP [SetMetasprite] ( @spriteset_enemies )
+COP [SetMetasprite] ( @spriteset_pickups_effects )
 ...
 COP [SetMetasprite] ( @spriteset_npc_props )
 COP [StageSprAndHitbox] ( #04 )
@@ -95,7 +95,7 @@ COP [StageSprAndHitbox] ( #04 )
 FX actor with particle set + global anim path (`extracted/angkor_wat/snake_pit/awB4_snake_pit_fx.asm`):
 
 ```asm
-COP [SetMetasprite] ( @spriteset_particle_fx )
+COP [SetMetasprite] ( @spriteset_snake_pit_fx )
 COP [ResetSpriteState] ( #00, #$2020 )
 COP [AdvanceSpriteAnim]
 ```

@@ -9,7 +9,7 @@
 ; 
 ; === EXIT ===
 ; 
-; DarkSpaceExit masks the joypad, hides the player ($10 |= $2000), puts this actor on him, plays SFX $0C on both channels and the dissolve animation $1C of spriteset_enemies once, waits 30 ticks (WaitByte #1D), then fills the warp words: sceneNext = $0B12 (the scene the player warped from, saved by ExecuteWarp), player spawn X = $0B08 x 16 and Y = ($0B0C + 2) x 16 (the source warp rectangle's tile position), facing 3 and the packed camera window $0B10 / $0B11 -> warpScrollParams. gfxCacheIdxB = $0101 is the transition speed (exit and enter 1), gfxCacheIdxA = $0002 is exit effect 2 = mosaic, enter effect 0 = fade. The old notes called the destination a camera position and $0101 a brightness fade.
+; DarkSpaceExit masks the joypad, hides the player ($10 |= $2000), puts this actor on him, plays SFX $0C on both channels and the dissolve animation $1C of spriteset_pickups_effects once, waits 30 ticks (WaitByte #1D), then fills the warp words: sceneNext = $0B12 (the scene the player warped from, saved by ExecuteWarp), player spawn X = $0B08 x 16 and Y = ($0B0C + 2) x 16 (the source warp rectangle's tile position), facing 3 and the packed camera window $0B10 / $0B11 -> warpScrollParams. gfxCacheIdxB = $0101 is the transition speed (exit and enter 1), gfxCacheIdxA = $0002 is exit effect 2 = mosaic, enter effect 0 = fade. The old notes called the destination a camera position and $0101 a brightness fade.
 ; 
 ; === GAIA DIALOGUE ===
 ; 
@@ -23,7 +23,7 @@
 ; 
 ; === SPRITES (spm_darkspace_sprites) ===
 ; 
-; Animation #00 (4 frames, hold $63 then $0C x 3) is GaiaNpcSprite; #01 to #03 are the three sparkle variants of GaiaVoiceSparkle; #0A (32 frames of hold 0, a 16 x 16 spark alternating with an 8 x 8 tile) is the ability orb. #04 to #09 (8 x 8 effect tiles) are not used by this file. FireflyParticle and DarkSpaceExit use spriteset_enemies.
+; Animation #00 (4 frames, hold $63 then $0C x 3) is GaiaNpcSprite; #01 to #03 are the three sparkle variants of GaiaVoiceSparkle; #0A (32 frames of hold 0, a 16 x 16 spark alternating with an 8 x 8 tile) is the ability orb. #04 to #09 are not selected by this file (#04 to #06 are 8 x 8 effect tiles, #07 to #09 a 32 x 32 figure of 16 x 16 parts); the spm_darkspace_sprites block note lists all eleven animations. FireflyParticle and DarkSpaceExit use spriteset_pickups_effects.
 ; 
 ; === NOT REFERENCED ===
 ; 
@@ -31,14 +31,14 @@
 ; 
 ; === CORRECTIONS ===
 ; 
-; Replaced claims: byte 1 of AbilitySceneTable is an ability bit, not an index with a statue nibble; the continue prompt's Yes / No were described the other way round; $06 is the voice sparkle, not the Gaia NPC, and $24 is its voice switch; 'Unmask D-pad and face buttons' ($0F00) is the D-pad only; hpToHeal 40 is a heal request (not 'damage flash ticks'); warpDestX / warpDestY and the $0B08-$0B12 values are the player's spawn position and source scene, not a camera; GaiaNpcSprite loops an idle animation (it is not a single frame); the Shadow flag $B4 is set by Neil, not at Ankor Wat; 'spriteset #05 (transformation frames)' is player body entry #05 and the 'transformation spriteset' of the exit effect is spriteset_enemies; Transform_ShadowToFreedan uses SetEntryHereAndYield, not SetEntryExit.
+; Replaced claims: byte 1 of AbilitySceneTable is an ability bit, not an index with a statue nibble; the continue prompt's Yes / No were described the other way round; $06 is the voice sparkle, not the Gaia NPC, and $24 is its voice switch; 'Unmask D-pad and face buttons' ($0F00) is the D-pad only; hpToHeal 40 is a heal request (not 'damage flash ticks'); warpDestX / warpDestY and the $0B08-$0B12 values are the player's spawn position and source scene, not a camera; GaiaNpcSprite loops an idle animation (it is not a single frame); the Shadow flag $B4 is set by Neil, not at Ankor Wat; 'spriteset #05 (transformation frames)' is player body entry #05 and the 'transformation spriteset' of the exit effect is spriteset_pickups_effects; Transform_ShadowToFreedan uses SetEntryHereAndYield, not SetEntryExit.
 ---------------------------------------------
 
 ?INCLUDE 'actor_pool'
 ?INCLUDE 'player_character'
 ?INCLUDE 'save_system'
 ?INCLUDE 'shadow_shimmer'
-?INCLUDE 'spriteset_enemies'
+?INCLUDE 'spriteset_pickups_effects'
 
 !sceneNext                      0642
 !gfxCacheIdxA                   0648
@@ -117,7 +117,7 @@ DarkSpaceExit {
     COP [PlaySoundBoth] ( #$0C0C ) ; Dissolve SFX on both channels
     LDA #$2000            ; Show this actor's sprite
     TRB $10
-    COP [SetMetasprite] ( @spriteset_enemies ) ; Enemy spriteset: animation $1C is the dissolve effect (the portal uses it too)
+    COP [SetMetasprite] ( @spriteset_pickups_effects ) ; Enemy spriteset: animation $1C is the dissolve effect (the portal uses it too)
     COP [StageSpriteFrame] ( #1C ) ; Exit dissolve frame
     COP [AnimOnce]
     COP [WaitByte] ( #1D ) ; WaitByte #1D = 30 ticks for the dissolve
@@ -754,7 +754,7 @@ GaiaThenRest {
     STA $14
     LDA $0016, Y
     STA $16
-    COP [SetMetasprite] ( @spriteset_enemies ) ; Enemy spriteset (animation $1C = dissolve effect)
+    COP [SetMetasprite] ( @spriteset_pickups_effects ) ; Enemy spriteset (animation $1C = dissolve effect)
     LDA #$2000            ; Show this actor's sprite
     TRB $10
     COP [StageSpriteFrame] ( #1C ) ; Rest/dissolve frame
@@ -2044,12 +2044,12 @@ FireflySpawnerLoop {
 }
 
 ---------------------------------------------
-; One firefly: display-filtered, spriteset_enemies animation #02, starts at Y = 0 and a random X (RNG x 2), movement chains 4 / 6 / 8 / 10 on X and one less on Y, removed when Y reaches $FF. The loop would end at once for a negative Y step, so it must move down; the old note said it rises (OQ-I056-2).
+; One firefly: display-filtered, spriteset_pickups_effects animation #02, starts at Y = 0 and a random X (RNG x 2), movement chains 4 / 6 / 8 / 10 on X and one less on Y, removed when Y reaches $FF. The loop would end at once for a negative Y step, so it must move down; the old note said it rises (OQ-I056-2).
 
 FireflyParticle {
     LDA #$1000            ; Display-filtered
     TSB $12
-    COP [SetMetasprite] ( @spriteset_enemies )
+    COP [SetMetasprite] ( @spriteset_pickups_effects )
     COP [StageSprAndHitbox] ( #02 ) ; Firefly sprite
     LDA #$0000            ; Start at Y=0
     STA $16

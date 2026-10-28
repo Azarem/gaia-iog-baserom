@@ -10,16 +10,16 @@
 ;   - ItemHandlerJumpTable        $29 -> UseItem_SethsJewel (everything else unchanged)
 ;   - UseItem_SethsJewel          use handler (chained insert next to the table, same bank 03)
 ;   - item_name_table[$29]        existing blank string consolestring_01DD47
-;   - item_menu_table[$29]        existing blank string consolestring_01E06B
+;   - item_name_line_table[$29]        existing blank string consolestring_01E06B
 ;   - item_description_table      only has $00-$28, so the $29 entry is appended
-;   - item_get_dialog_table[$29]  pickup / "inventory full" line (was the shared blank dialogstring_01FEA6)
+;   - item_pickup_text_table[$29]  pickup / "inventory full" line (was the shared blank item_pickup_text_1B)
 ;
 ; Inventory sprite:    SethsJewelSprites.patch.asm
 ; Equipped HUD icon:   SethsJewelIcon.patch.asm
 
 ?INCLUDE 'item_use_system'
 ?INCLUDE 'system_strings'
-?INCLUDE 'item_get_dialog_table'
+?INCLUDE 'item_pickup_text_table'
 
 -------------------------------------------------------------
 ; Use handler dispatch. Array entries cannot be patched individually, so the whole table is replaced;
@@ -54,10 +54,10 @@ item_description_table+= [
 consolestring_seths_jewel_desc |[DBL]Strange jewel[DBL]Seth found on[DBL]the Gold Ship.|
 
 -------------------------------------------------------------
-; Item-get / inventory-full line printed through [ADR:&item_get_dialog_table,DB8].
+; Item-get / inventory-full line printed through [ADR:&item_pickup_text_table,DB8].
 ; Replaces the shared blank entry for $29 (everything else unchanged).
 
-item_get_dialog_table#52: &dialogstring_seths_jewel_get
+item_pickup_text_table#52: &dialogstring_seths_jewel_get
 
 
 dialogstring_seths_jewel_get `You found Seth's Jewel!`

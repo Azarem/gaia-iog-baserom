@@ -4,7 +4,7 @@
 ; 
 ; Frame 0: player $10 |= $0040 (dead; shadow_shimmer reads it) and joypadMaskStd |= $FFFC (every button and the D-pad, Start and Select included).
 ; After 33 ticks (WaitByte #20): spawn DeathPaletteFadeThinker (palette bundles $10, then $0E) and GameOverCutsceneSprites (the sparkles).
-; After 120 more ticks (WaitByte #77): clear player $10 bit $8000 (the player stops using DecomposePlayerSprites), SFX $0C on both channels (the same SFX as the Dark Space warp) and play animation #1C of spriteset_enemies once (also used by the Dark Space warp).
+; After 120 more ticks (WaitByte #77): clear player $10 bit $8000 (the player stops using DecomposePlayerSprites), SFX $0C on both channels (the same SFX as the Dark Space warp) and play animation #1C of spriteset_pickups_effects once (also used by the Dark Space warp).
 ; Fade: orbitAngle starts at 15; every pass writes counter - 1 to INIDISP (brightness 14 down to 0) and waits 4 ticks (WaitByte #03), 60 ticks in all. Forced blank is never set.
 ; Then two one-frame palette thinkers (PaletteResetAndKillThinker with bundle IDs $0B and $0D: sub-entry 0 of each bundle is applied once), one yield and the respawn choice.
 ; 
@@ -28,7 +28,7 @@
 
 ?INCLUDE 'actor_pool'
 ?INCLUDE 'DeathPaletteFadeThinker'
-?INCLUDE 'spriteset_enemies'
+?INCLUDE 'spriteset_pickups_effects'
 
 !sceneNext                      0642
 !sceneCurrent                   0644
@@ -68,8 +68,8 @@ GameOverSequence {
     LDA #$8000            ; Clear bit 15 of the player's $10: it leaves DecomposePlayerSprites and is drawn as a plain metasprite
     TRB $10
     COP [PlaySoundBoth] ( #$0C0C ) ; SFX $0C on both channels (same as the Dark Space warp)
-    COP [SetMetasprite] ( @spriteset_enemies )
-    COP [StageSpriteFrame] ( #1C ) ; Animation #1C of spriteset_enemies, played once (also the Dark Space warp effect)
+    COP [SetMetasprite] ( @spriteset_pickups_effects )
+    COP [StageSpriteFrame] ( #1C ) ; Animation #1C of spriteset_pickups_effects, played once (also the Dark Space warp effect)
     COP [AnimOnce]
     LDA #$000F            ; Fade counter: brightness 15
     STA $orbitAngle, X
@@ -179,7 +179,7 @@ GameOverSequence {
 GameOverCutsceneSprites {
     LDA #$2000            ; Hidden spawner (already set by CopyActorState)
     TSB $10
-    COP [SetMetasprite] ( @spriteset_enemies )
+    COP [SetMetasprite] ( @spriteset_pickups_effects )
     COP [SetSpritePalette] ( #00 )
     COP [WaitByte] ( #0B )
     COP [SpawnAfterOffsetMarked] ( @GameOverSparkleOrbitA, #E7, #D8, #$0700 ) ; Offsets -25, -40 from the player; flags $0700
@@ -192,7 +192,7 @@ GameOverCutsceneSprites {
 }
 
 ---------------------------------------------
-; Sparkle that loops forever: Flags10 $0001 (depth override: drawn behind every other actor) while animation #15 plays once with the X ramp $2D and the Y ramp $2F of movement_delta_table, then $0002 (drawn in front of every actor) with animation #15 and the ramps $2E / $30. The ramps are $2D positive X, $2E negative X, $2F negative-then-positive Y and $30 positive-then-negative Y, so the sparkle swings out and back around the player, passing behind and in front (inferred from the signs; not run). Spawned twice.
+; Sparkle that loops forever: Flags10 $0001 (depth override: drawn behind every other actor) while animation #15 plays once with the X ramp $2D and the Y ramp $2F of move_chain_table, then $0002 (drawn in front of every actor) with animation #15 and the ramps $2E / $30. The ramps are $2D positive X, $2E negative X, $2F negative-then-positive Y and $30 positive-then-negative Y, so the sparkle swings out and back around the player, passing behind and in front (inferred from the signs; not run). Spawned twice.
 
 GameOverSparkleOrbitA {
     LDA #$0001

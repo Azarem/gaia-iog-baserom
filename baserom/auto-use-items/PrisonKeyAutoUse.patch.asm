@@ -58,7 +58,7 @@ ec0B_door_use_key {
     JML $@ItemUseStub
 }
 
-;scene_event_0C8612+ [
+;scene_0B_actors+ [
 ;  actor-spawn < #09, #18, #00, @ec0B_side_door >   ;09
 ;]
 

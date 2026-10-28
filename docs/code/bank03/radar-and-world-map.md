@@ -279,7 +279,7 @@ Each `route-step` is a 4-byte record: `route-step < xDeltaIndex, yDeltaIndex, ro
 
 | Field | Meaning |
 |-------|---------|
-| `xDeltaIndex` | index into `movement_delta_table` for the X chain (`$00CA`); 0 = still |
+| `xDeltaIndex` | index into `move_chain_table` for the X chain (`$00CA`); 0 = still |
 | `yDeltaIndex` | index for the Y chain (`$00CC`); 0 = still |
 | `rotationDeltaIndex` | index for the rotation chain (`$00BC`); 0 = still |
 | `ticks` | n; the step runs n + 1 ticks |

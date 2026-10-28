@@ -20,7 +20,7 @@
 ?INCLUDE 'sE6_gaia'
 ?INCLUDE 'SetPlayerGameOverFlag'
 ?INCLUDE 'smooth_follow_child'
-?INCLUDE 'spriteset_enemies'
+?INCLUDE 'spriteset_pickups_effects'
 ?INCLUDE 'StandardEnemyDefeatHandler'
 
 !gfxCacheIdxA                   0648
@@ -502,7 +502,7 @@ code_0BA9C2 {
 }
 
 code_0BA9F2 {
-    COP [SetMetasprite] ( @spriteset_enemies )
+    COP [SetMetasprite] ( @spriteset_pickups_effects )
     COP [LoopStart] ( #0C )
     COP [SpawnListAppend] ( @code_0BAA19, #00, #00, #$0302 )
     COP [WaitByte] ( #01 )

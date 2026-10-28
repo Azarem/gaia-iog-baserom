@@ -6,7 +6,7 @@
 ; and the Tower of Babel approach.
 ---------------------------------------------
 
-?INCLUDE 'spriteset_enemies'
+?INCLUDE 'spriteset_pickups_effects'
 
 ---------------------------------------------
 
@@ -15,7 +15,7 @@ na49_wings [
 
   code_05E3F6:
     COP [NudgePosition] ( #08, #00 )
-    COP [SetMetasprite] ( @spriteset_enemies )
+    COP [SetMetasprite] ( @spriteset_pickups_effects )
     COP [StageSpriteFrame] ( #00 )
     COP [AnimOnce]
     COP [SetInteractHandler] ( &code_05E40B )

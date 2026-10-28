@@ -6,7 +6,7 @@
 ; and the dramatic approach to the comet's surface.
 ---------------------------------------------
 
-?INCLUDE 'spriteset_enemies'
+?INCLUDE 'spriteset_pickups_effects'
 
 !playerActor                    09AA
 !playerFlags                    09AE
@@ -199,7 +199,7 @@ code_0CED4C {
 }
 
 code_0CEDAB {
-    COP [SetMetasprite] ( @spriteset_enemies )
+    COP [SetMetasprite] ( @spriteset_pickups_effects )
     COP [RngByte]
     AND #$000F
     SEC 

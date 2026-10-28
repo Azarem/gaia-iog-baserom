@@ -1,8 +1,26 @@
-; Per-scene thinker spawn lists indexed by scene ID.
+; Per-scene thinker spawn lists (Bank 0C, 845285-846683 = $0C:E5E5): a 256-word pointer table indexed by scene ID x 2 ($0646), followed by 70 lists of thinker-spawn records (204 records in all). SpawnSceneThinkers (thinker_execution) runs once per scene build: it reads scene_thinkers[$0646], allocates a thinker slot for every record up to the $FF terminator and calls InitThinkerFromSceneData. A zero pointer or a first byte with bit 7 set means no thinkers. The old note ('background AI thinkers: palette cyclers, HDMA effects, ambient handlers') was only half right: global_ambient_dispatcher, which 59 of the 70 lists contain, is the player palette and the talk interaction, not an ambient effect.
 ; 
-; Each scene entry defines which background AI thinkers (palette cyclers,
-; HDMA effects, ambient handlers) spawn when the scene loads.
-; Read by SpawnSceneThinkers during scene transitions.
+; === RECORD (4 bytes, extraction: thinker-spawn < param, @code >) ===
+; 
+; | Byte | Field |
+; |------|-------|
+; | +0 | Spawn parameter: stored as animScratch+2 ($7F0002,X) of the new thinker. What it means is up to the code: the palette bundle ID for ambient_palette_cycler, the parallax_scroll_table index ($00-$24) for scanline_band_hdma_thinker, unused ($00) for most others |
+; | +1..+3 | Long pointer to the thinker's code; its first word becomes the thinker's filter flags (animScratch2) and the entry point is code + 2 |
+; 
+; A list ends with a $FF byte (bit 7 of byte 0 is the test), which the extraction does not print.
+; 
+; === SHARING ===
+; 
+; - 70 of the 256 scenes use the bare list thinker_spawn_dispatcher_only (only global_ambient_dispatcher). Three more lists hold the same single record (0CE8E1 for scene $40, 0CE8EF and 0CE8F4 for scenes $4B and $4C).
+; - 43 scenes point at thinker_spawn_0CE7EA+8: the table entry may point into the middle of another scene's list, so a scene starts at a later record. The offset is in hex and counts bytes (4 per record): +4 skips one record, +8 two. 0CE7EA holds ambient_palette_cycler ($3F), flag_gated_palette_cool, scanline_band_hdma_thinker ($02) and global_ambient_dispatcher, so +8 = scanline band $02 plus the dispatcher. Two scenes ($04, $07) enter it at +0 and 4 at +4. The other shifted entries: 0CE80C+4, 0CE843+4 (2), 0CE861+8 (4), 0CE87F+4, 0CE8A1+8, 0CE96F+8 (2), 0CE9E1+4 (8), 0CEA11+4 (6).
+; - 67 of the 70 lists are reached from the table. Unreferenced: 0CE8E6 (scanline band $20 + dispatcher), 0CE9EA (palette bundles $01 and $32, dispatcher, scanline band $0F) and 0CEA45 (bundles $44 and $45 + dispatcher, a copy of 0CEA2F).
+; - The dispatcher is the last record in most lists but the first in some (for example 0CE8C7, 0CE959, 0CE98D, 0CE99A, 0CE9A3, 0CE9AC); the credits list 0CEA5B has none.
+; 
+; === WHAT THE CODE FILES SAY ===
+; 
+; The block notes of ambient_palette_cycler, scanline_band_hdma_thinker and global_ambient_dispatcher describe the parameters. The 204 records are 59 ambient_palette_cycler, 59 global_ambient_dispatcher, 30 scanline_band_hdma_thinker and 56 spread over the other thinker code files. The list order is the spawn order. What each bundle or band looks like on screen was not traced.
+; 
+; Byte check: 1398 = 512 (256 pointers) + 204 x 4 (records) + 70 ($FF terminators). The ?INCLUDE list at the top names the 45 thinker code files the records point at.
 ---------------------------------------------
 
 ?BANK 0C
@@ -55,8 +73,10 @@
 
 ---------------------------------------------
 
+; 256 word pointers, index = scene ID. An entry may point into the middle of a list (the +4 / +8 suffix is the byte offset), see the block note.
+
 scene_thinkers [
-  &thinker_spawn_0CE7E5   ;00
+  &thinker_spawn_dispatcher_only   ;00
   &thinker_spawn_0CE80C+4   ;01
   &thinker_spawn_0CE7EA+8   ;02
   &thinker_spawn_0CE7EA+4   ;03
@@ -65,34 +85,34 @@ scene_thinkers [
   &thinker_spawn_0CE7EA+4   ;06
   &thinker_spawn_0CE7EA   ;07
   &thinker_spawn_0CE7EA+4   ;08
-  &thinker_spawn_0CE7E5   ;09
+  &thinker_spawn_dispatcher_only   ;09
   &thinker_spawn_0CE821   ;0A
-  &thinker_spawn_0CE7E5   ;0B
-  &thinker_spawn_0CE7E5   ;0C
+  &thinker_spawn_dispatcher_only   ;0B
+  &thinker_spawn_dispatcher_only   ;0C
   &thinker_spawn_0CE82E   ;0D
   &thinker_spawn_0CE82E   ;0E
   &thinker_spawn_0CE82E   ;0F
-  &thinker_spawn_0CE7E5   ;10
-  &thinker_spawn_0CE7E5   ;11
+  &thinker_spawn_dispatcher_only   ;10
+  &thinker_spawn_dispatcher_only   ;11
   &thinker_spawn_0CE82E   ;12
-  &thinker_spawn_0CE7E5   ;13
-  &thinker_spawn_0CE7E5   ;14
+  &thinker_spawn_dispatcher_only   ;13
+  &thinker_spawn_dispatcher_only   ;14
   &thinker_spawn_0CE843   ;15
   &thinker_spawn_0CE7EA+8   ;16
   &thinker_spawn_0CE7EA+8   ;17
   &thinker_spawn_0CE7EA+8   ;18
-  &thinker_spawn_0CE7E5   ;19
+  &thinker_spawn_dispatcher_only   ;19
   &thinker_spawn_0CE843+4   ;1A
-  &thinker_spawn_0CE7E5   ;1B
+  &thinker_spawn_dispatcher_only   ;1B
   &thinker_spawn_0CE843+4   ;1C
   &thinker_spawn_0CE861   ;1D
-  &thinker_spawn_0CE7E5   ;1E
-  &thinker_spawn_0CE7E5   ;1F
+  &thinker_spawn_dispatcher_only   ;1E
+  &thinker_spawn_dispatcher_only   ;1F
   &thinker_spawn_0CE861+8   ;20
   &thinker_spawn_0CE8D4   ;21
   &thinker_spawn_0CE8D4   ;22
   &thinker_spawn_0CE850   ;23
-  &thinker_spawn_0CE7E5   ;24
+  &thinker_spawn_dispatcher_only   ;24
   &thinker_spawn_0CE861+8   ;25
   &thinker_spawn_0CE861+8   ;26
   &thinker_spawn_0CE872   ;27
@@ -113,11 +133,11 @@ scene_thinkers [
   &thinker_spawn_0CE7EA+8   ;36
   &thinker_spawn_0CE7EA+8   ;37
   &thinker_spawn_0CE7EA+8   ;38
-  &thinker_spawn_0CE7E5   ;39
+  &thinker_spawn_dispatcher_only   ;39
   &thinker_spawn_0CE7EA+8   ;3A
   &thinker_spawn_0CE7EA+8   ;3B
   &thinker_spawn_0CE7EA+8   ;3C
-  &thinker_spawn_0CE7E5   ;3D
+  &thinker_spawn_dispatcher_only   ;3D
   &thinker_spawn_0CE9E1+4   ;3E
   &thinker_spawn_0CE9E1+4   ;3F
   &thinker_spawn_0CE8E1   ;40
@@ -128,9 +148,9 @@ scene_thinkers [
   &thinker_spawn_0CE9E1+4   ;45
   &thinker_spawn_0CE9E1+4   ;46
   &thinker_spawn_0CE9E1+4   ;47
-  &thinker_spawn_0CE7E5   ;48
+  &thinker_spawn_dispatcher_only   ;48
   &thinker_spawn_0CE7EA+8   ;49
-  &thinker_spawn_0CE7E5   ;4A
+  &thinker_spawn_dispatcher_only   ;4A
   &thinker_spawn_0CE8EF   ;4B
   &thinker_spawn_0CE8F4   ;4C
   &thinker_spawn_0CE8F9   ;4D
@@ -143,8 +163,8 @@ scene_thinkers [
   &thinker_spawn_0CE950   ;54
   &thinker_spawn_0CE959   ;55
   &thinker_spawn_0CE7EA+8   ;56
-  &thinker_spawn_0CE7E5   ;57
-  &thinker_spawn_0CE7E5   ;58
+  &thinker_spawn_dispatcher_only   ;57
+  &thinker_spawn_dispatcher_only   ;58
   &thinker_spawn_0CE962   ;59
   &thinker_spawn_0CE96F+8   ;5A
   &thinker_spawn_0CE96F+8   ;5B
@@ -155,27 +175,27 @@ scene_thinkers [
   &thinker_spawn_0CE98D   ;60
   &thinker_spawn_0CE98D   ;61
   &thinker_spawn_0CE98D   ;62
-  &thinker_spawn_0CE7E5   ;63
+  &thinker_spawn_dispatcher_only   ;63
   &thinker_spawn_0CE98D   ;64
   &thinker_spawn_0CE98D   ;65
-  &thinker_spawn_0CE7E5   ;66
+  &thinker_spawn_dispatcher_only   ;66
   &thinker_spawn_0CE99A   ;67
   &thinker_spawn_0CEA11+4   ;68
-  &thinker_spawn_0CE7E5   ;69
+  &thinker_spawn_dispatcher_only   ;69
   &thinker_spawn_0CEA11+4   ;6A
   &thinker_spawn_0CEA11   ;6B
   &thinker_spawn_0CEA11+4   ;6C
   &thinker_spawn_0CEA11+4   ;6D
-  &thinker_spawn_0CE7E5   ;6E
+  &thinker_spawn_dispatcher_only   ;6E
   &thinker_spawn_0CEA26   ;6F
   &thinker_spawn_0CEA11+4   ;70
-  &thinker_spawn_0CE7E5   ;71
-  &thinker_spawn_0CE7E5   ;72
+  &thinker_spawn_dispatcher_only   ;71
+  &thinker_spawn_dispatcher_only   ;72
   &thinker_spawn_0CEA11+4   ;73
   &thinker_spawn_0CE9A3   ;74
-  &thinker_spawn_0CE7E5   ;75
-  &thinker_spawn_0CE7E5   ;76
-  &thinker_spawn_0CE7E5   ;77
+  &thinker_spawn_dispatcher_only   ;75
+  &thinker_spawn_dispatcher_only   ;76
+  &thinker_spawn_dispatcher_only   ;77
   &thinker_spawn_0CE9AC   ;78
   &thinker_spawn_0CE7EA+8   ;79
   &thinker_spawn_0CE7EA+8   ;7A
@@ -184,8 +204,8 @@ scene_thinkers [
   &thinker_spawn_0CE7EA+8   ;7D
   &thinker_spawn_0CE7EA+8   ;7E
   &thinker_spawn_0CE9AC   ;7F
-  &thinker_spawn_0CE7E5   ;80
-  &thinker_spawn_0CE7E5   ;81
+  &thinker_spawn_dispatcher_only   ;80
+  &thinker_spawn_dispatcher_only   ;81
   &thinker_spawn_0CE9B5   ;82
   &thinker_spawn_0CE9B5   ;83
   &thinker_spawn_0CE9BE   ;84
@@ -193,15 +213,15 @@ scene_thinkers [
   &thinker_spawn_0CE9B5   ;86
   &thinker_spawn_0CE9B5   ;87
   &thinker_spawn_0CE9B5   ;88
-  &thinker_spawn_0CE7E5   ;89
+  &thinker_spawn_dispatcher_only   ;89
   &thinker_spawn_0CE9D4   ;8A
   &thinker_spawn_0CE9B5   ;8B
   &thinker_spawn_0CEB2A   ;8C
-  &thinker_spawn_0CE7E5   ;8D
-  &thinker_spawn_0CE7E5   ;8E
-  &thinker_spawn_0CE7E5   ;8F
-  &thinker_spawn_0CE7E5   ;90
-  &thinker_spawn_0CE7E5   ;91
+  &thinker_spawn_dispatcher_only   ;8D
+  &thinker_spawn_dispatcher_only   ;8E
+  &thinker_spawn_dispatcher_only   ;8F
+  &thinker_spawn_dispatcher_only   ;90
+  &thinker_spawn_dispatcher_only   ;91
   &thinker_spawn_0CE7EA+8   ;92
   &thinker_spawn_0CE7EA+8   ;93
   &thinker_spawn_0CE7EA+8   ;94
@@ -214,7 +234,7 @@ scene_thinkers [
   &thinker_spawn_0CE7EA+8   ;9B
   &thinker_spawn_0CE7EA+8   ;9C
   &thinker_spawn_0CE7EA+8   ;9D
-  &thinker_spawn_0CE7E5   ;9E
+  &thinker_spawn_dispatcher_only   ;9E
   &thinker_spawn_0CE9FB   ;9F
   &thinker_spawn_0CE9FB   ;A0
   &thinker_spawn_0CE9FB   ;A1
@@ -226,31 +246,31 @@ scene_thinkers [
   &thinker_spawn_0CE9FB   ;A7
   &thinker_spawn_0CE9FB   ;A8
   &thinker_spawn_0CE9FB   ;A9
-  &thinker_spawn_0CE7E5   ;AA
-  &thinker_spawn_0CE7E5   ;AB
+  &thinker_spawn_dispatcher_only   ;AA
+  &thinker_spawn_dispatcher_only   ;AB
   &thinker_spawn_0CEA08   ;AC
   &thinker_spawn_0CE7EA+8   ;AD
   &thinker_spawn_0CE7EA+8   ;AE
-  &thinker_spawn_0CE7E5   ;AF
-  &thinker_spawn_0CE7E5   ;B0
-  &thinker_spawn_0CE7E5   ;B1
-  &thinker_spawn_0CE7E5   ;B2
-  &thinker_spawn_0CE7E5   ;B3
-  &thinker_spawn_0CE7E5   ;B4
-  &thinker_spawn_0CE7E5   ;B5
-  &thinker_spawn_0CE7E5   ;B6
-  &thinker_spawn_0CE7E5   ;B7
-  &thinker_spawn_0CE7E5   ;B8
-  &thinker_spawn_0CE7E5   ;B9
-  &thinker_spawn_0CE7E5   ;BA
-  &thinker_spawn_0CE7E5   ;BB
-  &thinker_spawn_0CE7E5   ;BC
-  &thinker_spawn_0CE7E5   ;BD
-  &thinker_spawn_0CE7E5   ;BE
-  &thinker_spawn_0CE7E5   ;BF
-  &thinker_spawn_0CE7E5   ;C0
-  &thinker_spawn_0CE7E5   ;C1
-  &thinker_spawn_0CE7E5   ;C2
+  &thinker_spawn_dispatcher_only   ;AF
+  &thinker_spawn_dispatcher_only   ;B0
+  &thinker_spawn_dispatcher_only   ;B1
+  &thinker_spawn_dispatcher_only   ;B2
+  &thinker_spawn_dispatcher_only   ;B3
+  &thinker_spawn_dispatcher_only   ;B4
+  &thinker_spawn_dispatcher_only   ;B5
+  &thinker_spawn_dispatcher_only   ;B6
+  &thinker_spawn_dispatcher_only   ;B7
+  &thinker_spawn_dispatcher_only   ;B8
+  &thinker_spawn_dispatcher_only   ;B9
+  &thinker_spawn_dispatcher_only   ;BA
+  &thinker_spawn_dispatcher_only   ;BB
+  &thinker_spawn_dispatcher_only   ;BC
+  &thinker_spawn_dispatcher_only   ;BD
+  &thinker_spawn_dispatcher_only   ;BE
+  &thinker_spawn_dispatcher_only   ;BF
+  &thinker_spawn_dispatcher_only   ;C0
+  &thinker_spawn_dispatcher_only   ;C1
+  &thinker_spawn_dispatcher_only   ;C2
   &thinker_spawn_0CEA6C   ;C3
   &thinker_spawn_0CE7EA+8   ;C4
   &thinker_spawn_0CE7EA+8   ;C5
@@ -258,8 +278,8 @@ scene_thinkers [
   &thinker_spawn_0CE7EA+8   ;C7
   &thinker_spawn_0CE7EA+8   ;C8
   &thinker_spawn_0CE7EA+8   ;C9
-  &thinker_spawn_0CE7E5   ;CA
-  &thinker_spawn_0CE7E5   ;CB
+  &thinker_spawn_dispatcher_only   ;CA
+  &thinker_spawn_dispatcher_only   ;CB
   &thinker_spawn_0CEA2F   ;CC
   &thinker_spawn_0CEA3C   ;CD
   &thinker_spawn_0CEA2F   ;CE
@@ -276,15 +296,15 @@ scene_thinkers [
   &thinker_spawn_0CEA2F   ;D9
   &thinker_spawn_0CEA2F   ;DA
   &thinker_spawn_0CEA2F   ;DB
-  &thinker_spawn_0CE7E5   ;DC
+  &thinker_spawn_dispatcher_only   ;DC
   &thinker_spawn_0CEA52   ;DD
-  &thinker_spawn_0CE7E5   ;DE
+  &thinker_spawn_dispatcher_only   ;DE
   &thinker_spawn_0CEA81   ;DF
   &thinker_spawn_0CEA81   ;E0
   &thinker_spawn_0CEA8E   ;E1
-  &thinker_spawn_0CE7E5   ;E2
+  &thinker_spawn_dispatcher_only   ;E2
   &thinker_spawn_0CEA81   ;E3
-  &thinker_spawn_0CE7E5   ;E4
+  &thinker_spawn_dispatcher_only   ;E4
   &thinker_spawn_0CEA9B   ;E5
   &thinker_spawn_0CEAAC   ;E6
   &thinker_spawn_0CEAB5   ;E7
@@ -295,17 +315,17 @@ scene_thinkers [
   &thinker_spawn_0CEAAC   ;EC
   &thinker_spawn_0CEAAC   ;ED
   &thinker_spawn_0CEAAC   ;EE
-  &thinker_spawn_0CE7E5   ;EF
-  &thinker_spawn_0CE7E5   ;F0
-  &thinker_spawn_0CE7E5   ;F1
+  &thinker_spawn_dispatcher_only   ;EF
+  &thinker_spawn_dispatcher_only   ;F0
+  &thinker_spawn_dispatcher_only   ;F1
   &thinker_spawn_0CEAFA   ;F2
   &thinker_spawn_0CEAD3   ;F3
   &thinker_spawn_0CEAAC   ;F4
   &thinker_spawn_0CEAE0   ;F5
   &thinker_spawn_0CEAED   ;F6
   &thinker_spawn_0CEA5B   ;F7
-  &thinker_spawn_0CE7E5   ;F8
-  &thinker_spawn_0CE7E5   ;F9
+  &thinker_spawn_dispatcher_only   ;F8
+  &thinker_spawn_dispatcher_only   ;F9
   &thinker_spawn_0CEB18   ;FA
   &thinker_spawn_0CEB1D   ;FB
   &thinker_spawn_0CEB2F   ;FC
@@ -314,9 +334,15 @@ scene_thinkers [
   &thinker_spawn_0CEB46   ;FF
 ]
 
-thinker_spawn_0CE7E5 [
+---------------------------------------------
+; The bare list: only global_ambient_dispatcher. Used by 70 scenes.
+
+thinker_spawn_dispatcher_only [
   thinker-spawn < #00, @global_ambient_dispatcher >
 ]
+
+---------------------------------------------
+; Shared default list: ambient_palette_cycler (bundle $3F), flag_gated_palette_cool, scanline_band_hdma_thinker (band $02), global_ambient_dispatcher. Entered at +0 by 2 scenes, at +4 by 4 and at +8 by 43.
 
 thinker_spawn_0CE7EA [
   thinker-spawn < #3F, @ambient_palette_cycler >   ;00
@@ -424,6 +450,9 @@ thinker_spawn_0CE8D4 [
 thinker_spawn_0CE8E1 [
   thinker-spawn < #00, @global_ambient_dispatcher >
 ]
+
+---------------------------------------------
+; Unreferenced by the table: scanline_band_hdma_thinker band $20 and global_ambient_dispatcher (OQ-I072-3).
 
 thinker_spawn_0CE8E6 [
   thinker-spawn < #20, @scanline_band_hdma_thinker >   ;00
@@ -556,6 +585,9 @@ thinker_spawn_0CE9E1 [
   thinker-spawn < #00, @global_ambient_dispatcher >   ;01
 ]
 
+---------------------------------------------
+; Unreferenced by the table: palette bundles $01 and $32, global_ambient_dispatcher and scanline band $0F (OQ-I072-3).
+
 thinker_spawn_0CE9EA [
   thinker-spawn < #01, @ambient_palette_cycler >   ;00
   thinker-spawn < #32, @ambient_palette_cycler >   ;01
@@ -597,6 +629,9 @@ thinker_spawn_0CEA3C [
   thinker-spawn < #68, @ambient_palette_cycler >   ;00
   thinker-spawn < #00, @global_ambient_dispatcher >   ;01
 ]
+
+---------------------------------------------
+; Unreferenced by the table: a copy of thinker_spawn_0CEA2F (bundles $44 and $45 and the dispatcher) (OQ-I072-3).
 
 thinker_spawn_0CEA45 [
   thinker-spawn < #44, @ambient_palette_cycler >   ;00

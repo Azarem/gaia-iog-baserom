@@ -28,7 +28,7 @@ chest_flagged_hidden_red_jewel [
     STY $26
 
     COP [SetInteractHandler] ( &cfhrj_interact )
-    COP [SetMetasprite] ( @spriteset_enemies )
+    COP [SetMetasprite] ( @spriteset_pickups_effects )
     COP [StageSprAndHitbox] ( #00 )
     COP [SetEntryHere]
     RTL
@@ -47,7 +47,7 @@ chest_flagged_hidden_red_jewel [
   } >
 ]
 
-scene_event_0C9CF1+= [
+scene_4B_actors+= [
   actor-spawn < #1D, #2E, #19, @chest_flagged_hidden_red_jewel >   ; Sky Garden 4D chest ($0C)
   actor-spawn < #1F, #2E, #1F, @chest_flagged_hidden_red_jewel >   ; Sky Garden 52 chest ($0F)
 ]

@@ -2,7 +2,7 @@
 ; 
 ; === FRAME-LIST ANIMATION (#80–#8D, 6,687 script sites) ===
 ; An actor owns a spriteset table (spritesetPtr $7F0006 + bank $7F0008, set by SetMetasprite): word pointers, one frame list per animation index ($28). A frame list is a sequence of 4-byte records addressed by the frame counter $2A: word 0 = hold time, word 2 = pointer to the frame's sprite data; a negative word 0 ends the list. sprite_composition.UpdateActorAnimation reads the record, stores the hold time in DP $08 (the wait counter the actor runner decrements with DEC $08 / BPL skip, so a hold of n shows the frame for n + 1 ticks), sets metaspritePtr and the extents/hitbox, and increments $2A; at the end of a list it resets $2A and returns carry SET without staging anything.
-; - StageSpriteFrame (#80) and its Move/Loop variants only CHOOSE the animation: ProcessAnimFlag stores the index in $28 and clears $2A. Optional operands set the repeat count (sprTimer $7F0016: StageSpriteLoop*) and the movement chains (StageSpriteMove*: movement indices 0-$54 kept in moveXAlt/moveYAlt $7F0018/$7F001A, and the delta-chain heads from movement_delta_table in $2C/$2E, exactly as StageMoveX/Y/XY in cop_handlers_force_move; the operands are indices, not distances or durations).
+; - StageSpriteFrame (#80) and its Move/Loop variants only CHOOSE the animation: ProcessAnimFlag stores the index in $28 and clears $2A. Optional operands set the repeat count (sprTimer $7F0016: StageSpriteLoop*) and the movement chains (StageSpriteMove*: movement indices 0-$54 kept in moveXAlt/moveYAlt $7F0018/$7F001A, and the delta-chain heads from move_chain_table in $2C/$2E, exactly as StageMoveX/Y/XY in cop_handlers_force_move; the operands are indices, not distances or durations).
 ; - AnimOnce (#89), AnimLoop (#8A), AnimOneFrame (#8B) and WaitForAnimFrame (#8C) PLAY it: each call runs UpdateActorAnimation and either yields (PLA PLA RTL; the entry point is unchanged, so the same op runs again after the hold) or continues with RTI. When a list ends they zero $2C/$2E, so the staged movement stops with the animation.
 ; - StageSprAndHitbox (#8D) stages the animation and calls UpdateActorAnimation at once (no yield) to set the first frame's sprite and hitbox, then clears $2A again: it poses an actor without playing it.
 ; 
@@ -141,7 +141,7 @@ StageSpriteFrame {
 }
 
 ---------------------------------------------
-; COP #81 with two byte operands (animation index, X movement index; 310 sites). ProcessAnimFlag, then moveXAlt = the index and $2C = movement_delta_table[index × 2], the head of the X delta chain (AnimFrameLookup returns a chain pointer, not a duration). Saves the entry point and continues with RTI.
+; COP #81 with two byte operands (animation index, X movement index; 310 sites). ProcessAnimFlag, then moveXAlt = the index and $2C = move_chain_table[index × 2], the head of the X delta chain (AnimFrameLookup returns a chain pointer, not a duration). Saves the entry point and continues with RTI.
 
 StageSpriteMoveX {
     TYX 
@@ -152,7 +152,7 @@ StageSpriteMoveX {
     LDA [$0A]
     INC $0A
     AND #$00FF
-    STA $moveXAlt, X      ; X movement index (movement_delta_table), not a distance
+    STA $moveXAlt, X      ; X movement index (move_chain_table), not a distance
     JSR $&actor_pool.AnimFrameLookup ; A = head pointer of the X delta chain for that index (not a duration)
     STA $2C               ; $2C = X delta chain pointer
     LDA $0C
@@ -164,7 +164,7 @@ StageSpriteMoveX {
 }
 
 ---------------------------------------------
-; COP #82 with two byte operands (animation index, Y movement index; 331 sites). ProcessAnimFlag, then moveYAlt = the index and $2E = the head of the Y delta chain from movement_delta_table. Saves the entry point and continues with RTI.
+; COP #82 with two byte operands (animation index, Y movement index; 331 sites). ProcessAnimFlag, then moveYAlt = the index and $2E = the head of the Y delta chain from move_chain_table. Saves the entry point and continues with RTI.
 
 StageSpriteMoveY {
     TYX 
@@ -175,7 +175,7 @@ StageSpriteMoveY {
     LDA [$0A]
     INC $0A
     AND #$00FF
-    STA $moveYAlt, X      ; Y movement index (movement_delta_table), not a distance
+    STA $moveYAlt, X      ; Y movement index (move_chain_table), not a distance
     JSR $&actor_pool.AnimFrameLookup ; A = head pointer of the Y delta chain for that index
     STA $2E               ; $2E = Y delta chain pointer
     LDA $0C

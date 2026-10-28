@@ -5,7 +5,7 @@
 ; for cutscene characters.
 ---------------------------------------------
 
-?INCLUDE 'spriteset_enemies'
+?INCLUDE 'spriteset_pickups_effects'
 
 ---------------------------------------------
 
@@ -16,7 +16,7 @@ nv_village_event_sprite {
 }
 
 code_0881AE {
-    COP [SetMetasprite] ( @spriteset_enemies )
+    COP [SetMetasprite] ( @spriteset_pickups_effects )
     COP [NudgePosition] ( #00, #F6 )
     COP [StageSpriteFrame] ( #07 )
     COP [AnimOnce]

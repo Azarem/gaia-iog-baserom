@@ -1,0 +1,4 @@
+{
+    "spm_boot_logos": "Animation table: entry #00 is the second logo (Enix), entry #01 the first logo. sFB_boot_logo picks them with StageSpriteLoop.",
+    "spm_darkspace_sprites": "Animation table: #00 Gaia NPC, #01-#03 the three voice sparkles, #04-#09 not selected by sE6_gaia, #0A the ability orb."
+}

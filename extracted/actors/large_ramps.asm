@@ -1,4 +1,4 @@
-; Invisible large-ramp speed booster (large_ramp_booster, actor-def <#00, #00, #20>). Placed in Incan Ruins room ir21 (1 booster at tile $10,$0B, in scene_event_0C8F57) and in the Diamond Mine minecart room dm41 (2 boosters at $16,$1C and $1B,$0B, in scene_event_0C9A95).
+; Invisible large-ramp speed booster (large_ramp_booster, actor-def <#00, #00, #20>). Placed in Incan Ruins room ir21 (1 booster at tile $10,$0B, in scene_22_actors) and in the Diamond Mine minecart room dm41 (2 boosters at $16,$1C and $1B,$0B, in scene_41_actors).
 ; 
 ; Control flow. BranchIfPlayerNear radius r is true when the player's |dX| and |dY| are both below r * 16 + 1 pixels, so #02 is a 32-px box and #03 a 48-px box.
 ; 1. loc_00C966 (also the spawn entry): both playerSpeedEw and playerSpeedNs zero -> RTL and test again next frame. Once either is nonzero: SetEntryHere, then BranchIfPlayerNear #02 -> LargeRampBoostEastWest, else RTL (the entry is now the near-test: the speed gate is not checked again until loc_00C966 is reached later).

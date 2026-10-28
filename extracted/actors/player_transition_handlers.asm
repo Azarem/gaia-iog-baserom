@@ -3,7 +3,7 @@
 ; === ENTRY POINTS AND CALLERS (from the pointer writes) ===
 ; 
 ; - SpawnImpactSparkAndDie (50200, the first entry of this file): SpawnListAppend ImpactSparkEffect, then Die. It is the default script written into an actor hit by the player's interaction / push strike (combat_collision.ApplyHitDamageToVictim path 1, together with $10 |= $0040) and is reached by JumpFar from gw8A_sand_fanger (756178).
-; - ImpactSparkEffect (50211): effect actor: SFX $09, frame $2A of spriteset_enemies, then Die. Spawned by SpawnImpactSparkAndDie and by gw82_archer (SpawnListAppend at X +- 14, Y - 14, flags $0302), so it is an impact spark; it reveals no item (it was first called PlayerItemRevealSpawn; OQ-I052-9).
+; - ImpactSparkEffect (50211): effect actor: SFX $09, frame $2A of spriteset_pickups_effects, then Die. Spawned by SpawnImpactSparkAndDie and by gw82_archer (SpawnListAppend at X +- 14, Y - 14, flags $0302), so it is an impact spark; it reveals no item (it was first called PlayerItemRevealSpawn; OQ-I052-9).
 ; - PlayerIdleAnimLoop (50226): idle animation loop. Callers: warps_interaction (while the music upload finishes) and ir29_castoth func_0AA37B.
 ; - PlayerStaticBodyPose / PlayerWalkingIdlePose (50246 / 50261): the flute playback in item_use_system holds body 4 frame $1F, then restores control.
 ; - RestorePlayerControlDirect (50266): JML PlayerIdleEntry. Callers: warps_interaction and ir29_castoth func_0AA391.
@@ -19,7 +19,7 @@
 ---------------------------------------------
 
 ?INCLUDE 'player_character'
-?INCLUDE 'spriteset_enemies'
+?INCLUDE 'spriteset_pickups_effects'
 
 !joypadMaskStd                  065A
 !layerPriorityFlag              06EE
@@ -35,12 +35,12 @@ SpawnImpactSparkAndDie {
 }
 
 ---------------------------------------------
-; Impact spark actor: SFX $09 on channel 2, frame $2A of spriteset_enemies, AnimOnce, Die. The code after the Die belongs to the same block but is only entered through the entry pointer written into the player actor.
+; Impact spark actor: SFX $09 on channel 2, frame $2A of spriteset_pickups_effects, AnimOnce, Die. The code after the Die belongs to the same block but is only entered through the entry pointer written into the player actor.
 
 ImpactSparkEffect {
     COP [PlaySoundCh2] ( #09 ) ; SFX $09 on channel 2
-    COP [SetMetasprite] ( @spriteset_enemies )
-    COP [StageSpriteFrame] ( #2A ) ; Frame $2A of spriteset_enemies, one-shot
+    COP [SetMetasprite] ( @spriteset_pickups_effects )
+    COP [StageSpriteFrame] ( #2A ) ; Frame $2A of spriteset_pickups_effects, one-shot
     COP [AnimOnce]
     COP [Die]
 

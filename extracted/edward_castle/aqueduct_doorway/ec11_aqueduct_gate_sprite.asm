@@ -3,7 +3,7 @@
 ; Visual gate sprite that animates open/closed states.
 ---------------------------------------------
 
-?INCLUDE 'spriteset_enemies'
+?INCLUDE 'spriteset_pickups_effects'
 
 !moveXAlt                       7F0018
 !moveYAlt                       7F001A
@@ -16,7 +16,7 @@ ec11_aqueduct_gate_sprite [
   code_09AA43:
     COP [BranchOnFlagByte] ( #DF, #01, &code_09AA6C )
     COP [SetFlagByte] ( #DF )
-    COP [SetMetasprite] ( @spriteset_enemies )
+    COP [SetMetasprite] ( @spriteset_pickups_effects )
     COP [StageSpriteLoop] ( #33, #02 )
     COP [AnimLoop]
     LDA #$0048

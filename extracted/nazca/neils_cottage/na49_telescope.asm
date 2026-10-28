@@ -5,7 +5,7 @@
 ; instruments. Connects to the comet observation theme.
 ---------------------------------------------
 
-?INCLUDE 'spriteset_enemies'
+?INCLUDE 'spriteset_pickups_effects'
 
 ---------------------------------------------
 
@@ -13,7 +13,7 @@ na49_telescope [
   actor-def < #00, #00, #30, {
 
   code_05E4DA:
-    COP [SetMetasprite] ( @spriteset_enemies )
+    COP [SetMetasprite] ( @spriteset_pickups_effects )
     COP [StageSpriteFrame] ( #00 )
     COP [AnimOnce]
     COP [SetInteractHandler] ( &code_05E4EB )

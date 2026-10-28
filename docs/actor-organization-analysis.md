@@ -248,7 +248,7 @@ Code referenced via `@` from many scenes should **not** be folded into scene act
 | Symbol | `@` ref count | Role |
 |--------|-------------:|------|
 | `table_0EE000` | **85** files | Universal sprite/map table — quintessential global |
-| `movement_delta_table` | common | Direction/speed lookup (`HitStaggerMain`, world map) |
+| `move_chain_table` | common | Direction/speed lookup (`HitStaggerMain`, world map) |
 | `stats_01ABF0` | great_wall | Enemy stat block |
 | `reward_table_01AADE` | `boss_clear_reward_handler` | `$&` — keep with reward group or mark `&`-typed in blocks |
 

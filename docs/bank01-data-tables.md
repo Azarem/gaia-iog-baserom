@@ -14,12 +14,12 @@
 |---|-------|---------|------|------|---------|
 | 1 | [display_preset_table](#1-display_preset_table) | `$18000`–`$18234` | 564 B | `&display-preset` | Scene display/graphics mode presets |
 | 2 | [scene_warps](#2-scene_warps) | `$18234`–`$1A95E` | 10,026 B | `&warp-def` | All scene warp/transition definitions |
-| 3 | [forced_walk_sequence_table](#3-forced_walk_sequence_table) | `$1A95E`–`$1AADE` | 384 B | `&Binary` | Forced-walk animation frame sequences |
+| 3 | [forced_walk_pan_table](#3-forced_walk_pan_table) | `$1A95E`–`$1AADE` | 384 B | `&Binary` | Forced-walk animation frame sequences |
 | 4 | [enemy_clear_reward_table](#4-enemy_clear_reward_table) | `$1AADE`–`$1ABDE` | 256 B | `Byte` | Per-scene enemy clear rewards |
-| 5 | [direction_velocity_table](#5-direction_velocity_table) | `$1ABDE`–`$1ABF0` | 18 B | `direction-velocity` | Direction→sprite/velocity mapping |
+| 5 | [walk_step_table](#5-walk_step_table) | `$1ABDE`–`$1ABF0` | 18 B | `direction-velocity` | Direction→sprite/velocity mapping |
 | 6 | [enemy_stats_table](#6-enemy_stats_table) | `$1ABF0`–`$1ADA8` | 440 B | `enemy-stats` | Enemy HP/ATK/DEF/type stats |
 | 7 | [scene_chest_table](#7-scene_chest_table) | `$1ADA8`–`$1B086` | 734 B | `&Binary` | Per-scene barrier/chest placement data |
-| 8 | [movement_delta_table](#8-movement_delta_table) | `$1B086`–`$1C384` | 4,862 B | `&delta-node` | Pre-computed movement delta curves |
+| 8 | [move_chain_table](#8-move_chain_table) | `$1B086`–`$1C384` | 4,862 B | `&delta-node` | Pre-computed movement delta curves |
 | 9 | [trig_and_level_tables](#9-trig_and_level_tables) | `$1C384`–`$1CA95` | 1,809 B | Mixed | Sine/cosine LUTs and level-up table |
 | 10 | [dialog_template_table](#10-dialog_template_table) | `$1CA95`–`$1CBA6` | 273 B | `&DialogString` | Dialog box/screen-effect templates |
 | 11 | [music_pointer_array](#11-music_pointer_array) | `$1CBA6`–`$1CC00` | 90 B | `@Binary` | Scene→BGM music data pointers |
@@ -27,13 +27,13 @@
 | 13 | [event_block_table](#13-event_block_table) | `$1D3CE`–`$1D8BE` | 1,264 B | `event-block-def` | Event block tile copy definitions |
 | 14 | [hdma_and_ramp_tables](#14-hdma_and_ramp_tables) | `$1D8BE`–`$1D971` | 179 B | Mixed | HDMA channel config + ramp motion curves |
 | 15 | [body_table](#15-body_table) | `$1D971`–`$1D9A7` | 54 B | `body-entry` | Player form spriteset/tileset pointers |
-| 16 | [will_ability_anim_table](#16-will_ability_anim_table) | `$1D9A7`–`$1D9BF` | 24 B | `&Binary` | Will's attack ability animation configs |
-| 17 | [freedan_ability_anim_table](#17-freedan_ability_anim_table) | `$1D9BF`–`$1D9D8` | 25 B | `&Binary` | Freedan's attack ability animation configs |
+| 16 | [will_ability_damage_table](#16-will_ability_damage_table) | `$1D9A7`–`$1D9BF` | 24 B | `&Binary` | Will's attack ability animation configs |
+| 17 | [freedan_ability_damage_table](#17-freedan_ability_damage_table) | `$1D9BF`–`$1D9D8` | 25 B | `&Binary` | Freedan's attack ability animation configs |
 | 18 | [system_strings](#18-system_strings) | `$1D9D8`–`$1EB0F` | 4,407 B | `ConsoleString` | All UI/menu/item/ability text strings |
 | 19 | [shared_word_table](#19-shared_word_table) | `$1EB0F`–`$1EBA8` | 153 B | `&ConsoleString` | Item name prefix components for composition |
 | 20 | [dictionary_a](#20-dictionary_a) | `$1EBA8`–`$1F54D` | 2,469 B | `&DialogString` | Dialog text dictionary (common words) |
 | 21 | [dictionary_b](#21-dictionary_b) | `$1F54D`–`$1FD24` | 2,007 B | `&DialogString` | Dialog text dictionary (extended words) |
-| 22 | [item_get_dialog_table](#22-item_get_dialog_table) | `$1FD24`–`$1FF6C` | 584 B | `&DialogString` | Item acquisition dialog messages |
+| 22 | [item_pickup_text_table](#22-item_pickup_text_table) | `$1FD24`–`$1FF6C` | 584 B | `&DialogString` | Item acquisition dialog messages |
 
 **Unmapped tail:** `$1FF6C`–`$20000` (148 bytes) — likely padding/unused.
 
@@ -87,10 +87,10 @@ Both sub-types use `$FF` as a list terminator. The engine's `warps_interaction` 
 
 ---
 
-### 3. forced_walk_sequence_table
+### 3. forced_walk_pan_table
 
 **Current name:** `table_01A95E`  
-**Proposed name:** `forced_walk_sequence_table`  
+**Proposed name:** `forced_walk_pan_table`  
 **Address:** `$1A95E`–`$1AADE` (384 bytes)  
 **Type:** Pointer table → binary sequences  
 **Category:** `tables`
@@ -128,10 +128,10 @@ When all enemies in a Dark Space dungeon room are defeated, the game checks this
 
 ---
 
-### 5. direction_velocity_table
+### 5. walk_step_table
 
 **Current name:** `dir_sprite_01ABDE`  
-**Proposed name:** `direction_velocity_table`  
+**Proposed name:** `walk_step_table`  
 **Address:** `$1ABDE`–`$1ABF0` (18 bytes)  
 **Type:** `direction-velocity` array (9 entries)  
 **Category:** `tables`
@@ -216,10 +216,10 @@ Most scenes point to `binary_01AFA6` (`$FF` = no barriers/chests). Non-trivial e
 
 ---
 
-### 8. movement_delta_table
+### 8. move_chain_table
 
 **Current name:** `table_01B086`  
-**Proposed name:** `movement_delta_table`  
+**Proposed name:** `move_chain_table`  
 **Address:** `$1B086`–`$1C384` (4,862 bytes)  
 **Type:** Pointer table → `delta-node` linked lists  
 **Category:** `tables`
@@ -503,16 +503,16 @@ body-entry { Address spriteset_ptr, @Binary sprite_tiles_ptr }
 
 ---
 
-### 16. will_ability_anim_table
+### 16. will_ability_damage_table
 
 **Current name:** `table_01D9A7`  
-**Proposed name:** `will_ability_anim_table`  
+**Proposed name:** `will_ability_damage_table`  
 **Address:** `$1D9A7`–`$1D9BF` (24 bytes, 3 entries)  
 **Type:** Pointer table → binary configs  
 **Category:** `tables`
 
 **Description:**  
-Animation configuration table for Will's three attack abilities. Each entry is a 6-byte record containing sprite frame indices, hitbox dimensions, and timing data; one byte is stored to `$09E0` / `$09E2` by `LoadAbilityAnimTableA/B` for sprite setup and STR bonus in combat.
+Animation configuration table for Will's three attack abilities. Each entry is a 6-byte record containing sprite frame indices, hitbox dimensions, and timing data; one byte is stored to `$09E0` / `$09E2` by `LoadAbilityDamageA/B` for sprite setup and STR bonus in combat.
 
 | Index | Ability | Data |
 |-------|---------|------|
@@ -520,20 +520,20 @@ Animation configuration table for Will's three attack abilities. Each entry is a
 | 1 | Psycho Slider | `00,00,18,0B,05,08` |
 | 2 | Spin Dash | `00,00,1A,0B,04,07` |
 
-**Usage:** `attack_ability_system.asm` — `LoadAbilityAnimTableA` reads Will's ability configs by index.
+**Usage:** `attack_ability_system.asm` — `LoadAbilityDamageA` reads Will's ability configs by index.
 
 ---
 
-### 17. freedan_ability_anim_table
+### 17. freedan_ability_damage_table
 
 **Current name:** `table_01D9BF`  
-**Proposed name:** `freedan_ability_anim_table`  
+**Proposed name:** `freedan_ability_damage_table`  
 **Address:** `$1D9BF`–`$1D9D8` (25 bytes, 3 entries)  
 **Type:** Pointer table → binary configs  
 **Category:** `tables`
 
 **Description:**  
-Same structure as `will_ability_anim_table` but for Freedan's abilities:
+Same structure as `will_ability_damage_table` but for Freedan's abilities:
 
 | Index | Ability | Data |
 |-------|---------|------|
@@ -541,7 +541,7 @@ Same structure as `will_ability_anim_table` but for Freedan's abilities:
 | 1 | Aura Barrier | `00,00,1E,0B,05,09` |
 | 2 | Earthquaker | `00,00,20,0B,00,07` |
 
-**Usage:** `attack_ability_system.asm` — `LoadAbilityAnimTableB` reads Freedan's ability configs by index.
+**Usage:** `attack_ability_system.asm` — `LoadAbilityDamageB` reads Freedan's ability configs by index.
 
 ---
 
@@ -554,13 +554,13 @@ Same structure as `will_ability_anim_table` but for Freedan's abilities:
 
 A large composite block containing all game UI and menu text, organized into 8 sub-tables:
 
-#### 18a. boot_screen_strings (`consolestring_01D9D8`)
+#### 18a. boot_title_strings (`boot_title_strings`)
 3 fixed strings: region lockout warning, "PUSH START BUTTON", and copyright notice.
 
 #### 18b. item_name_table (`itemname_table_01DABF`)
 Pointer table of 64 item display names (Red Jewel, Herb, Incan Statue A/B, Crystal Ball, etc.). Used in inventory screens and item acquisition dialogs.
 
-#### 18c. item_menu_table (`itemmenu_table_01DE1E`)
+#### 18c. item_name_line_table (`itemmenu_table_01DE1E`)
 Pointer table of 64 item menu descriptions — longer text shown when selecting items in the inventory menu.
 
 #### 18d. Non-discardable item bit table (`non_discardable_item_bits`)
@@ -657,10 +657,10 @@ The two-dictionary system effectively gives 512 possible compressed words (256 p
 
 ---
 
-### 22. item_get_dialog_table
+### 22. item_pickup_text_table
 
 **Current name:** `itemget_table_01FD24`  
-**Proposed name:** `item_get_dialog_table`  
+**Proposed name:** `item_pickup_text_table`  
 **Address:** `$1FD24`–`$1FF6C` (584 bytes)  
 **Type:** Pointer table → `DialogString` entries  
 **Category:** `tables`
@@ -673,7 +673,7 @@ Maps item IDs to the dialog string displayed when the player acquires that item.
 - Some indices share the same string pointer (e.g., multiple Mystic Statues)
 - Special entries include inventory-full messages and "nothing found" defaults
 
-The strings at `dialogstring_01FF02` (inventory full) and `dialogstring_01FF1F` (item success) are referenced directly by the inventory management system.
+The strings at `dialog_item_full` (inventory full) and `dialog_item_found` (item success) are referenced directly by the inventory management system.
 
 **Usage:**
 - `inventory_mgmt.asm` — displays item acquisition dialog
@@ -686,11 +686,11 @@ The strings at `dialogstring_01FF02` (inventory full) and `dialogstring_01FF1F` 
 | Current Name | Proposed Name | Rationale |
 |-------------|---------------|-----------|
 | `table_018000` | `display_preset_table` | Contains display-preset structs for scene PPU config |
-| `table_01A95E` | `forced_walk_sequence_table` | Used exclusively by forced_walk system |
-| `dir_sprite_01ABDE` | `direction_velocity_table` | Maps directions to sprite frames + velocities |
+| `table_01A95E` | `forced_walk_pan_table` | Used exclusively by forced_walk system |
+| `dir_sprite_01ABDE` | `walk_step_table` | Maps directions to sprite frames + velocities |
 | `stats_01ABF0` | `enemy_stats_table` | Master enemy stat table |
 | `table_01ADA8` | `scene_chest_table` | Per-scene barrier/chest placement data |
-| `table_01B086` | `movement_delta_table` | Pre-computed movement delta curves |
+| `table_01B086` | `move_chain_table` | Pre-computed movement delta curves |
 | `slope_curve_table` | `trig_and_level_tables` | Composite: trig LUTs + level thresholds |
 | `sine_table_8bit` | `sine_table_8bit` | 8-bit quarter-wave sine LUT |
 | `signed_cosine_table_8bit` | `signed_cosine_table_8bit` | Full-cycle signed 8-bit cosine (256 steps) |
@@ -704,11 +704,11 @@ The strings at `dialogstring_01FF02` (inventory full) and `dialogstring_01FF1F` 
 | `hdma_channel_config` | `hdma_channel_config` | HDMA DMA transfer mode lookup |
 | `hdma_entry_stride_by_mode` | `hdma_entry_stride_by_mode` | HDMA band entry byte stride by mode |
 | `array_01D90B` | `ramp_motion_curves` | Jump-launcher arc Y-delta tables |
-| `table_01D9A7` | `will_ability_anim_table` | Will's ability animation configs |
-| `table_01D9BF` | `freedan_ability_anim_table` | Freedan's ability animation configs |
+| `table_01D9A7` | `will_ability_damage_table` | Will's ability animation configs |
+| `table_01D9BF` | `freedan_ability_damage_table` | Freedan's ability animation configs |
 | `itemcomp_table_01EB0F` | `shared_word_table` | Item name prefix components |
 | `dictionary_01EBA8` | `dialog_dictionary_a` | Dialog word compression table A |
 | `dictionary_01F54D` | `dialog_dictionary_b` | Dialog word compression table B |
-| `itemget_table_01FD24` | `item_get_dialog_table` | Item acquisition dialog messages |
+| `itemget_table_01FD24` | `item_pickup_text_table` | Item acquisition dialog messages |
 
 Names already correct: `scene_warps`, `enemy_clear_reward_table`, `event_block_table`, `body_table`, `system_strings`

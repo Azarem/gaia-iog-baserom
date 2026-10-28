@@ -19,7 +19,7 @@
 ?INCLUDE 'player_transition_handlers'
 ?INCLUDE 'sE6_gaia'
 ?INCLUDE 'SetPlayerGameOverFlag'
-?INCLUDE 'spriteset_enemies'
+?INCLUDE 'spriteset_pickups_effects'
 ?INCLUDE 'StandardEnemyDefeatHandler'
 
 !frameCounter                   0036
@@ -312,12 +312,12 @@ func_0A9C1E {
     COP [SpawnListAppend] ( @SetPlayerGameOverFlag, #00, #00, #$2000 )
     COP [SpawnListAppend] ( @code_0A9C8E, #00, #00, #$2000 )
     COP [WaitByte] ( #3B )
-    COP [SetMetasprite] ( @spriteset_enemies )
+    COP [SetMetasprite] ( @spriteset_pickups_effects )
     COP [JumpFar] ( @StandardEnemyDefeatHandler )
 }
 
 code_0A9C8E {
-    COP [SetMetasprite] ( @spriteset_enemies )
+    COP [SetMetasprite] ( @spriteset_pickups_effects )
     COP [LoopStart] ( #12 )
     COP [SpawnListAppend] ( @code_0A9CE7, #00, #C8, #$0302 )
     COP [WaitByte] ( #01 )
@@ -336,7 +336,7 @@ func_0A9CB2 {
 
 code_0A9CC0 {
     COP [SetSpritePriority] ( #30 )
-    COP [SetMetasprite] ( @spriteset_enemies )
+    COP [SetMetasprite] ( @spriteset_pickups_effects )
     COP [LoopStart] ( #0A )
     COP [SpawnListAppend] ( @code_0A9CE7, #00, #00, #$0302 )
     COP [WaitByte] ( #01 )
@@ -553,7 +553,7 @@ code_0A9E36 {
     STA $16
     PLX 
     COP [PlaySoundCh1] ( #06 )
-    COP [SetMetasprite] ( @spriteset_enemies )
+    COP [SetMetasprite] ( @spriteset_pickups_effects )
     COP [StageSpriteFrame] ( #16 )
     COP [AnimOnce]
     COP [RngByte]
@@ -567,7 +567,7 @@ code_0A9E36 {
     SBC $16
     STA $16
     COP [PlaySoundCh1] ( #06 )
-    COP [SetMetasprite] ( @spriteset_enemies )
+    COP [SetMetasprite] ( @spriteset_pickups_effects )
     COP [StageSpriteFrame] ( #16 )
     COP [AnimOnce]
     COP [Die]
@@ -765,7 +765,7 @@ code_0A9FDB {
     STA $14
     LDA $0016, Y
     STA $16
-    COP [SetMetasprite] ( @spriteset_enemies )
+    COP [SetMetasprite] ( @spriteset_pickups_effects )
     COP [StageSpriteFrame] ( #01 )
     COP [AnimOnce]
     COP [Die]

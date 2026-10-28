@@ -1,438 +1,438 @@
 ---------------------------------------------
 
 spm_southcape_sprites [
-  &sprite_set_000080   ;00
-  &sprite_set_000086   ;01
-  &sprite_set_00008C   ;02
-  &sprite_set_000092   ;03
-  &sprite_set_000098   ;04
-  &sprite_set_00009E   ;05
-  &sprite_set_0000A4   ;06
-  &sprite_set_0000B6   ;07
-  &sprite_set_0000C8   ;08
-  &sprite_set_0000DA   ;09
-  &sprite_set_0000EC   ;0A
-  &sprite_set_0000F2   ;0B
-  &sprite_set_0000F8   ;0C
-  &sprite_set_0000FE   ;0D
-  &sprite_set_000104   ;0E
-  &sprite_set_000116   ;0F
-  &sprite_set_000128   ;10
-  &sprite_set_00013A   ;11
-  &sprite_set_00014C   ;12
-  &sprite_set_000152   ;13
-  &sprite_set_000158   ;14
-  &sprite_set_00015E   ;15
-  &sprite_set_000164   ;16
-  &sprite_set_000176   ;17
-  &sprite_set_000188   ;18
-  &sprite_set_00019A   ;19
-  &sprite_set_0001AC   ;1A
-  &sprite_set_0001B2   ;1B
-  &sprite_set_0001B8   ;1C
-  &sprite_set_0001BE   ;1D
-  &sprite_set_0001C4   ;1E
-  &sprite_set_0001D6   ;1F
-  &sprite_set_0001E8   ;20
-  &sprite_set_0001FA   ;21
-  &sprite_set_00020C   ;22
-  &sprite_set_000222   ;23
-  &sprite_set_000228   ;24
-  &sprite_set_000242   ;25
-  &sprite_set_000248   ;26
-  &sprite_set_00024E   ;27
-  &sprite_set_000254   ;28
-  &sprite_set_00025A   ;29
-  &sprite_set_000260   ;2A
-  &sprite_set_000266   ;2B
-  &sprite_set_00026C   ;2C
-  &sprite_set_000272   ;2D
-  &sprite_set_000278   ;2E
-  &sprite_set_00028A   ;2F
-  &sprite_set_00029C   ;30
-  &sprite_set_0002AE   ;31
-  &sprite_set_0002C0   ;32
-  &sprite_set_0002C6   ;33
-  &sprite_set_0002CC   ;34
-  &sprite_set_0002D2   ;35
-  &sprite_set_0002D8   ;36
-  &sprite_set_0002EA   ;37
-  &sprite_set_0002FC   ;38
-  &sprite_set_00030E   ;39
-  &sprite_set_000320   ;3A
-  &sprite_set_00033E   ;3B
-  &sprite_set_00035C   ;3C
-  &sprite_set_000382   ;3D
-  &sprite_set_0003A8   ;3E
-  &sprite_set_0003AE   ;3F
-]
-
-sprite_set_000080 [
-  sprite-set < #$0000, &sprite_group_0003B4 >
-]
-
-sprite_set_000086 [
-  sprite-set < #$0000, &sprite_group_000F10 >
-]
-
-sprite_set_00008C [
-  sprite-set < #$0000, &sprite_group_0003FF >
+  &spm_southcape_sprites_sprite_set_000080   ;00
+  &spm_southcape_sprites_sprite_set_000086   ;01
+  &spm_southcape_sprites_sprite_set_00008C   ;02
+  &spm_southcape_sprites_sprite_set_000092   ;03
+  &spm_southcape_sprites_sprite_set_000098   ;04
+  &spm_southcape_sprites_sprite_set_00009E   ;05
+  &spm_southcape_sprites_sprite_set_0000A4   ;06
+  &spm_southcape_sprites_sprite_set_0000B6   ;07
+  &spm_southcape_sprites_sprite_set_0000C8   ;08
+  &spm_southcape_sprites_sprite_set_0000DA   ;09
+  &spm_southcape_sprites_sprite_set_0000EC   ;0A
+  &spm_southcape_sprites_sprite_set_0000F2   ;0B
+  &spm_southcape_sprites_sprite_set_0000F8   ;0C
+  &spm_southcape_sprites_sprite_set_0000FE   ;0D
+  &spm_southcape_sprites_sprite_set_000104   ;0E
+  &spm_southcape_sprites_sprite_set_000116   ;0F
+  &spm_southcape_sprites_sprite_set_000128   ;10
+  &spm_southcape_sprites_sprite_set_00013A   ;11
+  &spm_southcape_sprites_sprite_set_00014C   ;12
+  &spm_southcape_sprites_sprite_set_000152   ;13
+  &spm_southcape_sprites_sprite_set_000158   ;14
+  &spm_southcape_sprites_sprite_set_00015E   ;15
+  &spm_southcape_sprites_sprite_set_000164   ;16
+  &spm_southcape_sprites_sprite_set_000176   ;17
+  &spm_southcape_sprites_sprite_set_000188   ;18
+  &spm_southcape_sprites_sprite_set_00019A   ;19
+  &spm_southcape_sprites_sprite_set_0001AC   ;1A
+  &spm_southcape_sprites_sprite_set_0001B2   ;1B
+  &spm_southcape_sprites_sprite_set_0001B8   ;1C
+  &spm_southcape_sprites_sprite_set_0001BE   ;1D
+  &spm_southcape_sprites_sprite_set_0001C4   ;1E
+  &spm_southcape_sprites_sprite_set_0001D6   ;1F
+  &spm_southcape_sprites_sprite_set_0001E8   ;20
+  &spm_southcape_sprites_sprite_set_0001FA   ;21
+  &spm_southcape_sprites_sprite_set_00020C   ;22
+  &spm_southcape_sprites_sprite_set_000222   ;23
+  &spm_southcape_sprites_sprite_set_000228   ;24
+  &spm_southcape_sprites_sprite_set_000242   ;25
+  &spm_southcape_sprites_sprite_set_000248   ;26
+  &spm_southcape_sprites_sprite_set_00024E   ;27
+  &spm_southcape_sprites_sprite_set_000254   ;28
+  &spm_southcape_sprites_sprite_set_00025A   ;29
+  &spm_southcape_sprites_sprite_set_000260   ;2A
+  &spm_southcape_sprites_sprite_set_000266   ;2B
+  &spm_southcape_sprites_sprite_set_00026C   ;2C
+  &spm_southcape_sprites_sprite_set_000272   ;2D
+  &spm_southcape_sprites_sprite_set_000278   ;2E
+  &spm_southcape_sprites_sprite_set_00028A   ;2F
+  &spm_southcape_sprites_sprite_set_00029C   ;30
+  &spm_southcape_sprites_sprite_set_0002AE   ;31
+  &spm_southcape_sprites_sprite_set_0002C0   ;32
+  &spm_southcape_sprites_sprite_set_0002C6   ;33
+  &spm_southcape_sprites_sprite_set_0002CC   ;34
+  &spm_southcape_sprites_sprite_set_0002D2   ;35
+  &spm_southcape_sprites_sprite_set_0002D8   ;36
+  &spm_southcape_sprites_sprite_set_0002EA   ;37
+  &spm_southcape_sprites_sprite_set_0002FC   ;38
+  &spm_southcape_sprites_sprite_set_00030E   ;39
+  &spm_southcape_sprites_sprite_set_000320   ;3A
+  &spm_southcape_sprites_sprite_set_00033E   ;3B
+  &spm_southcape_sprites_sprite_set_00035C   ;3C
+  &spm_southcape_sprites_sprite_set_000382   ;3D
+  &spm_southcape_sprites_sprite_set_0003A8   ;3E
+  &spm_southcape_sprites_sprite_set_0003AE   ;3F
+]
+
+spm_southcape_sprites_sprite_set_000080 [
+  sprite-set < #$0000, &spm_southcape_sprites_sprite_group_0003B4 >
+]
+
+spm_southcape_sprites_sprite_set_000086 [
+  sprite-set < #$0000, &spm_southcape_sprites_sprite_group_000F10 >
+]
+
+spm_southcape_sprites_sprite_set_00008C [
+  sprite-set < #$0000, &spm_southcape_sprites_sprite_group_0003FF >
 ]
 
-sprite_set_000092 [
-  sprite-set < #$0000, &sprite_group_0004CE >
+spm_southcape_sprites_sprite_set_000092 [
+  sprite-set < #$0000, &spm_southcape_sprites_sprite_group_0004CE >
 ]
 
-sprite_set_000098 [
-  sprite-set < #$0000, &sprite_group_00059D >
+spm_southcape_sprites_sprite_set_000098 [
+  sprite-set < #$0000, &spm_southcape_sprites_sprite_group_00059D >
 ]
 
-sprite_set_00009E [
-  sprite-set < #$0000, &sprite_group_000618 >
+spm_southcape_sprites_sprite_set_00009E [
+  sprite-set < #$0000, &spm_southcape_sprites_sprite_group_000618 >
 ]
 
-sprite_set_0000A4 [
-  sprite-set < #$0007, &sprite_group_0003FF >   ;00
-  sprite-set < #$0007, &sprite_group_000452 >   ;01
-  sprite-set < #$0007, &sprite_group_0003FF >   ;02
-  sprite-set < #$0007, &sprite_group_000490 >   ;03
+spm_southcape_sprites_sprite_set_0000A4 [
+  sprite-set < #$0007, &spm_southcape_sprites_sprite_group_0003FF >   ;00
+  sprite-set < #$0007, &spm_southcape_sprites_sprite_group_000452 >   ;01
+  sprite-set < #$0007, &spm_southcape_sprites_sprite_group_0003FF >   ;02
+  sprite-set < #$0007, &spm_southcape_sprites_sprite_group_000490 >   ;03
 ]
 
-sprite_set_0000B6 [
-  sprite-set < #$0007, &sprite_group_0004CE >   ;00
-  sprite-set < #$0007, &sprite_group_000521 >   ;01
-  sprite-set < #$0007, &sprite_group_0004CE >   ;02
-  sprite-set < #$0007, &sprite_group_00055F >   ;03
+spm_southcape_sprites_sprite_set_0000B6 [
+  sprite-set < #$0007, &spm_southcape_sprites_sprite_group_0004CE >   ;00
+  sprite-set < #$0007, &spm_southcape_sprites_sprite_group_000521 >   ;01
+  sprite-set < #$0007, &spm_southcape_sprites_sprite_group_0004CE >   ;02
+  sprite-set < #$0007, &spm_southcape_sprites_sprite_group_00055F >   ;03
 ]
 
-sprite_set_0000C8 [
-  sprite-set < #$0007, &sprite_group_00059D >   ;00
-  sprite-set < #$0007, &sprite_group_0005C6 >   ;01
-  sprite-set < #$0007, &sprite_group_00059D >   ;02
-  sprite-set < #$0007, &sprite_group_0005EF >   ;03
+spm_southcape_sprites_sprite_set_0000C8 [
+  sprite-set < #$0007, &spm_southcape_sprites_sprite_group_00059D >   ;00
+  sprite-set < #$0007, &spm_southcape_sprites_sprite_group_0005C6 >   ;01
+  sprite-set < #$0007, &spm_southcape_sprites_sprite_group_00059D >   ;02
+  sprite-set < #$0007, &spm_southcape_sprites_sprite_group_0005EF >   ;03
 ]
 
-sprite_set_0000DA [
-  sprite-set < #$0007, &sprite_group_000618 >   ;00
-  sprite-set < #$0007, &sprite_group_000641 >   ;01
-  sprite-set < #$0007, &sprite_group_000618 >   ;02
-  sprite-set < #$0007, &sprite_group_00066A >   ;03
+spm_southcape_sprites_sprite_set_0000DA [
+  sprite-set < #$0007, &spm_southcape_sprites_sprite_group_000618 >   ;00
+  sprite-set < #$0007, &spm_southcape_sprites_sprite_group_000641 >   ;01
+  sprite-set < #$0007, &spm_southcape_sprites_sprite_group_000618 >   ;02
+  sprite-set < #$0007, &spm_southcape_sprites_sprite_group_00066A >   ;03
 ]
 
-sprite_set_0000EC [
-  sprite-set < #$0000, &sprite_group_000693 >
+spm_southcape_sprites_sprite_set_0000EC [
+  sprite-set < #$0000, &spm_southcape_sprites_sprite_group_000693 >
 ]
 
-sprite_set_0000F2 [
-  sprite-set < #$0000, &sprite_group_000762 >
+spm_southcape_sprites_sprite_set_0000F2 [
+  sprite-set < #$0000, &spm_southcape_sprites_sprite_group_000762 >
 ]
 
-sprite_set_0000F8 [
-  sprite-set < #$0000, &sprite_group_000831 >
+spm_southcape_sprites_sprite_set_0000F8 [
+  sprite-set < #$0000, &spm_southcape_sprites_sprite_group_000831 >
 ]
 
-sprite_set_0000FE [
-  sprite-set < #$0000, &sprite_group_0008AC >
+spm_southcape_sprites_sprite_set_0000FE [
+  sprite-set < #$0000, &spm_southcape_sprites_sprite_group_0008AC >
 ]
 
-sprite_set_000104 [
-  sprite-set < #$0007, &sprite_group_000693 >   ;00
-  sprite-set < #$0007, &sprite_group_0006E6 >   ;01
-  sprite-set < #$0007, &sprite_group_000693 >   ;02
-  sprite-set < #$0007, &sprite_group_000724 >   ;03
+spm_southcape_sprites_sprite_set_000104 [
+  sprite-set < #$0007, &spm_southcape_sprites_sprite_group_000693 >   ;00
+  sprite-set < #$0007, &spm_southcape_sprites_sprite_group_0006E6 >   ;01
+  sprite-set < #$0007, &spm_southcape_sprites_sprite_group_000693 >   ;02
+  sprite-set < #$0007, &spm_southcape_sprites_sprite_group_000724 >   ;03
 ]
 
-sprite_set_000116 [
-  sprite-set < #$0007, &sprite_group_000762 >   ;00
-  sprite-set < #$0007, &sprite_group_0007B5 >   ;01
-  sprite-set < #$0007, &sprite_group_000762 >   ;02
-  sprite-set < #$0007, &sprite_group_0007F3 >   ;03
+spm_southcape_sprites_sprite_set_000116 [
+  sprite-set < #$0007, &spm_southcape_sprites_sprite_group_000762 >   ;00
+  sprite-set < #$0007, &spm_southcape_sprites_sprite_group_0007B5 >   ;01
+  sprite-set < #$0007, &spm_southcape_sprites_sprite_group_000762 >   ;02
+  sprite-set < #$0007, &spm_southcape_sprites_sprite_group_0007F3 >   ;03
 ]
 
-sprite_set_000128 [
-  sprite-set < #$0007, &sprite_group_000831 >   ;00
-  sprite-set < #$0007, &sprite_group_00085A >   ;01
-  sprite-set < #$0007, &sprite_group_000831 >   ;02
-  sprite-set < #$0007, &sprite_group_000883 >   ;03
+spm_southcape_sprites_sprite_set_000128 [
+  sprite-set < #$0007, &spm_southcape_sprites_sprite_group_000831 >   ;00
+  sprite-set < #$0007, &spm_southcape_sprites_sprite_group_00085A >   ;01
+  sprite-set < #$0007, &spm_southcape_sprites_sprite_group_000831 >   ;02
+  sprite-set < #$0007, &spm_southcape_sprites_sprite_group_000883 >   ;03
 ]
 
-sprite_set_00013A [
-  sprite-set < #$0007, &sprite_group_0008AC >   ;00
-  sprite-set < #$0007, &sprite_group_0008D5 >   ;01
-  sprite-set < #$0007, &sprite_group_0008AC >   ;02
-  sprite-set < #$0007, &sprite_group_0008FE >   ;03
+spm_southcape_sprites_sprite_set_00013A [
+  sprite-set < #$0007, &spm_southcape_sprites_sprite_group_0008AC >   ;00
+  sprite-set < #$0007, &spm_southcape_sprites_sprite_group_0008D5 >   ;01
+  sprite-set < #$0007, &spm_southcape_sprites_sprite_group_0008AC >   ;02
+  sprite-set < #$0007, &spm_southcape_sprites_sprite_group_0008FE >   ;03
 ]
 
-sprite_set_00014C [
-  sprite-set < #$0000, &sprite_group_000927 >
+spm_southcape_sprites_sprite_set_00014C [
+  sprite-set < #$0000, &spm_southcape_sprites_sprite_group_000927 >
 ]
 
-sprite_set_000152 [
-  sprite-set < #$0000, &sprite_group_0009B7 >
+spm_southcape_sprites_sprite_set_000152 [
+  sprite-set < #$0000, &spm_southcape_sprites_sprite_group_0009B7 >
 ]
 
-sprite_set_000158 [
-  sprite-set < #$0000, &sprite_group_000A47 >
+spm_southcape_sprites_sprite_set_000158 [
+  sprite-set < #$0000, &spm_southcape_sprites_sprite_group_000A47 >
 ]
 
-sprite_set_00015E [
-  sprite-set < #$0000, &sprite_group_000AC2 >
+spm_southcape_sprites_sprite_set_00015E [
+  sprite-set < #$0000, &spm_southcape_sprites_sprite_group_000AC2 >
 ]
 
-sprite_set_000164 [
-  sprite-set < #$0007, &sprite_group_000927 >   ;00
-  sprite-set < #$0007, &sprite_group_000965 >   ;01
-  sprite-set < #$0007, &sprite_group_000927 >   ;02
-  sprite-set < #$0007, &sprite_group_00098E >   ;03
+spm_southcape_sprites_sprite_set_000164 [
+  sprite-set < #$0007, &spm_southcape_sprites_sprite_group_000927 >   ;00
+  sprite-set < #$0007, &spm_southcape_sprites_sprite_group_000965 >   ;01
+  sprite-set < #$0007, &spm_southcape_sprites_sprite_group_000927 >   ;02
+  sprite-set < #$0007, &spm_southcape_sprites_sprite_group_00098E >   ;03
 ]
 
-sprite_set_000176 [
-  sprite-set < #$0007, &sprite_group_0009B7 >   ;00
-  sprite-set < #$0007, &sprite_group_0009F5 >   ;01
-  sprite-set < #$0007, &sprite_group_0009B7 >   ;02
-  sprite-set < #$0007, &sprite_group_000A1E >   ;03
+spm_southcape_sprites_sprite_set_000176 [
+  sprite-set < #$0007, &spm_southcape_sprites_sprite_group_0009B7 >   ;00
+  sprite-set < #$0007, &spm_southcape_sprites_sprite_group_0009F5 >   ;01
+  sprite-set < #$0007, &spm_southcape_sprites_sprite_group_0009B7 >   ;02
+  sprite-set < #$0007, &spm_southcape_sprites_sprite_group_000A1E >   ;03
 ]
 
-sprite_set_000188 [
-  sprite-set < #$0007, &sprite_group_000A47 >   ;00
-  sprite-set < #$0007, &sprite_group_000A70 >   ;01
-  sprite-set < #$0007, &sprite_group_000A47 >   ;02
-  sprite-set < #$0007, &sprite_group_000A99 >   ;03
+spm_southcape_sprites_sprite_set_000188 [
+  sprite-set < #$0007, &spm_southcape_sprites_sprite_group_000A47 >   ;00
+  sprite-set < #$0007, &spm_southcape_sprites_sprite_group_000A70 >   ;01
+  sprite-set < #$0007, &spm_southcape_sprites_sprite_group_000A47 >   ;02
+  sprite-set < #$0007, &spm_southcape_sprites_sprite_group_000A99 >   ;03
 ]
 
-sprite_set_00019A [
-  sprite-set < #$0007, &sprite_group_000AC2 >   ;00
-  sprite-set < #$0007, &sprite_group_000AEB >   ;01
-  sprite-set < #$0007, &sprite_group_000AC2 >   ;02
-  sprite-set < #$0007, &sprite_group_000B14 >   ;03
+spm_southcape_sprites_sprite_set_00019A [
+  sprite-set < #$0007, &spm_southcape_sprites_sprite_group_000AC2 >   ;00
+  sprite-set < #$0007, &spm_southcape_sprites_sprite_group_000AEB >   ;01
+  sprite-set < #$0007, &spm_southcape_sprites_sprite_group_000AC2 >   ;02
+  sprite-set < #$0007, &spm_southcape_sprites_sprite_group_000B14 >   ;03
 ]
 
-sprite_set_0001AC [
-  sprite-set < #$0000, &sprite_group_000B3D >
+spm_southcape_sprites_sprite_set_0001AC [
+  sprite-set < #$0000, &spm_southcape_sprites_sprite_group_000B3D >
 ]
 
-sprite_set_0001B2 [
-  sprite-set < #$0000, &sprite_group_000BB8 >
+spm_southcape_sprites_sprite_set_0001B2 [
+  sprite-set < #$0000, &spm_southcape_sprites_sprite_group_000BB8 >
 ]
 
-sprite_set_0001B8 [
-  sprite-set < #$0000, &sprite_group_000C33 >
+spm_southcape_sprites_sprite_set_0001B8 [
+  sprite-set < #$0000, &spm_southcape_sprites_sprite_group_000C33 >
 ]
 
-sprite_set_0001BE [
-  sprite-set < #$0000, &sprite_group_000C84 >
+spm_southcape_sprites_sprite_set_0001BE [
+  sprite-set < #$0000, &spm_southcape_sprites_sprite_group_000C84 >
 ]
 
-sprite_set_0001C4 [
-  sprite-set < #$0007, &sprite_group_000B3D >   ;00
-  sprite-set < #$0007, &sprite_group_000B82 >   ;01
-  sprite-set < #$0007, &sprite_group_000B3D >   ;02
-  sprite-set < #$0007, &sprite_group_000B9D >   ;03
+spm_southcape_sprites_sprite_set_0001C4 [
+  sprite-set < #$0007, &spm_southcape_sprites_sprite_group_000B3D >   ;00
+  sprite-set < #$0007, &spm_southcape_sprites_sprite_group_000B82 >   ;01
+  sprite-set < #$0007, &spm_southcape_sprites_sprite_group_000B3D >   ;02
+  sprite-set < #$0007, &spm_southcape_sprites_sprite_group_000B9D >   ;03
 ]
 
-sprite_set_0001D6 [
-  sprite-set < #$0007, &sprite_group_000BB8 >   ;00
-  sprite-set < #$0007, &sprite_group_000BFD >   ;01
-  sprite-set < #$0007, &sprite_group_000BB8 >   ;02
-  sprite-set < #$0007, &sprite_group_000C18 >   ;03
+spm_southcape_sprites_sprite_set_0001D6 [
+  sprite-set < #$0007, &spm_southcape_sprites_sprite_group_000BB8 >   ;00
+  sprite-set < #$0007, &spm_southcape_sprites_sprite_group_000BFD >   ;01
+  sprite-set < #$0007, &spm_southcape_sprites_sprite_group_000BB8 >   ;02
+  sprite-set < #$0007, &spm_southcape_sprites_sprite_group_000C18 >   ;03
 ]
 
-sprite_set_0001E8 [
-  sprite-set < #$0007, &sprite_group_000C33 >   ;00
-  sprite-set < #$0007, &sprite_group_000C4E >   ;01
-  sprite-set < #$0007, &sprite_group_000C33 >   ;02
-  sprite-set < #$0007, &sprite_group_000C69 >   ;03
+spm_southcape_sprites_sprite_set_0001E8 [
+  sprite-set < #$0007, &spm_southcape_sprites_sprite_group_000C33 >   ;00
+  sprite-set < #$0007, &spm_southcape_sprites_sprite_group_000C4E >   ;01
+  sprite-set < #$0007, &spm_southcape_sprites_sprite_group_000C33 >   ;02
+  sprite-set < #$0007, &spm_southcape_sprites_sprite_group_000C69 >   ;03
 ]
 
-sprite_set_0001FA [
-  sprite-set < #$0007, &sprite_group_000C84 >   ;00
-  sprite-set < #$0007, &sprite_group_000C9F >   ;01
-  sprite-set < #$0007, &sprite_group_000C84 >   ;02
-  sprite-set < #$0007, &sprite_group_000CBA >   ;03
+spm_southcape_sprites_sprite_set_0001FA [
+  sprite-set < #$0007, &spm_southcape_sprites_sprite_group_000C84 >   ;00
+  sprite-set < #$0007, &spm_southcape_sprites_sprite_group_000C9F >   ;01
+  sprite-set < #$0007, &spm_southcape_sprites_sprite_group_000C84 >   ;02
+  sprite-set < #$0007, &spm_southcape_sprites_sprite_group_000CBA >   ;03
 ]
 
-sprite_set_00020C [
-  sprite-set < #$0024, &sprite_group_000E02 >   ;00
-  sprite-set < #$001F, &sprite_group_000E5C >   ;01
-  sprite-set < #$002F, &sprite_group_000EB6 >   ;02
-  sprite-set < #$001F, &sprite_group_000E5C >   ;03
-  sprite-set < #$0024, &sprite_group_000E02 >   ;04
+spm_southcape_sprites_sprite_set_00020C [
+  sprite-set < #$0024, &spm_southcape_sprites_sprite_group_000E02 >   ;00
+  sprite-set < #$001F, &spm_southcape_sprites_sprite_group_000E5C >   ;01
+  sprite-set < #$002F, &spm_southcape_sprites_sprite_group_000EB6 >   ;02
+  sprite-set < #$001F, &spm_southcape_sprites_sprite_group_000E5C >   ;03
+  sprite-set < #$0024, &spm_southcape_sprites_sprite_group_000E02 >   ;04
 ]
 
-sprite_set_000222 [
-  sprite-set < #$0000, &sprite_group_000CD5 >
+spm_southcape_sprites_sprite_set_000222 [
+  sprite-set < #$0000, &spm_southcape_sprites_sprite_group_000CD5 >
 ]
 
-sprite_set_000228 [
-  sprite-set < #$0002, &sprite_group_000CFE >   ;00
-  sprite-set < #$0003, &sprite_group_000D27 >   ;01
-  sprite-set < #$0004, &sprite_group_000D50 >   ;02
-  sprite-set < #$0002, &sprite_group_000D87 >   ;03
-  sprite-set < #$0004, &sprite_group_000DB0 >   ;04
-  sprite-set < #$0002, &sprite_group_000DD9 >   ;05
+spm_southcape_sprites_sprite_set_000228 [
+  sprite-set < #$0002, &spm_southcape_sprites_sprite_group_000CFE >   ;00
+  sprite-set < #$0003, &spm_southcape_sprites_sprite_group_000D27 >   ;01
+  sprite-set < #$0004, &spm_southcape_sprites_sprite_group_000D50 >   ;02
+  sprite-set < #$0002, &spm_southcape_sprites_sprite_group_000D87 >   ;03
+  sprite-set < #$0004, &spm_southcape_sprites_sprite_group_000DB0 >   ;04
+  sprite-set < #$0002, &spm_southcape_sprites_sprite_group_000DD9 >   ;05
 ]
 
-sprite_set_000242 [
-  sprite-set < #$0000, &sprite_group_0003B4 >
+spm_southcape_sprites_sprite_set_000242 [
+  sprite-set < #$0000, &spm_southcape_sprites_sprite_group_0003B4 >
 ]
 
-sprite_set_000248 [
-  sprite-set < #$0000, &sprite_group_0003B4 >
+spm_southcape_sprites_sprite_set_000248 [
+  sprite-set < #$0000, &spm_southcape_sprites_sprite_group_0003B4 >
 ]
 
-sprite_set_00024E [
-  sprite-set < #$0000, &sprite_group_0003B4 >
+spm_southcape_sprites_sprite_set_00024E [
+  sprite-set < #$0000, &spm_southcape_sprites_sprite_group_0003B4 >
 ]
 
-sprite_set_000254 [
-  sprite-set < #$0000, &sprite_group_0003B4 >
+spm_southcape_sprites_sprite_set_000254 [
+  sprite-set < #$0000, &spm_southcape_sprites_sprite_group_0003B4 >
 ]
 
-sprite_set_00025A [
-  sprite-set < #$0000, &sprite_group_0003B4 >
+spm_southcape_sprites_sprite_set_00025A [
+  sprite-set < #$0000, &spm_southcape_sprites_sprite_group_0003B4 >
 ]
 
-sprite_set_000260 [
-  sprite-set < #$0000, &sprite_group_000F46 >
+spm_southcape_sprites_sprite_set_000260 [
+  sprite-set < #$0000, &spm_southcape_sprites_sprite_group_000F46 >
 ]
 
-sprite_set_000266 [
-  sprite-set < #$0000, &sprite_group_00103F >
+spm_southcape_sprites_sprite_set_000266 [
+  sprite-set < #$0000, &spm_southcape_sprites_sprite_group_00103F >
 ]
 
-sprite_set_00026C [
-  sprite-set < #$0000, &sprite_group_0011D0 >
+spm_southcape_sprites_sprite_set_00026C [
+  sprite-set < #$0000, &spm_southcape_sprites_sprite_group_0011D0 >
 ]
 
-sprite_set_000272 [
-  sprite-set < #$0000, &sprite_group_00120E >
+spm_southcape_sprites_sprite_set_000272 [
+  sprite-set < #$0000, &spm_southcape_sprites_sprite_group_00120E >
 ]
 
-sprite_set_000278 [
-  sprite-set < #$0007, &sprite_group_000F46 >   ;00
-  sprite-set < #$0007, &sprite_group_000F99 >   ;01
-  sprite-set < #$0007, &sprite_group_000F46 >   ;02
-  sprite-set < #$0007, &sprite_group_000FEC >   ;03
+spm_southcape_sprites_sprite_set_000278 [
+  sprite-set < #$0007, &spm_southcape_sprites_sprite_group_000F46 >   ;00
+  sprite-set < #$0007, &spm_southcape_sprites_sprite_group_000F99 >   ;01
+  sprite-set < #$0007, &spm_southcape_sprites_sprite_group_000F46 >   ;02
+  sprite-set < #$0007, &spm_southcape_sprites_sprite_group_000FEC >   ;03
 ]
 
-sprite_set_00028A [
-  sprite-set < #$0007, &sprite_group_00103F >   ;00
-  sprite-set < #$0007, &sprite_group_001092 >   ;01
-  sprite-set < #$0007, &sprite_group_00103F >   ;02
-  sprite-set < #$0007, &sprite_group_0010F3 >   ;03
+spm_southcape_sprites_sprite_set_00028A [
+  sprite-set < #$0007, &spm_southcape_sprites_sprite_group_00103F >   ;00
+  sprite-set < #$0007, &spm_southcape_sprites_sprite_group_001092 >   ;01
+  sprite-set < #$0007, &spm_southcape_sprites_sprite_group_00103F >   ;02
+  sprite-set < #$0007, &spm_southcape_sprites_sprite_group_0010F3 >   ;03
 ]
 
-sprite_set_00029C [
-  sprite-set < #$0007, &sprite_group_001154 >   ;00
-  sprite-set < #$0007, &sprite_group_001192 >   ;01
-  sprite-set < #$0007, &sprite_group_001154 >   ;02
-  sprite-set < #$0007, &sprite_group_0011D0 >   ;03
+spm_southcape_sprites_sprite_set_00029C [
+  sprite-set < #$0007, &spm_southcape_sprites_sprite_group_001154 >   ;00
+  sprite-set < #$0007, &spm_southcape_sprites_sprite_group_001192 >   ;01
+  sprite-set < #$0007, &spm_southcape_sprites_sprite_group_001154 >   ;02
+  sprite-set < #$0007, &spm_southcape_sprites_sprite_group_0011D0 >   ;03
 ]
 
-sprite_set_0002AE [
-  sprite-set < #$0007, &sprite_group_00120E >   ;00
-  sprite-set < #$0007, &sprite_group_00123E >   ;01
-  sprite-set < #$0007, &sprite_group_00120E >   ;02
-  sprite-set < #$0007, &sprite_group_00126E >   ;03
+spm_southcape_sprites_sprite_set_0002AE [
+  sprite-set < #$0007, &spm_southcape_sprites_sprite_group_00120E >   ;00
+  sprite-set < #$0007, &spm_southcape_sprites_sprite_group_00123E >   ;01
+  sprite-set < #$0007, &spm_southcape_sprites_sprite_group_00120E >   ;02
+  sprite-set < #$0007, &spm_southcape_sprites_sprite_group_00126E >   ;03
 ]
 
-sprite_set_0002C0 [
-  sprite-set < #$0000, &sprite_group_00129E >
+spm_southcape_sprites_sprite_set_0002C0 [
+  sprite-set < #$0000, &spm_southcape_sprites_sprite_group_00129E >
 ]
 
-sprite_set_0002C6 [
-  sprite-set < #$0000, &sprite_group_001343 >
+spm_southcape_sprites_sprite_set_0002C6 [
+  sprite-set < #$0000, &spm_southcape_sprites_sprite_group_001343 >
 ]
 
-sprite_set_0002CC [
-  sprite-set < #$0000, &sprite_group_0013E8 >
+spm_southcape_sprites_sprite_set_0002CC [
+  sprite-set < #$0000, &spm_southcape_sprites_sprite_group_0013E8 >
 ]
 
-sprite_set_0002D2 [
-  sprite-set < #$0000, &sprite_group_001463 >
+spm_southcape_sprites_sprite_set_0002D2 [
+  sprite-set < #$0000, &spm_southcape_sprites_sprite_group_001463 >
 ]
 
-sprite_set_0002D8 [
-  sprite-set < #$0007, &sprite_group_00129E >   ;00
-  sprite-set < #$0007, &sprite_group_0012F1 >   ;01
-  sprite-set < #$0007, &sprite_group_00129E >   ;02
-  sprite-set < #$0007, &sprite_group_00131A >   ;03
+spm_southcape_sprites_sprite_set_0002D8 [
+  sprite-set < #$0007, &spm_southcape_sprites_sprite_group_00129E >   ;00
+  sprite-set < #$0007, &spm_southcape_sprites_sprite_group_0012F1 >   ;01
+  sprite-set < #$0007, &spm_southcape_sprites_sprite_group_00129E >   ;02
+  sprite-set < #$0007, &spm_southcape_sprites_sprite_group_00131A >   ;03
 ]
 
-sprite_set_0002EA [
-  sprite-set < #$0007, &sprite_group_001343 >   ;00
-  sprite-set < #$0007, &sprite_group_001396 >   ;01
-  sprite-set < #$0007, &sprite_group_001343 >   ;02
-  sprite-set < #$0007, &sprite_group_0013BF >   ;03
+spm_southcape_sprites_sprite_set_0002EA [
+  sprite-set < #$0007, &spm_southcape_sprites_sprite_group_001343 >   ;00
+  sprite-set < #$0007, &spm_southcape_sprites_sprite_group_001396 >   ;01
+  sprite-set < #$0007, &spm_southcape_sprites_sprite_group_001343 >   ;02
+  sprite-set < #$0007, &spm_southcape_sprites_sprite_group_0013BF >   ;03
 ]
 
-sprite_set_0002FC [
-  sprite-set < #$0007, &sprite_group_0013E8 >   ;00
-  sprite-set < #$0007, &sprite_group_001411 >   ;01
-  sprite-set < #$0007, &sprite_group_0013E8 >   ;02
-  sprite-set < #$0007, &sprite_group_00143A >   ;03
+spm_southcape_sprites_sprite_set_0002FC [
+  sprite-set < #$0007, &spm_southcape_sprites_sprite_group_0013E8 >   ;00
+  sprite-set < #$0007, &spm_southcape_sprites_sprite_group_001411 >   ;01
+  sprite-set < #$0007, &spm_southcape_sprites_sprite_group_0013E8 >   ;02
+  sprite-set < #$0007, &spm_southcape_sprites_sprite_group_00143A >   ;03
 ]
 
-sprite_set_00030E [
-  sprite-set < #$0007, &sprite_group_001463 >   ;00
-  sprite-set < #$0007, &sprite_group_00148C >   ;01
-  sprite-set < #$0007, &sprite_group_001463 >   ;02
-  sprite-set < #$0007, &sprite_group_0014B5 >   ;03
+spm_southcape_sprites_sprite_set_00030E [
+  sprite-set < #$0007, &spm_southcape_sprites_sprite_group_001463 >   ;00
+  sprite-set < #$0007, &spm_southcape_sprites_sprite_group_00148C >   ;01
+  sprite-set < #$0007, &spm_southcape_sprites_sprite_group_001463 >   ;02
+  sprite-set < #$0007, &spm_southcape_sprites_sprite_group_0014B5 >   ;03
 ]
 
-sprite_set_000320 [
-  sprite-set < #$000C, &sprite_group_0014DE >   ;00
-  sprite-set < #$0008, &sprite_group_001507 >   ;01
-  sprite-set < #$0008, &sprite_group_001537 >   ;02
-  sprite-set < #$0008, &sprite_group_001567 >   ;03
-  sprite-set < #$0006, &sprite_group_0015A5 >   ;04
-  sprite-set < #$0006, &sprite_group_0015E3 >   ;05
-  sprite-set < #$0009, &sprite_group_001154 >   ;06
+spm_southcape_sprites_sprite_set_000320 [
+  sprite-set < #$000C, &spm_southcape_sprites_sprite_group_0014DE >   ;00
+  sprite-set < #$0008, &spm_southcape_sprites_sprite_group_001507 >   ;01
+  sprite-set < #$0008, &spm_southcape_sprites_sprite_group_001537 >   ;02
+  sprite-set < #$0008, &spm_southcape_sprites_sprite_group_001567 >   ;03
+  sprite-set < #$0006, &spm_southcape_sprites_sprite_group_0015A5 >   ;04
+  sprite-set < #$0006, &spm_southcape_sprites_sprite_group_0015E3 >   ;05
+  sprite-set < #$0009, &spm_southcape_sprites_sprite_group_001154 >   ;06
 ]
 
-sprite_set_00033E [
-  sprite-set < #$0009, &sprite_group_001154 >   ;00
-  sprite-set < #$0007, &sprite_group_0015E3 >   ;01
-  sprite-set < #$0007, &sprite_group_0015A5 >   ;02
-  sprite-set < #$0008, &sprite_group_001567 >   ;03
-  sprite-set < #$0008, &sprite_group_001537 >   ;04
-  sprite-set < #$0008, &sprite_group_001507 >   ;05
-  sprite-set < #$000A, &sprite_group_0014DE >   ;06
+spm_southcape_sprites_sprite_set_00033E [
+  sprite-set < #$0009, &spm_southcape_sprites_sprite_group_001154 >   ;00
+  sprite-set < #$0007, &spm_southcape_sprites_sprite_group_0015E3 >   ;01
+  sprite-set < #$0007, &spm_southcape_sprites_sprite_group_0015A5 >   ;02
+  sprite-set < #$0008, &spm_southcape_sprites_sprite_group_001567 >   ;03
+  sprite-set < #$0008, &spm_southcape_sprites_sprite_group_001537 >   ;04
+  sprite-set < #$0008, &spm_southcape_sprites_sprite_group_001507 >   ;05
+  sprite-set < #$000A, &spm_southcape_sprites_sprite_group_0014DE >   ;06
 ]
 
-sprite_set_00035C [
-  sprite-set < #$0009, &sprite_group_001621 >   ;00
-  sprite-set < #$0008, &sprite_group_00164A >   ;01
-  sprite-set < #$0008, &sprite_group_00167A >   ;02
-  sprite-set < #$0008, &sprite_group_0016AA >   ;03
-  sprite-set < #$0006, &sprite_group_0016E8 >   ;04
-  sprite-set < #$0006, &sprite_group_001726 >   ;05
-  sprite-set < #$000A, &sprite_group_001764 >   ;06
-  sprite-set < #$0007, &sprite_group_0017A2 >   ;07
-  sprite-set < #$0009, &sprite_group_00120E >   ;08
+spm_southcape_sprites_sprite_set_00035C [
+  sprite-set < #$0009, &spm_southcape_sprites_sprite_group_001621 >   ;00
+  sprite-set < #$0008, &spm_southcape_sprites_sprite_group_00164A >   ;01
+  sprite-set < #$0008, &spm_southcape_sprites_sprite_group_00167A >   ;02
+  sprite-set < #$0008, &spm_southcape_sprites_sprite_group_0016AA >   ;03
+  sprite-set < #$0006, &spm_southcape_sprites_sprite_group_0016E8 >   ;04
+  sprite-set < #$0006, &spm_southcape_sprites_sprite_group_001726 >   ;05
+  sprite-set < #$000A, &spm_southcape_sprites_sprite_group_001764 >   ;06
+  sprite-set < #$0007, &spm_southcape_sprites_sprite_group_0017A2 >   ;07
+  sprite-set < #$0009, &spm_southcape_sprites_sprite_group_00120E >   ;08
 ]
 
-sprite_set_000382 [
-  sprite-set < #$0009, &sprite_group_00120E >   ;00
-  sprite-set < #$0007, &sprite_group_0017A2 >   ;01
-  sprite-set < #$0007, &sprite_group_001764 >   ;02
-  sprite-set < #$0007, &sprite_group_001726 >   ;03
-  sprite-set < #$0007, &sprite_group_0016E8 >   ;04
-  sprite-set < #$0008, &sprite_group_0016AA >   ;05
-  sprite-set < #$0008, &sprite_group_00167A >   ;06
-  sprite-set < #$0008, &sprite_group_00164A >   ;07
-  sprite-set < #$000A, &sprite_group_001621 >   ;08
+spm_southcape_sprites_sprite_set_000382 [
+  sprite-set < #$0009, &spm_southcape_sprites_sprite_group_00120E >   ;00
+  sprite-set < #$0007, &spm_southcape_sprites_sprite_group_0017A2 >   ;01
+  sprite-set < #$0007, &spm_southcape_sprites_sprite_group_001764 >   ;02
+  sprite-set < #$0007, &spm_southcape_sprites_sprite_group_001726 >   ;03
+  sprite-set < #$0007, &spm_southcape_sprites_sprite_group_0016E8 >   ;04
+  sprite-set < #$0008, &spm_southcape_sprites_sprite_group_0016AA >   ;05
+  sprite-set < #$0008, &spm_southcape_sprites_sprite_group_00167A >   ;06
+  sprite-set < #$0008, &spm_southcape_sprites_sprite_group_00164A >   ;07
+  sprite-set < #$000A, &spm_southcape_sprites_sprite_group_001621 >   ;08
 ]
 
-sprite_set_0003A8 [
-  sprite-set < #$0000, &sprite_group_0017E0 >
+spm_southcape_sprites_sprite_set_0003A8 [
+  sprite-set < #$0000, &spm_southcape_sprites_sprite_group_0017E0 >
 ]
 
-sprite_set_0003AE [
-  sprite-set < #$007F, &sprite_group_0017E0 >
+spm_southcape_sprites_sprite_set_0003AE [
+  sprite-set < #$007F, &spm_southcape_sprites_sprite_group_0017E0 >
 ]
 
-sprite_group_0003B4 [
+spm_southcape_sprites_sprite_group_0003B4 [
   sprite-group < #00, #08, #08, #00, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #01, [
     sprite-part < #00, #00, #00, #00, #00, #$01CD >   ;00
     sprite-part < #10, #10, #27, #00, #F8, #$01F0 >   ;01
@@ -446,7 +446,7 @@ sprite_group_0003B4 [
   ] >
 ]
 
-sprite_group_0003FF [
+spm_southcape_sprites_sprite_group_0003FF [
   sprite-group < #07, #08, #24, #00, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #0A, [
     sprite-part < #00, #00, #07, #00, #1C, #$0704 >   ;00
     sprite-part < #00, #07, #00, #00, #1C, #$4704 >   ;01
@@ -461,7 +461,7 @@ sprite_group_0003FF [
   ] >
 ]
 
-sprite_group_000452 [
+spm_southcape_sprites_sprite_group_000452 [
   sprite-group < #08, #08, #23, #01, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #07, [
     sprite-part < #00, #01, #07, #00, #1C, #$0704 >   ;00
     sprite-part < #00, #08, #00, #00, #1C, #$4704 >   ;01
@@ -473,7 +473,7 @@ sprite_group_000452 [
   ] >
 ]
 
-sprite_group_000490 [
+spm_southcape_sprites_sprite_group_000490 [
   sprite-group < #07, #09, #23, #01, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #07, [
     sprite-part < #00, #00, #08, #00, #1C, #$0704 >   ;00
     sprite-part < #00, #07, #01, #00, #1C, #$4704 >   ;01
@@ -485,7 +485,7 @@ sprite_group_000490 [
   ] >
 ]
 
-sprite_group_0004CE [
+spm_southcape_sprites_sprite_group_0004CE [
   sprite-group < #07, #08, #24, #00, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #0A, [
     sprite-part < #00, #07, #00, #00, #1C, #$0706 >   ;00
     sprite-part < #00, #00, #07, #00, #1C, #$4706 >   ;01
@@ -500,7 +500,7 @@ sprite_group_0004CE [
   ] >
 ]
 
-sprite_group_000521 [
+spm_southcape_sprites_sprite_group_000521 [
   sprite-group < #08, #08, #23, #00, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #07, [
     sprite-part < #00, #08, #00, #00, #1B, #$0706 >   ;00
     sprite-part < #00, #01, #07, #00, #1B, #$4706 >   ;01
@@ -512,7 +512,7 @@ sprite_group_000521 [
   ] >
 ]
 
-sprite_group_00055F [
+spm_southcape_sprites_sprite_group_00055F [
   sprite-group < #07, #09, #23, #00, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #07, [
     sprite-part < #00, #00, #08, #00, #1B, #$4706 >   ;00
     sprite-part < #00, #07, #01, #00, #1B, #$0706 >   ;01
@@ -524,7 +524,7 @@ sprite_group_00055F [
   ] >
 ]
 
-sprite_group_00059D [
+spm_southcape_sprites_sprite_group_00059D [
   sprite-group < #08, #08, #24, #00, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #04, [
     sprite-part < #01, #00, #00, #0C, #08, #$0724 >   ;00
     sprite-part < #01, #00, #00, #00, #14, #$0708 >   ;01
@@ -533,7 +533,7 @@ sprite_group_00059D [
   ] >
 ]
 
-sprite_group_0005C6 [
+spm_southcape_sprites_sprite_group_0005C6 [
   sprite-group < #08, #08, #23, #01, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #04, [
     sprite-part < #01, #00, #00, #0C, #08, #$070C >   ;00
     sprite-part < #01, #00, #00, #00, #14, #$0708 >   ;01
@@ -542,7 +542,7 @@ sprite_group_0005C6 [
   ] >
 ]
 
-sprite_group_0005EF [
+spm_southcape_sprites_sprite_group_0005EF [
   sprite-group < #08, #08, #23, #01, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #04, [
     sprite-part < #01, #00, #00, #0C, #08, #$070E >   ;00
     sprite-part < #01, #00, #00, #00, #14, #$0708 >   ;01
@@ -551,7 +551,7 @@ sprite_group_0005EF [
   ] >
 ]
 
-sprite_group_000618 [
+spm_southcape_sprites_sprite_group_000618 [
   sprite-group < #08, #08, #24, #00, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #04, [
     sprite-part < #01, #00, #00, #0C, #08, #$4724 >   ;00
     sprite-part < #01, #00, #00, #00, #14, #$4708 >   ;01
@@ -560,7 +560,7 @@ sprite_group_000618 [
   ] >
 ]
 
-sprite_group_000641 [
+spm_southcape_sprites_sprite_group_000641 [
   sprite-group < #08, #08, #23, #01, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #04, [
     sprite-part < #01, #00, #00, #0C, #08, #$470C >   ;00
     sprite-part < #01, #00, #00, #00, #14, #$4708 >   ;01
@@ -569,7 +569,7 @@ sprite_group_000641 [
   ] >
 ]
 
-sprite_group_00066A [
+spm_southcape_sprites_sprite_group_00066A [
   sprite-group < #08, #08, #23, #01, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #04, [
     sprite-part < #01, #00, #00, #0C, #08, #$470E >   ;00
     sprite-part < #01, #00, #00, #00, #14, #$4708 >   ;01
@@ -578,7 +578,7 @@ sprite_group_00066A [
   ] >
 ]
 
-sprite_group_000693 [
+spm_southcape_sprites_sprite_group_000693 [
   sprite-group < #07, #08, #23, #00, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #0A, [
     sprite-part < #00, #00, #07, #00, #1B, #$0905 >   ;00
     sprite-part < #00, #00, #07, #08, #13, #$0915 >   ;01
@@ -593,7 +593,7 @@ sprite_group_000693 [
   ] >
 ]
 
-sprite_group_0006E6 [
+spm_southcape_sprites_sprite_group_0006E6 [
   sprite-group < #08, #08, #22, #01, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #07, [
     sprite-part < #00, #01, #07, #00, #1B, #$0905 >   ;00
     sprite-part < #00, #01, #07, #08, #13, #$0915 >   ;01
@@ -605,7 +605,7 @@ sprite_group_0006E6 [
   ] >
 ]
 
-sprite_group_000724 [
+spm_southcape_sprites_sprite_group_000724 [
   sprite-group < #07, #09, #22, #01, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #07, [
     sprite-part < #00, #07, #01, #00, #1B, #$4905 >   ;00
     sprite-part < #00, #07, #01, #08, #13, #$4915 >   ;01
@@ -617,7 +617,7 @@ sprite_group_000724 [
   ] >
 ]
 
-sprite_group_000762 [
+spm_southcape_sprites_sprite_group_000762 [
   sprite-group < #07, #08, #23, #00, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #0A, [
     sprite-part < #00, #07, #00, #00, #1B, #$0907 >   ;00
     sprite-part < #00, #00, #07, #00, #1B, #$4907 >   ;01
@@ -632,7 +632,7 @@ sprite_group_000762 [
   ] >
 ]
 
-sprite_group_0007B5 [
+spm_southcape_sprites_sprite_group_0007B5 [
   sprite-group < #08, #08, #22, #01, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #07, [
     sprite-part < #00, #08, #00, #00, #1B, #$0907 >   ;00
     sprite-part < #00, #01, #07, #00, #1B, #$4907 >   ;01
@@ -644,7 +644,7 @@ sprite_group_0007B5 [
   ] >
 ]
 
-sprite_group_0007F3 [
+spm_southcape_sprites_sprite_group_0007F3 [
   sprite-group < #07, #09, #22, #01, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #07, [
     sprite-part < #00, #00, #08, #00, #1B, #$4907 >   ;00
     sprite-part < #00, #07, #01, #00, #1B, #$0907 >   ;01
@@ -656,7 +656,7 @@ sprite_group_0007F3 [
   ] >
 ]
 
-sprite_group_000831 [
+spm_southcape_sprites_sprite_group_000831 [
   sprite-group < #08, #08, #23, #00, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #04, [
     sprite-part < #01, #00, #00, #0B, #08, #$092A >   ;00
     sprite-part < #01, #00, #00, #00, #13, #$090A >   ;01
@@ -665,7 +665,7 @@ sprite_group_000831 [
   ] >
 ]
 
-sprite_group_00085A [
+spm_southcape_sprites_sprite_group_00085A [
   sprite-group < #08, #08, #22, #01, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #04, [
     sprite-part < #01, #00, #00, #0B, #08, #$093C >   ;00
     sprite-part < #01, #00, #00, #00, #13, #$090A >   ;01
@@ -674,7 +674,7 @@ sprite_group_00085A [
   ] >
 ]
 
-sprite_group_000883 [
+spm_southcape_sprites_sprite_group_000883 [
   sprite-group < #08, #08, #22, #01, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #04, [
     sprite-part < #01, #00, #00, #0B, #08, #$093E >   ;00
     sprite-part < #01, #00, #00, #00, #13, #$090A >   ;01
@@ -683,7 +683,7 @@ sprite_group_000883 [
   ] >
 ]
 
-sprite_group_0008AC [
+spm_southcape_sprites_sprite_group_0008AC [
   sprite-group < #07, #09, #23, #00, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #04, [
     sprite-part < #01, #00, #00, #0B, #08, #$492A >   ;00
     sprite-part < #01, #00, #00, #00, #13, #$490A >   ;01
@@ -692,7 +692,7 @@ sprite_group_0008AC [
   ] >
 ]
 
-sprite_group_0008D5 [
+spm_southcape_sprites_sprite_group_0008D5 [
   sprite-group < #07, #09, #22, #01, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #04, [
     sprite-part < #01, #00, #00, #0B, #08, #$493C >   ;00
     sprite-part < #01, #00, #00, #00, #13, #$490A >   ;01
@@ -701,7 +701,7 @@ sprite_group_0008D5 [
   ] >
 ]
 
-sprite_group_0008FE [
+spm_southcape_sprites_sprite_group_0008FE [
   sprite-group < #07, #09, #22, #01, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #04, [
     sprite-part < #01, #00, #00, #0B, #08, #$493E >   ;00
     sprite-part < #01, #00, #00, #00, #13, #$490A >   ;01
@@ -710,7 +710,7 @@ sprite_group_0008FE [
   ] >
 ]
 
-sprite_group_000927 [
+spm_southcape_sprites_sprite_group_000927 [
   sprite-group < #08, #08, #23, #00, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #07, [
     sprite-part < #01, #00, #00, #00, #13, #$0B50 >   ;00
     sprite-part < #00, #01, #07, #0B, #10, #$0B78 >   ;01
@@ -722,7 +722,7 @@ sprite_group_000927 [
   ] >
 ]
 
-sprite_group_000965 [
+spm_southcape_sprites_sprite_group_000965 [
   sprite-group < #08, #09, #22, #01, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #04, [
     sprite-part < #01, #01, #00, #0B, #08, #$0B70 >   ;00
     sprite-part < #01, #00, #01, #00, #13, #$0B50 >   ;01
@@ -731,7 +731,7 @@ sprite_group_000965 [
   ] >
 ]
 
-sprite_group_00098E [
+spm_southcape_sprites_sprite_group_00098E [
   sprite-group < #08, #09, #22, #01, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #04, [
     sprite-part < #01, #00, #01, #0B, #08, #$4B70 >   ;00
     sprite-part < #01, #01, #00, #00, #13, #$4B50 >   ;01
@@ -740,7 +740,7 @@ sprite_group_00098E [
   ] >
 ]
 
-sprite_group_0009B7 [
+spm_southcape_sprites_sprite_group_0009B7 [
   sprite-group < #08, #08, #23, #00, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #07, [
     sprite-part < #01, #00, #00, #00, #13, #$0B52 >   ;00
     sprite-part < #00, #08, #00, #0B, #10, #$0B79 >   ;01
@@ -752,7 +752,7 @@ sprite_group_0009B7 [
   ] >
 ]
 
-sprite_group_0009F5 [
+spm_southcape_sprites_sprite_group_0009F5 [
   sprite-group < #08, #08, #22, #01, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #04, [
     sprite-part < #01, #00, #00, #0B, #08, #$0B72 >   ;00
     sprite-part < #01, #00, #00, #00, #13, #$0B5A >   ;01
@@ -761,7 +761,7 @@ sprite_group_0009F5 [
   ] >
 ]
 
-sprite_group_000A1E [
+spm_southcape_sprites_sprite_group_000A1E [
   sprite-group < #07, #09, #22, #01, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #04, [
     sprite-part < #01, #00, #00, #0B, #08, #$4B72 >   ;00
     sprite-part < #01, #00, #00, #00, #13, #$4B5A >   ;01
@@ -770,7 +770,7 @@ sprite_group_000A1E [
   ] >
 ]
 
-sprite_group_000A47 [
+spm_southcape_sprites_sprite_group_000A47 [
   sprite-group < #08, #09, #23, #00, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #04, [
     sprite-part < #01, #01, #00, #00, #13, #$0B54 >   ;00
     sprite-part < #01, #00, #01, #0B, #08, #$0B74 >   ;01
@@ -779,7 +779,7 @@ sprite_group_000A47 [
   ] >
 ]
 
-sprite_group_000A70 [
+spm_southcape_sprites_sprite_group_000A70 [
   sprite-group < #08, #09, #22, #01, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #04, [
     sprite-part < #01, #00, #01, #0B, #08, #$0B56 >   ;00
     sprite-part < #01, #01, #00, #00, #13, #$0B54 >   ;01
@@ -788,7 +788,7 @@ sprite_group_000A70 [
   ] >
 ]
 
-sprite_group_000A99 [
+spm_southcape_sprites_sprite_group_000A99 [
   sprite-group < #08, #09, #22, #01, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #04, [
     sprite-part < #01, #00, #01, #0B, #08, #$0B58 >   ;00
     sprite-part < #01, #01, #00, #00, #13, #$0B54 >   ;01
@@ -797,7 +797,7 @@ sprite_group_000A99 [
   ] >
 ]
 
-sprite_group_000AC2 [
+spm_southcape_sprites_sprite_group_000AC2 [
   sprite-group < #08, #09, #23, #00, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #04, [
     sprite-part < #01, #00, #01, #00, #13, #$4B54 >   ;00
     sprite-part < #01, #01, #00, #0B, #08, #$4B74 >   ;01
@@ -806,7 +806,7 @@ sprite_group_000AC2 [
   ] >
 ]
 
-sprite_group_000AEB [
+spm_southcape_sprites_sprite_group_000AEB [
   sprite-group < #08, #09, #22, #01, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #04, [
     sprite-part < #01, #01, #00, #0B, #08, #$4B56 >   ;00
     sprite-part < #01, #00, #01, #00, #13, #$4B54 >   ;01
@@ -815,7 +815,7 @@ sprite_group_000AEB [
   ] >
 ]
 
-sprite_group_000B14 [
+spm_southcape_sprites_sprite_group_000B14 [
   sprite-group < #08, #09, #22, #01, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #04, [
     sprite-part < #01, #01, #00, #0B, #08, #$4B58 >   ;00
     sprite-part < #01, #00, #01, #00, #13, #$4B54 >   ;01
@@ -824,7 +824,7 @@ sprite_group_000B14 [
   ] >
 ]
 
-sprite_group_000B3D [
+spm_southcape_sprites_sprite_group_000B3D [
   sprite-group < #07, #08, #20, #00, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #08, [
     sprite-part < #00, #00, #07, #00, #18, #$0DA0 >   ;00
     sprite-part < #00, #07, #00, #00, #18, #$4DA0 >   ;01
@@ -837,21 +837,21 @@ sprite_group_000B3D [
   ] >
 ]
 
-sprite_group_000B82 [
+spm_southcape_sprites_sprite_group_000B82 [
   sprite-group < #08, #08, #20, #00, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #02, [
     sprite-part < #01, #00, #00, #00, #10, #$0DA2 >   ;00
     sprite-part < #01, #00, #00, #10, #00, #$0DC2 >   ;01
   ] >
 ]
 
-sprite_group_000B9D [
+spm_southcape_sprites_sprite_group_000B9D [
   sprite-group < #07, #09, #20, #00, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #02, [
     sprite-part < #01, #00, #00, #00, #10, #$4DA2 >   ;00
     sprite-part < #01, #00, #00, #10, #00, #$4DC2 >   ;01
   ] >
 ]
 
-sprite_group_000BB8 [
+spm_southcape_sprites_sprite_group_000BB8 [
   sprite-group < #07, #08, #20, #00, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #08, [
     sprite-part < #00, #07, #00, #00, #18, #$0DA1 >   ;00
     sprite-part < #00, #00, #07, #00, #18, #$4DA1 >   ;01
@@ -864,63 +864,63 @@ sprite_group_000BB8 [
   ] >
 ]
 
-sprite_group_000BFD [
+spm_southcape_sprites_sprite_group_000BFD [
   sprite-group < #08, #08, #20, #00, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #02, [
     sprite-part < #01, #00, #00, #00, #10, #$0DA4 >   ;00
     sprite-part < #01, #00, #00, #10, #00, #$0DC4 >   ;01
   ] >
 ]
 
-sprite_group_000C18 [
+spm_southcape_sprites_sprite_group_000C18 [
   sprite-group < #07, #09, #20, #00, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #02, [
     sprite-part < #01, #00, #00, #00, #10, #$4DA4 >   ;00
     sprite-part < #01, #00, #00, #10, #00, #$4DC4 >   ;01
   ] >
 ]
 
-sprite_group_000C33 [
+spm_southcape_sprites_sprite_group_000C33 [
   sprite-group < #08, #08, #20, #00, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #02, [
     sprite-part < #01, #00, #00, #00, #10, #$0DA6 >   ;00
     sprite-part < #01, #00, #00, #10, #00, #$0DC6 >   ;01
   ] >
 ]
 
-sprite_group_000C4E [
+spm_southcape_sprites_sprite_group_000C4E [
   sprite-group < #08, #08, #1F, #00, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #02, [
     sprite-part < #01, #00, #00, #00, #0F, #$0DA6 >   ;00
     sprite-part < #01, #00, #00, #0F, #00, #$0DA8 >   ;01
   ] >
 ]
 
-sprite_group_000C69 [
+spm_southcape_sprites_sprite_group_000C69 [
   sprite-group < #08, #08, #1F, #00, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #02, [
     sprite-part < #01, #00, #00, #00, #0F, #$0DA6 >   ;00
     sprite-part < #01, #00, #00, #0F, #00, #$0DC8 >   ;01
   ] >
 ]
 
-sprite_group_000C84 [
+spm_southcape_sprites_sprite_group_000C84 [
   sprite-group < #07, #09, #20, #00, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #02, [
     sprite-part < #01, #00, #00, #00, #10, #$4DA6 >   ;00
     sprite-part < #01, #00, #00, #10, #00, #$4DC6 >   ;01
   ] >
 ]
 
-sprite_group_000C9F [
+spm_southcape_sprites_sprite_group_000C9F [
   sprite-group < #07, #09, #1F, #00, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #02, [
     sprite-part < #01, #00, #00, #00, #0F, #$4DA6 >   ;00
     sprite-part < #01, #00, #00, #0F, #00, #$4DA8 >   ;01
   ] >
 ]
 
-sprite_group_000CBA [
+spm_southcape_sprites_sprite_group_000CBA [
   sprite-group < #07, #09, #1F, #00, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #02, [
     sprite-part < #01, #00, #00, #00, #0F, #$4DA6 >   ;00
     sprite-part < #01, #00, #00, #0F, #00, #$4DC8 >   ;01
   ] >
 ]
 
-sprite_group_000CD5 [
+spm_southcape_sprites_sprite_group_000CD5 [
   sprite-group < #18, #18, #11, #00, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #04, [
     sprite-part < #01, #08, #18, #01, #00, #$01E0 >   ;00
     sprite-part < #01, #18, #08, #01, #00, #$41E0 >   ;01
@@ -929,7 +929,7 @@ sprite_group_000CD5 [
   ] >
 ]
 
-sprite_group_000CFE [
+spm_southcape_sprites_sprite_group_000CFE [
   sprite-group < #18, #18, #10, #00, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #04, [
     sprite-part < #01, #08, #18, #00, #00, #$01E2 >   ;00
     sprite-part < #01, #18, #08, #00, #00, #$41E2 >   ;01
@@ -938,7 +938,7 @@ sprite_group_000CFE [
   ] >
 ]
 
-sprite_group_000D27 [
+spm_southcape_sprites_sprite_group_000D27 [
   sprite-group < #10, #10, #17, #01, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #04, [
     sprite-part < #01, #00, #10, #08, #00, #$01E4 >   ;00
     sprite-part < #01, #10, #00, #08, #00, #$41E4 >   ;01
@@ -947,7 +947,7 @@ sprite_group_000D27 [
   ] >
 ]
 
-sprite_group_000D50 [
+spm_southcape_sprites_sprite_group_000D50 [
   sprite-group < #18, #18, #16, #02, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #06, [
     sprite-part < #01, #08, #18, #08, #00, #$01E6 >   ;00
     sprite-part < #01, #18, #08, #08, #00, #$41E6 >   ;01
@@ -958,7 +958,7 @@ sprite_group_000D50 [
   ] >
 ]
 
-sprite_group_000D87 [
+spm_southcape_sprites_sprite_group_000D87 [
   sprite-group < #18, #18, #10, #00, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #04, [
     sprite-part < #01, #08, #18, #00, #00, #$01E8 >   ;00
     sprite-part < #01, #18, #08, #00, #00, #$41E8 >   ;01
@@ -967,7 +967,7 @@ sprite_group_000D87 [
   ] >
 ]
 
-sprite_group_000DB0 [
+spm_southcape_sprites_sprite_group_000DB0 [
   sprite-group < #10, #10, #12, #06, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #04, [
     sprite-part < #01, #10, #00, #00, #08, #$41EA >   ;00
     sprite-part < #01, #00, #10, #00, #08, #$01EA >   ;01
@@ -976,7 +976,7 @@ sprite_group_000DB0 [
   ] >
 ]
 
-sprite_group_000DD9 [
+spm_southcape_sprites_sprite_group_000DD9 [
   sprite-group < #17, #17, #11, #00, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #04, [
     sprite-part < #01, #07, #17, #00, #01, #$01E0 >   ;00
     sprite-part < #01, #17, #07, #00, #01, #$41E0 >   ;01
@@ -985,7 +985,7 @@ sprite_group_000DD9 [
   ] >
 ]
 
-sprite_group_000E02 [
+spm_southcape_sprites_sprite_group_000E02 [
   sprite-group < #20, #08, #1E, #1A, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #0B, [
     sprite-part < #01, #18, #00, #0E, #1A, #$07AA >   ;00
     sprite-part < #01, #18, #00, #00, #28, #$0708 >   ;01
@@ -1001,7 +1001,7 @@ sprite_group_000E02 [
   ] >
 ]
 
-sprite_group_000E5C [
+spm_southcape_sprites_sprite_group_000E5C [
   sprite-group < #20, #08, #1E, #1A, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #0B, [
     sprite-part < #01, #18, #00, #0E, #1A, #$07AA >   ;00
     sprite-part < #01, #18, #00, #00, #28, #$0708 >   ;01
@@ -1017,7 +1017,7 @@ sprite_group_000E5C [
   ] >
 ]
 
-sprite_group_000EB6 [
+spm_southcape_sprites_sprite_group_000EB6 [
   sprite-group < #20, #08, #1E, #19, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #0B, [
     sprite-part < #01, #18, #00, #0E, #19, #$07AA >   ;00
     sprite-part < #01, #18, #00, #00, #27, #$0708 >   ;01
@@ -1033,7 +1033,7 @@ sprite_group_000EB6 [
   ] >
 ]
 
-sprite_group_000F10 [
+spm_southcape_sprites_sprite_group_000F10 [
   sprite-group < #04, #14, #2B, #00, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #03, [
     sprite-part < #01, #00, #08, #10, #0B, #$0D02 >   ;00
     sprite-part < #01, #08, #00, #00, #1B, #$0D00 >   ;01
@@ -1044,7 +1044,7 @@ sprite_group_000F10 [
   ] >
 ]
 
-sprite_group_000F46 [
+spm_southcape_sprites_sprite_group_000F46 [
   sprite-group < #08, #10, #2B, #00, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #0A, [
     sprite-part < #01, #01, #07, #00, #1B, #$0786 >   ;00
     sprite-part < #00, #08, #08, #13, #10, #$0B8A >   ;01
@@ -1059,7 +1059,7 @@ sprite_group_000F46 [
   ] >
 ]
 
-sprite_group_000F99 [
+spm_southcape_sprites_sprite_group_000F99 [
   sprite-group < #08, #10, #2A, #00, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #0A, [
     sprite-part < #01, #01, #07, #00, #1A, #$0786 >   ;00
     sprite-part < #00, #08, #08, #0B, #17, #$0B7A >   ;01
@@ -1074,7 +1074,7 @@ sprite_group_000F99 [
   ] >
 ]
 
-sprite_group_000FEC [
+spm_southcape_sprites_sprite_group_000FEC [
   sprite-group < #08, #10, #2A, #00, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #0A, [
     sprite-part < #01, #01, #07, #00, #1A, #$0786 >   ;00
     sprite-part < #00, #08, #08, #0B, #17, #$0B7A >   ;01
@@ -1089,7 +1089,7 @@ sprite_group_000FEC [
   ] >
 ]
 
-sprite_group_00103F [
+spm_southcape_sprites_sprite_group_00103F [
   sprite-group < #10, #08, #2A, #00, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #0A, [
     sprite-part < #00, #10, #00, #12, #10, #$0B79 >   ;00
     sprite-part < #00, #10, #00, #1A, #08, #$0B89 >   ;01
@@ -1104,7 +1104,7 @@ sprite_group_00103F [
   ] >
 ]
 
-sprite_group_001092 [
+spm_southcape_sprites_sprite_group_001092 [
   sprite-group < #10, #08, #29, #01, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #0C, [
     sprite-part < #00, #0F, #01, #1A, #08, #$0B83 >   ;00
     sprite-part < #00, #08, #08, #12, #10, #$0B8B >   ;01
@@ -1121,7 +1121,7 @@ sprite_group_001092 [
   ] >
 ]
 
-sprite_group_0010F3 [
+spm_southcape_sprites_sprite_group_0010F3 [
   sprite-group < #10, #0A, #29, #01, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #0C, [
     sprite-part < #01, #08, #02, #00, #1A, #$0786 >   ;00
     sprite-part < #00, #08, #0A, #0A, #18, #$0B7B >   ;01
@@ -1138,7 +1138,7 @@ sprite_group_0010F3 [
   ] >
 ]
 
-sprite_group_001154 [
+spm_southcape_sprites_sprite_group_001154 [
   sprite-group < #08, #09, #2C, #00, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #07, [
     sprite-part < #00, #06, #03, #13, #11, #$0BDF >   ;00
     sprite-part < #01, #00, #01, #14, #08, #$0BAE >   ;01
@@ -1150,7 +1150,7 @@ sprite_group_001154 [
   ] >
 ]
 
-sprite_group_001192 [
+spm_southcape_sprites_sprite_group_001192 [
   sprite-group < #08, #09, #2B, #01, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #07, [
     sprite-part < #00, #06, #03, #13, #11, #$0BDF >   ;00
     sprite-part < #01, #00, #01, #14, #08, #$0BAE >   ;01
@@ -1162,7 +1162,7 @@ sprite_group_001192 [
   ] >
 ]
 
-sprite_group_0011D0 [
+spm_southcape_sprites_sprite_group_0011D0 [
   sprite-group < #08, #09, #2B, #01, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #07, [
     sprite-part < #00, #06, #03, #13, #11, #$0BDF >   ;00
     sprite-part < #01, #00, #01, #14, #08, #$0BAE >   ;01
@@ -1174,7 +1174,7 @@ sprite_group_0011D0 [
   ] >
 ]
 
-sprite_group_00120E [
+spm_southcape_sprites_sprite_group_00120E [
   sprite-group < #08, #09, #2C, #00, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #05, [
     sprite-part < #01, #01, #00, #00, #1C, #$0786 >   ;00
     sprite-part < #01, #00, #01, #09, #13, #$4B54 >   ;01
@@ -1184,7 +1184,7 @@ sprite_group_00120E [
   ] >
 ]
 
-sprite_group_00123E [
+spm_southcape_sprites_sprite_group_00123E [
   sprite-group < #08, #09, #2B, #01, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #05, [
     sprite-part < #01, #01, #00, #00, #1C, #$0786 >   ;00
     sprite-part < #01, #01, #00, #14, #08, #$4B56 >   ;01
@@ -1194,7 +1194,7 @@ sprite_group_00123E [
   ] >
 ]
 
-sprite_group_00126E [
+spm_southcape_sprites_sprite_group_00126E [
   sprite-group < #08, #09, #2B, #01, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #05, [
     sprite-part < #01, #01, #00, #00, #1C, #$0786 >   ;00
     sprite-part < #01, #01, #00, #14, #08, #$4B58 >   ;01
@@ -1204,7 +1204,7 @@ sprite_group_00126E [
   ] >
 ]
 
-sprite_group_00129E [
+spm_southcape_sprites_sprite_group_00129E [
   sprite-group < #0F, #10, #27, #00, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #0A, [
     sprite-part < #01, #00, #0F, #00, #17, #$4DCC >   ;00
     sprite-part < #01, #0F, #00, #00, #17, #$0DCC >   ;01
@@ -1219,7 +1219,7 @@ sprite_group_00129E [
   ] >
 ]
 
-sprite_group_0012F1 [
+spm_southcape_sprites_sprite_group_0012F1 [
   sprite-group < #0F, #10, #26, #00, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #04, [
     sprite-part < #01, #0F, #00, #00, #16, #$0DCC >   ;00
     sprite-part < #01, #00, #0F, #00, #16, #$4DCC >   ;01
@@ -1228,7 +1228,7 @@ sprite_group_0012F1 [
   ] >
 ]
 
-sprite_group_00131A [
+spm_southcape_sprites_sprite_group_00131A [
   sprite-group < #0F, #10, #26, #00, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #04, [
     sprite-part < #01, #00, #0F, #00, #16, #$4DCC >   ;00
     sprite-part < #01, #0F, #00, #00, #16, #$0DCC >   ;01
@@ -1237,7 +1237,7 @@ sprite_group_00131A [
   ] >
 ]
 
-sprite_group_001343 [
+spm_southcape_sprites_sprite_group_001343 [
   sprite-group < #0F, #10, #27, #00, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #0A, [
     sprite-part < #01, #0F, #00, #00, #17, #$0DCC >   ;00
     sprite-part < #01, #00, #0F, #00, #17, #$4DCC >   ;01
@@ -1252,7 +1252,7 @@ sprite_group_001343 [
   ] >
 ]
 
-sprite_group_001396 [
+spm_southcape_sprites_sprite_group_001396 [
   sprite-group < #0F, #10, #26, #00, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #04, [
     sprite-part < #01, #00, #0F, #00, #16, #$4DCC >   ;00
     sprite-part < #01, #0F, #00, #00, #16, #$0DCC >   ;01
@@ -1261,7 +1261,7 @@ sprite_group_001396 [
   ] >
 ]
 
-sprite_group_0013BF [
+spm_southcape_sprites_sprite_group_0013BF [
   sprite-group < #0F, #10, #26, #00, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #04, [
     sprite-part < #01, #00, #0F, #00, #16, #$4DCC >   ;00
     sprite-part < #01, #0F, #00, #00, #16, #$0DCC >   ;01
@@ -1270,7 +1270,7 @@ sprite_group_0013BF [
   ] >
 ]
 
-sprite_group_0013E8 [
+spm_southcape_sprites_sprite_group_0013E8 [
   sprite-group < #0F, #10, #27, #00, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #04, [
     sprite-part < #01, #0F, #00, #00, #17, #$0DCC >   ;00
     sprite-part < #01, #00, #0F, #00, #17, #$4DCC >   ;01
@@ -1279,7 +1279,7 @@ sprite_group_0013E8 [
   ] >
 ]
 
-sprite_group_001411 [
+spm_southcape_sprites_sprite_group_001411 [
   sprite-group < #0F, #10, #26, #00, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #04, [
     sprite-part < #01, #00, #0F, #00, #16, #$4DCC >   ;00
     sprite-part < #01, #0F, #00, #00, #16, #$0DCC >   ;01
@@ -1288,7 +1288,7 @@ sprite_group_001411 [
   ] >
 ]
 
-sprite_group_00143A [
+spm_southcape_sprites_sprite_group_00143A [
   sprite-group < #0F, #10, #26, #00, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #04, [
     sprite-part < #01, #0F, #00, #00, #16, #$0DCC >   ;00
     sprite-part < #01, #00, #0F, #00, #16, #$4DCC >   ;01
@@ -1297,7 +1297,7 @@ sprite_group_00143A [
   ] >
 ]
 
-sprite_group_001463 [
+spm_southcape_sprites_sprite_group_001463 [
   sprite-group < #0F, #10, #27, #00, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #04, [
     sprite-part < #01, #00, #0F, #00, #17, #$4DCC >   ;00
     sprite-part < #01, #0F, #00, #00, #17, #$0DCC >   ;01
@@ -1306,7 +1306,7 @@ sprite_group_001463 [
   ] >
 ]
 
-sprite_group_00148C [
+spm_southcape_sprites_sprite_group_00148C [
   sprite-group < #0F, #10, #26, #00, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #04, [
     sprite-part < #01, #00, #0F, #00, #16, #$4DCC >   ;00
     sprite-part < #01, #0F, #00, #00, #16, #$0DCC >   ;01
@@ -1315,7 +1315,7 @@ sprite_group_00148C [
   ] >
 ]
 
-sprite_group_0014B5 [
+spm_southcape_sprites_sprite_group_0014B5 [
   sprite-group < #0F, #10, #26, #00, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #04, [
     sprite-part < #01, #00, #0F, #00, #16, #$4DCC >   ;00
     sprite-part < #01, #0F, #00, #00, #16, #$0DCC >   ;01
@@ -1324,7 +1324,7 @@ sprite_group_0014B5 [
   ] >
 ]
 
-sprite_group_0014DE [
+spm_southcape_sprites_sprite_group_0014DE [
   sprite-group < #18, #09, #23, #00, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #04, [
     sprite-part < #01, #00, #11, #12, #01, #$0786 >   ;00
     sprite-part < #01, #10, #01, #13, #00, #$0B84 >   ;01
@@ -1333,7 +1333,7 @@ sprite_group_0014DE [
   ] >
 ]
 
-sprite_group_001507 [
+spm_southcape_sprites_sprite_group_001507 [
   sprite-group < #18, #06, #23, #00, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #05, [
     sprite-part < #01, #00, #0E, #12, #01, #$0786 >   ;00
     sprite-part < #01, #0E, #00, #00, #13, #$0B54 >   ;01
@@ -1343,7 +1343,7 @@ sprite_group_001507 [
   ] >
 ]
 
-sprite_group_001537 [
+spm_southcape_sprites_sprite_group_001537 [
   sprite-group < #17, #05, #22, #00, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #05, [
     sprite-part < #01, #0B, #01, #0A, #08, #$0BAC >   ;00
     sprite-part < #01, #0A, #02, #00, #12, #$0B54 >   ;01
@@ -1353,7 +1353,7 @@ sprite_group_001537 [
   ] >
 ]
 
-sprite_group_001567 [
+spm_southcape_sprites_sprite_group_001567 [
   sprite-group < #16, #07, #23, #00, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #07, [
     sprite-part < #00, #0F, #06, #0B, #10, #$0B9F >   ;00
     sprite-part < #00, #07, #0E, #0B, #10, #$0B9E >   ;01
@@ -1365,7 +1365,7 @@ sprite_group_001567 [
   ] >
 ]
 
-sprite_group_0015A5 [
+spm_southcape_sprites_sprite_group_0015A5 [
   sprite-group < #0C, #09, #2A, #00, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #07, [
     sprite-part < #00, #07, #06, #12, #10, #$0BDE >   ;00
     sprite-part < #00, #07, #06, #0A, #18, #$0BCE >   ;01
@@ -1377,7 +1377,7 @@ sprite_group_0015A5 [
   ] >
 ]
 
-sprite_group_0015E3 [
+spm_southcape_sprites_sprite_group_0015E3 [
   sprite-group < #09, #09, #2D, #00, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #07, [
     sprite-part < #00, #06, #04, #14, #11, #$4BDF >   ;00
     sprite-part < #01, #01, #01, #15, #08, #$0BAE >   ;01
@@ -1389,7 +1389,7 @@ sprite_group_0015E3 [
   ] >
 ]
 
-sprite_group_001621 [
+spm_southcape_sprites_sprite_group_001621 [
   sprite-group < #08, #18, #23, #00, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #04, [
     sprite-part < #01, #10, #00, #12, #01, #$0786 >   ;00
     sprite-part < #01, #01, #0F, #13, #00, #$4B84 >   ;01
@@ -1398,7 +1398,7 @@ sprite_group_001621 [
   ] >
 ]
 
-sprite_group_00164A [
+spm_southcape_sprites_sprite_group_00164A [
   sprite-group < #05, #18, #23, #00, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #05, [
     sprite-part < #01, #0D, #00, #12, #01, #$0786 >   ;00
     sprite-part < #01, #00, #0D, #00, #13, #$4B54 >   ;01
@@ -1408,7 +1408,7 @@ sprite_group_00164A [
   ] >
 ]
 
-sprite_group_00167A [
+spm_southcape_sprites_sprite_group_00167A [
   sprite-group < #04, #17, #22, #00, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #05, [
     sprite-part < #01, #01, #0A, #0A, #08, #$4BAC >   ;00
     sprite-part < #01, #02, #09, #00, #12, #$4B54 >   ;01
@@ -1418,7 +1418,7 @@ sprite_group_00167A [
   ] >
 ]
 
-sprite_group_0016AA [
+spm_southcape_sprites_sprite_group_0016AA [
   sprite-group < #06, #18, #23, #00, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #07, [
     sprite-part < #00, #06, #10, #0B, #10, #$4B9F >   ;00
     sprite-part < #00, #0E, #08, #0B, #10, #$4B9E >   ;01
@@ -1430,7 +1430,7 @@ sprite_group_0016AA [
   ] >
 ]
 
-sprite_group_0016E8 [
+spm_southcape_sprites_sprite_group_0016E8 [
   sprite-group < #08, #0E, #2A, #00, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #07, [
     sprite-part < #00, #06, #08, #12, #10, #$4BDE >   ;00
     sprite-part < #00, #06, #08, #0A, #18, #$4BCE >   ;01
@@ -1442,7 +1442,7 @@ sprite_group_0016E8 [
   ] >
 ]
 
-sprite_group_001726 [
+spm_southcape_sprites_sprite_group_001726 [
   sprite-group < #08, #0A, #2D, #00, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #07, [
     sprite-part < #00, #04, #06, #14, #11, #$0BDF >   ;00
     sprite-part < #01, #01, #01, #15, #08, #$4BAE >   ;01
@@ -1454,7 +1454,7 @@ sprite_group_001726 [
   ] >
 ]
 
-sprite_group_001764 [
+spm_southcape_sprites_sprite_group_001764 [
   sprite-group < #08, #09, #2C, #00, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #07, [
     sprite-part < #00, #03, #06, #13, #11, #$4BDF >   ;00
     sprite-part < #01, #01, #00, #14, #08, #$4BAE >   ;01
@@ -1466,7 +1466,7 @@ sprite_group_001764 [
   ] >
 ]
 
-sprite_group_0017A2 [
+spm_southcape_sprites_sprite_group_0017A2 [
   sprite-group < #08, #0D, #2C, #00, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #07, [
     sprite-part < #00, #05, #08, #13, #11, #$4B9F >   ;00
     sprite-part < #00, #0D, #00, #13, #11, #$4B9E >   ;01
@@ -1478,7 +1478,7 @@ sprite_group_0017A2 [
   ] >
 ]
 
-sprite_group_0017E0 [
+spm_southcape_sprites_sprite_group_0017E0 [
   sprite-group < #08, #08, #11, #00, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #01, [
     sprite-part < #01, #00, #00, #00, #01, #$0786 >
   ] >

@@ -7,14 +7,14 @@
 ; 
 ; === CHILD ===
 ; 
-; SetMetasprite points the child at spriteset_enemies and StageSprAndHitbox #02 shows animation list 2 (sprite_set_0EE0A6: 7 frames, hold 2 each, so one pass is 21 ticks). Priority operand $30 sets OAM priority bits $3000 (frontmost). Start: Y = $FFE0 (-32), X = RNG * 2 + $C4, i.e. $C4-$2C2 in steps of 2. The same random byte also picks the speed: index = (RNG AND 3) * 2 + 4.
-; The values stored in moveXAlt / moveYAlt are MOVEMENT INDICES into movement_delta_table, not velocities (the old comments said 'X velocity 4, 6, 8, 10 / Y velocity 3, 5, 7, 9'). Odd indices are +n, even indices are -n pixels per frame (index 3 = +2, 4 = -2, 5 = +3, 6 = -3 ...). The child therefore moves X by -2, -3, -4 or -5 and Y by +2, +3, +4 or +5 per frame (index X = 4/6/8/10 pairs with Y = 3/5/7/9, equal magnitudes): it falls DIAGONALLY down and to the left at 45 degrees, not straight down.
+; SetMetasprite points the child at spriteset_pickups_effects and StageSprAndHitbox #02 shows animation list 2 (sprite_set_0EE0A6: 7 frames, hold 2 each, so one pass is 21 ticks). Priority operand $30 sets OAM priority bits $3000 (frontmost). Start: Y = $FFE0 (-32), X = RNG * 2 + $C4, i.e. $C4-$2C2 in steps of 2. The same random byte also picks the speed: index = (RNG AND 3) * 2 + 4.
+; The values stored in moveXAlt / moveYAlt are MOVEMENT INDICES into move_chain_table, not velocities (the old comments said 'X velocity 4, 6, 8, 10 / Y velocity 3, 5, 7, 9'). Odd indices are +n, even indices are -n pixels per frame (index 3 = +2, 4 = -2, 5 = +3, 6 = -3 ...). The child therefore moves X by -2, -3, -4 or -5 and Y by +2, +3, +4 or +5 per frame (index X = 4/6/8/10 pairs with Y = 3/5/7/9, equal magnitudes): it falls DIAGONALLY down and to the left at 45 degrees, not straight down.
 ; ReloadMoveDurations re-arms the two delta chains; AnimOnce zeroes $2C / $2E when its list ends, which is why the loop reloads them after every pass. The death test (Y >= $0200, unsigned) runs only when an animation pass has ended, i.e. every 21 ticks, not every frame. A particle whose Y were still negative at that moment would be read as a huge unsigned value and die; at 21 ticks the slowest particle (+2 per frame from -32) is at +10, so by the numbers all of them survive the first check (UNVERIFIED-RUNTIME, OQ-I045-2).
 ; 
 ; docs/code/bank0B-late-bosses-system-cutscene-actors.md also says the particles 'rise via ReloadForceMove' from 'screen top'; they start above the screen and FALL.
 ---------------------------------------------
 
-?INCLUDE 'spriteset_enemies'
+?INCLUDE 'spriteset_pickups_effects'
 
 !moveXAlt                       7F0018
 !moveYAlt                       7F001A
@@ -55,7 +55,7 @@ unused_particle_rain_spawner [
 ; One raindrop: random X above the screen, random speed index; falls diagonally down-left and dies when Y reaches $0200 at the end of an animation pass.
 
 UnusedRainDropChild {
-    COP [SetMetasprite] ( @spriteset_enemies )
+    COP [SetMetasprite] ( @spriteset_pickups_effects )
     COP [StageSprAndHitbox] ( #02 )
     COP [SetSpritePriority] ( #30 ) ; OAM priority 3 (operand $30 = bits $3000)
     LDA #$FFE0            ; Start 32 px above the screen: Y = $FFE0
@@ -67,7 +67,7 @@ UnusedRainDropChild {
     ADC #$00C4
     STA $14
     PLA 
-    AND #$0003            ; Speed index = (RNG AND 3) * 2 + 4 = 4, 6, 8 or 10 into movement_delta_table
+    AND #$0003            ; Speed index = (RNG AND 3) * 2 + 4 = 4, 6, 8 or 10 into move_chain_table
     ASL 
     CLC 
     ADC #$0004

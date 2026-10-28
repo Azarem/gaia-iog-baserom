@@ -81,7 +81,7 @@
 ?INCLUDE 'GetPlayerFacingDirection'
 ?INCLUDE 'hit_stagger_controller'
 ?INCLUDE 'inventory_mgmt'
-?INCLUDE 'item_get_dialog_table'
+?INCLUDE 'item_pickup_text_table'
 ?INCLUDE 'NpcDespawnStub'
 ?INCLUDE 'player_transition_handlers'
 ?INCLUDE 'ShowDialogueFrame'
@@ -1544,7 +1544,7 @@ ApplyInteractionDamage {
 ---------------------------------------------
 ; Handle NPC chat interaction — item giving and dialogue display.
 ; 
-; Sets data bank to $81. Attempts to give the item referenced by chatPtr ($7F000A,X) to the player via GiveItemToPlayer. If inventory is full (carry set), shows the overflow message (dialogstring_01FF02) and returns carry set.
+; Sets data bank to $81. Attempts to give the item referenced by chatPtr ($7F000A,X) to the player via GiveItemToPlayer. If inventory is full (carry set), shows the overflow message (dialog_item_full) and returns carry set.
 ; 
 ; If the item was given or chatPtr indicates dialogue: loads the chatPtr value. Values ≥ $81 are treated as dialogue script indices; values < $81 are item IDs shown in a dialogue frame. After interaction, converts the NPC actor to NpcDespawnStub (dead stub) by overwriting its entry point and zeroing the frame counter. Sets $0700 in flags to prevent re-interaction.
 
@@ -1560,7 +1560,7 @@ InteractionDamage_NPCChat {
     BCC loc_03C4F7
     AND #$00FF
     STA $0DB8
-    LDY #$&item_get_dialog_table.dialogstring_01FF02
+    LDY #$&item_pickup_text_table.dialog_item_full
     JSL $@ShowDialogueFrame
     SEC 
     RTS 

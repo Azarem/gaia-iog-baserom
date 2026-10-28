@@ -311,14 +311,14 @@ The `meta<>` type is a discriminated union used in scene metadata scripts. The f
 | 0    | `$00`  | *(end)*        | —                          | End-of-script terminator             | —                 |
 | 2    | `$02`  | `display-mode` | `SceneCmd_ConfigDisplay`   | PPU display mode setup               | `$02`             |
 | 3    | `$03`  | `bitmap`       | `SceneCmd_LoadBgTiles`     | VRAM character data upload           | `$03`             |
-| 4    | `$04`  | `palette`      | `SceneCmd_LoadTilemap`     | CGRAM palette buffer upload          | `$04`             |
-| 5    | `$05`  | `tileset`      | `SceneCmd_LoadDualTilemap` | BG metatile mapping load             | `$05`             |
-| 6    | `$06`  | `tilemap`      | `SceneCmd_FullGraphics`    | Metatile tilemap load                | `$06`             |
+| 4    | `$04`  | `palette`      | `SceneCmd_LoadPalette`     | CGRAM palette buffer upload          | `$04`             |
+| 5    | `$05`  | `tileset`      | `SceneCmd_LoadMetatileSets` | BG metatile mapping load             | `$05`             |
+| 6    | `$06`  | `tilemap`      | `SceneCmd_LoadLayerMaps`    | Metatile tilemap load                | `$06`             |
 | 14   | `$0E`  | `meta-skip`    | `SceneCmd_Skip3`           | No-op (skip 3 bytes)                 | —                 |
 | 16   | `$10`  | `spritemap`    | `SceneCmd_LoadSpriteTiles` | Spriteset data load                  | `$10`             |
 | 17   | `$11`  | `music`        | `SpcMusicLoadCmd`          | SPC music transfer                   | `$11`             |
-| 19   | `$13`  | `branch`       | `SceneCmd_ConditionalLoad` | Flag-conditional jump                | `$13`             |
-| 20   | `$14`  | `label`        | `SceneCmd_Nop`             | Named anchor / jump target           | `$14`             |
+| 19   | `$13`  | `branch`       | `SceneCmd_Branch` | Flag-conditional jump                | `$13`             |
+| 20   | `$14`  | `label`        | `SceneCmd_Label`             | Named anchor / jump target           | `$14`             |
 | 21   | `$15`  | `jump`         | `SkipScriptCommands`       | Unconditional jump to label          | `$15`             |
 | 23   | `$17`  | `char-tiles`   | `SceneCmd_LoadCharTiles`   | Direct VRAM char/tile DMA            | —                 |
 
@@ -624,9 +624,9 @@ Singly-linked list node for per-frame signed movement deltas. The core animation
 3. **Overworld route playback** — three parallel chains per route step drive camera X, Y, and player position
 4. **Hit knockback** — stagger controller selects X or Y chain for knockback direction
 
-**Files:** `movement_delta_table.asm` (85-entry pointer table + 1,173 nodes), `actor_pool.asm`, `forced_walk.asm`, `WorldMapController.asm`, `hit_stagger_controller.asm`
+**Files:** `move_chain_table.asm` (85-entry pointer table + 1,173 nodes), `actor_pool.asm`, `forced_walk.asm`, `WorldMapController.asm`, `hit_stagger_controller.asm`
 
-**blocks.json:** `movement_delta_table` (110726–115588, typed `&delta-node`)
+**blocks.json:** `move_chain_table` (110726–115588, typed `&delta-node`)
 
 **Entry count:** 85 index entries + 1,173 nodes = 4,862 bytes
 
@@ -643,12 +643,12 @@ Singly-linked list node for per-frame signed movement deltas. The core animation
 
 ### route-step
 
-4-byte overworld route movement step. Encodes one segment of an overworld travel route as three `movement_delta_table` chain indices and a tick count.
+4-byte overworld route movement step. Encodes one segment of an overworld travel route as three `move_chain_table` chain indices and a tick count.
 
 
 | Field | Type | Offset | Name               | Description                                                                          |
 | ----- | ---- | ------ | ------------------ | ------------------------------------------------------------------------------------ |
-| 0     | Byte | +0     | xDeltaIndex        | Index into `movement_delta_table` for the X chain (`$00CA`); 0 = still               |
+| 0     | Byte | +0     | xDeltaIndex        | Index into `move_chain_table` for the X chain (`$00CA`); 0 = still               |
 | 1     | Byte | +1     | yDeltaIndex        | Index for the Y chain (`$00CC`); 0 = still                                           |
 | 2     | Byte | +2     | rotationDeltaIndex | Index for the rotation chain (`$00BC`); 0 = still                                    |
 | 3     | Byte | +3     | ticks              | n; the step runs n + 1 ticks                                                         |

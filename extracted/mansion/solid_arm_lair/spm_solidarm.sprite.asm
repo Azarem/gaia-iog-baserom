@@ -1,243 +1,243 @@
 ---------------------------------------------
 
 spm_solidarm [
-  &sprite_set_00003A   ;00
-  &sprite_set_000040   ;01
-  &sprite_set_000046   ;02
-  &sprite_set_00004C   ;03
-  &sprite_set_000052   ;04
-  &sprite_set_000058   ;05
-  &sprite_set_000072   ;06
-  &sprite_set_00008C   ;07
-  &sprite_set_0000A6   ;08
-  &sprite_set_0000C0   ;09
-  &sprite_set_0000D2   ;0A
-  &sprite_set_0000EC   ;0B
-  &sprite_set_0000FE   ;0C
-  &sprite_set_000118   ;0D
-  &sprite_set_00012A   ;0E
-  &sprite_set_00013C   ;0F
-  &sprite_set_00014E   ;10
-  &sprite_set_00016C   ;11
-  &sprite_set_00018A   ;12
-  &sprite_set_0001A8   ;13
-  &sprite_set_0001B6   ;14
-  &sprite_set_0001C4   ;15
-  &sprite_set_0001D2   ;16
-  &sprite_set_0001D8   ;17
-  &sprite_set_0001DE   ;18
-  &sprite_set_0001E4   ;19
-  &sprite_set_0001F2   ;1A
-  &sprite_set_000200   ;1B
-  &sprite_set_000226   ;1C
+  &spm_solidarm_sprite_set_00003A   ;00
+  &spm_solidarm_sprite_set_000040   ;01
+  &spm_solidarm_sprite_set_000046   ;02
+  &spm_solidarm_sprite_set_00004C   ;03
+  &spm_solidarm_sprite_set_000052   ;04
+  &spm_solidarm_sprite_set_000058   ;05
+  &spm_solidarm_sprite_set_000072   ;06
+  &spm_solidarm_sprite_set_00008C   ;07
+  &spm_solidarm_sprite_set_0000A6   ;08
+  &spm_solidarm_sprite_set_0000C0   ;09
+  &spm_solidarm_sprite_set_0000D2   ;0A
+  &spm_solidarm_sprite_set_0000EC   ;0B
+  &spm_solidarm_sprite_set_0000FE   ;0C
+  &spm_solidarm_sprite_set_000118   ;0D
+  &spm_solidarm_sprite_set_00012A   ;0E
+  &spm_solidarm_sprite_set_00013C   ;0F
+  &spm_solidarm_sprite_set_00014E   ;10
+  &spm_solidarm_sprite_set_00016C   ;11
+  &spm_solidarm_sprite_set_00018A   ;12
+  &spm_solidarm_sprite_set_0001A8   ;13
+  &spm_solidarm_sprite_set_0001B6   ;14
+  &spm_solidarm_sprite_set_0001C4   ;15
+  &spm_solidarm_sprite_set_0001D2   ;16
+  &spm_solidarm_sprite_set_0001D8   ;17
+  &spm_solidarm_sprite_set_0001DE   ;18
+  &spm_solidarm_sprite_set_0001E4   ;19
+  &spm_solidarm_sprite_set_0001F2   ;1A
+  &spm_solidarm_sprite_set_000200   ;1B
+  &spm_solidarm_sprite_set_000226   ;1C
 ]
 
-sprite_set_00003A [
-  sprite-set < #$000F, &sprite_group_00024C >
+spm_solidarm_sprite_set_00003A [
+  sprite-set < #$000F, &spm_solidarm_sprite_group_00024C >
 ]
 
-sprite_set_000040 [
-  sprite-set < #$0000, &sprite_group_00024C >
+spm_solidarm_sprite_set_000040 [
+  sprite-set < #$0000, &spm_solidarm_sprite_group_00024C >
 ]
 
-sprite_set_000046 [
-  sprite-set < #$0000, &sprite_group_00024C >
+spm_solidarm_sprite_set_000046 [
+  sprite-set < #$0000, &spm_solidarm_sprite_group_00024C >
 ]
 
-sprite_set_00004C [
-  sprite-set < #$0000, &sprite_group_00024C >
+spm_solidarm_sprite_set_00004C [
+  sprite-set < #$0000, &spm_solidarm_sprite_group_00024C >
 ]
 
-sprite_set_000052 [
-  sprite-set < #$0000, &sprite_group_00024C >
+spm_solidarm_sprite_set_000052 [
+  sprite-set < #$0000, &spm_solidarm_sprite_group_00024C >
 ]
 
-sprite_set_000058 [
-  sprite-set < #$0003, &sprite_group_000A78 >   ;00
-  sprite-set < #$0007, &sprite_group_000BA4 >   ;01
-  sprite-set < #$0003, &sprite_group_001911 >   ;02
-  sprite-set < #$0003, &sprite_group_000450 >   ;03
-  sprite-set < #$0007, &sprite_group_000544 >   ;04
-  sprite-set < #$0003, &sprite_group_001911 >   ;05
+spm_solidarm_sprite_set_000058 [
+  sprite-set < #$0003, &spm_solidarm_sprite_group_000A78 >   ;00
+  sprite-set < #$0007, &spm_solidarm_sprite_group_000BA4 >   ;01
+  sprite-set < #$0003, &spm_solidarm_sprite_group_001911 >   ;02
+  sprite-set < #$0003, &spm_solidarm_sprite_group_000450 >   ;03
+  sprite-set < #$0007, &spm_solidarm_sprite_group_000544 >   ;04
+  sprite-set < #$0003, &spm_solidarm_sprite_group_001911 >   ;05
 ]
 
-sprite_set_000072 [
-  sprite-set < #$0003, &sprite_group_000A78 >   ;00
-  sprite-set < #$0007, &sprite_group_000BA4 >   ;01
-  sprite-set < #$0003, &sprite_group_001911 >   ;02
-  sprite-set < #$0003, &sprite_group_000450 >   ;03
-  sprite-set < #$0007, &sprite_group_000544 >   ;04
-  sprite-set < #$0003, &sprite_group_001911 >   ;05
+spm_solidarm_sprite_set_000072 [
+  sprite-set < #$0003, &spm_solidarm_sprite_group_000A78 >   ;00
+  sprite-set < #$0007, &spm_solidarm_sprite_group_000BA4 >   ;01
+  sprite-set < #$0003, &spm_solidarm_sprite_group_001911 >   ;02
+  sprite-set < #$0003, &spm_solidarm_sprite_group_000450 >   ;03
+  sprite-set < #$0007, &spm_solidarm_sprite_group_000544 >   ;04
+  sprite-set < #$0003, &spm_solidarm_sprite_group_001911 >   ;05
 ]
 
-sprite_set_00008C [
-  sprite-set < #$0003, &sprite_group_000827 >   ;00
-  sprite-set < #$0007, &sprite_group_000953 >   ;01
-  sprite-set < #$0003, &sprite_group_00160B >   ;02
-  sprite-set < #$0003, &sprite_group_000631 >   ;03
-  sprite-set < #$0007, &sprite_group_00072C >   ;04
-  sprite-set < #$0003, &sprite_group_00160B >   ;05
+spm_solidarm_sprite_set_00008C [
+  sprite-set < #$0003, &spm_solidarm_sprite_group_000827 >   ;00
+  sprite-set < #$0007, &spm_solidarm_sprite_group_000953 >   ;01
+  sprite-set < #$0003, &spm_solidarm_sprite_group_00160B >   ;02
+  sprite-set < #$0003, &spm_solidarm_sprite_group_000631 >   ;03
+  sprite-set < #$0007, &spm_solidarm_sprite_group_00072C >   ;04
+  sprite-set < #$0003, &spm_solidarm_sprite_group_00160B >   ;05
 ]
 
-sprite_set_0000A6 [
-  sprite-set < #$0003, &sprite_group_000827 >   ;00
-  sprite-set < #$0007, &sprite_group_000953 >   ;01
-  sprite-set < #$0003, &sprite_group_00160B >   ;02
-  sprite-set < #$0003, &sprite_group_000631 >   ;03
-  sprite-set < #$0007, &sprite_group_00072C >   ;04
-  sprite-set < #$0003, &sprite_group_00160B >   ;05
+spm_solidarm_sprite_set_0000A6 [
+  sprite-set < #$0003, &spm_solidarm_sprite_group_000827 >   ;00
+  sprite-set < #$0007, &spm_solidarm_sprite_group_000953 >   ;01
+  sprite-set < #$0003, &spm_solidarm_sprite_group_00160B >   ;02
+  sprite-set < #$0003, &spm_solidarm_sprite_group_000631 >   ;03
+  sprite-set < #$0007, &spm_solidarm_sprite_group_00072C >   ;04
+  sprite-set < #$0003, &spm_solidarm_sprite_group_00160B >   ;05
 ]
 
-sprite_set_0000C0 [
-  sprite-set < #$0002, &sprite_group_00160B >   ;00
-  sprite-set < #$0002, &sprite_group_000CC9 >   ;01
-  sprite-set < #$0002, &sprite_group_000DC4 >   ;02
-  sprite-set < #$0001, &sprite_group_000EBF >   ;03
+spm_solidarm_sprite_set_0000C0 [
+  sprite-set < #$0002, &spm_solidarm_sprite_group_00160B >   ;00
+  sprite-set < #$0002, &spm_solidarm_sprite_group_000CC9 >   ;01
+  sprite-set < #$0002, &spm_solidarm_sprite_group_000DC4 >   ;02
+  sprite-set < #$0001, &spm_solidarm_sprite_group_000EBF >   ;03
 ]
 
-sprite_set_0000D2 [
-  sprite-set < #$0005, &sprite_group_000EBF >   ;00
-  sprite-set < #$0001, &sprite_group_000DC4 >   ;01
-  sprite-set < #$0001, &sprite_group_00160B >   ;02
-  sprite-set < #$0001, &sprite_group_000FB3 >   ;03
-  sprite-set < #$000A, &sprite_group_0010AE >   ;04
-  sprite-set < #$0005, &sprite_group_000FB3 >   ;05
+spm_solidarm_sprite_set_0000D2 [
+  sprite-set < #$0005, &spm_solidarm_sprite_group_000EBF >   ;00
+  sprite-set < #$0001, &spm_solidarm_sprite_group_000DC4 >   ;01
+  sprite-set < #$0001, &spm_solidarm_sprite_group_00160B >   ;02
+  sprite-set < #$0001, &spm_solidarm_sprite_group_000FB3 >   ;03
+  sprite-set < #$000A, &spm_solidarm_sprite_group_0010AE >   ;04
+  sprite-set < #$0005, &spm_solidarm_sprite_group_000FB3 >   ;05
 ]
 
-sprite_set_0000EC [
-  sprite-set < #$0002, &sprite_group_001911 >   ;00
-  sprite-set < #$0002, &sprite_group_001194 >   ;01
-  sprite-set < #$0002, &sprite_group_001296 >   ;02
-  sprite-set < #$0001, &sprite_group_00137C >   ;03
+spm_solidarm_sprite_set_0000EC [
+  sprite-set < #$0002, &spm_solidarm_sprite_group_001911 >   ;00
+  sprite-set < #$0002, &spm_solidarm_sprite_group_001194 >   ;01
+  sprite-set < #$0002, &spm_solidarm_sprite_group_001296 >   ;02
+  sprite-set < #$0001, &spm_solidarm_sprite_group_00137C >   ;03
 ]
 
-sprite_set_0000FE [
-  sprite-set < #$0005, &sprite_group_00137C >   ;00
-  sprite-set < #$0001, &sprite_group_001296 >   ;01
-  sprite-set < #$0001, &sprite_group_001911 >   ;02
-  sprite-set < #$0001, &sprite_group_001462 >   ;03
-  sprite-set < #$000A, &sprite_group_001533 >   ;04
-  sprite-set < #$0005, &sprite_group_001462 >   ;05
+spm_solidarm_sprite_set_0000FE [
+  sprite-set < #$0005, &spm_solidarm_sprite_group_00137C >   ;00
+  sprite-set < #$0001, &spm_solidarm_sprite_group_001296 >   ;01
+  sprite-set < #$0001, &spm_solidarm_sprite_group_001911 >   ;02
+  sprite-set < #$0001, &spm_solidarm_sprite_group_001462 >   ;03
+  sprite-set < #$000A, &spm_solidarm_sprite_group_001533 >   ;04
+  sprite-set < #$0005, &spm_solidarm_sprite_group_001462 >   ;05
 ]
 
-sprite_set_000118 [
-  sprite-set < #$0009, &sprite_group_001714 >   ;00
-  sprite-set < #$000D, &sprite_group_00180F >   ;01
-  sprite-set < #$0005, &sprite_group_001714 >   ;02
-  sprite-set < #$0001, &sprite_group_00160B >   ;03
+spm_solidarm_sprite_set_000118 [
+  sprite-set < #$0009, &spm_solidarm_sprite_group_001714 >   ;00
+  sprite-set < #$000D, &spm_solidarm_sprite_group_00180F >   ;01
+  sprite-set < #$0005, &spm_solidarm_sprite_group_001714 >   ;02
+  sprite-set < #$0001, &spm_solidarm_sprite_group_00160B >   ;03
 ]
 
-sprite_set_00012A [
-  sprite-set < #$0009, &sprite_group_001BED >   ;00
-  sprite-set < #$000D, &sprite_group_001CDA >   ;01
-  sprite-set < #$0005, &sprite_group_001BED >   ;02
-  sprite-set < #$0001, &sprite_group_00034E >   ;03
+spm_solidarm_sprite_set_00012A [
+  sprite-set < #$0009, &spm_solidarm_sprite_group_001BED >   ;00
+  sprite-set < #$000D, &spm_solidarm_sprite_group_001CDA >   ;01
+  sprite-set < #$0005, &spm_solidarm_sprite_group_001BED >   ;02
+  sprite-set < #$0001, &spm_solidarm_sprite_group_00034E >   ;03
 ]
 
-sprite_set_00013C [
-  sprite-set < #$0009, &sprite_group_0019FE >   ;00
-  sprite-set < #$000D, &sprite_group_001AEB >   ;01
-  sprite-set < #$0005, &sprite_group_0019FE >   ;02
-  sprite-set < #$0001, &sprite_group_001911 >   ;03
+spm_solidarm_sprite_set_00013C [
+  sprite-set < #$0009, &spm_solidarm_sprite_group_0019FE >   ;00
+  sprite-set < #$000D, &spm_solidarm_sprite_group_001AEB >   ;01
+  sprite-set < #$0005, &spm_solidarm_sprite_group_0019FE >   ;02
+  sprite-set < #$0001, &spm_solidarm_sprite_group_001911 >   ;03
 ]
 
-sprite_set_00014E [
-  sprite-set < #$0002, &sprite_group_001E25 >   ;00
-  sprite-set < #$0002, &sprite_group_001E40 >   ;01
-  sprite-set < #$0001, &sprite_group_001E69 >   ;02
-  sprite-set < #$0001, &sprite_group_001E92 >   ;03
-  sprite-set < #$0001, &sprite_group_001EBB >   ;04
-  sprite-set < #$0001, &sprite_group_001EE4 >   ;05
-  sprite-set < #$0001, &sprite_group_001F0D >   ;06
+spm_solidarm_sprite_set_00014E [
+  sprite-set < #$0002, &spm_solidarm_sprite_group_001E25 >   ;00
+  sprite-set < #$0002, &spm_solidarm_sprite_group_001E40 >   ;01
+  sprite-set < #$0001, &spm_solidarm_sprite_group_001E69 >   ;02
+  sprite-set < #$0001, &spm_solidarm_sprite_group_001E92 >   ;03
+  sprite-set < #$0001, &spm_solidarm_sprite_group_001EBB >   ;04
+  sprite-set < #$0001, &spm_solidarm_sprite_group_001EE4 >   ;05
+  sprite-set < #$0001, &spm_solidarm_sprite_group_001F0D >   ;06
 ]
 
-sprite_set_00016C [
-  sprite-set < #$0002, &sprite_group_001DF6 >   ;00
-  sprite-set < #$0002, &sprite_group_001E0A >   ;01
-  sprite-set < #$0001, &sprite_group_001E69 >   ;02
-  sprite-set < #$0001, &sprite_group_001E92 >   ;03
-  sprite-set < #$0001, &sprite_group_001EBB >   ;04
-  sprite-set < #$0001, &sprite_group_001EE4 >   ;05
-  sprite-set < #$0001, &sprite_group_001F0D >   ;06
+spm_solidarm_sprite_set_00016C [
+  sprite-set < #$0002, &spm_solidarm_sprite_group_001DF6 >   ;00
+  sprite-set < #$0002, &spm_solidarm_sprite_group_001E0A >   ;01
+  sprite-set < #$0001, &spm_solidarm_sprite_group_001E69 >   ;02
+  sprite-set < #$0001, &spm_solidarm_sprite_group_001E92 >   ;03
+  sprite-set < #$0001, &spm_solidarm_sprite_group_001EBB >   ;04
+  sprite-set < #$0001, &spm_solidarm_sprite_group_001EE4 >   ;05
+  sprite-set < #$0001, &spm_solidarm_sprite_group_001F0D >   ;06
 ]
 
-sprite_set_00018A [
-  sprite-set < #$0002, &sprite_group_001DC7 >   ;00
-  sprite-set < #$0002, &sprite_group_001DDB >   ;01
-  sprite-set < #$0001, &sprite_group_001E69 >   ;02
-  sprite-set < #$0001, &sprite_group_001E92 >   ;03
-  sprite-set < #$0001, &sprite_group_001EBB >   ;04
-  sprite-set < #$0001, &sprite_group_001EE4 >   ;05
-  sprite-set < #$0001, &sprite_group_001F0D >   ;06
+spm_solidarm_sprite_set_00018A [
+  sprite-set < #$0002, &spm_solidarm_sprite_group_001DC7 >   ;00
+  sprite-set < #$0002, &spm_solidarm_sprite_group_001DDB >   ;01
+  sprite-set < #$0001, &spm_solidarm_sprite_group_001E69 >   ;02
+  sprite-set < #$0001, &spm_solidarm_sprite_group_001E92 >   ;03
+  sprite-set < #$0001, &spm_solidarm_sprite_group_001EBB >   ;04
+  sprite-set < #$0001, &spm_solidarm_sprite_group_001EE4 >   ;05
+  sprite-set < #$0001, &spm_solidarm_sprite_group_001F0D >   ;06
 ]
 
-sprite_set_0001A8 [
-  sprite-set < #$0001, &sprite_group_001F4A >   ;00
-  sprite-set < #$0000, &sprite_group_001F5E >   ;01
-  sprite-set < #$0000, &sprite_group_001F36 >   ;02
+spm_solidarm_sprite_set_0001A8 [
+  sprite-set < #$0001, &spm_solidarm_sprite_group_001F4A >   ;00
+  sprite-set < #$0000, &spm_solidarm_sprite_group_001F5E >   ;01
+  sprite-set < #$0000, &spm_solidarm_sprite_group_001F36 >   ;02
 ]
 
-sprite_set_0001B6 [
-  sprite-set < #$0001, &sprite_group_001F4A >   ;00
-  sprite-set < #$0000, &sprite_group_001F5E >   ;01
-  sprite-set < #$0000, &sprite_group_001F36 >   ;02
+spm_solidarm_sprite_set_0001B6 [
+  sprite-set < #$0001, &spm_solidarm_sprite_group_001F4A >   ;00
+  sprite-set < #$0000, &spm_solidarm_sprite_group_001F5E >   ;01
+  sprite-set < #$0000, &spm_solidarm_sprite_group_001F36 >   ;02
 ]
 
-sprite_set_0001C4 [
-  sprite-set < #$0001, &sprite_group_001F4A >   ;00
-  sprite-set < #$0000, &sprite_group_001F5E >   ;01
-  sprite-set < #$0000, &sprite_group_001F36 >   ;02
+spm_solidarm_sprite_set_0001C4 [
+  sprite-set < #$0001, &spm_solidarm_sprite_group_001F4A >   ;00
+  sprite-set < #$0000, &spm_solidarm_sprite_group_001F5E >   ;01
+  sprite-set < #$0000, &spm_solidarm_sprite_group_001F36 >   ;02
 ]
 
-sprite_set_0001D2 [
-  sprite-set < #$000F, &sprite_group_00034E >
+spm_solidarm_sprite_set_0001D2 [
+  sprite-set < #$000F, &spm_solidarm_sprite_group_00034E >
 ]
 
-sprite_set_0001D8 [
-  sprite-set < #$000F, &sprite_group_00160B >
+spm_solidarm_sprite_set_0001D8 [
+  sprite-set < #$000F, &spm_solidarm_sprite_group_00160B >
 ]
 
-sprite_set_0001DE [
-  sprite-set < #$000F, &sprite_group_001911 >
+spm_solidarm_sprite_set_0001DE [
+  sprite-set < #$000F, &spm_solidarm_sprite_group_001911 >
 ]
 
-sprite_set_0001E4 [
-  sprite-set < #$0005, &sprite_group_001F72 >   ;00
-  sprite-set < #$0001, &sprite_group_001F72 >   ;01
-  sprite-set < #$0001, &sprite_group_001F72 >   ;02
+spm_solidarm_sprite_set_0001E4 [
+  sprite-set < #$0005, &spm_solidarm_sprite_group_001F72 >   ;00
+  sprite-set < #$0001, &spm_solidarm_sprite_group_001F72 >   ;01
+  sprite-set < #$0001, &spm_solidarm_sprite_group_001F72 >   ;02
 ]
 
-sprite_set_0001F2 [
-  sprite-set < #$0005, &sprite_group_001F72 >   ;00
-  sprite-set < #$0001, &sprite_group_001F72 >   ;01
-  sprite-set < #$0001, &sprite_group_001F72 >   ;02
+spm_solidarm_sprite_set_0001F2 [
+  sprite-set < #$0005, &spm_solidarm_sprite_group_001F72 >   ;00
+  sprite-set < #$0001, &spm_solidarm_sprite_group_001F72 >   ;01
+  sprite-set < #$0001, &spm_solidarm_sprite_group_001F72 >   ;02
 ]
 
-sprite_set_000200 [
-  sprite-set < #$0001, &sprite_group_001F4A >   ;00
-  sprite-set < #$0000, &sprite_group_001F5E >   ;01
-  sprite-set < #$0000, &sprite_group_001F36 >   ;02
-  sprite-set < #$0001, &sprite_group_001F4A >   ;03
-  sprite-set < #$0000, &sprite_group_001F5E >   ;04
-  sprite-set < #$0000, &sprite_group_001F36 >   ;05
-  sprite-set < #$0001, &sprite_group_001F4A >   ;06
-  sprite-set < #$0000, &sprite_group_001F5E >   ;07
-  sprite-set < #$0000, &sprite_group_001F36 >   ;08
+spm_solidarm_sprite_set_000200 [
+  sprite-set < #$0001, &spm_solidarm_sprite_group_001F4A >   ;00
+  sprite-set < #$0000, &spm_solidarm_sprite_group_001F5E >   ;01
+  sprite-set < #$0000, &spm_solidarm_sprite_group_001F36 >   ;02
+  sprite-set < #$0001, &spm_solidarm_sprite_group_001F4A >   ;03
+  sprite-set < #$0000, &spm_solidarm_sprite_group_001F5E >   ;04
+  sprite-set < #$0000, &spm_solidarm_sprite_group_001F36 >   ;05
+  sprite-set < #$0001, &spm_solidarm_sprite_group_001F4A >   ;06
+  sprite-set < #$0000, &spm_solidarm_sprite_group_001F5E >   ;07
+  sprite-set < #$0000, &spm_solidarm_sprite_group_001F36 >   ;08
 ]
 
-sprite_set_000226 [
-  sprite-set < #$0001, &sprite_group_001F4A >   ;00
-  sprite-set < #$0000, &sprite_group_001F5E >   ;01
-  sprite-set < #$0000, &sprite_group_001F36 >   ;02
-  sprite-set < #$0001, &sprite_group_001F4A >   ;03
-  sprite-set < #$0000, &sprite_group_001F5E >   ;04
-  sprite-set < #$0000, &sprite_group_001F36 >   ;05
-  sprite-set < #$0001, &sprite_group_001F4A >   ;06
-  sprite-set < #$0000, &sprite_group_001F5E >   ;07
-  sprite-set < #$0000, &sprite_group_001F36 >   ;08
+spm_solidarm_sprite_set_000226 [
+  sprite-set < #$0001, &spm_solidarm_sprite_group_001F4A >   ;00
+  sprite-set < #$0000, &spm_solidarm_sprite_group_001F5E >   ;01
+  sprite-set < #$0000, &spm_solidarm_sprite_group_001F36 >   ;02
+  sprite-set < #$0001, &spm_solidarm_sprite_group_001F4A >   ;03
+  sprite-set < #$0000, &spm_solidarm_sprite_group_001F5E >   ;04
+  sprite-set < #$0000, &spm_solidarm_sprite_group_001F36 >   ;05
+  sprite-set < #$0001, &spm_solidarm_sprite_group_001F4A >   ;06
+  sprite-set < #$0000, &spm_solidarm_sprite_group_001F5E >   ;07
+  sprite-set < #$0000, &spm_solidarm_sprite_group_001F36 >   ;08
 ]
 
-sprite_group_00024C [
+spm_solidarm_sprite_group_00024C [
   sprite-group < #18, #18, #41, #00, #F0, #F0, #02, #01, #E8, #30, #E0, #1F, #23, [
     sprite-part < #01, #0C, #14, #01, #30, #$093D >   ;00
     sprite-part < #01, #14, #0C, #01, #30, #$093E >   ;01
@@ -277,7 +277,7 @@ sprite_group_00024C [
   ] >
 ]
 
-sprite_group_00034E [
+spm_solidarm_sprite_group_00034E [
   sprite-group < #18, #18, #40, #00, #F0, #F0, #02, #01, #E8, #30, #E0, #1F, #23, [
     sprite-part < #01, #0C, #14, #00, #30, #$093D >   ;00
     sprite-part < #01, #14, #0C, #00, #30, #$093E >   ;01
@@ -317,7 +317,7 @@ sprite_group_00034E [
   ] >
 ]
 
-sprite_group_000450 [
+spm_solidarm_sprite_group_000450 [
   sprite-group < #18, #18, #42, #00, #F0, #F0, #02, #01, #E8, #30, #E0, #1F, #21, [
     sprite-part < #01, #00, #20, #08, #2A, #$0D1D >   ;00
     sprite-part < #00, #08, #20, #1A, #20, #$09BC >   ;01
@@ -355,7 +355,7 @@ sprite_group_000450 [
   ] >
 ]
 
-sprite_group_000544 [
+spm_solidarm_sprite_group_000544 [
   sprite-group < #18, #18, #40, #00, #F0, #F0, #02, #01, #E8, #30, #E0, #1F, #20, [
     sprite-part < #01, #00, #20, #08, #28, #$0D1D >   ;00
     sprite-part < #00, #08, #20, #18, #20, #$09BC >   ;01
@@ -392,7 +392,7 @@ sprite_group_000544 [
   ] >
 ]
 
-sprite_group_000631 [
+spm_solidarm_sprite_group_000631 [
   sprite-group < #18, #18, #42, #00, #F0, #F0, #02, #01, #E8, #30, #E0, #20, #22, [
     sprite-part < #00, #27, #01, #1F, #1B, #$09E5 >   ;00
     sprite-part < #00, #27, #01, #27, #13, #$09F5 >   ;01
@@ -431,7 +431,7 @@ sprite_group_000631 [
   ] >
 ]
 
-sprite_group_00072C [
+spm_solidarm_sprite_group_00072C [
   sprite-group < #18, #18, #40, #00, #F0, #F0, #02, #01, #E8, #30, #E0, #20, #22, [
     sprite-part < #00, #27, #01, #1E, #1A, #$09E5 >   ;00
     sprite-part < #00, #27, #01, #26, #12, #$09F5 >   ;01
@@ -470,7 +470,7 @@ sprite_group_00072C [
   ] >
 ]
 
-sprite_group_000827 [
+spm_solidarm_sprite_group_000827 [
   sprite-group < #18, #18, #42, #00, #F0, #F0, #02, #01, #E8, #30, #E0, #20, #29, [
     sprite-part < #01, #20, #00, #08, #2A, #$4D1D >   ;00
     sprite-part < #00, #10, #18, #2A, #10, #$09DD >   ;01
@@ -516,7 +516,7 @@ sprite_group_000827 [
   ] >
 ]
 
-sprite_group_000953 [
+spm_solidarm_sprite_group_000953 [
   sprite-group < #18, #18, #40, #00, #F0, #F0, #02, #01, #E8, #30, #E0, #1F, #28, [
     sprite-part < #01, #20, #00, #08, #28, #$4D1D >   ;00
     sprite-part < #00, #10, #18, #28, #10, #$09DD >   ;01
@@ -561,7 +561,7 @@ sprite_group_000953 [
   ] >
 ]
 
-sprite_group_000A78 [
+spm_solidarm_sprite_group_000A78 [
   sprite-group < #18, #18, #42, #00, #F0, #F0, #02, #01, #E8, #30, #E0, #20, #29, [
     sprite-part < #01, #00, #20, #08, #2A, #$0D1D >   ;00
     sprite-part < #00, #10, #18, #2A, #10, #$09DD >   ;01
@@ -607,7 +607,7 @@ sprite_group_000A78 [
   ] >
 ]
 
-sprite_group_000BA4 [
+spm_solidarm_sprite_group_000BA4 [
   sprite-group < #18, #18, #40, #00, #F0, #F0, #02, #01, #E8, #30, #E0, #20, #28, [
     sprite-part < #01, #00, #20, #08, #28, #$0D1D >   ;00
     sprite-part < #00, #10, #18, #28, #10, #$09DD >   ;01
@@ -652,7 +652,7 @@ sprite_group_000BA4 [
   ] >
 ]
 
-sprite_group_000CC9 [
+spm_solidarm_sprite_group_000CC9 [
   sprite-group < #1E, #18, #41, #00, #F0, #F0, #02, #01, #E2, #34, #D8, #28, #22, [
     sprite-part < #01, #26, #00, #08, #29, #$4D1D >   ;00
     sprite-part < #01, #25, #01, #0F, #22, #$09C4 >   ;01
@@ -691,7 +691,7 @@ sprite_group_000CC9 [
   ] >
 ]
 
-sprite_group_000DC4 [
+spm_solidarm_sprite_group_000DC4 [
   sprite-group < #3B, #18, #42, #00, #F0, #F0, #02, #01, #CB, #46, #D1, #1A, #22, [
     sprite-part < #01, #43, #00, #09, #29, #$4D1D >   ;00
     sprite-part < #00, #4A, #01, #20, #1A, #$09E5 >   ;01
@@ -730,7 +730,7 @@ sprite_group_000DC4 [
   ] >
 ]
 
-sprite_group_000EBF [
+spm_solidarm_sprite_group_000EBF [
   sprite-group < #3B, #18, #44, #00, #F0, #F0, #02, #01, #C4, #33, #C8, #17, #21, [
     sprite-part < #01, #43, #00, #0C, #28, #$4D1D >   ;00
     sprite-part < #00, #4A, #01, #22, #1A, #$09E5 >   ;01
@@ -768,7 +768,7 @@ sprite_group_000EBF [
   ] >
 ]
 
-sprite_group_000FB3 [
+spm_solidarm_sprite_group_000FB3 [
   sprite-group < #17, #17, #42, #00, #F0, #F0, #02, #01, #E8, #30, #E0, #20, #22, [
     sprite-part < #01, #1E, #00, #08, #2A, #$4D1D >   ;00
     sprite-part < #00, #08, #1E, #29, #11, #$499B >   ;01
@@ -807,7 +807,7 @@ sprite_group_000FB3 [
   ] >
 ]
 
-sprite_group_0010AE [
+spm_solidarm_sprite_group_0010AE [
   sprite-group < #17, #1A, #43, #00, #F0, #F0, #02, #01, #E8, #30, #E0, #20, #1F, [
     sprite-part < #01, #21, #00, #17, #1C, #$4984 >   ;00
     sprite-part < #01, #18, #09, #33, #00, #$4922 >   ;01
@@ -843,7 +843,7 @@ sprite_group_0010AE [
   ] >
 ]
 
-sprite_group_001194 [
+spm_solidarm_sprite_group_001194 [
   sprite-group < #18, #1F, #41, #00, #F0, #F0, #02, #01, #E8, #30, #E0, #20, #23, [
     sprite-part < #01, #00, #27, #08, #29, #$0D1D >   ;00
     sprite-part < #01, #01, #26, #0F, #22, #$49C4 >   ;01
@@ -883,7 +883,7 @@ sprite_group_001194 [
   ] >
 ]
 
-sprite_group_001296 [
+spm_solidarm_sprite_group_001296 [
   sprite-group < #18, #3B, #42, #00, #F0, #F0, #02, #01, #E8, #4E, #D4, #1B, #1F, [
     sprite-part < #01, #00, #43, #09, #29, #$0D1D >   ;00
     sprite-part < #01, #01, #42, #10, #22, #$49C4 >   ;01
@@ -919,7 +919,7 @@ sprite_group_001296 [
   ] >
 ]
 
-sprite_group_00137C [
+spm_solidarm_sprite_group_00137C [
   sprite-group < #18, #3B, #43, #00, #F0, #F0, #02, #01, #F1, #4A, #C9, #17, #1F, [
     sprite-part < #01, #00, #43, #0B, #28, #$0D1D >   ;00
     sprite-part < #01, #01, #42, #11, #22, #$49C4 >   ;01
@@ -955,7 +955,7 @@ sprite_group_00137C [
   ] >
 ]
 
-sprite_group_001462 [
+spm_solidarm_sprite_group_001462 [
   sprite-group < #17, #17, #42, #00, #F0, #F0, #02, #01, #E8, #30, #E0, #20, #1C, [
     sprite-part < #01, #00, #1E, #08, #2A, #$0D1D >   ;00
     sprite-part < #01, #00, #1E, #0F, #23, #$49C4 >   ;01
@@ -988,7 +988,7 @@ sprite_group_001462 [
   ] >
 ]
 
-sprite_group_001533 [
+spm_solidarm_sprite_group_001533 [
   sprite-group < #1C, #16, #43, #00, #F0, #F0, #02, #01, #E8, #30, #E0, #20, #1D, [
     sprite-part < #01, #06, #1C, #08, #2B, #$0D1D >   ;00
     sprite-part < #00, #00, #2A, #18, #23, #$0984 >   ;01
@@ -1022,7 +1022,7 @@ sprite_group_001533 [
   ] >
 ]
 
-sprite_group_00160B [
+spm_solidarm_sprite_group_00160B [
   sprite-group < #18, #18, #41, #00, #F0, #F0, #02, #01, #E8, #30, #E0, #20, #24, [
     sprite-part < #00, #27, #01, #1F, #1A, #$09E5 >   ;00
     sprite-part < #00, #27, #01, #27, #12, #$09F5 >   ;01
@@ -1063,7 +1063,7 @@ sprite_group_00160B [
   ] >
 ]
 
-sprite_group_001714 [
+spm_solidarm_sprite_group_001714 [
   sprite-group < #18, #18, #41, #00, #F0, #F0, #02, #01, #E8, #30, #E0, #1F, #22, [
     sprite-part < #00, #27, #01, #1F, #1A, #$09E5 >   ;00
     sprite-part < #00, #27, #01, #27, #12, #$09F5 >   ;01
@@ -1102,7 +1102,7 @@ sprite_group_001714 [
   ] >
 ]
 
-sprite_group_00180F [
+spm_solidarm_sprite_group_00180F [
   sprite-group < #18, #18, #42, #00, #F0, #F0, #02, #01, #E8, #30, #E0, #20, #23, [
     sprite-part < #00, #27, #01, #20, #1A, #$09E5 >   ;00
     sprite-part < #00, #27, #01, #28, #12, #$09F5 >   ;01
@@ -1142,7 +1142,7 @@ sprite_group_00180F [
   ] >
 ]
 
-sprite_group_001911 [
+spm_solidarm_sprite_group_001911 [
   sprite-group < #18, #18, #41, #00, #F0, #F0, #02, #01, #E8, #30, #E0, #20, #20, [
     sprite-part < #00, #27, #01, #1F, #1A, #$09E5 >   ;00
     sprite-part < #00, #27, #01, #27, #12, #$09F5 >   ;01
@@ -1179,7 +1179,7 @@ sprite_group_001911 [
   ] >
 ]
 
-sprite_group_0019FE [
+spm_solidarm_sprite_group_0019FE [
   sprite-group < #18, #19, #41, #00, #F0, #F0, #02, #01, #E8, #30, #E0, #1F, #20, [
     sprite-part < #00, #27, #02, #1F, #1A, #$09E5 >   ;00
     sprite-part < #00, #27, #02, #27, #12, #$09F5 >   ;01
@@ -1216,7 +1216,7 @@ sprite_group_0019FE [
   ] >
 ]
 
-sprite_group_001AEB [
+spm_solidarm_sprite_group_001AEB [
   sprite-group < #18, #18, #41, #00, #F0, #F0, #02, #01, #E8, #30, #E0, #1F, #23, [
     sprite-part < #01, #00, #20, #08, #29, #$0D1D >   ;00
     sprite-part < #00, #08, #20, #19, #20, #$09BC >   ;01
@@ -1256,7 +1256,7 @@ sprite_group_001AEB [
   ] >
 ]
 
-sprite_group_001BED [
+spm_solidarm_sprite_group_001BED [
   sprite-group < #18, #18, #41, #00, #F0, #F0, #02, #01, #E8, #30, #E0, #20, #20, [
     sprite-part < #01, #00, #20, #08, #29, #$0D1D >   ;00
     sprite-part < #01, #20, #00, #08, #29, #$4D1D >   ;01
@@ -1293,7 +1293,7 @@ sprite_group_001BED [
   ] >
 ]
 
-sprite_group_001CDA [
+spm_solidarm_sprite_group_001CDA [
   sprite-group < #18, #18, #41, #00, #F0, #F0, #02, #01, #E8, #30, #E0, #20, #20, [
     sprite-part < #00, #08, #20, #19, #20, #$09BC >   ;00
     sprite-part < #00, #20, #08, #19, #20, #$09BF >   ;01
@@ -1330,40 +1330,40 @@ sprite_group_001CDA [
   ] >
 ]
 
-sprite_group_001DC7 [
+spm_solidarm_sprite_group_001DC7 [
   sprite-group < #04, #04, #0D, #00, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #01, [
     sprite-part < #00, #00, #00, #00, #05, #$0D0F >
   ] >
 ]
 
-sprite_group_001DDB [
+spm_solidarm_sprite_group_001DDB [
   sprite-group < #08, #08, #0C, #00, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #02, [
     sprite-part < #00, #08, #00, #00, #04, #$4D76 >   ;00
     sprite-part < #00, #00, #08, #00, #04, #$4D77 >   ;01
   ] >
 ]
 
-sprite_group_001DF6 [
+spm_solidarm_sprite_group_001DF6 [
   sprite-group < #03, #05, #0D, #00, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #01, [
     sprite-part < #00, #00, #00, #00, #05, #$0D0F >
   ] >
 ]
 
-sprite_group_001E0A [
+spm_solidarm_sprite_group_001E0A [
   sprite-group < #08, #08, #0C, #00, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #02, [
     sprite-part < #00, #00, #08, #00, #04, #$0D76 >   ;00
     sprite-part < #00, #08, #00, #00, #04, #$0D77 >   ;01
   ] >
 ]
 
-sprite_group_001E25 [
+spm_solidarm_sprite_group_001E25 [
   sprite-group < #08, #08, #0D, #00, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #02, [
     sprite-part < #00, #00, #08, #00, #05, #$0D7C >   ;00
     sprite-part < #00, #08, #00, #00, #05, #$0D7D >   ;01
   ] >
 ]
 
-sprite_group_001E40 [
+spm_solidarm_sprite_group_001E40 [
   sprite-group < #08, #08, #13, #00, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #04, [
     sprite-part < #00, #08, #00, #08, #03, #$0D79 >   ;00
     sprite-part < #00, #00, #08, #08, #03, #$4D79 >   ;01
@@ -1372,7 +1372,7 @@ sprite_group_001E40 [
   ] >
 ]
 
-sprite_group_001E69 [
+spm_solidarm_sprite_group_001E69 [
   sprite-group < #08, #08, #10, #00, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #04, [
     sprite-part < #00, #00, #08, #08, #00, #$0DF0 >   ;00
     sprite-part < #00, #00, #08, #00, #08, #$8DF0 >   ;01
@@ -1381,7 +1381,7 @@ sprite_group_001E69 [
   ] >
 ]
 
-sprite_group_001E92 [
+spm_solidarm_sprite_group_001E92 [
   sprite-group < #08, #08, #10, #00, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #04, [
     sprite-part < #00, #00, #08, #08, #00, #$0DE4 >   ;00
     sprite-part < #00, #00, #08, #00, #08, #$8DE4 >   ;01
@@ -1390,7 +1390,7 @@ sprite_group_001E92 [
   ] >
 ]
 
-sprite_group_001EBB [
+spm_solidarm_sprite_group_001EBB [
   sprite-group < #08, #08, #10, #00, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #04, [
     sprite-part < #00, #00, #08, #08, #00, #$0BBA >   ;00
     sprite-part < #00, #00, #08, #00, #08, #$8BBA >   ;01
@@ -1399,7 +1399,7 @@ sprite_group_001EBB [
   ] >
 ]
 
-sprite_group_001EE4 [
+spm_solidarm_sprite_group_001EE4 [
   sprite-group < #08, #08, #10, #00, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #04, [
     sprite-part < #00, #00, #08, #08, #00, #$0DC6 >   ;00
     sprite-part < #00, #00, #08, #00, #08, #$8DC6 >   ;01
@@ -1408,7 +1408,7 @@ sprite_group_001EE4 [
   ] >
 ]
 
-sprite_group_001F0D [
+spm_solidarm_sprite_group_001F0D [
   sprite-group < #08, #08, #10, #00, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #04, [
     sprite-part < #00, #00, #08, #08, #00, #$0DA7 >   ;00
     sprite-part < #00, #00, #08, #00, #08, #$8DA7 >   ;01
@@ -1417,25 +1417,25 @@ sprite_group_001F0D [
   ] >
 ]
 
-sprite_group_001F36 [
+spm_solidarm_sprite_group_001F36 [
   sprite-group < #08, #08, #10, #00, #F8, #F0, #01, #01, #F8, #0F, #F0, #10, #01, [
     sprite-part < #01, #00, #00, #00, #00, #$0B20 >
   ] >
 ]
 
-sprite_group_001F4A [
+spm_solidarm_sprite_group_001F4A [
   sprite-group < #08, #08, #10, #00, #F8, #F0, #01, #01, #F8, #0F, #F0, #10, #01, [
     sprite-part < #01, #00, #00, #00, #00, #$0D00 >
   ] >
 ]
 
-sprite_group_001F5E [
+spm_solidarm_sprite_group_001F5E [
   sprite-group < #08, #08, #10, #00, #F8, #F0, #01, #01, #F8, #0F, #F0, #10, #01, [
     sprite-part < #01, #00, #00, #00, #00, #$0D20 >
   ] >
 ]
 
-sprite_group_001F72 [
+spm_solidarm_sprite_group_001F72 [
   sprite-group < #08, #18, #10, #00, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #02, [
     sprite-part < #00, #00, #18, #00, #08, #$01FF >   ;00
     sprite-part < #00, #18, #00, #08, #00, #$01FF >   ;01

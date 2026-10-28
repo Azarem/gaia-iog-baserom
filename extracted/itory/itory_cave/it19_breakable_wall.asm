@@ -6,7 +6,7 @@
 
 ?INCLUDE 'enemy_stats_table'
 ?INCLUDE 'SpawnDebrisBurst'
-?INCLUDE 'spriteset_enemies'
+?INCLUDE 'spriteset_pickups_effects'
 
 !playerFlags                    09AE
 !statsPtr                       7F0020
@@ -24,7 +24,7 @@ it19_breakable_wall [
     STA $statsPtr, X
     LDA #$00FF
     STA $currentHp, X
-    COP [SetMetasprite] ( @spriteset_enemies )
+    COP [SetMetasprite] ( @spriteset_pickups_effects )
     COP [StageSpriteFrame] ( #00 )
     COP [AnimOnce]
     LDA #$0030

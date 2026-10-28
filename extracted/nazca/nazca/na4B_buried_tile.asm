@@ -8,7 +8,7 @@
 ; Sky Garden revelation sequence.
 ---------------------------------------------
 
-?INCLUDE 'spriteset_enemies'
+?INCLUDE 'spriteset_pickups_effects'
 
 !gfxCacheIdxB                   064A
 !joypadMaskStd                  065A
@@ -82,7 +82,7 @@ code_05E7A6 {
     LDA $0010, Y
     ORA #$2000
     STA $0010, Y
-    COP [SetMetasprite] ( @spriteset_enemies )
+    COP [SetMetasprite] ( @spriteset_pickups_effects )
     COP [StageSpriteFrame] ( #1C )
     COP [AnimOnce]
     COP [PlaySoundBoth] ( #$0C0C )

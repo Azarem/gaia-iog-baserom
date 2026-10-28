@@ -1,11 +1,11 @@
 ; Mummy prop on the Gold Ship interior — interactable object.
 ; 
-; Solid NPC at (+8, 0) using spriteset_enemies frame #00.
+; Solid NPC at (+8, 0) using spriteset_pickups_effects frame #00.
 ; Interactable — provides dialog about the mummified remains
 ; found aboard the ancient ship.
 ---------------------------------------------
 
-?INCLUDE 'spriteset_enemies'
+?INCLUDE 'spriteset_pickups_effects'
 
 !joypadMaskStd                  065A
 
@@ -18,7 +18,7 @@ gs2D_mummy [
     LDA #$0200
     TSB $12
     COP [NudgePosition] ( #08, #00 )
-    COP [SetMetasprite] ( @spriteset_enemies )
+    COP [SetMetasprite] ( @spriteset_pickups_effects )
     COP [StageSpriteFrame] ( #00 )
     COP [AnimOnce]
     COP [SetInteractHandler] ( &code_058B38 )

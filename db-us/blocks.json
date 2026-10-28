@@ -1002,26 +1002,26 @@
     "tables": {
         "display_preset_table": { "start": 98304, "end": 98868, "type": "&display-preset" },
         "scene_warps": { "start": 98868, "end": 108894, "type": "&warp-def" },
-        "forced_walk_sequence_table": { "start": 108894, "end": 109278, "type": "&Binary" },
+        "forced_walk_pan_table": { "start": 108894, "end": 109278, "type": "&Binary" },
         "enemy_clear_reward_table": { "start": 109278, "end": 109534, "type": "Byte" },
-        "direction_velocity_table": { "start": 109534, "end": 109552, "type": "direction-velocity" },
+        "walk_step_table": { "start": 109534, "end": 109552, "type": "direction-velocity" },
         "enemy_stats_table": { "start": 109552, "end": 109992, "type": "enemy-stats" },
         "scene_chest_table": { "start": 109992, "end": 110726, "type": "&chest-entry" },
-        "movement_delta_table": { "start": 110726, "end": 115588, "type": "&delta-node" },
+        "move_chain_table": { "start": 110726, "end": 115588, "type": "&delta-node" },
         "dialog_template_table": { "start": 117397, "end": 117670, "type": "&DialogString" },
         "parallax_scroll_table": { "start": 117760, "end": 119758, "type": "&Binary" },
         "body_table": { "start": 121201, "end": 121255, "type": "body-entry" },
-        "ability_anim_tables": {
+        "ability_damage_tables": {
             "parts": {
-                "will_ability_anim_table": { "start": 121255, "end": 121279, "type": "&Binary" },
-                "freedan_ability_anim_table": { "start": 121279, "end": 121304, "type": "&Binary" }
+                "will_ability_damage_table": { "start": 121255, "end": 121279, "type": "&Binary" },
+                "freedan_ability_damage_table": { "start": 121279, "end": 121304, "type": "&Binary" }
             }
         },
         "system_strings": {
             "parts": {
-                "consolestring_01D9D8": { "start": 121304, "end": 121535, "type": "ConsoleString" },
+                "boot_title_strings": { "start": 121304, "end": 121535, "type": "ConsoleString" },
                 "item_name_table": { "start": 121535, "end": 122398, "type": "&ConsoleString" },
-                "item_menu_table": { "start": 122398, "end": 123178, "type": "&ConsoleString" },
+                "item_name_line_table": { "start": 122398, "end": 123178, "type": "&ConsoleString" },
                 "non_discardable_item_bits": { "start": 123178, "end": 123186, "type": "Binary" },
                 "item_description_table": { "start": 123186, "end": 124396, "type": "&ConsoleString" },
                 "ability_menu_table": { "start": 124396, "end": 124509, "type": "&ConsoleString" },
@@ -1039,28 +1039,28 @@
                 "dialog_dictionary_b": { "start": 128333, "end": 130340, "type": "&DialogString" }
             }
         },
-        "item_get_dialog_table": { "start": 130340, "end": 130924, "type": "&DialogString" },
+        "item_pickup_text_table": { "start": 130340, "end": 130924, "type": "&DialogString" },
         "scene_actors": { "start": 819200, "end": 845285, "type": "&scene-event", "postProcess": "Extract(1)", "movable": true, "order": -1 },
         "scene_thinkers": { "start": 845285, "end": 846683, "type": "&thinker-spawn", "order": -1 },
         "scene_meta": { "start": 884736, "end": 897023, "type": "scene-meta", "postProcess": "Lookup(0,1)&&Label(label,meta_label)", "movable": true },
         "spriteset_freedan": { "start": 950272, "end": 969435, "type": "&sprite-set" },
         "spriteset_npc_props": { "start": 973312, "end": 974144, "type": "&sprite-set" },
-        "spriteset_enemies": { "start": 974848, "end": 982479, "type": "&sprite-set" },
-        "spriteset_will_alt": { "start": 1015808, "end": 1020133, "type": "&sprite-set" },
-        "spriteset_ability_fx": { "start": 1032192, "end": 1043845, "type": "&sprite-set" },
+        "spriteset_pickups_effects": { "start": 974848, "end": 982479, "type": "&sprite-set" },
+        "spriteset_will_abilities": { "start": 1015808, "end": 1020133, "type": "&sprite-set" },
+        "spriteset_transform_poses": { "start": 1032192, "end": 1043845, "type": "&sprite-set" },
         "inventory_spritemap": { "start": 1081344, "end": 1085191, "type": "&sprite-set" },
         "spriteset_shadow": { "start": 1343488, "end": 1355931, "type": "&sprite-set" },
-        "spriteset_town_objects": { "start": 1359872, "end": 1360072, "type": "&sprite-set" },
-        "spriteset_field_fx": { "start": 1360072, "end": 1360172, "type": "&sprite-set" },
-        "spriteset_particle_fx": { "start": 1360172, "end": 1360280, "type": "&sprite-set" },
+        "spriteset_freejia_tilefx": { "start": 1359872, "end": 1360072, "type": "&sprite-set" },
+        "spriteset_adrift_wave": { "start": 1360072, "end": 1360172, "type": "&sprite-set" },
+        "spriteset_snake_pit_fx": { "start": 1360172, "end": 1360280, "type": "&sprite-set" },
         "spriteset_will": { "start": 1409024, "end": 1426465, "type": "&sprite-set" },
         "palette_bundles": { "start": 1474560, "end": 1497132, "type": "&palette-bundle" },
         "spriteset_dark_friar": { "start": 1540096, "end": 1541149, "type": "&sprite-set" },
         "spriteset_aura": { "start": 1544192, "end": 1544618, "type": "&sprite-set" },
         "spriteset_freedan_fx": { "start": 1548288, "end": 1549554, "type": "&sprite-set" },
         "spriteset_shadow_fx": { "start": 1552384, "end": 1553318, "type": "&sprite-set" },
-        "spriteset_shadow_mode": { "start": 1556480, "end": 1557571, "type": "&sprite-set" },
-        "spriteset_will_projectile": { "start": 1560576, "end": 1561584, "type": "&sprite-set" }
+        "spriteset_shadow_aura_body": { "start": 1556480, "end": 1557571, "type": "&sprite-set" },
+        "spriteset_darkgaia_projectile": { "start": 1560576, "end": 1561584, "type": "&sprite-set" }
     },
     "sky_garden": {
         "garden_crash_cutscene": { "start": 237738, "end": 238074, "type": "actor-def", "scene": "garden_crash", "movable": true },

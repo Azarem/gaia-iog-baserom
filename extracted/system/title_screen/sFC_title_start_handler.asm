@@ -1,6 +1,6 @@
 ; Title / prologue Start handler (Bank 0B, 772529-772609): waits for Start, then sends the game to the diary menu (scene $FA).
 ; 
-; Two actor-defs share one poll loop. sFC_title_start_handler is spawned with sFC_title_intro by scene_event_0CE56D (the title scene $FC list) and first waits WaitWord $021B = 540 ticks (~9 s) so the intro's opening seconds cannot be skipped. sFC_title_start_poll polls at once; it is spawned in the actor lists of the four prologue scenes ($8C-$8F, next to pr8C_prologue1/5, pr8D_prologue2, pr8E_prologue3 and pr8F_prologue4), so Start skips the prologue slides as well.
+; Two actor-defs share one poll loop. sFC_title_start_handler is spawned with sFC_title_intro by scene_FC_actors (the title scene $FC list) and first waits WaitWord $021B = 540 ticks (~9 s) so the intro's opening seconds cannot be skipped. sFC_title_start_poll polls at once; it is spawned in the actor lists of the four prologue scenes ($8C-$8F, next to pr8C_prologue1/5, pr8D_prologue2, pr8E_prologue3 and pr8F_prologue4), so Start skips the prologue slides as well.
 ; 
 ; Both variants first mask nearly every button out of joypadCurrent (joypadMaskStd |= $FFFC; vanilla $FFF0, widened by transforms.json) and then poll with COP BranchIfPressed #$1001. In that mask word bit 0 is not a button: it makes the handler test joypadRaw instead of joypadCurrent (see docs/cop/families/input.md, BranchIfPressed), which is how Start ($1000) still gets through the mask. R is not tested.
 ; 

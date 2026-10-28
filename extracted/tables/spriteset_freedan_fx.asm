@@ -1,27 +1,42 @@
-; Spriteset for Freedan-specific visual effects (sword trails, charge flashes).
+; Sprite set of two Freedan poses (Bank 17, 1548288-1549554, 1266 bytes): the Aura Barrier cast and the vine drop attack. The old note ('sword trails, charge flashes', 'attack trail sprites and Dark Friar launch effects overlaid on Freedan') was wrong: the groups are complete body poses of 9 to 14 sub-sprites each, and nothing here belongs to the Dark Friar (that is spriteset_dark_friar). It is body_table row $06 (tile graphics free_fx_1C8000), selected with SetPlayerSpriteDirect #06, which puts it in effect until the next body change.
 ; 
-; Attack trail sprites and Dark Friar launch effects overlaid on Freedan during combat.
+; | Index | Set | Frames (hold) | Used by |
+; |-------|-----|---------------|---------|
+; | $00 | freedan_fx_00_drop_fall | 4 (2 each) | ClimbDropAttack (player_character): StageSprAndHitbox #00 while falling |
+; | $01 | freedan_fx_01_drop_land | 6 (4, 4, 4, 4, 4, 9) | ClimbDropLand: StageSpriteMoveY #01, the landing |
+; | $02 | freedan_fx_02_aura_cast | 2 (4 each) | Aura Barrier cast (attack_ability_system): StageSpriteFrame #02, played once |
+; | $03 | freedan_fx_03_aura_sustain | 1 (9) | Aura Barrier sustain: StageSpriteLoop #03, 2 passes and then 10 more while the barrier lasts |
+; 
+; The vine drop attack is the Freedan-only drop from a climb (CheckClimbAttack, abilityBitmask bit 6); ClimbDropLand loads entry 2 of freedan_ability_damage_table. The format is documented once, in the spriteset_freedan block note. Each frame is its own group (13 groups, 147 sub-sprites): 8 B pointer table + 60 B frame lists + 1198 B groups = 1266 bytes. The appearance of the tiles was not viewed (OQ-I069-3).
 ---------------------------------------------
 
 ?BANK 17
 
 ---------------------------------------------
 
+; 4 pointers to the animation frame lists: $00 vine drop fall, $01 drop landing, $02 Aura Barrier cast, $03 Aura Barrier sustain pose.
+
 spriteset_freedan_fx [
-  &sprite_set_17A008   ;00
-  &sprite_set_17A01A   ;01
-  &sprite_set_17A034   ;02
-  &sprite_set_17A03E   ;03
+  &freedan_fx_00_drop_fall   ;00
+  &freedan_fx_01_drop_land   ;01
+  &freedan_fx_02_aura_cast   ;02
+  &freedan_fx_03_aura_sustain   ;03
 ]
 
-sprite_set_17A008 [
+---------------------------------------------
+; Animation $00, vine drop attack fall: 4 frames, hold 2. Staged by ClimbDropAttack with a hitbox.
+
+freedan_fx_00_drop_fall [
   sprite-set < #$0002, &sprite_group_17A044 >   ;00
   sprite-set < #$0002, &sprite_group_17A090 >   ;01
   sprite-set < #$0002, &sprite_group_17A0E3 >   ;02
   sprite-set < #$0002, &sprite_group_17A12F >   ;03
 ]
 
-sprite_set_17A01A [
+---------------------------------------------
+; Animation $01, vine drop landing: 6 frames, hold 4 for the first five and 9 for the last. Staged by ClimbDropLand.
+
+freedan_fx_01_drop_land [
   sprite-set < #$0004, &sprite_group_17A182 >   ;00
   sprite-set < #$0004, &sprite_group_17A1E3 >   ;01
   sprite-set < #$0004, &sprite_group_17A244 >   ;02
@@ -30,12 +45,18 @@ sprite_set_17A01A [
   sprite-set < #$0009, &sprite_group_17A359 >   ;05
 ]
 
-sprite_set_17A034 [
+---------------------------------------------
+; Animation $02, Aura Barrier cast: 2 frames, hold 4. Staged once at the start of the cast.
+
+freedan_fx_02_aura_cast [
   sprite-set < #$0004, &sprite_group_17A3AC >   ;00
   sprite-set < #$0004, &sprite_group_17A414 >   ;01
 ]
 
-sprite_set_17A03E [
+---------------------------------------------
+; Animation $03, Aura Barrier sustain: 1 frame, hold 9, looped for the length of the barrier.
+
+freedan_fx_03_aura_sustain [
   sprite-set < #$0009, &sprite_group_17A483 >
 ]
 

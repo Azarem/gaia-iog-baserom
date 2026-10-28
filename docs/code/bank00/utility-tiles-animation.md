@@ -255,14 +255,14 @@ Called by all sprite staging COPs ($80–$87, $8D, $8F–$92), movement initiali
 
 #### Description
 
-Looks up animation frame duration/speed from `movement_delta_table`. Doubles the input index (A << 1) to index into the 16-bit word table and returns the duration value in A. Used by sprite staging COPs to set `$2C`/`$2E` movement duration fields and by force-move COPs to reload animation timing.
+Looks up animation frame duration/speed from `move_chain_table`. Doubles the input index (A << 1) to index into the 16-bit word table and returns the duration value in A. Used by sprite staging COPs to set `$2C`/`$2E` movement duration fields and by force-move COPs to reload animation timing.
 
 #### Algorithm
 
 ```
 1. ASL A              ; Index × 2 (16-bit table entries)
 2. TAY
-3. LDA movement_delta_table,Y ; Load duration word
+3. LDA move_chain_table,Y ; Load duration word
 4. RTS                ; Duration in A
 ```
 
@@ -272,7 +272,7 @@ Looks up animation frame duration/speed from `movement_delta_table`. Doubles the
 AnimFrameLookup {
     ASL 
     TAY 
-    LDA $&movement_delta_table, Y
+    LDA $&move_chain_table, Y
     RTS 
 }
 ```
@@ -282,7 +282,7 @@ AnimFrameLookup {
 | Location | Direction | Role |
 |----------|-----------|------|
 | `A` | Input/Output | Animation index in; duration out |
-| `movement_delta_table` | Read | Duration/speed table (16-bit entries) |
+| `move_chain_table` | Read | Duration/speed table (16-bit entries) |
 
 #### Cross-References
 

@@ -3,16 +3,16 @@
 ---------------------------------------------
 
 spriteset_dark_friar [
-  &sprite_set_17800E   ;00
-  &sprite_set_178034   ;01
-  &sprite_set_178042   ;02
-  &sprite_set_178050   ;03
-  &sprite_set_178062   ;04
-  &sprite_set_178074   ;05
-  &sprite_set_178086   ;06
+  &dark_friar_00_cast_flash   ;00
+  &dark_friar_01_trail1   ;01
+  &dark_friar_02_trail2   ;02
+  &dark_friar_03_trail3   ;03
+  &dark_friar_04_fragment   ;04
+  &dark_friar_05_follower_a   ;05
+  &dark_friar_06_follower_b   ;06
 ]
 
-sprite_set_17800E [
+dark_friar_00_cast_flash [
   sprite-set < #$0000, &sprite_group_178098 >   ;00
   sprite-set < #$0000, &sprite_group_1780C8 >   ;01
   sprite-set < #$0000, &sprite_group_1780F8 >   ;02
@@ -24,40 +24,40 @@ sprite_set_17800E [
   sprite-set < #$0000, &sprite_group_17820A >   ;08
 ]
 
-sprite_set_178034 [
+dark_friar_01_trail1 [
   sprite-set < #$0000, &sprite_group_1783B1 >   ;00
   sprite-set < #$0000, &sprite_group_1783C5 >   ;01
   sprite-set < #$0000, &sprite_group_178128 >   ;02
 ]
 
-sprite_set_178042 [
+dark_friar_02_trail2 [
   sprite-set < #$0000, &sprite_group_178375 >   ;00
   sprite-set < #$0000, &sprite_group_178389 >   ;01
   sprite-set < #$0000, &sprite_group_1783ED >   ;02
 ]
 
-sprite_set_178050 [
+dark_friar_03_trail3 [
   sprite-set < #$0000, &sprite_group_17821E >   ;00
   sprite-set < #$0000, &sprite_group_178247 >   ;01
   sprite-set < #$0000, &sprite_group_178270 >   ;02
   sprite-set < #$0000, &sprite_group_1782B5 >   ;03
 ]
 
-sprite_set_178062 [
+dark_friar_04_fragment [
   sprite-set < #$0001, &sprite_group_1782FA >   ;00
   sprite-set < #$0001, &sprite_group_178323 >   ;01
   sprite-set < #$0001, &sprite_group_17834C >   ;02
   sprite-set < #$0001, &sprite_group_178323 >   ;03
 ]
 
-sprite_set_178074 [
+dark_friar_05_follower_a [
   sprite-set < #$0001, &sprite_group_178375 >   ;00
   sprite-set < #$0001, &sprite_group_178389 >   ;01
   sprite-set < #$0001, &sprite_group_17839D >   ;02
   sprite-set < #$0001, &sprite_group_178389 >   ;03
 ]
 
-sprite_set_178086 [
+dark_friar_06_follower_b [
   sprite-set < #$0001, &sprite_group_1783B1 >   ;00
   sprite-set < #$0001, &sprite_group_1783C5 >   ;01
   sprite-set < #$0001, &sprite_group_1783D9 >   ;02

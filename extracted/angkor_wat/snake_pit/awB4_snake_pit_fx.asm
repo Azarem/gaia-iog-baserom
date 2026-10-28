@@ -4,7 +4,7 @@
 ; the dark, confined atmosphere of the pit.
 ---------------------------------------------
 
-?INCLUDE 'spriteset_particle_fx'
+?INCLUDE 'spriteset_snake_pit_fx'
 
 ---------------------------------------------
 
@@ -13,7 +13,7 @@ awB4_snake_pit_fx [
 
   code_0897CE:
     COP [SetScratchPointer] ( @misc_fx_1CD380 )
-    COP [SetMetasprite] ( @spriteset_particle_fx )
+    COP [SetMetasprite] ( @spriteset_snake_pit_fx )
     COP [ResetSpriteState] ( #00, #$2020 )
     COP [AdvanceSpriteAnim]
     RTL 

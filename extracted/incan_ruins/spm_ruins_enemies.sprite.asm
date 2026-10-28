@@ -1,434 +1,434 @@
 ---------------------------------------------
 
 spm_ruins_enemies [
-  &sprite_set_000066   ;00
-  &sprite_set_00006C   ;01
-  &sprite_set_000072   ;02
-  &sprite_set_000078   ;03
-  &sprite_set_000082   ;04
-  &sprite_set_00008C   ;05
-  &sprite_set_000096   ;06
-  &sprite_set_0000A0   ;07
-  &sprite_set_0000AA   ;08
-  &sprite_set_0000B4   ;09
-  &sprite_set_0000CA   ;0A
-  &sprite_set_0000E0   ;0B
-  &sprite_set_0000F6   ;0C
-  &sprite_set_0000FC   ;0D
-  &sprite_set_000102   ;0E
-  &sprite_set_000144   ;0F
-  &sprite_set_00014A   ;10
-  &sprite_set_000150   ;11
-  &sprite_set_000156   ;12
-  &sprite_set_000168   ;13
-  &sprite_set_00017A   ;14
-  &sprite_set_00018C   ;15
-  &sprite_set_0001CE   ;16
-  &sprite_set_000210   ;17
-  &sprite_set_000252   ;18
-  &sprite_set_000268   ;19
-  &sprite_set_00027E   ;1A
-  &sprite_set_000294   ;1B
-  &sprite_set_00029A   ;1C
-  &sprite_set_0002BC   ;1D
-  &sprite_set_0002F2   ;1E
-  &sprite_set_000328   ;1F
-  &sprite_set_00033A   ;20
-  &sprite_set_00034C   ;21
-  &sprite_set_00035E   ;22
-  &sprite_set_000370   ;23
-  &sprite_set_000376   ;24
-  &sprite_set_000384   ;25
-  &sprite_set_00038A   ;26
-  &sprite_set_0003C8   ;27
-  &sprite_set_0003DA   ;28
-  &sprite_set_0003E0   ;29
-  &sprite_set_0003E6   ;2A
-  &sprite_set_0003F8   ;2B
-  &sprite_set_0003FE   ;2C
-  &sprite_set_000404   ;2D
-  &sprite_set_000416   ;2E
-  &sprite_set_00041C   ;2F
-  &sprite_set_000422   ;30
-  &sprite_set_00042C   ;31
-  &sprite_set_000436   ;32
+  &spm_ruins_enemies_sprite_set_000066   ;00
+  &spm_ruins_enemies_sprite_set_00006C   ;01
+  &spm_ruins_enemies_sprite_set_000072   ;02
+  &spm_ruins_enemies_sprite_set_000078   ;03
+  &spm_ruins_enemies_sprite_set_000082   ;04
+  &spm_ruins_enemies_sprite_set_00008C   ;05
+  &spm_ruins_enemies_sprite_set_000096   ;06
+  &spm_ruins_enemies_sprite_set_0000A0   ;07
+  &spm_ruins_enemies_sprite_set_0000AA   ;08
+  &spm_ruins_enemies_sprite_set_0000B4   ;09
+  &spm_ruins_enemies_sprite_set_0000CA   ;0A
+  &spm_ruins_enemies_sprite_set_0000E0   ;0B
+  &spm_ruins_enemies_sprite_set_0000F6   ;0C
+  &spm_ruins_enemies_sprite_set_0000FC   ;0D
+  &spm_ruins_enemies_sprite_set_000102   ;0E
+  &spm_ruins_enemies_sprite_set_000144   ;0F
+  &spm_ruins_enemies_sprite_set_00014A   ;10
+  &spm_ruins_enemies_sprite_set_000150   ;11
+  &spm_ruins_enemies_sprite_set_000156   ;12
+  &spm_ruins_enemies_sprite_set_000168   ;13
+  &spm_ruins_enemies_sprite_set_00017A   ;14
+  &spm_ruins_enemies_sprite_set_00018C   ;15
+  &spm_ruins_enemies_sprite_set_0001CE   ;16
+  &spm_ruins_enemies_sprite_set_000210   ;17
+  &spm_ruins_enemies_sprite_set_000252   ;18
+  &spm_ruins_enemies_sprite_set_000268   ;19
+  &spm_ruins_enemies_sprite_set_00027E   ;1A
+  &spm_ruins_enemies_sprite_set_000294   ;1B
+  &spm_ruins_enemies_sprite_set_00029A   ;1C
+  &spm_ruins_enemies_sprite_set_0002BC   ;1D
+  &spm_ruins_enemies_sprite_set_0002F2   ;1E
+  &spm_ruins_enemies_sprite_set_000328   ;1F
+  &spm_ruins_enemies_sprite_set_00033A   ;20
+  &spm_ruins_enemies_sprite_set_00034C   ;21
+  &spm_ruins_enemies_sprite_set_00035E   ;22
+  &spm_ruins_enemies_sprite_set_000370   ;23
+  &spm_ruins_enemies_sprite_set_000376   ;24
+  &spm_ruins_enemies_sprite_set_000384   ;25
+  &spm_ruins_enemies_sprite_set_00038A   ;26
+  &spm_ruins_enemies_sprite_set_0003C8   ;27
+  &spm_ruins_enemies_sprite_set_0003DA   ;28
+  &spm_ruins_enemies_sprite_set_0003E0   ;29
+  &spm_ruins_enemies_sprite_set_0003E6   ;2A
+  &spm_ruins_enemies_sprite_set_0003F8   ;2B
+  &spm_ruins_enemies_sprite_set_0003FE   ;2C
+  &spm_ruins_enemies_sprite_set_000404   ;2D
+  &spm_ruins_enemies_sprite_set_000416   ;2E
+  &spm_ruins_enemies_sprite_set_00041C   ;2F
+  &spm_ruins_enemies_sprite_set_000422   ;30
+  &spm_ruins_enemies_sprite_set_00042C   ;31
+  &spm_ruins_enemies_sprite_set_000436   ;32
 ]
 
-sprite_set_000066 [
-  sprite-set < #$0000, &sprite_group_000440 >
+spm_ruins_enemies_sprite_set_000066 [
+  sprite-set < #$0000, &spm_ruins_enemies_sprite_group_000440 >
 ]
 
-sprite_set_00006C [
-  sprite-set < #$0000, &sprite_group_00047E >
+spm_ruins_enemies_sprite_set_00006C [
+  sprite-set < #$0000, &spm_ruins_enemies_sprite_group_00047E >
 ]
 
-sprite_set_000072 [
-  sprite-set < #$0000, &sprite_group_0004BC >
+spm_ruins_enemies_sprite_set_000072 [
+  sprite-set < #$0000, &spm_ruins_enemies_sprite_group_0004BC >
 ]
 
-sprite_set_000078 [
-  sprite-set < #$0007, &sprite_group_000501 >   ;00
-  sprite-set < #$0007, &sprite_group_000538 >   ;01
+spm_ruins_enemies_sprite_set_000078 [
+  sprite-set < #$0007, &spm_ruins_enemies_sprite_group_000501 >   ;00
+  sprite-set < #$0007, &spm_ruins_enemies_sprite_group_000538 >   ;01
 ]
 
-sprite_set_000082 [
-  sprite-set < #$0007, &sprite_group_000501 >   ;00
-  sprite-set < #$0007, &sprite_group_00056F >   ;01
+spm_ruins_enemies_sprite_set_000082 [
+  sprite-set < #$0007, &spm_ruins_enemies_sprite_group_000501 >   ;00
+  sprite-set < #$0007, &spm_ruins_enemies_sprite_group_00056F >   ;01
 ]
 
-sprite_set_00008C [
-  sprite-set < #$0007, &sprite_group_0005A6 >   ;00
-  sprite-set < #$0007, &sprite_group_0005DD >   ;01
+spm_ruins_enemies_sprite_set_00008C [
+  sprite-set < #$0007, &spm_ruins_enemies_sprite_group_0005A6 >   ;00
+  sprite-set < #$0007, &spm_ruins_enemies_sprite_group_0005DD >   ;01
 ]
 
-sprite_set_000096 [
-  sprite-set < #$0007, &sprite_group_0005A6 >   ;00
-  sprite-set < #$0007, &sprite_group_000614 >   ;01
+spm_ruins_enemies_sprite_set_000096 [
+  sprite-set < #$0007, &spm_ruins_enemies_sprite_group_0005A6 >   ;00
+  sprite-set < #$0007, &spm_ruins_enemies_sprite_group_000614 >   ;01
 ]
 
-sprite_set_0000A0 [
-  sprite-set < #$0007, &sprite_group_00064B >   ;00
-  sprite-set < #$0007, &sprite_group_000690 >   ;01
+spm_ruins_enemies_sprite_set_0000A0 [
+  sprite-set < #$0007, &spm_ruins_enemies_sprite_group_00064B >   ;00
+  sprite-set < #$0007, &spm_ruins_enemies_sprite_group_000690 >   ;01
 ]
 
-sprite_set_0000AA [
-  sprite-set < #$0007, &sprite_group_00064B >   ;00
-  sprite-set < #$0007, &sprite_group_0006E3 >   ;01
+spm_ruins_enemies_sprite_set_0000AA [
+  sprite-set < #$0007, &spm_ruins_enemies_sprite_group_00064B >   ;00
+  sprite-set < #$0007, &spm_ruins_enemies_sprite_group_0006E3 >   ;01
 ]
 
-sprite_set_0000B4 [
-  sprite-set < #$0001, &sprite_group_00072F >   ;00
-  sprite-set < #$0001, &sprite_group_000790 >   ;01
-  sprite-set < #$0001, &sprite_group_0007F1 >   ;02
-  sprite-set < #$0005, &sprite_group_000852 >   ;03
-  sprite-set < #$0003, &sprite_group_0008BA >   ;04
+spm_ruins_enemies_sprite_set_0000B4 [
+  sprite-set < #$0001, &spm_ruins_enemies_sprite_group_00072F >   ;00
+  sprite-set < #$0001, &spm_ruins_enemies_sprite_group_000790 >   ;01
+  sprite-set < #$0001, &spm_ruins_enemies_sprite_group_0007F1 >   ;02
+  sprite-set < #$0005, &spm_ruins_enemies_sprite_group_000852 >   ;03
+  sprite-set < #$0003, &spm_ruins_enemies_sprite_group_0008BA >   ;04
 ]
 
-sprite_set_0000CA [
-  sprite-set < #$0001, &sprite_group_000A0E >   ;00
-  sprite-set < #$0001, &sprite_group_000A68 >   ;01
-  sprite-set < #$0001, &sprite_group_000AC2 >   ;02
-  sprite-set < #$0005, &sprite_group_000B2A >   ;03
-  sprite-set < #$0003, &sprite_group_000B84 >   ;04
+spm_ruins_enemies_sprite_set_0000CA [
+  sprite-set < #$0001, &spm_ruins_enemies_sprite_group_000A0E >   ;00
+  sprite-set < #$0001, &spm_ruins_enemies_sprite_group_000A68 >   ;01
+  sprite-set < #$0001, &spm_ruins_enemies_sprite_group_000AC2 >   ;02
+  sprite-set < #$0005, &spm_ruins_enemies_sprite_group_000B2A >   ;03
+  sprite-set < #$0003, &spm_ruins_enemies_sprite_group_000B84 >   ;04
 ]
 
-sprite_set_0000E0 [
-  sprite-set < #$0001, &sprite_group_000CC3 >   ;00
-  sprite-set < #$0001, &sprite_group_000D1D >   ;01
-  sprite-set < #$0001, &sprite_group_000D77 >   ;02
-  sprite-set < #$0005, &sprite_group_000DD1 >   ;03
-  sprite-set < #$0003, &sprite_group_000E47 >   ;04
+spm_ruins_enemies_sprite_set_0000E0 [
+  sprite-set < #$0001, &spm_ruins_enemies_sprite_group_000CC3 >   ;00
+  sprite-set < #$0001, &spm_ruins_enemies_sprite_group_000D1D >   ;01
+  sprite-set < #$0001, &spm_ruins_enemies_sprite_group_000D77 >   ;02
+  sprite-set < #$0005, &spm_ruins_enemies_sprite_group_000DD1 >   ;03
+  sprite-set < #$0003, &spm_ruins_enemies_sprite_group_000E47 >   ;04
 ]
 
-sprite_set_0000F6 [
-  sprite-set < #$0000, &sprite_group_000440 >
+spm_ruins_enemies_sprite_set_0000F6 [
+  sprite-set < #$0000, &spm_ruins_enemies_sprite_group_000440 >
 ]
 
-sprite_set_0000FC [
-  sprite-set < #$0000, &sprite_group_000440 >
+spm_ruins_enemies_sprite_set_0000FC [
+  sprite-set < #$0000, &spm_ruins_enemies_sprite_group_000440 >
 ]
 
-sprite_set_000102 [
-  sprite-set < #$0000, &sprite_group_000F94 >   ;00
-  sprite-set < #$0000, &sprite_group_000FC4 >   ;01
-  sprite-set < #$0000, &sprite_group_000FF4 >   ;02
-  sprite-set < #$0000, &sprite_group_001024 >   ;03
-  sprite-set < #$0000, &sprite_group_001054 >   ;04
-  sprite-set < #$0000, &sprite_group_001084 >   ;05
-  sprite-set < #$0000, &sprite_group_0010B4 >   ;06
-  sprite-set < #$0000, &sprite_group_0010E4 >   ;07
-  sprite-set < #$0000, &sprite_group_001114 >   ;08
-  sprite-set < #$0000, &sprite_group_001144 >   ;09
-  sprite-set < #$0000, &sprite_group_001174 >   ;0A
-  sprite-set < #$0000, &sprite_group_0011A4 >   ;0B
-  sprite-set < #$0000, &sprite_group_0011D4 >   ;0C
-  sprite-set < #$0000, &sprite_group_001204 >   ;0D
-  sprite-set < #$0000, &sprite_group_001234 >   ;0E
-  sprite-set < #$0000, &sprite_group_001264 >   ;0F
+spm_ruins_enemies_sprite_set_000102 [
+  sprite-set < #$0000, &spm_ruins_enemies_sprite_group_000F94 >   ;00
+  sprite-set < #$0000, &spm_ruins_enemies_sprite_group_000FC4 >   ;01
+  sprite-set < #$0000, &spm_ruins_enemies_sprite_group_000FF4 >   ;02
+  sprite-set < #$0000, &spm_ruins_enemies_sprite_group_001024 >   ;03
+  sprite-set < #$0000, &spm_ruins_enemies_sprite_group_001054 >   ;04
+  sprite-set < #$0000, &spm_ruins_enemies_sprite_group_001084 >   ;05
+  sprite-set < #$0000, &spm_ruins_enemies_sprite_group_0010B4 >   ;06
+  sprite-set < #$0000, &spm_ruins_enemies_sprite_group_0010E4 >   ;07
+  sprite-set < #$0000, &spm_ruins_enemies_sprite_group_001114 >   ;08
+  sprite-set < #$0000, &spm_ruins_enemies_sprite_group_001144 >   ;09
+  sprite-set < #$0000, &spm_ruins_enemies_sprite_group_001174 >   ;0A
+  sprite-set < #$0000, &spm_ruins_enemies_sprite_group_0011A4 >   ;0B
+  sprite-set < #$0000, &spm_ruins_enemies_sprite_group_0011D4 >   ;0C
+  sprite-set < #$0000, &spm_ruins_enemies_sprite_group_001204 >   ;0D
+  sprite-set < #$0000, &spm_ruins_enemies_sprite_group_001234 >   ;0E
+  sprite-set < #$0000, &spm_ruins_enemies_sprite_group_001264 >   ;0F
 ]
 
-sprite_set_000144 [
-  sprite-set < #$0000, &sprite_group_001054 >
+spm_ruins_enemies_sprite_set_000144 [
+  sprite-set < #$0000, &spm_ruins_enemies_sprite_group_001054 >
 ]
 
-sprite_set_00014A [
-  sprite-set < #$0000, &sprite_group_0011D4 >
+spm_ruins_enemies_sprite_set_00014A [
+  sprite-set < #$0000, &spm_ruins_enemies_sprite_group_0011D4 >
 ]
 
-sprite_set_000150 [
-  sprite-set < #$0000, &sprite_group_0014AA >
+spm_ruins_enemies_sprite_set_000150 [
+  sprite-set < #$0000, &spm_ruins_enemies_sprite_group_0014AA >
 ]
 
-sprite_set_000156 [
-  sprite-set < #$0001, &sprite_group_001294 >   ;00
-  sprite-set < #$0001, &sprite_group_0012BD >   ;01
-  sprite-set < #$0001, &sprite_group_0012E6 >   ;02
-  sprite-set < #$0001, &sprite_group_0012BD >   ;03
+spm_ruins_enemies_sprite_set_000156 [
+  sprite-set < #$0001, &spm_ruins_enemies_sprite_group_001294 >   ;00
+  sprite-set < #$0001, &spm_ruins_enemies_sprite_group_0012BD >   ;01
+  sprite-set < #$0001, &spm_ruins_enemies_sprite_group_0012E6 >   ;02
+  sprite-set < #$0001, &spm_ruins_enemies_sprite_group_0012BD >   ;03
 ]
 
-sprite_set_000168 [
-  sprite-set < #$0001, &sprite_group_00130F >   ;00
-  sprite-set < #$0001, &sprite_group_001338 >   ;01
-  sprite-set < #$0001, &sprite_group_001361 >   ;02
-  sprite-set < #$0001, &sprite_group_001338 >   ;03
+spm_ruins_enemies_sprite_set_000168 [
+  sprite-set < #$0001, &spm_ruins_enemies_sprite_group_00130F >   ;00
+  sprite-set < #$0001, &spm_ruins_enemies_sprite_group_001338 >   ;01
+  sprite-set < #$0001, &spm_ruins_enemies_sprite_group_001361 >   ;02
+  sprite-set < #$0001, &spm_ruins_enemies_sprite_group_001338 >   ;03
 ]
 
-sprite_set_00017A [
-  sprite-set < #$0001, &sprite_group_00138A >   ;00
-  sprite-set < #$0001, &sprite_group_0013B3 >   ;01
-  sprite-set < #$0001, &sprite_group_0013DC >   ;02
-  sprite-set < #$0001, &sprite_group_0013B3 >   ;03
+spm_ruins_enemies_sprite_set_00017A [
+  sprite-set < #$0001, &spm_ruins_enemies_sprite_group_00138A >   ;00
+  sprite-set < #$0001, &spm_ruins_enemies_sprite_group_0013B3 >   ;01
+  sprite-set < #$0001, &spm_ruins_enemies_sprite_group_0013DC >   ;02
+  sprite-set < #$0001, &spm_ruins_enemies_sprite_group_0013B3 >   ;03
 ]
 
-sprite_set_00018C [
-  sprite-set < #$0001, &sprite_group_001405 >   ;00
-  sprite-set < #$0001, &sprite_group_0010B4 >   ;01
-  sprite-set < #$0001, &sprite_group_001114 >   ;02
-  sprite-set < #$0001, &sprite_group_001174 >   ;03
-  sprite-set < #$0001, &sprite_group_0011D4 >   ;04
-  sprite-set < #$0001, &sprite_group_001234 >   ;05
-  sprite-set < #$0001, &sprite_group_000F94 >   ;06
-  sprite-set < #$0001, &sprite_group_000FF4 >   ;07
-  sprite-set < #$0001, &sprite_group_001054 >   ;08
-  sprite-set < #$0001, &sprite_group_0010B4 >   ;09
-  sprite-set < #$0001, &sprite_group_001114 >   ;0A
-  sprite-set < #$0001, &sprite_group_001174 >   ;0B
-  sprite-set < #$0001, &sprite_group_0011D4 >   ;0C
-  sprite-set < #$0001, &sprite_group_0011D4 >   ;0D
-  sprite-set < #$0001, &sprite_group_0011D4 >   ;0E
-  sprite-set < #$0001, &sprite_group_0011D4 >   ;0F
+spm_ruins_enemies_sprite_set_00018C [
+  sprite-set < #$0001, &spm_ruins_enemies_sprite_group_001405 >   ;00
+  sprite-set < #$0001, &spm_ruins_enemies_sprite_group_0010B4 >   ;01
+  sprite-set < #$0001, &spm_ruins_enemies_sprite_group_001114 >   ;02
+  sprite-set < #$0001, &spm_ruins_enemies_sprite_group_001174 >   ;03
+  sprite-set < #$0001, &spm_ruins_enemies_sprite_group_0011D4 >   ;04
+  sprite-set < #$0001, &spm_ruins_enemies_sprite_group_001234 >   ;05
+  sprite-set < #$0001, &spm_ruins_enemies_sprite_group_000F94 >   ;06
+  sprite-set < #$0001, &spm_ruins_enemies_sprite_group_000FF4 >   ;07
+  sprite-set < #$0001, &spm_ruins_enemies_sprite_group_001054 >   ;08
+  sprite-set < #$0001, &spm_ruins_enemies_sprite_group_0010B4 >   ;09
+  sprite-set < #$0001, &spm_ruins_enemies_sprite_group_001114 >   ;0A
+  sprite-set < #$0001, &spm_ruins_enemies_sprite_group_001174 >   ;0B
+  sprite-set < #$0001, &spm_ruins_enemies_sprite_group_0011D4 >   ;0C
+  sprite-set < #$0001, &spm_ruins_enemies_sprite_group_0011D4 >   ;0D
+  sprite-set < #$0001, &spm_ruins_enemies_sprite_group_0011D4 >   ;0E
+  sprite-set < #$0001, &spm_ruins_enemies_sprite_group_0011D4 >   ;0F
 ]
 
-sprite_set_0001CE [
-  sprite-set < #$0001, &sprite_group_001473 >   ;00
-  sprite-set < #$0001, &sprite_group_001234 >   ;01
-  sprite-set < #$0001, &sprite_group_000F94 >   ;02
-  sprite-set < #$0001, &sprite_group_000FF4 >   ;03
-  sprite-set < #$0001, &sprite_group_001054 >   ;04
-  sprite-set < #$0001, &sprite_group_0010B4 >   ;05
-  sprite-set < #$0001, &sprite_group_001114 >   ;06
-  sprite-set < #$0001, &sprite_group_001174 >   ;07
-  sprite-set < #$0001, &sprite_group_0011D4 >   ;08
-  sprite-set < #$0001, &sprite_group_001234 >   ;09
-  sprite-set < #$0001, &sprite_group_000F94 >   ;0A
-  sprite-set < #$0001, &sprite_group_000FF4 >   ;0B
-  sprite-set < #$0001, &sprite_group_001054 >   ;0C
-  sprite-set < #$0001, &sprite_group_001054 >   ;0D
-  sprite-set < #$0001, &sprite_group_001054 >   ;0E
-  sprite-set < #$0001, &sprite_group_001054 >   ;0F
+spm_ruins_enemies_sprite_set_0001CE [
+  sprite-set < #$0001, &spm_ruins_enemies_sprite_group_001473 >   ;00
+  sprite-set < #$0001, &spm_ruins_enemies_sprite_group_001234 >   ;01
+  sprite-set < #$0001, &spm_ruins_enemies_sprite_group_000F94 >   ;02
+  sprite-set < #$0001, &spm_ruins_enemies_sprite_group_000FF4 >   ;03
+  sprite-set < #$0001, &spm_ruins_enemies_sprite_group_001054 >   ;04
+  sprite-set < #$0001, &spm_ruins_enemies_sprite_group_0010B4 >   ;05
+  sprite-set < #$0001, &spm_ruins_enemies_sprite_group_001114 >   ;06
+  sprite-set < #$0001, &spm_ruins_enemies_sprite_group_001174 >   ;07
+  sprite-set < #$0001, &spm_ruins_enemies_sprite_group_0011D4 >   ;08
+  sprite-set < #$0001, &spm_ruins_enemies_sprite_group_001234 >   ;09
+  sprite-set < #$0001, &spm_ruins_enemies_sprite_group_000F94 >   ;0A
+  sprite-set < #$0001, &spm_ruins_enemies_sprite_group_000FF4 >   ;0B
+  sprite-set < #$0001, &spm_ruins_enemies_sprite_group_001054 >   ;0C
+  sprite-set < #$0001, &spm_ruins_enemies_sprite_group_001054 >   ;0D
+  sprite-set < #$0001, &spm_ruins_enemies_sprite_group_001054 >   ;0E
+  sprite-set < #$0001, &spm_ruins_enemies_sprite_group_001054 >   ;0F
 ]
 
-sprite_set_000210 [
-  sprite-set < #$0001, &sprite_group_00143C >   ;00
-  sprite-set < #$0001, &sprite_group_001174 >   ;01
-  sprite-set < #$0001, &sprite_group_0011D4 >   ;02
-  sprite-set < #$0001, &sprite_group_001234 >   ;03
-  sprite-set < #$0001, &sprite_group_000F94 >   ;04
-  sprite-set < #$0001, &sprite_group_000FF4 >   ;05
-  sprite-set < #$0001, &sprite_group_001054 >   ;06
-  sprite-set < #$0001, &sprite_group_0010B4 >   ;07
-  sprite-set < #$0001, &sprite_group_001114 >   ;08
-  sprite-set < #$0001, &sprite_group_001174 >   ;09
-  sprite-set < #$0001, &sprite_group_0011D4 >   ;0A
-  sprite-set < #$0001, &sprite_group_001234 >   ;0B
-  sprite-set < #$0001, &sprite_group_000F94 >   ;0C
-  sprite-set < #$0001, &sprite_group_000F94 >   ;0D
-  sprite-set < #$0001, &sprite_group_000F94 >   ;0E
-  sprite-set < #$0001, &sprite_group_000F94 >   ;0F
+spm_ruins_enemies_sprite_set_000210 [
+  sprite-set < #$0001, &spm_ruins_enemies_sprite_group_00143C >   ;00
+  sprite-set < #$0001, &spm_ruins_enemies_sprite_group_001174 >   ;01
+  sprite-set < #$0001, &spm_ruins_enemies_sprite_group_0011D4 >   ;02
+  sprite-set < #$0001, &spm_ruins_enemies_sprite_group_001234 >   ;03
+  sprite-set < #$0001, &spm_ruins_enemies_sprite_group_000F94 >   ;04
+  sprite-set < #$0001, &spm_ruins_enemies_sprite_group_000FF4 >   ;05
+  sprite-set < #$0001, &spm_ruins_enemies_sprite_group_001054 >   ;06
+  sprite-set < #$0001, &spm_ruins_enemies_sprite_group_0010B4 >   ;07
+  sprite-set < #$0001, &spm_ruins_enemies_sprite_group_001114 >   ;08
+  sprite-set < #$0001, &spm_ruins_enemies_sprite_group_001174 >   ;09
+  sprite-set < #$0001, &spm_ruins_enemies_sprite_group_0011D4 >   ;0A
+  sprite-set < #$0001, &spm_ruins_enemies_sprite_group_001234 >   ;0B
+  sprite-set < #$0001, &spm_ruins_enemies_sprite_group_000F94 >   ;0C
+  sprite-set < #$0001, &spm_ruins_enemies_sprite_group_000F94 >   ;0D
+  sprite-set < #$0001, &spm_ruins_enemies_sprite_group_000F94 >   ;0E
+  sprite-set < #$0001, &spm_ruins_enemies_sprite_group_000F94 >   ;0F
 ]
 
-sprite_set_000252 [
-  sprite-set < #$000F, &sprite_group_00094C >   ;00
-  sprite-set < #$0003, &sprite_group_0009AD >   ;01
-  sprite-set < #$0001, &sprite_group_0007F1 >   ;02
-  sprite-set < #$0001, &sprite_group_000790 >   ;03
-  sprite-set < #$000F, &sprite_group_00072F >   ;04
+spm_ruins_enemies_sprite_set_000252 [
+  sprite-set < #$000F, &spm_ruins_enemies_sprite_group_00094C >   ;00
+  sprite-set < #$0003, &spm_ruins_enemies_sprite_group_0009AD >   ;01
+  sprite-set < #$0001, &spm_ruins_enemies_sprite_group_0007F1 >   ;02
+  sprite-set < #$0001, &spm_ruins_enemies_sprite_group_000790 >   ;03
+  sprite-set < #$000F, &spm_ruins_enemies_sprite_group_00072F >   ;04
 ]
 
-sprite_set_000268 [
-  sprite-set < #$000F, &sprite_group_000C01 >   ;00
-  sprite-set < #$0003, &sprite_group_000C62 >   ;01
-  sprite-set < #$0001, &sprite_group_000AC2 >   ;02
-  sprite-set < #$0001, &sprite_group_000A68 >   ;03
-  sprite-set < #$000F, &sprite_group_00047E >   ;04
+spm_ruins_enemies_sprite_set_000268 [
+  sprite-set < #$000F, &spm_ruins_enemies_sprite_group_000C01 >   ;00
+  sprite-set < #$0003, &spm_ruins_enemies_sprite_group_000C62 >   ;01
+  sprite-set < #$0001, &spm_ruins_enemies_sprite_group_000AC2 >   ;02
+  sprite-set < #$0001, &spm_ruins_enemies_sprite_group_000A68 >   ;03
+  sprite-set < #$000F, &spm_ruins_enemies_sprite_group_00047E >   ;04
 ]
 
-sprite_set_00027E [
-  sprite-set < #$000F, &sprite_group_000EAF >   ;00
-  sprite-set < #$0003, &sprite_group_000F25 >   ;01
-  sprite-set < #$0001, &sprite_group_000D77 >   ;02
-  sprite-set < #$0001, &sprite_group_000D1D >   ;03
-  sprite-set < #$000F, &sprite_group_000CC3 >   ;04
+spm_ruins_enemies_sprite_set_00027E [
+  sprite-set < #$000F, &spm_ruins_enemies_sprite_group_000EAF >   ;00
+  sprite-set < #$0003, &spm_ruins_enemies_sprite_group_000F25 >   ;01
+  sprite-set < #$0001, &spm_ruins_enemies_sprite_group_000D77 >   ;02
+  sprite-set < #$0001, &spm_ruins_enemies_sprite_group_000D1D >   ;03
+  sprite-set < #$000F, &spm_ruins_enemies_sprite_group_000CC3 >   ;04
 ]
 
-sprite_set_000294 [
-  sprite-set < #$0000, &sprite_group_0014DA >
+spm_ruins_enemies_sprite_set_000294 [
+  sprite-set < #$0000, &spm_ruins_enemies_sprite_group_0014DA >
 ]
 
-sprite_set_00029A [
-  sprite-set < #$0005, &sprite_group_0014DA >   ;00
-  sprite-set < #$0005, &sprite_group_00159A >   ;01
-  sprite-set < #$0005, &sprite_group_001548 >   ;02
-  sprite-set < #$0005, &sprite_group_0015EC >   ;03
-  sprite-set < #$0005, &sprite_group_001503 >   ;04
-  sprite-set < #$0005, &sprite_group_001615 >   ;05
-  sprite-set < #$0005, &sprite_group_001571 >   ;06
-  sprite-set < #$0005, &sprite_group_0015C3 >   ;07
+spm_ruins_enemies_sprite_set_00029A [
+  sprite-set < #$0005, &spm_ruins_enemies_sprite_group_0014DA >   ;00
+  sprite-set < #$0005, &spm_ruins_enemies_sprite_group_00159A >   ;01
+  sprite-set < #$0005, &spm_ruins_enemies_sprite_group_001548 >   ;02
+  sprite-set < #$0005, &spm_ruins_enemies_sprite_group_0015EC >   ;03
+  sprite-set < #$0005, &spm_ruins_enemies_sprite_group_001503 >   ;04
+  sprite-set < #$0005, &spm_ruins_enemies_sprite_group_001615 >   ;05
+  sprite-set < #$0005, &spm_ruins_enemies_sprite_group_001571 >   ;06
+  sprite-set < #$0005, &spm_ruins_enemies_sprite_group_0015C3 >   ;07
 ]
 
-sprite_set_0002BC [
-  sprite-set < #$0002, &sprite_group_00163E >   ;00
-  sprite-set < #$0002, &sprite_group_001652 >   ;01
-  sprite-set < #$0002, &sprite_group_001666 >   ;02
-  sprite-set < #$0002, &sprite_group_001681 >   ;03
-  sprite-set < #$0002, &sprite_group_0016A3 >   ;04
-  sprite-set < #$0002, &sprite_group_0016CC >   ;05
-  sprite-set < #$0002, &sprite_group_00170A >   ;06
-  sprite-set < #$0002, &sprite_group_001748 >   ;07
-  sprite-set < #$0002, &sprite_group_00177F >   ;08
-  sprite-set < #$0002, &sprite_group_0017A8 >   ;09
-  sprite-set < #$0002, &sprite_group_0017DF >   ;0A
-  sprite-set < #$0002, &sprite_group_0017FA >   ;0B
-  sprite-set < #$0002, &sprite_group_001815 >   ;0C
+spm_ruins_enemies_sprite_set_0002BC [
+  sprite-set < #$0002, &spm_ruins_enemies_sprite_group_00163E >   ;00
+  sprite-set < #$0002, &spm_ruins_enemies_sprite_group_001652 >   ;01
+  sprite-set < #$0002, &spm_ruins_enemies_sprite_group_001666 >   ;02
+  sprite-set < #$0002, &spm_ruins_enemies_sprite_group_001681 >   ;03
+  sprite-set < #$0002, &spm_ruins_enemies_sprite_group_0016A3 >   ;04
+  sprite-set < #$0002, &spm_ruins_enemies_sprite_group_0016CC >   ;05
+  sprite-set < #$0002, &spm_ruins_enemies_sprite_group_00170A >   ;06
+  sprite-set < #$0002, &spm_ruins_enemies_sprite_group_001748 >   ;07
+  sprite-set < #$0002, &spm_ruins_enemies_sprite_group_00177F >   ;08
+  sprite-set < #$0002, &spm_ruins_enemies_sprite_group_0017A8 >   ;09
+  sprite-set < #$0002, &spm_ruins_enemies_sprite_group_0017DF >   ;0A
+  sprite-set < #$0002, &spm_ruins_enemies_sprite_group_0017FA >   ;0B
+  sprite-set < #$0002, &spm_ruins_enemies_sprite_group_001815 >   ;0C
 ]
 
-sprite_set_0002F2 [
-  sprite-set < #$0002, &sprite_group_001815 >   ;00
-  sprite-set < #$0002, &sprite_group_0017FA >   ;01
-  sprite-set < #$0002, &sprite_group_0017DF >   ;02
-  sprite-set < #$0002, &sprite_group_0017A8 >   ;03
-  sprite-set < #$0002, &sprite_group_00177F >   ;04
-  sprite-set < #$0002, &sprite_group_001748 >   ;05
-  sprite-set < #$0002, &sprite_group_00170A >   ;06
-  sprite-set < #$0002, &sprite_group_0016CC >   ;07
-  sprite-set < #$0002, &sprite_group_0016A3 >   ;08
-  sprite-set < #$0002, &sprite_group_001681 >   ;09
-  sprite-set < #$0002, &sprite_group_001666 >   ;0A
-  sprite-set < #$0002, &sprite_group_001652 >   ;0B
-  sprite-set < #$0002, &sprite_group_00163E >   ;0C
+spm_ruins_enemies_sprite_set_0002F2 [
+  sprite-set < #$0002, &spm_ruins_enemies_sprite_group_001815 >   ;00
+  sprite-set < #$0002, &spm_ruins_enemies_sprite_group_0017FA >   ;01
+  sprite-set < #$0002, &spm_ruins_enemies_sprite_group_0017DF >   ;02
+  sprite-set < #$0002, &spm_ruins_enemies_sprite_group_0017A8 >   ;03
+  sprite-set < #$0002, &spm_ruins_enemies_sprite_group_00177F >   ;04
+  sprite-set < #$0002, &spm_ruins_enemies_sprite_group_001748 >   ;05
+  sprite-set < #$0002, &spm_ruins_enemies_sprite_group_00170A >   ;06
+  sprite-set < #$0002, &spm_ruins_enemies_sprite_group_0016CC >   ;07
+  sprite-set < #$0002, &spm_ruins_enemies_sprite_group_0016A3 >   ;08
+  sprite-set < #$0002, &spm_ruins_enemies_sprite_group_001681 >   ;09
+  sprite-set < #$0002, &spm_ruins_enemies_sprite_group_001666 >   ;0A
+  sprite-set < #$0002, &spm_ruins_enemies_sprite_group_001652 >   ;0B
+  sprite-set < #$0002, &spm_ruins_enemies_sprite_group_00163E >   ;0C
 ]
 
-sprite_set_000328 [
-  sprite-set < #$0004, &sprite_group_001830 >   ;00
-  sprite-set < #$0005, &sprite_group_00184B >   ;01
-  sprite-set < #$0007, &sprite_group_001866 >   ;02
-  sprite-set < #$0004, &sprite_group_00184B >   ;03
+spm_ruins_enemies_sprite_set_000328 [
+  sprite-set < #$0004, &spm_ruins_enemies_sprite_group_001830 >   ;00
+  sprite-set < #$0005, &spm_ruins_enemies_sprite_group_00184B >   ;01
+  sprite-set < #$0007, &spm_ruins_enemies_sprite_group_001866 >   ;02
+  sprite-set < #$0004, &spm_ruins_enemies_sprite_group_00184B >   ;03
 ]
 
-sprite_set_00033A [
-  sprite-set < #$0004, &sprite_group_001830 >   ;00
-  sprite-set < #$0005, &sprite_group_00184B >   ;01
-  sprite-set < #$0007, &sprite_group_001866 >   ;02
-  sprite-set < #$0004, &sprite_group_001830 >   ;03
+spm_ruins_enemies_sprite_set_00033A [
+  sprite-set < #$0004, &spm_ruins_enemies_sprite_group_001830 >   ;00
+  sprite-set < #$0005, &spm_ruins_enemies_sprite_group_00184B >   ;01
+  sprite-set < #$0007, &spm_ruins_enemies_sprite_group_001866 >   ;02
+  sprite-set < #$0004, &spm_ruins_enemies_sprite_group_001830 >   ;03
 ]
 
-sprite_set_00034C [
-  sprite-set < #$0004, &sprite_group_001830 >   ;00
-  sprite-set < #$0005, &sprite_group_00184B >   ;01
-  sprite-set < #$0007, &sprite_group_001866 >   ;02
-  sprite-set < #$0004, &sprite_group_001830 >   ;03
+spm_ruins_enemies_sprite_set_00034C [
+  sprite-set < #$0004, &spm_ruins_enemies_sprite_group_001830 >   ;00
+  sprite-set < #$0005, &spm_ruins_enemies_sprite_group_00184B >   ;01
+  sprite-set < #$0007, &spm_ruins_enemies_sprite_group_001866 >   ;02
+  sprite-set < #$0004, &spm_ruins_enemies_sprite_group_001830 >   ;03
 ]
 
-sprite_set_00035E [
-  sprite-set < #$0005, &sprite_group_001881 >   ;00
-  sprite-set < #$0005, &sprite_group_00189C >   ;01
-  sprite-set < #$0005, &sprite_group_0018B7 >   ;02
-  sprite-set < #$0005, &sprite_group_00189C >   ;03
+spm_ruins_enemies_sprite_set_00035E [
+  sprite-set < #$0005, &spm_ruins_enemies_sprite_group_001881 >   ;00
+  sprite-set < #$0005, &spm_ruins_enemies_sprite_group_00189C >   ;01
+  sprite-set < #$0005, &spm_ruins_enemies_sprite_group_0018B7 >   ;02
+  sprite-set < #$0005, &spm_ruins_enemies_sprite_group_00189C >   ;03
 ]
 
-sprite_set_000370 [
-  sprite-set < #$0003, &sprite_group_0018D2 >
+spm_ruins_enemies_sprite_set_000370 [
+  sprite-set < #$0003, &spm_ruins_enemies_sprite_group_0018D2 >
 ]
 
-sprite_set_000376 [
-  sprite-set < #$0003, &sprite_group_0018E6 >   ;00
-  sprite-set < #$0003, &sprite_group_0018FA >   ;01
-  sprite-set < #$0003, &sprite_group_00190E >   ;02
+spm_ruins_enemies_sprite_set_000376 [
+  sprite-set < #$0003, &spm_ruins_enemies_sprite_group_0018E6 >   ;00
+  sprite-set < #$0003, &spm_ruins_enemies_sprite_group_0018FA >   ;01
+  sprite-set < #$0003, &spm_ruins_enemies_sprite_group_00190E >   ;02
 ]
 
-sprite_set_000384 [
-  sprite-set < #$0000, &sprite_group_001A42 >
+spm_ruins_enemies_sprite_set_000384 [
+  sprite-set < #$0000, &spm_ruins_enemies_sprite_group_001A42 >
 ]
 
-sprite_set_00038A [
-  sprite-set < #$000F, &sprite_group_001922 >   ;00
-  sprite-set < #$0000, &sprite_group_0019E2 >   ;01
-  sprite-set < #$0000, &sprite_group_001982 >   ;02
-  sprite-set < #$0000, &sprite_group_001952 >   ;03
-  sprite-set < #$0000, &sprite_group_001982 >   ;04
-  sprite-set < #$0000, &sprite_group_0019E2 >   ;05
-  sprite-set < #$0000, &sprite_group_001922 >   ;06
-  sprite-set < #$0000, &sprite_group_001A12 >   ;07
-  sprite-set < #$0000, &sprite_group_0019B2 >   ;08
-  sprite-set < #$0000, &sprite_group_001A12 >   ;09
-  sprite-set < #$0000, &sprite_group_001922 >   ;0A
-  sprite-set < #$0000, &sprite_group_0019E2 >   ;0B
-  sprite-set < #$0000, &sprite_group_001922 >   ;0C
-  sprite-set < #$0000, &sprite_group_001A12 >   ;0D
-  sprite-set < #$0027, &sprite_group_001922 >   ;0E
+spm_ruins_enemies_sprite_set_00038A [
+  sprite-set < #$000F, &spm_ruins_enemies_sprite_group_001922 >   ;00
+  sprite-set < #$0000, &spm_ruins_enemies_sprite_group_0019E2 >   ;01
+  sprite-set < #$0000, &spm_ruins_enemies_sprite_group_001982 >   ;02
+  sprite-set < #$0000, &spm_ruins_enemies_sprite_group_001952 >   ;03
+  sprite-set < #$0000, &spm_ruins_enemies_sprite_group_001982 >   ;04
+  sprite-set < #$0000, &spm_ruins_enemies_sprite_group_0019E2 >   ;05
+  sprite-set < #$0000, &spm_ruins_enemies_sprite_group_001922 >   ;06
+  sprite-set < #$0000, &spm_ruins_enemies_sprite_group_001A12 >   ;07
+  sprite-set < #$0000, &spm_ruins_enemies_sprite_group_0019B2 >   ;08
+  sprite-set < #$0000, &spm_ruins_enemies_sprite_group_001A12 >   ;09
+  sprite-set < #$0000, &spm_ruins_enemies_sprite_group_001922 >   ;0A
+  sprite-set < #$0000, &spm_ruins_enemies_sprite_group_0019E2 >   ;0B
+  sprite-set < #$0000, &spm_ruins_enemies_sprite_group_001922 >   ;0C
+  sprite-set < #$0000, &spm_ruins_enemies_sprite_group_001A12 >   ;0D
+  sprite-set < #$0027, &spm_ruins_enemies_sprite_group_001922 >   ;0E
 ]
 
-sprite_set_0003C8 [
-  sprite-set < #$0001, &sprite_group_001A56 >   ;00
-  sprite-set < #$0001, &sprite_group_001AB7 >   ;01
-  sprite-set < #$0001, &sprite_group_001B18 >   ;02
-  sprite-set < #$0005, &sprite_group_001B79 >   ;03
+spm_ruins_enemies_sprite_set_0003C8 [
+  sprite-set < #$0001, &spm_ruins_enemies_sprite_group_001A56 >   ;00
+  sprite-set < #$0001, &spm_ruins_enemies_sprite_group_001AB7 >   ;01
+  sprite-set < #$0001, &spm_ruins_enemies_sprite_group_001B18 >   ;02
+  sprite-set < #$0005, &spm_ruins_enemies_sprite_group_001B79 >   ;03
 ]
 
-sprite_set_0003DA [
-  sprite-set < #$0000, &sprite_group_001BE1 >
+spm_ruins_enemies_sprite_set_0003DA [
+  sprite-set < #$0000, &spm_ruins_enemies_sprite_group_001BE1 >
 ]
 
-sprite_set_0003E0 [
-  sprite-set < #$0000, &sprite_group_001C2D >
+spm_ruins_enemies_sprite_set_0003E0 [
+  sprite-set < #$0000, &spm_ruins_enemies_sprite_group_001C2D >
 ]
 
-sprite_set_0003E6 [
-  sprite-set < #$0001, &sprite_group_001D49 >   ;00
-  sprite-set < #$0001, &sprite_group_001DA3 >   ;01
-  sprite-set < #$0001, &sprite_group_001DFD >   ;02
-  sprite-set < #$0005, &sprite_group_001E65 >   ;03
+spm_ruins_enemies_sprite_set_0003E6 [
+  sprite-set < #$0001, &spm_ruins_enemies_sprite_group_001D49 >   ;00
+  sprite-set < #$0001, &spm_ruins_enemies_sprite_group_001DA3 >   ;01
+  sprite-set < #$0001, &spm_ruins_enemies_sprite_group_001DFD >   ;02
+  sprite-set < #$0005, &spm_ruins_enemies_sprite_group_001E65 >   ;03
 ]
 
-sprite_set_0003F8 [
-  sprite-set < #$0000, &sprite_group_001EBF >
+spm_ruins_enemies_sprite_set_0003F8 [
+  sprite-set < #$0000, &spm_ruins_enemies_sprite_group_001EBF >
 ]
 
-sprite_set_0003FE [
-  sprite-set < #$0000, &sprite_group_001F04 >
+spm_ruins_enemies_sprite_set_0003FE [
+  sprite-set < #$0000, &spm_ruins_enemies_sprite_group_001F04 >
 ]
 
-sprite_set_000404 [
-  sprite-set < #$0001, &sprite_group_00203C >   ;00
-  sprite-set < #$0001, &sprite_group_002096 >   ;01
-  sprite-set < #$0001, &sprite_group_0020F0 >   ;02
-  sprite-set < #$0005, &sprite_group_00214A >   ;03
+spm_ruins_enemies_sprite_set_000404 [
+  sprite-set < #$0001, &spm_ruins_enemies_sprite_group_00203C >   ;00
+  sprite-set < #$0001, &spm_ruins_enemies_sprite_group_002096 >   ;01
+  sprite-set < #$0001, &spm_ruins_enemies_sprite_group_0020F0 >   ;02
+  sprite-set < #$0005, &spm_ruins_enemies_sprite_group_00214A >   ;03
 ]
 
-sprite_set_000416 [
-  sprite-set < #$0000, &sprite_group_0021C7 >
+spm_ruins_enemies_sprite_set_000416 [
+  sprite-set < #$0000, &spm_ruins_enemies_sprite_group_0021C7 >
 ]
 
-sprite_set_00041C [
-  sprite-set < #$0000, &sprite_group_002221 >
+spm_ruins_enemies_sprite_set_00041C [
+  sprite-set < #$0000, &spm_ruins_enemies_sprite_group_002221 >
 ]
 
-sprite_set_000422 [
-  sprite-set < #$0003, &sprite_group_001CBF >   ;00
-  sprite-set < #$0000, &sprite_group_001D04 >   ;01
+spm_ruins_enemies_sprite_set_000422 [
+  sprite-set < #$0003, &spm_ruins_enemies_sprite_group_001CBF >   ;00
+  sprite-set < #$0000, &spm_ruins_enemies_sprite_group_001D04 >   ;01
 ]
 
-sprite_set_00042C [
-  sprite-set < #$0003, &sprite_group_001F88 >   ;00
-  sprite-set < #$0000, &sprite_group_001FE2 >   ;01
+spm_ruins_enemies_sprite_set_00042C [
+  sprite-set < #$0003, &spm_ruins_enemies_sprite_group_001F88 >   ;00
+  sprite-set < #$0000, &spm_ruins_enemies_sprite_group_001FE2 >   ;01
 ]
 
-sprite_set_000436 [
-  sprite-set < #$0003, &sprite_group_002289 >   ;00
-  sprite-set < #$0000, &sprite_group_0022E3 >   ;01
+spm_ruins_enemies_sprite_set_000436 [
+  sprite-set < #$0003, &spm_ruins_enemies_sprite_group_002289 >   ;00
+  sprite-set < #$0000, &spm_ruins_enemies_sprite_group_0022E3 >   ;01
 ]
 
-sprite_group_000440 [
+spm_ruins_enemies_sprite_group_000440 [
   sprite-group < #0D, #13, #30, #07, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #07, [
     sprite-part < #01, #00, #10, #00, #27, #$0900 >   ;00
     sprite-part < #01, #10, #00, #00, #27, #$0902 >   ;01
@@ -440,7 +440,7 @@ sprite_group_000440 [
   ] >
 ]
 
-sprite_group_00047E [
+spm_ruins_enemies_sprite_group_00047E [
   sprite-group < #13, #0D, #30, #07, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #07, [
     sprite-part < #01, #00, #10, #00, #27, #$0904 >   ;00
     sprite-part < #01, #10, #00, #00, #27, #$0906 >   ;01
@@ -452,7 +452,7 @@ sprite_group_00047E [
   ] >
 ]
 
-sprite_group_0004BC [
+spm_ruins_enemies_sprite_group_0004BC [
   sprite-group < #10, #08, #30, #06, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #08, [
     sprite-part < #01, #08, #00, #1F, #07, #$094A >   ;00
     sprite-part < #01, #08, #00, #00, #26, #$4908 >   ;01
@@ -465,7 +465,7 @@ sprite_group_0004BC [
   ] >
 ]
 
-sprite_group_000501 [
+spm_ruins_enemies_sprite_group_000501 [
   sprite-group < #0D, #13, #31, #07, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #06, [
     sprite-part < #01, #00, #10, #10, #18, #$0920 >   ;00
     sprite-part < #01, #10, #00, #10, #18, #$0922 >   ;01
@@ -476,7 +476,7 @@ sprite_group_000501 [
   ] >
 ]
 
-sprite_group_000538 [
+spm_ruins_enemies_sprite_group_000538 [
   sprite-group < #0D, #13, #30, #07, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #06, [
     sprite-part < #01, #00, #10, #10, #17, #$0920 >   ;00
     sprite-part < #01, #10, #00, #10, #17, #$0922 >   ;01
@@ -487,7 +487,7 @@ sprite_group_000538 [
   ] >
 ]
 
-sprite_group_00056F [
+spm_ruins_enemies_sprite_group_00056F [
   sprite-group < #0D, #13, #30, #07, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #06, [
     sprite-part < #01, #00, #10, #10, #17, #$0920 >   ;00
     sprite-part < #01, #10, #00, #10, #17, #$0922 >   ;01
@@ -498,7 +498,7 @@ sprite_group_00056F [
   ] >
 ]
 
-sprite_group_0005A6 [
+spm_ruins_enemies_sprite_group_0005A6 [
   sprite-group < #13, #0D, #31, #07, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #06, [
     sprite-part < #01, #00, #10, #00, #28, #$0904 >   ;00
     sprite-part < #01, #10, #00, #00, #28, #$0906 >   ;01
@@ -509,7 +509,7 @@ sprite_group_0005A6 [
   ] >
 ]
 
-sprite_group_0005DD [
+spm_ruins_enemies_sprite_group_0005DD [
   sprite-group < #13, #0D, #30, #07, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #06, [
     sprite-part < #01, #00, #10, #00, #27, #$0904 >   ;00
     sprite-part < #01, #10, #00, #00, #27, #$0906 >   ;01
@@ -520,7 +520,7 @@ sprite_group_0005DD [
   ] >
 ]
 
-sprite_group_000614 [
+spm_ruins_enemies_sprite_group_000614 [
   sprite-group < #13, #0D, #30, #07, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #06, [
     sprite-part < #01, #00, #10, #00, #27, #$0904 >   ;00
     sprite-part < #01, #10, #00, #00, #27, #$0906 >   ;01
@@ -531,7 +531,7 @@ sprite_group_000614 [
   ] >
 ]
 
-sprite_group_00064B [
+spm_ruins_enemies_sprite_group_00064B [
   sprite-group < #10, #08, #31, #06, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #08, [
     sprite-part < #01, #08, #00, #00, #27, #$4908 >   ;00
     sprite-part < #01, #08, #00, #10, #17, #$092C >   ;01
@@ -544,7 +544,7 @@ sprite_group_00064B [
   ] >
 ]
 
-sprite_group_000690 [
+spm_ruins_enemies_sprite_group_000690 [
   sprite-group < #11, #0F, #30, #06, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #0A, [
     sprite-part < #01, #09, #07, #00, #26, #$4908 >   ;00
     sprite-part < #01, #09, #07, #10, #16, #$092C >   ;01
@@ -559,7 +559,7 @@ sprite_group_000690 [
   ] >
 ]
 
-sprite_group_0006E3 [
+spm_ruins_enemies_sprite_group_0006E3 [
   sprite-group < #10, #08, #30, #07, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #09, [
     sprite-part < #01, #08, #00, #00, #27, #$4908 >   ;00
     sprite-part < #01, #08, #00, #10, #17, #$092C >   ;01
@@ -573,7 +573,7 @@ sprite_group_0006E3 [
   ] >
 ]
 
-sprite_group_00072F [
+spm_ruins_enemies_sprite_group_00072F [
   sprite-group < #13, #16, #30, #07, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #0C, [
     sprite-part < #00, #06, #1B, #12, #1D, #$4967 >   ;00
     sprite-part < #01, #0B, #0E, #00, #27, #$0980 >   ;01
@@ -590,7 +590,7 @@ sprite_group_00072F [
   ] >
 ]
 
-sprite_group_000790 [
+spm_ruins_enemies_sprite_group_000790 [
   sprite-group < #10, #10, #30, #07, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #0C, [
     sprite-part < #00, #01, #17, #06, #29, #$8968 >   ;00
     sprite-part < #00, #06, #12, #0B, #24, #$8968 >   ;01
@@ -607,7 +607,7 @@ sprite_group_000790 [
   ] >
 ]
 
-sprite_group_0007F1 [
+spm_ruins_enemies_sprite_group_0007F1 [
   sprite-group < #10, #10, #30, #07, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #0C, [
     sprite-part < #00, #03, #15, #03, #2C, #$8978 >   ;00
     sprite-part < #00, #07, #11, #0B, #24, #$8978 >   ;01
@@ -624,7 +624,7 @@ sprite_group_0007F1 [
   ] >
 ]
 
-sprite_group_000852 [
+spm_ruins_enemies_sprite_group_000852 [
   sprite-group < #10, #10, #38, #07, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #0D, [
     sprite-part < #00, #02, #16, #13, #24, #$0966 >   ;00
     sprite-part < #01, #10, #00, #17, #18, #$0984 >   ;01
@@ -642,7 +642,7 @@ sprite_group_000852 [
   ] >
 ]
 
-sprite_group_0008BA [
+spm_ruins_enemies_sprite_group_0008BA [
   sprite-group < #0F, #10, #35, #07, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #13, [
     sprite-part < #00, #05, #12, #1C, #18, #$8964 >   ;00
     sprite-part < #00, #04, #13, #14, #20, #$0966 >   ;01
@@ -666,7 +666,7 @@ sprite_group_0008BA [
   ] >
 ]
 
-sprite_group_00094C [
+spm_ruins_enemies_sprite_group_00094C [
   sprite-group < #0E, #0E, #2D, #08, #F8, #F0, #01, #01, #F8, #10, #F0, #1F, #0C, [
     sprite-part < #00, #04, #10, #11, #1C, #$895D >   ;00
     sprite-part < #00, #08, #0C, #25, #08, #$895D >   ;01
@@ -683,7 +683,7 @@ sprite_group_00094C [
   ] >
 ]
 
-sprite_group_0009AD [
+spm_ruins_enemies_sprite_group_0009AD [
   sprite-group < #0E, #0E, #2E, #07, #F8, #F0, #01, #01, #F8, #10, #F0, #17, #0C, [
     sprite-part < #00, #05, #0F, #11, #1C, #$895D >   ;00
     sprite-part < #00, #09, #0B, #25, #08, #$895D >   ;01
@@ -700,7 +700,7 @@ sprite_group_0009AD [
   ] >
 ]
 
-sprite_group_000A0E [
+spm_ruins_enemies_sprite_group_000A0E [
   sprite-group < #14, #10, #30, #07, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #0B, [
     sprite-part < #01, #0C, #08, #00, #27, #$090C >   ;00
     sprite-part < #01, #04, #10, #10, #17, #$094E >   ;01
@@ -716,7 +716,7 @@ sprite_group_000A0E [
   ] >
 ]
 
-sprite_group_000A68 [
+spm_ruins_enemies_sprite_group_000A68 [
   sprite-group < #11, #10, #30, #07, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #0B, [
     sprite-part < #01, #09, #08, #00, #27, #$090C >   ;00
     sprite-part < #00, #06, #13, #05, #2A, #$8977 >   ;01
@@ -732,7 +732,7 @@ sprite_group_000A68 [
   ] >
 ]
 
-sprite_group_000AC2 [
+spm_ruins_enemies_sprite_group_000AC2 [
   sprite-group < #10, #10, #34, #07, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #0D, [
     sprite-part < #00, #07, #11, #24, #0F, #$0944 >   ;00
     sprite-part < #01, #10, #00, #14, #17, #$494E >   ;01
@@ -750,7 +750,7 @@ sprite_group_000AC2 [
   ] >
 ]
 
-sprite_group_000B2A [
+spm_ruins_enemies_sprite_group_000B2A [
   sprite-group < #10, #11, #3D, #07, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #0B, [
     sprite-part < #00, #19, #00, #12, #2A, #$495D >   ;00
     sprite-part < #01, #10, #01, #14, #20, #$098C >   ;01
@@ -766,7 +766,7 @@ sprite_group_000B2A [
   ] >
 ]
 
-sprite_group_000B84 [
+spm_ruins_enemies_sprite_group_000B84 [
   sprite-group < #10, #12, #37, #07, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #10, [
     sprite-part < #00, #1A, #00, #0B, #2B, #$4968 >   ;00
     sprite-part < #00, #17, #03, #07, #2F, #$098E >   ;01
@@ -787,7 +787,7 @@ sprite_group_000B84 [
   ] >
 ]
 
-sprite_group_000C01 [
+spm_ruins_enemies_sprite_group_000C01 [
   sprite-group < #10, #10, #30, #07, #F8, #F0, #01, #01, #F8, #10, #E1, #1E, #0C, [
     sprite-part < #00, #10, #08, #00, #2F, #$499E >   ;00
     sprite-part < #01, #08, #08, #08, #1F, #$09AB >   ;01
@@ -804,7 +804,7 @@ sprite_group_000C01 [
   ] >
 ]
 
-sprite_group_000C62 [
+spm_ruins_enemies_sprite_group_000C62 [
   sprite-group < #0F, #10, #31, #07, #F8, #F0, #01, #01, #F8, #10, #E8, #18, #0C, [
     sprite-part < #00, #07, #10, #00, #30, #$099E >   ;00
     sprite-part < #00, #0F, #08, #00, #30, #$499E >   ;01
@@ -821,7 +821,7 @@ sprite_group_000C62 [
   ] >
 ]
 
-sprite_group_000CC3 [
+spm_ruins_enemies_sprite_group_000CC3 [
   sprite-group < #14, #08, #30, #06, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #0B, [
     sprite-part < #01, #0B, #01, #08, #1E, #$096C >   ;00
     sprite-part < #00, #00, #14, #17, #17, #$0979 >   ;01
@@ -837,7 +837,7 @@ sprite_group_000CC3 [
   ] >
 ]
 
-sprite_group_000D1D [
+spm_ruins_enemies_sprite_group_000D1D [
   sprite-group < #17, #08, #30, #06, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #0B, [
     sprite-part < #01, #0E, #01, #08, #1E, #$096C >   ;00
     sprite-part < #00, #00, #17, #1A, #14, #$C975 >   ;01
@@ -853,7 +853,7 @@ sprite_group_000D1D [
   ] >
 ]
 
-sprite_group_000D77 [
+spm_ruins_enemies_sprite_group_000D77 [
   sprite-group < #1C, #08, #31, #06, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #0B, [
     sprite-part < #01, #13, #01, #08, #1F, #$096C >   ;00
     sprite-part < #00, #0B, #11, #0E, #21, #$097B >   ;01
@@ -869,7 +869,7 @@ sprite_group_000D77 [
   ] >
 ]
 
-sprite_group_000DD1 [
+spm_ruins_enemies_sprite_group_000DD1 [
   sprite-group < #1D, #0F, #39, #06, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #0F, [
     sprite-part < #00, #1C, #08, #17, #20, #$09CD >   ;00
     sprite-part < #00, #1C, #08, #1F, #18, #$09DD >   ;01
@@ -889,7 +889,7 @@ sprite_group_000DD1 [
   ] >
 ]
 
-sprite_group_000E47 [
+spm_ruins_enemies_sprite_group_000E47 [
   sprite-group < #1A, #09, #36, #06, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #0D, [
     sprite-part < #00, #1B, #00, #15, #1F, #$09CD >   ;00
     sprite-part < #00, #1B, #00, #1D, #17, #$09DD >   ;01
@@ -907,7 +907,7 @@ sprite_group_000E47 [
   ] >
 ]
 
-sprite_group_000EAF [
+spm_ruins_enemies_sprite_group_000EAF [
   sprite-group < #21, #11, #2D, #06, #F8, #F0, #01, #01, #E0, #28, #F0, #10, #0F, [
     sprite-part < #01, #19, #09, #1E, #05, #$092E >   ;00
     sprite-part < #00, #11, #19, #26, #05, #$094D >   ;01
@@ -927,7 +927,7 @@ sprite_group_000EAF [
   ] >
 ]
 
-sprite_group_000F25 [
+spm_ruins_enemies_sprite_group_000F25 [
   sprite-group < #1E, #11, #2E, #06, #F8, #F0, #01, #01, #E4, #24, #F0, #10, #0E, [
     sprite-part < #01, #17, #08, #0E, #16, #$09EC >   ;00
     sprite-part < #00, #0F, #18, #0E, #1E, #$09EB >   ;01
@@ -946,7 +946,7 @@ sprite_group_000F25 [
   ] >
 ]
 
-sprite_group_000F94 [
+spm_ruins_enemies_sprite_group_000F94 [
   sprite-group < #12, #14, #1E, #00, #F8, #F0, #01, #01, #0D, #08, #E2, #06, #05, [
     sprite-part < #00, #16, #08, #00, #16, #$4967 >   ;00
     sprite-part < #00, #1E, #00, #00, #16, #$0965 >   ;01
@@ -956,7 +956,7 @@ sprite_group_000F94 [
   ] >
 ]
 
-sprite_group_000FC4 [
+spm_ruins_enemies_sprite_group_000FC4 [
   sprite-group < #11, #13, #26, #00, #F8, #F0, #01, #01, #08, #0B, #E9, #05, #05, [
     sprite-part < #00, #0E, #0E, #07, #17, #$4977 >   ;00
     sprite-part < #00, #08, #14, #04, #1A, #$4977 >   ;01
@@ -966,7 +966,7 @@ sprite_group_000FC4 [
   ] >
 ]
 
-sprite_group_000FF4 [
+spm_ruins_enemies_sprite_group_000FF4 [
   sprite-group < #0C, #10, #27, #00, #F8, #F0, #01, #01, #08, #07, #EE, #05, #05, [
     sprite-part < #00, #00, #14, #00, #1F, #$8968 >   ;00
     sprite-part < #00, #03, #11, #03, #1C, #$8968 >   ;01
@@ -976,7 +976,7 @@ sprite_group_000FF4 [
   ] >
 ]
 
-sprite_group_001024 [
+spm_ruins_enemies_sprite_group_001024 [
   sprite-group < #0A, #0C, #2B, #00, #F8, #F0, #01, #01, #05, #05, #F1, #07, #05, [
     sprite-part < #00, #06, #08, #0C, #17, #$4978 >   ;00
     sprite-part < #00, #0E, #00, #1C, #07, #$8975 >   ;01
@@ -986,7 +986,7 @@ sprite_group_001024 [
   ] >
 ]
 
-sprite_group_001054 [
+spm_ruins_enemies_sprite_group_001054 [
   sprite-group < #04, #05, #2B, #00, #F8, #F0, #01, #01, #FE, #03, #EE, #0A, #05, [
     sprite-part < #00, #01, #00, #00, #23, #$8966 >   ;00
     sprite-part < #00, #01, #00, #07, #1C, #$8966 >   ;01
@@ -996,7 +996,7 @@ sprite_group_001054 [
   ] >
 ]
 
-sprite_group_001084 [
+spm_ruins_enemies_sprite_group_001084 [
   sprite-group < #0C, #0A, #2B, #00, #F8, #F0, #01, #01, #05, #05, #F1, #07, #05, [
     sprite-part < #00, #08, #06, #0C, #17, #$0978 >   ;00
     sprite-part < #00, #00, #0E, #1C, #07, #$C975 >   ;01
@@ -1006,7 +1006,7 @@ sprite_group_001084 [
   ] >
 ]
 
-sprite_group_0010B4 [
+spm_ruins_enemies_sprite_group_0010B4 [
   sprite-group < #10, #0C, #27, #00, #F8, #F0, #01, #01, #08, #07, #EE, #05, #05, [
     sprite-part < #00, #14, #00, #00, #1F, #$C968 >   ;00
     sprite-part < #00, #11, #03, #03, #1C, #$C968 >   ;01
@@ -1016,7 +1016,7 @@ sprite_group_0010B4 [
   ] >
 ]
 
-sprite_group_0010E4 [
+spm_ruins_enemies_sprite_group_0010E4 [
   sprite-group < #13, #11, #26, #00, #F8, #F0, #01, #01, #08, #0B, #E9, #05, #05, [
     sprite-part < #00, #0E, #0E, #07, #17, #$0977 >   ;00
     sprite-part < #00, #14, #08, #04, #1A, #$0977 >   ;01
@@ -1026,7 +1026,7 @@ sprite_group_0010E4 [
   ] >
 ]
 
-sprite_group_001114 [
+spm_ruins_enemies_sprite_group_001114 [
   sprite-group < #14, #12, #1E, #00, #F8, #F0, #01, #01, #0D, #08, #E2, #06, #05, [
     sprite-part < #00, #08, #16, #00, #16, #$0967 >   ;00
     sprite-part < #00, #00, #1E, #00, #16, #$4965 >   ;01
@@ -1036,7 +1036,7 @@ sprite_group_001114 [
   ] >
 ]
 
-sprite_group_001144 [
+spm_ruins_enemies_sprite_group_001144 [
   sprite-group < #13, #11, #26, #00, #F8, #F0, #01, #01, #08, #0B, #E9, #05, #05, [
     sprite-part < #00, #0E, #0E, #07, #17, #$8977 >   ;00
     sprite-part < #00, #14, #08, #0A, #14, #$8977 >   ;01
@@ -1046,7 +1046,7 @@ sprite_group_001144 [
   ] >
 ]
 
-sprite_group_001174 [
+spm_ruins_enemies_sprite_group_001174 [
   sprite-group < #10, #0C, #2B, #00, #F8, #F0, #01, #01, #08, #07, #EE, #05, #05, [
     sprite-part < #00, #14, #00, #14, #0F, #$4968 >   ;00
     sprite-part < #00, #11, #03, #11, #12, #$4968 >   ;01
@@ -1056,7 +1056,7 @@ sprite_group_001174 [
   ] >
 ]
 
-sprite_group_0011A4 [
+spm_ruins_enemies_sprite_group_0011A4 [
   sprite-group < #0C, #0A, #2F, #00, #F8, #F0, #01, #01, #05, #05, #F1, #07, #05, [
     sprite-part < #00, #08, #06, #10, #17, #$8978 >   ;00
     sprite-part < #00, #00, #0E, #00, #27, #$4975 >   ;01
@@ -1066,7 +1066,7 @@ sprite_group_0011A4 [
   ] >
 ]
 
-sprite_group_0011D4 [
+spm_ruins_enemies_sprite_group_0011D4 [
   sprite-group < #04, #05, #31, #00, #F8, #F0, #01, #01, #FE, #03, #EE, #0A, #05, [
     sprite-part < #00, #01, #00, #1E, #0B, #$0966 >   ;00
     sprite-part < #00, #01, #00, #17, #12, #$0966 >   ;01
@@ -1076,7 +1076,7 @@ sprite_group_0011D4 [
   ] >
 ]
 
-sprite_group_001204 [
+spm_ruins_enemies_sprite_group_001204 [
   sprite-group < #0A, #0C, #2F, #00, #F8, #F0, #01, #01, #05, #05, #F1, #07, #05, [
     sprite-part < #00, #06, #08, #10, #17, #$C978 >   ;00
     sprite-part < #00, #0E, #00, #00, #27, #$0975 >   ;01
@@ -1086,7 +1086,7 @@ sprite_group_001204 [
   ] >
 ]
 
-sprite_group_001234 [
+spm_ruins_enemies_sprite_group_001234 [
   sprite-group < #0C, #10, #2B, #00, #F8, #F0, #01, #01, #08, #07, #EE, #05, #05, [
     sprite-part < #00, #00, #14, #14, #0F, #$0968 >   ;00
     sprite-part < #00, #03, #11, #11, #12, #$0968 >   ;01
@@ -1096,7 +1096,7 @@ sprite_group_001234 [
   ] >
 ]
 
-sprite_group_001264 [
+spm_ruins_enemies_sprite_group_001264 [
   sprite-group < #11, #13, #26, #00, #F8, #F0, #01, #01, #08, #0B, #E9, #05, #05, [
     sprite-part < #00, #0E, #0E, #07, #17, #$C977 >   ;00
     sprite-part < #00, #08, #14, #0A, #14, #$C977 >   ;01
@@ -1106,7 +1106,7 @@ sprite_group_001264 [
   ] >
 ]
 
-sprite_group_001294 [
+spm_ruins_enemies_sprite_group_001294 [
   sprite-group < #06, #04, #2B, #00, #F8, #F0, #01, #01, #FE, #03, #EE, #0A, #04, [
     sprite-part < #00, #00, #02, #00, #23, #$8966 >   ;00
     sprite-part < #00, #01, #01, #07, #1C, #$8966 >   ;01
@@ -1115,7 +1115,7 @@ sprite_group_001294 [
   ] >
 ]
 
-sprite_group_0012BD [
+spm_ruins_enemies_sprite_group_0012BD [
   sprite-group < #04, #05, #2B, #00, #F8, #F0, #01, #01, #FE, #03, #EE, #0A, #04, [
     sprite-part < #00, #01, #00, #00, #23, #$8966 >   ;00
     sprite-part < #00, #01, #00, #07, #1C, #$8966 >   ;01
@@ -1124,7 +1124,7 @@ sprite_group_0012BD [
   ] >
 ]
 
-sprite_group_0012E6 [
+spm_ruins_enemies_sprite_group_0012E6 [
   sprite-group < #03, #07, #2B, #00, #F8, #F0, #01, #01, #FE, #03, #EE, #0A, #04, [
     sprite-part < #00, #02, #00, #00, #23, #$C966 >   ;00
     sprite-part < #00, #01, #01, #07, #1C, #$C966 >   ;01
@@ -1133,7 +1133,7 @@ sprite_group_0012E6 [
   ] >
 ]
 
-sprite_group_00130F [
+spm_ruins_enemies_sprite_group_00130F [
   sprite-group < #04, #08, #29, #00, #F8, #F0, #01, #01, #FE, #03, #EE, #0A, #04, [
     sprite-part < #00, #04, #00, #16, #0B, #$0966 >   ;00
     sprite-part < #00, #03, #01, #0F, #12, #$0966 >   ;01
@@ -1142,7 +1142,7 @@ sprite_group_00130F [
   ] >
 ]
 
-sprite_group_001338 [
+spm_ruins_enemies_sprite_group_001338 [
   sprite-group < #04, #05, #29, #00, #F8, #F0, #01, #01, #FE, #03, #EE, #0A, #04, [
     sprite-part < #00, #01, #00, #16, #0B, #$0966 >   ;00
     sprite-part < #00, #01, #00, #0F, #12, #$0966 >   ;01
@@ -1151,7 +1151,7 @@ sprite_group_001338 [
   ] >
 ]
 
-sprite_group_001361 [
+spm_ruins_enemies_sprite_group_001361 [
   sprite-group < #07, #05, #29, #00, #F8, #F0, #01, #01, #FE, #03, #EE, #0A, #04, [
     sprite-part < #00, #00, #04, #16, #0B, #$4966 >   ;00
     sprite-part < #00, #01, #03, #0F, #12, #$4966 >   ;01
@@ -1160,7 +1160,7 @@ sprite_group_001361 [
   ] >
 ]
 
-sprite_group_00138A [
+spm_ruins_enemies_sprite_group_00138A [
   sprite-group < #0C, #12, #09, #02, #F8, #F0, #01, #01, #0D, #08, #E2, #06, #04, [
     sprite-part < #00, #00, #16, #03, #00, #$0967 >   ;00
     sprite-part < #00, #07, #0F, #02, #01, #$0967 >   ;01
@@ -1169,7 +1169,7 @@ sprite_group_00138A [
   ] >
 ]
 
-sprite_group_0013B3 [
+spm_ruins_enemies_sprite_group_0013B3 [
   sprite-group < #0C, #12, #06, #02, #F8, #F0, #01, #01, #0D, #08, #E2, #06, #04, [
     sprite-part < #00, #00, #16, #00, #00, #$0967 >   ;00
     sprite-part < #00, #07, #0F, #00, #00, #$0967 >   ;01
@@ -1178,7 +1178,7 @@ sprite_group_0013B3 [
   ] >
 ]
 
-sprite_group_0013DC [
+spm_ruins_enemies_sprite_group_0013DC [
   sprite-group < #0C, #12, #07, #04, #F8, #F0, #01, #01, #0D, #08, #E2, #06, #04, [
     sprite-part < #00, #00, #16, #00, #03, #$8967 >   ;00
     sprite-part < #00, #07, #0F, #01, #02, #$8967 >   ;01
@@ -1187,7 +1187,7 @@ sprite_group_0013DC [
   ] >
 ]
 
-sprite_group_001405 [
+spm_ruins_enemies_sprite_group_001405 [
   sprite-group < #04, #05, #2B, #02, #F8, #F0, #01, #01, #FE, #03, #EE, #0A, #06, [
     sprite-part < #00, #01, #00, #00, #25, #$8966 >   ;00
     sprite-part < #00, #01, #00, #07, #1E, #$8966 >   ;01
@@ -1198,7 +1198,7 @@ sprite_group_001405 [
   ] >
 ]
 
-sprite_group_00143C [
+spm_ruins_enemies_sprite_group_00143C [
   sprite-group < #1B, #12, #1F, #00, #F8, #F0, #01, #01, #0D, #08, #E2, #06, #06, [
     sprite-part < #00, #0F, #16, #01, #16, #$0967 >   ;00
     sprite-part < #00, #07, #1E, #01, #16, #$4965 >   ;01
@@ -1209,7 +1209,7 @@ sprite_group_00143C [
   ] >
 ]
 
-sprite_group_001473 [
+spm_ruins_enemies_sprite_group_001473 [
   sprite-group < #04, #05, #38, #00, #F8, #F0, #01, #01, #FE, #03, #EE, #0A, #06, [
     sprite-part < #00, #01, #00, #25, #0B, #$0966 >   ;00
     sprite-part < #00, #01, #00, #1E, #12, #$0966 >   ;01
@@ -1220,7 +1220,7 @@ sprite_group_001473 [
   ] >
 ]
 
-sprite_group_0014AA [
+spm_ruins_enemies_sprite_group_0014AA [
   sprite-group < #14, #12, #06, #02, #F8, #F0, #01, #01, #0D, #08, #E2, #06, #05, [
     sprite-part < #00, #08, #16, #00, #00, #$0967 >   ;00
     sprite-part < #00, #00, #1E, #00, #00, #$4965 >   ;01
@@ -1230,7 +1230,7 @@ sprite_group_0014AA [
   ] >
 ]
 
-sprite_group_0014DA [
+spm_ruins_enemies_sprite_group_0014DA [
   sprite-group < #10, #10, #21, #00, #F8, #F0, #01, #01, #F8, #10, #E9, #10, #04, [
     sprite-part < #01, #00, #10, #00, #11, #$0DA0 >   ;00
     sprite-part < #01, #00, #10, #10, #01, #$0DC0 >   ;01
@@ -1239,7 +1239,7 @@ sprite_group_0014DA [
   ] >
 ]
 
-sprite_group_001503 [
+spm_ruins_enemies_sprite_group_001503 [
   sprite-group < #10, #10, #21, #00, #F8, #F0, #01, #01, #F8, #10, #E9, #10, #08, [
     sprite-part < #00, #10, #08, #18, #01, #$0DD2 >   ;00
     sprite-part < #00, #08, #10, #18, #01, #$4DD2 >   ;01
@@ -1252,7 +1252,7 @@ sprite_group_001503 [
   ] >
 ]
 
-sprite_group_001548 [
+spm_ruins_enemies_sprite_group_001548 [
   sprite-group < #0C, #0C, #20, #00, #F8, #F0, #01, #01, #F8, #10, #E9, #10, #04, [
     sprite-part < #01, #00, #08, #00, #10, #$0DA4 >   ;00
     sprite-part < #01, #08, #00, #00, #10, #$0DA5 >   ;01
@@ -1261,7 +1261,7 @@ sprite_group_001548 [
   ] >
 ]
 
-sprite_group_001571 [
+spm_ruins_enemies_sprite_group_001571 [
   sprite-group < #0A, #0E, #20, #00, #F8, #F0, #01, #01, #F8, #10, #E9, #10, #04, [
     sprite-part < #01, #08, #00, #00, #10, #$4DA4 >   ;00
     sprite-part < #01, #00, #08, #00, #10, #$4DA5 >   ;01
@@ -1270,7 +1270,7 @@ sprite_group_001571 [
   ] >
 ]
 
-sprite_group_00159A [
+spm_ruins_enemies_sprite_group_00159A [
   sprite-group < #10, #10, #20, #00, #F8, #F0, #01, #01, #F8, #10, #E9, #10, #04, [
     sprite-part < #01, #00, #10, #00, #10, #$0DA7 >   ;00
     sprite-part < #01, #10, #00, #00, #10, #$0DA9 >   ;01
@@ -1279,7 +1279,7 @@ sprite_group_00159A [
   ] >
 ]
 
-sprite_group_0015C3 [
+spm_ruins_enemies_sprite_group_0015C3 [
   sprite-group < #10, #10, #20, #00, #F8, #F0, #01, #01, #F8, #10, #E9, #10, #04, [
     sprite-part < #01, #10, #00, #00, #10, #$4DA7 >   ;00
     sprite-part < #01, #00, #10, #00, #10, #$4DA9 >   ;01
@@ -1288,7 +1288,7 @@ sprite_group_0015C3 [
   ] >
 ]
 
-sprite_group_0015EC [
+spm_ruins_enemies_sprite_group_0015EC [
   sprite-group < #10, #10, #20, #00, #F8, #F0, #01, #01, #F8, #10, #E9, #10, #04, [
     sprite-part < #01, #10, #00, #00, #10, #$4DA7 >   ;00
     sprite-part < #01, #00, #10, #00, #10, #$4DA9 >   ;01
@@ -1297,7 +1297,7 @@ sprite_group_0015EC [
   ] >
 ]
 
-sprite_group_001615 [
+spm_ruins_enemies_sprite_group_001615 [
   sprite-group < #10, #10, #20, #00, #F8, #F0, #01, #01, #F8, #10, #E9, #10, #04, [
     sprite-part < #01, #00, #10, #00, #10, #$0DA7 >   ;00
     sprite-part < #01, #10, #00, #00, #10, #$0DA9 >   ;01
@@ -1306,26 +1306,26 @@ sprite_group_001615 [
   ] >
 ]
 
-sprite_group_00163E [
+spm_ruins_enemies_sprite_group_00163E [
   sprite-group < #03, #05, #07, #01, #F0, #F0, #02, #01, #F8, #10, #F0, #10, #01, [
     sprite-part < #00, #00, #00, #00, #00, #$0DE0 >
   ] >
 ]
 
-sprite_group_001652 [
+spm_ruins_enemies_sprite_group_001652 [
   sprite-group < #04, #04, #07, #01, #F0, #F0, #02, #01, #F8, #10, #F0, #10, #01, [
     sprite-part < #00, #00, #00, #00, #00, #$0DE1 >
   ] >
 ]
 
-sprite_group_001666 [
+spm_ruins_enemies_sprite_group_001666 [
   sprite-group < #04, #08, #0F, #00, #F0, #F0, #02, #01, #F8, #10, #F0, #10, #02, [
     sprite-part < #00, #00, #04, #07, #00, #$0DF0 >   ;00
     sprite-part < #00, #04, #00, #00, #07, #$0DE0 >   ;01
   ] >
 ]
 
-sprite_group_001681 [
+spm_ruins_enemies_sprite_group_001681 [
   sprite-group < #06, #08, #10, #00, #F0, #F0, #02, #01, #F8, #10, #F0, #10, #03, [
     sprite-part < #00, #00, #06, #08, #00, #$0DF1 >   ;00
     sprite-part < #00, #05, #01, #08, #00, #$4DF1 >   ;01
@@ -1333,7 +1333,7 @@ sprite_group_001681 [
   ] >
 ]
 
-sprite_group_0016A3 [
+spm_ruins_enemies_sprite_group_0016A3 [
   sprite-group < #0A, #08, #10, #00, #F0, #F0, #02, #01, #F8, #10, #F0, #10, #04, [
     sprite-part < #00, #02, #08, #08, #00, #$0DF1 >   ;00
     sprite-part < #00, #0A, #00, #08, #00, #$4DF1 >   ;01
@@ -1342,7 +1342,7 @@ sprite_group_0016A3 [
   ] >
 ]
 
-sprite_group_0016CC [
+spm_ruins_enemies_sprite_group_0016CC [
   sprite-group < #0B, #0B, #10, #04, #F0, #F0, #02, #01, #F8, #10, #F0, #10, #07, [
     sprite-part < #00, #09, #05, #00, #0C, #$0DF1 >   ;00
     sprite-part < #00, #0E, #00, #00, #0C, #$4DF1 >   ;01
@@ -1354,7 +1354,7 @@ sprite_group_0016CC [
   ] >
 ]
 
-sprite_group_00170A [
+spm_ruins_enemies_sprite_group_00170A [
   sprite-group < #0B, #0D, #0F, #04, #F0, #F0, #02, #01, #F8, #10, #F0, #10, #07, [
     sprite-part < #00, #10, #00, #00, #0B, #$4DF1 >   ;00
     sprite-part < #00, #00, #10, #01, #0A, #$0DF0 >   ;01
@@ -1366,7 +1366,7 @@ sprite_group_00170A [
   ] >
 ]
 
-sprite_group_001748 [
+spm_ruins_enemies_sprite_group_001748 [
   sprite-group < #0D, #0B, #11, #03, #F0, #F0, #02, #01, #F8, #10, #F0, #10, #06, [
     sprite-part < #00, #08, #08, #04, #08, #$0DE2 >   ;00
     sprite-part < #00, #00, #10, #03, #09, #$0DF1 >   ;01
@@ -1377,7 +1377,7 @@ sprite_group_001748 [
   ] >
 ]
 
-sprite_group_00177F [
+spm_ruins_enemies_sprite_group_00177F [
   sprite-group < #0F, #0B, #10, #00, #F0, #F0, #02, #01, #F8, #10, #F0, #10, #04, [
     sprite-part < #01, #0A, #00, #00, #00, #$4DE3 >   ;00
     sprite-part < #00, #08, #0A, #02, #06, #$4DF1 >   ;01
@@ -1386,7 +1386,7 @@ sprite_group_00177F [
   ] >
 ]
 
-sprite_group_0017A8 [
+spm_ruins_enemies_sprite_group_0017A8 [
   sprite-group < #0D, #0C, #10, #00, #F0, #F0, #02, #01, #F8, #10, #F0, #10, #06, [
     sprite-part < #00, #02, #0F, #08, #00, #$0DF3 >   ;00
     sprite-part < #00, #0A, #07, #08, #00, #$0DF4 >   ;01
@@ -1397,94 +1397,94 @@ sprite_group_0017A8 [
   ] >
 ]
 
-sprite_group_0017DF [
+spm_ruins_enemies_sprite_group_0017DF [
   sprite-group < #0E, #0E, #10, #01, #F0, #F0, #02, #01, #F8, #10, #F0, #10, #02, [
     sprite-part < #01, #0C, #00, #01, #00, #$4DE3 >   ;00
     sprite-part < #01, #00, #0C, #00, #01, #$0DE3 >   ;01
   ] >
 ]
 
-sprite_group_0017FA [
+spm_ruins_enemies_sprite_group_0017FA [
   sprite-group < #0E, #0F, #0F, #01, #F0, #F0, #02, #01, #F8, #10, #F0, #10, #02, [
     sprite-part < #01, #00, #0D, #00, #00, #$0DE3 >   ;00
     sprite-part < #01, #0D, #00, #00, #00, #$4DE3 >   ;01
   ] >
 ]
 
-sprite_group_001815 [
+spm_ruins_enemies_sprite_group_001815 [
   sprite-group < #0F, #0F, #10, #00, #F0, #F0, #02, #01, #F5, #16, #F6, #06, #02, [
     sprite-part < #01, #00, #0E, #00, #00, #$0DE5 >   ;00
     sprite-part < #01, #0E, #00, #00, #00, #$4DE5 >   ;01
   ] >
 ]
 
-sprite_group_001830 [
+spm_ruins_enemies_sprite_group_001830 [
   sprite-group < #10, #10, #10, #00, #F0, #F0, #02, #01, #F5, #16, #F5, #07, #02, [
     sprite-part < #01, #00, #10, #00, #00, #$0DE5 >   ;00
     sprite-part < #01, #10, #00, #00, #00, #$4DE5 >   ;01
   ] >
 ]
 
-sprite_group_00184B [
+spm_ruins_enemies_sprite_group_00184B [
   sprite-group < #10, #10, #10, #00, #F0, #F0, #02, #01, #F8, #10, #F5, #08, #02, [
     sprite-part < #01, #00, #10, #00, #00, #$0DE7 >   ;00
     sprite-part < #01, #10, #00, #00, #00, #$4DE7 >   ;01
   ] >
 ]
 
-sprite_group_001866 [
+spm_ruins_enemies_sprite_group_001866 [
   sprite-group < #10, #10, #10, #00, #F0, #F0, #02, #01, #FB, #0A, #F3, #0B, #02, [
     sprite-part < #01, #00, #10, #00, #00, #$0DE9 >   ;00
     sprite-part < #01, #10, #00, #00, #00, #$4DE9 >   ;01
   ] >
 ]
 
-sprite_group_001881 [
+spm_ruins_enemies_sprite_group_001881 [
   sprite-group < #04, #04, #30, #00, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #02, [
     sprite-part < #00, #00, #00, #10, #18, #$03EE >   ;00
     sprite-part < #00, #00, #00, #00, #28, #$03EE >   ;01
   ] >
 ]
 
-sprite_group_00189C [
+spm_ruins_enemies_sprite_group_00189C [
   sprite-group < #04, #04, #30, #00, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #02, [
     sprite-part < #00, #00, #00, #10, #18, #$03FE >   ;00
     sprite-part < #00, #00, #00, #00, #28, #$03FE >   ;01
   ] >
 ]
 
-sprite_group_0018B7 [
+spm_ruins_enemies_sprite_group_0018B7 [
   sprite-group < #04, #04, #30, #00, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #02, [
     sprite-part < #00, #00, #00, #10, #18, #$03FF >   ;00
     sprite-part < #00, #00, #00, #00, #28, #$03FF >   ;01
   ] >
 ]
 
-sprite_group_0018D2 [
+spm_ruins_enemies_sprite_group_0018D2 [
   sprite-group < #04, #04, #08, #00, #F8, #F0, #01, #01, #FB, #0A, #F6, #0A, #01, [
     sprite-part < #00, #00, #00, #00, #00, #$03C3 >
   ] >
 ]
 
-sprite_group_0018E6 [
+spm_ruins_enemies_sprite_group_0018E6 [
   sprite-group < #04, #04, #08, #00, #F8, #F0, #01, #01, #FB, #0A, #F6, #0A, #01, [
     sprite-part < #00, #00, #00, #00, #00, #$43D3 >
   ] >
 ]
 
-sprite_group_0018FA [
+spm_ruins_enemies_sprite_group_0018FA [
   sprite-group < #04, #04, #08, #00, #F8, #F0, #01, #01, #FB, #0A, #F6, #0A, #01, [
     sprite-part < #00, #00, #00, #00, #00, #$03EF >
   ] >
 ]
 
-sprite_group_00190E [
+spm_ruins_enemies_sprite_group_00190E [
   sprite-group < #04, #04, #08, #00, #F8, #F0, #01, #01, #FB, #0A, #F6, #0A, #01, [
     sprite-part < #00, #00, #00, #00, #00, #$03D3 >
   ] >
 ]
 
-sprite_group_001922 [
+spm_ruins_enemies_sprite_group_001922 [
   sprite-group < #04, #05, #26, #00, #F8, #F0, #01, #01, #FE, #03, #EE, #0A, #05, [
     sprite-part < #00, #01, #00, #00, #1E, #$8966 >   ;00
     sprite-part < #00, #01, #00, #07, #17, #$8966 >   ;01
@@ -1494,7 +1494,7 @@ sprite_group_001922 [
   ] >
 ]
 
-sprite_group_001952 [
+spm_ruins_enemies_sprite_group_001952 [
   sprite-group < #06, #05, #26, #00, #F8, #F0, #01, #01, #FE, #03, #EE, #0A, #05, [
     sprite-part < #00, #00, #03, #00, #1E, #$8966 >   ;00
     sprite-part < #00, #01, #02, #07, #17, #$8966 >   ;01
@@ -1504,7 +1504,7 @@ sprite_group_001952 [
   ] >
 ]
 
-sprite_group_001982 [
+spm_ruins_enemies_sprite_group_001982 [
   sprite-group < #05, #05, #26, #00, #F8, #F0, #01, #01, #FE, #03, #EE, #0A, #05, [
     sprite-part < #00, #00, #02, #00, #1E, #$8966 >   ;00
     sprite-part < #00, #01, #01, #07, #17, #$8966 >   ;01
@@ -1514,7 +1514,7 @@ sprite_group_001982 [
   ] >
 ]
 
-sprite_group_0019B2 [
+spm_ruins_enemies_sprite_group_0019B2 [
   sprite-group < #04, #06, #26, #00, #F8, #F0, #01, #01, #FE, #03, #EE, #0A, #05, [
     sprite-part < #00, #02, #00, #00, #1E, #$C966 >   ;00
     sprite-part < #00, #01, #01, #07, #17, #$C966 >   ;01
@@ -1524,7 +1524,7 @@ sprite_group_0019B2 [
   ] >
 ]
 
-sprite_group_0019E2 [
+spm_ruins_enemies_sprite_group_0019E2 [
   sprite-group < #05, #05, #26, #00, #F8, #F0, #01, #01, #FE, #03, #EE, #0A, #05, [
     sprite-part < #00, #00, #02, #00, #1E, #$C966 >   ;00
     sprite-part < #00, #01, #01, #07, #17, #$C966 >   ;01
@@ -1534,7 +1534,7 @@ sprite_group_0019E2 [
   ] >
 ]
 
-sprite_group_001A12 [
+spm_ruins_enemies_sprite_group_001A12 [
   sprite-group < #04, #05, #26, #00, #F8, #F0, #01, #01, #FE, #03, #EE, #0A, #05, [
     sprite-part < #00, #01, #00, #00, #1E, #$C966 >   ;00
     sprite-part < #00, #00, #01, #07, #17, #$C966 >   ;01
@@ -1544,13 +1544,13 @@ sprite_group_001A12 [
   ] >
 ]
 
-sprite_group_001A42 [
+spm_ruins_enemies_sprite_group_001A42 [
   sprite-group < #04, #04, #05, #03, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #01, [
     sprite-part < #00, #00, #00, #00, #00, #$096B >
   ] >
 ]
 
-sprite_group_001A56 [
+spm_ruins_enemies_sprite_group_001A56 [
   sprite-group < #13, #16, #30, #07, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #0C, [
     sprite-part < #00, #06, #1B, #12, #1D, #$4967 >   ;00
     sprite-part < #01, #0B, #0E, #00, #27, #$0980 >   ;01
@@ -1567,7 +1567,7 @@ sprite_group_001A56 [
   ] >
 ]
 
-sprite_group_001AB7 [
+spm_ruins_enemies_sprite_group_001AB7 [
   sprite-group < #10, #10, #30, #07, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #0C, [
     sprite-part < #00, #01, #17, #06, #29, #$8968 >   ;00
     sprite-part < #00, #06, #12, #0B, #24, #$8968 >   ;01
@@ -1584,7 +1584,7 @@ sprite_group_001AB7 [
   ] >
 ]
 
-sprite_group_001B18 [
+spm_ruins_enemies_sprite_group_001B18 [
   sprite-group < #10, #10, #30, #07, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #0C, [
     sprite-part < #00, #03, #15, #03, #2C, #$8978 >   ;00
     sprite-part < #00, #07, #11, #0B, #24, #$8978 >   ;01
@@ -1601,7 +1601,7 @@ sprite_group_001B18 [
   ] >
 ]
 
-sprite_group_001B79 [
+spm_ruins_enemies_sprite_group_001B79 [
   sprite-group < #10, #10, #3F, #07, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #0D, [
     sprite-part < #00, #02, #16, #13, #2B, #$0966 >   ;00
     sprite-part < #01, #10, #00, #1E, #18, #$0984 >   ;01
@@ -1619,7 +1619,7 @@ sprite_group_001B79 [
   ] >
 ]
 
-sprite_group_001BE1 [
+spm_ruins_enemies_sprite_group_001BE1 [
   sprite-group < #10, #10, #31, #07, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #09, [
     sprite-part < #01, #10, #00, #10, #18, #$0984 >   ;00
     sprite-part < #00, #10, #08, #00, #30, #$0981 >   ;01
@@ -1633,7 +1633,7 @@ sprite_group_001BE1 [
   ] >
 ]
 
-sprite_group_001C2D [
+spm_ruins_enemies_sprite_group_001C2D [
   sprite-group < #0F, #10, #36, #07, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #13, [
     sprite-part < #00, #02, #15, #1C, #19, #$8964 >   ;00
     sprite-part < #00, #02, #15, #0C, #29, #$8966 >   ;01
@@ -1657,7 +1657,7 @@ sprite_group_001C2D [
   ] >
 ]
 
-sprite_group_001CBF [
+spm_ruins_enemies_sprite_group_001CBF [
   sprite-group < #0E, #0E, #2D, #07, #F8, #F0, #01, #01, #F8, #10, #F0, #1F, #08, [
     sprite-part < #00, #13, #01, #06, #26, #$0996 >   ;00
     sprite-part < #00, #00, #14, #06, #26, #$097A >   ;01
@@ -1670,7 +1670,7 @@ sprite_group_001CBF [
   ] >
 ]
 
-sprite_group_001D04 [
+spm_ruins_enemies_sprite_group_001D04 [
   sprite-group < #0E, #0E, #2E, #07, #F8, #F0, #01, #01, #F8, #10, #F0, #17, #08, [
     sprite-part < #00, #13, #01, #08, #25, #$0996 >   ;00
     sprite-part < #00, #00, #14, #06, #27, #$097A >   ;01
@@ -1683,7 +1683,7 @@ sprite_group_001D04 [
   ] >
 ]
 
-sprite_group_001D49 [
+spm_ruins_enemies_sprite_group_001D49 [
   sprite-group < #14, #10, #30, #07, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #0B, [
     sprite-part < #01, #0C, #08, #00, #27, #$090C >   ;00
     sprite-part < #01, #04, #10, #10, #17, #$094E >   ;01
@@ -1699,7 +1699,7 @@ sprite_group_001D49 [
   ] >
 ]
 
-sprite_group_001DA3 [
+spm_ruins_enemies_sprite_group_001DA3 [
   sprite-group < #11, #10, #30, #07, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #0B, [
     sprite-part < #01, #09, #08, #00, #27, #$090C >   ;00
     sprite-part < #00, #06, #13, #05, #2A, #$8977 >   ;01
@@ -1715,7 +1715,7 @@ sprite_group_001DA3 [
   ] >
 ]
 
-sprite_group_001DFD [
+spm_ruins_enemies_sprite_group_001DFD [
   sprite-group < #10, #10, #34, #07, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #0D, [
     sprite-part < #00, #07, #11, #24, #0F, #$0944 >   ;00
     sprite-part < #01, #10, #00, #14, #17, #$494E >   ;01
@@ -1733,7 +1733,7 @@ sprite_group_001DFD [
   ] >
 ]
 
-sprite_group_001E65 [
+spm_ruins_enemies_sprite_group_001E65 [
   sprite-group < #10, #11, #3D, #07, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #0B, [
     sprite-part < #00, #19, #00, #12, #2A, #$495D >   ;00
     sprite-part < #01, #10, #01, #14, #20, #$098C >   ;01
@@ -1749,7 +1749,7 @@ sprite_group_001E65 [
   ] >
 ]
 
-sprite_group_001EBF [
+spm_ruins_enemies_sprite_group_001EBF [
   sprite-group < #10, #10, #31, #07, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #08, [
     sprite-part < #01, #10, #00, #08, #20, #$098C >   ;00
     sprite-part < #00, #18, #00, #00, #30, #$098E >   ;01
@@ -1762,7 +1762,7 @@ sprite_group_001EBF [
   ] >
 ]
 
-sprite_group_001F04 [
+spm_ruins_enemies_sprite_group_001F04 [
   sprite-group < #10, #0F, #3E, #07, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #11, [
     sprite-part < #00, #17, #00, #16, #27, #$0966 >   ;00
     sprite-part < #00, #17, #00, #0E, #2F, #$098E >   ;01
@@ -1784,7 +1784,7 @@ sprite_group_001F04 [
   ] >
 ]
 
-sprite_group_001F88 [
+spm_ruins_enemies_sprite_group_001F88 [
   sprite-group < #10, #10, #30, #07, #F8, #F0, #01, #01, #F8, #10, #E1, #1E, #0B, [
     sprite-part < #00, #10, #08, #00, #2F, #$499E >   ;00
     sprite-part < #01, #08, #08, #08, #1F, #$09AB >   ;01
@@ -1800,7 +1800,7 @@ sprite_group_001F88 [
   ] >
 ]
 
-sprite_group_001FE2 [
+spm_ruins_enemies_sprite_group_001FE2 [
   sprite-group < #0F, #10, #31, #07, #F8, #F0, #01, #01, #F8, #10, #E8, #18, #0B, [
     sprite-part < #00, #07, #10, #00, #30, #$099E >   ;00
     sprite-part < #00, #0F, #08, #00, #30, #$499E >   ;01
@@ -1816,7 +1816,7 @@ sprite_group_001FE2 [
   ] >
 ]
 
-sprite_group_00203C [
+spm_ruins_enemies_sprite_group_00203C [
   sprite-group < #14, #08, #30, #06, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #0B, [
     sprite-part < #01, #0B, #01, #08, #1E, #$096C >   ;00
     sprite-part < #00, #00, #14, #17, #17, #$0979 >   ;01
@@ -1832,7 +1832,7 @@ sprite_group_00203C [
   ] >
 ]
 
-sprite_group_002096 [
+spm_ruins_enemies_sprite_group_002096 [
   sprite-group < #17, #08, #30, #06, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #0B, [
     sprite-part < #01, #0E, #01, #08, #1E, #$096C >   ;00
     sprite-part < #00, #00, #17, #1A, #14, #$C975 >   ;01
@@ -1848,7 +1848,7 @@ sprite_group_002096 [
   ] >
 ]
 
-sprite_group_0020F0 [
+spm_ruins_enemies_sprite_group_0020F0 [
   sprite-group < #1C, #08, #31, #06, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #0B, [
     sprite-part < #01, #13, #01, #08, #1F, #$096C >   ;00
     sprite-part < #00, #0B, #11, #0E, #21, #$097B >   ;01
@@ -1864,7 +1864,7 @@ sprite_group_0020F0 [
   ] >
 ]
 
-sprite_group_00214A [
+spm_ruins_enemies_sprite_group_00214A [
   sprite-group < #1A, #0F, #39, #06, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #10, [
     sprite-part < #00, #19, #08, #17, #20, #$09CD >   ;00
     sprite-part < #00, #19, #08, #1F, #18, #$09DD >   ;01
@@ -1885,7 +1885,7 @@ sprite_group_00214A [
   ] >
 ]
 
-sprite_group_0021C7 [
+spm_ruins_enemies_sprite_group_0021C7 [
   sprite-group < #11, #0F, #39, #06, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #0B, [
     sprite-part < #00, #10, #08, #17, #20, #$09CD >   ;00
     sprite-part < #00, #10, #08, #1F, #18, #$09DD >   ;01
@@ -1901,7 +1901,7 @@ sprite_group_0021C7 [
   ] >
 ]
 
-sprite_group_002221 [
+spm_ruins_enemies_sprite_group_002221 [
   sprite-group < #1E, #09, #36, #06, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #0D, [
     sprite-part < #00, #1F, #00, #15, #1F, #$09CD >   ;00
     sprite-part < #00, #1F, #00, #1D, #17, #$09DD >   ;01
@@ -1919,7 +1919,7 @@ sprite_group_002221 [
   ] >
 ]
 
-sprite_group_002289 [
+spm_ruins_enemies_sprite_group_002289 [
   sprite-group < #17, #11, #2D, #06, #F8, #F0, #01, #01, #E0, #28, #F0, #10, #0B, [
     sprite-part < #01, #0F, #09, #1E, #05, #$092E >   ;00
     sprite-part < #00, #07, #19, #26, #05, #$094D >   ;01
@@ -1935,7 +1935,7 @@ sprite_group_002289 [
   ] >
 ]
 
-sprite_group_0022E3 [
+spm_ruins_enemies_sprite_group_0022E3 [
   sprite-group < #17, #11, #2E, #06, #F8, #F0, #01, #01, #E4, #24, #F0, #10, #0A, [
     sprite-part < #01, #10, #08, #0E, #16, #$09EC >   ;00
     sprite-part < #00, #08, #18, #0E, #1E, #$09EB >   ;01

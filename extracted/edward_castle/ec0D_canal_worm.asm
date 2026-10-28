@@ -4,7 +4,7 @@
 ; Multi-phase AI with surface/submerge animation sequences.
 ---------------------------------------------
 
-?INCLUDE 'spriteset_enemies'
+?INCLUDE 'spriteset_pickups_effects'
 
 !moveXAlt                       7F0018
 !moveYAlt                       7F001A
@@ -197,7 +197,7 @@ code_0A81A9 {
     COP [SpawnAfterMarked] ( @code_0A822B, #$2200 )
     LDA #$0003
     JSR $&code_0A8200
-    COP [SetMetasprite] ( @spriteset_enemies )
+    COP [SetMetasprite] ( @spriteset_pickups_effects )
     COP [SetSpritePriority] ( #30 )
     COP [PlaySoundCh1] ( #1E )
     COP [StageSpriteLoop] ( #08, #02 )
@@ -239,7 +239,7 @@ code_0A822B {
     LDA #$2000
     TRB $10
     COP [SetSpritePriority] ( #30 )
-    COP [SetMetasprite] ( @spriteset_enemies )
+    COP [SetMetasprite] ( @spriteset_pickups_effects )
     COP [StageSpriteLoop] ( #26, #02 )
     COP [AnimLoop]
     COP [ClearPriorityMax]
@@ -255,7 +255,7 @@ code_0A822B {
 }
 
 code_0A8250 {
-    COP [SetMetasprite] ( @spriteset_enemies )
+    COP [SetMetasprite] ( @spriteset_pickups_effects )
     COP [StageSpriteFrame] ( #07 )
     COP [AnimOnce]
     COP [Die]

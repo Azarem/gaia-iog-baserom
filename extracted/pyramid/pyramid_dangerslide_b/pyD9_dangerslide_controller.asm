@@ -7,7 +7,7 @@
 ---------------------------------------------
 
 ?INCLUDE 'camera_drift'
-?INCLUDE 'spriteset_enemies'
+?INCLUDE 'spriteset_pickups_effects'
 
 !sceneCurrent                   0644
 !playerActor                    09AA
@@ -128,7 +128,7 @@ code_08C697 {
     STA $14
     LDA $0016, Y
     STA $16
-    COP [SetMetasprite] ( @spriteset_enemies )
+    COP [SetMetasprite] ( @spriteset_pickups_effects )
     COP [StageSprAndHitbox] ( #00 )
     COP [WaitByte] ( #01 )
     COP [Die]

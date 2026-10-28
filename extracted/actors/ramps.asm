@@ -13,7 +13,7 @@
 ; | ramp_north | Y, |dx| <= $10 | +2 .. +15 (player just south) | north (-8 per frame) | $FFF8 on playerSpeedNs |
 ; | ramp_south | Y, |dx| <= $10 | -16 .. -2 (player just north) | south (+8 per frame) | $0008 on playerSpeedNs |
 ; 
-; The direction of the speed is not tested: any |speed| >= 6 on the axis arms the ramp. The names describe the side the ramp sits on relative to the player. Chain $10 / $0F of movement_delta_table are the constant -8 / +8 per frame movements used by StagePlayerMoveXY. The ramp keeps its temporary window edge in the global words $0018 (east/west) and $001C (south) rather than in its own direct page; nothing yields between writing and using them.
+; The direction of the speed is not tested: any |speed| >= 6 on the axis arms the ramp. The names describe the side the ramp sits on relative to the player. Chain $10 / $0F of move_chain_table are the constant -8 / +8 per frame movements used by StagePlayerMoveXY. The ramp keeps its temporary window edge in the global words $0018 (east/west) and $001C (south) rather than in its own direct page; nothing yields between writing and using them.
 ; 
 ; === LAUNCH (RampBeginPlayerControl) ===
 ; 

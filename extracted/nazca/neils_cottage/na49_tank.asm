@@ -6,7 +6,7 @@
 ; and Mu underwater exploration.
 ---------------------------------------------
 
-?INCLUDE 'spriteset_enemies'
+?INCLUDE 'spriteset_pickups_effects'
 
 ---------------------------------------------
 
@@ -14,7 +14,7 @@ na49_tank [
   actor-def < #00, #00, #30, {
 
   code_05E308:
-    COP [SetMetasprite] ( @spriteset_enemies )
+    COP [SetMetasprite] ( @spriteset_pickups_effects )
     COP [StageSpriteFrame] ( #00 )
     COP [AnimOnce]
     COP [SetInteractHandler] ( &code_05E319 )

@@ -29,7 +29,7 @@ DP `$80`–`$82` is the **collision tile map pointer** (`[$80], Y` in `tile_coll
 
 ## Changing notes and comments
 
-Use `npm run merge -- <spec.json>` (dry-run first with `--dry-run`, then `npm run extract:lt` to verify). **Never** use `npm run ingest` or `npm run annotate`: they read the extracted `.asm` back into `notes/` and overwrite notes when `extracted/` is stale or line-tracked. Process: `gaia-core/docs/notes-and-comments.md` §"Notes Merge". (`npm run ingest:all` in gaia-knowledge is the unrelated RAG corpus refresh.)
+Use `npm run merge -- <spec.json>` (dry-run first with `--dry-run`, then `npm run extract:lt` to verify). The `ingest` and `annotate` commands were removed: do not call or recreate them, and never write an ad-hoc script for notes or names. **Names** (add/rename, `db-us/names/bankNN.json`) go through `npm run names -- <spec.json>` (spec = JSON array of `{ address, old, new }`; `--dry-run` first; `npm run names -- --check` validates the files): `gaia-core/docs/notes-and-comments.md` §"Names Merge". Process: `gaia-core/docs/notes-and-comments.md` §"Notes Merge". The ROM bank for a note comes from the optional `?BANK` line or, when absent (movable blocks, sprite maps, pointer files), from the block's `start` in `db-us/blocks.json` / `db-us/files.json` (bank = floor(start / 65536); the key is the file name without `.asm` / `.sprite`). Never add `?BANK` to extracted files to satisfy `merge`. (`npm run ingest:all` in gaia-knowledge is the unrelated RAG corpus refresh.)
 
 ## Database files
 

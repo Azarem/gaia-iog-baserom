@@ -1,124 +1,138 @@
-; Full spriteset definitions for Shadow character sprites.
+; Shadow player spriteset (Bank 14, 1343488-1355931 = $14:8000): every frame the player can show in form 2. 76 animations ($00-$4B), 261 frame records, 168 sprite groups, 1273 sub-sprites (at most 14 per group). Chosen by body_table rows $02 and $03 (spriteset bank $94, art shad_sprites_1BC000; row $03 is a copy, OQ-I061-1); SetActorBody copies the table pointer and bank into the actor ($7F0006, $7F0008). The animation numbering is shared with spriteset_will and spriteset_freedan, and the struct format (table, frame list, group header, sub-sprite) is described once, in the spriteset_freedan block note.
 ; 
-; Walking, idle, attack, and liquify animation frames for all directions. Includes Shadow's unique morph poses.
+; The old header ('walking, idle, attack and liquify animation frames', 'Shadow's unique morph poses') named poses the code does not use: 'liquify' appears nowhere outside the headers of this file and spriteset_shadow_fx, and the table has the same 76 indices as the Freedan table. Shadow's separate mode body is spriteset_shadow_aura_body (body_table row $08) and the effect sprites are in spriteset_shadow_fx.
+; 
+; === WHAT DIFFERS FROM THE FREEDAN TABLE (same indices, other frame counts) ===
+; 
+; - Idle $00-$07 and $10-$17 are one frame with hold 9 (10 ticks). The player scripts stage $10-$13 for Shadow only; they use groups of their own (for example $00 shows sprite_group_148544, $10 shows sprite_group_14857B).
+; - Walk $08-$0F is 6 frames of hold 7 (Freedan 4 frames).
+; - Climb poses: the vine cycle $19-$1B, the ladder idles $2A-$2B and $2E-$2F and the detach poses $30-$31 and $34-$35 are one-frame lists (Freedan: 4 frames each); the ladder move $2C-$2D and the shimmy $32-$33 are 6 frames (holds 7, 3, 3, 7, 3, 3; Freedan 20 and 5); $18 is 4 frames (holds 9, 6, 4, 9). Other lists: $1C is 11 frames (holds 0, 1, 2, 3, 4, 1, 2, 3, 2, 1, 0), $1D-$25 are one frame each, $26-$29 are 4 frames.
+; - Melee attack $36-$39 is 7 frames (holds 3, 2, 1, 0, 0, 1, 2 = 16 ticks), the same frame count as Freedan; guard $3A-$3D is 8 frames of hold 0 (Freedan 4); $42-$43 and $48-$49 are 7 frames, $44-$47 and $4A-$4B one frame of hold 0.
+; - $3E-$41 (7 frames, holds 3, 1, 8, 4, 3, 3, 8) is not staged by the player scripts.
+; 
+; === CHECKS ===
+; 
+; All 168 groups have a count byte equal to their number of sub-sprites, all 168 keep the default attack box $F8 $F0 $01 $01, all are referenced, all 76 frame lists are 4n + 2 bytes long (the label spacing of 75 consecutive lists was checked by hand) and 12443 bytes = 152 (table) + 4 x 261 + 2 x 76 (lists and their hidden $FFFF terminators) + 13 x 168 + 7 x 1273.
 ---------------------------------------------
 
 ?BANK 14
 
 ---------------------------------------------
 
+; 76 word pointers to frame lists, indexed by the actor animation index ($28); the same index space as spriteset_freedan (see its table part note for the staged indices). The Shadow shapes are listed in the block note: idle 1 frame (hold 9), walk 6 frames (hold 7), melee 7 frames, guard 8 frames of hold 0; the vine cycle and the ladder idles are single frames.
+
 spriteset_shadow [
-  &sprite_set_148098   ;00
-  &sprite_set_14809E   ;01
-  &sprite_set_1480A4   ;02
-  &sprite_set_1480AA   ;03
-  &sprite_set_1480B0   ;04
-  &sprite_set_1480B6   ;05
-  &sprite_set_1480BC   ;06
-  &sprite_set_1480C2   ;07
-  &sprite_set_1480C8   ;08
-  &sprite_set_1480E2   ;09
-  &sprite_set_1480FC   ;0A
-  &sprite_set_148116   ;0B
-  &sprite_set_148130   ;0C
-  &sprite_set_14814A   ;0D
-  &sprite_set_148164   ;0E
-  &sprite_set_14817E   ;0F
-  &sprite_set_148198   ;10
-  &sprite_set_14819E   ;11
-  &sprite_set_1481A4   ;12
-  &sprite_set_1481AA   ;13
-  &sprite_set_1481B0   ;14
-  &sprite_set_1481B6   ;15
-  &sprite_set_1481BC   ;16
-  &sprite_set_1481C2   ;17
-  &sprite_set_1481C8   ;18
-  &sprite_set_1481DA   ;19
-  &sprite_set_1481E0   ;1A
-  &sprite_set_1481E6   ;1B
-  &sprite_set_1481EC   ;1C
-  &sprite_set_14821A   ;1D
-  &sprite_set_148220   ;1E
-  &sprite_set_148226   ;1F
-  &sprite_set_14822C   ;20
-  &sprite_set_148232   ;21
-  &sprite_set_148238   ;22
-  &sprite_set_14823E   ;23
-  &sprite_set_148244   ;24
-  &sprite_set_14824A   ;25
-  &sprite_set_148250   ;26
-  &sprite_set_148262   ;27
-  &sprite_set_148274   ;28
-  &sprite_set_148286   ;29
-  &sprite_set_148298   ;2A
-  &sprite_set_14829E   ;2B
-  &sprite_set_1482A4   ;2C
-  &sprite_set_1482BE   ;2D
-  &sprite_set_1482D8   ;2E
-  &sprite_set_1482DE   ;2F
-  &sprite_set_1482E4   ;30
-  &sprite_set_1482EA   ;31
-  &sprite_set_1482F0   ;32
-  &sprite_set_14830A   ;33
-  &sprite_set_148324   ;34
-  &sprite_set_14832A   ;35
-  &sprite_set_148330   ;36
-  &sprite_set_14834E   ;37
-  &sprite_set_14836C   ;38
-  &sprite_set_14838A   ;39
-  &sprite_set_1483A8   ;3A
-  &sprite_set_1483CA   ;3B
-  &sprite_set_1483EC   ;3C
-  &sprite_set_14840E   ;3D
-  &sprite_set_148430   ;3E
-  &sprite_set_14844E   ;3F
-  &sprite_set_14846C   ;40
-  &sprite_set_14848A   ;41
-  &sprite_set_1484A8   ;42
-  &sprite_set_1484C6   ;43
-  &sprite_set_1484E4   ;44
-  &sprite_set_1484EA   ;45
-  &sprite_set_1484F0   ;46
-  &sprite_set_1484F6   ;47
-  &sprite_set_1484FC   ;48
-  &sprite_set_14851A   ;49
-  &sprite_set_148538   ;4A
-  &sprite_set_14853E   ;4B
+  &shadow_anim_00   ;00
+  &shadow_anim_01   ;01
+  &shadow_anim_02   ;02
+  &shadow_anim_03   ;03
+  &shadow_anim_04   ;04
+  &shadow_anim_05   ;05
+  &shadow_anim_06   ;06
+  &shadow_anim_07   ;07
+  &shadow_anim_08_walk_south   ;08
+  &shadow_anim_09_walk_north   ;09
+  &shadow_anim_0A_walk_west   ;0A
+  &shadow_anim_0B_walk_east   ;0B
+  &shadow_anim_0C_moving_south   ;0C
+  &shadow_anim_0D_moving_north   ;0D
+  &shadow_anim_0E_moving_west   ;0E
+  &shadow_anim_0F_moving_east   ;0F
+  &shadow_anim_10_idle_south   ;10
+  &shadow_anim_11_idle_north   ;11
+  &shadow_anim_12_idle_west   ;12
+  &shadow_anim_13_idle_east   ;13
+  &shadow_anim_14   ;14
+  &shadow_anim_15   ;15
+  &shadow_anim_16   ;16
+  &shadow_anim_17   ;17
+  &shadow_anim_18_vine_enter   ;18
+  &shadow_anim_19_vine_climb_3   ;19
+  &shadow_anim_1A_vine_climb_1   ;1A
+  &shadow_anim_1B_vine_climb_2   ;1B
+  &shadow_anim_1C   ;1C
+  &shadow_anim_1D   ;1D
+  &shadow_anim_1E   ;1E
+  &shadow_anim_1F   ;1F
+  &shadow_anim_20   ;20
+  &shadow_anim_21   ;21
+  &shadow_anim_22   ;22
+  &shadow_anim_23   ;23
+  &shadow_anim_24   ;24
+  &shadow_anim_25   ;25
+  &shadow_anim_26   ;26
+  &shadow_anim_27   ;27
+  &shadow_anim_28   ;28
+  &shadow_anim_29   ;29
+  &shadow_anim_2A   ;2A
+  &shadow_anim_2B   ;2B
+  &shadow_anim_2C_ladder_up   ;2C
+  &shadow_anim_2D_ladder_down   ;2D
+  &shadow_anim_2E_ladder_idle_north   ;2E
+  &shadow_anim_2F_ladder_idle_south   ;2F
+  &shadow_anim_30   ;30
+  &shadow_anim_31   ;31
+  &shadow_anim_32_shimmy_left   ;32
+  &shadow_anim_33_shimmy_right   ;33
+  &shadow_anim_34_shimmy_detach_left   ;34
+  &shadow_anim_35_shimmy_detach_right   ;35
+  &shadow_anim_36_attack_south   ;36
+  &shadow_anim_37_attack_north   ;37
+  &shadow_anim_38_attack_west   ;38
+  &shadow_anim_39_attack_east   ;39
+  &shadow_anim_3A_guard_south   ;3A
+  &shadow_anim_3B_guard_north   ;3B
+  &shadow_anim_3C_guard_west   ;3C
+  &shadow_anim_3D_guard_east   ;3D
+  &shadow_anim_3E   ;3E
+  &shadow_anim_3F   ;3F
+  &shadow_anim_40   ;40
+  &shadow_anim_41   ;41
+  &shadow_anim_42   ;42
+  &shadow_anim_43   ;43
+  &shadow_anim_44   ;44
+  &shadow_anim_45   ;45
+  &shadow_anim_46   ;46
+  &shadow_anim_47   ;47
+  &shadow_anim_48   ;48
+  &shadow_anim_49   ;49
+  &shadow_anim_4A   ;4A
+  &shadow_anim_4B   ;4B
 ]
 
-sprite_set_148098 [
+shadow_anim_00 [
   sprite-set < #$0009, &sprite_group_148544 >
 ]
 
-sprite_set_14809E [
+shadow_anim_01 [
   sprite-set < #$0009, &sprite_group_1487F1 >
 ]
 
-sprite_set_1480A4 [
+shadow_anim_02 [
   sprite-set < #$0009, &sprite_group_148657 >
 ]
 
-sprite_set_1480AA [
+shadow_anim_03 [
   sprite-set < #$0009, &sprite_group_148724 >
 ]
 
-sprite_set_1480B0 [
+shadow_anim_04 [
   sprite-set < #$0009, &sprite_group_1485B2 >
 ]
 
-sprite_set_1480B6 [
+shadow_anim_05 [
   sprite-set < #$0009, &sprite_group_14885F >
 ]
 
-sprite_set_1480BC [
+shadow_anim_06 [
   sprite-set < #$0009, &sprite_group_1486A9 >
 ]
 
-sprite_set_1480C2 [
+shadow_anim_07 [
   sprite-set < #$0009, &sprite_group_148776 >
 ]
 
-sprite_set_1480C8 [
+shadow_anim_08_walk_south [
   sprite-set < #$0007, &sprite_group_14857B >   ;00
   sprite-set < #$0007, &sprite_group_1485B2 >   ;01
   sprite-set < #$0007, &sprite_group_1485E9 >   ;02
@@ -127,7 +141,7 @@ sprite_set_1480C8 [
   sprite-set < #$0007, &sprite_group_1485B2 >   ;05
 ]
 
-sprite_set_1480E2 [
+shadow_anim_09_walk_north [
   sprite-set < #$0007, &sprite_group_148828 >   ;00
   sprite-set < #$0007, &sprite_group_14885F >   ;01
   sprite-set < #$0007, &sprite_group_148896 >   ;02
@@ -136,7 +150,7 @@ sprite_set_1480E2 [
   sprite-set < #$0007, &sprite_group_14885F >   ;05
 ]
 
-sprite_set_1480FC [
+shadow_anim_0A_walk_west [
   sprite-set < #$0007, &sprite_group_148680 >   ;00
   sprite-set < #$0007, &sprite_group_1486A9 >   ;01
   sprite-set < #$0007, &sprite_group_1486D2 >   ;02
@@ -145,7 +159,7 @@ sprite_set_1480FC [
   sprite-set < #$0007, &sprite_group_1486A9 >   ;05
 ]
 
-sprite_set_148116 [
+shadow_anim_0B_walk_east [
   sprite-set < #$0007, &sprite_group_14874D >   ;00
   sprite-set < #$0007, &sprite_group_148776 >   ;01
   sprite-set < #$0007, &sprite_group_14879F >   ;02
@@ -154,7 +168,7 @@ sprite_set_148116 [
   sprite-set < #$0007, &sprite_group_148776 >   ;05
 ]
 
-sprite_set_148130 [
+shadow_anim_0C_moving_south [
   sprite-set < #$0007, &sprite_group_148904 >   ;00
   sprite-set < #$0007, &sprite_group_14893B >   ;01
   sprite-set < #$0007, &sprite_group_148972 >   ;02
@@ -163,7 +177,7 @@ sprite_set_148130 [
   sprite-set < #$0007, &sprite_group_148A17 >   ;05
 ]
 
-sprite_set_14814A [
+shadow_anim_0D_moving_north [
   sprite-set < #$0007, &sprite_group_148CBA >   ;00
   sprite-set < #$0007, &sprite_group_148CF1 >   ;01
   sprite-set < #$0007, &sprite_group_148D28 >   ;02
@@ -172,7 +186,7 @@ sprite_set_14814A [
   sprite-set < #$0007, &sprite_group_148CF1 >   ;05
 ]
 
-sprite_set_148164 [
+shadow_anim_0E_moving_west [
   sprite-set < #$0007, &sprite_group_148A4E >   ;00
   sprite-set < #$0007, &sprite_group_148A8C >   ;01
   sprite-set < #$0007, &sprite_group_148ACA >   ;02
@@ -181,7 +195,7 @@ sprite_set_148164 [
   sprite-set < #$0007, &sprite_group_148B84 >   ;05
 ]
 
-sprite_set_14817E [
+shadow_anim_0F_moving_east [
   sprite-set < #$0007, &sprite_group_148BC2 >   ;00
   sprite-set < #$0007, &sprite_group_148C00 >   ;01
   sprite-set < #$0007, &sprite_group_148C3E >   ;02
@@ -190,58 +204,58 @@ sprite_set_14817E [
   sprite-set < #$0007, &sprite_group_148C00 >   ;05
 ]
 
-sprite_set_148198 [
+shadow_anim_10_idle_south [
   sprite-set < #$0009, &sprite_group_14857B >
 ]
 
-sprite_set_14819E [
+shadow_anim_11_idle_north [
   sprite-set < #$0009, &sprite_group_148828 >
 ]
 
-sprite_set_1481A4 [
+shadow_anim_12_idle_west [
   sprite-set < #$0009, &sprite_group_148680 >
 ]
 
-sprite_set_1481AA [
+shadow_anim_13_idle_east [
   sprite-set < #$0009, &sprite_group_14874D >
 ]
 
-sprite_set_1481B0 [
+shadow_anim_14 [
   sprite-set < #$0009, &sprite_group_14857B >
 ]
 
-sprite_set_1481B6 [
+shadow_anim_15 [
   sprite-set < #$0009, &sprite_group_148828 >
 ]
 
-sprite_set_1481BC [
+shadow_anim_16 [
   sprite-set < #$0009, &sprite_group_148680 >
 ]
 
-sprite_set_1481C2 [
+shadow_anim_17 [
   sprite-set < #$0009, &sprite_group_14874D >
 ]
 
-sprite_set_1481C8 [
+shadow_anim_18_vine_enter [
   sprite-set < #$0009, &sprite_group_148D96 >   ;00
   sprite-set < #$0006, &sprite_group_148DCD >   ;01
   sprite-set < #$0004, &sprite_group_148DFD >   ;02
   sprite-set < #$0009, &sprite_group_148E2D >   ;03
 ]
 
-sprite_set_1481DA [
+shadow_anim_19_vine_climb_3 [
   sprite-set < #$0003, &sprite_group_148E5D >
 ]
 
-sprite_set_1481E0 [
+shadow_anim_1A_vine_climb_1 [
   sprite-set < #$0003, &sprite_group_148E5D >
 ]
 
-sprite_set_1481E6 [
+shadow_anim_1B_vine_climb_2 [
   sprite-set < #$0003, &sprite_group_148E5D >
 ]
 
-sprite_set_1481EC [
+shadow_anim_1C [
   sprite-set < #$0000, &sprite_group_148E94 >   ;00
   sprite-set < #$0001, &sprite_group_148EBD >   ;01
   sprite-set < #$0002, &sprite_group_148EE6 >   ;02
@@ -255,79 +269,79 @@ sprite_set_1481EC [
   sprite-set < #$0000, &sprite_group_1491B6 >   ;0A
 ]
 
-sprite_set_14821A [
+shadow_anim_1D [
   sprite-set < #$001F, &sprite_group_148D96 >
 ]
 
-sprite_set_148220 [
+shadow_anim_1E [
   sprite-set < #$0007, &sprite_group_149285 >
 ]
 
-sprite_set_148226 [
+shadow_anim_1F [
   sprite-set < #$001F, &sprite_group_148D96 >
 ]
 
-sprite_set_14822C [
+shadow_anim_20 [
   sprite-set < #$001F, &sprite_group_148D96 >
 ]
 
-sprite_set_148232 [
+shadow_anim_21 [
   sprite-set < #$0007, &sprite_group_1491ED >
 ]
 
-sprite_set_148238 [
+shadow_anim_22 [
   sprite-set < #$001F, &sprite_group_148D96 >
 ]
 
-sprite_set_14823E [
+shadow_anim_23 [
   sprite-set < #$001F, &sprite_group_148D96 >
 ]
 
-sprite_set_148244 [
+shadow_anim_24 [
   sprite-set < #$0007, &sprite_group_149239 >
 ]
 
-sprite_set_14824A [
+shadow_anim_25 [
   sprite-set < #$001F, &sprite_group_148D96 >
 ]
 
-sprite_set_148250 [
+shadow_anim_26 [
   sprite-set < #$000B, &sprite_group_149474 >   ;00
   sprite-set < #$000B, &sprite_group_1494AB >   ;01
   sprite-set < #$000B, &sprite_group_1494E2 >   ;02
   sprite-set < #$000B, &sprite_group_149519 >   ;03
 ]
 
-sprite_set_148262 [
+shadow_anim_27 [
   sprite-set < #$0009, &sprite_group_149519 >   ;00
   sprite-set < #$0009, &sprite_group_1494E2 >   ;01
   sprite-set < #$000A, &sprite_group_1494AB >   ;02
   sprite-set < #$000A, &sprite_group_149474 >   ;03
 ]
 
-sprite_set_148274 [
+shadow_anim_28 [
   sprite-set < #$0009, &sprite_group_1495B0 >   ;00
   sprite-set < #$0009, &sprite_group_1495E0 >   ;01
   sprite-set < #$000A, &sprite_group_149550 >   ;02
   sprite-set < #$000A, &sprite_group_149580 >   ;03
 ]
 
-sprite_set_148286 [
+shadow_anim_29 [
   sprite-set < #$0005, &sprite_group_149580 >   ;00
   sprite-set < #$000C, &sprite_group_149550 >   ;01
   sprite-set < #$000D, &sprite_group_1495E0 >   ;02
   sprite-set < #$000E, &sprite_group_1495B0 >   ;03
 ]
 
-sprite_set_148298 [
+shadow_anim_2A [
   sprite-set < #$0000, &sprite_group_149617 >
 ]
 
-sprite_set_14829E [
+shadow_anim_2B [
   sprite-set < #$0000, &sprite_group_149580 >
 ]
 
-sprite_set_1482A4 [
+shadow_anim_2C_ladder_up [
   sprite-set < #$0007, &sprite_group_149647 >   ;00
   sprite-set < #$0003, &sprite_group_14967E >   ;01
   sprite-set < #$0003, &sprite_group_1496B5 >   ;02
@@ -336,7 +350,7 @@ sprite_set_1482A4 [
   sprite-set < #$0003, &sprite_group_14967E >   ;05
 ]
 
-sprite_set_1482BE [
+shadow_anim_2D_ladder_down [
   sprite-set < #$0007, &sprite_group_149723 >   ;00
   sprite-set < #$0003, &sprite_group_14975A >   ;01
   sprite-set < #$0003, &sprite_group_149791 >   ;02
@@ -345,23 +359,23 @@ sprite_set_1482BE [
   sprite-set < #$0003, &sprite_group_14975A >   ;05
 ]
 
-sprite_set_1482D8 [
+shadow_anim_2E_ladder_idle_north [
   sprite-set < #$0009, &sprite_group_149617 >
 ]
 
-sprite_set_1482DE [
+shadow_anim_2F_ladder_idle_south [
   sprite-set < #$0009, &sprite_group_149580 >
 ]
 
-sprite_set_1482E4 [
+shadow_anim_30 [
   sprite-set < #$0009, &sprite_group_1492BC >
 ]
 
-sprite_set_1482EA [
+shadow_anim_31 [
   sprite-set < #$0009, &sprite_group_149398 >
 ]
 
-sprite_set_1482F0 [
+shadow_anim_32_shimmy_left [
   sprite-set < #$0007, &sprite_group_1492BC >   ;00
   sprite-set < #$0003, &sprite_group_1492F3 >   ;01
   sprite-set < #$0003, &sprite_group_14932A >   ;02
@@ -370,7 +384,7 @@ sprite_set_1482F0 [
   sprite-set < #$0003, &sprite_group_1492F3 >   ;05
 ]
 
-sprite_set_14830A [
+shadow_anim_33_shimmy_right [
   sprite-set < #$0007, &sprite_group_149398 >   ;00
   sprite-set < #$0003, &sprite_group_1493CF >   ;01
   sprite-set < #$0003, &sprite_group_149406 >   ;02
@@ -379,15 +393,15 @@ sprite_set_14830A [
   sprite-set < #$0003, &sprite_group_1493CF >   ;05
 ]
 
-sprite_set_148324 [
+shadow_anim_34_shimmy_detach_left [
   sprite-set < #$0009, &sprite_group_1492BC >
 ]
 
-sprite_set_14832A [
+shadow_anim_35_shimmy_detach_right [
   sprite-set < #$0009, &sprite_group_149398 >
 ]
 
-sprite_set_148330 [
+shadow_anim_36_attack_south [
   sprite-set < #$0003, &sprite_group_1497FF >   ;00
   sprite-set < #$0002, &sprite_group_149852 >   ;01
   sprite-set < #$0001, &sprite_group_1498B3 >   ;02
@@ -397,7 +411,7 @@ sprite_set_148330 [
   sprite-set < #$0002, &sprite_group_149A1B >   ;06
 ]
 
-sprite_set_14834E [
+shadow_anim_37_attack_north [
   sprite-set < #$0003, &sprite_group_149E88 >   ;00
   sprite-set < #$0002, &sprite_group_149ED4 >   ;01
   sprite-set < #$0001, &sprite_group_149F27 >   ;02
@@ -407,7 +421,7 @@ sprite_set_14834E [
   sprite-set < #$0002, &sprite_group_14A073 >   ;06
 ]
 
-sprite_set_14836C [
+shadow_anim_38_attack_west [
   sprite-set < #$0003, &sprite_group_149A60 >   ;00
   sprite-set < #$0002, &sprite_group_149AAC >   ;01
   sprite-set < #$0001, &sprite_group_149AF1 >   ;02
@@ -417,7 +431,7 @@ sprite_set_14836C [
   sprite-set < #$0002, &sprite_group_149C36 >   ;06
 ]
 
-sprite_set_14838A [
+shadow_anim_39_attack_east [
   sprite-set < #$0003, &sprite_group_149C74 >   ;00
   sprite-set < #$0002, &sprite_group_149CC0 >   ;01
   sprite-set < #$0001, &sprite_group_149D05 >   ;02
@@ -427,7 +441,7 @@ sprite_set_14838A [
   sprite-set < #$0002, &sprite_group_149E4A >   ;06
 ]
 
-sprite_set_1483A8 [
+shadow_anim_3A_guard_south [
   sprite-set < #$0000, &sprite_group_14A0B1 >   ;00
   sprite-set < #$0000, &sprite_group_14A70D >   ;01
   sprite-set < #$0000, &sprite_group_14A0B1 >   ;02
@@ -438,7 +452,7 @@ sprite_set_1483A8 [
   sprite-set < #$0000, &sprite_group_14A7B2 >   ;07
 ]
 
-sprite_set_1483CA [
+shadow_anim_3B_guard_north [
   sprite-set < #$0000, &sprite_group_14A1F0 >   ;00
   sprite-set < #$0000, &sprite_group_14A70D >   ;01
   sprite-set < #$0000, &sprite_group_14A1F0 >   ;02
@@ -449,7 +463,7 @@ sprite_set_1483CA [
   sprite-set < #$0000, &sprite_group_14A7B2 >   ;07
 ]
 
-sprite_set_1483EC [
+shadow_anim_3C_guard_west [
   sprite-set < #$0000, &sprite_group_14A120 >   ;00
   sprite-set < #$0000, &sprite_group_14A70D >   ;01
   sprite-set < #$0000, &sprite_group_14A120 >   ;02
@@ -460,7 +474,7 @@ sprite_set_1483EC [
   sprite-set < #$0000, &sprite_group_14A7B2 >   ;07
 ]
 
-sprite_set_14840E [
+shadow_anim_3D_guard_east [
   sprite-set < #$0000, &sprite_group_14A188 >   ;00
   sprite-set < #$0000, &sprite_group_14A70D >   ;01
   sprite-set < #$0000, &sprite_group_14A188 >   ;02
@@ -471,7 +485,7 @@ sprite_set_14840E [
   sprite-set < #$0000, &sprite_group_14A7B2 >   ;07
 ]
 
-sprite_set_148430 [
+shadow_anim_3E [
   sprite-set < #$0003, &sprite_group_14A251 >   ;00
   sprite-set < #$0001, &sprite_group_14A288 >   ;01
   sprite-set < #$0008, &sprite_group_14A2BF >   ;02
@@ -481,7 +495,7 @@ sprite_set_148430 [
   sprite-set < #$0008, &sprite_group_14A32D >   ;06
 ]
 
-sprite_set_14844E [
+shadow_anim_3F [
   sprite-set < #$0003, &sprite_group_14A364 >   ;00
   sprite-set < #$0001, &sprite_group_14A39B >   ;01
   sprite-set < #$0008, &sprite_group_14A3D2 >   ;02
@@ -491,7 +505,7 @@ sprite_set_14844E [
   sprite-set < #$0008, &sprite_group_14A440 >   ;06
 ]
 
-sprite_set_14846C [
+shadow_anim_40 [
   sprite-set < #$0003, &sprite_group_14A477 >   ;00
   sprite-set < #$0001, &sprite_group_14A4B5 >   ;01
   sprite-set < #$0008, &sprite_group_14A508 >   ;02
@@ -501,7 +515,7 @@ sprite_set_14846C [
   sprite-set < #$0008, &sprite_group_14A599 >   ;06
 ]
 
-sprite_set_14848A [
+shadow_anim_41 [
   sprite-set < #$0003, &sprite_group_14A5C2 >   ;00
   sprite-set < #$0001, &sprite_group_14A600 >   ;01
   sprite-set < #$0008, &sprite_group_14A653 >   ;02
@@ -511,7 +525,7 @@ sprite_set_14848A [
   sprite-set < #$0008, &sprite_group_14A6E4 >   ;06
 ]
 
-sprite_set_1484A8 [
+shadow_anim_42 [
   sprite-set < #$0003, &sprite_group_14AA4A >   ;00
   sprite-set < #$0002, &sprite_group_14AA96 >   ;01
   sprite-set < #$0001, &sprite_group_14AADB >   ;02
@@ -521,7 +535,7 @@ sprite_set_1484A8 [
   sprite-set < #$0002, &sprite_group_14AC20 >   ;06
 ]
 
-sprite_set_1484C6 [
+shadow_anim_43 [
   sprite-set < #$0003, &sprite_group_14AC5E >   ;00
   sprite-set < #$0002, &sprite_group_14ACAA >   ;01
   sprite-set < #$0001, &sprite_group_14ACEF >   ;02
@@ -531,23 +545,23 @@ sprite_set_1484C6 [
   sprite-set < #$0002, &sprite_group_14AE34 >   ;06
 ]
 
-sprite_set_1484E4 [
+shadow_anim_44 [
   sprite-set < #$0000, &sprite_group_14A7E9 >
 ]
 
-sprite_set_1484EA [
+shadow_anim_45 [
   sprite-set < #$0000, &sprite_group_14A7E9 >
 ]
 
-sprite_set_1484F0 [
+shadow_anim_46 [
   sprite-set < #$0000, &sprite_group_14A7E9 >
 ]
 
-sprite_set_1484F6 [
+shadow_anim_47 [
   sprite-set < #$0000, &sprite_group_14A7E9 >
 ]
 
-sprite_set_1484FC [
+shadow_anim_48 [
   sprite-set < #$0003, &sprite_group_14A7E9 >   ;00
   sprite-set < #$0002, &sprite_group_14A83C >   ;01
   sprite-set < #$0001, &sprite_group_14A89D >   ;02
@@ -557,7 +571,7 @@ sprite_set_1484FC [
   sprite-set < #$0002, &sprite_group_14AA05 >   ;06
 ]
 
-sprite_set_14851A [
+shadow_anim_49 [
   sprite-set < #$0003, &sprite_group_14AE72 >   ;00
   sprite-set < #$0002, &sprite_group_14AEBE >   ;01
   sprite-set < #$0001, &sprite_group_14AF11 >   ;02
@@ -567,13 +581,16 @@ sprite_set_14851A [
   sprite-set < #$0002, &sprite_group_14B05D >   ;06
 ]
 
-sprite_set_148538 [
+shadow_anim_4A [
   sprite-set < #$0000, &sprite_group_14A7E9 >
 ]
 
-sprite_set_14853E [
+shadow_anim_4B [
   sprite-set < #$0000, &sprite_group_14A7E9 >
 ]
+
+---------------------------------------------
+; Example group: Shadow idle south, the only frame of animation $00. Header: extents X 16 / 16, Y 45 / 8, default attack and body boxes, 6 sub-sprites of 16x16 (tile words $0000, $0020, $0102, $0100, $0022, $000E; $0102 and $0100 use the second name table, bit 8).
 
 sprite_group_148544 [
   sprite-group < #10, #10, #2D, #08, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #06, [

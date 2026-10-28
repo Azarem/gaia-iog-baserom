@@ -88,16 +88,74 @@ export function loadNamesBankLookup(namesDir: string): Map<string, number> {
 }
 
 /**
- * Detect the ROM bank for a file using multiple strategies.
+ * Build a block/file name -> ROM bank lookup from db-us/blocks.json and db-us/files.json.
+ *
+ * blocks.json is group -> block -> { start, end, type } or { parts: { part: { start, ... } } };
+ * files.json is group -> scene -> file -> { start, end, type } (sprite maps, tilemaps, ...).
+ * The bank is floor(start / 65536) of the block (lowest part start when the block only has parts).
+ * It does not depend on the `?BANK` directive: the extractor only writes `?BANK` for blocks
+ * that are not `movable`, but every block has a start address in the database.
  */
-export function detectBank(lines: string[], fileName: string, namesLookup: Map<string, number>): number | null {
+export function loadDbBankLookup(dbDir: string): Map<string, number> {
+    const lookup = new Map<string, number>();
+    const add = (name: string, entry: any) => {
+        if (!entry || typeof entry !== 'object') return;
+        let start: number | undefined = typeof entry.start === 'number' ? entry.start : undefined;
+        if (start === undefined && entry.parts && typeof entry.parts === 'object') {
+            const starts = Object.values<any>(entry.parts)
+                .map(p => p?.start)
+                .filter((v): v is number => typeof v === 'number');
+            if (starts.length > 0) start = Math.min(...starts);
+        }
+        if (start !== undefined && !lookup.has(name)) lookup.set(name, Math.floor(start / 65536));
+    };
+    const blocksPath = join(dbDir, 'blocks.json');
+    if (existsSync(blocksPath)) {
+        try {
+            const groups = JSON.parse(readFileSync(blocksPath, 'utf-8'));
+            for (const group of Object.values<any>(groups))
+                for (const [name, entry] of Object.entries<any>(group)) add(name, entry);
+        } catch { /* ignore parse errors */ }
+    }
+    const filesPath = join(dbDir, 'files.json');
+    if (existsSync(filesPath)) {
+        try {
+            const groups = JSON.parse(readFileSync(filesPath, 'utf-8'));
+            for (const group of Object.values<any>(groups))
+                for (const scene of Object.values<any>(group))
+                    for (const [name, entry] of Object.entries<any>(scene)) add(name, entry);
+        } catch { /* ignore parse errors */ }
+    }
+    return lookup;
+}
+
+/**
+ * Detect the ROM bank for a file using multiple strategies.
+ *
+ * `dbLookup` (from loadDbBankLookup) makes the block's location in blocks.json / files.json the
+ * second strategy; without it the later strategies are the only fallback.
+ */
+export function detectBank(
+    lines: string[],
+    fileName: string,
+    namesLookup: Map<string, number>,
+    dbLookup?: Map<string, number>,
+): number | null {
     // Strategy 1: ?BANK directive
     for (const line of lines) {
         const match = line.match(/^\?BANK\s+([0-9A-Fa-f]+)/);
         if (match) return parseInt(match[1], 16);
     }
 
-    // Strategy 2: code_XXXXXX or loc_XXXXXX labels (hex address in label name)
+    // Strategy 2: the block's start address in db-us/blocks.json or db-us/files.json
+    // (file name = block name; sprite maps are `<name>.sprite.asm`)
+    if (dbLookup) {
+        const key = fileName.replace(/\.sprite$/, '');
+        const bank = dbLookup.get(fileName) ?? dbLookup.get(key);
+        if (bank !== undefined) return bank;
+    }
+
+    // Strategy 3: code_XXXXXX or loc_XXXXXX labels (hex address in label name)
     for (const line of lines) {
         const match = line.match(/\b(?:code|loc)_([0-9A-Fa-f]{6})\b/);
         if (match) {
@@ -106,7 +164,7 @@ export function detectBank(lines: string[], fileName: string, namesLookup: Map<s
         }
     }
 
-    // Strategy 3: {address} tags from extract:lt
+    // Strategy 4: {address} tags from extract:lt
     for (const line of lines) {
         const match = line.match(/;\s*\{(\d+)\}/);
         if (match) {
@@ -114,12 +172,12 @@ export function detectBank(lines: string[], fileName: string, namesLookup: Map<s
         }
     }
 
-    // Strategy 4: File name or top-level label in db-us/names/
+    // Strategy 5: File name or top-level label in db-us/names/
     if (namesLookup.has(fileName)) {
         return namesLookup.get(fileName)!;
     }
 
-    // Strategy 5: First top-level label found in db-us/names/
+    // Strategy 6: First top-level label found in db-us/names/
     for (const line of lines) {
         const match = line.match(/^(\w+)\s+[\[{]/);
         if (match && namesLookup.has(match[1])) {
@@ -293,14 +351,10 @@ export function loadJsonFile(filePath: string): Record<string, string> {
 }
 
 /**
- * Save a string→string record as formatted JSON.
- * Numeric keys are sorted numerically; string keys are sorted alphabetically.
- * Skips writing if the content is unchanged.
+ * Format a string→string record as the JSON text used by notes/ and db-us/names/:
+ * numeric keys are sorted numerically, string keys alphabetically; 4-space indent, trailing newline.
  */
-export function saveJsonFile(filePath: string, data: Record<string, string>): boolean {
-    const dir = dirname(filePath);
-    if (!existsSync(dir)) mkdirSync(dir, { recursive: true });
-
+export function serializeJson(data: Record<string, string>): string {
     const keys = Object.keys(data);
     const allNumeric = keys.every(k => /^\d+$/.test(k));
 
@@ -315,7 +369,18 @@ export function saveJsonFile(filePath: string, data: Record<string, string>): bo
         sorted[key] = data[key];
     }
 
-    const newContent = JSON.stringify(sorted, null, 4) + '\n';
+    return JSON.stringify(sorted, null, 4) + '\n';
+}
+
+/**
+ * Save a string→string record as formatted JSON (see serializeJson).
+ * Skips writing if the content is unchanged.
+ */
+export function saveJsonFile(filePath: string, data: Record<string, string>): boolean {
+    const dir = dirname(filePath);
+    if (!existsSync(dir)) mkdirSync(dir, { recursive: true });
+
+    const newContent = serializeJson(data);
 
     // Avoid rewriting unchanged files (prevents spurious git diffs)
     if (existsSync(filePath)) {

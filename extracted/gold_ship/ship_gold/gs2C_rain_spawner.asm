@@ -3,10 +3,10 @@
 ; Loops every $0F frames, spawning a rain_particle child actor
 ; with flags $0B00. Each spawned particle gets a random X offset
 ; from the player position (RngByte - $80 + playerXPos) using
-; spriteset_enemies and sprite priority #30.
+; spriteset_pickups_effects and sprite priority #30.
 ---------------------------------------------
 
-?INCLUDE 'spriteset_enemies'
+?INCLUDE 'spriteset_pickups_effects'
 
 !playerXPos                     09A2
 
@@ -23,7 +23,7 @@ gs2C_rain_spawner [
 ]
 
 code_058149 {
-    COP [SetMetasprite] ( @spriteset_enemies )
+    COP [SetMetasprite] ( @spriteset_pickups_effects )
     COP [SetSpritePriority] ( #30 )
     COP [RngByte]
     SEC 

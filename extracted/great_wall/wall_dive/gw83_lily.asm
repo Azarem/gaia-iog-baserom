@@ -6,7 +6,7 @@
 ; the party transition.
 ---------------------------------------------
 
-?INCLUDE 'spriteset_enemies'
+?INCLUDE 'spriteset_pickups_effects'
 
 !joypadMaskStd                  065A
 !playerActor                    09AA
@@ -36,7 +36,7 @@ code_07B68B {
     LDA #$EFFC
     TSB $joypadMaskStd
     COP [PrintDialogString] ( &dialogstring_07B6FF )
-    COP [SetMetasprite] ( @spriteset_enemies )
+    COP [SetMetasprite] ( @spriteset_pickups_effects )
     COP [StageSpriteLoopMoveX] ( #33, #04, #03 )
     COP [AnimLoop]
     COP [StageSpriteLoopMoveX] ( #33, #04, #01 )

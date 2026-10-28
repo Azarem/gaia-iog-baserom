@@ -1,60 +1,98 @@
-; Spriteset for Will's Psycho Dash and Psycho Slide projectile sprites.
+; Sprite set of the Dark Gaia fight projectiles (Bank 17, 1560576-1561584, 1008 bytes). The old note ('Will's Psycho Dash and Psycho Slide projectile sprites', 'ranged abilities') was wrong: the only user is the four Projectile* actors of player_character (ProjectileSouth/North/West/East), which the Attack* pieces spawn only in scene $E8 (flags $0602); Psycho Dash and Psycho Slide do not use it.
 ; 
-; Trail effect frames and impact sprites for Will's ranged abilities.
+; Structure (the sprite-set format is documented once in the spriteset_freedan block note): 8 animations, 12 sprite groups of 9 sub-sprites each (76 bytes per group).
+; 
+; | Index | Set | Frames (hold) | Used by |
+; |-------|-----|---------------|---------|
+; | $00 | projectile_launch_south | 3 (5, 2, 2) | ProjectileSouth launch, MoveY #09 |
+; | $01 | projectile_launch_north | 3 (5, 2, 2) | ProjectileNorth launch, MoveY #0A |
+; | $02 | projectile_launch_west | 3 (5, 2, 2) | ProjectileWest launch, MoveX #0A |
+; | $03 | projectile_launch_east | 3 (5, 2, 2) | ProjectileEast launch, MoveX #09 |
+; | $04-$07 | projectile_travel_south, 17D04E, 17D054, 17D05A | 1 (9) each | looping travel pose of South/North/West/East, MoveY/MoveX #0F or #10 |
+; 
+; Each travel animation holds a single frame that is the LAST group of its launch animation (e.g. $04 = sprite_group_17D3A4, the last frame of $00), so the projectile keeps its final launch pose while it flies; the 16 frame records therefore use only 12 groups. The ProjectileSouth/North/West/East actors die when they leave the screen, so the travel animation never ends on its own.
+; 
+; Totals: pointer table 16 bytes, frame lists 80 bytes (4 x 14 + 4 x 6), groups 912 bytes. The tile graphics these sub-sprites draw were not traced (OQ-I067-3).
 ---------------------------------------------
 
 ?BANK 17
 
 ---------------------------------------------
 
-spriteset_will_projectile [
-  &sprite_set_17D010   ;00
-  &sprite_set_17D01E   ;01
-  &sprite_set_17D02C   ;02
-  &sprite_set_17D03A   ;03
-  &sprite_set_17D048   ;04
-  &sprite_set_17D04E   ;05
-  &sprite_set_17D054   ;06
-  &sprite_set_17D05A   ;07
+; 8 pointers to the animation frame lists: $00-$03 = launch South/North/West/East, $04-$07 = travel loop in the same order.
+
+spriteset_darkgaia_projectile [
+  &projectile_launch_south   ;00
+  &projectile_launch_north   ;01
+  &projectile_launch_west   ;02
+  &projectile_launch_east   ;03
+  &projectile_travel_south   ;04
+  &projectile_travel_north   ;05
+  &projectile_travel_west   ;06
+  &projectile_travel_east   ;07
 ]
 
-sprite_set_17D010 [
+---------------------------------------------
+; Animation $00, South launch: 3 frames (hold 5, 2, 2 ticks + 1 each). Used by ProjectileSouth (#00).
+
+projectile_launch_south [
   sprite-set < #$0005, &sprite_group_17D30C >   ;00
   sprite-set < #$0002, &sprite_group_17D358 >   ;01
   sprite-set < #$0002, &sprite_group_17D3A4 >   ;02
 ]
 
-sprite_set_17D01E [
+---------------------------------------------
+; Animation $01, North launch: 3 frames (hold 5, 2, 2). Used by ProjectileNorth (#01).
+
+projectile_launch_north [
   sprite-set < #$0005, &sprite_group_17D228 >   ;00
   sprite-set < #$0002, &sprite_group_17D274 >   ;01
   sprite-set < #$0002, &sprite_group_17D2C0 >   ;02
 ]
 
-sprite_set_17D02C [
+---------------------------------------------
+; Animation $02, West launch: 3 frames (hold 5, 2, 2). Used by ProjectileWest (#02).
+
+projectile_launch_west [
   sprite-set < #$0005, &sprite_group_17D144 >   ;00
   sprite-set < #$0002, &sprite_group_17D190 >   ;01
   sprite-set < #$0002, &sprite_group_17D1DC >   ;02
 ]
 
-sprite_set_17D03A [
+---------------------------------------------
+; Animation $03, East launch: 3 frames (hold 5, 2, 2). Used by ProjectileEast (#03).
+
+projectile_launch_east [
   sprite-set < #$0005, &sprite_group_17D060 >   ;00
   sprite-set < #$0002, &sprite_group_17D0AC >   ;01
   sprite-set < #$0002, &sprite_group_17D0F8 >   ;02
 ]
 
-sprite_set_17D048 [
+---------------------------------------------
+; Animation $04, South travel loop: one frame (hold 9) = last group of animation $00.
+
+projectile_travel_south [
   sprite-set < #$0009, &sprite_group_17D3A4 >
 ]
 
-sprite_set_17D04E [
+---------------------------------------------
+; Animation $05, North travel loop: one frame (hold 9) = last group of animation $01.
+
+projectile_travel_north [
   sprite-set < #$0009, &sprite_group_17D2C0 >
 ]
 
-sprite_set_17D054 [
+---------------------------------------------
+; Animation $06, West travel loop: one frame (hold 9) = last group of animation $02.
+
+projectile_travel_west [
   sprite-set < #$0009, &sprite_group_17D1DC >
 ]
 
-sprite_set_17D05A [
+---------------------------------------------
+; Animation $07, East travel loop: one frame (hold 9) = last group of animation $03.
+
+projectile_travel_east [
   sprite-set < #$0009, &sprite_group_17D0F8 >
 ]
 

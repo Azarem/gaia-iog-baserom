@@ -1,54 +1,87 @@
-; Item name prefix components for compositional text rendering. 15 shared word prefixes ('Crystal', 'Diamond', 'Psycho', etc.) indexed by the $10 InsertSharedWord console string control code to reduce string storage.
+; Shared word strings (Bank 01, 125711-125864). 15 console strings that other strings splice in with the text tag [LU:n] (console command $10, ConsoleCmd_InsertSharedWord): the operand byte is the index, and the renderer calls itself on shared_word_table[index]. Each word carries its own trailing space; there is no separator logic.
+; 
+; The words are not only item name prefixes: they also serve ability names ('Psycho Dash', 'Dark Friar'), item descriptions ('Restores strength.', 'Letter from Lance.') and the item menu prompts ('Rearrange items.', 'Select item and enter.'). See the table part note for the index list and which indices are used.
+; 
+; Only the vanilla strings were counted (tables/system_strings, 63 lines carrying 68 tags). The retranslation patches may use other indices.
 ---------------------------------------------
 
 ---------------------------------------------
 
-; 15 item name prefix component strings used for compositional rendering. When the ConsoleStringRenderer encounters $10 InsertSharedWord, it indexes this table: 'Crystal ', 'Diamond ', 'Dark ', 'Hieroglyph ', 'Inca ', 'Mystery ', 'Prison ', 'Plate ', 'Psycho ', 'Restores ', etc. Shared prefixes reduce string storage.
+; 15 word pointers, indexed by the [LU:n] operand ($00-$0E), all in Bank 01. The number is how many [LU:n] tags of that index the vanilla system_strings contain.
+; 
+; | n | Word | Tags | Examples |
+; |---|------|------|----------|
+; | $00 | Crystal | 0 | |
+; | $01 | Diamond | 2 | 'Diamond Mine' |
+; | $02 | Dark | 9 | 'Dark Knight', 'Dark Friar', 'Dark Power' |
+; | $03 | Hieroglyph | 0 | |
+; | $04 | Inca | 3 | 'Inca Statue A/B' (with $0C), 'Inca Melody' |
+; | $05 | Mystery | 8 | the 8 'Mystery Doll' items |
+; | $06 | Prison | 3 | 'Prison Key', 'Edward Castle Prison Key' |
+; | $07 | Plate | 6 | the 6 'Plate with hieroglyph' descriptions |
+; | $08 | Psycho | 4 | 'Psycho Dash', 'Psycho Slider' (ability names, menu and detail screens) |
+; | $09 | Restores | 3 | 'Restores strength.', 'Restores Memory.' |
+; | $0A | Rearrange | 2 | item menu prompt |
+; | $0B | Select | 3 | item menu prompts |
+; | $0C | Statue | 18 | 'Mystic Statue' (8 items), 'Incan Statue', 'Statue of Hope' and their descriptions |
+; | $0D | Uses | 0 | |
+; | $0E | from | 7 | 'Melody learned from Lola.' and the other 'obtained from' lines |
+; 
+; The strings of $00, $03 and $0D exist in the ROM but no vanilla string selects them (OQ-I063-1).
 
 shared_word_table [
-  &consolestring_01EB2D   ;00
-  &consolestring_01EB36   ;01
-  &consolestring_01EB3F   ;02
-  &consolestring_01EB45   ;03
-  &consolestring_01EB51   ;04
-  &consolestring_01EB57   ;05
-  &consolestring_01EB60   ;06
-  &consolestring_01EB68   ;07
-  &consolestring_01EB6F   ;08
-  &consolestring_01EB77   ;09
-  &consolestring_01EB81   ;0A
-  &consolestring_01EB8C   ;0B
-  &consolestring_01EB94   ;0C
-  &consolestring_01EB9C   ;0D
-  &consolestring_01EBA2   ;0E
+  &shared_word_crystal   ;00
+  &shared_word_diamond   ;01
+  &shared_word_dark   ;02
+  &shared_word_hieroglyph   ;03
+  &shared_word_inca   ;04
+  &shared_word_mystery   ;05
+  &shared_word_prison   ;06
+  &shared_word_plate   ;07
+  &shared_word_psycho   ;08
+  &shared_word_restores   ;09
+  &shared_word_rearrange   ;0A
+  &shared_word_select   ;0B
+  &shared_word_statue   ;0C
+  &shared_word_uses   ;0D
+  &shared_word_from   ;0E
 ]
 
-consolestring_01EB2D |Crystal |
+---------------------------------------------
+; Index $00 'Crystal '. No vanilla [LU:0] tag.
 
-consolestring_01EB36 |Diamond |
+shared_word_crystal |Crystal |
 
-consolestring_01EB3F |Dark |
+shared_word_diamond |Diamond |
 
-consolestring_01EB45 |Hieroglyph |
+shared_word_dark |Dark |
 
-consolestring_01EB51 |Inca |
+---------------------------------------------
+; Index $03 'Hieroglyph '. No vanilla [LU:3] tag (the plate descriptions spell 'hieroglyph' out in plain text).
 
-consolestring_01EB57 |Mystery |
+shared_word_hieroglyph |Hieroglyph |
 
-consolestring_01EB60 |Prison |
+shared_word_inca |Inca |
 
-consolestring_01EB68 |Plate |
+shared_word_mystery |Mystery |
 
-consolestring_01EB6F |Psycho |
+shared_word_prison |Prison |
 
-consolestring_01EB77 |Restores |
+shared_word_plate |Plate |
 
-consolestring_01EB81 |Rearrange |
+shared_word_psycho |Psycho |
 
-consolestring_01EB8C |Select |
+shared_word_restores |Restores |
 
-consolestring_01EB94 |Statue |
+shared_word_rearrange |Rearrange |
 
-consolestring_01EB9C |Uses |
+shared_word_select |Select |
 
-consolestring_01EBA2 |from |
+shared_word_statue |Statue |
+
+---------------------------------------------
+; Index $0D 'Uses '. No vanilla [LU:D] tag.
+
+shared_word_uses |Uses |
+
+shared_word_from |from |

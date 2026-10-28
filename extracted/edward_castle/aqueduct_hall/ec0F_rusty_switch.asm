@@ -4,7 +4,7 @@
 ; ability to force it open.
 ---------------------------------------------
 
-?INCLUDE 'spriteset_enemies'
+?INCLUDE 'spriteset_pickups_effects'
 
 ---------------------------------------------
 
@@ -12,7 +12,7 @@ ec0F_rusty_switch [
   actor-def < #0F, #01, #03, {
 
   code_0A8974:
-    COP [SetMetasprite] ( @spriteset_enemies )
+    COP [SetMetasprite] ( @spriteset_pickups_effects )
 
   loc_0A8979:
     COP [SetEntryHere]

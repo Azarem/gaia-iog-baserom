@@ -5,7 +5,7 @@
 ; === DATA FORMAT ===
 ; 
 ; A step is four bytes, shown by the extraction as `route-step < xDeltaIndex, yDeltaIndex, rotationDeltaIndex, ticks >`:
-;   - Byte 0: index into movement_delta_table for the X velocity chain ($00CA); 0 = still
+;   - Byte 0: index into move_chain_table for the X velocity chain ($00CA); 0 = still
 ;   - Byte 1: index for the Y chain ($00CC); 0 = still
 ;   - Byte 2: index for the rotation chain ($00BC); 0 = still
 ;   - Byte 3: tick count n; the step runs n + 1 ticks

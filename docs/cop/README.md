@@ -483,7 +483,7 @@ Almost all "branch if …" COPs take a single `&Code`. **Taken** → jump to tha
 
 ### Move byte encoding
 
-The `Byte XMove` / `Byte YMove` operands in sprite staging (`$80`–`$87`) and force move (`$AA`–`$AC`) are **speed/duration indices** into `movement_delta_table`, not raw pixel values. `AnimFrameLookup` maps the index to a frame duration stored in `$2C`/`$2E`. Direction comes from `$12` force bits (`$AD`–`$AF`) and H-mirror.
+The `Byte XMove` / `Byte YMove` operands in sprite staging (`$80`–`$87`) and force move (`$AA`–`$AC`) are **speed/duration indices** into `move_chain_table`, not raw pixel values. `AnimFrameLookup` maps the index to a frame duration stored in `$2C`/`$2E`. Direction comes from `$12` force bits (`$AD`–`$AF`) and H-mirror.
 
 ### `New10` spawn flags
 

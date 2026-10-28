@@ -1,4 +1,4 @@
-; Title scene $FC intro actor (Bank 0B, 772391-772487, plus the comet actor and an unreferenced palette-fade stub below it). Spawned with sFC_title_start_handler by scene_event_0CE56D, the title scene's actor list.
+; Title scene $FC intro actor (Bank 0B, 772391-772487, plus the comet actor and an unreferenced palette-fade stub below it). Spawned with sFC_title_start_handler by scene_FC_actors, the title scene's actor list.
 ; 
 ; Loads the title palette, spawns TitleCometSpriteActor, shows two BG3 text strings on a timer and, after a ~42-second idle period (WaitWord $09D3 = 2516 ticks), sets event flag $F4 and queues scene $8C (the prologue). Flag $F4 is tested by pr8C_prologue1 (BranchOnFlagByte, branch when clear) and pr8C_prologue5 (branch when set) and cleared again in pr8C_prologue1, so it marks 'the prologue was started by the title's idle timeout'.
 ; 

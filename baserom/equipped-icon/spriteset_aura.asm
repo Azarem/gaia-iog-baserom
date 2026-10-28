@@ -3,26 +3,26 @@
 ---------------------------------------------
 
 spriteset_aura [
-  &sprite_set_179006   ;00
-  &sprite_set_179018   ;01
-  &sprite_set_17902A   ;02
+  &aura_anim_00_spark_in   ;00
+  &aura_anim_01_grow   ;01
+  &aura_anim_02_orbit   ;02
 ]
 
-sprite_set_179006 [
+aura_anim_00_spark_in [
   sprite-set < #$0007, &sprite_group_17903C >   ;00
   sprite-set < #$0007, &sprite_group_179057 >   ;01
   sprite-set < #$0007, &sprite_group_179072 >   ;02
   sprite-set < #$0007, &sprite_group_17908D >   ;03
 ]
 
-sprite_set_179018 [
+aura_anim_01_grow [
   sprite-set < #$0007, &sprite_group_1790A8 >   ;00
   sprite-set < #$0007, &sprite_group_1790CA >   ;01
   sprite-set < #$0007, &sprite_group_1790EC >   ;02
   sprite-set < #$0007, &sprite_group_17910E >   ;03
 ]
 
-sprite_set_17902A [
+aura_anim_02_orbit [
   sprite-set < #$0007, &sprite_group_179130 >   ;00
   sprite-set < #$0007, &sprite_group_17914B >   ;01
   sprite-set < #$0007, &sprite_group_179166 >   ;02

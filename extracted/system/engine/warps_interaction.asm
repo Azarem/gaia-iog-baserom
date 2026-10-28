@@ -32,11 +32,11 @@
 ; 
 ; The chest tile search reads mapLayerTilemap at the tile in front of the player. Tile $F8 = chest bottom-left, $F9 = chest bottom-right (the 2×2 closed chest uses base $F8: bottom $F8/$F9, top $FA/$FB). If the tile is $F9 the left neighbour must be $F8, and the origin X is decremented, so the origin is always the bottom-left cell.
 ; 
-; The routine then walks the scene's records in scene_chest_table (scene index $0646) comparing byte 0/1 (X, Y of the bottom-left cell) with the origin. No match: the chest is shown the message dialogstring_01FF48 ("The jewel box is tightly closed.").
+; The routine then walks the scene's records in scene_chest_table (scene index $0646) comparing byte 0/1 (X, Y of the bottom-left cell) with the origin. No match: the chest is shown the message dialog_chest_locked ("The jewel box is tightly closed.").
 ; 
 ; A matching record is processed according to its byte 2 (contents):
-; - Nonzero: item chest. displayModeFlags bit 7 is set (display-filter mode: only actors flagged $1000 keep running), the open chest tiles (base $FC) are drawn, then GiveItemToPlayer runs. Success without record byte 3 bit 7: clear the display filter, SFX #$2A, ShowDialogueFrame with dialogstring_01FF2D (prints the item name held in $0DB8), SetEventFlag. Success with byte 3 bit 7: spawn ChestOpeningActor (fanfare with music transition) and SetEventFlag. Inventory full: show the dialogue string GiveItemToPlayer returned in Y (dialogstring_01FF02, "Your inventory's full!"), redraw the closed tiles (base $F8) and do not set the flag.
-; - Zero: flag-only chest: dialogstring_01FF36 ("It is empty!"), then SetEventFlag.
+; - Nonzero: item chest. displayModeFlags bit 7 is set (display-filter mode: only actors flagged $1000 keep running), the open chest tiles (base $FC) are drawn, then GiveItemToPlayer runs. Success without record byte 3 bit 7: clear the display filter, SFX #$2A, ShowDialogueFrame with dialog_item_chest (prints the item name held in $0DB8), SetEventFlag. Success with byte 3 bit 7: spawn ChestOpeningActor (fanfare with music transition) and SetEventFlag. Inventory full: show the dialogue string GiveItemToPlayer returned in Y (dialog_item_full, "Your inventory's full!"), redraw the closed tiles (base $F8) and do not set the flag.
+; - Zero: flag-only chest: dialog_chest_empty ("It is empty!"), then SetEventFlag.
 ; In both cases the event flag is record byte 3 AND $7F.
 ; 
 ; DrawChestTiles places a 2×2 chest at the record's position, queuing each tile to QueueVisibleTileVram for an immediate VRAM update. Tile IDs: base+2, base+3 (top row, Y−1), base, base+1 (bottom row), where base is $FC for an open chest and $F8 for a closed one.
@@ -73,7 +73,7 @@
 ?INCLUDE 'GetPlayerFacingDirection'
 ?INCLUDE 'hdma_dma_spc'
 ?INCLUDE 'inventory_mgmt'
-?INCLUDE 'item_get_dialog_table'
+?INCLUDE 'item_pickup_text_table'
 ?INCLUDE 'map_coords'
 ?INCLUDE 'player_transition_handlers'
 ?INCLUDE 'scene_chest_table'
@@ -222,9 +222,9 @@ PlaceOpenedChestTiles {
 ; 
 ; Chest detection: the tile in front of the player is X = round((pos X − 8) / 16), Y = (pos Y − $20) >> 4. $F8 = chest bottom-left, $F9 = chest bottom-right (then the left neighbour must be $F8 and the origin X is decremented), anything else returns.
 ; 
-; Record search: walks the scene's scene_chest_table records comparing bytes 0/1 with the origin; no match shows dialogstring_01FF48 ("The jewel box is tightly closed.").
+; Record search: walks the scene's scene_chest_table records comparing bytes 0/1 with the origin; no match shows dialog_chest_locked ("The jewel box is tightly closed.").
 ; 
-; Matched record, by byte 2: nonzero = item chest (displayModeFlags bit 7 set, open tiles drawn, GiveItemToPlayer; success shows dialogstring_01FF2D with SFX #$2A, or spawns ChestOpeningActor when byte 3 bit 7 is set; inventory full shows GiveItemToPlayer's Y string and redraws the closed tiles with no flag); zero = flag-only chest ("It is empty!", dialogstring_01FF36). The event flag set is byte 3 AND $7F.
+; Matched record, by byte 2: nonzero = item chest (displayModeFlags bit 7 set, open tiles drawn, GiveItemToPlayer; success shows dialog_item_chest with SFX #$2A, or spawns ChestOpeningActor when byte 3 bit 7 is set; inventory full shows GiveItemToPlayer's Y string and redraws the closed tiles with no flag); zero = flag-only chest ("It is empty!", dialog_chest_empty). The event flag set is byte 3 AND $7F.
 
 HandleChestInteraction {
     LDA $layerPriorityFlag ; Guard: layerPriorityFlag bit 9 ($0200) disables field interaction
@@ -325,7 +325,7 @@ HandleChestInteraction {
 
   loc_02A700:
     REP #$20
-    LDY #$&item_get_dialog_table.dialogstring_01FF48 ; No record: "The jewel box is tightly closed."
+    LDY #$&item_pickup_text_table.dialog_chest_locked ; No record: "The jewel box is tightly closed."
     JSL $@ShowDialogueFrame
     RTS 
 
@@ -344,7 +344,7 @@ HandleChestInteraction {
     BEQ loc_02A73D
     JSL $@inventory_mgmt.GiveItemToPlayer ; GiveItemToPlayer — carry set means inventory full
     BCC loc_02A753
-    JSL $@ShowDialogueFrame ; Y = GiveItemToPlayer's string (dialogstring_01FF02, inventory full); then redraw the closed chest
+    JSL $@ShowDialogueFrame ; Y = GiveItemToPlayer's string (dialog_item_full, inventory full); then redraw the closed chest
     LDA $01, S
     TAX 
     LDA #$00F8            ; $06 = $F8: closed-chest base tile, to undo the open draw
@@ -353,7 +353,7 @@ HandleChestInteraction {
     BRA loc_02A7B0
 
   loc_02A73D:
-    LDY #$&item_get_dialog_table.dialogstring_01FF36 ; Flag-only chest — ShowDialogueFrame dialogstring_01FF36
+    LDY #$&item_pickup_text_table.dialog_chest_empty ; Flag-only chest — ShowDialogueFrame dialog_chest_empty
     JSL $@ShowDialogueFrame
     LDA $01, S
     TAX 
@@ -376,7 +376,7 @@ HandleChestInteraction {
     STA $sfxQueueCh2
     REP #$20
     PLX 
-    LDY #$&item_get_dialog_table.dialogstring_01FF2D ; Overrides GiveItemToPlayer's Y: plain text of the item name from $0DB8, no pause
+    LDY #$&item_pickup_text_table.dialog_item_chest ; Overrides GiveItemToPlayer's Y: plain text of the item name from $0DB8, no pause
     JSL $@ShowDialogueFrame
     BRA loc_02A7A1
 
@@ -924,7 +924,7 @@ ExecuteWarp {
 ;   warpFacing ($0650): a 16-bit POINTER to entry+7, the stream of 6 walk-step bytes that the ForcedWalk actors advance one byte per step (ReadDirSprite_*Velocity); not a facing byte
 ;   playerSpeedEw/playerSpeedNs: zeroed (player movement stops)
 ;   warpScrollParams ($0652): entry bytes 4-5, packed camera window read by InitCameraBounds (0 = normal bounds)
-;   scrollStepTableBase: entry byte 6 (low nibble = walk sequence index into forced_walk_sequence_table, bits 4/5/7 = direction)
+;   scrollStepTableBase: entry byte 6 (low nibble = walk sequence index into forced_walk_pan_table, bits 4/5/7 = direction)
 ; 
 ; Calls InitCameraBounds to configure camera limits for the destination area, then StartForcedWalk to spawn the appropriate directional walk actor. Returns carry set.
 

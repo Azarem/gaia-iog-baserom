@@ -1,19 +1,38 @@
-; Spriteset for Shadow's special mode sprites.
+; Shadow's Aura body sprites (Bank 17, 1556480-1557571 = $17:C000): 3 animations, 55 frame records, 23 sprite groups, 80 sub-sprites. This is the spriteset of body_table row $08 (art shad_sprites_1BC000, the same tile graphics as Shadow's normal body, spriteset_shadow). Nothing else selects the row: PlayerAuraTransformEntry (player_transition_handlers, entered from item_use_system.UseItem_Aura when Shadow uses the Aura item standing still) calls SetPlayerSpriteDirect #08. The item's own description string is 'Dark Knight Shadow's Body turns to water' (item_description_table $24), which is what these frames show. The old note ('Shadow's unique movement and combat modes') named no code, and the body_table note said that nothing selects row $08; both were wrong.
 ; 
-; Additional animation frames used during Shadow's unique movement and combat modes.
+; The struct format (table, frame list, group header, sub-sprite) is described once, in the spriteset_freedan block note.
+; 
+; === ANIMATIONS ===
+; 
+; | Index | Records | Caller | Content |
+; |-------|---------|--------|---------|
+; | $00 | 20 (holds $13, 5, 5, 4, 4, 3, then 13 x 2, then 0) | PlayerAuraTransformEntry: StageSpriteFrame #00 + AnimOnce, first thing after SetPlayerSpriteDirect #08 | 6 groups of 6, 6, 4, 4, 2 and 4 sub-sprites, then 13 groups of 1-7 sub-sprites, then the one-sprite group 17C42F |
+; | $01 | 19 | PlayerAuraBlockedBySolid (the abort path): StageSpriteFrame #01 + AnimOnce at the original spot, then exit | The same groups as $00 in reverse order (13 small groups, then the 6 large ones, last hold $13), without the final group 17C42F |
+; | $02 | 16, all hold 0 | PlayerAuraLandAnimLoop: StageSpriteMoveY #02, #01 (Y chain 1 = +1 px per frame) | Alternates the single-sprite groups 17C3DE / 17C3F2 and the four-sprite group 17C406 with the one-sprite group 17C42F every second frame |
+; 
+; The order of the calls is traced; what the frames look like on screen (a body that flattens, rises again, drips) is only read off the shapes: the shrinking sub-sprite counts of $00 and their reversal in $01 match 'turns to water' and the abort that shows the body again, but the art was not viewed (OQ-I071-1). The palette the frames use and where the Aura sequence ends (PlayerAuraTransformExit) are not covered here.
+; 
+; === CHECKS ===
+; 
+; 1091 bytes = 6 (3 pointers) + 3 x 2 (list terminators) + 55 x 4 (records) + 23 x 13 (group headers) + 80 x 7 (sub-sprites). All 23 groups are referenced by the three lists; groups 17C0E8 to 17C1C3 are the six large ones, 17C3DE / 17C3F2 / 17C406 / 17C42F are only used by $02 (17C42F also ends $00).
 ---------------------------------------------
 
 ?BANK 17
 
 ---------------------------------------------
 
-spriteset_shadow_mode [
-  &sprite_set_17C006   ;00
-  &sprite_set_17C058   ;01
-  &sprite_set_17C0A6   ;02
+; Animation table of the Aura body (body_table row $08), 3 pointers: $00 = the body turning to water (played once), $01 = the same groups in reverse (the abort path), $02 = 16 one-tick frames played while the player sinks (Y +1 px per frame). The caller of all three is player_transition_handlers.PlayerAuraTransformEntry.
+
+spriteset_shadow_aura_body [
+  &shadow_aura_anim_sink   ;00
+  &shadow_aura_anim_abort   ;01
+  &shadow_aura_anim_land_loop   ;02
 ]
 
-sprite_set_17C006 [
+---------------------------------------------
+; Animation $00, 20 records: the large body group 17C0E8 for 20 ticks, five shrinking groups (holds 5, 5, 4, 4, 3), thirteen small groups of 2 ticks each, and the closing one-sprite group 17C42F.
+
+shadow_aura_anim_sink [
   sprite-set < #$0013, &sprite_group_17C0E8 >   ;00
   sprite-set < #$0005, &sprite_group_17C11F >   ;01
   sprite-set < #$0005, &sprite_group_17C156 >   ;02
@@ -36,7 +55,10 @@ sprite_set_17C006 [
   sprite-set < #$0000, &sprite_group_17C42F >   ;13
 ]
 
-sprite_set_17C058 [
+---------------------------------------------
+; Animation $01, 19 records: the groups of $00 in reverse order, from the smallest (17C1EC) back to the large body group 17C0E8 (last hold $13). Shown by the abort branch of the Aura sequence.
+
+shadow_aura_anim_abort [
   sprite-set < #$0002, &sprite_group_17C1EC >   ;00
   sprite-set < #$0002, &sprite_group_17C200 >   ;01
   sprite-set < #$0002, &sprite_group_17C214 >   ;02
@@ -58,7 +80,10 @@ sprite_set_17C058 [
   sprite-set < #$0013, &sprite_group_17C0E8 >   ;12
 ]
 
-sprite_set_17C0A6 [
+---------------------------------------------
+; Animation $02, 16 records, all hold 0: the groups 17C3DE, 17C406, 17C3F2 and 17C406 (two records each) alternate with the one-sprite group 17C42F. Staged with Y chain 1 while the player sinks.
+
+shadow_aura_anim_land_loop [
   sprite-set < #$0000, &sprite_group_17C3DE >   ;00
   sprite-set < #$0000, &sprite_group_17C42F >   ;01
   sprite-set < #$0000, &sprite_group_17C3DE >   ;02
@@ -76,6 +101,9 @@ sprite_set_17C0A6 [
   sprite-set < #$0000, &sprite_group_17C406 >   ;0E
   sprite-set < #$0000, &sprite_group_17C42F >   ;0F
 ]
+
+---------------------------------------------
+; The large body group: 6 sub-sprites, first record of $00 and last of $01.
 
 sprite_group_17C0E8 [
   sprite-group < #10, #10, #2D, #08, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #06, [
@@ -265,6 +293,9 @@ sprite_group_17C406 [
     sprite-part < #00, #08, #00, #00, #08, #$0099 >   ;03
   ] >
 ]
+
+---------------------------------------------
+; One sub-sprite (tile word $041E, offsets 0,0): the closing record of $00 and every second frame of $02.
 
 sprite_group_17C42F [
   sprite-group < #08, #00, #08, #00, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #01, [

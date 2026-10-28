@@ -179,7 +179,7 @@ ShowEquipCursor! {
 
 consolestring_01E962! |[PAL:0][POS:96,5]View acquired[DBL]Relics.|
 
-consolestring_01E9B7! |[PAL:0][POS:96,5][TBL:@item_menu_table,AE8][TBL:@item_description_table,AE8]|
+consolestring_01E9B7! |[PAL:0][POS:96,5][TBL:@item_name_line_table,AE8][TBL:@item_description_table,AE8]|
 
 consolestring_01EA27! |[PAL:0][POS:84,5]View[DBL]Relics|
 

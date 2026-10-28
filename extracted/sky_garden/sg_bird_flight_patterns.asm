@@ -6,7 +6,7 @@
 ; Contains path tables and movement speed parameters.
 ---------------------------------------------
 
-?INCLUDE 'spriteset_enemies'
+?INCLUDE 'spriteset_pickups_effects'
 
 ---------------------------------------------
 
@@ -120,7 +120,7 @@ code_0ADB04 {
 
 code_0ADB19 {
     COP [SetSpritePriority] ( #30 )
-    COP [SetMetasprite] ( @spriteset_enemies )
+    COP [SetMetasprite] ( @spriteset_pickups_effects )
     COP [SetEntryHereAndYield]
     LDA #$2000
     TRB $10

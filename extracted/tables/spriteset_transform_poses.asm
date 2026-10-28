@@ -1,35 +1,41 @@
-; Spriteset definitions for player ability visual effects (Psycho Dash, Psycho Slide, Dark Friar cast, Aura Barrier, Earthquaker).
+; Sprite set of the Dark Space transformation poses (Bank 0F, 1032192-1043845, 11653 bytes). The old note ('Psycho Dash, Psycho Slide, Dark Friar cast, Aura Barrier, Earthquaker', 'special abilities of all three characters') was wrong: body_table row $05 selects this set, and the only code that selects row $05 is the seven Transform_* scripts of sE6_gaia (SetPlayerSpriteDirect #05): Transform_WillToFreedan, _WillToFreedanAlt, _ShadowToFreedan, _FreedanToWill, _ShadowToWill, _WillToShadow and _FreedanToShadow. The tile graphics are abil_sprites_1B8000.
 ; 
-; Contains OAM tile layouts, animation frames, and hitbox data for all three playable characters' special abilities.
+; Structure (format documented in the spriteset_freedan block note): 19 animations ($00-$12), 697 frame records, 148 printed sprite groups. Byte budget: 38 B pointer table + 2788 B frame records (697 x 4) + 38 B terminators + 8789 B of groups.
+; 
+; The scripts stage animations $00-$03, $05-$0B, $0D-$10 and $12 (for example Transform_WillToFreedan: $00 once, $02 and $03 as loops, the palette thinker, $08 and $09 as loops, $0A once). Animations $04, $0C and $11 are not referenced by any of the seven scripts (OQ-I067-4).
+; 
+; Extractor artefact: two groups that no frame list references are hidden inside the printed rows of sprite_group_0FCF27 and sprite_group_0FD5AA (see their part notes). The 8789 B group area only adds up when these two 69-byte groups are counted.
 ---------------------------------------------
 
 ?BANK 0F
 
 ---------------------------------------------
 
-spriteset_ability_fx [
-  &sprite_set_0FC026   ;00
-  &sprite_set_0FC160   ;01
-  &sprite_set_0FC1CA   ;02
-  &sprite_set_0FC2FC   ;03
-  &sprite_set_0FC37E   ;04
-  &sprite_set_0FC4D4   ;05
-  &sprite_set_0FC53E   ;06
-  &sprite_set_0FC5E4   ;07
-  &sprite_set_0FC636   ;08
-  &sprite_set_0FC6B8   ;09
-  &sprite_set_0FC6EA   ;0A
-  &sprite_set_0FC77C   ;0B
-  &sprite_set_0FC7D6   ;0C
-  &sprite_set_0FC8A8   ;0D
-  &sprite_set_0FC8FA   ;0E
-  &sprite_set_0FC91C   ;0F
-  &sprite_set_0FC9DE   ;10
-  &sprite_set_0FCA0C   ;11
-  &sprite_set_0FCADE   ;12
+; 19 pointers to the animation frame lists ($00-$12). Index = the operand of StageSpriteFrame/StageSpriteLoop in the Transform_* scripts. Unused: $04 (transform_pose_04), $0C (transform_pose_0B), $11 (transform_pose_11).
+
+spriteset_transform_poses [
+  &transform_pose_00   ;00
+  &transform_pose_01   ;01
+  &transform_pose_02   ;02
+  &transform_pose_03   ;03
+  &transform_pose_04   ;04
+  &transform_pose_05   ;05
+  &transform_pose_06   ;06
+  &transform_pose_07   ;07
+  &transform_pose_08   ;08
+  &transform_pose_09   ;09
+  &transform_pose_0A   ;0A
+  &transform_pose_0B   ;0B
+  &transform_pose_0C   ;0C
+  &transform_pose_0D   ;0D
+  &transform_pose_0E   ;0E
+  &transform_pose_0F   ;0F
+  &transform_pose_10   ;10
+  &transform_pose_11   ;11
+  &transform_pose_12   ;12
 ]
 
-sprite_set_0FC026 [
+transform_pose_00 [
   sprite-set < #$003B, &sprite_group_0FCB30 >   ;00
   sprite-set < #$0005, &sprite_group_0FCB67 >   ;01
   sprite-set < #$0004, &sprite_group_0FCB9E >   ;02
@@ -110,7 +116,7 @@ sprite_set_0FC026 [
   sprite-set < #$0000, &sprite_group_0FCEC0 >   ;4D
 ]
 
-sprite_set_0FC160 [
+transform_pose_01 [
   sprite-set < #$0009, &sprite_group_0FCB30 >   ;00
   sprite-set < #$0005, &sprite_group_0FCB67 >   ;01
   sprite-set < #$0004, &sprite_group_0FCB9E >   ;02
@@ -139,7 +145,7 @@ sprite_set_0FC160 [
   sprite-set < #$0000, &sprite_group_0FCDCA >   ;19
 ]
 
-sprite_set_0FC1CA [
+transform_pose_02 [
   sprite-set < #$0000, &sprite_group_0FCFAA >   ;00
   sprite-set < #$0000, &sprite_group_0FD18A >   ;01
   sprite-set < #$0000, &sprite_group_0FCFAA >   ;02
@@ -218,7 +224,7 @@ sprite_set_0FC1CA [
   sprite-set < #$0000, &sprite_group_0FD11C >   ;4B
 ]
 
-sprite_set_0FC2FC [
+transform_pose_03 [
   sprite-set < #$0000, &sprite_group_0FCFAA >   ;00
   sprite-set < #$0000, &sprite_group_0FCFD3 >   ;01
   sprite-set < #$0000, &sprite_group_0FCFAA >   ;02
@@ -253,7 +259,10 @@ sprite_set_0FC2FC [
   sprite-set < #$0000, &sprite_group_0FD11C >   ;1F
 ]
 
-sprite_set_0FC37E [
+---------------------------------------------
+; Animation $04: not referenced by the Transform_* scripts (OQ-I067-4).
+
+transform_pose_04 [
   sprite-set < #$0000, &sprite_group_0FD543 >   ;00
   sprite-set < #$0000, &sprite_group_0FD49F >   ;01
   sprite-set < #$0000, &sprite_group_0FD543 >   ;02
@@ -341,7 +350,7 @@ sprite_set_0FC37E [
   sprite-set < #$0009, &sprite_group_0FD1B3 >   ;54
 ]
 
-sprite_set_0FC4D4 [
+transform_pose_05 [
   sprite-set < #$0000, &sprite_group_0FD44D >   ;00
   sprite-set < #$0000, &sprite_group_0FD49F >   ;01
   sprite-set < #$0000, &sprite_group_0FD476 >   ;02
@@ -370,7 +379,7 @@ sprite_set_0FC4D4 [
   sprite-set < #$0000, &sprite_group_0FD1B3 >   ;19
 ]
 
-sprite_set_0FC53E [
+transform_pose_06 [
   sprite-set < #$0077, &sprite_group_0FD986 >   ;00
   sprite-set < #$0006, &sprite_group_0FD933 >   ;01
   sprite-set < #$0005, &sprite_group_0FD8E0 >   ;02
@@ -414,7 +423,7 @@ sprite_set_0FC53E [
   sprite-set < #$0000, &sprite_group_0FD9D9 >   ;28
 ]
 
-sprite_set_0FC5E4 [
+transform_pose_07 [
   sprite-set < #$0000, &sprite_group_0FD986 >   ;00
   sprite-set < #$0006, &sprite_group_0FD933 >   ;01
   sprite-set < #$0005, &sprite_group_0FD8E0 >   ;02
@@ -437,7 +446,7 @@ sprite_set_0FC5E4 [
   sprite-set < #$0000, &sprite_group_0FD62D >   ;13
 ]
 
-sprite_set_0FC636 [
+transform_pose_08 [
   sprite-set < #$0000, &sprite_group_0FDA3A >   ;00
   sprite-set < #$0000, &sprite_group_0FDAAF >   ;01
   sprite-set < #$0000, &sprite_group_0FDA3A >   ;02
@@ -472,7 +481,7 @@ sprite_set_0FC636 [
   sprite-set < #$0000, &sprite_group_0FDB77 >   ;1F
 ]
 
-sprite_set_0FC6B8 [
+transform_pose_09 [
   sprite-set < #$0000, &sprite_group_0FDA3A >   ;00
   sprite-set < #$0000, &sprite_group_0FDAAF >   ;01
   sprite-set < #$0000, &sprite_group_0FDA63 >   ;02
@@ -487,7 +496,7 @@ sprite_set_0FC6B8 [
   sprite-set < #$0000, &sprite_group_0FDA63 >   ;0B
 ]
 
-sprite_set_0FC6EA [
+transform_pose_0A [
   sprite-set < #$0000, &sprite_group_0FE11C >   ;00
   sprite-set < #$0001, &sprite_group_0FDC46 >   ;01
   sprite-set < #$0000, &sprite_group_0FE11C >   ;02
@@ -526,7 +535,10 @@ sprite_set_0FC6EA [
   sprite-set < #$0077, &sprite_group_0FE0C9 >   ;23
 ]
 
-sprite_set_0FC77C [
+---------------------------------------------
+; Animation $0C: not referenced by the Transform_* scripts (OQ-I067-4).
+
+transform_pose_0B [
   sprite-set < #$0000, &sprite_group_0FDC1D >   ;00
   sprite-set < #$0000, &sprite_group_0FDC46 >   ;01
   sprite-set < #$0000, &sprite_group_0FDC92 >   ;02
@@ -551,7 +563,7 @@ sprite_set_0FC77C [
   sprite-set < #$0009, &sprite_group_0FE0C9 >   ;15
 ]
 
-sprite_set_0FC7D6 [
+transform_pose_0C [
   sprite-set < #$0077, &sprite_group_0FE58B >   ;00
   sprite-set < #$0005, &sprite_group_0FE54D >   ;01
   sprite-set < #$0005, &sprite_group_0FE516 >   ;02
@@ -606,7 +618,7 @@ sprite_set_0FC7D6 [
   sprite-set < #$0000, &sprite_group_0FE17D >   ;33
 ]
 
-sprite_set_0FC8A8 [
+transform_pose_0D [
   sprite-set < #$0000, &sprite_group_0FE58B >   ;00
   sprite-set < #$0005, &sprite_group_0FE54D >   ;01
   sprite-set < #$0009, &sprite_group_0FE516 >   ;02
@@ -629,7 +641,7 @@ sprite_set_0FC8A8 [
   sprite-set < #$0000, &sprite_group_0FE17D >   ;13
 ]
 
-sprite_set_0FC8FA [
+transform_pose_0E [
   sprite-set < #$0003, &sprite_group_0FE5C2 >   ;00
   sprite-set < #$0003, &sprite_group_0FE607 >   ;01
   sprite-set < #$0003, &sprite_group_0FE653 >   ;02
@@ -640,7 +652,7 @@ sprite_set_0FC8FA [
   sprite-set < #$0003, &sprite_group_0FE698 >   ;07
 ]
 
-sprite_set_0FC91C [
+transform_pose_0F [
   sprite-set < #$0000, &sprite_group_0FE7C8 >   ;00
   sprite-set < #$0000, &sprite_group_0FE5C2 >   ;01
   sprite-set < #$0000, &sprite_group_0FE7C8 >   ;02
@@ -691,7 +703,7 @@ sprite_set_0FC91C [
   sprite-set < #$0000, &sprite_group_0FE698 >   ;2F
 ]
 
-sprite_set_0FC9DE [
+transform_pose_10 [
   sprite-set < #$0000, &sprite_group_0FE7C8 >   ;00
   sprite-set < #$0000, &sprite_group_0FE6DD >   ;01
   sprite-set < #$0000, &sprite_group_0FE607 >   ;02
@@ -705,7 +717,10 @@ sprite_set_0FC9DE [
   sprite-set < #$0000, &sprite_group_0FE767 >   ;0A
 ]
 
-sprite_set_0FCA0C [
+---------------------------------------------
+; Animation $11: not referenced by the Transform_* scripts (OQ-I067-4).
+
+transform_pose_11 [
   sprite-set < #$0000, &sprite_group_0FE940 >   ;00
   sprite-set < #$0001, &sprite_group_0FEACF >   ;01
   sprite-set < #$0000, &sprite_group_0FE969 >   ;02
@@ -760,7 +775,7 @@ sprite_set_0FCA0C [
   sprite-set < #$0077, &sprite_group_0FED4E >   ;33
 ]
 
-sprite_set_0FCADE [
+transform_pose_12 [
   sprite-set < #$0000, &sprite_group_0FE940 >   ;00
   sprite-set < #$0000, &sprite_group_0FE969 >   ;01
   sprite-set < #$0000, &sprite_group_0FE9CA >   ;02
@@ -993,6 +1008,9 @@ sprite_group_0FCEF0 [
     sprite-part < #00, #0E, #05, #14, #04, #$00A0 >   ;05
   ] >
 ]
+
+---------------------------------------------
+; Real group: header + 7 sub-sprites (62 bytes, rows ;00-;06). Rows ;07-;10 are NOT sub-sprites: the extractor kept reading and printed the next, unreferenced group (69 bytes: header at 0FCF65 + 8 sub-sprites) as sub-sprite rows, one byte too long. The next printed group (0FCFAA) is correct.
 
 sprite_group_0FCF27 [
   sprite-group < #10, #0B, #20, #00, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #07, [
@@ -1335,6 +1353,9 @@ sprite_group_0FD573 [
     sprite-part < #00, #0E, #05, #14, #04, #$00A0 >   ;05
   ] >
 ]
+
+---------------------------------------------
+; Same extractor artefact as sprite_group_0FCF27, with identical rows: the first 7 are the real group, the trailing rows are an unreferenced 69-byte group that starts at 0FD5E8 (OQ-I067-5).
 
 sprite_group_0FD5AA [
   sprite-group < #10, #0B, #20, #00, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #07, [

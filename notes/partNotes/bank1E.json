@@ -1,0 +1,5 @@
+{
+    "spm_title_actors": "Animation table with one entry: #00, the comet.",
+    "sprite_group_000008": "The comet: extents 48 + 56 = 104 px wide, 72 + 72 = 144 px tall, 48 parts (07, 0F and 2F are 8 x 8, the other 45 are 16 x 16). The collision boxes are the engine defaults and are not used by this decoration.",
+    "sprite_set_000002": "Animation #00: one frame, hold 0 (shown for 1 tick), the comet. TitleCometSpriteActor loops it: StageSpriteLoop #00, #F0 in place, then StageSpriteLoopMoveX #00, #40, #02."
+}

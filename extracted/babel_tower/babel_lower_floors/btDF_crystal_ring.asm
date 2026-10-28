@@ -7,7 +7,7 @@
 ---------------------------------------------
 
 ?INCLUDE 'bt_static_sprite'
-?INCLUDE 'spriteset_enemies'
+?INCLUDE 'spriteset_pickups_effects'
 
 !joypadMaskStd                  065A
 !playerActor                    09AA
@@ -66,7 +66,7 @@ code_0999CC {
     STA $16
     LDA #$2000
     TRB $10
-    COP [SetMetasprite] ( @spriteset_enemies )
+    COP [SetMetasprite] ( @spriteset_pickups_effects )
     COP [StageSprAndHitbox] ( #02 )
     COP [InitGravity] ( #02, #06, #00 )
     COP [StageMoveX] ( #12 )

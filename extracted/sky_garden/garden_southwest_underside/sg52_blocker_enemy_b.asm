@@ -6,7 +6,7 @@
 ---------------------------------------------
 
 ?INCLUDE 'enemy_stats_table'
-?INCLUDE 'spriteset_enemies'
+?INCLUDE 'spriteset_pickups_effects'
 
 !statsPtr                       7F0020
 !currentHp                      7F0026
@@ -21,7 +21,7 @@ sg52_blocker_enemy_b [
     STA $statsPtr, X
     LDA #$0031
     TSB $12
-    COP [SetMetasprite] ( @spriteset_enemies )
+    COP [SetMetasprite] ( @spriteset_pickups_effects )
     COP [BranchOnFlagWord] ( #$0127, #01, &code_05F68C )
     BRA loc_05F6BB
 

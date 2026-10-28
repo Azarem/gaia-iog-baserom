@@ -14,14 +14,14 @@
 ; |--------|---------|-------------|
 ; | $02 | SceneCmd_ConfigDisplay | Configure PPU display mode from table_018000 |
 ; | $03 | SceneCmd_LoadBgTiles | Load BG tile graphics (2bpp/4bpp) with decompression |
-; | $04 | SceneCmd_LoadTilemap | Load single-layer tilemap data to WRAM |
-; | $05 | SceneCmd_LoadDualTilemap | Load dual-layer tilemaps with cache and attributes |
-; | $06 | SceneCmd_FullGraphics | Full scene graphics: tiles + tilemaps + map geometry |
+; | $04 | SceneCmd_LoadPalette | Load single-layer tilemap data to WRAM |
+; | $05 | SceneCmd_LoadMetatileSets | Load dual-layer tilemaps with cache and attributes |
+; | $06 | SceneCmd_LoadLayerMaps | Full scene graphics: tiles + tilemaps + map geometry |
 ; | $0E | SceneCmd_Skip3 | Skip 3 bytes in script stream |
 ; | $10 | SceneCmd_LoadSpriteTiles | Load sprite tile graphics |
 ; | $11 | SpcMusicLoadCmd | Transfer SPC music data via APU handshake |
-; | $13 | SceneCmd_ConditionalLoad | Conditional execution based on game flag |
-; | $14 | SceneCmd_Nop | No operation |
+; | $13 | SceneCmd_Branch | Conditional execution based on game flag |
+; | $14 | SceneCmd_Label | No operation |
 ; | $15 | SkipScriptCommands | Skip remaining commands in current scene block |
 ; | $17 | SceneCmd_LoadCharTiles | Load character/object tiles with flexible VRAM targeting |
 ; 
@@ -54,7 +54,7 @@
 ; 
 ; === MAP GEOMETRY ===
 ; 
-; SceneCmd_FullGraphics handles complete scene setup including map dimensions:
+; SceneCmd_LoadLayerMaps handles complete scene setup including map dimensions:
 ; - Reads width ($00/$01) and height ($02/$03) from script data
 ; - StoreMapAndDecompress sets map row stride, computes total map byte count via Multiply8x8Unsigned, and decompresses tilemap data to the layer's tilemap base address
 ; - WriteMapBounds stores computed dimensions to mapBoundsX/mapBoundsY for the camera system
@@ -231,9 +231,9 @@ scene_script_jump_table [
   &SceneCmd_Default   ;01
   &SceneCmd_ConfigDisplay   ;02
   &SceneCmd_LoadBgTiles   ;03
-  &SceneCmd_LoadTilemap   ;04
-  &SceneCmd_LoadDualTilemap   ;05
-  &SceneCmd_FullGraphics   ;06
+  &SceneCmd_LoadPalette   ;04
+  &SceneCmd_LoadMetatileSets   ;05
+  &SceneCmd_LoadLayerMaps   ;06
   &SceneCmd_Default   ;07
   &SceneCmd_Default   ;08
   &SceneCmd_Default   ;09
@@ -246,8 +246,8 @@ scene_script_jump_table [
   &SceneCmd_LoadSpriteTiles   ;10
   &SpcMusicLoadCmd   ;11
   &SceneCmd_Default   ;12
-  &SceneCmd_ConditionalLoad   ;13
-  &SceneCmd_Nop   ;14
+  &SceneCmd_Branch   ;13
+  &SceneCmd_Label   ;14
   &SkipScriptCommands   ;15
   &SceneCmd_Default   ;16
   &SceneCmd_LoadCharTiles   ;17
@@ -256,7 +256,7 @@ scene_script_jump_table [
 ---------------------------------------------
 ; Conditional script execution gate. Reads one byte (flag index) from the script stream and calls TestFlagRaw. If the flag is set (carry set), jumps to SkipScriptCommands to bypass the remaining commands in the block. If clear, advances Y past the flag operand and returns so subsequent commands execute normally.
 
-SceneCmd_ConditionalLoad {
+SceneCmd_Branch {
     PHP 
     REP #$20
     JSR $&ReadScriptByte  ; Read game flag index from script stream
@@ -276,7 +276,7 @@ SceneCmd_ConditionalLoad {
 ---------------------------------------------
 ; No-operation scene command — advances the script pointer by one byte (INY) and returns. Used as a placeholder or padding byte in command streams.
 
-SceneCmd_Nop {
+SceneCmd_Label {
     INY 
 }
 
@@ -645,7 +645,7 @@ BuildAttributeTable {
 ---------------------------------------------
 ; Load tilemap data from ROM to WRAM. Reads three script operands (start, end, WRAM destination offset), each doubled (ASL) into $0664/$0666/$0668 for word addressing. Loads source pointer via LoadScriptPointer, then DmaRomToWram into $7F:0A00 + offset. Special case: destination offset $0020 (palette tilemap) copies one palette entry from $7F0A20 into cgramPalette after the DMA.
 
-SceneCmd_LoadTilemap {
+SceneCmd_LoadPalette {
     PHP 
     REP #$20
     JSR $&ReadScriptByte  ; Read start offset from script (ASL for word addressing)
@@ -686,7 +686,7 @@ SceneCmd_LoadTilemap {
 ---------------------------------------------
 ; Load tilemaps for both BG layers from shared compressed source data. Reads three size operands (XBA + LSR×2 for >>2 scaling) plus flags byte $066A (bit 0 = layer 0, bit 1 = layer 1). Each active layer is checked against its source cache slot ($0678/$067B); cache hits clear that layer bit. If any layers remain: decompress once to $7000, then for each active layer DMA to $7E:2000 (layer 0) or $7E:2800 (layer 1) and call BuildMetatileFlagTable.
 
-SceneCmd_LoadDualTilemap {
+SceneCmd_LoadMetatileSets {
     PHP 
     REP #$20
     JSR $&ReadScriptByte  ; Read 3 tile parameters with >>2 scaling (XBA+LSR+LSR)
@@ -773,7 +773,7 @@ SceneCmd_LoadDualTilemap {
 ---------------------------------------------
 ; Complete scene graphics load — the most complex scene command. Reads flags $066A and source pointer; optionally clears layer bits on source cache hits ($067E layer 0, $0681 layer 1). Reads map width/height pairs into $00/$01 (X) and $02/$03 (Y). If no layers active after cache filtering, returns early. With active layers but zero geometry (compressed pointer $0000), HandleEmptyGeometry. With nonzero geometry: StoreMapAndDecompress per active layer; layer 1 also copies primary decompressed data from $A000 to $C000 and stores secondary map dimensions. If flags indicate no tilemap layers (AND #$7F == 0), DmaLowVramTileset loads tiles directly to low VRAM.
 
-SceneCmd_FullGraphics {
+SceneCmd_LoadLayerMaps {
     STZ $gfxSrcStart      ; Source window start = 0 (low byte; 8-bit STZ)
     STZ $0665             ; ...high byte
     JSR $&ReadScriptByte  ; Read combined flags byte ($066A)

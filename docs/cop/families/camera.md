@@ -24,7 +24,7 @@ These are **not** general-purpose cutscene pans — they anchor the **forced-wal
 ## Family notes
 
 - **Aliases:** extracted scripts use **`CameraPanDown`** etc.; legacy docs say **`PanCameraDown`** — same handlers ([`cop_dispatch.asm`](../../../extracted/system/engine/cop_dispatch.asm) `[DC]`–`[DF]`).
-- Caller must **`STZ $2A`**, point **`$06E0`** at a `forced_walk_sequence_table` entry, and usually **`COP [SetEntryHere]`** before the pan so re-entry yields correctly.
+- Caller must **`STZ $2A`**, point **`$06E0`** at a `forced_walk_pan_table` entry, and usually **`COP [SetEntryHere]`** before the pan so re-entry yields correctly.
 - On boundary hit, handler **`RTI`s** (script continues). While scrolling, handler **`RTL`s** (yield same COP next frame).
 - Usage counts include **all warp-driven forced walks** that invoke the directional actor (not only literal `COP [CameraPan*]` text — the canonical site is one COP per `ForcedWalk*` actor in `forced_walk.asm`).
 
@@ -224,7 +224,7 @@ West forced walk when sequence ID has **bit 5**.
 
 | Step | Action |
 |------|--------|
-| 1 | Warp handler sets `$06E0` from `forced_walk_sequence_table` |
+| 1 | Warp handler sets `$06E0` from `forced_walk_pan_table` |
 | 2 | `STZ $2A`, `STZ $06E2`, mask joypad |
 | 3 | `COP [SetEntryHere]` + directional pan op |
 | 4 | `ApplyScrollOffset`, refresh player sprite, `SyncPlayerToCamera`, `COP [Die]` |

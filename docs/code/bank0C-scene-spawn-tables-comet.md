@@ -245,7 +245,7 @@ The extracted `scene_actors.asm` file contains five distinct sections:
 **Actor spawn format** (after extraction, each scene_event contains only spawns):
 
 ```
-scene_event_0C8221 [               ← South Cape (36 actors)
+scene_01_actors [               ← South Cape (36 actors)
   actor-spawn < #29, #2F, #02, @player_character.PlayerCharacterDef >
   actor-spawn < #00, #00, #00, @camera_scroll_controller >
   actor-spawn < #11, #11, #00, @camera_scroll.ScrollCameraTrack >
@@ -258,14 +258,14 @@ scene_event_0C8221 [               ← South Cape (36 actors)
 
 ```
 scene_actors_extract_table [       ← Parallel pointer array
-  &scene_event_0C821F_value   ;00  ← Scene $00 name
-  &scene_event_0C8221_value   ;01  ← Scene $01 name
+  &scene_00_actors_value   ;00  ← Scene $00 name
+  &scene_01_actors_value   ;01  ← Scene $01 name
   ...
 ]
 
-scene_event_0C8221_value `South Cape`    ← Scene $01 display name
-scene_event_0C8325_value `Seaside Cave`  ← Scene $02 display name
-scene_event_0C8200_value `TEST MAP`      ← Shared blank template name
+scene_01_actors_value `South Cape`    ← Scene $01 display name
+scene_02_actors_value `Seaside Cave`  ← Scene $02 display name
+scene_default_actors_value `TEST MAP`      ← Shared blank template name
 ```
 
 Each `actor-spawn` record specifies:
@@ -288,9 +288,9 @@ titles when the player enters a scene. Of the 241 unique scene_event blocks:
 - **64 have named locations** (e.g., `South Cape`, `Watermia`, `Pyramid`)
 - **177 have empty strings** (dungeon rooms, transitions, subscreen areas)
 
-The shared blank template `scene_event_0C8200` (used by 16 unused scene IDs)
+The shared blank template `scene_default_actors` (used by 16 unused scene IDs)
 has the name `TEST MAP` — a development artifact. Scene `$00`
-(`scene_event_0C821F`) has an empty string.
+(`scene_00_actors`) has an empty string.
 
 Notable scene name patterns:
 - Town/village names appear once per overworld entrance scene
@@ -310,9 +310,9 @@ Notable scene name patterns:
 | Unique actor definitions referenced | 594 |
 | `?INCLUDE` directives (dependency files) | 599 |
 | Average actors per scene | 7.5 |
-| Max actors in a single scene | 58 (`scene_event_0CBDC4` — Euro Rolek Market) |
-| Scenes with 0 actors | 2 (`scene_event_0C821F` for scene `$00`) |
-| Shared blank template | `scene_event_0C8200` — used by 16 scene IDs |
+| Max actors in a single scene | 58 (`scene_91_actors` — Euro Rolek Market) |
+| Scenes with 0 actors | 2 (`scene_00_actors` for scene `$00`) |
+| Shared blank template | `scene_default_actors` — used by 16 scene IDs |
 | Scene IDs not in `groups.json` | 28 (unused/transitional/internal scenes) |
 
 #### Most Frequently Spawned Actors
@@ -367,14 +367,14 @@ Nearly every scene includes the player and camera system:
 
 #### Blank Template Scenes
 
-16 scene IDs share the minimal 3-actor template `scene_event_0C8200`
+16 scene IDs share the minimal 3-actor template `scene_default_actors`
 (player + camera controller + camera scroll). These are scenes not in
 `groups.json` — likely unused, transitional, or placeholder scene slots:
 
 `$48`, `$57`, `$76`, `$77`, `$80`, `$81`, `$9E`, `$AA`, `$AB`, `$AF`,
 `$C1`, `$C2`, `$CA`, `$CB`, `$F8`, `$F9`
 
-Scene `$00` uses `scene_event_0C821F` which is completely empty (0 actors) —
+Scene `$00` uses `scene_00_actors` which is completely empty (0 actors) —
 a true null scene.
 
 **Properties (`blocks.json`):**

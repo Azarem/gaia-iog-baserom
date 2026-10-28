@@ -2,17 +2,17 @@
 ; 
 ; === PLACEMENT ===
 ; 
-; dark_space2 is spawned by 31 scene spawn rows, dark_space by one (Dao, scene_event_0CD3B2). pyCC_dark_space_portal, ec12_aqueduct_dark_space, gw88_tomb_dark_space and dm40_hidden_dark_space spawn DarkSpacePortalInit directly with $24 already set (1, or 3 in the pyramid when $0E is not $72). The scene spawn byte is odd in all 32 rows (12 x #01, 14 x #03, 6 x #05), so the engine leaves param >> 1 in $0E: variant 0, 1 or 2. The two init stubs move that into $24 and then replace $0E with the OAM attribute word: $3000 (sprite priority 3, Dao only) or $2000 (priority 2). The variant is the Gaia room layout: sE6_gaia accepts 0 to 3 (0 basic, 1 transformation statues, 2 ability, 3 special = layout 1 with the form-dependent logic).
+; dark_space2 is spawned by 31 scene spawn rows, dark_space by one (Dao, scene_C3_actors). pyCC_dark_space_portal, ec12_aqueduct_dark_space, gw88_tomb_dark_space and dm40_hidden_dark_space spawn DarkSpacePortalInit directly with $24 already set (1, or 3 in the pyramid when $0E is not $72). The scene spawn byte is odd in all 32 rows (12 x #01, 14 x #03, 6 x #05), so the engine leaves param >> 1 in $0E: variant 0, 1 or 2. The two init stubs move that into $24 and then replace $0E with the OAM attribute word: $3000 (sprite priority 3, Dao only) or $2000 (priority 2). The variant is the Gaia room layout: sE6_gaia accepts 0 to 3 (0 basic, 1 transformation statues, 2 ability, 3 special = layout 1 with the form-dependent logic).
 ; 
 ; === PORTAL ANIMATION ===
 ; 
-; DarkSpacePortalInit sets up the sprite (spriteset_enemies frame #24 closed), makes the tile solid (MarkSolidHere), sets Flags12 $0004 (pause-filter immunity), Flags10 $0B00, extendedFlags $0200 (radar dot) and spawns the monitor child. The portal then loops: closed while the player is not near; when the player is within 5 tiles (|dx| and |dy| both < 81 pixels) it plays the opening animation #1F once and holds the open frame #20 while the player stays near; when he leaves, the closing animation #21 plays and it returns to the closed frame.
+; DarkSpacePortalInit sets up the sprite (spriteset_pickups_effects frame #24 closed), makes the tile solid (MarkSolidHere), sets Flags12 $0004 (pause-filter immunity), Flags10 $0B00, extendedFlags $0200 (radar dot) and spawns the monitor child. The portal then loops: closed while the player is not near; when the player is within 5 tiles (|dx| and |dy| both < 81 pixels) it plays the opening animation #1F once and holds the open frame #20 while the player stays near; when he leaves, the closing animation #21 plays and it returns to the closed frame.
 ; 
 ; === ENTRY (monitor child) ===
 ; 
 ; DarkSpaceInteractionMonitor (hidden child, flags $2300, $24 = variant) runs every frame, but not while displayModeFlags bit $0080 (display-filter actor mode) is set. It tests BranchIfPlayerInRelTiles ( -1, 0, 1, 1 ): the player's tile offset from the portal must satisfy -1 < dx <= 1 and 0 < dy <= 1. Then BranchIfPressed $0801 (raw Up) leads to DarkSpaceMonitorStartWarp, which runs in the MONITOR's context (Y = $04 is the portal):
 ; 1. joypadMaskStd |= $CFFC (every button except Select and Start; the ROM has $CFF0 and db-us/transforms.json widens it, as in the other scripts) and the PLAYER's $10 |= $2000: the player becomes hidden (SortActorsByDepth skips actors with bit $2000; this answers part of OQ-I025-2).
-; 2. The monitor's own X/Y := the player's X/Y, SFX $0C on both channels, the monitor's own $2000 cleared (it becomes visible) and animation #1C of spriteset_enemies plays once at the player's spot, then 29 more frames.
+; 2. The monitor's own X/Y := the player's X/Y, SFX $0C on both channels, the monitor's own $2000 cleared (it becomes visible) and animation #1C of spriteset_pickups_effects plays once at the player's spot, then 29 more frames.
 ; 3. The player's X/Y := the portal's X/Y; playerXPos = X - 8, playerYPos = Y - 16 and the tile words playerXTile/YTile (>> 4). That puts the player one tile north of the portal, which is where the room's E6 warp rectangle lies, so the normal warp check fires.
 ; 4. gfxCacheIdxB := $0101 (exit and enter speed 1), gfxCacheIdxA := $0200 (exit effect 0 = fade, enter effect 2 = mosaic), layerPriorityFlag |= $0200 (camera frozen / chests off while the warp runs) and globalScriptIndex := the variant for sE6_gaia's layout switch. The monitor then idles (SetEntryHere + RTL).
 ; 
@@ -21,7 +21,7 @@
 ; The old header said the handler 'copies the player's position onto the portal' (it copies the portal's position onto the player), that the monitor 'triggers when the player is within 1 tile', that $3000 / $2000 are 'display mode bits' / 'display flags: variant 1 / 2' (they are the sprite priority bits of the OAM attribute word; the variant is the spawn parameter) and that $2000 on the player is a 'frozen flag' (it hides him). The $4000 test in DarkSpacePortalOpen is the off-screen flag and a no-op.
 ---------------------------------------------
 
-?INCLUDE 'spriteset_enemies'
+?INCLUDE 'spriteset_pickups_effects'
 
 !gfxCacheIdxA                   0648
 !gfxCacheIdxB                   064A
@@ -37,7 +37,7 @@
 
 ---------------------------------------------
 
-; Dao variant of the portal (one spawn, scene_event_0CD3B2): saves the spawn variant and uses the OAM attribute word $3000 (sprite priority 3). The stub then branches into DarkSpacePortalInit.
+; Dao variant of the portal (one spawn, scene_C3_actors): saves the spawn variant and uses the OAM attribute word $3000 (sprite priority 3). The stub then branches into DarkSpacePortalInit.
 
 dark_space [
   actor-def < #24, #00, #0B, {
@@ -75,7 +75,7 @@ dark_space2 [
 DarkSpacePortalInit {
     LDA #$0004            ; Flags12 $0004: pause-filter immunity (RunActors_PauseFiltered tests $1004)
     TSB $12
-    COP [SetMetasprite] ( @spriteset_enemies )
+    COP [SetMetasprite] ( @spriteset_pickups_effects )
     COP [StageSprAndHitbox] ( #24 ) ; Portal closed frame
     COP [MarkSolidHere]   ; Block player from walking through
     LDA #$2000            ; Clear $2000 (hidden) so the portal is drawn
@@ -187,7 +187,7 @@ DarkSpaceMonitorStartWarp {
     COP [PlaySoundBoth] ( #$0C0C ) ; Warp sound effect
     LDA #$2000            ; Monitor's own $10: clear hidden ($2000), the effect becomes visible
     TRB $10
-    COP [StageSpriteFrame] ( #1C ) ; Animation #1C of spriteset_enemies (also played by GameOverSequence)
+    COP [StageSpriteFrame] ( #1C ) ; Animation #1C of spriteset_pickups_effects (also played by GameOverSequence)
     COP [AnimOnce]
     COP [WaitByte] ( #1D ) ; WaitByte #1D = 30 ticks after the animation list has ended
     PHX 

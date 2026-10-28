@@ -1,12 +1,30 @@
-; Sprite tile map data for the inventory/status screen UI elements.
+; Sprite sets of the inventory screen (Bank 10, 1081344-1085191 = $10:8000): 77 animations ($00-$4C), 150 frame records, 129 labelled sprite groups with 181 sub-sprites as the extraction prints them, plus 5 unlabelled groups that the extraction hides inside two of the labelled ones (see the last section). The inventory actors select it with SetMetasprite @inventory_spritemap (InventoryMenuInit, inventory_statue_slot) and their animation index $28 picks the pointer. The struct format (table, frame list, group header, sub-sprite) is described once, in the spriteset_freedan block note. The old note ('OAM layouts for item icons, cursor sprites, tab indicators and equipment display') names tab indicators, but no index is left for them: the indices are accounted for below except $41-$43.
 ; 
-; Contains OAM layouts for item icons, cursor sprites, tab indicators,
-; and equipment display. Referenced by inventory_menu and related UI actors.
+; === INDEX ROLES ===
+; 
+; | Index | Users |
+; |-------|-------|
+; | $00-$3F | Item icons: the animation index of an InventorySlotActor is the item ID stored in its slot ($28 = 0 hides the actor), and EquippedItemDisplay uses inventoryEquippedType. The sets for the blank IDs $29-$36 are single static frames; $37, $38 and $39 share one group (108ACC) |
+; | $3A-$3F | The six mystic-statue pedestal icons: inventory_statue_slot copies byte +1 of its statue_reward_table row to $28. By the item-ID rule they are also the icons of items $3A-$3F |
+; | $40 | The selection / equip cursor (SelectionCursorActor: StageSprAndHitbox #40). $41, $42 and $43 point to the same group (108BAA); no code was found that selects them |
+; | $44-$4C | The three status-row sprites at X $98: StatusAbilityRow0 / 1 / 2 (top, middle, bottom row) stage characterForm x 3 + $44 / $45 / $46. The code comments call them portraits. Form 0 uses $44-$46, form 1 $47-$49, form 2 $4A-$4C |
+; 
+; Most sets are one static frame (hold 0). The animated ones are the item icons $01, $05, $08, $09, $0D, $10, $12 (7 frames), $1C (13 frames) and $24, and the status-row sets $44-$4C (4-9 frames).
+; 
+; === UNLABELLED GROUPS ===
+; 
+; Only groups that a frame list points at get a label. The group at 108B67 (used by $3F) is followed by 2 groups that no list references, and the group at 108BAA (used by $40-$43) by 3 more. The extraction cannot tell where a group ends, so it prints each labelled group with every following byte as extra sub-sprites: 108B67 shows 8 sub-sprites for a region of 67 bytes (13 + 54) and 108BAA shows 10 for 80 bytes, and each listing is 2 and 3 bytes longer than the data. Reading the two regions as headers plus sub-sprites gives 3 groups (13 x 3 + 4 x 7 = 67) and 4 groups (13 x 4 + 4 x 7 = 80). The sub-sprites printed after the first 1-2 real ones in those two groups are therefore not sub-sprites of that group (proposal R-I071-3).
+; 
+; === CHECKS ===
+; 
+; 3847 bytes = 154 (77 pointers) + 77 x 2 + 150 x 4 (list terminators and records) + 129 x 13 (labelled group headers) + 181 x 7 (printed sub-sprites) - 5 (the listing overrun of the two groups above). The first set starts at 10809A, directly after the table. File read sampled (~45%): the table, the sets of $00-$4C, the first and last groups and the two long groups; the per-group art was not compared with the item names.
 ---------------------------------------------
 
 ?BANK 10
 
 ---------------------------------------------
+
+; 77 pointers, animation index = item ID for $00-$3F (see the block note for $3A-$3F, the cursor $40 and the status rows $44-$4C). Most targets are a single static frame.
 
 inventory_spritemap [
   &sprite_set_10809A   ;00
@@ -383,6 +401,9 @@ sprite_set_1082B0 [
   sprite-set < #$0000, &sprite_group_108B67 >
 ]
 
+---------------------------------------------
+; Animation $40: the selection cursor (SelectionCursorActor). $41, $42 and $43 point at the same group, 108BAA.
+
 sprite_set_1082B6 [
   sprite-set < #$0000, &sprite_group_108BAA >
 ]
@@ -398,6 +419,9 @@ sprite_set_1082C2 [
 sprite_set_1082C8 [
   sprite-set < #$0000, &sprite_group_108BAA >
 ]
+
+---------------------------------------------
+; Animation $44: the first of the nine status-row sets (5 frames; $44 + characterForm x 3 + the row: 0 top, 1 middle, 2 bottom).
 
 sprite_set_1082CE [
   sprite-set < #$000E, &sprite_group_108BFA >   ;00
@@ -1036,6 +1060,9 @@ sprite_group_108B4C [
   ] >
 ]
 
+---------------------------------------------
+; Statue icon of animation $3F, followed by 2 unreferenced groups: the sub-sprites printed below the first ones are the headers and sub-sprites of those groups (67 bytes in all).
+
 sprite_group_108B67 [
   sprite-group < #08, #08, #20, #00, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #02, [
     sprite-part < #01, #00, #00, #00, #10, #$0BEC >   ;00
@@ -1048,6 +1075,9 @@ sprite_group_108B67 [
     sprite-part < #00, #00, #00, #00, #00, #$0F01 >   ;07
   ] >
 ]
+
+---------------------------------------------
+; The cursor group of animations $40-$43, followed by 3 unreferenced groups: only the first sub-sprites printed are its own (80 bytes in all).
 
 sprite_group_108BAA [
   sprite-group < #01, #0F, #18, #00, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #01, [

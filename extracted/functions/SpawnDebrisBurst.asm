@@ -1,11 +1,11 @@
 ; Breakable-wall debris effect: a one-shot actor that spawns 8 child particle actors and dies. Each pass waits WaitByte(3) (the runner skips 3 passes, so 4 frames) and spawns DebrisBurstParticle with COP SpawnAfterFlags, initial $10 flags $0302; LoopEnd yields once more per pass, so one particle appears every 5 frames and the burst lasts about 40 frames (static reading, UNVERIFIED-RUNTIME).
 ; 
-; DebrisBurstParticle: spriteset_enemies metasprite, palette 0, priority #30. CopyActorState gives it the burst actor's position; $14 / $16 then get two independent RNG offsets of -16 .. +15 px (RngByte AND $1F, minus $10). It plays sound #$0F on both channels (PlaySoundBoth #$0F0F, so all eight particles play the crumble sound), stages sprite frame #01, runs AnimOnce and dies. Flags $0302: bit $0200 is part of the combat_collision skip masks (OQ-I030-2); $0100 and $0002 are undecoded.
+; DebrisBurstParticle: spriteset_pickups_effects metasprite, palette 0, priority #30. CopyActorState gives it the burst actor's position; $14 / $16 then get two independent RNG offsets of -16 .. +15 px (RngByte AND $1F, minus $10). It plays sound #$0F on both channels (PlaySoundBoth #$0F0F, so all eight particles play the crumble sound), stages sprite frame #01, runs AnimOnce and dies. Flags $0302: bit $0200 is part of the combat_collision skip masks (OQ-I030-2); $0100 and $0002 are undecoded.
 ; 
 ; Spawn sites (4): dm3D_breakable_wall (Diamond Mine, flags $2000), gw83_switch (Great Wall, $2000), it19_breakable_wall (Itory cave, SpawnAfterAbsFlags at (152, 96), $2000) and dm40_trapped_slave (Diamond Mine, $3000). The older header named only the first two. docs/code/bank00/functions-camera-motion.md describes the routine as an LDX #8 / JSR random / DEX loop with offsets of +-$10 .. +-$30 pixels; the code is a COP LoopStart / LoopEnd script and the offsets are -16 .. +15 px.
 ---------------------------------------------
 
-?INCLUDE 'spriteset_enemies'
+?INCLUDE 'spriteset_pickups_effects'
 
 ---------------------------------------------
 
@@ -20,10 +20,10 @@ SpawnDebrisBurst {
 }
 
 ---------------------------------------------
-; One debris particle: spriteset_enemies metasprite, palette 0, priority #30; X and Y each move by an independent random -16 .. +15 px from the inherited burst position; plays sound #$0F on both channels, shows frame #01 once (AnimOnce) and dies.
+; One debris particle: spriteset_pickups_effects metasprite, palette 0, priority #30; X and Y each move by an independent random -16 .. +15 px from the inherited burst position; plays sound #$0F on both channels, shows frame #01 once (AnimOnce) and dies.
 
 DebrisBurstParticle {
-    COP [SetMetasprite] ( @spriteset_enemies ) ; Particle metasprite: spriteset_enemies (the frame is staged below)
+    COP [SetMetasprite] ( @spriteset_pickups_effects ) ; Particle metasprite: spriteset_pickups_effects (the frame is staged below)
     COP [SetSpritePalette] ( #00 )
     COP [SetSpritePriority] ( #30 )
     COP [RngByte]         ; RngByte: A = random byte

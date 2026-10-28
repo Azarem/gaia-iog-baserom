@@ -10,7 +10,7 @@
 ?INCLUDE 'flag_helpers'
 ?INCLUDE 'sg_bird_flight_patterns'
 ?INCLUDE 'SpawnFieldRevealEffect'
-?INCLUDE 'spriteset_enemies'
+?INCLUDE 'spriteset_pickups_effects'
 ?INCLUDE 'StandardEnemyDefeatHandler'
 
 !enemiesRemaining               0AEC
@@ -198,7 +198,7 @@ code_0BC6E7 {
 }
 
 code_0BC70D {
-    COP [SetMetasprite] ( @spriteset_enemies )
+    COP [SetMetasprite] ( @spriteset_pickups_effects )
     COP [RngByte]
     AND #$0007
     SEC 

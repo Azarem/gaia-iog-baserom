@@ -106,7 +106,7 @@
     "579395": "Monitor X/Y := player X/Y: the warp effect plays on the player",
     "579406": "Warp sound effect",
     "579410": "Monitor's own $10: clear hidden ($2000), the effect becomes visible",
-    "579415": "Animation #1C of spriteset_enemies (also played by GameOverSequence)",
+    "579415": "Animation #1C of spriteset_pickups_effects (also played by GameOverSequence)",
     "579420": "WaitByte #1D = 30 ticks after the animation list has ended",
     "579427": "Y = the monitor's $04 prev-link = the portal",
     "579429": "Copy portal X → player X",

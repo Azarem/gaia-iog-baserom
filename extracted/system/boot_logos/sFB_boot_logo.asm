@@ -11,7 +11,7 @@
 ; 
 ; === PAL LOCKOUT ===
 ; 
-; A 50 Hz console never sees a logo: BootLogoPalLockout draws the region warning text (consolestring_01D9D8) on BG3 and then yields forever at SetEntryHere + RTL. The game cannot be started on a PAL console.
+; A 50 Hz console never sees a logo: BootLogoPalLockout draws the region warning text (boot_title_strings) on BG3 and then yields forever at SetEntryHere + RTL. The game cannot be started on a PAL console.
 ; 
 ; === POSITION ===
 ; 
@@ -22,7 +22,7 @@
 ; The scene's spritemap card loads spm_boot_logos ($018F bytes) to $7E4000; its two entries are the animation indexes of StageSpriteLoop: #00 = sprite_set_000004 (second logo), #01 = sprite_set_00000A (first logo). Each sprite-set is one frame record (hold $003B = 60 ticks per pass, group pointer) closed by the hidden $FFFF delimiter.
 ; First logo, sprite_group_000112: 96 x 48 px, 16 parts of 16 x 16 in rows of 6, 6 and 4, all OBJ palette 3.
 ; Second logo, sprite_group_000010: 122 x 156 px, 35 parts: a 4 x 4 block (64 x 64) on OBJ palette 1 (upper two rows) and 0 (lower two rows), a 4 x 2 block below it on palette 2, and a row of 11 parts 12 px apart on palette 4. Palettes 0 to 2 are the ones the boot_logo_enix_palette_obj* thinkers animate; palette 4 is static.
-; Sprite-part = 7 bytes: size flag, X offset and mirrored X, Y offset and mirrored Y, OAM tile word (high byte vhppPPPN, PPP = OBJ palette). Sprite-group = 12 header bytes (X extents left / right, Y extents above / below, 8 bytes nothing reads, identical in both groups), the part count, then the parts. The palettes come from pal_boot_logos (80 colours, OBJ palettes 0 to 4, loaded at CGRAM colour 128). The second logo is the Enix logo (its palette cycle is the three boot_logo_enix_palette_obj* thinkers); which company the first logo belongs to was not checked against the tile art.
+; The format (pointer table, frame list, group header with its two collision boxes, 7-byte parts) is described in the spm_boot_logos block note. The palettes come from pal_boot_logos (80 colours, OBJ palettes 0 to 4, loaded at CGRAM colour 128). The second logo is the Enix logo (its palette cycle is the three boot_logo_enix_palette_obj* thinkers); which company the first logo belongs to was not checked against the tile art.
 ; 
 ; === NOTES ===
 ; 
@@ -91,14 +91,14 @@ BootLogoSecondPhase {
 }
 ---------------------------------------------
 
-; PAL lockout screen. Copies the first 8 colours of pal_ending_comet into staging colours 0 to 7, forces colour 0 to black, draws the region warning (consolestring_01D9D8) on BG3 and sets TM = $04 (BG3 only). The actor then yields every frame at the SetEntryHere / RTL pair and never leaves. Only the warning is drawn: PUSH START and the copyright string belong to the title scene.
+; PAL lockout screen. Copies the first 8 colours of pal_ending_comet into staging colours 0 to 7, forces colour 0 to black, draws the region warning (boot_title_strings) on BG3 and sets TM = $04 (BG3 only). The actor then yields every frame at the SetEntryHere / RTL pair and never leaves. Only the warning is drawn: PUSH START and the copyright string belong to the title scene.
 
 BootLogoPalLockout {
     REP #$20
     COP [CopyPalette] ( @pal_ending_comet, #00, #00, #08 ) ; First 8 colours of pal_ending_comet into staging colours 0-7 (the text palette)
     LDA #$0000
     STA $cgramPalette     ; Colour 0 of the palette staging buffer = black backdrop
-    COP [RunBg3Script] ( @system_strings.boot_screen_strings ) ; Draw the region warning text (consolestring_01D9D8) on BG3
+    COP [RunBg3Script] ( @system_strings.boot_title_strings ) ; Draw the region warning text (boot_title_strings) on BG3
     SEP #$20
     LDA #$04              ; BG3 only — text layer for PAL boot
     STA $TM

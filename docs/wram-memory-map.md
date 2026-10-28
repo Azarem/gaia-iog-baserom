@@ -287,7 +287,7 @@ When a COP handler or game code sets `TCD #$0000`, offsets `$00`–`$FF` access 
 | `$09C6` | 2 | `slopeFracAccum` | Slope fractional accumulator for sub-pixel Y correction | `slope_ramp_physics`, tile types `$03`/`$0C` |
 | `$09C8` | 2 | `maxSpeedEw` | Maximum speed clamp for East-West movement | Movement physics |
 | `$09CA` | 2 | `maxSpeedNs` | Maximum speed clamp for North-South movement | Movement physics |
-| `$09E0` | 2 | `climbStateData` | Will ability anim table byte from `LoadAbilityAnimTableA`; added to player STR in `ApplyHitDamageToVictim`. Cleared by `UnlockPlayerAfterClimb` / idle | `attack_ability_system`, `combat_collision`, lunge |
+| `$09E0` | 2 | `climbStateData` | Will ability anim table byte from `LoadAbilityDamageA`; added to player STR in `ApplyHitDamageToVictim`. Cleared by `UnlockPlayerAfterClimb` / idle | `attack_ability_system`, `combat_collision`, lunge |
 | `$09E4`–`$09E6` | 4 | `enemyHpValues` | Enemy HP display values (current + max) for boss health bar | HUD enemy health display |
 | `$09EA` | 2 | `enemyHpPending` | Non-zero triggers enemy health bar update in HUD | `UpdateHUD` |
 | `$09EC` | 2 | `displayModeFlags` | Scene display mode — bit `$0008` = special BG3; bit `$0010` = stat refresh; bit `$0080` = display filter (only actors with Flags10/12 bit `$1000` run in `RunActors_DisplayFiltered`); bit `$08` = dialogue display | HUD, NMI, dialogue, sine precompute, chest/stat rewards |

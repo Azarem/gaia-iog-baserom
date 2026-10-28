@@ -9,8 +9,8 @@
 
 ?INCLUDE 'actor_pool'
 ?INCLUDE 'sE6_gaia'
-?INCLUDE 'spriteset_enemies'
 ?INCLUDE 'spriteset_npc_props'
+?INCLUDE 'spriteset_pickups_effects'
 
 !gfxCacheIdxB                   064A
 !joypadMaskStd                  065A
@@ -137,7 +137,7 @@ code_0BD374 {
     COP [WaitByte] ( #77 )
     LDA #$2000
     TRB $10
-    COP [SetMetasprite] ( @spriteset_enemies )
+    COP [SetMetasprite] ( @spriteset_pickups_effects )
     COP [SetTilePos] ( #08, #01 )
     COP [StageSpriteLoopMoveY] ( #02, #04, #11 )
     COP [AnimLoop]

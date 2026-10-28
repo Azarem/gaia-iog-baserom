@@ -19,13 +19,13 @@
 ; 
 ; === RETURN CONVENTION ===
 ; 
-; Carry clear = given, carry set = inventory full. Regular items: Y = dialogstring_01FF1F (success), $0DB8 = item id ($0DB9 = 0) for the dialogue text; full inventory: Y = dialogstring_01FF02, $0DB8 = item id. Stat-ups return Y = 0; gems and the heal leave Y as the caller had it, so a caller must not show Y for ids of $80 and above. P is restored (PLP).
+; Carry clear = given, carry set = inventory full. Regular items: Y = dialog_item_found (success), $0DB8 = item id ($0DB9 = 0) for the dialogue text; full inventory: Y = dialog_item_full, $0DB8 = item id. Stat-ups return Y = 0; gems and the heal leave Y as the caller had it, so a caller must not show Y for ids of $80 and above. P is restored (PLP).
 ; RemoveItemFromInventory: first slot equal to A is zeroed and, only then, inventoryEquippedType := 0 and inventoryEquippedIndex := $FFFF (nothing equipped); a missing id changes nothing, and in both cases carry is restored by the PLP (the routine reports nothing). CheckInventoryForItem: carry clear = found, carry set = not found.
 ---------------------------------------------
 
 ?BANK 03
 
-?INCLUDE 'item_get_dialog_table'
+?INCLUDE 'item_pickup_text_table'
 ?INCLUDE 'SpawnItemSparkleEffect'
 
 !displayModeFlags               09EC
@@ -213,7 +213,7 @@ GiveItem_StoreInSlot {
     STA $inventorySlots, Y
     STA $0DB8             ; Copy item ID to $0DB8 for dialogue display
     STZ $0DB9
-    LDY #$&item_get_dialog_table.dialogstring_01FF1F ; Y → itemget success dialogue string (dialogstring_01FF1F)
+    LDY #$&item_pickup_text_table.dialog_item_found ; Y → itemget success dialogue string (dialog_item_found)
 }
 
 ---------------------------------------------
@@ -232,7 +232,7 @@ GiveItem_InventoryFull {
     PLA 
     STA $0DB8
     STZ $0DB9
-    LDY #$&item_get_dialog_table.dialogstring_01FF02 ; Y → inventory full dialogue string (dialogstring_01FF02)
+    LDY #$&item_pickup_text_table.dialog_item_full ; Y → inventory full dialogue string (dialog_item_full)
     PLP 
     SEC                   ; SEC, RTL — carry set signals inventory full to caller
     RTL 

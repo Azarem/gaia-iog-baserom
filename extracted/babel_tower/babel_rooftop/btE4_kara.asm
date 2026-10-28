@@ -10,8 +10,8 @@
 ?INCLUDE 'ApplyOrbitalOffsetFromRef'
 ?INCLUDE 'GetPlayerFacingDirection'
 ?INCLUDE 'sE6_gaia'
-?INCLUDE 'spriteset_enemies'
 ?INCLUDE 'spriteset_npc_props'
+?INCLUDE 'spriteset_pickups_effects'
 
 !gfxCacheIdxB                   064A
 !joypadMaskStd                  065A
@@ -172,7 +172,7 @@ code_098F2E {
 }
 
 code_098F72 {
-    COP [SetMetasprite] ( @spriteset_enemies )
+    COP [SetMetasprite] ( @spriteset_pickups_effects )
     COP [StageSpriteFrame] ( #1E )
     COP [AnimOnce]
     COP [Die]

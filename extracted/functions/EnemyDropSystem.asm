@@ -9,7 +9,7 @@
 ; The actor carries its item id in chatPtr ($7F000A,X) and has the 'friendly' flag $0020 in its $10 (from the spawn flags). When the player overlaps it, combat_collision.InteractionDamage_NPCChat calls GiveItemToPlayer(chatPtr) and turns the actor into NpcDespawnStub. Ids: $83 = 1 gem, $84 = 2 gems, $85 = 5 gems (cap 999), $86 = hpToHeal += 5 (UpdateHUD refills 1 HP every 8 frames) plus the spark effect and SFX $22.
 ; Each entry also spawns a marked child, interaction_handlers.collect_handler_gem (flags $2700), which pulls the pickup toward the player while L / R is held. The pickup is the marked parent ($12 bit $0040 set by SpawnAfterMarked), so its Die also removes the child. Each body clears $10 bit $0400 that the $0420 spawn flags set (see OQ-I049-3).
 ; 
-; === LIFETIME (spriteset_enemies animation lists) ===
+; === LIFETIME (spriteset_pickups_effects animation lists) ===
 ; 
 ; Gems: anim 4 / 5 / 6 (gems $83 / $84 / $85) for 10 passes (about 75 ticks each: a 60-tick still frame and 5 shimmer frames of 3 ticks, about 750 ticks), then the blink anim 9 / $0A / $0B for 150 passes (2 ticks each, about 300 ticks), then Die. Heal: anim $22 for 180 passes (2 ticks, about 360 ticks), then anim $35 for 60 passes (4 ticks, about 240 ticks), then Die.
 ; 
@@ -20,7 +20,7 @@
 ---------------------------------------------
 
 ?INCLUDE 'interaction_handlers'
-?INCLUDE 'spriteset_enemies'
+?INCLUDE 'spriteset_pickups_effects'
 
 !playerMaxHp                    0ACA
 !playerHp                       0ACE
@@ -31,7 +31,7 @@
 ; Drop type 1 (stat byte +3 = 1): the 1-gem pickup. Stages the enemy sprite sheet (palette 0) and the marked child collect_handler_gem, then continues in DropBodyGem1.
 
 SpawnDropGem1 {
-    COP [SetMetasprite] ( @spriteset_enemies )
+    COP [SetMetasprite] ( @spriteset_pickups_effects )
     COP [SetSpritePalette] ( #00 )
     COP [SpawnAfterMarked] ( @interaction_handlers.collect_handler_gem, #$2700 ) ; Marked child collect_handler_gem (flags $2700): pulls the pickup toward the player on L / R; this actor's Die also removes it
 
@@ -53,7 +53,7 @@ SpawnDropGem1 {
 ; Drop type 2 (stat byte +3 = 2): same setup as SpawnDropGem1, then continues in DropBodyGem2 (item $84, 2 gems).
 
 SpawnDropGem2 {
-    COP [SetMetasprite] ( @spriteset_enemies )
+    COP [SetMetasprite] ( @spriteset_pickups_effects )
     COP [SetSpritePalette] ( #00 )
     COP [SpawnAfterMarked] ( @interaction_handlers.collect_handler_gem, #$2700 ) ; Same marked child as SpawnDropGem1
 
@@ -75,7 +75,7 @@ SpawnDropGem2 {
 ; Drop type 3 (any other nonzero stat byte): same setup, then chooses the body from drop_threshold_by_hp by HP tier and a random byte, and jumps to it with the RTS trick (PLX, PHA, RTS).
 
 SpawnDropByHpTier {
-    COP [SetMetasprite] ( @spriteset_enemies )
+    COP [SetMetasprite] ( @spriteset_pickups_effects )
     COP [SetSpritePalette] ( #00 )
     COP [SpawnAfterMarked] ( @interaction_handlers.collect_handler_gem, #$2700 )
     LDA $playerMaxHp      ; HP tier: HP at or below max/4 selects table group $20

@@ -1,6 +1,6 @@
 ; Trapped laborer in the collapsed tunnel — breaks free when attacked.
 ; 
-; Displays as a solid enemy sprite (spriteset_enemies frame #00) with
+; Displays as a solid enemy sprite (spriteset_pickups_effects frame #00) with
 ; $FF HP and stat entry 118. Cannot actually be killed — HP resets
 ; each frame. When the player is in tiles 8-14 range, sets a proximity
 ; flag. When finally freed (player uses Freedan's Dark Friar, checked
@@ -12,7 +12,7 @@
 
 ?INCLUDE 'enemy_stats_table'
 ?INCLUDE 'SpawnDebrisBurst'
-?INCLUDE 'spriteset_enemies'
+?INCLUDE 'spriteset_pickups_effects'
 
 !joypadMaskStd                  065A
 !playerFlags                    09AE
@@ -30,7 +30,7 @@ dm40_trapped_slave [
     COP [BranchOnFlagByte] ( #D9, #01, &code_05D796 )
     COP [SpawnAfterFlags] ( @code_05D7CB, #$1000 )
     COP [NudgePosition] ( #08, #08 )
-    COP [SetMetasprite] ( @spriteset_enemies )
+    COP [SetMetasprite] ( @spriteset_pickups_effects )
     COP [StageSpriteFrame] ( #00 )
     COP [AnimOnce]
     LDA #$&enemy_stats_table+118

@@ -7,7 +7,7 @@
 ---------------------------------------------
 
 ?INCLUDE 'ActorMidpointCalc'
-?INCLUDE 'spriteset_enemies'
+?INCLUDE 'spriteset_pickups_effects'
 ?INCLUDE 'StandardEnemyDefeatHandler'
 
 !frameCounter                   0036
@@ -220,7 +220,7 @@ code_0AF06B {
     LDA $26
     STA $0E
     COP [PlaySoundCh1] ( #06 )
-    COP [SetMetasprite] ( @spriteset_enemies )
+    COP [SetMetasprite] ( @spriteset_pickups_effects )
     COP [StageSpriteFrame] ( #01 )
     COP [AnimOnce]
     COP [Die]

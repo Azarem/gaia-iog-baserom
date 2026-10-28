@@ -11,7 +11,7 @@
 ---------------------------------------------
 
 ?INCLUDE 'smooth_follow'
-?INCLUDE 'spriteset_enemies'
+?INCLUDE 'spriteset_pickups_effects'
 
 !playerActor                    09AA
 !chatPtr                        7F000A
@@ -109,7 +109,7 @@ dm_func_0ADB6B {
 }
 
 code_0ADC25 {
-    COP [SetMetasprite] ( @spriteset_enemies )
+    COP [SetMetasprite] ( @spriteset_pickups_effects )
     COP [SpawnListAppend] ( @code_0ADC45, #00, #00, #$0202 )
     COP [PlaySoundCh1] ( #1E )
     LDA #$0080

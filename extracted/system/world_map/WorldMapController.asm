@@ -41,12 +41,12 @@
 ; 6. RouteAnimationEngine plays the route bytes (see world_map_route_table): X, Y and rotation steps change $CA/$CC/$BC.
 ; 7. RouteEndHandler: dots die, the destination name shows for 60 ticks (WaitByte #3B), $B6 falls by $10 per frame until the map is flat again (Start skips everything), then the deferred sceneNext/$0652 are restored and the controller dives: $B8 grows by an increasing delta, a zoom-in while the scene exit transition runs.
 ; 
-; === SPRITES (spm_overworld_sprites.sprite.asm, not annotatable with the merge tool) ===
+; === SPRITES (spm_overworld_sprites) ===
 ; 
-; The spritemap (scene_meta_00FE, $1238 bytes, gfx_overworld_actors, palette pal_overworld_sprites at colour $90) has 14 animations. The leader and companion dots use the animation index from the party array as actor field $28.
-; - 0-5: 4-frame cycles (hold 7), one per party slot value (art identity not checked). 6: three 1-part frames.
+; The spritemap (scene_meta_00FE, $1238 bytes, gfx_overworld_actors, palette pal_overworld_sprites at colour $90) has 14 animations; the spm_overworld_sprites block note lists them. The leader and companion dots use the animation index from the party array as actor field $28.
+; - 0-5: 4-frame cycles (hold 7), one per party slot value (art identity not checked). 6: one 16 x 16 part in 4 frames.
 ; - 7-A: four 5-frame sets. wa79_neil fills the party array with 7, 8, 9, A for the Watermia to Euro leg (menu handlers set only $0D60 := 7), so these look like the pieces of one vehicle (not checked at runtime).
-; - B: 3 frames of 24-28 parts, used as the leader by daC8_neil (Dao to Over Babel). C: same shape, no writer found. D: 4 frames, used as the leader by wa78_men (Watermia to South Cape).
+; - B: 3 frames of hold 1, a 79 x 48 px box of 24 parts, used as the leader by daC8_neil (Dao to Over Babel). C: the same box with 27 parts, no writer found. D: 4 frames of hold 9, 48-64 x 64 px, used as the leader by wa78_men (Watermia to South Cape).
 ; 
 ; === KEY ROUTINES ===
 ; 
@@ -61,7 +61,7 @@
 
 ?INCLUDE 'actor_pool'
 ?INCLUDE 'flag_helpers'
-?INCLUDE 'movement_delta_table'
+?INCLUDE 'move_chain_table'
 ?INCLUDE 'pr_text_placement_calc'
 ?INCLUDE 'world_map_options'
 ?INCLUDE 'world_map_route_table'
@@ -392,7 +392,7 @@ formation_leader_plus_1 #78808880
 formation_leader_plus_4 #80807090909068A098A0
 
 ---------------------------------------------
-; Interpreter for the route bytes of world_map_route_table[$0D5A]. A step is four bytes: movement_delta_table indices for X ($CA), Y ($CC) and rotation ($BC), then a tick count n (the step runs n + 1 ticks). Index 0 is null (that axis stands still). $FF ends the route, $FE calls a subroutine (2-byte target, one level). Each tick adds the next delta of each active axis and sets cameraTargetX/Y = centre - ($80, $70). The delta chains come from movement_delta_table (constants +-1.. and half-speed alternations).
+; Interpreter for the route bytes of world_map_route_table[$0D5A]. A step is four bytes: move_chain_table indices for X ($CA), Y ($CC) and rotation ($BC), then a tick count n (the step runs n + 1 ticks). Index 0 is null (that axis stands still). $FF ends the route, $FE calls a subroutine (2-byte target, one level). Each tick adds the next delta of each active axis and sets cameraTargetX/Y = centre - ($80, $70). The delta chains come from move_chain_table (constants +-1.. and half-speed alternations).
 
 RouteAnimationEngine {
     PHX                   ; Load route pointer: world_map_route_table[$0D5A × 2] → $2C/$2E
@@ -422,26 +422,26 @@ RouteAnimationEngine {
     BNE RouteDeltaTables
     JMP $&RouteSubroutineCall
 
-; Normal step: the X, Y and rotation delta chains are looked up in movement_delta_table ($18, $1A, $1C) and the tick count n is stored in $24; SetEntryHere then yields one frame per tick.
+; Normal step: the X, Y and rotation delta chains are looked up in move_chain_table ($18, $1A, $1C) and the tick count n is stored in $24; SetEntryHere then yields one frame per tick.
 
   RouteDeltaTables:
-    ASL                   ; Step type × 2 → index into movement_delta_table for X delta source
+    ASL                   ; Step type × 2 → index into move_chain_table for X delta source
     TAY 
-    LDA $&movement_delta_table, Y
+    LDA $&move_chain_table, Y
     STA $18
     LDA [$2C]             ; Read Y movement table index (byte 2)
     AND #$00FF
     INC $2C
     ASL 
     TAY 
-    LDA $&movement_delta_table, Y ; Look up Y delta source pointer from movement_delta_table
+    LDA $&move_chain_table, Y ; Look up Y delta source pointer from move_chain_table
     STA $1A
     LDA [$2C]             ; Read Z movement table index (byte 3)
     AND #$00FF
     INC $2C
     ASL 
     TAY 
-    LDA $&movement_delta_table, Y ; Look up Z delta source pointer from movement_delta_table
+    LDA $&move_chain_table, Y ; Look up Z delta source pointer from move_chain_table
     STA $1C
     LDA [$2C]             ; Read frame count (byte 4) → $24
     AND #$00FF

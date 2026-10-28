@@ -5,7 +5,7 @@
 ; when Pyramid enemies are defeated.
 ---------------------------------------------
 
-?INCLUDE 'spriteset_enemies'
+?INCLUDE 'spriteset_pickups_effects'
 
 ---------------------------------------------
 
@@ -17,7 +17,7 @@ py_death_particle [
     STA $14
     LDA $0016, Y
     STA $16
-    COP [SetMetasprite] ( @spriteset_enemies )
+    COP [SetMetasprite] ( @spriteset_pickups_effects )
     COP [StageSpriteFrame] ( #1C )
     COP [AnimOnce]
     COP [Die]

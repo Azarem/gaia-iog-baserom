@@ -116,8 +116,8 @@ Attack/ability companion actor — runs **before** movement controller via `Spaw
 | `$02C315` | FreedanAttackPaletteFX | Loop `#4B` then `#2C`. |
 | `$02C322` | AuraBarrierPaletteFX | Loop `#5B` infinite. |
 | `$02C329` | RecomputeProjectilePos | Add stored offsets to player position. |
-| `$02C33E` | LoadAbilityAnimTableA | Read `table_01D9A7` by index. |
-| `$02C365` | LoadAbilityAnimTableB | Read `table_01D9BF` by index. |
+| `$02C33E` | LoadAbilityDamageA | Read `table_01D9A7` by index. |
+| `$02C365` | LoadAbilityDamageB | Read `table_01D9BF` by index. |
 
 #### Attack Dispatch & Entry
 
@@ -276,13 +276,13 @@ Steerable Spin Dash orb spawned at Will's position during the charge phase. Stor
 
 Called each steering frame by `GuidedProjectileActor` and the four `ProjectileMove*` routines. Adds the stored spawn offset to Will's current world position so the Spin Dash orb maintains its relative placement even while Will animates during charge and release.
 
-### LoadAbilityAnimTableA
+### LoadAbilityDamageA
 
 Indexes Will's ability animation table (`table_01D9A7`) by the value in A. Resolves the pointer chain and stores a configuration byte to `$09E0` (Will ability bonus / anim config — also summed into player STR in `ApplyHitDamageToVictim`). Called by `PsychoDashMain` and `SpinDashMain` to load the correct ability visuals before dispatch.
 
-### LoadAbilityAnimTableB
+### LoadAbilityDamageB
 
-Freedan equivalent of `LoadAbilityAnimTableA`, indexing `table_01D9BF` and storing the config byte to `$09E2`. Called by Dark Friar trail and fragment actors to configure their sprite sets and hitboxes from Freedan's ability animation data.
+Freedan equivalent of `LoadAbilityDamageA`, indexing `table_01D9BF` and storing the config byte to `$09E2`. Called by Dark Friar trail and fragment actors to configure their sprite sets and hitboxes from Freedan's ability animation data.
 
 ---
 

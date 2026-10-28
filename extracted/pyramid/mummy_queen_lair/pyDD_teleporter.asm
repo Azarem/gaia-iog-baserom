@@ -7,7 +7,7 @@
 ---------------------------------------------
 
 ?INCLUDE 'sprite_composition'
-?INCLUDE 'spriteset_enemies'
+?INCLUDE 'spriteset_pickups_effects'
 
 !frameCounter                   0036
 !joypadMaskStd                  065A
@@ -99,7 +99,7 @@ code_0BAE18 {
     COP [PlaySoundCh2] ( #0C )
     COP [StageSpriteFrame] ( #14 )
     COP [AnimOnce]
-    COP [SetMetasprite] ( @spriteset_enemies )
+    COP [SetMetasprite] ( @spriteset_pickups_effects )
     LDA $04
     LDA $0014, Y
     STA $moveXAlt, X
@@ -112,7 +112,7 @@ code_0BAE18 {
     COP [PlaySoundCh2] ( #0C )
     COP [StageSpriteFrame] ( #14 )
     COP [AnimOnce]
-    COP [SetMetasprite] ( @spriteset_enemies )
+    COP [SetMetasprite] ( @spriteset_pickups_effects )
     LDA $14
     CMP #$0100
     BCC loc_0BAE99

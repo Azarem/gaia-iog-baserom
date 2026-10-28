@@ -4,7 +4,7 @@
 ---------------------------------------------
 
 ?INCLUDE 'enemy_stats_table'
-?INCLUDE 'spriteset_enemies'
+?INCLUDE 'spriteset_pickups_effects'
 
 !characterForm                  0AD4
 !statsPtr                       7F0020
@@ -27,7 +27,7 @@ ec12_aqueduct_enemy [
     STA $statsPtr, X
     LDA #$0031
     TSB $12
-    COP [SetMetasprite] ( @spriteset_enemies )
+    COP [SetMetasprite] ( @spriteset_pickups_effects )
     LDA #$00FF
     STA $currentHp, X
 

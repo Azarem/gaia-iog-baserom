@@ -10,7 +10,7 @@ generic_sparkle {
     STA $10
     LDA #$0000
     STA $26
-    COP [SetMetasprite] ( @spriteset_enemies )
+    COP [SetMetasprite] ( @spriteset_pickups_effects )
     COP [StageSpriteFrame] ( #02 )
     COP [SetSpritePriority] ( #30 )
 }

@@ -8,7 +8,7 @@
 
 ?INCLUDE 'f_inventory_full'
 ?INCLUDE 'flag_helpers'
-?INCLUDE 'spriteset_enemies'
+?INCLUDE 'spriteset_pickups_effects'
 
 ---------------------------------------------
 
@@ -29,7 +29,7 @@ gw82_necklace_stone [
     BCS loc_07B5EF
     LDA #$2000
     STA $0E
-    COP [SetMetasprite] ( @spriteset_enemies )
+    COP [SetMetasprite] ( @spriteset_pickups_effects )
     COP [SetInteractHandler] ( &code_07B5D2 )
 
   loc_07B5C8:

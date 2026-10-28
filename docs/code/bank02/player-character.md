@@ -758,7 +758,7 @@ player_character.asm (PlayerCharacterDef @ $02C38C)
   ├─ COP SpawnAfter   → slope_ramp_physics.SlopePhysicsEntry
   ├─ COP SpawnLastRel → shadow_shimmer.ShadowShimmerInit
   ├─ JMP MovingEastWest / MovingNorthSouth
-  ├─ JSR LoadAbilityAnimTableA/B
+  ├─ JSR LoadAbilityDamageA/B
   └─ JSL PlayerMovementTick ($02CFD0)
 
 attack_ability_system.asm

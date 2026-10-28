@@ -1,30 +1,47 @@
-; Master spriteset for enemy actors, death effects, gem drops, and field reveal sprites.
+; Shared effects, pickups and props sprite set (Bank 0E, 974848-982479, 7631 bytes). The old note ('shared by all dungeon enemies, boss sub-sprites, dark gem animations and combat VFX', 'the largest spriteset file in the game') was too broad: 84 extracted actor files select it with SetMetasprite ( @spriteset_pickups_effects ), and most of them are pickups, switches, effects and scene props; only a few enemies and bosses use it (sE8_dark_gaia, ir29_castoth, sg55_viper, gw8A_sand_fanger, mu67_vampires, pyDD_mummy_queen, ec0D_canal_worm, sg4E_nitropede and others). It is not the largest: spriteset_will (17441 B), spriteset_shadow (12443 B) and spriteset_transform_poses (11653 B) are bigger.
 ; 
-; Shared by all dungeon enemies, boss sub-sprites, dark gem animations, and combat VFX. The largest spriteset file in the game.
+; Structure (format in the spriteset_freedan block note): 63 animations ($00-$3E), 257 frame records, 144 printed groups (one hides a second, see sprite_group_0EEE5E), 640 printed sub-sprite rows. Byte budget: 126 B pointer table + 1154 B frame lists (257 x 4 + 63 x 2) + 6351 B of groups = 7631.
+; 
+; Animations whose users were traced (E2):
+; 
+; | Index | User |
+; |-------|------|
+; | $00 | hidden_red_jewel |
+; | $01 | EnemyDeathFlash and the DebrisBurstParticle of SpawnDebrisBurst (eight frames, 19 ticks) |
+; | $04, $05, $06 | the 1, 2 and 5 gem pickups of EnemyDropSystem; $06 is also the static frame of idle_sprite_display |
+; | $09, $0A, $0B | the blink phase of those three pickups |
+; | $0C, $0D, $0E | the HP, STR and DEF stat pickups (reward_actors, field_reveal_object) |
+; | $0F, $10 | hit_switch (resting frame $0F, struck frame $10) |
+; | $22, $35 | the 5 HP heal pickup of EnemyDropSystem |
+; | $25, $29 | SpawnFieldRevealEffect (flash and rise) |
+; 
+; The other animations belong to the scene actors listed above; they were not mapped one by one (OQ-I069-2).
 ---------------------------------------------
 
 ?BANK 0E
 
 ---------------------------------------------
 
-spriteset_enemies [
-  &sprite_set_0EE07E   ;00
-  &sprite_set_0EE084   ;01
+; 63 pointers to the animation frame lists ($00-$3E). Roles of the traced indices: see the block note.
+
+spriteset_pickups_effects [
+  &pickups_effects_00_red_jewel   ;00
+  &pickups_effects_01_death_flash   ;01
   &sprite_set_0EE0A6   ;02
   &sprite_set_0EE0C4   ;03
-  &sprite_set_0EE0CE   ;04
-  &sprite_set_0EE0E8   ;05
-  &sprite_set_0EE102   ;06
+  &pickups_effects_04_gem1   ;04
+  &pickups_effects_05_gem2   ;05
+  &pickups_effects_06_gem5   ;06
   &sprite_set_0EE11C   ;07
   &sprite_set_0EE132   ;08
-  &sprite_set_0EE144   ;09
-  &sprite_set_0EE14E   ;0A
-  &sprite_set_0EE158   ;0B
-  &sprite_set_0EE162   ;0C
-  &sprite_set_0EE174   ;0D
-  &sprite_set_0EE186   ;0E
-  &sprite_set_0EE198   ;0F
-  &sprite_set_0EE19E   ;10
+  &pickups_effects_09_gem1_blink   ;09
+  &pickups_effects_0A_gem2_blink   ;0A
+  &pickups_effects_0B_gem5_blink   ;0B
+  &pickups_effects_0C_stat_hp   ;0C
+  &pickups_effects_0D_stat_str   ;0D
+  &pickups_effects_0E_stat_def   ;0E
+  &pickups_effects_0F_switch_rest   ;0F
+  &pickups_effects_10_switch_hit   ;10
   &sprite_set_0EE1A4   ;11
   &sprite_set_0EE1B2   ;12
   &sprite_set_0EE1C0   ;13
@@ -42,7 +59,7 @@ spriteset_enemies [
   &sprite_set_0EE27C   ;1F
   &sprite_set_0EE29E   ;20
   &sprite_set_0EE2A8   ;21
-  &sprite_set_0EE2CA   ;22
+  &pickups_effects_22_heal_a   ;22
   &sprite_set_0EE2D4   ;23
   &sprite_set_0EE2EA   ;24
   &sprite_set_0EE2FC   ;25
@@ -61,7 +78,7 @@ spriteset_enemies [
   &sprite_set_0EE436   ;32
   &sprite_set_0EE440   ;33
   &sprite_set_0EE452   ;34
-  &sprite_set_0EE458   ;35
+  &pickups_effects_35_heal_b   ;35
   &sprite_set_0EE46A   ;36
   &sprite_set_0EE4A8   ;37
   &sprite_set_0EE4CA   ;38
@@ -73,11 +90,17 @@ spriteset_enemies [
   &sprite_set_0EE4F6   ;3E
 ]
 
-sprite_set_0EE07E [
+---------------------------------------------
+; Animation $00: the red jewel of hidden_red_jewel.
+
+pickups_effects_00_red_jewel [
   sprite-set < #$0000, &sprite_group_0EE500 >
 ]
 
-sprite_set_0EE084 [
+---------------------------------------------
+; Animation $01: 8 frames, 19 ticks: the enemy death flash and the debris particle.
+
+pickups_effects_01_death_flash [
   sprite-set < #$0002, &sprite_group_0EE514 >   ;00
   sprite-set < #$0002, &sprite_group_0EE53D >   ;01
   sprite-set < #$0002, &sprite_group_0EE566 >   ;02
@@ -103,7 +126,10 @@ sprite_set_0EE0C4 [
   sprite-set < #$0001, &sprite_group_0EE692 >   ;01
 ]
 
-sprite_set_0EE0CE [
+---------------------------------------------
+; Animation $04: the 1-gem pickup (still frame plus shimmer).
+
+pickups_effects_04_gem1 [
   sprite-set < #$003B, &sprite_group_0EE6CE >   ;00
   sprite-set < #$0002, &sprite_group_0EE6E2 >   ;01
   sprite-set < #$0002, &sprite_group_0EE6FD >   ;02
@@ -112,7 +138,10 @@ sprite_set_0EE0CE [
   sprite-set < #$0002, &sprite_group_0EE6E2 >   ;05
 ]
 
-sprite_set_0EE0E8 [
+---------------------------------------------
+; Animation $05: the 2-gem pickup.
+
+pickups_effects_05_gem2 [
   sprite-set < #$003B, &sprite_group_0EE733 >   ;00
   sprite-set < #$0002, &sprite_group_0EE747 >   ;01
   sprite-set < #$0002, &sprite_group_0EE762 >   ;02
@@ -121,7 +150,10 @@ sprite_set_0EE0E8 [
   sprite-set < #$0002, &sprite_group_0EE747 >   ;05
 ]
 
-sprite_set_0EE102 [
+---------------------------------------------
+; Animation $06: the 5-gem pickup.
+
+pickups_effects_06_gem5 [
   sprite-set < #$003B, &sprite_group_0EE798 >   ;00
   sprite-set < #$0002, &sprite_group_0EE7AC >   ;01
   sprite-set < #$0002, &sprite_group_0EE7C7 >   ;02
@@ -145,47 +177,71 @@ sprite_set_0EE132 [
   sprite-set < #$0001, &sprite_group_0EE88B >   ;03
 ]
 
-sprite_set_0EE144 [
+---------------------------------------------
+; Animation $09: blink phase of the 1-gem pickup.
+
+pickups_effects_09_gem1_blink [
   sprite-set < #$0000, &sprite_group_0EE6CE >   ;00
   sprite-set < #$0000, &sprite_group_0EE500 >   ;01
 ]
 
-sprite_set_0EE14E [
+---------------------------------------------
+; Animation $0A: blink phase of the 2-gem pickup.
+
+pickups_effects_0A_gem2_blink [
   sprite-set < #$0000, &sprite_group_0EE733 >   ;00
   sprite-set < #$0000, &sprite_group_0EE500 >   ;01
 ]
 
-sprite_set_0EE158 [
+---------------------------------------------
+; Animation $0B: blink phase of the 5-gem pickup.
+
+pickups_effects_0B_gem5_blink [
   sprite-set < #$0000, &sprite_group_0EE798 >   ;00
   sprite-set < #$0000, &sprite_group_0EE500 >   ;01
 ]
 
-sprite_set_0EE162 [
+---------------------------------------------
+; Animation $0C: the Max HP + 1 stat pickup.
+
+pickups_effects_0C_stat_hp [
   sprite-set < #$0003, &sprite_group_0EE89F >   ;00
   sprite-set < #$0003, &sprite_group_0EE8CF >   ;01
   sprite-set < #$0003, &sprite_group_0EE906 >   ;02
   sprite-set < #$0003, &sprite_group_0EE936 >   ;03
 ]
 
-sprite_set_0EE174 [
+---------------------------------------------
+; Animation $0D: the STR + 1 stat pickup.
+
+pickups_effects_0D_stat_str [
   sprite-set < #$0003, &sprite_group_0EE96D >   ;00
   sprite-set < #$0003, &sprite_group_0EE98F >   ;01
   sprite-set < #$0003, &sprite_group_0EE9B8 >   ;02
   sprite-set < #$0003, &sprite_group_0EE9DA >   ;03
 ]
 
-sprite_set_0EE186 [
+---------------------------------------------
+; Animation $0E: the DEF + 1 stat pickup.
+
+pickups_effects_0E_stat_def [
   sprite-set < #$0003, &sprite_group_0EEA03 >   ;00
   sprite-set < #$0003, &sprite_group_0EEA33 >   ;01
   sprite-set < #$0003, &sprite_group_0EEA6A >   ;02
   sprite-set < #$0003, &sprite_group_0EEA9A >   ;03
 ]
 
-sprite_set_0EE198 [
+---------------------------------------------
+; Animation $0F: resting frame of hit_switch.
+
+pickups_effects_0F_switch_rest [
   sprite-set < #$0000, &sprite_group_0EEAD1 >
 ]
 
-sprite_set_0EE19E [
+---------------------------------------------
+; Animation $10: struck frame of hit_switch (not viewed).
+
+pickups_effects_10_switch_hit [
   sprite-set < #$0000, &sprite_group_0EEB23 >
 ]
 
@@ -305,7 +361,10 @@ sprite_set_0EE2A8 [
   sprite-set < #$0000, &sprite_group_0EF394 >   ;07
 ]
 
-sprite_set_0EE2CA [
+---------------------------------------------
+; Animation $22: first phase of the 5 HP heal pickup.
+
+pickups_effects_22_heal_a [
   sprite-set < #$0000, &sprite_group_0EF747 >   ;00
   sprite-set < #$0000, &sprite_group_0EF7F8 >   ;01
 ]
@@ -452,7 +511,10 @@ sprite_set_0EE452 [
   sprite-set < #$0000, &sprite_group_0EF317 >
 ]
 
-sprite_set_0EE458 [
+---------------------------------------------
+; Animation $35: second phase of the 5 HP heal pickup.
+
+pickups_effects_35_heal_b [
   sprite-set < #$0000, &sprite_group_0EF747 >   ;00
   sprite-set < #$0000, &sprite_group_0EECD2 >   ;01
   sprite-set < #$0000, &sprite_group_0EF7F8 >   ;02
@@ -1068,6 +1130,9 @@ sprite_group_0EEE04 [
     sprite-part < #00, #08, #1C, #18, #08, #$0285 >   ;0A
   ] >
 ]
+
+---------------------------------------------
+; Real group: header + 11 sub-sprites (90 bytes, rows ;00-;0A). Rows ;0B-;0D are NOT sub-sprites: the extractor ignored the count and printed the next, unreferenced group (13 B header + 1 sub-sprite = 20 bytes at 0EEEB8, no set points to it) as three rows of 7 bytes, so the last byte of row ;0D is the first byte of group 0EEECC, which is printed again below (OQ-I069-4).
 
 sprite_group_0EEE5E [
   sprite-group < #1C, #10, #28, #00, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #0B, [

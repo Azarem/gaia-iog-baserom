@@ -6,7 +6,7 @@
 ---------------------------------------------
 
 ?INCLUDE 'enemy_stats_table'
-?INCLUDE 'spriteset_enemies'
+?INCLUDE 'spriteset_pickups_effects'
 
 !statsPtr                       7F0020
 !currentHp                      7F0026
@@ -33,7 +33,7 @@ pyD6_vader_barrier_lower [
     COP [ClearTypeAbs] ( #39, #4C )
     LDA #$&enemy_stats_table+118
     STA $statsPtr, X
-    COP [SetMetasprite] ( @spriteset_enemies )
+    COP [SetMetasprite] ( @spriteset_pickups_effects )
     COP [StageSpriteFrame] ( #0F )
     COP [AnimOnce]
     COP [MarkSolidHere]

@@ -313,8 +313,8 @@ next calculation.
 `ApplyHitDamageToVictim` damage formula:
 `totalStr = playerStr($0ADE) + previousDamage($09E2) + climbStateData($09E0)`.
 `previousDamage` at `$09E2` is omitted from `totalStr` when ZP `$08 == $1000`.
-`$09E0` holds the byte loaded by `LoadAbilityAnimTableA` (Will); `$09E2` holds
-Freedan's table byte from `LoadAbilityAnimTableB`. The lunge combo sets `$09E0 = 1`
+`$09E0` holds the byte loaded by `LoadAbilityDamageA` (Will); `$09E2` holds
+Freedan's table byte from `LoadAbilityDamageB`. The lunge combo sets `$09E0 = 1`
 for extra effective STR — not a climb or elevation flag.
 
 ### Friendly-mode behavior

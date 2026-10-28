@@ -1,38 +1,66 @@
-; Spriteset definitions for the Aura Barrier shield effect.
+; Aura Barrier orbital spriteset (Bank 17, 1544192-1544618 = $17:9000): 3 animations ($00-$02), 12 frame records, 12 sprite groups, 30 sub-sprites. Only user: AuraProjectileChild in attack_ability_system (COP SetMetasprite ( @spriteset_aura )); AuraOrbitalSpawner makes 2 or 4 of those actors (4 when the upgrade flag $0B1E is set) and moves them around the player. The old note said '4 animation frames for the rotating barrier sprites': the table holds 3 animations of 4 frames. The struct format is described in the spriteset_freedan block note.
 ; 
-; 4 animation frames for the rotating barrier sprites that surround the player during Aura ability use.
+; === ANIMATIONS ===
+; 
+; | Index | Shape | Played by |
+; |-------|-------|-----------|
+; | $00 | 4 frames, hold 7 (8 ticks each), 2 sub-sprites of 8x8 per frame (small sparks) | AnimOnce first, and last when the orbital shrinks |
+; | $01 | 4 frames, hold 7, 3 sub-sprites per frame (a 16x16 and two 8x8 in the first, three 8x8 in the others) | AnimOnce second, and first when the orbital shrinks |
+; | $02 | 4 frames, hold 7, 2 sub-sprites of 16x16 (frames 0, 1 and 3) or 4 of 8x8 (frame 2) | the loop that runs until the spawner overwrites the actor's function pointer with AuraProjectileShrink |
+; 
+; AuraProjectileChild stages $00 and $01 once (the orbital grows) and then loops $02; AuraProjectileShrink plays $01 and $00 once and hides the actor ($10 bit $2000). All 12 groups keep the default attack box $F8 $F0 $01 $01.
+; 
+; === ART AND PALETTE ===
+; 
+; Every tile word is in $0440-$046F: tile numbers $40-$6F with the palette bits (9-11) = 2, i.e. sprite palette 2 (CGRAM $A0-$AF). AuraVramDmaLoader uploads $0600 bytes (48 tiles) of misc_fx_1CC480 to VRAM $4400 with COP AdhocVramDma, and AuraBarrierMain copies 7 colours of fx_palette_198090 to CGRAM $A9 ($A9-$AF); AuraBarrierPaletteFX cycles them. That VRAM $4400 is tile $40 of the first sprite name table assumes the sprite name base is $4000 (OBSEL was not traced, OQ-I066-3).
+; 
+; Checks: 426 bytes = 6 (table) + 3 x 18 (lists of 4 records + the hidden $FFFF) + 12 x 13 (group headers) + 30 x 7 (sub-sprites).
 ---------------------------------------------
 
 ?BANK 17
 
 ---------------------------------------------
 
+; 3 pointers to the frame lists, indexed by the animation number staged by AuraProjectileChild / AuraProjectileShrink: $00 and $01 grow-in, $02 the looping orbit. See the block note.
+
 spriteset_aura [
-  &sprite_set_179006   ;00
-  &sprite_set_179018   ;01
-  &sprite_set_17902A   ;02
+  &aura_anim_00_spark_in   ;00
+  &aura_anim_01_grow   ;01
+  &aura_anim_02_orbit   ;02
 ]
 
-sprite_set_179006 [
+---------------------------------------------
+; Animation $00: 4 frames, hold 7, groups sprite_group_17903C ... 17908D (two 8x8 sub-sprites each, tile words $0460-$0466). The first stage of the grow-in and the last of the shrink.
+
+aura_anim_00_spark_in [
   sprite-set < #$0007, &sprite_group_17903C >   ;00
   sprite-set < #$0007, &sprite_group_179057 >   ;01
   sprite-set < #$0007, &sprite_group_179072 >   ;02
   sprite-set < #$0007, &sprite_group_17908D >   ;03
 ]
 
-sprite_set_179018 [
+---------------------------------------------
+; Animation $01: 4 frames, hold 7, groups sprite_group_1790A8 ... 17910E (three sub-sprites each, tile words $044C-$044F, $045E-$045F, $0467-$046F). The second stage of the grow-in and the first of the shrink.
+
+aura_anim_01_grow [
   sprite-set < #$0007, &sprite_group_1790A8 >   ;00
   sprite-set < #$0007, &sprite_group_1790CA >   ;01
   sprite-set < #$0007, &sprite_group_1790EC >   ;02
   sprite-set < #$0007, &sprite_group_17910E >   ;03
 ]
 
-sprite_set_17902A [
+---------------------------------------------
+; Animation $02: 4 frames, hold 7, groups sprite_group_179130 ... 17918F (16x16 pairs in frames 0, 1 and 3, four 8x8 tiles in frame 2). The loop that runs while the orbit is active.
+
+aura_anim_02_orbit [
   sprite-set < #$0007, &sprite_group_179130 >   ;00
   sprite-set < #$0007, &sprite_group_17914B >   ;01
   sprite-set < #$0007, &sprite_group_179166 >   ;02
   sprite-set < #$0007, &sprite_group_17918F >   ;03
 ]
+
+---------------------------------------------
+; Example group: animation $00, frame 0. Header: extents X 4 / 4, Y 8 / 8, default attack box, body box $FC $08 $F8 $16, 2 sub-sprites (8x8, tile words $0460 and $0464, offsets (0,8) and (8,0)).
 
 sprite_group_17903C [
   sprite-group < #04, #04, #08, #08, #F8, #F0, #01, #01, #FC, #08, #F8, #16, #02, [

@@ -1,10 +1,10 @@
 ; Unused debug actor for cycling through enemy spriteset frames.
 ; 
 ; Advances frame index $28 on each A-button press (0..$32), displaying
-; one sprite from spriteset_enemies per frame. Debug sprite viewer.
+; one sprite from spriteset_pickups_effects per frame. Debug sprite viewer.
 ---------------------------------------------
 
-?INCLUDE 'spriteset_enemies'
+?INCLUDE 'spriteset_pickups_effects'
 
 !joypadCurrent                  0656
 !joypadHeld                     0658
@@ -15,7 +15,7 @@ unused_debug_input_test [
   actor-def < #00, #00, #03, {
 
   code_09BAE6:
-    COP [SetMetasprite] ( @spriteset_enemies )
+    COP [SetMetasprite] ( @spriteset_pickups_effects )
     LDA #$0000
     STA $28
 

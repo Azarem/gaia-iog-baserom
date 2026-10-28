@@ -2,14 +2,14 @@
 ; 
 ; SPAWN: EnemyStatBonusReward (in StandardEnemyDefeatHandler) runs when the LAST enemy of a scene is defeated (the remaining-enemy counter in orbitAngle is 0). enemy_clear_reward_table[scene] selects the actor: 1 = HP, 2 = STR, 3 or more = DEF, 0 = nothing. The reward is given once per scene: scene flag $0300 + scene (TestFlag_0300) must be clear and RewardActorVFX sets it. Before spawning, EnemyStatBonusReward sets displayModeFlags $0080 (display filter) and spawns the actor with flags $1000; in the display-filtered pass only actors with bit 12 run, so the rest of the world is frozen while the pickup plays.
 ; 
-; EACH ACTOR: sprite frame $0C / $0D / $0E of spriteset_enemies (palette 0), CallNear RewardActorVFX, the stat change, a message and Die.
+; EACH ACTOR: sprite frame $0C / $0D / $0E of spriteset_pickups_effects (palette 0), CallNear RewardActorVFX, the stat change, a message and Die.
 ; RewardActorVFX: clears bits $4000 / $2000 of its $12; animation $FF for 4 passes while rising (Y movement chain #12: -1 px every second tick), 3 more passes standing still, then StageMove (speed 2) / TickMove flies it to the player (target = player X, player Y - 8). Then it sets the hidden bit, clears the display filter (the world runs again), plays sound $25 on channel 2, sets scene flag $0300 + scene (reward taken) and returns to the CallNear caller with RestoreSavedPtr.
 ; 
 ; STAT CHANGE: +1 with a signed-overflow check: BVC skips the clamp unless the sum overflows ($7FFF + 1), which cannot happen with these stats, so the clamp value $0255 is never loaded and nothing caps the stats here (the number of cleared rooms does). HP: max HP + 1 and hpToHeal = new max HP - current HP, so the whole missing HP is refilled by UpdateHUD (one HP per 8-frame step with sound $0D). STR and DEF only add 1.
 ---------------------------------------------
 
 ?INCLUDE 'flag_helpers'
-?INCLUDE 'spriteset_enemies'
+?INCLUDE 'spriteset_pickups_effects'
 
 !sceneCurrent                   0644
 !playerActor                    09AA
@@ -25,7 +25,7 @@
 ---------------------------------------------
 
 e_hp_increase {
-    COP [SetMetasprite] ( @spriteset_enemies )
+    COP [SetMetasprite] ( @spriteset_pickups_effects )
     COP [SetSpritePalette] ( #00 )
     COP [StageSprAndHitbox] ( #0C ) ; Frame $0C (HP icon) with its hitbox
     COP [CallNear] ( &RewardActorVFX ) ; RewardActorVFX: rise, hold, fly to the player, set the scene flag
@@ -49,7 +49,7 @@ e_hp_increase {
 dialogstring_00E058 `[DEF][DLY:1][SFX:0]Your HP (Power) [N]has increased! [END]`
 
 e_str_increase {
-    COP [SetMetasprite] ( @spriteset_enemies )
+    COP [SetMetasprite] ( @spriteset_pickups_effects )
     COP [SetSpritePalette] ( #00 )
     COP [StageSprAndHitbox] ( #0D ) ; Frame $0D (STR icon) with its hitbox
     COP [CallNear] ( &RewardActorVFX )
@@ -70,7 +70,7 @@ e_str_increase {
 dialogstring_00E09F `[DEF][DLY:1][SFX:0]Your STR (Strength) [N]has increased! [END]`
 
 e_def_increase {
-    COP [SetMetasprite] ( @spriteset_enemies )
+    COP [SetMetasprite] ( @spriteset_pickups_effects )
     COP [SetSpritePalette] ( #00 )
     COP [StageSprAndHitbox] ( #0E ) ; Frame $0E (DEF icon) with its hitbox
     COP [CallNear] ( &RewardActorVFX )

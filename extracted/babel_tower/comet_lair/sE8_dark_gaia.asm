@@ -18,7 +18,7 @@
 ?INCLUDE 'sE8_comet_display_config'
 ?INCLUDE 'SetPlayerGameOverFlag'
 ?INCLUDE 'smooth_follow'
-?INCLUDE 'spriteset_enemies'
+?INCLUDE 'spriteset_pickups_effects'
 
 !actorListFirst                 0056
 !gfxCacheIdxB                   064A
@@ -399,7 +399,7 @@ code_0CF201 {
     STA $14
     LDA #$0170
     STA $16
-    COP [SetMetasprite] ( @spriteset_enemies )
+    COP [SetMetasprite] ( @spriteset_pickups_effects )
     COP [LoopStart] ( #0C )
     COP [SpawnListAppend] ( @code_0CF22F, #00, #00, #$0302 )
     COP [WaitByte] ( #01 )
