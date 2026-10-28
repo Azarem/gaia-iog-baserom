@@ -209,7 +209,7 @@ sequenceDiagram
 | 15 | [functions-combat-defeat.md](bank00/functions-combat-defeat.md) | Enemy Defeat Pipeline | `StandardEnemyDefeatHandler` (~20 callers) |
 | 16 | [functions-game-over.md](bank00/functions-game-over.md) | Death Sequence | `GameOverSequence` |
 | 17 | [functions-player-npc.md](bank00/functions-player-npc.md) | Player & NPC AI | `NpcRandomWanderAI`, `EscortFollowPathTracker` |
-| 18 | [functions-camera-motion.md](bank00/functions-camera-motion.md) | Camera Drift, Orbital | `ApplyOrbitalOffsetFromRef` (15+ refs) |
+| 18 | [functions-camera-motion.md](bank00/functions-camera-motion.md) | Camera Drift, Orbital | `ApplyOrbitalOffsetFromRef` (21 JSL sites) |
 | 19 | [stair-climb-system.md](bank00/stair-climb-system.md) | Stair Triggers & Climb | `SliderGlideTriggerNorth`, 13 parts |
 | 20 | [camera-scroll-system.md](bank00/camera-scroll-system.md) | Smooth Follow, Pan | `ScrollCameraTrack` (40+ scenes), 42 parts |
 | 21 | [data-tables-memory.md](bank00/data-tables-memory.md) | Tables & Memory Map | Reference tables, DP variables, stack |
@@ -289,7 +289,7 @@ sequenceDiagram
 </details>
 
 **Key Design Patterns:**
-- **Five-Actor Player Architecture:** `player_character` → `player_move_controller` → `slope_ramp_physics` → `attack_ability_system` → `shadow_shimmer`
+- **Five-Actor Player Architecture:** linked-list order after spawn is `attack_ability_system` → `player_character` → `slope_ramp_physics` → `player_move_controller`, with `shadow_shimmer` appended at the list tail via `COP SpawnListAppend` (flags `$2800`); that order is not the per-frame execution order.
 - **Collision Cascade:** Probe tile → switch on type → check adjacent → apply/snap
 - **Inventory State Sandwich:** Save ~5.5 KB WRAM before menu, restore byte-for-byte after
 

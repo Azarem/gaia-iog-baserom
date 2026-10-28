@@ -119,11 +119,11 @@ AttackInit! {
     RTS 
 }
 
-GlobalAmbientOnDirectionPress! {
+GlobalAmbientOnInteractPress! {
     LDA #$8000
     TSB $joypadHeld
     JSL $@GetPlayerFacingDirection
-    BCC GlobalAmbientFacingInvalid
+    BCC GlobalAmbientFacingValid
     PLD 
     RTL 
 }

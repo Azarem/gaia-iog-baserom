@@ -19,8 +19,8 @@ Three subsystems share this address region: ambient camera drift loops for boss/
 | `CameraDriftLoopShip` | `$CFAE` | 65 B | ✓ | COP `SpawnAfterFlags` | Medium |
 | `CameraDriftPatterned` | `$CFEF` | 121 B | ✓ (with data) | COP `SpawnLastRel` | Medium |
 | `SpawnDebrisBurst` | `$C9B8` | 67 B | ✓ | COP `SpawnAfterFlags` | Medium |
-| `ApplyOrbitalOffsetFromRef` | `$F3C9` | 95 B | ✓ | JSL (15+ refs) | **High** |
-| `ApplyOrbitalOffsetXY` | `$F432` | 93 B | ✓ | JSL (~3 callers) | Medium |
+| `ApplyOrbitalOffsetFromRef` | `$F3C9` | 95 B | ✓ | JSL (21 sites) | **High** |
+| `ApplyOrbitalOffsetXY` | `$F432` | 93 B | ✓ | JSL (3 call sites) | Medium |
 | `CopyRefActorPos_unused` | `$F428` | 10 B | — | None (dead) | — |
 
 ---
@@ -33,7 +33,7 @@ Three subsystems share this address region: ambient camera drift loops for boss/
 
 #### Description
 
-120-frame random camera nudge loop. Each iteration generates a random offset of ±1 or ±2 pixels in X and/or Y, applies it to the camera scroll accumulator (`$06C0`/`$06C4`), waits one frame, and decrements the 120-frame counter. Creates subtle ambient camera motion in boss arenas and enclosed spaces.
+120-frame random camera nudge loop. Each iteration adds a random offset of **−1 to +2** pixels (bias +0.5) to `cameraTargetX` / `cameraTargetY` and `cameraDeltaX` / `cameraDeltaY`, waits one frame, and decrements the counter. Offsets are not undone when the actor dies. Used in pyramid and Incan Ruins set pieces (`pyCD_flame_statue`, `ir25_ceiling_tile`, `ir29_castoth`).
 
 Spawned via `COP [SpawnAfterFlags]` from scene thinker/actor scripts that want continuous gentle camera sway without player input.
 
@@ -44,8 +44,8 @@ Spawned via `COP [SpawnAfterFlags]` from scene thinker/actor scripts that want c
 2. Loop:
      a. JSR random
      b. AND #$03 → offset magnitude (0–3, mapped to ±1..±2)
-     c. Add to $06C0 (scroll X delta)
-     d. JSR random → add to $06C4 (scroll Y delta)
+     c. Add to cameraTargetX / cameraDeltaX
+     d. JSR random → add to cameraTargetY / cameraDeltaY
      e. COP [WaitFrame]
      f. DEX; BNE Loop
 3. COP [Die]
@@ -55,8 +55,8 @@ Spawned via `COP [SpawnAfterFlags]` from scene thinker/actor scripts that want c
 
 | Symbol | Role |
 |--------|------|
-| `$06C0` | Camera scroll delta X |
-| `$06C4` | Camera scroll delta Y |
+| `cameraTargetX`, `cameraDeltaX` | Camera target / delta X |
+| `cameraTargetY`, `cameraDeltaY` | Camera target / delta Y |
 | Loop counter | 120 frames (~2 seconds) |
 
 ---
@@ -67,9 +67,9 @@ Spawned via `COP [SpawnAfterFlags]` from scene thinker/actor scripts that want c
 
 #### Description
 
-Camera drift variant gated by `$player_flags`. Only applies random nudges when `$player_flags` bit `$0100` is clear (no forced-walk warp pan in progress). Used on the Gold Ship and similar moving-platform scenes where camera drift should pause during transitions.
+Camera drift variant gated by `$player_flags`. Each frame, if bit `$0100` (forced walk) is clear, undoes the previous frame's stored offset (`$26`), draws a new 0–3 pixel offset, and adds it to `cameraTarget*` / `cameraDelta*`. Skips the update on forced-walk frames. Infinite loop until the hosting actor dies.
 
-Same ±1..±2 pixel random offset as `CameraDriftLoopSimple` but with an additional flag check each frame and an infinite loop (no 120-frame limit) — runs until the hosting actor dies.
+Used on Gold Ship and undersea tunnel scenes (`st68_kara`, `gs2D_lily`, `gs2D_lance`, `gs2B_erik`).
 
 #### Algorithm
 
@@ -77,7 +77,7 @@ Same ±1..±2 pixel random offset as `CameraDriftLoopSimple` but with an additio
 1. Loop:
      a. LDA $player_flags
      b. BIT #$0100 → skip if set (forced walk active)
-     c. JSR random → apply ±1..±2 to $06C0/$06C4
+     c. Undo prior offset, JSR random → apply 0..3 to cameraTarget/Delta X/Y
      d. COP [WaitFrame]
      e. BRA Loop
 ```
@@ -86,8 +86,9 @@ Same ±1..±2 pixel random offset as `CameraDriftLoopSimple` but with an additio
 
 | Symbol | Role |
 |--------|------|
-| `$player_flags` bit `$0100` (forced walk) | Gate — drift paused when set |
-| `$06C0`, `$06C4` | Camera scroll deltas |
+| `$player_flags` bit `$0100` | Forced walk — skip drift update when set |
+| `cameraTargetX/Y`, `cameraDeltaX/Y` | Camera words written each frame |
+| `$26` (actor DP) | Previous offset undone before re-roll |
 
 ---
 
@@ -97,29 +98,23 @@ Same ±1..±2 pixel random offset as `CameraDriftLoopSimple` but with an additio
 
 #### Description
 
-Direction-table camera drift for boss arenas with deliberate motion patterns rather than pure RNG. Reads sequential entries from `binary_00D068` (8 direction delta pairs) in a looping pattern, applying each offset to `$06C0`/`$06C4` with a configurable frame delay between steps.
+Short-lived patterned drift (~9 frames total): three passes, three frames apart, each adding the next word from `camera_drift_offsets` (index masked to 3 bits — only the first eight signed words are used) to Y then X on `cameraTarget*` / `cameraDelta*`. When actor `$24` = `$FFFF`, the delta update is skipped. The thinker dies after the third pass.
 
-Used in Viper boss arena, Comet Lair, and other set-piece battles where the camera should sway in a predictable rhythm.
+Spawned from Angkor Gorgon, pyramid dangerslide, and Castoth (`awB1_gorgon`, `pyD9_dangerslide_controller`, `ir29_castoth`).
 
 #### Algorithm
 
 ```
-1. LDX #0  ; Direction table index
-2. Loop:
-     a. Read binary_00D068,X → delta X
-     b. Read binary_00D068+1,X → delta Y
-     c. Add to $06C0/$06C4
-     d. COP [WaitFrame] × delay_count
-     e. INX; INX; CPX #16; BCC Loop (8 pairs × 2 bytes)
-     f. LDX #0 → wrap to start
-3. BRA Loop (infinite)
+1. Three drift runs ($2A = 2, 1, 0), $08 = 3 frame gap between runs
+2. Each run: read table[index++] → add to Y targets/deltas, then next word → add to X
+3. Index AND #7 (8 words); after third run, COP [Die]
 ```
 
-#### Data: `binary_00D068`
+#### Data: `camera_drift_offsets`
 
-**Address:** `$D068` · **Size:** 32 bytes (8 × 4-byte X/Y delta pairs)
+**Address:** `$D068` · **Size:** 32 bytes (16 signed 16-bit words; only indices 0–7 are referenced)
 
-| Format | Signed byte X offset, signed byte Y offset, 2 padding/reserved bytes per entry |
+| Format | Signed word offsets consumed one at a time (Y word, then X word) per drift step |
 
 ---
 
@@ -153,39 +148,32 @@ Callers include `dm3D_breakable_wall`, `gw83_switch`, `it19_breakable_wall`, and
 
 #### Description
 
-Computes sin/cos orbital offset from a reference actor's position. Reads the reference actor index from `$0000`, loads that actor's `$14`/`$16` as the orbit center, then applies `$7F0010,X` (angle) and `$7F1010,X` (diameter/radius) to compute new X/Y positions using the sin/cos lookup tables at `sine_table_8bit`/`signed_cosine_table_8bit` (bank `$01`) and signed multiply via `Multiply8x8Unsigned` (bank `$02`).
+Computes a circular offset and writes the caller's `$14`/`$16`. **Two entry points** in one routine:
 
-**Previously misplaced in `extracted/unused/`** — moved to `functions` after discovery of 15+ active `$@ApplyOrbitalOffsetFromRef` references.
+1. **`ApplyOrbitalOffsetFromRef`** — **Y** = reference actor slot. Copies that actor's `$14`/`$16` into the caller, then falls through.
+2. **`ApplyOrbitalOffsetFromRef_AddToCurrent`** — adds the offset to the caller's current `$14`/`$16` (centre must already be set; 5 of 21 JSL sites use this entry).
 
-Used by:
-- COP `$6D` (`SpiralStep`) handler in `cop_handlers_effects.asm`
-- Castoth boss orbiting projectiles
-- Fire sprite actors
-- Statue inventory pickup children
-- System core (included via `?INCLUDE`)
+Reads the low byte of `$7F0010,X` (angle, 256 steps/turn) and `$7F0012,X` (diameter ≤ 255). Offset magnitude ≈ diameter/2 via `sine_table_8bit` / `signed_cosine_table_8bit` (bank `$01`) and `Multiply8x8Unsigned` (bank `$02`). Angle 0 = below centre; increasing angle turns counter-clockwise on screen.
+
+**21 JSL sites** in 11 files (16 first entry, 5 second), including COP `$6D` (`SpiralStep`), `attack_ability_system`, fire sprites, statue inventory, and Castoth orbs.
 
 #### Algorithm
 
 ```
-1. LDY $0000           ; Reference actor index
-2. LDA $14,Y → center_x; LDA $16,Y → center_y
-3. LDA $7F0010,X       ; Orbit angle (0–255)
-4. TAX; LDA sin_table,X → A
-5. JSR Multiply8x8Unsigned with $7F1010,X (diameter) → delta_x
-6. LDA cos_table,X → A
-7. JSR Multiply8x8Unsigned with diameter → delta_y
-8. Add deltas to center → store in actor $14/$16
-9. RTL
+1. (First entry only) Copy ref actor $14/$16 → caller $14/$16
+2. LDA orbitAngle byte → sin → × diameter >> 8 → add to $14
+3. LDA orbitAngle byte → cos → × diameter >> 8 → add to $16
+4. RTL
 ```
 
 #### Variables
 
 | Symbol | Role |
 |--------|------|
-| `$0000` | Reference actor index (orbit center) |
-| `$7F0010,X` | Orbit angle byte |
-| `$7F1010,X` | Orbit diameter/radius |
-| `$14`, `$16` | Output position (also input center via ref actor) |
+| Y (first entry) | Reference actor slot for centre copy |
+| `$7F0010,X` | Orbit angle (low byte used) |
+| `$7F0012,X` | Orbit diameter (low byte used) |
+| `$14`, `$16` | Centre + result position |
 | `sine_table_8bit` | Sin lookup table (bank `$01`) |
 | `signed_cosine_table_8bit` | Cos lookup table (bank `$01`) |
 
@@ -206,26 +194,27 @@ Used by:
 
 #### Description
 
-Sin/cos offset variant using separate X and Y angle bytes instead of a single angle + reference actor. Reads angle X from `$7F0010,X` and angle Y from `$7F0012,X`, applies independent sin/cos lookups with separate diameter values `$7F1010,X` (X radius) and `$7F1012,X` (Y radius).
+Elliptical offset: **adds** to the caller's current `$14`/`$16` (write the orbit centre there before each call). Four consecutive bytes at `$7F0010,X`: **+0** X angle, **+1** Y angle, **+2** X diameter, **+3** Y diameter (`orbitAngle` / `orbitDiameter` are the word views of the two pairs).
 
-Used for elliptical orbits and Lissajous-style motion patterns where X and Y oscillate at different rates. Called from ~3 boss/actor scripts that need non-circular orbital paths.
+X offset uses `sine_table_8bit[angleX]` × diameterX; Y uses `signed_cosine_table_8bit[angleY]` × diameterY (signed multiply, >> 8).
+
+**3 JSL call sites:** two in `gw8A_sand_fanger`, one in `awB1_goldcap`.
 
 #### Algorithm
 
 ```
-1. LDA $7F0010,X → sin lookup → × $7F1010,X → delta_x
-2. LDA $7F0012,X → cos lookup → × $7F1012,X → delta_y
-3. Add deltas to current $14/$16
-4. RTL
+1. sin(angleX) × diamX → add to $14
+2. cos(angleY) × diamY → add to $16
+3. RTL
 ```
 
 #### Cross-References
 
 | Direction | Symbol | Notes |
 |-----------|--------|-------|
-| Sin/cos tables | `sine_table_8bit/495` | Bank `$01` |
+| Sin/cos tables | `sine_table_8bit`, `signed_cosine_table_8bit` | Bank `$01` |
 | Math helper | `Multiply8x8Unsigned` | Bank `$02` |
-| Callers | ~3 boss/actor scripts | JSL |
+| Callers | `gw8A_sand_fanger` (×2), `awB1_goldcap` | JSL |
 
 ---
 
@@ -256,7 +245,7 @@ Dead entry stub between `ApplyOrbitalOffsetFromRef` (`$F3C9`) and `ApplyOrbitalO
 | COP `$6D` SpiralStep | `ApplyOrbitalOffsetFromRef` | JSL |
 | Castoth boss | `ApplyOrbitalOffsetFromRef` | JSL |
 | Fire sprite actors | `ApplyOrbitalOffsetFromRef` | JSL |
-| Elliptical orbit scripts (~3) | `ApplyOrbitalOffsetXY` | JSL |
+| `gw8A_sand_fanger`, `awB1_goldcap` | `ApplyOrbitalOffsetXY` | JSL (3 sites) |
 
 ### External Dependencies
 
@@ -275,8 +264,8 @@ Dead entry stub between `ApplyOrbitalOffsetFromRef` (`$F3C9`) and `ApplyOrbitalO
 | Functions documented | 7 (6 live + 1 dead) |
 | Camera drift span | `$CF8E`–`$D068` (250 bytes + 32-byte table) |
 | Orbital math span | `$F3B3`–`$F48F` (220 bytes) |
-| Highest reference count | `ApplyOrbitalOffsetFromRef` (15+) |
-| Block grouping | `camera_drift` (3 functions + `binary_00D068`) |
+| Highest reference count | `ApplyOrbitalOffsetFromRef` (21 JSL) |
+| Block grouping | `camera_drift` (3 functions + `camera_drift_offsets`) |
 
 ---
 

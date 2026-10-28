@@ -208,29 +208,29 @@ None.
 
 ---
 
-### incan_ruins_transform_palette
+### gold_ship_wreck_palette
 
 **Address:** `$00B671`
 
 #### Purpose
 
-Multi-phase palette transformer for Angkor Wat / Incan Ruins sequences. Progresses through three visual states driven by flags `#4D` (mid-game transform) and `#52` (final crystal phase):
+Palette-phase thinker for **Gold Ship** wreck scenes only. Spawned in scene thinker lists for `$2B` (wreck), `$2D` (wreck interior), and `$2F` (adrift). Flags `#4D` and `#52` are set and cleared by `dc2F_adrift` (also `gs2E_sleep`, `gs2B_erik`). **Phase is chosen once at spawn** — the loops never re-test the flags.
 
-1. **Default:** Infinite loop on bundle `#1A` (ruins ambient)
-2. **Phase 2** (flag `#4D`): Alternates bundles `#34` and `#33` with internal `#FF` latch
-3. **Phase 3** (flag `#52`): Kills adjacent thinker slots, fills WRAM palette buffer `$7F0A40`–`$7F0A5F` with `#$1421`, sets `$7F0A00` ← `#$1442`, cycles bundle `#36`
+1. **Default:** Infinite `PaletteStart` / `PaletteStep` on bundle `#1A` (12-strip water-glint cycle on palette 2 colours `$21`–`$2C`)
+2. **Flag `#4D`:** Bundle `#34` plays **once**, then bundle `#33` loops while latch `#FF` stays set (`GoldShipWreckPaletteFlag4D`)
+3. **Flag `#52`:** Kills the first two thinkers in the pool list, fills CGRAM palette 2 at `$7F0A40`, sets `$7F0A00`, then cycles bundle `#36` (`GoldShipWreckPaletteFlag52`)
 
 #### Scene Usage
 
-| Scene | Index | Context |
-|-------|-------|---------|
-| Incan Ruins exterior | 34 (`thinker_0CE87F`) | Ruins exploration |
-| Incan Ruins interior | 35 (`thinker_0CE890`) | Inner chambers |
-| Angkor complex | 36 (`thinker_0CE8A1`) | Multi-parallax ruin layout |
+| Scene ID | Context |
+|----------|---------|
+| `$2B` | Gold Ship wreck |
+| `$2D` | Gold Ship wreck interior |
+| `$2F` | Adrift sequence (re-spawns each "day" with current flags) |
 
 #### Dependencies
 
-None. Phase 3 uses direct WRAM palette buffer writes (`$7F0A40`, `$7F0A00`) rather than COP palette commands.
+None. Flag `$52` path uses direct WRAM palette buffer writes (`$7F0A40`, `$7F0A00`).
 
 ---
 

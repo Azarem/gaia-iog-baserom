@@ -171,8 +171,8 @@ Each tile byte ×16 compared to player X; Y compared against **player Y − 8** 
 
 ```asm
 ; actors/overworld_exit.asm
-COP [BranchIfPlayerInAbsTiles] ( #2D, #2E, #2F, #30, &OverworldExitItoryVillageEnter )
-COP [BranchIfPlayerInAbsTiles] ( #06, #1C, #08, #1E, &OverworldExitRuinsEntranceEast )
+COP [BranchIfPlayerInAbsTiles] ( #2D, #2E, #2F, #30, &OverworldExitItoryVillageStage )
+COP [BranchIfPlayerInAbsTiles] ( #06, #1C, #08, #1E, &OverworldExitRuinsEntranceStage )
 ```
 
 Also common for room-local triggers (doors, cutscenes) where map tile coords are fixed.

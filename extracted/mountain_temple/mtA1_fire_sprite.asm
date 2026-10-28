@@ -328,7 +328,7 @@ code_0B9A9D {
     STA $14
     LDA $animScratch+2, X
     STA $16
-    JSL $@ApplyOrbitalOffsetFromRef.code_00F3D3
+    JSL $@ApplyOrbitalOffsetFromRef.ApplyOrbitalOffsetFromRef_AddToCurrent
     LDA $orbitDiameter, X
     SEC 
     SBC #$0002
@@ -356,7 +356,7 @@ code_0B9A9D {
     STA $14
     LDA $animScratch+2, X
     STA $16
-    JSL $@ApplyOrbitalOffsetFromRef.code_00F3D3
+    JSL $@ApplyOrbitalOffsetFromRef.ApplyOrbitalOffsetFromRef_AddToCurrent
     LDA $orbitDiameter, X
     CLC 
     ADC #$0008

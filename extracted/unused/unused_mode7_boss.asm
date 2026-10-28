@@ -1840,7 +1840,7 @@ code_09B8F3 {
     STA $14
     LDA $moveYAlt, X
     STA $16
-    JSL $@ApplyOrbitalOffsetFromRef.code_00F3D3
+    JSL $@ApplyOrbitalOffsetFromRef.ApplyOrbitalOffsetFromRef_AddToCurrent
     PLA 
     SEC 
     SBC $16

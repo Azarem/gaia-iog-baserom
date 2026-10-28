@@ -1,13 +1,13 @@
-; Unreferenced shortened attack trail effect, a reduced variant of SpawnAttackTrailEffect.
+; Unreferenced shortened variant of SpawnDamageNumberEffect (formerly AttackTrailShort_unused).
 ; 
-; Composes only 4 upward digit-sprite frames plus 32 more (vs 16+16), with a smaller Y offset ($FFF8). Would have rendered a shorter floating damage number trail. Never called by combat_collision or any actor script.
+; Composes only 4 upward digit-sprite frames plus 32 more (vs 16+16), with a smaller Y offset ($FFF8). Would have rendered a shorter floating damage number. Never called by combat_collision or any actor script.
 ---------------------------------------------
 
 ?INCLUDE 'oam_digit_compose'
 
 ---------------------------------------------
 
-AttackTrailShort_unused {
+DamageNumberShort_unused {
     LDA #$3200
     STA $0E
     LDA $16

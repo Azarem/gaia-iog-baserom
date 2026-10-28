@@ -77,8 +77,8 @@ Set destination in WRAM or via position ops, then slow `[22]`:
 COP [MoveToward] ( #1F, #01 )
 ```
 
-**Pattern B — Grid snap helper (max speed, 1 tick)**  
-`EnemyPositionSnap` writes rounded tile centers to `moveXAlt`/`moveYAlt` and calls `[22]` until aligned:
+**Pattern B — Grid snap helper (1 px/frame, loop until aligned)**  
+`EnemyPositionSnap` is the RTI target of COP **`SnapToGrid`**. It writes rounded tile centers to `moveXAlt`/`moveYAlt` and loops **`MoveToward`** until aligned. Operand **`#FF`** keeps the current animation; **`#01`** is **1 pixel per frame**, not “max speed” or a one-tick move:
 
 ```asm
 ; functions/EnemyPositionSnap.asm

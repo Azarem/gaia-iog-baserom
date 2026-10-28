@@ -373,7 +373,7 @@ After gravity or special movement corrupts durations — Dark Gaia / space fligh
 COP [ReloadMoveDurations]
 ```
 
-Particle rain spawner reapplies velocity each tick (`actors/particle_rain_spawner.asm`).
+The unused **`unused_particle_rain_spawner`** child calls **`ReloadMoveDurations`** once per 21-tick animation pass (not every frame) so movement chains stay armed after **`AnimOnce`** clears `$2C`/`$2E` (`actors/unused_particle_rain_spawner.asm`).
 
 ##### Parameters & contract
 

@@ -6,7 +6,7 @@
 **Priority:** All thinkers use priority `#08`  
 **Related:** [`thinkers-palette.md`](thinkers-palette.md), [`thinkers-hdma.md`](thinkers-hdma.md), [`system-core.md`](system-core.md)
 
-These thinkers configure SNES PPU hardware registers (`$CGADSUB`, `$COLDATA`, `$TM`, `$TS`, `$W12SEL`), set up DMA for menu screens, run boot logo palette sequences, and implement the global ambient/interaction dispatcher present in nearly every field scene.
+These thinkers configure SNES PPU hardware registers (`$CGADSUB`, `$COLDATA`, `$TM`, `$TS`, `$W12SEL`), set up DMA for menu screens, run boot logo palette sequences, and implement the per-scene form-palette + talk-interaction dispatcher (`global_ambient_dispatcher`) present in most field scenes.
 
 ---
 
@@ -285,66 +285,55 @@ None.
 
 #### Purpose
 
-Hub thinker present in nearly every field scene. Combines two responsibilities:
+Per-scene hub thinker (usually the last slot). Two jobs:
 
-1. **Ambient palette dispatch:** `SwitchCase` on `$0AD4` (current character/form index) selects one of four palette bundles (`#0B`, `#0C`, `#23`, `#0C`) for character-specific color grading during gameplay.
+1. **Form palette (spawn only):** `SwitchCase` on `characterForm` (`$0AD4`: 0 Will, 1 Freedan, 2 Shadow) runs `PaletteStart` / `PaletteStep` on bundle `#0B`, `#0C`, or `#23`. All write OBJ palette 0 colours `$81`–`8F` (the player's sprite palette). The fourth table entry is never reached. Not re-run on mid-scene form changes.
 
-2. **Player-proximity interaction:** After palette step, checks `$0656` bit 15 (`#$8000`). When set, calls `GetPlayerFacingDirection` (direction probe) and scans all actors within 16×16 pixels of the player. If a matching actor with a linked script (`$7F000A,X` ≠ 0) is found and the player presses a direction button, triggers the actor's interaction script via `UpdateActorAnimation`.
+2. **Talk interaction (every frame):** Trigger is **`joypadCurrent` bit `$8000` (interact)**, not a direction press. After `GlobalAmbientInteractEntry` clears bit 11 of the thinker's `animScratch2` (`$7F000E,X`), it runs only in the main thinker pass (skipped during dialogue frame loops).
 
 #### Algorithm
 
 ```
-SwitchCase $0AD4:
-  case 0 → PaletteStart #0B → PaletteStep
-  case 1 → PaletteStart #0C → PaletteStep
-  case 2 → PaletteStart #23 → PaletteStep
-  case 3 → PaletteStart #0C → PaletteStep
+(at spawn) SwitchCase characterForm → PaletteStart #0B / #0C / #23 → PaletteStep
 
-clear thinker flag $0800 on $7F000E,X
-SetEntryExit
-if $0656 bit 15 == 0 → RTL
-
-direction = GetPlayerFacingDirection()
-find nearest actor within 16px of player in facing direction
-if found and button pressed:
-  DMA sound #002F to APUIO
-  call UpdateActorAnimation (interaction handler)
-  spawn deferred script callback
-else:
-  toggle $0656/$0658 interaction flags
+each frame:
+  clear animScratch2 bit $0800 (drop out of Light runners)
+  if joypadCurrent interact bit clear → RTL
+  GetPlayerFacingDirection → carry set = invalid facing → RTL
+  build probe point 1 px in front of player (GlobalAmbientProbeDown/Up/Left/Right)
+  scan actors: smallest |dx|+|dy| with |dx|,|dy| each < $10, Flags10 bit $1000 set
+  if target has chatPtr ($7F000A):
+     in range → turn, optional MVN snapshot ($2F byte count), run chat, restore
+     at/behind → run chat directly (or defer if Flags12 bit $0200)
+  clear interact in joypadCurrent; latch into joypadHeld
 RTL
 ```
 
+The talk path's **`$2F` is the MVN byte count** (actor + extended snapshot to `$7E:3410`), not an APU sound. `GlobalAmbientTalkWithSnapshot` / `GlobalAmbientTalkRestoreActor` wrap the chat routine.
+
 #### Scene Usage
 
-Present as the final slot in virtually every multi-thinker scene set, and as the sole thinker in minimal scenes (`thinker_0CE7E5`). Examples:
-
-| Pattern | Scenes | Role |
-|---------|--------|------|
-| Solo dispatcher | 0, 9, 11–13, 16–19, 24, 27, 28, 31 | Ambient + interaction only |
-| Last slot in set | 1–8, 10, 14–15, 20–26, 29–30, 32–36, 38+ | Character palette + NPC interaction |
-
-The `$0AD4` character index drives Will/Freedan/Shadow palette variants automatically.
+**59** spawn-list entries in `scene_thinkers.asm`, covering **173 of 184** scenes that have thinkers (typically the last slot).
 
 #### Dependencies
 
 | Symbol | Type | Purpose |
 |--------|------|---------|
 | `ComposeDigitSprites_AtCursor` | `?INCLUDE` | Shared actor/engine constants |
-| `$player_actor` | WRAM label | Player actor index for proximity scan |
-| `GetPlayerFacingDirection` | Far function | Direction probe from joypad input |
-| `UpdateActorAnimation` | Far function | Actor interaction script executor |
+| `$player_actor` | WRAM label | Player position for probe |
+| `GetPlayerFacingDirection` | Far function | Facing 0 down / 1 up / 2 left / 3 right |
+| `UpdateActorAnimation` | Far function | Stage talk facing frame |
 
 #### Internal Sub-functions
 
-| Address | Name | Purpose |
-|---------|------|---------|
-| `$00BF99`–`$00BFAE` | SwitchCase targets | Character-specific palette starts |
-| `$00BFD4` | Proximity handler | Direction-based actor search |
-| `$00C133` | Actor scan | Find nearest qualifying actor within 16px |
-| `$00C182` | Direction map | Map facing direction to animation frame |
-| `$00C0DE` | Flag cleanup | Clear interaction enable flags |
-| `$00C0ED` | Deferred callback | Post-interaction script continuation |
+| Label | Purpose |
+|-------|---------|
+| `GlobalAmbientFacingValid` | Carry-clear path after facing read |
+| `GlobalAmbientProbeDown/Up/Left/Right` | 1 px probe from player |
+| `GlobalAmbientFindActorInFront` | Nearest qualifying actor |
+| `GlobalAmbientTalkWithSnapshot` / `GlobalAmbientTalkRestoreActor` | MVN save/restore around chat |
+| `GlobalAmbientDeferToScript` | Skip turn when Flags12 `$0200` set |
+| `GlobalAmbientClearTalkInput` | Consume interact press |
 
 ---
 
@@ -357,7 +346,7 @@ Most field scenes follow a standard thinker slot layout:
 | `#00` | Scene-specific effect | Palette cycler, HDMA wave, fog, etc. |
 | `#01` | `scanline_band_hdma_thinker` or second ambient | Scanline HDMA bands / secondary palette |
 | `#02` | Additional effect (optional) | HDMA, scroll brightness, etc. |
-| Last | `global_ambient_dispatcher` | Character palette + NPC interaction |
+| Last | `global_ambient_dispatcher` | Form OBJ palette (spawn) + interact talk |
 
 System scenes use dedicated layouts:
 

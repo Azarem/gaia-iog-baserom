@@ -735,7 +735,7 @@ DiagRedirectToNorth {
 ; 2. the collision-layer byte at X (the map index left by the last probe or MapCell step) has a nonzero high nibble, i.e. an actor's solid mark ($F0 written by MarkSolidHere);
 ; 3. the Y sub-tile offset (($26 >> 2) & $0F) is 0.
 ; 
-; Otherwise: offset >= 4 and ProbeFutureBL below $0E calls NudgeToLowerGrid on $26; offset < $0B and ProbeFutureTL below $0E calls NudgeToUpperGrid on $26 (the two windows overlap for offsets 4 to 10). Returns carry clear when a nudge happened.
+; Otherwise: offset >= 4 and ProbeFutureBL below $0E calls NudgeAxisPlus8Clamped on $26; offset < $0B and ProbeFutureTL below $0E calls NudgeAxisMinus8Clamped on $26 (the two windows overlap for offsets 4 to 10). Returns carry clear when a nudge happened.
 
 AutoAlignYToGrid {
     PHP                   ; AutoAlignYToGrid: Y-axis auto-align before the X snap of a wall collision
@@ -758,20 +758,20 @@ AutoAlignYToGrid {
     CMP #$000E
     BCS loc_02DFDB
     LDX #$0026
-    JSR $&player_move_main.NudgeToLowerGrid ; Lower-grid Y nudge succeeded → return carry clear
+    JSR $&player_move_main.NudgeAxisPlus8Clamped ; Lower-grid Y nudge succeeded → return carry clear
     PLP 
     CLC 
     RTS 
 
   loc_02DFDB:
     LDA $04
-    CMP #$000B            ; Offset < $0B: probe FutureTL — passable (< $0E) → NudgeToUpperGrid on $26
+    CMP #$000B            ; Offset < $0B: probe FutureTL — passable (< $0E) → NudgeAxisMinus8Clamped on $26
     BCS loc_02DFF3
     JSR $&tile_collision.ProbeFutureTL
     CMP #$000E
     BCS loc_02DFF3
     LDX #$0026
-    JSR $&player_move_main.NudgeToUpperGrid ; Upper-grid Y nudge succeeded → return carry clear
+    JSR $&player_move_main.NudgeAxisMinus8Clamped ; Upper-grid Y nudge succeeded → return carry clear
     PLP 
     CLC 
     RTS 

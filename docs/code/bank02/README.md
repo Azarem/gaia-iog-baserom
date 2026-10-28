@@ -379,7 +379,7 @@ player_character (player actor spawn chain)
   ├─ COP [SpawnBefore] → AttackSystemEntry               ← attack_ability_system
   ├─ COP [SpawnAfter]  → PlayerMoveController            ← player_move_controller
   ├─ COP [SpawnAfter]  → SlopePhysicsEntry               ← slope_ramp_physics
-  └─ COP [SpawnLastRel]→ ShadowShimmerInit            ← shadow_shimmer
+  └─ COP [SpawnListAppend] (flags `$2800`) → ShadowShimmerInit  ← shadow_shimmer
 
 PlayerMoveController
   └─ JSL → PlayerMovementTick                             ← player_move_main
@@ -422,7 +422,8 @@ Used throughout the movement physics engine and collision probing:
 
 ### 9.1 Five-Actor Player Architecture
 
-The player character uses a **modular multi-actor design** (see [player-character.md](player-character.md)):
+The player character uses a **modular multi-actor design** (see [player-character.md](player-character.md)). After `PlayerCharacterDef` init, the actor linked list is: **attack_ability_system** (SpawnBefore) → **player_character** → **slope_ramp_physics** → **player_move_controller**, then **shadow_shimmer** appended with `SpawnListAppend` (flags `$2800`). Roles:
+
 1. **player_character** — state machine (idle, walk, climb, attack)
 2. **player_move_controller** — physics pipeline (joypad → velocity → collision)
 3. **slope_ramp_physics** — terrain physics (slopes, deceleration curves)

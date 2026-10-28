@@ -418,6 +418,7 @@ thinker-spawn < param, @thinker_def_address >
 | Pointer array entries | 256 |
 | Unique thinker_spawn blocks | 70 |
 | Total thinker-spawn entries | 204 |
+| Scenes with thinker lists | 173 of 184 (59 shared `global_ambient_dispatcher` lists) |
 | Unique thinker definitions referenced | 46 |
 | `?INCLUDE` directives | 45 (thinker definition files + 2 comet thinkers) |
 
@@ -427,7 +428,7 @@ thinker-spawn < param, @thinker_def_address >
 
 | Thinker | Uses | Purpose |
 |---------|------|---------|
-| `global_ambient_dispatcher` | 59× | Default ambient lighting system. Present in almost every scene. |
+| `global_ambient_dispatcher` | 59× | Loads player OBJ palette 0 once at spawn; interact-bit talk probe each frame (59 spawn lists). |
 | `ambient_palette_cycler` | 59× | Animated palette rotation with configurable palette index. Handles water shimmer, lava glow, torch flicker, crystal sparkle, etc. Parameter selects which palette rows to cycle. |
 | `scanline_band_hdma_thinker` | 30× | Per-scanline HDMA band builder (scroll bands, constant bands, window rectangles, COLDATA/CGADSUB). Spawn parameter selects a `parallax_scroll_table` type index (e.g., `#1E` = Great Wall, `#03` = world map, `#1D` = Seaside rooms). |
 
@@ -436,7 +437,7 @@ thinker-spawn < param, @thinker_def_address >
 | Thinker | Uses | Purpose |
 |---------|------|---------|
 | `sine_hdma_ending_wave` | 5× | Sinusoidal HDMA wave distortion for ending/Babel sequences |
-| `incan_ruins_transform_palette` | 3× | Incan Ruins palette transformation effect (Larai Cliff area) |
+| `gold_ship_wreck_palette` | 3× | Gold Ship wreck scenes `$2B`/`$2D`/`$2F`; palette phases from flags `$4D`/`$52` |
 | `sine_hdma_slow_wave` | 2× | Slow water wave HDMA distortion (Gold Ship, Babel Tower) |
 | `sine_hdma_dual_channel` | 2× | Dual-channel wavy distortion (Seaside Palace, Angel Village river) |
 | `ending_comet_dma_setup` | 2× | DMA initialization for comet/ending scenes |
@@ -968,9 +969,9 @@ Key structural patterns:
 
 The thinker table gives each area its visual identity. The 70 unique
 thinker_spawn blocks map to 46 distinct thinker definitions. Two thinkers
-dominate: `global_ambient_dispatcher` (59 scenes) and `ambient_palette_cycler`
-(59 scenes with 90+ individual palette entries) provide the baseline lighting
-and animation for nearly every scene.
+dominate: `global_ambient_dispatcher` (59 spawn lists covering 173 of 184
+scenes with thinkers) and `ambient_palette_cycler` (59 lists with 90+ individual
+palette entries) provide form palette and ambient colour cycling.
 
 Area-specific thinkers create the game's distinctive visual moods:
 - **Mu** scenes all share `mu_tint_and_wave` for the underwater tint

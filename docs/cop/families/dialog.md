@@ -84,7 +84,7 @@ The renderer processes wide-string bytecode (`[DEF]`, `[N]`, `[END]`, etc.) and 
 Every standard NPC line, sign, and cutscene subtitle.
 
 ```asm
-COP [PrintDialogString] ( &dialogstring_0BF010 )  ; actors/debug_man.asm:45
+COP [PrintDialogString] ( &dialogstring_0BF010 )  ; actors/debug_man.asm (DebugManInteract)
 COP [PrintDialogString] ( &dialogstring_09CF19 )  ; incan_ruins/incan_ruins_entrance/ir1C_kara.asm:37
 COP [PrintDialogString] ( &dialogstring_08ACE0 )  ; dao/dao/daC3_jackal_girl.asm:23
 ```
@@ -93,7 +93,7 @@ With choices:
 
 ```asm
 COP [PrintDialogString] ( &dialogstring_0BF010 )
-COP [DialogueOptions] ( #04, #00, &code_list_0BEE4E )
+COP [DialogueOptions] ( #04, #00, &DebugMenuTable1 )
 ```
 
 ##### Parameters & contract
@@ -145,16 +145,16 @@ Cancel / B-button behavior is implemented inside **`MenuSelectionHandler`** (tab
 
 ##### How it is used
 
-Debug menus, yes/no prompts, and multi-branch NPC trees.
+Debug menus, yes/no prompts, and multi-branch NPC trees. The unused **`debug_man`** actor (`DebugManInteract`) chains seven menus of four rows each (21 warp destinations plus cancel); every table has five **`&Code`** entries because **`DialogueOptions`** returns row index + 1 and index 0 is cancel (`DebugManQuit`).
 
 ```asm
 COP [PrintDialogString] ( &dialogstring_0BF010 )
-COP [DialogueOptions] ( #04, #00, &code_list_0BEE4E )  ; actors/debug_man.asm:45-46
+COP [DialogueOptions] ( #04, #00, &DebugMenuTable1 )  ; debug_man.asm (DebugManInteract)
 
-code_list_0BEE4E [
-  &DebugManQuit   ;00 — cancel
-  &code_0BEE58   ;01
-  &code_0BEED5   ;02
+DebugMenuTable1 [
+  &DebugManQuit   ;00 — cancel (B button)
+  &DebugMenuLevel2   ;01 — "Others"
+  &DebugWarpGreatWall   ;02
   …
 ]
 ```

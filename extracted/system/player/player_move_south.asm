@@ -414,7 +414,7 @@ SouthSlideJumpShim {
 ---------------------------------------------
 ; Corner assist for a blocked south step: nudge X by 2 pixels toward the open column. Returns carry CLEAR when X was nudged, carry SET when nothing happened.
 ; 
-; Gates: $AA bit $0040 (the horizontal phase ran this tick), an actor solid mark in the collision byte at X, or n = 0 each return carry set. n = ((X >> 2) - 8) AND $0F is the left-edge offset inside its 16-pixel column (X is the centre, the left edge is X - 8). n >= 6: east nudge, if FutureBR is passable (< $0E): $22 is shifted by -$20 so the helper works on the left edge, NudgeToLowerGrid adds 8 sub-pixels, then +$20 restores the reference. n <= 8 (also when the east test failed): west nudge, if FutureBL is passable, through NudgeToUpperGrid (-8 sub-pixels). The old text had the ranges as '6-8' and '1-5'.
+; Gates: $AA bit $0040 (the horizontal phase ran this tick), an actor solid mark in the collision byte at X, or n = 0 each return carry set. n = ((X >> 2) - 8) AND $0F is the left-edge offset inside its 16-pixel column (X is the centre, the left edge is X - 8). n >= 6: east nudge, if FutureBR is passable (< $0E): $22 is shifted by -$20 so the helper works on the left edge, NudgeAxisPlus8Clamped adds 8 sub-pixels, then +$20 restores the reference. n <= 8 (also when the east test failed): west nudge, if FutureBL is passable, through NudgeAxisMinus8Clamped (-8 sub-pixels). The old text had the ranges as '6-8' and '1-5'.
 
 AutoAlignEW_South {
     REP #$20
@@ -444,7 +444,7 @@ AutoAlignEW_South {
     SEC 
     SBC #$0020
     STA $00, X
-    JSR $&player_move_main.NudgeToLowerGrid ; NudgeToLowerGrid: +8 sub-pixels (2 px east), snapped when it would cross a $40 boundary
+    JSR $&player_move_main.NudgeAxisPlus8Clamped ; NudgeAxisPlus8Clamped: +8 sub-pixels (2 px east), snapped when it would cross a $40 boundary
     LDA $00, X
     CLC 
     ADC #$0020            ; Undo the -$20 reference shift; the nudge itself stays in $22
@@ -464,7 +464,7 @@ AutoAlignEW_South {
     SEC 
     SBC #$0020
     STA $00, X
-    JSR $&player_move_main.NudgeToUpperGrid ; NudgeToUpperGrid: -8 sub-pixels (2 px west)
+    JSR $&player_move_main.NudgeAxisMinus8Clamped ; NudgeAxisMinus8Clamped: -8 sub-pixels (2 px west)
     LDA $00, X
     CLC 
     ADC #$0020

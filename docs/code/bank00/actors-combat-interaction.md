@@ -40,44 +40,42 @@ These actors are spawned at runtime rather than placed in most scenes. They impl
 
 #### Description
 
-Spawned when the player or an enemy takes a hit. Applies directional knockback, manages stun timer, and on completion either restores the target's AI script or returns the player to normal control (`PlayerIdleEntry`). Spawned by `ApplyPlayerHitstun` (`$C397`) via `SpawnLastRel @HitStaggerMain` with flags `$2400`.
+Spawned when the player or an enemy takes a hit. Applies one-axis knockback for 16 frames by moving the controller actor (collision-checked) and syncing the victim's position, then either returns the **player** to `PlayerIdleEntry` (`HitStaggerReleasePlayer`) or resolves the **enemy** hit/death callbacks (`HitStaggerResolveHit`). Spawned by `ApplyPlayerHitstun` via `SpawnListAppend @HitStaggerMain` with flags `$2400` (`$2000` script-driven + `$0400` player victim).
 
-The block spans 7 linked parts with internal `$&` references. Entry point `HitStaggerMain` reads knockback direction from a 3-deep stack (`PEA` chain), selects animation via `movement_delta_table`, and delegates to `HitStaggerDirection` for the movement loop.
+The block spans 7 linked parts with internal `$&` references. Entry point `HitStaggerMain` decodes the direction code in `$28` (from the spawner; not a stack) and loads a `movement_delta_table` curve from knockback tier `free101C`, then enters `HitStaggerSlideLoop`.
 
 #### Parts
 
 | Part | Address | Name (ASM) | Role |
 |------|---------|------------|------|
 | Entry | `$D877` | `HitStaggerMain` | Init: copy victim pos, read direction stack, start knockback |
-| Loop | `$D904` | `HitStaggerDirection` | 16-frame position sync loop; collision probe via `HitStaggerCheckKnockbackDistance` |
-| Return | `$D9EB` | `HitStaggerReturnAI` | Restore player AI or `$FFF4` stun timer; clear joypad mask |
+| Loop | `$D904` | `HitStaggerSlideLoop` | 16-frame position sync loop; collision probe via `HitStaggerCheckKnockbackDistance` |
+| Return | `$D9EB` | `HitStaggerReleasePlayer` | Player only: `PlayerIdleEntry`, shorten iframe counter, reveal D-pad |
 | Probe | `$DA13` | `HitStaggerCheckKnockbackDistance` | Distance threshold check ($30/$20/$40 based on `$7F101C`) |
-| Flag | `$DA41` | `HitStaggerKnockbackCallbackPass` | Carry set/clear from compare result |
+| Flag | `$DA41` | `HitStaggerZeroToCarry` | Carry set/clear from compare result |
 | Dir | `$DA47` | `HitStaggerApplyKnockbackDelta` | Map direction index → `movement_delta_table` offset |
 | Apply | `$DA66` | `HitStaggerStoreMovementDelta` | Write `$2C`/`$2E` velocity; set axis flag `$26` |
 
 #### Algorithm (HitStaggerMain)
 
 ```
-1. If victim $7F002A bit $0020: skip $10 bit $0008 set
-2. Set $12 bit $0008 (stagger active)
-3. If $12 bit $0010 (already in stagger): WaitByte #$0F, check $10 bit $0400
-     → AI restore path or player return path
-4. Copy victim $14/$16 to stagger actor; save $7F101C
-5. Pop direction from 3-deep stack (0=N, 1=S, 2=E, 3=W variants)
-6. JSR HitStaggerApplyKnockbackDelta → load velocity from movement_delta_table
-7. Enter HitStaggerDirection loop
+1. Set $10 bit $0008 (collision-checked movement) unless victim extendedFlags $0020
+2. Set $12 bit $0008 (movement request)
+3. If $12 bit $0010 (stagger-immune) or direction code >= 4: WaitByte #$0F → ReleasePlayer or ResolveHit
+4. Save victim start X/Y in orbitAngle/orbitDiameter; copy knockback tier free101C
+5. Decode direction code in $28 (0=south … 3=east) → vertical or horizontal delta chain
+6. JSR HitStaggerApplyKnockbackDelta (tier 0 → curve $22 / 48 px, tier 1+ → curve $23 / 32 px)
+7. Enter HitStaggerSlideLoop
 ```
 
-#### Algorithm (HitStaggerDirection)
+#### Algorithm (HitStaggerSlideLoop)
 
 ```
-1. SetEntryExit; 16-frame LoopInit syncing victim position
-2. If $10 bit $0400 (enemy hit): restore AI via saved script ptr
-3. If $10 bit $0008 (player hit): probe distance via HitStaggerCheckKnockbackDistance
-4. On axis alignment: zero victim $0008, set stun $0028 ← $FFF4
-5. On timeout: restore saved script ptr or StandardEnemyDefeatHandler
-6. Die
+1. SetEntryHereAndYield; LoopStart #$10 — copy child $14/$16 to victim each frame
+2. If $10 bit $0400 (player victim): HitStaggerReleasePlayer
+3. Else if victim lacks $10 bit $0008: HitStaggerResolveHit
+4. Else compare slide distance d to tier threshold ($30 / $20 / $40); full slide or wall cut-short cleanup
+5. HitStaggerResolveHit: onHitCallback or death path (or StandardEnemyDefeatHandler); Die
 ```
 
 #### Variables
@@ -89,7 +87,7 @@ The block spans 7 linked parts with internal `$&` references. Entry point `HitSt
 | `$7F101C` | Hit type / knockback strength selector |
 | `$7F0028` | Stun timer on victim |
 | `$7F002A` | Victim flags (bit `$0020` = special case) |
-| `$10` | Bits `$0008` (player hit), `$0400` (enemy hit) |
+| `$10` | Bit `$0008` on victim (collision movement); bit `$0400` = player victim |
 | `$2C`, `$2E` | Knockback velocity components |
 | `$26` | Axis selector (0=X, 1=Y) |
 | `movement_delta_table` | Direction → velocity lookup |
@@ -100,7 +98,7 @@ Never scene-placed. Spawned at runtime from:
 
 | Caller | Context |
 |--------|---------|
-| `ApplyPlayerHitstun` | Player damage (~12 enemy types) |
+| `ApplyPlayerHitstun` | Player damage (9 call sites in 3 enemy scripts) |
 | `ComposeDigitSprites_AtCursor` | Engine hit dispatch |
 | Enemy attack scripts | Via hit callback chain |
 
@@ -108,16 +106,16 @@ Never scene-placed. Spawned at runtime from:
 
 | Direction | Symbol | Notes |
 |-----------|--------|-------|
-| Spawned by | `ApplyPlayerHitstun` (`$C397`) | `SpawnLastRel @HitStaggerMain` |
-| Returns to | `PlayerIdleEntry` | Player normal AI (bank `$02`) |
-| Falls through to | `StandardEnemyDefeatHandler` | When enemy has no saved script |
+| Spawned by | `ApplyPlayerHitstun`, `combat_collision` | `SpawnListAppend @HitStaggerMain`; flags `$2400` or `$2000` |
+| Returns to | `PlayerIdleEntry` | Via `HitStaggerReleasePlayer` only |
+| Falls through to | `StandardEnemyDefeatHandler` | Enemy death with no death callback |
 | Includes | `player_character`, `StandardEnemyDefeatHandler`, `movement_delta_table` | |
 
 ---
 
 ## Stat Reward Actors
 
-Spawned from `StandardEnemyDefeatHandler` via `COP [SpawnLastRel]` after combat victories. Never placed directly in `scene_actors.asm`. All three stat actors call shared `RewardActorVFX` before printing their message and dying.
+Spawned from `StandardEnemyDefeatHandler.EnemyStatBonusReward` when the **last** enemy of a scene is defeated (`SpawnListAppend`, flags `$1000` after `displayModeFlags` `$0080` display filter). Never placed in `scene_actors.asm`. Each actor calls `RewardActorVFX` via `CallNear` before applying its stat change and message.
 
 ### e_hp_increase
 
@@ -125,14 +123,14 @@ Spawned from `StandardEnemyDefeatHandler` via `COP [SpawnLastRel]` after combat 
 
 #### Description
 
-Increments `$0ACA` (HP) by 1, clamping at `$0255` (597 decimal — max HP cap). Updates display delta `$0B22 ← $0ACA − $0ACE`. Hitbox stage `#0C`. Prints *"Your HP (Power) has increased!"*
+Adds 1 to max HP (`$0ACA`) and sets `hpToHeal` to new max minus current HP (`$0ACE`), refilling missing HP via `UpdateHUD`. The signed-overflow clamp at `$0255` is dead code (`BVC` skips it). Hitbox stage `#0C`. Prints *"Your HP (Power) has increased!"*
 
 #### Variables
 
 | Symbol | Role |
 |--------|------|
-| `$0ACA` | Current HP |
-| `$0ACE` | Base HP |
+| `$0ACA` | Max HP |
+| `$0ACE` | Current HP |
 | `$0B22` | HP bar delta for UI refresh |
 
 ---
@@ -143,7 +141,7 @@ Increments `$0ACA` (HP) by 1, clamping at `$0255` (597 decimal — max HP cap). 
 
 #### Description
 
-Increments `$0ADE` (STR) by 1 with `$0255` overflow clamp. Hitbox stage `#0D`. Prints *"Your STR (Strength) has increased!"*
+Increments `$0ADE` (STR) by 1 (same dead `$0255` overflow check as HP). Hitbox stage `#0D`. Prints *"Your STR (Strength) has increased!"*
 
 ---
 
@@ -153,7 +151,7 @@ Increments `$0ADE` (STR) by 1 with `$0255` overflow clamp. Hitbox stage `#0D`. P
 
 #### Description
 
-Increments `$0ADC` (DEF) by 1 with `$0255` overflow clamp. Hitbox stage `#0E`. Prints *"Your DEF (Defense) has increased!"*
+Increments `$0ADC` (DEF) by 1 (same dead `$0255` overflow check). Hitbox stage `#0E`. Prints *"Your DEF (Defense) has increased!"*
 
 ---
 
@@ -163,15 +161,14 @@ Increments `$0ADC` (DEF) by 1 with `$0255` overflow clamp. Hitbox stage `#0E`. P
 
 #### Description
 
-Shared reward visual effect called by all three stat actors via `COP [CallScript]`. Sequence:
+Shared reward visual called by all three stat actors via `CallNear` (returns with `RestoreSavedPtr`). Sequence:
 
-1. Clear `$12` bit `$6000` (sprite visibility)
-2. Bounce sprite toward player (`StageSpriteLoopMoveY`, `$FF`×4 then `$FF`×3 loops)
-3. Snap sprite to player position (Y − 8)
-4. `StageMove` toward player
+1. Clear `$12` bits `$4000` / `$2000`
+2. Rise along chain `#12` (−1 px every second tick) for 4 animation passes, hover 3 passes
+3. `StageMove` / `TickMove` fly toward player (target X, player Y − 8)
+4. Set hidden bit; clear `displayModeFlags` `$0080` (unfreeze world)
 5. Play sound `$25` on channel 2
 6. `SetFlag_0300` for current scene (marks reward collected)
-7. `RestoreSavedPtr`
 
 All reward actors converge here — the VFX + flag set is identical regardless of stat type.
 
@@ -179,9 +176,9 @@ All reward actors converge here — the VFX + flag set is identical regardless o
 
 | Direction | Symbol | Notes |
 |-----------|--------|-------|
-| Called by | `e_hp_increase`, `e_str_increase`, `e_def_increase` | `CallScript &RewardActorVFX` |
+| Called by | `e_hp_increase`, `e_str_increase`, `e_def_increase` | `CallNear &RewardActorVFX` |
 | Spawned from | `StandardEnemyDefeatHandler` | Via `EnemyStatBonusReward` |
-| Also spawned from | `DarkGemDropSystem` | Dark gem variant rewards |
+| Related | `EnemyDropSystem` | Separate gem/heal pickups (`$chatPtr` `$83`–`$86`), not stat rewards |
 | Uses | `table_0EE000` | Generic reward metasprite |
 
 ---
@@ -198,9 +195,9 @@ Three handlers sharing `$@GetPlayerFacingDirection` (player direction probe). Al
 
 #### Description
 
-Gem collection interaction handler. When the player is near a dropped dark point gem and presses the action button, this handler nudges the gem toward the player at ±2 pixels per frame. **Not a push handler** — the gem drifts toward the player rather than being pushed away.
+Gem/heal pickup interaction handler. When the player is near a dropped pickup and presses L/R shoulders, this handler nudges the parent actor toward the player at ±2 pixels per frame. **Not a push handler** — the pickup drifts toward the player rather than being pushed away.
 
-Spawned as a child actor by both `DarkGemDropSystem` (enemy death gem drops) and `field_reveal_object` (scene-clear collectible gems). The parent gem actor handles the visual sprite and `$chatPtr` stat type; this handler manages only the player interaction physics.
+Spawned as a child by `EnemyDropSystem` (item ids `$83`–`$86`: 1/2/5 gems and 5 HP heal) and `field_reveal_object` (scene-clear stat gems). The parent handles the sprite and `chatPtr` item id; this handler manages only the pull interaction.
 
 Uses `GetPlayerFacingDirection` for player facing verification and half-distance (`LSR`) from player to gem as the repeat count stored in `$7F0010`. No minimum offset threshold — any facing-aligned press nudges.
 
@@ -219,7 +216,7 @@ Uses `GetPlayerFacingDirection` for player facing verification and half-distance
 
 #### Scene Usage
 
-Spawned at runtime (~12 sites including `field_reveal_object`, `DarkGemDropSystem`).
+Spawned at runtime (~12 sites including `field_reveal_object`, `EnemyDropSystem`).
 
 ---
 

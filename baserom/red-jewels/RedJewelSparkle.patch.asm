@@ -31,6 +31,6 @@ HiddenRedJewelInteract! {
     LDY $26
     LDA #$0001
     STA $0026, Y
-    COP [PrintDialogString] ( &dialogstring_00C6A6 )
+    COP [PrintDialogString] ( &HiddenRedJewelFoundString )
     COP [Die]
 }

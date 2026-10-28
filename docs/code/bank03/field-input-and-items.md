@@ -357,11 +357,11 @@ returns the displaced plate here).
 | `$0AB4` | `inventorySlots` | 16 item slots |
 | `$0AC4` | `inventoryEquippedIndex` | equipped slot index (`$FFFF` = none) |
 | `$0AC6` | `inventoryEquippedType` | equipped item type |
-| `$0ACA` | `playerMaxHp` | max HP (capped at `$55`) |
+| `$0ACA` | `playerMaxHp` | max HP (8-bit; only overflow from `$7F` stores `$55`) |
 | `$0ACE` | `playerHp` | current HP |
 | `$0AD6` | `gemCount` | gem count (capped at 999 / `$03E7`) |
-| `$0ADC` | `playerDef` | defense stat (capped at `$55`) |
-| `$0ADE` | `playerStr` | strength stat (capped at `$55`) |
+| `$0ADC` | `playerDef` | defense stat (8-bit; `$7F` overflow stores `$55`) |
+| `$0ADE` | `playerStr` | strength stat (8-bit; `$7F` overflow stores `$55`) |
 | `$0B22` | `hpToHeal` | HP recovery counter |
 
 ### Key routines
@@ -383,13 +383,13 @@ stripped (`SBC #$80`) and the value selects a stat/reward path:
 
 | Input | Effective value | Action |
 |-------|-----------------|--------|
-| `$80` | 0 | HP Up: `playerMaxHp += 1` (cap `$55`), heal flash, sound #25 |
-| `$81` | 1 | STR Up: `playerStr += 1` (cap `$55`), heal flash, sound #25 |
-| `$82` | 2 | DEF Up: `playerDef += 1` (cap `$55`), heal flash, sound #25 |
+| `$80` | 0 | HP Up: `playerMaxHp += 1`, sets `hpToHeal` to refill to new max, heal flash, sound #25 |
+| `$81` | 1 | STR Up: `playerStr += 1` (overflow from `$7F` → `$55`), heal flash, sound #25 |
+| `$82` | 2 | DEF Up: `playerDef += 1` (overflow from `$7F` → `$55`), heal flash, sound #25 |
 | `$83` | 3 | Gem +1: `gemCount += 1` (cap 999), sound #22 |
 | `$84` | 4 | Gem +2: `gemCount += 2` (cap 999), sound #22 |
 | `$85` | 5 | Gem +5: `gemCount += 5` (cap 999), sound #22 |
-| `$86+` | 6+ | Damage flash: `hpToHeal += 5`, spawn `SpawnHitSparkSprites`, sound #22 |
+| `$86+` | 6+ | Heal 5 HP: `hpToHeal += 5`, `SpawnListAppend` → `SpawnItemSparkleEffect` at calling actor, sound #22 |
 
 For HP/STR/DEF ups, `displayModeFlags` bit 7 (`$0080`) is cleared before the stat
 write, enabling the HUD update on the next frame.
@@ -397,7 +397,7 @@ write, enabling the HUD update on the next frame.
 ### Notes
 
 **Item name rendering:** `GiveItem_StoreInSlot` stores the item ID into `$0DB8`
-(item display register) and loads a dialogue string pointer from
+/`$0DB9` (item-get id words for dialogue) and loads a dialogue string pointer from
 `itemget_table_01FD24.dialogstring_01FF1F` for the "got item" message.
 `GiveItem_InventoryFull` uses `dialogstring_01FF02` for the "can't carry" message.
 Both dialogue strings are rendered by the `ConsoleStringRenderer` system, which

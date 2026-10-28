@@ -1,21 +1,26 @@
-; Jeweler Gem — the NPC who collects Red Jewels and grants progressive rewards.
+; Jeweler Gem: the Red Jewel collector NPC (Bank 08, 577187-577682). Placed with spawn parameter #01 in scenes $01 (South Cape), $32 (Freejia), $6B, $7B, $9B and $C3, one record each; every placement runs this same code.
 ; 
-; Gem appears in multiple towns throughout the game. On interaction, he displays the
-; player's current Red Jewel count and checks thresholds against event flags:
-;   Flag $E9: 3 jewels → Herb (item #06)
-;   Flag $EA: 5 jewels → DEF +1
-;   Flag $EB: 8 jewels → MaxHP +1 (+ hpToHeal for HP bar flash)
-;   Flag $EC: 12 jewels → STR +1
-;   Flag $ED: 20 jewels → Psycho Dash upgrade ($0B16 = 1)
-;   Flag $EE: 30 jewels → Dark Friar upgrade ($0B1C = 2)
-;   50 jewels → Warp to Gem's secret room (map $E9)
+; === SPAWN (code_08CEA3) ===
 ; 
-; The "Give you Red Jewels" option (code_08CF5E → JewelerCountJewels) uses BCD mode to count
-; jewel items (item #01) in the 16 inventory slots, adds them to jewelsCollected, then
-; removes all jewel items. The "See your inventory" option shows the reward list with
-; flag-based completion markers.
+; Event flag $E8 is the Solid Arm flag: sEA_solid_arm sets it, so after that optional fight Gem no longer appears (JewelerDie). The old header called it 'game complete'. Otherwise the spawn parameter in $0E picks an 8-frame animation group (all six records pass #01, which gives group 0): the animation index $28 is set to group x 8 + 2 (it is an animation index, not a sprite frame). $0E is then replaced by $3000, the OAM attribute word. Gem marks his tile solid, registers JewelerInteract as his chatPtr and idles on a bare RTL; the shared talk handler in global_ambient_dispatcher runs JewelerInteract when the player presses B facing him.
 ; 
-; If flag $E8 is set (game complete), Gem auto-dies on spawn.
+; === REWARD TIERS (JewelerInteract, JewelerCheck*) ===
+; 
+; JewelerInteract greets, prints the stored jewel count if it is non-zero and then walks the tiers in ascending order. A tier pays out when its 'given' flag is clear and jewelsCollected ($0AB0, a BCD value) has reached the threshold; each reward sets its flag and jumps to the next tier's check, so one talk can pay several tiers:
+;   3 jewels (flag $E9): Herb, item #06. If GiveItem fails the inventory-full text is printed and the talk ends without setting the flag.
+;   5 (flag $EA): playerDef + 1.
+;   8 (flag $EB): playerMaxHp + 1 and hpToHeal = 1, so UpdateHUD adds one current HP and the new point is filled. It is not an HP-bar flash.
+;   12 (flag $EC): playerStr + 1.
+;   20 (flag $ED): $0B16 = 1, the Psycho Dash upgrade level (attack_ability_system reads it: damage 5 at level 0, 10 at level 1).
+;   30 (flag $EE): $0B1C = 2, the Dark Friar upgrade level (damage 5 / 8 / 12; level 2 is the fully upgraded form).
+;   50 (no flag): warp to scene $E9, the sE9_mansion_intro scene that leads to the optional Solid Arm fight. There is no 'given' flag, so every talk with 50 or more jewels warps again; the jewels are not consumed and the menu below is never reached.
+; The dialogue string for the 8-jewel tier says 'Your Life Power will be raised' and then 'Your Strength is raised by one'; the code raises max HP, so the second sentence is a text inconsistency.
+; 
+; === MENU AND JEWEL COUNTING ===
+; 
+; After the cascade (and any payouts) Gem shows the three-option menu: Just wanted to see you / Give you Red Jewels / See your inventory. The DialogueOptions result table is indexed 0 = B cancel, 1..3 = the options in order, so cancel and option 1 share JewelerCancelReply. 'Give you Red Jewels' (JewelerGiveJewelsOption) needs at least one item #01 in the inventory; JewelerCountJewels then counts the item #01 entries of the 16 inventory slots ($0AB4) with a BCD counter held in the absolute word $0000 (WRAM $7E:0000, scratch; not the actor's own DP $00), adds it to jewelsCollected in decimal mode, removes every jewel with RemoveItem in a loop and re-runs the tier check. 'See your inventory' prints the reward list and highlights (palette 4) each tier whose flag is set.
+; 
+; JewelerGoodbye_unused ('Well, see ya. Somewhere.') and its dialogue string have no reference anywhere: dead code.
 ---------------------------------------------
 
 !gfxCacheIdxA                   0648
@@ -33,32 +38,32 @@ jeweler_gem [
   actor-def < #02, #00, #10, {
 
   code_08CEA3:
-    COP [BranchOnFlagByte] ( #E8, #01, &JewelerDie ) ; If game complete → die
-    LDA $0E               ; Spawn param: appearance variant
+    COP [BranchOnFlagByte] ( #E8, #01, &JewelerDie ) ; Flag $E8 (set by sEA_solid_arm after the Solid Arm fight): Gem is gone, die
+    LDA $0E               ; Spawn parameter (all six records pass #01, which gives 0): selects the 8-frame animation group
     ASL 
     ASL 
     ASL                   ; ×8
     CLC 
-    ADC #$0002            ; Sprite frame = variant×8 + 2
-    STA $28
+    ADC #$0002            ; +2: first animation index of the group ($28 is an animation index, not a sprite frame)
+    STA $28               ; $28 = animation index; the frame counter $2A is cleared next
     STZ $002A
     COP [SetEntryHere]
     COP [AnimOneFrame]
-    LDA #$3000
+    LDA #$3000            ; $0E = $3000: the OAM attribute word (replaces the spawn parameter)
     STA $0E
-    COP [MarkSolidHere]
-    COP [SetInteractHandler] ( &JewelerInteract )
-    COP [SetEntryHere]
+    COP [MarkSolidHere]   ; Make Gem's tile solid so the player cannot walk through him
+    COP [SetInteractHandler] ( &JewelerInteract ) ; chatPtr = JewelerInteract: run by the talk handler in global_ambient_dispatcher when the player presses B facing Gem
+    COP [SetEntryHere]    ; Idle: every later frame re-enters here and returns; Gem only reacts through the chatPtr
     RTL 
 } >
 ]
 
 ---------------------------------------------
-; Interaction entry — greet and show jewel count if > 0
+; Talk entry (the chatPtr): greeting, the jewel count if non-zero, then the tier cascade starting at code_08CED6.
 
 JewelerInteract {
     COP [PrintDialogString] ( &dialogstring_08D094 ) ; "I am the Jeweler Gem"
-    LDA $jewelsCollected
+    LDA $jewelsCollected  ; jewelsCollected ($0AB0): Red Jewels handed in so far, a BCD value
     BEQ code_08CED6       ; Skip count display if 0
     COP [PrintDialogString] ( &dialogstring_08D0C8 ) ; "I'm holding [count] Red Jewels"
 
@@ -113,10 +118,10 @@ JewelerCheck30 {
 }
 
 ---------------------------------------------
-; 50-jewel check — triggers warp to secret room
+; 50-jewel tier: no 'given' flag, so with 50 or more jewels every talk warps to scene $E9 and never reaches the menu below.
 
 JewelerCheck50 {
-    LDA $jewelsCollected
+    LDA $jewelsCollected  ; Last tier has no 'given' flag: with 50 or more jewels every talk warps and the menu is never reached
     CMP #$0050            ; Need ≥ 50 jewels (BCD)
     BCC loc_08CF47
     JMP $&JewelerSecretRoom ; → Warp to Gem's secret room
@@ -125,36 +130,42 @@ JewelerCheck50 {
     COP [PrintDialogString] ( &dialogstring_08D0F1+M ) ; "What's your business?"
 
   code_08CF4B:
-    COP [DialogueOptions] ( #03, #01, &code_list_08CF51 )
+    COP [DialogueOptions] ( #03, #01, &JewelerMenuTable ) ; Menu: Just wanted to see you / Give you Red Jewels / See your inventory; result index 0 = B cancel
 }
 
-code_list_08CF51 [
-  &code_08CF59   ;00
-  &code_08CF59   ;01
-  &code_08CF5E   ;02
+---------------------------------------------
+; DialogueOptions result table: index 0 = B cancel, 1 = 'Just wanted to see you', 2 = 'Give you Red Jewels', 3 = 'See your inventory'.
+
+JewelerMenuTable [
+  &JewelerCancelReply   ;00
+  &JewelerCancelReply   ;01
+  &JewelerGiveJewelsOption   ;02
   &JewelerShowInventory   ;03
 ]
 
-code_08CF59 {
-    COP [PrintDialogString] ( &dialogstring_08D139 )
+---------------------------------------------
+; Reply for cancel and for 'Just wanted to see you': a short farewell text, then the talk ends.
+
+JewelerCancelReply {
+    COP [PrintDialogString] ( &dialogstring_08D139 ) ; Farewell text for cancel and 'Just wanted to see you'
     RTL 
 }
 
 ---------------------------------------------
-; "Give you Red Jewels" — check if player has jewels, then collect them
+; 'Give you Red Jewels': continue at JewelerCountJewels if the inventory holds an item #01, otherwise say there are none and end the talk.
 
-code_08CF5E {
+JewelerGiveJewelsOption {
     COP [BranchIfHasItem] ( #01, &JewelerCountJewels ) ; Has jewel items?
     COP [PrintDialogString] ( &dialogstring_08D1E0 ) ; "But you don't have any"
     RTL 
 }
 
 ---------------------------------------------
-; BCD jewel counting — scan all 16 inventory slots for item #01 (Red Jewel)
+; BCD jewel counting: count the item #01 entries of the 16 inventory slots in the absolute scratch word $0000, add the count to jewelsCollected in decimal mode, remove every jewel and re-run the tier check.
 
 JewelerCountJewels {
     SED                   ; Enter BCD mode for decimal counting
-    STZ $0000             ; Counter = 0
+    STZ $0000             ; Counter in the absolute word $0000 (WRAM $7E:0000 scratch), not the actor's DP $00; reset to 0
     LDA #$0001            ; Item ID to search for
     SEP #$20              ; 8-bit accumulator for item comparison
     LDY #$0000
@@ -163,7 +174,7 @@ JewelerCountJewels {
     CMP $inventorySlots, Y ; Check slot Y for Red Jewel
     BNE loc_08CF84        ; Not a match — skip
     PHA 
-    LDA $0000             ; BCD increment counter
+    LDA $0000             ; BCD increment of the counter (decimal mode is on; at most 16 slots, so at most $16)
     CLC 
     ADC #$01
     STA $0000
@@ -174,15 +185,15 @@ JewelerCountJewels {
     CPY #$0010            ; 16 inventory slots
     BNE loc_08CF74
     REP #$20              ; 16-bit mode
-    LDA $0000             ; Add BCD count to total
+    LDA $0000             ; Counter value; the ADC below runs in decimal mode and adds it to jewelsCollected
     CLC 
     ADC $jewelsCollected
     STA $jewelsCollected
     CLD                   ; Exit BCD mode
 
   code_08CF97:
-    COP [RemoveItem] ( #01 ) ; Remove all jewel items from inventory
-    COP [BranchIfHasItem] ( #01, &code_08CF97 )
+    COP [RemoveItem] ( #01 ) ; Remove one jewel item per call; the loop repeats while one is left
+    COP [BranchIfHasItem] ( #01, &code_08CF97 ) ; More jewels left: remove the next one
     COP [PrintDialogString] ( &dialogstring_08D20F ) ; "This is a rare jewel"
     JMP $&code_08CED6     ; Re-check reward thresholds
 }
@@ -234,12 +245,18 @@ code_08CFFE {
     JMP $&code_08CF4B
 }
 
-code_08D00D {
+---------------------------------------------
+; Unreferenced: prints 'Well, see ya. Somewhere.' and returns. Dead code.
+
+JewelerGoodbye_unused {
     COP [PrintDialogString] ( &dialogstring_08D292 )
     RTL 
 }
 
-code_08D012 {
+---------------------------------------------
+; Target of the Herb GiveItem failure branch: prints 'Your inventory seems to be full' and ends the talk (the flag stays clear, so the next talk retries).
+
+JewelerInventoryFull {
     COP [PrintDialogString] ( &dialogstring_08D2AA )
     RTL 
 }
@@ -249,7 +266,7 @@ code_08D012 {
 
 JewelerRewardHerb {
     COP [PrintDialogString] ( &dialogstring_08D2D0 ) ; "You've collected more than three!"
-    COP [GiveItem] ( #06, &code_08D012 ) ; Give Herb (item #06)
+    COP [GiveItem] ( #06, &JewelerInventoryFull ) ; Give Herb (item #06)
     COP [PrintDialogString] ( &dialogstring_08D31A ) ; "You received the herb!"
     COP [SetFlagByte] ( #E9 ) ; Mark 3-jewel reward given
     JMP $&JewelerCheck5   ; Check next tier
@@ -266,14 +283,14 @@ JewelerRewardDef {
 }
 
 ---------------------------------------------
-; Reward: 8 jewels → MaxHP +1
+; Reward: 8 jewels -> max HP + 1 and hpToHeal = 1 (one HP restored), flag $EB.
 
 JewelerRewardHp {
     INC $playerMaxHp
     LDA #$0001
-    STA $hpToHeal         ; Trigger HP bar flash effect
+    STA $hpToHeal         ; hpToHeal = 1: UpdateHUD adds one current HP (fills the new max-HP point); not an HP-bar flash
     COP [SetFlagByte] ( #EB )
-    COP [PrintDialogString] ( &dialogstring_08D395 )
+    COP [PrintDialogString] ( &dialogstring_08D395 ) ; Text says Life Power, then 'Your Strength is raised by one' (inconsistent: the code raised max HP)
     JMP $&JewelerCheck12
 }
 
@@ -288,29 +305,29 @@ JewelerRewardStr {
 }
 
 ---------------------------------------------
-; Reward: 20 jewels → Psycho Dash upgrade
+; Reward: 20 jewels -> Psycho Dash upgrade level $0B16 = 1, flag $ED.
 
 JewelerRewardPsychoDash {
-    LDA #$0001            ; Enable Psycho Dash
-    STA $0B16
+    LDA #$0001            ; Level 1 (the base level is 0)
+    STA $0B16             ; $0B16 = Psycho Dash upgrade level word (read by attack_ability_system)
     COP [SetFlagByte] ( #ED )
     COP [PrintDialogString] ( &dialogstring_08D459 )
     JMP $&JewelerCheck30
 }
 
 ---------------------------------------------
-; Reward: 30 jewels → Dark Friar upgrade
+; Reward: 30 jewels -> Dark Friar upgrade level $0B1C = 2, flag $EE.
 
 JewelerRewardDarkFriar {
     LDA #$0002            ; Dark Friar power level 2
-    STA $0B1C
+    STA $0B1C             ; $0B1C = Dark Friar upgrade level (2 = fully upgraded; read by attack_ability_system)
     COP [SetFlagByte] ( #EE )
     COP [PrintDialogString] ( &dialogstring_08D4E3 )
     JMP $&JewelerCheck50
 }
 
 ---------------------------------------------
-; Reward: 50 jewels → warp to Gem's secret room
+; Reward: 50 jewels -> queue a map change to scene $E9 (sE9_mansion_intro, the entrance to the optional Solid Arm fight). No flag is set.
 
 JewelerSecretRoom {
     COP [PrintDialogString] ( &dialogstring_08D5AE ) ; "50... Follow me!!"
@@ -318,15 +335,15 @@ JewelerSecretRoom {
     STA $gfxCacheIdxA
     LDA #$0404
     STA $gfxCacheIdxB
-    COP [QueueMapChange] ( #E9, #$0330, #$03D0, #80, #$4400 ) ; Warp to secret room
+    COP [QueueMapChange] ( #E9, #$0330, #$03D0, #80, #$4400 ) ; Queue a map change to scene $E9 (sE9_mansion_intro) with spawn X $0330, Y $03D0
     RTL 
 }
 
 ---------------------------------------------
-; Game complete — Gem no longer appears
+; Flag $E8 (set by sEA_solid_arm; the old note said 'game complete'): Gem leaves the scene.
 
 JewelerDie {
-    COP [Die]
+    COP [Die]             ; Flag $E8 was set: remove Gem from the scene
 }
 
 dialogstring_08D094 `[DEF]I am the Jeweler Gem. [N]I control the Seven[N]Seas. [FIN]`

@@ -1,6 +1,6 @@
 ; Slope/ramp terrain physics and flat-ground deceleration - SpawnAfter companion of the player actor (177195-178099, Bank 02).
 ; 
-; PlayerCharacterDef spawns it with SpawnAfter, so it sits right behind the player actor in the actor list and runs every frame after the player's own scripts. It never moves the player. It only edits playerSpeedEw / playerSpeedNs (and the playerFlags $1000 latch); player_move_controller turns those speeds into movement (speed x 4 plus external velocity) on the next pass.
+; PlayerCharacterDef spawns it with SpawnAfter, so it sits right behind the player actor in the actor list and runs every frame after the player's own scripts. It never moves the player. It only edits playerSpeedEw / playerSpeedNs (and the playerFlags $1000 latch); player_move_controller turns those speeds into movement (speed x 4 plus external velocity) in the same frame: the actor list order is attack, player, slope, controller, so the controller runs right after this actor.
 ; 
 ; === FRAME FLOW (SlopePhysicsEntry) ===
 ; 

@@ -843,7 +843,7 @@ DarkFriarFragment3 {
     STA $14
     LDA $moveYAlt, X
     STA $16
-    JSL $@ApplyOrbitalOffsetFromRef.code_00F3D3 ; Compute orbital offset at current angle and diameter via ApplyOrbitalOffsetFromRef
+    JSL $@ApplyOrbitalOffsetFromRef.ApplyOrbitalOffsetFromRef_AddToCurrent ; Compute orbital offset at current angle and diameter via ApplyOrbitalOffsetFromRef
     PLA 
     SEC 
     SBC $16

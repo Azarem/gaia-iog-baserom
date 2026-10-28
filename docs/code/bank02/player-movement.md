@@ -14,7 +14,7 @@ This engine runs after input sampling and before actor animation updates. Each f
 
 ### Per-Frame Movement Tick
 
-`PlayerMovementTick` runs a horizontal pass first (preserving V-delta on the stack), commits sub-pixel X/Y to the actor, then runs the vertical pass. Direction-suppression flags in `$AA` can skip the north or south dispatch after diagonal resolution.
+`PlayerMovementTick` runs a horizontal pass first (preserving V-delta on the stack), commits sub-pixel X/Y to the actor, then runs the vertical pass. `$AA` records tick-phase state (bit `$0040` marks that the horizontal phase ran); bits `$0400`/`$0800` gate north/south dispatch but are never set in the extracted ROM.
 
 ```mermaid
 flowchart TD
@@ -28,9 +28,9 @@ flowchart TD
     COMMIT --> ClearH["STZ $20"]
     ClearH --> RestoreV["Restore V-delta from stack"]
     RestoreV --> VCHECK{"V-delta $24 ≠ 0?"}
-    VCHECK -->|"< 0, not $0800"| DNM["DispatchNorthMove<br/>(player_move_ns)"]
-    VCHECK -->|"> 0, not $0400"| DSM["DispatchSouthMove<br/>(player_move_south)"]
-    VCHECK -->|"zero or suppressed"| Done["Restore P/D/X & RTL"]
+    VCHECK -->|"< 0"| DNM["DispatchNorthMove<br/>(player_move_ns)"]
+    VCHECK -->|"> 0"| DSM["DispatchSouthMove<br/>(player_move_south)"]
+    VCHECK -->|"zero"| Done["Restore P/D/X & RTL"]
     DNM --> Done
     DSM --> Done
 ```
@@ -40,7 +40,7 @@ flowchart TD
 ```
 $02CFD0 ┌─ PlayerMovementTick ─────────────────────────┐
         │  (gap: player_move_ns)                        │
-$02D246 ├─ ComputeYSnapOffset … NudgeToUpperGrid       │  player_move_main
+$02D246 ├─ ComputeYSnapOffset … NudgeAxisMinus8Clamped       │  player_move_main
 $02D038 ├─ DispatchNorthMove … ClearSpeedNS_2          │  player_move_ns
 $02D376 ├─ DispatchSouthMove … FineAdjustXWest         │  player_move_south
 $02D6DC ├─ DispatchEastMove … ClearSpeedEW_6           │  player_move_east
@@ -65,7 +65,7 @@ $02E102 └─ tile_collision (see tile-collision.md) ──────┘
 | `$1E` | 2 | **Probe Y** — tile probe coordinate in pixel space. |
 | `$02` | 2 | **Snap offset scratch** — alignment correction for fine-adjust routines. |
 | `$04` | 2 | **Approach direction scratch** — sub-tile offset from tile center for auto-align. |
-| `$AA` | 2 | **Movement direction flags** — bit `$0040` = EW active; `$0400` suppresses north; `$0800` suppresses south. |
+| `$AA` | 2 | **Movement tick flags** — bit `$0040` = horizontal phase ran this tick (`AutoAlignEW*` reads it). Bits `$0400`/`$0800` would suppress north/south but are never set in the extracted ROM. |
 | `$AB` | 2 | **Approach / wall flags** — `$02` south nudge; `$04`/`$08` wall sub-variants; `$80` diagonal wall active. |
 | `$09C6` | 2 | **Slope accumulator** — fractional Y for tiles `$03` / `$0C`. |
 | `$09AE` | 2 | `player_flags` — bit `$1000` = on a slope/ramp (see [wram-memory-map.md](../../wram-memory-map.md) §Player Flags Reference). |
@@ -79,9 +79,9 @@ Coordinates use **×4 sub-pixel scale**: `$22`/`$26` are shifted right twice bef
 
 ## Per-Frame Tick Order
 
-`PlayerMovementTick` resolves movement in **two separated passes** so horizontal and vertical collision can interact without double-applying the same input. The **horizontal pass** runs first when `$20` (H-delta) is non-zero: negative H-delta calls `DispatchWestMove`; positive H-delta calls `DispatchEastMove`. During this pass V-delta (`$24`) is pushed to the stack and `$AA` (direction flags) is cleared, so vertical intent is preserved but not yet applied.
+`PlayerMovementTick` resolves movement in **two separated passes** so horizontal and vertical collision can interact without double-applying the same input. The **horizontal pass** runs first when `$20` (H-delta) is non-zero: negative H-delta calls `DispatchWestMove`; positive H-delta calls `DispatchEastMove`. During this pass V-delta (`$24`) is pushed to the stack and `$AA` is cleared, so vertical intent is preserved but not yet applied.
 
-Between passes the engine **commits** sub-pixel position — `$22`/`$26` shifted right twice into actor `$0014`/`$0016` — and clears H-delta. The **vertical pass** then restores V-delta and calls `DispatchNorthMove` (negative `$24`) or `DispatchSouthMove` (positive `$24`) unless suppressed by `$AA`: bit `$0400` blocks the north path and bit `$0800` blocks the south path, set when the horizontal pass already resolved movement against a wall. This ordering exists so a player holding diagonal input can **slide along a wall**: X resolves first against the obstruction, the updated X position feeds the vertical probe, and the suppression flags prevent the same axis from being applied twice in one frame.
+Between passes the engine **commits** pixel position — `$22`/`$26` (sub-pixel ×4 positions, not deltas) shifted right twice into actor `$0014`/`$0016` — and clears H-delta. The **vertical pass** then restores V-delta and calls `DispatchNorthMove` (negative `$24`) or `DispatchSouthMove` (positive `$24`). This ordering lets diagonal input **slide along a wall**: X resolves first, the updated X feeds the vertical probe, then Y runs in the second phase.
 
 
 ## 1. player_move_main.asm
@@ -91,19 +91,19 @@ Between passes the engine **commits** sub-pixel position — `$22`/`$26` shifted
 | `$02CFD0` | PlayerMovementTick | Main entry point for per-frame player movement collision. |
 | `$02D246` | ComputeYSnapOffset | `$02` = 16 − (`$1E` & `$0F`) → 1..16 px (16 when Y flush; not 0). |
 | `$02D257` | DiagSnapCompute_Unused | Dead code — no callers in the extracted ROM. |
-| `$02D2BF` | AutoAlignEW | Attempts horizontal auto-alignment when north-south movement is blocked. |
-| `$02D33B` | NudgeToLowerGrid | `$00,X` += 8 sub-pixels (2 px south); clamps at the next `$40` row line. |
-| `$02D354` | NudgeToUpperGrid | `$00,X` −= 8 sub-pixels (2 px north); may round up to the next `$40` line. |
+| `$02D2BF` | AutoAlignEW_North | Attempts horizontal auto-alignment when north-south movement is blocked. |
+| `$02D33B` | NudgeAxisPlus8Clamped | `$00,X` += 8 sub-pixels (2 px south); clamps at the next `$40` row line. |
+| `$02D354` | NudgeAxisMinus8Clamped | `$00,X` −= 8 sub-pixels (2 px north); may round up to the next `$40` line. |
 
 #### Group A: Movement Dispatcher
 
 ### PlayerMovementTick
 
-Main entry point for per-frame player movement collision. Saves processor state and sets direct page to `$0000`. Temporarily clears `$24` (V-delta) and `$AA` (direction flags), pushing the saved V-delta on the stack. Clears actor collision bit `$0004` at `$0010,X`.
+Main entry point for per-frame player movement collision. **X at entry is the player-move controller slot** (not the player actor). Saves processor state and sets direct page to `$0000`. Temporarily clears `$24` (V-delta) and `$AA`, pushing the saved V-delta on the stack. Clears collision bit `$0004` at `$0010,X` on the controller, then copies it to the player.
 
 The **horizontal pass** runs when `$20` (H-delta) is non-zero: negative values set `$AA` bit `$0040` and call `DispatchWestMove`; positive values set the same flag and call `DispatchEastMove`. After horizontal resolution, commits pixel X/Y to the actor structure (`$22`/`$26` >> 2 → `$0014`/`$0016`), then clears `$20`.
 
-The **vertical pass** restores V-delta from the stack. Negative `$24` calls `DispatchNorthMove` unless `$AA` bit `$0800` is set; positive `$24` calls `DispatchSouthMove` unless `$AA` bit `$0400` is set. Restores registers and returns via `RTL`.
+The **vertical pass** restores V-delta from the stack. Negative `$24` calls `DispatchNorthMove`; positive `$24` calls `DispatchSouthMove` (north/south are gated on `$AA` bits `$0800`/`$0400`, which nothing sets in the extracted ROM). Restores registers and returns via `RTL`.
 
 **Algorithm:**
 
@@ -124,7 +124,7 @@ The **vertical pass** restores V-delta from the stack. Negative `$24` calls `Dis
 | `$22` | R/W | Sub-pixel X; committed to actor |
 | `$24` | R/W | V-delta; saved on stack during horizontal pass |
 | `$26` | R/W | Sub-pixel Y; committed to actor |
-| `$AA` | W | Direction flags; cleared at entry |
+| `$AA` | W | Tick flags; cleared at entry |
 | `$0010,X` | R/W | Actor flags; collision bit cleared |
 | `$0014,X` | W | Actor pixel X |
 | `$0016,X` | W | Actor pixel Y |
@@ -137,11 +137,11 @@ The **vertical pass** restores V-delta from the stack. Negative `$24` calls `Dis
 | `DispatchEastMove` | Called when `$20 > 0` |
 | `DispatchNorthMove` | Called when `$24 < 0` (unless suppressed) |
 | `DispatchSouthMove` | Called when `$24 > 0` (unless suppressed) |
-| `player_move_controller` (bank `$00`) | Upstream; computes `$20`/`$24` from input |
+| `player_move_controller` (bank `$02`) | Upstream; computes `$20`/`$24` from input |
 
 ### DiagSnapCompute_Unused
 
-Dead code — no callers in the extracted ROM. Mirrors the combined X/Y snap offset logic used by active diagonal snap routines. Probes current TL; on wall `$06` or aligned down-cell `$09`, computes a combined offset in `$02` with V-delta parity correction, then adds the Y sub-tile component from `$1E`. Likely a development artifact superseded by `ComputeWallSlidePush`.
+Dead code — no callers in the extracted ROM. Probes current TL; on wall type `$06` or (X-straddling and down-cell `$09`), builds a Y snap offset in `$02` using V-delta sign extension. No live diagonal snap dispatch exists; not an alternate path to `ComputeWallSlidePush`.
 
 **Algorithm:**
 
@@ -165,12 +165,11 @@ Dead code — no callers in the extracted ROM. Mirrors the combined X/Y snap off
 
 | Symbol | Relationship |
 |--------|--------------|
-| `ComputeWallSlidePush` | Active equivalent |
 | `ProbeCurrentTL` | Called for tile probe |
 
-### AutoAlignEW
+### AutoAlignEW_North
 
-Attempts horizontal auto-alignment when north-south movement is blocked. Skips if `$AA` bit `$0040` (EW movement active) or dynamic collision high nibble is set at `$7FC000,X`. Computes X approach offset in `$04` from pixel position (`($22 >> 2) - 8) & $0F`. If offset ≥ 6, probes future TR; if passable (type < `$0E`, not `$06`), temporarily subtracts `$20` from X, nudges toward lower grid, restores. If offset < 9, probes future TL similarly with upper-grid nudge. Returns **carry clear** on success (movement continues), **carry set** on failure (snap path).
+Attempts horizontal auto-alignment when north-south movement is blocked (`AutoAlignEW_North`; south uses `AutoAlignEW_South`). Skips if `$AA` bit `$0040` (horizontal phase already ran) or dynamic collision high nibble is set at `$7FC000,X`. Computes X approach offset in `$04` from pixel position (`($22 >> 2) - 8) & $0F`. If offset ≥ 6, probes future TR; if passable (type < `$0E`, not exclusion type `$06`), nudges east (+8 sub-pixels, clamped to the next `$40` line). If offset < 9, probes future TL similarly (exclusion type `$09`), nudging west (−8). Returns **carry clear** on success (movement continues), **carry set** on failure (snap path).
 
 **Algorithm:**
 
@@ -178,8 +177,8 @@ Attempts horizontal auto-alignment when north-south movement is blocked. Skips i
 |------|--------|
 | 1 | Guard: skip if EW flag or dynamic collision |
 | 2 | Compute X sub-tile offset → `$04` |
-| 3 | If `$04` ≥ 6: probe future TR; if open, nudge X lower |
-| 4 | Else if `$04` < 9: probe future TL; if open, nudge X upper |
+| 3 | If `$04` ≥ 6: probe future TR; if open (not type `$06`), nudge +8 sub-pixels east |
+| 4 | Else if `$04` < 9: probe future TL; if open (not type `$09`), nudge −8 sub-pixels west |
 | 5 | Return CLC (aligned) or SEC (blocked) |
 
 **Variables:**
@@ -196,10 +195,10 @@ Attempts horizontal auto-alignment when north-south movement is blocked. Skips i
 | Symbol | Relationship |
 |--------|--------------|
 | `DispatchNorthMove` | Caller (blocked path) |
-| `NudgeToLowerGrid` / `NudgeToUpperGrid` | Called for alignment |
+| `NudgeAxisPlus8Clamped` / `NudgeAxisMinus8Clamped` | Called for alignment |
 | `SnapYNorthCollision` | Fallback when SEC returned |
 
-### NudgeToUpperGrid
+### NudgeAxisMinus8Clamped
 
 Snaps toward the upper tile boundary. Subtracts 8 sub-pixels; on boundary cross, if sub-tile portion ≠ 0, rounds up to the next `$40` boundary (`AND #$FFC0` + `$40`).
 
@@ -221,7 +220,7 @@ Snaps toward the upper tile boundary. Subtracts 8 sub-pixels; on boundary cross,
 
 | Symbol | Relationship |
 |--------|--------------|
-| `AutoAlignEW` | Caller |
+| `AutoAlignEW_North` | Caller |
 | `AutoAlignNS_East` / `AutoAlignNS_West` / `AutoAlignYToGrid` | Callers |
 
 
@@ -245,7 +244,7 @@ Snaps toward the upper tile boundary. Subtracts 8 sub-pixels; on boundary cross,
 
 ### DispatchNorthMove
 
-Northward movement dispatcher (V-delta < 0). Probes current TL for wall `$06`, slope-right `$03`, slope-left `$0C`. Probes current TR for north wall `$09` (redirects to `NorthWallHandler`). Probes future TL for solid types (`$0E+`, `$08`), interact `$02`, south-wall nudge `$06`. Sub-tile and down-cell cascades handle `$09` redirects via `NorthProbeRedirect`. Free path adds `$24` to `$26`. Blocked path sets collision flag, tries `AutoAlignEW`, then snaps Y or applies partial movement.
+Northward movement dispatcher (V-delta < 0). Probes current TL for wall `$06`, slope-right `$03`, slope-left `$0C`. Probes current TR for north wall `$09` (redirects to `NorthWallHandler`). Probes future TL for solid types (`$0E+`, `$08`), interact `$02`, south-wall nudge `$06`. Sub-tile and down-cell cascades handle `$09` redirects via `NorthProbeRedirect`. Free path adds `$24` to `$26`. Blocked path sets collision flag, tries `AutoAlignEW_North`, then snaps Y or applies partial movement.
 
 **Algorithm:**
 
@@ -271,7 +270,7 @@ Northward movement dispatcher (V-delta < 0). Probes current TL for wall `$06`, s
 |--------|--------------|
 | `SouthWallHandler` / `NorthSlopeRight` / `NorthSlopeLeft` | TL-type dispatch |
 | `NorthWallHandler` | TR `$09` redirect |
-| `AutoAlignEW` | Blocked-path alignment |
+| `AutoAlignEW_North` | Blocked-path alignment |
 | `SnapYNorthCollision` | Snap fallback |
 
 ### NorthSlopeRight
@@ -502,7 +501,7 @@ Handles southward movement when a south-facing wall tile (`$06`) is at the botto
 
 ### AutoAlignEW_South
 
-X auto-align when south movement is blocked. Mirror of `AutoAlignEW` but probes `FutureBR`/`FutureBL` instead of `FutureTR`/`FutureTL`. Returns **carry clear** on successful nudge, **carry set** on failure.
+X auto-align when south movement is blocked. Mirror of `AutoAlignEW_North` but probes `FutureBR`/`FutureBL` instead of `FutureTR`/`FutureTL`. Returns **carry clear** on successful nudge, **carry set** on failure.
 
 **Algorithm:**
 
@@ -518,9 +517,9 @@ X auto-align when south movement is blocked. Mirror of `AutoAlignEW` but probes 
 
 | Symbol | Relationship |
 |--------|--------------|
-| `AutoAlignEW` | Axis/direction mirror |
+| `AutoAlignEW_North` | Axis/direction mirror |
 | `SouthBlockedWall` | Caller |
-| `NudgeToLowerGrid` / `NudgeToUpperGrid` | Nudge calls |
+| `NudgeAxisPlus8Clamped` / `NudgeAxisMinus8Clamped` | Nudge calls |
 
 ### ComputeSouthSnapOffset
 
@@ -635,7 +634,7 @@ Tile `$06` moving east. Sets `$AB.$80`; probes future BR; gap chain via `MapCell
 
 ### AutoAlignNS_East
 
-Y auto-align when east movement is blocked. Skips if parked vertical velocity at `$06,S` is non-zero or the probe cell has an actor solid mark (`$7FC000,X` high nibble `$F0`). With `n = (($26 >> 2) & $0F)`, **`n` ≥ 4** tries south nudge (`NudgeToLowerGrid`, +2 px) when `ProbeFutureBR` < `$0E`; else **`n` ≤ 10** tries north nudge (`NudgeToUpperGrid`, −2 px) when `ProbeFutureTR` < `$0E`.
+Y auto-align when east movement is blocked. Skips if parked vertical velocity at `$06,S` is non-zero or the probe cell has an actor solid mark (`$7FC000,X` high nibble `$F0`). With `n = (($26 >> 2) & $0F)`, **`n` ≥ 4** tries south nudge (`NudgeAxisPlus8Clamped`, +2 px) when `ProbeFutureBR` < `$0E`; else **`n` ≤ 10** tries north nudge (`NudgeAxisMinus8Clamped`, −2 px) when `ProbeFutureTR` < `$0E`.
 
 **Algorithm:**
 
@@ -650,8 +649,8 @@ Y auto-align when east movement is blocked. Skips if parked vertical velocity at
 
 | Symbol | Relationship |
 |--------|--------------|
-| `AutoAlignEW` | Axis mirror |
-| `NudgeToLowerGrid` / `NudgeToUpperGrid` | Nudge calls |
+| `AutoAlignEW_North` | Axis mirror |
+| `NudgeAxisPlus8Clamped` / `NudgeAxisMinus8Clamped` | Nudge calls |
 
 ### ComputeEastSnapOffset
 
@@ -903,7 +902,7 @@ Partial-entry edge for tile **`$0A`** during west movement (top-right reads `$0A
 
 ### AutoAlignYToGrid
 
-When west movement is blocked, nudges **`$26`** onto the 16-pixel Y grid (`NudgeToLowerGrid` / `NudgeToUpperGrid`). Stack re-entrancy guard; Y sub-tile probes future BL/TL.
+When west movement is blocked, nudges **`$26`** onto the 16-pixel Y grid (`NudgeAxisPlus8Clamped` / `NudgeAxisMinus8Clamped`). Stack re-entrancy guard; Y sub-tile probes future BL/TL.
 
 **Algorithm:**
 
@@ -995,7 +994,7 @@ Nearly every movement handler follows the same multi-stage pipeline:
 
 4. RESOLVE   — Either:
                a) Apply deltas freely (ApplyMovementDeltas)
-               b) Auto-align (AutoAlignEW / AutoAlignNS_* / AutoAlignYToGrid)
+               b) Auto-align (AutoAlignEW_North / AutoAlignNS_* / AutoAlignYToGrid)
                c) Snap to grid boundary (SnapX* / SnapY* collision)
                d) Compute sub-pixel correction (slope accumulator, ramp Y math)
                e) Redirect to alternate actor state (ladder, stairs, shimmy)
@@ -1003,7 +1002,7 @@ Nearly every movement handler follows the same multi-stage pipeline:
 5. FINALIZE  — SetActorCollisionFlag on block; zero speed vars; commit or discard deltas
 ```
 
-**Auto-align** routines attempt a small positional nudge (±8 sub-pixels, aligned to `$40` tile boundaries via `NudgeToLowerGrid` / `NudgeToUpperGrid`) before hard-snapping. They return **carry clear** if nudge succeeded, **carry set** if blocked.
+**Auto-align** routines attempt a small positional nudge (±8 sub-pixels, aligned to `$40` tile boundaries via `NudgeAxisPlus8Clamped` / `NudgeAxisMinus8Clamped`) before hard-snapping. They return **carry clear** if nudge succeeded, **carry set** if blocked.
 
 **Snap collision** routines align the blocked axis to the next tile boundary (`AND #$FFC0` + boundary offset), zero the corresponding delta, and clear `player_speed_*`.
 
@@ -1089,7 +1088,7 @@ flowchart TD
     subgraph main["player_move_main"]
         CYS
         NTG
-        AAEW[AutoAlignEW]
+        AAEW[AutoAlignEW_North]
     end
 
     subgraph tc["tile_collision"]
@@ -1120,7 +1119,7 @@ flowchart TD
 | Caller | Callee | Purpose |
 |--------|---------|---------|
 | `PlayerMovementTick` | Four dispatchers | Top-level axis dispatch |
-| `DispatchNorthMove` | `AutoAlignEW`, `ComputeYSnapOffset` | NS → main alignment |
+| `DispatchNorthMove` | `AutoAlignEW_North`, `ComputeYSnapOffset` | NS → main alignment |
 | `SouthWallHandler` | `SnapXWestCollision`, `FineAdjustXWest` | NS → diag/ew snap chain |
 | `NorthWallHandler` | `SnapXWestCollision`, `FineAdjustXEast` | NS → ew snap chain |
 | `DispatchEastMove` | `AutoAlignNS_East`/`West`, `WallSlidePushUp/Right`, nudge helpers | EW → main/diag |

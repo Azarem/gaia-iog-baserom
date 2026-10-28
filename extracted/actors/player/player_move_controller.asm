@@ -1,30 +1,19 @@
-; Per-frame player movement controller — SpawnAfter companion actor (176798–177195).
+; Player movement integrator (Bank 02, 176798-177195): the per-frame companion actor that turns the player's velocity inputs into a new position.
 ; 
-; Spawned by PlayerCharacterDef as a SpawnAfter companion. Runs every frame after the player character actor to handle physics integration and position updates.
+; SPAWN AND ORDER: PlayerCharacterDef spawns it with SpawnAfter. Every SpawnAfter inserts the new actor directly behind its spawner, and slope_ramp_physics is spawned after this actor, so the actor list reads attack_ability_system, player, slope_ramp_physics, this controller. The slope code has therefore already edited playerSpeedEw / playerSpeedNs when this runs in the same frame. CopyActorState sets the hidden bit ($2000) on it, so only its script runs.
 ; 
-; === PIPELINE ===
+; STATE: this actor's own $14 / $16 hold the player's position in SUB-PIXELS (4 per pixel, 2 fractional bits). The x4 scaling at the top runs once, when the actor spawns; every later frame resumes after SetEntryHere. The player actor's $0014 / $0016 stay in plain pixels (the write-back stores sub-pixels >> 2).
 ; 
-; 1. SUBPIXEL SCALING: Scales local coordinates ($14, $16) by ×4 to sub-pixel precision (2 fractional bits).
+; PER FRAME:
+; 1. HIT-STUN: if the player's $10 has bit $0080 (the iframe counter is running) and iframeCounter is not negative, skip the frame. A positive counter is hit-stun, so this is the check that freezes the player (actor_execution exempts the player from its own freeze); a negative counter (recovery) lets movement continue.
+; 2. LOCK: if playerFlags has EITHER bit $0200 (game over) or $0800 (script / ability lock) set, clear extVelocityX / Y and skip: the script or the traversal code (stairs, vine, ladder, cutscene) owns the position.
+; 3. SYNC: if the player actor's pixel position differs from local >> 2 (a script or COP moved the player), adopt the actor's position x4; the old fraction is lost.
+; 4. VELOCITY, per axis. Speed word (playerSpeedEw / playerSpeedNs) zero: joypad velocity from JoypadToVelocity plus the external velocity; the joypad part is forced to zero while playerFlags has $1000 (on-slope latch) or $2000 (guard / channel stance). Speed nonzero: speed x 4 plus the external velocity, and the $1000 latch is cleared. One speed unit is one pixel per frame; the joypad gives +/-8 sub-pixels (2 px per frame).
+; 5. MOVE: bit $0008 of the player actor's $10 means 'collision-checked movement' (actor_execution uses the same bit for every actor). Set: player_move_main.PlayerMovementTick runs the tile collision with X = THIS actor's slot, positions in the low-RAM words $22 / $26 and velocities in $20 / $24. Clear (the vine, ladder and shimmy states clear it and restore it on exit): the velocity is added to the position with no collision.
+; 6. WRITE-BACK: local position = $22 / $26; the player actor gets position >> 2; bit $0004 (solid contact, set by the tick in this actor's own $10) is copied into the player's $10.
 ; 
-; 2. FREEZE CHECK: If player actor flag $0080 (freeze) is set AND iframeCounter is non-negative (no active invincibility), skip the entire frame. If iframes are active (negative counter), movement continues even while frozen.
-; 
-; 3. SCRIPT/GAME-OVER GATE: If playerFlags bits 9+11 ($0A00 = $0200 game over + $0800 script/ability lock) are set, zero external velocities and skip — position is controlled by the script or traversal system (stairs/vine/ladder/cutscene) directly.
-; 
-; 4. POSITION SYNC: Compare local position with player actor position. If they differ (e.g. player was teleported by a script or COP command), re-sync local to match the player actor.
-; 
-; 5. VELOCITY CALCULATION: Two mutually exclusive paths per axis:
-;    a. Speed == 0 (idle/walking): Use D-pad velocity from JoypadToVelocity + external velocity ($0408/$040A)
-;    b. Speed != 0 (running/inertial): Use playerSpeed × 4 + external velocity, then clear playerFlags bit 12 ($1000 on-slope latch)
-; 
-; 6. COLLISION: If player is grounded (flag $0008), call player_move_main.PlayerMovementTick for full tile collision. If airborne, directly add delta to position (no collision).
-; 
-; 7. WRITEBACK: Store final sub-pixel positions back to local ($14,$16) and player actor pixel positions ($0014,$0016). Sync actor flag bit 2 (solid contact) from local to player.
-; 
-; === SUB-PIXEL MODEL ===
-; Positions use 2 fractional bits (×4 scaling). Pixel position = sub-pixel >> 2. This gives 0.25-pixel movement resolution. Cardinal D-pad velocity is ±8 sub-pixels (2.0 px/frame), diagonal is ±6 (1.5 px/frame ≈ cardinal/√2 for normalized diagonal speed).
-; 
-; === JoypadToVelocity ===
-; Converts D-pad state ($0657, joypad high byte) to a packed 16-bit velocity: high byte = NS (Y), low byte = EW (X). Priority: Left > Right > Up > Down. Cardinal = ±8, diagonal = ±6.
+; External velocities ($0408 / $040A) are consumed (zeroed) every frame, so a source must write them every frame to keep pushing: av71_wind_effect, btEA_conveyor_controller, combat_collision (push hits), gw82_archer, sg55_viper. scene_lifecycle clears them and both speed words at scene setup.
+; JoypadToVelocity (end of file) is called only from here.
 ---------------------------------------------
 
 ?INCLUDE 'player_move_main'
@@ -41,21 +30,10 @@
 
 ---------------------------------------------
 
-; Per-frame player movement integration — SpawnAfter companion actor.
-; 
-; Seven-stage pipeline executed every frame after the player character:
-; 1. SUBPIXEL SCALING: Local coords ($14,$16) × 4 for 2-bit fractional precision (0.25 px resolution)
-; 2. FREEZE CHECK: Skip if actor flag $0080 (freeze) set AND iframeCounter non-negative
-; 3. SCRIPT/GAME-OVER GATE: If playerFlags $0A00 ($0200 game over + $0800 script/ability lock), zero external velocities and skip
-; 4. POSITION SYNC: If local position differs from player actor (teleported), re-sync
-; 5. VELOCITY CALC: Combine joypad D-pad velocity (from JoypadToVelocity) OR speed × 4 with external velocity ($0408/$040A). Attack/block flags ($3000) force zero joypad velocity
-; 6. COLLISION: Grounded ($0008) → PlayerMovementTick (full tile collision). Airborne → direct position add
-; 7. WRITEBACK: Store sub-pixel and pixel positions back to actor, sync flag bit 2 (solid contact)
-; 
-; External velocities (wind, conveyors, knockback) are consumed each frame — sources must re-apply them every frame to persist.
+; Entry and per-frame routine. The scaling of $14 / $16 above SetEntryHere runs only when the actor spawns; the code from SetEntryHere down runs every frame (stages in the block note).
 
 PlayerMoveController {
-    LDA $14               ; Per-frame movement companion: scale local X/Y to sub-pixel precision (×4 = 2 fractional bits)
+    LDA $14               ; Runs once, at spawn (above SetEntryHere): local X x 4 = sub-pixels (2 fractional bits)
     ASL 
     ASL 
     STA $14
@@ -63,67 +41,79 @@ PlayerMoveController {
     ASL 
     ASL 
     STA $16
-    COP [SetEntryHere]    ; Actor continue — runs each frame after player_character
-    PHX                   ; Check if player is frozen ($0080) — if frozen with no active iframes, skip movement entirely
+    COP [SetEntryHere]    ; Resume point: every frame from here on
+    PHX 
     LDX $playerActor
     LDA $0010, X
-    BIT #$0080
-    BEQ loc_02B2C0
-    LDA $iframeCounter, X ; Negative iframe counter = active invincibility → allow movement even while frozen
-    BMI loc_02B2C0
-    PLX                   ; Frozen + no iframes → skip this frame (no position update)
+    BIT #$0080            ; Bit $0080 = the iframe counter is running (hit-stun or recovery)
+    BEQ PlayerMoveNotStunned
+    LDA $iframeCounter, X
+    BMI PlayerMoveNotStunned ; Negative = recovery after a hit: movement continues
+    PLX                   ; Zero or positive counter = hit-stun: restore X and skip the frame (the stunned player cannot move)
     RTL 
 
-  loc_02B2C0:
+; Passed the hit-stun gate (the iframe counter is not running, or it is negative = recovery after a hit): restore X and go on to the lock test.
+
+  PlayerMoveNotStunned:
     PLX 
-    LDA $playerFlags      ; Check game-over/script-lock flags ($0A00 = $0200 game over + $0800 script/ability lock)
-    BIT #$0A00
-    BEQ loc_02B2D0
-    STZ $extVelocityX     ; Climbing or special traversal active → zero external velocities and skip (traversal controls position directly)
+    LDA $playerFlags
+    BIT #$0A00            ; Test $0200 (game over) OR $0800 (script / ability lock): either bit blocks movement
+    BEQ PlayerMoveSync
+    STZ $extVelocityX     ; Locked: drop the external velocities so no push is stored up
     STZ $extVelocityY
     RTL 
 
-  loc_02B2D0:
-    LDY $playerActor      ; Sync local position with player actor — if actor was teleported, re-sync local sub-pixel coordinates
+; Stage 3 (sync), X part: if the player actor's pixel X differs from local X >> 2 (a script, COP or knockback moved the player), adopt the actor's X x 4; the old fraction is lost.
+
+  PlayerMoveSync:
+    LDY $playerActor
     LDA $14
     LSR 
     LSR 
     CMP $0014, Y
-    BEQ loc_02B2E3
-    LDA $0014, Y
+    BEQ PlayerMoveSyncY
+    LDA $0014, Y          ; The player was moved elsewhere (script, COP, knockback): adopt the actor's X x 4 (the old fraction is lost)
     ASL 
     ASL 
     STA $14
 
-  loc_02B2E3:
-    LDA $16               ; Same Y-axis sync: compare local Y with player actor Y, override if different
+; Stage 3 (sync), Y part: the same comparison and adoption for Y.
+
+  PlayerMoveSyncY:
+    LDA $16               ; Same sync for Y: local Y >> 2 against the player actor's pixel Y
     LSR 
     LSR 
     CMP $0016, Y
-    BEQ loc_02B2F3
+    BEQ PlayerMoveJoypadGate
     LDA $0016, Y
     ASL 
     ASL 
     STA $16
 
-  loc_02B2F3:
-    LDA $playerFlags      ; Check slope/stance flags ($3000 = $1000 on slope + $2000 guard/channel stance) — if either set, zero joypad velocity
+; Stage 4 start: playerFlags $1000 (on-slope latch) or $2000 (guard / channel stance) forces the packed joypad velocity to zero; otherwise the pad is read at PlayerMoveReadPad.
+
+  PlayerMoveJoypadGate:
+    LDA $playerFlags      ; playerFlags $3000 = $1000 on-slope latch + $2000 guard / channel stance: no joypad movement in either state
     BIT #$3000
-    BEQ loc_02B300
-    LDA #$0000
-    BRA loc_02B303
+    BEQ PlayerMoveReadPad
+    LDA #$0000            ; Joypad velocity forced to zero (packed Y:X)
+    BRA PlayerMoveAxisX
 
-  loc_02B300:
-    JSR $&JoypadToVelocity ; Normal state: convert D-pad to velocity via JoypadToVelocity
+; JoypadToVelocity returns the packed joypad velocity (high byte Y, low byte X).
 
-  loc_02B303:
-    PHA                   ; Push packed joypad velocity (high=NS, low=EW) and begin EW axis processing
-    LDA $14
-    STA $0022             ; Save current sub-pixel X position to work area $0022
+  PlayerMoveReadPad:
+    JSR $&JoypadToVelocity ; A = packed joypad velocity: high byte Y (NS), low byte X (EW)
+
+; X axis of stage 4: keep the packed velocity on the stack, hand local X to the tick in $22, clear $20. Speed word playerSpeedEw zero: joypad X (sign-extended low byte) plus extVelocityX. Nonzero: speed x 4 plus extVelocityX, and the on-slope latch $1000 is cleared.
+
+  PlayerMoveAxisX:
+    PHA                   ; Keep the packed joypad velocity on the stack ($01,S) for both axes
+    LDA $14               ; X axis: local X (sub-pixels) is the X position handed to the tick in $22
+    STA $0022
     STZ $0020
-    LDA $playerSpeedEw    ; Check EW speed: if zero (idle), use joypad + external; if nonzero (running), use speed × 4 + external
+    LDA $playerSpeedEw    ; Speed word EW: zero = walking, nonzero = slope / run / slide speed
     BNE loc_02B327
-    LDA $01, S            ; Idle EW: extract low byte (EW velocity) from joypad result, sign-extend from 8 to 16 bits
+    LDA $01, S            ; Zero speed: X velocity = low byte of the packed pad velocity, sign-extended from 8 to 16 bits
     AND #$00FF
     BIT #$0080
     BEQ loc_02B31E
@@ -131,28 +121,30 @@ PlayerMoveController {
 
   loc_02B31E:
     CLC 
-    ADC $extVelocityX     ; Add external EW velocity ($0408) — e.g. wind, conveyor belts, knockback
+    ADC $extVelocityX     ; + external X velocity (wind, conveyor, push)
     STA $0020
-    BRA loc_02B336
+    BRA PlayerMoveAxisY
 
   loc_02B327:
-    ASL                   ; Running EW: speed × 4 (ASL ASL) to convert to sub-pixel velocity, add external velocity
+    ASL                   ; Speed path: speed x 4 (one speed unit = 1 px per frame) plus the external X velocity
     ASL 
     CLC 
     ADC $extVelocityX
-    STA $0020
-    LDA #$1000            ; Clear on-slope latch ($1000) — active blocking overrides the slope state
+    STA $0020             ; $20 = X velocity for the tick
+    LDA #$1000            ; A moving speed overrides the slope state: clear the on-slope latch ($1000) in playerFlags
     TRB $playerFlags
 
-  loc_02B336:
-    STZ $extVelocityX     ; Consume extVelocityX, begin NS axis processing
+; Y axis of stage 4: consume extVelocityX, hand local Y to the tick in $26, clear $24. Speed word playerSpeedNs zero: slopeFracAccum is zeroed and the velocity is joypad Y (high byte, sign-extended) plus extVelocityY. Nonzero: speed x 4 plus extVelocityY, and the on-slope latch is cleared.
+
+  PlayerMoveAxisY:
+    STZ $extVelocityX     ; External X velocity consumed
     STZ $0024
-    LDA $16
+    LDA $16               ; Y axis: $26 = local Y (sub-pixels)
     STA $0026
-    LDA $playerSpeedNs    ; Check NS speed: same dual-path as EW axis
+    LDA $playerSpeedNs    ; Speed word NS
     BNE loc_02B360
-    STZ $slopeFracAccum   ; Idle NS: zero slope fractional accumulator (no slope physics when stopped)
-    LDA $01, S            ; Extract high byte (NS velocity) via XBA from joypad result, sign-extend
+    STZ $slopeFracAccum   ; Idle on this axis: zero the slope fraction accumulator (no slope physics when stopped)
+    LDA $01, S            ; Zero speed: Y velocity = high byte of the packed pad velocity (XBA to the low byte), sign-extended
     XBA 
     AND #$00FF
     BIT #$0080
@@ -163,25 +155,27 @@ PlayerMoveController {
     CLC 
     ADC $extVelocityY
     STA $0024
-    BRA loc_02B36F
+    BRA PlayerMoveCollisionStage
 
   loc_02B360:
-    ASL                   ; Running NS: speed × 4, add external velocity, clear on-slope latch
+    ASL                   ; Speed path: speed x 4 plus the external Y velocity (as for X)
     ASL 
     CLC 
     ADC $extVelocityY
-    STA $0024
-    LDA #$1000
+    STA $0024             ; $24 = Y velocity for the tick
+    LDA #$1000            ; Clear the on-slope latch (as for X)
     TRB $playerFlags
 
-  loc_02B36F:
-    STZ $extVelocityY     ; Consume extVelocityY, pop joypad value, check ground flag for collision path
-    PLA 
+; Stage 5 (move): consume extVelocityY and drop the packed pad velocity. Player Flags10 bit $0008 (collision-checked movement) set: PlayerMoveCollisionTick. Clear (vine, ladder, shimmy): $22 += $20 and $26 += $24 directly, no collision, then the write-back.
+
+  PlayerMoveCollisionStage:
+    STZ $extVelocityY     ; External Y velocity consumed
+    PLA                   ; Drop the packed pad velocity from the stack
     LDY $playerActor
     LDA $0010, Y
-    BIT #$0008            ; Ground flag ($0008): if grounded → full tile collision via PlayerMovementTick
-    BNE loc_02B394
-    LDA $0020             ; Airborne: directly add deltas to position (no tile collision, free movement)
+    BIT #$0008            ; Bit $0008 = collision-checked movement (cleared while climbing a vine, ladder or shimmy)
+    BNE PlayerMoveCollisionTick
+    LDA $0020             ; Clear: add the velocity to the position directly, no collision ($22 += $20, $26 += $24)
     CLC 
     ADC $0022
     STA $0022
@@ -189,26 +183,30 @@ PlayerMoveController {
     CLC 
     ADC $0026
     STA $0026
-    BRA loc_02B39C
+    BRA PlayerMoveWriteBack
 
-  loc_02B394:
-    STX $000A             ; Grounded: save actor index, call player_move_main.PlayerMovementTick for collision detection
+; Collision-checked move: store this actor's slot in the scratch word $000A (the tick reads X from it) and JSL player_move_main.PlayerMovementTick, which moves $22 / $26 against the tile map and sets bit $0004 of this actor's $10 on a solid contact.
+
+  PlayerMoveCollisionTick:
+    STX $000A             ; Save this actor's slot in the engine scratch word $000A (the tick reads X from it)
     TXY 
-    JSL $@player_move_main.PlayerMovementTick
+    JSL $@player_move_main.PlayerMovementTick ; PlayerMovementTick: tile collision; moves $22 / $26 and sets bit $0004 of this actor's $10 on a solid contact
 
-  loc_02B39C:
-    LDY $playerActor      ; Write final sub-pixel position to local coords and pixel position to player actor
-    LDA $0022
+; Stage 6: local position := $22 / $26, the player actor's pixel X / Y := position >> 2, and bit $0004 (solid contact this tick) is copied from this actor's $10 into the player's $10.
+
+  PlayerMoveWriteBack:
+    LDY $playerActor
+    LDA $0022             ; Write-back: the final X / Y (sub-pixels) become the local position; >> 2 goes to the player actor's pixel position
     STA $14
     LSR 
     LSR 
-    STA $0014, Y          ; Convert sub-pixel X (>>2) to pixel X and store to player actor slot
+    STA $0014, Y
     LDA $0026
     STA $16
     LSR 
     LSR 
-    STA $0016, Y          ; Same for Y axis: sub-pixel → pixel → player actor
-    LDA $0010, Y          ; Sync flag bit 2 (solid contact): copy from local actor flags ($10) to player actor ($0010,Y)
+    STA $0016, Y
+    LDA $0010, Y          ; Copy bit $0004 (solid contact this tick) from this actor's $10 into the player's: clear it in the player's flags first ...
     AND #$FFFB
     PHA 
     LDA $10
@@ -220,90 +218,105 @@ PlayerMoveController {
 }
 
 ---------------------------------------------
-; Convert D-pad state to packed velocity vector.
-; 
-; Reads joypad high byte ($0657) in 8-bit mode. Scans D-pad bits in priority order: Left ($02) > Right ($01) > Up ($08) > Down ($04). For diagonal combinations (two D-pad bits), generates reduced-magnitude velocity (±6 instead of ±8) for normalized diagonal speed.
-; 
-; Returns 16-bit packed result: high byte = NS (Y) velocity, low byte = EW (X) velocity.
-; Cardinal: ±8 sub-pixels (2.0 px/frame). Diagonal: ±6 sub-pixels (1.5 px/frame ≈ cardinal/√2).
-; Signs: positive X = East, negative X = West, positive Y = South, negative Y = North.
+; Packs the D-pad into one word: high byte = Y velocity, low byte = X velocity, signed sub-pixels per frame (positive = east / south). Called only from PlayerMoveController.
+; Reads the pad's high byte ($0657) in 8-bit mode: bit 0 Right, bit 1 Left, bit 2 Down, bit 3 Up. Left wins over Right and Up over Down. Cardinal moves are +/-8 (2.0 px per frame); a diagonal uses +/-6 on each axis (resultant about 2.1 px per frame, so diagonals are slightly faster than cardinals).
 
 JoypadToVelocity {
-    PHP                   ; Convert D-pad state to packed velocity: high byte = NS(Y), low byte = EW(X). Priority: L > R > U > D
+    PHP 
     SEP #$20
-    LDA $joypadCurrent+1  ; Read joypad high byte ($0657) in 8-bit mode — bits: ----UDLR
-    BIT #$02              ; Left pressed → left handler (has priority over right)
-    BNE loc_02B3E3
-    BIT #$01              ; Right pressed → right handler
-    BNE loc_02B400
-    BIT #$08              ; Up only → pure north velocity (Y=-8, X=0)
-    BNE loc_02B41D
-    BIT #$04              ; Down only → pure south velocity (Y=+8, X=0)
-    BNE loc_02B424
-    LDA #$00              ; No D-pad held → zero velocity (Y=0, X=0)
-    XBA 
-    LDA #$00
-    BRA loc_02B3FE
-
-  loc_02B3E3:
-    BIT #$0C              ; Left handler: check for vertical component (Up/Down held simultaneously)
-    BEQ loc_02B3F9
+    LDA $joypadCurrent+1  ; Pad high byte ($0657): bit 0 Right, 1 Left, 2 Down, 3 Up
+    BIT #$02              ; Left held: left handler (Left wins over Right)
+    BNE JoypadVelocityLeft
+    BIT #$01
+    BNE JoypadVelocityRight
     BIT #$08
-    BNE loc_02B3F2
-    LDA #$06              ; Down+Left diagonal: Y=+6, X=-6 (reduced magnitude for normalized diagonal speed)
+    BNE JoypadVelocityPureUp
+    BIT #$04
+    BNE JoypadVelocityPureDown
+    LDA #$00
+    XBA 
+    LDA #$00              ; ... X = 0
+    BRA JoypadVelocityDone
+
+; Left held (Left wins over Right): neither Up nor Down goes to JoypadVelocityPureLeft, Up goes to JoypadVelocityUpLeft, otherwise Down + Left: Y = +6, X = -6.
+
+  JoypadVelocityLeft:
+    BIT #$0C              ; Left handler: test the vertical bits ($0C = Up | Down)
+    BEQ JoypadVelocityPureLeft
+    BIT #$08
+    BNE JoypadVelocityUpLeft
+    LDA #$06              ; Down + Left: Y = +6, X = -6
     XBA 
     LDA #$FA
-    BRA loc_02B3FE
+    BRA JoypadVelocityDone
 
-  loc_02B3F2:
-    LDA #$FA              ; Up+Left diagonal: Y=-6, X=-6
+; Up + Left: Y = -6, X = -6.
+
+  JoypadVelocityUpLeft:
+    LDA #$FA              ; Up + Left: Y = -6, X = -6
     XBA 
     LDA #$FA
-    BRA loc_02B3FE
+    BRA JoypadVelocityDone
 
-  loc_02B3F9:
-    LDA #$00              ; Pure Left: Y=0, X=-8 ($F8 signed)
+; Left alone: Y = 0, X = -8 ($F8).
+
+  JoypadVelocityPureLeft:
+    LDA #$00              ; Pure left: Y = 0, X = -8 ($F8)
     XBA 
     LDA #$F8
 
-  loc_02B3FE:
+; Exit of the left handlers and of the no-direction case: restore P and return with the packed velocity (Y in the high byte, X in the low byte).
+
+  JoypadVelocityDone:
     PLP 
     RTS 
 
-  loc_02B400:
-    BIT #$0C              ; Right handler: check for vertical component
-    BEQ loc_02B416
+; Right held (Left clear): the same structure as the left handler: neither vertical bit goes to JoypadVelocityPureRight, Up goes to JoypadVelocityUpRight, otherwise Down + Right: Y = +6, X = +6.
+
+  JoypadVelocityRight:
+    BIT #$0C              ; Right handler: same structure as the left handler
+    BEQ JoypadVelocityPureRight
     BIT #$08
-    BNE loc_02B40F
-    LDA #$06              ; Down+Right diagonal: Y=+6, X=+6
+    BNE JoypadVelocityUpRight
+    LDA #$06              ; Down + Right: Y = +6, X = +6
     XBA 
     LDA #$06
-    BRA loc_02B41B
+    BRA JoypadVelocityDoneRight
 
-  loc_02B40F:
-    LDA #$FA              ; Up+Right diagonal: Y=-6, X=+6
+; Up + Right: Y = -6, X = +6.
+
+  JoypadVelocityUpRight:
+    LDA #$FA              ; Up + Right: Y = -6, X = +6
     XBA 
     LDA #$06
-    BRA loc_02B41B
+    BRA JoypadVelocityDoneRight
 
-  loc_02B416:
-    LDA #$00              ; Pure Right: Y=0, X=+8
+; Right alone: Y = 0, X = +8.
+
+  JoypadVelocityPureRight:
+    LDA #$00              ; Pure right: Y = 0, X = +8
     XBA 
     LDA #$08
 
-  loc_02B41B:
+; Exit of the right handlers: restore P and return (same as JoypadVelocityDone).
+
+  JoypadVelocityDoneRight:
     PLP 
     RTS 
 
-  loc_02B41D:
-    LDA #$F8              ; Pure Up: Y=-8 ($F8), X=0
+; Up held with Left and Right clear: Y = -8, X = 0; restores P and returns directly.
+
+  JoypadVelocityPureUp:
+    LDA #$F8              ; Pure up: Y = -8 ($F8), X = 0
     XBA 
     LDA #$00
     PLP 
     RTS 
 
-  loc_02B424:
-    LDA #$08              ; Pure Down: Y=+8, X=0
+; Down held with Left, Right and Up clear: Y = +8, X = 0; restores P and returns directly.
+
+  JoypadVelocityPureDown:
+    LDA #$08              ; Pure down: Y = +8, X = 0
     XBA 
     LDA #$00
     PLP 

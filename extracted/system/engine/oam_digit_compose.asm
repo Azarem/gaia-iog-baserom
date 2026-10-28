@@ -1,6 +1,6 @@
 ; OAM digit sprite composition (244449–244613, Bank 03).
 ; 
-; Converts a packed BCD number into individual digit sprites in the OAM compose buffer ($7F3100). Callers: SpawnAttackTrailEffect (floating damage numbers, via ComposeDigitSprites), the three-two-one countdown digits in ec11_countdown, mu67_bomb and it1B_trial (ComposeDigitSprites), the diary counter (ComposeDigitSprites_AtCursor) and the unused AttackTrailShort.
+; Converts a packed BCD number into individual digit sprites in the OAM compose buffer ($7F3100). Callers: SpawnDamageNumberEffect (floating damage numbers, via ComposeDigitSprites), the three-two-one countdown digits in ec11_countdown, mu67_bomb and it1B_trial (ComposeDigitSprites), the diary counter (ComposeDigitSprites_AtCursor) and the unused AttackTrailShort.
 ; 
 ; === PACKED BCD FORMAT ===
 ; 

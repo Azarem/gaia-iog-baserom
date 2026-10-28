@@ -451,7 +451,7 @@ This section investigates practical approaches to faithfully restoring the unuse
 
 3. **The boss's Phase 3 takes place on a separate "arena"** with a camera-controlled playfield — this is conceptually identical to how Mode 7 boss arenas work in other Quintet games and SNES titles (e.g., the perspective floor in Final Fantasy boss fights). The orbital cannon mechanics with 8-directional targeting make more visual sense on a rotating/scaling floor.
 
-4. **IOG already has a proven Mode 7 thinker** at `$03A940` (`Mode7PerspectiveUpdate`). It generates per-scanline HDMA tables for M7A/M7B/M7C/M7D from sine/cosine lookup tables, driven by three actor fields: `$B6` (rotation angle), `$B8` (scale), `$BC` (perspective index). This thinker is used by 4 existing scenes (world map, Sky Garden crash, Angkor Wat vision, prologue prophecy). The infrastructure is battle-tested.
+4. **IOG already has a proven Mode 7 thinker** at `$03A940` (`Mode7PerspectiveUpdate`). It generates per-scanline HDMA tables for M7A/M7B/M7C/M7D from sine/cosine lookup tables, driven by three **global low-RAM words** (absolute stores with D=0, not thinker slot fields): **`$00B6`** (per-scanline divisor increment), **`$00B8`** (starting divisor / scale), **`$00BC`** (rotation index into the sine/cosine tables). This thinker is used by 4 existing scenes (world map, Sky Garden crash, Angkor Wat vision, prologue prophecy). The infrastructure is battle-tested.
 
 5. **Display preset `#07`** (`display_preset_0180A4`) is configured for Mode 7: `BGMODE = $17` which is Mode 1, but scene `$29` uses `display-mode < #07 >` (world map). The engine can switch BG modes mid-scene through direct register writes — no preset change needed.
 
@@ -474,7 +474,7 @@ This section investigates practical approaches to faithfully restoring the unuse
 At the P2→P3 transition, after the existing VRAM DMA:
 
 1. **Switch BGMODE to $07** (Mode 7) or $47 (Mode 7 EXTBG for a BG2 status layer)
-2. **Set M7SEL = $80** (repeat character 0 outside playfield — matches existing Mode 7 setup)
+2. **Set M7SEL = $80** (transparent outside the 1024×1024 Mode 7 map — matches `Mode7PerspectiveInit`)
 3. **Spawn `Mode7PerspectiveUpdate`** as a thinker with params `$0804` (deferred dispatch, same as garden crash/vision cutscenes)
 4. **Configure M7 scroll center** to track the boss arena center
 5. **Set color math**: `CGADSUB = $01`, `CGWSEL = $82` (same pattern used by garden crash and future vision)
@@ -492,12 +492,12 @@ The existing DMA targets $5000–$5FFF. For Mode 7, this would need to be redire
 The Brain actor (`code_09B5C7`) already uses `code_09BA59` for sine-based camera hover. During Phase 3, this could drive Mode 7 rotation:
 
 ```
-; After spawning Mode7PerspectiveUpdate as thinker (slot in Y):
-; Each frame in the Brain's hover loop:
+; After spawning Mode7PerspectiveUpdate as thinker:
+; Each frame in the Brain's hover loop (absolute stores — global words, not ,Y thinker fields):
 LDA $orbitAngle,X     ; Brain's sine angle
-STA $00BC,Y           ; → thinker's perspective rotation
+STA $00BC             ; → global rotation index ($00BC)
 LDA #$0200            ; Fixed scale for consistent arena size
-STA $00B8,Y           ; → thinker's base scale
+STA $00B8             ; → global divisor word ($00B8)
 ```
 
 The floor would gently rotate in sync with the Brain's hover, creating a dramatic swaying arena effect.
@@ -616,14 +616,14 @@ When the Core P2 dies and the VRAM transition occurs, the background transforms 
    - Existing DMA copies character data to VRAM (redirect targets to Mode 7 char base)
    - Write tilemap indices to VRAM $0000
    - Switch BGMODE from Mode 1 ($09) to Mode 7 ($07)
-   - Set M7SEL = $80 (repeat playfield)
+   - Set M7SEL = $80 (transparent outside the map)
    - Spawn `Mode7PerspectiveUpdate` thinker
-   - Initialize: `$B6 = 0` (no rotation), `$B8 = $0300` (moderate scale), `$BC = 0`
+   - Initialize global words: `$00B6 = 0` (flat plane), `$00B8 = $0300` (moderate scale), `$00BC = 0` (rotation index)
 
 4. **During Phase 3**:
-   - Brain's hover loop drives `$BC` (perspective rotation) at 1 unit/frame — slow, majestic rotation
-   - Canon fire events trigger brief `$B8` scale pulses (zoom in by $40, ease back over 16 frames)
-   - Final Core hit flashes: momentary `$B6` spike (adds rotation wobble)
+   - Brain's hover loop drives `$00BC` (rotation index) at 1 unit/frame — slow, majestic rotation
+   - Canon fire events trigger brief `$00B8` scale pulses (zoom in by $40, ease back over 16 frames)
+   - Final Core hit flashes: momentary `$00B6` increment spike (adds perspective wobble)
    - Nuke impact: larger scale pulse + brief rotation acceleration
 
 5. **IrisCircleEffect** (optional): Spawn the iris thinker during the P2→P3 transition for a dramatic spotlight-open effect as the new arena reveals itself. Already proven in the world map and prologue.

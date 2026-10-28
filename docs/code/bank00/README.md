@@ -132,7 +132,7 @@ Every block in bank $00 maps to one extracted ASM file. Links go directly to the
 | `flag_gated_palette_cool` | `$B5DF`–`$B5FE` | Scenes `$03`–`$08` | [`flag_gated_palette_cool.asm`](../../../extracted/thinkers/flag_gated_palette_cool.asm) |
 | `palette_parent_child` | `$B5FE`–`$B631` | `$FD`, `$FF` | [`palette_parent_child.asm`](../../../extracted/thinkers/palette_parent_child.asm) |
 | `oneshot_coldata_warm_flash` | `$B65E`–`$B671` | Scene `$23` / `$27` thinker lists | [`oneshot_coldata_warm_flash.asm`](../../../extracted/thinkers/oneshot_coldata_warm_flash.asm) |
-| `incan_ruins_transform_palette` | `$B671`–`$B6D2` | Angkor/Incan | [`incan_ruins_transform_palette.asm`](../../../extracted/thinkers/incan_ruins_transform_palette.asm) |
+| `gold_ship_wreck_palette` | `$B671`–`$B6D2` | Gold Ship `$2B`/`$2D`/`$2F` | [`gold_ship_wreck_palette.asm`](../../../extracted/thinkers/gold_ship_wreck_palette.asm) |
 | `oneshot_coldata_r11g4b2` | `$B6E5`–`$B6FD` | Scene `$30` thinker list | [`oneshot_coldata_r11g4b2.asm`](../../../extracted/thinkers/oneshot_coldata_r11g4b2.asm) |
 | `oneshot_palette_flash_18` | `$B7CC`–`$B7D6` | Comet/Angkor | [`oneshot_palette_flash_18.asm`](../../../extracted/thinkers/oneshot_palette_flash_18.asm) |
 | `oneshot_palette_flash_19` | `$B7D6`–`$B7E0` | (complement) | [`oneshot_palette_flash_19.asm`](../../../extracted/thinkers/oneshot_palette_flash_19.asm) |
@@ -142,7 +142,7 @@ Every block in bank $00 maps to one extracted ASM file. Links go directly to the
 | `oneshot_palette15_grey_fade_in_1F` | `$B7FE`–`$B808` | Itory | [`oneshot_palette15_grey_fade_in_1F.asm`](../../../extracted/thinkers/oneshot_palette15_grey_fade_in_1F.asm) |
 | `scanline_band_hdma_thinker` | `$B88B`–`$BB8E` | Multiple | [`scanline_band_hdma_thinker.asm`](../../../extracted/thinkers/scanline_band_hdma_thinker.asm) |
 | `sine_hdma_slow_wave` | `$BE18`–`$BE39` | Mid/late | [`sine_hdma_slow_wave.asm`](../../../extracted/thinkers/sine_hdma_slow_wave.asm) |
-| `global_ambient_dispatcher` | `$BF89`–`$C1AA` | Nearly all | [`global_ambient_dispatcher.asm`](../../../extracted/thinkers/global_ambient_dispatcher.asm) |
+| `global_ambient_dispatcher` | `$BF89`–`$C1AA` | 59 spawn lists | [`global_ambient_dispatcher.asm`](../../../extracted/thinkers/global_ambient_dispatcher.asm) |
 
 ### <a id="hdma--dma-thinkers"></a>HDMA & DMA Thinkers (scene-specific)
 
@@ -206,7 +206,7 @@ Listed above in [System Services](#system-services-extractedsystem) and [Palette
 | Block | Range | ASM File |
 |-------|-------|----------|
 | `SpawnDebrisBurst` | `$C9B8`–`$C9FB` | [`functions/SpawnDebrisBurst.asm`](../../../extracted/functions/SpawnDebrisBurst.asm) |
-| `floor_button` | `$C9FB`–`$CA42` | [`actors/floor_button.asm`](../../../extracted/actors/floor_button.asm) |
+| `hit_switch` | `$C9FB`–`$CA42` | [`actors/hit_switch.asm`](../../../extracted/actors/hit_switch.asm) |
 | `overworld_exit` | `$CA42`–`$CD59` | [`actors/overworld_exit.asm`](../../../extracted/actors/overworld_exit.asm) |
 | `camera_drift` | `$CF8E`–`$D088` | [`functions/camera_drift.asm`](../../../extracted/functions/camera_drift.asm) |
 
@@ -226,11 +226,11 @@ Listed above in [System Services](#system-services-extractedsystem) and [Palette
 | `field_reveal_object` | `$DA78`–`$DB8A` | `field_reveal_object` | [`actors/field_reveal_object.asm`](../../../extracted/actors/field_reveal_object.asm) |
 | `StandardEnemyDefeatHandler` | `$DB8A`–`$DDF2` | `StandardEnemyDefeatHandler` | [`functions/StandardEnemyDefeatHandler.asm`](../../../extracted/functions/StandardEnemyDefeatHandler.asm) |
 | `NpcDespawnStub` | `$DC77`–`$DC79` | `NpcDespawnStub` | [`functions/NpcDespawnStub.asm`](../../../extracted/functions/NpcDespawnStub.asm) |
-| `SpawnAttackTrailEffect` | `$DCB4`–`$DD03` | `SpawnAttackTrailEffect` | [`functions/SpawnAttackTrailEffect.asm`](../../../extracted/functions/SpawnAttackTrailEffect.asm) |
-| `SpawnHitSparkSprites` | `$DD03`–`$DD5B` | `SpawnHitSparkSprites` | [`functions/SpawnHitSparkSprites.asm`](../../../extracted/functions/SpawnHitSparkSprites.asm) |
+| `SpawnDamageNumberEffect` | `$DCB4`–`$DD03` | `SpawnDamageNumberEffect` | [`functions/SpawnDamageNumberEffect.asm`](../../../extracted/functions/SpawnDamageNumberEffect.asm) |
+| `SpawnItemSparkleEffect` | `$DD03`–`$DD5B` | `SpawnItemSparkleEffect` | [`functions/SpawnItemSparkleEffect.asm`](../../../extracted/functions/SpawnItemSparkleEffect.asm) |
 | `SpawnFieldRevealEffect` | `$DDF2`–`$DF15` | `SpawnFieldRevealEffect` | [`functions/SpawnFieldRevealEffect.asm`](../../../extracted/functions/SpawnFieldRevealEffect.asm) |
 | `EnemyDeathFlash` | `$DF15`–`$DF29` | `EnemyDeathFlash` | [`functions/EnemyDeathFlash.asm`](../../../extracted/functions/EnemyDeathFlash.asm) |
-| `DarkGemDropSystem` | `$DF29`–`$E02D` | `SpawnDarkGemType1` | [`functions/DarkGemDropSystem.asm`](../../../extracted/functions/DarkGemDropSystem.asm) |
+| `EnemyDropSystem` | `$DF29`–`$E02D` | `SpawnDropGem1` | [`functions/EnemyDropSystem.asm`](../../../extracted/functions/EnemyDropSystem.asm) |
 | `reward_actors` | `$E02D`–`$E155` | `e_hp_increase` | [`actors/reward_actors.asm`](../../../extracted/actors/reward_actors.asm) |
 | `interaction_handlers` | `$E155`–`$E4DB` | `collect_handler_gem` | [`actors/interaction_handlers.asm`](../../../extracted/actors/interaction_handlers.asm) |
 | `smooth_follow_child` | `$E4DB`–`$E655` | `smooth_follow_child` | [`actors/smooth_follow_child.asm`](../../../extracted/actors/smooth_follow_child.asm) |
@@ -261,7 +261,7 @@ Listed above in [System Services](#system-services-extractedsystem) and [Palette
 | `native_village_dup_unused` | `$BEAA`–`$BED1` | [`unused/native_village_dup_unused.asm`](../../../extracted/unused/native_village_dup_unused.asm) |
 | `gen_hdma_sine_oneshot_unused` | `$BF52`–`$BF78` | [`unused/gen_hdma_sine_oneshot_unused.asm`](../../../extracted/unused/gen_hdma_sine_oneshot_unused.asm) |
 | `speed_zone_ns_fast_unused` | `$C251`–`$C286` | [`unused/speed_zone_ns_fast_unused.asm`](../../../extracted/unused/speed_zone_ns_fast_unused.asm) |
-| `AttackTrailShort_unused` | `$DC79`–`$DCB4` | [`unused/AttackTrailShort_unused.asm`](../../../extracted/unused/AttackTrailShort_unused.asm) |
+| `DamageNumberShort_unused` | `$DC79`–`$DCB4` | [`unused/DamageNumberShort_unused.asm`](../../../extracted/unused/DamageNumberShort_unused.asm) |
 | `InitSmoothFollowChase_unused` | `$E655`–`$E683` | [`unused/InitSmoothFollowChase_unused.asm`](../../../extracted/unused/InitSmoothFollowChase_unused.asm) |
 | `CopyRefActorPos_unused` | `$F428`–`$F432` | [`unused/CopyRefActorPos_unused.asm`](../../../extracted/unused/CopyRefActorPos_unused.asm) |
 
@@ -482,7 +482,7 @@ Covers `$00B520`–`$00B808`: 20 thinkers for ambient palette cycling and one-sh
 | `flag_gated_palette_cool` | `$B5DF` | Scenes `$03`–`$08` | Bundle #4C (7-colour step), same gate |
 | `palette_parent_child` | `$B5FE` | `$FD`, `$FF` | Bundle #03, spawns child on flag #01 |
 | `edward_castle_alarm_palette` | `$B631` | Edward Castle | Red-alert palette #05 + COLDATA red tint |
-| `incan_ruins_transform_palette` | `$B671` | Angkor/Incan | Multi-phase: #1A→#34/#33→#36 |
+| `gold_ship_wreck_palette` | `$B671` | Gold Ship `$2B`/`$2D`/`$2F` | Flag `$4D`/`$52` (from `dc2F_adrift`): #1A loop, #34+#33, or final phase |
 | `dream_palette_loop` | `$B6D2` | Gold Ship | Dream palette #35 with flag #FF exit |
 | `palace_fountain_palette` | `$B71E` | Palace | CGADSUB=#03 + alternating #1A/#25 |
 | `watermia_festival_palette` | `$B754` | Watermia | Default #42; child #72 on flag #96 |
@@ -570,7 +570,7 @@ Covers `$00B78F`–`$00BF89`: 11 thinkers for hardware configuration, boot logos
 | `boot_logo_palette_enix` | `$B83F` | Enix logo fade #50→#52→#54 |
 | `boot_logo_palette_quintet` | `$B853` | Quintet logo fade #51→#53→#55 |
 | `boot_logo_palette_third` | `$B867` | Third-party fade #56→#57→#58 |
-| **`global_ambient_dispatcher`** | `$BF89` | **Hub:** SwitchCase on $0AD4 + player interaction *(not self-contained — has ?INCLUDE deps)* |
+| **`global_ambient_dispatcher`** | `$BF89` | **Hub:** once at spawn, load player OBJ palette 0 for `characterForm`; each frame, interact-bit talk scan *(not self-contained — has ?INCLUDE deps)* |
 
 ---
 
@@ -607,9 +607,9 @@ Covers player transition animations, red jewel rewards, statue inventory, and lo
 | `inventory_statue_slot` | `$CF29` | ✓ | Scene $FF: displays collected statues |
 | `freejia_street_prop` | `$C62D` | ✓ | Interactive scenery (Freejia) |
 | `hidden_red_jewel` | `$C66F` | ✓ | Collectible red jewel |
-| `town_door` | `$C5F3` | ✓ | Door warp trigger |
-| `floor_button` | `$C9FB` | ✓ | Pressure plate actor |
-| `overworld_exit` | `$CA52` | ✓ | Complex warp/fade logic |
+| `town_door` | `$C5F3` | ✓ | Town door opens after Up held 8 frames (not a warp) |
+| `hit_switch` | `$C9FB` | ✓ | Solid hit-triggered switch (Great Wall); raises event flag on strike |
+| `overworld_exit` | `$CA52` | ✓ | 15 overworld scenes: exit zone → world map + destination menu |
 | `field_reveal_object` | `$DA78` | ✓ | Animated reveal/collectible |
 
 ### Player Transition Sub-Functions
@@ -662,14 +662,14 @@ Covers `$00DB8A`–`$00DFFF`: The complete enemy defeat pipeline from death hand
 | Function | Address | Movable | Description |
 | ---------- | --------- | --------- | ------------- |
 | `StandardEnemyDefeatHandler` | `$DB8A` | **No** | Central death: counters, flash, drops, rewards (~20 callers) |
-| `EnemyGemDropRouter` | `$DD5B` | **No** | Routes to dark gem type 1/2/weighted |
+| `EnemyGemDropRouter` | `$DD5B` | **No** | Routes stat byte +3 to fixed gem ids or HP-tier weighted roll |
 | `EnemyStatBonusReward` | `$DD87` | **No** | Scene-indexed HP/STR/DEF spawner |
 | `SpawnFieldRevealEffect` | `$DDF2` | ✓ | Field tile reveal effect (sparkles + event block tile swap) |
 | `EnemyDeathFlash` | `$DF15` | ✓ | Brief white-flash metasprite (20 bytes) |
-| `DarkGemDropSystem` | `$DF29` | ✓ | Dark gem drop spawner + 7 variant handlers |
+| `EnemyDropSystem` | `$DF29` | ✓ | Gem/heal pickup spawner (`GiveItemToPlayer` ids `$83`–`86`) |
 | `NpcDespawnStub` | `$DC77` | **No** | Immediate COP Die (2 bytes — post-interaction NPC despawn) |
-| `SpawnAttackTrailEffect` | `$DCB4` | ✓ | 16-frame hit trail |
-| `SpawnHitSparkSprites` | `$DD03` | ✓ | OAM spark entries for critical hits |
+| `SpawnDamageNumberEffect` | `$DCB4` | ✓ | 16-frame floating damage digits above victim |
+| `SpawnItemSparkleEffect` | `$DD03` | ✓ | Two-tile item sparkle (8 + 16 frames; `GiveItemToPlayer` only) |
 
 ---
 
@@ -697,7 +697,7 @@ Covers player damage state, NPC wander AI, party escort pathfinding, and invento
 
 | Function | Address | Movable | Description |
 | ---------- | --------- | --------- | ------------- |
-| `ApplyPlayerHitstun` | `$C397` | ✓ | Damage knockback: stun, spawn hit actor (~12 callers) |
+| `ApplyPlayerHitstun` | `$C397` | ✓ | Damage knockback: stun, spawn hit actor (9 callers) |
 | `SetPlayerIdleFacing` | `$C6E4` | ✓ | Idle stand pose from facing index in A (0–3) |
 | `SyncActorPosFromDP` | `$C718` | ✓ | Copy $14/$16 to actor WRAM (13 bytes) |
 | `NpcRandomWanderAI` | `$C725` | ✓ | RNG 8-direction walk with collision (~12 callers) |
@@ -719,7 +719,7 @@ Covers ambient camera drift, debris effects, and sin/cos orbital motion math.
 | `CameraDriftLoopShip` | `$CFAE` | ✓ | Camera drift gated by $player_flags |
 | `CameraDriftPatterned` | `$CFEF` | ✓ | Direction-table drift (boss arenas) |
 | `SpawnDebrisBurst` | `$C9B8` | ✓ | Eight debris particles (−16..+15 px, ~5 frames apart) |
-| `ApplyOrbitalOffsetFromRef` | `$F3C9` | ✓ | Sin/cos offset from reference actor (15+ refs) ⚠ *was misplaced in unused/* |
+| `ApplyOrbitalOffsetFromRef` | `$F3C9` | ✓ | Sin/cos offset from reference actor (21 JSL sites) ⚠ *was misplaced in unused/* |
 | `ApplyOrbitalOffsetXY` | `$F432` | ✓ | Sin/cos offset with separate X/Y angles |
 | `CopyRefActorPos_unused` | `$F428` | — | **UNUSED** — dead entry stub (10 bytes) |
 
@@ -863,12 +863,12 @@ Comprehensive reference covering all data tables, hardware register aliases, the
 |-------|-----------|-------------|
 | `camera_scroll_controller` | 100+ | Every field scene |
 | `scene_flag_init` | 26 | Scene actor lists (sets flag `#00`) |
-| `global_ambient_dispatcher` | ~40 | Nearly every scene set |
+| `global_ambient_dispatcher` | 59× | 59 thinker lists (173 of 184 scenes with thinkers) |
 | `ambient_palette_cycler` | ~30 | Paired with dispatcher |
 | `StandardEnemyDefeatHandler` | ~20 | All enemy actors |
-| `ApplyOrbitalOffsetFromRef` | ~15 | COP handlers, bosses, actors |
+| `ApplyOrbitalOffsetFromRef` | 21 | COP handlers, bosses, actors |
 | `NpcRandomWanderAI` | ~12 | Town NPC scripts |
-| `ApplyPlayerHitstun` | ~12 | Combat enemies |
+| `ApplyPlayerHitstun` | 9 | Combat enemies |
 | `EnemyDeathFlash` | ~10 | Enemy defeat |
 | `push_handler_solid` | ~9 | Statue/archer/knight actors |
 
@@ -894,9 +894,9 @@ These blocks have inbound `$&` (2-byte same-bank) references and **cannot** be r
 
 | Issue | Status | Resolution |
 |-------|--------|------------|
-| `ApplyOrbitalOffsetFromRef` misplaced in `unused/` | ✅ Fixed | Moved to `functions` section — 15+ live references |
+| `ApplyOrbitalOffsetFromRef` misplaced in `unused/` | ✅ Fixed | Moved to `functions` section — 21 live JSL sites |
 | `thinker_00BEAA` duplicate | ⚠ Flagged | Byte-identical copy of `native_village_sine_hdma` — kept in unused |
-| `func_00DC79` duplicate | ⚠ Flagged | Short variant of `SpawnAttackTrailEffect` — kept in unused |
+| `func_00DC79` duplicate | ⚠ Flagged | Short variant of `SpawnDamageNumberEffect` — kept in unused |
 
 ### Part Decomposition Opportunities
 
@@ -907,7 +907,7 @@ The following monolithic blocks contain many internal routines that would benefi
 | `overworld_exit` | 42 | Complex multi-state warp system with per-region handlers |
 | `interaction_handlers` | 25 | Three distinct handler types (gem, solid push, forceball) |
 | `player_transition_handlers` | 13 | 11 documented sub-functions for cutscene/warp animations |
-| `global_ambient_dispatcher` | 9 | Scene dispatch table with distinct palette and interaction paths |
+| `global_ambient_dispatcher` | 9 | Form palette at spawn + per-frame talk probe (59 thinker lists) |
 | `game_over_sequence` | 5 | Multi-phase death flow with sub-actors |
 
 ### Source Documents

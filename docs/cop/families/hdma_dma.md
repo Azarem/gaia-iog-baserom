@@ -204,10 +204,12 @@ QueueHdmaChannel {
 
 ##### How it is used
 
-Mode-7 perspective thinkers and unused perspective experiments — when a script must pin a specific channel without the shared queue.
+Mode-7 perspective thinkers queue per-scanline matrix data with **`QueueDma`**: operand 2 is a **B-bus register index** (`#1B`–`#1E` → `$211B`–`$211E` / M7A–M7D), not an HDMA channel number. Four **`QueueDma`** calls bind the rebuilt tables each frame (`thinkers/mode7_perspective.asm`).
 
 ```asm
-COP [QueueHdmaChannel] ( #04, $7Exxxx, #xxxx )   ; thinkers/mode7_perspective.asm
+COP [QueueDma] ( $tileStagingBuffer, #1B )   ; table A → M7A
+COP [QueueDma] ( $7E7800, #1C )              ; table B → M7B
+; … two more (table C → M7C, table A again → M7D)
 ```
 
 ##### Parameters & contract

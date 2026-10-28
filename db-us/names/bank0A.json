@@ -16,6 +16,8 @@
     "697341": "EnemyInitBasic",
     "697372": "ActorMidpointCalc",
     "697407": "EnemyDefeatDispatch",
+    "697440": "EnemyDefeatDispatch_NotLast",
+    "697460": "EnemyDefeatDispatch_CountKill",
     "697589": "dm41_actor_0AA4F5",
     "697612": "dm41_actor_0AA50C",
     "697976": "dm43_elevator_stop_y",

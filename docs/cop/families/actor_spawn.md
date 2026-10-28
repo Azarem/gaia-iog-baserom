@@ -674,10 +674,10 @@ COP [SpawnListAppend] ( @shadow_shimmer.ShadowShimmerInit, #00, #00, #$2800 )
 
 ; extracted/functions/StandardEnemyDefeatHandler.asm
 COP [SpawnListAppend] ( @EnemyDeathFlash, #00, #00, #$0302 )
-COP [SpawnListAppend] ( @DarkGemDropSystem.SpawnDarkGemType1, #00, #00, #$0420 )
+COP [SpawnListAppend] ( @EnemyDropSystem.SpawnDropGem1, #00, #00, #$0420 )
 
 ; extracted/system/inventory/inventory_mgmt.asm
-COP [SpawnListAppend] ( @SpawnHitSparkSprites, #00, #00, #$2F00 )
+COP [SpawnListAppend] ( @SpawnItemSparkleEffect, #00, #00, #$2F00 )
 ```
 
 ##### Parameters & contract

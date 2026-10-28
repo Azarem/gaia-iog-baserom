@@ -1771,7 +1771,7 @@ FireflyParticle {
 ---------------------------------------------
 
 ; Restore player control after transformation — resets entry point to PlayerIdleEntry,
-; clears movement overrides, restores grounded state, unmasks joypad, clears ability-active flag.
+; clears movement overrides, restores collision-checked movement (Flags10 bit $0008), unmasks joypad, clears ability-active flag.
 
 DarkSpaceRestoreControl {
     PHX 
@@ -1786,7 +1786,7 @@ DarkSpaceRestoreControl {
     STA $0008, X          ; Frame timer
     LDA $0010, X
     AND #$FDFF            ; Clear bit 9 (game over flag)
-    ORA #$0008            ; Set bit 3 (grounded/collision)
+    ORA #$0008            ; Set bit 3: collision-checked movement (vine, ladder and shimmy states clear it)
     STA $0010, X
     LDA #$0F00            ; Unmask D-pad and face buttons
     TRB $joypadMaskStd

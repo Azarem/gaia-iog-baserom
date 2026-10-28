@@ -1,3 +1,7 @@
 {
-    "code_0AA474": "Per-enemy death processing: decrement counters, spawn VFX, check for field reveal"
+    "EnemyDefeatDispatch_CountKill": "Per-enemy death processing (CallNear): sound #03, BCD and hex counter decrements, halt, death flash, kill flag, collision clear, optional field-reveal effect; returns with RestoreSavedPtr.",
+    "EnemyDefeatDispatch": "Entry (X = defeated actor). Last enemy ($0AEC = 1): halt and JumpFar to StandardEnemyDefeatHandler. Otherwise run EnemyDefeatDispatch_CountKill, spawn field_reveal_object with the remaining count in $26, and Die.",
+    "EnemyDefeatDispatch_NotLast": "Not the last enemy: per-enemy death processing, then the stat-gem reveal child, then Die.",
+    "loc_0AA4B8": "Field-reveal bookkeeping: skip when deathActionIdx is 0 or its $0100-base event flag is already set; otherwise set it and spawn SpawnFieldRevealEffect with the index.",
+    "loc_0AA4E0": "Return to the caller of the CallNear subroutine."
 }

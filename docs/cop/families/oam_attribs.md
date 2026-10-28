@@ -196,7 +196,7 @@ Title intro sets priority `#10` (hardware nibble placement via `$0E` packing) â€
 COP [SetSpritePriority] ( #10 )
 ```
 
-Weather particles use high priority so rain draws above playfield (`actors/particle_rain_spawner.asm`: `#30`).
+The unused **`unused_particle_rain_spawner`** (not referenced in the retail ROM) sets child priority `#30` so particles draw above the playfield; raindrops fall diagonally down-left, not straight down (`actors/unused_particle_rain_spawner.asm`).
 
 ##### Parameters & contract
 

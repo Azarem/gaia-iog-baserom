@@ -102,7 +102,7 @@ Every struct has been given a descriptive kebab-case name. This table maps old n
 | `stair_warp`   | `stair-warp`                             | Stair transition warp entry                |
 | `mapdef`       | `scene-meta`                             | Scene metadata definition                  |
 | `ppu`          | `display-mode`                           | PPU display mode preset selector           |
-| `unk1`         | `gem-drop-threshold`                     | Dark gem drop weighted RNG lookup          |
+| `unk1`         | `gem-drop-threshold`                     | Enemy drop weighted RNG lookup (gem/heal pickups) |
 | `unk5`         | `boss-reward-range`                      | Boss defeat scene range → stat reward catchup config |
 | `unk6`         | `register-init`                          | Hardware register boot initialization      |
 | `unk7`         | `display-preset`                         | Scene display PPU configuration preset     |
@@ -137,13 +137,13 @@ Variable-length actor definition: 3-byte header + inline code body. This is the 
 | ----- | ---- | ------ | ---------- | ------------------------------------------------------------------------------------------------------------- |
 | 0     | Byte | +0     | spriteId   | Starting sprite index → `$7E0028` (`SprIdx`). `$00` = no sprite (utility/system actors)                       |
 | 1     | Byte | +1     | flags10Lo  | Low byte of initial `$7E0010` (`Flags10`) — physics/rendering flags. Usually `$00`                            |
-| 2     | Byte | +2     | initBudget | Header byte; common values `$10`/`$20`/`$30`/`$38`. Not consumed by spawn routine; likely extraction metadata |
+| 2     | Byte | +2     | flags10Hi  | High byte of the initial **Flags10** word (with byte +1 as low byte). Examples: `$10` sets bit `$1000` (required by **`global_ambient_dispatcher`**'s actor scan — e.g. `town_door`, `jeweler_gem`); player actor-def uses `$85` |
 | 3     | Code | +3     | code       | Inline 65C816 code body (variable length) — the actual actor execution entry point                            |
 
 
 **Layout:** `[Byte, Byte, Byte, Code]`
 
-**Spawn behavior:** `InitActorFromSceneData` reads the header: byte +0 → `$7E0028` (sprite index), byte +1 OR'd with `$4000` → `$7E0010` (Flags10 with bit 14 set). Execution begins at +3. Data Crystal confirms byte +0 as "starting sprite ID" and bytes +1/+2 as "starting actor-page $10/$11."
+**Spawn behavior:** `InitActorFromSceneData` reads the header: byte +0 → `$7E0028` (sprite index); bytes +1/+2 as a little-endian word OR'd with `$4000` → `$7E0010` (Flags10, bit 14 = off-screen until depth sort). Execution begins at +3. Data Crystal confirms byte +0 as "starting sprite ID" and bytes +1/+2 as the initial Flags10 word.
 
 **Usage:** Every actor in the game — NPCs, enemies, bosses, interactive objects, system actors, camera controllers, menu handlers. This is the most-used struct type in the entire ROM.
 
@@ -162,8 +162,8 @@ Variable-length thinker definition: 2-byte header + inline code. Combines the fo
 
 | Field | Type | Offset | Name         | Description                                                                                                   |
 | ----- | ---- | ------ | ------------ | ------------------------------------------------------------------------------------------------------------- |
-| 0     | Byte | +0     | thinkerClass | Thinker class flag: `$00`=execute before actors, `$04`=execute after actors (bit `$0004` in `$7F000E` header) |
-| 1     | Byte | +1     | slotSize     | WRAM slot size (almost always `$08` = 8 bytes)                                                                |
+| 0     | Byte | +0     | animScratch2Lo | Low byte of the initial **animScratch2** filter word copied to `$7F000E,X` |
+| 1     | Byte | +1     | animScratch2Hi | High byte — common pair `$08,$04` → word **`$0804`** (bit 2 = run after **`ResetHdmaState`** / Type-B thinkers; bit 11 = keep running in lighter frame routines) |
 | 2     | Code | +2     | code         | Inline 65C816 code body — execution entry point                                                              |
 
 
@@ -278,12 +278,12 @@ Composite scene event definition: actor/enemy spawn list + map name text. Data C
 | 0     | Byte | +0     | hp         | Max/current HP (loaded into `$currentHp` on spawn)             |
 | 1     | Byte | +1     | attack     | Attack power (damage to player = attack − playerDef, min 1)    |
 | 2     | Byte | +2     | defense    | Defense stat (damage to enemy = playerStr + bonuses − defense, min 1) |
-| 3     | Byte | +3     | gemDropType | Dark gem drop type: 0=none, 1=fixed type A, 2=fixed type B, 3=random weighted |
+| 3     | Byte | +3     | gemDropType | Drop routing: 0=none, 1=fixed 1-gem pickup (`$83`), 2=fixed 2-gem (`$84`), other nonzero=HP-tier weighted table |
 
 
 **Layout:** `[Byte, Byte, Byte, Byte]`
 
-**Usage:** Central enemy stat table indexed by all combat actors. The `hp` field is loaded directly into the actor's `$currentHp`. The `attack` field (byte 1) determines damage to the player: `attack − playerDef` (min 1), applied via `ApplyPlayerHitstun`. The `defense` field (byte 2) reduces incoming damage from the player: `playerStr + bonuses − defense` (min 1). Bosses with defense `$7F` (127) are effectively damage-immune through normal attacks. The `gemDropType` field (byte 3) determines what dark gem spawns on defeat via `StandardEnemyDefeatHandler` → `EnemyGemDropRouter`: 0=no gem (stat bonus path only), 1/2=fixed gem type, 3+=random weighted selection from `gem-drop-threshold` table.
+**Usage:** Central enemy stat table indexed by all combat actors. The `hp` field is loaded directly into the actor's `$currentHp`. The `attack` field (byte 1) determines damage to the player: `attack − playerDef` (min 1), applied via `ApplyPlayerHitstun`. The `defense` field (byte 2) reduces incoming damage from the player: `playerStr + bonuses − defense` (min 1). Bosses with defense `$7F` (127) are effectively damage-immune through normal attacks. The `gemDropType` field (byte 3) selects **`EnemyDropSystem`** pickups when scene flag `$0300` is clear: 0=none (stat-bonus path only), 1/2=fixed 1- or 2-gem spawns, other nonzero=**`SpawnDropByHpTier`** weighted roll from `gem-drop-threshold`.
 
 **Files:** `stats_01ABF0.asm` (110 entries), consumed by 40+ actor files
 
@@ -877,31 +877,31 @@ Boot WRAM initialization constant: address + value pair.
 
 ### gem-drop-threshold
 
-Weighted RNG lookup entry for dark gem drop type selection. Formerly `reward-threshold`.
+Weighted RNG lookup entry for **`SpawnDropByHpTier`** pickup selection. Formerly `reward-threshold`.
 
 
 | Field | Type  | Offset | Name      | Description                                                   |
 | ----- | ----- | ------ | --------- | ------------------------------------------------------------- |
 | 0     | Word  | +0     | threshold | RNG threshold (`$0000`–`$0100`); compared against random byte |
-| 1     | &Code | +2     | handler   | Same-bank code pointer to dark gem variant handler            |
+| 1     | &Code | +2     | handler   | Same-bank code pointer to a spawn body in **`EnemyDropSystem`** |
 
 
 **Layout:** `[Word, &Code]`
 
-**Usage:** On enemy defeat (gemDropType=3+), `DarkGemDropSystem` generates a random byte and walks this table. The first entry whose threshold exceeds the RNG value wins, routing to its handler which spawns the corresponding dark point gem variant. Three table segments (indexed by player defense tier) select different probability distributions — stronger players see more DEF gems, weaker players see more HP gems.
+**Usage:** When **`EnemyGemDropRouter`** routes to **`SpawnDropByHpTier`**, a random byte walks the active segment of this table (three groups at offsets `$00`, `$10`, `$20`). The first entry whose threshold exceeds the RNG value wins. Each handler spawns a friendly pickup whose **`chatPtr`** is a **`GiveItemToPlayer`** id (`$83`–`$86`).
 
-**Dark gem variants (by chatPtr):**
-- `$0083` (HP gem) — sprite frames `#04`/`#09`, increases HP on collection
-- `$0084` (STR gem) — sprite frames `#05`/`#0A`, increases STR on collection
-- `$0085` (DEF gem) — sprite frames `#06`/`#0B`, increases DEF on collection
-- `$0086` (special gem) — sprite frames `#22`/`#35`, rare variant with distinct animation
+**Pickup ids (by `chatPtr` / item id):**
+- `$83` — 1 gem
+- `$84` — 2 gems
+- `$85` — 5 gems
+- `$86` — 5 HP heal (spark effect + SFX `$22`, not a gem)
 
-**Tier selection** (in `SpawnDarkGemWeighted`):
-- Tier 0 (weak): `playerMaxHp/4 ≥ playerHp` → more HP gems
-- Tier 1 (medium): `playerMaxHp/2 ≥ playerHp` → balanced mix
-- Tier 2 (strong): `playerMaxHp/2 < playerHp` → more DEF/special gems
+**HP tier selection** (in **`SpawnDropByHpTier`**):
+- HP ≤ max/4 → group `$20` (heal most likely)
+- HP ≤ max/2 → group `$10`
+- HP above half → group `$00`
 
-**Files:** `DarkGemDropSystem.asm` (12 entries)
+**Files:** `EnemyDropSystem.asm` (12 entries)
 
 **Entry count:** 12 entries × 4 bytes = 48 bytes (3 groups of 4)
 
@@ -942,18 +942,18 @@ Mystic Statue inventory reward slot configuration.
 | Field | Type | Offset | Name       | Description                                      |
 | ----- | ---- | ------ | ---------- | ------------------------------------------------ |
 | 0     | Byte | +0     | flag       | WRAM flag index (tested/set to track collection) |
-| 1     | Byte | +1     | rewardItem | Reward item ID (passed to `UpdateActorAnimation`)         |
-| 2     | Byte | +2     | slotIndex  | Inventory slot index (compared against `$0AAC`)  |
+| 1     | Byte | +1     | sprite     | Sprite index for the reward display |
+| 2     | Byte | +2     | matchValue | Compared against the statue index in `$0AAC` |
 
 
-**Layout:** `[Byte, Byte, Byte]`  
+**Layout:** `[Byte, Byte, Byte, Byte]` — four bytes per entry (flag, sprite, match value, one tail byte)  
 **Tail:** `1` (1 trailing byte after array)
 
-**Usage:** Each of the 6 Mystic Statue reward slots maps a flag + item + slot. Both `statue_inventory_reward` (NPC) and `inventory_statue_slot` (UI) reference this table.
+**Usage:** Each of the 6 Mystic Statue reward slots maps a flag + sprite + match value. Both `statue_inventory_reward` (ceremony) and `inventory_statue_slot` (UI) reference this table.
 
 **Files:** `statue_inventory_reward.asm` (6 entries), `inventory_statue_slot.asm` (consumer)
 
-**Entry count:** 6 entries × 3 bytes + 1 tail = 19 bytes
+**Entry count:** 6 entries × 4 bytes + 1 tail = 25 bytes
 
 ---
 

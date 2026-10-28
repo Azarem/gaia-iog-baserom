@@ -119,7 +119,7 @@
 | `$0BD1CA` | `$0BD222` | 88 | `pr8E_prologue3` / `spritestring_0BD1CA` | SpriteString | Prologue |
 | `$0BD222` | `$0BD272` | 80 | `pr8F_prologue4` / `spritestring_0BD222` | SpriteString | Prologue |
 | `$0BD272` | `$0BD2AB` | 57 | `pr8C_prologue5` / `spritestring_0BD272` | SpriteString | Prologue |
-| `$0BD2AB` | `$0BD306` | 91 | `particle_rain_spawner` | actor-def | Generic |
+| `$0BD2AB` | `$0BD306` | 91 | `unused_particle_rain_spawner` | actor-def | Generic |
 | `$0BD306` | `$0BDE40` | 2,874 | `sE5_epilogue` | actor-def | Ending |
 | `$0BDE40` | `$0BE029` | 489 | `s90_changed_world` | actor-def | Ending |
 | `$0BE029` | `$0BE1C5` | 412 | `s89_new_babel` | actor-def | Ending |
@@ -463,13 +463,13 @@ Not scene-bound — shared palette-effect thinkers:
 
 **Scattered across bank** (234 bytes total)
 
-#### `particle_rain_spawner` — Particle Effect Spawner (91 bytes)
+#### `unused_particle_rain_spawner` — Particle Effect Spawner (91 bytes)
 
-**Scenes:** None (no spawn table entry; unreferenced). Visual-effect spawner that runs a countdown (120 → 4 frames) and repeatedly spawns short-lived metasprite particles that start at screen top (Y = `$FFE0`), get randomized X position and velocity, rise via `ReloadForceMove` until Y ≥ `$0200`, then die. Likely intended for ending/comet particle effects but appears orphaned in the final ROM.
+**Scenes:** None (no spawn table entry; unreferenced). Countdown spawner (120 → 5 ticks, then holds at 5) that repeatedly spawns metasprite drops starting above the screen; each child uses movement-delta indices for diagonal **down-left** motion (`ReloadForceMove` chains). Orphaned dev effect, not used in retail scenes.
 
 #### `dialog_string_scanner` — Dialog String Streamer (114 bytes)
 
-**Scenes:** None (no spawn table entry; unreferenced). Waits until `worldReadyFlag` is set, then iterates banks `$85`–`$8C` searching for dialog markers (`$BF02`). When found, calls `DialogStringRenderer` to render each string with `UpdateFrameRender`. The infinite loop suggests a **dev/test harness** or orphaned credits-text driver rather than a normal gameplay actor.
+**Scenes:** None (no spawn table entry; unreferenced). Waits until `worldReadyFlag` is set, then walks ROM banks (16-bit counter from `$85`, low byte used as DBR each pass) scanning for the COP `PrintDialogString` call pattern (`$BF02` = bytes `02 BF`). Operands ≥ `$8000` are shown via `DialogStringRenderer`. Dev/test harness, not a gameplay actor.
 
 #### `debug_stat_setter` — Stat Init Bootstrap (29 bytes)
 
@@ -523,7 +523,7 @@ Pointer table mapping progress indices to named save-resume points. Each entry e
 **Scenes:** None (no spawn table entry)
 **Extracted file:** `actors/debug_man.asm`
 
-Developer debug NPC physically interleaved within the diary menu's address range. Sets `MarkSolidHere` and `SetOnInteract`. On talk: **maxes player stats** (HP 40, STR/DEF 127, all abilities via `abilityBitmask = $FF`), then presents a **nested warp menu** via `DialogueOptions`. Six nested dialogue menus with 5 options each provide 20+ warp destinations across the game world (Great Wall `$82`, Pyramid `$CC`, Watermia `$78`, Babel `$B0`, Euro, Inca, Sky Garden, and more). Contains embedded dialog strings with location names in an English/Japanese mix.
+Developer debug NPC (never spawned in retail) interleaved within the diary menu address range. Solid, no per-frame script. On every talk: sets HP/max HP 40, STR/DEF 127, `abilityBitmask = $FF`, then a **7-level nested menu** (`DialogueOptions` with 4 rows + cancel) offering **21 warp destinations** (7 levels × 3 leaves). Table entry 0 on each menu is cancel/quit. Contains embedded location-name strings (English/Japanese mix).
 
 ---
 
@@ -616,7 +616,7 @@ Developer debug NPC physically interleaved within the diary menu's address range
 ### Generic Actors
 | File | Block |
 |------|-------|
-| `extracted/actors/particle_rain_spawner.asm` | `particle_rain_spawner` |
+| `extracted/actors/unused_particle_rain_spawner.asm` | `unused_particle_rain_spawner` |
 | `extracted/actors/dialog_string_scanner.asm` | `dialog_string_scanner` |
 | `extracted/actors/debug_stat_setter.asm` | `debug_stat_setter` |
 
@@ -737,9 +737,8 @@ the Haunt spawns a smaller secondary ghost that continues pursuing the player.
 - `sub_0BA5D5` (Fire Sprite) lives at the end of the Acid Spider's range
 
 ### Development remnants
-Three unscened actors (`particle_rain_spawner`, `dialog_string_scanner`, `debug_stat_setter`) are
-orphaned dev/test code. The `debug_man` provides a full debug warp menu with
-stat maxing. Several diary menu functions are tagged `_noref`.
+Three unscened actors (`unused_particle_rain_spawner`, `dialog_string_scanner`, `debug_stat_setter`) are
+orphaned dev/test code. The `debug_man` offers 21 warp destinations and resets stats on each conversation. Several diary menu functions are tagged `_noref`.
 
 ### Interleaved diary menu
 The `sFA_diary_menu` block's code is split around the `debug_man` actor at

@@ -15,7 +15,7 @@ Script-facing inventory primitives: grant or remove items, branch on possession,
 | `inventorySlots` | `$0AB4` | 16 item bytes (0 = empty) |
 | `inventoryEquippedIndex` | `$0AC4` | Index into slots for equipped item |
 | `inventoryEquippedType` | `$0AC6` | Equipped category (cleared on remove) |
-| `$0DB8` | — | Last item ID touched (dialogue display) |
+| `$0DB8` / `$0DB9` | — | Item-get dialogue id (low byte / high byte zeroed). Written when a regular item is stored or when inventory is full; also set on the NPC pickup path. Not updated for stat-ups (`≥ $80`), gems, or heals |
 
 ## Family notes
 
@@ -107,7 +107,7 @@ code_0AA767 {
 | Item | Value |
 |------|-------|
 | Operands | 1 byte ID + 2 byte same-bank branch |
-| Success | Fallthrough; `$0DB8` may hold ID for follow-up dialog |
+| Success | Fallthrough; regular items leave **`Y`** pointing at the success string and set **`$0DB8`** to the id. Stat-ups return **`Y = 0`**; gems and heals leave **`Y`** unchanged and do not write **`$0DB8`** |
 | Failure | **`RTI`** to `OnFull`; caller must **`RTL`** or continue script |
 | Pairs with | `PrintDialogString`, `MusicAndText`, `SetFlagByte` after success |
 

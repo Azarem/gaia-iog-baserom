@@ -72,7 +72,7 @@
 ; 
 ; === DAMAGE DISPLAY ===
 ; 
-; FormatDamageDigits (247183): Converts a 16-bit damage number to packed BCD format for sprite-based display. Handles values up to 999 (returns carry set for ≥1000). Digits packed as: high byte = hundreds, bits 7-4 of low byte = tens, bits 3-0 = ones. SpawnAttackTrailEffect actors display the formatted digits as floating damage numbers.
+; FormatDamageDigits (247183): Converts a 16-bit damage number to packed BCD format for sprite-based display. Handles values up to 999 (returns carry set for ≥1000). Digits packed as: high byte = hundreds, bits 7-4 of low byte = tens, bits 3-0 = ones. SpawnDamageNumberEffect actors display the formatted digits as floating damage numbers.
 ---------------------------------------------
 
 ?BANK 03
@@ -86,7 +86,7 @@
 ?INCLUDE 'player_transition_handlers'
 ?INCLUDE 'ShowDialogueFrame'
 ?INCLUDE 'smooth_follow_child'
-?INCLUDE 'SpawnAttackTrailEffect'
+?INCLUDE 'SpawnDamageNumberEffect'
 ?INCLUDE 'StandardEnemyDefeatHandler'
 ?INCLUDE 'StopPlayerOnDeath'
 
@@ -427,7 +427,7 @@ CombatCollision_Exit {
 ; 
 ; On hit: applies damage = chainDamage/2 + 1. chainDamage ($7F101E,X) accumulates across consecutive hits within the same attack sequence. Enemy HP = max(0, HP − damage). If HP reaches 0: checks for onDeathCallback or defaults to StandardEnemyDefeatHandler. If alive: spawns HitStaggerMain for knockback, computes knockback direction, assigns iframe counter ($0011 normal or $FFEF for $0001 flag).
 ; 
-; Damage digits are formatted via FormatDamageDigits and spawned as SpawnAttackTrailEffect floating numbers (priority $2F00). Enemy HP is written to the HUD display registers.
+; Damage digits are formatted via FormatDamageDigits and spawned as SpawnDamageNumberEffect floating numbers (priority $2F00). Enemy HP is written to the HUD display registers.
 
 PlayerAttackHitTest {
     SEP #$20
@@ -568,7 +568,7 @@ PlayerAttackHitTest {
     JSR $&FormatDamageDigits
     BCS loc_03BE77
     PHA 
-    COP [SpawnListAppend] ( @SpawnAttackTrailEffect, #00, #00, #$2F00 )
+    COP [SpawnListAppend] ( @SpawnDamageNumberEffect, #00, #00, #$2F00 )
     PLA 
     STA $0028, Y
     BRA loc_03BE77
@@ -818,7 +818,7 @@ ApplyHitDamageToVictim_DamagePath {
     JSR $&FormatDamageDigits
     BCS loc_03C01E
     PHA 
-    COP [SpawnListAppend] ( @SpawnAttackTrailEffect, #00, #00, #$2B00 ) ; Spawn damage number at $2B00 priority; set $1000 display flag
+    COP [SpawnListAppend] ( @SpawnDamageNumberEffect, #00, #00, #$2B00 ) ; Spawn damage number at $2B00 priority; set $1000 display flag
     LDA $0012, Y
     ORA #$1000
     STA $0012, Y
@@ -1677,7 +1677,7 @@ CalcKnockbackFromActorCenters {
 ; 
 ; For values < 1000: extracts hundreds digit via repeated subtraction by 100/500. Switches to 8-bit for tens and ones: repeated subtraction by 50/10. Packs result as: high byte = hundreds digit, bits 7-4 of low byte = tens, bits 3-0 = ones.
 ; 
-; The packed format matches what SpawnAttackTrailEffect expects for rendering individual digit sprites as floating damage numbers.
+; The packed format matches what SpawnDamageNumberEffect expects for rendering individual digit sprites as floating damage numbers.
 
 FormatDamageDigits {
     PHA 

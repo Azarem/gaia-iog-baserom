@@ -14,10 +14,10 @@ These routines manage player damage response, COP script variant selection, town
 
 | Function | Address | Size | Movable | Call Type | Priority |
 |----------|---------|------|---------|-----------|----------|
-| `ApplyPlayerHitstun` | `$C397` | 129 B | ✓ | JSL (~12 callers) | **High** |
+| `ApplyPlayerHitstun` | `$C397` | 129 B | ✓ | JSL (9 callers) | **High** |
 | `SetPlayerIdleFacing` | `$C6E4` | 44 B + table | ✓ (with table) | JSL (~15 scenes) | **High** |
 | `SyncActorPosFromDP` | `$C718` | 13 B | ✓ | JSL | Medium |
-| `NpcRandomWanderAI` | `$C725` | 213 B | ✓ (with codes) | JSL (~12 callers) | **High** |
+| `NpcRandomWanderAI` | `$C725` | 213 B | ✓ (with codes) | JSL (13 NPC actors) | **High** |
 | `FlickerParentActor` | `$C7FA` | 12 B | ✓ | COP `SpawnAfterAbsFlags` | Medium |
 | `EscortFollowPathTracker` | `$C806` | 317 B + array | ✓ (with array) | COP `SpawnAfterFlags` | **High** |
 | `InventoryFullMessage` | `$C98E` | 42 B | ✓ | JML (10+ scenes) | Medium |
@@ -26,43 +26,43 @@ These routines manage player damage response, COP script variant selection, town
 
 ## ApplyPlayerHitstun
 
-**Address:** `$C397` · **Size:** 129 bytes · **Movable:** Yes · **Priority:** **High** (~12 enemy callers)
+**Address:** `$C397` · **Size:** 129 bytes · **Movable:** Yes · **Priority:** **High** (9 JSL call sites in 3 enemy scripts)
 
 ### Description
 
-Damage knockback entry point called when the player takes a hit from an enemy attack. Sets a stun timer on the player actor, spawns the `hit_stagger_controller` actor (`$D877`) for directional knockback animation, and masks joypad input during the stun window.
+Player damage and knockback entry. **A** = damage with bit 15 as a heavy-hit flag; **Y** = knockback direction (0 south, 1 north, 2 west, 3 east, 4+ = none). Damage is applied in full (ASL/LSR only tests bit 15, not a halving step). Spawns `hit_stagger_controller` at `HitStaggerMain` unless `playerFlags` bit `$0800` (script lock) is set.
 
-Approximately 12 enemy types call this via JSL with the knockback direction pushed on the stack. The function preserves the player's current script pointer so control can be restored after the stagger completes.
+The routine does **not** hide the D-pad — callers such as `gw82_archer` mask `$0F00` in `joypadMaskStd` before the JSL, and `HitStaggerReleasePlayer` clears the mask when the slide ends. On failed spawn (Y = `$1FC0`) it still clears D-pad bits `$0F00`. The `$003C` iframe counter written here is shortened to ~17 ticks when `HitStaggerReleasePlayer` runs.
 
 ### Algorithm
 
 ```
-1. LDX $player_actor
-2. Store stun duration to $7F0028,X (from parameter)
-3. Mask joypad: ORA #$FFFF → $joypad_mask_std
-4. Save current player script pointer
-5. Push knockback direction (0–3) on stack
-6. COP [SpawnLastRel] @HitStaggerMain with flags #$2400
-7. Set $12 bit $0008 (stagger active on player)
-8. RTL
+1. Save Y → absolute $0000; if A bit 15 set, $0002 := $FFC4 (heavy iframe path)
+2. LSR A (bit 15 cleared); subtract from playerHp
+3. Player $10 |= $0080; $7F0028 := $0002 or $003C from $0002
+4. If playerFlags $0800: TRB #$0F00 on joypadMaskStd → RTL (no stagger)
+5. COP SpawnListAppend @HitStaggerMain, #$2400 ($2000 script-driven + $0400 player victim)
+6. If spawn failed (Y = $1FC0): TRB #$0F00 on joypadMaskStd
+7. Copy player extendedFlags $0020 to child; direction $0000 → child $28; zero child $2C/$2E
+8. PlaySoundCh2 #07; RTL
 ```
 
 ### Variables
 
 | Symbol | Role |
 |--------|------|
-| `$player_actor` | Player slot index |
-| `$7F0028,X` | Stun timer duration |
-| `$joypad_mask_std` | Blocked during stagger |
-| `$12,X` bit `$0008` | Stagger-active flag |
-| Stack param | Knockback direction (N/S/E/W) |
+| `$player_actor` | Player slot after damage apply |
+| `$7F0028,X` | Iframe / stun counter (shortened by stagger release) |
+| `$joypad_mask_std` | D-pad bits `$0F00` cleared on lock/failed-spawn paths only |
+| `$0000` / `$0002` | Absolute scratch: direction code, heavy-hit counter |
+| A / Y (entry) | Damage (+ bit 15) / knockback direction |
 
 ### Cross-References
 
 | Direction | Symbol | Notes |
 |-----------|--------|-------|
-| Spawns | `hit_stagger_controller` | `SpawnLastRel @HitStaggerMain` |
-| Called from | ~12 enemy attack scripts | JSL |
+| Spawns | `hit_stagger_controller` | `SpawnListAppend @HitStaggerMain` |
+| Called from | 9 sites: `gw82_archer`, `gw83_asp`, `ir1F_stone_guard` | JSL |
 | Returns to | `PlayerIdleEntry` | Via stagger controller on completion |
 
 ---
@@ -134,34 +134,36 @@ Minimal leaf function — always paired with `NpcRandomWanderAI` in practice.
 
 ## NpcRandomWanderAI
 
-**Address:** `$C725` · **Size:** 213 bytes · **Movable:** Yes (move with embedded direction codes) · **Priority:** **High** (~12 town NPC callers)
+**Address:** `$C725` · **Size:** 213 bytes · **Movable:** Yes (move with embedded direction codes) · **Priority:** **High** (13 ambient NPC actors)
 
 ### Description
 
-RNG-driven 8-direction random walk with tile collision checking. Used by town NPCs that patrol without a fixed path — they periodically pick a random direction, attempt to move one tile, and reverse if blocked by a solid tile or map boundary.
+RNG-driven stand/walk chooser for town NPCs. **13** actors use it (Dao, Watermia, Angel Village, Euro, Seaside Palace, South Cape — see block note for the full list). Init stores the base animation index in `$7F0026` and calls `SyncActorPosFromDP`; the NPC loop is `JSL NpcRandomWanderAI` → `AnimOnce` until the staged walk animation finishes.
 
-The function contains eight direction handler blocks (N, NE, E, SE, S, SW, W, NW) dispatched via `code_list_00C733` (8-entry jump table). Each handler:
+`npc_wander_case_table` (8 entries via `SwitchCase` on scratch `$0000`):
 
-1. Computes target tile from current position + direction delta
-2. Calls `$@CalcTileMapOffset` (bank `$03` tile collision query)
-3. If passable: update position, stage walking sprite, animate one step
-4. If blocked: pick new random direction or wait
+| Case | Action |
+|------|--------|
+| 0 | Stand north (`base+0`) |
+| 1 | Stand south (`base+1`) |
+| 2 | Stand west (`base+2`) |
+| 3 | Stand east (`base+3`) |
+| 4 | Step north (`base+4`, delta chain `$12`) |
+| 5 | Step south (`base+5`, chain `$11`) |
+| 6 | Step west (`base+6`, chain `$12`) |
+| 7 | Step east (`base+7`, chain `$11`) |
+
+Steps move ±1 pixel every second frame (half a pixel per frame) for one walk-animation pass; blocked steps or moves beyond `$30` px from home become a stand facing that direction. Standing calls `MarkSolidHere`; walking calls `ClearSolidHere`.
 
 ### Algorithm
 
 ```
-1. (Caller JSR SyncActorPosFromDP first)
-2. Decrement wander timer at $7F0008,X
-3. If timer > 0: RTL (still walking current direction)
-4. JSR random → AND #$07 → direction index 0–7
-5. Jump via code_list_00C733 to direction handler
-6. Direction handler:
-     a. Compute target coords
-     b. JSL $@CalcTileMapOffset — tile collision
-     c. If blocked: reset timer, RTL
-     d. If clear: move 8 pixels, stage sprite, AnimOnce
-7. Set wander timer (random 30–120 frames)
-8. RTL
+1. RngByte AND #7 → case index in $0000
+2. SwitchCase → stand or step handler
+3. Stand: set $28/$2A, UpdateActorAnimation, wait $78 frames, MarkSolidHere
+4. Step: if >$30 from home or BranchIfSolid* → stand facing instead
+     else StageMoveX/Y (#$11/+1 or #$12/−1 per frame), walk anim, ClearSolidHere
+5. RTL (caller AnimOnce executes the staged move)
 ```
 
 ### Variables
@@ -169,18 +171,19 @@ The function contains eight direction handler blocks (N, NE, E, SE, S, SW, W, NW
 | Symbol | Role |
 |--------|------|
 | `$14`, `$16` | Current pixel position |
-| `$7F0008,X` | Wander timer / step counter |
-| `$7F0010,X`, `$7F0012,X` | WRAM position copy |
+| `$7F0010,X`, `$7F0012,X` | Home X/Y (from init `SyncActorPosFromDP`) |
+| `$7F0026,X` | Base animation index |
+| `$7F0008,X` | Stand wait counter (`$78` after a stand) |
 | `$28` | Sprite frame index |
-| `code_list_00C733` | 8-entry direction dispatch table |
+| `npc_wander_case_table` | 8-entry direction dispatch table |
 
 ### Cross-References
 
 | Direction | Symbol | Notes |
 |-----------|--------|-------|
 | Preceded by | `SyncActorPosFromDP` | Position sync |
-| External | `CalcTileMapOffset` | Bank `$03` tile collision |
-| Called from | ~12 town NPC scripts | JSL |
+| External | `BranchIfSolid*` COPs | Per-direction solidity tests |
+| Called from | 13 town NPC actor scripts | JSL |
 
 ---
 
@@ -297,9 +300,9 @@ Jumped to via JML from 10+ scene scripts (shop purchases, NPC gifts, hidden item
 
 | Caller Context | Function | Mechanism |
 |----------------|----------|-----------|
-| Enemy attack scripts (~12) | `ApplyPlayerHitstun` | JSL |
+| Enemy attack scripts (9 sites) | `ApplyPlayerHitstun` | JSL |
 | Scene init scripts (~15) | `SetPlayerIdleFacing` | JSL |
-| Town NPC scripts (~12) | `SyncActorPosFromDP` → `NpcRandomWanderAI` | JSL chain |
+| Town NPC scripts (13) | `SyncActorPosFromDP` → `NpcRandomWanderAI` | JSL chain |
 | Palace / cutscene scripts | `FlickerParentActor` | COP `SpawnAfterAbsFlags` |
 | Escort sequences | `EscortFollowPathTracker` | COP `SpawnAfterFlags` |
 | Shop / item scripts (10+) | `InventoryFullMessage` | JML |

@@ -4,7 +4,7 @@
 ----------------------------------------------
 ;Set default colors for world map (enhances font profile)
 
-code_03A942! {
+Mode7InitEntry! {
     SEP #$20
     LDA #$80
     STA $M7SEL

@@ -536,10 +536,10 @@ Small utility functions and stubs shared across multiple actors or unreferenced.
 | Block | Size | Description |
 |-------|------|-------------|
 | `SetPlayerGameOverFlag` | 13 | **Post-boss hit skip** — Sets actor-flag bit `$0200` on the player slot's `$0010` word so `combat_collision` skips the enemy-hits-player pass (not `playerFlags` game over). Re-applies each frame while the helper actor lives. Referenced by: `mu67_vampires`, `sg55_viper`, `ir29_castoth`, `pyDD_mummy_queen`, `gw8A_sand_fanger`, `sE8_dark_gaia`. |
-| `EnemyPositionSnap` | 86 | **Grid-Snap Movement** — Clears hit/dodge callbacks, computes nearest 16×16 grid position, `MoveToward` at speed `$FF`/1 frame, repeats until aligned, then `ResumeAfterSnap`. Installed as deferred resume target by `cop_handlers_movement` when movement is interrupted mid-tile. Not called directly by actor scripts. |
+| `EnemyPositionSnap` | 86 | **Grid-Snap Movement** — RTI target of COP `SnapToGrid`: clears hit/dodge callbacks, aligns to tile centre (X mod 16 = 8, Y mod 16 = 0), `MoveToward` `#FF`, `#01` (keep animation, 1 px/frame) until flush, then `ResumeAfterSnap`. Five script sites: `av6D_steelbones`, `ec0C_ribber`, `sg4D_cyber` (×3). |
 | `EnemyInitBasic` | 31 | **Chain Destructible Setup** — Turns the laborer's chain into a 1-HP destructible: sets `$0030` (solid+enemy) on `$12`, attaches `enemy_stats_table`, HP = 1, extended flag `$0080`. Used exclusively by `dm3F_laborer` chain spawn. |
 | `ActorMidpointCalc` | 35 | **Midpoint Position Calculator** — Averages parent (`$04`) and grandparent (`$06`) actor X/Y into current actor's `$14`/`$16`. Used for chain/tail following by: `av6E_draco` (tail segments), `mu60_plasma_chain` (chain followers), `dm3D_flayzer` (flame segments). |
-| `EnemyDefeatDispatch` | 163 | **Standard Enemy Death** — Two-path handler: if `$0AEC==1`, skip loot → defeat anim. Otherwise: death sound, decrement `$0AEC`/`$0AEE` counters, spawn `EnemyDeathFlash`, set dungeon kill flag, optionally spawn field-reveal effect if `deathActionIdx` set, then die. Referenced by: `av6D_dive_bat`, `gw82_fire_bug`, `gw8A_sand_fanger`. |
+| `EnemyDefeatDispatch` | 163 | **Kill-count death variant** (not the usual pipeline): if `$0AEC==1`, halts and `JumpFar` into `StandardEnemyDefeatHandler` for full clear reward; else `EnemyDefeatDispatch_CountKill`, spawn `field_reveal_object` with remaining count in `$26`, die. Used by `av6D_dive_bat`, `gw82_fire_bug`, `gw8A_sand_fanger` only. |
 | `unused_window_config` | 13 | **Unused Window Setup** — Sets SNES `$WOBJSEL` to `$A0` (window/object layer selection), immediately returns. Likely discarded color-window or compositing setup. Unreferenced. |
 | `unused_follow_chain` | 38 | **Unused Projectile Wrapper** — Marks enemy `$0010`, calls `dm_dm_follower_behavior.code_0ADC25` (burst effect), stores player actor ID, sets loop counter, tail-calls `smooth_follow_child`. Closely related to live `dm_dm_follower_behavior` but unreferenced. |
 | `unused_proximity_check_noref_noref` | 9 | **Unused Proximity Test** — Runs `BranchIfPlayerNear(7)`, returns SEC if far / CLC if near. Designed as JSR helper, never referenced. Dead code. |
@@ -580,7 +580,7 @@ Several common AI patterns recur across actors in this bank:
 | `BranchIfPlayerNear` → aggro transition | Ribber, Stone Guard, Splop, Whirligig, Flasher, Slipper, Dive Bat, Draco |
 | `smooth_follow_child` homing | Ribber (projectile), Flasher (projectile), dm_dm_follower_behavior (popup body) |
 | `ActorMidpointCalc` midpoint following | Draco (tail), Plasma Chain (segments), Flayzer (flame segments) |
-| `EnemyDefeatDispatch` standard death | Dive Bat, and cross-bank enemies |
+| `EnemyDefeatDispatch` kill-count branch | Dive Bat, Fire Bug, Sand Fanger only |
 | `SetPlayerGameOverFlag` post-defeat player hit skip | Castoth, Viper, Vampires (all 3 bosses) |
 | `InitSpiral`/`SpiralStep` | Vampires (spiral projectiles) |
 | Wall-following patrol | Eye Stalker, Plasma Snake, Dynapede, Nitropede |
@@ -602,4 +602,4 @@ Many actors in this bank reference shared engine code:
 - `smooth_follow` — homing projectile/follower system
 - `SetPlayerGameOverFlag` — player actor `$10` bit `$0200` for combat skip after boss defeat (shared within this bank)
 - `ActorMidpointCalc` — chain/tail midpoint following (shared within this bank)
-- `EnemyDefeatDispatch` — standard enemy death pipeline (shared within this bank)
+- `EnemyDefeatDispatch` — trimmed defeat path with per-kill `field_reveal_object` spawn (three enemies)

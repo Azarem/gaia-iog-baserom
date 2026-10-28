@@ -99,7 +99,7 @@ COP [ClearSolidOffset] ( #00, #03 )
 | Pairs with | `[0C]` clear; `[0D]` neighbor paint |
 
 - **Source examples:**
-  - `extracted/actors/debug_man.asm:26`
+  - `extracted/actors/debug_man.asm` (`DebugManEntry` — `MarkSolidHere`)
   - `extracted/angkor_wat/awB0_shrubber.asm:18`
   - `extracted/great_wall/gw82_archer.asm:48,93,152`
   - `extracted/mu/mu5F_cyclops.asm:25,81,101`

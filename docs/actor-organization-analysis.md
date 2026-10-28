@@ -283,7 +283,7 @@ Thinkers follow the same `&`/`@` rules. Notable units:
 ### Well-organized (keep pattern)
 
 - **Edward Castle:** Subfolder per room + one asm per NPC/enemy.
-- **Actors folder:** True globals (`floor_button`, `town_door`, `overworld_exit`).
+- **Actors folder:** True globals (`hit_switch`, `town_door`, `overworld_exit`).
 - **Tables / functions:** Already separated.
 
 ### Needs cleanup

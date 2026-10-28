@@ -1,43 +1,21 @@
-; Inventory menu actor that displays a collected mystic statue sprite at one of six pedestal positions when its event flag is set (53033–53134, Bank 00).
+; Pedestal statue of the inventory screen (Bank 00, 53033-53134): shows one collected mystic statue, or removes itself when that statue is not collected yet.
 ; 
-; Spawned on scene $FF (inventory screen) alongside InventoryMenuDef. Six instances are spawned from scene_actors, one per pedestal position. Each actor reads its $0E parameter (set by InitActorFromSceneData from the actor-spawn byte 2, mode 1: AND $FF then LSR) to determine which statue_reward table entry to check.
+; SPAWN: scene $FF (the inventory overlay) lists six copies right after InventoryMenuDef; scene $FD (the reward ceremony) has the same six positions for statue_inventory_reward. Initial flags $3800 (actor-def header byte): $2000 hidden, $1000 and $0800 keep it running in the display-filtered and cutscene-only actor passes (the inventory main loop uses RunActors_CutsceneOnly).
 ; 
-; === $0E PARAMETER ENCODING ===
+; PARAMETER ($0E): InitActorFromSceneData, mode 1 (spawn byte 2 odd): $0E = (byte AND $FF) >> 1. The low nibble is the index into statue_reward_table (0-5); bit 4 ($0010) marks a top-row pedestal, moved 8 px up. The actor overwrites $0E with $2000 (the OAM attribute word) after reading it.
 ; 
-; The actor-spawn byte 2 encodes two fields after the LSR transformation:
-; - Low nibble (AND $000F): Index into statue_reward_00CE97 table (0–5)
-; - Bit 4 ($0010): Y-position nudge flag — if set, COP NudgePosition(0,$F8) shifts the actor 8 pixels upward (top-row adjustment)
+; | Spawn byte | After >> 1 | Index | Bit 4 | Flag | Sprite | Tile (x,y) | Actor X, Y |
+; |-----------|-----------|-------|-------|------|--------|------------|------------|
+; | $21 | $10 | 0 | yes | $F8 | $3A | (2,3) top-left | 48, 48 |
+; | $03 | $01 | 1 | no | $F9 | $3B | (1,5) mid-left | 32, 88 |
+; | $05 | $02 | 2 | no | $FA | $3C | (2,8) bottom-left | 48, 136 |
+; | $27 | $13 | 3 | yes | $FB | $3D | (12,3) top-right | 208, 48 |
+; | $09 | $04 | 4 | no | $FC | $3E | (13,5) mid-right | 224, 88 |
+; | $0B | $05 | 5 | no | $FD | $3F | (12,8) bottom-right | 208, 136 |
+; Actor X = tile x 16 + 8 (the engine's centring offset for non-player actors) + 8 (NudgePosition); actor Y = tile y 16 + 8, minus 8 for bit 4. Positions are actor coordinates, not screen pixels.
 ; 
-; Scene $FF actor-spawn entries and their decoded $0E values:
-; | Spawn byte | After LSR | Index | Bit 4 | Flag | Sprite | Position |
-; |-----------|-----------|-------|-------|------|--------|----------|
-; | $21 | $10 | 0 | Yes | $F8 | $3A | (2,3) top-left |
-; | $03 | $01 | 1 | No | $F9 | $3B | (1,5) mid-left |
-; | $05 | $02 | 2 | No | $FA | $3C | (2,8) bot-left |
-; | $27 | $13 | 3 | Yes | $FB | $3D | (12,3) top-right |
-; | $09 | $04 | 4 | No | $FC | $3E | (13,5) mid-right |
-; | $0B | $05 | 5 | No | $FD | $3F | (12,8) bot-right |
-; 
-; The spawn position parameters are identical between scene $FF (inventory) and scene $FD (reward ceremony).
-; 
-; === FLAG CHECK AND DISPLAY ===
-; 
-; On init: loads $0E → $24, applies NudgePosition(8,8) for all actors plus an additional (0,$F8) for bit-4 actors, then indexes statue_reward_00CE97[low_nibble × 4]. Calls TestFlagRaw with the flag byte (event flags $F8–$FD at $0A00 array). If flag is clear (statue not collected), COP Die kills the actor immediately — no sprite displayed.
-; 
-; If flag is set (statue collected): enters InventoryStatueSlotClaimed. Loads sprite index from table byte 1 ($3A–$3F), sets as animation frame $28, calls UpdateActorAnimation, clears $2000 hidden flag to make visible.
-; 
-; Main loop (SetEntryHere): checks inventoryTabIndex each frame. On tabs 0/1/2 (Use/Arrange/Discard), clears $2000 → statue visible. On tab 3 (Status), sets $2000 → statue hidden. This ensures statues only appear when the item grid is showing.
-; 
-; === PEDESTAL LAYOUT ===
-; 
-; Six pedestals arranged symmetrically around the 4×4 inventory grid:
-;   Left column (pixel X ~24–40): statues 0, 1, 2 (top to bottom)
-;   Right column (pixel X ~200–216): statues 3, 4, 5 (top to bottom)
-;   Y positions: ~48 (top), ~88 (middle), ~136 (bottom)
-; 
-; === RELATIONSHIP TO statue_inventory_reward ===
-; 
-; This actor is the passive display counterpart to statue_inventory_reward (scene $FD). The reward ceremony actor SETS the event flags ($F8–$FD); this actor merely READS them to show/hide the statue sprite. Both share the same statue_reward_00CE97 lookup table and identical scene_actors spawn parameters.
+; STATE: TestFlagRaw(flag) returns carry set when the flag is set; flag N is bit (N AND 7) of byte $0A00 + N / 8, so $F8-$FD are bits 0-5 of the single byte $0A1F. Flag clear: COP Die, nothing is drawn. Flag set: InventoryStatueSlotClaimed sets the animation index $28 from table byte +1 ($3A-$3F), runs UpdateActorAnimation and clears the hidden bit; every frame after that inventoryTabIndex = 3 (Status tab) hides the statue and any other tab shows it, so the statues sit beside the item grid only.
+; The table has 4 bytes per entry (flag, sprite, match, one tail byte); this actor reads +0 and +1. The flags are set by statue_inventory_reward (scene $FD), which this actor only displays.
 ---------------------------------------------
 
 ?INCLUDE 'flag_helpers'
@@ -52,54 +30,65 @@
 inventory_statue_slot [
   actor-def < #00, #00, #38, {
 
-  code_00CF2C:
-    COP [NudgePosition] ( #08, #08 ) ; Slot entry: NudgePosition(8,8), SetMetasprite(@inventory_spritemap)
-    COP [SetMetasprite] ( @inventory_spritemap )
-    LDA $0E
+; Actor entry: NudgePosition (+8, +8), metasprite inventory_spritemap, spawn parameter kept in $24, and an extra 8 px up when bit 4 of the parameter marks a top-row pedestal.
+
+  InventoryStatueSlotEntry:
+    COP [NudgePosition] ( #08, #08 ) ; Slot entry: +8, +8 on top of the engine's own +8 X centring (see the block note for the positions)
+    COP [SetMetasprite] ( @inventory_spritemap ) ; Metasprite = inventory_spritemap (the statue frames $3A-$3F are animation indexes in it)
+    LDA $0E               ; $0E = spawn parameter (spawn byte 2 >> 1), kept in $24; bit 4 marks a top-row pedestal, moved 8 px up
     STA $24
     BIT #$0010
-    BEQ loc_00CF42
+    BEQ InventoryStatueSlotSetup
     COP [NudgePosition] ( #00, #F8 )
 
-  loc_00CF42:
-    LDA #$2000            ; Store $2000 to $0E; extract statue_reward index from $24 AND $000F × 4
+; Parameter handled: $0E := $2000 (the OAM attribute word), then the statue's event flag is read from statue_reward_table (index = low nibble of $24, 4 bytes per entry) and tested with TestFlagRaw.
+
+  InventoryStatueSlotSetup:
+    LDA #$2000            ; $0E = $2000: the OAM attribute word, replacing the spawn parameter
     STA $0E
-    PHX 
+    PHX                   ; Save the actor slot; X becomes the table offset (index = low nibble x 4, 4 bytes per entry)
     LDA $24
     AND #$000F
     ASL 
     ASL 
     TAX 
-    LDA $@statue_inventory_reward.statue_reward_00CE97, X ; Index statue_reward_00CE97: load flag, TestFlagRaw — if clear (not collected), Die
+    LDA $@statue_inventory_reward.statue_reward_table, X ; Entry +0: event flag index ($F8-$FD)
     AND #$00FF
-    JSL $@flag_helpers.TestFlagRaw
-    BCC loc_00CF60
+    JSL $@flag_helpers.TestFlagRaw ; Carry set = this statue was collected
+    BCC InventoryStatueSlotUncollected
     JMP $&InventoryStatueSlotClaimed
 
-  loc_00CF60:
-    PLX 
-    COP [Die]             ; InventoryStatueSlotClaimed: load sprite ($3A–$3F), set $28, UpdateActorAnimation
+; Flag clear (statue not collected yet): restore the actor slot and Die; nothing is drawn.
+
+  InventoryStatueSlotUncollected:
+    PLX                   ; Not collected: restore the actor slot and remove the actor, nothing is shown
+    COP [Die]
 } >
 ]
 
+---------------------------------------------
+; Reached by JMP from the actor entry with X = table byte offset and the actor slot still on the stack (the first PLX restores it). Sets the statue frame, clears the hidden bit and runs the per-frame tab test.
+
 InventoryStatueSlotClaimed {
-    LDA $@statue_inventory_reward.statue_reward_00CE97+1, X
+    LDA $@statue_inventory_reward.statue_reward_table+1, X ; Entry +1: sprite (animation index $3A-$3F in inventory_spritemap)
     AND #$00FF
-    STA $28
+    STA $28               ; Animation index of the statue frame
     STZ $2A
     PLX 
-    JSL $@sprite_composition.UpdateActorAnimation
-    LDA #$2000
+    JSL $@sprite_composition.UpdateActorAnimation ; Stage the statue frame
+    LDA #$2000            ; Show the statue (clear the hidden bit) until the tab test below hides it
     TRB $10
-    COP [SetEntryHere]
-    LDA $inventoryTabIndex
+    COP [SetEntryHere]    ; Re-entry point: the tab test runs every frame
+    LDA $inventoryTabIndex ; inventoryTabIndex: 0 Use, 1 Arrange, 2 Discard, 3 Status
     CMP #$0003
-    BEQ loc_00CF88
+    BEQ InventoryStatueSlotHide ; Status tab: hide the statue; any other tab shows it
     LDA #$2000
     TRB $10
     RTL 
 
-  loc_00CF88:
+; Status tab (inventoryTabIndex = 3): set the hidden bit $2000 in $10 and return; every other tab clears it in the lines above.
+
+  InventoryStatueSlotHide:
     LDA #$2000
     TSB $10
     RTL 

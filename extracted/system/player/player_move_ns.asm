@@ -11,7 +11,7 @@
 ; 3. ProbeFutureTL (top-left after the step): $0E and above or $08 -> blocked path; $02 -> NorthInteractTile; $06 -> SouthWallNudge.
 ; 4. CheckSubTileAlignX. X flush: future TL $09 -> NorthProbeRedirect, anything else -> the plain step. X straddling: future TL $09 -> blocked path; otherwise MapCellRight (the future TR cell) is read: $0E and above, $08, $02 or $06 -> blocked path, $09 -> NorthProbeRedirect, anything else -> the plain step.
 ; 5. Plain step: $26 += $24 (Y shrinks). $22 and $20 are not touched; PlayerMovementTick commits the position afterwards.
-; 6. Blocked path (loc_02D0AF): SetActorCollisionFlag, AutoAlignEW (nudge X onto the column grid, carry clear = nudged), then SnapYNorthCollision. After a nudge the Y snap runs without zeroing playerSpeedNs (entry loc_02D0C2), so the player keeps pushing and is walked around the corner a couple of pixels per tick.
+; 6. Blocked path (loc_02D0AF): SetActorCollisionFlag, AutoAlignEW_North (nudge X onto the column grid, carry clear = nudged), then SnapYNorthCollision. After a nudge the Y snap runs without zeroing playerSpeedNs (entry loc_02D0C2), so the player keeps pushing and is walked around the corner a couple of pixels per tick.
 ; 
 ; The older header had step 4 reversed ('sub-tile aligned: MapCellRight'); the code runs the MapCellRight probe only when X is NOT flush.
 ; 
@@ -132,13 +132,13 @@ DispatchNorthMove {
 
   loc_02D0AF:
     JSR $&tile_collision.SetActorCollisionFlag ; North blocked: set actor collision-contact flag for this frame
-    JSR $&player_move_main.AutoAlignEW ; AutoAlignEW: X nudge onto the column grid (carry clear = nudged); SEC when $AA bit $0040 is set or no nudge fits
+    JSR $&player_move_main.AutoAlignEW_North ; AutoAlignEW_North: X nudge onto the column grid (carry clear = nudged); SEC when $AA bit $0040 is set or no nudge fits
     BCS SnapYNorthCollision ; No nudge: full Y snap (also zeroes playerSpeedNs)
     PHP                   ; X was nudged: Y snap WITHOUT zeroing playerSpeedNs (entry loc_02D0C2); the push continues next tick
     REP #$20
     BRA loc_02D0C2
 
-; Y snap after a blocked north step: $26 = (($24 + $26) AND $FFC0) + $40, $24 = 0, so the hitbox top ends flush under the blocking row. The full entry zeroes playerSpeedNs first; the loc_02D0C2 entry (used after a successful AutoAlignEW nudge) keeps it. With $24 = 0 (east / west wall-slide callers) it pushes south by 1..16 px. See the block note.
+; Y snap after a blocked north step: $26 = (($24 + $26) AND $FFC0) + $40, $24 = 0, so the hitbox top ends flush under the blocking row. The full entry zeroes playerSpeedNs first; the loc_02D0C2 entry (used after a successful AutoAlignEW_North nudge) keeps it. With $24 = 0 (east / west wall-slide callers) it pushes south by 1..16 px. See the block note.
 
   SnapYNorthCollision:
     PHP 

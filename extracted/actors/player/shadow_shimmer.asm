@@ -1,24 +1,16 @@
-; Shadow's palette shimmer companion actor (176654–176798).
+; Shadow's palette shimmer (Bank 02, 176654-176798): a hidden companion that animates the player's OBJ palette 0 (colours $81-$8F) while the player is Shadow (characterForm 2).
 ; 
-; Runs as a companion actor for Shadow (characterForm == 2 only). Manages two alternating palette animation loops that give Shadow's sprite a shimmering visual effect — one palette for standing idle, another for moving.
+; SPAWN: PlayerCharacterDef (SpawnListAppend, so it is appended at the end of the actor list) and the two Dark Space transformations in sE6_gaia (Transform_WillToShadow, Transform_FreedanToShadow), which spawn it just before they set characterForm = 2; the new actor runs later in the same tick, after the form is set. All three use flags $2800: hidden ($2000) plus $0800, so it also runs in the cutscene-only passes. Init dies at once when characterForm is not 2.
 ; 
-; Architecture: ShadowShimmerInit spawns a child palette actor via SpawnMarkedAfter. The parent actor (this code) switches the child between two palette cycling routines by overwriting the child's function pointer ($0000,Y) and resetting its frame counter ($0008,Y):
-;   - ShadowShimmerCycleA: infinite loop on palette #23 (idle shimmer)
-;   - ShadowShimmerCycleB: infinite loop on palette #24 (movement shimmer)
+; STRUCTURE: Init spawns ShadowShimmerSlowStrips with SpawnAfterMarked (a marked child dies with its parent). This actor never touches the palette: it only points the child at one of three routines by writing the child's entry word ($0000,Y) and clearing its waitCounter ($0008,Y). The child is found through $06 (the actor-list successor), which is the child because SpawnAfter inserts it directly behind its spawner.
+;   - ShadowShimmerSlowStrips: bundle #23 in a loop (eight strips, wait 2 each)
+;   - ShadowShimmerFastStrips: bundle #24 in a loop (eight strips, waits 0 and 1 alternating: a faster cycle)
+;   - ShadowShimmerNop: yields every frame, no palette change
+; Both bundles write colours $81-$8F (15 colours, size byte $1D); bundle #23 is also the Shadow palette that global_ambient_dispatcher loads at spawn.
 ; 
-; State machine:
-;   ShadowShimmerIdle ←→ ShadowShimmerActive
+; STATES: Idle (the slow strips, ShadowShimmerSlowStrips) and Active (the fast strips, ShadowShimmerFastStrips). Idle -> Active when playerSpeedEw or playerSpeedNs is nonzero, or when flag byte #00 is set. Active -> Idle when both speeds are zero and flag #00 is clear. The speed words are not set by ordinary walking (walking uses the joypad velocity of player_move_controller); they are nonzero during slope and ramp slides and in run / slide moves, so the fast strips play then. Flag #00 is a general per-scene flag (scene_lifecycle clears it at scene setup; scene_flag_init sets it in 26 scene lists; some scripts set and clear it) that player_character also reads to pick Shadow's idle, ladder and shimmy-detach sprites; where it is set, this actor stays in Active. What the flag means is open (OQ-I030-1; here OQ-I048-1).
 ; 
-; Idle→Active transitions when playerSpeedEw | playerSpeedNs is nonzero (player started moving) or when flag byte #00 equals $01 (secondary movement trigger).
-; 
-; Active→Idle transitions when both speed axes are zero (player stopped) and flag byte #00 equals $00.
-; 
-; ShadowShimmerGuard runs every frame as a guard subroutine:
-;   - If characterForm != 2 (no longer Shadow, e.g. transformed back): pop return address and COP [Die] — kills the shimmer actor entirely.
-;   - If player actor flag bit 6 ($0040) is set (e.g. cutscene lock, menu active): pop return address, switch child to ShadowShimmerNop (idle no-op), and yield — palette cycling pauses without dying.
-;   - Otherwise returns normally and the caller continues its idle/active logic.
-; 
-; ShadowShimmerNop is a minimal COP [SetEntryHere] + RTL loop — the child actor stays alive but produces no visual effect until the parent overwrites its function pointer again.
+; GUARD (ShadowShimmerGuard, called every frame from both states): characterForm no longer 2 -> pop the return address and Die (the marked child dies too). Player Flags10 bit $0040 (dead: set when HP reaches 0 by combat_collision and by GameOverSequence; combat_collision also calls it the orb state) -> point the child at ShadowShimmerNop and run SetEntryHere + RTL. The saved entry is that RTL, so the states are never run again for the rest of the scene visit and the palette stays on whatever strip was showing.
 ---------------------------------------------
 
 !playerActor                    09AA
@@ -28,99 +20,101 @@
 
 ---------------------------------------------
 
-; Shadow's palette shimmer companion actor — initialization.
-; 
-; SpawnLastRel companion spawned by PlayerCharacterDef. First checks characterForm — if not 2 (Shadow), immediately dies. Otherwise initializes the palette shimmer system and enters the Idle state.
-; 
-; Active only when the player is Shadow form, providing the distinctive shimmering palette visual effect.
+; Spawned by PlayerCharacterDef and by the two Dark Space transformations to Shadow. Dies at once unless characterForm is 2, otherwise spawns the palette child (slow strips) and falls into ShadowShimmerIdle.
 
 ShadowShimmerInit {
-    LDA $characterForm
+    LDA $characterForm    ; characterForm: 0 Will, 1 Freedan, 2 Shadow
     CMP #$0002
     BEQ loc_02B218
-    COP [Die]             ; Not Shadow → self-destruct immediately (no shimmer for Will/Freedan)
+    COP [Die]             ; Any other form: the shimmer is not needed, remove the actor
 
   loc_02B218:
-    COP [SpawnAfterMarked] ( @ShadowShimmerCycleA, #$2800 ) ; Spawn ShadowShimmerCycleA as child palette actor with priority flags $2800
+    COP [SpawnAfterMarked] ( @ShadowShimmerSlowStrips, #$2800 ) ; Spawn the palette child (slow strips, flags $2800); marked, so it dies with this actor
 
-; Palette shimmer idle state — waiting for player movement.
-; 
-; Monitors player speed for changes. When movement is detected, transitions to the Active state. When stationary, holds the current palette frame.
+; Idle state: point the child at the slow strips (ShadowShimmerSlowStrips) and restart it, then each frame: guard, then switch to Active when a speed word is nonzero or flag byte #00 is set. Plain walking leaves both speed words at zero.
 
   ShadowShimmerIdle:
-    LDY $06               ; Idle state: load child actor slot from $06 (linked spawned actor)
-    LDA #$&ShadowShimmerCycleA ; Set child's function pointer to ShadowShimmerCycleA (idle palette #23)
+    LDY $06               ; Y = $06 = actor-list successor = the child just spawned behind this actor
+    LDA #$&ShadowShimmerSlowStrips ; Idle: point the child at ShadowShimmerSlowStrips by overwriting its entry word, and clear its waitCounter ($08) so it starts at once
     STA $0000, Y
-    LDA #$0000            ; Zero child's frame counter — restart palette cycle from beginning
+    LDA #$0000
     STA $0008, Y
-    COP [SetEntryHere]    ; COP re-entry — idle state polls every frame
-    JSR $&ShadowShimmerGuard ; Guard check: verify still Shadow and not in cutscene/menu lock
-    LDA $playerSpeedEw    ; Check if player is moving: OR both speed axes
+    COP [SetEntryHere]
+    JSR $&ShadowShimmerGuard ; Guard: Shadow form and not dead (does not return when it ends the actor)
+    LDA $playerSpeedEw    ; Speed words are nonzero only for slope / ramp slides and run / slide moves, not for plain walking
     ORA $playerSpeedNs
-    BNE ShadowShimmerActive ; Nonzero speed → transition to ShadowShimmerActive (movement palette)
-    COP [BranchOnFlagByte] ( #00, #01, &ShadowShimmerActive ) ; Speed is zero but flag byte #00 == $01 → also transition to Active (secondary trigger)
+    BNE ShadowShimmerActive
+    COP [BranchOnFlagByte] ( #00, #01, &ShadowShimmerActive ) ; Flag byte #00 == 1: Active state as well
     RTL 
 }
 
 ---------------------------------------------
-; Palette shimmer active state — animating palette transitions.
-; 
-; Runs the movement palette cycling animation while the player is moving. Returns to Idle when movement stops.
+; Active state: point the child at the fast strips (ShadowShimmerFastStrips) and restart it, then each frame: guard, stay while a speed word is nonzero, go back to Idle when both are zero and flag byte #00 is clear.
 
 ShadowShimmerActive {
-    LDY $06               ; Active state: load child actor slot from $06
-    LDA #$&ShadowShimmerCycleB ; Set child's function pointer to ShadowShimmerCycleB (movement palette #24)
+    LDY $06
+    LDA #$&ShadowShimmerFastStrips ; Active: the same with ShadowShimmerFastStrips (entry word overwritten, waitCounter cleared)
     STA $0000, Y
-    LDA #$0000            ; Zero child's frame counter — restart palette cycle
+    LDA #$0000
     STA $0008, Y
-    COP [SetEntryHere]    ; COP re-entry — active state polls every frame
-    JSR $&ShadowShimmerGuard ; Guard check: verify still Shadow and not locked
-    LDA $playerSpeedEw    ; Check if player has stopped: OR both speed axes
+    COP [SetEntryHere]
+    JSR $&ShadowShimmerGuard
+    LDA $playerSpeedEw
     ORA $playerSpeedNs
-    BEQ loc_02B25D        ; Still moving → stay in Active state
+    BEQ loc_02B25D
     RTL 
 
   loc_02B25D:
-    COP [BranchOnFlagByte] ( #00, #00, &ShadowShimmerIdle ) ; Speed is zero and flag byte #00 == $00 → transition back to Idle
-    RTL 
+    COP [BranchOnFlagByte] ( #00, #00, &ShadowShimmerIdle ) ; Flag byte #00 == 0: back to Idle
+    RTL                   ; Flag set: stay Active
 }
 
+---------------------------------------------
+; Called with JSR from both states every frame. Form no longer Shadow: pop the return address and Die. Player Flags10 bit $0040 (dead) set: pop the return address, point the child at ShadowShimmerNop and execute SetEntryHere + RTL (the saved entry is the RTL, so this actor never runs its states again). Otherwise RTS.
+
 ShadowShimmerGuard {
-    LDA $characterForm    ; Validate character form is still Shadow (form 2)
+    LDA $characterForm
     CMP #$0002
-    BNE loc_02B28A        ; Not Shadow → branch to death cleanup (form changed during play)
-    LDY $playerActor      ; Load player actor slot for flag inspection
-    LDA $0010, Y          ; Read actor flags from player slot offset $10
-    BIT #$0040            ; Bit 6 ($0040) = palette lock flag (cutscene, menu, etc.)
-    BNE loc_02B278        ; Flag set → branch to NOP transition (pause palette cycling)
+    BNE loc_02B28A        ; No longer Shadow: end the actor
+    LDY $playerActor
+    LDA $0010, Y
+    BIT #$0040            ; Bit $0040 = dead (set when HP reaches 0 and by GameOverSequence)
+    BNE loc_02B278
     RTS 
 
   loc_02B278:
-    PLA                   ; Pop caller's return address — abort caller's idle/active logic
+    PLA                   ; Drop the JSR return address: the caller's state code is skipped
     LDY $06
-    LDA #$&ShadowShimmerNop ; Set child's function pointer to ShadowShimmerNop (no-op loop)
+    LDA #$&ShadowShimmerNop ; Point the child at ShadowShimmerNop (entry word, no palette change) and clear its waitCounter
     STA $0000, Y
-    LDA #$0000            ; Zero child's frame counter
+    LDA #$0000
     STA $0008, Y
-    COP [SetEntryHere]    ; Yield — palette cycling paused until parent resumes control
+    COP [SetEntryHere]    ; Saves the entry as the RTL below, so this actor never runs its states again
     RTL 
 
   loc_02B28A:
-    PLA                   ; Pop caller's return address — abort caller's logic before dying
-    COP [Die]             ; Kill this shimmer actor — Shadow form is no longer active
+    PLA 
+    COP [Die]             ; Remove this actor; the marked child dies with it
 }
 
-ShadowShimmerCycleA {
-    COP [PaletteStart] ( #23 ) ; Idle shimmer: infinite loop cycling palette bundle #23
-    COP [PaletteStep]
-    BRA ShadowShimmerCycleA
+---------------------------------------------
+; Child routine: play palette bundle #23 (eight strips on colours $81-$8F, wait 2 each) in an endless loop.
 
-  ShadowShimmerCycleB:
-    COP [PaletteStart] ( #24 ) ; Movement shimmer: infinite loop cycling palette bundle #24
+ShadowShimmerSlowStrips {
+    COP [PaletteStart] ( #23 )
     COP [PaletteStep]
-    BRA ShadowShimmerCycleB
+    BRA ShadowShimmerSlowStrips
+
+; Child routine: play palette bundle #24 (eight strips on colours $81-$8F, waits 0 and 1 alternating) in an endless loop.
+
+  ShadowShimmerFastStrips:
+    COP [PaletteStart] ( #24 )
+    COP [PaletteStep]
+    BRA ShadowShimmerFastStrips
+
+; Child routine: yield every frame, no palette change. The colours stay as the last strip left them.
 
   ShadowShimmerNop:
-    COP [SetEntryHere]    ; No-op loop: yield each frame with no palette effect — paused state
+    COP [SetEntryHere]
     RTL 
 }

@@ -71,7 +71,7 @@ pyDD_queen_spirit_attack {
     STA $animScratch, X
 
   loc_0BAC21:
-    JSL $@ApplyOrbitalOffsetFromRef.code_00F3D3
+    JSL $@ApplyOrbitalOffsetFromRef.ApplyOrbitalOffsetFromRef_AddToCurrent
     COP [SetEntryHereAndYield]
     DEC $26
     BPL loc_0BAC21

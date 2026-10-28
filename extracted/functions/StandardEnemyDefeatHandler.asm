@@ -4,13 +4,13 @@
 ; 
 ; Entry path decrements BCD kill counters ($0AEE/$0AEC) for non-boss enemies, then runs a shared defeat sequence: play death SFX, spawn EnemyDeathFlash, wait, and optionally SetDungeonKillFlag.
 ; 
-; Branches on enemy stats (enemy_stats_table), extended flag $0080 (boss/miniboss), and scene flag $0300 to route gem drops via EnemyGemDropRouter (DarkGemDropSystem) or stat bonuses via EnemyStatBonusReward. Handles field-tile reveal (SpawnFieldRevealEffect when deathActionIdx is set), ClearLowHere for actors with flag $0008, and final Die COP.
+; Branches on enemy stats (enemy_stats_table), extended flag $0080 (boss/miniboss), and scene flag $0300 to route gem drops via EnemyGemDropRouter (EnemyDropSystem) or stat bonuses via EnemyStatBonusReward. Handles field-tile reveal (SpawnFieldRevealEffect when deathActionIdx is set), ClearLowHere for actors with flag $0008, and final Die COP.
 ---------------------------------------------
 
-?INCLUDE 'DarkGemDropSystem'
 ?INCLUDE 'enemy_clear_reward_table'
 ?INCLUDE 'enemy_stats_table'
 ?INCLUDE 'EnemyDeathFlash'
+?INCLUDE 'EnemyDropSystem'
 ?INCLUDE 'flag_helpers'
 ?INCLUDE 'reward_actors'
 ?INCLUDE 'SpawnFieldRevealEffect'
@@ -141,25 +141,25 @@ EnemyDefeatBossCleanup {
 
 ; Gem-type dispatcher called from StandardEnemyDefeatHandler when the enemy's stats byte at offset $03 is nonzero and scene flag $0300 is clear.
 ; 
-; Uses the kill-count value in orbitAngle: two DEC operations select among three DarkGemDropSystem spawn targets (type 1, type 2, or weighted random). Each path spawns a gem actor via SpawnLastRel then jumps back for the remainder of the defeat sequence.
+; A holds the enemy's stat byte +3 (gemDropType, loaded with AND #$00FF just before the JMP): two DEC operations select among three EnemyDropSystem spawn targets (1 = SpawnDropGem1, fixed $83; 2 = SpawnDropGem2, fixed $84; otherwise SpawnDropByHpTier, the weighted picker). Each path spawns the pickup with COP SpawnListAppend (flags $0420) and then jumps back for the remainder of the defeat sequence.
 
 EnemyGemDropRouter {
-    DEC                   ; EnemyGemDropRouter: deathActionIdx 3/2/1 selects dark gem spawn variant
+    DEC                   ; A = enemy stat byte +3 (gemDropType): 1 = fixed $83 gem, 2 = fixed $84 gem, otherwise the weighted picker
     BEQ loc_00DD63
     DEC 
     BEQ loc_00DD6F
     BRA loc_00DD7B
 
   loc_00DD63:
-    COP [SpawnListAppend] ( @DarkGemDropSystem.SpawnDarkGemType1, #00, #00, #$0420 )
+    COP [SpawnListAppend] ( @EnemyDropSystem.SpawnDropGem1, #00, #00, #$0420 )
     JMP $&code_00DC13
 
   loc_00DD6F:
-    COP [SpawnListAppend] ( @DarkGemDropSystem.DarkGemDropAnimVariantB, #00, #00, #$0420 )
+    COP [SpawnListAppend] ( @EnemyDropSystem.SpawnDropGem2, #00, #00, #$0420 )
     JMP $&code_00DC13
 
   loc_00DD7B:
-    COP [SpawnListAppend] ( @DarkGemDropSystem.DarkGemDropTierPicker, #00, #00, #$0420 )
+    COP [SpawnListAppend] ( @EnemyDropSystem.SpawnDropByHpTier, #00, #00, #$0420 )
     JMP $&code_00DC13
 }
 

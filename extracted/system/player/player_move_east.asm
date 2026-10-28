@@ -309,7 +309,7 @@ EastWallSouthFlag {
 }
 ---------------------------------------------
 
-; Y auto-align before the east X snap. Carry set = no nudge: vertical velocity parked at $06,S nonzero, actor solid mark at the last probe cell, or n = (($26 >> 2) AND $0F) = 0. n >= 4: south nudge (NudgeToLowerGrid, $26 += 8) if FutureBR < $0E; else n <= 10: north nudge (NudgeToUpperGrid, $26 -= 8) if FutureTR < $0E. Carry clear = nudged. Structural mirror of AutoAlignEW (player_move_main) on the Y axis.
+; Y auto-align before the east X snap. Carry set = no nudge: vertical velocity parked at $06,S nonzero, actor solid mark at the last probe cell, or n = (($26 >> 2) AND $0F) = 0. n >= 4: south nudge (NudgeAxisPlus8Clamped, $26 += 8) if FutureBR < $0E; else n <= 10: north nudge (NudgeAxisMinus8Clamped, $26 -= 8) if FutureTR < $0E. Carry clear = nudged. Structural mirror of AutoAlignEW_North (player_move_main) on the Y axis.
 
 AutoAlignNS_East {
     PHP                   ; AutoAlignNS_East: Y-axis ($26) auto-align before east-wall snap
@@ -332,8 +332,8 @@ AutoAlignNS_East {
     AND #$00FF
     CMP #$000E
     BCS loc_02DB04
-    LDX #$0026            ; LDX #$0026 — NudgeToLowerGrid operates on Y sub-pixel register
-    JSR $&player_move_main.NudgeToLowerGrid ; NudgeToLowerGrid: $26 += 8 sub-pixels (2 px south), clamped at the next row line
+    LDX #$0026            ; LDX #$0026 — NudgeAxisPlus8Clamped operates on Y sub-pixel register
+    JSR $&player_move_main.NudgeAxisPlus8Clamped ; NudgeAxisPlus8Clamped: $26 += 8 sub-pixels (2 px south), clamped at the next row line
     PLP 
     CLC 
     RTS 
@@ -346,8 +346,8 @@ AutoAlignNS_East {
     AND #$00FF
     CMP #$000E
     BCS loc_02DB1F
-    LDX #$0026            ; LDX #$0026 — NudgeToUpperGrid operates on Y sub-pixel register
-    JSR $&player_move_main.NudgeToUpperGrid ; NudgeToUpperGrid: $26 -= 8 sub-pixels (2 px north), clamped at the row line
+    LDX #$0026            ; LDX #$0026 — NudgeAxisMinus8Clamped operates on Y sub-pixel register
+    JSR $&player_move_main.NudgeAxisMinus8Clamped ; NudgeAxisMinus8Clamped: $26 -= 8 sub-pixels (2 px north), clamped at the row line
     PLP 
     CLC 
     RTS 

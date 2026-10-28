@@ -167,7 +167,7 @@ Source: [oam_digit_compose.asm](../../../extracted/system/engine/oam_digit_compo
 ### Purpose
 
 Converts packed-BCD damage numbers into individual digit sprites in the compose
-buffer at `$7F3100`. Called by combat hit effects (`SpawnAttackTrailEffect`) to
+buffer at `$7F3100`. Called by combat hit effects (`SpawnDamageNumberEffect`) to
 render floating damage numbers above actors.
 
 ### Packed BCD format (DP `$0000`)
@@ -212,7 +212,7 @@ shifts left 6px, falls through to the render loop).
 
 ### Cross-references
 
-- **In:** combat hit effects (`SpawnAttackTrailEffect`) in `combat_collision`.
+- **In:** combat hit effects (`SpawnDamageNumberEffect`) in `combat_collision`.
   `ComposeDigitSprites_AtCursor` is the re-entry for multi-hit stacked damage.
 - **Out:** writes the `$7F3100` compose buffer consumed by
   `sprite_composition.RenderComposeBuffer` (stage 3 of the OAM pipeline).
@@ -244,8 +244,8 @@ entries. The write cursor at `$00D8` tracks the next free position. Known produc
 | Producer | Source | Description |
 |----------|--------|-------------|
 | `oam_digit_compose` | combat system | floating damage digit sprites |
-| `SpawnHitSparkSprites` | combat VFX | hit spark/flash sprites |
-| `SpawnAttackTrailEffect` | combat VFX | weapon trail particles |
+| `SpawnItemSparkleEffect` | item give | two-tile sparkle (8 + 16 frames; `GiveItemToPlayer`) |
+| `SpawnDamageNumberEffect` | combat VFX | floating damage digit sprites |
 | COP visual effect handlers | various | screen-flash, explosion, etc. |
 
 `ComposeAllSprites` calls `RenderComposeBuffer` first, reading all entries from

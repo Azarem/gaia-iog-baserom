@@ -399,10 +399,10 @@ statue pedestals, and trial completion; `#2D`/`#48` statue collected
 Actors in this bank pull in shared includes from the engine:
 
 - `EscortFollowPathTracker` — used by `ec0A_kara` and `it1A_lily` for follower escort
-- `NpcRandomWanderAI` — used by `sc01_roof_man` and `sc04_poverty` for random wander
+- `NpcRandomWanderAI` — shared wander AI used by 13 ambient NPCs (Dao `daC9_businessman`, `daC3_man1`; Watermia `wa78_*`×4; Angel Village `av6B_*`×2; Euro `eu91_*`×2; Seaside `sp5A_villagers`; South Cape `sc01_roof_man`, `sc04_poverty`)
 - `SetPlayerIdleFacing` — used by `it15_lily` and `it15_lola` for player-control cutscenes
 - `f_inventory_full` / `interaction_handlers` — used by `ec0B_cell`, barrel roast, statue pickups
-- `hidden_red_jewel` — Red Jewel fanfare used by `sc01_fisherman` and `ec0A_right_guard`
+- `hidden_red_jewel` — includes `HiddenRedJewelInventoryFull` (“inventory full”) jumped to by NPC gift scripts (e.g. `sc01_fisherman`, `ec0A_right_guard`), not a jewel fanfare
 - `oneshot_palette_flash_*` — palette flash effects used by prison and barrier-reveal actors
 - `oam_digit_compose` — digit display for `it1B_trial` countdown timer
 - `table_0EE000` / `table_0EDA00` — metasprite tables referenced by prison and spirit actors

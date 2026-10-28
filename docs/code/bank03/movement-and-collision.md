@@ -336,7 +336,7 @@ to prevent re-interaction within the same screen visit).
   `ProcessDodgeCallbacks` called per-frame before combat.
 - **Out:**
   - `oam_digit_compose.ComposeDigitSprites` — damage number sprite display
-  - `SpawnAttackTrailEffect` — floating damage number actors
+  - `SpawnDamageNumberEffect` — floating damage number actors
   - `hit_stagger_controller.HitStaggerMain` — knockback stagger actor
   - `StandardEnemyDefeatHandler` — default enemy death handler
   - `game_over_sequence.GameOverSequence` — player death sequence

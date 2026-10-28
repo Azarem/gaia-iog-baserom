@@ -1,32 +1,36 @@
-; Player movement tick and collision helpers — main movement dispatch and grid alignment (184272–185206, Bank 02).
+; Player movement tick and collision helpers (184272-185206, Bank 02). PlayerMovementTick is the collision-checked movement entry; the other routines are the shared helpers of the north / south / east / west handlers (player_move_ns, player_move_south, player_move_east, player_move_west).
 ; 
-; Contains the per-frame player movement entry point and shared collision helper routines used by the north/south and east/west movement handlers (in player_move_ns and player_move_east respectively).
+; === ENTRY CONTRACT ===
 ; 
-; === MOVEMENT TICK (PlayerMovementTick) ===
+; PlayerMoveController (actors/player/player_move_controller) calls it with JSL once per frame when the player actor's flags word ($10) has bit $0008 set (collision-checked movement; the vine, ladder and shimmy states clear it, and then the controller adds the velocity to the position directly, with no collision). X at entry is the CONTROLLER's own actor slot (the old note said the player actor): the tick saves it in the absolute scratch word $000A, and SetActorCollisionFlag later ORs bit $0004 (solid contact this tick) into that slot's $10; the controller copies the bit into the player's $10 when it writes the position back. The tick itself starts by clearing bit $0004 there.
 ; 
-; The main entry point called by the player_move_controller companion actor when the player is grounded (flag $0008 set). Processes movement in two phases:
+; D is set to $0000 for the whole tick, so the 2-digit operands below are low-RAM scratch words: $20 / $22 = X velocity / position, $24 / $26 = Y velocity / position, all in sub-pixels (4 per pixel, Y grows downward; the controller scaled the position by 4 before the call and wrote them to $22 / $26), $1A / $1E = the last probe's pixel X / Y, $00 / $02 / $04 = scratch, $AA / $AB = per-tick flag words (cleared together). The reference point of the 16x16 hitbox is the centre of its bottom edge.
 ; 
-; Phase 1 — Horizontal (EW) movement:
-;   - Reads DP $20 (EW velocity from JoypadToVelocity)
-;   - Zero velocity → skip. Negative → west dispatch (DispatchWestMove with $0040 flag). Positive → east dispatch (DispatchEastMove with $0040 flag).
-;   - After dispatch: converts sub-pixel X ($22) back to pixel via >>2, stores to player actor $0014. Same for Y ($26 → $0016).
+; === TWO PHASES ===
 ; 
-; Phase 2 — Vertical (NS) movement:
-;   - Restores the saved NS velocity from stack ($24). Negative → north dispatch (DispatchNorthMove, gated by $0800 collision flag). Positive → south dispatch (DispatchSouthMove, gated by $0400 flag).
+; 1. Horizontal: the vertical velocity $24 is parked on the stack and zeroed. $20 = 0 skips the phase. Otherwise $AA bit $0040 is set (see below) and DispatchWestMove (negative $20) or DispatchEastMove (positive $20) runs. The old comments called this bit a 'diagonal flag'; it only records that the horizontal phase ran this tick. Afterwards $22 >> 2 and $26 >> 2 are stored in the player actor's pixel position ($0014 / $0016: the values are POSITIONS, not deltas as the old comments said) and $20 is cleared.
+; 2. Vertical: the parked velocity is popped back into $24. Wall-slide handlers of the horizontal phase can zero the parked word (CancelVerticalPhase in player_move_west), which then cancels this phase. Zero skips it, negative runs DispatchNorthMove, positive runs DispatchSouthMove. The controller commits the final $22 / $26 after the tick returns.
 ; 
-; The $AA register accumulates collision flags during movement: bit $0800 = south wall contact, bit $0400 = east wall contact, bit $0040 = diagonal mode active.
+; $AA bits: $0040 = horizontal phase ran (read by AutoAlignEW_North here and AutoAlignEW_South, which refuse to nudge in that case). $0800 and $0400 are tested before the north and south dispatch (the old comments called them 'south wall' and 'east wall' contact), but nothing in extracted/ ever sets them; player_move_west only clears them (TRB #$0840 / #$0440). Those two gates therefore always pass (OQ-I045-1). $AB bit 1 is set by DispatchWestMove and read by player_move_ns.
 ; 
-; === GRID ALIGNMENT (AutoAlignEW) ===
+; === AutoAlignEW_North (north counterpart of AutoAlignEW_South) ===
 ; 
-; When the player moves north or south past a tile boundary, AutoAlignEW checks whether the player's X position is slightly misaligned with the 16px tile grid. If the sub-tile offset is in the nudge range (6-8 or 9+ pixels), and the adjacent tile is passable (collision < $0E, not $06/$09), the player is nudged toward grid alignment. This prevents the player from getting caught on tile corners during vertical movement.
+; Called only from the blocked path of DispatchNorthMove. Returns carry CLEAR when X was nudged by 2 pixels toward the open column, carry SET when nothing was done. Gates (carry set): $AA bit $0040, an actor solid mark in the collision byte at the map index left in X by the last probe (high nibble), or n = 0. n = (($22 >> 2) - 8) AND $0F is the offset of the hitbox's LEFT edge (X - 8) inside its 16-pixel column. n >= 6 tries an east nudge first: it needs ProbeFutureTR to return a type below $0E and not $06. If that fails (or n < 6) and n < 9, a west nudge is tried: ProbeFutureTL below $0E and not $09. So n = 1..5 can only go west, 6..8 prefers east, 9..15 can only go east. The old text gave the east range as '6-8' and the west range as 'offset 1-8, via 9+ check'.
+; Each nudge temporarily subtracts $20 sub-pixels (8 px) from $22 so that the helper tests the left edge, calls NudgeAxisPlus8Clamped (+8) or NudgeAxisMinus8Clamped (-8), then adds $20 back; the 2-pixel nudge itself stays in $22.
 ; 
-; Two nudge directions: NudgeToLowerGrid (toward lower X boundary, offset 6-8) and NudgeToUpperGrid (toward upper X boundary, offset 9+). Both adjust the position by ±8 sub-pixels (2 pixels; positions are in sub-pixels, 4 per pixel) and snap to a 16-pixel line ($40 sub-pixels, $FFC0 mask) if the adjustment crosses it.
+; === NUDGE HELPERS ===
 ; 
-; === SNAP OFFSET COMPUTATION ===
+; Both work on the word at [$00 + X] (X = $22 for the X position, X = $26 for the Y position in player_move_east / player_move_west). NudgeAxisPlus8Clamped adds 8 sub-pixels (toward larger coordinates: east or south); if that crosses a $40 line (16 px) the result is floored to the line (AND #$FFC0), so the edge ends exactly flush. NudgeAxisMinus8Clamped subtracts 8 and, on crossing a $40 line, clamps back up to that line ((value AND #$FFC0) + $40). The 'lower' and 'upper' in the names refer to coordinate order, not to a screen direction.
 ; 
-; ComputeYSnapOffset: Computes a Y-axis snap correction. Takes the low nibble of $1E (sub-tile Y position), inverts it via two's complement (ORA $FFF0, EOR $FFFF, INC), producing a signed offset that would align Y to the next tile boundary downward. Used by south movement collision to snap the player to the tile edge on wall contact.
+; === ComputeYSnapOffset ===
 ; 
-; DiagSnapCompute_Unused: An unused diagonal snap routine that combines slope tile detection ($06/$09) with Y-axis alignment. Probes the current tile, checks sub-tile X alignment, and computes a combined snap offset incorporating both the Y snap and an optional $10 (16-pixel) slope correction. The _Unused suffix indicates this code is present but not called by any active code path.
+; $02 = 16 - (probe pixel Y AND $0F): the number of pixels to the next row line below, 1..16 ($10 when the probe is already flush). The old header said an aligned probe gives $0000; the code (OR #$FFF0, EOR #$FFFF, INC) gives $10. $1E is a pixel Y, not a sub-pixel position. Called from player_move_ns only (2 sites).
+; 
+; === DiagSnapCompute_Unused ===
+; 
+; No reference anywhere in extracted/. It probes the current TL cell and takes the 'wall path' when the type is $06, or when X straddles two columns and the cell to the right is $09 (the same wall-like types as the north handlers; the old text called $06 a 'slope / transition' type and mentioned a DispatchDiag* system that does not exist). On the wall path $02 starts at 0; a nonzero $24 is converted to a pixel step ((>>2) OR #$C000 sign-extends only a NEGATIVE value, so it assumes a north move), negated, added to the saved Y, and if that crosses a 16-px line ($1E bit 4 changes) $02 = $10. The ComputeYSnapOffset formula for the current $1E is then added to $02. The probe coordinates $1A / $1E are saved and restored around the probe.
+; 
+; Everything here is UNVERIFIED-RUNTIME (no emulator trace); the arithmetic is read from the code.
 ---------------------------------------------
 
 ?BANK 02
@@ -42,74 +46,72 @@
 
 ---------------------------------------------
 
-; Per-frame grounded player movement dispatch with collision.
-; 
-; Entry: X = player actor DP offset (stored to $000A). Called by player_move_controller when the player is grounded (flag $0008).
-; 
-; Two-phase processing:
-; 
-; Phase 1 (EW/diagonal): Reads DP $20 (horizontal velocity). Saves $24 (vertical velocity) to stack, zeroes $24 and $AA (collision flags). Clears player actor flag $0004 (solid contact). Dispatches based on $20 sign: negative → DispatchWestMove (with $0040 diagonal flag), positive → DispatchEastMove (with $0040). After dispatch, converts sub-pixel positions ($22, $26) back to pixel (>>2) and stores to player actor $0014/$0016.
-; 
-; Phase 2 (NS): Restores $24 from stack. Negative → DispatchNorthMove (skipped if $AA bit $0800 set = south wall). Positive → DispatchSouthMove (skipped if $AA bit $0400 set = east wall).
-; 
-; DP is set to $0000 during movement calculations. Player actor pointer X is saved and restored via PHX/PLX.
+; Per-frame collision-checked movement, called by PlayerMoveController. Parks $24, runs the horizontal phase (West / East dispatch), publishes the horizontal result to the player actor's pixel position, un-parks $24 and runs the vertical phase (North / South dispatch). X = controller slot at entry; D = $0000 inside; P, D and X are restored.
 
 PlayerMovementTick {
     PHP 
     PHD 
     PHX 
-    STX $000A
-    LDA #$0000            ; Set DP=$0000 — movement scratch vars live at $20-$26, $AA, $02-$04
+    STX $000A             ; $000A := controller slot; SetActorCollisionFlag reads it (absolute scratch word, not the DP)
+    LDA #$0000            ; D := $0000: $20-$26, $AA/$AB and $1A/$1E now address the low-RAM scratch words
     TCD 
-    LDA $24               ; Stash NS velocity $24 on stack; clear so EW collision phase runs first
+    LDA $24               ; Park the vertical velocity: $24 goes on the stack and is zeroed, so the horizontal phase sees no vertical motion
     STZ $24
-    STZ $AA               ; Clear per-tick movement/collision flags ($AA)
+    STZ $AA               ; Clear $AA and $AB (word store): this tick's phase flags
     PHA 
-    LDA $0010, X          ; Clear actor solid-contact flag bit 2 ($0004) at actor+$0010 before collision pass
+    LDA $0010, X          ; Clear solid-contact bit $0004 in the controller's flags; SetActorCollisionFlag sets it again when a move is blocked
     AND #$FFFB
     STA $0010, X
-    LDA $20               ; EW velocity gate: $20==0 skip; negative→diag down-left, positive→east
-    BEQ loc_02D002
+    LDA $20               ; Horizontal velocity in sub-pixels: zero skips the phase, negative runs west, positive east
+    BEQ PlayerMovementTick_AfterHorizontal
     BPL loc_02CFFA
-    LDA #$0040            ; Set diagonal flag $0040 in $AA before DispatchWestMove
+    LDA #$0040            ; Marker: the horizontal phase ran this tick ($AA bit 6, read by the AutoAlign routines)
     TSB $AA
-    JSR $&player_move_west.DispatchWestMove ; Dispatch the west collision handler (negative EW velocity)
-    BRA loc_02D002
+    JSR $&player_move_west.DispatchWestMove
+    BRA PlayerMovementTick_AfterHorizontal
+
+; East branch (positive $20): mark that the horizontal phase ran ($AA bit $0040) and run DispatchEastMove.
 
   loc_02CFFA:
-    LDA #$0040            ; Set diagonal flag $0040 in $AA before DispatchEastMove
+    LDA #$0040
     TSB $AA
-    JSR $&player_move_east.DispatchEastMove ; Dispatch east collision (positive EW velocity)
+    JSR $&player_move_east.DispatchEastMove
 
-  loc_02D002:
-    REP #$20              ; 16-bit mode: reload player actor index for pixel writeback
-    LDX $playerActor
-    LDA $22               ; Sub-pixel X delta ($22>>2) → actor pixel offset +$0014
+; After the horizontal phase: publish the player's pixel X / Y ($22 >> 2, $26 >> 2), clear $20, un-park the vertical velocity into $24 and pick the vertical dispatch.
+
+  PlayerMovementTick_AfterHorizontal:
+    REP #$20              ; The dispatchers leave A 8-bit (probe mode)
+    LDX $playerActor      ; X := the player actor (not the controller)
+    LDA $22               ; Publish the player's pixel position: $22 >> 2 and $26 >> 2 (sub-pixels to pixels) into the player actor's $14 / $16
     LSR 
     LSR 
     STA $0014, X
-    LDA $26               ; Sub-pixel Y delta ($26>>2) → actor pixel offset +$0016
+    LDA $26
     LSR 
     LSR 
     STA $0016, X
-    STZ $20               ; Clear EW velocity $20 after EW collision phase completes
-    PLA                   ; Restore saved NS velocity $24 from stack
+    STZ $20
+    PLA                   ; Un-park the vertical velocity into $24 (0 if a wall-slide handler cancelled the phase): zero skips, negative north, positive south
     STA $24
-    BEQ loc_02D034        ; NS velocity gate: zero→done; sign selects north vs south dispatch
-    BPL loc_02D02A
-    LDA $AA               ; North move (negative $24): skip if $AA bit $0800 set (south wall from EW/diag)
-    BIT #$0800
-    BNE loc_02D034
-    JSR $&player_move_ns.DispatchNorthMove ; NS phase: dispatch north collision (negative NS velocity)
-    BRA loc_02D034
+    BEQ PlayerMovementTick_Exit
+    BPL PlayerMovementTick_SouthStep
+    LDA $AA
+    BIT #$0800            ; Bit $0800: never set anywhere (OQ-I045-1), so the gate always passes
+    BNE PlayerMovementTick_Exit
+    JSR $&player_move_ns.DispatchNorthMove
+    BRA PlayerMovementTick_Exit
 
-  loc_02D02A:
-    LDA $AA               ; South move (positive $24): skip if $AA bit $0400 set (east wall from EW/diag)
-    BIT #$0400
-    BNE loc_02D034
-    JSR $&player_move_south.DispatchSouthMove ; NS phase: dispatch south collision (positive NS velocity)
+; South branch (positive $24): gate on $AA bit $0400 (never set), then DispatchSouthMove.
 
-  loc_02D034:
+  PlayerMovementTick_SouthStep:
+    LDA $AA
+    BIT #$0400            ; Bit $0400: never set anywhere (OQ-I045-1), so the gate always passes
+    BNE PlayerMovementTick_Exit
+    JSR $&player_move_south.DispatchSouthMove
+
+; Tick exit: restore X, D and P and return to PlayerMoveController.
+
+  PlayerMovementTick_Exit:
     PLX 
     PLD 
     PLP 
@@ -117,93 +119,91 @@ PlayerMovementTick {
 }
 ---------------------------------------------
 
-; Compute a Y-axis snap correction to align the player to the next tile boundary.
-; 
-; Reads the low nibble of $1E (sub-tile Y position within the 16px grid), inverts it via two's complement: OR $FFF0 (sign-extend to 16-bit), XOR $FFFF + INC (negate). The result in $02 is the number of sub-pixels to add to snap Y downward to the tile boundary.
-; 
-; For example: if $1E low nibble = $04, the offset is $000C (12 pixels to the next boundary). If $00, offset is $0000 (already aligned).
+; $02 := 16 - (probe pixel Y AND $0F), 1..16: pixels down to the next row line. Used by the north wall handlers.
 
 ComputeYSnapOffset {
     REP #$20
-    LDA $1E               ; ComputeYSnapOffset: read sub-tile Y position from $1E
-    AND #$000F            ; Mask to low nibble — position within 16px tile row
-    ORA #$FFF0            ; Sign-extend nibble to signed 16-bit (-16..+15 via ORA #$FFF0)
-    EOR #$FFFF            ; Two's complement negate +1 → pixels to snap Y up to previous grid line
+    LDA $1E
+    AND #$000F
+    ORA #$FFF0            ; OR #$FFF0 gives n - 16; EOR #$FFFF and INC negate it: 16 - n, i.e. 1..16 (16 when flush)
+    EOR #$FFFF
     INC 
     STA $02
     RTS 
 }
 
 ---------------------------------------------
-; Unused diagonal movement snap computation with slope tile detection.
-; 
-; Saves pixel positions $1A/$1E, probes the current tile via ProbeCurrentTL. If the tile is type $06 (transition), or sub-tile X alignment + adjacent $09 check passes, computes a combined snap offset incorporating a $10 (16-pixel) slope correction in $02.
-; 
-; The main snap calculation takes the NS velocity ($24), converts to pixel offset (>>2, OR $C000 for sign preservation), negates, adds to $1E, and XORs with the original to detect a 16px boundary crossing (BIT #$0010). If crossed, $02 gets $0010 added.
-; 
-; Finally adds the standard Y snap offset (same as ComputeYSnapOffset) to $02.
-; 
-; Not called by any active code — appears to be a development-era diagonal collision experiment that was superseded by the current DispatchDiag* system.
+; Unreferenced experiment: a combined Y snap offset in $02 for a wall-like current cell, from the north step and the ComputeYSnapOffset formula. Saves and restores $1A / $1E.
 
 DiagSnapCompute_Unused {
-    REP #$20              ; DiagSnapCompute_Unused: save probe coords ($1A, $1E) on stack
+    REP #$20              ; Save the probe coordinates $1A / $1E on the stack (restored on both paths)
     LDA $1A
     PHA 
     LDA $1E
     PHA 
-    SEP #$20              ; Switch to 8-bit for tile collision probe routines
-    JSR $&tile_collision.ProbeCurrentTL ; Probe current TL tile; slope type $06 → take slope snap path
+    SEP #$20
+    JSR $&tile_collision.ProbeCurrentTL ; Wall path if the current TL cell type is $06, or if X straddles two columns and the cell to the right is $09
     CMP #$06
     BEQ loc_02D277
-    JSR $&tile_collision.CheckSubTileAlignX ; X sub-tile in right half (CheckSubTileAlignX carry) → inspect cell below
+    JSR $&tile_collision.CheckSubTileAlignX
     BCC loc_02D2A3
-    JSR $&tile_collision.MapCellRight ; MapCellRight from probe; type $09 (slope) → take slope snap path
+    JSR $&tile_collision.MapCellRight
     JSR $&tile_collision.ReadCollisionNibble
     CMP #$09
     BNE loc_02D2A3
 
+; Wall path of DiagSnapCompute_Unused: restore the probe coordinates, then estimate whether the north step crosses a 16-px line.
+
   loc_02D277:
-    REP #$20              ; Slope path: restore saved coords, begin X snap offset computation
+    REP #$20
     PLA 
     STA $1E
     PLA 
     STA $1A
-    STZ $02               ; Zero base snap offset ($02) before velocity contribution
-    LDA $1E               ; Push current Y sub-tile for 16px boundary crossing test
+    STZ $02
+    LDA $1E
     PHA 
-    LDA $24               ; If NS velocity $24 nonzero: convert to pixel delta (>>2)
-    BEQ loc_02D28D        ; No NS velocity → skip velocity contribution to X snap
+    LDA $24
+    BEQ loc_02D28D
     LSR 
     LSR 
-    ORA #$C000            ; Sign-extend pixel velocity: ORA #$C000 after >>2
+    ORA #$C000            ; Sign-extend: valid only for a NEGATIVE velocity (assumes a north move)
+
+; Negate the pixel step, add it to the saved Y and XOR with the saved Y; bit 4 set means a row line is crossed.
 
   loc_02D28D:
-    EOR #$FFFF            ; Negate predicted pixel step; add to saved sub-tile Y on stack
+    EOR #$FFFF
     INC 
     CLC 
     ADC $01, S
-    EOR $01, S            ; XOR old/new Y sub-tiles; BIT #$0010 detects 16px grid line crossing
-    BIT #$0010
+    EOR $01, S
+    BIT #$0010            ; Bit 4 of (Y XOR Y + step) changed: a 16-px row line lies between
     BEQ loc_02D2A0
-    LDA #$0010            ; Grid line crossed → add 16px ($0010) to snap offset
+    LDA #$0010
     STA $02
+
+; Drop the saved Y and join the final ComputeYSnapOffset addition.
 
   loc_02D2A0:
     PLA 
     BRA loc_02D2AD
 
+; Non-wall path of DiagSnapCompute_Unused: restore the probe coordinates and start $02 at 0.
+
   loc_02D2A3:
-    REP #$20              ; Non-slope path: restore coords, zero velocity snap component
+    REP #$20
     PLA 
     STA $1E
     PLA 
     STA $1A
     STZ $02
 
+; Final step of DiagSnapCompute_Unused: add 16 - ($1E AND $0F) to $02.
+
   loc_02D2AD:
-    LDA $1E               ; Add base Y snap (ComputeYSnapOffset formula) to accumulated offset in $02
+    LDA $1E
     AND #$000F
-    ORA #$FFF0
+    ORA #$FFF0            ; 16 - n: the same formula as ComputeYSnapOffset, added to $02
     EOR #$FFFF
     INC 
     CLC 
@@ -213,104 +213,93 @@ DiagSnapCompute_Unused {
 }
 
 ---------------------------------------------
-; Auto-align player X position to the tile grid during vertical movement.
-; 
-; Called during north/south movement to prevent the player from catching on tile corners. Checks if the player's sub-tile X offset ($22 >> 2 − 8, AND $0F → $04) is in a nudgeable range:
-; 
-; Skip conditions (return SEC = no alignment):
-;   - $AA bit $0040 set (diagonal mode active — alignment handled elsewhere)
-;   - collisionLayer high nibble nonzero (special collision type)
-;   - Sub-tile offset is exactly 0 (already aligned)
-; 
-; Nudge toward lower grid (offset 6-8): Probes ProbeFutureTR — if collision is passable (< $0E, not $06), subtracts $20 from $22, calls NudgeToLowerGrid, restores +$20. Returns CLC (alignment applied).
-; 
-; Nudge toward upper grid (offset 1-8, via 9+ check): Probes ProbeFutureTL with the same passability check. Subtracts $20, calls NudgeToUpperGrid, restores +$20. Returns CLC.
-; 
-; The ±$20 offset adjusts the probe position to test the tile the player would enter after the nudge.
+; Corner assist for a blocked north step: nudge X by 2 px toward the open column. Carry CLEAR = nudged, carry SET = nothing done. Gates: horizontal phase ran, actor solid mark at X, n = 0. n >= 6 east first (FutureTR below $0E, not $06), n < 9 west (FutureTL below $0E, not $09).
 
-AutoAlignEW {
-    REP #$20              ; AutoAlignEW: skip if diagonal flag $0040 set in $AA
+AutoAlignEW_North {
+    REP #$20
     LDA $AA
-    BIT #$0040
+    BIT #$0040            ; Bit $0040: the horizontal phase ran this tick: no nudge
     BNE loc_02D339
-    LDA $collisionLayer, X ; Skip if collision layer high nibble nonzero (special tile layer active)
+    LDA $collisionLayer, X ; Raw collision byte at the map index X left by the last probe; its high nibble is an actor solid mark: no nudge
     AND #$00FF
     BIT #$00F0
     BNE loc_02D339
-    LDA $22               ; Compute X sub-tile offset: (pixelX>>2) - 8, masked to $0F
+    LDA $22               ; n = (($22 >> 2) - 8) AND $0F: the offset of the hitbox's left edge inside its 16-px column, kept in $04
     LSR 
     LSR 
     SEC 
     SBC #$0008
     AND #$000F
-    STA $04               ; Offset zero → already grid-aligned, no nudge needed
-    BEQ loc_02D339
-    CMP #$0006            ; Offset >= 6 → try nudge down to lower grid line (TR probe path)
+    STA $04
+    BEQ loc_02D339        ; n = 0: already on a column line, nothing to nudge
+    CMP #$0006            ; n >= 6: east nudge first (needs the top-right cell type below $0E and not $06); otherwise the west attempt
     BCC loc_02D30D
-    JSR $&tile_collision.ProbeFutureTR ; ProbeFutureTR at hypothetical position
-    CMP #$000E            ; Passable only if collision nibble < $0E (not solid wall)
+    JSR $&tile_collision.ProbeFutureTR
+    CMP #$000E
     BCS loc_02D30D
-    CMP #$0006            ; Exclude slope tile $06 from lower-grid nudge target
+    CMP #$0006
     BEQ loc_02D30D
-    LDX #$0022            ; Temporarily shift probe X back $20 sub-pixels for nudge test
+    LDX #$0022            ; Nudge on the word at [$00 + X] with X = $22; the position is first shifted 8 px west (-$20) so the helper tests the LEFT edge
     LDA $00, X
     SEC 
     SBC #$0020
     STA $00, X
-    JSR $&NudgeToLowerGrid ; NudgeToLowerGrid on working X; restore probe offset afterward
+    JSR $&NudgeAxisPlus8Clamped ; +8 sub-pixels (2 px east), floored to the $40 line it would cross
     LDA $00, X
     CLC 
-    ADC #$0020
+    ADC #$0020            ; Undo the shift (+$20); the 2-px nudge stays in $22
     STA $00, X
-    CLC                   ; Lower-grid nudge succeeded — return carry clear
+    CLC                   ; Carry clear: X was nudged east
     RTS 
+
+; West attempt: only for n < 9; FutureTL must be below $0E and not $09; then NudgeAxisMinus8Clamped on the left-edge reference.
 
   loc_02D30D:
-    LDA $04               ; Offset < 9 → try nudge up to upper grid line (TL probe path)
-    CMP #$0009
+    LDA $04
+    CMP #$0009            ; Only n < 9 (1..8) may go west
     BCS loc_02D339
-    JSR $&tile_collision.ProbeFutureTL ; ProbeFutureTL at hypothetical position
-    CMP #$000E            ; Passable if nibble < $0E and ≠ $09 (exclude north-wall slope tile)
+    JSR $&tile_collision.ProbeFutureTL ; West nudge needs the top-left cell type below $0E and not $09
+    CMP #$000E
     BCS loc_02D339
     CMP #$0009
     BEQ loc_02D339
-    LDX #$0022            ; Temporarily shift probe X back $20; NudgeToUpperGrid; restore
+    LDX #$0022            ; Same shifted-reference scheme as the east nudge
     LDA $00, X
     SEC 
     SBC #$0020
     STA $00, X
-    JSR $&NudgeToUpperGrid
+    JSR $&NudgeAxisMinus8Clamped ; -8 sub-pixels (2 px west), clamped back up to the $40 line it would cross
     LDA $00, X
     CLC 
     ADC #$0020
     STA $00, X
-    CLC                   ; Upper-grid nudge succeeded — return carry clear
+    CLC                   ; Carry clear: X was nudged west
     RTS 
 
+; No nudge applied: return carry SET.
+
   loc_02D339:
-    SEC                   ; No nudge applied — return carry set (alignment skipped/failed)
+    SEC                   ; Carry set: nothing nudged, the caller does the hard Y snap
     RTS 
 }
 
 ---------------------------------------------
-; Nudge a sub-pixel position toward the lower 16-pixel grid line ($40 sub-pixels).
-; 
-; Adds 8 to the position at [$00+X]. XORs old and new values — if bit 6 changed (crossed a $40 boundary), snaps to the boundary via AND $FFC0. This ensures the nudge doesn't overshoot into the next grid cell.
-; 
-; X register selects which position to nudge ($22 for X sub-pixel, $26 for Y sub-pixel).
+; +8 sub-pixels (2 px toward larger coordinates) on the word at [$00 + X], floored to the $40 line when the step crosses one. Preserves A on the stack only.
 
-NudgeToLowerGrid {
-    LDA $00, X            ; NudgeToLowerGrid: +8 sub-pixels toward the next lower 16-pixel line ($40 sub-pixels)
+NudgeAxisPlus8Clamped {
+    LDA $00, X
     PHA 
     CLC 
     ADC #$0008
     STA $00, X
-    EOR $01, S            ; XOR pre/post value; BIT #$0040 detects crossing a 16-pixel line ($40 sub-pixels)
+    EOR $01, S            ; Old XOR new: bit 6 set means a $40 line (16 px) was crossed
     BIT #$0040
     BEQ loc_02D352
     LDA $00, X
-    AND #$FFC0            ; Line crossed → snap down with AND #$FFC0 (align to the 16-pixel line)
+    AND #$FFC0            ; Crossed: floored to the line so the edge ends flush
     STA $00, X
+
+; Drop the saved old value and return.
 
   loc_02D352:
     PLA 
@@ -318,26 +307,26 @@ NudgeToLowerGrid {
 }
 
 ---------------------------------------------
-; Nudge a sub-pixel position toward the upper 16-pixel grid line ($40 sub-pixels).
-; 
-; Subtracts 8 from the position at [$00+X]. XORs old and new — if bit 6 changed (crossed a $40 boundary upward), snaps to the next $40 boundary above via AND $FFC0 + ADC $0040. Handles the case where the subtraction would undershoot by checking BIT $003F (non-zero means not already at boundary).
+; -8 sub-pixels (2 px toward smaller coordinates) on the word at [$00 + X]; when the step crosses a $40 line the value is clamped back up to that line.
 
-NudgeToUpperGrid {
-    LDA $00, X            ; NudgeToUpperGrid: -8 sub-pixels toward previous upper grid line
+NudgeAxisMinus8Clamped {
+    LDA $00, X
     PHA 
     SEC 
     SBC #$0008
     STA $00, X
-    EOR $01, S            ; XOR detects $0040 half-tile boundary crossing (same technique as lower nudge)
+    EOR $01, S            ; Old XOR new: bit 6 set means a $40 line was crossed
     BIT #$0040
     BEQ loc_02D374
-    LDA $00, X            ; If low 6 bits remain after cross, snap with AND #$FFC0 then add $0040
-    BIT #$003F
-    BEQ loc_02D374        ; Sub-tile remainder zero after upper nudge → no further snap needed
-    AND #$FFC0
+    LDA $00, X
+    BIT #$003F            ; Low six bits already zero: on the line, nothing to clamp
+    BEQ loc_02D374
+    AND #$FFC0            ; Floor, then add $40: clamp back up to the line that was crossed
     CLC 
     ADC #$0040
     STA $00, X
+
+; Drop the saved old value and return.
 
   loc_02D374:
     PLA 

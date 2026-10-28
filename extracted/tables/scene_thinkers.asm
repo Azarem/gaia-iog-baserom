@@ -30,8 +30,8 @@
 ?INCLUDE 'flag_gated_palette_cool'
 ?INCLUDE 'flag_gated_palette_warm'
 ?INCLUDE 'global_ambient_dispatcher'
+?INCLUDE 'gold_ship_wreck_palette'
 ?INCLUDE 'hdma_circle_window_thinker'
-?INCLUDE 'incan_ruins_transform_palette'
 ?INCLUDE 'inventory_bg3_scroll_hdma'
 ?INCLUDE 'IrisCircleEffect'
 ?INCLUDE 'itory_village_fog'
@@ -383,14 +383,14 @@ thinker_spawn_0CE872 [
 thinker_spawn_0CE87F [
   thinker-spawn < #06, @scanline_band_hdma_thinker >   ;00
   thinker-spawn < #05, @scanline_band_hdma_thinker >   ;01
-  thinker-spawn < #00, @incan_ruins_transform_palette >   ;02
+  thinker-spawn < #00, @gold_ship_wreck_palette >   ;02
   thinker-spawn < #00, @global_ambient_dispatcher >   ;03
 ]
 
 thinker_spawn_0CE890 [
   thinker-spawn < #06, @scanline_band_hdma_thinker >   ;00
   thinker-spawn < #0E, @scanline_band_hdma_thinker >   ;01
-  thinker-spawn < #00, @incan_ruins_transform_palette >   ;02
+  thinker-spawn < #00, @gold_ship_wreck_palette >   ;02
   thinker-spawn < #00, @global_ambient_dispatcher >   ;03
 ]
 
@@ -399,7 +399,7 @@ thinker_spawn_0CE8A1 [
   thinker-spawn < #06, @scanline_band_hdma_thinker >   ;01
   thinker-spawn < #08, @scanline_band_hdma_thinker >   ;02
   thinker-spawn < #05, @scanline_band_hdma_thinker >   ;03
-  thinker-spawn < #00, @incan_ruins_transform_palette >   ;04
+  thinker-spawn < #00, @gold_ship_wreck_palette >   ;04
   thinker-spawn < #00, @global_ambient_dispatcher >   ;05
 ]
 

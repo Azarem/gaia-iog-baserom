@@ -216,7 +216,6 @@
 ?INCLUDE 'eu9D_altar'
 ?INCLUDE 'eu9D_bones'
 ?INCLUDE 'eu9D_slaves'
-?INCLUDE 'floor_button'
 ?INCLUDE 'fr32_alley_guard'
 ?INCLUDE 'fr32_bg_sprite_a'
 ?INCLUDE 'fr32_bg_sprite_b'
@@ -308,6 +307,7 @@
 ?INCLUDE 'gw8A_sand_fanger'
 ?INCLUDE 'gw8B_lance_lily'
 ?INCLUDE 'hidden_red_jewel'
+?INCLUDE 'hit_switch'
 ?INCLUDE 'inventory_menu'
 ?INCLUDE 'inventory_statue_slot'
 ?INCLUDE 'ir1B_slugger'
@@ -2988,7 +2988,7 @@ scene_event_0CB845 [
   actor-spawn < #31, #08, #11, @gw82_wall_spear >   ;1A
   actor-spawn < #32, #08, #21, @gw82_wall_spear >   ;1B
   actor-spawn < #33, #08, #31, @gw82_wall_spear >   ;1C
-  actor-spawn < #35, #1B, #03, @floor_button >   ;1D
+  actor-spawn < #35, #1B, #03, @hit_switch >   ;1D
   actor-spawn < #35, #1B, #00, @gw83_switch >   ;1E
   actor-spawn < #35, #29, #03, @gw82_necklace_stone >   ;1F
   actor-spawn < #2E, #05, #00, @gw83_lily >   ;20
@@ -3047,11 +3047,11 @@ scene_event_0CB97D [
   actor-spawn < #34, #29, #00, @gw85_long_switch_spear >   ;29
   actor-spawn < #64, #19, #00, @gw85_multi_switch_spear >   ;2A
   actor-spawn < #65, #19, #00, @gw85_multi_switch_spear >   ;2B
-  actor-spawn < #18, #1A, #03, @floor_button >   ;2C
-  actor-spawn < #3B, #29, #05, @floor_button >   ;2D
-  actor-spawn < #29, #2B, #05, @floor_button >   ;2E
-  actor-spawn < #37, #2C, #07, @floor_button >   ;2F
-  actor-spawn < #64, #1D, #09, @floor_button >   ;30
+  actor-spawn < #18, #1A, #03, @hit_switch >   ;2C
+  actor-spawn < #3B, #29, #05, @hit_switch >   ;2D
+  actor-spawn < #29, #2B, #05, @hit_switch >   ;2E
+  actor-spawn < #37, #2C, #07, @hit_switch >   ;2F
+  actor-spawn < #64, #1D, #09, @hit_switch >   ;30
   actor-spawn < #00, #01, #00, @gw85_spin_dash_gate >   ;31
   actor-spawn < #06, #2B, #03, @dark_space.dark_space2 >   ;32
 ]
@@ -3088,7 +3088,7 @@ scene_event_0CBB87 [
   enemy-spawn < #26, #2B, #00, @gw82_archer.gw87_statue_archer, #46, #98, #00 >   ;0C
   enemy-spawn < #2F, #2B, #00, @gw82_archer.gw87_statue_archer, #46, #99, #00 >   ;0D
   enemy-spawn < #28, #14, #00, @gw82_fire_bug, #33, #9A, #00 >   ;0E
-  actor-spawn < #2F, #28, #1F, @floor_button >   ;0F
+  actor-spawn < #2F, #28, #1F, @hit_switch >   ;0F
   actor-spawn < #27, #17, #01, @gw82_wall_spear >   ;10
   actor-spawn < #28, #17, #21, @gw82_wall_spear >   ;11
   actor-spawn < #29, #17, #41, @gw82_wall_spear >   ;12

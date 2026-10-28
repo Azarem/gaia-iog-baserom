@@ -211,7 +211,7 @@ When a COP handler or game code sets `TCD #$0000`, offsets `$00`–`$FF` access 
 | Address | Size | Name | Description | Primary Users |
 |---------|------|------|-------------|---------------|
 | `$068A`–`$068D` | 4 | `bg1ScrollHv` | BG1 horizontal (H) and vertical (V) scroll positions (16-bit each) | `UploadScrollRegisters`, `WriteBgScroll`, `CameraSmoothScroll` |
-| `$068E`–`$068F` | 2 | `mapScrollVv` | BG2 scroll values (low bytes; extended via `$06C6`+ overrides) | `UploadScrollRegisters` |
+| `$068E`–`$068F` | 2 | `mapScrollVv` | BG1 vertical scroll (written to `BG1VOFS` by `UploadScrollRegisters`; extended via `$06CA` overrides) | `UploadScrollRegisters`, `camera_scroll_controller` |
 | `$0690` | 2 | `savedCameraDelta` | Saved camera delta for `ScrollCameraInit` | `ScrollCameraInit` |
 | `$0692` | 2 | `mapBoundsX` | Map width in pixels | Camera bounds clamping |
 | `$0693` | 1 | `mapRowStrideL0` | Map row width in columns (layer 0) — byte stride for index math | `AdvanceMapY`, collision iterators, `map_coords.asm` |
@@ -221,7 +221,7 @@ When a COP handler or game code sets `TCD #$0000`, offsets `$00`–`$FF` access 
 | `$069E`–`$06A1` | 4 | `mapTilemapBases` | MapLayer/EffectLayer base RAM addresses in bank `$7E` (hardcoded `$A000`, `$C000`) | Scene loading, tilemap DMA |
 | `$06AE`–`$06BD` | 16 | VRAM layout addresses | Hardcoded RAM addresses of RAM→VRAM mapping and staging tables | Tile strip DMA, camera tilemap |
 | `$06BA`–`$06BC` | 3 | VRAM nametable bases | VRAM nametable base address for queued tile writes | Dirty-strip DMA system |
-| `$06BE` | 2 | `cameraTargetX` | Camera target X position (follows player with dead zone) | Camera pan COPs, `ComputeScrollDeltas`, `camera_scroll_controller` |
+| `$06BE` | 2 | `cameraTargetX` | Camera target X (`playerXPos − $80` centres the player in the 256-pixel-wide view; no separate dead zone) | Camera pan COPs, `ComputeScrollDeltas`, `camera_scroll_controller` |
 | `$06C0` | 2 | `cameraDeltaX` | Per-frame camera scroll delta X | Scroll actors, forced walks |
 | `$06C2` | 2 | `cameraTargetY` | Camera target Y position | Camera pan COPs, `ComputeScrollDeltas` |
 | `$06C4` | 2 | `cameraDeltaY` | Per-frame camera scroll delta Y | Scroll actors, `ScrollCameraVertical` |
@@ -290,7 +290,7 @@ When a COP handler or game code sets `TCD #$0000`, offsets `$00`–`$FF` access 
 | `$09E0` | 2 | `climbStateData` | Will ability anim table byte from `LoadAbilityAnimTableA`; added to player STR in `ApplyHitDamageToVictim`. Cleared by `UnlockPlayerAfterClimb` / idle | `attack_ability_system`, `combat_collision`, lunge |
 | `$09E4`–`$09E6` | 4 | `enemyHpValues` | Enemy HP display values (current + max) for boss health bar | HUD enemy health display |
 | `$09EA` | 2 | `enemyHpPending` | Non-zero triggers enemy health bar update in HUD | `UpdateHUD` |
-| `$09EC` | 2 | `displayModeFlags` | Scene display mode — bit `$0008` = special BG3; bit `$0010` = stat refresh; bit `$0080` = music sequence; bit `$08` = dialogue display | HUD, NMI, dialogue, sine precompute |
+| `$09EC` | 2 | `displayModeFlags` | Scene display mode — bit `$0008` = special BG3; bit `$0010` = stat refresh; bit `$0080` = display filter (only actors with Flags10/12 bit `$1000` run in `RunActors_DisplayFiltered`); bit `$08` = dialogue display | HUD, NMI, dialogue, sine precompute, chest/stat rewards |
 | `$09ED` | 1 | `hudDisableFlag` | Bit `$40` set → HUD globally disabled (title screen, cutscenes) | `UpdateHUD` early exit |
 | `$09F4` | 2 | `playerActorDp` | Player actor direct page base for camera reads | `camera_scroll_controller` |
 
@@ -307,7 +307,7 @@ When a COP handler or game code sets `TCD #$0000`, offsets `$00`–`$FF` access 
 | 6 | `$0040` | unused | Never read or written | | | |
 | 7 | `$0080` | sprite priority | Behind-wall rendering mode for the Dark Friar trail. Player spawn type bit `$04` would set it, but no shipped scene does | `InitActorFromSceneData` | `InitActorFromSceneData` (cleared with `$0008` at spawn) | `DarkFriarTrail*` |
 | 8 | `$0100` | forced walk | Extended-warp forced walk (camera pan + automatic walking) in progress. Locks the camera target, pauses camera drift, aborts an attack in progress, guards against re-entering the warp | `StartForcedWalk` | `CheckWarpRectangles` (no warp hit) | `camera_scroll_controller`, camera drift, `ExecuteForcedWalkWarp`, attack validation (`$2B00`) |
-| 9 | `$0200` | game over | Player HP reached zero; the game-over sequence owns the player. Suppresses UI input and movement | `CheckPlayerDeath` | `ClearSceneState` (all flags are zeroed on scene reset) | `GlobalInputHandler`, `PlayerMoveController` (`$0A00`), `HitStaggerReturnAI`, attack validation, boss scripts |
+| 9 | `$0200` | game over | Player HP reached zero; the game-over sequence owns the player. Suppresses UI input and movement | `CheckPlayerDeath` | `ClearSceneState` (all flags are zeroed on scene reset) | `GlobalInputHandler`, `PlayerMoveController` (`$0A00`), `HitStaggerReleasePlayer`, attack validation, boss scripts |
 | 10 | `$0400` | unused | Never read or written | | | |
 | 11 | `$0800` | script/ability lock | Player controller suspended by a script or special move: cutscenes, stair/ladder/vine climbs, chest opening, Psycho Slider, Aura Barrier, Dark Space. Blocks movement, menus (Select/Y), run button and further hit stagger | ~110 sites: cutscene scripts, stair/ladder climbs, `ChestOpeningActor`, `RunAttackFlagSetup`, `AuraBarrierMain`, ramps | cutscene scripts, `UnlockPlayerAfterClimb`, `AuraBarrierEnd` | `PlayerMoveController` (`$0A00`), `GlobalInputHandler` (`$2800`), `ApplyPlayerHitstun`, attack validation, run button |
 | 12 | `$1000` | on slope | Player is traversing or has stopped on a slope/ramp tile; slope physics owns the motion | `slope_ramp_physics`, `player_move_ramps`, `player_move_west` | `SlopeFlatDecelerate`, `PlayerMoveController` (blocking overrides it) | `PlayerMoveController` (`$3000`), `slope_ramp_physics`, Psycho Slider gate, attack validation (`$3A00`), run button |
@@ -322,7 +322,7 @@ When a COP handler or game code sets `TCD #$0000`, offsets `$00`–`$FF` access 
 | `$0088` | 7, 3 | `InitActorFromSceneData` | Cleared at every player spawn before the scene bits are applied |
 | `$0802` | 11, 1 | `RunAttackFlagSetup` | Body slam/charge attack with script lock |
 | `$2002` | 13, 1 | `SpinDashMain` | Body slam/charge attack with stance |
-| `$0A00` | 11, 9 | `PlayerMoveController`, `HitStaggerReturnAI` | Script lock or game over: movement controller skips the frame |
+| `$0A00` | 11, 9 | `PlayerMoveController` | Script lock or game over: movement controller skips the frame (`HitStaggerReleasePlayer` tests the same mask before restoring `PlayerIdleEntry`) |
 | `$1800` | 12, 11 | `ApplyInteractionDamage` | Slope or script lock: no new hit stagger |
 | `$2800` | 13, 11 | `PlayerIdleEntry`, `GlobalInputHandler` | Cleared on idle; blocks Select/Y while set (Start still works) |
 | `$2A00` | 13, 11, 9 | `AttackSystemEntry` | Stance, script lock or game over: no attack polling |
@@ -405,7 +405,7 @@ Per-button remapping masks. When a hardware button is held, its corresponding re
 | `$0DB2` | 2 | `remapL` | L (`$1000`) | `$1000` |
 | `$0DB4` | 2 | `remapR` | R (`$2000`) | `$2000` |
 
-> These are identity-mapped by default (each button maps to itself). Games or patches could remap by changing these values.
+> Vanilla defaults are identity-mapped (each button maps to itself). **This baserom's** `system_init` writes **`remapB = $4008`**, **`remapA = $8080`**, **`remapY = $0040`**, **`remapX = $0004`** (`db-us/transforms.json`), so physical **A** feeds logical interact **`$8000`** on **`joypadCurrent`**.
 
 ### 2.10 Actor Pool ($0DBC–$0FFF)
 
@@ -430,8 +430,8 @@ Actors use 64-byte (`$40`) direct-page slots. Each actor's ID **is** its DP base
 | `$0C` | 1 | `scriptBank` | Script bank byte (return bank from COP) |
 | `$0D` | 1 | *(dummy)* | Padding for 24-bit `argPtr` |
 | `$0E` | 2 | `oamXorFlags` | Sprite priority, palette line, H/V flip XOR mask |
-| `$10` | 2 | `actorFlags1` | **Flags10** — collision priority (`$0004`), offscreen, spawned (`$2000`), player-hit (`$0008`), invisible (`$2200`) |
-| `$12` | 2 | `actorFlags2` | **Flags12** — force-flip, marked-child (`$0040`), interact (`$1000`), push-in-progress (`$0010`) |
+| `$10` | 2 | `actorFlags1` | **Flags10** — `$0004` collision priority; `$0008` collision-checked movement; `$0040` dead; `$0080` iframe counter active; `$2000` spawned/script-driven; invisible (`$2200`) |
+| `$12` | 2 | `actorFlags2` | **Flags12** — force-flip, marked-child (`$0040`), display/overlay qualifier (`$1000`, required for filtered actor passes), push-in-progress (`$0010`) |
 | `$14` | 2 | `posX` | Actor pixel X position (NW corner of map = origin) |
 | `$16` | 2 | `posY` | Actor pixel Y position |
 | `$18` | 2 | `offsX` | Sprite offset from `posX` (used for scratch/probe X in some contexts) |

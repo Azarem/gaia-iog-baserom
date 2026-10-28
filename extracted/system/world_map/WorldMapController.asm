@@ -290,7 +290,7 @@ ArrivalAndTravelSetup {
 ---------------------------------------------
 ; Per-companion dot actor — move to formation position and animate.
 ; 
-; Entry: stores the companion's assigned diameter ($26) into orbitDiameter and position pair ($24) into orbitAngle. Extracts low byte as X offset + cameraTargetX → moveXAlt, high byte as Y offset + cameraTargetY → moveYAlt. MoveToward(#FF, #01) to glide toward target at max speed, 1px/frame.
+; Entry: stores the companion's assigned diameter ($26) into orbitDiameter and position pair ($24) into orbitAngle. Extracts low byte as X offset + cameraTargetX → moveXAlt, high byte as Y offset + cameraTargetY → moveYAlt. MoveToward(#FF, #01) to glide toward the target: #FF is the animation operand (keep the animation), the speed is 1 px per frame.
 ; 
 ; === SHARED ANIMATION LOOP (loc_03A497) ===
 ; 
@@ -314,7 +314,7 @@ CompanionDotMovement {
     CLC 
     ADC $cameraTargetY
     STA $moveYAlt, X
-    COP [MoveToward] ( #FF, #01 ) ; Glide toward target: speed $FF, step 1px per frame
+    COP [MoveToward] ( #FF, #01 ) ; Glide toward target: #FF = animation operand (keep it), 1 px per frame
     LDA $orbitAngle, X    ; Reload position pair from orbitAngle for animation calculations
     STA $24
 

@@ -41,13 +41,13 @@ Bank `$00` embeds dispatch jump tables, bitmasks, interpolation curves, and co-l
 | `hdma_channel_config` | *(include)* | `hdma_channel_config` | Variable | DMA channel configuration bytes |
 | `FollowDirectionTable` | `$00EF72` | `code_list_00EF72` | 32 bytes | 16-direction smooth follow sprite handler jump table |
 | `FollowSlopeDitherTable` | `$00F193` | `FollowSlopeDitherTable` | 544 bytes | Interpolation table for smooth movement deceleration |
-| `binary_00D068` | `$00D068` | `binary_00D068` | 32 bytes | Camera drift direction offset data |
+| `camera_drift_offsets` | `$00D068` | `camera_drift_offsets` | 32 bytes | Camera drift direction offset data |
 | `enemy_clear_reward_table` | *(include)* | `enemy_clear_reward_table` | Variable | Per-scene enemy clear stat reward table (0=none, 1=HP, 2=STR, 3=DEF) |
 | `table_00C710` | `$00C710` | `table_00C710` | 8 bytes | Player script variant pointer table (4 entries) |
-| `code_list_00C733` | `$00C733` | `code_list_00C733` | 16 bytes | NPC wander direction handler jump table |
+| `npc_wander_case_table` | `$00C733` | `npc_wander_case_table` | 16 bytes | NPC wander direction handler jump table |
 | `code_list_00E8C7` | `$00E8C7` | `code_list_00E8C7` | 16 bytes | Follow fallback direction dispatch (8 entries) |
 | `array_00C943` | `$00C943` | `array_00C943` | Variable | Escort follow path direction deltas |
-| `gem_drop_threshold_00DFFD` | `$00DFFD` | `gem_drop_threshold_00DFFD` | 48 bytes | Dark gem drop weighted probability thresholds (3 tiers × 4 `gem-drop-threshold` entries) |
+| `drop_threshold_by_hp` | `$00DFFD` | `drop_threshold_by_hp` | 48 bytes | Enemy drop weighted thresholds (items `$83`–`$86`; 3 HP tiers × 4 entries) |
 | `unk19_00CE97` | `$00CE97` | `unk19_00CE97` | 18 bytes | Statue inventory 6×3-byte slot table |
 
 ### 1.2 COP Dispatch Tables (`$008485`–`$00864D`)
@@ -94,7 +94,7 @@ Binary interpolation table consumed by `ComputeFollowStep` (`$00EE1C`). Format: 
 
 8-entry fallback dispatch table used by `SelectFallbackDirection` (`$00E8BA`). When the computed direction indicates the target was already reached, a `COP [SwitchCase]` on the low 3 bits routes back to the correct directional handler midpoint.
 
-#### `binary_00D068` — 32 bytes
+#### `camera_drift_offsets` — 32 bytes
 
 Eight direction delta pairs (16-bit X/Y offsets) for `CameraDriftPatterned` (`$00CFEF`). Used in boss arenas for scripted camera nudge patterns rather than pure RNG drift.
 
@@ -104,7 +104,7 @@ Eight direction delta pairs (16-bit X/Y offsets) for `CameraDriftPatterned` (`$0
 
 `player_idle_entry_table` — four `$&` pointers to `IdleStandSouth/North/West/East`. `SetPlayerIdleFacing` (`$00C6E4`) indexes it with **A only** (facing 0–3); it does not read scene or body form (~17 JSL call sites).
 
-#### `code_list_00C733` — 16 bytes
+#### `npc_wander_case_table` — 16 bytes
 
 8-direction jump table for `NpcRandomWanderAI` (`$00C725`). Each entry points to a direction-specific wander handler that applies velocity and collision checks.
 
@@ -112,9 +112,9 @@ Eight direction delta pairs (16-bit X/Y offsets) for `CameraDriftPatterned` (`$0
 
 Ring-buffer direction delta table for `EscortFollowPathTracker` (`$00C806`). Stores 9 XY waypoint pairs for party escort pathfinding (Kara/party follow sequences).
 
-#### `gem_drop_threshold_00DFFD` — 48 bytes
+#### `drop_threshold_by_hp` — 48 bytes
 
-Weighted probability threshold table for `DarkGemDropSystem` (`$00DF29`). Contains 12 `gem-drop-threshold` entries (3 tiers × 4 entries each). Each entry pairs an RNG threshold with a handler pointer to a dark gem variant. Tier selection is based on `playerMaxHp` vs `playerHp` ratio.
+Weighted probability threshold table for `EnemyDropSystem` (`$00DF29`). Contains 12 `gem-drop-threshold` entries (3 tiers × 4 entries each). Each entry pairs an RNG threshold with a handler pointer for pickup bodies carrying item ids `$83`–`$86` (1/2/5 gems or 5 HP heal). Tier selection uses `playerMaxHp` vs `playerHp`.
 
 ### 1.6 Include Tables (External ROM Data)
 
@@ -552,7 +552,7 @@ Bank `$00` code follows consistent stack conventions across interrupt handlers, 
 |-------|-------|---------|
 | `$00B500`–`$00BFFF` | 49 | Thinkers (palette, HDMA, DMA, screen config) |
 | `$00C100`–`$00CFFF` | 20 | Actors (speed zones, dream, rewards, push) + functions (NPC AI, camera, menus) |
-| `$00D600`–`$00DFFF` | 14 | Functions (game over, combat defeat, field reveals, dark gem drops) |
+| `$00D600`–`$00DFFF` | 14 | Functions (game over, combat defeat, field reveals, enemy gem/heal drops) |
 | `$00E100`–`$00EAFF` | 12 | Actors (push handlers, smooth follow, visual effects, camera) |
 | `$00F300`–`$00F4FF` | 4 | Functions (player stop, orbital math) |
 
@@ -563,11 +563,11 @@ Bank `$00` code follows consistent stack conventions across interrupt handlers, 
 | `camera_scroll_controller` (`$00EAED`) | 100+ | Every field scene (actor slot #1/#2) |
 | `scene_flag_init` (`$00C667`) | 26 | Scene actor lists (sets event flag `#00`) |
 | `StandardEnemyDefeatHandler` (`$00DB8A`) | ~20 | All enemy actors via death callback pointer |
-| `global_ambient_dispatcher` (`$00BF89`) | ~40 | Nearly every scene thinker set |
-| `ApplyOrbitalOffsetFromRef` (`$00F3C9`) | ~15 | COP handlers, bosses, statue inventory, fire sprites |
-| `NpcRandomWanderAI` (`$00C725`) | ~12 | Town NPC scripts |
-| `ApplyPlayerHitstun` (`$00C397`) | ~12 | Combat enemies, damage sources |
-| `ambient_palette_cycler` (`$00B520`) | ~30 | Paired with global dispatcher |
+| `global_ambient_dispatcher` (`$00BF89`) | 59 spawn lists | 173 of 184 scenes with thinkers |
+| `ApplyOrbitalOffsetFromRef` (`$00F3C9`) | 21 | COP handlers, bosses, statue inventory, fire sprites |
+| `NpcRandomWanderAI` (`$00C725`) | 13 | Town NPC wander actors |
+| `ApplyPlayerHitstun` (`$00C397`) | 9 | Enemy attack scripts (3 files) |
+| `ambient_palette_cycler` (`$00B520`) | 59 | Scene thinker spawn entries |
 | `EnemyDeathFlash` (`$00DF15`) | ~10 | Enemy actors + defeat handler |
 | `push_handler_solid` (`$00E256`) | ~9 | Statue/archer/knight push actors |
 

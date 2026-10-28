@@ -51,10 +51,11 @@ Sky Garden crash, and Angkor Wat future vision.
 
 ### Initialization (`Mode7PerspectiveInit`)
 
-Sets `M7SEL = $80` (repeat playfield). Loads initial position from `$0D54`/`$0D56`,
-centers camera (X−`$80`, Y−`$70`) with scroll-override flags. Initializes
-`$B6 = 0` (rotation angle), `$BC = 0` (perspective parameter), `$B8 = $0400`
-(base scale).
+Sets `M7SEL = $80` (transparent outside the 1024×1024 map; not tile repeat).
+Loads initial position from `$0D54`/`$0D56`, centers camera (X−`$80`, Y−`$70`)
+with scroll-override flags. Initializes global words `$B6 = 0` (per-scanline
+divisor increment), `$BC = 0` (rotation index into sine/cosine tables),
+`$B8 = $0400` (starting scale divisor).
 
 ### Per-frame update (`Mode7PerspectiveUpdate`)
 
@@ -65,8 +66,9 @@ centers camera (X−`$80`, Y−`$70`) with scroll-override flags. Initializes
   by sine/cosine sign; `NormalizeDivisor` right-shifts until the scale divisor fits
   8 bits; per-scanline hardware 16÷8 divide (`WRDIV`/`RDDIV`) yields cos/scale and
   sin/scale; adaptive overflow halving preserves the ratio.
-- **Phase 3** — `QueueMode7HdmaTables`: queue 4 HDMA channels (`$7E7000`→M7A,
-  `$7E7800`→M7B, `$7E8000`→M7C, `$7E7000`→M7D).
+- **Phase 3** — `QueueMode7HdmaTables`: four `COP QueueDma` writes to B-bus
+  registers M7A–M7D (`$211B`–`$211E`) from `$7E7000`, `$7E7800`, `$7E8000`
+  (table A queued twice for M7A and M7D).
 
 ### Rotation matrix
 
@@ -77,13 +79,13 @@ centers camera (X−`$80`, Y−`$70`) with scroll-override flags. Initializes
 | M7C (`$211D`) | −sin θ / scale | `$7E8000` |
 | M7D (`$211E`) | cos θ / scale | `$7E7000` |
 
-### Actor/thinker fields
+### Mode 7 parameters (global low-RAM words, D = 0)
 
-| Field | Meaning |
+| Word | Meaning |
 |-------|---------|
-| `$B6` | rotation angle (per-scanline rotation increment) |
-| `$B8` | base scale factor (hardware divide divisor; e.g. `$0400` = base distance) |
-| `$BC` | perspective rotation index (0–511, indexes into sine/cosine tables) |
+| `$B6` | Per-scanline divisor increment (8.8 fixed point; 0 = flat plane) |
+| `$B8` | Starting scale divisor for hardware divide (smaller = zoom out) |
+| `$BC` | Rotation index (0–511; ×2 indexes sine/cosine tables) |
 | `$00CA` | world X position / Mode 7 scroll center X |
 | `$00CC` | world Y position / Mode 7 scroll center Y |
 | `$7F0B22` | Mode 7 config flag A (initialized to `$FFFF`) |
@@ -94,9 +96,9 @@ centers camera (X−`$80`, Y−`$70`) with scroll-override flags. Initializes
 
 | Address | Label | Role |
 |---------|-------|------|
-| `$03A940` | `Mode7PerspectiveInit` | `thinker-def` entry: set `M7SEL=$80`, scroll overrides, initial params |
+| `$03A940` | `Mode7PerspectiveInit` | `thinker-def` entry: `M7SEL=$80` (outside-map transparent), scroll overrides, init `$B6`/`$B8`/`$BC` |
 | `$03A985` | `Mode7PerspectiveUpdate` | per-frame: init 224-entry HDMA tables, then compute rotation matrix |
-| `$03AA12` | `QueueMode7HdmaTables` | RTS-trick target: queue 4 HDMA channels (M7A/B/C/D) via `COP QueueDma` |
+| `$03AA12` | `QueueMode7HdmaTables` | RTS-trick target: four `COP QueueDma` ops to M7A–M7D B-bus registers |
 | `$03AA2D` | `Mode7Quadrant_PosCosPosSin` | quadrant 1: +cos, +sin → M7A=cos/s, M7B=sin/s, M7C=−sin/s |
 | `$03AA7E` | `Mode7Quadrant_PosCosNegSin` | quadrant 2: +cos, −sin (sin negated via EOR/INC) |
 | `$03AACF` | `Mode7Quadrant_NegCosPosSin` | quadrant 3: −cos, +sin (cos negated) |

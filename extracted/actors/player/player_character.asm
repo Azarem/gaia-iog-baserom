@@ -104,7 +104,7 @@ PlayerCharacterDef [
     COP [SpawnBefore] ( @attack_ability_system.AttackSystemEntry ) ; Spawn attack_ability_system.AttackSystemEntry as SpawnBefore companion (runs before player each frame)
     COP [SpawnAfter] ( @player_move_controller.PlayerMoveController ) ; Spawn player_move_controller as SpawnAfter companion (physics/collision processing)
     COP [SpawnAfter] ( @slope_ramp_physics.SlopePhysicsEntry ) ; Spawn slope_ramp_physics as SpawnAfter companion (slope tile handling)
-    COP [SpawnListAppend] ( @shadow_shimmer.ShadowShimmerInit, #00, #00, #$2800 ) ; Spawn shadow_shimmer as SpawnLastRel companion (Shadow palette shimmer, dies if not form 2)
+    COP [SpawnListAppend] ( @shadow_shimmer.ShadowShimmerInit, #00, #00, #$2800 ) ; Spawn shadow_shimmer with SpawnListAppend (appended at the actor list end) (Shadow palette shimmer, dies if not form 2)
 } >
 ]
 
