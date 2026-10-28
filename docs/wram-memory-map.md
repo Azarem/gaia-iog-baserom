@@ -226,7 +226,7 @@ When a COP handler or game code sets `TCD #$0000`, offsets `$00`–`$FF` access 
 | `$06C2` | 2 | `cameraTargetY` | Camera target Y position | Camera pan COPs, `ComputeScrollDeltas` |
 | `$06C4` | 2 | `cameraDeltaY` | Per-frame camera scroll delta Y | Scroll actors, `ScrollCameraVertical` |
 | `$06C6`–`$06C7` | 2 | `scrollOverrideH` | Override horizontal scroll value + flag (bit 15 = active) | `WriteBgScroll`, camera pan COPs |
-| `$06C8` | 2 | `forcedScrollOverride` | Forced scroll override value | `ScrollCameraInit`, `effect_velocity_init` |
+| `$06C8` | 2 | `forcedScrollOverride` | Forced scroll override value | `ScrollCameraInit`, `Layer1DriftUnbounded` |
 | `$06CA`–`$06CB` | 2 | `scrollOverrideV` | Override vertical scroll value + flag | `WriteBgScroll`, camera pan COPs |
 | `$06CE` | 2 | `scrollDeltaXClamped` | Per-frame scroll delta X (clamped ±16 px) | `CameraSmoothScroll` |
 | `$06D2` | 2 | `scrollDeltaYClamped` | Per-frame scroll delta Y (clamped ±16 px) | `CameraSmoothScroll` |
@@ -236,8 +236,8 @@ When a COP handler or game code sets `TCD #$0000`, offsets `$00`–`$FF` access 
 | `$06DE` | 2 | `cameraLowerYBound` | Camera lower Y boundary for collision probes | `TileCollisionQuery` |
 | `$06E0` | 2 | `scrollStepTableBase` | Base address for scroll step lookup table | `CameraScrollStepLookup`, forced walks |
 | `$06E2` | 2 | `scrollStepIndex` | Current index into scroll step table | `CameraScrollStepLookup` |
-| `$06E4` | 2 | `effectDeltaX` | Scroll delta X fed to visual effect pipeline | `camera_scroll_controller` → `effect_velocity_init` |
-| `$06E6` | 2 | `effectDeltaY` | Scroll delta Y fed to visual effect pipeline | `camera_scroll_controller` → `effect_position_update` |
+| `$06E4` | 2 | `effectDeltaX` | Scroll delta X fed to visual effect pipeline | `camera_scroll_controller` → `Layer1DriftUnbounded` |
+| `$06E6` | 2 | `effectDeltaY` | Scroll delta Y fed to visual effect pipeline | `camera_scroll_controller` → `Layer1DriftWrapped` |
 | `$06EE` | 1 | `layerPriorityFlag` | Layer draw priority (sign = BG2 first); bit `$0200` = freeze camera | `UploadScrollRegisters`, `camera_scroll_controller` |
 | `$06EF` | 1 | `scrollModeFlags` | Bit 3 = locked scroll mode; bit `$08` = Mode 7 active; bit `$01` = BG2 active | `UploadScrollRegisters`, `VBlankWaitAndJoypad` |
 
@@ -371,7 +371,7 @@ Two bitfield arrays provide the primary persistence mechanism for game state.
 | `$0AE4` | 2 | `enemyHealthTimer` | Enemy health bar display countdown (`$001E` frames → 0) | `UpdateHUD` |
 | `$0AE6` | 2 | `bg1ConfigMode` | BG1 scroll/config mode; also serves as overlay exit poll flag | Inventory overlay, tab handlers |
 | `$0AE8` | 2 | `itemAbilityIndex` | Item/ability index for BG3 description strings | Inventory use, discard, status |
-| `$0AF0`–`$0AF8` | 9 | `sceneSaveData` | Scene save data for game-over reload | `GameOverSequence` |
+| `$0AF0`–`$0AF8` | 9 | `sceneSaveData` | Scene save data for game-over reload: `$0AF0`/`$0AF2` = save-point warp record (pointer/bank, used on a real game over), `$0AF4`/`$0AF6` = last-warp record (used on a revive), `$0AF8` = `gameOverWakeupFlag` (`DeathWakeupMessage`) | `GameOverSequence` |
 | `$0AFA` | 2 | `inventoryTabIndex` | Tab index (0–3: Use, Arrange, Discard, Status); also slot spawn counter during init | Inventory menu, statue display |
 | `$0B04` | 2 | (init `$0000`) | Gameplay flag | `InitSystemVariables` |
 | `$0B14` | 2 | (init `$003C`) | System flag (60 decimal) | `InitSystemVariables` |
@@ -392,20 +392,20 @@ Two bitfield arrays provide the primary persistence mechanism for game state.
 
 ### 2.9 Input Remapping ($0DA0–$0DC0)
 
-Per-button remapping masks. When a hardware button is held, its corresponding remap mask is `TSB`'d into `$065E` during `VBlankWaitAndJoypad`. Allows remapping physical buttons to logical actions.
+Per-button remapping words. `VBlankWaitAndJoypad` reads the hardware pad from `joypadRaw`; the D-pad (`$0F00`) passes through, and for every other physical button that is pressed and whose remap word is nonzero, that word (an arbitrary 16-bit logical mask) is `TSB`'d into the remapped value, which becomes `joypadCurrent` and `joypadRaw`. A zero word makes the button vanish. The low nibble of a hardware read is always 0, so a word may use `$0008` / `$0004` as software-only logical buttons. The diary menu's Snd/Buttons tab edits these words.
 
-| Address | Size | Name | Hardware Button | Init Value |
-|---------|------|------|-----------------|------------|
-| `$0DA6` | 2 | `remapSelect` | Select (`$0010`) | `$0010` |
-| `$0DA8` | 2 | `remapX` | X (`$0020`) | `$0020` |
-| `$0DAA` | 2 | `remapB` | B (`$8000`) | `$8000` |
-| `$0DAC` | 2 | `remapA` | A (`$0080`) | `$0080` |
-| `$0DAE` | 2 | `remapY` | Y (`$4000`) | `$4000` |
-| `$0DB0` | 2 | `remapStart` | Start (`$0040`) | `$0040` |
-| `$0DB2` | 2 | `remapL` | L (`$1000`) | `$1000` |
-| `$0DB4` | 2 | `remapR` | R (`$2000`) | `$2000` |
+| Address | Size | Name | Physical button (hardware bit) | Vanilla default | This baserom (`system_init`) |
+|---------|------|------|--------------------------------|-----------------|---------------------------------|
+| `$0DA6` | 2 | `remapR` | R (`$0010`) | `$0010` | `$0010` |
+| `$0DA8` | 2 | `remapL` | L (`$0020`) | `$0020` | `$0020` |
+| `$0DAA` | 2 | `remapB` | B (`$8000`) | `$8000` | `$4008` |
+| `$0DAC` | 2 | `remapA` | A (`$0080`) | `$0080` | `$8080` |
+| `$0DAE` | 2 | `remapY` | Y (`$4000`) | `$4000` | `$0040` |
+| `$0DB0` | 2 | `remapX` | X (`$0040`) | `$0040` | `$0004` |
+| `$0DB2` | 2 | `remapStart` | Start (`$1000`) | `$1000` | `$1000` |
+| `$0DB4` | 2 | `remapSelect` | Select (`$2000`) | `$2000` | `$2000` |
 
-> Vanilla defaults are identity-mapped (each button maps to itself). **This baserom's** `system_init` writes **`remapB = $4008`**, **`remapA = $8080`**, **`remapY = $0040`**, **`remapX = $0004`** (`db-us/transforms.json`), so physical **A** feeds logical interact **`$8000`** on **`joypadCurrent`**.
+> Vanilla defaults are identity-mapped. **This baserom's** `system_init` writes the four face-button values in the last column (`db-us/transforms.json`), so physical **A** feeds logical `$8000` and `$0080`, physical **B** feeds `$4000` and `$0008`, physical **Y** the item-palette bit `$0040` and physical **X** the software-only bit `$0004`. The diary menu's Type 1 sets `remapA = $8000`, `remapB = $4000`, `remapX = 0`, `remapY = $0040`; Type 2 only sets `remapX = 0` (what Type 2 does with this baserom's defaults is unverified).
 
 ### 2.10 Actor Pool ($0DBC–$0FFF)
 

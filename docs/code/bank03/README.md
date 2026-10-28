@@ -48,15 +48,15 @@ $03A2F1 ├───────────────────────
 $03A6BA ├──────────────────────────────────────────────┤
         │ IrisCircleEffect            $03A6BA–$03A83E  │  Mode 7 & Cutscenes
 $03A83E ├──────────────────────────────────────────────┤
-        │ HdmaWindowEffect            $03A83E–$03A940  │  Radar & World Map
+        │ WorldMapSplitEffect            $03A83E–$03A940  │  Radar & World Map
 $03A940 ├──────────────────────────────────────────────┤
         │ mode7_perspective           $03A940–$03AB88  │  Mode 7 & Cutscenes
 $03AB88 ├──────────────────────────────────────────────┤
         │ mode7_perspective_unused    $03AB88–$03AD77  │  Mode 7 & Cutscenes (dead)
 $03AD77 ├──────────────────────────────────────────────┤
-        │ world_map_routes  (data)    $03AD77–$03B1D4  │  Radar & World Map
+        │ world_map_route_table  (data)    $03AD77–$03B1D4  │  Radar & World Map
 $03B1D4 ├──────────────────────────────────────────────┤
-        │ world_map_names   (data)    $03B1D4–$03B401  │  Radar & World Map
+        │ world_map_scene_names   (data)    $03B1D4–$03B401  │  Radar & World Map
 $03B401 ├──────────────────────────────────────────────┤
         │ world_map_options (data+code)$03B401–$03BAE1 │  Radar & World Map
 $03BAE1 ├──────────────────────────────────────────────┤
@@ -116,8 +116,8 @@ system_core (bank $02, external)
       inventory_mgmt, GetPlayerFacingDirection
 
 WorldMapController (?BANK 03)
-  └── ?INCLUDE: HdmaWindowEffect, world_map_routes,
-      world_map_names, world_map_options
+  └── ?INCLUDE: WorldMapSplitEffect, world_map_route_table,
+      world_map_scene_names, world_map_options
 
 scene_actors (external table)
   └── references: garden_crash_cutscene, future_vision_cutscene
@@ -224,7 +224,7 @@ epilogue's `PLP`/`RTL`.
 
 | Address | Symbol | Used by |
 |---------|--------|---------|
-| `$0036` | `frameCounter` | HdmaWindowEffect (buffer parity), radar border animation |
+| `$0036` | `frameCounter` | WorldMapSplitEffect (buffer parity), radar border animation |
 | `$0046` | `sceneNext` | scene_lifecycle, GlobalInputHandler guard |
 | `$0048` | `sceneCurrent` | item handlers (scene gates), save_system |
 | `$0056` | `actorListHead` | actor_execution linked list traversal |
@@ -360,11 +360,11 @@ Per-block summary notes available at [`notes/blockNotes/bank03.json`](../../../n
 | `angkor_wat.future_vision_cutscene` | angkor_wat | `$03A1FA`–`$03A2F1` | actor-def |
 | `system.WorldMapController` | system | `$03A2F1`–`$03A6BA` | actor-def |
 | `prologue.IrisCircleEffect` | prologue | `$03A6BA`–`$03A83E` | thinker-def |
-| `system.HdmaWindowEffect` | system | `$03A83E`–`$03A940` | Code |
+| `system.WorldMapSplitEffect` | system | `$03A83E`–`$03A940` | Code |
 | `thinkers.mode7_perspective` | thinkers | `$03A940`–`$03AB88` | thinker-def |
 | `unused.mode7_perspective_unused` | unused | `$03AB88`–`$03AD77` | Code |
-| `system.world_map_routes` | system | `$03AD77`–`$03B1D4` | &route-step |
-| `system.world_map_names` | system | `$03B1D4`–`$03B401` | map-label |
+| `system.world_map_route_table` | system | `$03AD77`–`$03B1D4` | &route-step |
+| `system.world_map_scene_names` | system | `$03B1D4`–`$03B401` | map-label |
 | `system.world_map_options` | system | `$03B401`–`$03BAE1` | &Code |
 | `system.oam_digit_compose` | engine | `$03BAE1`–`$03BB85` | Code |
 | `system.combat_collision` | engine | `$03BB85`–`$03C5FF` | Code |
@@ -400,9 +400,9 @@ are still bank 3 by address range.
 | [`GetPlayerFacingDirection.asm`](../../../extracted/system/engine/GetPlayerFacingDirection.asm) | `system.GetPlayerFacingDirection` | [field-input-and-items](field-input-and-items.md) |
 | [`radar_map_screen.asm`](../../../extracted/system/engine/radar_map_screen.asm) | `system.radar_map_screen` | [radar-and-world-map](radar-and-world-map.md) |
 | [`WorldMapController.asm`](../../../extracted/system/world_map/WorldMapController.asm) | `system.WorldMapController` | [radar-and-world-map](radar-and-world-map.md) |
-| [`HdmaWindowEffect.asm`](../../../extracted/system/world_map/HdmaWindowEffect.asm) | `system.HdmaWindowEffect` | [radar-and-world-map](radar-and-world-map.md) |
-| [`world_map_routes.asm`](../../../extracted/system/world_map/world_map_routes.asm) | `system.world_map_routes` | [radar-and-world-map](radar-and-world-map.md) |
-| [`world_map_names.asm`](../../../extracted/system/world_map/world_map_names.asm) | `system.world_map_names` | [radar-and-world-map](radar-and-world-map.md) |
+| [`WorldMapSplitEffect.asm`](../../../extracted/system/world_map/WorldMapSplitEffect.asm) | `system.WorldMapSplitEffect` | [radar-and-world-map](radar-and-world-map.md) |
+| [`world_map_route_table.asm`](../../../extracted/system/world_map/world_map_route_table.asm) | `system.world_map_route_table` | [radar-and-world-map](radar-and-world-map.md) |
+| [`world_map_scene_names.asm`](../../../extracted/system/world_map/world_map_scene_names.asm) | `system.world_map_scene_names` | [radar-and-world-map](radar-and-world-map.md) |
 | [`world_map_options.asm`](../../../extracted/system/world_map/world_map_options.asm) | `system.world_map_options` | [radar-and-world-map](radar-and-world-map.md) |
 | [`mode7_perspective.asm`](../../../extracted/thinkers/mode7_perspective.asm) | `thinkers.mode7_perspective` | [mode7-and-cutscenes](mode7-and-cutscenes.md) |
 | [`mode7_perspective_unused.asm`](../../../extracted/unused/mode7_perspective_unused.asm) | `unused.mode7_perspective_unused` | [mode7-and-cutscenes](mode7-and-cutscenes.md) |
@@ -423,8 +423,8 @@ are still bank 3 by address range.
 | [`save_system.asm`](../../../extracted/system/engine/save_system.asm) | `system.save_system` | [scene-and-hardware](scene-and-hardware.md) |
 
 **Files without `?BANK 03`** (bank 3 by address only): `garden_crash_cutscene`,
-`future_vision_cutscene`, `IrisCircleEffect`, `HdmaWindowEffect`,
-`world_map_routes`, `mode7_perspective_unused`.
+`future_vision_cutscene`, `IrisCircleEffect`, `WorldMapSplitEffect`,
+`world_map_route_table`, `mode7_perspective_unused`.
 
 ---
 

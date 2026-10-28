@@ -1,0 +1,20 @@
+{
+    "palette_bundle_enix_obj0_reveal": "Bundle $50: 8 frames of 15 colours on OBJ palette 0 (CGRAM $81-$8F), 1 extra tick per frame. Starts black; a 13-colour ramp from dark purple to white grows across colours 1-13. Stage 1 of boot_logo_enix_palette_obj0 (the Enix logo).",
+    "palette_bundle_enix_obj0_settle": "Bundle $54: starts all white and fades back down to the ramp (3 extra ticks per frame). Stage 3 of boot_logo_enix_palette_obj0.",
+    "palette_bundle_enix_obj0_whiten": "Bundle $52: the ramp of $50 turns white from its bright end to its dark end while colours 14 and 15 brighten. Stage 2 of boot_logo_enix_palette_obj0.",
+    "palette_bundle_enix_obj1_reveal": "Bundle $51: the same frames as $50 on OBJ palette 1 (CGRAM $91-$9F). Stage 1 of boot_logo_enix_palette_obj1.",
+    "palette_bundle_enix_obj1_settle": "Bundle $55: the same frames as $54 on OBJ palette 1. Stage 3 of boot_logo_enix_palette_obj1.",
+    "palette_bundle_enix_obj1_whiten": "Bundle $53: the same frames as $52 on OBJ palette 1. Stage 2 of boot_logo_enix_palette_obj1.",
+    "palette_bundle_enix_obj2_dip": "Bundle $58: starts all purple; a darker dip opens around colour 7 and widens each frame, ending in a V-shaped ramp that is held for 34 ticks. Stage 3 of boot_logo_enix_palette_obj2.",
+    "palette_bundle_enix_obj2_fill_a": "Bundle $56: 8 frames on OBJ palette 2 (CGRAM $A1-$AF); starts black and fills the 15 colours with the flat purple $68DA one at a time (colours 1-8). Stage 1 of boot_logo_enix_palette_obj2.",
+    "palette_bundle_enix_obj2_fill_b": "Bundle $57: continues the purple fill from 9 colours to all 15 (the last two frames are both full). Stage 2 of boot_logo_enix_palette_obj2.",
+    "palette_bundle_freedan_normal": "Bundle $0C: one frame of 15 colours to colour $81-$8F, wait 0. Freedan's normal sprite colours (restored by AttackCleanup).",
+    "palette_bundle_strip8_77": "Bundle $77: one strip of 8 frames of 16 colours (size $1F) at colour $41, wait 5.",
+    "palette_bundle_strip8_78": "Bundle $78: one strip of 8 frames of 16 colours (size $1F) at colour $41, wait 5.",
+    "palette_bundle_will_normal": "Bundle $0B: one frame of 15 colours (size $1D) to colour $81-$8F, wait 0. Will's normal sprite colours. Used by AttackCleanup and by WorldMapController's palette reset.",
+    "palette_bundles": "Bundle id -> bundle (128 entries, $00-$7F). Bundles are not sorted by use; several of the early ones are single-frame colour sets, later ones are multi-frame strips.",
+    "palette_padding_16D210": "Empty bundle (only the end byte $00): padding between bundle $77 end byte and its frames. No table entry refers to it (R-I060-4).",
+    "palette_padding_16D211": "Empty bundle (only the end byte $00), second padding byte after bundle $77. No reference (R-I060-4).",
+    "palette_padding_16D317": "Empty bundle (only the end byte $00): padding between bundle $78 end byte and its frames. No reference (R-I060-4).",
+    "palette_padding_16D318": "Empty bundle (only the end byte $00), second padding byte after bundle $78. No reference (R-I060-4)."
+}

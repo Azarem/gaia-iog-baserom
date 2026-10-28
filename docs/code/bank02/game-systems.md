@@ -109,7 +109,7 @@ The main loop waits until `$06FA` (active music track ID) equals `$FFFF` (idle).
 
 `MusicRenderSync` is a one-shot render-sync child spawned by `MusicJingleActor` after the music track reaches idle. It bridges the gap between music ending and visible dialogue display by forcing a full render frame after a fixed delay.
 
-The actor waits 72 frames (`WaitByte #48`), clears actor flag bit `$1000`, zeroes the joypad mask at `$065A`, saves and restores DBR from the text pointer bank byte at `$22`, then calls `UpdateFrame_Render` followed by `DialogStringRenderer` (dialogue box opener in chunk `$03`). It then dies. This ensures the dialogue frame is laid out on screen before the parent actor resumes and waits for the APU handshake.
+The actor waits 73 ticks (`WaitByte #48`: the operand + 1), clears actor flag bit `$1000`, zeroes the joypad mask at `$065A`, saves and restores DBR from the text pointer bank byte at `$22`, then calls `UpdateFrame_Render` followed by `DialogStringRenderer` (dialogue box opener in chunk `$03`). It then dies. This ensures the dialogue frame is laid out on screen before the parent actor resumes and waits for the APU handshake.
 
 ## DisplaySceneTitle.asm
 

@@ -19,7 +19,7 @@ Player HP → 0
             └─► GameOverSequence ($D62F)    [$& pointer from ComposeDigitSprites_AtCursor]
                     ├─► Fade screen / palette teardown
                     ├─► COP [SpawnThinker] @DeathPaletteFadeThinker ($B5B3)
-                    ├─► Reload saved scene from $0AF0–$0AF8
+                    ├─► Reload saved scene ($0AF0/$0AF2 save point on a real game over, $0AF4/$0AF6 last warp on a revive)
                     ├─► COP [SpawnAfter] @GameOverCutsceneSprites ($D718)
                     └─► (later) DeathWakeupMessage ($D796) via player_character.asm
 ```

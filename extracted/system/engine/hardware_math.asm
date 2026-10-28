@@ -4,7 +4,7 @@
 ; 
 ; === ROUTINES ===
 ; 
-; MulDivide: (A low × Y) ÷ A high. A low = multiplier, A high = divisor, Y = 16-bit multiplicand. Two 8×8 multiplies (A low × Y low, A low × Y high) are combined into the 16-bit dividend: the product's low 16 bits only — anything above bit 15 is discarded, so the product must fit in 16 bits. A divisor of 0 gives $FFFF. Returns the 16-bit quotient. Users: camera_scroll, scanline_band_hdma_thinker, visual_effect_pipeline.
+; MulDivide: (A low × Y) ÷ A high. A low = multiplier, A high = divisor, Y = 16-bit multiplicand. Two 8×8 multiplies (A low × Y low, A low × Y high) are combined into the 16-bit dividend: the product's low 16 bits only — anything above bit 15 is discarded, so the product must fit in 16 bits. A divisor of 0 gives $FFFF. Returns the 16-bit quotient. Users: camera_scroll, scanline_band_hdma_thinker, layer1_scroll_actors.
 ; 
 ; Multiply8x8Unsigned: 8×8 multiply with the operands in the two bytes of A (low = first, high = second), through long addresses ($80:4202/4203/4216/4217) so any data bank works. Returns the 16-bit product in A. The hardware multiplier is unsigned, so this is an unsigned multiply (Multiply8x8Unsigned). Used for index × $30 actor addressing, map index calculation, orbital offsets and others.
 ; 

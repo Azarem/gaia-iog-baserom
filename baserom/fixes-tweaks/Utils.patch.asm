@@ -66,14 +66,14 @@ GaiaSaveConfirm! {
     TRB $joypadMaskStd
     ;COP [BF] ( &dialogstring_08DDFE )
     ;COP [BE] ( #02, #01, &code_list_08DBD4 )
-    BRA GaiaDontRecord
+    BRA GaiaThenGo
 }
 
 -----------------------------------------------
 ;Disable region protection
 
-BootLogoPalTextFallback! {
-    BRA loc_0BC8EA
+BootLogoPalLockout! {
+    BRA BootLogoNtsc
 }
 
 -----------------------------------------------

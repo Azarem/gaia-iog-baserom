@@ -6,20 +6,20 @@ _Ops: `[DA]`, `[DB]`_ · _Source: [`cop_handlers_wait.asm`](../../../extracted/s
 
 ## Overview
 
-Frame-based delays for actor scripts. Both opcodes load a countdown into **`$08`**, save the resume entry (**`$0A`/`$0C` → `$00`/`$02`**), and **`RTL`**. The engine decrements **`$08`** each tick; at zero the actor resumes at the saved entry (the byte **after** the wait COP). **`WaitWord`** reuses the same tail as **`WaitByte`** for delays longer than 255 frames.
+Frame-based delays for actor scripts. Both opcodes load a countdown into **`$08`**, save the resume entry (**`$0A`/`$0C` → `$00`/`$02`**), and **`RTL`**. The actor loop runs `DEC $08` once per actor tick and resumes at the saved entry (the byte **after** the wait COP) when the result goes negative, so an operand **N waits N + 1 ticks** (0 = next tick). **`WaitWord`** reuses the same tail as **`WaitByte`** for delays longer than 255 frames.
 
 ## Shared state
 
 | Symbol | Role |
 |--------|------|
 | `$00` / `$02` | Entry pointer while waiting (post-COP resume) |
-| `$08` | Frames remaining (0 = run script) |
+| `$08` | Ticks remaining (decremented each actor tick; the actor resumes when it goes negative, so operand N = N + 1 ticks) |
 | `$0A` / `$0C` | Script cursor during handler execution |
 
 ## Family notes
 
 - **`WaitByte ( #00 )`** yields one frame — common between spawns to stagger pool allocation.
-- **`WaitByte ( #3B )`** ≈ 1 second at 60 Hz; **`#$77`**, **`#B3`**, **`#EF`** appear heavily in dialog pacing.
+- **`WaitByte ( #3B )`** = 60 ticks ≈ 1 second at 60 Hz; **`#$77`**, **`#B3`**, **`#EF`** appear heavily in dialog pacing.
 - **`WaitWord`** used for multi-second boss/cutscene holds (**`#$0120`**, **`#$01DF`**, **`#$00EF`**).
 - Unlike **`JumpAfterDelay` (`[C3]`)**, waits do **not** jump to an arbitrary `@Code` — execution continues linearly after the wait.
 - Unlike **`SetEntryHereAndYield` (`[C2]`)**, waits specify an explicit frame count in **`$08`**.
@@ -37,7 +37,7 @@ Frame-based delays for actor scripts. Both opcodes load a countdown into **`$08`
 
 ## Opcodes
 
-#### COP [DA] — `WaitByte` (delay 0–255 frames)
+#### COP [DA] — `WaitByte` (operand 0–255, waits operand + 1 ticks)
 
 - **Handler:** `WaitByte` @ [`cop_handlers_wait.asm:602-617`](../../../extracted/system/engine/cop_handlers_wait.asm)
 - **Parameters:** `Byte Frames` (`db-us/copdef.json`)
@@ -116,7 +116,7 @@ COP [WaitByte] ( #0E )
 
 ---
 
-#### COP [DB] — `WaitWord` (delay 0–65535 frames)
+#### COP [DB] — `WaitWord` (operand 0–65535, waits operand + 1 ticks)
 
 - **Handler:** `WaitWord` @ [`cop_handlers_wait.asm:622-628`](../../../extracted/system/engine/cop_handlers_wait.asm) (falls into **`WaitStoreAndYield`**)
 - **Parameters:** `Word Frames`

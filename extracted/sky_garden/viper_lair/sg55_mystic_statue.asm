@@ -6,9 +6,9 @@
 ; and triggers the Sky Garden descent sequence.
 ---------------------------------------------
 
+?INCLUDE 'layer1_scroll_actors'
 ?INCLUDE 'sE6_gaia'
 ?INCLUDE 'sg55_viper_arena'
-?INCLUDE 'visual_effect_pipeline'
 
 !gfxCacheIdxB                   064A
 !joypadMaskStd                  065A
@@ -57,7 +57,7 @@ sg55_mystic_statue [
 ]
 
 code_0ACE81 {
-    COP [SpawnBeforeFlags] ( @visual_effect_pipeline.effect_subpixel_math, #$2800 )
+    COP [SpawnBeforeFlags] ( @layer1_scroll_actors.Layer1ParallaxRatio, #$2800 )
     LDA #$0201
     STA $0014, Y
     LDA #$000C

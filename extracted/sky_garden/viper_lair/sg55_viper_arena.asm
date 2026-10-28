@@ -7,7 +7,7 @@
 ---------------------------------------------
 
 ?INCLUDE 'gs2B_wreck_wave_motion'
-?INCLUDE 'visual_effect_pipeline'
+?INCLUDE 'layer1_scroll_actors'
 
 !frameCounter                   0036
 !bg1ScrollH                     068A
@@ -20,7 +20,7 @@
 ---------------------------------------------
 
 sg55_viper_arena {
-    COP [SpawnBeforeFlags] ( @visual_effect_pipeline.effect_subpixel_math, #$2800 )
+    COP [SpawnBeforeFlags] ( @layer1_scroll_actors.Layer1ParallaxRatio, #$2800 )
     LDA #$0201
     STA $0014, Y
     LDA #$0000

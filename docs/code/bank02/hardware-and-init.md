@@ -51,7 +51,7 @@ $02A040 └─ (music_actors continues) ─────────────�
 ### MulDivide
 
 
-Performs a **16×8 multiply followed by an 8-bit divide** using the SNES hardware math unit at `$4202`–`$4217`. The routine computes `(A_low × Y) ÷ A_high`, returning the 16-bit quotient in `A`. The low byte of the 16-bit `A` input becomes the 8-bit multiplicand written to `$WRMPYA`; the high byte of `A` (saved on the stack) becomes the 8-bit divisor written to `$WRDIVB` after the 24-bit product is assembled in `$WRDIVL`/`$WRDIVH`. This is the bank `$02` counterpart to the movement math in bank `$00` (`MultiplyThenDivide`), but with a different register layout: callers pass a 16-bit scale factor in `A` (low = multiplicand, high = divisor) and a 16-bit operand in `Y`. The eight `NOP` instructions after writing `$WRDIVB` provide the mandatory pipeline delay before reading `$RDDIVL`. Used for camera scroll delta computation (`ComputeScrollDeltas` in [`camera_scroll.asm`](../../../extracted/system/engine/camera_scroll.asm)), scanline-band HDMA value math (`scanline_band_hdma_thinker.asm` / `ParallaxComputeBandValue`), and visual-effect coordinate scaling (`visual_effect_pipeline.asm`).
+Performs a **16×8 multiply followed by an 8-bit divide** using the SNES hardware math unit at `$4202`–`$4217`. The routine computes `(A_low × Y) ÷ A_high`, returning the 16-bit quotient in `A`. The low byte of the 16-bit `A` input becomes the 8-bit multiplicand written to `$WRMPYA`; the high byte of `A` (saved on the stack) becomes the 8-bit divisor written to `$WRDIVB` after the 24-bit product is assembled in `$WRDIVL`/`$WRDIVH`. This is the bank `$02` counterpart to the movement math in bank `$00` (`MultiplyThenDivide`), but with a different register layout: callers pass a 16-bit scale factor in `A` (low = multiplicand, high = divisor) and a 16-bit operand in `Y`. The eight `NOP` instructions after writing `$WRDIVB` provide the mandatory pipeline delay before reading `$RDDIVL`. Used for camera scroll delta computation (`ComputeScrollDeltas` in [`camera_scroll.asm`](../../../extracted/system/engine/camera_scroll.asm)), scanline-band HDMA value math (`scanline_band_hdma_thinker.asm` / `ParallaxComputeBandValue`), and visual-effect coordinate scaling (`layer1_scroll_actors.asm`).
 
 **Algorithm:**
 
@@ -129,7 +129,7 @@ MulDivide {
 | `ComputeScrollDeltas` | Caller — scroll delta from player offset × scroll factor |
 | `ScrollCameraVertical` | Caller — vertical scroll scaling |
 | `scanline_band_hdma_thinker.asm` | Caller — per-scanline band value scaling |
-| `visual_effect_pipeline.asm` | Caller — effect coordinate scaling |
+| `layer1_scroll_actors.asm` | Caller — effect coordinate scaling |
 
 ### SoftDivide_Unused
 

@@ -10,9 +10,9 @@
 ?INCLUDE 'ambient_palette_cycler'
 ?INCLUDE 'angel_tunnel_window_dma'
 ?INCLUDE 'babel_elevator_color_add'
-?INCLUDE 'boot_logo_palette_enix'
-?INCLUDE 'boot_logo_palette_quintet'
-?INCLUDE 'boot_logo_palette_third'
+?INCLUDE 'boot_logo_enix_palette_obj0'
+?INCLUDE 'boot_logo_enix_palette_obj1'
+?INCLUDE 'boot_logo_enix_palette_obj2'
 ?INCLUDE 'comet_lair_hdma_a'
 ?INCLUDE 'comet_lair_hdma_b'
 ?INCLUDE 'comet_lair_hdma_c_timed'
@@ -697,9 +697,9 @@ thinker_spawn_0CEB18 [
 ]
 
 thinker_spawn_0CEB1D [
-  thinker-spawn < #01, @boot_logo_palette_enix >   ;00
-  thinker-spawn < #02, @boot_logo_palette_quintet >   ;01
-  thinker-spawn < #03, @boot_logo_palette_third >   ;02
+  thinker-spawn < #01, @boot_logo_enix_palette_obj0 >   ;00
+  thinker-spawn < #02, @boot_logo_enix_palette_obj1 >   ;01
+  thinker-spawn < #03, @boot_logo_enix_palette_obj2 >   ;02
 ]
 
 thinker_spawn_0CEB2A [

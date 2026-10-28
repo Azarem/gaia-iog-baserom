@@ -34,7 +34,7 @@ These actors form the invisible infrastructure present on nearly every field sce
 
 #### Description
 
-The most-used actor in Illusion of Gaia. Placed at actor slot `#01` in 220+ field scenes, it runs every frame to compute camera scroll deltas from the player's pixel position. It reads `$camera_offset_x/y` and `$camera_bounds_x/y` (scene-defined limits), clamps the desired scroll position, and writes pixel deltas to `$06E4` (X) and `$06E6` (Y). Those deltas feed the visual effect pipeline (`effect_velocity_init` → `effect_position_update` → `effect_subpixel_math`).
+The most-used actor in Illusion of Gaia. Placed at actor slot `#01` in 220+ field scenes, it runs every frame to compute camera scroll deltas from the player's pixel position. It reads `$camera_offset_x/y` and `$camera_bounds_x/y` (scene-defined limits), clamps the desired scroll position, and writes pixel deltas to `$06E4` (X) and `$06E6` (Y). Those deltas feed the visual effect pipeline (`Layer1DriftUnbounded` → `Layer1DriftWrapped` → `Layer1ParallaxRatio`).
 
 On first entry, sets actor flag `$1000` via `TSB $12` and calls `SetEntryHere`. If `$06EE` bit `$0200` is set (camera frozen), the actor returns immediately without updating scroll.
 
@@ -78,7 +78,7 @@ Present at slot `#01` in virtually every overworld, dungeon, and town field scen
 
 | Direction | Symbol | Notes |
 |-----------|--------|-------|
-| Feeds | `effect_velocity_init` | Consumes `$06E4`/`$06E6` |
+| Feeds | `Layer1DriftUnbounded` | Consumes `$06E4`/`$06E6` |
 | Paired with | `ScrollCameraTrack`, `ScrollCameraVertical` | Slot `#02` camera actors in boss/special scenes |
 
 ---

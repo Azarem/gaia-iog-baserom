@@ -242,7 +242,7 @@ writes outside the normal V-Blank pipeline.
 
 - **In:** `scene_lifecycle` (`ClearSceneState`, transitions), NMI handler
   (`DmaPlayerTilesToVram`), actor systems (`LoadPaletteBundle`), HDMA-effect
-  thinkers (`SetupHdmaChannel_*` — `IrisCircleEffect`, `HdmaWindowEffect`).
+  thinkers (`SetupHdmaChannel_*` — `IrisCircleEffect`, `WorldMapSplitEffect` (BGMODE / COLDATA split)).
 - **Out:** `hdma_channel_config` (HDMA register lookup table), `palette_bundles`
   (external data), `music_array_01CBA6` (music pointers), `spc_transfer` (SPC
   block data).

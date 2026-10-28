@@ -236,10 +236,10 @@ DiaryTabConfirm! {
     STA $0000
     LDA #$FFFF
     STA $0D98
-    COP [D9] ( #$0000, &code_list_0BE34C )
+    COP [D9] ( #$0000, &diary_tab_dispatch_table )
 }
 
-code_list_0BE34C! [
+diary_tab_dispatch_table! [
   &DiaryStartJourney   ;00
   &DiaryEraseTab   ;01
   &DiaryCopyTab   ;02
@@ -372,7 +372,7 @@ loc_0BEE11! {
 loc_00BC45! {
     DEC 
     BNE code_extra
-    COP [02] ( @dma_channel_00BC8D, #26 )
+    COP [02] ( @diary_band_tab3, #26 )
     RTL 
 }
 

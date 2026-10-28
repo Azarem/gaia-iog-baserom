@@ -143,7 +143,7 @@ IrqHandler {
 ; 5. Sets worldReadyFlag bit 7 (permits scene loading)
 ; 6. Reads the byte at $000100 and compares it with $83, but both outcomes leave Y = 0, so sceneNext = 0 for the first ExecuteSceneTransition: no scene is selected. No writer of $83 at $0100 was found (dialog_string_scanner uses $0100 as scratch).
 ; 7. Gameplay defaults: max speed 9 per axis, HP 8/8, Str 1, Def 0, slope curve pointers, the six hieroglyph plate slots ($0B28-$0B32) = $FFFF, abilityBitmask = 0
-; 8. sceneNext = $FB (title screen), then falls into the main loop
+; 8. sceneNext = $FB (the boot-logo scene, sFB_boot_logo, which hands over to the title screen $FC), then falls into the main loop
 ; 
 ; Main loop (infinite):
 ; 1. VBlankWaitAndJoypad, DisableNmiKeepJoypad
@@ -213,7 +213,7 @@ SystemInit {
     STA $0B30
     STA $0B32
     SEP #$20
-    LDA #$FB              ; Scene $FB = title screen / initial game startup
+    LDA #$FB              ; Scene $FB = boot logos (sFB_boot_logo), which hands over to the title screen $FC
     STA $sceneNext
     LDA #$00
     STA $abilityBitmask   ; Clear ability bitmask — no abilities unlocked at start

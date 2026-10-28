@@ -1,6 +1,8 @@
 {
+    "630928": "Idle animation #00: 4 frames (100, 13, 13, 13 ticks); the script re-enters and repeats it",
     "630934": "Sparkle sprite",
     "630940": "Activation flag (set by Gaia dialogue)",
+    "630949": "SFX queued on channel 1",
     "630955": "Random 0–3 to pick sparkle variant",
     "630960": "1 → frame #02",
     "630963": "2 → frame #03",

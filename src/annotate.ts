@@ -1,6 +1,10 @@
 /**
  * Annotation Editor
  *
+ * SUPERSEDED for everyday use by `npm run merge` (src/merge.ts), which takes the same spec
+ * but writes notes/*.json directly instead of editing the .asm and ingesting it back.
+ * Kept for the case where the extracted .asm itself should be edited.
+ *
  * Applies a JSON edit spec to extracted .asm files: block notes, part notes and
  * inline comments can each be set, replaced or removed. It replaces hand-written
  * one-off edit scripts. Every edit is validated against the file before anything
@@ -52,19 +56,19 @@ export interface AnnotateResult {
     filesChanged: string[];
 }
 
-type NoteValue = string | string[] | null;
-type CommentValue = string | null | { text: string | null; expect?: string };
+export type NoteValue = string | string[] | null;
+export type CommentValue = string | null | { text: string | null; expect?: string };
 
-interface FileEdit {
+export interface FileEdit {
     blockNote?: NoteValue;
     partNotes?: Record<string, NoteValue>;
     comments?: Record<string, CommentValue>;
 }
 
 const SEPARATOR = '-'.repeat(45);
-const TOP_LABEL = /^(\w+)\s+[\[{#`~|]/;
-const SUB_LABEL = /^\s{2}(\w+):$/;
-const TAG = /;\s*\{(\d+)\}/;
+export const TOP_LABEL = /^(\w+)\s+[\[{#`~|]/;
+export const SUB_LABEL = /^\s{2}(\w+):$/;
+export const TAG = /;\s*\{(\d+)\}/;
 
 interface Counts {
     blockSet: number; blockRemoved: number;
@@ -82,7 +86,7 @@ function isSeparator(line: string): boolean {
 }
 
 /** Normalise a note value to its stored form (what ingest writes to notes/*.json). */
-function normalizeNote(value: string | string[]): string {
+export function normalizeNote(value: string | string[]): string {
     const text = Array.isArray(value) ? value.join('\n') : value;
     const lines = text.replace(/\r\n/g, '\n').split('\n').map(l => l.trimEnd());
     while (lines.length > 0 && lines[lines.length - 1] === '') lines.pop();
@@ -94,7 +98,7 @@ function toNoteLines(stored: string): string[] {
     return stored.split('\n').map(l => (l === '' ? '; ' : '; ' + l));
 }
 
-function noteIsEmpty(value: NoteValue | undefined): boolean {
+export function noteIsEmpty(value: NoteValue | undefined): boolean {
     if (value === null || value === undefined) return true;
     return normalizeNote(value) === '';
 }
@@ -327,7 +331,7 @@ class FileEditor {
     }
 }
 
-function loadTransformPatterns(projectRoot: string): RegExp[] {
+export function loadTransformPatterns(projectRoot: string): RegExp[] {
     const p = join(projectRoot, 'db-us', 'transforms.json');
     if (!existsSync(p)) return [];
     const out: RegExp[] = [];
@@ -342,7 +346,7 @@ function loadTransformPatterns(projectRoot: string): RegExp[] {
     return out;
 }
 
-function resolveAsmPath(projectRoot: string, key: string): string | null {
+export function resolveAsmPath(projectRoot: string, key: string): string | null {
     const extracted = join(projectRoot, 'extracted');
     let p = isAbsolute(key) ? key : resolve(extracted, key.replace(/^extracted[\\/]/, ''));
     p = resolve(p);

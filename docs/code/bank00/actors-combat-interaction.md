@@ -2,7 +2,7 @@
 
 **Bank:** `$00` (mirrored at `$80`)  
 **Address range:** `$00D877`–`$00E4DB` (this document)  
-**Source files:** `extracted/actors/hit_stagger_controller.asm`, `extracted/actors/reward_actors.asm`, `extracted/actors/interaction_handlers.asm`, `extracted/actors/smooth_follow_child.asm`, `extracted/actors/visual_effect_pipeline.asm`, `extracted/functions/ApplyPlayerHitstun.asm`, `extracted/functions/StandardEnemyDefeatHandler.asm`, `extracted/tables/scene_actors.asm`  
+**Source files:** `extracted/actors/hit_stagger_controller.asm`, `extracted/actors/reward_actors.asm`, `extracted/actors/interaction_handlers.asm`, `extracted/actors/smooth_follow_child.asm`, `extracted/actors/layer1_scroll_actors.asm`, `extracted/functions/ApplyPlayerHitstun.asm`, `extracted/functions/StandardEnemyDefeatHandler.asm`, `extracted/tables/scene_actors.asm`  
 **Scope:** Hit stagger/knockback, stat reward actors, push interaction handlers, smooth follow homing, and the visual effect scroll pipeline
 
 These actors are spawned at runtime rather than placed in most scenes. They implement combat feedback, object pushing, homing projectiles, and the camera scroll integration chain.
@@ -24,11 +24,11 @@ These actors are spawned at runtime rather than placed in most scenes. They impl
 | `push_handler_solid` | `$E256` | ✓ | ~11 spawn sites |
 | `push_handler_forceball` | `$E3BA` | ✓ | Force ball puzzles |
 | `smooth_follow_child` | `$E4DB` | **No** | Boss/projectile scripts |
-| `effect_velocity_init` | `$E8D7` | ✓ | 22+ scene slots |
-| `effect_subpixel_math` | `$E98B` | ✓ | Paired with pipeline |
-| `effect_position_update` | `$E9EC` | ✓ | Paired with pipeline |
+| `Layer1DriftUnbounded` | `$E8D7` | ✓ | 22+ scene slots |
+| `Layer1ParallaxRatio` | `$E98B` | ✓ | Paired with pipeline |
+| `Layer1DriftWrapped` | `$E9EC` | ✓ | Paired with pipeline |
 
-**Pipeline order:** `camera_scroll_controller` → `effect_velocity_init` → `effect_position_update` → `effect_subpixel_math`
+**Pipeline order:** `camera_scroll_controller` → `Layer1DriftUnbounded` → `Layer1DriftWrapped` → `Layer1ParallaxRatio`
 
 ---
 
@@ -288,7 +288,7 @@ Force ball puzzle push handler. Requires player animation `$0028` in range `$003
 
 ---
 
-## Smooth Follow (Homing)
+## Smooth Follow (aimed projectile)
 
 ### smooth_follow_child
 
@@ -296,9 +296,9 @@ Force ball puzzle push handler. Requires player animation `$0028` in range `$003
 
 #### Description
 
-Spawns a child actor that homes toward a target using angle/step math from the `smooth_follow` include block. Parent script zeros `$002A`, spawns child at `@SmoothFollowChildTick` with flags `$2000`, copies `$24` (target actor index) to child, then loops `AnimOnce` until `$10` bit `$4000` (arrival flag) before dying.
+Spawns a child actor that aims once at a target and then flies straight (it does not chase), using angle/step math from the `smooth_follow` include block. Parent script zeros `$002A`, spawns child at `@SmoothFollowChildTick` with flags `$2000`, copies `$24` (target actor index) to child, then loops `AnimOnce` until its own `$10` bit `$4000` (the off-screen flag set by `SortActorsByDepth`; no parent sets it) is set, then dies. The child is the only mover: it writes its position to the visible body every frame.
 
-Child script (`SmoothFollowChildTick`) computes delta-X and delta-Y to target (target Y − 8 for sprite anchor), compares magnitudes to pick dominant axis, then dispatches to one of 8 movement paths that call `ComputeFollowAngle` / `ComputeFollowAngleAlt` and `ComputeFollowStep` from `smooth_follow.asm`.
+Child script (`SmoothFollowChildTick`) computes delta-X and delta-Y to target once (target Y − 8 for sprite anchor), compares magnitudes to pick dominant axis, then dispatches to one of 8 heading handlers (`SmoothFollowApplySSE`, `ESE`, `NNE`, `ENE`, `SSW`, `WSW`, `NNW`, `WNW`; the letters are the heading, the first is the dominant axis). The handler calls `ComputeFollowAngle` / `ComputeFollowAngleAlt` once; `SetEntryHere` then resumes after the aim, so every later frame only applies `ComputeFollowStep` (fixed heading, target ignored).
 
 #### Algorithm
 
@@ -313,10 +313,10 @@ Parent:
 Child:
   1. Copy parent $7F0014 → self
   2. ΔX = target.$14 − self.$14; ΔY = target.$16 − $08 − self.$16
-  3. Compare |ΔX| vs |ΔY| → select octant path
-  4. ComputeFollowAngle(Alt) + ComputeFollowStep
-  5. Apply $0000/$0002 step to $14/$16
-  6. Sync position back to parent actor ($0004 link)
+  3. Compare |ΔX| vs |ΔY| → select the heading handler (first frame only)
+  4. ComputeFollowAngle(Alt) once, then SetEntryHere
+  5. Every frame: ComputeFollowStep, apply $0000 (major axis) / $0002 (minor axis, 0 or 1) to $14/$16 with the handler's fixed signs
+  6. SmoothFollowWriteParentPos copies X/Y to the body ($0004 link)
   7. RTL (re-entered each frame via SetEntryHere)
 ```
 
@@ -326,7 +326,7 @@ Child:
 |--------|------|
 | `$24` | Target actor index |
 | `$0004` | Parent actor link |
-| `$0018`, `$001C` | Computed delta magnitudes |
+| `$0018`, `$001C` | Computed delta magnitudes (global scratch words, not actor fields) |
 | `$0000`, `$0002` | Step X/Y from `ComputeFollowStep` |
 | `$10` bit `$4000` | Arrival/completion flag |
 
@@ -360,18 +360,18 @@ Three actors forming a camera/scroll effect subsystem. Placed together in 22+ sc
 camera_scroll_controller
     │  writes $06E4, $06E6
     ▼
-effect_velocity_init
+Layer1DriftUnbounded
     │  seeds $06C8, $06C4, $06E8, $06EA
     ▼
-effect_position_update
+Layer1DriftWrapped
     │  integrates velocity, clamps to $effect_bounds_x/y
     ▼
-effect_subpixel_math
+Layer1ParallaxRatio
     │  MulDivide for sub-pixel scroll
     └──► final $06C8, $06C4
 ```
 
-### effect_velocity_init
+### Layer1DriftUnbounded
 
 **Address:** `$E8D7` · **Size:** 118 bytes
 
@@ -379,7 +379,7 @@ effect_subpixel_math
 
 First stage of scroll effect integration. Converts actor spawn coordinates to signed velocity values in `$2C`/`$2E` (tile-relative, with Y − 1 bias). Zeros position registers and scroll accumulators, waits 1 frame, then adds velocity + camera deltas (`$06E4`/`$06E6`) to produce initial scroll values.
 
-Sets `$06C8` with `$8000` OR — the high bit marks sub-pixel overflow pending in `effect_subpixel_math`.
+Sets `$06C8` with `$8000` OR — the high bit marks sub-pixel overflow pending in `Layer1ParallaxRatio`.
 
 #### Variables
 
@@ -398,7 +398,7 @@ Sets `$06C8` with `$8000` OR — the high bit marks sub-pixel overflow pending i
 
 ---
 
-### effect_subpixel_math
+### Layer1ParallaxRatio
 
 **Address:** `$E98B` · **Size:** 97 bytes
 
@@ -406,7 +406,7 @@ Sets `$06C8` with `$8000` OR — the high bit marks sub-pixel overflow pending i
 
 Multiply/divide helper for sub-pixel scroll values. Uses `$@MulDivide` from `hardware_math` (bank `$02`). For X: if `$14` bit `$8000` (negative sub-pixel), sign-extends and adds to `$06C8`; otherwise if high byte non-zero, multiplies by `$06BE` (target scroll). Y path at `$E9CA` mirrors for `$16`/`$06C4`/`$06C2`.
 
-`SetEntryHere` + `PEA $&EffectUpdateCameraDeltaY-1` structure allows X and Y passes in one actor tick.
+`SetEntryHere` + `PEA $&Layer1ParallaxRatioY-1` structure allows X and Y passes in one actor tick.
 
 #### Variables
 
@@ -425,13 +425,13 @@ Multiply/divide helper for sub-pixel scroll values. Uses `$@MulDivide` from `har
 
 ---
 
-### effect_position_update
+### Layer1DriftWrapped
 
 **Address:** `$E9EC` · **Size:** 170 bytes
 
 #### Description
 
-Integrates velocity each frame and clamps to effect bounds. Mirrors `effect_velocity_init` coordinate conversion, then in the `SetEntryHere` loop:
+Integrates velocity each frame and clamps to effect bounds. Mirrors `Layer1DriftUnbounded` coordinate conversion, then in the `SetEntryHere` loop:
 
 - X: add `$2C` + `$06E4` to `$14`; clamp to `[$0000, $effect_bounds_x]`
 - Y: add `$2E` + `$06E6` to `$16`; clamp to `[$0000, $effect_bounds_y − 1]`
@@ -452,15 +452,15 @@ Negative clamp paths snap to `$effect_bounds` maximum; overflow paths snap to ze
 
 #### Scene Usage
 
-Paired with `effect_velocity_init` in the same 22+ scenes.
+Paired with `Layer1DriftUnbounded` in the same 22+ scenes.
 
 #### Cross-References
 
 | Direction | Symbol | Notes |
 |-----------|--------|-------|
 | Fed by | `camera_scroll_controller` | `$06E4`/`$06E6` deltas |
-| Followed by | `effect_subpixel_math` | Sub-pixel refinement |
-| Block | `visual_effect_pipeline` | Grouped with velocity init + subpixel math |
+| Followed by | `Layer1ParallaxRatio` | Sub-pixel refinement |
+| Block | `layer1_scroll_actors` | Grouped with velocity init + subpixel math |
 
 ---
 

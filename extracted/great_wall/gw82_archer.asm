@@ -560,7 +560,7 @@ code_0B92F9 {
     SEC 
     SBC #$000E
     STA $16
-    COP [SpawnListAppend] ( @player_transition_handlers.PlayerItemRevealSpawn, #00, #00, #$0302 )
+    COP [SpawnListAppend] ( @player_transition_handlers.ImpactSparkEffect, #00, #00, #$0302 )
     COP [Die]
 }
 

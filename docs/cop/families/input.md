@@ -26,14 +26,14 @@ Script-level joypad **wait** and **branch** primitives. Mask **bit 0** of the op
 | `$0010` | Start |
 | `$0020` | Select |
 | `$0100` / `$0200` / `$0400` / `$0800` | Right / Left / Down / Up |
-| `$0001` | R (used with `$1000` Start on title screen) |
+| `$0001` | not a button: the mask bit 0 selects `joypadRaw` instead of `joypadCurrent` (see below); `$1001` therefore means "Start, read from the raw source" |
 | **`$xx01`** | Same direction/button tests against **`joypadRaw`** (bit 0 set) |
 
 ## Family notes
 
 - **Wait** ops (`$3E`/`$3F`): “exit if not met” in legacy docs means the **actor yields** (`RTL`) and re-enters the COP next frame — not a script branch.
 - **Branch** ops (`$40`/`$41`): one-shot; use inside **`SetEntryHere` + `RTL`** poll loops (title screen, inventory, player movement) for menu navigation without halting the whole actor forever.
-- **`BranchIfPressed` with `$1001`** on title: Start **`$1000`** OR R **`$0001`**, raw source — see `sFC_title_start_handler.asm`.
+- **`BranchIfPressed` with `$1001`** on title: Start **`$1000`**, with bit 0 selecting the raw source (`joypadRaw`, which the title handler's `joypadMaskStd` mask does not touch). R is not tested — see `sFC_title_start_handler.asm`.
 - Player **`BranchIfNotPressed` with `$8001`**: B held on **raw** pad — attack charge / release detection in `attack_ability_system.asm`.
 
 ## Usage statistics

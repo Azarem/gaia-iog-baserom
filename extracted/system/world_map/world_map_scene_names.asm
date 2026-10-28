@@ -1,23 +1,30 @@
-; World map location names — label lookup table for map positions (242132–242689, Bank 03).
+; World map location names (Bank 03, 242132-242689): the scene id -> name table WorldMapController uses for the two area names of a trip, followed by the name strings.
 ; 
-; Pure data block mapping world map location IDs to display name strings.
+; === FORMAT ===
 ; 
-; === DATA FORMAT ===
+; 37 map-label entries ($00-$24), 3 bytes each: a SCENE ID byte (a sceneCurrent / sceneNext value, not a map position index) and a word pointer to a sprite string. LookupMapName searches the table linearly for the scene id in $0000. There is no terminator entry: the strings follow the table directly, so an id that is not listed would run on into string bytes (no listed or staged scene does; OQ-I059-7).
 ; 
-; Top-level table (world_map_names): Array of `map-label` entries, each containing:
-;   - Location ID byte (matches WorldMapController position index)
-;   - Pointer to a sprite string (the location name rendered as OAM sprites)
+; === WHICH SCENE IDS ARE LOOKED UP ===
 ; 
-; 37 named locations covering the full game world: South Cape, Edward's Castle, Itory Village, Moon Tribe Camp, Inca Ruins, Diamond Coast, Freejia, Diamond Mine, Neil's Cottage, Nazca Painting, Mu, Seaside Cave, Angel Village, Watermia, Great Wall, City of Euro, Mt. Temple, Natives' Village, Ankor Wat, Desert Village Dao, Pyramid, Over Babel, Tower of Babel.
+; The start name uses $0D6F (the scene being left), the end name the low byte of $0D6E (the destination). Between them the table holds:
+; - every overworld_exit scene: $01 $0A $15 $1C $32 $3E $69 $78 $82 $91 $A0 $AC $B0 $C3 $CC;
+; - every scene that starts a scripted trip: $06 $17 $1A $30 $39 $49 $6A $78 $79 $96 $AE $C8, and every scripted destination: $01 $15 $1A $1C $32 $49 $4B $78 $91 $AC $C4 $DC;
+; - ids no trip found in extracted/ uses: $31 $67 $68 $95 $9F $AD $C5 $DE (possibly left over).
 ; 
-; Some locations share the same string (e.g., multiple entries for 'Desert Village Dao', 'City of Euro'). Strings are sprite-rendered text (spritestring format) for overlay on the Mode 7 world map.
+; Several ids share a name: South Cape ($01 $06), Itory Village ($15 $17), Diamond Coast ($30 $31), Freejia ($32 $39), Angel Village ($69 $6A), Watermia ($78 $79), City of Euro ($91 $95 $96), Mt.Temple ($9F $A0), Natives' Village ($AC $AD $AE), Desert Village Dao ($C3 $C4 $C5 $C8). Each id has its own string except $C4 $C5 $C8, which share spritestring_03B3CC (the same text also exists at spritestring_03B3B9 for $C3).
+; 
+; === STRINGS ===
+; 
+; The ~...~ strings are character codes ended by $CA ($CB = new line, $57 = space). pr_text_placement_calc builds one 8-pixel sprite record per character in the $7F0600 buffer (tile = code x 2 + $2300), centred horizontally at Y = $38, and keeps the byte count in $00DA; WorldMapController zeroes $00DA to remove the name.
 ---------------------------------------------
 
 ?BANK 03
 
 ---------------------------------------------
 
-world_map_names [
+; Scene id -> name string pointer, 37 entries in ascending scene id order. See the block note for which ids are used.
+
+world_map_scene_names [
   map-label < #01, &spritestring_03B244 >   ;00
   map-label < #06, &spritestring_03B24F >   ;01
   map-label < #0A, &spritestring_03B25A >   ;02

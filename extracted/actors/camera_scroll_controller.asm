@@ -1,4 +1,4 @@
-; Per-frame camera tracking actor (Bank 00, 60144-60314), the camera actor of 220+ field scenes. It reads the player's position, derives the scroll position that centres the player (clamped to the scene's window) and publishes the distance from the current scroll to that target as effectDeltaX / effectDeltaY for the visual_effect_pipeline actors (effect_velocity_init, effect_position_update, effect_subpixel_math). It scrolls nothing itself.
+; Per-frame camera tracking actor (Bank 00, 60144-60314), the camera actor of 220+ field scenes. It reads the player's position, derives the scroll position that centres the player (clamped to the scene's window) and publishes the distance from the current scroll to that target as effectDeltaX / effectDeltaY for the layer1_scroll_actors actors (Layer1DriftUnbounded, Layer1DriftWrapped, Layer1ParallaxRatio). It scrolls nothing itself.
 ; 
 ; === ENTRY AND FREEZE ===
 ; 

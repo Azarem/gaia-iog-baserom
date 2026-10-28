@@ -6,7 +6,7 @@
 ; 
 ; === VARIABLES ===
 ; 
-; cameraTargetX / Y ($06BE / $06C2) are the scroll targets (camera_scroll_controller recomputes them each frame) and cameraDeltaX / Y ($06C0 / $06C4) the per-frame scroll deltas that the visual_effect_pipeline actors integrate. These are not the effectDeltaX / Y ($06E4 / $06E6) that camera_scroll_controller writes. Whether the offsets added here survive that recompute is not established statically (OQ-I050-2).
+; cameraTargetX / Y ($06BE / $06C2) are the layer-0 scroll targets (camera_scroll_controller recomputes them each frame). cameraDeltaX / Y ($06C0 / $06C4) are the layer-1 (second background layer) scroll POSITION, not per-frame deltas: the layer1_scroll_actors actors and camera_scroll write them, and CameraSmoothScroll copies them to effectScrollH / V ($068C / $0690, the BG2 scroll) when layerPriorityFlag bit $0400 is set. While that mode is active the drift therefore moves both layers together. These are not the effectDeltaX / Y ($06E4 / $06E6) that camera_scroll_controller writes. Whether the offsets added here survive the recompute is not established statically (OQ-I050-2).
 ; 
 ; === CameraDriftLoopSimple ===
 ; 

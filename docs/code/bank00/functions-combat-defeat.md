@@ -40,11 +40,11 @@ Enemy OnDeath callback
 
 ## StandardEnemyDefeatHandler
 
-**Address:** `$DB8A` · **Size:** 237 bytes · **Movable:** No (inbound `$&StandardEnemyDefeatHandler` from `ComposeDigitSprites_AtCursor`, `hit_stagger_controller`)
+**Address:** `$DB8A` · **Size:** 237 bytes · **Movable:** No (inbound `$&StandardEnemyDefeatHandler` from `hit_stagger_controller`, `combat_collision`)
 
 ### Description
 
-Central enemy death handler invoked when any standard enemy's HP reaches zero. Assigned as the default OnDeath callback via `SetOnDeath` COP in `ComposeDigitSprites_AtCursor` (`#$&StandardEnemyDefeatHandler`). Also referenced when `hit_stagger_controller` completes with no saved AI script for the victim.
+Central enemy death handler invoked when any standard enemy's HP reaches zero. It is the engine default: `hit_stagger_controller` (`HitStaggerResolveHit`) and two inline paths in `combat_collision` point the victim at it when HP reaches zero and `$7F1004` is empty, and 13 enemy scripts `JumpFar` into it. `ComposeDigitSprites_AtCursor` does not assign it.
 
 The handler performs four coordinated tasks before the enemy actor dies:
 
@@ -83,7 +83,7 @@ Because `EnemyGemDropRouter` and `EnemyStatBonusReward` are embedded in the same
 
 | Direction | Symbol | Notes |
 |-----------|--------|-------|
-| Assigned by | `ComposeDigitSprites_AtCursor` | Default enemy OnDeath: `#$&StandardEnemyDefeatHandler` |
+| Installed by | `hit_stagger_controller`, `combat_collision` | Default enemy death entry when `$7F1004` is empty |
 | Called from | `hit_stagger_controller` | When enemy has no saved script ptr |
 | Calls | `EnemyGemDropRouter`, `EnemyStatBonusReward` | Internal JSR `$&` |
 | Spawns | `EnemyDeathFlash`, `SpawnFieldRevealEffect` | COP `SpawnLastRel` |
@@ -112,7 +112,7 @@ Routes the enemy's `gemDropType` (byte 3 of `enemy-stats`) to the appropriate pi
 3. DEC; BEQ → SpawnDropGem2 ($DF52)          [type 2: fixed gem B]
 4. BRA → SpawnDropByHpTier ($DF7B)               [type 3+: random weighted]
 5. COP [SpawnLastRel] @selected_handler
-6. JMP $&code_00DC13
+6. JMP $&DefeatHideAndRelease
 ```
 
 ### Cross-References

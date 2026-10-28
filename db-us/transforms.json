@@ -178,7 +178,7 @@
   ],
   "diary_menu_window_dma": [
     {
-      "key": "(dma_channel_00BC4C\\s\\[\\s*\\])[\\s]*(dma_channel_00BC4D\\s\\[[^\\]]*\\])",
+      "key": "(diary_band_empty\\s\\[\\s*\\])[\\s]*(diary_band_slot1\\s\\[[^\\]]*\\])",
       "value": "$2\r\n\r\n$1"
     }
   ],

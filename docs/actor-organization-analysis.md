@@ -227,7 +227,7 @@ Code referenced via `@` from many scenes should **not** be folded into scene act
 
 | Symbol | Referenced from | Role |
 |--------|-----------------|------|
-| `StandardEnemyDefeatHandler` | 14+ files | Standard actor slot initialization |
+| `StandardEnemyDefeatHandler` | 14+ files | Standard enemy defeat sequence (count, flash, reveal, drops, last-enemy reward) |
 | `TestWramFlag_Offset100` / `SetWramFlag_Offset100` / `TestFlag_0300` | reward/jewel actors | Flag/stat check helpers |
 | `ApplyOrbitalOffsetFromRef` | inventory, statue, diary | Scene fade/transition |
 | `ActorDisplayModeSwap` | euro merchants | Shop inventory logic |

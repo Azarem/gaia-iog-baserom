@@ -7,6 +7,7 @@ import type { DbAddressingMode, DbConfig, DbGameRomModule } from '@gaialabs/core
 import { snes } from '@gaialabs/core';
 import { ingest } from './ingest.ts';
 import { annotate } from './annotate.ts';
+import { merge } from './merge.ts';
 
 const __pkgRoot = join(dirname(fileURLToPath(import.meta.url)), '..');
 
@@ -248,9 +249,20 @@ if (isMainModule) {
                     if (!annotateResult.ok) process.exit(1);
                     break;
                 }
+                case 'merge': {
+                    if (args.length === 0) {
+                        console.error('Usage: merge <spec.json> [--dry-run]');
+                        process.exit(1);
+                    }
+                    const mergeResult = merge(__pkgRoot, args[0], {
+                        dryRun: flags.includes('dry-run') || flags.includes('dryrun'),
+                    });
+                    if (!mergeResult.ok) process.exit(1);
+                    break;
+                }
                 default:
                     console.error('Unknown command:', command);
-                    console.log('Available commands: extract, extract-jp, rebuild, rebuild-jp, ingest, annotate');
+                    console.log('Available commands: extract, extract-jp, rebuild, rebuild-jp, ingest, annotate, merge');
                     process.exit(1);
             }
         } catch (error) {

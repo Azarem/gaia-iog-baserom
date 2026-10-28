@@ -562,7 +562,7 @@ Bank `$00` code follows consistent stack conventions across interrupt handlers, 
 |-------|-----------|-----------------|
 | `camera_scroll_controller` (`$00EAED`) | 100+ | Every field scene (actor slot #1/#2) |
 | `scene_flag_init` (`$00C667`) | 26 | Scene actor lists (sets event flag `#00`) |
-| `StandardEnemyDefeatHandler` (`$00DB8A`) | ~20 | All enemy actors via death callback pointer |
+| `StandardEnemyDefeatHandler` (`$00DB8A`) | 13 enemy scripts + 3 engine sites | 13 enemy scripts `JumpFar` into it; the engine installs it as the default when HP reaches zero and `$7F1004` is empty |
 | `global_ambient_dispatcher` (`$00BF89`) | 59 spawn lists | 173 of 184 scenes with thinkers |
 | `ApplyOrbitalOffsetFromRef` (`$00F3C9`) | 21 | COP handlers, bosses, statue inventory, fire sprites |
 | `NpcRandomWanderAI` (`$00C725`) | 13 | Town NPC wander actors |
@@ -587,7 +587,7 @@ Bank `$00` code follows consistent stack conventions across interrupt handlers, 
 | Bank `$00` Block | Connects To | Via |
 |------------------|-------------|-----|
 | `GameOverSequence` ($D62F) | `ComposeDigitSprites_AtCursor` | `$&GameOverSequence` player death pointer |
-| `StandardEnemyDefeatHandler` ($DB8A) | `ComposeDigitSprites_AtCursor` | `$&StandardEnemyDefeatHandler` enemy defeat pointer |
+| `StandardEnemyDefeatHandler` ($DB8A) | `hit_stagger_controller` (`HitStaggerResolveHit`), two inline paths in `combat_collision` | `$&StandardEnemyDefeatHandler` default enemy defeat pointer (`ComposeDigitSprites_AtCursor` does not set it) |
 | `NpcDespawnStub` ($DC77) | `InteractionDamage_NPCChat` | Post-interaction NPC entry → `COP [Die]` next tick |
 | `player_transition_handlers` ($C418) | Scene scripts, bank $03 | `#$&func_00C4xx` player anim refs |
 | `hit_stagger_controller` ($D877) | Bank $03 | `SpawnLastRel` from damage routines |

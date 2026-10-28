@@ -363,6 +363,7 @@
 ?INCLUDE 'it1B_trial'
 ?INCLUDE 'jeweler_gem'
 ?INCLUDE 'large_ramps'
+?INCLUDE 'layer1_scroll_actors'
 ?INCLUDE 'movement_speed_zones'
 ?INCLUDE 'mtA0_acid_spider'
 ?INCLUDE 'mtA0_intro'
@@ -572,7 +573,6 @@
 ?INCLUDE 'st68_neil'
 ?INCLUDE 'statue_inventory_reward'
 ?INCLUDE 'town_door'
-?INCLUDE 'visual_effect_pipeline'
 ?INCLUDE 'wa78_centipede_man'
 ?INCLUDE 'wa78_children'
 ?INCLUDE 'wa78_crazy_man'
@@ -984,7 +984,7 @@ scene_event_0C8483 [
 scene_event_0C84BC [
   actor-spawn < #05, #0A, #00, @player_character.PlayerCharacterDef >   ;00
   actor-spawn < #00, #00, #00, @camera_scroll_controller >   ;01
-  actor-spawn < #01, #82, #00, @visual_effect_pipeline.effect_position_update >   ;02
+  actor-spawn < #01, #82, #00, @layer1_scroll_actors.Layer1DriftWrapped >   ;02
   actor-spawn < #00, #01, #00, @sE6_gaia >   ;03
 ]
 
@@ -1633,7 +1633,7 @@ scene_event_0C954D [
 scene_event_0C9572 [
   actor-spawn < #13, #36, #02, @player_character.PlayerCharacterDef >   ;00
   actor-spawn < #00, #00, #00, @camera_scroll_controller >   ;01
-  actor-spawn < #01, #82, #00, @visual_effect_pipeline.effect_position_update >   ;02
+  actor-spawn < #01, #82, #00, @layer1_scroll_actors.Layer1DriftWrapped >   ;02
   actor-spawn < #00, #01, #00, @overworld_exit >   ;03
   actor-spawn < #00, #01, #00, @scene_flag_init >   ;04
   actor-spawn < #00, #01, #00, @fr32_laborer_npc >   ;05
@@ -2001,7 +2001,7 @@ scene_event_0C9DB3 [
 scene_event_0C9E92 [
   actor-spawn < #3C, #14, #00, @player_character.PlayerCharacterDef >   ;00
   actor-spawn < #00, #00, #00, @camera_scroll_controller >   ;01
-  actor-spawn < #02, #02, #00, @visual_effect_pipeline.effect_velocity_init >   ;02
+  actor-spawn < #02, #02, #00, @layer1_scroll_actors.Layer1DriftUnbounded >   ;02
   actor-spawn < #00, #01, #00, @sg4D_jump_handler >   ;03
   actor-spawn < #00, #01, #00, @scene_flag_init >   ;04
   enemy-spawn < #09, #1A, #00, @sg4D_cyber.sg4D_red_cyber, #1E, #20, #00 >   ;05
@@ -2052,7 +2052,7 @@ scene_event_0C9F53 [
 scene_event_0CA01A [
   actor-spawn < #05, #0A, #00, @player_character.PlayerCharacterDef >   ;00
   actor-spawn < #00, #00, #00, @camera_scroll_controller >   ;01
-  actor-spawn < #02, #02, #00, @visual_effect_pipeline.effect_velocity_init >   ;02
+  actor-spawn < #02, #02, #00, @layer1_scroll_actors.Layer1DriftUnbounded >   ;02
   actor-spawn < #00, #01, #00, @scene_flag_init >   ;03
   actor-spawn < #00, #01, #00, @sg4D_jump_handler >   ;04
   enemy-spawn < #1F, #0B, #00, @sg4D_cyber.sg4D_red_cyber, #1E, #60, #00 >   ;05
@@ -2101,7 +2101,7 @@ scene_event_0CA0CB [
 scene_event_0CA192 [
   actor-spawn < #05, #0A, #00, @player_character.PlayerCharacterDef >   ;00
   actor-spawn < #00, #00, #00, @camera_scroll_controller >   ;01
-  actor-spawn < #02, #02, #00, @visual_effect_pipeline.effect_velocity_init >   ;02
+  actor-spawn < #02, #02, #00, @layer1_scroll_actors.Layer1DriftUnbounded >   ;02
   actor-spawn < #38, #33, #00, @sg4D_knight_armor.sg4F_knight_armor2 >   ;03
   enemy-spawn < #25, #33, #00, @sg4D_cyber.sg4D_red_cyber, #1E, #A0, #00 >   ;04
   enemy-spawn < #38, #1C, #00, @sg4D_cyber.sg4D_red_cyber, #1E, #A1, #00 >   ;05
@@ -2157,7 +2157,7 @@ scene_event_0CA247 [
 scene_event_0CA335 [
   actor-spawn < #05, #0A, #00, @player_character.PlayerCharacterDef >   ;00
   actor-spawn < #00, #00, #00, @camera_scroll_controller >   ;01
-  actor-spawn < #02, #02, #00, @visual_effect_pipeline.effect_velocity_init >   ;02
+  actor-spawn < #02, #02, #00, @layer1_scroll_actors.Layer1DriftUnbounded >   ;02
   actor-spawn < #3A, #2F, #00, @sg4D_knight_armor.sg4F_knight_armor4 >   ;03
   actor-spawn < #34, #2E, #00, @sg54_pressure_switch >   ;04
   enemy-spawn < #1C, #2C, #00, @sg4D_cyber.sg4D_red_cyber, #1E, #E0, #00 >   ;05
@@ -2225,7 +2225,7 @@ scene_event_0CA4F5 [
 
 scene_event_0CA50C [
   actor-spawn < #00, #01, #00, @player_character.PlayerCharacterDef >   ;00
-  actor-spawn < #00, #0C, #00, @visual_effect_pipeline.effect_velocity_init >   ;01
+  actor-spawn < #00, #0C, #00, @layer1_scroll_actors.Layer1DriftUnbounded >   ;01
   actor-spawn < #08, #01, #00, @sp58_descent_cutscene >   ;02
   actor-spawn < #00, #0B, #00, @sp58_missed_flight >   ;03
   actor-spawn < #08, #0B, #00, @sp58_red_eye >   ;04
@@ -3148,12 +3148,12 @@ scene_event_0CBD41 [
 scene_event_0CBD5F [
   actor-spawn < #00, #01, #00, @pr8C_prologue1 >   ;00
   actor-spawn < #00, #01, #00, @pr8C_prologue5 >   ;01
-  actor-spawn < #00, #01, #00, @sFC_title_start_handler.sFC_actor_0BC9BD >   ;02
+  actor-spawn < #00, #01, #00, @sFC_title_start_handler.sFC_title_start_poll >   ;02
 ]
 
 scene_event_0CBD76 [
   actor-spawn < #00, #01, #00, @pr8D_prologue2 >   ;00
-  actor-spawn < #00, #01, #00, @sFC_title_start_handler.sFC_actor_0BC9BD >   ;01
+  actor-spawn < #00, #01, #00, @sFC_title_start_handler.sFC_title_start_poll >   ;01
 ]
 
 scene_event_0CBD86 [
@@ -3161,12 +3161,12 @@ scene_event_0CBD86 [
   actor-spawn < #00, #00, #00, @camera_scroll_controller >   ;01
   actor-spawn < #00, #12, #00, @camera_scroll.ScrollCameraTrack >   ;02
   actor-spawn < #00, #01, #00, @pr8E_prologue3 >   ;03
-  actor-spawn < #00, #01, #00, @sFC_title_start_handler.sFC_actor_0BC9BD >   ;04
+  actor-spawn < #00, #01, #00, @sFC_title_start_handler.sFC_title_start_poll >   ;04
 ]
 
 scene_event_0CBDAB [
   actor-spawn < #00, #01, #00, @pr8F_prologue4 >   ;00
-  actor-spawn < #00, #01, #00, @sFC_title_start_handler.sFC_actor_0BC9BD >   ;01
+  actor-spawn < #00, #01, #00, @sFC_title_start_handler.sFC_title_start_poll >   ;01
 ]
 
 scene_event_0CBDBB [
@@ -3974,7 +3974,7 @@ scene_event_0CD3A9 [
 scene_event_0CD3B2 [
   actor-spawn < #05, #0A, #32, @player_character.PlayerCharacterDef >   ;00
   actor-spawn < #00, #00, #00, @camera_scroll_controller >   ;01
-  actor-spawn < #03, #02, #00, @visual_effect_pipeline.effect_position_update >   ;02
+  actor-spawn < #03, #02, #00, @layer1_scroll_actors.Layer1DriftWrapped >   ;02
   actor-spawn < #00, #01, #00, @overworld_exit >   ;03
   actor-spawn < #02, #07, #01, @dark_space >   ;04
   actor-spawn < #0E, #10, #30, @daC3_man1 >   ;05
@@ -4423,7 +4423,7 @@ scene_event_0CDFBF [
 
 scene_event_0CE010 [
   actor-spawn < #00, #01, #00, @player_character.PlayerCharacterDef >   ;00
-  actor-spawn < #00, #00, #00, @visual_effect_pipeline.effect_velocity_init >   ;01
+  actor-spawn < #00, #00, #00, @layer1_scroll_actors.Layer1DriftUnbounded >   ;01
   actor-spawn < #08, #0B, #00, @btDC_plane_jumping >   ;02
 ]
 
@@ -4517,7 +4517,7 @@ scene_event_0CE1AA [
 scene_event_0CE1DD [
   actor-spawn < #05, #0A, #00, @player_character.PlayerCharacterDef >   ;00
   actor-spawn < #00, #00, #00, @camera_scroll_controller >   ;01
-  actor-spawn < #01, #82, #00, @visual_effect_pipeline.effect_position_update >   ;02
+  actor-spawn < #01, #82, #00, @layer1_scroll_actors.Layer1DriftWrapped >   ;02
   actor-spawn < #00, #01, #00, @sE6_gaia >   ;03
 ]
 
@@ -4534,7 +4534,7 @@ scene_event_0CE212 [
 scene_event_0CE224 [
   actor-spawn < #33, #3E, #00, @player_character.PlayerCharacterDef >   ;00
   actor-spawn < #00, #00, #00, @camera_scroll_controller >   ;01
-  actor-spawn < #81, #02, #00, @visual_effect_pipeline.effect_position_update >   ;02
+  actor-spawn < #81, #02, #00, @layer1_scroll_actors.Layer1DriftWrapped >   ;02
   actor-spawn < #28, #2E, #17, @slider_glide.SliderGlideTriggerNorth >   ;03
   actor-spawn < #28, #23, #17, @slider_glide.SliderGlideTriggerSouth >   ;04
   actor-spawn < #00, #01, #00, @sE9_mansion_intro >   ;05
@@ -4581,7 +4581,7 @@ scene_event_0CE224 [
 scene_event_0CE3A6 [
   actor-spawn < #05, #0A, #00, @player_character.PlayerCharacterDef >   ;00
   actor-spawn < #00, #00, #00, @camera_scroll_controller >   ;01
-  actor-spawn < #83, #04, #00, @visual_effect_pipeline.effect_position_update >   ;02
+  actor-spawn < #83, #04, #00, @layer1_scroll_actors.Layer1DriftWrapped >   ;02
   actor-spawn < #00, #01, #00, @btEA_conveyor_controller >   ;03
   enemy-spawn < #08, #07, #00, @sEA_solid_arm, #5F, #00, #00 >   ;04
 ]
@@ -4589,31 +4589,31 @@ scene_event_0CE3A6 [
 scene_event_0CE3CD [
   actor-spawn < #05, #0A, #00, @player_character.PlayerCharacterDef >   ;00
   actor-spawn < #00, #00, #00, @camera_scroll_controller >   ;01
-  actor-spawn < #03, #86, #00, @visual_effect_pipeline.effect_position_update >   ;02
+  actor-spawn < #03, #86, #00, @layer1_scroll_actors.Layer1DriftWrapped >   ;02
 ]
 
 scene_event_0CE3EB [
   actor-spawn < #05, #0A, #00, @player_character.PlayerCharacterDef >   ;00
   actor-spawn < #00, #00, #00, @camera_scroll_controller >   ;01
-  actor-spawn < #01, #82, #00, @visual_effect_pipeline.effect_position_update >   ;02
+  actor-spawn < #01, #82, #00, @layer1_scroll_actors.Layer1DriftWrapped >   ;02
 ]
 
 scene_event_0CE409 [
   actor-spawn < #05, #0A, #00, @player_character.PlayerCharacterDef >   ;00
   actor-spawn < #00, #00, #00, @camera_scroll_controller >   ;01
-  actor-spawn < #01, #82, #00, @visual_effect_pipeline.effect_position_update >   ;02
+  actor-spawn < #01, #82, #00, @layer1_scroll_actors.Layer1DriftWrapped >   ;02
 ]
 
 scene_event_0CE427 [
   actor-spawn < #05, #0A, #00, @player_character.PlayerCharacterDef >   ;00
   actor-spawn < #00, #00, #00, @camera_scroll_controller >   ;01
-  actor-spawn < #01, #82, #00, @visual_effect_pipeline.effect_position_update >   ;02
+  actor-spawn < #01, #82, #00, @layer1_scroll_actors.Layer1DriftWrapped >   ;02
 ]
 
 scene_event_0CE445 [
   actor-spawn < #05, #0A, #00, @player_character.PlayerCharacterDef >   ;00
   actor-spawn < #00, #00, #00, @camera_scroll_controller >   ;01
-  actor-spawn < #01, #82, #00, @visual_effect_pipeline.effect_position_update >   ;02
+  actor-spawn < #01, #82, #00, @layer1_scroll_actors.Layer1DriftWrapped >   ;02
 ]
 
 scene_event_0CE463 [
@@ -4623,14 +4623,14 @@ scene_event_0CE463 [
 scene_event_0CE46C [
   actor-spawn < #05, #0A, #30, @player_character.PlayerCharacterDef >   ;00
   actor-spawn < #00, #00, #00, @camera_scroll_controller >   ;01
-  actor-spawn < #11, #82, #00, @visual_effect_pipeline.effect_position_update >   ;02
+  actor-spawn < #11, #82, #00, @layer1_scroll_actors.Layer1DriftWrapped >   ;02
   enemy-spawn < #07, #09, #00, @ir29_castoth.btF2_neo_castoth, #5A, #01, #00 >   ;03
 ]
 
 scene_event_0CE48C [
   actor-spawn < #05, #0A, #00, @player_character.PlayerCharacterDef >   ;00
   actor-spawn < #00, #00, #00, @camera_scroll_controller >   ;01
-  actor-spawn < #06, #86, #00, @visual_effect_pipeline.effect_position_update >   ;02
+  actor-spawn < #06, #86, #00, @layer1_scroll_actors.Layer1DriftWrapped >   ;02
   enemy-spawn < #10, #05, #30, @sg55_viper.btF3_neo_viper, #5B, #02, #00 >   ;03
 ]
 
@@ -4645,14 +4645,14 @@ scene_event_0CE4AC [
 scene_event_0CE4D5 [
   actor-spawn < #05, #0A, #00, @player_character.PlayerCharacterDef >   ;00
   actor-spawn < #00, #00, #00, @camera_scroll_controller >   ;01
-  actor-spawn < #06, #81, #00, @visual_effect_pipeline.effect_position_update >   ;02
+  actor-spawn < #06, #81, #00, @layer1_scroll_actors.Layer1DriftWrapped >   ;02
   enemy-spawn < #27, #30, #00, @gw8A_sand_fanger.btF5_neo_fanger, #5D, #04, #00 >   ;03
 ]
 
 scene_event_0CE4F5 [
   actor-spawn < #05, #0A, #00, @player_character.PlayerCharacterDef >   ;00
   actor-spawn < #00, #00, #00, @camera_scroll_controller >   ;01
-  actor-spawn < #81, #02, #00, @visual_effect_pipeline.effect_position_update >   ;02
+  actor-spawn < #81, #02, #00, @layer1_scroll_actors.Layer1DriftWrapped >   ;02
   actor-spawn < #04, #0C, #30, @pyDD_queen_invincible_orb >   ;03
   actor-spawn < #04, #1B, #30, @pyDD_teleporter >   ;04
   actor-spawn < #1B, #0C, #30, @pyDD_queen_invincible_orb >   ;05
@@ -4664,7 +4664,7 @@ scene_event_0CE4F5 [
 scene_event_0CE538 [
   actor-spawn < #05, #0A, #02, @player_character.PlayerCharacterDef >   ;00
   actor-spawn < #00, #00, #00, @camera_scroll_controller >   ;01
-  actor-spawn < #81, #02, #00, @visual_effect_pipeline.effect_position_update >   ;02
+  actor-spawn < #81, #02, #00, @layer1_scroll_actors.Layer1DriftWrapped >   ;02
 ]
 
 scene_event_0CE55B [

@@ -36,7 +36,7 @@
     "697415": "Last enemy: clear the ForceDir bits and halt movement (zero chains, delta words cleared)",
     "697435": "Last enemy: the full standard defeat (it decrements the counters itself)",
     "697440": "Not the last: per-enemy death processing as a near subroutine",
-    "697444": "Spawn the stat-gem reveal child with flags $0020",
+    "697444": "Spawn the gem pickup child (field_reveal_object, flags $0020)",
     "697451": "Remaining count (stored by EnemyDefeatDispatch_CountKill) goes to the child's $26: nonzero selects FieldRevealFromActorStats",
     "697460": "Death sound #03",
     "697463": "BCD decrement of $0AEE, then hex decrement of $0AEC, also saved in orbitAngle for the caller",

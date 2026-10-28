@@ -35,7 +35,7 @@
 ; 
 ; Runs COP LoopStart with count 3 around ComputeScrollDeltas; all three passes use the same inputs, so they give the same result. After the loop, copies cameraDeltaY to effectScrollV ($0690).
 ; 
-; Then sets the re-entry point (COP SetEntryHere), computes the deltas again each frame, ORs bit 15 into cameraDeltaX and stores it in forcedScrollOverride ($06C8), and zeroes cameraDeltaX. Outside visual_effect_pipeline no reader of $06C8 was found in extracted/ (OQ-57).
+; Then sets the re-entry point (COP SetEntryHere), computes the deltas again each frame, ORs bit 15 into cameraDeltaX and stores it in forcedScrollOverride ($06C8), and zeroes cameraDeltaX. Outside layer1_scroll_actors no reader of $06C8 was found in extracted/ (OQ-57).
 
 ScrollCameraInit [
   actor-def < #00, #00, #2C, {
@@ -62,7 +62,7 @@ ScrollCameraInit [
     JSR $&ComputeScrollDeltas
     LDA $cameraDeltaX
     ORA #$8000            ; Set bit 15 on the X delta
-    STA $forcedScrollOverride ; Store in forcedScrollOverride ($06C8); no reader outside visual_effect_pipeline was found (OQ-57)
+    STA $forcedScrollOverride ; Store in forcedScrollOverride ($06C8); no reader outside layer1_scroll_actors was found (OQ-57)
     STZ $cameraDeltaX     ; Zero cameraDeltaX after moving its value into the override word
     RTL 
 } >

@@ -1,6 +1,17 @@
-; Invisible scene actor that grants post-boss stat rewards after victory.
+; Post-boss stat catch-up actor (Bank 00, 49854-50070), spawned from scene_actors in the five boss arenas (Castoth, Viper, the Mu vampires, Sand Fanger, the Mummy Queen). Once the boss is dead it grants, in one go, the stat reward of every room of that dungeon whose clear reward the player has not yet taken.
 ; 
-; Matches current scene ID against a boss_reward_range table (scenes for Castoth, Viper, Mu vampires, Sand Fanger, Mummy Queen), checks a per-boss WRAM flag, and distributes HP/STR/DEF increases from enemy_clear_reward_table when player flag $0020 is set. Sets the boss-cleared flag and triggers damage-flash timer to show the HP recovery animation. Spawned as a background actor in each major boss arena.
+; === FLOW ===
+; 
+; 1. BossRewardCheckInit: find sceneCurrent in boss_reward_range_table (4-byte rows: scene, first scene, last scene, pad; the first match wins). The row's byte offset is kept in $20, offset / 4 is the boss number. If wramFlags $0100 + boss number (event flags $0500-$0507) is already set the actor only idles.
+; 2. Every frame (SetEntryHere): wait for playerFlags bit $0020 (boss defeated). Then BossClearApplyStatReward walks enemy_clear_reward_table over the scenes [first, last): each scene with a nonzero tier whose scene flag $0300 + scene is clear gets the flag set and its stat raised (1 = Max HP, 2 = STR, 3 = DEF, +1 each). It is the same flag that the per-room clear reward (reward_actors, field_reveal_object) tests, so a room cannot pay twice.
+; 3. hpToHeal := maxHp - hp (UpdateHUD refills the bar at 1 HP per 8 frames, which also covers the extra max HP), the boss flag is set, and the actor idles for the rest of the scene.
+; 
+; === QUIRKS ===
+; 
+; - The scene search has no end-of-table test; it relies on the actor existing only in the five boss arenas. Rows 5-10 are placeholders (scene $F8 and $29 with an empty range); the first $29 row is the real one.
+; - The range end is compared only after a zero tier. In the shipped table the entry at the end index (the boss scene itself) is zero in all five ranges, which ends the walk, so a nonzero run past the end cannot happen.
+; - The entry stores the range word in the actor's $04 and the apply routine uses $04 and $0E as scratch. wram-memory-map lists $04 as prevActorLink (the actor list predecessor): OQ-I051-3.
+; - The old header called the HP effect a 'damage-flash timer'; $0B22 is the heal counter hpToHeal. The old routine comment said the flags are per enemy; the index is the scene id.
 ---------------------------------------------
 
 ?INCLUDE 'enemy_clear_reward_table'
@@ -16,56 +27,68 @@
 
 ---------------------------------------------
 
+; Actor-def: sprite 0, flags 0, header byte $20. Invisible; see the block note.
+
 boss_clear_reward_handler [
   actor-def < #00, #00, #20, {
+
+; Init: locate this scene in the boss table, test the boss's reward flag, then poll playerFlags bit $0020 every frame.
 
   BossRewardCheckInit:
     PHX 
     SEP #$20              ; 8-bit for scene ID comparison
     LDX #$0000
-    LDA $sceneCurrent
+    LDA $sceneCurrent     ; A = current scene id (8-bit); this actor only exists in the boss arenas
 
-  loc_00C2C7:
-    CMP $@boss_reward_range_00C312, X ; Match scene ID in boss table
-    BEQ loc_00C2D3
+; Scene search: compare the 8-bit scene id with each 4-byte row; there is no end test.
+
+  BossRewardFindScene:
+    CMP $@boss_reward_range_table, X ; Match scene ID in boss table
+    BEQ BossRewardCheckClaimed
     INX                   ; Next table entry (4 bytes each)
     INX 
     INX 
     INX 
-    BRA loc_00C2C7
+    BRA BossRewardFindScene
 
-  loc_00C2D3:
+; Row found: $20 := its byte offset, boss number := offset / 4, TestWramFlag_Offset100: already rewarded -> idle.
+
+  BossRewardCheckClaimed:
     REP #$20
     TXA                   ; Table index → boss ID for WRAM flag
-    STX $20
+    STX $20               ; $20 := byte offset of the matching row (kept for the range lookup and the flag)
     PLX                   ; Restore actor pointer
     LSR                   ; Index / 4 = boss number
     LSR 
     JSL $@flag_helpers.TestWramFlag_Offset100 ; Already rewarded this boss?
-    BCS loc_00C30C        ; Yes → skip to idle
+    BCS BossRewardIdle    ; Yes → skip to idle
     COP [SetEntryHere]
     LDA $playerFlags
-    BIT #$0020            ; Boss defeated flag set?
-    BNE loc_00C2EC
+    BIT #$0020            ; playerFlags bit $0020 = boss defeated; polled every frame
+    BNE BossRewardGrant
     RTL                   ; Not yet — wait
 
-  loc_00C2EC:
+; Boss dead: load the row's range word (first scene in the low byte, last scene in the high byte) into $04, apply the rewards, refill HP, set the boss flag.
+
+  BossRewardGrant:
     PHX 
     LDX $20
-    LDA $@boss_reward_range_00C312+1, X ; Load reward table range (start, end)
-    STA $0004
+    LDA $@boss_reward_range_table+1, X ; A = first scene (low byte) and last scene (high byte) of the row
+    STA $0004             ; Range word into actor $04 (also the list predecessor link, OQ-I051-3)
     JSR $&BossClearApplyStatReward ; Apply HP/STR/DEF boosts
     PLX 
-    LDA $playerMaxHp      ; Flash HP bar: timer = maxHP - currentHP
+    LDA $playerMaxHp      ; hpToHeal := maxHp - hp: UpdateHUD refills the bar, 1 HP per 8 frames
     SEC 
     SBC $playerHp
     STA $hpToHeal
     LDA $20
     LSR 
     LSR 
-    JSL $@flag_helpers.SetWramFlag_Offset100 ; Mark this boss as rewarded
+    JSL $@flag_helpers.SetWramFlag_Offset100 ; Set wramFlags $0100 + boss number: rewards taken (event flags $0500-$0507)
 
-  loc_00C30C:
+; Idle for the rest of the scene: SetEntryHere + RTL each frame (the NOPs are padding).
+
+  BossRewardIdle:
     COP [SetEntryHere]    ; Idle loop after rewards granted
     NOP 
     NOP 
@@ -74,7 +97,10 @@ boss_clear_reward_handler [
 } >
 ]
 
-boss_reward_range_00C312 [
+---------------------------------------------
+; boss-reward-range rows: scene id, first scene, last scene (exclusive: it equals the boss scene), pad byte (not shown). Five real rows ($29, $55, $67, $8A, $DD); rows 5-10 are placeholders that never match first. The row index (0-4) is the boss number = bit n of wramFlags $0100 (event flag $0500 + n).
+
+boss_reward_range_table [
   boss-reward-range < #29, #0C, #29 >   ;00
   boss-reward-range < #55, #3D, #55 >   ;01
   boss-reward-range < #67, #5A, #67 >   ;02
@@ -89,9 +115,7 @@ boss_reward_range_00C312 [
 ]
 
 ---------------------------------------------
-; Iterates enemy_clear_reward_table entries in the boss's range [$04.lo .. $0E].
-; Each entry byte is a reward type: 1=MaxHP+1, 2=STR+1, 3=DEF+1, 0=skip.
-; Uses per-enemy flags ($0300 range) to avoid granting the same reward twice.
+; Walk enemy_clear_reward_table from the first to the last scene of the range ($04 low / high byte). Tier 0: skip. A nonzero tier whose scene flag $0300 + scene is clear: set the flag, then 1 = Max HP + 1, 2 = STR + 1, 3 = DEF + 1 (larger values: flag set, no stat; none in the table). PEA pushes BossRewardNextScene as the return address so each stat RTS goes back to the loop. The end is compared only after a zero tier.
 
 BossClearApplyStatReward {
     XBA                   ; Extract end offset from high byte
@@ -101,56 +125,70 @@ BossClearApplyStatReward {
     AND #$00FF
     TAY                   ; Y = current index in reward table
     SEP #$20
-    BRA loc_00C353
+    BRA BossRewardReadTier
 
-  code_00C350:
+; Next scene index (8-bit accumulator).
+
+  BossRewardNextScene:
     SEP #$20
     INY                   ; Next enemy in table
 
-  loc_00C353:
-    LDA $&enemy_clear_reward_table, Y ; Load reward type for this enemy
-    BNE loc_00C360        ; Non-zero → has reward
+; Read the tier of scene Y: nonzero -> reward; zero -> advance and stop when Y reaches the last scene.
+
+  BossRewardReadTier:
+    LDA $&enemy_clear_reward_table, Y ; Tier of scene Y (0 none, 1 Max HP, 2 STR, 3 DEF)
+    BNE BossRewardClaimScene ; Non-zero → has reward
     INY                   ; Zero → skip, check if past end
     CPY $000E
-    BCC loc_00C353
-    BRA loc_00C394        ; Past end → done
+    BCC BossRewardReadTier
+    BRA BossRewardDone    ; Past end → done
 
-  loc_00C360:
+; Tier found: keep it in $04, test and set scene flag $0300 + Y (claimed), then dispatch by DEC chain.
+
+  BossRewardClaimScene:
     REP #$20
     AND #$00FF
     STA $0004             ; Reward type: 1=HP, 2=STR, 3=DEF
     TYA 
     PHY 
-    JSL $@flag_helpers.TestFlag_0300 ; Already killed this enemy?
+    JSL $@flag_helpers.TestFlag_0300 ; Scene flag $0300 + Y: this scene's clear reward already taken?
     PLY 
-    BCS code_00C350       ; Already flagged → skip
+    BCS BossRewardNextScene ; Already flagged → skip
     PHY 
     TYA 
-    JSL $@flag_helpers.SetFlag_0300 ; Mark enemy as killed
+    JSL $@flag_helpers.SetFlag_0300 ; Claim it now: the room's own clear reward will not pay again
     PLY 
     LDA $0004             ; Dispatch reward type via DEC cascade
-    PEA $&code_00C350-1   ; Push return to loop (RTS trick)
+    PEA $&BossRewardNextScene-1 ; Push return to loop (RTS trick)
     DEC 
-    BNE loc_00C385
+    BNE BossRewardTryStr
     INC $playerMaxHp      ; Type 1: MaxHP +1
     RTS 
 
-  loc_00C385:
+; Tier 2 or more: STR for exactly 2, otherwise continue the chain.
+
+  BossRewardTryStr:
     DEC 
-    BNE loc_00C38C
+    BNE BossRewardTryDef
     INC $playerStr        ; Type 2: STR +1
     RTS 
 
-  loc_00C38C:
+; Tier 3 or more: DEF only for exactly 3, larger values give nothing.
+
+  BossRewardTryDef:
     DEC 
-    BEQ loc_00C390
+    BEQ BossRewardAddDef
     RTS                   ; Unknown type → no reward
 
-  loc_00C390:
+; Tier 3: DEF + 1.
+
+  BossRewardAddDef:
     INC $playerDef        ; Type 3: DEF +1
     RTS 
 
-  loc_00C394:
+; Done: 16-bit accumulator again, return to the caller.
+
+  BossRewardDone:
     REP #$20
     RTS 
 }

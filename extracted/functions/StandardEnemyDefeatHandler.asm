@@ -1,10 +1,18 @@
-; Central enemy death resolution pipeline invoked when any standard field enemy's HP reaches zero (Bank $00, ~360 bytes).
+; Standard field-enemy defeat script (Bank 00, 56202-56816). The defeated actor itself runs it (X = D = the victim). Entered in three ways: (1) as the default death script: hit_stagger_controller (HitStaggerResolveHit) and two inline paths in combat_collision set the victim's entry point to StandardEnemyDefeatHandler when its HP reaches zero and it has no onDeathCallback ($7F1004); (2) by COP JumpFar from the own scripts of 13 enemies (pyCC_mystic_ball, pyD2_haunt, awB1_wall_walker, pyDD_mummy_queen, gw83_asp, mu67_vampires, av6E_draco, sg55_viper, sg4D_dynapede, sg4E_nitropede, sg4D_cyber, ir29_castoth, sg51_statue) and from EnemyDefeatDispatch (the last enemy of a scene); (3) ir20_statue and ir26_statue JumpFar straight into EnemyDefeatFlashAndDrop.
 ; 
-; Assigned as the default OnDeath callback ($7F1004) by ComposeDigitSprites_AtCursor during enemy setup; also reached from hit_stagger_controller when an enemy has no saved AI script. Referenced by ~20 enemy actor scripts across Pyramid, Angkor Wat, Sky Garden, Incan Ruins, Great Wall, Mu, and other regions.
+; === FLOW ===
 ; 
-; Entry path decrements BCD kill counters ($0AEE/$0AEC) for non-boss enemies, then runs a shared defeat sequence: play death SFX, spawn EnemyDeathFlash, wait, and optionally SetDungeonKillFlag.
+; 1. Kill counters (StandardEnemyDefeatHandler). Skipped when statsPtr points at the first enemy_stats_table entry (an EnemyInitBasic actor: HP 1, no stats) or extendedFlags bit $0080 (the boss bit). Otherwise enemiesRemainingBcd ($0AEE) -= 1 in decimal mode, enemiesRemaining ($0AEC) -= 1 in hex, and the new count is also kept in orbitAngle ($7F0010,X): 0 means this was the last enemy on the map.
+; 2. Flash (EnemyDefeatFlashAndDrop). Movement is halted ($2C / $2E and moveScratch1 / 2 := 0), SFX #06 plays on channel 1 and EnemyDeathFlash is spawned at the enemy (flags $0302; bit $0002 draws it in front of every actor). The flash gets $12 bit $1000 (CopyActorState clears it) so that it keeps running in display-filter actor mode, then WaitByte 2.
+; 3. No-stats and boss actors go to EnemyDefeatBossCleanup: hide ($10 |= $2000), ClearSolidHere if extendedFlags $0008, WaitByte 5, Die. They get no kill flag, gem drop or reward.
+; 4. Other enemies: SetDungeonKillFlag (the enemyNum bit in wramFlags, so the enemy stays dead on re-entry), then the gem decision, hide ($10 |= $2000), ClearSolidHere if extendedFlags $0008, the field reveal, and finally Die when enemies remain or EnemyStatBonusReward when this was the last one.
+;    Gem decision: TestFlag_0300 (event flag $0300 + scene = this scene's clear reward was already claimed) set, or orbitAngle nonzero (enemies remain): drop a gem when the stats byte +3 (gemDropType) is nonzero, through EnemyGemDropRouter. Last enemy with the reward still unclaimed: no gem, the stat reward replaces it.
+;    Field reveal: deathActionIdx ($7F0024,X) nonzero and event flag $0100 + idx still clear: set it and spawn SpawnFieldRevealEffect (flags $0342, with $12 $1000), handing it the index.
+; 5. EnemyStatBonusReward (last enemy only): enemy_clear_reward_table[scene] selects the pickup (0 none, 1 HP, 2 STR, 3 or more DEF) unless the scene flag $0300 is already set. It sets displayModeFlags $0080 (display-filter actor mode: only actors with $12 $1000 run, so the world freezes while the pickup plays), spawns reward_actors.e_hp_increase / e_str_increase / e_def_increase (flags $1000, $12 $1000) and Dies. RewardActorVFX sets the scene flag later (see reward_actors).
 ; 
-; Branches on enemy stats (enemy_stats_table), extended flag $0080 (boss/miniboss), and scene flag $0300 to route gem drops via EnemyGemDropRouter (EnemyDropSystem) or stat bonuses via EnemyStatBonusReward. Handles field-tile reveal (SpawnFieldRevealEffect when deathActionIdx is set), ClearLowHere for actors with flag $0008, and final Die COP.
+; === CORRECTIONS ===
+; 
+; The old header said ComposeDigitSprites_AtCursor assigns this as the OnDeath callback during enemy setup (no code there references it; the engine falls back to it when $7F1004 is empty), that it is about 360 bytes (it spans about 614), that it calls ClearLowHere (the COP is ClearSolidHere) and that the $12 $1000 write is a 'priority boost'. The comment on the first block said the gem drop is skipped when scene flag $0300 is set; it is the opposite: gems drop when the flag is set or enemies remain. EnemyDropSystem.asm repeated the inverted condition (corrected there). The 'about 20 enemy actor scripts' were 13 JumpFar sites, EnemyDefeatDispatch, 2 statues and 3 engine sites.
 ---------------------------------------------
 
 ?INCLUDE 'enemy_clear_reward_table'
@@ -28,101 +36,119 @@
 
 ---------------------------------------------
 
-; Main entry for the standard field-enemy death pipeline; reached when an enemy's HP hits zero.
-; 
-; Expects X = defeated actor index; reads statsPtr and extendedFlags to distinguish normal enemies, stat-table entries, and boss-flag ($0080) actors. Non-boss kills decrement BCD counters $0AEE/$0AEC and stash the remaining count in orbitAngle before falling into the shared defeat sequence. The sequence plays death SFX, spawns EnemyDeathFlash, routes gem drops or stat rewards, and ends with COP Die.
+; Entry (X = the defeated actor). A statsPtr equal to the first enemy_stats_table entry (EnemyInitBasic enemies) jumps to EnemyDefeatFlashAndDrop without counting; so does a boss bit ($0080) in extendedFlags. Otherwise it counts the kill in decimal ($0AEE) and in hex ($0AEC, also stored in orbitAngle: remaining enemies, 0 = last) and falls into EnemyDefeatFlashAndDrop.
 
 StandardEnemyDefeatHandler {
-    LDA $statsPtr, X      ; StandardEnemyDefeatHandler: SED subtract 1 from BCD kill counter at $0AEE
+    LDA $statsPtr, X      ; statsPtr = first enemy_stats_table entry: an EnemyInitBasic actor (HP 1, no stats), not counted
     CMP #$&enemy_stats_table
-    BNE loc_00DB96
+    BNE DefeatCountKill
     JMP $&EnemyDefeatFlashAndDrop
 
-  loc_00DB96:
+; Not a no-stats actor: the boss bit ($0080 of extendedFlags) skips the counters, otherwise decrement the BCD and hex counters.
+
+  DefeatCountKill:
     LDA $extendedFlags, X
-    BIT #$0080
+    BIT #$0080            ; extendedFlags $0080 = boss bit: not counted
     BNE EnemyDefeatFlashAndDrop
-    SED 
+    SED                   ; Decimal mode: enemiesRemainingBcd -= 1
     LDA $enemiesRemainingBcd
     SEC 
     SBC #$0001
     STA $enemiesRemainingBcd
     CLD 
-    LDA $enemiesRemaining
+    LDA $enemiesRemaining ; Hex count -= 1
     DEC 
     STA $enemiesRemaining
-    STA $orbitAngle, X
+    STA $orbitAngle, X    ; Remaining enemies after this kill (0 = the last one)
 }
 
+---------------------------------------------
+; Common start of the defeat (also entered directly by ir20_statue and ir26_statue and by the fall-through above): stop the actor, SFX #06, spawn EnemyDeathFlash, WaitByte 2, then boss / no-stats actors go to EnemyDefeatBossCleanup and the rest continue with the kill flag and the gem decision. orbitAngle is meaningful only on the counted path.
+
 EnemyDefeatFlashAndDrop {
-    LDA #$0000            ; Defeat flash: OR actor $12 bit $1000 for priority boost during death anim
+    LDA #$0000            ; Halt movement: $2C / $2E and moveScratch1 / 2 := 0
     STA $2C
     STA $2E
     STA $moveScratch1, X
     STA $moveScratch2, X
-    COP [PlaySoundCh1] ( #06 )
-    COP [SpawnListAppend] ( @EnemyDeathFlash, #00, #00, #$0302 )
-    LDA $0012, Y
+    COP [PlaySoundCh1] ( #06 ) ; Death SFX #06 on channel 1
+    COP [SpawnListAppend] ( @EnemyDeathFlash, #00, #00, #$0302 ) ; Flash at the enemy; flags $0302 (bit $0002 = in front of every actor); Y = child
+    LDA $0012, Y          ; Child $12 |= $1000 (CopyActorState cleared it): the flash keeps running in display-filter mode
     ORA #$1000
     STA $0012, Y
-    COP [WaitByte] ( #02 )
+    COP [WaitByte] ( #02 ) ; WaitByte #02 = 3 ticks
     LDA $statsPtr, X
     CMP #$&enemy_stats_table
-    BNE loc_00DBE9
-    JMP $&EnemyDefeatBossCleanup
+    BNE DefeatKillFlagAndGem
+    JMP $&EnemyDefeatBossCleanup ; No-stats actor: no kill flag, drop or reward
 
-  loc_00DBE9:
+; Boss-bit test again after the wait; then SetDungeonKillFlag and the gem decision (TestFlag_0300 and orbitAngle).
+
+  DefeatKillFlagAndGem:
     LDA $extendedFlags, X
     BIT #$0080
     BNE EnemyDefeatBossCleanup
-    COP [SetDungeonKillFlag]
+    COP [SetDungeonKillFlag] ; Set this enemy's bit in wramFlags (it stays dead on re-entry)
     LDA $sceneCurrent
-    JSL $@flag_helpers.TestFlag_0300
-    BCS loc_00DC03
-    LDA $orbitAngle, X
-    BEQ code_00DC13
+    JSL $@flag_helpers.TestFlag_0300 ; Carry set = this scene's clear reward was already claimed
+    BCS DefeatGemPath     ; Claimed: gems may drop
+    LDA $orbitAngle, X    ; Unclaimed: no gem for the last enemy (the stat reward replaces it)
+    BEQ DefeatHideAndRelease
 
-  loc_00DC03:
-    LDA $statsPtr, X      ; Dungeon kill flag set; TestFlag_0300 skips gem drop when scene flag set
+; Gem path: the stats byte +3 (gemDropType) of the actor's enemy_stats_table entry; zero skips the gem, otherwise EnemyGemDropRouter spawns it and returns to DefeatHideAndRelease.
+
+  DefeatGemPath:
+    LDA $statsPtr, X
     TAY 
-    LDA $0003, Y
+    LDA $0003, Y          ; Stats byte +3 = gemDropType (0 = no gem)
     AND #$00FF
-    BEQ code_00DC13
+    BEQ DefeatHideAndRelease
     JMP $&EnemyGemDropRouter
 
-  code_00DC13:
-    LDA #$2000
+; Common tail of the counted path (also the return point of EnemyGemDropRouter): hide the enemy ($10 |= $2000; the flash shows the effect) and free its solid tile when extendedFlags $0008 is set.
+
+  DefeatHideAndRelease:
+    LDA #$2000            ; Hide the enemy ($2000); the flash child shows the effect
     TSB $10
     LDA $extendedFlags, X
-    BIT #$0008
-    BEQ loc_00DC23
+    BIT #$0008            ; extendedFlags $0008: the actor made its tile solid
+    BEQ DefeatFieldReveal
     COP [ClearSolidHere]
 
-  loc_00DC23:
+; Field reveal: when deathActionIdx is nonzero and event flag $0100 + idx is clear, set the flag and spawn SpawnFieldRevealEffect (flags $0342, $12 $1000), passing the index to the child.
+
+  DefeatFieldReveal:
+    LDA $deathActionIdx, X ; deathActionIdx: field-reveal index (0 = none)
+    BEQ DefeatDieOrReward
+    JSL $@flag_helpers.TestFlag_0100 ; Carry set = reveal flag $0100 + idx already set
+    BCS DefeatDieOrReward
     LDA $deathActionIdx, X
-    BEQ loc_00DC54
-    JSL $@flag_helpers.TestFlag_0100
-    BCS loc_00DC54
-    LDA $deathActionIdx, X
-    JSL $@flag_helpers.SetFlag_0100
-    COP [SpawnListAppend] ( @SpawnFieldRevealEffect, #00, #00, #$0342 )
-    LDA $0012, Y
+    JSL $@flag_helpers.SetFlag_0100 ; Mark it revealed
+    COP [SpawnListAppend] ( @SpawnFieldRevealEffect, #00, #00, #$0342 ) ; Reveal effect, flags $0342; Y = child
+    LDA $0012, Y          ; Child $12 |= $1000
     ORA #$1000
     STA $0012, Y
     PHX 
-    LDA $deathActionIdx, X
+    LDA $deathActionIdx, X ; Copy the index into the child's deathActionIdx (X = child for the store)
     TYX 
     STA $deathActionIdx, X
     PLX 
 
-  loc_00DC54:
-    LDA $orbitAngle, X
-    BNE loc_00DC5D
+; orbitAngle nonzero (enemies remain): Die. Zero (the last enemy): EnemyStatBonusReward.
+
+  DefeatDieOrReward:
+    LDA $orbitAngle, X    ; Enemies remain: Die; last enemy: stat reward
+    BNE DefeatDieNotLast
     JMP $&EnemyStatBonusReward
 
-  loc_00DC5D:
+; Die for an enemy that was not the last.
+
+  DefeatDieNotLast:
     COP [Die]
 }
+
+---------------------------------------------
+; Defeat of a boss or no-stats actor: after a 3-tick wait (WaitByte #02, the same length as the flash wait) hide it ($10 |= $2000), free its solid tile when extendedFlags $0008 is set, wait 6 ticks and Die. No counters, kill flag, drop or reward.
 
 EnemyDefeatBossCleanup {
     COP [WaitByte] ( #02 )
@@ -130,80 +156,97 @@ EnemyDefeatBossCleanup {
     TSB $10
     LDA $extendedFlags, X
     BIT #$0008
-    BEQ loc_00DC72
+    BEQ DefeatBossFinalWait
     COP [ClearSolidHere]
 
-  loc_00DC72:
-    COP [WaitByte] ( #05 )
+; Final wait (WaitByte #05 = 6 ticks) before Die.
+
+  DefeatBossFinalWait:
+    COP [WaitByte] ( #05 ) ; WaitByte #05 = 6 ticks
     COP [Die]
 }
 ---------------------------------------------
 
-; Gem-type dispatcher called from StandardEnemyDefeatHandler when the enemy's stats byte at offset $03 is nonzero and scene flag $0300 is clear.
-; 
-; A holds the enemy's stat byte +3 (gemDropType, loaded with AND #$00FF just before the JMP): two DEC operations select among three EnemyDropSystem spawn targets (1 = SpawnDropGem1, fixed $83; 2 = SpawnDropGem2, fixed $84; otherwise SpawnDropByHpTier, the weighted picker). Each path spawns the pickup with COP SpawnListAppend (flags $0420) and then jumps back for the remainder of the defeat sequence.
+; Gem-type dispatcher, reached with A = the stats byte +3 (gemDropType, nonzero) when this scene's reward flag $0300 is set or enemies remain (not, as the old note said, when the flag is clear). Two DEC operations select the spawn: 1 = SpawnDropGem1 (fixed $83), 2 = SpawnDropGem2 (fixed $84), otherwise SpawnDropByHpTier (the weighted picker). Each spawn uses SpawnListAppend with flags $0420 and jumps back to DefeatHideAndRelease.
 
 EnemyGemDropRouter {
     DEC                   ; A = enemy stat byte +3 (gemDropType): 1 = fixed $83 gem, 2 = fixed $84 gem, otherwise the weighted picker
-    BEQ loc_00DD63
+    BEQ GemDropType1
     DEC 
-    BEQ loc_00DD6F
-    BRA loc_00DD7B
+    BEQ GemDropType2
+    BRA GemDropTypeOther
 
-  loc_00DD63:
+; gemDropType 1: SpawnDropGem1, then back to DefeatHideAndRelease.
+
+  GemDropType1:
     COP [SpawnListAppend] ( @EnemyDropSystem.SpawnDropGem1, #00, #00, #$0420 )
-    JMP $&code_00DC13
+    JMP $&DefeatHideAndRelease
 
-  loc_00DD6F:
+; gemDropType 2: SpawnDropGem2, then back to DefeatHideAndRelease.
+
+  GemDropType2:
     COP [SpawnListAppend] ( @EnemyDropSystem.SpawnDropGem2, #00, #00, #$0420 )
-    JMP $&code_00DC13
+    JMP $&DefeatHideAndRelease
 
-  loc_00DD7B:
+; Any other gemDropType: SpawnDropByHpTier, then back to DefeatHideAndRelease.
+
+  GemDropTypeOther:
     COP [SpawnListAppend] ( @EnemyDropSystem.SpawnDropByHpTier, #00, #00, #$0420 )
-    JMP $&code_00DC13
+    JMP $&DefeatHideAndRelease
 }
 
+---------------------------------------------
+; Clear reward of the last enemy of a scene. Pushes enemy_clear_reward_table[sceneCurrent] (0 none, 1 HP, 2 STR, 3 or more DEF). A set scene flag $0300 (reward already claimed) or a tier of 0 just Dies; otherwise displayModeFlags $0080 is set (display-filter actor mode) and the matching reward_actors pickup is spawned with flags $1000 (and $12 $1000, so it runs in that mode). The actor then Dies.
+
 EnemyStatBonusReward {
-    COP [SetSpritePalette] ( #00 )
-    LDY $sceneCurrent
+    COP [SetSpritePalette] ( #00 ) ; Palette 0 for this actor (repeated below; effect not traced)
+    LDY $sceneCurrent     ; Y = scene; the table gives the reward tier
     LDA $&enemy_clear_reward_table, Y
     AND #$00FF
     PHA 
     LDA $sceneCurrent
-    JSL $@flag_helpers.TestFlag_0300
-    BCS loc_00DDB3
+    JSL $@flag_helpers.TestFlag_0300 ; Carry set = reward already claimed (RewardActorVFX sets the flag)
+    BCS RewardNone        ; Claimed: no reward
     COP [SetSpritePalette] ( #00 )
-    LDA $01, S
-    BEQ loc_00DDB3
-    LDA #$0080
+    LDA $01, S            ; Tier 0: no reward
+    BEQ RewardNone
+    LDA #$0080            ; Display-filter actor mode: only $12 $1000 actors run while the pickup plays
     TSB $displayModeFlags
     PLA 
+    DEC                   ; Tier 1 = HP, 2 = STR, otherwise DEF
+    BEQ RewardHpPickup
     DEC 
-    BEQ loc_00DDB6
-    DEC 
-    BEQ loc_00DDCA
-    BRA loc_00DDDE
+    BEQ RewardStrPickup
+    BRA RewardDefPickup
 
-  loc_00DDB3:
+; No reward: drop the pushed tier and Die.
+
+  RewardNone:
     PLA 
     COP [Die]
 
-  loc_00DDB6:
-    COP [SpawnListAppend] ( @reward_actors.e_hp_increase, #00, #00, #$1000 )
+; Tier 1: spawn e_hp_increase (flags $1000, $12 $1000) and Die.
+
+  RewardHpPickup:
+    COP [SpawnListAppend] ( @reward_actors.e_hp_increase, #00, #00, #$1000 ) ; HP pickup; flags $1000
     LDA $0012, Y
     ORA #$1000
     STA $0012, Y
     COP [Die]
 
-  loc_00DDCA:
-    COP [SpawnListAppend] ( @reward_actors.e_str_increase, #00, #00, #$1000 )
+; Tier 2: spawn e_str_increase (flags $1000, $12 $1000) and Die.
+
+  RewardStrPickup:
+    COP [SpawnListAppend] ( @reward_actors.e_str_increase, #00, #00, #$1000 ) ; STR pickup; flags $1000
     LDA $0012, Y
     ORA #$1000
     STA $0012, Y
     COP [Die]
 
-  loc_00DDDE:
-    COP [SpawnListAppend] ( @reward_actors.e_def_increase, #00, #00, #$1000 )
+; Tier 3 or more: spawn e_def_increase (flags $1000, $12 $1000) and Die.
+
+  RewardDefPickup:
+    COP [SpawnListAppend] ( @reward_actors.e_def_increase, #00, #00, #$1000 ) ; DEF pickup; flags $1000
     LDA $0012, Y
     ORA #$1000
     STA $0012, Y

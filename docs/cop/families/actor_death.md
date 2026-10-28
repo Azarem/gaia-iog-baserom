@@ -286,7 +286,7 @@ DieExit {
 
 ```asm
 ; extracted/system/title_screen/sFC_title_intro.asm
-TitlePaletteFadeStep {
+TitlePaletteStep_noref {
     COP [PaletteStart] ( #2D )
     COP [PaletteStep]
     COP [Die]

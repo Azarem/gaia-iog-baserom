@@ -18,7 +18,7 @@
 
 ---------------------------------------------
 
-; COP #65 with two word and two byte operands: world-map start X, start Y (pixels), a byte stored to $0D5E (0 in every shipped script; no reader found), and a route ID stored to worldMapRouteId ($0D5A, index into world_map_routes). Clears worldMapChoiceId so the route plays directly instead of opening a selection. Does not warp immediately. Used by NPC scripts in Dao, Itory, Watermia, Freejia, Edward Castle, Euro, Nazca, Native Village, South Cape and Angel Village.
+; COP #65 with two word and two byte operands: world-map start X, start Y (pixels), a byte stored to $0D5E (0 in every shipped script; no reader found), and a route ID stored to worldMapRouteId ($0D5A, index into world_map_route_table). Clears worldMapChoiceId so the route plays directly instead of opening a selection. Does not warp immediately. Used by NPC scripts in Dao, Itory, Watermia, Freejia, Edward Castle, Euro, Nazca, Native Village, South Cape and Angel Village.
 
 StageWorldMapMove {
     TYX 
@@ -37,7 +37,7 @@ StageWorldMapMove {
     LDA [$0A]             ; Read route ID byte
     INC $0A
     AND #$00FF
-    STA $worldMapRouteId  ; Route ID → worldMapRouteId (index into world_map_routes)
+    STA $worldMapRouteId  ; Route ID → worldMapRouteId (index into world_map_route_table)
     STZ $worldMapChoiceId ; Clear the choice ID: no selection, play the route directly
     LDA $0A
     STA $02, S

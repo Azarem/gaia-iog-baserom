@@ -112,7 +112,7 @@ Every struct has been given a descriptive kebab-case name. This table maps old n
 | `unk11`        | `zone-trigger`                           | Scene bounding-box hazard trigger          |
 | `unk14`        | `body-entry`                             | Character form → sprite resource map       |
 | `unk15`        | `event-block-def`                        | Field tile reveal block definition (src→dst tile copy) |
-| `unk16`        | `diary-entry`                            | Diary menu warp destination                |
+| `unk16`        | `diary-entry`                            | Diary location name + camera target        |
 | `unk17`        | `ramp-motion`                            | Ramp/slope Y-motion pattern                |
 | `unk18`        | `camera-keyframe`                        | Camera drift/shake keyframe                |
 | `unk19`        | `statue-reward`                          | Mystic Statue inventory reward slot        |
@@ -643,25 +643,25 @@ Singly-linked list node for per-frame signed movement deltas. The core animation
 
 ### route-step
 
-4-byte overworld route movement step. Encodes one segment of an overworld travel route.
+4-byte overworld route movement step. Encodes one segment of an overworld travel route as three `movement_delta_table` chain indices and a tick count.
 
 
-| Field | Type | Offset | Name      | Description                                                               |
-| ----- | ---- | ------ | --------- | ------------------------------------------------------------------------- |
-| 0     | Byte | +0     | deltaXIdx | Index into `delta-node` table for camera X chain; `$FF`=end; `$FE`=branch |
-| 1     | Byte | +1     | deltaYIdx | Index into `delta-node` table for camera Y chain                          |
-| 2     | Byte | +2     | posIdx    | Index into `delta-node` table for player position chain                   |
-| 3     | Byte | +3     | duration  | Frame count for this step (`$10`–`$A0` typical)                           |
+| Field | Type | Offset | Name               | Description                                                                          |
+| ----- | ---- | ------ | ------------------ | ------------------------------------------------------------------------------------ |
+| 0     | Byte | +0     | xDeltaIndex        | Index into `movement_delta_table` for the X chain (`$00CA`); 0 = still               |
+| 1     | Byte | +1     | yDeltaIndex        | Index for the Y chain (`$00CC`); 0 = still                                           |
+| 2     | Byte | +2     | rotationDeltaIndex | Index for the rotation chain (`$00BC`); 0 = still                                    |
+| 3     | Byte | +3     | ticks              | n; the step runs n + 1 ticks                                                         |
 
 
 **Layout:** `[Byte, Byte, Byte, Byte]`  
-**Delimiter:** Consumer checks `deltaXIdx == $FF` (end of route) and `deltaXIdx == $FE` (branch: load new route pointer from following word). No explicit `$FF` terminator bytes appear in the extracted `world_map_routes.asm`; routes are a contiguous byte stream with the pointer table defining start offsets.
+**Delimiter:** every route array is 4n + 1 bytes: a hidden `$FF` in byte 0 ends it (`$FE` = subroutine call, implemented but never used). The pointer table (38 entries, `$00` aliases `$01`) points at 37 arrays; there are no explicit terminator bytes in the extracted `world_map_route_table.asm`. Indices used: X / Y `1`, `2`, `$11`, `$12`; rotation `1`, `2`. A step never mixes rotation with movement.
 
-**Usage:** Overworld map route animations. When the player selects a destination, the engine reads a `route-step` sequence to animate the camera/sprite along the path.
+**Usage:** Overworld map route animations. When the player selects a destination, `RouteAnimationEngine` plays a `route-step` array: the map centre slides and the map turns along the path.
 
-**Files:** `world_map_routes.asm` (251 entries across ~38 routes)
+**Files:** `world_map_route_table.asm` (251 entries across ~38 routes)
 
-**blocks.json:** `world_map_routes` (241015–242132, typed `&route-step`)
+**blocks.json:** `world_map_route_table` (241015–242132, typed `&route-step`)
 
 ---
 
@@ -1202,7 +1202,7 @@ Hierarchical sprite definition system:
 | 13    | sprite-part | Variable number of OAM tile entries         |
 
 
-**sprite-part:** 6-byte OAM tile definition.
+**sprite-part:** 7-byte OAM tile definition (five bytes and a word).
 
 
 | Field | Type     | Description                              |
@@ -1219,24 +1219,24 @@ Hierarchical sprite definition system:
 
 ### diary-entry
 
-Diary menu warp destination: location name + warp coordinates.
+Diary menu location record: location name + the Mode 7 camera target the menu pans to. The scene ID is the index of the 256-pointer table (`diary_entry_table`); nothing warps with it (the load goes to scene `$E6`).
 
 
 | Field | Type       | Name     | Description                                                  |
 | ----- | ---------- | -------- | ------------------------------------------------------------ |
 | 0     | DialogString | name     | Location name text (variable-width encoded, `$CA`-delimited) |
-| 1     | Binary     | warpData | Packed warp word: scene ID + X/Y coordinates                 |
+| 1     | Binary     | cameraXY | Two little-endian words: camera target X, camera target Y (not packed) |
 
 
 **Layout:** `[DialogString, Binary]`
 
-**Usage:** 256 index entries → ~25 unique diary records. Each contains display name and packed warp coordinates for gameplay resume.
+**Usage:** 256 index entries → ~25 unique diary records. Each contains the display name and the camera target X / Y words; 221 scenes point at the default entry ("Start from beginning").
 
 **Locations:** South Cape, Edward's Prison, Itory, Freejia, Diamond Mine, Sky Garden, Seaside Palace, Mu, Angel Village, Watermia, Great Wall, Euro, Mt. Temple, Natives' Village, Angkor Wat, Dao, Pyramid, Babel Tower, etc.
 
-**Files:** `strings_0BF706.asm`, `sFA_diary_menu.asm`
+**Files:** `diary_entry_table.asm`, `sFA_diary_menu.asm`
 
-**blocks.json:** `strings_0BF706` (typed `&diary-entry`)
+**blocks.json:** `diary_entry_table` (typed `&diary-entry`)
 
 ---
 
@@ -1258,9 +1258,9 @@ Overworld location name entry: scene ID key + pointer to sprite-rendered name st
 
 **Usage:** On the overworld map, the engine searches this table by current map ID and renders the matching sprite string.
 
-**Files:** `world_map_names.asm` (37 entries)
+**Files:** `world_map_scene_names.asm` (37 entries)
 
-**blocks.json:** `world_map_names` (242132–242689, typed `map-label`)
+**blocks.json:** `world_map_scene_names` (242132–242689, typed `map-label`)
 
 ---
 

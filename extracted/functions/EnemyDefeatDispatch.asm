@@ -3,7 +3,7 @@
 ; === FLOW ===
 ; 
 ; - $0AEC = 1 (this is the last enemy): clear the ForceDir bits ($6000 of $12), halt movement (StageMoveXY #0, #0 selects the zero chain; moveScratch1 / 2 = $7F002C / $7F002E cleared) and JumpFar into StandardEnemyDefeatHandler, which decrements the counters itself, plays the full defeat and gives the clear reward (EnemyStatBonusReward when the remaining count reaches 0).
-; - Otherwise: CallNear EnemyDefeatDispatch_CountKill (below), then SpawnAfterFlags ( @field_reveal_object, #$0020 ), store the remaining count (orbitAngle, saved by the subroutine) in the child's $26 and Die. field_reveal_object treats a nonzero $26 as 'use this enemy's own stats': FieldRevealFromActorStats reads the low two bits of the stat-table byte at +3 (0 none, 1-3 a HP / STR / DEF gem) of the defeated enemy, so every kill but the last can drop its own stat gem (the old note: 'Spawn stat gem reveal').
+; - Otherwise: CallNear EnemyDefeatDispatch_CountKill (below), then SpawnAfterFlags ( @field_reveal_object, #$0020 ), store the remaining count (orbitAngle, saved by the subroutine) in the child's $26 and Die. field_reveal_object treats a nonzero $26 as 'use this enemy's own stats': FieldRevealFromActorStats reads the low two bits of the stat-table byte at +3 of the defeated enemy: 0 = nothing, 1 / 2 / 3 = a gem pickup worth 1 / 2 / 5 gems (item $83 / $84 / $85). So every kill but the last can drop its own gem. The HP / STR / DEF items of field_reveal_object come only from its room-reward tier path, which this caller does not use (the old note said 'Spawn stat gem reveal', and an earlier version of this note called the byte a HP / STR / DEF gem).
 ; 
 ; EnemyDefeatDispatch_CountKill (a CallNear subroutine, returns with RestoreSavedPtr): death sound #03 (the standard handler uses #06), BCD decrement of $0AEE, hex decrement of $0AEC stored also in orbitAngle ($7F0010,X) for the spawned actors, halt movement, spawn EnemyDeathFlash (flags $0302), SetDungeonKillFlag (the actor's enemyNum bit in the wramFlags bitfield), $10 |= $2000 (script-driven run path), ClearSolidHere when extendedFlags bit $0008 is set, and the field-reveal bookkeeping: when deathActionIdx ($7F0024) is nonzero and event flag $0100 + idx is not yet set (TestFlag_0100 carry clear), set it and spawn SpawnFieldRevealEffect (flags $0342) with the index copied into the child's deathActionIdx.
 ; 
@@ -42,11 +42,11 @@ EnemyDefeatDispatch {
     STA $moveScratch2, X
     COP [JumpFar] ( @StandardEnemyDefeatHandler ) ; Last enemy: the full standard defeat (it decrements the counters itself)
 
-; Not the last enemy: per-enemy death processing, then the stat-gem reveal child, then Die.
+; Not the last enemy: per-enemy death processing, then the gem pickup child (field_reveal_object), then Die.
 
   EnemyDefeatDispatch_NotLast:
     COP [CallNear] ( &EnemyDefeatDispatch_CountKill ) ; Not the last: per-enemy death processing as a near subroutine
-    COP [SpawnAfterFlags] ( @field_reveal_object, #$0020 ) ; Spawn the stat-gem reveal child with flags $0020
+    COP [SpawnAfterFlags] ( @field_reveal_object, #$0020 ) ; Spawn the gem pickup child (field_reveal_object, flags $0020)
     LDA $orbitAngle, X    ; Remaining count (stored by EnemyDefeatDispatch_CountKill) goes to the child's $26: nonzero selects FieldRevealFromActorStats
     STA $0026, Y
     COP [Die]

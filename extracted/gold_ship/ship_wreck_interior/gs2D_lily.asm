@@ -1,7 +1,7 @@
 ; Lilly on the Gold Ship interior — Freedan reveal and story progression.
 ; 
 ; Before flag $50: locks joypad and initiates the Freedan reveal
-; cutscene using PlayerFreedanRevealIdle from player_transition_handlers.
+; cutscene using PlayerPoseHold from player_transition_handlers.
 ; Uses camera_drift for dramatic effect, sets musicRoomGroup,
 ; and manages the multi-step transformation sequence. After flag $50:
 ; solid NPC with interaction dialog.
@@ -28,9 +28,9 @@ gs2D_lily [
     LDA #$CFFC
     TSB $joypadMaskStd
     LDY $playerActor
-    LDA #$*player_transition_handlers.PlayerFreedanRevealIdle
+    LDA #$*player_transition_handlers.PlayerPoseHold
     STA $0002, Y
-    LDA #$&player_transition_handlers.PlayerFreedanRevealIdle
+    LDA #$&player_transition_handlers.PlayerPoseHold
     STA $0000, Y
     LDA #$0000
     STA $0008, Y

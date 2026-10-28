@@ -27,6 +27,10 @@ When working on assembly, patches, or ROM metadata in this repo:
 
 DP `$80`–`$82` is the **collision tile map pointer** (`[$80], Y` in `tile_collision_physics.asm`). DP `$30`/`$34` are SPC transfer state, `$36` is the frame parity counter. Any patch/overlay code that uses these as scratch must save/restore engine low DP ($00-$94). See `gaia-core/docs/patch-development.md` §"Persistent Engine DP State Must Be Preserved".
 
+## Changing notes and comments
+
+Use `npm run merge -- <spec.json>` (dry-run first with `--dry-run`, then `npm run extract:lt` to verify). **Never** use `npm run ingest` or `npm run annotate`: they read the extracted `.asm` back into `notes/` and overwrite notes when `extracted/` is stale or line-tracked. Process: `gaia-core/docs/notes-and-comments.md` §"Notes Merge". (`npm run ingest:all` in gaia-knowledge is the unrelated RAG corpus refresh.)
+
 ## Database files
 
 - `us/blocks.json` — block/part structure (engine auto-discovers unmapped pieces)

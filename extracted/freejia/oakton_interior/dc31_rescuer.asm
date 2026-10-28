@@ -24,9 +24,9 @@ dc31_rescuer [
     LDA #$CFFC
     TSB $joypadMaskStd
     LDY $playerActor
-    LDA #$*player_transition_handlers.PlayerFreedanRevealIdle
+    LDA #$*player_transition_handlers.PlayerPoseHold
     STA $0002, Y
-    LDA #$&player_transition_handlers.PlayerFreedanRevealIdle
+    LDA #$&player_transition_handlers.PlayerPoseHold
     STA $0000, Y
     LDA #$0000
     STA $0008, Y

@@ -31,9 +31,9 @@ dc31_kara [
     COP [MarkSolidHere]
     COP [PrintDialogString] ( &dialogstring_05ADAE )
     LDY $playerActor
-    LDA #$*player_transition_handlers.PlayerFreedanRevealExit
+    LDA #$*player_transition_handlers.PlayerPoseHoldExit
     STA $0002, Y
-    LDA #$&player_transition_handlers.PlayerFreedanRevealExit
+    LDA #$&player_transition_handlers.PlayerPoseHoldExit
     STA $0000, Y
     LDA #$0000
     STA $0008, Y

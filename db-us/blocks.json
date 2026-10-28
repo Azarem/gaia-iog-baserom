@@ -133,9 +133,9 @@
         "ConsoleStringRenderer": { "start": 256610, "end": 257943, "type": "Code", "scene": "engine" },
         "inventory_mgmt": { "start": 257943, "end": 258250, "type": "Code", "scene": "inventory" },
         "GetPlayerFacingDirection": { "start": 258250, "end": 258512, "type": "Code", "scene": "engine" },
-        "boot_logo_palette_enix": { "start": 47167, "end": 47187, "type": "thinker-def", "scene": "boot_logos", "movable": true },
-        "boot_logo_palette_quintet": { "start": 47187, "end": 47207, "type": "thinker-def", "scene": "boot_logos", "movable": true },
-        "boot_logo_palette_third": { "start": 47207, "end": 47227, "type": "thinker-def", "scene": "boot_logos", "movable": true },
+        "boot_logo_enix_palette_obj0": { "start": 47167, "end": 47187, "type": "thinker-def", "scene": "boot_logos", "movable": true },
+        "boot_logo_enix_palette_obj1": { "start": 47187, "end": 47207, "type": "thinker-def", "scene": "boot_logos", "movable": true },
+        "boot_logo_enix_palette_obj2": { "start": 47207, "end": 47227, "type": "thinker-def", "scene": "boot_logos", "movable": true },
         "inventory_bg3_scroll_hdma": { "start": 48014, "end": 48045, "type": "thinker-def", "scene": "inventory", "movable": true },
         "diary_menu_window_dma": { "start": 48047, "end": 48279, "type": "thinker-def", "scene": "diary_menu", "movable": true },
         "statue_inventory_reward": { "start": 52569, "end": 53033, "type": "actor-def", "scene": "statue_inventory", "movable": true },
@@ -161,9 +161,9 @@
             }
         },
         "WorldMapController": { "start": 238321, "end": 239290, "type": "actor-def", "scene": "world_map" },
-        "HdmaWindowEffect": { "start": 239678, "end": 239936, "type": "Code", "scene": "world_map", "movable": true },
-        "world_map_routes": { "start": 241015, "end": 242132, "type": "&route-step", "scene": "world_map", "movable": true },
-        "world_map_names": { "start": 242132, "end": 242689, "type": "map-label", "scene": "world_map" },
+        "WorldMapSplitEffect": { "start": 239678, "end": 239936, "type": "Code", "scene": "world_map", "movable": true },
+        "world_map_route_table": { "start": 241015, "end": 242132, "type": "&route-step", "scene": "world_map", "movable": true },
+        "world_map_scene_names": { "start": 242132, "end": 242689, "type": "map-label", "scene": "world_map" },
         "world_map_options": { "start": 242689, "end": 244449, "type": "&Code", "scene": "world_map" },
         "sE6_gaia": {
             "movable": true,
@@ -176,7 +176,7 @@
                 "GaiaHintSceneTable": { "start": 581234, "end": 581270, "type": "Binary" },
                 "dialogstring_08DE96": { "start": 581270, "end": 584148, "type": "DialogString" },
                 "AbilityOrbActor": { "start": 584148, "end": 584495, "type": "Code" },
-                "LookupStatueType": { "start": 584495, "end": 584538, "type": "Code" },
+                "LookupAbilityForm": { "start": 584495, "end": 584538, "type": "Code" },
                 "AbilitySceneTable": { "start": 584538, "end": 584552, "type": "Binary" },
                 "dialogstring_08EB68": { "start": 584552, "end": 584591, "type": "DialogString" },
                 "table_08EB8F": { "start": 584591, "end": 584659, "type": "&DialogString" },
@@ -199,7 +199,7 @@
         "diary_entry_table": { "start": 784134, "end": 784983, "type": "&diary-entry", "scene": "diary_menu" },
         "sFB_boot_logo": { "scene": "boot_logos", "movable": true, "parts": {
             "sFB_boot_logo": { "start": 772282, "end": 772388, "type": "actor-def" },
-            "BootLogoPalTextFallback": { "start": 772246, "end": 772280, "order": 772286, "type": "Code" }
+            "BootLogoPalLockout": { "start": 772246, "end": 772280, "order": 772286, "type": "Code" }
         } },
         "sFC_title_intro": { "start": 772388, "end": 772526, "type": "actor-def", "scene": "title_screen", "movable": true },
         "sFC_title_start_handler": { "start": 772526, "end": 772610, "type": "actor-def", "scene": "title_screen", "movable": true },
@@ -220,7 +220,7 @@
                 "DiaryDrawCursorHighlight": { "start": 781489, "end": 781529, "type": "Code" },
                 "DiaryClearCursor": { "start": 781529, "end": 781563, "type": "Code" },
                 "DiaryClearAllCursors": { "start": 781563, "end": 781628, "type": "Code" },
-                "table_0BED3C": { "start": 781628, "end": 781668, "type": "&Word" },
+                "diary_cursor_menu_table": { "start": 781628, "end": 781668, "type": "&Word" },
                 "DiaryScanSramSlots": { "start": 781668, "end": 781856, "type": "Code" },
                 "DiaryJoypadFilter_noref": { "start": 782712, "end": 782754, "type": "Code" },
                 "DiaryResetCounter_noref": { "start": 782754, "end": 782758, "type": "Code" },
@@ -232,14 +232,14 @@
                 "DiaryNullHandler_noref": { "start": 782944, "end": 782945, "type": "Code" },
                 "DiaryAwaitButtonRelease_noref": { "start": 782945, "end": 783014, "type": "Code" },
                 "DiaryMenuVBlankHandler": { "start": 783014, "end": 783348, "type": "Code" },
-                "table_0BF6AD": { "start": 784045, "end": 784051, "type": "&DialogString" },
+                "diary_erase_stat_line_table": { "start": 784045, "end": 784051, "type": "&DialogString" },
                 "dialogstring_0BF3F4": { "start": 783348, "end": 783931, "order": 784046, "type": "DialogString" },
-                "table_0BF63B": { "start": 783931, "end": 783975, "order": 784047, "type": "&DialogString" },
-                "table_0BF667": { "start": 783975, "end": 783993, "order": 784048, "type": "&DialogString" },
+                "diary_button_legend_table": { "start": 783931, "end": 783975, "order": 784047, "type": "&DialogString" },
+                "diary_sound_value_table": { "start": 783975, "end": 783993, "order": 784048, "type": "&DialogString" },
                 "dialogstring_0BF679": { "start": 783993, "end": 784036, "order": 784049, "type": "DialogString" },
                 "dialogstring_0BF6A4": { "start": 784036, "end": 784045, "order": 784050, "type": "DialogString" },
                 "dialogstring_0BF6B3": { "start": 784051, "end": 784089, "order": 784051, "type": "DialogString" },
-                "table_0BF6D9": { "start": 784089, "end": 784134, "order": 784052, "type": "&DialogString" }
+                "diary_erase_slot_name_table": { "start": 784089, "end": 784134, "order": 784052, "type": "&DialogString" }
             }
         },
         "inventory_menu": { "start": 189334, "end": 191746, "type": "actor-def", "scene": "inventory", "movable": false }
@@ -262,10 +262,10 @@
         "reward_actors": { "start": 57389, "end": 57685, "type": "Code", "movable": true },
         "interaction_handlers": { "start": 57685, "end": 58587, "type": "Code", "movable": true },
         "smooth_follow_child": { "start": 58587, "end": 58965, "type": "Code", "movable": false },
-        "visual_effect_pipeline": { "movable": true, "parts": {
-            "effect_velocity_init": { "start": 59607, "end": 59725, "type": "actor-def" },
-            "effect_subpixel_math": { "start": 59787, "end": 59884, "type": "Code" },
-            "effect_position_update": { "start": 59884, "end": 60054, "type": "actor-def" }
+        "layer1_scroll_actors": { "movable": true, "parts": {
+            "Layer1DriftUnbounded": { "start": 59607, "end": 59725, "type": "actor-def" },
+            "Layer1ParallaxRatio": { "start": 59787, "end": 59884, "type": "Code" },
+            "Layer1DriftWrapped": { "start": 59884, "end": 60054, "type": "actor-def" }
         } },
         "camera_scroll_controller": { "start": 60141, "end": 60315, "type": "actor-def", "movable": true },
         "shadow_shimmer": { "start": 176654, "end": 176798, "type": "Code", "scene": "player", "movable": true },

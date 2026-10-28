@@ -69,7 +69,7 @@ interface ParsedAnnotations {
  * Build a name → bank lookup from the per-bank names files
  * (db-us/names/bankNN.json) for bank detection fallback.
  */
-function loadNamesBankLookup(namesDir: string): Map<string, number> {
+export function loadNamesBankLookup(namesDir: string): Map<string, number> {
     const lookup = new Map<string, number>();
     if (!existsSync(namesDir)) return lookup;
     for (const file of readdirSync(namesDir)) {
@@ -90,7 +90,7 @@ function loadNamesBankLookup(namesDir: string): Map<string, number> {
 /**
  * Detect the ROM bank for a file using multiple strategies.
  */
-function detectBank(lines: string[], fileName: string, namesLookup: Map<string, number>): number | null {
+export function detectBank(lines: string[], fileName: string, namesLookup: Map<string, number>): number | null {
     // Strategy 1: ?BANK directive
     for (const line of lines) {
         const match = line.match(/^\?BANK\s+([0-9A-Fa-f]+)/);
@@ -276,14 +276,14 @@ function parseFile(filePath: string, namesLookup: Map<string, number>): ParsedAn
 /**
  * Generate a bank file name from a bank number: "bank00.json", "bank03.json", etc.
  */
-function bankFileName(bank: number): string {
+export function bankFileName(bank: number): string {
     return `bank${bank.toString(16).toUpperCase().padStart(2, '0')}.json`;
 }
 
 /**
  * Load a JSON file as a string→string record.
  */
-function loadJsonFile(filePath: string): Record<string, string> {
+export function loadJsonFile(filePath: string): Record<string, string> {
     if (!existsSync(filePath)) return {};
     try {
         return JSON.parse(readFileSync(filePath, 'utf-8'));
@@ -297,7 +297,7 @@ function loadJsonFile(filePath: string): Record<string, string> {
  * Numeric keys are sorted numerically; string keys are sorted alphabetically.
  * Skips writing if the content is unchanged.
  */
-function saveJsonFile(filePath: string, data: Record<string, string>): boolean {
+export function saveJsonFile(filePath: string, data: Record<string, string>): boolean {
     const dir = dirname(filePath);
     if (!existsSync(dir)) mkdirSync(dir, { recursive: true });
 

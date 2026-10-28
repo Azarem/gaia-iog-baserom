@@ -101,7 +101,7 @@
 | `$0BC39D` | `$0BC5A3` | 518 | `pyCE_tuts` | actor-def | Pyramid (Enemies) |
 | `$0BC5A3` | `$0BC798` | 501 | `pyCC_mystic_ball` | actor-def | Pyramid (Enemies) |
 | `$0BC798` | `$0BC896` | 254 | `pyCC_blaster` | actor-def | Pyramid (Enemies) |
-| `$0BC896` | `$0BC8B8` | 34 | `sFB_boot_logo` / `BootLogoPalTextFallback` | Code | System (Boot) |
+| `$0BC896` | `$0BC8B8` | 34 | `sFB_boot_logo` / `BootLogoPalLockout` | Code | System (Boot) |
 | `$0BC8B8` | `$0BC8BA` | 2 | *(unmapped gap)* | — | — |
 | `$0BC8BA` | `$0BC924` | 106 | `sFB_boot_logo` / `sFB_boot_logo` | actor-def | System (Boot) |
 | `$0BC924` | `$0BC9AE` | 138 | `sFC_title_intro` | actor-def | System (Title) |
@@ -137,7 +137,7 @@
 | `$0BECB1` | `$0BECD9` | 40 | `sFA_diary_menu` / `DiaryDrawCursorHighlight` | Code | Diary Menu |
 | `$0BECD9` | `$0BECFB` | 34 | `sFA_diary_menu` / `DiaryClearCursor` | Code | Diary Menu |
 | `$0BECFB` | `$0BED3C` | 65 | `sFA_diary_menu` / `DiaryClearAllCursors` | Code | Diary Menu |
-| `$0BED3C` | `$0BED64` | 40 | `sFA_diary_menu` / `table_0BED3C` | &Word | Diary Menu |
+| `$0BED3C` | `$0BED64` | 40 | `sFA_diary_menu` / `diary_cursor_menu_table` | &Word | Diary Menu |
 | `$0BED64` | `$0BEE20` | 188 | `sFA_diary_menu` / `DiaryScanSramSlots` | Code | Diary Menu |
 | `$0BEE20` | `$0BF178` | 856 | `debug_man` | actor-def | Debug |
 | `$0BF178` | `$0BF1A2` | 42 | `sFA_diary_menu` / `func_0BF178_noref` | Code | Diary Menu |
@@ -151,14 +151,14 @@
 | `$0BF261` | `$0BF2A6` | 69 | `sFA_diary_menu` / `func_0BF261_noref` | Code | Diary Menu |
 | `$0BF2A6` | `$0BF3F4` | 334 | `sFA_diary_menu` / `DiaryMenuVBlankHandler` | Code | Diary Menu |
 | `$0BF3F4` | `$0BF63B` | 583 | `sFA_diary_menu` / `dialogstring_0BF3F4` | DialogString | Diary Menu |
-| `$0BF63B` | `$0BF667` | 44 | `sFA_diary_menu` / `table_0BF63B` | &DialogString | Diary Menu |
-| `$0BF667` | `$0BF679` | 18 | `sFA_diary_menu` / `table_0BF667` | &DialogString | Diary Menu |
+| `$0BF63B` | `$0BF667` | 44 | `sFA_diary_menu` / `diary_button_legend_table` | &DialogString | Diary Menu |
+| `$0BF667` | `$0BF679` | 18 | `sFA_diary_menu` / `diary_sound_value_table` | &DialogString | Diary Menu |
 | `$0BF679` | `$0BF6A4` | 43 | `sFA_diary_menu` / `dialogstring_0BF679` | DialogString | Diary Menu |
 | `$0BF6A4` | `$0BF6AD` | 9 | `sFA_diary_menu` / `dialogstring_0BF6A4` | DialogString | Diary Menu |
-| `$0BF6AD` | `$0BF6B3` | 6 | `sFA_diary_menu` / `table_0BF6AD` | &DialogString | Diary Menu |
+| `$0BF6AD` | `$0BF6B3` | 6 | `sFA_diary_menu` / `diary_erase_stat_line_table` | &DialogString | Diary Menu |
 | `$0BF6B3` | `$0BF6D9` | 38 | `sFA_diary_menu` / `dialogstring_0BF6B3` | DialogString | Diary Menu |
-| `$0BF6D9` | `$0BF706` | 45 | `sFA_diary_menu` / `table_0BF6D9` | &DialogString | Diary Menu |
-| `$0BF706` | `$0BFA57` | 849 | `strings_0BF706` | &diary-entry | Diary Menu |
+| `$0BF6D9` | `$0BF706` | 45 | `sFA_diary_menu` / `diary_erase_slot_name_table` | &DialogString | Diary Menu |
+| `$0BF706` | `$0BFA57` | 849 | `diary_entry_table` | &diary-entry | Diary Menu |
 | `$0BFA57` | `$0BFA74` | 29 | `debug_stat_setter` | actor-def | Generic |
 | `$0BFA74` | `$0BFFFF` | 1,420 | *(unmapped tail)* | — | — |
 
@@ -286,7 +286,7 @@ Invisible helper actor in scenes `$DD`/`$F6` that tracks which side of the room 
 
 Main boss controller with a **random 8-way action loop** (`SwitchCase` + `RngByte`):
 - **Random repositioning** — `StageMove` to random arena positions
-- **Charge attack** — spawns a homing follower via `smooth_follow_child`
+- **Charge attack** — spawns an aimed projectile via `smooth_follow_child` (it flies straight)
 - **Roar attack** — spawns camera shake controller (`py_queen_actor_0BACBC`)
 
 Hit handling is **phase-based** (`orbitAngle` counter):
@@ -401,7 +401,7 @@ On death, spawns a **smaller secondary ghost** with its own HP (`enemy_stats_tab
 
 #### `pyCC_blaster` — Blaster (254 bytes)
 
-**Scenes:** `$D2`–`$D9`, `$DB`. Stationary turret that periodically fires homing projectiles via `smooth_follow_child`. Spawns projectiles offset left/right of the player based on `BranchOnPlayerX`. When hit (`SetHitCallback`), reorients and enters a **rapid-fire burst mode** (`LoopInit #1E`) spawning projectiles every frame while onscreen.
+**Scenes:** `$D2`–`$D9`, `$DB`. Stationary turret that periodically fires projectiles via `smooth_follow_child` (aimed once at the player, then straight). Spawns projectiles offset left/right of the player based on `BranchOnPlayerX`. When hit (`SetHitCallback`), reorients and enters a **rapid-fire burst mode** (`LoopInit #1E`) spawning projectiles every frame while onscreen.
 
 ### 4.6 System — Boot Logo & Title Screen Actors
 
@@ -411,7 +411,7 @@ On death, spawns a **smaller secondary ghost** with its own HP (`enemy_stats_tab
 
 #### `sFB_boot_logo` — Boot Sequence Controller (140 bytes)
 
-**Scene:** `$FB`. Sets fast-ROM mode (`MEMSEL`), display flags, and joypad mask. Checks `STAT78` bit 4 for ROM configuration. On standard path: animates the Enix logo sprite (`StageSpriteLoop`), toggles flag byte `#10`, and queues map change to `$FC` (title). Alternate path (`BootLogoPalTextFallback`): loads ending comet palette, runs BG3 boot text via `RunBg3Script` with `boot_screen_strings`.
+**Scene:** `$FB`. Sets fast-ROM mode (`MEMSEL`), display flags, and joypad mask. Checks `STAT78` bit 4 for ROM configuration. On standard path: animates the Enix logo sprite (`StageSpriteLoop`), toggles flag byte `#10`, and queues map change to `$FC` (title). Alternate path (`BootLogoPalLockout`): loads ending comet palette, runs BG3 boot text via `RunBg3Script` with `boot_screen_strings`.
 
 #### `sFC_title_intro` — Title Screen Orchestrator (138 bytes)
 
@@ -419,7 +419,7 @@ On death, spawns a **smaller secondary ghost** with its own HP (`enemy_stats_tab
 
 #### `sFC_title_start_handler` — Start Button / Skip Handler (84 bytes)
 
-**Scenes:** `$FC` (title screen), `$8C`–`$8F` (prologue scenes, spawned as `sFC_sFC_title_start_handler` variant). Masks joypad, polls for Start button (`$1001`). On press: clears gfx cache, queues map change to `$FA` (diary/save menu), waits through vblank, and blanks screen. On title screen this opens the diary menu; during prologue it acts as a skip gate.
+**Scenes:** `$FC` (title screen), `$8C`–`$8F` (prologue scenes, spawned as `sFC_sFC_title_start_handler` variant). Masks joypad (`joypadMaskStd |= $FFFC`; ROM `$FFF0`), polls for Start with `BranchIfPressed #$1001` (`$1000` = Start, bit 0 = read `joypadRaw`; R is not tested). On press: clears gfx cache, queues map change to `$FA` (diary/save menu), waits through vblank, and blanks screen. On title screen this opens the diary menu; during prologue it acts as a skip gate.
 
 ### 4.7 Prologue — Cutscene Actors
 
@@ -509,13 +509,13 @@ Not scene-bound — shared palette-effect thinkers:
 3. **Copy Trip Diary** — source → destination slot copy
 4. **Change Sound + Buttons** — stereo/mono toggle and button remap submenu
 
-Save slots display HP/STR/DEF stats via a BCD digit formatter (`FormatBcdNumber`). Selecting a diary slot triggers an animated camera pan to the saved location on the world map (`DiaryCameraPan`). New game starts at scene `$08` (South Cape church).
+Save slots display HP/STR/DEF stats via a BCD digit formatter (`FormatBcdNumber`); the state arrays are HP `$0D7A`, DEF `$0D80`, STR `$0D86` (three slots each). Start and Select are masked out of `joypadCurrent` while the menu runs (`$3000` in `joypadMaskStd`). Each slot page is a copy of WRAM `$0A00`–`$0BFB` at `$306200 + n × 512` with its checksums at `$3063FC` / `$3063FE + n × 512`. Selecting a diary slot triggers an animated camera pan to the saved location on the world map (`DiaryCameraPan`). New game starts at scene `$08` (South Cape church).
 
 The block is **pinned** (`movable: false`). Several functions after the `debug_man` insertion are tagged `_noref` (unreferenced/orphaned code).
 
-#### `strings_0BF706` — Diary Location Name Table (849 bytes)
+#### `diary_entry_table` — Diary Location Name Table (849 bytes)
 
-Pointer table mapping progress indices to named save-resume points. Each entry embeds a target scene ID and coordinate for the world map camera. Referenced by `sFA_diary_menu` for slot display and camera positioning. Covers all major game locations from South Cape through Babel Tower, with a default *"Start from beginning"* fallback.
+A 256-pointer table indexed by **scene ID** (the scene saved in each slot, `$0D74`/`$0D76`/`$0D78`), followed by 23 `diary-entry` records: a name string closed by `$CA` and two little-endian words, the camera target X and Y the menu pans to (not packed, and no scene ID: the scene is the table index). 221 scenes point at the default *"Start from beginning"* entry and 35 scenes (the places with a Dark Space and a save) at 22 named locations. Referenced by `sFA_diary_menu` for slot display (`[ADR:&diary_entry_table,D74]`) and `DiaryCameraPan`. Nothing warps with it: loading goes to scene `$E6` (`DiaryStartLoadConfirm`).
 
 ### 4.11 Debug Man
 
@@ -610,7 +610,7 @@ Developer debug NPC (never spawned in retail) interleaved within the diary menu 
 | File | Block |
 |------|-------|
 | `extracted/system/diary_menu/sFA_diary_menu.asm` | `sFA_diary_menu` |
-| `extracted/system/diary_menu/strings_0BF706.asm` | `strings_0BF706` |
+| `extracted/system/diary_menu/diary_entry_table.asm` | `diary_entry_table` |
 | `extracted/actors/debug_man.asm` | `debug_man` |
 
 ### Generic Actors

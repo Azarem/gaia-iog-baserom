@@ -115,9 +115,9 @@ Every block in bank $00 maps to one extracted ASM file. Links go directly to the
 
 | Block | Range | ASM File |
 |-------|-------|----------|
-| `boot_logo_palette_enix` | `$B83F`–`$B853` | [`boot_logos/boot_logo_palette_enix.asm`](../../../extracted/system/boot_logos/boot_logo_palette_enix.asm) |
-| `boot_logo_palette_quintet` | `$B853`–`$B867` | [`boot_logos/boot_logo_palette_quintet.asm`](../../../extracted/system/boot_logos/boot_logo_palette_quintet.asm) |
-| `boot_logo_palette_third` | `$B867`–`$B87B` | [`boot_logos/boot_logo_palette_third.asm`](../../../extracted/system/boot_logos/boot_logo_palette_third.asm) |
+| `boot_logo_enix_palette_obj0` | `$B83F`–`$B853` | [`boot_logos/boot_logo_enix_palette_obj0.asm`](../../../extracted/system/boot_logos/boot_logo_enix_palette_obj0.asm) |
+| `boot_logo_enix_palette_obj1` | `$B853`–`$B867` | [`boot_logos/boot_logo_enix_palette_obj1.asm`](../../../extracted/system/boot_logos/boot_logo_enix_palette_obj1.asm) |
+| `boot_logo_enix_palette_obj2` | `$B867`–`$B87B` | [`boot_logos/boot_logo_enix_palette_obj2.asm`](../../../extracted/system/boot_logos/boot_logo_enix_palette_obj2.asm) |
 | `inventory_bg3_scroll_hdma` | `$BB8E`–`$BBAD` | [`inventory/inventory_bg3_scroll_hdma.asm`](../../../extracted/system/inventory/inventory_bg3_scroll_hdma.asm) |
 | `inventory_statue_slot` | `$CF29`–`$CF8E` | [`inventory/inventory_statue_slot.asm`](../../../extracted/system/inventory/inventory_statue_slot.asm) |
 | `diary_menu_window_dma` | `$BBAF`–`$BC97` | [`diary_menu/diary_menu_window_dma.asm`](../../../extracted/system/diary_menu/diary_menu_window_dma.asm) |
@@ -234,7 +234,7 @@ Listed above in [System Services](#system-services-extractedsystem) and [Palette
 | `reward_actors` | `$E02D`–`$E155` | `e_hp_increase` | [`actors/reward_actors.asm`](../../../extracted/actors/reward_actors.asm) |
 | `interaction_handlers` | `$E155`–`$E4DB` | `collect_handler_gem` | [`actors/interaction_handlers.asm`](../../../extracted/actors/interaction_handlers.asm) |
 | `smooth_follow_child` | `$E4DB`–`$E655` | `smooth_follow_child` | [`actors/smooth_follow_child.asm`](../../../extracted/actors/smooth_follow_child.asm) |
-| `visual_effect_pipeline` | `$E8D7`–`$EA96` | `effect_velocity_init` | [`actors/visual_effect_pipeline.asm`](../../../extracted/actors/visual_effect_pipeline.asm) |
+| `layer1_scroll_actors` | `$E8D7`–`$EA96` | `Layer1DriftUnbounded` | [`actors/layer1_scroll_actors.asm`](../../../extracted/actors/layer1_scroll_actors.asm) |
 
 ### <a id="scroll--motion-zone"></a>Scroll & Motion Zone (`$E683`–`$F48F`)
 
@@ -567,9 +567,9 @@ Covers `$00B78F`–`$00BF89`: 11 thinkers for hardware configuration, boot logos
 | `dark_castoth_layer_config` | `$BF78` | TM=#$17, TS=#$00 |
 | `inventory_bg3_scroll_hdma` | `$BB8E` | Inventory BG3VOFS HDMA bind each frame |
 | `diary_menu_window_dma` | `$BBAF` | State-machine DMA for diary |
-| `boot_logo_palette_enix` | `$B83F` | Enix logo fade #50→#52→#54 |
-| `boot_logo_palette_quintet` | `$B853` | Quintet logo fade #51→#53→#55 |
-| `boot_logo_palette_third` | `$B867` | Third-party fade #56→#57→#58 |
+| `boot_logo_enix_palette_obj0` | `$B83F` | Enix logo palette cycle, OBJ palette 0: #50→#52→#54 |
+| `boot_logo_enix_palette_obj1` | `$B853` | Enix logo palette cycle, OBJ palette 1: #51→#53→#55 |
+| `boot_logo_enix_palette_obj2` | `$B867` | Enix logo palette cycle, OBJ palette 2: #56→#57→#58 |
 | **`global_ambient_dispatcher`** | `$BF89` | **Hub:** once at spawn, load player OBJ palette 0 for `characterForm`; each frame, interact-bit talk scan *(not self-contained — has ?INCLUDE deps)* |
 
 ---
@@ -646,10 +646,10 @@ Covers combat knockback, stat reward actors, push handlers, smooth follow, and t
 | `collect_handler_gem` | `$E155` | ✓ | Gem collection: nudge toward player ±2 px on button press |
 | `push_handler_solid` | `$E256` | ✓ | Requires ≥32 px offset, clears/sets tiles |
 | `push_handler_forceball` | `$E3BA` | ✓ | Uses AddPosition, requires anim $003A–$003D |
-| `smooth_follow_child` | `$E4DB` | **No** | Child homing via angle/step math |
-| `effect_velocity_init` | `$E8D7` | ✓ | Convert coords → velocity, seed $06C8/$06C4 |
-| `effect_subpixel_math` | `$E98B` | ✓ | Multiply/divide scroll helper |
-| `effect_position_update` | `$E9EC` | ✓ | Integrate velocity, clamp bounds |
+| `smooth_follow_child` | `$E4DB` | **No** | Child projectile: aims once, then flies straight (angle/step math) |
+| `Layer1DriftUnbounded` | `$E8D7` | ✓ | Convert coords → velocity, seed $06C8/$06C4 |
+| `Layer1ParallaxRatio` | `$E98B` | ✓ | Multiply/divide scroll helper |
+| `Layer1DriftWrapped` | `$E9EC` | ✓ | Integrate velocity, clamp bounds |
 
 ---
 
@@ -661,7 +661,7 @@ Covers `$00DB8A`–`$00DFFF`: The complete enemy defeat pipeline from death hand
 
 | Function | Address | Movable | Description |
 | ---------- | --------- | --------- | ------------- |
-| `StandardEnemyDefeatHandler` | `$DB8A` | **No** | Central death: counters, flash, drops, rewards (~20 callers) |
+| `StandardEnemyDefeatHandler` | `$DB8A` | **No** | Central death: counters, flash, drops, rewards (13 script callers + 3 engine sites) |
 | `EnemyGemDropRouter` | `$DD5B` | **No** | Routes stat byte +3 to fixed gem ids or HP-tier weighted roll |
 | `EnemyStatBonusReward` | `$DD87` | **No** | Scene-indexed HP/STR/DEF spawner |
 | `SpawnFieldRevealEffect` | `$DDF2` | ✓ | Field tile reveal effect (sparkles + event block tile swap) |
@@ -865,7 +865,7 @@ Comprehensive reference covering all data tables, hardware register aliases, the
 | `scene_flag_init` | 26 | Scene actor lists (sets flag `#00`) |
 | `global_ambient_dispatcher` | 59× | 59 thinker lists (173 of 184 scenes with thinkers) |
 | `ambient_palette_cycler` | ~30 | Paired with dispatcher |
-| `StandardEnemyDefeatHandler` | ~20 | All enemy actors |
+| `StandardEnemyDefeatHandler` | 13 + 3 engine sites | Enemy scripts via `JumpFar`; engine default |
 | `ApplyOrbitalOffsetFromRef` | 21 | COP handlers, bosses, actors |
 | `NpcRandomWanderAI` | ~12 | Town NPC scripts |
 | `ApplyPlayerHitstun` | 9 | Combat enemies |
@@ -883,7 +883,7 @@ These blocks have inbound `$&` (2-byte same-bank) references and **cannot** be r
 | Block | Inbound From | Reason |
 |-------|-------------|--------|
 | `GameOverSequence` ($D62F) | `ComposeDigitSprites_AtCursor` | Player death pointer |
-| `StandardEnemyDefeatHandler` ($DB8A) | `ComposeDigitSprites_AtCursor`, `HitStaggerMain` | Enemy defeat pointer |
+| `StandardEnemyDefeatHandler` ($DB8A) | `hit_stagger_controller`, `combat_collision` | Default enemy defeat pointer |
 | `NpcDespawnStub` ($DC77) | `InteractionDamage_NPCChat` | One-tick NPC despawn after item/dialogue |
 | `player_transition_handlers` ($C418) | 15+ consumers | Player anim `#$&func_00C4xx` refs |
 | `smooth_follow_child` ($E4DB) | Pyramid, Angkor, etc. | Hard `$&` refs |

@@ -215,21 +215,21 @@ None. Uses embedded DMA data tables within the same block.
 
 ## Boot Logo Sequence
 
-Three one-shot thinkers that run sequential palette fades during the publisher logo screens at boot. Each applies three palette bundle steps then self-terminates.
+Three one-shot thinkers that together run the palette cycle of the **Enix logo**, one thinker per OBJ palette (0, 1 and 2). They are spawned together by scene `$FB`'s thinker list (`thinker_spawn_0CEB1D`, slots 0, 1, 2 with params `#01`, `#02`, `#03`, never read) and run side by side, in both visits of scene `$FB`. Each plays three palette bundles (`PaletteStart` + `PaletteStep`) and then `KillThinker`. Only the second logo (the Enix logo, `sprite_group_000010`) uses OBJ palettes 0 to 2, so only it changes colour; in the first visit the thinkers run unseen. (They were first named after the spawn order, `boot_logo_palette_enix` / `_quintet` / `_third`, which read like three companies.)
 
-### boot_logo_palette_enix
+### boot_logo_enix_palette_obj0
 
 **Address:** `$00B83F`
 
 #### Purpose
 
-Enix logo palette fade: bundle `#50` → `#52` → `#54`, then `KillThinker`.
+Enix logo palette thinker for OBJ palette 0 (CGRAM colours `$81`–`$8F`): bundles `#50` → `#52` → `#54` (reveal, flash to white, settle), then `KillThinker`.
 
 #### Scene Usage
 
 | Scene | Index | Context |
 |-------|-------|---------|
-| Boot logos | `$FB` (`thinker_0CEB1D` slot `#00`, bundle `#01`) | Enix logo fade-in |
+| Boot logos | `$FB` (`thinker_0CEB1D` slot `#00`, param `#01`) | Enix logo palette cycle, OBJ palette 0 |
 
 #### Dependencies
 
@@ -237,19 +237,19 @@ None.
 
 ---
 
-### boot_logo_palette_quintet
+### boot_logo_enix_palette_obj1
 
 **Address:** `$00B853`
 
 #### Purpose
 
-Quintet logo palette fade: bundle `#51` → `#53` → `#55`, then `KillThinker`.
+Enix logo palette thinker for OBJ palette 1 (`$91`–`$9F`): bundle `#51` → `#53` → `#55` (the same frames as obj0, written to palette 1), then `KillThinker`.
 
 #### Scene Usage
 
 | Scene | Index | Context |
 |-------|-------|---------|
-| Boot logos | `$FB` (`thinker_0CEB1D` slot `#01`, bundle `#02`) | Quintet logo fade-in |
+| Boot logos | `$FB` (`thinker_0CEB1D` slot `#01`, param `#02`) | Enix logo palette cycle, OBJ palette 1 |
 
 #### Dependencies
 
@@ -257,24 +257,21 @@ None.
 
 ---
 
-### boot_logo_palette_third
+### boot_logo_enix_palette_obj2
 
 **Address:** `$00B867`
 
 #### Purpose
 
-Third-party logo palette fade: bundle `#56` → `#57` → `#58`, then `KillThinker`.
+Enix logo palette thinker for OBJ palette 2 (`$A1`–`$AF`, the wordmark block under the emblem): bundle `#56` (fill) → `#57` (fill) → `#58` (dip), then `KillThinker`.
 
 #### Scene Usage
 
 | Scene | Index | Context |
 |-------|-------|---------|
-| Boot logos | `$FB` (`thinker_0CEB1D` slot `#02`, bundle `#03`) | Additional credit logo fade |
+| Boot logos | `$FB` (`thinker_0CEB1D` slot `#02`, param `#03`) | Enix logo palette cycle, OBJ palette 2 |
 
 #### Dependencies
-
-None.
-
 ---
 
 ## Global Scene Dispatcher

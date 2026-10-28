@@ -2,7 +2,7 @@
 ; 
 ; === CALLER ===
 ; 
-; StandardEnemyDefeatHandler reaches EnemyGemDropRouter when the defeated enemy's stat byte +3 (enemy-stats gemDropType) is nonzero and scene flag $0300 is clear. The router spawns one of three entries with SpawnListAppend (flags $0420, so the pickup inherits the dead enemy's position through CopyActorState): value 1 = SpawnDropGem1 (fixed $83), value 2 = SpawnDropGem2 (fixed $84), any other nonzero value (3) = SpawnDropByHpTier (random, see below).
+; StandardEnemyDefeatHandler reaches EnemyGemDropRouter when the defeated enemy's stat byte +3 (enemy-stats gemDropType) is nonzero and either this scene's reward flag $0300 is set or enemies remain (the last enemy of a scene whose reward is still unclaimed gets the stat reward instead of a gem). The router spawns one of three entries with SpawnListAppend (flags $0420, so the pickup inherits the dead enemy's position through CopyActorState): value 1 = SpawnDropGem1 (fixed $83), value 2 = SpawnDropGem2 (fixed $84), any other nonzero value (3) = SpawnDropByHpTier (random, see below).
 ; 
 ; === THE PICKUP ===
 ; 

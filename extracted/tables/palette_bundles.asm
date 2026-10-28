@@ -1,12 +1,21 @@
-; Compressed palette data bundles indexed by palette ID.
+; Palette animation bundles (bank $16 in the extraction, ROM bank $96; 128 bundles, ids $00-$7F). They are not compressed and nothing is decompressed: a bundle is a list of colour strips that the five palette COP handlers (#36-#3A, cop_handlers_palette) step through with LoadPaletteBundle / CopyPaletteBundleFrame (hdma_dma_spc).
 ; 
-; Each bundle contains one or more CGRAM palette sets used by scenes
-; and special effects. Loaded by LoadPaletteBundle during scene setup.
+; === FORMAT ===
+; 
+; - palette_bundles: 128 word pointers, indexed by the bundle id (animScratch+2 of the palette thinker or actor).
+; - A bundle is a list of 6-byte sub-entries, palette-bundle < N, &frames, dest, size, wait >, ended by a hidden 0 byte: N = number of frames in the strip (0 ends the bundle); &frames = address of the first frame; dest = first CGRAM colour index (the colours go to the staging buffer $7F0A00 + 2 x index); size = bytes per frame minus one ($0D = 7 colours, $0F = 8, $1D = 15, $1F = 16, $03 = 2, $02 = a backdrop RGB triplet); wait = extra ticks between frames.
+; - The word_16xxxx arrays are the frames, stored back to back (BGR555 words), N frames per strip.
+; 
+; Whole-file counts (not a sample): 132 palette_bundle_ blocks (128 in the table + 4 empty padding bundles, see below), 1,200 sub-entries, 834 frame arrays. The commonest (dest, size) pairs: ($21, $17) 446 times (12 colours at index $21), ($23, $19) 175, ($81, $1D) 143 (15 colours at $81-$8F: the player's sprite colours), ($80, $1F) 39, ($2A, $0B) 25, ($A1, $1D) 24, ($91, $1D) 24.
+; 
+; Known uses (not all traced): bundles #0B / #0C restore Will's / Freedan's colours ($81-$8F) after the attack tints (attack_ability_system); #2A / #2B / #4B / #2C / #5B are the attack and aura effects; #4A is the Dark Friar flash; ambient_palette_cycler lists the per-scene ambient strips ($30 for scenes 21-23 is a six-strip colour rotation); WorldMapController resets Will's colours with PaletteResetAndKillThinker #0B. What most bundles look like on screen was not traced.
 ---------------------------------------------
 
 ?BANK 16
 
 ---------------------------------------------
+
+; Bundle id -> bundle (128 entries, $00-$7F). Bundles are not sorted by use; several of the early ones are single-frame colour sets, later ones are multi-frame strips.
 
 palette_bundles [
   &palette_bundle_168100   ;00
@@ -20,8 +29,8 @@ palette_bundles [
   &palette_bundle_16849E   ;08
   &palette_bundle_1684D5   ;09
   &palette_bundle_1685D2   ;0A
-  &palette_bundle_1685F7   ;0B
-  &palette_bundle_16861C   ;0C
+  &palette_bundle_will_normal   ;0B
+  &palette_bundle_freedan_normal   ;0C
   &palette_bundle_168641   ;0D
   &palette_bundle_168666   ;0E
   &palette_bundle_16868B   ;0F
@@ -89,15 +98,15 @@ palette_bundles [
   &palette_bundle_16B305   ;4D
   &palette_bundle_16B3F2   ;4E
   &palette_bundle_16B4DF   ;4F
-  &palette_bundle_16B52E   ;50
-  &palette_bundle_16B64F   ;51
-  &palette_bundle_16B770   ;52
-  &palette_bundle_16B891   ;53
-  &palette_bundle_16B9B2   ;54
-  &palette_bundle_16BAD3   ;55
-  &palette_bundle_16BBF4   ;56
-  &palette_bundle_16BD15   ;57
-  &palette_bundle_16BE36   ;58
+  &palette_bundle_enix_obj0_reveal   ;50
+  &palette_bundle_enix_obj1_reveal   ;51
+  &palette_bundle_enix_obj0_whiten   ;52
+  &palette_bundle_enix_obj1_whiten   ;53
+  &palette_bundle_enix_obj0_settle   ;54
+  &palette_bundle_enix_obj1_settle   ;55
+  &palette_bundle_enix_obj2_fill_a   ;56
+  &palette_bundle_enix_obj2_fill_b   ;57
+  &palette_bundle_enix_obj2_dip   ;58
   &palette_bundle_16BF57   ;59
   &palette_bundle_16C078   ;5A
   &palette_bundle_16C1BD   ;5B
@@ -128,8 +137,8 @@ palette_bundles [
   &palette_bundle_16D046   ;74
   &palette_bundle_16D17B   ;75
   &palette_bundle_16D1C2   ;76
-  &palette_bundle_16D209   ;77
-  &palette_bundle_16D310   ;78
+  &palette_bundle_strip8_77   ;77
+  &palette_bundle_strip8_78   ;78
   &palette_bundle_16D417   ;79
   &palette_bundle_16D466   ;7A
   &palette_bundle_16D48B   ;7B
@@ -797,7 +806,10 @@ word_1685D9 [
   #$7716   ;0E
 ]
 
-palette_bundle_1685F7 [
+---------------------------------------------
+; Bundle $0B: one frame of 15 colours (size $1D) to colour $81-$8F, wait 0. Will's normal sprite colours. Used by AttackCleanup and by WorldMapController's palette reset.
+
+palette_bundle_will_normal [
   palette-bundle < #01, &word_1685FE, #81, #1D, #00 >
 ]
 
@@ -819,7 +831,10 @@ word_1685FE [
   #$7BDE   ;0E
 ]
 
-palette_bundle_16861C [
+---------------------------------------------
+; Bundle $0C: one frame of 15 colours to colour $81-$8F, wait 0. Freedan's normal sprite colours (restored by AttackCleanup).
+
+palette_bundle_freedan_normal [
   palette-bundle < #01, &word_168623, #81, #1D, #00 >
 ]
 
@@ -6465,7 +6480,10 @@ word_16B51E [
   #$42FA   ;07
 ]
 
-palette_bundle_16B52E [
+---------------------------------------------
+; Bundle $50: 8 frames of 15 colours on OBJ palette 0 (CGRAM $81-$8F), 1 extra tick per frame. Starts black; a 13-colour ramp from dark purple to white grows across colours 1-13. Stage 1 of boot_logo_enix_palette_obj0 (the Enix logo).
+
+palette_bundle_enix_obj0_reveal [
   palette-bundle < #01, &word_16B55F, #81, #1D, #01 >   ;00
   palette-bundle < #01, &word_16B57D, #81, #1D, #01 >   ;01
   palette-bundle < #01, &word_16B59B, #81, #1D, #01 >   ;02
@@ -6620,7 +6638,10 @@ word_16B631 [
   #$0000   ;0E
 ]
 
-palette_bundle_16B64F [
+---------------------------------------------
+; Bundle $51: the same frames as $50 on OBJ palette 1 (CGRAM $91-$9F). Stage 1 of boot_logo_enix_palette_obj1.
+
+palette_bundle_enix_obj1_reveal [
   palette-bundle < #01, &word_16B680, #91, #1D, #01 >   ;00
   palette-bundle < #01, &word_16B69E, #91, #1D, #01 >   ;01
   palette-bundle < #01, &word_16B6BC, #91, #1D, #01 >   ;02
@@ -6775,7 +6796,10 @@ word_16B752 [
   #$0000   ;0E
 ]
 
-palette_bundle_16B770 [
+---------------------------------------------
+; Bundle $52: the ramp of $50 turns white from its bright end to its dark end while colours 14 and 15 brighten. Stage 2 of boot_logo_enix_palette_obj0.
+
+palette_bundle_enix_obj0_whiten [
   palette-bundle < #01, &word_16B7A1, #81, #1D, #01 >   ;00
   palette-bundle < #01, &word_16B7BF, #81, #1D, #01 >   ;01
   palette-bundle < #01, &word_16B7DD, #81, #1D, #01 >   ;02
@@ -6930,7 +6954,10 @@ word_16B873 [
   #$6739   ;0E
 ]
 
-palette_bundle_16B891 [
+---------------------------------------------
+; Bundle $53: the same frames as $52 on OBJ palette 1. Stage 2 of boot_logo_enix_palette_obj1.
+
+palette_bundle_enix_obj1_whiten [
   palette-bundle < #01, &word_16B8C2, #91, #1D, #01 >   ;00
   palette-bundle < #01, &word_16B8E0, #91, #1D, #01 >   ;01
   palette-bundle < #01, &word_16B8FE, #91, #1D, #01 >   ;02
@@ -7085,7 +7112,10 @@ word_16B994 [
   #$6739   ;0E
 ]
 
-palette_bundle_16B9B2 [
+---------------------------------------------
+; Bundle $54: starts all white and fades back down to the ramp (3 extra ticks per frame). Stage 3 of boot_logo_enix_palette_obj0.
+
+palette_bundle_enix_obj0_settle [
   palette-bundle < #01, &word_16B9E3, #81, #1D, #03 >   ;00
   palette-bundle < #01, &word_16BA01, #81, #1D, #03 >   ;01
   palette-bundle < #01, &word_16BA1F, #81, #1D, #03 >   ;02
@@ -7240,7 +7270,10 @@ word_16BAB5 [
   #$2449   ;0E
 ]
 
-palette_bundle_16BAD3 [
+---------------------------------------------
+; Bundle $55: the same frames as $54 on OBJ palette 1. Stage 3 of boot_logo_enix_palette_obj1.
+
+palette_bundle_enix_obj1_settle [
   palette-bundle < #01, &word_16BB04, #91, #1D, #03 >   ;00
   palette-bundle < #01, &word_16BB22, #91, #1D, #03 >   ;01
   palette-bundle < #01, &word_16BB40, #91, #1D, #03 >   ;02
@@ -7395,7 +7428,10 @@ word_16BBD6 [
   #$2449   ;0E
 ]
 
-palette_bundle_16BBF4 [
+---------------------------------------------
+; Bundle $56: 8 frames on OBJ palette 2 (CGRAM $A1-$AF); starts black and fills the 15 colours with the flat purple $68DA one at a time (colours 1-8). Stage 1 of boot_logo_enix_palette_obj2.
+
+palette_bundle_enix_obj2_fill_a [
   palette-bundle < #01, &word_16BC25, #A1, #1D, #01 >   ;00
   palette-bundle < #01, &word_16BC43, #A1, #1D, #01 >   ;01
   palette-bundle < #01, &word_16BC61, #A1, #1D, #01 >   ;02
@@ -7550,7 +7586,10 @@ word_16BCF7 [
   #$0000   ;0E
 ]
 
-palette_bundle_16BD15 [
+---------------------------------------------
+; Bundle $57: continues the purple fill from 9 colours to all 15 (the last two frames are both full). Stage 2 of boot_logo_enix_palette_obj2.
+
+palette_bundle_enix_obj2_fill_b [
   palette-bundle < #01, &word_16BD46, #A1, #1D, #01 >   ;00
   palette-bundle < #01, &word_16BD64, #A1, #1D, #01 >   ;01
   palette-bundle < #01, &word_16BD82, #A1, #1D, #01 >   ;02
@@ -7705,7 +7744,10 @@ word_16BE18 [
   #$68DA   ;0E
 ]
 
-palette_bundle_16BE36 [
+---------------------------------------------
+; Bundle $58: starts all purple; a darker dip opens around colour 7 and widens each frame, ending in a V-shaped ramp that is held for 34 ticks. Stage 3 of boot_logo_enix_palette_obj2.
+
+palette_bundle_enix_obj2_dip [
   palette-bundle < #01, &word_16BE67, #A1, #1D, #01 >   ;00
   palette-bundle < #01, &word_16BE85, #A1, #1D, #01 >   ;01
   palette-bundle < #01, &word_16BEA3, #A1, #1D, #01 >   ;02
@@ -10052,14 +10094,23 @@ word_16D1C9 [
   #$0000   ;1F
 ]
 
-palette_bundle_16D209 [
+---------------------------------------------
+; Bundle $77: one strip of 8 frames of 16 colours (size $1F) at colour $41, wait 5.
+
+palette_bundle_strip8_77 [
   palette-bundle < #08, &word_16D212, #41, #1F, #05 >
 ]
 
-palette_bundle_16D210 [
+---------------------------------------------
+; Empty bundle (only the end byte $00): padding between bundle $77 end byte and its frames. No table entry refers to it (R-I060-4).
+
+palette_padding_16D210 [
 ]
 
-palette_bundle_16D211 [
+---------------------------------------------
+; Empty bundle (only the end byte $00), second padding byte after bundle $77. No reference (R-I060-4).
+
+palette_padding_16D211 [
 ]
 
 word_16D212 [
@@ -10192,14 +10243,23 @@ word_16D212 [
   #$5F5A   ;7E
 ]
 
-palette_bundle_16D310 [
+---------------------------------------------
+; Bundle $78: one strip of 8 frames of 16 colours (size $1F) at colour $41, wait 5.
+
+palette_bundle_strip8_78 [
   palette-bundle < #08, &word_16D319, #41, #1F, #05 >
 ]
 
-palette_bundle_16D317 [
+---------------------------------------------
+; Empty bundle (only the end byte $00): padding between bundle $78 end byte and its frames. No reference (R-I060-4).
+
+palette_padding_16D317 [
 ]
 
-palette_bundle_16D318 [
+---------------------------------------------
+; Empty bundle (only the end byte $00), second padding byte after bundle $78. No reference (R-I060-4).
+
+palette_padding_16D318 [
 ]
 
 word_16D319 [

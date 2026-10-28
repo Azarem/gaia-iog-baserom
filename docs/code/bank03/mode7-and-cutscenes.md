@@ -32,7 +32,7 @@ gradient (spotlight/iris). Two scene actors —
 thinker, and choreograph their sequences frame-by-frame.
 `mode7_perspective_unused` is an earlier, unreferenced variant kept for reference.
 
-**Related:** [radar-and-world-map.md](radar-and-world-map.md) (HdmaWindowEffect comparison; world map scene uses Mode 7) · [actor-thinker-runtime.md](actor-thinker-runtime.md) (thinker spawn/execution) · [scene-and-hardware.md](scene-and-hardware.md) (Mode 7 register setup, scene transitions)
+**Related:** [radar-and-world-map.md](radar-and-world-map.md) (WorldMapSplitEffect comparison; world map scene uses Mode 7) · [actor-thinker-runtime.md](actor-thinker-runtime.md) (thinker spawn/execution) · [scene-and-hardware.md](scene-and-hardware.md) (Mode 7 register setup, scene transitions)
 
 ---
 
@@ -245,14 +245,14 @@ adding a band's count causes carry (total > 255), the overflow handler at
 the final right-edge without incrementing `$06`. This ensures the HDMA table
 never exceeds the 224/240 visible scanline limit.
 
-### Comparison with HdmaWindowEffect
+### Comparison with WorldMapSplitEffect
 
 `IrisCircleEffect` generates a **circular** window using hardware multiply
 (`WRMPYA`/`WRMPYB`) with a fixed multiplier `$60` and per-band subtraction for
-curvature. `HdmaWindowEffect` (at `$03A83E`) instead uses a **sine-table-based**
-approach for smoother, arbitrary window shapes with configurable parameters.
-Both are HDMA-driven window generators, but IrisCircle is simpler and dedicated
-to the circular iris/spotlight look, while HdmaWindowEffect is more general.
+curvature. `WorldMapSplitEffect` (at `$03A83E`) writes no window registers at all: it builds
+BGMODE (`$2105`) and COLDATA (`$2132`) HDMA tables that split the screen into Mode 7
+above and Mode 1 below a boundary row with a white line on it. It is not an iris or
+window effect and uses no sine table (its labels were first named after one).
 
 ### Double-buffer timing
 
@@ -422,7 +422,7 @@ half-speed (odd frames skip the zoom increment).
 `INC $BC`. Exits when `($BC AND $01FF) == 0` — a complete 512-step rotation has
 been performed.
 
-**Phase 3 — Hold + zoom-out + scroll:** `WaitByte $77` (119-frame pause). Then per
+**Phase 3 — Hold + zoom-out + scroll:** `WaitByte $77` (120-tick pause: the operand + 1). Then per
 frame: `DEC $B8` (zoom out), `INC $B6` (spin), camera + M7 center scroll down at
 2px/frame. Exits when scale reaches `$0060` (~32 frames).
 
@@ -457,14 +457,14 @@ tint.
 | `$C0` (future_vision) | `Mode7PerspectiveUpdate` + `oneshot_palette_flash_19` (cutscene actor) |
 | `$8C` (prologue_prophecy) | `IrisCircleEffect` (scene thinker `thinker_spawn_0CEB2A`); `Mode7PerspectiveUpdate` (prologue actors) |
 | `$FE` (world_map) | `Mode7PerspectiveInit` + `IrisCircleEffect` (scene thinker `thinker_spawn_0CEB3D`) |
-| `$FE` (world_map travel) | `HdmaWindowEffect` (WorldMapController during travel) |
+| `$FE` (world_map travel) | `WorldMapSplitEffect` (WorldMapController during travel) |
 
 `Mode7PerspectiveInit`/`Mode7PerspectiveUpdate` are spawned by cutscene actors in
 scenes `$59` and `$C0`, by prologue actors in scene `$8C`, and by the scene thinker
 table (`thinker_spawn_0CEB3D`) in world map scene `$FE`. `IrisCircleEffect` is
 spawned by scene thinker tables in scenes `$8C` and `$FE` (`thinker_spawn_0CEB2A`
 and `thinker_spawn_0CEB3D` respectively). WorldMapController spawns
-`HdmaWindowEffect` during route travel, not `IrisCircleEffect`.
+`WorldMapSplitEffect` during route travel, not `IrisCircleEffect`.
 
 ---
 

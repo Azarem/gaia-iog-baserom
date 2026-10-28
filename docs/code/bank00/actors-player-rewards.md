@@ -36,7 +36,7 @@ These actors handle player-facing progression: boss-triggered catchup stat rewar
 
 #### Description
 
-After a boss is defeated, this handler retroactively awards all **uncollected** per-scene enemy-clear stat rewards within a range. The embedded range table `boss_reward_range_00C312` maps `$scene_current` to a `<sceneCurrent, sceneMin, sceneMax>` triplet. The helper at `$C33E` then walks `enemy_clear_reward_table` from `sceneMin` to `sceneMax`, granting every reward the player missed.
+After a boss is defeated, this handler retroactively awards all **uncollected** per-scene enemy-clear stat rewards within a range. The embedded range table `boss_reward_range_table` maps `$scene_current` to a `<sceneCurrent, sceneMin, sceneMax>` triplet. The helper at `$C33E` then walks `enemy_clear_reward_table` from `sceneMin` to `sceneMax`, granting every reward the player missed.
 
 Only activates when `$player_flags` bit `$0020` is set (boss-defeat latch set by the boss death script). Uses WRAM flag offset `$0100` range to prevent duplicate boss catchup per scene. Individual scene rewards are tracked via `$0300` flags.
 
@@ -49,7 +49,7 @@ Movable (move with `enemy_clear_reward_table`). High priority — boss reward sc
 #### Algorithm
 
 ```
-1. Scan boss_reward_range_00C312 for matching $scene_current
+1. Scan boss_reward_range_table for matching $scene_current
 2. TestWramFlag_Offset100 — skip if boss already rewarded
 3. Require $player_flags bit $0020 (boss defeated)
 4. Load scene range (sceneMin → sceneMax) from table entry
@@ -72,10 +72,10 @@ Movable (move with `enemy_clear_reward_table`). High priority — boss reward sc
 | `$0ADC` | DEF stat |
 | `$0B22` | HP bar display delta |
 | `$20` | Saved range table index |
-| `boss_reward_range_00C312` | Boss scene → `<sceneCurrent, sceneMin, sceneMax>` range mapping (5 active + 6 placeholders) |
+| `boss_reward_range_table` | Boss scene → `<sceneCurrent, sceneMin, sceneMax>` range mapping (5 active + 6 placeholders) |
 | `enemy_clear_reward_table` | Per-scene enemy clear reward table (0=none, 1=HP, 2=STR, 3=DEF) |
 
-#### Range Table (`boss_reward_range_00C312`)
+#### Range Table (`boss_reward_range_table`)
 
 Each entry defines the range of scenes whose rewards are granted on boss defeat:
 
@@ -108,7 +108,7 @@ Each entry defines the range of scenes whose rewards are granted on boss defeat:
 | Includes | `enemy_clear_reward_table` | Must move together |
 | Includes | `flag_helpers` | Flag/stat COP helpers |
 | Related | `field_reveal_object` | Also reads `enemy_clear_reward_table` |
-| Related | `StandardEnemyDefeatHandler` | Reads `enemy_clear_reward_table` per scene for individual drops |
+| Related | `StandardEnemyDefeatHandler` | Reads `enemy_clear_reward_table` per scene; the stat reward is paid for the LAST enemy of the scene (gems drop while `$0300 + scene` is set or enemies remain) |
 
 ---
 

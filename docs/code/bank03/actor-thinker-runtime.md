@@ -331,7 +331,7 @@ variable-length thinker definition list. `SpawnSceneThinkers` reads this list:
   `scene_lifecycle.ClearSceneState` calls `SpawnSceneThinkers` during scene setup.
 - **Out:** `actor_execution.ThinkerPoolAlloc` (slot allocation);
   thinker scripts dispatched: `mode7_perspective`, `IrisCircleEffect`,
-  `HdmaWindowEffect`, palette cyclers, background animators, etc.
+  `WorldMapSplitEffect`, palette cyclers, background animators, etc.
 
 ### Notes
 

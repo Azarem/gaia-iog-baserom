@@ -206,7 +206,7 @@ sequenceDiagram
 | 12 | [actors-infrastructure.md](bank00/actors-infrastructure.md) | Scene Infrastructure | `camera_scroll_controller` (100+ scenes) |
 | 13 | [actors-player-rewards.md](bank00/actors-player-rewards.md) | Player Transitions | `player_transition_handlers`, red jewels |
 | 14 | [actors-combat-interaction.md](bank00/actors-combat-interaction.md) | Combat & Knockback | `hit_stagger_controller`, push handlers |
-| 15 | [functions-combat-defeat.md](bank00/functions-combat-defeat.md) | Enemy Defeat Pipeline | `StandardEnemyDefeatHandler` (~20 callers) |
+| 15 | [functions-combat-defeat.md](bank00/functions-combat-defeat.md) | Enemy Defeat Pipeline | `StandardEnemyDefeatHandler` (13 script callers + 3 engine sites) |
 | 16 | [functions-game-over.md](bank00/functions-game-over.md) | Death Sequence | `GameOverSequence` |
 | 17 | [functions-player-npc.md](bank00/functions-player-npc.md) | Player & NPC AI | `NpcRandomWanderAI`, `EscortFollowPathTracker` |
 | 18 | [functions-camera-motion.md](bank00/functions-camera-motion.md) | Camera Drift, Orbital | `ApplyOrbitalOffsetFromRef` (21 JSL sites) |

@@ -1305,7 +1305,7 @@ code_0B8979 {
     COP [Die]
 
   loc_0B89D2:
-    COP [JumpFar] ( @player_transition_handlers )
+    COP [JumpFar] ( @player_transition_handlers.SpawnImpactSparkAndDie )
 }
 
 code_0B89D7 {

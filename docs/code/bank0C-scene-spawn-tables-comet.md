@@ -331,7 +331,7 @@ Nearly every scene includes the player and camera system:
 | 20× | `sg55_falling_tile` | Viper Lair floor tiles |
 | 16× | `town_door` | Town building doorway |
 | 16× | `hidden_red_jewel` | Collectible Red Jewel |
-| 16× | `visual_effect_pipeline.effect_position_update` | VFX position sync |
+| 16× | `layer1_scroll_actors.Layer1DriftWrapped` | VFX position sync |
 | 15× | `overworld_exit` | Exit to world map |
 
 #### Actors by Region
@@ -472,9 +472,9 @@ thinker-spawn < param, @thinker_def_address >
 | `mode7_perspective.Mode7PerspectiveInit` | 1× | Mode 7 perspective for World Map |
 | `inventory_bg3_scroll_hdma` | 1× | Inventory screen: rebind BG3VOFS HDMA each frame (`QueueDma` → register `#12`) |
 | `diary_menu_window_dma` | 1× | Diary menu window DMA setup |
-| `boot_logo_palette_enix` | 1× | Enix boot logo palette |
-| `boot_logo_palette_quintet` | 1× | Quintet boot logo palette |
-| `boot_logo_palette_third` | 1× | Third-party boot logo palette |
+| `boot_logo_enix_palette_obj0` | 1× | Enix logo palette cycle, OBJ palette 0 |
+| `boot_logo_enix_palette_obj1` | 1× | Enix logo palette cycle, OBJ palette 1 |
+| `boot_logo_enix_palette_obj2` | 1× | Enix logo palette cycle, OBJ palette 2 |
 
 **Comet finale thinkers (in-bank):**
 

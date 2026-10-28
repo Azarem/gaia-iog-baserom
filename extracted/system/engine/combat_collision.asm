@@ -677,7 +677,7 @@ PlayerAttackHitTest_End {
 ; 
 ; Two main paths based on $24 flag (set by the friendly/interaction detection in the outer loop):
 ; 
-; Path 1 ($24 nonzero — interaction/push hit): Checks the enemy's scratch1010+6 ($7F1016,X) for a custom interaction handler. If present, overwrites the enemy's entry point. Otherwise, sets the enemy to player_transition_handlers, marks $0040 (death flag), and dispatches knockback velocity by player facing direction (±4 to extVelocityX/Y).
+; Path 1 ($24 nonzero — interaction/push hit): Checks the enemy's scratch1010+6 ($7F1016,X) for a custom interaction handler. If present, overwrites the enemy's entry point. Otherwise, sets the enemy to SpawnImpactSparkAndDie (player_transition_handlers), marks $0040 (death flag), and dispatches knockback velocity by player facing direction (±4 to extVelocityX/Y).
 ; 
 ; Path 2 ($24 zero — combat damage, the code under ApplyHitDamageToVictim_DamagePath): Checks if the victim has $0010 in flags10 (invincible) → routes to HitInvincibleVictim. Otherwise computes damage:
 ;   totalStr = playerStr + bonus ($09E2, 0 for hitter slot $1000) + climbStateData
@@ -706,9 +706,9 @@ ApplyHitDamageToVictim {
     TXA 
     PHD 
     TCD 
-    LDA #$&player_transition_handlers ; Default: player_transition_handlers with $0040 death/transition flag
+    LDA #$&player_transition_handlers.SpawnImpactSparkAndDie ; Default: SpawnImpactSparkAndDie (player_transition_handlers) with $0040 death/transition flag
     STA $00
-    LDA #$*player_transition_handlers
+    LDA #$*player_transition_handlers.SpawnImpactSparkAndDie
     STA $02
     LDA #$0040
     TSB $10

@@ -1,12 +1,10 @@
-; Title screen Start button handler — polls for Start or R input and transitions to the diary/save menu.
+; Title / prologue Start handler (Bank 0B, 772529-772609): waits for Start, then sends the game to the diary menu (scene $FA).
 ; 
-; Two actor-defs share a common button-check loop. sFC_actor_0BC9AE adds a $021B-frame (~9 second)
-; delay before accepting input, preventing accidental skips during the intro sequence.
-; sFC_actor_0BC9BD enters the poll loop immediately for respawned or quick-entry cases.
+; Two actor-defs share one poll loop. sFC_title_start_handler is spawned with sFC_title_intro by scene_event_0CE56D (the title scene $FC list) and first waits WaitWord $021B = 540 ticks (~9 s) so the intro's opening seconds cannot be skipped. sFC_title_start_poll polls at once; it is spawned in the actor lists of the four prologue scenes ($8C-$8F, next to pr8C_prologue1/5, pr8D_prologue2, pr8E_prologue3 and pr8F_prologue4), so Start skips the prologue slides as well.
 ; 
-; When Start or R is detected, TitleToDiaryTransition clears GFX cache state, queues a map change to
-; scene $FA (diary menu) at position ($100, $370), performs one manual VBlank sync, and fades
-; to black (INIDISP = $00) before the transition completes.
+; Both variants first mask nearly every button out of joypadCurrent (joypadMaskStd |= $FFFC; vanilla $FFF0, widened by transforms.json) and then poll with COP BranchIfPressed #$1001. In that mask word bit 0 is not a button: it makes the handler test joypadRaw instead of joypadCurrent (see docs/cop/families/input.md, BranchIfPressed), which is how Start ($1000) still gets through the mask. R is not tested.
+; 
+; On Start, TitleToDiaryTransition sets transitionBrightness = 0 and the transition parameters (gfxCacheIdxB = 0: speed 0; gfxCacheIdxA = 1: exit type 1 = instant blank, enter type 0 = graduated fade), queues scene $FA at ($0100,$0370) with COP QueueMapChange, yields one frame, runs one VBlankWaitAndJoypad with DP forced to $0000, and then holds INIDISP = $00 (force blank) every frame until the scene change replaces the actor.
 ---------------------------------------------
 
 ?INCLUDE 'vblank_joypad'
@@ -22,40 +20,45 @@
 sFC_title_start_handler [
   actor-def < #00, #00, #38, {
 
+; Title-scene variant: suppress the buttons, wait 540 ticks (WaitWord #$021B), then join the shared poll loop.
+
   TitleStartDelayedInit:
-    LDA #$FFFC            ; Mask all joypad input except Start/Select/L/R
+    LDA #$FFFC            ; Suppress nearly all buttons in joypadCurrent (Start is polled from joypadRaw)
     TSB $joypadMaskStd
-    COP [WaitWord] ( #$021B ) ; Wait 539 frames (~9 sec) before accepting input
-    BRA loc_0BC9C6        ; Fall through to shared button poll
+    COP [WaitWord] ( #$021B ) ; WaitWord #$021B = 540 ticks (~9 sec) before accepting input
+    BRA TitleStartPollLoop ; Join the shared poll loop
 } >
 ]
 
-sFC_actor_0BC9BD [
+sFC_title_start_poll [
   actor-def < #00, #00, #38, {
 
+; Prologue-scene variant (spawned as sFC_title_start_poll): suppress the buttons and poll immediately.
+
   TitleStartPollInit:
-    LDA #$FFFC            ; Mask all joypad input except Start/Select/L/R
+    LDA #$FFFC            ; Suppress nearly all buttons in joypadCurrent (Start is polled from joypadRaw)
     TSB $joypadMaskStd
 
-  loc_0BC9C6:
+; Shared poll loop: re-enter every frame; Start (read from joypadRaw) -> TitleToDiaryTransition, otherwise RTL.
+
+  TitleStartPollLoop:
     COP [SetEntryHere]    ; Re-enter each frame to poll input
-    COP [BranchIfPressed] ( #$1001, &TitleToDiaryTransition ) ; Start ($1000) or R ($0001) → begin game
+    COP [BranchIfPressed] ( #$1001, &TitleToDiaryTransition ) ; Start ($1000), tested against joypadRaw (mask bit 0 = raw source) -> diary menu
     RTL                   ; No button → loop
 } >
 ]
 
 ---------------------------------------------
-; Transition to diary menu — clears GFX state, queues scene $FA, syncs VBlank, and fades to black.
-; Manually sets DP = $0000 for the VBlank call since actor DP points to the actor slot.
+; Start pressed: reset the transition parameters, queue the change to scene $FA (diary menu) at ($0100,$0370), yield one frame, run one VBlank sync with DP = $0000 (the actor's DP points at its slot, so it is swapped around the call), then keep the screen in force blank until the scene change takes over.
 
 TitleToDiaryTransition {
-    STZ $transitionBrightness ; Clear dialogue/state scratch
-    LDA #$0000            ; Reset transition effect to none
+    STZ $transitionBrightness ; transitionBrightness := 0
+    LDA #$0000            ; Transition speed bytes := 0 (exit and enter)
     STA $gfxCacheIdxB
-    LDA #$0001            ; Instant blank transition type
+    LDA #$0001            ; Exit type 1 (instant blank), enter type 0 (graduated fade)
     STA $gfxCacheIdxA
     COP [QueueMapChange] ( #FA, #$0100, #$0370, #00, #$4400 ) ; Scene $FA (diary menu), pos ($100,$370)
-    COP [SetEntryHereAndYield] ; Mark actor for cleanup after transition
+    COP [SetEntryHereAndYield] ; Save the re-entry point and yield one frame
     PHD                   ; Save actor DP
     PHX                   ; Save actor slot index
     LDA #$0000            ; Set DP to system page for VBlank routine
@@ -63,7 +66,7 @@ TitleToDiaryTransition {
     JSL $@vblank_joypad.VBlankWaitAndJoypad ; One VBlank sync before fade
     PLX 
     PLD 
-    COP [SetEntryHere]
+    COP [SetEntryHere]    ; Re-enter below every frame (force blank stays on)
     SEP #$20
     LDA #$00              ; Force blank — screen off
     STA $INIDISP
