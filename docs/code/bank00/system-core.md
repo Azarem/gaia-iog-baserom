@@ -191,7 +191,7 @@ Central system entry after reset. Performs complete hardware and game-state init
 
 The init phase configures the 65816 (16-bit A/X, DP=`$0000`, SP=`$01FF`, DBR=`$81`), enables FastROM, initializes PPU/VRAM/WRAM/actors, validates SRAM, loads the first scene, seeds HUD/stat pointers, and sets the title screen as the next scene (`$scene_next = $FB`).
 
-The main loop at **`loc_0080B5`** executes 22 ordered steps every frame: frame begin, scene transitions, map/scroll, scene load, palette animation, scene logic, frame counters, actor scripts, OAM composition, full collision pipeline, position integration, BG scroll, HDMA, map tiles, sprites, HUD, deferred DMA, and frame end.
+The main loop at **`MainLoop`** executes 22 ordered steps every frame: frame begin, scene transitions, map/scroll, scene load, palette animation, scene logic, frame counters, actor scripts, OAM composition, full collision pipeline, position integration, BG scroll, HDMA, map tiles, sprites, HUD, deferred DMA, and frame end.
 
 #### Initialization Algorithm
 
@@ -209,21 +209,21 @@ The main loop at **`loc_0080B5`** executes 22 ordered steps every frame: frame b
 | 10 | `JSL EnterForcedBlank` | Initialize actor linked lists and pool |
 | 11 | SRAM check | Read `$000100`; if magic byte = `$83`, valid save exists (affects starting scene path) |
 | 12 | `JSL ExecuteSceneTransition` | Load initial scene data |
-| 13 | HUD pointer init | Copy addresses from `scene_flag_table` (slope curve/HUD pointer region) into `$09BA`–`$09C4` |
+| 13 | HUD pointer init | Copy addresses from `slope_curve_table` (slope curve/HUD pointer region) into `$09BA`–`$09C4` |
 | 14 | Stat display init | Seed HP/STR/DEF counters at `$0ACA`–`$0ADE` (playerMaxHp=8, playerHp=8, playerStr=1, playerDef=0) |
 | 15 | Title screen | `STA $scene_next` with `$FB` — queue title scene |
 
-#### Main Loop Algorithm (`loc_0080B5`)
+#### Main Loop Algorithm (`MainLoop`)
 
 | Step | Call | Bank | Purpose |
 |------|------|------|---------|
 | 1 | `VBlankWaitAndJoypad` | `$02` | **Begin frame** — reset per-frame rendering state |
-| 2 | `EnableNmiOnly` | `$02` | **Scene transitions** — process `$scene_next` / warp queue |
-| 3 | `RunThinkers_TypeA` | `$03` | **Map/scroll state** — update camera and map bookkeeping |
+| 2 | `DisableNmiKeepJoypad` | `$02` | **NMI off, auto-joypad on** — run main-thread logic without NMI preemption |
+| 3 | `RunThinkers_General` | `$03` | **Map/scroll state** — update camera and map bookkeeping |
 | 4 | `CheckSceneTransition` | `$03` | **Scene loading** — async scene data fetch |
 | 5 | `CheckWarpAndChest` | `$02` | **Palette animation** — step ambient color cycles |
 | 6 | `GlobalInputHandler` | `$03` | **Scene logic** — per-scene thinker/hook entry |
-| 7 | `UpdateFrameCounters` | `$00` | Decrement invincibility; increment frame timer |
+| 7 | `UpdateFrameCounters` | `$00` | Decrement run-window timer; increment frame timer |
 | 8 | `RunActors_Normal` | `$03` | **Run actors** — execute all actor COP scripts |
 | 9 | OAM sentinel | — | Write `$FF` to `$7F3100+$00D8` and `$7F3101+$00D8` (end-of-sprite marker) |
 | 10 | `SortActorsByDepth` | `$03` | **OAM sort/compose** — build sprite table for NMI upload |
@@ -234,12 +234,12 @@ The main loop at **`loc_0080B5`** executes 22 ordered steps every frame: frame b
 | 15 | `CameraSmoothScroll` (X=0) | `$02` | **BG scroll layer 0** — compute BG1 scroll |
 | 16 | `CameraSmoothScroll` (X=2) | `$02` | **BG scroll layer 1** — compute BG2 scroll |
 | 17 | `ResetHdmaState` | `$03` | **HDMA update** — rebuild HDMA channel table → `$66` |
-| 18 | `RunThinkers_TypeB` | `$03` | **Map tile updates** — queue metatile VRAM writes |
+| 18 | `RunThinkers_Hdma` | `$03` | **Map tile updates** — queue metatile VRAM writes |
 | 19 | `ComposeAllSprites` | `$03` | **Finalize sprites** — last-minute OAM adjustments |
 | 20 | `UpdateHUD` | `$00` | **HUD update** — BG3 status bar (HP/DEF/STR/gems/enemy HP) |
 | 21 | `LoadMusicFromTransitionState` | `$03` | **Deferred DMA** — flush queued non-VBlank DMA |
 | 22 | `EnableNmiAndJoypad` | `$02` | **End frame** — wait for VBlank/NMI |
-| — | `BRL loc_0080B5` | — | Loop forever |
+| — | `BRL MainLoop` | — | Loop forever |
 
 #### Variables
 
@@ -251,7 +251,7 @@ The main loop at **`loc_0080B5`** executes 22 ordered steps every frame: frame b
 | `$scene_next` | 2 | Next scene ID | Write — set to `$FB` for title |
 | `$0654` | 2 | World-ready flag | Init — gates dialogue when ≠ `$000F` |
 | `$099F` | 2 | Scene/state helper | Init |
-| `$09BA`–`$09C4` | 11 | HUD slope/pointer table | Write — from `scene_flag_table` |
+| `$09BA`–`$09C4` | 11 | HUD slope/pointer table | Write — from `slope_curve_table` |
 | `$09C8` / `$09CA` | 4 | HUD related pointers | Init |
 | `$0ACA` / `$0ACE` | 4 | Player max HP / current HP | Init / HUD |
 | `$0ADE` / `$0ADC` | 4 | Player STR / DEF stat values | Init / HUD |
@@ -293,14 +293,14 @@ Clears `$09EC` bit `$08` (dialogue display flag) as part of its setup. Writes th
 | 1 | Save context | `PHB/PHA/XBA/PHA/PHX/PHY/PHD`; `D=$0000`, `DBR=$81` |
 | 2 | Clear `$09EC` bit 8 | Exit dialogue-display mode flag |
 | 3 | `VBlankWaitAndJoypad` | Begin frame |
-| 4 | `EnableNmiOnly` | Scene transitions (still active during some cutscenes) |
-| 5 | `RunThinkers_TypeC` | Map/scroll helper (lightweight vs `RunThinkers_TypeA`) |
+| 4 | `DisableNmiKeepJoypad` | NMI off during cutscene frame pump (same joypad/NMI contract as main loop) |
+| 5 | `RunThinkers_General_Light` | Map/scroll helper (lightweight vs `RunThinkers_General`) |
 | 6 | `RunActors_CutsceneOnly` | Dialogue-specific sprite prep |
 | 7 | OAM sentinel | `$7F3100/01 + $00D8` ← `$FF` |
 | 8 | `SortActorsByDepth` | OAM sort/compose |
 | 9 | `CameraSmoothScroll` ×2 | BG scroll (layers 0 and 2) |
 | 10 | `ResetHdmaState` | HDMA channel update |
-| 11 | `RunThinkers_TypeD` | Map tile refresh (subset of `RunThinkers_TypeB`) |
+| 11 | `RunThinkers_Hdma_Light` | Map tile refresh (subset of `RunThinkers_Hdma`) |
 | 12 | `ComposeAllSprites` | Finalize sprites |
 | 13 | `EnableNmiAndJoypad` | End frame / wait VBlank |
 | 14 | Restore context | `PLD/PLY/PLX/PLA/XBA/PLA/PLB`; `RTL` |
@@ -336,11 +336,11 @@ Clears `$09EC` bit `$08` (dialogue display flag) as part of its setup. Writes th
 |------|------|---------|
 | 1 | Save context | Full `PHB`…`PHD` prologue; `D=$0000`, `DBR=$81` |
 | 2 | `VBlankWaitAndJoypad` | Begin frame |
-| 3 | `EnableNmiOnly` | Scene transitions |
-| 4 | `RunThinkers_TypeC` | Minimal scroll finalize |
+| 3 | `DisableNmiKeepJoypad` | NMI off during overlay frame pump |
+| 4 | `RunThinkers_General_Light` | Minimal scroll finalize |
 | 5 | `SortActorsByDepth` | OAM sort/compose |
 | 6 | `ResetHdmaState` | HDMA update |
-| 7 | `RunThinkers_TypeD` | Scroll/layer finalize |
+| 7 | `RunThinkers_Hdma_Light` | Scroll/layer finalize |
 | 8 | `ComposeAllSprites` | Finalize sprites |
 | 9 | `UpdateHUD` | Status bar (may still show during some overlays) |
 | 10 | `EnableNmiAndJoypad` | End frame / wait VBlank |
@@ -378,15 +378,15 @@ Does not call `UpdateHUD`, scene logic, or the full 22-step main loop — it cov
 |------|------|---------|
 | 1 | `PHP` / `PHB` | Save flags and data bank |
 | 2 | Set `DBR=$81` | WRAM data bank |
-| 3 | `EnableNmiOnly` | Scene transitions |
+| 3 | `DisableNmiKeepJoypad` | NMI off during overlay frame pump |
 | 4 | `VBlankPartial` | Frame begin variant (NMI-safe) |
-| 5 | `RunThinkers_TypeC` | Scroll finalize |
+| 5 | `RunThinkers_General_Light` | Scroll finalize |
 | 6 | `RunActors_OverlayOnly` | Actor update pass (subset of full actor run) |
 | 7 | OAM sentinel | `$7F3100/01 + $00D8` ← `$FF` |
 | 8 | `SortActorsByDepth` | OAM sort |
 | 9 | `CameraSmoothScroll` ×2 | BG scroll ×2 |
 | 10 | `ResetHdmaState` | HDMA update |
-| 11 | `RunThinkers_TypeD` | Map tile helper |
+| 11 | `RunThinkers_Hdma_Light` | Map tile helper |
 | 12 | `ComposeAllSprites` | Finalize sprites |
 | 13 | `EnableNmiAndJoypad` | End frame |
 | 14 | `PLB` / `PLP` | Restore; `RTL` |
@@ -474,7 +474,7 @@ Gem hundreds digit: `$0AD8 = $0AD6 / 100` for three-digit display.
 
 #### Description
 
-Tiny per-frame timer maintenance called from main loop step 7. Decrements the **invincibility timer** after hit blinking (stops at `$FFFF`, i.e. −1 as signed word) and increments the **global frame timer** used by various gameplay scripts (caps at `$0100` then stops incrementing).
+Tiny per-frame timer maintenance called from main loop step 7. Decrements **`$040C` run-window timer** (13-frame D-pad run allowance; stops at `$FFFF` = closed) and increments the **global frame timer** used by various gameplay scripts (caps at `$0100` then stops incrementing). Hit-blink iframes use actor field `$7F0028`, not `$040C`.
 
 Preserves and restores processor flags with `PHP`/`PLP` so caller flag state is unchanged.
 
@@ -483,8 +483,8 @@ Preserves and restores processor flags with `PHP`/`PLP` so caller flag state is 
 | Step | Instruction pattern | Effect |
 |------|---------------------|--------|
 | 1 | `PHP` | Save P register |
-| 2 | Load `$040C` | Invincibility frame counter |
-| 3 | If ≥ 0: decrement | Stop at `$FFFF` (−1) — timer inactive |
+| 2 | Load `$040C` | Run-window timer |
+| 3 | If ≥ 0: decrement | Stop at `$FFFF` (−1) — window closed |
 | 4 | Load `$040E` | Global frame timer |
 | 5 | If < `$0100`: increment | Saturating counter |
 | 6 | `PLP` / `RTS` | Return |
@@ -493,7 +493,7 @@ Preserves and restores processor flags with `PHP`/`PLP` so caller flag state is 
 
 | Address | Size | Name | Behavior |
 |---------|------|------|----------|
-| `$040C` | 2 | Invincibility timer | Decrements each frame; `$FFFF` = inactive |
+| `$040C` | 2 | Run-window timer | Decrements each frame; `$FFFF` = closed |
 | `$040E` | 2 | Global frame timer | Increments to `$0100` max |
 
 #### Cross-References
@@ -511,7 +511,7 @@ Preserves and restores processor flags with `PHP`/`PLP` so caller flag state is 
 |---------|------|------|-------------------|
 | `$0036` | 2 | Frame parity counter | `UpdateHUD`, NMI |
 | `$00D8` | 2 | OAM write offset | Main loop, frame updates |
-| `$040C` | 2 | Invincibility timer | `UpdateFrameCounters` |
+| `$040C` | 2 | Run-window timer | `UpdateFrameCounters` |
 | `$040E` | 2 | Global frame timer | `UpdateFrameCounters` |
 | `$0654` | 2 | World-ready flag | `SystemInit` |
 | `$scene_next` | 2 | Next scene ID | `SystemInit`, transitions |
@@ -529,21 +529,21 @@ Preserves and restores processor flags with `PHP`/`PLP` so caller flag state is 
 |----------|------|-------------|
 | `VBlankWaitAndJoypad` | `$02` | Main loop, all frame updates |
 | `EnableNmiAndJoypad` | `$02` | Main loop, all frame updates |
-| `EnableNmiOnly` | `$02` | Main loop, all frame updates |
+| `DisableNmiKeepJoypad` | `$02` | Main loop, all frame updates |
 | `InitHardwareRegisters` | `$02` | `SystemInit` only |
 | `InitSystemVariables` | `$02` | `SystemInit` only |
 | `SpcLoadBuiltinEngine` | `$02` | `SystemInit` only |
 | `EnterForcedBlank` | `$02` | `SystemInit` only |
 | `CheckWarpAndChest` | `$02` | Main loop only |
 | `CameraSmoothScroll` | `$02` | Main loop, dialogue, full |
-| `RunThinkers_TypeA` | `$03` | Main loop only |
+| `RunThinkers_General` | `$03` | Main loop only |
 | `CheckSceneTransition` / `ExecuteSceneTransition` | `$03` | Main loop / init |
 | `GlobalInputHandler` | `$03` | Main loop only |
 | `RunActors_Normal` | `$03` | Main loop only |
 | `SortActorsByDepth` | `$03` | Main loop, all frame updates |
 | `RunCombatCollision` / `RunInteractionCollision` / `CheckPlayerDeath` / `ProcessDodgeCallbacks` | `$03` | Main loop only |
 | `ResetHdmaState` | `$03` | Main loop, all frame updates |
-| `RunThinkers_TypeB` / `RunThinkers_TypeD` / `RunThinkers_TypeC` | `$03` | Map/scroll (various paths) |
+| `RunThinkers_Hdma` / `RunThinkers_Hdma_Light` / `RunThinkers_General_Light` | `$03` | Map/scroll (various paths) |
 | `ComposeAllSprites` | `$03` | Main loop, all frame updates |
 | `LoadMusicFromTransitionState` | `$03` | Main loop only |
 

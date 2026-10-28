@@ -206,14 +206,14 @@ shifts left 6px, falls through to the render loop).
 
 | Address | Label | Role |
 |---------|-------|------|
-| `$03BAE1` | `ComposeDigits_Continuation` | re-entry: save cursor X, shift left 6px, fall through |
+| `$03BAE1` | `ComposeDigitSprites_AtCursor` | re-entry: save cursor X, shift left 6px, fall through |
 | `$03BAF1` | `ComposeDigitSprites` | main entry: `$F000` guard, cursor = actorX−12, digit loop |
 | `$03BB5E` | `EmitDigitOamEntry` | write one 6-byte OAM entry: X, Y, tile (`$70`+digit) |
 
 ### Cross-references
 
 - **In:** combat hit effects (`SpawnAttackTrailEffect`) in `combat_collision`.
-  `ComposeDigits_Continuation` is the re-entry for multi-hit stacked damage.
+  `ComposeDigitSprites_AtCursor` is the re-entry for multi-hit stacked damage.
 - **Out:** writes the `$7F3100` compose buffer consumed by
   `sprite_composition.RenderComposeBuffer` (stage 3 of the OAM pipeline).
 - **Upstream:** `FormatDamageDigits` (`$03C58F`) converts raw damage values to
@@ -260,9 +260,7 @@ begins.
 | `$0200`–`$03FE` | `ClearActorRenderList` → end of `SortActors_BuildFinalList` | bucket sort scratch: zeroed each frame, filled during sort, consumed during linearization |
 | `$0C00`+ | `SortActorsByDepth` → end of `ComposeAllSprites` | final render-order actor list: written during sort key assignment, then consumed during sprite decomposition |
 
-The bucket array at `$0200` overlaps with the `deathFlag` region — this is safe
-because the bucket clear (`ClearActorRenderList`) happens before actor processing,
-and the bucket data is fully consumed before any other system touches `$0200`.
+The bucket array at `$0200` reuses low WRAM in the `$0200` range (not a dedicated “death flag” word at address `$0200`). That is safe because `ClearActorRenderList` clears the buckets before actor processing, and bucket data is consumed before other systems reuse those bytes.
 The sorted list at `$0C00` persists until the next frame's clear.
 
 ---

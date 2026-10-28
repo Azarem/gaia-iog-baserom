@@ -1,26 +1,30 @@
 ; DMA, HDMA, and SPC audio utility routines (252033–252182 + 254128–254549 + 258512–258561, Bank 03).
 ; 
-; A mixed utility block spanning three non-contiguous address ranges, providing hardware transfer and audio infrastructure used by the scene lifecycle, NMI handler, and actor systems.
+; A mixed utility block spanning three non-contiguous address ranges, providing hardware transfer and audio infrastructure used by the scene lifecycle, NMI handler, and actor/thinker systems.
 ; 
 ; === PLAYER TILE DMA (252033–252182) ===
 ; 
-; DmaPlayerTilesToVram transfers up to 8 queued 16×16 player character tiles from RAM to VRAM during V-Blank. The tile pointer table at $06FE provides source addresses; tiles are DMA’d in four passes (upper/lower halves × primary/overflow VRAM regions $4000–$4300). Called by ClearSceneState during scene loading and by the NMI handler for per-frame animation updates.
+; DmaPlayerTilesToVram uploads the player's queued 16×16 sprite tiles from WRAM to VRAM. ClearSceneState calls it during scene loading and the NMI handler calls it whenever displayModeFlags bit 3 is set (in that NMI it replaces DmaAdhocVramBlock and the write-queue flush). The list at $06FE is one bank byte (playerTileDmaBank) followed by word pointers; each pointer addresses 64 bytes of upper-half tile rows and the lower half lies $0200 bytes further on. Four passes: upper halves of the first 8 pointers to VRAM $4000, upper halves of the pointers after the 8th (until a zero pointer) to $4200, lower halves to $4100, lower-half continuation to $4300.
 ; 
-; === PALETTE/GRAPHICS LOADING (254128–254278) ===
+; === PALETTE-BUNDLE ANIMATION (254128–254278) ===
 ; 
-; LoadPaletteBundle parses structured palette/spriteset bundles from the palette_bundles table, populating actor WRAM fields (spritesetPtr, chatPtr, metaspritePtr) for each bundle entry. DecompressGfxToVram wraps the $0402 decompression helper to decompress graphics data into VRAM from parameters stored in actor WRAM.
+; LoadPaletteBundle and CopyPaletteBundleFrame are the two halves of one palette-animation step. Only the five palette-bundle COP handlers (#36–#3A, cop_handlers_palette) call them. A bundle (palette_bundles table, ROM bank $96) is a list of 6-byte sub-entries, and each sub-entry is an animation STRIP of N frames: byte 0 = frame count N (0 ends the bundle), bytes 1–2 = address in bank $96 of the first frame's colors, byte 3 = first CGRAM color index (destination = $7F0A00 + 2 × index, the palette staging buffer), byte 4 = frame size − 1 in bytes ($0D = 7 colors, $03 = 2 colors, $02 = one 3-byte backdrop RGB triplet), byte 5 = extra ticks to wait between frames. The frames of a strip are stored back to back (a strip with N = 8 and byte 4 = 3 is followed by exactly 32 bytes of colors, then the next sub-entry's data), and every step overwrites the same destination with the next frame. LoadPaletteBundle fills the actor fields from the next sub-entry (N → spritesetPtr, source → chatPtr, destination → metaspritePtr, size − 1 → $7F0008, wait → DP $08 and animScratch); CopyPaletteBundleFrame (nothing is decompressed and VRAM is not touched) block-moves one frame with the RAM stub at $0402 (PHB / MVN $7F,$96 / PLB / RTS, written by system_init) and advances chatPtr to the next frame. The 14 shipped sub-entries with byte 4 = 2 write the backdrop triplet: LoadPaletteBundle then adds $0200 to the destination so $7F0A00 + $0200 = backdropColors ($7F0C00).
 ; 
 ; === HDMA CHANNEL MANAGEMENT (254278–254378) ===
 ; 
-; ResetHdmaState initializes the HDMA channel allocation state ($66 enable mask, $68 channel bit, $6A register offset). SetupHdmaChannel_Indirect and SetupHdmaChannel_Direct configure individual HDMA channels from a register lookup table (hdma_channel_config), with indirect mode adding the $40 flag and bank byte for pointer-based HDMA tables. Both advance the allocation state for the next channel.
+; ResetHdmaState (called by every frame routine: the main loop, UpdateFrameDialogue, UpdateFrameRender, UpdateFrameFull and the scene-start sequence, always after the type-A/C thinkers and before the type-B/D ones) clears the allocation state: enable mask $66 = 0, next channel bit $68 = $02 (channel 1), register block offset $6A = $10. $6C is a one-shot lock: when negative the reset is skipped once; scene_lifecycle's wave transition calls ResetHdmaState explicitly, arms $6C = $FF and runs ApplyScrollWaveEffect, whose UpdateFrameDialogue call then skips its reset (and clears $6C) so the HDMA the wave just bound survives that frame.
 ; 
-; === SPC AUDIO TRANSFER (254378–254549) ===
+; SetupHdmaChannel_Indirect and SetupHdmaChannel_Direct bind the next free channel (1–7): A = bank byte (low) | B-bus register number (high), Y = table address. The register number indexes hdma_channel_config to get the DMAP transfer mode (the indirect entry ORs $40 and also writes the table bank to DASB). Both finish in a shared tail that writes BBADx, A1Tx and A1Bx, sets the channel's bit in the enable mask and advances $68/$6A. The tail's ADC #$10 has no CLC: the carry is the carry-out of ASL $0068, which is clear for channels 1–6, so seven channels is the maximum (binding the 7th leaves $6A = $81).
 ; 
-; Three-stage SPC700 music data pipeline: SpcCheckMusicReady handshakes with the SPC via APUIO0 ($2140) to verify readiness, SpcTransferMusicData sends the actual music data with confirmation protocol, and LoadMusicFromTransitionState resolves a music ID from musicTransitionState to a music_array pointer and initiates the block transfer via SpcBlockTransfer.
+; === SPC MUSIC CHANGE (254378–254549) ===
+; 
+; StartMusic and FadeThenStartMusic (cop_handlers_audio) spawn a thinker that enters at SpcTransferMusicData or SpcFadeOutHandshake with the music ID in chatPtr. The thinker talks to the SPC sound engine through port commands on APUIO0 (docs/audio/spc-disassembly.md, ProcessPortCommand): $F1 = CmdFadeOut (sets the engine's fade counters $30/$31 to $FF), $F0 = CmdStop, $FF = jump into the engine's resident clone of the IPL loader (sub_0f89), which posts $BBAA and speaks the boot-ROM upload protocol; $01 enters the engine's ASL-to-$02 path (ClearAramTail, stream pointer from ARAM $0FFC). OQ-61 is answered here: SpcFadeOutHandshake's $F1 IS the fade-out request, performed inside the SPC engine, not by 65816 code (whether the fade is audible before the following $01/$F0 commands is OQ-I021-2).
+; 
+; Sequence: the thinker stages the ID in musicTransitionState; the main loop's LoadMusicFromTransitionState (once per pass, after UpdateHUD) turns it into a music_pointer_array entry, enables NMI and joypad and runs spc_transfer.SpcBlockTransfer (blocking; the NMI calls UpdateFrameFull each frame meanwhile), then stores $FFFF, which releases the thinker: it waits two actor ticks (COP WaitByte #01 = N + 1 ticks: a plain delay, not an SPC acknowledgment), sends $01, clears sfxQueueCh1 and musicTransitionState and dies.
 ; 
 ; === AD-HOC VRAM DMA (258512–258561) ===
 ; 
-; DmaAdhocVramBlock executes one-shot VRAM transfers queued at $7F0C03–$7F0C09. Checks for a pending destination address at $7F0C07, and if nonzero, transfers the specified byte count from the source address to VRAM via DMA channel 0. Used by various systems for deferred VRAM writes outside the normal V-Blank pipeline.
+; DmaAdhocVramBlock executes one-shot VRAM transfers queued at $7F0C03–$7F0C09 (source word, source bank, destination word = trigger, byte count). It only runs from the NMI handler, which has just programmed VMAIN = $80, DMAP0 = $01 and BBAD0 = $18 for it, and it is skipped when dmaSkipFlag is set or when displayModeFlags bit 3 selected the player-tile path instead. Writers must store the size before the destination (the destination arms the transfer; OQ-64).
 ---------------------------------------------
 
 ?BANK 03
@@ -97,7 +101,7 @@ DmaPlayerTilesToVram {
     BNE loc_03D8BD
     LDX #$4200
     STX $VMADDL
-    JSR $&DmaPlayerTiles_UpperHalf
+    JSR $&DmaPlayerTiles_UpperHalf ; Second pass continues with the 9th pointer (Y is not reset) until a zero pointer; VRAM $4200
 
   loc_03D8BD:
     LDY #$0001            ; Re-walk table for lower halves → VRAM $4100
@@ -108,18 +112,14 @@ DmaPlayerTilesToVram {
     BNE loc_03D8D7
     LDX #$4300
     STX $VMADDL
-    JSR $&DmaPlayerTiles_LowerHalf
+    JSR $&DmaPlayerTiles_LowerHalf ; Same continuation for the lower halves; VRAM $4300
 
   loc_03D8D7:
     RTL 
 }
 
 ---------------------------------------------
-; DMA inner loop — transfer upper tile rows for the player sprite.
-; 
-; Iterates through the tile pointer table at $06FE,Y. For each nonzero pointer: sets A1T0L to the source address, transfers $40 bytes (64 bytes = one 16×16 tile's upper half) via DMA channel 0. Advances Y by 2 per entry. Stops at Y=$11 (8 entries) or on a zero pointer (end of list).
-; 
-; Called with VMADDL already set to the target VRAM address by the caller.
+; Transfer up to 8 upper-half tile rows to VRAM. Reads word pointers from the playerTileDmaBank list starting at Y (from $06FF), programs one 64-byte DMA per pointer (A1T0 = pointer, DAS0 = $40) and stops when Y reaches $11 (8 entries) or a pointer is zero. Y is not reset between the first and the continuation pass.
 
 DmaPlayerTiles_UpperHalf {
     LDX $playerTileDmaBank, Y ; Load next tile source pointer from $06FE,Y
@@ -166,22 +166,18 @@ DmaPlayerTiles_LowerHalf {
 }
 ---------------------------------------------
 
-; Load a palette/spriteset bundle from the palette_bundles table into actor WRAM fields.
+; Load the next palette-bundle sub-entry into the actor's fields (called by the palette-bundle COP handlers with X = D = the thinker slot).
 ; 
-; Switches data bank to the palette_bundles ROM bank for direct access. Uses animScratch+2,X as a bundle ID to index the palette_bundles table, then iterates through sub-entries within that bundle using $0E as the current sub-entry counter.
+; Switches the data bank to $96 (ROM bank of palette_bundles), takes the bundle ID from animScratch+2, finds the sub-entry at palette_bundles[ID] + 6 × $0E and reads its six bytes:
+; - byte 0: frame count N of this strip (zero = end of bundle) → spritesetPtr ($7F0006); PaletteStep decrements it once per step;
+; - bytes 1–2: source address of the strip's first frame, in bank $96 → chatPtr ($7F000A);
+; - byte 3: first CGRAM color index; destination offset = $0A00 + 2 × index (the $7F0A00 palette staging buffer) → metaspritePtr ($7F000C);
+; - byte 4: frame size − 1 in bytes ($0D = 7 colors, $03 = 2 colors, $02 = one backdrop RGB triplet) → $7F0008;
+; - byte 5: extra ticks to wait between frames → DP $08 (the wait counter) and animScratch ($7F0000), so PaletteStep can re-seed $08.
 ; 
-; Each sub-entry is a 6-byte record containing:
-; - Byte 0: spriteset index (zero = end of bundle)
-; - Bytes 1–2: chatPtr (graphics data source pointer)
-; - Byte 3: metasprite table index (×2 + $0A00 base)
-; - Byte 4: graphics bank/type identifier
-; - Byte 5: animation scratch value
+; Then increments the sub-entry index $0E. When byte 4 is 2, the word at $7F000D (the high byte of metaspritePtr) gets +2, i.e. the destination moves by +$0200: index 0 then lands on backdropColors ($7F0C00); all 14 shipped length-2 sub-entries use color index 0.
 ; 
-; Fields are populated to actor WRAM: spritesetPtr ($7F0006,X), chatPtr ($7F000A,X), metaspritePtr ($7F000C,X), $7F0008,X, and animScratch ($7F0000,X). The sub-entry counter $0E is incremented after each load.
-; 
-; Special case: when byte 4 equals 2, the secondary metasprite pointer at $7F000D,X is advanced by 2.
-; 
-; Returns carry clear if more sub-entries remain, carry set when the end marker (zero byte 0) is reached.
+; Returns carry clear when a sub-entry was loaded, carry set (and $0E reset to 0) when byte 0 was zero. The field names (spritesetPtr, chatPtr, metaspritePtr) are borrowed from the sprite actors; the thinkers use them as frames-left, source pointer and destination pointer.
 
 LoadPaletteBundle {
     PHP 
@@ -196,7 +192,7 @@ LoadPaletteBundle {
     TAY 
     LDA $&palette_bundles, Y
     PHA 
-    LDA $0E               ; Compute sub-entry offset: $0E × 6 (three 2-byte fields per sub-entry)
+    LDA $0E               ; Sub-entry offset: $0E x 6 (6-byte sub-entries: count, source word, color index, size - 1, wait)
     ASL 
     CLC 
     ADC $0E
@@ -205,34 +201,34 @@ LoadPaletteBundle {
     ADC $01, S
     PLY 
     TAY 
-    LDA $0000, Y          ; Load first byte of sub-entry — zero = end of bundle
+    LDA $0000, Y          ; Sub-entry byte 0 = frame count of the strip (zero = end of bundle)
     AND #$00FF
     BEQ loc_03E11F
-    STA $spritesetPtr, X  ; Populate actor fields: spritesetPtr, chatPtr, metaspritePtr from bundle
-    LDA $0001, Y
-    STA $chatPtr, X
-    LDA $0003, Y
+    STA $spritesetPtr, X  ; Frame count N → spritesetPtr; PaletteStep decrements it once per step
+    LDA $0001, Y          ; Bytes 1-2: address of the strip's first frame, in bank $96
+    STA $chatPtr, X       ; chatPtr = source pointer; CopyPaletteBundleFrame advances it frame by frame
+    LDA $0003, Y          ; Byte 3 = first CGRAM color index to overwrite
     AND #$00FF
     ASL 
     CLC 
-    ADC #$0A00
-    STA $metaspritePtr, X ; Metasprite table index = byte[3] × 2 + $0A00 base offset
-    LDA $0004, Y
+    ADC #$0A00            ; Destination offset in bank $7F: $0A00 + 2 × index (palette staging buffer)
+    STA $metaspritePtr, X ; metaspritePtr is reused as the MVN destination offset
+    LDA $0004, Y          ; Byte 4 = frame size - 1 in bytes ($0D = 7 colors, $02 = backdrop RGB triplet)
     AND #$00FF
-    STA $7F0008, X
+    STA $7F0008, X        ; Frame size - 1 kept in $7F0008 for CopyPaletteBundleFrame
     PHA 
-    LDA $0005, Y
+    LDA $0005, Y          ; Byte 5 = extra ticks to wait between frames
     AND #$00FF
-    STA $08
-    STA $animScratch, X
+    STA $08               ; DP $08 is the wait counter: the next step runs after this many extra ticks
+    STA $animScratch, X   ; Copy kept in animScratch so PaletteStep can re-seed $08 for the later frames
     INC $0E               ; Advance sub-entry counter for next LoadPaletteBundle call
     PLA 
-    CMP #$0002            ; Bundle type 2: adjust secondary metasprite pointer +2
+    CMP #$0002            ; Frame size - 1 = 2: a 3-byte backdrop color triplet
     BNE loc_03E11B
-    LDA $7F000D, X
+    LDA $7F000D, X        ; Word at $7F000D covers the high byte of metaspritePtr; +2 moves the destination by +$0200
     INC 
     INC 
-    STA $7F000D, X
+    STA $7F000D, X        ; $0A00 + $0200 = $0C00 = backdropColors (color index 0 in all 14 shipped sub-entries)
 
   loc_03E11B:
     PLB 
@@ -249,42 +245,42 @@ LoadPaletteBundle {
 }
 
 ---------------------------------------------
-; Decompress graphics data to VRAM using the shared $0402 decompression helper.
+; Apply one palette-bundle frame: copy a block of colors from ROM into the palette staging buffer (not a decompression, and no VRAM is touched).
 ; 
-; Sets the decompression scratch parameter ($0404 = $967F), then loads three parameters from actor WRAM fields: the graphics identifier ($7F0008,X), the destination/metasprite pointer (metaspritePtr $7F000C,X → Y), and the source pointer (chatPtr $7F000A,X → X). Calls JSR $0402 to execute the decompression and DMA transfer.
+; Programs the RAM block-move stub at $0402 (PHB / MVN / PLB / RTS, written by system_init): one 16-bit store of $967F puts $7F in $0404 (MVN destination bank) and $96 in $0405 (source bank, the palette_bundles bank). Then A = $7F0008,X (frame size − 1), Y = metaspritePtr (destination offset in bank $7F), X = chatPtr (source offset in bank $96) and JSR $0402. MVN leaves X one past the last source byte; it is stored back to chatPtr, so the next call copies the following frame of the strip to the same destination. The caller's X is saved around the call.
 ; 
-; After the call, stores the updated source pointer (returned in X) back to chatPtr so the next call continues from where the decompression left off. This allows iterative decompression of multi-part graphics sets.
+; The NMI later uploads the $7F0A00 staging buffer to CGRAM (UploadCgramPalette) and the backdrop triplet at $7F0C00 to the fixed color; this routine only edits those RAM mirrors.
 
-DecompressGfxToVram {
+CopyPaletteBundleFrame {
     PHX 
-    LDA #$967F            ; Set decompression scratch parameter $0404
+    LDA #$967F            ; $0404 = $7F (MVN destination bank), $0405 = $96 (source bank); one 16-bit store
     STA $0404
-    LDA $7F0008, X        ; Load decompression parameters from actor WRAM fields
+    LDA $7F0008, X        ; A = frame size - 1 (byte count for MVN)
     PHA 
-    LDA $metaspritePtr, X
+    LDA $metaspritePtr, X ; Y = destination offset (palette staging buffer, bank $7F)
     TAY 
-    LDA $chatPtr, X
+    LDA $chatPtr, X       ; X = source offset (bank $96)
     TAX 
     PLA 
-    JSR $0402             ; Call shared decompression/DMA helper → VRAM
-    TXA 
+    JSR $0402             ; RAM stub: PHB, MVN $7F,$96, PLB, return; copies A + 1 bytes (palette staging, no VRAM)
+    TXA                   ; MVN leaves X one past the last source byte
     PLX 
-    STA $chatPtr, X       ; Store updated source pointer back to actor chatPtr
+    STA $chatPtr, X       ; chatPtr now addresses the strip's next frame for the next call
     RTL 
 }
 
 ---------------------------------------------
-; Reset the HDMA channel allocation state for fresh channel assignment.
+; Reset the HDMA channel allocation state for fresh channel assignment (every frame routine calls this once per frame before the type-B/D thinkers).
 ; 
-; If $6C is negative (bit 7 set), the reset is skipped — this flag is set by callers that need to preserve the current HDMA configuration across frames (e.g., during wave transition effects).
+; If $6C is negative (bit 7 set) the reset is skipped. $6C is a one-shot lock: scene_lifecycle's wave transition arms it ($FF) right after its own explicit reset so that the ApplyScrollWaveEffect → UpdateFrameDialogue call does not wipe the HDMA channels the wave just bound.
 ; 
-; Otherwise, clears the HDMA enable mask ($66 = 0), resets the current channel bit to channel 1 ($68 = $02), and resets the DMA register offset to channel 1 base ($6A = $10). These state variables are consumed by SetupHdmaChannel_Indirect/Direct when configuring HDMA channels.
+; Otherwise clears the HDMA enable mask ($66 = 0), resets the next channel bit to channel 1 ($68 = $02) and the DMA register block offset to channel 1 ($6A = $10). SetupHdmaChannel_Indirect/Direct consume these three bytes.
 ; 
-; Always clears the lock flag ($6C = 0) on exit.
+; Always clears the lock ($6C = 0) on exit, so the lock covers exactly one call.
 
 ResetHdmaState {
-    LDA $6C
-    BMI loc_03E154        ; Skip reset if $6C negative (HDMA locked for multi-frame effect)
+    LDA $6C               ; $6C is a one-shot lock: negative skips this reset only
+    BMI loc_03E154        ; Locked: keep the channels bound since the last reset
     STZ $66               ; Clear HDMA enable mask, reset channel allocation to ch1/$10
     LDA #$02
     STA $68
@@ -292,47 +288,41 @@ ResetHdmaState {
     STA $6A
 
   loc_03E154:
-    STZ $6C
+    STZ $6C               ; Consume the lock (the wave transition re-arms it after its explicit reset)
     RTL 
 }
 
 ---------------------------------------------
-; Configure one HDMA channel in indirect (pointer-based) mode.
+; Bind the next free HDMA channel in indirect mode (JSL from the HDMA COP handlers and the thinker scripts).
 ; 
-; Entry: A = channel index (lookup key for hdma_channel_config register table), Y = HDMA table source address, stack byte = target PPU register, additional stack byte = indirect bank.
+; Entry: 16-bit A = table bank (low byte) | PPU B-bus register number (high byte, e.g. $0D = BG1HOFS), Y = HDMA table address. The routine pushes the bank, then the register number, uses the register number to index hdma_channel_config (DMAP transfer mode), ORs $40 (indirect) into it and writes DMAP of the channel whose register block offset is in $6A. The bank also goes to DASB (indirect data bank), so the table and the data it points to share one bank. It then branches into the shared tail inside SetupHdmaChannel_Direct (loc_03E186).
 ; 
-; Looks up the DMA transfer mode from hdma_channel_config and OR’s with $40 to set indirect mode in DMAP. Sets DASB0 (indirect bank byte) from the stack parameter. Falls through to the shared tail at SetupHdmaChannel_Direct to complete the channel configuration.
-; 
-; Indirect HDMA uses a pointer table in RAM where each entry contains a scanline count and a pointer to the actual data, allowing dynamic per-scanline register updates.
+; Indirect HDMA: each table entry is a line count plus a pointer to the data, so the data can live elsewhere in the bank and be changed per frame without rewriting the table.
 
 SetupHdmaChannel_Indirect {
     PHP 
     PHX 
     SEP #$20
-    PHA 
+    PHA                   ; Push the bank byte (A low)
     LDA #$00
-    XBA 
+    XBA                   ; XBA brings the B-bus register number (A high) into A; it is pushed and used as the table index
     PHA 
     TAX 
-    LDA $&hdma_ramp_tables.hdma_channel_config, X ; Look up DMA transfer mode from hdma_channel_config register table
-    LDX $006A
+    LDA $&hdma_ramp_tables.hdma_channel_config, X ; hdma_channel_config[register]: DMAP transfer mode for this B-bus register
+    LDX $006A             ; X = DMA register block offset of the channel being bound ($10, $20, ...)
     ORA #$40              ; Set indirect mode flag ($40) in DMAP register
     STA $DMAP0, X
-    LDA $02, S
+    LDA $02, S            ; Stack holds register number (S+1) and bank (S+2): the bank is also the indirect data bank
     STA $DASB0, X         ; Set indirect bank byte (DASB0) for pointer resolution
     BRA loc_03E186
 }
 
 ---------------------------------------------
-; Configure one HDMA channel in direct (inline data) mode.
+; Bind the next free HDMA channel in direct mode. Same entry convention as SetupHdmaChannel_Indirect (A = bank | register << 8, Y = table address) but DMAP gets the plain hdma_channel_config mode.
 ; 
-; Entry: A = channel index, Y = HDMA table source address, stack byte = source bank, additional stack byte = target PPU register.
+; The shared tail (loc_03E186, also reached from the indirect entry) pops the register number into BBADx, stores Y into A1Tx and the bank into A1Bx, sets this channel's bit ($68) in the HDMA enable mask ($66), shifts $68 left and adds $10 to $6A. There is no CLC before that ADC: the carry is the carry-out of ASL $0068, clear for channels 1–6, so at most seven channels (1–7) can be bound per frame.
 ; 
-; Looks up the DMA transfer mode from hdma_channel_config and writes it directly to DMAP (no indirect flag). The shared tail code (loc_03E186) sets the target PPU register (BBAD0), source address (A1T0L from Y), and source bank (A1B0).
-; 
-; After configuration, enables this channel’s bit in the HDMA enable mask ($0066 via TSB $0068), shifts the channel bit left for the next channel (ASL $0068), and advances the register offset by $10 ($006A) to point at the next DMA channel’s register block.
-; 
-; Direct HDMA uses inline data where each entry contains a scanline count followed by the register value(s) to apply.
+; Direct HDMA: each table entry is a line count followed by the register value(s) to write.
 
 SetupHdmaChannel_Direct {
     PHP 
@@ -343,7 +333,7 @@ SetupHdmaChannel_Direct {
     XBA 
     PHA 
     TAX 
-    LDA $&hdma_ramp_tables.hdma_channel_config, X
+    LDA $&hdma_ramp_tables.hdma_channel_config, X ; Same register lookup as the indirect entry, without the $40 flag
     LDX $006A
     STA $DMAP0, X         ; Direct mode: write transfer mode without indirect flag
 
@@ -355,12 +345,12 @@ SetupHdmaChannel_Direct {
     STA $A1T0L, X         ; HDMA table source address (from Y) → A1T0L
     SEP #$20
     PLA 
-    STA $A1B0, X
+    STA $A1B0, X          ; Table bank (the byte pushed first)
     LDA $0068             ; Enable this channel bit in HDMA mask ($0066)
     TSB $hdmaEnableMask
-    ASL $0068
+    ASL $0068             ; Next channel bit; the carry-out feeds the ADC below
     LDA $006A             ; Advance register offset +$10 to next DMA channel block
-    ADC #$10
+    ADC #$10              ; No CLC: carry is the ASL out of bit 7 (set only after channel 7); next block offset = +$10
     STA $006A
     PLX 
     PLP 
@@ -368,19 +358,16 @@ SetupHdmaChannel_Direct {
 }
 
 ---------------------------------------------
-; Check if the SPC700 audio processor is ready to receive music data.
+; Entry of the FadeThenStartMusic thinker: request the SPC engine's fade-out, then hand over to SpcTransferMusicData.
 ; 
-; Two-phase handshake protocol via APUIO0 ($2140):
+; 1. Sends $F1 to APUIO0 (the engine's CmdFadeOut: fade counters $30/$31 = $FF; answers OQ-61) and yields one frame. If APUIO0 does not echo $F1 the routine returns and runs again next frame.
+; 2. With the echo seen, sends $01 and yields again. If APUIO0 now reads zero, execution falls into SpcTransferMusicData; otherwise it returns and retries.
 ; 
-; 1. Sends $F1 to APUIO0 and yields (COP SetEntryExit). On return, checks if APUIO0 echoes $F1 — if not, the SPC is busy and the routine returns (will be called again next frame).
-; 
-; 2. If $F1 was echoed: sends $01 (transfer request) and yields again. Checks the response — if zero, the SPC confirmed readiness and execution falls through to SpcTransferMusicData. Otherwise returns.
-; 
-; Runs as a COP actor script — each COP SetEntryExit suspends this actor until the next frame, spreading the handshake across multiple frames to avoid blocking the main loop.
+; Runs as a thinker script: each COP SetEntryHereAndYield suspends it until the next frame, so the handshake costs a few frames but never blocks the main loop. Whether the fade is audible before SpcTransferMusicData's $F0 stop arrives one or two frames later is OQ-I021-2.
 
-SpcCheckMusicReady {
+SpcFadeOutHandshake {
     SEP #$20
-    LDA #$F1              ; Send $F1 handshake to SPC via APUIO0
+    LDA #$F1              ; Port command $F1 = SPC engine CmdFadeOut (fade counters $30/$31 = $FF); answers OQ-61
     STA $APUIO0
     REP #$20
     COP [SetEntryHereAndYield] ; Yield — wait one frame for SPC to process
@@ -392,7 +379,7 @@ SpcCheckMusicReady {
 
   loc_03E1C1:
     SEP #$20
-    LDA #$01
+    LDA #$01              ; Port command $01: engine path ASL to $02 (ClearAramTail, stream pointer from ARAM $0FFC); not traced further
     STA $APUIO0           ; SPC ready — send $01 transfer request
     REP #$20
     COP [SetEntryHereAndYield]
@@ -404,17 +391,17 @@ SpcCheckMusicReady {
 }
 
 ---------------------------------------------
-; Transfer music data to the SPC700 audio processor.
+; Thinker script that requests the music upload and waits for the main loop to perform it (entry of StartMusic's thinker; also reached from SpcFadeOutHandshake).
 ; 
-; Continues the handshake from SpcCheckMusicReady. Sends $F0 (transfer-start), yields, and verifies zero echo. Then sends $FF (ready-for-data) and copies the music ID from chatPtr into musicTransitionState ($06FA).
+; Sends $F0 (the engine's CmdStop), yields and requires a zero echo; yields again, sends $FF (jump into the engine's resident IPL-clone loader, which then posts $BBAA) and copies the music ID from chatPtr into musicTransitionState ($06FA); this staged ID is what LoadMusicFromTransitionState picks up.
 ; 
-; Waits for musicTransitionState to become $FFFF, which the main loop's LoadMusicFromTransitionState writes after the blocking block transfer completes. Once confirmed, sends a final $01 acknowledgment, yields, clears sfxQueueCh1 and musicTransitionState, and terminates via COP Die.
+; Then waits (one yield per frame) for musicTransitionState = $FFFF, which LoadMusicFromTransitionState writes after the blocking SpcBlockTransfer. Once seen: COP WaitByte #01 (a two-tick delay, N + 1; not an SPC acknowledgment), sends $01, yields once more, clears sfxQueueCh1 and musicTransitionState and ends with COP Die.
 ; 
-; The actor yields between protocol steps, so only the block transfer itself blocks the main loop.
+; Only the block transfer itself blocks the main loop; every protocol step here is spread over frames.
 
 SpcTransferMusicData {
     SEP #$20
-    LDA #$F0              ; Send $F0 transfer-start signal to SPC
+    LDA #$F0              ; Port command $F0 = CmdStop (the engine's stop command, not a transfer-start signal)
     STA $APUIO0
     REP #$20
     COP [SetEntryHereAndYield]
@@ -427,10 +414,10 @@ SpcTransferMusicData {
   loc_03E1EB:
     COP [SetEntryHereAndYield]
     SEP #$20
-    LDA #$FF              ; Send $FF ready-for-data signal
+    LDA #$FF              ; Port command $FF = jump into the engine's resident IPL-clone loader, which posts $BBAA
     STA $APUIO0
     REP #$20
-    LDA $chatPtr, X       ; Load music data pointer from chatPtr → musicTransitionState
+    LDA $chatPtr, X       ; chatPtr holds the music ID from StartMusic/FadeThenStartMusic (an ID, not a pointer)
     STA $musicTransitionState
     COP [SetEntryHereAndYield]
     LDA $musicTransitionState
@@ -439,7 +426,7 @@ SpcTransferMusicData {
     RTL 
 
   loc_03E208:
-    COP [WaitByte] ( #01 ) ; Wait for SPC byte acknowledgment
+    COP [WaitByte] ( #01 ) ; WaitByte #01 = 2 actor ticks (N + 1): a plain delay, not an SPC acknowledgment
     SEP #$20
     LDA #$01
     STA $APUIO0
@@ -451,20 +438,18 @@ SpcTransferMusicData {
 }
 
 ---------------------------------------------
-; Resolve a music ID and start the SPC block transfer.
+; Resolve a staged music ID and run the SPC block transfer.
 ; 
-; Called once per main-loop iteration from SystemInit's loop, after UpdateHUD. Returns at once if musicTransitionState is zero or negative (no pending music change).
+; Called once per main-loop pass from MainLoop, after UpdateHUD. Returns at once if musicTransitionState is zero or negative (no pending music change or already done).
 ; 
-; For a positive value (the track ID staged by SpcTransferMusicData) it computes the music_array index as ID × 3 (3-byte entries: 2-byte address + 1-byte bank) and loads the address and bank into direct page ($46/$47) and the shadow registers ($0687/$0688).
-; 
-; Enables NMI and joypad, calls SpcBlockTransfer to send the music data to the SPC700, then re-enables NMI-only mode and sets musicTransitionState to $FFFF to signal completion to the waiting SpcTransferMusicData actor. The transfer blocks the main loop; during it the NMI runs UpdateFrameFull each frame (musicTransitionState is positive).
+; For a positive ID it computes the music_pointer_array offset (ID − 1) × 3 (3-byte entries: address + bank) and loads the address into DP $46/$47 and into the shadow bytes $0687/$0688. It then enables NMI and joypad, calls SpcBlockTransfer (blocking; the NMI calls UpdateFrameFull every frame while musicTransitionState is positive), switches to DisableNmiKeepJoypad (NMITIMEN = $01: NMI off, joypad auto-read on; the main loop turns NMI on again at the end of the pass) and stores $FFFF into musicTransitionState to release the waiting SpcTransferMusicData thinker.
 
 LoadMusicFromTransitionState {
     LDX $musicTransitionState
     BEQ loc_03E254        ; No pending music (zero) — return immediately
     BMI loc_03E254        ; Negative musicTransitionState — return (already complete)
     REP #$20
-    TXA                   ; Compute music_array index: musicTransitionState × 3
+    TXA                   ; music_pointer_array offset: the ID x 3 is added below and the table is read at -3, so the entry is (ID - 1) x 3
     ASL 
     CLC 
     ADC $musicTransitionState
@@ -475,9 +460,9 @@ LoadMusicFromTransitionState {
     LDA $@music_pointer_array-2, X
     STA $47
     STA $srcCacheMusic+1
-    JSL $@vblank_joypad.EnableNmiAndJoypad
-    JSL $@spc_transfer.SpcBlockTransfer ; DMA music data to SPC700 via block transfer
-    JSL $@vblank_joypad.EnableNmiOnly
+    JSL $@vblank_joypad.EnableNmiAndJoypad ; NMI on for the blocking transfer: the NMI runs UpdateFrameFull while the ID is positive
+    JSL $@spc_transfer.SpcBlockTransfer ; Blocking SPC upload: SpcBlockTransfer speaks the IPL byte-stream protocol (not DMA)
+    JSL $@vblank_joypad.DisableNmiKeepJoypad ; NMITIMEN = $01: NMI off again, joypad auto-read only; the main loop re-enables NMI at the end of the pass
     LDA #$FFFF            ; Mark musicTransitionState = $FFFF (transfer complete)
     STA $musicTransitionState
     SEP #$20
@@ -487,16 +472,15 @@ LoadMusicFromTransitionState {
 }
 ---------------------------------------------
 
-; Execute a one-shot VRAM DMA transfer from queued parameters.
+; Execute a one-shot VRAM DMA from the queued parameters (called only from NmiHandler).
 ; 
-; Checks $7F0C07 for a pending VRAM destination address. If zero, returns immediately (no transfer queued). Otherwise:
-; 1. Sets VMADDL to the destination address from $7F0C07
-; 2. Clears $7F0C07 to prevent re-triggering
-; 3. Loads the transfer byte count from $7F0C09
-; 4. Loads the source address from adhocVramDma ($7F0C03) and bank from $7F0C05
-; 5. Triggers DMA channel 0
+; Checks $7F0C07 for a pending VRAM destination. If zero, returns immediately. Otherwise:
+; 1. Writes the destination to VMADDL and clears $7F0C07 (the trigger);
+; 2. Loads the byte count from $7F0C09 into DAS0;
+; 3. Loads the source address from adhocVramDma ($7F0C03) and the bank from $7F0C05;
+; 4. Fires DMA channel 0.
 ; 
-; Used by various engine systems to schedule deferred VRAM writes that execute during the next available DMA window, outside the normal NMI pipeline ordering.
+; Channel 0 is not programmed here: NmiHandler has just written VMAIN = $80, DMAP0 = $01 and BBAD0 = $18 (word writes to VRAM data), so this routine is not safe to call from anywhere else. It is skipped when dmaSkipFlag is set, and the NMI uses the player-tile path instead when displayModeFlags bit 3 is set.
 
 DmaAdhocVramBlock {
     PHP 
@@ -514,7 +498,7 @@ DmaAdhocVramBlock {
     LDA $adhocVramDmaBank
     STA $A1B0
     LDA #$01
-    STA $MDMAEN           ; Trigger DMA channel 0
+    STA $MDMAEN           ; Channel 0 uses VMAIN/DMAP0/BBAD0 as NmiHandler programmed them just before; not callable elsewhere
 
   loc_03F1FF:
     PLP 

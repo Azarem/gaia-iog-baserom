@@ -1,3 +1,14 @@
+; COP handlers that overwrite one metatile of LAYER 0 at run time (Bank 00, COP #4B-#4E) plus their helpers. Used by puzzle rooms, breakable walls and the item-use effects to swap floor/wall tiles.
+; 
+; Script sites: DrawMetatileAbs (#4B) 24, DrawMetatileHere (#4C) 8 (2 in pyD0_breakable_wall, 6 in item_use_system). WorldMapStream3 (#4D) and WorldMapStream4 (#4E) have no script sites.
+; 
+; All writes go to layer 0 only: collision flags come from $7F0000 + metatile ID (the layer-0 table; collisionFlagTableL1 sits at $7F0100 and is not used here), the map is $7EA000 + index (mapLayerTilemap), the collision map is $7FC000 + index, and the tile definitions are read from the hard-coded $7E2000 + ID x 8 (metatileDefBase is $2000 for layer 0, $2800 for layer 1). A tile is repainted on screen only when it lies in the visible window: horizontally (pixel X + 16 - bg1ScrollH) < $0111, vertically 0 <= pixel Y - ((mapScrollV - $10) and $FFF0) < $F1. Off-screen tiles only update the map and collision data.
+; The staged update is one 2x2 metatile: $0902 = VRAM word address of the top row (BG1 nametable at $1000 via PixelToVramAddress), $0908 = that + $20, tile words $0904/$0906 (top) and $090A/$090C (bottom). The NMI flush in event_blocks writes it and clears $0902; TileQueryGate makes the next draw wait until $0902 is zero again. The name tileQueryResult is a misnomer.
+; 
+; Direct page: the handlers run with D = actor; the stores to $0018/$001A/$001C/$001E/$0000 are absolute (page-0 scratch) and become the DP $18/$1A/$1C/$1E/$00 seen by ResolveTileData after TCD zeroes D. The page-0 $00 here is NOT the actor's entry word. DrawMetatileHere takes the actor's $14/$16 as TILE coordinates (no divide by 16); pyD0_breakable_wall converts its pixel position first and saves the originals in orbitAngle/orbitDiameter ($7F0010/$7F0012).
+; WorldMapStream3/4 stream one 3- or 4-byte record per call (X tile, Y tile, metatile ID, and for #4E a delay byte stored in the actor's $08 wait counter), cache the pointer in $24, rewind the script pointer by 2 and yield between tiles, and an X byte with bit 7 set ends the stream. extendedFlags ($7F002A) bit 1 = pointer cached, bit 2 = queue orbitAngle as a sound effect (sfxQueueCh2) per tile; nothing in the extracted scripts uses them.
+---------------------------------------------
+
 ?BANK 00
 
 ?INCLUDE 'map_coords'
@@ -15,7 +26,7 @@
 
 ---------------------------------------------
 
-; COP #4B metatile painter taking three byte operands: absolute tile X, tile Y, and metatile ID. Passes through TileQueryGate (RTL early-out if a tile query is already pending), converts tile coords to pixel positions, and calls ResolveTileData to update mapLayerTilemap and collisionLayer and queue BG VRAM tile writes when the target lies on screen. Used heavily in puzzle rooms and mine collapse scenes to swap floor/wall tiles.
+; COP #4B with three byte operands: tile X, tile Y, metatile ID. Waits (rewinds the script pointer and yields) while TileQueryGate reports a pending update, otherwise converts the tile coordinates to pixels and calls ResolveTileData to update the layer-0 map and collision data and, when the tile is on screen, stage the 2x2 VRAM update. 24 sites.
 
 DrawMetatileAbs {
     TYX 
@@ -29,7 +40,7 @@ DrawMetatileAbs {
     LDA [$0A]             ; Read absolute tile X byte operand
     INC $0A
     AND #$00FF
-    STA $0018             ; Store tile X coordinate in DP $18
+    STA $0018             ; Absolute store to page-0 scratch $18 (tile X); it becomes DP $18 after TCD zeroes D below
     ASL                   ; Tile→pixel: ASL ×4 = ×16
     ASL 
     ASL 
@@ -47,7 +58,7 @@ DrawMetatileAbs {
     LDA [$0A]             ; Read metatile ID byte operand
     INC $0A
     AND #$00FF
-    STA $0000             ; Store metatile ID in DP $00 for ResolveTileData
+    STA $0000             ; Page-0 scratch $00 = metatile ID (not the actor's entry word)
     PHY 
     PHD 
     LDA #$0000            ; Zero direct page for map_coords routines
@@ -61,7 +72,7 @@ DrawMetatileAbs {
 }
 
 ---------------------------------------------
-; COP #4C with one byte operand (metatile ID). Uses the actor's pixel position ($14/$16), passes TileQueryGate, then calls ResolveTileData to write mapLayerTilemap/collisionLayer and queue on-screen BG VRAM tile updates.
+; COP #4C with one byte operand (metatile ID). Uses the actor's $14/$16 as TILE X/Y (the callers, pyD0_breakable_wall and item_use_system, must have converted pixel coordinates first), then behaves like DrawMetatileAbs. 8 sites.
 
 DrawMetatileHere {
     TYX 
@@ -80,14 +91,14 @@ DrawMetatileHere {
     STA $0000             ; Store metatile ID in DP $00
     LDA #$0000
     TCD 
-    LDA $0014, X          ; Get actor pixel X ($14) and use as tile X
+    LDA $0014, X          ; Actor X is used as a TILE X without dividing by 16: callers convert first (pyD0_breakable_wall does)
     STA $18
     ASL 
     ASL 
     ASL 
     ASL 
     STA $1A
-    LDA $0016, X          ; Get actor pixel Y ($16) for tile Y
+    LDA $0016, X          ; Actor Y used as a TILE Y
     STA $1C
     ASL 
     ASL 
@@ -103,7 +114,7 @@ DrawMetatileHere {
 }
 
 ---------------------------------------------
-; COP #4D with one word operand (stream pointer, cached in $24 on first call). Each invocation reads one 3-byte record (X, Y, tile ID) via ParseMapEntry and ResolveTileData, yields RTL per tile, and optionally queues orbitAngle as SFX on channel 2 when extendedFlags bit 2 is set; RTI continues the stream until ParseMapEntry signals end.
+; COP #4D with one word operand (stream pointer, cached in $24 on the first call). Each call paints one record (X, Y, tile ID) from the stream, optionally queues orbitAngle as a sound effect on channel 2 (extendedFlags bit 2), rewinds the script pointer by 2 and yields; a record whose X byte has bit 7 set ends the stream and the op continues past its 2-byte operand. No script sites.
 
 WorldMapStream3 {
     TYX 
@@ -176,7 +187,7 @@ WorldMapStream3 {
 }
 
 ---------------------------------------------
-; COP #4E with one word operand, same streaming model as WorldMapStream3 but advances 4 bytes per record. The fourth stream byte is stored in $0008,Y before ResolveTileData; SFX and yield behavior match the 3-byte variant.
+; COP #4E, like WorldMapStream3 with 4-byte records: the fourth byte is stored in the actor's $08 (the wait counter), so it is a per-record delay, not a tile attribute. No script sites.
 
 WorldMapStream4 {
     TYX 
@@ -211,9 +222,9 @@ WorldMapStream4 {
     STA $24
     JSR $&ParseMapEntry   ; Parse 3-byte core of map entry (X, Y, metatile)
     BCS loc_0097D6
-    LDA $0003, X          ; Read 4th stream byte (extended tile attribute)
+    LDA $0003, X          ; 4th record byte: per-record delay for the actor's $08 wait counter
     AND #$00FF
-    STA $0008, Y          ; Store extended attribute in $0008,Y
+    STA $0008, Y          ; $08 = wait counter; DBR is the script bank here, so this hits the LowRAM mirror of the actor's DP
     PLB 
     JSR $&ResolveTileData
     PLD 
@@ -251,9 +262,7 @@ WorldMapStream4 {
 }
 
 ---------------------------------------------
-; Decodes a 3-byte stream record at address X into tile coordinates and metatile ID.
-; 
-; Zeroes direct page, reads 3 bytes from the stream: byte 0 = tile X, byte 1 = tile Y, byte 2 = metatile ID. If byte 0 has bit 7 set, returns carry set (end-of-stream sentinel). Otherwise sign-extends tile coords, computes pixel positions (×16) in DP $1A/$1E, stores tile coords in DP $18/$1C and metatile ID in DP $00, and returns carry clear. Called by WorldMapStream3/4 for sequential tile painting.
+; Decodes the 3-byte record at stream address X: byte 0 = tile X (bit 7 set = end of stream, carry set), byte 1 = tile Y, byte 2 = metatile ID. Zero-extends (not sign-extends) the coordinates into DP $18/$1C, stores pixel positions (x16) in $1A/$1E and the metatile ID in $00, returns carry clear. Sets D = 0 itself.
 
 ParseMapEntry {
     LDA #$0000
@@ -269,7 +278,7 @@ ParseMapEntry {
     AND #$00FF
     STA $00               ; Store metatile ID in DP $00
     LDA $18
-    AND #$00FF
+    AND #$00FF            ; Zero-extended, not sign-extended (the end sentinel is bit 7 of the X byte, tested above)
     STA $18
     ASL                   ; Tile X -> pixel X (x16) into DP $1A
     ASL 
@@ -293,9 +302,7 @@ ParseMapEntry {
 }
 
 ---------------------------------------------
-; Converts parsed tile coordinates to a map-layer index and writes metatile and collision data.
-; 
-; Calls TileCoordsToMapIndex (DP $18/$1C → linear index in X), reads the collision byte from animScratch[index], writes the metatile ID to mapLayerTilemap[index] and collision byte to collisionLayer[index]. Then checks if the tile is on-screen by comparing pixel X against BG1 scroll and pixel Y against BG2 scroll. When visible, expands the metatile into four 16×16 VRAM tile words from metatileMapLayer, stages them in the tile-update queue ($0904–$090C), and computes the VRAM address pair via PixelToVramAddress. Called by DrawMetatileAbs/Here and WorldMapStream3/4.
+; Writes one metatile of layer 0: map index from TileCoordsToMapIndex (layer selector 0), collision byte from $7F0000 + ID copied to $7FC000 + index, the ID to mapLayerTilemap ($7EA000 + index). If the tile is inside the visible window it then copies the four tile words of the definition at $7E2000 + ID x 8 to $0904/$0906/$090A/$090C and stores the VRAM word addresses of the two tile rows in $0902 and $0908 (PixelToVramAddress, BG1 nametable). Off-screen tiles stop after the map writes.
 
 ResolveTileData {
     LDX #$0000            ; Convert tile coords (DP $18/$1C) to linear map index via TileCoordsToMapIndex
@@ -304,7 +311,7 @@ ResolveTileData {
     PHX 
     TAX 
     SEP #$20              ; 8-bit mode for byte-level map layer writes
-    LDA $animScratch, X   ; Look up collision byte from animScratch; write metatile+collision to map layers
+    LDA $animScratch, X   ; $7F0000 + metatile ID = layer-0 collision byte of that metatile (layer 1's table is at $7F0100, unused here)
     STA $02               ; Cache collision byte in DP $02
     TXA 
     PLX 
@@ -314,12 +321,12 @@ ResolveTileData {
     REP #$20
     LDA $1A
     CLC                   ; On-screen check: pixel X + 16 vs BG1 horizontal scroll
-    ADC #$0010            ; Check if tile is on-screen: pixel X vs BG1 scroll, pixel Y vs BG2 scroll
+    ADC #$0010            ; Visible if pixel X + 16 - bg1ScrollH < $0111, i.e. X in scroll - 16 .. scroll + $100
     SEC 
     SBC $bg1ScrollH
     CMP #$0111            ; Off-screen if distance ≥ $0111 pixels (beyond visible width)
     BCS loc_0098A8
-    LDA $mapScrollV       ; Compare pixel Y against BG2 vertical scroll window
+    LDA $mapScrollV       ; Vertical window base = (mapScrollV - $10) rounded down to 16; pixel Y - base must be 0 .. $F0
     SEC 
     SBC #$0010
     AND #$FFF0
@@ -337,7 +344,7 @@ ResolveTileData {
     ASL 
     ASL 
     TAX 
-    LDA $metatileMapLayer, X ; Load top-left tile word from metatile definition
+    LDA $metatileMapLayer, X ; Definition read from hard-coded $7E2000 + ID x 8 (layer 0 definitions; four tile words TL, TR, BL, BR)
     STA $0904             ; Store to tile update queue $0904 (top-left)
     LDA $7E2002, X
     STA $0906             ; Store top-right tile word to $0906
@@ -346,10 +353,10 @@ ResolveTileData {
     LDA $7E2006, X
     STA $090C             ; Store bottom-right to $090C
     JSL $@map_coords.PixelToVramAddress ; Compute VRAM address pair from pixel position
-    STA $tileQueryResult  ; Store VRAM address for top tile row to tileQueryResult
+    STA $tileQueryResult  ; $0902 = VRAM word address of the top tile row; the NMI flush writes the 2x2 update and clears it
     CLC 
     ADC #$0020            ; +$0020 = VRAM offset for bottom tile row (32 words per row)
-    STA $0908             ; Store bottom row VRAM address to $0908
+    STA $0908             ; $0908 = VRAM word address of the bottom row
     RTS 
 
   loc_0098A7:
@@ -360,7 +367,7 @@ ResolveTileData {
 }
 
 ---------------------------------------------
-; Concurrency guard for tile mutation handlers. Returns carry clear (proceed) when tileQueryResult ($0902) is zero, indicating no pending tile update. Returns carry set (busy) when a previous tile update is still queued — rewinds the script PC by 2 bytes so the COP handler yields RTL and re-enters on the next frame. Called at the top of DrawMetatileAbs/Here and WorldMapStream3/4.
+; Carry clear (proceed) when $0902 is zero, i.e. the previous 2x2 update has been flushed by the NMI. Otherwise rewinds the script pointer by 2 (back to the COP opcode, so the op runs again next time) and returns carry set; the callers then pop their return and yield.
 
 TileQueryGate {
     CLC                   ; Start with carry clear (optimistic: gate open)

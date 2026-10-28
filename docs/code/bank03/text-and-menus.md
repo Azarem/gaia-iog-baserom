@@ -300,11 +300,11 @@ position (byte offset into `$7F0200`). Each character writes a 16-bit tilemap wo
 | `$0A` | DrawPlayerHpBar | — | player HP segments |
 | `$0B` | DrawEnemyHpBar | — | enemy HP bar |
 | `$0C` | PrintRawBytes | var (term `$FF`) | raw tile bytes |
-| `$0D` | AdvanceRow4 | — | cursor +`$0080` (4 rows) |
+| `$0D` | DoubleNewLine | — | cursor +`$0080` (2 rows) |
 | `$0E` | Print3DigitNumber | 2B | 3-digit decimal |
 | `$0F` | ClearRect | 1B w + … | clear rectangle |
-| `$10` | InsertItemName | 1B index | item name from `itemcomp_table` |
-| `$11` | AdvanceRow2 | — | cursor +`$0040` (2 rows) |
+| `$10` | InsertSharedWord | 1B index | shared word from `shared_word_table` |
+| `$11` | NewLine | — | cursor +`$0040` (1 row) |
 
 ### HP bar system
 
@@ -318,15 +318,15 @@ segments (`$02`, `(maxHP−HP)/2`, tile `$20FF`).
 |---------|-------|------|
 | `$03EA62` | `ConsoleStringRenderer` | entry (`JSL`): Y=string ptr, X=VRAM offset |
 | `$03EA8C` | `ConsoleStringCommandTable` | 18-entry word table ($00–$11 → handlers) |
-| `$03EAB0` | `ConsoleCmd_AdvanceRow2` | cursor += `$0040` (2 rows) |
-| `$03EABD` | `ConsoleCmd_InsertItemName` | item name from `itemcomp_table` (1B index) |
+| `$03EAB0` | `ConsoleCmd_NewLine` | cursor += `$0040` (1 row) |
+| `$03EABD` | `ConsoleCmd_InsertSharedWord` | shared word from `shared_word_table` (1B index) |
 | `$03EAE2` | `ConsoleCmd_ClearRect` | clear rectangle (1B width + coords) |
 | `$03EB1B` | `ConsoleCmd_DrawPlayerHpBar` | player HP → `DrawHpBar` |
 | `$03EB71` | `DrawHpBar` | shared HP bar rendering: full/half/empty segments |
 | `$03EBE6` | `HpBar_AdvanceRow` | advance cursor by one tilemap row within bar |
 | `$03EBFC` | `ConsoleCmd_DrawEnemyHpBar` | enemy HP → `DrawHpBar` |
 | `$03EC52` | `ConsoleCmd_End` | pop state, RTL — exit renderer |
-| `$03EC57` | `ConsoleCmd_AdvanceRow4` | cursor += `$0080` (4 rows) |
+| `$03EC57` | `ConsoleCmd_DoubleNewLine` | cursor += `$0080` (2 rows) |
 | `$03EC64` | `ConsoleCmd_Print3DigitNumber` | 3-digit decimal number (2B address) |
 | `$03ED00` | `ConsoleCmd_SetVramAddr` | set VRAM cursor (2B absolute offset) |
 | `$03ED0B` | `ConsoleCmd_InsertRemoteString` | recursive render from another bank (2B addr + 1B bank) |
@@ -342,7 +342,7 @@ segments (`$02`, `(maxHP−HP)/2`, tile `$20FF`).
 ### Cross-references
 
 - **In:** inventory, status, HUD, shop, and equipment screens (`JSL`).
-- **Out:** `itemcomp_table_01EB0F` (item names for `InsertItemName`),
+- **Out:** `shared_word_table` (shared words for `InsertSharedWord`),
   `itemget_table_01FD24` (item data for equipment icons).
 
 ### `DrawBox` tile construction

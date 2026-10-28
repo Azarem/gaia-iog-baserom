@@ -7,7 +7,7 @@
 ---------------------------------------------
 
 ?INCLUDE 'actor_pool'
-?INCLUDE 'oneshot_palette_flash_40'
+?INCLUDE 'oneshot_backdrop_fade_out_fast_40'
 ?INCLUDE 'spriteset_enemies'
 
 !frameCounter                   0036
@@ -68,10 +68,10 @@ code_069412 {
     LDA #$03
     STA $CGADSUB
     REP #$20
-    COP [SpawnThinker] ( @oneshot_palette_flash_40.FlashPalette40 )
+    COP [SpawnThinker] ( @oneshot_backdrop_fade_out_fast_40.FadeBackdropOutFast40 )
     COP [SetFlagByte] ( #0F )
     COP [WaitByte] ( #3B )
-    COP [SpawnThinker] ( @oneshot_palette_flash_40.FlashPalette40 )
+    COP [SpawnThinker] ( @oneshot_backdrop_fade_out_fast_40.FadeBackdropOutFast40 )
     COP [SpawnThinkerParam] ( #26, @actor_pool.PaletteResetAndKillThinker )
     COP [WaitWord] ( #$02B1 )
     COP [ClearFlagByte] ( #0F )

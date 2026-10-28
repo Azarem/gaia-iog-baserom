@@ -1,6 +1,6 @@
 ; Item use dispatch and handler system (230416–237738, Bank 03).
 ; 
-; Contains the complete inventory item usage pipeline. When the player activates an equipped item, ItemUseDispatch reads the slot index, extracts the 6-bit item ID ($00–$3F), and dispatches through a 64-entry jump table to the appropriate handler. Each handler returns via RTS into ItemUseEpilogue, which runs a dialogue frame update and suppresses Start button re-entry.
+; Contains the complete inventory item usage pipeline. When the player activates an equipped item, ItemUseDispatch reads the slot index, extracts the 6-bit item ID ($00–$3F), and dispatches through a 64-entry jump table to the appropriate handler. Each handler returns via RTS into ItemUseEpilogue, which runs a dialogue frame update and consumes the use-item button again so the press cannot re-trigger the item.
 ; 
 ; === HANDLER PATTERNS ===
 ; 
@@ -12,11 +12,15 @@
 ; 
 ; 4. Dialogue option items: Herb (yes/no heal), Journal (3 topics), Hieroglyph Plates (6-slot puzzle with swap logic).
 ; 
+; === BUTTON AND DISPLAY CONVENTIONS ===
+; The use-item button is logical bit $0008 (db-us/transforms.json rewrites the vanilla $4000 constants of this block to $0008, and the vanilla $CFF0 joypadMaskStd constants to $CFFC). TSB joypadHeld consumes a button (joypadCurrent stops reporting it); TSB joypadMaskStd with $CFFC hides everything except Start/Select and bits 0-1 from joypadCurrent, D-pad included. Neither concerns the Start button.
+; displayModeFlags $0080 is the display-filter mode: actor_execution then runs RunActors_DisplayFiltered, which only processes actors with $1000 set in $10 or $12, so the rest of the world is frozen while the melody plays. It does not suppress rendering.
+; 
 ; === SHARED HELPERS ===
 ; 
 ; RemoveEquippedItem: Clears the equipped slot byte, resets inventoryEquippedType to 0, and sets inventoryEquippedIndex to $FFFF (no selection).
 ; 
-; FluteMusicActorController: Multi-phase actor orchestrating melody playback — suppresses input, spawns SPC transfer actors, overrides the player to a static pose, polls for music completion, dispatches to the melody-specific *_Effect handler via SwitchCase, then restores background music.
+; FluteMusicActorController: Multi-phase actor orchestrating melody playback — enters display-filter mode, hides the buttons, spawns SPC transfer actors, overrides the player to a static pose, polls for music completion, dispatches to the melody-specific *_Effect handler via SwitchCase, then restores background music and leaves display-filter mode.
 ; 
 ; SetPlayerTransition: Sets the player actor's function pointer and clears its frame timer. Used by melody handlers and UseItem_Aura to override player behavior.
 ; 
@@ -29,6 +33,8 @@
 ; Aura: Shadow-only (form 2), requires stationary player with no active dialogue/cutscene flags. Triggers transformation via player actor function pointer override to PlayerAuraTransformEntry.
 ; 
 ; Gorgon Flower: Three independent petal flags ($BF/$C0/$C1). Item is only removed when all three are set — partial placement persists across visits.
+; 
+; Inca Statues A/B: two mantels in scene $1E, statue A at tiles ($37-$38, $12-$13) and statue B at ($26-$27, $15-$16); standing on the other statue's mantel prints the shape-mismatch message. db-us/transforms.json (block item_use_system) repairs four vanilla branch quirks: (1) the four branches in the primary tile checks (two to loc_0386EA in A, two to loc_038800 in B) jumped into the middle of the CheckAlt routine, past its Y test, and now target the start of UseItem_IncaStatueA_CheckAlt / UseItem_IncaStatueB_CheckAlt; (2) the last X test of each CheckAlt routine (CMP #$27 in A, CMP #$38 in B) used a BNE whose target was the very next instruction, so the second tile of the mantel never reported a mismatch; it becomes BEQ to the mismatch message (UseItem_IncaStatueA_Mismatch / UseItem_IncaStatueB_Mismatch). The two rewrites in (2) span a line break, so extract:lt text (address tags between the lines) still shows the vanilla BNE, and a rebuild from extract:lt output lacks them (OQ-I026-1).
 ; 
 ; === WRAM VARIABLES ===
 ; 
@@ -78,7 +84,7 @@
 
 ; Entry point for inventory item usage.
 ; 
-; Pushes ItemUseEpilogue−1 as an RTS-trick return address so each handler can simply RTS to reach the cleanup code. Reads the equipped slot index from inventoryEquippedIndex — if negative ($FFFF = nothing equipped), jumps to UseItem_None. Otherwise reads the item byte from inventorySlots, masks to a 6-bit item ID ($00–$3F), doubles it for a word-sized jump table index, suppresses the Start button ($4000 in joypadHeld) to prevent menu re-entry, and dispatches through ItemHandlerJumpTable via indirect JMP.
+; Pushes ItemUseEpilogue−1 as an RTS-trick return address so each handler can simply RTS to reach the cleanup code. Reads the equipped slot index from inventoryEquippedIndex — if negative ($FFFF = nothing equipped), jumps to UseItem_None. Otherwise reads the item byte from inventorySlots, masks to a 6-bit item ID ($00–$3F), doubles it for a word-sized jump table index, consumes the use-item button ($0008 in joypadHeld) so holding it does not re-trigger the item, and dispatches through ItemHandlerJumpTable via indirect JMP.
 
 ItemUseDispatch {
     PEA $&ItemUseEpilogue-1 ; Push epilogue return — each handler returns via RTS into ItemUseEpilogue
@@ -92,19 +98,19 @@ ItemUseDispatch {
     AND #$003F
     ASL 
     TAX 
-    LDA #$0008            ; Suppress Use Item ($4000) to prevent re-activation during item use
+    LDA #$0008            ; Consume the use-item button ($0008 in joypadHeld) so holding it does not re-trigger the item
     TSB $joypadHeld
     JMP ($&ItemHandlerJumpTable, X) ; Dispatch to item handler via indirect JMP through the 64-entry table
 }
 
 ---------------------------------------------
-; Post-handler cleanup for item use. Calls UpdateFrameDialogue to process one frame of dialogue/UI, re-suppresses the Start button ($4000), restores processor flags, and returns to the caller via RTL.
+; Post-handler cleanup for item use. Calls UpdateFrameDialogue to process one frame of dialogue/UI, consumes the use-item button ($0008 in joypadHeld) again, restores processor flags, and returns to the caller via RTL.
 
 ItemUseEpilogue {
     SEP #$20
     JSL $@system_core.UpdateFrameDialogue ; Run one dialogue/UI frame between item handler and menu return
     REP #$20
-    LDA #$0008            ; Re-suppress Use Item in case dialogue processing cleared the flag
+    LDA #$0008            ; Consume the use-item button again (the dialogue frame may have released it)
     TSB $joypadHeld
     PLP 
     RTL 
@@ -195,7 +201,7 @@ dialogstring_0384C4 `[DEF]You're not equipped.[END]`
 ---------------------------------------------
 ; Red Jewel handler — increments the jewel counter and spawns a visual orbit effect.
 ; 
-; Removes the jewel from inventory, then uses BCD arithmetic (SED/CLD-bracketed addition) to increment the packed-decimal counter at jewelsCollected ($0AB0). Switches DP to the player actor slot and spawns a child actor (code_038566) at the player's position with display-filter flags ($2000). The child sets up a second actor (code_038576) that performs the orbiting jewel animation. Copies the player's XY position to the spawned actor and sets its OAM priority to $3000.
+; Removes the jewel from inventory, then uses BCD arithmetic (SED/CLD-bracketed addition) to increment the packed-decimal counter at jewelsCollected ($0AB0). Switches DP to the player actor slot and spawns a child actor (code_038566) at the player's position with spawn flags $2000 (not a display-filter flag; $1000 is that bit). The child sets up a second actor (code_038576) that performs the orbiting jewel animation. Copies the player's XY position to the spawned actor and sets its OAM priority to $3000.
 
 UseItem_RedJewel {
     COP [PrintDialogString] ( &dialogstring_038517 )
@@ -208,10 +214,10 @@ UseItem_RedJewel {
     CLD 
     PHX 
     PHD 
-    LDA $playerActor      ; Switch DP to player actor slot for SpawnLastRel relative base position
+    LDA $playerActor      ; Switch DP and X to the player actor slot so the spawn below is placed at the player
     TCD 
     TAX 
-    COP [SpawnListAppend] ( @code_038566, #00, #00, #$2000 ) ; Spawn orbit visual effect at player position; $2000 = display-filtered actor
+    COP [SpawnListAppend] ( @code_038566, #00, #00, #$2000 ) ; Spawn the orbit effect actor at the player position (spawn flags $2000, which is not the display-filter bit)
     TYX 
     LDA #$0000            ; Clear spawned actor flags ($0012), set OAM priority $3000 ($000E)
     STA $0012, X
@@ -328,7 +334,7 @@ dialogstring_038680 `[DEF]The door is open. [END]`
 ---------------------------------------------
 ; Inca Statue A — place on the mantel in Inca Ruins (scene $1E).
 ; 
-; Checks primary mantel position at tiles ($37–$38, $12–$13). If correct, places the statue (removes item, sets flag $30). Falls through to UseItem_IncaStatueA_CheckAlt for the alternate mantel position.
+; Checks primary mantel position at tiles ($37–$38, $12–$13). If correct, places the statue (removes item, sets flag $30). A wrong Y or X tile branches to UseItem_IncaStatueA_CheckAlt (vanilla branched into the middle of it, past the Y test; transforms.json retargets it).
 
 UseItem_IncaStatueA {
     LDA $sceneCurrent
@@ -338,14 +344,14 @@ UseItem_IncaStatueA {
     CMP #$0012
     BEQ loc_0386A6
     CMP #$0013
-    BNE UseItem_IncaStatueA_CheckAlt
+    BNE UseItem_IncaStatueA_CheckAlt        ; Wrong Y: transforms.json retargets the vanilla branch (to loc_0386EA, the X test without a Y test) to the start of CheckAlt
 
   loc_0386A6:
     LDA $playerXTile
     CMP #$0037
     BEQ loc_0386B3
     CMP #$0038
-    BNE UseItem_IncaStatueA_CheckAlt
+    BNE UseItem_IncaStatueA_CheckAlt        ; Wrong X: same retargeted branch (vanilla target loc_0386EA)
 
   loc_0386B3:
     COP [PrintDialogString] ( &dialogstring_0386BE )
@@ -359,7 +365,7 @@ dialogstring_0386BE `[DEF]He set Inca Statue [N]A on the mantel. [END]`
 ---------------------------------------------
 ; Alternate position check for Inca Statue A.
 ; 
-; Checks tiles ($26–$27, $15–$16). If this is where Statue B belongs, prints a shape mismatch message (code_03876D). If neither mantel matches and flag $44 is set, prints the spirits hint; otherwise prints a generic query about the Inca secret.
+; Checks tiles ($26–$27, $15–$16), the mantel statue B belongs on. If the Y tile is $15/$16 and X is $26, or (after the transforms.json fix) $27, it prints the shape mismatch message (UseItem_IncaMantelMismatch). Otherwise, if flag $44 is set it prints the spirits hint; if not it prints a generic query about the Inca secret. In the extract:lt text the X = $27 test still reads BNE loc_0386FA, which reaches the hint code either way (OQ-I026-1).
 
 UseItem_IncaStatueA_CheckAlt {
     LDA $playerYTile
@@ -373,12 +379,14 @@ UseItem_IncaStatueA_CheckAlt {
     CMP #$0026
     BNE loc_0386F5
 
-  loc_0386F2:
-    JMP $&code_03876D
+; Reached from UseItem_IncaStatueA_CheckAlt when the player stands on mantel tiles ($15-$16, X $26): jumps to UseItem_IncaMantelMismatch instead of the spirits hint or generic query.
+
+  UseItem_IncaStatueA_Mismatch:
+    JMP $&UseItem_IncaMantelMismatch
 
   loc_0386F5:
     CMP #$0027
-    BEQ loc_0386F2
+    BEQ UseItem_IncaStatueA_Mismatch        ; Vanilla BNE reaches loc_0386FA either way; transforms.json makes it BEQ UseItem_IncaStatueA_Mismatch (mismatch) in the normal extract (OQ-I026-1)
 
   loc_0386FA:
     COP [BranchOnFlagByte] ( #44, #00, &code_038705 )
@@ -395,7 +403,10 @@ dialogstring_03870A `[DEF]He said to dedicate the [N]statues where the [N]breath
 
 dialogstring_038746 `[DEF]Is the Inca secret[N]hidden in the statue?[END]`
 
-code_03876D {
+---------------------------------------------
+; Shared mismatch tail for Inca statue placement on the wrong mantel shape: prints dialogstring_038772 and returns with RTS.
+
+UseItem_IncaMantelMismatch {
     COP [PrintDialogString] ( &dialogstring_038772 )
     RTS 
 }
@@ -405,7 +416,7 @@ dialogstring_038772 `[DEF]The shape of the mantel [N]doesn't match the [N]shape 
 ---------------------------------------------
 ; Inca Statue B — place on the alternate mantel in Inca Ruins (scene $1E).
 ; 
-; Mirror structure of UseItem_IncaStatueA but checks the alternate mantel position first ($26–$27, $15–$16). If correct, places the statue (removes item, sets flag $31). Falls through to UseItem_IncaStatueB_CheckAlt.
+; Mirror structure of UseItem_IncaStatueA but checks the alternate mantel position first ($26–$27, $15–$16). If correct, places the statue (removes item, sets flag $31). A wrong Y or X tile branches to UseItem_IncaStatueB_CheckAlt (transforms.json retargets the vanilla branch into the middle of it).
 
 UseItem_IncaStatueB {
     LDA $sceneCurrent
@@ -415,14 +426,14 @@ UseItem_IncaStatueB {
     CMP #$0015
     BEQ loc_0387BC
     CMP #$0016
-    BNE UseItem_IncaStatueB_CheckAlt
+    BNE UseItem_IncaStatueB_CheckAlt        ; Wrong Y: transforms.json retargets the vanilla branch (to loc_038800, the X test without a Y test) to the start of CheckAlt
 
   loc_0387BC:
     LDA $playerXTile
     CMP #$0026
     BEQ loc_0387C9
     CMP #$0027
-    BNE UseItem_IncaStatueB_CheckAlt
+    BNE UseItem_IncaStatueB_CheckAlt        ; Wrong X: same retargeted branch (vanilla target loc_038800)
 
   loc_0387C9:
     COP [PrintDialogString] ( &dialogstring_0387D4 )
@@ -435,6 +446,8 @@ dialogstring_0387D4 `[DEF]He set Inca Statue [N]B on the mantel. [END]`
 
 ---------------------------------------------
 ; Alternate position check for Inca Statue B. Same logic as UseItem_IncaStatueA_CheckAlt but with swapped mantel positions.
+; 
+; Tiles ($37–$38, $12–$13), statue A's mantel: X = $37, or (after the transforms.json fix) $38, prints the shape mismatch message (UseItem_IncaStatueB_Mismatch); otherwise the spirits hint (flag $44) or the generic Inca-secret query. The extract:lt text still shows BNE loc_03880D for the X = $38 test (OQ-I026-1).
 
 UseItem_IncaStatueB_CheckAlt {
     LDA $playerYTile
@@ -446,16 +459,18 @@ UseItem_IncaStatueB_CheckAlt {
   loc_038800:
     LDA $playerXTile
     CMP #$0037
-    BEQ loc_038818
+    BEQ UseItem_IncaStatueB_Mismatch
     CMP #$0038
-    BEQ loc_038818
+    BEQ UseItem_IncaStatueB_Mismatch        ; Vanilla BNE reaches loc_03880D either way; transforms.json makes it BEQ UseItem_IncaStatueB_Mismatch (mismatch) in the normal extract (OQ-I026-1)
 
   loc_03880D:
     COP [BranchOnFlagByte] ( #44, #00, &code_038705 )
     COP [PrintDialogString] ( &dialogstring_03870A )
     RTS 
 
-  loc_038818:
+; Alternate-position failure in UseItem_IncaStatueB_CheckAlt: prints the mantel shape mismatch string directly and returns without placing the statue.
+
+  UseItem_IncaStatueB_Mismatch:
     COP [PrintDialogString] ( &dialogstring_038772 )
     RTS 
 }
@@ -566,7 +581,7 @@ dialogstring_03897C `[DEF]He fit the block[N]into the tile![END]`
 ; 
 ; First of three melody item handlers sharing FluteMusicActorController. Requires Will (form 0) — Freedan/Shadow cannot play. Checks IsMusicPlaying to prevent concurrent melody actors.
 ; 
-; In scene $24 (Gold Ship), if flag $01 is not yet set: suppresses rendering (displayModeFlags $0080), spawns FluteMusicActorController at the player's position with flags $2000, and configures the spawned actor with music track $19 and melody index 0. If the actor pool is full (Y=$1FC0), jumps to the no-input-lock path. Otherwise locks all buttons via joypadMaskStd = $CFF0.
+; In scene $24 (Gold Ship), if flag $01 is not yet set: enters display-filter mode (displayModeFlags $0080), spawns FluteMusicActorController at the player's position with flags $2000, and configures the spawned actor with music track $19 and melody index 0. If the actor pool is full (Y=$1FC0), jumps to the no-input-lock path (OQ-I026-3). Otherwise hides the buttons via joypadMaskStd |= $CFFC.
 ; 
 ; Outside scene $24, prints 'nothing happened.' If not Will, prints 'doesn't have the Flute.'
 
@@ -582,26 +597,29 @@ UseItem_WindFlute {
     CMP #$0024
     BNE code_0389F0
     COP [BranchOnFlagByte] ( #01, #01, &code_0389F0 )
-    LDA #$0080            ; Suppress normal rendering during music playback
+    LDA #$0080            ; Enter display-filter mode (displayModeFlags $0080): only actors with $1000 in $10/$12 keep running during the melody
     TSB $displayModeFlags
     COP [PrintDialogString] ( &dialogstring_038A2B )
     PHX 
     LDX #$0000
-    COP [SpawnListAppend] ( @FluteMusicActorController, #00, #00, #$2000 ) ; Spawn FluteMusicActorController; $2000 = display-filtered actor flags
+    COP [SpawnListAppend] ( @FluteMusicActorController, #00, #00, #$2000 ) ; Spawn FluteMusicActorController with flags $2000; UseItem_FluteConfigureController then adds the display-filter bit $1000 to its $12
     CPY #$1FC0            ; Y=$1FC0 = actor pool full — spawn failed, skip input suppression
     BNE loc_0389D3
-    JMP $&code_0389D9
+    JMP $&UseItem_FluteConfigureController
 
   loc_0389D3:
-    LDA #$CFFC            ; Lock all buttons ($CFF0) except D-pad/Select during melody
+    LDA #$CFFC            ; Hide all buttons but Start/Select ($CFFC) from joypadCurrent during the melody
     TSB $joypadMaskStd
 }
 
-code_0389D9 {
+---------------------------------------------
+; After a successful SpawnListAppend of FluteMusicActorController from UseItem_WindMelody (Y holds the new slot): ORs display-filter bit $1000 into the controller $12, sets track $19 in $26 and melody index 0 in $20, restores X, returns to the caller.
+
+UseItem_FluteConfigureController {
     LDA $0012, Y          ; Configure music actor: set display-filter ($1000), track ID, melody index
     ORA #$1000
     STA $0012, Y
-    LDA #$0019            ; Music track $19 = Wind Melody SPC module
+    LDA #$0019            ; Music track $19 (bgm_lost_incan_melody), the tune of the Wind Melody; stored in the controller's $26
     STA $0026, Y
     LDA #$0000            ; Melody index 0 (Wind) — FluteMusicActorController dispatches via SwitchCase
     STA $0020, Y
@@ -610,7 +628,7 @@ code_0389D9 {
 }
 
 code_0389F0 {
-    COP [PrintDialogString] ( &dialogstring_038A8A ) ; No matching scene — played melody but nothing happened
+    COP [PrintDialogString] ( &dialogstring_038A8A ) ; Wind Melody fallback (not the Gold Ship scene, or the flag $01 test branched here): prints 'But nothing happened'
     RTS 
 
   loc_0389F5:
@@ -710,7 +728,7 @@ UseItem_LolaMelody {
 }
 
 code_038C14 {
-    LDA $0012, Y          ; Same actor config as code_0389D9: display-filtered, track $18, melody index 1 (Lola)
+    LDA $0012, Y          ; Same actor config as UseItem_FluteConfigureController: display-filtered, track $18, melody index 1 (Lola)
     ORA #$1000
     STA $0012, Y
     LDA #$0018
@@ -734,7 +752,7 @@ code_038C30 {
 ---------------------------------------------
 ; Lola's Melody success effects — dispatches per-scene results.
 ; 
-; Scene $15: sets flag $40, melody spreads over meadow. Scene $11: sets flag $02, voice guides to wall switch. Scene $CD: sets flag $01 and clears flag $0E. Fallthrough prints 'nothing happened.'
+; Scene $15: sets flag $40, melody spreads over meadow; if flag $40 is already set it jumps to code_038C68 instead (OQ-I026-2). Scene $11: sets flag $02, voice guides to wall switch. Scene $CD: jumps to code_038C68, which sets flag $01 and clears flag $0E without a message. Fallthrough prints 'nothing happened.'
 
 UseItem_LolaMelody_Effect {
     LDA $sceneCurrent
@@ -747,7 +765,7 @@ UseItem_LolaMelody_Effect {
     BRA code_038C70
 
   loc_038C49:
-    COP [BranchOnFlagByte] ( #40, #01, &code_038C68 )
+    COP [BranchOnFlagByte] ( #40, #01, &code_038C68 ) ; Flag $40 already set (melody played here before): jump to code_038C68, which sets flag $01 and clears $0E with no message (OQ-I026-2)
     COP [SetFlagByte] ( #40 )
     COP [PrintDialogString] ( &dialogstring_038CA0 )
     COP [RestoreSavedPtr]
@@ -864,7 +882,7 @@ dialogstring_038EF4 `The key turns, making a [N]strange sound. [END]`
 ---------------------------------------------
 ; Memory Melody — play in the Mountain Temple (scene $39).
 ; 
-; Third melody handler. Requires Will (form 0) and scene $39 with flag $68 clear. Checks tile region ($13,$18)–($1A,$1D). Music track $1D, melody index 2. Unlike the other melodies, this handler does not use the shared code_0389D9 subroutine — it configures the music actor inline and additionally sets musicParentActor to $0E.
+; Third melody handler. Requires Will (form 0) and scene $39 with flag $68 clear. Checks tile region ($13,$18)–($1A,$1D). Music track $1D, melody index 2. Unlike the other melodies, this handler does not use the shared UseItem_FluteConfigureController subroutine — it configures the music actor inline and additionally sets musicParentActor to $0E.
 
 UseItem_MemoryMelody {
     LDA $characterForm
@@ -1526,7 +1544,7 @@ code_039B07 {
     LDX #$0000
     COP [SpawnListAppend] ( @code_039B70, #00, #00, #$2000 )
     LDA $0AA6
-    STA $0024, Y          ; Pass plate ID to spawned actor via DP $24 for metatile selection
+    STA $0024, Y          ; Pass the plate ID to the spawned actor's field $24 (Y = new actor slot) for the metatile selection
     LDA $globalScriptIndex
     CLC                   ; Slot position ($0AAC + 5) = X tile for spawned metatile actor
     ADC #$0005
@@ -1720,23 +1738,23 @@ RemoveEquippedItem {
 ; 
 ; Orchestrates the complete melody playback lifecycle shared by Wind Melody, Lola's Melody, and Memory Melody:
 ; 
-; Phase 1 — Setup: Suppress rendering (displayModeFlags $0080), store the original music ID from musicParentActor into DP $24, spawn SpcTransferMusicData to upload the melody's music data to the SPC700. If spawn fails (Y=$1FC0 = pool full), jump to cleanup and die. Otherwise swap X/Y registers to configure the spawned music actor: store track number (+1) in chatPtr, set display-filter bit ($1000). Override the player actor to static idle pose (PlayerStaticBodyPose via SetPlayerTransition), set playerFlags $0800 (special movement lock), mask joypad ($CFF0). Yield and poll each frame until musicTransitionState == $FFFF.
+; Phase 1 — Setup: Enter display-filter mode (displayModeFlags $0080), store the original music ID from musicParentActor into DP $24, spawn SpcTransferMusicData to upload the melody's music data to the SPC700. If spawn fails (Y=$1FC0 = pool full), jump to FluteControllerExit and die. Otherwise swap X/Y registers to configure the spawned music actor: store track number (+1) in chatPtr, set the display-filter bit ($1000 in $12). Give the player actor the same bit, override it to a static idle pose (PlayerStaticBodyPose via SetPlayerTransition), set playerFlags $0800 (script/ability lock), and hide the buttons (joypadMaskStd |= $CFFC). Yield and poll each frame until musicTransitionState == $FFFF.
 ; 
-; Phase 2 — Playback: Poll APUIO1 ($2141) each frame. When the SPC signals $FF (track finished), restore the player to normal pose (PlayerWalkingIdlePose), re-enable joypad, and dispatch to the melody-specific *_Effect handler via SwitchCase on DP $20 (melody index 0/1/2).
+; Phase 2 — Playback: Poll APUIO1 ($2141) each frame. When the SPC signals $FF (track finished), clear the display-filter bit from the player actor, restore the player to normal pose (PlayerWalkingIdlePose), unhide the buttons, and dispatch to the melody-specific *_Effect handler via SwitchCase on DP $20 (melody index 0/1/2).
 ; 
-; Phase 3 — Restoration (code_03A06E): After the effect handler, spawn another SpcTransferMusicData to restore the original background music. Wait for musicTransitionState == $FFFF again, delay 1 frame (WaitByte), then die.
+; Phase 3 — Restoration (FluteRestoreMusicPhase): After the effect handler, spawn another SpcTransferMusicData to restore the original background music. Wait for musicTransitionState == $FFFF again, delay 2 ticks (WaitByte #01 = N + 1), then fall through into FluteControllerExit.
 ; 
-; Cleanup (code_03A098): Reached on spawn failure — clears displayModeFlags $0080 and dies.
+; Cleanup (FluteControllerExit): Reached by that fall-through and by the jump on spawn failure — clears displayModeFlags $0080 (leaves display-filter mode) and dies.
 
 FluteMusicActorController {
-    LDA #$0080            ; Phase 1 setup: suppress rendering for display-filtered-only mode
+    LDA #$0080            ; Phase 1: enter display-filter mode (displayModeFlags $0080); FluteControllerExit clears it again
     TSB $displayModeFlags
     LDA $musicParentActor ; Save original music ID from the calling melody handler for later restoration
     STA $24
     COP [SpawnAfterFlags] ( @hdma_dma_spc.SpcTransferMusicData, #$2000 ) ; Spawn SPC data transfer actor to upload melody music to sound chip
-    CPY #$1FC0            ; Y=$1FC0 = actor pool full — spawn failed, skip to cleanup (code_03A098)
+    CPY #$1FC0            ; Y=$1FC0 = actor pool full — spawn failed, skip to cleanup (FluteControllerExit)
     BNE loc_039FE4
-    JMP $&code_03A098
+    JMP $&FluteControllerExit
 
   loc_039FE4:
     TXA                   ; Swap X/Y: X → new music actor slot, Y → this controller
@@ -1751,7 +1769,7 @@ FluteMusicActorController {
     TXA 
     TYX 
     TAY 
-    LDY $playerActor      ; Lock the player actor to display-filtered mode too
+    LDY $playerActor      ; Let the player actor run in display-filter mode too ($1000 in its $12)
     LDA $0012, Y
     ORA #$1000
     STA $0012, Y
@@ -1761,15 +1779,17 @@ FluteMusicActorController {
     JSR $&SetPlayerTransition
     LDA #$0800            ; playerFlags $0800 = special movement lock, prevents walking
     TSB $playerFlags
-    LDA #$CFFC            ; Mask all buttons ($CFF0 = everything except D-pad and Select)
+    LDA #$CFFC            ; Hide all buttons but Start/Select ($CFFC) from joypadCurrent
     TSB $joypadMaskStd
     COP [SetEntryHere]    ; Yield — re-enter each frame to poll music upload state
     LDA $musicTransitionState ; Wait for musicTransitionState == $FFFF (music upload complete, track started)
     CMP #$FFFF
-    BEQ loc_03A029
+    BEQ FlutePlaybackPhase
     RTL 
 
-  loc_03A029:
+; Phase 2 entry of FluteMusicActorController after musicTransitionState is $FFFF: SetEntryHere polls APUIO1 each frame until $FF signals the melody finished, then clears player display-filter, restores walking idle pose, unmasks joypad, and SwitchCases on melody index into the effect handlers with return set to FluteRestoreMusicPhase.
+
+  FlutePlaybackPhase:
     COP [SetEntryHere]    ; Phase 2: music is playing — poll SPC for completion each frame
     SEP #$20
     LDA $APUIO1           ; Read APUIO1 ($2141); SPC signals $FF when the track finishes
@@ -1788,9 +1808,9 @@ FluteMusicActorController {
     STA $0002, Y
     LDA #$&player_transition_handlers.PlayerWalkingIdlePose
     JSR $&SetPlayerTransition
-    LDA #$CFFC            ; Unlock buttons — remove $CFF0 mask from joypadMaskStd
+    LDA #$CFFC            ; Unhide the buttons: remove $CFFC from joypadMaskStd
     TRB $joypadMaskStd
-    COP [SetSavedPtr] ( &code_03A06E ) ; Set return point for after the melody-specific effect handler runs
+    COP [SetSavedPtr] ( &FluteRestoreMusicPhase ) ; Set return point for after the melody-specific effect handler runs
     LDA $20               ; Dispatch to effect handler: DP $20 = melody index (0=Wind, 1=Lola, 2=Memory)
     STA $0000
     COP [SwitchCase] ( #$0000, &code_list_03A068 )
@@ -1802,7 +1822,10 @@ code_list_03A068 [
   &UseItem_MemoryMelody_Effect   ;02
 ]
 
-code_03A06E {
+---------------------------------------------
+; Phase 3 after the melody effect: spawns SpcTransferMusicData with chatPtr from saved DP $24, polls until musicTransitionState is $FFFF again, WaitByte one frame, then falls through into FluteControllerExit.
+
+FluteRestoreMusicPhase {
     COP [SpawnAfterFlags] ( @hdma_dma_spc.SpcTransferMusicData, #$2000 ) ; Phase 3: spawn SPC transfer to restore the original background music
     TXA 
     TYX 
@@ -1822,11 +1845,14 @@ code_03A06E {
     RTL 
 
   loc_03A095:
-    COP [WaitByte] ( #01 ) ; Delay 1 frame after restoration completes, then die
+    COP [WaitByte] ( #01 ) ; WaitByte #01 = 2 actor ticks (N + 1) after the restoration completes, then die
 }
 
-code_03A098 {
-    LDA #$0080            ; Spawn-failed cleanup: restore rendering mode and kill this actor
+---------------------------------------------
+; Cleanup for FluteMusicActorController: clears displayModeFlags bit $0080 (leave display-filter mode) and COP Die; reached on spawn failure and after restoration wait.
+
+FluteControllerExit {
+    LDA #$0080            ; Leave display-filter mode (clear displayModeFlags $0080) and die; reached by fall-through after the Phase 3 WaitByte and on spawn failure
     TRB $displayModeFlags
     COP [Die]
 }

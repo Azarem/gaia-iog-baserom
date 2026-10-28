@@ -9,8 +9,8 @@
 ---------------------------------------------
 
 ?INCLUDE 'EscortFollowPathTracker'
-?INCLUDE 'InitPlayerScriptVariant'
 ?INCLUDE 'sE6_gaia'
+?INCLUDE 'SetPlayerIdleFacing'
 
 !joypadMaskStd                  065A
 !playerActor                    09AA
@@ -64,7 +64,7 @@ code_09CA54 {
     COP [ClearSolidAbs] ( #07, #19 )
     COP [WaitOnFlagByte] ( #03, #01 )
     LDA #$0000
-    JSL $@InitPlayerScriptVariant
+    JSL $@SetPlayerIdleFacing
     COP [StageSpriteFrame] ( #1A )
     COP [AnimOnce]
     COP [PrintDialogString] ( &dialogstring_09CCD0 )

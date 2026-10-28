@@ -198,6 +198,10 @@
     "782311": "Pyramid",
     "782326": "Watermia",
     "782341": "Ankor Wat",
-    "784986": "Set all stats to 64",
-    "785007": "Triggers HP bar flash"
+    "784986": "A = 64",
+    "784989": "Strength = 64",
+    "784995": "Defense = 64",
+    "785001": "Maximum HP = 64",
+    "785007": "Heal request of 64 (HP recovery animation per the WRAM map); playerHp itself is not written",
+    "785010": "One-shot actor: remove itself"
 }

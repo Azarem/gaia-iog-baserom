@@ -8,8 +8,8 @@
 
 ?INCLUDE 'f_inventory_full'
 ?INCLUDE 'interaction_handlers'
-?INCLUDE 'oneshot_palette_flash_1B'
-?INCLUDE 'oneshot_palette_flash_1C'
+?INCLUDE 'oneshot_backdrop_fade_in_1B'
+?INCLUDE 'oneshot_backdrop_fade_out_1C'
 ?INCLUDE 'spriteset_enemies'
 
 !joypadMaskStd                  065A
@@ -62,10 +62,10 @@ code_04D275 {
     TSB $joypadMaskStd
     COP [PrintDialogString] ( &dialogstring_04D679 )
     COP [WaitByte] ( #1D )
-    COP [SpawnThinker] ( @oneshot_palette_flash_1B.FlashPalette1B )
+    COP [SpawnThinker] ( @oneshot_backdrop_fade_in_1B.FadeBackdropIn1B )
     COP [WaitByte] ( #BF )
     COP [PrintDialogString] ( &dialogstring_04D732 )
-    COP [SpawnThinker] ( @oneshot_palette_flash_1C.FlashPalette1C )
+    COP [SpawnThinker] ( @oneshot_backdrop_fade_out_1C.FadeBackdropOut1C )
     COP [WaitByte] ( #BF )
     LDA #$CFFC
     TRB $joypadMaskStd

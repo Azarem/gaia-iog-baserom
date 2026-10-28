@@ -27,43 +27,43 @@ The four compilation units split into **scene-entry** setup (during `ClearSceneS
 | When | Routine | Role |
 |------|---------|------|
 | Scene load | `ApplyAllEventBlocks` | Scan all 256 event flags; instantly swap hidden map tiles into place for set flags |
-| Scene load | `PlaceBarrierTiles` | Write impassable 2×2 barrier patterns for flagged blocked passages |
+| Scene load | `PlaceOpenedChestTiles` | Redraw already-opened chests with the open-chest 2×2 tile pattern |
 | Scene load | `DisplaySceneTitle` | After `SpawnSceneActors`, show centered area name if entering from a different scene (`$0D6E ≠ scene_current`) |
 | Scene load | `InitWarpTable` | Set `$00D4`/`$00D6` to standard and extended warp lists for the current scene |
 | Every frame | `CheckWarpAndChest` | Warp rectangle hit-testing; chest interaction when no warp is active |
-| On demand (COP) | `MusicPlaybackActor` | Mask input, wait for SPC track idle, sync render frame, show dialogue |
+| On demand (COP) | `MusicJingleActor` | Mask input, wait for SPC track idle, sync render frame, show dialogue |
 
 **Music actors** coordinate playback timing with the render pipeline: they block directional input, poll `$06FA` until the active track reaches idle (`$FFFF`), spawn `MusicRenderSync` for a clean dialogue frame, and wait for the APU handshake (`$2141 = $FF`) before restoring joypad control. **DisplaySceneTitle** is a one-shot on scene entry — it suppresses the overlay when re-entering the same area and sets `$00B4` so the transition epilogue can wait for player acknowledgment. **Event blocks** connect persistent story flags to map geometry: bulk-applied at load for instant WRAM tile swaps, or animated mid-script via COP `$32`/`$33` with VRAM queue flushes during VBlank. **Warps** run rectangle detection every frame — tile-level AABB first, then pixel-precision overlap — triggering `ExecuteWarp` for doorways or a forced-walk path for stair warps.
 
 ### Block Layout
 
 ```
-$02A040 ┌─ MusicPlaybackActor ─────────────────────┐
+$02A040 ┌─ MusicJingleActor ─────────────────────┐
         │  MusicRenderSync / IsMusicPlaying         │  music_actors
 $02A11B ├─ DisplaySceneTitle ────────────────────────┤  DisplaySceneTitle
         │  scene_title_box_format / CountTitleGlyphs│
 $02A1E9 ├─ ApplyAllEventBlocks ─────────────────────┤
-        │  SwapEventBlockTiles / FlushVramWriteQueue│  event_blocks
+        │  CopyEventBlockTiles / FlushVramWriteQueue│  event_blocks
         │  LookupEventBlock / AnimateEventBlock …   │
 $02A5DD ├─ CheckWarpAndChest ───────────────────────┤
-        │  PlaceBarrierTiles / HandleChestInteraction│  warps_interaction
+        │  PlaceOpenedChestTiles / HandleChestInteraction│  warps_interaction
         │  ChestOpeningActor … StartForcedWalk      │
 $02AB8A └─ (camera_tilemap continues) ──────────────┘
 ```
 
 ## music_actors.asm
 
-COP-based actors and a query routine that coordinate **music playback lifecycle** with the render pipeline. When the `MusicAndText` COP command (opcode `$19`) fires, `cop_handlers_audio.asm` allocates an actor and points it at `MusicPlaybackActor`.
+COP-based actors and a query routine that coordinate **music playback lifecycle** with the render pipeline. When the `MusicAndText` COP command (opcode `$19`) fires, `cop_handlers_audio.asm` allocates an actor and points it at `MusicJingleActor`.
 
 | Address | Name | Description |
 |---------|------|-------------|
-| `$02A040` | MusicPlaybackActor | MusicPlaybackActor is the primary COP coroutine spawned by the MusicAndText command. |
-| `$02A0E5` | MusicRenderSync | MusicRenderSync is a one-shot render-sync child spawned by MusicPlaybackActor after the music track reaches idle. |
+| `$02A040` | MusicJingleActor | MusicJingleActor is the primary COP coroutine spawned by the MusicAndText command. |
+| `$02A0E5` | MusicRenderSync | MusicRenderSync is a one-shot render-sync child spawned by MusicJingleActor after the music track reaches idle. |
 | `$02A10A` | IsMusicPlaying | IsMusicPlaying is a lightweight query routine callable from any bank via JSL. |
 
-### MusicPlaybackActor
+### MusicJingleActor
 
-`MusicPlaybackActor` is the primary COP coroutine spawned by the `MusicAndText` command. It orchestrates the full music-and-dialogue sequence: blocking player input, waiting for the active music track to finish, synchronizing a render frame so dialogue can appear cleanly, and respawning the visual overlay child actor that keeps the screen updated during the wait.
+`MusicJingleActor` is the primary COP coroutine spawned by the `MusicAndText` command. It orchestrates the full music-and-dialogue sequence: blocking player input, waiting for the active music track to finish, synchronizing a render frame so dialogue can appear cleanly, and respawning the visual overlay child actor that keeps the screen updated during the wait.
 
 On entry the actor saves the parent actor ID from `$06F2` into `$7F0010,X`, then spawns `@chunk_03BAE1.SpcTransferMusicData` as a visual-sync child with flag `$2000`. If spawn fails (`CPY #$1FC0`), control jumps to cleanup at `MusicLoadCleanup`. Otherwise the actor increments its child counter, sets actor flag bit `$1000`, and masks the joypad via `TSB $065A` with mask `$FFF0` (stripping directional input).
 
@@ -107,7 +107,7 @@ The main loop waits until `$06FA` (active music track ID) equals `$FFFF` (idle).
 
 ### MusicRenderSync
 
-`MusicRenderSync` is a one-shot render-sync child spawned by `MusicPlaybackActor` after the music track reaches idle. It bridges the gap between music ending and visible dialogue display by forcing a full render frame after a fixed delay.
+`MusicRenderSync` is a one-shot render-sync child spawned by `MusicJingleActor` after the music track reaches idle. It bridges the gap between music ending and visible dialogue display by forcing a full render frame after a fixed delay.
 
 The actor waits 72 frames (`WaitByte #48`), clears actor flag bit `$1000`, zeroes the joypad mask at `$065A`, saves and restores DBR from the text pointer bank byte at `$22`, then calls `UpdateFrame_Render` followed by `DialogStringRenderer` (dialogue box opener in chunk `$03`). It then dies. This ensures the dialogue frame is laid out on screen before the parent actor resumes and waits for the APU handshake.
 
@@ -205,17 +205,17 @@ Implements the **event flag → tile swap** system. Each event block definition 
 | Address | Name | Description |
 |---------|------|-------------|
 | `$02A1E9` | ApplyAllEventBlocks | ApplyAllEventBlocks performs a bulk scan of all 256 event flags in the $0200–$02FF range at scene load. |
-| `$02A220` | SwapEventBlockTiles | SwapEventBlockTiles performs an instant foreground/background tile exchange over a rectangular map region. |
+| `$02A220` | CopyEventBlockTiles | CopyEventBlockTiles performs an instant tile copy over a rectangular map region (the source rectangle overwrites the destination and is left unchanged). |
 | `$02A310` | FlushVramWriteQueue | FlushVramWriteQueue drains pending tile graphics writes to SNES VRAM during the VBlank render path. |
 | `$02A363` | LookupEventBlock | LookupEventBlock indexes into event_block_table by block ID (passed in A on entry). |
-| `$02A3A8` | AnimateEventBlock | AnimateEventBlock applies the same tile swap logic as SwapEventBlockTiles, but spreads work across multiple frames wi... |
+| `$02A3A8` | AnimateEventBlock | AnimateEventBlock applies the same tile copy logic as CopyEventBlockTiles, but spreads work across multiple frames wi... |
 | `$02A50D` | QueueVisibleTileVram | QueueVisibleTileVram performs viewport culling and enqueues four VRAM write pairs for a single map tile if it falls w... |
 | `$02A58B` | AdvanceEventColumn | AdvanceEventColumn moves the event block iteration to the next column within the current row. |
 | `$02A5B1` | AdvanceEventRow | AdvanceEventRow moves the event block iteration to the next row. |
 
 ### ApplyAllEventBlocks
 
-`ApplyAllEventBlocks` performs a bulk scan of all 256 event flags in the `$0200`–`$02FF` range at scene load. It walks 32 bytes starting at `$0A20`, testing each bit in each byte. For every set bit, it calls `LookupEventBlock` with the running block index in `$04`, then `SwapEventBlockTiles` if the lookup succeeds (scene ID matches).
+`ApplyAllEventBlocks` performs a bulk scan of all 256 event flags in the `$0200`–`$02FF` range at scene load. It walks 32 bytes starting at `$0A20`, testing each bit in each byte. For every set bit, it calls `LookupEventBlock` with the running block index in `$04`, then `CopyEventBlockTiles` if the lookup succeeds (scene ID matches).
 
 The bit index in `$04` wraps: after processing 8 bits per byte across 32 bytes (256 total), the outer loop exits when `$04` wraps to zero after increment. This ensures every event flag in the `$0200` wrapper range is checked exactly once per scene entry.
 
@@ -225,7 +225,7 @@ The bit index in `$04` wraps: after processing 8 bits per byte across 32 bytes (
 |------|--------|
 | 1 | `$04 = 0` (block ID counter); Y = 0 (flag byte index) |
 | 2 | Load flag byte `$0A20,Y`; increment Y |
-| 3 | For 8 bits: LSR; if carry set → `LookupEventBlock` → `SwapEventBlockTiles` |
+| 3 | For 8 bits: LSR; if carry set → `LookupEventBlock` → `CopyEventBlockTiles` |
 | 4 | Increment `$04`; repeat 8 times per byte |
 | 5 | If `$04 ≠ 0`, goto step 2 (next byte) |
 | 6 | Return |
@@ -246,11 +246,11 @@ The bit index in `$04` wraps: after processing 8 bits per byte across 32 bytes (
 | `chunk_03BAE1.asm` (~line 5440) | Scene load initialization |
 | `inventory_overlay.asm` | Inventory exit — refresh map state |
 | `LookupEventBlock` | Resolves block geometry from flag index |
-| `SwapEventBlockTiles` | Applies instant WRAM tile swap |
+| `CopyEventBlockTiles` | Applies instant WRAM tile copy |
 
-### SwapEventBlockTiles
+### CopyEventBlockTiles
 
-`SwapEventBlockTiles` performs an instant foreground/background tile exchange over a rectangular map region. Geometry registers `$96`–`$A4` must be pre-loaded by `LookupEventBlock`: destination col/row (`$96`/`$98`), source col/row (`$9A`/`$9C`), width (`$9E`), height (`$A0`), and layer flag (`$A4`).
+`CopyEventBlockTiles` performs an instant tile copy over a rectangular map region (the source rectangle overwrites the destination and is left unchanged). Geometry registers `$96`–`$A4` must be pre-loaded by `LookupEventBlock`: destination col/row (`$96`/`$98`), source col/row (`$9A`/`$9C`), width (`$9E`), height (`$A0`), and layer flag (`$A4`).
 
 Two modes exist. **Layer-0 mode** (`$A4 = 0`): swaps `$7EA000` ↔ `$7FC000` per cell directly. **Dual-layer mode** (`$A4 ≠ 0`): reads overlay from `$7EC000`; writes to `$7FC000` only when overlay byte ≠ 0; always writes source back to `$7EC000`. Map indices are computed via `TileCoordsToMapIndex` and iterated using `MapIndexMoveRight` / `MapIndexMoveDown` (or `MapIndexMoveDown_L1` for dual-layer).
 
@@ -349,7 +349,7 @@ On success, geometry is loaded into working registers: destination col/row (`$96
 
 ### AnimateEventBlock
 
-`AnimateEventBlock` applies the same tile swap logic as `SwapEventBlockTiles`, but spreads work across multiple frames with VRAM updates for viewport-visible tiles. Called in a loop by COP `$33` `ApplyBgChange` until it returns **SEC** (complete).
+`AnimateEventBlock` applies the same tile copy logic as `CopyEventBlockTiles`, but spreads work across multiple frames with VRAM updates for viewport-visible tiles. Called in a loop by COP `$33` `ApplyBgChange` until it returns **SEC** (complete).
 
 Each tile processed calls `QueueVisibleTileVram` to enqueue VRAM writes for on-screen cells. When the queue fills (`Y = $0100`) or a batch completes, the routine terminates the queue with a zero entry, calls `UpdateFrame_Dialogue` for VBlank sync, and returns **CLC** to resume next frame. Dual-layer mode reads tile graphics from `$7E:2800` (BG2 table) instead of the layer-0 path.
 
@@ -443,7 +443,7 @@ Event blocks connect persistent story flags to visible map changes. The data flo
 Event flag set ($0200–$02FF in $0A20–$0A3F)
   └─► LookupEventBlock (event_block_table[block_id])
         └─► Verify scene ID matches $0644
-              └─► SwapEventBlockTiles or AnimateEventBlock
+              └─► CopyEventBlockTiles or AnimateEventBlock
                     └─► Exchange map WRAM tiles ($7EA000 ↔ $7FC000)
                           └─► [Animated path] QueueVisibleTileVram → FlushVramWriteQueue
 ```
@@ -469,7 +469,7 @@ Flag indices map to `$0A20 + (index >> 3)` with bit `(index & 7)`. Index 0 corre
 
 | Pattern | Entry point | VRAM update | When used |
 |---------|-------------|-------------|-----------|
-| **Instant** | `SwapEventBlockTiles` | None — camera DMA picks up WRAM changes | Scene load, conditional reload, inventory exit |
+| **Instant** | `CopyEventBlockTiles` | None — camera DMA picks up WRAM changes | Scene load, conditional reload, inventory exit |
 | **Animated** | `AnimateEventBlock` | Queued visible writes → VBlank flush | COP `$32`/`$33` (`StageBgChange` → `ApplyBgChange`) |
 
 In dual-layer mode, overlay byte `$00` means "keep existing BG tile" — used when only part of a compound tile should change (e.g. opening a door frame without altering adjacent wall tiles).
@@ -481,9 +481,9 @@ Per-frame **trigger detection** for warp zones and chest tiles, plus COP actors 
 | Address | Name | Description |
 |---------|------|-------------|
 | `$02A5DD` | CheckWarpAndChest | CheckWarpAndChest is the top-level per-frame trigger dispatcher called from system_core.asm after player movement. |
-| `$02A5F0` | PlaceBarrierTiles | PlaceBarrierTiles writes impassable 2×2 barrier tile patterns to the map buffer for blocked passages. |
+| `$02A5F0` | PlaceOpenedChestTiles | PlaceOpenedChestTiles redraws already-opened chests into the map buffer with the open-chest 2×2 tile pattern. |
 | `$02A65D` | HandleChestInteraction | HandleChestInteraction implements the full chest-open flow when the player presses the action button facing a chest t... |
-| `$02A7B8` | ChestOpeningActor | ChestOpeningActor is the animated chest-open COP coroutine, structurally parallel to MusicPlaybackActor. |
+| `$02A7B8` | ChestOpeningActor | ChestOpeningActor is the animated chest-open COP coroutine, structurally parallel to MusicJingleActor. |
 | `$02A893` | ChestDialogueActor | ChestDialogueActor is a short-lived child actor spawned by ChestOpeningActor after the item jingle completes. |
 | `$02A8A8` | SetAnimStatePointer | SetAnimStatePointer is a minimal helper that switches a target actor's animation state. |
 | `$02A8B2` | DrawChestTiles | DrawChestTiles writes a 2×2 chest lid tile pattern to $7EA000 and queues VRAM updates for all four corners. |
@@ -493,9 +493,9 @@ Per-frame **trigger detection** for warp zones and chest tiles, plus COP actors 
 | `$02AA5A` | ExecuteWarp | ExecuteWarp sets up all parameters for a scene transition when a standard warp rectangle is triggered. |
 | `$02AB25` | StartForcedWalk | StartForcedWalk dispatches a directional forced-walk COP actor when the player triggers an extended/stair warp. |
 
-### PlaceBarrierTiles
+### PlaceOpenedChestTiles
 
-`PlaceBarrierTiles` writes impassable 2×2 barrier tile patterns to the map buffer for blocked passages. It indexes `table_01ADA8` by scene index `$0646` and iterates 4-byte entries until byte 0 has bit `$80` set (end marker).
+`PlaceOpenedChestTiles` redraws already-opened chests into the map buffer with the open-chest 2×2 tile pattern. It indexes `table_01ADA8` by scene index `$0646` and iterates 4-byte entries until byte 0 has bit `$80` set (end marker).
 
 For each entry with bit `$80` clear and the corresponding event flag set (`TestEventFlag_0200` on byte 3), it writes a 2×2 pattern (`$FE`/`$FF`/`$FC`/`FD`) to `$7EA000` at the entry's tile coordinates. Called at scene load and on inventory exit to restore boulder/barrier state.
 
@@ -571,7 +571,7 @@ Outcomes branch three ways: empty item slot → name dialogue + set flag; key it
 
 ### ChestOpeningActor
 
-`ChestOpeningActor` is the animated chest-open COP coroutine, structurally parallel to `MusicPlaybackActor`. It locks joypad input with mask `$CFF0`, sets the player to wait animation `$00C432` via `SetAnimStatePointer`, and sets `$09AE` bit `$0800`.
+`ChestOpeningActor` is the animated chest-open COP coroutine, structurally parallel to `MusicJingleActor`. It locks joypad input with mask `$CFF0`, sets the player to wait animation `$00C432` via `SetAnimStatePointer`, and sets `$09AE` bit `$0800`.
 
 After music reaches idle (`$06FA = $FFFF`), it spawns `ChestDialogueActor` with the item name pointer, waits for APU handshake (`$2141 = $FF`), restores player animation to `$00C45A`, unblocks joypad, respawns the visual child, and waits 11 frames before dying. Cleanup clears `$09EC` bit `$0080`.
 
@@ -650,14 +650,14 @@ The pointer after the terminator (extended/stair warp list start) is stored in `
 
 `CheckWarpRectangles` performs two-pass warp detection against the player position each frame. **Pass 1** iterates 12-byte `scene_warp` entries from `$00D4`. **Pass 2** iterates 13-byte `stair_warp` entries from `$00D6`. Each entry is terminated by `$FF` in byte 0.
 
-Each candidate entry undergoes a two-level test: first a tile-level AABB against `$09A6`/`$09A8` (player tile coords), then a pixel-level test via `ConvertWarpToPixels` against `$09A2`/`$09A4` (8-pixel precision player position). Standard hit jumps to `ExecuteWarp`; extended hit jumps to `code_02AAF2` (forced-walk path). No hit clears `$09AE` bit `$0100` and returns carry clear.
+Each candidate entry undergoes a two-level test: first a tile-level AABB against `$09A6`/`$09A8` (player tile coords), then a pixel-level test via `ConvertWarpToPixels` against `$09A2`/`$09A4` (8-pixel precision player position). Standard hit jumps to `ExecuteWarp`; extended hit jumps to `ExecuteForcedWalkWarp` (forced-walk path). No hit clears `$09AE` bit `$0100` and returns carry clear.
 
 **Algorithm:**
 
 | Pass | Entry size | Hit action |
 |------|------------|------------|
 | 1 (standard) | 12 bytes | Tile AABB → pixel AABB → `ExecuteWarp` |
-| 2 (extended) | 13 bytes | Tile AABB → pixel AABB → `code_02AAF2` |
+| 2 (extended) | 13 bytes | Tile AABB → pixel AABB → `ExecuteForcedWalkWarp` |
 | Miss | — | Clear `$09AE` bit `$0100`; CLC |
 
 **Variables:**
@@ -676,7 +676,7 @@ Each candidate entry undergoes a two-level test: first a tile-level AABB against
 | `CheckWarpAndChest` | Caller |
 | `ConvertWarpToPixels` | Tile rect → pixel bounds |
 | `ExecuteWarp` | Standard warp handler |
-| `code_02AAF2` | Extended/stair forced-walk handler |
+| `ExecuteForcedWalkWarp` | Extended/stair forced-walk handler |
 
 ### ConvertWarpToPixels
 
@@ -741,16 +741,16 @@ The warp entry pointer (adjusted by +4) is saved to `$0AF4`–`$0AF6` with bank 
 | `CheckWarpRectangles` | Caller on standard warp hit |
 | `scene_warps` | Warp entry data source |
 | `chunk_03BAE1.asm` | Transition handler consumes saved params |
-| `code_02AAF2` | Extended path eventually reaches same transition |
+| `ExecuteForcedWalkWarp` | Extended path eventually reaches same transition |
 
-### code_02AAF2
+### ExecuteForcedWalkWarp
 
 **Extended/stair warp handler** reached when `CheckWarpRectangles` pass 2 finds a pixel-level hit on a 13-byte `stair_warp` entry. Guards against re-entry when `$09AE` bit `$0100` is already set, copies transition flags from the warp entry, calls `InitCameraBounds` for transition prep, then dispatches `StartForcedWalk`. Returns **carry set** on success.
 
 **Source:**
 
 ```725:749:../../../extracted/system/engine/warps_interaction.asm
-code_02AAF2 {
+ExecuteForcedWalkWarp {
     LDA $playerFlags
     BIT #$0100
     BEQ loc_02AAFB
@@ -787,7 +787,7 @@ code_02AAF2 {
 
 ### StartForcedWalk
 
-`StartForcedWalk` dispatches a directional forced-walk COP actor when the player triggers an extended/stair warp. Called from `code_02AAF2` after transition prep via `InitCameraBounds`.
+`StartForcedWalk` dispatches a directional forced-walk COP actor when the player triggers an extended/stair warp. Called from `ExecuteForcedWalkWarp` after transition prep via `InitCameraBounds`.
 
 It sets `$09AE` bit `$0100` (warp-in-progress), sets player actor bit `$2000`, and reads direction from `$06E0`. The low nibble selects the base direction; flag bits `$0020`/`$0010`/`$0080` on the high byte select west/east/north respectively. Default direction is south. The matching `ForcedWalk` actor from `forced_walk.asm` is spawned via `SpawnBefore` with the player actor as direct page context.
 
@@ -813,7 +813,7 @@ It sets `$09AE` bit `$0100` (warp-in-progress), sets player actor bit `$2000`, a
 
 | Symbol | Relationship |
 |--------|--------------|
-| `code_02AAF2` | Caller from extended warp path |
+| `ExecuteForcedWalkWarp` | Caller from extended warp path |
 | `forced_walk.ForcedWalk{North,South,East,West}` | Spawned walk actors |
 | `chunk_03BAE1.InitCameraBounds` | Transition prep before forced walk |
 
@@ -867,7 +867,7 @@ CheckWarpAndChest (main loop, every frame)
         │       ├─ $0650 bit $80 clear: instant fade + scene reload
         │       └─ $0650 bit $80 set: animated transition (saved $0AF0)
         └─► [extended warp hit]
-              code_02AAF2
+              ExecuteForcedWalkWarp
                 ├─ guard: $09AE bit $0100 clear
                 ├─ InitCameraBounds (transition prep)
                 └─ StartForcedWalk → ForcedWalk{North,South,East,West}
@@ -887,7 +887,7 @@ Return-warp data at `$0B08`–`$0B12` allows the destination scene to send the p
 | 2 | Item ID (chest contents) |
 | 3 | Event flag index (via `SetEventFlag_0200` / `TestEventFlag_0200`) |
 
-`PlaceBarrierTiles` uses the same table with a different interpretation: entries with flag set and bit `$80` clear become impassable 2×2 barrier patterns for blocked passages (e.g. boulder events).
+`PlaceOpenedChestTiles` uses the same table with a different interpretation: entries with flag set and bit `$80` clear are redrawn as open chests.
 
 ## Related Documentation
 

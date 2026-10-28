@@ -5,7 +5,7 @@
 ; photo together. Multi-character dialog with movement sequences.
 ---------------------------------------------
 
-?INCLUDE 'InitPlayerScriptVariant'
+?INCLUDE 'SetPlayerIdleFacing'
 
 !joypadMaskStd                  065A
 
@@ -29,7 +29,7 @@ sc06_kara [
     COP [AnimOnce]
     COP [PrintDialogString] ( &dialogstring_049EB4 )
     LDA #$0002
-    JSL $@InitPlayerScriptVariant
+    JSL $@SetPlayerIdleFacing
     COP [StageSpriteMoveX] ( #19, #11 )
     COP [AnimOnce]
     COP [StageSpriteMoveY] ( #17, #12 )
@@ -39,7 +39,7 @@ sc06_kara [
     COP [StageSpriteLoop] ( #12, #3C )
     COP [AnimLoop]
     LDA #$0001
-    JSL $@InitPlayerScriptVariant
+    JSL $@SetPlayerIdleFacing
     COP [SetEntryHereAndYield]
     COP [PrintDialogString] ( &dialogstring_049F09 )
     COP [SetFlagByte] ( #02 )
@@ -48,7 +48,7 @@ sc06_kara [
     COP [StageSpriteFrame] ( #13 )
     COP [AnimOnce]
     LDA #$0003
-    JSL $@InitPlayerScriptVariant
+    JSL $@SetPlayerIdleFacing
     COP [SetEntryHereAndYield]
     COP [PrintDialogString] ( &dialogstring_049F71 )
     COP [StageSpriteLoop] ( #14, #10 )

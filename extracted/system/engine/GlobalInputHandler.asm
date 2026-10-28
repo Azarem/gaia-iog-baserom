@@ -67,11 +67,11 @@
 ; - Normal (clear): RadarScreenSetup renders the full minimap with actors, markers, and enemy clear status. Enters the display loop at full brightness.
 ; - Combat-locked (set): COP RunBg3Script displays 'PAUSE' text (consolestring_01EAC6). Clears displayModeFlags bit 15, enables NMI for one VBlank cycle, then sets INIDISP to $09 (dimmed). Enters the display loop.
 ; 
-; Display loop: EnableNmiAndJoypad → VBlankWait → EnableNmiOnly → RadarBorderAnimate (the animation index lives in a word pushed on the stack, read by RadarBorderAnimate as $03,S) → poll joypadCurrent's high byte ($0657) for bit $10 (Start), which only reappears after Start is released and pressed again. On that press: re-consume Start in joypadHeld ($0659) so the closing press cannot reopen the map, clear overlay VRAM, restore brightness to $0F, set displayModeFlags bit 0 for VRAM flush, call UpdateFrameDialogue to restore display.
+; Display loop: EnableNmiAndJoypad → VBlankWait → DisableNmiKeepJoypad → RadarBorderAnimate (the animation index lives in a word pushed on the stack, read by RadarBorderAnimate as $03,S) → poll joypadCurrent's high byte ($0657) for bit $10 (Start), which only reappears after Start is released and pressed again. On that press: re-consume Start in joypadHeld ($0659) so the closing press cannot reopen the map, clear overlay VRAM, restore brightness to $0F, set displayModeFlags bit 0 for VRAM flush, call UpdateFrameDialogue to restore display.
 ; 
 ; === INVENTORY PATH ===
 ; 
-; Marks Select consumed ($2000). VBlankWait → OpenInventoryScreen → EnableNmiOnly. On return, marks Select+Y ($6000, vanilla button values) consumed to prevent re-trigger.
+; Marks Select consumed ($2000). VBlankWait → OpenInventoryScreen → DisableNmiKeepJoypad. On return, marks Select+Y ($6000, vanilla button values) consumed to prevent re-trigger.
 ; 
 ; === ITEM USE PATH ===
 ; 
@@ -110,7 +110,7 @@ GlobalInputHandler {
     TSB $joypadHeld
     JSL $@vblank_joypad.VBlankWaitAndJoypad ; Sync to VBlank before opening inventory overlay
     JSL $@inventory_overlay.OpenInventoryScreen ; Open the full inventory screen UI
-    JSL $@vblank_joypad.EnableNmiOnly ; Restore NMI-only mode (disable joypad auto-read during inventory teardown)
+    JSL $@vblank_joypad.DisableNmiKeepJoypad ; Restore NMI-only mode (disable joypad auto-read during inventory teardown)
     LDA #$6000            ; $6000 = Select + vanilla Y: consume both on return so neither re-triggers at once (logical $0008 is not included)
     TSB $joypadHeld
     PLP 
@@ -134,7 +134,7 @@ GlobalInputHandler {
     SEP #$20
     JSL $@vblank_joypad.EnableNmiAndJoypad ; Enable NMI+joypad for one VBlank frame to sync display
     JSL $@vblank_joypad.VBlankWaitAndJoypad
-    JSL $@vblank_joypad.EnableNmiOnly
+    JSL $@vblank_joypad.DisableNmiKeepJoypad
     LDA #$09              ; INIDISP $09: dim screen to 9/15 brightness for pause overlay
     STA $INIDISP
 
@@ -145,7 +145,7 @@ GlobalInputHandler {
   loc_03808F:
     JSL $@vblank_joypad.EnableNmiAndJoypad ; Display loop: enable NMI+joypad, wait for VBlank (joypad is read), back to NMI-only
     JSL $@vblank_joypad.VBlankWaitAndJoypad
-    JSL $@vblank_joypad.EnableNmiOnly
+    JSL $@vblank_joypad.DisableNmiKeepJoypad
     JSR $&radar_map_screen.RadarBorderAnimate ; Animate the radar border color (BGR555 palette cycle on odd frames)
     LDA $joypadCurrent+1  ; joypadCurrent high byte: consumed Start is hidden, so bit $10 appears only on a fresh press
     BIT #$10              ; Bit $10 in high byte = Start ($1000); zero = still held → loop

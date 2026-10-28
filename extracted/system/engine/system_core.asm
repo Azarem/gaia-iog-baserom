@@ -138,7 +138,7 @@ IrqHandler {
 ; Boot phase:
 ; 1. Native 65816 mode, 16-bit registers
 ; 2. Direct page $0000, stack $01FF, data bank $81
-; 3. FastROM access (MEMSEL = 1)
+; 3. MEMSEL = 1 (but InitHardwareRegisters writes MEMSEL = 0 afterwards: boot stays SlowROM until sFB_boot_logo enables FastROM)
 ; 4. InitHardwareRegisters, InitSystemVariables, SpcLoadBuiltinEngine, EnterForcedBlank (the display stays off until the first scene transition)
 ; 5. Sets worldReadyFlag bit 7 (permits scene loading)
 ; 6. Reads the byte at $000100 and compares it with $83, but both outcomes leave Y = 0, so sceneNext = 0 for the first ExecuteSceneTransition: no scene is selected. No writer of $83 at $0100 was found (dialog_string_scanner uses $0100 as scratch).
@@ -146,11 +146,11 @@ IrqHandler {
 ; 8. sceneNext = $FB (title screen), then falls into the main loop
 ; 
 ; Main loop (infinite):
-; 1. VBlankWaitAndJoypad, EnableNmiOnly
-; 2. Type-A thinkers, scene transition check, warp/chest check, global input, UpdateFrameCounters
+; 1. VBlankWaitAndJoypad, DisableNmiKeepJoypad
+; 2. General thinkers, scene transition check, warp/chest check, global input, UpdateFrameCounters
 ; 3. RunActors_Normal, OAM terminator, depth sort, combat/interaction collision, death check, dodge callbacks
 ; 4. CameraSmoothScroll for layer 0 (BG1), then layer 1 (BG2)
-; 5. ResetHdmaState, type-B thinkers, ComposeAllSprites, UpdateHUD
+; 5. ResetHdmaState, HDMA-phase thinkers, ComposeAllSprites, UpdateHUD
 ; 6. LoadMusicFromTransitionState (blocking SPC upload when a track ID is staged)
 ; 7. EnableNmiAndJoypad and loop
 
@@ -166,7 +166,7 @@ SystemInit {
     PHA 
     PLB                   ; Data bank = $81 (FastROM mirror of bank $01)
     LDA #$01
-    STA $MEMSEL           ; Enable FastROM access speed (3.58 MHz for banks $80+)
+    STA $MEMSEL           ; MEMSEL = 1; InitHardwareRegisters writes 0 again below, so boot stays SlowROM until sFB_boot_logo
     JSL $@system_init.InitHardwareRegisters
     JSL $@system_init.InitSystemVariables
     JSL $@spc_transfer.SpcLoadBuiltinEngine
@@ -220,12 +220,12 @@ SystemInit {
 
 ; The main game loop: one pass per frame, entered after SystemInit and never left (the last instruction is BRL MainLoop).
 ; 
-; Order of one pass: VBlankWaitAndJoypad (frame sync and joypad read), EnableNmiOnly, RunThinkers_TypeA, CheckSceneTransition, CheckWarpAndChest, GlobalInputHandler, UpdateFrameCounters, RunActors_Normal, the $FF terminator for the OAM compose buffer, SortActorsByDepth, the four collision passes (RunCombatCollision, RunInteractionCollision, CheckPlayerDeath, ProcessDodgeCallbacks), CameraSmoothScroll for layer 0 and layer 1, ResetHdmaState, RunThinkers_TypeB, ComposeAllSprites, UpdateHUD, LoadMusicFromTransitionState, EnableNmiAndJoypad.
+; Order of one pass: VBlankWaitAndJoypad (frame sync and joypad read), DisableNmiKeepJoypad, RunThinkers_General, CheckSceneTransition, CheckWarpAndChest, GlobalInputHandler, UpdateFrameCounters, RunActors_Normal, the $FF terminator for the OAM compose buffer, SortActorsByDepth, the four collision passes (RunCombatCollision, RunInteractionCollision, CheckPlayerDeath, ProcessDodgeCallbacks), CameraSmoothScroll for layer 0 and layer 1, ResetHdmaState, RunThinkers_Hdma, ComposeAllSprites, UpdateHUD, LoadMusicFromTransitionState, EnableNmiAndJoypad.
 
   MainLoop:
     JSL $@vblank_joypad.VBlankWaitAndJoypad ; === Main game loop entry: VBlank sync + joypad read ===
-    JSL $@vblank_joypad.EnableNmiOnly
-    JSL $@thinker_execution.RunThinkers_TypeA ; Run general-purpose thinkers (ambient effects, palette cycling)
+    JSL $@vblank_joypad.DisableNmiKeepJoypad
+    JSL $@thinker_execution.RunThinkers_General ; Run general-purpose thinkers (ambient effects, palette cycling)
     JSL $@scene_lifecycle.CheckSceneTransition ; Check if scene transition is pending
     JSL $@warps_interaction.CheckWarpAndChest ; Check warp triggers and treasure chests
     JSL $@GlobalInputHandler ; Process global input (menu, ability shortcuts)
@@ -245,7 +245,7 @@ SystemInit {
     LDX #$0002            ; Scroll layer 1 (BG2)
     JSL $@camera_tilemap.CameraSmoothScroll
     JSL $@hdma_dma_spc.ResetHdmaState ; Reset HDMA state for this frame
-    JSL $@thinker_execution.RunThinkers_TypeB ; Run deferred thinkers (secondary effects)
+    JSL $@thinker_execution.RunThinkers_Hdma ; Run deferred thinkers (secondary effects)
     JSL $@sprite_composition.ComposeAllSprites ; Compose all sprites into OAM buffer
     JSL $@UpdateHUD       ; Update HUD: HP bar, stats, enemy health
     JSL $@hdma_dma_spc.LoadMusicFromTransitionState ; Start a pending music change: blocking SPC upload while musicTransitionState > 0 (NMI runs UpdateFrameFull meanwhile)
@@ -254,7 +254,7 @@ SystemInit {
 
 ; Lightweight frame update called during dialogue and text display.
 ; 
-; Saves and restores the full register context (B, A, X, Y, D) so it can be called re-entrantly from COP script handlers. Runs RunActors_CutsceneOnly, the OAM terminator, depth sort, camera scroll for both layers, ResetHdmaState, the type-D thinkers and sprite composition, then clears displayModeFlags bit 3 (player-tile DMA pending) so the NMI of this frame does the normal VRAM path, waits for VBlank and runs the type-C thinkers. It skips the full actor AI pass and the warp/chest checks of the main loop.
+; Saves and restores the full register context (B, A, X, Y, D) so it can be called re-entrantly from COP script handlers. Runs RunActors_CutsceneOnly, the OAM terminator, depth sort, camera scroll for both layers, ResetHdmaState, the light HDMA-phase thinkers and sprite composition, then clears displayModeFlags bit 3 (player-tile DMA pending) so the NMI of this frame does the normal VRAM path, waits for VBlank and runs the light general thinkers. It skips the full actor AI pass and the warp/chest checks of the main loop.
 
   UpdateFrameDialogue:
     PHB                   ; Full register save for re-entrant dialogue frame update
@@ -282,14 +282,14 @@ SystemInit {
     LDX #$0002
     JSL $@camera_tilemap.CameraSmoothScroll
     JSL $@hdma_dma_spc.ResetHdmaState
-    JSL $@thinker_execution.RunThinkers_TypeD
+    JSL $@thinker_execution.RunThinkers_Hdma_Light
     JSL $@sprite_composition.ComposeAllSprites
     LDA #$08              ; Clear bit 3 (player-tile DMA pending) so this frame's NMI does the normal VRAM path, not DmaPlayerTilesToVram
     TRB $displayModeFlags
     JSL $@vblank_joypad.EnableNmiAndJoypad
     JSL $@vblank_joypad.VBlankWaitAndJoypad
-    JSL $@vblank_joypad.EnableNmiOnly
-    JSL $@thinker_execution.RunThinkers_TypeC ; Run cutscene primary thinkers
+    JSL $@vblank_joypad.DisableNmiKeepJoypad
+    JSL $@thinker_execution.RunThinkers_General_Light ; Run cutscene primary thinkers
     PLD 
     PLY 
     PLX 
@@ -303,7 +303,7 @@ SystemInit {
 ---------------------------------------------
 ; Minimal frame update for render-only contexts such as menus and screen transitions.
 ; 
-; Saves the full register context. Runs only SortActorsByDepth, ComposeAllSprites, ResetHdmaState, the type-D thinkers, UpdateHUD, the VBlank sync and the type-C thinkers. Does not run actor AI, camera scrolling or the OAM terminator; the caller is expected to have handled those.
+; Saves the full register context. Runs only SortActorsByDepth, ComposeAllSprites, ResetHdmaState, the light HDMA-phase thinkers, UpdateHUD, the VBlank sync and the light general thinkers. Does not run actor AI, camera scrolling or the OAM terminator; the caller is expected to have handled those.
 
 UpdateFrameRender {
     PHB 
@@ -323,12 +323,12 @@ UpdateFrameRender {
     JSL $@sprite_composition.SortActorsByDepth ; Render-only: sort and compose sprites without AI pass
     JSL $@sprite_composition.ComposeAllSprites
     JSL $@hdma_dma_spc.ResetHdmaState
-    JSL $@thinker_execution.RunThinkers_TypeD
+    JSL $@thinker_execution.RunThinkers_Hdma_Light
     JSL $@UpdateHUD       ; Update HUD in render-only mode
     JSL $@vblank_joypad.EnableNmiAndJoypad
     JSL $@vblank_joypad.VBlankWaitAndJoypad
-    JSL $@vblank_joypad.EnableNmiOnly
-    JSL $@thinker_execution.RunThinkers_TypeC
+    JSL $@vblank_joypad.DisableNmiKeepJoypad
+    JSL $@thinker_execution.RunThinkers_General_Light
     PLD 
     PLY 
     PLX 
@@ -342,18 +342,18 @@ UpdateFrameRender {
 ---------------------------------------------
 ; Complete single-frame update run from inside the NMI handler while the main loop is blocked in a music upload.
 ; 
-; NmiHandler calls it when musicTransitionState is positive, i.e. while LoadMusicFromTransitionState is running SpcBlockTransfer with NMI enabled. Runs the type-C thinkers, RunActors_OverlayOnly, the OAM terminator, depth sort, camera scroll for both layers, ResetHdmaState, the type-D thinkers and sprite composition, between EnableNmiOnly/VBlankPartial and EnableNmiAndJoypad, so the screen keeps animating during the transfer.
+; NmiHandler calls it when musicTransitionState is positive, i.e. while LoadMusicFromTransitionState is running SpcBlockTransfer with NMI enabled. Runs the light general thinkers, RunActors_OverlayOnly, the OAM terminator, depth sort, camera scroll for both layers, ResetHdmaState, the light HDMA-phase thinkers and sprite composition, between DisableNmiKeepJoypad/VBlankPartial and EnableNmiAndJoypad, so the screen keeps animating during the transfer.
 
 UpdateFrameFull {
     PHP 
     SEP #$20
-    JSL $@vblank_joypad.EnableNmiOnly ; Enable NMI for partial V-Blank during music transition
+    JSL $@vblank_joypad.DisableNmiKeepJoypad ; Enable NMI for partial V-Blank during music transition
     PHB 
     LDA #$81
     PHA 
     PLB 
     JSL $@vblank_joypad.VBlankPartial
-    JSL $@thinker_execution.RunThinkers_TypeC
+    JSL $@thinker_execution.RunThinkers_General_Light
     JSL $@actor_execution.RunActors_OverlayOnly ; Run the overlay-only actor pass; UpdateFrameFull is driven from the NMI while the blocking SPC music upload runs
     LDX $oamWriteOffset
     LDA #$FF
@@ -365,7 +365,7 @@ UpdateFrameFull {
     LDX #$0002
     JSL $@camera_tilemap.CameraSmoothScroll
     JSL $@hdma_dma_spc.ResetHdmaState
-    JSL $@thinker_execution.RunThinkers_TypeD
+    JSL $@thinker_execution.RunThinkers_Hdma_Light
     JSL $@sprite_composition.ComposeAllSprites
     PLB 
     JSL $@vblank_joypad.EnableNmiAndJoypad

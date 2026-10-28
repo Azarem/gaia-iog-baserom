@@ -1,6 +1,9 @@
 {
-    "697198": "Player actor DP pointer",
-    "697204": "Set game-over bit",
+    "697198": "Y = player actor slot address (WRAM $09AA; the slot address is also the actor's DP base)",
+    "697201": "Actor flags word ($10) of the player actor",
+    "697204": "Set actor-flag bit $0200 (not playerFlags bit 9, the real game-over bit; see OQ-I030-2)",
+    "697207": "Write the flags word back",
+    "697210": "RTL without Die or a new entry point: the helper runs again next tick and re-applies the bit",
     "697255": "Clear combat callbacks",
     "697266": "Compute nearest X grid position",
     "697269": "Offset by half-tile for rounding",
@@ -16,12 +19,12 @@
     "697326": "Check if aligned: (X-8) | Y low nibble = 0?",
     "697337": "Not aligned → loop",
     "697339": "Aligned → resume normal script",
-    "697341": "Solid + interactable flags",
-    "697350": "Mark as enemy actor",
+    "697341": "$12 |= $0030: bit $0010 = damage / stagger immune, bit $0020 = boss (combat_collision readers)",
+    "697350": "extendedFlags $0080 = boss bit (OrExtraFlags notes), not an 'enemy type' marker",
     "697357": "Shared stat table pointer",
-    "697364": "Initial HP (replaced on first damage calc)",
-    "697373": "Actor A pointer",
-    "697375": "Actor B pointer",
+    "697364": "currentHp = 1; fr32_kidnapper sets 5 right after this JSL",
+    "697373": "Y = actor at $04 (A); $04 / $06 are prevActorLink / nextActorLink unless the caller loaded them",
+    "697375": "X = actor at $06 (B); X was saved by the PHX above",
     "697377": "A.x + B.x",
     "697384": "Signed divide by 2: set carry if negative",
     "697388": "(A.x + B.x) / 2 → midpoint X",
@@ -56,5 +59,5 @@
     "720236": "Center to -128..+127",
     "720243": "Random X near player",
     "720255": "Random Y near player",
-    "720257": "60-frame lifetime"
+    "720257": "Wait counter $08 = 60 frames before the entry code runs again (a re-roll), not a lifetime"
 }

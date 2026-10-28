@@ -7,7 +7,7 @@
 ---------------------------------------------
 
 ?INCLUDE 'EscortFollowPathTracker'
-?INCLUDE 'InitPlayerScriptVariant'
+?INCLUDE 'SetPlayerIdleFacing'
 
 !joypadMaskStd                  065A
 !playerActor                    09AA
@@ -40,7 +40,7 @@ code_099EA2 {
     COP [WaitByte] ( #3B )
     COP [PrintDialogString] ( &dialogstring_099F1B )
     LDA #$0003
-    JSL $@InitPlayerScriptVariant
+    JSL $@SetPlayerIdleFacing
     COP [SetTilePos] ( #75, #09 )
     LDA #$2000
     TRB $10

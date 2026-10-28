@@ -7,7 +7,7 @@ InventorySlotActor! {
     STA $inventoryTabIndex
     JSR $&ComputeSlotPosition
 
-  loc_02E8CD!:
+  SlotActorEvaluate!:
     COP [SetEntryHere]
     LDA $7F0010, X
     TAY

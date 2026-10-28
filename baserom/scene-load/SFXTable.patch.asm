@@ -20,7 +20,7 @@ sfx_table:
 	#@sfx38  #@sfx39  #@sfx3A  #@sfx3B
 
 	
-  code_0290C9!:
+  SpcNextChunkIndex!:
     ;REP #$20
     LDX #&sfx_table
     STX SAMPLE_PTR
@@ -35,9 +35,9 @@ sfx_table:
     STZ SAMPLE_NUM+1
     BIT #$80
     BEQ loc_0290E8
-    JMP $&code_029153
+    JMP $&SpcChunkDone
 	
-  loc_0290F1!:
+  SpcFindChunk!:
 	LDA  SAMPLE_NUM
 	ASL
 	CLC
@@ -60,9 +60,9 @@ sfx_table:
 	INY
 	SEP  #$20
 	LDA  SPC_CMD
-	BRA  loc_029160
+	BRA  SpcSendHeader
 
-loc_02911D!:
+SpcSendChunkData!:
 	LDA  [SAMPLE_PTR], Y
 	INY
 

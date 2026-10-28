@@ -6,7 +6,7 @@
 ; the Angel Tribe's condition.
 ---------------------------------------------
 
-?INCLUDE 'InitPlayerScriptVariant'
+?INCLUDE 'SetPlayerIdleFacing'
 
 !gfxCacheIdxB                   064A
 !joypadMaskStd                  065A
@@ -59,7 +59,7 @@ code_06B51F {
     COP [AnimLoop]
     COP [PrintDialogString] ( &dialogstring_06B661 )
     LDA #$0003
-    JSL $@InitPlayerScriptVariant
+    JSL $@SetPlayerIdleFacing
     COP [SetEntryHereAndYield]
     COP [PrintDialogString] ( &dialogstring_06B67B )
     INC $0AA6

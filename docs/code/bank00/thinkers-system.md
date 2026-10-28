@@ -155,22 +155,17 @@ None.
 
 ## Menu / System
 
-### inventory_dma_setup
+### inventory_bg3_scroll_hdma
 
 **Address:** `$00BB8E`
 
 #### Purpose
 
-One-shot DMA burst configuring PPU registers for the inventory screen. Queues 7 DMA writes targeting `$70` (VMAIN), `$30` (TM), four `$210C`/`$2108` scroll offsets, and `$40` (INIDISP) — setting up tilemap addresses, layer enables, and screen brightness for the item menu overlay.
+Per-frame **BG3 vertical scroll HDMA**. Each thinker tick runs `COP [QueueDma] ( @inventory_bg3vofs_table, #12 )` — operand `#12` is B-bus **`$2112` BG3VOFS** (not a byte count). `ResetHdmaState` clears channel bindings every frame, so this thinker re-queues the same seven-entry direct table.
 
-#### DMA Table
+#### HDMA table (`inventory_bg3vofs_table`)
 
-| Entry | Register | Value | Effect |
-|-------|----------|-------|--------|
-| 0 | `$2170` | `$00` | VMAIN config |
-| 1 | `$2130` | `$00` | TM (layer enable) |
-| 2–5 | `$210C`/`$2108` | scroll offsets | BG scroll positions |
-| 6 | `$2140` | `$20` | INIDISP (brightness) |
+Seven `{line count, V low, V high}` bands: long runs at V=0, then stepped bands at `$0B`/`$0F`/`$13`/`$17`, ending at V=`$20` from scanline 160 downward (visual result not verified in emulator).
 
 #### Scene Usage
 
@@ -335,7 +330,7 @@ The `$0AD4` character index drives Will/Freedan/Shadow palette variants automati
 
 | Symbol | Type | Purpose |
 |--------|------|---------|
-| `ComposeDigits_Continuation` | `?INCLUDE` | Shared actor/engine constants |
+| `ComposeDigitSprites_AtCursor` | `?INCLUDE` | Shared actor/engine constants |
 | `$player_actor` | WRAM label | Player actor index for proximity scan |
 | `GetPlayerFacingDirection` | Far function | Direction probe from joypad input |
 | `UpdateActorAnimation` | Far function | Actor interaction script executor |
@@ -360,7 +355,7 @@ Most field scenes follow a standard thinker slot layout:
 | Slot | Typical Thinker | Role |
 |------|----------------|------|
 | `#00` | Scene-specific effect | Palette cycler, HDMA wave, fog, etc. |
-| `#01` | `parallax_thinker` or second ambient | Parallax scroll / secondary palette |
+| `#01` | `scanline_band_hdma_thinker` or second ambient | Scanline HDMA bands / secondary palette |
 | `#02` | Additional effect (optional) | HDMA, scroll brightness, etc. |
 | Last | `global_ambient_dispatcher` | Character palette + NPC interaction |
 
@@ -370,8 +365,8 @@ System scenes use dedicated layouts:
 |-------|----------|
 | `$FA` (Diary) | `diary_menu_window_dma` |
 | `$FB` (Boot) | 3× boot logo palette thinkers |
-| `$FD` (Statue inventory) | `parallax_thinker` + `palette_parent_child` + ambient |
-| `$FF` (Inventory) | `inventory_dma_setup` + `parallax_thinker` + `palette_parent_child` + ambient |
+| `$FD` (Statue inventory) | `scanline_band_hdma_thinker` + `palette_parent_child` + ambient |
+| `$FF` (Inventory) | `inventory_bg3_scroll_hdma` + `scanline_band_hdma_thinker` + `palette_parent_child` + ambient |
 
 ---
 

@@ -7,7 +7,7 @@
 **ASM source:** [`tile_collision.asm`](../../../extracted/system/player/tile_collision.asm) (block: `tile_collision`, scene: `player`)  
 **Last updated:** 2026-09-07
 
-The most-called subroutines in the player movement system. The movement engine in [`player-movement.md`](player-movement.md) is this block's primary consumer — every directional handler in `player_move_ns.asm`, `player_move_east.asm`, and `player_move_diag.asm` depends on `TileProbeMain` and the corner probe helpers documented here. Map index navigation parallels [`map-coordinates.md`](map-coordinates.md); camera window bounds come from [`camera-scrolling.md`](camera-scrolling.md).
+The most-called subroutines in the player movement system. The movement engine in [`player-movement.md`](player-movement.md) is this block's primary consumer — every directional handler in `player_move_ns.asm`, `player_move_east.asm`, and `player_move_west.asm` depends on `TileProbeMain` and the corner probe helpers documented here. Map index navigation parallels [`map-coordinates.md`](map-coordinates.md); camera window bounds come from [`camera-scrolling.md`](camera-scrolling.md).
 
 **Related:** [`player-movement.md`](player-movement.md) · [`map-coordinates.md`](map-coordinates.md) · [`../bank00/direction-collision.md`](../bank00/direction-collision.md) · [`../../cop/README.md`](../../cop/README.md)
 
@@ -55,7 +55,7 @@ Coordinates are in **tile-pixel space** (`$22`/`$26` divided by 4).
 
 ## tile_collision.asm
 
-The most-called subroutines in the player movement system. Every directional handler in `player_move_ns.asm`, `player_move_east.asm`, and `player_move_diag.asm` depends on `TileProbeMain` and the corner probe helpers.
+The most-called subroutines in the player movement system. Every directional handler in `player_move_ns.asm`, `player_move_east.asm`, and `player_move_west.asm` depends on `TileProbeMain` and the corner probe helpers.
 
 | Address | Name | Description |
 |---------|------|-------------|
@@ -266,7 +266,7 @@ SetActorCollisionFlag {
 
 ### ProbeCurrentTR
 
-`ProbeCurrentTR` probes the top-right corner at the current position. Coordinates: X = `$22/4 + 7`, Y = `$26/4 − 16`. After probing, X is incremented by 1 for inner-tile boundary check. Used heavily in leftward movement cascades (`ProbeLeftTiles` entry point).
+`ProbeCurrentTR` probes the top-right corner at the current position. Coordinates: X = `$22/4 + 7`, Y = `$26/4 − 16`. After probing, X is incremented by 1 for inner-tile boundary check. Entry probe for **`FindSlopeForEastMove`** (eastward dispatch only).
 
 **Algorithm:**
 
@@ -287,7 +287,7 @@ SetActorCollisionFlag {
 
 | Symbol | Relationship |
 |--------|--------------|
-| `ProbeLeftTiles` | Entry probe |
+| `FindSlopeForEastMove` | Entry probe |
 | `ProbeFutureTR` | Future counterpart |
 
 ### ProbeCurrentBL
@@ -318,7 +318,7 @@ SetActorCollisionFlag {
 
 `ProbeCurrentTL` probes the top-left corner — the simplest corner probe with no post-increment boundary check. Coordinates: X = `$22/4 − 8`, Y = `$26/4 − 16`. Returns carry directly from `TileProbeMain` (set if collision type non-zero).
 
-Entry point for `ProbeRightTiles` diagonal cascade.
+Entry point for `FindSlopeForWestMove` west-movement ramp cascade.
 
 **Algorithm:**
 
@@ -337,14 +337,14 @@ Entry point for `ProbeRightTiles` diagonal cascade.
 
 | Symbol | Relationship |
 |--------|--------------|
-| `ProbeRightTiles` | Entry probe |
+| `FindSlopeForWestMove` | Entry probe |
 | `ProbeFutureTL` | Future counterpart |
 
 ### ProbeFutureTR
 
 `ProbeFutureTR` probes the top-right corner at the **future** position after applying movement deltas. Base coordinates use `($22+$20)/4 + 7` for X and `($26+$24)/4 − 16` for Y. Post-probe X increment validates inner-tile boundary crossing.
 
-Used in leftward diagonal cascades to predict whether the destination position will be blocked.
+Used in west-movement wall cascades to predict whether the destination position will be blocked.
 
 **Algorithm:**
 
@@ -365,7 +365,7 @@ Used in leftward diagonal cascades to predict whether the destination position w
 | Symbol | Relationship |
 |--------|--------------|
 | `ProbeCurrentTR` | Current-position counterpart |
-| `ProbeLeftTiles` | Cascade caller |
+| `FindSlopeForEastMove` | Cascade caller |
 
 ### ProbeFutureBR
 
@@ -390,7 +390,7 @@ Used in leftward diagonal cascades to predict whether the destination position w
 | Symbol | Relationship |
 |--------|--------------|
 | `ProbeCurrentBR` | Current-position counterpart |
-| `ProbeLeftTiles` | Cascade caller |
+| `FindSlopeForEastMove` | Cascade caller |
 
 ### ProbeFutureTL
 
@@ -414,7 +414,7 @@ Used in leftward diagonal cascades to predict whether the destination position w
 | Symbol | Relationship |
 |--------|--------------|
 | `ProbeCurrentTL` | Current counterpart |
-| `ProbeRightTiles` | Cascade caller |
+| `FindSlopeForWestMove` | Cascade caller |
 
 ### ProbeFutureBL
 
@@ -439,7 +439,7 @@ Used in leftward diagonal cascades to predict whether the destination position w
 | Symbol | Relationship |
 |--------|--------------|
 | `ProbeCurrentBL` | Current counterpart |
-| `ProbeRightTiles` | Cascade caller |
+| `FindSlopeForWestMove` | Cascade caller |
 
 ### TileProbeMain
 
@@ -511,15 +511,15 @@ For valid indices, reads `$7FC000,X`. If the high nibble (bits `$F0`) is non-zer
 
 ### MapCellDown
 
-`MapCellDown` moves the cell index at `$00` one row down. Increments the low byte; if the column nibble wraps (`$0F` → `$00`), increments the high byte and adds `$F0` for row alignment.
+`MapCellDown` moves the cell index at `$00` one row down. Adds `$10` to the low byte (one row within the 16-row page). On carry (row crosses a page boundary), adds `mapRowStrideL0` (`$0693`) to the high byte. Returns the updated index in X.
 
 **Algorithm:**
 
 | Step | Action |
 |------|--------|
-| 1 | Increment low byte of `$00` |
-| 2 | If column nibble ≠ wrap: return |
-| 3 | High byte++; low byte += `$F0` |
+| 1 | Low byte of `$00` += `$10` |
+| 2 | If no carry: return index in X |
+| 3 | High byte += `mapRowStrideL0` |
 
 **Variables:**
 
@@ -535,15 +535,15 @@ For valid indices, reads `$7FC000,X`. If the high nibble (bits `$F0`) is non-zer
 
 ### MapCellUp
 
-`MapCellUp` moves the cell index at `$00` one row up. Decrements the low byte; if the column nibble underflows to `$0F`, decrements the high byte and subtracts `$F0`.
+`MapCellUp` moves the cell index at `$00` one row up. Subtracts `$10` from the low byte. On borrow (page boundary), subtracts `mapRowStrideL0` from the high byte. Returns the updated index in X.
 
 **Algorithm:**
 
 | Step | Action |
 |------|--------|
-| 1 | Decrement low byte |
-| 2 | If nibble ≠ `$0F`: return |
-| 3 | High byte--; low byte −= `$F0` |
+| 1 | Low byte of `$00` −= `$10` |
+| 2 | If no borrow: return index in X |
+| 3 | High byte −= `mapRowStrideL0` |
 
 **Variables:**
 
@@ -583,7 +583,7 @@ Operates on the cell index format established by `TileProbeMain` / `CalcTileMapO
 | Symbol | Relationship |
 |--------|--------------|
 | `MapIndexMoveRight` | Parallel in map_coords |
-| `ProbeRightTiles` / `ProbeLeftTiles` | Cascade callers |
+| `FindSlopeForWestMove` / `FindSlopeForEastMove` | Cascade callers |
 
 ### MapCellLeft
 
@@ -613,7 +613,7 @@ Operates on the cell index format established by `TileProbeMain` / `CalcTileMapO
 ## See Also
 
 - [`camera-scrolling.md`](camera-scrolling.md) — camera window bounds used by `TileProbeMain` (`$06D6`–`$06DE`)
-- [`map-coordinates.md`](map-coordinates.md) — diagonal cascade probes (`ProbeRightTiles` / `ProbeLeftTiles`) and parallel `MapIndexMove*` helpers
+- [`map-coordinates.md`](map-coordinates.md) — west/east ramp cascade probes (`FindSlopeForWestMove` / `FindSlopeForEastMove`) and parallel `MapIndexMove*` helpers
 - [`player-movement.md`](player-movement.md) — movement physics engine that JSRs into these probe routines
 - [`slope-ramp-physics.md`](slope-ramp-physics.md) — slope/ramp handling after collision type lookup
 - [`../bank00/direction-collision.md`](../bank00/direction-collision.md) — dynamic collision overlay (COP handlers)

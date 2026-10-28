@@ -119,10 +119,10 @@ Indexed by `($BC AND $01FF) × 2` (word-sized lookup). The 512-step period gives
 
 Both `GardenCrashCutscene` and `FutureVisionCutscene` write `$0804` into the
 spawned thinker's `animScratch2` (`$7F000E,X`). This value serves as the thinker's
-filter-type tag: bit 2 (`$0004`) makes it a TypeB thinker (deferred dispatch after
-TypeA), and bit 11 (`$0800`) marks it as cutscene-eligible (TypeC/D). The
-combination `$0804` = bits 2 + 11 set means the thinker runs in the TypeD slot
-(cutscene deferred), ensuring Mode 7 HDMA tables are computed after primary
+filter-type tag: bit 2 (`$0004`) routes the thinker to `RunThinkers_Hdma` after the
+general pass, and bit 11 (`$0800`) marks it for the cutscene `_Light` pumps. The
+combination `$0804` = bits 2 + 11 set means the thinker runs in the
+`RunThinkers_Hdma_Light` slot (cutscene HDMA phase), ensuring Mode 7 HDMA tables are computed after primary
 cutscene logic has set the rotation/scale/position parameters for the current frame.
 
 ### Per-scanline computation detail

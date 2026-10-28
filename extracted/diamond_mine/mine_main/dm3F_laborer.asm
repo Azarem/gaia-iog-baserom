@@ -1,6 +1,6 @@
 ; Chained laborers in the mine main area — 4 instances via index lookup.
 ; 
-; Uses displayModeFlags ($0E) as an index into byte_0AA72F to select
+; Uses the actor's own DP field $0E (not the WRAM displayModeFlags word) as an index into byte_0AA72F to select
 ; which flag byte (#A0-#A3) tracks this laborer. If already freed,
 ; despawns. Otherwise shows as a chain sprite (enemy frame #33) with
 ; solid collision and interaction.

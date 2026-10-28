@@ -120,7 +120,7 @@ Each entry defines the range of scenes whose rewards are granted on boss defeat:
 
 #### Description
 
-Library of COP scripts for cutscene and warp player animations. Not placed directly in scenes; referenced by `$&func_00C4xx` pointers from warp handlers, boss scripts, and `ComposeDigits_Continuation`. All player-control-restoration paths converge on `$@PlayerIdleEntry` (bank `$02` normal player AI).
+Library of COP scripts for cutscene and warp player animations. Not placed directly in scenes; referenced by `$&func_00C4xx` pointers from warp handlers, boss scripts, and `ComposeDigitSprites_AtCursor`. All player-control-restoration paths converge on `$@PlayerIdleEntry` (bank `$02` normal player AI).
 
 **Not movable** — widely referenced via `$&` short addresses.
 
@@ -146,7 +146,7 @@ Includes: `player_character`, `table_0EE000` (generic metasprite table).
 
 | Direction | Symbol | Notes |
 |-----------|--------|-------|
-| Included by | `warps_interaction.asm`, `GlobalInputHandler`, `ComposeDigits_Continuation` | `$&` pointer tables |
+| Included by | `warps_interaction.asm`, `GlobalInputHandler`, `ComposeDigitSprites_AtCursor` | `$&` pointer tables |
 | Called from | `sg4D_jump_handler`, `ir29_castoth`, `gw8A_sand_fanger`, Gold Ship scenes | `JumpScript` / pointer assignment |
 | Returns to | `PlayerIdleEntry` | Bank `$02` player control |
 
@@ -262,7 +262,7 @@ Scene `$FD` only — statue inventory reward screen.
 
 | Direction | Symbol | Notes |
 |-----------|--------|-------|
-| Includes | `ComposeDigits_Continuation`, `flag_helpers`, `inventory_spritemap` | |
+| Includes | `ComposeDigitSprites_AtCursor`, `flag_helpers`, `inventory_spritemap` | |
 | Shared data | `unk19_00CE97` | Read by `inventory_statue_slot` |
 | Calls | `UpdateActorAnimation` | Advance animation frame |
 | Calls | `ApplyOrbitalOffsetFromRef` | Pickup child orbit motion |
@@ -298,7 +298,7 @@ Scene `$FF` only — one slot actor per inventory row (6 slots).
 | Direction | Symbol | Notes |
 |-----------|--------|-------|
 | Includes | `statue_inventory_reward` | Shared `unk19_00CE97` |
-| Includes | `inventory_spritemap`, `ComposeDigits_Continuation` | |
+| Includes | `inventory_spritemap`, `ComposeDigitSprites_AtCursor` | |
 
 ---
 

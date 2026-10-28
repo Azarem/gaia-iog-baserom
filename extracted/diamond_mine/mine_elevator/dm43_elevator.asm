@@ -6,12 +6,12 @@
 ; During ride: locks joypad, animates cage sprite moving frame by frame,
 ; physically repositions the player actor each tick to match, plays
 ; ratchet SFX (#0C) every 16 frames. D-pad during ride triggers
-; InitPlayerScriptVariant for facing direction. Two child actors
+; SetPlayerIdleFacing for facing direction. Two child actors
 ; (elevator_stop_y, elevator_stop_x) handle edge scrolling limits
 ; by ping-ponging between map bounds.
 ---------------------------------------------
 
-?INCLUDE 'InitPlayerScriptVariant'
+?INCLUDE 'SetPlayerIdleFacing'
 
 !frameCounter                   0036
 !joypadMaskStd                  065A
@@ -134,7 +134,7 @@ code_0AA670 {
     LDA #$0003
 
   loc_0AA673:
-    JSL $@InitPlayerScriptVariant
+    JSL $@SetPlayerIdleFacing
     RTS 
 }
 

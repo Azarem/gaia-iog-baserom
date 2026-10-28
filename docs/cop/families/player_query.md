@@ -139,7 +139,7 @@ COP [BranchIfActorAt] ( #03, #$0258, #$0330, &code_05F6EB )
 #### COP [2A] — `BranchOnPlayerX` (3-way horizontal separation)
 
 - **Handler:** `BranchOnPlayerX` @ [`cop_handlers_player_query.asm:181-206`](../../../extracted/system/engine/cop_handlers_player_query.asm)
-- **Params:** `Word Dist`, `&Code West`, `&Code East`, `&Code Here`
+- **Params:** `Word Dist`, `&Code West`, `&Code Here`, `&Code East` (handler slot order +2 / +4 / +6)
 
 ##### What it does
 
@@ -169,14 +169,14 @@ COP [BranchOnPlayerX] ( #$0000, &code_0BC3D5, &code_0BC3D5, &code_0BC3F6 )
 | Item | Value |
 |------|-------|
 | Threshold | Unsigned pixel distance |
-| Operand order | West, East, Here (same as copdef) |
+| Operand order | West, Here, East (copdef labels; middle slot is same column / within threshold) |
 
 ---
 
 #### COP [2B] — `BranchOnPlayerY` (3-way vertical separation)
 
 - **Handler:** `BranchOnPlayerY` @ [`cop_handlers_player_query.asm:211-236`](../../../extracted/system/engine/cop_handlers_player_query.asm)
-- **Params:** `Word Dist`, `&Code North`, `&Code South`, `&Code Here`
+- **Params:** `Word Dist`, `&Code North`, `&Code Here`, `&Code South`
 
 ##### What it does
 
@@ -197,6 +197,7 @@ COP [BranchOnPlayerY] ( #$0000, &code_0BC421, &code_0BC421, &code_0BC443 )
 | Item | Value |
 |------|-------|
 | Symmetric to | **`$2A`** on Y axis |
+| Operand order | North, Here, South |
 
 ---
 
@@ -380,7 +381,7 @@ Contrast: **`GetPlayerFacing`** in **`player_character.asm`** feeds a **14×7 id
 
 #### COP [35] — `CardinalToPlayer` (dominant cardinal toward player)
 
-- **Handler:** `CardinalToPlayer` @ [`cop_handlers_player_query.asm:295-363`](../../../extracted/system/engine/cop_handlers_player_query.asm) + epilogue **`code_009230`**
+- **Handler:** `CardinalToPlayer` @ [`cop_handlers_player_query.asm:295-363`](../../../extracted/system/engine/cop_handlers_player_query.asm) + epilogue **`CardinalToPlayer_Exit`**
 - **Params:** none
 - **Returns:** **`A = 0 N, 1 E, 2 S, 3 W`** (dominant axis by |Δ|)
 

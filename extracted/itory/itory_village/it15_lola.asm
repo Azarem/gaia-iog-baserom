@@ -5,7 +5,7 @@
 ; Comic relief scene.
 ---------------------------------------------
 
-?INCLUDE 'InitPlayerScriptVariant'
+?INCLUDE 'SetPlayerIdleFacing'
 
 !joypadMaskStd                  065A
 
@@ -40,7 +40,7 @@ code_04F0CC {
     LDA #$CFFC
     TSB $joypadMaskStd
     LDA #$0003
-    JSL $@InitPlayerScriptVariant
+    JSL $@SetPlayerIdleFacing
     COP [StageSpriteFrame] ( #34 )
     COP [AnimOnce]
     COP [PrintDialogString] ( &dialogstring_04F11E )

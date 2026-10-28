@@ -56,8 +56,8 @@
             "SetEventFlag_0200": { "start": 46209, "end": 46337, "type": "Code" }
         } },
         "system_core": { "start": 32768, "end": 33901, "type": "Code", "scene": "engine" },
-        "stair_climb": { "scene": "engine", "parts": {
-            "StairTriggerSouth": { "start": 53457, "end": 53968, "type": "actor-def" },
+        "slider_glide": { "scene": "engine", "parts": {
+            "SliderGlideTriggerWest": { "start": 53457, "end": 53968, "type": "actor-def" },
             "LockPlayerForClimb": { "start": 53384, "end": 53457, "type": "Code", "order": 53923 },
             "RestorePlayerControl": { "start": 54666, "end": 54720, "type": "Code" }
         } },
@@ -101,7 +101,7 @@
             "AutoAlignNS_East": { "start": 187085, "end": 187264, "type": "Code" }
         } },
         "player_move_ramps": { "start": 186435, "end": 187085, "type": "Code", "scene": "player" },
-        "player_move_diag": { "start": 187264, "end": 188674, "type": "Code", "scene": "player" },
+        "player_move_west": { "start": 187264, "end": 188674, "type": "Code", "scene": "player" },
         "tile_collision": { "start": 188674, "end": 189334, "type": "Code", "scene": "player" },
         "inventory_overlay": { "start": 191746, "end": 192584, "type": "Code", "scene": "inventory", "movable": true },
         "ShowDialogueFrame": { "start": 192584, "end": 192618, "type": "Code", "scene": "functions", "movable": true },
@@ -118,7 +118,7 @@
         "actor_execution": { "start": 248565, "end": 250157, "type": "Code", "scene": "engine" },
         "thinker_execution": { "scene": "engine", "parts": {
             "SpawnSceneThinkers": { "start": 251879, "end": 252010, "type": "Code" },
-            "RunThinkers_TypeA": { "start": 250157, "end": 250357, "type": "Code", "order": 251880 }
+            "RunThinkers_General": { "start": 250157, "end": 250357, "type": "Code", "order": 251880 }
         } },
         "tile_collision_physics": { "start": 250357, "end": 251879, "type": "Code", "scene": "engine" },
         "scene_lifecycle": { "start": 252392, "end": 254128, "type": "Code", "scene": "engine" },
@@ -136,7 +136,7 @@
         "boot_logo_palette_enix": { "start": 47167, "end": 47187, "type": "thinker-def", "scene": "boot_logos", "movable": true },
         "boot_logo_palette_quintet": { "start": 47187, "end": 47207, "type": "thinker-def", "scene": "boot_logos", "movable": true },
         "boot_logo_palette_third": { "start": 47207, "end": 47227, "type": "thinker-def", "scene": "boot_logos", "movable": true },
-        "inventory_dma_setup": { "start": 48014, "end": 48045, "type": "thinker-def", "scene": "inventory", "movable": true },
+        "inventory_bg3_scroll_hdma": { "start": 48014, "end": 48045, "type": "thinker-def", "scene": "inventory", "movable": true },
         "diary_menu_window_dma": { "start": 48047, "end": 48279, "type": "thinker-def", "scene": "diary_menu", "movable": true },
         "statue_inventory_reward": { "start": 52569, "end": 53033, "type": "actor-def", "scene": "statue_inventory", "movable": true },
         "inventory_statue_slot": { "start": 53033, "end": 53134, "type": "actor-def", "scene": "inventory", "movable": true },
@@ -156,7 +156,7 @@
         "hdma_ramp_tables": {
             "parts": {
                 "hdma_channel_config": { "start": 121022, "end": 121086, "type": "Byte" },
-                "parallax_speed_config": { "start": 121086, "end": 121099, "type": "Byte" },
+                "hdma_entry_stride_by_mode": { "start": 121086, "end": 121099, "type": "Byte" },
                 "ramp_motion_curves": { "start": 121099, "end": 121201, "type": "ramp-motion" }
             }
         },
@@ -256,7 +256,7 @@
         "large_ramps": { "start": 51555, "end": 51598, "type": "actor-def", "movable": false },
         "ramps": { "movable": false, "parts": {
             "ramp_east": { "start": 53968, "end": 54666, "type": "actor-def" },
-            "func_00D5C0": { "start": 54720, "end": 54831, "type": "Code" }
+            "RampArcDriver": { "start": 54720, "end": 54831, "type": "Code" }
         } },
         "field_reveal_object": { "start": 55928, "end": 56202, "type": "Code", "movable": true },
         "reward_actors": { "start": 57389, "end": 57685, "type": "Code", "movable": true },
@@ -289,18 +289,18 @@
         "palette_parent_child": { "start": 46590, "end": 46641, "type": "thinker-def", "movable": true },
         "oneshot_coldata_warm_flash": { "start": 46686, "end": 46705, "type": "thinker-def", "movable": true },
         "incan_ruins_transform_palette": { "start": 46705, "end": 46802, "type": "thinker-def", "movable": true },
-        "oneshot_coldata_green_tint": { "start": 46821, "end": 46845, "type": "thinker-def", "movable": true },
+        "oneshot_coldata_r11g4b2": { "start": 46821, "end": 46845, "type": "thinker-def", "movable": true },
         "oneshot_palette_flash_18": { "start": 47052, "end": 47062, "type": "thinker-def", "movable": true },
         "oneshot_palette_flash_19": { "start": 47062, "end": 47072, "type": "thinker-def", "movable": true },
-        "oneshot_palette_flash_1B": { "start": 47072, "end": 47082, "type": "thinker-def", "movable": true },
-        "oneshot_palette_flash_1C": { "start": 47082, "end": 47092, "type": "thinker-def", "movable": true },
-        "oneshot_palette_flash_40": { "start": 47092, "end": 47102, "type": "thinker-def", "movable": true },
-        "oneshot_palette_flash_1F": { "start": 47102, "end": 47112, "type": "thinker-def", "movable": true },
-        "parallax_thinker": { "start": 47243, "end": 48014, "type": "thinker-def", "movable": true },
+        "oneshot_backdrop_fade_in_1B": { "start": 47072, "end": 47082, "type": "thinker-def", "movable": true },
+        "oneshot_backdrop_fade_out_1C": { "start": 47082, "end": 47092, "type": "thinker-def", "movable": true },
+        "oneshot_backdrop_fade_out_fast_40": { "start": 47092, "end": 47102, "type": "thinker-def", "movable": true },
+        "oneshot_palette15_grey_fade_in_1F": { "start": 47102, "end": 47112, "type": "thinker-def", "movable": true },
+        "scanline_band_hdma_thinker": { "start": 47243, "end": 48014, "type": "thinker-def", "movable": true },
         "sine_hdma_slow_wave": { "start": 48664, "end": 48697, "type": "thinker-def", "movable": true },
         "global_ambient_dispatcher": { "start": 49033, "end": 49578, "type": "thinker-def", "movable": true },
         "mode7_perspective": { "start": 239936, "end": 240520, "type": "thinker-def" },
-        "hdma_gradient_thinker": { "start": 391958, "end": 392914, "type": "thinker-def", "movable": true }
+        "hdma_circle_window_thinker": { "start": 391958, "end": 392914, "type": "thinker-def", "movable": true }
     },
     "unused": {
         "SceneTransPaletteThinker_unused": { "start": 46376, "end": 46515, "type": "Code", "movable": true },
@@ -907,9 +907,9 @@
     },
     "functions": {
         "ApplyPlayerHitstun": { "start": 50071, "end": 50200, "type": "Code", "movable": true },
-        "InitPlayerScriptVariant": { "start": 50916, "end": 50968, "type": "Code", "movable": true },
+        "SetPlayerIdleFacing": { "start": 50916, "end": 50968, "type": "Code", "movable": true },
         "npc_wander_ai": { "start": 50968, "end": 51194, "type": "Code", "movable": true },
-        "ToggleActorVisibilityFlag": { "start": 51194, "end": 51206, "type": "Code", "movable": true },
+        "FlickerParentActor": { "start": 51194, "end": 51206, "type": "Code", "movable": true },
         "EscortFollowPathTracker": { "start": 51206, "end": 51555, "type": "Code", "movable": true },
         "f_inventory_full": { "start": 51598, "end": 51640, "type": "Code", "movable": true },
         "SpawnDebrisBurst": { "start": 51640, "end": 51707, "type": "Code", "movable": true },
@@ -920,13 +920,13 @@
             "StandardEnemyDefeatHandler": { "start": 56202, "end": 56439, "type": "Code" },
             "EnemyGemDropRouter": { "start": 56667, "end": 56818, "type": "Code" }
         } },
-        "NullActorScriptStub": { "start": 56439, "end": 56441, "type": "Code", "movable": true },
+        "NpcDespawnStub": { "start": 56439, "end": 56441, "type": "Code", "movable": true },
         "SpawnAttackTrailEffect": { "start": 56500, "end": 56579, "type": "Code", "movable": true },
         "SpawnHitSparkSprites": { "start": 56579, "end": 56667, "type": "Code", "movable": true },
         "SpawnFieldRevealEffect": { "start": 56818, "end": 57109, "type": "Code", "movable": true },
         "EnemyDeathFlash": { "start": 57109, "end": 57129, "type": "Code", "movable": true },
         "DarkGemDropSystem": { "start": 57129, "end": 57389, "type": "Code", "movable": true },
-        "StopPlayerOnDeathAssign": { "start": 62387, "end": 62409, "type": "Code", "movable": true },
+        "StopPlayerOnDeath": { "start": 62387, "end": 62409, "type": "Code", "movable": true },
         "ApplyOrbitalOffsetFromRef": { "start": 62409, "end": 62504, "type": "Code", "movable": true },
         "ApplyOrbitalOffsetXY": { "start": 62514, "end": 62607, "type": "Code", "movable": true },
         "ActorDisplayModeSwap": { "start": 440818, "end": 440841, "type": "Code", "movable": true },
@@ -1022,7 +1022,7 @@
                 "consolestring_01D9D8": { "start": 121304, "end": 121535, "type": "ConsoleString" },
                 "item_name_table": { "start": 121535, "end": 122398, "type": "&ConsoleString" },
                 "item_menu_table": { "start": 122398, "end": 123178, "type": "&ConsoleString" },
-                "item_table_separator": { "start": 123178, "end": 123186, "type": "Binary" },
+                "non_discardable_item_bits": { "start": 123178, "end": 123186, "type": "Binary" },
                 "item_description_table": { "start": 123186, "end": 124396, "type": "&ConsoleString" },
                 "ability_menu_table": { "start": 124396, "end": 124509, "type": "&ConsoleString" },
                 "ability_name_table": { "start": 124509, "end": 124636, "type": "&ConsoleString" },

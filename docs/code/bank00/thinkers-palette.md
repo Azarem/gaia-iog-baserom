@@ -81,7 +81,7 @@ None — no `?INCLUDE`, no external symbol references.
 
 #### Purpose
 
-Warm-toned palette cycler (bundle `#02`) gated by scene flags `#1C` and `#16`. Runs the warm ambient loop only while both gate conditions hold; otherwise self-terminates via `KillThinker`.
+Warm palette step (bundle `#02`) with a **spawn-time** gate on flags `#1C` and `#16`. If the gate fails at spawn, the thinker never enters its loop (`KillThinker`). The loop itself does not re-check story flags each frame.
 
 #### Algorithm
 
@@ -101,9 +101,10 @@ Flag `#FF` acts as an internal phase latch — set each step, checked for extern
 
 | Scene | Index | Context |
 |-------|-------|---------|
-| Oakton House | 48 (`thinker_0CE80C` slot `#03`) | Warm interior glow during/after storm sequence |
+| South Cape (`$01`) | `thinker_0CE7EA` | Pre–Oakton storm ambient |
+| Oakton (`$30`) | `thinker_0CE80C` slot `#03` | Warm interior (paired with storm COLDATA) |
 
-Paired in `thinker_0CE80C` with `oneshot_coldata_green_tint` (slot `#00`) and dual `ambient_palette_cycler` layers.
+Paired in `thinker_0CE80C` with `oneshot_coldata_r11g4b2` (slot `#00`) and dual `ambient_palette_cycler` layers.
 
 #### Dependencies
 
@@ -117,7 +118,7 @@ None.
 
 #### Purpose
 
-Cool-toned palette cycler (bundle `#4C`) using the same dual-flag gate pattern as `flag_gated_palette_warm`. Provides blue/cool ambient for early overworld maps before the warm Oakton transition.
+Seven-colour palette step (bundle `#4C`, colours from index `$19`) using the same spawn-time dual-flag gate as `flag_gated_palette_warm`. Not a full-palette cycle.
 
 #### Algorithm
 
@@ -127,7 +128,7 @@ Identical control flow to `flag_gated_palette_warm`, but uses palette bundle `#4
 
 | Scene | Index | Context |
 |-------|-------|---------|
-| Early overworld | 1 (`thinker_0CE7EA` slot `#01`) | South Cape / Edward Castle exterior cool ambient |
+| South Cape interiors (`$03`–`$08`) | One slot each in `thinker_0CE7F*` blocks | Lance's, Eric's, Seth's, Will's, Chef's houses, church |
 
 #### Dependencies
 
@@ -307,7 +308,7 @@ None.
 
 ## One-Shot Palette Flashes
 
-One-shot thinkers apply a single palette step or COLDATA tint, then immediately `KillThinker`. They are **not** placed in scene thinker tables — actor scripts spawn them via `COP [SpawnThinker]` during cutscenes.
+Some one-shot thinkers are spawned from actor scripts (`COP [SpawnThinker]`); others are listed directly in `scene_thinkers` tables. Palette bundle flashes run the full bundle via `PaletteStep` each frame until the script finishes (typically 32 frames), then `KillThinker`.
 
 ### oneshot_coldata_warm_flash
 
@@ -315,16 +316,14 @@ One-shot thinkers apply a single palette step or COLDATA tint, then immediately 
 
 #### Purpose
 
-Instant warm color addition via `$COLDATA` writes (`#$66`, `#$82`), producing a brief orange/golden screen tint. No palette bundle involved — pure PPU color math.
+Fixed warm tint via two `$COLDATA` writes (`#$66` → R6 G6, `#$82` → B2). Nothing in this thinker reverts the colour; visibility depends on scene colour-math registers. No palette bundle involved.
 
 #### Scene Usage
 
-| Scene | Index | Placement |
-|-------|-------|-----------|
-| Incan Ruins | 34 (`thinker_0CE850` slot `#02`) | Scene-load warm flash |
-| Larai Cliff | 29 (`thinker_0CE872` slot `#00`) | Cliff-edge warm tint on entry |
-
-Also spawnable from actor scripts at runtime.
+| Scene ID | Thinker list | Slot |
+|----------|--------------|------|
+| `$23` | `$0CE850` | `#02` |
+| `$27` | `$0CE872` | `#00` |
 
 #### Dependencies
 
@@ -332,19 +331,19 @@ None.
 
 ---
 
-### oneshot_coldata_green_tint
+### oneshot_coldata_r11g4b2
 
 **Address:** `$00B6E5`
 
 #### Purpose
 
-Instant green storm tint via three `$COLDATA` writes (`#$2B`, `#$44`, `#$82`). Used for the Oakton thunderstorm's sickly green lightning atmosphere.
+Fixed colour via three `$COLDATA` writes (`#$2B` R11, `#$44` G4, `#$82` B2). The on-screen hue depends on CGADSUB add/subtract mode; the values alone are red-dominant.
 
 #### Scene Usage
 
-| Scene | Index | Context |
-|-------|-------|---------|
-| Oakton storm | 48 (`thinker_0CE80C` slot `#00`) | One-shot green overlay at scene load |
+| Scene ID | Thinker list | Slot |
+|----------|--------------|------|
+| `$30` | `$0CE80C` | `#00` |
 
 #### Dependencies
 
@@ -358,7 +357,7 @@ None.
 
 #### Purpose
 
-Single-step white flash using palette bundle `#18`. Paired with `oneshot_palette_flash_19` (bundle `#19`) for flash-on / flash-off transitions.
+32-frame COLDATA backdrop fade-in using palette bundle `#18` (black → bluish white). Paired with `oneshot_palette_flash_19` (bundle `#19`, red-tinted fade-out to black over 32 frames).
 
 #### Scene Usage (actor-spawned)
 
@@ -382,7 +381,7 @@ None.
 
 #### Purpose
 
-Complement flash to bundle `#18` — applies palette bundle `#19` (return-to-normal / inverse white). Always spawned immediately after flash `#18` in cutscene scripts.
+32-frame complement to bundle `#18` — plays palette bundle `#19` (backdrop triplets fade through red to black). Usually spawned immediately after flash `#18` in cutscene scripts; `future_vision_cutscene` can spawn it alone.
 
 #### Scene Usage
 
@@ -394,13 +393,13 @@ None.
 
 ---
 
-### oneshot_palette_flash_1B
+### oneshot_backdrop_fade_in_1B
 
 **Address:** `$00B7E0`
 
 #### Purpose
 
-Spirit/prayer room flash using palette bundle `#1B` — a softer, ethereal white-violet transition distinct from the harsh `#18`/`#19` pair.
+Backdrop **fade in** via bundle `#1B`: 32 three-byte `COLDATA` steps (160 ticks) from black through yellow to near-white. Requires scene color math enabled; not a CGRAM palette write.
 
 #### Scene Usage (actor-spawned)
 
@@ -415,13 +414,13 @@ None.
 
 ---
 
-### oneshot_palette_flash_1C
+### oneshot_backdrop_fade_out_1C
 
 **Address:** `$00B7EA`
 
 #### Purpose
 
-Dungeon/spirit flash using palette bundle `#1C` — darker, more sinister color shift than `#1B`. Used for underground and supernatural encounters.
+Backdrop **fade out** via bundle `#1C`: 32 frames (160 ticks) white → black on the fixed-color triplet. Counterpart to `#1B` fade-in.
 
 #### Scene Usage (actor-spawned)
 
@@ -438,13 +437,13 @@ None.
 
 ---
 
-### oneshot_palette_flash_40
+### oneshot_backdrop_fade_out_fast_40
 
 **Address:** `$00B7F4`
 
 #### Purpose
 
-Strong color shift flash using palette bundle `#40`. Produces a dramatic, saturated palette snap used for Angel Tunnel revelations and Palace fountain events.
+Fast backdrop fade out via bundle `#40`: 16 frames (32 ticks) white → black on `COLDATA`. Used for Angel Tunnel (Kara) and Palace fountain cutscenes (often spawned twice with a 60-frame gap).
 
 #### Scene Usage (actor-spawned)
 
@@ -459,13 +458,13 @@ None.
 
 ---
 
-### oneshot_palette_flash_1F
+### oneshot_palette15_grey_fade_in_1F
 
 **Address:** `$00B7FE`
 
 #### Purpose
 
-Moon Tribe camp flash using palette bundle `#1F` — cool lunar/silver tint for Itory Moon Tribe sequences.
+Palette 15 grey ramp via bundle `#1F`: 8 frames × 16 colors at CGRAM `$F0` (64 ticks), grey values rising from near-black to light grey — not a backdrop/COLDATA effect.
 
 #### Scene Usage (actor-spawned)
 
@@ -532,7 +531,7 @@ None.
 | `#40` | Strong saturated snap | Dramatic revelation | Angel Tunnel, Palace fountain |
 | `#1F` | Lunar silver | Moon Tribe magic | Itory camp |
 | COLDATA warm | `#66`/`#82` | Golden warmth | Incan Ruins, Larai Cliff |
-| COLDATA green | `#2B`/`#44`/`#82` | Storm sickliness | Oakton thunderstorm |
+| COLDATA R11G4B2 | `#2B`/`#44`/`#82` | Fixed backdrop tint | Scene `$30` thinker list |
 
 ---
 

@@ -1,6 +1,6 @@
-; Unreferenced DMA setup thinker nearly identical to inventory_dma_setup but with a different channel table layout.
+; Unreferenced DMA setup thinker nearly identical to inventory_bg3_scroll_hdma but with a different channel table layout.
 ; 
-; Appears to be an alternate inventory or menu DMA layout that was replaced by inventory_dma_setup.
+; Appears to be an alternate inventory or menu DMA layout that was replaced by inventory_bg3_scroll_hdma.
 ---------------------------------------------
 
 ---------------------------------------------

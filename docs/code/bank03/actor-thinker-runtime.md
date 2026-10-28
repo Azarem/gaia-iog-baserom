@@ -277,10 +277,10 @@ points in the game loop:
 
 | Filter | Condition | Use |
 |--------|-----------|-----|
-| `RunThinkers_TypeA` | bit 2 (`$0004`) CLEAR | general (ambient, palette, bg anim), normal gameplay |
-| `RunThinkers_TypeB` | bit 2 SET | deferred/secondary (ordered after A) |
-| `RunThinkers_TypeC` | bit 11 (`$0800`) SET, bit 2 CLEAR | cutscene overlay, primary phase |
-| `RunThinkers_TypeD` | bits 11 AND 2 SET | cutscene deferred |
+| `RunThinkers_General` | bit 2 (`$0004`) CLEAR | general (ambient, palette, bg anim), normal gameplay |
+| `RunThinkers_Hdma` | bit 2 SET | deferred/secondary (ordered after A) |
+| `RunThinkers_General_Light` | bit 11 (`$0800`) SET, bit 2 CLEAR | cutscene overlay, primary phase |
+| `RunThinkers_Hdma_Light` | bits 11 AND 2 SET | cutscene deferred |
 
 All four share the actor-style COP dispatch (`PHK`/`PEA`/`PHA`/`RTL`): traverse
 from `$5A`, check filter flags, decrement the frame timer, dispatch to the
@@ -290,10 +290,10 @@ thinker's entry. Each `_Next` follows the `$06` link or exits when the list ends
 
 | Address | Label | Role |
 |---------|-------|------|
-| `$03D12D` | `RunThinkers_TypeA` | general thinkers: bit 2 CLEAR |
-| `$03D15D` | `RunThinkers_TypeB` | deferred thinkers: bit 2 SET |
-| `$03D18D` | `RunThinkers_TypeC` | cutscene primary: bit 11 SET, bit 2 CLEAR |
-| `$03D1C2` | `RunThinkers_TypeD` | cutscene deferred: bits 11 AND 2 SET |
+| `$03D12D` | `RunThinkers_General` | general thinkers: bit 2 CLEAR |
+| `$03D15D` | `RunThinkers_Hdma` | deferred thinkers: bit 2 SET |
+| `$03D18D` | `RunThinkers_General_Light` | cutscene primary: bit 11 SET, bit 2 CLEAR |
+| `$03D1C2` | `RunThinkers_Hdma_Light` | cutscene deferred: bits 11 AND 2 SET |
 | `$03D7E7` | `SpawnSceneThinkers` | read scene thinker list, allocate + link + parse |
 | `$03D831` | `InitThinkerFromSceneData` | parse thinker record: type → animScratch+2, code → entry, filter flags from first word |
 
@@ -304,10 +304,10 @@ loop, ensuring correct ordering:
 
 | Call order | Filter | Context |
 |------------|--------|---------|
-| 1 | `RunThinkers_TypeA` | after actor execution, during normal gameplay |
-| 2 | `RunThinkers_TypeB` | immediately after TypeA (deferred effects render after primary) |
-| 3 | `RunThinkers_TypeC` | during cutscene playback (primary cutscene effects) |
-| 4 | `RunThinkers_TypeD` | after TypeC (deferred cutscene effects) |
+| 1 | `RunThinkers_General` | after actor execution, during normal gameplay |
+| 2 | `RunThinkers_Hdma` | immediately after `RunThinkers_General` (HDMA phase; animScratch2 bit 2 set) |
+| 3 | `RunThinkers_General_Light` | during cutscene/dialogue frame pumps (animScratch2 bit 11 set, bit 2 clear) |
+| 4 | `RunThinkers_Hdma_Light` | after `RunThinkers_General_Light` (cutscene HDMA phase; bits 11 and 2 set) |
 
 ### Scene thinker record format
 
@@ -339,8 +339,9 @@ variable-length thinker definition list. `SpawnSceneThinkers` reads this list:
 word of the thinker's code serves as a permanent type tag. The four `RunThinkers_*`
 routines test specific bits to decide whether to dispatch a given thinker. A
 thinker with animScratch2 = `$0000` (both bits 2 and 11 clear) will only be
-processed by TypeA. Setting bit 2 (`$0004`) shifts it to TypeB. Bit 11 (`$0800`)
-enables cutscene filters (TypeC/D). This system allows a single linked list to
+processed by `RunThinkers_General`. Setting bit 2 (`$0004`) adds the
+`RunThinkers_Hdma` pass. Bit 11 (`$0800`) enables the `_Light` cutscene filters
+(`RunThinkers_General_Light` / `RunThinkers_Hdma_Light`). This system allows a single linked list to
 serve four execution phases without separate lists.
 
 **Dispatch pattern:** Identical to actors — `PHK` / `PEA Next-1` / `SEP #$20` /

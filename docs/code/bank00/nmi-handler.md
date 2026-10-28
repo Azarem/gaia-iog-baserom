@@ -18,7 +18,7 @@ Every visible frame passes through `NmiHandler` at `$82F8`. The main game loop (
 | `UploadScrollRegisters` | `$8387` | 77 B | BG1/BG2 scroll register write |
 | `WriteBgScroll` | `$83D4` | 61 B | Single-layer H/V scroll with override logic |
 | `ExecuteVramDma` | `$8411` | 39 B | One VRAM DMA transfer from DP parameters |
-| `FillWramBlock` | `$8438` | 52 B | **Unreferenced** — DMA fill stub (debug/cut) |
+| `OamFillE0_unused` | `$8438` | 52 B | **Unreferenced** — DMA fill stub (debug/cut) |
 
 ### NMI vs Main Loop Split
 
@@ -57,7 +57,7 @@ Must complete within ~20,000 CPU cycles (one VBlank period at NTSC). Heavy work 
 | 5 | `JSL FlushDirtyTilemapStrips` ($02) | Flush dirty tilemap column/row strips to VRAM |
 | 6 | `JSL UploadCgramPalette` ($02) | DMA 512-byte palette buffer → PPU CGRAM |
 | 7 | `JSL UploadOamTable` ($02) | DMA OAM sprite table → PPU OAM |
-| 8 | `JSL SpriteVramDma` ($02) | Transfer queued sprite tile data to VRAM |
+| 8 | `JSL Bg3TilemapVramDma` ($02) | Upload the BG3 tilemap staging buffer to VRAM |
 | 9 | *inline* | Configure DMA ch0: `VMAIN=$80`, `BBAD0=$18`, `DMAP0=$01` |
 | 10 | `JSL DmaPlayerTilesToVram` ($03) | **Conditional:** if `$09EC` bit 3 — alternate BG3 tilemap path |
 | 11 | *inline* | If `$0800` non-zero → skip tilemap DMA (step 12) |
@@ -155,11 +155,11 @@ Uses DMA channel 0 in **incrementing-source, fixed-destination** mode (pre-confi
 
 ---
 
-## FillWramBlock
+## OamFillE0_unused
 
 **Address:** `$8438` · **Size:** 52 bytes · **⚠ Unreferenced**
 
-DMA fill of **512 bytes** at WRAM `$000422` using fixed byte `$E0` from `WramFillConstant` (`$846C`). No callers exist in the ROM — likely a debug or development tool. Uses DMA channel 0 in fill mode (`$DMAP0=$08`).
+DMA fill of **512 bytes** at WRAM `$000422` using fixed byte `$E0` from `OamFillConstant_unused` (`$846C`). No callers exist in the ROM — likely a debug or development tool. Uses DMA channel 0 in fill mode (`$DMAP0=$08`).
 
 Immediately followed in ROM by `CopDispatch` at `$846D` — the fill constant byte (`$E0`) doubles as the last byte before the COP engine.
 
@@ -190,7 +190,7 @@ NmiHandler ($82F8)
 ├── FlushDirtyTilemapStrips ($02) — tilemap strip DMA
 ├── UploadCgramPalette ($02) — 512-byte palette DMA
 ├── UploadOamTable ($02) — sprite table DMA
-├── SpriteVramDma ($02) — sprite tile VRAM transfer
+├── Bg3TilemapVramDma ($02) — BG3 tilemap staging buffer upload
 ├── DmaPlayerTilesToVram ($03) — special BG3 [conditional]
 ├── DmaAdhocVramBlock ($03) — tilemap prep
 ├── FlushVramWriteQueue ($02) — flush VRAM write queue
@@ -198,7 +198,7 @@ NmiHandler ($82F8)
 ├── UpdateFrameFull ($81BC) [if $06FA ≠ 0]
 └── (joypad latch, APU handshake, frame counter++)
 
-FillWramBlock ($8438) — UNREFERENCED
+OamFillE0_unused ($8438) — UNREFERENCED
 ```
 
 ---

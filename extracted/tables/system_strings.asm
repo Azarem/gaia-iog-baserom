@@ -412,7 +412,7 @@ consolestring_01E123 |[LU:5]Doll|
 
 ; 8-byte binary separator between the item menu table and item description table. Padding/alignment data.
 
-item_table_separator #BCFFFFFEDF000000
+non_discardable_item_bits #BCFFFFFEDF000000
 ---------------------------------------------
 
 ; Pointer table of detailed item help text strings displayed on the item selection screen. Provides multi-line descriptions of each item's function and lore.

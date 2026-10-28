@@ -1,9 +1,9 @@
 {
     "570748": "Sync horizontal delta to camera target",
-    "570754": "Global frame counter",
+    "570754": "Frame counter $0036 (2 bytes, INC per frame in the NMI)",
     "570757": "Bit 9: toggles every 512 frames",
-    "570762": "Odd half: nudge camera down",
-    "570766": "Even half: nudge camera up",
+    "570762": "Bit set: cameraDeltaY += 1 per frame",
+    "570766": "Bit clear: cameraDeltaY -= 1 per frame",
     "577187": "If game complete → die",
     "577193": "Spawn param: appearance variant",
     "577197": "×8",
@@ -283,6 +283,9 @@
     "587509": "Set bit 3 (grounded/collision)",
     "587515": "Unmask D-pad and face buttons",
     "587521": "Clear ability-active flag",
-    "589058": "Dialog bank pointer (unused for display-only)",
-    "589072": "Static idle frame"
+    "589058": "chatPtr = $0085: item ID for GiveItemToPlayer (+5 gems), not a dialog pointer; same value as DarkGemDropAnimVariantA",
+    "589065": "Enemy sprite sheet; frame #06 below is the frame DarkGemDropAnimVariantA stages for item $85",
+    "589070": "Re-entry address: later passes resume here and restage the frame",
+    "589072": "Static frame #06 (the 5-gem frame; see DarkGemDropAnimVariantA)",
+    "589075": "Animate once, then RTL ends this pass"
 }

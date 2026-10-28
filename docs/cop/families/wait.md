@@ -59,7 +59,7 @@ WaitByte {
     INC $0A
     AND #$00FF
 
-  loc_00ACC9:
+  WaitStoreAndYield:
     STA $08
     LDA $0C
     STA $02
@@ -118,13 +118,13 @@ COP [WaitByte] ( #0E )
 
 #### COP [DB] — `WaitWord` (delay 0–65535 frames)
 
-- **Handler:** `WaitWord` @ [`cop_handlers_wait.asm:622-628`](../../../extracted/system/engine/cop_handlers_wait.asm) (falls into **`loc_00ACC9`**)
+- **Handler:** `WaitWord` @ [`cop_handlers_wait.asm:622-628`](../../../extracted/system/engine/cop_handlers_wait.asm) (falls into **`WaitStoreAndYield`**)
 - **Parameters:** `Word Frames`
 - **Usage count:** 41
 
 ##### What it does
 
-Read 16-bit count, branch to shared **`loc_00ACC9`** — identical store-to-**`$08`** / entry save / **`RTL`** path as **`WaitByte`**.
+Read 16-bit count, branch to shared **`WaitStoreAndYield`** — identical store-to-**`$08`** / entry save / **`RTL`** path as **`WaitByte`**.
 
 ##### Handler excerpt
 
@@ -134,7 +134,7 @@ WaitWord {
     LDA [$0A]
     INC $0A
     INC $0A
-    BRA loc_00ACC9
+    BRA WaitStoreAndYield
 }
 ```
 

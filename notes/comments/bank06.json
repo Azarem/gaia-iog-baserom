@@ -1,7 +1,8 @@
 {
-    "440818": "Extract low nibble of displayModeFlags",
-    "440823": "Save to scratch $24 for caller",
-    "440828": "Force displayModeFlags = $2000",
-    "440833": "Clear bit $2000 in statusWord",
-    "440838": "Set bit $1000 in statusWord"
+    "440818": "Variant source: $0E is the OAM attribute XOR word, not displayModeFlags",
+    "440820": "Keep the low nibble only (the variant index)",
+    "440823": "$24 = variant index; callers use it later, e.g. as a SwitchCase index in the interact handler",
+    "440828": "$0E = $2000: attribute high byte $20 = sprite priority 2",
+    "440833": "Clear actor flag $2000 (hidden in sprite composition, script-driven run path)",
+    "440838": "Set actor flag $1000 (display-active: runs under the display filter)"
 }

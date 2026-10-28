@@ -6,7 +6,7 @@ _Deep-audited ops: `[36]`, `[37]`, `[38]`, `[39]`, `[3A]`_ · _Source: [`cop_han
 
 ## Overview
 
-**Palette bundle playback** from bank `$16` (`LoadPaletteBundle` / `DecompressGfxToVram` in `hdma_dma_spc.asm`). Start ops load frame 0 and **yield** (`RTL`); step ops advance frames on subsequent thinker/actor entries until the bundle exhausts (then `RTI` continues the script).
+**Palette bundle playback** from bank `$16` (`LoadPaletteBundle` / `CopyPaletteBundleFrame` in `hdma_dma_spc.asm`). Start ops load frame 0 and **yield** (`RTL`); step ops advance frames on subsequent thinker/actor entries until the bundle exhausts (then `RTI` continues the script).
 
 ## Shared state
 
@@ -16,7 +16,7 @@ _Deep-audited ops: `[36]`, `[37]`, `[38]`, `[39]`, `[3A]`_ · _Source: [`cop_han
 - `$7F0006` (`spritesetPtr`) — Per-frame **delay counter** between palette advances
 - `$7F000E` — Frame index reset on `[37]`/`[38]` entry paths
 - `LoadPaletteBundle` — Advance bundle cursor; **carry set** = sequence finished
-- `DecompressGfxToVram` — Apply staged palette/GFX to CGRAM path
+- `CopyPaletteBundleFrame` — Block-copy one frame from ROM bank `$96` into `$7F:0A00` staging (then NMI uploads CGRAM)
 
 ## Family notes
 
@@ -47,7 +47,7 @@ _Deep-audited ops: `[36]`, `[37]`, `[38]`, `[39]`, `[3A]`_ · _Source: [`cop_han
 
 ##### What it does
 
-Branches into the shared `[37]` path with **bundle ID 0** — resets frame index, loads bundle, decompresses frame 0, yields.
+Branches into the shared `[37]` path with **bundle ID 0** — resets frame index, loads bundle, copies frame 0 into staging, yields.
 
 ```asm
 PaletteRestart {
@@ -91,7 +91,7 @@ PaletteStart {
 loc_009370:
     STZ $0E                 ; frame index ← 0
     JSL LoadPaletteBundle
-    JSL DecompressGfxToVram
+    JSL CopyPaletteBundleFrame
     LDA $0A
     STA $00
     PLA
@@ -100,7 +100,7 @@ loc_009370:
 }
 ```
 
-Stores bundle ID in `$7F0002`, applies first frame to VRAM/CGRAM staging.
+Stores bundle ID in `$7F0002`, copies the first frame into the `$7F:0A00` palette staging buffer (CGRAM or backdrop triplet path).
 
 ##### How it is used
 
@@ -110,7 +110,7 @@ Character form tints, boss phase colors, boot logos, festival lighting, attack a
 COP [PaletteStart] ( #0B )
 COP [PaletteStep]                  ; thinkers/global_ambient_dispatcher.asm:37-38 — Will tint
 COP [PaletteStart] ( #65 )         ; babel_tower/comet_lair/sE8_dark_gaia.asm — boss palette
-COP [PaletteStart] ( #1F )         ; thinkers/oneshot_palette_flash_1F.asm
+COP [PaletteStart] ( #1F )         ; thinkers/oneshot_palette15_grey_fade_in_1F.asm
 ```
 
 ##### Parameters & contract
@@ -138,7 +138,7 @@ PaletteStartLoop {
     ; bundle ID → animScratch+2
     ; repeat count → retPtr1
     JSL LoadPaletteBundle
-    JSL DecompressGfxToVram
+    JSL CopyPaletteBundleFrame
     RTL
 }
 ```
@@ -172,7 +172,7 @@ COP [PaletteStepLoop]
 
 Decrements `$7F0006` delay; when zero, calls `LoadPaletteBundle`:
 
-- **Carry clear** — more frames: decompress and `RTL` (yield again).
+- **Carry clear** — more frames: copy next frame and `RTL` (yield again).
 - **Carry set** — bundle done: `RTI` (script continues past step op).
 
 ```asm
@@ -182,7 +182,7 @@ PaletteStep {
     BNE delay_path
     JSL LoadPaletteBundle
     BCC exhausted         ; carry set → RTI continue script
-    ; … DecompressGfxToVram … RTL
+    ; … CopyPaletteBundleFrame … RTL
 }
 ```
 

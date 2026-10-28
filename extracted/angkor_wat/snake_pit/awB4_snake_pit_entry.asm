@@ -5,7 +5,7 @@
 ; into the pit. Checks for escape conditions.
 ---------------------------------------------
 
-?INCLUDE 'oneshot_palette_flash_1C'
+?INCLUDE 'oneshot_backdrop_fade_out_1C'
 ?INCLUDE 'player_character'
 
 !frameCounter                   0036
@@ -54,7 +54,7 @@ code_089937 {
     STA $COLDATA
     REP #$20
     COP [WaitByte] ( #B3 )
-    COP [SpawnThinker] ( @oneshot_palette_flash_1C.FlashPalette1C )
+    COP [SpawnThinker] ( @oneshot_backdrop_fade_out_1C.FadeBackdropOut1C )
 }
 
 code_089988 {

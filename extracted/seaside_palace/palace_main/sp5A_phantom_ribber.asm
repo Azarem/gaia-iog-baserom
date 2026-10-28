@@ -7,7 +7,7 @@
 ---------------------------------------------
 
 ?INCLUDE 'enemy_stats_table'
-?INCLUDE 'ToggleActorVisibilityFlag'
+?INCLUDE 'FlickerParentActor'
 
 !statsPtr                       7F0020
 !currentHp                      7F0026
@@ -49,7 +49,7 @@ sp5A_phantom_ribber [
 ]
 
 code_0689F3 {
-    COP [SpawnAfterAbsFlags] ( @ToggleActorVisibilityFlag, #$0000, #$0000, #$2800 )
+    COP [SpawnAfterAbsFlags] ( @FlickerParentActor, #$0000, #$0000, #$2800 )
     LDA #$1000
     TSB $10
     LDA #$0200

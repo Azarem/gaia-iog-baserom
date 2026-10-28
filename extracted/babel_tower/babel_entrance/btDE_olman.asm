@@ -7,8 +7,8 @@
 ; reunion that drives the endgame plot.
 ---------------------------------------------
 
-?INCLUDE 'InitPlayerScriptVariant'
 ?INCLUDE 'music_actors'
+?INCLUDE 'SetPlayerIdleFacing'
 ?INCLUDE 'spriteset_npc_props'
 
 !gfxCacheIdxA                   0648
@@ -71,7 +71,7 @@ btDE_olman [
 code_098891 {
     COP [SpawnAfterOffsetFlags] ( @code_0988F3, #$0000, #$FFE0, #$1800 )
     LDA #$0001
-    JSL $@InitPlayerScriptVariant
+    JSL $@SetPlayerIdleFacing
     LDY $playerActor
     LDA #$0001
     STA $0028, Y

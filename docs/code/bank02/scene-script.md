@@ -38,10 +38,10 @@ flowchart TD
     SpcMusic --> Loop
     LoadChar --> Loop
     Loop -->|"opcode $00"| EndCheck{"scene_current ≠ $F7?"}
-    EndCheck -->|yes| RLD["ReloadMapData"]
+    EndCheck -->|yes| RLD["RebuildCollisionLayer"]
     EndCheck -->|no| ScriptDone["SceneScriptMain RTL"]
-    RLD --> ReloadL0["ReloadMapLayer0"]
-    RLD --> ReloadL1["ReloadMapLayer1"]
+    RLD --> ReloadL0["FillCollisionFromLayer0"]
+    RLD --> ReloadL1["OverlayCollisionFromLayer1"]
     ReloadL0 --> ScriptDone
     ReloadL1 --> ScriptDone
     ScriptDone --> PostLoad["Caller: InitCameraBounds<br/>+ CameraFullRefresh or RenderPaletteTiles"]
@@ -58,7 +58,7 @@ $0283A2 ┌─ DmaWordToVram ─────────────────
         │  BG tile / tilemap / display loaders        │
         │  DMA, cache, script parsing helpers         │
 $028B6D ├─ SpcMusicLoadCmd ────────────────────────────┤  spc_transfer (part 1)
-$028BE4 ├─ SceneCmd_LoadSpriteTiles … ReloadMapLayer1│  scene_script (part 2)
+$028BE4 ├─ SceneCmd_LoadSpriteTiles … OverlayCollisionFromLayer1│  scene_script (part 2)
 $02908E ├─ SpcLoadBuiltinEngine                       │
         │  SpcBlockTransfer / SpcIplHandshake           │  spc_transfer (part 2)
 $029210 ├─ spc_sound_engine (embedded SPC700 binary)   │
@@ -85,32 +85,32 @@ Scene loading is orchestrated by `ClearSceneState` in [`scene_lifecycle.asm`](..
 
 Each scene entry is a byte stream of command opcodes (`$02`–`$17`) with command-specific operands (see operand-size table below), terminated by `$00`. The interpreter loop reads one byte, indexes the 24-entry jump table, and dispatches the handler via the **fake-return jump**: `PEA loop−1` / `RTS` pushes a return address one byte before the loop label, so the handler's `RTS` resumes interpretation automatically. Handlers load display presets, decompress Quintet-LZ tile/tilemap payloads to VRAM, configure BG layers, and upload sprite/character tiles; command `$11` delegates music to [spc-transfer.md](spc-transfer.md).
 
-When the end marker (`$00`) is reached, `SceneScriptMain` calls `ReloadMapData` (unless `scene_current = $F7`) to refresh both map layers from cached source pointers — essential when revisiting a room without re-running every graphics command. Control returns to `ClearSceneState`, which immediately calls `InitCameraBounds` and continues actor spawning, palette load, and tilemap rendering (`CameraFullRefresh` or `RenderPaletteTiles` for Mode 7 palette scenes). Throughout execution, loaders use a **two-tier cache** ([Cache-and-Diff Pattern](#cache-and-diff-pattern)): Tier 1 compares ROM `(addr, bank)` pairs and skips unchanged sources; Tier 2 snapshots VRAM tile strips to a ring buffer so identical decompressed data can be restored without re-decompression.
+When the end marker (`$00`) is reached, `SceneScriptMain` calls `RebuildCollisionLayer` (unless `scene_current = $F7`) to refresh both map layers from cached source pointers — essential when revisiting a room without re-running every graphics command. Control returns to `ClearSceneState`, which immediately calls `InitCameraBounds` and continues actor spawning, palette load, and tilemap rendering (`CameraFullRefresh` or `RenderPaletteTiles` for Mode 7 palette scenes). Throughout execution, loaders use a **two-tier cache** ([Cache-and-Diff Pattern](#cache-and-diff-pattern)): Tier 1 compares ROM `(addr, bank)` pairs and skips unchanged sources; Tier 2 snapshots VRAM tile strips to a ring buffer so identical decompressed data can be restored without re-decompression.
 
 ---
 
 ## Command Dispatch Table
 
-The 24-entry jump table at `$028416` maps command indices `$00`–`$17` to handler addresses. Unimplemented indices fall through to `code_02845C` (immediate `RTS` — no-op).
+The 24-entry jump table at `$028416` maps command indices `$00`–`$17` to handler addresses. Unimplemented indices fall through to `SceneCmd_Default` (immediate `RTS` — no-op).
 
 | Cmd | Hex | Handler | Description |
 |-----|-----|---------|-------------|
-| `$00`–`01` | — | `code_02845C` | Unimplemented (NOP return) |
+| `$00`–`01` | — | `SceneCmd_Default` | Unimplemented (NOP return) |
 | `$02` | `$02` | `SceneCmd_ConfigDisplay` | Read `table_018000` entry; configure TM/TS/TMW/TSW/CGWSEL/CGADSUB/BGMODE/BG1SC/BG2SC and scene flags |
 | `$03` | `$03` | `SceneCmd_LoadBgTiles` | Multi-mode BG tile loader (4 modes) |
 | `$04` | `$04` | `SceneCmd_LoadTilemap` | Single-layer tilemap DMA |
 | `$05` | `$05` | `SceneCmd_LoadDualTilemap` | Dual-layer tilemap with per-layer cache check |
 | `$06` | `$06` | `SceneCmd_FullGraphics` | Full scene graphics — map geometry + tileset + tilemap |
-| `$07`–`0D` | — | `code_02845C` | Unimplemented (NOP return) |
+| `$07`–`0D` | — | `SceneCmd_Default` | Unimplemented (NOP return) |
 | `$0E` | `$0E` | `SceneCmd_Skip3` | Skip 3 script bytes (placeholder NOP) |
-| `$0F` | — | `code_02845C` | Unimplemented (NOP return) |
+| `$0F` | — | `SceneCmd_Default` | Unimplemented (NOP return) |
 | `$10` | `$10` | `SceneCmd_LoadSpriteTiles` | Sprite tile graphics → VRAM `$4000` |
 | `$11` | `$11` | `SpcMusicLoadCmd` | SPC music load (in `spc_transfer.asm`) |
-| `$12` | — | `code_02845C` | Unimplemented (NOP return) |
+| `$12` | — | `SceneCmd_Default` | Unimplemented (NOP return) |
 | `$13` | `$13` | `SceneCmd_ConditionalLoad` | Test event flag → skip or execute command `$15` |
 | `$14` | `$14` | `SceneCmd_Nop` | Skip 1 script byte |
 | `$15` | `$15` | `SkipScriptCommands` | Skip N commands of varying sizes |
-| `$16` | — | `code_02845C` | Unimplemented (NOP return) |
+| `$16` | — | `SceneCmd_Default` | Unimplemented (NOP return) |
 | `$17` | `$17` | `SceneCmd_LoadCharTiles` | Character-specific tile data to BG1/BG2 VRAM |
 
 **Implemented script commands:** 11 of 24 table entries (`$02`–`$06`, `$0E`, `$10`–`$11`, `$13`–`$15`, `$17`).
@@ -229,16 +229,16 @@ Tier 1 applies to all cached commands (`LoadBgTiles`, `LoadTilemap`, `LoadSprite
 | `$028F43` | ComputeRingBufferAddr | Computes the WRAM ring-buffer address for the current cache slot index in `$0094`. |
 | `$028F53` | RestoreCachedVram | Restores previously saved VRAM tile data from the ring buffer back to VRAM. |
 | `$028FA7` | DmaWramToVram | DMAs data from WRAM bank `$7F` to VRAM. |
-| `$028FCD` | RebuildTilemapAttrs | Rebuilds tilemap attribute bytes for a 4×N tile region. |
-| `$029020` | ReloadMapData | Refreshes both map layers from their cached source pointers after scene script execution completes. |
-| `$029034` | ReloadMapLayer0 | Reloads layer 0 map strip from the cached source pointer at `$06AA` into `$7F:2000`. |
-| `$029060` | ReloadMapLayer1 | Reloads layer 1 map strip from the cached source pointer at `$06AC` into `$7F:0000`. |
+| `$028FCD` | BuildMetatileFlagTable | Rebuilds tilemap attribute bytes for a 4×N tile region. |
+| `$029020` | RebuildCollisionLayer | Refreshes both map layers from their cached source pointers after scene script execution completes. |
+| `$029034` | FillCollisionFromLayer0 | Reloads layer 0 map strip from the cached source pointer at `$06AA` into `$7F:2000`. |
+| `$029060` | OverlayCollisionFromLayer1 | Reloads layer 1 map strip from the cached source pointer at `$06AC` into `$7F:0000`. |
 
 #### Script Engine Core
 
 ### SceneScriptMain
 
-`SceneScriptMain` is the primary scene script interpreter invoked during room loads. It saves processor flags, switches to 8-bit accumulator mode, and calls `FindCurrentScene` to position `Y` at the command stream for the current scene ID in `$0644`. The main loop reads bytes via `ReadScriptByte` until `$00` (end-of-scene marker). Non-zero bytes index into `scene_script_jump_table` (`command_id × 2` → word handler address). Handlers are invoked via the **fake return-address jump** pattern: `PEA handler-1` / `RTS`, which pushes a return address pointing one byte before the loop label so execution resumes after the handler returns. When `$00` is encountered, if `scene_current ≠ $F7`, `ReloadMapData` refreshes both map layers from cached source pointers (used when returning to a previously loaded room). Scene `$F7` is a special case that skips the reload.
+`SceneScriptMain` is the primary scene script interpreter invoked during room loads. It saves processor flags, switches to 8-bit accumulator mode, and calls `FindCurrentScene` to position `Y` at the command stream for the current scene ID in `$0644`. The main loop reads bytes via `ReadScriptByte` until `$00` (end-of-scene marker). Non-zero bytes index into `scene_script_jump_table` (`command_id × 2` → word handler address). Handlers are invoked via the **fake return-address jump** pattern: `PEA handler-1` / `RTS`, which pushes a return address pointing one byte before the loop label so execution resumes after the handler returns. When `$00` is encountered, if `scene_current ≠ $F7`, `RebuildCollisionLayer` refreshes both map layers from cached source pointers (used when returning to a previously loaded room). Scene `$F7` is a special case that skips the reload.
 
 **Algorithm:**
 
@@ -250,7 +250,7 @@ Tier 1 applies to all cached commands (`LoadBgTiles`, `LoadTilemap`, `LoadSprite
 | 4 | If byte = `$00` → goto step 7 |
 | 5 | `PEA loop-1`; index jump table; `DEC`/`PHA`/`RTS` to dispatch handler |
 | 6 | Handler returns → goto step 3 |
-| 7 | If `$0644 ≠ $F7`, `JSR ReloadMapData` |
+| 7 | If `$0644 ≠ $F7`, `JSR RebuildCollisionLayer` |
 | 8 | `PLP`; `RTL` |
 
 **Source:**
@@ -280,7 +280,7 @@ SceneScriptMain {
     LDA $scene_current
     CMP #$F7
     BEQ loc_0283E5
-    JSR $&ReloadMapData
+    JSR $&RebuildCollisionLayer
 
   loc_0283E5:
     PLP
@@ -295,7 +295,7 @@ SceneScriptMain {
 | `$3A`/`$3B`/`$3C` | In | Script stream pointer (bank `$7F` WRAM) |
 | `$0644` | In | `scene_current` — scene ID to match |
 | `Y` | In/Out | Script stream index; advanced by handlers |
-| `$06EF` | In | Bit `$01` gates layer 1 reload in `ReloadMapData` |
+| `$06EF` | In | Bit `$01` gates layer 1 reload in `RebuildCollisionLayer` |
 
 **Cross-References:**
 
@@ -304,12 +304,12 @@ SceneScriptMain {
 | `chunk_03BAE1.asm` | Primary caller during scene load |
 | `FindCurrentScene` | Positions `Y` at matching scene entry |
 | `scene_script_jump_table` | Command dispatch table |
-| `ReloadMapData` | Post-scene map refresh |
+| `RebuildCollisionLayer` | Post-scene map refresh |
 | `SceneScriptNoMusic` | Variant that skips music command |
 
 ### SceneScriptNoMusic
 
-`SceneScriptNoMusic` is a variant interpreter identical to `SceneScriptMain` except that command `$11` (`SpcMusicLoadCmd`) is skipped inline. When the jump table entry matches `SpcMusicLoadCmd`, the routine advances `Y` by 5 bytes (the full operand size of command `$11`) instead of dispatching to the music handler. This variant is used by the inventory overlay so opening the menu does not restart BGM. Unlike `SceneScriptMain`, it does not call `ReloadMapData` at scene end — it simply restores flags and returns.
+`SceneScriptNoMusic` is a variant interpreter identical to `SceneScriptMain` except that command `$11` (`SpcMusicLoadCmd`) is skipped inline. When the jump table entry matches `SpcMusicLoadCmd`, the routine advances `Y` by 5 bytes (the full operand size of command `$11`) instead of dispatching to the music handler. This variant is used by the inventory overlay so opening the menu does not restart BGM. Unlike `SceneScriptMain`, it does not call `RebuildCollisionLayer` at scene end — it simply restores flags and returns.
 
 **Algorithm:**
 
@@ -379,7 +379,7 @@ SceneScriptNoMusic {
 
 ### scene_script_jump_table
 
-The 24-entry dispatch table maps scene script command indices `$00`–`$17` to handler addresses. Each entry is a 2-byte same-bank pointer (`&handler`). Unimplemented commands point to `code_02845C`, which is a single `RTS`. Command `$11` points across the compilation unit boundary to `spc_transfer.SpcMusicLoadCmd`, reflecting the physical interleaving of the two ASM files in ROM. The table is indexed by `command_byte × 2` in 16-bit mode during dispatch.
+The 24-entry dispatch table maps scene script command indices `$00`–`$17` to handler addresses. Each entry is a 2-byte same-bank pointer (`&handler`). Unimplemented commands point to `SceneCmd_Default`, which is a single `RTS`. Command `$11` points across the compilation unit boundary to `spc_transfer.SpcMusicLoadCmd`, reflecting the physical interleaving of the two ASM files in ROM. The table is indexed by `command_byte × 2` in 16-bit mode during dispatch.
 
 ### SceneCmd_LoadBgTiles
 
@@ -482,7 +482,7 @@ Loads a full 4bpp tile page (4096 bytes) to VRAM address `$2000`. If the source 
 
 ### DeinterleavePlanarTiles
 
-Converts interleaved 2bpp+2bpp planar tile data to SNES 4bpp format. The entry label decompresses data to `$7E:7000`; the main loop in `code_0285F3` reads 16×2-byte rows from the decompressed buffer, interleaves bitplanes via rotate/or operations, and writes 8 bytes per tile row to `$7E:A000`. After processing 8192 source bytes (4096 output bytes), byte-mode DMA uploads the result to VRAM address `$0000` with `$VMAIN = $80` (increment high word). `BuildAttributeTable` is called first to prepare palette attribute mapping.
+Converts interleaved 2bpp+2bpp planar tile data to SNES 4bpp format. The entry label decompresses data to `$7E:7000`; the main loop in `InterleaveTilesPriority` reads 16×2-byte rows from the decompressed buffer, interleaves bitplanes via rotate/or operations, and writes 8 bytes per tile row to `$7E:A000`. After processing 8192 source bytes (4096 output bytes), byte-mode DMA uploads the result to VRAM address `$0000` with `$VMAIN = $80` (increment high word). `BuildAttributeTable` is called first to prepare palette attribute mapping.
 
 **Algorithm:**
 
@@ -536,7 +536,7 @@ Builds a 256-byte palette-to-attribute lookup table at `$7E:2800` from tilemap m
 |--------|--------------|
 | `DeinterleavePlanarTiles` | Caller |
 | `RenderPaletteTiles` | Uses same attribute concept |
-| `RebuildTilemapAttrs` | Related attribute manipulation |
+| `BuildMetatileFlagTable` | Related attribute manipulation |
 
 #### Tilemap Loading
 
@@ -567,11 +567,11 @@ Command `$04` loads a single-layer tilemap from ROM into WRAM buffer `$7F:0A00`.
 |--------|--------------|
 | `DmaRomToWram` | Transfer primitive |
 | `LoadScriptPointer` | Reads 3-byte source |
-| `ReloadMapLayer0` | Uses cached map data at reload |
+| `FillCollisionFromLayer0` | Uses cached map data at reload |
 
 ### SceneCmd_LoadDualTilemap
 
-Command `$05` loads tilemap data for both BG layers from a single compressed blob. Reads BG1 and BG2 offset parameters (each ÷4 from script bytes), a layer flag byte to `$066A`, and a 3-byte source pointer. Performs independent cache checks for layer 0 (slot `$0678`) and layer 1 (slot `$067B`), clearing bits in `$066A` for layers that hit cache. On cache miss, decompresses the combined blob to `$7E:7000`, then copies layer 0 to `$7E:2000` and layer 1 to `$7E:2800` via `DmaRomToWram`, calling `RebuildTilemapAttrs` for each loaded layer to apply priority bits from `$06A2`/`06A4`.
+Command `$05` loads tilemap data for both BG layers from a single compressed blob. Reads BG1 and BG2 offset parameters (each ÷4 from script bytes), a layer flag byte to `$066A`, and a 3-byte source pointer. Performs independent cache checks for layer 0 (slot `$0678`) and layer 1 (slot `$067B`), clearing bits in `$066A` for layers that hit cache. On cache miss, decompresses the combined blob to `$7E:7000`, then copies layer 0 to `$7E:2000` and layer 1 to `$7E:2800` via `DmaRomToWram`, calling `BuildMetatileFlagTable` for each loaded layer to apply priority bits from `$06A2`/`06A4`.
 
 **Algorithm:**
 
@@ -582,7 +582,7 @@ Command `$05` loads tilemap data for both BG layers from a single compressed blo
 | 3 | Cache-check layer 1 (`$067B`); clear bit 1 on hit |
 | 4 | If `$066A = 0`: return (both cached) |
 | 5 | Decompress if needed; copy layers per remaining flags |
-| 6 | `RebuildTilemapAttrs` per loaded layer |
+| 6 | `BuildMetatileFlagTable` per loaded layer |
 
 **Variables:**
 
@@ -597,7 +597,7 @@ Command `$05` loads tilemap data for both BG layers from a single compressed blo
 | Symbol | Relationship |
 |--------|--------------|
 | `CheckSourceCacheHit` | Per-layer cache |
-| `RebuildTilemapAttrs` | Priority bit application |
+| `BuildMetatileFlagTable` | Priority bit application |
 | `SceneCmd_FullGraphics` | Shares layer flag pattern |
 
 ### SceneCmd_FullGraphics
@@ -635,17 +635,17 @@ Command `$06` is the comprehensive scene graphics loader — map geometry, tiles
 
 ### StoreMapAndDecompress
 
-Stores map dimensions from inline geometry bytes (`$00`/`$02` = width/height) into the map bounds array at `$0693,X` / `$0697,X`, computes the tile count via `SignedMultiply`, and decompresses the tileset blob pointed to by `$069E,X` into `$7E:7000` (via `$7A`). The `X` register selects the layer index (0 or 2 for layer 0/1), indexing into parallel arrays for dual-layer scenes.
+Stores map dimensions from inline geometry bytes (`$00`/`$02` = width/height) into the map bounds array at `$0693,X` / `$0697,X`, computes the tile count via `Multiply8x8Unsigned`, and decompresses the tileset blob pointed to by `$069E,X` into `$7E:7000` (via `$7A`). The `X` register selects the layer index (0 or 2 for layer 0/1), indexing into parallel arrays for dual-layer scenes.
 
 ### HandleEmptyGeometry
 
-Handles the case where the geometry size word read from the source stream is zero — meaning no compressed tileset follows inline. Computes tileset size from width×height via `SignedMultiply`, then DMAs raw tileset data and writes map bounds. For layer 0 (bit `$01` in `$066A`): DMA tileset to `$7E:A000`, call `WriteMapBounds` with `$0000` index, then copy map row to `$7E:C000`. For layer 1 only: uses index `$0002` for `WriteMapBounds` with destination `$7E:C000`.
+Handles the case where the geometry size word read from the source stream is zero — meaning no compressed tileset follows inline. Computes tileset size from width×height via `Multiply8x8Unsigned`, then DMAs raw tileset data and writes map bounds. For layer 0 (bit `$01` in `$066A`): DMA tileset to `$7E:A000`, call `WriteMapBounds` with `$0000` index, then copy map row to `$7E:C000`. For layer 1 only: uses index `$0002` for `WriteMapBounds` with destination `$7E:C000`.
 
 **Algorithm:**
 
 | Step | Action |
 |------|--------|
-| 1 | `SignedMultiply` width×height → `$0667` |
+| 1 | `Multiply8x8Unsigned` width×height → `$0667` |
 | 2 | If layer 0 flagged: DMA tileset → `$7E:A000`; `WriteMapBounds` index 0 |
 | 3 | If layer 1 flagged: copy map to `$7E:C000`; store bounds |
 | 4 | Return |
@@ -757,7 +757,7 @@ Command `$02` configures the SNES PPU for a scene by reading a 1-byte index into
 |--------|--------------|
 | `table_018000.asm` | Display preset data |
 | `CheckInterleavedFlag` | Reads `$06EE` bit `$0800` |
-| `ReloadMapData` | Gated on `$06EF` bit `$01` |
+| `RebuildCollisionLayer` | Gated on `$06EF` bit `$01` |
 
 ### SceneCmd_LoadSpriteTiles
 
@@ -790,14 +790,14 @@ Command `$10` loads sprite tile graphics to OBJ VRAM. Reads a 2-byte size word d
 
 ### SceneCmd_LoadCharTiles
 
-Command `$17` loads character-specific tile data to BG VRAM. Reads a mode byte to `$066A` and a 3-byte source pointer. Reads inline width/height, computes tile data size via `SignedMultiply`, and optionally decompresses to `$7E:7000`. Supports three VRAM targets based on mode: negative mode (bit 7 set) uses computed address; bit 0 → BG1 at VRAM `$1000`; bit 1 → BG2 at VRAM `$1800`; both bits can load sequentially via the `code_028CB0` continuation. DMA uses word mode to upload `$0666` bytes from the source buffer.
+Command `$17` loads character-specific tile data to BG VRAM. Reads a mode byte to `$066A` and a 3-byte source pointer. Reads inline width/height, computes tile data size via `Multiply8x8Unsigned`, and optionally decompresses to `$7E:7000`. Supports three VRAM targets based on mode: negative mode (bit 7 set) uses computed address; bit 0 → BG1 at VRAM `$1000`; bit 1 → BG2 at VRAM `$1800`; both bits can load sequentially via the `code_028CB0` continuation. DMA uses word mode to upload `$0666` bytes from the source buffer.
 
 **Algorithm:**
 
 | Step | Action |
 |------|--------|
 | 1 | Read mode, source pointer, inline dimensions |
-| 2 | `SignedMultiply` → size in `$0666` |
+| 2 | `Multiply8x8Unsigned` → size in `$0666` |
 | 3 | Decompress if needed |
 | 4 | If mode bit 7: compute VRAM addr from `$066A` |
 | 5 | Else if bit 0: VRAM `$1000`; if bit 1: VRAM `$1800` |
@@ -815,7 +815,7 @@ Command `$17` loads character-specific tile data to BG VRAM. Reads a mode byte t
 
 | Symbol | Relationship |
 |--------|--------------|
-| `SignedMultiply` | Size computation |
+| `Multiply8x8Unsigned` | Size computation |
 | `QuintetLzDecompress` | Compressed tile data |
 | `SceneCmd_LoadBgTiles` | Related BG tile loading |
 
@@ -992,7 +992,7 @@ Restores previously saved VRAM tile data from the ring buffer back to VRAM. Look
 
 DMAs data from WRAM bank `$7F` to VRAM. Sets VRAM address from `$0668` to `$2116`, configures channel 0 with source at `X` (WRAM offset), size in `Y`, word mode to VRAM. Used by `RestoreCachedVram` to replay saved tile strips.
 
-### RebuildTilemapAttrs
+### BuildMetatileFlagTable
 
 Rebuilds tilemap attribute bytes for a 4×N tile region. For each group of 4 tile words, reads the priority bit (bit 1) from each, combines into a 4-bit attribute nibble, and writes to the attribute buffer at `[$42]`. Also ORs priority mask bits from `$06A2,X` / `$06A4,X` into each tile word. The `X` register selects the layer (0 or 2), indexing into parallel priority arrays and source pointer arrays at `$06AA,X` / `$06AE,X`.
 
@@ -1021,29 +1021,29 @@ Rebuilds tilemap attribute bytes for a 4×N tile region. For each group of 4 til
 | `SceneCmd_ConfigDisplay` | Sets priority masks |
 | `BuildAttributeTable` | Related attribute logic |
 
-### ReloadMapData
+### RebuildCollisionLayer
 
-Refreshes both map layers from their cached source pointers after scene script execution completes. Calls `ReloadMapLayer0` with index 0, then conditionally calls `ReloadMapLayer1` with index 2 if `$06EF` bit `$01` indicates BG2 is active. Invoked by `SceneScriptMain` when the scene ends (byte `$00`) and `scene_current ≠ $F7`. Used when returning to a previously loaded room where the tilemap data must be refreshed from WRAM-cached pointers.
+Refreshes both map layers from their cached source pointers after scene script execution completes. Calls `FillCollisionFromLayer0` with index 0, then conditionally calls `OverlayCollisionFromLayer1` with index 2 if `$06EF` bit `$01` indicates BG2 is active. Invoked by `SceneScriptMain` when the scene ends (byte `$00`) and `scene_current ≠ $F7`. Used when returning to a previously loaded room where the tilemap data must be refreshed from WRAM-cached pointers.
 
 **Algorithm:**
 
 | Step | Action |
 |------|--------|
-| 1 | `ReloadMapLayer0` (index 0) |
-| 2 | If `$06EF` bit `$01`: `ReloadMapLayer1` (index 2) |
+| 1 | `FillCollisionFromLayer0` (index 0) |
+| 2 | If `$06EF` bit `$01`: `OverlayCollisionFromLayer1` (index 2) |
 | 3 | Return |
 
 **Source:**
 
 ```1799:1810:../../../extracted/system/engine/scene_script.asm
-ReloadMapData {
+RebuildCollisionLayer {
     LDX #$0000
-    JSR $&ReloadMapLayer0
+    JSR $&FillCollisionFromLayer0
     LDA $06EF
     BIT #$01
     BEQ loc_029033
     LDX #$0002
-    JSR $&ReloadMapLayer1
+    JSR $&OverlayCollisionFromLayer1
 
   loc_029033:
     RTS
@@ -1062,16 +1062,16 @@ ReloadMapData {
 | Symbol | Relationship |
 |--------|--------------|
 | `SceneScriptMain` | Post-scene caller |
-| `ReloadMapLayer0` | Layer 0 refresh |
-| `ReloadMapLayer1` | Layer 1 refresh |
+| `FillCollisionFromLayer0` | Layer 0 refresh |
+| `OverlayCollisionFromLayer1` | Layer 1 refresh |
 
-### ReloadMapLayer0
+### FillCollisionFromLayer0
 
-Reloads layer 0 map strip from the cached source pointer at `$06AA` into `$7F:2000`. Computes the number of map rows from `$0693` (width) × `$0697` (height) via `SignedMultiply`. For each row, reads a pointer from `$7E:0000,X` and dereferences it to copy map data to `$7F:2000,X`.
+Reloads layer 0 map strip from the cached source pointer at `$06AA` into `$7F:2000`. Computes the number of map rows from `$0693` (width) × `$0697` (height) via `Multiply8x8Unsigned`. For each row, reads a pointer from `$7E:0000,X` and dereferences it to copy map data to `$7F:2000,X`.
 
-### ReloadMapLayer1
+### OverlayCollisionFromLayer1
 
-Reloads layer 1 map strip from the cached source pointer at `$06AC` into `$7F:0000`. Similar to `ReloadMapLayer0` but uses `$0695`/`$0699` for dimensions and skips zero-valued tiles (overlay transparency). Starts indexing at `$0080` in the source pointer table.
+Reloads layer 1 map strip from the cached source pointer at `$06AC` into `$7F:0000`. Similar to `FillCollisionFromLayer0` but uses `$0695`/`$0699` for dimensions and skips zero-valued tiles (overlay transparency). Starts indexing at `$0080` in the source pointer table.
 
 ## See Also
 
@@ -1089,8 +1089,8 @@ Reloads layer 1 map strip from the cached source pointer at `$06AC` into `$7F:00
 | Dependency | Role |
 |------------|------|
 | [`decompress.asm`](../../../extracted/system/engine/decompress.asm) | `QuintetLzDecompress` — compressed payloads |
-| [`hardware_math.asm`](../../../extracted/system/engine/hardware_math.asm) | `SignedMultiply` — map dimension math |
-| [`vblank_joypad.asm`](../../../extracted/system/engine/vblank_joypad.asm) | `WaitFrames`, `EnableNmiOnly`, `EnableNmiAndJoypad` |
+| [`hardware_math.asm`](../../../extracted/system/engine/hardware_math.asm) | `Multiply8x8Unsigned` — map dimension math |
+| [`vblank_joypad.asm`](../../../extracted/system/engine/vblank_joypad.asm) | `WaitFrames`, `DisableNmiKeepJoypad`, `EnableNmiAndJoypad` |
 | [`flag_helpers.asm`](../../../extracted/system/engine/flag_helpers.asm) | `TestFlagRaw` — conditional load `$13` |
 | [`table_018000.asm`](../../../extracted/tables/table_018000.asm) | Display presets for command `$02` |
 | [`system_init.asm`](../../../extracted/system/engine/system_init.asm) | `cache_slot_indices` — ring-buffer mapping |

@@ -6,7 +6,7 @@ _Deep-audited ops: `[04]`, `[05]`, `[06]`, `[07]`, `[08]`, `[09]`, `[0A]`, `[19]
 
 ## Overview
 
-Background music and sound effects reach the SPC700 through two layers: **thinker-backed music loaders** (`$04`, `$05`, `$19`) that run `SpcTransferMusicData` / `SpcCheckMusicReady` asynchronously, and **SFX latch bytes** (`$06`–`$08`) written synchronously and drained toward `$2140`/`$2141` during NMI. Low-level **`WriteApuIo0` / `WriteApuIo1`** (`$0A` / `$09`) poke `$2140`/`$2141` directly for special cases (tempo tweaks, cutscene SPC commands).
+Background music and sound effects reach the SPC700 through two layers: **thinker-backed music loaders** (`$04`, `$05`, `$19`) that run `SpcTransferMusicData` / `SpcFadeOutHandshake` asynchronously, and **SFX latch bytes** (`$06`–`$08`) written synchronously and drained toward `$2140`/`$2141` during NMI. Low-level **`WriteApuIo0` / `WriteApuIo1`** (`$0A` / `$09`) poke `$2140`/`$2141` directly for special cases (tempo tweaks, cutscene SPC commands).
 
 ## Shared state
 
@@ -15,16 +15,16 @@ Background music and sound effects reach the SPC700 through two layers: **thinke
 - `$2140`–`$2143` — SNES APU I/O ports (`APUIO0`–`APUIO3`)
 - `$7F000A` (`chatPtr`) — Music bundle ID stored on the thinker spawned by `$04`/`$05`
 - `AllocateActorAfter` — inserts a thinker after the calling actor ([`actor_pool.asm`](../../../extracted/system/engine/actor_pool.asm))
-- `ActorPoolAllocator` / `MusicPlaybackActor` — pooled path for `$19`
-- `SpcTransferMusicData` / `SpcCheckMusicReady` — thinker entry points in `hdma_dma_spc.asm`
+- `ActorPoolAllocator` / `MusicJingleActor` — pooled path for `$19`
+- `SpcTransferMusicData` / `SpcFadeOutHandshake` — thinker entry points in `hdma_dma_spc.asm`
 
 ## Family notes
 
 - Music ops **return immediately** (`RTI`); the spawned thinker owns the multi-frame `$F0` / `$F1` APU handshake and block upload.
-- `$05` differs from `$04` only in the thinker entry: **`SpcCheckMusicReady`** fades or waits on the current track before entering the same transfer path as `$04`.
+- `$05` differs from `$04` only in the thinker entry: **`SpcFadeOutHandshake`** fades or waits on the current track before entering the same transfer path as `$04`.
 - SFX ops are **single-store** handlers; they do not wait for the SPC to acknowledge.
 - `$08` writes a **16-bit word** to `$06F8`, filling both latch bytes in one instruction (typical pattern `#$0505` = ch1 `#$05`, ch2 `#$05`).
-- `$19` combines music start with dialogue; prefer the pool + `MusicPlaybackActor` path, with an **inline `DialogStringRenderer` fallback** when the pool is full.
+- `$19` combines music start with dialogue; prefer the pool + `MusicJingleActor` path, with an **inline `DialogStringRenderer` fallback** when the pool is full.
 - `$09`/`$0A` bypass queues — use sparingly; many engine sites use `$7F` / `$01` on `$2140` as SPC command bytes during cutscenes.
 
 ## Usage statistics
@@ -114,14 +114,14 @@ COP [StartMusic] ( #1B )          ; incan_ruins/incan_ruins_entrance/ir1C_kara.a
 
 ##### What it does
 
-Same allocation and flag setup as `[04]`, but the thinker entry is **`SpcCheckMusicReady`** instead of `SpcTransferMusicData`. That path issues the **`$F1`** prelude (fade / readiness check on the current track) before falling into the standard `$F0` transfer used by `[04]`.
+Same allocation and flag setup as `[04]`, but the thinker entry is **`SpcFadeOutHandshake`** instead of `SpcTransferMusicData`. That path issues the **`$F1`** prelude (fade / readiness check on the current track) before falling into the standard `$F0` transfer used by `[04]`.
 
 ```asm
 FadeThenStartMusic {
     ; … AllocateActorAfter + flags identical to StartMusic …
-    LDA #$&hdma_dma_spc.SpcCheckMusicReady
+    LDA #$&hdma_dma_spc.SpcFadeOutHandshake
     STA $0000, X
-    LDA #$*hdma_dma_spc.SpcCheckMusicReady
+    LDA #$*hdma_dma_spc.SpcFadeOutHandshake
     STA $0002, X
     ; … read MusicId → $chatPtr, RTI …
 }
@@ -142,7 +142,7 @@ COP [FadeThenStartMusic] ( #1B )  ; incan_ruins/castoth_lair/ir29_transform.asm:
 | Item | Value |
 |------|-------|
 | Operand | `Byte MusicId` — same encoding as `[04]` |
-| Diff vs `[04]` | Thinker entry `SpcCheckMusicReady` → `$F1` before shared loader |
+| Diff vs `[04]` | Thinker entry `SpcFadeOutHandshake` → `$F1` before shared loader |
 | Outcome | Continue (async) |
 
 ---
@@ -387,7 +387,7 @@ COP [WriteApuIo0] ( #01 )         ; native_village/native_village/nvAC_hamlet.as
 
 ##### What it does
 
-**Primary path:** `ActorPoolAllocator` obtains a free actor, links it into the thinker list, **`CopyActorState`** from the parent, sets entry **`MusicPlaybackActor`**, and stores three operands in the new actor:
+**Primary path:** `ActorPoolAllocator` obtains a free actor, links it into the thinker list, **`CopyActorState`** from the parent, sets entry **`MusicJingleActor`**, and stores three operands in the new actor:
 
 - `$0026` — track ID (byte)
 - `$0020` — text pointer (word)
@@ -405,7 +405,7 @@ MusicAndText {
     TCD 
     JSL $@actor_pool.ActorPoolAllocator
     BCS loc_008836        ; pool full → inline dialog
-    ; … link actor, CopyActorState, MusicPlaybackActor, store track/text/bank …
+    ; … link actor, CopyActorState, MusicJingleActor, store track/text/bank …
     RTI 
 
   loc_008836:
@@ -428,7 +428,7 @@ COP [MusicAndText] ( #17, @dialogstring_0AA85C )  ; diamond_mine/mine_main/dm3F_
 | Item | Value |
 |------|-------|
 | Operands | `Byte MusicId`, `@DialogString` (far text: word + bank per copdef) |
-| Thinker fields | Track `$0026`, pointer `$0020`, bank `$0022` on `MusicPlaybackActor` |
+| Thinker fields | Track `$0026`, pointer `$0020`, bank `$0022` on `MusicJingleActor` |
 | Fallback | Synchronous wide-string render; blocks caller until string completes |
 | Outcome | Continue when pooled; blocking render on pool exhaustion |
 
@@ -439,4 +439,4 @@ COP [MusicAndText] ( #17, @dialogstring_0AA85C )  ; diamond_mine/mine_main/dm3F_
 | `[04]`/`[05]` | Music queue | Yes | Thinker → SPC bundles |
 | `[06]`–`[08]` | SFX latch | No (store only) | `$06F8`/`$06F9` → NMI → `$2140`/`$2141` |
 | `[09]`/`[0A]` | Raw ports | No | `$2141` / `$2140` |
-| `[19]` | Music + text | Yes (preferred) | `MusicPlaybackActor` + `@DialogString` |
+| `[19]` | Music + text | Yes (preferred) | `MusicJingleActor` + `@DialogString` |

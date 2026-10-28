@@ -8,7 +8,7 @@ _Deep-audited ops: `[A7]`, `[A8]`, `[A9]`, `[E0]`_ · _Source: [`cop_handlers_ac
 
 Four opcodes remove actors from the scene doubly-linked list (`$04` / `$06`, heads `$0056` / `$0058`). **`Die`** is the normal terminal opcode (`halt` in copdef — script ends with **`RTL`**). **`MarkDeath`** supports deferred teardown and **borrowed-actor** contexts (inventory cursors, multi-slot boss scripts). **`KillPrev`** / **`KillNext`** unlink the **adjacent** list neighbor while restoring the caller’s direct page.
 
-Shared heavy lifting: **`UnlinkActor`** (single slot) and **`DieNow_UnlinkChildren`** / **`loc_00A60E`** (when spawner flag **`$12` bit `$0040`** — marked children from **`$A1`–`$A4`**).
+Shared heavy lifting: **`UnlinkActor`** (single slot) and **`DieExit`** / **`UnlinkChildrenCascade`** (when spawner flag **`$12` bit `$0040`** — marked children from **`$A1`–`$A4`**).
 
 ## Shared state
 
@@ -23,7 +23,7 @@ Shared heavy lifting: **`UnlinkActor`** (single slot) and **`DieNow_UnlinkChildr
 ## Family notes
 
 - **`$E0` vs `$A7`:** Cutscene one-shots and NPC despawn almost always **`Die`**. Boss pieces that must finish an anim frame or explosion beat use **`MarkDeath`**.
-- **`$0040` cascade:** Both **`MarkDeath`** and **`Die`** branch to **`loc_00A60E`** when the **dying** actor’s `$12` has bit `$0040`, unlinking contiguous children whose **`parentId`** matches.
+- **`$0040` cascade:** Both **`MarkDeath`** and **`Die`** branch to **`UnlinkChildrenCascade`** when the **dying** actor’s `$12` has bit `$0040`, unlinking contiguous children whose **`parentId`** matches.
 - After **`Die`**, the current actor script **does not resume** (copdef **`halt: true`**).
 - **`KillPrev` / `KillNext`** only target **immediate** `$04` / `$06` neighbors — not arbitrary actor IDs.
 
@@ -55,7 +55,7 @@ Shared heavy lifting: **`UnlinkActor`** (single slot) and **`DieNow_UnlinkChildr
 With **X** = current actor (direct page):
 
 1. **`PHD`** — save spawner DP for cascade path.
-2. If **`$12 & $0040`**: push **`MarkDeathResumeHandler−1`**, **`BRA loc_00A60E`** — walk list, free marked children by **`parentId`**, repair head/tail, then **`RTS`** into resume handler → **`RTI`** (script PC unchanged at `$0A`).
+2. If **`$12 & $0040`**: push **`MarkDeathResumeHandler−1`**, **`BRA UnlinkChildrenCascade`** — walk list, free marked children by **`parentId`**, repair head/tail, then **`RTS`** into resume handler → **`RTI`** (script PC unchanged at `$0A`).
 3. Else **`JSR UnlinkActor`** — remove **this** actor from the list and recycle the slot (same helper as immediate death).
 
 ```asm
@@ -66,7 +66,7 @@ MarkDeath {
     BIT #$0040
     BEQ loc_00A5EC
     PEA $&MarkDeathResumeHandler-1
-    BRA loc_00A60E
+    BRA UnlinkChildrenCascade
 
   loc_00A5EC:
     JSR $&actor_pool.UnlinkActor
@@ -82,7 +82,7 @@ MarkDeathResumeHandler {
 }
 ```
 
-Child cascade core (shared with **`Die`**) begins at **`loc_00A60E`** in **`DieNow_UnlinkChildren`**: backward/forward scans on **`$04`/`$06`**, **`ReturnActorSlot`** for matching **`parentId`**, then pointer repair (head / tail / mid-splice cases). See **`docs/code/bank00/actor-management.md`** (`DieNow_UnlinkChildren`).
+Child cascade core (shared with **`Die`**) begins at **`UnlinkChildrenCascade`** in **`DieExit`**: backward/forward scans on **`$04`/`$06`**, **`ReturnActorSlot`** for matching **`parentId`**, then pointer repair (head / tail / mid-splice cases). See **`docs/code/bank00/actor-management.md`** (`DieExit`).
 
 ##### How it is used in source
 
@@ -98,7 +98,7 @@ TCD
 COP [MarkDeath]
 PLD
 PLX
-JMP $&code_02E544
+JMP $&ArrangeSourceReset
 ```
 
 **Gold cap / multi-body boss** — tear down auxiliary slots while keeping director script on another actor:
@@ -250,7 +250,7 @@ Pairs naturally with **`SpawnAfterMarked`** / **`SpawnAfter`** children linked a
 ##### What it does (exact semantics)
 
 1. **`PHD`**, test **`$12 & $0040`**.
-2. If set: **`PEA DieNow_UnlinkChildren−1`**, **`BRA loc_00A60E`** — cascade-free children, then fall through to **`DieNow_UnlinkChildren`** entry which **`RTL`** (ends actor tick / script).
+2. If set: **`PEA DieExit−1`**, **`BRA UnlinkChildrenCascade`** — cascade-free children, then fall through to **`DieExit`** entry which **`RTL`** (ends actor tick / script).
 3. Else: **`JSR UnlinkActor`**, then fall into shared exit that **`RTL`**.
 
 copdef marks **`halt: true`** — after **`Die`**, execution does not resume at the next script byte on a later frame.
@@ -262,21 +262,21 @@ Die {
     LDA $12
     BIT #$0040
     BEQ loc_00A605
-    PEA $&DieNow_UnlinkChildren-1
-    BRA loc_00A60E
+    PEA $&DieExit-1
+    BRA UnlinkChildrenCascade
 
   loc_00A605:
     JSR $&actor_pool.UnlinkActor
 }
 
-DieNow_UnlinkChildren {
+DieExit {
     PLA
     TAX
     TCD
     PLA
     PLA
     RTL
-    ; loc_00A60E: child batch unlink ...
+    ; UnlinkChildrenCascade: child batch unlink ...
 }
 ```
 

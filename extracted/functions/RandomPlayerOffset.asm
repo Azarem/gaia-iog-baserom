@@ -1,8 +1,8 @@
-; Generates a random position near the player within ±128px on each axis.
+; Actor entry code that places the actor at a random point within -128..+127 px of the player on each axis.
 ; 
-; Computes playerX + random(-128..+127) → $14, playerY + random(-128..+127) → $16.
-; Sets frame counter $08 = $3C (60 frames). Used by VFX actors that need a
-; randomized spawn point around the player (e.g., particle effects, spell visuals).
+; Not a JSL helper: awB1_goldcap and pyDD_mummy_queen spawn it with SpawnAfterMarked( @RandomPlayerOffset, #$2000 ) and keep the child slot (TYA, then STA $26 / scratch1010+6).
+; posX ($14) = playerXPos + (RngByte - $80), posY ($16) = playerYPos + (RngByte - $80), then $08 = $3C. $08 is the wait counter (wram-memory-map), so the actor sleeps 60 frames; its entry pointer is never changed, so it should run this code again and re-roll the position: a marker that hops every 60 frames, not a '60-frame lifetime' as the older header said.
+; UNVERIFIED-RUNTIME: the rerun from the unchanged $00 after the wait. unused_random_position_noref is an unreferenced sibling without the player offset.
 ---------------------------------------------
 
 !playerXPos                     09A2
@@ -23,7 +23,7 @@ RandomPlayerOffset {
     CLC 
     ADC $playerYPos
     STA $16               ; Random Y near player
-    LDA #$003C            ; 60-frame lifetime
+    LDA #$003C            ; Wait counter $08 = 60 frames before the entry code runs again (a re-roll), not a lifetime
     STA $08
     RTL 
 }

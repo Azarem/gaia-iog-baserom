@@ -89,12 +89,12 @@ Present at slot `#01` in virtually every overworld, dungeon, and town field scen
 
 #### Description
 
-One-shot infrastructure actor bundled as slot `#03` or `#04` in 26 scene templates. On its first (and only) tick it clears event flag byte `#00` via `COP [SetFlagByte] (#00)`, then immediately dies. This ensures a clean per-scene flag state before other actors read flag bytes on entry.
+One-shot infrastructure actor in **26** scene actor lists (slots `#02`–`#04` and others — not every template). On its first (and only) tick it **sets** event flag index `#00` via `COP [SetFlagByte] (#00)`, then immediately dies. Scene setup (`scene_lifecycle`) already zeroes flags `$00`–`$0F`, so this actor marks flag `#00` once the scene is running.
 
 #### Algorithm
 
 ```
-1. COP SetFlagByte (#00)   ; clear flag byte 0
+1. COP SetFlagByte (#00)   ; set flag index 0
 2. COP Die
 ```
 
@@ -265,29 +265,28 @@ Gold Ship dream sequence (scene `$2A` / 42): drives a scroll/zoom countdown from
 
 #### Description
 
-Accelerates player speed by ±1 when the player is within 2-tile proximity on an active ramp tile. Requires non-zero `$player_speed_ew` or `$player_speed_ns` (player must already be moving). Uses `BranchIfPlayerNear` with radius `#02` then `#03` in a loop: if E-W speed is negative, decrements; if positive, increments. Repeats while player remains near.
+Adds ±1 to `$player_speed_ew` **once per approach** when the player is already moving (`$player_speed_ew` or `$player_speed_ns` non-zero) and enters a 32 px box (`BranchIfPlayerNear` `#02`). After the boost, the actor idles (`LargeRampIdleHold`, bare `RTL`) while the player stays within 48 px (`BranchIfPlayerNear` `#03`); only when the player leaves that range does the speed gate run again. **`$player_speed_ns` is never modified.**
 
-Pure 65C816 for the speed adjustment path; minimal COP (`SetEntryHere`, `BranchIfPlayerNear`). **Distinct from** the `ramps.asm` directional ramp system (`ramp_east` at `$D310`) which handles tile-based slope physics.
+Pure 65C816 for the speed path; minimal COP (`SetEntryHere`, `BranchIfPlayerNear`). **Distinct from** the `ramps.asm` jump-launcher actors (`ramp_east` at `$D310`), which take over the player script for scripted jumps — not tile slope physics (`slope_ramp_physics` in bank `$02`).
 
 **Not movable.**
 
 #### Algorithm
 
 ```
-1. If $player_speed_ew OR $player_speed_ns == 0: RTL
-2. SetEntryHere
-3. BranchIfPlayerNear (#02) → speed adjust code
-4. RTL if player left range
-5. Adjust $player_speed_ew ±1 based on sign
-6. Loop via BranchIfPlayerNear (#03)
+1. If `$player_speed_ew` OR `$player_speed_ns` == 0: RTL (wait for movement)
+2. SetEntryHere; BranchIfPlayerNear `#02` → boost path, else RTL
+3. Adjust `$player_speed_ew` ±1 from sign (once)
+4. SetEntryHere; BranchIfPlayerNear `#03` → `LargeRampIdleHold` (idle RTL while near)
+5. Player beyond 48 px → branch to step 1
 ```
 
 #### Variables
 
 | Symbol | Role |
 |--------|------|
-| `$player_speed_ew` | Modified ±1 when on ramp |
-| `$player_speed_ns` | Gate — must be non-zero to activate |
+| `$player_speed_ew` | Modified ±1 once per approach |
+| `$player_speed_ns` | Gate only — must be non-zero to arm; never written |
 
 #### Scene Usage
 
@@ -302,7 +301,7 @@ Pure 65C816 for the speed adjustment path; minimal COP (`SetEntryHere`, `BranchI
 
 | Direction | Symbol | Notes |
 |-----------|--------|-------|
-| Distinct from | `ramps` block (`ramp_east`) | Tile-slope system at `$D310` |
+| Distinct from | `ramps` block (`ramp_east`) | Jump-launcher actors at `$D310` |
 
 ---
 

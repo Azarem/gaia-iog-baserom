@@ -30,22 +30,22 @@
 ?INCLUDE 'flag_gated_palette_cool'
 ?INCLUDE 'flag_gated_palette_warm'
 ?INCLUDE 'global_ambient_dispatcher'
-?INCLUDE 'hdma_gradient_thinker'
+?INCLUDE 'hdma_circle_window_thinker'
 ?INCLUDE 'incan_ruins_transform_palette'
-?INCLUDE 'inventory_dma_setup'
+?INCLUDE 'inventory_bg3_scroll_hdma'
 ?INCLUDE 'IrisCircleEffect'
 ?INCLUDE 'itory_village_fog'
 ?INCLUDE 'larai_cliff_scroll_wave'
 ?INCLUDE 'mode7_perspective'
 ?INCLUDE 'mu_tint_and_wave'
 ?INCLUDE 'native_village_sine_hdma'
-?INCLUDE 'oneshot_coldata_green_tint'
+?INCLUDE 'oneshot_coldata_r11g4b2'
 ?INCLUDE 'oneshot_coldata_warm_flash'
 ?INCLUDE 'palace_coffin_hdma_table'
 ?INCLUDE 'palace_fountain_palette'
 ?INCLUDE 'palace_scroll_brightness'
 ?INCLUDE 'palette_parent_child'
-?INCLUDE 'parallax_thinker'
+?INCLUDE 'scanline_band_hdma_thinker'
 ?INCLUDE 'sE7_space_bg_scroll'
 ?INCLUDE 'sE8_comet_display_config'
 ?INCLUDE 'sine_hdma_dual_channel'
@@ -321,19 +321,19 @@ thinker_spawn_0CE7E5 [
 thinker_spawn_0CE7EA [
   thinker-spawn < #3F, @ambient_palette_cycler >   ;00
   thinker-spawn < #00, @flag_gated_palette_cool >   ;01
-  thinker-spawn < #02, @parallax_thinker >   ;02
+  thinker-spawn < #02, @scanline_band_hdma_thinker >   ;02
   thinker-spawn < #00, @global_ambient_dispatcher >   ;03
 ]
 
 thinker_spawn_0CE7FB [
   thinker-spawn < #00, @dream_palette_loop >   ;00
-  thinker-spawn < #02, @parallax_thinker >   ;01
+  thinker-spawn < #02, @scanline_band_hdma_thinker >   ;01
   thinker-spawn < #00, @global_ambient_dispatcher >   ;02
-  thinker-spawn < #00, @hdma_gradient_thinker.thinker_def_05FB32 >   ;03
+  thinker-spawn < #00, @hdma_circle_window_thinker.circle_window_thinker_v2 >   ;03
 ]
 
 thinker_spawn_0CE80C [
-  thinker-spawn < #00, @oneshot_coldata_green_tint >   ;00
+  thinker-spawn < #00, @oneshot_coldata_r11g4b2 >   ;00
   thinker-spawn < #01, @ambient_palette_cycler >   ;01
   thinker-spawn < #3F, @ambient_palette_cycler >   ;02
   thinker-spawn < #02, @flag_gated_palette_warm >   ;03
@@ -341,7 +341,7 @@ thinker_spawn_0CE80C [
 ]
 
 thinker_spawn_0CE821 [
-  thinker-spawn < #00, @parallax_thinker >   ;00
+  thinker-spawn < #00, @scanline_band_hdma_thinker >   ;00
   thinker-spawn < #05, @edward_castle_alarm_palette >   ;01
   thinker-spawn < #00, @global_ambient_dispatcher >   ;02
 ]
@@ -356,7 +356,7 @@ thinker_spawn_0CE82E [
 
 thinker_spawn_0CE843 [
   thinker-spawn < #00, @itory_village_fog >   ;00
-  thinker-spawn < #01, @parallax_thinker >   ;01
+  thinker-spawn < #01, @scanline_band_hdma_thinker >   ;01
   thinker-spawn < #00, @global_ambient_dispatcher >   ;02
 ]
 
@@ -368,7 +368,7 @@ thinker_spawn_0CE850 [
 ]
 
 thinker_spawn_0CE861 [
-  thinker-spawn < #0B, @parallax_thinker >   ;00
+  thinker-spawn < #0B, @scanline_band_hdma_thinker >   ;00
   thinker-spawn < #00, @larai_cliff_scroll_wave >   ;01
   thinker-spawn < #13, @ambient_palette_cycler >   ;02
   thinker-spawn < #00, @global_ambient_dispatcher >   ;03
@@ -381,24 +381,24 @@ thinker_spawn_0CE872 [
 ]
 
 thinker_spawn_0CE87F [
-  thinker-spawn < #06, @parallax_thinker >   ;00
-  thinker-spawn < #05, @parallax_thinker >   ;01
+  thinker-spawn < #06, @scanline_band_hdma_thinker >   ;00
+  thinker-spawn < #05, @scanline_band_hdma_thinker >   ;01
   thinker-spawn < #00, @incan_ruins_transform_palette >   ;02
   thinker-spawn < #00, @global_ambient_dispatcher >   ;03
 ]
 
 thinker_spawn_0CE890 [
-  thinker-spawn < #06, @parallax_thinker >   ;00
-  thinker-spawn < #0E, @parallax_thinker >   ;01
+  thinker-spawn < #06, @scanline_band_hdma_thinker >   ;00
+  thinker-spawn < #0E, @scanline_band_hdma_thinker >   ;01
   thinker-spawn < #00, @incan_ruins_transform_palette >   ;02
   thinker-spawn < #00, @global_ambient_dispatcher >   ;03
 ]
 
 thinker_spawn_0CE8A1 [
-  thinker-spawn < #07, @parallax_thinker >   ;00
-  thinker-spawn < #06, @parallax_thinker >   ;01
-  thinker-spawn < #08, @parallax_thinker >   ;02
-  thinker-spawn < #05, @parallax_thinker >   ;03
+  thinker-spawn < #07, @scanline_band_hdma_thinker >   ;00
+  thinker-spawn < #06, @scanline_band_hdma_thinker >   ;01
+  thinker-spawn < #08, @scanline_band_hdma_thinker >   ;02
+  thinker-spawn < #05, @scanline_band_hdma_thinker >   ;03
   thinker-spawn < #00, @incan_ruins_transform_palette >   ;04
   thinker-spawn < #00, @global_ambient_dispatcher >   ;05
 ]
@@ -412,7 +412,7 @@ thinker_spawn_0CE8BA [
 thinker_spawn_0CE8C7 [
   thinker-spawn < #00, @global_ambient_dispatcher >   ;00
   thinker-spawn < #28, @ambient_palette_cycler >   ;01
-  thinker-spawn < #0A, @parallax_thinker >   ;02
+  thinker-spawn < #0A, @scanline_band_hdma_thinker >   ;02
 ]
 
 thinker_spawn_0CE8D4 [
@@ -426,7 +426,7 @@ thinker_spawn_0CE8E1 [
 ]
 
 thinker_spawn_0CE8E6 [
-  thinker-spawn < #20, @parallax_thinker >   ;00
+  thinker-spawn < #20, @scanline_band_hdma_thinker >   ;00
   thinker-spawn < #00, @global_ambient_dispatcher >   ;01
 ]
 
@@ -491,13 +491,13 @@ thinker_spawn_0CE959 [
 
 thinker_spawn_0CE962 [
   thinker-spawn < #01, @ambient_palette_cycler >   ;00
-  thinker-spawn < #1D, @parallax_thinker >   ;01
+  thinker-spawn < #1D, @scanline_band_hdma_thinker >   ;01
   thinker-spawn < #00, @global_ambient_dispatcher >   ;02
 ]
 
 thinker_spawn_0CE96F [
   thinker-spawn < #00, @palace_coffin_hdma_table >   ;00
-  thinker-spawn < #1B, @parallax_thinker >   ;01
+  thinker-spawn < #1B, @scanline_band_hdma_thinker >   ;01
   thinker-spawn < #00, @global_ambient_dispatcher >   ;02
   thinker-spawn < #00, @sine_hdma_dual_channel >   ;03
   thinker-spawn < #00, @palace_scroll_brightness >   ;04
@@ -516,7 +516,7 @@ thinker_spawn_0CE98D [
 
 thinker_spawn_0CE99A [
   thinker-spawn < #00, @global_ambient_dispatcher >   ;00
-  thinker-spawn < #00, @hdma_gradient_thinker.thinker_def_05FB32 >   ;01
+  thinker-spawn < #00, @hdma_circle_window_thinker.circle_window_thinker_v2 >   ;01
 ]
 
 thinker_spawn_0CE9A3 [
@@ -530,23 +530,23 @@ thinker_spawn_0CE9AC [
 ]
 
 thinker_spawn_0CE9B5 [
-  thinker-spawn < #1E, @parallax_thinker >   ;00
+  thinker-spawn < #1E, @scanline_band_hdma_thinker >   ;00
   thinker-spawn < #00, @global_ambient_dispatcher >   ;01
 ]
 
 thinker_spawn_0CE9BE [
-  thinker-spawn < #1F, @parallax_thinker >   ;00
+  thinker-spawn < #1F, @scanline_band_hdma_thinker >   ;00
   thinker-spawn < #47, @ambient_palette_cycler >   ;01
   thinker-spawn < #00, @global_ambient_dispatcher >   ;02
 ]
 
 thinker_spawn_0CE9CB [
-  thinker-spawn < #21, @parallax_thinker >   ;00
+  thinker-spawn < #21, @scanline_band_hdma_thinker >   ;00
   thinker-spawn < #00, @global_ambient_dispatcher >   ;01
 ]
 
 thinker_spawn_0CE9D4 [
-  thinker-spawn < #1F, @parallax_thinker >   ;00
+  thinker-spawn < #1F, @scanline_band_hdma_thinker >   ;00
   thinker-spawn < #4F, @ambient_palette_cycler >   ;01
   thinker-spawn < #00, @global_ambient_dispatcher >   ;02
 ]
@@ -560,7 +560,7 @@ thinker_spawn_0CE9EA [
   thinker-spawn < #01, @ambient_palette_cycler >   ;00
   thinker-spawn < #32, @ambient_palette_cycler >   ;01
   thinker-spawn < #00, @global_ambient_dispatcher >   ;02
-  thinker-spawn < #0F, @parallax_thinker >   ;03
+  thinker-spawn < #0F, @scanline_band_hdma_thinker >   ;03
 ]
 
 thinker_spawn_0CE9FB [
@@ -575,7 +575,7 @@ thinker_spawn_0CEA08 [
 ]
 
 thinker_spawn_0CEA11 [
-  thinker-spawn < #1C, @parallax_thinker >   ;00
+  thinker-spawn < #1C, @scanline_band_hdma_thinker >   ;00
   thinker-spawn < #3A, @ambient_palette_cycler >   ;01
   thinker-spawn < #3B, @ambient_palette_cycler >   ;02
   thinker-spawn < #3C, @ambient_palette_cycler >   ;03
@@ -612,26 +612,26 @@ thinker_spawn_0CEA52 [
 thinker_spawn_0CEA5B [
   thinker-spawn < #00, @crF7_credits_hdma_flicker >   ;00
   thinker-spawn < #00, @crF7_credits_dma_scroll >   ;01
-  thinker-spawn < #00, @hdma_gradient_thinker.crF7_thinker_05FB16 >   ;02
+  thinker-spawn < #00, @hdma_circle_window_thinker.circle_window_thinker_v1 >   ;02
   thinker-spawn < #00, @crF7_credits_camera_pan >   ;03
 ]
 
 thinker_spawn_0CEA6C [
   thinker-spawn < #00, @dao_sine_hdma_slow >   ;00
-  thinker-spawn < #20, @parallax_thinker >   ;01
+  thinker-spawn < #20, @scanline_band_hdma_thinker >   ;01
   thinker-spawn < #01, @ambient_palette_cycler >   ;02
   thinker-spawn < #00, @dao_window_mask >   ;03
   thinker-spawn < #00, @global_ambient_dispatcher >   ;04
 ]
 
 thinker_spawn_0CEA81 [
-  thinker-spawn < #02, @parallax_thinker >   ;00
-  thinker-spawn < #23, @parallax_thinker >   ;01
+  thinker-spawn < #02, @scanline_band_hdma_thinker >   ;00
+  thinker-spawn < #23, @scanline_band_hdma_thinker >   ;01
   thinker-spawn < #00, @global_ambient_dispatcher >   ;02
 ]
 
 thinker_spawn_0CEA8E [
-  thinker-spawn < #23, @parallax_thinker >   ;00
+  thinker-spawn < #23, @scanline_band_hdma_thinker >   ;00
   thinker-spawn < #00, @babel_elevator_color_add >   ;01
   thinker-spawn < #00, @global_ambient_dispatcher >   ;02
 ]
@@ -640,7 +640,7 @@ thinker_spawn_0CEA9B [
   thinker-spawn < #74, @ambient_palette_cycler >   ;00
   thinker-spawn < #00, @ending_comet_dma_setup >   ;01
   thinker-spawn < #00, @ending_comet_sine_hdma >   ;02
-  thinker-spawn < #24, @parallax_thinker >   ;03
+  thinker-spawn < #24, @scanline_band_hdma_thinker >   ;03
 ]
 
 thinker_spawn_0CEAAC [
@@ -710,7 +710,7 @@ thinker_spawn_0CEB2F [
 ]
 
 thinker_spawn_0CEB30 [
-  thinker-spawn < #03, @parallax_thinker >   ;00
+  thinker-spawn < #03, @scanline_band_hdma_thinker >   ;00
   thinker-spawn < #03, @palette_parent_child >   ;01
   thinker-spawn < #3E, @ambient_palette_cycler >   ;02
 ]
@@ -721,8 +721,8 @@ thinker_spawn_0CEB3D [
 ]
 
 thinker_spawn_0CEB46 [
-  thinker-spawn < #00, @inventory_dma_setup >   ;00
-  thinker-spawn < #03, @parallax_thinker >   ;01
+  thinker-spawn < #00, @inventory_bg3_scroll_hdma >   ;00
+  thinker-spawn < #03, @scanline_band_hdma_thinker >   ;01
   thinker-spawn < #03, @palette_parent_child >   ;02
   thinker-spawn < #3E, @ambient_palette_cycler >   ;03
   thinker-spawn < #64, @ambient_palette_cycler >   ;04

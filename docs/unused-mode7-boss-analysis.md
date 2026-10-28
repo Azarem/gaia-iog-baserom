@@ -733,7 +733,7 @@ Instead of body segments, the Cannons could leave a **sprite trail** — spawn a
 #### D. Phase Transition Cinematics
 
 - **P1→P2**: The Bits' death explosions could use the `IrisCircleEffect` thinker for a spotlight-zoom on the Core as it becomes vulnerable
-- **P2→P3**: A multi-step sequence: screen fades to white (`oneshot_palette_flash_19`), VRAM loads, Mode 7 initializes with extreme zoom-out (`$B8 = $0040`), then zooms in to combat scale (`$B8 = $0300`) over 120 frames while the floor rotation begins. The Final Core descends from above.
+- **P2→P3**: A multi-step sequence: screen fade (e.g. palette bundle flash — **`unused_mode7_boss.asm` does not spawn `oneshot_palette_flash_19`**), VRAM loads, Mode 7 initializes with extreme zoom-out (`$B8 = $0040`), then zooms in to combat scale (`$B8 = $0300`) over 120 frames while the floor rotation begins. The Final Core descends from above.
 
 #### E. Audio Integration
 
@@ -785,7 +785,7 @@ With both Bits destroyed, the Core becomes vulnerable and pulses red. Dead Bits 
 ### Phase Transition — VRAM DMA + Mode 7 Reveal
 ![Transition](mockups/phase-transition-p2-to-p3.svg)
 
-Four-step cinematic sequence: (1) Core death flash with `palette_flash_19`, (2) joypad-locked VRAM DMA transfers new tileset/tilemap and switches BGMODE from $09 to $07, (3) `IrisCircleEffect` thinker opens a window circle to reveal the new Mode 7 arena, (4) Final Core descends as M7 scale zooms from extreme distance ($0040) to combat range ($0300).
+Four-step cinematic sequence: (1) Core death flash (palette effect — not wired to `oneshot_palette_flash_19` in `unused_mode7_boss.asm`), (2) joypad-locked VRAM DMA transfers new tileset/tilemap and switches BGMODE from $09 to $07, (3) `IrisCircleEffect` thinker opens a window circle to reveal the new Mode 7 arena, (4) Final Core descends as M7 scale zooms from extreme distance ($0040) to combat range ($0300).
 
 ### Phase 3 — Final Core on Mode 7 Arena
 ![Phase 3](mockups/phase3-mode7-final-core.svg)

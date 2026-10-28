@@ -2,10 +2,10 @@
 
 **Bank:** `$00` (mirrored at `$80`)  
 **Address range:** `$00DB8A`–`$00DFFF`  
-**Source files:** `extracted/functions/StandardEnemyDefeatHandler.asm`, `NullActorScriptStub.asm`, `SpawnAttackTrailEffect.asm`, `SpawnHitSparkSprites.asm`, `SpawnFieldRevealEffect.asm`, `EnemyDeathFlash.asm`, `DarkGemDropSystem.asm`  
+**Source files:** `extracted/functions/StandardEnemyDefeatHandler.asm`, `NpcDespawnStub.asm`, `SpawnAttackTrailEffect.asm`, `SpawnHitSparkSprites.asm`, `SpawnFieldRevealEffect.asm`, `EnemyDeathFlash.asm`, `DarkGemDropSystem.asm`  
 **Block:** enemy defeat pipeline (`StandardEnemyDefeatHandler` multi-part block + standalone VFX)
 
-This region implements the complete enemy death resolution pipeline: kill tracking, visual feedback, field tile reveals, dark point gem drops, and stat bonus rewards. Every standard field enemy routes through `StandardEnemyDefeatHandler` via the `$7F1004` OnDeath callback assigned in `ComposeDigits_Continuation`.
+This region implements the complete enemy death resolution pipeline: kill tracking, visual feedback, field tile reveals, dark point gem drops, and stat bonus rewards. Every standard field enemy routes through `StandardEnemyDefeatHandler` via the `$7F1004` OnDeath callback assigned in `ComposeDigitSprites_AtCursor`.
 
 **Related:** [`actors-combat-interaction.md`](actors-combat-interaction.md) (stat reward actors, hit stagger) · [`README.md`](README.md)
 
@@ -32,7 +32,7 @@ Enemy OnDeath callback
 | `SpawnFieldRevealEffect` | `$DDF2` | 291 B | ✓ | COP `SpawnLastRel` | **High** |
 | `EnemyDeathFlash` | `$DF15` | 20 B | ✓ | COP `SpawnLastRel` | Medium |
 | `DarkGemDropSystem` | `$DF29`–`$DFFF` | 260 B | ✓ | COP `SpawnLastRel` | **High** |
-| `NullActorScriptStub` | `$DC77` | 2 B | **No** | `$&` default script | Medium |
+| `NpcDespawnStub` | `$DC77` | 2 B | **No** | `$&` from `InteractionDamage_NPCChat` | Medium |
 | `SpawnAttackTrailEffect` | `$DCB4` | 79 B | ✓ | COP `SpawnLastRel` | Medium |
 | `SpawnHitSparkSprites` | `$DD03` | 88 B | ✓ | COP `SpawnLastRel` | Medium |
 
@@ -40,11 +40,11 @@ Enemy OnDeath callback
 
 ## StandardEnemyDefeatHandler
 
-**Address:** `$DB8A` · **Size:** 237 bytes · **Movable:** No (inbound `$&StandardEnemyDefeatHandler` from `ComposeDigits_Continuation`, `hit_stagger_controller`)
+**Address:** `$DB8A` · **Size:** 237 bytes · **Movable:** No (inbound `$&StandardEnemyDefeatHandler` from `ComposeDigitSprites_AtCursor`, `hit_stagger_controller`)
 
 ### Description
 
-Central enemy death handler invoked when any standard enemy's HP reaches zero. Assigned as the default OnDeath callback via `SetOnDeath` COP in `ComposeDigits_Continuation` (`#$&StandardEnemyDefeatHandler`). Also referenced when `hit_stagger_controller` completes with no saved AI script for the victim.
+Central enemy death handler invoked when any standard enemy's HP reaches zero. Assigned as the default OnDeath callback via `SetOnDeath` COP in `ComposeDigitSprites_AtCursor` (`#$&StandardEnemyDefeatHandler`). Also referenced when `hit_stagger_controller` completes with no saved AI script for the victim.
 
 The handler performs four coordinated tasks before the enemy actor dies:
 
@@ -83,7 +83,7 @@ Because `EnemyGemDropRouter` and `EnemyStatBonusReward` are embedded in the same
 
 | Direction | Symbol | Notes |
 |-----------|--------|-------|
-| Assigned by | `ComposeDigits_Continuation` | Default enemy OnDeath: `#$&StandardEnemyDefeatHandler` |
+| Assigned by | `ComposeDigitSprites_AtCursor` | Default enemy OnDeath: `#$&StandardEnemyDefeatHandler` |
 | Called from | `hit_stagger_controller` | When enemy has no saved script ptr |
 | Calls | `EnemyGemDropRouter`, `EnemyStatBonusReward` | Internal JSR `$&` |
 | Spawns | `EnemyDeathFlash`, `SpawnFieldRevealEffect` | COP `SpawnLastRel` |
@@ -318,13 +318,13 @@ The `$chatPtr` values identify which stat the gem increases when collected:
 
 ---
 
-## NullActorScriptStub
+## NpcDespawnStub
 
-**Address:** `$DC77` · **Size:** 2 bytes · **Movable:** No (inbound `$&NullActorScriptStub` from `ComposeDigits_Continuation`)
+**Address:** `$DC77` · **Size:** 2 bytes · **Movable:** No (inbound `$&NpcDespawnStub` from `InteractionDamage_NPCChat`)
 
 ### Description
 
-Immediate `COP [Die]` — the default actor script pointer assigned to newly allocated actors that have no custom behavior. Referenced from `CalcKnockbackFromActorCenters` in `ComposeDigits_Continuation` as `#$&NullActorScriptStub`. Any actor spawned without an explicit entry pointer gets this stub and dies on its first frame, preventing runaway execution on uninitialized slots.
+Immediate `COP [Die]` — one-tick despawn script. After a successful item give or dialogue interaction, `InteractionDamage_NPCChat` in `combat_collision` overwrites the NPC's entry pointer with `#$&NpcDespawnStub` / `#$*NpcDespawnStub`, zeroes its wait counter, and sets `$0700` in `$10` to block re-interaction. The NPC runs this stub on its next tick and is removed from the actor list.
 
 ### Algorithm
 
@@ -336,7 +336,7 @@ COP [Die]
 
 | Direction | Symbol | Notes |
 |-----------|--------|-------|
-| Assigned by | `ComposeDigits_Continuation` | Default actor entry pointer |
+| Assigned by | `InteractionDamage_NPCChat` | Post-interaction NPC despawn |
 
 ---
 
@@ -405,9 +405,9 @@ Used when the player lands a critical hit or when certain enemies take bonus dam
 | Total functions documented | 9 (+ 7 gem sub-handlers) |
 | Address span | `$DB8A`–`$DFFF` (~1,397 bytes) |
 | Immovable entries | 4 (`StandardEnemyDefeatHandler` block parts + stub) |
-| External `$&` inbound refs | 2 (`StandardEnemyDefeatHandler`, `NullActorScriptStub`) |
+| External `$&` inbound refs | 2 (`StandardEnemyDefeatHandler`, `NpcDespawnStub`) |
 | COP spawn pattern | 6 functions use `SpawnLastRel` |
 
 ---
 
-*Source: `extracted/functions/StandardEnemyDefeatHandler.asm`, `extracted/functions/SpawnFieldRevealEffect.asm`, `extracted/functions/EnemyDeathFlash.asm`, `extracted/functions/DarkGemDropSystem.asm`, `extracted/functions/SpawnAttackTrailEffect.asm`, `extracted/functions/SpawnHitSparkSprites.asm`, `extracted/functions/NullActorScriptStub.asm`, `docs/code/bank00/actors-combat-interaction.md`.*
+*Source: `extracted/functions/StandardEnemyDefeatHandler.asm`, `extracted/functions/SpawnFieldRevealEffect.asm`, `extracted/functions/EnemyDeathFlash.asm`, `extracted/functions/DarkGemDropSystem.asm`, `extracted/functions/SpawnAttackTrailEffect.asm`, `extracted/functions/SpawnHitSparkSprites.asm`, `extracted/functions/NpcDespawnStub.asm`, `docs/code/bank00/actors-combat-interaction.md`.*

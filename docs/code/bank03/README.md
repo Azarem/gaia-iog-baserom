@@ -276,7 +276,7 @@ system_core (bank $02)
   ├── JSL GlobalInputHandler           per-frame UI input
   ├── JSL ClearActorRenderList          clear sprite bucket array
   ├── JSL RunActors_Normal              actor update pipeline
-  ├── JSL RunThinkers_TypeA–D           thinker update pipeline
+  ├── JSL RunThinkers_General–D           thinker update pipeline
   ├── JSL SortActorsByDepth             depth sort
   ├── JSL ComposeAllSprites             OAM build
   ├── JSL RunCombatCollision            combat hit tests
@@ -299,7 +299,7 @@ system_core (bank $02)
 | `sine_table_16bit` / `cosine_table_16bit` | `$01` | mode7_perspective (sine/cosine tables) |
 | `templates_01CA95` | `$01` | DialogStringRenderer ($C2 InsertTemplate) |
 | `dictionary_01EBA8` / `dictionary_01F54D` | `$01` | DialogStringRenderer ($D6/$D7 dictionary) |
-| `itemcomp_table_01EB0F` | `$01` | ConsoleStringRenderer ($10 InsertItemName) |
+| `itemcomp_table_01EB0F` | `$01` | ConsoleStringRenderer ($10 InsertSharedWord) |
 | `scene_actors` / `scene_thinkers` | `$0C` | actor_execution / thinker_execution spawning |
 
 ---
@@ -433,5 +433,5 @@ are still bank 3 by address range.
 - [COP System Overview](../../cop/README.md) — COP opcode definitions used throughout bank $03
 - [Actor Organization Analysis](../../actor-organization-analysis.md) — bank-wide actor classification
 - [Assembler Syntax](../../../../gaia-knowledge/curated/gaialabs/assembler-syntax.md) — `$&`/`$@` reference conventions
-- [Reference Model](../../../../gaia-knowledge/curated/gaialabs/reference-model.md) — `blocks.json` / `overrides.json` / `names.json` database triad
+- [Reference Model](../../../../gaia-knowledge/curated/gaialabs/reference-model.md) — `blocks.json` / `overrides.json` / `names/bankNN.json` database files
 - [Bank $02 Documentation](../bank02/README.md) — `system_core`, player character, movement physics (primary caller of bank $03)

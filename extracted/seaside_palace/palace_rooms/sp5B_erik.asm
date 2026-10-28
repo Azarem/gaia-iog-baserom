@@ -5,7 +5,7 @@
 ; separated and trapped in different rooms.
 ---------------------------------------------
 
-?INCLUDE 'ToggleActorVisibilityFlag'
+?INCLUDE 'FlickerParentActor'
 
 ---------------------------------------------
 
@@ -14,7 +14,7 @@ sp5B_erik [
 
   code_068879:
     COP [BranchOnFlagByte] ( #70, #01, &code_0688AF )
-    COP [SpawnAfterAbsFlags] ( @ToggleActorVisibilityFlag, #$0000, #$0000, #$2800 )
+    COP [SpawnAfterAbsFlags] ( @FlickerParentActor, #$0000, #$0000, #$2800 )
     LDA #$0200
     TSB $12
     COP [SetInteractHandler] ( &code_0688B1 )

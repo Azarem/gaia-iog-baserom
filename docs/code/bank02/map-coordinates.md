@@ -16,7 +16,7 @@ Map coordinate helpers serve scrolling (shared `$18`/`$1C` with [`camera-scrolli
 ```
 $02B0A3 ├─ TileCoordsToMapIndex ───────────────────────┤
         │  PixelToVramAddress / MapIndexMove*          │  map_coords
-        │  ProbeRightTiles / ProbeLeftTiles            │
+        │  FindSlopeForWestMove / FindSlopeForEastMove            │
 $02B20E └──────────────────────────────────────────────┘
 ```
 
@@ -34,12 +34,12 @@ Map coordinate helpers serve scrolling (shared `$18`/`$1C`), event/COP scripts, 
 | `$02B113` | MapIndexMoveLeft | MapIndexMoveLeft is the mirror of MapIndexMoveRight. |
 | `$02B132` | MapIndexMoveDown | MapIndexMoveDown advances the map index at $02 one row downward on layer 0. |
 | `$02B14E` | MapIndexMoveDown_L1 | MapIndexMoveDown_L1 is identical to MapIndexMoveDown except it uses $0695 (layer 1 map row width) as the page-carry s... |
-| `$02B168` | ProbeRightTiles | ProbeRightTiles implements a rightward collision cascade for diagonal movement. |
-| `$02B1BB` | ProbeLeftTiles | ProbeLeftTiles is the mirror cascade for leftward diagonal movement. |
+| `$02B168` | FindSlopeForWestMove | Ramp/wall cascade for westward horizontal movement (negative `$20`). |
+| `$02B1BB` | FindSlopeForEastMove | Centre-column slope search for **eastward** (`DispatchEastMove`) movement. |
 
 ### TileCoordsToMapIndex
 
-`TileCoordsToMapIndex` converts tile coordinates in `$18` (column) and `$1C` (row) into a 16-bit byte offset into the decompressed map buffer. The row is multiplied by the map width in columns (`$0693`) via `SignedMultiply`; the column nibble (`$18 & $0F`) and row high nibble (`$18 >> 4`) are added to form the final index.
+`TileCoordsToMapIndex` converts tile coordinates in `$18` (column) and `$1C` (row) into a 16-bit byte offset into the decompressed map buffer. The row is multiplied by the map width in columns (`$0693`) via `Multiply8x8Unsigned`; the column nibble (`$18 & $0F`) and row high nibble (`$18 >> 4`) are added to form the final index.
 
 The result is returned in the X register (low byte) with the high byte on the stack. This packed index format is shared across scrolling, collision, and event systems. Event blocks, warps, and COP collision handlers JSL to this routine.
 
@@ -47,7 +47,7 @@ The result is returned in the X register (low byte) with the high byte on the st
 
 | Step | Action |
 |------|--------|
-| 1 | Row `$1C` × 16 → push; multiply by `$0693` via `SignedMultiply` |
+| 1 | Row `$1C` × 16 → push; multiply by `$0693` via `Multiply8x8Unsigned` |
 | 2 | Add column nibble `$18 & $0F` to low byte |
 | 3 | Add row high nibble `$18 >> 4` to high byte |
 | 4 | Return index in X (PLX restores high byte to X) |
@@ -65,9 +65,9 @@ The result is returned in the X register (low byte) with the high byte on the st
 
 | Symbol | Relationship |
 |--------|--------------|
-| `hardware_math.SignedMultiply` | Row × width |
+| `hardware_math.Multiply8x8Unsigned` | Row × width |
 | `event_blocks.asm` / `warps_interaction.asm` | External JSL callers |
-| `RenderScrollRow` / `RenderScrollColumn` | Share `$18`/`$1C` convention |
+| `RenderColumnStrip` / `RenderRowStrip` | Share `$18`/`$1C` convention |
 
 ### PixelToVramAddress
 
@@ -125,7 +125,7 @@ This navigation convention matches the collision overlay layout at `$7FC000` and
 | Symbol | Relationship |
 |--------|--------------|
 | `MapCellRight` | Parallel cell navigation in tile_collision |
-| `ProbeRightTiles` | Uses index navigation indirectly via MapCell* |
+| `FindSlopeForWestMove` | Uses index navigation indirectly via MapCell* |
 
 ### MapIndexMoveLeft
 
@@ -201,9 +201,9 @@ This navigation convention matches the collision overlay layout at `$7FC000` and
 |--------|--------------|
 | `MapIndexMoveDown` | Layer 0 counterpart |
 
-### ProbeRightTiles
+### FindSlopeForWestMove
 
-`ProbeRightTiles` implements a rightward collision cascade for diagonal movement. It is the primary cross-chunk entry from `player_move_diag.asm`. The routine probes multiple tile positions in sequence, looking for passable ramp (`$0A`) or semi-solid (`$05`) tiles that allow sliding around north-facing walls (`$09`).
+`FindSlopeForWestMove` implements a collision cascade for **westward horizontal movement** (negative `$20`). It is the primary cross-chunk entry from `player_move_west.asm`. The routine probes multiple tile positions in sequence, looking for passable ramp (`$0A`) or semi-solid (`$05`) tiles that allow sliding around north-facing walls (`$09`).
 
 The cascade begins at the current top-left corner via `ProbeCurrentTL`, then offsets X by +8 pixels and re-probes via `TileProbeMain`. If blocked by a north wall, it checks the cell to the left. It then walks right through adjacent cells and future-position corners (`ProbeFutureTL`, `ProbeFutureBL`), returning carry clear when a ramp path is found.
 
@@ -234,11 +234,11 @@ The cascade begins at the current top-left corner via `ProbeCurrentTL`, then off
 | `TileProbeMain` | Direct probe after X offset |
 | `MapCellRight` / `MapCellLeft` | Adjacent cell walk |
 | `ProbeFutureTL` / `ProbeFutureBL` | Destination corner probes |
-| `player_move_diag.asm` | Primary caller |
+| `player_move_west.asm` | Primary caller |
 
-### ProbeLeftTiles
+### FindSlopeForEastMove
 
-`ProbeLeftTiles` is the mirror cascade for leftward diagonal movement. It begins at `ProbeCurrentTR`, offsets X by −8 pixels, and walks adjacent cells looking for ramp (`$0A`) or semi-solid (`$05`) passability.
+`FindSlopeForEastMove` is the mirror cascade for **eastward horizontal movement** (positive `$20`). It begins at `ProbeCurrentTR`, offsets X by −8 pixels, and walks adjacent cells looking for ramp (`$0A`) or semi-solid (`$05`) passability.
 
 South-facing walls (`$06`) receive special handling: when encountered, the routine checks the cell to the left for semi-solid (`$05`) before continuing the cascade. Future-position probes use `ProbeFutureTR` and `ProbeFutureBR`.
 
@@ -263,13 +263,13 @@ South-facing walls (`$06`) receive special handling: when encountered, the routi
 
 | Symbol | Relationship |
 |--------|--------------|
-| `ProbeRightTiles` | Mirror cascade |
+| `FindSlopeForWestMove` | Mirror cascade |
 | `ProbeCurrentTR` | Initial corner |
-| `player_move_diag.asm` | Primary caller |
+| `player_move_east.asm` | Sole caller |
 
 ## See Also
 
 - [`camera-scrolling.md`](camera-scrolling.md) — camera scrolling, dirty-strip DMA, shared `$18`/`$1C` tile coordinates
 - [`tile-collision.md`](tile-collision.md) — probe helpers called by cascade routines (`ProbeCurrent*`, `TileProbeMain`, `MapCell*`)
-- [`player-movement.md`](player-movement.md) — diagonal movement callers (`ProbeRightTiles` / `ProbeLeftTiles`)
+- [`player-movement.md`](player-movement.md) — west/east horizontal phase callers (`FindSlopeForWestMove` / `FindSlopeForEastMove`)
 - [`game-systems.md`](game-systems.md) — event blocks and warps that JSL `TileCoordsToMapIndex`

@@ -352,7 +352,7 @@ loc_03DBBC! {
 ---------------------------------------------
 ;Hook for fading music via COP 05
 
-SpcCheckMusicReady! {
+SpcFadeOutHandshake! {
     SEP #$20
     LDA msu_flag
     BEQ cop_fade_normal     ;Assume normal process when no MSU

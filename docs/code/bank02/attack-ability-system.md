@@ -75,7 +75,7 @@ Attack/ability companion actor — runs **before** movement controller via `Spaw
 | `$02BBFD` | DarkFriarFinish | Wait 7 frames, restore. |
 | `$02BC02` | DarkFriarVramDma | DMA `misc_fx_1CC000` to VRAM `$4400`. |
 | `$02BC0D` | DarkFriarProjectile | Main projectile sprite, `table_178000`. Wait 7 frames. |
-| `$02BC27` | DarkFriarTrailSouthInit | Set `$2000` in `$12` (south). |
+| `$02BC27` | DarkFriarTrailNorthInit | Set `$2000` in `$12` (negate-Y); falls into south trail body (north cast only). |
 | `$02BC2C` | DarkFriarTrailSouth | South trail with collision if upgraded. |
 | `$02BC74` | DarkFriarTrailWestInit | Set `$4000` in `$12` (west). |
 | `$02BC79` | DarkFriarTrailEastWest | EW trail with X-axis movement. |
@@ -89,7 +89,7 @@ Attack/ability companion actor — runs **before** movement controller via `Spaw
 | `$02BDC9` | DarkFriarFragmentLoop | Fragment animation with wall-hit velocity. |
 | `$02BE72` | ComputeParentOffset | Store offset from parent actor to current position. |
 | `$02BE89` | ApplyParentOffset | Add stored offset back to parent position. |
-| `$02BEA0` | PsychoDashMain | Load anim table 0, disable status, 4-directional dispatch. |
+| `$02BEA0` | PsychoDashMain | Load anim table 0, freeze camera (`FreezeCameraForAttack`), 4-directional dispatch. |
 | `$02BEB7` | PsychoDashDirTable | Switch S/N/W/E. |
 | `$02BEBF` | PsychoDashSouth | Spawn trail, sprite `#04`, move Y +54. |
 | `$02BECF` | PsychoDashNorth | Set force NE, sprite `#04`, move Y −54. |
@@ -278,7 +278,7 @@ Called each steering frame by `GuidedProjectileActor` and the four `ProjectileMo
 
 ### LoadAbilityAnimTableA
 
-Indexes Will's ability animation table (`table_01D9A7`) by the value in A. Resolves the pointer chain and stores a configuration byte to `climbStateData` (`$09E0`) for the engine's sprite and hitbox setup. Called by `PsychoDashMain` and `SpinDashMain` to load the correct ability visuals before dispatch.
+Indexes Will's ability animation table (`table_01D9A7`) by the value in A. Resolves the pointer chain and stores a configuration byte to `$09E0` (Will ability bonus / anim config — also summed into player STR in `ApplyHitDamageToVictim`). Called by `PsychoDashMain` and `SpinDashMain` to load the correct ability visuals before dispatch.
 
 ### LoadAbilityAnimTableB
 

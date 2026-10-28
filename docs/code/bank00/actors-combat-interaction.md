@@ -101,7 +101,7 @@ Never scene-placed. Spawned at runtime from:
 | Caller | Context |
 |--------|---------|
 | `ApplyPlayerHitstun` | Player damage (~12 enemy types) |
-| `ComposeDigits_Continuation` | Engine hit dispatch |
+| `ComposeDigitSprites_AtCursor` | Engine hit dispatch |
 | Enemy attack scripts | Via hit callback chain |
 
 #### Cross-References
@@ -188,9 +188,9 @@ All reward actors converge here — the VFX + flag set is identical regardless o
 
 ## Interaction Handlers
 
-Three handlers sharing `$@GetPlayerFacingDirection` (player direction probe) and `ComposeDigits_Continuation`. All use button `$0031` (A) and proximity radius `$0F`. Parent actor index stored in `$04` links the target object.
+Three handlers sharing `$@GetPlayerFacingDirection` (player direction probe). All poll **L / R shoulders** via `BranchIfPressed` mask `#$0031` (bit 0 → `joypadRaw`; the tested buttons are `#$0030`, not A/`#$0080`) and proximity radius `$0F`. Parent actor index in `$04` is the object being moved.
 
-> ⚠ This block was previously named `push_interaction_handlers`. Renamed to `interaction_handlers` because `collect_handler_gem` is a **collection** handler (not a push), while `push_handler_solid` and `push_handler_forceball` are true push handlers.
+> ⚠ Block `interaction_handlers`: `collect_handler_gem` nudges gems toward the player; `push_handler_solid` and `push_handler_forceball` **pull** their parent one tile toward the player (legacy names say "push").
 
 ### collect_handler_gem
 
@@ -208,7 +208,7 @@ Uses `GetPlayerFacingDirection` for player facing verification and half-distance
 
 ```
 1. SetSavedPtr; SetEntryExit
-2. BranchIfButton ($0031) — require A button
+2. BranchIfPressed (#$0031) — require L or R shoulder (#$0030 in `joypadRaw`)
 3. BranchIfPlayerNear ($0F)
 4. BranchOnPlayerX/Y to select axis
 5. Compute distance >> 1 → repeat count
@@ -229,14 +229,14 @@ Spawned at runtime (~12 sites including `field_reveal_object`, `DarkGemDropSyste
 
 #### Description
 
-Heavy push for statues and blocks. Requires **≥32 pixel** (`$0020`) offset between player and object. On successful push:
+Pull for statues and blocks (object moves **toward** the player). Requires **≥32 pixel** (`$0020`) separation and matching facing. On success:
 
-1. `BranchIfSolidOffset` — verify destination clear
-2. `ClearSolidHere` at old position, move anchor ±16 px
+1. `BranchIfSolidOffset` — verify tile one step toward player is clear
+2. `ClearSolidHere` at old position; anchor moves ±16 px toward player
 3. `MarkSolidHere` at new position
 4. Sound `$2C` on channel 1
-5. 16-frame animated slide (`LoopInit #$10`)
-6. Toggle `$0012` bit `$0010` on linked actor (push-in-progress flag)
+5. 16-frame 1 px/frame slide (`LoopInit #$10`)
+6. OR `$0012` bit `$0010` on parent (saved in handler `$24`), restored after slide
 
 Most-used push handler (~11 spawn sites: archers, knight armor, statues, Seth boulder).
 
@@ -245,7 +245,7 @@ Most-used push handler (~11 spawn sites: archers, knight armor, statues, Seth bo
 | Symbol | Role |
 |--------|------|
 | `$04` | Linked actor to push |
-| `$0012` bit `$0010` | Push animation in-progress |
+| `$0012` bit `$0010` | Slide in-progress (OR-ed, then restored from `$24`) |
 | `$0010` bit `$0080` | Blocks push if set (unless `$0012` bit `$0010` already active) |
 | `$24` | Saved push-state for restore |
 
@@ -257,7 +257,8 @@ Most-used push handler (~11 spawn sites: archers, knight armor, statues, Seth bo
 | `sg4D_knight_armor` | Sky Garden armor |
 | `ir1F_stone_lord/guard` | Incan Ruins statues |
 | `ir20_statue`, `ir26_statue` | Incan treasure/statue rooms |
-| `ec0E_statue`, `ec0B_cell` | Edward Castle |
+| `ec0E_statue` | Edward Castle aqueduct statue |
+| `ec0B_cell` | *(none — spawns `collect_handler_gem`)* |
 | `sg51_statue`, `sc02_seth` | Garden / South Cape |
 
 ---
@@ -286,7 +287,7 @@ Force ball puzzle push handler. Requires player animation `$0028` in range `$003
 | Direction | Symbol | Notes |
 |-----------|--------|-------|
 | Shared | `GetPlayerFacingDirection` | Player facing probe (bank `$03`) |
-| Shared | `ComposeDigits_Continuation` | Engine interaction helpers |
+| Shared | `ComposeDigitSprites_AtCursor` | Engine interaction helpers |
 
 ---
 
@@ -349,7 +350,7 @@ Runtime spawn from boss/projectile scripts:
 | Direction | Symbol | Notes |
 |-----------|--------|-------|
 | Includes | `smooth_follow` | `ComputeFollowAngle`, `ComputeFollowStep` |
-| Included by | `ComposeDigits_Continuation` | Engine-level access |
+| Included by | `ComposeDigitSprites_AtCursor` | Engine-level access |
 | Pointer refs | `$&smooth_follow_child-1` | Direct `$&` addressing |
 
 ---

@@ -5,7 +5,7 @@
 ; Sets the Itory Village storyline in motion.
 ---------------------------------------------
 
-?INCLUDE 'InitPlayerScriptVariant'
+?INCLUDE 'SetPlayerIdleFacing'
 
 !joypadMaskStd                  065A
 
@@ -42,7 +42,7 @@ sc06_lily [
     COP [StageSpriteFrame] ( #25 )
     COP [AnimOnce]
     LDA #$0002
-    JSL $@InitPlayerScriptVariant
+    JSL $@SetPlayerIdleFacing
     COP [SetEntryHereAndYield]
     COP [PrintDialogString] ( &dialogstring_04AC0C )
     COP [SetFlagByte] ( #02 )

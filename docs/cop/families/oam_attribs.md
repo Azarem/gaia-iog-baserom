@@ -8,7 +8,7 @@ _Ops: `[B2]`, `[B3]`, `[B4]`, `[B5]`, `[B6]`, `[B7]`, `[B8]`, `[B9]`, `[BA]`, `[
 
 Ten opcodes tweak how an actor is **drawn** and how it **collides** with other actors. Four ops (`$B2`–`$B5`) manipulate **collision priority** bits in `$10` (min/max overrides). Two (`$B6`–`$B7`) rewrite **OAM attribute** fields in `$0E` (SNES priority and palette subfields). Four (`$B8`–`$BB`) toggle or set **horizontal/vertical mirror** bits in `$0E`. All are immediate `RTI` continues — no yield.
 
-Handler comments use `SetOamPriority` / `SetOamPalette`; extracted scripts use **`SetSpritePriority`** / **`SetSpritePalette`** (`db-us/copdef.json`).
+Handler comments use `SetSpritePriority` / `SetSpritePalette`; extracted scripts use **`SetSpritePriority`** / **`SetSpritePalette`** (`db-us/copdef.json`).
 
 ## Shared state
 
@@ -38,8 +38,8 @@ Handler comments use `SetOamPriority` / `SetOamPalette`; extracted scripts use *
 | `B3` | `SetPriorityMin` | 3 | (none) | `SetPriorityMin` | Continue |
 | `B4` | `ClearPriorityMax` | 11 | (none) | `ClearPriorityMax` | Continue |
 | `B5` | `ClearPriorityMin` | 1 | (none) | `ClearPriorityMin` | Continue |
-| `B6` | `SetSpritePriority` | 106 | `Byte` 0–3 | `SetOamPriority` | Continue |
-| `B7` | `SetSpritePalette` | 88 | `Byte` 0–7 | `SetOamPalette` | Continue |
+| `B6` | `SetSpritePriority` | 106 | `Byte` 0–3 | `SetSpritePriority` | Continue |
+| `B7` | `SetSpritePalette` | 88 | `Byte` 0–7 | `SetSpritePalette` | Continue |
 | `B8` | `ToggleHMirror` | 4 | (none) | `ToggleHMirror` | Continue |
 | `B9` | `ToggleVMirror` | 10 | (none) | `ToggleVMirror` | Continue |
 | `BA` | `ClearHMirror` | 3 | (none) | `ClearHMirror` | Continue |
@@ -164,8 +164,8 @@ Castoth and similar bosses restore normal collision after min-priority ghost pha
 #### COP [B6] — `SetSpritePriority` (OAM layer priority)
 
 - **Preferred name:** `SetSpritePriority`
-- **Aliases:** `SetOamPriority` (handler label)
-- **Handler:** `SetOamPriority` @ [`cop_handlers_oam_attribs.asm:752-764`](../../../extracted/system/engine/cop_handlers_oam_attribs.asm)
+- **Aliases:** `SetSpritePriority` (handler label)
+- **Handler:** `SetSpritePriority` @ [`cop_handlers_oam_attribs.asm:752-764`](../../../extracted/system/engine/cop_handlers_oam_attribs.asm)
 - **Parameters:** `Byte` value 0–3
 - **Outcome:** Continue
 - **Usage count:** 106
@@ -175,7 +175,7 @@ Castoth and similar bosses restore normal collision after min-priority ghost pha
 Clears `$3000` on `$0E`, then merges operand (after `XBA`) into the OAM priority field.
 
 ```asm
-SetOamPriority {
+SetSpritePriority {
     TYX
     LDA #$3000
     TRB $0E
@@ -210,8 +210,8 @@ Weather particles use high priority so rain draws above playfield (`actors/parti
 #### COP [B7] — `SetSpritePalette` (OAM palette line)
 
 - **Preferred name:** `SetSpritePalette`
-- **Aliases:** `SetOamPalette`
-- **Handler:** `SetOamPalette` @ [`cop_handlers_oam_attribs.asm:769-781`](../../../extracted/system/engine/cop_handlers_oam_attribs.asm)
+- **Aliases:** `SetSpritePalette`
+- **Handler:** `SetSpritePalette` @ [`cop_handlers_oam_attribs.asm:769-781`](../../../extracted/system/engine/cop_handlers_oam_attribs.asm)
 - **Parameters:** `Byte` 0–7
 - **Outcome:** Continue
 - **Usage count:** 88

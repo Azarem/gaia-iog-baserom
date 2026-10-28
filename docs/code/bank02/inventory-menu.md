@@ -27,7 +27,7 @@ $02E396 ┌─ InventoryMenuDef ────────────────
         │  Grid navigation / Yes-No / Tab selection    │
 $02ED02 ├─ OpenInventoryScreen ───────────────────────┤
         │  SaveGameState / RestoreGameState            │  inventory_overlay
-        │  ReloadAbilityFX / DrainActorQueue           │
+        │  ReloadAbilityFX / ResetThinkerWaitCounters           │
 $02F048 ├─ ShowDialogueFrame ─────────────────────────┤  dialogue_display
 $02F06A └─ ClearVramBufferPartial / Full ─────────────┘  vram_buffer_clear
 ```
@@ -90,9 +90,9 @@ $02F06A └─ ClearVramBufferPartial / Full ───────────�
 | `$02E8E7` | EquipCursorActor | Equipped-item highlight cursor. Hidden if no item equipped (`inventory_equipped_index` negative); otherwise falls thr... |
 | `$02E8F1` | SelectionCursorActor | The blinking arrow sprite (metasprite #40) that marks the player's current selection on the Arrange, Discard, and Status tabs. Animates every frame until a parent script sets `$2A` to force a refresh — for example after the cursor moves to a new grid slot or ability row. Visually distinct from the equip cursor, which only highlights the worn item on the Use tab. |
 | `$02E8FF` | EquippedItemDisplay | Static sprite actor pinned at screen position ($28, $78) on the left side of the Status tab layout. Displays the icon for `inventory_equipped_type` — the item currently worn by the player — so the status screen shows both ability tiers and what is equipped. Hidden whenever Use/Arrange/Discard tabs are hovered or active, since those views use the grid equip cursor instead. |
-| `$02E915` | StatusCharRow3 | Third ability tier row actor at ($98, $48). Sprite index = `$0AD4 × 3 + $44`. |
-| `$02E934` | StatusCharRow2 | Second ability tier row at ($98, $60). Sprite index = `$0AD4 × 3 + $45`. |
-| `$02E953` | StatusCharRow1 | First ability tier row at ($98, $78). Sprite index = `$0AD4 × 3 + $46`. |
+| `$02E915` | StatusAbilityRow0 | Top ability row (index 0, Y `$48`). Icon sprite = `$0AD4 × 3 + $44`. |
+| `$02E934` | StatusAbilityRow1 | Middle ability row (index 1, Y `$60`). Icon sprite = `$0AD4 × 3 + $45`. |
+| `$02E953` | StatusAbilityRow2 | Bottom ability row (index 2, Y `$78`). Icon sprite = `$0AD4 × 3 + $46`. |
 | `$02E972` | ComputeAbilityIndex | Computes BG3 ability description string index: `$0AE8 = ($0AD4 × 4) + row_arg + 1`. |
 | `$02E981` | GridCursorUp | Shared grid up for Arrange/Discard: `$22 = ($22 − 4) & $0F`. |
 | `$02E996` | GridCursorDown | Shared grid down: add 4 with wrap. |
@@ -101,7 +101,7 @@ $02F06A └─ ClearVramBufferPartial / Full ───────────�
 | `$02E9CF` | SetSlotSprite | Writes item sprite type to actor `$0028,Y` and clears animation state. |
 | `$02E9DC` | TestAbilityFlag | Tests whether an ability tier is unlocked. Flag index = `$0AD4 × 4 + row`. Calls `TestFlag_0510` in bank `$05`; carry... |
 | `$02E9ED` | UpdateSlotActorSprite | Refreshes a slot actor's sprite after inventory mutation. Walks linked list from `$7F0010,X` to slot index in A, rese... |
-| `$02EA13` | CheckItemDiscardable | Tests whether item ID in A may be discarded. Indexes 3-bit-per-item bit array at `item_table_separator`. Carry set = discard... |
+| `$02EA13` | CheckItemDiscardable | Tests item ID in A against `non_discardable_item_bits`. Carry **set** = protected (not discardable). |
 | `$02EA35` | BitMaskTable | Eight single-bit masks `$01`–`$80` for discardable-item lookup. |
 | `$02EA3D` | PositionGridCursor | Computes XY for grid selection cursor. Uses `$22` (or `$2E` for second cursor in arrange) and `GridColumnPositions`. |
 | `$02EA73` | PositionEquipCursor | Positions equip cursor on grid using `$1A`. If index negative, hides cursor instead. |
@@ -141,7 +141,7 @@ One-time menu bootstrap. Assigns spritemap, draws BG3 backdrop text, spawns 16 l
 3. Spawn each `InventorySlotActor`; copy `inventory_slots[Y]` low byte → child `$0028`
 4. Cache list head at `$7F0010,X`
 5. Spawn equip cursor → `$7F0012,X`; position via `PositionEquipCursor`
-6. Spawn equipped display + StatusCharRow1/2/3
+6. Spawn equipped display + StatusAbilityRow2 → Row1 → Row0 (linked list head = top row)
 7. Set menu flag `$1000`, zero tab index
 
 
@@ -354,7 +354,7 @@ Discard flow with Yes/No confirmation. Hides equip cursor, spawns selection curs
 1. Set `$0AE6=4`, hide equip cursor
 2. Spawn cursor, draw DISCARD header
 3. Grid navigation loop
-4. On confirm (inline `code_02E6AA`): validate item, YesNo prompt
+4. On confirm (inline `DiscardAttempt`): validate item, YesNo prompt
 5. Yes: zero slot, update sprite, clear equip if needed, sound `#13`
 6. No/invalid: sound `#12`, redraw
 
@@ -541,7 +541,7 @@ Item slot sprite actor. Increments spawn counter, computes grid position, shows/
 | Symbol | Relationship |
 |--------|--------------|
 | `ComputeSlotPosition` | JSR |
-| `UpdateSlotActorSprite` | Resets to loc_02E8CD |
+| `UpdateSlotActorSprite` | Resets to SlotActorEvaluate |
 
 ### EquipCursorActor
 
@@ -608,9 +608,9 @@ Static sprite actor pinned at screen position ($28, $78) on the left side of the
 | `InventoryMenuInit` | Spawner |
 | `TabHoverStatus` | Shows on hover |
 
-### StatusCharRow3
+### StatusAbilityRow0
 
-Third ability tier row actor at ($98, $48). Sprite index = `$0AD4 × 3 + $44`.
+Top status-tab row (ability slot **0**, Y `$48`). Displays the ability icon for the current `characterForm` using sprite `$0AD4 × 3 + $44`.
 
 **Algorithm:**
 1. Position ($98, $48)
@@ -626,11 +626,11 @@ Third ability tier row actor at ($98, $48). Sprite index = `$0AD4 × 3 + $44`.
 **Cross-References:**
 | Symbol | Relationship |
 |--------|--------------|
-| `StatusCharRow2` | Linked via $0006 |
+| `StatusAbilityRow1` | Linked via $0006 |
 
-### StatusCharRow2
+### StatusAbilityRow1
 
-Second ability tier row at ($98, $60). Sprite index = `$0AD4 × 3 + $45`.
+Middle row (ability slot **1**, Y `$60`). Icon sprite `$0AD4 × 3 + $45`.
 
 **Algorithm:**
 1. Position ($98, $60)
@@ -646,11 +646,11 @@ Second ability tier row at ($98, $60). Sprite index = `$0AD4 × 3 + $45`.
 **Cross-References:**
 | Symbol | Relationship |
 |--------|--------------|
-| `StatusCharRow1` | Linked via $0006 |
+| `StatusAbilityRow2` | Linked via $0006 |
 
-### StatusCharRow1
+### StatusAbilityRow2
 
-First ability tier row at ($98, $78). Sprite index = `$0AD4 × 3 + $46`.
+Bottom row (ability slot **2**, Y `$78`). Icon sprite `$0AD4 × 3 + $46`.
 
 **Algorithm:**
 1. Position ($98, $78)
@@ -672,12 +672,12 @@ First ability tier row at ($98, $78). Sprite index = `$0AD4 × 3 + $46`.
 
 ### UpdateSlotActorSprite
 
-Refreshes a slot actor's sprite after inventory mutation. Walks linked list from `$7F0010,X` to slot index in A, resets function pointer to `loc_02E8CD`.
+Refreshes a slot actor's sprite after inventory mutation. Walks linked list from `$7F0010,X` to slot index in A, resets function pointer to `SlotActorEvaluate`.
 
 **Algorithm:**
 1. Save slot index in `$000E`
 2. Walk `$0006` chain
-3. Reset `$0000` → loc_02E8CD
+3. Reset `$0000` → SlotActorEvaluate
 4. Clear `$0028`, `$0008`, `$002A`
 
 
@@ -695,12 +695,12 @@ Refreshes a slot actor's sprite after inventory mutation. Walks linked list from
 
 ### CheckItemDiscardable
 
-Tests whether item ID in A may be discarded. Indexes 3-bit-per-item bit array at `item_table_separator`. Carry set = discardable, clear = protected.
+Tests whether item ID in A may be discarded. Indexes `non_discardable_item_bits` with `BitMaskTable[item & 7]`. Carry **set** = protected (not discardable); carry **clear** = discard allowed.
 
 **Algorithm:**
 1. Item ID → byte index (÷8) + bit index (mod 8)
 2. AND with BitMaskTable entry
-3. SEC if non-zero (discardable)
+3. SEC if bit set (protected / non-discardable)
 
 
 **Variables:**
@@ -712,7 +712,7 @@ Tests whether item ID in A may be discarded. Indexes 3-bit-per-item bit array at
 | Symbol | Relationship |
 |--------|--------------|
 | `BitMaskTable` | Lookup |
-| `item_table_separator` | Protection bit array |
+| `non_discardable_item_bits` | Protection bit array |
 
 #### 20I — Cursor Positioning
 

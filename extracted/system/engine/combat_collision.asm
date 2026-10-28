@@ -68,7 +68,7 @@
 ; 
 ; === NPC CHAT (246997) ===
 ; 
-; InteractionDamage_NPCChat: Attempts GiveItemToPlayer with chatPtr. On inventory full, shows overflow message. Otherwise shows dialogue and converts the actor to NullActorScriptStub (sets $0700 in flags to prevent re-interaction).
+; InteractionDamage_NPCChat: Attempts GiveItemToPlayer with chatPtr. On inventory full, shows overflow message. Otherwise shows dialogue and converts the actor to NpcDespawnStub (sets $0700 in flags to prevent re-interaction).
 ; 
 ; === DAMAGE DISPLAY ===
 ; 
@@ -82,13 +82,13 @@
 ?INCLUDE 'hit_stagger_controller'
 ?INCLUDE 'inventory_mgmt'
 ?INCLUDE 'item_get_dialog_table'
-?INCLUDE 'NullActorScriptStub'
+?INCLUDE 'NpcDespawnStub'
 ?INCLUDE 'player_transition_handlers'
 ?INCLUDE 'ShowDialogueFrame'
 ?INCLUDE 'smooth_follow_child'
 ?INCLUDE 'SpawnAttackTrailEffect'
 ?INCLUDE 'StandardEnemyDefeatHandler'
-?INCLUDE 'StopPlayerOnDeathAssign'
+?INCLUDE 'StopPlayerOnDeath'
 
 !extVelocityX                   0408
 !extVelocityY                   040A
@@ -159,7 +159,7 @@ ProcessDodgeCallbacks {
 ---------------------------------------------
 ; Check if the player has died and trigger game over sequence.
 ; 
-; Guards: returns immediately if playerFlags bit 5 ($0020) is set (boss-defeat latch) or bit 9 ($0200) is set (game over sequence active). If playerHp ($0ACE) is zero and neither guard is set, sets $0200 in playerFlags, overwrites the player actor's entry point to GameOverSequence, and calls StopPlayerOnDeathAssign to halt all movement.
+; Guards: returns immediately if playerFlags bit 5 ($0020) is set (boss-defeat latch) or bit 9 ($0200) is set (game over sequence active). If playerHp ($0ACE) is zero and neither guard is set, sets $0200 in playerFlags, overwrites the player actor's entry point to GameOverSequence, and calls StopPlayerOnDeath to halt all movement.
 
 CheckPlayerDeath {
     PHP 
@@ -178,7 +178,7 @@ CheckPlayerDeath {
     STA $0000, Y
     LDA #$*game_over_sequence.GameOverSequence
     STA $0002, Y
-    JSL $@StopPlayerOnDeathAssign
+    JSL $@StopPlayerOnDeath
 
   loc_03BBE2:
     PLP 
@@ -1546,7 +1546,7 @@ ApplyInteractionDamage {
 ; 
 ; Sets data bank to $81. Attempts to give the item referenced by chatPtr ($7F000A,X) to the player via GiveItemToPlayer. If inventory is full (carry set), shows the overflow message (dialogstring_01FF02) and returns carry set.
 ; 
-; If the item was given or chatPtr indicates dialogue: loads the chatPtr value. Values ≥ $81 are treated as dialogue script indices; values < $81 are item IDs shown in a dialogue frame. After interaction, converts the NPC actor to NullActorScriptStub (dead stub) by overwriting its entry point and zeroing the frame counter. Sets $0700 in flags to prevent re-interaction.
+; If the item was given or chatPtr indicates dialogue: loads the chatPtr value. Values ≥ $81 are treated as dialogue script indices; values < $81 are item IDs shown in a dialogue frame. After interaction, converts the NPC actor to NpcDespawnStub (dead stub) by overwriting its entry point and zeroing the frame counter. Sets $0700 in flags to prevent re-interaction.
 
 InteractionDamage_NPCChat {
     TYX 
@@ -1574,9 +1574,9 @@ InteractionDamage_NPCChat {
     JSL $@ShowDialogueFrame
 
   loc_03C50A:
-    LDA #$*NullActorScriptStub ; Deactivate: NullActorScriptStub + $0700 prevents re-interaction
+    LDA #$*NpcDespawnStub ; Deactivate: NpcDespawnStub + $0700 prevents re-interaction
     STA $0002, X
-    LDA #$&NullActorScriptStub
+    LDA #$&NpcDespawnStub
     STA $0000, X
     STZ $0008, X
     LDA $0010, X

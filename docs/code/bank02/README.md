@@ -36,7 +36,7 @@ $028000 ┌───────────────────────
 $02803B ├───────────────────────────────────────────────────┤
         │ vblank_joypad          [VBlankWaitAndJoypad]      │ 406 B
 $0281D1 ├───────────────────────────────────────────────────┤
-        │ hardware_math          [SignedMultiply + extras]   │ 159 B
+        │ hardware_math          [Multiply8x8Unsigned + extras]   │ 159 B
 $028270 ├───────────────────────────────────────────────────┤
         │ QuintetLzDecompress     [QuintetLzDecompress]       │ 306 B
 $0283A2 ├───────────────────────────────────────────────────┤
@@ -50,7 +50,7 @@ $02908E ├ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ 
 $029DE2 ├───────────────────────────────────────────────────┤
         │ system_init            [InitSystemVariables]       │ 606 B
 $02A040 ├───────────────────────────────────────────────────┤
-        │ music_actors           [MusicPlaybackActor]        │ 219 B
+        │ music_actors           [MusicJingleActor]        │ 219 B
 $02A11B ├───────────────────────────────────────────────────┤
         │ DisplaySceneTitle      [DisplaySceneTitle]          │ 206 B
 $02A1E9 ├───────────────────────────────────────────────────┤
@@ -90,7 +90,7 @@ $02D843 ├───────────────────────
 $02DACD ├───────────────────────────────────────────────────┤
         │ player_move_east (pt2) [AutoAlignNS_East]          │ 179 B
 $02DB80 ├───────────────────────────────────────────────────┤
-        │ player_move_diag       [DispatchDiagDownLeft]      │ 1,410 B
+        │ player_move_west       [DispatchWestMove]      │ 1,410 B
 $02E102 ├───────────────────────────────────────────────────┤
         │ tile_collision         [TileProbeMain]             │ 660 B
 $02E396 ├═══════════════════════════════════════════════════┤
@@ -160,7 +160,7 @@ player_character.asm (?BANK 02, extracted/actors/player/)
   │       ├─ player_move_south.asm
   │       ├─ player_move_east.asm
   │       ├─ player_move_ramps.asm
-  │       ├─ player_move_diag.asm
+  │       ├─ player_move_west.asm
   │       └─ tile_collision.asm
   ├─ slope_ramp_physics.asm
   │   └─ tile_collision.asm     (ref only)
@@ -364,7 +364,7 @@ system_core (bank 00)
   ├─ JSL → VBlankWaitAndJoypad, EnableNmiAndJoypad     ← vblank_joypad
   ├─ JSL → FlushVramWriteQueue                          ← event_blocks
   ├─ JSL → CameraSmoothScroll, FlushDirtyTilemapStrips  ← camera_tilemap
-  ├─ JSL → SpriteVramDma                                ← camera_tilemap
+  ├─ JSL → Bg3TilemapVramDma                                ← camera_tilemap
   ├─ JSL → CheckWarpAndChest                             ← warps_interaction
   └─ JSL → InitSystemVariables, UploadCgramPalette       ← system_init
 
@@ -372,7 +372,7 @@ chunk_03BAE1 (bank 03 — scene loading)
   ├─ JSL → SceneScriptMain, SceneScriptNoMusic           ← scene_script
   ├─ JSL → SpcBlockTransfer, SpcIplHandshake             ← spc_transfer
   ├─ JSL → CameraFullRefresh                              ← camera_tilemap
-  ├─ JSL → ApplyAllEventBlocks, PlaceBarrierTiles        ← event_blocks
+  ├─ JSL → ApplyAllEventBlocks, PlaceOpenedChestTiles        ← event_blocks
   └─ JSL → InitWarpTable                                  ← warps_interaction
 
 player_character (player actor spawn chain)
@@ -386,11 +386,11 @@ PlayerMoveController
            ├─ JSR → DispatchNorthMove / NorthWallHandler  ← player_move_ns
            ├─ JSR → DispatchSouthMove                     ← player_move_south
            ├─ JSR → DispatchEastMove                      ← player_move_east
-           ├─ JSR → DispatchDiagDownLeft / DiagRamp*      ← player_move_diag
+           ├─ JSR → DispatchWestMove / WestRamp*      ← player_move_west
            └─ JSR → TileProbeMain, ReadCollisionNibble    ← tile_collision
 
 map_coords (bridge: system engine ↔ movement physics)
-  ├─ JSR → ProbeRightTiles / ProbeLeftTiles
+  ├─ JSR → FindSlopeForWestMove / FindSlopeForEastMove
   └─ JSR → tile_collision.* (12+ cross-file JSR calls)
 ```
 
@@ -487,7 +487,7 @@ Bank 02 blocks are organized under three top-level categories:
 | `player_move_south` | `player` | `$02D376`–`$02D6DC` | Code | 1 |
 | `player_move_east` | `player` | `$02D6DC`–`$02DB80` | Code | 2 |
 | `player_move_ramps` | `player` | `$02D843`–`$02DACD` | Code | 1 |
-| `player_move_diag` | `player` | `$02DB80`–`$02E102` | Code | 1 |
+| `player_move_west` | `player` | `$02DB80`–`$02E102` | Code | 1 |
 | `inventory_menu` | `inventory` | `$02E396`–`$02ED02` | actor_def | 1 |
 
 ### Actors (`actors.*`)
@@ -540,7 +540,7 @@ All 29 bank 02 ASM files in ROM address order:
 | `player_move_south.asm` | `extracted/system/player/` | `player_move_south` |
 | `player_move_east.asm` | `extracted/system/player/` | `player_move_east` |
 | `player_move_ramps.asm` | `extracted/system/player/` | `player_move_ramps` |
-| `player_move_diag.asm` | `extracted/system/player/` | `player_move_diag` |
+| `player_move_west.asm` | `extracted/system/player/` | `player_move_west` |
 | `tile_collision.asm` | `extracted/system/player/` | `tile_collision` |
 | `inventory_menu.asm` | `extracted/system/inventory/` | `inventory_menu` |
 | `inventory_overlay.asm` | `extracted/system/inventory/` | `inventory_overlay` |
@@ -555,5 +555,5 @@ All 29 bank 02 ASM files in ROM address order:
 - **[Actor Organization](../../docs/actor-organization-analysis.md)** — how actors are structured across the ROM
 - **[Assembler Syntax](../../../gaia-knowledge/curated/gaialabs/assembler-syntax.md)** — `$&` / `$@` label rules
 - **`us/blocks.json`** — block/part structure definitions
-- **`us/names.json`** — 477 named addresses in bank 02
+- **`db-us/names/bank02.json`** — 495 named addresses in bank 02
 - **`us/overrides.json`** — per-address register state corrections

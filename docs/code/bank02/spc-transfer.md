@@ -25,7 +25,7 @@ Communication uses APU I/O ports `$2140`–`$2143`:
 
 1. **IPL handshake** (`SpcIplHandshake`) — CPU waits for `$BBAA` on `$2140`, sends `$CC`, then streams IPL bootstrap bytes with alternating acknowledge bytes.
 2. **Multi-block upload** (`SpcBlockTransfer`) — After IPL, sends `$FF`/`$CC` start sequence, waits for `$BBAA`, then for each block: read 4-byte header (size + destination), stream data through `$2140` with `$C5`-based acknowledge protocol, send block-end marker.
-3. **Timing** — `EnableNmiOnly` during upload prevents auto-joypad reads from interfering. Re-enables auto-joypad when `$0654 = $0F`.
+3. **Timing** — `DisableNmiKeepJoypad` writes `NMITIMEN = $01` (NMI off, auto-joypad on) during blocking port writes so NMI cannot interleave the handshake. `EnableNmiAndJoypad` (`$81`) restores NMI at frame end; `$0654 = $0F` (world ready) gates when the main loop resumes full joypad routing after boot transfer.
 4. **Music fade** — `SpcMusicLoadCmd` sends `$F2` (fade) then `$F0` (stop) if music is playing, waits `$1A` frames, then uploads new track data.
 
 ### SpcLoadBuiltinEngine
@@ -106,7 +106,7 @@ Command `$11` handler — the music load orchestrator. Reads track ID to `$06F2`
 
 ### SpcBlockTransfer
 
-Full SPC700 multi-block upload routine. Performs IPL handshake first, then enters the main transfer loop. Sends `$FF`/`$CC` start sequence on `$2140`, waits for `$BBAA` acknowledge, then for each data block reads a 4-byte header (2-byte size + 2-byte destination address) and streams bytes through `$2140`. Handles bank-crossing in the source data via `$4A`/`$4C` pointer arithmetic. Each byte is sent with an acknowledge wait loop. Block end is signaled via `$2140`/`$2141`/`$2142` with address and transfer-mode flag. `EnableNmiOnly` is called during each block transfer for timing isolation.
+Full SPC700 multi-block upload routine. Performs IPL handshake first, then enters the main transfer loop. Sends `$FF`/`$CC` start sequence on `$2140`, waits for `$BBAA` acknowledge, then for each data block reads a 4-byte header (2-byte size + 2-byte destination address) and streams bytes through `$2140`. Handles bank-crossing in the source data via `$4A`/`$4C` pointer arithmetic. Each byte is sent with an acknowledge wait loop. Block end is signaled via `$2140`/`$2141`/`$2142` with address and transfer-mode flag. `DisableNmiKeepJoypad` is called during each block transfer (NMI off, auto-joypad on).
 
 **Algorithm:**
 
@@ -134,12 +134,12 @@ Full SPC700 multi-block upload routine. Performs IPL handshake first, then enter
 |--------|--------------|
 | `SpcMusicLoadCmd` | Music data upload |
 | `SpcIplHandshake` | Initial handshake |
-| `EnableNmiOnly` | Timing isolation |
+| `DisableNmiKeepJoypad` | NMI off during byte/stream writes |
 | `MusicTransitions.patch.asm` | External caller |
 
 ### SpcIplHandshake
 
-Initial IPL (Initial Program Load) upload — the first-stage SPC700 bootstrap transfer. Waits for the `$BBAA` signature on `$2140` (indicating the SPC is ready), sends `$CC` to begin, then streams bootstrap bytes from `[$46],Y` one at a time with alternating acknowledge values on `$2140`. After the bootstrap stream, reads the first block header (size + destination) and sends it via `$2141`/`$2142`. Calls `EnableNmiOnly` during the transfer. Returns when the bootstrap phase completes (signaled by the overflow flag from the `$7F`/`$80` address check in the source stream).
+Initial IPL (Initial Program Load) upload — the first-stage SPC700 bootstrap transfer. Waits for the `$BBAA` signature on `$2140` (indicating the SPC is ready), sends `$CC` to begin, then streams bootstrap bytes from `[$46],Y` one at a time with alternating acknowledge values on `$2140`. After the bootstrap stream, reads the first block header (size + destination) and sends it via `$2141`/`$2142`. Calls `DisableNmiKeepJoypad` during the transfer. Returns when the bootstrap phase completes (signaled by the overflow flag from the `$7F`/`$80` address check in the source stream).
 
 **Algorithm:**
 
@@ -149,7 +149,7 @@ Initial IPL (Initial Program Load) upload — the first-stage SPC700 bootstrap t
 | 2 | Send `$CC` to start bootstrap |
 | 3 | Stream bytes from source with ack on `$2140` |
 | 4 | Read block header; send addr to `$2141`/`$2142` |
-| 5 | `EnableNmiOnly`; wait for completion |
+| 5 | `DisableNmiKeepJoypad`; wait for completion |
 | 6 | Return (or loop if more bootstrap data) |
 
 **Variables:**
@@ -166,7 +166,7 @@ Initial IPL (Initial Program Load) upload — the first-stage SPC700 bootstrap t
 |--------|--------------|
 | `SpcBlockTransfer` | Called at start of full transfer |
 | `SpcLoadBuiltinEngine` | Boot-time caller |
-| `EnableNmiOnly` | Timing control |
+| `DisableNmiKeepJoypad` | Timing control |
 
 ### spc_sound_engine
 
@@ -205,7 +205,7 @@ N/A — embedded binary data, not executable 65816 code.
 
 | Dependency | Role |
 |------------|------|
-| [`vblank_joypad.asm`](../../../extracted/system/engine/vblank_joypad.asm) | `EnableNmiOnly`, `EnableNmiAndJoypad` — timing isolation during upload |
+| [`vblank_joypad.asm`](../../../extracted/system/engine/vblank_joypad.asm) | `DisableNmiKeepJoypad`, `EnableNmiAndJoypad` — timing isolation during upload |
 | [`scene_script.asm`](../../../extracted/system/engine/scene_script.asm) | `ReadScriptByte`, `LoadScriptPointer`, `CheckSourceCacheHit` — script operand parsing for command `$11` |
 
 ### Related Documentation

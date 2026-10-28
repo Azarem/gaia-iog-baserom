@@ -6,7 +6,7 @@
 ; Plays once on first entry.
 ---------------------------------------------
 
-?INCLUDE 'InitPlayerScriptVariant'
+?INCLUDE 'SetPlayerIdleFacing'
 
 !sceneCurrent                   0644
 !joypadMaskStd                  065A
@@ -52,7 +52,7 @@ code_0998F5 {
     TSB $joypadMaskStd
     COP [WaitByte] ( #1D )
     LDA #$0001
-    JSL $@InitPlayerScriptVariant
+    JSL $@SetPlayerIdleFacing
     COP [SetFlagByte] ( #D3 )
     COP [PrintDialogString] ( &dialogstring_099952 )
     LDA #$CFFC

@@ -64,7 +64,7 @@ MenuSelectionHandler {
     TSB $joypadHeld
     PLA 
     BIT #$0800            ; Input priority chain: Up → Down → L/R → A/Start → B
-    BNE loc_03E8C6
+    BNE MenuSelection_Up
     BIT #$0400
     BEQ loc_03E877
     JMP $&MenuSelection_Down
@@ -76,15 +76,17 @@ MenuSelectionHandler {
 
   loc_03E87F:
     BIT #$8000
-    BNE loc_03E892
+    BNE MenuSelection_Confirm
     BIT #$4000
     BEQ MenuSelection_PollLoop
     JSR $&ReadMenuSelection ; B = cancel: restore tiles via ReadMenuSelection, return 0
     PLA 
     LDA #$0000
-    BRA loc_03E8B3
+    BRA MenuSelection_Return
 
-  loc_03E892:
+; A/Start branch of the poll loop: saves and restores $0A/$0C around the redraw, plays SFX $11, clears the blink counter ($0994), redraws the cursor solid, turns the 0-based selection into a 1-based result and falls into MenuSelection_Return.
+
+  MenuSelection_Confirm:
     LDA $000A             ; A/Start = confirm: preserve $0A/$0C work areas across SFX write
     PHA 
     LDA $000C
@@ -102,7 +104,9 @@ MenuSelectionHandler {
     PLA 
     INC                   ; INC: convert 0-based selection to 1-based result
 
-  loc_03E8B3:
+; Shared exit of MenuSelectionHandler: one-frame wait, clears the blink counter and saved cursor tiles, restores the registers and returns carry set with the 1-based selection (0 = cancelled).
+
+  MenuSelection_Return:
     PHA 
     JSR $&DialogStringRenderer.WaitOneFrame
     PLA 
@@ -115,7 +119,9 @@ MenuSelectionHandler {
     SEC                   ; Return with carry set; A = 1-based selection (0 = cancelled)
     RTL 
 
-  loc_03E8C6:
+; Up branch of MenuSelection_PollLoop: plays SFX $10, unpacks the grid position from the stack byte, decrements the selection (wrapping through MenuSelection_UpWrap when it goes below zero) and returns to the poll loop.
+
+  MenuSelection_Up:
     SEP #$20
     LDA #$10              ; Navigation SFX = $10
     STA $sfxQueueCh2
@@ -133,12 +139,14 @@ MenuSelectionHandler {
     STA $18
     LDA $01, S
     DEC                   ; Decrement selection; if negative, wrap to (total − 1) or (columns − 1)
-    BMI loc_03E8EE
+    BMI MenuSelection_UpWrap
     STA $01, S
     REP #$20
     JMP $&MenuSelection_PollLoop
 
-  loc_03E8EE:
+; Reached when Up takes the selection below zero: wraps to the last item (the last index of the column, or of the second column) and returns to the poll loop.
+
+  MenuSelection_UpWrap:
     LDA $18
     BNE loc_03E8F4
     LDA $1C

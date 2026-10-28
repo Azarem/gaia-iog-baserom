@@ -239,7 +239,7 @@ code_list_0AE4D7 [
 - **Handler:** `cop_handler_05_008749`
 - **Params:** `Byte MusicId`
 - **Does:** Fade out, then start music.
-- **How:** Same as `$04` but thinker entry is `SpcCheckMusicReady` (`$F1` handshake), which falls into `SpcTransferMusicData`.
+- **How:** Same as `$04` but thinker entry is `SpcFadeOutHandshake` (`$F1` handshake), which falls into `SpcTransferMusicData`.
 
 #### `$06` — `PlaySoundCh2`
 - **Handler:** `cop_handler_06_00877E`
@@ -273,7 +273,7 @@ code_list_0AE4D7 [
 - **Handler:** `cop_handler_19_0087DD`
 - **Params:** `Byte MusicId`, `@DialogString Text`
 - **Does:** Start music and show text (combined `$04` + `$BF`-like path).
-- **How:** Prefer spawn thinker `MusicPlaybackActor` with music/text fields; if no slot, run wide-string interpreter inline (`DialogStringRenderer`) with joypad masked.
+- **How:** Prefer spawn thinker `MusicJingleActor` with music/text fields; if no slot, run wide-string interpreter inline (`DialogStringRenderer`) with joypad masked.
 
 ---
 
@@ -308,11 +308,11 @@ Collision bytes live in WRAM `$7FC000` (indexed via `TileCoordsToMapIndex` / pro
 
 | Op | Name | Handler | Probe |
 |---|---|---|---|
-| `$1A` | `BranchIfTypeHere` | `$008ACE` | Here |
-| `$1B` | `BranchIfTypeNorth` | `$008B01` | North |
-| `$1C` | `BranchIfTypeSouth` | `$008B38` | South |
-| `$1D` | `BranchIfTypeWest` | `$008B6F` | West |
-| `$1E` | `BranchIfTypeEast` | `$008BA6` | East |
+| `$1A` | `BranchIfSolidType` | `$008ACE` | Here |
+| `$1B` | `BranchIfSolidTypeNorth` | `$008B01` | North |
+| `$1C` | `BranchIfSolidTypeSouth` | `$008B38` | South |
+| `$1D` | `BranchIfSolidTypeWest` | `$008B6F` | West |
+| `$1E` | `BranchIfSolidTypeEast` | `$008BA6` | East |
 
 #### `$62` — `BranchIfCollisionTypeNe`
 - **Handler:** `cop_handler_62_009B41`
@@ -495,7 +495,7 @@ Thinker-friendly. Sequences live in bank `$16`, indexed at `$168000`.
 | `$39` | `PaletteStep` | `$0093AA` | — | Advance one frame; halt while more remain; continue when done |
 | `$3A` | `PaletteStepLoop` | `$0093CE` | — | Like `$39` but also respects outer `Iters` |
 
-Helpers: `LoadPaletteBundle` (load), `DecompressGfxToVram` (apply / HDMA CGRAM).
+Helpers: `LoadPaletteBundle` (load), `CopyPaletteBundleFrame` (apply / HDMA CGRAM).
 
 ---
 
@@ -692,20 +692,20 @@ COP [26] ( #78, #$0160, #$0268, #07, #$4500 )
 
 ### 3.16 Sprite staging & animation (`$80`–`$8D`)
 
-Staging stores frame in `$28`, optional loop `$7F0016`, move durations `$7F0018/$1A` → `$2C/$2E` via `AnimFrameLookup`. `$FF` frame clears `$2A` (restart current).
+Staging stores frame in `$28`, optional loop `$7F0016`, movement indices in `$7F0018/$1A` → delta-chain heads `$2C/$2E` via `AnimFrameLookup`. `$FF` frame clears `$2A` (restart current).
 
 **Critical:** `$80`–`$87` only *stage*. A following `$89`/`$8A`/`$8B` actually runs the animation across frames.
 
 | Op | Name | Handler | Params | Stages |
 |---|---|---|---|---|
-| `$80` | `StageSpr` | `$009E23` | `Byte Spr` | Frame only |
-| `$81` | `StageSprX` | `$009E35` | `Byte Spr`, `Byte XMove` | + X |
-| `$82` | `StageSprY` | `$009E57` | `Byte Spr`, `Byte YMove` | + Y |
-| `$83` | `StageSprXY` | `$009E79` | `Byte Spr`, `Byte XMove`, `Byte YMove` | + XY |
-| `$84` | `StageSprLoop` | `$009EAB` | `Byte Spr`, `Byte Iters` | + loop count |
-| `$85` | `StageSprLoopX` | `$009EC8` | `Byte Spr`, `Byte Iters`, `Byte XMove` | loop + X |
-| `$86` | `StageSprLoopY` | `$009EF5` | `Byte Spr`, `Byte Iters`, `Byte YMove` | loop + Y |
-| `$87` | `StageSprLoopXY` | `$009F22` | `Byte Spr`, `Byte Iters`, `Byte XMove`, `Byte YMove` | full |
+| `$80` | `StageSpriteFrame` | `$009E23` | `Byte Spr` | Frame only |
+| `$81` | `StageSpriteMoveX` | `$009E35` | `Byte Spr`, `Byte XMove` | + X |
+| `$82` | `StageSpriteMoveY` | `$009E57` | `Byte Spr`, `Byte YMove` | + Y |
+| `$83` | `StageSpriteMoveXY` | `$009E79` | `Byte Spr`, `Byte XMove`, `Byte YMove` | + XY |
+| `$84` | `StageSpriteLoop` | `$009EAB` | `Byte Spr`, `Byte Iters` | + loop count |
+| `$85` | `StageSpriteLoopMoveX` | `$009EC8` | `Byte Spr`, `Byte Iters`, `Byte XMove` | loop + X |
+| `$86` | `StageSpriteLoopMoveY` | `$009EF5` | `Byte Spr`, `Byte Iters`, `Byte YMove` | loop + Y |
+| `$87` | `StageSpriteLoopMoveXY` | `$009F22` | `Byte Spr`, `Byte Iters`, `Byte XMove`, `Byte YMove` | full |
 
 **Move bytes** are duration/speed indices into `table_01B086` (not raw pixels). Direction comes from `$12` force bits (`$AD`–`$AF`) and H-mirror.
 
@@ -756,10 +756,10 @@ Same staging model as `$80`+, but body lookup goes through `$0AD4` / `body_table
 | Op | Name | Handler | Params | Notes |
 |---|---|---|---|---|
 | `$8E` | `SetPlayerSpriteDirect` | `$00A036` | `Byte PlayerSpr` | Direct body-table index; sets `$player_flags` `$8000` |
-| `$8F` | `StagePlayerSpr` | `$00A06B` | `Byte BodySpr` | Stage normal player sprite for current body |
-| `$90` | `StagePlayerSprX` | `$00A081` | + `Byte XMove` | Player walk staging (pair with `$93`) |
-| `$91` | `StagePlayerSprY` | `$00A0A7` | + `Byte YMove` | Player walk staging (pair with `$93`) |
-| `$92` | `StagePlayerSprXY` | `$00A0CD` | + `Byte XMove`, `Byte YMove` | Player walk staging (pair with `$93`) |
+| `$8F` | `StagePlayerSprite` | `$00A06B` | `Byte BodySpr` | Stage normal player sprite for current body |
+| `$90` | `StagePlayerSpriteMoveX` | `$00A081` | + `Byte XMove` | Player walk staging (pair with `$93`) |
+| `$91` | `StagePlayerSpriteMoveY` | `$00A0A7` | + `Byte YMove` | Player walk staging (pair with `$93`) |
+| `$92` | `StagePlayerSpriteMoveXY` | `$00A0CD` | + `Byte XMove`, `Byte YMove` | Player walk staging (pair with `$93`) |
 | `$93` | `RunPlayerAnim` | `$00A103` | — | Run player anim once (like `$89`) |
 | `$94` | `StagePlayerSprWall` | `$00A119` | `…`, `Byte WallType` | Like `$92`; saves WallType to `$09B0` for `$96`–`$98` |
 | `$95` | `StagePlayerSprFromDP` | `$00A159` | — | Like `$8F` using `$0000` low byte as BodySpr |
@@ -845,8 +845,8 @@ After spawn, scripts often write extra fields through `Y` (`STA $0026, Y` for a 
 | `$B3` | `SetPriorityMin` | `$00A7BE` | Set `$10` bit `$0001` (min collision-priority) |
 | `$B4` | `ClearPriorityMax` | `$00A7C9` | Clear `$10` bit `$0002` |
 | `$B5` | `ClearPriorityMin` | `$00A7D4` | Clear `$10` bit `$0001` |
-| `$B6` | `SetOamPriority` | `$00A7DF` | `Byte` → `$0E` priority (`$3000`) — draw above/below BG |
-| `$B7` | `SetOamPalette` | `$00A7F4` | `Byte` → `$0E` palette (`$0E00`) |
+| `$B6` | `SetSpritePriority` | `$00A7DF` | `Byte` → `$0E` priority (`$3000`) — draw above/below BG |
+| `$B7` | `SetSpritePalette` | `$00A7F4` | `Byte` → `$0E` palette (`$0E00`) |
 | `$B8` | `ToggleHMirror` | `$00A809` | Toggle H-mirror in `$0E` |
 | `$B9` | `ToggleVMirror` | `$00A816` | Toggle V-mirror in `$0E` |
 | `$BA` | `ClearHMirror` | `$00A823` | Clear H-mirror |
@@ -1173,11 +1173,11 @@ Every valid COP opcode, its canonical name, handler SNES address, and parameter 
 | `$17` | `BranchIfSolidWest` | `$008A78` | `&Code` |
 | `$18` | `BranchIfSolidEast` | `$008AA3` | `&Code` |
 | `$19` | `MusicAndText` | `$0087DD` | `Byte MusicId`, `@DialogString Text` |
-| `$1A` | `BranchIfTypeHere` | `$008ACE` | `Byte Type`, `&Code` |
-| `$1B` | `BranchIfTypeNorth` | `$008B01` | `Byte Type`, `&Code` |
-| `$1C` | `BranchIfTypeSouth` | `$008B38` | `Byte Type`, `&Code` |
-| `$1D` | `BranchIfTypeWest` | `$008B6F` | `Byte Type`, `&Code` |
-| `$1E` | `BranchIfTypeEast` | `$008BA6` | `Byte Type`, `&Code` |
+| `$1A` | `BranchIfSolidType` | `$008ACE` | `Byte Type`, `&Code` |
+| `$1B` | `BranchIfSolidTypeNorth` | `$008B01` | `Byte Type`, `&Code` |
+| `$1C` | `BranchIfSolidTypeSouth` | `$008B38` | `Byte Type`, `&Code` |
+| `$1D` | `BranchIfSolidTypeWest` | `$008B6F` | `Byte Type`, `&Code` |
+| `$1E` | `BranchIfSolidTypeEast` | `$008BA6` | `Byte Type`, `&Code` |
 | `$1F` | `BranchIfNotOnGridline` | `$008BDD` | `&Code` |
 | `$20` | `BranchIfActorNear` | `$008C19` | `Byte AcNum`, `Byte Dist`, `&Code` |
 | `$21` | `BranchIfPlayerNear` | `$008C26` | `Byte Dist`, `&Code` |
@@ -1258,14 +1258,14 @@ Every valid COP opcode, its canonical name, handler SNES address, and parameter 
 | `$6C` | `InitSpiral` | `$00A992` | `Byte Angle`, `Byte Diameter` |
 | `$6D` | `SpiralStep` | `$00A9AE` | `Byte DiameterSpeed`, `Byte AngleSpeed` |
 | | | | |
-| `$80` | `StageSpr` | `$009E23` | `Byte Spr` |
-| `$81` | `StageSprX` | `$009E35` | `Byte Spr`, `Byte XMove` |
-| `$82` | `StageSprY` | `$009E57` | `Byte Spr`, `Byte YMove` |
-| `$83` | `StageSprXY` | `$009E79` | `Byte Spr`, `Byte XMove`, `Byte YMove` |
-| `$84` | `StageSprLoop` | `$009EAB` | `Byte Spr`, `Byte Iters` |
-| `$85` | `StageSprLoopX` | `$009EC8` | `Byte Spr`, `Byte Iters`, `Byte XMove` |
-| `$86` | `StageSprLoopY` | `$009EF5` | `Byte Spr`, `Byte Iters`, `Byte YMove` |
-| `$87` | `StageSprLoopXY` | `$009F22` | `Byte Spr`, `Byte Iters`, `Byte XMove`, `Byte YMove` |
+| `$80` | `StageSpriteFrame` | `$009E23` | `Byte Spr` |
+| `$81` | `StageSpriteMoveX` | `$009E35` | `Byte Spr`, `Byte XMove` |
+| `$82` | `StageSpriteMoveY` | `$009E57` | `Byte Spr`, `Byte YMove` |
+| `$83` | `StageSpriteMoveXY` | `$009E79` | `Byte Spr`, `Byte XMove`, `Byte YMove` |
+| `$84` | `StageSpriteLoop` | `$009EAB` | `Byte Spr`, `Byte Iters` |
+| `$85` | `StageSpriteLoopMoveX` | `$009EC8` | `Byte Spr`, `Byte Iters`, `Byte XMove` |
+| `$86` | `StageSpriteLoopMoveY` | `$009EF5` | `Byte Spr`, `Byte Iters`, `Byte YMove` |
+| `$87` | `StageSpriteLoopMoveXY` | `$009F22` | `Byte Spr`, `Byte Iters`, `Byte XMove`, `Byte YMove` |
 | `$88` | `SetMetasprite` | `$009F8F` | `@&sprite_set` |
 | `$89` | `AnimOnce` | `$009FAA` | — |
 | `$8A` | `AnimLoop` | `$009FC0` | — |
@@ -1273,10 +1273,10 @@ Every valid COP opcode, its canonical name, handler SNES address, and parameter 
 | `$8C` | `WaitForAnimFrame` | `$009FF1` | `Byte SprFrame` |
 | `$8D` | `StageSprAndHitbox` | `$00A01E` | `Byte Spr` |
 | `$8E` | `SetPlayerSpriteDirect` | `$00A036` | `Byte PlayerSpr` |
-| `$8F` | `StagePlayerSpr` | `$00A06B` | `Byte BodySpr` |
-| `$90` | `StagePlayerSprX` | `$00A081` | `Byte BodySpr`, `Byte XMove` |
-| `$91` | `StagePlayerSprY` | `$00A0A7` | `Byte BodySpr`, `Byte YMove` |
-| `$92` | `StagePlayerSprXY` | `$00A0CD` | `Byte BodySpr`, `Byte XMove`, `Byte YMove` |
+| `$8F` | `StagePlayerSprite` | `$00A06B` | `Byte BodySpr` |
+| `$90` | `StagePlayerSpriteMoveX` | `$00A081` | `Byte BodySpr`, `Byte XMove` |
+| `$91` | `StagePlayerSpriteMoveY` | `$00A0A7` | `Byte BodySpr`, `Byte YMove` |
+| `$92` | `StagePlayerSpriteMoveXY` | `$00A0CD` | `Byte BodySpr`, `Byte XMove`, `Byte YMove` |
 | `$93` | `RunPlayerAnim` | `$00A103` | — |
 | `$94` | `StagePlayerSprWall` | `$00A119` | `…`, `Byte WallType` |
 | `$95` | `StagePlayerSprFromDP` | `$00A159` | — |
@@ -1312,8 +1312,8 @@ Every valid COP opcode, its canonical name, handler SNES address, and parameter 
 | `$B3` | `SetPriorityMin` | `$00A7BE` | — |
 | `$B4` | `ClearPriorityMax` | `$00A7C9` | — |
 | `$B5` | `ClearPriorityMin` | `$00A7D4` | — |
-| `$B6` | `SetOamPriority` | `$00A7DF` | `Byte` |
-| `$B7` | `SetOamPalette` | `$00A7F4` | `Byte` |
+| `$B6` | `SetSpritePriority` | `$00A7DF` | `Byte` |
+| `$B7` | `SetSpritePalette` | `$00A7F4` | `Byte` |
 | `$B8` | `ToggleHMirror` | `$00A809` | — |
 | `$B9` | `ToggleVMirror` | `$00A816` | — |
 | `$BA` | `ClearHMirror` | `$00A823` | — |
@@ -1363,7 +1363,7 @@ Every valid COP opcode, its canonical name, handler SNES address, and parameter 
 ## 7. Sources
 
 1. **Primary:** `extracted/system/chunk_008000.asm` — `native_mode_cop_handler_00846D`, `cop_table_008485`, `cop_table2_008585`, every `cop_handler_*`
-2. **Related:** `extracted/system/chunk_03BAE1.asm` — `SpcCheckMusicReady`/`SpcTransferMusicData` (music), `GetPlayerFacingDirection` (facing), text/DMA helpers
+2. **Related:** `extracted/system/chunk_03BAE1.asm` — `SpcFadeOutHandshake`/`SpcTransferMusicData` (music), `GetPlayerFacingDirection` (facing), text/DMA helpers
 3. **Tooling schema:** `us/copdef.json`
 4. **Secondary notes:** [Data Crystal Illusion of Gaia / Notes § Actor code](https://datacrystal.tcrf.net/wiki/Illusion_of_Gaia/Notes#Actor_code)
 5. **Patch insight:** `baserom/patches/Cop51Patch.patch.asm` (`$51` extended decompress/copy)

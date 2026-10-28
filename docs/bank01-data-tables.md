@@ -18,7 +18,7 @@
 | 4 | [enemy_clear_reward_table](#4-enemy_clear_reward_table) | `$1AADE`–`$1ABDE` | 256 B | `Byte` | Per-scene enemy clear rewards |
 | 5 | [direction_velocity_table](#5-direction_velocity_table) | `$1ABDE`–`$1ABF0` | 18 B | `direction-velocity` | Direction→sprite/velocity mapping |
 | 6 | [enemy_stats_table](#6-enemy_stats_table) | `$1ABF0`–`$1ADA8` | 440 B | `enemy-stats` | Enemy HP/ATK/DEF/type stats |
-| 7 | [scene_barrier_chest_table](#7-scene_barrier_chest_table) | `$1ADA8`–`$1B086` | 734 B | `&Binary` | Per-scene barrier/chest placement data |
+| 7 | [scene_chest_table](#7-scene_chest_table) | `$1ADA8`–`$1B086` | 734 B | `&Binary` | Per-scene barrier/chest placement data |
 | 8 | [movement_delta_table](#8-movement_delta_table) | `$1B086`–`$1C384` | 4,862 B | `&delta-node` | Pre-computed movement delta curves |
 | 9 | [trig_and_level_tables](#9-trig_and_level_tables) | `$1C384`–`$1CA95` | 1,809 B | Mixed | Sine/cosine LUTs and level-up table |
 | 10 | [dialog_template_table](#10-dialog_template_table) | `$1CA95`–`$1CBA6` | 273 B | `&DialogString` | Dialog box/screen-effect templates |
@@ -30,7 +30,7 @@
 | 16 | [will_ability_anim_table](#16-will_ability_anim_table) | `$1D9A7`–`$1D9BF` | 24 B | `&Binary` | Will's attack ability animation configs |
 | 17 | [freedan_ability_anim_table](#17-freedan_ability_anim_table) | `$1D9BF`–`$1D9D8` | 25 B | `&Binary` | Freedan's attack ability animation configs |
 | 18 | [system_strings](#18-system_strings) | `$1D9D8`–`$1EB0F` | 4,407 B | `ConsoleString` | All UI/menu/item/ability text strings |
-| 19 | [item_component_table](#19-item_component_table) | `$1EB0F`–`$1EBA8` | 153 B | `&ConsoleString` | Item name prefix components for composition |
+| 19 | [shared_word_table](#19-shared_word_table) | `$1EB0F`–`$1EBA8` | 153 B | `&ConsoleString` | Item name prefix components for composition |
 | 20 | [dictionary_a](#20-dictionary_a) | `$1EBA8`–`$1F54D` | 2,469 B | `&DialogString` | Dialog text dictionary (common words) |
 | 21 | [dictionary_b](#21-dictionary_b) | `$1F54D`–`$1FD24` | 2,007 B | `&DialogString` | Dialog text dictionary (extended words) |
 | 22 | [item_get_dialog_table](#22-item_get_dialog_table) | `$1FD24`–`$1FF6C` | 584 B | `&DialogString` | Item acquisition dialog messages |
@@ -187,10 +187,10 @@ Notable entries:
 
 ---
 
-### 7. scene_barrier_chest_table
+### 7. scene_chest_table
 
 **Current name:** `table_01ADA8`  
-**Proposed name:** `scene_barrier_chest_table`  
+**Proposed name:** `scene_chest_table`  
 **Address:** `$1ADA8`–`$1B086` (734 bytes)  
 **Type:** Pointer table → per-scene binary data  
 **Category:** `tables`
@@ -210,7 +210,7 @@ Most scenes point to `binary_01AFA6` (`$FF` = no barriers/chests). Non-trivial e
 - **Treasure chests:** Searchable tiles that yield items when the event flag is not yet set
 
 **Usage:**
-- `warps_interaction.asm` — `PlaceBarrierTiles` walks entries to place blocking tiles
+- `warps_interaction.asm` — `PlaceOpenedChestTiles` walks entries to place blocking tiles
 - `warps_interaction.asm` — chest interaction searches entries by player position
 - `radar_map_screen.asm` — reads scene entries to draw transition markers on the world map radar
 
@@ -245,7 +245,7 @@ These linked lists define velocity curves — acceleration ramps, arc trajectori
 
 ### 9. trig_and_level_tables
 
-**Current name:** `scene_flag_table`  
+**Current name:** `slope_curve_table`  
 **Proposed name:** `trig_and_level_tables`  
 **Address:** `$1C384`–`$1CA95` (1,809 bytes)  
 **Category:** `system`
@@ -253,7 +253,7 @@ These linked lists define velocity curves — acceleration ramps, arc trajectori
 A composite block containing six related sub-tables for math and progression:
 
 #### 9a. level_experience_table
-**Part:** `scene_flag_table`  
+**Part:** `slope_curve_table`  
 **Address:** `$1C384`–`$1C455` (209 bytes, `$D1` entries)  
 **Type:** `Byte` array
 
@@ -266,8 +266,8 @@ Experience level thresholds. Indices `$00`–`$41` show a repeating pattern of `
 
 8-bit sine lookup table. Values range from `$00` to `$7F` covering one quarter-wave (0°–90°). Used by actor code for circular/oscillating motion (whirligigs, skulker enemy, sand fanger spiral attacks) and the scene lifecycle system for screen wipe effects.
 
-#### 9c. signed_sine_table
-**Part:** `signed_sine_table`  
+#### 9c. signed_cosine_table_8bit
+**Part:** `signed_cosine_table_8bit`  
 **Address:** `$1C495`–`$1C595` (256 entries)  
 **Type:** `Byte` array (signed)
 
@@ -287,15 +287,15 @@ Full 360° signed 8-bit sine table. Values go: `$7F` (peak) → `$00` (zero-cros
 
 16-bit high-precision cosine table, one quarter-wave. Values range from `$7FFF` (1.0) down to `$0000` (0.0). Paired with the sine table for Mode 7 matrix computations.
 
-#### 9f. signed_sine_table_16bit
-**Part:** `signed_sine_table_16bit`  
+#### 9f. neg_sine_halfwave_16bit
+**Part:** `neg_sine_halfwave_16bit`  
 **Address:** `$1C795`–`$1C995` (256 word entries)  
 **Type:** `Word` array (signed)
 
 Full-cycle 16-bit signed sine table. Values range from `$0000` through `$7FFF` (positive peak) to `$8001` (negative trough). Used by Mode 7 perspective with 4-quadrant dispatch for rotation at arbitrary angles.
 
 #### 9g. sine_table_16bit_copy
-**Part:** `sine_table_16bit_quarter`  
+**Part:** `cosine_table_16bit_tail`  
 **Address:** `$1C995`–`$1CA95` (128 word entries)  
 **Type:** `Word` array
 
@@ -383,7 +383,7 @@ Maps scene music IDs to SPC music data locations in ROM. Each 3-byte entry is a 
 **Category:** `tables`
 
 **Description:**  
-Per-scene parallax scrolling configurations. Each entry defines HDMA table parameters that create multi-layer scrolling effects. The binary data encodes:
+Per-scene HDMA band templates (table indices `$00`–`$24`, 22 populated). Each blob configures `scanline_band_hdma_thinker` record types — BG scroll bands, constant bands, window rectangles, and colour/compositing writes (not every type scrolls a layer). The binary data encodes:
 
 - Header bytes: BG mode, scroll region boundaries, flags
 - Per-scanline-region entries: `register, scroll_speed_x, scroll_speed_y, flags`
@@ -394,7 +394,7 @@ Many entries (`$0D`–`$1A`) are simple 2-byte terminators (`$FFFF` = no paralla
 - Entry `$05` — many-region complex parallax (Great Wall area)
 - Entry `$06` — smooth gradient parallax (underwater)
 
-**Usage:** `parallax_thinker.asm` — the parallax thinker actor reads the scene's parallax config and programs HDMA channels accordingly each frame.
+**Usage:** `scanline_band_hdma_thinker.asm` — the thinker's spawn parameter selects one of these type blobs; the thinker builds per-scanline HDMA band records (BG scroll, constants, windows, and color/compositing writes — not scroll-only).
 
 ---
 
@@ -446,27 +446,27 @@ DMA transfer mode lookup table for HDMA channel configuration. Each byte specifi
 - `$02` = 2-byte write to same register twice
 - `$80`/`$81`/`$82` = same modes with indirect flag set
 
-**Usage:** `hdma_dma_spc.asm` — `SetupHdmaChannel_Indirect/Direct` uses this to configure DMAP for HDMA channels. Also referenced by `parallax_thinker.asm` and `cop_handlers_collision.asm`.
+**Usage:** `hdma_dma_spc.asm` — `SetupHdmaChannel_Indirect/Direct` uses this to configure DMAP for HDMA channels. Also referenced by `scanline_band_hdma_thinker.asm` and `cop_handlers_collision.asm`.
 
-#### 14b. parallax_speed_table
-**Part:** `parallax_speed_config`  
+#### 14b. hdma_entry_stride_by_mode
+**Part:** `hdma_entry_stride_by_mode`  
 **Address:** `$1D8FE`–`$1D90B` (13 bytes)  
 **Type:** `Byte` array
 
-Parallax scroll speed parameters. Contains shift/scale values used by the parallax thinker to calculate per-layer scroll rates. Values: `$02, $03, $03, $05, $05, $64, $00, $FF, $7F, $FF, $7F, $FF, $7F`.
+HDMA entry **byte stride** by record mode (via `ParallaxResolveEntryStride`): mode 0 → 2 bytes per entry, modes 1 and 2 → 3 bytes. Added to the table write pointer — not a scroll speed. Values: `$02, $03, $03, $05, $05, $64, $00, $FF, $7F, $FF, $7F, $FF, $7F`.
 
-**Usage:** `parallax_thinker.asm` — reads speed parameters alongside the HDMA channel config.
+**Usage:** `scanline_band_hdma_thinker.asm` — indexed when emitting band records.
 
 #### 14c. ramp_motion_curves
 **Part:** `array_01D90B`  
 **Address:** `$1D90B`–`$1D971` (102 bytes)  
 **Type:** `ramp-motion` array (2 entries, each pointing to a binary curve)
 
-Pre-computed acceleration/deceleration curves for ramp movement (e.g., stair climbing). Each `ramp-motion` entry is `{ &curve_data, frame_count }`:
-- Entry 0: 64-frame curve (`binary_01D911`) — slow acceleration ramp, values `$F0`→`$00`→`$10`
-- Entry 1: 32-frame curve (`binary_01D951`) — fast acceleration ramp, values `$F8`→`$00`→`$08`
+Per-frame Y delta tables for east/west jump-launcher arc children. Each `ramp-motion` entry is `{ &curve_data, frame_count }`:
+- Entry 0: 64-frame arc (`ramp_curve_arc_64`) — peak rise 204 px at frame 28, net sum 0
+- Entry 1: 32-frame arc (`ramp_curve_arc_32`) — peak 50 px at frame 14, net sum +8
 
-**Usage:** `ramps.asm` — ramp actors read these curves to smoothly accelerate the player when stepping onto slopes/stairs.
+**Usage:** `ramps.asm` — `RampArcDriver` child sums these byte deltas onto the player's Y each frame during east/west launches.
 
 ---
 
@@ -512,7 +512,7 @@ body-entry { Address spriteset_ptr, @Binary sprite_tiles_ptr }
 **Category:** `tables`
 
 **Description:**  
-Animation configuration table for Will's three attack abilities. Each entry is a 6-byte record containing sprite frame indices, hitbox dimensions, and timing data stored to the ability system's `climbStateData` registers (`$09E0`/`$09E2`).
+Animation configuration table for Will's three attack abilities. Each entry is a 6-byte record containing sprite frame indices, hitbox dimensions, and timing data; one byte is stored to `$09E0` / `$09E2` by `LoadAbilityAnimTableA/B` for sprite setup and STR bonus in combat.
 
 | Index | Ability | Data |
 |-------|---------|------|
@@ -563,8 +563,8 @@ Pointer table of 64 item display names (Red Jewel, Herb, Incan Statue A/B, Cryst
 #### 18c. item_menu_table (`itemmenu_table_01DE1E`)
 Pointer table of 64 item menu descriptions — longer text shown when selecting items in the inventory menu.
 
-#### 18d. Separator (`item_table_separator`)
-8-byte padding between item menu and item description tables.
+#### 18d. Non-discardable item bit table (`non_discardable_item_bits`)
+8-byte bitfield indexed by item ID (`ID >> 3`, bit `ID & 7`). `CheckItemDiscardable` returns carry set when a bit is set (quest / protected item).
 
 #### 18e. item_description_table (`itemdesc_table_01E132`)
 Pointer table of item description strings — detailed help text for the item selection screen.
@@ -588,16 +588,16 @@ Pointer table of miscellaneous UI strings (status labels, menu headers, save/loa
 
 ---
 
-### 19. item_component_table
+### 19. shared_word_table
 
 **Current name:** `itemcomp_table_01EB0F`  
-**Proposed name:** `item_component_table`  
+**Proposed name:** `shared_word_table`  
 **Address:** `$1EB0F`–`$1EBA8` (153 bytes, 15 entries)  
 **Type:** Pointer table → `ConsoleString` entries  
 **Category:** `tables`
 
 **Description:**  
-Item name prefix/component strings used for compositional rendering. When the dialog system encounters the `$10 InsertItemName` control code, it looks up the component name from this table:
+Item name prefix/component strings used for compositional rendering. When the dialog system encounters the `$10 InsertSharedWord` control code, it looks up the component name from this table:
 
 | Index | Component |
 |-------|-----------|
@@ -619,7 +619,7 @@ Item name prefix/component strings used for compositional rendering. When the di
 
 These components are combined with other text to form full item names, reducing string storage by sharing common prefixes.
 
-**Usage:** `ConsoleStringRenderer.asm` — the `InsertItemName` handler (`$10`) indexes this table to render composite item names.
+**Usage:** `ConsoleStringRenderer.asm` — the `InsertSharedWord` handler (`$10`) indexes this table to render composite item names.
 
 ---
 
@@ -689,24 +689,24 @@ The strings at `dialogstring_01FF02` (inventory full) and `dialogstring_01FF1F` 
 | `table_01A95E` | `forced_walk_sequence_table` | Used exclusively by forced_walk system |
 | `dir_sprite_01ABDE` | `direction_velocity_table` | Maps directions to sprite frames + velocities |
 | `stats_01ABF0` | `enemy_stats_table` | Master enemy stat table |
-| `table_01ADA8` | `scene_barrier_chest_table` | Per-scene barrier/chest placement data |
+| `table_01ADA8` | `scene_chest_table` | Per-scene barrier/chest placement data |
 | `table_01B086` | `movement_delta_table` | Pre-computed movement delta curves |
-| `scene_flag_table` | `trig_and_level_tables` | Composite: trig LUTs + level thresholds |
+| `slope_curve_table` | `trig_and_level_tables` | Composite: trig LUTs + level thresholds |
 | `sine_table_8bit` | `sine_table_8bit` | 8-bit quarter-wave sine LUT |
-| `signed_sine_table` | `signed_sine_table` | Full-cycle signed 8-bit sine |
+| `signed_cosine_table_8bit` | `signed_cosine_table_8bit` | Full-cycle signed 8-bit cosine (256 steps) |
 | `sine_table_16bit` | `sine_table_16bit` | 16-bit quarter-wave sine LUT |
 | `cosine_table_16bit` | `cosine_table_16bit` | 16-bit quarter-wave cosine LUT |
-| `signed_sine_table_16bit` | `signed_sine_table_16bit` | Full-cycle 16-bit signed sine |
-| `sine_table_16bit_quarter` | `sine_table_16bit_copy` | Duplicate of sine_table_16bit |
+| `neg_sine_halfwave_16bit` | `neg_sine_halfwave_16bit` | Negated half-wave of the 16-bit sine |
+| `cosine_table_16bit_tail` | `cosine_table_16bit_tail` | Last quarter of the 512-word cosine cycle |
 | `templates_01CA95` | `dialog_template_table` | Dialog box/FX template strings |
 | `music_array_01CBA6` | `music_pointer_array` | Scene music → SPC data pointers |
 | `parallax_table` | `parallax_scroll_table` | Per-scene parallax HDMA configs |
 | `hdma_channel_config` | `hdma_channel_config` | HDMA DMA transfer mode lookup |
-| `parallax_speed_config` | `parallax_speed_table` | Parallax scroll speed params |
-| `array_01D90B` | `ramp_motion_curves` | Acceleration curves for ramp actors |
+| `hdma_entry_stride_by_mode` | `hdma_entry_stride_by_mode` | HDMA band entry byte stride by mode |
+| `array_01D90B` | `ramp_motion_curves` | Jump-launcher arc Y-delta tables |
 | `table_01D9A7` | `will_ability_anim_table` | Will's ability animation configs |
 | `table_01D9BF` | `freedan_ability_anim_table` | Freedan's ability animation configs |
-| `itemcomp_table_01EB0F` | `item_component_table` | Item name prefix components |
+| `itemcomp_table_01EB0F` | `shared_word_table` | Item name prefix components |
 | `dictionary_01EBA8` | `dialog_dictionary_a` | Dialog word compression table A |
 | `dictionary_01F54D` | `dialog_dictionary_b` | Dialog word compression table B |
 | `itemget_table_01FD24` | `item_get_dialog_table` | Item acquisition dialog messages |

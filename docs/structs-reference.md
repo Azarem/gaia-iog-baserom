@@ -323,7 +323,7 @@ The `meta<>` type is a discriminated union used in scene metadata scripts. The f
 | 23   | `$17`  | `char-tiles`   | `SceneCmd_LoadCharTiles`   | Direct VRAM char/tile DMA            | —                 |
 
 **Undocumented dispatch slots:**
-Discriminators `$01`, `$07`–`$0D`, `$0F`, `$12`, `$16` all dispatch to `code_02845C` (no-op RTS) in the jump table. Discriminator `$12` has special significance in `SkipScriptCommands` as a skip-region terminator (end-of-skip marker).
+Discriminators `$01`, `$07`–`$0D`, `$0F`, `$12`, `$16` all dispatch to `SceneCmd_Default` (no-op RTS) in the jump table. Discriminator `$12` has special significance in `SkipScriptCommands` as a skip-region terminator (end-of-skip marker).
 
 **Delimiter:** `0` (null discriminator = end of script)
 
@@ -1061,7 +1061,7 @@ Simple screen coordinate pair for UI positioning and sprite spawn offsets.
 
 **Layout:** `[Byte, Byte, Byte, Byte, Byte, Byte, Byte, Byte]`
 
-**Usage:** `LookupEventBlock` indexes by ID × 8, verifies scene ID, then loads geometry into working registers for `SwapEventBlockTiles` or `AnimateEventBlock` to perform the tile copy. `SpawnFieldRevealEffect` also reads width/height/dstX/dstY from this table to compute the visual sparkle effect area and movement target.
+**Usage:** `LookupEventBlock` indexes by ID × 8, verifies scene ID, then loads geometry into working registers for `CopyEventBlockTiles` or `AnimateEventBlock` to perform the tile copy. `SpawnFieldRevealEffect` also reads width/height/dstX/dstY from this table to compute the visual sparkle effect area and movement target.
 
 **Files:** `event_block_table.asm` (158 entries), `event_blocks.asm`, `SpawnFieldRevealEffect.asm`
 
@@ -1140,7 +1140,7 @@ Palette animation sequence header (6 bytes per entry). Data Crystal: "The indexe
 - `COP $39` (`PaletteStep`) — advance one timed write; halt until `delayFrames` expires
 - `COP $3A` (`PaletteStepLoop`) — step with outer iteration counter
 
-**Engine:** `LoadPaletteBundle` (load header into actor scratch), `DecompressGfxToVram` (apply write via WRAM trampoline → `$548B`)
+**Engine:** `LoadPaletteBundle` (load sub-entry into actor scratch), `CopyPaletteBundleFrame` (MVN one frame via RAM stub `$0402` into `$7F:0A00` staging)
 
 **Common field values:**
 

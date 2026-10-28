@@ -30,11 +30,11 @@ DP `$80`–`$82` is the **collision tile map pointer** (`[$80], Y` in `tile_coll
 ## Database files
 
 - `us/blocks.json` — block/part structure (engine auto-discovers unmapped pieces)
-- `us/overrides.json` — per-address register state and type corrections (do **not** use `"name"` key — deprecated; use `names.json` for naming)
-- `us/names.json` — human-readable address labels
+- `us/overrides.json` — per-address register state and type corrections (do **not** use `"name"` key — deprecated; use `names/bankNN.json` for naming)
+- `db-us/names/bankNN.json` — human-readable address labels, **one file per ROM bank** (bank = floor(address / 65536); keys are decimal addresses, sorted). A new bank file must also be imported in `src/names.ts`. See `gaia-core/docs/notes-and-comments.md` §"Names"
 - `db-us/transforms.json` — per-block regex replacements applied during extraction (e.g., button mask changes)
 
-All four files are needed for the complete picture. See `gaia-knowledge/curated/gaialabs/reference-model.md`.
+All four are needed for the complete picture (names are the per-bank files under `db-us/names/`). See `gaia-knowledge/curated/gaialabs/reference-model.md`.
 
 ## Label override hazards
 

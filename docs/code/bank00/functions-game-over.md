@@ -2,7 +2,7 @@
 
 **Bank:** `$00` (mirrored at `$80`)  
 **Address range:** `$00B5B3`, `$00D62F`–`$00D796`, `$00F3B3`  
-**Source files:** [`extracted/functions/game_over_sequence.asm`](../../../extracted/functions/game_over_sequence.asm) (contains `GameOverSequence`, `GameOverCutsceneSprites`, `DeathWakeupMessage`), [`DeathPaletteFadeThinker.asm`](../../../extracted/functions/DeathPaletteFadeThinker.asm), [`StopPlayerOnDeathAssign.asm`](../../../extracted/functions/StopPlayerOnDeathAssign.asm)  
+**Source files:** [`extracted/functions/game_over_sequence.asm`](../../../extracted/functions/game_over_sequence.asm) (contains `GameOverSequence`, `GameOverCutsceneSprites`, `DeathWakeupMessage`), [`DeathPaletteFadeThinker.asm`](../../../extracted/functions/DeathPaletteFadeThinker.asm), [`StopPlayerOnDeath.asm`](../../../extracted/functions/StopPlayerOnDeath.asm)  
 **Block:** `game_over_sequence` + standalone utilities
 
 These functions implement the full player death flow: halting movement, fading the palette, reloading the saved scene, displaying post-death cutscene sprites, and presenting the character-specific wake-up monologue.
@@ -15,8 +15,8 @@ These functions implement the full player death flow: halting movement, fading t
 
 ```
 Player HP → 0
-    └─► StopPlayerOnDeathAssign ($F3B3)     [JSL — zeros velocity, sets $0200 flag]
-            └─► GameOverSequence ($D62F)    [$& pointer from ComposeDigits_Continuation]
+    └─► StopPlayerOnDeath ($F3B3)     [JSL — zeros speed/wait; sets actor $10 bit $0200]
+            └─► GameOverSequence ($D62F)    [$& pointer from ComposeDigitSprites_AtCursor]
                     ├─► Fade screen / palette teardown
                     ├─► COP [SpawnThinker] @DeathPaletteFadeThinker ($B5B3)
                     ├─► Reload saved scene from $0AF0–$0AF8
@@ -26,7 +26,7 @@ Player HP → 0
 
 | Function | Address | Size | Movable | Call Type | Priority |
 |----------|---------|------|---------|-----------|----------|
-| `StopPlayerOnDeathAssign` | `$F3B3` | 22 B | ✓ | JSL | Medium |
+| `StopPlayerOnDeath` | `$F3B3` | 22 B | ✓ | JSL | Medium |
 | `GameOverSequence` | `$D62F` | 233 B | **No** | `$&` pointer assignment | **High** |
 | `DeathPaletteFadeThinker` | `$B5B3` | 13 B | ✓ | COP `SpawnThinker` | Medium |
 | `GameOverCutsceneSprites` | `$D718` | 126 B | ✓ | COP `SpawnAfter` | Medium |
@@ -34,35 +34,31 @@ Player HP → 0
 
 ---
 
-## StopPlayerOnDeathAssign
+## StopPlayerOnDeath
 
 **Address:** `$F3B3` · **Size:** 22 bytes
 
 ### Description
 
-First-stage death handler called via JSL when the player's HP reaches zero. Immediately zeros the player's velocity components (`$002C`/`$002E`) and wait counter (`$0008`), then sets actor flag `$10` bit `$0200` to mark the death state. Does not perform the full game-over sequence itself — that responsibility falls to `GameOverSequence`, which is invoked afterward through the death callback pointer chain.
-
-This separation allows combat scripts to halt player movement instantly while deferring the expensive fade/reload sequence.
+Helper called from `CheckPlayerDeath` after **`playerFlags` bit 9 (`$0200`)** is already set (game over) and the player actor entry point is repointed to `GameOverSequence`. Zeros `playerSpeedEw` / `playerSpeedNs` (`$09B2` / `$09B4`), zeros the actor wait counter (`$0008`), and ORs **`$0200` into the player actor's `$10` flags** — a different word from `playerFlags`. Does not run the fade/reload sequence (`GameOverSequence` owns that via the entry-point chain).
 
 ### Algorithm
 
 ```
-1. LDX $player_actor
-2. STZ $002C,X  ; Zero velocity X
-3. STZ $002E,X  ; Zero velocity Y
-4. STZ $0008,X  ; Zero wait counter
-5. TSB $10,X with #$0200  ; Set death flag
-6. RTL
+1. LDY player actor address (from caller)
+2. STZ playerSpeedEw / playerSpeedNs
+3. STZ $0008,Y  ; wait counter — so GameOverSequence runs next tick
+4. ORA #$0200 into $0010,Y
+5. RTL
 ```
 
 ### Variables
 
 | Symbol | Role |
 |--------|------|
-| `$player_actor` | Player actor slot index |
-| `$002C,X` / `$002E,X` | Velocity components (zeroed) |
-| `$0008,X` | Frame wait counter (zeroed) |
-| `$10,X` bit `$0200` | Death-in-progress flag |
+| `playerSpeedEw` / `playerSpeedNs` | Movement speeds (zeroed) |
+| `$0008,Y` | Actor wait counter (zeroed) |
+| `$0010,Y` bit `$0200` | Actor flag bit (set here; not the `playerFlags` game-over bit) |
 
 ### Cross-References
 
@@ -74,11 +70,11 @@ This separation allows combat scripts to halt player movement instantly while de
 
 ## GameOverSequence
 
-**Address:** `$D62F` · **Size:** 233 bytes · **Movable:** No (inbound `$&GameOverSequence` from `ComposeDigits_Continuation`)
+**Address:** `$D62F` · **Size:** 233 bytes · **Movable:** No (inbound `$&GameOverSequence` from `ComposeDigitSprites_AtCursor`)
 
 ### Description
 
-Full player death flow executed after `StopPlayerOnDeathAssign`. Assigned as the player OnDeath callback via `SetOnDeath` COP in `ComposeDigits_Continuation` (`#$&GameOverSequence`). Handles screen fade, palette teardown, scene state restoration, and spawning of post-death visual elements.
+Full player death flow executed after `StopPlayerOnDeath`. Assigned as the player OnDeath callback via `SetOnDeath` COP in `ComposeDigitSprites_AtCursor` (`#$&GameOverSequence`). Handles screen fade, palette teardown, scene state restoration, and spawning of post-death visual elements.
 
 The sequence saves and restores scene persistence data from `$0AF0`–`$0AF8` (last visited scene, player position, party state) so the player respawns at the most recent save point rather than the death location.
 
@@ -115,7 +111,7 @@ The sequence saves and restores scene persistence data from `$0AF0`–`$0AF8` (l
 
 | Direction | Symbol | Notes |
 |-----------|--------|-------|
-| Assigned by | `ComposeDigits_Continuation` | Player OnDeath: `#$&GameOverSequence` |
+| Assigned by | `ComposeDigitSprites_AtCursor` | Player OnDeath: `#$&GameOverSequence` |
 | Spawns | `DeathPaletteFadeThinker` | `COP [SpawnThinker]` |
 | Spawns | `GameOverCutsceneSprites` | `COP [SpawnAfter]` |
 | Followed by | `DeathWakeupMessage` | Spawned from `player_character.asm` |
@@ -243,7 +239,7 @@ Spawned from `player_character.asm` via `COP [SpawnAfterFlags]` after the cutsce
 
 | Step | Caller | Callee | Mechanism |
 |------|--------|--------|-----------|
-| 1 | Combat / HP check | `StopPlayerOnDeathAssign` | JSL |
+| 1 | Combat / HP check | `StopPlayerOnDeath` | JSL |
 | 2 | Death callback | `GameOverSequence` | `$&GameOverSequence` pointer |
 | 3 | `GameOverSequence` | `DeathPaletteFadeThinker` | COP `SpawnThinker` |
 | 4 | `GameOverSequence` | `GameOverCutsceneSprites` | COP `SpawnAfter` |
@@ -253,7 +249,7 @@ Spawned from `player_character.asm` via `COP [SpawnAfterFlags]` after the cutsce
 
 | Target | Bank | Purpose |
 |--------|------|---------|
-| `ComposeDigits_Continuation` | `$03` | Death callback pointer assignment |
+| `ComposeDigitSprites_AtCursor` | `$03` | Death callback pointer assignment |
 | Scene script engine | `$02`/`$03` | Scene reload from save data |
 | `$0AF0`–`$0AF8` | `$00` WRAM | Save/restore scene state |
 
@@ -271,4 +267,4 @@ Spawned from `player_character.asm` via `COP [SpawnAfterFlags]` after the cutsce
 
 ---
 
-*Source: `extracted/functions/game_over_sequence.asm`, `extracted/functions/DeathPaletteFadeThinker.asm`, `extracted/functions/StopPlayerOnDeathAssign.asm`.*
+*Source: `extracted/functions/game_over_sequence.asm`, `extracted/functions/DeathPaletteFadeThinker.asm`, `extracted/functions/StopPlayerOnDeath.asm`.*

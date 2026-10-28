@@ -119,7 +119,7 @@ Families are grouped by **shared handlers / purpose / WRAM**, not by jump-table 
 | `$0A` ↔ `$0B` | `WriteApuIo0` (APU port) vs `MarkSolidHere` (collision paint) |
 | `$12` ↔ `$13` | `ClearTypeAbs` (collision paint) vs `BranchIfSolidHere` (collision branch) — write vs read |
 | `$18` ↔ `$19` | `BranchIfSolidEast` (collision) vs `MusicAndText` (audio) — adjacent opcodes, unrelated systems |
-| `$1E` ↔ `$1F` | `BranchIfTypeEast` (collision) vs `BranchIfNotOnGridline` (proximity/grid) |
+| `$1E` ↔ `$1F` | `BranchIfSolidTypeEast` (collision) vs `BranchIfNotOnGridline` (proximity/grid) |
 | `$21` ↔ `$22` | `BranchIfPlayerNear` (proximity test) vs `MoveToward` (movement execution) |
 | `$24` ↔ `$25` | `RngMod` (random) vs `SetTilePos` (position) |
 | `$27` ↔ `$28` | `WaitWhileOffscreen` (offscreen halt) vs `BranchIfPlayerAt` (player query) |
@@ -185,11 +185,11 @@ Every valid COP opcode with its parameters, family link, and a short description
 | `$17` | `BranchIfSolidWest` | `&Code` | [collision_branch](families/collision_branch.md) | Branch if tile one step west of actor is solid |
 | `$18` | `BranchIfSolidEast` | `&Code` | [collision_branch](families/collision_branch.md) | Branch if tile one step east of actor is solid |
 | `$19` | `MusicAndText` | `Byte, @DialogString` | [audio](families/audio.md) | Start a music track and display a dialog string |
-| `$1A` | `BranchIfTypeHere` | `Byte Type, &Code` | [collision_branch](families/collision_branch.md) | Branch if collision type at actor's tile matches |
-| `$1B` | `BranchIfTypeNorth` | `Byte Type, &Code` | [collision_branch](families/collision_branch.md) | Branch if collision type one tile north matches |
-| `$1C` | `BranchIfTypeSouth` | `Byte Type, &Code` | [collision_branch](families/collision_branch.md) | Branch if collision type one tile south matches |
-| `$1D` | `BranchIfTypeWest` | `Byte Type, &Code` | [collision_branch](families/collision_branch.md) | Branch if collision type one tile west matches |
-| `$1E` | `BranchIfTypeEast` | `Byte Type, &Code` | [collision_branch](families/collision_branch.md) | Branch if collision type one tile east matches |
+| `$1A` | `BranchIfSolidType` | `Byte Type, &Code` | [collision_branch](families/collision_branch.md) | Branch if collision type at actor's tile matches |
+| `$1B` | `BranchIfSolidTypeNorth` | `Byte Type, &Code` | [collision_branch](families/collision_branch.md) | Branch if collision type one tile north matches |
+| `$1C` | `BranchIfSolidTypeSouth` | `Byte Type, &Code` | [collision_branch](families/collision_branch.md) | Branch if collision type one tile south matches |
+| `$1D` | `BranchIfSolidTypeWest` | `Byte Type, &Code` | [collision_branch](families/collision_branch.md) | Branch if collision type one tile west matches |
+| `$1E` | `BranchIfSolidTypeEast` | `Byte Type, &Code` | [collision_branch](families/collision_branch.md) | Branch if collision type one tile east matches |
 | `$1F` | `BranchIfNotOnGridline` | `&Code` | [proximity](families/proximity.md) | Branch if actor is not aligned to a 16×16 tile grid |
 | `$20` | `BranchIfActorNear` | `Byte AcNum, Byte Dist, &Code` | [proximity](families/proximity.md) | Branch if another actor is within distance |
 | `$21` | `BranchIfPlayerNear` | `Byte Dist, &Code` | [proximity](families/proximity.md) | Branch if the player is within distance |
@@ -201,8 +201,8 @@ Every valid COP opcode with its parameters, family link, and a short description
 | `$27` | `WaitWhileOffscreen` | `Byte Delay` | [offscreen](families/offscreen.md) | Pause script while actor is off-camera, with min delay |
 | `$28` | `BranchIfPlayerAt` | `Word PosX, Word PosY, &Code` | [player_query](families/player_query.md) | Branch if player is at exact pixel position |
 | `$29` | `BranchIfActorAt` | `Byte AcNum, Word PosX, Word PosY, &Code` | [player_query](families/player_query.md) | Branch if an actor is at exact pixel position |
-| `$2A` | `BranchOnPlayerX` | `Word Dist, &Code W, &Code E, &Code H` | [player_query](families/player_query.md) | Three-way branch by player X distance (west/east/here) |
-| `$2B` | `BranchOnPlayerY` | `Word Dist, &Code N, &Code S, &Code H` | [player_query](families/player_query.md) | Three-way branch by player Y distance (north/south/here) |
+| `$2A` | `BranchOnPlayerX` | `Word Dist, &Code W, &Code H, &Code E` | [player_query](families/player_query.md) | Three-way branch by player X (west / here / east) |
+| `$2B` | `BranchOnPlayerY` | `Word Dist, &Code N, &Code H, &Code S` | [player_query](families/player_query.md) | Three-way branch by player Y (north / here / south) |
 | `$2C` | `BranchNearerAxis` | `&Code NearY, &Code NearX` | [player_query](families/player_query.md) | Branch on whether player is nearer on X or Y axis |
 | `$2D` | `DirToPlayer` | — | [player_query](families/player_query.md) | Compute 4-way direction to player, store in `$12` |
 | `$2E` | `DirToPlayerFrom` | `Byte OffsX, Byte OffsY` | [player_query](families/player_query.md) | Compute direction to player from an offset position |
@@ -270,14 +270,14 @@ Every valid COP opcode with its parameters, family link, and a short description
 | `$6C` | `InitSpiral` | `Byte Angle, Byte Diameter` | [spiral](families/spiral.md) | Initialize spiral motion with start angle and radius |
 | `$6D` | `SpiralStep` | `Byte DiameterSpeed, Byte AngleSpeed` | [spiral](families/spiral.md) | Advance one step of spiral motion |
 | | | | | |
-| `$80` | `StageSpr` | `Byte Spr` | [sprite_staging](families/sprite_staging.md) | Stage a single sprite frame (no movement) |
-| `$81` | `StageSprX` | `Byte Spr, Byte XMove` | [sprite_staging](families/sprite_staging.md) | Stage sprite with horizontal movement |
-| `$82` | `StageSprY` | `Byte Spr, Byte YMove` | [sprite_staging](families/sprite_staging.md) | Stage sprite with vertical movement |
-| `$83` | `StageSprXY` | `Byte Spr, Byte XMove, Byte YMove` | [sprite_staging](families/sprite_staging.md) | Stage sprite with both X and Y movement |
-| `$84` | `StageSprLoop` | `Byte Spr, Byte Iters` | [sprite_staging](families/sprite_staging.md) | Stage sprite for N iterations (no movement) |
-| `$85` | `StageSprLoopX` | `Byte Spr, Byte Iters, Byte XMove` | [sprite_staging](families/sprite_staging.md) | Stage sprite for N iterations with X movement |
-| `$86` | `StageSprLoopY` | `Byte Spr, Byte Iters, Byte YMove` | [sprite_staging](families/sprite_staging.md) | Stage sprite for N iterations with Y movement |
-| `$87` | `StageSprLoopXY` | `Byte Spr, Byte Iters, Byte XMove, Byte YMove` | [sprite_staging](families/sprite_staging.md) | Stage sprite for N iterations with X+Y movement |
+| `$80` | `StageSpriteFrame` | `Byte Spr` | [sprite_staging](families/sprite_staging.md) | Stage a single sprite frame (no movement) |
+| `$81` | `StageSpriteMoveX` | `Byte Spr, Byte XMove` | [sprite_staging](families/sprite_staging.md) | Stage sprite with horizontal movement |
+| `$82` | `StageSpriteMoveY` | `Byte Spr, Byte YMove` | [sprite_staging](families/sprite_staging.md) | Stage sprite with vertical movement |
+| `$83` | `StageSpriteMoveXY` | `Byte Spr, Byte XMove, Byte YMove` | [sprite_staging](families/sprite_staging.md) | Stage sprite with both X and Y movement |
+| `$84` | `StageSpriteLoop` | `Byte Spr, Byte Iters` | [sprite_staging](families/sprite_staging.md) | Stage sprite for N iterations (no movement) |
+| `$85` | `StageSpriteLoopMoveX` | `Byte Spr, Byte Iters, Byte XMove` | [sprite_staging](families/sprite_staging.md) | Stage sprite for N iterations with X movement |
+| `$86` | `StageSpriteLoopMoveY` | `Byte Spr, Byte Iters, Byte YMove` | [sprite_staging](families/sprite_staging.md) | Stage sprite for N iterations with Y movement |
+| `$87` | `StageSpriteLoopMoveXY` | `Byte Spr, Byte Iters, Byte XMove, Byte YMove` | [sprite_staging](families/sprite_staging.md) | Stage sprite for N iterations with X+Y movement |
 | `$88` | `SetMetasprite` | `@&sprite_set` | [sprite_anim](families/sprite_anim.md) | Load a metasprite definition set (far pointer to bank-local table) |
 | `$89` | `AnimOnce` | — | [sprite_anim](families/sprite_anim.md) | Play the current metasprite animation once |
 | `$8A` | `AnimLoop` | — | [sprite_anim](families/sprite_anim.md) | Play the current metasprite animation in a loop |
@@ -285,10 +285,10 @@ Every valid COP opcode with its parameters, family link, and a short description
 | `$8C` | `WaitForAnimFrame` | `Byte SprFrame` | [sprite_anim](families/sprite_anim.md) | Halt script until animation reaches frame N |
 | `$8D` | `StageSprAndHitbox` | `Byte Spr` | [sprite_staging](families/sprite_staging.md) | Stage sprite and attach a hitbox for collision |
 | `$8E` | `SetPlayerSpriteDirect` | `Byte PlayerSpr` | [player_sprite](families/player_sprite.md) | Set the player sprite index directly |
-| `$8F` | `StagePlayerSpr` | `Byte BodySpr` | [player_sprite](families/player_sprite.md) | Stage a player body sprite frame |
-| `$90` | `StagePlayerSprX` | `Byte BodySpr, Byte XMove` | [player_sprite](families/player_sprite.md) | Stage player sprite with horizontal movement |
-| `$91` | `StagePlayerSprY` | `Byte BodySpr, Byte YMove` | [player_sprite](families/player_sprite.md) | Stage player sprite with vertical movement |
-| `$92` | `StagePlayerSprXY` | `Byte BodySpr, Byte XMove, Byte YMove` | [player_sprite](families/player_sprite.md) | Stage player sprite with X+Y movement |
+| `$8F` | `StagePlayerSprite` | `Byte BodySpr` | [player_sprite](families/player_sprite.md) | Stage a player body sprite frame |
+| `$90` | `StagePlayerSpriteMoveX` | `Byte BodySpr, Byte XMove` | [player_sprite](families/player_sprite.md) | Stage player sprite with horizontal movement |
+| `$91` | `StagePlayerSpriteMoveY` | `Byte BodySpr, Byte YMove` | [player_sprite](families/player_sprite.md) | Stage player sprite with vertical movement |
+| `$92` | `StagePlayerSpriteMoveXY` | `Byte BodySpr, Byte XMove, Byte YMove` | [player_sprite](families/player_sprite.md) | Stage player sprite with X+Y movement |
 | `$93` | `RunPlayerAnim` | — | [player_sprite](families/player_sprite.md) | Run the full player animation sequence |
 | `$94` | `StagePlayerSprWall` | `…, Byte WallType` | [player_sprite](families/player_sprite.md) | Stage player sprite and activate a wall-type animation |
 | `$95` | `StagePlayerSprFromDP` | — | [player_sprite](families/player_sprite.md) | Stage player sprite using values from direct page |
@@ -324,8 +324,8 @@ Every valid COP opcode with its parameters, family link, and a short description
 | `$B3` | `SetPriorityMin` | — | [oam_attribs](families/oam_attribs.md) | Force actor sprites to lowest OAM priority |
 | `$B4` | `ClearPriorityMax` | — | [oam_attribs](families/oam_attribs.md) | Remove forced highest priority |
 | `$B5` | `ClearPriorityMin` | — | [oam_attribs](families/oam_attribs.md) | Remove forced lowest priority |
-| `$B6` | `SetOamPriority` | `Byte` | [oam_attribs](families/oam_attribs.md) | Set OAM BG priority bits (0–3) |
-| `$B7` | `SetOamPalette` | `Byte` | [oam_attribs](families/oam_attribs.md) | Set OAM palette index for actor sprites |
+| `$B6` | `SetSpritePriority` | `Byte` | [oam_attribs](families/oam_attribs.md) | Set OAM BG priority bits (0–3) |
+| `$B7` | `SetSpritePalette` | `Byte` | [oam_attribs](families/oam_attribs.md) | Set OAM palette index for actor sprites |
 | `$B8` | `ToggleHMirror` | — | [oam_attribs](families/oam_attribs.md) | Toggle horizontal mirror on actor sprites |
 | `$B9` | `ToggleVMirror` | — | [oam_attribs](families/oam_attribs.md) | Toggle vertical mirror on actor sprites |
 | `$BA` | `ClearHMirror` | — | [oam_attribs](families/oam_attribs.md) | Clear horizontal mirror flag |

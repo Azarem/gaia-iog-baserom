@@ -1,13 +1,17 @@
-; Hardware and system variable initialization for boot sequence.
+; Boot-time hardware and RAM initialisation plus two per-frame VBlank DMA routines (Bank 02).
 ; 
-; Called during SystemInit to prepare all SNES hardware and game state. Contains:
-; - UploadCgramPalette: DMA transfer of 256-color palette buffer from WRAM $7F0A00 to CGRAM, plus backdrop color writes to COLDATA fixed-color registers for color math.
-; - UploadOamTable: DMA transfer of 544-byte OAM staging buffer ($0422) to PPU OAM.
-; - InitSystemVariables: Zeroes all 128KB of WRAM (skipping the stack at $0100-$01FF), then loads initial values from a constant table into designated WRAM addresses.
-; - DmaFixedByteFill: Utility for DMA fixed-source byte fills to WRAM.
-; - InitHardwareRegisters: Table-driven initialization of all PPU registers ($2100-$213F) and CPU I/O registers ($4200-$420D).
+; - InitHardwareRegisters and InitSystemVariables are boot code: SystemInit (system_core) calls them once, in that order, with DBR = $81 (so the absolute $0000,Y stores below reach the LowRAM mirror and the $2100/$4200 registers).
+; - UploadCgramPalette and UploadOamTable are NOT boot code: the NMI handler calls them every VBlank (steps 5 and 6 of NmiHandler); UploadCgramPalette is also called by the camera refresh (camera_tilemap) and by the inventory overlay. They assume the NMI register state: A already 8-bit, index registers 16-bit (they contain no REP/SEP for X).
+; - DmaFixedByteFill is the zero-fill helper of InitSystemVariables.
 ; 
-; Data tables include the system variable initialization constants, PPU register init table, and graphics cache slot indices.
+; === WRAM clear ===
+; Three fixed-source DMA passes through the WRAM port ($2180): $0000-$00FF ($100 bytes), then from $0200 for $FF00 bytes (7E:0200 up to 7F:00FF; the WRAM address is 17 bits wide and keeps counting across the bank boundary), then the next $FF00 bytes without resetting the address (7F:0100-7F:FFFF). Total $1FF00 bytes: all 128 KB except the stack page $0100-$01FF. The zero byte is read from the ROM (first byte of math_lookup_tables.sine_table_8bit, sin(0) = $00; the older comment said slope_curve_table).
+; 
+; === SystemInitConstants (34 word writes, ;00-;21) ===
+; Layer map bases mapTilemapBaseA/B = $A000/$C000; DP $80-$82 = the collision map long pointer $7F:C000 (see AGENTS: never corrupt it); bgTilemapVramBase = $1000/$1800 (matches BG1SC/BG2SC below); metatileDefBase = $2000 (layer 0) and $06B0 = $2800 (layer 1, unnamed second word of the same array); strip staging pointers; collisionFlagTableL0/L1 = $0000/$0100 (offsets inside bank $7F); scene_meta pointer in $3A/$3C; the RAM stub bytes $0402 = 8B 54 and $0406 = AB 60 (PHB; MVN; PLB; RTS with the two MVN bank bytes filled in at $0404/$0405 when used); $5E/$60/$62 = 0/$0081/0 (consumers not traced); gfxCacheIdxB = 1, gfxCacheIdxA = $0404 (also the address of the stub's MVN operand pair); the joypad remap words remapL $0020, remapR $0010, remapB $4008, remapA $8080, remapY $0040, remapX $0004, remapSelect $2000, remapStart $1000 (db-us/transforms.json rewrites the four face-button defaults from the vanilla ROM values); $0B14 = $003C (no reader found anywhere in extracted); inventoryEquippedIndex = $FFFF; $0B04 = 0 (saved dialog frame delay that DialogStringRenderer restores).
+; 
+; === PpuRegisterInitTable (76 writes, ;00-;4B) ===
+; Disables DMA/HDMA, INIDISP $80 (forced blank), OBJSEL $02, BGMODE $09 (mode 1 with BG3 on top), BG1SC $11 / BG2SC $19 (VRAM $1000 / $1800, 64x32), BG3SC $78, BG12NBA $22, BG34NBA $06 (BG3 characters at $6000: the dialog font), zeroed scroll/Mode 7 registers (the two writes per register fill both bytes of the write-twice ports; M7A = $0100), VMAIN $80, window masks $33 with WH1 $FF, TM $04 (only BG3 on the main screen), CGWSEL $82, COLDATA $E0, NMITIMEN 0, WRIO $FF, and MEMSEL 0 as the LAST entry. SystemInit stores MEMSEL = 1 before calling InitHardwareRegisters, so this entry switches FastROM timing back off; sFB_boot_logo turns it on again later. Data ports and CGADD data ($2104, $2118/9, $2122) are not part of the table.
 ---------------------------------------------
 
 ?BANK 02
@@ -107,17 +111,13 @@
 
 ---------------------------------------------
 
-; Transfers the full 256-color palette from WRAM buffer to CGRAM via DMA.
-; 
-; DMA setup: CGADD=0 (start at palette 0), source=$7F0A00, size=512 bytes, target=CGRAM data register ($2122), mode=single-register increment.
-; 
-; After the bulk DMA, separately writes the three backdrop color components from $7F0C00-$7F0C02 to the COLDATA fixed-color register ($2132). These control the backdrop/screen color used by the SNES color math hardware for subscreen blending.
+; VBlank DMA (called by NmiHandler every frame, by the camera refresh and by the inventory overlay): CGADD = 0, then 512 bytes from WRAM $7F:0A00 through DMA channel 0 to CGRAM ($2122). Afterwards the three bytes at $7F:0C00-$7F:0C02 are written verbatim to COLDATA ($2132); each byte must therefore carry its own channel-select bits (blue $80, green $40, red $20) and a 5-bit intensity. Entry contract: A 8-bit, X 16-bit (no REP/SEP for X).
 
 UploadCgramPalette {
     PHP 
-    SEP #$20
+    SEP #$20              ; A becomes 8-bit; X must already be 16-bit (the NMI leaves it that way)
     STZ $CGADD            ; CGADD=0: palette write starts at index 0
-    STZ $DMAP0
+    STZ $DMAP0            ; DMAP0 = 0: CPU to PPU, incrementing source, one register per unit
     LDA #$22              ; BBAD0=$22: CGRAM data write register
     STA $BBAD0
     LDX #$0A00            ; Source: palette buffer at WRAM $7F0A00
@@ -128,7 +128,7 @@ UploadCgramPalette {
     STX $DAS0L
     LDA #$01
     STA $MDMAEN
-    LDA $backdropColors   ; Load backdrop color components to COLDATA fixed-color registers
+    LDA $backdropColors   ; Three bytes from $7F0C00-$7F0C02 go to COLDATA verbatim: each carries its own channel-select bits (blue $80, green $40, red $20)
     STA $COLDATA
     LDA $7F0C01
     STA $COLDATA
@@ -139,13 +139,11 @@ UploadCgramPalette {
 }
 
 ---------------------------------------------
-; Transfers the 544-byte OAM staging buffer to the PPU's Object Attribute Memory via DMA.
-; 
-; DMA setup: OAM address=0 (first entry), source=$0422, size=$0220 (544 bytes: 512 main table + 32 high-table bytes), target=OAM data register ($2104), mode=single-register increment.
+; VBlank DMA (called by NmiHandler every frame): OAMADD = 0, then $0220 bytes (512 main table + 32 high-table bytes) from WRAM $0422 through DMA channel 0 to the OAM port ($2104). Entry contract: X 16-bit, A 8-bit as left by the NMI.
 
 UploadOamTable {
     PHP 
-    LDX #$0000
+    LDX #$0000            ; OAM address word = 0 (X is 16-bit on entry)
     STX $OAMADDL          ; OAM address = 0: start at first sprite entry
     STZ $DMAP0
     LDA #$04              ; BBAD0=$04: OAM data register
@@ -163,16 +161,7 @@ UploadOamTable {
 }
 
 ---------------------------------------------
-; Zeroes all 128KB of WRAM then loads initial values from a constant table.
-; 
-; WRAM clear sequence:
-; 1. Fill $0100 bytes from $0000 (direct page area)
-; 2. Skip $0100-$01FF (stack — must not be zeroed while in use)
-; 3. Fill $FF00 bytes from $0200 (first WRAM bank remainder)
-; 4. Fill $FF00 bytes (second WRAM bank)
-; Total: $1FF00 bytes = 128KB minus 256-byte stack area.
-; 
-; Then iterates the system_init_constants table, loading each 4-byte entry (destination address + 16-bit value) and storing to WRAM until a negative address sentinel is reached.
+; Boot only (SystemInit). Zeroes all WRAM except the stack page $0100-$01FF with three DmaFixedByteFill passes ($1FF00 bytes in total; see the block note), then copies the 34 word entries of SystemInitConstants to their destinations (negative destination ends the table).
 
 InitSystemVariables {
     PHP 
@@ -186,9 +175,9 @@ InitSystemVariables {
     JSR $&DmaFixedByteFill
     LDA #$0200            ; Skip stack ($0100-$01FF), resume fill at $0200
     STA $WMADDL
-    LDY #$FF00            ; Fill $FF00 bytes covering $0200 through first WRAM bank
+    LDY #$FF00            ; Second pass: $FF00 bytes from 7E:0200, ending at 7F:00FF (the WRAM address is 17 bits and crosses the bank)
     JSR $&DmaFixedByteFill
-    LDY #$FF00            ; Fill remaining $FF00 bytes — clears all 128KB minus stack
+    LDY #$FF00            ; Third pass continues at 7F:0100 (address not reset) through 7F:FFFF: all WRAM except the stack page is zero
     JSR $&DmaFixedByteFill
     LDX #$0000
 
@@ -210,11 +199,7 @@ InitSystemVariables {
 }
 
 ---------------------------------------------
-; Initialization constant table loaded during system boot.
-; 
-; Each 4-byte entry: [destination_addr:u16, value:u16]. Terminated by a negative address.
-; 
-; Sets up critical system variables including: VRAM layout addresses, BG tilemap/charset pointers, DMA channel defaults, actor system base addresses, scene metadata pointer, input configuration, and various engine parameters.
+; 34 entries of [destination word, value word] terminated by a destination word with bit 15 set (a lone FFFF in the ROM). See the block note for the meaning of each group.
 
 SystemInitConstants [
   wram-init < $mapTilemapBaseA, #$A000 >   ;00
@@ -254,9 +239,7 @@ SystemInitConstants [
 ]
 
 ---------------------------------------------
-; DMA utility that fills a WRAM region with a fixed zero byte.
-; 
-; Uses DMA mode $08 (fixed source address) to repeatedly write a zero byte from ROM to WRAM via the WRAM data port ($2180). The byte count is passed in Y. Called by InitSystemVariables to bulk-clear WRAM during boot.
+; Fills Y bytes of WRAM, starting at the current WMADD address, with a zero byte read from ROM. DMA channel 0 mode $08 (fixed source address, one register), B-bus $80 (WRAM data port), source = first byte of math_lookup_tables.sine_table_8bit (sin 0 = $00). The WRAM address advances across banks, so the caller does not have to reset it between passes.
 
 DmaFixedByteFill {
     PHP 
@@ -266,7 +249,7 @@ DmaFixedByteFill {
     STA $DMAP0
     LDA #$80              ; B-bus $80 = WRAM data port ($2180)
     STA $BBAD0
-    LDA #$^math_lookup_tables.sine_table_8bit ; Source: known zero byte in ROM (slope_curve_table)
+    LDA #$^math_lookup_tables.sine_table_8bit ; Source: first byte of math_lookup_tables.sine_table_8bit, sin(0) = $00 (not slope_curve_table)
     STA $A1B0
     LDX #$&math_lookup_tables.sine_table_8bit
     STX $A1T0L
@@ -277,11 +260,7 @@ DmaFixedByteFill {
 }
 
 ---------------------------------------------
-; Table-driven initialization of PPU and CPU I/O registers.
-; 
-; Iterates the ppu_register_init_table, reading 3-byte entries: [register_addr:u16, value:u8]. Writes each value to the corresponding hardware register. Table is terminated by a negative address sentinel.
-; 
-; Covers all PPU registers ($2100-$2133): display brightness, OBJ settings, BG mode, tilemap/charset addresses, window masks, color math, and screen designation. Also initializes CPU I/O registers ($4200-$420D): NMI/IRQ enables, H/V timer, DMA/HDMA channels.
+; Boot only (SystemInit). Walks PpuRegisterInitTable: 3-byte entries [register address word, value byte] until a negative address, writing each value with STA $0000,Y (DBR = $81). It covers only the registers listed in the table (not every PPU register); the last entry, MEMSEL = 0, turns FastROM timing off again.
 
 InitHardwareRegisters {
     PHP 
@@ -289,7 +268,7 @@ InitHardwareRegisters {
 
   loc_029F35:
     REP #$20              ; Read 16-bit register address from PPU init table
-    LDA $@PpuRegisterInitTable, X
+    LDA $@PpuRegisterInitTable, X ; Table entry address word; a negative value ends the table
     BMI loc_029F4C        ; Negative address = end-of-table sentinel
     TAY 
     SEP #$20
@@ -306,18 +285,12 @@ InitHardwareRegisters {
 }
 
 ---------------------------------------------
-; Pre-initialized 4-entry cache slot index array (values: 0, 1, 2, 3). Used by the graphics tile cache system to track VRAM cache slot assignments.
+; ROM table of 4 three-byte entries (slot index 0, 1, 2, 3, then two zero bytes). Its only reader is scene_script.RestoreCachedVram, which takes the slot index, converts it to a WRAM source address $4000 + slot x $2000 (the 4-slot VRAM cache ring) and DMAs it back to VRAM; X selects the entry (3 bytes per entry).
 
 CacheSlotIndices #000000010000020000030000
 
 ---------------------------------------------
-; Hardware register initialization table for system boot.
-; 
-; Each 3-byte entry contains: [register_address:u16, value:u8]. Covers:
-; - PPU registers $2100-$2133: display mode, BG configuration, window masks, color math, mosaic, scroll initial values
-; - CPU I/O registers $4200-$420D: interrupt enables, H/V count targets, DMA channel defaults
-; 
-; Terminated by a negative address sentinel. Total: 76 entries.
+; 76 register writes of [address word, value byte] terminated by a negative address. Order: MDMAEN, HDMAEN, then the PPU registers $2100-$2133 in address order (write-twice registers appear twice), then NMITIMEN, WRIO, the multiply/divide inputs, H/V timers and finally MEMSEL = 0. Selected values: INIDISP $80, OBJSEL $02, BGMODE $09, BG1SC $11, BG2SC $19, BG3SC $78, BG12NBA $22, BG34NBA $06, VMAIN $80, M7SEL $80, windows $33 / WH1 $FF, TM $04, CGWSEL $82, COLDATA $E0, NMITIMEN 0, WRIO $FF.
 
 PpuRegisterInitTable [
   register-init < $MDMAEN, #00 >   ;00

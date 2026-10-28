@@ -3,12 +3,12 @@
 ; Before flag $4C: locks joypad, sets flag word $0185, configures
 ; display registers (TM, CGADSUB, COLDATA) for the cave-to-ocean
 ; transition, plays the departure music, and walks the player
-; actor to the ship's bow. Uses oneshot_palette_flash_1C for
+; actor to the ship's bow. Uses oneshot_backdrop_fade_out_1C for
 ; the dramatic lighting shift when the ship emerges into sunlight.
 ; After flag $4C: repositions and waits.
 ---------------------------------------------
 
-?INCLUDE 'oneshot_palette_flash_1C'
+?INCLUDE 'oneshot_backdrop_fade_out_1C'
 ?INCLUDE 'player_character'
 
 !joypadMaskStd                  065A
@@ -64,7 +64,7 @@ code_0581DD {
     LDA #$EFFC
     TSB $joypadMaskStd
     COP [LoopEnd]
-    COP [SpawnThinker] ( @oneshot_palette_flash_1C.FlashPalette1C )
+    COP [SpawnThinker] ( @oneshot_backdrop_fade_out_1C.FadeBackdropOut1C )
     COP [WaitByte] ( #BF )
     COP [SetFlagByte] ( #4C )
     COP [PrintDialogString] ( &dialogstring_0581FF )

@@ -38,7 +38,7 @@ MergeInputFlags {
     TSB $joypadHeld
     JSL $@vblank_joypad.VBlankWaitAndJoypad
     JSL $@inventory_overlay.OpenInventoryScreen
-    JSL $@vblank_joypad.EnableNmiOnly
+    JSL $@vblank_joypad.DisableNmiKeepJoypad
     LDA $joypadCurrent
     AND #$6000
     JSL $@MergeInputFlags

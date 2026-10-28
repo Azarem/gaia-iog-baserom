@@ -6,8 +6,8 @@
 ; Multi-phase scene with joypad lock and music changes.
 ---------------------------------------------
 
-?INCLUDE 'InitPlayerScriptVariant'
 ?INCLUDE 'player_transition_handlers'
+?INCLUDE 'SetPlayerIdleFacing'
 
 !joypadMaskStd                  065A
 !playerActor                    09AA
@@ -39,10 +39,10 @@ dc31_kara [
     STA $0008, Y
     STA $002A, Y
     LDA #$0000
-    JSL $@InitPlayerScriptVariant
+    JSL $@SetPlayerIdleFacing
     COP [WaitByte] ( #3B )
     LDA #$0002
-    JSL $@InitPlayerScriptVariant
+    JSL $@SetPlayerIdleFacing
     COP [WaitByte] ( #13 )
     COP [PrintDialogString] ( &dialogstring_05AE00 )
     COP [SetFlagByte] ( #02 )

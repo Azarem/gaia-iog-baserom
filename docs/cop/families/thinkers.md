@@ -118,7 +118,7 @@ Dominant pattern for scene thinkers (ambient dispatcher, sine HDMA, boot logos, 
 COP [SpawnThinker] ( @WatermiaFestivalPaletteWave )
 
 ; extracted/itory/moon_tribe_camp/it1A_moon_tribe.asm — one-shot flash
-COP [SpawnThinker] ( @oneshot_palette_flash_1F.FlashPalette1F )
+COP [SpawnThinker] ( @oneshot_palette15_grey_fade_in_1F.FadePalette15In1F )
 
 ; extracted/itory/itory_village/it15_lily.asm — cutscene FX
 COP [SpawnThinker] ( @oneshot_palette_flash_18.FlashPalette18 )

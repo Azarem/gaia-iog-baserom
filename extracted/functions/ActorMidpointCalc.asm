@@ -1,17 +1,16 @@
-; Computes the midpoint between two actors referenced by DP pointers $04 and $06.
+; Midpoint of two actors: posX ($14) and posY ($16) of the actor at DP $04 (A) and the actor at DP $06 (B), each summed and halved with a signed ROR (CLC / BPL / SEC before the ROR keeps the sign), stored into the caller's own $14 / $16. X is saved with PHX / PLX; Y is clobbered. Needs 16-bit A and index registers.
 ; 
-; Loads X positions ($0014) from both actors, adds them, and divides by 2 using
-; a signed ROR (CLC/BPL/SEC before ROR handles sign extension). Same for Y ($0016).
-; Result stored in caller's $14/$16. Used by combat collision to find the hit
-; point between attacker and target.
+; $04 and $06 are the actor's prevActorLink / nextActorLink (wram-memory-map). mtA0_acid_spider (code_0BA2BE) and awB0_zombie call it every frame from a SetEntryHere loop without setting either, so the child sits midway between its list neighbours; dm3D_flayzer calls it once to place a shot.
+; Callers: mtA0_acid_spider (2 sites), awB0_zombie, av6E_draco (2), dm3D_flayzer, unused_mode7_boss. combat_collision does not call it; the older 'used by combat collision to find the hit point' was wrong.
+; OQ-I038-3: when $06 is 0 (no successor) the B reads would hit low RAM at $0014 / $0016; whether callers guarantee a neighbour was not traced.
 ---------------------------------------------
 
 ---------------------------------------------
 
 ActorMidpointCalc {
     PHX 
-    LDY $04               ; Actor A pointer
-    LDX $06               ; Actor B pointer
+    LDY $04               ; Y = actor at $04 (A); $04 / $06 are prevActorLink / nextActorLink unless the caller loaded them
+    LDX $06               ; X = actor at $06 (B); X was saved by the PHX above
     LDA $0014, Y          ; A.x + B.x
     CLC 
     ADC $0014, X

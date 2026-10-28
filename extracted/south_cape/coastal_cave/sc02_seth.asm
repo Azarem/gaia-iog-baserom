@@ -4,8 +4,8 @@
 ; to Kara's escape news, and the cave statue puzzle sequence.
 ---------------------------------------------
 
-?INCLUDE 'InitPlayerScriptVariant'
 ?INCLUDE 'interaction_handlers'
+?INCLUDE 'SetPlayerIdleFacing'
 
 !joypadMaskStd                  065A
 !orbitAngle                     7F0010
@@ -54,7 +54,7 @@ code_04B4BD {
     LDA #$CFFC
     TSB $joypadMaskStd
     LDA #$0000
-    JSL $@InitPlayerScriptVariant
+    JSL $@SetPlayerIdleFacing
     COP [SetEntryHereAndYield]
     COP [PrintDialogString] ( &dialogstring_04B652 )
     LDA #$CFFC

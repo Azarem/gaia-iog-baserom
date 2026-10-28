@@ -1,0 +1,3 @@
+{
+    "FadePalette15In1F": "Thinker body: PaletteStart bundle $1F then PaletteStep fades 16 grey colors into CGRAM palette 15 at $F0, then KillThinker and RTL."
+}

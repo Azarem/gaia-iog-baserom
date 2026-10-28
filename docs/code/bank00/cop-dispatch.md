@@ -100,9 +100,9 @@ JMP ($&cop_dispatch_table, X)    ; X = opcode × 2
 
 | Op | Handler | Op | Handler | Op | Handler | Op | Handler |
 |----|---------|----|---------|----|---------|----|---------|
-| `$00` | GenHdmaSine | `$1C` | BranchIfTypeSouth | `$38` | PaletteStartLoop | `$54` | SetScratchPointer |
-| `$01` | QueueHdma | `$1D` | BranchIfTypeWest | `$39` | PaletteStep | `$55` | ResetSpriteState |
-| `$02` | QueueDma | `$1E` | BranchIfTypeEast | `$3A` | PaletteStepLoop | `$56` | AdvanceSpriteAnim |
+| `$00` | GenHdmaSine | `$1C` | BranchIfSolidTypeSouth | `$38` | PaletteStartLoop | `$54` | SetScratchPointer |
+| `$01` | QueueHdma | `$1D` | BranchIfSolidTypeWest | `$39` | PaletteStep | `$55` | ResetSpriteState |
+| `$02` | QueueDma | `$1E` | BranchIfSolidTypeEast | `$3A` | PaletteStepLoop | `$56` | AdvanceSpriteAnim |
 | `$03` | QueueHdmaChannel | `$1F` | BranchIfNotOnGridline | `$3B` | SpawnThinkerParam | `$57` | SetDeathCallback |
 | `$04` | StartMusic | `$20` | BranchIfActorNear | `$3C` | SpawnThinker | `$58` | SetHitCallback |
 | `$05` | FadeThenStartMusic | `$21` | BranchIfPlayerNear | `$3D` | KillThinker | `$59` | SetDodgeCallback |
@@ -126,8 +126,8 @@ JMP ($&cop_dispatch_table, X)    ; X = opcode × 2
 | `$17` | BranchIfSolidWest | `$33` | ApplyBgChange | `$4F` | AdhocVramDma | `$6B` | PrintDialogStringAlt |
 | `$18` | BranchIfSolidEast | `$34` | StageBgChangeFromDeathIdx | `$50` | CopyPalette | `$6C` | InitSpiral |
 | `$19` | MusicAndText | `$35` | CardinalToPlayer | `$51` | Decompress | `$6D` | SpiralStep |
-| `$1A` | BranchIfTypeHere | `$36` | PaletteRestart | `$52` | StageMove | | |
-| `$1B` | BranchIfTypeNorth | `$37` | PaletteStart | `$53` | TickMove | | |
+| `$1A` | BranchIfSolidType | `$36` | PaletteRestart | `$52` | StageMove | | |
+| `$1B` | BranchIfSolidTypeNorth | `$37` | PaletteStart | `$53` | TickMove | | |
 
 ### Invalid Gap ($6E–$7F)
 
@@ -137,14 +137,14 @@ JMP ($&cop_dispatch_table, X)    ; X = opcode × 2
 
 | Op | Handler | Op | Handler | Op | Handler | Op | Handler |
 |----|---------|----|---------|----|---------|----|---------|
-| `$80` | StageSpr | `$A0` | SpawnAfterAbsFlags | `$C0` | SetInteractHandler | `$E0` | Die |
-| `$81` | StageSprX | `$A1` | SpawnBeforeMarked | `$C1` | SetEntryHere | `$E1` | ReturnWithSignal |
-| `$82` | StageSprY | `$A2` | SpawnAfterMarked | `$C2` | SetEntryHereAndYield | `$E2` | SetEntryFar |
-| `$83` | StageSprXY | `$A3` | SpawnAfterAbsMarked | `$C3` | JumpAfterDelay | | |
-| `$84` | StageSprLoop | `$A4` | SpawnAfterOffsetMarked | `$C4` | JumpNextFrame | | |
-| `$85` | StageSprLoopX | `$A5` | SpawnListAppend | `$C5` | RestoreSavedPtr | | |
-| `$86` | StageSprLoopY | `$A6` | SpawnListAppendSpr | `$C6` | SetSavedPtr | | |
-| `$87` | StageSprLoopXY | `$A7` | MarkDeath | `$C7` | JumpFar | | |
+| `$80` | StageSpriteFrame | `$A0` | SpawnAfterAbsFlags | `$C0` | SetInteractHandler | `$E0` | Die |
+| `$81` | StageSpriteMoveX | `$A1` | SpawnBeforeMarked | `$C1` | SetEntryHere | `$E1` | ReturnWithSignal |
+| `$82` | StageSpriteMoveY | `$A2` | SpawnAfterMarked | `$C2` | SetEntryHereAndYield | `$E2` | SetEntryFar |
+| `$83` | StageSpriteMoveXY | `$A3` | SpawnAfterAbsMarked | `$C3` | JumpAfterDelay | | |
+| `$84` | StageSpriteLoop | `$A4` | SpawnAfterOffsetMarked | `$C4` | JumpNextFrame | | |
+| `$85` | StageSpriteLoopMoveX | `$A5` | SpawnListAppend | `$C5` | RestoreSavedPtr | | |
+| `$86` | StageSpriteLoopMoveY | `$A6` | SpawnListAppendSpr | `$C6` | SetSavedPtr | | |
+| `$87` | StageSpriteLoopMoveXY | `$A7` | MarkDeath | `$C7` | JumpFar | | |
 | `$88` | SetMetasprite | `$A8` | KillPrev | `$C8` | CallNear | | |
 | `$89` | AnimOnce | `$A9` | KillNext | `$C9` | CallNearDeferred | | |
 | `$8A` | AnimLoop | `$AA` | StageMoveX | `$CA` | LoopStart | | |
@@ -152,15 +152,15 @@ JMP ($&cop_dispatch_table, X)    ; X = opcode × 2
 | `$8C` | WaitForAnimFrame | `$AC` | StageMoveXY | `$CC` | SetFlagByte | | |
 | `$8D` | StageSprAndHitbox | `$AD` | ForceDirSW | `$CD` | SetFlagWord | | |
 | `$8E` | SetPlayerSpriteDirect | `$AE` | ForceDirNE | `$CE` | ClearFlagByte | | |
-| `$8F` | StagePlayerSpr | `$AF` | ForceDirBoth | `$CF` | ClearFlagWord | | |
-| `$90` | StagePlayerSprX | `$B0` | ApplyMoveToChild | `$D0` | BranchOnFlagByte | | |
-| `$91` | StagePlayerSprY | `$B1` | ReloadMoveDurations | `$D1` | BranchOnFlagWord | | |
-| `$92` | StagePlayerSprXY | `$B2` | SetPriorityMax | `$D2` | WaitOnFlagByte | | |
+| `$8F` | StagePlayerSprite | `$AF` | ForceDirBoth | `$CF` | ClearFlagWord | | |
+| `$90` | StagePlayerSpriteMoveX | `$B0` | ApplyMoveToChild | `$D0` | BranchOnFlagByte | | |
+| `$91` | StagePlayerSpriteMoveY | `$B1` | ReloadMoveDurations | `$D1` | BranchOnFlagWord | | |
+| `$92` | StagePlayerSpriteMoveXY | `$B2` | SetPriorityMax | `$D2` | WaitOnFlagByte | | |
 | `$93` | RunPlayerAnim | `$B3` | SetPriorityMin | `$D3` | WaitOnFlagWord | | |
 | `$94` | StagePlayerSprWall | `$B4` | ClearPriorityMax | `$D4` | GiveItem | | |
 | `$95` | StagePlayerSprFromDP | `$B5` | ClearPriorityMin | `$D5` | RemoveItem | | |
-| `$96` | WallAnimHere | `$B6` | SetOamPriority | `$D6` | BranchIfHasItem | | |
-| `$97` | WallAnimNorth | `$B7` | SetOamPalette | `$D7` | BranchIfItemEquipped | | |
+| `$96` | WallAnimHere | `$B6` | SetSpritePriority | `$D6` | BranchIfHasItem | | |
+| `$97` | WallAnimNorth | `$B7` | SetSpritePalette | `$D7` | BranchIfItemEquipped | | |
 | `$98` | WallAnimSouth | `$B8` | ToggleHMirror | `$D8` | SetDungeonKillFlag | | |
 | `$99` | SpawnBefore | `$B9` | ToggleVMirror | `$D9` | SwitchCase | | |
 | `$9A` | SpawnBeforeFlags | `$BA` | ClearHMirror | `$DA` | WaitByte | | |
@@ -180,13 +180,13 @@ Full per-opcode parameter documentation: [`docs/cop/README.md`](../../cop/README
 
 #### Description
 
-A single data byte holding the fill value `$E0`. Referenced exclusively by the unreferenced `FillWramBlock` routine at `$008438`, which DMA-fills 512 bytes at WRAM `$000422` with this constant. No live code path calls `FillWramBlock` — it appears to be a debug or cut feature.
+A single data byte holding the fill value `$E0`. Referenced exclusively by the unreferenced `OamFillE0_unused` routine at `$008438`, which DMA-fills 512 bytes at WRAM `$000422` with this constant. No live code path calls `OamFillE0_unused` — it appears to be a debug or cut feature.
 
 #### Cross-References
 
 | Symbol | Relationship |
 |--------|--------------|
-| `FillWramBlock` ($008438) | Loads `^wram_fill_constant` into `$A1B0`, `&wram_fill_constant` into `$A1T0L` for DMA source |
+| `OamFillE0_unused` ($008438) | Loads `^wram_fill_constant` into `$A1B0`, `&wram_fill_constant` into `$A1T0L` for DMA source |
 
 ---
 

@@ -42,7 +42,7 @@ Implements two distinct subsystems: a **smooth actor follow/chase engine** (slid
 | Include | Purpose |
 |---------|---------|
 | `MulDivide` | Signed multiply/clamp helper |
-| `ComposeDigits_Continuation` | Shared actor/engine constants (bank `$03`) |
+| `ComposeDigitSprites_AtCursor` | Shared actor/engine constants (bank `$03`) |
 | `dir_sprite_01ABDE` | Direction-indexed sprite table (facing frames) |
 | `table_01A95E` | Camera scroll speed table |
 | `movement_delta_table` | Animation frame duration lookup |
@@ -55,7 +55,7 @@ Implements two distinct subsystems: a **smooth actor follow/chase engine** (slid
 | Camera scroll actors | `ScrollCameraInit`, `ScrollCameraTrack`, `ScrollCameraVertical`, `ScrollCameraAccumulate` | Per-scene camera management |
 | Forced walk functions | `ForcedWalkSouth/North/West/East` | Player auto-walk during transitions |
 | Utilities | Tile align, scroll delta, sprite read, player sync | Coordinate helpers |
-| Data | `FollowDirectionTable`, `SmoothFollowLookup` | Dispatch + interpolation |
+| Data | `FollowDirectionTable`, `FollowSlopeDitherTable` | Dispatch + interpolation |
 
 ---
 
@@ -94,14 +94,14 @@ The core tracking loop computes signed delta X/Y from the actor to the player (`
 
 | Condition | Direction Block | Handler |
 |-----------|----------------|---------|
-| +X, +Y, Y > X | `FollowChaseMoveEast` | NE-biased (Y dominant) |
-| +X, +Y, X > Y | `FollowChaseMoveWest` | NE-biased (X dominant) |
+| +X, +Y, Y > X | `FollowChaseHeadSSE` | NE-biased (Y dominant) |
+| +X, +Y, X > Y | `FollowChaseHeadESE` | NE-biased (X dominant) |
 | +X, -Y, Y > X | `FollowChaseDiagQuadrantSW` | SE-biased (Y dominant, neg) |
 | +X, -Y, X > Y | `FollowChaseDiagQuadrantNW` | SE-biased (X dominant, neg) |
-| -X, +Y, Y > X | `FollowChaseMoveNorth` | NW-biased (Y dominant) |
-| -X, +Y, X > Y | `FollowChaseMoveSouth` | NW-biased (X dominant) |
-| -X, -Y, Y > X | `FollowChaseMoveDiagSE` | SW-biased (Y dominant, neg) |
-| -X, -Y, X > Y | `FollowChaseMoveDiagNE` | SW-biased (X dominant, neg) |
+| -X, +Y, Y > X | `FollowChaseHeadSSW` | NW-biased (Y dominant) |
+| -X, +Y, X > Y | `FollowChaseHeadWSW` | NW-biased (X dominant) |
+| -X, -Y, Y > X | `FollowChaseHeadNNW` | SW-biased (Y dominant, neg) |
+| -X, -Y, X > Y | `FollowChaseHeadWNW` | SW-biased (X dominant, neg) |
 
 Each handler calls either `ComputeFollowAngle` or `ComputeFollowAngleAlt`, then `SelectFallbackDirection`. All handlers converge at `ApplyFollowMovement`.
 
@@ -285,7 +285,7 @@ Same as `ComputeFollowAngle` but axes swapped — primary is `$001C` (Y distance
 
 **Address:** `$00EE1C` · **Size:** 96 bytes
 
-Computes pixel movement step from follow angle. Uses `$7F0010,X` (angle) and `$7F0012,X` (sub-step) as table index into `SmoothFollowLookup` (`SmoothFollowLookup`). Accumulates fractional movement. Called by all 8 direction handlers.
+Computes pixel movement step from follow angle. Uses `$7F0010,X` (angle) and `$7F0012,X` (sub-step) as table index into `FollowSlopeDitherTable` (`FollowSlopeDitherTable`). Accumulates fractional movement. Called by all 8 direction handlers.
 
 ### ResolveFollowDirection
 
@@ -338,7 +338,7 @@ Each handler sets the actor's OAM flags (`$000E,Y`) for correct sprite priority/
 
 Jump table for the 16-direction smooth follow sprite handlers. Indexed by `$7F000E,X & $0F`.
 
-### SmoothFollowLookup
+### FollowSlopeDitherTable
 
 **Address:** `$00F193` · **Size:** 544 bytes
 
@@ -486,7 +486,7 @@ The actor at `$EAED` (`camera_scroll_controller`) computes per-frame scroll delt
 | 24 | `ResolveFollowDirectionAlt` | `$EE8C` | ~228 B |
 | 25–40 | Direction handlers 0–15 | `$EF92`–`$F172` | ~33 B each |
 | 41 | `FollowDirectionTable` | `$EF72` | 32 B |
-| 42 | `SmoothFollowLookup` | `$F193` | 544 B |
+| 42 | `FollowSlopeDitherTable` | `$F193` | 544 B |
 
 ---
 

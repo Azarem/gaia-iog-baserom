@@ -2,7 +2,7 @@
 
 > Comprehensive reference for all WRAM addresses (`$7E:0000`–`$7F:FFFF`) used by
 > Illusion of Gaia (US ROM). Compiled from extracted ASM analysis, engine
-> documentation, `us/names.json`, `us/blocks.json`, live `.asm` files, and
+> documentation, `db-us/names/bankNN.json`, `us/blocks.json`, live `.asm` files, and
 > cross-validated against the
 > [DataCrystal RAM map](https://datacrystal.tcrf.net/wiki/Illusion_of_Gaia/RAM_map)
 > and [DataCrystal Notes](https://datacrystal.tcrf.net/wiki/Illusion_of_Gaia/Notes).
@@ -167,16 +167,15 @@ When a COP handler or game code sets `TCD #$0000`, offsets `$00`–`$FF` access 
 
 | Address | Size | Name | Description | Primary Users |
 |---------|------|------|-------------|---------------|
-| `$0200` | 2 | `deathFlag` | Set by `StopPlayerOnDeathAssign` when player HP reaches 0 | Game over sequence |
 | `$0402` | 2 | (init `$548B`) | System flag initialized at cold start | `InitSystemVariables` |
 | `$0406` | 2 | (init `$60AB`) | System flag initialized at cold start | `InitSystemVariables` |
 | `$0408` | 2 | `extVelocityX` | External velocity accumulator X (knockback, conveyors) | Player movement, hit stagger |
 | `$040A` | 2 | `extVelocityY` | External velocity accumulator Y | Player movement, hit stagger |
-| `$040C` | 2 | `invincibilityTimer` | Decremented each frame; `$FFFF` = inactive. Controls hit-blink immunity | `UpdateFrameCounters` |
+| `$040C` | 2 | `walkRunWindowTimer` | Decremented each frame while ≥ 0; `$FFFF` = closed. Moving while > 0 allows run speed (+3). Set to 13 by `SetAutoWalkTimer` on D-pad walk entry | `UpdateFrameCounters`, `Walk*` pieces |
 | `$040E` | 2 | `globalFrameTimer` | Incremented each frame; saturates at `$0100` | `UpdateFrameCounters` |
 | `$040F`–`$041E` | 16 | `rngState` | Random number generator state bytes | `RngByte` COP handler |
 | `$0420` | 2 | `rngModuloResult` | Last `RngMod` COP result | `RngMod` COP |
-| `$0422`–`$0621` | 512 | OAM table source | OAM sprite table uploaded to PPU via DMA. Also target of the unused `FillWramBlock` | `UploadOamTable`, DMA |
+| `$0422`–`$0621` | 512 | OAM table source | OAM sprite table uploaded to PPU via DMA. Also target of the unused `OamFillE0_unused` | `UploadOamTable`, DMA |
 | `$0642` | 2 | `sceneNext` | Scene ID to transition to (written by warp triggers) | Scene loading, `SystemInit` |
 | `$0644` | 2 | `sceneCurrent` | Currently loaded scene ID | Scene engine, warps, inventory overlay |
 | `$0648` | 2 | `gfxCacheIdxA` | Graphics cache slot index A (init `$0404`) | Scene graphics cache |
@@ -246,11 +245,11 @@ When a COP handler or game code sets `TCD #$0000`, offsets `$00`–`$FF` access 
 
 | Address | Size | Name | Description | Primary Users |
 |---------|------|------|-------------|---------------|
-| `$06F2` | 2 | `musicParentActor` | Music parent actor ID (saved by `MusicPlaybackActor`) | `MusicPlaybackActor` |
+| `$06F2` | 2 | `musicParentActor` | Music parent actor ID (saved by `MusicJingleActor`) | `MusicJingleActor` |
 | `$06F6` | 2 | `musicRoomGroup` | Room group ID for music continuity; non-zero prevents re-triggering | Scene script `$11` command |
 | `$06F8` | 2 | `sfxQueueCh1` | SFX channel 1 queue; sent to `$APUIO2` on even frames during NMI | `PlaySoundCh1` COP, `NmiHandler` |
 | `$06F9` | 1 | `sfxQueueCh2` | SFX channel 2 queue | `PlaySoundCh2` COP |
-| `$06FA` | 2 | `musicTransitionState` | Active music track transition ID; `$FFFF` = idle. Non-zero triggers `UpdateFrame_Full` from NMI | `NmiHandler`, `MusicPlaybackActor` |
+| `$06FA` | 2 | `musicTransitionState` | Active music track transition ID; `$FFFF` = idle. Non-zero triggers `UpdateFrame_Full` from NMI | `NmiHandler`, `MusicJingleActor` |
 
 ### 2.4 DMA / Tilemap Scratch ($0800–$0901)
 
@@ -277,7 +276,7 @@ When a COP handler or game code sets `TCD #$0000`, offsets `$00`–`$FF` access 
 | `$09AA` | 2 | `playerActor` | Player actor slot index (e.g. `$1FC0`) | All player-referencing code |
 | `$09AC` | 2 | `joypadInject` | Injected joypad override — non-zero replaces `$0656` and skips hardware read | `VBlankWaitAndJoypad` (forced-walk scripts) |
 | `$09AE` | 2 | `playerFlags` | Player state bitmask (see below) | Player character, attack system, slope physics, camera |
-| `$09AF` | 1 | `playerStateByte` | Player state high byte — bit `$08` = stair entry; `$8F` = walking state | `CheckMoveState`, stair triggers |
+| `$09AF` | 1 | `playerStateByte` | Player state high byte — bit `$08` = stair entry; `$8F` = walking state | `IsPlayerSliderSpriteBank`, stair triggers |
 | `$09B0` | 2 | `playerWallType` | Wall type for player animation gating | Player wall-gated animation COPs |
 | `$09B2` | 2 | `playerSpeedEw` | East-West speed (written by slope physics, read by move controller) | `player_move_controller`, `slope_ramp_physics` |
 | `$09B4` | 2 | `playerSpeedNs` | North-South speed | `player_move_controller`, `slope_ramp_physics` |
@@ -288,7 +287,7 @@ When a COP handler or game code sets `TCD #$0000`, offsets `$00`–`$FF` access 
 | `$09C6` | 2 | `slopeFracAccum` | Slope fractional accumulator for sub-pixel Y correction | `slope_ramp_physics`, tile types `$03`/`$0C` |
 | `$09C8` | 2 | `maxSpeedEw` | Maximum speed clamp for East-West movement | Movement physics |
 | `$09CA` | 2 | `maxSpeedNs` | Maximum speed clamp for North-South movement | Movement physics |
-| `$09E0` | 2 | `climbStateData` | Cleared by `UnlockPlayerAfterClimb` after stair/climb completion | Stair/climb system |
+| `$09E0` | 2 | `climbStateData` | Will ability anim table byte from `LoadAbilityAnimTableA`; added to player STR in `ApplyHitDamageToVictim`. Cleared by `UnlockPlayerAfterClimb` / idle | `attack_ability_system`, `combat_collision`, lunge |
 | `$09E4`–`$09E6` | 4 | `enemyHpValues` | Enemy HP display values (current + max) for boss health bar | HUD enemy health display |
 | `$09EA` | 2 | `enemyHpPending` | Non-zero triggers enemy health bar update in HUD | `UpdateHUD` |
 | `$09EC` | 2 | `displayModeFlags` | Scene display mode — bit `$0008` = special BG3; bit `$0010` = stat refresh; bit `$0080` = music sequence; bit `$08` = dialogue display | HUD, NMI, dialogue, sine precompute |
@@ -307,11 +306,11 @@ When a COP handler or game code sets `TCD #$0000`, offsets `$00`–`$FF` access 
 | 5 | `$0020` | boss defeated | Boss-defeat sequence latch: stops `CheckPlayerDeath` from killing the player and arms `BossClearRewardHandler` | boss death scripts (`sg55_viper`, `gw8A_sand_fanger`, `ir29_castoth`, `pyDD_mummy_queen`, `mu67_vampires`) | `mu67_vampires`, `ClearSceneState` | `CheckPlayerDeath`, `BossClearRewardHandler` |
 | 6 | `$0040` | unused | Never read or written | | | |
 | 7 | `$0080` | sprite priority | Behind-wall rendering mode for the Dark Friar trail. Player spawn type bit `$04` would set it, but no shipped scene does | `InitActorFromSceneData` | `InitActorFromSceneData` (cleared with `$0008` at spawn) | `DarkFriarTrail*` |
-| 8 | `$0100` | forced walk | Extended-warp forced walk (camera pan + automatic walking) in progress. Locks the camera target, pauses camera drift, aborts an attack in progress, guards against re-entering the warp | `StartForcedWalk` | `CheckWarpRectangles` (no warp hit) | `camera_scroll_controller`, camera drift, `code_02AAF2`, attack validation (`$2B00`) |
+| 8 | `$0100` | forced walk | Extended-warp forced walk (camera pan + automatic walking) in progress. Locks the camera target, pauses camera drift, aborts an attack in progress, guards against re-entering the warp | `StartForcedWalk` | `CheckWarpRectangles` (no warp hit) | `camera_scroll_controller`, camera drift, `ExecuteForcedWalkWarp`, attack validation (`$2B00`) |
 | 9 | `$0200` | game over | Player HP reached zero; the game-over sequence owns the player. Suppresses UI input and movement | `CheckPlayerDeath` | `ClearSceneState` (all flags are zeroed on scene reset) | `GlobalInputHandler`, `PlayerMoveController` (`$0A00`), `HitStaggerReturnAI`, attack validation, boss scripts |
 | 10 | `$0400` | unused | Never read or written | | | |
 | 11 | `$0800` | script/ability lock | Player controller suspended by a script or special move: cutscenes, stair/ladder/vine climbs, chest opening, Psycho Slider, Aura Barrier, Dark Space. Blocks movement, menus (Select/Y), run button and further hit stagger | ~110 sites: cutscene scripts, stair/ladder climbs, `ChestOpeningActor`, `RunAttackFlagSetup`, `AuraBarrierMain`, ramps | cutscene scripts, `UnlockPlayerAfterClimb`, `AuraBarrierEnd` | `PlayerMoveController` (`$0A00`), `GlobalInputHandler` (`$2800`), `ApplyPlayerHitstun`, attack validation, run button |
-| 12 | `$1000` | on slope | Player is traversing or has stopped on a slope/ramp tile; slope physics owns the motion | `slope_ramp_physics`, `player_move_ramps`, `player_move_diag` | `SlopeFlatDecelerate`, `PlayerMoveController` (blocking overrides it) | `PlayerMoveController` (`$3000`), `slope_ramp_physics`, Psycho Slider gate, attack validation (`$3A00`), run button |
+| 12 | `$1000` | on slope | Player is traversing or has stopped on a slope/ramp tile; slope physics owns the motion | `slope_ramp_physics`, `player_move_ramps`, `player_move_west` | `SlopeFlatDecelerate`, `PlayerMoveController` (blocking overrides it) | `PlayerMoveController` (`$3000`), `slope_ramp_physics`, Psycho Slider gate, attack validation (`$3A00`), run button |
 | 13 | `$2000` | guard/channel stance | Standing still in a channelled stance: blocking, Dark Friar cast, Spin Dash charge. D-pad velocity is zeroed | block loop (`loc_02CA58`), `DarkFriarMain`, `SpinDashMain` | `PlayerIdleEntry` (`$2800`) | `PlayerMoveController` (`$3000`), `GlobalInputHandler` (`$2800`), attack validation, run button |
 | 14 | `$4000` | unused | Never read or written | | | |
 | 15 | `$8000` | sprite override | The body sprite was set directly with `SetPlayerSpriteDirect` (COP `$8E`): transformations and ability poses. The sprite decomposer reads the body index from `animScratch2` instead of the form table | `SetPlayerSpriteDirect` | `SetActorBody` (`actor_pool`), `ClearSceneState` | `DecomposePlayerSprites`, `GetPlayerFacingDirection`, `CheckAttackChargeable` |
@@ -497,7 +496,7 @@ Extended actor state uses `(actor_id − $1000)` as the X index. Each actor has 
 | `$7F:0016,X` | 2 | `sprTimer` | **SprTimer** — timer for sprite animation COPs | `AnimLoop` COP |
 | `$7F:0018,X` | 2 | `moveXAlt` | **MoveXAlt** — alternate MoveX / target distance X; meaning depends on context | `InitSmoothMovement`, movement COPs |
 | `$7F:001A,X` | 2 | `moveYAlt` | **MoveYAlt** — alternate MoveY / target distance Y | `InitSmoothMovement`, movement COPs |
-| `$7F:001C,X` | 2 | `parentId` | **ParentId** — if set and conditions met, actor dies with parent | `MarkChildActor`, `DieNow_UnlinkChildren` |
+| `$7F:001C,X` | 2 | `parentId` | **ParentId** — if set and conditions met, actor dies with parent | `MarkChildActor`, `DieExit` |
 | `$7F:001E,X` | 2 | `retPtr2` | **RetPtr2** — return pointer set by some COPs; used by `LoopDecrement` for loop start PC | `LoopInit`, script control |
 | `$7F:0020,X` | 2 | `statsPtr` | **StatsPtr** — pointer to monster's HP/STR/DEF/DP stats table | `StandardEnemyDefeatHandler`, combat |
 | `$7F:0022,X` | 2 | `enemyNum` | **EnemyNum** — dungeon-level enemy number for tracking kills | `SetDungeonKillFlag` COP |
@@ -605,7 +604,7 @@ Extended callback pointers, indexed by `(actor_id − $1000)`.
 | Range | Size | Name | Description |
 |-------|------|------|-------------|
 | `$7F:E000`–`$7F:EFFF` | 4 KB | `invBackupActors` | Inventory screen's backup of `$7E:1000`–`$7E:1FFF` (all actor DP slots) |
-| `$7F:F000`–`$7F:FFFF` | 4 KB | `invBackupSystem` | Inventory screen's backup of low WRAM system state |
+| `$7F:F000`–`$7F:FFFF` | 4 KB | `invBackupExtended` | Inventory overlay backup of `$7F:1000`–`$7F:1FFF` (actor extended data) |
 
 ---
 
@@ -642,7 +641,7 @@ The following table compares our analysis against the [DataCrystal RAM map](http
 | `$7F:3100`–`????` | Manual OAM table | `$7F:3100`–`$340F` | `oamComposeBuffer` | ✅ Match — we provide the end bound |
 | `$7F:C000`–`$DFFF` | CollisionLayer tilemap | `$7F:C000`–`$DFFF` | `collisionLayer` | ✅ Match |
 | `$7F:E000`–`$EFFF` | Item screen's backup of `$7E:1000`–`$1FFF` | `$7F:E000`–`$EFFF` | `invBackupActors` | ✅ Match |
-| `$7F:F000`–`$FFFF` | Item screen's backup of low WRAM | `$7F:F000`–`$FFFF` | `invBackupSystem` | ✅ Match |
+| `$7F:F000`–`$FFFF` | Item screen's backup of `$7F:1000`–`$1FFF` | `$7F:F000`–`$FFFF` | `invBackupExtended` | ✅ Match (actor extended backup, not low WRAM) |
 | DC `$7e:00`–`$2e` (actor DP) | Actor direct page layout | `$00`–`$2E` in §2.11 | Full actor slot layout | ✅ Match — all 23 named fields match |
 | DC `$7f:00`–`$2e` (actor ext) | Actor extended memory layout | §4.1 full table | Full actor extended layout | ✅ Match — names now aligned with DC canonical: `AnimScr1`→`animScratch`, `RetPtr1`→`retPtr1`, `AnimScr2`→`animScratch2`, `OrbitAng`→`orbitAngle`, `OrbitDia`→`orbitDiameter`, `LoopCntr`→`loopCounter`, `RetPtr2`→`retPtr2`, `MoveScr1`→`moveScratch1`, `MoveScr2`→`moveScratch2` |
 | DC `$7f:1000`–`$101e` (callbacks) | Actor callback table | §4.4 full table | Full callback layout | ✅ Match — `Scr1010`→`scratch1010`, `Free101C`→`free101C`, callbacks match |
@@ -672,7 +671,7 @@ Our analysis documents the following addresses not present in the DataCrystal RA
 | `gaia-source/docs/code/bank02/*.md` | Bank $02 hardware init, scene engine, player character, movement physics, inventory documentation |
 | `gaia-source/src/system/engine/*.asm` | Live extracted ASM — ground truth for WRAM address usage |
 | `gaia-source/src/actors/player/*.asm` | Player actor ASM — slope physics, attack system, dark space palette |
-| `gaia-source/us/names.json` | 721 (bank $00) + 477 (bank $02) named address entries |
+| `db-us/names/bank00.json`, `bank02.json` | Named address entries for bank $00 and bank $02 |
 | `gaia-source/us/blocks.json` | Block/part structure definitions |
 | `gaia-source/us/overrides.json` | Per-address register state corrections |
 | [DataCrystal RAM map](https://datacrystal.tcrf.net/wiki/Illusion_of_Gaia/RAM_map) | External RAM map — validated against |

@@ -400,7 +400,7 @@ Actors in this bank pull in shared includes from the engine:
 
 - `EscortFollowPathTracker` — used by `ec0A_kara` and `it1A_lily` for follower escort
 - `NpcRandomWanderAI` — used by `sc01_roof_man` and `sc04_poverty` for random wander
-- `InitPlayerScriptVariant` — used by `it15_lily` and `it15_lola` for player-control cutscenes
+- `SetPlayerIdleFacing` — used by `it15_lily` and `it15_lola` for player-control cutscenes
 - `f_inventory_full` / `interaction_handlers` — used by `ec0B_cell`, barrel roast, statue pickups
 - `hidden_red_jewel` — Red Jewel fanfare used by `sc01_fisherman` and `ec0A_right_guard`
 - `oneshot_palette_flash_*` — palette flash effects used by prison and barrier-reveal actors

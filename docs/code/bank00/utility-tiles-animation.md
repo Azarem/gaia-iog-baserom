@@ -241,9 +241,9 @@ Called by all sprite staging COPs ($80–$87, $8D, $8F–$92), movement initiali
 
 | Symbol | Relationship |
 |--------|--------------|
-| `StageSpr` / `$80`–`87` | Callers — sprite staging COPs |
+| `StageSpriteFrame` / `$80`–`87` | Callers — sprite staging COPs |
 | `StageSprAndHitbox` (COP `$8D`) | Caller |
-| `StagePlayerSpr` / `$8F`–`92` | Callers — player sprite COPs |
+| `StagePlayerSprite` / `$8F`–`92` | Callers — player sprite COPs |
 | `InitSmoothMovement` | Caller — movement init anim byte |
 | `StageMove` (COP `$52`) | Caller |
 
@@ -288,9 +288,9 @@ AnimFrameLookup {
 
 | Symbol | Relationship |
 |--------|--------------|
-| `StageSprX/Y/XY` (COP `$81`–`83`) | Callers |
-| `StageSprLoopX/Y/XY` (COP `$85`–`87`) | Callers |
-| `StagePlayerSprX/Y/XY` (COP `$90`–`92`) | Callers |
+| `StageSpriteMoveX/Y/XY` (COP `$81`–`83`) | Callers |
+| `StageSpriteLoopMoveX/Y/XY` (COP `$85`–`87`) | Callers |
+| `StagePlayerSpriteMoveX/Y/XY` (COP `$90`–`92`) | Callers |
 | `StageMoveX/Y/XY` (COP `$AA`–`AC`) | Callers — force-move durations |
 | `ApplyMoveToChild` (COP `$B0`) | Caller |
 | `ReloadMoveDurations` (COP `$B1`) | Caller |
@@ -472,8 +472,8 @@ SetActorBody {
 
 | Symbol | Relationship |
 |--------|--------------|
-| `StagePlayerSpr` (COP `$8F`) | Caller |
-| `StagePlayerSprX/Y/XY` (COP `$90`–`92`) | Callers |
+| `StagePlayerSprite` (COP `$8F`) | Caller |
+| `StagePlayerSpriteMoveX/Y/XY` (COP `$90`–`92`) | Callers |
 | `StagePlayerSprWall` (COP `$94`) | Caller |
 | `StagePlayerSprFromDP` (COP `$95`) | Caller |
 | `BuildSineHdmaTable` | Consumer of `$7F0006,X`/`$7F0008,X` |

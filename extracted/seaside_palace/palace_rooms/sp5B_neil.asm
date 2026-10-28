@@ -4,7 +4,7 @@
 ; The party members are all weakened by the palace.
 ---------------------------------------------
 
-?INCLUDE 'ToggleActorVisibilityFlag'
+?INCLUDE 'FlickerParentActor'
 
 ---------------------------------------------
 
@@ -13,7 +13,7 @@ sp5B_neil [
 
   code_06894F:
     COP [BranchOnFlagByte] ( #70, #01, &code_068985 )
-    COP [SpawnAfterAbsFlags] ( @ToggleActorVisibilityFlag, #$0000, #$0000, #$2800 )
+    COP [SpawnAfterAbsFlags] ( @FlickerParentActor, #$0000, #$0000, #$2800 )
     LDA #$0200
     TSB $12
     COP [SetInteractHandler] ( &code_068987 )

@@ -6,13 +6,13 @@ _Ops: `[4B]`, `[4C]`, `[4D]`, `[4E]`_ · _Source: [`cop_handlers_metatile.asm`](
 
 ## Overview
 
-Map mutation from scripts: paint one metatile at fixed or actor coordinates, or stream many tile records for world-map / reveal sequences. All paths funnel through **`ResolveTileData`** (WRAM `mapLayerTilemap` `$7EA000`, `collisionLayer` `$7FC000`, optional BG VRAM queue). **`TileQueryGate`** (`$0902` / `tileQueryResult`) serializes updates — busy map engine causes **`RTL`** yield and handler re-entry.
+Map mutation from scripts: paint one metatile at fixed or actor coordinates, or stream many tile records one metatile per COP tick. All paths funnel through **`ResolveTileData`** (WRAM `mapLayerTilemap` `$7EA000`, `collisionLayer` `$7FC000`, optional BG VRAM queue). **`TileQueryGate`** waits while **`$0902`** (`pendingMetatileVram` — staged VRAM word for the top row) is nonzero — busy map engine causes **`RTL`** yield and handler re-entry.
 
 ## Shared state
 
 | Symbol | Address | Role |
 |--------|---------|------|
-| `tileQueryResult` | `$0902` | Nonzero = tile update pending (gate closed) |
+| `pendingMetatileVram` | `$0902` | VRAM address of pending top-row upload; 0 = idle (gate open) |
 | `mapLayerTilemap` | `$7EA000` | Metatile ID layer |
 | `collisionLayer` | `$7FC000` | Collision nibble layer |
 | `metatileMapLayer` | `$7E2000` | Source tiles for VRAM expansion |
@@ -175,7 +175,7 @@ WorldMapStream3 {
 
 ##### How it is used
 
-World-map reveal animations and long tile-replacement cinematics: data lives in script bank as byte streams; one **`COP [WorldMapStream3]`** call consumes the whole sequence across many frames. Enable **`OrExtraFlags #$0004`** on the actor for per-tile SFX.
+Generic one-tile-per-frame painters (no shipped script sites in vanilla `extracted/`): data lives in script bank as byte streams; one **`COP [WorldMapStream3]`** call consumes the whole sequence across many frames. Enable **`OrExtraFlags #$0004`** on the actor for per-tile SFX.
 
 ##### Parameters & contract
 

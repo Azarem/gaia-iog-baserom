@@ -1,6 +1,6 @@
 ; Player attack and ability companion actor system (Bank 02).
 ; 
-; Runs as a companion actor spawned before the movement controller via SpawnBefore. Each frame, checks player state (alive, not in hurt/knockback/dialogue) and listens for the attack button ($8001). Dispatches to character-specific attack flows based on characterForm ($0AD4): Will (form 0) uses WillAttackDispatch, Freedan (form 1) uses FreedanAttackDispatch. Forms 2+ return immediately and cannot attack through this code path.
+; Runs as a companion actor spawned before the movement controller via SpawnBefore. Each frame, checks player state (alive, not in hurt/knockback/dialogue) and listens for the attack button. The COP mask is $0081: bit 0 only tells BranchIfPressed/BranchIfNotPressed to test joypadRaw (the physical level, which still reports a button that was consumed through joypadHeld) instead of joypadCurrent, and $0080 is the logical attack bit, physical A in this ROM (db-us/transforms.json rewrites the vanilla ROM masks of this block; the vanilla attack mask differs). Dispatches to character-specific attack flows based on characterForm ($0AD4): Will (form 0) uses WillAttackDispatch, Freedan (form 1) uses FreedanAttackDispatch. Forms 2+ return immediately and cannot attack through this code path.
 ; 
 ; Both characters share a 40-frame ($28 hex) initial button-hold detection period via COP LoopInit. If the player releases during this window, the attack cancels back to idle.
 ; 
@@ -10,18 +10,18 @@
 ; - Without bit 2: release after charge → Psycho Dash
 ; - With bit 2: CheckAttackChargeable gates continued charge; L/R ($0030) → Spin Dash; release → Psycho Dash
 ; - Psycho Dash: directional fast dash with trail afterimage actors (4 directions)
-; - Spin Dash: spawns a GuidedProjectileActor the player steers with D-pad; charge tick via L/R
+; - Spin Dash: spawns a GuidedProjectileActor the player steers with D-pad; the charge level $26 starts at $0F and four alternating L, R, L, R presses (SpinDashChargeTick) bring it below $0C, which ends the charge phase
 ; 
 ; Freedan's attack system (FreedanAttackDispatch):
 ; - Extended charge timer: 100 frames ($0064)
-; - Additional cancel: Y/A/L/R ($40B0) during charge aborts (prevents accidental input)
+; - Additional cancel: L/R ($0030, tested in joypadCurrent) during the charge aborts to AttackCleanup; the vanilla ROM mask also listed the Y and A face bits, which the transform drops because the attack button is logical $0080 here
 ; - Ability gate: abilityBitmask bit 5 ($0020) unlocks Aura Barrier
 ; - Without bit 5: release → Dark Friar
 ; - With bit 5: D-pad during charge → cancel (AttackChargeReturn); L/R ($0030) → Aura Barrier; release → Dark Friar
 ; - Dark Friar: 4-directional energy projectile with trail, wall-bounce, redirect (upgrade level 2), and fragment burst on hit
 ; - Aura Barrier: requires standing still; rotating orbital projectiles with VRAM DMA, custom palette, expand/shrink lifecycle
 ; 
-; Ability bitmask ($0AA2) gates:
+; Ability bitmask ($0AA2) gates (the bits are event flags $0510 + characterForm×4 + slot, the flags the inventory Status tab tests with TestAbilityFlag):
 ; - Bit 0 ($0001): Psycho Dash (Will attack gate + charge release)
 ; - Bit 1 ($0002): Psycho Slider (Will run attack)
 ; - Bit 2 ($0004): Spin Dash (Will L/R alternate ability)
@@ -31,25 +31,33 @@
 ; 
 ; The system hijacks the player actor function pointer via SetPlayerActorFunc during ability execution, then restores it through AttackCleanup which kills spawned FX actors and plays form-specific palette restoration (Will=#0B, Freedan=#0C).
 ; 
-; Helper routines: ValidateAttackReady ($3A00 flags + facing < 4), ValidateAttackContinue ($2B00 per-frame check), CheckAttackChargeable (hitstun/death/combo gate), SavePlayerPosition (snapshots for offset calculations), ComputeParentOffset/ApplyParentOffset (relative position tracking for child actors), KillSpawnedProjectile (cleanup via MarkDeath).
+; Helper routines: ValidateAttackReady ($3A00 flags + facing < 4), ValidateAttackContinue ($2B00 per-frame check), CheckAttackChargeable (carry clear only while playerFlags $8000 is clear and the player body animation index at +$28 is 0–3 or $10–$13), SavePlayerPosition (snapshots for offset calculations), ComputeParentOffset/ApplyParentOffset (relative position tracking for child actors), KillSpawnedProjectile (cleanup via MarkDeath).
 ; 
-; Palette FX: WillAttackPaletteFX (#2A→#2B loop), FreedanAttackPaletteFX (#4B→#2C loop), AuraBarrierPaletteFX (#5B infinite).
+; Palette FX (bundle contents decoded from palette_bundles): WillAttackPaletteFX = #2A twice then #2B forever; FreedanAttackPaletteFX = #4B twice then #2C forever (both tint the 15 colors at CGRAM $81–$8F, which AttackCleanup restores with the single-frame bundles #0B/#0C); AuraBarrierPaletteFX = #5B forever (8 colors at CGRAM $A1–$A8, a blue-to-white ramp, 16 ticks per cycle). Dark Friar also starts bundle #4A through a thinker: a white flash on $81–$8F fading back to Freedan's normal colors over 36 ticks.
 ; 
-; Animation tables: LoadAbilityAnimTableA (table_01D9A7, Will) and LoadAbilityAnimTableB (table_01D9BF, Freedan) provide indexed sprite/hitbox configurations stored to climbStateData ($09E0/$09E2).
+; Ability tables: LoadAbilityAnimTableA (will_ability_anim_table, Will) and LoadAbilityAnimTableB (freedan_ability_anim_table, Freedan) do not hold sprite or hitbox data. Each 6-byte record is { word 0, word pointer to the ability's upgrade-level word, then one damage byte per level }; the loader reads the level from that WRAM word ($0B16 Psycho Dash, $0B18 Psycho Slider, $0B1A Spin Dash; $0B1C Dark Friar, $0B1E Aura Barrier, $0B20 Earthquaker) and stores record[4 + level] to climbStateData ($09E0, Will) or $09E2 (Freedan), the damage bonus that combat_collision adds to the hit strength. Values by level: Psycho Dash 5/10, Psycho Slider 5/8, Spin Dash 4/7; Dark Friar 5/8/12, Aura Barrier 5/9, Earthquaker 0/7.
 ; 
 ; === TRAIL FOLLOWERS (TrailFollowerSprA, 179702–179872) ===
 ; 
 ; Dark Friar fragment trail follower actors and position offset helpers. Provides two trail segment actor variants (TrailFollowerSprA sprite #05, TrailFollowerSprB sprite #06) that follow behind Dark Friar fragment projectiles to create a cascading afterimage effect. Both variants share the same loop logic — only their initial sprite/hitbox configuration differs.
 ; 
-; The trail system works via a 3-stage position FIFO buffer stored in per-actor long-address scratch fields ($7F0000–$7F001A,X). Each frame, TrailPositionCascade shifts the parent actor's current position into stage 3 of the queue, while each older position advances one stage forward. The trail actor displays the position from stage 1 (the oldest buffered value), creating a 3-frame position delay. TrailPositionInit seeds all 3 stages with the current position so the trail starts co-located with its parent.
+; The trail system works via a 3-stage position FIFO buffer stored in per-actor long-address scratch fields ($7F0000–$7F001A,X). Each frame, TrailPositionCascade shifts the parent actor's current position into stage 3 of the queue, while each older position advances one stage forward. The trail actor displays the position from stage 1 (the oldest buffered value), creating a 3-frame position delay. The position source is the actor in $04 (the previous entry of the actor list, i.e. the actor the follower was inserted after, not a stored parent id): TrailFollowerSprA is spawned last, so it sits directly behind the fragment and lags it by 3 frames, while TrailFollowerSprB (spawned first) follows A and therefore lags the fragment by about 6. TrailPositionInit seeds all 3 stages with the current position so the trail starts co-located with its parent.
 ; 
 ; ComputeParentOffset and ApplyParentOffset are also in this part — they store/apply the XY delta between current position and a parent actor, used by Dark Friar projectile and trail actors for relative positioning.
 ; 
-; === PART STRUCTURE ===
+; === SECTIONS (the block has no parts in blocks.json; the notes use these address ranges) ===
 ; 
-; Part 1 (AttackSystemEntry, 178099–179702): Attack dispatch, both character dispatch paths, all Freedan abilities (Dark Friar + Aura Barrier), and shared helper routines.
-; Part 2 (TrailFollowerSprA, 179702–179872): Trail follower actors, position FIFO system, and parent offset helpers.
-; Part 3 (PsychoDashMain, 179872–181132): All Will abilities (Psycho Dash, Spin Dash, Guided Projectile), palette FX actors, and animation table loaders.
+; 178099–179701: AttackSystemEntry, both dispatch paths, all Freedan abilities (Dark Friar, Aura Barrier) and the shared helpers.
+; 179702–179825: TrailFollowerSprA/B, TrailPositionCascade, TrailPositionInit.
+; 179826–179871: ComputeParentOffset, ApplyParentOffset (they use the spawner slot stored in $24 by CopyActorState).
+; 179872–180391: Psycho Dash and its four trail actors. 180393–180763: Spin Dash, SpinDashChargeTick. 180764–181131: KillSpawnedProjectile, GuidedProjectileActor, the palette FX actors, RecomputeProjectilePos and the two ability-table loaders.
+; 
+; === CONVENTIONS ===
+; 
+; - Actor flags $10: bit 13 ($2000) = hidden for SortActorsByDepth and the script-only path of RunActors_Normal (no collision-aware movement, no iframe handling); bit 14 ($4000) = off-screen flag maintained by the depth sort; bit 7 ($0080) = hit/iframe marker.
+; - $12 bits $2000 / $4000 negate the Y / X movement of staged movement chains (so one chain runs south or north, east or west).
+; - COP movement operands (StageMoveXY, StageSpriteMoveX/Y, StageSpriteLoopMoveX/Y) are indices into movement_delta_table, not distances: index 1/3/5/7 = constant +1/+2/+3/+4 per frame, 2/4/6 = the negatives, index $36 = 8 frames of 0, then 4,4,7,7,9,9,12,12, then 0,0, then eight frames of −8.
+; - LoopStart/LoopEnd yield once per iteration, so LoopStart(#n) is an n-frame loop.
 ---------------------------------------------
 
 ?BANK 02
@@ -97,24 +105,24 @@
 ; 
 ; Major sections within this part:
 ; 
-; 1. Attack Dispatcher (178099–178432): AttackSystemEntry checks player state each frame and listens for the attack button. WillAttackDispatch handles Will's 40-frame hold + 120-frame charge with ability bitmask gating for Psycho Dash/Spin Dash. FreedanAttackDispatch handles Freedan's 40-frame hold + 100-frame charge with Dark Friar/Aura Barrier selection. LaunchPsychoDash, LaunchSpinDash, LaunchDarkFriar, and LaunchAuraBarrier validate and hijack the player actor function pointer.
+; 1. Attack Dispatcher (178099–178432): AttackSystemEntry checks player state each frame and listens for the attack button (mask $0081, held level in joypadRaw). WillAttackDispatch handles Will's 40-frame hold + 120-frame charge with ability bitmask gating for Psycho Dash/Spin Dash. FreedanAttackDispatch handles Freedan's 40-frame hold + 100-frame charge with Dark Friar/Aura Barrier selection. LaunchPsychoDash, LaunchSpinDash, LaunchDarkFriar, and LaunchAuraBarrier validate and hijack the player actor function pointer.
 ; 
-; 2. Attack Helpers (178433–178558): AttackCleanup kills spawned FX and restores palette. SetPlayerActorFunc overwrites the player actor's entry point. ValidateAttackReady checks $3A00 flags and facing direction. ValidateAttackContinue does per-frame $2B00 checks. SavePlayerPosition snapshots position. CheckAttackChargeable gates charge progression via hitstun/death/combo state.
+; 2. Attack Helpers (178433–178558): AttackCleanup kills spawned FX and restores palette. SetPlayerActorFunc overwrites the player actor's entry point. ValidateAttackReady checks $3A00 flags and facing direction. ValidateAttackContinue does per-frame $2B00 checks. SavePlayerPosition snapshots position. CheckAttackChargeable returns carry clear only while playerFlags $8000 is clear and the player body animation index is 0-3 or $10-$13.
 ; 
 ; 3. Aura Barrier (178559–178710): AuraBarrierMain sets flags, spawns VRAM DMA loader, waits for tile upload, loads FX palette, spawns orbital children, and runs the expand→orbit→shrink lifecycle. AuraBarrierEnd clears flags and returns to idle. AuraVramDmaLoader does a one-shot DMA of Aura tile graphics.
 ; 
 ; 4. Aura Orbital System (178711–179002): AuraOrbitalSpawner spawns 2-4 orbital children (count depends on upgrade flag $0B1E), manages 240-frame orbit rotation expanding from diameter 0 to 64, then runs a 30-frame shrink. UpdateOrbitalPositions iterates children with angle spacing via ApplyOrbitalOffsetFromRef. AuraProjectileChild is the individual orbiting sprite with 3-frame animation. AuraProjectileShrink reverses the animation and flags for removal.
 ; 
-; 5. Dark Friar (179003–179701): DarkFriarMain sets flags, spawns VRAM DMA, loads palette, spawns a palette reset thinker (#4A), and dispatches by facing direction. Each directional handler (South/North/West/East) spawns a projectile and trail at character-appropriate offsets. DarkFriarProjectile is the initial flash sprite. DarkFriarTrailSouth and DarkFriarTrailEastWest are the growing trail actors with optional collision (enabled by upgrade level $0B1C). DarkFriarBounceLoop handles wall-bounce animation and level-2 redirect. DarkFriarOnHit spawns 4 fragment actors at 90° intervals. DarkFriarFragmentInit sets up spiraling outward motion, DarkFriarFragmentLoop applies velocity until wall contact.
+; 5. Dark Friar (179003–179701): DarkFriarMain sets flags, spawns VRAM DMA, loads palette, spawns a palette reset thinker (#4A), and dispatches by facing direction. Each directional handler (South/North/West/East) spawns a projectile and trail at character-appropriate offsets. DarkFriarProjectile is the initial flash sprite. DarkFriarTrailSouth and DarkFriarTrailEastWest are the growing trail actors with optional collision (enabled by upgrade level $0B1C). DarkFriarBounceLoop keeps the trail travelling until it leaves the screen, and at upgrade level 2 holding attack runs DarkFriarDisableCollide, which detonates it into fragments on demand. DarkFriarOnHit spawns 4 fragment actors at 90° intervals. DarkFriarFragmentInit sets up spiraling outward motion, DarkFriarFragmentLoop applies the reversed velocity every frame until the fragment leaves the screen (actor flag $4000), then it dies.
 
 AttackSystemEntry {
     LDA $playerFlags      ; Combat lock check (one-time, at spawn): $0008 is set in non-combat scenes, where no attack companion is wanted
     BIT #$0008            ; Bit 3 ($0008) = combat lock (set at spawn by non-combat scenes, toggled by cutscenes) — not a death flag
     BEQ code_02B7BD
-    COP [Die]             ; Player is dead — kill this attack companion actor
+    COP [Die]             ; Combat lock (playerFlags $0008, set at spawn by non-combat scenes): this companion removes itself; it is not a player-death check
 
   code_02B7BD:
-    LDA #$0001            ; Clear attack-request bit ($0001) each frame before re-evaluation
+    LDA #$0001            ; Clear the attack-request bit ($0001) once on entry to this idle label; the re-entry point below is after this write, so it is not repeated every frame
     TRB $playerFlags
     COP [SetEntryHere]    ; COP re-entry point — companion actor resumes here each frame to poll for attacks
     LDA $playerFlags
@@ -129,7 +137,7 @@ AttackSystemEntry {
     RTL 
 
   loc_02B7D7:
-    COP [BranchIfPressed] ( #$0081, &WillAttackDispatch ) ; Listen for attack button ($8001 = B + secondary bit); branch to dispatch on press
+    COP [BranchIfPressed] ( #$0081, &WillAttackDispatch ) ; Mask $0081 tests joypadRaw (bit 0 = raw selector): $0080 is the logical attack bit (physical A here), so a held attack button branches to WillAttackDispatch
     RTL 
 }
 
@@ -150,7 +158,7 @@ WillAttackDispatch {
 
   loc_02B7FB:
     COP [LoopStart] ( #28 ) ; Begin 40-frame ($28 hex) button-hold detection loop — must hold to commit
-    COP [BranchIfNotPressed] ( #$0081, &code_02B7BD ) ; Attack released during hold period → cancel back to idle (code_02B7BD)
+    COP [BranchIfNotPressed] ( #$0081, &code_02B7BD ) ; Attack no longer held in joypadRaw during the 40-frame hold: cancel back to the idle label
     COP [LoopEnd]         ; Hold period complete — player committed to charged attack
     JSR $&SavePlayerPosition ; Snapshot player position for palette FX actor reference point
     COP [SpawnListAppend] ( @WillAttackPaletteFX, #00, #00, #$2C00 ) ; Spawn Will's charge-up palette FX actor (cycles palettes #2A → #2B)
@@ -159,7 +167,7 @@ WillAttackDispatch {
     STA $24
     COP [SetEntryHere]    ; COP re-entry for per-frame charge loop
     JSR $&ValidateAttackContinue ; Per-frame abort check: game over, script lock, stance or forced walk interrupts the charge
-    COP [BranchIfNotPressed] ( #$0081, &AttackCleanup ) ; Attack released during charge → clean up and return to idle
+    COP [BranchIfNotPressed] ( #$0081, &AttackCleanup ) ; Attack released (joypadRaw) during the charge: AttackCleanup, no ability fires
     DEC $24               ; Decrement charge timer each frame
     BMI loc_02B829        ; Timer expired (negative) → proceed to ability selection phase
     RTL 
@@ -177,12 +185,12 @@ WillAttackDispatch {
     COP [SetEntryHere]    ; With Spin Dash: extended charge with chargeable gate check
     JSR $&ValidateAttackContinue
     COP [BranchIfNotPressed] ( #$0081, &LaunchPsychoDash ) ; Attack released → launch Psycho Dash (still the default on release)
-    JSR $&CheckAttackChargeable ; Gate check: can the player continue charging? (not in hitstun/death/mid-combo)
-    BCC loc_02B84E        ; Not chargeable (carry clear) → fall through to L/R shoulder check
+    JSR $&CheckAttackChargeable ; Carry clear = body animation index 0–3 or $10–$13 and the sprite override (playerFlags bit 15) clear; only then may L/R launch Spin Dash
+    BCC loc_02B84E        ; Carry clear: go on to the L/R test; carry set: yield and keep charging
     RTL 
 
   loc_02B84E:
-    COP [BranchIfPressed] ( #$0030, &LaunchSpinDash ) ; L/R shoulder ($0030) pressed → launch Spin Dash (alternate ability)
+    COP [BranchIfPressed] ( #$0030, &LaunchSpinDash ) ; L or R ($0030, joypadCurrent: level minus buttons consumed in joypadHeld) launches Spin Dash
     RTL 
 }
 
@@ -218,7 +226,7 @@ FreedanAttackDispatch {
     COP [SetEntryHere]    ; COP re-entry for Freedan per-frame charge loop
     JSR $&ValidateAttackContinue
     COP [BranchIfNotPressed] ( #$0081, &AttackCleanup ) ; Attack released during charge → abort to cleanup
-    COP [BranchIfPressed] ( #$0030, &AttackCleanup ) ; Y/A/L/R ($40B0) pressed during charge → abort (prevents accidental input)
+    COP [BranchIfPressed] ( #$0030, &AttackCleanup ) ; L or R ($0030 in this ROM, joypadCurrent) during the charge aborts to AttackCleanup; the vanilla ROM mask also listed the Y and A face bits
     DEC $24               ; Decrement Freedan charge timer each frame
     BMI loc_02B8AA
     RTL 
@@ -237,7 +245,7 @@ FreedanAttackDispatch {
     JSR $&ValidateAttackContinue
     COP [BranchIfNotPressed] ( #$0081, &LaunchDarkFriar ) ; Release → launch Dark Friar (still the default ability on release)
     COP [BranchIfPressed] ( #$0F00, &AttackChargeReturn ) ; D-pad ($0F00) during charge → return without action (prevents Aura trigger while moving)
-    COP [BranchIfPressed] ( #$0030, &LaunchAuraBarrier ) ; L/R shoulder ($0030) → launch Aura Barrier (alternate Freedan ability)
+    COP [BranchIfPressed] ( #$0030, &LaunchAuraBarrier ) ; L or R ($0030, joypadCurrent) launches Aura Barrier (needs the stationary check in LaunchAuraBarrier)
 }
 
 AttackChargeReturn {
@@ -282,12 +290,12 @@ AttackCleanup {
     PLX 
     LDA $characterForm    ; Branch on character form for form-specific palette restoration
     BNE loc_02B91C
-    COP [PaletteStart] ( #0B ) ; Will (form 0): restore palette bundle #0B after attack ends
+    COP [PaletteStart] ( #0B ) ; Will (form 0): bundle #0B, one frame of Will's 15 colors at CGRAM $81–$8F, undoes the tint of the charge FX actor
     COP [PaletteStep]
     COP [JumpNextFrame] ( @code_02B7BD ) ; Set entry point to idle loop and exit immediately — attack complete
 
   loc_02B91C:
-    COP [PaletteStart] ( #0C ) ; Freedan (form 1): restore palette bundle #0C after attack ends
+    COP [PaletteStart] ( #0C ) ; Freedan (form 1): bundle #0C, one frame of Freedan's 15 colors at CGRAM $81–$8F, undoes the tint of the charge FX actor
     COP [PaletteStep]
     COP [JumpNextFrame] ( @code_02B7BD )
 }
@@ -330,6 +338,11 @@ SavePlayerPosition {
     RTS 
 }
 
+---------------------------------------------
+; Carry clear = the charge may continue and an L/R press may launch the alternate ability; carry set = not now.
+; 
+; Carry is set when playerFlags $8000 (body sprite override) is set, when the player actor animation index at +$28 is negative, or when it is neither 0–3 nor $10–$13. The Will dispatch only reads the L/R buttons while this routine returns carry clear.
+
 CheckAttackChargeable {
     LDA $playerFlags      ; Check whether the in-progress attack can continue charging
     BIT #$8000            ; Bit 15 ($8000) = body sprite overridden via SetPlayerSpriteDirect → not chargeable
@@ -366,7 +379,7 @@ AuraBarrierMain {
     JMP $&AuraBarrierEnd  ; Pool exhausted → skip directly to AuraBarrierEnd
 
   loc_02B99B:
-    LDA $16               ; Check if VRAM DMA has completed (DP $16 reaching $0020 signals ready)
+    LDA $16               ; $16 is the actor Y position word, not a DMA status: Y = $0020 takes the bounded wait below, any other Y waits until the adhoc DMA clears
     CMP #$0020
     BNE loc_02B9B4
     COP [SetEntryHereAndYield]
@@ -394,12 +407,12 @@ AuraBarrierMain {
     STA $orbitDiameter, X ; Store palette FX actor ID in orbitDiameter for KillSpawnedProjectile cleanup
     COP [StageSpriteLoop] ( #03, #02 ) ; Stage Aura casting animation loop: sprite #03, 2 iterations
     COP [AnimLoop]
-    LDA #$0001            ; Clear attack-request bit — player can now move during Aura Barrier
+    LDA #$0001            ; Clear the attack-request bit $0001 so a new attack press during the orbit (tested later) can start the early shrink
     TRB $playerFlags
     COP [SpawnListAppend] ( @AuraOrbitalSpawner, #00, #F0, #$2600 ) ; Spawn the orbital child spawner at Y offset -16 (above player head)
     COP [StageSpriteLoop] ( #03, #0A ) ; Stage orbital sustain animation: sprite #03, 10 iterations
     COP [AnimLoop]
-    JSR $&KillSpawnedProjectile ; Kill spawned projectile/FX actor after Aura Barrier animation ends
+    JSR $&KillSpawnedProjectile ; Kill the palette FX actor saved in orbitDiameter now that the barrier has ended
 }
 
 AuraBarrierEnd {
@@ -447,7 +460,7 @@ AuraOrbitalSpawner {
     STA $26
     STA $orbitAngle, X
     LDA $orbitDiameter, X ; Read current orbit diameter for expansion check
-    CMP #$0040            ; Maximum orbit radius = $40 (64 pixels from player center)
+    CMP #$0040            ; Maximum orbit diameter $40: ApplyOrbitalOffsetFromRef scales sine/cosine (max $7F) by the diameter and keeps the high byte, so the radius is about 32 px, not 64
     BCS loc_02BA75
     INC                   ; Expand orbit diameter by 1 pixel per frame until maximum reached
     STA $orbitDiameter, X
@@ -553,7 +566,7 @@ AuraProjectileChild {
     COP [StageSpriteFrame] ( #00 )
     COP [AnimOnce]
     LDA #$2000            ; Set bit 13 ($2000) in actor flags — marks for deferred removal by parent
-    TSB $10
+    TSB $10               ; Bit 13 ($2000): hides the orbital (depth sort) and makes it script-only; the spawner's COP Die removes the children (SpawnAfterMarked)
     COP [SetEntryHere]
     RTL 
 }
@@ -567,7 +580,7 @@ DarkFriarMain {
     JMP $&DarkFriarFinish ; Pool exhausted → skip to DarkFriarFinish (clean exit)
 
   loc_02BB52:
-    LDA $16               ; Wait for VRAM DMA completion — same DMA-wait pattern as AuraBarrierMain
+    LDA $16               ; $16 is the actor Y position word: same bounded-wait versus indefinite-wait split as in AuraBarrierMain
     CMP #$0020
     BNE loc_02BB6B
     COP [SetEntryHereAndYield]
@@ -587,7 +600,7 @@ DarkFriarMain {
 
   loc_02BB77:
     COP [CopyPalette] ( @fx_palette_198070, #00, #A0, #10 ) ; Copy Dark Friar FX palette: 16 words from offset $00 into CGRAM position $A0
-    COP [SpawnThinkerParam] ( #4A, @actor_pool.PaletteResetAndKillThinker ) ; Spawn palette reset thinker (ID #4A) — auto-restores palette on ability end
+    COP [SpawnThinkerParam] ( #4A, @actor_pool.PaletteResetAndKillThinker ) ; Thinker with bundle #4A: white flash on CGRAM $81–$8F fading to Freedan's colors in 36 ticks; runs at the cast, not at ability end
     COP [GetPlayerFacing] ; Get player facing for directional projectile dispatch (0=S, 1=N, 2=W, 3=E)
     AND #$0003
     STA $0000
@@ -611,7 +624,7 @@ DarkFriarSouth {
 
 DarkFriarNorth {
     COP [SpawnListAppend] ( @DarkFriarProjectile, #00, #C0, #$2600 ) ; North: spawn projectile at (0, -64) — above player
-    COP [SpawnListAppend] ( @DarkFriarTrailSouthInit, #00, #C0, #$2600 ) ; North: spawn trail via DarkFriarTrailSouthInit (reuses south path with direction flag)
+    COP [SpawnListAppend] ( @DarkFriarTrailNorthInit, #00, #C0, #$2600 ) ; North: spawn trail via DarkFriarTrailNorthInit (reuses south path with direction flag)
     COP [StagePlayerSprite] ( #37 )
     COP [AnimOnce]
     BRA DarkFriarFinish
@@ -633,7 +646,7 @@ DarkFriarEast {
 }
 
 DarkFriarFinish {
-    COP [WaitByte] ( #07 ) ; Wait 7 frames for casting animation to complete
+    COP [WaitByte] ( #07 ) ; WaitByte #07 = 8 actor ticks for the casting animation to complete
     COP [RestoreSavedPtr] ; Restore saved return pointer — returns player actor to pre-ability state
 }
 
@@ -645,7 +658,7 @@ DarkFriarVramDma {
 DarkFriarProjectile {
     COP [SetMetasprite] ( @spriteset_dark_friar ) ; Set metasprite to table_178000 (Dark Friar projectile graphics)
     JSR $&ComputeParentOffset ; Compute offset from parent — tracks relative position for trail following
-    COP [WaitByte] ( #07 ) ; Wait 7 frames before revealing projectile (syncs with casting animation)
+    COP [WaitByte] ( #07 ) ; WaitByte #07 = 8 ticks before revealing the projectile (syncs with the casting animation)
     JSR $&ApplyParentOffset ; Apply stored offset to follow parent's movement during delay
     LDA #$2000            ; Clear bit 13 ($2000) — make projectile visible after sync delay
     TRB $10
@@ -654,8 +667,11 @@ DarkFriarProjectile {
     COP [Die]             ; Self-destruct — visual flash actor has served its purpose
 }
 
-DarkFriarTrailSouthInit {
-    LDA #$2000            ; Set bit 13 ($2000) in mirror flags ($12) — south direction marker for trail
+---------------------------------------------
+; Spawn entry stub for the north Dark Friar trail: sets bit $2000 in actor $12 to negate Y movement so the shared south trail code runs upward, then falls into DarkFriarTrailSouth.
+
+DarkFriarTrailNorthInit {
+    LDA #$2000            ; Set $2000 in $12 = negate-Y: the trail then runs north (this entry is only used for the north cast)
     TSB $12
 }
 
@@ -670,7 +686,7 @@ DarkFriarTrailSouth {
 
   loc_02BC42:
     JSR $&ComputeParentOffset ; Compute offset from parent — trail tracks the projectile position
-    COP [WaitByte] ( #07 ) ; Wait 7 frames (sync with projectile reveal delay)
+    COP [WaitByte] ( #07 ) ; WaitByte #07 = 8 ticks (sync with the projectile reveal delay)
     JSR $&ApplyParentOffset
     LDA #$2000            ; Clear bit 13 ($2000) — make trail visible after sync delay
     TRB $10
@@ -680,17 +696,17 @@ DarkFriarTrailSouth {
     COP [SetCollideCallback] ( &DarkFriarOnHit ) ; Set collision callback → DarkFriarOnHit (triggers fragment burst on contact)
 
   loc_02BC5D:
-    COP [StageSpriteLoopMoveY] ( #01, #02, #01 ) ; Trail growing animation: small south movement (sprite #01, speed 1, 2 iterations)
+    COP [StageSpriteLoopMoveY] ( #01, #02, #01 ) ; Sprite #01, 2 passes, Y movement index 1 (+1 px per frame constant)
     COP [AnimLoop]
-    COP [StageSpriteLoopMoveY] ( #02, #03, #03 )
+    COP [StageSpriteLoopMoveY] ( #02, #03, #03 ) ; Sprite #02, 3 passes, Y movement index 3 (+2 px per frame constant)
     COP [AnimLoop]
     COP [StageSprAndHitbox] ( #03 ) ; Final trail sprite #03 with active hitbox for continued collision detection
-    COP [StageMoveXY] ( #00, #05 ) ; Apply constant force movement: 0 X, 5 Y → trail continues south
+    COP [StageMoveXY] ( #00, #05 ) ; X movement index 0 (none), Y movement index 5 (+3 px per frame constant): the trail keeps travelling
     BRA loc_02BCCA
 }
 
 DarkFriarTrailWestInit {
-    LDA #$4000            ; Set bit 14 ($4000) in mirror flags — west/horizontal direction marker for trail
+    LDA #$4000            ; Set $4000 in $12 = negate-X: the shared east/west trail then runs west
     TSB $12
 }
 
@@ -705,7 +721,7 @@ DarkFriarTrailEastWest {
 
   loc_02BC8F:
     JSR $&ComputeParentOffset ; Compute offset from parent — trail tracks projectile position
-    COP [WaitByte] ( #07 ) ; Wait 7 frames (sync with projectile reveal delay)
+    COP [WaitByte] ( #07 ) ; WaitByte #07 = 8 ticks (sync with the projectile reveal delay)
     JSR $&ApplyParentOffset
     LDA #$2000            ; Clear bit 13 ($2000) — make trail visible after sync delay
     TRB $10
@@ -715,25 +731,25 @@ DarkFriarTrailEastWest {
     COP [SetCollideCallback] ( &DarkFriarOnHit ) ; Set collision callback → DarkFriarOnHit (triggers fragment burst on contact)
 
   loc_02BCAA:
-    COP [StageSpriteLoopMoveX] ( #01, #02, #01 ) ; Trail growing animation with X movement (sprite #01, speed 1, 2 iterations)
+    COP [StageSpriteLoopMoveX] ( #01, #02, #01 ) ; Sprite #01, 2 passes, X movement index 1 (+1 px per frame constant)
     COP [AnimLoop]
-    COP [StageSpriteLoopMoveX] ( #02, #03, #03 )
+    COP [StageSpriteLoopMoveX] ( #02, #03, #03 ) ; Sprite #02, 3 passes, X movement index 3 (+2 px per frame constant)
     COP [AnimLoop]
     COP [StageSprAndHitbox] ( #03 )
-    COP [StageMoveXY] ( #05, #00 ) ; Apply constant force movement: 5 X, 0 Y → trail moves horizontally
+    COP [StageMoveXY] ( #05, #00 ) ; X movement index 5 (+3 px per frame constant), Y movement index 0 (none)
     BRA loc_02BCCA
 
   DarkFriarBounceLoop:
-    LDA $10               ; Check bit 14 ($4000) of actor flags — set on wall contact
+    LDA $10               ; Actor flag bit 14 ($4000) is the off-screen flag kept by the depth sort, not a wall-contact flag
     BIT #$4000
-    BNE loc_02BCEC        ; Wall hit → die (trail dissipates on wall contact)
+    BNE loc_02BCEC        ; Off-screen: the trail dies
     COP [ReloadMoveDurations] ; No wall hit: reload force movement parameters for continued travel
 
   loc_02BCCA:
     COP [AnimOneFrame]    ; Animate one frame and check for collision events
     LDA $2A
     BEQ DarkFriarBounceLoop
-    LDA $08               ; Read frame counter from $08 — captures wall-hit timing data
+    LDA $08               ; Hold time of the frame just staged by AnimOneFrame (copied to $26 so the loop below can run once per frame while it is held)
     STZ $08
     STA $26
 
@@ -741,7 +757,7 @@ DarkFriarTrailEastWest {
     LDA $0B1C             ; $0B1C = Dark Friar upgrade level: 2 = fully upgraded with player redirect
     CMP #$0002
     BNE loc_02BCE4
-    COP [BranchIfPressed] ( #$0081, &DarkFriarDisableCollide ) ; Level 2 + attack button held → DarkFriarDisableCollide (player can redirect trail)
+    COP [BranchIfPressed] ( #$0081, &DarkFriarDisableCollide ) ; Level 2 and attack held (joypadRaw): DarkFriarDisableCollide, which clears the callback and falls through into DarkFriarOnHit (detonate on demand)
 
   loc_02BCE4:
     COP [SetEntryHereAndYield] ; Set re-entry and yield — continue bounce/travel loop next frame
@@ -753,8 +769,11 @@ DarkFriarTrailEastWest {
     COP [Die]
 }
 
+---------------------------------------------
+; Reached from the bounce loop when the Dark Friar upgrade level is 2 and the attack button is held (joypadRaw). It clears the collide callback and then FALLS THROUGH into DarkFriarOnHit (there is no branch or return between the two blocks), so at level 2 holding attack detonates the trail into the four fragments on demand, with the callback removed so it cannot fire twice.
+
 DarkFriarDisableCollide {
-    COP [SetCollideCallback] ( #$0000 ) ; Clear collision callback ($0000) — disables trail damage for redirect
+    COP [SetCollideCallback] ( #$0000 ) ; Clear the collide callback; there is no return here, execution continues into DarkFriarOnHit below
 }
 
 DarkFriarOnHit {
@@ -766,17 +785,17 @@ DarkFriarOnHit {
 }
 
 DarkFriarFragment1 {
-    LDA #$0040            ; Fragment 1 starts at 64° ($40) orbit angle
+    LDA #$0040            ; Fragment 1 starts at angle $40 (90°; the angle byte has 256 units per turn)
     BRA DarkFriarFragmentInit
 }
 
 DarkFriarFragment2 {
-    LDA #$0080            ; Fragment 2 starts at 128° ($80) orbit angle
+    LDA #$0080            ; Fragment 2 starts at angle $80 (180°)
     BRA DarkFriarFragmentInit
 }
 
 DarkFriarFragment3 {
-    LDA #$00C0            ; Fragment 3 starts at 192° ($C0) orbit angle
+    LDA #$00C0            ; Fragment 3 starts at angle $C0 (270°)
 
   DarkFriarFragmentInit:
     STA $orbitAngle, X    ; Store initial orbit angle for this fragment's spiral expansion path
@@ -796,7 +815,7 @@ DarkFriarFragment3 {
     COP [StageSprAndHitbox] ( #04 ) ; Set sprite #04 with active hitbox — fragment damages enemies on contact
 
   loc_02BD52:
-    COP [AnimOneFrame]    ; Fragment animation loop — animate and wait for wall collision event ($2A)
+    COP [AnimOneFrame]    ; AnimOneFrame stages the next frame without yielding; with $2A (frame counter) nonzero the frame's hold time ($08) becomes the loop count in $26
     LDA $2A
     BEQ loc_02BD52
     LDA $08
@@ -867,9 +886,9 @@ DarkFriarFragment3 {
     STA $moveScratch1, X
     LDA $7F100E, X        ; Copy stored Y velocity to moveScratch2 for engine movement
     STA $moveScratch2, X
-    LDA $10
-    BIT #$4000            ; Check bit 14 ($4000) — wall collision during return phase
-    BNE loc_02BDF4        ; Wall hit during return → die (fragment fully dissipated)
+    LDA $10               ; Actor flag bit 14 ($4000) = off-screen, not a wall hit
+    BIT #$4000            ; Test the off-screen flag $4000 (actor left the screen), not a wall hit
+    BNE loc_02BDF4        ; Off-screen during the return phase: the fragment dies
     DEC $26
     BPL loc_02BDD5
     BRA DarkFriarFragmentLoop
@@ -879,18 +898,18 @@ DarkFriarFragment3 {
 }
 
 TrailFollowerSprA {
-    COP [StageSprAndHitbox] ( #05 ) ; Stage sprite #05 with hitbox — smaller trail segment (spawned second, furthest behind parent)
+    COP [StageSprAndHitbox] ( #05 ) ; Sprite #05 with hitbox. Spawned last, so it is inserted directly after the fragment and follows it with a 3-frame lag
     BRA loc_02BDFE        ; Jump to shared trail follower main loop
 }
 
 TrailFollowerSprB {
-    COP [StageSprAndHitbox] ( #06 ) ; Stage sprite #06 with hitbox — larger trail segment (spawned first, directly behind parent)
+    COP [StageSprAndHitbox] ( #06 ) ; Sprite #06 with hitbox. Spawned first, so it ends up behind TrailFollowerSprA in the list and follows A (about 6 frames behind the fragment)
 
   loc_02BDFE:
     JSR $&TrailPositionInit ; Initialize 3-stage position FIFO buffer with current position
 
   loc_02BE01:
-    COP [AnimOneFrame]    ; Main loop: animate one frame and wait for collision/movement event ($2A)
+    COP [AnimOneFrame]    ; AnimOneFrame stages a frame without yielding; $2A nonzero then takes the hold time from $08 into $26
     LDA $2A
     BEQ loc_02BE01
     LDA $08               ; Capture frame count from $08 — determines how many cascade updates to run this cycle
@@ -899,7 +918,7 @@ TrailFollowerSprB {
 
   loc_02BE0D:
     COP [SetEntryHereAndYield] ; Per-frame cascade: yield execution, then shift one position through the FIFO
-    LDY $04               ; Load parent actor ID from $04 for position sampling
+    LDY $04               ; $04 = previous actor-list entry: the actor this follower was inserted after (the fragment for A, A for B)
     JSR $&TrailPositionCascade ; Cascade parent position through the 3-stage FIFO buffer
     DEC $26               ; Decrement remaining cascade updates
     BPL loc_02BE0D
@@ -907,9 +926,9 @@ TrailFollowerSprB {
 }
 
 ---------------------------------------------
-; 3-stage position FIFO cascade for Dark Friar afterimage effect.
+; 3-stage position FIFO cascade for the Dark Friar fragment trail followers.
 ; 
-; Each frame, shifts position data through three FIFO stages: stage 2 receives stage 1's position, stage 1 receives stage 0's position, stage 0 receives the current player position. This creates a trailing afterimage effect where follower sprites lag behind the player by 1, 2, and 3 frames respectively.
+; Each call reads the oldest stage as the follower's displayed $14/$16, shifts the other two stages forward and samples the position of the actor in Y (the caller loads $04, the previous actor-list entry) into the newest stage. The follower therefore trails that actor by 3 calls. The X queue is animScratch, animScratch+2, animScratch2; the Y queue is moveXAlt, moveYAlt, retPtr1.
 
 TrailPositionCascade {
     LDA $animScratch, X   ; Read stage 1 X (oldest buffered position) into display position $14
@@ -934,7 +953,7 @@ TrailPositionCascade {
 ---------------------------------------------
 ; Initialize trail follower position FIFO.
 ; 
-; Sets all three FIFO stages to the current player position, so trail followers start at the player's location rather than at (0,0). Called once when the Dark Friar attack begins.
+; Sets all three FIFO stages to the follower's own current position ($14 / $16, its spawn position), so the delayed trail starts co-located instead of at (0,0). Called once by the shared trail follower entry (loc_02BDFE) of TrailFollowerSprA and TrailFollowerSprB.
 
 TrailPositionInit {
     LDA $14               ; Seed all 3 X-position FIFO stages with current X ($14) — trail starts co-located
@@ -957,13 +976,13 @@ TrailPositionInit {
 ; 
 ; 1. Offset Helpers (179826–179871): ComputeParentOffset stores the XY delta between current position and a parent actor. ApplyParentOffset adds the stored delta back to the parent's current position. Used by Dark Friar projectile/trail actors to maintain relative positioning.
 ; 
-; 2. Psycho Dash (179872–180392): PsychoDashMain loads animation table A entry 0, disables status display, dispatches by facing. Each directional handler (South/North/West/East) spawns a trail afterimage actor, sets the movement direction via force flags, stages a ~54-pixel dash movement, then returns to idle. The four PsychoDashTrail actors (South/North/West/East) record 8 position deltas during the dash and replay them in reverse as afterimage segments.
+; 2. Psycho Dash (179872–180392): PsychoDashMain loads animation table A entry 0, disables status display, dispatches by facing. Each directional handler (South/North/West/East) spawns a trail afterimage actor, sets the movement direction via force flags, stages movement index $36 (a delta chain, not a distance), then returns to idle. The four PsychoDashTrail actors (South/North/West/East) record 8 position deltas during the dash and replay them in reverse as afterimage segments.
 ; 
-; 3. Spin Dash (180393–180763): SpinDashMain sets $2002 flags, enters a charge loop checking for wall collision ($0080), then transitions to either the charge tick phase (L/R shoulder decrement charge level) or projectile launch. On launch, spawns GuidedProjectileActor, kills it on completion, and uses an RTS-trick (PEA label-1) to chain through directional speed setup → SpinDashRelease → SpinDashLaunch. SpinDashChargeTick alternates L/R shoulder checks on odd/even frames. SpinDashAbort clears flags and restores state.
+; 3. Spin Dash (180393–180763): SpinDashMain sets $2002 flags, enters a charge loop that aborts when the actor is hit (flag bit 7, $0080), then transitions to either the charge tick phase (L/R shoulder decrement charge level) or projectile launch. On launch, spawns GuidedProjectileActor, kills it on completion, and uses an RTS-trick (PEA label-1) to chain through directional speed setup → SpinDashRelease → SpinDashLaunch. SpinDashChargeTick alternates the L/R test by the parity of the charge level. SpinDashAbort clears flags and restores state.
 ; 
 ; 4. Guided Projectile (180764–180999): KillSpawnedProjectile cleans up a stored actor reference via MarkDeath. GuidedProjectileActor stores its offset from the player, responds to D-pad input for 4-directional steering (Right=#3D, Left=#3C, Up=#3B, Down=#3A sprites), and runs a per-frame animation/collision loop.
 ; 
-; 5. Palette FX & Utilities (181000–181131): WillAttackPaletteFX cycles palettes #2A→#2B. FreedanAttackPaletteFX cycles #4B→#2C. AuraBarrierPaletteFX loops #5B infinitely. RecomputeProjectilePos adds stored offsets to current player position. LoadAbilityAnimTableA reads indexed entries from table_01D9A7 (Will). LoadAbilityAnimTableB reads from table_01D9BF (Freedan). Both store a configuration byte to climbStateData ($09E0/$09E2).
+; 5. Palette FX & Utilities (181000–181131): WillAttackPaletteFX cycles palettes #2A→#2B. FreedanAttackPaletteFX cycles #4B→#2C. AuraBarrierPaletteFX loops #5B infinitely. RecomputeProjectilePos adds stored offsets to current player position. LoadAbilityAnimTableA reads will_ability_anim_table (Will), LoadAbilityAnimTableB freedan_ability_anim_table (Freedan). Both store the damage byte for the current upgrade level to climbStateData ($09E0 Will, $09E2 Freedan); see the block note.
 
 ComputeParentOffset {
     LDY $24               ; Load parent actor ID from DP $24 for position reference
@@ -994,7 +1013,7 @@ ApplyParentOffset {
 PsychoDashMain {
     LDA #$0000            ; Load animation table A entry 0 — Psycho Dash sprite configuration
     JSR $&LoadAbilityAnimTableA
-    JSR $&player_character.DisableStatusForAttack ; Disable status display during Psycho Dash execution (cross-file call)
+    JSR $&player_character.FreezeCameraForAttack ; Disable status display during Psycho Dash execution (cross-file call)
     COP [GetPlayerFacing] ; Get player facing for directional dash dispatch (0=S, 1=N, 2=W, 3=E)
     AND #$0003
     STA $0000
@@ -1011,7 +1030,7 @@ PsychoDashDirTable [
 PsychoDashSouth {
     COP [SpawnAfter] ( @PsychoDashTrailSouth ) ; South: spawn trail afterimage actor for dash path
     COP [SetPlayerSpriteDirect] ( #04 ) ; Set player body to Psycho Dash pose (sprite #04)
-    COP [StageSpriteMoveY] ( #04, #36 ) ; Stage south movement: sprite #04, move speed/distance #36 (~54 pixels southward)
+    COP [StageSpriteMoveY] ( #04, #36 ) ; Sprite #04, Y movement index $36 (delta chain 8×0, 4,4,7,7,9,9,12,12, 0,0, 8×−8), not ~54 px; AnimOnce ends the movement with the animation
     COP [AnimOnce]
     BRA loc_02BF03
 }
@@ -1020,7 +1039,7 @@ PsychoDashNorth {
     COP [SpawnAfter] ( @PsychoDashTrailNorth ) ; North: spawn trail afterimage actor for northward dash path
     COP [ForceDirNE] ( #01 ) ; Set NE force direction — reverses Y movement for northward dash
     COP [SetPlayerSpriteDirect] ( #04 ) ; Set player body to Psycho Dash pose (sprite #04)
-    COP [StageSpriteMoveY] ( #05, #36 ) ; Stage north movement: sprite #05, move speed/distance #36 (~54 pixels northward)
+    COP [StageSpriteMoveY] ( #05, #36 ) ; Sprite #05, same index $36 (the ForceDirNE above flips it for north)
     COP [AnimOnce]
     BRA loc_02BF03
 }
@@ -1029,7 +1048,7 @@ PsychoDashWest {
     COP [SpawnAfter] ( @PsychoDashTrailWest ) ; West: spawn trail afterimage actor for westward dash path
     COP [ForceDirBoth] ( #01 ) ; Set both force directions — reverses X movement for westward dash
     COP [SetPlayerSpriteDirect] ( #04 ) ; Set player body to Psycho Dash pose (sprite #04)
-    COP [StageSpriteMoveX] ( #06, #36 ) ; Stage west movement: sprite #06, move speed/distance #36 (~54 pixels westward)
+    COP [StageSpriteMoveX] ( #06, #36 ) ; Sprite #06, same index $36 on X (ForceDirBoth above flips it for west)
     COP [AnimOnce]
     BRA loc_02BF03
 }
@@ -1037,11 +1056,11 @@ PsychoDashWest {
 PsychoDashEast {
     COP [SpawnAfter] ( @PsychoDashTrailEast ) ; East: spawn trail afterimage actor for eastward dash path
     COP [SetPlayerSpriteDirect] ( #04 ) ; Set player body to Psycho Dash pose (sprite #04)
-    COP [StageSpriteMoveX] ( #07, #36 ) ; Stage east movement: sprite #07, move speed/distance #36 (~54 pixels eastward)
+    COP [StageSpriteMoveX] ( #07, #36 ) ; Sprite #07, same index $36 on X
     COP [AnimOnce]
 
   loc_02BF03:
-    JSR $&player_character.RestoreStatusDisplay ; Restore status display after Psycho Dash completes
+    JSR $&player_character.UnfreezeCameraAfterAttack ; Restore status display after Psycho Dash completes
     JMP $&player_character.PlayerIdleEntry ; Return player to idle state — Psycho Dash is complete
 }
 
@@ -1254,26 +1273,26 @@ PsychoDashTrailEast {
     STA $7F102E, X
 
   loc_02C0CB:
-    COP [SetEntryHere]    ; Main charge animation loop — animate and wait for wall collision or charge input
+    COP [SetEntryHere]    ; Charge animation loop: AnimOneFrame never yields; $2A nonzero means a frame was staged; this loop is exited by a hit (bit 7) or by the charge reaching its end
     COP [AnimOneFrame]
     LDA $2A
     BEQ loc_02C0CB
     STZ $08
-    LDA $10               ; Check bit 7 ($0080) of actor flags — wall collision during charge
+    LDA $10               ; Actor flag bit 7 ($0080) is the hit/iframe marker (actor_execution manages the iframe counter from it), not a wall flag
     BIT #$0080
     BEQ loc_02C0DF
     JMP $&SpinDashAbort   ; Wall hit → abort Spin Dash entirely
 
   loc_02C0DF:
-    LDA $26               ; Check charge level — negative means already fired; >= $000C enters L/R tick phase
+    LDA $26               ; $26 is the charge level: $0F at the start, never negative in this code; below $0C ends the charge phase
     BMI loc_02C0FB
     CMP #$000C
     BCC loc_02C0FB
     LSR 
     STA $24
     COP [SetEntryHere]    ; Re-entry for button-hold monitoring during charge tick phase
-    COP [BranchIfNotPressed] ( #$0081, &SpinDashAbort ) ; Release during tick → abort Spin Dash
-    JSR $&SpinDashChargeTick ; Process charge tick: L/R shoulder buttons decrement charge level alternately
+    COP [BranchIfNotPressed] ( #$0081, &SpinDashAbort ) ; Attack released (joypadRaw) during the charge ticks: abort
+    JSR $&SpinDashChargeTick ; One tick: a fresh L or R press (alternating by the parity of $26) lowers the charge level
     DEC $24
     BMI loc_02C0CB
     RTL 
@@ -1337,12 +1356,12 @@ PsychoDashTrailEast {
 }
 
 SpinDashRelease {
-    LDA #$2800            ; Clear bits 11+13 ($2800) from player flags — end Spin Dash state
+    LDA #$2800            ; Clear $2800 from playerFlags: bit 13 was set by SpinDashMain, bit 11 was not (harmless)
     TRB $playerFlags
     PEA $&SpinDashLaunch-1
     LDA #$&SpinDashLaunchLoop
     STA $retPtr2, X
-    LDA $0B1A             ; Check $0B1A (Spin Dash upgrade flag): standard=12 frames, upgraded=24 frames launch delay
+    LDA $0B1A             ; $0B1A = Spin Dash upgrade level: level 0 gives 12 passes of frame #1D, an upgraded Spin Dash 24
     BNE loc_02C195
     LDA #$000C
     RTS 
@@ -1353,7 +1372,7 @@ SpinDashRelease {
 }
 
 SpinDashLaunch {
-    STA $loopCounter, X   ; Store frame count as loop counter for launch animation sequence
+    STA $loopCounter, X   ; A (12 or 24) is the pass count for the LoopEnd below; retPtr2 was set to SpinDashLaunchLoop
     LDA #$0001            ; Load animation table A entry 1 for Spin Dash launch sprite set
     JSR $&LoadAbilityAnimTableA
 
@@ -1401,8 +1420,11 @@ SpinDashAbort {
     COP [RestoreSavedPtr]
 }
 
+---------------------------------------------
+; One tick of the Spin Dash charge. $26 is the charge level (it starts at $0F). When $26 is odd the L button ($0020) must be newly pressed to decrement it, when even the R button ($0010). The routine then adds the L/R bits that are pressed to joypadHeld, which consumes them: joypadCurrent no longer reports a held shoulder button, so every decrement needs a fresh press. Starting at $0F the sequence L, R, L, R reaches $0B; once $26 is below $0C SpinDashMain leaves the charge phase and spawns the guided projectile.
+
 SpinDashChargeTick {
-    LDA $26               ; Read charge level from $26; LSR checks odd/even for alternating L/R check
+    LDA $26               ; Charge level $26: odd needs L, even needs R; each correct fresh press lowers it by one
     LSR 
     BCC loc_02C202
     LDA $joypadCurrent    ; Odd frame: check L shoulder ($0020) for charge decrement
@@ -1424,7 +1446,7 @@ SpinDashChargeTick {
     STA $26
 
   loc_02C212:
-    LDA $joypadCurrent    ; Merge L/R button state into held tracker — consumed for next frame
+    LDA $joypadCurrent    ; Consume the L/R bits just seen in joypadHeld, so the next decrement needs a new press
     AND #$0030
     TSB $joypadHeld
     RTS 
@@ -1559,8 +1581,11 @@ ProjectileMoveDown {
     RTL 
 }
 
+---------------------------------------------
+; Will charge-up tint. Bundle #2A is 14 one-frame strips of 15 colors at CGRAM $81–$8F (sprite palette 0, colors 1–15) with holds 0,2,3,4,5,6,7,6,5,4,3,2,1,0, i.e. 62 ticks per pass; PaletteStartLoop/PaletteStepLoop play it twice. Bundle #2B holds the same 14 color sets with no holds (14 ticks per pass) and is repeated until AttackCleanup kills the actor.
+
 WillAttackPaletteFX {
-    COP [PaletteStartLoop] ( #2A, #02 ) ; Will palette FX: cycle palette #2A (2 iterations), then loop on #2B until killed
+    COP [PaletteStartLoop] ( #2A, #02 ) ; Bundle #2A twice (62 ticks per pass), then #2B forever (14 ticks per pass); see the part note
     COP [PaletteStepLoop]
 
   loc_02C30E:
@@ -1569,8 +1594,11 @@ WillAttackPaletteFX {
     BRA loc_02C30E
 }
 
+---------------------------------------------
+; Freedan charge-up tint. Bundle #4B is 14 one-frame strips on the same 15 colors with holds 0,1,2,3,4,5,6,5,4,3,2,1,0,0 (50 ticks per pass), played twice; bundle #2C (holds mostly 0, 16 ticks per pass) repeats until the actor is killed.
+
 FreedanAttackPaletteFX {
-    COP [PaletteStartLoop] ( #4B, #02 ) ; Freedan palette FX: cycle palette #4B (2 iterations), then loop on #2C until killed
+    COP [PaletteStartLoop] ( #4B, #02 ) ; Bundle #4B twice (50 ticks per pass), then #2C forever (16 ticks per pass); see the part note
     COP [PaletteStepLoop]
 
   loc_02C31B:
@@ -1580,7 +1608,7 @@ FreedanAttackPaletteFX {
 }
 
 AuraBarrierPaletteFX {
-    COP [PaletteStart] ( #5B ) ; Aura Barrier palette FX: infinite loop on palette #5B until actor killed
+    COP [PaletteStart] ( #5B ) ; Bundle #5B: 8 strips of 8 colors at CGRAM $A1–$A8 (a blue-to-white ramp), hold 1 (16 ticks per cycle), repeated until the actor is killed
     COP [PaletteStep]
     BRA AuraBarrierPaletteFX
 }
@@ -1598,7 +1626,7 @@ RecomputeProjectilePos {
 }
 
 LoadAbilityAnimTableA {
-    PHX                   ; Index into table_01D9A7 by A (doubled for word entries) — Will ability animation config
+    PHX                   ; A = ability index; the record points to the ability level word ($0B16/$0B18/$0B1A) and carries one damage byte per level
     ASL 
     TAX 
     LDA $@ability_anim_tables.will_ability_anim_table, X
@@ -1616,13 +1644,13 @@ LoadAbilityAnimTableA {
     PLA 
     LDA $@ability_anim_tables.will_ability_anim_table+4, X
     AND #$00FF
-    STA $climbStateData   ; Store configuration byte in climbStateData ($09E0) for engine sprite system
+    STA $climbStateData   ; climbStateData ($09E0) = Will ability damage bonus for the current level (Psycho Dash 5/10, Slider 5/8, Spin Dash 4/7)
     PLX 
     RTS 
 }
 
 LoadAbilityAnimTableB {
-    PHX                   ; Index into table_01D9BF by A — Freedan ability animation config
+    PHX                   ; A = ability index; the record points to the level word ($0B1C/$0B1E/$0B20) and carries one damage byte per level
     ASL 
     TAX 
     LDA $@ability_anim_tables.freedan_ability_anim_table, X
@@ -1640,7 +1668,7 @@ LoadAbilityAnimTableB {
     PLA 
     LDA $@ability_anim_tables.freedan_ability_anim_table+4, X
     AND #$00FF
-    STA $climbStateData+2
+    STA $climbStateData+2 ; $09E2 = Freedan ability damage bonus for the current level (Dark Friar 5/8/12, Aura Barrier 5/9, Earthquaker 0/7)
     PLX 
     RTS 
 }

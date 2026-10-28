@@ -1,33 +1,25 @@
 ; SPC700 audio processor data transfer system (168078–171490, Bank 02).
 ; 
-; Implements the SNES-to-SPC700 data transfer protocol used to upload the game's sound engine and music data to the audio processor's 64KB RAM. The SPC700 has its own CPU and address space — all communication occurs through four shared I/O ports (APUIO0–APUIO3 at $2140–$2143).
+; Implements the SNES-to-SPC700 upload protocol used to load the game's sound engine at boot and every music track afterwards into the SPC700's 64 KB RAM (ARAM). All communication goes through the four I/O ports APUIO0–APUIO3 ($2140–$2143): a CPU read returns what the SPC wrote to its port, a CPU write goes to the SPC's input port.
 ; 
-; === IPL TRANSFER PROTOCOL ===
+; === IPL PROTOCOL (SpcIplHandshake) ===
+; The SPC700 boot ROM (IPL) and the sound engine's resident clone of it (sub_0f89, entered by port command $FF; docs/audio/spc-disassembly.md) speak the same byte-stream protocol, so one 65816 routine serves both:
+; 1. The SPC posts $BBAA on ports 0/1 when it is ready.
+; 2. A record is size (word), ARAM destination (word) and size data bytes. The CPU writes the destination to ports 2/3, port 1 = 1 (data follows) or 0 (size 0: end of session), then a kick value on port 0 ($CC for the first record) and waits for the SPC to echo it.
+; 3. Each data byte is one 16-bit write to ports 0/1 (counter in the low byte, data in the high byte; the counter starts at 0 and increments per byte). The CPU waits for the SPC to echo the counter before sending the next byte.
+; 4. After the last byte the code waits for the final echo; the carry from that equal compare makes ADC #$03 add 4, and a result of 0 is stepped over, so the next record's kick is non-zero and differs from the last counter.
+; 5. A record of size 0 ends the session. For the boot ROM its destination word is the entry address the SPC jumps to; the resident loader just returns to the engine.
+; The V flag carries 'more records follow': ROL puts the size-nonzero carry into port 1 (0 or 1) and ADC #$7F overflows only when it was 1.
 ; 
-; The SPC700 boots from a 64-byte IPL ROM that implements a byte-streaming protocol:
-; 1. IPL Ready: SPC writes $BBAA to APUIO0/1 when ready to receive data
-; 2. Block Header: CPU writes destination address to APUIO2/3, signals via APUIO0/1
-; 3. Byte Transfer: For each byte, CPU writes the data byte + incrementing counter to APUIO0/1 (16-bit write). CPU waits for SPC to echo the counter byte on APUIO0 before sending the next byte. This handshake ensures reliable transfer at the SPC's processing speed
-; 4. Block End: After all bytes, CPU writes a non-zero counter offset (+3, skipping zero) to signal block completion
-; 5. Multi-block: Overflow flag (V) indicates more blocks follow; clear V signals final block with execution start
+; === NMI STATE ===
+; Both transfer routines call DisableNmiKeepJoypad (NMITIMEN = $01: NMI OFF, joypad auto-read on) just before each header and kick, so the NMI cannot interleave with the port writes. After the SPC echoes the kick they call EnableNmiAndJoypad only if worldReadyFlag = $0F, so once the game is running the data bytes are sent with NMI enabled (the NMI then runs UpdateFrameFull; the music change in the main loop relies on it); at boot the NMI stays off.
 ; 
 ; === ROUTINES ===
+; SpcLoadBuiltinEngine (boot, from SystemInit): [$46] = spc_sound_engine, then SpcIplHandshake. The blob is one record (size $0BCA = 3,018 bytes of SPC700 code and tables to ARAM $0400) followed by the terminator record (size 0, entry $0400): 168464–171490.
+; SpcIplHandshake: sends the records at [$46] from Y = 0 until the size-0 record, leaving Y just past it.
+; SpcBlockTransfer (music; callers: LoadMusicFromTransitionState and scene_script's music load): two sessions on one stream. Session 1 = SpcIplHandshake over the stream's leading records (the song data and tables, e.g. ARAM $1254, $1300, $5532, $1038, $0FFC, $0FFE, $0FE0; the words at ARAM $0FFC/$0FFE are the engine's stream and tail pointers). The stream continues after the terminator: its destination word is reused as the ARAM address of the first sample chunk, then one count byte and that many chunk-index bytes. Port command $FF re-enters the engine's loader (a fresh $BBAA, awaited at 168114) and session 2 sends the chunks from the sample library at $C5:0000: chunk = [size word][data], stored back to back (61 chunks, indices 0-60), in 32 KB pages (the pointer $4A wraps at $8000 into the next bank, even inside a chunk). For each index byte the code walks the library from the start to that chunk (skipping chunks by their size words), sends it to the running ARAM address (previous chunk's destination + size) and moves on; an index with bit 7 set is an empty slot and is skipped. A final size-0 record ends session 2.
 ; 
-; SpcIplHandshake: Low-level single-block transfer. Reads block headers (byte count + destination) from the data stream at [$46],Y. Manages NMI state (EnableNmiOnly during transfer to prevent VBlank interruption, EnableNmiAndJoypad after if worldReadyFlag == $0F).
-; 
-; SpcBlockTransfer: Multi-block wrapper. Calls SpcIplHandshake for the initial block, then enters a loop processing additional blocks. Each block has a header byte — bit 7 set means finalize, bit 7 clear means more data. Uses indirect pointer $4A/$4C with bank-crossing support for large data streams.
-; 
-; SpcLoadBuiltinEngine: Entry point for boot-time sound engine upload. Sets [$46] to point to spc_sound_engine binary data and calls SpcIplHandshake.
-; 
-; === DATA FORMAT ===
-; 
-; The spc_sound_engine binary blob (168464–171490) contains the complete SPC700 sound engine — approximately 3KB of SPC700 machine code plus lookup tables (envelope curves, frequency tables, etc.). This is raw SPC700 binary, not 65C816 code.
-; 
-; SpcBlockTransfer data streams (passed via [$46]) use a structured format:
-; - 2-byte destination address (SPC RAM target)
-; - 1-byte block count
-; - Per block: 1-byte sub-block count, then pairs of [2-byte size, data bytes]
-; - Blocks reference addresses that may cross the $8000 bank boundary ($4A pointer wraps via AND #$7FFF + INC $4C)
+; The library, the index lists and the records are data; the SPC engine's own behavior is documented in docs/audio/.
 ---------------------------------------------
 
 ?BANK 02
@@ -41,7 +33,7 @@
 
 ---------------------------------------------
 
-; Boot-time entry point for uploading the built-in sound engine to the SPC700. Sets the data pointer [$46] to the spc_sound_engine binary blob address (both 16-bit offset and bank byte), then calls SpcIplHandshake to transfer the engine code to SPC700 RAM via the IPL protocol.
+; Boot-time entry point for uploading the built-in sound engine to the SPC700 (called by SystemInit). Sets the data pointer [$46] to the spc_sound_engine blob (16-bit offset and bank byte), then calls SpcIplHandshake, which sends the blob's single record (3,018 bytes to ARAM $0400) and the terminator whose entry address $0400 makes the IPL start the engine.
 
 SpcLoadBuiltinEngine {
     LDX #$&spc_sound_engine ; Load spc_sound_engine address (16-bit offset within bank)
@@ -53,25 +45,25 @@ SpcLoadBuiltinEngine {
 }
 
 ---------------------------------------------
-; Multi-block SPC700 data transfer. Called by SpcMusicLoadCmd and other music loading code to upload structured music data to the SPC700. Calls SpcIplHandshake for the initial block header, then enters a multi-block processing loop.
+; Upload one music track's data to the SPC700: two sessions over the stream at [$46] (callers: LoadMusicFromTransitionState and scene_script's music load).
 ; 
-; The data stream at [$46],Y uses a structured format: first a 2-byte SPC destination address ($2E), then a block count byte ($28). Each block has a sub-block count byte — bit 7 clear means process more sub-blocks (reads 2-byte size headers from indirect pointer $4A/$4C, accumulates offsets), bit 7 set means finalize the current block. The indirect pointer $4A/$4C supports bank-crossing: when $4A exceeds $7FFF, it wraps via AND #$7FFF and increments $4C.
+; Session 1: SpcIplHandshake sends the stream's leading records (the song's data and tables, ARAM $1254 ...) up to the size-0 terminator and returns with Y past it. Y is backed up by 2 to the terminator's destination word, which becomes $2E: the ARAM address of the first sample chunk. Port command $FF is written to APUIO0 (the engine re-enters its resident loader), $30 is set to $CC (first kick) and the routine waits for the fresh $BBAA.
 ; 
-; The actual byte transfer loop uses the SPC700 IPL handshake: writes data byte + incrementing counter to APUIO0 (16-bit write via REP #$20 STA), waits for the SPC to echo the counter byte. The XBA trick stores the counter in B accumulator, freeing A for data reads.
+; Session 2: the next stream byte is the chunk count ($28), followed by that many chunk-index bytes (Y of the first one is kept in $32). Per index byte: bit 7 set = empty slot (skip via SpcChunkDone); otherwise $4A/$4C is reset to the library start $C5:0000, $2E += the previous chunk's size ($2C), and the loop at SpcFindChunk reads each chunk's size word and skips chunks (adding their sizes, wrapping at $8000 into the next bank) until the index reaches 0. The chosen chunk's size goes to X and $2C, the data pointer to Y; the header (destination to ports 2/3, flag in port 1, kick on port 0) is sent by SpcSendHeader and the data loop at SpcSendChunkData sends the bytes with the same counter handshake as SpcIplHandshake. The counter ($30) persists across chunks.
 ; 
-; After each block completes: writes destination address to APUIO2, byte count indicator to APUIO1 (carry flag from CPX #$0001 → ROL gives 0 or 1), sends the continuation signal via APUIO0. NMI is set to EnableNmiOnly during transfer, then EnableNmiAndJoypad if worldReadyFlag == $0F.
+; After the last chunk SpcChunkDone clears $2C and sends a size-0 record (port 1 = 0, V clear), ends the session, clears APUIO1/APUIO2 and returns. NMI is switched off around each header/kick (DisableNmiKeepJoypad) and back on after the kick echo when worldReadyFlag = $0F.
 
 SpcBlockTransfer {
     PHP                   ; Save processor state — multi-block transfer modifies all registers
     PHY 
-    JSR $&SpcIplHandshake ; Transfer initial block header via IPL handshake
-    DEY                   ; Back up Y past the header bytes consumed by SpcIplHandshake
+    JSR $&SpcIplHandshake ; Session 1: the song's data records (ARAM $1254, $1300, ...) up to the size-0 terminator
+    DEY                   ; Y is past the terminator record: back up 2 to its destination word
     DEY 
     SEP #$20
-    LDA #$FF              ; $FF → APUIO0: signal SPC that block data transfer follows
+    LDA #$FF              ; Port command $FF: the engine re-enters its resident loader, which posts a fresh $BBAA
     STA $APUIO0
     LDA #$CC              ; $CC: initial counter value for the byte transfer handshake
-    STA $30
+    STA $30               ; $30 = $CC: first kick value for session 2
     REP #$20
     LDA #$BBAA            ; $BBAA: IPL ready signal — wait for SPC to echo after initial block
 
@@ -81,30 +73,32 @@ SpcBlockTransfer {
     LDA [$46], Y          ; Read 2-byte SPC RAM destination address from data stream
     INY 
     INY 
-    STA $2E
-    LDA [$46], Y          ; Read block descriptor: low byte = sub-block count, high bits = flags
+    STA $2E               ; The terminator's destination word is reused as the ARAM address of the first sample chunk
+    LDA [$46], Y          ; Chunk count byte; the chunk-index bytes follow (Y after the count is saved in $32)
     INY 
     STY $32
     AND #$00FF            ; Mask to 8-bit block count ($28)
     STA $28
     STZ $2C
 
-  code_0290C9:
+; Start of the per-chunk loop inside SpcBlockTransfer: resets the sample-library pointer to bank C5 page 0, reads the next chunk index byte from the stream at Y in $32, and skips to SpcChunkDone when bit 7 marks an empty slot; otherwise accumulates the running SPC destination offset and enters SpcFindChunk.
+
+  SpcNextChunkIndex:
     REP #$20              ; Begin sub-block processing loop
     LDX #$0000            ; Initialize indirect data pointer $4A to zero (start of bank $C5)
     STX $4A
     SEP #$20
-    LDA #$C5              ; $C5: initial bank byte for SPC data source pointer
+    LDA #$C5              ; $C5:0000 = start of the sample library (32 KB pages: $4A wraps at 32 KB into the next bank)
     STA $4C
     LDY $32
-    LDA [$46], Y          ; Read sub-block header byte — bit 7 = finalize flag
+    LDA [$46], Y          ; Chunk index byte: bit 7 set = empty slot (skipped), else the chunk's position in the library
     INY 
     STY $32
     STA $2A
     STZ $2B
-    BIT #$80              ; Bit 7 set: this sub-block is the finalizer (jump to block end)
-    BEQ loc_0290E8        ; Bit 7 clear: more sub-blocks to process
-    JMP $&code_029153
+    BIT #$80              ; Bit 7 set: empty slot, nothing to send; jump to SpcChunkDone (next record or finish)
+    BEQ loc_0290E8        ; Bit 7 clear: $2A = the wanted chunk index; walk the sample library below
+    JMP $&SpcChunkDone
 
   loc_0290E8:
     REP #$20
@@ -113,34 +107,38 @@ SpcBlockTransfer {
     ADC $2C
     STA $2E
 
-  loc_0290F1:
-    LDA [$4A]             ; Read 2-byte sub-block size from indirect pointer [$4A]
+; Walks the C5 sample library: for each header word at [$4A], subtracts one from the wanted index in $2A until zero, skipping payload bytes and wrapping $4A at 32K page boundaries; when the target chunk is found, sets Y to the data offset and branches into SpcSendHeader with the handshake counter from $30.
+
+  SpcFindChunk:
+    LDA [$4A]             ; Library chunk size word; reaching the wanted index means skipping the earlier chunks one by one
     STA $2C
     STA $34
     INC $4A
     INC $4A
-    LDA $2A               ; Check remaining sub-block count
-    BEQ loc_029113        ; All sub-blocks consumed: begin byte transfer at current pointer
+    LDA $2A               ; $2A = chunks still to skip; zero means the wanted chunk starts at $4A / $4C
+    BEQ loc_029113        ; Wanted chunk reached: start sending its bytes at loc_029113
     DEC $2A
-    LDA $4A               ; Advance data pointer past the 2-byte size word
+    LDA $4A               ; Skip this chunk's payload: $4A += its size (the 2-byte size word was already passed)
     CLC 
     ADC $2C
     STA $4A
-    BPL loc_0290F1        ; Check for bank boundary crossing ($4A >= $8000)
+    BPL SpcFindChunk      ; Still inside this 32 KB page: next chunk header; otherwise wrap into the next bank below
     AND #$7FFF            ; Wrap address within bank: AND #$7FFF, increment bank byte
     STA $4A
     INC $4C
-    BRA loc_0290F1
+    BRA SpcFindChunk
 
   loc_029113:
     LDY $4A               ; Transfer start: Y = data pointer offset, switch to 8-bit for byte loop
     STZ $4A
     SEP #$20
     LDA $30               ; Load continuation counter from $30 (preserved across blocks)
-    BRA loc_029160
+    BRA SpcSendHeader
 
-  loc_02911D:
-    LDA [$4A], Y          ; Read source byte from data stream at [$4A]+Y
+; Byte loop for one library chunk after SpcSendHeader: reads from [$4A],Y with bank byte $4C, waits for APUIO0 echo, writes data and an incrementing counter to APUIO0/1, wraps Y at $8000, and exits when X (byte count) reaches zero.
+
+  SpcSendChunkData:
+    LDA [$4A], Y          ; Next chunk byte from the sample library: [$4A],Y with $4A = 0, so Y is the offset inside the page at bank $4C
     INY 
     BPL loc_029127        ; Check for Y overflow past $7FFF (bank boundary)
     LDY #$0000            ; Y overflowed: wrap to $0000, advance bank byte $4C
@@ -153,7 +151,7 @@ SpcBlockTransfer {
 
   loc_02912C:
     XBA                   ; Swap counter back to A low byte for APUIO0 write
-    LDA [$4A], Y          ; Read next source byte from data stream
+    LDA [$4A], Y          ; Next chunk byte from the sample library (same source as above)
     INY 
     BPL loc_029137
     LDY #$0000
@@ -179,25 +177,27 @@ SpcBlockTransfer {
     BNE loc_029148
 
   loc_02914D:
-    ADC #$03              ; ADC #$03: advance counter past zero (zero = block-end signal)
+    ADC #$03              ; Carry is set by the equal compare, so this adds 4; BEQ re-adds 3 if it wrapped to 0 (next kick must be non-zero)
     BEQ loc_02914D        ; Retry if counter accidentally landed on zero
     STA $30               ; Store updated counter for next block's continuation
 }
 
 ---------------------------------------------
-; Block finalization within SpcBlockTransfer. Decrements the remaining block count ($28). If blocks remain, jumps back to code_0290C9 for the next block. When all blocks are processed, clears the accumulated offset ($2C/$2D) and falls through to loc_029160 for the final transfer handshake.
+; Per-chunk bookkeeping and end of session inside SpcBlockTransfer (the data loop above falls into it; empty chunk slots jump here). Decrements the remaining chunk count ($28). While chunks remain it loops back to SpcNextChunkIndex for the next index byte. When the count is exhausted it clears the previous-size accumulator ($2C/$2D) and falls into SpcSendHeader with the running counter, which sends the final size-0 record (port 1 = 0, V clear) that ends the session.
 
-code_029153 {
+SpcChunkDone {
     DEC $28               ; Decrement remaining block count ($28)
     BEQ loc_02915A        ; All blocks done: fall through to finalization
-    JMP $&code_0290C9     ; More blocks: loop back to sub-block processing
+    JMP $&SpcNextChunkIndex ; More blocks: loop back to sub-block processing
 
   loc_02915A:
     STZ $2C               ; Clear accumulated offset for finalization
     STZ $2D
     LDA $30
 
-  loc_029160:
+; Shared block header inside SpcBlockTransfer (also reached from SpcChunkDone when all chunks are done): pushes the continuation counter, writes chunk size to the port handshake, SPC RAM dest to APUIO2/3, more-data flag to APUIO1, disables NMI around the kick, waits for APUIO0 echo, optionally re-enables NMI when worldReadyFlag is $0F, then branches to SpcSendChunkData if more bytes remain or clears ports and returns.
+
+  SpcSendHeader:
     PHA                   ; Push continuation counter — will be sent as APUIO0 start signal
     REP #$20
     LDA $2C               ; Transfer size → X for APUIO1 byte count indicator
@@ -210,7 +210,7 @@ code_029153 {
     ROL                   ; ROL carry into A: 0 = execute after transfer, 1 = more data follows
     STA $APUIO1           ; Write more-data flag to APUIO1
     ADC #$7F              ; ADC #$7F: sets overflow flag (V) if APUIO1 was 1 (more blocks)
-    JSL $@vblank_joypad.EnableNmiOnly ; Enable NMI only (no joypad auto-read) during transfer
+    JSL $@vblank_joypad.DisableNmiKeepJoypad ; NMITIMEN = $01: NMI OFF around the header and kick (joypad auto-read stays on)
     PLA 
     STA $APUIO0           ; Send start/continuation signal to SPC via APUIO0
 
@@ -220,10 +220,10 @@ code_029153 {
     LDA $worldReadyFlag   ; Check if game is fully initialized (worldReadyFlag == $0F)
     CMP #$0F
     BNE loc_029190
-    JSL $@vblank_joypad.EnableNmiAndJoypad ; Re-enable NMI + joypad auto-read after transfer completion
+    JSL $@vblank_joypad.EnableNmiAndJoypad ; NMI back on after the kick echo (not after the whole transfer): the byte loop then runs with NMI enabled
 
   loc_029190:
-    BVS loc_02911D        ; BVS: overflow set = more blocks remain (branch to byte transfer loop)
+    BVS SpcSendChunkData  ; BVS: overflow set = more blocks remain (branch to byte transfer loop)
     STZ $APUIO1           ; All blocks done: clear APUIO1/2 (signal transfer complete to SPC)
     STZ $APUIO2
     PLY 
@@ -232,13 +232,11 @@ code_029153 {
 }
 
 ---------------------------------------------
-; Low-level SPC700 IPL ROM transfer protocol implementation. Waits for $BBAA ready signal on APUIO0 (IPL boot complete), then enters the block transfer loop.
+; Low-level SPC700 upload protocol (boot ROM IPL or the engine's resident clone of it). Waits for $BBAA on APUIO0/1, then sends the records at [$46] from Y = 0 until a size-0 record; returns with Y just past that record.
 ; 
-; For each data block: reads 2-byte byte count and 2-byte destination address from [$46],Y. Writes destination to APUIO2, signals via APUIO1 (0 = more data, 1 = execute after transfer), sends start command via APUIO0, waits for echo.
+; Per record (SpcSendRecord): size word → X, destination word → ports 2/3, DisableNmiKeepJoypad (NMI off), port 1 = 1 if the size is non-zero else 0 (ROL of the CPX #1 carry), ADC #$7F sets V when it was 1, then the kick (the counter pushed earlier; $CC for the first record) on port 0 and a wait for the echo; if worldReadyFlag = $0F the NMI is turned back on. BVS then sends the data bytes: the first byte with counter 0, each following byte as one 16-bit write (counter low, data high) after the SPC has echoed the previous counter. After the last byte the final echo is awaited and the counter advances by 4 (ADC #$03 with the carry set; a result of 0 is stepped over) to become the next kick.
 ; 
-; Byte transfer inner loop: reads source byte from [$46],Y, writes to APUIO0 with incrementing counter via 16-bit STA. Waits for SPC to echo counter. After all bytes, advances counter by +3 (ADC #$03, skipping zero to avoid false block-end signal).
-; 
-; Manages NMI state: calls EnableNmiOnly before the transfer start signal (prevents VBlank from disrupting the timing-sensitive handshake), then EnableNmiAndJoypad after acknowledgment if worldReadyFlag == $0F (game is fully initialized). Uses overflow flag (BVS) to detect multi-block continuation.
+; The size-0 record ends the session (port 1 = 0, V clear); the routine then clears APUIO2 and returns with RTS. It is the shared low-level routine of SpcLoadBuiltinEngine and SpcBlockTransfer.
 
 SpcIplHandshake {
     PHP                   ; Save processor state — handshake modifies flags and registers
@@ -250,8 +248,8 @@ SpcIplHandshake {
     CMP $APUIO0           ; Poll APUIO0 until SPC700 IPL ROM signals ready ($BBAA)
     BNE loc_0291A4
     SEP #$20
-    LDA #$CC              ; $CC: initial handshake counter (non-zero, non-$AA/BB to avoid confusion)
-    BRA loc_0291D5
+    LDA #$CC              ; First kick value: must be non-zero ($CC is the customary IPL value)
+    BRA SpcSendRecord
 
   loc_0291AF:
     LDA [$46], Y          ; Multi-block entry: read next data byte from stream
@@ -283,10 +281,12 @@ SpcIplHandshake {
     BNE loc_0291CC
 
   loc_0291D1:
-    ADC #$03              ; ADC #$03: advance counter past zero (avoids false block-end)
+    ADC #$03              ; Carry is set by the equal compare, so this adds 4; BEQ re-adds 3 if it wrapped to 0
     BEQ loc_0291D1
 
-  loc_0291D5:
+; IPL record sender inside SpcIplHandshake: pushes the kick counter, reads size and destination words from [$46],Y, disables NMI, writes port 1/2/3, kicks port 0 and waits for echo, restores NMI when worldReadyFlag is $0F, loops to the byte sender when overflow indicates data, else clears APUIO2 and returns with the saved P.
+
+  SpcSendRecord:
     PHA                   ; Push current counter — will become APUIO0 start signal
     REP #$20
     LDA [$46], Y          ; Read 2-byte transfer size (byte count for this block)
@@ -298,7 +298,7 @@ SpcIplHandshake {
     INY 
     STA $APUIO2           ; Write destination address to APUIO2/3
     SEP #$20
-    JSL $@vblank_joypad.EnableNmiOnly ; Enable NMI only during timing-sensitive transfer
+    JSL $@vblank_joypad.DisableNmiKeepJoypad ; NMITIMEN = $01: NMI OFF around the header and kick (joypad auto-read stays on)
     CPX #$0001            ; CPX #$0001: carry = (size > 0), determines more-data flag
     LDA #$00
     ROL 
@@ -313,7 +313,7 @@ SpcIplHandshake {
     LDA $worldReadyFlag   ; Check game initialization state for NMI restore
     CMP #$0F
     BNE loc_029209
-    JSL $@vblank_joypad.EnableNmiAndJoypad ; Fully initialized: re-enable NMI + joypad auto-read
+    JSL $@vblank_joypad.EnableNmiAndJoypad ; NMI back on after the kick echo when the game is running; at boot it stays off
 
   loc_029209:
     BVS loc_0291AF        ; BVS: overflow = more blocks to transfer (loop to byte send)

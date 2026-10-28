@@ -4,7 +4,7 @@
 ; her way in the dark palace. Part of the separated party.
 ---------------------------------------------
 
-?INCLUDE 'ToggleActorVisibilityFlag'
+?INCLUDE 'FlickerParentActor'
 
 ---------------------------------------------
 
@@ -13,7 +13,7 @@ sp5B_kara [
 
   code_068621:
     COP [BranchOnFlagByte] ( #70, #01, &code_068657 )
-    COP [SpawnAfterAbsFlags] ( @ToggleActorVisibilityFlag, #$0000, #$0000, #$2800 )
+    COP [SpawnAfterAbsFlags] ( @FlickerParentActor, #$0000, #$0000, #$2800 )
     LDA #$0200
     TSB $12
     COP [SetInteractHandler] ( &code_068659 )

@@ -256,17 +256,17 @@ COP [BranchIfSolidEast] ( &code_0BC5B3 )
 
 ---
 
-#### COP [1A] — `BranchIfTypeHere` (branch if terrain type matches at actor)
+#### COP [1A] — `BranchIfSolidType` (branch if terrain type matches at actor)
 
-- **Preferred name:** `BranchIfTypeHere`
+- **Preferred name:** `BranchIfSolidType`
 - **Aliases:** `BranchIfSolidType` (copdef / extracted scripts)
-- **Handler:** `BranchIfTypeHere` @ [`cop_handlers_collision.asm:549-578`](../../../extracted/system/engine/cop_handlers_collision.asm)
+- **Handler:** `BranchIfSolidType` @ [`cop_handlers_collision.asm:549-578`](../../../extracted/system/engine/cop_handlers_collision.asm)
 - **Usage count:** 9
 
 ##### What it does
 
 ```asm
-BranchIfTypeHere {
+BranchIfSolidType {
     TYX
     LDA $14
     STA $0018
@@ -309,11 +309,11 @@ Aura landing checks other types (`#04`) in `player_transition_handlers.asm`.
 
 ---
 
-#### COP [1B] — `BranchIfTypeNorth` (branch if type matches north tile)
+#### COP [1B] — `BranchIfSolidTypeNorth` (branch if type matches north tile)
 
-- **Preferred name:** `BranchIfTypeNorth`
+- **Preferred name:** `BranchIfSolidTypeNorth`
 - **Aliases:** `BranchIfSolidTypeNorth`
-- **Handler:** `BranchIfTypeNorth` @ [`cop_handlers_collision.asm:583-614`](../../../extracted/system/engine/cop_handlers_collision.asm)
+- **Handler:** `BranchIfSolidTypeNorth` @ [`cop_handlers_collision.asm:583-614`](../../../extracted/system/engine/cop_handlers_collision.asm)
 - **Usage count:** 4
 
 ##### What it does
@@ -335,11 +335,11 @@ COP [BranchIfSolidTypeNorth] ( #00, &ShimmyTopCorner )
 
 ---
 
-#### COP [1C] — `BranchIfTypeSouth` (branch if type matches south tile)
+#### COP [1C] — `BranchIfSolidTypeSouth` (branch if type matches south tile)
 
-- **Preferred name:** `BranchIfTypeSouth`
+- **Preferred name:** `BranchIfSolidTypeSouth`
 - **Aliases:** `BranchIfSolidTypeSouth`
-- **Handler:** `BranchIfTypeSouth` @ [`cop_handlers_collision.asm:619-650`](../../../extracted/system/engine/cop_handlers_collision.asm)
+- **Handler:** `BranchIfSolidTypeSouth` @ [`cop_handlers_collision.asm:619-650`](../../../extracted/system/engine/cop_handlers_collision.asm)
 - **Usage count:** 6
 
 ##### What it does
@@ -359,11 +359,11 @@ COP [BranchIfSolidTypeSouth] ( #08, &code_0BB939 )
 
 ---
 
-#### COP [1D] — `BranchIfTypeWest` (branch if type matches west tile)
+#### COP [1D] — `BranchIfSolidTypeWest` (branch if type matches west tile)
 
-- **Preferred name:** `BranchIfTypeWest`
+- **Preferred name:** `BranchIfSolidTypeWest`
 - **Aliases:** `BranchIfSolidTypeWest`
-- **Handler:** `BranchIfTypeWest` @ [`cop_handlers_collision.asm:655-686`](../../../extracted/system/engine/cop_handlers_collision.asm)
+- **Handler:** `BranchIfSolidTypeWest` @ [`cop_handlers_collision.asm:655-686`](../../../extracted/system/engine/cop_handlers_collision.asm)
 - **Usage count:** 4
 
 ##### What it does
@@ -385,11 +385,11 @@ COP [BranchIfSolidTypeWest] ( #00, &ShimmyLeftLoop )
 
 ---
 
-#### COP [1E] — `BranchIfTypeEast` (branch if type matches east tile)
+#### COP [1E] — `BranchIfSolidTypeEast` (branch if type matches east tile)
 
-- **Preferred name:** `BranchIfTypeEast`
+- **Preferred name:** `BranchIfSolidTypeEast`
 - **Aliases:** `BranchIfSolidTypeEast`
-- **Handler:** `BranchIfTypeEast` @ [`cop_handlers_collision.asm:691-722`](../../../extracted/system/engine/cop_handlers_collision.asm)
+- **Handler:** `BranchIfSolidTypeEast` @ [`cop_handlers_collision.asm:691-722`](../../../extracted/system/engine/cop_handlers_collision.asm)
 - **Usage count:** 4
 
 ##### What it does

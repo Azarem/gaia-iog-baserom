@@ -86,7 +86,7 @@ multiply) to build per-scanline horizontal scroll offsets on HDMA channels 6 & 7
 
 Calls into multiple subsystems to prepare a new scene: `SceneScriptMain` (tileset/
 tilemap/music/display config), `InitCameraBounds`, `ApplyAllEventBlocks`,
-`PlaceBarrierTiles`, actor/thinker spawning (`actor_execution`),
+`PlaceOpenedChestTiles`, actor/thinker spawning (`actor_execution`),
 `LoadScenePalettes`/`LoadPlayerGraphics`, and `CameraFullRefresh` or
 `RenderPaletteTiles` for the initial render.
 
@@ -114,11 +114,11 @@ tilemap/music/display config), `InitCameraBounds`, `ApplyAllEventBlocks`,
 - **Out:**
   - `hdma_dma_spc` — `ResetHdmaState`, `DmaPlayerTilesToVram` during `ClearSceneState`
   - `actor_execution` — `InitActorPool`, `SpawnSceneActors`, `RunActors_Normal` ×2
-  - `thinker_execution` — `SpawnSceneThinkers`, `RunThinkers_TypeA`/`TypeB`
+  - `thinker_execution` — `SpawnSceneThinkers`, `RunThinkers_General`/`RunThinkers_Hdma`
   - `sprite_composition` — `ClearActorRenderList`, `SortActorsByDepth`, `ComposeAllSprites`
   - `scene_script.SceneScriptMain` — parse scene definition (external)
   - `event_blocks.ApplyAllEventBlocks` — persistent tile changes (external)
-  - `warps_interaction.PlaceBarrierTiles` / `InitWarpTable` — collision barriers
+  - `warps_interaction.PlaceOpenedChestTiles` / `InitWarpTable` — opened-chest redraw and warp table
   - `camera_tilemap.CameraFullRefresh` / `RenderPaletteTiles` — initial render
   - `DisplaySceneTitle` — area name overlay
   - `system_core.UpdateFrameDialogue` / `UpdateHUD` — frame sync
@@ -130,7 +130,7 @@ tilemap/music/display config), `InitCameraBounds`, `ApplyAllEventBlocks`,
 ```
 1.  STZ HDMAEN                              — disable HDMA
 2.  Zero all critical WRAM variables         — joypad, HP, camera, scroll, speeds, etc.
-3.  Set invincibilityTimer = $FFFF           — disabled
+3.  Set walkRunWindowTimer ($040C) = $FFFF    — run window closed
 4.  Clear backdrop colors, COLDATA=$E0       — force black
 5.  Reset BG3SC, BG3 scroll, BG12NBA        — tilemap/char bases
 6.  Clear MOSAIC, all window registers       — W12SEL/W34SEL/WOBJSEL/WBGLOG/WH0-3
@@ -138,7 +138,7 @@ tilemap/music/display config), `InitCameraBounds`, `ApplyAllEventBlocks`,
 8.  SceneScriptMain                          — parse scene script
 9.  InitCameraBounds                         — camera limits
 10. ApplyAllEventBlocks                      — persistent tile changes
-11. PlaceBarrierTiles                        — barrier collision tiles
+11. PlaceOpenedChestTiles                        — opened-chest tiles
 12. Clear joypad state                       — joypadMaskStd/joypadCurrent/joypadRaw
 13. InitActorPool                            — reset actor + thinker pools
 14. SpawnSceneActors                         — instantiate scene actors
@@ -150,7 +150,7 @@ tilemap/music/display config), `InitCameraBounds`, `ApplyAllEventBlocks`,
 20. InitWarpTable                            — warp collision rectangles
 21. RunActors_Normal ×2                      — settle initial positions
 22. ResetHdmaState                           — clear HDMA channels
-23. RunThinkers_TypeA + TypeB                — initial thinker tick
+23. RunThinkers_General + RunThinkers_Hdma      — initial thinker tick
 24. ResetHdmaState                           — re-clear HDMA
 25. COP SetFlagByte $FF                      — mark all actors for compose
 26. SortActorsByDepth + ComposeAllSprites    — initial sprite frame
@@ -192,10 +192,12 @@ Called by `ClearSceneState` (scene load) and the NMI handler (per-frame animatio
 
 ### Palette/graphics loading (`$03E0B0`–`$03E255`)
 
-`LoadPaletteBundle` parses structured palette/spriteset bundles from
-`palette_bundles`, populating actor WRAM (`spritesetPtr`, `chatPtr`,
-`metaspritePtr`). `DecompressGfxToVram` wraps the `$0402` decompression helper to
-decompress graphics into VRAM from actor WRAM parameters.
+`LoadPaletteBundle` reads the next 6-byte sub-entry from a `palette_bundles`
+strip (bank `$96`): frame count, source pointer, CGRAM staging offset (or backdrop
+`COLDATA` triplet when size = 3 bytes), byte count, and inter-frame delay. It fills
+actor WRAM (`spritesetPtr`, `chatPtr`, `metaspritePtr`, frame size). `CopyPaletteBundleFrame`
+block-copies one frame from bank `$96` into the palette staging buffer at `$7F:0A00+`
+via the `$0402` MVN stub — no LZ decompression and no direct VRAM write.
 
 ### HDMA channel management (`$03E0B0`–`$03E255`, cont.)
 
@@ -207,7 +209,7 @@ tables. Both advance the allocation state.
 
 ### SPC audio transfer (`$03E0B0`–`$03E255`, cont.)
 
-Three-stage pipeline: `SpcCheckMusicReady` handshakes via APUIO0 (`$2140`),
+Three-stage pipeline: `SpcFadeOutHandshake` handshakes via APUIO0 (`$2140`),
 `SpcTransferMusicData` sends the data with a confirmation protocol,
 `LoadMusicFromTransitionState` resolves a music ID from `musicTransitionState`
 (`$06FA`) to a `music_array` pointer and starts `SpcBlockTransfer`.
@@ -226,12 +228,12 @@ writes outside the normal V-Blank pipeline.
 | `$03D881` | `DmaPlayerTilesToVram` | player tile DMA: up to 8 queued 16×16 tiles |
 | `$03D8D8` | `DmaPlayerTiles_UpperHalf` | upper 8×16 half of queued player tiles |
 | `$03D8F2` | `DmaPlayerTiles_LowerHalf` | lower 8×16 half of queued player tiles |
-| `$03E0B0` | `LoadPaletteBundle` | parse palette/spriteset bundles → actor WRAM |
-| `$03E125` | `DecompressGfxToVram` | decompress graphics via `$0402` helper to VRAM |
+| `$03E0B0` | `LoadPaletteBundle` | parse next palette-bundle sub-entry → actor WRAM |
+| `$03E125` | `CopyPaletteBundleFrame` | MVN one animation frame into `$7F` palette staging |
 | `$03E146` | `ResetHdmaState` | init HDMA allocation (`$66` enable, `$68` channel, `$6A` offset) |
 | `$03E157` | `SetupHdmaChannel_Indirect` | configure HDMA channel (indirect mode, +`$40` flag) |
 | `$03E173` | `SetupHdmaChannel_Direct` | configure HDMA channel (direct mode) |
-| `$03E1AA` | `SpcCheckMusicReady` | handshake via `APUIO0` (`$2140`) for transfer readiness |
+| `$03E1AA` | `SpcFadeOutHandshake` | handshake via `APUIO0` (`$2140`) for transfer readiness |
 | `$03E1D6` | `SpcTransferMusicData` | send data with confirmation protocol |
 | `$03E21E` | `LoadMusicFromTransitionState` | resolve `musicTransitionState` → `music_array` → transfer |
 | `$03F1D0` | `DmaAdhocVramBlock` | one-shot VRAM transfer from `$7F0C03` queue |
@@ -256,8 +258,9 @@ per allocation), and `$6A` (register offset, advances through the table).
 
 ### SPC handshake protocol
 
-`SpcCheckMusicReady` polls `APUIO0` (`$2140`) for a specific ready value, looping
-until the SPC700 signals it can accept data. `SpcTransferMusicData` sends the
+`SpcFadeOutHandshake` is the thinker entry used by COP `$05`: it sends SPC port command
+`$F1` (fade out the current track), then `$01`, before falling into the same upload
+path as `$04`. `SpcTransferMusicData` sends the
 music data with a byte-level confirmation protocol (each byte echoed by the SPC
 before the next is sent). `LoadMusicFromTransitionState` resolves the music ID
 from `musicTransitionState` (`$06FA`) by indexing into `music_array_01CBA6` to

@@ -4,7 +4,7 @@
 ; room. Minimal dialog showing his weakened state.
 ---------------------------------------------
 
-?INCLUDE 'ToggleActorVisibilityFlag'
+?INCLUDE 'FlickerParentActor'
 
 ---------------------------------------------
 
@@ -13,7 +13,7 @@ sp5B_lance [
 
   code_0688F3:
     COP [BranchOnFlagByte] ( #70, #01, &code_068929 )
-    COP [SpawnAfterAbsFlags] ( @ToggleActorVisibilityFlag, #$0000, #$0000, #$2800 )
+    COP [SpawnAfterAbsFlags] ( @FlickerParentActor, #$0000, #$0000, #$2800 )
     LDA #$0200
     TSB $12
     COP [SetInteractHandler] ( &code_06892B )

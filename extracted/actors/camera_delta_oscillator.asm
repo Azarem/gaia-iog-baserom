@@ -1,6 +1,8 @@
-; Camera oscillation actor — copies cameraTargetX to cameraDeltaX each frame and
-; alternates cameraDeltaY ±1 based on bit 9 of the global frame counter ($0036).
-; Produces a subtle vertical camera wobble effect. Runs continuously via SetEntryHere.
+; Per-frame actor: cameraDeltaX = cameraTargetX, and bit 9 ($0200) of the frame counter $0036 (incremented once per frame in the NMI) selects INC (bit set) or DEC (bit clear) of cameraDeltaY.
+; 
+; Bit 9 flips every 512 frames, so cameraDeltaY ramps up 512 steps and back down 512 steps (about 8.5 s per half at 60 Hz): a slow vertical drift, not the 'subtle wobble' the older header claimed.
+; cameraDeltaX / Y are not the camera itself: camera_tilemap copies them into effectScrollH / V in layer-1 delta mode ($06EF bit 2), and camera_scroll actors compute them as parallax ratios of cameraTargetX / Y.
+; No extracted script references this actor by label (no spawn or entry reference found), so it is either unused or spawned from data; the claim in docs/code/bank08-native-dao-pyramid-actors.md that it is used during pyramid scroll sequences is unsupported (OQ-I038-4). UNVERIFIED-RUNTIME.
 ---------------------------------------------
 
 !frameCounter                   0036
@@ -17,14 +19,14 @@ camera_delta_oscillator [
     COP [SetEntryHere]
     LDA $cameraTargetX    ; Sync horizontal delta to camera target
     STA $cameraDeltaX
-    LDA $frameCounter     ; Global frame counter
+    LDA $frameCounter     ; Frame counter $0036 (2 bytes, INC per frame in the NMI)
     AND #$0200            ; Bit 9: toggles every 512 frames
     BEQ loc_08B58E
-    INC $cameraDeltaY     ; Odd half: nudge camera down
+    INC $cameraDeltaY     ; Bit set: cameraDeltaY += 1 per frame
     RTL 
 
   loc_08B58E:
-    DEC $cameraDeltaY     ; Even half: nudge camera up
+    DEC $cameraDeltaY     ; Bit clear: cameraDeltaY -= 1 per frame
     RTL 
 } >
 ]

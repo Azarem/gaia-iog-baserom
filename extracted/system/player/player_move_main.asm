@@ -8,7 +8,7 @@
 ; 
 ; Phase 1 — Horizontal (EW) movement:
 ;   - Reads DP $20 (EW velocity from JoypadToVelocity)
-;   - Zero velocity → skip. Negative → diagonal down-left dispatch (DispatchDiagDownLeft with $0040 flag). Positive → east dispatch (DispatchEastMove with $0040 flag).
+;   - Zero velocity → skip. Negative → west dispatch (DispatchWestMove with $0040 flag). Positive → east dispatch (DispatchEastMove with $0040 flag).
 ;   - After dispatch: converts sub-pixel X ($22) back to pixel via >>2, stores to player actor $0014. Same for Y ($26 → $0016).
 ; 
 ; Phase 2 — Vertical (NS) movement:
@@ -20,7 +20,7 @@
 ; 
 ; When the player moves north or south past a tile boundary, AutoAlignEW checks whether the player's X position is slightly misaligned with the 16px tile grid. If the sub-tile offset is in the nudge range (6-8 or 9+ pixels), and the adjacent tile is passable (collision < $0E, not $06/$09), the player is nudged toward grid alignment. This prevents the player from getting caught on tile corners during vertical movement.
 ; 
-; Two nudge directions: NudgeToLowerGrid (toward lower X boundary, offset 6-8) and NudgeToUpperGrid (toward upper X boundary, offset 9+). Both adjust the position by ±8 pixels and snap to a 64-pixel grid boundary ($FFC0 mask) if the adjustment crosses a grid line.
+; Two nudge directions: NudgeToLowerGrid (toward lower X boundary, offset 6-8) and NudgeToUpperGrid (toward upper X boundary, offset 9+). Both adjust the position by ±8 sub-pixels (2 pixels; positions are in sub-pixels, 4 per pixel) and snap to a 16-pixel line ($40 sub-pixels, $FFC0 mask) if the adjustment crosses it.
 ; 
 ; === SNAP OFFSET COMPUTATION ===
 ; 
@@ -31,10 +31,10 @@
 
 ?BANK 02
 
-?INCLUDE 'player_move_diag'
 ?INCLUDE 'player_move_east'
 ?INCLUDE 'player_move_ns'
 ?INCLUDE 'player_move_south'
+?INCLUDE 'player_move_west'
 ?INCLUDE 'tile_collision'
 
 !playerActor                    09AA
@@ -48,7 +48,7 @@
 ; 
 ; Two-phase processing:
 ; 
-; Phase 1 (EW/diagonal): Reads DP $20 (horizontal velocity). Saves $24 (vertical velocity) to stack, zeroes $24 and $AA (collision flags). Clears player actor flag $0004 (solid contact). Dispatches based on $20 sign: negative → DispatchDiagDownLeft (with $0040 diagonal flag), positive → DispatchEastMove (with $0040). After dispatch, converts sub-pixel positions ($22, $26) back to pixel (>>2) and stores to player actor $0014/$0016.
+; Phase 1 (EW/diagonal): Reads DP $20 (horizontal velocity). Saves $24 (vertical velocity) to stack, zeroes $24 and $AA (collision flags). Clears player actor flag $0004 (solid contact). Dispatches based on $20 sign: negative → DispatchWestMove (with $0040 diagonal flag), positive → DispatchEastMove (with $0040). After dispatch, converts sub-pixel positions ($22, $26) back to pixel (>>2) and stores to player actor $0014/$0016.
 ; 
 ; Phase 2 (NS): Restores $24 from stack. Negative → DispatchNorthMove (skipped if $AA bit $0800 set = south wall). Positive → DispatchSouthMove (skipped if $AA bit $0400 set = east wall).
 ; 
@@ -71,9 +71,9 @@ PlayerMovementTick {
     LDA $20               ; EW velocity gate: $20==0 skip; negative→diag down-left, positive→east
     BEQ loc_02D002
     BPL loc_02CFFA
-    LDA #$0040            ; Set diagonal flag $0040 in $AA before DispatchDiagDownLeft
+    LDA #$0040            ; Set diagonal flag $0040 in $AA before DispatchWestMove
     TSB $AA
-    JSR $&player_move_diag.DispatchDiagDownLeft ; Dispatch diagonal down-left collision (negative EW velocity)
+    JSR $&player_move_west.DispatchWestMove ; Dispatch the west collision handler (negative EW velocity)
     BRA loc_02D002
 
   loc_02CFFA:
@@ -293,23 +293,23 @@ AutoAlignEW {
 }
 
 ---------------------------------------------
-; Nudge a sub-pixel position toward the lower 64-pixel grid boundary.
+; Nudge a sub-pixel position toward the lower 16-pixel grid line ($40 sub-pixels).
 ; 
 ; Adds 8 to the position at [$00+X]. XORs old and new values — if bit 6 changed (crossed a $40 boundary), snaps to the boundary via AND $FFC0. This ensures the nudge doesn't overshoot into the next grid cell.
 ; 
 ; X register selects which position to nudge ($22 for X sub-pixel, $26 for Y sub-pixel).
 
 NudgeToLowerGrid {
-    LDA $00, X            ; NudgeToLowerGrid: +8 sub-pixels toward next lower 64px boundary
+    LDA $00, X            ; NudgeToLowerGrid: +8 sub-pixels toward the next lower 16-pixel line ($40 sub-pixels)
     PHA 
     CLC 
     ADC #$0008
     STA $00, X
-    EOR $01, S            ; XOR pre/post value; BIT #$0040 detects 64px half-tile boundary crossing
+    EOR $01, S            ; XOR pre/post value; BIT #$0040 detects crossing a 16-pixel line ($40 sub-pixels)
     BIT #$0040
     BEQ loc_02D352
     LDA $00, X
-    AND #$FFC0            ; Boundary crossed → snap down with AND #$FFC0 (align to 64px grid)
+    AND #$FFC0            ; Line crossed → snap down with AND #$FFC0 (align to the 16-pixel line)
     STA $00, X
 
   loc_02D352:
@@ -318,7 +318,7 @@ NudgeToLowerGrid {
 }
 
 ---------------------------------------------
-; Nudge a sub-pixel position toward the upper 64-pixel grid boundary.
+; Nudge a sub-pixel position toward the upper 16-pixel grid line ($40 sub-pixels).
 ; 
 ; Subtracts 8 from the position at [$00+X]. XORs old and new — if bit 6 changed (crossed a $40 boundary upward), snaps to the next $40 boundary above via AND $FFC0 + ADC $0040. Handles the case where the subtraction would undershoot by checking BIT $003F (non-zero means not already at boundary).
 

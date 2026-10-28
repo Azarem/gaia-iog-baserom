@@ -6,7 +6,7 @@
 ; multi-phase dialog with cutscene elements.
 ---------------------------------------------
 
-?INCLUDE 'oneshot_palette_flash_1F'
+?INCLUDE 'oneshot_palette15_grey_fade_in_1F'
 
 ---------------------------------------------
 
@@ -55,7 +55,7 @@ code_09D137 {
     LDA #$2000
     TRB $10
     COP [SetFlagByte] ( #2A )
-    COP [SpawnThinker] ( @oneshot_palette_flash_1F.FlashPalette1F )
+    COP [SpawnThinker] ( @oneshot_palette15_grey_fade_in_1F.FadePalette15In1F )
     COP [MarkSolidHere]
     COP [SetInteractHandler] ( &code_09D1D3 )
     COP [SetEntryHere]

@@ -69,7 +69,7 @@ Currently mixes:
 
 #### 2. `great_wall/gw82_archer.asm` (7 actors, 709 lines)
 
-Shared behavior: stone/statue archers call `@push_handler_solid` (global aimable-target handler) but use extensive local `$&` chains (`code_0B8F15` → `code_0B917A` → …).
+Shared behavior: stone/statue archers spawn `@push_handler_solid` from `interaction_handlers.asm` (pull handler) but use extensive local `$&` chains (`code_0B8F15` → `code_0B917A` → …).
 
 **Action:** Split into:
 - `gw83_stone_archer.asm` (variants 1–4 + shared local code)
@@ -85,7 +85,7 @@ Mark shared local routines as a `parts` sibling or a `gw82_archer_common` chunk 
 | `edward_castle/ec0F_king_bat.asm` | King + 4 sub-bats | `code_0A8733`, `code_0A8743` |
 | `incan_ruins/ir1F_stone_guard.asm` | 5 guards | `@push_handler_solid` + local `$&` |
 | `mountain_temple/mtA0_acid_spider.asm` | 5 spiders | Local web/AI routines |
-| `itory/moon_tribe_camp/it1A_moon_tribe.asm` | 5 tribe NPCs | Dialogue `$&` chains; one `@FlashPalette1F` thinker ref |
+| `itory/moon_tribe_camp/it1A_moon_tribe.asm` | 5 tribe NPCs | Dialogue `$&` chains; one `@FadePalette15In1F` thinker ref |
 
 **Action:** Use `parts` per variant (names already in `overrides.json`). Keep **one** shared-code section included by all variants.
 
@@ -179,7 +179,7 @@ HP/STR/DEF reward handlers share `RewardActorVFX` and `$&` wide strings. `boss_c
 | Unit | Reason |
 |------|--------|
 | `player_character` + `02B42B`/`02B7B3` cluster | `@` web across bank 02; COP registration |
-| `ramps` / `large_ramps` | Tight `$&` loops + `@code_00D2D5` self-COP |
+| `ramps` / `large_ramps` | Tight `$&` loops + `@RampEastWatch` self-COP |
 | `inventory_menu` | Heavy `@inventory_spritemap`, `@code_02E8xx` internal layout |
 | `sFA_diary_menu` | Full menu engine, PPU registers, `@` strings |
 | `WorldMapController` (world map) | `@PaletteResetAndKillThinker`, `@ClearAllWramFlags`, includes overworld tables |
@@ -238,7 +238,7 @@ Code referenced via `@` from many scenes should **not** be folded into scene act
 
 | Symbol | `@` ref count | Role |
 |--------|-------------:|------|
-| `push_handler_solid` | 9 files | Aimable-target / COP `[A2]` handler for statues, archers, knights |
+| `push_handler_solid` | 9 files | Pull handler in `interaction_handlers.asm` for statues, archers, knights |
 | `smooth_follow_child` | 5+ files | Alternate combat collision pattern (angkor wall walkers, pyramid) |
 | `field_reveal_object` | included widely | Field object behavior template |
 | `PlayerIdleEntry` | player hub | Return point for control handoff — never merge into scene actors |
@@ -269,9 +269,9 @@ Thinkers follow the same `&`/`@` rules. Notable units:
 
 | File | Assessment |
 |------|------------|
-| `thinkers/parallax_thinker.asm` | Large, scene-agnostic — global |
+| `thinkers/scanline_band_hdma_thinker.asm` | Large, scene-agnostic — global |
 | `thinkers/sFE_proc_03A940.asm` | 12 `$&`, world-map related — keep near `WorldMapController` |
-| `thinkers/thinkers_05FB16.asm` | 18 `$&`, 611 lines — movable bundle (`crF7_thinker_05FB16` in overrides) |
+| `thinkers/thinkers_05FB16.asm` | 18 `$&`, 611 lines — movable bundle (`circle_window_thinker_v1` in overrides) |
 | Scene-local thinkers (`thinker_00B520` etc.) | Already small, movable |
 
 **Action:** Mirror actor `parts` grouping for thinkers that share code (e.g. boot logo thinkers `00B83F`–`00B867` could be one `parts` block).
@@ -338,7 +338,7 @@ Files with more than one `actor_def` (sorted by count):
 
 ## Appendix: `@push_handler_solid` Consumers
 
-These actors depend on the global aimable-target module and must either keep `@push_handler_solid` or include `push_handler_solid.asm`:
+These actors spawn the pull handler from `interaction_handlers.asm` and must keep `@push_handler_solid` (there is no separate `actors/push_handler_solid.asm` in the extracted tree):
 
 - `great_wall/gw82_archer.asm`
 - `incan_ruins/ir1F_stone_lord.asm`
@@ -350,7 +350,7 @@ These actors depend on the global aimable-target module and must either keep `@p
 - `sky_garden/garden_southwest/sg51_statue.asm`
 - `south_cape/coastal_cave/sc02_seth.asm`
 
-Do **not** merge `push_handler_solid` into any of these — it is correctly centralized in `actors/push_handler_solid.asm` (`movable: true`, 192 lines, all `$&`).
+Do **not** duplicate the handler body into each actor — keep the shared block in `interaction_handlers.asm`.
 
 ---
 

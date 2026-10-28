@@ -6,7 +6,7 @@
 **Document scope:** Tile-collision-driven player movement physics — six ASM compilation units in the `player` scene that dispatch horizontal, vertical, diagonal, and ramp movement each frame.  
 **ROM span:** `$02CFD0`–`$02E102` (4,402 bytes), immediately before `tile_collision.asm` at `$02E102`.
 
-**Source:** [`player_move_main.asm`](../../../extracted/system/player/player_move_main.asm) · [`player_move_ns.asm`](../../../extracted/system/player/player_move_ns.asm) · [`player_move_south.asm`](../../../extracted/system/player/player_move_south.asm) · [`player_move_east.asm`](../../../extracted/system/player/player_move_east.asm) · [`player_move_ramps.asm`](../../../extracted/system/player/player_move_ramps.asm) · [`player_move_diag.asm`](../../../extracted/system/player/player_move_diag.asm)
+**Source:** [`player_move_main.asm`](../../../extracted/system/player/player_move_main.asm) · [`player_move_ns.asm`](../../../extracted/system/player/player_move_ns.asm) · [`player_move_south.asm`](../../../extracted/system/player/player_move_south.asm) · [`player_move_east.asm`](../../../extracted/system/player/player_move_east.asm) · [`player_move_ramps.asm`](../../../extracted/system/player/player_move_ramps.asm) · [`player_move_west.asm`](../../../extracted/system/player/player_move_west.asm)
 
 This engine runs after input sampling and before actor animation updates. Each field-frame pass reads sub-pixel deltas from WRAM, probes the collision overlay at `$7FC000`, branches on tile type, optionally auto-aligns or snaps to grid boundaries, then commits or zeroes deltas via `tile_collision.ApplyMovementDeltas`.
 
@@ -20,7 +20,7 @@ This engine runs after input sampling and before actor animation updates. Each f
 flowchart TD
     PMT["PlayerMovementTick"] --> StashV["Stash $24 on stack; STZ $AA"]
     StashV --> HCHECK{"H-delta $20 ≠ 0?"}
-    HCHECK -->|"< 0"| DDL["DispatchDiagDownLeft<br/>(player_move_diag)"]
+    HCHECK -->|"< 0"| DDL["DispatchWestMove<br/>(player_move_west)"]
     HCHECK -->|"> 0"| DEM2["DispatchEastMove<br/>(player_move_east)"]
     HCHECK -->|"= 0"| COMMIT["Commit $22/$26 → actor $0014/$0016"]
     DDL --> COMMIT
@@ -46,7 +46,7 @@ $02D376 ├─ DispatchSouthMove … FineAdjustXWest         │  player_move_so
 $02D6DC ├─ DispatchEastMove … ClearSpeedEW_6           │  player_move_east
 $02D843 ├─ EastRampDown … WestRedirectToSouth          │  player_move_ramps
 $02DACD ├─ AutoAlignNS_East … ComputeEastSnapOffset     │  player_move_east (cont.)
-$02DB80 ├─ DispatchDiagDownLeft … DiagClearReturnFlags  │  player_move_diag
+$02DB80 ├─ DispatchWestMove … CancelVerticalPhase  │  player_move_west
 $02E102 └─ tile_collision (see tile-collision.md) ──────┘
 ```
 
@@ -57,7 +57,7 @@ $02E102 └─ tile_collision (see tile-collision.md) ──────┘
 
 | Address | Size | Name / Role |
 |---------|------|-------------|
-| `$20` | 2 | **H-delta** — horizontal increment (sub-pixel ×4). Negative = west / down-left; positive = east / down-right. Cleared after EW pass. |
+| `$20` | 2 | **H-delta** — horizontal increment (sub-pixel ×4). Negative = west; positive = east. Cleared after EW pass. |
 | `$22` | 2 | **Player X** — sub-pixel X (×4). Written to actor `$0014` each tick. |
 | `$24` | 2 | **V-delta** — vertical increment (sub-pixel ×4). Negative = north / up; positive = south / down. Saved/restored across EW pass. |
 | `$26` | 2 | **Player Y** — sub-pixel Y (×4). Written to actor `$0016` each tick. |
@@ -79,7 +79,7 @@ Coordinates use **×4 sub-pixel scale**: `$22`/`$26` are shifted right twice bef
 
 ## Per-Frame Tick Order
 
-`PlayerMovementTick` resolves movement in **two separated passes** so horizontal and vertical collision can interact without double-applying the same input. The **horizontal pass** runs first when `$20` (H-delta) is non-zero: negative H-delta calls `DispatchDiagDownLeft`; positive H-delta calls `DispatchEastMove`. During this pass V-delta (`$24`) is pushed to the stack and `$AA` (direction flags) is cleared, so vertical intent is preserved but not yet applied.
+`PlayerMovementTick` resolves movement in **two separated passes** so horizontal and vertical collision can interact without double-applying the same input. The **horizontal pass** runs first when `$20` (H-delta) is non-zero: negative H-delta calls `DispatchWestMove`; positive H-delta calls `DispatchEastMove`. During this pass V-delta (`$24`) is pushed to the stack and `$AA` (direction flags) is cleared, so vertical intent is preserved but not yet applied.
 
 Between passes the engine **commits** sub-pixel position — `$22`/`$26` shifted right twice into actor `$0014`/`$0016` — and clears H-delta. The **vertical pass** then restores V-delta and calls `DispatchNorthMove` (negative `$24`) or `DispatchSouthMove` (positive `$24`) unless suppressed by `$AA`: bit `$0400` blocks the north path and bit `$0800` blocks the south path, set when the horizontal pass already resolved movement against a wall. This ordering exists so a player holding diagonal input can **slide along a wall**: X resolves first against the obstruction, the updated X position feeds the vertical probe, and the suppression flags prevent the same axis from being applied twice in one frame.
 
@@ -89,11 +89,11 @@ Between passes the engine **commits** sub-pixel position — `$22`/`$26` shifted
 | Address | Name | Description |
 |---------|------|-------------|
 | `$02CFD0` | PlayerMovementTick | Main entry point for per-frame player movement collision. |
-| `$02D246` | ComputeYSnapOffset | Computes a negative Y snap offset from probe coordinate $1E and stores it in $02. |
+| `$02D246` | ComputeYSnapOffset | `$02` = 16 − (`$1E` & `$0F`) → 1..16 px (16 when Y flush; not 0). |
 | `$02D257` | DiagSnapCompute_Unused | Dead code — no callers in the extracted ROM. |
 | `$02D2BF` | AutoAlignEW | Attempts horizontal auto-alignment when north-south movement is blocked. |
-| `$02D33B` | NudgeToLowerGrid | Snaps the coordinate at $00,X toward the lower tile boundary. |
-| `$02D354` | NudgeToUpperGrid | Snaps toward the upper tile boundary. |
+| `$02D33B` | NudgeToLowerGrid | `$00,X` += 8 sub-pixels (2 px south); clamps at the next `$40` row line. |
+| `$02D354` | NudgeToUpperGrid | `$00,X` −= 8 sub-pixels (2 px north); may round up to the next `$40` line. |
 
 #### Group A: Movement Dispatcher
 
@@ -101,7 +101,7 @@ Between passes the engine **commits** sub-pixel position — `$22`/`$26` shifted
 
 Main entry point for per-frame player movement collision. Saves processor state and sets direct page to `$0000`. Temporarily clears `$24` (V-delta) and `$AA` (direction flags), pushing the saved V-delta on the stack. Clears actor collision bit `$0004` at `$0010,X`.
 
-The **horizontal pass** runs when `$20` (H-delta) is non-zero: negative values set `$AA` bit `$0040` and call `DispatchDiagDownLeft`; positive values set the same flag and call `DispatchEastMove`. After horizontal resolution, commits pixel X/Y to the actor structure (`$22`/`$26` >> 2 → `$0014`/`$0016`), then clears `$20`.
+The **horizontal pass** runs when `$20` (H-delta) is non-zero: negative values set `$AA` bit `$0040` and call `DispatchWestMove`; positive values set the same flag and call `DispatchEastMove`. After horizontal resolution, commits pixel X/Y to the actor structure (`$22`/`$26` >> 2 → `$0014`/`$0016`), then clears `$20`.
 
 The **vertical pass** restores V-delta from the stack. Negative `$24` calls `DispatchNorthMove` unless `$AA` bit `$0800` is set; positive `$24` calls `DispatchSouthMove` unless `$AA` bit `$0400` is set. Restores registers and returns via `RTL`.
 
@@ -111,7 +111,7 @@ The **vertical pass** restores V-delta from the stack. Negative `$24` calls `Dis
 |------|--------|
 | 1 | Save P/D/X; `TCD #$0000`; stash `$24` on stack; `STZ $AA` |
 | 2 | Clear actor bit `$0004` at `$0010,X` |
-| 3 | If `$20` ≠ 0: set `$AA.$0040`; dispatch diag-down-left (neg) or east (pos) |
+| 3 | If `$20` ≠ 0: set `$AA.$0040`; dispatch west (neg `$20`) or east (pos) |
 | 4 | Commit `$22`/`$26` to actor; `STZ $20` |
 | 5 | Restore `$24`; if ≠ 0 and direction not suppressed, dispatch north (neg) or south (pos) |
 | 6 | Restore X/D/P; `RTL` |
@@ -133,7 +133,7 @@ The **vertical pass** restores V-delta from the stack. Negative `$24` calls `Dis
 
 | Symbol | Relationship |
 |--------|--------------|
-| `DispatchDiagDownLeft` | Called when `$20 < 0` |
+| `DispatchWestMove` | Called when `$20 < 0` |
 | `DispatchEastMove` | Called when `$20 > 0` |
 | `DispatchNorthMove` | Called when `$24 < 0` (unless suppressed) |
 | `DispatchSouthMove` | Called when `$24 > 0` (unless suppressed) |
@@ -141,7 +141,7 @@ The **vertical pass** restores V-delta from the stack. Negative `$24` calls `Dis
 
 ### DiagSnapCompute_Unused
 
-Dead code — no callers in the extracted ROM. Mirrors the combined X/Y snap offset logic used by active diagonal snap routines. Probes current TL; on wall `$06` or aligned down-cell `$09`, computes a combined offset in `$02` with V-delta parity correction, then adds the Y sub-tile component from `$1E`. Likely a development artifact superseded by `ComputeDiagSnapOffset`.
+Dead code — no callers in the extracted ROM. Mirrors the combined X/Y snap offset logic used by active diagonal snap routines. Probes current TL; on wall `$06` or aligned down-cell `$09`, computes a combined offset in `$02` with V-delta parity correction, then adds the Y sub-tile component from `$1E`. Likely a development artifact superseded by `ComputeWallSlidePush`.
 
 **Algorithm:**
 
@@ -165,7 +165,7 @@ Dead code — no callers in the extracted ROM. Mirrors the combined X/Y snap off
 
 | Symbol | Relationship |
 |--------|--------------|
-| `ComputeDiagSnapOffset` | Active equivalent |
+| `ComputeWallSlidePush` | Active equivalent |
 | `ProbeCurrentTL` | Called for tile probe |
 
 ### AutoAlignEW
@@ -222,7 +222,7 @@ Snaps toward the upper tile boundary. Subtracts 8 sub-pixels; on boundary cross,
 | Symbol | Relationship |
 |--------|--------------|
 | `AutoAlignEW` | Caller |
-| `AutoAlignNS_East` / `AutoAlignNS_West` / `DiagAutoAlignNS` | Callers |
+| `AutoAlignNS_East` / `AutoAlignNS_West` / `AutoAlignYToGrid` | Callers |
 
 
 ## 2. player_move_ns.asm
@@ -254,7 +254,7 @@ Northward movement dispatcher (V-delta < 0). Probes current TL for wall `$06`, s
 | 1 | Probe current TL → dispatch wall/slope handlers |
 | 2 | Probe current TR → `$09` → `NorthWallHandler` |
 | 3 | Probe future TL → solid/interact/nudge dispatch |
-| 4 | Sub-tile X check + down-cell cascade for `$09`/`$06` |
+| 4 | X flush → future TL `$09` redirect; X straddling → `MapCellRight` (future TR cell) cascade for `$09`/`$06` |
 | 5 | Free: `$26 += $24`; Blocked: align → snap or apply |
 
 **Variables:**
@@ -303,16 +303,16 @@ Tile `$03` (slope-right) handler for northward movement. Verifies TR cell is `$0
 
 ### NorthSlopeLeft
 
-Tile `$0C` (slope-left) north handler with **`$09C6` slope accumulator**. When blocked on slope, accumulates V-delta, extracts whole sub-pixel steps (÷16), stores remainder, and adjusts `$24` for partial movement before applying deltas.
+Tile `$0C` (slope-left) north handler with **`$09C6` (`slopeFracAccum`) filter**. Positive accumulator leftovers are cleared; `$09C6 += $24`. If `|accum| >> 4` is zero, apply raw `$24`; else **replace `$24`** with −(`|accum| >> 4`) and add 16 to `$09C6` each step.
 
 **Algorithm:**
 
 | Step | Action |
 |------|--------|
 | 1 | Verify TR `$0C`; alignment + right-cell check |
-| 2 | Free path or set slope flag |
-| 3 | If `$09C6` ≥ 0: clear accumulator |
-| 4 | `$09C6 += $24`; extract steps → `$24`; remainder → `$09C6` |
+| 2 | Free path or set slope flag (`$09AF.$10`) |
+| 3 | Clear positive `$09C6`; `$09C6 += $24` |
+| 4 | If `\|accum\| >> 4` ≠ 0: replace `$24`, bump accum by 16 |
 | 5 | `ApplyMovementDeltas` |
 
 **Variables:**
@@ -332,7 +332,7 @@ Tile `$0C` (slope-left) north handler with **`$09C6` slope accumulator**. When b
 
 ### SouthWallHandler
 
-Handles northward movement encountering a south-facing wall tile (`$06`) at the player's top-left corner. When the player is not fully boxed in (bottom-right is not also `$06`), the routine looks for a gap below the wall lip: if cells down and to the right are walkable, the player **slides west** along the wall by computing a Y snap offset and calling `FineAdjustXWest`. If no gap exists, it first tries a diagonal X snap (`SnapXDiagCollision`) and re-probes; a still-blocked path zeroes vertical delta and hard-snaps Y southward instead.
+Handles northward movement encountering a south-facing wall tile (`$06`) at the player's top-left corner. When the player is not fully boxed in (bottom-right is not also `$06`), the routine looks for a gap below the wall lip: if cells down and to the right are walkable, the player **slides east** along the wall via `ComputeYSnapOffset` and **`FineAdjustXWest`** (that helper moves X east). If no gap exists, it first tries a diagonal X snap (`SnapXWestCollision`) and re-probes; a still-blocked path zeroes vertical delta and hard-snaps Y southward instead.
 
 **Algorithm:**
 
@@ -354,7 +354,7 @@ Handles northward movement encountering a south-facing wall tile (`$06`) at the 
 
 | Symbol | Relationship |
 |--------|--------------|
-| `SnapXDiagCollision` / `SnapXEastCollision` | Slide snaps |
+| `SnapXWestCollision` / `SnapXEastCollision` | Slide snaps |
 | `ComputeYSnapOffset` / `FineAdjustXWest` | Corner path |
 
 ### SouthWallNudge
@@ -363,7 +363,7 @@ Future TL `$06` nudge variant. When `$AB.$02` set and X aligned, allows vertical
 
 ### NorthWallHandler
 
-Handles northward movement when a north-facing wall tile (`$09`) sits at the player's top-right corner. A matching `$09` at bottom-left means the player is sandwiched between north walls and movement is cancelled entirely. Otherwise the routine probes for open space above the wall (cells up and to the right); when a gap exists the player **slides east** along the north wall via `ComputeYSnapOffset` and `FineAdjustXEast`. Misaligned approaches fall back to `SnapXEastCollision`, and persistent blockage zeroes `$24` and snaps Y to the south tile boundary.
+Handles northward movement when a north-facing wall tile (`$09`) sits at the player's top-right corner. A matching `$09` at bottom-left means the player is sandwiched between north walls and movement is cancelled entirely. Otherwise the routine probes for open space above the wall (cells up and to the right); when a gap exists the player **slides west** along the north wall via `ComputeYSnapOffset` and **`FineAdjustXEast`** (moves X west). Misaligned approaches fall back to `SnapXEastCollision`, and persistent blockage zeroes `$24` and snaps Y to the south tile boundary.
 
 **Algorithm:**
 
@@ -442,7 +442,7 @@ Southward movement dispatcher for positive `$24` (downward on screen). Probes BL
 
 ### SouthStairsTile
 
-Triggered when southward movement reaches a vine/stairs tile (`$08`) at the destination bottom-left corner. If the player is not X-aligned on the tile, the handler verifies that the cell directly below is also `$08` (continuous vine column); otherwise the step is treated as a normal wall block. On success it sets `$09AF` bit `$08` (stair/vine flag), switches the player actor state to `ClimbVineEntry`, and snaps Y to the 64px grid before applying movement — handing control to the climb animation state machine.
+Triggered when southward movement reaches a vine/stairs tile (`$08`) at the destination bottom-left corner. If the player is not X-aligned on the tile, the handler verifies that the cell directly below is also `$08` (continuous vine column); otherwise the step is treated as a normal wall block. On success it sets `$09AF` bit `$08` (stair/vine flag), switches the player actor state to `ClimbVineEntry`, and snaps Y to the **16-pixel** row grid before applying movement — handing control to the climb animation state machine.
 
 ### SouthSlopeRight
 
@@ -487,7 +487,7 @@ Handles southward movement when the player stands on a north-facing wall tile (`
 | Symbol | Relationship |
 |--------|--------------|
 | `ComputeSouthSnapOffset` / `FineAdjustXWest` | Resolution chain |
-| `SnapXDiagCollision` | Misaligned slide fallback |
+| `SnapXWestCollision` | Misaligned slide fallback |
 
 ### SouthWallSouthInteract
 
@@ -567,14 +567,14 @@ Precision X correction after a north-wall slide during southward movement — th
 | Address | Name | Description |
 |---------|------|-------------|
 | `$02D6DC` | DispatchEastMove | Eastward (+X) movement dispatcher. |
-| `$02D760` | SnapXEastCollision | X-axis snap to 64px grid after east collision. |
+| `$02D760` | SnapXEastCollision | X-axis snap to 16-pixel tile column after east collision. |
 | `$02D78C` | EastLadderTile | Tile `$07` east: Y-aligned redirect to `ShimmyRightEntry`. |
-| `$02D799` | EastWallNorthDiag | Diagonal entry; falls through to `EastWallNorthHandler`. |
-| `$02D79B` | EastWallNorthHandler | Tile `$09` moving east: slide path → `ComputeEastSnapOffset` + `DiagPushRight`. |
+| `$02D799` | EastWallNorthDiag | Diagonal entry; falls through to `EastWallPushDown`. |
+| `$02D79B` | EastWallPushDown | Tile `$09` moving east: slide path → `ComputeEastSnapOffset` + `WallSlidePushDown`. |
 | `$02D7E1` | EastWallNorthFlag | Sets `$AB.$04`, joins north-wall adjacency chain. |
 | `$02D7E7` | ClearSpeedEW_5 | Branch-range stub: STZ `player_speed_ew` → RTS. |
-| `$02D7ED` | EastWallSouthDiag | Diagonal entry; falls through to `EastWallSouthHandler`. |
-| `$02D7EF` | EastWallSouthHandler | Tile `$06` moving east: slide path → `ComputeEastSnapOffset` + `DiagPushLeft`. |
+| `$02D7ED` | EastWallSouthDiag | Diagonal entry; falls through to `EastWallPushUp`. |
+| `$02D7EF` | EastWallPushUp | Tile `$06` moving east: slide path → `ComputeEastSnapOffset` + `WallSlidePushUp`. |
 | `$02D81B` | EastWallSouthFlag | Sets `$AB.$08`, joins south-wall adjacency chain. |
 | `$02D83D` | ClearSpeedEW_6 | Branch-range stub: STZ `player_speed_ew` → RTS. |
 | `$02DACD` | AutoAlignNS_East | Y auto-align when EW blocked (east). |
@@ -584,13 +584,13 @@ Precision X correction after a north-wall slide during southward movement — th
 
 ### DispatchEastMove
 
-Eastward movement dispatcher for positive `$20`. **`ProbeLeftTiles`** first for ramp detection → `player_move_ramps.WestRampUp`/`EastRampDown`. Probes TR/BR/future TR for walls; BL for ramp-up edges (`$05`/`$0A`). Free path adds `$20` to `$22`; blocked path tries `AutoAlignNS_East` → `SnapXEastCollision`.
+Eastward movement dispatcher for positive `$20`. **`FindSlopeForEastMove`** first for ramp detection → `player_move_ramps.WestRampUp`/`EastRampDown`. Probes TR/BR/future TR for walls; BL for ramp-up edges (`$05`/`$0A`). Free path adds `$20` to `$22`; blocked path tries `AutoAlignNS_East` → `SnapXEastCollision`.
 
 **Algorithm:**
 
 | Step | Action |
 |------|--------|
-| 1 | `ProbeLeftTiles` → ramp down dispatch |
+| 1 | `FindSlopeForEastMove` → ramp down dispatch |
 | 2 | Probe TR/BR → wall handlers |
 | 3 | Probe future TR → type dispatch |
 | 4 | Sub-tile + down-cell cascade |
@@ -606,36 +606,36 @@ Eastward movement dispatcher for positive `$20`. **`ProbeLeftTiles`** first for 
 
 | Symbol | Relationship |
 |--------|--------------|
-| `ProbeLeftTiles` | Ramp pre-detection |
+| `FindSlopeForEastMove` | Ramp pre-detection |
 | `EastRampDown` / `WestRampUp` | Ramp entry (`player_move_ramps`) |
-| `EastWallNorthHandler` / `EastWallSouthHandler` | Wall handlers |
+| `EastWallPushDown` / `EastWallPushUp` | Wall handlers |
 | `AutoAlignNS_East` | Blocked alignment |
 
-### EastWallNorthHandler
+### EastWallPushDown
 
-Tile `$09` moving east. Sets `$AB.$80`; probes future TR with X alignment; gap chain via `MapCellDown`/`MapCellLeft`. Resolves via `ComputeEastSnapOffset` → `DiagPushRight`.
+Tile `$09` moving east. Sets `$AB.$80`; probes future TR with X alignment; gap chain via `MapCellDown`/`MapCellLeft`. Resolves via `ComputeEastSnapOffset` → **`WallSlidePushDown`** (pushes the player **down** along the wall).
 
 **Cross-References:**
 
 | Symbol | Relationship |
 |--------|--------------|
-| `ComputeEastSnapOffset` / `DiagPushRight` | Resolution chain |
+| `ComputeEastSnapOffset` / `WallSlidePushDown` | Resolution chain |
 | `EastRedirectToNorth` | Ramp fallback entry |
 
-### EastWallSouthHandler
+### EastWallPushUp
 
-Tile `$06` moving east. Sets `$AB.$80`; probes future BR; gap chain via `MapCellUp`/`MapCellLeft`. Resolves via `ComputeEastSnapOffset` → `DiagPushLeft`.
+Tile `$06` moving east. Sets `$AB.$80`; probes future BR; gap chain via `MapCellUp`/`MapCellLeft`. Resolves via `ComputeEastSnapOffset` → **`WallSlidePushUp`** (pushes the player **up** along the wall).
 
 **Cross-References:**
 
 | Symbol | Relationship |
 |--------|--------------|
-| `ComputeEastSnapOffset` / `DiagPushLeft` | Resolution chain |
+| `ComputeEastSnapOffset` / `WallSlidePushUp` | Resolution chain |
 | `WestRedirectToSouth` | Ramp fallback entry |
 
 ### AutoAlignNS_East
 
-Y auto-align when east movement is blocked. Stack re-entrancy guard via `$06,S`; Y sub-tile offset probes future BR/TR; nudges `$26` via grid helpers.
+Y auto-align when east movement is blocked. Skips if parked vertical velocity at `$06,S` is non-zero or the probe cell has an actor solid mark (`$7FC000,X` high nibble `$F0`). With `n = (($26 >> 2) & $0F)`, **`n` ≥ 4** tries south nudge (`NudgeToLowerGrid`, +2 px) when `ProbeFutureBR` < `$0E`; else **`n` ≤ 10** tries north nudge (`NudgeToUpperGrid`, −2 px) when `ProbeFutureTR` < `$0E`.
 
 **Algorithm:**
 
@@ -655,7 +655,7 @@ Y auto-align when east movement is blocked. Stack re-entrancy guard via `$06,S`;
 
 ### ComputeEastSnapOffset
 
-Computes the sub-pixel **snap correction** in `$02` for eastward wall-sliding, analogous to `ComputeSouthSnapOffset` but operating on the X axis. When the current top-right is a north wall (`$09`) or a south wall (`$06`) with Y right-half alignment, it checks whether this frame's H-delta (`$20`) will cross a 16px sub-tile X boundary and adds `$10` to `$02` on crossing. The probe X sub-tile (`$1A & $0F`) is then added to produce the total offset consumed by `DiagPushLeft`/`DiagPushRight` after east-movement wall collisions.
+Computes the sub-pixel **snap correction** in `$02` for eastward wall-sliding, analogous to `ComputeSouthSnapOffset` but operating on the X axis. When the current top-right is a north wall (`$09`) or a south wall (`$06`) with Y right-half alignment, it checks whether this frame's H-delta (`$20`) will cross a 16px sub-tile X boundary and adds `$10` to `$02` on crossing. The probe X sub-tile (`$1A & $0F`) is then added to produce the total offset consumed by `WallSlidePushUp`/`WallSlidePushDown` after east-movement wall collisions.
 
 **Variables:**
 
@@ -669,8 +669,8 @@ Computes the sub-pixel **snap correction** in `$02` for eastward wall-sliding, a
 
 | Symbol | Relationship |
 |--------|--------------|
-| `DiagPushLeft` / `DiagPushRight` | Consumers |
-| `EastWallNorthHandler` / `EastWallSouthHandler` | Callers |
+| `WallSlidePushUp` / `WallSlidePushDown` | Consumers |
+| `EastWallPushDown` / `EastWallPushUp` | Callers |
 
 
 ## 5. player_move_ramps.asm
@@ -680,8 +680,8 @@ Computes the sub-pixel **snap correction** in `$02` for eastward wall-sliding, a
 | `$02D843` | EastRampDown | Descend east-facing slope `$0A` while moving east. |
 | `$02D93F` | EastRampUp | Ascend east-facing slope `$0A` while moving east. |
 | `$02D978` | EastRedirectToNorth | Ramp fallback: future TR `$09` → `EastWallNorthDiag` or free move. |
-| `$02D986` | WestRampUp | Descend west-facing slope `$05` while moving east. |
-| `$02DA8A` | WestRampDown | Ascend west-facing slope `$05` while moving east. |
+| `$02D986` | WestRampUp | Ascend west-facing slope `$05` while moving east (primary `$05` path). |
+| `$02DA8A` | WestRampDown | Descend west-facing slope `$05` while moving east (BL `$05` ramp-up entry). |
 | `$02DABF` | WestRedirectToSouth | Ramp fallback: future BR `$06` → `EastWallSouthDiag` or free move. |
 
 #### Group F: East-Facing Ramps (`$0A`)
@@ -694,7 +694,7 @@ Descend an east-facing slope (`$0A`) while moving east. Multi-probe sequence at 
 
 | Step | Action |
 |------|--------|
-| 1 | `DiagClearReturnFlags`; multi-probe for `$0A` |
+| 1 | `CancelVerticalPhase`; multi-probe for `$0A` |
 | 2 | Boundary XOR gate; Y from X sub-tile (×4 + half-pixel bias) |
 | 3 | Set ramp flag; probe future TR/BR |
 | 4 | Passable → apply; blocked → single-axis or full corner snap |
@@ -712,8 +712,8 @@ Descend an east-facing slope (`$0A`) while moving east. Multi-probe sequence at 
 | Symbol | Relationship |
 |--------|--------------|
 | `EastRedirectToNorth` | Fallback when no slope found |
-| `DispatchEastMove` | Entry via `ProbeLeftTiles` |
-| `code_02D92F` / `code_02D937` | Partial wall snap helpers |
+| `DispatchEastMove` | Entry via `FindSlopeForEastMove` |
+| `RampSnapEastSouthBrWall` / `RampSnapEastNorthTrWall` | Partial wall snap helpers |
 
 ### EastRampUp
 
@@ -728,7 +728,7 @@ Ascend east-facing slope `$0A` while moving east. Probes raised `$1A+8` for `$0A
 
 ### WestRampUp
 
-Descend west-facing slope `$05` while moving east. Mirror of `EastRampDown` with negated Y math and `$05` probes. Multi-probe through BL/adjacent cells; half-pixel rounding subtracts `$0004`.
+Ascend west-facing slope `$05` while moving east. Mirror of `EastRampDown` with negated Y math and `$05` probes. Multi-probe through BL/adjacent cells; half-pixel rounding subtracts `$0004`.
 
 **Algorithm:**
 
@@ -737,7 +737,7 @@ Descend west-facing slope `$05` while moving east. Mirror of `EastRampDown` with
 | 1 | Multi-probe for `$05` at offset positions |
 | 2 | Boundary XOR; negated Y from X sub-tile |
 | 3 | Ramp flag; future corner probes |
-| 4 | Apply or corner snap via `code_02DA7A`/`code_02DA82` |
+| 4 | Apply or corner snap via `RampSnapWestSouthBrWall`/`RampSnapWestNorthTrWall` |
 
 **Variables:**
 
@@ -751,11 +751,11 @@ Descend west-facing slope `$05` while moving east. Mirror of `EastRampDown` with
 | Symbol | Relationship |
 |--------|--------------|
 | `WestRedirectToSouth` | Fallback |
-| `DispatchEastMove` | Entry via `ProbeLeftTiles` (carry set) |
+| `DispatchEastMove` | Entry via `FindSlopeForEastMove` (carry set) |
 
 ### WestRampDown
 
-Ascend west-facing slope `$05` while moving east. Probes `$1A+8` for `$05`; boundary cross stores positive `$24` ramp fraction; joins `code_02DA19` finalize.
+Descend west-facing slope `$05` while moving east. Probes `$1A+8` for `$05`; boundary cross stores positive `$24` ramp fraction; joins `code_02DA19` finalize.
 
 **Cross-References:**
 
@@ -764,38 +764,38 @@ Ascend west-facing slope `$05` while moving east. Probes `$1A+8` for `$05`; boun
 | `WestRampUp` | Shared finalize |
 | `DispatchEastMove` | BL `$05` ramp-up entry |
 
-## 6. player_move_diag.asm
+## 6. player_move_west.asm
 
 | Address | Name | Description |
 |---------|------|-------------|
-| `$02DB80` | DispatchDiagDownLeft | Down-left dispatcher. |
-| `$02DC10` | SnapXDiagCollision | X snap for down-left diagonal. |
-| `$02DC2C` | DiagLadderTile | Tile $07 down-left: Y-aligned redirect to ShimmyLeftEntry. |
-| `$02DC49` | DiagWallSouthFromDL | Tile $06 from down-left. |
-| `$02DC9D` | DiagWallNorthFromDL | Tile $09 from down-left. |
-| `$02DCF3` | DiagRampUpLeft | Complex up-left slope ramp. |
-| `$02DE02` | DiagRampEdgeUL | Up-left ramp edge case. |
+| `$02DB80` | DispatchWestMove | West horizontal-phase dispatcher (negative `$20`). |
+| `$02DC10` | SnapXWestCollision | X snap to 16-pixel tile column after west collision. |
+| `$02DC2C` | DiagLadderTile | Tile `$07` during west phase: Y-aligned redirect to `ShimmyLeftEntry`. |
+| `$02DC49` | DiagWallSouthFromDL | Tile `$06` handler during west phase. |
+| `$02DC9D` | DiagWallNorthFromDL | Tile `$09` handler during west phase. |
+| `$02DCF3` | WestRampDescend | West-facing ramp tile `$05` — adds to `$26` so Y grows (down-left along ramp). |
+| `$02DE02` | WestRampEdgeDescend | Partial-entry edge for tile `$05` during west movement. |
 | `$02DE43` | DiagRedirectToSouth | Ramp fallback: future TL $06 → DiagWallSouthFromDL or free move. |
-| `$02DE51` | DiagRampDownRight | Mirror of DiagRampUpLeft. |
-| `$02DF5C` | DiagRampEdgeDR | Down-right ramp edge case. |
+| `$02DE51` | WestRampAscend | East-facing ramp tile `$0A` — Y shrinks (up-left along ramp). |
+| `$02DF5C` | WestRampEdgeAscend | Partial-entry edge for tile `$0A` during west movement. |
 | `$02DF99` | DiagRedirectToNorth | Ramp fallback: future BL $09 → DiagWallNorthFromDL or free move. |
-| `$02DFA7` | DiagAutoAlignNS | NS nudge when EW blocked (diagonal). |
-| `$02DFF6` | ComputeDiagSnapOffset | EW snap for diagonal. |
-| `$02E060` | DiagPushLeft | Left-push realignment after diagonal collision. |
-| `$02E0AB` | DiagPushRight | Right-push realignment. |
-| `$02E0FA` | DiagClearReturnFlags | Clears stack frame flag $05,S used by ramp handlers before actor state redirect. |
+| `$02DFA7` | AutoAlignYToGrid | Nudges `$26` onto the 16-pixel Y grid when west movement is blocked. |
+| `$02DFF6` | ComputeWallSlidePush | Wall-slide snap offset into `$02` after west-phase wall hits. |
+| `$02E060` | WallSlidePushUp | Stores **negative** `$24` (northward wall-slide push). |
+| `$02E0AB` | WallSlidePushDown | Stores **positive** `$24` (southward wall-slide push). |
+| `$02E0FA` | CancelVerticalPhase | Zeroes stack-parked vertical velocity word `$05,S` (cancels pending vertical phase). |
 
-#### Group G: Down-Left Diagonal
+#### Group G: West horizontal phase (`player_move_west`)
 
-### DispatchDiagDownLeft
+### DispatchWestMove
 
-Down-left dispatcher. Sets `$AB.$02`. **`ProbeRightTiles`** first for ramp → `DiagRampDownRight`/`DiagRampUpLeft`. Corner probes for walls, future TL, sub-tile cascades. `$07` ladder; TR `$05`/`$0A` ramp edges. Free: `$22 += $20`. Blocked: `DiagAutoAlignNS` → snap.
+West horizontal-phase dispatcher (negative `$20`). Sets `$AB.$02`. **`FindSlopeForWestMove`** first for ramp → `WestRampAscend`/`WestRampDescend`. Corner probes for walls, future TL, sub-tile cascades. `$07` shimmy/ledge tile; TR `$05`/`$0A` ramp edges. Free: `$22 += $20`. Blocked: `AutoAlignYToGrid` → snap.
 
 **Algorithm:**
 
 | Step | Action |
 |------|--------|
-| 1 | `$AB.$02`; `ProbeRightTiles` → ramp dispatch |
+| 1 | `$AB.$02`; `FindSlopeForWestMove` → ramp dispatch |
 | 2 | Probe TL/BL → wall handlers |
 | 3 | Probe future TL → type dispatch |
 | 4 | Sub-tile + right-cell cascade |
@@ -812,36 +812,36 @@ Down-left dispatcher. Sets `$AB.$02`. **`ProbeRightTiles`** first for ramp → `
 
 | Symbol | Relationship |
 |--------|--------------|
-| `ProbeRightTiles` | Ramp pre-detection |
+| `FindSlopeForWestMove` | Ramp pre-detection |
 | `PlayerMovementTick` | Entry when `$20 < 0` |
 
 ### DiagWallSouthFromDL
 
-Tile `$06` from down-left. Sets `$AB.$80`; future TL probe; right/down cell cascade. Resolves via `ComputeDiagSnapOffset` → `DiagPushRight`.
+Tile `$06` during west phase. Sets `$AB.$80`; future TL probe; right/down cell cascade. Resolves via `ComputeWallSlidePush` → `WallSlidePushDown`.
 
 **Cross-References:**
 
 | Symbol | Relationship |
 |--------|--------------|
-| `ComputeDiagSnapOffset` / `DiagPushRight` | Resolution |
+| `ComputeWallSlidePush` / `WallSlidePushDown` | Resolution |
 | `DiagRedirectToSouth` | Entry redirect |
 
 ### DiagWallNorthFromDL
 
-Tile `$09` from down-left. Sets `$AB.$80`; future BL probe; left/down cell cascade. Resolves via `ComputeDiagSnapOffset` → `DiagPushLeft`.
+Tile `$09` during west phase. Sets `$AB.$80`; future BL probe; left/down cell cascade. Resolves via `ComputeWallSlidePush` → `WallSlidePushUp`.
 
 **Cross-References:**
 
 | Symbol | Relationship |
 |--------|--------------|
-| `DiagPushLeft` / `ComputeDiagSnapOffset` | Resolution |
+| `WallSlidePushUp` / `ComputeWallSlidePush` | Resolution |
 | `DiagRedirectToNorth` | Entry redirect |
 
-#### Group H: Up-Left / Remaining Diagonals
+#### Group H: West-phase ramp handlers
 
-### DiagRampUpLeft
+### WestRampDescend
 
-Complex up-left slope ramp. Multi-probe for tile `$05`; `CheckTileBoundaryXor` gate; sub-pixel Y correction with carry-adjusted `$26`; sets `$1000` ramp flag; boundary collision snap fallback.
+West-facing ramp tile **`$05`** during west movement. Multi-probe for `$05`; `CheckTileBoundaryXor` gate; adds negated west delta to `$26` so **Y grows** (down-left along the ramp); sets `$1000` ramp flag; boundary collision snap fallback.
 
 **Algorithm:**
 
@@ -864,46 +864,46 @@ Complex up-left slope ramp. Multi-probe for tile `$05`; `CheckTileBoundaryXor` g
 
 | Symbol | Relationship |
 |--------|--------------|
-| `DiagRampDownRight` | Mirror ramp |
-| `ProbeRightTiles` | Entry path |
+| `WestRampAscend` | Mirror ramp |
+| `FindSlopeForWestMove` | Entry path |
 
-### DiagRampEdgeUL
+### WestRampEdgeDescend
 
-Up-left ramp edge case. Offset probe at `$1A-$09`; tile `$05` boundary check; computes `$24` from X sub-tile for partial ramp entry.
-
-**Cross-References:**
-
-| Symbol | Relationship |
-|--------|--------------|
-| `DiagRampUpLeft` | Shared finalize |
-| `DispatchDiagDownLeft` | TR `$05` entry |
-
-### DiagRampDownRight
-
-Descends an **east-facing ramp tile** (`$0A`) during down-right diagonal movement — the `$0A` counterpart to `DiagRampUpLeft`'s west-facing `$05` handler. A multi-probe search checks the current bottom-left, cell above, future top-left, and cell below for `$0A`; when found, `CheckTileBoundaryXor` gates whether fractional Y displacement is computed from the X sub-tile position (proportional descent) or a full-tile `$26 += $20` step applies. Sets `$09AE` bit `$1000` (ramp flag) and runs a post-slope wall check at future corners, falling back to single-axis Y snap or dual-wall corner snap if blocked.
+Partial-entry edge for tile **`$05`**. Offset probe at `$1A−9`; boundary check; computes residual `$24` from X sub-tile for partial ramp entry.
 
 **Cross-References:**
 
 | Symbol | Relationship |
 |--------|--------------|
-| `DiagRampUpLeft` | Mirror counterpart |
+| `WestRampDescend` | Shared finalize |
+| `DispatchWestMove` | TR `$05` entry |
 
-### DiagRampEdgeDR
+### WestRampAscend
 
-Handles the **partial-entry edge case** for east-facing ramp tiles (`$0A`) during diagonal movement — entered when the current top-right reads `$0A` at the tile boundary rather than a full ramp cell. Probes at Y−9px to confirm the ramp surface; if `CheckTileBoundaryXor` shows no X sub-column crossing, it delegates to the full-tile ramp path (`code_02DEE4`). Otherwise it computes a proportional Y offset from X velocity, stores it as residual V-delta in `$24`, and joins the shared post-ramp wall-check finalize at `code_02DEEB`.
+East-facing ramp tile **`$0A`** during west movement. Multi-probe for `$0A`; when found, adds west delta to `$26` so **Y shrinks** (up-left along the ramp). Sets `$09AE` bit `$1000` (ramp flag) and runs post-slope wall checks at future corners.
 
 **Cross-References:**
 
 | Symbol | Relationship |
 |--------|--------------|
-| `DiagRampDownRight` | Shared finalize |
-| `DiagRampEdgeUL` | Mirror edge handler |
+| `WestRampDescend` | Mirror counterpart |
 
-#### Group I: Diagonal Auto-Align & Fine Adjust
+### WestRampEdgeAscend
 
-### DiagAutoAlignNS
+Partial-entry edge for tile **`$0A`** during west movement (top-right reads `$0A` at the tile boundary). Probes at X−9px; may delegate to the full `$0A` path or store residual V-delta in `$24`.
 
-NS nudge when EW blocked (diagonal). Stack re-entrancy guard; Y sub-tile probes future BL/TL; nudges `$26` via grid helpers.
+**Cross-References:**
+
+| Symbol | Relationship |
+|--------|--------------|
+| `WestRampAscend` | Shared finalize |
+| `WestRampEdgeDescend` | Mirror edge handler |
+
+#### Group I: West-phase auto-align & wall slide
+
+### AutoAlignYToGrid
+
+When west movement is blocked, nudges **`$26`** onto the 16-pixel Y grid (`NudgeToLowerGrid` / `NudgeToUpperGrid`). Stack re-entrancy guard; Y sub-tile probes future BL/TL.
 
 **Algorithm:**
 
@@ -919,11 +919,11 @@ NS nudge when EW blocked (diagonal). Stack re-entrancy guard; Y sub-tile probes 
 | Symbol | Relationship |
 |--------|--------------|
 | `AutoAlignNS_West` | Mirror variant |
-| `DispatchDiagDownLeft` | Caller |
+| `DispatchWestMove` | Caller |
 
-### ComputeDiagSnapOffset
+### ComputeWallSlidePush
 
-EW snap for diagonal. Probes current TL; on `$09` or aligned right-cell `$06`, computes inverted X sub-tile offset with H-delta parity into `$02`.
+Wall-slide snap helper. Probes current TL; on `$09` or aligned right-cell `$06`, computes inverted X sub-tile offset with H-delta parity into `$02`.
 
 **Variables:**
 
@@ -937,12 +937,12 @@ EW snap for diagonal. Probes current TL; on `$09` or aligned right-cell `$06`, c
 
 | Symbol | Relationship |
 |--------|--------------|
-| `DiagPushLeft` / `DiagPushRight` | Consumers |
+| `WallSlidePushUp` / `WallSlidePushDown` | Consumers |
 | `DiagWallSouthFromDL` / `DiagWallNorthFromDL` | Callers |
 
-### DiagPushLeft
+### WallSlidePushUp
 
-Left-push realignment after diagonal collision. Y sub-tile distance + `$02`; may set `$24` for residual vertical slide or clear `$20`/`$AA` flags when stack guard matches.
+After a west-phase wall hit, stores a **negative `$24`** (northward Y velocity) from Y sub-tile distance + `$02`; may clear `$20`/`$AA` when the stack guard matches.
 
 **Algorithm:**
 
@@ -964,18 +964,18 @@ Left-push realignment after diagonal collision. Y sub-tile distance + `$02`; may
 
 | Symbol | Relationship |
 |--------|--------------|
-| `DiagPushRight` | Mirror push |
+| `WallSlidePushDown` | Mirror push |
 | `WestWallSouthDiag` / `DiagWallNorthFromDL` | Callers |
 
-### DiagPushRight
+### WallSlidePushDown
 
-Applies **rightward push realignment** after a diagonal collision against a north wall — the positive-X counterpart to `DiagPushLeft`. It derives a push distance from the inverted Y sub-tile position plus the snap offset in `$02`; if the total exceeds 16 sub-pixels, the excess becomes a positive V-delta in `$24` (residual vertical slide along the wall). When the push would overshoot past the caller's return threshold (comparing `|$20|` against the stack guard at `$03,S`), it zeroes H-delta and clears `$AA` bits `$0440` (north-wall collision flags) instead of applying the slide.
+Mirror of `WallSlidePushUp` for the opposite wall-slide case: stores a **positive `$24`** (southward Y velocity) from inverted Y sub-tile position + `$02`. When the push would overshoot the stack guard at `$03,S`, zeroes H-delta and clears selected `$AA` bits instead of applying the slide.
 
 **Cross-References:**
 
 | Symbol | Relationship |
 |--------|--------------|
-| `DiagPushLeft` | Mirror counterpart |
+| `WallSlidePushUp` | Mirror counterpart |
 | `WestWallNorthDiag` / `DiagWallSouthFromDL` | Callers |
 
 ## Collision Cascade Pattern
@@ -995,7 +995,7 @@ Nearly every movement handler follows the same multi-stage pipeline:
 
 4. RESOLVE   — Either:
                a) Apply deltas freely (ApplyMovementDeltas)
-               b) Auto-align (AutoAlignEW / AutoAlignNS_* / DiagAutoAlignNS)
+               b) Auto-align (AutoAlignEW / AutoAlignNS_* / AutoAlignYToGrid)
                c) Snap to grid boundary (SnapX* / SnapY* collision)
                d) Compute sub-pixel correction (slope accumulator, ramp Y math)
                e) Redirect to alternate actor state (ladder, stairs, shimmy)
@@ -1048,7 +1048,7 @@ South/east handlers use inverted arithmetic compared to north/west variants.
 flowchart TD
     PMT[PlayerMovementTick<br/>player_move_main]
 
-    PMT -->|"$20 < 0"| DDL[DispatchDiagDownLeft<br/>player_move_diag]
+    PMT -->|"$20 < 0"| DDL[DispatchWestMove<br/>player_move_west]
     PMT -->|"$20 > 0"| DEM[DispatchEastMove<br/>player_move_east]
     PMT -->|"$24 < 0"| DNM[DispatchNorthMove<br/>player_move_ns]
     PMT -->|"$24 > 0"| DSM[DispatchSouthMove<br/>player_move_south]
@@ -1056,7 +1056,7 @@ flowchart TD
     subgraph ns["player_move_ns"]
         DNM --> SWH[SouthWallHandler]
         DNM --> NSH[NorthWallHandler]
-        SWH --> SDC[SnapXDiagCollision]
+        SWH --> SDC[SnapXWestCollision]
         SWH --> SXC[SnapXEastCollision]
         SWH --> CYS[ComputeYSnapOffset]
         SWH --> FAW[FineAdjustXWest]
@@ -1075,14 +1075,14 @@ flowchart TD
         DEM --> AAE[AutoAlignNS_East]
         AAW --> NTG[NudgeToLower/UpperGrid]
         AAE --> NTG
-        WWD --> DPL[DiagPushLeft/Right]
+        WWD --> DPL[WallSlidePushUp/Right]
         WWD --> CWS[ComputeWestSnapOffset]
     end
 
-    subgraph diag["player_move_diag"]
-        DDL --> DRU[DiagRampUpLeft/DownRight]
+    subgraph diag["player_move_west"]
+        DDL --> DRU[WestRampDescend/DownRight]
         DDL --> DWD[DiagWallSouth/NorthFromDL]
-        DWD --> CDS[ComputeDiagSnapOffset]
+        DWD --> CDS[ComputeWallSlidePush]
         DWD --> DPL
     end
 
@@ -1107,8 +1107,8 @@ flowchart TD
     DDL --> PROBE
 
     subgraph mc["map_coords"]
-        PRT[ProbeRightTiles]
-        PLT[ProbeLeftTiles]
+        PRT[FindSlopeForWestMove]
+        PLT[FindSlopeForEastMove]
     end
 
     DDL --> PRT
@@ -1121,18 +1121,18 @@ flowchart TD
 |--------|---------|---------|
 | `PlayerMovementTick` | Four dispatchers | Top-level axis dispatch |
 | `DispatchNorthMove` | `AutoAlignEW`, `ComputeYSnapOffset` | NS → main alignment |
-| `SouthWallHandler` | `SnapXDiagCollision`, `FineAdjustXWest` | NS → diag/ew snap chain |
+| `SouthWallHandler` | `SnapXWestCollision`, `FineAdjustXWest` | NS → diag/ew snap chain |
 | `NorthWallHandler` | `SnapXWestCollision`, `FineAdjustXEast` | NS → ew snap chain |
-| `DispatchEastMove` | `AutoAlignNS_East`/`West`, `DiagPushLeft/Right`, nudge helpers | EW → main/diag |
+| `DispatchEastMove` | `AutoAlignNS_East`/`West`, `WallSlidePushUp/Right`, nudge helpers | EW → main/diag |
 | `DispatchSouthMove` | `AutoAlignEW_South` | NS → main alignment |
-| `DispatchDiagDownLeft` | `DiagAutoAlignNS`, snap routines | Diag → main/ns/ew |
+| `DispatchWestMove` | `AutoAlignYToGrid`, snap routines | Diag → main/ns/ew |
 | All dispatchers | `tile_collision.*` | Probe, navigate, finalize |
-| `DispatchEastMove`, `DispatchDiagDownLeft` | `map_coords.ProbeLeft/RightTiles` | Ramp pre-detection |
+| `DispatchEastMove`, `DispatchWestMove` | `map_coords.ProbeLeft/RightTiles` | Ramp pre-detection |
 
 
 ## See Also
 
 - [`tile-collision.md`](tile-collision.md) — probe geometry, collision type table, `$7FC000` overlay
-- [`map-coordinates.md`](map-coordinates.md) — diagonal cascade probes (`ProbeRightTiles` / `ProbeLeftTiles`)
+- [`map-coordinates.md`](map-coordinates.md) — west/east ramp cascade probes (`FindSlopeForWestMove` / `FindSlopeForEastMove`)
 - [`../bank00/direction-collision.md`](../bank00/direction-collision.md) — COP-driven dynamic collision (`$F0` high nibble)
 - [`../bank00/data-tables-memory.md`](../bank00/data-tables-memory.md) — `$09AA`–`$09B6` player state WRAM map

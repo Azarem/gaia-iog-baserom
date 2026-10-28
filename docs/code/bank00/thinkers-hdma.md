@@ -44,7 +44,7 @@ WRAM sine tables typically reside at `$7E8800`, `$7E8C00`, `$7E8400`, or `$7E800
 
 #### Purpose
 
-Template sine HDMA thinker — the generic slow background oscillation used across many mid/late-game scenes. Initializes an 8-frame counter, builds a sine table at `$7E8800` with amplitude 40, ticks at speed `#01`, and binds channel `#0D`.
+Template sine HDMA thinker — the generic slow background oscillation used across many mid/late-game scenes. While event flag `$FF` is clear, execution loops through init label **`SineWaveInit`** (`$00BE1A`): 8-frame counter, sine table at `$7E8800` with amplitude 40, tick speed `#01`, HDMA channel `#0D`.
 
 #### Parameters
 

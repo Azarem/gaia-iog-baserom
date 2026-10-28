@@ -17,7 +17,7 @@ These handlers assume `$7F0006`/`$7F0008` point at valid sprite set data (usuall
 | `$28` / `$2A` | Animation index / in-sequence frame counter |
 | `$7F0006,X` / `$7F0008,X` | Metasprite set pointer + bank (`SetMetasprite`) |
 | `$7F0016,X` | Loop counter from `$84`–`$87`; decremented by `AnimLoop` |
-| `$2C` / `$2E` | Movement frame durations; cleared when anim completes (`$89`/`$8A`/`$8B`/`$8C` paths) |
+| `$2C` / `$2E` | Movement delta-chain heads (`movement_delta_table` indices from staging); cleared when anim completes (`$89`/`$8A`/`$8B`/`$8C` paths) |
 | `UpdateActorAnimation` | Advances frames, movement, OAM; **carry set** = sequence completed this step |
 
 ## Family notes
@@ -236,7 +236,7 @@ COP [AnimLoop]
 
 ##### Relations
 
-- **`$84`–`$87`:** Supply loop count (and optional move durations).
+- **`$84`–`$87`:** Supply loop count (and optional movement indices written to `$2C`/`$2E`).
 - **`$89`:** Single cycle only.
 
 ---

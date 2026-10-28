@@ -325,9 +325,9 @@ Nearly every scene includes the player and camera system:
 | 220× | `camera_scroll_controller` | Camera logic |
 | 102× | `camera_scroll.ScrollCameraTrack` | Camera tracking (free scroll) |
 | 31× | `dark_space.dark_space2` | Dark Space portal |
-| 26× | `scene_flag_init` | Scene flag initialization |
-| 26× | `ramps.ramp_east` | Eastward ramp collision |
-| 22× | `ramps.ramp_west` | Westward ramp collision |
+| 26× | `scene_flag_init` | Sets event flag `#00` on first tick, then dies |
+| 26× | `ramps.ramp_east` | East-facing jump launcher (two-stage watch / launch) |
+| 22× | `ramps.ramp_west` | West-facing jump launcher |
 | 20× | `sg55_falling_tile` | Viper Lair floor tiles |
 | 16× | `town_door` | Town building doorway |
 | 16× | `hidden_red_jewel` | Collectible Red Jewel |
@@ -429,7 +429,7 @@ thinker-spawn < param, @thinker_def_address >
 |---------|------|---------|
 | `global_ambient_dispatcher` | 59× | Default ambient lighting system. Present in almost every scene. |
 | `ambient_palette_cycler` | 59× | Animated palette rotation with configurable palette index. Handles water shimmer, lava glow, torch flicker, crystal sparkle, etc. Parameter selects which palette rows to cycle. |
-| `parallax_thinker` | 30× | Multi-layer background parallax scrolling. Parameter selects which BG layer and scroll mode (e.g., `#1E` = Great Wall, `#03` = world map, `#1D` = Seaside rooms). |
+| `scanline_band_hdma_thinker` | 30× | Per-scanline HDMA band builder (scroll bands, constant bands, window rectangles, COLDATA/CGADSUB). Spawn parameter selects a `parallax_scroll_table` type index (e.g., `#1E` = Great Wall, `#03` = world map, `#1D` = Seaside rooms). |
 
 **Area-specific visual effects:**
 
@@ -441,9 +441,9 @@ thinker-spawn < param, @thinker_def_address >
 | `sine_hdma_dual_channel` | 2× | Dual-channel wavy distortion (Seaside Palace, Angel Village river) |
 | `ending_comet_dma_setup` | 2× | DMA initialization for comet/ending scenes |
 | `IrisCircleEffect` | 2× | Circular iris wipe transition (Sand Fanger, World Map) |
-| `palette_parent_child` | 2× | Parent-child palette linking (World Map, Inventory) |
-| `oneshot_coldata_warm_flash` | 2× | One-shot warm color flash (Itory Cave, Prologue) |
-| `thinkers_05FB16.thinker_def_05FB32` | 2× | Shared utility thinker (Dream, Mu Vampire Lair) |
+| `palette_parent_child` | 2× | Parent-child palette linking (scenes `$FD` statue inventory, `$FF` item menu) |
+| `oneshot_coldata_warm_flash` | 2× | One-shot warm COLDATA tint (scene `$23`, `$27` thinker lists) |
+| `thinkers_05FB16.circle_window_thinker_v2` | 2× | Shared utility thinker (Dream, Mu Vampire Lair) |
 | `mu_tint_and_wave` | 1× | Mu underwater tint + wave effect (all 7 Mu scenes share one block) |
 | `watermia_festival_palette` | 1× | Watermia festival palette cycling (Watermia + Great Wall scenes) |
 | `itory_village_fog` | 1× | Fog overlay effect (Itory Village, Moon Tribe) |
@@ -461,7 +461,7 @@ thinker-spawn < param, @thinker_def_address >
 | `dream_palette_loop` | 1× | Will's Dream sequence palette loop |
 | `flag_gated_palette_cool` | 1× | Flag-conditional cool palette (South Cape) |
 | `flag_gated_palette_warm` | 1× | Flag-conditional warm palette (South Cape) |
-| `oneshot_coldata_green_tint` | 1× | One-shot green color tint |
+| `oneshot_coldata_r11g4b2` | 1× | One-shot COLDATA tint (scene `$30`, list `$0CE80C` slot 0) |
 | `ending_comet_sine_hdma` | 1× | Ending comet sequence sine HDMA |
 
 **System/menu thinkers:**
@@ -469,7 +469,7 @@ thinker-spawn < param, @thinker_def_address >
 | Thinker | Uses | Purpose |
 |---------|------|---------|
 | `mode7_perspective.Mode7PerspectiveInit` | 1× | Mode 7 perspective for World Map |
-| `inventory_dma_setup` | 1× | Inventory screen DMA initialization |
+| `inventory_bg3_scroll_hdma` | 1× | Inventory screen: rebind BG3VOFS HDMA each frame (`QueueDma` → register `#12`) |
 | `diary_menu_window_dma` | 1× | Diary menu window DMA setup |
 | `boot_logo_palette_enix` | 1× | Enix boot logo palette |
 | `boot_logo_palette_quintet` | 1× | Quintet boot logo palette |
@@ -492,7 +492,7 @@ thinker-spawn < param, @thinker_def_address >
 | `crF7_proc_09F330` | 1× | Credits sequence procedure A |
 | `crF7_proc_09F360` | 1× | Credits sequence procedure B |
 | `crF7_proc_09F510` | 1× | Credits sequence procedure C |
-| `thinkers_05FB16.crF7_thinker_05FB16` | 1× | Credits sequence thinker |
+| `thinkers_05FB16.circle_window_thinker_v1` | 1× | Credits sequence thinker |
 
 **Properties:**
 - `order: -1` — build priority ordering
@@ -718,7 +718,7 @@ transformation sequence. It is the largest code block in bank 0C.
 | `code_0CF550` | `$0301` | Eye beam telegraph + fire |
 | `code_0CF570` | `$0202` | Downward beam projectile |
 | `code_0CF5AF` | `$0202` | Rising spread projectile |
-| `SetPlayerGameOverFlag` | `$2000` | Boss kill invulnerability flash (cross-bank) |
+| `SetPlayerGameOverFlag` | `$2000` | Player actor `$10` bit `$0200` — combat skip after boss defeat |
 
 #### Phase 1 — Initial Form
 
@@ -891,7 +891,7 @@ Triggered when Phase 1 HP depletes (death callback `code_0CEF88`):
 
 1. Sets flag byte `#04` (signals all sub-actors: spawners, tentacles, homing entities)
 2. Masks joypad (`$FFF0` → full input lock)
-3. Spawns `SetPlayerGameOverFlag` (boss kill invulnerability flash)
+3. Spawns `SetPlayerGameOverFlag` (player hit skip via actor `$10` bit `$0200`)
 4. Spawns explosion debris controller (`code_0CF201`) at relative (0, −32):
    at position (128, 368), uses `table_0EE000` metasprites, 12 cycles each
    spawning paired debris sprites (`code_0CF22F` type A + `code_0CF23C` type B)
@@ -1031,7 +1031,7 @@ The Comet boss references shared code from other banks:
 
 | Reference | Bank | Purpose |
 |-----------|------|---------|
-| `SetPlayerGameOverFlag` | `$0A` | Boss kill invulnerability flash |
+| `SetPlayerGameOverFlag` | `$0A` | Player actor `$10` bit `$0200` — combat skip after boss defeat |
 | `enemy_stats_table` (+154, +158, +15C, +160) | `$00` | HP/stats for boss forms and sub-entities |
 | `smooth_follow.CopySiblingFollowState` | `$01` | Homing tentacle behavior |
 | `table_0EE000` | `$0E` | Metasprite frame definitions |

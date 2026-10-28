@@ -1819,7 +1819,7 @@ DiaryAwaitButtonRelease_noref {
   loc_0BF269:
     JSL $@vblank_joypad.EnableNmiAndJoypad
     JSL $@DiaryMenuVBlankHandler
-    JSL $@vblank_joypad.EnableNmiOnly
+    JSL $@vblank_joypad.DisableNmiKeepJoypad
     LDA $joypadRaw
     BIT #$0080
     BNE loc_0BF269
@@ -1827,7 +1827,7 @@ DiaryAwaitButtonRelease_noref {
   loc_0BF27D:
     JSL $@vblank_joypad.EnableNmiAndJoypad
     JSL $@DiaryMenuVBlankHandler
-    JSL $@vblank_joypad.EnableNmiOnly
+    JSL $@vblank_joypad.DisableNmiKeepJoypad
     LDA $joypadRaw
     BIT #$0080
     BEQ loc_0BF27D
@@ -1835,7 +1835,7 @@ DiaryAwaitButtonRelease_noref {
   loc_0BF291:
     JSL $@vblank_joypad.EnableNmiAndJoypad
     JSL $@DiaryMenuVBlankHandler
-    JSL $@vblank_joypad.EnableNmiOnly
+    JSL $@vblank_joypad.DisableNmiKeepJoypad
     LDA $joypadRaw
     BIT #$0080
     BNE loc_0BF291

@@ -36,11 +36,11 @@ Bank `$00` embeds dispatch jump tables, bitmasks, interpolation curves, and co-l
 | `bitmasks_bit_position` | `$00B11D` | `bitmasks_00B11D` | 8 bytes | `$01,$02,$04,$08,$10,$20,$40,$80` |
 | `body_table` | *(include)* | `body_table` | Variable | Player body sprite-set index (Will/Freedan/Shadow) |
 | `movement_delta_table` | *(include)* | `movement_delta_table` | Variable | Animation frame duration/speed lookup |
-| `scene_flag_table` | *(include)* | `scene_flag_table` | Variable | Sine/cosine lookup data for HUD init |
+| `slope_curve_table` | *(include)* | `slope_curve_table` | Variable | Sine/cosine lookup data for HUD init |
 | `sine_table_8bit` | *(include)* | `sine_table_8bit` | 256 bytes | Sine table for HDMA wave effects |
 | `hdma_channel_config` | *(include)* | `hdma_channel_config` | Variable | DMA channel configuration bytes |
 | `FollowDirectionTable` | `$00EF72` | `code_list_00EF72` | 32 bytes | 16-direction smooth follow sprite handler jump table |
-| `SmoothFollowLookup` | `$00F193` | `SmoothFollowLookup` | 544 bytes | Interpolation table for smooth movement deceleration |
+| `FollowSlopeDitherTable` | `$00F193` | `FollowSlopeDitherTable` | 544 bytes | Interpolation table for smooth movement deceleration |
 | `binary_00D068` | `$00D068` | `binary_00D068` | 32 bytes | Camera drift direction offset data |
 | `enemy_clear_reward_table` | *(include)* | `enemy_clear_reward_table` | Variable | Per-scene enemy clear stat reward table (0=none, 1=HP, 2=STR, 3=DEF) |
 | `table_00C710` | `$00C710` | `table_00C710` | 8 bytes | Player script variant pointer table (4 entries) |
@@ -86,7 +86,7 @@ Index computation: `byte_offset = index >> 3`, `bitmask = bitmasks[index & 7]`.
 
 16 × 2-byte same-bank pointers (`$&`) into direction sprite handlers at `FollowDirHandler00`–`FollowDirHandler0F`. Indexed by `$7F000E,X & $0F` after the smooth-follow engine resolves a 16-way direction (22.5° steps). Each handler sets OAM priority/mirror bits and computes walking sprite index + angular step.
 
-#### `SmoothFollowLookup` (`$00F193`) — 544 bytes
+#### `FollowSlopeDitherTable` (`$00F193`) — 544 bytes
 
 Binary interpolation table consumed by `ComputeFollowStep` (`$00EE1C`). Format: pairs of signed 16-bit values indexed by `(angle × sub-step)`. Low indices hold values near `$0100` (1.0 fixed-point); magnitudes taper toward `$0000` at high indices, producing smooth deceleration curves for NPC/platform homing.
 
@@ -102,7 +102,7 @@ Eight direction delta pairs (16-bit X/Y offsets) for `CameraDriftPatterned` (`$0
 
 #### `table_00C710` — 8 bytes (4 entries)
 
-Player COP script variant pointer table read by `InitPlayerScriptVariant` (`$00C6E4`). Selects among four player state-machine entry points based on body form and scene context (~15 scene callers).
+`player_idle_entry_table` — four `$&` pointers to `IdleStandSouth/North/West/East`. `SetPlayerIdleFacing` (`$00C6E4`) indexes it with **A only** (facing 0–3); it does not read scene or body form (~17 JSL call sites).
 
 #### `code_list_00C733` — 16 bytes
 
@@ -122,7 +122,7 @@ Weighted probability threshold table for `DarkGemDropSystem` (`$00DF29`). Contai
 |---------|------|---------------|---------|
 | `body_table` | `$01` | `SetActorBody`, player sprite COPs | 6 bytes × N entries: sprite pointer triplets for Will/Freedan/Shadow bodies |
 | `movement_delta_table` | `$01` | `AnimFrameLookup`, forced walks, sprite staging | Animation frame duration/speed; indexed as `A << 1` |
-| `scene_flag_table` | `$01` | `SystemInit` HUD pointer init | Sine/cosine pairs → copied to `$09BA`–`$09C4` at boot |
+| `slope_curve_table` | `$01` | `SystemInit` HUD pointer init | Sine/cosine pairs → copied to `$09BA`–`$09C4` at boot |
 | `sine_table_8bit` | `$01` | `BuildSineHdmaTable`, `BuildSineLookupTable`, orbital math | 256-byte sine wave for HDMA displacement and `$7E8900`/`$7E8B00` precompute |
 | `hdma_channel_config` | `$01` | HDMA queue COPs, DMA setup thinkers | Per-channel HDMA register template bytes |
 | `enemy_clear_reward_table` | `$01` | `boss_clear_reward_handler`, `StandardEnemyDefeatHandler`, `field_reveal_object` | Per-scene enemy clear stat reward bytes (0=none, 1=HP, 2=STR, 3=DEF) |
@@ -143,7 +143,7 @@ Shared via `?INCLUDE` with `inventory_statue_slot` (`$00CF29`) for the inventory
 
 ### 1.8 WRAM Fill Constant (`$00846C`)
 
-Single byte `$E0` referenced only by the unreferenced `FillWramBlock` (`$008438`) routine, which would DMA-fill 512 bytes at WRAM `$000422`. Likely a cut debug feature.
+Single byte `$E0` referenced only by the unreferenced `OamFillE0_unused` (`$008438`) routine, which would DMA-fill 512 bytes at WRAM `$000422`. Likely a cut debug feature.
 
 ---
 
@@ -155,12 +155,12 @@ All `?INCLUDE` directives observed in bank `$00` system and upper-half code:
 
 | Include | Purpose |
 |---------|---------|
-| `scene_flag_table` | Sine/cosine lookup data (HUD pointer init in `SystemInit`) |
+| `slope_curve_table` | Sine/cosine lookup data (HUD pointer init in `SystemInit`) |
 | `hdma_channel_config` | DMA channel configuration bytes |
 | `body_table` | Player body sprite-set index table (Will/Freedan/Shadow) |
 | `MulDivide` | Bank `$02` system functions (rendering, DMA, APU, actors, math) |
 | `GlobalInputHandler` | Bank `$03` system functions (scenes, actors, text, metatiles) |
-| `ComposeDigits_Continuation` | Bank `$03` extended (music, facing, animation helpers) |
+| `ComposeDigitSprites_AtCursor` | Bank `$03` extended (music, facing, animation helpers) |
 | `ApplyOrbitalOffsetFromRef` | Orbital/spiral movement math (`ApplyOrbitalOffsetFromRef`) |
 | `EnemyPositionSnap` | Grid-snap walk helper (deferred resume target, bank `$0A`) |
 | `system_strings` | System Console strings (BG3 HUD overlays) |
@@ -170,8 +170,8 @@ All `?INCLUDE` directives observed in bank `$00` system and upper-half code:
 
 | Include | Used By |
 |---------|---------|
-| `player_character` | Stair triggers (`stair_climb`), `ramps.asm`, `itory_village_fog` thinker |
-| `ComposeDigits_Continuation` | Push handlers, `global_ambient_dispatcher`, statue inventory |
+| `player_character` | Stair triggers (`slider_glide`), `ramps.asm`, `itory_village_fog` thinker |
+| `ComposeDigitSprites_AtCursor` | Push handlers, `global_ambient_dispatcher`, statue inventory |
 | `flag_helpers` | Statue inventory reward actors |
 | `inventory_spritemap` | Inventory statue slot display |
 | `dir_sprite_01ABDE` | Forced walk functions, smooth follow |
@@ -247,7 +247,7 @@ Extended fields use `(actor_id − $1000)` as the X index into WRAM `$7F0000+`. 
 | `$7F0003,X` | 1 | Extra frame counter | `TickMove` velocity pipeline |
 | `$7F0004,X` | 2 | SavedPtr / deferred callback | Script control, resume-after-wait |
 | `$7F0006,X` | 2 | Sprite set pointer (low) | `SetMetasprite`, `SetActorBody`, sine amplitude |
-| `$7F0008,X` | 2 | Sprite bank / move state byte | Map header bank; `$8F` = walking (stair `CheckMoveState`) |
+| `$7F0008,X` | 2 | Sprite bank byte | Map header bank; `$8F` = `will_alt` during Psycho Slider (`IsPlayerSliderSpriteBank`) |
 | `$7F000A,X` | 2 | Movement sub-steps / interact handler | Smooth follow param; halving counter |
 | `$7F000E,X` | 2 | Direction / step total | Movement handlers; `$FFFF` = follow reset |
 | `$7F0010,X` | 1 | Sound effect to play | WorldMapStream SFX COP |
@@ -257,7 +257,7 @@ Extended fields use `(actor_id − $1000)` as the X index into WRAM `$7F0000+`. 
 | `$7F0016,X` | 2 | Loop counter (animation) | `AnimLoop` COP |
 | `$7F0018,X` | 2 | Target distance X / anim X move | `InitSmoothMovement`, movement COPs |
 | `$7F001A,X` | 2 | Target distance Y / anim Y move | `InitSmoothMovement`, movement COPs |
-| `$7F001C,X` | 2 | **Parent actor ID** | Marked children; batch death in `DieNow_UnlinkChildren` |
+| `$7F001C,X` | 2 | **Parent actor ID** | Marked children; batch death in `DieExit` |
 | `$7F001E,X` | 2 | Loop start PC (thinker-type) | `LoopInit` / `LoopDecrement` |
 | `$7F0020,X` | 2 | Rearrange index / climb frame counter | `CopyActorState`; stair `LockPlayerForClimb` |
 | `$7F0022,X` | 2 | Dungeon monster ID | `SetDungeonKillFlag` COP |
@@ -317,7 +317,7 @@ These low DP addresses are **persistent engine state** — they must not be over
 
 | Address | Size | Name | Used By |
 |---------|------|------|---------|
-| `$040C` | 2 | Invincibility timer | `UpdateFrameCounters` (decrements to −1) |
+| `$040C` | 2 | Run-window timer | `UpdateFrameCounters` (decrements to −1); walk→run gate |
 | `$040E` | 2 | Global frame timer | `UpdateFrameCounters` (increments to `$0100`) |
 | `$040F`–`$041E` | 16 | RNG state | `RngByte` COP |
 | `$0420` | 2 | RNG modulo result | `RngMod` COP |
@@ -368,7 +368,7 @@ These low DP addresses are **persistent engine state** — they must not be over
 | Address | Size | Name | Used By |
 |---------|------|------|---------|
 | `$09AF` | 2 | HUD helper | `UpdateHUD` |
-| `$09BA`–`$09C4` | 11 | HUD sine/pointer table | `SystemInit` from `scene_flag_table` |
+| `$09BA`–`$09C4` | 11 | HUD sine/pointer table | `SystemInit` from `slope_curve_table` |
 | `$09C8`/`$09CA` | 4 | HUD related pointers | System init |
 | `$09E4`/`$09E6` | 4 | Enemy HP display values | HUD enemy health bar |
 | `$09EA` | 2 | Enemy HP pending flag | HUD enemy health bar trigger |
@@ -527,7 +527,7 @@ Bank `$00` code follows consistent stack conventions across interrupt handlers, 
 |----------|------|-------------|---------|
 | `VBlankWaitAndJoypad` | $02 | Main loop, frame updates | Begin frame |
 | `EnableNmiAndJoypad` | $02 | Main loop, frame updates | End frame / wait VBlank |
-| `EnableNmiOnly` | $02 | Main loop, frame updates | Scene transitions |
+| `DisableNmiKeepJoypad` | $02 | Main loop, frame updates | NMI off during main-thread work |
 | `InitHardwareRegisters` | $02 | SystemInit | PPU register init |
 | `SpcLoadBuiltinEngine` | $02 | SystemInit | Init WRAM/game state |
 | `FlushDirtyTilemapStrips` | $02 | NmiHandler | Upload OAM |
@@ -542,7 +542,7 @@ Bank `$00` code follows consistent stack conventions across interrupt handlers, 
 
 | Category | Total | Named | Auto-Named | Unused |
 |----------|-------|-------|------------|--------|
-| Thinkers | 49 | 1 (`parallax_thinker`) | 48 | 7 |
+| Thinkers | 49 | 1 (`scanline_band_hdma_thinker`) | 48 | 7 |
 | Actors | 26 | 11 | 15 | 1 |
 | Functions | 29 | 2 | 22 active + 5 unused | 5 |
 
@@ -561,7 +561,7 @@ Bank `$00` code follows consistent stack conventions across interrupt handlers, 
 | Block | Ref Count | Primary Callers |
 |-------|-----------|-----------------|
 | `camera_scroll_controller` (`$00EAED`) | 100+ | Every field scene (actor slot #1/#2) |
-| `scene_flag_init` (`$00C667`) | 80+ | Most scene templates (slot #3/#4) |
+| `scene_flag_init` (`$00C667`) | 26 | Scene actor lists (sets event flag `#00`) |
 | `StandardEnemyDefeatHandler` (`$00DB8A`) | ~20 | All enemy actors via death callback pointer |
 | `global_ambient_dispatcher` (`$00BF89`) | ~40 | Nearly every scene thinker set |
 | `ApplyOrbitalOffsetFromRef` (`$00F3C9`) | ~15 | COP handlers, bosses, statue inventory, fire sprites |
@@ -586,9 +586,9 @@ Bank `$00` code follows consistent stack conventions across interrupt handlers, 
 
 | Bank `$00` Block | Connects To | Via |
 |------------------|-------------|-----|
-| `GameOverSequence` ($D62F) | `ComposeDigits_Continuation` | `$&GameOverSequence` player death pointer |
-| `StandardEnemyDefeatHandler` ($DB8A) | `ComposeDigits_Continuation` | `$&StandardEnemyDefeatHandler` enemy defeat pointer |
-| `NullActorScriptStub` ($DC77) | `ComposeDigits_Continuation` | `$&stub_00DC77` default actor script |
+| `GameOverSequence` ($D62F) | `ComposeDigitSprites_AtCursor` | `$&GameOverSequence` player death pointer |
+| `StandardEnemyDefeatHandler` ($DB8A) | `ComposeDigitSprites_AtCursor` | `$&StandardEnemyDefeatHandler` enemy defeat pointer |
+| `NpcDespawnStub` ($DC77) | `InteractionDamage_NPCChat` | Post-interaction NPC entry → `COP [Die]` next tick |
 | `player_transition_handlers` ($C418) | Scene scripts, bank $03 | `#$&func_00C4xx` player anim refs |
 | `hit_stagger_controller` ($D877) | Bank $03 | `SpawnLastRel` from damage routines |
 | `smooth_follow_child` ($E4DB) | `smooth_follow` chunk | `$&ComputeFollow*` same-bank refs |
@@ -599,8 +599,8 @@ Bank `$00` code follows consistent stack conventions across interrupt handlers, 
 | Actor/System | Scene Count | Areas |
 |--------------|-------------|-------|
 | `ScrollCameraTrack` | ~40+ | Nearly all towns and overworlds |
-| `StairTriggerWest` | 12+ | Mu, Angel Village, Angkor Wat, Dracula Mansion |
-| `StairTriggerEast` | 10+ | Mu, Angel Village, Angkor Wat temples |
+| `SliderGlideTriggerNorth` | 12+ | Mu, Angel Village, Angkor Wat, Dracula Mansion |
+| `SliderGlideTriggerSouth` | 10+ | Mu, Angel Village, Angkor Wat temples |
 | `ScrollCameraVertical` | ~10 | Edward's Castle, Itory, Incan Ruins, Dao |
 | `ScrollCameraInit` | ~10 | Mt. Kress exclusively |
 | `ScrollCameraAccumulate` | ~5 | Pyramid interiors |

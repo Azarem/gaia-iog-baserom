@@ -314,7 +314,7 @@ Master actor definition and state machine for idle, walk, block, climb, ladder, 
 | `$02C6FA` | ClimbDropLand | Drop landing: anim table 2, camera shake spawn. Wait 39 frames. |
 | `$02C73F` | ImpactTerrainShake | Sets `$player_flags` `$0010`. Waits `$01DF` frames. Clears. Dies. |
 | `$02C751` | CameraShakeActor | Sound `#15`. Decrements counter → dies. |
-| `$02C75E` | CameraShakeFrame | Random camera offset ±1 to `$06BE`/`$06C2` each frame. |
+| `$02C75E` | CameraShakeFrame | Random camera target offset −1..+2 on X and Y (`(RNG & 3) − 1`, `((RNG >> 2) & 3) − 1`) to `$06BE`/`$06C2` each frame. |
 | `$02C7B6` | LadderClimbSouth | South-facing ladder. |
 | `$02C7E2` | LadderClimbNorth | North-facing. |
 | `$02C80D` | LadderMoveDown | Move down: sprite `#2D`, force-move Y+29. |
@@ -357,9 +357,9 @@ Master actor definition and state machine for idle, walk, block, climb, ladder, 
 | `$02CBE4` | SpeedThresholdNS | NS check. |
 | `$02CBFF` | RunAttackNS | NS Psycho Slider with anim table A entry 1. |
 | `$02CC52` | RunAttackEW | EW Psycho Slider. |
-| `$02CCA5` | DisableStatusForAttack | Clears `$0100`, sets `$0200` in `$06EE`. |
+| `$02CCA5` | FreezeCameraForAttack | Clears `$0100`, sets `$0200` in `layerPriorityFlag` (`$06EE`) — freezes camera scroll. |
 | `$02CCB0` | RunAttackFlagSetup | Sets `$0200` in `$10`, `$0080` in `$0658` (joypadHeld: attack consumed), `$0802` in `$player_flags` (Psycho Slider). |
-| `$02CCC2` | RestoreStatusDisplay | Clears `$0200` from `$06EE`. |
+| `$02CCC2` | UnfreezeCameraAfterAttack | Clears camera-freeze bit `$0200` from `layerPriorityFlag`. |
 | `$02CCC8` | RunAttackCleanup | Clears flags. |
 | `$02CCDA` | AttackSouth | South attack. Freedan wall-slash variant. |
 | `$02CD5B` | AttackNorth | North. |
@@ -368,10 +368,10 @@ Master actor definition and state machine for idle, walk, block, climb, ladder, 
 | `$02CED8` | AttackRedirect | If direction pressed, allow movement. |
 | `$02CEE6` | AttackFinish | Clears joypad mask, restores idle. |
 | `$02CEEE` | AttackInit | Masks joypad, plays sound. |
-| `$02CF0F` | RangedAttackSouth | Y force-move, sprite `#44`. |
-| `$02CF19` | RangedAttackNorth | Flip, sprite `#45`. |
-| `$02CF28` | RangedAttackWest | X force-move, mirror, sprite `#46`. |
-| `$02CF37` | RangedAttackEast | Sprite `#47`. |
+| `$02CF0F` | RangedAttackSouth | Will lunge: `RangedSetForceY` (#46 curve), sprite `#44`. |
+| `$02CF19` | RangedAttackNorth | Lunge north; sets `$2000` on `$12` (negate-Y), sprite `#45`. |
+| `$02CF28` | RangedAttackWest | Lunge west; sets `$4000` on `$12` (negate-X), sprite `#46`. |
+| `$02CF37` | RangedAttackEast | Lunge east, sprite `#47`. |
 | `$02CF4A` | RangedSetForceX | `COP [StageForceMoveX]` (`$46`). |
 | `$02CF4F` | RangedSetForceY | `COP [StageForceMoveY]` (`$46`). Sets `$0800`/`$0200`, hitbox `$0040`. |
 | `$02CF68` | ProjectileSouth | Spritemap `table_17D000`, moves Y. |
@@ -448,7 +448,7 @@ Single-frame idle loops and Shadow palette variants — no separate routine sect
 | Shimmy probes | `ShimmyRightUpCheck`, `ShimmyRightDownCheck`, `ShimmyLeftUpCheck`, `ShimmyLeftDownCheck` | 7 B each | Single-probe wall checks during shimmy |
 | Block entry | `BlockSouth/North/West`, `BlockFromWalk*` | 6–14 B | Joypad merge + blocking sprite redirect |
 | Walk helpers | `WalkAbortToIdle`, `WalkRestoreSaved`, `SetAutoWalkTimer`, `BlockStopToIdle` | 1–7 B | Stack/pointer restore and auto-walk timer |
-| Ranged stubs | `RangedAttack*`, `RangedSetForceX/Y`, `Projectile*` | 5–26 B | Force-move staging and projectile spawn (see summary table) |
+| Lunge + projectiles | `RangedAttack*`, `RangedSetForceX/Y`, `Projectile*` | 5–26 B | Will combo lunge (`#46` force-move); `Projectile*` only on scene `$E8` from `Attack*` |
 
 #### Walk & Blocking States
 
@@ -467,7 +467,7 @@ Walking south, sprite `#08`. Auto-walk timer, L/R attack check.
 
 ### WalkNorth
 
-Entered when `PlayerIdleDispatchTable` detects D-pad up (or a northward direction change during walk). On first entry from a different facing (`$24 == 1`), initializes `$player_speed_ns = -3`, clears slope/decel counters, clears the invincibility timer, and seeds a 13-frame auto-walk guarantee via `SetAutoWalkTimer`. Stages walk animation sprite set `#09` (north-facing) and loops `AnimOneFrame` each COP tick. Each frame checks whether up was released (`BranchIfNoButton #$0800` → `WalkRestoreSaved` / idle), calls `CheckAttackWhileWalking` for B-button or zero-speed aborts, and offers L/R shoulder (`#$0030`) transition to `BlockNorth`. Actual displacement comes from the `PlayerMoveController` companion, which merges joypad velocity or `$player_speed_* × 4` with external knockback and delegates collision to `PlayerMovementTick`.
+Entered when `PlayerIdleDispatchTable` detects D-pad up (or a northward direction change during walk). On first entry from a different facing (`$24 == 1`), initializes `$player_speed_ns = -3`, clears slope/decel counters, clears the run-window timer (`$040C`), and seeds a 13-frame auto-walk guarantee via `SetAutoWalkTimer`. Stages walk animation sprite set `#09` (north-facing) and loops `AnimOneFrame` each COP tick. Each frame checks whether up was released (`BranchIfNoButton #$0800` → `WalkRestoreSaved` / idle), calls `CheckAttackWhileWalking` for B-button or zero-speed aborts, and offers L/R shoulder (`#$0030`) transition to `BlockNorth`. Actual displacement comes from the `PlayerMoveController` companion, which merges joypad velocity or `$player_speed_* × 4` with external knockback and delegates collision to `PlayerMovementTick`.
 
 
 **Variables:**
@@ -547,7 +547,7 @@ Drop landing: anim table 2, camera shake spawn. Wait 39 frames.
 
 ### CameraShakeFrame
 
-Per-frame camera jitter helper called by `CameraShakeActor` (spawned on Freedan vine drop landing). Uses `COP [RngByte]` to apply independent random ±1 offsets to `$06BE` (camera X) and `$06C2` (camera Y) each frame. When `$layerPriorityFlag` bit `$0200` is active, saves the original camera position to actor WRAM `$7F100C/E` on first call and restores from those slots on subsequent frames so layered scenes do not permanently drift. Runs until the shake actor's frame counter expires, then the actor dies.
+Per-frame camera jitter helper called by `CameraShakeActor` (spawned on Freedan vine drop landing). Uses one `COP [RngByte]` per frame: `(RNG & 3) − 1` added to `$cameraTargetX` (`$06BE`), `((RNG >> 2) & 3) − 1` added to `$cameraTargetY` (`$06C2`) — each axis ranges −1..+2. When `layerPriorityFlag` bit `$0200` is set (camera frozen), saves the pre-shake target in `$7F100C/E` on first call and restores before applying offsets so shake stays centered on the frozen position. Runs until the shake actor's frame counter expires, then the actor dies.
 
 
 **Variables:**
@@ -694,7 +694,7 @@ Horizontal Psycho Slider — same structure as `RunAttackNS` but routed on `$pla
 
 ### AttackSouth
 
-South-facing melee attack entered from idle dispatch, walk abort, or inertial movement when B is pressed facing south. Calls `AttackInit` (joypad mask, SFX), injects south D-pad into `$0658`, then stages sprite `#36` — Freedan (form 1) near a south wall uses the thrust variant `#48` via `BranchIfSolidSouth` / diagonal offset probe. Scene `$00E8` (Dark Gaia) additionally spawns `ProjectileSouth`. The per-frame loop advances animation frames; Will (form 0) can redirect mid-swing with perpendicular D-pad (`AttackRedirect`) or chain into `RangedAttackSouth` by holding south again. B re-press at animation end restarts the combo; otherwise `AttackFinish` clears held directions and returns to idle.
+South-facing melee attack entered from idle dispatch, walk abort, or inertial movement when B is pressed facing south. Calls `AttackInit` (joypad mask, SFX), consumes south D-pad in `$0658` (`TSB #$0400`), then stages sprite `#36` — Freedan (form 1) near a south wall uses the thrust variant `#48` via `BranchIfSolidSouth` / diagonal offset probe. Scene `$00E8` (Dark Gaia) additionally spawns `ProjectileSouth`. The per-frame loop advances animation frames; Will (form 0) can redirect mid-swing with perpendicular D-pad (`AttackRedirect`) or chain into `RangedAttackSouth` by holding south again. B re-press at animation end restarts the combo; otherwise `AttackFinish` clears held directions and returns to idle.
 
 
 **Variables:**
@@ -707,7 +707,7 @@ South-facing melee attack entered from idle dispatch, walk abort, or inertial mo
 
 ### AttackNorth
 
-North-facing melee — same attack system as `AttackSouth` but injects up D-pad (`#$0800`), uses sprites `#37` / Freedan wall-push `#49`, and spawns `ProjectileNorth` on scene `$00E8`. Will can redirect with perpendicular D-pad (`#$0700`) or chain `RangedAttackNorth`; Freedan/Shadow get redirect only. Combo restart and `AttackFinish` idle return behave identically to the south handler.
+North-facing melee — same attack system as `AttackSouth` but consumes up D-pad (`#$0800`) in `$0658`, uses sprites `#37` / Freedan wall-push `#49`, and spawns `ProjectileNorth` on scene `$00E8`. Will can redirect with perpendicular D-pad (`#$0700`) or chain `RangedAttackNorth`; Freedan/Shadow get redirect only. Combo restart and `AttackFinish` idle return behave identically to the south handler.
 
 
 **Variables:**
@@ -720,7 +720,7 @@ North-facing melee — same attack system as `AttackSouth` but injects up D-pad 
 
 ### AttackWest
 
-West-facing melee attack using sprites `#38` (normal) or `#42` (wall-push, Will and Freedan only — Shadow skips the wall probe). Injects left D-pad (`#$0200`) after `AttackInit`. Will's mid-attack redirect mask is `#$0D00`; same-axis hold chains into `RangedAttackWest`. Scene `$00E8` spawns `ProjectileWest`. Axis-specific joypad merge and sprite IDs differ; animation loop, combo re-press, and finish logic match `AttackSouth`.
+West-facing melee attack using sprites `#38` (normal) or `#42` (wall-push, Will and Freedan only — Shadow skips the wall probe). Consumes left D-pad (`#$0200`) in `$0658` after `AttackInit`. Will's mid-attack redirect mask is `#$0D00`; same-axis hold chains into `RangedAttackWest`. Scene `$00E8` spawns `ProjectileWest`. Axis-specific joypad merge and sprite IDs differ; animation loop, combo re-press, and finish logic match `AttackSouth`.
 
 
 **Variables:**
@@ -733,7 +733,7 @@ West-facing melee attack using sprites `#38` (normal) or `#42` (wall-push, Will 
 
 ### AttackEast
 
-East-facing melee attack — mirror of `AttackWest` with right D-pad (`#$0100`), sprites `#39` / wall-push `#43`, redirect mask `#$0E00`, and `RangedAttackEast` / `ProjectileEast` chain. Non-Shadow forms check east-wall adjacency for the push variant; Shadow always uses the standard sprite. Shared `AttackInit` entry, per-frame `AnimOneFrame` loop, and `AttackFinish` return match the other directional handlers.
+East-facing melee attack — mirror of `AttackWest` with right D-pad consumed (`#$0100`) in `$0658`, sprites `#39` / wall-push `#43`, redirect mask `#$0E00`, and `RangedAttackEast` / `ProjectileEast` chain. Non-Shadow forms check east-wall adjacency for the push variant; Shadow always uses the standard sprite. Shared `AttackInit` entry, per-frame `AnimOneFrame` loop, and `AttackFinish` return match the other directional handlers.
 
 
 **Variables:**
@@ -746,7 +746,7 @@ East-facing melee attack — mirror of `AttackWest` with right D-pad (`#$0100`),
 
 ### AttackInit
 
-Shared initialization called via JSR at the start of every directional melee attack. Strips directional bits from `$0657` into `$0658` (keeping only D-pad in the held mask), ORs in the attack button (`#$8000`), and clears actor visibility flag `$0100`. Plays form-specific attack SFX on channel 2: Will (`$0AD4 == 0`) uses sound `#01` (lighter swing), Freedan and Shadow use `#02` (heavier). Each `Attack*` handler then injects its facing direction into `$0658` and stages direction-specific sprites before entering the animation loop.
+Shared initialization called via JSR at the start of every directional melee attack. Copies D-pad bits from `$0657` into `$0658`, ORs in the attack button (`#$8000`) so both attack and held directions are consumed, and clears actor visibility flag `$0100`. Plays form-specific attack SFX on channel 2: Will (`$0AD4 == 0`) uses sound `#01` (lighter swing), Freedan and Shadow use `#02` (heavier). Each `Attack*` handler then consumes its facing direction bit in `$0658` and stages direction-specific sprites before entering the animation loop.
 
 
 ## Cross-File Call Graph

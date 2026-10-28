@@ -18,10 +18,10 @@ Companion docs: [`map-coordinates.md`](map-coordinates.md) (tile/index helpers) 
 ```
 $02AB8A ┌─ CameraFullRefresh ──────────────────────────┐
         │  CameraSmoothScroll / UpdateScroll*          │
-        │  RenderScrollColumn / RenderScrollRow        │  camera_tilemap
+        │  RenderRowStrip / RenderColumnStrip        │  camera_tilemap
         │  Fill*TilemapSeg / FlushDirtyTilemapStrips   │
-        │  DmaHorizontalStrip / DmaVerticalStrip       │
-        │  SpriteVramDma                               │
+        │  DmaColumnStrip / DmaRowStrip       │
+        │  Bg3TilemapVramDma                               │
 $02B0A3 └──────────────────────────────────────────────┘
 ```
 
@@ -79,16 +79,16 @@ flowchart TD
     A[Main loop: CameraSmoothScroll] --> B{Crossed 16px tile boundary?}
     B -->|X boundary| C[UpdateScrollColumn]
     B -->|Y boundary| D[UpdateScrollRow]
-    C --> E[RenderScrollRow]
-    D --> F[RenderScrollColumn]
+    C --> E[RenderColumnStrip]
+    D --> F[RenderRowStrip]
     E --> G[FillVertTilemapSeg / FillHorizTilemapSeg]
     F --> G
     G --> H[WRAM tilemap strip buffer at $7E]
     H --> I[Dirty flag word at $7E3100 / $7E3184]
     I --> J[VBlank: FlushDirtyTilemapStrips]
-    J --> K[DmaHorizontalStrip / DmaVerticalStrip]
+    J --> K[DmaColumnStrip / DmaRowStrip]
     K --> L[BG nametable VRAM $0000+]
-    M[Scene load: CameraFullRefresh] --> N[32 × RenderScrollRow + immediate DMA]
+    M[Scene load: CameraFullRefresh] --> N[32 × RenderColumnStrip + immediate DMA]
     N --> L
 ```
 
@@ -106,15 +106,15 @@ flowchart TD
 | `$02AC2E` | CameraSmoothScroll | CameraSmoothScroll is the per-frame camera follow routine called from system_core.asm for both BG1 (X=0) and BG2 (X=2). |
 | `$02ACCC` | UpdateScrollRow | UpdateScrollRow is the vertical-scroll dirty-strip trigger. |
 | `$02ACF1` | UpdateScrollColumn | UpdateScrollColumn is the horizontal-scroll dirty-strip trigger, symmetric to UpdateScrollRow. |
-| `$02AD0B` | RenderScrollColumn | RenderScrollColumn renders one 16-tile vertical column into the WRAM strip buffer when the camera scrolls vertically. |
+| `$02AD0B` | RenderRowStrip | RenderRowStrip renders one 16-tile vertical column into the WRAM strip buffer when the camera scrolls vertically. |
 | `$02AD8D` | WrapMapIndex | WrapMapIndex ensures a 16-bit map buffer index stays within the toroidal map extent. |
-| `$02ADA2` | RenderScrollRow | RenderScrollRow is the largest scrolling function (335 bytes). |
+| `$02ADA2` | RenderColumnStrip | RenderColumnStrip is the largest scrolling function (335 bytes). |
 | `$02AEF1` | FillHorizTilemapSeg | FillHorizTilemapSeg copies a run of map tile entries from the decompressed map buffer into a WRAM strip buffer using ... |
 | `$02AF26` | FillVertTilemapSeg | FillVertTilemapSeg is the vertical-layout counterpart to FillHorizTilemapSeg. |
 | `$02AF5F` | FlushDirtyTilemapStrips | FlushDirtyTilemapStrips is the VBlank entry point that uploads all queued tilemap strips from WRAM to VRAM. |
-| `$02AFC7` | DmaHorizontalStrip | DmaHorizontalStrip performs two back-to-back 64-byte DMA transfers from the WRAM strip buffer to VRAM. |
-| `$02B000` | DmaVerticalStrip | DmaVerticalStrip performs two back-to-back 128-byte DMA transfers in byte mode for column-oriented nametable updates. |
-| `$02B038` | SpriteVramDma | SpriteVramDma uploads pending sprite tile patches from WRAM bank $7F to sprite VRAM during VBlank. |
+| `$02AFC7` | DmaColumnStrip | DmaColumnStrip performs two back-to-back 64-byte DMA transfers from the WRAM strip buffer to VRAM. |
+| `$02B000` | DmaRowStrip | DmaRowStrip performs two back-to-back 128-byte DMA transfers in byte mode for column-oriented nametable updates. |
+| `$02B038` | Bg3TilemapVramDma | Bg3TilemapVramDma uploads the BG3 tilemap staging buffer (WRAM $7F0200) to the BG3 tilemap in VRAM ($7800) during V-Blank. |
 
 ### CameraFullRefresh
 
@@ -122,7 +122,7 @@ flowchart TD
 
 After clamping, the function tile-aligns the camera by masking off the low four bits of each axis into scratch variables `$18` (column) and `$1C` (row). These coordinates drive the scroll-row renderer for the remainder of the function. DMA channel 0 is configured once for word-mode writes to VRAM register `$2118`, with source bank `$7E`.
 
-The main loop runs 32 iterations — one per visible tile row. Each iteration calls `RenderScrollRow` to populate a WRAM strip buffer, reads the queued VRAM destination address from the dirty-queue head at `$7E0000,X`, and immediately DMAs the strip via `DmaHorizontalStrip`. The column counter `$18` advances by 16 pixels per iteration, wrapping at `$map_bounds_x` when the camera crosses the second nametable half.
+The main loop runs 32 iterations — one per visible tile row. Each iteration calls `RenderColumnStrip` to populate a WRAM strip buffer, reads the queued VRAM destination address from the dirty-queue head at `$7E0000,X`, and immediately DMAs the strip via `DmaColumnStrip`. The column counter `$18` advances by 16 pixels per iteration, wrapping at `$map_bounds_x` when the camera crosses the second nametable half.
 
 On completion, all four dirty-flag words (`$7E3100`, `$7E3288`, `$7E3184`, `$7E330C`) are cleared, and CGRAM palette is uploaded via `system_init.UploadCgramPalette`.
 
@@ -134,7 +134,7 @@ On completion, all four dirty-flag words (`$7E3100`, `$7E3288`, `$7E3184`, `$7E3
 | 2 | Clamp `$06BE,X` to `$0692,X`; copy to `$068A,X`; tile-align → `$18` |
 | 3 | Clamp `$06C2,X` to `$0696,X`; copy to `$068E,X`; tile-align → `$1C` |
 | 4 | Configure DMA channel 0: VMAIN=`$81`, DMAP0=`$01`, BBAD0=`$18`, A1B0=`$7E` |
-| 5 | Loop 32×: `RenderScrollRow` → read VRAM addr from `$7E0000,X` → `DmaHorizontalStrip` |
+| 5 | Loop 32×: `RenderColumnStrip` → read VRAM addr from `$7E0000,X` → `DmaColumnStrip` |
 | 6 | Advance `$18` by `$0010`; wrap against `$map_bounds_x,X` |
 | 7 | Clear four dirty-flag words; JSL `UploadCgramPalette`; restore and RTL |
 
@@ -155,8 +155,8 @@ On completion, all four dirty-flag words (`$7E3100`, `$7E3288`, `$7E3184`, `$7E3
 
 | Symbol | Relationship |
 |--------|--------------|
-| `RenderScrollRow` | Called 32× to build each row strip |
-| `DmaHorizontalStrip` | Called 32× for immediate row upload |
+| `RenderColumnStrip` | Called 32× to build each row strip |
+| `DmaColumnStrip` | Called 32× for immediate row upload |
 | `system_init.UploadCgramPalette` | JSL after refresh completes |
 | `chunk_03BAE1.asm` | Primary caller on scene load |
 
@@ -202,9 +202,9 @@ The Y axis follows the identical pattern using `$06C2`, `$068E`, `$06D2`, and `U
 
 ### UpdateScrollRow
 
-`UpdateScrollRow` is the vertical-scroll dirty-strip trigger. When `CameraSmoothScroll` detects that the smoothed Y position crossed a 16-pixel tile boundary, this routine determines which map row needs to be rendered and calls `RenderScrollColumn`.
+`UpdateScrollRow` is the vertical-scroll dirty-strip trigger. When `CameraSmoothScroll` detects that the smoothed Y position crossed a 16-pixel tile boundary, this routine determines which map row needs to be rendered and calls `RenderRowStrip`.
 
-The current scroll X is copied to `$18` so the column renderer knows the horizontal position. The Y coordinate is adjusted by `$00E0` (scrolling down, +224 px) or `$FFF0` (scrolling up, −16 px) depending on the sign of `$06D2`. The result is stored in `$1C` and wrapped modulo `$map_bounds_y` in a subtract loop before calling `RenderScrollColumn`.
+The current scroll X is copied to `$18` so the column renderer knows the horizontal position. The Y coordinate is adjusted by `$00E0` (scrolling down, +224 px) or `$FFF0` (scrolling up, −16 px) depending on the sign of `$06D2`. The result is stored in `$1C` and wrapped modulo `$map_bounds_y` in a subtract loop before calling `RenderRowStrip`.
 
 **Algorithm:**
 
@@ -213,7 +213,7 @@ The current scroll X is copied to `$18` so the column renderer knows the horizon
 | 1 | `$18` ← `$068A,X` |
 | 2 | If `$06D2,X` negative: Y offset = `$FFF0`; else `$00E0` |
 | 3 | Add offset to `$068E,X` → `$1C`; wrap against `$map_bounds_y,X` |
-| 4 | JSR `RenderScrollColumn` |
+| 4 | JSR `RenderRowStrip` |
 
 **Variables:**
 
@@ -230,13 +230,13 @@ The current scroll X is copied to `$18` so the column renderer knows the horizon
 | Symbol | Relationship |
 |--------|--------------|
 | `CameraSmoothScroll` | Caller on Y tile-boundary cross |
-| `RenderScrollColumn` | Called to build vertical strip |
+| `RenderRowStrip` | Called to build vertical strip |
 
 ### UpdateScrollColumn
 
-`UpdateScrollColumn` is the horizontal-scroll dirty-strip trigger, symmetric to `UpdateScrollRow`. When the camera crosses a 16-pixel column boundary, this routine computes the new column coordinate and invokes `RenderScrollRow`.
+`UpdateScrollColumn` is the horizontal-scroll dirty-strip trigger, symmetric to `UpdateScrollRow`. When the camera crosses a 16-pixel column boundary, this routine computes the new column coordinate and invokes `RenderColumnStrip`.
 
-The X offset is `$0100` (scrolling right, +256 px in fixed-point) when `$06CE` is non-negative, or `$0000` (no offset, scrolling left) when negative. The offset is added to `$068A` and stored in `$18`. Current scroll Y is copied to `$1C`, then `RenderScrollRow` builds the horizontal strip.
+The X offset is `$0100` (scrolling right, +256 px in fixed-point) when `$06CE` is non-negative, or `$0000` (no offset, scrolling left) when negative. The offset is added to `$068A` and stored in `$18`. Current scroll Y is copied to `$1C`, then `RenderColumnStrip` builds the horizontal strip.
 
 **Algorithm:**
 
@@ -245,7 +245,7 @@ The X offset is `$0100` (scrolling right, +256 px in fixed-point) when `$06CE` i
 | 1 | If `$06CE,X` negative: X offset = `$0000`; else `$0100` |
 | 2 | Add offset to `$068A,X` → `$18` |
 | 3 | `$1C` ← `$068E,X` |
-| 4 | JSR `RenderScrollRow` |
+| 4 | JSR `RenderColumnStrip` |
 
 **Variables:**
 
@@ -260,11 +260,11 @@ The X offset is `$0100` (scrolling right, +256 px in fixed-point) when `$06CE` i
 | Symbol | Relationship |
 |--------|--------------|
 | `CameraSmoothScroll` | Caller on X tile-boundary cross |
-| `RenderScrollRow` | Called to build horizontal strip |
+| `RenderColumnStrip` | Called to build horizontal strip |
 
-### RenderScrollColumn
+### RenderRowStrip
 
-`RenderScrollColumn` renders one 16-tile vertical column into the WRAM strip buffer when the camera scrolls vertically. It computes the map buffer index from tile row (`$1C`) and column (`$18`), wraps the index via `WrapMapIndex`, and writes VRAM destination addresses to both BG1 and BG2 strip queue heads.
+`RenderRowStrip` renders one 16-tile vertical column into the WRAM strip buffer when the camera scrolls vertically. It computes the map buffer index from tile row (`$1C`) and column (`$18`), wraps the index via `WrapMapIndex`, and writes VRAM destination addresses to both BG1 and BG2 strip queue heads.
 
 The VRAM address calculation uses `$06BA` (nametable base) plus the row component of `$1C` shifted left by two bits. When `$18` bit `$0100` is set (second nametable half), the primary and secondary VRAM addresses are swapped between buffer slots `$0000` and `$0082`.
 
@@ -300,7 +300,7 @@ Two `FillHorizTilemapSeg` calls populate the strip: the first for the primary 16
 | `UpdateScrollRow` | Caller |
 | `WrapMapIndex` | Index toroidal wrap |
 | `FillHorizTilemapSeg` | Called twice for 16-tile column |
-| `hardware_math.SignedMultiply` | Row × width multiplication |
+| `hardware_math.Multiply8x8Unsigned` | Row × width multiplication |
 
 ### WrapMapIndex
 
@@ -329,14 +329,14 @@ If the subtraction underflows (borrow set), the extent is added back and the rou
 
 | Symbol | Relationship |
 |--------|--------------|
-| `RenderScrollColumn` | Caller |
-| `RenderScrollRow` | Caller (multiple sites) |
+| `RenderRowStrip` | Caller |
+| `RenderColumnStrip` | Caller (multiple sites) |
 
-### RenderScrollRow
+### RenderColumnStrip
 
-`RenderScrollRow` is the largest scrolling function (335 bytes). It renders one 16-tile horizontal row into the WRAM strip buffer when the camera scrolls horizontally. The routine handles map edge wrapping, partial segments at row boundaries, and dual nametable layout for both BG1 and BG2.
+`RenderColumnStrip` is the largest scrolling function (335 bytes). It renders one 16-tile horizontal row into the WRAM strip buffer when the camera scrolls horizontally. The routine handles map edge wrapping, partial segments at row boundaries, and dual nametable layout for both BG1 and BG2.
 
-The starting map index is computed from `$18`/`$1C` via `SignedMultiply` (row × `$0693` + column) plus origin `$069F`, then wrapped. Map bounds helpers `$069A`/`$069E` and `$map_bounds_x` track the visible window edges for partial fills.
+The starting map index is computed from `$18`/`$1C` via `Multiply8x8Unsigned` (row × `$0693` + column) plus origin `$069F`, then wrapped. Map bounds helpers `$069A`/`$069E` and `$map_bounds_x` track the visible window edges for partial fills.
 
 VRAM destination addresses are written to the horizontal dirty-queue at `$06B2`. The nametable half is selected by testing `$18` bit `$0020` (column 32 boundary): BG1 uses direct offset from `$06BA`; BG2 adds `$0400` for the second nametable page.
 
@@ -402,7 +402,7 @@ For each tile, the map byte at `$0000,Y` indexes an 8-byte tile record in the ti
 
 | Symbol | Relationship |
 |--------|--------------|
-| `RenderScrollColumn` | Caller (twice per column) |
+| `RenderRowStrip` | Caller (twice per column) |
 
 ### FillVertTilemapSeg
 
@@ -431,13 +431,13 @@ The tile record read and 4-word strip write pattern is identical to the horizont
 
 | Symbol | Relationship |
 |--------|--------------|
-| `RenderScrollRow` | Caller (multiple segments per row) |
+| `RenderColumnStrip` | Caller (multiple segments per row) |
 
 ### FlushDirtyTilemapStrips
 
 `FlushDirtyTilemapStrips` is the VBlank entry point that uploads all queued tilemap strips from WRAM to VRAM. Called from the NMI path in `system_core.asm`, it processes four dirty-queue heads: two horizontal (BG1 at `$06B2`, BG2 at `$06B4`) and two vertical (BG1 at `$06B6`, BG2 at `$06B8`).
 
-For horizontal strips, VMAIN is set to `$81` (word increment, `$2118` dest). Each non-zero VRAM address at the queue head triggers `DmaHorizontalStrip`. For vertical strips, VMAIN switches to `$0080` (byte increment) and `DmaVerticalStrip` is used instead.
+For horizontal strips, VMAIN is set to `$81` (word increment, `$2118` dest). Each non-zero VRAM address at the queue head triggers `DmaColumnStrip`. For vertical strips, VMAIN switches to `$0080` (byte increment) and `DmaRowStrip` is used instead.
 
 After all transfers, the four dirty-flag words at `$7E3100`, `$7E3288`, `$7E3184`, and `$7E330C` are zeroed.
 
@@ -446,11 +446,11 @@ After all transfers, the four dirty-flag words at `$7E3100`, `$7E3288`, `$7E3184
 | Step | Action |
 |------|--------|
 | 1 | Configure DMA channel 0 (word mode, `$2118`, source `$7E`) |
-| 2 | Process `$06B2` queue → `DmaHorizontalStrip` if addr ≠ 0 |
-| 3 | Process `$06B4` queue → `DmaHorizontalStrip` if addr ≠ 0 |
+| 2 | Process `$06B2` queue → `DmaColumnStrip` if addr ≠ 0 |
+| 3 | Process `$06B4` queue → `DmaColumnStrip` if addr ≠ 0 |
 | 4 | VMAIN ← `$0080` (byte mode) |
-| 5 | Process `$06B6` queue → `DmaVerticalStrip` if addr ≠ 0 |
-| 6 | Process `$06B8` queue → `DmaVerticalStrip` if addr ≠ 0 |
+| 5 | Process `$06B6` queue → `DmaRowStrip` if addr ≠ 0 |
+| 6 | Process `$06B8` queue → `DmaRowStrip` if addr ≠ 0 |
 | 7 | Clear all four dirty-flag words |
 
 **Variables:**
@@ -466,13 +466,13 @@ After all transfers, the four dirty-flag words at `$7E3100`, `$7E3288`, `$7E3184
 
 | Symbol | Relationship |
 |--------|--------------|
-| `DmaHorizontalStrip` | Called for horizontal queue entries |
-| `DmaVerticalStrip` | Called for vertical queue entries |
+| `DmaColumnStrip` | Called for horizontal queue entries |
+| `DmaRowStrip` | Called for vertical queue entries |
 | `system_core.asm` | VBlank/NMI caller |
 
-### DmaHorizontalStrip
+### DmaColumnStrip
 
-`DmaHorizontalStrip` performs two back-to-back 64-byte DMA transfers from the WRAM strip buffer to VRAM. Entry requires Y = target VRAM address and X = strip buffer offset. The routine writes `$0040` (64) bytes per transfer in word mode to `$2118`.
+`DmaColumnStrip` performs two back-to-back 64-byte DMA transfers from the WRAM strip buffer to VRAM. Entry requires Y = target VRAM address and X = strip buffer offset. The routine writes `$0040` (64) bytes per transfer in word mode to `$2118`.
 
 The first transfer uses the entry X/Y values directly. After the first transfer completes, X advances by `$0040` and the next queued VRAM address is read from `$7E0000,X` for the second 64-byte block. This covers a full 128-byte horizontal nametable row segment (32 tile words).
 
@@ -500,9 +500,9 @@ The first transfer uses the entry X/Y values directly. After the first transfer 
 | `FlushDirtyTilemapStrips` | Primary caller |
 | `CameraFullRefresh` | Direct caller during scene load |
 
-### DmaVerticalStrip
+### DmaRowStrip
 
-`DmaVerticalStrip` performs two back-to-back 128-byte DMA transfers in byte mode for column-oriented nametable updates. Like the horizontal variant, it takes Y = VRAM address and X = strip buffer offset on entry.
+`DmaRowStrip` performs two back-to-back 128-byte DMA transfers in byte mode for column-oriented nametable updates. Like the horizontal variant, it takes Y = VRAM address and X = strip buffer offset on entry.
 
 Each transfer moves `$0080` (128) bytes. The second block reads its VRAM destination from the queue and writes it directly to `$VMADDL` before triggering the second DMA. Two 128-byte blocks cover the full vertical strip (16 tiles × 2 bytes × 4 words per tile entry).
 
@@ -527,9 +527,9 @@ Each transfer moves `$0080` (128) bytes. The second block reads its VRAM destina
 |--------|--------------|
 | `FlushDirtyTilemapStrips` | Primary caller |
 
-### SpriteVramDma
+### Bg3TilemapVramDma
 
-`SpriteVramDma` uploads pending sprite tile patches from WRAM bank `$7F` to sprite VRAM during VBlank. It is called from `system_core.asm` alongside `FlushDirtyTilemapStrips`.
+`Bg3TilemapVramDma` uploads the BG3 tilemap staging buffer (WRAM $7F0200) to the BG3 tilemap in VRAM ($7800) during V-Blank. It is called from `system_core.asm` alongside `FlushDirtyTilemapStrips`.
 
 The routine early-exits if `$09ED` is negative (upload disabled) or if no request flags are set in `$09EC` (bits `$01`, `$10`, `$20`). Three upload paths exist: bit `$01` transfers 2048 bytes to VRAM `$7800`; bit `$20` transfers 320 bytes to VRAM `$7840`; the default path also transfers 320 bytes to `$7840`.
 
@@ -569,7 +569,7 @@ flowchart LR
     subgraph camera_tilemap["camera_tilemap.asm"]
         CFS[CameraFullRefresh]
         CSS[CameraSmoothScroll]
-        RSR[RenderScrollRow/Column]
+        RSR[RenderColumnStrip/Column]
         FDT[FlushDirtyTilemapStrips]
     end
 
@@ -577,8 +577,8 @@ flowchart LR
         TCI[TileCoordsToMapIndex]
         PVA[PixelToVramAddress]
         MIM[MapIndexMove*]
-        PRT[ProbeRightTiles]
-        PLT[ProbeLeftTiles]
+        PRT[FindSlopeForWestMove]
+        PLT[FindSlopeForEastMove]
     end
 
     subgraph tile_collision["tile_collision.asm"]
@@ -633,7 +633,7 @@ flowchart LR
 
 ## See Also
 
-- [`map-coordinates.md`](map-coordinates.md) — tile/pixel coordinate transforms, map-buffer index navigation, diagonal cascade probes
+- [`map-coordinates.md`](map-coordinates.md) — tile/pixel coordinate transforms, map-buffer index navigation, ramp cascade probes
 - [`tile-collision.md`](tile-collision.md) — corner probes, collision nibble lookup at `$7FC000`, movement delta finalization
 - [`player-movement.md`](player-movement.md) — movement physics that calls into `tile_collision`
 - [`hardware-and-init.md`](hardware-and-init.md) — `MulDivide`, `UploadCgramPalette` consumers

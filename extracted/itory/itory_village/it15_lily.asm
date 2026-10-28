@@ -5,9 +5,9 @@
 ; and guides Will to meet the Elder. Key tutorial sequence.
 ---------------------------------------------
 
-?INCLUDE 'InitPlayerScriptVariant'
 ?INCLUDE 'oneshot_palette_flash_18'
 ?INCLUDE 'oneshot_palette_flash_19'
+?INCLUDE 'SetPlayerIdleFacing'
 
 !joypadMaskStd                  065A
 !cameraTargetY                  06C2
@@ -118,7 +118,7 @@ code_04E398 {
     TRB $10
     COP [WaitOnFlagByte] ( #04, #01 )
     LDA #$0001
-    JSL $@InitPlayerScriptVariant
+    JSL $@SetPlayerIdleFacing
     COP [StageSpriteFrame] ( #1A )
     COP [AnimOnce]
     COP [PrintDialogString] ( &dialogstring_04E53C )

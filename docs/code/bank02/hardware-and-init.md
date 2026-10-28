@@ -28,8 +28,8 @@ This page documents the lowest-level engine infrastructure in bank `$02`: SNES h
 ```
 $028000 ┌─ MulDivide ─────────────────────────────────────┐
 $02803B ├─ VBlankPartial … WaitFrames ────────────────────┤  vblank_joypad
-$0281D1 ├─ SignedMultiply … IncrementCounter_Unused ───────┤  hardware_math (part 2)
-$028270 ├─ QuintetLzDecompress … LzReadBackRef ────────────┤  decompress
+$0281D1 ├─ Multiply8x8Unsigned … RngStep_Unused ───────┤  hardware_math (part 2)
+$028270 ├─ QuintetLzDecompress … LzReadNibble ────────────┤  decompress
 $0283A2 └─ (scene_script continues) ─────────────────────┘
         …
 $029DE2 ┌─ UploadCgramPalette … ppu_register_init_table ──┐  system_init
@@ -43,15 +43,15 @@ $02A040 └─ (music_actors continues) ─────────────�
 | Address | Name | Description |
 |---------|------|-------------|
 | `$028000` | MulDivide | Performs a **16×8 multiply followed by an 8-bit divide** using the SNES hardware math unit at `$4202`–`$4217`. |
-| `$0281D1` | SignedMultiply | Performs an **8×8 signed multiply** via `$WRMPYA`/`$WRMPYB` and returns the **16-bit product** in `A` (low byte in A after `XBA`, then high byte swapped in). |
+| `$0281D1` | Multiply8x8Unsigned | Performs an **8×8 unsigned multiply** via `$WRMPYA`/`$WRMPYB` and returns the **16-bit product** in `A` (low byte in A after `XBA`, then high byte swapped in). |
 | `$0281E8` | UnsignedDivide | Performs a **16÷8 unsigned divide** using the hardware divider. |
 | `$0281FE` | SoftDivide_Unused | A **software 16÷16 fixed-point division** routine that operates entirely in direct-page scratch at `$00`–`$06`. |
-| `$028247` | IncrementCounter_Unused | Increments a **128-bit (16-byte) big-endian counter** stored at WRAM `$040F`–`$041F`. |
+| `$028247` | RngStep_Unused | Increments a **128-bit (16-byte) big-endian counter** stored at WRAM `$040F`–`$041F`. |
 
 ### MulDivide
 
 
-Performs a **16×8 multiply followed by an 8-bit divide** using the SNES hardware math unit at `$4202`–`$4217`. The routine computes `(A_low × Y) ÷ A_high`, returning the 16-bit quotient in `A`. The low byte of the 16-bit `A` input becomes the 8-bit multiplicand written to `$WRMPYA`; the high byte of `A` (saved on the stack) becomes the 8-bit divisor written to `$WRDIVB` after the 24-bit product is assembled in `$WRDIVL`/`$WRDIVH`. This is the bank `$02` counterpart to the movement math in bank `$00` (`MultiplyThenDivide`), but with a different register layout: callers pass a 16-bit scale factor in `A` (low = multiplicand, high = divisor) and a 16-bit operand in `Y`. The eight `NOP` instructions after writing `$WRDIVB` provide the mandatory pipeline delay before reading `$RDDIVL`. Used for camera scroll delta computation (`ComputeScrollDeltas` in [`camera_scroll.asm`](../../../extracted/system/engine/camera_scroll.asm)), parallax scrolling (`parallax_thinker.asm`), and visual-effect coordinate scaling (`visual_effect_pipeline.asm`).
+Performs a **16×8 multiply followed by an 8-bit divide** using the SNES hardware math unit at `$4202`–`$4217`. The routine computes `(A_low × Y) ÷ A_high`, returning the 16-bit quotient in `A`. The low byte of the 16-bit `A` input becomes the 8-bit multiplicand written to `$WRMPYA`; the high byte of `A` (saved on the stack) becomes the 8-bit divisor written to `$WRDIVB` after the 24-bit product is assembled in `$WRDIVL`/`$WRDIVH`. This is the bank `$02` counterpart to the movement math in bank `$00` (`MultiplyThenDivide`), but with a different register layout: callers pass a 16-bit scale factor in `A` (low = multiplicand, high = divisor) and a 16-bit operand in `Y`. The eight `NOP` instructions after writing `$WRDIVB` provide the mandatory pipeline delay before reading `$RDDIVL`. Used for camera scroll delta computation (`ComputeScrollDeltas` in [`camera_scroll.asm`](../../../extracted/system/engine/camera_scroll.asm)), scanline-band HDMA value math (`scanline_band_hdma_thinker.asm` / `ParallaxComputeBandValue`), and visual-effect coordinate scaling (`visual_effect_pipeline.asm`).
 
 **Algorithm:**
 
@@ -128,7 +128,7 @@ MulDivide {
 |--------|--------------|
 | `ComputeScrollDeltas` | Caller — scroll delta from player offset × scroll factor |
 | `ScrollCameraVertical` | Caller — vertical scroll scaling |
-| `parallax_thinker.asm` | Caller — parallax layer offset |
+| `scanline_band_hdma_thinker.asm` | Caller — per-scanline band value scaling |
 | `visual_effect_pipeline.asm` | Caller — effect coordinate scaling |
 
 ### SoftDivide_Unused
@@ -232,7 +232,7 @@ SoftDivide_Unused {
 |--------|--------------|
 | *(none)* | No callers — dead code |
 
-### IncrementCounter_Unused
+### RngStep_Unused
 
 
 Increments a **128-bit (16-byte) big-endian counter** stored at WRAM `$040F`–`$041F`. The first loop (`loc_028254`) propagates carry through bytes `$0410`–`$041F` using `ADC` with `$040F,X` as the base. The second loop (`loc_028263`) performs a simple `INC` cascade from `$040F` upward until a non-zero byte is found or 16 bytes are processed. No references to this routine exist in the extracted codebase. The counter location `$040F` is not associated with any active gameplay system in current documentation.
@@ -249,7 +249,7 @@ Increments a **128-bit (16-byte) big-endian counter** stored at WRAM `$040F`–`
 **Source:**
 
 ```151:182:../../../extracted/system/engine/hardware_math.asm
-IncrementCounter_Unused {
+RngStep_Unused {
     PHP
     SEP #$20
     PHA
@@ -303,7 +303,7 @@ IncrementCounter_Unused {
 | `$02803B` | VBlankPartial | Lightweight VBlank entry that **skips the NMI wait loop** and jumps directly into the post-VBlank portion of `VBlankWaitAndJoypad` at `loc_028057`. |
 | `$028043` | VBlankWaitAndJoypad | The **primary main-thread VBlank synchronization and joypad handler**. |
 | `$028191` | EnableNmiAndJoypad | Enables **NMI and auto-joypad polling** by writing `$81` to `$L_NMITIMEN` (`$4200`). |
-| `$0281A2` | EnableNmiOnly | Enables **NMI only** (no auto-joypad) by writing `$01` to `$L_NMITIMEN`. |
+| `$0281A2` | DisableNmiKeepJoypad | **Disables NMI**, keeps **auto-joypad** on by writing `$01` to `$L_NMITIMEN` (bit 7 clear, bit 0 set). |
 | `$0281AF` | ScreenBlackout | Releases forced blank but sets brightness to zero — screen appears black but PPU remains active. Writes `$00` to `$L_INIDISP` (`$2100`). |
 | `$0281BC` | EnterForcedBlank | Enables SNES forced blank — PPU halted, VRAM/OAM/CGRAM accessible for DMA transfers. Writes `$80` to `$L_INIDISP`. |
 | `$0281C9` | WaitFrames | Waits **A frames** by calling `VBlankWaitAndJoypad` in a decrement loop. |
@@ -311,7 +311,7 @@ IncrementCounter_Unused {
 ### VBlankWaitAndJoypad
 
 
-The **primary main-thread VBlank synchronization and joypad handler**. Called at the start and end of every main-loop frame in `SystemInit` (`loc_0080B5`), as well as from dialogue/render frame paths and scene-transition code. Performs four major duties: 1. **NMI wait** — Polls `$L_RDNMI` (`$4210`) until bit 7 is set, indicating vertical blank has begun. A dummy read clears the NMI flag before the wait loop. 2. **Mode 7 matrix upload** — When `$06EF` bit `$08` is set, writes the 14-byte Mode 7 parameter block from `$C2`–`$CD` to PPU registers `$211B`–`$2120` (double-written for latch timing). 3. **Joypad injection bypass** — If `$09AC` is non-zero, copies its value to `$0656` (current-frame joypad), clears `$09AC`, and returns early without reading hardware. 4. **Joypad read + remapping + auto-repeat** — Reads raw state from `$0660`, applies per-button remapping masks from `$0DA6`–`$0DB4` based on which buttons are held, stores the filtered result in `$0656`/`$065E`, and implements auto-repeat via `$0658` (held bits), `$0662` (frame counter), and `$joypad_mask_inv` (cleared after 12 frames). The main loop pattern is: `VBlankWaitAndJoypad` → game logic → `EnableNmiOnly` at frame start; `EnableNmiAndJoypad` at frame end. This ensures NMI fires during VBlank while game logic runs with NMI disabled.
+The **primary main-thread VBlank synchronization and joypad handler**. Called at the start and end of every main-loop frame in `SystemInit` (`MainLoop`), as well as from dialogue/render frame paths and scene-transition code. Performs four major duties: 1. **NMI wait** — Polls `$L_RDNMI` (`$4210`) until bit 7 is set, indicating vertical blank has begun. A dummy read clears the NMI flag before the wait loop. 2. **Mode 7 matrix upload** — When `$06EF` bit `$08` is set, writes the 14-byte Mode 7 parameter block from `$C2`–`$CD` to PPU registers `$211B`–`$2120` (double-written for latch timing). 3. **Joypad injection bypass** — If `$09AC` is non-zero, copies its value to `$0656` (current-frame joypad), clears `$09AC`, and returns early without reading hardware. 4. **Joypad read + remapping + auto-repeat** — Reads raw state from `$0660`, applies per-button remapping masks from `$0DA6`–`$0DB4` based on which buttons are held, stores the filtered result in `$0656`/`$065E`, and implements auto-repeat via `$0658` (held bits), `$0662` (frame counter), and `$joypad_mask_inv` (cleared after 12 frames). The main loop pattern is: `VBlankWaitAndJoypad` → game logic → `DisableNmiKeepJoypad` at frame start; `EnableNmiAndJoypad` at frame end. This ensures NMI fires during VBlank while game logic runs with NMI disabled.
 
 **Algorithm:**
 
@@ -512,7 +512,7 @@ VBlankWaitAndJoypad {
 
 | Symbol | Relationship |
 |--------|--------------|
-| `SystemInit` (main loop) | Caller — every frame at `loc_0080B5` |
+| `SystemInit` (main loop) | Caller — every frame at `MainLoop` |
 | `UpdateFrame_Dialogue` | Caller — dialogue frame path |
 | `UpdateFrame_Render` | Caller — text overlay frame path |
 | `chunk_038000.asm` | Caller — alternate frame handlers |
@@ -528,12 +528,12 @@ VBlankWaitAndJoypad {
 |---------|------|-------------|
 | `$028270` | QuintetLzDecompress | Main entry point for **Quintet-LZ decompression**, the dictionary-based compression format used for all BG tile, tilemap, and sprite graphics in IOG. |
 | `$0282DE` | LzReadBitField | Extracts a **variable-length bit field (1–8 bits)** from the compressed bitstream. |
-| `$02833B` | LzReadBackRef | Decodes the **copy length for a back-reference** in the Quintet-LZ stream. |
+| `$02833B` | LzReadNibble | Decodes the **copy length for a back-reference** in the Quintet-LZ stream. |
 
 ### QuintetLzDecompress
 
 
-Main entry point for **Quintet-LZ decompression**, the dictionary-based compression format used for all BG tile, tilemap, and sprite graphics in IOG. Sets `DBR` to `$7E` so output writes target WRAM bank `$7E`. Initializes a 256-byte sliding dictionary at `($74)` filled with `$20` (space character), sets the dictionary write pointer to `$EF`, and resets the bit accumulator at `$72` to `$80`. The decompression loop reads bits from the compressed stream at `[$3E]` (24-bit pointer in `$3E`/`$3F`/bank). When a **literal bit** is set, `LzReadBitField` extracts the next byte, writes it to both the output buffer `($74)` and `$0000,X` (direct-page mirror), and advances the dictionary pointer. When a **reference bit** is clear, `LzReadBitField` reads the dictionary index, `LzReadBackRef` reads the copy length, and a byte-copy loop duplicates from the dictionary ring buffer. Callers must preset: `$78` = output byte count, `$7A` = output write pointer (16-bit WRAM offset), and `$3E`/`$3F`/bank = compressed data source pointer. The scene script engine is the primary caller (10+ sites in [`scene_script.asm`](../../../extracted/system/engine/scene_script.asm)); COP handlers and retranslation patches also invoke it directly.
+Main entry point for **Quintet-LZ decompression**, the dictionary-based compression format used for all BG tile, tilemap, and sprite graphics in IOG. Sets `DBR` to `$7E` so output writes target WRAM bank `$7E`. Initializes a 256-byte sliding dictionary at `($74)` filled with `$20` (space character), sets the dictionary write pointer to `$EF`, and resets the bit accumulator at `$72` to `$80`. The decompression loop reads bits from the compressed stream at `[$3E]` (24-bit pointer in `$3E`/`$3F`/bank). When a **literal bit** is set, `LzReadBitField` extracts the next byte, writes it to both the output buffer `($74)` and `$0000,X` (direct-page mirror), and advances the dictionary pointer. When a **reference bit** is clear, `LzReadBitField` reads the dictionary index, `LzReadNibble` reads the copy length, and a byte-copy loop duplicates from the dictionary ring buffer. Callers must preset: `$78` = output byte count, `$7A` = output write pointer (16-bit WRAM offset), and `$3E`/`$3F`/bank = compressed data source pointer. The scene script engine is the primary caller (10+ sites in [`scene_script.asm`](../../../extracted/system/engine/scene_script.asm)); COP handlers and retranslation patches also invoke it directly.
 
 **Algorithm:**
 
@@ -603,7 +603,7 @@ QuintetLzDecompress {
   loc_0282B9:
     JSR $&LzReadBitField
     STA $76
-    JSR $&LzReadBackRef
+    JSR $&LzReadNibble
     INC
     INC
 
@@ -651,7 +651,7 @@ QuintetLzDecompress {
 | `scene_script.asm` | Primary caller — all compressed graphics loaders |
 | `cop_handlers_metatile.asm` | Caller — runtime decompression |
 | `LzReadBitField` | Callee — variable-length bit/byte extraction |
-| `LzReadBackRef` | Callee — back-reference length decode |
+| `LzReadNibble` | Callee — back-reference length decode |
 
 ### LzReadBitField
 
@@ -773,9 +773,9 @@ LzReadBitField {
 | Symbol | Relationship |
 |--------|--------------|
 | `QuintetLzDecompress` | Sole caller — literal and index reads |
-| `LzReadBackRef` | Sibling — uses same bitstream state |
+| `LzReadNibble` | Sibling — uses same bitstream state |
 
-### LzReadBackRef
+### LzReadNibble
 
 
 Decodes the **copy length for a back-reference** in the Quintet-LZ stream. Examines the current state of the bit accumulator `$72` to determine how many length bits to read. Three paths exist based on the top bits of `$72`: - **`$72` ≥ `$10`:** Shift `$72` right by 4, read length bits inline from the next source byte(s) with variable right-shift. - **`$72` < `$10`, carry clear after first shift:** Reload `$72` to `$80`, read 4-bit length from next byte. - **Other paths:** Set `$72` to `$40`, `$20`, or `$10` and read 16-bit word with 1–3 left shifts to extract a 4-bit length nibble. Returns the length value in `A` (4-bit, 0–15). The caller (`QuintetLzDecompress`) adds 2 to this value (`INC` × 2) to get the actual copy count (minimum match length = 2 bytes).
@@ -793,7 +793,7 @@ Decodes the **copy length for a back-reference** in the Quintet-LZ stream. Exami
 **Source:**
 
 ```172:250:../../../extracted/system/engine/decompress.asm
-LzReadBackRef {
+LzReadNibble {
     LDA $72
     CMP #$10
     BCC loc_02835D
@@ -1166,7 +1166,7 @@ system_init_constants [
 ### DmaFixedByteFill
 
 
-Performs a **fixed-byte DMA fill** of WRAM using DMA channel 0 in fill mode (`$DMAP0 = $08`). The fill byte comes from a single-byte source at `scene_flag_table.sine_table_8bit` (a zero byte in the shared binary block). The destination is the current `$WMADDL`/`$WMADDH` address; the transfer size is passed in `Y` (16-bit byte count). Called three times by `InitSystemVariables` to zero WRAM regions during cold start. The `$BBAD0 = $80` setting selects fixed-byte mode where the same source byte is repeated for the entire transfer length.
+Performs a **fixed-byte DMA fill** of WRAM using DMA channel 0 in fill mode (`$DMAP0 = $08`). The fill byte comes from a single-byte source at `slope_curve_table.sine_table_8bit` (a zero byte in the shared binary block). The destination is the current `$WMADDL`/`$WMADDH` address; the transfer size is passed in `Y` (16-bit byte count). Called three times by `InitSystemVariables` to zero WRAM regions during cold start. The `$BBAD0 = $80` setting selects fixed-byte mode where the same source byte is repeated for the entire transfer length.
 
 **Algorithm:**
 
@@ -1188,9 +1188,9 @@ DmaFixedByteFill {
     STA $DMAP0
     LDA #$80
     STA $BBAD0
-    LDA #$^scene_flag_table.sine_table_8bit
+    LDA #$^slope_curve_table.sine_table_8bit
     STA $A1B0
-    LDX #$&scene_flag_table.sine_table_8bit
+    LDX #$&slope_curve_table.sine_table_8bit
     STX $A1T0L
     LDA #$01
     STA $MDMAEN
@@ -1389,14 +1389,14 @@ Cold Start (SystemInit)
   ├── InitSystemVariables ← system_init_constants, DmaFixedByteFill
   ├── EnterForcedBlank
   └── Main loop:
-        ├── VBlankWaitAndJoypad → EnableNmiOnly
+        ├── VBlankWaitAndJoypad → DisableNmiKeepJoypad
         ├── … game logic …
         ├── UploadCgramPalette / UploadOamTable
         └── EnableNmiAndJoypad
 
 Scene Load (scene_script)
-  ├── SignedMultiply (offset math)
-  └── QuintetLzDecompress ← LzReadBitField, LzReadBackRef
+  ├── Multiply8x8Unsigned (offset math)
+  └── QuintetLzDecompress ← LzReadBitField, LzReadNibble
         └── DMA decompressed data to VRAM
 ```
 
@@ -1407,7 +1407,7 @@ Scene Load (scene_script)
 | [../bank00/system-core.md](../bank00/system-core.md) | Main loop, frame variants, cold-start sequence |
 | [../bank00/nmi-handler.md](../bank00/nmi-handler.md) | NMI-side PPU/DMA (complements VBlank wait here) |
 | [../bank00/utility-math-movement.md](../bank00/utility-math-movement.md) | Bank `$00` movement math (parallel to `MulDivide`) |
-| [scene-script.md](scene-script.md) | Primary consumer of `QuintetLzDecompress` and `SignedMultiply` |
+| [scene-script.md](scene-script.md) | Primary consumer of `QuintetLzDecompress` and `Multiply8x8Unsigned` |
 | [camera-scrolling.md](camera-scrolling.md) | Consumer of `MulDivide`, `UploadCgramPalette` |
 | [game-systems.md](game-systems.md) | Frame update paths using VBlank/joypad routines |
 | [inventory-overlay.md](inventory-overlay.md) | Inventory overlay NMI/display sync |

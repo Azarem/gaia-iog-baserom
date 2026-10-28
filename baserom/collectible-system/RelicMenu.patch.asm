@@ -100,7 +100,7 @@ ShowAllItemSlots! {
     LDA #$8000
     TRB $10
     LDA #$1000
-    LDY #$&loc_02E8CD
+    LDY #$&SlotActorEvaluate
     
   sais_entry_check:
     BIT $10
@@ -184,7 +184,7 @@ consolestring_01E9B7! |[PAL:0][POS:96,5][TBL:@item_menu_table,AE8][TBL:@item_des
 consolestring_01EA27! |[PAL:0][POS:84,5]View[DBL]Relics|
 
 
-  code_02E67C!:
+  DiscardGridLoop!:
     JSR $&PositionGridCursor
     COP [RunBg3Script] ( @system_strings.consolestring_01E912 )
     LDA $22
@@ -193,8 +193,8 @@ consolestring_01EA27! |[PAL:0][POS:84,5]View[DBL]Relics|
     COP [RunBg3Script] ( @system_strings.consolestring_01E9D0 )
     COP [SetEntryHereAndYield]
     COP [BranchIfPressed] ( #$4000, &DiscardCancelTab )
-    ;COP [BranchIfPressed] ( #$8000, &code_02E6AA )
-    PEA $&code_02E67C-1
+    ;COP [BranchIfPressed] ( #$8000, &DiscardAttempt )
+    PEA $&DiscardGridLoop-1
     COP [BranchIfPressed] ( #$0800, &GridCursorUp )
     COP [BranchIfPressed] ( #$0400, &GridCursorDown )
     COP [BranchIfPressed] ( #$0200, &GridCursorLeft )
@@ -223,9 +223,9 @@ InventoryMenuInit- {
     COP [SpawnAfterFlags] ( @EquippedItemDisplay, #$0800 )
     TYA 
     STA $7F0018, X
-    COP [SpawnAfterFlags] ( @StatusCharRow1, #$0800 )
-    COP [SpawnAfterFlags] ( @StatusCharRow2, #$0800 )
-    COP [SpawnAfterFlags] ( @StatusCharRow3, #$0800 )
+    COP [SpawnAfterFlags] ( @StatusAbilityRow2, #$0800 )
+    COP [SpawnAfterFlags] ( @StatusAbilityRow1, #$0800 )
+    COP [SpawnAfterFlags] ( @StatusAbilityRow0, #$0800 )
     TYA 
     STA $7F001A, X
     COP [SetEntryHereAndYield]

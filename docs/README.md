@@ -55,7 +55,7 @@ The ROM structure is defined by three complementary JSON files in `us/`:
 |------|---------|
 | [`us/blocks.json`](../us/blocks.json) | Block/part structure — known code/data regions with start/end/type |
 | [`us/overrides.json`](../us/overrides.json) | Per-address register state and type corrections |
-| [`us/names.json`](../us/names.json) | Human-readable address labels (address → name mapping) |
+| [`db-us/names/bankNN.json`](../db-us/names/) | Human-readable address labels (address → name mapping), one file per ROM bank |
 
 The engine auto-discovers additional pieces within and between blocks through code analysis. See the [Code Bank Documentation](code/) for per-bank details on how these files define the ROM structure.
 

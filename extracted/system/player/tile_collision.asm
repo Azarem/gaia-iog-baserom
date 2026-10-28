@@ -1,51 +1,28 @@
-; Tile collision primitives — probe, navigation, alignment, and movement utilities used by all player movement dispatchers (188674–189334, Bank 02). Outputs to system/player/ alongside its callers.
+; Tile collision primitives: corner probes, collision-byte reader, map-cell stepping and movement helpers for the player (188674–189334, Bank 02). Outputs to system/player/ next to its callers.
 ; 
-; This is the shared utility layer for the player movement system. Every movement dispatcher (DispatchNorthMove, DispatchSouthMove, DispatchEastMove, and their diagonal/ramp variants) calls into these routines for tile probing, collision reading, map cell navigation, and movement application. No other system references these routines — they exist exclusively as the probe/navigation foundation for the player_move_* blocks.
+; Callers: every player_move_* block (main, ns, south, east, diag, ramps), the slope_ramp_physics actor (actors/player) and map_coords (FindSlopeForWestMove / FindSlopeForEastMove, which borrow the probes and MapCell steps). Nothing outside the player/slope code uses them (the earlier note said only the player_move_* blocks do).
 ; 
-; === HITBOX PROBING ===
+; === COLLISION BYTE ===
 ; 
-; 8 probe routines sample collision at the 4 corners of the player's 16×16 hitbox:
-;   - Current probes (ProbeCurrentTL/TR/BL/BR): Use current position ($22, $26)
-;   - Future probes (ProbeFutureTL/TR/BL/BR): Use position + velocity ($22+$20, $26+$24)
+; The collision layer ($7FC000, one byte per 16x16 tile) holds the terrain type in the low nibble and, in the high nibble, the solid mark that actors OR in with MarkSolidHere / MarkSolidOffset / MarkSolidAbs ($F0) and remove with the Clear ops. ReadCollisionNibble returns the high nibble shifted down when it is nonzero ($F0 becomes $0F, solid) and the terrain type otherwise. Types seen by callers: $05 west-facing slope, $0A east-facing slope, $07 ladder, $06 and $09 wall-like types (undecoded, audit OQ-16 in tile_collision_physics), $0E and above solid. The earlier 'layer-priority override' wording for the high nibble is wrong.
 ; 
-; Hitbox geometry (relative to sub-pixel reference point):
-;   Left edge: pixel − 8 (ADC $FFF8)
-;   Right edge: pixel + 7 (ADC $0007)
-;   Top edge: pixel − 16 (ADC $FFF0)
-;   Bottom edge: pixel − 1 (ADC $FFFF)
-;   Total: 16×16 pixels, reference at center-bottom
+; === CORNER PROBES ===
 ; 
-; All probes convert sub-pixel (>>2) to pixel, add the hitbox offset, call TileProbeMain, and return collision type in A with carry set = collision detected. Post-probe adjustments (INC $1A, INC $1E) shift the stored coordinates one pixel inward for subsequent MapCell navigation by the caller.
+; Eight probes sample the corners of the 16x16 hitbox, whose reference point is the centre of the bottom edge: left = pixel - 8, right = pixel + 7, top = pixel - 16, bottom = pixel - 1 (ProbeCurrentTL/TR/BL/BR use $22/$26, ProbeFutureTL/TR/BL/BR use $22 + $20 and $26 + $24; sub-pixels are shifted down by 2 first). Each stores the probe pixel in $1A (X) and $1E (Y) and calls TileProbeMain. Return protocol: A = collision type; carry set when the type is NONZERO, which includes slopes, ladders and wall types as well as solid tiles (callers compare A with $0E for solid); carry clear for type 0. Out of bounds gives A = $0F, carry set.
+; 
+; The INC $1A / INC $1E after the call in the TR, BL and BR probes move the stored right or bottom coordinate one pixel past the hitbox edge (+8, bottom + 1). That is what makes CheckSubTileAlignX/Y ($1A / $1E & $0F = 0) test 'is this edge flush with a tile boundary' for all four edges (TL needs no INC: its left and top edges are already the first covered pixel). It is not a shift 'inward for MapCell navigation': the MapCell steps start from the map index in $00.
 ; 
 ; === TILE PROBE ENGINE ===
 ; 
-; TileProbeMain: Validates pixel coordinates ($1A, $1E) are within camera bounds (cameraOffsetX/Y to cameraBoundsX/cameraLowerYBound). If out-of-bounds: returns $0F (solid) with carry set and sets $00 = $4001 (sentinel). If in-bounds: converts to tile coordinates (>>4 → $18, $1C), calls CalcTileMapOffset (tile_collision_physics) to get map index in Y, stores to $00/X, then ReadCollisionNibble.
+; TileProbeMain checks $1A and $1E against the camera bounds (cameraOffsetX/Y up to cameraBoundsX / cameraLowerYBound; negative values are rejected too). Out of bounds: $00 = $4001, A = $0F, carry set. In bounds: tile column $18 = $1A >> 4, tile row $1C = $1E >> 4, CalcTileMapOffset (tile_collision_physics) returns the map index in Y, which is stored in $00 and passed in X to ReadCollisionNibble.
 ; 
-; ReadCollisionNibble: Reads collision layer byte at $7FC000+X. If X ≥ $4000 (out of map): returns $0F (solid). Otherwise: if the high nibble is nonzero, shifts right (>>4) to extract it as the collision type (override). If the high nibble is zero, uses the low nibble as the collision type. Sets Z flag via BIT #$FF.
+; === MAP CELL STEPS ===
 ; 
-; === MAP CELL NAVIGATION ===
+; The map index is page (high byte) and row/column nibbles (low byte): +$10 in the low byte is one row down, +1 one column right. MapCellDown / MapCellUp add or subtract $10 and, on carry or borrow, add or subtract mapRowStrideL0 in the high byte; MapCellRight / MapCellLeft step the low byte and, when the column nibble wraps, step the high byte (one page right or left) and undo the row step with + or - $F0, which lands on column 0 of the next page (right) or column 15 of the previous page (left), same row. Each returns the new index in X; none reads or writes $1A/$1E. Equivalent to the map_coords MapIndexMove* routines. Some callers (slope_ramp_physics) still describe MapCellDown as the 'right' cell.
 ; 
-; Four routines navigate the map index at $00 to an adjacent cell, returning the new index in X:
+; === MOVEMENT HELPERS ===
 ; 
-;   MapCellDown: adds $10 to low byte (next row within page). On carry, adds mapRowStrideL0 to high byte. Same operation as MapIndexMoveDown in map_coords.
-; 
-;   MapCellUp: subtracts $10 from low byte. On borrow, subtracts mapRowStrideL0 from high byte. Reverse of MapCellDown.
-; 
-;   MapCellRight: increments low byte. If low nibble wraps to $x0 (BIT #$0F = 0), increments high byte and adds $F0 to compensate. Same operation as MapIndexMoveRight in map_coords.
-; 
-;   MapCellLeft: decrements low byte. If low nibble underflows to $xF (AND $0F = $0F), decrements high byte and subtracts $F0. Same as MapIndexMoveLeft.
-; 
-; === MOVEMENT UTILITIES ===
-; 
-; ApplyMovementDeltas: Adds velocity ($20, $24) to position ($22, $26) and zeroes velocity. Standard epilogue for non-blocked movement.
-; 
-; ClearMovementDeltas: Zeroes both velocity components ($20, $24). Used when movement is fully blocked (e.g., enclosed between two wall tiles).
-; 
-; SetActorCollisionFlag: Sets bit $0004 in the actor flags word at actor+$0010 (indexed via $000A). Marks the actor as having contacted a solid tile.
-; 
-; CheckTileBoundaryXor: XORs pre- and post-velocity X positions to detect a 16px tile boundary crossing (BIT #$0010). Used by ramp routines to determine when diagonal displacement should be applied.
-; 
-; CheckSubTileAlignX/Y: Tests whether pixel coordinate ($1A or $1E) is 16px-aligned (low nibble == 0). Returns carry clear = aligned, carry set = not aligned. Preserves A.
+; ApplyMovementDeltas: $22 += $20, $26 += $24, then both velocities are zeroed (standard epilogue of an unblocked step). ClearMovementDeltas zeroes $20 and $24. SetActorCollisionFlag ORs $0004 into the flags word at actor + $10 (solid contact this tick) for the actor slot in $000A. CheckTileBoundaryXor tests whether the X step crosses a 16-pixel column. CombinedProbe_Unused has no call site.
 ---------------------------------------------
 
 ?BANK 02
@@ -88,7 +65,7 @@ CombinedProbe_Unused {
     STA $1A
     JSR $&TileProbeMain   ; TileProbeMain at combined future position
     AND #$00FF            ; Mask collision nibble to byte for $0E threshold compare
-    CMP #$000E            ; Primary cell ≥ $0E → blocking; branch to fail if passable
+    CMP #$000E            ; Primary cell type >= $0E: blocked (falls through to the SEC). Below $0E: go on to the row-above check
     BCC loc_02E128
     PLP 
 
@@ -98,10 +75,10 @@ CombinedProbe_Unused {
 
   loc_02E128:
     PLP 
-    BEQ loc_02E13D        ; Primary nonzero but < $0E: probe one row up (MapCellLeft = UP)
+    BEQ loc_02E13D        ; Z from the AND #$000F saved by PHP: set = probe Y is on a 16-pixel boundary, so skip the row-above probe and report passable
     SEP #$20
     JSR $&MapCellUp
-    JSR $&ReadCollisionNibble ; Read upward neighbor — passable override if adjacent row is open
+    JSR $&ReadCollisionNibble ; Cell above (Y straddles two rows): a type >= $0E there makes the move blocked
     REP #$20
     AND #$00FF
     CMP #$000E            ; Upward neighbor also ≥ $0E → still blocked (SEC path)
@@ -113,9 +90,9 @@ CombinedProbe_Unused {
 }
 
 ---------------------------------------------
-; Detect whether X movement crosses a 16-pixel tile boundary.
+; Does the X step $20 move the player into a different 16-pixel column?
 ; 
-; Computes: (($22 >> 2) + ($20 >> 2)) XOR ($20 >> 2) and tests bit 4 ($0010). If bit 4 is set in the XOR result → the movement crosses from one 16px tile column to another. Returns result in Z flag (BIT #$0010: Z clear = crossed, Z set = no crossing). Used by ramp/slope routines to gate diagonal Y displacement on tile boundary crossings.
+; Computes (($22 >> 2) + ($20 >> 2)) XOR ($22 >> 2) (the XOR is with the PRE-step pixel, as the code comment says, not with the step) and tests bit 4 with BIT #$0010. The answer is in Z, not in carry: Z clear = a column boundary is crossed, Z set = no crossing; callers branch with BNE. The step is a logical shift, so a negative velocity becomes a large positive word, but it stays congruent to the signed step modulo $4000 and only bit 4 is used, so the result is still right.
 
 CheckTileBoundaryXor {
     LDA $22               ; CheckTileBoundaryXor: base X pixel = $22 >> 2
@@ -130,7 +107,7 @@ CheckTileBoundaryXor {
     EOR $01, S            ; EOR with pre-step pixel — bit 4 set if 16px sub-column crossed
     STA $01, S
     PLA 
-    BIT #$0010            ; BIT #$0010 → carry = crossed tile sub-column boundary
+    BIT #$0010            ; BIT #$0010 sets Z, not carry: Z clear = a 16-pixel column boundary is crossed
     RTS 
 }
 
@@ -147,16 +124,16 @@ ClearMovementDeltas {
 }
 
 ---------------------------------------------
-; Set the 'wall collision' flag ($0004) on the current actor.
+; Mark the current actor as having touched a solid tile this tick (flag $0004).
 ; 
-; Loads actor table index from $000A (saved actor ID × 2), ORs bit $0004 into the actor's flags word at $0010+Y, and stores back. This flag signals to other systems that the actor touched a solid tile during this frame's movement processing.
+; Y is loaded from $000A, the actor slot address that PlayerMovementTick stored there (the earlier note's 'actor ID x 2' is wrong: Y is used directly as the actor's base address). Bit $0004 of the flags word at actor + $10 is the per-tick solid-contact flag; PlayerMovementTick clears it before each collision pass.
 
 SetActorCollisionFlag {
     PHP                   ; SetActorCollisionFlag: mark current actor as collision-responded
     REP #$20
     PHY 
     LDY $000A
-    LDA $0010, Y          ; Load actor flags word via table index $000A (actor ID × 2)
+    LDA $0010, Y          ; Actor flags word at actor + $10; Y = $000A, the actor slot address stored by PlayerMovementTick
     ORA #$0004            ; OR in bit 2 ($0004) — actor collided this frame
     STA $0010, Y
     PLY 
@@ -185,9 +162,9 @@ ApplyMovementDeltas {
 }
 
 ---------------------------------------------
-; Probe the bottom-right corner of the player's hitbox at current position.
+; Probe the bottom-right corner of the player's hitbox at the current position.
 ; 
-; X pixel = $22 >> 2 + 7 (right edge), Y pixel = $26 >> 2 − 1 (bottom edge). Calls TileProbeMain. Post-probe: INC $1A (→ +8, one pixel past right edge), INC $1E (→ 0, bottom + 1). These adjustments position the stored coordinates for MapCell navigation by the caller. Returns carry set if collision detected.
+; X pixel = $22 >> 2 + 7 (right edge), Y pixel = $26 >> 2 - 1 (bottom edge); calls TileProbeMain; afterwards INC $1A (+8) and INC $1E (bottom + 1) place the stored coordinates one pixel past the right and bottom edges, so that CheckSubTileAlignX/Y report whether those edges are flush with a tile boundary (MapCell steps use the index in $00, not these pixels). Carry set when the type is nonzero.
 
 ProbeCurrentBR {
     PHP                   ; ProbeCurrentBR: bottom-right corner of current 16×16 hitbox
@@ -204,11 +181,11 @@ ProbeCurrentBR {
     CLC 
     ADC #$FFFF
     STA $1E
-    JSR $&TileProbeMain   ; TileProbeMain — carry set if blocking collision at BR
-    INC $1A               ; Post-probe INC $1A/$1E — shift 1px inward for MapCell origin
+    JSR $&TileProbeMain   ; TileProbeMain at BR: carry set = any nonzero collision type (slopes and ladders too), A = the type
+    INC $1A               ; INC $1A / $1E: move the stored right and bottom coordinates one pixel past the hitbox edge for CheckSubTileAlignX/Y
     INC $1E
     BCC loc_02E1A6
-    PLP                   ; TileProbeMain blocked — restore flags, SEC RTS
+    PLP                   ; Nonzero type at BR: restore flags, return with carry set
     SEC 
     RTS 
 
@@ -239,10 +216,10 @@ ProbeCurrentTR {
     ADC #$FFF0
     STA $1E
     JSR $&TileProbeMain   ; TileProbeMain at current TR
-    INC $1A               ; INC $1A only — inward from right edge for east MapCell steps
+    INC $1A               ; INC $1A: right edge + 1, so CheckSubTileAlignX tests whether the edge is flush with a tile boundary
     BCC loc_02E1CA
     PLP 
-    SEC                   ; TR probe blocked — SEC RTS
+    SEC                   ; TR probe found a nonzero type: return with carry set
     RTS 
 
   loc_02E1CA:
@@ -272,10 +249,10 @@ ProbeCurrentBL {
     ADC #$FFFF
     STA $1E
     JSR $&TileProbeMain   ; TileProbeMain at current BL
-    INC $1E               ; INC $1E only — inward from bottom for south MapCell steps
+    INC $1E               ; INC $1E: bottom edge + 1, so CheckSubTileAlignY tests whether the edge is flush with a tile boundary
     BCC loc_02E1EE
     PLP 
-    SEC                   ; BL probe blocked — SEC RTS
+    SEC                   ; BL probe found a nonzero type: return with carry set
     RTS 
 
   loc_02E1EE:
@@ -290,7 +267,7 @@ ProbeCurrentBL {
 ; X pixel = $22 >> 2 − 8 (left edge), Y pixel = $26 >> 2 − 16 (top edge). Calls TileProbeMain. No post-probe adjustment. Returns carry from TileProbeMain directly (nonzero collision type = carry set).
 
 ProbeCurrentTL {
-    PHP                   ; ProbeCurrentTL: top-left anchor (no post-probe inward shift)
+    PHP                   ; ProbeCurrentTL: top-left corner; no INC afterwards (the left and top edges are already the first covered pixel)
     REP #$20
     LDA $22               ; $1A = $22>>2 − 8 — left edge
     LSR 
@@ -334,10 +311,10 @@ ProbeFutureTR {
     ADC #$FFF0
     STA $1E
     JSR $&TileProbeMain   ; TileProbeMain at destination TR
-    INC $1A               ; INC $1A — inward from right edge
+    INC $1A               ; INC $1A: right edge + 1 (CheckSubTileAlignX)
     BCC loc_02E234
     PLP 
-    SEC                   ; Future TR blocked — SEC RTS
+    SEC                   ; Future TR found a nonzero type: return with carry set
     RTS 
 
   loc_02E234:
@@ -371,11 +348,11 @@ ProbeFutureBR {
     ADC #$FFFF
     STA $1E
     JSR $&TileProbeMain   ; TileProbeMain at destination BR
-    INC $1A               ; INC $1A/$1E — inward from BR corner
+    INC $1A               ; INC $1A / $1E: right and bottom edge + 1 (CheckSubTileAlignX/Y)
     INC $1E
     BCC loc_02E260
     PLP 
-    SEC                   ; Future BR blocked — SEC RTS
+    SEC                   ; Future BR found a nonzero type: return with carry set
     RTS 
 
   loc_02E260:
@@ -390,7 +367,7 @@ ProbeFutureBR {
 ; X pixel = ($20 + $22) >> 2 − 8, Y pixel = ($24 + $26) >> 2 − 16. Calls TileProbeMain. No post-probe adjustment. Returns carry from TileProbeMain directly.
 
 ProbeFutureTL {
-    PHP                   ; ProbeFutureTL: top-left at future position (anchor, no inward shift)
+    PHP                   ; ProbeFutureTL: top-left corner at the future position; no INC afterwards
     REP #$20
     LDA $20               ; $1A = ($22+$20)>>2 − 8 — future left edge
     CLC 
@@ -438,10 +415,10 @@ ProbeFutureBL {
     ADC #$FFFF
     STA $1E
     JSR $&TileProbeMain   ; TileProbeMain at destination BL
-    INC $1E               ; INC $1E — inward from bottom edge
+    INC $1E               ; INC $1E: bottom edge + 1 (CheckSubTileAlignY)
     BCC loc_02E2AC
     PLP 
-    SEC                   ; Future BL blocked — SEC RTS
+    SEC                   ; Future BL found a nonzero type: return with carry set
     RTS 
 
   loc_02E2AC:
@@ -451,11 +428,11 @@ ProbeFutureBL {
 }
 
 ---------------------------------------------
-; Core tile collision probe — converts pixel coordinates to a collision type.
+; Core tile collision probe: converts pixel coordinates to a collision type.
 ; 
-; Entry: $1A = X pixel, $1E = Y pixel. Validates both are within camera bounds (cameraOffsetX ≤ $1A < cameraBoundsX, cameraOffsetY ≤ $1E < cameraLowerYBound). If out-of-bounds: stores sentinel ($4001) in $00, sets X to $4001, returns A = $0F (solid), carry set.
+; Entry: $1A = X pixel, $1E = Y pixel. Both must lie inside the camera bounds (cameraOffsetX <= $1A < cameraBoundsX, cameraOffsetY <= $1E < cameraLowerYBound; negative values are rejected). Out of bounds: $00 = X = $4001, A = $0F, carry set.
 ; 
-; If in-bounds: converts to tile coordinates ($1A >> 4 → $18 = tile column, $1E >> 4 → $1C = tile row), calls CalcTileMapOffset (tile_collision_physics) to compute map index in Y, stores map index to $00 and X, then calls ReadCollisionNibble to extract the collision type. Returns A = collision type, carry set if nonzero (blocking), carry clear if zero (passable).
+; In bounds: tile column $18 = $1A >> 4 and tile row $1C = $1E >> 4, CalcTileMapOffset (tile_collision_physics) returns the map index in Y, stored in $00 and passed in X to ReadCollisionNibble. Returns A = collision type with carry SET when it is nonzero (any slope, ladder, wall type or solid tile, not only blocking ones; solid is A >= $0E) and carry clear when it is zero.
 
 TileProbeMain {
     PHP                   ; TileProbeMain: validate probe pixel in camera bounds, read collision
@@ -488,14 +465,14 @@ TileProbeMain {
     TYX                   ; TYX — pass map index in X to ReadCollisionNibble
     PLY 
     SEP #$20              ; SEP #$20 — 8-bit index into collisionLayer table
-    JSR $&ReadCollisionNibble ; ReadCollisionNibble — BNE if nonzero (blocking)
+    JSR $&ReadCollisionNibble ; ReadCollisionNibble: Z clear = nonzero type (any terrain type or an actor solid mark, not only solid tiles)
     BNE loc_02E2ED        ; Zero nibble → passable (CLC RTS, carry clear)
     PLP 
     CLC 
     RTS 
 
   loc_02E2ED:
-    PLP                   ; Nonzero collision → blocked (SEC RTS, carry set)
+    PLP                   ; Nonzero type: restore flags, return with carry set (this does not mean solid)
     SEC 
     RTS 
 
@@ -510,23 +487,23 @@ TileProbeMain {
 }
 
 ---------------------------------------------
-; Read collision type from the collision layer at map index X.
+; Read the collision type at map index X (8-bit A).
 ; 
-; If X ≥ $4000 (out of map bounds), returns $0F (solid). Otherwise loads the byte at collisionLayer ($7FC000) + X. Collision encoding: if the high nibble is nonzero, shifts right ×4 to extract the high nibble as the collision type (layer-priority override). If the high nibble is zero, uses the byte as-is (low nibble = collision type). Sets Z flag via BIT #$FF before returning. Called in 8-bit accumulator mode.
+; X >= $4000 (outside the map) returns $0F. Otherwise the byte at collisionLayer ($7FC000) + X is read: if its high nibble is nonzero (the solid mark that actors OR in with $F0) the high nibble is shifted down and returned ($F0 becomes $0F, solid); if it is zero the byte, i.e. the terrain type in the low nibble, is returned. BIT #$FF at the end sets Z when the type is 0.
 
 ReadCollisionNibble {
     CPX #$4000            ; Map index ≥ $4000 → invalid/OOB sentinel path
     BCS loc_02E310
     LDA $collisionLayer, X ; Load collision byte from collisionLayer ($7FC000), X
-    BIT #$F0              ; High nibble nonzero → use high nibble as collision type override
+    BIT #$F0              ; High nibble nonzero = actor solid mark ($F0 from MarkSolidHere and friends): it overrides the terrain type
     BEQ loc_02E30D
-    LSR                   ; Shift high nibble down to low byte for return/compare
+    LSR                   ; Shift the high nibble down: $F0 becomes $0F (solid)
     LSR 
     LSR 
     LSR 
 
   loc_02E30D:
-    BIT #$FF              ; High nibble zero → low nibble is collision type (BIT sets NZ)
+    BIT #$FF              ; High nibble zero: the low nibble, the terrain type, is returned; BIT #$FF sets Z for type 0
     RTS 
 
   loc_02E310:
@@ -611,7 +588,7 @@ MapCellRight {
     INC 
     XBA 
     CLC 
-    ADC #$F0              ; Reset column to 15 of new page row: low += $F0
+    ADC #$F0              ; Page wrap right: the INC carried into the row nibble ($x0 of the next row), + $F0 undoes that row step: column 0 of the next page, same row
     TAX 
     PLP 
     RTS 

@@ -9,9 +9,9 @@
 ; - $0002,X: Bank byte
 ; - $0004,X: Previous link pointer (doubly-linked list)
 ; - $0006,X: Next link pointer
-; - $0008,X: Frame delay timer (same semantics as actor $08)
+; - $0008,X: Wait counter (same semantics as actor $08: a stored n makes the thinker skip n passes)
 ; - animScratch ($7F0000,X): Thinker-specific scratch fields
-; - animScratch2 ($7F000E,X): Thinker type filter flags
+; - animScratch2 ($7F000E,X): Thinker filter flags (first word of the thinker's code, i.e. the first two operands of its thinker-def)
 ; 
 ; The thinker linked list is rooted at $005A (head) and $005C (tail).
 ; 
@@ -24,18 +24,20 @@
 ; 2. Links into a doubly-linked list ($0004 = prev, $0006 = next)
 ; 3. Calls InitThinkerFromSceneData to parse the binary record
 ; 
-; InitThinkerFromSceneData reads a variable-length record: type byte → animScratch+2 ($7F0002,X), code pointer → $42, bank byte → $44. Dereferences the code pointer to read its first word as animScratch2 (thinker filter flags), then stores entry point (code + 2) and bank to slot fields $0000/$0002.
+; InitThinkerFromSceneData reads a variable-length record: type byte → animScratch+2 ($7F0002,X; the thinker's spawn parameter, e.g. a palette bundle ID), code pointer → $42, bank byte → $44. Dereferences the code pointer to read its first word as animScratch2 (thinker filter flags), then stores entry point (code + 2) and bank to slot fields $0000/$0002.
 ; 
 ; === EXECUTION TYPES (250157–250357) ===
 ; 
-; Four thinker execution filters based on animScratch2 ($7F000E,X) bit flags, called at different points in the game loop:
+; Four runners filter the list on animScratch2 ($7F000E,X):
 ; 
-; - RunThinkers_TypeA: bit 2 ($0004) CLEAR — general-purpose thinkers (ambient effects, palette cycling, background animations). Runs during normal gameplay.
-; - RunThinkers_TypeB: bit 2 ($0004) SET — deferred/secondary thinkers. Runs after TypeA, allowing ordered execution within a single frame.
-; - RunThinkers_TypeC: bit 11 ($0800) SET and bit 2 ($0004) CLEAR — cutscene overlay thinkers in the primary phase. Active during cutscene playback.
-; - RunThinkers_TypeD: bits 11 ($0800) AND 2 ($0004) both SET — cutscene deferred thinkers. Runs after TypeC for deferred cutscene effects.
+; - RunThinkers_General: bit 2 ($0004) CLEAR. Called by MainLoop right after the VBlank sync and at scene start.
+; - RunThinkers_Hdma: bit 2 SET — the complement of A. MainLoop and the scene-start sequence call it after ResetHdmaState, so the HDMA/window-DMA thinkers (the bit-2 ones: comet_lair_hdma_*, angel_tunnel_window_dma, ...) bind their channels after the per-frame reset.
+; - RunThinkers_General_Light: bit 11 ($0800) SET and bit 2 CLEAR. Called by the lighter frame routines of system_core (UpdateFrameDialogue, UpdateFrameRender, UpdateFrameFull) after their VBlank sync.
+; - RunThinkers_Hdma_Light: bits 11 AND 2 both SET. The same routines call it after ResetHdmaState, before the sync.
 ; 
-; All four types share the same COP dispatch pattern: traverse the linked list from $5A, check filter flags, decrement frame timer, and use PHK/PEA/PHA/RTL to dispatch to the thinker's script entry point. The _Next routine for each type follows the $06 link to the next thinker or exits when the list is exhausted.
+; All 59 scene thinker-defs in extracted/ (32 with filter word $0804, 27 with $0800) have bit 11 set, so for scene thinkers C selects exactly A's set and D exactly B's. Runtime-spawned thinkers (SpawnThinker/SpawnThinkerParam, 77 sites) inherit the spawner's animScratch2 and some scripts store their own (future_vision_cutscene $0804, sE8_dark_gaia $0004, dc2F_adrift ORs in $0800), so there the bit does matter: a thinker without bit 11 runs only in the main loop (TypeA/B) and pauses while the lighter frame routines (dialogue, render, music upload) run. Bit 11 therefore reads as 'keep running in the lighter frame routines', not as a cutscene marker.
+; 
+; All four runners share one dispatch pattern: walk the list from $5A with D = X = slot, test the filter, then DEC $08 / BPL _Next (a wait counter of n skips n passes; the pass where it was 0 runs the script and STZ $08), push PHK + PEA _Next−1, the thinker's bank and entry − 1, and RTL into the script. The script runs like an actor script (COP ops, SetEntryHereAndYield, ends with RTL back to _Next). _Next follows the $06 link or exits when the list is exhausted.
 ---------------------------------------------
 
 ?BANK 03
@@ -145,13 +147,13 @@ InitThinkerFromSceneData {
 }
 ---------------------------------------------
 
-; Execute thinkers with animScratch2 ($7F000E,X) bit 2 ($0004) CLEAR.
+; Execute thinkers with animScratch2 ($7F000E,X) bit 2 ($0004) CLEAR (called by MainLoop after the VBlank sync, and by the scene-start sequence).
 ; 
-; Processes general-purpose thinkers that should run during normal gameplay. Iterates the thinker linked list from $5A. For each thinker: checks the flag — if bit 2 is set, skips to next. Otherwise performs standard COP dispatch (frame timer check → script call → next link).
+; Iterates the thinker linked list from $5A with D = X = slot. For each thinker: bit 2 set → next. Otherwise DEC $08 / BPL → next while the wait counter was positive; when it was 0 the script runs and $08 is cleared. There is no bit-11 test here.
 ; 
-; TypeA thinkers typically handle ambient effects, palette cycling, background animations, and other non-deferred tasks.
+; Typical general thinkers: palette cyclers (ambient_palette_cycler), boot-logo palettes, color-add effects.
 
-RunThinkers_TypeA {
+RunThinkers_General {
     PHP 
     PHD 
     REP #$20
@@ -164,17 +166,17 @@ RunThinkers_TypeA {
     LDA $animScratch2, X  ; Read animScratch2 ($7F000E,X) for thinker type check
     BIT #$0004            ; Bit 2 ($0004): TypeA processes clear, TypeB processes set
     BNE RunThinkers_TypeA_Next
-    DEC $08
+    DEC $08               ; Wait counter: a stored n skips n passes; the pass where $08 was 0 gives $FFFF and runs the script
     BPL RunThinkers_TypeA_Next
-    STZ $08
+    STZ $08               ; Clear the counter; the script sets a new wait if it wants one
     PHK 
-    PEA $&RunThinkers_TypeA_Next-1
+    PEA $&RunThinkers_TypeA_Next-1 ; Return address for the script's RTL: _Next (the script returns like a subroutine)
     SEP #$20
     LDA $02
     PHA 
     REP #$20
     LDA $00
-    DEC 
+    DEC                   ; Entry address - 1: the RTL below jumps to [$02:$00]
     PHA 
     RTL 
 }
@@ -190,11 +192,11 @@ RunThinkers_TypeA_Next {
 }
 
 ---------------------------------------------
-; Execute thinkers with animScratch2 ($7F000E,X) bit 2 ($0004) SET.
+; Execute thinkers with animScratch2 ($7F000E,X) bit 2 ($0004) SET — the complement of RunThinkers_General.
 ; 
-; Processes deferred/secondary thinkers. Complementary to TypeA — only runs thinkers that TypeA skips. The bit 2 flag acts as a phase selector: TypeA runs first (bit clear), then TypeB runs afterward (bit set), allowing ordered execution of thinker groups within a single frame.
+; MainLoop and the scene-start sequence call it right after ResetHdmaState, so thinkers that bind HDMA channels (comet_lair_hdma_*, angel_tunnel_window_dma, dao_sine_hdma_slow, ...) get fresh channels every frame. Same wait-counter dispatch as TypeA.
 
-RunThinkers_TypeB {
+RunThinkers_Hdma {
     PHP 
     PHD 
     REP #$20
@@ -235,9 +237,9 @@ RunThinkers_TypeB_Next {
 ---------------------------------------------
 ; Execute thinkers with animScratch2 bit 11 ($0800) SET and bit 2 ($0004) CLEAR.
 ; 
-; Processes cutscene/overlay thinkers that are in the primary (non-deferred) phase. Requires bit 11 to be set (cutscene-active) and bit 2 to be clear (not deferred). Used during cutscene playback to run overlay effects like palette transitions or HDMA animations.
+; Called by UpdateFrameDialogue, UpdateFrameRender and UpdateFrameFull after their VBlank sync. It is RunThinkers_General plus a bit-11 requirement: the 59 scene thinker-defs all carry bit 11 and run here, but a runtime-spawned thinker without bit 11 is paused whenever one of these lighter frame routines runs.
 
-RunThinkers_TypeC {
+RunThinkers_General_Light {
     PHP 
     PHD 
     REP #$20
@@ -248,11 +250,11 @@ RunThinkers_TypeC {
     TCD 
     TAX 
     LDA $animScratch2, X
-    BIT #$0800            ; Bit 11 ($0800): cutscene thinker flag required for TypeC
+    BIT #$0800            ; Bit 11 = keep running in the lighter frame routines (set in all 59 scene thinker-defs; runtime-spawned thinkers may lack it)
     BEQ RunThinkers_TypeC_Next
     BIT #$0004            ; Bit 2 ($0004): must be clear for TypeC (not deferred)
     BNE RunThinkers_TypeC_Next
-    DEC $08
+    DEC $08               ; Same wait-counter test as TypeA
     BPL RunThinkers_TypeC_Next
     STZ $08
     PHK 
@@ -280,9 +282,9 @@ RunThinkers_TypeC_Next {
 ---------------------------------------------
 ; Execute thinkers with BOTH animScratch2 bits 11 ($0800) AND 2 ($0004) SET.
 ; 
-; Processes cutscene thinkers in the deferred phase. Uses AND #$0804 / CMP #$0804 to verify both bits are set simultaneously. Complementary to TypeC — runs after TypeC to handle deferred cutscene effects.
+; Uses AND #$0804 / CMP #$0804 to verify both bits. Called by UpdateFrameDialogue, UpdateFrameRender and UpdateFrameFull after ResetHdmaState and before the VBlank sync — it is TypeB's counterpart in the lighter frame routines: scene thinkers (all with bit 11) run here, runtime-spawned thinkers only if they carry bit 11.
 
-RunThinkers_TypeD {
+RunThinkers_Hdma_Light {
     PHP 
     PHD 
     REP #$20

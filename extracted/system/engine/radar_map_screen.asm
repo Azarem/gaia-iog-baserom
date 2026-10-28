@@ -63,7 +63,7 @@ RadarScreenSetup {
     SEP #$20
     JSL $@vblank_joypad.EnableNmiAndJoypad
     JSL $@vblank_joypad.VBlankWaitAndJoypad
-    JSL $@vblank_joypad.EnableNmiOnly
+    JSL $@vblank_joypad.DisableNmiKeepJoypad
     REP #$20
     BRA RadarScreenSetup
 
@@ -83,7 +83,7 @@ RadarScreenSetup {
     SEP #$20
     JSL $@vblank_joypad.EnableNmiAndJoypad
     JSL $@vblank_joypad.VBlankWaitAndJoypad
-    JSL $@vblank_joypad.EnableNmiOnly
+    JSL $@vblank_joypad.DisableNmiKeepJoypad
     REP #$20
     BRA loc_0380F3
 

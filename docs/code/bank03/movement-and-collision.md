@@ -128,8 +128,8 @@ column, with `mapRowStrideL0` (`$0693`) controlling metatile page stride.
 | `$03D704` | `TileCollision_SolidV` | transfer tile offset → `BlockV` |
 | `$03D708` | `CheckActorOnSpecialTile` | probe for special tile patterns (`$06` diagonal, `$00`/`$09` L-shape) |
 | `$03D78A` | `CalcTileMapOffset` | convert (column, row) tile coords to collision map byte offset |
-| `$03D7B4` | `AdvanceTileOffsetRight` | advance tile offset by one column |
-| `$03D7CA` | `AdvanceTileOffsetDown` | advance tile offset by one row |
+| `$03D7B4` | `AdvanceTileOffsetY` | advance tile offset by one column |
+| `$03D7CA` | `AdvanceTileOffsetX` | advance tile offset by one row |
 
 ### Tile-type dispatch tables
 
@@ -247,7 +247,7 @@ flag, flipping hitbox X (BCS path negates offsets).
   `chainDamage` is halved and written back (`LSR` then `STA $chainDamage,X`).
   With no external preload, consecutive hits stay at base damage.
   `enemyHP = max(0, enemyHP − damage)`.
-- Enemy attacks player (`EnemyHitPlayerHandler`):
+- Enemy attacks player (`ApplyHitDamageToVictim`):
   `totalStr = playerStr + previousDamage($09E2) + climbStateData` — `previousDamage`
   is skipped when ZP `$08 == $1000`;
   `rawDamage = max(1, enemyAtk − totalStr)`;
@@ -266,9 +266,9 @@ flag, flipping hitbox X (BCS path negates offsets).
 | `$03BD5A` | `CombatCollision_Exit` | restore DBR/flags, `RTL` |
 | `$03BD5D` | `PlayerAttackHitTest` | build player attack AABB, iterate targets, apply damage |
 | `$03BF22` | `PlayerAttackHitTest_End` | end of player attack iteration |
-| `$03BF27` | `EnemyHitPlayerHandler` | process enemy→player contact (damage, knockback, death) |
-| `$03BF84` | `EnemyHitPlayer_Epilogue` | iframe assignment + hit sound |
-| `$03C116` | `InvinciblePlayerHit` | invincible player contact (no damage, still triggers reaction) |
+| `$03BF27` | `ApplyHitDamageToVictim` | process enemy→player contact (damage, knockback, death) |
+| `$03BF84` | `ApplyHitDamageToVictim_DamagePath` | iframe assignment + hit sound |
+| `$03C116` | `HitInvincibleVictim` | invincible player contact (no damage, still triggers reaction) |
 | `$03C142` | `CalcKnockbackDirection` | hitbox-midpoint comparison → cardinal direction (0=S/1=N/2=W/3=E) |
 | `$03C25B` | `InteractionCollision_Exit` | interaction iteration end |
 | `$03C25E` | `RunInteractionCollision` | NPC/object interaction entry (player bbox vs. interaction hitboxes) |
@@ -308,14 +308,14 @@ External preloading of `chainDamage` (via COP or scripts) can seed higher
 first-hit damage; each subsequent hit still halves the stored value before the
 next calculation.
 
-### Climb-state data source
+### Ability bonus bytes (`$09E0` / `$09E2`)
 
-`EnemyHitPlayerHandler` damage formula:
+`ApplyHitDamageToVictim` damage formula:
 `totalStr = playerStr($0ADE) + previousDamage($09E2) + climbStateData($09E0)`.
 `previousDamage` at `$09E2` is omitted from `totalStr` when ZP `$08 == $1000`.
-`climbStateData` at `$09E0` adds a context-dependent defense bonus — when the
-player is climbing or in an elevated position, this value is nonzero, providing
-passive damage reduction.
+`$09E0` holds the byte loaded by `LoadAbilityAnimTableA` (Will); `$09E2` holds
+Freedan's table byte from `LoadAbilityAnimTableB`. The lunge combo sets `$09E0 = 1`
+for extra effective STR — not a climb or elevation flag.
 
 ### Friendly-mode behavior
 
@@ -325,7 +325,7 @@ When `RunInteractionCollision` detects `$0280` in the candidate's flags, it ente
 metasprite header (`$0004`–`$0007`) — no H-mirror adjustment. On overlap,
 `ApplyInteractionDamage` routes to `InteractionDamage_NPCChat` which attempts
 `GiveItemToPlayer` with `chatPtr`. If inventory is full, shows the overflow
-message. Otherwise shows dialogue and converts the actor to `NullActorScriptStub`
+message. Otherwise shows dialogue and converts the actor to `NpcDespawnStub`
 (sets `$0700` in primary flags `$10` via `ORA #$0700` on `$0010,X` — bits 10+11 —
 to prevent re-interaction within the same screen visit).
 
@@ -340,10 +340,10 @@ to prevent re-interaction within the same screen visit).
   - `hit_stagger_controller.HitStaggerMain` — knockback stagger actor
   - `StandardEnemyDefeatHandler` — default enemy death handler
   - `game_over_sequence.GameOverSequence` — player death sequence
-  - `StopPlayerOnDeathAssign` — halt player movement on death
+  - `StopPlayerOnDeath` — halt player movement on death
   - `inventory_mgmt.GiveItemToPlayer` — NPC chat item delivery
   - `dialogue_display` — NPC dialogue rendering
-  - `NullActorScriptStub` — post-interaction actor neutralization
+  - `NpcDespawnStub` — post-interaction actor neutralization
   - `GetPlayerFacingDirection` — knockback fallback direction (player attacker)
 
 ---

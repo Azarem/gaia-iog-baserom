@@ -105,7 +105,7 @@ checked before the run/ability guard, so the map is accessible while running.
 | `$038055` | *(Start path)* | mark Start consumed → check combat-lock bit → branch to radar or pause |
 | `$03806D` | *(pause overlay)* | non-combat scene (`$0008`): `COP RunBg3Script` for PAUSE text → dim to `INIDISP $09` |
 | `$03808B` | *(hold-to-view init)* | push border animation index X=0 |
-| `$03808F` | *(hold-to-view loop)* | `EnableNmiAndJoypad` → `VBlankWait` → `EnableNmiOnly` → `RadarBorderAnimate` → poll Start |
+| `$03808F` | *(hold-to-view loop)* | `EnableNmiAndJoypad` → `VBlankWait` → `DisableNmiKeepJoypad` → `RadarBorderAnimate` → poll Start |
 
 ### Cross-references out
 
@@ -117,7 +117,7 @@ checked before the run/ability guard, so the map is accessible while running.
 | `JSL` | `music_actors.IsMusicPlaying` | guard: melody playing check |
 | `JSL` | `vblank_joypad.VBlankWaitAndJoypad` | sync to VBlank with joypad |
 | `JSL` | `vblank_joypad.EnableNmiAndJoypad` | hold loop NMI setup |
-| `JSL` | `vblank_joypad.EnableNmiOnly` | restore NMI-only after joypad read |
+| `JSL` | `vblank_joypad.DisableNmiKeepJoypad` | NMI off after hold-to-view joypad read (auto-joypad stays on) |
 | `JSL` | `inventory_overlay.OpenInventoryScreen` | Select → full inventory UI |
 | `JSL` | `vram_buffer_clear.ClearVramBufferPartial` | overlay teardown |
 | `JSL` | `system_core.UpdateFrameDialogue` | restore normal display after radar |
@@ -419,7 +419,7 @@ Source: [GetPlayerFacingDirection.asm](../../../extracted/system/engine/GetPlaye
 Resolves the player actor's current facing direction. Reads the player's
 animation/direction field (`$0028,X`) indexed into `FacingDirectionLookup`. Returns
 **carry clear** for the four cardinal directions (result `< $04`), **carry set**
-otherwise. Preserves the caller's X via `TXY`/`TYX`. `GetPlayerFacing_AltEntry`
+otherwise. Preserves the caller's X via `TXY`/`TYX`. `GetPlayerFacing_BaseBodyFallback`
 restores the saved X register (via `PLY`) and joins the normal lookup path.
 
 ### Key routines
@@ -427,13 +427,13 @@ restores the saved X register (via `PLY`) and joins the normal lookup path.
 | Address | Label | Role |
 |---------|-------|------|
 | `$03F0CA` | `GetPlayerFacingDirection` | main entry: save X via TXY, load player actor, check visibility |
-| `$03F0EE` | `GetPlayerFacing_AltEntry` | alternate entry: `PLY` restores saved X, branches to direction lookup |
+| `$03F0EE` | `GetPlayerFacing_BaseBodyFallback` | alternate entry: `PLY` restores saved X, branches to direction lookup |
 | `$03F11F` | `FacingDirectionLookup` | 88-byte table mapping animation frame → direction (0–3 cardinal, 4+ = non-cardinal) |
 | `$03F177` | `FacingFormOffsetTable` | 4-entry word table: per-form offsets into form-specific facing data |
-| `$03F17F` | `FacingData_Will` | 27 bytes — Will's frame→direction map (4 directions × poses + extras) |
-| `$03F19A` | `FacingData_Freedan` | 44 bytes — Freedan's map (all zeros = always direction 0) |
-| `$03F1C6` | `FacingData_Shadow_A` | 4 bytes — Shadow form A (all zeros) |
-| `$03F1CA` | `FacingData_Shadow_B` | 6 bytes — Shadow form B (all zeros) |
+| `$03F17F` | `FacingData_WillAlt` | 27 bytes — Will's frame→direction map (4 directions × poses + extras) |
+| `$03F19A` | `FacingData_AbilityFx` | 44 bytes — Freedan's map (all zeros = always direction 0) |
+| `$03F1C6` | `FacingData_FreedanFx` | 4 bytes — Shadow form A (all zeros) |
+| `$03F1CA` | `FacingData_ShadowFx` | 6 bytes — Shadow form B (all zeros) |
 
 ### Return convention
 
@@ -456,7 +456,7 @@ restores the saved X register (via `PLY`) and joins the normal lookup path.
 sign bit (`BMI` at `$03F0D4`). If negative (bit 15 set = body sprite overridden via `SetPlayerSpriteDirect`, i.e. **transformed form**), the
 code enters the form-aware path at `$03F0F1` instead of the simple
 lookup. This path reads `$0AC8` (form index), subtracts 4, and if the result is
-negative, falls through to `GetPlayerFacing_AltEntry`. Otherwise it uses
+negative, falls through to `GetPlayerFacing_BaseBodyFallback`. Otherwise it uses
 `FacingFormOffsetTable` to compute a form-specific offset, adding the player's
 current animation frame to get an index into the form's facing data table.
 

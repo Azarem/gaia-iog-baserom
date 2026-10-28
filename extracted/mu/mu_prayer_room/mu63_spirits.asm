@@ -6,8 +6,8 @@
 ; connection to the comet.
 ---------------------------------------------
 
-?INCLUDE 'oneshot_palette_flash_1B'
-?INCLUDE 'oneshot_palette_flash_1C'
+?INCLUDE 'oneshot_backdrop_fade_in_1B'
+?INCLUDE 'oneshot_backdrop_fade_out_1C'
 ?INCLUDE 'spriteset_npc_props'
 
 !joypadMaskStd                  065A
@@ -28,7 +28,7 @@ mu63_spirits [
     COP [WaitByte] ( #0F )
     COP [StartMusic] ( #1B )
     COP [WaitByte] ( #3B )
-    COP [SpawnThinker] ( @oneshot_palette_flash_1B.FlashPalette1B )
+    COP [SpawnThinker] ( @oneshot_backdrop_fade_in_1B.FadeBackdropIn1B )
     COP [WaitByte] ( #BF )
     COP [SpawnAfterAbsFlags] ( @code_069C14, #$0020, #$00C0, #$1800 )
     COP [WaitByte] ( #27 )
@@ -55,7 +55,7 @@ mu63_spirits [
     COP [WaitByte] ( #3B )
     COP [SetFlagByte] ( #02 )
     COP [WaitByte] ( #77 )
-    COP [SpawnThinker] ( @oneshot_palette_flash_1C.FlashPalette1C )
+    COP [SpawnThinker] ( @oneshot_backdrop_fade_out_1C.FadeBackdropOut1C )
     COP [WaitByte] ( #7F )
     STZ $srcCacheMusic+1
     LDA #$CFFC
@@ -84,7 +84,7 @@ code_069AC1 {
     COP [WaitByte] ( #0F )
     COP [StartMusic] ( #1B )
     COP [WaitByte] ( #3B )
-    COP [SpawnThinker] ( @oneshot_palette_flash_1B.FlashPalette1B )
+    COP [SpawnThinker] ( @oneshot_backdrop_fade_in_1B.FadeBackdropIn1B )
     COP [WaitByte] ( #BF )
     COP [SpawnAfterAbsFlags] ( @code_069C14, #$0120, #$00C0, #$1800 )
     COP [WaitByte] ( #27 )
@@ -111,7 +111,7 @@ code_069AC1 {
     COP [WaitByte] ( #3B )
     COP [SetFlagByte] ( #02 )
     COP [WaitByte] ( #77 )
-    COP [SpawnThinker] ( @oneshot_palette_flash_1C.FlashPalette1C )
+    COP [SpawnThinker] ( @oneshot_backdrop_fade_out_1C.FadeBackdropOut1C )
     COP [WaitByte] ( #7F )
     STZ $srcCacheMusic+1
     LDA #$CFFC

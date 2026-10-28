@@ -79,7 +79,7 @@ Removes the **current actor** (direct page in **X**) from the **doubly-linked ac
 
 ---
 
-### DieNow_UnlinkChildren
+### DieExit
 
 **Address:** `$A608` · **Size:** 153 bytes
 
@@ -87,13 +87,13 @@ Removes the **current actor** (direct page in **X**) from the **doubly-linked ac
 
 Extended death path when the dying actor has **marked children** — `$0012` bit **`$0040`** set (parent flag). Walks the **entire doubly-linked list** forward and backward, collecting all actors whose **`$7F001C,X`** (parent link) matches the dying actor's ID, then **batch-unlinks** them while repairing list heads.
 
-Entered via **`PEA $&DieNow_UnlinkChildren-1`** from COP `$A7`/`$E0` when the parent bit is set; the pushed address causes a synthetic return into the cleanup routine after `PLD`.
+Entered via **`PEA $&DieExit-1`** from COP `$A7`/`$E0` when the parent bit is set; the pushed address causes a synthetic return into the cleanup routine after `PLD`.
 
 #### Algorithm
 
 | Phase | Operation | Detail |
 |-------|-----------|--------|
-| **Entry** | `PLA`/`TAX`/`TCD`/`PLA`×2/`RTL` skip | Restore DP; fall through to `loc_00A60E` |
+| **Entry** | `PLA`/`TAX`/`TCD`/`PLA`×2/`RTL` skip | Restore DP; fall through to `UnlinkChildrenCascade` |
 | **Save ID** | `STX $0000` | Dying actor ID |
 | **Walk back** | Follow `$0004` chain | Unlink any actor where `$7F001C = dying ID`; stop at list start |
 | **Walk forward** | Follow `$0006` chain | Same parent-ID filter |
@@ -141,7 +141,7 @@ Maps an **8-bit actor list index** (from COP script bytecode) to a **WRAM actor 
 |------|-----------|--------|
 | 1 | `SEP #$20` / `XBA` | Swap to low byte in A |
 | 2 | `LDA #$30` | Stride multiplier (48 decimal — actor list entry size) |
-| 3 | `JSL $@SignedMultiply` | `index × $30` via hardware multiply (`$0281D1`) |
+| 3 | `JSL $@Multiply8x8Unsigned` | `index × $30` via hardware multiply (`$0281D1`) |
 | 4 | `REP #$20` / `CLC` / `ADC #$1000` | Base `$1000` + offset |
 | 5 | `TAY` / `RTS` | Actor ID in Y |
 
@@ -158,7 +158,7 @@ Maps an **8-bit actor list index** (from COP script bytecode) to a **WRAM actor 
 |-----------|--------|-------|
 | Called by | COP `$20` | `BranchIfActorNear` |
 | Called by | COP `$29` | `BranchIfActorAt` |
-| Calls | `SignedMultiply` (`$0281D1`) | Hardware `WRMPY` multiply |
+| Calls | `Multiply8x8Unsigned` (`$0281D1`) | Hardware `WRMPY` multiply |
 
 ---
 
@@ -318,7 +318,7 @@ Returns an actor slot to the **free pool** — inverse of `ActorPoolAllocator`. 
 | Direction | Symbol | Notes |
 |-----------|--------|-------|
 | Called by | `UnlinkActor` | Single-actor death |
-| Called by | `DieNow_UnlinkChildren` | Batch child cleanup |
+| Called by | `DieExit` | Batch child cleanup |
 
 ---
 
@@ -435,7 +435,7 @@ No register setup — relies on thinker COP entrancy state.
 | Name | Address | Size | Primary Callers |
 |------|---------|------|-----------------|
 | `UnlinkActor` | `$AF40` | 79 | COP `$A7`/`$A8`/`$A9`/`$E0` |
-| `DieNow_UnlinkChildren` | `$A608` | 153 | COP `$A7`/`$E0` (parent bit) |
+| `DieExit` | `$A608` | 153 | COP `$A7`/`$E0` (parent bit) |
 | `ResolveActorIndex` | `$B125` | 17 | COP `$20`/`$29` |
 | `AllocateActorBefore` | `$B15D` | 44 | COP `$99`/`$9A`/`$A1` |
 | `AllocateActorAfter` | `$B189` | 44 | COP `$9B`–`$A4`, `$04`/`$05` |
@@ -457,5 +457,5 @@ No register setup — relies on thinker COP entrancy state.
 | `$0058` | 2 | Actor list head (after) | `AllocateActorAfter`, `UnlinkActor` |
 | `$005C` | 2 | Thinker list head | `AllocateSpecialActor` |
 | `$0DBC` | 2 | Active actor count | Pool alloc/return |
-| `$7F001C,X` | 2 | Parent actor link | `MarkChildActor`, `DieNow_UnlinkChildren` |
+| `$7F001C,X` | 2 | Parent actor link | `MarkChildActor`, `DieExit` |
 | `$scene_current` | 2 | Current scene ID | `CopyActorState` callback zero gate |

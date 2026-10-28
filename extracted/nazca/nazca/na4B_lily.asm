@@ -6,7 +6,7 @@
 ; provides the clue for the puzzle solution.
 ---------------------------------------------
 
-?INCLUDE 'InitPlayerScriptVariant'
+?INCLUDE 'SetPlayerIdleFacing'
 
 !joypadMaskStd                  065A
 
@@ -45,7 +45,7 @@ na4B_lily [
     COP [AnimOnce]
     COP [SetFlagByte] ( #08 )
     LDA #$0002
-    JSL $@InitPlayerScriptVariant
+    JSL $@SetPlayerIdleFacing
     COP [StageSpriteMoveX] ( #28, #02 )
     COP [AnimOnce]
     COP [StageSpriteFrame] ( #24 )

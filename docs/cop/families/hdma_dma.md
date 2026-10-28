@@ -118,7 +118,7 @@ QueueHdma {
 
 ##### How it is used
 
-Credits flicker, comet lair overlays, ending wave, `HdmaWindowEffect`, gradient thinkers.
+Credits flicker, comet lair overlays, ending wave, `HdmaWindowEffect`, circle-window HDMA thinkers (`hdma_circle_window_thinker`).
 
 ```asm
 COP [QueueHdma] ( $7E8800, #0F )           ; sine_hdma_ending_wave.asm
@@ -169,7 +169,7 @@ Diary menu window masks (dominant caller), inventory DMA setup, angel tunnel win
 
 ```asm
 COP [QueueDma] ( @dma_channel_00BC4C, #26 )   ; system/diary_menu/diary_menu_window_dma.asm:27
-COP [QueueDma] ( @dma_setup, #26 )            ; system/inventory/inventory_dma_setup.asm
+COP [QueueDma] ( @inventory_bg3vofs_table, #12 ) ; system/inventory/inventory_bg3_scroll_hdma.asm (BG3VOFS HDMA)
 ```
 
 ##### Parameters & contract

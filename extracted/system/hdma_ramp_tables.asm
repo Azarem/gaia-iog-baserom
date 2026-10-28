@@ -1,11 +1,11 @@
-; Composite block of HDMA configuration tables and ramp motion curves (121022–121201, Bank 01). Contains the DMA transfer mode lookup (64 bytes), parallax scroll speed parameters (13 bytes), and two pre-computed per-frame Y-offset arcs (64 and 32 frames) used by the ramp actors. The three parts are unrelated except for sharing the block; the name hdma_ramp_tables only describes them as a group.
+; Composite block of HDMA configuration tables and ramp motion curves (121022-121201, Bank 01). Parts: hdma_channel_config (64 bytes, the DMAP transfer mode per B-bus register), hdma_entry_stride_by_mode (13 bytes, of which entries 00-02 are the HDMA entry stride per transfer mode) and the two ramp arc curves behind ramp_motion_curves (64 and 32 frames). The parts are unrelated except for sharing the block; the name hdma_ramp_tables only describes them as a group.
 ---------------------------------------------
 
 ?BANK 01
 
 ---------------------------------------------
 
-; DMAP transfer mode for each PPU B-bus register — 64 byte entries indexed by the register's low byte ($2100 + index; the HDMA COP ops pass that byte, e.g. #0F = BG2HOFS, #26 = WH0). The low 3 bits are the DMAP transfer mode: 0 = one register, 1 = two registers (p, p+1), 2 = one register written twice. Matches the PPU map: 2 for the scroll registers $0D–$14, the mode 7 registers $1B–$20 and CGDATA $22, 1 for the VRAM address/data pairs $16–$19 and the window pairs $26–$29. The indirect-HDMA flag ($40) is not stored here; SetupHdmaChannel_Indirect and QueueHdmaChannel OR it in. Entries $34–$3F cover the read-only PPU registers (MPY, SLHV, OAMDATAREAD, VMDATAREAD, CGDATAREAD, OPHCT/OPVCT, STAT77/78) and carry bit 7 ($80/$81/$82), the DMAP PPU-to-CPU direction bit. Referenced by SetupHdmaChannel_Indirect/Direct in hdma_dma_spc.asm, QueueHdmaChannel in cop_handlers_hdma_dma.asm, and parallax_thinker.asm (which masks with AND #$07).
+; DMAP transfer mode for each PPU B-bus register — 64 byte entries indexed by the register's low byte ($2100 + index; the HDMA COP ops pass that byte, e.g. #0F = BG2HOFS, #26 = WH0). The low 3 bits are the DMAP transfer mode: 0 = one register, 1 = two registers (p, p+1), 2 = one register written twice. Matches the PPU map: 2 for the scroll registers $0D–$14, the mode 7 registers $1B–$20 and CGDATA $22, 1 for the VRAM address/data pairs $16–$19 and the window pairs $26–$29. The indirect-HDMA flag ($40) is not stored here; SetupHdmaChannel_Indirect and QueueHdmaChannel OR it in. Entries $34–$3F cover the read-only PPU registers (MPY, SLHV, OAMDATAREAD, VMDATAREAD, CGDATAREAD, OPHCT/OPVCT, STAT77/78) and carry bit 7 ($80/$81/$82), the DMAP PPU-to-CPU direction bit. Referenced by SetupHdmaChannel_Indirect/Direct in hdma_dma_spc.asm, QueueHdmaChannel in cop_handlers_hdma_dma.asm, and scanline_band_hdma_thinker.asm (which masks with AND #$07).
 
 hdma_channel_config [
   #00   ;00
@@ -75,9 +75,9 @@ hdma_channel_config [
 ]
 ---------------------------------------------
 
-; Parallax scroll speed parameters — 13 bytes. ParallaxResolveChannelSpeed (parallax_thinker.asm) indexes this table with the low 3 bits of the hdma_channel_config byte for the layer's config ID and stores the byte as that layer's speed value (DP $04). Because every config byte has a low-3-bit value of 0–2, only entries 00–02 ($02, $03, $03) are reachable that way; entries 03–0C ($05, $05, $64, $00, then $FF/$7F pairs) have no reader (E1 analysis; the FF 7F pattern resembles HDMA line-count data, inferred).
+; HDMA entry stride (count byte + data bytes) indexed by the DMAP transfer mode: mode 0 = 2, modes 1 and 2 = 3. ParallaxResolveEntryStride (scanline_band_hdma_thinker) looks up hdma_channel_config[register index] & 7 and stores the result in DP $04, where the band writers use it to step the buffer write pointer. It is a stride, not a scroll speed. Only entries 00-02 ($02, $03, $03) are reachable because every config byte has a low-3-bit value of 0-2; entries 03-0C ($05, $05, $64, $00, then $FF / $7F pairs) have no reader (the FF 7F pattern resembles HDMA line-count data, inferred).
 
-parallax_speed_config [
+hdma_entry_stride_by_mode [
   #02   ;00
   #03   ;01
   #03   ;02
@@ -94,7 +94,7 @@ parallax_speed_config [
 ]
 ---------------------------------------------
 
-; Per-frame vertical offset arcs for ramp motion — 2 ramp-motion entries (3 bytes each: curve pointer, frame count), each pointing to a run of signed bytes. ramp_motion_curve_step in ramps.asm sign-extends one byte per frame and adds it to the Y position ($16) of the actor linked through the ramp actor's $04 field (the player, inferred), so the values are pixel deltas, not accelerations. Entry 0: 64 frames, −16 rising to 0 and on to +16, net 0 (returns to the starting height). Entry 1: 32 frames, −8 to +8, net +8 (ends 8 pixels lower). Curve 0 repeats most values twice in a row.
+; Two arc entries (3 bytes each: curve address, frame count) used by RampArcDriver in ramps.asm. The ramp's arc child reads the player's statsPtr (0 or 1, set from the ramp's spawn type byte) x 3, then adds one sign-extended curve byte per frame to the PLAYER's Y ($16, confirmed: the child's $04 link is the spawner, the player). Values are pixel deltas. Entry 0: 64 frames, rises up to 204 pixels (frame 28) and returns, net 0. Entry 1: 32 frames, rises up to 50 pixels (frame 14), net +8 (ends 8 pixels lower). Both curves repeat most values twice in a row.
 
 ramp_motion_curves [
   ramp-motion < &ramp_curve_arc_64, #40 >   ;00
@@ -102,11 +102,11 @@ ramp_motion_curves [
 ]
 
 ---------------------------------------------
-; Entry 0 of ramp_motion_curves: 64 signed Y deltas in pixels, one per frame, running from $F0 (−16) through 0 to $10 (+16): the slow arc.
+; Entry 0 of ramp_motion_curves: 64 signed Y deltas in pixels, one per frame, -16 at the start, 0 around frames 29-36 and +16 at the end. Cumulative rise peaks at -204 (up) at frame 28; the sum is 0. Used by the Itory ramp pair (spawn type 1).
 
 ramp_curve_arc_64 #F0F0F2F2F4F4F5F5F6F6F7F7F8F8FAFAFBFBFCFCFDFDFEFEFFFFFFFF00000000000000000101010102020303040405050606080809090A0A0B0B0C0C0E0E1010
 
 ---------------------------------------------
-; Entry 1 of ramp_motion_curves: 32 signed Y deltas in pixels, one per frame, running from $F8 (−8) through 0 to $08 (+8): the fast arc.
+; Entry 1 of ramp_motion_curves: 32 signed Y deltas in pixels, -8 at the start, 0 at frames 15-17 and +8 at the end. Cumulative rise peaks at -50 (up) at frame 14; the sum is +8, so the player lands 8 pixels lower. Used by all other east/west ramps (spawn type 3).
 
 ramp_curve_arc_32 #F8F8FAFAFCFCFDFDFEFEFFFFFFFF000000010101010202030304040606080808

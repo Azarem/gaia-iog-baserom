@@ -5,26 +5,26 @@
 ; === ALGORITHM ===
 ; Dictionary-based compression with a 256-byte sliding window. A bitstream control layer determines token types:
 ; - Bit = 1 → Literal: read 8 bits via LzReadBitField, write byte to output and dictionary
-; - Bit = 0 → Back-reference: read 8-bit dictionary index via LzReadBitField, then 4-bit length via LzReadBackRef. Copy (length + 2) bytes from dictionary to both output and dictionary write position
+; - Bit = 0 → Back-reference: read 8-bit dictionary index via LzReadBitField, then 4-bit length via LzReadNibble. Copy (length + 2) bytes from dictionary to both output and dictionary write position
 ; 
 ; The dictionary is initialized to $20 (space character), providing good compression for text-heavy data. The starting write position is $EF (DICTIONARY_OFFSET), matching the Quintet standard across all three games.
 ; 
 ; === BITSTREAM FORMAT ===
-; Bits are read MSB-first within each source byte. DP $72 holds a one-hot bit mask starting at $80 (bit 7). Each control bit consumed shifts the mask right via LSR. When the mask shifts out entirely (all 8 bits consumed), it resets to $80 via ROR and the source pointer [$3E] advances.
+; Bits are read MSB-first within each source byte. DP $72 holds a one-hot mask of the NEXT unread bit, starting at $80 (bit 7). Each control bit consumed shifts the mask right via LSR. When the mask shifts out entirely (all 8 bits consumed), it resets to $80 via ROR and the source pointer [$3E] advances.
 ; 
-; LzReadBitField (8-bit read) and LzReadBackRef (4-bit nibble read) both use optimized bit-position cascades. When the required bits straddle a byte boundary, they read a 16-bit word from the source, XBA to swap byte order, and enter ASL or LSR fall-through cascades to align the result.
+; LzReadBitField (8-bit read) and LzReadNibble (4-bit read) use position cascades keyed on the mask. When the required bits straddle a byte boundary they read a 16-bit word from the source, XBA to swap byte order, and enter ASL (8-bit read) or LSR (4-bit read) fall-through cascades to align the result. In LzReadNibble the one-hot mask itself sits in the low byte of the 16-bit word and acts as the shift counter: LSR runs until the mask's single set bit is shifted out into carry.
 ; 
 ; === WRAM LAYOUT ===
-; $3E/$3F/$40: 24-bit source pointer to compressed data (past the 2-byte size header)
+; $3E/$3F/$40: 24-bit source pointer to compressed data (past the 2-byte size header). The routine advances $3E/$3F with 16-bit increments and never carries into the bank byte $40, so a stream must not cross a bank boundary; the pointer is left one past the last byte used.
 ; $72: Bit mask — one-hot, MSB-first, resets to $80 on byte boundary
-; $74/$75: Dictionary write pointer (low byte = position within 256-byte page at $7E0200)
+; $74/$75: Dictionary write pointer (low byte = position within 256-byte page at $7E0200; the 8-bit INC wraps it inside the page)
 ; $76/$77: Back-reference read pointer (same $02xx page; set per back-ref token)
 ; $78/$79: Decompressed byte count (loaded into Y as countdown)
-; $7A/$7B: Output buffer absolute address (loaded into X for STA $0000,X)
-; $7E0200–$7E02FF: 256-byte sliding dictionary (WRAM bank $7E)
+; $7A/$7B: Output buffer address in bank $7E (loaded into X for STA $0000,X)
+; $7E0200–$7E02FF: 256-byte sliding dictionary. This page is also the first half of the depth-sort bucket array that sprite_composition's ClearActorRenderList zeroes ($0200–$03FE; mnemonic deathFlag = $0200), so every decompression leaves garbage there: callers must run ClearActorRenderList afterwards (the Decompress COP and the scene-load sequence do).
 ; 
 ; === ENTRY CONDITIONS ===
-; Caller sets: [$3E] = source pointer (past size header), $78 = decompressed size, $7A = output address. Data bank is set to $7E internally. All registers preserved across the call.
+; Caller sets: [$3E] = source pointer (past size header), $78 = decompressed size (must be non-zero: a zero count runs for 65,536 bytes; scene_script skips size 0, the Decompress COP does not test it), $7A = output address within bank $7E (the data bank is set to $7E internally, so $7F output is impossible). X, Y, P and DBR are preserved across the call; A is not.
 ; 
 ; Reference: QuintetLZ class in @gaialabs/core (src/compression/QuintetLZ.ts).
 ---------------------------------------------
@@ -35,15 +35,15 @@
 
 ; Main QuintetLZ decompression routine.
 ; 
-; Sets data bank to $7E, initializes the 256-byte dictionary ($7E0200–$02FF) with $20 (space), sets the dictionary write position to $EF, and enters the main decompression loop.
+; Sets data bank to $7E, initializes the 256-byte dictionary ($7E0200–$02FF, shared with the depth-sort bucket array) with $20 (space), sets the dictionary write position to $EF, and enters the main decompression loop.
 ; 
 ; Main loop reads one control bit per iteration:
 ; - Bit = 1 (literal): reads 8-bit byte via LzReadBitField, writes to both the output buffer (STA $0000,X) and dictionary (STA ($74))
-; - Bit = 0 (back-reference): reads 8-bit dictionary index via LzReadBitField (stored to $76), then 4-bit copy length via LzReadBackRef (+2 minimum). Copies bytes from dictionary at the read position ($76) to both the output and dictionary write position ($74). Uses the XBA trick to stash the copy counter in the B register, freeing A for dictionary reads
+; - Bit = 0 (back-reference): reads 8-bit dictionary index via LzReadBitField (stored to $76), then 4-bit copy length via LzReadNibble (+2 minimum). Copies bytes from dictionary at the read position ($76) to both the output and dictionary write position ($74). Uses the XBA trick to stash the copy counter in the B register, freeing A for dictionary reads
 ; 
-; The output counter (Y) decrements per byte written. When Y reaches zero, decompression is complete.
+; The output counter (Y) decrements per byte written. When Y reaches zero, decompression is complete (even in the middle of a back-reference copy).
 ; 
-; Preserves all registers and data bank via PHP/PHB/PHX/PHY at entry.
+; Preserves X, Y, P and the data bank via PHP/PHB/PHX/PHY at entry; A is not preserved.
 
 QuintetLzDecompress {
     PHP 
@@ -54,7 +54,7 @@ QuintetLzDecompress {
     LDA #$7E              ; Set data bank to $7E — dictionary and output buffer are in WRAM
     PHA 
     PLB 
-    LDX #$0200            ; Dictionary base at $7E0200 (256 bytes); also initializes back-ref pointer page
+    LDX #$0200            ; Dictionary = $7E:0200-02FF, which is also the depth-sort bucket array (callers clear it with ClearActorRenderList)
     STX $74
     STX $76
     LDA #$20              ; $20 = space character — Quintet standard dictionary initialization value
@@ -67,7 +67,7 @@ QuintetLzDecompress {
     STA $74
     LDA #$80              ; $80 = initial bit mask (MSB-first); $72 tracks current bit position in source byte
     STA $72
-    LDX $7A               ; Load output pointer (X from $7A) and remaining byte count (Y from $78) set by caller
+    LDX $7A               ; X = output offset in bank $7E (the data bank); Y = byte count below (0 would mean 65,536 bytes)
     LDY $78
 
   loc_028295:
@@ -79,7 +79,7 @@ QuintetLzDecompress {
     ROR $72               ; Byte exhausted: ROR carry into bit 7 resets mask to $80; advance source pointer
     INC $3E
     BNE loc_0282A6
-    INC $3F
+    INC $3F               ; 16-bit pointer increment: no carry into the bank byte $40, so a stream cannot cross a bank boundary
 
   loc_0282A6:
     PLA                   ; Control bit: zero = back-reference token, nonzero = literal byte
@@ -88,7 +88,7 @@ QuintetLzDecompress {
     STA $0000, X          ; Write literal to output buffer and update dictionary at write position ($74)
     INX 
     STA ($74)
-    INC $74
+    INC $74               ; 8-bit INC: the write pointer wraps inside the $0200 page (256-entry ring)
     DEY 
     BNE loc_028295
     BRA loc_0282D9
@@ -96,20 +96,20 @@ QuintetLzDecompress {
   loc_0282B9:
     JSR $&LzReadBitField  ; Back-ref: read 8-bit dictionary index, store as read pointer ($76 in $02xx page)
     STA $76
-    JSR $&LzReadBackRef   ; Read 4-bit length nibble; +2 gives minimum copy length of 2 bytes
+    JSR $&LzReadNibble    ; Read 4-bit length nibble; +2 gives minimum copy length of 2 bytes
     INC 
     INC 
 
   loc_0282C3:
     XBA                   ; XBA trick: stash copy counter in B register, freeing A for dictionary byte reads
     LDA ($76)             ; Copy loop: read from dictionary at back-ref position, write to output and dictionary
-    INC $76
+    INC $76               ; 8-bit INC: the read pointer wraps inside the $0200 page as well
     STA ($74)
     INC $74
     STA $0000, X
     INX 
     DEY 
-    BEQ loc_0282D9
+    BEQ loc_0282D9        ; Output full: stop at once, even in the middle of a copy
     XBA                   ; Swap back to counter, decrement; loop until copy complete or output full
     DEC 
     BNE loc_0282C3
@@ -126,11 +126,11 @@ QuintetLzDecompress {
 ---------------------------------------------
 ; Read 8 bits from the compressed bitstream and return in A.
 ; 
-; Optimized for the common case where bits straddle a byte boundary. Tests the current bit position ($72 mask) via a cascade of ASL+BMI checks to determine how many bits remain in the current source byte.
+; Tests the current bit position ($72 mask) via a cascade of ASL+BMI checks; the cascade finds which bit of the mask is set, i.e. how many bits (k = 0–7) of the current source byte are already consumed.
 ; 
-; Fast path ($72 = $80, byte-aligned): reads the source byte directly via LDA [$3E], advances the pointer, returns — no bit-shifting needed.
+; Fast path (mask $80, k = 0, byte-aligned): reads the source byte directly via LDA [$3E], advances the pointer, returns — no shifting.
 ; 
-; Slow path (unaligned): reads a 16-bit word from the source (two consecutive bytes), XBAs to swap byte order, then enters an ASL fall-through cascade. The entry point into the cascade determines the shift count (1–7), which aligns the 8-bit result within the 16-bit value. After shifting, advances the source pointer, XBAs to extract the aligned byte, and returns in 8-bit mode.
+; Slow path (k = 1–7): reads a 16-bit word from the source (two consecutive bytes), XBAs it to b0:b1 and ASLs it k times (the entry point into the fall-through cascade selects k: mask $40 = 1 shift ... mask $01 = 7 shifts). The high byte then holds the remaining bits of b0 followed by the top k bits of b1. Advances the source pointer by one byte, XBAs to extract that byte and returns in 8-bit mode. The mask is unchanged: 8 bits consumed leave the bit position where it was.
 
 LzReadBitField {
     LDA $72               ; Cascade: test mask bits 7→1 via ASL+BMI to find current position in source byte
@@ -147,7 +147,7 @@ LzReadBitField {
     BMI loc_028302
     ASL 
     BMI loc_0282FB
-    REP #$20              ; No bits remain: read 16-bit word from source, XBA swap, enter ASL cascade to align
+    REP #$20              ; Mask $01 (7 bits already used): load the byte pair, XBA, enter the ASL cascade at the top (7 shifts)
     LDA [$3E]
     XBA 
     BRA loc_02832E
@@ -222,18 +222,18 @@ LzReadBitField {
 }
 
 ---------------------------------------------
-; Read 4 bits (a nibble) from the compressed bitstream and return in A.
+; Read 4 bits (a nibble) from the compressed bitstream and return in A (the back-reference copy length before the +2).
 ; 
-; Two strategies based on remaining bit count:
+; Two strategies keyed on the mask:
 ; 
-; High path ($72 >= $10, 4+ bits at position 4–7): LSR the mask 4 times to consume 4 positions. Reads the source byte into a 16-bit pair and uses an LSR fall-through cascade (1–4 right shifts) to align the nibble. No source pointer advance needed.
+; High path (mask >= $10: at least 5 bits left in the current byte, so the nibble fits): LSR the mask 4 times to consume 4 positions and store it. The source byte and the new mask are packed into one 16-bit word (byte in the high half, mask in the low half) and LSR shifts that word right until the mask's one-hot bit falls into carry (1–4 shifts, the shift count the nibble needs); the nibble is the low 4 bits of the high byte after XBA and AND #$0F. The source pointer does not advance.
 ; 
-; Low path ($72 < $10, position 0–3): the nibble may straddle the byte boundary. Tests how many bits remain (3, 2, 1, or 4). Each case resets the mask to the post-read position, reads the 16-bit source word, and uses ASL shifts to combine the straddling bits. The 4-bits-remaining case ($08) is the simplest — reads the current byte's low nibble directly and resets the mask to $80.
+; Low path (mask < $10: 4 or fewer bits left): the nibble may straddle the byte boundary. Mask $08 = exactly 4 bits left: low nibble of the current byte, mask reset to $80, pointer advanced. Mask $04 = 3 bits left + 1 from the next byte (next mask $40, one ASL), mask $02 = 2 + 2 (next mask $20, two ASLs), mask $01 = 1 + 3 (next mask $10, three ASLs); the byte pair is read as a word, XBA'd, shifted left, and the pointer advances.
 ; 
 ; All paths return the nibble in A with AND #$0F masking.
 
-LzReadBackRef {
-    LDA $72               ; Check if 4+ bits remain ($72 >= $10) for nibble extraction strategy
+LzReadNibble {
+    LDA $72               ; Mask $72 >= $10 means 5 or more bits are left in the source byte (high path); 4 or fewer takes the low path below
     CMP #$10
     BCC loc_02835D
     LSR                   ; High path: consume 4 mask positions via LSR ×4; nibble is within current byte
@@ -245,7 +245,7 @@ LzReadBackRef {
     LDA [$3E]
     XBA 
     REP #$20
-    LSR                   ; LSR cascade: 1–4 right shifts align the nibble within the 16-bit byte pair
+    LSR                   ; Shift the byte+mask word right until the one-hot mask bit leaves through carry: 1-4 shifts
     BCS loc_028357
     LSR 
     BCS loc_028357
@@ -276,7 +276,7 @@ LzReadBackRef {
     RTS 
 
   loc_028375:
-    LDA #$40              ; 1 bit in current byte: read next byte, ASL ×1 to combine straddling nibble
+    LDA #$40              ; Mask $04: 3 bits left in this byte + 1 from the next; next mask $40, one ASL on the XBA'd pair
     STA $72
     REP #$20
     LDA [$3E]
@@ -285,7 +285,7 @@ LzReadBackRef {
     BRA loc_02839A
 
   loc_028381:
-    LDA #$20              ; 2 bits in current byte: ASL ×2 across boundary — same straddling pattern
+    LDA #$20              ; Mask $02: 2 bits left + 2 from the next byte; next mask $20, two ASLs
     STA $72
     REP #$20
     LDA [$3E]
@@ -295,7 +295,7 @@ LzReadBackRef {
     BRA loc_02839A
 
   loc_02838E:
-    LDA #$10              ; 3 bits in current byte: ASL ×3 across boundary
+    LDA #$10              ; Mask $01: 1 bit left + 3 from the next byte; next mask $10, three ASLs
     STA $72
     REP #$20
     LDA [$3E]
@@ -305,7 +305,7 @@ LzReadBackRef {
     ASL 
 
   loc_02839A:
-    INC $3E
+    INC $3E               ; The nibble used bits of the next byte: advance the source pointer
     SEP #$20
     XBA 
     AND #$0F              ; AND #$0F: extracted nibble from boundary-straddling read

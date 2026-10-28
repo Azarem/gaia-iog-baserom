@@ -92,7 +92,7 @@ loc_02A813! {
 ?INCLUDE 'chunk_038000'
 -----------------------------------------
 
-loc_03A029! {
+FlutePlaybackPhase! {
     LDA $0D73
     AND #$00FF
     BEQ chunk_halt_test3

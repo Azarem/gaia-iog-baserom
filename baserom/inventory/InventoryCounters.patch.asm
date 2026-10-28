@@ -240,13 +240,13 @@ loc_02E63D! {
     COP [MarkDeath]
     PLD 
     PLX 
-    JMP $&code_02E544
+    JMP $&ArrangeSourceReset
 }
 
 ;loc_02E6FC! {
 ;    JSR InventoryCountersGenerateSprites
 ;    COP [PlaySoundCh2] ( #13 )
-;    JMP $&code_02E66B
+;    JMP $&DiscardGridReset
 ;}
 
 ;Enable direct sprites 

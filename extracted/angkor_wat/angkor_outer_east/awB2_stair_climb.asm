@@ -5,7 +5,7 @@
 ; stairway zone.
 ---------------------------------------------
 
-?INCLUDE 'stair_climb'
+?INCLUDE 'slider_glide'
 
 ---------------------------------------------
 
@@ -16,6 +16,6 @@ awB2_stair_climb [
     COP [WaitOnFlagWord] ( #$016B, #01 )
     LDA #$000A
     STA $0E
-    COP [JumpFar] ( @stair_climb.StairTriggerWestMain )
+    COP [JumpFar] ( @slider_glide.SliderGlideTriggerNorthMain )
 } >
 ]

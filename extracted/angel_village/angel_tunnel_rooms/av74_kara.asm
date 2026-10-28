@@ -6,8 +6,8 @@
 ; character movement.
 ---------------------------------------------
 
-?INCLUDE 'InitPlayerScriptVariant'
-?INCLUDE 'oneshot_palette_flash_40'
+?INCLUDE 'oneshot_backdrop_fade_out_fast_40'
+?INCLUDE 'SetPlayerIdleFacing'
 
 !gfxCacheIdxB                   064A
 !joypadMaskStd                  065A
@@ -44,11 +44,11 @@ code_06D171 {
     LDA #$21
     STA $CGADSUB
     REP #$20
-    COP [SpawnThinker] ( @oneshot_palette_flash_40.FlashPalette40 )
+    COP [SpawnThinker] ( @oneshot_backdrop_fade_out_fast_40.FadeBackdropOutFast40 )
     COP [WaitByte] ( #3B )
     LDA #$2000
     TSB $10
-    COP [SpawnThinker] ( @oneshot_palette_flash_40.FlashPalette40 )
+    COP [SpawnThinker] ( @oneshot_backdrop_fade_out_fast_40.FadeBackdropOutFast40 )
     COP [WaitByte] ( #3B )
     LDA #$2000
     TSB $10
@@ -78,7 +78,7 @@ code_06D171 {
     COP [WaitByte] ( #3B )
     COP [PrintDialogString] ( &dialogstring_06D339 )
     LDA #$0003
-    JSL $@InitPlayerScriptVariant
+    JSL $@SetPlayerIdleFacing
     COP [SetEntryHereAndYield]
     COP [PrintDialogString] ( &dialogstring_06D364 )
     COP [StageSpriteMoveX] ( #20, #02 )

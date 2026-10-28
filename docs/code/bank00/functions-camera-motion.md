@@ -2,7 +2,7 @@
 
 **Bank:** `$00` (mirrored at `$80`)  
 **Address range:** `$00C9B8`–`$00D068`, `$00F3B3`–`$00F432`  
-**Source files:** [`extracted/functions/camera_drift.asm`](../../../extracted/functions/camera_drift.asm) (contains `CameraDriftLoopSimple`, `CameraDriftLoopShip`, `CameraDriftPatterned`), [`SpawnDebrisBurst.asm`](../../../extracted/functions/SpawnDebrisBurst.asm), [`StopPlayerOnDeathAssign.asm`](../../../extracted/functions/StopPlayerOnDeathAssign.asm), [`ApplyOrbitalOffsetFromRef.asm`](../../../extracted/functions/ApplyOrbitalOffsetFromRef.asm), [`ApplyOrbitalOffsetXY.asm`](../../../extracted/functions/ApplyOrbitalOffsetXY.asm)  
+**Source files:** [`extracted/functions/camera_drift.asm`](../../../extracted/functions/camera_drift.asm) (contains `CameraDriftLoopSimple`, `CameraDriftLoopShip`, `CameraDriftPatterned`), [`SpawnDebrisBurst.asm`](../../../extracted/functions/SpawnDebrisBurst.asm), [`StopPlayerOnDeath.asm`](../../../extracted/functions/StopPlayerOnDeath.asm), [`ApplyOrbitalOffsetFromRef.asm`](../../../extracted/functions/ApplyOrbitalOffsetFromRef.asm), [`ApplyOrbitalOffsetXY.asm`](../../../extracted/functions/ApplyOrbitalOffsetXY.asm)  
 **Block:** `camera_drift` + standalone orbital math functions
 
 Three subsystems share this address region: ambient camera drift loops for boss/ship arenas, debris burst VFX, and sin/cos orbital offset math used by COP handlers, bosses, and decorative actors.
@@ -131,21 +131,16 @@ Used in Viper boss arena, Comet Lair, and other set-piece battles where the came
 
 #### Description
 
-Spawns 8 RNG-scattered sparkle/debris actors around a central point. Each child actor gets a random X/Y offset (±$10 to ±$30 pixels) from the spawn origin and a short-lived animation before dying. Used for wall destruction, treasure reveal, and environmental break effects.
+Spawns eight `DebrisBurstParticle` children via a COP **`LoopStart` / `LoopEnd`** script (not an `LDX` loop). Each pass **`WaitByte` #3** (four frame skips) then `SpawnAfterFlags`; one particle about every five frames (~40 frames total). Each particle scatters **−16..+15 px** independently on X and Y (`RngByte` & `$1F` − `$10`), plays **`PlaySoundBoth` #$0F0F**, animates frame `#01` once, and dies.
 
-Invoked via `COP [SpawnAfterFlags]` from scene scripts and destructible object actors.
+Callers include `dm3D_breakable_wall`, `gw83_switch`, `it19_breakable_wall`, and `dm40_trapped_slave` (four sites).
 
 #### Algorithm
 
 ```
-1. LDX #8  ; Spark count
-2. Loop:
-     a. JSR random → X offset (±$10..$30)
-     b. JSR random → Y offset (±$10..$30)
-     c. Add to origin $14/$16
-     d. COP [SpawnAfterFlags] sparkle actor
-     e. DEX; BNE Loop
-3. COP [Die]
+1. LoopStart #08
+2. Each pass: WaitByte #03 → SpawnAfterFlags @DebrisBurstParticle (#$0302) → LoopEnd
+3. Die
 ```
 
 ---
@@ -158,7 +153,7 @@ Invoked via `COP [SpawnAfterFlags]` from scene scripts and destructible object a
 
 #### Description
 
-Computes sin/cos orbital offset from a reference actor's position. Reads the reference actor index from `$0000`, loads that actor's `$14`/`$16` as the orbit center, then applies `$7F0010,X` (angle) and `$7F1010,X` (diameter/radius) to compute new X/Y positions using the sin/cos lookup tables at `sine_table_8bit`/`signed_sine_table` (bank `$01`) and signed multiply via `SignedMultiply` (bank `$02`).
+Computes sin/cos orbital offset from a reference actor's position. Reads the reference actor index from `$0000`, loads that actor's `$14`/`$16` as the orbit center, then applies `$7F0010,X` (angle) and `$7F1010,X` (diameter/radius) to compute new X/Y positions using the sin/cos lookup tables at `sine_table_8bit`/`signed_cosine_table_8bit` (bank `$01`) and signed multiply via `Multiply8x8Unsigned` (bank `$02`).
 
 **Previously misplaced in `extracted/unused/`** — moved to `functions` after discovery of 15+ active `$@ApplyOrbitalOffsetFromRef` references.
 
@@ -176,9 +171,9 @@ Used by:
 2. LDA $14,Y → center_x; LDA $16,Y → center_y
 3. LDA $7F0010,X       ; Orbit angle (0–255)
 4. TAX; LDA sin_table,X → A
-5. JSR SignedMultiply with $7F1010,X (diameter) → delta_x
+5. JSR Multiply8x8Unsigned with $7F1010,X (diameter) → delta_x
 6. LDA cos_table,X → A
-7. JSR SignedMultiply with diameter → delta_y
+7. JSR Multiply8x8Unsigned with diameter → delta_y
 8. Add deltas to center → store in actor $14/$16
 9. RTL
 ```
@@ -192,7 +187,7 @@ Used by:
 | `$7F1010,X` | Orbit diameter/radius |
 | `$14`, `$16` | Output position (also input center via ref actor) |
 | `sine_table_8bit` | Sin lookup table (bank `$01`) |
-| `signed_sine_table` | Cos lookup table (bank `$01`) |
+| `signed_cosine_table_8bit` | Cos lookup table (bank `$01`) |
 
 #### Cross-References
 
@@ -229,7 +224,7 @@ Used for elliptical orbits and Lissajous-style motion patterns where X and Y osc
 | Direction | Symbol | Notes |
 |-----------|--------|-------|
 | Sin/cos tables | `sine_table_8bit/495` | Bank `$01` |
-| Math helper | `SignedMultiply` | Bank `$02` |
+| Math helper | `Multiply8x8Unsigned` | Bank `$02` |
 | Callers | ~3 boss/actor scripts | JSL |
 
 ---
@@ -268,7 +263,7 @@ Dead entry stub between `ApplyOrbitalOffsetFromRef` (`$F3C9`) and `ApplyOrbitalO
 | Target | Bank | Used By |
 |--------|------|---------|
 | `sine_table_8bit/495` | `$01` | Sin/cos tables |
-| `SignedMultiply` | `$02` | Orbital offset functions |
+| `Multiply8x8Unsigned` | `$02` | Orbital offset functions |
 | RNG routine | `$00`/`$02` | Camera drift, debris burst |
 
 ---

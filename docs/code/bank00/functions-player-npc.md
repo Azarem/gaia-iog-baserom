@@ -2,7 +2,7 @@
 
 **Bank:** `$00` (mirrored at `$80`)  
 **Address range:** `$00C397`–`$00C806`, `$00C98E`  
-**Source files:** [`extracted/functions/ApplyPlayerHitstun.asm`](../../../extracted/functions/ApplyPlayerHitstun.asm), [`InitPlayerScriptVariant.asm`](../../../extracted/functions/InitPlayerScriptVariant.asm), [`npc_wander_ai.asm`](../../../extracted/functions/npc_wander_ai.asm) (contains `SyncActorPosFromDP`, `NpcRandomWanderAI`), [`ToggleActorVisibilityFlag.asm`](../../../extracted/functions/ToggleActorVisibilityFlag.asm), [`EscortFollowPathTracker.asm`](../../../extracted/functions/EscortFollowPathTracker.asm), [`f_inventory_full.asm`](../../../extracted/functions/f_inventory_full.asm)
+**Source files:** [`extracted/functions/ApplyPlayerHitstun.asm`](../../../extracted/functions/ApplyPlayerHitstun.asm), [`SetPlayerIdleFacing.asm`](../../../extracted/functions/SetPlayerIdleFacing.asm), [`npc_wander_ai.asm`](../../../extracted/functions/npc_wander_ai.asm) (contains `SyncActorPosFromDP`, `NpcRandomWanderAI`), [`FlickerParentActor.asm`](../../../extracted/functions/FlickerParentActor.asm), [`EscortFollowPathTracker.asm`](../../../extracted/functions/EscortFollowPathTracker.asm), [`f_inventory_full.asm`](../../../extracted/functions/f_inventory_full.asm)
 
 These routines manage player damage response, COP script variant selection, town NPC wander behavior, party escort path tracking, actor visibility toggling, and the inventory-full message utility.
 
@@ -15,10 +15,10 @@ These routines manage player damage response, COP script variant selection, town
 | Function | Address | Size | Movable | Call Type | Priority |
 |----------|---------|------|---------|-----------|----------|
 | `ApplyPlayerHitstun` | `$C397` | 129 B | ✓ | JSL (~12 callers) | **High** |
-| `InitPlayerScriptVariant` | `$C6E4` | 44 B + table | ✓ (with table) | JSL (~15 scenes) | **High** |
+| `SetPlayerIdleFacing` | `$C6E4` | 44 B + table | ✓ (with table) | JSL (~15 scenes) | **High** |
 | `SyncActorPosFromDP` | `$C718` | 13 B | ✓ | JSL | Medium |
 | `NpcRandomWanderAI` | `$C725` | 213 B | ✓ (with codes) | JSL (~12 callers) | **High** |
-| `ToggleActorVisibilityFlag` | `$C7FA` | 12 B | ✓ | COP `SpawnAfterAbsFlags` | Medium |
+| `FlickerParentActor` | `$C7FA` | 12 B | ✓ | COP `SpawnAfterAbsFlags` | Medium |
 | `EscortFollowPathTracker` | `$C806` | 317 B + array | ✓ (with array) | COP `SpawnAfterFlags` | **High** |
 | `InventoryFullMessage` | `$C98E` | 42 B | ✓ | JML (10+ scenes) | Medium |
 
@@ -67,22 +67,22 @@ Approximately 12 enemy types call this via JSL with the knockback direction push
 
 ---
 
-## InitPlayerScriptVariant
+## SetPlayerIdleFacing
 
 **Address:** `$C6E4` · **Size:** 44 bytes + 8-byte table · **Movable:** Yes (must move with `table_00C710`) · **Priority:** **High** (~15 scenes)
 
 ### Description
 
-Selects the appropriate player COP script variant from a 4-entry pointer table (`table_00C710`) based on the current scene context or player state. Used when entering scenes that require a modified player behavior — cutscene walking, forced movement, swimming, or combat-specific control schemes.
+Forces the player into an **idle stand pose** facing the direction in **A** (0 = south, 1 = north, 2 = west, 3 = east). Writes the matching `IdleStand*` entry pointer from `player_idle_entry_table`, clears wait counter `$0008` and movement scratch `$002C`/`$002E` (DP and `$7F002C`/`$7F002E`).
 
-Each table entry is a 2-byte `$&` pointer to a player script entry point in bank `$00`. The selection index is passed in A on entry (typically derived from scene metadata or event flags).
+Used by cutscene actors before scripted walks (~17 JSL sites). **A is the only input** — no scene-index lookup.
 
 ### Algorithm
 
 ```
-1. Transfer index to X (0–3)
-2. LDA table_00C710,X  ; Load 2-byte script pointer
-3. STA $7F0000,X       ; Write to player actor entry pointer
+1. `ASL` A → word index; `TAX`
+2. Load `player_idle_entry_table,X` → player `$0000`/`$0002`
+3. Zero `$0008`, `$002C`, `$002E` (and extended scratch)
 4. RTL
 ```
 
@@ -184,15 +184,15 @@ The function contains eight direction handler blocks (N, NE, E, SE, S, SW, W, NW
 
 ---
 
-## ToggleActorVisibilityFlag
+## FlickerParentActor
 
 **Address:** `$C7FA` · **Size:** 12 bytes · **Movable:** Yes
 
 ### Description
 
-Toggles visibility on a referenced actor by XOR-ing `$12` bit `$2000` (marked/visible flag). The target actor index is passed in `$0000` (direct page). Used by palace room scripts and cutscene logic to show/hide NPCs without destroying and respawning them.
+Every tick, XORs parent actor `$10` bit `$2000` on the actor index in `$0000` (direct page) — a **flicker** effect, not a one-shot show/hide. The thinker does not change its own entry point or die.
 
-Invoked via `COP [SpawnAfterAbsFlags]` from scene scripts that need timed visibility changes (e.g., a character appearing when the player enters a trigger zone).
+Invoked via `COP [SpawnAfterAbsFlags]` (e.g. Phantom Ribber hit callback, palace companion reveal when flag `#70` is set).
 
 ### Algorithm
 
@@ -298,9 +298,9 @@ Jumped to via JML from 10+ scene scripts (shop purchases, NPC gifts, hidden item
 | Caller Context | Function | Mechanism |
 |----------------|----------|-----------|
 | Enemy attack scripts (~12) | `ApplyPlayerHitstun` | JSL |
-| Scene init scripts (~15) | `InitPlayerScriptVariant` | JSL |
+| Scene init scripts (~15) | `SetPlayerIdleFacing` | JSL |
 | Town NPC scripts (~12) | `SyncActorPosFromDP` → `NpcRandomWanderAI` | JSL chain |
-| Palace / cutscene scripts | `ToggleActorVisibilityFlag` | COP `SpawnAfterAbsFlags` |
+| Palace / cutscene scripts | `FlickerParentActor` | COP `SpawnAfterAbsFlags` |
 | Escort sequences | `EscortFollowPathTracker` | COP `SpawnAfterFlags` |
 | Shop / item scripts (10+) | `InventoryFullMessage` | JML |
 
@@ -313,7 +313,7 @@ Jumped to via JML from 10+ scene scripts (shop purchases, NPC gifts, hidden item
 | Functions documented | 7 |
 | Address span | `$C397`–`$C9B8` (~1,569 bytes) |
 | High-priority entries | 4 |
-| Multi-part blocks | 3 (`InitPlayerScriptVariant`, `npc_wander_ai`, `EscortFollowPathTracker`) |
+| Multi-part blocks | 3 (`SetPlayerIdleFacing`, `npc_wander_ai`, `EscortFollowPathTracker`) |
 | External bank deps | `$03` (`CalcTileMapOffset`, `GetPlayerFacingDirection`) |
 
 ---

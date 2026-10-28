@@ -67,7 +67,7 @@ transition markers, friendly actors (blue dots) and enemy actors (red dots).
 Each radar cell = a 4×4 map-tile (64×64 px) area; the 68-tile viewport covers
 ~17 cells per axis. Radar output occupies the BG tilemap staging buffer at
 `$7F0200` (interior starts at offset `$0216`; 64 bytes/row).
-`RadarBorderAnimate` cycles a 29-entry tile table (`RadarBorderTileTable`) every
+`RadarBorderAnimate` cycles a 29-entry tile table (`RadarBorderColorTable`) every
 other frame at VRAM position `$7F0A24`.
 
 ### Key routines
@@ -80,13 +80,13 @@ other frame at VRAM position `$7F0A24`.
 | `$03830E` | `RadarPlotActors` | walk actor list, dispatch to friendly/enemy plotters |
 | `$03832F` | `RadarPlotFriendlyActor` | blue dot (`$2AE7`) — viewport bounds only |
 | `$038379` | `RadarPlotEnemyActor` | red dot (`$280D`) — camera + viewport double bounds check |
-| `$0383D6` | `RadarBorderTileTable` | 29 × word entries for border shimmer animation cycle |
+| `$0383D6` | `RadarBorderColorTable` | 29 × word entries for border shimmer animation cycle |
 
 ### Cross-references
 
 - **In:** `JSR` from `GlobalInputHandler` only (`RadarScreenSetup` + `RadarBorderAnimate`).
 - **Out:**
-  - `vblank_joypad.VBlankWaitAndJoypad` / `EnableNmiAndJoypad` / `EnableNmiOnly` — VBlank sync
+  - `vblank_joypad.VBlankWaitAndJoypad` / `EnableNmiAndJoypad` / `DisableNmiKeepJoypad` — VBlank sync
   - `vram_buffer_clear.ClearVramBufferPartial` — clear staging buffer before draw
   - `flag_helpers.TestEventFlag_0200` — check visited markers
   - `flag_helpers.TestFlag_0300` — enemy-clear reward eligibility

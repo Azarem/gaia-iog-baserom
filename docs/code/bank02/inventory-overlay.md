@@ -23,7 +23,7 @@ flowchart TD
     EXIT -->|No| LOOP
     EXIT -->|Yes| RESTORE["RestoreGameState + RestorePaletteBuffer"]
     RESTORE --> ReloadScene["SceneScriptNoMusic<br/>+ ApplyAllEventBlocks"]
-    ReloadScene --> RELOAD["ReloadAbilityFX<br/>+ DrainActorQueue"]
+    ReloadScene --> RELOAD["ReloadAbilityFX<br/>+ ResetThinkerWaitCounters"]
     RELOAD --> HUD["LoadHudTilemap<br/>+ RunBg3Script"]
     HUD --> Render["UpdateFrameRender ×2"]
     Render --> DONE["Return to gameplay"]
@@ -31,20 +31,20 @@ flowchart TD
 
 ### State Preservation Map
 
-| Saved Region | Source → Backup Location |
-|---|---|
-| Joypad state | `$0656` / `$0658` → `$7E:38AC` / `$7E:38AE` |
-| Joypad mask | `$065A` → `$7E:38B0` |
-| Active actor count | `$0DBC` → `$0DBE` |
-| Direct-page vars | `$004E`–`$005D` → `$7E:389C` |
-| Camera positions | `$06BE`–`$06C9` → `$7E:3890` |
-| WRAM `$00:0E00` | → `$7E:3490` |
-| WRAM `$7E:3000` | → `$7E:3590` |
-| WRAM `$00:1000` | → `$7F:E000` |
-| WRAM `$7F:1000` | → `$7F:F000` |
-| WRAM `$00:0F00` | → `$7E:3690` |
-| WRAM `$7F:0F00` | → `$7E:3790` |
-| Palette buffer | `$7F:0A00` → `$7E:38B4` |
+| Saved Region | Role | Source → Backup Location |
+|---|---|---|
+| Joypad state | Held / pressed | `$0656` / `$0658` → `$7E:38AC` / `$7E:38AE` |
+| Joypad mask | Standard mask | `$065A` → `$7E:38B0` |
+| Active actor count | Live actor tally | `$0DBC` → `$0DBE` |
+| Direct-page vars | Actor/thinker list heads | `$004E`–`$005D` → `$7E:389C` |
+| Camera / scroll | Six words: `cameraTargetX`, `cameraDeltaX`, `cameraTargetY`, `cameraDeltaY`, `scrollOverrideH`, `forcedScrollOverride` (`$06BE`–`$06C9`; `scrollOverrideV` at `$06CA` is zeroed but **not** saved) | → `$7E:3890` |
+| WRAM `$00:0E00` | Actor free-slot list | → `$7E:3490` |
+| WRAM `$7E:3000` | Thinker free-slot list | → `$7E:3590` |
+| WRAM `$7E:1000`–`$1FFF` | Actor DP slots | → `$7F:E000` |
+| WRAM `$7F:1000`–`$1FFF` | Actor extended data | → `$7F:F000` |
+| WRAM `$00:0F00` | Thinker table (16× `$10`) | → `$7E:3690` |
+| WRAM `$7F:0F00` | Thinker extended data | → `$7E:3790` |
+| Palette buffer | CGRAM staging | `$7F:0A00` → `$7E:38B4` |
 
 ---
 
@@ -54,8 +54,8 @@ flowchart TD
 |---------|------|-------------|
 | `$02ED02` | OpenInventoryScreen | Master inventory orchestrator (JSL entry). Implements the state sandwich: save gameplay, switch to scene `$FF`, run inventory UI loop, restore everything on exit. |
 | `$02EECC` | ReloadAbilityFX | Post-close ability graphics reload. DMAs Dark Friar or Aura FX tiles and palette based on active ability `$00EA`. |
-| `$02EF0B` | DrainActorQueue | Clears the pending actor execution queue left over from the inventory scene. Walks the linked list at `$5A`, zeroing each actor's frame counter so stale inventory actors cannot run after gameplay WRAM is restored. Prevents ghost script ticks from corrupting the overworld on the first frame back. |
-| `$02EF1D` | SaveGameState | Snapshots the entire live game before the inventory scene takes over ~5.5 KB of WRAM. Backs up joypad state, camera scroll, the actor table, palette buffer, and hardware-shadow pages to scratch at `$7E:3490`+ because scene `$FF` reuses those same addresses for its own actors and tilemaps. Without this copy, opening inventory would permanently destroy overworld state. |
+| `$02EF0B` | ResetThinkerWaitCounters | After restore, walks the **thinker** linked list (head `$5A`, tail `$5C`) and zeroes each thinker's `$08` wait counter so restored gameplay thinkers resume cleanly. |
+| `$02EF1D` | SaveGameState | Snapshots ~5.5 KB of live WRAM before scene `$FF` reuses actor/thinker pools and tables. MVN copies listed in the state map (actor free list, thinker free list, actor slots, thinker table/extended data, palette). |
 | `$02EFB2` | RestoreGameState | Reverses `SaveGameState` after the player closes inventory with B/Y/X. Copies all MVN backup regions back to live WRAM, restores joypad masks and camera positions, and reloads the actor count so the overworld resumes exactly where it was paused — same enemies, same scroll, same held inputs. |
 | `$02F035` | RestorePaletteBuffer | Copies saved palette from `$7E:38B4` back to `$7F:0A00` after scene script may have overwritten it. |
 
@@ -75,7 +75,7 @@ Master inventory orchestrator (JSL entry). Implements the state sandwich: save g
 7. Loop `UpdateFrameDialogue`; copy `bg1ConfigMode` (`$0AE6`) → `BG1SC` each frame until flag byte `#00` is set (`BranchIfFlagByte` / `SetFlagByte #00` from inventory_menu on TabCancel or exit)
 8. RestoreGameState, reload scene, event blocks, palette
 9. ReloadAbilityFX, ClearVramBufferFull, map refresh
-10. DrainActorQueue; `SetFlagByte #FF` before final render frames
+10. ResetThinkerWaitCounters; `SetFlagByte #FF` before final render frames
 
 
 **Variables:**
@@ -117,7 +117,7 @@ Post-close ability graphics reload. DMAs Dark Friar or Aura FX tiles and palette
 
 ### SaveGameState
 
-Snapshots the entire live game before the inventory scene takes over ~5.5 KB of WRAM. Backs up joypad state, camera scroll, the actor table, palette buffer, and hardware-shadow pages to scratch at `$7E:3490`+ because scene `$FF` reuses those same addresses for its own actors and tilemaps. Without this copy, opening inventory would permanently destroy overworld state. Joypad input is zeroed during the transition so no stray button presses leak into the menu open sequence.
+Snapshots live WRAM regions scene `$FF` would clobber (see state preservation map). Backs up joypad state, six camera/scroll words, actor and thinker pool metadata, actor slots, thinker table/extended pages, and the palette buffer. Joypad input is zeroed during the transition so no stray button presses leak into the menu open sequence.
 
 **Algorithm:**
 1. Save joypad `$0656`/`$0658`/`065A` (zero live copies)
@@ -163,21 +163,21 @@ Reverses `SaveGameState` after the player closes inventory with B/Y/X. Copies al
 | `RestorePaletteBuffer` | Separate palette restore |
 | `OpenInventoryScreen` | Caller |
 
-### DrainActorQueue
+### ResetThinkerWaitCounters
 
-Clears the pending actor execution queue left over from the inventory scene. The engine maintains a linked list of actors scheduled to run on the next frame at direct-page `$5A`; inventory actors may still be queued when the overlay closes. This routine walks that chain and zeroes each actor's frame counter (`$08`), preventing stale inventory script ticks from firing after gameplay WRAM is restored. Called just before HDMA reset and the final render frames so the player returns to a clean overworld update loop.
+Zeroes the `$08` wait counter on every thinker in the restored gameplay thinker list. Thinker list head/tail live at DP `$5A` / `$5C` (actor list uses `$56` / `$58`). Called after `RestoreGameState` so thinkers that were frozen during the overlay do not retain stale wait values.
 
 **Algorithm:**
-1. Load list head from `$5A`; exit if zero
-2. Walk `$0006` chain via TCD
-3. STZ `$0008` on each actor until list end
+1. Load thinker list head from `$5A`; exit if zero
+2. Walk thinker chain via `$0006` links
+3. `STZ $0008` on each thinker until list end
 
 
 **Variables:**
 | Location | Direction | Role |
 |----------|-----------|------|
-| `$5A` | R | Actor list head |
-| `$08` | W | Frame counter per actor |
+| `$5A` / `$5C` | R | Thinker list head / tail |
+| `$08` | W | Thinker wait counter |
 
 **Cross-References:**
 | Symbol | Relationship |
@@ -211,9 +211,9 @@ OpenInventoryScreen
   ├─4─ RESTORE ──────────────────────────────────────────
   │     RestoreGameState + RestorePaletteBuffer
   │     Pop scene ID → re-run SceneScriptNoMusic
-  │     ApplyAllEventBlocks + PlaceBarrierTiles
+  │     ApplyAllEventBlocks + PlaceOpenedChestTiles
   │     ReloadAbilityFX, ClearVramBufferFull, map refresh
-  │     DrainActorQueue, SetFlagByte #FF
+  │     ResetThinkerWaitCounters, SetFlagByte #FF
   │
   └─5─ RETURN ───────────────────────────────────────────
         RTL to gameplay caller

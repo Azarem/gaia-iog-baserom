@@ -6,7 +6,7 @@
 ; 
 ; CheckSceneTransition → ExecuteSceneTransition orchestrates the full scene change:
 ; 1. Run ScreenExitTransition (if world is active)
-; 2. Clear the world-ready flag, clear the HDMA enable mask, disable NMI (EnableNmiOnly leaves only joypad auto-read on) and enter forced blank
+; 2. Clear the world-ready flag, clear the HDMA enable mask, disable NMI (DisableNmiKeepJoypad leaves only joypad auto-read on) and enter forced blank
 ; 3. Resolve target scene: a staged world-map entry ($0D52/$0D53 nonzero → scene $FE) or sceneNext (normal)
 ; 4. ClearSceneState: comprehensive reset of all game variables, followed by scene script execution, camera init, event blocks, actor spawning, collision setup, palette/graphics loading, and initial tilemap rendering
 ; 5. Run ScreenEnterTransition
@@ -192,7 +192,7 @@ ExecuteSceneTransition {
 
   loc_03DA03:
     STZ $66               ; Clear HDMA channel enable mask (DP $66 → HDMAEN in NMI)
-    JSL $@vblank_joypad.EnableNmiOnly ; NMITIMEN=$01: NMI off, joypad auto-read only
+    JSL $@vblank_joypad.DisableNmiKeepJoypad ; NMITIMEN=$01: NMI off, joypad auto-read only
     JSL $@vblank_joypad.EnterForcedBlank ; INIDISP=$80: forced blank for VRAM/OAM/CGRAM access
     LDA #$00
     XBA 
@@ -777,7 +777,7 @@ ScreenEnterTransition {
 ; 13. InitWarpTable — set up warp zone collision rectangles
 ; 14. RunActors_Normal ×2 — run two frames of actor AI to settle initial positions
 ; 15. ResetHdmaState ×2 — clear HDMA channels (once before thinkers, once after)
-; 16. RunThinkers_TypeA/B — execute both thinker phases
+; 16. RunThinkers_General/B — execute both thinker phases
 ; 17. Set $FF sentinel in OAM buffer, sort actors, compose sprites
 ; 18. DmaPlayerTilesToVram — initial player tile upload
 ; 
@@ -878,9 +878,9 @@ ClearSceneState {
     JSL $@warps_interaction.InitWarpTable
     JSL $@actor_execution.RunActors_Normal ; Two actor ticks to settle initial positions
     JSL $@actor_execution.RunActors_Normal
-    JSL $@hdma_dma_spc.ResetHdmaState ; ResetHdma, run type-A and type-B thinkers, ResetHdma
-    JSL $@thinker_execution.RunThinkers_TypeA
-    JSL $@thinker_execution.RunThinkers_TypeB
+    JSL $@hdma_dma_spc.ResetHdmaState ; ResetHdma, run type-A and HDMA-phase thinkers, ResetHdma
+    JSL $@thinker_execution.RunThinkers_General
+    JSL $@thinker_execution.RunThinkers_Hdma
     JSL $@hdma_dma_spc.ResetHdmaState
     STZ $HDMAEN           ; Disable HDMA before sprite composition
     COP [SetFlagByte] ( #FF ) ; Set event flag $FF (bit 7 of $0A1F, cleared at the top of this routine): scene-setup-complete signal — init-phase thinkers that loop on flag $FF (e.g. sE8_comet_display_config) exit (inferred)

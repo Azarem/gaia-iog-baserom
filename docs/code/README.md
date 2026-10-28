@@ -210,7 +210,7 @@ sequenceDiagram
 | 16 | [functions-game-over.md](bank00/functions-game-over.md) | Death Sequence | `GameOverSequence` |
 | 17 | [functions-player-npc.md](bank00/functions-player-npc.md) | Player & NPC AI | `NpcRandomWanderAI`, `EscortFollowPathTracker` |
 | 18 | [functions-camera-motion.md](bank00/functions-camera-motion.md) | Camera Drift, Orbital | `ApplyOrbitalOffsetFromRef` (15+ refs) |
-| 19 | [stair-climb-system.md](bank00/stair-climb-system.md) | Stair Triggers & Climb | `StairTriggerWest`, 13 parts |
+| 19 | [stair-climb-system.md](bank00/stair-climb-system.md) | Stair Triggers & Climb | `SliderGlideTriggerNorth`, 13 parts |
 | 20 | [camera-scroll-system.md](bank00/camera-scroll-system.md) | Smooth Follow, Pan | `ScrollCameraTrack` (40+ scenes), 42 parts |
 | 21 | [data-tables-memory.md](bank00/data-tables-memory.md) | Tables & Memory Map | Reference tables, DP variables, stack |
 
@@ -238,7 +238,7 @@ sequenceDiagram
 | 4 | `enemy_clear_reward_table` | `$1AADE` | 256 B | Per-scene enemy clear stat rewards |
 | 5 | `direction_velocity_table` | `$1ABDE` | 18 B | Direction→sprite/velocity mapping |
 | 6 | `enemy_stats_table` | `$1ABF0` | 440 B | Enemy HP/ATK/DEF/type (110 entries) |
-| 7 | `scene_barrier_chest_table` | `$1ADA8` | 734 B | Per-scene barrier/chest placement |
+| 7 | `scene_chest_table` | `$1ADA8` | 734 B | Per-scene barrier/chest placement |
 | 8 | `movement_delta_table` | `$1B086` | 4,862 B | Pre-computed movement velocity curves |
 | 9 | `trig_and_level_tables` | `$1C384` | 1,809 B | Sine/cosine LUTs, level-up thresholds |
 | 10 | `dialog_template_table` | `$1CA95` | 273 B | Reusable dialog box templates |
@@ -250,7 +250,7 @@ sequenceDiagram
 | 16 | `will_ability_anim_table` | `$1D9A7` | 24 B | Will's attack ability animations |
 | 17 | `freedan_ability_anim_table` | `$1D9BF` | 25 B | Freedan's attack ability animations |
 | 18 | `system_strings` | `$1D9D8` | 4,407 B | All UI/menu/item/ability text |
-| 19 | `item_component_table` | `$1EB0F` | 153 B | Item name prefix components |
+| 19 | `shared_word_table` | `$1EB0F` | 153 B | Item name prefix components |
 | 20 | `dictionary_a` | `$1EBA8` | 2,469 B | Dialog word compression table A |
 | 21 | `dictionary_b` | `$1F54D` | 2,007 B | Dialog word compression table B |
 | 22 | `item_get_dialog_table` | `$1FD24` | 584 B | Item acquisition dialog messages |
@@ -274,7 +274,7 @@ sequenceDiagram
 | 1 | [hardware-and-init.md](bank02/hardware-and-init.md) | Hardware Math, VBlank, LZ, Init | `MulDivide`, `VBlankWaitAndJoypad`, `QuintetLzDecompress` |
 | 2 | [scene-script.md](bank02/scene-script.md) | Scene Bytecode Interpreter | `SceneScriptMain`, 11 commands, cache-and-diff |
 | 3 | [spc-transfer.md](bank02/spc-transfer.md) | SPC700 Music Upload | `SpcMusicLoadCmd`, `SpcBlockTransfer` |
-| 4 | [game-systems.md](bank02/game-systems.md) | Music, Title, Events, Warps | `MusicPlaybackActor`, `ApplyAllEventBlocks` |
+| 4 | [game-systems.md](bank02/game-systems.md) | Music, Title, Events, Warps | `MusicJingleActor`, `ApplyAllEventBlocks` |
 | 5 | [camera-scrolling.md](bank02/camera-scrolling.md) | Camera Tilemap Scroll | `CameraFullRefresh`, dirty-strip DMA |
 | 6 | [map-coordinates.md](bank02/map-coordinates.md) | Tile Coordinate Helpers | `TileCoordsToMapIndex` |
 | 7 | [player-character.md](bank02/player-character.md) | Five-Actor Player Architecture | `PlayerCharacterDef`, state machine |
@@ -579,7 +579,7 @@ The ROM structure is defined by three complementary JSON files in `db-us/`:
 |------|---------|
 | [`blocks.json`](../../db-us/blocks.json) | Block/part structure — known code/data regions |
 | [`overrides.json`](../../db-us/overrides.json) | Per-address register state and type corrections |
-| [`names.json`](../../db-us/names.json) | Human-readable address labels |
+| [`names/bankNN.json`](../../db-us/names/) | Human-readable address labels, one file per ROM bank |
 
 ### Workflow
 
@@ -593,6 +593,6 @@ extract → edit .asm / patches → rebuild → test in Mesen2
 
 <p align="center">
   <em>Generated from deep analysis of the complete Illusion of Gaia US ROM</em><br>
-  <em>Cross-referenced with <code>db-us/blocks.json</code>, <code>db-us/names.json</code>, <code>db-us/overrides.json</code>, and extracted ASM files</em><br>
+  <em>Cross-referenced with <code>db-us/blocks.json</code>, <code>db-us/names/</code>, <code>db-us/overrides.json</code>, and extracted ASM files</em><br>
   <em>Last updated: 2026-09-18</em>
 </p>

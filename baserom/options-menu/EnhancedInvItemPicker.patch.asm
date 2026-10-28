@@ -3,11 +3,11 @@
 ; PHASE 2: Item Reorder — Run-button entry in Items tab
 ; =============================================================================
 
-; Override code_02E47F to add the reorder COP line.
+; Override UseItemRefreshCursor to add the reorder COP line.
 ; This sub-label contains the cursor positioning + button dispatch loop.
 ; The transform already changed #$C040 → #$0080 in the extracted code,
 ; but the override replaces the block entirely, so we use the new masks here.
-code_02E47F! {
+UseItemRefreshCursor! {
     JSR $&PositionEquipCursor
     COP [RunBg3Script] ( @system_strings.consolestring_01E912 )
     LDY $1A
@@ -40,12 +40,12 @@ ArrangePickTarget! {
     COP [RunBg3Script] ( @system_strings.consolestring_01EA14 )
     COP [RunBg3Script] ( @system_strings.consolestring_01E9A6 )
 
-  code_02E5AC!:
+  ArrangeTargetLoop!:
     JSR $&PositionGridCursor ; Position target cursor during swap pick
     COP [SetEntryHereAndYield]
     COP [BranchIfPressed] ( #$4000, &ArrangeCancelTarget ) ; Cancel target pick (Y/X)
     COP [BranchIfPressed] ( #$8044, &ArrangePerformSwap ) ; B confirms swap destination slot
-    PEA $&code_02E5AC-1
+    PEA $&ArrangeTargetLoop-1
     COP [BranchIfPressed] ( #$0800, &GridCursorUp )
     COP [BranchIfPressed] ( #$0400, &GridCursorDown )
     COP [BranchIfPressed] ( #$0200, &GridCursorLeft )
@@ -59,7 +59,7 @@ ArrangePerformSwap! {
     TSB $joypadHeld
     LDA $22
     CMP $2E
-    BEQ code_02E5AC
+    BEQ ArrangeTargetLoop
     COP [PlaySoundCh2] ( #11 )
     LDY $22               ; Swap inventory slot bytes (8-bit hi/lo pairs)
     SEP #$20
@@ -112,5 +112,5 @@ ArrangePerformSwap! {
 ;    COP [MarkDeath]
 ;    PLD 
 ;    PLX 
-;    JMP $&code_02E544
+;    JMP $&ArrangeSourceReset
 }
