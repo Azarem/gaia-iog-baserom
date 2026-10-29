@@ -10,7 +10,7 @@
 ; 
 ; === HANDLERS ===
 ; 
-; A trip handler is StageWorldMapMoveIds ( 0, route id ) followed by a QueueMapChange ( scene, X, Y, flags, scroll ) for the destination. Most handlers are two adjacent blocks: the first has no end and falls into the second (the second is also the Quit handler of the destination's own menu). Seven handlers hold both operations in one block. QueueMapChange flag bit 7 ($80) records the destination as the new revive / save point (Inca Ruins, Diamond Mine, Great Wall, Mt.Temple entrance, Angkor Wat, Pyramid). The Watermia to Euro handlers also write $0D60 := 7 (leader animation 7). Menus are named WorldMapMenu_<id> (the choice id in hex; $1C-$25 are WorldMapMenu_Empty<id>, $26 is WorldMapMenu_Nothing26). Handlers are WorldMapGo_<origin>_<destination> (route staging, which falls into the destination's quit block, or both operations in one block) and WorldMapQuit_<place> (QueueMapChange back to that place); WorldMapQuit_Itory_IncaMenu and WorldMapQuit_Watermia_AngelMenu are the second quit blocks of the Itory menu with the Inca Ruins option and of the Angel Village-side Watermia menu.
+; A trip handler is StageWorldMapMoveIds ( 0, route id ) followed by a QueueMapChange ( scene, X, Y, flags, scroll ) for the destination. Most handlers are two adjacent blocks: the first has no end and falls into the second (the second is also the Quit handler of the destination's own menu). Seven handlers hold both operations in one block. QueueMapChange flag bit 7 ($80) records the destination as the new revive / save point (Inca Ruins, Diamond Mine, Great Wall, Mt.Temple entrance, Ankor Wat, Pyramid). The Watermia to Euro handlers also write $0D60 := 7 (leader animation 7). Menus are named WorldMapMenu_<id> (the choice id in hex; $1C-$25 are WorldMapMenu_Empty<id>, $26 is WorldMapMenu_Nothing26; the controller keeps only the low 5 bits of a choice id, so no id selects $20-$26). Handlers are WorldMapGo_<origin>_<destination> (route staging, which falls into the destination's quit block, or both operations in one block) and WorldMapQuit_<place> (QueueMapChange back to that place); WorldMapQuit_Itory_IncaMenu and WorldMapQuit_Watermia_AngelMenu are the second quit blocks of the Itory menu with the Inca Ruins option and of the Angel Village-side Watermia menu.
 ; 
 ; === CHOICE IDS (staged by overworld_exit, first flag found wins; see its table) ===
 ; 
@@ -21,7 +21,7 @@
 ; | $03 | Edward's Castle: Quit / South Cape | $11 | Mt.Temple: Quit / Euro city |
 ; | $04 | Itory: Quit / South Cape | $12 | Natives' Village: Quit / Euro city |
 ; | $05 | Inca Ruins: Quit / Itory | $13 | Natives' Village: Quit / Euro / Ankor Wat |
-; | $06 | Itory: Quit / Inca Ruins | $14 | Angkor Wat: Quit / Natives' Village |
+; | $06 | Itory: Quit / Inca Ruins | $14 | Ankor Wat: Quit / Natives' Village |
 ; | $07 | Freejia: Quit / Diamond Mine | $15 | Angel Village: Quit only |
 ; | $08 | Diamond Mine: Quit / Freejia | $16 | Dao: Quit / Natives' Village |
 ; | $09 | Freejia: Quit only | $17 | Dao: Quit / Natives' Village / Pyramid |
@@ -31,13 +31,13 @@
 ; | $0D | Great Wall: Quit / Watermia | $1B | South Cape: Quit only |
 ; | $0E | Watermia: Quit / Angel Village / Great Wall / Euro | | |
 ; 
-; Entries $00 and $1C-$26 are never staged. $00 only returns (the controller dies before SwitchCase when the choice id is 0); $1C-$25 print an empty [TPL:11] and return; $26 prints Nothing!!. Route ids staged here: $01-$04, $07, $08, $0A, $0B, $11-$20 (the other routes belong to scripted trips, see world_map_route_table).
+; Staged ids are $01-$1B: each is written by one StageWorldMapChoice site in overworld_exit, and the only other writer of $0D58 is StageWorldMapMove, which clears it. Entry $00 only returns (the controller dies before SwitchCase when the choice id is 0). Ids $1C-$1F are never staged, but the controller keeps the low 5 bits (AND #$001F), so staging one would run its entry. Entries $20-$26 cannot be reached by any id, because the table index is at most $1F. $1C-$25 print an empty [TPL:11] and return; $26 prints Nothing!!. Route ids staged here: $01-$04, $07, $08, $0A, $0B, $11-$20 (the other routes belong to scripted trips, see world_map_route_table).
 ; 
 ; === ROUTES (world_map_route_table.asm, Bank 03 241015-242132; the merge tool cannot annotate that file: no bank information) ===
 ; 
-; 38 table entries ($00-$25) point at 37 route arrays; $00 aliases $01. The arrays are named route_<id>_<origin>_to_<destination> (route_unused_<id> for $0E, $0F, $10, $23, $24 and $25). A step is four bytes: three move_chain_table indices (X $00CA, Y $00CC, rotation $00BC; 0 = still) and a tick count n. The extraction shows them as route-step < b0, b1, b2, b3 >, which the old header read as flags, direction, spare and distance; that reading is wrong. Every array is 4n + 1 bytes: a hidden $FF ends it; $FE (subroutine) is never used.
+; 38 table entries ($00-$25) point at 37 route arrays; $00 aliases $01. The arrays are named route_<id>_<origin>_to_<destination> (route_unused_<id> for $0E, $0F, $10, $23, $24 and $25). A step is four bytes: three move_chain_table indices (X $00CA, Y $00CC, rotation $00BC; 0 = still) and a tick count n (the step runs n + 1 ticks). The extraction shows them as route-step < b0, b1, b2, b3 >, which the old header read as flags, direction, spare and distance; that reading is wrong. Every array is 4n + 1 bytes: a hidden $FF ends it; $FE (subroutine) is never used.
 ; Indices used: X and Y take 1 (+1 per tick), 2 (-1), $11 (alternating +1, 0) or $12 (alternating -1, 0); rotation takes 1 (+1) or 2 (-1). Steps never mix rotation with movement: a route turns the map ($20 = 22.5 degrees, $40 = 45, $80 = 90, $C0 = 135) and runs straight in one of eight directions.
-; Check: summing the steps reproduces the distance between the staged start positions of the two scenes (overworld_exit): route $09 = 128 north, $03 = 16 west and 240 north, $0A = 224 east and 96 south ($0B the reverse), $01 = 48 east and 112 north. These match with n ticks per step; the engine code applies n + 1 deltas, which would add one pixel per axis step (OQ-I060-2).
+; Check: summing the steps reproduces the distance between the staged start positions of the two scenes (overworld_exit): route $09 = 128 north, $03 = 16 west and 240 north, $0A = 224 east and 96 south ($0B the reverse), $01 = 48 east and 112 north. These sums match when each step counts n deltas; the engine applies n + 1 deltas per step (the step runs n + 1 ticks), one more per active axis than the sums (OQ-I060-2).
 ; 
 ; | Route | Trip | Route | Trip |
 ; |-------|------|-------|------|
@@ -64,7 +64,7 @@
 
 ---------------------------------------------
 
-; 39 pointers indexed by the choice id & $1F: $01-$1B are real menus, $00 and $1C-$26 are never run. Several menus share handlers.
+; 39 pointers indexed by the choice id & $1F, so only entries $00-$1F can be selected: $01-$1B are the menus staged by overworld_exit, $00 and $1C-$1F are never run ($00 never reaches SwitchCase, no site stages $1C-$1F), and $20-$26 cannot be reached by any id. Several menus share handlers.
 
 world_map_options [
   &WorldMapMenu_00   ;00
@@ -481,7 +481,7 @@ code_list_03B74B [
 dialogstring_03B753 `[TPL:11][SFX:0] Quit        Ankor Wat [N] Euro city `
 
 ---------------------------------------------
-; Choice $14: Quit / Natives' Village (Angkor Wat entrance exit). List: Quit -> WorldMapQuit_AngkorWat (back to Angkor Wat); 2 -> WorldMapGo_AngkorWat_NativesVillage (route $1C).
+; Choice $14: Quit / Natives' Village (Ankor Wat entrance exit). List: Quit -> WorldMapQuit_AngkorWat (back to Ankor Wat); 2 -> WorldMapGo_AngkorWat_NativesVillage (route $1C).
 
 WorldMapMenu_14 {
     COP [PrintDialogString] ( &dialogstring_03B78A )
@@ -632,7 +632,7 @@ code_list_03B8E2 [
 ]
 
 ---------------------------------------------
-; Choice $1C: prints an empty [TPL:11] and returns. Never staged.
+; Choice $1C: prints an empty [TPL:11] and returns. No site stages this id; staging it would run this entry (the controller keeps the low 5 bits of the choice id).
 
 WorldMapMenu_Empty1C {
     COP [PrintDialogString] ( &dialogstring_03B92B )
@@ -640,7 +640,7 @@ WorldMapMenu_Empty1C {
 }
 
 ---------------------------------------------
-; Choice $1D: prints an empty [TPL:11] and returns. Never staged.
+; Choice $1D: prints an empty [TPL:11] and returns. No site stages this id; staging it would run this entry (the controller keeps the low 5 bits of the choice id).
 
 WorldMapMenu_Empty1D {
     COP [PrintDialogString] ( &dialogstring_03B92E )
@@ -648,7 +648,7 @@ WorldMapMenu_Empty1D {
 }
 
 ---------------------------------------------
-; Choice $1E: prints an empty [TPL:11] and returns. Never staged.
+; Choice $1E: prints an empty [TPL:11] and returns. No site stages this id; staging it would run this entry (the controller keeps the low 5 bits of the choice id).
 
 WorldMapMenu_Empty1E {
     COP [PrintDialogString] ( &dialogstring_03B931 )
@@ -656,7 +656,7 @@ WorldMapMenu_Empty1E {
 }
 
 ---------------------------------------------
-; Choice $1F: prints an empty [TPL:11] and returns. Never staged.
+; Choice $1F: prints an empty [TPL:11] and returns. No site stages this id; staging it would run this entry (the controller keeps the low 5 bits of the choice id).
 
 WorldMapMenu_Empty1F {
     COP [PrintDialogString] ( &dialogstring_03B934 )
@@ -664,7 +664,7 @@ WorldMapMenu_Empty1F {
 }
 
 ---------------------------------------------
-; Choice $20: prints an empty [TPL:11] and returns. Never staged.
+; Choice $20: prints an empty [TPL:11] and returns. No id reaches this entry: the controller masks the choice id with AND #$001F, so the table index is at most $1F.
 
 WorldMapMenu_Empty20 {
     COP [PrintDialogString] ( &dialogstring_03B937 )
@@ -672,7 +672,7 @@ WorldMapMenu_Empty20 {
 }
 
 ---------------------------------------------
-; Choice $21: prints an empty [TPL:11] and returns. Never staged.
+; Choice $21: prints an empty [TPL:11] and returns. No id reaches this entry: the controller masks the choice id with AND #$001F, so the table index is at most $1F.
 
 WorldMapMenu_Empty21 {
     COP [PrintDialogString] ( &dialogstring_03B93A )
@@ -680,7 +680,7 @@ WorldMapMenu_Empty21 {
 }
 
 ---------------------------------------------
-; Choice $22: prints an empty [TPL:11] and returns. Never staged.
+; Choice $22: prints an empty [TPL:11] and returns. No id reaches this entry: the controller masks the choice id with AND #$001F, so the table index is at most $1F.
 
 WorldMapMenu_Empty22 {
     COP [PrintDialogString] ( &dialogstring_03B93D )
@@ -688,7 +688,7 @@ WorldMapMenu_Empty22 {
 }
 
 ---------------------------------------------
-; Choice $23: prints an empty [TPL:11] and returns. Never staged.
+; Choice $23: prints an empty [TPL:11] and returns. No id reaches this entry: the controller masks the choice id with AND #$001F, so the table index is at most $1F.
 
 WorldMapMenu_Empty23 {
     COP [PrintDialogString] ( &dialogstring_03B940 )
@@ -696,7 +696,7 @@ WorldMapMenu_Empty23 {
 }
 
 ---------------------------------------------
-; Choice $24: prints an empty [TPL:11] and returns. Never staged.
+; Choice $24: prints an empty [TPL:11] and returns. No id reaches this entry: the controller masks the choice id with AND #$001F, so the table index is at most $1F.
 
 WorldMapMenu_Empty24 {
     COP [PrintDialogString] ( &dialogstring_03B943 )
@@ -704,7 +704,7 @@ WorldMapMenu_Empty24 {
 }
 
 ---------------------------------------------
-; Choice $25: prints an empty [TPL:11] and returns. Never staged.
+; Choice $25: prints an empty [TPL:11] and returns. No id reaches this entry: the controller masks the choice id with AND #$001F, so the table index is at most $1F.
 
 WorldMapMenu_Empty25 {
     COP [PrintDialogString] ( &dialogstring_03B946 )
@@ -712,7 +712,7 @@ WorldMapMenu_Empty25 {
 }
 
 ---------------------------------------------
-; Choice $26: prints Nothing!! and returns. Never staged.
+; Choice $26: prints Nothing!! and returns. No id reaches this entry: the controller masks the choice id with AND #$001F, so the table index is at most $1F.
 
 WorldMapMenu_Nothing26 {
     COP [PrintDialogString] ( &dialogstring_03B949 )
@@ -1004,7 +1004,7 @@ WorldMapGo_NativesVillage_AngkorWat {
 }
 
 ---------------------------------------------
-; Queue scene $B0 Angkor Wat at (504, 1216), flags $80 (revive / save point), scroll $5400. Quit handler of the Angkor Wat menu.
+; Queue scene $B0 Ankor Wat at (504, 1216), flags $80 (revive / save point), scroll $5400. Quit handler of the Ankor Wat menu.
 
 WorldMapQuit_AngkorWat {
     COP [QueueMapChange] ( #B0, #$01F8, #$04C0, #80, #$5400 )

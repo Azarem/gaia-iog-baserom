@@ -3,24 +3,24 @@
 ; === ANIMATIONS ===
 ; 
 ; Box = extent box in px, parts per frame. Holds are in ticks - 1 (hold 7 = 8 ticks).
-; - #00 sprite_set_00001C: 4 distinct frames, hold 7, 23-31 x 43-46 px, 6-7 parts (the largest of the walkers).
-; - #01 sprite_set_00002E: frames A B A C, hold 7, 20-21 x 32-33 px, 7-10 parts.
-; - #02 sprite_set_000040, #03 sprite_set_000052, #04 sprite_set_000064: frames A B A C, hold 7, 15-16 x 32-33 px, 5-8 parts.
-; - #05 sprite_set_000076: frames A B A C, hold 7, 15-16 x 40-41 px, 7-10 parts.
-; - #06 sprite_set_000088: frames A B A C, hold 7, one 16 x 16 part (tile words $083A, $085A, $083A, $485A: the last frame H-flipped).
-; - #07 sprite_set_00009A, #08 sprite_set_0000B0, #09 sprite_set_0000C6, #0A sprite_set_0000DC: 5 frames A B C D C, holds 7, 7, 7, 9, 7, 32 px wide, 48-75 px tall, 11-13 parts. WorldMapController's wa79_neil fills the party array with 7, 8, 9, A for the Watermia to Euro leg, so these four look like the pieces of one vehicle (not checked at runtime, OQ-B001-2).
-; - #0B sprite_set_0000F2: 3 frames, hold 1, box 79 x 48 px, 24 parts; the leader of the Dao to Over Babel trip (daC8_neil).
-; - #0C sprite_set_000100: 3 frames, hold 1, box 79 x 48 px, 27 parts; no writer found.
-; - #0D sprite_set_00010E: 4 frames, hold 9, 48-64 x 64 px, 14-22 parts; the leader of the Watermia to South Cape trip (wa78_men).
+; - #00 spm_overworld_sprites_sprite_set_00001C: 4 distinct frames, hold 7, 23-31 x 43-46 px, 6-7 parts (the largest of the walkers).
+; - #01 spm_overworld_sprites_sprite_set_00002E: frames A B A C, hold 7, 20-21 x 32-33 px, 7-10 parts.
+; - #02 spm_overworld_sprites_sprite_set_000040, #03 spm_overworld_sprites_sprite_set_000052, #04 spm_overworld_sprites_sprite_set_000064: frames A B A C, hold 7, 15-16 x 32-33 px, 5-8 parts.
+; - #05 spm_overworld_sprites_sprite_set_000076: frames A B A C, hold 7, 15-16 x 40-41 px, 7-10 parts.
+; - #06 spm_overworld_sprites_sprite_set_000088: frames A B A C, hold 7, one 16 x 16 part (tile words $083A, $085A, $083A, $485A: the last frame H-flipped).
+; - #07 spm_overworld_sprites_sprite_set_00009A, #08 spm_overworld_sprites_sprite_set_0000B0, #09 spm_overworld_sprites_sprite_set_0000C6, #0A spm_overworld_sprites_sprite_set_0000DC: 5 frames A B C D C, holds 7, 7, 7, 9, 7, 32 px wide, 48-75 px tall, 11-13 parts. WorldMapController's wa79_neil fills the party array with 7, 8, 9, A for the Watermia to Euro leg, so these four look like the pieces of one vehicle (not traced: what the four animations draw).
+; - #0B spm_overworld_sprites_sprite_set_0000F2: 3 frames, hold 1, box 79 x 48 px, 24 parts; the leader of the Dao to Over Babel trip (daC8_neil).
+; - #0C spm_overworld_sprites_sprite_set_000100: 3 frames, hold 1, box 79 x 48 px, 27 parts; no writer found.
+; - #0D spm_overworld_sprites_sprite_set_00010E: 4 frames, hold 9, 48-64 x 64 px, 14-22 parts; the leader of the Watermia to South Cape trip (wa78_men).
 ; 
-; Which art animations #00 to #05 draw (which party member) was not checked.
+; Not traced: which party member each of #00-#05 draws.
 ; 
 ; === FORMAT ===
 ; 
 ; A sprite map file has three layers (same format as the spriteset_* files, see spriteset_freedan):
 ; - Pointer table (the first label): one word per animation index. The engine reads entry $28 of the actor (UpdateActorAnimation: table + 2 x $28), then the frame record $2A x 4 inside that list.
 ; - Sprite-set (frame list): 4-byte records < hold, &sprite_group >, closed by a hidden $FFFF. A frame is shown for hold + 1 ticks.
-; - Sprite-group: 12 header bytes, the part count, then 7-byte sprite-parts. Bytes 0-3 are the X extents (left, right) and Y extents (above, below) of the frame box; UpdateActorAnimation loads them into $18/$1C and $1A/$1E and swaps each pair for a flipped actor. Bytes 4-7 are a tile-unit box (X offset, Y offset, width and height in 16-pixel units) read by PlayerAttackHitTest and the solid-rectangle COP handlers; bytes 8-11 are the body box (X offset, width, Y offset, height in pixels, signed offsets) read by CombatCollision and the interaction collision code.
+; - Sprite-group: 12 header bytes, the part count, then 7-byte sprite-parts. Bytes 0-3 are the X extents (left, right) and Y extents (above, below) of the frame box; UpdateActorAnimation loads them into $18/$1C and $1A/$1E and swaps each pair for a flipped actor. Bytes 4-7 are a tile-unit box (X offset, Y offset, width and height in 16-pixel units) read by PlayerAttackHitTest, the solid-rectangle COP handlers and the tile collision code (tile_collision_physics); bytes 8-11 are the body box (X offset, width, Y offset, height in pixels, signed offsets) read by CombatCollision and the interaction collision code.
 ; - Sprite-part < size, x, x', y, y', tile word >: size 0 = 8 x 8, 1 = 16 x 16 (the OAM size bit); x and y are offsets inside the extent box, x' and y' the offsets used when the actor is H / V flipped (x + x' = box width - part width); the tile word is an OAM word (bit 8 name table, bits 9-11 palette, bits 12-13 priority, $4000 H flip, $8000 V flip) that the engine XORs with the actor's attribute word $0E.
 ; Every group of this file carries the engine's default boxes ($F8 $F0 $01 $01 and $F8 $10 $F0 $10): the same eight bytes are in all 85 groups of spm_boot_logos, spm_title_actors, spm_darkspace_sprites and spm_overworld_sprites.
 ---------------------------------------------

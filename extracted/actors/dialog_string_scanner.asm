@@ -6,7 +6,7 @@
 ; 
 ; SCAN RANGE: the bank counter $24 is a 16-bit word that starts at $85 and is incremented per bank. The loop ends only when it equals $000C, which happens after the word wraps through $FFFF. Each pass takes the LOW byte as the bank (PHA / PLB), so banks $85-$FF come first, then banks $00-$FF again and again; the old 'banks $85 to $0B' (and the doc's '$85-$8C') do not match the code. Banks after the first are scanned from offset $0000, which on LoROM is not ROM for banks $80-$BF. In practice the halt loop is not reached.
 ; 
-; SAVED STATE: $0100 = the scan offset after a hit, $0102 = a 16-bit copy of the stack top (the bank byte plus the low byte of the pointer). Only system_core's startup check reads $0100 (a leftover resume test).
+; SAVED STATE: $0100 = the hit offset + 1 (the offset of the $BF signature byte: the INY after the operand read runs before TYA / STA $0100), $0102 = a 16-bit copy of the stack top (the bank byte plus the low byte of the pointer). The scan resumes at the hit offset + 4, the Y that PHY pushes after three more INY. Only system_core's startup check reads $0100 (a leftover resume test).
 ; 
 ; START: runs only while worldReadyFlag ($0654) is nonzero and positive (negative = loading); until then it returns every frame.
 ---------------------------------------------
@@ -76,7 +76,7 @@ dialog_string_scanner [
     PHA 
     PHB 
     TYA 
-    STA $0100             ; $0100 = scan offset after this hit
+    STA $0100             ; $0100 = hit offset + 1 (Y after the INY above); the resume offset, hit + 4, is pushed later by PHY
     LDA $01, S            ; Stack top: the bank byte plus the low pointer byte ...
     STA $0102
     PLB 

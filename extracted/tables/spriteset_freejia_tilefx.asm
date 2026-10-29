@@ -1,6 +1,6 @@
-; Two Freejia tile animations (Bank 14, 1359872-1360072). It is a spriteset only in format: its one user streams the frames into VRAM as tiles, it holds no door or switch sprites (the old note was a guess from the name).
+; Two Freejia tile animations (Bank 14, 1359872-1360071). It is a spriteset only in format: its one user streams the frames into VRAM as tiles.
 ; 
-; The only user is fr32_laborer_npc (Freejia): two actors run SetScratchPointer(misc_fx_1CD080) (the tile art), SetMetasprite(spriteset_freejia_tilefx), SetTileStreamAnim and AdvanceSpriteAnim. code_05B021 plays animation 0 into VRAM word $3FE0, code_05B03E (spawned by it) plays animation 1 into VRAM word $3FF0. The two destinations are one 4bpp tile apart ($10 words = 32 bytes).
+; The only user is fr32_laborer_npc (Freejia): two actors run SetScratchPointer(misc_fx_1CD080) (the tile art), SetMetasprite(spriteset_freejia_tilefx), SetTileStreamAnim and AdvanceSpriteAnim. code_05B021 first stores #$0420 in cameraBoundsY ($06DC) and spawns code_05B03E (SpawnAfter), then plays animation 0 into VRAM word $3FE0; code_05B03E plays animation 1 into VRAM word $3FF0. The two destinations are one 4bpp tile apart ($10 words = 32 bytes).
 ; 
 ; === WHAT AdvanceSpriteAnim READS ===
 ; 
@@ -12,7 +12,7 @@
 ; - Animation 1: 4 frames, hold 6 (7 ticks, a 28-tick loop), groups 14C078-14C0B4, tile bytes 4, 5, 6, 7 (tile words $0604-$0607; the high byte is not read here).
 ; - All 8 groups are alike: header extents 8, 0, 8, 0, default boxes, one size-0 sub-sprite at offset 0, 0. Each frame is one 8x8 tile.
 ; 
-; What the tiles show is not known: the actors have no movement code, although the file header of fr32_laborer_npc speaks of a walking laborer (OQ-I064-2).
+; Not traced: what the tiles show. The two actors run no sprite movement (code_05B021 only stores cameraBoundsY and spawns code_05B03E), although the file header of fr32_laborer_npc describes a walking laborer.
 ---------------------------------------------
 
 ?BANK 14

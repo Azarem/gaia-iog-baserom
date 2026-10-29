@@ -1,8 +1,6 @@
-; Stair climb trigger in the Angkor Wat outer east area.
+; Psycho Slider glide trigger in the Angkor Wat outer east area.
 ; 
-; Automated stair-climbing actor that forces the player
-; into a scripted ascending movement when entering the
-; stairway zone.
+; The actor waits until event flag $016B is set (WaitOnFlagWord, sense 1), stores $000A in $0E (the glide length, in units of 16 px: LockPlayerForClimb) and JumpFar's to slider_glide.SliderGlideTriggerNorthMain. From there it runs as a north Psycho Slider glide trigger (see the slider_glide block note).
 ---------------------------------------------
 
 ?INCLUDE 'slider_glide'

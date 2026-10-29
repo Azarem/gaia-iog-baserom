@@ -7,14 +7,14 @@
 ; 1. SetSavedPtr( &self ) keeps the idle entry in retPtr1 ($7F0004). RestoreSavedPtr later resumes there (and clears retPtr1), which re-arms the handler. Every 'Restore' label below is that exit.
 ; 2. SetEntryHereAndYield + BranchIfPressed( #$0031 ): bit 0 of the mask selects joypadRaw, and $0030 is the L / R shoulder pair (the guard / channel button; player_character BlockStopToIdle tests the same $0030 for 'L/R released'). Not held: RTL, poll again next frame.
 ; 3. BranchIfPlayerNear( #0F ): radius 15 tiles, a square |dx| and |dy| < 241 px. A coarse gate only.
-; 4. BranchOnPlayerX( #$000F, ... ): the engine handler (cop_handlers_player_query) loads operand slot +2 when the player is more than 15 px WEST of the actor, +6 when more than 15 px EAST and +4 when within 15 px (including 0). The slot +4 operand is therefore 'player in the same column', and in this file it leads to the block that works on the Y axis ($0016, posY). BranchOnPlayerY does the same for the row and leads to the blocks that work on posX ($0014).
-;    (docs/cop/families/player_query.md and the copdef label the three operands West / East / Here, but the handler's order is West / Here / East; see OQ-I037-3.)
-; 5. Each axis block computes d = player - own position. d < 0 means the player is above (Y blocks) or west of (X blocks) the object. |d| is needed, then GetPlayerFacingDirection must report that the player faces the object (codes 0 down, 1 up, 2 left, 3 right), then the object is moved ONE direction: toward the player. These handlers therefore pull the object to the player; the 'push' in the old names and header was a guess.
-; 6. The label pairs are named after the wrong axis: *AlignWest / *MoveWest and *AlignEast / *MoveEast are the vertical blocks (player above / below), *AlignNorth / *MoveNorth and *AlignSouth / *MoveSouth are the horizontal ones (player west / east). Each block's second BPL after the first BPL is dead (N is still set), so the abs() always runs for d < 0.
+; 4. BranchOnPlayerX( #$000F, ... ): the engine handler (cop_handlers_player_query) loads operand slot +2 when the player is 15 px or more WEST of the actor, +6 when 15 px or more EAST and +4 when |dx| is below 15 (including 0); the threshold test is CMP [$0A] / BCC, so |dx| = 15 already takes the outer slot. The slot +4 operand is therefore 'player in the same column', and in this file it leads to the block that works on the Y axis ($0016, posY). BranchOnPlayerY does the same for the row and leads to the blocks that work on posX ($0014).
+;    The three operands are bare &Code addresses in the copdef; the handler's order is West / Here / East (BranchOnPlayerY: above / Here / below).
+; 5. Each axis block computes d = player - own position. d < 0 means the player is above (Y blocks) or west of (X blocks) the object. |d| is needed, then GetPlayerFacingDirection must report that the player faces the object (codes 0 down, 1 up, 2 left, 3 right), then the object is moved ONE direction: toward the player. These handlers therefore pull the object to the player.
+; 6. The side word in the labels that contain Player<Side> (CollectGemAlignPlayerNorth, CollectGemNudgePlayerWestHalf, PushSolidMovePlayerSouth, PushForceballRestorePlayerEast ...) names the side of the object on which the player stands: North / South = the player is above / below (the same-column blocks, Y axis), West / East = the player is west / east (the same-row blocks, X axis). The object moves toward that side. In the North block and the West block of each handler the first BPL (d >= 0, to the South / East block) is followed by a second BPL to the label after the abs(); N is still set after the first BPL, so the second one is never taken and the abs() always runs for d < 0.
 ; 
 ; === HANDLERS ===
 ; 
-; collect_handler_gem: no clearance test and no collision painting. Step count = |d| / 2 (kept in orbitAngle, $7F0010,X). After the first facing test it SetEntryHere's, so the following frames skip the button / facing tests and move the parent 2 px per frame (parent posY / posX -/+ 2, own copy updated too) until the count reaches zero, then restore idle. The old header said it nudges the player; it moves the parent (the gem) and only reads the player.
+; collect_handler_gem: no clearance test and no collision painting. Step count = |d| / 2 (kept in orbitAngle, $7F0010,X). After the first facing test it SetEntryHere's, so the following frames skip the button / facing tests and move the parent 2 px per frame (parent posY / posX -/+ 2, own copy updated too) until the count reaches zero, then restore idle. It moves the parent (the gem) and only reads the player.
 ; push_handler_solid: needs |d| >= $20 (32 px), BranchIfSolidOffset( dx, dy ) one tile toward the player clear (any lower-nibble bit set = blocked), ClearSolidHere, own pos -/+ $10, MarkSolidHere (collision moves at once), SFX $2C, then parent $12 bit $0010 is set (old state kept in $24) while LoopStart( $10 ) slides the parent 1 px per pass (16 passes = one tile), then the bit is restored. $12 bit $0010 is damage / stagger immunity in combat_collision (the wram map calls it push-in-progress). The check state skips a frame when the parent's $10 bit $0080 (victim iframe flag) is set and $12 bit $0010 is clear.
 ; push_handler_forceball: same distance and facing tests, but additionally the player's sprite index ($28) must be $3A (player above the ball), $3B (below), $3D (west) or $3C (east), the poses that match down / up / left / right. It uses NudgePosition( dx, dy ) on its own position instead of Clear / MarkSolidHere, and while the button is not held it copies the parent's posX / posY every frame.
 ; 
@@ -46,7 +46,7 @@ CollectGemOnButton {
 }
 
 CollectGemBranchOnX {
-    COP [BranchOnPlayerX] ( #$000F, &CollectGemBranchOnY, &CollectGemAlignPlayerNorth, &CollectGemBranchOnY ) ; Slots: +2 player >15 px west, +4 within 15 px (same column), +6 >15 px east; slot +4 = vertical block
+    COP [BranchOnPlayerX] ( #$000F, &CollectGemBranchOnY, &CollectGemAlignPlayerNorth, &CollectGemBranchOnY ) ; Slots: +2 player 15 px or more west, +4 less than 15 px (same column), +6 15 px or more east; slot +4 = vertical block
 }
 
 ---------------------------------------------
@@ -118,7 +118,7 @@ CollectGemAlignPlayerNorth {
 }
 
 CollectGemBranchOnY {
-    COP [BranchOnPlayerY] ( #$000F, &CollectGemIdleRtl, &CollectGemAlignPlayerWest, &CollectGemIdleRtl ) ; Not in the same column: within 15 px on Y (slot +4) takes the horizontal block, else idle
+    COP [BranchOnPlayerY] ( #$000F, &CollectGemIdleRtl, &CollectGemAlignPlayerWest, &CollectGemIdleRtl ) ; Not in the same column: less than 15 px on Y (slot +4) takes the horizontal block, else idle
 }
 
 ---------------------------------------------
@@ -221,7 +221,7 @@ PushSolidCheckState {
     RTL 
 
   PushSolidBranchOnX:
-    COP [BranchOnPlayerX] ( #$000F, &PushSolidBranchOnY, &PushSolidMovePlayerNorth, &PushSolidBranchOnY ) ; Slot +4 (|dx| <= $0F, same column) -> PushSolidMovePlayerNorth, which is the vertical block; +2 / +6 go to the Y test
+    COP [BranchOnPlayerX] ( #$000F, &PushSolidBranchOnY, &PushSolidMovePlayerNorth, &PushSolidBranchOnY ) ; Slot +4 (|dx| < $0F, same column) -> PushSolidMovePlayerNorth, which is the vertical block; +2 / +6 go to the Y test
 }
 
 ---------------------------------------------
@@ -303,7 +303,7 @@ PushSolidRestorePlayerSouth {
 }
 
 PushSolidBranchOnY {
-    COP [BranchOnPlayerY] ( #$000F, &PushSolidIdleRtl, &PushSolidMovePlayerWest, &PushSolidIdleRtl ) ; Within 15 px on Y (slot +4): horizontal block, else idle
+    COP [BranchOnPlayerY] ( #$000F, &PushSolidIdleRtl, &PushSolidMovePlayerWest, &PushSolidIdleRtl ) ; Less than 15 px on Y (slot +4): horizontal block, else idle
 }
 
 ---------------------------------------------

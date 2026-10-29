@@ -15,7 +15,7 @@
 ; === THINKERS (scene_thinkers) ===
 ; 
 ; circle_window_thinker_v1 (variant 1): spawned only by scene F7 (credits). Every frame it calls HdmaCircleWindowBuildV1, then queues whichever table the double buffer selects.
-; circle_window_thinker_v2 (variant 2): spawned by scenes 2A (Gold Ship dream) and 67 (Mu vampire lair). It clears the previous-parameter copies once (HdmaInitPrevState, so the first frame always builds), then each frame compares current and previous parameters, rebuilds with HdmaCircleWindowBuildV2 only when something changed, copies current to previous and queues the table.
+; circle_window_thinker_v2 (variant 2): spawned by scenes 2A (Gold Ship dream) and 67 (Mu vampire lair). It clears the previous-parameter copies once (HdmaInitPrevState), so the first frame builds only if one of the current centre X, centre Y or radius ($F6, $FA, $FE) is non-zero; then each frame compares current and previous parameters, rebuilds with HdmaCircleWindowBuildV2 only when something changed, copies current to previous and queues the table.
 ; 
 ; === DOUBLE BUFFER AND MEMORY LAYOUT ===
 ; 
@@ -70,7 +70,7 @@ circle_window_thinker_v1 [
 ]
 
 ---------------------------------------------
-; Variant 2 thinker for the Gold Ship dream (scene 2A) and the Mu vampire lair (scene 67). HdmaInitPrevState clears the previous centre X, centre Y and radius once (so the first frame rebuilds); then every frame: HdmaCompareParams, and only on a change HdmaCircleWindowBuildV2 and HdmaCopyCurrentToPrev (which also restores $FC from $FE); finally QueueHdma of the buffer chosen by chatPtr bit 0 on channel config #26. An unchanged circle keeps re-queueing the same buffer.
+; Variant 2 thinker for the Gold Ship dream (scene 2A) and the Mu vampire lair (scene 67). HdmaInitPrevState clears the previous centre X, centre Y and radius once (so the first frame builds only if one of the current centre X, centre Y or radius is non-zero); then every frame: HdmaCompareParams, and only on a change HdmaCircleWindowBuildV2 and HdmaCopyCurrentToPrev (which also restores $FC from $FE); finally QueueHdma of the buffer chosen by chatPtr bit 0 on channel config #26. An unchanged circle keeps re-queueing the same buffer.
 
 circle_window_thinker_v2 [
   thinker-def < #04, #08, {

@@ -31,11 +31,11 @@
 ; Four runners filter the list on animScratch2 ($7F000E,X):
 ; 
 ; - RunThinkers_General: bit 2 ($0004) CLEAR. Called by MainLoop right after the VBlank sync and at scene start.
-; - RunThinkers_Hdma: bit 2 SET — the complement of A. MainLoop and the scene-start sequence call it after ResetHdmaState, so the HDMA/window-DMA thinkers (the bit-2 ones: comet_lair_hdma_*, angel_tunnel_window_dma, ...) bind their channels after the per-frame reset.
+; - RunThinkers_Hdma: bit 2 SET — the complement of RunThinkers_General. MainLoop and the scene-start sequence call it after ResetHdmaState, so the HDMA/window-DMA thinkers (the bit-2 ones: comet_lair_hdma_*, angel_tunnel_window_dma, ...) bind their channels after the per-frame reset.
 ; - RunThinkers_General_Light: bit 11 ($0800) SET and bit 2 CLEAR. Called by the lighter frame routines of system_core (UpdateFrameDialogue, UpdateFrameRender, UpdateFrameFull) after their VBlank sync.
 ; - RunThinkers_Hdma_Light: bits 11 AND 2 both SET. The same routines call it after ResetHdmaState, before the sync.
 ; 
-; All 59 scene thinker-defs in extracted/ (32 with filter word $0804, 27 with $0800) have bit 11 set, so for scene thinkers C selects exactly A's set and D exactly B's. Runtime-spawned thinkers (SpawnThinker/SpawnThinkerParam, 77 sites) inherit the spawner's animScratch2 and some scripts store their own (future_vision_cutscene $0804, sE8_dark_gaia $0004, dc2F_adrift ORs in $0800), so there the bit does matter: a thinker without bit 11 runs only in the main loop (TypeA/B) and pauses while the lighter frame routines (dialogue, render, music upload) run. Bit 11 therefore reads as 'keep running in the lighter frame routines', not as a cutscene marker.
+; All 59 scene thinker-defs in extracted/ (32 with filter word $0804, 27 with $0800) have bit 11 set, so for scene thinkers RunThinkers_General_Light selects exactly the set of RunThinkers_General and RunThinkers_Hdma_Light exactly that of RunThinkers_Hdma. Runtime-spawned thinkers (SpawnThinker/SpawnThinkerParam, 77 sites) inherit the spawner's animScratch2 and some scripts store their own (future_vision_cutscene $0804, sE8_dark_gaia $0004, dc2F_adrift ORs in $0800), so there the bit does matter: a thinker without bit 11 runs only in the main loop (RunThinkers_General / RunThinkers_Hdma) and pauses while the lighter frame routines (dialogue, render, music upload) run. Bit 11 therefore reads as 'keep running in the lighter frame routines', not as a cutscene marker.
 ; 
 ; All four runners share one dispatch pattern: walk the list from $5A with D = X = slot, test the filter, then DEC $08 / BPL _Next (a wait counter of n skips n passes; the pass where it was 0 runs the script and STZ $08), push PHK + PEA _Next−1, the thinker's bank and entry − 1, and RTL into the script. The script runs like an actor script (COP ops, SetEntryHereAndYield, ends with RTL back to _Next). _Next follows the $06 link or exits when the list is exhausted.
 ---------------------------------------------
@@ -164,7 +164,7 @@ RunThinkers_General {
     TCD 
     TAX 
     LDA $animScratch2, X  ; Read animScratch2 ($7F000E,X) for thinker type check
-    BIT #$0004            ; Bit 2 ($0004): TypeA processes clear, TypeB processes set
+    BIT #$0004            ; Bit 2 ($0004): RunThinkers_General processes clear, RunThinkers_Hdma processes set
     BNE RunThinkers_General_Next
     DEC $08               ; Wait counter: a stored n skips n passes; the pass where $08 was 0 gives $FFFF and runs the script
     BPL RunThinkers_General_Next
@@ -194,7 +194,7 @@ RunThinkers_General_Next {
 ---------------------------------------------
 ; Execute thinkers with animScratch2 ($7F000E,X) bit 2 ($0004) SET — the complement of RunThinkers_General.
 ; 
-; MainLoop and the scene-start sequence call it right after ResetHdmaState, so thinkers that bind HDMA channels (comet_lair_hdma_*, angel_tunnel_window_dma, dao_sine_hdma_slow, ...) get fresh channels every frame. Same wait-counter dispatch as TypeA.
+; MainLoop and the scene-start sequence call it right after ResetHdmaState, so thinkers that bind HDMA channels (comet_lair_hdma_*, angel_tunnel_window_dma, dao_sine_hdma_slow, ...) get fresh channels every frame. Same wait-counter dispatch as RunThinkers_General.
 
 RunThinkers_Hdma {
     PHP 
@@ -207,7 +207,7 @@ RunThinkers_Hdma {
     TCD 
     TAX 
     LDA $animScratch2, X
-    BIT #$0004            ; Bit 2 ($0004): TypeB processes set, skips clear
+    BIT #$0004            ; Bit 2 ($0004): RunThinkers_Hdma processes set, skips clear
     BEQ RunThinkers_Hdma_Next
     DEC $08
     BPL RunThinkers_Hdma_Next
@@ -252,9 +252,9 @@ RunThinkers_General_Light {
     LDA $animScratch2, X
     BIT #$0800            ; Bit 11 = keep running in the lighter frame routines (set in all 59 scene thinker-defs; runtime-spawned thinkers may lack it)
     BEQ RunThinkers_General_Light_Next
-    BIT #$0004            ; Bit 2 ($0004): must be clear for TypeC (not deferred)
+    BIT #$0004            ; Bit 2 ($0004): must be clear for RunThinkers_General_Light (set is RunThinkers_Hdma_Light's)
     BNE RunThinkers_General_Light_Next
-    DEC $08               ; Same wait-counter test as TypeA
+    DEC $08               ; Same wait-counter test as RunThinkers_General
     BPL RunThinkers_General_Light_Next
     STZ $08
     PHK 
@@ -282,7 +282,7 @@ RunThinkers_General_Light_Next {
 ---------------------------------------------
 ; Execute thinkers with BOTH animScratch2 bits 11 ($0800) AND 2 ($0004) SET.
 ; 
-; Uses AND #$0804 / CMP #$0804 to verify both bits. Called by UpdateFrameDialogue, UpdateFrameRender and UpdateFrameFull after ResetHdmaState and before the VBlank sync — it is TypeB's counterpart in the lighter frame routines: scene thinkers (all with bit 11) run here, runtime-spawned thinkers only if they carry bit 11.
+; Uses AND #$0804 / CMP #$0804 to verify both bits. Called by UpdateFrameDialogue, UpdateFrameRender and UpdateFrameFull after ResetHdmaState and before the VBlank sync — it is RunThinkers_Hdma's counterpart in the lighter frame routines: scene thinkers (all with bit 11) run here, runtime-spawned thinkers only if they carry bit 11.
 
 RunThinkers_Hdma_Light {
     PHP 

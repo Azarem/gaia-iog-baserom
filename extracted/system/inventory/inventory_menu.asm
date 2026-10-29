@@ -4,7 +4,7 @@
 ; 
 ; === ARCHITECTURE ===
 ; 
-; InventoryMenuInit spawns all child actors in a loop (16 InventorySlotActors, plus EquipCursorActor, EquippedItemDisplay, StatusAbilityRow2/2/3) and saves their actor indices in long-address scratch fields:
+; InventoryMenuInit spawns all child actors in a loop (16 InventorySlotActors, plus EquipCursorActor, EquippedItemDisplay, StatusAbilityRow0/1/2) and saves their actor indices in long-address scratch fields:
 ;   orbitAngle ($7F0010,X) = first slot actor Y index (linked list head)
 ;   orbitDiameter ($7F0012,X) = equip cursor actor Y index
 ;   moveXAlt ($7F0018,X) = equipped item display actor Y index
@@ -110,7 +110,7 @@
 InventoryMenuDef [
   actor-def < #00, #00, #28, {
 
-; Initialize the inventory menu. Draws the first BG3 strings, spawns 16 InventorySlotActors in a loop (counter $24 = 15→0, so the last one spawned, slot 0, heads the actor chain because SpawnAfter inserts directly after the spawner), each given its item ID as sprite frame. Saves that head to orbitAngle. Spawns EquipCursorActor (orbitDiameter), EquippedItemDisplay (moveXAlt) and the three StatusCharRow actors (moveYAlt = the last one spawned, the top row). Positions the equip cursor at inventoryEquippedIndex, yields once, then resets inventoryTabIndex to 0 (the 16 slot actors used it as their spawn counter during that yield) and sets DP $10 bit $1000 (item slots visible).
+; Initialize the inventory menu. Draws the first BG3 strings, spawns 16 InventorySlotActors in a loop (counter $24 = 15→0, so the last one spawned, slot 0, heads the actor chain because SpawnAfter inserts directly after the spawner), each given its item ID as sprite frame. Saves that head to orbitAngle. Spawns EquipCursorActor (orbitDiameter), EquippedItemDisplay (moveXAlt) and the three StatusAbilityRow actors (spawned in the order StatusAbilityRow2, StatusAbilityRow1, StatusAbilityRow0; moveYAlt = the last one spawned, StatusAbilityRow0, the top row). Positions the equip cursor at inventoryEquippedIndex, yields once, then resets inventoryTabIndex to 0 (the 16 slot actors used it as their spawn counter during that yield) and sets DP $10 bit $1000 (item slots visible).
 
   InventoryMenuInit:
     COP [SetMetasprite] ( @inventory_spritemap ) ; InventoryMenuInit: set inventory menu metasprite
@@ -140,7 +140,7 @@ InventoryMenuDef [
     COP [SpawnAfterFlags] ( @EquippedItemDisplay, #$0800 )
     TYA 
     STA $moveXAlt, X      ; moveXAlt = equipped item display actor Y
-    COP [SpawnAfterFlags] ( @StatusAbilityRow2, #$0800 ) ; Spawn three StatusCharRow actors for ability rows
+    COP [SpawnAfterFlags] ( @StatusAbilityRow2, #$0800 ) ; Spawn the three StatusAbilityRow actors (Row2, Row1, Row0), one per ability row
     COP [SpawnAfterFlags] ( @StatusAbilityRow1, #$0800 )
     COP [SpawnAfterFlags] ( @StatusAbilityRow0, #$0800 )
     TYA 
@@ -410,7 +410,7 @@ ArrangePerformSwap {
     LDY $22
     STA $inventorySlots, Y
     REP #$20
-    LDY $2E               ; Refresh target slot actor sprite after swap
+    LDY $2E               ; Refresh the source slot ($2E) actor sprite after swap
     LDA $inventorySlots, Y
     AND #$00FF
     PHA 
@@ -418,12 +418,12 @@ ArrangePerformSwap {
     JSR $&UpdateSlotActorSprite ; Returns with Y = the slot actor (not the slot index); STA $0028,Y below relies on that
     PLA 
     STA $0028, Y
-    LDY $22               ; Refresh source slot actor sprite after swap
+    LDY $22               ; Refresh the target slot ($22) actor sprite after swap
     LDA $inventorySlots, Y
     AND #$00FF
     PHA 
     TYA 
-    JSR $&UpdateSlotActorSprite ; Same: Y = the source slot actor after the call
+    JSR $&UpdateSlotActorSprite ; Same: Y = the target slot actor after the call
     PLA 
     STA $0028, Y
     TYA                   ; Y is now a slot ACTOR address, so this compare with the slot index never matches (OQ-I028-2)
@@ -505,7 +505,7 @@ DiscardItemTab {
 }
 
 ---------------------------------------------
-; Discard attempt (label is an auto name). Consumes the confirm bit. Empty slot or protected item (CheckItemDiscardable carry set) → SFX #12 and back to the grid. Otherwise draws the item name and the "Discard? No / Yes" prompt ($28 = 0 = No) and polls YesNoPromptLoop once per frame (RTL while carry is clear). Answer No ($28 = 0) → back to the grid. Answer Yes: clears the slot's item byte (16-bit AND #$FF00 keeps the next slot's byte), refreshes the slot actor, clears inventoryEquippedIndex/Type and $1A if that slot was equipped, SFX #13.
+; Discard attempt. Consumes the confirm bit. Empty slot or protected item (CheckItemDiscardable carry set) → SFX #12 and back to the grid. Otherwise draws the item name and the "Discard? No / Yes" prompt ($28 = 0 = No) and polls YesNoPromptLoop once per frame (RTL while carry is clear). Answer No ($28 = 0) → back to the grid. Answer Yes: clears the slot's item byte (16-bit AND #$FF00 keeps the next slot's byte), refreshes the slot actor, clears inventoryEquippedIndex/Type and $1A if that slot was equipped, SFX #13.
 
 DiscardAttempt {
     LDA #$8000            ; Consume the confirm bit
@@ -853,19 +853,19 @@ EquippedItemDisplay {
 }
 
 ---------------------------------------------
-; Ability row 3 actor (topmost, Y=$0048). Sprite = characterForm × 3 + $44.
+; Ability row 0 actor (topmost, Y=$0048). Sprite = characterForm × 3 + $44.
 
 StatusAbilityRow0 {
-    LDA #$0098            ; Status row 3 (top) actor at X=$0098
+    LDA #$0098            ; Status row 0 (top) actor at X=$0098
     STA $14
-    LDA #$0048            ; Status row 3 Y=$0048
+    LDA #$0048            ; Status row 0 Y=$0048
     STA $16
     LDA $characterForm    ; Sprite = characterForm × 3 + row base offset
     ASL 
     CLC 
     ADC $characterForm
     CLC 
-    ADC #$0044            ; Row 3 portrait base sprite #$0044
+    ADC #$0044            ; Row 0 portrait base sprite #$0044
     STA $28
     STZ $2A
     COP [SetEntryHere]
@@ -874,19 +874,19 @@ StatusAbilityRow0 {
 }
 
 ---------------------------------------------
-; Ability row 2 actor (middle, Y=$0060). Sprite = characterForm × 3 + $45.
+; Ability row 1 actor (middle, Y=$0060). Sprite = characterForm × 3 + $45.
 
 StatusAbilityRow1 {
-    LDA #$0098            ; Status row 2 actor at X=$0098
+    LDA #$0098            ; Status row 1 (middle) actor at X=$0098
     STA $14
-    LDA #$0060            ; Status row 2 Y=$0060
+    LDA #$0060            ; Status row 1 Y=$0060
     STA $16
     LDA $characterForm    ; characterForm × 3 portrait sprite calc
     ASL 
     CLC 
     ADC $characterForm
     CLC 
-    ADC #$0045            ; Row 2 portrait base offset #$0045
+    ADC #$0045            ; Row 1 portrait base offset #$0045
     STA $28
     STZ $2A
     COP [SetEntryHere]
@@ -895,19 +895,19 @@ StatusAbilityRow1 {
 }
 
 ---------------------------------------------
-; Ability row 1 actor (bottom, Y=$0078). Sprite = characterForm × 3 + $46.
+; Ability row 2 actor (bottom, Y=$0078). Sprite = characterForm × 3 + $46.
 
 StatusAbilityRow2 {
-    LDA #$0098            ; Status row 1 (bottom) at X=$0098
+    LDA #$0098            ; Status row 2 (bottom) at X=$0098
     STA $14
-    LDA #$0078            ; Status row 1 Y=$0078
+    LDA #$0078            ; Status row 2 Y=$0078
     STA $16
     LDA $characterForm    ; characterForm × 3 portrait sprite calc
     ASL 
     CLC 
     ADC $characterForm
     CLC 
-    ADC #$0046            ; Row 1 portrait base offset #$0046
+    ADC #$0046            ; Row 2 portrait base offset #$0046
     STA $28
     STZ $2A
     COP [SetEntryHere]
@@ -916,7 +916,7 @@ StatusAbilityRow2 {
 }
 
 ---------------------------------------------
-; Compute the global ability index characterForm × 4 + abilitySlot + 1 and store it in itemAbilityIndex ($0AE8), the index the BG3 ability description strings use. Preserves A. (The meaning of "+1" is inferred from the earlier note; entry 0 of the description table was not checked.)
+; Compute the global ability index characterForm × 4 + abilitySlot + 1 and store it in itemAbilityIndex ($0AE8), the index the BG3 ability description strings use. Preserves A. The +1 means no slot selects entry 0: entry 0 of ability_menu_table and ability_name_table is the empty string and entry 0 of ability_description_table is 'Nothing' (system_strings).
 
 ComputeAbilityIndex {
     PHA                   ; ComputeAbilityIndex — preserve ability slot on stack

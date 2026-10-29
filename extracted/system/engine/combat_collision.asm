@@ -50,7 +50,7 @@
 ; 
 ; === IFRAME ASSIGNMENT ===
 ; 
-; After damage: checks $12 bit 0 ($0001). If set, assigns negative iframe counter $FFEF (recovery/stagger phase). If clear, assigns positive counter $0011 (17 frames of invincibility). Plays hit sound #05.
+; After damage: checks $12 bit 0 ($0001). If set, assigns iframeCounter = $FFEF (negative = recovery: counts up toward zero, the tick still runs). If clear, assigns $0011 (positive = hit-stun: non-player actors skip their tick, the player's tick still runs). The counter is handled by RunActors_Normal for actors without $10 bit 13 ($2000); a script-driven actor (bit 13 set) takes the script path and ignores it. Plays hit sound #05.
 ; 
 ; === KNOCKBACK ===
 ; 
@@ -214,7 +214,7 @@ RunCombatCollision {
 ; The $20 DP flag distinguishes normal mode (exclusion mask $76E0) from friendly/interaction mode ($74E0 + extendedFlags $0010 check). On overlap, calls ApplyHitDamageToVictim.
 
 CombatCollision_EnemyLoop {
-    BIT #$0080            ; $0080 must be set (same bit later set on victims as "iframe-active"; exact role here is unresolved, see OQ-8 in questions/I001-I020_open-questions.md)
+    BIT #$0080            ; $0080 in the tested actor's $10 must be set (the bit a victim gets when hit, see iframeCounter); why this test requires it is not traced
     BEQ loc_03BC26
     BIT #$0040            ; $0040 = orb protection on this actor
     BNE loc_03BC26
@@ -425,9 +425,9 @@ CombatCollision_Exit {
 ; 
 ; Then iterates all actors in the render list, skipping those with exclusion flags ($36F0). For each candidate, reads the actor's hitbox fields ($0020–$0023) as signed offsets from position, computes the AABB, and tests overlap against the player's box.
 ; 
-; On hit: applies damage = chainDamage/2 + 1. chainDamage ($7F101E,X) accumulates across consecutive hits within the same attack sequence. Enemy HP = max(0, HP − damage). If HP reaches 0: checks for onDeathCallback or defaults to StandardEnemyDefeatHandler. If alive: spawns HitStaggerMain for knockback, computes knockback direction, assigns iframe counter ($0011 normal or $FFEF for $0001 flag).
+; On hit: applies damage = chainDamage/2 + 1. chainDamage ($7F101E,X) accumulates across consecutive hits within the same attack sequence. Enemy HP = max(0, HP − damage). If HP reaches 0: checks for onDeathCallback or defaults to StandardEnemyDefeatHandler. If alive: spawns HitStaggerMain for knockback, computes knockback direction, assigns iframeCounter: $0011 (positive = hit-stun: non-player actors skip their tick, the player's tick still runs), or $FFEF (negative = recovery: counts up toward zero, the tick still runs) when $12 bit 0 ($0001) is set.
 ; 
-; Damage digits are formatted via FormatDamageDigits and spawned as SpawnDamageNumberEffect floating numbers (priority $2F00). Enemy HP is written to the HUD display registers.
+; Damage digits are formatted via FormatDamageDigits and spawned as SpawnDamageNumberEffect floating numbers (spawn flags $2F00). Enemy HP is written to the HUD display registers.
 
 PlayerAttackHitTest {
     SEP #$20
@@ -637,7 +637,7 @@ PlayerAttackHitTest {
 
   loc_03BEEE:
     LDA $12
-    BIT #$0001            ; $0001 in $12: set = negative counter $FFEF (recovery, victim keeps moving), clear = positive $0011 (hit-stun, victim frozen)
+    BIT #$0001            ; $0001 in $12: set = $FFEF (negative = recovery), clear = $0011 (positive = hit-stun: non-player actors skip their tick, the player's tick still runs)
     BEQ loc_03BEFE
     LDA #$FFEF
     STA $iframeCounter, X
@@ -683,9 +683,9 @@ PlayerAttackHitTest_End {
 ;   totalStr = playerStr + bonus ($09E2, 0 for hitter slot $1000) + climbStateData
 ;   rawDamage = max(1, totalStr − victimStats[2])   (stats[2] = DEF)
 ;   netDamage = rawDamage + characterForm
-; Subtracts from enemy HP, spawns damage digits (priority $2B00 with $1000 in spawned actor's $12), handles death (onDeathCallback or StandardEnemyDefeatHandler), and spawns HitStaggerMain for knockback.
+; Subtracts from enemy HP, spawns damage digits (spawn flags $2B00, then $12 bit $1000 of the spawned actor is set: the display-filter qualifier that lets it run in RunActors_DisplayFiltered), handles death (onDeathCallback or StandardEnemyDefeatHandler), and spawns HitStaggerMain for knockback.
 ; 
-; After damage: checks and dispatches onHitCallback ($7F1000,X). Assigns iframes ($0011 or $FFEF). Updates HUD HP display. Finally checks extendedFlags $0050 for collision callback processing — clears $FFAF bits, toggles $6000 in $12, and dispatches onCollideCallback.
+; After damage: checks and dispatches onHitCallback ($7F1000,X). Assigns iframeCounter: $FFEF (negative = recovery: counts up toward zero, the tick still runs) when $12 bit 0 ($0001) is set, otherwise $0011 (positive = hit-stun: non-player actors skip their tick, the player's tick still runs). Updates HUD HP display. Finally checks extendedFlags $0050 for collision callback processing — clears $FFAF bits, toggles $6000 in $12, and dispatches onCollideCallback.
 
 ApplyHitDamageToVictim {
     SEP #$20
@@ -748,7 +748,7 @@ ApplyHitDamageToVictim {
 ---------------------------------------------
 ; Second half of ApplyHitDamageToVictim. Its first two instructions (TXY, RTS) are the landing pad of the PEA label−1 RTS trick that finishes the push/knockback path of the handler (Y = X on return). The rest of the part, entered at loc_03BF86 when $24 is zero, is the combat-damage path: totalStr = playerStr + bonus + climbStateData, rawDamage = max(1, totalStr − victim DEF), netDamage = rawDamage + characterForm, victim HP clamped at 0.
 ; 
-; Then it spawns the damage digits (skipped for $12 bit 5 bosses), marks the victim $0080, resolves death inline (onDeathCallback or StandardEnemyDefeatHandler) or spawns HitStaggerMain, dispatches and clears onHitCallback, sets the iframe counter ($FFEF or $0011), plays hit sound #05, updates the HUD HP registers and finally handles the onCollideCallback of the attacker. A player with the invincible flag ($10 bit 4) is diverted to HitInvincibleVictim.
+; Then it spawns the damage digits (skipped for $12 bit 5 bosses), marks the victim $0080, resolves death inline (onDeathCallback or StandardEnemyDefeatHandler) or spawns HitStaggerMain, dispatches and clears onHitCallback, sets iframeCounter ($FFEF = negative = recovery when $12 bit 0 ($0001) is set, otherwise $0011 = positive = hit-stun: non-player actors skip their tick, the player's tick still runs), plays hit sound #05, updates the HUD HP registers and finally handles the onCollideCallback of the attacker. A player with the invincible flag ($10 bit 4) is diverted to HitInvincibleVictim.
 
 ApplyHitDamageToVictim_DamagePath {
     TXY 
@@ -818,7 +818,7 @@ ApplyHitDamageToVictim_DamagePath {
     JSR $&FormatDamageDigits
     BCS loc_03C01E
     PHA 
-    COP [SpawnListAppend] ( @SpawnDamageNumberEffect, #00, #00, #$2B00 ) ; Spawn damage number at $2B00 priority; set $1000 display flag
+    COP [SpawnListAppend] ( @SpawnDamageNumberEffect, #00, #00, #$2B00 ) ; Spawn damage number with spawn flags $2B00; $12 bit $1000 (display-filter qualifier) is set on the spawned actor below
     LDA $0012, Y
     ORA #$1000
     STA $0012, Y
@@ -902,7 +902,7 @@ ApplyHitDamageToVictim_DamagePath {
     NOP 
 
   loc_03C0AE:
-    LDA $12               ; $0001 in $12: recovery ($FFEF) vs invincibility ($0011) iframes
+    LDA $12               ; $0001 in $12: set = $FFEF (negative = recovery), clear = $0011 (positive = hit-stun: non-player actors skip their tick, the player's tick still runs)
     BIT #$0001
     BEQ loc_03C0BE
     LDA #$FFEF
@@ -1404,9 +1404,9 @@ InteractionCollision_FriendlyMode {
 ; 
 ; If the target has $0020 flag (NPC/friendly), routes to InteractionDamage_NPCChat for dialogue handling.
 ; 
-; For combat actors: computes the interaction hitbox center (with H-mirror), loads enemy attack power from stats table offset 1. Damage = max(1, enemyAtk − playerDef). Subtracts from playerHp (clamped to 0). Sets $0080 (iframe) flag, assigns 60-frame ($003C) iframe counter.
+; For combat actors: computes the interaction hitbox center (with H-mirror), loads enemy attack power from stats table offset 1. Damage = max(1, enemyAtk − playerDef). Subtracts from playerHp (clamped to 0). Sets the $0080 (iframe) flag and assigns iframeCounter $003C (60; positive = hit-stun: non-player actors skip their tick, the player's tick still runs), longer than the $0011 that combat assigns.
 ; 
-; If playerFlags bits 11|12 ($1800) are clear (no script/ability lock and not on a slope): spawns HitStaggerMain ($2400 priority), copies extendedFlags $0020 to the stagger actor, masks joypad ($0F00), computes knockback direction via CalcKnockbackFromActorCenters.
+; If playerFlags bits 11|12 ($1800) are clear (no script/ability lock and not on a slope): spawns HitStaggerMain (spawn flags $2400), copies extendedFlags $0020 to the stagger actor, masks joypad ($0F00), computes knockback direction via CalcKnockbackFromActorCenters.
 ; 
 ; Plays character-form-specific hit sound: Freedan/Shadow = #08, Will = #07.
 
@@ -1504,7 +1504,7 @@ ApplyInteractionDamage {
     TAX 
     LDA #$0080
     TSB $10
-    LDA #$003C            ; 60-frame iframe ($003C) — longer than combat's 17
+    LDA #$003C            ; $003C = 60: positive = hit-stun counter (non-player actors skip their tick, the player's tick still runs); longer than combat's $0011
     STA $iframeCounter, X
     LDA $playerFlags
     BIT #$1800

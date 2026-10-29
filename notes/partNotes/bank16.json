@@ -13,8 +13,8 @@
     "palette_bundle_strip8_78": "Bundle $78: one strip of 8 frames of 16 colours (size $1F) at colour $41, wait 5.",
     "palette_bundle_will_normal": "Bundle $0B: one frame of 15 colours (size $1D) to colour $81-$8F, wait 0. Will's normal sprite colours. Used by AttackCleanup and by WorldMapController's palette reset.",
     "palette_bundles": "Bundle id -> bundle (128 entries, $00-$7F). Bundles are not sorted by use; several of the early ones are single-frame colour sets, later ones are multi-frame strips.",
-    "palette_padding_16D210": "Empty bundle (only the end byte $00): padding between bundle $77 end byte and its frames. No table entry refers to it (R-I060-4).",
-    "palette_padding_16D211": "Empty bundle (only the end byte $00), second padding byte after bundle $77. No reference (R-I060-4).",
-    "palette_padding_16D317": "Empty bundle (only the end byte $00): padding between bundle $78 end byte and its frames. No reference (R-I060-4).",
-    "palette_padding_16D318": "Empty bundle (only the end byte $00), second padding byte after bundle $78. No reference (R-I060-4)."
+    "palette_padding_16D210": "Empty bundle (only the end byte $00) between the end byte of bundle $77 and its frame array word_16D212. Nothing references it: no table entry or frame pointer points at it. Not established: whether these bytes are padding.",
+    "palette_padding_16D211": "Empty bundle (only the end byte $00), the second such byte after the end byte of bundle $77 (see palette_padding_16D210). Nothing references it.",
+    "palette_padding_16D317": "Empty bundle (only the end byte $00) between the end byte of bundle $78 and its frame array word_16D319. Nothing references it: no table entry or frame pointer points at it. Not established: whether these bytes are padding.",
+    "palette_padding_16D318": "Empty bundle (only the end byte $00), the second such byte after the end byte of bundle $78 (see palette_padding_16D317). Nothing references it."
 }

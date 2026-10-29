@@ -2,20 +2,20 @@
 ; 
 ; === ANIMATIONS ===
 ; 
-; - #00 sprite_set_000004: one frame, hold $3B (60 ticks), sprite_group_000010 = the second logo (Enix): box 122 x 156 px, 35 parts.
-; - #01 sprite_set_00000A: one frame, hold $3B (60 ticks), sprite_group_000112 = the first logo: box 96 x 48 px, 16 parts.
+; - #00 spm_boot_logos_sprite_set_000004: one frame, hold $3B (60 ticks), spm_boot_logos_sprite_group_000010 = the second logo (Enix): box 122 x 156 px, 35 parts.
+; - #01 spm_boot_logos_sprite_set_00000A: one frame, hold $3B (60 ticks), spm_boot_logos_sprite_group_000112 = the first logo: box 96 x 48 px, 16 parts.
 ; 
 ; === FORMAT ===
 ; 
 ; A sprite map file has three layers (same format as the spriteset_* files, see spriteset_freedan):
 ; - Pointer table (the first label): one word per animation index. The engine reads entry $28 of the actor (UpdateActorAnimation: table + 2 x $28), then the frame record $2A x 4 inside that list.
 ; - Sprite-set (frame list): 4-byte records < hold, &sprite_group >, closed by a hidden $FFFF. A frame is shown for hold + 1 ticks.
-; - Sprite-group: 12 header bytes, the part count, then 7-byte sprite-parts. Bytes 0-3 are the X extents (left, right) and Y extents (above, below) of the frame box; UpdateActorAnimation loads them into $18/$1C and $1A/$1E and swaps each pair for a flipped actor. Bytes 4-7 are a tile-unit box (X offset, Y offset, width and height in 16-pixel units) read by PlayerAttackHitTest and the solid-rectangle COP handlers; bytes 8-11 are the body box (X offset, width, Y offset, height in pixels, signed offsets) read by CombatCollision and the interaction collision code.
+; - Sprite-group: 12 header bytes, the part count, then 7-byte sprite-parts. Bytes 0-3 are the X extents (left, right) and Y extents (above, below) of the frame box; UpdateActorAnimation loads them into $18/$1C and $1A/$1E and swaps each pair for a flipped actor. Bytes 4-7 are a tile-unit box (X offset, Y offset, width and height in 16-pixel units) read by PlayerAttackHitTest, the solid-rectangle COP handlers and the tile collision code (tile_collision_physics); bytes 8-11 are the body box (X offset, width, Y offset, height in pixels, signed offsets) read by CombatCollision and the interaction collision code.
 ; - Sprite-part < size, x, x', y, y', tile word >: size 0 = 8 x 8, 1 = 16 x 16 (the OAM size bit); x and y are offsets inside the extent box, x' and y' the offsets used when the actor is H / V flipped (x + x' = box width - part width); the tile word is an OAM word (bit 8 name table, bits 9-11 palette, bits 12-13 priority, $4000 H flip, $8000 V flip) that the engine XORs with the actor's attribute word $0E.
 ; 
 ; === BOXES ===
 ; 
-; Every group of this file carries the engine's default boxes ($F8 $F0 $01 $01 and $F8 $10 $F0 $10): the same eight bytes are in all 85 groups of spm_boot_logos, spm_title_actors, spm_darkspace_sprites and spm_overworld_sprites. A logo has no use for them. The first audit of this file (I055) called these eight bytes 'nothing reads'; they are the two collision boxes (PlayerAttackHitTest, CombatCollision).
+; Every group of this file carries the engine's default boxes ($F8 $F0 $01 $01 and $F8 $10 $F0 $10): the same eight bytes are in all 85 groups of spm_boot_logos, spm_title_actors, spm_darkspace_sprites and spm_overworld_sprites. They are the two collision boxes (PlayerAttackHitTest, CombatCollision, tile_collision_physics).
 ---------------------------------------------
 
 ---------------------------------------------

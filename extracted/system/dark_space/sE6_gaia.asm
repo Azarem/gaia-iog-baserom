@@ -29,6 +29,8 @@
 ; 
 ; No reference was found in extracted/ for: DS_AuraItemRoom and its handlers, AuraItemInteraction and its helpers (with dialogstring_08EFEF / 08F003 / 08F060), DarkSpaceAmbientParticle, the code at loc_08DA6B / loc_08DA77 (after an unconditional BRA), and the unused hint strings dialogstring_08DEC6, 08E066, 08E0C7, 08E109, 08E19C, 08E261, 08E2B9 and 08E615.
 ; 
+; For the Aura cluster (DS_AuraItemRoom, AuraItemInteraction, AuraItemGrant, AuraItemInventoryFull, AuraItemReturnToWait, dialogstring_08EFEF / 08F003 / 08F060) 'no reference' means no reference in extracted code. baserom/patches/APUWaitFixes.patch.asm rewrites AuraItemGrant (AuraItemGrant!) and uses AuraItemInventoryFull and dialogstring_08EFEF.
+; 
 ; === CORRECTIONS ===
 ; 
 ; Replaced claims: byte 1 of AbilitySceneTable is an ability bit, not an index with a statue nibble; the continue prompt's Yes / No were described the other way round; $06 is the voice sparkle, not the Gaia NPC, and $24 is its voice switch; 'Unmask D-pad and face buttons' ($0F00) is the D-pad only; hpToHeal 40 is a heal request (not 'damage flash ticks'); warpDestX / warpDestY and the $0B08-$0B12 values are the player's spawn position and source scene, not a camera; GaiaNpcSprite loops an idle animation (it is not a single frame); the Shadow flag $B4 is set by Neil, not at Ankor Wat; 'spriteset #05 (transformation frames)' is player body entry #05 and the 'transformation spriteset' of the exit effect is spriteset_pickups_effects; Transform_ShadowToFreedan uses SetEntryHereAndYield, not SetEntryExit.
@@ -516,7 +518,7 @@ DS_LayoutSpecial {
 }
 
 ---------------------------------------------
-; Not referenced: alternate room with BG changes $8B, $8F, $89, $8A and an AuraItemInteraction actor at ($C0, $78); zones Gaia, left statue (to Shadow) and exit. Layout 3 reaches the Aura item through GaiaHint_AuraItem instead.
+; No reference in extracted code: alternate room with BG changes $8B, $8F, $89, $8A and an AuraItemInteraction actor at ($C0, $78); zones Gaia, left statue (to Shadow) and exit. Layout 3 reaches the Aura item through GaiaHint_AuraItem instead.
 
 DS_AuraItemRoom {
     COP [StageBgChange] ( #8B )
@@ -1443,7 +1445,7 @@ dialogstring_08EDF2 `The Aura Barrier is a [N]Dark Power that can only [N]be use
 dialogstring_08EE8B `The Earthquaker is a[N]Dark Power that can only[N]be used by Freedan,[N]the Dark Knight.[FIN]This causes earthquakes.[N]The enemy won't be able[N]to move for a long time.[FIN]Push the Attack Button [N]when jumping down. `
 ---------------------------------------------
 
-; Not referenced (only spawned by DS_AuraItemRoom): an Aura item pickup at the Shadow statue. Dies if the player has item $24, otherwise waits at zone (B,A)-(D,B).
+; No reference in extracted code except its spawn in DS_AuraItemRoom (itself unreferenced): an Aura item pickup at the Shadow statue. Dies if the player has item $24, otherwise waits at zone (B,A)-(D,B).
 
 AuraItemInteraction {
     COP [BranchIfHasItem] ( #24, &AuraItemDie ) ; Already have Aura? → die
@@ -1462,7 +1464,7 @@ AuraItemInteraction {
 }
 
 ---------------------------------------------
-; Not referenced: gives item $24 (or AuraItemInventoryFull), flies the item to the player, music track $17 and the 'You have the Aura!' text.
+; No reference in extracted code; baserom/patches/APUWaitFixes.patch.asm rewrites AuraItemGrant (AuraItemGrant!) and uses AuraItemInventoryFull and dialogstring_08EFEF. The extracted block gives item $24 (or branches to AuraItemInventoryFull), flies the item to the player, plays music track $17 and shows the 'You have the Aura!' text.
 
 AuraItemGrant {
     LDA #$FFFC
@@ -1520,7 +1522,7 @@ AuraItemDie {
 }
 
 ---------------------------------------------
-; Not referenced: 'Your inventory is full' text.
+; No reference in extracted code; baserom/patches/APUWaitFixes.patch.asm uses this label in its rewrite of AuraItemGrant. 'Your inventory is full' text.
 
 AuraItemInventoryFull {
     LDA #$0800
@@ -1543,6 +1545,9 @@ AuraItemInventoryFull {
 AuraItemReturnToWait {
     RTL 
 }
+
+---------------------------------------------
+; Used by AuraItemGrant (unreferenced in extracted code) and by the rewrite of AuraItemGrant in baserom/patches/APUWaitFixes.patch.asm. Text: 'You have the Aura!'.
 
 dialogstring_08EFEF `[DEF][DLY:9]You have the Aura![FIN]`
 

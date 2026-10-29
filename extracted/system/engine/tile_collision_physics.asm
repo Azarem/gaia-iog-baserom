@@ -29,7 +29,7 @@
 ; - High nibble ($F0): nonzero = immediately solid (wall)
 ; - Low nibble ($0F): tile type for dispatch table (0 = passable/check-adjacent, 1–F = solid)
 ; 
-; The map is stored as 256-byte pages of 16×16 tiles (a tile is 16×16 pixels). CalcTileMapOffset builds the offset as: high byte = page = (tileY >> 4) × mapRowStrideL0 ($0693) + (tileX >> 4); low byte = (tileY & $F) << 4 | (tileX & $F). So +$10 in the low byte steps one tile DOWN (+Y) and +1 steps one tile RIGHT (+X). AdvanceTileOffsetY actually steps +Y and AdvanceTileOffsetX steps +X: the names are swapped relative to their behavior (rename proposed).
+; The map is stored as 256-byte pages of 16×16 tiles (a tile is 16×16 pixels). CalcTileMapOffset builds the offset as: high byte = page = (tileY >> 4) × mapRowStrideL0 ($0693) + (tileX >> 4); low byte = (tileY & $F) << 4 | (tileX & $F). So +$10 in the low byte steps one tile DOWN (+Y) and +1 steps one tile RIGHT (+X).
 ; 
 ; === HITBOX DATA ===
 ; 
@@ -54,7 +54,7 @@
 ; CheckActorOnSpecialTile probes (actorX − 8, actorY − 16) for two tile patterns:
 ; - Type $06 at the probe tile and at the diagonal (+X,+Y) neighbor
 ; - Type $00 at the probe tile with type $09 at both the right (+X) and the below (+Y) neighbor (L-pattern)
-; When a pattern matches, the axis routine returns carry set immediately — the axis movement is dropped without snapping and without setting the solid-contact flag ($10 bit 2). What tile types $06/$09 represent is not decoded (audit OQ-16).
+; When a pattern matches, the axis routine returns carry set immediately — the axis movement is dropped without snapping and without setting the solid-contact flag ($10 bit 2). Collision types $06 and $09 are not traced to a purpose.
 ---------------------------------------------
 
 ?BANK 03

@@ -41,7 +41,7 @@
 Layer1DriftUnbounded [
   actor-def < #00, #00, #2C, {
 
-; Init: $12 |= $1000 (display / overlay-active qualifier), decode the spawn X byte into $2C, then the Y byte (minus 1) into $2E, zero the offsets and the layer-1 scroll state, WaitByte 1, then the per-frame integration; the RTL ends each frame.
+; Init: $12 |= $1000 (display / overlay-active qualifier), decode the spawn X byte into $2C, then the Y byte (minus 1) into $2E, zero the offsets and the layer-1 scroll state, WaitByte #01 (2 ticks), then the per-frame integration; the RTL ends each frame.
 
   code_00E8DA:
     LDA #$1000

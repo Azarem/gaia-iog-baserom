@@ -103,7 +103,7 @@ ramp_east [
     RTL                   ; Player 16 or more pixels east of the ramp: wait
 
   loc_00D30A:
-    BPL loc_00D310
+    BPL loc_00D310        ; Dead branch: the BMI above was taken, so N is still set here and this BPL is never taken; the EOR / INC below always runs
     EOR #$FFFF
     INC 
 
@@ -262,7 +262,7 @@ ramp_north [
     RTL                   ; 16 or more pixels south of the ramp: wait
 
   loc_00D3EA:
-    BPL loc_00D3F0
+    BPL loc_00D3F0        ; Dead branch: the BMI above was taken, so N is still set here and this BPL is never taken; the EOR / INC below always runs
     EOR #$FFFF
     INC 
 

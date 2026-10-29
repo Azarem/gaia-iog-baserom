@@ -3,7 +3,7 @@
 ; Script sites: SetPlayerSpriteDirect 24, StagePlayerSprite 93, StagePlayerMoveX 2, MoveY 21, MoveXY 9, RunPlayerAnim 8, StagePlayerSprFromDP 8 (all in forced_walk). StagePlayerSprWall and WallAnimHere/North/South have no script sites.
 ; 
 ; === Body table ===
-; SetPlayerSpriteDirect takes an index into the 6-byte body_table entries (word spriteset pointer, bank byte, ...): 0 Will ($95), 1 Freedan ($8E), 2 and 3 Shadow ($94), 4 will_alt ($8F), 5 ability_fx ($8F), 6 freedan_fx ($97), 7 shadow_fx ($97), 8 shadow_mode ($97). It writes spritesetPtr ($7F0006), the bank byte ($7F0008), the table offset into animScratch2 ($7F000E, read by the sprite decomposer while playerFlags bit 15 is set) and the raw index into $0AC8, then sets playerFlags $8000. It does NOT stage an animation: no $28/$2A change. $7F0008 is polymorphic (sprite bank for sprite actors, amplitude for HDMA sine thinkers).
+; SetPlayerSpriteDirect takes an index into the 6-byte body_table entries (word spriteset pointer, bank byte, ...): 0 Will ($95), 1 Freedan ($8E), 2 and 3 Shadow ($94), 4 spriteset_will_abilities ($8F), 5 spriteset_transform_poses ($8F), 6 spriteset_freedan_fx ($97), 7 spriteset_shadow_fx ($97), 8 spriteset_shadow_aura_body ($97). It writes spritesetPtr ($7F0006), the bank byte ($7F0008), the table offset into animScratch2 ($7F000E, read by the sprite decomposer while playerFlags bit 15 is set) and the raw index into $0AC8, then sets playerFlags $8000. It does NOT stage an animation: no $28/$2A change. $7F0008 is polymorphic (sprite bank for sprite actors, amplitude for HDMA sine thinkers).
 ; The StagePlayerSprite family calls SetActorBody instead, which picks the body from characterForm, so one script works for Will, Freedan and Shadow.
 ; 
 ; === Staging ===
@@ -30,12 +30,12 @@
 
 ---------------------------------------------
 
-; COP #8E with one byte operand (body_table index 0-8). Writes spritesetPtr ($7F0006) and the bank byte ($7F0008) from the 6-byte body_table entry, caches index x 6 in animScratch2 ($7F000E) and the raw index in $0AC8, and sets playerFlags $8000. Does not touch the animation index or frame counter. 24 sites (the Psycho Slider code uses #04 = will_alt).
+; COP #8E with one byte operand (body_table index 0-8). Writes spritesetPtr ($7F0006) and the bank byte ($7F0008) from the 6-byte body_table entry, caches index x 6 in animScratch2 ($7F000E) and the raw index in $0AC8, and sets playerFlags $8000. Does not touch the animation index or frame counter. 24 sites (the Psycho Slider code uses #04 = spriteset_will_abilities).
 
 SetPlayerSpriteDirect {
     TYX 
     SEP #$20              ; 8-bit mode for byte operand read and body_table index math
-    LDA [$0A]             ; Operand: body_table index (0 Will, 1 Freedan, 2-3 Shadow, 4 will_alt, 5 ability_fx, 6 freedan_fx, 7 shadow_fx, 8 shadow_mode)
+    LDA [$0A]             ; Operand: body_table index 0-8 (row names are listed in the block note, section Body table)
     STA $0AC8             ; Cache raw index in $0AC8 for external reference
     ASL                   ; Index ×6: ASL(×2) + ADC self(×3) + ASL(×6) — 6 bytes per body_table entry
     CLC 
@@ -49,7 +49,7 @@ SetPlayerSpriteDirect {
     STA $spritesetPtr, X  ; Write to actor spritesetPtr ($7F0006)
     LDA $&body_table+2, Y ; Load bank byte from body_table[index]+2
     AND #$00FF
-    STA $7F0008, X        ; Bank byte ($7F0008): $8F will_alt / ability_fx, $95 Will, $8E Freedan, $94 Shadow, $97 effect bodies
+    STA $7F0008, X        ; Bank byte ($7F0008): $8F rows 4-5 (spriteset_will_abilities, spriteset_transform_poses), $95 Will, $8E Freedan, $94 Shadow, $97 rows 6-8
     LDA #$8000            ; Set playerFlags $8000 (player sprite was directly overridden)
     TSB $playerFlags      ; playerFlags bit 15 = sprite override; SetActorBody (every StagePlayerSprite* op) clears it again. This op stages no animation
     INC $0A

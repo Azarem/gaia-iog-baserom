@@ -1,4 +1,4 @@
-; Attack ability damage tables (Bank 01, 121255-121278): one table per player form, three abilities each. Despite the old name and header they hold no animation, sprite-frame or hitbox data: each record is { word $0000, word pointer to the ability's upgrade-level word in WRAM, one damage byte per upgrade level }.
+; Attack ability damage tables (Bank 01, 121255-121303): one table per player form, three abilities each. Each record is { word $0000, word pointer to the ability's upgrade-level word in WRAM, one damage byte per upgrade level }; the tables hold no animation, sprite-frame or hitbox data.
 ; 
 ; LoadAbilityDamageA (Will, will_ability_damage_table) and LoadAbilityDamageB (Freedan, freedan_ability_damage_table) in attack_ability_system take the ability index in A, follow the table pointer to the record, read the level from the WRAM word the record points to, and store record[4 + level] in climbStateData ($09E0 for Will, $09E2 for Freedan). combat_collision adds that value to the hit strength.
 ; 
@@ -11,9 +11,7 @@
 ; | Freedan | 1 Aura Barrier | $0B1E | 5 / 9 |
 ; | Freedan | 2 Earthquaker | $0B20 | 0 / 7 |
 ; 
-; The level word is written by the jeweler_gem rewards (Psycho Dash level 1 at 20 jewels, Dark Friar level 2 at 30) and read by the ability code. The first word of every record is $0000 and no code reads it (OQ-I062-2). Dark Friar is the only 7-byte record (three levels); the other five are 6 bytes.
-; 
-; Checked: all six records decoded byte by byte against both loaders (attack_ability_system lines 1628-1672) and against the table note in attack_ability_system and the jeweler_gem rewards. The values as damage bonuses come from those notes; not traced at runtime (UNVERIFIED-RUNTIME).
+; The level word is written by the jeweler_gem rewards (Psycho Dash level 1 at 20 jewels, Dark Friar level 2 at 30) and, for Dark Friar level 1, by eu97_dark_medicine (it stores $0B1C = 1 when the level is not already 2); the ability code reads it. The other four level words ($0B18, $0B1A, $0B1E, $0B20) have no direct STA in extracted/; not traced: how they get their values. The first word of every record is $0000 and no code reads it. Dark Friar is the only 7-byte record (three levels); the other five are 6 bytes.
 ---------------------------------------------
 
 ?BANK 01

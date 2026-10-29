@@ -2,7 +2,7 @@
 ; 
 ; CopDispatch is a 24-byte native-mode entry reached from the COP interrupt vector (CopVector → JML CopDispatch). The byte after the COP opcode ($02) is the handler opcode (the pushed PC − 1). The dispatcher caches the bank in $0C and the operand pointer in $0A, doubles the opcode and jumps through cop_dispatch_table.
 ; 
-; The table has 227 word entries: 209 valid opcodes ($00–$6D and $80–$E2) pointing at short-address handler labels, and an 18-entry gap of #$0000 for $6E–$7F that would jump to address 0 (RAM) if executed. cop_table_sentinel follows the table; it is not a real guard (see its note). All 209 table ids match db-us/copdef.json ids, but 19 handler labels differ from the script-side copdef names (listed in the table note).
+; The table has 227 word entries: 209 valid opcodes ($00–$6D and $80–$E2) pointing at short-address handler labels, and an 18-entry gap of #$0000 for $6E–$7F that would jump to address 0 (RAM) if executed. cop_table_sentinel follows the table; it is not a real guard (see its note). All 209 table ids match db-us/copdef.json ids, and every handler label is spelled the same as the copdef name of its id.
 ; 
 ; Every actor and thinker script routes through this dispatcher. Handlers receive the actor slot in X and Y (and D), DBR = $81 and the operand pointer in $0A. They exit with RTI (continue or branch, new PC stored at $02,S) or RTL after popping the COP frame (yield or halt).
 ; 
@@ -65,9 +65,7 @@ CopDispatch {
 }
 
 ---------------------------------------------
-; 227-entry handler pointer table: COP opcodes $00–$6D and $80–$E2 (209 valid, ids match copdef.json) to short-address handler labels in 30 handler blocks. Opcodes $6E–$7F are an 18-entry #$0000 gap.
-; 
-; Handler labels that differ from the copdef script names: $1A–$1E BranchIfType* = BranchIfSolidType*; $80–$87 StageSpriteFrame* = StageSprite* (Frame, MoveX/Y/XY, Loop, LoopMoveX/Y/XY); $8F–$92 StagePlayerSprite/MoveX/MoveY/MoveXY = StagePlayerSprite and StagePlayerMoveX/Y/XY; $B6/$B7 SetSpritePriority/SetSpritePalette = SetSpritePriority/SetSpritePalette.
+; 227-entry handler pointer table: COP opcodes $00–$6D and $80–$E2 (209 valid; ids and handler label names match copdef.json) to short-address handler labels in 30 handler blocks. Opcodes $6E–$7F are an 18-entry #$0000 gap.
 
 cop_dispatch_table [
   &cop_handlers_hdma_dma.GenHdmaSine   ;00

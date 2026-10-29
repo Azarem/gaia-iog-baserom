@@ -1,4 +1,4 @@
-; Camera pan step lists of the forced-walk warps (Bank 01, 108894-109278): 16 word pointers ($00-$0F) to 16 lists that set the speed profile of the camera pan during a forced walk. The old note ('animation frame sequences', 'pairs of sprite frame index + movement step', 'direction-indexed') was wrong: the lists hold no sprite frames and are not indexed by direction.
+; Camera pan step lists of the forced-walk warps (Bank 01, 108894-109277): 16 word pointers ($00-$0F) to 16 lists that set the speed profile of the camera pan during a forced walk.
 ; 
 ; === WHO READS IT ===
 ; 
@@ -21,7 +21,7 @@
 ; | $06 | 8 px x 25 | 304 | $0E | 8 px x 53 | 528 |
 ; | $07 | 8 px x 27 | 320 | $0F | 12 px x 42 | 784 |
 ; 
-; The sums are hand-computed from the bytes. Which warp uses which list was not traced (OQ-I064-1).
+; Not traced: which warp uses which list.
 ---------------------------------------------
 
 ?BANK 01

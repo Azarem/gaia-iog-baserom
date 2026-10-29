@@ -6,7 +6,7 @@
 ; - A bundle is a list of 6-byte sub-entries, palette-bundle < N, &frames, dest, size, wait >, ended by a hidden 0 byte: N = number of frames in the strip (0 ends the bundle); &frames = address of the first frame; dest = first CGRAM colour index (the colours go to the staging buffer $7F0A00 + 2 x index); size = bytes per frame minus one ($0D = 7 colours, $0F = 8, $1D = 15, $1F = 16, $03 = 2, $02 = a backdrop RGB triplet); wait = extra ticks between frames.
 ; - The word_16xxxx arrays are the frames, stored back to back (BGR555 words), N frames per strip.
 ; 
-; Whole-file counts (not a sample): 132 palette_bundle_ blocks (128 in the table + 4 empty padding bundles, see below), 1,200 sub-entries, 834 frame arrays. The commonest (dest, size) pairs: ($21, $17) 446 times (12 colours at index $21), ($23, $19) 175, ($81, $1D) 143 (15 colours at $81-$8F: the player's sprite colours), ($80, $1F) 39, ($2A, $0B) 25, ($A1, $1D) 24, ($91, $1D) 24.
+; Whole-file counts (not a sample): 132 palette_bundle_ blocks (128 in the table + 4 empty one-byte blocks that no table entry refers to, see the palette_padding_* part notes), 1,200 sub-entries, 834 frame arrays. The commonest (dest, size) pairs: ($21, $17) 446 times (12 colours at index $21), ($23, $19) 175, ($81, $1D) 143 (15 colours at $81-$8F: the player's sprite colours), ($80, $1F) 39, ($2A, $0B) 25, ($A1, $1D) 24, ($91, $1D) 24.
 ; 
 ; Known uses (not all traced): bundles #0B / #0C restore Will's / Freedan's colours ($81-$8F) after the attack tints (attack_ability_system); #2A / #2B / #4B / #2C / #5B are the attack and aura effects; #4A is the Dark Friar flash; ambient_palette_cycler lists the per-scene ambient strips ($30 for scenes 21-23 is a six-strip colour rotation); WorldMapController resets Will's colours with PaletteResetAndKillThinker #0B. What most bundles look like on screen was not traced.
 ---------------------------------------------
@@ -10102,13 +10102,13 @@ palette_bundle_strip8_77 [
 ]
 
 ---------------------------------------------
-; Empty bundle (only the end byte $00): padding between bundle $77 end byte and its frames. No table entry refers to it (R-I060-4).
+; Empty bundle (only the end byte $00) between the end byte of bundle $77 and its frame array word_16D212. Nothing references it: no table entry or frame pointer points at it. Not established: whether these bytes are padding.
 
 palette_padding_16D210 [
 ]
 
 ---------------------------------------------
-; Empty bundle (only the end byte $00), second padding byte after bundle $77. No reference (R-I060-4).
+; Empty bundle (only the end byte $00), the second such byte after the end byte of bundle $77 (see palette_padding_16D210). Nothing references it.
 
 palette_padding_16D211 [
 ]
@@ -10251,13 +10251,13 @@ palette_bundle_strip8_78 [
 ]
 
 ---------------------------------------------
-; Empty bundle (only the end byte $00): padding between bundle $78 end byte and its frames. No reference (R-I060-4).
+; Empty bundle (only the end byte $00) between the end byte of bundle $78 and its frame array word_16D319. Nothing references it: no table entry or frame pointer points at it. Not established: whether these bytes are padding.
 
 palette_padding_16D317 [
 ]
 
 ---------------------------------------------
-; Empty bundle (only the end byte $00), second padding byte after bundle $78. No reference (R-I060-4).
+; Empty bundle (only the end byte $00), the second such byte after the end byte of bundle $78 (see palette_padding_16D317). Nothing references it.
 
 palette_padding_16D318 [
 ]

@@ -2,7 +2,7 @@
 ; 
 ; CheckPlayerDeath has already set playerFlags $0200 (game over) and replaced the player actor's entry point ($00/$02) with GameOverSequence before it calls this routine. This routine then zeroes playerSpeedEw and playerSpeedNs (the player stops moving), zeroes the actor's $08 (the wait counter that the actor runner decrements before running a script, so a pending hold time cannot delay GameOverSequence) and ORs $0200 into the player actor's own flag word $10.
 ; 
-; Two different $0200 bits: playerFlags $0200 = game over, set by the caller before this call (it is what CheckPlayerDeath and GlobalInputHandler test); bit $0200 of the actor's $10, set here, is a different bit. No code that reads the actor bit was found (the Psycho Slider sets and clears the same bit), so the old claim that it "freezes movement" is unverified. docs/wram-memory-map.md lists "$0200 deathFlag, set by StopPlayerOnDeath" as a WRAM address; that entry confuses a bit mask with an address.
+; Two different $0200 bits: playerFlags $0200 = game over, set by the caller before this call (it is what CheckPlayerDeath and GlobalInputHandler test); bit $0200 of the actor's $10, set here, is a different bit. The Psycho Slider sets and clears the same actor bit. The routine writes only playerSpeedEw, playerSpeedNs and the actor's $08 and $10; it never writes playerFlags.
 ---------------------------------------------
 
 !playerSpeedEw                  09B2

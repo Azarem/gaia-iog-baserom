@@ -11,7 +11,7 @@
 ; 
 ; === PAL LOCKOUT ===
 ; 
-; A 50 Hz console never sees a logo: BootLogoPalLockout draws the region warning text (boot_title_strings) on BG3 and then yields forever at SetEntryHere + RTL. The game cannot be started on a PAL console.
+; A 50 Hz console never sees a logo: BootLogoPalLockout draws the region warning text (boot_title_strings) on BG3 and then yields forever at SetEntryHere + RTL. In the unpatched ROM the game cannot be started on a PAL console. The shipped baserom patch baserom/fixes-tweaks/Utils.patch.asm rewrites BootLogoPalLockout! as one BRA BootLogoNtsc, so the JMP in BootLogoInit lands on the NTSC logo path and a PAL console skips the lockout screen (static reading of the patch).
 ; 
 ; === POSITION ===
 ; 
@@ -62,7 +62,7 @@ sFB_boot_logo [
     LDA $STAT78           ; STAT78 ($213F): PPU2 version and refresh rate
     BIT #$10              ; Bit 4: PAL/NTSC detection (1=PAL)
     BEQ BootLogoNtsc      ; NTSC → normal sprite logo sequence
-    JMP $&BootLogoPalLockout ; PAL → text-only boot screen
+    JMP $&BootLogoPalLockout ; PAL -> BootLogoPalLockout (text-only boot screen); the shipped patch makes that entry a BRA to BootLogoNtsc
 
 ; NTSC path. Centres the actor (X +8), then splits on event flag $10: set = second visit (BootLogoSecondPhase); clear = first visit: Y -16, animation #01 for 2 passes, set the flag, reload scene $FB, Die.
 
@@ -91,7 +91,7 @@ BootLogoSecondPhase {
 }
 ---------------------------------------------
 
-; PAL lockout screen. Copies the first 8 colours of pal_ending_comet into staging colours 0 to 7, forces colour 0 to black, draws the region warning (boot_title_strings) on BG3 and sets TM = $04 (BG3 only). The actor then yields every frame at the SetEntryHere / RTL pair and never leaves. Only the warning is drawn: PUSH START and the copyright string belong to the title scene.
+; PAL lockout screen. Copies the first 8 colours of pal_ending_comet into staging colours 0 to 7, forces colour 0 to black, draws the region warning (boot_title_strings) on BG3 and sets TM = $04 (BG3 only). The actor then yields every frame at the SetEntryHere / RTL pair and never leaves. Only the warning is drawn: PUSH START and the copyright string belong to the title scene. The shipped baserom/fixes-tweaks/Utils.patch.asm replaces this block with one BRA BootLogoNtsc, so the shipped ROM skips this screen (static reading of the patch).
 
 BootLogoPalLockout {
     REP #$20

@@ -25,9 +25,9 @@
 ; - hit_stagger_controller: $22 (tier 0, 48 px) and $23 (tier 1 and above, 32 px).
 ; - unused_particle_rain_spawner: indices 3-10.
 ; 
-; The old header said 'simple entries ($00-$11) are single constants' ($11 is a 2-node cycle, $00 a null chain) and that camera scrolling uses the table; no camera code reads it (AnimFrameLookup is called only from the three COP handler files, and the world map sets the camera from the route position).
+; No camera code reads this table (AnimFrameLookup is called only from the three COP handler files, and the world map sets the camera from the route position).
 ; 
-; Checked: table, chain-end counts, node counts and all 85 chain lengths over the whole file; consumers ApplyMovement, AnimFrameLookup, both ReadDirSprite helpers, WorldMapController, hit_stagger_controller, ramps, unused_particle_rain_spawner and the COP handler headers read; SAMPLED 50 of the 85 chains node by node ($00-$17 read or dumped, $18-$27, $36, $37, $3C, $3D, $3F, $4C, $51-$54 dumped; the other 35 are only counted). Not traced at runtime (UNVERIFIED-RUNTIME): that one node is consumed per frame, and what the long curves look like in motion.
+; Not traced: whether ApplyMovement runs exactly once per frame for every actor (the per-frame speeds in this note assume one node per frame).
 ---------------------------------------------
 
 ?BANK 01
@@ -1071,7 +1071,7 @@ delta_node_01B4CC [
 ]
 
 ---------------------------------------------
-; Entry $22: 4 4 5 5 5 5 4 4 3 3 2 2 1 1 0 (15 nodes, 48 pixels, then 0 held). The tier 0 hit stagger knockback (hit_stagger_controller). Verified against the nodes.
+; Entry $22: 4 4 5 5 5 5 4 4 3 3 2 2 1 1 0 (15 nodes, 48 pixels, then 0 held). The tier 0 hit stagger knockback (hit_stagger_controller).
 
 move_chain_22 [
   delta-node < #$0004, &delta_node_01B4D4 >
@@ -2397,7 +2397,7 @@ delta_node_01B9F4 [
 ]
 
 ---------------------------------------------
-; Entry $36: eight 0, then 4 4 7 7 9 9 12 12 (64 pixels out), 0 0, eight -8 (64 pixels back), then 0 held (27 nodes). An out-and-back curve; attack_ability_system names index $36 in its movement notes. Verified against the nodes.
+; Entry $36: eight 0, then 4 4 7 7 9 9 12 12 (64 pixels out), 0 0, eight -8 (64 pixels back), then 0 held (27 nodes). An out-and-back curve; attack_ability_system names index $36 in its movement notes.
 
 move_chain_36 [
   delta-node < #$0000, &delta_node_01B9FC >

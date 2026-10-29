@@ -1,8 +1,8 @@
-; Shared word strings (Bank 01, 125711-125864). 15 console strings that other strings splice in with the text tag [LU:n] (console command $10, ConsoleCmd_InsertSharedWord): the operand byte is the index, and the renderer calls itself on shared_word_table[index]. Each word carries its own trailing space; there is no separator logic.
+; Shared word strings (Bank 01, 125711-125863). 15 console strings that other strings splice in with the text tag [LU:n] (console command $10, ConsoleCmd_InsertSharedWord): the operand byte is the index, and the renderer calls itself on shared_word_table[index]. Each word carries its own trailing space; there is no separator logic.
 ; 
 ; The words are not only item name prefixes: they also serve ability names ('Psycho Dash', 'Dark Friar'), item descriptions ('Restores strength.', 'Letter from Lance.') and the item menu prompts ('Rearrange items.', 'Select item and enter.'). See the table part note for the index list and which indices are used.
 ; 
-; Only the vanilla strings were counted (tables/system_strings, 63 lines carrying 68 tags). The retranslation patches may use other indices.
+; The counts cover the vanilla strings (tables/system_strings, 63 lines carrying 68 tags). The retranslation modules use only the indices $02, $04, $07, $0B and $0C.
 ---------------------------------------------
 
 ---------------------------------------------
@@ -27,7 +27,7 @@
 ; | $0D | Uses | 0 | |
 ; | $0E | from | 7 | 'Melody learned from Lola.' and the other 'obtained from' lines |
 ; 
-; The strings of $00, $03 and $0D exist in the ROM but no vanilla string selects them (OQ-I063-1).
+; The strings of $00, $03 and $0D exist in the ROM but no vanilla string and no retranslation module selects them.
 
 shared_word_table [
   &shared_word_crystal   ;00

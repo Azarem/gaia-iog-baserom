@@ -1,12 +1,12 @@
 ; Psycho Slider glide triggers (Bank 00): five trigger actor-defs (SliderGlideTriggerWest, East, North, South and NorthEntry; 29 actor-spawn records in scene_actors, one more through awB2_stair_climb, which JumpFar's to SliderGlideTriggerNorthMain) plus the helpers LockPlayerForClimb, UnlockPlayerAfterClimb and RestorePlayerControl (the last is also called by three ramp exits in ramps.asm).
 ; 
 ; === What a trigger detects ===
-; A trigger runs every frame in its own slot (D = trigger: $14/$16 = its pixel position, $0E = glide length). Y = the player actor. It fires only while Will is Psycho Sliding (RunAttackNS/RunAttackEW in player_character) through its tile: the player's animation index ($28) must be one of the two looping frames of ONE slide direction, and IsPlayerSliderSpriteBank requires the player's sprite bank ($7F0008) to be $8F, the will_alt spriteset that SetPlayerSpriteDirect #04 selects at the start of every slide.
-; Slide animation indices (will_alt spriteset): south $0C start / $0D loop / $0E finish, north $0F/$10/$11, west $12/$13/$14, east $15/$16/$17 (positive speed = south or east, negative = north or west). The old comments called these 'walk frames' and the bank check a 'walking state'; neither is true.
+; A trigger runs every frame in its own slot (D = trigger: $14/$16 = its pixel position, $0E = glide length). Y = the player actor. It fires only while Will is Psycho Sliding (RunAttackNS/RunAttackEW in player_character) through its tile: the player's animation index ($28) must be one of the two looping frames of ONE slide direction, and IsPlayerSliderSpriteBank requires the player's sprite bank ($7F0008) to be $8F (the bank of spriteset_will_abilities, which RunAttackNS / RunAttackEW select at the start of every slide with SetPlayerSpriteDirect #04).
+; Slide animation indices (spriteset_will_abilities): south $0C start / $0D loop / $0E finish, north $0F/$10/$11, west $12/$13/$14, east $15/$16/$17 (positive speed = south or east, negative = north or west).
 ; Each trigger is named for the slide direction it reacts to: SliderGlideTriggerWest = WEST slide ($12/$13, glide X -4 per frame), SliderGlideTriggerEast = EAST slide ($15/$16, X +4), SliderGlideTriggerNorth = NORTH slide ($0F/$10, Y -4), SliderGlideTriggerSouth = SOUTH slide ($0C/$0D, Y +4). The SliderGlideWest/East/North/South routines move the player the same way the slide was already moving.
 ; 
 ; === Geometry ===
-; Slide axis: exact pixel equality with the trigger (X for the West/East triggers, Y for the North/South triggers). Lateral axis: a 32-pixel window, trigger - 7 .. trigger + $18 inclusive (compare is trigger - 8 < player <= trigger - 8 + $20); the old '+/-$20' wording is wrong.
+; Slide axis: exact pixel equality with the trigger (X for the West/East triggers, Y for the North/South triggers). Lateral axis: a 32-pixel window, trigger - 7 .. trigger + $18 inclusive (compare is trigger - 8 < player <= trigger - 8 + $20).
 ; 
 ; === The glide ===
 ; On a hit the trigger overwrites the player's entry pointer ($00/$02 of the player actor) with the matching SliderGlide routine and calls LockPlayerForClimb: $0E (the spawn record's type byte >> 1, InitActorFromSceneData mode 1) x 4 is stored as a frame countdown in the PLAYER's statsPtr ($7F0020), the player's velocity words are zeroed, D-pad input is masked (joypadMaskStd $0F00) and playerFlags $0800 is set. The player actor then runs that routine: once, $10 |= $2200 ($2000 = script-driven actor path, $0200 = slide-active flag that RunAttackFlagSetup also sets; its reader is unknown) and $10 bit $0008 (collision-aware movement) is cleared; then every frame the player's X or Y is changed by 4 px directly (no collision test) until the countdown reaches 0: 4 x $0E frames = 16 px per $0E unit (a $0E of 0 would run 65,536 frames). There is no animation during the glide; the slide's looping frame stays on screen.
@@ -56,7 +56,7 @@ SliderGlideTriggerWest [
     RTL 
 
   loc_00D0F5:
-    JSR $&IsPlayerSliderSpriteBank ; Player sprite bank must be $8F (will_alt spriteset used by the Psycho Slider); carry set rejects
+    JSR $&IsPlayerSliderSpriteBank ; Player sprite bank must be $8F (body_table rows 4 and 5; the Psycho Slider uses row 4, spriteset_will_abilities); carry set rejects
     BCC loc_00D0FB
     RTL 
 
@@ -253,18 +253,18 @@ SliderGlideTriggerSouth [
 ]
 
 ---------------------------------------------
-; Helper for the triggers: Y = player actor; carry clear when the player's sprite bank byte ($7F0008) is $8F, carry set otherwise. $8F is the bank of the will_alt spriteset (body_table entries 4 and 5), which the Psycho Slider selects with SetPlayerSpriteDirect #04; the normal Will spriteset is bank $95. It is not a 'move state'.
+; Helper for the triggers: Y = player actor; carry clear when the player's sprite bank byte ($7F0008) is $8F, carry set otherwise. $8F is the bank shared by body_table rows 4 (spriteset_will_abilities) and 5 (spriteset_transform_poses), so the test does not tell the two apart; the Psycho Slider selects row 4 with SetPlayerSpriteDirect #04, and only sE6_gaia selects row 5. The normal Will spriteset is bank $95.
 
 IsPlayerSliderSpriteBank {
     PHX                   ; Y = player actor (set by the trigger). Only the sprite BANK is tested, not a move state
     TYX 
     SEP #$20              ; Switch to 8-bit A for single-byte state comparison
     LDA $7F0008, X        ; $7F0008 = bank byte of the player's spriteset pointer ($7F0006)
-    CMP #$8F              ; $8F = will_alt spriteset (body_table 4 = Psycho Slider poses, 5 = ability poses); normal Will is bank $95
+    CMP #$8F              ; $8F = bank of body_table row 4 (spriteset_will_abilities) and row 5 (spriteset_transform_poses, sE6_gaia only); normal Will is $95
     REP #$20
     BEQ loc_00D215
     PLX 
-    SEC                   ; Carry set = reject (not in the will_alt spriteset)
+    SEC                   ; Carry set = reject (bank is not $8F)
     RTS 
 
   loc_00D215:
@@ -295,7 +295,7 @@ SliderGlideWest {
   loc_00D238:
     LDA #$2000            ; Glide finished: leave script-driven mode, then pose the finish frame of the west slide
     TRB $10
-    COP [StageSpriteFrame] ( #14 ) ; $14 = finish frame of the west Psycho Slide (will_alt spriteset)
+    COP [StageSpriteFrame] ( #14 ) ; $14 = finish frame of the west Psycho Slide (spriteset_will_abilities)
     COP [AnimOnce]
     JSR $&UnlockPlayerAfterClimb
     RTL 

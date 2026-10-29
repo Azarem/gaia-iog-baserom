@@ -3,8 +3,8 @@
 ; === FLOW ===
 ; 
 ; 1. Kill counters (StandardEnemyDefeatHandler). Skipped when statsPtr points at the first enemy_stats_table entry (an EnemyInitBasic actor: HP 1, no stats) or extendedFlags bit $0080 (the boss bit). Otherwise enemiesRemainingBcd ($0AEE) -= 1 in decimal mode, enemiesRemaining ($0AEC) -= 1 in hex, and the new count is also kept in orbitAngle ($7F0010,X): 0 means this was the last enemy on the map.
-; 2. Flash (EnemyDefeatFlashAndDrop). Movement is halted ($2C / $2E and moveScratch1 / 2 := 0), SFX #06 plays on channel 1 and EnemyDeathFlash is spawned at the enemy (flags $0302; bit $0002 draws it in front of every actor). The flash gets $12 bit $1000 (CopyActorState clears it) so that it keeps running in display-filter actor mode, then WaitByte 2.
-; 3. No-stats and boss actors go to EnemyDefeatBossCleanup: hide ($10 |= $2000), ClearSolidHere if extendedFlags $0008, WaitByte 5, Die. They get no kill flag, gem drop or reward.
+; 2. Flash (EnemyDefeatFlashAndDrop). Movement is halted ($2C / $2E and moveScratch1 / 2 := 0), SFX #06 plays on channel 1 and EnemyDeathFlash is spawned at the enemy (flags $0302; bit $0002 draws it in front of every actor). The flash gets $12 bit $1000 (CopyActorState clears it) so that it keeps running in display-filter actor mode, then WaitByte #02 (3 ticks).
+; 3. No-stats and boss actors go to EnemyDefeatBossCleanup: WaitByte #02 (3 ticks), hide ($10 |= $2000), ClearSolidHere if extendedFlags $0008, WaitByte #05 (6 ticks), Die. They get no kill flag, gem drop or reward.
 ; 4. Other enemies: SetDungeonKillFlag (the enemyNum bit in wramFlags, so the enemy stays dead on re-entry), then the gem decision, hide ($10 |= $2000), ClearSolidHere if extendedFlags $0008, the field reveal, and finally Die when enemies remain or EnemyStatBonusReward when this was the last one.
 ;    Gem decision: TestFlag_0300 (event flag $0300 + scene = this scene's clear reward was already claimed) set, or orbitAngle nonzero (enemies remain): drop a gem when the stats byte +3 (gemDropType) is nonzero, through EnemyGemDropRouter. Last enemy with the reward still unclaimed: no gem, the stat reward replaces it.
 ;    Field reveal: deathActionIdx ($7F0024,X) nonzero and event flag $0100 + idx still clear: set it and spawn SpawnFieldRevealEffect (flags $0342, with $12 $1000), handing it the index.
@@ -63,7 +63,7 @@ StandardEnemyDefeatHandler {
 }
 
 ---------------------------------------------
-; Common start of the defeat (also entered directly by ir20_statue and ir26_statue and by the fall-through above): stop the actor, SFX #06, spawn EnemyDeathFlash, WaitByte 2, then boss / no-stats actors go to EnemyDefeatBossCleanup and the rest continue with the kill flag and the gem decision. orbitAngle is meaningful only on the counted path.
+; Common start of the defeat (also entered directly by ir20_statue and ir26_statue and by the fall-through above): stop the actor, SFX #06, spawn EnemyDeathFlash, WaitByte #02 (3 ticks), then boss / no-stats actors go to EnemyDefeatBossCleanup and the rest continue with the kill flag and the gem decision. orbitAngle is meaningful only on the counted path.
 
 EnemyDefeatFlashAndDrop {
     LDA #$0000            ; Halt movement: $2C / $2E and moveScratch1 / 2 := 0

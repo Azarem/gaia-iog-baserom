@@ -4,7 +4,7 @@
 ; 
 ; === WHAT DIFFERS FROM THE FREEDAN TABLE (same indices, other frame counts) ===
 ; 
-; - Idle $00-$07 and $10-$17 are one frame with hold 9 (10 ticks). The player scripts stage $10-$13 for Shadow only; they use groups of their own (for example $00 shows sprite_group_148544, $10 shows sprite_group_14857B).
+; - Idle $00-$07 and $10-$17 are one frame with hold 9 (10 ticks). StagePlayerSprite stages $10-$13 only on the '...Shadow' branches of the per-scene flag byte #00 test (the four IdleStand*Shadow labels of player_character, player_transition_handlers.PlayerIdleUseShadowSprite) and in sF7_credits_player (#11, #12); the Psycho Slider also stages #10-#13 (and #0C-#17 in all), but after SetPlayerSpriteDirect #04, so against spriteset_will_abilities, not this table. These indices use groups of their own (for example $00 shows sprite_group_148544, $10 shows sprite_group_14857B).
 ; - Walk $08-$0F is 6 frames of hold 7 (Freedan 4 frames).
 ; - Climb poses: the vine cycle $19-$1B, the ladder idles $2A-$2B and $2E-$2F and the detach poses $30-$31 and $34-$35 are one-frame lists (Freedan: 4 frames each); the ladder move $2C-$2D and the shimmy $32-$33 are 6 frames (holds 7, 3, 3, 7, 3, 3; Freedan 20 and 5); $18 is 4 frames (holds 9, 6, 4, 9). Other lists: $1C is 11 frames (holds 0, 1, 2, 3, 4, 1, 2, 3, 2, 1, 0), $1D-$25 are one frame each, $26-$29 are 4 frames.
 ; - Melee attack $36-$39 is 7 frames (holds 3, 2, 1, 0, 0, 1, 2 = 16 ticks), the same frame count as Freedan; guard $3A-$3D is 8 frames of hold 0 (Freedan 4); $42-$43 and $48-$49 are 7 frames, $44-$47 and $4A-$4B one frame of hold 0.

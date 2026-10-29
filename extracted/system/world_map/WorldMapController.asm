@@ -34,7 +34,7 @@
 ; === TIMELINE ===
 ; 
 ; 1. WorldMapController (WorldMapControllerEntry): characterForm := 0, two palette-reset thinkers (bundle $0B: Will's normal sprite colours, CGRAM $81-$8F), ClearAllWramFlags, mask the buttons, spawn ArrivalAndTravelSetup as a child (flags $3800). With no choice id it dies here; otherwise it gives the child animScratch2 |= $0804, saves DeferSceneTransition with SetSavedPtr and runs world_map_options[choice & $1F] (menu and handler).
-; 2. ArrivalAndTravelSetup, 44 ticks: places itself (the leader's dot) at the start position, centres the camera, then each tick adds the TickGravity delta (always negative: -$20 rising to about -2) to $B8. The divisor falls from $0400 to about $34 (hand-computed), a zoom-out from 8x in to a wide view.
+; 2. ArrivalAndTravelSetup, 44 passes of a loop that yields twice per pass (SetEntryHereAndYield, then the non-final LoopEnd): 2 ticks per pass, about 88 ticks. It places itself (the leader's dot) at the start position, centres the camera, then each pass adds the TickGravity delta (always negative: -$20 rising to about -2) to $B8. The divisor falls from $0400 to about $34 (hand-computed), a zoom-out from 8x in to a wide view.
 ; 3. Menu trips only: wait 16 ticks (WaitByte #0F), spawn WorldMapSplitEffect, then poll $0D5A every frame (RTL = try again next frame) while the menu is open. Choosing Quit leaves it at 0: the handler has already queued the scene you came from and DeferSceneTransition just dies, so this actor idles until the scene changes.
 ; 4. Tilt phase (TiltPhaseStart), 93 ticks: shows the start-area name (see world_map_scene_names), adds the TickGravity delta ((t * (t >> 1)) >> 7, growing) to $B6 and 1 to $B8. $B6 ends at about $03F0, so the flat map tilts into a strong perspective view. Then the name is cleared ($00DA := 0).
 ; 5. Companion dots: the party array is scanned from $0D62, N companions pick entry N of companion_formation_tables, and one CompanionDotMovement actor per companion is spawned. RouteAnimationEngine is spawned and this actor becomes the leader's dot.
@@ -147,7 +147,7 @@ DeferSceneTransition {
 }
 
 ---------------------------------------------
-; Child actor (flags $3800, script-driven). Phases: 44-tick zoom-out ($B8 falls), for a menu trip a 16-tick wait + WorldMapSplitEffect + wait for the player's route, the 93-tick tilt phase with the start name ($B6 grows), then the companion dots. It finally becomes the leader's dot through the shared loop in CompanionDotMovement and dies when the route ends.
+; Child actor (flags $3800, script-driven). Phases: a zoom-out of 44 passes at 2 ticks per pass (about 88 ticks; $B8 falls), for a menu trip a 16-tick wait + WorldMapSplitEffect + wait for the player's route, the 93-tick tilt phase with the start name ($B6 grows), then the companion dots. It finally becomes the leader's dot through the shared loop in CompanionDotMovement and dies when the route ends.
 
 ArrivalAndTravelSetup {
     LDA $worldMapPlayerX  ; Load initial player X from $0D54 → sprite X ($14)
@@ -160,15 +160,15 @@ ArrivalAndTravelSetup {
     SEC 
     SBC #$0070            ; Camera target Y = player Y − $70 (center 224px screen)
     STA $cameraTargetY
-    COP [InitGravity] ( #20, #05, #00 ) ; v0 = $20, shift 5: tick delta = ((t * (t >> 1)) >> 5) - $20, negative for all 44 ticks (sum about -970)
-    COP [LoopStart] ( #2C ) ; 44 ticks of zoom-out, one yield per tick
+    COP [InitGravity] ( #20, #05, #00 ) ; v0 = $20, shift 5: delta of pass t = ((t * (t >> 1)) >> 5) - $20, negative for all 44 passes (sum about -970)
+    COP [LoopStart] ( #2C ) ; 44 passes of zoom-out; each pass yields twice (SetEntryHereAndYield, then the non-final LoopEnd): 2 ticks per pass, about 88 ticks
     COP [TickGravity]     ; moveScratch2 := the gravity-curve delta for this tick
     LDA $moveScratch2, X  ; Add this tick's TickGravity delta (moveScratch2) to $B8 below
     CLC 
     ADC $00B8             ; Mode 7 divisor $B8 += delta (negative): about $0400 down to about $34, the view zooms out (OQ-I059-4)
     STA $00B8
-    COP [SetEntryHereAndYield]
-    COP [LoopEnd]
+    COP [SetEntryHereAndYield] ; Yield 1 of 2 in each pass: the actor resumes after this COP on the next tick
+    COP [LoopEnd]         ; Yield 2 of 2: a non-final LoopEnd sets $00 to the loop head and yields; the 44th pass falls through into the next line in the same tick
     LDA $worldMapChoiceId ; Menu trip (choice id set): wait for a route; scripted trip (0): go straight on
     BEQ TiltPhaseStart
     COP [WaitByte] ( #0F ) ; WaitByte #0F = 16 ticks before the HDMA effect starts
@@ -408,7 +408,7 @@ RouteAnimationEngine {
 ; Read the next step: $FF -> RouteEndHandler, $FE -> RouteSubroutineCall, otherwise load the three delta chain pointers and the tick count and start the step.
 
   RouteStepLoop:
-    LDA [$2C]             ; Read route step type byte from [$2C]
+    LDA [$2C]             ; Read byte 0 of the step from [$2C]: $FF = end of route, $FE = subroutine call, otherwise the X chain index
     AND #$00FF
     CMP #$00FF            ; $FF = end-of-route marker → RouteEndHandler
     BNE RouteNotEnd
@@ -417,37 +417,37 @@ RouteAnimationEngine {
 ; The step byte is not $FF: advance past it; $FE calls a subroutine (RouteSubroutineCall), anything else is the X delta index of a normal step.
 
   RouteNotEnd:
-    INC $2C               ; Advance past type byte
+    INC $2C               ; Advance past byte 0
     CMP #$00FE            ; $FE = subroutine call marker → RouteSubroutineCall
     BNE RouteDeltaTables
     JMP $&RouteSubroutineCall
 
-; Normal step: the X, Y and rotation delta chains are looked up in move_chain_table ($18, $1A, $1C) and the tick count n is stored in $24; SetEntryHere then yields one frame per tick.
+; Normal step: byte 0 (the X chain index, already read) and bytes 1 and 2 (the Y and rotation chain indices) select the delta chains in move_chain_table ($18, $1A, $1C), and byte 3, the tick count n, is stored in $24. SetEntryHere only saves the re-entry point (it does not yield); the actor adds the next delta of each active axis and yields at the RTL in RouteCountTick, so the step applies its deltas n + 1 times, once per tick.
 
   RouteDeltaTables:
-    ASL                   ; Step type × 2 → index into move_chain_table for X delta source
+    ASL                   ; Byte 0 (X chain index) x 2 = word index into move_chain_table for the X delta source
     TAY 
     LDA $&move_chain_table, Y
     STA $18
-    LDA [$2C]             ; Read Y movement table index (byte 2)
+    LDA [$2C]             ; Read byte 1 (Y chain index)
     AND #$00FF
     INC $2C
     ASL 
     TAY 
     LDA $&move_chain_table, Y ; Look up Y delta source pointer from move_chain_table
     STA $1A
-    LDA [$2C]             ; Read Z movement table index (byte 3)
+    LDA [$2C]             ; Read byte 2 (rotation chain index; the chain is added to $BC below)
     AND #$00FF
     INC $2C
     ASL 
     TAY 
-    LDA $&move_chain_table, Y ; Look up Z delta source pointer from move_chain_table
+    LDA $&move_chain_table, Y ; Look up rotation delta source pointer from move_chain_table
     STA $1C
-    LDA [$2C]             ; Read frame count (byte 4) → $24
+    LDA [$2C]             ; Read byte 3 (tick count n) -> $24: the step applies its deltas n + 1 times, one per tick
     AND #$00FF
     INC $2C
     STA $24
-    COP [SetEntryHere]    ; Yield one frame per route step iteration
+    COP [SetEntryHere]    ; Re-entry point for each tick of this step (SetEntryHere does not yield; the yield is the RTL in RouteCountTick)
     LDA $18               ; X axis: check for null pointer (0 = no X movement this step)
     BEQ RouteAxisY
     LDA ($18)             ; Read X delta from indirect pointer, advance pointer by 2
@@ -482,23 +482,23 @@ RouteAnimationEngine {
 ; Y axis done or absent: add the rotation delta chain $1C to the rotation index $BC.
 
   RouteAxisRotation:
-    LDA $1C               ; Z axis: check for null pointer
+    LDA $1C               ; Rotation axis: check for null pointer
     BEQ RouteCountTick
-    LDA ($1C)             ; Read Z delta from indirect pointer
+    LDA ($1C)             ; Read rotation delta from indirect pointer
     INC $1C
     INC $1C
     CLC 
     ADC $00BC             ; Rotation index $BC += delta (the map turns; not elevation)
     STA $00BC             ; Store the new rotation index
-    LDA ($1C)             ; Read next Z pointer word
+    LDA ($1C)             ; Read next rotation pointer word
     STA $1C
 
 ; End of the tick: decrement the remaining tick count; while it is still non-negative the actor yields (RTL).
 
   RouteCountTick:
-    DEC $24               ; Decrement frame count; negative = step complete → next step
+    DEC $24               ; Decrement the tick counter; negative = step complete -> next step
     BMI RouteNextStep
-    RTL                   ; Frame count still positive → yield (RTL) for next tick
+    RTL                   ; Counter still non-negative: yield (RTL) until the next tick
 
 ; The count went negative: the step is complete, continue with the next one at RouteStepLoop.
 

@@ -1,17 +1,17 @@
-; Will player spriteset (Bank 15, 1409024-1426465): every frame the player can show in form 0. 72 animations ($00-$47), 398 frame records, 238 sprite groups, 1781 sub-sprites (at most 12 per group). Chosen by body_table[0] (art will_sprites_1A8000); SetActorBody copies the table pointer and bank into the actor ($7F0006, $7F0008). The animation numbering is shared with spriteset_freedan and spriteset_shadow; the struct format is described in the block note of spriteset_freedan.
+; Will player spriteset (Bank 15, 1409024-1426464): every frame the player can show in form 0. 72 animations ($00-$47), 398 frame records, 238 sprite groups, 1781 sub-sprites (at most 12 per group). Chosen by body_table[0] (art will_sprites_1A8000); SetActorBody copies the table pointer and bank into the actor ($7F0006, $7F0008). The animation numbering is shared with spriteset_freedan and spriteset_shadow; the struct format is described in the block note of spriteset_freedan.
 ; 
 ; === WHAT DIFFERS FROM FREEDAN ===
 ; 
 ; - 72 animations against 76: Will's table ends at $47, the Freedan table has the extra $48-$4B (wall-push south / north exist for Freedan only).
-; - Idle south, west and east are two frames: hold $77 (120 ticks) then hold 4 (5 ticks, the short second pose); idle north is one frame, hold 9 (10 ticks). Freedan's idle is a single frame held 101 ticks.
+; - Idle south, west and east are two frames: hold $77 (120 ticks) then hold 4 (5 ticks, the short second pose); idle north is one frame, hold 9 (10 ticks). Freedan's idle is a single frame held 100 ticks.
 ; - Walk is 4 frames of hold 5 (6 ticks); Freedan's is 7 (8 ticks). The 'Moving' cycles $0C-$0F are 4 frames of hold 4 (5 ticks).
 ; - $44-$47 are Will's own lunge animations (player_character RangedAttack*, form 0 only).
 ; 
-; === CHECKS ===
+; === DATA PROPERTIES ===
 ; 
 ; All 238 groups have a count byte equal to their number of sub-sprites, and all 72 frame lists are 4n + 2 bytes long with a $FFFF terminator in the ROM.
 ; 
-; The previous header said 'flute-play' frames. FluteMusicActorController (item_use_system) puts the player into the static pose PlayerStaticBodyPose while a melody plays and no dedicated flute animation was found, so the claim was dropped (OQ-I064-3).
+; The table has no flute animation: FluteMusicActorController (item_use_system) puts the player into the static pose PlayerStaticBodyPose (SetPlayerSpriteDirect #04 and frame $1F, so spriteset_will_abilities) while a melody plays.
 ---------------------------------------------
 
 ?BANK 15
@@ -23,16 +23,16 @@
 ; | Index | Use | Frames |
 ; |-------|-----|--------|
 ; | $00-$03 | idle south / north / west / east (the Spin Dash launch stages the same four) | south, west, east: hold $77 then 4; north: hold 9 |
-; | $04-$07 | the shapes of $00-$03 on a second set of groups ($14 repeats the groups of $04 in a 6-frame cycle); nothing found stages them | |
+; | $04-$07 | the shapes of $00-$03 on a second set of groups ($14 repeats the groups of $04 in a 6-frame cycle); no StagePlayerSprite or RunPlayerAnim operand names them; the Psycho Dash stages #04-#07 (StageSpriteMoveY / StageSpriteMoveX) after SetPlayerSpriteDirect #04, so against spriteset_will_abilities (body_table row $04), not this table | |
 ; | $08-$0B | walk south / north / west / east | 4 frames, hold 5 |
 ; | $0C-$0F | 'Moving' cycles (momentum code) | 4 frames, hold 4 |
-; | $10-$13 | staged for Shadow only; here 6/3/6/6-frame cycles on the idle groups of $00-$03, hold 7 | |
+; | $10-$13 | here 6/3/6/6-frame cycles on the idle groups of $00-$03, hold 7; StagePlayerSprite stages them only on the '...Shadow' branches of the per-scene flag byte #00 test (the four IdleStand*Shadow labels of player_character, player_transition_handlers.PlayerIdleUseShadowSprite) and in sF7_credits_player (#11, #12); the Psycho Slider also stages #10-#13 (and #0C-#17 in all), but after SetPlayerSpriteDirect #04, so against spriteset_will_abilities, not this table | |
 ; | $36-$39 | melee attack south / north / west / east | |
 ; | $3A-$3D | guard (block) | |
 ; | $42, $43 | attack against a wall west / east | |
 ; | $44-$47 | lunge south / north / west / east (form 0 only) | |
 ; 
-; The other indices have the same uses as in the Freedan table (vine, ladder, shimmy). Not staged by the player scripts: $14-$17, $1C-$29, $3E-$41 (OQ-I064-4).
+; The other indices have the same uses as in the Freedan table (vine, ladder, shimmy). $14-$17 are staged in the player scripts only by the Psycho Slider (player_character RunAttackNS / RunAttackEW, slider_glide), against spriteset_will_abilities. $1C-$29 are staged by player_transition_handlers, player_character, ramps, sF7_credits_player and sE5_epilogue; the body row active at each site is not traced. $3E-$41: no player script stages them with an immediate operand.
 
 spriteset_will [
   &will_anim_00_idle_south   ;00

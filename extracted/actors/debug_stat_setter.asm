@@ -2,7 +2,7 @@
 ; 
 ; The four writes are playerStr, playerDef, playerMaxHp and hpToHeal, all $0040 (64). It does not touch playerHp, so the player's current HP only rises through the heal request. For comparison debug_man sets HP 40 / STR 127 / DEF 127 (plus the ability mask and a warp menu) and unused_debug_mode sets HP 19 / STR 32 / DEF 33.
 ; 
-; The WRAM map describes hpToHeal as a heal request that the HUD plays out as the HP recovery animation; no reader of $0B22 was found in extracted/, so that is documentation only (see the questions file).
+; hpToHeal ($0B22) is a heal request that UpdateHUD (UpdateHUD_Active in system_core) plays out: on every 8th frame, unless the game-over bit of playerStateByte is set, a nonzero hpToHeal is decremented by one and playerHp is incremented by one with sound $0D; when playerHp equals playerMaxHp the request is cleared instead. The $0040 written here is therefore a request for up to 64 points of HP, capped at playerMaxHp.
 ---------------------------------------------
 
 !playerMaxHp                    0ACA

@@ -4,9 +4,7 @@
 ; - Scene entry: InitActorFromSceneData indexes the table with the scene's facing value (warpFacing $0650) and stores only byte 0 as the player's initial animation index ($28). The velocity byte is not used there.
 ; - In-scene forced walks (forced_walk): ReadDirSprite_YVelocity / ReadDirSprite_XVelocity fetch one step code per step from the warp's walk-step stream, hand byte 0 to StagePlayerSprFromDP through $0000, and use byte 1 to load the head of a delta-node chain from move_chain_table into $2E (Y axis) or $2C (X axis).
 ; 
-; The old header called byte 0 a 'base sprite frame' and byte 1 a 'movement speed' with entries named S, N, E, W, SE, SW, NE, NW. Neither holds: the entries are step codes, not compass directions, and byte 1 is a table index, not a speed (see the part note for the decoded rows).
-; 
-; Checked: all nine entries decoded against FacingDirectionLookup (GetPlayerFacingDirection) and move_chain_table; both loaders and the scene-entry reader read in full. Not traced at runtime (UNVERIFIED-RUNTIME): what each step code looks like in game.
+; The entries are step codes, not compass directions, and byte 1 is a table index, not a speed (see the part note for the decoded rows).
 ---------------------------------------------
 
 ?BANK 01
@@ -27,7 +25,7 @@
 ; | $07 | 3 | right | none ($00) |
 ; | $08 | 8 | down | $13 (+1/4) |
 ; 
-; Codes $00 = $05, $01 = $03 and $02 = $04 are identical rows (OQ-I061-2). Left and right steps carry no velocity chain: the east and west forced-walk actors move through the camera pan (CameraPanRight and its mirror), not through this table. The vertical sign of every chain agrees with the facing (up = negative, down = positive).
+; Codes $00 = $05, $01 = $03 and $02 = $04 are identical rows. Left and right steps carry no velocity chain: the east and west forced-walk actors move through the camera pan (CameraPanRight and its mirror), not through this table. The vertical sign of every chain agrees with the facing (up = negative, down = positive).
 
 walk_step_table [
   direction-velocity < #09, #12 >   ;00

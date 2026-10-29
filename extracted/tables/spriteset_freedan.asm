@@ -1,22 +1,22 @@
-; Freedan player spriteset (Bank 0E, 950272-969435): every frame the player can show in form 1. 76 animations ($00-$4B), 353 frame records, 186 sprite groups, 2147 sub-sprites (at most 14 per group). Chosen by body_table[1] (art free_sprites_1AC000); SetActorBody copies the table pointer and bank into the actor ($7F0006, $7F0008). The player scripts pick the animation with StagePlayerSprite and friends; the numbering is shared with spriteset_will and spriteset_shadow.
+; Freedan player spriteset (Bank 0E, 950272-969434): every frame the player can show in form 1. 76 animations ($00-$4B), 353 frame records, 186 sprite groups, 2147 sub-sprites (at most 14 per group). Chosen by body_table[1] (art free_sprites_1AC000); SetActorBody copies the table pointer and bank into the actor ($7F0006, $7F0008). The player scripts pick the animation with StagePlayerSprite and friends; the numbering is shared with spriteset_will and spriteset_shadow.
 ; 
 ; === FORMAT (the same in every spriteset_* file) ===
 ; 
 ; - Table: one word pointer per animation index ($28), relative to the spriteset bank.
-; - Frame list (sprite-set): 4-byte records < hold, &sprite_group >. A frame is shown for hold + 1 ticks. The list ends with a hidden $FFFF word that the extraction does not show (a list of n records is 4n + 2 bytes; this was checked for all 76 lists by label spacing and in the ROM). Any negative word works, AdvanceSpriteAnim tests the sign. docs/structs-reference.md says the terminator is $0000: that is wrong.
+; - Frame list (sprite-set): 4-byte records < hold, &sprite_group >. A frame is shown for hold + 1 ticks. The list ends with a hidden $FFFF word that the extraction does not show (a list of n records is 4n + 2 bytes in all 76 lists). Any negative word works, AdvanceSpriteAnim tests the sign.
 ; - Sprite group: 13-byte header, then 7-byte sub-sprites.
 ;   - Header bytes 0-1: X extents (left, right); bytes 2-3: Y extents (top, bottom). UpdateActorAnimation loads them into $18/$1C and $1A/$1E (screen culling) and swaps each pair for a flipped actor.
-;   - Bytes 4-7: a tile-unit box read at metaspritePtr+0..3 by PlayerAttackHitTest (the attack's hit area) and by the solid-rectangle COP handlers (cop_handlers_collision): X offset and Y offset (the code ORs $FF00 into them, so they are always negative), width and height in 16-pixel units (shifted left four times). Default $F8 $F0 $01 $01 = a 16 x 16 box at (-8, -16).
+;   - Bytes 4-7: a tile-unit box read at metaspritePtr+0..3 by PlayerAttackHitTest (the attack's hit area), by the solid-rectangle COP handlers (cop_handlers_collision) and by the tile collision code (tile_collision_physics, the movement wall tests): X offset and Y offset (the code ORs $FF00 into them, so they are always negative), width and height in 16-pixel units (shifted left four times). Default $F8 $F0 $01 $01 = a 16 x 16 box at (-8, -16).
 ;   - Bytes 8-11: the body box, read at metaspritePtr+4..7 by CombatCollision (RunCombatCollision) and the interaction collision code: X offset (signed; mirrored for an H-flipped actor), width in pixels, Y offset (signed), height in pixels. Default $F8 $10 $F0 $10 = 16 x 16 at (-8, -16); some groups have other values.
 ;   - Byte 12: the number of sub-sprites (equal to the real count in all 186 groups).
-; - Sub-sprite < size, x, x', y, y', tile word >: size 0 = 8x8, 1 = 16x16 (the OAM size bit); x / y is the offset inside the extent box and x' / y' the mirrored offset used for a flipped actor (x + x' = total width - size, checked by hand on three sub-sprites); the tile word is a normal OAM word (tile low byte, bit 8 name table, bits 9-11 palette, 12-13 priority, $4000 H flip, $8000 V flip).
+; - Sub-sprite < size, x, x', y, y', tile word >: size 0 = 8x8, 1 = 16x16 (the OAM size bit); x / y is the offset inside the extent box and x' / y' the mirrored offset used for a flipped actor (x + x' = total width - size in the three sub-sprites examined; not traced for the rest); the tile word is a normal OAM word (tile low byte, bit 8 name table, bits 9-11 palette, 12-13 priority, $4000 H flip, $8000 V flip).
 ; - The same group is used by several frames and animations (353 records name 186 groups): animations $04-$07 reuse the four idle groups of $00-$03.
 ; 
 ; Tile art: the tile byte of a sub-sprite selects 32-byte tiles in free_sprites_1AC000; the player art is DMAed as the frames change (sprite_composition).
 ; 
 ; === PLAYER ANIMATION NUMBERS ===
 ; 
-; See the part note of the table for the index map. The previous header claimed 'Dark Friar cast poses': the ability cast in attack_ability_system stages the ordinary attack animations $36-$39, no separate Dark Friar animation was identified.
+; See the part note of the table for the index map. The ability cast in attack_ability_system stages the ordinary attack animations $36-$39; not traced: any Dark Friar animation separate from those.
 ---------------------------------------------
 
 ?BANK 0E
@@ -27,11 +27,11 @@
 ; 
 ; | Index | Use | Frames |
 ; |-------|-----|--------|
-; | $00-$03 | idle south / north / west / east (the Spin Dash launch stages the same four) | 1 frame, hold $63 (101 ticks) |
-; | $04-$07 | the same four groups again; nothing found stages them | 1 frame |
+; | $00-$03 | idle south / north / west / east (the Spin Dash launch stages the same four) | 1 frame, hold $63 (100 ticks) |
+; | $04-$07 | the same four groups again; no StagePlayerSprite or RunPlayerAnim operand names them; the Psycho Dash stages #04-#07 (StageSpriteMoveY / StageSpriteMoveX) after SetPlayerSpriteDirect #04, so against spriteset_will_abilities (body_table row $04), not this table | 1 frame |
 ; | $08-$0B | walk south / north / west / east | 4 frames, hold 7 (8 ticks) |
 ; | $0C-$0F | the 'Moving' cycles of the momentum code: MovingToSouth $0C, MovingNorthSouth $0D (north), MovingToWest $0E, MovingEastWest $0F (east) | |
-; | $10-$13 | idle south / north / west / east staged for Shadow (form 2) only; the table has entries as well | |
+; | $10-$13 | idle south / north / west / east; StagePlayerSprite stages them only on the '...Shadow' branches of the per-scene flag byte #00 test (the four IdleStand*Shadow labels of player_character, player_transition_handlers.PlayerIdleUseShadowSprite) and in sF7_credits_player (#11, #12); the Psycho Slider also stages #10-#13 (and #0C-#17 in all), but after SetPlayerSpriteDirect #04, so against spriteset_will_abilities, not this table | |
 ; | $18 | first pose of the vine entry (StagePlayerMoveXY) | |
 ; | $19, $1A, $1B | vine climb cycle $1A, $1B, $19, repeating | |
 ; | $2A, $2B | ladder idle north, south ($2E, $2F: Shadow) | |
@@ -44,7 +44,7 @@
 ; | $44-$47 | Will's lunge south / north / west / east (form 0 only; the Freedan table still has entries) | |
 ; | $48, $49 | attack against a wall south / north (Freedan only: the Will table stops at $47) | |
 ; 
-; Not staged by the player scripts: $14-$17, $1C-$29, $3E-$41, $4A, $4B. Several of $1C-$29 are staged through StagePlayerMoveY/XY by other files (player_transition_handlers, ramps, credits) and were not resolved one by one (OQ-I063-2).
+; $14-$17 are staged in the player scripts only by the Psycho Slider (player_character RunAttackNS / RunAttackEW, slider_glide), against spriteset_will_abilities. $1C-$29 are staged by player_transition_handlers, player_character, ramps, sF7_credits_player and sE5_epilogue; the body row active at each site is not traced. $3E-$41, $4A and $4B: no player script stages them with an immediate operand.
 
 spriteset_freedan [
   &freedan_anim_00_idle_south   ;00

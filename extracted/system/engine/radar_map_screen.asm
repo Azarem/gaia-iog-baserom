@@ -73,7 +73,7 @@ RadarScreenSetup {
     LDA #$*radar_icons_001C00
     STA $adhocVramDmaBank
     LDA #$7700            ; VRAM destination $7700 for radar icon tile data
-    STA $adhocVramDmaDest ; Writing the destination arms the adhoc DMA; the size is written next (ordering hazard, OQ-64)
+    STA $adhocVramDmaDest ; Writing the destination arms the adhoc DMA; the size is stored after it (writers should store the size first)
     LDA #$0200            ; Transfer 512 bytes of radar icon graphics
     STA $adhocVramDmaSize
 
@@ -340,7 +340,7 @@ RadarPlotSceneMarkers {
 ---------------------------------------------
 ; Walk the actor list (head $56, next at $0006,X) and plot dots by extendedFlags.
 ; 
-; Bit 8 ($0100) routes to RadarPlotFriendlyActor and bit 9 ($0200) to RadarPlotEnemyActor; both names are historical. Bit 8 is set by actor_execution for stat-bearing enemies (they are counted in enemiesRemaining), so that dot marks the enemies still alive. Bit 9 is set only by dark_space.asm (COP OrExtraFlags #$0200), so that dot is probably a Dark Space entrance (OQ-63). Actors with neither bit are not plotted.
+; Bit 8 ($0100) routes to RadarPlotFriendlyActor, which plots the stat-bearing enemies, and bit 9 ($0200) to RadarPlotEnemyActor, which plots the Dark Space portals. Bit 8 is set by InitActorFromSceneData (actor_execution) for actors spawned with combat stats and an enemy number (they are counted in enemiesRemaining), so that dot marks the stat-bearing enemies still in the actor list. Bit 9 is set only by dark_space.asm (COP OrExtraFlags #$0200 in DarkSpacePortalInit), so that dot marks a Dark Space portal. Bit 8 is tested first, so an actor with both bits gets the enemy dot. Actors with neither bit are not plotted.
 
 RadarPlotActors {
     LDA $56
@@ -355,7 +355,7 @@ RadarPlotActors {
     BRA loc_038329
 
   loc_038321:
-    BIT #$0200            ; Bit 9 = set only by dark_space.asm (OrExtraFlags #$0200) → dot $280D, probably Dark Space (OQ-63)
+    BIT #$0200            ; Bit 9 = set only by dark_space.asm (OrExtraFlags #$0200) → dot $280D, a Dark Space portal
     BEQ loc_038329
     JSR $&RadarPlotEnemyActor
 
@@ -368,7 +368,7 @@ RadarPlotActors {
 }
 
 ---------------------------------------------
-; Plot one bit-8 actor (a stat-bearing enemy; the name is historical) as dot tile word $2AE7.
+; Plot one bit-8 actor (a stat-bearing enemy) as the enemy dot, tile word $2AE7.
 ; 
 ; Skips actors whose pixel position ($0014,X/$0016,X) is outside the viewport ($0018/$001A × $001C/$001E). Cell offset: column = ((x − left) >> 5) AND $FFFE, row = (y − top) AND $FFC0, plus $0216, written into $7F0200. $2AE7 is tile $2E7 with palette 2 and is also the legend icon beside the remaining-enemy count. Always returns with carry set.
 
@@ -413,7 +413,7 @@ RadarPlotFriendlyActor {
 }
 
 ---------------------------------------------
-; Plot one bit-9 actor (probably a Dark Space entrance, OQ-63; the name is historical) as dot tile word $280D.
+; Plot one bit-9 actor (a Dark Space portal) as dot tile word $280D.
 ; 
 ; Same cell math as RadarPlotFriendlyActor, after one extra test against cameraOffsetX/Y..cameraBoundsX/Y. Those four words are the scene's scroll limits, not the current view, so the extra test only rejects positions outside the scene. $280D is tile $00D with palette 2 (not palette 0).
 

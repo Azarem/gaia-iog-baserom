@@ -2,7 +2,7 @@
 ; 
 ; === ENTRY POINTS ===
 ; 
-; - Mode7PerspectiveInit is a thinker-def <#04,#08>: the two header bytes are the word $0804 that goes into animScratch2. Bit 2 puts the thinker into RunThinkers_TypeB, which runs after ResetHdmaState every frame; the four HDMA channels queued below are therefore re-armed each frame. Bit 11 is the lighter-frame flag. Only the scene thinker list of scene $FE (the world map, thinker_spawn_0CEB3D = Init + IrisCircleEffect) spawns it through the list.
+; - Mode7PerspectiveInit is a thinker-def <#04,#08>: the two header bytes are the word $0804 that goes into animScratch2. Bit 2 puts the thinker into RunThinkers_Hdma, which runs after ResetHdmaState every frame; the four HDMA channels queued below are therefore re-armed each frame. Bit 11 is the lighter-frame flag. Only the scene thinker list of scene $FE (the world map, thinker_spawn_0CEB3D = Init + IrisCircleEffect) spawns it through the list.
 ; - Init has no RTL: it falls straight into Mode7PerspectiveUpdate (the Update block starts at the byte after Init's last STA).
 ; - Four actor scripts spawn Mode7PerspectiveUpdate directly with COP SpawnThinker and skip Init: pr8C_prologue1 and pr8C_prologue5 (prologue prophecy), garden_crash_cutscene (Sky Garden crash) and future_vision_cutscene (Angkor Wat). SpawnThinker does not read the thinker-def header, so each of them stores $0804 into the new thinker's animScratch2 itself, writes M7SEL = 0 (map repeats) and drives the three parameters below from a companion script.
 ; 
@@ -45,12 +45,12 @@
 ; 
 ; === QUIRKS ===
 ; 
-; - M7SEL = $80 written by Init means: tilemap repeat off and non-tilemap fill = 0, i.e. the area outside the 1024x1024 map is transparent (nesdev PPU registers). The old notes said 'repeat'. The cutscene spawners write M7SEL = 0 instead, which repeats the map.
+; - M7SEL = $80 written by Init means: tilemap repeat off and non-tilemap fill = 0, i.e. the area outside the 1024x1024 map is transparent (nesdev PPU registers). The cutscene spawners write M7SEL = 0 instead, which repeats the map.
 ; - $B6 is the per-scanline divisor increment, not a rotation angle; the rotation is $BC.
 ; - STY $WRDIVB with 16-bit Y also writes $4207 (HTIMEL) with the divisor high byte, which is 0 here. No H-IRQ use was checked.
 ; - Quadrants 3 and 4 use 4 NOPs where 1 and 2 use 6: the extra LDA #0 / SEC before the SBC fill the divider's 16-cycle delay (derived from cycle counts, not run).
-; - The three tables live at $7E7000, $7E7800 and $7E8000, the same addresses as tileStagingBuffer and as buffers of parallax_thinker. No check was made for scenes that use both (OQ-I041-3).
-; - Init writes $FFFF to the words $7F0B22 and $7F0B24. No reader was found in extracted/ (OQ-I041-1).
+; - The three tables live at $7E7000, $7E7800 and $7E8000, the same addresses as tileStagingBuffer and as buffers of scanline_band_hdma_thinker (its buffers are $7000, $7400, $7800, $7C00, $8000 and $8400). Not traced: whether any scene runs both.
+; - Init writes $FFFF to the words $7F0B22 and $7F0B24. No reader was found in extracted/.
 ---------------------------------------------
 
 ?BANK 03
@@ -81,7 +81,7 @@ Mode7PerspectiveInit [
     LDA #$80              ; M7SEL $80: outside the 1024x1024 map is transparent (no repeat, no tile-0 fill), no flip
     STA $M7SEL
     REP #$20
-    LDA #$FFFF            ; $7F0B22 and $7F0B24 := $FFFF (no reader found in extracted/, OQ-I041-1)
+    LDA #$FFFF            ; $7F0B22 and $7F0B24 := $FFFF (no reader found in extracted/)
     STA $7F0B22
     LDA #$FFFF
     STA $7F0B24

@@ -1,15 +1,15 @@
-; Item-effect sparkle actor (Bank 00, 56579-56667). One spawn is a 24-frame effect that draws two small tiles side by side at the actor's position: 8 frames standing still, then 16 frames rising one pixel per frame. The old text ('four tile entries flanking the hit position', 'spawned during inventory-screen hit feedback') is wrong: it writes two compose-buffer entries per frame and its only spawn site is GiveItemToPlayer.
+; Item-effect sparkle actor (Bank 00, 56579-56667). One spawn is a 24-frame effect that draws two small tiles side by side at the actor's position: 8 frames standing still, then 16 frames rising one pixel per frame. It writes two compose-buffer entries per frame and its only spawn site is GiveItemToPlayer.
 ; 
 ; === SPAWN ===
 ; 
-; inventory_mgmt.GiveItemToPlayer, special-item branch: effect index >= 6 (item id $86 and up) adds 5 to hpToHeal, runs COP SpawnListAppend ( @SpawnItemSparkleEffect, #00, #00, #$2F00 ) after PHD / TXA / TCD, then plays sound #22. The fourth operand is the flags word for the child's $10. The child copies position from the actor whose slot is in X when the item is given (the in-line comment there says the player; not verified). No item id of $86 or more was found in the chest tables or GiveItem operands of extracted/, so whether this path is reachable in the shipped game is open (OQ-I042-1).
+; inventory_mgmt.GiveItemToPlayer, special-item branch: effect index >= 6 (item id $86 and up) adds 5 to hpToHeal, runs COP SpawnListAppend ( @SpawnItemSparkleEffect, #00, #00, #$2F00 ) after PHD / TXA / TCD, then plays sound #22. The fourth operand is the flags word for the child's $10. The child copies its position from the spawner: GiveItemToPlayer sets D := X before the spawn (PHD / TXA / TCD), so the sparkle appears at the actor whose slot is in X when the item is given. Item id $86 is reachable: DropBodyHeal5 in EnemyDropSystem stores $0086 in chatPtr (rows 00, 06 and 0B of drop_threshold_by_hp select it, one row per HP tier), and when the player overlaps that pickup (flag $0020 in its $10) combat_collision.InteractionDamage_NPCChat runs TYX and calls GiveItemToPlayer with chatPtr, so the sparkle appears at the pickup actor.
 ; 
 ; === BODY ===
 ; 
 ; SpawnItemSparkleEffect: LoopStart #08 (8 frames) calling AppendSparkleOamEntries, then LoopStart #10 (16 frames) that first subtracts 1 from $16 and then calls it again; LoopEnd yields every iteration; then Die. There is no initial Y offset (unlike the damage numbers).
 ; AppendSparkleOamEntries writes two 6-byte entries at the compose-buffer cursor oamWriteOffset ($00D8) in the buffer at $7F3100: X - 4 with tile word $327A, and X + 4 with tile word $327B, both at Y = $16. The tile words are tile $7A and $7B with attribute $3200 (the same priority 3 / palette 1 as the damage digits; tiles $70-$79 are the digits). The cursor advances by $0C. No terminator is written here; the main loop writes $FF after all actors have run.
 ; 
-; What tiles $7A / $7B look like was not checked (OQ-I042-2).
+; Not traced: what tiles $7A / $7B look like.
 ---------------------------------------------
 
 !oamWriteOffset                 00D8

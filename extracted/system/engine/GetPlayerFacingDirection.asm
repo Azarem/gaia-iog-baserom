@@ -13,7 +13,7 @@
 ; 
 ; FacingDirectionLookup (88 bytes): maps each animation frame of the normal body sprite to a direction 0–4.
 ; 
-; FacingFormOffsetTable: 4 pointers, indexed by body_table index − 4, i.e. will_alt, ability_fx, freedan_fx, shadow_fx (body_table 4–7). The FacingData_* labels follow the same order (WillAlt, AbilityFx, FreedanFx, ShadowFx).
+; FacingFormOffsetTable: 4 pointers, indexed by body_table index − 4, i.e. spriteset_will_abilities, spriteset_transform_poses, spriteset_freedan_fx, spriteset_shadow_fx (body_table 4–7). The FacingData_* labels follow the same order (WillAbilities, TransformPoses, FreedanFx, ShadowFx).
 ; 
 ; FacingData_WillAbilities (27 bytes) is the first table (body 4), FacingData_TransformPoses (44 bytes, all zero) the second (body 5), FacingData_FreedanFx (4 bytes, all zero) the third (body 6), FacingData_ShadowFx (6 bytes, all zero) the fourth (body 7). All entries of the last three are 0, i.e. those poses always report direction 0 (down in the COP operand order).
 ---------------------------------------------
