@@ -1,371 +1,217 @@
 # Bank $00 — Thinkers: System, Menu & Hardware Configuration
 
 **Bank:** `$00` (mirrored at `$80`)  
-**Address range:** `$00B78F`–`$00BF89`  
-**Block type:** `thinker_def` — PPU configuration, menu DMA, and global scene dispatch  
-**Priority:** All thinkers use priority `#08`  
+**Address range:** `$00B78F`–`$00BF89` (hardware + menu + boot logos + dispatcher)  
+**Block type:** `thinker_def` — PPU configuration, menu HDMA, boot palette sequences, global talk dispatch  
+**Filter word:** Most use `thinker-def < #00, #08 >` → **`$0800`** (General/Light runners only). Menu/window HDMA uses **`#04, #08`** → **`$0804`** (HDMA pass). Spawn-record byte 0 is the **parameter** (`animScratch+2`), not a universal “slot type”.  
 **Related:** [`thinkers-palette.md`](thinkers-palette.md), [`thinkers-hdma.md`](thinkers-hdma.md), [`system-core.md`](system-core.md)
 
-These thinkers configure SNES PPU hardware registers (`$CGADSUB`, `$COLDATA`, `$TM`, `$TS`, `$W12SEL`), set up DMA for menu screens, run boot logo palette sequences, and implement the per-scene form-palette + talk-interaction dispatcher (`global_ambient_dispatcher`) present in most field scenes.
+---
+
+## Source of truth
+
+| Role | Path |
+|------|------|
+| Scene spawn lists | `extracted/tables/scene_thinkers.asm` |
+| Global talk + form palette | `extracted/thinkers/global_ambient_dispatcher.asm` |
+| Hardware / fog / scroll | `extracted/babel_tower/babel_light_elevator/babel_elevator_color_add.asm`, `extracted/seaside_palace/palace_scroll_brightness.asm`, `extracted/dao/dao/dao_window_mask.asm`, `extracted/itory/itory_village/itory_village_fog.asm`, `extracted/babel_tower/dark_castoth_lair/dark_castoth_layer_config.asm` |
+| Menu HDMA | `extracted/system/inventory/inventory_bg3_scroll_hdma.asm`, `extracted/system/diary_menu/diary_menu_window_dma.asm` |
+| Boot logos | `extracted/system/boot_logos/boot_logo_enix_palette_obj{0,1,2}.asm`, `extracted/system/boot_logos/sFB_boot_logo.asm` |
+| Thinker dispatch | `extracted/system/engine/thinker_execution.asm` |
+
+**Naming:** All section labels match extracted symbols. **`thinker_spawn_*`** names are spawn-list labels in bank `$0C`.
+
+**Counts:** **`59`** spawn records reference `@global_ambient_dispatcher` in source tables (`rg` count in `scene_thinkers.asm`). **`70`** scene IDs point at the shared **`thinker_spawn_dispatcher_only`** list (one dispatcher record, many scenes). **11** scene IDs use lists with **no** dispatcher (boot, diary, inventory, comet lair, ending comet flight, credits, etc. — see below). Scene placements for hardware thinkers counted from spawn tables this session.
 
 ---
 
 ## Overview
 
-| Category | Count | Address Range |
-|----------|-------|---------------|
-| Hardware configuration | 5 | `$B78F`–`$B818`, `$BF78` |
-| Menu / system DMA | 2 | `$BB8E`, `$BBAF` |
-| Boot logo sequence | 3 | `$B83F`–`$B867` |
-| Global scene dispatcher | 1 | `$BF89` |
+| Category | Thinkers | Filter |
+|----------|----------|--------|
+| Hardware / PPU each frame | 5 | `$0800` except none HDMA |
+| Menu HDMA | 2 | `$0804` |
+| Boot logo palette (one-shot sequence) | 3 | `$0800` |
+| Global scene dispatcher | 1 | `$0800` |
 
 ---
 
-## Hardware Configuration
+## Hardware configuration (live)
 
-### babel_elevator_color_add
+### `babel_elevator_color_add` — `$00B78F`
 
-**Address:** `$00B78F`
+Each frame: **`$CGADSUB` ← `#$02`** (`!CGADSUB` equate **`$2131`** in extracted file). Additive color math on subscreen.
 
-#### Purpose
-
-Sets `$CGADSUB` ← `#$02` each frame (color addition mode: add subscreen to main screen). Creates the bright, ethereal glow of the Babel Light Elevator shaft where subscreen graphics are additively blended onto the main layer.
-
-#### Algorithm
-
-```
-SetEntryHere
-CGADSUB ← #$02    ; fixed color math mode
-RTL               ; runs every frame
-```
-
-#### Scene Usage
-
-| Scene | Index | Context |
-|-------|-------|---------|
-| Babel Light Elevator | 225 (`thinker_0CEA8E` slot `#01`) | Elevator shaft additive glow |
-
-#### Dependencies
-
-None.
+| Scene ID | List | Slot |
+|----------|------|------|
+| `$E1` (225) | `thinker_spawn_0CEA8E` | `#01` |
 
 ---
 
-### palace_scroll_brightness
+### `palace_scroll_brightness` — `$00B79D`
 
-**Address:** `$00B79D`
+Reads **`cameraTargetY` (`$06C2`)**, adds `#$0080`, shifts right **7** times total (with `AND #$F8` mid-way), adds **`#$E0`**, writes **`$COLDATA`** (`$2132`). HDMA filter **`$0804`**.
 
-#### Purpose
+| Scene ID | List | Slot |
+|----------|------|------|
+| `$5C` (92) | `thinker_spawn_0CE96F` | `#04` |
 
-Dynamic brightness control for Palace Coffins based on vertical scroll position. Reads `$06C2` (BG scroll Y), adds `#$0080`, shifts right 8 bits total, masks to `#$F8`, then writes the result to `$COLDATA` with base `#$E0` — dimming or brightening the screen as the player scrolls through the coffin room.
-
-#### Algorithm
-
-```
-SetEntryHere
-brightness = ((scroll_Y + 0x80) >> 8) & 0xF8
-COLDATA ← brightness + 0xE0
-RTL
-```
-
-#### Scene Usage
-
-| Scene | Index | Context |
-|-------|-------|---------|
-| Palace Coffins | 92 (`thinker_0CE96F` slot `#04`) | Scroll-linked brightness in coffin maze |
-
-#### Dependencies
-
-None. Reads `$06C2` (scroll WRAM) directly.
+Also spawned on **`$5A`/`$5B`** via `thinker_spawn_0CE96F+8` (slots `#04`).
 
 ---
 
-### dao_window_mask
+### `dao_window_mask` — `$00B7BE`
 
-**Address:** `$00B7BE`
+Each frame: **`$W12SEL` ← `#$02`** (`$2123`).
 
-#### Purpose
-
-Sets `$W12SEL` ← `#$02` each frame, configuring window mask logic so BG2 participates in window masking. Creates the vignette/frame effect in Dao Village where the edges of the screen are clipped.
-
-#### Scene Usage
-
-| Scene | Index | Context |
-|-------|-------|---------|
-| Dao Village | 195 (`thinker_0CEA6C` slot `#03`) | Window-masked village viewport |
-
-#### Dependencies
-
-None.
+| Scene ID | List | Slot |
+|----------|------|------|
+| `$C3` (195) | `thinker_spawn_0CEA6C` | `#03` |
 
 ---
 
-### itory_village_fog
+### `itory_village_fog` — `$00B818`
 
-**Address:** `$00B818`
+Exits when flag **`#2B`** set (`WaitOnFlagByte`). Else reads **`$playerActor` → `$14,Y` (X)**. If X **`>= #$01B0`**: **`$CGADSUB` ← 0**; else **`#$50`**. Register label in asm: **`!CGADSUB` `$2131`**.
 
-#### Purpose
+| Scene ID | List | Slot |
+|----------|------|------|
+| `$15` (21) | `thinker_spawn_0CE843` | `#00` |
 
-Position-dependent fog effect for Itory Village. Reads the player's X coordinate via `$player_actor` → `$14,Y`. West of X = `$01B0` (432 pixels): sets `$CGADSUB` ← `#$50` (subscreen color addition with halftone). East of threshold: clears `$CGADSUB` ← `#$00`. Exits entirely when flag `#2B` is set.
-
-#### Algorithm
-
-```
-if flag #2B == 1 → exit thinker
-SetEntryHere
-player_X = [$player_actor + $14]
-if player_X >= $01B0 → CGADSUB = 0 (clear fog)
-else → CGADSUB = $50 (fog overlay)
-RTL
-```
-
-#### Scene Usage
-
-| Scene | Index | Context |
-|-------|-------|---------|
-| Itory Village | 14 (`thinker_0CE843` slot `#00`) | Rolling fog on village west side |
-
-#### Dependencies
-
-| Symbol | Type | Purpose |
-|--------|------|---------|
-| `$player_actor` | WRAM label | Player actor index for position read |
+(Scene **`$0E` (14)** uses a different list — no fog thinker.)
 
 ---
 
-### dark_castoth_layer_config
+### `dark_castoth_layer_config` — `$00BF78`
 
-**Address:** `$00BF78`
+Each frame: **`$TM` ← `#$17`**, **`$TS` ← `#$00`** (`!TM` **`$212C`**, `!TS` **`$212D`** in extracted equates). Filter **`$0804`**.
 
-#### Purpose
-
-Forces BG layer configuration for the Dark Castoth boss arena. Sets `$TM` ← `#$17` (BG1+BG2+BG3+OBJ on main screen) and `$TS` ← `#$00` (no subscreen layers). Ensures all background layers are visible for the multi-layer boss room layout.
-
-#### Scene Usage
-
-| Scene | Index | Context |
-|-------|-------|---------|
-| Dark Castoth Lair | 242 (`thinker_0CEAFA` slot `#00`) | Boss arena layer setup |
-
-#### Dependencies
-
-None.
+| Scene ID | List | Slot |
+|----------|------|------|
+| `$F2` (242) | `thinker_spawn_0CEAFA` | `#00` |
 
 ---
 
-## Menu / System
+## Menu / system HDMA (live)
 
-### inventory_bg3_scroll_hdma
+### `inventory_bg3_scroll_hdma` — `$00BB8E`
 
-**Address:** `$00BB8E`
+Each HDMA pass: **`QueueHdmaDirect (@inventory_bg3vofs_table, #12)`** — operand **`#12`** = B-bus **`$2112` BG3VOFS**. Fixed 7-entry direct table; re-queued every frame after `ResetHdmaState`.
 
-#### Purpose
+| Scene ID | List | Slot |
+|----------|------|------|
+| `$FF` | `thinker_spawn_0CEB46` | `#00` |
 
-Per-frame **BG3 vertical scroll HDMA**. Each thinker tick runs `COP [QueueHdmaDirect] ( @inventory_bg3vofs_table, #12 )` — operand `#12` is B-bus **`$2112` BG3VOFS** (not a byte count). `ResetHdmaState` clears channel bindings every frame, so this thinker re-queues the same seven-entry direct table.
-
-#### HDMA table (`inventory_bg3vofs_table`)
-
-Seven `{line count, V low, V high}` bands: long runs at V=0, then stepped bands at `$0B`/`$0F`/`$13`/`$17`, ending at V=`$20` from scanline 160 downward (visual result not verified in emulator).
-
-#### Scene Usage
-
-| Scene | Index | Context |
-|-------|-------|---------|
-| Inventory menu | `$FF` (`thinker_0CEB46` slot `#00`) | PPU init on menu open |
-
-#### Dependencies
-
-None.
+**Note:** Inventory list has **no** `global_ambient_dispatcher` (menu overlay).
 
 ---
 
-### diary_menu_window_dma
+### `diary_menu_window_dma` — `$00BBAF`
 
-**Address:** `$00BBAF`
+State machine on **`$0D92`**, **`$0D96`**, **`$0D98`**, **`$0036`**: up to three **`QueueHdmaDirect (... , #26)`** calls per frame (**`#26`** = WH0/WH1). Band tables embedded in same file.
 
-#### Purpose
+| Scene ID | List | Slot |
+|----------|------|------|
+| `$FA` | `thinker_spawn_0CEB18` | `#00` (only record) |
 
-State-machine DMA thinker for the diary menu window animation. Reads state variables `$0D96`, `$0D92`, `$0D98`, and `$0036` to select among multiple DMA tables (`@dma_data_00BC4C` through `@dma_data_00BC83`), configuring window registers (`$WH0`, `$WBGLOG`, etc.) for the sliding diary panel reveal. Handles both the primary window track and a secondary track (`$0D98`) with independent state.
+Referenced by **`NewGamePlus.patch.asm`** via `?INCLUDE 'diary_menu_window_dma'`.
 
-#### Algorithm
+---
 
-```
-each frame:
-  read $0D96 → select window DMA table variant
-  read $0D92 → sub-state (0/1/2 → different table)
-  read $0036 bit 0 → override path
-  QueueHdmaDirect (selected_table, #26)
-  repeat for secondary track ($0D98)
-  RTL
+## Boot logo palette sequence (live)
+
+Three parallel thinkers (OBJ palettes **0 / 1 / 2**), spawned only on scene **`$FB`** (`thinker_spawn_0CEB1D`, params **`#01` / `#02` / `#03`** — **never read** by scripts). Each runs **`PaletteStart` + `PaletteStep`** three times then **`KillThinker`**. Scene script **`sFB_boot_logo.asm`**: thinkers animate **Enix logo** (`sprite_group_000010`); first logo visit runs them on unseen OBJ palettes.
+
+| Thinker | Address | Bundles (OBJ palette) |
+|---------|---------|------------------------|
+| `boot_logo_enix_palette_obj0` | `$00B83F` | `#50` → `#52` → `#54` (CGRAM `$81`–`$8F`) |
+| `boot_logo_enix_palette_obj1` | `$00B853` | `#51` → `#53` → `#55` (`$91`–`$9F`) |
+| `boot_logo_enix_palette_obj2` | `$00B867` | `#56` → `#57` → `#58` (`$A1`–`$AF`) |
+
+Boot list has **no** `global_ambient_dispatcher`.
+
+---
+
+## Global scene dispatcher (live)
+
+### `global_ambient_dispatcher` — `$00BF89`
+
+**Size:** ~545 bytes (label span in bank `$00`; block note).
+
+**Spawn-time (once):** `SwitchCase` on **`characterForm` (`$0AD4`)** → palette bundles **`#0B` / `#0C` / `#23`** (OBJ **`$81`–`$8F`**). Fourth case unreachable. **Not** refreshed on mid-scene form change.
+
+**Each frame (talk):** Documented flow matches `global_ambient_dispatcher.asm`:
+
+```text
+GlobalAmbientInteractEntry: clear animScratch2 bit $0800 → leave Light runners
+  if joypadCurrent bit $8000 clear → RTL
+  GetPlayerFacingDirection (carry set = abort)
+  probe 1px in front → GlobalAmbientFindActorInFront (Flags10 $1000, |dx|+|dy| bounds)
+  chat via chatPtr ($7F000A); MVN snapshot $2F bytes to $7E:3410 when turning to talk
+  GlobalAmbientClearTalkInput
 ```
 
-#### Scene Usage
+**Interact bit:** **`joypadCurrent` `$8000`** (logical interact; this build maps to **A** via `transforms.json` — see block note).
 
-| Scene | Index | Context |
-|-------|-------|---------|
-| Diary menu | `$FA` (`thinker_0CEB18`) | Window animation during diary read |
+**Spawn coverage:** **`59`** `@global_ambient_dispatcher` records in source lists; **`70`** scenes use dispatcher-only list; **11** scene IDs omit dispatcher entirely (`$E5`, `$E8`, `$FA`, `$FB`, `$FD`, `$FF`, credits `$F7`, space `$E7`, etc.).
 
-Referenced by `NewGamePlus.patch.asm` via `?INCLUDE 'diary_menu_window_dma'`.
-
-#### Dependencies
-
-None. Uses embedded DMA data tables within the same block.
+**Dependencies:** `GetPlayerFacingDirection`, `$playerActor`, `ComposeDigitSprites_AtCursor` include; talk helpers are internal labels (`GlobalAmbientProbe*`, `GlobalAmbientTalkWithSnapshot`, …).
 
 ---
 
-## Boot Logo Sequence
+## Scene thinker slot convention (source-backed)
 
-Three one-shot thinkers that together run the palette cycle of the **Enix logo**, one thinker per OBJ palette (0, 1 and 2). They are spawned together by scene `$FB`'s thinker list (`thinker_spawn_0CEB1D`, slots 0, 1, 2 with params `#01`, `#02`, `#03`, never read) and run side by side, in both visits of scene `$FB`. Each plays three palette bundles (`PaletteStart` + `PaletteStep`) and then `KillThinker`. Only the second logo (the Enix logo, `sprite_group_000010`) uses OBJ palettes 0 to 2, so only it changes colour; in the first visit the thinkers run unseen. (They were first named after the spawn order, `boot_logo_palette_enix` / `_quintet` / `_third`, which read like three companies.)
+Slot order is **defined per spawn list** in `scene_thinkers.asm`, not a ROM-wide rule.
 
-### boot_logo_enix_palette_obj0
+| Pattern | Source fact |
+|---------|-------------|
+| **`global_ambient_dispatcher` last** | Common, not universal — **first** in lists like `thinker_spawn_0CE98D` (Mu), `thinker_spawn_0CE9A3`, `thinker_spawn_0CE8C7` |
+| **Mid-list entry** | **43** scene pointers use **`+4` / `+8`** byte offsets into another list — later slots only |
+| **Dispatcher-only** | **`70`** scene IDs → `thinker_spawn_dispatcher_only` |
+| **No dispatcher** | Menu / boot / inventory / some ending scenes (see boot and inventory sections) |
 
-**Address:** `$00B83F`
+Example **field** list (`thinker_spawn_0CE861`, scene **`$1D`**):
 
-#### Purpose
+| Slot | Thinker |
+|------|---------|
+| `#00` | `scanline_band_hdma_thinker` (`#0B`) |
+| `#01` | `larai_cliff_scroll_wave` |
+| `#02` | `ambient_palette_cycler` (`#13`) |
+| `#03` | `global_ambient_dispatcher` |
 
-Enix logo palette thinker for OBJ palette 0 (CGRAM colours `$81`–`$8F`): bundles `#50` → `#52` → `#54` (reveal, flash to white, settle), then `KillThinker`.
+Example **system** lists (from spawn tables):
 
-#### Scene Usage
-
-| Scene | Index | Context |
-|-------|-------|---------|
-| Boot logos | `$FB` (`thinker_0CEB1D` slot `#00`, param `#01`) | Enix logo palette cycle, OBJ palette 0 |
-
-#### Dependencies
-
-None.
-
----
-
-### boot_logo_enix_palette_obj1
-
-**Address:** `$00B853`
-
-#### Purpose
-
-Enix logo palette thinker for OBJ palette 1 (`$91`–`$9F`): bundle `#51` → `#53` → `#55` (the same frames as obj0, written to palette 1), then `KillThinker`.
-
-#### Scene Usage
-
-| Scene | Index | Context |
-|-------|-------|---------|
-| Boot logos | `$FB` (`thinker_0CEB1D` slot `#01`, param `#02`) | Enix logo palette cycle, OBJ palette 1 |
-
-#### Dependencies
-
-None.
+| Scene ID | Thinkers (spawn order) |
+|----------|-------------------------|
+| `$FA` | `diary_menu_window_dma` only |
+| `$FB` | 3× boot logo palette thinkers |
+| `$FD` | `scanline_band_hdma_thinker`, `palette_parent_child`, `ambient_palette_cycler` — **no** dispatcher |
+| `$FF` | `inventory_bg3_scroll_hdma`, scanline, `palette_parent_child`, 2× `ambient_palette_cycler` — **no** dispatcher |
 
 ---
 
-### boot_logo_enix_palette_obj2
+## PPU register reference (this doc’s thinkers)
 
-**Address:** `$00B867`
+Equates are from extracted `!label` lines (B-bus addresses as used by the engine).
 
-#### Purpose
+| Register (SNES) | Equate in asm | Thinkers | Value / effect |
+|-----------------|---------------|----------|----------------|
+| Color math subscreen | `CGADSUB` `$2131` | `babel_elevator_color_add`, `itory_village_fog` | `#$02` add mode; `#$50` halftone add; `#$00` clear |
+| Fixed color | `COLDATA` `$2132` | `palace_scroll_brightness` | Scroll-derived add/sub term + `#$E0` base |
+| Main screen layers | `TM` `$212C` | `dark_castoth_layer_config` | `#$17` (BG1+2+3+OBJ) |
+| Sub screen layers | `TS` `$212D` | `dark_castoth_layer_config` | `#$00` |
+| Window BG1/2 mask | `W12SEL` `$2123` | `dao_window_mask` | `#$02` |
+| Window 1 left | `WH0` `$2126` | `diary_menu_window_dma` (via HDMA `#26`) | Band tables / `#$FF` empty |
+| BG3 V scroll | `$2112` (HDMA `#12`) | `inventory_bg3_scroll_hdma` | Stepped `inventory_bg3vofs_table` |
 
-Enix logo palette thinker for OBJ palette 2 (`$A1`–`$AF`, the wordmark block under the emblem): bundle `#56` (fill) → `#57` (fill) → `#58` (dip), then `KillThinker`.
-
-#### Scene Usage
-
-| Scene | Index | Context |
-|-------|-------|---------|
-| Boot logos | `$FB` (`thinker_0CEB1D` slot `#02`, param `#03`) | Enix logo palette cycle, OBJ palette 2 |
-
-#### Dependencies
----
-
-## Global Scene Dispatcher
-
-### global_ambient_dispatcher
-
-**Address:** `$00BF89` · **Size:** ~545 bytes (largest bank $00 thinker)
-
-#### Purpose
-
-Per-scene hub thinker (usually the last slot). Two jobs:
-
-1. **Form palette (spawn only):** `SwitchCase` on `characterForm` (`$0AD4`: 0 Will, 1 Freedan, 2 Shadow) runs `PaletteStart` / `PaletteStep` on bundle `#0B`, `#0C`, or `#23`. All write OBJ palette 0 colours `$81`–`8F` (the player's sprite palette). The fourth table entry is never reached. Not re-run on mid-scene form changes.
-
-2. **Talk interaction (every frame):** Trigger is **`joypadCurrent` bit `$8000` (interact)**, not a direction press. After `GlobalAmbientInteractEntry` clears bit 11 of the thinker's `animScratch2` (`$7F000E,X`), it runs only in the main thinker pass (skipped during dialogue frame loops).
-
-#### Algorithm
-
-```
-(at spawn) SwitchCase characterForm → PaletteStart #0B / #0C / #23 → PaletteStep
-
-each frame:
-  clear animScratch2 bit $0800 (drop out of Light runners)
-  if joypadCurrent interact bit clear → RTL
-  GetPlayerFacingDirection → carry set = invalid facing → RTL
-  build probe point 1 px in front of player (GlobalAmbientProbeDown/Up/Left/Right)
-  scan actors: smallest |dx|+|dy| with |dx|,|dy| each < $10, Flags10 bit $1000 set
-  if target has chatPtr ($7F000A):
-     in range → turn, optional MVN snapshot ($2F byte count), run chat, restore
-     at/behind → run chat directly (or defer if Flags12 bit $0200)
-  clear interact in joypadCurrent; latch into joypadHeld
-RTL
-```
-
-The talk path's **`$2F` is the MVN byte count** (actor + extended snapshot to `$7E:3410`), not an APU sound. `GlobalAmbientTalkWithSnapshot` / `GlobalAmbientTalkRestoreActor` wrap the chat routine.
-
-#### Scene Usage
-
-**59** spawn-list entries in `scene_thinkers.asm`, covering **173 of 184** scenes that have thinkers (typically the last slot).
-
-#### Dependencies
-
-| Symbol | Type | Purpose |
-|--------|------|---------|
-| `ComposeDigitSprites_AtCursor` | `?INCLUDE` | Shared actor/engine constants |
-| `$player_actor` | WRAM label | Player position for probe |
-| `GetPlayerFacingDirection` | Far function | Facing 0 down / 1 up / 2 left / 3 right |
-| `UpdateActorAnimation` | Far function | Stage talk facing frame |
-
-#### Internal Sub-functions
-
-| Label | Purpose |
-|-------|---------|
-| `GlobalAmbientFacingValid` | Carry-clear path after facing read |
-| `GlobalAmbientProbeDown/Up/Left/Right` | 1 px probe from player |
-| `GlobalAmbientFindActorInFront` | Nearest qualifying actor |
-| `GlobalAmbientTalkWithSnapshot` / `GlobalAmbientTalkRestoreActor` | MVN save/restore around chat |
-| `GlobalAmbientDeferToScript` | Skip turn when Flags12 `$0200` set |
-| `GlobalAmbientClearTalkInput` | Consume interact press |
+Palette-family thinkers that also touch `$CGADSUB` / `$COLDATA` are documented in [`thinkers-palette.md`](thinkers-palette.md).
 
 ---
 
-## Scene Thinker Slot Convention
+## Source validation
 
-Most field scenes follow a standard thinker slot layout:
+**Files checked:** `extracted/tables/scene_thinkers.asm`; all thinker `.asm` files listed above; `extracted/system/boot_logos/sFB_boot_logo.asm`; `extracted/system/engine/thinker_execution.asm`.
 
-| Slot | Typical Thinker | Role |
-|------|----------------|------|
-| `#00` | Scene-specific effect | Palette cycler, HDMA wave, fog, etc. |
-| `#01` | `scanline_band_hdma_thinker` or second ambient | Scanline HDMA bands / secondary palette |
-| `#02` | Additional effect (optional) | HDMA, scroll brightness, etc. |
-| Last | `global_ambient_dispatcher` | Form OBJ palette (spawn) + interact talk |
+**Verified against:** Spawn records and list offsets; register writes in hardware thinkers; `global_ambient_dispatcher` block note vs instruction flow (interact bit, MVN `$2F`, animScratch2 bit 11); boot scene cross-reference; inventory/diary filter words `$0804`.
 
-System scenes use dedicated layouts:
-
-| Scene | Thinkers |
-|-------|----------|
-| `$FA` (Diary) | `diary_menu_window_dma` |
-| `$FB` (Boot) | 3× boot logo palette thinkers |
-| `$FD` (Statue inventory) | `scanline_band_hdma_thinker` + `palette_parent_child` + ambient |
-| `$FF` (Inventory) | `inventory_bg3_scroll_hdma` + `scanline_band_hdma_thinker` + `palette_parent_child` + ambient |
-
----
-
-## PPU Register Reference
-
-| Register | Thinkers | Value | Effect |
-|----------|----------|-------|--------|
-| `$CGADSUB` (`$2130`) | `babel_elevator_color_add`, `itory_village_fog`, `palace_fountain_palette` | `#02`, `#50`, `#03` | Color addition/subtraction mode |
-| `$COLDATA` (`$2132`) | `palace_scroll_brightness`, `edward_castle_alarm_palette`, one-shot tints | varies | Direct color addition/subtraction |
-| `$TM` / `$TS` (`$2105`/`$2106`) | `dark_castoth_layer_config` | `#17` / `#00` | Main/sub screen layer enables |
-| `$W12SEL` (`$2123`) | `dao_window_mask` | `#02` | BG1/BG2 window mask select |
-| `$WH0` (`$2126`) | `diary_menu_window_dma` | `#FF` | Window horizontal position |
-
----
-
-*Source: `extracted/thinkers/global_ambient_dispatcher.asm` and related thinker ASM files in `extracted/`.*
+**Notes:** **`173 of 184`** dispatcher coverage claim removed — not supported by spawn table arithmetic (**59** named records + **70** shared dispatcher-only scenes, **11** scenes without). Scene **names** in prose only where block notes confirm. On-screen appearance of fog/brightness bands **not** emulator-verified in this pass.

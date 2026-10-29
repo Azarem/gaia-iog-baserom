@@ -418,7 +418,7 @@ thinker-spawn < param, @thinker_def_address >
 | Pointer array entries | 256 |
 | Unique thinker_spawn blocks | 70 |
 | Total thinker-spawn entries | 204 |
-| Scenes with thinker lists | 173 of 184 (59 shared `global_ambient_dispatcher` lists) |
+| Thinker-spawn lists | 70 lists in the table (59 of them contain a `global_ambient_dispatcher` record) |
 | Unique thinker definitions referenced | 46 |
 | `?INCLUDE` directives | 45 (thinker definition files + 2 comet thinkers) |
 
@@ -969,8 +969,7 @@ Key structural patterns:
 
 The thinker table gives each area its visual identity. The 70 unique
 thinker_spawn blocks map to 46 distinct thinker definitions. Two thinkers
-dominate: `global_ambient_dispatcher` (59 spawn lists covering 173 of 184
-scenes with thinkers) and `ambient_palette_cycler` (59 lists with 90+ individual
+dominate: `global_ambient_dispatcher` (a record in 59 of the 70 spawn lists) and `ambient_palette_cycler` (59 lists with 90+ individual
 palette entries) provide form palette and ambient colour cycling.
 
 Area-specific thinkers create the game's distinctive visual moods:

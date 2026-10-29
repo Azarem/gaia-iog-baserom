@@ -1,252 +1,245 @@
 # Bank $00 — Actors: Player Transitions, Rewards & Inventory
 
 **Bank:** `$00` (mirrored at `$80`)  
-**Address range:** `$00C2BB`–`$00CF29` (this document)  
-**Scope:** Boss clear stat rewards, player transition animation library, statue/inventory system, location-specific interactables, and field reveal collectibles  
-**Sources:** `extracted/actors/*.asm`, `extracted/system/statue_inventory/*`, `extracted/freejia/*`, `extracted/tables/scene_actors.asm`
+**Address range:** `$00C2BB`–`$00DA78` (reward-related actors in this doc)  
+**Scope:** Boss catchup stat rewards, per-scene clear-reward helpers, field-reveal pickups, mystic-statue ceremony / inventory display, player transition scripts, and assorted town interactables  
+**Related:** [`functions-combat-defeat.md`](functions-combat-defeat.md) (last-enemy stat pickup pipeline, gem drops) · [`actors-combat-interaction.md`](actors-combat-interaction.md) (defeat dispatch, push handlers) · [`README.md`](README.md)
 
-These actors handle player-facing progression: boss-triggered catchup stat rewards, cutscene/warp player animations, statue collectible grants, town doors, hit-triggered switches, overworld map transitions, and animated field pickups.
+---
 
-**Related:** [`actors-combat-interaction.md`](actors-combat-interaction.md) (stat reward VFX, push handlers) · [`README.md`](README.md)
+## Source of truth
+
+Primary extracted files for this document:
+
+| Path | Role |
+|------|------|
+| `extracted/actors/boss_clear_reward_handler.asm` | Post-boss catchup actor + `boss_reward_range_table` |
+| `extracted/tables/enemy_clear_reward_table.asm` | 256-byte per-scene tier table (`?BANK 01`) |
+| `extracted/actors/reward_actors.asm` | Last-kill HP/STR/DEF pickup actors + `RewardActorVFX` |
+| `extracted/functions/StandardEnemyDefeatHandler.asm` | Last-enemy `EnemyStatBonusReward` spawn path |
+| `extracted/functions/EnemyDefeatDispatch.asm` | Non-last kills → `field_reveal_object` gem path |
+| `extracted/actors/field_reveal_object.asm` | Runtime gem / hidden-stat reveal pickup |
+| `extracted/system/statue_inventory/statue_inventory_reward.asm` | Scene `$FD` ceremony + `statue_reward_table` |
+| `extracted/system/inventory/inventory_statue_slot.asm` | Scene `$FF` pedestal display |
+| `extracted/system/inventory/inventory_menu.asm` | Notes: menu does not spawn statue actors |
+| `extracted/actors/player_transition_handlers.asm` | Player script library (not scene-placed) |
+| `extracted/actors/hidden_red_jewel.asm` | Red jewel interactable (separate from stat rewards) |
+| `extracted/actors/town_door.asm`, `extracted/freejia/freejia/freejia_street_prop.asm` | Door-like props |
+| `extracted/actors/hit_switch.asm`, `extracted/actors/overworld_exit.asm` | Great Wall switches, world-map exits |
+| `extracted/tables/scene_actors.asm` | Static placements for `$FD`, `$FF`, boss handler, jewels, doors |
+| `extracted/pyramid/pyCC_mystic_ball.asm`, `extracted/angkor_wat/awB1_wall_walker.asm` | `field_reveal_object` field spawns |
+
+**Naming:** Labels such as `boss_clear_reward_handler`, `BossClearApplyStatReward`, and `PlayerSkyGardenJumpLanding` are **extracted labels**. Legacy names in older notes (`apply_pending_clear_rewards`, `SpawnSparkleEffect`, `GardenJumpAnim`, `FallIntoHoleAnim`) are **not** in the current ROM — do not use them when patching.
+
+**Counts (this session, `rg` on `extracted/tables/scene_actors.asm` unless noted):**
+
+| Item | Count type | Value |
+|------|------------|-------|
+| `boss_clear_reward_handler` | static scene placements | **5** (scenes `$29`, `$55`, `$67`, `$8A`, `$DD`) |
+| `hidden_red_jewel` | static scene placements | **16** |
+| `town_door` | static scene placements | **16** (+ **1** runtime spawn in `fr32_guide.asm`) |
+| `freejia_street_prop` | static scene placements | **2** (scene `$32`) |
+| `hit_switch` | static scene placements | **7** (Great Wall `$83`, `$85`×5, `$87`) |
+| `overworld_exit` | static scene placements | **15** |
+| `statue_inventory_reward` | static scene placements | **6** (scene `$FD` only) |
+| `inventory_statue_slot` | static scene placements | **6** (scene `$FF` only) |
+| `field_reveal_object` | static scene placements | **0** — **3** runtime spawn call sites (`EnemyDefeatDispatch`, `pyCC_mystic_ball`, `awB1_wall_walker`) |
+| `boss_reward_range_table` | entries in source table | **11** rows (**5** live boss rows + **6** placeholders) |
+| `enemy_clear_reward_table` | entries in source table | **256** bytes (**87** nonzero tiers in shipped table) |
+| `statue_reward_table` | entries in source table | **6** rows × 4 bytes |
 
 ---
 
 ## Overview
 
-| Actor / Block | Address | Movable | Scene / Spawn |
-|---------------|---------|---------|---------------|
-| `boss_clear_reward_handler` | `$C2BB` | ✓ | 5 scenes |
-| `player_transition_handlers` | `$C418`–`$C5E3` | **No** | Library (`$&` refs) |
-| `freejia_street_prop` | `$C62D` | ✓ | Freejia ($32) |
+| Actor / block | Address (approx.) | Movable | Scene / spawn |
+|---------------|-------------------|---------|----------------|
+| `boss_clear_reward_handler` | `$C2BB` | ✓ | 5 boss arenas |
+| `player_transition_handlers` | `$C418`–`$C68F` | **No** | Library (`$&` / pointer writes only) |
+| `freejia_street_prop` | `$C630` | ✓ | Scene `$32` (2) |
 | `hidden_red_jewel` | `$C672` | ✓ | 16 scenes |
-| `town_door` | `$C5A3` | ✓ | 3 scenes (+1 runtime) |
-| `hit_switch` | `$C9FE` | ✓ | 7 scenes |
-| `overworld_exit` | `$CA45` | ✓ | 15 overworld scenes |
-| `statue_inventory_reward` | `$CD59` | ✓ | Scene $FD |
-| `inventory_statue_slot` | `$CF29` | ✓ | Scene $FF |
-| `field_reveal_object` | `$DA78` | ✓ | Runtime spawn |
+| `town_door` | `$C5A3` | ✓ | `$01` / `$32` / `$91` (+1 runtime) |
+| `hit_switch` | `$C9FE` | ✓ | Great Wall (7) |
+| `overworld_exit` | `$CA45` | ✓ | 15 overworld entrances |
+| `statue_inventory_reward` | `$CD59` | ✓ | Scene `$FD` (6 copies) |
+| `inventory_statue_slot` | `$CF29` | ✓ | Scene `$FF` (6 copies) |
+| `field_reveal_object` | `$DA78` | ✓ | Runtime spawn only |
+
+Statue ceremony actors are **not** part of the enemy-clear stat pipeline; they use **`SetFlagRaw`** on indices `$F8`–`$FD` (bits in byte `$0A1F`) and only affect inventory presentation.
 
 ---
 
-## Boss Clear Reward Handler
+## Reward systems (how they relate)
 
-### boss_clear_reward_handler
+```text
+                    enemy_clear_reward_table[scene]  (256 bytes, bank $01)
+                                    |
+        +---------------------------+---------------------------+
+        |                           |                           |
+   Last enemy kill              Boss defeated              Hidden field event
+   (orbitAngle = 0)            (playerFlags $0020)        (mystic ball, wall walker)
+        |                           |                           |
+ StandardEnemyDefeatHandler    boss_clear_reward_handler    SpawnAfterFlags
+   .EnemyStatBonusReward       .BossClearApplyStatReward          |
+        |                           |                           |
+ spawns reward_actors           Direct INC stats +          field_reveal_object
+ e_hp / e_str / e_def           SetFlag_0300 per scene      (tier OR gem path)
+        |                           |                           |
+ RewardActorVFX sets            Same SetFlag_0300            collect_handler_gem
+ SetFlag_0300 + VFX             (skip if already set)        child (pull pickup)
+        |                           |
+   Dialog + stat + HP bar refill via hpToHeal ($0B22)
 
-**Address:** `$00C2BB` · **Size:** 220 bytes
+Parallel track (red jewels): hidden_red_jewel / NPC scripts → GiveItem #01 → TestEventFlag_0200 ($0280+$0E)
 
-#### Description
-
-After a boss is defeated, this handler retroactively awards all **uncollected** per-scene enemy-clear stat rewards within a range. The embedded range table `boss_reward_range_table` maps `$scene_current` to a `<sceneCurrent, sceneMin, sceneMax>` triplet. The helper at `$C33E` then walks `enemy_clear_reward_table` from `sceneMin` to `sceneMax`, granting every reward the player missed.
-
-Only activates when `$player_flags` bit `$0020` is set (boss-defeat latch set by the boss death script). Uses WRAM flag offset `$0100` range to prevent duplicate boss catchup per scene. Individual scene rewards are tracked via `$0300` flags.
-
-The helper at `$C33E` walks the reward table byte-by-byte: value `1` → increment max HP (`$0ACA`), `2` → increment `$0ADE` (STR), `3` → increment `$0ADC` (DEF). Each scene's reward sets a `$0300` flag before applying, so already-collected rewards are skipped.
-
-Movable (move with `enemy_clear_reward_table`). High priority — boss reward scenes.
-
-> ⚠ This actor has **nothing to do with red jewels**. It is a boss-defeat catchup mechanism that ensures the player receives all stat bonuses from scenes they may have cleared (or skipped clearing) between boss milestones.
-
-#### Algorithm
-
-```
-1. Scan boss_reward_range_table for matching $scene_current
-2. TestWramFlag_Offset100 — skip if boss already rewarded
-3. Require $player_flags bit $0020 (boss defeated)
-4. Load scene range (sceneMin → sceneMax) from table entry
-5. JSR apply_pending_clear_rewards — walk enemy_clear_reward_table[sceneMin..sceneMax]
-   For each scene in range: check $0300 flag, skip if collected, else grant stat and set flag
-6. hpToHeal ($0B22) := playerMaxHp − playerHp (UpdateHUD then refills one HP per 8 frames)
-7. SetWramFlag_Offset100 — mark boss scene rewarded
-8. SetEntryHere loop
+Parallel track (statues): boss scripts → QueueMapChange scene $FD → statue_inventory_reward
+                          → SetFlagRaw ($F8-$FD) → inventory_statue_slot on scene $FF
 ```
 
-#### Variables
+Full last-kill and gem-drop behavior: [`functions-combat-defeat.md`](functions-combat-defeat.md).
+
+---
+
+## Boss clear catchup rewards
+
+### `boss_clear_reward_handler` (**live**)
+
+**Address:** `$00C2BB` · **Size:** ~220 bytes (49854–50070 in extraction)
+
+After a boss dies, this invisible actor grants every **uncollected** per-scene clear reward in the dungeon range tied to that boss. It does **not** grant red jewels, mystic statues, or gem pickups — only the same **Max HP / STR / DEF +1** tiers stored in `enemy_clear_reward_table`, using the same **`SetFlag_0300`** scene flags as normal room clears.
+
+**Activation**
+
+1. `BossRewardCheckInit` scans `boss_reward_range_table` (4 bytes per row: **boss scene id**, **first scene**, **last scene**, pad) until `sceneCurrent` matches. No end-of-table guard — safe only because the actor is placed solely in the five boss arenas.
+2. `TestWramFlag_Offset100` on boss index (row offset ÷ 4 → event flags **`$0500`–`$0507`**). If already set, the actor idles.
+3. Each frame: require **`playerFlags` bit `$0020`** (boss-defeat latch from boss scripts).
+4. `BossClearApplyStatReward` walks scene indices **`[first, last)`** (last scene byte is **exclusive**; boss scene tier is **0** in the shipped table so the walk stops there).
+
+**Per-scene grant (`BossClearApplyStatReward`)**
+
+- Read `enemy_clear_reward_table[Y]`. Tier **0**: advance; when index reaches **last**, done.
+- Tier **nonzero** and **`TestFlag_0300(scene)`** clear: **`SetFlag_0300`**, then **1** → `INC playerMaxHp`, **2** → `INC playerStr`, **3** → `INC playerDef` (values **>3** set the flag but grant no stat — none occur in the table).
+- **`hpToHeal`** (`$0B22`) := `playerMaxHp − playerHp` (HUD refills 1 HP per 8 frames, same as `reward_actors`).
+- **`SetWramFlag_Offset100`** marks this boss’s catchup complete.
+
+```text
+1. Match sceneCurrent in boss_reward_range_table → boss index in $20
+2. TestWramFlag_Offset100(boss index) → idle if set
+3. Poll playerFlags bit $0020 each frame
+4. Load range word from table+1 into actor $04; JSR BossClearApplyStatReward
+5. hpToHeal := maxHp − hp; SetWramFlag_Offset100(boss index); idle loop
+```
 
 | Symbol | Role |
 |--------|------|
-| `$scene_current` | Scene index — boss scene lookup key |
-| `$player_flags` | Bit `$0020` = boss defeated, reward eligible |
-| `$0ACA` | Max HP |
-| `$0ACE` | Current HP |
-| `$0ADE` | STR stat |
-| `$0ADC` | DEF stat |
-| `$0B22` | `hpToHeal`: HP still to recover (the handler sets it to max HP − current HP) |
-| `$20` | Saved range table index |
-| `boss_reward_range_table` | Boss scene → `<sceneCurrent, sceneMin, sceneMax>` range mapping (5 active + 6 placeholders) |
-| `enemy_clear_reward_table` | Per-scene enemy clear reward table (0=none, 1=HP, 2=STR, 3=DEF) |
+| `$scene_current` | Boss arena scene id (table lookup key) |
+| `$player_flags` | Bit `$0020` = boss defeated |
+| `$0ACA` / `$0ACE` | Max / current HP |
+| `$0ADE` / `$0ADC` | STR / DEF |
+| `$0B22` | `hpToHeal` |
+| `$20` | Matching row byte offset |
+| `boss_reward_range_table` | Boss scene → scene index range |
+| `enemy_clear_reward_table` | Tier per scene (0–3) |
 
-#### Range Table (`boss_reward_range_table`)
+#### `boss_reward_range_table` (in `boss_clear_reward_handler.asm`)
 
-Each entry defines the range of scenes whose rewards are granted on boss defeat:
-
-| # | Scene | Min | Max | Boss Context |
-|---|-------|-----|-----|-------------|
+| # | Boss scene | First | Last (exclusive) | Context |
+|---|------------|-------|------------------|---------|
 | 00 | `$29` | `$0C` | `$29` | Castoth |
 | 01 | `$55` | `$3D` | `$55` | Viper |
-| 02 | `$67` | `$5A` | `$67` | Vampire |
+| 02 | `$67` | `$5A` | `$67` | Mu vampires |
 | 03 | `$8A` | `$6D` | `$8A` | Sand Fanger |
 | 04 | `$DD` | `$A0` | `$DD` | Mummy Queen |
-| 05 | `$F8` | `$00` | `$00` | (placeholder) |
-| 06–0A | `$29` | `$00` | `$00` | (placeholder) |
+| 05 | `$F8` | `$00` | `$00` | Placeholder |
+| 06–0A | `$29` | `$00` | `$00` | Placeholders (never match before row 00) |
 
-#### Scene Usage
+#### Scene placements (`scene_actors.asm`)
 
-**5** placements — post-boss scenes:
+| Scene | Slot | Boss context |
+|-------|------|----------------|
+| `$29` | `#05` | Castoth |
+| `$55` | `#19` | Viper |
+| `$67` | `#0A` | Mu |
+| `$8A` | `#04` | Sand Fanger |
+| `$DD` | `#0A` | Mummy Queen |
 
-| Scene Context | Slot |
-|---------------|------|
-| Castoth (`ir29`) | `#05` |
-| Viper boss (`sg55`) | `#19` |
-| Vampire lair (`mu67`) | `#0A` |
-| Sand Fanger (`gw8A` event) | `#04` |
-| Mummy Queen (`pyDD`) | `#0A` |
-
-#### Cross-References
-
-| Direction | Symbol | Notes |
-|-----------|--------|-------|
-| Includes | `enemy_clear_reward_table` | Must move together |
-| Includes | `flag_helpers` | Flag/stat COP helpers |
-| Related | `field_reveal_object` | Also reads `enemy_clear_reward_table` |
-| Related | `StandardEnemyDefeatHandler` | Reads `enemy_clear_reward_table` per scene; the stat reward is paid for the LAST enemy of the scene (gems drop while `$0300 + scene` is set or enemies remain) |
+**Includes:** `enemy_clear_reward_table`, `flag_helpers` (move with handler).
 
 ---
 
-## Player Transition Handlers Library
+## Per-scene clear reward table
 
-### player_transition_handlers
+**File:** `extracted/tables/enemy_clear_reward_table.asm` (**bank `$01`**, 256 bytes)
 
-**Address:** `$00C418`–`$00C5E3` · **Size:** 460 bytes (11 sub-functions)
+One byte per scene id: **0** none, **1** Max HP +1, **2** STR +1, **3** DEF +1. Claim state: **scene flag `$0300 + scene`** (`TestFlag_0300` / `SetFlag_0300` in `flag_helpers.asm`).
 
-#### Description
+**Readers (live):**
 
-Library of COP scripts for cutscene and warp player animations. Not placed directly in scenes; referenced by `$&func_00C4xx` pointers from warp handlers, boss scripts, and `ComposeDigitSprites_AtCursor`. All player-control-restoration paths converge on `$@PlayerIdleEntry` (bank `$02` normal player AI).
-
-**Not movable** — widely referenced via `$&` short addresses.
-
-Includes: `player_character`, `table_0EE000` (generic metasprite table).
-
-#### Sub-Functions
-
-| Part | Address | Name | Behavior |
-|------|---------|------|----------|
-| 1 | `$C418` | `SpawnSparkleEffect` | Spawns sparkle anim via `SpawnLastRel`, sound `$09`, frame `$2A` |
-| 2 | `$C432` | `HoldPlayerSpriteLoop1` | Loops player sprite frame `#01` (or `#11` if flag byte `#00` set) |
-| 3 | `$C43D` | `HoldPlayerSpriteLoop11` | Loops player sprite frame `#11` |
-| 4 | `$C446` | `HoldBodySpriteLoop` | Body sprite `#04`, frame `#1F`, infinite anim loop |
-| 5 | `$C455` | `HoldBodySpriteRelease` | Clears `$10` bit `$0200` (releases body hold) |
-| 6 | `$C45A` | `RestorePlayerControlDirect` | `JML $@PlayerIdleEntry` |
-| 7 | `$C45E` | `PlayerWakeAnim` | Body `#04`, frame `#20`, anim once, RTL |
-| 8 | `$C46D` | `PlayerWakeReturn` | Wake anim → `JML PlayerIdleEntry` |
-| 9 | `$C479` | `WarpClimbAnim` | Masks joypad, vertical climb + sound `$2C`, 8-frame Y move |
-| 10 | `$C4D1` | `GardenJumpAnim` | Sky Garden ledge jump: V-flip, multi-stage Y moves, landing sound |
-| 11 | `$C557` | `FallIntoHoleAnim` | Fall through hollow tile: body `#08`, solid probe, sink anim |
-
-#### Cross-References
-
-| Direction | Symbol | Notes |
-|-----------|--------|-------|
-| Included by | `warps_interaction.asm`, `GlobalInputHandler`, `ComposeDigitSprites_AtCursor` | `$&` pointer tables |
-| Called from | `sg4D_jump_handler`, `ir29_castoth`, `gw8A_sand_fanger`, Gold Ship scenes | `JumpScript` / pointer assignment |
-| Returns to | `PlayerIdleEntry` | Bank `$02` player control |
+| Consumer | Use |
+|----------|-----|
+| `StandardEnemyDefeatHandler.EnemyStatBonusReward` | Last enemy → spawn `reward_actors` pickup |
+| `boss_clear_reward_handler.BossClearApplyStatReward` | Boss catchup batch grant |
+| `field_reveal_object` | Hidden stat item variant when tier path runs |
+| `radar_map_screen` | Reward icon while flag clear and tier ≠ 0 |
 
 ---
 
-### SpawnSparkleEffect (`$C418`)
+## Field reveal collectibles
 
-Spawns a short-lived sparkle actor at `#00,#00` with flags `$0302`. Child script plays sound `$09`, sets metasprite from `table_0EE000`, animates frame `$2A` once, then dies. Used as a visual flourish at warp/transition entry points.
+### `field_reveal_object` (**live**, runtime spawn only)
 
----
+**Address:** `$00DA78` · **Size:** ~274 bytes
 
-### HoldPlayerSpriteLoop1 / HoldPlayerSpriteLoop11 (`$C432` / `$C43D`)
+Gem or stat-item pickup: drops to floor, hops, spawns **`collect_handler_gem`** (`SpawnAfterMarked`, flags `$2300`) for L/R pull collection. **Not listed in `scene_actors.asm`.**
 
-Freezes the player on a specific sprite frame during cutscenes. `HoldPlayerSpriteLoop1` checks flag byte `#00`: if set, branches to frame `#11` path; otherwise loops frame `#01`. Both use `SetEntryHere` + `AnimOnce` infinite loops.
+**Spawn call sites**
 
----
+| Caller | `$26` at entry | Behavior |
+|--------|----------------|----------|
+| `EnemyDefeatDispatch.asm` | Remaining enemy count (**nonzero**) | **Gem path only** — reads defeated enemy’s `enemy_stats_table+3` & 3 |
+| `pyCC_mystic_ball.asm` | 0 | Tier path if flag `$0300` clear |
+| `awB1_wall_walker.asm` | 0 | Same |
 
-### HoldBodySpriteLoop / HoldBodySpriteRelease (`$C446` / `$C455`)
+**Pickup selection (entry)**
 
-Forces body overlay sprite `#04` frame `#1F` in a hold loop (sets `$10` bit `$0200`). Release clears that bit without restoring full player control — callers chain to `RestorePlayerControlDirect` or wake anims.
+```text
+if $26 != 0  OR  TestFlag_0300(scene)  →  FieldRevealFromActorStats (gem tiers from stat table +3)
+else  tier = enemy_clear_reward_table[scene] & 3
+      0 → FieldRevealFromActorStats
+      1/2/3 → stat items anim $0C/$0D/$0E, items $80/$81/$82 (does NOT SetFlag_0300 here)
+```
 
----
+**Motion:** `FieldRevealDrop` probes solid tiles (budget overwritten to 7 steps), `MoveToward` to landing row, Y hop chain `$45`, **`WaitByte #0B` (12 ticks)**, then `collect_handler_gem`. Stat items loop anim ≥ `$08` indefinitely; gems blink ~110 frames then `FieldRevealDieEmpty`.
 
-### RestorePlayerControlDirect (`$C45A`)
-
-Single-instruction entry: `JML $@PlayerIdleEntry`. Used when no wake animation is needed.
-
----
-
-### PlayerWakeAnim / PlayerWakeReturn (`$C45E` / `$C46D`)
-
-Sleep/wake sequence: sets body `#04`, plays frame `#20` once. `PlayerWakeReturn` adds the `JML` to normal control after the anim.
-
----
-
-### WarpClimbAnim (`$C479`)
-
-Vertical warp climb used in ladder/rope transitions:
-
-1. Masks joypad (`$CFF0`), sets `$player_flags` bit `$0800`
-2. Waits 3 frames, moves Y + `$80`
-3. 8-frame animated Y climb (move IDs `$19`/`$1C`)
-4. Sound `$2C`, restores flags, `JML PlayerIdleEntry`
+**Note:** Per-enemy gems from `EnemyDefeatDispatch` never use the room tier path; last-kill stat rewards use `reward_actors` instead ([`functions-combat-defeat.md`](functions-combat-defeat.md)).
 
 ---
 
-### GardenJumpAnim (`$C4D1`)
+## Mystic statue ceremony (scene `$FD`)
 
-Sky Garden ledge jump with vertical flip:
+### `statue_inventory_reward` (**live**)
 
-1. Initial Y offset + `$C0`, toggle V-flip, fall + `$E0`
-2. Multi-stage `$1A`/`$1B` Y animation with decreasing step sizes
-3. Toggle V-flip off, landing frames `$1E`/`$1F`
-4. Sound `$2C`, restore control
+**Address:** `$00CD59` · **Size:** ~464 bytes
 
-Referenced by `sg4D_jump_handler.asm`.
+**Separate progression system:** mystic statues for the inventory screen, **not** `enemy_clear_reward_table` or `$0300` flags.
 
----
+**Scene `$FD`:** six actor copies (same pedestal layout as inventory scene `$FF`). Only the copy whose `statue_reward_table` **match byte** equals **`globalScriptIndex` (`$0AAC`)** runs the ceremony; others stay hidden or show already-collected statues.
 
-### FallIntoHoleAnim (`$C557`)
+**Triggers:** `QueueMapChange` to scene `$FD` from six scripts (each sets `globalScriptIndex`, `sourceSceneId` `$0B12`, return coords `$0B08`–`$0B10`):
 
-Player falls through hollow floor tiles:
+| Index | Match | Trigger (extracted) | Return scene |
+|-------|-------|---------------------|--------------|
+| 0 | 0 | `gs2E_crew2.asm` | Gold Ship `$2E` |
+| 1 | 1 | `sg55_mystic_statue.asm` | `$55` |
+| 2 | 2 | `mu66_rama_spirits.asm` | `$66` |
+| 3 | 3 | `gw8A_sand_fanger.asm` | `$8A` |
+| 4 | 4 | `pyDD_mystic_statue.asm` | `$DD` |
+| 5 | 5 | `btDE_olman.asm` | `$DE` |
 
-1. Sets body sprite `#08`, probes downward with `BranchIfSolid`
-2. If solid type `#04` south: short fall + `$1C` landing
-3. Otherwise: sink through with `$2000` flag, frame-by-frame Y increment until solid type `#00`
-4. Restore player control via `PlayerIdleEntry`
+**`statue_reward_table`** (6 × 4 bytes: flag, sprite anim index, match index, tail byte unused):
 
----
-
-## Statue / Inventory System
-
-### statue_inventory_reward
-
-**Address:** `$00CD59` · **Size:** 464 bytes
-
-#### Description
-
-Scene `$FD` (mystic-statue reward ceremony): entered via `QueueMapChange` from six boss/event scripts (Gold Ship, Viper, Mu, Great Wall, Mummy Queen, Babel). Six actor copies share the pedestals; only the copy whose table index matches `globalScriptIndex` (`$0AAC`) runs the ceremony.
-
-Contains shared data `statue_reward_table` — **6 entries of 4 bytes** each (flag, sprite, match index, one unused tail byte). Spawns **8** `StatueRewardOrbitalSparkle` children during the fanfare wait, then up to **60** `StatueRewardConfettiBurst` actors (about **15** visible, gated by `frameCounter AND 3`).
-
-On exit, restores the saved scene from `$0B12` and position in `$0B08`–`$0B10` via warp vars; sets exit effect 2 / enter effect 0 (`gfxCacheIdxA` `$0002`) and transition speed 3 (`gfxCacheIdxB` `$0303`).
-
-#### Variables
-
-| Symbol | Role |
-|--------|------|
-| `$0E` / `$24` | Slot index from scene placement |
-| `$0AAC` | Fanfare countdown timer |
-| `$0AAC` | Ceremony index / fanfare countdown |
-| `$0B08`–`$0B10` | Saved tile X/Y and scroll params for return warp |
-| `$0648`–`$0652` | Warp destination staging |
-| `statue_reward_table` | 6-entry `{flag, sprite, match, tail}` table |
-| `$0676` | High byte + bank of graphics cache slot D (`srcCacheBgD+1`; cleared on entry) |
-
-#### Slot Table (`statue_reward_table`)
-
-| Index | Flag | Frame | Match |
-|-------|------|-------|-------|
+| Index | Flag | Sprite (`$28`) | Match |
+|-------|------|----------------|-------|
 | 0 | `$F8` | `$3A` | 0 |
 | 1 | `$F9` | `$3B` | 1 |
 | 2 | `$FA` | `$3C` | 2 |
@@ -254,229 +247,85 @@ On exit, restores the saved scene from `$0B12` and position in `$0B08`–`$0B10`
 | 4 | `$FC` | `$3E` | 4 |
 | 5 | `$FD` | `$3F` | 5 |
 
-#### Scene Usage
+Flags **`$F8`–`$FD`** are **`SetFlagRaw`** → bits 0–5 of byte **`$0A1F`**.
 
-Scene `$FD` only — statue inventory reward screen.
+**Ceremony (summary):** hide input (`joypadMaskStd |= $FFFC`), VRAM/register setup, **`SetFlagRaw`** on success path, **8** `StatueRewardOrbitalSparkle` children (angles `$21`, `$41`, … `$E1`, loop until angle word `$0101`), fanfare wait reusing **`globalScriptIndex` as 180-frame countdown**, then up to **60** `StatueRewardConfettiBurst` spawns (~**15** visible due to `frameCounter AND 3` gate). Exit: restore `sourceSceneId`, warp coords, `gfxCacheIdxA` `$0002`, `gfxCacheIdxB` `$0303`.
 
-#### Cross-References
-
-| Direction | Symbol | Notes |
-|-----------|--------|-------|
-| Includes | `ApplyOrbitalOffsetFromRef`, `flag_helpers`, `inventory_spritemap`, `music_actors`, `sprite_composition`, `spriteset_pickups_effects` | |
-| Shared data | `statue_reward_table` | Read by `inventory_statue_slot` |
-| Calls | `UpdateActorAnimation` | Advance animation frame |
-| Calls | `ApplyOrbitalOffsetFromRef` | Pickup child orbit motion |
+**Placements:** `scene_actors.asm` scene `$FD` records `#00`–`#05` → `@statue_inventory_reward`.
 
 ---
 
-### inventory_statue_slot
+## Inventory statue display (scene `$FF`)
 
-**Address:** `$00CF29` · **Size:** 84 bytes
+### `inventory_statue_slot` (**live**)
 
-#### Description
+**Address:** `$00CF29` · **Size:** ~84 bytes (+ claimed-state block)
 
-Scene `$FF` (inventory menu): displays collected statue items. Reads slot index from `$0E`, checks collection flag via shared `statue_reward_table` from `statue_inventory_reward`. If uncollected, dies immediately. If collected, shows sprite via `UpdateActorAnimation` and hides the statue only on the Status tab (`inventoryTabIndex` `$0AFA` = 3); tabs 0–2 show it.
+**Display-only** relative to ceremony: reads **`statue_reward_table`** via `?INCLUDE 'statue_inventory_reward'`. **`TestFlagRaw`**: if statue not collected → **`Die`** immediately. If collected → show sprite from table byte +1, animate.
 
-Depends on `statue_inventory_reward` via `?INCLUDE` for shared table access.
+**Tab rule:** `inventoryTabIndex` (`$0AFA`) **= 3** (Status) → hide (`$10` bit `$2000`); tabs 0–2 show pedestals beside the item grid. The inventory menu actor does **not** spawn these — they come from scene `$FF`’s actor list (`inventory_menu.asm` block note).
 
-#### Algorithm
+**Placements:** `scene_actors.asm` scene `$FF` records `#01`–`#06` (after `InventoryMenuDef`).
 
-```
-1. Position sprite (+$08,$08 offset; +$F8 Y if $0E bit $10)
-2. Index statue_reward_table via ($0E & $0F) × 4
-3. TestFlagRaw — Die if not collected
-4. Set frame from table, animate
-5. If $0AFA == 3: hide; else show ($10 bit $2000 set)
-```
-
-#### Scene Usage
-
-Scene `$FF` only — one slot actor per inventory row (6 slots).
-
-#### Cross-References
-
-| Direction | Symbol | Notes |
-|-----------|--------|-------|
-| Includes | `statue_inventory_reward` | Shared `statue_reward_table` |
-| Includes | `inventory_spritemap`, `ComposeDigitSprites_AtCursor` | |
+Spawn parameter encoding (low nibble = table index, bit 4 = top-row Y offset): documented in `inventory_statue_slot.asm` block note.
 
 ---
 
-## Location-Specific Actors
+## Player transition handlers library
 
-### freejia_street_prop
+### `player_transition_handlers` (**live** library, **not movable**)
 
-**Address:** `$00C62D` · **Size:** 58 bytes
+**Address:** `$00C418`–`$C68F` · **Size:** ~472 bytes
 
-#### Description
+COP routines and one impact effect. Callers write **`$0000`/`$0002`** on the **player** actor; most end with **`JML PlayerIdleEntry`** (bank `$02`), which clears script locks including **`playerFlags` `$0800`**.
 
-Interactive scenery in Freejia (scene `$32`). Displays metasprite frame `#07`, sets solid high tile, waits for player proximity. When player presses button `$0800` within range, plays sound `$01`. When player enters tile, clears low solid and switches to frame `#00` (opened/activated state).
+**Includes:** `player_character`, `spriteset_pickups_effects` (not `table_0EE000`).
 
-Structurally identical to `town_door` but uses frame `#07` and sound `$01` instead of door frame `#01` / sound `$0E`.
+| Label | Role | Example callers |
+|-------|------|-----------------|
+| `SpawnImpactSparkAndDie` | Spark + die | `combat_collision` default victim script |
+| `ImpactSparkEffect` | SFX `$09`, frame `$2A` | Via spawn above; `gw82_archer` |
+| `PlayerIdleAnimLoop` | Idle anim `$01` / `$11` (flag byte `#00`) | `warps_interaction`, `ir29_castoth` |
+| `PlayerStaticBodyPose` / `PlayerWalkingIdlePose` | Flute pose body 4 / `$1F` | `item_use_system` melody |
+| `RestorePlayerControlDirect` | `JML PlayerIdleEntry` | `warps_interaction`, `ir29_castoth` |
+| `PlayerPoseHold` / `PlayerPoseHoldExit` | Hold body 4 frame `$20` | Gold Ship / Freejia cutscenes |
+| `PlayerIdleEntryJump` | `JML PlayerIdleEntry` | **Dead / unreferenced** |
+| `PlayerFallFromHeight` | Fall anim + landing | `awBD_fall_trigger` |
+| `PlayerSkyGardenJumpLanding` | Garden jump arc | `sg4D_jump_handler` |
+| `PlayerAuraTransformEntry` (+ sub-labels) | Shadow Aura sink | `item_use_system.UseItem_Aura` |
 
-#### Scene Usage
-
-**2** placements in Freejia street scene.
-
----
-
-### hidden_red_jewel
-
-**Address:** `$00C672` · **Size:** 117 bytes
-
-#### Description
-
-Collectible red jewel placed in hidden locations. Uses standard `actor_def` with a `SetInteractHandler` callback (`HiddenRedJewelInteract`). On button press: tests event flag `$0E + $80`, gives item `#01` (red jewel) via `GiveItem`, prints discovery string, sets flag. If inventory full, prints alternate string without granting.
-
-Each placement's `$0E` field encodes the unique event flag offset.
-
-#### Variables
-
-| Symbol | Role |
-|--------|------|
-| `$0E` | Per-instance flag offset (actor placement field) |
-| Event flags `$0200` range | `$0E + $80` per jewel |
-
-#### Scene Usage
-
-**16** placements across overworld and dungeon hidden locations.
+There is **no** `WarpClimbAnim`, `GardenJumpAnim`, or `FallIntoHoleAnim` label in the current extraction — use the names above.
 
 ---
 
-### town_door
+## Location-specific interactables
 
-**Address:** `$00C5A3` · **Size:** 58 bytes
+### `hidden_red_jewel` (**live**)
 
-#### Description
+Red jewel item **`#01`** via **`GiveItem`**, flag **`TestEventFlag_0200`** with index **`$0E + $80`** ( **`$0280`–`$028F`** ). **Independent** of clear-reward flags `$0300` and boss catchup. Sixteen static placements; seven NPC scripts **`JML HiddenRedJewelInventoryFull`** on full inventory (no shared flag with placements).
 
-Decorative town door (not a warp; building entrances use separate triggers). Shows closed door (frame `#01`, solid high). When the player is within 1 tile (`BranchIfPlayerNear` radius 1) and holds Up (`$0800`) for **8 consecutive frames**, plays sound `$0E`, clears solid, and switches to open frame `#00` for the rest of the visit. Releasing Up or leaving proximity restarts the hold counter.
+### `freejia_street_prop` (**live**)
 
-Uses `table_0EDA00` metasprite (town object sprites).
+Scene **`$32`**, **2** placements. Same interaction pattern as `town_door` (near + hold Up **`$0800`** 8 frames): sound **`$01`**, frame **`#07`** → open **`#00`**. Metasprite `spriteset_npc_props`.
 
-#### Scene Usage
+### `town_door` (**live**)
 
-**16** placements in three scenes — `$01` South Cape (5), `$32` Freejia (4), `$91` Euro (7) — plus one runtime spawn from `fr32_guide`.
+**16** static + **1** runtime (`fr32_guide` → `TownDoorInit`). Hold Up 8 frames, sound **`$0E`**, closed frame **`#01`**. Scenes: **`$01`** (5), **`$32`** (4), **`$91`** (7).
 
----
+### `hit_switch` (**live**)
 
-### hit_switch
+**7** Great Wall placements. Solid; **`SetHitCallback` → `HitSwitchTriggered`**. **`SetFlagRaw`** with flag number in **`$24`** (from spawn type >> 1). Stats pointer **`enemy_stats_table+118`** (entry `$46`). Frame **`#0F`** / **`#10`**.
 
-**Address:** `$00C9FE` · **Size:** 71 bytes
+### `overworld_exit` (**live**)
 
-#### Description
-
-Solid **hit-triggered switch** (not a pressure plate — the player cannot stand on it). On init: stores flag number from spawn type byte in `$24`, uses enemy stat entry `$118` for hit handling, shows frame `#0F`, marks solid, and registers `HitSwitchTriggered` as the hit callback. Each strike sets the numbered event flag, shows frame `#10`, waits 15 frames, returns to `#0F`, and re-arms the callback.
-
-#### Variables
-
-| Symbol | Role |
-|--------|------|
-| `$0E` / `$24` | Event flag number to set on hit |
-| `$7F1000` | Hit callback pointer (cleared after dispatch) |
-| `enemy_stats_table+118` | Stat block for hit reception |
-
-#### Scene Usage
-
-**7** placements — **Great Wall** scenes only (`$83`, `$85`×5, `$87`).
+**15** placements. Dispatches on **`scene_current`** for zone tests → **`StageWorldMapChoice`** → finalize sets **`gfxCacheIdxB`** (`$064A`) to **`$0400`**. Scene-specific gates documented in `overworld_exit.asm` block note (table in prior doc remains aligned with extracted handlers; verify tile coords against that file when patching a single scene).
 
 ---
 
-### overworld_exit
+## Source validation
 
-**Address:** `$00CA45` · **Size:** 791 bytes
+**Files checked:** `boss_clear_reward_handler.asm`, `enemy_clear_reward_table.asm`, `field_reveal_object.asm`, `reward_actors.asm`, `StandardEnemyDefeatHandler.asm`, `EnemyDefeatDispatch.asm`, `statue_inventory_reward.asm`, `inventory_statue_slot.asm`, `inventory_menu.asm`, `player_transition_handlers.asm`, `hidden_red_jewel.asm`, `town_door.asm`, `freejia_street_prop.asm`, `hit_switch.asm`, `overworld_exit.asm`, `scene_actors.asm`, `pyCC_mystic_ball.asm`, `awB1_wall_walker.asm`, `flag_helpers.asm`.
 
-#### Description
+**Verified:** `boss_reward_range_table` row bytes; `BossClearApplyStatReward` tier dispatch and `$0300` interaction; boss flag **`$0500+`** via `TestWramFlag_Offset100`; `field_reveal_object` branch on `$26` and `$0300`; spawn call sites; scene **`$FD`/`$FF`** actor lists; `statue_reward_table` six entries; red jewel flag base **`$0200+$80+$0E`**; placement counts via `rg` on `scene_actors.asm`; player transition label set vs obsolete doc names.
 
-Complex warp/fade logic for overworld-to-world-map transitions. Entry dispatches on `$scene_current` via a cascade of `CMP`/`JMP` to scene-specific handlers. Each handler checks player position thresholds, flag bytes, and tile regions before calling `StageWorldMapChoice` with world-map coordinates and destination index.
-
-Common pattern: clear `$0D60` (first word of the six-word world-map companion array `$0D60`–`$0D6A`), `StageWorldMapChoice` with start X/Y and destination-menu id, then `JMP OverworldExitFinalize`, which sets `gfxCacheIdxB` (`$064A`) ← `$0400` and idles until the scene changes.
-
-#### Handled Scenes
-
-| Scene | Area | Exit zone | Gate (first match wins) | Start X,Y | Choice id / menu |
-|-------|------|-----------|-------------------------|-----------|------------------|
-| `$01` | South Cape | Y < `$10` | flag `$26`, then flag `$25` | `$D4`,`$3A4` | `$02` Itory; `$1B` Quit only; default `$01` Edward's Castle |
-| `$0A` | Edward Castle | Y == `$2D0` | none | `$104`,`$334` | `$03` South Cape |
-| `$15` | Itory Village | tiles (2D,2E)–(2F,30) | flag `$01` disables; flag `$4A` | `$C4`,`$2B4` | `$06` Inca Ruins; default `$04` South Cape |
-| `$1C` | Inca Ruins entrance | tiles (06,1C)–(08,1E) | none | `$134`,`$284` | `$05` Itory Village |
-| `$32` | Freejia | tiles (12,3C)–(16,3E) | flag `$65` | `$254`,`$2D4` | `$07` Diamond Mine; default `$09` Quit only |
-| `$3E` | Diamond Mine entrance | tiles (0A,3F)–(0C,40) | none | `$334`,`$334` | `$08` Freejia |
-| `$69` | Angel Village entrance | tiles (29,0D)–(2C,0F) | flag `$8D` | `$384`,`$164` | `$0A` Watermia; default `$15` Quit only |
-| `$78` | Watermia | tiles (27,3D)–(29,40) | flag `$94`, then flag `$8E` | `$2D4`,`$1A4` | `$0E` / `$0C` multi-dest; default `$0B` Angel Village |
-| `$82` | Great Wall entrance | tiles (00,08)–(01,0B) | none | `$2A4`,`$124` | `$0D` Watermia |
-| `$91` | Euro | tiles (3F,42)–(40,48) | flag `$AC`, then flag `$9F` | `$1D4`,`$134` | `$1A` / `$10` multi-dest; default `$0F` Watermia |
-| `$A0` | Mountain Temple entrance | tiles (2F,1B)–(30,1C) | none | `$214`,`$B4` | `$11` Euro city |
-| `$AC` | Native Village | tiles (1F,1B)–(20,20) | flag `$B6`, then flag `$B1` | `$124`,`$1A4` | `$19` / `$13` multi-dest; default `$12` Euro city |
-| `$B0` | Angkor Wat entrance | tiles (1D,4F)–(24,50) | none | `$134`,`$154` | `$14` Natives' Village |
-| `$C3` | Dao | tiles (00,0D)–(01,11) | flag `$B4` | `$94`,`$114` | `$17` / default `$16` Natives' Village |
-| `$CC` | Pyramid | tiles west or east edge | none | `$74`,`$B4` | `$18` Dao Village |
-
-#### Variables
-
-| Symbol | Role |
-|--------|------|
-| `$scene_current` | Dispatch key |
-| `$player_y_pos`, `$player_x_pos` | Position gates |
-| `$0D60` | First word of world-map companion array (cleared on every exit path) |
-| `$064A` | `gfxCacheIdxB` (transition staging; set to `$0400` in finalize) |
-| `$0648`–`$0652` | Warp destination parameters |
-
-#### Scene Usage
-
-**15** placements on overworld field scenes at map boundaries.
-
----
-
-## Field Reveal Object
-
-### field_reveal_object
-
-**Address:** `$00DA78` · **Size:** 274 bytes
-
-#### Description
-
-Animated reveal/collectible spawned at runtime when a hidden field object is discovered. **Not placed in `scene_actors.asm`** — spawned via `SpawnAfterFlags` from boss scripts and field actors.
-
-On spawn: checks `$scene_current` against `enemy_clear_reward_table` to select HP/STR/DEF/gem sprite variant via `SwitchCase`. If already collected (`TestFlag_0300`), uses alternate frame path. Animates upward reveal (7-frame Y rise with solid check), moves toward player (`MoveToward`), then spawns `collect_handler_gem` for collection interaction.
-
-#### Algorithm
-
-```
-1. Select sprite variant from enemy_clear_reward_table[$scene_current] & 3
-2. Animate Y rise (7 frames, solid-aware)
-3. MoveToward player + StageForceMoveXY
-4. Wait 11 frames
-5. SpawnAfterMarked collect_handler_gem (#$2300)
-6. Loop anim until $28 < 8, then fade
-```
-
-#### Variables
-
-| Symbol | Role |
-|--------|------|
-| `$26` | Rise frame counter |
-| `$24` | Saved Y position |
-| `$28` | Fade/anim phase |
-| `$7F0020` | Parent actor link |
-| `enemy_clear_reward_table` | Per-scene enemy clear reward type (0=none, 1=HP, 2=STR, 3=DEF) |
-
-#### Scene Usage
-
-Runtime spawn only — called from:
-
-| Caller | Context |
-|--------|---------|
-| `pyCC_mystic_ball.asm` | Pyramid mystic ball reveal |
-| `awB1_wall_walker.asm` | Angkor wall walker drop |
-| `EnemyDefeatDispatch.asm` | Non-last-enemy kills: spawns with remaining count in `$26` for per-enemy stat gem variant |
-
-#### Cross-References
-
-| Direction | Symbol | Notes |
-|-----------|--------|-------|
-| Spawns | `collect_handler_gem` | Gem collection interaction handler |
-| Includes | `interaction_handlers`, `enemy_clear_reward_table` | |
-
----
-
-*Source: `extracted/actors/*.asm`, `extracted/system/statue_inventory/*`, `extracted/freejia/*`, `extracted/tables/scene_actors.asm`.*
+**Notes:** `freejia_street_prop.asm` header comment still says “no interaction”; the COP flow matches interactive props (trust instructions over that comment). `overworld_exit` per-scene coordinate table was not re-audited line-by-line this pass — spot-check against `overworld_exit.asm` before relying on a single row. **`PlayerIdleEntryJump`** marked dead per block note. Inferred: exact meaning of collision byte **`$0E`** in `FieldRevealDrop`.

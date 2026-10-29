@@ -10,6 +10,13 @@ Bank $00 is the **primary system bank** for Illusion of Gaia. It contains the CP
 
 > **COP handler documentation** lives in [`docs/cop/`](../../cop/README.md) and `db-us/copdef.json`. This index covers the system architecture, utility subroutines, actors, thinkers, and functions.
 
+> **Source-of-truth conventions (all `docs/code/bank00/*.md` category documents).** The assembly under [`extracted/`](../../../extracted/) is authoritative; where a doc and the asm disagree, the asm wins. Each category document starts with a `## Source of truth` section (exact `extracted/...` files used, a naming note and a counts note) and ends with a `## Source validation` block. Conventions used throughout:
+> - **Names:** a name in backticks is an extracted label unless the doc marks it "(doc name)" or lists it as documentation-only. Block/file names (e.g. `hit_stagger_controller`) are not always entry labels (`HitStaggerMain`).
+> - **Counts:** counts are always labelled as static scene placements, runtime spawn references, unique scenes, object slots, or entries in source tables; "approximately"/"at least" marks counts that were not re-counted from the source. Function sizes are instruction-counted unless the doc says "estimated span" (label-to-label difference).
+> - **Status tags:** *live* (referenced), *dead/unreferenced*, *legacy/retained stub*, *inferred* (not directly visible in the instructions).
+> - **Direction / bitmask conventions:** each doc states whether a direction value is local to one routine (e.g. the COP `$2D`–`$30` octants) or the global 0–3 facing convention; see [`direction-collision.md`](direction-collision.md).
+> - Address helpers: `artifacts/master-lookup.json`, `db-us/names/bank00.json`, and `npm run extract:lt` for in-place `; {address}` annotations.
+
 ---
 
 ## Table of Contents
@@ -48,7 +55,7 @@ Bank $00 is the **primary system bank** for Illusion of Gaia. It contains the CP
 |-------|---------|------------|----------|
 | `$8000`–`$846C` | System init, main loop, NMI, frame updates | [`system_core.asm`](../../../extracted/system/engine/system_core.asm) | [system-core](system-core.md), [nmi-handler](nmi-handler.md) |
 | `$846D`–`$864E` | COP bytecode dispatch engine + tables | [`cop_dispatch.asm`](../../../extracted/system/engine/cop_dispatch.asm) | [cop-dispatch](cop-dispatch.md) |
-| `$864E`–`$B520` | COP handlers ($00–$6D, $80–$E2) — 172 opcodes | [`cop_handlers_*.asm`](../../../extracted/system/engine/) | [COP families](../../cop/README.md) |
+| `$864E`–`$B520` | COP handlers ($00–$6D, $80–$E2) — 209 opcodes | [`cop_handlers_*.asm`](../../../extracted/system/engine/) | [COP families](../../cop/README.md) |
 | `$B520`–`$B87B` | Palette thinkers: cycling, flashes, scene-specific | [18 thinker files](#palette-thinkers) | [thinkers-palette](thinkers-palette.md) |
 | `$B87B`–`$BF78` | HDMA thinkers: sine waves, DMA setup, scene-specific | [18 thinker files](#hdma--dma-thinkers) | [thinkers-hdma](thinkers-hdma.md) |
 | `$BF78`–`$C1AA` | System thinkers: HW config, boot, menus, dispatcher | [4 thinker files](#system-thinkers) | [thinkers-system](thinkers-system.md) |
@@ -341,7 +348,7 @@ Covers `$00846C`–`$00864B`: The central COP bytecode interpreter that drives a
 
 | Function | Address | Size | Description |
 | ---------- | --------- | ------ | ------------- |
-| `CopDispatch` | `$846D` | 24 B | Central 24-byte dispatch engine for 172 COP opcodes |
+| `CopDispatch` | `$846D` | 24 B | Central 24-byte dispatch engine for 209 COP opcodes |
 | `cop_dispatch_table` | `$8485` | 220 B | Primary jump table ($00–$6D, 110 entries) |
 | *(extended table)* | `$8585` | 198 B | Extended table ($80–$E2, 99 entries) |
 | `cop_table_sentinel` | `$864B` | 3 B | Sentinel bytes: `$EA $80 $FD` |
@@ -863,7 +870,7 @@ Comprehensive reference covering all data tables, hardware register aliases, the
 |-------|-----------|-------------|
 | `camera_scroll_controller` | 100+ | Every field scene |
 | `scene_flag_init` | 26 | Scene actor lists (sets flag `#00`) |
-| `global_ambient_dispatcher` | 59× | 59 thinker lists (173 of 184 scenes with thinkers) |
+| `global_ambient_dispatcher` | 59× | 59 of the 70 thinker-spawn lists in `scene_thinkers.asm` (spawn records; 70 scene ids use the dispatcher-only list) |
 | `ambient_palette_cycler` | ~30 | Paired with dispatcher |
 | `StandardEnemyDefeatHandler` | 13 + 3 engine sites | Enemy scripts via `JumpFar`; engine default |
 | `ApplyOrbitalOffsetFromRef` | 21 | COP handlers, bosses, actors |
@@ -882,7 +889,7 @@ These blocks have inbound `$&` (2-byte same-bank) references and **cannot** be r
 
 | Block | Inbound From | Reason |
 |-------|-------------|--------|
-| `GameOverSequence` ($D62F) | `ComposeDigitSprites_AtCursor` | Player death pointer |
+| `GameOverSequence` ($D62F) | `CheckPlayerDeath` (`combat_collision.asm`) | Player death entry pointer |
 | `StandardEnemyDefeatHandler` ($DB8A) | `hit_stagger_controller`, `combat_collision` | Default enemy defeat pointer |
 | `NpcDespawnStub` ($DC77) | `InteractionDamage_NPCChat` | One-tick NPC despawn after item/dialogue |
 | `player_transition_handlers` ($C418) | 15+ consumers | Player anim `#$&func_00C4xx` refs |

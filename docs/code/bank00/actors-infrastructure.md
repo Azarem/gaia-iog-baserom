@@ -5,6 +5,21 @@
 **Scope:** Global camera/scene actors, movement speed zones, dream sequence controller, and large ramp boosters  
 **Sources:** `extracted/actors/*.asm`, `extracted/mountain_temple/movement_speed_zones.asm`, `extracted/tables/scene_actors.asm`
 
+## Source of truth
+
+| Path | Role |
+|------|------|
+| `extracted/actors/camera_scroll_controller.asm` | Default per-frame player camera target + `effectDeltaX/Y` |
+| `extracted/actors/layer1_scroll_actors.asm` | Layer-1 drift / wrap / parallax actors |
+| `extracted/actors/scene_flag_init.asm`, `dream_zoom_controller.asm`, `large_ramp_booster.asm` | Other infrastructure actors in this doc |
+| `extracted/mountain_temple/movement_speed_zones.asm` | Speed zone actor bodies |
+| `extracted/system/engine/camera_scroll.asm` | Slot `#02` scroll-ratio actors (`ScrollCamera*`) — see [`camera-scroll-system.md`](camera-scroll-system.md) |
+| `extracted/tables/scene_actors.asm` | Static scene placement tables |
+
+**Naming:** Labels such as `camera_scroll_controller`, `dream_zoom_controller`, and `scene_flag_init` are **extracted** actor block names (as printed in `.asm`). WRAM symbols in actor files (`effectDeltaX`, `layerPriorityFlag`, `bg1ScrollH`) are **extracted** mnemonics from `!` aliases. Phrases like “visual effect pipeline” are **documentation shorthand** for the layer-1 scroll chain driven by `effectDeltaX/Y`.
+
+**Counts:** Numbers in the overview table are **static `actor-spawn` records** in `extracted/tables/scene_actors.asm` unless noted. They are not runtime `SpawnAfterFlags` spawns, COP script spawns, or total label references across the repo. Unique scene lists use the block comment in `scene_actors.asm` (for example **220** lists include `camera_scroll_controller` as record `#01`).
+
 These actors form the invisible infrastructure present on nearly every field scene. Most run every frame without COP-heavy scripting; they coordinate camera scroll, scene flag initialization, player speed modifiers, and ramp acceleration.
 
 **Related:** [`README.md`](README.md) · [`actors-combat-interaction.md`](actors-combat-interaction.md) (visual effect pipeline fed by `camera_scroll_controller`)
@@ -22,7 +37,21 @@ These actors form the invisible infrastructure present on nearly every field sce
 | `speed_zone_ns_slow` | `$C286` | 53 B | ✓ | 4 (Mountain Temple) |
 | `large_ramp_booster` | `$C963` | 43 B | **No** | 3 (Incan Ruins, Diamond Mine) |
 | `scene_flag_init` | `$C667` | 8 B | ✓ | 26 |
-| `camera_scroll_controller` | `$EAED` | 174 B | ✓ | 220+ |
+| `camera_scroll_controller` | `$EAED` | ~173 B (estimated span) | ✓ | **220** scene lists |
+
+---
+
+## Infrastructure vs gameplay vs layer-1 scroll
+
+| Layer | Extracted home | What it does |
+|-------|----------------|--------------|
+| **Player camera (layer 0 target)** | `camera_scroll_controller` | Computes `cameraTargetX/Y` from player position (unless forced walk holds the target) and publishes **`effectDeltaX/Y`** = target minus current BG1 scroll. Does not write hardware scroll registers. |
+| **Scroll ratio / special camera mode (often slot `#02`)** | `camera_scroll.ScrollCameraTrack` and siblings in [`camera-scroll-system.md`](camera-scroll-system.md) | Each frame fills **`cameraDeltaX/Y`** via `MulDivide` from packed spawn bytes and `cameraTarget*`. Not the same as the player-follow actor at slot `#01`. |
+| **Layer-1 position / drift** | `layer1_scroll_actors` (`Layer1DriftUnbounded`, `Layer1DriftWrapped`, `Layer1ParallaxRatio`) | Integrates velocity plus `effectDeltaX/Y` into **`cameraDeltaX/Y`** (layer-1 scroll position when bit `$0400` of `layerPriorityFlag` is set). |
+| **Forced camera pan (cutscene warp)** | `forced_walk.asm` + COP `CameraPan*` | One-shot auto-walk: sets **`playerFlags` `$0100`**, drives pan tables, then dies. See [`camera-scroll-system.md`](camera-scroll-system.md). |
+| **Ambient camera nudge (script spawn)** | `camera_drift.asm` | Short COP-spawned scripts that add to `cameraTarget*` / `cameraDelta*` — see [`functions-camera-motion.md`](functions-camera-motion.md). |
+
+**Default field setup:** record `#00` = player, `#01` = **`camera_scroll_controller`**, `#02` = usually a `ScrollCamera*` actor or a `layer1_scroll_actors` variant (six scenes use `Layer1DriftUnbounded` instead of `ScrollCameraTrack`).
 
 ---
 
@@ -34,25 +63,23 @@ These actors form the invisible infrastructure present on nearly every field sce
 
 #### Description
 
-The most-used actor in Illusion of Gaia. Placed at actor slot `#01` in 220+ field scenes, it runs every frame to compute camera scroll deltas from the player's pixel position. It reads `$camera_offset_x/y` and `$camera_bounds_x/y` (scene-defined limits), clamps the desired scroll position, and writes pixel deltas to `$06E4` (X) and `$06E6` (Y). Those deltas feed the visual effect pipeline (`Layer1DriftUnbounded` → `Layer1DriftWrapped` → `Layer1ParallaxRatio`).
+The primary **player-follow camera** actor. Placed at record `#01` in **220** scene actor lists (`scene_actors.asm` block comment; counted as **220** `actor-spawn` lines this session). Each frame it updates the layer-0 scroll **target** (`cameraTargetX/Y`) from the player's pixel position and writes **`effectDeltaX/Y`** (`$06E4` / `$06E6`) = target minus current BG1 scroll (`bg1ScrollH` / `mapScrollV`). Layer-1 drivers consume those deltas (see call chain below). This actor does not apply scroll to the PPU.
 
-On first entry, sets actor flag `$1000` via `TSB $12` and calls `SetEntryHere`. If `$06EE` bit `$0200` is set (camera frozen), the actor returns immediately without updating scroll.
+On entry: sets `$12` bit `$1000` (overlay / display-filter qualifier), `SetEntryHere`, then returns immediately if **`layerPriorityFlag`** (`$06EE`) bit **`$0200`** is set (camera frozen — set during attack setup in `player_character`).
 
-The main path uses `PHD`/`TCD` with `$09F4` (player actor DP base) to read player coords at `$14`/`$16`, derives tile coords into `$player_x_pos`, `$player_y_pos`, `$player_x_tile`, `$player_y_tile`, then applies a 128-pixel dead zone centered on the current scroll before clamping to bounds.
+The main path uses `PHD`/`TCD` with `playerActorDp` (`$09F4`) to read player `$14`/`$16`, derives `playerXPos` / `playerYPos` (sprite-adjusted) and tile indices. **There is no dead zone** in the extracted code: per axis, `t = playerPixel − $80`, clamp to `[cameraOffset, cameraBounds − $100]`, store in `cameraTargetX/Y`. While **`playerFlags` bit `$0100`** (forced walk) is set, target recomputation is **skipped**, but **deltas are still computed** from whatever target `forced_walk` left in `cameraTarget*`.
 
 #### Algorithm
 
 ```
-1. SetEntryHere; exit if $06EE bit $0200 (camera lock)
-2. Read player X/Y from actor WRAM ($14, $16)
-3. Derive sub-tile player positions and tile indices
-4. If $player_flags bit $0100 (forced walk) clear:
-     a. Compute target scroll X: player X − $80, clamp to [$camera_offset_x, $camera_bounds_x − $100]
-     b. Store in $06BE
-     c. Same for Y into $06C2 using $camera_offset_y / $camera_bounds_y
-5. $06E4 ← $06BE − $068A  (scroll delta X)
-6. $06E6 ← $06C2 − $068E  (scroll delta Y)
-7. RTL
+1. SetEntryHere; exit if layerPriorityFlag bit $0200 (camera frozen)
+2. D := playerActorDp; refresh playerXPos/YPos and playerXTile/YTile
+3. If playerFlags bit $0100 clear:
+     a. cameraTargetX ← clamp(player X − $80, cameraOffsetX, cameraBoundsX − $100)
+     b. cameraTargetY ← same for Y with cameraOffsetY / cameraBoundsY
+4. effectDeltaX ← cameraTargetX − bg1ScrollH ($068A)
+5. effectDeltaY ← cameraTargetY − mapScrollV ($068E)
+6. RTL
 ```
 
 #### Variables
@@ -62,24 +89,41 @@ The main path uses `PHD`/`TCD` with `$09F4` (player actor DP base) to read playe
 | `$14`, `$16` | Player pixel X/Y (via actor DP) |
 | `$player_x_pos`, `$player_y_pos` | Player position minus sprite anchor offset |
 | `$player_x_tile`, `$player_y_tile` | Tile coordinates (÷16) |
-| `$player_flags` | Bit `$0100` (forced walk / camera lock) skips scroll computation |
-| `$camera_offset_x/y` | Minimum scroll position |
-| `$camera_bounds_x/y` | Maximum scroll position |
-| `$06BE`, `$06C2` | Computed target scroll |
-| `$068A`, `$068E` | Current scroll position |
-| `$06E4`, `$06E6` | Output scroll deltas (effect pipeline input) |
-| `$06EE` | Bit `$0200` = freeze camera updates |
+| `playerFlags` | Bit `$0100` = forced walk — skip **target** update only |
+| `cameraOffsetX/Y`, `cameraBoundsX/Y` | Scene window edges (`$06D6`–`$06DC`) |
+| `cameraTargetX/Y` | Layer-0 scroll target (`$06BE` / `$06C2`) |
+| `bg1ScrollH`, `mapScrollV` | Current BG1 scroll (`$068A` / `$068E`) |
+| `effectDeltaX/Y` | Target − current scroll (`$06E4` / `$06E6`) |
+| `layerPriorityFlag` | Bit `$0200` = freeze all updates; bit `$0400` = layer-1 scroll mode |
 
 #### Scene Usage
 
-Present at slot `#01` in virtually every overworld, dungeon, and town field scene. Documented count: **220** references in `scene_actors.asm`. Not placed in menus, boot screens, or pure cutscene-only scenes.
+Record `#01` in **220** scene lists (all player-starting field templates except special menus/cutscenes listed in `scene_actors.asm` §“17 lists do not start with the player”). Not the same as slot `#02` `ScrollCameraTrack` (**105** placements) — that actor computes **`cameraDeltaX/Y`**, not `effectDeltaX/Y`.
+
+#### Call chain (layer-1 scroll)
+
+```text
+camera_scroll_controller (slot #01)
+  → effectDeltaX/Y each frame
+       ↓
+Layer1DriftUnbounded | Layer1DriftWrapped  (optional; 6 or 16 scene placements)
+  → adds effectDelta* + constant velocity → cameraDeltaX/Y (+ wrap on Wrapped)
+       ↓
+CameraSmoothScroll / upload path (camera_tilemap.asm) when layerPriorityFlag bit $0400 set
+  → BG2 scroll from cameraDelta* / effectScrollH/V
+
+Layer1ParallaxRatio — runtime spawn only (Viper arena / mystic statue); not in scene_actors table
+ScrollCameraTrack / Vertical / Init / Accumulate — parallel slot #02 path into cameraDelta* (see camera-scroll-system.md)
+```
 
 #### Cross-References
 
 | Direction | Symbol | Notes |
 |-----------|--------|-------|
-| Feeds | `Layer1DriftUnbounded` | Consumes `$06E4`/`$06E6` |
-| Paired with | `ScrollCameraTrack`, `ScrollCameraVertical` | Slot `#02` camera actors in boss/special scenes |
+| Feeds | `Layer1DriftUnbounded`, `Layer1DriftWrapped` | Read `effectDeltaX/Y` |
+| Paired with | `ScrollCameraTrack`, `ScrollCameraVertical`, … | Usually record `#02`; scroll **ratio** actors |
+| Related | [`camera-scroll-system.md`](camera-scroll-system.md) | Smooth follow, forced walk, `ScrollCamera*` utilities |
+| Related | [`functions-camera-motion.md`](functions-camera-motion.md) | Script-spawned `camera_drift` nudges |
 
 ---
 
@@ -89,7 +133,7 @@ Present at slot `#01` in virtually every overworld, dungeon, and town field scen
 
 #### Description
 
-One-shot infrastructure actor in **26** scene actor lists (slots `#02`–`#04` and others — not every template). On its first (and only) tick it **sets** event flag index `#00` via `COP [SetFlagByte] (#00)`, then immediately dies. Scene setup (`scene_lifecycle`) already zeroes flags `$00`–`$0F`, so this actor marks flag `#00` once the scene is running.
+One-shot infrastructure actor in **26** scene actor lists (`actor-spawn` count in `scene_actors.asm`; slots `#02`–`#04`, plus `#14` / `#1A` / `#1C` once each). On its first tick it **sets event flag index `#00`** via `COP [SetFlagByte] (#00)` (a **bit index**, not a byte), then `Die`. Scene setup already clears the first event-flag word, so this actor re-asserts flag `#00` after the scene is live.
 
 #### Algorithm
 
@@ -144,7 +188,7 @@ When the player is within a 16×16 box centered on this actor's tile, sets east-
 
 #### Scene Usage
 
-**9** placements — Mountain Temple (`mtA0`/`mtA1` scenes).
+**9** static placements — **6** in Mountain Temple scenes (`$A0`–`$A3` region), **3** in Kress Maze scene **`$A7`** (same file block as `ScrollCameraInit` at `#DF,#DF`).
 
 #### Cross-References
 
@@ -305,4 +349,31 @@ Pure 65C816 for the speed path; minimal COP (`SetEntryHere`, `BranchIfPlayerNear
 
 ---
 
-*Source: `extracted/actors/*.asm`, `extracted/mountain_temple/movement_speed_zones.asm`, `extracted/tables/scene_actors.asm`.*
+## Scene matrix (static placements)
+
+Counts are **`actor-spawn` rows** in `extracted/tables/scene_actors.asm` (October 2026 audit).
+
+| Actor / group | Placements | Typical record # | Notes |
+|---------------|------------|------------------|-------|
+| `camera_scroll_controller` | **220** lists | `#01` | Default player camera; exception scene `$89` uses it as `#00` without player |
+| `ScrollCameraTrack` | **105** | `#02` | Scroll ratio actor — [`camera-scroll-system.md`](camera-scroll-system.md) |
+| `ScrollCameraInit` | **12** | `#02` | Spawn bytes `#DF,#DF` (Mt. Kress chain) |
+| `ScrollCameraVertical` | **15** | `#02` | Edward / Itory / Incan / Dao vertical maps |
+| `ScrollCameraAccumulate` | **5** | `#02` | Pyramid interiors |
+| `Layer1DriftUnbounded` | **6** | `#01` or `#02` | Scenes `$4E`, `$50`, …, `$DC` (see asm block note) |
+| `Layer1DriftWrapped` | **16** | `#02` | Wrapped layer-1 drift |
+| `Layer1ParallaxRatio` | **0** in table | — | Runtime `SpawnBeforeFlags` only (Viper / mystic statue) |
+| `scene_flag_init` | **26** | `#02`–`#04`, … | One-shot flag `#00` |
+| `dream_zoom_controller` | **1** | `#04` | Scene **`$2A`** (Gold Ship dream) |
+| Speed zones (all) | **16** | varies | See overview; `speed_zone_ns_fast_unused` = **0** |
+| `large_ramp_booster` | **3** | `#12`–`#17` | Incan `$22`, Diamond Mine `$41` |
+
+---
+
+## Source validation
+
+**Files checked:** `extracted/actors/camera_scroll_controller.asm`, `layer1_scroll_actors.asm`, `scene_flag_init.asm`, `dream_zoom_controller.asm`, `large_ramp_booster.asm`, `extracted/mountain_temple/movement_speed_zones.asm`, `extracted/system/engine/camera_scroll.asm`, `extracted/tables/scene_actors.asm` (header block comment + `rg` counts).
+
+**Verified:** `CameraScrollUpdate` algorithm and WRAM symbols; **no dead zone**; forced-walk gating on target only; `effectDeltaX/Y` naming; **220** `camera_scroll_controller` spawns; **26** `scene_flag_init`; **6** `Layer1DriftUnbounded`; speed-zone placement split MT vs `$A7`; distinction between slot `#01` controller vs `#02` `ScrollCamera*`.
+
+**Notes:** Function **sizes** in the overview use **estimated span** from adjacent labels unless instruction-counted elsewhere. `CameraDeadBoundsX/Y` in `camera_scroll_controller.asm` are **dead code** (never branched to). Layer-1 actor block comment still says two scenes for `Layer1DriftUnbounded` while the table has **six** spawns — doc follows the table count.

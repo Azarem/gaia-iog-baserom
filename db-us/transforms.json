@@ -1,8 +1,8 @@
 {
  "sEA_solid_arm": [
     {
-      "key": "COP \\[WaitByte\\] \\( #\\d7 \\)\\s+COP \\[FadeThenStartMusic\\] \\( #1B \\)\\s+COP \\[WaitByte\\] \\( #B3 \\)",
-      "value": "COP [FadeThenStartMusic] ( #1B )\r\n    COP [WaitWord] ( #$0120 )"
+      "key": "COP \\[WaitByte\\] \\( #\\d7 \\)(?:[ \\t]*;[^\\r\\n]*)?\\s+COP \\[FadeThenStartMusic\\] \\( #1B \\)((?:[ \\t]*;[^\\r\\n]*)?)\\s+COP \\[WaitByte\\] \\( #B3 \\)",
+      "value": "COP [FadeThenStartMusic] ( #1B )$1\r\n    COP [WaitWord] ( #$$0120 )"
     },
     { "key": "LDA #\\$EFF0([^\\r\\n]*\\s+T[SR]B \\$joypadMaskStd)", "value": "LDA #$$EFFC$1" }
   ],
@@ -49,7 +49,7 @@
       "value": "LDA $$0C\r\n    STA $$02\r\n    $&"
     }
   ],
-  "actor_pool": [
+  "cop_handlers_script_control": [
     {
       "key": "(?<!STA \\$02\\s+)LDA \\$0A\\s+(;[^\\r\\n]+)?\\s+STA \\$00\\s+(;[^\\r\\n]+)?\\s+STA \\$02, S",
       "value": "LDA $$0C\r\n    STA $$02\r\n    $&"
@@ -139,8 +139,8 @@
     { "key": "dialogstring_08CB2C `[^`]*`\r?\n?", "value": "" }
   ],
   "pyDD_teleporter": [
-    { "key": "LDA \\$00\\s+PHA", "value": "$&\r\n    LDA $$02\r\n    PHA" },
-    { "key": "PLA\\s+STA \\$00", "value": "PLA\r\n    STA $$02\r\n    $&" },
+    { "key": "LDA \\$00(?:[ \\t]*;[^\\r\\n]*)?\\s+PHA(?:[ \\t]*;[^\\r\\n]*)?", "value": "$&\r\n    LDA $$02\r\n    PHA" },
+    { "key": "PLA(?:[ \\t]*;[^\\r\\n]*)?\\s+STA \\$00", "value": "PLA\r\n    STA $$02\r\n    $&" },
     { "key": "LDA #\\$CFF0([^\\r\\n]*\\s+T[SR]B \\$joypadMaskStd)", "value": "LDA #$$CFFC$1" }
   ],
   "scene_actors": [
@@ -178,8 +178,8 @@
   ],
   "diary_menu_window_dma": [
     {
-      "key": "(diary_band_empty\\s\\[\\s*\\])[\\s]*(diary_band_slot1\\s\\[[^\\]]*\\])",
-      "value": "$2\r\n\r\n$1"
+      "key": "((?:-{5,}\\s+)?(?:;[^\\r\\n]*\\s+)*)(diary_band_empty\\s\\[\\s*\\])\\s*((?:-{5,}\\s+)?(?:;[^\\r\\n]*\\s+)*)(diary_band_slot1\\s\\[[^\\]]*\\])",
+      "value": "$3$4\r\n\r\n$1$2"
     }
   ],
   "system_strings": [
@@ -514,10 +514,10 @@
     { "key": "#\\$0380, &(DiarySndBtnOptionToggle|DiarySettingsToggle)", "value": "#$$8300, &$1" },
     { "key": "#\\$8000, &(DiaryStartCancel|DiaryNewGameCancel|DiarySndBtnCancel|DiarySndBtnEditCancel|DiaryCopyCancel|DiaryCopyTargetCancel|DiaryEraseCancel)", "value": "#$$4000, &$1" },
     { "key": "#\\$6040, &DiaryCursorCancel", "value": "#$$0020, &DiaryCursorCancel" },
-    { "key": "LDA #\\$8000(\\s+TSB \\$joypadHeld)", "value": "LDA #$$4000$1" },
-    { "key": "LDA #\\$0380(\\s+TSB \\$joypadHeld)", "value": "LDA #$$8300$1" },
-    { "key": "\\s+LDA #\\$8000\\s+STA \\$remapB\\s+LDA #\\$4000\\s+STA \\$remapY", "value": "" },
-    { "key": "\\s+LDA #\\$4000\\s+STA \\$remapB\\s+STZ \\$remapY", "value": "" }
+    { "key": "LDA #\\$8000([^\\r\\n]*\\s+TSB \\$joypadHeld)", "value": "LDA #$$4000$1" },
+    { "key": "LDA #\\$0380([^\\r\\n]*\\s+TSB \\$joypadHeld)", "value": "LDA #$$8300$1" },
+    { "key": "\\s+LDA #\\$8000(?:[ \\t]*;[^\\r\\n]*)?\\s+STA \\$remapB(?:[ \\t]*;[^\\r\\n]*)?\\s+LDA #\\$4000(?:[ \\t]*;[^\\r\\n]*)?\\s+STA \\$remapY(?:[ \\t]*;[^\\r\\n]*)?", "value": "" },
+    { "key": "\\s+LDA #\\$4000(?:[ \\t]*;[^\\r\\n]*)?\\s+STA \\$remapB(?:[ \\t]*;[^\\r\\n]*)?\\s+STZ \\$remapY(?:[ \\t]*;[^\\r\\n]*)?", "value": "" }
   ],
   "MenuSelectionHandler": [
     { "key": "\\$CF80", "value": "$$CF00" },
@@ -529,8 +529,8 @@
     { "key": "LDA #\\$CFF0([^\\r\\n]*\\s+T[SR]B \\$joypadMaskStd)", "value": "LDA #$$CFFC$1" },
     { "key": "BNE loc_0386EA", "value": "BNE UseItem_IncaStatueA_CheckAlt" },
     { "key": "BNE loc_038800", "value": "BNE UseItem_IncaStatueB_CheckAlt" },
-    { "key": "(CMP #\\$0027[\\s]+)BNE loc_0386FA", "value": "$1BEQ UseItem_IncaStatueA_Mismatch" },
-    { "key": "(CMP #\\$0038[\\s]+)BNE loc_03880D", "value": "$1BEQ UseItem_IncaStatueB_Mismatch" }
+    { "key": "(CMP #\\$0027(?:[ \\t]*;[^\\r\\n]*)?\\s+)BNE loc_0386FA", "value": "$1BEQ UseItem_IncaStatueA_Mismatch" },
+    { "key": "(CMP #\\$0038(?:[ \\t]*;[^\\r\\n]*)?\\s+)BNE loc_03880D", "value": "$1BEQ UseItem_IncaStatueB_Mismatch" }
   ],
   "GlobalInputHandler": [
     { "key": "BIT #\\$4000", "value": "BIT #$$0008" }
@@ -758,6 +758,9 @@
     { "key": "\\$remapX, #\\$0040", "value": "$$remapX, #$$0004" }
   ],
   "pyD7_sliding_wall": [
-    { "key": "((DEC|INC)\\s+STA \\$0026, Y\\s+DEC \\$26[\\s]+BEQ \\S+\\s+)", "value": "$1$1" }
+    {
+      "key": "(DEC|INC)((?:[ \\t]*;[^\\r\\n]*)?)(\\s+STA \\$0026, Y)((?:[ \\t]*;[^\\r\\n]*)?)(\\s+DEC \\$26)((?:[ \\t]*;[^\\r\\n]*)?)(\\s+BEQ \\S+)((?:[ \\t]*;[^\\r\\n]*)?)(\\s+)",
+      "value": "$1$2$3$4$5$6$7$8$9$1$3$5$7$9"
+    }
   ]
 }

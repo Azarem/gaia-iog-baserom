@@ -1,622 +1,200 @@
 # Bank $00 — Tile/Map Helpers, Animation & Sprite Utilities
 
-**Address range:** `$0097EF`–`$00AF8F`  
-**Source files:** [`extracted/system/engine/cop_handlers_metatile.asm`](../../../extracted/system/engine/cop_handlers_metatile.asm), [`extracted/system/engine/cop_handlers_effects.asm`](../../../extracted/system/engine/cop_handlers_effects.asm), [`extracted/system/engine/actor_pool.asm`](../../../extracted/system/engine/actor_pool.asm), [`extracted/system/engine/cop_handlers_collision.asm`](../../../extracted/system/engine/cop_handlers_collision.asm)  
+**Address range:** `$0097EF`–`$00AF8F` (helpers in metatile, sprite, effects, collision, and actor_pool units)  
 **Related:** [`cop-dispatch.md`](cop-dispatch.md) (COP `$4B`–`$4E`, `$0D`/`$0E`, `$00`, `$60`, `$80`–`92`)
 
-Utility routines supporting metatile drawing, world-map streaming, sprite staging, sine-based HDMA effects, and collision offset computation. These are shared infrastructure called from multiple COP handlers rather than standalone entry points.
+Shared infrastructure for **layer-0 metatile paint**, **VRAM staging**, **animation index / mirror handling**, **sine HDMA tables**, and **collision offset parsing**. Invoked from COP handlers, not used as standalone game entry points.
+
+## Source of truth
+
+| Area | Extracted file |
+|------|----------------|
+| Map stream parse, resolve, VRAM gate | `extracted/system/engine/cop_handlers_metatile.asm` |
+| Animation flag, staging COPs | `extracted/system/engine/cop_handlers_sprite.asm` |
+| Sine HDMA build | `extracted/system/engine/cop_handlers_effects.asm` |
+| Body table, move chains | `extracted/system/engine/actor_pool.asm` |
+| Signed tile offset for mark/clear | `extracted/system/engine/cop_handlers_collision.asm` |
+| Map index / VRAM address | `extracted/system/engine/map_coords.asm` |
+
+**Naming:** `tileQueryResult` is the extracted label for **`$0902`** (VRAM staging flag). **`animScratch` (`$7F0000`)** is the metatile **collision-type table base** in metatile code comments. **`characterForm`** is the extracted name for the player body index (not `$0AD4`).
+
+**Counts:** Metatile COP script site counts are in the `cop_handlers_metatile.asm` block note (e.g. DrawMetatileAbs “24 sites”); sprite COP site counts appear in per-handler comments in `cop_handlers_sprite.asm`.
 
 ---
 
-## Tile / Map Helpers
+## Tile / map parsing and paint
+
+Layer-0 runtime tile changes: update **`mapLayerTilemap` (`$7EA000`)**, **`collisionLayer` (`$7FC000`)**, and optionally queue a **2×2** BG1 nametable DMA via **`$0902`–`$090C`**. Collision **type bytes** written here come from **`$7F0000 + metatile ID`** (layer-0 table; **`$7F0100`** layer-1 table is unused in these handlers). That is **source data**, separate from **`MarkCollisionRect`** OR **`$F0`** occupancy (see [`direction-collision.md`](direction-collision.md)).
 
 ### ParseMapEntry
 
-**Address:** `$97EF` · **Size:** 58 bytes
+**Address:** `$97EF` · **Size:** 58 bytes · **Status:** **live** (stream COPs `$4D`/`$4E`, no script sites in current extract)
 
-#### Description
+Decodes a **3-byte** record at stream offset **X** (absolute addressing after caller sets DBR):
 
-Parses a 3-byte map entry from the world-map stream at index X (direct-page offset). Returns **carry set** if the entry is invalid (end-of-stream marker — high bit of byte 0 set). On success, extracts tile coordinates, sign-extends them to 16-bit, scales by 16 to produce pixel coordinates, and stores the metatile/collision type byte.
+| Offset | Field | Meaning |
+|--------|-------|---------|
+| +0 | Tile X | Bit **7 set** ⇒ end of stream (**SEC**, carry set) |
+| +1 | Tile Y | Tile row |
+| +2 | ID | Metatile ID → page-0 **`$00`** |
 
-Called by COP `$4D` (DrawMetatileStream) and `$4E` (DrawMetatileStreamDelay) for each entry in a compressed map modification stream.
-
-#### Algorithm
-
-```
-1. TCD → DP = $0000              ; Direct page at stream pointer
-2. SEP #$20                       ; 8-bit mode for byte reads
-3. LDA $0000,X                    ; Byte 0: tile X
-4. BMI → loc_009827 (carry set)   ; Bit 7 = end-of-stream
-5. STA $18                        ; Tile X (8-bit)
-6. LDA $0001,X → STA $1C          ; Byte 1: tile Y
-7. LDA $0002,X → $00 (type)       ; Byte 2: metatile/collision type
-8. REP #$20                       ; 16-bit for scaling
-9. Zero-extend $18, ASL×4 → $1A    ; Pixel X = tile X × 16
-10. Zero-extend $1C, ASL×4 → $1E   ; Pixel Y = tile Y × 16
-11. CLC; RTS                       ; Success
-```
-
-#### Record Format
-
-| Offset | Field | Description |
-|--------|-------|-------------|
-| `+0` | Tile X | 0–127 valid; bit 7 set = stream terminator |
-| `+1` | Tile Y | 0–255 tile row |
-| `+2` | Type | Metatile ID or collision type for `$7FC000` table |
-
-#### Variables
-
-| Location | Direction | Role |
-|----------|-----------|------|
-| `X` | Input | Offset into map stream (DP-relative) |
-| `$18` | Output | Tile X coordinate (16-bit) |
-| `$1C` | Output | Tile Y coordinate (16-bit) |
-| `$1A` | Output | Pixel X = tile X × 16 |
-| `$1E` | Output | Pixel Y = tile Y × 16 |
-| `$00` | Output | Type/metatile byte |
-| `C` | Output | Clear = valid entry; Set = end of stream |
-
-#### Cross-References
-
-| Symbol | Relationship |
-|--------|--------------|
-| `DrawMetatileStream` (COP `$4D`) | Caller |
-| `DrawMetatileStreamDelay` (COP `$4E`) | Caller |
-| `ResolveTileData` | Called immediately after successful parse |
-
----
+On success: **zero-extends** X/Y into **`$18`/`$1C`**, pixel **`$1A`/`$1E` = tile × 16**, **CLC**. Sets **`TCD #$0000`** itself.
 
 ### ResolveTileData
 
-**Address:** `$9829` · **Size:** 128 bytes
+**Address:** `$9829` · **Size:** 128 bytes · **Status:** **live**
 
-#### Description
+1. **`JSL TileCoordsToMapIndex`** (layer 0) → index in **X**.
+2. **`LDA $7F0000 + ID`** (via **`animScratch,X`**) → write to **`collisionLayer,X`**; metatile ID to **`mapLayerTilemap,X`**.
+3. **On-screen test** (otherwise stop after map writes):
+   - Horizontal: **`(pixel X + $10 − bg1ScrollH) < $0111`**
+   - Vertical: **`0 ≤ pixel Y − ((mapScrollV − $10) & $FFF0) < $F1`**
+4. On-screen: load **8 bytes** from **`metatileMapLayer` (`$7E2000`) + ID×8** → **`$0904`–`$090C`**; **`JSL PixelToVramAddress`** → **`$0902`**, **`$0908 = $0902 + $20`**.
 
-Resolves tile graphics and metadata from parsed coordinates in `$18`/`$1C` (tile) and `$1A`/`$1E` (pixel). Writes collision/type data to WRAM tile tables, bounds-checks against the camera viewport, and if on-screen, looks up 8-byte tileset entries from `$7E2000` and computes VRAM destination addresses.
-
-Called by all metatile drawing COPs ($4B–$4E) after coordinates are established. Leaves `$0902` = 0 if off-screen (which triggers `TileQueryGate` to abort and retry).
-
-#### Algorithm
-
-```
-1. JSL TileCoordsToMapIndex (Bank $02)
-   → X = WRAM map index; $00 = collision/type from $7F0000 table
-2. Write collision: $7FC000,X ← type; $7EA000,X ← tile ID
-3. Bounds check (camera-relative):
-   a. Pixel X + $10 − $068A < $0111 (within horizontal viewport + margin)
-   b. Pixel Y − (camera_Y − $10) & $FFF0 ≥ 0 and < $F1
-4. If off-screen → RTS (leaves $0902 unset/zero)
-5. If on-screen:
-   a. Tile ID × 8 → index into $7E2000 tileset
-   b. Read 8 bytes → $0904, $0906, $090A, $090C (tile data pointers)
-   c. JSL PixelToVramAddress → $0902 (VRAM dest)
-   d. $0902 + $0020 → $0908 (second row VRAM dest)
-6. RTS
-```
-
-#### Variables
-
-| Location | Direction | Role |
-|----------|-----------|------|
-| `$18` / `$1C` | Input | Tile coordinates |
-| `$1A` / `$1E` | Input | Pixel coordinates |
-| `$00` | Input | Type byte from parser |
-| `$068A` | Read | Camera X position |
-| `$068E` | Read | Camera Y position |
-| `$7F0000` | Read | Source collision/type table |
-| `$7EA000,X` | Write | Tile ID at map index |
-| `$7FC000,X` | Write | Collision type at map index |
-| `$7E2000,X` | Read | Tileset data (8 bytes per tile) |
-| `$0902` | Output | VRAM destination address (0 = off-screen) |
-| `$0904`–`$090C` | Output | Tile graphics data pointers |
-| `$0908` | Output | Second row VRAM address |
-
-#### Cross-References
-
-| Symbol | Relationship |
-|--------|--------------|
-| `DrawMetatileAbs` (COP `$4B`) | Caller |
-| `DrawMetatileHere` (COP `$4C`) | Caller |
-| `DrawMetatileStream` (COP `$4D`) | Caller |
-| `DrawMetatileStreamDelay` (COP `$4E`) | Caller |
-| `TileCoordsToMapIndex` (Bank $02) | Map coord → WRAM index |
-| `PixelToVramAddress` (Bank $02) | Pixel coord → VRAM address |
-| `TileQueryGate` | Called after this to check `$0902` |
-
----
+Off-screen tiles **do not** set **`$0902`** (remains zero).
 
 ### TileQueryGate
 
-**Address:** `$98A9` · **Size:** 15 bytes
+**Address:** `$98A9` · **Size:** 15 bytes · **Status:** **live**
 
-#### Description
+Synchronizes with NMI flush in **`event_blocks`**: **`$0902` (`tileQueryResult`)** holds the pending VRAM word address until NMI writes the 2×2 update and **clears `$0902`**.
 
-Gate function that checks whether a tile query succeeded. If `$0902` is non-zero (VRAM address computed — tile is on-screen and ready for DMA), rewinds `$0A` by 2 bytes and returns **carry set**, causing the calling COP to abort and retry next frame. If `$0902` is zero (off-screen or not yet ready), returns carry clear and the COP continues normally.
+| `$0902` | Carry | Behavior |
+|---------|-------|----------|
+| **Zero** | Clear | Proceed (no pending DMA) |
+| **Non-zero** | Set | Rewind script pointer **`$0A − 2`**, store in **`$00`**, abort COP frame (retry next tick) |
 
-This implements a "try again next frame" pattern for metatile operations that depend on camera position or async tile loading.
+**All** DrawMetatile COPs call **`TileQueryGate` first**, then parse operands / stream and call **`ResolveTileData`**.
 
-#### Algorithm
-
+```text
+  DrawMetatile* entry
+        │
+        ▼
+  TileQueryGate ──( $0902 ≠ 0 )──► yield, retry same COP
+        │ $0902 = 0
+        ▼
+  [ParseMapEntry] (stream only)
+        ▼
+  ResolveTileData ──► map + collision writes; maybe set $0902
+        ▼
+  (NMI clears $0902 when flushed)
 ```
-1. CLC
-2. LDA $0902
-3. BNE → loc_0098B0    ; Non-zero = tile pending/on-screen
-4. RTS                  ; Carry clear — proceed
-   loc_0098B0:
-5. LDA $0A; DEC; DEC → $00   ; Rewind arg pointer for retry
-6. SEC; RTS                   ; Carry set — abort COP this frame
-```
-
-#### Source
-
-```2109:2122:extracted/system/engine/cop_handlers_metatile.asm
-TileQueryGate {
-    CLC 
-    LDA $0902
-    BNE loc_0098B0
-    RTS 
-
-  loc_0098B0:
-    LDA $0A
-    DEC 
-    DEC 
-    STA $00
-    SEC 
-    RTS 
-}
-```
-
-#### Variables
-
-| Location | Direction | Role |
-|----------|-----------|------|
-| `$0902` | Input | VRAM query result (0 = skip/off-screen) |
-| `$0A` | R/W | Rewound by 2 on retry |
-| `$00` | Write | Saved entry pointer for halt/yield |
-| `C` | Output | Set = abort and retry; Clear = continue |
-
-#### Cross-References
-
-| Symbol | Relationship |
-|--------|--------------|
-| `DrawMetatileAbs` (COP `$4B`) | Caller |
-| `DrawMetatileHere` (COP `$4C`) | Caller |
-| `DrawMetatileStream` (COP `$4D`) | Caller |
-| `DrawMetatileStreamDelay` (COP `$4E`) | Caller |
-| `ResolveTileData` | Sets `$0902` before gate check |
 
 ---
 
-## Animation / Visibility
+## Metatile draw call flow
+
+```text
+  COP $4B/$4C (absolute / here)
+    TileQueryGate → setup $18/$1C/$1A/$1E/$00 → ResolveTileData
+
+  COP $4D/$4E (stream)
+    TileQueryGate → ParseMapEntry → (delay byte on $4E) → ResolveTileData
+    → rewind $0A, yield until stream sentinel (X byte bit 7)
+```
+
+---
+
+## Animation / visibility
 
 ### ProcessAnimFlag
 
-**Address:** `$9F5F` · **Size:** 48 bytes
+**Address:** `$9F5F` · **Size:** 48 bytes · **Status:** **live** (`StageSprite*` `$80`–`87`, `$8D`; movement init in `cop_handlers_movement.asm`)
 
-#### Description
+| Input **A** | Effect |
+|-------------|--------|
+| **`$FF`** | No change to **`$28`**; still clears **`$2A`** |
+| **Bit 7 set** | **`$28 = A & $7F`**; unless **`$12` bit 1** (`BIT #$0002`) set, **set H-flip** in **`$0E`** via **`TSB #$4000`** |
+| **Bit 7 clear** | **`$28 = A`**; unless **`$12` bit 1** set, **clear H-flip** via **`TRB #$4000`** |
 
-Processes the animation/visibility flag byte passed in A from script operands. Handles three distinct modes based on the flag value and its bit 7 (mirror-aware) encoding. Always clears `$2A` (animation wait frame counter) on entry. Modifies `$28` (sprite set index) and `$0E` (OAM XOR — H-flip flag at bit 14 / `$4000`).
+**`$12` bit 1** is a **mirror lock** (extracted comment): when set, flip bits in **`$0E`** are left unchanged.
 
-Called by all sprite staging COPs ($80–$87, $8D, $8F–$92), movement initialization (`InitSmoothMovement`), and StageMove (COP `$52`).
+**Not used** by **`StagePlayerSprite` (`$8F`–`92`)** — those store the operand **directly in `$28`** and call **`SetActorBody`** instead.
 
-#### Algorithm
-
+```text
+  StageSprite* COP
+        │
+        ▼
+  ProcessAnimFlag (A = anim byte) → $28, $0E flip, STZ $2A
+        │
+        ▼
+  [optional AnimFrameLookup → $2C/$2E chain heads]
+        │
+        ▼
+  AnimOnce / UpdateActorAnimation (separate COPs)
 ```
-1. STZ $2A                         ; Clear animation wait counter
-2. CMP #$FF → RTS if equal         ; $FF = no change (preserve $28)
-3. BIT #$0080 (test bit 7):
-   
-   Bit 7 SET (mirror-aware mode):
-   4a. A AND #$FF7F → STA $28      ; Strip bit 7 for sprite index
-   5a. LDA $12; BIT #$0002         ; Check actor flag bit 2 (H-flip state)
-   6a. BEQ → set H-flip: TSB #$4000 on $0E
-   7a. RTS (keep existing flip if bit 2 set)
-   
-   Bit 7 CLEAR (normal mode):
-   4b. STA $28                      ; Set sprite index directly
-   5b. LDA $12; BIT #$0002         ; Check actor flag bit 2
-   6b. BEQ → clear H-flip: TRB #$4000 on $0E
-   7b. RTS (keep existing flip if bit 2 set)
-```
-
-#### Flag Modes
-
-| Input A | Behavior |
-|---------|----------|
-| `$FF` | No change — preserve current `$28`, only clear `$2A` |
-| `$00`–`$7F` | Normal: sprite index = A; clear H-flip in `$0E` unless `$12` bit 2 set |
-| `$80`–`FE` | Mirror-aware: sprite index = A & `$7F`; set H-flip in `$0E` unless `$12` bit 2 set |
-
-#### Variables
-
-| Location | Direction | Role |
-|----------|-----------|------|
-| `A` | Input | Animation/sprite flag byte from script |
-| `$28` | R/W | Sprite set / animation index |
-| `$2A` | Write | Animation wait frame (always cleared) |
-| `$0E` | R/W | OAM XOR flags (bit 14 = `$4000` = H-flip) |
-| `$12` | Read | Actor flags (bit 2 = existing H-flip override) |
-
-#### Cross-References
-
-| Symbol | Relationship |
-|--------|--------------|
-| `StageSpriteFrame` / `$80`–`87` | Callers — sprite staging COPs |
-| `StageSprAndHitbox` (COP `$8D`) | Caller |
-| `StagePlayerSprite` / `$8F`–`92` | Callers — player sprite COPs |
-| `InitSmoothMovement` | Caller — movement init anim byte |
-| `StageMove` (COP `$52`) | Caller |
-
----
 
 ### AnimFrameLookup
 
-**Address:** `$B157` · **Size:** 6 bytes
+**Address:** `$B157` · **Size:** 6 bytes · **Status:** **live**
 
-#### Description
-
-Looks up animation frame duration/speed from `move_chain_table`. Doubles the input index (A << 1) to index into the 16-bit word table and returns the duration value in A. Used by sprite staging COPs to set `$2C`/`$2E` movement duration fields and by force-move COPs to reload animation timing.
-
-#### Algorithm
-
-```
-1. ASL A              ; Index × 2 (16-bit table entries)
-2. TAY
-3. LDA move_chain_table,Y ; Load duration word
-4. RTS                ; Duration in A
-```
-
-#### Source
-
-```2394:2399:extracted/system/engine/actor_pool.asm
-AnimFrameLookup {
-    ASL 
-    TAY 
-    LDA $&move_chain_table, Y
-    RTS 
-}
-```
-
-#### Variables
-
-| Location | Direction | Role |
-|----------|-----------|------|
-| `A` | Input/Output | Animation index in; duration out |
-| `move_chain_table` | Read | Duration/speed table (16-bit entries) |
-
-#### Cross-References
-
-| Symbol | Relationship |
-|--------|--------------|
-| `StageSpriteMoveX/Y/XY` (COP `$81`–`83`) | Callers |
-| `StageSpriteLoopMoveX/Y/XY` (COP `$85`–`87`) | Callers |
-| `StagePlayerMoveX/Y/XY` (COP `$90`–`92`) | Callers |
-| `StageMoveX/Y/XY` (COP `$AA`–`AC`) | Callers — force-move durations |
-| `ApplyMoveToChild` (COP `$B0`) | Caller |
-| `ReloadMoveChains` (COP `$B1`) | Caller |
+**`A` = movement index** → **`A = move_chain_table[A×2]`** — a **pointer to the head of a movement delta chain**, not a frame duration. Callers store result in **`$2C`** (X) and/or **`$2E`** (Y).
 
 ---
 
-## Sprite / Body Helpers
+## Sprite / body helpers
 
 ### BuildSineHdmaTable
 
-**Address:** `$ADCF` · **Size:** 233 bytes
+**Address:** `$ADCF` · **Status:** **live** (COP `$60` `TickSineHdma`)
 
-#### Description
-
-Builds HDMA displacement data from the 256-byte sine table at `sine_table_8bit`. Computes write buffer pointers from the actor's body data pointer (`$7F0006,X`), scales each sine sample by the amplitude via hardware multiply, and writes paired horizontal/vertical displacement values to double-buffered HDMA tables.
-
-Double-buffering uses `$0036` bit 0 (frame parity): even frames write to base buffers, odd frames offset by `$0200` to prevent visual tearing during HDMA table updates.
-
-Called by COP `$60` (TickSineHdma) each frame to refresh the oscillation table.
-
-#### Algorithm
-
-```
-1. PHX; PHB                          ; Preserve context
-2. Compute buffer pointers:
-   - $62 ← $7F0006,X + $0100        ; Horizontal HDMA buffer
-   - $5E ← $62 + $0400              ; Vertical HDMA buffer
-3. If $0036 bit 0 (odd frame):
-   - Add $0200 to both $62 and $5E  ; Ping-pong to alternate buffer
-4. Set up multiply/divide:
-   - $WRMPYA ← $7F0008,X (amplitude)
-   - Bank ← $7E; DP ← $0000
-   - Step size = $0100 / (period/2) via hardware divide → $00
-5. Compute initial sine index:
-   - Shift $7F0004,X + $1C left by (8 − period/2) → X index
-6. Loop (Y = 0 .. period/2 − 1):
-   a. Read sine[X] from sine_table_8bit
-   b. STA $WRMPYB; multiply by amplitude
-   c. If sine negative (bit 7):
-      - Sign-extend via $FF × high_byte + low_byte
-   d. Add base offset ($18 horizontal, $1C vertical)
-   e. Store to ($62),Y and ($5E),Y
-   f. X ← (X + step_size) & $FF; Y += 2
-7. Restore bank, DP, X; RTS
-```
-
-#### Variables
-
-| Location | Direction | Role |
-|----------|-----------|------|
-| `$7F0004,X` | Read | Sine phase offset |
-| `$7F0006,X` | Read | Body data pointer (buffer base) |
-| `$7F0008,X` | Read | Amplitude scalar |
-| `$7F000E,X` | Read | Period (low byte / 2 = loop count) |
-| `$0036` | Read | Frame counter (bit 0 = buffer select) |
-| `$18` / `$1C` | Read | Base horizontal/vertical offsets |
-| `$62` / `$5E` | Temp | HDMA write buffer pointers (DP) |
-| `$00` | Temp | Sine table step size |
-| `sine_table_8bit` | Read | 256-byte sine lookup table |
-| `($62),Y` | Write | Horizontal displacement buffer |
-| `($5E),Y` | Write | Vertical displacement buffer |
-
-#### Cross-References
-
-| Symbol | Relationship |
-|--------|--------------|
-| `TickSineHdma` (COP `$60`) | Caller — per-frame HDMA refresh |
-| `InitSineHdma` (COP `$5F`) | Sets up initial `$7F000E,X` parameters |
-| `BuildSineLookupTable` | Precomputes expanded tables at `$7E8900`/`$7E8B00` |
-| `sine_table_8bit` | Source sine data |
-
----
+Per-frame HDMA displacement buffer fill using **`sine_table_8bit`**, amplitude **`$7F0008,X`**, period **`$7F000E,X`**, phase **`$7F0004,X`**, base offsets page-0 **`$18`/`$1C`**, body buffer base **`$7F0006,X`**. **`$0036` bit 0** selects ping-pong offset **`+$0200`** on the write buffers.
 
 ### BuildSineLookupTable
 
-**Address:** `$AEB8` · **Size:** 136 bytes
+**Address:** `$AEB8` · **Status:** **live** (COP `$00` `GenHdmaSine` path)
 
-#### Description
-
-Precomputes 512-byte sine lookup tables at WRAM `$7E8900` and `$7E8B00` by multiplying each entry of `sine_table_8bit` by the actor's amplitude (`$7F0008,X`). Triggered when `$7F000E,X` bit 0 is set (sine HDMA init flag) or when `$09EC` bit 6 is set (global sine rebuild flag).
-
-Called by COP `$00` (GenHdmaSine) during HDMA sine effect initialization. After building, GenHdmaSine configures the HDMA channel table entries at `$7E8800` to point at the computed buffers.
-
-#### Algorithm
-
-```
-1. PHP; PHX
-2. Check trigger conditions:
-   - If $09EC bit 6 → clear bit 6, proceed
-   - Else if $7F000E,X bit 0 → clear bit 0, proceed
-   - Else → exit (no rebuild needed)
-3. SEP #$20
-4. $WRMPYA ← $7F0008,X (amplitude)
-5. LDX ← 0; LDY ← 0
-6. Loop (512 iterations, step X by 2):
-   a. LDA sine_table_8bit,Y → STA $WRMPYB
-   b. If negative: sign-extend multiply result
-   c. Else: use $RDMPYH (high byte of product)
-   d. Store to $7E8900,X and $7E8B00,X
-   e. Y ← (Y + period) & $FF; X += 2
-7. PLX; PLP; RTS
-```
-
-#### Variables
-
-| Location | Direction | Role |
-|----------|-----------|------|
-| `$7F0008,X` | Read | Amplitude (stored in `$WRMPYA`) |
-| `$7F000E,X` | R/W | Bit 0 = rebuild request (cleared after build) |
-| `$09EC` | R/W | Bit 6 = global rebuild flag |
-| `$7E8900` | Write | 512-byte horizontal sine table |
-| `$7E8B00` | Write | 512-byte vertical sine table |
-| `sine_table_8bit` | Read | Source sine data (256 bytes, indexed with wrap) |
-
-#### Cross-References
-
-| Symbol | Relationship |
-|--------|--------------|
-| `GenHdmaSine` (COP `$00`) | Caller — initial HDMA setup |
-| `BuildSineHdmaTable` | Consumer of precomputed tables |
-| `InitSineHdma` (COP `$5F`) | Sets `$7F000E,X` bit 0 to trigger rebuild |
-
----
+Pre-multiplies sine table into **`$7E8900` / `$7E8B00`** when **`$09EC` bit 6** or **`$7F000E,X` bit 0** requests rebuild.
 
 ### SetActorBody
 
-**Address:** `$AF6D` · **Size:** 34 bytes
+**Address:** `$AF6D` · **Size:** 34 bytes · **Status:** **live** (player sprite COPs)
 
-#### Description
+**`characterForm × 6`** → index into **`body_table`**: writes **`spritesetPtr` (`$7F0006`)** and bank **`$7F0008`**, clears **`playerFlags` bit `$8000`**.
 
-Sets the actor's body/sprite data pointer from the current player body index in `$0AD4`. Computes a 6-byte table offset (`$0AD4 × 6` — three 16-bit words per body entry) into `body_table`, stores the sprite pointer to `$7F0006,X`/`$7F0008,X`, and clears `$player_flags` bit `$8000`.
-
-Called by player sprite COPs ($8F–$92, $94, $95) whenever the player character's body form changes (Will, Freedan, Shadow).
-
-#### Algorithm
-
+```text
+  StagePlayerSprite* ($8F–$92, …)
+        │
+        ▼
+  SetActorBody → body_table → $7F0006/$7F0008
+        │
+        ▼
+  (later) BuildSineHdmaTable / sprite composition uses $7F0006+$7F0008
 ```
-1. LDA $0AD4                       ; Current body index
-2. ASL; CLC; ADC $0AD4; ASL        ; × 6 (three words per entry)
-3. TAY                             ; Table offset
-4. LDA body_table,Y → $7F0006,X    ; Sprite data pointer (16-bit)
-5. LDA body_table+2,Y → $7F0008,X  ; Amplitude/scale byte
-6. LDA #$8000; TRB $player_flags   ; Clear body-change-pending flag
-7. RTS
-```
-
-#### Source
-
-```2375:2390:extracted/system/engine/actor_pool.asm
-SetActorBody {
-    LDA $0AD4
-    ASL 
-    CLC 
-    ADC $0AD4
-    ASL 
-    TAY 
-    LDA $&body_table, Y
-    STA $7F0006, X
-    LDA $&body_table+2, Y
-    AND #$00FF
-    STA $7F0008, X
-    LDA #$8000
-    TRB $player_flags
-    RTS 
-}
-```
-
-#### Variables
-
-| Location | Direction | Role |
-|----------|-----------|------|
-| `$0AD4` | Read | Current player body index (0=Will, 1=Freedan, 2=Shadow) |
-| `body_table` | Read | Body definition table (6 bytes × 3 entries) |
-| `$7F0006,X` | Write | Sprite/metasprite data pointer |
-| `$7F0008,X` | Write | Body scale/amplitude byte |
-| `$player_flags` | R/W | Bit `$8000` cleared (body change complete) |
-
-#### Cross-References
-
-| Symbol | Relationship |
-|--------|--------------|
-| `StagePlayerSprite` (COP `$8F`) | Caller |
-| `StagePlayerMoveX/Y/XY` (COP `$90`–`92`) | Callers |
-| `StagePlayerSprWall` (COP `$94`) | Caller |
-| `StagePlayerSprFromDP` (COP `$95`) | Caller |
-| `BuildSineHdmaTable` | Consumer of `$7F0006,X`/`$7F0008,X` |
-| `BuildSineLookupTable` | Consumer of `$7F0008,X` amplitude |
-
----
 
 ### ParseSignedTileOffset
 
-**Address:** `$AF8F` · **Size:** 63 bytes
+**Address:** `$AF8F` · **Size:** 63 bytes · **Status:** **live** (COP `$0D`/`$0E`)
 
-#### Description
-
-Reads two signed byte offsets from script arguments at `$0A`, sign-extends each to 16-bit, scales by 16 (tile-to-pixel conversion), adds to the actor's current pixel position (`$14`/`$16`), then divides by 16 to produce final tile coordinates in `$0018`/`$001C`.
-
-The Y coordinate receives an additional `$10` subtraction before division (tile grid origin offset). Called by COP `$0D` (MarkSolidOffset) and `$0E` (ClearSolidOffset) to compute collision rectangles relative to the actor's position.
-
-#### Algorithm
-
-```
-X axis:
-1. LDA [$0A]; INC $0A               ; Read signed byte
-2. If bit 7 → ORA #$FF00 (sign-extend)
-3. ASL×4 (×16)                       ; Tile offset → pixels
-4. CLC; ADC $14                      ; Add actor X position
-5. LSR×4 (÷16) → STA $0018           ; Back to tile coords
-
-Y axis:
-6. LDA [$0A]; INC $0A               ; Read signed byte
-7. If bit 7 → ORA #$FF00
-8. ASL×4 (×16)
-9. CLC; ADC $16                      ; Add actor Y position
-10. SEC; SBC #$0010                  ; Subtract 16 (tile grid offset)
-11. LSR×4 (÷16) → STA $001C          ; Back to tile coords
-12. RTS
-```
-
-#### Source
-
-```3125:3167:extracted/system/engine/cop_handlers_collision.asm
-ParseSignedTileOffset {
-    LDA [$0A]
-    INC $0A
-    AND #$00FF
-    BIT #$0080
-    BEQ loc_00AF9E
-    ORA #$FF00
-
-  loc_00AF9E:
-    ASL 
-    ASL 
-    ASL 
-    ASL 
-    CLC 
-    ADC $14
-    LSR 
-    LSR 
-    LSR 
-    LSR 
-    STA $0018
-    LDA [$0A]
-    INC $0A
-    AND #$00FF
-    BIT #$0080
-    BEQ loc_00AFBB
-    ORA #$FF00
-
-  loc_00AFBB:
-    ASL 
-    ASL 
-    ASL 
-    ASL 
-    CLC 
-    ADC $16
-    SEC 
-    SBC #$0010
-    LSR 
-    LSR 
-    LSR 
-    LSR 
-    STA $001C
-    RTS 
-}
-```
-
-#### Variables
-
-| Location | Direction | Role |
-|----------|-----------|------|
-| `$0A` | Read | Script arg pointer (2 signed bytes) |
-| `$14` / `$16` | Read | Actor pixel position |
-| `$0018` | Output | Computed tile X coordinate |
-| `$001C` | Output | Computed tile Y coordinate |
-
-#### Cross-References
-
-| Symbol | Relationship |
-|--------|--------------|
-| `MarkSolidOffset` (COP `$0D`) | Caller — mark collision at offset |
-| `ClearSolidOffset` (COP `$0E`) | Caller — clear collision at offset |
-| `TileCoordsToMapIndex` (Bank $02) | Called by COP handlers after this to resolve WRAM index |
+Reads two **signed bytes** from **`[$0A]`**, ×16, adds actor **`$14`/`$16`**, converts to tile coords in **`$0018`/`$001C`**; Y path subtracts **`$10`** before ÷16 (same grid bias as **`TileCollisionQuery`**). Mark/clear COPs then call **`TileCoordsToMapIndex`** / rectangle helpers (see direction-collision doc).
 
 ---
 
-## Call Flow Summary
+## Collision offset parsing (separate from metatile paint)
 
-```
-  Metatile COPs ($4B–$4E)                Sprite COPs ($80–$92)
-        │                                       │
-        ▼                                       ▼
-  ParseMapEntry (stream only)            ProcessAnimFlag
-        │                                       │
-        ▼                                       ▼
-  ResolveTileData                        AnimFrameLookup
-        │                                       │
-        ▼                                       ▼
-  TileQueryGate (retry if pending)       SetActorBody (player only)
-                                              │
-  Sine HDMA COPs ($00, $5F, $60)              ▼
-        │                                  Stage to OAM
-        ▼
-  BuildSineLookupTable (init)
+```text
+  MarkSolidOffset / ClearSolidOffset ($0D / $0E)
         │
         ▼
-  BuildSineHdmaTable (per-frame)
-
-  Collision COPs ($0D, $0E)
+  ParseSignedTileOffset → $0018/$001C (tile coords)
         │
         ▼
-  ParseSignedTileOffset
-        │
-        ▼
-  TileCoordsToMapIndex → WRAM write
+  (handler-specific) single-tile or rect paint on $7FC000
 ```
 
 ---
 
-## See Also
+## See also
 
-- [`cop-dispatch.md`](cop-dispatch.md) — COP handler table entries
-- [`utility-math-movement.md`](utility-math-movement.md) — `ProcessAnimFlag` in movement init
-- [`../../cop/README.md`](../../cop/README.md) — Full COP operand reference
+- [`direction-collision.md`](direction-collision.md) — `TileCollisionQuery`, mark/clear rectangles
+- [`utility-math-movement.md`](utility-math-movement.md) — movement init calling `ProcessAnimFlag`
+- [`../../cop/README.md`](../../cop/README.md) — COP operand reference
 - [`extracted/system/engine/map_coords.asm`](../../../extracted/system/engine/map_coords.asm) — `TileCoordsToMapIndex`, `PixelToVramAddress`
-- `sine_table_8bit` — 256-byte sine table source data
 
-*Source: [`extracted/system/engine/cop_handlers_metatile.asm`](../../../extracted/system/engine/cop_handlers_metatile.asm), [`extracted/system/engine/cop_handlers_effects.asm`](../../../extracted/system/engine/cop_handlers_effects.asm), [`extracted/system/engine/actor_pool.asm`](../../../extracted/system/engine/actor_pool.asm), [`extracted/system/engine/cop_handlers_collision.asm`](../../../extracted/system/engine/cop_handlers_collision.asm)*
+## Source validation
+
+**Files checked:** `cop_handlers_metatile.asm`, `cop_handlers_sprite.asm`, `cop_handlers_effects.asm`, `cop_handlers_collision.asm`, `actor_pool.asm`, `map_coords.asm`, `body_table.asm` block notes.
+
+**Verified:** `ParseMapEntry` record layout and carry semantics; `ResolveTileData` table sources (`$7F0000`, `$7E2000`, `$7EA000`, `$7FC000`), viewport uses **`bg1ScrollH`** / **`mapScrollV`**; **`TileQueryGate`** carry vs **`$0902`** pending flush (gate runs **before** resolve); `ProcessAnimFlag` **`$FF`**, bit 7 mirror, **`$12` bit 1** lock; **`AnimFrameLookup`** → **`move_chain_table`** chain heads; **`SetActorBody`** uses **`characterForm`**; **`ParseSignedTileOffset`** Y **`−$10`** bias.
+
+**Notes:** Stream COPs **`$4D`/`$4E`** have **no script sites** in the current extract. **`DrawMetatileHere`** treats actor **`$14`/`$16` as tile coords** (callers must pre-convert from pixels). Sine helper register details hedged where only block comments describe buffer layout.

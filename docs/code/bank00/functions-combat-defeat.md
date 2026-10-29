@@ -1,40 +1,68 @@
 # Bank $00 — Functions: Enemy Defeat Pipeline
 
 **Bank:** `$00` (mirrored at `$80`)  
-**Address range:** `$00DB8A`–`$00DFFF`  
-**Source files:** `extracted/functions/StandardEnemyDefeatHandler.asm`, `NpcDespawnStub.asm`, `SpawnDamageNumberEffect.asm`, `SpawnItemSparkleEffect.asm`, `SpawnFieldRevealEffect.asm`, `EnemyDeathFlash.asm`, `EnemyDropSystem.asm`  
-**Block:** enemy defeat pipeline (`StandardEnemyDefeatHandler` multi-part block + standalone VFX)
+**Address range:** `$00DB8A`–`$00DFFF` (defeat block + drop/VFX helpers)  
+**Related:** [`actors-combat-interaction.md`](actors-combat-interaction.md) (hit stagger → defeat entry, stat reward actors) · [`README.md`](README.md)
 
-This region implements the complete enemy death resolution pipeline: kill tracking, visual feedback, field tile reveals, gem/heal pickup drops, and stat bonus rewards. Every standard field enemy routes through `StandardEnemyDefeatHandler` via the `$7F1004` OnDeath callback assigned in `ComposeDigitSprites_AtCursor`.
+## Source of truth
 
-**Related:** [`actors-combat-interaction.md`](actors-combat-interaction.md) (stat reward actors, hit stagger) · [`README.md`](README.md)
+| Piece | `extracted/...` |
+|--------|------------------|
+| Standard defeat | `functions/StandardEnemyDefeatHandler.asm` |
+| Counter-arena variant | `functions/EnemyDefeatDispatch.asm` (bank `$0A`) |
+| Field reveal VFX | `functions/SpawnFieldRevealEffect.asm` |
+| Death flash / drops | `functions/EnemyDeathFlash.asm`, `functions/EnemyDropSystem.asm` |
+| Stat pickups | `actors/reward_actors.asm`, `tables/enemy_clear_reward_table.asm` |
+| Stat / drop bytes | `tables/enemy_stats_table.asm` (byte +3 = `gemDropType`) |
+| Hit → defeat wiring | `actors/hit_stagger_controller.asm`, `system/engine/combat_collision.asm` |
+| Mid-kill reveal pickup | `actors/field_reveal_object.asm` |
+
+**Naming:** All handler labels above are extracted symbols. `field_reveal_object` is a **separate actor** from `SpawnFieldRevealEffect` (tile sparkle + BG swap vs. floating stat/gem pickup).
+
+**Counts:** `JumpFar` / entry-pointer installs to `StandardEnemyDefeatHandler` — 13 enemy scripts plus `EnemyDefeatDispatch` last-kill path (listed in block note). Direct `EnemyDeathFlash` spawns — 8+ call sites beyond the standard handler.
 
 ---
 
-## Pipeline Overview
+## Pipeline overview
 
-```
-Enemy OnDeath callback
-    └─► StandardEnemyDefeatHandler ($DB8A)
-            ├─► Increment kill counters / scene flags
-            ├─► EnemyDeathFlash ($DF15)          [COP SpawnLastRel]
-            ├─► SpawnFieldRevealEffect ($DDF2)  [optional, event block trigger]
-            └─► Reward dispatch:
-                    ├─► EnemyGemDropRouter ($DD5B) → EnemyDropSystem ($DF29)
-                    └─► EnemyStatBonusReward ($DD87) → e_hp/str/def_increase actors
+Three defeat **paths** (not interchangeable):
+
+| Path | When | Outcome |
+|------|------|---------|
+| **Standard** | Default death entry: `HitStaggerResolveHit` or inline `combat_collision` when HP = 0 and no `onDeathCallback` (`$7F1004`); or `COP JumpFar` from enemy script | Full handler below |
+| **Custom `JumpFar`** | 13 enemies jump directly (same script body) | Same `StandardEnemyDefeatHandler` entry |
+| **`EnemyDefeatFlashAndDrop` only** | `ir20_statue`, `ir26_statue` | Flash + gem router, **no** kill counter / stat reward |
+| **`EnemyDefeatDispatch`** (bank `$0A`) | Mid-kill in counter arenas | Flash + **`field_reveal_object`** (not `SpawnFieldRevealEffect`); last kill `JumpFar`s to standard handler |
+
+`ComposeDigitSprites_AtCursor` does **not** install `StandardEnemyDefeatHandler`; the engine defaults to it when the death callback slot is empty.
+
+### Standard enemy death (execution order)
+
+```text
+Victim runs StandardEnemyDefeatHandler (X = defeated actor)
+    1. DefeatCountKill (unless no-stats / boss): $0AEE BCD--, $0AEC--, orbitAngle := remaining count
+    2. EnemyDefeatFlashAndDrop: halt move, SFX #06, SpawnListAppend EnemyDeathFlash ($0302), wait 3 ticks
+    3. If no-stats or boss → EnemyDefeatBossCleanup → Die (no flag/gem/reward)
+    4. SetDungeonKillFlag; gem branch:
+           IF scene reward $0300 already claimed OR enemies remain (orbitAngle ≠ 0):
+               gemDropType (+3 of enemy_stats_table) ≠ 0 → EnemyGemDropRouter → SpawnListAppend drop ($0420)
+           ELSE (last enemy, reward not taken): skip gem → stat reward later
+    5. Hide enemy ($10 $2000); ClearSolidHere if extendedFlags $0008
+    6. If deathActionIdx ($7F0024) set AND reveal flag $0100+idx clear → SetFlag_0100, SpawnListAppend SpawnFieldRevealEffect ($0342)
+    7. orbitAngle ≠ 0 → Die | orbitAngle = 0 → EnemyStatBonusReward → spawn e_hp/str/def_increase
 ```
 
-| Function | Address | Size | Movable | Call Type | Priority |
-|----------|---------|------|---------|-----------|----------|
-| `StandardEnemyDefeatHandler` | `$DB8A` | 237 B | **No** | `$&` pointer / COP `JumpScript` | **High** |
-| `EnemyGemDropRouter` | `$DD5B` | 44 B | **No** | Internal JSR `$&` | Medium |
-| `EnemyStatBonusReward` | `$DD87` | 107 B | **No** | Internal JSR `$&` | Medium |
-| `SpawnFieldRevealEffect` | `$DDF2` | 291 B | ✓ | COP `SpawnLastRel` | **High** |
-| `EnemyDeathFlash` | `$DF15` | 20 B | ✓ | COP `SpawnLastRel` | Medium |
-| `EnemyDropSystem` | `$DF29`–`$DFFF` | 260 B | ✓ | COP `SpawnLastRel` | **High** |
-| `NpcDespawnStub` | `$DC77` | 2 B | **No** | `$&` from `InteractionDamage_NPCChat` | Medium |
-| `SpawnDamageNumberEffect` | `$DCB4` | 79 B | ✓ | COP `SpawnLastRel` | Medium |
-| `SpawnItemSparkleEffect` | `$DD03` | 88 B | ✓ | COP `SpawnLastRel` | Medium |
+| Function | Address | Size | Movable | Reachability |
+|----------|---------|------|---------|--------------|
+| `StandardEnemyDefeatHandler` | `$DB8A` | ~237 B | **No** | Victim entry / `JumpFar` |
+| `EnemyGemDropRouter` | `$DD5B` | ~44 B | **No** | JSR `$&` from handler only |
+| `EnemyStatBonusReward` | `$DD87` | ~107 B | **No** | JSR `$&` from handler only |
+| `SpawnFieldRevealEffect` | `$DDF2` | ~291 B | ✓ | `SpawnListAppend` from handler + custom deaths |
+| `EnemyDeathFlash` | `$DF15` | ~20 B | ✓ | `SpawnListAppend` (not `SpawnLastRel`) |
+| `EnemyDropSystem` | `$DF29`–`$DFFF` | ~260 B | ✓ | Via router `SpawnListAppend` |
+| `NpcDespawnStub` | `$DC77` | 2 B | **No** | `$&` from `InteractionDamage_NPCChat` |
+| `SpawnDamageNumberEffect` | `$DCB4` | 79 B | ✓ | `combat_collision` only |
+| `SpawnItemSparkleEffect` | `$DD03` | 88 B | ✓ | `GiveItemToPlayer` (item ≥ `$86`) |
 
 ---
 
@@ -44,29 +72,25 @@ Enemy OnDeath callback
 
 ### Description
 
-Central enemy death handler invoked when any standard enemy's HP reaches zero. It is the engine default: `hit_stagger_controller` (`HitStaggerResolveHit`) and two inline paths in `combat_collision` point the victim at it when HP reaches zero and `$7F1004` is empty, and 13 enemy scripts `JumpFar` into it. `ComposeDigitSprites_AtCursor` does not assign it.
+**Live** central death script — the defeated actor runs it (`X` = victim slot). Default when HP hits 0 and `onDeathCallback` (`$7F1004`) is zero: `HitStaggerResolveHit` or inline `combat_collision` writes `#$&StandardEnemyDefeatHandler` into the victim's entry pointer. Also reached via `COP [JumpFar]` from 13 enemy scripts and from `EnemyDefeatDispatch` on the **last** kill.
 
-The handler performs four coordinated tasks before the enemy actor dies:
+Kill accounting uses `SetDungeonKillFlag` (monster ID in actor data), not a generic `$7F0022` increment in this file. Bosses (`extendedFlags` `$0080`) and **no-stats** actors (`statsPtr` = start of `enemy_stats_table`) skip counters, gems, and stat rewards.
 
-1. **Kill accounting** — increments dungeon/scene kill counters stored in WRAM (`$7F0022,X` monster ID → flag tables), updates `$0AF0`–`$0AF8` scene persistence data where applicable
-2. **Death VFX** — spawns `EnemyDeathFlash` at the enemy's `$14`/`$16` position via `COP [SpawnLastRel]`
-3. **Field tile reveal** — if the enemy has a `deathActionIdx` (event block ID) and it hasn't been triggered yet, spawns `SpawnFieldRevealEffect` which animates sparkles at the reveal area then swaps hidden tilemap tiles to their visible destination via `StageBgChangeFromDeathIdx`/`ApplyBgChange`
-4. **Reward routing** — reads the enemy's `gemDropType` byte (field 4 of `enemy-stats`) and dispatches to either `EnemyGemDropRouter` (JSR `$&EnemyGemDropRouter`) for gem/heal pickup types 1/2/weighted, or `EnemyStatBonusReward` (JSR `$&EnemyStatBonusReward`) for HP/STR/DEF stat bonuses
+**Gem vs stat reward are separate decisions:**
 
-Because `EnemyGemDropRouter` and `EnemyStatBonusReward` are embedded in the same block file with internal `$&` references, this entire three-part block must remain co-located in bank `$00`.
+- **`gemDropType`** (byte +3 of the row at `statsPtr`): `0` = never drop a currency gem; `1` / `2` / `3+` → `EnemyGemDropRouter`. Gems run only if the scene clear flag `$0300` is **already set** *or* other enemies remain (`orbitAngle` ≠ 0 after decrement).
+- **Stat reward:** `EnemyStatBonusReward` runs only when `orbitAngle` = 0 (last counted enemy) and flag `$0300` is still clear — **independent** of `gemDropType`.
+
+`EnemyGemDropRouter` and `EnemyStatBonusReward` share the same asm block (internal `$&` only) and must stay co-located in bank `$00`.
 
 ### Algorithm
 
+See **Standard enemy death** diagram above; equivalent steps:
+
 ```
-1. Read enemy reward type from actor metadata / WRAM fields
-2. SetWramFlag for dungeon kill tracking ($7F0022 monster ID)
-3. COP [SpawnLastRel] @EnemyDeathFlash — white flash at death position
-4. If deathActionIdx set (event block trigger):
-     COP [SpawnLastRel] @SpawnFieldRevealEffect with event block ID
-5. Switch on gemDropType (enemy-stats byte 3):
-     Type 1/2/3+ → JSR $&EnemyGemDropRouter (gem/heal pickup)
-     Type 0      → JSR $&EnemyStatBonusReward (stat bonus only)
-6. COP [Die] — remove enemy actor
+DefeatCountKill → EnemyDefeatFlashAndDrop → (boss/no-stats cleanup?) →
+SetDungeonKillFlag → [optional EnemyGemDropRouter] → hide → [optional SpawnFieldRevealEffect] →
+Die OR EnemyStatBonusReward
 ```
 
 ### Variables
@@ -74,10 +98,10 @@ Because `EnemyGemDropRouter` and `EnemyStatBonusReward` are embedded in the same
 | Symbol | Role |
 |--------|------|
 | `$14`, `$16` | Enemy death position (passed to flash/drop spawns) |
-| `$7F0022,X` | Dungeon monster ID for kill flag |
-| `$7F1004,X` | OnDeath callback (this function) |
-| `$0AF0`–`$0AF8` | Scene persistence / kill count storage |
-| Enemy metadata | Reward type byte, drop item ID, drop enable flag |
+| `$7F0024,X` | `deathActionIdx` — event-block index for field tile reveal |
+| `$7F0020,X` | `statsPtr` → `enemy_stats_table` row (byte +3 = `gemDropType`) |
+| `$0AEC` / `$0AEE` | Remaining enemy count (hex / BCD); copied to `orbitAngle` on victim |
+| `$7F1004,X` | `onDeathCallback` — when set, standard handler is **not** used as default |
 
 ### Cross-References
 
@@ -86,7 +110,33 @@ Because `EnemyGemDropRouter` and `EnemyStatBonusReward` are embedded in the same
 | Installed by | `hit_stagger_controller`, `combat_collision` | Default enemy death entry when `$7F1004` is empty |
 | Called from | `hit_stagger_controller` | When enemy has no saved script ptr |
 | Calls | `EnemyGemDropRouter`, `EnemyStatBonusReward` | Internal JSR `$&` |
-| Spawns | `EnemyDeathFlash`, `SpawnFieldRevealEffect` | COP `SpawnLastRel` |
+| Spawns | `EnemyDeathFlash`, `SpawnFieldRevealEffect` | `COP [SpawnListAppend]` |
+
+---
+
+## Reward routing reference
+
+### Scene stat reward (`enemy_clear_reward_table`)
+
+| Table value | Spawned actor | Player effect |
+|-------------|---------------|---------------|
+| `0` | *(none)* | No stat pickup |
+| `1` | `e_hp_increase` | Max HP +1, refill missing HP via `hpToHeal` |
+| `2` | `e_str_increase` | STR +1 |
+| `3+` | `e_def_increase` | DEF +1 |
+
+Gated by scene flag `$0300` + `$scene_current` (set in `RewardActorVFX`).
+
+### Currency gem / heal drops (`gemDropType` → `GiveItemToPlayer` id)
+
+| `gemDropType` | Router target | `chatPtr` item | Effect (inventory) |
+|---------------|---------------|----------------|---------------------|
+| `0` | *(no gem)* | — | Stat path may still run on last kill |
+| `1` | `SpawnDropGem1` | `$83` | +1 gem |
+| `2` | `SpawnDropGem2` | `$84` | +2 gems |
+| `3+` | `SpawnDropByHpTier` | `$83`–`$86` | Weighted 1 / 2 / 5 gems or +5 HP heal (`$86`) |
+
+These ids are **currency/heal pickups**, not the hidden stat items `$80`–`$82` used by `field_reveal_object`.
 
 ---
 
@@ -96,23 +146,22 @@ Because `EnemyGemDropRouter` and `EnemyStatBonusReward` are embedded in the same
 
 ### Description
 
-Routes the enemy's `gemDropType` (byte 3 of `enemy-stats`) to the appropriate pickup spawner within `EnemyDropSystem`. The router reads the stat byte at +3 (`AND #$00FF`) and decrements to dispatch:
+**Live** — reached with `A` = byte +3 (`gemDropType`, already masked) from `StandardEnemyDefeatHandler`. Two `DEC` operations select the spawn:
 
-- **Type 1** → `SpawnDropGem1` (`$DF29`) — fixed item `$83` (1 gem)
-- **Type 2** → `SpawnDropGem2` (`$DF52`) — fixed item `$84` (2 gems)
-- **Type 3+** → `SpawnDropByHpTier` (`$DF7B`) — HP-tier weighted roll among items `$83`–`$86`
+- **1** → `SpawnDropGem1` — item `$83`
+- **2** → `SpawnDropGem2` — item `$84`
+- **other nonzero** → `SpawnDropByHpTier` — weighted `$83`–`$86`
 
-> ⚠ Enemies do **not** spawn chests on death. They spawn animated pickups whose `chatPtr` holds a `GiveItemToPlayer` item id (`$83`–`$86`: 1, 2, or 5 gems, or a 5 HP heal).
+Each path uses `COP [SpawnListAppend]` with flags `$0420`, then `JMP DefeatHideAndRelease` (not `SpawnLastRel`).
+
+> Enemies do **not** spawn chests — only animated pickups with `chatPtr` for `GiveItemToPlayer`.
 
 ### Algorithm
 
 ```
-1. LDA gemDropType (from enemy-stats byte 3, via caller)
-2. DEC; BEQ → SpawnDropGem1 ($DF29)   [type 1: fixed gem A]
-3. DEC; BEQ → SpawnDropGem2 ($DF52)          [type 2: fixed gem B]
-4. BRA → SpawnDropByHpTier ($DF7B)               [type 3+: random weighted]
-5. COP [SpawnLastRel] @selected_handler
-6. JMP $&DefeatHideAndRelease
+1. DEC; BEQ → SpawnListAppend SpawnDropGem1 → DefeatHideAndRelease
+2. DEC; BEQ → SpawnListAppend SpawnDropGem2 → DefeatHideAndRelease
+3. BRA → SpawnListAppend SpawnDropByHpTier → DefeatHideAndRelease
 ```
 
 ### Cross-References
@@ -120,7 +169,7 @@ Routes the enemy's `gemDropType` (byte 3 of `enemy-stats`) to the appropriate pi
 | Direction | Symbol | Notes |
 |-----------|--------|-------|
 | Caller | `StandardEnemyDefeatHandler` | JSR `$&EnemyGemDropRouter` |
-| Targets | `SpawnDropGem1`–`DropBodyHeal5` | `$DF29`–`$DFE3` via `EnemyDropSystem` |
+| Targets | `SpawnDropGem1`–`DropBodyHeal5` | `$DF29`–`$DFE3` in `EnemyDropSystem.asm` |
 
 ---
 
@@ -130,21 +179,17 @@ Routes the enemy's `gemDropType` (byte 3 of `enemy-stats`) to the appropriate pi
 
 ### Description
 
-Scene-indexed HP/STR/DEF reward spawner. Looks up the current `$scene_current` in an embedded scene→stat-type table, then spawns the appropriate stat reward actor (`e_hp_increase`, `e_str_increase`, or `e_def_increase` at `$E02D`–`$E0C6`) via `COP [SpawnLastRel]`.
-
-These actors bounce toward the player, play fanfare SFX `$25`, set the scene reward flag `$0300`, and print the stat increase message. Never placed directly in `scene_actors.asm` — always spawned dynamically after combat.
+**Live** — last-kill branch only. Loads `enemy_clear_reward_table[sceneCurrent]` (direct indexed byte, not a scan). If flag `$0300` already set or tier = 0, `Die` immediately. Otherwise sets `displayModeFlags` `$0080`, spawns one of `reward_actors.e_hp_increase` / `e_str_increase` / `e_def_increase` via `SpawnListAppend` (`$1000`, child `$12` `$1000`), then `Die`. Fanfare, flag `$0300`, and dialog happen inside the spawned actor / `RewardActorVFX`.
 
 ### Algorithm
 
 ```
-1. LDA $scene_current
-2. Scan embedded scene index table for match
-3. Load stat type (HP=0, STR=1, DEF=2) from table entry
-4. Switch stat type:
-     0 → COP [SpawnLastRel] @e_hp_increase
-     1 → COP [SpawnLastRel] @e_str_increase
-     2 → COP [SpawnLastRel] @e_def_increase
-5. RTS
+1. tier := enemy_clear_reward_table[sceneCurrent]
+2. TestFlag_0300 → claimed → Die
+3. tier = 0 → Die
+4. displayModeFlags |= $0080
+5. tier 1 → SpawnListAppend e_hp_increase; tier 2 → e_str_increase; else e_def_increase
+6. Die (defeated enemy actor)
 ```
 
 ### Variables
@@ -159,20 +204,20 @@ These actors bounce toward the player, play fanfare SFX `$25`, set the scene rew
 | Direction | Symbol | Notes |
 |-----------|--------|-------|
 | Caller | `StandardEnemyDefeatHandler` | JSR `$&EnemyStatBonusReward` |
-| Spawns | `e_hp_increase`, `e_str_increase`, `e_def_increase` | Via `SpawnLastRel` |
+| Spawns | `e_hp_increase`, `e_str_increase`, `e_def_increase` | `SpawnListAppend` |
 | Shared VFX | `RewardActorVFX` (`$E110`) | Called by all stat actors |
 
 ---
 
 ## SpawnFieldRevealEffect
 
-**Address:** `$DDF2` · **Size:** 291 bytes
+**Address:** `$DDF2` · **Size:** ~291 bytes · **Live**
 
-> ⚠ This actor contains **no item/inventory logic whatsoever**. It is the visual effect that plays when hidden tilemap tiles are revealed after an enemy defeat triggers an event block change.
+> No inventory logic — BG tile reveal VFX only. **Not** the same as `field_reveal_object` (stat/gem pickup spawned by `EnemyDefeatDispatch` for non-final kills).
 
 ### Description
 
-Spawns an animated sparkle/flash effect at the field tile reveal area, then triggers the actual event block tile swap. When an enemy with a `deathActionIdx` (event block ID) is killed, `StandardEnemyDefeatHandler` spawns this actor, passing the event block ID.
+When `deathActionIdx` (`$7F0024`) on the defeated enemy is nonzero and event flag `$0100` + index is still clear, `StandardEnemyDefeatHandler` sets the flag and spawns this actor (`SpawnListAppend`, `$0342`), copying the index into the child's `deathActionIdx`. Custom deaths (`pyCC_mystic_ball`, `awB1_wall_walker`) and `EnemyDefeatDispatch_CountKill` can also spawn it. **`field_reveal_object` is never spawned from this handler.**
 
 The actor reads the event block entry from `event_block_table` to determine the reveal area dimensions and destination coordinates. It computes a movement target (the center of the reveal area), animates a sprite moving toward it, spawns flash and scatter sparkle particles, then triggers `StageBgChangeFromDeathIdx` / `ApplyBgChange` to perform the actual tile swap.
 
@@ -213,10 +258,10 @@ Sign-extends randomly via carry flag to produce both positive and negative offse
 
 | Direction | Symbol | Notes |
 |-----------|--------|-------|
-| Spawned by | `StandardEnemyDefeatHandler` | `COP [SpawnLastRel]` when `deathActionIdx` set |
-| Spawned by | `pyCC_mystic_ball.asm` | Pyramid mystic ball custom death |
-| Spawned by | `awB1_wall_walker.asm` | Angkor wall walker custom death |
-| Spawned by | `EnemyDefeatDispatch.asm` (bank `$0A`) | Non-final kills in counter arenas: spawns `field_reveal_object` with remaining enemy count in `$26` (last enemy uses `StandardEnemyDefeatHandler` instead) |
+| Spawned by | `StandardEnemyDefeatHandler` | When `deathActionIdx` + `$0100` flag gate passes |
+| Spawned by | `pyCC_mystic_ball.asm`, `awB1_wall_walker.asm` | Custom death scripts |
+| Spawned by | `EnemyDefeatDispatch_CountKill` | Same tile-reveal effect (not `field_reveal_object`) |
+| Related | `field_reveal_object` | Separate actor — mid-kill **pickup** from `EnemyDefeatDispatch` only |
 | Reads | `event_block_table` | Event block definitions (dimensions + coordinates) |
 | Triggers | `StageBgChangeFromDeathIdx` / `ApplyBgChange` | Actual tile swap COP commands |
 
@@ -228,7 +273,7 @@ Sign-extends randomly via carry flag to produce both positive and negative offse
 
 ### Description
 
-Brief white-flash metasprite displayed at the enemy's death position. Spawns via `COP [SpawnLastRel]`, shows a single bright metasprite frame for a few ticks, then immediately dies. Provides universal visual feedback that an enemy has been defeated regardless of enemy type.
+Brief white-flash metasprite at the enemy position. **`COP [SpawnListAppend]`** with flags `$0302`; child `$12` gets `$1000` so it keeps running during display-filter mode. Single-frame display then `Die`.
 
 Also called directly from some enemy actor scripts (not only through `StandardEnemyDefeatHandler`) for custom death sequences that bypass the standard handler.
 
@@ -245,7 +290,7 @@ Also called directly from some enemy actor scripts (not only through `StandardEn
 | Direction | Symbol | Notes |
 |-----------|--------|-------|
 | Spawned by | `StandardEnemyDefeatHandler` | Primary caller |
-| Also called from | ~10 enemy actor scripts | Direct `SpawnLastRel` |
+| Also spawned from | `EnemyDefeatDispatch` and enemy actor scripts | `COP [SpawnListAppend] ( @EnemyDeathFlash, … #$0302 )` — 11 `@EnemyDeathFlash` spawn sites in 9 extracted files in total (counted with `rg`; includes the two engine-side sites) |
 
 ---
 
@@ -258,7 +303,7 @@ Also called directly from some enemy actor scripts (not only through `StandardEn
 ### Description
 
 Enemy drop spawner with fixed-type entries plus an HP-tier weighted picker. Each handler:
-1. Sets up a metasprite from `table_0EE000`
+1. Sets up a metasprite from `spriteset_pickups_effects` (the extracted label for the table formerly called `table_0EE000`)
 2. Spawns a friendly pickup actor (`$10` bit `$0020`) at the death position via `SpawnListAppend`
 3. Writes the item id to `$chatPtr,X` for `InteractionDamage_NPCChat` → `GiveItemToPlayer`
 4. Runs a shimmer/blink animation, then dies (`collect_handler_gem` only nudges gems toward the player)
@@ -276,12 +321,12 @@ Item ids on collection:
 | Part | Name | Address | Size | Purpose |
 |------|------|---------|------|---------|
 | Type 1 entry | `SpawnDropGem1` | `$DF29` | 15 B | Fixed gem type A: setup metasprite + spawn collect handler |
-| Type 1 display | `DropBodyGem1` | `$DF38` | 26 B | chatPtr `$0083` (HP gem), frames `#04`/`#09` |
-| Type 2 entry | `SpawnDropGem2` | `$DF52` | 15 B | Fixed gem type B: setup metasprite + spawn collect handler |
-| Type 2 display | `DropBodyGem2` | `$DF61` | 26 B | chatPtr `$0084` (STR gem), frames `#05`/`#0A` |
+| Type 1 display | `DropBodyGem1` | `$DF38` | 26 B | chatPtr `$0083` (+1 gem), frames `#04`/`#09` |
+| Type 2 entry | `SpawnDropGem2` | `$DF52` | 15 B | Fixed 2-gem pickup setup |
+| Type 2 display | `DropBodyGem2` | `$DF61` | 26 B | chatPtr `$0084` (+2 gems), frames `#05`/`#0A` |
 | Weighted | `SpawnDropByHpTier` | `$DF7B` | 78 B | RNG tier selection → weighted table lookup → PHA/RTS dispatch |
-| DEF gem | `DropBodyGem5` | `$DFC9` | 26 B | chatPtr `$0085` (DEF gem), frames `#06`/`#0B` |
-| Special gem | `DropBodyHeal5` | `$DFE3` | 26 B | chatPtr `$0086` (special gem), frames `#22`/`#35` |
+| 5-gem pickup | `DropBodyGem5` | `$DFC9` | 26 B | chatPtr `$0085` (+5 gems), frames `#06`/`#0B` |
+| Heal pickup | `DropBodyHeal5` | `$DFE3` | 26 B | chatPtr `$0086` (+5 HP via `hpToHeal`), frames `#22`/`#35` |
 | Data | `drop_threshold_by_hp` | `$DFFD` | 48 B | `gem-drop-threshold` weighted probability table (3 tiers × 4 entries) |
 
 ### Algorithm (SpawnDropByHpTier)
@@ -312,7 +357,7 @@ Item ids on collection:
 
 | Direction | Symbol | Notes |
 |-----------|--------|-------|
-| Dispatched by | `EnemyGemDropRouter` | `COP [SpawnLastRel]` |
+| Dispatched by | `EnemyGemDropRouter` | `COP [SpawnListAppend]` flags `$0420` |
 | Child actor | `collect_handler_gem` | Gem collection interaction handler (nudges gem toward player) |
 | Data | `drop_threshold_by_hp` | Must move with block |
 
@@ -407,8 +452,14 @@ Spawned only by `GiveItemToPlayer` when the item effect index is ≥ 6 (item id 
 | Address span | `$DB8A`–`$DFFF` (~1,397 bytes) |
 | Immovable entries | 4 (`StandardEnemyDefeatHandler` block parts + stub) |
 | External `$&` inbound refs | 2 (`StandardEnemyDefeatHandler`, `NpcDespawnStub`) |
-| COP spawn pattern | 6 functions use `SpawnLastRel` |
+| Primary spawn COP | `SpawnListAppend` for flash, reveal, drops, stat pickups |
 
 ---
 
-*Source: `extracted/functions/StandardEnemyDefeatHandler.asm`, `extracted/functions/SpawnFieldRevealEffect.asm`, `extracted/functions/EnemyDeathFlash.asm`, `extracted/functions/EnemyDropSystem.asm`, `extracted/functions/SpawnDamageNumberEffect.asm`, `extracted/functions/SpawnItemSparkleEffect.asm`, `extracted/functions/NpcDespawnStub.asm`, `docs/code/bank00/actors-combat-interaction.md`.*
+## Source validation
+
+**Files checked:** `StandardEnemyDefeatHandler.asm`, `EnemyDropSystem.asm`, `EnemyDeathFlash.asm`, `SpawnFieldRevealEffect.asm`, `EnemyDefeatDispatch.asm`, `NpcDespawnStub.asm`, `SpawnDamageNumberEffect.asm`, `SpawnItemSparkleEffect.asm`; `hit_stagger_controller.asm`, `combat_collision.asm`; `enemy_stats_table.asm`, `enemy_clear_reward_table.asm`, `reward_actors.asm`, `field_reveal_object.asm`.
+
+**Verified:** Defeat step order and gem vs stat gating (`TestFlag_0300`, `orbitAngle`); `deathActionIdx` + `$0100` reveal flags; `EnemyGemDropRouter` DEC dispatch; drop item ids `$83`–`$86`; `SpawnListAppend` vs incorrect `SpawnLastRel` claims; separate `field_reveal_object` path in `EnemyDefeatDispatch`.
+
+**Notes:** Weighted drop percentages in `drop_threshold_by_hp` table match `EnemyDropSystem.asm` block comment. Boss / no-stats cleanup timing uses `WaitByte` `#02` / `#05` as in asm.

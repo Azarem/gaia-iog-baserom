@@ -28,11 +28,11 @@ Bank `$00` embeds dispatch jump tables, bitmasks, interpolation curves, and co-l
 
 | Name | Address | ASM Label | Size | Purpose |
 |------|---------|-----------|------|---------|
-| `cop_dispatch_table` | `$008485` | `code_list_008485` | 220 bytes (110 entries) | Primary COP dispatch jump table ($00–$6D) |
-| *(gap)* | `$008561` | — | 36 bytes (18 entries) | Invalid/garbage entries ($6E–$7F range, all `#0000`) |
-| *(extended)* | `$008585` | — | 198 bytes (99 entries) | Extended COP dispatch table ($80–$E2) |
-| `cop_table_sentinel` | `$00864B` | `byte_00864B` | 3 bytes | Sentinel: `EA 80 FD` |
-| `wram_fill_constant` | `$00846C` | `byte_00846C` | 1 byte (`$E0`) | WRAM fill constant (unused) |
+| `cop_dispatch_table` | `$008485` | `code_list_008485` | 454 bytes (227 words: 110 + 18 + 99) | COP dispatch jump table, one word per opcode `$00`–`$E2`; first 110 words = opcodes `$00`–`$6D` (see [`cop-dispatch.md`](cop-dispatch.md)) |
+| *(gap, part of `cop_dispatch_table`)* | `$008561` | — | 36 bytes (18 entries) | Unimplemented opcodes `$6E`–`$7F`, all `#$0000` |
+| *(extended, part of `cop_dispatch_table`)* | `$008585` | — | 198 bytes (99 entries) | Opcodes `$80`–`$E2` (209 valid entries in total with the primary part) |
+| `cop_table_sentinel` | `$00864B` | `byte_00864B` | 3 bytes | Trailing `NOP; BRA` loop: `EA 80 FD` (not an effective guard) |
+| `OamFillConstant_unused` | `$00846C` | `byte_00846C` | 1 byte (`$E0`) | Fill constant of the caller-less `OamFillE0_unused` (dead) |
 | `bitmasks_bit_position` | `$00B11D` | `bitmasks_00B11D` | 8 bytes | `$01,$02,$04,$08,$10,$20,$40,$80` |
 | `body_table` | *(include)* | `body_table` | Variable | Player body sprite-set index (Will/Freedan/Shadow) |
 | `move_chain_table` | *(include)* | `move_chain_table` | Variable | Animation frame duration/speed lookup |
@@ -563,7 +563,7 @@ Bank `$00` code follows consistent stack conventions across interrupt handlers, 
 | `camera_scroll_controller` (`$00EAED`) | 100+ | Every field scene (actor slot #1/#2) |
 | `scene_flag_init` (`$00C667`) | 26 | Scene actor lists (sets event flag `#00`) |
 | `StandardEnemyDefeatHandler` (`$00DB8A`) | 13 enemy scripts + 3 engine sites | 13 enemy scripts `JumpFar` into it; the engine installs it as the default when HP reaches zero and `$7F1004` is empty |
-| `global_ambient_dispatcher` (`$00BF89`) | 59 spawn lists | 173 of 184 scenes with thinkers |
+| `global_ambient_dispatcher` (`$00BF89`) | 59 spawn records (one in each of 59 of the 70 lists in `scene_thinkers.asm`) | Scenes reach it through those lists; 70 of the 256 scene ids use the bare dispatcher-only list |
 | `ApplyOrbitalOffsetFromRef` (`$00F3C9`) | 21 | COP handlers, bosses, statue inventory, fire sprites |
 | `NpcRandomWanderAI` (`$00C725`) | 13 | Town NPC wander actors |
 | `ApplyPlayerHitstun` (`$00C397`) | 9 | Enemy attack scripts (3 files) |
@@ -586,11 +586,11 @@ Bank `$00` code follows consistent stack conventions across interrupt handlers, 
 
 | Bank `$00` Block | Connects To | Via |
 |------------------|-------------|-----|
-| `GameOverSequence` ($D62F) | `ComposeDigitSprites_AtCursor` | `$&GameOverSequence` player death pointer |
+| `GameOverSequence` ($D62F) | `CheckPlayerDeath` (`combat_collision.asm`) | `#$&game_over_sequence.GameOverSequence` stored as the player actor's entry pointer (`ComposeDigitSprites_AtCursor` does not reference it) |
 | `StandardEnemyDefeatHandler` ($DB8A) | `hit_stagger_controller` (`HitStaggerResolveHit`), two inline paths in `combat_collision` | `$&StandardEnemyDefeatHandler` default enemy defeat pointer (`ComposeDigitSprites_AtCursor` does not set it) |
 | `NpcDespawnStub` ($DC77) | `InteractionDamage_NPCChat` | Post-interaction NPC entry → `COP [Die]` next tick |
 | `player_transition_handlers` ($C418) | Scene scripts, bank $03 | `#$&func_00C4xx` player anim refs |
-| `hit_stagger_controller` ($D877) | Bank $03 | `SpawnLastRel` from damage routines |
+| `hit_stagger_controller` ($D877, entry label `HitStaggerMain`) | `ApplyPlayerHitstun` and three sites in `combat_collision` | `COP [SpawnListAppend] @hit_stagger_controller.HitStaggerMain` (runtime spawn only) |
 | `smooth_follow_child` ($E4DB) | `smooth_follow` chunk | `$&ComputeFollow*` same-bank refs |
 | `ApplyOrbitalOffsetFromRef` ($F3C9) | System core | `?INCLUDE 'ApplyOrbitalOffsetFromRef'` from `$008000` chunk |
 

@@ -1,311 +1,255 @@
 # Bank $00 — Functions: Player State, NPC AI & Escort
 
 **Bank:** `$00` (mirrored at `$80`)  
-**Address range:** `$00C397`–`$00C806`, `$00C98E`  
-**Source files:** [`extracted/functions/ApplyPlayerHitstun.asm`](../../../extracted/functions/ApplyPlayerHitstun.asm), [`SetPlayerIdleFacing.asm`](../../../extracted/functions/SetPlayerIdleFacing.asm), [`npc_wander_ai.asm`](../../../extracted/functions/npc_wander_ai.asm) (contains `SyncActorPosFromDP`, `NpcRandomWanderAI`), [`FlickerParentActor.asm`](../../../extracted/functions/FlickerParentActor.asm), [`EscortFollowPathTracker.asm`](../../../extracted/functions/EscortFollowPathTracker.asm), [`f_inventory_full.asm`](../../../extracted/functions/f_inventory_full.asm)
+**Address range:** `$00C397`–`$00C9B8`  
+**Source files:** [`ApplyPlayerHitstun.asm`](../../../extracted/functions/ApplyPlayerHitstun.asm), [`SetPlayerIdleFacing.asm`](../../../extracted/functions/SetPlayerIdleFacing.asm), [`npc_wander_ai.asm`](../../../extracted/functions/npc_wander_ai.asm), [`FlickerParentActor.asm`](../../../extracted/functions/FlickerParentActor.asm), [`EscortFollowPathTracker.asm`](../../../extracted/functions/EscortFollowPathTracker.asm), [`f_inventory_full.asm`](../../../extracted/functions/f_inventory_full.asm)
 
-These routines manage player damage response, COP script variant selection, town NPC wander behavior, party escort path tracking, actor visibility toggling, and the inventory-full message utility.
+Player damage knockback, cutscene idle facing, town NPC wander AI, escort path replay, parent flicker helper, and inventory-full dialog.
 
-**Related:** [`actors-combat-interaction.md`](actors-combat-interaction.md) (`hit_stagger_controller` spawned by hitstun) · [`README.md`](README.md)
+**Related:** [`actors-combat-interaction.md`](actors-combat-interaction.md) (`HitStaggerMain` from hitstun) · [`README.md`](README.md)
+
+## Source of truth
+
+| Topic | `extracted/...` |
+|--------|------------------|
+| Hitstun | `functions/ApplyPlayerHitstun.asm`, `actors/hit_stagger_controller.asm` |
+| Idle facing | `functions/SetPlayerIdleFacing.asm`, `actors/player/player_character.asm` (`IdleStand*`) |
+| Wander AI | `functions/npc_wander_ai.asm`, town NPC actor scripts |
+| Escort | `functions/EscortFollowPathTracker.asm` |
+| Flicker | `functions/FlickerParentActor.asm` |
+| Inventory full | `functions/f_inventory_full.asm` |
+
+**Naming:** `orbitAngle` / `orbitDiameter` at `$7F0010`/`$7F0012` in wander and escort code are **WRAM field mnemonics** — for wander they store **home X/Y**, not orbit math. `currentHp` at `$7F0026` holds the NPC **base animation index** in wander AI.
+
+**Counts (this session, `rg` on `extracted/`):** `ApplyPlayerHitstun` JSL **9** sites in **3** files; `SetPlayerIdleFacing` JSL **17** sites in **14** files; `NpcRandomWanderAI` JSL **13** actors; `InventoryFullMessage` JML **8** sites; `EscortFollowPathTracker` `SpawnAfterFlags` **7** scenes; `FlickerParentActor` `SpawnAfterAbsFlags` **5** actors.
 
 ---
 
 ## Overview
 
-| Function | Address | Size | Movable | Call Type | Priority |
+| Function | Address | Size | Movable | Call type | Priority |
 |----------|---------|------|---------|-----------|----------|
-| `ApplyPlayerHitstun` | `$C397` | 129 B | ✓ | JSL (9 callers) | **High** |
-| `SetPlayerIdleFacing` | `$C6E4` | 44 B + table | ✓ (with table) | JSL (~15 scenes) | **High** |
-| `SyncActorPosFromDP` | `$C718` | 13 B | ✓ | JSL | Medium |
-| `NpcRandomWanderAI` | `$C725` | 213 B | ✓ (with codes) | JSL (13 NPC actors) | **High** |
+| `ApplyPlayerHitstun` | `$C397` | 129 B | ✓ | JSL (9 sites) | **High** |
+| `SetPlayerIdleFacing` | `$C6E4` | 44 B + table | ✓ (with table) | JSL (17 sites) | **High** |
+| `SyncActorPosFromDP` | `$C718` | 13 B | ✓ | JSL (13 inits) | Medium |
+| `NpcRandomWanderAI` | `$C725` | 213 B | ✓ | JSL (13 loops) | **High** |
 | `FlickerParentActor` | `$C7FA` | 12 B | ✓ | COP `SpawnAfterAbsFlags` | Medium |
-| `EscortFollowPathTracker` | `$C806` | 317 B + array | ✓ (with array) | COP `SpawnAfterFlags` | **High** |
-| `InventoryFullMessage` | `$C98E` | 42 B | ✓ | JML (10+ scenes) | Medium |
+| `EscortFollowPathTracker` | `$C806` | 317 B + table | ✓ (with table) | COP `SpawnAfterFlags` | **High** |
+| `InventoryFullMessage` | `$C98E` | 42 B | ✓ | JML (8 sites) | Medium |
 
 ---
 
-## ApplyPlayerHitstun
+## Player state & damage
 
-**Address:** `$C397` · **Size:** 129 bytes · **Movable:** Yes · **Priority:** **High** (9 JSL call sites in 3 enemy scripts)
+### ApplyPlayerHitstun
 
-### Description
+**Address:** `$C397` · **Live**
 
-Player damage and knockback entry. **A** = damage with bit 15 as a heavy-hit flag; **Y** = knockback direction (0 south, 1 north, 2 west, 3 east, 4+ = none). Damage is applied in full (ASL/LSR only tests bit 15, not a halving step). Spawns `hit_stagger_controller` at `HitStaggerMain` unless `playerFlags` bit `$0800` (script lock) is set.
+**Entry:** **A** = damage (bit 15 = heavy-hit flag); **Y** = knockback direction (0 south, 1 north, 2 west, 3 east, 4+ = none). ASL/LSR only tests bit 15 — damage is **not** halved.
 
-The routine does **not** hide the D-pad — callers such as `gw82_archer` mask `$0F00` in `joypadMaskStd` before the JSL, and `HitStaggerReleasePlayer` clears the mask when the slide ends. On failed spawn (Y = `$1FC0`) it still clears D-pad bits `$0F00`. The `$003C` iframe counter written here is shortened to ~17 ticks when `HitStaggerReleasePlayer` runs.
+Subtracts damage from `playerHp`, sets player `$10` \|= `$0080`, writes iframe counter `$7F0028` (`$003C` or `$FFC4` for heavy). Unless `playerFlags` bit `$0800` (script lock), spawns `HitStaggerMain` via `SpawnListAppend` with flags `$2400`. On script lock or failed spawn (`Y == $1FC0`), clears joypad mask bits `$0F00`. Always plays `PlaySoundCh2` `#07`.
 
-### Algorithm
+#### JSL call sites (9)
 
-```
-1. Save Y → absolute $0000; if A bit 15 set, $0002 := $FFC4 (heavy iframe path)
-2. LSR A (bit 15 cleared); subtract from playerHp
-3. Player $10 |= $0080; $7F0028 := $0002 or $003C from $0002
-4. If playerFlags $0800: TRB #$0F00 on joypadMaskStd → RTL (no stagger)
-5. COP SpawnListAppend @HitStaggerMain, #$2400 ($2000 script-driven + $0400 player victim)
-6. If spawn failed (Y = $1FC0): TRB #$0F00 on joypadMaskStd
-7. Copy player extendedFlags $0020 to child; direction $0000 → child $28; zero child $2C/$2E
-8. PlaySoundCh2 #07; RTL
-```
+| File | Sites |
+|------|-------|
+| `great_wall/gw82_archer.asm` | 2 |
+| `great_wall/gw83_asp.asm` | 3 |
+| `incan_ruins/ir1F_stone_guard.asm` | 4 |
 
-### Variables
+Player attack and contact damage use inline code in `combat_collision.asm`, not this routine.
 
-| Symbol | Role |
-|--------|------|
-| `$player_actor` | Player slot after damage apply |
-| `$7F0028,X` | Iframe / stun counter (shortened by stagger release) |
-| `$joypad_mask_std` | D-pad bits `$0F00` cleared on lock/failed-spawn paths only |
-| `$0000` / `$0002` | Absolute scratch: direction code, heavy-hit counter |
-| A / Y (entry) | Damage (+ bit 15) / knockback direction |
-
-### Cross-References
+#### Cross-References
 
 | Direction | Symbol | Notes |
 |-----------|--------|-------|
-| Spawns | `hit_stagger_controller` | `SpawnListAppend @HitStaggerMain` |
-| Called from | 9 sites: `gw82_archer`, `gw83_asp`, `ir1F_stone_guard` | JSL |
-| Returns to | `PlayerIdleEntry` | Via stagger controller on completion |
+| Spawns | `HitStaggerMain` | `hit_stagger_controller` |
+| Returns via | Stagger child | `HitStaggerReleasePlayer` → player idle |
 
 ---
 
-## SetPlayerIdleFacing
+### SetPlayerIdleFacing
 
-**Address:** `$C6E4` · **Size:** 44 bytes + 8-byte table · **Movable:** Yes (must move with `table_00C710`) · **Priority:** **High** (~15 scenes)
+**Address:** `$C6E4` · **Live**
 
-### Description
+**Entry:** **A** = facing index 0 south, 1 north, 2 west, 3 east (no range check). Sets player actor `$0000`/`$0002` from the **`player_idle_entry_table`** (four **`$&IdleStand*`** words in `player_character.asm` — **not** scene-mode variants).
 
-Forces the player into an **idle stand pose** facing the direction in **A** (0 = south, 1 = north, 2 = west, 3 = east). Writes the matching `IdleStand*` entry pointer from `player_idle_entry_table`, clears wait counter `$0008` and movement scratch `$002C`/`$002E` (DP and `$7F002C`/`$7F002E`).
+Zeros wait `$0008` and movement scratch `$002C`/`$002E` (DP and `$7F002C`/`$7F002E`). Caller **X** saved/restored; **only A** selects facing.
 
-Used by cutscene actors before scripted walks (~17 JSL sites). **A is the only input** — no scene-index lookup.
+#### Table: `player_idle_entry_table`
 
-### Algorithm
+| Index (A) | Entry label |
+|-----------|-------------|
+| 0 | `IdleStandSouth` |
+| 1 | `IdleStandNorth` |
+| 2 | `IdleStandWest` |
+| 3 | `IdleStandEast` |
 
-```
-1. `ASL` A → word index; `TAX`
-2. Load `player_idle_entry_table,X` → player `$0000`/`$0002`
-3. Zero `$0008`, `$002C`, `$002E` (and extended scratch)
-4. RTL
-```
+#### JSL call sites (17, 14 actor files)
 
-### Table: `table_00C710`
-
-| Index | Purpose | Typical Scene |
-|-------|---------|---------------|
-| 0 | Normal field control | Default overworld |
-| 1 | Cutscene walk variant | Story sequences |
-| 2 | Restricted movement | Dungeons with locks |
-| 3 | Special form control | Freedan/Shadow areas |
-
-### Cross-References
-
-| Direction | Symbol | Notes |
-|-----------|--------|-------|
-| Co-located | `table_00C710` | 4 × 2-byte `$&Code$2` pointers |
-| Called from | ~15 scene init scripts | JSL |
-
----
-
-## SyncActorPosFromDP
-
-**Address:** `$C718` · **Size:** 13 bytes · **Movable:** Yes
-
-### Description
-
-Copies the actor's direct-page position variables `$14` (X) and `$16` (Y) into the actor's WRAM extended fields at `$7F0010,X` and `$7F0012,X`. Called at the start of `NpcRandomWanderAI` to ensure the wander loop operates on the actor's actual pixel position rather than stale WRAM values.
-
-Minimal leaf function — always paired with `NpcRandomWanderAI` in practice.
-
-### Algorithm
-
-```
-1. LDA $14        ; DP position X
-2. STA $7F0010,X  ; WRAM position X
-3. LDA $16        ; DP position Y
-4. STA $7F0012,X  ; WRAM position Y
-5. RTL (falls through to NpcRandomWanderAI when JSR'd in sequence)
-```
-
-### Cross-References
-
-| Direction | Symbol | Notes |
-|-----------|--------|-------|
-| Paired with | `NpcRandomWanderAI` | Always called first |
+| Scene / actor file |
+|--------------------|
+| `diamond_mine/mine_elevator/dm43_elevator.asm` |
+| `incan_ruins/incan_ruins_entrance/ir1C_lily.asm` |
+| `babel_tower/babel_lower_floors/btDF_kara.asm` |
+| `babel_tower/babel_entrance/btDE_monologue.asm` |
+| `babel_tower/babel_entrance/btDE_olman.asm` |
+| `angel_village/angel_tunnel_rooms/av74_kara.asm` |
+| `angel_village/undersea_tunnel/st68_lily.asm` |
+| `nazca/nazca/na4B_lily.asm` |
+| `freejia/oakton_interior/dc31_kara.asm` (×2) |
+| `itory/itory_village/it15_lola.asm` |
+| `itory/itory_village/it15_lily.asm` |
+| `south_cape/coastal_cave/sc02_seth.asm` |
+| `south_cape/wills_house/sc06_lily.asm` |
+| `south_cape/wills_house/sc06_kara.asm` (×3) |
 
 ---
 
-## NpcRandomWanderAI
+## NPC wander AI
 
-**Address:** `$C725` · **Size:** 213 bytes · **Movable:** Yes (move with embedded direction codes) · **Priority:** **High** (13 ambient NPC actors)
+### Home position and wander state storage
 
-### Description
+| WRAM / DP | Mnemonic (extracted) | Role in wander |
+|-----------|----------------------|----------------|
+| DP `$14`, `$16` | — | Current pixel position (updated by caller `AnimOnce`) |
+| `$7F0010,X` | `orbitAngle` | **Home X** (copied once from `$14` in init) |
+| `$7F0012,X` | `orbitDiameter` | **Home Y** (copied once from `$16`) |
+| `$7F0026,X` | `currentHp` | **Base animation index** (stand = base+0..3, walk = base+4..7) |
+| `$0008` | wait | `$78` after a stand (121 tick hold via caller yield pattern) |
+| `$28`, `$2A` | sprite frame | Staged animation index |
 
-RNG-driven stand/walk chooser for town NPCs. **13** actors use it (Dao, Watermia, Angel Village, Euro, Seaside Palace, South Cape — see block note for the full list). Init stores the base animation index in `$7F0026` and calls `SyncActorPosFromDP`; the NPC loop is `JSL NpcRandomWanderAI` → `AnimOnce` until the staged walk animation finishes.
+Init pattern (each NPC): store base anim in `$7F0026`, **`JSL SyncActorPosFromDP` once**, then loop: **`JSL NpcRandomWanderAI`**, `SetEntryHereAndYield`, `SetEntryHere`, `AnimOnce`.
 
-`npc_wander_case_table` (8 entries via `SwitchCase` on scratch `$0000`):
+### SyncActorPosFromDP
+
+**Address:** `$C718` · **Live**
+
+Copies DP `$14`/`$16` → `$7F0010,X` / `$7F0012,X`. Does not fall through into wander in ROM (always **`RTL`**); NPC scripts call wander separately.
+
+### NpcRandomWanderAI
+
+**Address:** `$C725` · **Live**
+
+`RngByte` AND `#7` → `SwitchCase` on **`npc_wander_case_table`** (8 entries):
 
 | Case | Action |
 |------|--------|
-| 0 | Stand north (`base+0`) |
-| 1 | Stand south (`base+1`) |
+| 0 | Stand north (`base+1`) |
+| 1 | Stand south (`base+0`) |
 | 2 | Stand west (`base+2`) |
 | 3 | Stand east (`base+3`) |
-| 4 | Step north (`base+4`, delta chain `$12`) |
-| 5 | Step south (`base+5`, chain `$11`) |
-| 6 | Step west (`base+6`, chain `$12`) |
-| 7 | Step east (`base+7`, chain `$11`) |
+| 4 | Step north — chain `$12` on Y, walk `base+5` |
+| 5 | Step south — chain `$11` on Y, walk `base+4` |
+| 6 | Step west — chain `$12` on X, walk `base+6` |
+| 7 | Step east — chain `$11` on X, walk `base+7` |
 
-Steps move ±1 pixel every second frame (half a pixel per frame) for one walk-animation pass; blocked steps or moves beyond `$30` px from home become a stand facing that direction. Standing calls `MarkSolidHere`; walking calls `ClearSolidHere`.
+**Home distance:** steps abort to a stand facing that direction if movement would exceed **`$30` pixels** (3 tiles) from home on that axis, or if `BranchIfSolid*` for that direction hits a solid tile. Stands call **`MarkSolidHere`**; walks call **`ClearSolidHere`**.
 
-### Algorithm
+#### NPC × AI matrix (13 actors, static scripts)
 
-```
-1. RngByte AND #7 → case index in $0000
-2. SwitchCase → stand or step handler
-3. Stand: set $28/$2A, UpdateActorAnimation, wait $78 frames, MarkSolidHere
-4. Step: if >$30 from home or BranchIfSolid* → stand facing instead
-     else StageMoveX/Y (#$11/+1 or #$12/−1 per frame), walk anim, ClearSolidHere
-5. RTL (caller AnimOnce executes the staged move)
-```
-
-### Variables
-
-| Symbol | Role |
-|--------|------|
-| `$14`, `$16` | Current pixel position |
-| `$7F0010,X`, `$7F0012,X` | Home X/Y (from init `SyncActorPosFromDP`) |
-| `$7F0026,X` | Base animation index |
-| `$7F0008,X` | Stand wait counter (`$78` after a stand) |
-| `$28` | Sprite frame index |
-| `npc_wander_case_table` | 8-entry direction dispatch table |
-
-### Cross-References
-
-| Direction | Symbol | Notes |
-|-----------|--------|-------|
-| Preceded by | `SyncActorPosFromDP` | Position sync |
-| External | `BranchIfSolid*` COPs | Per-direction solidity tests |
-| Called from | 13 town NPC actor scripts | JSL |
+| Region | Actor file |
+|--------|------------|
+| Dao | `daC9_businessman.asm`, `daC3_man1.asm` |
+| Watermia | `wa78_water_kid.asm`, `wa78_moving_woman.asm`, `wa78_glass_game.asm`, `wa78_centipede_man.asm` |
+| Angel Village | `av6B_villagers2.asm`, `av6B_ocean_ache.asm` |
+| Euro | `eu91_women2.asm`, `eu91_men2.asm` |
+| Seaside Palace | `sp5A_villagers.asm` |
+| South Cape | `sc01_roof_man.asm`, `sc04_poverty.asm` |
 
 ---
 
-## FlickerParentActor
+## Escort path tracking
 
-**Address:** `$C7FA` · **Size:** 12 bytes · **Movable:** Yes
+### EscortFollowPathTracker
 
-### Description
+**Address:** `$C806` · **Live**
 
-Every tick, XORs parent actor `$10` bit `$2000` on the actor index in `$0000` (direct page) — a **flicker** effect, not a one-shot show/hide. The thinker does not change its own entry point or die.
+Child actor spawned with **`SpawnAfterFlags`** on escort NPCs; uses **`$04`** (list predecessor) as the **parent NPC** slot.
 
-Invoked via `COP [SpawnAfterAbsFlags]` (e.g. Phantom Ribber hit callback, palace companion reveal when flag `#70` is set).
+**Setup:** seed facing from spawner (`orbitAngle` = facing+1, or 0 → `GetPlayerFacingDirection`), fill **`$7EDF00`** ring with **9** eight-byte entries (X, Y, facing word at +4), then track player `$14`/`$16` each frame.
 
-### Algorithm
+**Ring layout (`$7EDF00`, global WRAM — not per-actor pool):**
 
-```
-1. LDY $0000       ; Target actor index
-2. LDA $12,Y
-3. EOR #$2000      ; Toggle visibility bit
-4. STA $12,Y
-5. RTL
-```
+| Field | Size | Notes |
+|-------|------|-------|
+| Entry stride | 8 bytes | X word, Y word, facing word, unused |
+| Entries written | 9 | offsets `$00`–`$40` |
+| Entries read | 8 | head index masked with **`$3F`**; ninth slot unused |
 
-### Cross-References
+**Per frame:** if player moved, NPC jumps to **head** position (≈8 recorded frames behind), overwrites head with current player XY, updates walk anim `orbitDiameter + facing + 4` when facing changed, advances head by 8. If player idle, NPC shows stand anim `orbitDiameter + facing` (no +4).
 
-| Direction | Symbol | Notes |
-|-----------|--------|-------|
-| Invoked via | COP `SpawnAfterAbsFlags` | Scene scripts |
+**`EscortFollowPathDeltaTable`:** 4 rows × 4 words (dx, dy, facing word, pad) — initial trail steps **opposite** player facing (2 px per setup entry).
 
----
+#### Spawn sites (7)
 
-## EscortFollowPathTracker
+| Actor file | Flags param |
+|------------|-------------|
+| `edward_castle/edward_castle/ec0A_kara.asm` | `$2000` |
+| `itory/moon_tribe_camp/it1A_lily.asm` | `$2000` |
+| `incan_ruins/incan_ruins_entrance/ir1C_lily.asm` | `$2000` |
+| `euro/flea_market/eu97_clerk2.asm` | `$2000` |
+| `babel_tower/babel_lower_floors/btDF_kara.asm` | `$2000` |
+| `babel_tower/babel_entrance/btDE_kara_missing.asm` | `$2800` |
+| `babel_tower/babel_upper_floors/btE3_kara.asm` | `$2000` |
 
-**Address:** `$C806` · **Size:** 317 bytes + 32-byte array · **Movable:** Yes (move with `array_00C943`) · **Priority:** **High**
-
-### Description
-
-Ring buffer of 9 XY waypoint pairs recording the player's recent path for party escort NPCs (Kara, Lily, etc.). Each frame, the player's `$14`/`$16` position is written to the next slot in the ring; escort NPCs read from trailing slots to follow the player's exact path with a delay.
-
-The direction delta table `array_00C943` maps movement direction indices to X/Y offset pairs for step computation. Escort NPCs call `$@GetPlayerFacingDirection` (bank `$03` layer lookup) to ensure they stay on the same map layer as the player.
-
-### Algorithm
-
-```
-1. Read player position ($14/$16 via $player_actor)
-2. Write to ring buffer slot [write_index]:
-     buffer[write_index].x = player_x
-     buffer[write_index].y = player_y
-3. write_index = (write_index + 1) % 9
-4. For escort actor (via $0000):
-     a. read_index = (write_index - delay) % 9
-     b. Load target from buffer[read_index]
-     c. Compute direction via array_00C943 deltas
-     d. Move escort toward target (8px steps)
-     e. JSL $@GetPlayerFacingDirection — layer check
-5. RTL
-```
-
-### Ring Buffer Layout
-
-| Slot | Offset in buffer | Content |
-|------|------------------|---------|
-| 0–8 | 9 × 4 bytes | X word + Y word per waypoint |
-
-### Variables
-
-| Symbol | Role |
-|--------|------|
-| `$player_actor` | Player slot for position reads |
-| `$0000` | Escort actor index |
-| `$14`, `$16` | Current player position |
-| `array_00C943` | Direction delta table (16 × 2-byte X/Y pairs) |
-| Ring buffer | 9 × 4-byte XY entries in actor WRAM |
-
-### Cross-References
-
-| Direction | Symbol | Notes |
-|-----------|--------|-------|
-| Co-located | `array_00C943` | Direction delta Word array |
-| External | `GetPlayerFacingDirection` | Bank `$03` layer lookup |
-| Invoked via | COP `SpawnAfterFlags` | Escort scene scripts |
-| Used by | Kara escort, party follow sequences | Multiple story scenes |
+Spawner sets **`orbitDiameter`** = NPC base animation index; **`orbitAngle`** = facing seed per block note.
 
 ---
 
-## InventoryFullMessage
+## Inventory utility
 
-**Address:** `$C98E` · **Size:** 42 bytes · **Movable:** Yes
+### InventoryFullMessage
 
-### Description
+**Address:** `$C98E` · **Live**
 
-Prints the message *"Your inventory is full. You can't carry more."* when a scene script or item pickup attempts to grant an item but the inventory has no free slots. Pure text utility with no `?INCLUDE` dependencies — a self-contained `PrintDialogString` call followed by `RTL`.
+`PrintDialogString` `dialogstring_00C993`, then **`RTL`** back to the calling actor script (entered via **`JML`**, not a subroutine call).
 
-Jumped to via JML from 10+ scene scripts (shop purchases, NPC gifts, hidden item reveals).
+Reached when a script's item-grant path fails (inventory full) — **`GiveItemToPlayer`** failure branches **`JML`** here. **`InteractionDamage_NPCChat`** uses its own overflow path and does **not** jump to this label.
 
-### Algorithm
+#### JML call sites (8)
 
-```
-1. COP [PrintDialogString] dialogstring_00C993
-2. RTL
-```
-
-### Cross-References
-
-| Direction | Symbol | Notes |
-|-----------|--------|-------|
-| JML from | 10+ scene scripts | Shop/gift/item scenes |
-| JML from | Various scene scripts | Item grant overflow |
-| Embedded string | `dialogstring_00C993` | Full inventory message text |
+| File |
+|------|
+| `pyramid/heiroglyph_room/pyDA_lithograph1.asm` |
+| `angkor_wat/angkor_inner_courtyard/awBA_glasses.asm` |
+| `euro/euro/eu91_merchant_counter.asm` |
+| `great_wall/gw82_necklace_stone.asm` |
+| `diamond_mine/mine_inner/dm47_sam.asm` |
+| `edward_castle/castle_prison/ec0B_cell.asm` |
+| `edward_castle/edward_castle/ec0A_barrel_roast.asm` |
+| `south_cape/wills_house/sc06_lola.asm` |
 
 ---
 
-## Call Reference Matrix
+## Parent flicker (cutscene)
 
-| Caller Context | Function | Mechanism |
+### FlickerParentActor
+
+**Address:** `$C7FA` · **Live**
+
+Each tick: **`LDY $24`** (parent slot from spawner via `CopyActorState`), **`EOR #$2000`** on parent **`$0010,Y`** (not `$12`). **`RTL`** without `Die` — toggles every frame (~50% depth skip in `SortActorsByDepth`).
+
+#### Spawn sites (5)
+
+| File | Context |
+|------|---------|
+| `seaside_palace/palace_main/sp5A_phantom_ribber.asm` | Phantom Ribber |
+| `seaside_palace/palace_rooms/sp5B_neil.asm` | Party room reveal (flag `#70`) |
+| `sp5B_lance.asm`, `sp5B_erik.asm`, `sp5B_kara.asm` | Same pattern |
+
+---
+
+## Call reference matrix
+
+| Caller context | Function | Mechanism |
 |----------------|----------|-----------|
-| Enemy attack scripts (9 sites) | `ApplyPlayerHitstun` | JSL |
-| Scene init scripts (~15) | `SetPlayerIdleFacing` | JSL |
-| Town NPC scripts (13) | `SyncActorPosFromDP` → `NpcRandomWanderAI` | JSL chain |
-| Palace / cutscene scripts | `FlickerParentActor` | COP `SpawnAfterAbsFlags` |
-| Escort sequences | `EscortFollowPathTracker` | COP `SpawnAfterFlags` |
-| Shop / item scripts (10+) | `InventoryFullMessage` | JML |
+| `gw82_archer`, `gw83_asp`, `ir1F_stone_guard` | `ApplyPlayerHitstun` | JSL |
+| 14 cutscene actors (see table) | `SetPlayerIdleFacing` | JSL |
+| 13 town NPC inits / loops | `SyncActorPosFromDP`, `NpcRandomWanderAI` | JSL |
+| Escort Kara / Lily / clerk scenes | `EscortFollowPathTracker` | COP `SpawnAfterFlags` |
+| Palace rooms / Phantom Ribber | `FlickerParentActor` | COP `SpawnAfterAbsFlags` |
+| 8 item-grant scripts | `InventoryFullMessage` | JML |
 
 ---
 
@@ -314,11 +258,16 @@ Jumped to via JML from 10+ scene scripts (shop purchases, NPC gifts, hidden item
 | Metric | Value |
 |--------|-------|
 | Functions documented | 7 |
-| Address span | `$C397`–`$C9B8` (~1,569 bytes) |
-| High-priority entries | 4 |
-| Multi-part blocks | 3 (`SetPlayerIdleFacing`, `npc_wander_ai`, `EscortFollowPathTracker`) |
-| External bank deps | `$03` (`CalcTileMapOffset`, `GetPlayerFacingDirection`) |
+| Address span | `$C397`–`$C9B8` |
+| High-priority (combat / escort / wander) | 4 |
+| External bank | `$03` (`GetPlayerFacingDirection` in escort setup/tail) |
 
 ---
 
-*Source: `extracted/functions/*.asm`, `docs/code/bank00/actors-combat-interaction.md`.*
+## Source validation
+
+**Files checked:** all listed `extracted/functions/*.asm` above; JSL/JML/COP call sites verified with `rg` across `extracted/`; wander block note actor list matched to 13 NPC files; escort block note spawn list matched to 7 scenes.
+
+**Verified:** `player_idle_entry_table` contents and facing-only indexing; wander case order and `$30` home bounds; escort `$7EDF00` entry size and 8/9 entry behavior; `FlickerParentActor` parent field `$24` and `$0010` toggle; inventory-full 8 JML paths.
+
+**Notes:** `SetPlayerIdleFacing` table is **not** a scene/mode table (doc-only “restricted movement” rows removed). Escort “delay” is frame-based path replay, not a simple 9×4-byte actor ring. Failed `HitStaggerMain` spawn still runs child-setup stores at `Y=$1FC0` per source comment (behavior at that address not traced).

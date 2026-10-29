@@ -1,455 +1,280 @@
 # Bank $00 — Thinkers: HDMA Wave Effects & Custom DMA
 
 **Bank:** `$00` (mirrored at `$80`)  
-**Address range:** `$00BCB3`–`$00BF19` (plus `$00B87B` angel tunnel DMA)  
+**Address range:** `$00BCB3`–`$00BF19` (sine family), plus custom setup through `$00B87B`  
 **Block type:** `thinker_def` — background HDMA/DMA setup processes  
-**Priority:** All thinkers in this family use priority `#08` (slot type `#04` for HDMA thinkers)  
+**Filter word:** HDMA thinkers use `thinker-def < #04, #08 >` → **`animScratch2 = $0804`** (bit 2 → `RunThinkers_Hdma` after `ResetHdmaState`; bit 11 → also runs in Light frame runners). This is **not** a scene-table “priority” byte — spawn-record byte 0 is the per-thinker parameter stored at `animScratch+2` (`$7F0002,X`).  
 **Related:** [`thinkers-palette.md`](thinkers-palette.md), [`thinkers-system.md`](thinkers-system.md), [`nmi-handler.md`](nmi-handler.md)
 
-These thinkers configure SNES HDMA (Horizontal DMA) channels to produce sine-wave background oscillation, scroll-linked distortion, and custom PPU register DMA tables. The sine family shares COP helpers `InitSineHdma`, `TickSineHdma`, and `BindSineHdma` defined in the engine's COP handler bank.
+These thinkers configure SNES HDMA channels for sine-wave BG scroll ripples, scroll-linked distortion, custom direct HDMA tables, and (in one case) window registers. The sine family shares COP helpers `InitSineHdma`, `TickSineHdma`, and `BindSineHdma` in the engine COP bank.
+
+---
+
+## Source of truth
+
+Primary extracted files (paths relative to repo root):
+
+| Role | Path |
+|------|------|
+| Scene spawn lists (scene ID = `$0646` index) | `extracted/tables/scene_thinkers.asm` |
+| Sine / ending / comet / coffin thinkers | `extracted/thinkers/sine_hdma_slow_wave.asm`, `extracted/seaside_palace/palace_coffins/*.asm`, `extracted/ending/ending_comet/*.asm`, `extracted/babel_tower/sine_hdma_ending_wave.asm`, `extracted/babel_tower/comet_lair/*.asm`, `extracted/dao/dao/dao_sine_hdma_slow.asm`, `extracted/native_village/native_village/native_village_sine_hdma.asm`, `extracted/incan_ruins/larai_cliff/larai_cliff_scroll_wave.asm`, `extracted/mu/mu_tint_and_wave.asm` |
+| Custom DMA / window | `extracted/angel_village/angel_tunnel_rooms/angel_tunnel_window_dma.asm` |
+| **Dead / unreferenced** | `extracted/unused/dma_setup_variant_unused.asm`, `extracted/unused/empty_stub_unused.asm`, `extracted/unused/native_village_dup_unused.asm`, `extracted/unused/gen_hdma_sine_oneshot_unused.asm` |
+| Dispatch / filter semantics | `extracted/system/engine/thinker_execution.asm` |
+| HDMA COP implementation | `extracted/system/engine/cop_handlers_hdma_dma.asm`, `extracted/system/hdma_ramp_tables.asm` |
+
+**Naming:** Section titles use extracted label names (e.g. `sine_hdma_slow_wave`). List labels like `thinker_spawn_0CE8BA` are **spawn-list addresses** in bank `$0C`, not scene IDs.
+
+**Counts:** Scene placements below were counted from `scene_thinkers.asm` this session (static spawn records, including mid-list `+4`/`+8` offsets). Approximately **4** HDMA-related thinker bodies in `extracted/unused/` have **no** spawn record (**dead**). All other thinkers in this doc are **live** (referenced by at least one scene list or overlay scene ID).
 
 ---
 
 ## Overview
 
-| Category | Count | Address Range |
-|----------|-------|---------------|
-| Sine HDMA wave effects | 11 | `$BCB3`–`$BF19` |
-| Custom HDMA / DMA setup | 3 | `$BE39`, `$BCDF`, `$B87B` |
-| Unused HDMA thinkers | 4 | `$BC97`, `$BDCA`, `$BEAA`, `$BF52` |
-
-### Sine HDMA Pipeline
-
-All sine-wave thinkers follow a common initialization pattern:
-
-```
-LDA #counter_init → $7F0008,X     ; frame counter seed
-InitSineHdma (table_base, amplitude)
-SetEntryExit                       ; re-enter each frame
-[BranchIfFlagByte #FF == 0 → re-init]
-TickSineHdma (speed, mode)
-BindSineHdma (table_addr, channel)
-RTL
-```
-
-WRAM sine tables typically reside at `$7E8800`, `$7E8C00`, `$7E8400`, or `$7E8000` depending on the thinker. HDMA channels `#0D`–`#10` and `#21` are used for BG scroll offsets, window positions, or color math registers.
-
----
-
-## Sine HDMA Wave Effects
-
-### sine_hdma_slow_wave
-
-**Address:** `$00BE18`
-
-#### Purpose
-
-Template sine HDMA thinker — the generic slow background oscillation used across many mid/late-game scenes. While event flag `$FF` is clear, execution loops through init label **`SineWaveInit`** (`$00BE1A`): 8-frame counter, sine table at `$7E8800` with amplitude 40, tick speed `#01`, HDMA channel `#0D`.
-
-#### Parameters
-
-| Parameter | Value |
-|-----------|-------|
-| Counter init | `#$0008` |
-| Table base | `$7E8800` |
-| Amplitude | 40 (`#28`) |
-| Tick speed | `#01` |
-| HDMA channel | `#0D` |
-
-#### Scene Usage
-
-| Scene | Index | Context |
-|-------|-------|---------|
-| Kress Maze / mid-game field | 37 (`thinker_0CE8BA`) | Water/distortion ambient |
-| Late-game fields | 235–238 (`thinker_0CEB07`) | Dual ambient palette + slow wave |
-
-#### Dependencies
-
-None.
-
----
-
-### sine_hdma_dual_channel
-
-**Address:** `$00BE83`
-
-#### Purpose
-
-Dual-channel sine wave for Palace Coffins — faster tick (`#02`) with amplitude 8, binding both channels `#0F` and `#10` to `$7E8800` and `$7E8C00` respectively. Creates a more complex overlapping oscillation than the single-channel template.
-
-#### Parameters
-
-| Parameter | Value |
-|-----------|-------|
-| Counter init | `#$0002` |
-| Amplitude | 8 |
-| Tick speed | `#02` |
-| HDMA channels | `#0F`, `#10` |
-
-#### Scene Usage
-
-| Scene | Index | Context |
-|-------|-------|---------|
-| Palace Coffins | 92 (`thinker_0CE96F` slot `#03`) | Coffin room water shimmer |
-| Palace Coffins (alt layout) | 174 (`thinker_0CEA26` slot `#00`) | Standalone wave without coffin table |
-
-#### Dependencies
-
-None. Often paired with `palace_coffin_hdma_table` and `palace_scroll_brightness` in `thinker_0CE96F`.
-
----
-
-### sine_hdma_ending_wave
-
-**Address:** `$00BF19`
-
-#### Purpose
-
-Ending-region sine wave using amplitude 40, tick speed `#01`, channel `#0F`. Includes auxiliary code at `SineHdmaEndingWaveGen` that sets thinker flag bit 0, calls `GenHdmaSine`, and queues HDMA — this subset was extracted into the unused `gen_hdma_sine_oneshot_unused`.
-
-#### Scene Usage
-
-| Scene | Index | Context |
-|-------|-------|---------|
-| Comet approach | 230–234 (`thinker_0CEAAC`) | Pre-Lair distortion |
-| Comet Lair approach | 243 (`thinker_0CEAD3`) | Bundle `#3D` ambient + wave |
-| Dark Space | 244–245 (`thinker_0CEAE0`, `thinker_0CEAED`) | Bundles `#79`, `#7B` |
-| Dark Castoth Lair | 242 (`thinker_0CEAFA` slot `#01`) | Boss arena oscillation |
-
-#### Dependencies
-
-None. Contains inline helper `SineHdmaEndingWaveGen` (not a separate thinker).
-
----
-
-### ending_comet_sine_hdma
-
-**Address:** `$00BCB3`
-
-#### Purpose
-
-Ending Comet approach sine wave with dual channels. Uses tick speed `#05` (fast), amplitude 8, channels `#0F` and `#10`. Zeroes `$7E8C30` and `$7E8E30` on init — clearing auxiliary table offsets for the comet's scrolling starfield effect.
-
-#### Scene Usage
-
-| Scene | Index | Context |
-|-------|-------|---------|
-| Ending Comet | 229 (`thinker_0CEA9B` slot `#02`) | Tim's comet flight sequence |
-
-Paired with `ending_comet_dma_setup` (slot `#01`) and ambient palette bundle `#74`.
-
-#### Dependencies
-
-None.
-
----
-
-### comet_lair_hdma_a
-
-**Address:** `$00BCF5`
-
-#### Purpose
-
-Comet Lair HDMA variant A — single channel `#10` bound to `$7E8C00`, tick speed `#05`, amplitude 8. Supports re-init via flag `#FF` gate (re-runs full init when flag is clear).
-
-#### Scene Usage
-
-| Scene | Index | Context |
-|-------|-------|---------|
-| Comet Lair | 232 (`thinker_0CEABA` slot `#03`) | Primary Lair distortion layer |
-
-#### Dependencies
-
-None.
-
----
-
-### comet_lair_hdma_b
-
-**Address:** `$00BD21`
-
-#### Purpose
-
-Comet Lair HDMA variant B — channel `#0F` bound to `$7E8400` (different WRAM base than variant A), counter init `#$0008`, tick speed `#05`, amplitude 8.
-
-#### Scene Usage
-
-| Scene | Index | Context |
-|-------|-------|---------|
-| Comet Lair | 232 (`thinker_0CEABA` slot `#04`) | Secondary Lair distortion layer |
-
-#### Dependencies
-
-None.
-
----
-
-### comet_lair_hdma_c_timed
-
-**Address:** `$00BD42`
-
-#### Purpose
-
-Timed transition HDMA for Comet Lair. Phase 1: standard sine on channel `#0D` at `$7E8400`. When flag `#01` is set, transitions to phase 2 (`CometLairHdmaCTimedBurst`): reloads with amplitude 4, counts down `#$0070` (112) frames from `$7F0008,X`, then calls `SetEntryHere` and stops — producing a gradual dampening of the wave effect during a story beat.
-
-#### Algorithm
-
-```
-Phase 1: sine wave on #0D, wait for flag #01
-Phase 2: reload amplitude 4, countdown 112 frames
-         each frame: TickSineHdma #05 → BindSineHdma
-         at zero: SetEntryHere (thinker goes idle)
+| Category | Live bodies | Notes |
+|----------|-------------|--------|
+| Generic sine HDMA (`InitSineHdma` / `TickSineHdma` / `BindSineHdma` loop) | 11 | Shared COP pipeline; parameters differ per thinker |
+| Custom direct HDMA table build / queue | 2 | `palace_coffin_hdma_table`, `angel_tunnel_window_dma` |
+| One-shot / single-queue PPU setup | 1 | `ending_comet_dma_setup` (`QueueHdmaDirect`, not VRAM DMA) |
+| Dead / legacy (no scene reference) | 4 | See [Dead / legacy HDMA thinker bodies](#dead--legacy-hdma-thinker-bodies) |
+
+### Sine HDMA pipeline (live thinkers)
+
+```text
+[optional init label]
+  amplitude → $7F0008,X
+  InitSineHdma ( WRAM_table_base_short, period_scanlines )
+  SetEntryHereAndYield / SetEntryExit
+  [optional BranchOnFlagByte #FF → re-init while scene setup incomplete]
+  TickSineHdma ( phase_delay, camera_word_offset )
+  BindSineHdma ( table_addr, hdma_channel_config_index )
+  RTL
 ```
 
-#### Scene Usage
+**Operand semantics** (from `sine_hdma_slow_wave.asm` block note, verified on other sine thinkers):
 
-| Scene | Index | Context |
-|-------|-------|---------|
-| Comet Lair | 232 (`thinker_0CEABA` slot `#05`) | Timed wave fade during Lair event |
+| Operand | Meaning |
+|---------|---------|
+| `$7F0008,X` | Wave **amplitude** (not the `#40` in `InitSineHdma`) |
+| `InitSineHdma` `#$8800` | WRAM base `$7E8800` (short form) |
+| `InitSineHdma` `#40` / `#08` / … | **Period** in scanlines per table entry, not amplitude |
+| `BindSineHdma` `#0D` | `hdma_channel_config` entry → B-bus **`$210D` BG1HOFS** (horizontal ripple) |
+| `BindSineHdma` `#0E`–`#10`, `#21` | Other entries in the same config table (BG2 scroll, custom `$2171`, etc.) |
 
-#### Dependencies
-
-None.
-
----
-
-### larai_cliff_scroll_wave
-
-**Address:** `$00BD96`
-
-#### Purpose
-
-Scroll-linked sine wave unique to Larai Cliff. Temporarily modifies scroll register `$06C0` by shifting `$0722` (subpixel scroll accumulator) right 4 bits into it before calling `TickSineHdma`, then restores the original `$06C0`. This ties the wave amplitude to camera scroll position, producing a parallax-linked distortion at the cliff edge.
-
-#### Scene Usage
-
-| Scene | Index | Context |
-|-------|-------|---------|
-| Larai Cliff | 29 (`thinker_0CE861` slot `#01`) | Cliff-edge water/wind distortion |
-
-#### Dependencies
-
-None. Reads `$06C0` and `$0722` (scroll state WRAM) directly.
+WRAM sine tables commonly use `$7E8800`, `$7E8C00`, `$7E8400`, or `$7E8000`.
 
 ---
 
-### mu_tint_and_wave
+## Live sine HDMA thinkers
 
-**Address:** `$00BDCD`
+### `sine_hdma_slow_wave` — `$00BE18` · **live**
 
-#### Purpose
+Slow horizontal BG1 ripple. Amplitude **8** (`#$0008` → `$7F0008,X`), period **64** (`InitSineHdma` `#40`), `TickSineHdma (#01,#02)`, `BindSineHdma ($7E8800,#0D)`. Re-inits while event flag **`#FF`** is clear.
 
-Combined COLDATA tint and dual-channel sine wave for Mu continent rooms. Selects green tint (`#$2A`/`#$44`) or alternate tint (`#$28`/`#$41`) based on flag `#7B`, then runs sine HDMA on channels `#0D` and `#0E` with tick speed `#03`.
-
-#### Scene Usage
-
-| Scene | Index | Context |
-|-------|-------|---------|
-| Mu rooms | 96–103 (`thinker_0CE98D` slot `#01`) | Eerie green Mu atmosphere with background oscillation |
-
-#### Dependencies
-
-None.
+| Scene ID | Spawn list | Slot | Notes |
+|----------|------------|------|--------|
+| `$32` (50) | `thinker_spawn_0CE8BA` | `#00` | Block note: Freejia |
+| `$E9`, `$EA` (233–234) | `thinker_spawn_0CEB07` | `#00` | Mansion pair; also dual `ambient_palette_cycler` |
 
 ---
 
-### dao_sine_hdma_slow
+### `sine_hdma_dual_channel` — `$00BE83` · **live**
 
-**Address:** `$00BED1`
+Dual bind: amplitude **2**, period **8**, `TickSineHdma (#02,#02)`, channels **`#0F`** + **`#10`** → `$7E8800` / `$7E8C00`. Flag **`#FF`** gate.
 
-#### Purpose
-
-Slowest sine wave variant — tick speed `#00` (single-step per frame), amplitude 40, channel `#0D`. Counter init `#$0010` (16 frames). Creates a very gentle, almost imperceptible background sway for Dao Village's tranquil atmosphere.
-
-#### Scene Usage
-
-| Scene | Index | Context |
-|-------|-------|---------|
-| Dao Village | 195 (`thinker_0CEA6C` slot `#00`) | Subtle village ambient motion |
-
-Paired with `dao_window_mask` (slot `#03`) in the same thinker set.
-
-#### Dependencies
-
-None.
+| Scene ID | Spawn list | Slot | Notes |
+|----------|------------|------|--------|
+| `$5C` (92) | `thinker_spawn_0CE96F` | `#03` | With `palace_coffin_hdma_table`, `palace_scroll_brightness` |
+| `$5A`, `$5B` (90–91) | `thinker_spawn_0CE96F+8` | `#03`–`#04` | Enters list after coffin table + scanline band |
+| `$6F` (111) | `thinker_spawn_0CEA26` | `#00` | Standalone dual channel |
 
 ---
 
-### native_village_sine_hdma
+### `sine_hdma_ending_wave` — `$00BF19` · **live**
 
-**Address:** `$00BEF2`
+Ending-region ripple: amplitude **8**, period **64** (`#40`), `TickSineHdma (#01,#02)`, single bind **`#0F`**. Flag **`#FF`** re-init. Inline label **`SineHdmaEndingWaveGen`** (GenHdmaSine path) remains in-file; not a separate spawned thinker.
 
-#### Purpose
-
-Native Village (Amazon) sine wave with tick speed `#04`, amplitude 20, dual bind to channels `#0E` and `#10` both pointing at `$7E8C00`. The duplicate channel binding creates a doubled-amplitude effect on the same table.
-
-#### Scene Usage
-
-| Scene | Index | Context |
-|-------|-------|---------|
-| Native Village | 172 (`thinker_0CEA08` slot `#00`) | Jungle canopy sway |
-
-#### Dependencies
-
-None.
+| Scene ID | Spawn list | Slot | Notes |
+|----------|------------|------|--------|
+| `$E6`, `$EB`–`$EE` (230, 235–238) | `thinker_spawn_0CEAAC` | `#00` | + dispatcher |
+| `$F3`–`$F6` (243–246) | `thinker_spawn_0CEAD3` / `0CEAE0` / `0CEAED` | `#00` | + ambient bundle `#3D` / `#79` / `#7B` |
+| `$F2` (242) | `thinker_spawn_0CEAFA` | `#01` | After `dark_castoth_layer_config` |
 
 ---
 
-## Custom HDMA / DMA Setup
+### `ending_comet_sine_hdma` — `$00BCB3` · **live**
 
-### palace_coffin_hdma_table
+Comet flight dual-channel: amplitude **1**, period **8**, `TickSineHdma (#05,#02)`, binds **`#0F`** + **`#10`**. Clears `$7E8C30` / `$7E8E30` on init. **Not** the same script as `sine_hdma_ending_wave`.
 
-**Address:** `$00BE39`
+| Scene ID | Spawn list | Slot | Notes |
+|----------|------------|------|--------|
+| `$E5` (229) | `thinker_spawn_0CEA9B` | `#02` | With bundle `#74`, `ending_comet_dma_setup` |
 
-#### Purpose
+---
 
-Builds a custom HDMA table at `$7E7000` rather than using the sine generator. Writes 16 entries of `#$0090`/`#$7100` (HDMA control + `$2171` BG scroll register target) to `$7E7000`, zeroes 16 words at `$7E7100`, then queues HDMA on channel `#21`. Rebuilds each frame when flag `#FF` is clear.
+### `comet_lair_hdma_a` — `$00BCF5` · **live**
 
-#### Algorithm
+Amplitude **1**, period **8**, table `$7E8C00`, `TickSineHdma (#05,#02)`, channel **`#10`**. Clears `$7E8C30` / `$7E8E30`. Flag **`#FF`**.
 
-```
-build 16×3-byte HDMA entries at $7E7000 → target $2171
-zero 16 words at $7E7100
-QueueHdma ($7E7000, #21)
-SetEntryExit → SetFlagByte #FF → SetEntryHere
-QueueHdma again
-if flag #FF clear → rebuild from top
+| Scene ID | Spawn list | Slot |
+|----------|------------|------|
+| `$E8` (232) | `thinker_spawn_0CEABA` | `#03` |
+
+---
+
+### `comet_lair_hdma_b` — `$00BD21` · **live**
+
+Amplitude **8**, period **8**, table **`$7E8400`**, `TickSineHdma (#05,#02)`, channel **`#0F`**.
+
+| Scene ID | Spawn list | Slot |
+|----------|------------|------|
+| `$E8` (232) | `thinker_spawn_0CEABA` | `#04` |
+
+---
+
+### `comet_lair_hdma_c_timed` — `$00BD42` · **live**
+
+Two phases:
+
+```text
+Phase 1: amp 2, InitSineHdma #$8000 period 8, flag #FF, flag #01 → burst
+Phase 2 (CometLairHdmaCTimedBurst): amp 4, countdown 112 ($0070) on $7F0008,X
+         each frame TickSineHdma #05 → BindSineHdma $7E8400 #0D
+         at 0: SetEntryHere → idle (RTL only)
 ```
 
-#### Scene Usage
-
-| Scene | Index | Context |
-|-------|-------|---------|
-| Palace Coffins | 92 (`thinker_0CE96F` slot `#00`) | Static HDMA scroll table for coffin room layout |
-
-#### Dependencies
-
-None.
+| Scene ID | Spawn list | Slot |
+|----------|------------|------|
+| `$E8` (232) | `thinker_spawn_0CEABA` | `#05` |
 
 ---
 
-### ending_comet_dma_setup
+### `larai_cliff_scroll_wave` — `$00BD96` · **live**
 
-**Address:** `$00BCDF`
+Amplitude **4**, period **16** (`InitSineHdma #$8800,#10`). Before `TickSineHdma`, saves `cameraDeltaX` (`$06C0`), replaces it with `$0722 >> 4`, restores after tick. Channel **`#0D`**, `TickSineHdma (#04,#02)`.
 
-#### Purpose
-
-One-shot DMA burst writing four PPU register values on scene entry. Queues DMA table `@dma_data_00BCE8` (4 entries × 3 bytes) targeting registers `#$70`, `#$10`, `#$01`, `#$01` — configuring `$VMADD`, `$VMAIN`, and related video port settings for the Ending Comet's bitmap mode display.
-
-#### Scene Usage
-
-| Scene | Index | Context |
-|-------|-------|---------|
-| Ending Comet | 229 (`thinker_0CEA9B` slot `#01`) | PPU init for comet flight |
-| Comet Lair | 232 (`thinker_0CEABA` slot `#02`) | Shared DMA setup for Lair entry |
-
-#### Dependencies
-
-None.
+| Scene ID | Spawn list | Slot |
+|----------|------------|------|
+| `$1D` (29) | `thinker_spawn_0CE861` | `#01` |
 
 ---
 
-### angel_tunnel_window_dma
+### `mu_tint_and_wave` — `$00BDCD` · **live**
 
-**Address:** `$00B87B`
+Writes **`$COLDATA`** (`!COLDATA` `$2132`): default **`#$2A` / `#$44`**; if flag **`#7B`** set, **`#$28` / `#$41`**. Then sine: amplitude **1**, period **8**, `TickSineHdma (#03,#02)`, channels **`#0D`** + **`#0E`**. Flag **`#FF`** re-init path.
 
-#### Purpose
+| Scene ID | Spawn list | Slot |
+|----------|------------|------|
+| `$5F`–`$62`, `$64`, `$65` (95–98, 100–101) | `thinker_spawn_0CE98D` | `#01` |
 
-Configures SNES window registers for Angel Tunnel rooms via one-shot DMA. Writes two entries targeting `$6F` (WH0/WH1 window horizontal positions) and `$15` (WBGLOG window logic) with values `#$01`/`#$00` and `#$70`/`#$15`.
-
-#### Scene Usage
-
-| Scene | Index | Context |
-|-------|-------|---------|
-| Angel Tunnel rooms | 117 (`thinker_0CE9A3` slot `#01`) | Window masking for tunnel light beams |
-
-#### Dependencies
-
-None.
+(Scene `$63` / `$66` use dispatcher-only lists — no Mu tint thinker.)
 
 ---
 
-## Unused HDMA Thinkers
+### `dao_sine_hdma_slow` — `$00BED1` · **live**
 
-### dma_setup_variant_unused
+Amplitude **16** (`#$0010`), period **64**, slowest tick **`TickSineHdma (#00,#02)`**, channel **`#0D`**.
 
-**Address:** `$00BC97`
+| Scene ID | Spawn list | Slot |
+|----------|------------|------|
+| `$C3` (195) | `thinker_spawn_0CEA6C` | `#00` |
 
-#### Purpose
-
-Variant of `ending_comet_dma_setup` with a 6-entry DMA table writing to registers `#$70`, `#$40`, `#$0C` (multiple `$210C`/`$2108` scroll offsets). No scene references — likely an earlier Ending Comet PPU configuration attempt.
-
-#### Dependencies
-
-None.
+Paired with `dao_window_mask` (slot `#03`) in the same list.
 
 ---
 
-### empty_stub_unused
+### `native_village_sine_hdma` — `$00BEF2` · **live**
 
-**Address:** `$00BDCA` · **Size:** 3 bytes (RTL only)
+Amplitude **4** (`#$0004` → `$7F0008,X`), period **32** (`InitSineHdma #$8800,#20`), `TickSineHdma (#04,#02)`, dual bind **`#0E`** + **`#10`** on **`$7E8C00`** (init builds at `$7E8800` short form, bind uses `$7E8C00`).
 
-#### Purpose
-
-Placeholder thinker containing only `RTL`. Reserves a thinker_def slot in bank $00 that was never populated. Possibly held space for a Larai Cliff or Mu variant that was merged into other thinkers.
-
-#### Dependencies
-
-None.
+| Scene ID | Spawn list | Slot |
+|----------|------------|------|
+| `$AC` (172) | `thinker_spawn_0CEA08` | `#00` |
 
 ---
 
-### native_village_dup_unused
+## Custom HDMA / direct setup (live)
 
-**Address:** `$00BEAA`
+### `palace_coffin_hdma_table` — `$00BE39` · **live**
 
-#### Purpose
+Builds 16×3-byte HDMA entries at **`$7E7000`** (`#$0090` / `#$7100` pattern), zeroes 16 words at **`$7E7100`**, `QueueHdma ($7E7000,#21)` (config index **21** → register target **`$2171`** in table build). Flag **`#FF`** loop with `SetEntryHereAndYield`.
 
-Byte-identical duplicate of `native_village_sine_hdma` at `$00BEF2`. Same counter init (`#$0004`), amplitude 20, tick `#04`, dual channel `#0E`/`#10` bind. Dead code — the live copy at `$BEF2` is referenced by scene 172.
-
-#### Dependencies
-
-None.
+| Scene ID | Spawn list | Slot |
+|----------|------------|------|
+| `$5C` (92) | `thinker_spawn_0CE96F` | `#00` |
 
 ---
 
-### gen_hdma_sine_oneshot_unused
+### `ending_comet_dma_setup` — `$00BCDF` · **live**
 
-**Address:** `$00BF52`
+Each frame: **`COP [QueueHdmaDirect] (@dma_channel_00BCE8, #10)`** then `RTL`. Table entries target B-bus indices **`#70`, `#10`, `#01`, `#01`** (direct HDMA register writes — PPU init for comet bitmap path). **Not** a one-shot VRAM DMA burst.
 
-#### Purpose
-
-Extracted subset of `SineHdmaEndingWaveGen` from `sine_hdma_ending_wave`. Sets `$0E` ← `#$0006`, counter ← `#$0005`, sets thinker flag bit 0, calls `GenHdmaSine`, queues HDMA on channel `#10`. Would have been a one-shot sine generation step, inlined back into the parent thinker during development.
-
-#### Dependencies
-
-None.
+| Scene ID | Spawn list | Slot |
+|----------|------------|------|
+| `$E5` (229) | `thinker_spawn_0CEA9B` | `#01` |
+| `$E8` (232) | `thinker_spawn_0CEABA` | `#02` |
 
 ---
 
-## HDMA Channel Map
+### `angel_tunnel_window_dma` — `$00B87B` · **live**
 
-| Channel | Thinkers | Target Effect |
-|---------|----------|---------------|
-| `#0D` | `sine_hdma_slow_wave`, `comet_lair_hdma_c_timed`, `larai_cliff_scroll_wave`, `mu_tint_and_wave`, `dao_sine_hdma_slow` | BG1 horizontal scroll offset |
-| `#0E` | `mu_tint_and_wave`, `native_village_sine_hdma` | BG2 scroll / color math |
-| `#0F` | `sine_hdma_dual_channel`, `sine_hdma_ending_wave`, `ending_comet_sine_hdma`, `comet_lair_hdma_b` | BG scroll / window |
-| `#10` | `sine_hdma_dual_channel`, `ending_comet_sine_hdma`, `comet_lair_hdma_a`, `native_village_sine_hdma` | BG scroll / window |
-| `#21` | `palace_coffin_hdma_table` | Custom `$2171` scroll table |
+`QueueHdmaDirect (@dma_channel_00B884, #2C)` — window position HDMA (**`#2C`** = WH0/WH1 pair in `hdma_channel_config`).
 
-## Comet Lair Thinker Stack
+| Scene ID | Spawn list | Slot |
+|----------|------------|------|
+| `$74` (116) | `thinker_spawn_0CE9A3` | `#01` |
 
-Scene 232 (`thinker_0CEABA`) runs the full Comet Lair effect stack:
+---
+
+## Comet Lair stack (scene `$E8`)
+
+Scene **`$E8`** (`thinker_spawn_0CEABA`) — **no** `global_ambient_dispatcher` in this list:
 
 | Slot | Thinker | Role |
 |------|---------|------|
-| `#00` | `sE8_thinker_0CEB74` | Scene-specific Lair controller (bank `$0C`) |
-| `#01` | `ambient_palette_cycler` (#71) | Eerie blue ambient |
-| `#02` | `ending_comet_dma_setup` | PPU register init |
-| `#03` | `comet_lair_hdma_a` | Wave layer A (channel `#10`) |
-| `#04` | `comet_lair_hdma_b` | Wave layer B (channel `#0F`) |
-| `#05` | `comet_lair_hdma_c_timed` | Timed fade wave (channel `#0D`) |
+| `#00` | `sE8_comet_display_config` | Bank `$0C` display setup (not bank `$00`) |
+| `#01` | `ambient_palette_cycler` (param `#71`) | Ambient palette |
+| `#02` | `ending_comet_dma_setup` | Direct HDMA PPU setup |
+| `#03`–`#05` | `comet_lair_hdma_a` / `_b` / `_c_timed` | Three sine layers |
 
 ---
 
-*Source: `extracted/thinkers/` and related HDMA thinker ASM in `extracted/`.*
+## Dead / legacy HDMA thinker bodies
+
+| Label | Address | Status | Evidence |
+|-------|---------|--------|----------|
+| `dma_setup_variant_unused` | `$00BC97` | **Dead** | No `@dma_setup_variant_unused` in `scene_thinkers.asm`; block note: alternate layout vs `inventory_bg3_scroll_hdma`, **`QueueHdmaDirect` `#12`**, 6-entry table |
+| `empty_stub_unused` | `$00BDCA` | **Dead** | `thinker-def` body is **`RTL` only**; unreferenced |
+| `native_village_dup_unused` | `$00BEAA` | **Dead** | Byte-identical to `native_village_sine_hdma`; only `@native_village_sine_hdma` is spawned |
+| `gen_hdma_sine_oneshot_unused` | `$00BF52` | **Dead** | Subset of `SineHdmaEndingWaveGen` pattern; unreferenced |
+
+---
+
+## Thinker / channel / table matrix (live only)
+
+| Thinker | HDMA config index | WRAM / table base | Scene IDs (hex) |
+|---------|-------------------|-------------------|-----------------|
+| `sine_hdma_slow_wave` | `#0D` | `$7E8800` | `$32`, `$E9`, `$EA` |
+| `sine_hdma_dual_channel` | `#0F`, `#10` | `$7E8800`, `$7E8C00` | `$5A`–`$5C`, `$6F` |
+| `sine_hdma_ending_wave` | `#0F` | `$7E8800` | `$E6`, `$EB`–`$EE`, `$F2`–`$F6` |
+| `ending_comet_sine_hdma` | `#0F`, `#10` | `$7E8800`, `$7E8C00` | `$E5` |
+| `comet_lair_hdma_a` | `#10` | `$7E8C00` | `$E8` |
+| `comet_lair_hdma_b` | `#0F` | `$7E8400` | `$E8` |
+| `comet_lair_hdma_c_timed` | `#0D` | `$7E8400` | `$E8` |
+| `larai_cliff_scroll_wave` | `#0D` | `$7E8800` | `$1D` |
+| `mu_tint_and_wave` | `#0D`, `#0E` | `$7E8800`, `$7E8C00` | `$5F`–`$62`, `$64`, `$65` |
+| `dao_sine_hdma_slow` | `#0D` | `$7E8800` | `$C3` |
+| `native_village_sine_hdma` | `#0E`, `#10` | `$7E8C00` (both) | `$AC` |
+| `palace_coffin_hdma_table` | `#21` | `$7E7000` built | `$5C` |
+| `ending_comet_dma_setup` | `#10` direct | `@dma_channel_00BCE8` | `$E5`, `$E8` |
+| `angel_tunnel_window_dma` | `#2C` direct | `@dma_channel_00B884` | `$74` |
+
+---
+
+## Source validation
+
+**Files checked:** `extracted/tables/scene_thinkers.asm`; all live thinker `.asm` paths listed above; `extracted/system/engine/thinker_execution.asm`; unused bodies under `extracted/unused/`.
+
+**Verified against:** `thinker-spawn` records and `+4`/`+8` list offsets; per-thinker COP operands and `$7F0008,X` amplitudes; `thinker-def < #04, #08 >` filter word vs dispatch in `thinker_execution.asm`; absence of spawn pointers for unused labels (`rg` on `scene_thinkers.asm`).
+
+**Notes:** Scene **names** (Freejia, Larai, etc.) taken from extracted block notes where present; not all scene IDs are named in ROM tables. Visual on-screen effects are **inferred** from register targets except where block notes state otherwise. Register numbers in prose use B-bus indices from `BindSineHdma` / `QueueHdmaDirect` operands.

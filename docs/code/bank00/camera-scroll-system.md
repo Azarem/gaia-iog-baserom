@@ -5,9 +5,39 @@
 **Size:** ~3,376 bytes, 22+ parts across 3 blocks  
 **Files:** [`extracted/system/engine/smooth_follow.asm`](../../../extracted/system/engine/smooth_follow.asm), [`camera_scroll.asm`](../../../extracted/system/engine/camera_scroll.asm), [`forced_walk.asm`](../../../extracted/system/engine/forced_walk.asm)
 
-Implements two distinct subsystems: a **smooth actor follow/chase engine** (sliding actors on a 16-direction grid) and a **forced camera pan system** (elevation-transition autoscrolls), plus four scene camera infrastructure actors and interpolation data tables.
+Three **separate engineering layers** share this address region but do not overlap at runtime:
 
-**Related:** [`actors-infrastructure.md`](actors-infrastructure.md) (`camera_scroll_controller` at `$EAED`) · [`stair-climb-system.md`](stair-climb-system.md) · [`utility-math-movement.md`](utility-math-movement.md)
+1. **Smooth follow engine** (`smooth_follow.asm`) — NPC/helper **movement** utility (16-direction chase). Not placed in `scene_actors`; spawned via `SpawnAfterMarked` from boss/follower scripts.
+2. **Scroll-ratio camera actors + helpers** (`camera_scroll.asm`) — usually scene record `#02`; fill **`cameraDeltaX/Y`** from spawn bytes × `cameraTarget*`.
+3. **Forced walk / camera pan** (`forced_walk.asm`) — one-shot player auto-walk during warps; sets **`playerFlags` `$0100`** and COP **`CameraPan*`**.
+
+The **default player camera** for field scenes is **`camera_scroll_controller`** at record `#01` ([`actors-infrastructure.md`](actors-infrastructure.md)), **not** `ScrollCameraTrack`. Track is the most common **slot `#02`** scroll-mode actor (**105** static placements).
+
+**Related:** [`actors-infrastructure.md`](actors-infrastructure.md) · [`functions-camera-motion.md`](functions-camera-motion.md) · [`stair-climb-system.md`](stair-climb-system.md) · [`utility-math-movement.md`](utility-math-movement.md)
+
+## Source of truth
+
+| File | Contents |
+|------|----------|
+| `extracted/system/engine/smooth_follow.asm` | Follow/chase engine + `FollowSlopeDitherTable` |
+| `extracted/system/engine/camera_scroll.asm` | `ScrollCamera*` actors, `TileAlign*`, `ComputeScrollDeltas` |
+| `extracted/system/engine/forced_walk.asm` | `ForcedWalk*` + read/sync helpers |
+| `extracted/actors/camera_scroll_controller.asm` | Player target + `effectDeltaX/Y` (documented in actors-infrastructure) |
+| `extracted/tables/scene_actors.asm` | Static placement counts for `ScrollCamera*` |
+
+**Naming:** All function and actor labels above are **extracted**. Size column entries marked **~** or “estimated span” are **label-to-label** byte differences, not always instruction-counted sizes.
+
+**Counts:** Scene usage figures are **static `actor-spawn` records** in `scene_actors.asm` (rg count, this session).
+
+## Live code vs legacy / dead
+
+| Symbol | Status |
+|--------|--------|
+| Smooth follow entry points | **Live** — spawned from `aw_spirit_follower`, `dm_follower_behavior`, `sg4D_knight_armor`, `pyDD_queen_spirit_attack`, `mu5F_flasher`, `sE8_dark_gaia`, `sEA_solid_arm`, plus `smooth_follow_child` tail calls |
+| `ScrollCamera*` actors | **Live** — scene table placements |
+| `ForcedWalk*` | **Live** — `StartForcedWalk` during extended warps |
+| `forcedScrollOverride` (`$06C8`) writers | **Live** writers in `ScrollCameraInit` / layer-1 actors; **no reader** found outside layer-1 block (per extracted comments) |
+| `CopySiblingFollowState` / `InitFollowAndChase` | **Not scene-placed** — **indirect** only via COP spawn from scripts |
 
 ---
 
@@ -35,7 +65,7 @@ Implements two distinct subsystems: a **smooth actor follow/chase engine** (slid
 |-------|-------|---------------|
 | `smooth_follow` | Follow engine + angle/step resolve + tables | `$E683`–`$F192` |
 | `camera_scroll` | 4 camera actors + tile/scroll utilities | `$E94D`–`$ED0B` |
-| `forced_walk` | 4 forced walks + sprite/sync helpers | `$EB9B`–`$ED84` |
+| `forced_walk` | 4 forced walks + sprite/sync helpers | `$EB9B`–`$ED84` (overlaps camera_scroll labels — same ROM bank, different subsystems) |
 
 ### Include Dependencies
 
@@ -44,7 +74,7 @@ Implements two distinct subsystems: a **smooth actor follow/chase engine** (slid
 | `MulDivide` | Signed multiply/clamp helper |
 | `ComposeDigitSprites_AtCursor` | Shared actor/engine constants (bank `$03`) |
 | `dir_sprite_01ABDE` | Direction-indexed sprite table (facing frames) |
-| `table_01A95E` | Camera scroll speed table |
+| `forced_walk_pan_table` | Forced-walk pan step lists (bank `$00`) |
 | `move_chain_table` | Animation frame duration lookup |
 
 ### Subsystem Breakdown
@@ -61,9 +91,11 @@ Implements two distinct subsystems: a **smooth actor follow/chase engine** (slid
 
 ## Smooth Follow Engine
 
+**File:** `extracted/system/engine/smooth_follow.asm` only. This block is a **movement utility** reused by follower helpers and `smooth_follow_child`; it is **not** a camera scroll driver and does not write `cameraTarget*` or BG scroll registers.
+
 ### CopySiblingFollowState
 
-**Address:** `$00E683` · **Size:** 35 bytes
+**Address:** `$00E683` · **Size:** 35 bytes (instruction span)
 
 #### Description
 
@@ -82,7 +114,7 @@ Copies follow state from the sibling actor referenced by `$0004,Y` (predecessor 
 
 ### InitFollowAndChase
 
-**Address:** `$00E6A6` · **Size:** 561 bytes (includes chase logic through `SelectFallbackDirection`)
+**Address:** `$00E6A6` · **Estimated span:** through `SelectFallbackDirection` (~561 B label gap — includes embedded chase handlers)
 
 #### Description
 
@@ -129,7 +161,25 @@ When the computed direction index indicates the target was already reached, rout
 
 ## Camera Pan Actors
 
-Scene-infrastructure actors placed at slot #2 in nearly every overworld/town scene (typically at position `$11,$11` or `$21,$21` off-screen).
+**File:** `extracted/system/engine/camera_scroll.asm`. These are **scroll-ratio** actors, usually scene record **`#02`** (after `camera_scroll_controller` at `#01`). Spawn X/Y bytes encode **MulDivide** ratio operands (see file header), not world tile positions — common bytes `#11,#11`, `#21,#00`, `#DF,#DF` (Init only).
+
+```text
+Chase loop (smooth follow) — each frame while helper lives:
+  FollowChaseMainLoop → octant handler → ComputeFollowAngle(Alt)
+    → ResolveFacing* → ComputeFollowStep (FollowSlopeDitherTable)
+    → ApplyFollowMovement → (SetEntryExitNow when sub-step ≥ 8) → loop
+
+Forced walk pan — single activation on player actor:
+  mask joypad → read walk stream → scrollStepTableBase from forced_walk_pan_table
+    → CameraPan* (COP, yields until pan done) → ApplyScrollOffset
+    → SyncPlayerToCamera → unmask → Die
+  (camera_scroll_controller keeps publishing effectDeltaX/Y from held cameraTarget*)
+
+Scroll delta accumulation (ScrollCameraTrack / Accumulate):
+  TileAlignPosition → ComputeScrollDeltas
+    → cameraDeltaX/Y = MulDivide(cameraTarget*, packed spawn ratio)
+  Accumulate adds DP $24/$26 each frame after ComputeScrollDeltas
+```
 
 ### ScrollCameraInit
 
@@ -140,7 +190,7 @@ Scene-infrastructure actors placed at slot #2 in nearly every overworld/town sce
 Mt. Kress / special overworld scrolling. Tiles self-position to grid via `TileAlignCoord`, then loops 3 times calling `ComputeScrollDeltas` with `LoopInit`/`LoopNext`. Copies `$06C4` → `$0690`, sets forced scroll override `$06C8 = $06C0 | $8000`, then clears `$06C0`.
 
 - **Special behavior:** `$12` bit `$1000` set (invisible actor), loops via `COP [LoopInit] #03`
-- **Scene usage:** Mt. Kress scenes only — always at position `$DF,$DF`
+- **Scene usage:** **12** static placements — spawn **`#DF,#DF`** (Mt. Kress chain and related maps)
 
 ---
 
@@ -150,9 +200,9 @@ Mt. Kress / special overworld scrolling. Tiles self-position to grid via `TileAl
 
 #### Description
 
-Simplest camera actor — aligns self to tile grid via `TileAlignPosition`, then calls `ComputeScrollDeltas` every frame. **Default camera controller** used in most town/overworld scenes.
+Simplest scroll-ratio actor — `TileAlignPosition`, then `ComputeScrollDeltas` every frame. **Most common slot `#02` scroll-mode actor**, not the player-follow camera (that is `camera_scroll_controller` at `#01`).
 
-- **Scene usage:** **~40+** scenes — the most common camera actor in the game
+- **Scene usage:** **105** static placements (`scene_actors.asm`; extracted header comment: ~100 lists, 87 with spawn `#11,#11`)
 
 ---
 
@@ -164,7 +214,7 @@ Simplest camera actor — aligns self to tile grid via `TileAlignPosition`, then
 
 Camera actor variant for vertically-scrolling maps. Same base behavior as `ScrollCameraTrack` but also computes vertical scroll offset: if `$16 ≠ 0`, calls `MulDivide(Y=$06C2)` and stores result to `$06C4`.
 
-- **Scene usage:** Edward's Castle, Itory Village, Incan Ruins, Dao — **~10** scenes
+- **Scene usage:** **15** static placements (Edward's Castle, Itory, Incan Ruins, Dao — per `scene_actors.asm`)
 
 ---
 
@@ -176,20 +226,20 @@ Camera actor variant for vertically-scrolling maps. Same base behavior as `Scrol
 
 Camera actor that accumulates scroll offsets from direct-page variables `$24`/`$26` into the global camera deltas `$06C0`/`$06C4` each frame. Used in Pyramid scenes with moving platforms.
 
-- **Scene usage:** Pyramid D6/D7/D9/DA interiors — **~5** scenes
+- **Scene usage:** **5** static placements (Pyramid interiors)
 
 ---
 
 ## Forced Walk Functions
 
-Automated player walk in a cardinal direction during scene transitions involving stairs or elevation changes. Each follows the same 10-step pattern:
+**File:** `extracted/system/engine/forced_walk.asm`. Spawned on the **player** by `StartForcedWalk` during extended warp transitions (not scene-table actors). Each variant follows the same pattern:
 
 1. Clear `$12` bits `$6000`, set entry continue
 2. Mask joypad (`$FFFF` → `$joypad_mask_std`), zero `$0656`
 3. Read direction sprite + animation duration from `dir_sprite_01ABDE` / `move_chain_table`
 4. Clear actor flags, stage player sprite, animate once
-5. Look up camera scroll speed from `table_01A95E` → `$06E0`, zero `$2A`, reset X
-6. Execute `COP [PanCamera*]` in the appropriate direction
+5. Look up walk pan pointer from `forced_walk_pan_table` → `scrollStepTableBase` (`$06E0`), zero `$2A`, reset X
+6. Execute `COP [CameraPan*]` in the appropriate direction (COP names in `copdef.json`)
 7. Apply scroll position offset via `ApplyScrollOffset`
 8. Re-read direction sprite, re-animate
 9. Sync player position via `SyncPlayerToCamera`
@@ -199,28 +249,28 @@ Automated player walk in a cardinal direction during scene transitions involving
 
 **Address:** `$00EB9B` · **Size:** 84 bytes
 
-- **COP:** `PanCameraDown`
+- **COP:** `CameraPanDown`
 - **Sprite lookup:** `ReadDirSprite_YVelocity` → `$2E`
 
 ### ForcedWalkNorth
 
 **Address:** `$00EBEF` · **Size:** 84 bytes
 
-- **COP:** `PanCameraUp`
+- **COP:** `CameraPanUp`
 - **Sprite lookup:** `ReadDirSprite_YVelocity`
 
 ### ForcedWalkWest
 
 **Address:** `$00EC43` · **Size:** 84 bytes
 
-- **COP:** `PanCameraLeft`
+- **COP:** `CameraPanLeft`
 - **Sprite lookup:** `ReadDirSprite_XVelocity` → `$2C`
 
 ### ForcedWalkEast
 
 **Address:** `$00EC97` · **Size:** 84 bytes
 
-- **COP:** `PanCameraRight`
+- **COP:** `CameraPanRight`
 - **Sprite lookup:** `ReadDirSprite_XVelocity`
 
 ---
@@ -418,25 +468,37 @@ Interpolation table for smooth movement. Contains pairs of signed 16-bit values 
 | `UnsignedDivide` | `$02` | `ComputeFollowAngle`/`Alt` | Step count calculation |
 | `UpdateActorAnimation` | `$03` | `ResolveFacingFromDiagonalBase` (×16) | Advance sprite animation |
 | `dir_sprite_01ABDE` | `$01` | `ReadDirSprite_*` | Direction sprite lookup |
-| `table_01A95E` | `$01` | Forced walks | Scroll speed |
+| `forced_walk_pan_table` | `$00` | Forced walks | Pan step list pointer |
+| `walk_step_table`, `move_chain_table` | `$00` / `$01` | `ReadDirSprite_*` | Animation + velocity curve |
 | `move_chain_table` | `$01` | `ReadDirSprite_*` | Animation duration |
 
 ---
 
 ## Scene Usage Summary
 
-| Actor / Function | Scene Count | Areas |
-|------------------|-------------|-------|
-| `ScrollCameraTrack` | ~40+ | Nearly all towns and overworlds |
-| `ScrollCameraVertical` | ~10 | Edward's Castle, Itory, Incan Ruins, Dao |
-| `ScrollCameraAccumulate` | ~5 | Pyramid interiors (D6/D7/D9/DA) |
-| `ScrollCameraInit` | ~10 | Mt. Kress exclusively |
-| Forced walks (via COP pan) | — | All areas with elevation changes |
-| `CopySiblingFollowState` / `InitFollowAndChase` | 0 direct | Called programmatically by `smooth_follow_child` and boss scripts |
+| Actor / Function | Static placements | Areas / mechanism |
+|------------------|-------------------|-----------------|
+| `camera_scroll_controller` | **220** lists @ `#01` | Player camera target + `effectDeltaX/Y` — see [`actors-infrastructure.md`](actors-infrastructure.md) |
+| `ScrollCameraTrack` | **105** @ `#02` | Towns / overworlds (ratio `#11,#11` common) |
+| `ScrollCameraVertical` | **15** @ `#02` | Edward's Castle, Itory, Incan Ruins, Dao |
+| `ScrollCameraAccumulate` | **5** @ `#02` | Pyramid interiors |
+| `ScrollCameraInit` | **12** @ `#02` | Mt. Kress chain (`#DF,#DF`) |
+| `Layer1DriftUnbounded` / `Wrapped` | **6** / **16** | Layer-1 drift — [`actors-infrastructure.md`](actors-infrastructure.md) |
+| Forced walks | **0** in table | Warp script spawn → `CameraPan*` |
+| `InitFollowAndChase` / `CopySiblingFollowState` | **0** in table | `SpawnAfterMarked` from follower/boss scripts |
+
+### Camera actor → scene class map
+
+| Scene class | Record `#01` | Typical record `#02` |
+|-------------|--------------|----------------------|
+| Standard field (220 lists) | `camera_scroll_controller` | `ScrollCameraTrack` (105) or Init (12) / Vertical (15) / Accumulate (5) |
+| Sky Garden `$4E` / `$50` (examples) | `camera_scroll_controller` | `Layer1DriftUnbounded` |
+| Babel plane `$DC` | player | `Layer1DriftUnbounded` only (no controller in table) |
+| Menus / boot / `$89` prologue | varies | no standard pair |
 
 ### Relationship to `camera_scroll_controller`
 
-The actor at `$EAED` (`camera_scroll_controller`) computes per-frame scroll deltas from player position and is placed at slot #1 in 220+ scenes. The camera pan actors documented here (slot #2) provide scene-specific scroll behavior variants that feed into the same `$06C0`/`$06C4` delta pipeline.
+`camera_scroll_controller` updates **`cameraTargetX/Y`** and **`effectDeltaX/Y`**. `ScrollCamera*` actors update **`cameraDeltaX/Y`** (layer-1 scroll position / ratio path). Layer-1 drift actors consume **`effectDeltaX/Y`**. Forced walk sets **`playerFlags` `$0100`** and drives **`CameraPan*`** while the controller keeps differencing targets against live scroll.
 
 ---
 
@@ -490,4 +552,12 @@ The actor at `$EAED` (`camera_scroll_controller`) computes per-frame scroll delt
 
 ---
 
-*Source: `extracted/system/engine/smooth_follow.asm`, `camera_scroll.asm`, `forced_walk.asm`, `docs/cop/README.md`.*
+## Source validation
+
+**Files checked:** `smooth_follow.asm`, `camera_scroll.asm`, `forced_walk.asm`, `camera_scroll_controller.asm`, `layer1_scroll_actors.asm`, `scene_actors.asm`, `forced_walk` block comments, `db-us/names/bank00.json` (entry addresses).
+
+**Verified:** Subsystem separation; **`ScrollCameraTrack` ≠ default player camera**; scene placement counts (**105** / **15** / **5** / **12**); spawn-byte semantics in `camera_scroll.asm` header; forced walk uses **`forced_walk_pan_table`** and **`CameraPan*`**; external **`MulDivide`** (`$02`), **`UpdateActorAnimation`** (`$03`), direction tables in `$00`/`$01`.
+
+**Notes:** Address ranges **`$E94D`–`$ED84`** interleave camera_scroll utilities with forced_walk — use label names, not span alone, when patching. Statistics table sizes mix counted and **estimated** spans.
+
+*Primary sources: `extracted/system/engine/smooth_follow.asm`, `camera_scroll.asm`, `forced_walk.asm`.*

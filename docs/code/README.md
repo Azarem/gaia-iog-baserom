@@ -164,7 +164,7 @@ sequenceDiagram
     B02->>B03: JSL GlobalInputHandler (field input)
     B03->>B03: RunActors → execute actor linked list
     B03->>Actors: Stack-trampoline dispatch to actor COP scripts
-    Actors->>B00: COP opcode → CopDispatch (172 opcodes)
+    Actors->>B00: COP opcode → CopDispatch (209 opcodes)
     B00->>B01: Table lookups (enemy stats, warps, strings)
     B03->>B03: RunCombatCollision, ComposeAllSprites
     B03->>B03: CheckSceneTransition
@@ -194,7 +194,7 @@ sequenceDiagram
 |---|----------|-------|---------------|
 | 1 | [system-core.md](bank00/system-core.md) | Reset, Init, Main Loop | `ResetVector`, `SystemInit`, `UpdateFrame_Full` |
 | 2 | [nmi-handler.md](bank00/nmi-handler.md) | VBlank, Scroll, DMA | `NmiHandler`, `UploadScrollRegisters` |
-| 3 | [cop-dispatch.md](bank00/cop-dispatch.md) | COP Bytecode Engine | `CopDispatch`, 172 opcodes |
+| 3 | [cop-dispatch.md](bank00/cop-dispatch.md) | COP Bytecode Engine | `CopDispatch`, 209 opcodes |
 | 4 | [utility-math-movement.md](bank00/utility-math-movement.md) | Hardware Math | `MultiplyThenDivide`, `InitSmoothMovement` |
 | 5 | [utility-tiles-animation.md](bank00/utility-tiles-animation.md) | Tile/Map, Animation | `ResolveTileData`, `ProcessAnimFlag` |
 | 6 | [direction-collision.md](bank00/direction-collision.md) | Direction, Collision | `ComputeDirectionToPlayer`, `TileCollisionQuery` |
@@ -216,7 +216,7 @@ sequenceDiagram
 
 </details>
 
-**Statistics:** ~380 routines · 721 named addresses · 49 thinkers · 26 actors · 172 COP opcodes
+**Statistics:** ~380 routines · 721 named addresses · 49 thinkers · 26 actors · 209 COP opcodes
 
 ---
 

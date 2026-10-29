@@ -2,12 +2,25 @@
 
 **Bank:** `$00` (mirrored at `$80`)  
 **Address range:** `$00C9B8`–`$00D068`, `$00F3B3`–`$00F432`  
-**Source files:** [`extracted/functions/camera_drift.asm`](../../../extracted/functions/camera_drift.asm) (contains `CameraDriftLoopSimple`, `CameraDriftLoopShip`, `CameraDriftPatterned`), [`SpawnDebrisBurst.asm`](../../../extracted/functions/SpawnDebrisBurst.asm), [`StopPlayerOnDeath.asm`](../../../extracted/functions/StopPlayerOnDeath.asm), [`ApplyOrbitalOffsetFromRef.asm`](../../../extracted/functions/ApplyOrbitalOffsetFromRef.asm), [`ApplyOrbitalOffsetXY.asm`](../../../extracted/functions/ApplyOrbitalOffsetXY.asm)  
+**Source files:** [`extracted/functions/camera_drift.asm`](../../../extracted/functions/camera_drift.asm), [`SpawnDebrisBurst.asm`](../../../extracted/functions/SpawnDebrisBurst.asm), [`ApplyOrbitalOffsetFromRef.asm`](../../../extracted/functions/ApplyOrbitalOffsetFromRef.asm), [`ApplyOrbitalOffsetXY.asm`](../../../extracted/functions/ApplyOrbitalOffsetXY.asm)  
 **Block:** `camera_drift` + standalone orbital math functions
 
 Three subsystems share this address region: ambient camera drift loops for boss/ship arenas, debris burst VFX, and sin/cos orbital offset math used by COP handlers, bosses, and decorative actors.
 
-**Related:** [`actors-infrastructure.md`](actors-infrastructure.md) (`camera_scroll_controller`) · [`utility-math-movement.md`](utility-math-movement.md) · [`README.md`](README.md)
+**Related:** [`actors-infrastructure.md`](actors-infrastructure.md) (`camera_scroll_controller`) · [`camera-scroll-system.md`](camera-scroll-system.md) · [`utility-math-movement.md`](utility-math-movement.md) · [`README.md`](README.md)
+
+## Source of truth
+
+| File | Symbols |
+|------|---------|
+| `extracted/functions/camera_drift.asm` | `CameraDriftLoopSimple`, `CameraDriftLoopShip`, `CameraDriftPatterned`, `camera_drift_offsets` |
+| `extracted/functions/SpawnDebrisBurst.asm` | `SpawnDebrisBurst` |
+| `extracted/functions/ApplyOrbitalOffsetFromRef.asm` | `ApplyOrbitalOffsetFromRef`, `ApplyOrbitalOffsetFromRef_AddToCurrent` |
+| `extracted/functions/ApplyOrbitalOffsetXY.asm` | `ApplyOrbitalOffsetXY` |
+
+**Naming:** All function labels above are **extracted**. `camera_drift_offsets` is **extracted data** (16 words in asm; only indices 0–7 used). Doc names like “camera target” map to **`cameraTargetX/Y`** (`$06BE` / `$06C2`).
+
+**Counts:** JSL / spawn caller counts from `rg` on `extracted/**/*.asm` this session. Drift caller lists follow the block comment in `camera_drift.asm`.
 
 ---
 
@@ -17,7 +30,7 @@ Three subsystems share this address region: ambient camera drift loops for boss/
 |----------|---------|------|---------|-----------|----------|
 | `CameraDriftLoopSimple` | `$CF8E` | 32 B | ✓ | COP `SpawnAfterFlags` | Medium |
 | `CameraDriftLoopShip` | `$CFAE` | 65 B | ✓ | COP `SpawnAfterFlags` | Medium |
-| `CameraDriftPatterned` | `$CFEF` | 121 B | ✓ (with data) | COP `SpawnLastRel` | Medium |
+| `CameraDriftPatterned` | `$CFEF` | 121 B | ✓ (with data) | COP `SpawnListAppend` (Gorgon, Castoth) / `SpawnAfterFlags` (dangerslide) | Medium |
 | `SpawnDebrisBurst` | `$C9B8` | 67 B | ✓ | COP `SpawnAfterFlags` | Medium |
 | `ApplyOrbitalOffsetFromRef` | `$F3C9` | 95 B | ✓ | JSL (21 sites) | **High** |
 | `ApplyOrbitalOffsetXY` | `$F432` | 93 B | ✓ | JSL (3 call sites) | Medium |
@@ -25,7 +38,16 @@ Three subsystems share this address region: ambient camera drift loops for boss/
 
 ---
 
-## Camera Drift
+## Camera drift (script-spawned)
+
+All three live in **`camera_drift.asm`**. Spawned via COP from scene actors/thinkers — **not** placed in `scene_actors.asm`. They add to **`cameraTarget*`** and often **`cameraDelta*`** (layer-1 position words — see file header), which is a different path from **`effectDeltaX/Y`** written by `camera_scroll_controller`.
+
+| Function | Status | Spawn pattern |
+|----------|--------|---------------|
+| `CameraDriftLoopSimple` | **Live** | `SpawnAfterFlags` |
+| `CameraDriftLoopShip` | **Live** | `SpawnAfterFlags` |
+| `CameraDriftPatterned` | **Live** | `SpawnListAppend` / `SpawnAfterFlags` |
+| `CopyRefActorPos_unused` | **Dead** | — |
 
 ### CameraDriftLoopSimple
 
@@ -33,31 +55,24 @@ Three subsystems share this address region: ambient camera drift loops for boss/
 
 #### Description
 
-120-frame random camera nudge loop. Each iteration adds a random offset of **−1 to +2** pixels (bias +0.5) to `cameraTargetX` / `cameraTargetY` and `cameraDeltaX` / `cameraDeltaY`, waits one frame, and decrements the counter. Offsets are not undone when the actor dies. Used in pyramid and Incan Ruins set pieces (`pyCD_flame_statue`, `ir25_ceiling_tile`, `ir29_castoth`).
+120-frame random **vertical** nudge (`LoopStart` `#78`). Each pass adds **r = (RngByte & 3) − 1** (−1…+2) to **`cameraTargetY`** and **`cameraDeltaY` only** — **X is untouched**. Offsets are not undone at exit. Callers per asm note: `pyCD_flame_statue`, `ir25_ceiling_tile`, `ir29_castoth`.
 
 Spawned via `COP [SpawnAfterFlags]` from scene thinker/actor scripts that want continuous gentle camera sway without player input.
 
 #### Algorithm
 
 ```
-1. LDX #120  ; Frame counter
-2. Loop:
-     a. JSR random
-     b. AND #$03 → offset magnitude (0–3, mapped to ±1..±2)
-     c. Add to cameraTargetX / cameraDeltaX
-     d. JSR random → add to cameraTargetY / cameraDeltaY
-     e. COP [WaitFrame]
-     f. DEX; BNE Loop
-3. COP [Die]
+1. LoopStart #78 (120 frames)
+2. Each pass: r = (RngByte & 3) − 1; cameraTargetY += r; cameraDeltaY += r; LoopEnd
+3. Die
 ```
 
 #### Variables
 
 | Symbol | Role |
 |--------|------|
-| `cameraTargetX`, `cameraDeltaX` | Camera target / delta X |
-| `cameraTargetY`, `cameraDeltaY` | Camera target / delta Y |
-| Loop counter | 120 frames (~2 seconds) |
+| `cameraTargetY`, `cameraDeltaY` | Only Y words modified |
+| Loop counter | 120 frames (~2 s at 60 Hz) |
 
 ---
 
@@ -67,28 +82,26 @@ Spawned via `COP [SpawnAfterFlags]` from scene thinker/actor scripts that want c
 
 #### Description
 
-Camera drift variant gated by `$player_flags`. Each frame, if bit `$0100` (forced walk) is clear, undoes the previous frame's stored offset (`$26`), draws a new 0–3 pixel offset, and adds it to `cameraTarget*` / `cameraDelta*`. Skips the update on forced-walk frames. Infinite loop until the hosting actor dies.
+**120-frame** drift (`LoopStart` `#78`), **Y axis only**, gated by **`playerFlags` bit `$0100`**: when forced walk is set, the pass is skipped (prior offset left in place). When clear: **`cameraDeltaY -= $26`** (undo last frame’s delta tweak), new **`$26 = RngByte & 3`**, then add **`$26`** to **`cameraTargetY`** and **`cameraDeltaY`**. After the loop: one **`SetEntryHereAndYield`**, subtract last **`$26`** from **`cameraDeltaY`**, **`Die`** — not an infinite loop.
 
-Used on Gold Ship and undersea tunnel scenes (`st68_kara`, `gs2D_lily`, `gs2D_lance`, `gs2B_erik`).
+Callers: `st68_kara`, `gs2D_lily`, `gs2D_lance`, `gs2B_erik` (asm block note).
 
 #### Algorithm
 
 ```
-1. Loop:
-     a. LDA $player_flags
-     b. BIT #$0100 → skip if set (forced walk active)
-     c. Undo prior offset, JSR random → apply 0..3 to cameraTarget/Delta X/Y
-     d. COP [WaitFrame]
-     e. BRA Loop
+1. $26 := 0; LoopStart #78
+2. If playerFlags bit $0100 set → skip pass
+3. Else cameraDeltaY -= $26; $26 := RngByte & 3; add $26 to cameraTargetY and cameraDeltaY
+4. LoopEnd → yield once → cameraDeltaY -= $26 → Die
 ```
 
 #### Variables
 
 | Symbol | Role |
 |--------|------|
-| `$player_flags` bit `$0100` | Forced walk — skip drift update when set |
-| `cameraTargetX/Y`, `cameraDeltaX/Y` | Camera words written each frame |
-| `$26` (actor DP) | Previous offset undone before re-roll |
+| `playerFlags` bit `$0100` | Forced walk — skip pass when set |
+| `cameraTargetY`, `cameraDeltaY` | Y words updated |
+| `$26` (actor DP) | Last frame’s 0–3 px offset (undone on delta each pass) |
 
 ---
 
@@ -100,7 +113,7 @@ Used on Gold Ship and undersea tunnel scenes (`st68_kara`, `gs2D_lily`, `gs2D_la
 
 Short-lived patterned drift (~9 frames total): three passes, three frames apart, each adding the next word from `camera_drift_offsets` (index masked to 3 bits — only the first eight signed words are used) to Y then X on `cameraTarget*` / `cameraDelta*`. When actor `$24` = `$FFFF`, the delta update is skipped. The thinker dies after the third pass.
 
-Spawned from Angkor Gorgon, pyramid dangerslide, and Castoth (`awB1_gorgon`, `pyD9_dangerslide_controller`, `ir29_castoth`).
+Spawned from **`awB1_gorgon`**, **`pyD9_dangerslide_controller`**, **`ir29_castoth`** (asm block note — not Comet Lair).
 
 #### Algorithm
 
@@ -118,7 +131,7 @@ Spawned from Angkor Gorgon, pyramid dangerslide, and Castoth (`awB1_gorgon`, `py
 
 ---
 
-## Ambient VFX
+## Debris burst (ambient VFX)
 
 ### SpawnDebrisBurst
 
@@ -140,7 +153,9 @@ Callers include `dm3D_breakable_wall`, `gw83_switch`, `it19_breakable_wall`, and
 
 ---
 
-## Orbital / Circular Math
+## Orbital math (live helpers)
+
+**Angle convention (extracted):** 256 steps per turn (~1.406° each). **Angle 0** places the actor **below** the centre (cosine peak — Y grows downward on SNES). **`$40`** = east, **`$80`** = north, **`$C0`** = west; increasing angle moves **counter-clockwise** on screen. **`orbitDiameter`** low byte is full circle width; offset magnitude ≈ **diameter / 2** via `sine_table_8bit` / `signed_cosine_table_8bit` and `Multiply8x8Unsigned`.
 
 ### ApplyOrbitalOffsetFromRef
 
@@ -155,7 +170,7 @@ Computes a circular offset and writes the caller's `$14`/`$16`. **Two entry poin
 
 Reads the low byte of `$7F0010,X` (angle, 256 steps/turn) and `$7F0012,X` (diameter ≤ 255). Offset magnitude ≈ diameter/2 via `sine_table_8bit` / `signed_cosine_table_8bit` (bank `$01`) and `Multiply8x8Unsigned` (bank `$02`). Angle 0 = below centre; increasing angle turns counter-clockwise on screen.
 
-**21 JSL sites** in 11 files (16 first entry, 5 second), including COP `$6D` (`SpiralStep`), `attack_ability_system`, fire sprites, statue inventory, and Castoth orbs.
+**21 JSL sites** in **11 files** (**16** `ApplyOrbitalOffsetFromRef`, **5** `ApplyOrbitalOffsetFromRef_AddToCurrent`) — verified with `rg 'JSL \$@ApplyOrbitalOffsetFromRef'` on `extracted/`.
 
 #### Algorithm
 
@@ -236,16 +251,24 @@ Dead entry stub between `ApplyOrbitalOffsetFromRef` (`$F3C9`) and `ApplyOrbitalO
 |----------|------------|---------|
 | `CameraDriftLoopSimple` | Boss arena actors | `SpawnAfterFlags`, 120-frame |
 | `CameraDriftLoopShip` | Gold Ship scenes | `SpawnAfterFlags`, infinite |
-| `CameraDriftPatterned` | Viper, Comet Lair | `SpawnLastRel`, table-driven |
+| `CameraDriftPatterned` | Gorgon, dangerslide, Castoth | `SpawnListAppend` (Gorgon, Castoth) / `SpawnAfterFlags` (dangerslide); table-driven |
 
-### Orbital Math
+### Orbital callers (JSL matrix)
 
-| Caller | Function | Mechanism |
-|--------|----------|-----------|
-| COP `$6D` SpiralStep | `ApplyOrbitalOffsetFromRef` | JSL |
-| Castoth boss | `ApplyOrbitalOffsetFromRef` | JSL |
-| Fire sprite actors | `ApplyOrbitalOffsetFromRef` | JSL |
-| `gw8A_sand_fanger`, `awB1_goldcap` | `ApplyOrbitalOffsetXY` | JSL (3 sites) |
+| File | Entry | Calls |
+|------|-------|-------|
+| `attack_ability_system.asm` | both | 2 |
+| `mtA1_fire_sprite.asm` | base + AddToCurrent | 5 |
+| `unused_mode7_boss.asm` | base + AddToCurrent | 6 |
+| `cop_handlers_effects.asm` (SpiralStep) | base | 1 |
+| `ir29_castoth.asm` | base | 1 |
+| `pyDD_queen_orb_shot.asm` | base | 1 |
+| `pyDD_queen_spirit_attack.asm` | AddToCurrent | 1 |
+| `ec0E_lily.asm`, `btE4_kara.asm`, `item_use_system.asm`, `statue_inventory_reward.asm` | base | 1 each |
+| `gw8A_sand_fanger.asm` | `ApplyOrbitalOffsetXY` | 2 |
+| `awB1_goldcap.asm` | `ApplyOrbitalOffsetXY` | 1 |
+
+`unused_mode7_boss.asm` counts toward JSL totals but is **unused** content in the extracted ROM layout.
 
 ### External Dependencies
 
@@ -269,4 +292,12 @@ Dead entry stub between `ApplyOrbitalOffsetFromRef` (`$F3C9`) and `ApplyOrbitalO
 
 ---
 
-*Source: `extracted/functions/camera_drift.asm`, `extracted/functions/SpawnDebrisBurst.asm`, `extracted/functions/ApplyOrbitalOffsetFromRef.asm`, `extracted/functions/ApplyOrbitalOffsetXY.asm`, `docs/cop/README.md`.*
+## Source validation
+
+**Files checked:** `camera_drift.asm`, `SpawnDebrisBurst.asm`, `ApplyOrbitalOffsetFromRef.asm`, `ApplyOrbitalOffsetXY.asm`, caller `.asm` files via `rg`.
+
+**Verified:** `CameraDriftLoopSimple` / `Ship` **Y-only** semantics; Ship **120-frame** loop + final delta undo (not infinite); **`playerFlags` `$0100`** gate on Ship; `camera_drift_offsets` **16 words**, **8 used** (mask `#7`); **21** + **3** JSL counts; debris **4** COP spawn sites; orbital angle convention from `ApplyOrbitalOffsetFromRef.asm` header.
+
+**Notes:** `StopPlayerOnDeath.asm` is listed in the header line of this doc’s older revision but is **out of scope** for camera motion — not documented here. Whether drift offsets survive `camera_scroll_controller` target refresh is **not established statically** (per `camera_drift.asm` comment).
+
+*Primary sources: `extracted/functions/camera_drift.asm`, `SpawnDebrisBurst.asm`, `ApplyOrbitalOffsetFromRef.asm`, `ApplyOrbitalOffsetXY.asm`.*

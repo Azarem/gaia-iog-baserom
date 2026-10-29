@@ -1,12 +1,26 @@
 # Bank $00 — Direction Computation & Collision Systems
 
 **Bank:** `$00` (mirrored at `$80` for FastROM access)  
-**Address range:** `$00AFCE`–`$00B47F` (direction, collision map, tile query, camera scroll step)  
-**ASM files:** `extracted/system/engine/cop_handlers_collision.asm`, `extracted/system/engine/cop_handlers_movement.asm` (partial)
+**Address range:** `$00AFCE`–`$00B481` (direction, collision map paint, tile query); `$00B136`–`$00B156` (`CameraScrollStepLookup` in `cop_handlers_movement.asm`)  
+**ASM files:** `extracted/system/engine/cop_handlers_collision.asm`, `extracted/system/engine/cop_handlers_movement.asm` (`CameraScrollStepLookup`), `extracted/system/engine/tile_collision_physics.asm` (`CalcTileMapOffset`, collision map layout)
 
-This page documents the engine routines that compute 8-way facing directions, query tile solidity against the live map, read/write the dynamic collision overlay at `$7FC000`, and index camera pan step tables. These functions sit between COP script handlers and bank `$03` map lookup code; almost every movement, spawn, and branch-on-wall COP in the `$00`–`$1E` and `$96`–`$98` ranges depends on them.
+This page documents engine routines that compute **8-way octant indices** toward the player, **probe** tile collision bytes, **paint** dynamic occupancy into WRAM `$7FC000`, and **index** camera pan step tables. COP handlers in the `$00`–`$1E`, `$96`–`$98`, and `$2D`–`$30` ranges depend on these helpers.
 
 **Related:** [`event-flags.md`](event-flags.md), [`actor-management.md`](actor-management.md), [`README.md`](README.md), [`../../cop/README.md`](../../cop/README.md)
+
+## Source of truth
+
+Primary extracted files:
+
+- `extracted/system/engine/cop_handlers_collision.asm` — `ComputeDirectionToPlayer`, `MarkCollisionRect`, `ClearCollisionRect`, `ClearCollisionRectFull`, `AdvanceMapY`, `TileCollisionQuery`, `ParseSignedTileOffset`, COP `$0B`–`$1E` probes
+- `extracted/system/engine/cop_handlers_movement.asm` — `CameraScrollStepLookup`
+- `extracted/system/engine/cop_handlers_player_query.asm` — COP `$2D`–`$30` callers of `ComputeDirectionToPlayer`
+- `extracted/system/engine/tile_collision_physics.asm` — `CalcTileMapOffset`, collision-byte semantics, `[$80],Y` map access during movement
+- `extracted/system/engine/map_coords.asm` — `TileCoordsToMapIndex` (rectangle paint)
+
+**Naming:** Labels such as `ComputeDirectionToPlayer`, `collisionLayer` (`$7FC000`), `mapRowStrideL0` (`$0693`), `scrollStepTableBase` / `scrollStepIndex` (`$06E0` / `$06E2`), and `cameraLowerYBound` are **extracted** symbols. Do not confuse this doc’s “reference point” wording with **`GetPlayerFacingDirection`** (bank `$03`, cardinal **0–3**, animation-frame tables) — that is a separate, global convention.
+
+**Counts:** COP reference counts for mark/clear/probe ops appear in the block note at the top of `cop_handlers_collision.asm` (e.g. MarkSolidHere “462 call sites”); this doc does not restate exact totals unless re-counted in a fresh audit.
 
 ---
 
@@ -20,20 +34,61 @@ This page documents the engine routines that compute 8-way facing directions, qu
 | Tile collision query | 1 | `$00B43B`–`$00B481` | 70 bytes |
 | **Total (this document)** | **7** | | **~659 bytes** |
 
-### Data Flow
+### Collision query vs overlay paint
 
-```
-COP handler sets $0018/$001C (tile coords)
-    ├── ComputeDirectionToPlayer → octant 0–7 in A/Y
-    └── TileCollisionQuery → property byte in A ($000F = blocked)
+Two different mechanisms touch the same WRAM array **`collisionLayer` (`$7FC000`)**:
 
-COP $0B/$0C/$11 + offset variants
-    ├── MarkCollisionRect   → ORA #$F0 into $7FC000,X (occupy high nibble)
-    ├── ClearCollisionRect  → AND #$0F (partial) or delegate full clear
-    └── ClearCollisionRectFull → write $00 per tile byte
+| Mechanism | Routine | Effect |
+|-----------|---------|--------|
+| **Tile property query** | `TileCollisionQuery` | Read-only: maps probe pixels → index via `CalcTileMapOffset`, reads byte through **`[$80],Y`** (DP `$80`–`$82` = collision map long pointer; must stay valid — see gaia-knowledge `AGENTS.md`) |
+| **Dynamic occupancy overlay** | `MarkCollisionRect` / `ClearCollisionRect*` | Writes: **OR `$F0`** (mark solid nibble) or **AND `$0F` / `$00`** on `$7FC000,X` for actor footprint tiles |
+
+**Collision byte semantics** (current extracted behavior; scene/metatile data is source-dependent):
+
+- **High nibble (`$F0`):** non-zero ⇒ treated as **blocked** in `TileCollisionQuery` (returns sentinel **`$000F`**). Actors also **OR `$F0`** here via `MarkCollisionRect` (“occupancy”).
+- **Low nibble (`$0F`):** **terrain / type** for dispatch (see `tile_collision_physics.asm` block note: `0` = passable for many paths, `1`–`F` = solid types). `ResolveTileData` (metatile COPs) copies a type from **`$7F0000 + metatile ID`** into the low nibble when repainting tiles.
+
+`BranchIfSolid*` COPs use **`BIT #$000F`** on the **16-bit** query result: branch if **any** low bit is set — that includes sentinel **`$000F`**, non-zero terrain types, and is **not** the same as “high nibble only.”
+
+### Data flow
+
+```text
+COP sets page-0 scratch $0018/$001C (pixel or tile coords per handler)
+    ├── ComputeDirectionToPlayer → octant 0–7 in A (also Y after TYA)
+    └── TileCollisionQuery → property word in A ($000F = blocked / OOB / high-nibble set)
+
+COP $0B/$0C/$11 (+ offset variants via ParseSignedTileOffset)
+    ├── MarkCollisionRect     → ORA #$F0 on $7FC000,X (per metasprite hitbox)
+    ├── ClearCollisionRect    → AND #$0F when page-0 $00 = 0
+    └── ClearCollisionRectFull → AND #$00 when page-0 $00 ≠ 0
 
 CameraPan COPs ($DC–$DF)
-    └── CameraScrollStepLookup → step delta from table at $06E0
+    └── CameraScrollStepLookup → next table word; zero high byte = end (carry set)
+
+Example mark/clear at actor position (COP $0B / $0C):
+  Actor $14/$16 → $0018/$001C → MarkCollisionRect ORs $F0 on each hitbox tile
+  ClearSolidHere: STZ $0000 → ClearCollisionRect ANDs $0F (keeps terrain nibble)
+  ClearCollisionHere: LDA #$0001 → full clear via ClearCollisionRectFull
+```
+
+### Collision query flow (probe)
+
+```text
+  Probe pixel ($0018 X, $001C Y)
+        │
+        ▼
+  TileCollisionQuery (page-0 DP)
+        ├─ X &= $FFF0; vs cameraOffsetX / cameraBoundsX
+        ├─ Y vs cameraOffsetY / cameraLowerYBound
+        ├─ pixel → tile (Y row − 1, same as ParseSignedTileOffset)
+        ▼
+  CalcTileMapOffset → index in Y; Y ≥ $4000 ⇒ sentinel $000F
+        ▼
+  LDA [$80],Y  (collisionLayer via DP pointer)
+        ├─ BIT #$00F0 set ⇒ $000F
+        └─ else ⇒ full 16-bit map word in A (callers usually test #$000F)
+        ▼
+  BranchIfSolid*: BIT #$000F → branch if non-zero
 ```
 
 ---
@@ -42,17 +97,22 @@ CameraPan COPs ($DC–$DF)
 
 ### ComputeDirectionToPlayer
 
-**Address:** `$AFCE` · **Size:** 144 bytes
+**Address:** `$AFCE` · **Size:** 144 bytes · **Status:** **live** (COP `$2D`–`$30` in `cop_handlers_player_query.asm`)
 
 #### Description
 
-Computes an **8-way octant index (0–7)** describing where the **player** lies relative to a **target point** stored in zero-page `$0018` (X) and `$001C` (Y). The delta vector is `player_position − target_position`; the routine does not normalize to unit length but uses a **16-pixel Chebyshev threshold** (`$0010`) to decide between **cardinal** and **diagonal** directions within each quadrant.
+Computes an **8-way octant index (0–7)** for the direction **from a reference pixel** to the **player**. Reference point: page-0 **`$0018` (X)** and **`$001C` (Y)**. Deltas are **`player − reference`**:
 
-Despite the name, the math is “direction **to** the player **from** the target coordinates,” not the reverse. COP handlers typically preload `$0018`/`$001C` with the calling actor's pixel position before invoking this routine.
+- `dX = $0014,Y − $0018` (player actor in **`Y = $playerActor`**)
+- `dY = $0016,Y − $001C`
 
-#### Direction Encoding
+Positive `dX` ⇒ player is **east** of the reference; positive `dY` ⇒ player is **south**. This is the **global octant convention for COP `$2D`–`$30` only** (clockwise from north: 0=N … 7=NW). It is **not** the 0–3 cardinal encoding used by **`GetPlayerFacingDirection`** (bank `$03`).
 
-| Value | Direction | Index in Y before `TYA` |
+Within each east/west half-plane, if **`|dY| < $10` (16 px)** the result is **pure east (2) or west (6)** regardless of `dX` (including `dX = 0` ⇒ east). Otherwise the vertical component picks N/S, and **`|dX| ≥ $10`** selects diagonals.
+
+#### Direction encoding (this routine only)
+
+| Value | Direction | Built in Y before `TYA` |
 |-------|-----------|-------------------------|
 | 0 | North | `$0000` |
 | 1 | Northeast | `$0001` |
@@ -67,36 +127,35 @@ Despite the name, the math is “direction **to** the player **from** the target
 
 | Step | Operation | Detail |
 |------|-----------|--------|
-| 1 | `LDY $player_actor` | Load direct-page index of the player actor |
-| 2 | `dX = $0014,Y − $0018` | Horizontal delta; **BMI** → player is west (−X branch) |
-| 3 | **Quadrant +X** (`loc_00B01A` not taken) | Compute `dY = $0016,Y − $001C` |
-| 3a | +X, +Y (`dY ≥ 0`) | If `\|dY\| < 16` → **E(2)**; elif `\|dX\| < 16` → **S(4)**; else **SE(3)** |
-| 3b | +X, −Y (`dY < 0`) | Abs(`dY`); if `< 16` → **E(2)**; elif `\|dX\| < 16` → **N(0)**; else **NE(1)** |
-| 4 | **Quadrant −X** | Abs(`dX`) stored in `$0000`; compute `dY` |
-| 4a | −X, +Y | If `\|dY\| < 16` → **W(6)**; elif `\|dX\| < 16` → **S(4)**; else **SW(5)** |
-| 4b | −X, −Y | If `\|dY\| < 16` → **W(6)**; elif `\|dX\| < 16` → **N(0)**; else **NW(7)** |
-| 5 | `loc_00B05C`: `TYA` / `RTS` | Return octant in **A** and **Y** |
+| 1 | `LDY $playerActor` | Player actor slot |
+| 2 | `dX = $0014,Y − $0018` | **BMI** → west branch (`loc_00B01A`) |
+| 3 | **East (`dX ≥ 0`)** | `dY = $0016,Y − $001C` |
+| 3a | East, `dY ≥ 0` | Default **E(2)**; if `dY ≥ $10` → bias **S(4)**; if also `|dX| ≥ $10` → **SE(3)** |
+| 3b | East, `dY < 0` | `\|dY\|`; if `< $10` → **E(2)**; elif `|dX| < $10` → **N(0)**; else **NE(1)** |
+| 4 | **West (`dX < 0`)** | `\|dX\|` → `$0000`; same `dY` split |
+| 4a | West, `dY ≥ 0` | Default **W(6)**; `dY ≥ $10` → **S(4)**; `|dX| ≥ $10` → **SW(5)** |
+| 4b | West, `dY < 0` | `\|dY\|`; if `< $10` → **W(6)**; elif `|dX| < $10` → **N(0)**; else **NW(7)** |
+| 5 | `loc_00B05C`: `TYA` / `RTS` | Octant in **A** and **Y** |
 
-Absolute value uses the common 65816 idiom `EOR #$FFFF` / `INC` on 16-bit deltas.
+Absolute value: `EOR #$FFFF` / `INC` on 16-bit deltas.
 
 #### Variables
 
 | Address | Role |
 |---------|------|
-| `$0018` | Target X (pixel coords, input) |
-| `$001C` | Target Y (pixel coords, input) |
-| `$0000` | Temp: abs(dX) in −X quadrants |
-| `$player_actor` | Direct-page index of player actor |
-| `$0014,Y` / `$0016,Y` | Player X/Y position |
+| `$0018` | Reference X (pixels, input) |
+| `$001C` | Reference Y (pixels, input) |
+| `$0000` | Temp: `\|dX\|` on west path |
+| `$playerActor` | Player actor index |
+| `$0014,Y` / `$0016,Y` | Player pixel position |
 
-#### Cross-References
+#### Cross-references
 
 | Direction | Symbol | Notes |
 |-----------|--------|-------|
-| Called by | COP `$2D` `DirToPlayer` | Sets actor pos → calls routine → returns octant in A |
-| Called by | COP `$2E` `DirToPlayerOffset` | Adds script offset to actor pos first |
-| Called by | COP `$2F` `BranchIfDirToPlayer` | Compares result to script byte; branches on match |
-| Called by | COP `$30` `BranchIfDirToPlayerFrom` | Uses offset origin for `$0018`/`$001C` |
+| Called by | COP `$2D` `DirToPlayer` | Reference = actor `$14`/`$16` |
+| Called by | COP `$2E` `DirToPlayerOffset` | Adds script offsets to reference |
+| Called by | COP `$2F` / `$30` | Branch/compare on octant |
 
 ---
 
@@ -104,199 +163,99 @@ Absolute value uses the common 65816 idiom `EOR #$FFFF` / `INC` on 16-bit deltas
 
 ### TileCollisionQuery
 
-**Address:** `$B43B` · **Size:** 70 bytes
+**Address:** `$B43B` · **Size:** 70 bytes · **Status:** **live** (all `BranchIfSolid*` / type probes; wall anim in `cop_handlers_player_sprite.asm`)
 
 #### Description
 
-Performs a **read-only solidity query** at pixel coordinates `$0018` (X) and `$001C` (Y). Validates the point against the **active camera window**, converts to map tile indices, calls bank `$03` map lookup, and returns the **tile property byte** in A. Returns the sentinel **`$000F`** (all low bits set — treated as fully solid) when the point is out of camera bounds, off the loaded map, or when the tile's **upper property nibble** (`$00F0`) indicates a wall.
+**Read-only** probe at page-0 **`$0018` / `$001C`** (pixels). Clips to the **camera window**, converts to tile indices, calls **`CalcTileMapOffset`** (`tile_collision_physics.asm`), reads **`LDA [$80],Y`**. Returns **`$000F`** when:
 
-COP branch handlers test **`BIT #$000F`** on the result: a **non-zero low nibble** means blocked for movement purposes.
+- Probe is outside camera bounds or negative,
+- Map index **`Y ≥ $4000`**, or
+- Collision byte **high nibble** is non-zero (`BIT #$00F0`).
+
+Otherwise returns the **16-bit word** read from the map (callers typically **`BIT #$000F`**). Does **not** write `$7FC000`.
 
 #### Algorithm
 
 | Step | Operation | Detail |
 |------|-----------|--------|
-| 1 | `PHD` / `TCD #$0000` | Switch to zero page for `$18`/`$1C` access |
-| 2 | X bounds | `$18 &= $FFF0`; reject if negative, `< $camera_offset_x`, or `≥ $camera_bounds_x` |
-| 3 | Y bounds | Reject if `$1C < 0`, `< $camera_offset_y`, or `≥ $06DE` |
-| 4 | Tile index | Both coords `LSR ×4`; **Y decremented by 1** (engine tile-grid origin fudge) |
-| 5 | `JSL $@CalcTileMapOffset` | Map lookup; **Y = `$4000`** means invalid → branch to sentinel |
-| 6 | Property read | `LDA [$80],Y`; test **`BIT #$00F0`** — if any wall bit in high nibble, use sentinel |
-| 7 | Success | Return raw property byte in A |
-| 8 | Failure (`loc_00B47C`) | `LDA #$000F` — universal “solid” return |
-| 9 | `PLD` / `RTS` | Restore direct page |
+| 1 | `PHD` / `TCD #$0000` | Page-zero scratch |
+| 2 | X | `$18 &= $FFF0`; vs `cameraOffsetX` / `cameraBoundsX` |
+| 3 | Y | vs `cameraOffsetY` / **`cameraLowerYBound`** |
+| 4 | Tile | `LSR×4`; **Y row decremented by 1** (matches `ParseSignedTileOffset`) |
+| 5 | `JSL CalcTileMapOffset` | **`Y ≥ $4000`** → sentinel |
+| 6 | `LDA [$80],Y` | **`BIT #$00F0`** → sentinel |
+| 7 | Fail | `LDA #$000F` |
+| 8 | `PLD` / `RTS` | |
 
 #### Variables
 
 | Address | Role |
 |---------|------|
-| `$0018` | Query X (pixel, input/output — masked to tile boundary) |
-| `$001C` | Query Y (pixel, converted to tile row) |
-| `$camera_offset_x` | Left edge of valid query window |
-| `$camera_bounds_x` | Right edge (exclusive) |
-| `$camera_offset_y` | Top edge |
-| `$06DE` | Bottom Y bound for map queries |
-| `[$80],Y` | Map property table (bank in `$80` DP byte) |
+| `$0018` / `$001C` | Probe position (X masked to 16 px) |
+| `$cameraOffsetX` / `$cameraBoundsX` | Horizontal clip |
+| `$cameraOffsetY` / `$cameraLowerYBound` | Vertical clip |
+| `[$80],Y` | Collision map via engine DP pointer (`$7FC000` base) |
 
-#### Cross-References
+#### Cross-references
 
 | Direction | Symbol | Notes |
 |-----------|--------|-------|
-| Called by | COP `$13`–`$1E` | All `BranchIfSolid*` handlers (here, offset, abs, directional) |
-| Called by | COP `$96`–`$98` | Wall-gated player movement COPs |
-| Calls | `CalcTileMapOffset` (`$03D78A`) | Map tile index → carry/Y validation |
+| Called by | COP `$13`–`$1E` | Solid / type / grid probes |
+| Called by | COP `$96`–`$98` | Player wall animation probes |
+| Calls | `CalcTileMapOffset` | Bank `$03` |
 
 ---
 
 ## Collision Map Operations
 
-Dynamic collision lives in WRAM **`$7FC000+`**. Each byte holds **occupancy in the high nibble** (`$F0`, written by `MarkCollisionRect`) and **static/low tile data in the low nibble** (`$0F`). Clearing preserves static data unless a **full clear** is requested.
+Dynamic updates target **`collisionLayer` (`$7FC000`)**. Each byte:
+
+- **High nibble:** dynamic **solid mark** (`MarkCollisionRect` ORs **`$F0`**).
+- **Low nibble:** **terrain type** (preserved by partial clear; wiped on full clear).
+
+Index math matches **`TileCoordsToMapIndex`** / **`CalcTileMapOffset`**: 256-byte **16×16 tile pages**; **+1** = next column, **+$10** = next row in page; crossing column 15 uses **+$F0** adjustment in rectangle loops; row page-cross uses **`mapRowStrideL0`** (`$0693`) or **`mapBoundsX`** (16-bit add in clear paths).
 
 ### MarkCollisionRect
 
-**Address:** `$B29F` · **Size:** 140 bytes
+**Address:** `$B29F` · **Status:** **live** (COP `$0B` `MarkSolidHere`)
 
 #### Description
 
-Marks a **rectangle of collision tiles as occupied** by OR-ing **`$F0`** into each `$7FC000,X` byte. Rectangle size and offset come from the **actor's map header** pointed to by `$7F000C,X` with data bank loaded from `$7F0008,X`. Used when an actor should block movement (solid object, NPC standing on tile).
+ORs **`$F0`** onto each byte in the actor **metasprite hitbox** rectangle. Hitbox header: **4 bytes at `[metaspritePtr]`** in the sprite data bank (`$7F0008,X` → DBR): X offset, Y offset, width in tiles, height in tiles (offsets forced negative with **`ORA #$FF00`**). Combined with page-0 **`$0018`/`$001C`** (pixel origin), converted to tile origin, indexed via **`TileCoordsToMapIndex`**. Skipped if start index **`≥ $4000`**.
 
-#### Algorithm
+#### Cross-references
 
-| Step | Operation | Detail |
-|------|-----------|--------|
-| 1 | Save `B`, `D`, `X`; `TCD #$0000` | Preserve actor DP in X |
-| 2 | Load map header | `Y = $7F000C,X`; switch DBR to `$7F0008,X` |
-| 3 | Parse rect | Bytes 0/2 → X offset+width; bytes 1/3 → Y offset+height (signed 16-bit + 8-bit extent) |
-| 4 | Pixel → tile | Add actor `$18`/`$1C`, divide by 16 → `$18` origin, `$1A` width, `$1C` row, `$1E` height |
-| 5 | `JSL $@TileCoordsToMapIndex` | Base index in X; abort if `X ≥ $4000` |
-| 6 | Row loop (`loc_00B2F6`) | For each column: `ORA #$F0` into `$7FC000,X`; decrement width |
-| 7 | Column wrap | If `(X+1) & $000F ≠ 0`, simple increment; else add `$00F0` (next map row stride within 16-tile page) |
-| 8 | Next row | Decrement height; reset width from `$1A`; **`JSR AdvanceMapY`**; loop |
-| 9 | Restore registers / `RTS` | |
-
-#### Variables
-
-| Address | Role |
-|---------|------|
-| `$7F000C,X` | Pointer to map header (footprint rect) |
-| `$7F0008,X` | Data bank for header |
-| `$0018` / `$001C` | Actor position (input); become tile origin |
-| `$001A` / `$001E` | Tile width / height counters |
-| `$7FC000,X` | Collision overlay byte |
-
-#### Cross-References
-
-| Direction | Symbol | Notes |
-|-----------|--------|-------|
-| Called by | COP `$0B` `MarkSolidHere` | Sets `$18`/`$1C` from actor `$14`/`$16`, `$00=0` |
-| Calls | `TileCoordsToMapIndex` (`$02B0A3`) | Pixel tile coords → `$7FC000` index |
-| Calls | `AdvanceMapY` | Row advance with page wrap |
-
----
+| Called by | COP `$0B` | Actor `$14`/`$16` → `$0018`/`$001C` |
+| Calls | `TileCoordsToMapIndex`, `AdvanceMapY` | Row step between scanlines |
 
 ### ClearCollisionRect
 
-**Address:** `$B345` · **Size:** 170 bytes
+**Address:** `$B345` · **Status:** **live** (COP `$0C`, `$11`)
 
 #### Description
 
-Clears **dynamic occupancy** in a map rectangle matching the actor footprint — the inverse of `MarkCollisionRect`. Two modes controlled by zero-page **`$00`** at entry:
+Same hitbox setup as mark. Mode from page-0 **`$00`** after **`TCD #$0000`** (not the actor’s `$00` entry word):
 
-- **`$00 = 0` (default):** `AND #$0F` — preserves low nibble (static tile flags).
-- **`$00 ≠ 0`:** Jumps to `ClearCollisionRectFull` — zeroes entire bytes.
+- **`$00 = 0`:** **`AND #$0F`** — clear solid nibble, keep type.
+- **`$00 ≠ 0`:** jump to **`ClearCollisionRectFull`**.
 
-#### Algorithm
+Row advance **inlined**: **`ADC #$10`** on `$1C`; on carry **`ADC mapBoundsX`** (16-bit).
 
-Identical header parsing and index setup as `MarkCollisionRect`. Inner loop at `loc_00B3A4`:
-
-| Step | Operation | Detail |
-|------|-----------|--------|
-| 1 | Mode check | `LDA $00` — if non-zero, `JMP ClearCollisionRectFull` |
-| 2 | Partial clear | `LDA $7FC000,X` / `AND #$0F` / store — strips `$F0` occupancy |
-| 3 | Column iteration | Same 16-tile page wrap as mark routine |
-| 4 | Row advance | Adds `$10` to `$1C`; on carry, adds `$map_bounds_x` (row stride — note: uses `$map_bounds_x` label here vs `$0693` in `AdvanceMapY`) |
-
-#### Variables
-
-Same as `MarkCollisionRect`, plus:
-
-| Address | Role |
-|---------|------|
-| `$00` | `0` = partial clear (high nibble only); non-zero = full clear |
-| `$map_bounds_x` | Map row stride for Y wrap in this routine's inline path |
-
-#### Cross-References
-
-| Direction | Symbol | Notes |
-|-----------|--------|-------|
-| Called by | COP `$0C` `ClearSolidHere` | `$00=0` partial clear at actor position |
-| Called by | COP `$11` `ClearCollisionHere` | Sets `$00≠0` for full-byte clear |
-| Calls | `ClearCollisionRectFull` | When full clear requested |
-| Calls | `TileCoordsToMapIndex` | Shared with mark routine |
-
----
+| Called by | COP `$0C` | `STZ $0000` before call |
+| Called by | COP `$11` | `LDA #$0001` → full clear |
 
 ### ClearCollisionRectFull
 
-**Address:** `$B3EF` · **Size:** 76 bytes
+**Address:** `$B3EF` · **Status:** **live** (via `$11` / flag path)
 
-#### Description
-
-**Full collision-byte reset** — writes **`$00`** to each byte in the rectangle (via `AND #$00`). Invoked only from `ClearCollisionRect` when `$0000 ≠ 0`. Used when an actor leaves a tile and both dynamic occupancy and merged low-nibble state must be wiped (e.g. COP `$11`).
-
-#### Algorithm
-
-Same nested row/column loop structure as partial clear, but inner operation is:
-
-```asm
-LDA $7FC000, X
-AND #$00          ; force zero
-STA $7FC000, X
-```
-
-Row advancement matches `ClearCollisionRect`'s inline path (`+$10` / `$map_bounds_x` on carry).
-
-#### Cross-References
-
-| Direction | Symbol | Notes |
-|-----------|--------|-------|
-| Called by | `ClearCollisionRect` | When `$00 ≠ 0` at entry |
-| Called by | COP `$11` `ClearCollisionHere` | Indirectly via `ClearCollisionRect` |
-
----
+**`AND #$00`** on each byte — zeros **both** nibbles.
 
 ### AdvanceMapY
 
-**Address:** `$B32B` · **Size:** 26 bytes
+**Address:** `$B32B` · **Status:** **live** (**`MarkCollisionRect` only**)
 
-#### Description
-
-Increments map Y coordinate **`$001C` by `$10`** (one tile row in pixel space), handling **16-bit page/bank carry** using the map row stride at **`$0693`**. Shared by collision rectangle iterators when moving to the next row within the `$7FC000` overlay.
-
-#### Algorithm
-
-| Step | Operation | Detail |
-|------|-----------|--------|
-| 1 | `PHP` / `SEP #$20` | 8-bit accumulator for carry test |
-| 2 | `LDA $1C` / `ADC #$10` | Add one tile row |
-| 3 | No carry | Store back to `$1C`, restore, `RTS` |
-| 4 | Carry (`loc_00B339`) | `XBA`; add `$0693` to high byte; `XBA`; store 16-bit `$1C` |
-
-The `$0693` value is the **map width in bytes** (typically `$0100` for 16-tile rows), causing the index high byte to advance when Y crosses a 256-pixel page within the collision map layout.
-
-#### Variables
-
-| Address | Role |
-|---------|------|
-| `$001C` | Map Y coordinate (pixel units, advanced in place) |
-| `$0693` | Map row stride (bytes per row in collision grid) |
-
-#### Cross-References
-
-| Direction | Symbol | Notes |
-|-----------|--------|-------|
-| Called by | `MarkCollisionRect` | Between row iterations |
-| Note | `ClearCollisionRect` | Uses inline `+$10`/`$map_bounds_x` instead of this helper |
+Adds **`$10`** to page-0 **`$1C`** (map index low byte in the mark loop’s row pointer). On carry, adds **`mapRowStrideL0`** to the hidden high byte of **`A`** (see block note in asm — differs from clear path’s **`mapBoundsX`** 16-bit add).
 
 ---
 
@@ -304,38 +263,9 @@ The `$0693` value is the **map width in bytes** (typically `$0100` for 16-tile r
 
 ### CameraScrollStepLookup
 
-**Address:** `$B136` · **Size:** 33 bytes
+**Address:** `$B136` in `cop_handlers_movement.asm` · **Status:** **live** (COP `$DC`–`$DF`)
 
-#### Description
-
-Indexes the **camera pan step sequence** for COP `$DC`–`$DF` (`CameraPanUp/Down/Left/Right`). Reads a signed 16-bit step from table base **`$06E0`** at index **`$06E2`**, auto-incrementing the index each call. When the fetched entry's **high byte is zero**, the sequence is **exhausted**: resets **`$06E2 = 0`** and returns **carry set** so the COP handler can stop scrolling.
-
-#### Algorithm
-
-| Step | Operation | Detail |
-|------|-----------|--------|
-| 1 | `PHP` / `PHX` | Preserve flags and index |
-| 2 | `LDA $06E2` / `INC $06E2` | Current step index; advance for next call |
-| 3 | `ASL` / `ADC $06E0` / `TAX` | Word index into step table |
-| 4 | `LDA $0000,X` / `BIT #$FF00` | Load step; test high byte |
-| 5 | Non-zero high byte | Restore, **CLC**, `RTS` — valid step in A |
-| 6 | Zero high byte (`loc_00B150`) | `STZ $06E2`; restore, **SEC**, `RTS` — sequence done |
-
-#### Variables
-
-| Address | Role |
-|---------|------|
-| `$06E0` | Pointer/base to camera scroll step table (words) |
-| `$06E2` | Current index into step sequence (auto-incremented) |
-
-#### Cross-References
-
-| Direction | Symbol | Notes |
-|-----------|--------|-------|
-| Called by | COP `$DC` | `CameraPanUp` |
-| Called by | COP `$DD` | `CameraPanDown` |
-| Called by | COP `$DE` | `CameraPanLeft` |
-| Called by | COP `$DF` | `CameraPanRight` |
+Reads the next **16-bit word** from the table pointed to by **`scrollStepTableBase` (`$06E0`)**, index **`scrollStepIndex` (`$06E2`)** (auto-incremented). **Carry clear:** high byte of entry non-zero — valid word in **A** (CameraPan stores low byte → **`$2A`**, high byte → **`$2B`**; step magnitude is low nibble of **`$2B`**). **Carry set:** high byte zero — end of table, **`scrollStepIndex`** reset to 0.
 
 ---
 
@@ -350,3 +280,11 @@ Indexes the **camera pan step sequence** for COP `$DC`–`$DF` (`CameraPanUp/Dow
 | `ClearCollisionRectFull` | `$B3EF` | 76 | `ClearCollisionRect` |
 | `AdvanceMapY` | `$B32B` | 26 | `MarkCollisionRect` |
 | `CameraScrollStepLookup` | `$B136` | 33 | COP `$DC`–`$DF` |
+
+## Source validation
+
+**Files checked:** `cop_handlers_collision.asm`, `cop_handlers_movement.asm`, `cop_handlers_player_query.asm`, `cop_handlers_player_sprite.asm`, `tile_collision_physics.asm`, `map_coords.asm`, `GetPlayerFacingDirection.asm` (convention cross-check only).
+
+**Verified:** Delta sign and octant rules in `ComputeDirectionToPlayer`; `TileCollisionQuery` bounds, `−1` row, `[$80],Y` read, `$000F` sentinel; mark/clear hitbox source **`metaspritePtr`** and **`OR $F0` / `AND $0F/$00`**; rectangle index stepping (`+$F0`, `AdvanceMapY` vs clear **`mapBoundsX`**); `CameraScrollStepLookup` carry/terminator; **`BranchIfSolidHere`** uses **`BIT #$000F`**.
+
+**Notes:** Collision **type** meanings in the low nibble are **data-dependent** (table at `$7F0000` for metatile paints). Exact COP site counts taken from asm block notes, not re-counted here. **`AdvanceMapY`** page-byte dependency is documented in extracted comments as **inferred** edge-case behavior.
