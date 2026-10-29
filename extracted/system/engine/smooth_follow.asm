@@ -4,7 +4,7 @@
 ; 
 ; Fields (shared mnemonics, repurposed here): loopCounter ($7F0014) = speed in pixels per frame on the major axis; chatPtr ($7F000A) = base animation ID for the spawner's 16 facings (bit 15 set = leave the spawner's animation and OAM mirror bits alone); animScratch2 ($7F000E) = current facing frame 0-15, clockwise from north ($FFFF = not set yet); orbitAngle ($7F0010) = slope row 0-16 (0 = 45 degrees, 16 = axis-aligned); orbitDiameter ($7F0012) = dither phase 0-15; moveScratch1/2 ($7F002C/2E) = last X/Y step, read back by mu5F_flasher and sEA_solid_arm.
 ; 
-; Each aim, FollowChaseMainLoop computes dx = target.X − X and dy = target.Y − 8 − Y, takes absolute values and picks one of 8 octant handlers from the signs and the larger axis (the handler labels name the heading each one produces: ESE, SSE, SSW, WSW, WNW, NNW, NNE, ENE). The handler computes the slope row (ComputeFollowAngle when |dy| dominates, ComputeFollowAngleAlt when |dx| dominates), turns the facing one frame toward the desired one (ResolveFollowDirection/Alt) and, once aligned, takes a step with ComputeFollowStep: the major axis moves loopCounter pixels and the minor axis moves by the number of 1s in a window of a FollowSlopeDitherTable row (a Bresenham-style dither table, not a sine table).
+; Each aim, FollowChaseMainLoop computes dx = target.X − X and dy = target.Y − 8 − Y, takes absolute values and picks one of 8 octant handlers from the signs and the larger axis (the handler labels name the heading each one produces: ESE, SSE, SSW, WSW, WNW, NNW, NNE, ENE). The handler computes the slope row (ComputeFollowAngle when |dy| dominates, ComputeFollowAngleAlt when |dx| dominates), turns the facing one frame toward the desired one (ResolveFacingFromAxisBase/Alt) and, once aligned, takes a step with ComputeFollowStep: the major axis moves loopCounter pixels and the minor axis moves by the number of 1s in a window of a FollowSlopeDitherTable row (a Bresenham-style dither table, not a sine table).
 ; 
 ; ApplyFollowMovement adds the step to follower and spawner. The handlers save a resume point with SetEntryHere, so the direction is recomputed (JumpNextFrame to FollowChaseMainLoop) only once the dither phase reaches 8 or more. While the facing is still turning, the actor keeps moving along its current facing (the FollowDirHandler sets the heading and slope; SelectFallbackDirection dispatches it). smooth_follow_child also calls ComputeFollowAngle, ComputeFollowAngleAlt and ComputeFollowStep directly.
 ; 
@@ -48,7 +48,7 @@ CopySiblingFollowState {
 ---------------------------------------------
 ; Entry for helpers that start with no facing.
 ; 
-; Same copy of loopCounter and chatPtr from the spawner as CopySiblingFollowState, then sets animScratch2 = $FFFF (facing not set) so the first ResolveFollowDirection snaps straight to the desired frame, and runs into FollowChaseMainLoop. The block also contains the two up-right handlers (the FollowChaseDiagQuadrantSW/NW and FollowChaseHeadNNE/ENE sub-labels): target up-right and Y dominant heads mostly north (facing base 0, X += minor, Y −= major), target up-right and X dominant heads mostly east (base 2, X += major, Y −= minor).
+; Same copy of loopCounter and chatPtr from the spawner as CopySiblingFollowState, then sets animScratch2 = $FFFF (facing not set) so the first ResolveFacingFromAxisBase snaps straight to the desired frame, and runs into FollowChaseMainLoop. The block also contains the two up-right handlers (the FollowChaseHeadNNE/NW and FollowChaseApplyNNE/ENE sub-labels): target up-right and Y dominant heads mostly north (facing base 0, X += minor, Y −= major), target up-right and X dominant heads mostly east (base 2, X += major, Y −= minor).
 
 InitFollowAndChase {
     TXY                   ; Same copy as CopySiblingFollowState (Y = this actor, X = spawner below)
@@ -62,7 +62,7 @@ InitFollowAndChase {
     STA $loopCounter, X
     LDA $0002
     STA $chatPtr, X
-    LDA #$FFFF            ; animScratch2 = $FFFF: facing not set yet, so the first ResolveFollowDirection snaps to the desired frame
+    LDA #$FFFF            ; animScratch2 = $FFFF: facing not set yet, so the first ResolveFacingFromAxisBase snaps to the desired frame
     STA $animScratch2, X
 
   FollowChaseMainLoop:
@@ -91,8 +91,8 @@ InitFollowAndChase {
     INC 
     STA $001C
     CMP $0018
-    BCS FollowChaseDiagQuadrantSW ; |dy| ≥ |dx|: Y dominant, target up-right → north-leaning heading
-    BRA FollowChaseDiagQuadrantNW
+    BCS FollowChaseHeadNNE ; |dy| ≥ |dx|: Y dominant, target up-right → north-leaning heading
+    BRA FollowChaseHeadENE
 
   FollowChaseDxNegative:
     EOR #$FFFF            ; dx < 0: |dx| = −dx
@@ -117,22 +117,22 @@ InitFollowAndChase {
     INC 
     STA $001C
     CMP $0018
-    BCC FollowChaseDiagQuadrantNE ; |dy| < |dx|: target up-left, X dominant → FollowChaseHeadWNW (heads mostly west)
+    BCC FollowChaseDominantXGreaterUpLeft ; |dy| < |dx|: target up-left, X dominant → FollowChaseHeadWNW (heads mostly west)
     JMP $&FollowChaseHeadNNW ; |dy| ≥ |dx|: target up-left, Y dominant → FollowChaseHeadNNW (heads mostly north)
 
-  FollowChaseDiagQuadrantNE:
+  FollowChaseDominantXGreaterUpLeft:
     JMP $&FollowChaseHeadWNW
 
-  FollowChaseDiagQuadrantSW:
+  FollowChaseHeadNNE:
     JSR $&ComputeFollowAngle ; Target up-right, Y dominant: slope row = |dx| / (|dy| / 16), folded
     LDA #$0000            ; Facing base 0 = N (frames 0-2: N, NNE, NE)
     STA $0000
-    JSR $&ResolveFollowDirection ; Turn the facing one frame toward base + offset; $0000 = $FFFF once aligned
+    JSR $&ResolveFacingFromAxisBase ; Turn the facing one frame toward base + offset; $0000 = $FFFF once aligned
     LDA $0000
-    BMI FollowChaseHeadNNE ; $0000 < 0: facing aligned, move along the computed slope
+    BMI FollowChaseApplyNNE ; $0000 < 0: facing aligned, move along the computed slope
     JMP $&SelectFallbackDirection ; Still turning: keep moving along the current facing (heading in $0000)
 
-  FollowChaseHeadNNE:
+  FollowChaseApplyNNE:
     COP [SetEntryHere]
     JSR $&ComputeFollowStep ; $0000 = major step (loopCounter px), $0002 = minor step (dither table)
     LDA $0000             ; Major step, negated: becomes the Y delta (north)
@@ -144,16 +144,16 @@ InitFollowAndChase {
     STY $0002
     JMP $&ApplyFollowMovement
 
-  FollowChaseDiagQuadrantNW:
+  FollowChaseHeadENE:
     JSR $&ComputeFollowAngleAlt
     LDA #$0002
     STA $0000
-    JSR $&ResolveFollowDirectionAlt
+    JSR $&ResolveFacingFromDiagonalBase
     LDA $0000
-    BMI FollowChaseHeadENE
+    BMI FollowChaseApplyENE
     JMP $&SelectFallbackDirection
 
-  FollowChaseHeadENE:
+  FollowChaseApplyENE:
     COP [SetEntryHere]
     JSR $&ComputeFollowStep
     LDA $0002
@@ -166,13 +166,13 @@ InitFollowAndChase {
 ---------------------------------------------
 ; Octant handler: target down-right, |dx| > |dy|. The actor heads mostly EAST.
 ; 
-; Slope row from ComputeFollowAngleAlt, facing base 4 (E, ESE, SE) via ResolveFollowDirection, step X += major, Y += minor. If the facing is still turning ($0000 not negative) the actor continues along its current facing through SelectFallbackDirection instead. (The eight FollowChaseHead* handlers are named for the heading they produce: ESE, SSE, SSW, WSW, WNW, NNW, NNE, ENE.)
+; Slope row from ComputeFollowAngleAlt, facing base 4 (E, ESE, SE) via ResolveFacingFromAxisBase, step X += major, Y += minor. If the facing is still turning ($0000 not negative) the actor continues along its current facing through SelectFallbackDirection instead. (The eight FollowChaseHead* handlers are named for the heading they produce: ESE, SSE, SSW, WSW, WNW, NNW, NNE, ENE.)
 
 FollowChaseHeadESE {
     JSR $&ComputeFollowAngleAlt
     LDA #$0004            ; Facing base 4 = E (frames 4-6: E, ESE, SE)
     STA $0000
-    JSR $&ResolveFollowDirection
+    JSR $&ResolveFacingFromAxisBase
     LDA $0000
     BMI FollowChaseApplyESE
     JMP $&SelectFallbackDirection
@@ -186,13 +186,13 @@ FollowChaseHeadESE {
 ---------------------------------------------
 ; Octant handler: target down-right, |dy| ≥ |dx|. The actor heads mostly SOUTH.
 ; 
-; ComputeFollowAngle, facing base 6 (SE, SSE, S) via ResolveFollowDirectionAlt, step swapped: X += minor, Y += major.
+; ComputeFollowAngle, facing base 6 (SE, SSE, S) via ResolveFacingFromDiagonalBase, step swapped: X += minor, Y += major.
 
 FollowChaseHeadSSE {
     JSR $&ComputeFollowAngle
     LDA #$0006            ; Facing base 6 = SE (frames 6-8: SE, SSE, S)
     STA $0000
-    JSR $&ResolveFollowDirectionAlt
+    JSR $&ResolveFacingFromDiagonalBase
     LDA $0000
     BMI FollowChaseApplySSE
     JMP $&SelectFallbackDirection
@@ -211,13 +211,13 @@ FollowChaseHeadSSE {
 ---------------------------------------------
 ; Octant handler: target down-left, |dy| ≥ |dx|. The actor heads mostly SOUTH.
 ; 
-; ComputeFollowAngle, facing base 8 (S, SSW, SW) via ResolveFollowDirection, step X −= minor, Y += major.
+; ComputeFollowAngle, facing base 8 (S, SSW, SW) via ResolveFacingFromAxisBase, step X −= minor, Y += major.
 
 FollowChaseHeadSSW {
     JSR $&ComputeFollowAngle
     LDA #$0008            ; Facing base 8 = S (frames 8-10: S, SSW, SW)
     STA $0000
-    JSR $&ResolveFollowDirection
+    JSR $&ResolveFacingFromAxisBase
     LDA $0000
     BMI FollowChaseApplySSW
     JMP $&SelectFallbackDirection
@@ -238,13 +238,13 @@ FollowChaseHeadSSW {
 ---------------------------------------------
 ; Octant handler: target down-left, |dx| > |dy|. The actor heads mostly WEST.
 ; 
-; ComputeFollowAngleAlt, facing base $A (SW, WSW, W) via ResolveFollowDirectionAlt, step X −= major, Y += minor.
+; ComputeFollowAngleAlt, facing base $A (SW, WSW, W) via ResolveFacingFromDiagonalBase, step X −= major, Y += minor.
 
 FollowChaseHeadWSW {
     JSR $&ComputeFollowAngleAlt
     LDA #$000A            ; Facing base $A = SW (frames 10-12: SW, WSW, W)
     STA $0000
-    JSR $&ResolveFollowDirectionAlt
+    JSR $&ResolveFacingFromDiagonalBase
     LDA $0000
     BMI FollowChaseApplyWSW
     JMP $&SelectFallbackDirection
@@ -262,13 +262,13 @@ FollowChaseHeadWSW {
 ---------------------------------------------
 ; Octant handler: target up-left, |dx| > |dy|. The actor heads mostly WEST.
 ; 
-; ComputeFollowAngleAlt, facing base $C (W, WNW, NW) via ResolveFollowDirection, step X −= major, Y −= minor.
+; ComputeFollowAngleAlt, facing base $C (W, WNW, NW) via ResolveFacingFromAxisBase, step X −= major, Y −= minor.
 
 FollowChaseHeadWNW {
     JSR $&ComputeFollowAngleAlt
     LDA #$000C            ; Facing base $C = W (frames 12-14: W, WNW, NW)
     STA $0000
-    JSR $&ResolveFollowDirection
+    JSR $&ResolveFacingFromAxisBase
     LDA $0000
     BMI FollowChaseApplyWNW
     JMP $&SelectFallbackDirection
@@ -290,13 +290,13 @@ FollowChaseHeadWNW {
 ---------------------------------------------
 ; Octant handler: target up-left, |dy| ≥ |dx|. The actor heads mostly NORTH.
 ; 
-; ComputeFollowAngle, facing base $E (NW, NNW, N) via ResolveFollowDirectionAlt, step X −= minor, Y −= major. Its apply half runs straight on into ApplyFollowMovement.
+; ComputeFollowAngle, facing base $E (NW, NNW, N) via ResolveFacingFromDiagonalBase, step X −= minor, Y −= major. Its apply half runs straight on into ApplyFollowMovement.
 
 FollowChaseHeadNNW {
     JSR $&ComputeFollowAngle
     LDA #$000E            ; Facing base $E = NW (frames 14-0: NW, NNW, N)
     STA $0000
-    JSR $&ResolveFollowDirectionAlt
+    JSR $&ResolveFacingFromDiagonalBase
     LDA $0000
     BMI FollowChaseApplyNNW
     JMP $&SelectFallbackDirection
@@ -361,8 +361,8 @@ SelectFallbackDirection {
 ; Apply halves (the code after each COP SetEntryHere) of the eight octant handlers, indexed by heading − 1: N, NE, E, SE, S, SW, W, NW.
 
 follow_fallback_table [
-  &FollowChaseHeadNNE   ;00
-  &FollowChaseHeadENE   ;01
+  &FollowChaseApplyNNE   ;00
+  &FollowChaseApplyENE   ;01
   &FollowChaseApplyESE   ;02
   &FollowChaseApplySSE   ;03
   &FollowChaseApplySSW   ;04
@@ -510,44 +510,44 @@ ComputeFollowStep {
 }
 
 ---------------------------------------------
-; Picks the desired facing frame and turns toward it. Desired = ($0000 base + offset) & 15, where the offset comes from the slope row in orbitAngle: row ≥ $0D → 0, $05-$0C → 1, < 5 → 2; ResolveFollowDirectionAlt (next block) swaps offsets 0 and 2.
+; Picks the desired facing frame and turns toward it. Desired = ($0000 base + offset) & 15, where the offset comes from the slope row in orbitAngle: row ≥ $0D → 0, $05-$0C → 1, < 5 → 2; ResolveFacingFromDiagonalBase (next block) swaps offsets 0 and 2.
 ; 
 ; The shared tail (sub-labels in the Alt block) then compares it with animScratch2 (the current facing, 16 frames clockwise from north): $FFFF (unset) or within one frame snaps to the desired frame and sets $0000 = $FFFF (aligned); otherwise the facing moves one frame the short way round (a half-turn counts as counter-clockwise). Unless chatPtr bit 15 is set, the spawner's animation becomes chatPtr + facing ($28, frame counter $2A = 0) and UpdateActorAnimation is run for it. Finally it jumps through FollowDirectionTable to the FollowDirHandler for the new facing, with carry = chatPtr bit 15.
 
-ResolveFollowDirection {
-    LDA $orbitAngle, X    ; ResolveFollowDirection: slope row ≥ $0D → offset 0, $05-$0C → 1, < 5 → 2 (the Alt entry swaps 0 and 2)
+ResolveFacingFromAxisBase {
+    LDA $orbitAngle, X    ; ResolveFacingFromAxisBase: slope row ≥ $0D → offset 0, $05-$0C → 1, < 5 → 2 (the Alt entry swaps 0 and 2)
     CMP #$000D
-    BPL ResolveFollowDirMoveXOnly
+    BPL ResolveFacingOffset0
     CMP #$0005
-    BPL ResolveFollowDirMoveDiagonal
-    BRA ResolveFollowDirMoveYOnly
+    BPL ResolveFacingOffset1
+    BRA ResolveFacingOffset2
 }
 
 ---------------------------------------------
-; Alt entry of ResolveFollowDirection with offsets 0 and 2 swapped (row ≥ $0D → 2, < 5 → 0). The normal entry is used by the handlers whose base frame is an axis frame (N, E, S, W: axis-aligned row = base), the Alt entry by those whose base is a diagonal frame (NE, SE, SW, NW: axis-aligned row = base + 2). The labels ResolveFollowDirMoveXOnly/Diagonal/MoveYOnly describe the normal entry only.
+; Alt entry of ResolveFacingFromAxisBase with offsets 0 and 2 swapped (row ≥ $0D → 2, < 5 → 0). The normal entry is used by the handlers whose base frame is an axis frame (N, E, S, W: axis-aligned row = base), the Alt entry by those whose base is a diagonal frame (NE, SE, SW, NW: axis-aligned row = base + 2). The labels ResolveFacingOffset0/Diagonal/MoveYOnly describe the normal entry only.
 
-ResolveFollowDirectionAlt {
+ResolveFacingFromDiagonalBase {
     LDA $orbitAngle, X
     CMP #$000D
-    BPL ResolveFollowDirMoveYOnly
+    BPL ResolveFacingOffset2
     CMP #$0005
-    BPL ResolveFollowDirMoveDiagonal
+    BPL ResolveFacingOffset1
 
-  ResolveFollowDirMoveXOnly:
+  ResolveFacingOffset0:
     LDA #$0000
     STA $0002
-    BRA ResolveFollowDirAdvanceFrame
+    BRA ResolveFacingCompare
 
-  ResolveFollowDirMoveDiagonal:
+  ResolveFacingOffset1:
     LDA #$0001
     STA $0002
-    BRA ResolveFollowDirAdvanceFrame
+    BRA ResolveFacingCompare
 
-  ResolveFollowDirMoveYOnly:
+  ResolveFacingOffset2:
     LDA #$0002
     STA $0002
 
-  ResolveFollowDirAdvanceFrame:
+  ResolveFacingCompare:
     LDA $0000
     CLC 
     ADC $0002
@@ -555,67 +555,67 @@ ResolveFollowDirectionAlt {
     STA $0004
     LDA $chatPtr, X       ; Dead load: overwritten by the next LDA
     LDA $animScratch2, X  ; Current facing frame (−1 = not set)
-    BMI ResolveFollowDirAltSnapFrame
+    BMI ResolveFacingSnapToDesired
     SEC 
     SBC $0004
-    BMI ResolveFollowDirAltWrapNeg
-    BEQ ResolveFollowDirAltSnapFrame
+    BMI ResolveFacingCompareNegative
+    BEQ ResolveFacingSnapToDesired
     CMP #$0001
-    BEQ ResolveFollowDirAltSnapFrame
+    BEQ ResolveFacingSnapToDesired
     CMP #$000F
-    BEQ ResolveFollowDirAltSnapFrame
+    BEQ ResolveFacingSnapToDesired
     CMP #$0009
-    BPL ResolveFollowDirAltIncFrame
-    BRA ResolveFollowDirAltDecFrame
+    BPL ResolveFacingStepClockwise
+    BRA ResolveFacingStepCounterclockwise
 
-  ResolveFollowDirAltWrapNeg:
+  ResolveFacingCompareNegative:
     CMP #$FFFF
-    BEQ ResolveFollowDirAltSnapFrame
+    BEQ ResolveFacingSnapToDesired
     CMP #$FFF1
-    BEQ ResolveFollowDirAltSnapFrame
+    BEQ ResolveFacingSnapToDesired
     CMP #$FFF9
-    BPL ResolveFollowDirAltIncFrame
-    BRA ResolveFollowDirAltDecFrame
+    BPL ResolveFacingStepClockwise
+    BRA ResolveFacingStepCounterclockwise
 
-  ResolveFollowDirAltDecFrame:
+  ResolveFacingStepCounterclockwise:
     LDA $animScratch2, X
     DEC 
     STA $animScratch2, X
     STA $0004
-    BPL ResolveFollowDirAltApplyFrame
+    BPL ResolveFacingSetSpawnerAnim
     LDA #$000F
     STA $animScratch2, X
     STA $0004
-    BRA ResolveFollowDirAltApplyFrame
+    BRA ResolveFacingSetSpawnerAnim
 
-  ResolveFollowDirAltIncFrame:
+  ResolveFacingStepClockwise:
     LDA $animScratch2, X
     INC 
     AND #$000F
     STA $animScratch2, X
     STA $0004
-    BRA ResolveFollowDirAltApplyFrame
+    BRA ResolveFacingSetSpawnerAnim
 
-  ResolveFollowDirAltSnapFrame:
+  ResolveFacingSnapToDesired:
     LDA $0004
     STA $animScratch2, X
     LDA #$FFFF
     STA $0000
 
-  ResolveFollowDirAltApplyFrame:
-    LDA $0004, X          ; ResolveFollowDirAltApplyFrame: Y = prev-link actor (the spawner)
+  ResolveFacingSetSpawnerAnim:
+    LDA $0004, X          ; ResolveFacingSetSpawnerAnim: Y = prev-link actor (the spawner)
     TAY 
     LDA $chatPtr, X
-    BMI ResolveFollowDirAltSkipAnimUpdate
+    BMI ResolveFacingRefreshSpawnerSprite
     CLC 
     ADC $0004
     STA $0028, Y          ; Spawner animation = chatPtr + facing frame
     LDA #$0000
     STA $002A, Y          ; Restart the spawner animation frame counter
 
-  ResolveFollowDirAltSkipAnimUpdate:
+  ResolveFacingRefreshSpawnerSprite:
     LDA $chatPtr, X
-    BMI ResolveFollowDirAltUpdateAnim
+    BMI ResolveFacingDispatch
     PHX 
     TYX 
     TYA 
@@ -626,7 +626,7 @@ ResolveFollowDirectionAlt {
     TAX 
     TCD 
 
-  ResolveFollowDirAltUpdateAnim:
+  ResolveFacingDispatch:
     LDA $chatPtr, X
     STA $0006
     LDA $animScratch2, X
@@ -636,10 +636,10 @@ ResolveFollowDirectionAlt {
     TAX 
     CLC 
     LDA $0006
-    BPL ResolveFollowDirAltLoadTable
+    BPL ResolveFacingLoadHandler
     SEC 
 
-  ResolveFollowDirAltLoadTable:
+  ResolveFacingLoadHandler:
     LDA $@FollowDirectionTable, X
     DEC 
     PLX 
@@ -648,7 +648,7 @@ ResolveFollowDirectionAlt {
 }
 
 ---------------------------------------------
-; One handler per facing frame (animScratch2 & 15), clockwise from north: N, NNE, NE, ENE, E, ESE, SE, SSE, S, SSW, SW, WSW, W, WNW, NW, NNW. ResolveFollowDirection pushes the entry minus one and RTSes into it.
+; One handler per facing frame (animScratch2 & 15), clockwise from north: N, NNE, NE, ENE, E, ESE, SE, SSE, S, SSW, SW, WSW, W, WNW, NW, NNW. ResolveFacingFromAxisBase pushes the entry minus one and RTSes into it.
 
 FollowDirectionTable [
   &FollowDirHandler00   ;00

@@ -9,11 +9,11 @@
 ; 3. Masks the joypad (TSB $FFFC into joypadMaskStd, every button and the D-pad) and yields until musicTransitionState reaches $FFFF (the NMI finished the SPC block transfer)
 ; 4. Spawns MusicRenderSync, handing it the string pointer ($20/$22), then polls APUIO1 for $FF (the SPC700 replied)
 ; 5. Unmasks the joypad (TRB $FFFC) and spawns a second SpcTransferMusicData with chatPtr = the saved scene music, so the scene track resumes
-; 6. Waits again for $FFFF, WaitByte(1), then falls through into MusicLoadCleanup, which clears displayModeFlags bit 7 and dies
+; 6. Waits again for $FFFF, WaitByte #01 (2 ticks), then falls through into MusicLoadCleanup, which clears displayModeFlags bit 7 and dies
 ; 
 ; === RENDER SYNC ===
 ; 
-; MusicRenderSync waits $48 (72) frames, clears its own $1000 flag, zeros joypadMaskStd, sets DBR to the string bank ($22), then calls UpdateFrameRender and DialogStringRenderer (Y = $20) once to show the string, and dies.
+; MusicRenderSync does WaitByte #48 (73 ticks), clears its own $1000 flag, zeros joypadMaskStd, sets DBR to the string bank ($22), then calls UpdateFrameRender and DialogStringRenderer (Y = $20) once to show the string, and dies.
 ; 
 ; === ACTOR POOL GUARD ===
 ; 
@@ -42,7 +42,7 @@
 
 ; Jingle sequence actor started by COP MusicAndText. Saves musicParentActor (the scene's current music index) in orbitAngle, spawns SpcTransferMusicData to upload the jingle (chatPtr = $26 + 1), masks the joypad ($FFFC into joypadMaskStd) and yields each frame until musicTransitionState == $FFFF.
 ; 
-; Then spawns MusicRenderSync (receives the string pointer $20/$22) and polls APUIO1 for $FF (the SPC700 replied). On reply it unmasks the joypad, spawns a second SpcTransferMusicData whose chatPtr is the saved scene music (so the scene track resumes), waits again for $FFFF and WaitByte(1), then falls through into MusicLoadCleanup.
+; Then spawns MusicRenderSync (receives the string pointer $20/$22) and polls APUIO1 for $FF (the SPC700 replied). On reply it unmasks the joypad, spawns a second SpcTransferMusicData whose chatPtr is the saved scene music (so the scene track resumes), waits again for $FFFF and WaitByte #01 (2 ticks), then falls through into MusicLoadCleanup.
 ; 
 ; Actor pool exhaustion ($1FC0 from SpawnAfterFlags) branches to MusicLoadCleanup.
 
@@ -119,10 +119,10 @@ MusicJingleActor {
     BEQ MusicJingleWaitFinal
     RTL 
 
-; Final step of the jingle sequence: waits one frame (COP WaitByte #01), then falls through into MusicLoadCleanup, which leaves display-filter mode and kills the actor.
+; Final step of the jingle sequence: waits 2 ticks (COP WaitByte #01), then falls through into MusicLoadCleanup, which leaves display-filter mode and kills the actor.
 
   MusicJingleWaitFinal:
-    COP [WaitByte] ( #01 ) ; Final sync: wait 1 frame, then fall through into MusicLoadCleanup
+    COP [WaitByte] ( #01 ) ; Final sync: WaitByte #01 = 2 ticks, then fall through into MusicLoadCleanup
 }
 
 ---------------------------------------------
@@ -135,10 +135,10 @@ MusicLoadCleanup {
 }
 
 ---------------------------------------------
-; One-shot actor that shows the MusicAndText string. Waits $48 (72) frames via COP [WaitByte], clears its own $1000 flag, zeros joypadMaskStd to unmask input, sets DBR to the string bank ($22), then calls UpdateFrameRender and DialogStringRenderer (Y = string pointer from $20) and dies. It was given $20/$22 by MusicJingleActor.
+; One-shot actor that shows the MusicAndText string. Waits 73 ticks via COP [WaitByte] ( #48 ), clears its own $1000 flag, zeros joypadMaskStd to unmask input, sets DBR to the string bank ($22), then calls UpdateFrameRender and DialogStringRenderer (Y = string pointer from $20) and dies. It was given $20/$22 by MusicJingleActor.
 
 MusicRenderSync {
-    COP [WaitByte] ( #48 ) ; Wait $48 (72) frames before showing the text (inferred: the jingle plays meanwhile)
+    COP [WaitByte] ( #48 ) ; WaitByte #48 = 73 ticks before showing the text (inferred: the jingle plays meanwhile)
     LDA #$1000            ; Clear $1000 from own actor flags after the wait
     TRB $12
     PHP 

@@ -1,6 +1,6 @@
 ; Two Freejia tile animations (Bank 14, 1359872-1360072). It is a spriteset only in format: its one user streams the frames into VRAM as tiles, it holds no door or switch sprites (the old note was a guess from the name).
 ; 
-; The only user is fr32_laborer_npc (Freejia): two actors run SetScratchPointer(misc_fx_1CD080) (the tile art), SetMetasprite(spriteset_freejia_tilefx), ResetSpriteState and AdvanceSpriteAnim. code_05B021 plays animation 0 into VRAM word $3FE0, code_05B03E (spawned by it) plays animation 1 into VRAM word $3FF0. The two destinations are one 4bpp tile apart ($10 words = 32 bytes).
+; The only user is fr32_laborer_npc (Freejia): two actors run SetScratchPointer(misc_fx_1CD080) (the tile art), SetMetasprite(spriteset_freejia_tilefx), SetTileStreamAnim and AdvanceSpriteAnim. code_05B021 plays animation 0 into VRAM word $3FE0, code_05B03E (spawned by it) plays animation 1 into VRAM word $3FF0. The two destinations are one 4bpp tile apart ($10 words = 32 bytes).
 ; 
 ; === WHAT AdvanceSpriteAnim READS ===
 ; 
@@ -19,7 +19,7 @@
 
 ---------------------------------------------
 
-; Two animation pointers (index 0 and 1), selected by the first operand of ResetSpriteState in fr32_laborer_npc.
+; Two animation pointers (index 0 and 1), selected by the first operand of SetTileStreamAnim in fr32_laborer_npc.
 
 spriteset_freejia_tilefx [
   &freejia_tilefx_3FE0   ;00

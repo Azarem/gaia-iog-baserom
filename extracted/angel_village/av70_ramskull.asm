@@ -66,7 +66,7 @@ code_0AF137 {
     COP [StageMoveXY] ( #04, #00 )
 
   loc_0AF147:
-    COP [ReloadMoveDurations]
+    COP [ReloadMoveChains]
     COP [StageSpriteFrame] ( #26 )
     COP [AnimOnce]
     BRA loc_0AF147

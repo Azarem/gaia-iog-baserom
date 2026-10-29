@@ -743,7 +743,7 @@ DarkFriarTrailEastWest {
     LDA $10               ; Actor flag bit 14 ($4000) is the off-screen flag kept by the depth sort, not a wall-contact flag
     BIT #$4000
     BNE loc_02BCEC        ; Off-screen: the trail dies
-    COP [ReloadMoveDurations] ; No wall hit: reload force movement parameters for continued travel
+    COP [ReloadMoveChains] ; No wall hit: reload force movement parameters for continued travel
 
   loc_02BCCA:
     COP [AnimOneFrame]    ; Animate one frame and check for collision events
@@ -1037,18 +1037,18 @@ PsychoDashSouth {
 
 PsychoDashNorth {
     COP [SpawnAfter] ( @PsychoDashTrailNorth ) ; North: spawn trail afterimage actor for northward dash path
-    COP [ForceDirNE] ( #01 ) ; Set NE force direction — reverses Y movement for northward dash
+    COP [SetMoveNegateY] ( #01 ) ; Set NE force direction — reverses Y movement for northward dash
     COP [SetPlayerSpriteDirect] ( #04 ) ; Set player body to Psycho Dash pose (sprite #04)
-    COP [StageSpriteMoveY] ( #05, #36 ) ; Sprite #05, same index $36 (the ForceDirNE above flips it for north)
+    COP [StageSpriteMoveY] ( #05, #36 ) ; Sprite #05, same index $36 (the SetMoveNegateY above flips it for north)
     COP [AnimOnce]
     BRA loc_02BF03
 }
 
 PsychoDashWest {
     COP [SpawnAfter] ( @PsychoDashTrailWest ) ; West: spawn trail afterimage actor for westward dash path
-    COP [ForceDirBoth] ( #01 ) ; Set both force directions — reverses X movement for westward dash
+    COP [SetMoveNegateXY] ( #01 ) ; Set both force directions — reverses X movement for westward dash
     COP [SetPlayerSpriteDirect] ( #04 ) ; Set player body to Psycho Dash pose (sprite #04)
-    COP [StageSpriteMoveX] ( #06, #36 ) ; Sprite #06, same index $36 on X (ForceDirBoth above flips it for west)
+    COP [StageSpriteMoveX] ( #06, #36 ) ; Sprite #06, same index $36 on X (SetMoveNegateXY above flips it for west)
     COP [AnimOnce]
     BRA loc_02BF03
 }

@@ -11,7 +11,7 @@
 ; === DECISION ===
 ; 
 ; NpcRandomWanderAI rolls RngByte and 7 (each case has probability 1/8) and runs COP SwitchCase on the byte at $0000. The table is: 0 = stand north, 1 = stand south, 2 = stand west, 3 = stand east, 4 = step north, 5 = step south, 6 = step west, 7 = step east (the old note listed cases 4 to 7 as south / north / west / east; cases 4 and 5 are north and south, and cases 0 and 1 are the stand pair north and south).
-; Standing: $28 := base + direction, $2A := 0, UpdateActorAnimation, $08 := $78 (the script sleeps 120 frames after the caller's SetEntryHereAndYield) and MarkSolidHere (a standing NPC blocks the player).
+; Standing: $28 := base + direction, $2A := 0, UpdateActorAnimation, $08 := $78 (the script sleeps 121 ticks after the caller's SetEntryHereAndYield: $78 skipped passes, then it runs on the next one) and MarkSolidHere (a standing NPC blocks the player).
 ; Stepping: if the NPC is already more than $30 pixels (3 tiles) from its home in that direction, or the BranchIfSolid test for that side finds a solid tile, it stands facing that direction instead. Otherwise it stages a movement delta chain (StageMoveX / StageMoveY #$11 = +1 pixel every second frame, east or south; #$12 = -1 every second frame, west or north), sets the walk animation (base + 4 to 7), and does ClearSolidHere (a walking NPC is not solid).
 ; The step lasts for one pass of the walk animation: the caller's AnimOnce moves the NPC at half a pixel per frame until the animation list ends, then clears the chain ($2C / $2E) and the loop rolls again. The step length is therefore half the number of frames of the walk animation, in pixels, and there is no re-roll in the middle of a step (the old note said 'one-tile forced move').
 ---------------------------------------------
@@ -97,13 +97,13 @@ NpcWanderStandEast {
     ADC #$0003
     BRA NpcWanderStageStand
 
-; Stand path (shared): stage animation A, wait 120 frames ($08 = $78) and mark the NPC solid.
+; Stand path (shared): stage animation A, wait 121 ticks ($08 = $78: 120 skipped passes) and mark the NPC solid.
 
   NpcWanderStageStand:
     STA $28               ; Stage the animation: $28 := base + direction, $2A := 0 (first frame)
     STZ $2A
     JSL $@sprite_composition.UpdateActorAnimation
-    LDA #$0078            ; $08 := $78: the script sleeps 120 frames after the caller's SetEntryHereAndYield
+    LDA #$0078            ; $08 := $78: the script sleeps 121 ticks after the caller's SetEntryHereAndYield
     STA $08
     COP [MarkSolidHere]   ; A standing NPC is solid
     RTL 

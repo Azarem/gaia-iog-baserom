@@ -1073,7 +1073,7 @@ code_0AD8F7 {
     STZ $2A
     COP [SetEntryHere]
     COP [AnimOneFrame]
-    COP [ReloadMoveDurations]
+    COP [ReloadMoveChains]
     COP [SetEntryHereAndYield]
     COP [InitGravity] ( #03, #04, #01 )
     COP [SetEntryHere]

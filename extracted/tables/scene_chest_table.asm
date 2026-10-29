@@ -1,4 +1,4 @@
-; Treasure chest placement (Bank 01, 109992-110726 = $01:ADA8): a pointer table of 255 words (scene ID $00-$FE) followed by the chest lists. Only 39 scenes have chests, in 46 records; the other 216 entries point at one shared empty list (chest_list_none, a single $FF byte). The old note ('barrier/chest placement', 'event-blocking barrier tiles', bit 7 as an end sentinel in the flag byte) was wrong: the table holds chests only, and the terminator is a byte >= $80 in the first (X) byte of a record.
+; Treasure chest placement (Bank 01, 109992-110726 = $01:ADA8): a pointer table of 255 words (scene ID $00-$FE) followed by the chest lists. Only 39 scenes have chests, in 46 records; the other 216 entries point at one shared empty list (chest_list_none, a single $FF byte). The table holds chest records only; a list ends at a record whose first (X) byte has bit 7 set.
 ; 
 ; === RECORD (4 bytes, extraction: chest-entry < X, Y, contents, flag >) ===
 ; 

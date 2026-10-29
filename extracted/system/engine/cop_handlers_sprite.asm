@@ -7,15 +7,15 @@
 ; - StageSprAndHitbox (#8D) stages the animation and calls UpdateActorAnimation at once (no yield) to set the first frame's sprite and hitbox, then clears $2A again: it poses an actor without playing it.
 ; 
 ; === Entry address and bank ===
-; ResetSpriteState and every StageSprite* op store the address after the op in $00 and so act like SetEntryHere: the actor re-enters at the next op. The Anim* ops yield WITHOUT touching $00, so a Stage* op before them makes the same Anim* op run again every time the actor runs until the animation finishes. The two lines LDA $0C / STA $02 in front of each such store have no address tag because db-us/transforms.json (cop_handlers_sprite) inserts them: they also store the script bank in $02, so the entry bank follows the op (the original ROM saved only $00).
+; SetTileStreamAnim and every StageSprite* op store the address after the op in $00 and so act like SetEntryHere: the actor re-enters at the next op. The Anim* ops yield WITHOUT touching $00, so a Stage* op before them makes the same Anim* op run again every time the actor runs until the animation finishes. The two lines LDA $0C / STA $02 in front of each such store have no address tag because db-us/transforms.json (cop_handlers_sprite) inserts them: they also store the script bank in $02, so the entry bank follows the op (the original ROM saved only $00).
 ; 
-; === TILE-STREAMING ANIMATION (#55 ResetSpriteState, #56 AdvanceSpriteAnim, 4 script sites) ===
-; Used by four effect actors (awB4_snake_pit_fx, fr32_laborer_npc ×2, dc2F_adrift_fx): a script runs SetScratchPointer (art source: word in animScratch, bank in animScratch+2), SetMetasprite, ResetSpriteState (animation index, VRAM word address in $24), then AdvanceSpriteAnim in a loop. Each AdvanceSpriteAnim call waits while the previous DMA is pending ($B2 nonzero), stages one frame (32 bytes, or 128 when the byte at +$0D of the frame's sprite data is nonzero) taken from animScratch + 32 × (byte at +$12) to the VRAM word address in $24 (the NMI performs the DMA), loads the hold time into $08 and yields. At the end of a list the counter restarts and the script continues past the op.
+; === TILE-STREAMING ANIMATION (#55 SetTileStreamAnim, #56 AdvanceSpriteAnim, 4 script sites) ===
+; Used by four effect actors (awB4_snake_pit_fx, fr32_laborer_npc ×2, dc2F_adrift_fx): a script runs SetScratchPointer (art source: word in animScratch, bank in animScratch+2), SetMetasprite, SetTileStreamAnim (animation index, VRAM word address in $24), then AdvanceSpriteAnim in a loop. Each AdvanceSpriteAnim call waits while the previous DMA is pending ($B2 nonzero), stages one frame (32 bytes, or 128 when the byte at +$0D of the frame's sprite data is nonzero) taken from animScratch + 32 × (byte at +$12) to the VRAM word address in $24 (the NMI performs the DMA), loads the hold time into $08 and yields. At the end of a list the counter restarts and the script continues past the op.
 ; 
 ; === Animation index byte (ProcessAnimFlag) ===
 ; $FF keeps the current index. Bit 7 selects the mirrored variant: the low 7 bits go to $28 and the horizontal flip bit $4000 of the OAM attribute word $0E is set; without bit 7 the flip bit is cleared. Both flip updates are skipped when bit 1 ($0002) of the actor status $12 is set: that bit is a persistent mirror lock, not a facing flag (awB0_zombie sets it after a mirrored StageSprAndHitbox and sE8_dark_gaia right after SetHMirror; OQ-I022-1).
 ; 
-; Uses in extracted/: AnimOnce 2075, StageSpriteFrame 1200, AnimLoop 1048, StageSpriteLoop 455, StageSpriteMoveY 331, StageSpriteMoveX 310, StageSpriteLoopMoveX 278, StageSpriteLoopMoveY 252, StageSprAndHitbox 229, SetMetasprite 186, AnimOneFrame 165, StageSpriteMoveXY 68, StageSpriteLoopMoveXY 61, WaitForAnimFrame 29, ResetSpriteState 4, AdvanceSpriteAnim 4.
+; Uses in extracted/: AnimOnce 2075, StageSpriteFrame 1200, AnimLoop 1048, StageSpriteLoop 455, StageSpriteMoveY 331, StageSpriteMoveX 310, StageSpriteLoopMoveX 278, StageSpriteLoopMoveY 252, StageSprAndHitbox 229, SetMetasprite 186, AnimOneFrame 165, StageSpriteMoveXY 68, StageSpriteLoopMoveXY 61, WaitForAnimFrame 29, SetTileStreamAnim 4, AdvanceSpriteAnim 4.
 ---------------------------------------------
 
 ?BANK 00
@@ -33,7 +33,7 @@
 
 ; COP #55 with one byte and one word operand (4 sites, all tile-streaming effect actors). Stores the byte in $28 (animation index), clears the frame counter $2A, stores the word in $24 (the VRAM word address AdvanceSpriteAnim streams tiles to; it is copied to $B0) and saves the address after the op in $00 (normally the AdvanceSpriteAnim op) before RTI. Despite the name it resets no sprite state of the composition system.
 
-ResetSpriteState {
+SetTileStreamAnim {
     TYX 
     LDA [$0A]             ; Read animation index byte operand
     INC $0A
@@ -65,7 +65,7 @@ AdvanceSpriteAnim {
 
   loc_0099FE:
     PHB                   ; Save data bank before switching to spriteset bank
-    LDA $24               ; VRAM destination word chosen by ResetSpriteState
+    LDA $24               ; VRAM destination word chosen by SetTileStreamAnim
     STA $00B0             ; $B0 = VRAM destination of the pending DMA (ExecuteVramDma in the NMI)
     SEP #$20
     LDA $7F0008, X        ; Load spriteset bank byte from actor $7F0008

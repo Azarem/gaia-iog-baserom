@@ -36,11 +36,11 @@ These pair with `COP [53]` (`TickMove`) and with sprite staging (`$81`–`$87`) 
 | `AA` | `StageMoveX` | 60 | `Byte` X index | `StageMoveX` | Continue |
 | `AB` | `StageMoveY` | 45 | `Byte` Y index | `StageMoveY` | Continue |
 | `AC` | `StageMoveXY` | 42 | `Byte`, `Byte` X, Y | `StageMoveXY` | Continue |
-| `AD` | `ForceDirSW` | 1 | `Byte` set/clear | `ForceDirSW` | Continue |
-| `AE` | `ForceDirNE` | 2 | `Byte` set/clear | `ForceDirNE` | Continue |
-| `AF` | `ForceDirBoth` | 6 | `Byte` set/clear | `ForceDirBoth` | Continue |
+| `AD` | `SetMoveNegateX` | 1 | `Byte` set/clear | `SetMoveNegateX` | Continue |
+| `AE` | `SetMoveNegateY` | 2 | `Byte` set/clear | `SetMoveNegateY` | Continue |
+| `AF` | `SetMoveNegateXY` | 6 | `Byte` set/clear | `SetMoveNegateXY` | Continue |
 | `B0` | `ApplyMoveToChild` | 16 | `Byte`, `Byte` X, Y | `ApplyMoveToChild` | Continue |
-| `B1` | `ReloadMoveDurations` | 25 | (none) | `ReloadMoveDurations` | Continue |
+| `B1` | `ReloadMoveChains` | 25 | (none) | `ReloadMoveChains` | Continue |
 
 **Family call-site total:** 197
 
@@ -184,11 +184,11 @@ Reset to idle drift: `COP [StageMoveXY] ( #00, #00 )` after an attack (`pyCC_mys
 
 ---
 
-#### COP [AD] — `ForceDirSW` (force or release southwest diagonal)
+#### COP [AD] — `SetMoveNegateX` (force or release southwest diagonal)
 
-- **Preferred name:** `ForceDirSW`
+- **Preferred name:** `SetMoveNegateX`
 - **Aliases:** `SetForceSW`
-- **Handler:** `ForceDirSW` @ [`cop_handlers_force_move.asm:595-613`](../../../extracted/system/engine/cop_handlers_force_move.asm)
+- **Handler:** `SetMoveNegateX` @ [`cop_handlers_force_move.asm:595-613`](../../../extracted/system/engine/cop_handlers_force_move.asm)
 - **Parameters:** `Byte` — nonzero sets bit `$4000` on `$12`; `#00` clears it
 - **Outcome:** Continue
 - **Usage count:** 1
@@ -196,7 +196,7 @@ Reset to idle drift: `COP [StageMoveXY] ( #00, #00 )` after an attack (`pyCC_mys
 ##### What it does
 
 ```asm
-ForceDirSW {
+SetMoveNegateX {
     TYX
     LDA [$0A]
     INC $0A
@@ -227,11 +227,11 @@ Child projectile init sets `$4000` manually in Eyesore spawn (`gw82_eyesore.asm`
 
 ---
 
-#### COP [AE] — `ForceDirNE` (force or release northeast diagonal)
+#### COP [AE] — `SetMoveNegateY` (force or release northeast diagonal)
 
-- **Preferred name:** `ForceDirNE`
+- **Preferred name:** `SetMoveNegateY`
 - **Aliases:** `SetForceNE`
-- **Handler:** `ForceDirNE` @ [`cop_handlers_force_move.asm:618-636`](../../../extracted/system/engine/cop_handlers_force_move.asm)
+- **Handler:** `SetMoveNegateY` @ [`cop_handlers_force_move.asm:618-636`](../../../extracted/system/engine/cop_handlers_force_move.asm)
 - **Parameters:** `Byte` set/clear
 - **Outcome:** Continue
 - **Usage count:** 2
@@ -252,11 +252,11 @@ Paired with `$AD`/`$AF` on enemies that must slide along fixed isometric diagona
 
 ---
 
-#### COP [AF] — `ForceDirBoth` (force or release both diagonal bits)
+#### COP [AF] — `SetMoveNegateXY` (force or release both diagonal bits)
 
-- **Preferred name:** `ForceDirBoth`
+- **Preferred name:** `SetMoveNegateXY`
 - **Aliases:** `SetForceBoth`
-- **Handler:** `ForceDirBoth` @ [`cop_handlers_force_move.asm:641-659`](../../../extracted/system/engine/cop_handlers_force_move.asm)
+- **Handler:** `SetMoveNegateXY` @ [`cop_handlers_force_move.asm:641-659`](../../../extracted/system/engine/cop_handlers_force_move.asm)
 - **Parameters:** `Byte` set/clear
 - **Outcome:** Continue
 - **Usage count:** 6
@@ -270,7 +270,7 @@ TSB/TRB **`$6000`** on `$12` (both `$4000` and `$2000`).
 Sky Garden Knight armor (`sg4D_knight_armor.asm`):
 
 ```asm
-COP [ForceDirBoth] ( #01 )
+COP [SetMoveNegateXY] ( #01 )
 ```
 
 Locks both diagonal force bits during a scripted slide so movement tables cannot flip sign mid-attack.
@@ -339,11 +339,11 @@ Four facing branches use different `(X,Y)` index pairs (`#06,#00`, `#05,#00`, `#
 
 ---
 
-#### COP [B1] — `ReloadMoveDurations` (refresh durations from indices)
+#### COP [B1] — `ReloadMoveChains` (refresh durations from indices)
 
-- **Preferred name:** `ReloadMoveDurations`
+- **Preferred name:** `ReloadMoveChains`
 - **Aliases:** `ReloadForceMove`
-- **Handler:** `ReloadMoveDurations` @ [`cop_handlers_force_move.asm:688-699`](../../../extracted/system/engine/cop_handlers_force_move.asm)
+- **Handler:** `ReloadMoveChains` @ [`cop_handlers_force_move.asm:688-699`](../../../extracted/system/engine/cop_handlers_force_move.asm)
 - **Parameters:** (none)
 - **Outcome:** Continue
 - **Usage count:** 25
@@ -353,7 +353,7 @@ Four facing branches use different `(X,Y)` index pairs (`#06,#00`, `#05,#00`, `#
 Re-reads existing `moveXAlt` / `moveYAlt` for the **current** actor and overwrites `$2C` / `$2E` with fresh `AnimFrameLookup` results. Does not change indices or position.
 
 ```asm
-ReloadMoveDurations {
+ReloadMoveChains {
     TYX
     LDA $moveXAlt, X
     JSR $&actor_pool.AnimFrameLookup
@@ -370,10 +370,10 @@ ReloadMoveDurations {
 After gravity or special movement corrupts durations — Dark Gaia / space flight (`babel_tower/comet_lair/sE8_dark_gaia.asm`, `sE7_space_flight_controller.asm`):
 
 ```asm
-COP [ReloadMoveDurations]
+COP [ReloadMoveChains]
 ```
 
-The unused **`unused_particle_rain_spawner`** child calls **`ReloadMoveDurations`** once per 21-tick animation pass (not every frame) so movement chains stay armed after **`AnimOnce`** clears `$2C`/`$2E` (`actors/unused_particle_rain_spawner.asm`).
+The unused **`unused_particle_rain_spawner`** child calls **`ReloadMoveChains`** once per 21-tick animation pass (not every frame) so movement chains stay armed after **`AnimOnce`** clears `$2C`/`$2E` (`actors/unused_particle_rain_spawner.asm`).
 
 ##### Parameters & contract
 

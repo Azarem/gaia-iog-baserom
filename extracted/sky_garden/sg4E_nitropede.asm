@@ -489,7 +489,7 @@ code_0ACC20 {
     STA $moveXAlt, X
     LDA #$0000
     STA $moveYAlt, X
-    COP [ReloadMoveDurations]
+    COP [ReloadMoveChains]
     COP [InitGravity] ( #0A, #09, #01 )
 
   loc_0ACC67:

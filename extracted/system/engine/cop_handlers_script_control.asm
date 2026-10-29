@@ -61,7 +61,7 @@ SetEntryHereAndYield {
 }
 
 ---------------------------------------------
-; COP #C3 with one Address (target) plus one word (frame delay). Sets actor $00/$02 to the target script pointer, stores the delay word in $08, and yields via RTL.
+; COP #C3 with one Address (target) plus one word (delay count n). Sets actor $00/$02 to the target script pointer, stores n in $08 and yields via RTL. The script resumes at the target n + 1 ticks later (the WaitByte rule; 0 = next tick).
 
 JumpAfterDelay {
     TYX 
@@ -73,10 +73,10 @@ JumpAfterDelay {
     INC $0A
     AND #$00FF
     STA $02               ; Store bank in entry $02
-    LDA [$0A]             ; Read frame delay word operand
+    LDA [$0A]             ; Read delay count word operand (n)
     INC $0A
     INC $0A
-    STA $08               ; Store delay in timer $08 — actor waits this many frames before resuming
+    STA $08               ; Store n in timer $08: the actor resumes at the target n + 1 ticks later
     PLA                   ; Yield RTL — resumes at target entry after $08 timer expires
     PLA 
     RTL 

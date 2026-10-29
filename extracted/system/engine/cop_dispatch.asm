@@ -72,7 +72,7 @@ CopDispatch {
 cop_dispatch_table [
   &cop_handlers_hdma_dma.GenHdmaSine   ;00
   &cop_handlers_hdma_dma.QueueHdma   ;01
-  &cop_handlers_hdma_dma.QueueDma   ;02
+  &cop_handlers_hdma_dma.QueueHdmaDirect   ;02
   &cop_handlers_hdma_dma.QueueHdmaChannel   ;03
   &cop_handlers_audio.StartMusic   ;04
   &cop_handlers_audio.FadeThenStartMusic   ;05
@@ -147,15 +147,15 @@ cop_dispatch_table [
   &cop_handlers_movement.ResumeAfterSnap   ;4A
   &cop_handlers_metatile.DrawMetatileAbs   ;4B
   &cop_handlers_metatile.DrawMetatileHere   ;4C
-  &cop_handlers_metatile.WorldMapStream3   ;4D
-  &cop_handlers_metatile.WorldMapStream4   ;4E
+  &cop_handlers_metatile.DrawMetatileStream   ;4D
+  &cop_handlers_metatile.DrawMetatileStreamDelay   ;4E
   &cop_handlers_vram.AdhocVramDma   ;4F
   &cop_handlers_vram.CopyPalette   ;50
   &cop_handlers_vram.Decompress   ;51
   &cop_handlers_movement.StageMove   ;52
   &cop_handlers_movement.TickMove   ;53
   &cop_handlers_vram.SetScratchPointer   ;54
-  &cop_handlers_sprite.ResetSpriteState   ;55
+  &cop_handlers_sprite.SetTileStreamAnim   ;55
   &cop_handlers_sprite.AdvanceSpriteAnim   ;56
   &cop_handlers_callbacks.SetDeathCallback   ;57
   &cop_handlers_callbacks.SetHitCallback   ;58
@@ -168,7 +168,7 @@ cop_dispatch_table [
   &cop_handlers_effects.InitSineHdma   ;5F
   &cop_handlers_effects.TickSineHdma   ;60
   &cop_handlers_effects.BindSineHdma   ;61
-  &cop_handlers_actor_flags.BranchIfCollisionTypeNe   ;62
+  &cop_handlers_actor_flags.BranchIfCollisionTypeEq   ;62
   &cop_handlers_effects.InitGravity   ;63
   &cop_handlers_effects.TickGravity   ;64
   &cop_handlers_world_map.StageWorldMapMove   ;65
@@ -214,9 +214,9 @@ cop_dispatch_table [
   &cop_handlers_sprite.StageSprAndHitbox   ;8D
   &cop_handlers_player_sprite.SetPlayerSpriteDirect   ;8E
   &cop_handlers_player_sprite.StagePlayerSprite   ;8F
-  &cop_handlers_player_sprite.StagePlayerSpriteMoveX   ;90
-  &cop_handlers_player_sprite.StagePlayerSpriteMoveY   ;91
-  &cop_handlers_player_sprite.StagePlayerSpriteMoveXY   ;92
+  &cop_handlers_player_sprite.StagePlayerMoveX   ;90
+  &cop_handlers_player_sprite.StagePlayerMoveY   ;91
+  &cop_handlers_player_sprite.StagePlayerMoveXY   ;92
   &cop_handlers_player_sprite.RunPlayerAnim   ;93
   &cop_handlers_player_sprite.StagePlayerSprWall   ;94
   &cop_handlers_player_sprite.StagePlayerSprFromDP   ;95
@@ -243,11 +243,11 @@ cop_dispatch_table [
   &cop_handlers_force_move.StageMoveX   ;AA
   &cop_handlers_force_move.StageMoveY   ;AB
   &cop_handlers_force_move.StageMoveXY   ;AC
-  &cop_handlers_force_move.ForceDirSW   ;AD
-  &cop_handlers_force_move.ForceDirNE   ;AE
-  &cop_handlers_force_move.ForceDirBoth   ;AF
+  &cop_handlers_force_move.SetMoveNegateX   ;AD
+  &cop_handlers_force_move.SetMoveNegateY   ;AE
+  &cop_handlers_force_move.SetMoveNegateXY   ;AF
   &cop_handlers_force_move.ApplyMoveToChild   ;B0
-  &cop_handlers_force_move.ReloadMoveDurations   ;B1
+  &cop_handlers_force_move.ReloadMoveChains   ;B1
   &cop_handlers_oam_attribs.SetPriorityMax   ;B2
   &cop_handlers_oam_attribs.SetPriorityMin   ;B3
   &cop_handlers_oam_attribs.ClearPriorityMax   ;B4

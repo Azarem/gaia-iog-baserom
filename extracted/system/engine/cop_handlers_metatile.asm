@@ -1,12 +1,12 @@
 ; COP handlers that overwrite one metatile of LAYER 0 at run time (Bank 00, COP #4B-#4E) plus their helpers. Used by puzzle rooms, breakable walls and the item-use effects to swap floor/wall tiles.
 ; 
-; Script sites: DrawMetatileAbs (#4B) 24, DrawMetatileHere (#4C) 8 (2 in pyD0_breakable_wall, 6 in item_use_system). WorldMapStream3 (#4D) and WorldMapStream4 (#4E) have no script sites.
+; Script sites: DrawMetatileAbs (#4B) 24, DrawMetatileHere (#4C) 8 (2 in pyD0_breakable_wall, 6 in item_use_system). DrawMetatileStream (#4D) and DrawMetatileStreamDelay (#4E) have no script sites.
 ; 
 ; All writes go to layer 0 only: collision flags come from $7F0000 + metatile ID (the layer-0 table; collisionFlagTableL1 sits at $7F0100 and is not used here), the map is $7EA000 + index (mapLayerTilemap), the collision map is $7FC000 + index, and the tile definitions are read from the hard-coded $7E2000 + ID x 8 (metatileDefBase is $2000 for layer 0, $2800 for layer 1). A tile is repainted on screen only when it lies in the visible window: horizontally (pixel X + 16 - bg1ScrollH) < $0111, vertically 0 <= pixel Y - ((mapScrollV - $10) and $FFF0) < $F1. Off-screen tiles only update the map and collision data.
 ; The staged update is one 2x2 metatile: $0902 = VRAM word address of the top row (BG1 nametable at $1000 via PixelToVramAddress), $0908 = that + $20, tile words $0904/$0906 (top) and $090A/$090C (bottom). The NMI flush in event_blocks writes it and clears $0902; TileQueryGate makes the next draw wait until $0902 is zero again. The name tileQueryResult is a misnomer.
 ; 
 ; Direct page: the handlers run with D = actor; the stores to $0018/$001A/$001C/$001E/$0000 are absolute (page-0 scratch) and become the DP $18/$1A/$1C/$1E/$00 seen by ResolveTileData after TCD zeroes D. The page-0 $00 here is NOT the actor's entry word. DrawMetatileHere takes the actor's $14/$16 as TILE coordinates (no divide by 16); pyD0_breakable_wall converts its pixel position first and saves the originals in orbitAngle/orbitDiameter ($7F0010/$7F0012).
-; WorldMapStream3/4 stream one 3- or 4-byte record per call (X tile, Y tile, metatile ID, and for #4E a delay byte stored in the actor's $08 wait counter), cache the pointer in $24, rewind the script pointer by 2 and yield between tiles, and an X byte with bit 7 set ends the stream. extendedFlags ($7F002A) bit 1 = pointer cached, bit 2 = queue orbitAngle as a sound effect (sfxQueueCh2) per tile; nothing in the extracted scripts uses them.
+; DrawMetatileStream/4 stream one 3- or 4-byte record per call (X tile, Y tile, metatile ID, and for #4E a delay byte stored in the actor's $08 wait counter), cache the pointer in $24, rewind the script pointer by 2 and yield between tiles, and an X byte with bit 7 set ends the stream. extendedFlags ($7F002A) bit 1 = pointer cached, bit 2 = queue orbitAngle as a sound effect (sfxQueueCh2) per tile; nothing in the extracted scripts uses them.
 ---------------------------------------------
 
 ?BANK 00
@@ -116,7 +116,7 @@ DrawMetatileHere {
 ---------------------------------------------
 ; COP #4D with one word operand (stream pointer, cached in $24 on the first call). Each call paints one record (X, Y, tile ID) from the stream, optionally queues orbitAngle as a sound effect on channel 2 (extendedFlags bit 2), rewinds the script pointer by 2 and yields; a record whose X byte has bit 7 set ends the stream and the op continues past its 2-byte operand. No script sites.
 
-WorldMapStream3 {
+DrawMetatileStream {
     TYX 
     JSR $&TileQueryGate   ; TileQueryGate for stream entry
     BCC loc_00970C
@@ -187,9 +187,9 @@ WorldMapStream3 {
 }
 
 ---------------------------------------------
-; COP #4E, like WorldMapStream3 with 4-byte records: the fourth byte is stored in the actor's $08 (the wait counter), so it is a per-record delay, not a tile attribute. No script sites.
+; COP #4E, like DrawMetatileStream with 4-byte records: the fourth byte is stored in the actor's $08 (the wait counter), so it is a per-record delay, not a tile attribute. No script sites.
 
-WorldMapStream4 {
+DrawMetatileStreamDelay {
     TYX 
     JSR $&TileQueryGate
     BCC loc_00977D

@@ -62,7 +62,7 @@ code_06D6C0 {
     STA $moveYAlt, X
 
   loc_06D6E3:
-    COP [ReloadMoveDurations]
+    COP [ReloadMoveChains]
     COP [SetEntryHere]
     COP [AnimOnce]
     LDA $14

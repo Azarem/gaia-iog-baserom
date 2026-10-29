@@ -500,7 +500,7 @@ code_0AE1B5 {
 code_0AE1BA {
     COP [StageSpriteFrame] ( #1F )
     COP [AnimOnce]
-    COP [ReloadMoveDurations]
+    COP [ReloadMoveChains]
     LDA $10
     BIT #$4000
     BEQ code_0AE1BA
@@ -563,7 +563,7 @@ code_0AE20F {
     TRB $10
 
   loc_0AE21A:
-    COP [ReloadMoveDurations]
+    COP [ReloadMoveChains]
     COP [StageSpriteFrame] ( #1F )
     COP [AnimOnce]
     LDA $10

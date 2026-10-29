@@ -96,7 +96,7 @@ FX actor with particle set + global anim path (`extracted/angkor_wat/snake_pit/a
 
 ```asm
 COP [SetMetasprite] ( @spriteset_snake_pit_fx )
-COP [ResetSpriteState] ( #00, #$2020 )
+COP [SetTileStreamAnim] ( #00, #$2020 )
 COP [AdvanceSpriteAnim]
 ```
 

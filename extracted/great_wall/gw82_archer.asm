@@ -485,14 +485,14 @@ code_0B926C {
     LDA #$0064
     STA $24
     COP [SetEntryHere]
-    COP [BranchIfCollisionTypeNe] ( #0F, &code_0B92A8 )
+    COP [BranchIfCollisionTypeEq] ( #0F, &code_0B92A8 )
     DEC $24
     BMI loc_0B9297
     RTL 
 
   loc_0B9297:
     COP [SetEntryHere]
-    COP [BranchIfCollisionTypeNe] ( #0F, &code_0B92A8 )
+    COP [BranchIfCollisionTypeEq] ( #0F, &code_0B92A8 )
     LDA $10
     BIT #$4000
     BNE loc_0B92A6

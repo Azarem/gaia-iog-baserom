@@ -144,7 +144,7 @@ code_0B8E91 {
     COP [SetEntryHere]
     LDA $2A
     BNE loc_0B8EC8
-    COP [ReloadMoveDurations]
+    COP [ReloadMoveChains]
     STZ $2E
     BRA loc_0B8EB3
 

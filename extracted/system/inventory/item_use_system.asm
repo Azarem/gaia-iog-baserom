@@ -1823,7 +1823,7 @@ code_list_03A068 [
 ]
 
 ---------------------------------------------
-; Phase 3 after the melody effect: spawns SpcTransferMusicData with chatPtr from saved DP $24, polls until musicTransitionState is $FFFF again, WaitByte one frame, then falls through into FluteControllerExit.
+; Phase 3 after the melody effect: spawns SpcTransferMusicData with chatPtr from saved DP $24, polls until musicTransitionState is $FFFF again, WaitByte #01 (2 ticks), then falls through into FluteControllerExit.
 
 FluteRestoreMusicPhase {
     COP [SpawnAfterFlags] ( @hdma_dma_spc.SpcTransferMusicData, #$2000 ) ; Phase 3: spawn SPC transfer to restore the original background music

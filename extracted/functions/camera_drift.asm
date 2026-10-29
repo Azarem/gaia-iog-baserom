@@ -18,7 +18,7 @@
 ; 
 ; === CameraDriftPatterned ===
 ; 
-; $28 := RngByte (random starting phase), $2A := 2, SetEntryHere. Each run: DBR := program bank (to read camera_drift_offsets), Y offset := table[$28 and 7] then $28++, added to cameraTargetY (a negative result is clamped to 0) and, unless $24 = $FFFF, to cameraDeltaY (clamped to 0); then the X offset := table[$28 and 7], i.e. the next entry, with the same rules. A run is followed by $08 := 3 (3 frames) and DEC $2A; the third run ends in Die, so the actor lives about 9 frames and applies 3 Y and 3 X offsets. The next run's Y entry is the previous run's X entry.
+; $28 := RngByte (random starting phase), $2A := 2, SetEntryHere. Each run: DBR := program bank (to read camera_drift_offsets), Y offset := table[$28 and 7] then $28++, added to cameraTargetY (a negative result is clamped to 0) and, unless $24 = $FFFF, to cameraDeltaY (clamped to 0); then the X offset := table[$28 and 7], i.e. the next entry, with the same rules. A run is followed by $08 := 3 (the next run starts 4 ticks later) and DEC $2A; the third run ends in Die, so the runs fall 4 ticks apart (the third 8 ticks after the first) and the actor applies 3 Y and 3 X offsets before it dies. The next run's Y entry is the previous run's X entry.
 ; camera_drift_offsets holds 16 words but the index is masked to 3 bits, so only the first 8 are used: +1, -1, -2, +1, +2, 0, -2, +1 (sum 0). The last 8 words (+5, -4, -2, +4, +1, -5, +4, -3, also summing to 0) are never read.
 ---------------------------------------------
 
@@ -86,7 +86,7 @@ CameraDriftLoopSimple {
     STA $cameraDeltaY
     COP [Die]
 
-; Short structured sway: 3 runs, 3 frames apart, adding consecutive entries of camera_drift_offsets to the target and delta, Y first and then X from the next entry.
+; Short structured sway: 3 runs, 4 ticks apart ($08 := 3), adding consecutive entries of camera_drift_offsets to the target and delta, Y first and then X from the next entry.
 
   CameraDriftPatterned:
     COP [RngByte]         ; Random starting phase for the table walk
@@ -163,12 +163,12 @@ CameraDriftLoopSimple {
   loc_00D05A:
     PLA 
 
-; End of a run: restore DBR, wait 3 frames ($08), count down $2A and return, or die on the third run.
+; End of a run: restore DBR, $08 := 3 (the next run starts 4 ticks later), count down $2A and return, or die on the third run.
 
   loc_00D05B:
     PLB 
     LDA #$0003
-    STA $08               ; Wait 3 frames before the next run
+    STA $08               ; $08 := 3: the next run starts 4 ticks later
     DEC $2A               ; $2A counts 2, 1, 0 and then goes negative: the third run dies
     BMI loc_00D066
     RTL 

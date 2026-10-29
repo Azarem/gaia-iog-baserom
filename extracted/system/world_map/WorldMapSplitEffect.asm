@@ -2,7 +2,7 @@
 ; 
 ; === BUFFERS (double-buffered by frame parity, frameCounter bit 0) ===
 ; 
-; Even frames: $7E8800 (BGMODE) and $7E8A00 (COLDATA). Odd frames: $7E8900 (sineTableA) and $7E8B00 (sineTableB). BuildSplitTables rebuilds the pair for the current parity and QueueSplitTables queues exactly that pair with COP QueueDma. The second operand of QueueDma is the PPU B-bus register ($2100 + #05 = BGMODE, #32 = COLDATA; hdma_channel_config gives each register's transfer mode), not an HDMA channel number.
+; Even frames: $7E8800 (BGMODE) and $7E8A00 (COLDATA). Odd frames: $7E8900 (sineTableA) and $7E8B00 (sineTableB). BuildSplitTables rebuilds the pair for the current parity and QueueSplitTables queues exactly that pair with COP QueueHdmaDirect. The second operand of QueueHdmaDirect is the PPU B-bus register ($2100 + #05 = BGMODE, #32 = COLDATA; hdma_channel_config gives each register's transfer mode), not an HDMA channel number.
 ; 
 ; === TABLE CONTENTS ===
 ; 
@@ -62,21 +62,21 @@ WorldMapSplitEffect {
 }
 
 ---------------------------------------------
-; Queue the two tables built this frame with COP QueueDma: even frames $7E8800 -> BGMODE ($2105) and $7E8A00 -> COLDATA ($2132); odd frames $7E8900 and $7E8B00 to the same registers. Each COP takes a direct-table HDMA channel for the next frame.
+; Queue the two tables built this frame with COP QueueHdmaDirect: even frames $7E8800 -> BGMODE ($2105) and $7E8A00 -> COLDATA ($2132); odd frames $7E8900 and $7E8B00 to the same registers. Each COP takes a direct-table HDMA channel for the next frame.
 
 QueueSplitTables {
     LDA $frameCounter     ; Frame parity check: even → buffer A ($8800/$8A00), odd → buffer B ($8900/$8B00)
     LSR 
     BCS QueueSplitTablesOdd
-    COP [QueueDma] ( $7E8800, #05 ) ; Even frame: BGMODE ($2105) table at $7E8800
-    COP [QueueDma] ( $7E8A00, #32 ) ; Even frame: COLDATA ($2132) table at $7E8A00
+    COP [QueueHdmaDirect] ( $7E8800, #05 ) ; Even frame: BGMODE ($2105) table at $7E8800
+    COP [QueueHdmaDirect] ( $7E8A00, #32 ) ; Even frame: COLDATA ($2132) table at $7E8A00
     RTS 
 
 ; Odd frames: tables at $7E8900 (sineTableA) and $7E8B00 (sineTableB).
 
   QueueSplitTablesOdd:
-    COP [QueueDma] ( $sineTableA, #05 ) ; Odd frame: BGMODE ($2105) table at $7E8900
-    COP [QueueDma] ( $sineTableB, #32 ) ; Odd frame: COLDATA ($2132) table at $7E8B00
+    COP [QueueHdmaDirect] ( $sineTableA, #05 ) ; Odd frame: BGMODE ($2105) table at $7E8900
+    COP [QueueHdmaDirect] ( $sineTableB, #32 ) ; Odd frame: COLDATA ($2132) table at $7E8B00
     RTS 
 }
 

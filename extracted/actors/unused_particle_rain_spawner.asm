@@ -9,7 +9,7 @@
 ; 
 ; SetMetasprite points the child at spriteset_pickups_effects and StageSprAndHitbox #02 shows animation list 2 (sprite_set_0EE0A6: 7 frames, hold 2 each, so one pass is 21 ticks). Priority operand $30 sets OAM priority bits $3000 (frontmost). Start: Y = $FFE0 (-32), X = RNG * 2 + $C4, i.e. $C4-$2C2 in steps of 2. The same random byte also picks the speed: index = (RNG AND 3) * 2 + 4.
 ; The values stored in moveXAlt / moveYAlt are MOVEMENT INDICES into move_chain_table, not velocities (the old comments said 'X velocity 4, 6, 8, 10 / Y velocity 3, 5, 7, 9'). Odd indices are +n, even indices are -n pixels per frame (index 3 = +2, 4 = -2, 5 = +3, 6 = -3 ...). The child therefore moves X by -2, -3, -4 or -5 and Y by +2, +3, +4 or +5 per frame (index X = 4/6/8/10 pairs with Y = 3/5/7/9, equal magnitudes): it falls DIAGONALLY down and to the left at 45 degrees, not straight down.
-; ReloadMoveDurations re-arms the two delta chains; AnimOnce zeroes $2C / $2E when its list ends, which is why the loop reloads them after every pass. The death test (Y >= $0200, unsigned) runs only when an animation pass has ended, i.e. every 21 ticks, not every frame. A particle whose Y were still negative at that moment would be read as a huge unsigned value and die; at 21 ticks the slowest particle (+2 per frame from -32) is at +10, so by the numbers all of them survive the first check (UNVERIFIED-RUNTIME, OQ-I045-2).
+; ReloadMoveChains re-arms the two delta chains; AnimOnce zeroes $2C / $2E when its list ends, which is why the loop reloads them after every pass. The death test (Y >= $0200, unsigned) runs only when an animation pass has ended, i.e. every 21 ticks, not every frame. A particle whose Y were still negative at that moment would be read as a huge unsigned value and die; at 21 ticks the slowest particle (+2 per frame from -32) is at +10, so by the numbers all of them survive the first check (UNVERIFIED-RUNTIME, OQ-I045-2).
 ; 
 ; docs/code/bank0B-late-bosses-system-cutscene-actors.md also says the particles 'rise via ReloadForceMove' from 'screen top'; they start above the screen and FALL.
 ---------------------------------------------
@@ -78,7 +78,7 @@ UnusedRainDropChild {
 ; Per-pass loop: re-arm the movement chains, play the animation list once, then test Y.
 
   loc_0BD2F7:
-    COP [ReloadMoveDurations] ; Re-arm both delta chains (AnimOnce zeroes $2C / $2E at the end of each pass)
+    COP [ReloadMoveChains] ; Re-arm both delta chains (AnimOnce zeroes $2C / $2E at the end of each pass)
     COP [SetEntryHere]
     COP [AnimOnce]
     LDA $16

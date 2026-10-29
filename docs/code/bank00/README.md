@@ -84,7 +84,7 @@ Every block in bank $00 maps to one extracted ASM file. Links go directly to the
 | `cop_handlers_actor_query` | `$956B`–`$9685` | `BranchIfPlayerInRelTiles` | [`cop_handlers_actor_query.asm`](../../../extracted/system/engine/cop_handlers_actor_query.asm) |
 | `cop_handlers_metatile` | `$9685`–`$98B8` | `DrawMetatileAbs` | [`cop_handlers_metatile.asm`](../../../extracted/system/engine/cop_handlers_metatile.asm) |
 | `cop_handlers_vram` | `$98B8`–`$99DA` | `AdhocVramDma` | [`cop_handlers_vram.asm`](../../../extracted/system/engine/cop_handlers_vram.asm) |
-| `cop_handlers_sprite` | `$99DA`–`$A036` | `ResetSpriteState` | [`cop_handlers_sprite.asm`](../../../extracted/system/engine/cop_handlers_sprite.asm) |
+| `cop_handlers_sprite` | `$99DA`–`$A036` | `SetTileStreamAnim` | [`cop_handlers_sprite.asm`](../../../extracted/system/engine/cop_handlers_sprite.asm) |
 | `cop_handlers_callbacks` | `$9A67`–`$9AEA` | `SetDeathCallback` | [`cop_handlers_callbacks.asm`](../../../extracted/system/engine/cop_handlers_callbacks.asm) |
 | `cop_handlers_actor_flags` | `$9AEA`–`$9B89` | `BranchIfBehindWall` | [`cop_handlers_actor_flags.asm`](../../../extracted/system/engine/cop_handlers_actor_flags.asm) |
 | `cop_handlers_effects` | `$9B89`–`$AF40` | `InitSineHdma` | [`cop_handlers_effects.asm`](../../../extracted/system/engine/cop_handlers_effects.asm) |
@@ -808,8 +808,8 @@ Covers `$00E683`–`$00F292`: 42 parts implementing the smooth actor follow/chas
 | `ComputeFollowAngle` | `$EDA8` | ~27 B | Angular step (X primary) |
 | `ComputeFollowAngleAlt` | `$EDC3` | ~93 B | Angular step (Y primary) |
 | `ComputeFollowStep` | `$EE1C` | 96 B | Pixel step from angle table |
-| `ResolveFollowDirection` | `$EE7C` | ~18 B | Direction resolution entry A |
-| `ResolveFollowDirectionAlt` | `$EE8C` | ~228 B | Direction resolution entry B + sprite dispatch |
+| `ResolveFacingFromAxisBase` | `$EE7C` | ~18 B | Direction resolution entry A |
+| `ResolveFacingFromDiagonalBase` | `$EE8C` | ~228 B | Direction resolution entry B + sprite dispatch |
 | `FollowDirectionTable` | `$EF72` | 32 B | 16-direction handler jump table |
 | 16 direction handlers | `$EF92`–`$F172` | ~545 B | OAM priority/mirror + walking sprite per 22.5° |
 | `FollowSlopeDitherTable` | `$F193` | 544 B | Interpolation/deceleration table |

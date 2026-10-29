@@ -12,7 +12,7 @@ crF7_credits_dma_scroll [
 
   code_09F362:
     COP [QueueHdma] ( @dma_channel_09F3D4, #11 )
-    COP [QueueDma] ( @dma_channel_09F36F, #11 )
+    COP [QueueHdmaDirect] ( @dma_channel_09F36F, #11 )
     RTL 
 } >
 ]

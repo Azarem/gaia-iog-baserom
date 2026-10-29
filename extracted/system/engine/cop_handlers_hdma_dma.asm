@@ -1,4 +1,4 @@
-; HDMA channel COP handlers (34382–34579, Bank 00): GenHdmaSine (#00), QueueHdma (#01), QueueDma (#02) and QueueHdmaChannel (#03), 51 script sites in total.
+; HDMA channel COP handlers (34382–34579, Bank 00): GenHdmaSine (#00), QueueHdma (#01), QueueHdmaDirect (#02) and QueueHdmaChannel (#03), 51 script sites in total.
 ; 
 ; Shared operand layout for #01–#03: a 3-byte table address followed by a byte naming the PPU B-bus register ($21xx, e.g. #0F = BG2HOFS, #26 = WH0, #1B = M7A). The setup helpers (hdma_dma_spc) use that register number as the index into hdma_channel_config to get the DMAP transfer mode, so the table is really "PPU register → transfer mode".
 ; 
@@ -70,9 +70,9 @@ QueueHdma {
 }
 
 ---------------------------------------------
-; COP #02 (28 sites). Same operands as QueueHdma (3-byte table address, B-bus register byte; used for window position registers #26, mode 7 matrix registers #1B–#1E, scroll registers and others). It calls SetupHdmaChannel_Direct, which writes DMAP WITHOUT the $40 flag and still sets the channel's bit in the HDMA enable mask, so this is a DIRECT-table HDMA channel (each table entry holds the register data inline), not a general linear DMA transfer. The name QueueDma is misleading; QueueHdma is the indirect variant.
+; COP #02 (28 sites). Same operands as QueueHdma (3-byte table address, B-bus register byte; used for window position registers #26, mode 7 matrix registers #1B–#1E, scroll registers and others). It calls SetupHdmaChannel_Direct, which writes DMAP WITHOUT the $40 flag and still sets the channel's bit in the HDMA enable mask, so this is a DIRECT-table HDMA channel (each table entry holds the register data inline), not a general linear DMA transfer. The name QueueHdmaDirect is misleading; QueueHdma is the indirect variant.
 
-QueueDma {
+QueueHdmaDirect {
     TYX 
     LDA [$0A]             ; Read DMA source/dest setup word
     INC $0A

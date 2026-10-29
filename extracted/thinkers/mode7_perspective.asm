@@ -41,7 +41,7 @@
 ; 
 ; === HDMA QUEUE ===
 ; 
-; QueueMode7HdmaTables issues four COP QueueDma. The second operand is a B-bus register index (#1B..#1E = $211B..$211E), not a channel number. QueueDma sets up a DIRECT-table HDMA channel on the next free channel (cop_handlers_hdma_dma), so four channels are used per frame and released again by the next ResetHdmaState. Table A is queued twice, for M7A and for M7D.
+; QueueMode7HdmaTables issues four COP QueueHdmaDirect. The second operand is a B-bus register index (#1B..#1E = $211B..$211E), not a channel number. QueueHdmaDirect sets up a DIRECT-table HDMA channel on the next free channel (cop_handlers_hdma_dma), so four channels are used per frame and released again by the next ResetHdmaState. Table A is queued twice, for M7A and for M7D.
 ; 
 ; === QUIRKS ===
 ; 
@@ -197,10 +197,10 @@ Mode7PerspectiveUpdate {
 QueueMode7HdmaTables {
     PLD 
     PLX 
-    COP [QueueDma] ( $tileStagingBuffer, #1B ) ; Direct HDMA table A ($7E7000) to B-bus register $1B = M7A
-    COP [QueueDma] ( $7E7800, #1C ) ; Table B ($7E7800) to register $1C = M7B
-    COP [QueueDma] ( $7E8000, #1D ) ; Table C ($7E8000) to register $1D = M7C
-    COP [QueueDma] ( $tileStagingBuffer, #1E ) ; Table A again to register $1E = M7D (D = A)
+    COP [QueueHdmaDirect] ( $tileStagingBuffer, #1B ) ; Direct HDMA table A ($7E7000) to B-bus register $1B = M7A
+    COP [QueueHdmaDirect] ( $7E7800, #1C ) ; Table B ($7E7800) to register $1C = M7B
+    COP [QueueHdmaDirect] ( $7E8000, #1D ) ; Table C ($7E8000) to register $1D = M7C
+    COP [QueueHdmaDirect] ( $tileStagingBuffer, #1E ) ; Table A again to register $1E = M7D (D = A)
     RTL 
 }
 

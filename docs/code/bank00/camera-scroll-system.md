@@ -96,8 +96,8 @@ The core tracking loop computes signed delta X/Y from the actor to the player (`
 |-----------|----------------|---------|
 | +X, +Y, Y > X | `FollowChaseHeadSSE` | NE-biased (Y dominant) |
 | +X, +Y, X > Y | `FollowChaseHeadESE` | NE-biased (X dominant) |
-| +X, -Y, Y > X | `FollowChaseDiagQuadrantSW` | SE-biased (Y dominant, neg) |
-| +X, -Y, X > Y | `FollowChaseDiagQuadrantNW` | SE-biased (X dominant, neg) |
+| +X, -Y, Y > X | `FollowChaseHeadNNE` | SE-biased (Y dominant, neg) |
+| +X, -Y, X > Y | `FollowChaseHeadENE` | SE-biased (X dominant, neg) |
 | -X, +Y, Y > X | `FollowChaseHeadSSW` | NW-biased (Y dominant) |
 | -X, +Y, X > Y | `FollowChaseHeadWSW` | NW-biased (X dominant) |
 | -X, -Y, Y > X | `FollowChaseHeadNNW` | SW-biased (Y dominant, neg) |
@@ -287,13 +287,13 @@ Same as `ComputeFollowAngle` but axes swapped — primary is `$001C` (Y distance
 
 Computes pixel movement step from follow angle. Uses `$7F0010,X` (angle) and `$7F0012,X` (sub-step) as table index into `FollowSlopeDitherTable` (`FollowSlopeDitherTable`). Accumulates fractional movement. Called by all 8 direction handlers.
 
-### ResolveFollowDirection
+### ResolveFacingFromAxisBase
 
 **Address:** `$00EE7C` · **Size:** ~18 bytes
 
 Entry point A — resolves follow direction for primary-axis-dominant cases. Branches on `$7F0010,X` value ranges (< 5, 5–12, ≥ 13) into speed categories.
 
-### ResolveFollowDirectionAlt
+### ResolveFacingFromDiagonalBase
 
 **Address:** `$00EE8C` · **Size:** ~228 bytes
 
@@ -400,14 +400,14 @@ Interpolation table for smooth movement. Contains pairs of signed 16-bit values 
 |--------|--------|-------|
 | Chase direction blocks (8) | `ComputeFollowAngle` / `ComputeFollowAngleAlt` | 8 |
 | Chase direction blocks (8) | `ComputeFollowStep` | 8 |
-| Chase direction blocks (8) | `ResolveFollowDirection` / `ResolveFollowDirectionAlt` | 8 |
+| Chase direction blocks (8) | `ResolveFacingFromAxisBase` / `ResolveFacingFromDiagonalBase` | 8 |
 | Forced walks (4) | `ReadDirSprite_YVelocity` / `ReadDirSprite_XVelocity` | 4 |
 | Forced walks (4) | `ApplyScrollOffset` | 4 |
 | Forced walks (4) | `SyncPlayerToCamera` | 4 |
 | Camera actors (3) | `TileAlignPosition` | 3 |
 | Camera actors (3) | `ComputeScrollDeltas` | 3 |
 | `TileAlignPosition` | `TileAlignCoord` | 2 |
-| `ResolveFollowDirectionAlt` | 16 direction handlers | 16 |
+| `ResolveFacingFromDiagonalBase` | 16 direction handlers | 16 |
 | Direction handlers (16) | `UpdateActorAnimation` | 16 |
 
 ### External Calls
@@ -416,7 +416,7 @@ Interpolation table for smooth movement. Contains pairs of signed 16-bit values 
 |--------|------|-----------|---------|
 | `MulDivide` | `$02` | `ComputeScrollDeltas`, `ScrollCameraVertical` | Signed multiply/clamp |
 | `UnsignedDivide` | `$02` | `ComputeFollowAngle`/`Alt` | Step count calculation |
-| `UpdateActorAnimation` | `$03` | `ResolveFollowDirectionAlt` (×16) | Advance sprite animation |
+| `UpdateActorAnimation` | `$03` | `ResolveFacingFromDiagonalBase` (×16) | Advance sprite animation |
 | `dir_sprite_01ABDE` | `$01` | `ReadDirSprite_*` | Direction sprite lookup |
 | `table_01A95E` | `$01` | Forced walks | Scroll speed |
 | `move_chain_table` | `$01` | `ReadDirSprite_*` | Animation duration |
@@ -482,8 +482,8 @@ The actor at `$EAED` (`camera_scroll_controller`) computes per-frame scroll delt
 | 20 | `ComputeFollowAngle` | `$EDA8` | ~27 B |
 | 21 | `ComputeFollowAngleAlt` | `$EDC3` | ~93 B |
 | 22 | `ComputeFollowStep` | `$EE1C` | 96 B |
-| 23 | `ResolveFollowDirection` | `$EE7C` | ~18 B |
-| 24 | `ResolveFollowDirectionAlt` | `$EE8C` | ~228 B |
+| 23 | `ResolveFacingFromAxisBase` | `$EE7C` | ~18 B |
+| 24 | `ResolveFacingFromDiagonalBase` | `$EE8C` | ~228 B |
 | 25–40 | Direction handlers 0–15 | `$EF92`–`$F172` | ~33 B each |
 | 41 | `FollowDirectionTable` | `$EF72` | 32 B |
 | 42 | `FollowSlopeDitherTable` | `$F193` | 544 B |

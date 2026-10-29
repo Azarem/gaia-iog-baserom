@@ -30,7 +30,7 @@ Low-level **HDMA channel registration** and **linear DMA queueing** used by menu
 |----|------|-----:|--------|---------|---------|
 | `00` | `GenHdmaSine` | 2 | — | `GenHdmaSine` | Continue |
 | `01` | `QueueHdma` | 18 | `Address`, `Word` | `QueueHdma` | Continue |
-| `02` | `QueueDma` | 28 | `Address`, `Word` | `QueueDma` | Continue |
+| `02` | `QueueHdmaDirect` | 28 | `Address`, `Word` | `QueueHdmaDirect` | Continue |
 | `03` | `QueueHdmaChannel` | 3 | `Byte`, `Address`, `Word` | `QueueHdmaChannel` | Continue |
 
 **Family call-site total:** 51
@@ -136,10 +136,10 @@ COP [QueueHdma] ( $7E8C00, #10 )           ; native_village_sine_hdma.asm (with 
 
 ---
 
-#### COP [02] — `QueueDma` (queue linear DMA)
+#### COP [02] — `QueueHdmaDirect` (queue linear DMA)
 
-- **Preferred name:** `QueueDma`
-- **Handler:** `QueueDma` @ [`cop_handlers_collision.asm`](../../../extracted/system/engine/cop_handlers_collision.asm)
+- **Preferred name:** `QueueHdmaDirect`
+- **Handler:** `QueueHdmaDirect` @ [`cop_handlers_collision.asm`](../../../extracted/system/engine/cop_handlers_collision.asm)
 - **Usage count:** 28
 
 ##### What it does
@@ -147,7 +147,7 @@ COP [QueueHdma] ( $7E8C00, #10 )           ; native_village_sine_hdma.asm (with 
 Same operand shape as `[01]`, but calls `SetupHdmaChannel_Direct` for **non-indirect** DMA (VRAM/CGRAM bulk copies, window register bursts).
 
 ```asm
-QueueDma {
+QueueHdmaDirect {
     TYX
     LDA [$0A]
     INC $0A
@@ -168,8 +168,8 @@ QueueDma {
 Diary menu window masks (dominant caller), inventory DMA setup, angel tunnel windows, scene lifecycle blits.
 
 ```asm
-COP [QueueDma] ( @diary_band_empty, #26 )   ; system/diary_menu/diary_menu_window_dma.asm:27
-COP [QueueDma] ( @inventory_bg3vofs_table, #12 ) ; system/inventory/inventory_bg3_scroll_hdma.asm (BG3VOFS HDMA)
+COP [QueueHdmaDirect] ( @diary_band_empty, #26 )   ; system/diary_menu/diary_menu_window_dma.asm:27
+COP [QueueHdmaDirect] ( @inventory_bg3vofs_table, #12 ) ; system/inventory/inventory_bg3_scroll_hdma.asm (BG3VOFS HDMA)
 ```
 
 ##### Parameters & contract
@@ -204,11 +204,11 @@ QueueHdmaChannel {
 
 ##### How it is used
 
-Mode-7 perspective thinkers queue per-scanline matrix data with **`QueueDma`**: operand 2 is a **B-bus register index** (`#1B`–`#1E` → `$211B`–`$211E` / M7A–M7D), not an HDMA channel number. Four **`QueueDma`** calls bind the rebuilt tables each frame (`thinkers/mode7_perspective.asm`).
+Mode-7 perspective thinkers queue per-scanline matrix data with **`QueueHdmaDirect`**: operand 2 is a **B-bus register index** (`#1B`–`#1E` → `$211B`–`$211E` / M7A–M7D), not an HDMA channel number. Four **`QueueHdmaDirect`** calls bind the rebuilt tables each frame (`thinkers/mode7_perspective.asm`).
 
 ```asm
-COP [QueueDma] ( $tileStagingBuffer, #1B )   ; table A → M7A
-COP [QueueDma] ( $7E7800, #1C )              ; table B → M7B
+COP [QueueHdmaDirect] ( $tileStagingBuffer, #1B )   ; table A → M7A
+COP [QueueHdmaDirect] ( $7E7800, #1C )              ; table B → M7B
 ; … two more (table C → M7C, table A again → M7D)
 ```
 

@@ -499,7 +499,7 @@ code_0CF2D5 {
     BRA loc_0CF2E2
 
   loc_0CF2E2:
-    COP [ReloadMoveDurations]
+    COP [ReloadMoveChains]
     COP [StageSpriteFrame] ( #FF )
     COP [AnimOnce]
     LDA $16
@@ -961,11 +961,11 @@ code_0CEC65 {
     LDA $animScratch, X
     LSR 
     BCS loc_0CECFE
-    COP [QueueDma] ( $7E7C00, #26 )
+    COP [QueueHdmaDirect] ( $7E7C00, #26 )
     BRA loc_0CED04
 
   loc_0CECFE:
-    COP [QueueDma] ( $7E7E00, #26 )
+    COP [QueueHdmaDirect] ( $7E7E00, #26 )
 
   loc_0CED04:
     LDA $animScratch, X

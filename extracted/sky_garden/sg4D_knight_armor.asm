@@ -338,14 +338,14 @@ code_0AC35A {
   loc_0AC37B:
     LDA #$6000
     TRB $12
-    COP [ForceDirBoth] ( #01 )
+    COP [SetMoveNegateXY] ( #01 )
     COP [StageMoveX] ( #22 )
     RTS 
 
   loc_0AC387:
     LDA #$6000
     TRB $12
-    COP [ForceDirBoth] ( #01 )
+    COP [SetMoveNegateXY] ( #01 )
     COP [StageMoveY] ( #22 )
     RTS 
 

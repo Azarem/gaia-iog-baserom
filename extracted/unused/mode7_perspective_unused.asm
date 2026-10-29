@@ -14,7 +14,7 @@
 ; 
 ; 5. Underflow handling: Uses BCC/DEC $03 (borrow detection) instead of BCS/INC $03 (carry detection), matching the subtraction-based accumulation.
 ; 
-; 6. DMA command: Uses COP QueueHdma instead of COP QueueDma.
+; 6. DMA command: Uses COP QueueHdma instead of COP QueueHdmaDirect.
 ; 
 ; 7. NOP count: Quadrants 3/4 use only 4 NOPs (vs 6 in Q1/Q2) — fewer hardware divide delay cycles, potentially reading results too early on some hardware revisions.
 ; 
@@ -122,12 +122,12 @@ Mode7PerspectiveAlt {
 ---------------------------------------------
 ; RTS-trick return target — queues 4 HDMA transfers via COP QueueHdma.
 ; 
-; Identical register targets to the active version ($1B–$1E for M7A–M7D), but uses QueueHdma instead of QueueDma. Table A ($7E7000) is reused for both M7A ($1B) and M7D ($1E).
+; Identical register targets to the active version ($1B–$1E for M7A–M7D), but uses QueueHdma instead of QueueHdmaDirect. Table A ($7E7000) is reused for both M7A ($1B) and M7D ($1E).
 
 QueueMode7HdmaAlt {
     PLD 
     PLX 
-    COP [QueueHdma] ( $tileStagingBuffer, #1B ) ; Table A → HDMA channel $1B (M7A) via QueueHdma (not QueueDma)
+    COP [QueueHdma] ( $tileStagingBuffer, #1B ) ; Table A → HDMA channel $1B (M7A) via QueueHdma (not QueueHdmaDirect)
     COP [QueueHdma] ( $7E7800, #1C ) ; Table B → HDMA channel $1C (M7B)
     COP [QueueHdma] ( $7E8000, #1D ) ; Table C → HDMA channel $1D (M7C)
     COP [QueueHdma] ( $tileStagingBuffer, #1E ) ; Table A reused → channel $1E (M7D = A for rotation matrix)

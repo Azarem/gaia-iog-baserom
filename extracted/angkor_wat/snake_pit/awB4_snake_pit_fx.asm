@@ -14,7 +14,7 @@ awB4_snake_pit_fx [
   code_0897CE:
     COP [SetScratchPointer] ( @misc_fx_1CD380 )
     COP [SetMetasprite] ( @spriteset_snake_pit_fx )
-    COP [ResetSpriteState] ( #00, #$2020 )
+    COP [SetTileStreamAnim] ( #00, #$2020 )
     COP [AdvanceSpriteAnim]
     RTL 
 } >

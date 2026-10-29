@@ -775,7 +775,7 @@ code_09B121 {
     BRA code_09B134
 
   loc_09B132:
-    COP [ReloadMoveDurations]
+    COP [ReloadMoveChains]
 }
 
 code_09B134 {
@@ -784,7 +784,7 @@ code_09B134 {
     LDA $10
     BIT #$4000
     BEQ loc_09B132
-    COP [ReloadMoveDurations]
+    COP [ReloadMoveChains]
     COP [SetEntryHere]
     COP [AnimOnce]
     COP [Die]
@@ -1293,7 +1293,7 @@ code_09B500 {
     STA $moveYAlt, X
     LDA #$0008
     STA $moveXAlt, X
-    COP [ReloadMoveDurations]
+    COP [ReloadMoveChains]
     COP [StageSpriteLoop] ( #11, #20 )
     COP [AnimLoop]
     COP [StageMoveX] ( #08 )
@@ -1325,7 +1325,7 @@ code_09B541 {
     STA $moveYAlt, X
     LDA #$0007
     STA $moveXAlt, X
-    COP [ReloadMoveDurations]
+    COP [ReloadMoveChains]
     COP [StageSpriteLoop] ( #91, #20 )
     COP [AnimLoop]
     COP [StageMoveX] ( #07 )
@@ -1657,7 +1657,7 @@ code_09B7A8 {
     COP [SetSpritePriority] ( #30 )
     COP [StageSpriteFrame] ( #14 )
     COP [AnimOnce]
-    COP [ReloadMoveDurations]
+    COP [ReloadMoveChains]
     COP [StageSpriteFrame] ( #17 )
     COP [AnimOnce]
     LDA #$0200

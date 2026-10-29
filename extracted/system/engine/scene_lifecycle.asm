@@ -14,7 +14,7 @@
 ; 
 ; === VISUAL TRANSITIONS ===
 ; 
-; ScreenExitTransition and ScreenEnterTransition each support 4–5 transition effect types. The exit type is the low byte of gfxCacheIdxA ($0648) and the enter type is its high byte ($0649); the speed (frame delay) is likewise the low byte of gfxCacheIdxB ($064A) for exit and its high byte ($064B) for enter. Cutscene scripts write these words before COP QueueMapChange and ExecuteSceneTransition clears them afterwards, so despite the names they are transition parameters, not graphics-cache indices (rename proposed in the audit log):
+; ScreenExitTransition and ScreenEnterTransition each support 4–5 transition effect types. The exit type is the low byte of gfxCacheIdxA ($0648) and the enter type is its high byte ($0649); the speed (frame delay) is likewise the low byte of gfxCacheIdxB ($064A) for exit and its high byte ($064B) for enter. Cutscene scripts write these words before COP QueueMapChange and ExecuteSceneTransition clears them afterwards, so despite the names they are transition parameters, not graphics-cache indices:
 ; - Type 0: Graduated brightness fade (frame delay per brightness step = speed byte)
 ; - Type 1: Instant blank/display
 ; - Type 2: Mosaic dissolve with brightness fade
@@ -29,7 +29,7 @@
 ; - SceneScriptMain: parse scene definition (tileset, tilemap, music, display config)
 ; - InitCameraBounds: set camera limits from map geometry or custom packed bounds
 ; - ApplyAllEventBlocks: apply persistent tile modifications from event flags
-; - PlaceOpenedChestTiles: place barrier collision tiles
+; - PlaceOpenedChestTiles: redraw the chests of scene_chest_table whose event flag is set as open chests in the map
 ; - Actor/thinker spawning and initialization via actor_execution
 ; - LoadScenePalettes / LoadPlayerGraphics: character/form-dependent resource loading
 ; - CameraFullRefresh or RenderPaletteTiles: initial tilemap rendering depending on scroll mode
@@ -764,7 +764,7 @@ ScreenEnterTransition {
 ; 2. SceneScriptMain — parse scene script (loads tileset, tilemap, music, display config)
 ; 3. InitCameraBounds — set camera limits from map bounds or custom $0652 data
 ; 4. ApplyAllEventBlocks — apply persistent event-driven tile changes
-; 5. PlaceOpenedChestTiles — write barrier collision tiles to map
+; 5. PlaceOpenedChestTiles — write the open-chest tiles of every chest whose event flag is set (records of scene_chest_table) to the map
 ; 6. InitActorPool — reset actor/thinker pools
 ; 7. SpawnSceneActors — instantiate actors from scene definition table
 ; 8. DisplaySceneTitle — display centered area name overlay if entering a new scene
@@ -861,7 +861,7 @@ ClearSceneState {
     STA $COLDATA          ; Re-apply COLDATA=$E0 after window setup
     JSL $@vram_buffer_clear.ClearVramBufferFull ; Zero the BG3 staging buffer, then parse the scene script
     JSL $@scene_script.SceneScriptMain
-    JSL $@InitCameraBounds ; Init camera bounds, apply event blocks, place barriers
+    JSL $@InitCameraBounds ; Init camera bounds, apply event blocks, redraw opened chests
     JSL $@event_blocks.ApplyAllEventBlocks
     JSL $@warps_interaction.PlaceOpenedChestTiles
     LDX #$0000            ; Clear joypad state before actor spawning

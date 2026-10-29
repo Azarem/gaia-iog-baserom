@@ -128,10 +128,10 @@ Families are grouped by **shared handlers / purpose / WRAM**, not by jump-table 
 | `$3D` ↔ `$3E` | `KillThinker` (thinker) vs `WaitForButton` (input) |
 | `$41` ↔ `$42` | `BranchIfNotPressed` (input) vs `SetCollisionAbs` (collision paint) |
 | `$49` ↔ `$4A` | `BranchIfBodyNe` (player query) vs `ResumeAfterSnap` (movement) |
-| `$4E` ↔ `$4F` | `WorldMapStream4` (metatile) vs `AdhocVramDma` (VRAM) |
+| `$4E` ↔ `$4F` | `DrawMetatileStreamDelay` (metatile) vs `AdhocVramDma` (VRAM) |
 | `$56` ↔ `$57` | `AdvanceSpriteAnim` (sprite state) vs `SetDeathCallback` (callbacks) |
 | `$5E` ↔ `$5F` | `SetCustomCallback` (callbacks) vs `InitSineHdma` (sine HDMA) |
-| `$62` ↔ `$63` | `BranchIfCollisionTypeNe` (collision branch) vs `InitGravity` (gravity) |
+| `$62` ↔ `$63` | `BranchIfCollisionTypeEq` (collision branch) vs `InitGravity` (gravity) |
 | `$67` ↔ `$68` | `StageWorldMapMoveIds` (map transition) vs `BranchIfOffCamera` (offscreen) |
 | `$6A` ↔ `$6B` | `SetLinkedEntryPtr` (linked actor) vs `PrintDialogStringAlt` (dialog) |
 | `$6D` ↔ `$6E` | `SpiralStep` (spiral) vs garbage jump table entries |
@@ -139,7 +139,7 @@ Families are grouped by **shared handlers / purpose / WRAM**, not by jump-table 
 | `$98` ↔ `$99` | `WallAnimSouth` (player sprite) vs `SpawnBefore` (actor spawn) |
 | `$A6` ↔ `$A7` | `SpawnListAppendSpr` (spawn) vs `MarkDeath` (death) |
 | `$A9` ↔ `$AA` | `KillNext` (death) vs `StageMoveX` (force move) |
-| `$B1` ↔ `$B2` | `ReloadMoveDurations` (force move) vs `SetPriorityMax` (OAM) |
+| `$B1` ↔ `$B2` | `ReloadMoveChains` (force move) vs `SetPriorityMax` (OAM) |
 | `$BB` ↔ `$BC` | `SetHMirror` (OAM) vs `NudgePosition` (position family) |
 | `$BC` ↔ `$BD` | `NudgePosition` (position) vs `RunBg3Script` (dialog) |
 | `$BF` ↔ `$C0` | `PrintDialogString` (dialog) vs `SetInteractHandler` (script control) |
@@ -161,7 +161,7 @@ Every valid COP opcode with its parameters, family link, and a short description
 |----|------|--------|--------|-------------|
 | `$00` | `GenHdmaSine` | — | [hdma_dma](families/hdma_dma.md) | Generate sine-wave HDMA table for wavy screen effects |
 | `$01` | `QueueHdma` | `@dma_data, Byte` | [hdma_dma](families/hdma_dma.md) | Queue an HDMA transfer from a far pointer |
-| `$02` | `QueueDma` | `@dma_data, Byte` | [hdma_dma](families/hdma_dma.md) | Queue a general DMA transfer from a far pointer |
+| `$02` | `QueueHdmaDirect` | `@dma_data, Byte` | [hdma_dma](families/hdma_dma.md) | Queue a general DMA transfer from a far pointer |
 | `$03` | `QueueHdmaChannel` | `Byte, Address, Byte` | [hdma_dma](families/hdma_dma.md) | Configure a specific HDMA channel with register and source |
 | `$04` | `StartMusic` | `Byte` | [audio](families/audio.md) | Begin playing a music track by ID |
 | `$05` | `FadeThenStartMusic` | `Byte` | [audio](families/audio.md) | Fade out current music, then start a new track |
@@ -236,15 +236,15 @@ Every valid COP opcode with its parameters, family link, and a short description
 | `$4A` | `ResumeAfterSnap` | — | [movement](families/movement.md) | Resume script execution after a SnapToGrid completes |
 | `$4B` | `DrawMetatileAbs` | `Byte tileX, Byte tileY, Byte Metatile` | [metatile](families/metatile.md) | Draw a 2×2 metatile at absolute tile coords |
 | `$4C` | `DrawMetatileHere` | `Byte Metatile` | [metatile](families/metatile.md) | Draw a 2×2 metatile at actor's current position |
-| `$4D` | `WorldMapStream3` | `Word DataOffset` | [metatile](families/metatile.md) | Stream metatile data for world map (variant 3) |
-| `$4E` | `WorldMapStream4` | `Word DataOffset` | [metatile](families/metatile.md) | Stream metatile data for world map (variant 4) |
+| `$4D` | `DrawMetatileStream` | `Word DataOffset` | [metatile](families/metatile.md) | Stream metatile data for world map (variant 3) |
+| `$4E` | `DrawMetatileStreamDelay` | `Word DataOffset` | [metatile](families/metatile.md) | Stream metatile data for world map (variant 4) |
 | `$4F` | `AdhocVramDma` | `Address Src, Word Size, Word VramWord` | [vram_memory](families/vram_memory.md) | DMA arbitrary data into VRAM at a word address |
 | `$50` | `CopyPalette` | `Address Src, Byte OffsW, Byte PalWord, Byte SizeW` | [vram_memory](families/vram_memory.md) | Copy palette colors from ROM into CGRAM mirror |
 | `$51` | `Decompress` | `Address Src, Address Dest` | [vram_memory](families/vram_memory.md) | Decompress (or copy) data from ROM to RAM/VRAM |
 | `$52` | `StageMove` | `Byte SpriteId, Byte Speed, Byte MaxTime` | [movement](families/movement.md) | Begin a timed movement toward another sprite |
 | `$53` | `TickMove` | — | [movement](families/movement.md) | Advance one frame of a staged movement |
 | `$54` | `SetScratchPointer` | `Address` | [vram_memory](families/vram_memory.md) | Set the scratch/work pointer for later DMA ops |
-| `$55` | `ResetSpriteState` | `Byte Spr, Word New24` | [sprite_state](families/sprite_state.md) | Reset sprite index and control word `$24` |
+| `$55` | `SetTileStreamAnim` | `Byte Spr, Word New24` | [sprite_state](families/sprite_state.md) | Reset sprite index and control word `$24` |
 | `$56` | `AdvanceSpriteAnim` | — | [sprite_state](families/sprite_state.md) | Step the current sprite animation one frame forward |
 | `$57` | `SetDeathCallback` | `@Code OnDeath` | [callbacks](families/callbacks.md) | Register a far handler called when actor dies |
 | `$58` | `SetHitCallback` | `&Code OnHit` | [callbacks](families/callbacks.md) | Register a near handler called when actor is hit |
@@ -257,7 +257,7 @@ Every valid COP opcode with its parameters, family link, and a short description
 | `$5F` | `InitSineHdma` | `Word Base, Byte BytesPerPeriod` | [sine_hdma](families/sine_hdma.md) | Initialize sine-wave HDMA parameters |
 | `$60` | `TickSineHdma` | `Byte Delay, Byte ScrollLayer` | [sine_hdma](families/sine_hdma.md) | Advance sine HDMA one step and apply to BG layer |
 | `$61` | `BindSineHdma` | `Address Src, Byte Reg` | [sine_hdma](families/sine_hdma.md) | Bind a sine HDMA source address to a PPU register |
-| `$62` | `BranchIfCollisionTypeNe` | `Byte Nibble, &Code` | [collision_branch](families/collision_branch.md) | Branch if collision type nibble ≠ Nibble |
+| `$62` | `BranchIfCollisionTypeEq` | `Byte Nibble, &Code` | [collision_branch](families/collision_branch.md) | Branch if collision type nibble ≠ Nibble |
 | `$63` | `InitGravity` | `Byte InitSpeed, Byte NegLogA, Byte GndTilePos` | [gravity](families/gravity.md) | Initialize gravity simulation with speed and ground |
 | `$64` | `TickGravity` | — | [gravity](families/gravity.md) | Advance one frame of gravity (fall/bounce) |
 | `$65` | `StageWorldMapMove` | `Word PosX, Word PosY, Byte Dummy, Byte WMapMoveId` | [map_transition](families/map_transition.md) | Stage a world-map move to a position |
@@ -286,9 +286,9 @@ Every valid COP opcode with its parameters, family link, and a short description
 | `$8D` | `StageSprAndHitbox` | `Byte Spr` | [sprite_staging](families/sprite_staging.md) | Stage sprite and attach a hitbox for collision |
 | `$8E` | `SetPlayerSpriteDirect` | `Byte PlayerSpr` | [player_sprite](families/player_sprite.md) | Set the player sprite index directly |
 | `$8F` | `StagePlayerSprite` | `Byte BodySpr` | [player_sprite](families/player_sprite.md) | Stage a player body sprite frame |
-| `$90` | `StagePlayerSpriteMoveX` | `Byte BodySpr, Byte XMove` | [player_sprite](families/player_sprite.md) | Stage player sprite with horizontal movement |
-| `$91` | `StagePlayerSpriteMoveY` | `Byte BodySpr, Byte YMove` | [player_sprite](families/player_sprite.md) | Stage player sprite with vertical movement |
-| `$92` | `StagePlayerSpriteMoveXY` | `Byte BodySpr, Byte XMove, Byte YMove` | [player_sprite](families/player_sprite.md) | Stage player sprite with X+Y movement |
+| `$90` | `StagePlayerMoveX` | `Byte BodySpr, Byte XMove` | [player_sprite](families/player_sprite.md) | Stage player sprite with horizontal movement |
+| `$91` | `StagePlayerMoveY` | `Byte BodySpr, Byte YMove` | [player_sprite](families/player_sprite.md) | Stage player sprite with vertical movement |
+| `$92` | `StagePlayerMoveXY` | `Byte BodySpr, Byte XMove, Byte YMove` | [player_sprite](families/player_sprite.md) | Stage player sprite with X+Y movement |
 | `$93` | `RunPlayerAnim` | — | [player_sprite](families/player_sprite.md) | Run the full player animation sequence |
 | `$94` | `StagePlayerSprWall` | `…, Byte WallType` | [player_sprite](families/player_sprite.md) | Stage player sprite and activate a wall-type animation |
 | `$95` | `StagePlayerSprFromDP` | — | [player_sprite](families/player_sprite.md) | Stage player sprite using values from direct page |
@@ -315,11 +315,11 @@ Every valid COP opcode with its parameters, family link, and a short description
 | `$AA` | `StageMoveX` | `Byte XMove` | [force_move](families/force_move.md) | Stage horizontal forced movement |
 | `$AB` | `StageMoveY` | `Byte YMove` | [force_move](families/force_move.md) | Stage vertical forced movement |
 | `$AC` | `StageMoveXY` | `Byte XMove, Byte YMove` | [force_move](families/force_move.md) | Stage both X and Y forced movement |
-| `$AD` | `ForceDirSW` | `Byte` | [force_move](families/force_move.md) | Force movement direction bits (south/west) |
-| `$AE` | `ForceDirNE` | `Byte` | [force_move](families/force_move.md) | Force movement direction bits (north/east) |
-| `$AF` | `ForceDirBoth` | `Byte` | [force_move](families/force_move.md) | Force both direction bytes simultaneously |
+| `$AD` | `SetMoveNegateX` | `Byte` | [force_move](families/force_move.md) | Force movement direction bits (south/west) |
+| `$AE` | `SetMoveNegateY` | `Byte` | [force_move](families/force_move.md) | Force movement direction bits (north/east) |
+| `$AF` | `SetMoveNegateXY` | `Byte` | [force_move](families/force_move.md) | Force both direction bytes simultaneously |
 | `$B0` | `ApplyMoveToChild` | `Byte XMove, Byte YMove` | [force_move](families/force_move.md) | Apply forced movement to the linked child actor |
-| `$B1` | `ReloadMoveDurations` | — | [force_move](families/force_move.md) | Re-read move duration table for current speed index |
+| `$B1` | `ReloadMoveChains` | — | [force_move](families/force_move.md) | Re-read move duration table for current speed index |
 | `$B2` | `SetPriorityMax` | — | [oam_attribs](families/oam_attribs.md) | Force actor sprites to highest OAM priority |
 | `$B3` | `SetPriorityMin` | — | [oam_attribs](families/oam_attribs.md) | Force actor sprites to lowest OAM priority |
 | `$B4` | `ClearPriorityMax` | — | [oam_attribs](families/oam_attribs.md) | Remove forced highest priority |

@@ -213,7 +213,7 @@ code_list_0AE4D7 [
 - **Does:** Queue HDMA (indirect) to B-bus register `Reg` on the next free channel.
 - **How:** `JSL SetupHdmaChannel_Indirect` (sets `DMAP` with `$40`, `A1T`, `BBAD`, advances `$006A`, enables `$0066`).
 
-#### `$02` — `QueueDma`
+#### `$02` — `QueueHdmaDirect`
 - **Handler:** `cop_handler_02_0086A0`
 - **Params:** `@dma_data Src`, `Byte Reg`
 - **Does:** Queue general DMA (not HDMA-indirect).
@@ -314,7 +314,7 @@ Collision bytes live in WRAM `$7FC000` (indexed via `TileCoordsToMapIndex` / pro
 | `$1D` | `BranchIfSolidTypeWest` | `$008B6F` | West |
 | `$1E` | `BranchIfSolidTypeEast` | `$008BA6` | East |
 
-#### `$62` — `BranchIfCollisionTypeNe`
+#### `$62` — `BranchIfCollisionTypeEq`
 - **Handler:** `cop_handler_62_009B41`
 - **Params:** `Byte Nibble`, `&Code`
 - **Does:** Branch if collision **low nibble ≠ Nibble** (not a duplicate of `$1A`).
@@ -553,12 +553,12 @@ Wiki “exit if …” = yield actor until condition (same as halt/retry).
 - **Params:** `Byte Metatile`
 - **Does:** Same at actor `$14/$16`. *(Wiki “unknown” — resolved.)*
 
-#### `$4D` — `WorldMapStream3`
+#### `$4D` — `DrawMetatileStream`
 - **Handler:** `cop_handler_4D_009703`
 - **Params:** `Word DataOffset`
 - **Does:** Multi-frame 3-byte record stream from script bank; draws via shared `ResolveTileData`; **halts** between records. Terminal record has MSB set.
 
-#### `$4E` — `WorldMapStream4`
+#### `$4E` — `DrawMetatileStreamDelay`
 - **Handler:** `cop_handler_4E_009774`
 - **Params:** `Word DataOffset`
 - **Does:** Like `$4D` with 4-byte records (extra attribute → actor `$08`).
@@ -629,7 +629,7 @@ Wiki “exit if …” = yield actor until condition (same as halt/retry).
 
 | Op | Name | Handler | Params | Effect |
 |---|---|---|---|---|
-| `$55` | `ResetSpriteState` | `$0099DA` | `Byte Spr`, `Word New24` | Reset sprite (`$80`-like) + set `$24`/`$28`/`$2A` scratch |
+| `$55` | `SetTileStreamAnim` | `$0099DA` | `Byte Spr`, `Word New24` | Reset sprite (`$80`-like) + set `$24`/`$28`/`$2A` scratch |
 | `$56` | `AdvanceSpriteAnim` | `$0099F5` | — | Advance global sprite anim table; halt while VRAM busy |
 | `$57` | `SetDeathCallback` | `$009A67` | `@Code OnDeath` | `$7F1004` die ptr (+ bank byte) |
 | `$58` | `SetHitCallback` | `$009A82` | `&Code OnHit` | `$7F1000` |
@@ -757,9 +757,9 @@ Same staging model as `$80`+, but body lookup goes through `$0AD4` / `body_table
 |---|---|---|---|---|
 | `$8E` | `SetPlayerSpriteDirect` | `$00A036` | `Byte PlayerSpr` | Direct body-table index; sets `$player_flags` `$8000` |
 | `$8F` | `StagePlayerSprite` | `$00A06B` | `Byte BodySpr` | Stage normal player sprite for current body |
-| `$90` | `StagePlayerSpriteMoveX` | `$00A081` | + `Byte XMove` | Player walk staging (pair with `$93`) |
-| `$91` | `StagePlayerSpriteMoveY` | `$00A0A7` | + `Byte YMove` | Player walk staging (pair with `$93`) |
-| `$92` | `StagePlayerSpriteMoveXY` | `$00A0CD` | + `Byte XMove`, `Byte YMove` | Player walk staging (pair with `$93`) |
+| `$90` | `StagePlayerMoveX` | `$00A081` | + `Byte XMove` | Player walk staging (pair with `$93`) |
+| `$91` | `StagePlayerMoveY` | `$00A0A7` | + `Byte YMove` | Player walk staging (pair with `$93`) |
+| `$92` | `StagePlayerMoveXY` | `$00A0CD` | + `Byte XMove`, `Byte YMove` | Player walk staging (pair with `$93`) |
 | `$93` | `RunPlayerAnim` | `$00A103` | — | Run player anim once (like `$89`) |
 | `$94` | `StagePlayerSprWall` | `$00A119` | `…`, `Byte WallType` | Like `$92`; saves WallType to `$09B0` for `$96`–`$98` |
 | `$95` | `StagePlayerSprFromDP` | `$00A159` | — | Like `$8F` using `$0000` low byte as BodySpr |
@@ -827,11 +827,11 @@ After spawn, scripts often write extra fields through `Y` (`STA $0026, Y` for a 
 | `$AA` | `StageMoveX` | `$00A6C1` | Stage X force-move duration | Push/pull without a full `$80` anim stage |
 | `$AB` | `StageMoveY` | `$00A6D7` | Stage Y force-move duration | Push/pull without a full `$80` anim stage |
 | `$AC` | `StageMoveXY` | `$00A6ED` | Stage X+Y force-move durations | Push/pull without a full `$80` anim stage |
-| `$AD` | `ForceDirSW` | `$00A713` | Force SW via `$12` bit `$4000` | Make `$81`–`$87` move the “wrong” way |
-| `$AE` | `ForceDirNE` | `$00A731` | Force NE via `$12` bit `$2000` | Make `$81`–`$87` move the “wrong” way |
-| `$AF` | `ForceDirBoth` | `$00A74F` | Force both via `$12` bits `$6000` | Make `$81`–`$87` move the “wrong” way |
+| `$AD` | `SetMoveNegateX` | `$00A713` | Force SW via `$12` bit `$4000` | Make `$81`–`$87` move the “wrong” way |
+| `$AE` | `SetMoveNegateY` | `$00A731` | Force NE via `$12` bit `$2000` | Make `$81`–`$87` move the “wrong” way |
+| `$AF` | `SetMoveNegateXY` | `$00A74F` | Force both via `$12` bits `$6000` | Make `$81`–`$87` move the “wrong” way |
 | `$B0` | `ApplyMoveToChild` | `$00A76D` | Apply durations to last child (`$0058`) | Parent drives child’s slide |
-| `$B1` | `ReloadMoveDurations` | `$00A799` | Reload `$2C/$2E` from saved durations | Resume a saved force-move |
+| `$B1` | `ReloadMoveChains` | `$00A799` | Reload `$2C/$2E` from saved durations | Resume a saved force-move |
 
 `$E0` vs `$A7`: cutscene one-shots almost always `$E0`. Boss pieces that must finish an explosion frame use `$A7`.
 
@@ -1149,7 +1149,7 @@ Every valid COP opcode, its canonical name, handler SNES address, and parameter 
 |---|---|---|---|
 | `$00` | `GenHdmaSine` | `$00864E` | — |
 | `$01` | `QueueHdma` | `$008689` | `@dma_data Src`, `Byte Reg` |
-| `$02` | `QueueDma` | `$0086A0` | `@dma_data Src`, `Byte Reg` |
+| `$02` | `QueueHdmaDirect` | `$0086A0` | `@dma_data Src`, `Byte Reg` |
 | `$03` | `QueueHdmaChannel` | `$0086B7` | `Byte Channel`, `Address Src`, `Byte Reg` |
 | `$04` | `StartMusic` | `$008714` | `Byte MusicId` |
 | `$05` | `FadeThenStartMusic` | `$008749` | `Byte MusicId` |
@@ -1224,15 +1224,15 @@ Every valid COP opcode, its canonical name, handler SNES address, and parameter 
 | `$4A` | `ResumeAfterSnap` | `$008E19` | — |
 | `$4B` | `DrawMetatileAbs` | `$009685` | `Byte tileX`, `Byte tileY`, `Byte Metatile` |
 | `$4C` | `DrawMetatileHere` | `$0096CA` | `Byte Metatile` |
-| `$4D` | `WorldMapStream3` | `$009703` | `Word DataOffset` |
-| `$4E` | `WorldMapStream4` | `$009774` | `Word DataOffset` |
+| `$4D` | `DrawMetatileStream` | `$009703` | `Word DataOffset` |
+| `$4E` | `DrawMetatileStreamDelay` | `$009774` | `Word DataOffset` |
 | `$4F` | `AdhocVramDma` | `$0098B8` | `Address Src`, `Word Size`, `Word VramWord` |
 | `$50` | `CopyPalette` | `$009930` | `Address Src`, `Byte OffsW`, `Byte PalWord`, `Byte SizeW` |
 | `$51` | `Decompress` | `$00997B` | `Address Src`, `Address Dest` |
 | `$52` | `StageMove` | `$008E36` | `Byte SpriteId`, `Byte Speed`, `Byte MaxTime` |
 | `$53` | `TickMove` | `$008F0D` | — |
 | `$54` | `SetScratchPointer` | `$0099BF` | `Address` |
-| `$55` | `ResetSpriteState` | `$0099DA` | `Byte Spr`, `Word New24` |
+| `$55` | `SetTileStreamAnim` | `$0099DA` | `Byte Spr`, `Word New24` |
 | `$56` | `AdvanceSpriteAnim` | `$0099F5` | — |
 | `$57` | `SetDeathCallback` | `$009A67` | `@Code OnDeath` |
 | `$58` | `SetHitCallback` | `$009A82` | `&Code OnHit` |
@@ -1245,7 +1245,7 @@ Every valid COP opcode, its canonical name, handler SNES address, and parameter 
 | `$5F` | `InitSineHdma` | `$009B89` | `Word Base`, `Byte BytesPerPeriod` |
 | `$60` | `TickSineHdma` | `$009C3A` | `Byte Delay`, `Byte ScrollLayer` |
 | `$61` | `BindSineHdma` | `$009C91` | `Address Src`, `Byte Reg` |
-| `$62` | `BranchIfCollisionTypeNe` | `$009B41` | `Byte Nibble`, `&Code` |
+| `$62` | `BranchIfCollisionTypeEq` | `$009B41` | `Byte Nibble`, `&Code` |
 | `$63` | `InitGravity` | `$009CB4` | `Byte InitSpeed`, `Byte NegLogA`, `Byte GndTilePos` |
 | `$64` | `TickGravity` | `$009CFA` | — |
 | `$65` | `StageWorldMapMove` | `$009D52` | `Word PosX`, `Word PosY`, `Byte Dummy`, `Byte WMapMoveId` |
@@ -1274,9 +1274,9 @@ Every valid COP opcode, its canonical name, handler SNES address, and parameter 
 | `$8D` | `StageSprAndHitbox` | `$00A01E` | `Byte Spr` |
 | `$8E` | `SetPlayerSpriteDirect` | `$00A036` | `Byte PlayerSpr` |
 | `$8F` | `StagePlayerSprite` | `$00A06B` | `Byte BodySpr` |
-| `$90` | `StagePlayerSpriteMoveX` | `$00A081` | `Byte BodySpr`, `Byte XMove` |
-| `$91` | `StagePlayerSpriteMoveY` | `$00A0A7` | `Byte BodySpr`, `Byte YMove` |
-| `$92` | `StagePlayerSpriteMoveXY` | `$00A0CD` | `Byte BodySpr`, `Byte XMove`, `Byte YMove` |
+| `$90` | `StagePlayerMoveX` | `$00A081` | `Byte BodySpr`, `Byte XMove` |
+| `$91` | `StagePlayerMoveY` | `$00A0A7` | `Byte BodySpr`, `Byte YMove` |
+| `$92` | `StagePlayerMoveXY` | `$00A0CD` | `Byte BodySpr`, `Byte XMove`, `Byte YMove` |
 | `$93` | `RunPlayerAnim` | `$00A103` | — |
 | `$94` | `StagePlayerSprWall` | `$00A119` | `…`, `Byte WallType` |
 | `$95` | `StagePlayerSprFromDP` | `$00A159` | — |
@@ -1303,11 +1303,11 @@ Every valid COP opcode, its canonical name, handler SNES address, and parameter 
 | `$AA` | `StageMoveX` | `$00A6C1` | `Byte XMove` |
 | `$AB` | `StageMoveY` | `$00A6D7` | `Byte YMove` |
 | `$AC` | `StageMoveXY` | `$00A6ED` | `Byte XMove`, `Byte YMove` |
-| `$AD` | `ForceDirSW` | `$00A713` | `Byte` |
-| `$AE` | `ForceDirNE` | `$00A731` | `Byte` |
-| `$AF` | `ForceDirBoth` | `$00A74F` | `Byte` |
+| `$AD` | `SetMoveNegateX` | `$00A713` | `Byte` |
+| `$AE` | `SetMoveNegateY` | `$00A731` | `Byte` |
+| `$AF` | `SetMoveNegateXY` | `$00A74F` | `Byte` |
 | `$B0` | `ApplyMoveToChild` | `$00A76D` | `Byte XMove`, `Byte YMove` |
-| `$B1` | `ReloadMoveDurations` | `$00A799` | — |
+| `$B1` | `ReloadMoveChains` | `$00A799` | — |
 | `$B2` | `SetPriorityMax` | `$00A7B3` | — |
 | `$B3` | `SetPriorityMin` | `$00A7BE` | — |
 | `$B4` | `ClearPriorityMax` | `$00A7C9` | — |

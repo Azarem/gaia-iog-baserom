@@ -95,7 +95,7 @@ SetActorBody {
 
 ; Internal JSR helper: A = movement index → A = move_chain_table[A×2].
 ; 
-; The returned word is the head pointer of a movement delta chain (a linked list of signed per-frame deltas), not a frame duration. Callers store it in $2C (X chain) or $2E (Y chain): StageMoveX/Y/XY, ForceDirSW/NE/Both and ReloadMoveDurations in cop_handlers_force_move.
+; The returned word is the head pointer of a movement delta chain (a linked list of signed per-frame deltas), not a frame duration. Callers store it in $2C (X chain) or $2E (Y chain): StageMoveX/Y/XY, SetMoveNegateX/NE/Both and ReloadMoveChains in cop_handlers_force_move.
 
 AnimFrameLookup {
     ASL                   ; Double index for word-sized table access (move_chain_table)

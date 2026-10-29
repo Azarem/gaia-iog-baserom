@@ -64,7 +64,7 @@ code_0AD060 {
     COP [SetSpritePriority] ( #30 )
 
   loc_0AD06D:
-    COP [ReloadMoveDurations]
+    COP [ReloadMoveChains]
     COP [StageSpriteFrame] ( #06 )
     COP [AnimOnce]
     LDA $16
@@ -82,7 +82,7 @@ code_0AD07A {
     BCS loc_0AD098
 
   loc_0AD08B:
-    COP [ReloadMoveDurations]
+    COP [ReloadMoveChains]
     COP [StageSpriteFrame] ( #07 )
     COP [AnimOnce]
     LDA $16
@@ -90,7 +90,7 @@ code_0AD07A {
     COP [Die]
 
   loc_0AD098:
-    COP [ReloadMoveDurations]
+    COP [ReloadMoveChains]
     COP [StageSpriteFrame] ( #08 )
     COP [AnimOnce]
     LDA $16

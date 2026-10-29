@@ -18,7 +18,7 @@ Utility routines supporting metatile drawing, world-map streaming, sprite stagin
 
 Parses a 3-byte map entry from the world-map stream at index X (direct-page offset). Returns **carry set** if the entry is invalid (end-of-stream marker — high bit of byte 0 set). On success, extracts tile coordinates, sign-extends them to 16-bit, scales by 16 to produce pixel coordinates, and stores the metatile/collision type byte.
 
-Called by COP `$4D` (WorldMapStream3) and `$4E` (WorldMapStream4) for each entry in a compressed map modification stream.
+Called by COP `$4D` (DrawMetatileStream) and `$4E` (DrawMetatileStreamDelay) for each entry in a compressed map modification stream.
 
 #### Algorithm
 
@@ -60,8 +60,8 @@ Called by COP `$4D` (WorldMapStream3) and `$4E` (WorldMapStream4) for each entry
 
 | Symbol | Relationship |
 |--------|--------------|
-| `WorldMapStream3` (COP `$4D`) | Caller |
-| `WorldMapStream4` (COP `$4E`) | Caller |
+| `DrawMetatileStream` (COP `$4D`) | Caller |
+| `DrawMetatileStreamDelay` (COP `$4E`) | Caller |
 | `ResolveTileData` | Called immediately after successful parse |
 
 ---
@@ -117,8 +117,8 @@ Called by all metatile drawing COPs ($4B–$4E) after coordinates are establishe
 |--------|--------------|
 | `DrawMetatileAbs` (COP `$4B`) | Caller |
 | `DrawMetatileHere` (COP `$4C`) | Caller |
-| `WorldMapStream3` (COP `$4D`) | Caller |
-| `WorldMapStream4` (COP `$4E`) | Caller |
+| `DrawMetatileStream` (COP `$4D`) | Caller |
+| `DrawMetatileStreamDelay` (COP `$4E`) | Caller |
 | `TileCoordsToMapIndex` (Bank $02) | Map coord → WRAM index |
 | `PixelToVramAddress` (Bank $02) | Pixel coord → VRAM address |
 | `TileQueryGate` | Called after this to check `$0902` |
@@ -181,8 +181,8 @@ TileQueryGate {
 |--------|--------------|
 | `DrawMetatileAbs` (COP `$4B`) | Caller |
 | `DrawMetatileHere` (COP `$4C`) | Caller |
-| `WorldMapStream3` (COP `$4D`) | Caller |
-| `WorldMapStream4` (COP `$4E`) | Caller |
+| `DrawMetatileStream` (COP `$4D`) | Caller |
+| `DrawMetatileStreamDelay` (COP `$4E`) | Caller |
 | `ResolveTileData` | Sets `$0902` before gate check |
 
 ---
@@ -290,10 +290,10 @@ AnimFrameLookup {
 |--------|--------------|
 | `StageSpriteMoveX/Y/XY` (COP `$81`–`83`) | Callers |
 | `StageSpriteLoopMoveX/Y/XY` (COP `$85`–`87`) | Callers |
-| `StagePlayerSpriteMoveX/Y/XY` (COP `$90`–`92`) | Callers |
+| `StagePlayerMoveX/Y/XY` (COP `$90`–`92`) | Callers |
 | `StageMoveX/Y/XY` (COP `$AA`–`AC`) | Callers — force-move durations |
 | `ApplyMoveToChild` (COP `$B0`) | Caller |
-| `ReloadMoveDurations` (COP `$B1`) | Caller |
+| `ReloadMoveChains` (COP `$B1`) | Caller |
 
 ---
 
@@ -473,7 +473,7 @@ SetActorBody {
 | Symbol | Relationship |
 |--------|--------------|
 | `StagePlayerSprite` (COP `$8F`) | Caller |
-| `StagePlayerSpriteMoveX/Y/XY` (COP `$90`–`92`) | Callers |
+| `StagePlayerMoveX/Y/XY` (COP `$90`–`92`) | Callers |
 | `StagePlayerSprWall` (COP `$94`) | Caller |
 | `StagePlayerSprFromDP` (COP `$95`) | Caller |
 | `BuildSineHdmaTable` | Consumer of `$7F0006,X`/`$7F0008,X` |

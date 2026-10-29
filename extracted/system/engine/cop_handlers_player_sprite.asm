@@ -1,6 +1,6 @@
-; COP handlers for the player's body spriteset and player-specific animation staging (Bank 00, 11 handlers, COP #8E-#98). The copdef names for #90-#92 are StagePlayerMoveX/Y/XY (the labels here are StagePlayerSpriteMoveX/Y/XY).
+; COP handlers for the player's body spriteset and player-specific animation staging (Bank 00, 11 handlers, COP #8E-#98). The copdef names for #90-#92 are StagePlayerMoveX/Y/XY (the labels here are StagePlayerMoveX/Y/XY).
 ; 
-; Script sites: SetPlayerSpriteDirect 24, StagePlayerSprite 93, StagePlayerSpriteMoveX 2, MoveY 21, MoveXY 9, RunPlayerAnim 8, StagePlayerSprFromDP 8 (all in forced_walk). StagePlayerSprWall and WallAnimHere/North/South have no script sites.
+; Script sites: SetPlayerSpriteDirect 24, StagePlayerSprite 93, StagePlayerMoveX 2, MoveY 21, MoveXY 9, RunPlayerAnim 8, StagePlayerSprFromDP 8 (all in forced_walk). StagePlayerSprWall and WallAnimHere/North/South have no script sites.
 ; 
 ; === Body table ===
 ; SetPlayerSpriteDirect takes an index into the 6-byte body_table entries (word spriteset pointer, bank byte, ...): 0 Will ($95), 1 Freedan ($8E), 2 and 3 Shadow ($94), 4 will_alt ($8F), 5 ability_fx ($8F), 6 freedan_fx ($97), 7 shadow_fx ($97), 8 shadow_mode ($97). It writes spritesetPtr ($7F0006), the bank byte ($7F0008), the table offset into animScratch2 ($7F000E, read by the sprite decomposer while playerFlags bit 15 is set) and the raw index into $0AC8, then sets playerFlags $8000. It does NOT stage an animation: no $28/$2A change. $7F0008 is polymorphic (sprite bank for sprite actors, amplitude for HDMA sine thinkers).
@@ -80,10 +80,10 @@ StagePlayerSprite {
 ---------------------------------------------
 ; COP #90 (copdef StagePlayerMoveX) with two byte operands: animation index and an X movement index. Same staging as StagePlayerSprite; the movement index is kept in moveXAlt ($7F0018) and AnimFrameLookup turns it into the X delta-chain head stored in $2C. 2 sites.
 
-StagePlayerSpriteMoveX {
+StagePlayerMoveX {
     TYX 
     LDA [$0A]
-    INC $0A               ; StagePlayerSpriteMoveX: read anim index, stage X axis
+    INC $0A               ; StagePlayerMoveX: read anim index, stage X axis
     AND #$00FF
     STA $28
     STZ $2A
@@ -105,10 +105,10 @@ StagePlayerSpriteMoveX {
 ---------------------------------------------
 ; COP #91 (copdef StagePlayerMoveY) with two byte operands: animation index and a Y movement index; the Y delta-chain head goes to $2E, the index to moveYAlt ($7F001A). 21 sites.
 
-StagePlayerSpriteMoveY {
+StagePlayerMoveY {
     TYX 
     LDA [$0A]
-    INC $0A               ; StagePlayerSpriteMoveY: read anim index, stage Y axis
+    INC $0A               ; StagePlayerMoveY: read anim index, stage Y axis
     AND #$00FF
     STA $28
     STZ $2A
@@ -130,10 +130,10 @@ StagePlayerSpriteMoveY {
 ---------------------------------------------
 ; COP #92 (copdef StagePlayerMoveXY) with three byte operands: animation index, X movement index, Y movement index; delta-chain heads go to $2C and $2E. 9 sites.
 
-StagePlayerSpriteMoveXY {
+StagePlayerMoveXY {
     TYX 
     LDA [$0A]
-    INC $0A               ; StagePlayerSpriteMoveXY: read anim index, stage both axes
+    INC $0A               ; StagePlayerMoveXY: read anim index, stage both axes
     AND #$00FF
     STA $28
     STZ $2A
@@ -179,7 +179,7 @@ RunPlayerAnim {
 }
 
 ---------------------------------------------
-; COP #94 with four byte operands (animation index, X movement index, Y movement index, wall type). Same as StagePlayerSpriteMoveXY plus a fourth byte stored in playerWallType ($09B0) for the WallAnim ops. No script sites.
+; COP #94 with four byte operands (animation index, X movement index, Y movement index, wall type). Same as StagePlayerMoveXY plus a fourth byte stored in playerWallType ($09B0) for the WallAnim ops. No script sites.
 
 StagePlayerSprWall {
     TYX 

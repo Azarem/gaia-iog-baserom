@@ -1,6 +1,6 @@
 ; Diary-menu highlight-band thinker for scene $FA (Bank 00, 48049-48203; spawned through thinker_spawn_0CEB18, the scene-$FA slot of the scene thinker table).
 ; 
-; Every frame it chooses HDMA tables for the PPU window-1 position registers WH0/WH1 ($2126/$2127; the operand #26 of COP QueueDma is that B-bus register, see hdma_channel_config) from three cursor words kept by sFA_diary_menu, where a negative value means 'none': $0D92 = slot cursor, $0D96 = copy-target slot, $0D98 = tab / settings-row cursor. DiaryMenuInit sets WOBJSEL = $22 (window 1 is the colour window) and CGWSEL = $82 (main screen black inside it), so each table lays a band over the rows under a cursor; the band appearance is decoded from the registers, not observed (OQ-I057-3).
+; Every frame it chooses HDMA tables for the PPU window-1 position registers WH0/WH1 ($2126/$2127; the operand #26 of COP QueueHdmaDirect is that B-bus register, see hdma_channel_config) from three cursor words kept by sFA_diary_menu, where a negative value means 'none': $0D92 = slot cursor, $0D96 = copy-target slot, $0D98 = tab / settings-row cursor. DiaryMenuInit sets WOBJSEL = $22 (window 1 is the colour window) and CGWSEL = $82 (main screen black inside it), so each table lays a band over the rows under a cursor; the band appearance is decoded from the registers, not observed (OQ-I057-3).
 ; 
 ; === TABLES ===
 ; 
@@ -11,10 +11,10 @@
 ; 
 ; === SELECTION ===
 ; 
-; 1. Slot cursor $0D92 (first QueueDma): negative writes WH0/WH1 = $FF/$00 directly and queues the empty table; 0 / 1 / 2+ queue the slot-1 / slot-2 / slot-3 band. While a copy target is set ($0D96 >= 0) this band is only queued on odd frames (even frames queue the empty table), so the source row flickers at 30 Hz.
-; 2. Target cursor $0D96 (second QueueDma): same mapping, always queued.
-; 3. Tab cursor $0D98 (third QueueDma): negative = empty table, 0 / 1 / 2 / 3+ = the four narrow bands.
-; Each COP QueueDma takes its own direct-table HDMA channel, so the three tables overlay each other on the same registers.
+; 1. Slot cursor $0D92 (first QueueHdmaDirect): negative writes WH0/WH1 = $FF/$00 directly and queues the empty table; 0 / 1 / 2+ queue the slot-1 / slot-2 / slot-3 band. While a copy target is set ($0D96 >= 0) this band is only queued on odd frames (even frames queue the empty table), so the source row flickers at 30 Hz.
+; 2. Target cursor $0D96 (second QueueHdmaDirect): same mapping, always queued.
+; 3. Tab cursor $0D98 (third QueueHdmaDirect): negative = empty table, 0 / 1 / 2 / 3+ = the four narrow bands.
+; Each COP QueueHdmaDirect takes its own direct-table HDMA channel, so the three tables overlay each other on the same registers.
 ---------------------------------------------
 
 !frameCounter                   0036
@@ -22,7 +22,7 @@
 
 ---------------------------------------------
 
-; Thinker definition: one QueueDma per cursor word per frame, then RTL (the thinker re-runs every frame).
+; Thinker definition: one QueueHdmaDirect per cursor word per frame, then RTL (the thinker re-runs every frame).
 
 diary_menu_window_dma [
   thinker-def < #04, #08, {
@@ -47,14 +47,14 @@ diary_menu_window_dma [
 ; Queue the empty table diary_band_empty (no band) and continue with the target cursor.
 
   loc_00BBC7:
-    COP [QueueDma] ( @diary_band_empty, #26 ) ; Empty table: no band (#26 = WH0/WH1)
+    COP [QueueHdmaDirect] ( @diary_band_empty, #26 ) ; Empty table: no band (#26 = WH0/WH1)
     BRA loc_00BBEC
 
 ; Slot cursor 0 -> diary_band_slot1 (band at line 79); other values continue the compare chain.
 
   loc_00BBCF:
     BNE loc_00BBD9
-    COP [QueueDma] ( @diary_band_slot1, #26 )
+    COP [QueueHdmaDirect] ( @diary_band_slot1, #26 )
     BRA loc_00BBEC
 
 ; Slot cursor 1 -> diary_band_slot2 (band at line 111).
@@ -62,13 +62,13 @@ diary_menu_window_dma [
   loc_00BBD9:
     DEC 
     BNE loc_00BBE4
-    COP [QueueDma] ( @diary_band_slot2, #26 )
+    COP [QueueHdmaDirect] ( @diary_band_slot2, #26 )
     BRA loc_00BBEC
 
 ; Slot cursor 2 or higher -> diary_band_slot3 (band at line 143).
 
   loc_00BBE4:
-    COP [QueueDma] ( @diary_band_slot3, #26 )
+    COP [QueueHdmaDirect] ( @diary_band_slot3, #26 )
     BRA loc_00BBEC
 
 ; Target cursor $0D96: negative clears the window registers directly and queues the empty table.
@@ -78,14 +78,14 @@ diary_menu_window_dma [
     BPL loc_00BBFF
     LDA #$00FF
     STA $WH0
-    COP [QueueDma] ( @diary_band_empty, #26 )
+    COP [QueueHdmaDirect] ( @diary_band_empty, #26 )
     BRA loc_00BC1C
 
 ; Target cursor 0 -> diary_band_slot1.
 
   loc_00BBFF:
     BNE loc_00BC09
-    COP [QueueDma] ( @diary_band_slot1, #26 )
+    COP [QueueHdmaDirect] ( @diary_band_slot1, #26 )
     BRA loc_00BC1C
 
 ; Target cursor 1 -> diary_band_slot2.
@@ -93,13 +93,13 @@ diary_menu_window_dma [
   loc_00BC09:
     DEC 
     BNE loc_00BC14
-    COP [QueueDma] ( @diary_band_slot2, #26 )
+    COP [QueueHdmaDirect] ( @diary_band_slot2, #26 )
     BRA loc_00BC1C
 
 ; Target cursor 2 or higher -> diary_band_slot3.
 
   loc_00BC14:
-    COP [QueueDma] ( @diary_band_slot3, #26 )
+    COP [QueueHdmaDirect] ( @diary_band_slot3, #26 )
     BRA loc_00BC1C
 
 ; Tab / row cursor $0D98: negative -> empty table diary_band_tab_empty, then RTL.
@@ -107,14 +107,14 @@ diary_menu_window_dma [
   loc_00BC1C:
     LDA $0D98             ; Tab / row cursor
     BPL loc_00BC28
-    COP [QueueDma] ( @diary_band_tab_empty, #26 )
+    COP [QueueHdmaDirect] ( @diary_band_tab_empty, #26 )
     RTL 
 
 ; Tab 0 -> diary_band_tab0 (band at line 79), RTL.
 
   loc_00BC28:
     BNE loc_00BC31
-    COP [QueueDma] ( @diary_band_tab0, #26 )
+    COP [QueueHdmaDirect] ( @diary_band_tab0, #26 )
     RTL 
 
 ; Tab 1 -> diary_band_tab1 (band at line 95), RTL.
@@ -122,7 +122,7 @@ diary_menu_window_dma [
   loc_00BC31:
     DEC 
     BNE loc_00BC3B
-    COP [QueueDma] ( @diary_band_tab1, #26 )
+    COP [QueueHdmaDirect] ( @diary_band_tab1, #26 )
     RTL 
 
 ; Tab 2 -> diary_band_tab2 (band at line 111), RTL.
@@ -130,13 +130,13 @@ diary_menu_window_dma [
   loc_00BC3B:
     DEC 
     BNE loc_00BC45
-    COP [QueueDma] ( @diary_band_tab2, #26 )
+    COP [QueueHdmaDirect] ( @diary_band_tab2, #26 )
     RTL 
 
 ; Tab 3 or higher -> diary_band_tab3 (band at line 127), RTL.
 
   loc_00BC45:
-    COP [QueueDma] ( @diary_band_tab3, #26 )
+    COP [QueueHdmaDirect] ( @diary_band_tab3, #26 )
     RTL 
 } >
 ]

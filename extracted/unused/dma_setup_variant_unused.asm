@@ -9,7 +9,7 @@ dma_setup_variant_unused [
   thinker-def < #04, #08, {
 
   code_00BC99:
-    COP [QueueDma] ( @dma_channel_00BCA0, #12 )
+    COP [QueueHdmaDirect] ( @dma_channel_00BCA0, #12 )
     RTL 
 } >
 ]

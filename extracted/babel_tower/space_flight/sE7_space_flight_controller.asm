@@ -127,7 +127,7 @@ code_0CEE4D {
     STA $moveYAlt, X
 
   loc_0CEE89:
-    COP [ReloadMoveDurations]
+    COP [ReloadMoveChains]
     COP [StageSpriteFrame] ( #FF )
     COP [AnimOnce]
     LDA $16

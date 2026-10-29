@@ -23,9 +23,9 @@ Map mutation from scripts: paint one metatile at fixed or actor coordinates, or 
 ## Family notes
 
 - **`DrawMetatileAbs` / `DrawMetatileHere`** may **Halt** (yield) when `$0902 ≠ 0`; otherwise **Continue**.
-- **`WorldMapStream3` / `WorldMapStream4`** always **Halt** between records until sentinel; **`extendedFlags` bit 1** remembers stream base across yields.
+- **`DrawMetatileStream` / `DrawMetatileStreamDelay`** always **Halt** between records until sentinel; **`extendedFlags` bit 1** remembers stream base across yields.
 - Stream **sentinel:** first byte of record with **bit 7 set** → end stream, skip 2-byte operand, clear bit 1.
-- **`WorldMapStream4`** stores 4th byte into **`$0008,Y`** before resolve (attribute side channel).
+- **`DrawMetatileStreamDelay`** stores 4th byte into **`$0008,Y`** before resolve (attribute side channel).
 
 ## Usage statistics
 
@@ -33,8 +33,8 @@ Map mutation from scripts: paint one metatile at fixed or actor coordinates, or 
 |----|------|-----:|--------|---------|---------|
 | `4B` | `DrawMetatileAbs` | 24 | 3×`Byte` | `DrawMetatileAbs` | Continue / Halt |
 | `4C` | `DrawMetatileHere` | 8 | `Byte` | `DrawMetatileHere` | Continue / Halt |
-| `4D` | `WorldMapStream3` | 0 | `Word` | `WorldMapStream3` | Halt |
-| `4E` | `WorldMapStream4` | 0 | `Word` | `WorldMapStream4` | Halt |
+| `4D` | `DrawMetatileStream` | 0 | `Word` | `DrawMetatileStream` | Halt |
+| `4E` | `DrawMetatileStreamDelay` | 0 | `Word` | `DrawMetatileStreamDelay` | Halt |
 
 **Family call-site total:** 32
 
@@ -140,10 +140,10 @@ COP [DrawMetatileHere] ( #E9 )
 
 ---
 
-#### COP [4D] — `WorldMapStream3` (3-byte record stream)
+#### COP [4D] — `DrawMetatileStream` (3-byte record stream)
 
 - **Confidence:** high
-- **Handler:** `WorldMapStream3` @ [`cop_handlers_metatile.asm:127-195`](../../../extracted/system/engine/cop_handlers_metatile.asm)
+- **Handler:** `DrawMetatileStream` @ [`cop_handlers_metatile.asm:127-195`](../../../extracted/system/engine/cop_handlers_metatile.asm)
 - **Parameters:** `Word streamOffset` (script-bank data)
 - **Usage count:** 48
 
@@ -156,7 +156,7 @@ COP [DrawMetatileHere] ( #E9 )
 ##### Handler excerpt
 
 ```asm
-WorldMapStream3 {
+DrawMetatileStream {
     ...
     JSR $&ParseMapEntry
     BCS loc_00975B        ; end sentinel
@@ -175,7 +175,7 @@ WorldMapStream3 {
 
 ##### How it is used
 
-Generic one-tile-per-frame painters (no shipped script sites in vanilla `extracted/`): data lives in script bank as byte streams; one **`COP [WorldMapStream3]`** call consumes the whole sequence across many frames. Enable **`OrExtraFlags #$0004`** on the actor for per-tile SFX.
+Generic one-tile-per-frame painters (no shipped script sites in vanilla `extracted/`): data lives in script bank as byte streams; one **`COP [DrawMetatileStream]`** call consumes the whole sequence across many frames. Enable **`OrExtraFlags #$0004`** on the actor for per-tile SFX.
 
 ##### Parameters & contract
 
@@ -188,21 +188,21 @@ Generic one-tile-per-frame painters (no shipped script sites in vanilla `extract
 
 ---
 
-#### COP [4E] — `WorldMapStream4` (4-byte record stream)
+#### COP [4E] — `DrawMetatileStreamDelay` (4-byte record stream)
 
 - **Confidence:** high
-- **Handler:** `WorldMapStream4` @ [`cop_handlers_metatile.asm:200-270`](../../../extracted/system/engine/cop_handlers_metatile.asm)
+- **Handler:** `DrawMetatileStreamDelay` @ [`cop_handlers_metatile.asm:200-270`](../../../extracted/system/engine/cop_handlers_metatile.asm)
 - **Parameters:** `Word streamOffset`
 - **Usage count:** 48
 
 ##### What it does
 
-Same control flow as **`WorldMapStream3`**, but stream step is **4 bytes**. After **`ParseMapEntry`**, fourth byte → **`$0008,Y`** then **`ResolveTileData`**. Used when extra per-tile attribute must ride with map paints.
+Same control flow as **`DrawMetatileStream`**, but stream step is **4 bytes**. After **`ParseMapEntry`**, fourth byte → **`$0008,Y`** then **`ResolveTileData`**. Used when extra per-tile attribute must ride with map paints.
 
 ##### Handler excerpt
 
 ```asm
-WorldMapStream4 {
+DrawMetatileStreamDelay {
     ...
     ADC #$0004            ; 4-byte stride
     ...

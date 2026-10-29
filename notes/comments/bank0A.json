@@ -51,5 +51,5 @@
     "720236": "Center to -128..+127",
     "720243": "Random X near player",
     "720255": "Random Y near player",
-    "720257": "Wait counter $08 = 60 frames before the entry code runs again (a re-roll), not a lifetime"
+    "720257": "Wait counter $08 = $3C: skips 60 passes, so the entry code runs again after 61 ticks (a re-roll), not a lifetime"
 }

@@ -11,7 +11,7 @@ angel_tunnel_window_dma [
   thinker-def < #04, #08, {
 
   code_00B87D:
-    COP [QueueDma] ( @dma_channel_00B884, #2C )
+    COP [QueueHdmaDirect] ( @dma_channel_00B884, #2C )
     RTL 
 } >
 ]

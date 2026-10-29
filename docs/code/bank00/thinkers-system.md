@@ -161,7 +161,7 @@ None.
 
 #### Purpose
 
-Per-frame **BG3 vertical scroll HDMA**. Each thinker tick runs `COP [QueueDma] ( @inventory_bg3vofs_table, #12 )` — operand `#12` is B-bus **`$2112` BG3VOFS** (not a byte count). `ResetHdmaState` clears channel bindings every frame, so this thinker re-queues the same seven-entry direct table.
+Per-frame **BG3 vertical scroll HDMA**. Each thinker tick runs `COP [QueueHdmaDirect] ( @inventory_bg3vofs_table, #12 )` — operand `#12` is B-bus **`$2112` BG3VOFS** (not a byte count). `ResetHdmaState` clears channel bindings every frame, so this thinker re-queues the same seven-entry direct table.
 
 #### HDMA table (`inventory_bg3vofs_table`)
 
@@ -194,7 +194,7 @@ each frame:
   read $0D96 → select window DMA table variant
   read $0D92 → sub-state (0/1/2 → different table)
   read $0036 bit 0 → override path
-  QueueDma (selected_table, #26)
+  QueueHdmaDirect (selected_table, #26)
   repeat for secondary track ($0D98)
   RTL
 ```

@@ -1,6 +1,6 @@
 ; Snake pit effect tile animation (Bank 14, 1360172-1360280). It is a spriteset only in format: its one user streams the frames into VRAM as tiles, it is not a library of particle sprites.
 ; 
-; The only user is awB4_snake_pit_fx (Angkor Wat snake pit): SetScratchPointer(misc_fx_1CD380) names the tile art, SetMetasprite(spriteset_snake_pit_fx) names this table, ResetSpriteState(0, $2020) picks animation 0 and the VRAM word address $2020, and AdvanceSpriteAnim runs the frames.
+; The only user is awB4_snake_pit_fx (Angkor Wat snake pit): SetScratchPointer(misc_fx_1CD380) names the tile art, SetMetasprite(spriteset_snake_pit_fx) names this table, SetTileStreamAnim(0, $2020) picks animation 0 and the VRAM word address $2020, and AdvanceSpriteAnim runs the frames.
 ; 
 ; === WHAT AdvanceSpriteAnim READS ===
 ; 

@@ -2067,7 +2067,7 @@ FireflyParticle {
 ; Per-frame loop: reload the move chains, animate, repeat while Y < $FF.
 
   loc_08F6C4:
-    COP [ReloadMoveDurations]
+    COP [ReloadMoveChains]
     COP [SetEntryHere]
     COP [AnimOnce]
     LDA $16

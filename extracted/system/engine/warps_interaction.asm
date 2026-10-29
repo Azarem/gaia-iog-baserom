@@ -49,9 +49,9 @@
 ; 3. Masks the joypad ($CFFC into joypadMaskStd: every button except Select/Start), flags the player $1000, points the player's state at PlayerIdleAnimLoop and sets playerFlags $0800 (script lock).
 ; 4. Yields until musicTransitionState == $FFFF (upload finished), then spawns ChestDialogueActor with the dialogue pointer ($24) and the item ID ($20).
 ; 5. Yields until APUIO1 reads $FF, then releases the player (RestorePlayerControlDirect, clears the $1000 flag) and unmasks the joypad.
-; 6. Spawns a second SpcTransferMusicData whose track value is the saved $06F2 (restoring the scene music), waits for $FFFF again, WaitByte 11 frames, clears displayModeFlags bit 7 and dies.
+; 6. Spawns a second SpcTransferMusicData whose track value is the saved $06F2 (restoring the scene music), waits for $FFFF again, WaitByte #0B (12 ticks), clears displayModeFlags bit 7 and dies.
 ; 
-; ChestDialogueActor: waits 72 frames, clears its own $1000 flag, restores the item ID from $20 to $0DB8 (the dialogue string prints the item name from there), shows the dialogue pointer stored in $24 with ShowDialogueFrame, and dies.
+; ChestDialogueActor: WaitByte #48 (73 ticks), clears its own $1000 flag, restores the item ID from $20 to $0DB8 (the dialogue string prints the item name from there), shows the dialogue pointer stored in $24 with ShowDialogueFrame, and dies.
 ; 
 ; === OPENED-CHEST REDRAW (PlaceOpenedChestTiles) ===
 ; 
@@ -177,7 +177,7 @@ PlaceOpenedChestTiles {
     STA $1C
     STZ $19
     STZ $1D
-    LDX #$0000            ; TileCoordsToMapIndex — map index for top-left barrier cell
+    LDX #$0000            ; TileCoordsToMapIndex — map index for the chest's top-left cell (X, Y-1)
     JSL $@map_coords.TileCoordsToMapIndex
     STX $02
     STX $00
@@ -460,7 +460,7 @@ ChestOpeningActor {
     RTL 
 
   loc_02A813:
-    COP [SpawnAfterFlags] ( @ChestDialogueActor, #$2000 ) ; Spawn ChestDialogueActor (shows the item text after its 72-frame delay)
+    COP [SpawnAfterFlags] ( @ChestDialogueActor, #$2000 ) ; Spawn ChestDialogueActor (shows the item text after its 73-tick delay)
     LDA $24               ; Pass the dialogue pointer ($24) to it
     STA $0024, Y
     LDA $0012, Y
@@ -506,7 +506,7 @@ ChestOpeningActor {
     RTL 
 
   loc_02A888:
-    COP [WaitByte] ( #0B ) ; Wait 11 frames, then fall into the cleanup
+    COP [WaitByte] ( #0B ) ; WaitByte #0B = 12 ticks, then fall into the cleanup
 }
 
 code_02A88B {
@@ -519,14 +519,14 @@ code_02A88B {
 ; Timed chest dialogue display actor.
 ; 
 ; One-shot actor spawned by ChestOpeningActor to show the item-get dialogue after a delay:
-; 1. COP [WaitByte] ($48): waits 72 frames while the fanfare plays
+; 1. COP [WaitByte] ( #48 ): waits 73 ticks (operand + 1) while the fanfare plays
 ; 2. Clears bit $1000 from its own actor flags ($12)
 ; 3. Copies the item ID it was given ($20) to $0DB8, where the string reads the item name
 ; 4. Calls ShowDialogueFrame with the dialogue string pointer stored in $24
 ; 5. COP [Die]
 
 ChestDialogueActor {
-    COP [WaitByte] ( #48 ) ; COP WaitByte #$48 — 72-frame delay before showing item dialogue
+    COP [WaitByte] ( #48 ) ; WaitByte #48 = 73 ticks before showing the item dialogue
     LDA #$1000            ; Clear this actor's own $1000 flag
     TRB $12
     LDA $20               ; Item ID ($20) → $0DB8, where the dialogue string reads the item name
@@ -644,7 +644,7 @@ DrawChestTiles {
 ; 
 ; Reads the scene index ($0646) to look up the warp data pointer from scene_warps. Stores the pointer to $00D4 (standard warp table start).
 ; 
-; Then walks the standard warp entries to find the extended table: each entry starts with a non-$FF byte, and the routine advances by 12 bytes ($000C) per entry until finding the $FF terminator. The byte after the terminator is stored to $00D6 (extended warp table start).
+; Then walks the standard warp entries to find the extended table: the first byte of each entry is its X tile (bit 7 clear), the routine advances by 12 bytes ($000C) per entry and stops at the first byte with bit 7 set (BMI; every list uses $FF). The byte after the terminator is stored to $00D6 (extended warp table start).
 
 InitWarpTable {
     REP #$20

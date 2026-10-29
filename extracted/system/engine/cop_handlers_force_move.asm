@@ -2,7 +2,7 @@
 ; 
 ; A movement index (0-$54) selects a delta chain in move_chain_table: a linked list of nodes, each a signed per-frame delta plus a link to the next node. StageMoveX/Y/XY store the index in moveXAlt/moveYAlt ($7F:0018/$7F:001A + actor slot) and put the chain pointer that AnimFrameLookup returns in actor field $2C (X chain) or $2E (Y chain); ApplyMovement and the collision-checked move in tile_collision_physics consume one node per frame from each chain.
 ; 
-; ForceDirSW/NE/Both set (operand nonzero) or clear (operand 0) $12 bit $4000 (negate the X delta), bit $2000 (negate the Y delta), or both ($6000). ApplyMoveToChild stages both indices on the newest actor in the list ($0058, actorListLast) instead of the caller. ReloadMoveDurations re-runs the lookup for the current indices, which rewinds $2C/$2E to the start of their chains.
+; SetMoveNegateX/NE/Both set (operand nonzero) or clear (operand 0) $12 bit $4000 (negate the X delta), bit $2000 (negate the Y delta), or both ($6000). ApplyMoveToChild stages both indices on the newest actor in the list ($0058, actorListLast) instead of the caller. ReloadMoveChains re-runs the lookup for the current indices, which rewinds $2C/$2E to the start of their chains.
 ; 
 ; Each handler reads its operand bytes through the script pointer [$0A], advances $0A, and writes it back into the stacked return address ($02,S) before RTI. Entry has Y = actor slot (TYX).
 ---------------------------------------------
@@ -73,7 +73,7 @@ StageMoveXY {
 ---------------------------------------------
 ; COP #AD with one byte operand (nonzero sets, zero clears). TSB or TRB bit $4000 on actor flags $12: while set, ApplyMovement and the collision-checked move negate the actor's X delta (the copdef name says SW; the effect is an X flip).
 
-ForceDirSW {
+SetMoveNegateX {
     TYX 
     LDA [$0A]
     INC $0A               ; Advance script pointer past facing flag operand
@@ -96,7 +96,7 @@ ForceDirSW {
 ---------------------------------------------
 ; COP #AE with one byte operand (nonzero sets, zero clears). TSB or TRB bit $2000 on actor flags $12: while set, the Y delta is negated (the copdef name says NE; the effect is a Y flip).
 
-ForceDirNE {
+SetMoveNegateY {
     TYX 
     LDA [$0A]
     INC $0A               ; Advance script pointer past NE facing flag operand
@@ -119,7 +119,7 @@ ForceDirNE {
 ---------------------------------------------
 ; COP #AF with one byte operand (nonzero sets, zero clears). TSB or TRB bits $6000 on actor flags $12: negates both the X and Y deltas (reverses the staged movement).
 
-ForceDirBoth {
+SetMoveNegateXY {
     TYX 
     LDA [$0A]
     INC $0A               ; Advance script pointer past diagonal flag operand
@@ -166,7 +166,7 @@ ApplyMoveToChild {
 ---------------------------------------------
 ; COP #B1 with no operands. Re-runs AnimFrameLookup for the current moveXAlt and moveYAlt and stores the chain pointers in $2C and $2E again, rewinding both chains to their first node.
 
-ReloadMoveDurations {
+ReloadMoveChains {
     TYX 
     LDA $moveXAlt, X      ; Current X index (unchanged)
     JSR $&actor_pool.AnimFrameLookup ; A = pointer to the first node of the X chain

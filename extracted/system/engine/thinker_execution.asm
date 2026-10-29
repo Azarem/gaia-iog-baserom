@@ -165,12 +165,12 @@ RunThinkers_General {
     TAX 
     LDA $animScratch2, X  ; Read animScratch2 ($7F000E,X) for thinker type check
     BIT #$0004            ; Bit 2 ($0004): TypeA processes clear, TypeB processes set
-    BNE RunThinkers_TypeA_Next
+    BNE RunThinkers_General_Next
     DEC $08               ; Wait counter: a stored n skips n passes; the pass where $08 was 0 gives $FFFF and runs the script
-    BPL RunThinkers_TypeA_Next
+    BPL RunThinkers_General_Next
     STZ $08               ; Clear the counter; the script sets a new wait if it wants one
     PHK 
-    PEA $&RunThinkers_TypeA_Next-1 ; Return address for the script's RTL: _Next (the script returns like a subroutine)
+    PEA $&RunThinkers_General_Next-1 ; Return address for the script's RTL: _Next (the script returns like a subroutine)
     SEP #$20
     LDA $02
     PHA 
@@ -181,7 +181,7 @@ RunThinkers_General {
     RTL 
 }
 
-RunThinkers_TypeA_Next {
+RunThinkers_General_Next {
     LDA $06
     BNE loc_03D135
 
@@ -208,12 +208,12 @@ RunThinkers_Hdma {
     TAX 
     LDA $animScratch2, X
     BIT #$0004            ; Bit 2 ($0004): TypeB processes set, skips clear
-    BEQ RunThinkers_TypeB_Next
+    BEQ RunThinkers_Hdma_Next
     DEC $08
-    BPL RunThinkers_TypeB_Next
+    BPL RunThinkers_Hdma_Next
     STZ $08
     PHK 
-    PEA $&RunThinkers_TypeB_Next-1
+    PEA $&RunThinkers_Hdma_Next-1
     SEP #$20
     LDA $02
     PHA 
@@ -224,7 +224,7 @@ RunThinkers_Hdma {
     RTL 
 }
 
-RunThinkers_TypeB_Next {
+RunThinkers_Hdma_Next {
     LDA $06
     BNE loc_03D165
 
@@ -251,14 +251,14 @@ RunThinkers_General_Light {
     TAX 
     LDA $animScratch2, X
     BIT #$0800            ; Bit 11 = keep running in the lighter frame routines (set in all 59 scene thinker-defs; runtime-spawned thinkers may lack it)
-    BEQ RunThinkers_TypeC_Next
+    BEQ RunThinkers_General_Light_Next
     BIT #$0004            ; Bit 2 ($0004): must be clear for TypeC (not deferred)
-    BNE RunThinkers_TypeC_Next
+    BNE RunThinkers_General_Light_Next
     DEC $08               ; Same wait-counter test as TypeA
-    BPL RunThinkers_TypeC_Next
+    BPL RunThinkers_General_Light_Next
     STZ $08
     PHK 
-    PEA $&RunThinkers_TypeC_Next-1
+    PEA $&RunThinkers_General_Light_Next-1
     SEP #$20
     LDA $02
     PHA 
@@ -269,7 +269,7 @@ RunThinkers_General_Light {
     RTL 
 }
 
-RunThinkers_TypeC_Next {
+RunThinkers_General_Light_Next {
     LDA $06
     BNE loc_03D195
 
@@ -297,12 +297,12 @@ RunThinkers_Hdma_Light {
     LDA $animScratch2, X
     AND #$0804            ; AND #$0804 + CMP #$0804: require both bits 11 and 2 set
     CMP #$0804
-    BNE RunThinkers_TypeD_Next
+    BNE RunThinkers_Hdma_Light_Next
     DEC $08
-    BPL RunThinkers_TypeD_Next
+    BPL RunThinkers_Hdma_Light_Next
     STZ $08
     PHK 
-    PEA $&RunThinkers_TypeD_Next-1
+    PEA $&RunThinkers_Hdma_Light_Next-1
     SEP #$20
     LDA $02
     PHA 
@@ -313,7 +313,7 @@ RunThinkers_Hdma_Light {
     RTL 
 }
 
-RunThinkers_TypeD_Next {
+RunThinkers_Hdma_Light_Next {
     LDA $06
     BNE loc_03D1CA
 

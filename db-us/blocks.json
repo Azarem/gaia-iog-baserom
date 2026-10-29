@@ -6,7 +6,7 @@
         "cop_handlers_palette": { "start": 37729, "end": 37888, "type": "Code", "scene": "engine" },
         "cop_handlers_thinker": { "start": 37888, "end": 38021, "type": "Code", "scene": "engine" },
         "cop_handlers_sprite": { "scene": "engine", "parts": {
-            "ResetSpriteState": { "start": 39386, "end": 39527, "type": "Code" },
+            "SetTileStreamAnim": { "start": 39386, "end": 39527, "type": "Code" },
             "StageSpriteFrame": { "start": 40483, "end": 41014, "type": "Code" }
         } },
         "cop_handlers_player_sprite": { "start": 41014, "end": 41547, "type": "Code", "scene": "engine" },

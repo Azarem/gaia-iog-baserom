@@ -13,7 +13,7 @@
 ; 
 ; 2. VINE CLIMBING (181790–182198)
 ;    ClimbVineEntry, ClimbVineLand, CheckClimbFrame, CheckClimbAttack, ClimbDropAttack, ClimbDropLand, ImpactTerrainShake, CameraShakeActor, CameraShakeFrame.
-;    Freedan-only vine climbing with a 3-frame alternating sprite cycle. CheckClimbAttack gates drop attack to Freedan (form 1) with abilityBitmask bit 6 ($0040). ClimbDropLand spawns ImpactTerrainShake (sets playerFlags $0010 for 479 frames) and CameraShakeActor (about 60 frames of random camera-target offsets: (RNG & 3) - 1 on X and ((RNG >> 2) & 3) - 1 on Y, each -1..+2).
+;    Freedan-only vine climbing with a 3-frame alternating sprite cycle. CheckClimbAttack gates drop attack to Freedan (form 1) with abilityBitmask bit 6 ($0040). ClimbDropLand spawns ImpactTerrainShake (sets playerFlags $0010 for 480 ticks, WaitWord #$01DF) and CameraShakeActor (about 60 frames of random camera-target offsets: (RNG & 3) - 1 on X and ((RNG >> 2) & 3) - 1 on Y, each -1..+2).
 ; 
 ; 3. LADDER SYSTEM (182198–182461)
 ;    LadderClimbSouth/North, LadderMoveDown/Up, LadderIdleSouth/North (+ Shadow variants), LadderLandBottom, LadderReachTop.
@@ -136,7 +136,7 @@ PlayerIdleEntry {
 
   loc_02C3EE:
     COP [SetSavedPtr] ( &PlayerIdleEntry ) ; Save PlayerIdleEntry as return point and clear force movement
-    COP [ForceDirBoth] ( #00 )
+    COP [SetMoveNegateXY] ( #00 )
     LDA $playerSpeedEw    ; Check for residual EW speed — if nonzero, enter MovingEastWest for deceleration
     BEQ loc_02C3FD
     JMP $&MovingEastWest
@@ -650,7 +650,7 @@ ClimbDropLand {
 }
 
 ImpactTerrainShake {
-    LDA #$0010            ; Terrain shake: set playerFlags bit 4 ($0010), wait 479 frames ($01DF), clear flag, die
+    LDA #$0010            ; Terrain shake: set playerFlags bit 4 ($0010), WaitWord #$01DF = 480 ticks, clear flag, die
     TSB $playerFlags
     COP [WaitWord] ( #$01DF )
     LDA #$0010
@@ -1388,7 +1388,7 @@ RunAttackNS {
 
   loc_02CC2E:
     JSR $&RunAttackFlagSetup
-    COP [ForceDirNE] ( #01 )
+    COP [SetMoveNegateY] ( #01 )
     COP [StageSpriteFrame] ( #0F )
     COP [AnimOnce]
     STZ $playerSpeedNs
@@ -1409,7 +1409,7 @@ RunAttackEW {
     LDA $playerSpeedEw
     BPL loc_02CC84
     JSR $&RunAttackFlagSetup
-    COP [ForceDirSW] ( #01 )
+    COP [SetMoveNegateX] ( #01 )
     COP [StageSpriteFrame] ( #12 )
     COP [AnimOnce]
     STZ $playerSpeedEw

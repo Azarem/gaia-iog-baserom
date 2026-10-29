@@ -823,7 +823,7 @@ code_0AA0A6 {
     STA $26
 
   loc_0AA0B4:
-    COP [ReloadMoveDurations]
+    COP [ReloadMoveChains]
     COP [AnimOneFrame]
     LDA $2A
     BEQ loc_0AA0B4
@@ -885,7 +885,7 @@ code_0AA0A6 {
     COP [SetEntryHereAndYield]
 
   loc_0AA113:
-    COP [ReloadMoveDurations]
+    COP [ReloadMoveChains]
     COP [SetEntryHere]
     COP [AnimOnce]
     LDA $10

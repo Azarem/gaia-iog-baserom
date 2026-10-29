@@ -101,8 +101,8 @@ JMP ($&cop_dispatch_table, X)    ; X = opcode × 2
 | Op | Handler | Op | Handler | Op | Handler | Op | Handler |
 |----|---------|----|---------|----|---------|----|---------|
 | `$00` | GenHdmaSine | `$1C` | BranchIfSolidTypeSouth | `$38` | PaletteStartLoop | `$54` | SetScratchPointer |
-| `$01` | QueueHdma | `$1D` | BranchIfSolidTypeWest | `$39` | PaletteStep | `$55` | ResetSpriteState |
-| `$02` | QueueDma | `$1E` | BranchIfSolidTypeEast | `$3A` | PaletteStepLoop | `$56` | AdvanceSpriteAnim |
+| `$01` | QueueHdma | `$1D` | BranchIfSolidTypeWest | `$39` | PaletteStep | `$55` | SetTileStreamAnim |
+| `$02` | QueueHdmaDirect | `$1E` | BranchIfSolidTypeEast | `$3A` | PaletteStepLoop | `$56` | AdvanceSpriteAnim |
 | `$03` | QueueHdmaChannel | `$1F` | BranchIfNotOnGridline | `$3B` | SpawnThinkerParam | `$57` | SetDeathCallback |
 | `$04` | StartMusic | `$20` | BranchIfActorNear | `$3C` | SpawnThinker | `$58` | SetHitCallback |
 | `$05` | FadeThenStartMusic | `$21` | BranchIfPlayerNear | `$3D` | KillThinker | `$59` | SetDodgeCallback |
@@ -114,15 +114,15 @@ JMP ($&cop_dispatch_table, X)    ; X = opcode × 2
 | `$0B` | MarkSolidHere | `$27` | WaitWhileOffscreen | `$43` | SnapToGrid | `$5F` | InitSineHdma |
 | `$0C` | ClearSolidHere | `$28` | BranchIfPlayerAt | `$44` | BranchIfPlayerInRelTiles | `$60` | TickSineHdma |
 | `$0D` | MarkSolidOffset | `$29` | BranchIfActorAt | `$45` | BranchIfPlayerInAbsTiles | `$61` | BindSineHdma |
-| `$0E` | ClearSolidOffset | `$2A` | BranchOnPlayerX | `$46` | CopyPosToPrev | `$62` | BranchIfCollisionTypeNe |
+| `$0E` | ClearSolidOffset | `$2A` | BranchOnPlayerX | `$46` | CopyPosToPrev | `$62` | BranchIfCollisionTypeEq |
 | `$0F` | MarkSolidAbs | `$2B` | BranchOnPlayerY | `$47` | CopyPosToNext | `$63` | InitGravity |
 | `$10` | ClearSolidAbs | `$2C` | BranchNearerAxis | `$48` | GetPlayerFacing | `$64` | TickGravity |
 | `$11` | ClearCollisionHere | `$2D` | DirToPlayer | `$49` | BranchIfBodyNe | `$65` | StageWorldMapMove |
 | `$12` | ClearTypeAbs | `$2E` | DirToPlayerFrom | `$4A` | ResumeAfterSnap | `$66` | StageWorldMapChoice |
 | `$13` | BranchIfSolidHere | `$2F` | BranchIfDirToPlayer | `$4B` | DrawMetatileAbs | `$67` | StageWorldMapMoveIds |
 | `$14` | BranchIfSolidOffset | `$30` | BranchIfDirToPlayerFrom | `$4C` | DrawMetatileHere | `$68` | BranchIfOffCamera |
-| `$15` | BranchIfSolidNorth | `$31` | BranchOnPlayerFacing | `$4D` | WorldMapStream3 | `$69` | HaltIfMaxFrames |
-| `$16` | BranchIfSolidSouth | `$32` | StageBgChange | `$4E` | WorldMapStream4 | `$6A` | SetLinkedEntryPtr |
+| `$15` | BranchIfSolidNorth | `$31` | BranchOnPlayerFacing | `$4D` | DrawMetatileStream | `$69` | HaltIfMaxFrames |
+| `$16` | BranchIfSolidSouth | `$32` | StageBgChange | `$4E` | DrawMetatileStreamDelay | `$6A` | SetLinkedEntryPtr |
 | `$17` | BranchIfSolidWest | `$33` | ApplyBgChange | `$4F` | AdhocVramDma | `$6B` | PrintDialogStringAlt |
 | `$18` | BranchIfSolidEast | `$34` | StageBgChangeFromDeathIdx | `$50` | CopyPalette | `$6C` | InitSpiral |
 | `$19` | MusicAndText | `$35` | CardinalToPlayer | `$51` | Decompress | `$6D` | SpiralStep |
@@ -150,12 +150,12 @@ JMP ($&cop_dispatch_table, X)    ; X = opcode × 2
 | `$8A` | AnimLoop | `$AA` | StageMoveX | `$CA` | LoopStart | | |
 | `$8B` | AnimOneFrame | `$AB` | StageMoveY | `$CB` | LoopEnd | | |
 | `$8C` | WaitForAnimFrame | `$AC` | StageMoveXY | `$CC` | SetFlagByte | | |
-| `$8D` | StageSprAndHitbox | `$AD` | ForceDirSW | `$CD` | SetFlagWord | | |
-| `$8E` | SetPlayerSpriteDirect | `$AE` | ForceDirNE | `$CE` | ClearFlagByte | | |
-| `$8F` | StagePlayerSprite | `$AF` | ForceDirBoth | `$CF` | ClearFlagWord | | |
-| `$90` | StagePlayerSpriteMoveX | `$B0` | ApplyMoveToChild | `$D0` | BranchOnFlagByte | | |
-| `$91` | StagePlayerSpriteMoveY | `$B1` | ReloadMoveDurations | `$D1` | BranchOnFlagWord | | |
-| `$92` | StagePlayerSpriteMoveXY | `$B2` | SetPriorityMax | `$D2` | WaitOnFlagByte | | |
+| `$8D` | StageSprAndHitbox | `$AD` | SetMoveNegateX | `$CD` | SetFlagWord | | |
+| `$8E` | SetPlayerSpriteDirect | `$AE` | SetMoveNegateY | `$CE` | ClearFlagByte | | |
+| `$8F` | StagePlayerSprite | `$AF` | SetMoveNegateXY | `$CF` | ClearFlagWord | | |
+| `$90` | StagePlayerMoveX | `$B0` | ApplyMoveToChild | `$D0` | BranchOnFlagByte | | |
+| `$91` | StagePlayerMoveY | `$B1` | ReloadMoveChains | `$D1` | BranchOnFlagWord | | |
+| `$92` | StagePlayerMoveXY | `$B2` | SetPriorityMax | `$D2` | WaitOnFlagByte | | |
 | `$93` | RunPlayerAnim | `$B3` | SetPriorityMin | `$D3` | WaitOnFlagWord | | |
 | `$94` | StagePlayerSprWall | `$B4` | ClearPriorityMax | `$D4` | GiveItem | | |
 | `$95` | StagePlayerSprFromDP | `$B5` | ClearPriorityMin | `$D5` | RemoveItem | | |

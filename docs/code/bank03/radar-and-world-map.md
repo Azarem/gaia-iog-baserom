@@ -225,7 +225,7 @@ Thinker (type `$04`, priority `$08`) spawned by `WorldMapController.ArrivalAndTr
 
 ### Double-buffered tables
 
-Two table pairs selected by frame parity (`$0036` bit 0). The second operand of `COP QueueDma` is the PPU B-bus register (`$2100` + `#05` = BGMODE, `#32` = COLDATA), not an HDMA channel number:
+Two table pairs selected by frame parity (`$0036` bit 0). The second operand of `COP QueueHdmaDirect` is the PPU B-bus register (`$2100` + `#05` = BGMODE, `#32` = COLDATA), not an HDMA channel number:
 - Even frames: `$7E8800` (BGMODE) + `$7E8A00` (COLDATA)
 - Odd frames: `$7E8900` (`sineTableA`) + `$7E8B00` (`sineTableB`)
 

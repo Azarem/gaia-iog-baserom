@@ -10,7 +10,7 @@ ending_comet_dma_setup [
   thinker-def < #04, #08, {
 
   code_00BCE1:
-    COP [QueueDma] ( @dma_channel_00BCE8, #10 )
+    COP [QueueHdmaDirect] ( @dma_channel_00BCE8, #10 )
     RTL 
 } >
 ]

@@ -109,7 +109,7 @@ QueueMapChange {
 }
 
 ---------------------------------------------
-; COP #27 with one byte operand (delay in frames). If actor flag $4000 is set in $10 (off-screen), sets the entry ($00) to this COP instruction (PC − 2), stores the delay in $08 and yields, so the test repeats after the delay; otherwise it skips the operand and continues.
+; COP #27 with one byte operand (delay count n). If actor flag $4000 is set in $10 (off-screen), sets the entry ($00) to this COP instruction (PC − 2), stores n in $08 and yields, so the test repeats n + 1 ticks later (the WaitByte rule); otherwise it skips the operand and continues.
 
 WaitWhileOffscreen {
     TYX 
@@ -123,8 +123,8 @@ WaitWhileOffscreen {
     LDA [$0A]             ; Read delay timer byte operand
     INC $0A               ; Advance script pointer past delay timer byte
     AND #$00FF
-    STA $08               ; Store frame delay to actor $08 timer
-    PLA                   ; Pop COP frame and yield via RTL — re-execute next frame
+    STA $08               ; Store n in the actor's wait counter $08: the test re-runs n + 1 ticks later
+    PLA                   ; Pop COP frame and yield via RTL; the COP re-executes when the wait counter runs out
     PLA 
     RTL 
 

@@ -2,7 +2,7 @@
 ; 
 ; Despite the block name (cop_handlers_actor_flags), these are collision probes, not flag setters: both sample the collision layer at the actor's tile and branch on the result (7 script sites between them, in gw82_archer, gw82_eyesore and dm_follower_behavior).
 ; - BranchIfBehindWall (COP #5D): branch when the tile occludes the actor (blocked, out of bounds, or an odd type); fall through (skip the operand) when the actor is visible.
-; - BranchIfCollisionTypeNe (COP #62): branch when the tile's low nibble EQUALS the operand or the position is out of bounds, despite the "Ne" (not-equal) in the COP name (audit rename proposal).
+; - BranchIfCollisionTypeEq (COP #62): branch when the tile's low nibble EQUALS the operand or the position is out of bounds, despite the "Ne" (not-equal) in the COP name (audit rename proposal).
 ; 
 ; Both convert the actor position with pixel >> 4 (no −1 row adjustment, unlike TileCollisionQuery / ParseSignedTileOffset in cop_handlers_collision) and read the byte through [$80],Y after CalcTileMapOffset (Y ≥ $4000 = out of the map). The handlers return by writing the next script address to the COP frame ($02,S) and RTI.
 ---------------------------------------------
@@ -72,9 +72,9 @@ BranchIfBehindWall {
 }
 
 ---------------------------------------------
-; COP #62 with one byte (collision type nibble) and one &Code branch target. Samples the collision layer at the actor's tile via CalcTileMapOffset; jumps to the branch target when the tile's low nibble EQUALS the operand or the position is out of bounds, otherwise skips the branch operand. The COP name BranchIfCollisionTypeNe says "not equal" but the code branches on equality (BEQ). The solid nibble is ignored: a solid tile whose low nibble matches also branches. The operand is stored in absolute $0000 (global scratch) before D is zeroed, then compared with CMP $00, which reads the same location.
+; COP #62 with one byte (collision type nibble) and one &Code branch target. Samples the collision layer at the actor's tile via CalcTileMapOffset; jumps to the branch target when the tile's low nibble EQUALS the operand or the position is out of bounds, otherwise skips the branch operand. The COP name BranchIfCollisionTypeEq says "not equal" but the code branches on equality (BEQ). The solid nibble is ignored: a solid tile whose low nibble matches also branches. The operand is stored in absolute $0000 (global scratch) before D is zeroed, then compared with CMP $00, which reads the same location.
 
-BranchIfCollisionTypeNe {
+BranchIfCollisionTypeEq {
     TYX 
     LDA $14               ; Convert actor X pixel to tile coords (÷16)
     LSR 

@@ -470,7 +470,7 @@ thinker-spawn < param, @thinker_def_address >
 | Thinker | Uses | Purpose |
 |---------|------|---------|
 | `mode7_perspective.Mode7PerspectiveInit` | 1× | Mode 7 perspective for World Map |
-| `inventory_bg3_scroll_hdma` | 1× | Inventory screen: rebind BG3VOFS HDMA each frame (`QueueDma` → register `#12`) |
+| `inventory_bg3_scroll_hdma` | 1× | Inventory screen: rebind BG3VOFS HDMA each frame (`QueueHdmaDirect` → register `#12`) |
 | `diary_menu_window_dma` | 1× | Diary menu window DMA setup |
 | `boot_logo_enix_palette_obj0` | 1× | Enix logo palette cycle, OBJ palette 0 |
 | `boot_logo_enix_palette_obj1` | 1× | Enix logo palette cycle, OBJ palette 1 |
@@ -574,7 +574,7 @@ across the screen.
    - Body: `$04` repeat × `animScratch2` entries with linearly
      decreasing/increasing brightness values derived from base `$857A`
    - Footer: `$01` terminator + `$FF` reset value
-4. Queues the completed table via `QueueDma` to DMA channel `#26`
+4. Queues the completed table via `QueueHdmaDirect` to DMA channel `#26`
 5. Increments scanline count (`animScratch2`) each frame; clamps at 36 (`$0024`)
 6. After reaching 36 scanlines: increments `spritesetPtr` generation counter,
    clears flag byte `#02` (signals boss the effect is complete), resets

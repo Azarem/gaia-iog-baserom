@@ -863,7 +863,7 @@ Boot WRAM initialization constant: address + value pair.
 **Layout:** `[Byte, Byte, Byte]`  
 **Delimiter:** `0` (channel byte `$00` terminates)
 
-**Usage:** Consumed by `COP [QueueHdma]` and `COP [QueueDma]` commands. Sets up windowing effects, palette cycling, color gradient HDMA, and general DMA transfers.
+**Usage:** Consumed by `COP [QueueHdma]` and `COP [QueueHdmaDirect]` commands. Sets up windowing effects, palette cycling, color gradient HDMA, and general DMA transfers.
 
 **Files:** 9 files with 215+ instances (inventory, diary menu, ending credits, boot logos, angel tunnel, space flight)
 

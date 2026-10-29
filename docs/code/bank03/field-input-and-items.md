@@ -430,8 +430,8 @@ restores the saved X register (via `PLY`) and joins the normal lookup path.
 | `$03F0EE` | `GetPlayerFacing_BaseBodyFallback` | alternate entry: `PLY` restores saved X, branches to direction lookup |
 | `$03F11F` | `FacingDirectionLookup` | 88-byte table mapping animation frame → direction (0–3 cardinal, 4+ = non-cardinal) |
 | `$03F177` | `FacingFormOffsetTable` | 4-entry word table: per-form offsets into form-specific facing data |
-| `$03F17F` | `FacingData_WillAlt` | 27 bytes — Will's frame→direction map (4 directions × poses + extras) |
-| `$03F19A` | `FacingData_AbilityFx` | 44 bytes — Freedan's map (all zeros = always direction 0) |
+| `$03F17F` | `FacingData_WillAbilities` | 27 bytes — Will's frame→direction map (4 directions × poses + extras) |
+| `$03F19A` | `FacingData_TransformPoses` | 44 bytes — Freedan's map (all zeros = always direction 0) |
 | `$03F1C6` | `FacingData_FreedanFx` | 4 bytes — Shadow form A (all zeros) |
 | `$03F1CA` | `FacingData_ShadowFx` | 6 bytes — Shadow form B (all zeros) |
 

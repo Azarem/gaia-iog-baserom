@@ -7,7 +7,7 @@
 ; 
 ; === WHEN HIT ===
 ; 
-; combat_collision dispatches onHitCallback ($7F1000) after the hit damage: the callback pointer becomes the victim's entry address and onHitCallback is cleared, so the script below runs on the actor's next turn. HitSwitchTriggered: SetFlagRaw with A = $24 (the event-flag number, no base offset), frame $10 (assumed to be the pressed look; not viewed), AnimOnce, WaitByte #0F, frame $0F, AnimOnce, then BRA HitSwitchRearm which restores HP $FF and registers the callback again. The button can therefore be struck again after about $0F frames plus two animation cycles.
+; combat_collision dispatches onHitCallback ($7F1000) after the hit damage: the callback pointer becomes the victim's entry address and onHitCallback is cleared, so the script below runs on the actor's next turn. HitSwitchTriggered: SetFlagRaw with A = $24 (the event-flag number, no base offset), frame $10 (assumed to be the pressed look; not viewed), AnimOnce, WaitByte #0F (16 ticks), frame $0F, AnimOnce, then BRA HitSwitchRearm which restores HP $FF and registers the callback again. The button can therefore be struck again after about 16 ticks plus two animation cycles.
 ; 
 ; === PLACEMENT AND FLAG READERS ===
 ; 
@@ -65,14 +65,14 @@ hit_switch [
 ]
 
 ---------------------------------------------
-; Runs after a hit: set event flag $24, show frame $10 (assumed pressed look), wait $0F frames, show frame $0F again, then re-arm.
+; Runs after a hit: set event flag $24, show frame $10 (assumed pressed look), wait 16 ticks (WaitByte #0F), show frame $0F again, then re-arm.
 
 HitSwitchTriggered {
     LDA $24               ; Flag number from init; SetFlagRaw sets event flag A (no base offset)
     JSL $@flag_helpers.SetFlagRaw
     COP [StageSpriteFrame] ( #10 ) ; Frame $10 (assumed pressed look; not viewed)
     COP [AnimOnce]
-    COP [WaitByte] ( #0F ) ; Hold for $0F frames
+    COP [WaitByte] ( #0F ) ; Hold for 16 ticks (WaitByte #0F)
     COP [StageSpriteFrame] ( #0F ) ; Back to the resting frame $0F
     COP [AnimOnce]
     BRA HitSwitchRearm    ; Re-arm

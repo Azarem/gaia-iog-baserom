@@ -66,7 +66,7 @@ divisor increment), `$BC = 0` (rotation index into sine/cosine tables),
   by sine/cosine sign; `NormalizeDivisor` right-shifts until the scale divisor fits
   8 bits; per-scanline hardware 16÷8 divide (`WRDIV`/`RDDIV`) yields cos/scale and
   sin/scale; adaptive overflow halving preserves the ratio.
-- **Phase 3** — `QueueMode7HdmaTables`: four `COP QueueDma` writes to B-bus
+- **Phase 3** — `QueueMode7HdmaTables`: four `COP QueueHdmaDirect` writes to B-bus
   registers M7A–M7D (`$211B`–`$211E`) from `$7E7000`, `$7E7800`, `$7E8000`
   (table A queued twice for M7A and M7D).
 
@@ -98,7 +98,7 @@ divisor increment), `$BC = 0` (rotation index into sine/cosine tables),
 |---------|-------|------|
 | `$03A940` | `Mode7PerspectiveInit` | `thinker-def` entry: `M7SEL=$80` (outside-map transparent), scroll overrides, init `$B6`/`$B8`/`$BC` |
 | `$03A985` | `Mode7PerspectiveUpdate` | per-frame: init 224-entry HDMA tables, then compute rotation matrix |
-| `$03AA12` | `QueueMode7HdmaTables` | RTS-trick target: four `COP QueueDma` ops to M7A–M7D B-bus registers |
+| `$03AA12` | `QueueMode7HdmaTables` | RTS-trick target: four `COP QueueHdmaDirect` ops to M7A–M7D B-bus registers |
 | `$03AA2D` | `Mode7Quadrant_PosCosPosSin` | quadrant 1: +cos, +sin → M7A=cos/s, M7B=sin/s, M7C=−sin/s |
 | `$03AA7E` | `Mode7Quadrant_PosCosNegSin` | quadrant 2: +cos, −sin (sin negated via EOR/INC) |
 | `$03AACF` | `Mode7Quadrant_NegCosPosSin` | quadrant 3: −cos, +sin (cos negated) |
@@ -164,7 +164,7 @@ active version:
 4. **No `NormalizeDivisor`** — scale > 255 would truncate the divisor → wrong
    results.
 5. **Underflow handling** — borrow-based (`BCC`/`DEC`) vs. carry-based.
-6. **DMA command** — `QueueHdma` instead of `QueueDma`.
+6. **DMA command** — `QueueHdma` instead of `QueueHdmaDirect`.
 7. **NOP count** — quadrants 3/4 use only 4 delay NOPs (vs. 6), risking early
    reads of the hardware divide.
 
@@ -176,7 +176,7 @@ simpler per-scanline table format.
 | Address | Label | Role |
 |---------|-------|------|
 | `$03AB88` | `Mode7PerspectiveAlt` | alternate thinker entry (unreferenced) |
-| `$03AC38` | `QueueMode7HdmaAlt` | HDMA queue (uses `QueueHdma` instead of `QueueDma`) |
+| `$03AC38` | `QueueMode7HdmaAlt` | HDMA queue (uses `QueueHdma` instead of `QueueHdmaDirect`) |
 | `$03AC53` | `Mode7AltQ1_PosCosPosSin` | quadrant 1 (4 NOP delays instead of 6) |
 | `$03AC9B` | `Mode7AltQ2_PosCosNegSin` | quadrant 2 |
 | `$03ACE3` | `Mode7AltQ3_NegCosPosSin` | quadrant 3 |

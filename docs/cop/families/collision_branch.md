@@ -39,7 +39,7 @@ Read-only probes of `$7FC000` that **conditionally branch** in COP scripts. Soli
 | `1C` | `BranchIfSolidTypeSouth` | 6 | Byte Type, `&Code` | `BranchIfSolidTypeSouth` | Branch or Continue |
 | `1D` | `BranchIfSolidTypeWest` | 4 | Byte Type, `&Code` | `BranchIfSolidTypeWest` | Branch or Continue |
 | `1E` | `BranchIfSolidTypeEast` | 4 | Byte Type, `&Code` | `BranchIfSolidTypeEast` | Branch or Continue |
-| `62` | `BranchIfCollisionTypeNe` | 2 | Byte Nibble, `&Code` | `BranchIfCollisionTypeNe` | Branch or Continue |
+| `62` | `BranchIfCollisionTypeEq` | 2 | Byte Nibble, `&Code` | `BranchIfCollisionTypeEq` | Branch or Continue |
 
 **Family call-site total:** 507
 
@@ -409,17 +409,17 @@ COP [BranchIfSolidTypeEast] ( #00, &ShimmyRightLoop )
 
 ---
 
-#### COP [62] — `BranchIfCollisionTypeNe` (branch on type nibble match at actor tile)
+#### COP [62] — `BranchIfCollisionTypeEq` (branch on type nibble match at actor tile)
 
-- **Preferred name:** `BranchIfCollisionTypeNe`
+- **Preferred name:** `BranchIfCollisionTypeEq`
 - **Aliases:** `BranchIfSolidNibbleNe`
-- **Handler:** `BranchIfCollisionTypeNe` @ [`cop_handlers_metatile.asm:627-668`](../../../extracted/system/engine/cop_handlers_metatile.asm)
+- **Handler:** `BranchIfCollisionTypeEq` @ [`cop_handlers_metatile.asm:627-668`](../../../extracted/system/engine/cop_handlers_metatile.asm)
 - **Usage count:** 2
 
 ##### What it does
 
 ```asm
-BranchIfCollisionTypeNe {
+BranchIfCollisionTypeEq {
     TYX
     LDA $14               ; Pixel → tile (÷16, no camera clamp)
     LSR ×4
@@ -464,7 +464,7 @@ Great Wall archer waits until standing on type `$0F` tile before firing sequence
 
 ```asm
 COP [SetEntryHere]
-COP [BranchIfCollisionTypeNe] ( #0F, &code_0B92A8 )
+COP [BranchIfCollisionTypeEq] ( #0F, &code_0B92A8 )
 DEC $24
 BMI loc_0B9297
 ```

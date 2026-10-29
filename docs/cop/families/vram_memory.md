@@ -215,7 +215,7 @@ SetScratchPointer {
 
 ##### How it is used
 
-Snake pit FX, laborer NPC setup, adrift ship effects — typically **`SetScratchPointer`** then **`ResetSpriteState`** / global anim load:
+Snake pit FX, laborer NPC setup, adrift ship effects — typically **`SetScratchPointer`** then **`SetTileStreamAnim`** / global anim load:
 
 ```asm
 ; extracted/angkor_wat/snake_pit/awB4_snake_pit_fx.asm (pattern)

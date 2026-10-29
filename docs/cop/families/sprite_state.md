@@ -10,7 +10,7 @@ Two opcodes for **reinitializing** and **stepping** a secondary animation path t
 
 Typical use: lightweight FX actors (particles, ambient sprites) that call `SetMetasprite`, then `$55`/`$56` instead of staging/AnimOnce.
 
-**Legacy script names (comments / old docs):** `$55` = `ResetSpriteInit` → **`ResetSpriteState`**; `$56` = `LoadSpriteAnimGlobal` → **`AdvanceSpriteAnim`**.
+**Legacy script names (comments / old docs):** `$55` = `ResetSpriteInit` → **`SetTileStreamAnim`**; `$56` = `LoadSpriteAnimGlobal` → **`AdvanceSpriteAnim`**.
 
 ## Shared state
 
@@ -34,16 +34,16 @@ Typical use: lightweight FX actors (particles, ambient sprites) that call `SetMe
 
 | Op | Name (script) | Uses | Params | Handler | Outcome |
 |----|---------------|-----:|--------|---------|---------|
-| `55` | `ResetSpriteState` | 4 | `Byte`, `Word` | `ResetSpriteState` | Continue |
+| `55` | `SetTileStreamAnim` | 4 | `Byte`, `Word` | `SetTileStreamAnim` | Continue |
 | `56` | `AdvanceSpriteAnim` | 4 | (none) | `AdvanceSpriteAnim` | Halt while DMA pending; Continue on frame step |
 
 **Family call-site total:** 8
 
 ## Opcodes
 
-#### COP [55] — `ResetSpriteState` (reset anim index + frame + table pointer)
+#### COP [55] — `SetTileStreamAnim` (reset anim index + frame + table pointer)
 
-- **Handler:** `ResetSpriteState` @ [`cop_handlers_sprite.asm:25-42`](../../../extracted/system/engine/cop_handlers_sprite.asm)
+- **Handler:** `SetTileStreamAnim` @ [`cop_handlers_sprite.asm:25-42`](../../../extracted/system/engine/cop_handlers_sprite.asm)
 - **Legacy name:** `ResetSpriteInit`
 - **Parameters:** `Byte` anim index, `Word` pointer (stored to `$24`)
 - **Outcome:** Continue
@@ -54,7 +54,7 @@ Typical use: lightweight FX actors (particles, ambient sprites) that call `SetMe
 Sets `$28` from the first byte, clears **`$2A`**, stores the word operand in **`$24`**, then saves script bank and PC like other COP handlers.
 
 ```asm
-ResetSpriteState {
+SetTileStreamAnim {
     TYX
     LDA [$0A]             ; animation index
     INC $0A
@@ -89,7 +89,7 @@ Snake pit FX (`extracted/angkor_wat/snake_pit/awB4_snake_pit_fx.asm`):
 
 ```asm
 COP [SetMetasprite] ( @spriteset_snake_pit_fx )
-COP [ResetSpriteState] ( #00, #$2020 )
+COP [SetTileStreamAnim] ( #00, #$2020 )
 COP [AdvanceSpriteAnim]
 RTL
 ```
@@ -97,17 +97,17 @@ RTL
 Freejia laborer NPC (`extracted/freejia/freejia/fr32_laborer_npc.asm`):
 
 ```asm
-COP [ResetSpriteState] ( #00, #$3FE0 )
+COP [SetTileStreamAnim] ( #00, #$3FE0 )
 COP [AdvanceSpriteAnim]
 ...
-COP [ResetSpriteState] ( #01, #$3FF0 )
+COP [SetTileStreamAnim] ( #01, #$3FF0 )
 COP [AdvanceSpriteAnim]
 ```
 
 Gold ship adrift FX (`extracted/gold_ship/adrift/dc2F_adrift_fx.asm`):
 
 ```asm
-COP [ResetSpriteState] ( #00, #$2010 )
+COP [SetTileStreamAnim] ( #00, #$2010 )
 COP [AdvanceSpriteAnim]
 ```
 

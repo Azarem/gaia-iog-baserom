@@ -24,7 +24,7 @@ town_door [
     COP [AnimOnce]
     COP [MarkSolidHere]   ; Block the door's hitbox rectangle (high nibble of the collision cells under it), not just one tile
     COP [BranchIfPlayerNear] ( #01, &TownDoorOpenIdle ) ; Player within 16 px on both axes at spawn (just came out of the building): start open
-    COP [WaitWhileOffscreen] ( #0A ) ; Off-screen ($4000 set at spawn): re-run this op every 10 passes; it becomes the entry pointer, the loop head of later frames
+    COP [WaitWhileOffscreen] ( #0A ) ; Off-screen ($4000 set at spawn): operand #0A goes to $08, so this op re-runs 11 ticks later; it becomes the entry pointer, the loop head of later frames
 
 ; Per-frame test: player within 16 px on both axes -> TownDoorHoldUpLoop, otherwise end this pass (the entry pointer stays on WaitWhileOffscreen).
 

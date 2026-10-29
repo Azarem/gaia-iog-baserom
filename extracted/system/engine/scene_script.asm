@@ -6,22 +6,22 @@
 ; 
 ; The system centers on a command interpreter (SceneScriptMain) that reads one-byte opcodes from a scene script stream, dispatches them through a 24-entry jump table (scene_script_jump_table), and loops until opcode $00 (end-of-scene) is reached. SceneScriptNoMusic is a variant that filters out music load commands ($11) by skipping their operand bytes.
 ; 
-; Scene script data is structured as: [scene_id:u16, command_stream...] entries. FindCurrentScene scans the table for a matching scene ID, then the interpreter processes commands sequentially using ReadScriptByte + Y-register stream position.
+; Scene script data is structured as: [scene_id:u16, command_stream...] entries. FindCurrentScene scans the table for a matching scene ID, then the interpreter processes commands sequentially using ReadScriptByte + Y-register stream position. The rebuilt tree finds scenes through scene_meta_list (indexed by scene id) via baserom/scene-load/SceneMetaLoad.patch.asm, which replaces FindCurrentScene and SkipScriptCommands with indexed lookups; the versions extracted here are the scanning originals.
 ; 
 ; === COMMAND SET (scene_script_jump_table, 24 entries) ===
 ; 
 ; | Opcode | Handler | Description |
 ; |--------|---------|-------------|
-; | $02 | SceneCmd_ConfigDisplay | Configure PPU display mode from table_018000 |
+; | $02 | SceneCmd_ConfigDisplay | Configure PPU display mode from display_preset_table |
 ; | $03 | SceneCmd_LoadBgTiles | Load BG tile graphics (2bpp/4bpp) with decompression |
-; | $04 | SceneCmd_LoadPalette | Load single-layer tilemap data to WRAM |
-; | $05 | SceneCmd_LoadMetatileSets | Load dual-layer tilemaps with cache and attributes |
-; | $06 | SceneCmd_LoadLayerMaps | Full scene graphics: tiles + tilemaps + map geometry |
+; | $04 | SceneCmd_LoadPalette | Load palette colours into the palette buffer cgramPalette ( < start, end, dest > ) |
+; | $05 | SceneCmd_LoadMetatileSets | Load metatile sets into WRAM for layer 0 and/or layer 1, then build the metatile flag table |
+; | $06 | SceneCmd_LoadLayerMaps | Load layer maps (width, height, compressed map) for layer 0 and/or layer 1; with no layer bit set, load a tileset to low VRAM |
 ; | $0E | SceneCmd_Skip3 | Skip 3 bytes in script stream |
 ; | $10 | SceneCmd_LoadSpriteTiles | Load sprite tile graphics |
 ; | $11 | SpcMusicLoadCmd | Transfer SPC music data via APU handshake |
 ; | $13 | SceneCmd_Branch | Conditional execution based on game flag |
-; | $14 | SceneCmd_Label | No operation |
+; | $14 | SceneCmd_Label | Label: no-op that skips its id byte; the position is what jump ($15) and branch ($13) continue at |
 ; | $15 | SkipScriptCommands | Skip remaining commands in current scene block |
 ; | $17 | SceneCmd_LoadCharTiles | Load character/object tiles with flexible VRAM targeting |
 ; 
@@ -68,11 +68,11 @@
 ; 
 ; === PPU DISPLAY CONFIGURATION ===
 ; 
-; SceneCmd_ConfigDisplay reads a table_018000 index and configures 10 PPU-related fields: TM/TS (main/sub screen designation), TMW/TSW (window masks), CGWSEL/CGADSUB (color math), layerPriorityFlag, scrollModeFlags, BGMODE, and BG tilemap addresses (BG1SC/BG2SC). The layerPriorityFlag bit 7 swaps BG1/BG2 tilemap base address assignment between $10xx and $18xx.
+; SceneCmd_ConfigDisplay reads a display_preset_table index and configures 10 PPU-related fields: TM/TS (main/sub screen designation), TMW/TSW (window masks), CGWSEL/CGADSUB (color math), layerPriorityFlag, scrollModeFlags, BGMODE, and BG tilemap addresses (BG1SC/BG2SC). The layerPriorityFlag bit 7 swaps BG1/BG2 tilemap base address assignment between $10xx and $18xx.
 ; 
 ; === SPC MUSIC LOADING ===
 ; 
-; SpcMusicLoadCmd implements the full SPC700 IPL transfer protocol: Wait frames → optional stop command ($F2) → ready signal ($F0) → handshake poll → start command ($FF) → wait → SpcBlockTransfer for bulk data → play command. The musicRoomGroup field gates loading to prevent redundant transfers when re-entering the same music region.
+; SpcMusicLoadCmd implements the full SPC700 IPL transfer protocol: Wait frames → optional stop command ($F2) → ready signal ($F0) → handshake poll → start command ($FF) → wait → SpcBlockTransfer for bulk data → play command. The transfer runs only when the script's group byte ($06F4, stored at the top of the routine) equals musicRoomGroup; otherwise the routine returns. The redundancy check is CheckSourceCacheHit on $0687, which skips a load of the same source.
 ; 
 ; === SCRIPT POINTER ADDRESS MAPPING ===
 ; 
@@ -224,7 +224,7 @@ SceneScriptNoMusic {
 }
 
 ---------------------------------------------
-; 24-entry word jump table mapping scene opcode indices ($00–$17) to handler addresses. Unused slots ($00–$01, $07–$0D, $0F, $12, $16) point to SceneCmd_Default (RTS no-op). Active handlers: $02=ConfigDisplay, $03=LoadBgTiles, $04=LoadTilemap, $05=LoadDualTilemap, $06=FullGraphics, $0E=Skip3, $10=LoadSpriteTiles, $11=SpcMusicLoad, $13=ConditionalLoad, $14=Nop, $15=SkipScriptCommands, $17=LoadCharTiles.
+; 24-entry word jump table mapping scene opcode indices ($00–$17) to handler addresses. Unused slots ($00–$01, $07–$0D, $0F, $12, $16) point to SceneCmd_Default (RTS no-op). Active handlers: $02=SceneCmd_ConfigDisplay, $03=SceneCmd_LoadBgTiles, $04=SceneCmd_LoadPalette, $05=SceneCmd_LoadMetatileSets, $06=SceneCmd_LoadLayerMaps, $0E=SceneCmd_Skip3, $10=SceneCmd_LoadSpriteTiles, $11=SpcMusicLoadCmd, $13=SceneCmd_Branch, $14=SceneCmd_Label, $15=SkipScriptCommands, $17=SceneCmd_LoadCharTiles.
 
 scene_script_jump_table [
   &SceneCmd_Default   ;00
@@ -274,7 +274,7 @@ SceneCmd_Branch {
 }
 
 ---------------------------------------------
-; No-operation scene command — advances the script pointer by one byte (INY) and returns. Used as a placeholder or padding byte in command streams.
+; Scene command $14: label definition, executed as a no-op. Skips the label id operand (INY) and ends at the RTS of SceneCmd_Default that follows; the id is not used here. The position of the label in the stream is what jump ($15) and branch ($13, flag set) continue at.
 
 SceneCmd_Label {
     INY 
@@ -643,7 +643,7 @@ BuildAttributeTable {
 }
 
 ---------------------------------------------
-; Load tilemap data from ROM to WRAM. Reads three script operands (start, end, WRAM destination offset), each doubled (ASL) into $0664/$0666/$0668 for word addressing. Loads source pointer via LoadScriptPointer, then DmaRomToWram into $7F:0A00 + offset. Special case: destination offset $0020 (palette tilemap) copies one palette entry from $7F0A20 into cgramPalette after the DMA.
+; Scene command $04: load palette colours into the palette buffer. Reads three script operands (start, end, destination colour), each doubled (ASL) into $0664/$0666/$0668 (colour index to byte offset), loads the source pointer via LoadScriptPointer, then DmaRomToWram copies the window [start, end) of the source to $7F:0A00 + destination. Special case: destination $0020 (colour $10) also copies the first colour just loaded, from $7F0A20, to cgramPalette (colour 0, the backdrop) after the DMA.
 
 SceneCmd_LoadPalette {
     PHP 
@@ -684,7 +684,7 @@ SceneCmd_LoadPalette {
 }
 
 ---------------------------------------------
-; Load tilemaps for both BG layers from shared compressed source data. Reads three size operands (XBA + LSR×2 for >>2 scaling) plus flags byte $066A (bit 0 = layer 0, bit 1 = layer 1). Each active layer is checked against its source cache slot ($0678/$067B); cache hits clear that layer bit. If any layers remain: decompress once to $7000, then for each active layer DMA to $7E:2000 (layer 0) or $7E:2800 (layer 1) and call BuildMetatileFlagTable.
+; Scene command $05: load a metatile definition set into WRAM for layer 0, layer 1 or both from one shared source. Reads three window operands (start, end, destination), each scaled by XBA + LSR×2 (x$40) into $0664/$0666/$0668, then a flags byte into $066A (bit 0 = layer 0, bit 1 = layer 1) and the source pointer. Each flagged layer is checked against its source cache slot ($0678/$067B); a cache hit clears that layer bit. If any layer remains: decompress once to $7E:7000, then for each remaining layer DMA the window to $7E:2000 (layer 0) or $7E:2800 (layer 1) + destination and call BuildMetatileFlagTable.
 
 SceneCmd_LoadMetatileSets {
     PHP 
@@ -771,7 +771,7 @@ SceneCmd_LoadMetatileSets {
 }
 
 ---------------------------------------------
-; Complete scene graphics load — the most complex scene command. Reads flags $066A and source pointer; optionally clears layer bits on source cache hits ($067E layer 0, $0681 layer 1). Reads map width/height pairs into $00/$01 (X) and $02/$03 (Y). If no layers active after cache filtering, returns early. With active layers but zero geometry (compressed pointer $0000), HandleEmptyGeometry. With nonzero geometry: StoreMapAndDecompress per active layer; layer 1 also copies primary decompressed data from $A000 to $C000 and stores secondary map dimensions. If flags indicate no tilemap layers (AND #$7F == 0), DmaLowVramTileset loads tiles directly to low VRAM.
+; Scene command $06: load the layer map or maps (width, height and compressed map). Reads flags $066A and source pointer; optionally clears layer bits on source cache hits ($067E layer 0, $0681 layer 1). Reads map width/height pairs into $00/$01 (X) and $02/$03 (Y). If no layers active after cache filtering, returns early. With active layers but zero geometry (compressed pointer $0000), HandleEmptyGeometry. With nonzero geometry: StoreMapAndDecompress per active layer; layer 1 also copies primary decompressed data from $A000 to $C000 and stores secondary map dimensions. If flags indicate no tilemap layers (AND #$7F == 0), DmaLowVramTileset loads tiles directly to low VRAM.
 
 SceneCmd_LoadLayerMaps {
     STZ $gfxSrcStart      ; Source window start = 0 (low byte; 8-bit STZ)
@@ -1156,9 +1156,9 @@ SceneCmd_ConfigDisplay {
     PHY 
     REP #$20
     AND #$00FF
-    ASL                   ; Double index for word-sized table_018000 pointer entries
+    ASL                   ; Double index for word-sized display_preset_table pointer entries
     TAX 
-    LDA $@display_preset_table, X ; Read pointer from table_018000, convert to local offset
+    LDA $@display_preset_table, X ; Read pointer from display_preset_table, convert to local offset
     SEC 
     SBC #$&display_preset_table
     TAX 
@@ -1291,7 +1291,7 @@ SceneCmd_Skip3 {
 }
 
 ---------------------------------------------
-; Load SPC music data when the room group matches. Reads musicParentActor and room group from script, loads ROM pointer, compares musicRoomGroup to script group — mismatch exits. CheckSourceCacheHit on $0687 skips redundant loads. On load: WaitFrames(26), optional stop ($F2 + 32 frames if $0D72 set), handshake ($F0 poll, $FF), SpcBlockTransfer from $46/$48, sets $0D72=1, then writes play ($01) or stop ($00) to APUIO0 based on musicParentActor.
+; Load SPC music data when the script's group equals musicRoomGroup. Reads musicParentActor and the group byte from the script (the group byte is stored at $06F4 at the top of the routine), loads the ROM pointer, then compares musicRoomGroup to $06F4: equal continues to the load path, a mismatch returns. CheckSourceCacheHit on $0687 skips a repeated load of the same source. On load: WaitFrames(26), optional stop ($F2 + 32 frames if $0D72 set), handshake ($F0 poll, $FF), SpcBlockTransfer from $46/$48, sets $0D72=1, then writes play ($01) or stop ($00) to APUIO0 based on musicParentActor.
 
 SpcMusicLoadCmd {
     JSR $&ReadScriptByte  ; Read music parent actor ID from script
@@ -1300,7 +1300,7 @@ SpcMusicLoadCmd {
     STA $06F4
     LDX #$003E
     JSR $&LoadScriptPointer
-    LDA $musicRoomGroup   ; Compare current musicRoomGroup — same group means music is already loaded
+    LDA $musicRoomGroup   ; Equal to the script's group byte ($06F4): continue to the load path; different: return
     CMP $06F4
     BEQ loc_028B88
     RTS 
@@ -1375,7 +1375,7 @@ SceneCmd_LoadSpriteTiles {
     INC $3E
     CMP #$0000            ; Null pointer check — $0000 means uncompressed data
     BEQ loc_028C1B
-    STA $78               ; Compressed: store size, decompress to VRAM $4000 (sprite tile area)
+    STA $78               ; Compressed: store size, decompress to WRAM $7E:4000 (sprite tile staging)
     SEP #$20
     LDX #$4000
     STX $7A

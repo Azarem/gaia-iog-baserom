@@ -15,7 +15,7 @@ dc2F_adrift_fx [
   code_0596FD:
     COP [SetScratchPointer] ( @misc_fx_1CD180 )
     COP [SetMetasprite] ( @spriteset_adrift_wave )
-    COP [ResetSpriteState] ( #00, #$2010 )
+    COP [SetTileStreamAnim] ( #00, #$2010 )
     COP [AdvanceSpriteAnim]
     RTL 
 } >

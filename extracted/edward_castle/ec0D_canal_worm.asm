@@ -205,7 +205,7 @@ code_0A81A9 {
     COP [ClearPriorityMax]
 
   loc_0A81F0:
-    COP [ReloadMoveDurations]
+    COP [ReloadMoveChains]
     COP [StageSpriteFrame] ( #08 )
     COP [AnimOnce]
     LDA $10
@@ -245,7 +245,7 @@ code_0A822B {
     COP [ClearPriorityMax]
 
   loc_0A8240:
-    COP [ReloadMoveDurations]
+    COP [ReloadMoveChains]
     COP [StageSpriteFrame] ( #26 )
     COP [AnimOnce]
     LDA $10

@@ -146,7 +146,7 @@ code_0ACDCE {
     STA $7F100E, X
     PLA 
     STA $7F100C, X
-    COP [ReloadMoveDurations]
+    COP [ReloadMoveChains]
     COP [SetEntryHere]
     COP [AnimLoop]
     LDA $7F100C, X

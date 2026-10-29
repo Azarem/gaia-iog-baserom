@@ -39,9 +39,9 @@ Eleven opcodes for **Will / Freedan / Shadow** sprite staging, axis movement set
 |----|------|-----:|--------|---------|---------|
 | `8E` | `SetPlayerSpriteDirect` | 24 | `Byte BodyIdx` | `SetPlayerSpriteDirect` | Continue |
 | `8F` | `StagePlayerSprite` | 93 | `Byte Anim` | `StagePlayerSprite` | Continue (deferred stage) |
-| `90` | `StagePlayerMoveX` | 2 | `Byte Anim`, `Byte XStep` | `StagePlayerSpriteMoveX` | Continue (deferred stage) |
-| `91` | `StagePlayerMoveY` | 21 | `Byte Anim`, `Byte YStep` | `StagePlayerSpriteMoveY` | Continue (deferred stage) |
-| `92` | `StagePlayerMoveXY` | 9 | `Byte Anim`, `Byte XStep`, `Byte YStep` | `StagePlayerSpriteMoveXY` | Continue (deferred stage) |
+| `90` | `StagePlayerMoveX` | 2 | `Byte Anim`, `Byte XStep` | `StagePlayerMoveX` | Continue (deferred stage) |
+| `91` | `StagePlayerMoveY` | 21 | `Byte Anim`, `Byte YStep` | `StagePlayerMoveY` | Continue (deferred stage) |
+| `92` | `StagePlayerMoveXY` | 9 | `Byte Anim`, `Byte XStep`, `Byte YStep` | `StagePlayerMoveXY` | Continue (deferred stage) |
 | `93` | `RunPlayerAnim` | 8 | (none) | `RunPlayerAnim` | **Halt** until anim done |
 | `94` | `StagePlayerSprWall` | 0 | `Byte Anim`, `Byte XStep`, `Byte YStep`, `Byte WallType` | `StagePlayerSprWall` | Continue (deferred stage) |
 | `95` | `StagePlayerSprFromDP` | 8 | (none) | `StagePlayerSprFromDP` | Continue (deferred stage) |
@@ -147,7 +147,7 @@ COP [StagePlayerSprite] ( #10 )     ; Shadow south idle
 
 #### COP [90] — `StagePlayerMoveX` (stage + X axis duration)
 
-- **Handler:** `StagePlayerSpriteMoveX` @ [`cop_handlers_player_sprite.asm:77-97`](../../../extracted/system/engine/cop_handlers_player_sprite.asm)
+- **Handler:** `StagePlayerMoveX` @ [`cop_handlers_player_sprite.asm:77-97`](../../../extracted/system/engine/cop_handlers_player_sprite.asm)
 - **Params:** `Byte Anim`, `Byte XStep` → `moveXAlt`, `$2C` via `AnimFrameLookup`
 
 ##### What it does
@@ -179,7 +179,7 @@ loc_09E026:
 
 #### COP [91] — `StagePlayerMoveY` (stage + Y axis duration)
 
-- **Handler:** `StagePlayerSpriteMoveY` @ [`cop_handlers_player_sprite.asm:102-122`](../../../extracted/system/engine/cop_handlers_player_sprite.asm)
+- **Handler:** `StagePlayerMoveY` @ [`cop_handlers_player_sprite.asm:102-122`](../../../extracted/system/engine/cop_handlers_player_sprite.asm)
 - **Params:** `Byte Anim`, `Byte YStep` → `moveYAlt`, **`$2E`**
 
 ##### What it does
@@ -209,7 +209,7 @@ COP [AnimOnce]
 
 #### COP [92] — `StagePlayerMoveXY` (stage + both axes)
 
-- **Handler:** `StagePlayerSpriteMoveXY` @ [`cop_handlers_player_sprite.asm:127-153`](../../../extracted/system/engine/cop_handlers_player_sprite.asm)
+- **Handler:** `StagePlayerMoveXY` @ [`cop_handlers_player_sprite.asm:127-153`](../../../extracted/system/engine/cop_handlers_player_sprite.asm)
 - **Params:** `Byte Anim`, `Byte XStep`, `Byte YStep`
 
 ##### What it does
