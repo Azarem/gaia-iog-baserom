@@ -238,10 +238,10 @@ sequenceDiagram
 | 4 | `enemy_clear_reward_table` | `$1AADE` | 256 B | Per-scene enemy clear stat rewards |
 | 5 | `walk_step_table` | `$1ABDE` | 18 B | Direction→sprite/velocity mapping |
 | 6 | `enemy_stats_table` | `$1ABF0` | 440 B | Enemy HP/ATK/DEF/type (110 entries) |
-| 7 | `scene_chest_table` | `$1ADA8` | 734 B | Per-scene barrier/chest placement |
+| 7 | `scene_chest_table` | `$1ADA8` | 734 B | Per-scene treasure chest records |
 | 8 | `move_chain_table` | `$1B086` | 4,862 B | Pre-computed movement velocity curves |
 | 9 | `trig_and_level_tables` | `$1C384` | 1,809 B | Sine/cosine LUTs, level-up thresholds |
-| 10 | `dialog_template_table` | `$1CA95` | 273 B | Reusable dialog box templates |
+| 10 | `dialog_template_table` | `$1CA95` | 273 B | Dialog speaker colour/sound and box presets |
 | 11 | `music_pointer_array` | `$1CBA6` | 90 B | Scene→BGM SPC music pointers |
 | 12 | `parallax_scroll_table` | `$1CC00` | 1,998 B | Per-scene parallax/HDMA scroll configs |
 | 13 | `event_block_table` | `$1D3CE` | 1,264 B | Event-triggered tile mutations |

@@ -6,7 +6,7 @@ _Ops: `[AA]`, `[AB]`, `[AC]`, `[AD]`, `[AE]`, `[AF]`, `[B0]`, `[B1]`_ · _Source
 
 ## Overview
 
-Eight opcodes that configure **non-sprite** movement: they write movement **speed indices** into WRAM (`moveXAlt` / `moveYAlt`) and refresh **frame durations** at actor `$2C` / `$2E` via `AnimFrameLookup`. Companion ops set **forced facing** bits on `$12` (SW / NE diagonals) or copy the same staging onto the **list-tail child** at global `$0058`. `$B1` recomputes durations from the saved indices without changing indices — used after gravity, interrupts, or other code that clobbered `$2C` / `$2E`.
+Eight opcodes that configure **non-sprite** movement: they write movement **indices** (into `move_chain_table`) into WRAM (`moveXAlt` / `moveYAlt`) and load the **delta-chain head pointers** at actor `$2C` (X) / `$2E` (Y) via `AnimFrameLookup`; the movement code consumes one chain node (a signed per-frame delta) per frame. Companion ops set the **delta-negate** bits on `$12` (`$4000` negates the X delta, `$2000` the Y delta) or copy the same staging onto the **newest actor in the list** (`actorListLast`, `$0058`). `$B1` reloads the chain pointers from the saved indices without changing the indices, which rewinds both chains to their first node — used after gravity, interrupts, or other code that clobbered or advanced `$2C` / `$2E`.
 
 These pair with `COP [53]` (`TickMove`) and with sprite staging (`$81`–`$87`) when scripts want motion during an animation clip. They do **not** start animation by themselves.
 
@@ -14,16 +14,16 @@ These pair with `COP [53]` (`TickMove`) and with sprite staging (`$81`–`$87`) 
 
 | Symbol / WRAM | Role |
 |---------------|------|
-| `$7F0018,X` (`moveXAlt`) | X movement speed **index** (operand byte) |
-| `$7F001A,X` (`moveYAlt`) | Y movement speed **index** |
-| `$2C` / `$2E` | X / Y **frame durations** (output of `AnimFrameLookup`, consumed by movement tick) |
-| `$12` | Actor flags; `$4000` = force SW, `$2000` = force NE, `$6000` = both (via `$AD`–`$AF`) |
-| `$0058` | Actor list **tail** pointer — target of `$B0` (typically the child just appended by spawn) |
-| `AnimFrameLookup` | `actor_pool` — maps speed index → duration word |
+| `$7F0018,X` (`moveXAlt`) | X movement **index** (operand byte) |
+| `$7F001A,X` (`moveYAlt`) | Y movement **index** |
+| `$2C` / `$2E` | X / Y **delta-chain pointers** (output of `AnimFrameLookup`; the movement code consumes one node per frame) |
+| `$12` | Actor flags; `$4000` = negate the X delta, `$2000` = negate the Y delta, `$6000` = both (via `$AD`–`$AF`) |
+| `$0058` | Actor list **tail** pointer (`actorListLast`) — target of `$B0` (typically the child just appended by spawn) |
+| `AnimFrameLookup` | `actor_pool` — returns `move_chain_table[index × 2]`, the head pointer of a delta chain (not a duration) |
 
 ## Family notes
 
-- Operands are **table indices**, not pixel deltas. Direction of travel still comes from animation movement tables, `$12` facing bits, and optional `ForceDir*` overrides.
+- Operands are **table indices**, not pixel deltas. Direction of travel still comes from animation movement tables, the `$12` negate bits, and optional `ForceDir*` overrides.
 - `$AD` / `$AE` / `$AF`: operand **`#00` clears** the corresponding bit(s) via `TRB`; nonzero sets via `TSB`.
 - `$B0` runs on **`LDX $0058`** (global tail), not the caller’s slot — spawn the child immediately before `$B0`, or the wrong actor receives the slide.
 - `$B1` does not reload indices from elsewhere; it only re-runs `AnimFrameLookup` on the current `moveXAlt` / `moveYAlt`.
@@ -46,18 +46,18 @@ These pair with `COP [53]` (`TickMove`) and with sprite staging (`$81`–`$87`) 
 
 ## Opcodes
 
-#### COP [AA] — `StageMoveX` (stage X speed index and duration)
+#### COP [AA] — `StageMoveX` (stage X movement index and delta chain)
 
 - **Preferred name:** `StageMoveX`
 - **Aliases:** `StageForceMoveX`
-- **Handler:** `StageMoveX` @ [`cop_handlers_force_move.asm:541-552`](../../../extracted/system/engine/cop_handlers_force_move.asm)
-- **Parameters:** `Byte` — X movement speed index (`db-us/copdef.json`)
+- **Handler:** `StageMoveX` @ [`cop_handlers_force_move.asm:22-33`](../../../extracted/system/engine/cop_handlers_force_move.asm)
+- **Parameters:** `Byte` — X movement index (`db-us/copdef.json`)
 - **Outcome:** Continue
 - **Usage count:** 60
 
 ##### What it does
 
-Reads one byte, stores it in `moveXAlt` (`$7F0018,X`), calls `AnimFrameLookup`, writes the returned duration to actor `$2C`.
+Reads one byte, stores it in `moveXAlt` (`$7F0018,X`), calls `AnimFrameLookup`, writes the returned delta-chain pointer to actor `$2C`.
 
 ```asm
 StageMoveX {
@@ -88,25 +88,25 @@ Great Wall archer and Sand Fanger use repeated `StageMoveX` with different indic
 
 | Item | Detail |
 |------|--------|
-| Operand | Unsigned speed index; duration comes from engine table |
-| WRAM | `moveXAlt` = operand; `$2C` = lookup result |
+| Operand | Unsigned movement index into `move_chain_table` |
+| WRAM | `moveXAlt` = operand; `$2C` = lookup result (chain head pointer) |
 | Pairs with | `TickMove`, `StageSpriteMoveX`, gravity init on child actors |
 | Outcome | Script PC advanced past 1 byte; same tick continue |
 
 ---
 
-#### COP [AB] — `StageMoveY` (stage Y speed index and duration)
+#### COP [AB] — `StageMoveY` (stage Y movement index and delta chain)
 
 - **Preferred name:** `StageMoveY`
 - **Aliases:** `StageForceMoveY`
-- **Handler:** `StageMoveY` @ [`cop_handlers_force_move.asm:557-568`](../../../extracted/system/engine/cop_handlers_force_move.asm)
+- **Handler:** `StageMoveY` @ [`cop_handlers_force_move.asm:38-49`](../../../extracted/system/engine/cop_handlers_force_move.asm)
 - **Parameters:** `Byte` Y index
 - **Outcome:** Continue
 - **Usage count:** 45
 
 ##### What it does
 
-Same as `$AA` for the Y axis: operand → `moveYAlt` (`$7F001A,X`), `AnimFrameLookup` → `$2E`.
+Same as `$AA` for the Y axis: operand → `moveYAlt` (`$7F001A,X`), `AnimFrameLookup` → `$2E` (Y delta-chain pointer).
 
 ```asm
 StageMoveY {
@@ -138,7 +138,7 @@ Less common alone than `$AA`; appears in vertical knockback setups alongside `$A
 
 - **Preferred name:** `StageMoveXY`
 - **Aliases:** `StageForceMoveXY`
-- **Handler:** `StageMoveXY` @ [`cop_handlers_force_move.asm:573-590`](../../../extracted/system/engine/cop_handlers_force_move.asm)
+- **Handler:** `StageMoveXY` @ [`cop_handlers_force_move.asm:54-71`](../../../extracted/system/engine/cop_handlers_force_move.asm)
 - **Parameters:** `Byte` X index, `Byte` Y index
 - **Outcome:** Continue
 - **Usage count:** 42
@@ -184,11 +184,11 @@ Reset to idle drift: `COP [StageMoveXY] ( #00, #00 )` after an attack (`pyCC_mys
 
 ---
 
-#### COP [AD] — `SetMoveNegateX` (force or release southwest diagonal)
+#### COP [AD] — `SetMoveNegateX` (negate or release the X delta)
 
 - **Preferred name:** `SetMoveNegateX`
 - **Aliases:** `SetForceSW`
-- **Handler:** `SetMoveNegateX` @ [`cop_handlers_force_move.asm:595-613`](../../../extracted/system/engine/cop_handlers_force_move.asm)
+- **Handler:** `SetMoveNegateX` @ [`cop_handlers_force_move.asm:76-94`](../../../extracted/system/engine/cop_handlers_force_move.asm)
 - **Parameters:** `Byte` — nonzero sets bit `$4000` on `$12`; `#00` clears it
 - **Outcome:** Continue
 - **Usage count:** 1
@@ -212,51 +212,51 @@ loc_clear:
 }
 ```
 
-When set, movement staging respects SW-facing regardless of sprite flip — used so `$81`–`$87` deltas run “backward” on the diagonal plane.
+While bit `$4000` is set, `ApplyMovement` and the collision-checked move negate the actor's X delta (the alias name `SetForceSW` says "southwest"; the effect is an X flip).
 
 ##### How it is used
 
-Child projectile init sets `$4000` manually in Eyesore spawn (`gw82_eyesore.asm` `code_0B8E67`); `$AD`/`$AE`/`$AF` appear where scripts toggle forced diagonals without extra LDA/TSB boilerplate (Knight armor boss — `$AF` below).
+Child projectile init sets `$4000` manually in Eyesore spawn (`gw82_eyesore.asm` `code_0B8E67`); `$AD`/`$AE`/`$AF` appear where scripts toggle the delta-negate bits without extra LDA/TSB boilerplate (Knight armor boss — `$AF` below).
 
 ##### Parameters & contract
 
 | Item | Detail |
 |------|--------|
-| `$12` bit | `$4000` SW force |
+| `$12` bit | `$4000` negate X delta |
 | Clear | Operand `#00` |
 
 ---
 
-#### COP [AE] — `SetMoveNegateY` (force or release northeast diagonal)
+#### COP [AE] — `SetMoveNegateY` (negate or release the Y delta)
 
 - **Preferred name:** `SetMoveNegateY`
 - **Aliases:** `SetForceNE`
-- **Handler:** `SetMoveNegateY` @ [`cop_handlers_force_move.asm:618-636`](../../../extracted/system/engine/cop_handlers_force_move.asm)
+- **Handler:** `SetMoveNegateY` @ [`cop_handlers_force_move.asm:99-117`](../../../extracted/system/engine/cop_handlers_force_move.asm)
 - **Parameters:** `Byte` set/clear
 - **Outcome:** Continue
 - **Usage count:** 2
 
 ##### What it does
 
-Identical pattern to `$AD` with mask `$2000` on `$12`.
+Identical pattern to `$AD` with mask `$2000` on `$12`: while set, the Y delta is negated (the alias name `SetForceNE` says "northeast"; the effect is a Y flip).
 
 ##### How it is used
 
-Paired with `$AD`/`$AF` on enemies that must slide along fixed isometric diagonals during scripted knockback or cutscene pushes.
+Paired with `$AD`/`$AF` where a script flips the sign of the staged Y or X delta.
 
 ##### Parameters & contract
 
 | Item | Detail |
 |------|--------|
-| `$12` bit | `$2000` NE force |
+| `$12` bit | `$2000` negate Y delta |
 
 ---
 
-#### COP [AF] — `SetMoveNegateXY` (force or release both diagonal bits)
+#### COP [AF] — `SetMoveNegateXY` (negate or release both deltas)
 
 - **Preferred name:** `SetMoveNegateXY`
 - **Aliases:** `SetForceBoth`
-- **Handler:** `SetMoveNegateXY` @ [`cop_handlers_force_move.asm:641-659`](../../../extracted/system/engine/cop_handlers_force_move.asm)
+- **Handler:** `SetMoveNegateXY` @ [`cop_handlers_force_move.asm:122-140`](../../../extracted/system/engine/cop_handlers_force_move.asm)
 - **Parameters:** `Byte` set/clear
 - **Outcome:** Continue
 - **Usage count:** 6
@@ -273,7 +273,7 @@ Sky Garden Knight armor (`sg4D_knight_armor.asm`):
 COP [SetMoveNegateXY] ( #01 )
 ```
 
-Locks both diagonal force bits during a scripted slide so movement tables cannot flip sign mid-attack.
+Sets both negate bits (`$6000`), so the staged slide runs with both deltas reversed.
 
 ##### Parameters & contract
 
@@ -288,7 +288,7 @@ Locks both diagonal force bits during a scripted slide so movement tables cannot
 
 - **Preferred name:** `ApplyMoveToChild`
 - **Aliases:** `ForceMoveLastChild`
-- **Handler:** `ApplyMoveToChild` @ [`cop_handlers_force_move.asm:664-683`](../../../extracted/system/engine/cop_handlers_force_move.asm)
+- **Handler:** `ApplyMoveToChild` @ [`cop_handlers_force_move.asm:145-164`](../../../extracted/system/engine/cop_handlers_force_move.asm)
 - **Parameters:** `Byte` X index, `Byte` Y index
 - **Outcome:** Continue
 - **Usage count:** 16
@@ -339,18 +339,18 @@ Four facing branches use different `(X,Y)` index pairs (`#06,#00`, `#05,#00`, `#
 
 ---
 
-#### COP [B1] — `ReloadMoveChains` (refresh durations from indices)
+#### COP [B1] — `ReloadMoveChains` (reload delta chains from indices)
 
 - **Preferred name:** `ReloadMoveChains`
 - **Aliases:** `ReloadForceMove`
-- **Handler:** `ReloadMoveChains` @ [`cop_handlers_force_move.asm:688-699`](../../../extracted/system/engine/cop_handlers_force_move.asm)
+- **Handler:** `ReloadMoveChains` @ [`cop_handlers_force_move.asm:169-180`](../../../extracted/system/engine/cop_handlers_force_move.asm)
 - **Parameters:** (none)
 - **Outcome:** Continue
 - **Usage count:** 25
 
 ##### What it does
 
-Re-reads existing `moveXAlt` / `moveYAlt` for the **current** actor and overwrites `$2C` / `$2E` with fresh `AnimFrameLookup` results. Does not change indices or position.
+Re-reads existing `moveXAlt` / `moveYAlt` for the **current** actor and overwrites `$2C` / `$2E` with fresh `AnimFrameLookup` results (the chain head pointers, which rewinds both chains to their first node). Does not change indices or position.
 
 ```asm
 ReloadMoveChains {
@@ -367,7 +367,7 @@ ReloadMoveChains {
 
 ##### How it is used
 
-After gravity or special movement corrupts durations — Dark Gaia / space flight (`babel_tower/comet_lair/sE8_dark_gaia.asm`, `sE7_space_flight_controller.asm`):
+After gravity or special movement clobbers or advances the chain pointers — Dark Gaia / space flight (`babel_tower/comet_lair/sE8_dark_gaia.asm`, `sE7_space_flight_controller.asm`):
 
 ```asm
 COP [ReloadMoveChains]

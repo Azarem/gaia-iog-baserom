@@ -194,7 +194,7 @@ CLC
 
 #### Description
 
-Zeroes the entire **32-byte WRAM flag region** (`$000A80`–`$000A9F`) by writing 16 words of zero. Invoked at scene boundaries or puzzle resets when local WRAM flags must not persist.
+Zeroes the entire **32-byte WRAM flag region** (`$000A80`–`$000A9F`) by writing 16 words of zero. Callers: `WorldMapController` (when the world map is entered), `st68_kara` and `sp58_red_eye`; `game_over_sequence` clears the same bytes inline on a real game over. No call at ordinary scene changes was found.
 
 #### Algorithm
 
@@ -374,7 +374,7 @@ Actor `.asm` files in other banks use **`JSL $@TestEventFlag_0200`** etc. The wr
 
 ### Scene Reset
 
-`ClearAllWramFlags` clears **`$0A80`** only — **not** the `$0A00` event array. Persistent story flags survive scene transitions; WRAM flags are scratch.
+`ClearAllWramFlags` clears **`$0A80`** only — **not** the `$0A00` event array. Persistent story flags survive scene transitions; the `$0A80` WRAM flags are zeroed only by the callers listed under `ClearAllWramFlags` and by `game_over_sequence`.
 
 ---
 

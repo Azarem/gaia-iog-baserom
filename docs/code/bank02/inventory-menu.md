@@ -36,7 +36,7 @@ $02F06A └─ ClearVramBufferPartial / Full ───────────�
 
 | Address | Name / Role | Used by |
 |---------|-------------|---------|
-| `$0AB4`–`$0AD2` | `inventory_slots` — 16 item words (low byte = item ID) | All inventory tabs |
+| `$0AB4`–`$0AC3` | `inventory_slots` — 16 byte slots, one item ID per byte | All inventory tabs |
 | `$0AC4` | `inventory_equipped_index` — equipped slot (`$FFFF` = none) | Use tab, equip cursor |
 | `$0AC6` | `inventory_equipped_type` — equipped item ID | Use confirm, equipped display |
 | `$0AD4` | Character form index (0=normal, 1=Dark Friar, 2=Aura) | Status tab, ability flags |
@@ -151,7 +151,7 @@ One-time menu bootstrap. Assigns spritemap, draws BG3 backdrop text, spawns 16 l
 | `$0AFA` | RW | Tab index / spawn counter |
 | `$24` | RW | Spawn loop counter |
 | `$1A` | W | Equip slot index |
-| `$inventory_slots` | R | 16 item words |
+| `$inventory_slots` | R | 16 byte slots (item IDs) |
 | `$7F0010,X` | W | Slot list head |
 | `$7F0012,X` | W | Equip cursor ID |
 | `$7F0018,X` | W | Equipped display ID |
@@ -976,7 +976,7 @@ Erases the tab highlight arrow during the blink-off phase of tab-bar navigation.
 
 ## 4×4 Item Grid Navigation
 
-The inventory stores 16 items in `inventory_slots` (`$0AB4`–`$0AD2`). Both the **Use** tab (cursor in `$1A`) and **Arrange/Discard** tabs (cursor in `$22`) treat the index as a linear slot number 0–15 with **wrap-around toroidal navigation** on a 4-column grid.
+The inventory stores 16 items in `inventory_slots` (`$0AB4`–`$0AC3`, one byte per slot). Both the **Use** tab (cursor in `$1A`) and **Arrange/Discard** tabs (cursor in `$22`) treat the index as a linear slot number 0–15 with **wrap-around toroidal navigation** on a 4-column grid.
 
 ### Index Layout
 

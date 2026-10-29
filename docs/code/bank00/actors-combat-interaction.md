@@ -131,7 +131,7 @@ Adds 1 to max HP (`$0ACA`) and sets `hpToHeal` to new max minus current HP (`$0A
 |--------|------|
 | `$0ACA` | Max HP |
 | `$0ACE` | Current HP |
-| `$0B22` | HP bar delta for UI refresh |
+| `$0B22` | `hpToHeal`: HP still to recover (set to new max HP − current HP) |
 
 ---
 

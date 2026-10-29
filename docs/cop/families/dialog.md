@@ -6,16 +6,16 @@ _Deep-audited ops: `[6B]`, `[BD]`, `[BE]`, `[BF]`_ · _Source: [`cop_handlers_di
 
 ## Overview
 
-Text output and branching choice menus. **`PrintDialogString` (`$BF`)** is the default wide-string dialogue box (via `DialogStringRenderer`). **`DialogueOptions` (`$BE`)** runs `MenuSelectionHandler` and **`RTI`s into a jump table** keyed by the player’s selection. **`PrintDialogStringAlt` (`$6B`)** renders the same string format but skips dialogue-mode setup and the pre-text **`UpdateFrameRender`** — suited to menu overlays that refresh often. **`RunBg3Script` (`$BD`)** executes **Console / console command streams** through `ConsoleStringRenderer` on BG3 (title text, diary chrome, credits).
+Text output and branching choice menus. **`PrintDialogString` (`$BF`)** is the default wide-string dialogue box (via `DialogStringRenderer`). **`DialogueOptions` (`$BE`)** runs `MenuSelectionHandler` and **`RTI`s into a jump table** keyed by the player’s selection. **`PrintDialogStringAlt` (`$6B`)** renders the same string format but skips the `displayModeFlags` bit 13 (`$2000`) set/clear and the pre-text **`UpdateFrameRender`** — suited to menu overlays that refresh often. **`RunBg3Script` (`$BD`)** executes **Console / console command streams** through `ConsoleStringRenderer` on BG3 (title text, diary chrome, credits).
 
 ## Shared state
 
 - `$0654` (`worldReadyFlag`) — `$BE` retries until **`$000F`** (all subsystems ready)
-- `$0656` / `$0658` — `joypadCurrent` / `joypadHeld`; cleared after `$BF` to prevent input bleed
+- `$0656` / `$0658` — `joypadCurrent` / `joypadHeld`; after `$BF` the restored `joypadMaskStd` is re-applied to `joypadCurrent` (`TRB`) and the D-pad bits (`$0F00`) are cleared in `joypadHeld`; after `$6B` only the `joypadHeld` D-pad bits are cleared
 - `$065A` (`joypadMaskStd`) — zeroed during text/menu; restored on exit
-- `$065C` (`joypadMaskInv`) — `$BE` sets **`$0F00`** to block inventory toggles during choices
-- `$10` bit `$0800` — status bar visibility; hidden during `$BF`/`$6B`/`$BE`
-- `$09EC` (`displayModeFlags`) — `$2000` dialogue mode for `$BF`/`$BE`; `$BD` sets bit **`$0001`** (BG3 console active)
+- `$065C` (`joypadMaskInv`) — `$BE` sets **`$0F00`** (the D-pad buttons) as the auto-repeat buttons while the menu is open, and clears it on exit
+- Actor `$10` bit `$0800` (cutscene-active) — saved and cleared during `$BF`/`$6B`/`$BE` so `RunActors_CutsceneOnly` does not re-run the actor while the renderer runs its frame updates (reason inferred), then restored; not a status bar flag
+- `$09EC` (`displayModeFlags`) — bit 13 (`$2000`) is set during `$BF`/`$BE` and cleared afterwards (no reader of this bit was found); `$BD` sets bit **`$0001`** (request a full BG3 staging-buffer upload)
 - `MenuSelectionHandler` — choice UI; returns index in **A**
 - `DialogStringRenderer` — wide-string bytecode interpreter (`extracted/system/engine/DialogStringRenderer.asm`)
 - `ConsoleStringRenderer` — BG3 tilemap command interpreter
@@ -50,11 +50,11 @@ Text output and branching choice menus. **`PrintDialogString` (`$BF`)** is the d
 
 ##### What it does
 
-1. Sets **`displayModeFlags` bit `$2000`** (dialogue mode).
+1. Sets **`displayModeFlags` bit 13** (`$2000`; no reader of this bit was found).
 2. Saves script bank/PC, runs **`UpdateFrameRender`** once to sync the framebuffer.
-3. Hides the **status bar** (`$10` bit `$0800`).
+3. Saves and clears actor **`$10` bit `$0800`** (cutscene-active).
 4. Clears **`joypadMaskStd`**, switches **DBR** to the script bank, and **`JSL DialogStringRenderer`** with the **`&DialogString`** pointer.
-5. On return: restores joypad mask, clears **D-pad** bits in `$0656`/`$0658`, clears dialogue mode, restores status bar, **`RTI`**.
+5. On return: restores `joypadMaskStd` and re-applies it to `joypadCurrent` (`TRB`), clears the **D-pad** bits (`$0F00`) in `joypadHeld`, clears bit 13 of `displayModeFlags`, restores actor `$10` bit `$0800`, **`RTI`**.
 
 ```asm
 PrintDialogString {
@@ -63,7 +63,7 @@ PrintDialogString {
     TSB $displayModeFlags
     ; … save $0A, UpdateFrameRender …
     LDA #$0800
-    TRB $10               ; hide status bar
+    TRB $10               ; clear actor $10 bit 11 (cutscene-active)
     STZ $joypadMaskStd
     ; … PLB from script bank …
     LDA [$0A]
@@ -71,7 +71,7 @@ PrintDialogString {
     INC $0A
     TAY 
     JSL $@DialogStringRenderer
-    ; … restore joypad, TRB joypadCurrent/joypadHeld directions …
+    ; … restore joypadMaskStd, TRB joypadCurrent, TRB joypadHeld D-pad bits …
     TRB $displayModeFlags ; clear $2000
     RTI 
 }
@@ -101,7 +101,7 @@ COP [DialogueOptions] ( #04, #00, &DebugMenuTable1 )
 | Item | Value |
 |------|-------|
 | Operand | `&DialogString` — 2-byte pointer in **script bank** (`$0C`) |
-| Side effects | Dialogue mode, status bar hidden, joypad masked during render |
+| Side effects | `displayModeFlags` bit 13 set, actor `$10` bit `$0800` cleared, `joypadMaskStd` cleared during render |
 | Follow-up | `[BE]` when the rendered text ends with a question / option rows |
 | Outcome | Halt until renderer finishes (including in-string waits) |
 
@@ -116,10 +116,10 @@ COP [DialogueOptions] ( #04, #00, &DebugMenuTable1 )
 ##### What it does
 
 1. If **`worldReadyFlag ≠ $000F`**, rewinds script PC and **`RTL`** (retry next frame).
-2. Sets dialogue mode **`$2000`**, masks inventory input **`$0F00`**, saves/restores status bar bit **`$0800`**.
-3. Clears **`joypadMaskStd`** so the menu handler owns input.
-4. Reads layout **`Word`** from script → **`JSL MenuSelectionHandler`** → **`ASL A`** (index × 2).
-5. Reads branch table base **`Word`**, adds index, loads **`&Code`** from table entry, clears modes, **`RTI`** to chosen handler.
+2. Sets **`displayModeFlags` bit 13** (`$2000`; no reader found), sets **`joypadMaskInv = $0F00`** (the D-pad buttons are the auto-repeat buttons while the menu is open), saves and clears actor **`$10` bit `$0800`**.
+3. Clears **`joypadMaskStd`** so the menu handler sees every button.
+4. Reads layout **`Word`** from script → **`JSL MenuSelectionHandler`** → **`ASL`** (index × 2).
+5. Reads branch table base **`Word`**, adds index, restores the saved bit and `joypadMaskStd`, clears `joypadMaskInv` and bit 13, loads **`&Code`** from the table entry, **`RTI`** to chosen handler.
 
 ```asm
 DialogueOptions {
@@ -131,7 +131,7 @@ DialogueOptions {
     TSB $displayModeFlags
     LDA #$0F00
     STA $joypadMaskInv
-    ; … hide status bar, clear joypadMaskStd …
+    ; … clear actor $10 bit 11, clear joypadMaskStd …
     LDA [$0A]             ; layout word (from two byte operands in asm listing)
     INC $0A
     INC $0A
@@ -185,7 +185,7 @@ Same core **`DialogStringRenderer`** call as **`[BF]`**, but:
 
 - **No** `displayModeFlags` `$2000` setup/teardown
 - **No** **`UpdateFrameRender`** before text
-- Still hides status bar **`$0800`**, masks **`joypadMaskStd`**, clears **`joypadHeld`** D-pad bits **`$0F00`** after render
+- Still saves and clears actor **`$10` bit `$0800`**, clears **`joypadMaskStd`** while rendering, and clears the **`joypadHeld`** D-pad bits **`$0F00`** after render (it does not re-apply the mask to `joypadCurrent`)
 
 ```asm
 PrintDialogStringAlt {
@@ -275,7 +275,7 @@ COP [RunBg3Script] ( @system_strings.consolestring_01EADC )  ; system/diary_menu
 | Item | Value |
 |------|-------|
 | Operand | `Address` — `@label` far pointer to console command stream |
-| Sets | `displayModeFlags` bit 0 (BG3 overlay active) |
+| Sets | `displayModeFlags` bit 0 (request a full BG3 staging-buffer upload) |
 | Pairs with | `[6B]` for wide-string menu rows on top of the same BG3 frame |
 | Outcome | Continue (renderer runs synchronously before `RTI`) |
 

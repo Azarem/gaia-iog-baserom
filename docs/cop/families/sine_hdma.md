@@ -12,7 +12,7 @@ Per-scanline **BG scroll HDMA** driven by `sine_table_8bit` and hardware multipl
 
 - `$7F0006` (`spritesetPtr`) — WRAM base of table set (from `[5F]`)
 - `$7F0008` — Amplitude byte (**must be set before `[5F]`** — typically `#$0004`–`#$0008`)
-- `$7F0000` (`animScratch`) — Max frame index / scanline-derived limit
+- `$7F0000` (`animScratch`) — Set to n − 1 by `[5F]` (n = wave period); the sine handlers do not read it
 - `$7F0004` (`retPtr1`) — Sine **phase** advanced by `[60]`
 - `$7F0002` — Delay counter for `[60]`
 - `$06BE` / `$06C2` — Camera targets sampled when `[60]` scroll layer operand references them
@@ -23,7 +23,7 @@ Per-scanline **BG scroll HDMA** driven by `sine_table_8bit` and hardware multipl
 
 - Typical thinker loop: **`[5F]` → `SetEntryHereAndYield` → flag gate → `[60]` → one or two `[61]`** (BG1/BG2 scroll regs `#0E` / `#10`).
 - **`[60]` operand 2**: bit 7 set → index **`cameraTargetX/Y`** with low nibble mask; else full byte index.
-- Distinct from **`[00] GenHdmaSine`** (CGRAM-oriented legacy table at `$7E8800`).
+- Distinct from **`[00] GenHdmaSine`** (a fixed 7-byte indirect table at `$7E8800` that a following `[01]` binds to a scroll register such as BG2HOFS; see [hdma_dma.md](hdma_dma.md)).
 
 ## Usage statistics
 
@@ -31,7 +31,7 @@ Per-scanline **BG scroll HDMA** driven by `sine_table_8bit` and hardware multipl
 |----|------|-----:|--------|---------|---------|
 | `5F` | `InitSineHdma` | 13 | `Word`, `Byte` | `InitSineHdma` | Continue |
 | `60` | `TickSineHdma` | 13 | `Byte`, `Byte` | `TickSineHdma` | Continue |
-| `61` | `BindSineHdma` | 18 | `Address`, `Word` | `BindSineHdma` | Continue |
+| `61` | `BindSineHdma` | 18 | `Address`, `Byte` | `BindSineHdma` | Continue |
 
 **Family call-site total:** 44
 
@@ -45,15 +45,15 @@ Per-scanline **BG scroll HDMA** driven by `sine_table_8bit` and hardware multipl
 
 ##### What it does
 
-Reads **`Word Base`** and **`Byte Scanlines`**, lays out **four** `$0200`-spaced indirect tables, computes HDMA entry stride via `UnsignedDivide`, writes repeating 3-byte headers, zeros phase/delay.
+Reads **`Word Base`** and **`Byte Period`** (the wave period n: scanlines per HDMA entry, `#08`–`#40` observed), lays out **four** `$0200`-spaced indirect tables of `256 / n` entries each (computed with `UnsignedDivide`), writes the repeating 3-byte entries (line count `n | $80`, data pointer; all entries point at the same n data words at table + `$0100`), zeros phase/delay.
 
 ```asm
 InitSineHdma {
     LDA [$0A]             ; WRAM base
     STA $spritesetPtr, X
     ; base+$0200, +$0400, +$0600 table pointers
-    LDA [$0A]             ; scanline count
-    ORA #$0080            ; HDMA repeat bit
+    LDA [$0A]             ; wave period n (scanlines per HDMA entry)
+    ORA #$0080            ; line count n | $80 = repeat mode
     ; fill loop → all four tables
     STZ $animScratch+2, X
     STZ $retPtr1, X
@@ -77,7 +77,7 @@ COP [InitSineHdma] ( #$8800, #40 )     ; babel_tower/sine_hdma_ending_wave.asm:1
 | Item | Value |
 |------|-------|
 | Operand 1 | `Word Base` — root WRAM address (bank `$7E`) |
-| Operand 2 | `Byte Scanlines` — visible rows per table period |
+| Operand 2 | `Byte Period` — wave period n: scanlines per HDMA entry (one sine period repeats every n lines down the 256 scanlines) |
 | Precondition | `$7F0008` = amplitude (2× effective swing in table build) |
 | Outcome | Continue |
 
@@ -164,7 +164,7 @@ COP [BindSineHdma] ( $7E8800, #0F )   ; comet lair variants
 | Item | Value |
 |------|-------|
 | Operand 1 | `Address` — indirect HDMA table (usually base+$0400 data region) |
-| Operand 2 | `Word` — B-bus reg / channel pack (`#0E`, `#10`, `#0F`, …) |
+| Operand 2 | `Byte` — `hdma_channel_config` index = B-bus register number (`#0E`, `#10`, `#0F`, …); the handler reads it together with the table bank as one word (bank low, index high) |
 | Outcome | Continue |
 
 ##### Canonical thinker pattern

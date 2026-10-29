@@ -47,7 +47,7 @@ Graphics memory helpers: stage one-off VRAM DMA, copy palette rows into CGRAM st
 #### COP [4F] — `AdhocVramDma` (one-shot VRAM upload)
 
 - **Confidence:** high
-- **Handler:** `AdhocVramDma` @ [`cop_handlers_metatile.asm:402-463`](../../../extracted/system/engine/cop_handlers_metatile.asm)
+- **Handler:** `AdhocVramDma` @ [`cop_handlers_vram.asm:26-87`](../../../extracted/system/engine/cop_handlers_vram.asm)
 - **Parameters:** `Address Src`, `Word VramWord`, `Word Size` (`db-us/copdef.json`)
 - **Usage count:** 67
 
@@ -55,7 +55,7 @@ Graphics memory helpers: stage one-off VRAM DMA, copy palette rows into CGRAM st
 
 **Phase A (bit 0 clear):** If `$7F0C07` staging busy, yield. Else rewind PC, read src word + bank byte + VRAM dest + size into **`$7F0C03–$09`**, set **`extendedFlags` bit 0**, **`RTL`**.
 
-**Phase B (bit 0 set):** Poll until hardware/engine advances VRAM dest past staged value; clear bit 0, skip 7 operand bytes, **`RTI`**.
+**Phase B (bit 0 set):** Poll until the staged destination word (`$7F0C07`, zeroed by the NMI's `DmaAdhocVramBlock` when the transfer has run) no longer equals the COP's own destination operand; then clear bit 0, skip 7 operand bytes, **`RTI`**.
 
 ##### Handler excerpt
 
@@ -102,13 +102,13 @@ COP [AdhocVramDma] ( $7FC000, #$2000, #$0800 )
 #### COP [50] — `CopyPalette` (CGRAM staging copy)
 
 - **Confidence:** high
-- **Handler:** `CopyPalette` @ [`cop_handlers_metatile.asm:468-509`](../../../extracted/system/engine/cop_handlers_metatile.asm)
+- **Handler:** `CopyPalette` @ [`cop_handlers_vram.asm:92-133`](../../../extracted/system/engine/cop_handlers_vram.asm)
 - **Parameters:** `Address Src`, `Byte srcPalIndex`, `Byte dstPalIndex`, `Byte count`
 - **Usage count:** 23
 
 ##### What it does
 
-Builds source pointer from **`Src` + (srcIndex×2)**, destination **`$0A00 + (dstIndex×2)`**, calls **`JSR $0402`** to move **`count`** palette entries (words). Source bank forced to **`$7F`** for anim/scratch region. Single **`RTI`**.
+Builds source pointer from **`Src` + (srcIndex×2)**, destination **`$0A00 + (dstIndex×2)`**, calls **`JSR $0402`** to move **`count`** palette entries (words). The **source** bank is the operand's bank byte (written to the `$0405` operand of the RAM MVN stub); the **destination** bank is forced to **`$7F`** (`cgramPalette`, written to `$0404`). Single **`RTI`**.
 
 ##### Handler excerpt
 
@@ -147,7 +147,7 @@ Credits swap full **`#80`**-entry palettes between scenes.
 #### COP [51] — `Decompress` (Quintet LZ)
 
 - **Confidence:** high
-- **Handler:** `Decompress` @ [`cop_handlers_metatile.asm:514-547`](../../../extracted/system/engine/cop_handlers_metatile.asm)
+- **Handler:** `Decompress` @ [`cop_handlers_vram.asm:138-171`](../../../extracted/system/engine/cop_handlers_vram.asm)
 - **Parameters:** `Address Src`, `Address Dest` (dest includes bank byte in `Address` form)
 - **Usage count:** 13
 
@@ -187,7 +187,7 @@ Credits load large GFX blobs into **`$7EE000` / `$7EA000`** before **`AdhocVramD
 - **Confidence:** high
 - **Preferred name:** `SetScratchPointer`
 - **Aliases:** `SetAnimScratch`
-- **Handler:** `SetScratchPointer` @ [`cop_handlers_metatile.asm:552-565`](../../../extracted/system/engine/cop_handlers_metatile.asm)
+- **Handler:** `SetScratchPointer` @ [`cop_handlers_vram.asm:176-189`](../../../extracted/system/engine/cop_handlers_vram.asm)
 - **Parameters:** `Address` (word + bank)
 - **Usage count:** 4
 

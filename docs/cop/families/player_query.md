@@ -42,8 +42,8 @@ Thirteen opcodes for **spatial and facing queries** against the player (or anoth
 |----|------|-----:|--------|---------|---------|
 | `28` | `BranchIfPlayerAt` | 35 | `Word X`, `Word Y`, `&Code` | `BranchIfPlayerAt` | Branch or Continue |
 | `29` | `BranchIfActorAt` | 2 | `Byte AcNum`, `Word X`, `Word Y`, `&Code` | `BranchIfActorAt` | Branch or Continue |
-| `2A` | `BranchOnPlayerX` | 90 | `Word Dist`, `&Code W`, `&Code E`, `&Code Here` | `BranchOnPlayerX` | Branch (3-way) |
-| `2B` | `BranchOnPlayerY` | 65 | `Word Dist`, `&Code N`, `&Code S`, `&Code Here` | `BranchOnPlayerY` | Branch (3-way) |
+| `2A` | `BranchOnPlayerX` | 90 | `Word Dist`, `&Code W`, `&Code Here`, `&Code E` | `BranchOnPlayerX` | Branch (3-way) |
+| `2B` | `BranchOnPlayerY` | 65 | `Word Dist`, `&Code N`, `&Code Here`, `&Code S` | `BranchOnPlayerY` | Branch (3-way) |
 | `2C` | `BranchNearerAxis` | 42 | `&Code NearY`, `&Code NearX` | `BranchNearerAxis` | Branch (2-way) |
 | `2D` | `DirToPlayer` | 9 | (none) | `DirToPlayer` | Continue (`A` = octant) |
 | `2E` | `DirToPlayerFrom` | 1 | `Byte OffX`, `Byte OffY` | `DirToPlayerFrom` | Continue (`A` = octant) |
@@ -62,7 +62,7 @@ Thirteen opcodes for **spatial and facing queries** against the player (or anoth
 
 #### COP [28] — `BranchIfPlayerAt` (exact player pixel match)
 
-- **Handler:** `BranchIfPlayerAt` → shared `loc_009105` @ [`cop_handlers_player_query.asm:131-176`](../../../extracted/system/engine/cop_handlers_player_query.asm)
+- **Handler:** `BranchIfPlayerAt` → shared `loc_009105` @ [`cop_handlers_player_query.asm:143-188`](../../../extracted/system/engine/cop_handlers_player_query.asm)
 - **Params:** `Word PosX`, `Word PosY`, `&Code`
 
 ##### What it does
@@ -108,7 +108,7 @@ Often paired with **`SetEntryHere`** / **`RTL`** polling loops so the actor wake
 
 #### COP [29] — `BranchIfActorAt` (exact position for scene actor)
 
-- **Handler:** `BranchIfActorAt` @ [`cop_handlers_player_query.asm:140-176`](../../../extracted/system/engine/cop_handlers_player_query.asm)
+- **Handler:** `BranchIfActorAt` @ [`cop_handlers_player_query.asm:152-188`](../../../extracted/system/engine/cop_handlers_player_query.asm)
 - **Params:** `Byte AcNum`, `Word PosX`, `Word PosY`, `&Code`
 
 ##### What it does
@@ -138,7 +138,7 @@ COP [BranchIfActorAt] ( #03, #$0258, #$0330, &code_05F6EB )
 
 #### COP [2A] — `BranchOnPlayerX` (3-way horizontal separation)
 
-- **Handler:** `BranchOnPlayerX` @ [`cop_handlers_player_query.asm:181-206`](../../../extracted/system/engine/cop_handlers_player_query.asm)
+- **Handler:** `BranchOnPlayerX` @ [`cop_handlers_player_query.asm:193-218`](../../../extracted/system/engine/cop_handlers_player_query.asm)
 - **Params:** `Word Dist`, `&Code West`, `&Code Here`, `&Code East` (handler slot order +2 / +4 / +6)
 
 ##### What it does
@@ -148,9 +148,9 @@ Compute **`player.X − actor.X`**:
 | Condition | Branch target |
 |-----------|----------------|
 | ΔX = 0 | **Here** (operand index +4) |
-| \|ΔX\| ≤ **Dist** | **Here** |
-| ΔX < −Dist (player left) | **West** (+2) |
-| ΔX > +Dist (player right) | **East** (+6) |
+| \|ΔX\| < **Dist** | **Here** |
+| ΔX ≤ −Dist (player left) | **West** (+2) |
+| ΔX ≥ +Dist (player right) | **East** (+6) |
 
 Uses **`LDA [$0A], Y`** with Y = 2, 4, or 6 relative to operand block start.
 
@@ -169,13 +169,13 @@ COP [BranchOnPlayerX] ( #$0000, &code_0BC3D5, &code_0BC3D5, &code_0BC3F6 )
 | Item | Value |
 |------|-------|
 | Threshold | Unsigned pixel distance |
-| Operand order | West, Here, East (copdef labels; middle slot is same column / within threshold) |
+| Operand order | West, Here, East (copdef gives three bare `&Code` operands; the handler reads them at +2 / +4 / +6; the middle slot is the same column or closer than the threshold) |
 
 ---
 
 #### COP [2B] — `BranchOnPlayerY` (3-way vertical separation)
 
-- **Handler:** `BranchOnPlayerY` @ [`cop_handlers_player_query.asm:211-236`](../../../extracted/system/engine/cop_handlers_player_query.asm)
+- **Handler:** `BranchOnPlayerY` @ [`cop_handlers_player_query.asm:223-248`](../../../extracted/system/engine/cop_handlers_player_query.asm)
 - **Params:** `Word Dist`, `&Code North`, `&Code Here`, `&Code South`
 
 ##### What it does
@@ -197,13 +197,13 @@ COP [BranchOnPlayerY] ( #$0000, &code_0BC421, &code_0BC421, &code_0BC443 )
 | Item | Value |
 |------|-------|
 | Symmetric to | **`$2A`** on Y axis |
-| Operand order | North, Here, South |
+| Operand order | North, Here, South (three bare `&Code` operands in copdef; the handler reads them at +2 / +4 / +6) |
 
 ---
 
 #### COP [2C] — `BranchNearerAxis` (chase on closer axis)
 
-- **Handler:** `BranchNearerAxis` @ [`cop_handlers_player_query.asm:241-274`](../../../extracted/system/engine/cop_handlers_player_query.asm)
+- **Handler:** `BranchNearerAxis` @ [`cop_handlers_player_query.asm:253-286`](../../../extracted/system/engine/cop_handlers_player_query.asm)
 - **Params:** `&Code NearY`, `&Code NearX`
 
 ##### What it does
@@ -234,7 +234,7 @@ Same structure in **`awB0_zombie.asm`**, **`awB1_gorgon.asm`**, **`mtA0_acid_spi
 
 #### COP [2D] — `DirToPlayer` (8-way octant to player)
 
-- **Handler:** `DirToPlayer` @ [`cop_handlers_player_query.asm:279-290`](../../../extracted/system/engine/cop_handlers_player_query.asm)
+- **Handler:** `DirToPlayer` @ [`cop_handlers_player_query.asm:291-302`](../../../extracted/system/engine/cop_handlers_player_query.asm)
 - **Params:** none
 - **Returns:** **`A = 0..7`** octant (N, NE, E, SE, S, SW, W, NW per `ComputeDirectionToPlayer`)
 
@@ -266,7 +266,7 @@ Enemies store octant in scratch then **`SwitchCase`** into directional attack/mo
 
 #### COP [2E] — `DirToPlayerFrom` (8-way from offset point)
 
-- **Handler:** `DirToPlayerFrom` @ [`cop_handlers_player_query.asm:375-404`](../../../extracted/system/engine/cop_handlers_player_query.asm)
+- **Handler:** `DirToPlayerFrom` @ [`cop_handlers_player_query.asm:392-421`](../../../extracted/system/engine/cop_handlers_player_query.asm)
 - **Params:** signed **`Byte OffX`**, **`Byte OffY`**
 
 ##### What it does
@@ -288,7 +288,7 @@ Sign-extend offsets, add to actor position, then **`ComputeDirectionToPlayer`**.
 
 #### COP [2F] — `BranchIfDirToPlayer` (branch on octant match)
 
-- **Handler:** `BranchIfDirToPlayer` @ [`cop_handlers_player_query.asm:409-435`](../../../extracted/system/engine/cop_handlers_player_query.asm)
+- **Handler:** `BranchIfDirToPlayer` @ [`cop_handlers_player_query.asm:426-452`](../../../extracted/system/engine/cop_handlers_player_query.asm)
 - **Params:** `Byte Dir`, `&Code`
 - **Uses:** 0 (no extracted symbolic call sites)
 
@@ -311,7 +311,7 @@ No **`COP [BranchIfDirToPlayer]`** in current extracted ASM; prefer **`$2D` + `S
 
 #### COP [30] — `BranchIfDirToPlayerFrom` (octant from offset)
 
-- **Handler:** `BranchIfDirToPlayerFrom` @ [`cop_handlers_player_query.asm:440-484`](../../../extracted/system/engine/cop_handlers_player_query.asm)
+- **Handler:** `BranchIfDirToPlayerFrom` @ [`cop_handlers_player_query.asm:457-501`](../../../extracted/system/engine/cop_handlers_player_query.asm)
 - **Params:** `Byte OffX`, `Byte OffY`, `Byte Dir`, `&Code`
 
 ##### What it does
@@ -343,7 +343,7 @@ COP [BranchIfDirToPlayerFrom] ( #00, #F0, #03, &code_0A818E )
 
 #### COP [31] — `BranchOnPlayerFacing` (4-way player facing dispatch)
 
-- **Handler:** `BranchOnPlayerFacing` @ [`cop_handlers_player_query.asm:489-525`](../../../extracted/system/engine/cop_handlers_player_query.asm)
+- **Handler:** `BranchOnPlayerFacing` @ [`cop_handlers_player_query.asm:506-542`](../../../extracted/system/engine/cop_handlers_player_query.asm)
 - **Params:** four **`&Code`**: **South, North, West, East** (for **`GetPlayerFacing`** 0–3)
 
 ##### What it does
@@ -381,7 +381,7 @@ Contrast: **`GetPlayerFacing`** in **`player_character.asm`** feeds a **14×7 id
 
 #### COP [35] — `CardinalToPlayer` (dominant cardinal toward player)
 
-- **Handler:** `CardinalToPlayer` @ [`cop_handlers_player_query.asm:295-363`](../../../extracted/system/engine/cop_handlers_player_query.asm) + epilogue **`CardinalToPlayer_Exit`**
+- **Handler:** `CardinalToPlayer` @ [`cop_handlers_player_query.asm:309-377`](../../../extracted/system/engine/cop_handlers_player_query.asm) + epilogue **`CardinalToPlayer_Exit`**
 - **Params:** none
 - **Returns:** **`A = 0 N, 1 E, 2 S, 3 W`** (dominant axis by |Δ|)
 

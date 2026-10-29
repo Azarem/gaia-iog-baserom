@@ -55,7 +55,7 @@ Movable (move with `enemy_clear_reward_table`). High priority — boss reward sc
 4. Load scene range (sceneMin → sceneMax) from table entry
 5. JSR apply_pending_clear_rewards — walk enemy_clear_reward_table[sceneMin..sceneMax]
    For each scene in range: check $0300 flag, skip if collected, else grant stat and set flag
-6. Update $0B22 (HP recovery delta = playerMaxHp − playerHp)
+6. hpToHeal ($0B22) := playerMaxHp − playerHp (UpdateHUD then refills one HP per 8 frames)
 7. SetWramFlag_Offset100 — mark boss scene rewarded
 8. SetEntryHere loop
 ```
@@ -70,7 +70,7 @@ Movable (move with `enemy_clear_reward_table`). High priority — boss reward sc
 | `$0ACE` | Current HP |
 | `$0ADE` | STR stat |
 | `$0ADC` | DEF stat |
-| `$0B22` | HP bar display delta |
+| `$0B22` | `hpToHeal`: HP still to recover (the handler sets it to max HP − current HP) |
 | `$20` | Saved range table index |
 | `boss_reward_range_table` | Boss scene → `<sceneCurrent, sceneMin, sceneMax>` range mapping (5 active + 6 placeholders) |
 | `enemy_clear_reward_table` | Per-scene enemy clear reward table (0=none, 1=HP, 2=STR, 3=DEF) |
@@ -326,7 +326,7 @@ Structurally identical to `town_door` but uses frame `#07` and sound `$01` inste
 
 #### Description
 
-Collectible red jewel placed in hidden locations. Uses standard `actor_def` with `SetOnInteract` callback. On button press: tests event flag `$0E + $80`, gives item `#01` (red jewel) via `GiveItem`, prints discovery string, sets flag. If inventory full, prints alternate string without granting.
+Collectible red jewel placed in hidden locations. Uses standard `actor_def` with a `SetInteractHandler` callback (`HiddenRedJewelInteract`). On button press: tests event flag `$0E + $80`, gives item `#01` (red jewel) via `GiveItem`, prints discovery string, sets flag. If inventory full, prints alternate string without granting.
 
 Each placement's `$0E` field encodes the unique event flag offset.
 

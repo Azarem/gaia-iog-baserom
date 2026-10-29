@@ -311,7 +311,7 @@ Covers `$008000`–`$0082DE`: CPU entry point, interrupt trampolines, system ini
 | `SystemInit` | `$8014` | ~266 B | One-time init + eternal main loop at `$80B5` |
 | `UpdateFrameDialogue` | `$811E` | ~40 B | Abbreviated frame for dialogue/cutscenes |
 | `UpdateFrameRender` | `$817D` | ~30 B | Lightweight frame for text overlays |
-| `UpdateFrameFull` | `$81BC` | ~46 B | Full frame with collision (NMI music handshake) |
+| `UpdateFrameFull` | `$81BC` | ~46 B | Frame run by the NMI while the main loop is blocked in the SPC music upload (overlay-only actor pass, scroll, sprites) |
 | `UpdateHUD` | `$8206` | ~216 B | BG3 status bar: HP, DEF, STR, gems, enemy health bar |
 | `UpdateFrameCounters` | `$82DE` | 18 B | Decrement invincibility timer, increment frame counter |
 
@@ -737,7 +737,7 @@ Covers `$00D088`–`$00D5BC`: 13 parts implementing **Psycho Slider glide** trig
 |----------|---------|------|-------------|
 | `LockPlayerForClimb` | `$D088` | 38 B | Lock player: set frame count, zero velocity, mask joypad |
 | `UnlockPlayerAfterClimb` | `$D0AE` | 35 B | Restore player to normal after climb completes |
-| `IsPlayerSliderSpriteBank` | `$D204` | 20 B | Require `will_alt` sprite bank `$8F` during slide |
+| `IsPlayerSliderSpriteBank` | `$D204` | 20 B | Require sprite bank `$8F` (bank of `spriteset_will_abilities`) during slide |
 | `RestorePlayerControl` | `$D58A` | 54 B | Reset player to normal walking (shared with ramps.asm) |
 
 ### Stair Triggers

@@ -6,12 +6,12 @@ _Deep-audited ops: `[00]`, `[01]`, `[02]`, `[03]`_ · _Source: [`cop_handlers_hd
 
 ## Overview
 
-Low-level **HDMA channel registration** and **linear DMA queueing** used by menu window masks, credits scroll, inventory blits, and legacy sine-table paths. `[00]` builds a fixed-layout indirect HDMA table from hardware-scaled sine data; `[01]`–`03]` delegate to `SetupHdmaChannel_Indirect` / `SetupHdmaChannel_Direct` in `hdma_dma_spc.asm`.
+Low-level **HDMA channel registration** (indirect-table `[01]`, direct-table `[02]`, caller-chosen channel `[03]`) used by menu window masks, credits scroll, inventory scroll tables, mode 7 matrix tables, and sine-table paths. None of the four ops is a linear (general-purpose) DMA transfer. `[00]` builds a fixed-layout indirect HDMA table from hardware-scaled sine data; `[01]`–`[03]` delegate to `SetupHdmaChannel_Indirect` / `SetupHdmaChannel_Direct` in `hdma_dma_spc.asm`.
 
 ## Shared state
 
 - `$0066` — Cached HDMA channel enable bitmask (OR’d by `[03]`)
-- `$7F0006` (`spritesetPtr`) — Ping-pong index for `[00]` table generation (`BuildSineLookupTable` path)
+- `$7F0006` (`spritesetPtr`) — Phase counter for `[00]` (incremented on every call; the sine window starts at `sineTableA + (counter AND $01FE)`; not a double buffer)
 - `$7F0008` — Amplitude byte for sine scaling in `[00]` (via `BuildSineLookupTable`)
 - `$7E8800`–`$7E8CFF` — Typical WRAM homes for `[00]` indirect headers + sine payload
 - `BuildSineLookupTable` — Internal in [`cop_handlers_effects.asm`](../../../extracted/system/engine/cop_handlers_effects.asm); fills `$7E8900` / `$7E8B00` sine arrays
@@ -19,19 +19,19 @@ Low-level **HDMA channel registration** and **linear DMA queueing** used by menu
 
 ## Family notes
 
-- Prefer the **`[5F]`–`[61]` sine HDMA family** for scroll wobble; `[00]` is the older “full-table + `#0F` CGRAM/reg” path (see `babel_tower/sine_hdma_ending_wave.asm`).
-- `[01]` and `[02]` both consume **two word operands** from the script stream; the second word packs B-bus target / transfer mode for the setup helper.
-- `[03]` programs one channel **immediately** (does not go through the deferred queue used by `[01]`/`[02]`).
-- Operand order for `[03]` in shipped scripts: `Byte Channel`, `Address Table`, `Word` (low = B-bus reg, high = source bank) — not the legacy copdef `Byte, Word, Word` layout.
+- Prefer the **`[5F]`–`[61]` sine HDMA family** for scroll wobble; `[00]` is the older “full-table + `#0F` (BG2HOFS) register” path (see `babel_tower/sine_hdma_ending_wave.asm`).
+- `[01]` and `[02]` both take a 3-byte table address and one B-bus register byte (copdef `@dma-channel`, `Byte`). The handlers read them as two words: the table address word, then a word with the table bank in the low byte and the register number in the high byte. The setup helper takes the DMAP transfer mode from `hdma_channel_config[register]`; the word carries no mode bits.
+- `[03]` programs one channel **immediately** (it names the channel itself instead of taking the next free channel that `[01]`/`[02]` bind).
+- Operand order for `[03]` (copdef `Byte, Address, Byte`): `Byte Channel`, `Address Table`, `Byte` B-bus register. The handler reads the table bank and the register as one word (low = table bank, high = B-bus register).
 
 ## Usage statistics
 
 | Op | Name | Uses | Params | Handler | Outcome |
 |----|------|-----:|--------|---------|---------|
 | `00` | `GenHdmaSine` | 2 | — | `GenHdmaSine` | Continue |
-| `01` | `QueueHdma` | 18 | `Address`, `Word` | `QueueHdma` | Continue |
-| `02` | `QueueHdmaDirect` | 28 | `Address`, `Word` | `QueueHdmaDirect` | Continue |
-| `03` | `QueueHdmaChannel` | 3 | `Byte`, `Address`, `Word` | `QueueHdmaChannel` | Continue |
+| `01` | `QueueHdma` | 18 | `Address`, `Byte` | `QueueHdma` | Continue |
+| `02` | `QueueHdmaDirect` | 28 | `Address`, `Byte` | `QueueHdmaDirect` | Continue |
+| `03` | `QueueHdmaChannel` | 3 | `Byte`, `Address`, `Byte` | `QueueHdmaChannel` | Continue |
 
 **Family call-site total:** 51
 
@@ -40,12 +40,12 @@ Low-level **HDMA channel registration** and **linear DMA queueing** used by menu
 #### COP [00] — `GenHdmaSine` (build sine HDMA indirect table)
 
 - **Preferred name:** `GenHdmaSine`
-- **Handler:** `GenHdmaSine` @ [`cop_handlers_collision.asm`](../../../extracted/system/engine/cop_handlers_collision.asm)
+- **Handler:** `GenHdmaSine` @ [`cop_handlers_hdma_dma.asm`](../../../extracted/system/engine/cop_handlers_hdma_dma.asm)
 - **Usage count:** 2
 
 ##### What it does
 
-Calls `BuildSineLookupTable` (amplitude from `$7F0008`, gated by `displayModeFlags` / `animScratch2`), toggles a double-buffer page via `$7F0006`, and writes a **3-entry indirect HDMA table** at `$7E8800`:
+Calls `BuildSineLookupTable` (amplitude from `$7F0008`, gated by `displayModeFlags` / `animScratch2`), increments the phase counter `$7F0006`, and writes a **7-byte indirect HDMA table** at `$7E8800` (two repeat-mode entries, `$FF` = 127 scanlines and `$E0` = 96 scanlines, then the `$00` end byte; 223 scanlines in total):
 
 ```asm
 GenHdmaSine {
@@ -67,7 +67,7 @@ GenHdmaSine {
 }
 ```
 
-The `$E0` line-count entry targets B-bus **`#0F`** (palette/CGRAM path in the ending-wave scripts). Regenerate tables when amplitude or phase drivers change, then queue with `[01]`.
+The table itself holds no register number: the following `[01]` binds it to a B-bus register (**`#0F`** = BG2HOFS in the ending-wave script). Each call of `[00]` advances the phase counter and rewrites the two data pointers.
 
 ##### How it is used
 
@@ -92,12 +92,12 @@ COP [QueueHdma] ( $7E8800, #0F )    ; babel_tower/sine_hdma_ending_wave.asm:31-3
 #### COP [01] — `QueueHdma` (queue indirect HDMA)
 
 - **Preferred name:** `QueueHdma`
-- **Handler:** `QueueHdma` @ [`cop_handlers_collision.asm`](../../../extracted/system/engine/cop_handlers_collision.asm)
+- **Handler:** `QueueHdma` @ [`cop_handlers_hdma_dma.asm`](../../../extracted/system/engine/cop_handlers_hdma_dma.asm)
 - **Usage count:** 18
 
 ##### What it does
 
-Reads **HDMA table address** and **channel config word**, then `JSL SetupHdmaChannel_Indirect` (sets `DMAP` HDMA bit, B-bus register, A-bus pointer).
+Reads the **HDMA table address** (word) and a **bank | B-bus register** word (table bank in the low byte, register number in the high byte), then `JSL SetupHdmaChannel_Indirect`: the register number indexes `hdma_channel_config` for the `DMAP` transfer mode, `$40` (indirect addressing) is ORed in, and the next free channel is bound (`DMAP`, `DASB`, `BBAD`, `A1T`, `A1B`).
 
 ```asm
 QueueHdma {
@@ -131,20 +131,20 @@ COP [QueueHdma] ( $7E8C00, #10 )           ; native_village_sine_hdma.asm (with 
 | Item | Value |
 |------|-------|
 | Operand 1 | `Address` — A-bus indirect HDMA table in WRAM/ROM |
-| Operand 2 | `Word` — channel setup (B-bus reg + mode nibble as used elsewhere in engine) |
-| Outcome | Continue — channel armed for next HDMA latch |
+| Operand 2 | `Byte` — PPU B-bus register number (`$21xx`, e.g. `#0F` = BG2HOFS); the `DMAP` transfer mode comes from `hdma_channel_config[register]`, not from the operand |
+| Outcome | Continue — the next free channel (1–7) is bound and its bit is set in the HDMA enable mask |
 
 ---
 
-#### COP [02] — `QueueHdmaDirect` (queue linear DMA)
+#### COP [02] — `QueueHdmaDirect` (queue direct-table HDMA)
 
 - **Preferred name:** `QueueHdmaDirect`
-- **Handler:** `QueueHdmaDirect` @ [`cop_handlers_collision.asm`](../../../extracted/system/engine/cop_handlers_collision.asm)
+- **Handler:** `QueueHdmaDirect` @ [`cop_handlers_hdma_dma.asm`](../../../extracted/system/engine/cop_handlers_hdma_dma.asm)
 - **Usage count:** 28
 
 ##### What it does
 
-Same operand shape as `[01]`, but calls `SetupHdmaChannel_Direct` for **non-indirect** DMA (VRAM/CGRAM bulk copies, window register bursts).
+Same operand shape as `[01]`, but calls `SetupHdmaChannel_Direct`: `DMAP` is written without the `$40` indirect flag and the channel's bit is still set in the HDMA enable mask, so this is a **direct-table HDMA channel** (each table entry holds the register data inline). It is not a linear DMA transfer; the name only says "direct".
 
 ```asm
 QueueHdmaDirect {
@@ -165,7 +165,7 @@ QueueHdmaDirect {
 
 ##### How it is used
 
-Diary menu window masks (dominant caller), inventory DMA setup, angel tunnel windows, scene lifecycle blits.
+Diary menu window masks (dominant caller, register `#26`), the inventory BG3VOFS table, angel tunnel windows, the mode 7 matrix tables, `WorldMapSplitEffect` (BGMODE and COLDATA tables), the Dark Gaia script `sE8_dark_gaia` (comet lair), and the ending comet / credits scroll scripts.
 
 ```asm
 COP [QueueHdmaDirect] ( @diary_band_empty, #26 )   ; system/diary_menu/diary_menu_window_dma.asm:27
@@ -176,8 +176,8 @@ COP [QueueHdmaDirect] ( @inventory_bg3vofs_table, #12 ) ; system/inventory/inven
 
 | Item | Value |
 |------|-------|
-| Operand 1 | `Address` — source table / staging buffer |
-| Operand 2 | `Word` — transfer size / destination pack consumed by `SetupHdmaChannel_Direct` |
+| Operand 1 | `Address` — direct HDMA table in WRAM/ROM |
+| Operand 2 | `Byte` — PPU B-bus register number (`$21xx`, e.g. `#26` = WH0, `#12` = BG3VOFS); not a size |
 | Outcome | Continue |
 
 ---
@@ -185,7 +185,7 @@ COP [QueueHdmaDirect] ( @inventory_bg3vofs_table, #12 ) ; system/inventory/inven
 #### COP [03] — `QueueHdmaChannel` (program one HDMA channel now)
 
 - **Preferred name:** `QueueHdmaChannel`
-- **Handler:** `QueueHdmaChannel` @ [`cop_handlers_collision.asm`](../../../extracted/system/engine/cop_handlers_collision.asm)
+- **Handler:** `QueueHdmaChannel` @ [`cop_handlers_hdma_dma.asm`](../../../extracted/system/engine/cop_handlers_hdma_dma.asm)
 - **Usage count:** 3
 
 ##### What it does
@@ -218,5 +218,5 @@ COP [QueueHdmaDirect] ( $7E7800, #1C )              ; table B → M7B
 |------|-------|
 | Operand 1 | `Byte` channel 0–7 |
 | Operand 2 | `Address` HDMA table |
-| Operand 3 | `Word` — low 8 = B-bus reg (`BBAD`), high 8 = source bank |
+| Operand 3 | `Byte` — PPU B-bus register number (`BBAD`); the table bank is the third byte of operand 2, read together with this byte as one word (low = bank, high = register) |
 | Outcome | Continue |

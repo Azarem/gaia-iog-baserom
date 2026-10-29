@@ -51,7 +51,7 @@ These are **not** general-purpose cutscene pans — they anchor the **forced-wal
 ##### What it does
 
 ```asm
-CameraPanDown {                     ; cop_handlers_effects.asm:374-412
+CameraPanDown {                     ; cop_handlers_effects.asm:377-415
     TYX 
     LDA $2A                         ; Read frame delay counter
     AND #$00FF
@@ -123,14 +123,16 @@ Extended warps across the world map and dungeon exits (via `StartForcedWalk` →
 
 ##### What it does
 
-Subtracts step from `$06C2` toward **`cameraOffsetY`**. Uses absolute-value fixup when subtraction wraps.
+Subtracts step from `$06C2` toward **`cameraOffsetY`** (`cop_handlers_effects.asm:420-464`). The handler computes `step − cameraTargetY` (`SEC` / `SBC`) and negates a negative result, which stores `cameraTargetY − step`; if the step exceeds the current `cameraTargetY` the script resumes without storing it. It resumes when the stored value is below `cameraOffsetY`, otherwise it yields.
 
 ```asm
 CameraPanUp {
     ; … same $2A / CameraScrollStepLookup prologue …
-    SBC $cameraTargetY    ; subtract step
-    ; clamp / compare cameraOffsetY
-    RTL or RTI
+    SEC
+    SBC $cameraTargetY    ; step − cameraTargetY (negated below to give cameraTargetY − step)
+    CMP $cameraOffsetY
+    BMI resume            ; below cameraOffsetY → RTI
+    RTL                   ; otherwise yield
 }
 ```
 
@@ -146,7 +148,7 @@ Warp sequences with **bit 7** set in the walk sequence byte select north forced 
 
 | Item | Value |
 |------|-------|
-| Stop condition | `$06C2 ≤ cameraOffsetY` |
+| Stop condition | `$06C2 < cameraOffsetY` (signed compare), or the step exceeds `$06C2` |
 | Outcome | Halt until bound |
 
 ---
@@ -160,7 +162,7 @@ Warp sequences with **bit 7** set in the walk sequence byte select north forced 
 
 ##### What it does
 
-Adds step to **`$06BE`** until **`cameraBoundsX`**.
+Adds step to **`$06BE`** until it reaches **`cameraBoundsX`** (`cop_handlers_effects.asm:469-507`).
 
 ```asm
 CameraPanRight {
@@ -196,13 +198,14 @@ East forced walk when sequence ID has **bit 4** (`StartForcedWalk` decode).
 
 ##### What it does
 
-Subtracts step from **`$06BE`** toward **`cameraOffsetX`** (mirror of `[DD]` on X axis).
+Subtracts step from **`$06BE`** toward **`cameraOffsetX`** (mirror of `[DD]` on X axis; `cop_handlers_effects.asm:512-556`): resumes when the stored `$06BE` is below `cameraOffsetX`, or without storing when the step exceeds `$06BE`.
 
 ```asm
 CameraPanLeft {
-    SBC $cameraTargetX
+    SEC
+    SBC $cameraTargetX    ; step − cameraTargetX (negated to cameraTargetX − step)
     CMP $cameraOffsetX
-    ; RTL until at west bound
+    ; RTL until below cameraOffsetX
 }
 ```
 
@@ -218,7 +221,7 @@ West forced walk when sequence ID has **bit 5**.
 
 | Item | Value |
 |------|-------|
-| Stop condition | `$06BE ≤ cameraOffsetX` |
+| Stop condition | `$06BE < cameraOffsetX` (signed compare), or the step exceeds `$06BE` |
 
 ##### Forced-walk integration (all four)
 

@@ -342,8 +342,7 @@ segments (`$02`, `(maxHP−HP)/2`, tile `$20FF`).
 ### Cross-references
 
 - **In:** inventory, status, HUD, shop, and equipment screens (`JSL`).
-- **Out:** `shared_word_table` (shared words for `InsertSharedWord`),
-  `itemget_table_01FD24` (item data for equipment icons).
+- **Out:** `shared_word_table` (shared words for `InsertSharedWord`).
 
 ### `DrawBox` tile construction
 

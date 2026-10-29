@@ -18,10 +18,10 @@
 | 4 | [enemy_clear_reward_table](#4-enemy_clear_reward_table) | `$1AADE`–`$1ABDE` | 256 B | `Byte` | Per-scene enemy clear rewards |
 | 5 | [walk_step_table](#5-walk_step_table) | `$1ABDE`–`$1ABF0` | 18 B | `direction-velocity` | Direction→sprite/velocity mapping |
 | 6 | [enemy_stats_table](#6-enemy_stats_table) | `$1ABF0`–`$1ADA8` | 440 B | `enemy-stats` | Enemy HP/ATK/DEF/type stats |
-| 7 | [scene_chest_table](#7-scene_chest_table) | `$1ADA8`–`$1B086` | 734 B | `&Binary` | Per-scene barrier/chest placement data |
+| 7 | [scene_chest_table](#7-scene_chest_table) | `$1ADA8`–`$1B086` | 734 B | `&Binary` | Per-scene treasure chest records |
 | 8 | [move_chain_table](#8-move_chain_table) | `$1B086`–`$1C384` | 4,862 B | `&delta-node` | Pre-computed movement delta curves |
 | 9 | [trig_and_level_tables](#9-trig_and_level_tables) | `$1C384`–`$1CA95` | 1,809 B | Mixed | Sine/cosine LUTs and level-up table |
-| 10 | [dialog_template_table](#10-dialog_template_table) | `$1CA95`–`$1CBA6` | 273 B | `&DialogString` | Dialog box/screen-effect templates |
+| 10 | [dialog_template_table](#10-dialog_template_table) | `$1CA95`–`$1CBA6` | 273 B | `&DialogString` | Dialog speaker colour/sound presets and box presets |
 | 11 | [music_pointer_array](#11-music_pointer_array) | `$1CBA6`–`$1CC00` | 90 B | `@Binary` | Scene→BGM music data pointers |
 | 12 | [parallax_scroll_table](#12-parallax_scroll_table) | `$1CC00`–`$1D3CE` | 1,998 B | `&Binary` | Per-scene parallax/HDMA scroll configs |
 | 13 | [event_block_table](#13-event_block_table) | `$1D3CE`–`$1D8BE` | 1,264 B | `event-block-def` | Event block tile copy definitions |
@@ -43,7 +43,7 @@
 
 ### 1. display_preset_table
 
-**Current name:** `table_018000`  
+**Current name:** `display_preset_table`  
 **Proposed name:** `display_preset_table`  
 **Address:** `$18000`–`$18234` (564 bytes)  
 **Type:** Pointer table → `display-preset` structs  
@@ -196,23 +196,21 @@ Notable entries:
 **Category:** `tables`
 
 **Description:**  
-Per-scene table of barrier tile and treasure chest placement data, indexed by scene ID. Each scene's entry is a variable-length list of 4-byte records:
+Per-scene table of treasure chest records, indexed by scene ID. The table starts with 255 words (scene IDs `$00`–`$FE`), each the address of that scene's chest list, followed by the lists. Only 39 scenes have chests, in 46 records; the other 216 entries point at one shared empty list (`chest_list_none`, a single `$FF` byte). The table holds chest records only. Each list is a run of 4-byte records that ends at a record whose first byte has bit 7 set:
 
 | Byte | Field | Description |
 |------|-------|-------------|
-| 0 | X tile | Tile X coordinate of the barrier/chest |
-| 1 | Y tile | Tile Y coordinate |
-| 2 | Content | Item ID for chests, or tile index for barriers |
-| 3 | Flags | Event flag ID (bit 7 = end-of-list sentinel) |
+| 0 | X tile | X tile of the chest's left column (bit 7 set = end of list) |
+| 1 | Y tile | Y tile of the chest's bottom row (the top row is Y−1) |
+| 2 | Contents | Item ID passed to `GiveItemToPlayer`; `0` = flag-only chest ("It is empty!") |
+| 3 | Flags | Bits 0–6: event flag (`$0200` group) set when the chest is opened; bit 7: open with the fanfare (`ChestOpeningActor`) instead of the plain dialogue |
 
-Most scenes point to `binary_01AFA6` (`$FF` = no barriers/chests). Non-trivial entries define the placement of:
-- **Barrier tiles:** 2×2 tile blocks placed on the map when an event flag is set, blocking paths until cleared
-- **Treasure chests:** Searchable tiles that yield items when the event flag is not yet set
+A chest is a 2×2 block of map tiles: closed `$FA`/`$FB` (top row) and `$F8`/`$F9` (bottom row), open `$FE`/`$FF` and `$FC`/`$FD`.
 
 **Usage:**
-- `warps_interaction.asm` — `PlaceOpenedChestTiles` walks entries to place blocking tiles
-- `warps_interaction.asm` — chest interaction searches entries by player position
-- `radar_map_screen.asm` — reads scene entries to draw transition markers on the world map radar
+- `warps_interaction.asm` — `PlaceOpenedChestTiles` redraws every chest whose event flag is set as an open chest when the scene map is built
+- `warps_interaction.asm` — `HandleChestInteraction` matches the chest tile in front of the player against bytes 0 and 1 of the records
+- `radar_map_screen.asm` — `RadarPlotSceneMarkers` draws a marker for every chest whose event flag is still clear and counts them
 
 ---
 
@@ -318,12 +316,12 @@ Duplicate of `sine_table_16bit`. Likely exists for bank-alignment or separate ad
 **Category:** `tables`
 
 **Description:**  
-Reusable dialog box templates invoked by the `$C2 InsertTemplate` control code in dialog strings. Each template is a pre-formatted dialog string containing setup commands:
+Reusable dialog text presets spliced into the string being drawn by the `[TPL:nn]` control code (`$C2 InsertTemplate`) in dialog strings. Each template is a short dialog string made of tags:
 
-- **Templates `$00`–`$07`:** Screen-effect presets — configure `[SEP]` (screen effect parameters) for palette shifts and `[SFX]` (sound effect) triggers. Used for Dark Space transformations and special screen transitions.
-- **Templates `$08`–`$11`:** Dialog box size presets — `[DLG:3,x]` sets dialog box position/type, `[SIZ:D,n]` sets the text line count (1–4 lines). These standardize dialog box sizes across the game.
-- **Template `$12`:** "Where do you go?" — the world map destination selection prompt.
-- **Templates `$13`–`$15`:** Screen-effect presets without sound effects (silent variants of `$00`–`$04`).
+- **Templates `$00`–`$07`:** Speaker presets — `[SEP:ii,cccc]` writes a BGR555 colour word to palette-buffer colour `ii` (colours `$11` and `$12`, entries 1 and 2 of 2bpp palette 4), `[PAL:4]` selects that palette for the following characters, and `[SFX:ss]` sets the per-character sound effect (`$07` has none). Templates `$00`–`$06` are the colours and sound of Will, Kara, Lilly, Erik, Lance, Seth and Neil; `$07` is a pink/red pair used by two lines without a speaker name.
+- **Templates `$08`–`$10`:** Dialog box presets — `[DLG:col,row]` positions the cursor and `[SIZ:w,h]` opens a box `w` columns wide and `h` rows high. `$08`–`$0B` are a 13-column box of 1–4 rows at column 3, row 6; `$0C`–`$0F` are the same boxes at column 3, row `$11`; `$10` duplicates `$0F`.
+- **Template `$11`:** "Where do you go?" — a 14 × 3 box at column 2, row `$14` with that text, used by the route menus.
+- **Templates `$12`–`$15`:** The colours of `$00`, `$01`, `$02` and `$04` without the `[SFX]` tag (silent variants).
 
 **Usage:** `DialogStringRenderer.asm` — the `InsertTemplate` handler (`$C2`) indexes this table to recursively expand template strings inline.
 
@@ -338,10 +336,10 @@ Reusable dialog box templates invoked by the `$C2 InsertTemplate` control code i
 **Category:** `system`
 
 **Description:**  
-Maps scene music IDs to SPC music data locations in ROM. Each 3-byte entry is a long pointer (`address_lo, address_hi, bank`) to compressed music data. The entries reference named BGM tracks:
+Maps music IDs to SPC music data locations in ROM. Each 3-byte entry is a long pointer (`address_lo, address_hi, bank`) to compressed music data. The table is indexed 1-based: music ID n selects entry n − 1 (`LoadMusicFromTransitionState` reads at `music_pointer_array − 3 + 3n`), so ID `$00` never indexes the table. The first column below is the **entry index**; the music ID stored in a scene `music` command or staged in `musicTransitionState` is the entry index + 1 (entry `$1B`, `bgm_lively_city_by_the_sea`, is music ID `$1C`). The entries reference named BGM tracks:
 
-| ID | Track |
-|----|-------|
+| Entry | Track |
+|-------|-------|
 | `$00`–`$01` | `bgm_lively_city` |
 | `$02` | `bgm_blessing_of_nature` |
 | `$03` | `bgm_ominous_whispers` |
@@ -370,7 +368,7 @@ Maps scene music IDs to SPC music data locations in ROM. Each 3-byte entry is a 
 | `$1C` | `bgm_waterfall` |
 | `$1D` | `bgm_melody_of_memories` |
 
-**Usage:** `hdma_dma_spc.asm` — the SPC transfer system reads 3-byte entries from this array using `musicTransitionState × 3` as the index, loading the music data address and bank into the DMA transfer registers.
+**Usage:** `hdma_dma_spc.asm` — `LoadMusicFromTransitionState` reads the 3-byte entry `(musicTransitionState − 1) × 3` from this array into DP `$46`–`$48` (and the `srcCacheMusic` shadow at `$0687`), then calls `SpcBlockTransfer`, the blocking IPL byte-stream upload.
 
 ---
 
@@ -659,7 +657,7 @@ The two-dictionary system effectively gives 512 possible compressed words (256 p
 
 ### 22. item_pickup_text_table
 
-**Current name:** `itemget_table_01FD24`  
+**Current name:** `item_pickup_text_table`  
 **Proposed name:** `item_pickup_text_table`  
 **Address:** `$1FD24`–`$1FF6C` (584 bytes)  
 **Type:** Pointer table → `DialogString` entries  
@@ -689,7 +687,7 @@ The strings at `dialog_item_full` (inventory full) and `dialog_item_found` (item
 | `table_01A95E` | `forced_walk_pan_table` | Used exclusively by forced_walk system |
 | `dir_sprite_01ABDE` | `walk_step_table` | Maps directions to sprite frames + velocities |
 | `stats_01ABF0` | `enemy_stats_table` | Master enemy stat table |
-| `table_01ADA8` | `scene_chest_table` | Per-scene barrier/chest placement data |
+| `table_01ADA8` | `scene_chest_table` | Per-scene treasure chest records |
 | `table_01B086` | `move_chain_table` | Pre-computed movement delta curves |
 | `slope_curve_table` | `trig_and_level_tables` | Composite: trig LUTs + level thresholds |
 | `sine_table_8bit` | `sine_table_8bit` | 8-bit quarter-wave sine LUT |
@@ -698,7 +696,7 @@ The strings at `dialog_item_full` (inventory full) and `dialog_item_found` (item
 | `cosine_table_16bit` | `cosine_table_16bit` | 16-bit quarter-wave cosine LUT |
 | `neg_sine_halfwave_16bit` | `neg_sine_halfwave_16bit` | Negated half-wave of the 16-bit sine |
 | `cosine_table_16bit_tail` | `cosine_table_16bit_tail` | Last quarter of the 512-word cosine cycle |
-| `templates_01CA95` | `dialog_template_table` | Dialog box/FX template strings |
+| `templates_01CA95` | `dialog_template_table` | Dialog speaker colour/sound and box template strings |
 | `music_array_01CBA6` | `music_pointer_array` | Scene music → SPC data pointers |
 | `parallax_table` | `parallax_scroll_table` | Per-scene parallax HDMA configs |
 | `hdma_channel_config` | `hdma_channel_config` | HDMA DMA transfer mode lookup |

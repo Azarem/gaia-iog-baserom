@@ -33,7 +33,7 @@ Power-on / Reset
 Alternate frame paths (called from dialogue/text/music code):
     UpdateFrameDialogue ($811E)   — cutscenes / dialogue
     UpdateFrameRender   ($817D)   — text overlay only
-    UpdateFrameFull     ($81BC)   — music handshake from NMI
+    UpdateFrameFull     ($81BC)   — run by the NMI while the main loop is blocked in the SPC music upload
 ```
 
 ---
@@ -255,7 +255,7 @@ The main loop at **`MainLoop`** executes 22 ordered steps every frame: frame beg
 | `$09C8` / `$09CA` | 4 | HUD related pointers | Init |
 | `$0ACA` / `$0ACE` | 4 | Player max HP / current HP | Init / HUD |
 | `$0ADE` / `$0ADC` | 4 | Player STR / DEF stat values | Init / HUD |
-| `$0B28`–`$0B32` | 11 | Save/warp metadata region | Init context |
+| `$0B28`–`$0B33` | 12 | `hieroglyphSlots`: six hieroglyph plate slots (words, `$FFFF` = empty) | `SystemInit` clears them |
 
 #### Cross-References
 
@@ -368,9 +368,9 @@ Clears `$09EC` bit `$08` (dialogue display flag) as part of its setup. Writes th
 
 #### Description
 
-Near-complete single-frame update **including collision and actor movement**, but invoked from **NMI** during **music transition handshake** (`$06FA ≠ 0`). Allows the game simulation to advance while the main CPU thread is blocked waiting for APU acknowledgment. Uses a lighter save (`PHP`, `PHB`) because it runs inside the NMI stack frame.
+Single-frame update that `NmiHandler` calls while `musicTransitionState` (`$06FA`) is **positive** (neither 0 nor `$FFFF`), i.e. while the main loop is inside `LoadMusicFromTransitionState` → `SpcBlockTransfer`, the blocking SPC music upload, with NMI enabled. It keeps the screen animating during the upload: the light general thinkers, the overlay-only actor pass (`RunActors_OverlayOnly`), depth sort, camera scroll for both layers, `ResetHdmaState`, the light HDMA-phase thinkers and sprite composition. Uses a lighter save (`PHP`, `PHB`) because it runs inside the NMI stack frame.
 
-Does not call `UpdateHUD`, scene logic, or the full 22-step main loop — it covers transitions, collision, OAM, scroll, HDMA, and sprites sufficient for music-crossfade frames.
+Does not call `UpdateHUD`, the normal actor pass (`RunActors_Normal`) or the rest of the main loop.
 
 #### Algorithm
 
@@ -397,13 +397,13 @@ Does not call `UpdateHUD`, scene logic, or the full 22-step main loop — it cov
 |---------|------|------|
 | `$00D8` | 2 | OAM write offset |
 | `$7F3100` / `$7F3101` | 2 | OAM sentinel |
-| `$06FA` | 2 | Music handshake — gate in `NmiHandler` |
+| `$06FA` | 2 | `musicTransitionState`: 0 idle, positive = SPC upload in progress (the gate in `NmiHandler`), `$FFFF` = finished |
 
 #### Cross-References
 
 | Direction | Symbol | Notes |
 |-----------|--------|-------|
-| Called by | `NmiHandler` | When `$06FA ≠ 0` |
+| Called by | `NmiHandler` | When `$06FA` is positive |
 | Related | [`nmi-handler.md`](nmi-handler.md) | Step 16 of NMI flow |
 
 ---
@@ -418,8 +418,8 @@ Updates the **BG3 status bar overlay** showing HP, DEF, STR, gem count, and enem
 
 Handles three distinct visual behaviors:
 
-1. **Damage flash** — when `$0B22 ≠ 0`, every 8 frames (`$0036` AND `$07`) animates DEF display `$0ACE` toward max `$0ACA` and plays sound effect via inline COP `PlaySoundCh2 #0D`.
-2. **Stat change detection** — compares live stats against cached previous values; triggers BG3 script refresh when DEF/HP/gems change.
+1. **HP recovery** — when `hpToHeal` (`$0B22`) is nonzero, the frame counter (`$0036`) is a multiple of 8 and `playerStateByte` bit 1 (game over) is clear: decrements `hpToHeal`, then either clears it (when `playerHp` `$0ACE` already equals `playerMaxHp` `$0ACA`) or increments `playerHp` by 1 and plays sound `#0D` via inline COP `PlaySoundCh2`.
+2. **Stat change detection** — compares HP, max HP and gem count against the cached previous values; triggers BG3 script refresh when any of them changes.
 3. **Experience popup** — when `$09EA ≠ 0`, starts `$0AE4` countdown (`$001E` frames) and runs COP `RunBg3Script` referencing `consolestring_01E7F6` / `consolestring_01E818`.
 
 Gem hundreds digit: `$0AD8 = $0AD6 / 100` for three-digit display.
@@ -430,7 +430,7 @@ Gem hundreds digit: `$0AD8 = $0AD6 / 100` for three-digit display.
 |------|--------|--------|
 | 1 | Gate | If `$09ED` & `$40` → `RTL` (HUD disabled) |
 | 2 | Save flags | `PHP`/`PHA` — preserve `$09EC` bit 0 |
-| 3 | HP recovery | If `$0B22 ≠ 0` and frame mod 8: inc playerHp (`$0ACE`), cap at playerMaxHp (`$0ACA`), COP sound `#0D` |
+| 3 | HP recovery | Skipped if `playerStateByte` bit 1 is set, the frame counter is not a multiple of 8, or `hpToHeal` (`$0B22`) is 0. Otherwise `hpToHeal` − 1; if `playerHp` (`$0ACE`) = `playerMaxHp` (`$0ACA`): `hpToHeal` := 0; else `playerHp` + 1 and COP sound `#0D` |
 | 4 | Compare stats | playerHp (`$0ACE`) vs `$0AD0`, maxHP (`$0ACA`) vs `$0ACC`, gems `$0AD6` vs `$0ADA` |
 | 5 | Gem hundreds | `$0AD8 ← $0AD6 / 100` |
 | 6 | Enemy health | If `$09EA`: set `$0AE4 = $001E`; COP `RunBg3Script` for enemy HP bar |
@@ -443,7 +443,7 @@ Gem hundreds digit: `$0AD8 = $0AD6 / 100` for three-digit display.
 
 | Address | Size | Name / Role | R/W |
 |---------|------|-------------|-----|
-| `$0036` | 2 | Frame counter (parity) | R — flash timing |
+| `$0036` | 2 | Frame counter (parity) | R — HP recovery step every 8 frames |
 | `$09AF` | 2 | HUD state helper | R |
 | `$09E4` / `$09E6` | 4 | Enemy HP display values | R |
 | `$09EA` | 2 | Enemy HP pending flag | R |
@@ -454,7 +454,7 @@ Gem hundreds digit: `$0AD8 = $0AD6 / 100` for three-digit display.
 | `$0AD6` / `$0AD8` | 4 | Gem count / hundreds digit | R/W |
 | `$0ADA` | 2 | Cached previous gems | R/W |
 | `$0AE4` | 2 | Enemy health bar timer | R/W |
-| `$0B22` | 2 | Damage flash timer | R |
+| `$0B22` | 2 | `hpToHeal`: HP recovery counter (`UpdateHUD` reads and writes only the low byte) | R/W |
 
 #### Cross-References
 
@@ -462,7 +462,7 @@ Gem hundreds digit: `$0AD8 = $0AD6 / 100` for three-digit display.
 |-----------|--------|-------|
 | Called by | `SystemInit` main loop step 20 | Every normal frame |
 | Called by | `UpdateFrameRender` | Overlay frames |
-| Inline COP | `PlaySoundCh2 #0D` | Damage tick sound |
+| Inline COP | `PlaySoundCh2 #0D` | HP recovery tick sound |
 | Inline COP | `RunBg3Script` | `consolestring_01E7F6`, `consolestring_01E818` |
 | Data | `system_strings` include | HUD Console templates |
 
@@ -519,7 +519,8 @@ Preserves and restores processor flags with `PHP`/`PLP` so caller flag state is 
 | `$09EC` | 2 | Display mode flags | HUD, dialogue frame |
 | `$09ED` | 1 | HUD disable flag | `UpdateHUD` |
 | `$0ACA`–`$0ADE` | — | Stat display values | `SystemInit`, `UpdateHUD` |
-| `$0B22`–`$0B32` | — | Damage/save metadata | `UpdateHUD`, init |
+| `$0B22` | 2 | `hpToHeal`: HP recovery counter | `UpdateHUD` (reader), item and reward actors (writers) |
+| `$0B28`–`$0B33` | 12 | `hieroglyphSlots`: six hieroglyph plate slots (words, `$FFFF` = empty) | `SystemInit` (clears), `pyCD_puzzle`, `item_use_system` (plate placement); inside the saved WRAM range `$0A00`–`$0BFB` |
 
 ---
 

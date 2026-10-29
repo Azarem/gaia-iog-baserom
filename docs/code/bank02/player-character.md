@@ -90,13 +90,13 @@ player_character.asm
     ?INCLUDE 'table_01D9BF'    — ability animation data B
     ?INCLUDE 'table_0EE000'    — guided projectile spritemap
     ?INCLUDE 'table_178000'    — Dark Friar FX spritemap
-    ?INCLUDE 'table_179000'    — Aura projectile spritemap
+    ?INCLUDE 'spriteset_aura'    — Aura projectile spritemap
   ?INCLUDE 'shadow_shimmer'
   ?INCLUDE 'game_over_sequence'
   ?INCLUDE 'hardware_math'
   ?INCLUDE 'player_move_controller'
   ?INCLUDE 'slope_ramp_physics'
-  ?INCLUDE 'table_17D000'      — ranged weapon spritemap
+  ?INCLUDE 'spriteset_darkgaia_projectile'      — Dark Gaia projectile spritemap
 ```
 
 ### Shared WRAM Variables
@@ -374,7 +374,7 @@ Master actor definition and state machine for idle, walk, block, climb, ladder, 
 | `$02CF37` | RangedAttackEast | Lunge east, sprite `#47`. |
 | `$02CF4A` | RangedSetForceX | `COP [StageForceMoveX]` (`$46`). |
 | `$02CF4F` | RangedSetForceY | `COP [StageForceMoveY]` (`$46`). Sets `$0800`/`$0200`, hitbox `$0040`. |
-| `$02CF68` | ProjectileSouth | Spritemap `table_17D000`, moves Y. |
+| `$02CF68` | ProjectileSouth | Spritemap `spriteset_darkgaia_projectile`, moves Y. |
 | `$02CF82` | ProjectileNorth | Sprites `#01`→`#05`. |
 | `$02CF9C` | ProjectileWest | X-axis. |
 | `$02CFB6` | ProjectileEast | Sprites `#03`→`#07`. |

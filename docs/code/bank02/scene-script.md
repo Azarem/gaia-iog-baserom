@@ -96,16 +96,16 @@ The 24-entry jump table at `$028416` maps command indices `$00`–`$17` to handl
 | Cmd | Hex | Handler | Description |
 |-----|-----|---------|-------------|
 | `$00`–`01` | — | `SceneCmd_Default` | Unimplemented (NOP return) |
-| `$02` | `$02` | `SceneCmd_ConfigDisplay` | Read `table_018000` entry; configure TM/TS/TMW/TSW/CGWSEL/CGADSUB/BGMODE/BG1SC/BG2SC and scene flags |
+| `$02` | `$02` | `SceneCmd_ConfigDisplay` | Read the `display_preset_table` record; configure TM/TS/TMW/TSW/CGWSEL/CGADSUB/BGMODE/BG1SC/BG2SC and scene flags |
 | `$03` | `$03` | `SceneCmd_LoadBgTiles` | Multi-mode BG tile loader (4 modes) |
-| `$04` | `$04` | `SceneCmd_LoadPalette` | Single-layer tilemap DMA |
-| `$05` | `$05` | `SceneCmd_LoadMetatileSets` | Dual-layer tilemap with per-layer cache check |
-| `$06` | `$06` | `SceneCmd_LoadLayerMaps` | Full scene graphics — map geometry + tileset + tilemap |
+| `$04` | `$04` | `SceneCmd_LoadPalette` | Palette colours: colours `[start, end)` of the source go to the palette buffer `$7F:0A00` at colour `dest` |
+| `$05` | `$05` | `SceneCmd_LoadMetatileSets` | Metatile sets for layer 0 and/or layer 1 (per-layer cache check) to `$7E:2000` / `$7E:2800`, then `BuildMetatileFlagTable` |
+| `$06` | `$06` | `SceneCmd_LoadLayerMaps` | Layer maps (width, height, compressed map) for layer 0 and/or layer 1; with no layer bit set, a tileset to low VRAM |
 | `$07`–`0D` | — | `SceneCmd_Default` | Unimplemented (NOP return) |
 | `$0E` | `$0E` | `SceneCmd_Skip3` | Skip 3 script bytes (placeholder NOP) |
 | `$0F` | — | `SceneCmd_Default` | Unimplemented (NOP return) |
 | `$10` | `$10` | `SceneCmd_LoadSpriteTiles` | Sprite tile graphics → VRAM `$4000` |
-| `$11` | `$11` | `SpcMusicLoadCmd` | SPC music load (in `spc_transfer.asm`) |
+| `$11` | `$11` | `SpcMusicLoadCmd` | SPC music load; the transfer runs only when the script's group byte equals `musicRoomGroup` (`$06F6`), otherwise the command returns |
 | `$12` | — | `SceneCmd_Default` | Unimplemented (NOP return) |
 | `$13` | `$13` | `SceneCmd_Branch` | Test event flag → skip or execute command `$15` |
 | `$14` | `$14` | `SceneCmd_Label` | Skip 1 script byte |
@@ -123,12 +123,12 @@ Used by `FindCurrentScene` and `SkipScriptCommands` when advancing past unknown 
 |-----|-------------------|-------|
 | `$02` | 1 | Display config index |
 | `$03` | 7 | VRAM offset, range, mode, 3-byte source pointer |
-| `$04` | 6 | start/end/VRAM offsets + 3-byte pointer |
-| `$05` | 7 | BG1+BG2 params + 3-byte pointer |
+| `$04` | 6 | start, end, dest colour + 3-byte pointer |
+| `$05` | 7 | start, end, dest (window operands), layer flags + 3-byte pointer |
 | `$06` | 4+ | Layer flags + 3-byte pointer (+ inline geometry) |
 | `$0E` | 3 | Skipped inline |
 | `$10` | 5 | 2-byte size + 3-byte pointer |
-| `$11` | 5 | Track ID + cache key + 3-byte pointer |
+| `$11` | 5 | Track id (stored in `musicParentActor`, `$06F2`), group (stored at `$06F4`) + 3-byte pointer |
 | `$13` | 2 | Flag index + `$15` count |
 | `$14` | 1 | NOP skip |
 | `$15` | 1+ | Count byte, then N commands |
@@ -204,15 +204,15 @@ Tier 1 applies to all cached commands (`LoadBgTiles`, `LoadTilemap`, `LoadSprite
 | `$028592` | Load4bppPage | Loads a full 4bpp tile page (4096 bytes) to VRAM address `$2000`. |
 | `$0285DB` | DeinterleavePlanarTiles | Converts interleaved 2bpp+2bpp planar tile data to SNES 4bpp format. |
 | `$02868C` | BuildAttributeTable | Builds a 256-byte palette-to-attribute lookup table at `$7E:2800` from tilemap metadata at `$7E:2000`. |
-| `$0286C3` | SceneCmd_LoadPalette | Command `$04` loads a single-layer tilemap from ROM into WRAM buffer `$7F:0A00`. |
-| `$028712` | SceneCmd_LoadMetatileSets | Command `$05` loads tilemap data for both BG layers from a single compressed blob. |
-| `$0287BC` | SceneCmd_LoadLayerMaps | Command `$06` is the comprehensive scene graphics loader — map geometry, tileset, and tilemap in one command. |
+| `$0286C3` | SceneCmd_LoadPalette | Command `$04` loads palette colours from ROM into the palette buffer at `$7F:0A00`. |
+| `$028712` | SceneCmd_LoadMetatileSets | Command `$05` loads metatile sets for layer 0 and/or layer 1 from a single compressed blob into WRAM and builds the metatile flag table. |
+| `$0287BC` | SceneCmd_LoadLayerMaps | Command `$06` loads the layer map (width, height, compressed map) of layer 0 and/or layer 1, or a tileset to low VRAM when no layer bit is set. |
 | `$028895` | StoreMapAndDecompress | Stores map dimensions from inline geometry bytes (`$00`/`$02` = width/height) into the map bounds array at `$0693,X` ... |
 | `$0288B5` | HandleEmptyGeometry | Handles the case where the geometry size word read from the source stream is zero — meaning no compressed tileset follows inline. |
 | `$028914` | WriteMapBounds | Writes map width and height from `$00`/`$02` into the bounds arrays at `$0692,X` and `$0696,X`, then DMAs the first map row from the current source pointer via `DmaRomToWram`. |
 | `$028926` | DmaLowVramTileset | Uploads a tileset to low VRAM at address `$2000` using byte-write mode, required for Mode 0 BG tile uploads. |
 | `$02897D` | RenderPaletteTiles | Converts palette-indexed map data at `$7E:A000` into SNES 4bpp tile format at `$7E:B000`, then DMAs 4096 bytes to VRAM address `$0000`. |
-| `$028A6D` | SceneCmd_ConfigDisplay | Command `$02` configures the SNES PPU for a scene by reading a 1-byte index into `table_018000` — a preset table of display register values. |
+| `$028A6D` | SceneCmd_ConfigDisplay | Command `$02` configures the SNES PPU for a scene by reading a 1-byte index into `display_preset_table` — a preset table of display register values. |
 | `$028B69` | SceneCmd_Skip3 | Command `$0E` is a placeholder NOP that advances the script index by 3 bytes. |
 | `$028BE4` | SceneCmd_LoadSpriteTiles | Command `$10` loads sprite tile graphics to OBJ VRAM. |
 | `$028C30` | SceneCmd_LoadCharTiles | Command `$17` loads character-specific tile data to BG VRAM. |
@@ -230,9 +230,9 @@ Tier 1 applies to all cached commands (`LoadBgTiles`, `LoadTilemap`, `LoadSprite
 | `$028F53` | RestoreCachedVram | Restores previously saved VRAM tile data from the ring buffer back to VRAM. |
 | `$028FA7` | DmaWramToVram | DMAs data from WRAM bank `$7F` to VRAM. |
 | `$028FCD` | BuildMetatileFlagTable | Rebuilds tilemap attribute bytes for a 4×N tile region. |
-| `$029020` | RebuildCollisionLayer | Refreshes both map layers from their cached source pointers after scene script execution completes. |
-| `$029034` | FillCollisionFromLayer0 | Reloads layer 0 map strip from the cached source pointer at `$06AA` into `$7F:2000`. |
-| `$029060` | OverlayCollisionFromLayer1 | Reloads layer 1 map strip from the cached source pointer at `$06AC` into `$7F:0000`. |
+| `$029020` | RebuildCollisionLayer | Rebuilds the collision layer after scene script execution completes: `FillCollisionFromLayer0`, then `OverlayCollisionFromLayer1` when `scrollModeFlags` (`$06EF`) bit 0 is set. |
+| `$029034` | FillCollisionFromLayer0 | Fills the collision layer (`$7F:C000`) from the layer 0 map (`$7E:A000`): each cell's metatile number indexes the flag table whose page address is in `$06AA` (`collisionFlagTableL0`, bank `$7F`). |
+| `$029060` | OverlayCollisionFromLayer1 | Overlays layer 1's flags onto the collision layer (`$7F:C000`) from the flag table whose page address is in `$06AC` (`collisionFlagTableL1`, bank `$7F`); zero flag bytes are skipped. |
 
 #### Script Engine Core
 
@@ -730,13 +730,13 @@ Converts palette-indexed map data at `$7E:A000` into SNES 4bpp tile format at `$
 
 ### SceneCmd_ConfigDisplay
 
-Command `$02` configures the SNES PPU for a scene by reading a 1-byte index into `table_018000` — a preset table of display register values. Writes to `$212C`–`$212F` (TM/TS/TMW/TSW), `$2130`–`$2131` (CGWSEL/CGADSUB), `$2105`–`$2108` (BG mode and screen sizes), and stores derived flags to `$06EE` (display flags) and `$06EF` (system flags). Extracts BG priority bits into `$06A2`/`$06A4` and `$06EC` (BG scroll base). Detects BG2 enable (bit in `$06EF`), Mode 7 palette path (bit `$08`), and interleaved tile flag (bit `$0800` in `$06EE`). Clears tile cache invalidation flags `$0679`/`$067C` when scroll bases change.
+Command `$02` configures the SNES PPU for a scene by reading a 1-byte index into `display_preset_table` — a preset table of display register values. Writes to `$212C`–`$212F` (TM/TS/TMW/TSW), `$2130`–`$2131` (CGWSEL/CGADSUB), `$2105`–`$2108` (BG mode and screen sizes), and stores derived flags to `$06EE` (display flags) and `$06EF` (system flags). Extracts BG priority bits into `$06A2`/`$06A4` and `$06EC` (BG scroll base). Detects BG2 enable (bit in `$06EF`), Mode 7 palette path (bit `$08`), and interleaved tile flag (bit `$0800` in `$06EE`). Clears tile cache invalidation flags `$0679`/`$067C` when scroll bases change.
 
 **Algorithm:**
 
 | Step | Action |
 |------|--------|
-| 1 | Read preset index; compute offset into `table_018000` |
+| 1 | Read preset index; compute offset into `display_preset_table` |
 | 2 | Write TM/TS/TMW/TSW, CGWSEL/CGADSUB from table |
 | 3 | Parse flag byte: priority bits, scroll bases, interleave |
 | 4 | Write BGMODE, BG1SC, BG2SC from table bytes 5–7 |
@@ -755,7 +755,7 @@ Command `$02` configures the SNES PPU for a scene by reading a 1-byte index into
 
 | Symbol | Relationship |
 |--------|--------------|
-| `table_018000.asm` | Display preset data |
+| `display_preset_table.asm` | Display preset data |
 | `CheckInterleavedFlag` | Reads `$06EE` bit `$0800` |
 | `RebuildCollisionLayer` | Gated on `$06EF` bit `$01` |
 
@@ -1055,7 +1055,7 @@ RebuildCollisionLayer {
 | Location | Direction | Role |
 |----------|-----------|------|
 | `$06EF` | In | Bit `$01` = BG2 active |
-| `$06AA`/`$06AC` | In | Cached map source pointers |
+| `$06AA`/`$06AC` | In | Flag-table page addresses for layer 0 / layer 1 (bank `$7F`) |
 
 **Cross-References:**
 
@@ -1067,11 +1067,11 @@ RebuildCollisionLayer {
 
 ### FillCollisionFromLayer0
 
-Reloads layer 0 map strip from the cached source pointer at `$06AA` into `$7F:2000`. Computes the number of map rows from `$0693` (width) × `$0697` (height) via `Multiply8x8Unsigned`. For each row, reads a pointer from `$7E:0000,X` and dereferences it to copy map data to `$7F:2000,X`.
+Builds the layer 0 part of the collision layer (`$7F:C000`). `$3E`/`$40` is set to the flag table whose page address is in `$06AA` (`collisionFlagTableL0`, bank `$7F`, written by `BuildMetatileFlagTable`). The cell count is `$0693` (`mapRowStrideL0`) × `$0697` via `Multiply8x8Unsigned`. For each cell, reads the metatile number from `$7E:A000 + cell`, uses it as the low byte of `$3E`, and stores the flag byte `[$3E]` to `$7F:C000 + cell` (the store is `STA $7F2000,X` with X starting at `$A000`).
 
 ### OverlayCollisionFromLayer1
 
-Reloads layer 1 map strip from the cached source pointer at `$06AC` into `$7F:0000`. Similar to `FillCollisionFromLayer0` but uses `$0695`/`$0699` for dimensions and skips zero-valued tiles (overlay transparency). Starts indexing at `$0080` in the source pointer table.
+Overlays layer 1's flags onto the collision layer (`$7F:C000`). Same structure as `FillCollisionFromLayer0`, but the flag table page is in `$06AC` (`collisionFlagTableL1`), the cell count is `$0695` (`mapRowStrideL1`) × `$0699`, the start index is the word at `$0080` (`$C000`), and the store goes through `$7F0000,X`. A zero flag byte is skipped, so layer 0's value stays where layer 1 has nothing.
 
 ## See Also
 
@@ -1092,7 +1092,7 @@ Reloads layer 1 map strip from the cached source pointer at `$06AC` into `$7F:00
 | [`hardware_math.asm`](../../../extracted/system/engine/hardware_math.asm) | `Multiply8x8Unsigned` — map dimension math |
 | [`vblank_joypad.asm`](../../../extracted/system/engine/vblank_joypad.asm) | `WaitFrames`, `DisableNmiKeepJoypad`, `EnableNmiAndJoypad` |
 | [`flag_helpers.asm`](../../../extracted/system/engine/flag_helpers.asm) | `TestFlagRaw` — conditional load `$13` |
-| [`table_018000.asm`](../../../extracted/tables/table_018000.asm) | Display presets for command `$02` |
+| [`display_preset_table.asm`](../../../extracted/tables/display_preset_table.asm) | Display presets for command `$02` |
 | [`system_init.asm`](../../../extracted/system/engine/system_init.asm) | `cache_slot_indices` — ring-buffer mapping |
 
 ### Related Documentation

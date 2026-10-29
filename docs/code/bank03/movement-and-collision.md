@@ -247,11 +247,14 @@ flag, flipping hitbox X (BCS path negates offsets).
   `chainDamage` is halved and written back (`LSR` then `STA $chainDamage,X`).
   With no external preload, consecutive hits stay at base damage.
   `enemyHP = max(0, enemyHP − damage)`.
-- Enemy attacks player (`ApplyHitDamageToVictim`):
-  `totalStr = playerStr + previousDamage($09E2) + climbStateData` — `previousDamage`
-  is skipped when ZP `$08 == $1000`;
-  `rawDamage = max(1, enemyAtk − totalStr)`;
-  `netDamage = rawDamage + victim slot $0008`.
+- Phase-2 hit (`ApplyHitDamageToVictim`, uses the player's strength and reduces
+  the overlapped actor's HP):
+  `totalStr = playerStr + bonus + climbStateData` — `bonus` is `$09E2`
+  (`climbStateData+2`) and is 0 when the hitter (ZP `$08`) is actor slot `$1000`;
+  `rawDamage = max(1, totalStr − victimStats[2])` (stats[2] = victim DEF);
+  `netDamage = rawDamage + characterForm`.
+- Actor touches player (`ApplyInteractionDamage`):
+  `damage = max(1, attackerStats[1] − playerDef)`, subtracted from `playerHp`.
 
 ### Key routines
 
@@ -311,11 +314,12 @@ next calculation.
 ### Ability bonus bytes (`$09E0` / `$09E2`)
 
 `ApplyHitDamageToVictim` damage formula:
-`totalStr = playerStr($0ADE) + previousDamage($09E2) + climbStateData($09E0)`.
-`previousDamage` at `$09E2` is omitted from `totalStr` when ZP `$08 == $1000`.
+`totalStr = playerStr($0ADE) + bonus + climbStateData($09E0)`, where `bonus` is
+`climbStateData+2` (`$09E2`) and is 0 when the hitter (ZP `$08`) is actor slot `$1000`.
 `$09E0` holds the byte loaded by `LoadAbilityDamageA` (Will); `$09E2` holds
 Freedan's table byte from `LoadAbilityDamageB`. The lunge combo sets `$09E0 = 1`
-for extra effective STR — not a climb or elevation flag.
+for extra effective STR — the mnemonic name `climbStateData` is misleading: this is
+an ability damage bonus, not a climb or elevation flag.
 
 ### Friendly-mode behavior
 

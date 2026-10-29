@@ -102,7 +102,7 @@ Routes the enemy's `gemDropType` (byte 3 of `enemy-stats`) to the appropriate pi
 - **Type 2** → `SpawnDropGem2` (`$DF52`) — fixed item `$84` (2 gems)
 - **Type 3+** → `SpawnDropByHpTier` (`$DF7B`) — HP-tier weighted roll among items `$83`–`$86`
 
-> ⚠ This system was previously misnamed "EnemyRewardChestRouter" — enemies do **not** spawn chests on death. They spawn animated pickups whose `chatPtr` holds a `GiveItemToPlayer` item id (`$83`–`$86`: 1, 2, or 5 gems, or a 5 HP heal).
+> ⚠ Enemies do **not** spawn chests on death. They spawn animated pickups whose `chatPtr` holds a `GiveItemToPlayer` item id (`$83`–`$86`: 1, 2, or 5 gems, or a 5 HP heal).
 
 ### Algorithm
 
@@ -168,7 +168,7 @@ These actors bounce toward the player, play fanfare SFX `$25`, set the scene rew
 
 **Address:** `$DDF2` · **Size:** 291 bytes
 
-> ⚠ This actor was previously named `SpawnItemDropPickup` but contains **no item/inventory logic whatsoever**. It is the visual effect that plays when hidden tilemap tiles are revealed after an enemy defeat triggers an event block change.
+> ⚠ This actor contains **no item/inventory logic whatsoever**. It is the visual effect that plays when hidden tilemap tiles are revealed after an enemy defeat triggers an event block change.
 
 ### Description
 
@@ -253,7 +253,7 @@ Also called directly from some enemy actor scripts (not only through `StandardEn
 
 **Address:** `$DF29`–`$DFFF` · **Size:** 260 bytes (7 handlers + data)
 
-> ⚠ Previously misnamed `DarkGemDropSystem` / `EnemyRewardChestSystem`. Enemies do **not** spawn chests — they spawn gem or heal pickups (item ids `$83`–`$86` via `GiveItemToPlayer`).
+> ⚠ Enemies do **not** spawn chests — they spawn gem or heal pickups (item ids `$83`–`$86` via `GiveItemToPlayer`).
 
 ### Description
 

@@ -359,7 +359,7 @@ Display mode preset selector (discriminator 2). Selects a `display-preset` entry
 
 | Field | Type | Offset | Name        | Description                                                            |
 | ----- | ---- | ------ | ----------- | ---------------------------------------------------------------------- |
-| 0     | Byte | +0     | presetIndex | Index into `display-preset` table at `$818000` (`table_018000.asm`, 0–46) |
+| 0     | Byte | +0     | presetIndex | Index into `display-preset` table at `$818000` (`display_preset_table.asm`, 0–46) |
 
 
 **Layout:** `[Byte]` (after discriminator)
@@ -620,7 +620,7 @@ Singly-linked list node for per-frame signed movement deltas. The core animation
 **Usage contexts:**
 
 1. **Animation frame timing** — `AnimFrameLookup` maps frame index → delta chain head for X/Y velocity (`$2C`/`$2E`)
-2. **Forced camera scroll** — `direction-velocity` indices → X/Y velocity chains for scripted player walks
+2. **Forced walks** — `walk_step_table` (`direction-velocity`) byte 1 → Y/X velocity chains for scripted player walks
 3. **Overworld route playback** — three parallel chains per route step drive camera X, Y, and player position
 4. **Hit knockback** — stagger controller selects X or Y chain for knockback direction
 
@@ -669,22 +669,22 @@ Singly-linked list node for per-frame signed movement deltas. The core animation
 
 ### direction-velocity
 
-2-byte direction-to-velocity mapping for player directional movement.
+2-byte walk-step entry: a player animation index plus a velocity-chain index. The 9 entries are indexed by a step code (`$00`-`$08`), not by compass direction.
 
 
 | Field | Type | Offset | Name    | Description                                        |
 | ----- | ---- | ------ | ------- | -------------------------------------------------- |
-| 0     | Byte | +0     | xVelIdx | Index into `delta-node` table for X velocity chain |
-| 1     | Byte | +1     | yVelIdx | Index into `delta-node` table for Y velocity chain |
+| 0     | Byte | +0     | animIdx  | Player animation index (low byte of the word read): handed to `StagePlayerSprFromDP` through `$0000` (`8` = down, `9` = up, `2` = left, `3` = right) |
+| 1     | Byte | +1     | chainIdx | Index into `move_chain_table` (head of a `delta-node` chain, `$00` = none); `$11`-`$14` are chains of ±1 on one frame in 2 or 4, not a speed |
 
 
 **Layout:** `[Byte, Byte]`
 
-**Usage:** Translates player facing direction byte (`$0650`) into X/Y velocity chain pointers for forced walk sequences. 9 entries cover all cardinal and diagonal directions.
+**Usage:** `ReadDirSprite_YVelocity` / `ReadDirSprite_XVelocity` (`forced_walk.asm`) fetch one step code per step from the warp's walk-step stream (pointer `warpFacing`, `$0650`), read the word from `walk_step_table`, store it at `$0000` and load `move_chain_table[byte 1 × 2]` into `$2E` (Y axis) or `$2C` (X axis). Scene entry (`InitActorFromSceneData`) indexes the table with the scene's facing value and uses only byte 0 as the player's initial animation index. The left and right entries (`$06`, `$07`) carry no chain (byte 1 = `$00`): the east and west forced walks move through the camera pan, not through this table.
 
-**Files:** `dir_sprite_01ABDE.asm` (9 entries), `forced_walk.asm`, `chunk_03BAE1.asm`
+**Files:** `walk_step_table.asm` (9 entries), `forced_walk.asm`
 
-**blocks.json:** `dir_sprite_01ABDE` (109534–109552)
+**blocks.json:** `walk_step_table` (109534–109552)
 
 **Entry count:** 9 entries × 2 bytes = 18 bytes
 
@@ -816,31 +816,31 @@ Boot WRAM initialization constant: address + value pair.
 
 | Field | Type | Offset | Name        | Description                                                        |
 | ----- | ---- | ------ | ----------- | ------------------------------------------------------------------ |
-| 0     | Byte | +0     | tmts        | `$212C`/`$212E` — Main/sub screen layer enable (TM/TS)             |
-| 1     | Byte | +1     | tmwtsw      | `$212D`/`$212F` — Window area mask for main/sub screen             |
-| 2     | Byte | +2     | cgwsel      | `$2130` — Color math designation                                   |
-| 3     | Byte | +3     | cgadsub     | `$2131` — Color math add/subtract select                           |
-| 4     | Byte | +4     | layerFlags  | Layer reload flags, scroll mode, priority bits                     |
-| 5     | Byte | +5     | tilemapAddr | BG1/BG2 tilemap VRAM addresses → `$2107`/`$2108`                   |
-| 6     | Byte | +6     | bgMode      | `$2105` — BG mode and character size (e.g., `$09` = Mode 1, 16×16) |
-| 7     | Byte | +7     | scrollFlags | Mosaic size, scroll mode, player sprite flag                       |
-| 8     | Byte | +8     | reserved0   | Reserved (always `$00`)                                            |
-| 9     | Byte | +9     | reserved1   | Reserved (always `$00`)                                            |
+| 0     | Byte | +0     | tmTmw            | Main-screen layers, written to both `$212C` (TM) and `$212E` (TMW)                                                                                                                                         |
+| 1     | Byte | +1     | tsTsw            | Sub-screen layers, written to both `$212D` (TS) and `$212F` (TSW)                                                                                                                                          |
+| 2     | Byte | +2     | cgwsel           | `$2130` — Color math window selection                                                                                                                                                                      |
+| 3     | Byte | +3     | cgadsub          | `$2131` — Color math add/subtract select                                                                                                                                                                   |
+| 4     | Byte | +4     | layerFlags       | Bits 4-5 → `$06F1`; bits 0/1 → tile-priority bit (`$2000`) merged into layer 0/1 tilemap entries; bit 6 → visible height (`$100` set, `$E0` clear); bit 7 clear → `$100` tile-number offset for layer 1 |
+| 5     | Byte | +5     | layerPriorityFlag | BG1SC/BG2SC size bits (bits 0-1 BG1, bits 2-3 BG2) on a base of `$10`/`$18`; bit 7 swaps the two bases → `$2107`/`$2108`                                                                                  |
+| 6     | Byte | +6     | bgMode           | `$2105` BGMODE (`$09` = mode 1 with BG3 priority in 45 of the 47 records, `$07` = mode 7 in the other two)                                                                                                 |
+| 7     | Byte | +7     | scrollFlags      | Low 5 bits → `scrollModeFlags` (bit 3 also invalidates the BG-tile source cache); bit 7 → set `hudDisableFlag` bit `$40` (never set in the 47 records)                                                    |
+| 8     | Byte | +8     | reserved0        | Loaded and discarded (`$00` in all 47 records)                                                                                                                                                             |
+| 9     | Byte | +9     | reserved1        | Loaded and discarded (`$00` in all 47 records)                                                                                                                                                             |
 
 
 **Layout:** `[Byte × 10]`
 
-**Usage:** `display-mode` scene command (`$02`) reads a preset index, looks up the record via `table_018000`, and applies all PPU settings. This is how each scene configures its visual rendering.
+**Usage:** `display-mode` scene command (`$02`) reads a preset index, looks up the record via `display_preset_table`, and applies all PPU settings. This is how each scene configures its visual rendering.
 
-**Common tmts patterns:**
+**Common `tmTmw` patterns:**
 
 - `$17` = layers 1+2+4 (most scenes)
 - `$15` = layers 1+2+3 (some indoor scenes)
 - `$11` = layers 1+4 (special effects)
 
-**Files:** `table_018000.asm` (47 presets), `scene_script.asm` (consumer: `SceneCmd_ConfigDisplay`)
+**Files:** `display_preset_table.asm` (47 presets), `scene_script.asm` (consumer: `SceneCmd_ConfigDisplay`)
 
-**blocks.json:** `table_018000` (98304–98868, typed `&display-preset`)
+**blocks.json:** `display_preset_table` (98304–98868, typed `&display-preset`)
 
 **Entry count:** 47 pointer entries + 47 × 10-byte records = 564 bytes
 
@@ -1097,18 +1097,18 @@ Character body form → sprite resource mapping.
 
 | Index | Character      | Animation Table | Spritesheet           |
 | ----- | -------------- | --------------- | --------------------- |
-| 0     | Will (default) | `table_158000`  | `will_sprites_1A8000` |
-| 1     | Freedan        | `table_0E8000`  | `free_sprites_1AC000` |
-| 2     | Shadow         | `table_148000`  | `shad_sprites_1BC000` |
-| 3     | Shadow (alt)   | `table_148000`  | `shad_sprites_1BC000` |
-| 4     | Will (variant) | `table_0F8000`  | `will_sprites_1A8000` |
-| 5     | Ability FX     | `table_0FC000`  | `abil_sprites_1B8000` |
-| 6     | Freedan FX     | `table_17A000`  | `free_fx_1C8000`      |
-| 7     | Shadow FX      | `table_17B000`  | `shad_fx_1CA000`      |
-| 8     | Shadow (3rd)   | `table_17C000`  | `shad_sprites_1BC000` |
+| 0     | Will (default)  | `spriteset_will`               | `will_sprites_1A8000` |
+| 1     | Freedan         | `spriteset_freedan`            | `free_sprites_1AC000` |
+| 2     | Shadow          | `spriteset_shadow`             | `shad_sprites_1BC000` |
+| 3     | Shadow (alt)    | `spriteset_shadow`             | `shad_sprites_1BC000` |
+| 4     | Will abilities  | `spriteset_will_abilities`     | `will_sprites_1A8000` |
+| 5     | Transform poses | `spriteset_transform_poses`    | `abil_sprites_1B8000` |
+| 6     | Freedan FX      | `spriteset_freedan_fx`         | `free_fx_1C8000`      |
+| 7     | Shadow FX       | `spriteset_shadow_fx`          | `shad_fx_1CA000`      |
+| 8     | Shadow aura body | `spriteset_shadow_aura_body`  | `shad_sprites_1BC000` |
 
 
-**Files:** `body_table.asm` (9 entries), `actor_pool.asm`, `chunk_03BAE1.asm`
+**Files:** `body_table.asm` (9 entries), `actor_pool.asm`, `actor_execution.asm` (`InitActorFromSceneData`)
 
 **blocks.json:** `body_table` (121201–121255)
 
@@ -1182,24 +1182,27 @@ Palette animation sequence header (6 bytes per entry). Data Crystal: "The indexe
 
 Hierarchical sprite definition system:
 
-**sprite-set:** Indexed animation frames for an entity.
+**sprite-set:** One animation's frame list, reached through a table of word pointers indexed by the actor animation index (`$28`). Each record is 4 bytes, shown for `hold + 1` ticks.
 
 
 | Field | Type          | Name       | Description                               |
 | ----- | ------------- | ---------- | ----------------------------------------- |
-| 0     | Word          | frameCount | Number of animation frames in this entry  |
-| 1     | &sprite-group | groups     | Same-bank pointer to first sprite group   |
+| 0     | Word          | hold       | Ticks to show this frame minus one (`hold + 1` ticks)  |
+| 1     | &sprite-group | group      | Same-bank pointer to the frame's sprite group          |
 
 
-**Terminator:** `frameCount = $0000` (null word, not `$FFFF`)
+**Terminator:** a hidden `$FFFF` word that the extraction does not show (a list of n records is 4n + 2 bytes). Any negative word ends the list: `AdvanceSpriteAnim` tests the sign.
 
 **sprite-group:** 13-byte header + variable-length parts.
 
 
-| Field | Type        | Description                                 |
-| ----- | ----------- | ------------------------------------------- |
-| 0–12  | Byte × 13   | Group metadata (bounds, flags, tile counts) |
-| 13    | sprite-part | Variable number of OAM tile entries         |
+| Field | Type        | Description                                                                                                                                                         |
+| ----- | ----------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 0–3   | Byte × 4    | Extents: X left, X right, Y top, Y bottom (screen culling; each pair is swapped for a flipped actor)                                                                |
+| 4–7   | Byte × 4    | Tile-unit box (attack hit area, solid-rectangle COPs, tile collision): X offset, Y offset (always negative), width and height in 16-pixel units; default `$F8 $F0 $01 $01` |
+| 8–11  | Byte × 4    | Body box (combat and interaction collision): X offset (signed, mirrored for an H-flipped actor), width, Y offset (signed), height, in pixels; default `$F8 $10 $F0 $10`  |
+| 12    | Byte        | Number of sub-sprites                                                                                                                                               |
+| 13    | sprite-part | Variable number of OAM tile entries                                                                                                                                 |
 
 
 **sprite-part:** 7-byte OAM tile definition (five bytes and a word).
@@ -1207,11 +1210,11 @@ Hierarchical sprite definition system:
 
 | Field | Type     | Description                              |
 | ----- | -------- | ---------------------------------------- |
-| 0–4   | Byte × 5 | Position offsets, tile index, attributes |
-| 5     | Word     | VRAM tile reference                      |
+| 0–4   | Byte × 5 | `size` (0 = 8x8, 1 = 16x16, the OAM size bit), `x`, `x'` (mirrored X for a flipped actor), `y`, `y'` (mirrored Y) |
+| 5     | Word     | OAM word: tile low byte, bit 8 name table, bits 9-11 palette, 12-13 priority, `$4000` H flip, `$8000` V flip |
 
 
-**blocks.json:** 17 blocks typed `&sprite-set` (`table_0E8000`, `table_0EDA00`, `table_0EE000`, `table_0F8000`, `table_0FC000`, `inventory_spritemap`, etc.)
+**blocks.json:** 17 blocks typed `&sprite-set` (`spriteset_freedan`, `spriteset_will`, `spriteset_shadow`, `spriteset_npc_props`, `spriteset_pickups_effects`, `inventory_spritemap`, etc.; the `spriteset_*` files are in `extracted/tables/`)
 
 ---
 

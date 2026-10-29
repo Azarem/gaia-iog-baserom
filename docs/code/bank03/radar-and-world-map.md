@@ -161,7 +161,7 @@ scene entry on arrival.
 ### Trip timeline
 
 1. Init (`WorldMapController`): reset form to Will, two palette-reset thinkers (bundle `$0B`), clear WRAM flags, mask the buttons (`joypadMaskStd |= $FFFC`; the ROM has `$FFF0`, widened by `transforms.json`), spawn `ArrivalAndTravelSetup`. With no choice id (scripted trip) the controller dies here; otherwise it saves `DeferSceneTransition` with `SetSavedPtr` and runs `world_map_options[choice & $1F]` (menu and handler).
-2. `ArrivalAndTravelSetup`, 44 ticks: puts itself (the leader's dot) at the start position, centres the camera (X−`$80`, Y−`$70`) and adds the negative `TickGravity` delta to `$B8` each tick (a zoom-out from 8x in to a wide view).
+2. `ArrivalAndTravelSetup`, 44 passes of a loop that yields twice per pass (`SetEntryHereAndYield`, then the non-final `LoopEnd`), so 2 ticks per pass and about 88 ticks: puts itself (the leader's dot) at the start position, centres the camera (X−`$80`, Y−`$70`) and adds the negative `TickGravity` delta to `$B8` each pass (a zoom-out from 8x in to a wide view).
 3. Menu trips only: wait 16 ticks, spawn `WorldMapSplitEffect`, then poll `$0D5A` every frame while the menu is open (Quit leaves it 0: the handler already queued the scene you came from and `DeferSceneTransition` just dies).
 4. Tilt phase (`TiltPhaseStart`), 93 ticks: shows the name of the scene being left (`LookupMapName` with `$0D6F`), grows `$B6` by the `TickGravity` curve and `$B8` by 1 (the flat map tilts into a strong perspective view), then clears the name (`$00DA := 0`).
 5. Companion dots: scan the party array from `$0D62`, pick formation N from `companion_formation_tables`, spawn one `CompanionDotMovement` per companion, spawn `RouteAnimationEngine`; this actor becomes the leader's dot.
@@ -194,11 +194,11 @@ dots. The controller scans the `$0D60` array (6 words) to count active companion
 (nonzero entries). The formation layout is selected by companion count, and
 `CompanionDotMovement` is spawned per companion with offsets from the table.
 
-### Frame counts
+### Tick counts
 
-| Phase | Frames | Description |
+| Phase | Ticks | Description |
 |-------|--------|-------------|
-| Zoom-out | 44 | `$B8` falls (arrival) |
+| Zoom-out | about 88 | 44 passes at 2 ticks per pass; `$B8` falls (arrival) |
 | Tilt phase | 93 | start name shown, `$B6` grows |
 | Destination name | 60 | `WaitByte #3B`, then the untilt (`$B6` falls by `$10` per frame) and the dive; Start-skippable via `SkipToSceneTransition` |
 

@@ -21,7 +21,7 @@ Background music and sound effects reach the SPC700 through two layers: **thinke
 ## Family notes
 
 - Music ops **return immediately** (`RTI`); the spawned thinker owns the multi-frame `$F0` / `$F1` APU handshake and block upload.
-- `$05` differs from `$04` only in the thinker entry: **`SpcFadeOutHandshake`** fades or waits on the current track before entering the same transfer path as `$04`.
+- `$05` differs from `$04` only in the thinker entry: **`SpcFadeOutHandshake`** first sends **`$F1`** on `APUIO0` (the SPC engine's own fade-out command; the fade runs inside the SPC, not in 65816 code), waits for the echo, sends **`$01`**, and enters the same transfer path as `$04` once `APUIO0` reads zero. Not traced: whether the fade is audible before the following `$01` / `$F0` commands.
 - SFX ops are **single-store** handlers; they do not wait for the SPC to acknowledge.
 - `$08` writes a **16-bit word** to `$06F8`, filling both latch bytes in one instruction (typical pattern `#$0505` = ch1 `#$05`, ch2 `#$05`).
 - `$19` combines music start with dialogue; prefer the pool + `MusicJingleActor` path, with an **inline `DialogStringRenderer` fallback** when the pool is full.
@@ -102,7 +102,7 @@ COP [StartMusic] ( #1B )          ; incan_ruins/incan_ruins_entrance/ir1C_kara.a
 | Operand | `Byte MusicId` — index into the game’s music bundle table (1-based in script literals) |
 | WRAM | Music ID on thinker `$7F000A`; transfer state in `musicTransitionState` (engine) |
 | Async | Yes — script continues; SPC load runs on thinker + NMI |
-| Pairs with | `$05` for cross-fade scene changes; `$19` when dialogue must accompany the same track |
+| Pairs with | `$05` is the variant whose thinker sends the SPC fade-out request (`$F1`) first; `$19` when dialogue must accompany the same track |
 
 ---
 
@@ -114,7 +114,7 @@ COP [StartMusic] ( #1B )          ; incan_ruins/incan_ruins_entrance/ir1C_kara.a
 
 ##### What it does
 
-Same allocation and flag setup as `[04]`, but the thinker entry is **`SpcFadeOutHandshake`** instead of `SpcTransferMusicData`. That path issues the **`$F1`** prelude (fade / readiness check on the current track) before falling into the standard `$F0` transfer used by `[04]`.
+Same allocation and flag setup as `[04]`, but the thinker entry is **`SpcFadeOutHandshake`** instead of `SpcTransferMusicData`. That path sends **`$F1`** on `APUIO0` (the SPC engine's `CmdFadeOut`), waits for the echo, sends **`$01`**, and falls into `SpcTransferMusicData` (the standard `$F0` transfer used by `[04]`) when `APUIO0` then reads zero; otherwise it yields and retries.
 
 ```asm
 FadeThenStartMusic {
@@ -129,7 +129,7 @@ FadeThenStartMusic {
 
 ##### How it is used
 
-Scene transitions where hard-stopping BGM would feel abrupt — endings, epilogue maps, and major area repaints.
+Called from the ending and epilogue scripts and from the Castoth transformation scene (call sites below). The fade itself is the SPC engine's; whether it is audible before the next music loads is not traced.
 
 ```asm
 COP [FadeThenStartMusic] ( #14 )  ; ending/ending_new_babel/s89_new_babel.asm:39

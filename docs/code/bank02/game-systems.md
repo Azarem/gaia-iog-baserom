@@ -65,7 +65,7 @@ COP-based actors and a query routine that coordinate **music playback lifecycle*
 
 `MusicJingleActor` is the primary COP coroutine spawned by the `MusicAndText` command. It orchestrates the full music-and-dialogue sequence: blocking player input, waiting for the active music track to finish, synchronizing a render frame so dialogue can appear cleanly, and respawning the visual overlay child actor that keeps the screen updated during the wait.
 
-On entry the actor saves the parent actor ID from `$06F2` into `$7F0010,X`, then spawns `@chunk_03BAE1.SpcTransferMusicData` as a visual-sync child with flag `$2000`. If spawn fails (`CPY #$1FC0`), control jumps to cleanup at `MusicLoadCleanup`. Otherwise the actor increments its child counter, sets actor flag bit `$1000`, and masks the joypad via `TSB $065A` with mask `$FFF0` (stripping directional input).
+On entry the actor saves the scene's current music index from `$06F2` (`musicParentActor`; the name is a misnomer, the value is a music index, not an actor ID) into `$7F0010,X` (`orbitAngle`), then spawns `@chunk_03BAE1.SpcTransferMusicData` as a visual-sync child with flag `$2000`. If spawn fails (`CPY #$1FC0`), control jumps to cleanup at `MusicLoadCleanup`. Otherwise the actor increments its child counter, sets actor flag bit `$1000`, and masks the joypad via `TSB $065A` with mask `$FFF0` (stripping directional input).
 
 The main loop waits until `$06FA` (active music track ID) equals `$FFFF` (idle). When music ends, it spawns `MusicRenderSync`, copies text pointer registers `$20`/`$22` to the child, waits for APU handshake (`$2141` = `$FF`), restores joypad input, respawns the visual child, and loops. When the sequence completes, cleanup clears `$09EC` bit `$0080` and dies.
 
@@ -73,7 +73,7 @@ The main loop waits until `$06FA` (active music track ID) equals `$FFFF` (idle).
 
 | Step | Action |
 |------|--------|
-| 1 | Save parent actor ID → `$7F0010,X` |
+| 1 | Save the scene's music index (`$06F2`) → `$7F0010,X` |
 | 2 | Spawn visual child `SpcTransferMusicData`; on failure → cleanup |
 | 3 | Set actor flag `$1000`; mask joypad (`$065A \|= $FFF0`) |
 | 4 | **Loop:** if `$06FA ≠ $FFFF`, yield (`RTL` on resume) |
@@ -87,12 +87,12 @@ The main loop waits until `$06FA` (active music track ID) equals `$FFFF` (idle).
 
 | Location | Direction | Role |
 |----------|-----------|------|
-| `$06F2` | In | Parent actor ID to restore after visual child respawn |
+| `$06F2` | In | Scene's current music index (`musicParentActor`); saved, then handed to the second `SpcTransferMusicData` so the scene track resumes |
 | `$06FA` | In | Active music track ID (`$FFFF` = idle) |
 | `$065A` | Out | Joypad mask — `$FFF0` stripped during wait |
 | `$09EC` | Out | Scene status; bit `$0080` cleared on cleanup |
 | `$2141` | In | APU I/O port 1 — `$FF` signals music completion |
-| `$7F0010,X` | Out | Saved parent actor ID |
+| `$7F0010,X` | Out | Saved scene music index |
 | `$0012,X` | Out | Actor flags; bit `$1000` set during sequence |
 | `$20`/`$22` (actor) | In/Out | Text pointer passed to `MusicRenderSync` child |
 
@@ -497,7 +497,7 @@ Per-frame **trigger detection** for warp zones and chest tiles, plus COP actors 
 
 `PlaceOpenedChestTiles` redraws already-opened chests into the map buffer with the open-chest 2×2 tile pattern. It indexes `table_01ADA8` by scene index `$0646` and iterates 4-byte entries until byte 0 has bit `$80` set (end marker).
 
-For each entry with bit `$80` clear and the corresponding event flag set (`TestEventFlag_0200` on byte 3), it writes a 2×2 pattern (`$FE`/`$FF`/`$FC`/`FD`) to `$7EA000` at the entry's tile coordinates. Called at scene load and on inventory exit to restore boulder/barrier state.
+For each entry with bit `$80` clear and the corresponding event flag set (`TestEventFlag_0200` on byte 3), it writes a 2×2 pattern (`$FE`/`$FF`/`$FC`/`FD`) to `$7EA000` at the entry's tile coordinates. Called at scene load and on inventory exit to redraw the chests that are already open.
 
 **Algorithm:**
 
@@ -506,7 +506,7 @@ For each entry with bit `$80` clear and the corresponding event flag set (`TestE
 | 1 | Load `table_01ADA8[$0646]` pointer into X |
 | 2 | If entry byte 0 bit `$80` set → return |
 | 3 | If `TestEventFlag_0200(entry[3])` fails → skip |
-| 4 | Write 2×2 barrier tiles at entry (X, Y−1) coords |
+| 4 | Write the 2×2 open-chest tiles: top row at (X, Y−1), bottom row at (X, Y) |
 | 5 | Advance X by 4; repeat |
 
 **Variables:**
@@ -522,9 +522,9 @@ For each entry with bit `$80` clear and the corresponding event flag set (`TestE
 | Symbol | Relationship |
 |--------|--------------|
 | `chunk_03BAE1.asm` (~line 5441) | Scene load initialization |
-| `inventory_overlay.asm` | Inventory exit — restore barriers |
+| `inventory_overlay.asm` | Inventory exit — redraw the open chests |
 | `flag_helpers.TestEventFlag_0200` | Flag test on entry byte 3 |
-| `table_01ADA8` | Per-scene chest/barrier entry table |
+| `table_01ADA8` | Per-scene chest record table |
 
 ### HandleChestInteraction
 
@@ -567,7 +567,7 @@ Outcomes branch three ways: empty item slot → name dialogue + set flag; key it
 | `DrawChestTiles` | Lid tile draw open/closed |
 | `ChestOpeningActor` | Animated open for normal items |
 | `dialogue_display.ShowDialogueFrame` | Empty/full inventory/key item messages |
-| `itemget_table_01FD24` | Item name wide strings |
+| `item_pickup_text_table` | Chest dialogue strings (`dialog_chest_locked`, `dialog_chest_empty`, `dialog_item_chest`) and the item-name strings indexed by item ID |
 
 ### ChestOpeningActor
 
@@ -876,7 +876,7 @@ CheckWarpAndChest (main loop, every frame)
 
 Return-warp data at `$0B08`–`$0B12` allows the destination scene to send the player back to the exact tile and camera position they left from.
 
-### Chest and Barrier Tables
+### Chest Tables
 
 `table_01ADA8` (bank `$01`) maps scene index → binary blob of 4-byte entries:
 

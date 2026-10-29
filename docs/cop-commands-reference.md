@@ -383,12 +383,12 @@ Collision bytes live in WRAM `$7FC000` (indexed via `TileCoordsToMapIndex` / pro
 
 #### `$2A` — `BranchOnPlayerX`
 - **Handler:** `cop_handler_2A_009135`
-- **Params:** `Word Dist`, `&Code West`, `&Code East`, `&Code Here`
+- **Params:** `Word Dist`, `&Code West`, `&Code Here`, `&Code East`
 - **Does:** 3-way branch on horizontal separation vs player.
 
 #### `$2B` — `BranchOnPlayerY`
 - **Handler:** `cop_handler_2B_00915F`
-- **Params:** `Word Dist`, `&Code North`, `&Code South`, `&Code Here`
+- **Params:** `Word Dist`, `&Code North`, `&Code Here`, `&Code South`
 
 #### `$2C` — `BranchNearerAxis`
 - **Handler:** `cop_handler_2C_009189`
@@ -1189,8 +1189,8 @@ Every valid COP opcode, its canonical name, handler SNES address, and parameter 
 | `$27` | `WaitWhileOffscreen` | `$0090CE` | `Byte Delay` |
 | `$28` | `BranchIfPlayerAt` | `$0090F4` | `Word PosX`, `Word PosY`, `&Code` |
 | `$29` | `BranchIfActorAt` | `$0090FA` | `Byte AcNum`, `Word PosX`, `Word PosY`, `&Code` |
-| `$2A` | `BranchOnPlayerX` | `$009135` | `Word Dist`, `&Code West`, `&Code East`, `&Code Here` |
-| `$2B` | `BranchOnPlayerY` | `$00915F` | `Word Dist`, `&Code North`, `&Code South`, `&Code Here` |
+| `$2A` | `BranchOnPlayerX` | `$009135` | `Word Dist`, `&Code West`, `&Code Here`, `&Code East` |
+| `$2B` | `BranchOnPlayerY` | `$00915F` | `Word Dist`, `&Code North`, `&Code Here`, `&Code South` |
 | `$2C` | `BranchNearerAxis` | `$009189` | `&Code NearY`, `&Code NearX` |
 | `$2D` | `DirToPlayer` | `$0091B8` | — |
 | `$2E` | `DirToPlayerFrom` | `$009236` | `Byte OffsX`, `Byte OffsY` |

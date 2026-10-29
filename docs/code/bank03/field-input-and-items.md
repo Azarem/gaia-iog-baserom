@@ -398,7 +398,7 @@ write, enabling the HUD update on the next frame.
 
 **Item name rendering:** `GiveItem_StoreInSlot` stores the item ID into `$0DB8`
 /`$0DB9` (item-get id words for dialogue) and loads a dialogue string pointer from
-`itemget_table_01FD24.dialog_item_found` for the "got item" message.
+`item_pickup_text_table.dialog_item_found` for the "got item" message.
 `GiveItem_InventoryFull` uses `dialog_item_full` for the "can't carry" message.
 Both dialogue strings are rendered by the `ConsoleStringRenderer` system, which
 shares the same BG3 tile engine used for menu text.

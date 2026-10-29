@@ -5,7 +5,7 @@
 **Size:** ~1,336 bytes, 13 parts  
 **File:** `extracted/system/engine/slider_glide.asm`
 
-Invisible **slider glide triggers** sit on Psycho Slider lanes. While Will is in an active **Psycho Slide** (`RunAttackNS` / `RunAttackEW` in `player_character`) through the trigger tile, the trigger validates slide animation frames and the `will_alt` sprite bank (`$8F`), then redirects the player into a **`SliderGlide*`** routine and calls `LockPlayerForClimb`.
+Invisible **slider glide triggers** sit on Psycho Slider lanes. While Will is in an active **Psycho Slide** (`RunAttackNS` / `RunAttackEW` in `player_character`) through the trigger tile, the trigger validates slide animation frames and the player's sprite bank (`$8F`, the bank of `spriteset_will_abilities`), then redirects the player into a **`SliderGlide*`** routine and calls `LockPlayerForClimb`.
 
 **Related:** `extracted/actors/ramps.asm` (slope walk — `?INCLUDE`s this chunk) · [`camera-scroll-system.md`](camera-scroll-system.md) (forced walks during elevation transitions)
 
@@ -30,7 +30,7 @@ Invisible **slider glide triggers** sit on Psycho Slider lanes. While Will is in
 Each trigger is a small invisible `actor_def` on a slide axis. Every frame it:
 
 1. Confirms Will is Psycho Sliding through its tile (slide animation index `$28` must be one of the two looping frames for **one** slide direction)
-2. Calls `IsPlayerSliderSpriteBank` — carry **clear** when `$7F0008` = `$8F` (`will_alt` bank selected at slide start)
+2. Calls `IsPlayerSliderSpriteBank` — carry **clear** when `$7F0008` = `$8F` (the bank of `spriteset_will_abilities`, which `RunAttackNS` / `RunAttackEW` select at slide start with `SetPlayerSpriteDirect #04`)
 3. Checks **exact** alignment on the slide axis and a **32-pixel** window on the lateral axis (trigger − 7 … trigger + `$18` inclusive)
 4. Validates facing / animation codes for that slide direction (see trigger table below)
 5. If all pass → overwrites the player entry pointer to the matching `SliderGlide*` routine and calls `LockPlayerForClimb`
@@ -114,7 +114,7 @@ Called when the glide animation finishes (frame counter reaches zero). Restores 
 
 #### Description
 
-Psycho Slider gate. Reads `$7F0008,X` (player actor spriteset bank byte) and compares to `$8F`. Returns carry **clear** if `$8F` (`will_alt` — the bank `SetPlayerSpriteDirect #04` selects at slide start), carry **set** otherwise.
+Psycho Slider gate. Reads `$7F0008,X` (player actor spriteset bank byte) and compares to `$8F`. Returns carry **clear** if `$8F` (the bank of `spriteset_will_abilities`, which `SetPlayerSpriteDirect #04` selects at slide start), carry **set** otherwise. `spriteset_transform_poses` (body table row `$05`, used only by the `Transform_*` scripts of `sE6_gaia`) is also in bank `$8F`, so the test does not tell the two apart.
 
 Register state: enters/exits with 8-bit A (`SEP #$20` / `REP #$20` implicit on return).
 
@@ -124,7 +124,7 @@ Register state: enters/exits with 8-bit A (`SEP #$20` / `REP #$20` implicit on r
 1. LDX $player_actor
 2. LDA $7F0008,X
 3. CMP #$8F
-4. RTS  ; CC = will_alt bank, CS = not sliding bank
+4. RTS  ; CC = bank $8F (spriteset_will_abilities), CS = any other bank
 ```
 
 #### Cross-References
@@ -285,7 +285,7 @@ All four glide routines share the same pattern:
 | `$14` | 2 | Position X | `SliderGlideWest` / `SliderGlideEast` |
 | `$16` | 2 | Position Y | `SliderGlideNorth` / `SliderGlideSouth` |
 | `$28` | 2 | Animation index | Slide frame validation on triggers |
-| `$7F0008,X` | 1 | Spriteset bank byte | `IsPlayerSliderSpriteBank` (`$8F` = `will_alt`) |
+| `$7F0008,X` | 1 | Spriteset bank byte | `IsPlayerSliderSpriteBank` (`$8F` = bank of `spriteset_will_abilities`) |
 | `$7F0020,X` | 2 | Glide frame counter | `LockPlayerForClimb` → glide routines |
 | `$002C,X` | 2 | Velocity X | Zeroed by lock |
 | `$002E,X` | 2 | Velocity Y | Zeroed by lock |

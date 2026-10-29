@@ -83,9 +83,9 @@ The `meta<>` type is a discriminated union — each command begins with a 1-byte
 |--------|------|-------------|-------------|
 | `$02` | `display-mode` | `[Byte]` | PPU display configuration preset index |
 | `$03` | `bitmap` | `[Byte, Byte, Byte, @Binary, Byte]` | Compressed tile graphics (BG/sprite) |
-| `$04` | `palette` | `[Byte, Byte, Byte, @Binary]` | Color palette data |
-| `$05` | `tileset` | `[Byte, Byte, Byte, Byte, @Binary]` | Tileset definition |
-| `$06` | `tilemap` | `[Byte, @Binary]` | Tilemap layout data |
+| `$04` | `palette` | `[Byte, Byte, Byte, @Binary]` | Palette colours loaded into the palette buffer |
+| `$05` | `tileset` | `[Byte, Byte, Byte, Byte, @Binary]` | Metatile sets for layer 0 and/or layer 1 |
+| `$06` | `tilemap` | `[Byte, @Binary]` | Layer map (width, height, compressed map) for layer 0 and/or layer 1 |
 | `$0E` | `meta-skip` | `[Byte, Byte, Byte]` | Skip 3 bytes (padding/reserved) |
 | `$10` | `spritemap` | `[Word, Byte, @Binary]` | Sprite composition map |
 | `$11` | `music` | `[Byte, Byte, @Binary]` | SPC music track data |
@@ -102,7 +102,7 @@ The `meta<>` type is a discriminated union — each command begins with a 1-byte
 $02 <preset_index:Byte>
 ```
 
-Selects a PPU display configuration from `display_preset_table` (Bank $02, `table_018000`). Each preset is a 10-byte entry that configures: TM/TS (main/sub screen layer enable), TMW/TSW (window masks), CGWSEL/CGADSUB (color math), BGMODE, BG tilemap base addresses (BG1SC/BG2SC), layer priority flag, scroll mode flags, and visible screen height ($E0 or $100 scanlines).
+Selects a PPU display configuration from `display_preset_table` (Bank $01). Each preset is a 10-byte entry that configures: TM/TS (main/sub screen layer enable), TMW/TSW (window masks), CGWSEL/CGADSUB (color math), BGMODE, BG tilemap base addresses (BG1SC/BG2SC), layer priority flag, scroll mode flags, and visible screen height ($E0 or $100 scanlines).
 
 **Every scene entry begins with a `display-mode` command.** This is always the first command in the stream — the scene script interpreter depends on PPU configuration being established before any graphics data is loaded.
 
@@ -123,26 +123,26 @@ The source is a 3-byte ROM pointer to QuintetLZ-compressed data. The scene scrip
 #### `palette` (opcode `$04`)
 
 ```
-$04 <start_color:Byte> <count:Byte> <cgram_offset:Byte> <source:@Binary(3 bytes)>
+$04 <start:Byte> <end:Byte> <dest:Byte> <source:@Binary(3 bytes)>
 ```
 
-Loads palette color data. The start color, count, and CGRAM offset define which palette slots receive data. The source pointer references the palette data in ROM.
+Loads palette colours into the palette buffer at `$7F:0A00`. All three operands are colour indexes (each doubled into a byte offset): colours `[start, end)` of the source palette data are copied to buffer colour `dest` (`$7F:0A00 + dest × 2`). When `dest` is `$10`, the first colour just loaded is also copied to colour 0 (the backdrop).
 
 #### `tileset` (opcode `$05`)
 
 ```
-$05 <start:Byte> <end:Byte> <offset:Byte> <layer:Byte> <source:@Binary(3 bytes)>
+$05 <start:Byte> <end:Byte> <dest:Byte> <layers:Byte> <source:@Binary(3 bytes)>
 ```
 
-Loads a tileset definition. Operates on the dual-layer tilemap system — the `layer` byte selects layer 0 (primary BG) or layer 1 (overlay/effect BG). Combined with `tilemap` commands to define the complete map geometry.
+Loads metatile sets. `start`, `end` and `dest` are in units of `$40` bytes: the window `[start × $40, end × $40)` of the decompressed metatile table is copied to WRAM `$7E:2000` (layer 0) and/or `$7E:2800` (layer 1) plus `dest × $40`. `layers` bit 0 selects layer 0 and bit 1 selects layer 1; both bits can be set, and a layer whose source is already in its cache slot is skipped. `BuildMetatileFlagTable` then runs on each loaded layer.
 
 #### `tilemap` (opcode `$06`)
 
 ```
-$06 <layer:Byte> <source:@Binary(3 bytes)>
+$06 <layers:Byte> <source:@Binary(3 bytes)>
 ```
 
-Loads tilemap layout data for a BG layer. The `layer` byte selects `$01` (layer 0 at `$7E:A000`) or `$02` (layer 1 at `$7E:C000`). Source data is decompressed and written to WRAM, then attributes are rebuilt for SNES-format palette/priority bytes.
+Loads the layer map. `layers` bit 0 selects layer 0 (map at `$7E:A000`) and bit 1 selects layer 1 (map at `$7E:C000`); `scene_meta` uses `$01` (225 commands) and `$02` (158 commands) only. The source data starts with the map width byte and the map height byte, then the compressed map, which is decompressed to the layer's WRAM base. With both bits set, layer 1 receives a copy of layer 0's map. With no layer bit set, the command loads a tileset to low VRAM instead (`DmaLowVramTileset`).
 
 #### `spritemap` (opcode `$10`)
 
@@ -155,10 +155,10 @@ Loads sprite tile graphics and composition data. The 16-bit size field specifies
 #### `music` (opcode `$11`)
 
 ```
-$11 <room_group:Byte> <parent_actor:Byte> <source:@Binary(3 bytes)>
+$11 <track:Byte> <group:Byte> <source:@Binary(3 bytes)>
 ```
 
-Transfers SPC700 music data via the IPL handshake protocol. The `room_group` byte gates loading — if the current `musicRoomGroup` already matches, the transfer is skipped entirely, preventing redundant multi-second SPC transfers when moving between rooms in the same music region. The `parent_actor` byte controls whether playback starts (nonzero = play, zero = stop).
+Transfers SPC700 music data via the IPL handshake protocol. The `track` byte is stored in `musicParentActor` (`$06F2`); in the scene data it is the BGM id, one id per `@bgm_*` pointer. The `group` byte is stored at `$06F4`. The transfer runs only when `group` **equals** `musicRoomGroup` (`$06F6`); when they differ, the command returns without loading. `musicRoomGroup` is set by three Gold Ship actor files (`gs2C_crow_crew`, `gs2D_lily`, `gs2E_sleep`) and cleared to 0 by `ClearSceneState` (`scene_lifecycle.asm`) after `SceneScriptMain` has run. In the scene data the group is 0 in 225 commands, 1 in 5 and 2 in 4, and scenes with two tracks carry two `music` commands with different groups (see the Will's house example below). A source already in its cache slot (`$0687`) is not transferred again. After the transfer, a nonzero `track` writes `$01` (play) to `APUIO0` and a zero `track` writes `$00` (stop).
 
 #### `branch` (opcode `$13`)
 

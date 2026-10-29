@@ -204,7 +204,10 @@ When a COP handler or game code sets `TCD #$0000`, offsets `$00`–`$FF` access 
 
 | Address | Size | Name | Description | Primary Users |
 |---------|------|------|-------------|---------------|
-| `$0664`–`$066A` | 7 | `gfxLoadParams` | Scene graphics loading scratch (source pointers, cache flags, layer bits) | Scene script commands |
+| `$0664` | 2 | `gfxSrcStart` | Start of the source window of the current scene command, as a byte offset (the operand is scaled by the command: palette ×2, graphics ×`$200`, metatile sets ×`$40`) | Scene script commands |
+| `$0666` | 2 | `gfxSrcEnd` | End of that window; transfer size = end − start (`SceneCmd_LoadCharTiles` stores the byte size here) | Scene script commands |
+| `$0668` | 2 | `gfxDestPage` | Destination operand: VRAM page (word address >> 8) for the graphics commands; scaled destination offset for the palette (`$04`) and metatile-set (`$05`) commands | Scene script commands |
+| `$066A` | 2 | `gfxLayerFlags` | Flag word: bit 0 = layer 0, bit 1 = layer 1 for the metatile-set and layer-map commands (a source-cache hit clears the bit); VRAM target flags for `SceneCmd_LoadCharTiles` | Scene script commands |
 
 #### Camera & Scroll System
 
@@ -245,7 +248,7 @@ When a COP handler or game code sets `TCD #$0000`, offsets `$00`–`$FF` access 
 
 | Address | Size | Name | Description | Primary Users |
 |---------|------|------|-------------|---------------|
-| `$06F2` | 2 | `musicParentActor` | Music parent actor ID (saved by `MusicJingleActor`) | `MusicJingleActor` |
+| `$06F2` | 2 | `musicParentActor` | The scene's current music index (the BGM id of the last scene-script `$11` command; the name is a misnomer, it is not an actor ID); saved by `MusicJingleActor` and `ChestOpeningActor` to restore the scene track | `SpcMusicLoadCmd`, `MusicJingleActor` |
 | `$06F6` | 2 | `musicRoomGroup` | Room group ID for music continuity; non-zero prevents re-triggering | Scene script `$11` command |
 | `$06F8` | 2 | `sfxQueueCh1` | SFX channel 1 queue; sent to `$APUIO2` on even frames during NMI | `PlaySoundCh1` COP, `NmiHandler` |
 | `$06F9` | 1 | `sfxQueueCh2` | SFX channel 2 queue | `PlaySoundCh2` COP |
@@ -344,7 +347,7 @@ Two bitfield arrays provide the primary persistence mechanism for game state.
 | Address | Size | Capacity | Name | Description |
 |---------|------|----------|------|-------------|
 | `$0A00`–`$0AFF` | 256 B | 2048 flags | `eventFlags` | **Persistent scene/world state** — chests opened, bosses defeated, switches flipped, red jewel collection. Survives scene transitions. Accessed via `SetEventFlag`, `ClearEventFlag`, `TestEventFlag` and offset wrappers (`+$0100`, `+$0200`, `+$0300`, `+$0510`). |
-| `$0A80`–`$0A9F` | 32 B | 256 flags | `wramFlags` | **Scene-local scratch flags** — dungeon kill tracking, puzzle state, per-room logic. Cleared by `ClearAllWramFlags` at scene boundaries. Accessed via `SetWramFlag`, `TestWramFlag`. |
+| `$0A80`–`$0A9F` | 32 B | 256 flags | `wramFlags` | **Dungeon kill and puzzle flags**, indexed by enemy number. Accessed via `SetWramFlag`, `TestWramFlag`. Zeroed by `ClearAllWramFlags` (called when the world map is entered and by `st68_kara` and `sp58_red_eye`) and inline by `game_over_sequence` on a real game over; no reset at ordinary scene changes was found, so these flags outlive a single scene. |
 
 > **Bitfield indexing:** `byte_offset = index >> 3`, `bitmask = bitmasks_bit_position[index & 7]` where the mask table at `$00B11D` is `$01,$02,$04,$08,$10,$20,$40,$80`.
 >
@@ -355,8 +358,8 @@ Two bitfield arrays provide the primary persistence mechanism for game state.
 | Address | Size | Name | Description | Primary Users |
 |---------|------|------|-------------|---------------|
 | `$0AA2` | 2 | `abilityBitmask` | Ability availability bitmask — bits select which abilities are unlocked | Player character, attack system |
-| `$0AB4`–`$0AD2` | 31 | `inventorySlots` | 16 item words — low byte = item ID (0 = empty) | All inventory tabs |
-| `$0AC4` | 2 | `inventoryEquippedIdx` | Equipped item slot index (`$FFFF` = none) | Inventory use tab, equip cursor |
+| `$0AB4`–`$0AC3` | 16 | `inventorySlots` | 16 byte slots, one item ID per byte (0 = empty), no per-slot flags; some code reads a slot as a word and masks it with `$00FF` | All inventory tabs |
+| `$0AC4` | 2 | `inventoryEquippedIndex` | Equipped item slot index (`$FFFF` = none) | Inventory use tab, equip cursor |
 | `$0AC6` | 2 | `inventoryEquippedType` | Equipped item type ID | Use confirm, HUD |
 | `$0ACA` | 2 | `playerMaxHp` | Player's maximum HP — ceiling for HP recovery animation | `UpdateHUD` |
 | `$0ACC` | 2 | `cachedPrevMaxHp` | Previous max HP value for HUD change detection | `UpdateHUD` |
@@ -376,7 +379,7 @@ Two bitfield arrays provide the primary persistence mechanism for game state.
 | `$0B04` | 2 | (init `$0000`) | Gameplay flag | `InitSystemVariables` |
 | `$0B14` | 2 | (init `$003C`) | System flag (60 decimal) | `InitSystemVariables` |
 | `$0B22` | 2 | `hpToHeal` | Non-zero triggers HP recovery animation every 8 frames | `UpdateHUD` |
-| `$0B28`–`$0B32` | 11 | `saveWarpMetadata` | Save and warp state metadata | System init |
+| `$0B28`–`$0B33` | 12 | `hieroglyphSlots` | Six hieroglyph plate slots (words; `$FFFF` = empty), saved with the `$0A00`–`$0BFB` range | `SystemInit` (clears), `pyCD_puzzle`, `item_use_system` |
 
 > **ASM example** — Stat reward actor incrementing HP (`actors-combat-interaction.md`):
 > ```asm

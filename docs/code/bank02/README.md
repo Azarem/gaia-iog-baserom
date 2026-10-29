@@ -166,7 +166,7 @@ player_character.asm (?BANK 02, extracted/actors/player/)
   │   └─ tile_collision.asm     (ref only)
   ├─ attack_ability_system.asm
   ├─ game_over_sequence.asm
-  └─ table_17D000.asm           (spritemap data)
+  └─ spriteset_darkgaia_projectile.asm   (spritemap data)
 ```
 
 ### Unit 3: Inventory Menu (`inventory_menu.asm`)

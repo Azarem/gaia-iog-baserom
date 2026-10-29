@@ -247,7 +247,7 @@ Extended fields use `(actor_id − $1000)` as the X index into WRAM `$7F0000+`. 
 | `$7F0003,X` | 1 | Extra frame counter | `TickMove` velocity pipeline |
 | `$7F0004,X` | 2 | SavedPtr / deferred callback | Script control, resume-after-wait |
 | `$7F0006,X` | 2 | Sprite set pointer (low) | `SetMetasprite`, `SetActorBody`, sine amplitude |
-| `$7F0008,X` | 2 | Sprite bank byte | Map header bank; `$8F` = `will_alt` during Psycho Slider (`IsPlayerSliderSpriteBank`) |
+| `$7F0008,X` | 2 | Sprite bank byte | Map header bank; `$8F` = bank of `spriteset_will_abilities` during Psycho Slider (`IsPlayerSliderSpriteBank`) |
 | `$7F000A,X` | 2 | Movement sub-steps / interact handler | Smooth follow param; halving counter |
 | `$7F000E,X` | 2 | Direction / step total | Movement handlers; `$FFFF` = follow reset |
 | `$7F0010,X` | 1 | Sound effect to play | WorldMapStream SFX COP |
@@ -341,7 +341,7 @@ These low DP addresses are **persistent engine state** — they must not be over
 |---------|------|------|---------|
 | `$06F8` | 2 | SFX channel 1 queue | `PlaySoundCh1`, NMI → `$APUIO2` |
 | `$06F9` | 1 | SFX channel 2 queue | `PlaySoundCh2` |
-| `$06FA` | 2 | Music transition state | NMI → triggers `UpdateFrameFull` when ≠ 0 |
+| `$06FA` | 2 | Music transition state (`musicTransitionState`) | NMI → runs `UpdateFrameFull` while positive (SPC upload in progress; `$FFFF` = finished) |
 
 #### Camera & Scroll
 
@@ -378,7 +378,7 @@ These low DP addresses are **persistent engine state** — they must not be over
 | `$0AD6`/`$0AD8` | 4 | Gem count / hundreds digit | HUD gem display |
 | `$0ADC`/`$0ADE` | 4 | Player DEF / STR stat values | HUD, stat reward actors |
 | `$0AE4` | 2 | Enemy health bar timer | HUD (`$001E` frame countdown) |
-| `$0B22` | 2 | Damage flash timer | HUD (every 8 frames) |
+| `$0B22` | 2 | `hpToHeal`: HP recovery counter | `UpdateHUD` (one step every 8 frames) |
 | `$09B0` | 2 | Wall type for player anim | Player wall-gated animation COPs |
 | `$0AFA` | 2 | Inventory highlight state | Statue inventory slot display |
 
@@ -412,7 +412,7 @@ These low DP addresses are **persistent engine state** — they must not be over
 |---------|------|------|---------|
 | `$000100` | 1 | SRAM magic byte (`$83` = valid) | `SystemInit` save check |
 | `$0AF0`–`$0AF8` | 16 | Scene save data | `GameOverSequence` reload |
-| `$0B28`–`$0B32` | 11 | Save/warp metadata | System init |
+| `$0B28`–`$0B33` | 12 | `hieroglyphSlots`: six hieroglyph plate slots (words, `$FFFF` = empty); inside the saved range `$0A00`–`$0BFB` | `SystemInit` (clears), `pyCD_puzzle`, `item_use_system` (plate placement) |
 
 ---
 
