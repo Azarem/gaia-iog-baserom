@@ -29,7 +29,7 @@ $02ED02 ├─ OpenInventoryScreen ───────────────
         │  SaveGameState / RestoreGameState            │  inventory_overlay
         │  ReloadAbilityFX / ResetThinkerWaitCounters           │
 $02F048 ├─ ShowDialogueFrame ─────────────────────────┤  dialogue_display
-$02F06A └─ ClearVramBufferPartial / Full ─────────────┘  vram_buffer_clear
+$02F06A └─ ClearBg3TilemapBuffer_PreserveHud / Full ─────────────┘  vram_buffer_clear
 ```
 
 ### Shared WRAM Variables

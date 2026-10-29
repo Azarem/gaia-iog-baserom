@@ -136,7 +136,7 @@
     "DiaryIncCounter_noref": "Unreferenced: $DE += 1.",
     "DiaryJoypadFilter_noref": "Unreferenced debug input filter for controller 2 ($E0 = pad word, $E2 = held mask): keeps only newly pressed buttons in $E0 and, on a fresh X ($0040), toggles bit 3 ($0008) of the player actor's $10 field.",
     "DiaryMainMenuEntry": "Main menu re-entry — redraws the 4-option menu and enters the tab selection loop.\nNavigation: Up/Down cycle through 4 tabs ($0D98), A confirms, dispatches via SwitchCase.",
-    "DiaryMenuClearVram": "Clear VRAM buffer — wrapper that preserves registers across ClearVramBufferFull call.",
+    "DiaryMenuClearVram": "Clear the BG3 tilemap staging buffer — wrapper that preserves registers across the ClearBg3TilemapBuffer_Full call.",
     "DiaryMenuInit": "Scene $FA actor entry: black backdrop and no layers, all three cursors set to none ($FFFF), display configured as described in the block note, main-menu text and button legend printed, the three SRAM slots scanned, then a poll of worldReadyFlag until the scene is ready, after which it joins the tab loop at loc_0BE2D0.",
     "DiaryMenuVBlankHandler": "Copy of the engine's VBlankWaitAndJoypad: waits for VBlank (RDNMI), uploads the Mode 7 registers when scrollModeFlags bit 3 is set, honours joypadInject, builds joypadRemapped from the D-pad plus each remap word (remapStart ... remapR), publishes it to joypadCurrent / joypadRaw, and applies the consumption mask, the 12-frame auto-repeat on joypadMaskInv and joypadMaskStd. Its only caller is the unreferenced DiaryAwaitButtonRelease_noref, so the live menu never runs it.",
     "DiaryNewGameCancel": "B on the arrangement screen: row cursor off, restore the slot cursor from $0D94 and show the slot list again.",

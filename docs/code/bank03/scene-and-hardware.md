@@ -134,7 +134,7 @@ tilemap/music/display config), `InitCameraBounds`, `ApplyAllEventBlocks`,
 4.  Clear backdrop colors, COLDATA=$E0       — force black
 5.  Reset BG3SC, BG3 scroll, BG12NBA        — tilemap/char bases
 6.  Clear MOSAIC, all window registers       — W12SEL/W34SEL/WOBJSEL/WBGLOG/WH0-3
-7.  ClearVramBufferFull                      — flush write buffer
+7.  ClearBg3TilemapBuffer_Full                      — flush write buffer
 8.  SceneScriptMain                          — parse scene script
 9.  InitCameraBounds                         — camera limits
 10. ApplyAllEventBlocks                      — persistent tile changes

@@ -100,7 +100,7 @@ $02ED02 ├───────────────────────
 $02F048 ├───────────────────────────────────────────────────┤
         │ ShowDialogueFrame      [ShowDialogueFrame]         │  34 B
 $02F06A ├───────────────────────────────────────────────────┤
-        │ vram_buffer_clear      [ClearVramBufferPartial]    │  34 B
+        │ vram_buffer_clear      [ClearBg3TilemapBuffer_PreserveHud]    │  34 B
 $02F08C ├───────────────────────────────────────────────────┤
         │                  FREE SPACE                        │ 3,956 B
 $02FFFF └───────────────────────────────────────────────────┘

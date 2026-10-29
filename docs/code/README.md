@@ -284,7 +284,7 @@ sequenceDiagram
 | 11 | [tile-collision.md](bank02/tile-collision.md) | Tile Probe System | `TileProbeMain`, collision types |
 | 12 | [inventory-menu.md](bank02/inventory-menu.md) | COP-Scripted Inventory UI | 4 tabs, 16-slot item management |
 | 13 | [inventory-overlay.md](bank02/inventory-overlay.md) | State Sandwich Lifecycle | `OpenInventoryScreen`, WRAM save/restore |
-| 14 | [utility-functions.md](bank02/utility-functions.md) | Dialogue Frame, VRAM Buffer | `ShowDialogueFrame`, `ClearVramBufferPartial` |
+| 14 | [utility-functions.md](bank02/utility-functions.md) | Dialogue Frame, VRAM Buffer | `ShowDialogueFrame`, `ClearBg3TilemapBuffer_PreserveHud` |
 
 </details>
 

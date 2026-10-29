@@ -48,12 +48,12 @@ Both routines zero-word-fill the BG tilemap staging area at `$7F:0200`–`$7F:08
 
 | Address | Name | Description |
 |---------|------|-------------|
-| `$02F06A` | ClearVramBufferPartial | Partial VRAM buffer clear: zeros `$7F:0340`–`$7F:0800` (offset `$0140` from base). Preserves first 320 bytes. |
-| `$02F076` | ClearVramBufferFull | Full VRAM buffer clear: zeros entire `$7F:0200`–`$7F:0800` (2048 bytes). Called on inventory open and close. |
+| `$02F06A` | ClearBg3TilemapBuffer_PreserveHud | Partial VRAM buffer clear: zeros `$7F:0340`–`$7F:0800` (offset `$0140` from base). Preserves first 320 bytes. |
+| `$02F076` | ClearBg3TilemapBuffer_Full | Full VRAM buffer clear: zeros entire `$7F:0200`–`$7F:0800` (2048 bytes). Called on inventory open and close. |
 
 ---
 
-### ClearVramBufferFull
+### ClearBg3TilemapBuffer_Full
 
 Full VRAM buffer clear: zeros entire `$7F:0200`–`$7F:0800` (2048 bytes). Called on inventory open and close.
 

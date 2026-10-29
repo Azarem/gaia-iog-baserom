@@ -88,7 +88,7 @@ other frame at VRAM position `$7F0A24`.
 - **In:** `JSR` from `GlobalInputHandler` only (`RadarScreenSetup` + `RadarBorderAnimate`).
 - **Out:**
   - `vblank_joypad.VBlankWaitAndJoypad` / `EnableNmiAndJoypad` / `DisableNmiKeepJoypad` — VBlank sync
-  - `vram_buffer_clear.ClearVramBufferPartial` — clear staging buffer before draw
+  - `vram_buffer_clear.ClearBg3TilemapBuffer_PreserveHud` — clear staging buffer before draw
   - `flag_helpers.TestEventFlag_0200` — check visited markers
   - `flag_helpers.TestFlag_0300` — enemy-clear reward eligibility
   - `enemy_clear_reward_table` — per-scene reward lookup

@@ -543,6 +543,6 @@
     "192434": "RestoreGameState",
     "192565": "RestorePaletteBuffer",
     "192584": "ShowDialogueFrame",
-    "192618": "ClearVramBufferPartial",
-    "192630": "ClearVramBufferFull"
+    "192618": "ClearBg3TilemapBuffer_PreserveHud",
+    "192630": "ClearBg3TilemapBuffer_Full"
 }

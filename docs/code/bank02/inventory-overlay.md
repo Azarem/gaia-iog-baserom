@@ -70,11 +70,11 @@ Master inventory orchestrator (JSL entry). Implements the state sandwich: save g
 2. Set inventory joypad mask `$0F00`
 3. Push/pop `$06E4`, `$09EC`, `$0A00`, scene ID
 4. scene_current ← `$FF`; SceneScriptNoMusic
-5. Upload palette, zero camera, ClearVramBufferFull
+5. Upload palette, zero camera, ClearBg3TilemapBuffer_Full
 6. Run actor init chain (chunk_03BAE1)
 7. Loop `UpdateFrameDialogue`; copy `bg1ConfigMode` (`$0AE6`) → `BG1SC` each frame until flag byte `#00` is set (`BranchIfFlagByte` / `SetFlagByte #00` from inventory_menu on TabCancel or exit)
 8. RestoreGameState, reload scene, event blocks, palette
-9. ReloadAbilityFX, ClearVramBufferFull, map refresh
+9. ReloadAbilityFX, ClearBg3TilemapBuffer_Full, map refresh
 10. ResetThinkerWaitCounters; `SetFlagByte #FF` before final render frames
 
 
@@ -92,7 +92,7 @@ Master inventory orchestrator (JSL entry). Implements the state sandwich: save g
 | `SaveGameState` | JSR |
 | `RestoreGameState` | JSR |
 | `ShowDialogueFrame` | Via UpdateFrameDialogue |
-| `ClearVramBufferFull` | JSL |
+| `ClearBg3TilemapBuffer_Full` | JSL |
 
 ### ReloadAbilityFX
 
@@ -200,7 +200,7 @@ OpenInventoryScreen
   ├─2─ TRANSFORM ────────────────────────────────────────
   │     scene_current ← $FF (inventory scene)
   │     SceneScriptNoMusic (load inventory BG, no BGM)
-  │     UploadCgramPalette, zero camera, ClearVramBufferFull
+  │     UploadCgramPalette, zero camera, ClearBg3TilemapBuffer_Full
   │     Run actor init (chunk_03BAE1 helpers)
   │
   ├─3─ RUN ──────────────────────────────────────────────
@@ -212,7 +212,7 @@ OpenInventoryScreen
   │     RestoreGameState + RestorePaletteBuffer
   │     Pop scene ID → re-run SceneScriptNoMusic
   │     ApplyAllEventBlocks + PlaceOpenedChestTiles
-  │     ReloadAbilityFX, ClearVramBufferFull, map refresh
+  │     ReloadAbilityFX, ClearBg3TilemapBuffer_Full, map refresh
   │     ResetThinkerWaitCounters, SetFlagByte #FF
   │
   └─5─ RETURN ───────────────────────────────────────────

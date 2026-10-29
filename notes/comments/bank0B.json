@@ -130,7 +130,7 @@
     "779051": "Confirm SFX",
     "779066": "Tab index for SwitchCase",
     "779072": "Tab cursor off (hides the narrow band)",
-    "779092": "Clear VRAM buffer",
+    "779092": "Clear the BG3 tilemap staging buffer",
     "779095": "\"Which Diary?\" with 3 slots",
     "779099": "Draw slot stats (HP/STR/DEF)",
     "779108": "Last used slot",

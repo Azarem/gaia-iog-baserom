@@ -119,7 +119,7 @@ checked before the run/ability guard, so the map is accessible while running.
 | `JSL` | `vblank_joypad.EnableNmiAndJoypad` | hold loop NMI setup |
 | `JSL` | `vblank_joypad.DisableNmiKeepJoypad` | NMI off after hold-to-view joypad read (auto-joypad stays on) |
 | `JSL` | `inventory_overlay.OpenInventoryScreen` | Select → full inventory UI |
-| `JSL` | `vram_buffer_clear.ClearVramBufferPartial` | overlay teardown |
+| `JSL` | `vram_buffer_clear.ClearBg3TilemapBuffer_PreserveHud` | overlay teardown |
 | `JSL` | `system_core.UpdateFrameDialogue` | restore normal display after radar |
 | `COP` | `RunBg3Script(consolestring_01EAC6)` | PAUSE text overlay (combat-lock mode) |
 

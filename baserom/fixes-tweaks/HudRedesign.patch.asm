@@ -82,7 +82,7 @@ loc_02B078! {
 
 ---------------------------------------------
 
-ClearVramBufferPartial! {
+ClearBg3TilemapBuffer_PreserveHud! {
     PHX 
     PHP 
     REP #$20

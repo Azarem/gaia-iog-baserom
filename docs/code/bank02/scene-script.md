@@ -16,7 +16,7 @@ Room transitions call `ClearSceneState` in [`scene_lifecycle.asm`](../../../extr
 
 ```mermaid
 flowchart TD
-    ClearSceneState["ClearSceneState<br/>(scene_lifecycle)"] --> ClearVram["ClearVramBufferFull"]
+    ClearSceneState["ClearSceneState<br/>(scene_lifecycle)"] --> ClearVram["ClearBg3TilemapBuffer_Full"]
     ClearVram --> SSM["SceneScriptMain"]
     SSM --> FCS["FindCurrentScene"]
     FCS --> Loop["ReadScriptByte loop"]
